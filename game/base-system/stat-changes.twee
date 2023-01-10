@@ -269,12 +269,16 @@
 				<!-- No modifier. The usual behaviour for this widget -->
 			<<case "mouth" "oral" "lips">>
 				<<set $_arousalPart to $mouthsensitivity>>
+				<<set $mouthsensitivity += _gain * 0.000001>>
 			<<case "breast" "breasts" "chest" "nipple" "nipples">>
 				<<set $_arousalPart to $breastsensitivity>>
+				<<set $breastsensitivity += _gain * 0.000001>>
 			<<case "bottom" "anus" "anal" "ass" "butt">>
 				<<set $_arousalPart to $bottomsensitivity>>
+				<<set $bottomsensitivity += _gain * 0.000001>>
 			<<case "genital" "genitals" "penis" "penile" "pussy" "vaginal">>
 				<<set $_arousalPart to $genitalsensitivity>>
+				<<set $genitalsensitivity += _gain * 0.000001>>
 			<<case "maso">>
 				<<set $arousalmasochism += _gain * _mod>>
 			<<case "time">>
@@ -293,20 +297,38 @@
 				}>>
 		<</switch>>
 
-		<!-- Adjusts modifier for body part sensitivity, if applicable -->
-		<<if $_arousalPart gte 2>>
-			<<set _mod += (($_arousalPart - 1) * 0.5)>>
-		<<elseif $_arousalPart>>
-			<<set _mod += ($_arousalPart - 1)>>
-		<</if>>
+		<<set _mod += ($_arousalPart - 1)>>
 
 		<!-- do not apply sensitivity boosts during chef job -->
 		<!-- todo: rebalance chef job better -->
-		<<if $masturbation_bowl is 1>>
+		<!-- <<if $masturbation_bowl is 1>>
 			<<set _mod to _noSens>>
-		<</if>>
+		<</if>> -->
+
 		<!-- Now we apply the arousal gain -->
 		<<set $arousal to Math.clamp($arousal + _gain * _mod, 0, $arousalmax)>>
+
+		<<if _gain*_mod gte 400 and _arousalPart gt 1>>
+			<<switch $speechcycle>>
+				<<case 0>>
+					"A-Ah!<<hearticon>>" 
+				<<case 1>>
+					"Mmmmh...<<hearticon>>" 
+				<<case 2>>
+					"Ngh...<<hearticon>>" 
+				<<case 3>>
+					"Hah... Hah...<<hearticon>>" 
+				<<case 4>>
+					"Ngh... Ah!<<hearticon>>" 
+				<<default>>
+					"Mmmmh...<<hearticon>>" 
+			<</switch>>
+			<span class="pink">A soft moan escapes your lips.</span>
+			<<set $speechcycle += 1>>
+			<<if $speechcycle gte 7>>
+				<<set $speechcycle to 0>>
+			<</if>>
+		<</if>>
 
 		<!-- And add the increase to the tracker -->
 		<<if _args[0] gte 0>>
