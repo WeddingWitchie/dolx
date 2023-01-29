@@ -1,87 +1,88 @@
+/*ToDo: Pregnancy Story Content: Lacking events, For events that can be picked when random events can be used during player action, say entering the wolf cave*/
 :: ChildrenEvents [widget]
 
 /*args[0] - location, args[1] - passageExit*/
 <<widget "childrenEvents">>
-<<if _args[0]>>
-	<<getChildrenIds _args[0]>>
-	<<if _childrenIds.length gt 0>>
-		<<set _singleEvents to true>>
+	<<if _args[0]>>
+		<<getChildrenIds _args[0]>>
+		<<if _childrenIds.length gt 0>>
+			<<set _singleEvents to true>>
+		<</if>>
+		<<getSameBirthChildrenIds _args[0] 2>>
+		<<if Object.keys(_birthChildrenIds).length gt 0>>
+			<<set _multipleEvents to true>>
+		<</if>>
+		<<set _keys to Object.keys(_birthChildrenIds)>>
+		<<set $childPassageExit to _args[1]>>
+		<<switch _args[0]>>
+			<<case "test">>
+				/*Examples of how to add events*/
+				<<if _singleEvents is true and (_multipleEvents is false or random(0,100) gt 40)>>
+					<<addevent `"testSingles " + _childrenIds[random(0,_childrenIds.length - 1)]`>>
+				<<elseif _multipleEvents is true>>
+					<<set _args to _birthChildrenIds[_keys[random(0,_keys.length - 1)]]>>
+					<<addevent "testMultiple _args">>
+				<</if>>
+			<<case "wolf_cave">>
+				<<if _singleEvents is true and (_multipleEvents is false or random(0,100) gt 40)>>
+					<<addevent `"wolfCaveSingles " + _childrenIds[random(0,_childrenIds.length - 1)]`>>
+				<<elseif _multipleEvents is true>>
+					<<set _args to _birthChildrenIds[_keys[random(0,_keys.length - 1)]]>>
+					/*<<addevent "wolfCaveMultiple _args">>*/
+				<</if>>
+		<</switch>>
 	<</if>>
-	<<getSameBirthChildrenIds _args[0] 2>>
-	<<if Object.keys(_birthChildrenIds).length gt 0>>
-		<<set _multipleEvents to true>>
-	<</if>>
-	<<set _keys to Object.keys(_birthChildrenIds)>>
-	<<set $childPassageExit to _args[1]>>
-	<<switch _args[0]>>
-		<<case "test">>
-			/*Examples of how to add events*/
-			<<if _singleEvents is true and (_multipleEvents is false or random(0,100) gt 40)>>
-				<<addevent `"testSingles " + _childrenIds[random(0,_childrenIds.length - 1)]`>>
-			<<elseif _multipleEvents is true>>
-				<<set _args to _birthChildrenIds[_keys[random(0,_keys.length - 1)]]>>
-				<<addevent "testMultiple _args">>
-			<</if>>
-		<<case "wolf_cave">>
-			<<if _singleEvents is true and (_multipleEvents is false or random(0,100) gt 40)>>
-				<<addevent `"wolfCaveSingles " + _childrenIds[random(0,_childrenIds.length - 1)]`>>
-			<<elseif _multipleEvents is true>>
-				<<set _args to _birthChildrenIds[_keys[random(0,_keys.length - 1)]]>>
-				/*<<addevent "wolfCaveMultiple _args">>*/
-			<</if>>
-	<</switch>>
-<</if>>
 <</widget>>
 
 <<widget "testSingles">>
-<<if _args[0]>>
-	<<childSelect _args[0]>>
-	<<switch random(0,0)>>
-		<<case 0>>
-			You spot your child <<childname>> on their back, looking at you with their <<childhands>> stretched towards you.
-			<br><br>
-			Picking <<childhim>> up, <<childhe>> <<childgiggles>> while rubbing your face.
-			<br><br>
-			<<link [[Breast feed (0:30)|childBreastFeed]]>><<pass 30>><</link>><<lstress>><<ltrauma>>
-			<br>
-			<<link [[Cuddle (0:30)|childCuddle]]>><<pass 30>><</link>><<lstress>><<ltrauma>>
-	<</switch>>
-<</if>>
-<br>
+	<<if _args[0]>>
+		<<childSelect _args[0]>>
+		<<switch random(0,0)>>
+			<<case 0>>
+				You spot your child <<childname>> on their back, looking at you with their <<childhands>> stretched towards you.
+				<br><br>
+				Picking <<childhim>> up, <<childhe>> <<childgiggles>> while rubbing your face.
+				<br><br>
+				<<link [[Breast feed (0:30)|childBreastFeed]]>><<pass 30>><</link>><<lstress>><<ltrauma>>
+				<br>
+				<<link [[Cuddle (0:30)|childCuddle]]>><<pass 30>><</link>><<lstress>><<ltrauma>>
+		<</switch>>
+	<</if>>
+	<br>
 <</widget>>
 
 <<widget "testMultiple">>
-<<if _args[0]>>
-	<<set $childrenIds to _args[0]>>
-	<<switch random(0,0)>>
-		<<case 0>>
-			You spot your children <<childrenNames $childrenIds>> sleeping together in their cot with a peaceful look on each face.
-			<br><br>
-			<<link [[Watch (0:30)|childCotWatch]]>><<pass 30>><<set $phase to 1>><</link>><<lstress>><<ltrauma>>
-			<br>
-			<<link [[Have a nap (0:30)|childCotWatch]]>><<pass 30>><<set $phase to 2>><</link>><<lstress>><<ltiredness>>
-	<</switch>>
-<</if>>
-<br>
+	<<if _args[0]>>
+		<<set $childrenIds to _args[0]>>
+		<<switch random(0,0)>>
+			<<case 0>>
+				You spot your children <<childrenNames $childrenIds>> sleeping together in their cot with a peaceful look on each face.
+				<br><br>
+				<<link [[Watch (0:30)|childCotWatch]]>><<pass 30>><<set $phase to 1>><</link>><<lstress>><<ltrauma>>
+				<br>
+				<<link [[Have a nap (0:30)|childCotWatch]]>><<pass 30>><<set $phase to 2>><</link>><<lstress>><<ltiredness>>
+		<</switch>>
+	<</if>>
+	<br>
 <</widget>>
 
 <<widget "wolfCaveSingles">>
-<<if _args[0]>>
-	<<childSelect _args[0]>>
-	<<switch random(0,0)>>
-		<<case 0>>
-			You spot your <<childtype>> <<childname>> lying on a sleeping wolf, looking at you with their <<childhands>> stretched towards you.
-			<br><br>
-			Picking <<childhim>> up, <<childhe>> <<childgiggles>> while rubbing your face.
-			<br><br>
-			<<if $milk_amount gte 1>>
-				<<link [[Breast feed (0:30)|childBreastFeed]]>><<pass 30>><</link>><<lstress>><<ltrauma>>
-				<br>
-			<</if>>
-			<<link [[Cuddle (0:30)|childCuddle]]>><<pass 30>><</link>><<lstress>><<ltrauma>>
-	<</switch>>
-<</if>>
-<br>
+	<<if _args[0]>>
+		<<childSelect _args[0]>>
+		<<switch random(0,0)>>
+			<<case 0>>
+				You spot your <<childtype>> <<childname>> lying on a sleeping wolf, looking at you with their <<childhands>> stretched towards you.
+				<br><br>
+				Picking <<childhim>> up, <<childhe>> <<childgiggles>> while rubbing your face.
+				<br><br>
+				<<if $milk_amount gte 1>>
+					<<link [[Breast feed (0:30)|childBreastFeed]]>><<pass 30>><</link>><<lstress>><<ltrauma>>
+					<br>
+				<</if>>
+				<<link [[Cuddle (0:30)|childCuddle]]>><<pass 30>><</link>><<lstress>><<ltrauma>>
+		<</switch>>
+	<</if>>
+	<br>
 <</widget>>
 
 :: childBreastFeed
@@ -121,16 +122,24 @@
 <<effects>>
 <<getChildrenIds $location>>
 <<switch $location>>
+	<<case "home">>
+		You are in the orphanage's nursery. There are a few cradles and cots scattered around.
 	<<case "wolf_cave">>
 		You are in the wolf cave. The ceiling hangs low. There's a breeze blowing from the back.
 <</switch>>
+/*ToDo: Pregnancy: Convert to JavaScript, ask Lollipop Scythe if it hasn't*/
 <<for _i to 0; _i lt _childrenIds.length; _i++>>
 	<<childActivityUpdate `_childrenIds[_i]`>>
 <</for>>
 <br><br>
 <<childViewerDisplay _childrenIds>>
 <br><br>
-<<link [[Store toys|Childrens Home Toys]]>><</link>>
+<<if $player.inventory.childrenToys>>
+	<<if !$storedChildrenToys[$location]>><<set $storedChildrenToys[$location] to []>><</if>>
+	<<link [[Store toys|Childrens Home Toys]]>><</link>>
+<<else>>
+	You have not bought any toys for your children here. You should take a trip to a toy shop.
+<</if>>
 <br>
 <<link [[Back|$exitPassage]]>><<unset $exitPassage>><</link>>
 
@@ -152,87 +161,86 @@
 :: Childrens Home Toys Widgets [widget]
 
 <<widget "childrenToysUI">>
-<<if $currentToys.length gt 0>>
-	<div class="toysUiElement">
-		<h4>Toys with you</h4>
-		<<for _i to 0; _i lt $currentToys.length; _i++>>
-			<label>
-				<<radiobutton "_selectedCurrentToy" _i autocheck>>
-				<span @class="$currentToys[_i].colour"><<print $currentToys[_i].name>></span>
-			</label>
+	<<if $player.inventory.childrenToys.length gt 0>>
+		<div class="toysUiElement">
+			<h4>Toys with you</h4>
+			<<for _i to 0; _i lt $player.inventory.childrenToys.length; _i++>>
+				<label>
+					<<radiobutton "_selectedCurrentToy" _i autocheck>>
+					<span @class="$player.inventory.childrenToys[_i].colour"><<print $player.inventory.childrenToys[_i].name>></span>
+				</label>
+				<br>
+			<</for>>
 			<br>
-		<</for>>
-		<br>
-		<<link "Discard">>
-			<<run $currentToys.deleteAt(_selectedCurrentToy)>>
-			<<set _selectedCurrentToy to 0>>
-			<<childrenToysUIReplace>>
-		<</link>>
-		<br>
-		<<if $storedToys[$location].length lt 10>>
-			<<link "Leave toy">>
-				<<run $storedToys[$location].push($currentToys[_selectedCurrentToy])>>
-				<<run $currentToys.deleteAt(_selectedCurrentToy)>>
+			<<link "Discard">>
+				<<run $player.inventory.childrenToys.deleteAt(_selectedCurrentToy)>>
 				<<set _selectedCurrentToy to 0>>
 				<<childrenToysUIReplace>>
 			<</link>>
-		<<else>>
-			You can't leave more than 10 toys at a time.
-		<</if>>
-	</div>
-<<else>>
-	<div class="toysUiElement">You have no toys with you.</div>
-<</if>>
-
-
-<<if $storedToys[$location].length gt 0>>
-	<div class="toysUiElement">
-		<h4>Toys your children can play with</h4>
-		<<for _i to 0; _i lt $storedToys[$location].length; _i++>>
-			<label>
-				<<radiobutton "_selectedLocationToy" _i autocheck>>
-				<span @class="$storedToys[$location][_i].colour"><<print $storedToys[$location][_i].name>></span>
-			</label>
 			<br>
-		<</for>>
-		<br>
-		<<link "Discard">>
-			<<run $storedToys[$location].deleteAt(_selectedLocationToy)>>
-			<<set _selectedLocationToy to 0>>
-			<<childrenToysUIReplace>>
-		<</link>>
-		<br>
-		<<if $currentToys.length lt 5>>
-			<<link "Take Back">>
-				<<run $currentToys.push($storedToys[$location][_selectedLocationToy])>>
-				<<run $storedToys[$location].deleteAt(_selectedLocationToy)>>
+			<<if $storedChildrenToys[$location].length lt 10>>
+				<<link "Leave toy">>
+					<<run $storedChildrenToys[$location].push($player.inventory.childrenToys[_selectedCurrentToy])>>
+					<<run $player.inventory.childrenToys.deleteAt(_selectedCurrentToy)>>
+					<<set _selectedCurrentToy to 0>>
+					<<childrenToysUIReplace>>
+				<</link>>
+			<<else>>
+				You can't leave more than 10 toys at a time.
+			<</if>>
+		</div>
+	<<else>>
+		<div class="toysUiElement">You have no toys with you.</div>
+	<</if>>
+
+	<<if $storedChildrenToys[$location].length gt 0>>
+		<div class="toysUiElement">
+			<h4>Toys your children can play with</h4>
+			<<for _i to 0; _i lt $storedChildrenToys[$location].length; _i++>>
+				<label>
+					<<radiobutton "_selectedLocationToy" _i autocheck>>
+					<span @class="$storedChildrenToys[$location][_i].colour"><<print $storedChildrenToys[$location][_i].name>></span>
+				</label>
+				<br>
+			<</for>>
+			<br>
+			<<link "Discard">>
+				<<run $storedChildrenToys[$location].deleteAt(_selectedLocationToy)>>
 				<<set _selectedLocationToy to 0>>
 				<<childrenToysUIReplace>>
 			<</link>>
-		<<else>>
-			You can't have more than 5 toys with you at a time.
-		<</if>>
-	</div>
-<<else>>
-	<div class="toysUiElement">You havn't left any toys here.</div>
-<</if>>
-
+			<br>
+			<<if $player.inventory.childrenToys.length lt 5>>
+				<<link "Take Back">>
+					<<run $player.inventory.childrenToys.push($storedChildrenToys[$location][_selectedLocationToy])>>
+					<<run $storedChildrenToys[$location].deleteAt(_selectedLocationToy)>>
+					<<set _selectedLocationToy to 0>>
+					<<childrenToysUIReplace>>
+				<</link>>
+			<<else>>
+				You can't have more than 5 toys with you at a time.
+			<</if>>
+		</div>
+	<<else>>
+		<div class="toysUiElement">You havn't left any toys here.</div>
+	<</if>>
 <</widget>>
 
 <<widget "childrenToysUIReplace">>
-<<replace "#childrenToysUI">>
-	<<childrenToysUI>>
-<</replace>>
+	<<replace "#childrenToysUI">>
+		<<childrenToysUI>>
+	<</replace>>
 <</widget>>
 
 :: Children Activity Events
 <<effects>>
 <<childSelect $childActivityEvent.childid>>
+<<childInteratedWith>>
 <<set $children[$childActivityEvent.childid].localVariables.event to false>>
 <<switch $childActivityEvent.event>>
 	/*Human Specific*/
 	<<case "shiverInCot">>
-		You see <<childname>> sleeping by <<childhimself>> when you notice <<childhe>> shivers with every unconscious breath. You go over to <<childname>> and tuck <<childhim>> in with a nearby baby blanket. In a few moments <<childhe>>'s again sleeping peacefully as you return to what you were doing. <<lstress>><<stress -5>>
+		You see <<childname>> sleeping by <<childherself>> when you notice <<childhe>> shivers with every unconscious breath. You go over to <<childname>> and tuck <<childhim>> in with a nearby baby blanket. In a few moments <<childhe>>'s again sleeping peacefully as you return to what you were doing. <<lstress>><<stress -5>>
 	<<case "restlessSleep">>
 		Noticing the <<childtype>>'s restless sleep you move over to <<childhim>> and lie down beside. You pull <<childname>> against your chest and hold <<childhim>> and soon enough <<childhe>> calms down. Before you can stand however you notice <<childhe>> has your finger gripped tightly in <<chilldhis>> small hands. You decide to spend a some time snuggling before easing <<childhis>> hold on you and getting to your feet. <<ltiredness>><<tiredness -6>><<llstress>><<stress -10>>
 		<<set $children[$childActivityEvent.childid].localVariables.activity to "sleeping">>
@@ -252,17 +260,17 @@
 		You notice <<childname>> looking uncomfortable and notice a telling stink coming from <<childhim>>. You fetch a spare nappy and go over to <<childhim>>, laying <<childhim>> flat and removing the old nappy. You clean the <<childtype>>'s bottom diligently and place the fresh nappy on <<childhim>>. Freshly cleaned and changed, <<childname>> looks up at you and smiles before you go to dispose of the dirty nappy. <<gstress>><<stress 5>>
 		<<set $children[$childActivityEvent.childid].localVariables.activity to "sleeping">>
 	<<case "crawlingAttempt">>
-		Walking over to <<childname>> you see that <<childhe>> is stuck on <<childhis>> belly and is trying to move <<childhimself>> forward. You sit down next to the <<childtype>> and take <<childhis>> hands in your, place them on the floor and hold them there to give <<childhim>> leverage. Soon enough <<childname>> is pulling <<childhimself>> across the floor with your help, bewildered and amused at <<childhis>> own mobility. After a while <<childhe>> seems to get the hang of it and you leave <<childhim>> clumsily crawling on <<childhis>> own. <<lstress>><<stress -5>>
+		Walking over to <<childname>> you see that <<childhe>> is stuck on <<childhis>> belly and is trying to move <<childherself>> forward. You sit down next to the <<childtype>> and take <<childhis>> hands in your, place them on the floor and hold them there to give <<childhim>> leverage. Soon enough <<childname>> is pulling <<childherself>> across the floor with your help, bewildered and amused at <<childhis>> own mobility. After a while <<childhe>> seems to get the hang of it and you leave <<childhim>> clumsily crawling on <<childhis>> own. <<lstress>><<stress -5>>
 		<<set $children[$childActivityEvent.childid].localVariables.activity to "sleeping">>
 		<<set $children[$childActivityEvent.childid].localVariables.crawling++>>
 	<<case "crawlingAttempt2">>
-		Taking the <<childtype>>'s hands in yours you hoist <<childhim>> up by them, leaving only <<childhis>> feet on the ground. Confused at first, <<childname>> flails <<childhis>> legs until <<childhe>> snags the ground with a kick and propels <<childhimself>> forward. <<childname>>'s eyes go wide at the revelation and soon enough, with some effort and failed tries, you have <<childhim>> moving with <<childhis>> own legs, and your help keeping <<childhim>> upright of course. After a while of this exercise, <<childhe>> grows tired and you let <<childhim>> down again. <<llstress>><<stress -10>>
+		Taking the <<childtype>>'s hands in yours you hoist <<childhim>> up by them, leaving only <<childhis>> feet on the ground. Confused at first, <<childname>> flails <<childhis>> legs until <<childhe>> snags the ground with a kick and propels <<childherself>> forward. <<childname>>'s eyes go wide at the revelation and soon enough, with some effort and failed tries, you have <<childhim>> moving with <<childhis>> own legs, and your help keeping <<childhim>> upright of course. After a while of this exercise, <<childhe>> grows tired and you let <<childhim>> down again. <<llstress>><<stress -10>>
 		<<set $children[$childActivityEvent.childid].localVariables.activity to "sleeping">>
 	<<case "grumpyChild">>
 		<<childname>> sits alone and wears a scowl on <<childhis>> infant face. You walk over and sit down next to <<childhim>> but <<childhe>> seems to ignore you. Unable to help but smile at the grumpy child's expression you begin to tickle <<childhim>>. While perhaps not ticklish at this age <<childname>> is still deeply amused by your teasing fingers and the silly noises you make as you playfully attack <<childhis>> sides. Soon enough the scowl is gone and the <<childtype>> is giggling and smiling. Mission accomplished, you stand back up. <<lstress>><<stress -5>>
 		<<set $children[$childActivityEvent.childid].localVariables.activity to "thumbSucking">>
 	<<case "readingAttempt">>
-		You walk over to <<childname>> and sit down before pulling <<childhim>> and the inverted book into your lap. Taking the book from the <<childtype>> you flip it about and begin to read it's simple words to <<childhim>>. <<childHe>> follows along with both your voice and the colourful pictures for some time but eventually becomes distracted by something else and rolls off of your lap to pursue it. <<lstress>><<stress -5>>
+		You walk over to <<childname>> and sit down before pulling <<childhim>> and the inverted book into your lap. Taking the book from the <<childtype>> you flip it about and begin to read its simple words to <<childhim>>. <<childHe>> follows along with both your voice and the colourful pictures for some time but eventually becomes distracted by something else and rolls off of your lap to pursue it. <<lstress>><<stress -5>>
 		<<set $children[$childActivityEvent.childid].localVariables.activity to "readingCorrected">>
 	<<case "babyRattle">>
 		You go over to <<childname>> and sit down next to <<childhim>>. <<childHe>> is looking down at a <<childtoy $location $childActivityEvent.toyid "lowercase">>. You take the toy in hand and give it a shake causing a cacophony of rattles to emanate from it. The <<childtype>> looks bewildered and intrigued as <<childhe>> reaches for the strange thing. You give the <<childtoy $location $childActivityEvent.toyid "lowercase">> one last shake before handing it over for the <<childtype>> to experiment with. <<lstress>><<stress -5>><<ltrauma>><<trauma -2>>

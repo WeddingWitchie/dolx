@@ -17,7 +17,20 @@
 	<div id="mobileStats"></div>
 	<div id="exportWarning" @class="'no-numberify ' + ($days gte $saveDetails.exported.days + $saveDetails.exported.frequency ? '':'hidden')">
 		<span class="red">You haven't exported your save in a while</span> |
-		<<link "Help me export">><<overlayReplace "optionsExportImport">><</link>> |
+		<<if !Browser.isMobile.any()>>
+			<<link "Export">>
+				<<script>>
+					updateExportDay();
+					Save.export("degrees-of-lewdity");
+				<</script>>
+			<</link>> |
+		<</if>>
+		<<link "Help me export">>
+			<<overlayReplace "saves">>
+			<!-- This calls an asynchronous callback and prone to failure. -->
+			<<run T.tab.setActive(1)>>
+			<<replace #customOverlayContent>><<optionsExportImport>><</replace>>
+		<</link>> |
 		<<link "Ignore for now">><<set $saveDetails.exported.days to Math.floor($days - ($saveDetails.exported.frequency * 0.5))>><<addclass #exportWarning "hidden">><</link>>
 	</div>
 <</if>>
@@ -33,7 +46,7 @@
 	<</if>>
 <</if>>
 <div id="customOverlayContainer" class="customOverlayContainer no-numberify hidden" onclick="closeOverlay()">
-	<div id="customOverlay" class="customOverlay hidden" onclick="event.stopPropagation()">
+	<div id="customOverlay" @class="'customOverlay hidden' + ($options.overlayFontSize ? ' fontSize' + $options.overlayFontSize : '') + ($options.overlayLineHeight ? ' lineHeight' + $options.overlayLineHeight.toString().replace('.','') : '')" onclick="event.stopPropagation()">
 		<div id="customOverlayTitle"></div>
 		<div id="customOverlayContent"></div>
 	</div>

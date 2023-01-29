@@ -14,7 +14,6 @@
 				<<set _trauma_mod *= 0.7>>
 			<</if>>
 			<<set $trauma += Math.trunc(((_args[0] * 3) - ((_args[0] * 1.5) * ($control / $controlmax))) * _trauma_mod)>>
-			<<if $dev is 1>><<control `-_args[0] / 10`>><</if>>
 		<<else>>
 			<<set $trauma += Math.trunc((_args[0] * 3) + ((_args[0] * 1.5) * ($control / $controlmax)))>>
 		<</if>>
@@ -80,7 +79,6 @@
 				<<set _trauma_mod *= 0.7>>
 			<</if>>
 			<<set $trauma += Math.trunc(((_args[0] * 1) - ((_args[0] * 0.5) * ($control / $controlmax))) * _trauma_mod)>>
-			<<if $dev is 1>><<control `-_args[0] / 10`>><</if>>
 		<<else>>
 			<<set $trauma += Math.trunc((_args[0] * 1) + ((_args[0] * 0.5) * ($control / $controlmax)))>>
 		<</if>>
@@ -146,10 +144,10 @@
 <</widget>>
 
 <<widget "corruption">>
-<<if _args[0]>>
-	<<set $corruption_slime += _args[0]>>
-	<<set $corruption_slime = Math.clamp($corruption_slime, 0, 100)>>
-<</if>>
+	<<if _args[0]>>
+		<<set $corruption_slime += _args[0]>>
+		<<set $corruption_slime = Math.clamp($corruption_slime, 0, 100)>>
+	<</if>>
 <</widget>>
 
 <<widget "semenvolume">>
@@ -169,10 +167,10 @@
 <</widget>>
 
 <<widget "semen_amount">>
-<<if _args[0]>>
-	<<set $semen_amount += _args[0]>>
-	<<set $semen_amount = Math.clamp($semen_amount, 0, $semen_volume)>>
-<</if>>
+	<<if _args[0]>>
+		<<set $semen_amount += _args[0]>>
+		<<set $semen_amount = Math.clamp($semen_amount, 0, $semen_volume)>>
+	<</if>>
 <</widget>>
 
 <<widget "milkvolume">>
@@ -198,17 +196,27 @@
 <</widget>>
 
 <<widget "milk_amount">>
-<<if _args[0]>>
-	<<set $milk_amount += _args[0]>>
-	<<set $milk_amount = Math.clamp($milk_amount, 0, $milk_volume)>>
-<</if>>
+	<<if _args[0]>>
+		<<set $milk_amount += _args[0]>>
+		<<set $milk_amount = Math.clamp($milk_amount, 0, $milk_volume)>>
+	<</if>>
+	<<if !$milkFullPain>>
+	<<elseif $milkFullPain and between($milk_amount / $milk_volume, 0, 0.8)>>
+		<<set $milkFullPain to 0>>
+	<<elseif $milkFullPain gt 175 and between($milk_amount / $milk_volume, 0.85, 0.9)>>
+		<<set $milkFullPain to 175>>
+	<<elseif $milkFullPain gt 200 and between($milk_amount / $milk_volume, 0.9, 0.95)>>
+		<<set $milkFullPain to 200>>
+	<<elseif $milkFullPain gt 225 and between($milk_amount / $milk_volume, 0.95, 0.98)>>
+		<<set $milkFullPain to 225>>
+	<</if>>
 <</widget>>
 
 <<widget "lactation_pressure">>
-<<if _args[0]>>
-	<<set $lactation_pressure += _args[0]>>
-	<<set $lactation_pressure = Math.clamp($lactation_pressure, 0, 100)>>
-<</if>>
+	<<if _args[0]>>
+		<<set $lactation_pressure += _args[0]>>
+		<<set $lactation_pressure = Math.clamp($lactation_pressure, 0, 100)>>
+	<</if>>
 <</widget>>
 
 <<widget "stress">>
@@ -266,7 +274,7 @@
 		<!-- Apply effect according to args[1] -->
 		<<set _noSens to _mod>>
 		<<switch _args[1]>>
-			<<case undefined>>
+			<<case undefined "masturbation">>
 				<!-- No modifier. The usual behaviour for this widget -->
 			<<case "mouth" "oral" "lips">>
 				<<set _arousalPart to $mouthsensitivity>>
@@ -307,7 +315,10 @@
 		<</if>> -->
 
 		<!-- Now we apply the arousal gain -->
-		<<set $arousal to Math.clamp($arousal + _gain * _mod, 0, $arousalmax)>>
+		<<set $arousal to $arousal + _gain * _mod * ($_masturbationReduction or 1)>>
+
+		<!-- Now we apply the arousal clamp -->
+		<<arousalclamp>>
 
 		<<if _gain*_mod gte 400 and _arousalPart gt 1>>
 			<<switch $speechcycle>>
@@ -334,7 +345,7 @@
 		<!-- And add the increase to the tracker -->
 		<<if _args[0] gte 0>>
 			<!-- Adds the current increase to the latest tracked hour -->
-			<<set $trackedArousal[$trackedArousal.length - 1] += _gain * _mod>>
+			<<set $trackedArousal[$trackedArousal.length - 1] += _gain * _mod * ($_masturbationReduction or 1)>>
 			<<if _args[0] gt 0>>
 				<<set $timeSinceArousal to 0>>
 			<</if>>
@@ -346,7 +357,6 @@
 			source : "Called from " + Utils.GetStack()
 		}>>
 	<</if>>
-	
 <</widget>>
 
 <<widget "arousalError">>
@@ -368,23 +378,23 @@
 <</widget>>
 
 <<widget "tiredness">>
-<<set _tiredness_mod to 1>>
-<<if $body_temperature is "hot">>
-	<<set _tiredness_mod += 2>>
-<<elseif $body_temperature is "warm">>
-	<<set _tiredness_mod += 0.5>>
-<</if>>
-<<if _args[0]>>
-	<<if _args[1] is "pass">>
-		<<set $tiredness += (_args[0] * _tiredness_mod)>>
-	<<else>>
-		<<if _args[0] gt 0>>
-			<<set $tiredness += (_args[0] * 15 * _tiredness_mod)>>
+	<<set _tiredness_mod to 1>>
+	<<if $body_temperature is "hot">>
+		<<set _tiredness_mod += 2>>
+	<<elseif $body_temperature is "warm">>
+		<<set _tiredness_mod += 0.5>>
+	<</if>>
+	<<if _args[0]>>
+		<<if _args[1] is "pass">>
+			<<set $tiredness += (_args[0] * _tiredness_mod)>>
 		<<else>>
-			<<set $tiredness += (_args[0] * 20 * _tiredness_mod)>>
+			<<if _args[0] gt 0>>
+				<<set $tiredness += (_args[0] * 15 * _tiredness_mod)>>
+			<<else>>
+				<<set $tiredness += (_args[0] * 20 * _tiredness_mod)>>
+			<</if>>
 		<</if>>
 	<</if>>
-<</if>>
 <</widget>>
 
 <<widget "pain">> <!-- _args[0] is value, _args[1] is optional modifier, default 4 -->
@@ -410,11 +420,7 @@
 
 		<<set $pain += _pain>>
 	<</if>>
-	<<if $gamemode is "soft">>
-		<<set $pain to Math.clamp($pain, 0, 0)>>
-	<<else>>
-		<<set $pain to Math.clamp($pain, 0, 200)>>
-	<</if>>
+	<<painclamp>>
 <</widget>>
 
 <<widget "masopain">>
@@ -422,11 +428,7 @@
 		<<set $pain += ((_args[0] * (1 - ($masochism / 1200))) * 4)>>
 		<<set _arousal to ((_args[0] * (0 + ($masochism / 18))) * 4)>>
 		<<arousal _arousal>>
-		<<if $gamemode is "soft">>
-			<<set $pain to Math.clamp($pain, 0, 0)>>
-		<<else>>
-			<<set $pain to Math.clamp($pain, 0, 200)>>
-		<</if>>
+		<<painclamp>>
 	<</if>>
 <</widget>>
 
@@ -699,44 +701,44 @@
 <</widget>>
 
 <<widget "hope">>
-<<if _args[0] and $statFreeze isnot true>>
-	<<set $orphan_hope += (_args[0] * 2)>>
-	<<set $orphan_hope = Math.clamp($orphan_hope, -50, 50)>>
-<</if>>
+	<<if _args[0] and $statFreeze isnot true>>
+		<<set $orphan_hope += (_args[0] * 2)>>
+		<<set $orphan_hope = Math.clamp($orphan_hope, -50, 50)>>
+	<</if>>
 <</widget>>
 
 <<widget "reb">>
-<<if _args[0] and $statFreeze isnot true>>
-	<<set $orphan_reb += (_args[0] * 2)>>
-	<<set $orphan_reb = Math.clamp($orphan_reb, -50, 50)>>
-<</if>>
+	<<if _args[0] and $statFreeze isnot true>>
+		<<set $orphan_reb += (_args[0] * 2)>>
+		<<set $orphan_reb = Math.clamp($orphan_reb, -50, 50)>>
+	<</if>>
 <</widget>>
 
 <<widget "grace">>/*Optional second variable is the rank of the NPC giving the order. Grace changes won't apply if the player's rank equals or exceeds the NPC's.*/
-<<if _args[0] and $statFreeze isnot true>>
-	<<if _args[1] is "monk">>
-		<<if $temple_rank is "initiate">>
+	<<if _args[0] and $statFreeze isnot true>>
+		<<if _args[1] is "monk">>
+			<<if $temple_rank is "initiate">>
+				<<set $grace += _args[0]>>
+				<<set $grace = Math.clamp($grace, -100, 100)>>
+			<<else>>
+			<</if>>
+		<<elseif _args[1] is "priest">>
+			<<if $temple_rank is "initiate" or $temple_rank is "monk">>
+				<<set $grace += _args[0]>>
+				<<set $grace = Math.clamp($grace, -100, 100)>>
+			<<else>>
+			<</if>>
+		<<elseif _args[1] is "bishop">>
+			<<if $temple_rank is "initiate" or $temple_rank is "monk" or $temple_rank is "priest">>
+				<<set $grace += _args[0]>>
+				<<set $grace = Math.clamp($grace, -100, 100)>>
+			<<else>>
+			<</if>>
+		<<else>>
 			<<set $grace += _args[0]>>
 			<<set $grace = Math.clamp($grace, -100, 100)>>
-		<<else>>
 		<</if>>
-	<<elseif _args[1] is "priest">>
-		<<if $temple_rank is "initiate" or $temple_rank is "monk">>
-			<<set $grace += _args[0]>>
-			<<set $grace = Math.clamp($grace, -100, 100)>>
-		<<else>>
-		<</if>>
-	<<elseif _args[1] is "bishop">>
-		<<if $temple_rank is "initiate" or $temple_rank is "monk" or $temple_rank is "priest">>
-			<<set $grace += _args[0]>>
-			<<set $grace = Math.clamp($grace, -100, 100)>>
-		<<else>>
-		<</if>>
-	<<else>>
-		<<set $grace += _args[0]>>
-		<<set $grace = Math.clamp($grace, -100, 100)>>
 	<</if>>
-<</if>>
 <</widget>>
 
 <<widget "livestock_obey">>
@@ -747,173 +749,173 @@
 <</widget>>
 
 <<widget "shame">>
-<<if _args[0] and $statFreeze isnot true>>
-	<<set $shame += _args[0]>>
-	<<set $shame = Math.clamp($shame, 0, 100)>>
-<</if>>
+	<<if _args[0] and $statFreeze isnot true>>
+		<<set $shame += _args[0]>>
+		<<set $shame = Math.clamp($shame, 0, 100)>>
+	<</if>>
 <</widget>>
 
 <<widget "farm_yield">>
-<<if $farm_yield is undefined>>
-	<<set $farm_yield to 0>>
-<</if>>
-<<if _args[0] and $statFreeze isnot true>>
-	<<set $farm_yield += _args[0]>>
-<</if>>
+	<<if $farm_yield is undefined>>
+		<<set $farm_yield to 0>>
+	<</if>>
+	<<if _args[0] and $statFreeze isnot true>>
+		<<set $farm_yield += _args[0]>>
+	<</if>>
 <</widget>>
 
 <<widget "oralskill">>
-<<if _args[0] and $statFreeze isnot true>>
-	<<set $oralskill += _args[0]>>
-	<<set $oralskill = Math.clamp($oralskill, 0, 1000)>>
-<</if>>
+	<<if _args[0] and $statFreeze isnot true>>
+		<<set $oralskill += _args[0]>>
+		<<set $oralskill = Math.clamp($oralskill, 0, 1000)>>
+	<</if>>
 <</widget>>
 
 <<widget "vaginalskill">>
-<<if _args[0] and $statFreeze isnot true>>
-	<<set $vaginalskill += _args[0]>>
-	<<set $vaginalskill = Math.clamp($vaginalskill, 0, 1000)>>
-<</if>>
+	<<if _args[0] and $statFreeze isnot true>>
+		<<set $vaginalskill += _args[0]>>
+		<<set $vaginalskill = Math.clamp($vaginalskill, 0, 1000)>>
+	<</if>>
 <</widget>>
 
 <<widget "penileskill">>
-<<if _args[0] and ($player.penisExist or playerHasStrapon()) and $statFreeze isnot true>>
-	<<set $penileskill += _args[0]>>
-	<<set $penileskill = Math.clamp($penileskill, 0, 1000)>>
-<</if>>
+	<<if _args[0] and ($player.penisExist or playerHasStrapon()) and $statFreeze isnot true>>
+		<<set $penileskill += _args[0]>>
+		<<set $penileskill = Math.clamp($penileskill, 0, 1000)>>
+	<</if>>
 <</widget>>
 
 <<widget "handskill">>
-<<if _args[0] and $statFreeze isnot true>>
-	<<set $handskill += _args[0]>>
-	<<set $handskill = Math.clamp($handskill, 0, 1000)>>
-<</if>>
+	<<if _args[0] and $statFreeze isnot true>>
+		<<set $handskill += _args[0]>>
+		<<set $handskill = Math.clamp($handskill, 0, 1000)>>
+	<</if>>
 <</widget>>
 
 <<widget "analskill">>
-<<if _args[0] and $statFreeze isnot true>>
-	<<set $analskill += _args[0]>>
-	<<set $analskill = Math.clamp($analskill, 0, 1000)>>
-<</if>>
+	<<if _args[0] and $statFreeze isnot true>>
+		<<set $analskill += _args[0]>>
+		<<set $analskill = Math.clamp($analskill, 0, 1000)>>
+	<</if>>
 <</widget>>
 
 <<widget "feetskill">>
-<<if _args[0] and $statFreeze isnot true>>
-	<<set $feetskill += _args[0]>>
-	<<set $feetskill = Math.clamp($feetskill, 0, 1000)>>
-<</if>>
+	<<if _args[0] and $statFreeze isnot true>>
+		<<set $feetskill += _args[0]>>
+		<<set $feetskill = Math.clamp($feetskill, 0, 1000)>>
+	<</if>>
 <</widget>>
 
 <<widget "bottomskill">>
-<<if _args[0] and $statFreeze isnot true>>
-	<<set $bottomskill += _args[0]>>
-	<<set $bottomskill = Math.clamp($bottomskill, 0, 1000)>>
-<</if>>
+	<<if _args[0] and $statFreeze isnot true>>
+		<<set $bottomskill += _args[0]>>
+		<<set $bottomskill = Math.clamp($bottomskill, 0, 1000)>>
+	<</if>>
 <</widget>>
 
 <<widget "thighskill">>
-<<if _args[0] and $statFreeze isnot true>>
-	<<set $thighskill += _args[0]>>
-	<<set $thighskill = Math.clamp($thighskill, 0, 1000)>>
-<</if>>
+	<<if _args[0] and $statFreeze isnot true>>
+		<<set $thighskill += _args[0]>>
+		<<set $thighskill = Math.clamp($thighskill, 0, 1000)>>
+	<</if>>
 <</widget>>
 
 <<widget "chestskill">>
-<<if _args[0] and $statFreeze isnot true>>
-	<<set $chestskill += _args[0]>>
-	<<set $chestskill = Math.clamp($chestskill, 0, 1000)>>
-<</if>>
+	<<if _args[0] and $statFreeze isnot true>>
+		<<set $chestskill += _args[0]>>
+		<<set $chestskill = Math.clamp($chestskill, 0, 1000)>>
+	<</if>>
 <</widget>>
 
 <<widget "beauty">>
-<<if _args[0]>>
-	<<set $beauty += _args[0]>>
-	<<set $beauty = Math.clamp($beauty, 0, $beautymax)>>
-<</if>>
+	<<if _args[0]>>
+		<<set $beauty += _args[0]>>
+		<<set $beauty = Math.clamp($beauty, 0, $beautymax)>>
+	<</if>>
 <</widget>>
 
 <<widget "seductionskill">>
-<<if _args[0]>>
-	<<set $seductionskill += _args[0]>>
-	<<set $seductionskill = Math.clamp($seductionskill, 0, 1000)>>
-<</if>>
+	<<if _args[0]>>
+		<<set $seductionskill += _args[0]>>
+		<<set $seductionskill = Math.clamp($seductionskill, 0, 1000)>>
+	<</if>>
 <</widget>>
 
 <<widget "skulduggery">>
-<<if _args[0]>>
-	<<set $skulduggery += _args[0]>>
-	<<set $skulduggery to Math.clamp($skulduggery, 0, 1000)>>
-<</if>>
+	<<if _args[0]>>
+		<<set $skulduggery += _args[0]>>
+		<<set $skulduggery to Math.clamp($skulduggery, 0, 1000)>>
+	<</if>>
 <</widget>>
 
 <<widget "prof">>
-<<if _args[0] and _args[1]>>
-	<<set $prof[_args[0]] += (_args[1] * 5)>>
-	<<set $prof[_args[0]] to Math.clamp($prof[_args[0]], 0, 1000)>>
-<</if>>
+	<<if _args[0] and _args[1]>>
+		<<set $prof[_args[0]] += (_args[1] * 5)>>
+		<<set $prof[_args[0]] to Math.clamp($prof[_args[0]], 0, 1000)>>
+	<</if>>
 <</widget>>
 
 <<widget "locker_suspicion">>
-<<if _args[0]>>
-	<<set $locker_suspicion += _args[0]>>
-<</if>>
+	<<if _args[0]>>
+		<<set $locker_suspicion += _args[0]>>
+	<</if>>
 <</widget>>
 
 <<widget "alcohol">>
-<<if _args[0] and $statFreeze isnot true>>
-	<<if $backgroundTraits.includes("plantlover") and _args[0] gt 0>>
-		<<set _drunk_mod to 1.5>>
-	<<else>>
-		<<set _drunk_mod to 1>>
+	<<if _args[0] and $statFreeze isnot true>>
+		<<if $backgroundTraits.includes("plantlover") and _args[0] gt 0>>
+			<<set _drunk_mod to 1.5>>
+		<<else>>
+			<<set _drunk_mod to 1>>
+		<</if>>
+		<<set $drunk += Math.floor(_args[0] * _drunk_mod)>>
+		<<set $drunk to Math.clamp($drunk, 0, 1000)>>
 	<</if>>
-	<<set $drunk += Math.floor(_args[0] * _drunk_mod)>>
-	<<set $drunk to Math.clamp($drunk, 0, 1000)>>
-<</if>>
 <</widget>>
 
 <<widget "drugs">>
-<<if _args[0] and $statFreeze isnot true>>
-	<<if $backgroundTraits.includes("plantlover") and _args[0] gt 0>>
-		<<set _drugged_mod to 1.5>>
-	<<else>>
-		<<set _drugged_mod to 1>>
+	<<if _args[0] and $statFreeze isnot true>>
+		<<if $backgroundTraits.includes("plantlover") and _args[0] gt 0>>
+			<<set _drugged_mod to 1.5>>
+		<<else>>
+			<<set _drugged_mod to 1>>
+		<</if>>
+		<<set $drugged += Math.floor(_args[0] * _drugged_mod)>>
+		<<set $drugged to Math.clamp($drugged, 0, 1000)>>
 	<</if>>
-	<<set $drugged += Math.floor(_args[0] * _drugged_mod)>>
-	<<set $drugged to Math.clamp($drugged, 0, 1000)>>
-<</if>>
 <</widget>>
 
 <<widget "hallucinogen">>
-<<if _args[0] and $statFreeze isnot true>>
-	<<set $hallucinogen += _args[0]>>
-	<<set $hallucinogen to Math.clamp($hallucinogen, 0, 1000)>>
-<</if>>
+	<<if _args[0] and $statFreeze isnot true>>
+		<<set $hallucinogen += _args[0]>>
+		<<set $hallucinogen to Math.clamp($hallucinogen, 0, 1000)>>
+	<</if>>
 <</widget>>
 
 <<widget "upperwet">>
-<<if _args[0]>>
-	<<set $upperwet += _args[0]>>
-	<<set $upperwet = Math.clamp($upperwet, 0, 200)>>
-<</if>>
+	<<if _args[0]>>
+		<<set $upperwet += _args[0]>>
+		<<set $upperwet = Math.clamp($upperwet, 0, 200)>>
+	<</if>>
 <</widget>>
 
 <<widget "lowerwet">>
-<<if _args[0]>>
-	<<set $lowerwet += _args[0]>>
-	<<set $lowerwet = Math.clamp($lowerwet, 0, 200)>>
-<</if>>
+	<<if _args[0]>>
+		<<set $lowerwet += _args[0]>>
+		<<set $lowerwet = Math.clamp($lowerwet, 0, 200)>>
+	<</if>>
 <</widget>>
 
 <<widget "underupperwet">>
-<<if _args[0]>>
-	<<set $underupperwet += _args[0]>>
-	<<set $underupperwet = Math.clamp($underupperwet, 0, 200)>>
-<</if>>
+	<<if _args[0]>>
+		<<set $underupperwet += _args[0]>>
+		<<set $underupperwet = Math.clamp($underupperwet, 0, 200)>>
+	<</if>>
 <</widget>>
 
 <<widget "underlowerwet">>
-<<if _args[0]>>
-	<<set $underlowerwet += _args[0]>>
-	<<set $underlowerwet = Math.clamp($underlowerwet, 0, 200)>>
-<</if>>
+	<<if _args[0]>>
+		<<set $underlowerwet += _args[0]>>
+		<<set $underlowerwet = Math.clamp($underlowerwet, 0, 200)>>
+	<</if>>
 <</widget>>

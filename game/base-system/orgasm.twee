@@ -19,19 +19,15 @@
 				<<bodyliquid "penis" "semen">>
 			<</if>>
 			<<if $player.condom>>
-				<<if $player.condom.damaged is true or ($player.condom.cum is true and random(0,100) gte 95)>>
-					<<set _condom to "damaged">>
-				<<else>>
-					<<set _condom to true>>
-				<</if>>
+				<<set _condom to $player.condom.state>>
 			<</if>>
 			<<if playerHasStrapon()>>
 				<span class="pink">You are overcome by sensation and climax under your strap-on.</span>
 			<<elseif $parasite.penis.name>>
-				You are overcome by sensation. You ejaculate into the parasite latched onto your penis.
-			<<elseif _condom is true>>
-				You are overcome by sensation. You ejaculate into the condom that covers your penis.
-				<<set $player.condom.cum to true>>
+				<span class="pink">You are overcome by sensation, and ejaculate into the parasite latched onto your penis.</span>
+			<<elseif _condom is "normal">>
+				<span class="pink">You are overcome by sensation, and ejaculate into the condom that covers your penis.</span>
+				<<set $player.condom.state to "used">>
 			<<elseif $penisuse is "othervagina">>
 				<<for $_i = 0; $_i lt $enemynomax; $_i++>>
 					<<if $NPCList[$_i].vagina is "penis">>
@@ -42,7 +38,7 @@
 						<<if $abomination is 1>>
 							/*ToDo: Pregnancy, figure out how the Wraith, plantpeople, etc will handle pregnancy.*/
 						<<else>>
-							<<recordVaginalSperm $NPCList[$_i].fullDescription "pc" "human">>
+							<<recordVaginalSperm $NPCList[$_i].fullDescription "pc" $NPCList[$_i].type>>
 						<</if>>
 					<<elseif $NPCList[$_i].vagina is "penisimminent" or $NPCList[$_i].vagina is "penisentrance">>
 						<<personselect $_i>>
@@ -546,7 +542,6 @@
 			<</if>>
 		<</if>>
 	<</if>>
-
 <</widget>>
 
 <<widget "orgasmLocation">>
@@ -564,11 +559,11 @@
 		<<case "emptyClassroom">>
 			You steady yourself as your spasms subside. You feel fortunate that the classroom is empty right now, and hope the noise hasn't attracted attention.
 		<<case "classroom">>
-			<<if $schoolstate is "second" and $whitneymaths isnot "absent">>
+			<<if $schoolstate is "second" and ($whitneymaths is "active" or $whitneymaths is "seat")>>
 				Having taken notice of your orgasm, Whitney smiles at you.
 				<<npcincr Whitney lust 1>><<glust>>
 				<br><br>
-			<<elseif $schoolstate is "third" and $kylarenglishstate isnot "absent">>
+			<<elseif $schoolstate is "third" and ($kylarenglishstate is "watching" or $kylarenglishstate is "seat")>>
 				Kylar watches you, transfixed by your orgasm.
 				<<npcincr Kylar lust 1>><<glust>>
 				<br><br>
@@ -888,6 +883,9 @@
 		<</if>>
 	<</if>>
 	<<milk_amount `Math.floor(($milk_volume / 24))`>>
+	<<if $milk_amount is $milk_volume>>
+		<<set $milkFullPain to Math.clamp(($milkFullPain || 0) + Math.ceil($milk_volume / 1000),0,150 + Math.ceil($milk_volume / 60))>>
+	<</if>>
 <</widget>>
 
 <<widget "semenOrgasm">>

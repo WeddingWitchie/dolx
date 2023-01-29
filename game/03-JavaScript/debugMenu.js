@@ -248,7 +248,7 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Enable basic Pregnancy features`, stayOnPassageFn],
-			widgets: [`<<set $sexStats.anus.pregnancy.seenDoctor to 2>>`, `<<set $sexStats.anus.pregnancy.maxCount to 2>>`],
+			widgets: [`<<set $pregnancyStats.parasiteDoctorEvents to 2>>`],
 		},
 		{
 			link: [`Get Initial Mother Trait`, stayOnPassageFn],
@@ -256,33 +256,33 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Fertilise New Eggs`, stayOnPassageFn],
-			widgets: [`<<fertilise>>`],
+			widgets: [`<<fertiliseParasites>>`,`<<fertiliseParasites "vagina">>`],
 		},
 		{
 			link: [`Pregnancy Progress Day`, stayOnPassageFn],
-			widgets: [`<<pregProgressDay>>`],
+			widgets: [`<<parasiteProgressDay>>`],
 		},
 		{
 			link: [`Pregnancy Progress Week`, stayOnPassageFn],
 			widgets: [
-				`<<pregProgressDay>>`,
-				`<<pregProgressDay>>`,
-				`<<pregProgressDay>>`,
-				`<<pregProgressDay>>`,
-				`<<pregProgressDay>>`,
-				`<<pregProgressDay>>`,
-				`<<pregProgressDay>>`,
-				`<<pregProgressDay>>`,
+				`<<parasiteProgressDay>>`,
+				`<<parasiteProgressDay>>`,
+				`<<parasiteProgressDay>>`,
+				`<<parasiteProgressDay>>`,
+				`<<parasiteProgressDay>>`,
+				`<<parasiteProgressDay>>`,
+				`<<parasiteProgressDay>>`,
+				`<<parasiteProgressDay>>`,
 			],
 		},
 		{
 			link: [() => `Set all pregnancy events to next ` + V.pass, stayOnPassageFn],
 			widgets: [
 				`<<set _pregnancy to $sexStats.anus.pregnancy>>`,
-				() => (T.pregnancy[0] == null ? "" : `<<set _pregnancy[0].timeLeft to 1>>`),
-				() => (T.pregnancy[1] == null ? "" : `<<set _pregnancy[1].timeLeft to 1>>`),
-				() => (T.pregnancy[2] == null ? "" : `<<set _pregnancy[2].timeLeft to 1>>`),
-				() => (T.pregnancy[3] == null ? "" : `<<set _pregnancy[3].timeLeft to 1>>`),
+				() => (T.pregnancy[0] == null ? "" : `<<set _pregnancy.fetus[0].timeLeft to 1>>`),
+				() => (T.pregnancy[1] == null ? "" : `<<set _pregnancy.fetus[1].timeLeft to 1>>`),
+				() => (T.pregnancy[2] == null ? "" : `<<set _pregnancy.fetus[2].timeLeft to 1>>`),
+				() => (T.pregnancy[3] == null ? "" : `<<set _pregnancy.fetus[3].timeLeft to 1>>`),
 			],
 		},
 		{
@@ -290,19 +290,19 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Get Pregnant with an eel`, stayOnPassageFn],
-			widgets: [`<<impregnate "eels" 1000>>`],
+			widgets: [`<<impregnateParasite "eels" 1000>>`],
 		},
 		{
-			link: [`Get Pregnant with an slime`, stayOnPassageFn],
-			widgets: [`<<impregnate "slimes" 1000>>`],
+			link: [`Get Pregnant with a slime`, stayOnPassageFn],
+			widgets: [`<<impregnateParasite "slimes" 1000>>`],
 		},
 		{
-			link: [`Get Pregnant with an worm`, stayOnPassageFn],
-			widgets: [`<<impregnate "worms" 1000>>`],
+			link: [`Get Pregnant with a worm`, stayOnPassageFn],
+			widgets: [`<<impregnateParasite "worms" 1000>>`],
 		},
 		{
-			link: [`Get Pregnant with an tentacle`, stayOnPassageFn],
-			widgets: [`<<impregnate "tentacle" 1000>>`],
+			link: [`Get Pregnant with a tentacle`, stayOnPassageFn],
+			widgets: [`<<impregnateParasite "tentacle" 1000>>`],
 		},
 		{
 			text_only: `\n`,
@@ -317,42 +317,69 @@ setup.debugMenu.eventList = {
 		},
 		{
 			text_only: `\nVaginal Pregnancy<br>(New Pregnancy will only occur if not pregnant)\n`,
-			condition() { return V.pregnancyTesting },
+			condition() { return V.pregnancyTesting && V.player.penisExist === false },
+		},
+		{
+			text_only: `Player is already pregnant\n`,
+			condition() { return V.pregnancyTesting && V.player.penisExist === false && V.sexStats.vagina.pregnancy.fetus.length !== 0 },
 		},
 		{
 			link: [`Get Pregnant with humans`, stayOnPassageFn],
 			widgets: [
 				() => {
-					if (V.sexStats.vagina.menstruation.currentState === "normal") {
-						return `<<set $sexStats.vagina.sperm["Debug Man"] = {"type":"human", "count":[[4,1000]]}>>
-						<<set $sexStats.vagina.menstruation.currentDay to $sexStats.vagina.menstruation.stages[2]>>
-						<menstruationCycle>>`;
-					}
+					return `<<playerPregnancy "Debug Man" "human" true "vagina" undefined true>>`;
 				},
 			],
-			condition() { return V.pregnancyTesting },
+			condition() { return V.pregnancyTesting && V.player.penisExist === false && V.sexStats.vagina.pregnancy.fetus.length === 0},
 		},
 		{
 			link: [`Get Pregnant with wolves`, stayOnPassageFn],
 			widgets: [
 				() => {
-					if (V.sexStats.vagina.menstruation.currentState === "normal") {
-						return `<<set $sexStats.vagina.sperm["Debug Wolf"] = {"type":"wolf", "count":[[4,1000]]}>>
-						<<set $sexStats.vagina.menstruation.currentDay to $sexStats.vagina.menstruation.stages[2]>>
-						<<menstruationCycle>>`;
-					}
+					return `<<playerPregnancy "Debug Wolf" "wolf" true "vagina" undefined true>>`;
 				},
 			],
+			condition() { return V.pregnancyTesting && V.player.penisExist === false && V.sexStats.vagina.pregnancy.fetus.length === 0 },
+		},
+		{
+			link: [`Progress Pregnancy to the end`, stayOnPassageFn],
+			widgets: [`<<set $sexStats.vagina.pregnancy.timer to $sexStats.vagina.pregnancy.timerEnd>>`],
+			condition() { return V.pregnancyTesting && V.player.penisExist === false && V.sexStats.vagina.pregnancy.fetus.length !== 0 },
+		},
+		{
+			link: [`End pregnancy and send children to default locations`, stayOnPassageFn],
+			widgets: [() => {
+				switch(V.sexStats.vagina.pregnancy.type){
+					case "human":
+						endPlayerPregnancy("hospital","home");
+					break;
+					case "wolf":
+						endPlayerPregnancy("wolf_cave","wolf_cave");
+					break;
+					default:
+						endPlayerPregnancy("unknown","unknown");
+					break;
+				};
+				return '';
+			}],
+			condition() { return V.pregnancyTesting && V.player.penisExist === false && V.sexStats.vagina.pregnancy.fetus.length !== 0 },
+		},
+		{
+			text_only: `\nNPC Pregnancies`,
+			condition() { return V.pregnancyTesting },
+		},
+		{
+			text_only: `(Each npc needs to be enabled for pregnancy in setup)\n`,
 			condition() { return V.pregnancyTesting },
 		},
 		{
 			link: [`Get Robin Pregnant with PCs children`, stayOnPassageFn],
-			widgets: [`<<set _sperm to ["pc"]>>`, `<<humanPregnancy "Robin" "pc" true>>`],
+			widgets: [`<<namedNpcPregnancy "Robin" "pc" "human" true undefined true>>`],
 			condition() { return V.pregnancyTesting },
 		},
 		{
-			link: [`Get Bailey Pregnant with Black wolf`, stayOnPassageFn],
-			widgets: [`<<set _sperm to ["Black Wolf"]>>`, `<<wolfPregnancy "Bailey" "Black Wolf" true>>`],
+			link: [`Get Bailey Pregnant with Black wolfs pups`, stayOnPassageFn],
+			widgets: [`<<namedNpcPregnancy "Bailey" "Black Wolf" "wolf" true undefined true>>`],
 			condition() { return V.pregnancyTesting },
 		},
 		{
@@ -457,6 +484,10 @@ setup.debugMenu.eventList = {
 		{
 			link: ["Hypnotist Test", "Hypnotist Test"],
 			widgets: ["<<endcombat>>"],
+		},
+		{
+			link: [`Pregnancy Belly Test`, `Pregnancy Belly Test`],
+			widgets: [`<<endcombat>><<set $sexstart to 1>>`],
 		},
 		{
 			link: [`Eels Swarm Me`, `Sea Eels`],
@@ -594,6 +625,22 @@ setup.debugMenu.eventList = {
 		{
 			link: [`Police Pillory Start`, `Police Pillory Start`],
 			widgets: [`<<set $crime to 5000>>`, `<<generate1>>`, `<<person1>>`],
+		},
+		{
+			link: [`Put Whitney in the Pillory`, stayOnPassageFn],
+			widgets: [`<<imprison_whitney>>`],
+		},
+		{
+			link: [`Put Leighton in the Pillory`, stayOnPassageFn],
+			widgets: [`<<imprison_leighton>>`],
+		},
+		{
+			link: [`Clear the Pillory`, stayOnPassageFn],
+			widgets: [`<<clear_pillory>>`],
+		},
+		{
+			link: [`Put random NPC in the Pillory`, stayOnPassageFn],
+			widgets: [`<<clear_pillory>><<new_npc_pillory>>`],
 		},
 		{
 			link: [`Hole in wall`, `Temple Arcade 2`],
@@ -963,10 +1010,6 @@ setup.debugMenu.eventList = {
 		{
 			link: [`Timer Down`, stayOnPassageFn],
 			widgets: [`<<set $timer -= 60>>`],
-		},
-		{
-			link: [`Size Up`, stayOnPassageFn],
-			widgets: [`<<set $devlevel += 1>>`],
 		},
 		{
 			link: [`Full Lewd Characteristics`, stayOnPassageFn],

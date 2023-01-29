@@ -6,6 +6,7 @@
 		window.Theme.initControl();
 		onInputChanged(() => {
 			if(!T.optionsRefresh) T.optionsRefresh = true;
+			Wikifier.wikifyEval("<<setFont true>>");
 		});
 	<</script>>
 <</widget>>
@@ -24,18 +25,6 @@
 		<br><br>
 	<</if>>
 
-	Theme:
-	<label><input type="radio" name="theme" value="dark" /> Dark</label> |
-	<label><input type="radio" name="theme" value="arctic" /> Nord</label> |
-	<label><input type="radio" name="theme" value="zen" /> Zenburn</label> |
-	<label><input type="radio" name="theme" value="monokai" /> Monokai</label> |
-	<label><input type="radio" name="theme" value="storm" /> Storm</label> |
-	<label><input type="radio" name="theme" value="system-default" /> System default</label>
-	<br>
-
-	Passage Line Height: <<link "1.75">><<unset $reducedLineHeight>><<removeclass "#passages" "reducedLineHeight">><</link>> | <<link "1.5">><<set $reducedLineHeight to true>><<addclass "#passages" "reducedLineHeight">><</link>>
-	<br><br>
-	
 	<label>
 		<<checkbox "$options.neverNudeMenus" false true autocheck>>
 		Hide player nudity in menus
@@ -46,39 +35,45 @@
 		<<checkbox "$options.autosaveDisabled" false true autocheck>> Disable autosave on sleeping
 	</label>
 	<br>
+
+	<label data-disabledif="StartConfig.enableLinkNumberify===true">
+	<<checkbox "$options.numberify_enabled" 0 1 autocheck>> Enable numbered link navigation
+	<mouse class="tooltip linkBlue">(?)<span>Allows navigation with keyboard</span></mouse>
+	</label>
 	<br>
-	
-	<span class="gold">Game Zoom</span> <span class="red">Buggy or unsupported in some browsers </span><mouse class="tooltip linkBlue">(?)<span>Will allow you to adjust the size of game elements and text. 100 is the default value.
-	A value of 50 will zoom the page out to half of its original size, while a value of 200 will zoom the page in to double its size.
-	The test button will not save the zoom value into the current save.
-	<span class="red">
-		Please be careful with this setting! Only save if you are happy with the changes made, as reloading the game will reset it to the last value used in that save.
-		Depending on the device and browser, the setting may break entirely, and may cause unexpected effects. Please report these issues as necessary.
-	</span></span></mouse>
 	<br>
-	<<numberslider "$zoom" $zoom 50 200 1>>
-	<input type="button" value="Set Zoom Test" onclick="zoom()"/>
-	<br><br>
-	<input type="button" value="Reset Zoom" onclick="zoom(100, true)"/>
-	<input type="button" value="Set Zoom" onclick="zoom(undefined, true)"/>
-	<br><br>
 
 	<span class="gold">Sidebar</span>
+	<br>
+
+	Time format:
+	<label><<radiobutton "$options.timestyle" "military" autocheck>> 24-hour</label> |
+	<label><<radiobutton "$options.timestyle" "ampm" autocheck>> 12-hour</label>
+	<br>
+
+	<label><<checkbox "$options.oldclock" false true autocheck>> Use old clock style in the sidebar</label>
 	<br>
 
 	<label><<checkbox "$options.showCaptionText" false true autocheck>> Show Caption Text in Sidebar</label>
 	<br>
 
+	<!-- Old renderer should stop being supported very soon.
 	Sidebar character renderer:
 	<label><<radiovar "$options.sidebarRenderer" "img">><<updatesidebarimg>><</radiovar>> Old</label> |
 	<label><<radiovar "$options.sidebarRenderer" "canvas">><<updatesidebarimg>><</radiovar>> New</label> |
 	<label><<radiovar "$options.sidebarRenderer" "both">><<updatesidebarimg>><</radiovar>> Both</label>
 	<br>
+	-->
 
 	Pepper sprays display:
 	<label><<radiovar "$options.pepperSprayDisplay" "sprays">><<updatesidebarimg>><</radiovar>> Sprays</label> |
 	<label><<radiovar "$options.pepperSprayDisplay" "compact">><<updatesidebarimg>><</radiovar>> Compact (dots)</label> |
 	<label><<radiovar "$options.pepperSprayDisplay" "none">><<updatesidebarimg>><</radiovar>> None</label>
+	<br>
+
+	Condoms display:
+	<label><<radiovar "$options.condomsDisplay" "standard">><<updatesidebarimg>><</radiovar>> Standard</label> |
+	<label><<radiovar "$options.condomsDisplay" "none">><<updatesidebarimg>><</radiovar>> Hidden</label>
 	<br>
 
 	Closed sidebar stats:
@@ -91,6 +86,11 @@
 	<label><<radiobutton "$options.sidebarTime" "disabled" autocheck>> Disabled</label> |
 	<label><<radiobutton "$options.sidebarTime" "top" autocheck>> Above sidebar stats</label> |
 	<label><<radiobutton "$options.sidebarTime" "bottom" autocheck>> Below sidebar stats</label>
+	<br>
+
+	<label><<checkbox "$options.tipdisable" "t" "f" autocheck>> Enable sidebar hints and tips</label>
+	<br>
+	<label><<checkbox "$debugdisable" "t" "f" autocheck>> Enable additional error messages</label>
 	<br>
 	<br>
 
@@ -126,14 +126,13 @@
 		<br>
 		<label data-target="images" data-disabledif="V.options.images===0"><<checkbox "$options.mapTop" false true autocheck>> Move the map above the map links</label>
 	<</if>>
-
 	<br>
 	<br>
 
 	<span class="gold">Overlays</span>
 	<br>
 	Position of the close-button for overlay menus
-	<mouse class="tooltip-small linkBlue">(?)<span>Updated next time overlay is opened</span></mouse><br>
+	<mouse class="tooltip linkBlue">(?)<span>Updated next time overlay is opened</span></mouse><br>
 	<label><<radiobutton "$options.closeButtonMobile" false autocheck>> Normal</label> |
 	<label><<radiobutton "$options.closeButtonMobile" true autocheck>> Mobile (Left-hand side)</label>
 	<br>
@@ -151,7 +150,7 @@
 	<br>
 	<br>
 	Display play time in the top right of the screen
-	<mouse class="tooltip linkBlue">(?)<span>Formatted into 'h:mm:ss'. Be aware that leaving the game for hours alone, then saving will have it's time tracked, to avoid, save the game before ending play and then load the save when you resume play. Not tracked in versions '0.3.12.X' and older</span></mouse>
+	<mouse class="tooltip linkBlue">(?)<span>Formatted into 'h:mm:ss'. Be aware that leaving the game for hours alone, then saving will have its time tracked, to avoid, save the game before ending play and then load the save when you resume play. Not tracked in versions '0.3.13.X' and older</span></mouse>
 	<br>
 	<label><<radiobutton "$options.playtime" false autocheck>> Disable</label> |
 	<label><<radiobutton "$options.playtime" true autocheck>> Enable</label>
@@ -166,10 +165,99 @@
 			<</script>>
 		<</button>>
 	<</if>>
-	<br>
-	<br>
+<</widget>>
+
+<<widget "optionstheme">>
+	<<setupOptions>>
+	<span class="gold">Theme</span>
 	<br>
 
+	Theme:
+	<label><input type="radio" name="theme" value="system-default" /> Default</label> |
+	<label><input type="radio" name="theme" value="dark" /> Dark</label> |
+	<label><input type="radio" name="theme" value="arctic" /> Nord</label> |
+	<label><input type="radio" name="theme" value="zen" /> Zenburn</label> |
+	<label><input type="radio" name="theme" value="monokai" /> Monokai</label> |
+	<label><input type="radio" name="theme" value="storm" /> Storm</label> |
+	<br><br>
+
+	Passage Line Height:
+	<label><<radiobutton "$options.passageLineHeight" 0 `$options.passageLineHeight is undefined ? 'checked' : 'autocheck'`>> Default</label> |
+	<label><<radiobutton "$options.passageLineHeight" 1 autocheck>> 1</label> |
+	<label><<radiobutton "$options.passageLineHeight" 1.25 autocheck>> 1.25</label> |
+	<label><<radiobutton "$options.passageLineHeight" 1.5 autocheck>> 1.5</label> |
+	<label><<radiobutton "$options.passageLineHeight" 1.75 autocheck>> 1.75</label> |
+	<label><<radiobutton "$options.passageLineHeight" 2 autocheck>> 2</label> |
+	<br>
+
+	Overlay Line Height:
+	<label><<radiobutton "$options.overlayLineHeight" 0 `$options.overlayLineHeight is undefined ? 'checked' : 'autocheck'`>> Default <mouse class="tooltip linkBlue">(?)<span>Equal to passage font size.</span></mouse></label> |
+	<label><<radiobutton "$options.overlayLineHeight" 1 autocheck>> 1</label> |
+	<label><<radiobutton "$options.overlayLineHeight" 1.25 autocheck>> 1.25</label> |
+	<label><<radiobutton "$options.overlayLineHeight" 1.5 autocheck>> 1.5</label> |
+	<label><<radiobutton "$options.overlayLineHeight" 1.75 autocheck>> 1.75</label> |
+	<label><<radiobutton "$options.overlayLineHeight" 2 autocheck>> 2</label> |
+	<br>
+
+	Sidebar Line Height:
+	<label><<radiobutton "$options.sidebarLineHeight" 0 `$options.sidebarLineHeight is undefined ? 'checked' : 'autocheck'`>> Default</label> |
+	<label><<radiobutton "$options.sidebarLineHeight" 1 autocheck>> 1</label> |
+	<label><<radiobutton "$options.sidebarLineHeight" 1.25 autocheck>> 1.25</label> |
+	<label><<radiobutton "$options.sidebarLineHeight" 1.5 autocheck>> 1.5</label> |
+	<label><<radiobutton "$options.sidebarLineHeight" 1.75 autocheck>> 1.75</label> |
+	<label><<radiobutton "$options.sidebarLineHeight" 2 autocheck>> 2</label> |
+	<br><br>
+
+	Passage Font Size:
+	<label><<radiobutton "$options.passageFontSize" 0 `$options.passageFontSize is undefined ? 'checked' : 'autocheck'`>> Default</label> |
+	<label><<radiobutton "$options.passageFontSize" 10 autocheck>> 10px</label> |
+	<label><<radiobutton "$options.passageFontSize" 12 autocheck>> 12px</label> |
+	<label><<radiobutton "$options.passageFontSize" 14 autocheck>> 14px</label> |
+	<label><<radiobutton "$options.passageFontSize" 16 autocheck>> 16px</label> |
+	<label><<radiobutton "$options.passageFontSize" 18 autocheck>> 18px</label> |
+	<label><<radiobutton "$options.passageFontSize" 20 autocheck>> 20px</label> |
+	<br>
+
+	Overlay Font Size:
+	<label><<radiobutton "$options.overlayFontSize" 0 `$options.overlayFontSize is undefined ? 'checked' : 'autocheck'`>> Default <mouse class="tooltip linkBlue">(?)<span>Equal to passage font size.</span></mouse></label> |
+	<label><<radiobutton "$options.overlayFontSize" 10 autocheck>> 10px</label> |
+	<label><<radiobutton "$options.overlayFontSize" 12 autocheck>> 12px</label> |
+	<label><<radiobutton "$options.overlayFontSize" 14 autocheck>> 14px</label> |
+	<label><<radiobutton "$options.overlayFontSize" 16 autocheck>> 16px</label> |
+	<label><<radiobutton "$options.overlayFontSize" 18 autocheck>> 18px</label> |
+	<label><<radiobutton "$options.overlayFontSize" 20 autocheck>> 20px</label> |
+	<br>
+
+	Sidebar Font Size:
+	<label><<radiobutton "$options.sidebarFontSize" 0 `$options.sidebarFontSize is undefined ? 'checked' : 'autocheck'`>> Default</label> |
+	<label><<radiobutton "$options.sidebarFontSize" 12 autocheck>> 12px</label> |
+	<label><<radiobutton "$options.sidebarFontSize" 14 autocheck>> 14px</label> |
+	<label><<radiobutton "$options.sidebarFontSize" 16 autocheck>> 16px</label> |
+	<label><<radiobutton "$options.sidebarFontSize" 18 autocheck>> 18px</label> |
+	<label><<radiobutton "$options.sidebarFontSize" 20 autocheck>> 20px</label> |
+	<br><br>
+
+	Font:
+	<label><<radiobutton "$options.font" "" `$options.font is undefined ? 'checked' : 'autocheck'`>> Default</label> |
+	<br>
+	Sans-serif:
+	<label><<radiobutton "$options.font" "Arial" autocheck>> Arial</label> |
+	<label><<radiobutton "$options.font" "Verdana" autocheck>> Verdana</label> |
+	<br>
+	Serif:
+	<label><<radiobutton "$options.font" "TimesNewRoman" autocheck>> Times New Roman</label> |
+	<label><<radiobutton "$options.font" "Georgia" autocheck>> Georgia</label> |
+	<label><<radiobutton "$options.font" "Garamond" autocheck>> Garamond</label> |
+	<br>
+	Monospace:
+	<label><<radiobutton "$options.font" "CourierNew" autocheck>> Courier New</label> |
+	<label><<radiobutton "$options.font" "LucidaConsole" autocheck>> Lucida Console</label> |
+	<label><<radiobutton "$options.font" "Monaco" autocheck>> Monaco</label> |
+	<br>
+	Cursive:
+	<label><<radiobutton "$options.font" "ComicSans" autocheck>> Comic Sans</label> |
+
+	<br><br>
 <</widget>>
 
 <<widget "optionsperformance">>
@@ -181,41 +269,40 @@
 			<label><<checkbox "$options.images" 0 1 autocheck>> Enable images</label>
 			<mouse class="tooltip-small linkBlue">(?)<span>Images may not load properly on older Androids</span></mouse>
 		</div>
-		<div><label data-target="images" data-disabledif="V.options.images===0"><<checkbox "$options.combatImages" 0 1 autocheck>> Enable combat images</label></div>
+		<div><label data-target="options.images" data-disabledif="V.options.images===0"><<checkbox "$options.combatImages" 0 1 autocheck>> Enable combat images</label></div>
 
-		<div><label data-target="images" data-disabledif="V.options.images===0">
+		<div><label data-target="options.images" data-disabledif="V.options.images===0">
 			<<checkbox "$options.bodywritingImages" false true autocheck>> Enable body-writing Images
 			<mouse class="tooltip-small linkBlue">(?)<span>Disabling may improve performance and potentially prevent images from not loading correctly</span></mouse>
 		</label></div>
-		<div><label data-target="images" data-disabledif="V.options.images===0"><<checkbox "$options.silhouetteEnabled" false true autocheck>> Enable NPC silhouettes</label></div>
-		<div><label data-target="images" data-disabledif="V.options.images===0">
-			<<checkbox "$options.tanImgEnabled" false true autocheck>> Visual representation of the player character's skin colour
+		<div><label data-target="options.images" data-disabledif="V.options.images===0"><<checkbox "$options.silhouetteEnabled" false true autocheck>> Enable NPC silhouettes</label></div>
+		<div><label data-target="options.images" data-disabledif="V.options.images===0">
+			<<checkbox "$options.tanImgEnabled" false true autocheck>> Visual representation of the player's and NPC's skin colour
 			<mouse class="tooltip-small linkBlue">(?)<span>May hinder performance on some devices</span></mouse>
 		</label></div>
-		<div><label data-target='["images", "tanimgenabled"]' data-disabledif="V.options.images===0||V.options.tanImgEnabled===false">
+		<div><label data-target='["options.images", "tanimgenabled"]' data-disabledif="V.options.images===0||V.options.tanImgEnabled===false">
 			<<checkbox "$options.tanningEnabled" false true autocheck>> Tanning changes due to sun exposure
 			<mouse class="tooltip-small linkBlue">(?)<span>Option to disable may be removed at a later date</span></mouse>
 		</label></div>
 		<br>
 
 		<span class="gold">Animations</span>
-		<div><label data-target="images" data-disabledif="V.options.images===0"><<checkbox "$options.sidebarAnimations" false true autocheck>> Sidebar animations</label></div>
-		<div><label data-target='["images", "sidebaranimations"]' data-disabledif="V.options.images===0||V.options.sidebarAnimations===false"><<checkbox "$options.blinkingEnabled" false true autocheck>> Animate eyes blinking</label></div>
+		<div><label data-target="options.images" data-disabledif="V.options.images===0"><<checkbox "$options.sidebarAnimations" false true autocheck>> Sidebar animations</label></div>
+		<div><label data-target='["options.images", "sidebaranimations"]' data-disabledif="V.options.images===0||V.options.sidebarAnimations===false"><<checkbox "$options.blinkingEnabled" false true autocheck>> Animate eyes blinking</label></div>
 		<div><label data-target="images" data-disabledif="V.options.images===0||V.options.combatImages===0">
 			<<checkbox "$options.combatAnimations" false true autocheck>> Combat animations
 			<mouse class="tooltip-small linkBlue">(?)<span>Disabling may help improve performance and prevent images from loading incorrectly. Gif images will not be affected. Try disabling sidebar images first</span></mouse>
 		</label></div>
 		<div class="description"></div>
 		<<if $eyelidTEST is true>>
-			<div><label data-target='["images", "sidebaranimations"]' data-disabledif="V.options.images===0||V.options.sidebarAnimations===false"><<checkbox "$options.halfClosedEnabled" false true autocheck>> Enable half-closed eyes graphics</label></div>
+			<div><label data-target='["options.images", "sidebaranimations"]' data-disabledif="V.options.images===0||V.options.sidebarAnimations===false"><<checkbox "$options.halfClosedEnabled" false true autocheck>> Enable half-closed eyes graphics</label></div>
 			<div class="description">Draw eyelids in sidebar as half-closed when highly aroused.</div>
 		<</if>>
 		<br>
 
-
 		<<foldout true "_characterLightingFoldout">>
 			<span class="gold">Character Lighting</span>
-			<div onchange="new Wikifier(null, '<<updatesidebarimg>>')"><label data-target="images" data-disabledif="V.options.images===0"><<checkbox "$options.characterLightEnabled" false true autocheck>> Enable character lighting</label></div>
+			<div onchange="new Wikifier(null, '<<updatesidebarimg>>')"><label data-target="options.images" data-disabledif="V.options.images===0"><<checkbox "$options.characterLightEnabled" false true autocheck>> Enable character lighting</label></div>
 			<div data-target='["images", "characterLightEnabled"]' data-disabledif="V.options.images===0||V.options.characterLightEnabled===false" oninput="new Wikifier(null, '<<updatesidebarimg>>')">
 				<label>Spotlight<br>
 				<<numberslider "$options.lightSpotlight" $options.lightSpotlight 0 1 0.05>></label><br>
@@ -272,13 +359,81 @@
 
 	<label><<checkbox "$options.showDebugRenderer" false true autocheck>> Enable renderer debugger</label>
 	<br>
-	
-	/*
 	<br>
-	<div class="small-description">To fix animations that aren't playing correctly you can click on them, or press <code>[F]</code> key, or use the button below.</div>
+
+	<span class="gold">Game Zoom</span>
+	<mouse class="tooltip linkBlue">(?)<span>Will allow you to adjust the size of game elements and text.
+	<span class="red">
+		Please be careful with this setting! Only save if you are happy with the changes made, as reloading the game will reset it to the last value used in that save.
+		Depending on the device and browser, the setting may break entirely, and may cause unexpected effects.
+	</span></span></mouse>
 	<br>
-	<<button "Fix stuck animations">>
-		<<run fixStuckAnimations()>>
-	<</button>>
-	*/
+	<span class="red">Not supported in all browsers</span>
+	<br>
+	<br>
+
+	<<numberslider "$options.zoom" $options.zoom 50 200 1>>
+	<input type="button" value="Set" onclick='zoom()'/>
+	<input type="button" value="Reset" onclick='zoom(100)'/>
+<</widget>>
+
+<<widget "setFont">>
+	<<removeclass "#passages" "fontSize10">>
+	<<removeclass "#passages" "fontSize12">>
+	<<removeclass "#passages" "fontSize14">>
+	<<removeclass "#passages" "fontSize16">>
+	<<removeclass "#passages" "fontSize18">>
+	<<removeclass "#passages" "fontSize20">>
+	<<if $options.passageFontSize>><<addclass "#passages" `"fontSize" + $options.passageFontSize`>><</if>>
+
+	<<removeclass "#story-caption" "fontSize12">>
+	<<removeclass "#story-caption" "fontSize14">>
+	<<removeclass "#story-caption" "fontSize16">>
+	<<removeclass "#story-caption" "fontSize18">>
+	<<removeclass "#story-caption" "fontSize20">>
+	<<if $options.sidebarFontSize>><<addclass "#story-caption" `"fontSize" + $options.sidebarFontSize`>><</if>>
+
+	<<if _args[0]>><!--For elements that are not sugarcube specific and wont be loaded when the widget is normally called-->
+		<<removeclass "#customOverlay" "fontSize10">>
+		<<removeclass "#customOverlay" "fontSize12">>
+		<<removeclass "#customOverlay" "fontSize14">>
+		<<removeclass "#customOverlay" "fontSize16">>
+		<<removeclass "#customOverlay" "fontSize18">>
+		<<removeclass "#customOverlay" "fontSize20">>
+		<<if $options.overlayFontSize>><<addclass "#customOverlay" `"fontSize" + $options.overlayFontSize`>><</if>>
+	<</if>>
+
+	<<removeclass "#passages" "lineHeight1">>
+	<<removeclass "#passages" "lineHeight125">>
+	<<removeclass "#passages" "lineHeight15">>
+	<<removeclass "#passages" "lineHeight175">>
+	<<removeclass "#passages" "lineHeight2">>
+	<<if $options.passageLineHeight>><<addclass "#passages" `"lineHeight" + $options.passageLineHeight.toString().replace('.','')`>><</if>>
+
+	<<removeclass "#story-caption" "lineHeight1">>
+	<<removeclass "#story-caption" "lineHeight125">>
+	<<removeclass "#story-caption" "lineHeight15">>
+	<<removeclass "#story-caption" "lineHeight175">>
+	<<removeclass "#story-caption" "lineHeight2">>
+	<<if $options.sidebarLineHeight>><<addclass "#story-caption" `"lineHeight" + $options.sidebarLineHeight.toString().replace('.','')`>><</if>>
+
+	<<if _args[0]>>
+		<<removeclass "#customOverlay" "lineHeight1">>
+		<<removeclass "#customOverlay" "lineHeight125">>
+		<<removeclass "#customOverlay" "lineHeight15">>
+		<<removeclass "#customOverlay" "lineHeight175">>
+		<<removeclass "#customOverlay" "lineHeight2">>
+		<<if $options.overlayLineHeight>><<addclass "#customOverlay" `"lineHeight" + $options.overlayLineHeight.toString().replace('.','')`>><</if>>
+	<</if>>
+
+	<<removeclass "html" "Arial">>
+	<<removeclass "html" "Verdana">>
+	<<removeclass "html" "TimesNewRoman">>
+	<<removeclass "html" "Georgia">>
+	<<removeclass "html" "Garamond">>
+	<<removeclass "html" "CourierNew">>
+	<<removeclass "html" "LucidaConsole">>
+	<<removeclass "html" "Monaco">>
+	<<removeclass "html" "ComicSans">>
+	<<if $options.font>><<addclass "html" $options.font>><</if>> <!--Adding to the body would remove it on changing passage-->
 <</widget>>

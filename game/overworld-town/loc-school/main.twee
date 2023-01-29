@@ -7,7 +7,7 @@
 		<br><br>
 	<<elseif $schoolstate is "afternoon">>
 		You are in the playground in front of the school. Some students are running around and playing, as the facilities stay open for a couple of hours.
-		<<if $weekday eq 6 and $framed is "whitney" and $pillory_tenant.special.name isnot "Whitney">>
+		<<if $weekday eq 6 and $framed is "whitney" and C.npc.Whitney.state isnot "pillory">>
 			<br>
 			You hear some shouts and arrive just in time to see a scuffle as <span class="gold">Whitney is dragged out of the school in handcuffs by several police officers.</span><<imprison_whitney>>
 		<<elseif $weekday eq 6 and $framed is "leighton" and $pillory_tenant.special.name isnot "Leighton">>
@@ -15,7 +15,7 @@
 			You hear some loud protests and arrive just in time to see <span class="gold">Leighton being led away by police.</span><<imprison_leighton>>
 		<<elseif $detention gte 1 and $daily.school.detentionAttended isnot 1 and $headnodetention isnot 1 and $pillory_tenant.special.name isnot "Leighton">>
 			<span class="purple">You see the head guarding the gate.</span> You're meant to be in detention, so if you leave that way, you'll be apprehended.
-		<<elseif $bullytimer gte 1 and $bullytimeroutside gte 1 and $daily.whitney.bullyGate isnot 1 and $NPCName[$NPCNameList.indexOf("Whitney")].init is 1 and $NPCName[$NPCNameList.indexOf("Whitney")].state isnot "dungeon" and $pillory_tenant.special.name isnot "Whitney">>
+		<<elseif $bullytimer gte 1 and $bullytimeroutside gte 1 and $daily.whitney.bullyGate isnot 1 and C.npc.Whitney.init is 1 and !["dungeon", "pillory"].includes(C.npc.Whitney.state)>>
 			<span class="purple">You see Whitney hanging out by the gate.</span>
 		<</if>>
 		<br><br>
@@ -73,7 +73,7 @@
 		<<if $schoolstate is "afternoon" and $detention gte 1 and $daily.school.detentionAttended isnot 1 and $headnodetention isnot 1 and $pillory_tenant.special.name isnot "Leighton">>
 			<<link [[Leave the school|School Leave Stop]]>><<schoolclothesreset>><</link>>
 			<br>
-		<<elseif $schoolstate is "afternoon" and $bullytimer gte 1 and $bullytimeroutside gte 1 and $daily.whitney.bullyGate isnot 1 and $NPCName[$NPCNameList.indexOf("Whitney")].init is 1 and $NPCName[$NPCNameList.indexOf("Whitney")].state isnot "dungeon" and $pillory_tenant.special.name isnot "Whitney">>
+		<<elseif $schoolstate is "afternoon" and $bullytimer gte 1 and $bullytimeroutside gte 1 and $daily.whitney.bullyGate isnot 1 and C.npc.Whitney.init is 1 and !["dungeon", "pillory"].includes(C.npc.Whitney.state)>>
 			<<link [[Leave the school|School Leave Whitney]]>><<schoolclothesreset>><</link>>
 			<br>
 		<<elseif $schoolday is 1 and $hour gte 7 and $hour lte 16>>
@@ -304,7 +304,7 @@ You haul yourself over the fence and drop down on the other side.
 	<</if>>
 <<elseif _fencehop lte $rng>>
 	/* naked, failed */
-	A moment later, you feel a sharp pain in your <<print either("shoulder", "back", "butt")>>. The old fence din't left you unscratched.<<pain 8>><<stress 6>><<ggpain>><<gstress>>
+	A moment later, you feel a sharp pain in your <<print either("shoulder", "back", "butt")>>. The old fence didn't left you unscratched.<<pain 8>><<stress 6>><<ggpain>><<gstress>>
 <</if>>
 <<if _commando>>
 	<br>
@@ -371,7 +371,7 @@ You haul yourself over the fence and drop down on the other side.
 	<</if>>
 <<elseif _fencehop lte $rng>>
 	/* naked, failed */
-	A moment later, you feel a sharp pain in your <<print either("shoulder", "back", "butt")>>. The old fence din't left you unscratched.<<pain 8>><<stress 6>><<ggpain>><<gstress>>
+	A moment later, you feel a sharp pain in your <<print either("shoulder", "back", "butt")>>. The old fence didn't left you unscratched.<<pain 8>><<stress 6>><<ggpain>><<gstress>>
 <</if>>
 <<if _commando>>
 	<br>
@@ -620,7 +620,7 @@ You haul yourself over the fence and drop down on the other side.
 :: School Passout
 /*ToDo: Pregnancy, remove $pregnancyTesting to properly enable*/
 <<sydneySchedule>>
-<<if $sexStats.vagina.pregnancy.waterBreaking is true and $pregnancyTesting>>
+<<if isPlayerNonparasitePregnancyEnding() and $pregnancyTesting>>
 	<<pregnancyWatersBrokenPassout "school">>
 <<elseif _sydney_location is "library" and ($NPCName[$NPCNameList.indexOf("Sydney")].init isnot 1 or ($sydneySeen and !$sydneySeen.includes("libRescue")) or $rng gte 20)>>
 	<<pass 1 hour>>
@@ -817,11 +817,7 @@ A minute passes before a <<generatey1>><<generatey2>><<fullGroup>> round the cor
 		<<set $position to "missionary">>
 	<</if>>
 	<br><br>
-	<<if $drugged lte 0 and $pillory_tenant.special.name isnot "Whitney" and $whitneyromance is 1 and $NPCName[$NPCNameList.indexOf("Whitney")].dom gte random(10, 25)>>
-		<<set $rescue to 2>>
-	<<elseif $pillory_tenant.special.name isnot "Leighton">>
-		<<enable_rescue>>
-	<</if>>
+	<<enableSchoolRescue "Whitney" "Leighton">>
 <</if>>
 
 <<effects>>
@@ -1409,7 +1405,6 @@ You find a secluded space behind an outbuilding. You make sure you weren't follo
 You <<pullup>> your $worn.upper.name, exposing your <<breasts>>. The <<person>> and <<his>> friends fall silent and ogle you as you fix your $worn.under_upper.name.
 <<pain -4>><<exhibitionism4>>
 
-<<pain -4>><<exhibitionism4>>
 <<endevent>>
 <<playground>>
 
@@ -1701,7 +1696,7 @@ You walk away. The pair jeer at you, but you know Sydney would want you to forgi
 	<<set $enemyanger += 200>>
 	<<npcidlegenitals>>
 
-	<<if $pillory_tenant.special.name isnot "Leighton">><<enable_rescue>><</if>>
+	<<enableSchoolRescue "Leighton">>
 
 	You lunge at the <<person1>><<person>>, and tumble to the ground together. The <<person2>><<person>> joins in.<<person1>>
 	<br><br>

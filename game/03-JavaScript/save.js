@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const DoLSave = ((Story, Save) => {
 	"use strict";
 
@@ -7,6 +8,21 @@ const DoLSave = ((Story, Save) => {
 		slots: [null, null, null, null, null, null, null, null],
 	});
 	const KEY_DETAILS = "dolSaveDetails";
+
+	// Compressed saves are indicated by {jsoncompressed:1} in their metadata
+	// The '1' can act as a compression algorithm id.
+
+	// see game/00-framework-tools/03-compression/dictionaries.js
+	const COMPRESSOR_DICTIONARIES = DoLCompressorDictionaries;
+	// id of the dictionary to use for saving
+	const COMPRESSOR_CURRENT_DICTIONARY_ID = "v0";
+	/**
+	 * When saving, decompress and compare with the original.
+	 * If results differ, report an error and save the uncompressed version instead.
+	 */
+	function shouldVerifyCompression() {
+		return true;
+	}
 
 	/* Place somewhere to expose globally. */
 	function isObject(obj) {
@@ -125,7 +141,8 @@ const DoLSave = ((Story, Save) => {
 				});
 				if (success) {
 					const save = Save.slots.get(saveSlot);
-					const metadata = { saveId, saveName };
+					// Copy save metadata (it includes the jsoncompressed indicator)
+					const metadata = { ...save.metadata, saveId, saveName };
 					if (V.ironmanmode) {
 						Object.assign(metadata, {
 							ironman: V.ironmanmode,
@@ -314,6 +331,103 @@ const DoLSave = ((Story, Save) => {
 		},
 	});
 
+	/**
+	 * Compress a game state (not delta-encoded: {title, variables, prng, pull}) using most recent dictionary.
+	 * Can throw an error.
+	 *
+	 * @param state
+	 */
+	function compressState(state) {
+		DOL.Perflog.logWidgetStart("__DoLSave.compressState");
+		try {
+			const dictionary = COMPRESSOR_DICTIONARIES[COMPRESSOR_CURRENT_DICTIONARY_ID];
+			const compressor = new JsonCompressor(dictionary);
+			const zstate = compressor.compress(state);
+			zstate.dictionary = COMPRESSOR_CURRENT_DICTIONARY_ID;
+			zstate.title =
+				"This save is compressed and is not compatible with old versions of Degrees of Lewdity. If you want to load this save in an older game build, use exporting.";
+			zstate.variables = {};
+			if (shouldVerifyCompression()) {
+				// Sanity check
+				const uzstate = decompressState(zstate);
+				if (JSON.stringify(state) !== JSON.stringify(uzstate)) {
+					throw new Error("Decompression check failed");
+				}
+			}
+			return zstate;
+		} finally {
+			DOL.Perflog.logWidgetEnd("__DoLSave.compressState");
+		}
+	}
+
+	/**
+	 * Decompress the saved state using the dictionary it was compressed with.
+	 * Can throw an error.
+	 *
+	 * @param zstate
+	 */
+	function decompressState(zstate) {
+		DOL.Perflog.logWidgetStart("__DoLSave.decompressState");
+		try {
+			if (!("dictionary" in zstate)) throw new Error("Unable to load - compressed save has no dictionary");
+			const dicid = zstate.dictionary;
+			if (!(dicid in COMPRESSOR_DICTIONARIES))
+				throw new Error(
+					"Unable do decompress the save - the dictionary " +
+						JSON.stringify(dicid) +
+						" is unknown to this game version (trying to load newer save from older game?)"
+				);
+			const dictionary = COMPRESSOR_DICTIONARIES[dicid];
+			const decompressor = new JsonDecompressor(dictionary);
+			return decompressor.decompress(zstate);
+		} finally {
+			DOL.Perflog.logWidgetEnd("__DoLSave.decompressState");
+		}
+	}
+	function enableCompression() {
+		V.compressSave = true;
+	}
+	function disableCompression() {
+		V.compressSave = false;
+	}
+	function isCompressionEnabled() {
+		return V.compressSave;
+	}
+
+	/**
+	 * Compress a SaveObject (the one with metadata and delta-encoded history), if the compression is enabled.
+	 * If compression fails, report and error and do nothing.
+	 * This function returns nothing, it modifies the saveObj parameter.
+	 *
+	 * @param saveObj
+	 */
+	function compressIfNeeded(saveObj) {
+		if (!saveObj.metadata) saveObj.metadata = {};
+		saveObj.metadata.jsoncompressed = 0;
+		if (!isCompressionEnabled()) return;
+		try {
+			saveObj.state.history = saveObj.state.history.map(state => compressState(state));
+			saveObj.metadata.jsoncompressed = 1;
+		} catch (e) {
+			DOL.Errors.report("Unable to compress - " + e);
+			console.error(e);
+			// Just return, the saveObj won't be modified
+		}
+	}
+	function looksLikeCompressedSave(state) {
+		return state.compressed === 1 && Array.isArray(state.values) && typeof state.values === "object" && typeof state.dictionary === "string";
+	}
+	/**
+	 * Decompress a SaveObject (the one with metadata and delta-encoded history), if it is compressed.
+	 *
+	 * @param saveObj
+	 */
+	function decompressIfNeeded(saveObj) {
+		const isCompressed = (saveObj.metadata && saveObj.metadata.jsoncompressed === 1) || looksLikeCompressedSave(saveObj.state.history[0]);
+		if (!isCompressed) return;
+		saveObj.state.history = saveObj.state.history.map(state => (JsonDecompressor.isCompressed(state) ? decompressState(state) : state));
+	}
+
 	return Object.freeze({
 		save,
 		load,
@@ -323,6 +437,13 @@ const DoLSave = ((Story, Save) => {
 		resetMenu: resetSaveMenu,
 		getVersion: getSaveVersion,
 		loadHandler,
+		enableCompression,
+		disableCompression,
+		isCompressionEnabled,
+		compressState,
+		decompressState,
+		compressIfNeeded,
+		decompressIfNeeded,
 		SaveDetails: Object.freeze({
 			prepare: prepareSaveDetails,
 			set: setSaveDetail,
@@ -357,9 +478,12 @@ window.SerializeGame = Save.serialize;
 window.DeserializeGame = Save.deserialize;
 
 window.getSaveData = function () {
+	const compressionWasEnabled = DoLSave.isCompressionEnabled();
+	DoLSave.disableCompression();
 	const input = document.getElementById("saveDataInput");
 	updateExportDay();
 	input.value = Save.serialize();
+	if (compressionWasEnabled) DoLSave.enableCompression();
 };
 
 window.loadSaveData = function () {
@@ -493,7 +617,7 @@ const importSettingsData = function (data) {
 		if (S.general != null) {
 			const listObject = settingsObjects("general");
 			const listKey = Object.keys(listObject);
-			const namedObjects = ["map", "skinColor", "shopDefaults","options"];
+			const namedObjects = ["map", "skinColor", "shopDefaults", "options"];
 			// correct swapped min/max values
 			if (S.general.breastsizemin > S.general.breastsizemax) {
 				const temp = S.general.breastsizemin;
@@ -536,11 +660,7 @@ const importSettingsData = function (data) {
 					// eslint-disable-next-line no-var
 					for (let j = 0; j < listKey.length; j++) {
 						// Overwrite to allow for "none" default value in the start passage to allow for rng to decide
-						if (
-							V.passage === "Start" &&
-							["pronoun", "gender"].includes(listKey[j]) &&
-							S.npc[V.NPCNameList[i]][listKey[j]] === "none"
-						) {
+						if (V.passage === "Start" && ["pronoun", "gender"].includes(listKey[j]) && S.npc[V.NPCNameList[i]][listKey[j]] === "none") {
 							V.NPCName[i][listKey[j]] = S.npc[V.NPCNameList[i]][listKey[j]];
 						} else if (validateValue(listObject[listKey[j]], S.npc[V.NPCNameList[i]][listKey[j]])) {
 							V.NPCName[i][listKey[j]] = S.npc[V.NPCNameList[i]][listKey[j]];
@@ -633,7 +753,7 @@ function exportSettings(data, type) {
 
 	listObject = settingsObjects("general");
 	listKey = Object.keys(listObject);
-	namedObjects = ["map", "skinColor", "shopDefaults","options"];
+	namedObjects = ["map", "skinColor", "shopDefaults", "options"];
 
 	for (let i = 0; i < listKey.length; i++) {
 		if (namedObjects.includes(listKey[i]) && V[listKey[i]] != null) {
@@ -696,20 +816,7 @@ function settingsObjects(type) {
 				mouthsensitivity: { min: 1, max: 3, decimals: 0, randomize: "characterTrait" },
 				bottomsensitivity: { min: 1, max: 3, decimals: 0, randomize: "characterTrait" },
 				eyeselect: {
-					strings: [
-						"purple",
-						"dark blue",
-						"light blue",
-						"amber",
-						"hazel",
-						"green",
-						"lime green",
-						"red",
-						"pink",
-						"grey",
-						"light grey",
-						"random",
-					],
+					strings: ["purple", "dark blue", "light blue", "amber", "hazel", "green", "lime green", "red", "pink", "grey", "light grey", "random"],
 					randomize: "characterAppearance",
 				},
 				hairselect: {
@@ -754,7 +861,7 @@ function settingsObjects(type) {
 					randomize: "characterTrait",
 				},
 				gamemode: { strings: ["normal", "soft", "hard"] },
-				startingseason: { strings: ["autumn", "winter", "spring", "summer", "random"] },
+				startingseason: { strings: ["autumn", "winter", "spring", "summer", "random"], randomize: "gameplay" },
 				ironmanmode: { bool: false },
 				player: {
 					gender: { strings: ["m", "f", "h"], randomize: "characterAppearance" },
@@ -815,7 +922,7 @@ function settingsObjects(type) {
 				hirsutedisable: { boolLetter: true, bool: true },
 				pbdisable: { boolLetter: true, bool: true },
 				breastfeedingdisable: { boolLetter: true, bool: true },
-				analpregdisable: { boolLetter: true, bool: true },
+				parasitepregdisable: { boolLetter: true, bool: true },
 				watersportsdisable: { boolLetter: true, bool: true },
 				facesitdisable: { boolLetter: true, bool: true },
 				spiderdisable: { boolLetter: true, bool: true },
@@ -847,13 +954,10 @@ function settingsObjects(type) {
 				// playerPregnancyHumanDisable: {boolLetter: true, bool: true},
 				// playerPregnancyBeastDisable: {boolLetter: true, bool: true},
 				// npcPregnancyDisable: {boolLetter: true, bool: true},
-				numberify_enabled: { min: 0, max: 1, decimals: 0 },
-				timestyle: { strings: ["military", "ampm"] },
 				checkstyle: {
 					strings: ["percentage", "words", "skillname"],
 					randomize: "gameplay",
 				},
-				tipdisable: { boolLetter: true, bool: true },
 				debugdisable: { boolLetter: true, bool: true },
 				statdisable: { boolLetter: true, bool: true },
 				cheatdisabletoggle: { boolLetter: true, bool: true },
@@ -895,25 +999,28 @@ function settingsObjects(type) {
 					skipStatisticsConfirmation: { bool: true },
 					passageCount: { strings: ["disabled", "changes", "total"] },
 					playtime: { bool: true },
+					numberify_enabled: { min: 0, max: 1, decimals: 0 },
+					timestyle: { strings: ["military", "ampm"] },
+					tipdisable: { boolLetter: true, bool: true },
+					pepperSprayDisplay: { strings: ["none", "sprays", "compact"] },
+					condomsDisplay: { strings: ["none", "standard"] },
+					closeButtonMobile: { bool: true },
+					oldclock: { bool: true },
+					showDebugRenderer: { bool: true },
+					numpad: { bool: true },
+					traitOverlayFormat: { strings: ["table", "reducedTable", "list"] },
+					font: { strings: ["","Arial","Verdana","TimesNewRoman","Georgia","Garamond","CourierNew","LucidaConsole","Monaco","ComicSans"] },
+					passageLineHeight: {  strings: [0, 1, 1.25, 1.5, 1.75, 2] },
+					overlayLineHeight: {  strings: [0, 1, 1.25, 1.5, 1.75, 2] },
+					sidebarLineHeight: {  strings: [0, 1, 1.25, 1.5, 1.75, 2] },
+					passageFontSize: { strings: [0, 10, 12, 14, 16, 18, 20] },
+					overlayFontSize: { strings: [0, 10, 12, 14, 16, 18, 20] },
+					sidebarFontSize: { strings: [0, 12, 14, 16, 18, 20] },
 				},
 				shopDefaults: {
 					alwaysBackToShopButton: { bool: true },
 					color: {
-						strings: [
-							"black",
-							"blue",
-							"brown",
-							"green",
-							"pink",
-							"purple",
-							"red",
-							"tangerine",
-							"teal",
-							"white",
-							"yellow",
-							"custom",
-							"random",
-						],
+						strings: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom", "random"],
 					},
 					colourItems: { strings: ["disable", "random", "default"] },
 					compactMode: { bool: true },
@@ -924,21 +1031,7 @@ function settingsObjects(type) {
 					noHelp: { bool: true },
 					noTraits: { bool: true },
 					secColor: {
-						strings: [
-							"black",
-							"blue",
-							"brown",
-							"green",
-							"pink",
-							"purple",
-							"red",
-							"tangerine",
-							"teal",
-							"white",
-							"yellow",
-							"custom",
-							"random",
-						],
+						strings: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom", "random"],
 					},
 				},
 			};
@@ -963,7 +1056,7 @@ function settingsConvert(exportType, type, settings) {
 	const keys = Object.keys(listObject);
 	for (let i = 0; i < keys.length; i++) {
 		if (result[keys[i]] === undefined) continue;
-		if (["map", "skinColor", "player", "shopDefaults","options"].includes(keys[i])) {
+		if (["map", "skinColor", "player", "shopDefaults", "options"].includes(keys[i])) {
 			const itemKey = Object.keys(listObject[keys[i]]);
 			for (let j = 0; j < itemKey.length; j++) {
 				if (result[keys[i]][itemKey[j]] === undefined) continue;

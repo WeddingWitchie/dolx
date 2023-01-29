@@ -55,6 +55,11 @@ setup.colours = {
 			desaturate: true,
 			brightness: 0.4,
 			contrast: 1.0
+		},
+		condom: {
+			desaturate: true,
+			brightness: 0.4,
+			contrast: 1.0	
 		}
 	},
 
@@ -89,6 +94,11 @@ setup.colours = {
 	eyeshadow_default: {
 		blendMode: "hard-light"
 	},
+	condom: [],
+	condom_map: {},
+	condom_default: {
+		blendMode: "hard-light"
+	},
 
 	skin_gradients: {
 		light:     ['#ffffff', '#ffd2ac'],
@@ -113,7 +123,7 @@ setup.colours = {
 		tan = Math.clamp(0, tan, 1);
 		let gradient = setup.colours.skin_gradients[type];
 		if (!gradient) {
-			Errors.report("Unknown skin gradient "+type);
+			Errors.report("Unknown skin gradient " + type);
 			return '#ffffff';
 		}
 		return Renderer.lintRgbStaged(tan, gradient).toHexString();
@@ -496,6 +506,141 @@ setup.colours.hair = [{
 ];
 
 /**
+ * The records are split based on whether they are for fringe or sides,
+ * then furhter based on hairstyles. Fallback entry is called 'all'. 
+ * Gradient hair record:
+ *   gradient - canvas gradient type
+ *   values - vector specifying the direction of the gradient
+ *   lengthFunctions - functions specifying how the stops should move according to the hair length
+ *   colors - pairs of stops and colors (colors will be replaced in renderer)
+ */
+
+
+setup.colours.hairgradients_prototypes = {
+	fringe: {
+		"high-ombre": {
+			all: {
+				gradient: "linear",
+				values: [300, 200, 300, 0],
+				lengthFunctions: [(length, value) => value, (length, value) => value],
+				colors: [
+					[0.60, "rgba(0, 0, 0, 1)"],
+					[0.85, "rgba(0, 0, 0, 1)"],
+				],
+			}
+		},
+		"low-ombre": {
+			all: {
+				gradient: "linear",
+				values: [300, 200, 300, 0],
+				lengthFunctions: [(length, value) => value - length / 1000 / 2, (length, value) => value - length / 1000 / 2],
+				colors: [
+					[0.60, "rgba(0, 0, 0, 1)"],
+					[0.85, "rgba(0, 0, 0, 1)"],
+				],
+			}
+		},
+		"split": {
+			parted: {
+				gradient: "linear",
+				values: [21, 255, 234, 0],
+				lengthFunctions: [(length, value) => value, (length, value) => value],
+				colors: [
+					[0.63, "rgba(0, 0, 0, 1)"],
+					[0.65, "rgba(0, 0, 0, 1)"]
+				]
+
+			},
+			mohawk: {
+				gradient: "radial",
+				values: [93, 60, 0, 93, 60, 170],
+				lengthFunctions: [(length, value) => value, (length, value) => value],
+				colors: [
+					[0.155, "rgba(0, 0, 0, 1)"],
+					[0.16, "rgba(0, 0, 0, 1)"]
+				]
+			},
+			overgrown: {
+				gradient: "radial",
+				values: [93, 60, 0, 93, 60, 200],
+				lengthFunctions: [(length, value) => value, (length, value) => value],
+				colors: [
+					[0.155, "rgba(0, 0, 0, 1)"],
+					[0.16, "rgba(0, 0, 0, 1)"]
+				]
+			},
+			all: {
+				gradient: "radial",
+				values: [-40, 100, 0, -40, 100, 1070],
+				lengthFunctions: [(length, value) => value, (length, value) => value],
+				colors: [
+					[0.155, "rgba(0, 0, 0, 1)"],
+					[0.16, "rgba(0, 0, 0, 1)"]
+				]
+			}
+		},
+		"face-frame": {
+			all: {
+				gradient: "radial",
+				values: [125, 103, 0, 125, 103, 350],
+				lengthFunctions: [(length, value) => value, (length, value) => value],
+				colors: [
+					[0.15, "rgba(0, 0, 0, 1)"],
+					[0.175, "rgba(0, 0, 0, 1)"]
+				]
+			}
+		},
+	},
+	sides: {
+		"high-ombre": {
+			all: {
+				gradient: "linear",
+				values: [300, 200, 300, 0],
+				lengthFunctions: [(length, value) => value, (length, value) => value],
+				colors: [
+					[0.60, "rgba(0, 0, 0, 1)"],
+					[0.85, "rgba(0, 0, 0, 1)"],
+				],
+			}
+		},
+		"low-ombre": {
+			all: {
+				gradient: "linear",
+				values: [300, 200, 300, 0],
+				lengthFunctions: [(length, value) => value - length / 1000 / 2, (length, value) => value - length / 1000 / 2],
+				colors: [
+					[0.60, "rgba(0, 0, 0, 1)"],
+					[0.85, "rgba(0, 0, 0, 1)"],
+				],
+			}
+		},
+		"split": {
+			all: {
+				gradient: "linear",
+				values: [0, 100, 600, 100],
+				lengthFunctions: [(length, value) => value, (length, value) => value],
+				colors: [
+					[0.19, "rgba(0, 0, 0, 1)"],
+					[0.21, "rgba(0, 0, 0, 1)"],
+				],
+			}
+		},
+		"face-frame": {
+			all: {
+				gradient: "linear",
+				values: [0, 100, 600, 100],
+				lengthFunctions: [(length, value) => value, (length, value) => value],
+				colors: [
+					[0.0, "rgba(0, 0, 0, 1)"],
+					[0.0, "rgba(0, 0, 0, 1)"],
+				],
+			}
+		},
+	}
+
+}
+
+/**
  * Eyes colour record:
  * - variable:string - Value of variables
  * - name:string - Display name
@@ -577,7 +722,7 @@ setup.colours.eyes = [{
 	canvasfilter: {
 		blend: "#95b521"
 	}
-},{
+	}, {
 	variable: "lime green",
 	name: "lime green",
 	name_cap: "Lime Green",
@@ -589,7 +734,7 @@ setup.colours.eyes = [{
 		brightness: +0.2
 	}
 },
- {
+	{
 	variable: "light green",
 	name: "light green",
 	name_cap: "Light Green",
@@ -630,7 +775,7 @@ setup.colours.eyes = [{
 	canvasfilter: {
 		blend: "#a9a9a9"
 	}
-},{
+	}, {
 	variable: "light grey",
 	name: "light grey",
 	name_cap: "Light Grey",
@@ -666,7 +811,7 @@ setup.colours.eyes = [{
 		brightness: +0.2
 	}
 },
- {
+	{
 	variable: "red possessed",
 	name: "red possessed",
 	name_cap: "Red Possessed",
@@ -676,7 +821,7 @@ setup.colours.eyes = [{
 	canvasfilter: {
 		blend: "#f40101",
 		brightness: +0.2,
-		}
+	}
 }, {
 	variable: "blue possessed",
 	name: "blue possessed",
@@ -703,181 +848,181 @@ setup.colours.clothes = [{
 	"name": "blue",
 	"name_cap": "Blue",
 	"csstext": "blue",
-	"canvasfilter": {"blend": "#0132ff"}
+	"canvasfilter": { "blend": "#0132ff" }
 }, {
 	"variable": "light blue",
 	"name": "light blue",
 	"name_cap": "Light Blue",
 	"csstext": "light-blue",
-	"canvasfilter": {"blend": "#559BC0"}
+	"canvasfilter": { "blend": "#559BC0" }
 }, {
 	"variable": "white",
 	"name": "white",
 	"name_cap": "White",
 	"csstext": "white",
-	"canvasfilter": {"blend": "#ffffff"}
+	"canvasfilter": { "blend": "#ffffff" }
 }, {
 	"variable": "pale white",
 	"name": "pale white",
 	"name_cap": "Pale White",
 	"csstext": "white",
-	"canvasfilter": {"blend": "#949494"}
+	"canvasfilter": { "blend": "#949494" }
 }, {
 	"variable": "red",
 	"name": "red",
 	"name_cap": "Red",
 	"csstext": "red",
-	"canvasfilter": {"blend": "#ff0000"}
+	"canvasfilter": { "blend": "#ff0000" }
 }, {
 	"variable": "green",
 	"name": "green",
 	"name_cap": "Green",
 	"csstext": "green",
-	"canvasfilter": {"blend": "#00aa00"}
+	"canvasfilter": { "blend": "#00aa00" }
 }, {
 	"variable": "light green",
 	"name": "light green",
 	"name_cap": "Light Green",
 	"csstext": "green",
-	"canvasfilter": {"blend": "#72AC72"}
+	"canvasfilter": { "blend": "#72AC72" }
 }, {
 	"variable": "black",
 	"name": "black",
 	"name_cap": "Black",
 	"csstext": "black",
-	"canvasfilter": {"blend": "#353535"}
+	"canvasfilter": { "blend": "#353535" }
 }, {
 	"variable": "pink",
 	"name": "pink",
 	"name_cap": "Pink",
 	"csstext": "pink",
-	"canvasfilter": {"blend": "#fe3288"}
+	"canvasfilter": { "blend": "#fe3288" }
 }, {
 	"variable": "light pink",
 	"name": "light pink",
 	"name_cap": "Light Pink",
 	"csstext": "light-pink",
-	"canvasfilter": {"blend": "#d67caf"}
+	"canvasfilter": { "blend": "#d67caf" }
 }, {
 	"variable": "purple",
 	"name": "purple",
 	"name_cap": "Purple",
 	"csstext": "purple",
-	"canvasfilter": {"blend": "#8f09f3"}
+	"canvasfilter": { "blend": "#8f09f3" }
 }, {
 	"variable": "tangerine",
 	"name": "tangerine",
 	"name_cap": "Tangerine",
 	"csstext": "tangerine",
-	"canvasfilter": {"blend": "#ff6f00"}
+	"canvasfilter": { "blend": "#ff6f00" }
 }, {
 	"variable": "pale tangerine",
 	"name": "pale tangerine",
 	"name_cap": "Pale Tangerine",
 	"csstext": "pale-tangerine",
-	"canvasfilter": {"blend": "#ff3300"}
+	"canvasfilter": { "blend": "#ff3300" }
 }, {
 	"variable": "teal",
 	"name": "teal",
 	"name_cap": "Teal",
 	"csstext": "teal",
-	"canvasfilter": {"blend": "#2bcece"}
+	"canvasfilter": { "blend": "#2bcece" }
 }, {
 	"variable": "yellow",
 	"name": "yellow",
 	"name_cap": "Yellow",
 	"csstext": "yellow",
-	"canvasfilter": {"blend": "#ffdd33", "brightness": 0.2 }
+	"canvasfilter": { "blend": "#ffdd33", "brightness": 0.2 }
 }, {
 	"variable": "pale yellow",
 	"name": "pale yellow",
 	"name_cap": "Pale Yellow",
 	"csstext": "pale-yellow",
-	"canvasfilter": {"blend": "#ffaa00"}
+	"canvasfilter": { "blend": "#ffaa00" }
 }, {
 	"variable": "brown",
 	"name": "brown",
 	"name_cap": "Brown",
 	"csstext": "brown",
-	"canvasfilter": {"blend": "#703000"}
+	"canvasfilter": { "blend": "#703000" }
 }, {
 	"variable": "tan",
 	"name": "tan",
 	"name_cap": "Tan",
 	"csstext": "tan",
-	"canvasfilter": {"blend": "#c3ad91"}
+	"canvasfilter": { "blend": "#c3ad91" }
 }, {
 	"variable": "grey",
 	"name": "grey",
 	"name_cap": "Grey",
 	"csstext": "grey",
-	"canvasfilter": {"blend": "#b5aea6"}
+	"canvasfilter": { "blend": "#b5aea6" }
 }, {
 	"variable": "sand",
 	"name": "sand",
 	"name_cap": "Sand",
 	"csstext": "sand",
-	"canvasfilter": {"blend": "#ebd1ad"}
+	"canvasfilter": { "blend": "#ebd1ad" }
 }, {
 	"variable": "off-white",
 	"name": "off-white",
 	"name_cap": "Off-white",
 	"csstext": "off-white",
-	"canvasfilter": {"blend": "#ecece8"}
+	"canvasfilter": { "blend": "#ecece8" }
 }, {
 	"variable": "navy",
 	"name": "navy",
 	"name_cap": "Navy",
 	"csstext": "navy",
-	"canvasfilter": {"blend": "#292934"}
+	"canvasfilter": { "blend": "#292934" }
 }, {
 	"variable": "olive",
 	"name": "olive",
 	"name_cap": "Olive",
 	"csstext": "olive",
-	"canvasfilter": {"blend": "#5f5a44"}
+	"canvasfilter": { "blend": "#5f5a44" }
 }, {
 	"variable": "wine",
 	"name": "wine",
 	"name_cap": "Wine",
 	"csstext": "wine",
-	"canvasfilter": {"blend": "#65252d"}
+	"canvasfilter": { "blend": "#65252d" }
 }, {
 	"variable": "apocalypse",
 	"name": "apocalypse",
 	"name_cap": "Apocalypse",
 	"csstext": "apocalypse",
-	"canvasfilter": {"blend": "#5c271d"}
+	"canvasfilter": { "blend": "#5c271d" }
 }, {
 	"variable": "steel",
 	"name": "steel",
 	"name_cap": "Steel",
 	"csstext": "steel",
-	"canvasfilter": {"blend": "#999999"}
+	"canvasfilter": { "blend": "#999999" }
 }, {
 	"variable": "blue steel",
 	"name": "blue steel",
 	"name_cap": "Blue Steel",
 	"csstext": "blue-steel",
-	"canvasfilter": {"blend": "#646e82"}
+	"canvasfilter": { "blend": "#646e82" }
 }, {
 	"variable": "bronze",
 	"name": "bronze",
 	"name_cap": "Bronze",
 	"csstext": "bronze",
-	"canvasfilter": {"blend": "#cd9932"}
+	"canvasfilter": { "blend": "#cd9932" }
 }, {
 	"variable": "gold",
 	"name": "gold",
 	"name_cap": "Gold",
 	"csstext": "gold",
-	"canvasfilter": {"blend": "#ffbf00", "brightness": 0.1}
+	"canvasfilter": { "blend": "#ffbf00", "brightness": 0.1 }
 }, {
 	"variable": "silver",
 	"name": "silver",
 	"name_cap": "Silver",
 	"csstext": "silver",
-	"canvasfilter": {"blend": "#C0C0C0"}
+	"canvasfilter": { "blend": "#C0C0C0" }
 }];
 /**
  * Makeup colour records:
@@ -1120,6 +1265,81 @@ setup.colours.mascara = [
 		}
 	}
 ];
+setup.colours.condom = [
+	{
+		variable: "red",
+		name: "red",
+		name_cap: "Red",
+		csstext: "red",
+		canvasfilter: {
+			blend: "#EC3535"
+		}
+	}, {
+		variable: "blue",
+		name: "blue",
+		name_cap: "Blue",
+		csstext: "blue",
+		canvasfilter: {
+			blend: "#4372FF"
+		}
+	}, {
+		variable: "lblue",
+		name: "light blue",
+		name_cap: "Light Blue",
+		csstext: "lblue",
+		canvasfilter: {
+			blend: "#559BC0"
+		}
+	}, {
+		variable: "green",
+		name: "green",
+		name_cap: "Green",
+		csstext: "green",
+		canvasfilter: {
+			blend: "#38B20A"
+		}
+	}, {
+		variable: "lime",
+		name: "lime",
+		name_cap: "Lime",
+		csstext: "lime",
+		canvasfilter: {
+			blend: "#7caf7c"
+		}
+	}, {
+		variable: "purple",
+		name: "purple",
+		name_cap: "Purple",
+		csstext: "purple",
+		canvasfilter: {
+			blend: "#AA4BC8"
+		}
+	}, {
+		variable: "orange",
+		name: "orange",
+		name_cap: "Orange",
+		csstext: "orange",
+		canvasfilter: {
+			blend: "#f28500"
+		}
+	}, {
+		variable: "pink",
+		name: "pink",
+		name_cap: "Pink",
+		csstext: "pink",
+		canvasfilter: {
+			blend: "#E40081"
+		}
+	}, {
+		variable: "plain",
+		name: "plain",
+		name_cap: "Plain",
+		csstext: "plain",
+		canvasfilter: {
+			blend: "#f28500"
+		}
+	}
+];
 
 /*
  * Maps to easily access colour record by its variable code, ex. setup.colours.hair_map[$haircolour]
@@ -1127,14 +1347,14 @@ setup.colours.mascara = [
 
 function buildColourMap(name, mode) {
 	let array = (mode == "custom_eyecolours" ? V.custom_eyecolours : setup.colours[name]);
-	const map = setup.colours[name+"_map"];
-	let defaultFilter = setup.colours[name+"_default"];
+	const map = setup.colours[name + "_map"];
+	let defaultFilter = setup.colours[name + "_default"];
 	for (let item of array) {
 		if (defaultFilter) Renderer.mergeLayerData(item.canvasfilter, defaultFilter);
 		let key = item.variable;
 		if (key in map) {
 			if (mode != "custom_eyecolours")
-				console.error("Duplicate "+name+" '"+key+"'");
+				console.error("Duplicate " + name + " '" + key + "'");
 		}
 		map[key] = item;
 	}
@@ -1149,12 +1369,13 @@ buildColourMap("clothes");
 buildColourMap("lipstick");
 buildColourMap("mascara");
 buildColourMap("eyeshadow");
+buildColourMap("condom");
 
 /**
  * Tries to guess colour in the map by removing spaces or replacing them with '-' and checking against name.
  * Return colour record if found, and null if no
  */
-setup.guessColourInMap = function(map, colour) {
+setup.guessColourInMap = function (map, colour) {
 	if (colour in map) return map[colour];
 
 	let testname = colour.replace(/ /g, '');
@@ -1179,7 +1400,8 @@ setup.colourName = function (colour) {
 		setup.colours.clothes_map,
 		setup.colours.mascara_map,
 		setup.colours.lipstick_map,
-		setup.colours.eyeshadow_map
+		setup.colours.eyeshadow_map,
+		setup.colours.condom_map
 	]) {
 		if (colour in map) return map[colour].name;
 	}

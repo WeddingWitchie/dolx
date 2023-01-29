@@ -138,7 +138,7 @@ $(document).on(":passagerender", function (ev) {
 Links.keyNumberMatcher = /^\([^)]+\)/;
 
 Links.generateLinkNumbers = content => {
-	if (!V.numberify_enabled || !StartConfig.enableLinkNumberify) return;
+	if (!V.options.numberify_enabled || !StartConfig.enableLinkNumberify) return;
 
 	for (let i = 0; i < disableNumberifyInVisibleElements.length; i++) {
 		if ($(content).find(disableNumberifyInVisibleElements[i]).length || $(content).is(disableNumberifyInVisibleElements[i])) return; // simply skip this render
@@ -158,7 +158,7 @@ Links.generateLinkNumbers = content => {
 Links.generate = () => Links.generateLinkNumbers(document.getElementsByClassName("passage")[0] || document);
 
 $(document).on("keyup", function (ev) {
-	if (!V.numberify_enabled || !StartConfig.enableLinkNumberify || V.tempDisable) return;
+	if (!V.options.numberify_enabled || !StartConfig.enableLinkNumberify || V.tempDisable) return;
 
 	if (document.activeElement.tagName === "INPUT" && document.activeElement.type !== "radio" && document.activeElement.type !== "checkbox")
 		return;
@@ -224,6 +224,24 @@ function closeFeats(id) {
 	const div2 = document.getElementById("closeFeat-" + id);
 	div1.style.display = "none";
 	div2.style.display = "none";
+	let otherFeatDisplay;
+	let elementId = id + 1;
+	let newId = parseInt(div1.classList.value.replace("feat feat", ""));
+	do {
+		otherFeatDisplay = document.getElementById("feat-" + elementId);
+		if(otherFeatDisplay){
+			if(otherFeatDisplay.style.display !== "none" && !isNaN(newId)){
+				otherFeatDisplay.removeAttribute("class");
+				otherFeatDisplay.classList.add("feat");
+				otherFeatDisplay.classList.add("feat" + newId);
+				if(newId >= 3){
+					otherFeatDisplay.classList.add("hiddenFeat");
+				}
+				newId++;
+			}
+			elementId++;
+		}
+	} while(otherFeatDisplay);
 }
 window.closeFeats = closeFeats;
 
@@ -258,31 +276,23 @@ function customColour(color, saturation, brightness, contrast, sepia) {
 }
 window.customColour = customColour;
 
-window.zoom = function (size, set) {
-    if (size === undefined) {
-        size = document.getElementById("numberslider-input-zoom").value;
-    }
-    var parsedSize = parseInt(size);
-    var body = document.getElementsByTagName("body")[0];
-    if (parsedSize >= 50 && parsedSize <= 200 && parsedSize !== 100) {
-        body.style.zoom = size + "%";
-        if (set === true) {
-            V.zoom = size;
-        }
-    } else {
-        body.style.zoom = "";
-        if (set === true) {
-            V.zoom = 100;
-        }
-    }
+function zoom(value) {
+	const slider = $("[name$='" + Util.slugify("options.zoom") +"']");
+	value = Math.clamp(value || slider[0].value || 0, 50, 200);
+	$("body").css("zoom", value + "%").css("-ms-zoom", value + "%");
+	if(slider[0] !== undefined && slider[0].value != value){
+		slider[0].value = value;
+		slider.trigger("change");
+	}
 }
+window.zoom = zoom;
 
 function beastTogglesCheck() {
 	T.beastVars = [
 		"bestialitydisable",
 		"swarmdisable",
 		"parasitedisable",
-		"analpregdisable",
+		"parasitepregdisable",
 		"tentacledisable",
 		"slimedisable",
 		"voredisable",
@@ -334,11 +344,47 @@ function settingsAsphyxiation() {
 }
 window.settingsAsphyxiation = settingsAsphyxiation;
 
+function settingsCondoms() {
+	const updateText = () => {
+		let val = V.condomLvl;
+		let text = null;
+		switch (val) {
+			case 0:
+				text = "<span class='red inline-colour'>Everyone is allergic to latex and safe sex.</span>";
+				break;
+			case 1:
+				text = "Only <span class='green inline-colour'>you</span> may use condoms. You may still give condoms to NPCs.";
+				break;
+			case 2:
+				text = "NPCs will only have condoms if <span class='blue inline-colour'>pregnancy</span> between them and the player is possible.";
+				break;
+			case 3:
+				text = "NPCs may have and use condoms <span class='pink inline-colour'>whenever they please</span>.";
+				break;
+			default:
+				text = "Error: bad value: " + val;
+				val = 0;
+		}
+		jQuery("#numberslider-value-condomlvl").text("").append(text).addClass("small-description");
+	};
+
+	$(() => {
+		updateText();
+		$("#numberslider-input-condomlvl").on("input change", function (e) {
+			updateText();
+		});
+	});
+}
+window.settingsCondoms = settingsCondoms;
+
 function settingsNudeGenderAppearance() {
 	const updateText = () => {
 		let val = V.NudeGenderDC;
 		let text = null;
 		switch (val) {
+			case -1:
+				text= "NPCs <span class='blue inline-colour'>ignore</span> genitals when perceiving gender. <span class='purple inline-colour'>Overrides some player descriptions.</span> <span class='red inline-colour'>Disables crossdressing warnings.</span>";
+				break;
 			case 0:
 				text = "NPCs will <span class='blue inline-colour'>ignore</span> your genitals when perceiving your gender.";
 				break;
@@ -456,17 +502,10 @@ function settingsDisableElement() {
 				});
 			};
 			const orig = $(this);
-			const target = orig.data("target");
 			const disabledif = orig.data("disabledif");
+			[orig.data("target")].flat().forEach((e) => $("[name$='" + Util.slugify(e) +"']").on('click', updateButtonsActive));
 			if (orig.data("target") && disabledif) {
 				updateButtonsActive();
-				$(document).on(
-					"click.evt",
-					"[name*='" + (Array.isArray(target) ? target.map(x => Util.slugify(x)).join("'], [name*='") : Util.slugify(target)) + "']",
-					function () {
-						updateButtonsActive();
-					}
-				);
 			}
 		});
 	});
@@ -572,3 +611,34 @@ function elementExists(selector) {
 	return document.querySelector(selector) !== null;
 }
 window.elementExists = elementExists;
+
+window.getCharacterViewerDate = () => {
+	const textArea = document.getElementById('characterViewerDataInput');
+	textArea.value = JSON.stringify(V.characterViewer);
+}
+
+window.loadCharacterViewerDate = () => {
+	const textArea = document.getElementById('characterViewerDataInput');
+	let data;
+	try{
+		data = JSON.parse(textArea.value);
+	}catch(e){
+		textArea.value = "Invalid JSON";
+	}
+	let original = clone(V.characterViewer);
+
+	if(typeof data === 'object' && !Array.isArray(data) && data !== null){
+		V.characterViewer = {
+			...original,
+			...data.clothesEquipped,
+			...data.clothesIntegrity,
+			...data.bodyState,
+			...data.colours,
+			...data.skinColour,
+			...data.controls,
+		}
+		State.display(V.passage);
+	} else {
+		textArea.value = "Invalid Import";
+	}
+}
