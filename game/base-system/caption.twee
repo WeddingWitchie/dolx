@@ -5,7 +5,6 @@
 	<<if $debug is 1>>
 		<div id="debugOverlay" class="debugOverlay unstowable"></div>
 	<</if>>
-	<<effectstime>>
 	<<weatherdisplay>>
 	<<if $gamemode is "soft">>
 		<<set $pain to 0>>
@@ -68,12 +67,14 @@
 			</div>
 		<</if>>
 		<<if $endeventerror isnot undefined>>
-			<<if $debugdisable is "f">>
+			<<if $options.debugdisable is "f">>
 				<<if $options.images is 1>><img class="layer-sexmouth" src="img/ui/sym_awareness.png"><</if>><span class="red"><<print StartConfig.version>> Error: An NPC generated on the "$endeventerror" passage broke free. Please inform Vrelnir. <<if $cheatdisable is "f">>Disregard this if you've just used a cheat.<</if>></span>
 				<br><br>
 			<</if>>
 			<<unset $endeventerror>>
 		<</if>>
+		
+		<<effectstime>>
 
 		<<if $physiquechange is 1>><<set $physiquechange to 0>>
 			<<if $physiqueuse gte $physique / 1000>>
@@ -276,7 +277,7 @@
 				<</if>>
 			</div>
 			<!-- Event debug button - Shows an overlay stored in debug-events.twee. -->
-			<<if $event isnot undefined and $debugdisable is "f">>
+			<<if $event isnot undefined and $options.debugdisable is "f">>
 				<!-- Default _temp to what we should people regularly if an event active. -->
 				<<set _temp to "<span class='yellow'>SHOW EVENT INFO</span>">>
 				<!-- Prepare for cases where we want to update the button view. -->
@@ -492,9 +493,9 @@
 				<</if>>
 			<<elseif $worn.under_lower.name is "naked" and $worn.genitals.name isnot "naked">>
 				<<if $worn.under_upper.name is "naked">>
-					<span class="red">Your <<genitalsintegrity>> $worn.genitals.name <<if $worn.genitals.anal_shield is 1>>with an anal shield<</if>> gives you no comfort.</span>
+					<span class="red">Your <<genitalsintegrity>> $worn.genitals.name <<if playerChastity("anus")>>with an anal shield<</if>> gives you no comfort.</span>
 				<<else>>
-					<span class="red">Other than your <<genitalsintegrity>> $worn.genitals.name <<if $worn.genitals.anal_shield is 1>>with an anal shield<</if>>, your bottom half is completely exposed!</span>
+					<span class="red">Other than your <<genitalsintegrity>> $worn.genitals.name <<if playerChastity("anus")>>with an anal shield<</if>>, your bottom half is completely exposed!</span>
 				<</if>>
 			<</if>>
 			<<if $worn.under_lower.name isnot "naked">>
@@ -508,7 +509,7 @@
 					<</if>>
 				<</if>>
 				<<if $worn.genitals.name isnot "naked">>
-					You wear <<genitalsword>> <<genitalsintegrity>> $worn.genitals.name<<if $worn.genitals.anal_shield is 1>> with an anal shield<</if>>.
+					You wear <<genitalsword>> <<genitalsintegrity>> $worn.genitals.name<<if playerChastity("anus")>> with an anal shield<</if>>.
 				<</if>>
 			<</if>>
 		<</if>>
@@ -520,7 +521,7 @@
 				<span class="pink">You are wearing <<underupperword>> <<underupperintegrity>> <<clothescolour 'under_upper'>> $worn.under_upper.name</span> and <<lowerword>> <<lowerintegrity>> <<clothescolour 'lower'>> $worn.lower.name, <span class="purple">with nothing underneath.</span>
 				<</if>>
 				<<if $worn.genitals.name isnot "naked">>
-					You wear <<genitalsword>> <<genitalsintegrity>> $worn.genitals.name<<if $worn.genitals.anal_shield is 1>> with an anal shield<</if>>.
+					You wear <<genitalsword>> <<genitalsintegrity>> $worn.genitals.name<<if playerChastity("anus")>> with an anal shield<</if>>.
 				<</if>>
 			<</if>>
 			<<if $worn.under_lower.name isnot "naked">>
@@ -530,7 +531,7 @@
 				Your lower half is covered by <<lowerword>> <<lowerintegrity>> <<clothescolour 'lower'>> $worn.lower.name and <<underlowerword>> <<underlowerintegrity>> <<clothescolour 'under_lower'>> $worn.under_lower.name, <span class="pink">but only <<underupperword>> <<underupperintegrity>> <<clothescolour 'under_upper'>> $worn.under_upper.name protects your chest.</span>
 				<</if>>
 				<<if $worn.genitals.name isnot "naked">>
-					You wear <<genitalsword>> <<genitalsintegrity>> $worn.genitals.name<<if $worn.genitals.anal_shield is 1>> with an anal shield<</if>>.
+					You wear <<genitalsword>> <<genitalsintegrity>> $worn.genitals.name<<if playerChastity("anus")>> with an anal shield<</if>>.
 				<</if>>
 			<</if>>
 		<</if>>
@@ -551,7 +552,7 @@
 					<</if>>
 				<</if>>
 				<<if $worn.genitals.name isnot "naked">>
-					<span class="red">Your <<genitalsintegrity>> $worn.genitals.name<<if $worn.genitals.anal_shield is 1>> with an anal shield<</if>> gives you no comfort.</span>
+					<span class="red">Your <<genitalsintegrity>> $worn.genitals.name<<if playerChastity("anus")>> with an anal shield<</if>> gives you no comfort.</span>
 				<</if>>
 			<</if>>
 			<<if $worn.under_lower.name isnot "naked">>
@@ -573,7 +574,7 @@
 					<</if>>
 				<</if>>
 				<<if $worn.genitals.name isnot "naked">>
-					Your <<genitalsintegrity>> $worn.genitals.name<<if $worn.genitals.anal_shield is 1>> with an anal shield<</if>> <<if $worn.under_lower.reveal gte 500>>is clearly visible<<else>>can be made out<</if>> underneath.
+					Your <<genitalsintegrity>> $worn.genitals.name<<if playerChastity("anus")>> with an anal shield<</if>> <<if $worn.under_lower.reveal gte 500>>is clearly visible<<else>>can be made out<</if>> underneath.
 				<</if>>
 			<</if>>
 		<</if>>
@@ -597,7 +598,7 @@
 					<</if>>
 				<</if>>
 				<<if $worn.genitals.name isnot "naked">>
-					You wear <<genitalsword>> <<genitalsintegrity>> $worn.genitals.name<<if $worn.genitals.anal_shield is 1>> with an anal shield<</if>>.
+					You wear <<genitalsword>> <<genitalsintegrity>> $worn.genitals.name<<if playerChastity("anus")>> with an anal shield<</if>>.
 				<</if>>
 			<</if>>
 			<<if $worn.under_lower.name isnot "naked">>
@@ -623,7 +624,7 @@
 					<</if>>
 				<</if>>
 				<<if $worn.genitals.name isnot "naked">>
-					You wear <<genitalsword>> <<genitalsintegrity>> $worn.genitals.name<<if $worn.genitals.anal_shield is 1>> with an anal shield<</if>>.
+					You wear <<genitalsword>> <<genitalsintegrity>> $worn.genitals.name<<if playerChastity("anus")>> with an anal shield<</if>>.
 				<</if>>
 			<</if>>
 		<</if>>
@@ -638,7 +639,7 @@
 
 <!-- NOTE: THIS WIDGET IS UNUSED
 <<widget "stripcaption">>
-	<<if !$worn.upper.type.includes("naked") and $upperwetstage gte 3 and !$worn.lower.type.includes("naked") and $lowerwetstage gte 3 and !$worn.under_lower.type.includes("naked") and !$worn.genitals.type.includes("chastity") and $underlowerwetstage gte 3 and !$worn.under_upper.type.includes("naked") and $underupperwetstage gte 3>>
+	<<if !$worn.upper.type.includes("naked") and $upperwetstage gte 3 and !$worn.lower.type.includes("naked") and $lowerwetstage gte 3 and !$worn.under_lower.type.includes("naked") and !playerChastity() and $underlowerwetstage gte 3 and !$worn.under_upper.type.includes("naked") and $underupperwetstage gte 3>>
 		<<if $worn.under_upper.set is $worn.under_lower.set>>
 			<<if $worn.upper.set is $worn.lower.set>>
 		<br>
@@ -662,7 +663,7 @@
 			<</if>>
 		<</if>>
 
-	<<elseif !$worn.upper.type.includes("naked") and $upperwetstage gte 3 and !$worn.lower.type.includes("naked") and $lowerwetstage gte 3 and !$worn.under_lower.type.includes("naked") and !$worn.genitals.type.includes("chastity") and $underlowerwetstage gte 3>>
+	<<elseif !$worn.upper.type.includes("naked") and $upperwetstage gte 3 and !$worn.lower.type.includes("naked") and $lowerwetstage gte 3 and !$worn.under_lower.type.includes("naked") and !playerChastity() and $underlowerwetstage gte 3>>
 		<<if $worn.upper.set is $worn.lower.set>>
 	<br>
 	Your $worn.upper.name, and $worn.under_lower.name are drenched, <span class="pink">revealing your <<undertop>> and <<genitals>>.</span>
@@ -700,7 +701,7 @@
 	Your $worn.upper.name <<upperplural>> drenched, <span class="purple">revealing your <<breasts>>.</span>
 	<br>
 
-	<<elseif !$worn.lower.type.includes("naked") and $lowerwetstage gte 3 and !$worn.under_lower.type.includes("naked") and !$worn.genitals.type.includes("chastity") and $underlowerwetstage gte 3>>
+	<<elseif !$worn.lower.type.includes("naked") and $lowerwetstage gte 3 and !$worn.under_lower.type.includes("naked") and !playerChastity() and $underlowerwetstage gte 3>>
 	<br>
 	Your $worn.lower.name and $worn.under_lower.name are drenched, <span class="pink">revealing your <<genitals>>.</span>
 	<br>
@@ -710,7 +711,7 @@
 	Your $worn.lower.name <<lowerplural>> drenched, <span class="purple">revealing your <<undies>>.</span>
 	<br>
 
-	<<elseif !$worn.under_lower.type.includes("naked") and !$worn.genitals.type.includes("chastity") and $underlowerwetstage gte 3>>
+	<<elseif !$worn.under_lower.type.includes("naked") and !playerChastity() and $underlowerwetstage gte 3>>
 	<br>
 	Your $worn.under_lower.name <<underlowerplural>> drenched, <span class="pink">revealing your <<genitals>>.</span>
 	<br>
@@ -720,7 +721,7 @@
 	Your $worn.under_upper.name <<underupperplural>> drenched, <span class="pink">revealing your <<breasts>>.</span>
 	<br>
 
-	<<elseif !$worn.upper.type.includes("naked") and $worn.upper.exposed is 2 and !$worn.lower.type.includes("naked") and $worn.lower.exposed is 2 and !$worn.under_lower.type.includes("naked") and !$worn.genitals.type.includes("chastity") and $worn.under_lower.state isnot "waist" and !$worn.under_upper.type.includes("naked") and $worn.under_upper.state isnot setup.clothes.under_upper[clothesIndex('under_upper', $worn.under_upper)].state_base>>
+	<<elseif !$worn.upper.type.includes("naked") and $worn.upper.exposed is 2 and !$worn.lower.type.includes("naked") and $worn.lower.exposed is 2 and !$worn.under_lower.type.includes("naked") and !playerChastity() and $worn.under_lower.state isnot "waist" and !$worn.under_upper.type.includes("naked") and $worn.under_upper.state isnot setup.clothes.under_upper[clothesIndex('under_upper', $worn.under_upper)].state_base>>
 		<<if $worn.under_upper.set is $worn.under_lower.set>>
 			<<if $worn.upper.set is $worn.lower.set>>
 		<br>
@@ -743,7 +744,7 @@
 			<</if>>
 		<</if>>
 
-	<<elseif !$worn.upper.type.includes("naked") and $worn.upper.exposed is 2 and !$worn.lower.type.includes("naked") and $worn.lower.exposed is 2 and !$worn.under_lower.type.includes("naked") and !$worn.genitals.type.includes("chastity") and $worn.under_lower.state isnot "waist">>
+	<<elseif !$worn.upper.type.includes("naked") and $worn.upper.exposed is 2 and !$worn.lower.type.includes("naked") and $worn.lower.exposed is 2 and !$worn.under_lower.type.includes("naked") and !playerChastity() and $worn.under_lower.state isnot "waist">>
 		<<if $worn.upper.set is $worn.lower.set>>
 	<br>
 	Your $worn.upper.name, skirt and $worn.under_lower.name have been pulled aside, <span class="pink">revealing your <<undertop>> and <<genitals>>.</span>
@@ -781,7 +782,7 @@
 	Your $worn.upper.name <<upperhas>> been pulled aside, <span class="purple">revealing your <<breasts>>.</span>
 	<br>
 
-	<<elseif !$worn.lower.type.includes("naked") and $worn.lower.exposed is 2 and !$worn.under_lower.type.includes("naked") and !$worn.genitals.type.includes("chastity") and $worn.under_lower.state isnot "waist">>
+	<<elseif !$worn.lower.type.includes("naked") and $worn.lower.exposed is 2 and !$worn.under_lower.type.includes("naked") and !playerChastity() and $worn.under_lower.state isnot "waist">>
 	<br>
 	Your $worn.lower.name <<lowerhas>> been pulled aside and your $worn.under_lower.name pulled down, <span class="pink">revealing your <<genitals>>.</span>
 	<br>
@@ -791,7 +792,7 @@
 	Your $worn.lower.name <<lowerhas>> been pulled aside, <span class="purple">revealing your <<undies>>.</span>
 	<br>
 
-	<<elseif !$worn.under_lower.type.includes("naked") and !$worn.genitals.type.includes("chastity") and $worn.under_lower.state isnot setup.clothes.under_lower[clothesIndex('under_lower', $worn.under_lower)].state_base>>
+	<<elseif !$worn.under_lower.type.includes("naked") and !playerChastity() and $worn.under_lower.state isnot setup.clothes.under_lower[clothesIndex('under_lower', $worn.under_lower)].state_base>>
 	<br>
 
 	Your $worn.under_lower.name <<underlowerhas>> been pulled
@@ -872,7 +873,7 @@
 	<<case 1>>Sun<<case 2>>Mon<<case 3>>Tue<<case 4>>Wed<<case 5>>Thu<<case 6>>Fri<<case 7>>Sat
 	<</switch>>
 	<<if $extendedStats>>
-		$monthday<<monthday>> <<month true>>
+		<<displayMonthday>> <<month true>>
 	<</if>>
 <</widget>>
 

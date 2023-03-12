@@ -38,8 +38,12 @@
 
 	<<if $NudeGenderDC gte 0>>
 		<<clothingCaptionTextGender>>
+		<br>
 	<</if>>
-	<br>
+	<<if $sexStats.vagina.pregnancy.awareOf is true or $bellySizeDebug>>
+		<<clothingCaptionTextPreggy>>
+		<br>
+	<</if>>
 <</widget>>
 
 <<widget "pushClothingCaption">>
@@ -138,9 +142,9 @@
 <<widget "clothingCaptionTextGenitals">><<silently>>
 	<<if $worn.genitals.name isnot "naked">>
 		<<if _bottomless>>
-			<<set $_text_output to " <span class='red'>Your <<genitalsintegrity>> $worn.genitals.name <<if $worn.genitals.anal_shield is 1>>with an anal shield<</if>><<if playerHasButtPlug()>> and $worn.butt_plug.name<</if>> gives you no comfort.</span>">>
+			<<set $_text_output to " <span class='red'>Your <<genitalsintegrity>> $worn.genitals.name <<if playerChastity('anus')>>with an anal shield<</if>><<if playerHasButtPlug()>> and $worn.butt_plug.name<</if>> gives you no comfort.</span>">>
 		<<else>>
-			<<set $_text_output to " You wear <<genitalsword>> <<genitalsintegrity>> $worn.genitals.name<<if $worn.genitals.anal_shield is 1>> with an anal shield<</if>><<if playerHasButtPlug()>> and $worn.butt_plug.name<</if>>.">>
+			<<set $_text_output to " You wear <<genitalsword>> <<genitalsintegrity>> $worn.genitals.name<<if playerChastity('anus')>> with an anal shield<</if>><<if playerHasButtPlug()>> and $worn.butt_plug.name<</if>>.">>
 		<</if>>
 	<<elseif playerHasButtPlug()>>
 		<<set $_a to ($worn.butt_plug.name is "anal beads"? "": "a")>>
@@ -159,7 +163,7 @@
 <<widget "clothingCaptionTextNothing">><<silently>>
 	<<if _fullyNaked>>
 		<<if $worn.genitals.name isnot "naked">>
-			<<set $_text_output to "Your <<genitalsintegrity>> $worn.genitals.name <<if $worn.genitals.anal_shield is 1>>with an anal shield<</if>> gives you no comfort.">>
+			<<set $_text_output to "Your <<genitalsintegrity>> $worn.genitals.name <<if playerChastity('anus')>>with an anal shield<</if>> gives you no comfort.">>
 		<<else>>
 			<<set $_text_output to "You are completely naked!">>
 		<</if>>
@@ -292,3 +296,34 @@
 		<</if>>
 	<</if>>
 <</silently>><<if $_text_output>><span class="pink"><<print $_text_output>></span><</if>><</widget>>
+
+<<widget "clothingCaptionTextPreggy">><<silently>>
+	<<if pregnancyBellyVisible()>>
+		<<set $_textCol to "pink">>
+		<<if _fullyNaked>>
+			<<set $_text_output to `Your complete lack of clothing makes your <<bellyDescription "pc">> more obvious.`>>
+		<<elseif $worn.upper.type.includes("naked") and $worn.over_upper.type.includes("naked")>>
+			<<if $worn.under_upper.type.includes("naked")>>
+				<<set $_text_output to `Your exposed upper body makes your <<bellyDescription "pc">> more obvious.`>>
+			<<else>>
+				<<set $_text_output to `Your $worn.under_upper.name does nothing to conceal your <<bellyDescription "pc">>.`>>
+			<</if>>
+		<<elseif $worn.upper.type.includes("bellyShow") and $worn.over_upper.type.includes("naked")>>
+			<<set $_text_output to `Your $worn.upper.name shows off your <<bellyDescription "pc">>.`>>
+		<<elseif $worn.upper.type.includes("bellyHide") and $worn.over_upper.type.includes("naked")>>
+			<<set $_text_output to `Your <<bellyDescription "pc">> is too large for your $worn.upper.name to hide.`>>
+		<<else>>
+			<<set $_text_output to `Your <<bellyDescription "pc">> is visible.`>>
+		<</if>>
+	<<else>>
+		<<set $_textCol to "blue">>
+		<<if $worn.upper.type.includes("bellyHide")>>
+			<<set $_text_output to `Your $worn.upper.name hides your <<bellyDescription "pc">>.`>>
+		<<elseif !$worn.over_upper.type.includes("naked")>>
+			<<set $_text_output to `Your $worn.over_upper.name hides your <<bellyDescription "pc">>.`>>
+		<<else>>
+			<<set $_text_output to `Your <<bellyDescription "pc">> is not visible.`>>
+		<</if>>
+
+	<</if>>
+<</silently>><<if $_text_output>><span @class=$_textCol><<print $_text_output>></span><</if>><</widget>>

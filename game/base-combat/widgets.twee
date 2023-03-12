@@ -70,6 +70,7 @@
 <</widget>>
 
 <<widget "takeHandholdingVirginity">>
+	<<takeNPCVirginity _args[0] "handholding">>
 	<<if $player.virginity.handholding is true>>
 		<<switch _args[1]>>
 			<<case "romantic">>
@@ -86,10 +87,10 @@
 		<</switch>>
 		<<takeVirginity _args[0] "handholding">>
 	<</if>>
-	<<takeNPCVirginity _args[0] "handholding">>
 <</widget>>
 
 <<widget "takeKissVirginity">>
+	<<takeNPCVirginity _args[0] "kiss">>
 	<<if $player.virginity.kiss is true>>
 		<<if _args[0].type is "plant" and $backgroundTraits.includes("plantlover") and $nectar_timer lte 14>>
 			<<set $_kissType to "addiction">>
@@ -115,7 +116,6 @@
 		<</switch>>
 		<<takeVirginity _args[0] "kiss">>
 	<</if>>
-	<<takeNPCVirginity _args[0] "kiss">>
 <</widget>>
 
 <<widget "takeKissVirginityNamed">>
@@ -449,7 +449,7 @@
 /* For the player equipping their own condom on themselves */
 <<widget "equipPlayerCondom">>
 	<<set $player.condom to {
-		state: (random(0,100) gt 98 ? "damaged" : "normal"),
+		state: (random(0,100) gt 98 ? "defective" : "normal"),
 		type: "plain",
 		colour: setup.colours.condom[random(0, (setup.colours.condom.length -1))].csstext,
 		worn: true
@@ -469,7 +469,7 @@
 	<<else>>
 		<<set $NPCList[$_condomnpc].condom to {
 			willUse: true,
-			state: (random(0,100) gt 98 ? "damaged" : "normal"),
+			state: (random(0,100) gt 98 ? "defective" : "normal"),
 			type: "plain",
 			colour: setup.colours.condom[random(0, (setup.colours.condom.length -1))].csstext,
 			worn: false
@@ -488,7 +488,7 @@
 		<<if $penisstate is "entrance" or $penisstate is "imminent" or $penisstate is "otheranusentrance" or $penisstate is "otheranusimminent">>
 			<<if ($NPCList[$_condomnpc].vagina.toString().includes("penis") or $NPCList[$_condomnpc].penis.toString().includes("otheranus")) and !$player.condom and $parasite.penis.name is undefined>>
 				<<personselect $_condomnpc>>
-				<<if $worn.genitals.type.includes("chastity")>>
+				<<if playerChastity("penis")>>
 					<<He>> tries to put a condom on your penis, but can't seem to get it over your $worn.genitals.name. <span class="red"><<He>> quickly gives up.</span>
 					<<set $NPCList[$_condomnpc].condom.willUse to false>>
 				<<else>>

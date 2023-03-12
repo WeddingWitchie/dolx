@@ -313,7 +313,7 @@ setup.sextoys = [
 	{
 		index: 9,
 		name: "stroker",
-		namecap: "stroker",
+		namecap: "Stroker",
 		name_underscore: "stroker",
 		description: "A penile masturbator sleeve. Made with a material with a flesh-like feel.",
 		cost: 8000,
@@ -363,6 +363,28 @@ setup.sextoys = [
 		unWear: setup.sextoyFunctions.unWear,
 		unCarry: setup.sextoyFunctions.unCarry,
 		display_condition: () => 1,
+	},
+	{
+		index: 11,
+		name: "breast pump",
+		namecap: "Breast pump",
+		name_underscore: "breast_pump",
+		description: "A hand held breast pump.",
+		cost: 5000,
+		wearable: 0,
+		size: 3,
+		category: "breastpump",
+		type: ["breastpump"],
+		icon: "img/misc/icon/sexToys/handheld_pump.png",
+		colour: 1,
+		colour_options: ["pink", "purple", "blue", "light-pink", "yellow"],
+		default_colour: ["pink", "purple", "blue", "light-pink", "yellow"],
+		owned: setup.sextoyFunctions.owned,
+		isCarried: setup.sextoyFunctions.isCarried,
+		isWorn: setup.sextoyFunctions.isWorn,
+		unWear: setup.sextoyFunctions.unWear,
+		unCarry: setup.sextoyFunctions.unCarry,
+		display_condition: () => 1, // Found at the pharmacy as well
 	},
 ];
 
@@ -558,6 +580,7 @@ function sexShopOnGiftClick(index) {
 		uses: item.uses ? item.uses : undefined,
 		shape: item.shape ? item.shape : undefined,
 	};
+	if (Array.isArray(obj.colour)) obj.colour = obj.colour[random(0, obj.colour.length)];
 	if (item.category === "strap-on") {
 		obj.clothes_index = item.clothes_index;
 	}
@@ -583,10 +606,13 @@ function sexShopOnGiftClick(index) {
 }
 window.sexShopOnGiftClick = sexShopOnGiftClick;
 
-function sexShopOnBuyClick(index) {
+function sexShopOnBuyClick(index, inSexShop = true, colour, costsMoney = true) {
 	const item = setup.sextoys[index];
-	const iconClassName = document.getElementById("ssm_desc_img").className;
-	sexShopOnBuyClick.counter = sexShopOnBuyClick.counter || "off";
+	let iconClassName = "";
+	if (inSexShop) {
+		iconClassName = document.getElementById("ssm_desc_img").className;
+		sexShopOnBuyClick.counter = sexShopOnBuyClick.counter || "off";
+	}
 	/* add item to player inventory */
 	if (V.player.inventory.sextoys[item.name] === undefined)
 		V.player.inventory.sextoys[item.name] = [];
@@ -612,32 +638,36 @@ function sexShopOnBuyClick(index) {
 	if (item.category === "strap-on") {
 		obj.clothes_index = item.clothes_index;
 	}
+	if (colour && item.colour_options.includes(colour)) obj.colour = colour;
+	if (Array.isArray(obj.colour)) obj.colour = obj.colour[random(0, obj.colour.length)];
 	V.player.inventory.sextoys[item.name].push(obj);
 	/* withdraw money from player */
-	V.money -= item.cost;
-	/* update sidebar money */
-	updateSideBarMoney();
-	/* fade in "owned" icon */
-	document
-		.getElementById("ssm_item_" + item.name_underscore)
-		.getElementsByClassName(
-			"ssm_already_owned"
-		)[0].innerHTML = `<span class="ssm_owned_text ssm_fade_in">owned</span>`;
-	/* fade in/out bought green text indicator */
-	document.getElementById(
-		"ssmBuyButton"
-	).outerHTML = `<span class="ssm_buy_button ssm_fade_in" id="ssmBuyButton" style="color:#97de97">Bought!</span>`;
-	if (sexShopOnBuyClick.counter === "off") {
-		sexShopOnBuyClick.counter = setTimeout(function () {
-			if (document.getElementById("ssmBuyButton"))
-				document.getElementById("ssmBuyButton").outerHTML =
-					V.money > item.cost
-						? `<a id="ssmBuyButton" onclick="window.sexShopOnBuyClick(` +
-						  index +
-						  `)" class="ssm_buy_button ssm_fade_in_fast">Buy it</a>`
-						: `<span class="ssm_not_enough_money">Not enough money</span>`;
-			sexShopOnBuyClick.counter = "off";
-		}, 1400);
+	if(costsMoney) V.money -= item.cost;
+	if(inSexShop){
+		/* update sidebar money */
+		updateSideBarMoney();
+		/* fade in "owned" icon */
+		document
+			.getElementById("ssm_item_" + item.name_underscore)
+			.getElementsByClassName(
+				"ssm_already_owned"
+			)[0].innerHTML = `<span class="ssm_owned_text ssm_fade_in">owned</span>`;
+		/* fade in/out bought green text indicator */
+		document.getElementById(
+			"ssmBuyButton"
+		).outerHTML = `<span class="ssm_buy_button ssm_fade_in" id="ssmBuyButton" style="color:#97de97">Bought!</span>`;
+		if (sexShopOnBuyClick.counter === "off") {
+			sexShopOnBuyClick.counter = setTimeout(function () {
+				if (document.getElementById("ssmBuyButton"))
+					document.getElementById("ssmBuyButton").outerHTML =
+						V.money > item.cost
+							? `<a id="ssmBuyButton" onclick="window.sexShopOnBuyClick(` +
+							index +
+							`)" class="ssm_buy_button ssm_fade_in_fast">Buy it</a>`
+							: `<span class="ssm_not_enough_money">Not enough money</span>`;
+				sexShopOnBuyClick.counter = "off";
+			}, 1400);
+		}
 	}
 }
 window.sexShopOnBuyClick = sexShopOnBuyClick;

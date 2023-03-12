@@ -42,8 +42,8 @@ function shopClothingFilterSortOnDescription(traitOne, traitTwo) {
 }
 window.shopClothingFilterSortOnDescription = shopClothingFilterSortOnDescription;
 
-//Now also returns the value from wikifyEval
-//Not limited to number of parameters
+// Now also returns the value from wikifyEval
+// Not limited to number of parameters
 window.wikifier = function (widget, ...args) {
 	if(widget == null) return;
 	return Wikifier.wikifyEval("<<" + widget + (args.length ? " " + args.join(" ") : "") + ">>");
@@ -75,7 +75,7 @@ const combatActionColours = {
 			/* leftaction or rightaction */
 			"steal", "penwhack", "freeface", "leftcovervagina", "leftcoverpenis", "leftcoveranus", "rightcovervagina", "rightcoverpenis", "rightcoveranus", "leftunderpull", "leftskirtpull", "leftlowerpull", "leftupperpull", "rightunderpull", "rightskirtpull", "rightlowerpull", "rightupperpull", "rightUndressOther", "leftUndressOther", "stopchoke", "clench", "shacklewhack", "leftfold", "rightfold", "dildowhack", "hypnosiswhack", "leftstruggleweak", "rightstruggleweak", "handpullpenis", "handpullvagina", "handpullanus", "leftresistW", "rightresistW", "leftstillW", "rightstillW", "penisremovecondom", "npcremovecondom",
 			/* feetaction */
-			"run", "hide", "confront", "feetresistW",
+			"run", "hide", "confront", "feetresistW", "legLock", "legLocked", "feetHold",
 			/* mouthaction */
 			"pullaway", "ejacspit", "pullawayvagina", "finish", "novaginal", "nopenile", "noanal", "scream", "mock", "breastclosed", "breastpull", "pullawaykiss", "noupper", "analpull", "up", "stifleorgasm", "stifle", "mouthresistW", "handcloseW", "growl", "askPullOut",
 			/* penisaction */
@@ -97,7 +97,7 @@ const combatActionColours = {
 			/* leftaction or rightaction */
 			"behind", "fold", "leftcovervaginameek", "leftcoverpenismeek", "leftcoveranusmeek", "rightcovervaginameek", "rightcoverpenismeek", "rightcoveranusmeek", "leftprotect", "rightprotect", "leftgrip", "rightgrip", "leftcurl", "rightcurl", "pickupSexToy", "leftcamerapose", "rightcamerapose", "peniscondom", "npcgivecondom",
 			/* feetaction */
-			"strut",
+			"strut", "feetCurl",
 			/* mouthaction */
 			"grasp", "plead", "forgive", "down", "letout", "letoutorgasm", "noises", "pay",
 			/* penisaction */
@@ -119,7 +119,7 @@ const combatActionColours = {
 			/* fencing */
 			"otherpenisrub", "penistopenis", "penistopenisfuck", "fencingcooperate",
 			/* vaginaaction */
-			"vaginatopenis", "vaginapenisfuck", "othervaginarub", "vaginatovagina", "vaginatovaginafuck", "tribcooperate", "penisEdging", "tribedge", "vaginatopenisdouble", "vaginapenisdoublefuck", "penispussydouble", "penisanusdvp",
+			"vaginatopenis", "vaginapenisfuck", "othervaginarub", "vaginatovagina", "vaginatovaginafuck", "tribcooperate", "penisEdging", "tribedge", "vaginatopenisdouble", "vaginapenisdoublefuck", "penispussydouble", "penisanusdvp", "forceImpregnation",
 			/* anusaction */
 			"anustopenis", "anuspenisfuck", "penistease", "otherMouthAnusRub", "otherAnusRub", "penisEdging",
 			/* doubleanusaction */
@@ -146,6 +146,8 @@ const combatActionColours = {
 		brat: [
 			/* leftaction or rightaction */
 			"leftfold", "rightfold", "leftstruggleweak", "rightstruggleweak",
+			/* feetaction */
+			"feetHold",
 			/* mouthaction */
 			"mouthpullawaytentacle", "stifleorgasm", "stifle", "mouthlulltentacle",
 			/* penisaction */
@@ -176,24 +178,26 @@ const combatActionColours = {
 		meek: [
 			/* leftaction or rightaction */
 			"leftprotect", "rightprotect", "leftgrip", "rightgrip", "leftcurl", "rightcurl",
+			/* feetaction */
+			"feetCurl",
 			/* mouthaction */
 			"letout", "letoutorgasm", "noises",
 		],
 	},
 	Vore: {
 		brat: [
-			"leftescape", "rightescape", "lefthold", "righthold", "leftvorefree", "rightvorefree", "leftfold", "rightfold", "leftstruggleweak", "rightstruggleweak",
+			"leftescape", "rightescape", "lefthold", "righthold", "leftvorefree", "rightvorefree", "leftfold", "rightfold", "leftstruggleweak", "rightstruggleweak", "feetHold",
 		],
 		meek: [
-			"leftprotect", "rightprotect", "leftgrip", "rightgrip", "leftcurl", "rightcurl",
+			"leftprotect", "rightprotect", "leftgrip", "rightgrip", "leftcurl", "rightcurl", "feetCurl",
 		],
 	},
 	Swarm: {
 		brat: [
-			"leftfree", "rightfree", "frontpurgeleft", "frontpurgeright", "frontclearleft", "frontclearright", "backpurgeleft", "backpurgeright", "backclearleft", "backclearright", "chestclearleft", "chestclearright", "leftfold", "rightfold", "leftstruggleweak", "rightstruggleweak",
+			"leftfree", "rightfree", "frontpurgeleft", "frontpurgeright", "frontclearleft", "frontclearright", "backpurgeleft", "backpurgeright", "backclearleft", "backclearright", "chestclearleft", "chestclearright", "leftfold", "rightfold", "leftstruggleweak", "rightstruggleweak", "feetHold",
 		],
 		meek: [
-			"leftprotect", "rightprotect", "leftgrip", "rightgrip", "leftcurl", "rightcurl",
+			"leftprotect", "rightprotect", "leftgrip", "rightgrip", "leftcurl", "rightcurl", "feetCurl",
 		],
 		teal: ["swim"],
 	},
@@ -201,12 +205,14 @@ const combatActionColours = {
 		brat: [
 			/* leftaction or rightaction */
 			"mouth_strengthen", "mouth_grasp", "vagina_strengthen", "vagina_grasp", "penis_strengthen", "penis_grasp", "anus_strengthen", "anus_grasp", "chest_strengthen", "chest_grasp", "leftfold", "rightfold", "leftstruggleweak", "rightstruggleweak",
+			/* feetaction */
+			"feetHold",
 		],
 		meek: [
 			/* leftaction or rightaction */
 			"leftprotect", "rightprotect", "leftgrip", "rightgrip", "leftcurl", "rightcurl", "rest",
 			/* feetaction */
-			"evade", "plant",
+			"evade", "plant", "feetCurl",
 		],
 		def: [
 			/* leftaction or rightaction */
@@ -222,24 +228,24 @@ const combatActionColours = {
 		],
 	},
 	Machine: {
-		brat: ["leftfold", "rightfold", "leftstruggleweak", "rightstruggleweak", "vaginal_push", "anal_push"],
+		brat: ["leftfold", "rightfold", "leftstruggleweak", "rightstruggleweak", "vaginal_push", "anal_push", "feetHold"],
 		def: ["chain_struggle", "whack", "vaginal_whack", "anal_whack"],
-		meek: ["leftprotect", "rightprotect", "leftgrip", "rightgrip", "leftcurl", "rightcurl"],
+		meek: ["leftprotect", "rightprotect", "leftgrip", "rightgrip", "leftcurl", "rightcurl", "feetCurl"],
 	},
 	Self: {
 		brat: [
 			/* leftaction or rightaction */
-			"leftfree", "rightfree", "leftcovervagina", "leftcoverpenis", "leftcoveranus", "rightcovervagina", "rightcoverpenis", "rightcoveranus", "leftunderpull", "leftskirtpull", "leftlowerpull", "leftupperpull", "rightunderpull", "rightskirtpull", "rightlowerpull", "rightupperpull", "leftfold", "rightfold", "leftstruggleweak", "rightstruggleweak",
+			"leftfree", "rightfree", "leftcovervagina", "leftcoverpenis", "leftcoveranus", "rightcovervagina", "rightcoverpenis", "rightcoveranus", "leftunderpull", "leftskirtpull", "leftlowerpull", "leftupperpull", "rightunderpull", "rightskirtpull", "rightlowerpull", "rightupperpull", "leftfold", "rightfold", "leftstruggleweak", "rightstruggleweak", "feetHold",
 		],
 		meek: [
 			/* leftaction or rightaction */
 			"leftprotect", "rightprotect", "leftgrip", "rightgrip", "leftcurl", "rightcurl", "behind", "pickupSexToy",
 			/* feetaction */
-			"evade", "plant",
+			"evade", "plant", "feetCurl",
 		],
 		sub: [
 			/* Masturbate */
-			"leftmasturbatepenis", "rightmasturbatepenis", "leftmasturbatepussy", "rightmasturbatepussy", "dildoSelfPussyEntrance", "dildoSelfAnusEntrance", "strokerSelfPenisEntrance", "strokerSelfPenis", "lubepussy", "lubepenis", "lubeanus", "removebuttplug",
+			"leftmasturbatepenis", "rightmasturbatepenis", "leftmasturbatepussy", "rightmasturbatepussy", "leftmasturbateanus", "rightmasturbateanus", "dildoSelfPussyEntrance", "dildoSelfAnusEntrance", "strokerSelfPenisEntrance", "strokerSelfPenis", "lubepussy", "lubepenis", "lubeanus", "removebuttplug",
 		],
 		teal: ["swim"],
 	},
@@ -584,6 +590,8 @@ function getRobinLocation() {
 		T.robin_location = "halloween";
 	} else if ((V.weekday === 7 || V.weekday === 1) && between(V.hour, 9, 16) && C.npc.Robin.trauma < 80) {
 		T.robin_location = V.season === "winter" ? "park" : "beach";
+	} else if (V.englishPlay === "ongoing" && V.englishPlayDays === 0 && V.hour >= 17 && V.hour < 21) {
+		T.robin_location = "englishPlay";
 	} else {
 		T.robin_location = "orphanage";
 	}
@@ -634,6 +642,30 @@ function getRobinCrossdressingStatus(crossdressLevel) {
 	return T.robin_cd;
 }
 window.getRobinCrossdressingStatus = getRobinCrossdressingStatus;
+
+/* 
+	TEMPORARY - remove once obsolete
+	Temporary function until location framework is in place - to detect if a NPC is in the park
+	Uses same checks as other Park NPC checks
+ */
+function isInPark(name) {
+	switch(name.toLowerCase()) {
+		case "kylar":
+			return V.NPCName[V.NPCNameList.indexOf("Kylar")].state === "active" 
+				&& !["rain", "snow"].includes(V.weather) 
+				&& V.daystate === "day" && V.kylarwatched !== 1;
+		case "robin":
+			return getRobinLocation() === "park";
+		case "whitney":
+			return ["active", "rescued"].includes(V.NPCName[V.NPCNameList.indexOf("Whitney")].state)
+				&& V.NPCName[V.NPCNameList.indexOf("Whitney")].init === 1 && ["snow", "rain"].includes(V.weather)
+				&& V.daystate === "day" && (V.schoolday !== 1 || V.hour <= 8 || V.hour >= 15)
+				&& V.daily.whitney.park === undefined && V.pillory_tenant.special.name !== "Whitney";
+		default:
+			return false;
+	}
+}
+window.isInPark = isInPark;
 
 window.DefaultActions = {
 	create(isMinimal = false, preload = false) {
@@ -892,33 +924,42 @@ function clothesDataTrimmerLoop() {
 }
 window.clothesDataTrimmerLoop = clothesDataTrimmerLoop;
 
+/*
+	Be aware, the shop is excluded from this, clothing items in every other situation requires one of the below methods
+	Setup example - setup.clothes.upper[clothesIndex('upper',$worn.upper)].name_cap
+	clothingData example - clothingData(_slot, $worn[_slot], "integrity_max")
+
+	The `clothingData example`, allows you to add the variable back to override the setup varient, for example, if you want to increase `integrity_max`
+
+	If any use the `Setup example` and you want to override variables like the `clothingData example`, every instance needs to be converted first, please update the comment below if you do
+*/
 function clothesDataTrimmer(item) {
 	if (!item) return;
 	const toDelete = [
-		"name_cap",
-		"iconFile",
-		"accIcon",
-		"notuck",
-		"skirt",
-		"description",
-		"colour_options",
-		"accessory_colour_options",
-		"fabric_strength",
-		"integrity_max",
-		"bustresize",
-		"sleeve_img",
-		"breast_img",
-		"exposed_base",
-		"vagina_exposed_base",
-		"anus_exposed_base",
-		"state_top_base",
-		"state_base",
-		"word",
-		"femininity",
-		"strap",
-		"cost",
-		"shop",
-		"short",
+		"name_cap", // use `Setup example`
+		"iconFile", // use `Setup example`
+		"accIcon", // use `Setup example`
+		"notuck", // use `Setup example`
+		"skirt", // use `Setup example`
+		"description", // use `Setup example`
+		"colour_options", // use `Setup example`
+		"accessory_colour_options", // use `Setup example`
+		"fabric_strength", // use `clothingData example`
+		"integrity_max", // use `clothingData example`
+		"bustresize", // use `clothingData example`
+		"sleeve_img", // use `Setup example`
+		"breast_img", // use `Setup example`
+		"exposed_base", // use `Setup example`
+		"vagina_exposed_base", // use `Setup example`
+		"anus_exposed_base", // use `Setup example`
+		"state_top_base", // use `Setup example`
+		"state_base", // use `Setup example`
+		"word", // use `Setup example`
+		"femininity", // use `Setup example`
+		"strap", // use `Setup example`
+		"cost", // use `Setup example`
+		"shop", // use `Setup example`, should never be added back on to clothing items due to being in `trimmerVersion`
+		"short", // use `Setup example`, should never be added back on to clothing items due to being in `trimmerVersion`
 	];
 	// To prevent it from running on variables multiple times, when updating toDelete, the last of the new additions should be added here
 	const trimmerVersion = ["shop", "short"];
@@ -1084,25 +1125,25 @@ function currentSkillValue(skill) {
 	) {
 		result = Math.floor(result * (1 + V.moorLuck / 100));
 	}
-	if (["physique", "danceskill", "swimmingskill", "athletics"].includes(skill) && playerBellySize() >= 10) {
-		switch (V.pregnancyStats.mother) {
+	if (["physique", "danceskill", "swimmingskill", "athletics"].includes(skill) && playerBellySize() >= 10 && playerNormalPregnancyTotal() < 50) {
+		switch (playerNormalPregnancyTotal()) {
 			case 0:
-				T.pregnancyModifier = 30;
+				T.pregnancyModifier = 36;
 				break;
 			case 1:
-				T.pregnancyModifier = 40;
+				T.pregnancyModifier = 48;
 				break;
 			case 2:
-				T.pregnancyModifier = 50;
+				T.pregnancyModifier = 60;
 				break;
 			case 3: case 4: case 5:
-				T.pregnancyModifier = 65;
+				T.pregnancyModifier = 78;
 				break;
 			case 6: case 7:
-				T.pregnancyModifier = 80;
+				T.pregnancyModifier = 96;
 				break;
 			default:
-				T.pregnancyModifier = 100;
+				T.pregnancyModifier = 120;
 				break;
 		}
 		result = Math.floor(result * (1 - playerBellySize() / T.pregnancyModifier));
@@ -1194,12 +1235,14 @@ window.playerIsPenetrated = playerIsPenetrated;
  * 	getTimeString(hours, minutes)
  * Examples:
  * 	getTimeString(20) returns "0:20"
- * 	getTimeString(1,5) returns "1:05"
+ * 	getTimeString(1,5) returns "1:05".
+ *
+ * @param {...any} args
  */
 function getTimeString(...args) {
 	if(args[0] == null) return;
 	const hours = args[1] ? args[0] : 0;
-	let minutes = Math.max(args[1] || args[0], 0) + (hours * 60);
+	const minutes = Math.max(args[1] || args[0], 0) + (hours * 60);
 	return Math.trunc(minutes / 60) + ":" + ('0' + Math.trunc(minutes % 60)).slice(-2);
 }
 window.getTimeString = getTimeString;
@@ -1302,32 +1345,33 @@ function isLoveInterest(name) {
 }
 window.isLoveInterest = isLoveInterest;
 
-function getMoonState() {
-	const nightstate = T.nightstate;
-	let moonstate = V.moonstate;
-
-	if (nightstate === "evening") {
-		if (V.monthday === getLastDayOfMonth()) {
-			// blood moon happens on the last night of the month
-			moonstate = "evening";
-		} else {
-			moonstate = 0; // moonstate will stay "morning" until the night after the blood moon
-		}
-	} else if (nightstate === "morning") {
-		if (V.monthday === 1) {
-			// blood moon happens on the first morning of the month
-			moonstate = "morning";
-		} else {
-			moonstate = 0;
-		}
+/** This function will determine if the date is right for a blood moon, and which part of the night it will happen in */
+function getTodaysMoonState() {
+	const todaysMoonState = 0;
+	if (V.monthday === getLastDayOfMonth()) {
+		// blood moon happens on the last night of the month
+		T.todaysMoonState = "evening";
+	} else if (V.monthday === 1) {
+		// blood moon happens on the first morning of the month
+		T.todaysMoonState = "morning";
 	}
-	V.moonstate = moonstate;
+	return todaysMoonState;
+}
+
+function getMoonState() {
+	let moonstate = 0;
+	T.todaysMoonState = getTodaysMoonState();
+
+	if (T.nightstate === T.todaysMoonState) { // if the current time of night matches the time a blood moon will happen, set moonstate
+		moonstate = T.todaysMoonState;
+	}
+	// V.moonstate = moonstate; //commenting this out to make sure this function doesn't modify save variables
 	return moonstate;
 }
 window.getMoonState = getMoonState;
 
 function isBloodmoon() {
-	return V.daystate === "night" && getMoonState() === T.nightstate; // it's only a blood moon if it's night, and the current moon state matches the current night state
+	return V.daystate === "night" && V.moonstate === T.nightstate; // it's only a blood moon if it's night, and the current moon state matches the current night state
 }
 window.isBloodmoon = isBloodmoon;
 
@@ -1767,7 +1811,7 @@ window.dailyConvert = dailyConvert;
 function convertHairLengthToStage(hair, length){
 	if (!hair || !length)
 		throw new Error(`Hair AND Length must be provided to be converted: ${hair} / ${length}`);
-	if (hair == "fringe") {
+	if (hair === "fringe") {
 		if (length >= 900)
 			return "feet";
 		else if (length >= 700)
@@ -1781,7 +1825,7 @@ function convertHairLengthToStage(hair, length){
 		else
 			return "short";
 	}
-	else if (hair == "sides") {
+	else if (hair === "sides") {
 		if (length >= 900)
 			return "feet";
 		else if (length >= 700)
@@ -1798,3 +1842,29 @@ function convertHairLengthToStage(hair, length){
 }
 
 window.convertHairLengthToStage = convertHairLengthToStage;
+
+function calculateSemenReleased(){
+	let released = 30;
+
+	released += (V.semen_volume / 30);
+
+	if(V.femaleclimax === 1) released /= 30;
+	if(V.orgasmtrait >= 1) released *= 2.5;
+	if(V.cow >= 6) released *= 2;
+
+	/* if the player doesn't have enough semen, set $_semen_released to whatever they have left */
+	if(V.semen_amount < released) released = V.semen_amount;
+	if(parseFloat(released.toFixed(1)) === 0 && V.semen_amount < 0.1) V.semen_amount = 0; // Prevents really low floating numbers
+
+	return parseFloat(released.toFixed(1));
+}
+window.calculateSemenReleased = calculateSemenReleased;
+
+function npcSemenMod(penisSize){
+	switch(penisSize) {
+		case 4: return "large";
+		case 1: return "tiny";
+		default: return "";
+	}
+}
+window.npcSemenMod = npcSemenMod;

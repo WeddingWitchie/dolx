@@ -332,8 +332,36 @@
 			<<link [[Let it happen|Hallways Rape Let]]>><</link>>
 			<br>
 		<</if>>
+	<<elseif $rng gte 91>>
+		<<if $rng % 2 == 0>><<set $lock to 0>>
+
+			As you walk down the hallway, you hear something from one of the lockers. Moving closer, you can hear muffled banging and a voice from inside.
+			<span class="yellow">Someone is locked in there.</span>
+			<br><br>
+			<<link [[Pick the lock and help them out (0:10)|Hallways Locker Victim]]>><<pass 10>><<set $phase to 0>><</link>>
+			<br>
+			<<link [[Find a teacher to help them (0:03)|Hallways Locker Victim]]>><<pass 3>><<set $phase to 1>><</link>>
+			<br>
+			<<if $sadism gte 300 or $delinquency gte 600 or ($soldCount gte 1 and $money lt $rentmoney)>>
+				<<link [[Demand money to help (0:10)|Hallways Locker Victim]]>><<pass 10>><<set $phase to 2>><</link>><<if $soldCount gte 1 and $money lt $rentmoney>><<note "You need money for Bailey!" "red">><<else>><<note "Cash?" "gold">><</if>>
+				<br>
+			<</if>>
+			<<link [[Ignore them|Hallways Locker Victim]]>><<set $phase to 3>><</link>>
+		<<else>>
+			<<generatey1>><<person1>><<generateyp2>>
+			A <<person>> is stalking a <<person2>><<person>> through the hallway. The <<person1>><<persons>> expression is intense, <<his>> intentions do not look friendly, <<person2>>
+			<<print either("but the <<person>> hasn't noticed. Yet.","and the <<person>> looks terrified.","and the <<person>> looks intimidated.","but the <<person>> seems completely unaware.")>>
+			<span class = "red">There are no teachers in sight.</span>
+			<br><br>
+			<<link [[Intervene (0:02)|Hallways Stalker Intervention]]>><<set $phase to 0>><<pass 2>><</link>>
+			<br>
+			<<link [[Get a teacher's attention (0:01)|Hallways Stalker Intervention]]>><<pass 1>><<set $phase to 1>><</link>>
+			<br>
+			<<link [[Ignore it|Hallways Stalker Intervention]]>><<set $phase to 2>><</link>>
+			<br>
+		<</if>>
 	<<elseif $rng gte 81>>
-		<<bodywriting_exposure_check>>
+		<<bodywritingExposureCheck>>
 		<<if _bodywriting_exposed is 1>>
 			You pass by a group of students. Your face flushes as one points at the <<tattoo _bodypart>> on your <<bodypart _bodypart>>.
 			<<lcool>><<status -10>><<gtrauma>><<trauma 6>><<gstress>><<stress 10>>
@@ -751,12 +779,12 @@
 	<</if>>
 <</widget>>
 
-<<widget "playground">>
-	<<if $bus is "schoolfrontplayground">>
-		<<link [[Next|School Front Playground]]>><<set $eventskip to 1>><</link>>
+<<widget "courtyard">>
+	<<if $bus is "schoolfrontcourtyard">>
+		<<link [[Next|School Front Courtyard]]>><<set $eventskip to 1>><</link>>
 		<br>
 	<<else>>
-		<<link [[Next|School Rear Playground]]>><<set $eventskip to 1>><</link>>
+		<<link [[Next|School Rear Courtyard]]>><<set $eventskip to 1>><</link>>
 		<br>
 	<</if>>
 <</widget>>
@@ -810,7 +838,7 @@
 	<<if $worn.lower.type.includes("naked") and $worn.under_lower.type.includes("naked")>>
 		<<if $exhibitionism gte 35>>
 			<<flaunting>> you walk away, leaving your clothes behind.
-		<<else>>
+		<<else>>eventscourtyard
 			<<tearful>> you stagger away, leaving your clothes behind.<<covered>>
 		<</if>>
 	<<elseif $worn.lower.type.includes("naked")>>
@@ -827,7 +855,7 @@
 	<<link [[Next|Hallways]]>><</link>>
 <</widget>>
 
-<<widget "eventsplayground">>
+<<widget "eventscourtyard">>
 	<!-- Jimmy TODO: Convert this to use the macros: <<cleareventpool>>, <<addinlineevent>> and <<runeventpool>>. -->
 	<<if !["early", "late", "earlynoschool", "latenoschool", "daynoschool"].includes($schoolstate)>>
 		<<set _whitney to $NPCName[$NPCNameList.indexOf("Whitney")]>>
@@ -838,7 +866,7 @@
 
 			<<endevent>>
 
-			<<playground>>
+			<<courtyard>>
 
 		<<elseif _whitney.love gte 20 and $whitneyromance isnot 1 and !["dungeon", "pillory"].includes(C.npc.Whitney.state)>>
 			<<set $whitneyromance to 1>>
@@ -868,7 +896,7 @@
 
 			<<endevent>>
 
-			<<playground>>
+			<<courtyard>>
 		<<elseif $flyover_caught is "naked">>
 			<<unset $flyover_caught>>
 			<<generatey1>><<generatey2>><<generatey3>>
@@ -888,10 +916,10 @@
 			You try to walk away, but the <<person2>><<person>> turns and notices you. "It's <<phim>>!" <<he>> exclaims. The rest turn as well, an excited glimmer in their eyes.
 			<br><br>
 			<<schoolrep_naked>>
-			<<link [[Walk away|Playground Flyover Walk]]>><<status -10>><</link>><<lcool>>
+			<<link [[Walk away|Courtyard Flyover Walk]]>><<status -10>><</link>><<lcool>>
 			<br>
 			<<if $exhibitionism gte 75>>
-				<<link [[Own it|Playground Flyover Own]]>><</link>><<exhibitionist5>>
+				<<link [[Own it|Courtyard Flyover Own]]>><</link>><<exhibitionist5>>
 				<br>
 			<</if>>
 
@@ -918,7 +946,7 @@
 			<br><br>
 
 			<<endevent>>
-			<<playground>>
+			<<courtyard>>
 
 		<<elseif !["dungeon", "pillory"].includes(C.npc.Whitney.state) and $bullytimeroutside gte $rng and $hour gte 15 and _whitney.init is 1>>
 			<<set $bullytimeroutside to 0>>
@@ -996,7 +1024,7 @@
 
 					<<endevent>>
 
-					<<playground>>
+					<<courtyard>>
 				<<elseif setup.clothes.under_upper[clothesIndex('under_upper', $worn.under_upper)].strap is 1>>
 					Your $worn.under_upper.name comes loose in your $worn.upper.name. They undid the strap.
 					<br><br>
@@ -1049,9 +1077,9 @@
 					<br><br>
 					<</if>>
 
-					<<link [[Flirt (0:05)|Playground Crush Flirt]]>><<pass 5>><<status 1>><</link>><<promiscuous1>><<gcool>>
+					<<link [[Flirt (0:05)|Courtyard Crush Flirt]]>><<pass 5>><<status 1>><</link>><<promiscuous1>><<gcool>>
 					<br>
-					<<link [[Ignore|Playground Crush Ignore]]>><</link>>
+					<<link [[Ignore|Courtyard Crush Ignore]]>><</link>>
 					<br>
 				<<elseif $rng gte 61 and $hypnosis gte 1>>
 					<<generatey1>><<person1>>
@@ -1064,9 +1092,9 @@
 					A wordless voice urges you to continue.
 					<br><br>
 
-					<<link [[Offer|Playground Hypnosis Offer]]>><<hypnotised 1>><<trauma -6>><<stress -6>><</link>><<ltrauma>><<lstress>>
+					<<link [[Offer|Courtyard Hypnosis Offer]]>><<hypnotised 1>><<trauma -6>><<stress -6>><</link>><<ltrauma>><<lstress>>
 					<br>
-					<<link [[Resist|Playground Hypnosis Resist]]>><</link>><<willpowerdifficulty 1 `150 + ($hypnosis * 50)`>>
+					<<link [[Resist|Courtyard Hypnosis Resist]]>><</link>><<willpowerdifficulty 1 `150 + ($hypnosis * 50)`>>
 					<br>
 				<<elseif $rng gte 56 and $photo and $photo.nude_footage is 1>>
 					<<set $photo.nude_footage to 0>>
@@ -1077,9 +1105,9 @@
 					You turn and catch a <<person2>><<person>> pointing at you. <<Hes>> stood beside a <<person3>><<person>>, a phone in <<person2>><<his>> hand.
 					<br><br>
 
-					<<link [[Investigate|Playground Nude Footage Investigate]]>><<trauma 6>><</link>><<gtrauma>>
+					<<link [[Investigate|Courtyard Nude Footage Investigate]]>><<trauma 6>><</link>><<gtrauma>>
 					<br>
-					<<link [[Ignore|Playground Footage Ignore]]>><<stress 12>><<status -10>><</link>><<lcool>><<ggstress>>
+					<<link [[Ignore|Courtyard Footage Ignore]]>><<stress 12>><<status -10>><</link>><<lcool>><<ggstress>>
 					<br>
 				<<elseif $rng gte 51 and $photo and $photo.assault_footage is 1>>
 					<<set $photo.assault_footage to 0>>
@@ -1090,9 +1118,9 @@
 					You turn and catch a <<person2>><<person>> pointing at you. <<Hes>> stood beside a <<person3>><<person>>, a phone in <<person2>><<his>> hand.
 					<br><br>
 
-					<<link [[Investigate|Playground Assault Footage Investigate]]>><<trauma 12>><</link>><<ggtrauma>>
+					<<link [[Investigate|Courtyard Assault Footage Investigate]]>><<trauma 12>><</link>><<ggtrauma>>
 					<br>
-					<<link [[Ignore|Playground Footage Ignore]]>><<stress 12>><<status -20>><</link>><<llcool>><<ggstress>>
+					<<link [[Ignore|Courtyard Footage Ignore]]>><<stress 12>><<status -20>><</link>><<llcool>><<ggstress>>
 					<br>
 				<<else>>
 					<<generatey1>><<generatey2>>
@@ -1105,16 +1133,16 @@
 							You feel a twinge of jealousy.
 							<br><br>
 
-							<<link [[Get angry|Playground Crush Robin Angry]]>><<status 1>><<def 1>><</link>><<gcool>>
+							<<link [[Get angry|Courtyard Crush Robin Angry]]>><<status 1>><<def 1>><</link>><<gcool>>
 							<br>
-							<<link [[Ignore|Playground Crush Robin Ignore]]>><<stress 6>><</link>><<gstress>>
+							<<link [[Ignore|Courtyard Crush Robin Ignore]]>><<stress 6>><</link>><<gstress>>
 						<<else>>
 							<<endevent>>
 							<<npc Robin>><<person1>>
 							You wonder if Robin knows <<he>> has admirers.
 							<br><br>
 							<<endevent>>
-							<<playground>>
+							<<courtyard>>
 						<</if>>
 					<<elseif $rng gte 81 and $NPCName[$NPCNameList.indexOf("Whitney")].init is 1>>
 						The <<person1>><<person>> admits to having a thing for Whitney.
@@ -1122,9 +1150,9 @@
 						<<if $whitneyromance gte 1>>
 							You feel a twinge of jealousy.
 							<br><br>
-							<<link [[Get angry|Playground Crush Whitney Angry]]>><<status 1>><<def 1>><</link>><<gcool>>
+							<<link [[Get angry|Courtyard Crush Whitney Angry]]>><<status 1>><<def 1>><</link>><<gcool>>
 							<br>
-							<<link [[Ignore|Playground Crush Whitney Ignore]]>><<stress 6>><</link>><<gstress>>
+							<<link [[Ignore|Courtyard Crush Whitney Ignore]]>><<stress 6>><</link>><<gstress>>
 							<br>
 						<<else>>
 							<<endevent>>
@@ -1132,7 +1160,7 @@
 							You suspect Whitney knows <<he>> has admirers.
 							<br><br>
 							<<endevent>>
-							<<playground>>
+							<<courtyard>>
 						<</if>>
 					<<elseif $rng gte 71 and $NPCName[$NPCNameList.indexOf("Sydney")].init is 1>>
 						The <<person1>><<person>> admits to having a thing for Sydney.
@@ -1140,21 +1168,21 @@
 						<<if $sydneyromance gte 1>>
 							You feel a twinge of jealousy.
 							<br><br>
-							<<link [[Get angry|Playground Crush Sydney Angry]]>><<status 1>><<def 1>><</link>><<gcool>>
+							<<link [[Get angry|Courtyard Crush Sydney Angry]]>><<status 1>><<def 1>><</link>><<gcool>>
 							<br>
-							<<link [[Ignore|Playground Crush Sydney Ignore]]>><<stress 6>><</link>><<gstress>>
+							<<link [[Ignore|Courtyard Crush Sydney Ignore]]>><<stress 6>><</link>><<gstress>>
 							<br>
 						<<else>>
 							<<endevent>>
 							You wonder if Sydney knows <<nnpc_he "Sydney">> has admirers, or if <<nnpc_he "Sydney">> would even understand.
 							<br><br>
-							<<playground>>
+							<<courtyard>>
 						<</if>>
 					<<else>>
 						They laugh and look around, anxious. They're awful loud for people who don't want to be overheard.
 						<br><br>
 						<<endevent>>
-						<<playground>>
+						<<courtyard>>
 					<</if>>
 				<</if>>
 			<<elseif $rng gte 61 and $schoolrep.herm gte 5 and !$worn.face.type.includes("mask")>>
@@ -1174,14 +1202,14 @@
 				You're still surrounded. The staff room is nearby. Perhaps a teacher would hear if you called for help.
 				<br><br>
 
-				<<link [[Fight|Playground Herm Resist]]>><<def 1>><</link>>
+				<<link [[Fight|Courtyard Herm Resist]]>><<def 1>><</link>>
 				<br>
-				<<link [[Call for help|Playground Herm Call]]>><<set $rescued += 1>><<status -10>><<trauma -6>><<stress -6>><</link>><<lcool>><<ltrauma>><<lstress>>
+				<<link [[Call for help|Courtyard Herm Call]]>><<set $rescued += 1>><<status -10>><<trauma -6>><<stress -6>><</link>><<lcool>><<ltrauma>><<lstress>>
 				<br>
-				<<link [[Show|Playground Herm Show]]>><<sub 1>><<trauma 6>><<stress 6>><</link>><<gtrauma>><<gstress>>
+				<<link [[Show|Courtyard Herm Show]]>><<sub 1>><<trauma 6>><<stress 6>><</link>><<gtrauma>><<gstress>>
 				<br>
 				<<if $exhibitionism gte 75>>
-					<<link [[Flaunt|Playground Herm Flaunt]]>><</link>><<exhibitionist5>>
+					<<link [[Flaunt|Courtyard Herm Flaunt]]>><</link>><<exhibitionist5>>
 					<br>
 				<</if>>
 			<<elseif $rng gte 61 and $schoolrep.crossdress gte 5 and $player.gender isnot $player.gender_appearance and !$worn.face.type.includes("mask")>>
@@ -1196,14 +1224,14 @@
 				You're still surrounded. The staff room is nearby. Perhaps a teacher would hear if you called for help.
 				<br><br>
 
-				<<link [[Fight|Playground Herm Resist]]>><<def 1>><</link>>
+				<<link [[Fight|Courtyard Herm Resist]]>><<def 1>><</link>>
 				<br>
-				<<link [[Call for help|Playground Herm Call]]>><<set $rescued += 1>><<status -10>><<trauma -6>><<stress -6>><</link>><<lcool>><<ltrauma>><<lstress>>
+				<<link [[Call for help|Courtyard Herm Call]]>><<set $rescued += 1>><<status -10>><<trauma -6>><<stress -6>><</link>><<lcool>><<ltrauma>><<lstress>>
 				<br>
-				<<link [[Show|Playground Herm Show]]>><<sub 1>><<trauma 6>><<stress 6>><</link>><<gtrauma>><<gstress>>
+				<<link [[Show|Courtyard Herm Show]]>><<sub 1>><<trauma 6>><<stress 6>><</link>><<gtrauma>><<gstress>>
 				<br>
 				<<if $exhibitionism gte 75>>
-					<<link [[Flaunt|Playground Herm Flaunt]]>><</link>><<exhibitionist5>>
+					<<link [[Flaunt|Courtyard Herm Flaunt]]>><</link>><<exhibitionist5>>
 					<br>
 				<</if>>
 			<<else>>
@@ -1217,7 +1245,7 @@
 				<br><br>
 
 				<<endevent>>
-				<<playground>>
+				<<courtyard>>
 			<</if>>
 		<</if>>
 	<<else>>
@@ -1229,7 +1257,7 @@
 					You see a <<beasttype>> rummaging in litter behind the kitchen. <<bHis>> ears prick, and <<bhe>> bounds towards you.
 					<br><br>
 
-					<<link [[Next|Rear Playground Dog]]>><<set $molestationstart to 1>><</link>>
+					<<link [[Next|Rear Courtyard Dog]]>><<set $molestationstart to 1>><</link>>
 					<br>
 				<<else>>
 					You see a dog rummaging in litter behind the kitchen. Its ears prick, and it bounds towards you.
@@ -1240,14 +1268,14 @@
 					<<endevent>>
 					<br><br>
 
-					<<playground>>
+					<<courtyard>>
 				<</if>>
 			<<else>>
 				You see a <<beasttype>> rummaging in litter behind the kitchen. <<bHe>> runs away as soon as <<bhe>> hears you.
 				<<endevent>>
 				<br><br>
 
-				<<playground>>
+				<<courtyard>>
 			<</if>>
 		<<else>>
 			<<generate1>><<person1>>
@@ -1270,25 +1298,25 @@
 				<<He>> spots you, and unfastens a baton while approaching. "Well well," <<he>> says. "You're not supposed to be here. Come with me."<<gstress>><<stress 6>>
 				<br><br>
 
-				<<link [[Go quietly|Playground Guard Quiet]]>><</link>>
+				<<link [[Go quietly|Courtyard Guard Quiet]]>><</link>>
 				<br>
-				<<link [[Run|Playground Guard Run]]>><</link>><<athleticsdifficulty 1 400>>
+				<<link [[Run|Courtyard Guard Run]]>><</link>><<athleticsdifficulty 1 400>>
 				<br>
-				<<link [[Fight|Playground Guard Fight]]>><<set $fightstart to 1>><</link>>
+				<<link [[Fight|Courtyard Guard Fight]]>><<set $fightstart to 1>><</link>>
 				<br>
 			<<elseif $rng gte 41>>
 				<<He>> spots you, and frowns. "I don't think you're supposed to be here," <<he>> says. "Best leave before you get in trouble."
 				<br><br>
 
-				<<link [[Leave|Playground Guard Leave]]>><</link>>
+				<<link [[Leave|Courtyard Guard Leave]]>><</link>>
 				<br>
-				<<link [[Convince|Playground Guard Convince]]>><</link>><<englishdifficulty 1 600>>
+				<<link [[Convince|Courtyard Guard Convince]]>><</link>><<englishdifficulty 1 600>>
 				<br>
 			<<else>>
 				You're not supposed to be here, but <<hes>> distracted, and doesn't notice you.<<gstress>><<stress 6>>
 				<br><br>
 				<<endevent>>
-				<<playground>>
+				<<courtyard>>
 			<</if>>
 		<</if>>
 	<</if>>
@@ -1644,7 +1672,7 @@
 		/* parasite bully event */
 		<<if $parasitedisable is "f">>
 			<<generatey2>><<person1>>
-			A pair of hands grab you from behind. Alarmed, you turn to face Whitney and <<his>> friends. "Hey slut," <<he>> says. <<Hes>> hiding something behind <<his>> back. "I brought you a little present. I think you'll like it." <<He>> reveals a small bag. You watch in confusion as <<he>> gropes inside the bag for this thing with a weird mixture of amusement and revulsion on <<his>> face, adding to your apprehension. Eventually <<he>> manages to get a grip on whatever it is <<hes>> fishing around in there for and removes it from the bag. It's a parasite.
+			A pair of hands grab you from behind. Alarmed, you turn to face Whitney and <<his>> friends. "Hey, slut," <<he>> says. <<Hes>> hiding something behind <<his>> back. "I brought you a little present. I think you'll like it." <<He>> reveals a small bag. You watch in confusion as <<he>> gropes inside the bag for this thing with a weird mixture of amusement and revulsion on <<his>> face, adding to your apprehension. Eventually <<he>> manages to get a grip on whatever it is <<hes>> fishing around in there for and removes it from the bag. It's a parasite.
 			<br><br>
 			Your skin crawls at the sight, and a <<eventwhitneyparasiteadjective>> thought comes to mind. <<Hes>> not going to do what you think <<he>> is with that, is <<he>>?
 			<<if $deviancy gte 75>><<arousal 20>><<garousal>><<else>><<stress 20>><<gstress>><</if>>
@@ -1730,7 +1758,7 @@
 	/* roll of the die where they place what parasite */
 	/* 6 possibilities, 2 kinds of parasite, 3 target locations */
 	/* rng is set to _roll so we can have random events in this */
-	<<if $worn.genitals.type.includes("chastity")>>
+	<<if playerChastity()>>
 		<<rng 2 5>>
 	<<else>>
 		<<rng 0 5>>
@@ -1738,7 +1766,7 @@
 	<<set _eventnum to $rng>>
 
 	/* lets handle common events in one place */
-	<<if $worn.upper.type.includes("naked") and $worn.lower.type.includes("naked") and $worn.under_lower.type.includes("naked") or $worn.upper.type.includes("naked") and $worn.lower.type.includes("naked") and $worn.genitals.type.includes("chastity")>>
+	<<if $worn.upper.type.includes("naked") and $worn.lower.type.includes("naked") and $worn.under_lower.type.includes("naked") or $worn.upper.type.includes("naked") and $worn.lower.type.includes("naked") and playerChastity()>>
 		<<eventwhitneyparasitepeniscomment>>
 	<<else>>
 		<<if _eventnum is 0 or _eventnum is 1>>
@@ -1866,7 +1894,7 @@
 	<<else>>
 		yank your clothing down roughly, exposing your <<genitals>> to Whitney, the cool air of the school hall, and everyone passing by.
 	<</if>>
-	<<if !$worn.genitals.type.includes("hidden")>>
+	<<if !playerChastity("hidden")>>
 		<<run $genderknown.pushUnique("Whitney")>>
 	<</if>>
 
@@ -1937,7 +1965,7 @@
 	<<if $whitneyReunionScene isnot undefined>>
 		<<npc Whitney>><<person1>>
 		<<unset $whitneyReunionScene>>
-		As you step onto the playground, something grabs your arm. Before you can react, you're yanked backwards and find yourself face-to-face with Whitney. <<His>> goons flank you, preventing escape. "There you are, bitch," Whitney says, looking aggravated. "What? You didn't think I'd notice when my favourite slut goes missing?" You're unable to respond as <<he>> presses <<his>> lips against your mouth, kissing you.<<takeKissVirginity "Whitney" "loveInterest">>
+		As you step into the courtyard, something grabs your arm. Before you can react, you're yanked backwards and find yourself face-to-face with Whitney. <<His>> goons flank you, preventing escape. "There you are, bitch," Whitney says, looking aggravated. "What? You didn't think I'd notice when my favourite slut goes missing?" You're unable to respond as <<he>> presses <<his>> lips against your mouth, kissing you.<<takeKissVirginity "Whitney" "loveInterest">>
 		<br><br>
 
 		Whitney's arm wraps around your waist as <<he>> holds the back of your head still. <<He>> leans forward, forcing you to bend backward. Jeers erupt from <<his>> goons as they watch in anticipation.
@@ -1957,7 +1985,7 @@
 		<br><br>
 
 		<<endevent>><<set $eventskip to 1>>
-		<<playground>>
+		<<courtyard>>
 	<<elseif $bullyeventoutside is 0>>
 		<<set $bullyeventoutside += 1>>
 		<<npc Whitney>><<person1>>You walk round a corner, straight into Whitney and <<his>> gang. "Look who it is," <<he>> says. <<His>> friends crowd around, penning you in. "Good timing. We're just leaving school. You should come." <<He>> grabs your arm.
@@ -2001,7 +2029,7 @@
 
 			<<endevent>>
 			<<set $eventskip to 1>>
-			<<playground>>
+			<<courtyard>>
 		<</if>>
 
 	<<elseif $bullyeventoutside is 3>>
@@ -2028,7 +2056,18 @@
 		<br>
 		<<link [[Fight|Bully Outside Fight]]>><<def 1>><<npcincr Whitney dom -1>><<set $fightstart to 1>><</link>><<ldom>>
 		<br>
+	<<elseif $bullyeventoutside is 5>>
+		<<set $bullyeventoutside += 1>>
+		<<npc Whitney>><<person1>>
+		You see Whitney as you approach the gate. <<He>> grins and pushes past one of <<his>> friends, moving towards you.
+		<br><br>
+		"Hey, slut!" you hear <<him>> call out. <<His>> friends circle you and trap you in place. <<He>> continues, "Listen, slut, I have to do a little favour, so you're gonna help me. Let's take a walk." You feel <<his>> friends' hands on your back as they push you towards the school gate. You don't know where they're taking you or for what purpose.
+		<br><br>
 
+		<<link [[Let it happen (0:20)|Bully Dog Walk 1]]>><<sub 1>><<npcincr Whitney dom 1>><<trauma 6>><<stress 6>><</link>><<gtrauma>><<gstress>><<gdom>>
+		<br>
+		<<link [[Fight|Bully Outside Fight]]>><<def 1>><<npcincr Whitney dom -1>><<set $fightstart to 1>><</link>><<ldom>>
+		<br>
 	<<else>>
 		<<set $bullyeventoutside to 0>>
 		<<npc Whitney>><<person1>>
@@ -2146,7 +2185,7 @@
 			<<gstress>><<stress 6>><<garousal>><<arousal 600 "mouth">><<glust>><<npcincr Whitney lust 1>>
 			<br><br>
 			<<endevent>><<set $eventskip to 1>>
-			<<playground>>
+			<<courtyard>>
 		<</if>>
 	<</if>>
 <</widget>>
@@ -2264,7 +2303,7 @@
 			<<link [[Keep relaxing (0:10)|School Stump]]>><<pass 10>><<stress -1>><<tiredness -1>><</link>><<ltiredness>><<lstress>>
 			<br>
 		<</if>>
-		<<link [[Stop|School Rear Playground]]>><</link>>
+		<<link [[Stop|School Rear Courtyard]]>><</link>>
 		<br>
 
 	<<else>>
@@ -2274,7 +2313,7 @@
 
 		<<link [[Ignore|School Stump Ignore]]>><<stress 1>><</link>><<gstress>>
 		<br>
-		<<if $worn.under_lower.type.includes("naked") or $worn.genitals.type.includes("chastity")>>
+		<<if $worn.under_lower.type.includes("naked") or playerChastity()>>
 			<<if $exhibitionism gte 75>>
 				<<link [[Flash|School Stump Genital Flash]]>><</link>><<exhibitionist5>>
 				<br>

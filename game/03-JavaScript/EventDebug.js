@@ -48,23 +48,23 @@ class EventData {
 	}
 
 	get(index) {
-		return V.event?.buffer.find(e => e.slot === index);
+		return V.event ? V.event.buffer.find(e => e.slot === index) : -1;
 	}
 
 	has(index) {
-		return V.event?.buffer.some(e => e.slot === index);
+		return V.event ? V.event.buffer.some(e => e.slot === index) : false;
 	}
 
 	getEvery(index) {
-		return V.event?.buffer.filter(e => e.slot === index) ?? [];
+		return V.event ? V.event.buffer.filter(e => e.slot === index) : [];
 	}
 
 	count() {
-		return V.event?.buffer.length || 0;
+		return V.event ? V.event.buffer.length : 0;
 	}
 
 	any() {
-		return V.event?.buffer.length > 0;
+		return V.event ? V.event.buffer.length > 0 : false;
 	}
 
 	clear() {
@@ -73,7 +73,7 @@ class EventData {
 	}
 
 	isSlotTaken(index) {
-		return V.event?.buffer.some(e => e.slot === index);
+		return V.event ? V.event.buffer.some(e => e.slot === index) : false;
 	}
 
 	get Disable() {
@@ -122,13 +122,9 @@ class EventData {
 				// Slot not accounted for yet, NPC is good.
 				usedArr[element.slot] = true;
 				continue;
-			} else if (V.debugdisable === "f" || V.debug) {
+			} else if (V.options.debugdisable === "f" || V.debug) {
 				// NPC position is being used more than once, although not a gap, flag.
-				console.warn(
-					"NPC slot",
-					element.slot,
-					"is being used more than once. Existing NPCs should be disposed before using their slot."
-				);
+				console.warn("NPC slot", element.slot, "is being used more than once. Existing NPCs should be disposed before using their slot.");
 				return false;
 			}
 		}
@@ -143,7 +139,7 @@ class EventData {
 		}
 		if (slots.length !== 0) {
 			// Index is slot, index being 0 or higher means we have an empty slot.
-			if (V.debugdisable === "f" || V.debug) {
+			if (V.options.debugdisable === "f" || V.debug) {
 				console.warn("NPC slots that are empty:", slots);
 			}
 			return false;

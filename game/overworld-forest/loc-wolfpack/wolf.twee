@@ -4,7 +4,17 @@
 <<if $phase is 1>>
 	<<set $phase to 0>>
 	You make your way toward the Black Wolf.
-	<<if $wolfpackferocity gte 20 and $wolfpackharmony gte 20>>
+	<<if $wolfgirl gte 6 and $wolfpackferocity gte 15 and $wolfpackharmony gte 15 and $daystate isnot "night" and ($daily.blackWolfHeatEvent or 0) - $hour lte -3 and ((playerHeatMinArousal() and (V.player.vaginaExist or canBeMPregnant()) and $NPCName[$NPCNameList.indexOf("Black Wolf")].penis isnot "none") or 
+	(playerRutMinArousal() and $NPCName[$NPCNameList.indexOf("Black Wolf")].vagina isnot "none"))>>
+		<<set $daily.blackWolfHeatEvent to $hour>>
+		<<set _blackWolfHeatEvent to true>>
+		<<bHe>> sits up after noticing you, looking at you curiously.
+		<<if $monster is 1>>
+			"Do you need help <<ppackbrother>>?" <<bHe>> smirks, before sniffing in your direction. "Will gladly help with that." 
+		<<else>>
+			<<bHis>> tail begins to wag after sniffing in your direction.
+		<</if>>
+	<<elseif $wolfpackferocity gte 20 and $wolfpackharmony gte 20>>
 		<<bHe>> sits up after noticing you. <<bHis>> tail begins to wag.
 		<<if $monster is 1>>
 			<<switch random(1,3)>>
@@ -79,8 +89,10 @@
 			<</switch>>
 		<</if>>
 	<</if>>
-	<br><br>
-	You sit down next to <<bhim>>. Even when you're both sitting down, <<if $monster is 1>>your head only reaches <<bhis>> chest<<else>><<bhe>> can look you in the eye<</if>>.
+	<<if !_blackWolfHeatEvent>>
+		<br><br>
+		You sit down next to <<bhim>>. Even when you're both sitting down, <<if $monster is 1>>your head only reaches <<bhis>> chest<<else>><<bhe>> can look you in the eye<</if>>.
+	<</if>>
 <<else>>
 	You sit and rest by the Black Wolf's side.
 	<<switch random(1,8)>>
@@ -211,6 +223,20 @@
 	<br><br>
 	<<link [[Next|Wolf Cave Clearing]]>><<endevent>><</link>>
 <<else>>
+	<<if _blackWolfHeatEvent and $deviancy gte 75>>
+		<<if playerAwareTheyAreInHeat() and $NPCList[0].penis isnot "none" and (($player.vaginaExist and !playerChastity("vagina")) or (canBeMPregnant() and !playerChastity("anus")))>>
+			<<link [[Present your behind|Wolf Cave Black Wolf Before Mate]]>><</link>><<deviant5>><<wolfgirl>><<heat>>
+			<br>
+		<</if>>
+		<<if playerRutMinArousal() and $NPCList[0].vagina isnot "none" and !playerChastity("penis")>>
+			<<link [[Playful bite|Wolf Cave Black Wolf Before Mate]]>><<set $phase to 1>><</link>><<deviant5>><<wolfgirl>><<rut>>
+			<br>
+		<</if>>
+	<</if>>
+	<<if playerIsPregnant() and playerAwareTheyArePregnant() and playerBellySize() gt 7 and !knowsAboutPregnancy("pc","Black Wolf")>>
+		<<link [[Present your belly (0:10)|Player Presents Pregnancy To Black Wolf]]>><<pass 10>><</link>>
+		<br>
+	<</if>>
 	<<link [[Relax (0:15)|Wolf Relax]]>><<pass 15>><<stress -3>><<tiredness -6>><<npcincr "Black Wolf" love 1>><<if $rng gte 71>><<transform wolf 1>><</if>><</link>><<lstress>><<ltiredness>>
 	<br>
 	<<link [[Leave|Wolf Cave Clearing]]>><<endevent>><</link>>

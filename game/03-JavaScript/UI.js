@@ -1,3 +1,4 @@
+/* eslint-disable eqeqeq */
 /* eslint-disable jsdoc/require-description-complete-sentence */
 function overlayShowHide(elementId) {
 	const div = document.getElementById(elementId);
@@ -160,8 +161,7 @@ Links.generate = () => Links.generateLinkNumbers(document.getElementsByClassName
 $(document).on("keyup", function (ev) {
 	if (!V.options.numberify_enabled || !StartConfig.enableLinkNumberify || V.tempDisable) return;
 
-	if (document.activeElement.tagName === "INPUT" && document.activeElement.type !== "radio" && document.activeElement.type !== "checkbox")
-		return;
+	if (document.activeElement.tagName === "INPUT" && document.activeElement.type !== "radio" && document.activeElement.type !== "checkbox") return;
 
 	if ((ev.keyCode >= 48 && ev.keyCode <= 57) || (ev.keyCode >= 96 && ev.keyCode <= 105)) {
 		const fixedKeyIndex = ev.keyCode < 60 ? ev.keyCode - 48 : ev.keyCode - 96;
@@ -219,6 +219,7 @@ function skinColor(enabled, percent, overwrite) {
 window.skinColor = skinColor;
 
 // feats related widgets
+// This needs updating, it's poorly designed.
 function closeFeats(id) {
 	const div1 = document.getElementById("feat-" + id);
 	const div2 = document.getElementById("closeFeat-" + id);
@@ -229,19 +230,20 @@ function closeFeats(id) {
 	let newId = parseInt(div1.classList.value.replace("feat feat", ""));
 	do {
 		otherFeatDisplay = document.getElementById("feat-" + elementId);
-		if(otherFeatDisplay){
-			if(otherFeatDisplay.style.display !== "none" && !isNaN(newId)){
+		if (otherFeatDisplay) {
+			if (otherFeatDisplay.style.display !== "none" && !isNaN(newId)) {
 				otherFeatDisplay.removeAttribute("class");
 				otherFeatDisplay.classList.add("feat");
 				otherFeatDisplay.classList.add("feat" + newId);
-				if(newId >= 3){
+				otherFeatDisplay.classList.add("feat-overlay");
+				if (newId >= 3) {
 					otherFeatDisplay.classList.add("hiddenFeat");
 				}
 				newId++;
 			}
 			elementId++;
 		}
-	} while(otherFeatDisplay);
+	} while (otherFeatDisplay);
 }
 window.closeFeats = closeFeats;
 
@@ -277,10 +279,12 @@ function customColour(color, saturation, brightness, contrast, sepia) {
 window.customColour = customColour;
 
 function zoom(value) {
-	const slider = $("[name$='" + Util.slugify("options.zoom") +"']");
+	const slider = $("[name$='" + Util.slugify("options.zoom") + "']");
 	value = Math.clamp(value || slider[0].value || 0, 50, 200);
-	$("body").css("zoom", value + "%").css("-ms-zoom", value + "%");
-	if(slider[0] !== undefined && slider[0].value != value){
+	$("body")
+		.css("zoom", value + "%")
+		.css("-ms-zoom", value + "%");
+	if (slider[0] !== undefined && slider[0].value != value) {
 		slider[0].value = value;
 		slider.trigger("change");
 	}
@@ -326,7 +330,8 @@ function settingsAsphyxiation() {
 				text = "NPCs may try to <span class='red inline-colour'>strangle</span> you during non-consensual intercourse.";
 				break;
 			case 4:
-				text = "NPCs will <span class='red inline-colour'>often</span> try to <span class='red inline-colour'>strangle</span> you during non-consensual intercourse.";
+				text =
+					"NPCs will <span class='red inline-colour'>often</span> try to <span class='red inline-colour'>strangle</span> you during non-consensual intercourse.";
 				break;
 			default:
 				text = "Error: bad value: " + val;
@@ -383,7 +388,8 @@ function settingsNudeGenderAppearance() {
 		let text = null;
 		switch (val) {
 			case -1:
-				text= "NPCs <span class='blue inline-colour'>ignore</span> genitals when perceiving gender. <span class='purple inline-colour'>Overrides some player descriptions.</span> <span class='red inline-colour'>Disables crossdressing warnings.</span>";
+				text =
+					"NPCs <span class='blue inline-colour'>ignore</span> genitals when perceiving gender. <span class='purple inline-colour'>Overrides some player descriptions.</span> <span class='red inline-colour'>Disables crossdressing warnings.</span>";
 				break;
 			case 0:
 				text = "NPCs will <span class='blue inline-colour'>ignore</span> your genitals when perceiving your gender.";
@@ -482,11 +488,10 @@ window.settingsNamedNpcBreastSize = settingsNamedNpcBreastSize;
 // Run only when settings tab is changed (probably in "displaySettings" widget)
 // data-target is the target element that needs to be clicked for the value to be updated
 // data-disabledif is the conditional statement (e.g. data-disabledif="V.per_npc[T.pNPCId].gender==='f'")
-// Conditional statement uses V and T instead of $ and _
 
 function settingsDisableElement() {
 	$(() => {
-		$("[data-target]").each(function () {
+		$("[data-disabledif]").each(function () {
 			const updateButtonsActive = () => {
 				$(() => {
 					try {
@@ -503,8 +508,8 @@ function settingsDisableElement() {
 			};
 			const orig = $(this);
 			const disabledif = orig.data("disabledif");
-			[orig.data("target")].flat().forEach((e) => $("[name$='" + Util.slugify(e) +"']").on('click', updateButtonsActive));
-			if (orig.data("target") && disabledif) {
+			[orig.data("target")].flat().forEach(e => $("[name$='" + Util.slugify(e) + "']").on("click", updateButtonsActive));
+			if (disabledif) {
 				updateButtonsActive();
 			}
 		});
@@ -517,7 +522,7 @@ window.settingsDisableElement = settingsDisableElement;
 function onInputChanged(func) {
 	if (!func || typeof func !== "function") return;
 	$(() => {
-		$("input").on("change", function () {
+		$("input, select").on("change", function () {
 			func();
 		});
 	});
@@ -563,14 +568,16 @@ function updatehistorycontrols() {
 			);
 			jQuery("#history-backward")
 				.ariaDisabled(State.length < 2)
-				.ariaClick({
+				.ariaClick(
+					{
 						label: L10n.get("uiBarBackward"),
 					},
 					() => Engine.backward()
 				);
 			jQuery("#history-forward")
 				.ariaDisabled(State.length === State.size)
-				.ariaClick({
+				.ariaClick(
+					{
 						label: L10n.get("uiBarForward"),
 					},
 					() => Engine.forward()
@@ -582,6 +589,10 @@ function updatehistorycontrols() {
 window.updatehistorycontrols = updatehistorycontrols;
 DefineMacro("updatehistorycontrols", updatehistorycontrols);
 
+/*
+	Refreshes the game when exiting options menu - applying the options object after State has been restored.
+	It is done this way to prevent exploits by re-rendering the same passage
+*/
 function updateOptions() {
 	if (T.currentOverlay === "options" && T.optionsRefresh && V.passage !== "Start") {
 		updatehistorycontrols();
@@ -613,21 +624,21 @@ function elementExists(selector) {
 window.elementExists = elementExists;
 
 window.getCharacterViewerDate = () => {
-	const textArea = document.getElementById('characterViewerDataInput');
+	const textArea = document.getElementById("characterViewerDataInput");
 	textArea.value = JSON.stringify(V.characterViewer);
-}
+};
 
 window.loadCharacterViewerDate = () => {
-	const textArea = document.getElementById('characterViewerDataInput');
+	const textArea = document.getElementById("characterViewerDataInput");
 	let data;
-	try{
+	try {
 		data = JSON.parse(textArea.value);
-	}catch(e){
+	} catch (e) {
 		textArea.value = "Invalid JSON";
 	}
-	let original = clone(V.characterViewer);
+	const original = clone(V.characterViewer);
 
-	if(typeof data === 'object' && !Array.isArray(data) && data !== null){
+	if (typeof data === "object" && !Array.isArray(data) && data !== null) {
 		V.characterViewer = {
 			...original,
 			...data.clothesEquipped,
@@ -636,9 +647,9 @@ window.loadCharacterViewerDate = () => {
 			...data.colours,
 			...data.skinColour,
 			...data.controls,
-		}
+		};
 		State.display(V.passage);
 	} else {
 		textArea.value = "Invalid Import";
 	}
-}
+};

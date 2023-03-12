@@ -85,6 +85,20 @@
 			<</if>>
 			<<set $mathslibrarystudent to 0>>
 		<</if>>
+		<<if $englishPlay is "ongoing">>
+			<<set $englishPlayDays -= 1>>
+			<<if $englishPlayLate>>
+				<<set $englishPlayLate -= 1>>
+				<<if $englishPlayLate lt 0>>
+					<<unset $englishPlayLate>>
+					<<set $englishPlayRoles.Sydney to "Cass">>
+				<</if>>
+			<</if>>
+			<<if $englishPlayDays lt 0>>
+				<<englishplayfinish>>
+				<<set $englishPlay to "missed">>
+			<</if>>
+		<</if>>
 		<<if $medicated>>
 			<<set $medicated -= 1>>
 			<<set $medicated *= 0.5>>
@@ -1318,6 +1332,7 @@
 			<<pregnancyProgress>>
 			<<pregnancyProgress "anus">>
 			<<rutCycle>>
+			<<npcPregnancyCycle>>
 		<</if>>
 
 		<<if $robinPilloryFail>>
@@ -1453,7 +1468,7 @@
 
 		/*ToDo: Pregnancy, remove $pregnancyTesting to properly enable*/
 		<<if $pregnancyTesting is undefined>>
-		<<elseif $sexStats.vagina.menstruation.currentState is "pregnant" or ($sexStats.vagina.menstruation.currentState is "normal" and ($playerPregnancyHumanDisable is "f" or $playerPregnancyBeastDisable is "f"))>>
+		<<elseif $sexStats.vagina.menstruation.running and ($sexStats.vagina.menstruation.currentState is "pregnant" or ($sexStats.vagina.menstruation.currentState is "normal" and ($playerPregnancyHumanDisable is "f" or $playerPregnancyBeastDisable is "f")))>>
 			<<set $pregnancyDailyEvent to true>>
 		<</if>>
 		<<playerEndWaterProgress>>
@@ -1625,6 +1640,8 @@
 	<<unset $infirmarydrugstheft>>
 	<<unset $furnitureshoptheft>>
 
+	<<unset $kylarBathroom>>
+
 	<<set $streetpolice to 0>>
 	<<unset $sewersantiquecrystal>>
 	<<unset $sewersantiquewatch>>
@@ -1687,14 +1704,15 @@
 <</widget>>
 
 <<widget "moonstate">>
-	<<run getMoonState()>>
-
-	<<if $moonstate isnot 0>>
-		<<if $moonstate is "evening">>
-			<<set $moonEvent to true>>
-		<</if>>
+	<<if $monthday is getLastDayOfMonth()>>
+		<<set $moonstate to "evening">>
+		<<set $moonEvent to true>>
+		<<checkWraith true>>
+	<<elseif $monthday is 1>>
+		<<set $moonstate to "morning">>
 		<<checkWraith true>>
 	<<else>>
+		<<set $moonstate to 0>>
 		<<unset $moonEvent>>
 		<<clearWraith>>
 		<<unset $noEarSlime>>

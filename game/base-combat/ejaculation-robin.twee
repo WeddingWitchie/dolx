@@ -3,27 +3,6 @@
 <<widget "ejaculation-robin">>
 	<<set $ejaculating to 1>>
 	<!-- Changing rows to future-proof the code: from $NPCList[0] to $NPCList[_nn], _nn being the main ejaculation loop handler -->
-	<<if $NPCList[_nn].pronoun is "m">>
-		<<set $pronoun to "m">>
-	<</if>>
-	<<if $NPCList[_nn].pronoun is "f">>
-		<<set $pronoun to "f">>
-	<</if>>
-	<<if $NPCList[_nn].pronoun is "i">>
-		<<set $pronoun to "i">>
-	<</if>>
-	<<if $NPCList[_nn].pronoun is "n">>
-		<<set $pronoun to "n">>
-	<</if>>
-	<<if $NPCList[_nn].pronoun is "t">>
-		<<set $pronoun to "t">>
-	<</if>>
-
-	<<if $enemytype is "man">>
-		<<set $NPCList[_nn].intro to 1>>
-	<<else>>
-		<<set $pronoun to "i">>
-	<</if>>
 
 	<!-- Female ROBIN -->
 	<<if $NPCList[_nn].vagina isnot "none" and $NPCList[_nn].penis is "none">>
@@ -129,7 +108,7 @@
 					<<feetejacstat>><<ejacstat>><<set $hygiene += 500>><<bodyliquid "feet" "goo">>
 				<</switch>>
 
-			<<elseif $NPCList[_nn].vagina is "vagina" and $worn.genitals.type.includes("chastity")>>
+			<<elseif $NPCList[_nn].vagina is "vagina" and playerChastity("vagina")>>
 				<<He>> gasps as <<he>> cums against your $worn.genitals.name. "Your underwear is really hard," <<he>> says.
 
 			<<elseif $NPCList[_nn].vagina is "vagina">>
@@ -156,7 +135,7 @@
 				<</switch>>
 
 			<!-- following appear to be Male PC to Female Antagonist only? -->
-			<<elseif $NPCList[_nn].vagina is "otheranus" and $worn.genitals.type.includes("chastity")>>
+			<<elseif $NPCList[_nn].vagina is "otheranus" and playerChastity("penis")>>
 				<<He>> gasps as <<he>> cums against your $worn.genitals.name. "Your underwear is really hard," <<he>> says.
 
 			<<elseif $NPCList[_nn].vagina is "otheranus">>
@@ -182,19 +161,19 @@
 				<</switch>>
 				<<ejacstat>><<set $hygiene += 500>><<bodyliquid "penis" "goo">>
 
-			<<elseif ($NPCList[_nn].vagina is "penisimminent" or $NPCList[_nn].vagina is "penisentrance") and $worn.genitals.type.includes("chastity")>>
+			<<elseif ($NPCList[_nn].vagina is "penisimminent" or $NPCList[_nn].vagina is "penisentrance") and playerChastity("penis")>>
 				<<He>> gasps as <<he>> cums against your $worn.genitals.name. "Isn't that uncomfortable?" <<he>> asks. "It's really hard."
 
 			<<elseif $NPCList[_nn].vagina is "penisimminent" or $NPCList[_nn].vagina is "penisentrance">>
 				<<He>> cums on your <<penis>> as you rub against the entrance and moans with pleasure.
 
-			<<elseif ($NPCList[_nn].vagina is "otheranusfrot" or $NPCList[_nn].vagina is "otheranusentrance") and $worn.genitals.type.includes("chastity")>>
+			<<elseif ($NPCList[_nn].vagina is "otheranusfrot" or $NPCList[_nn].vagina is "otheranusentrance") and playerChastity("penis")>>
 				<<He>> gasps as <<he>> cums against your $worn.genitals.name. "Isn't that uncomfortable?" <<he>> asks. "It's really hard."
 
 			<<elseif $NPCList[_nn].vagina is "otheranusfrot" or $NPCList[_nn].vagina is "otheranusentrance">>
 				<<He>> bucks <<his>> ass against your cock as <<he>> cums, body shaking involuntarily.
 
-			<<elseif $NPCList[_nn].vagina is "frot" and $worn.genitals.type.includes("chastity")>>
+			<<elseif $NPCList[_nn].vagina is "frot" and playerChastity("penis")>>
 				<<He>> gasps as <<he>> cums against your $worn.genitals.name. "Isn't that uncomfortable?" <<he>> asks. "It's really hard."
 
 			<<elseif $NPCList[_nn].vagina is "frot">>
@@ -221,6 +200,11 @@
 	<</if>>
 
 	<!-- Male ROBIN -->
+	<<if _condomResult is "leaked">>
+		<span class="red">The condom broke.</span>
+	<<elseif _condomResult is "burst">>
+		<span class="red">The tip of the condom bursts and rips, exposing the head of <<his>> penis.</span>
+	<</if>>
 	<<if $consensual is 1>>
 		<<if _condomResult is "contained">>
 			<<genericCondomEjaculation>>
@@ -245,7 +229,7 @@
 					<<tummyejacstat>><<set $hygiene += 500>><<bodyliquid "tummy" "semen">>
 			<</switch>>
 
-		<<elseif $NPCList[_nn].penis is "vaginaentrance" and $worn.genitals.type.includes("chastity")>>
+		<<elseif $NPCList[_nn].penis is "vaginaentrance" and playerChastity("vagina")>>
 			<<He>> gasps as <<he>> cums onto your $worn.genitals.name. "Isn't that uncomfortable?" <<he>> asks. "Do they make softer ones?"
 
 		<<elseif $NPCList[_nn].penis is "vaginaentrance">>
@@ -259,9 +243,9 @@
 					<<bottomejacstat>><<set $hygiene += 500>><<bodyliquid "bottom" "semen">>
 			<</switch>>
 			<<vaginalentranceejacstat>><<ejacstat>><<set $hygiene += 500>><<bodyliquid "vaginaoutside" "semen">>
-			<<recordSperm `{target: "pc", spermOwner: $NPCList[_nn].fullDescription, spermType: "human", rngModifier: 5, rngType: "canWash"}`>>
+			<<recordSperm `{target: "pc", spermOwner: $NPCList[_nn], spermType: "human", rngModifier: 5, rngType: "canWash"}`>>
 
-		<<elseif $NPCList[_nn].penis is "vaginaimminent" and $worn.genitals.type.includes("chastity")>>
+		<<elseif $NPCList[_nn].penis is "vaginaimminent" and playerChastity("vagina")>>
 			<<He>> gasps as <<he>> cums onto your $worn.genitals.name. "Isn't that uncomfortable?" <<he>> asks. "Do they make softer ones?"
 
 		<<elseif $NPCList[_nn].penis is "vaginaimminent">>
@@ -275,7 +259,7 @@
 					<<bottomejacstat>><<set $hygiene += 500>><<bodyliquid "bottom" "semen">>
 			<</switch>>
 			<<vaginalentranceejacstat>><<ejacstat>><<set $hygiene += 500>><<bodyliquid "vaginaoutside" "semen">>
-			<<recordSperm `{target: "pc", spermOwner: $NPCList[_nn].fullDescription, spermType: "human", rngModifier: 15, rngType: "canWash"}`>>
+			<<recordSperm `{target: "pc", spermOwner: $NPCList[_nn], spermType: "human", rngModifier: 15, rngType: "canWash"}`>>
 
 		<<elseif $NPCList[_nn].penis is "vagina">>
 			<<switch random(1, 7)>>
@@ -290,9 +274,9 @@
 					<<thighejacstat>><<set $hygiene += 500>><<bodyliquid "thigh" "semen">>
 			<</switch>>
 			<<vaginalejacstat>><<ejacstat>><<set $hygiene += 500>><<bodyliquid "vagina" "semen">>
-			<<recordVaginalSperm "pc" $NPCList[_nn].fullDescription "human">>
+			<<recordVaginalSperm "pc" $NPCList[_nn] "human">>
 
-		<<elseif $NPCList[_nn].penis is "cheeks" and $worn.genitals.type.includes("chastity")>>
+		<<elseif $NPCList[_nn].penis is "cheeks" and playerChastity()>>
 			<<He>> gasps as <<he>> cums onto your $worn.genitals.name. "Isn't that uncomfortable?" <<he>> asks. "Do they make softer ones?"
 
 		<<elseif $NPCList[_nn].penis is "cheeks">>
@@ -309,7 +293,7 @@
 			<</switch>>
 			<<bottomejacstat>><<ejacstat>><<set $hygiene += 500>><<bodyliquid "bottom" "semen">>
 
-		<<elseif $NPCList[_nn].penis is "anusentrance" and $worn.genitals.type.includes("chastity") and $worn.genitals.anal_shield is 1>>
+		<<elseif $NPCList[_nn].penis is "anusentrance" and playerChastity("anus")>>
 			<<He>> gasps as <<he>> cums onto your $worn.genitals.name. "Isn't that uncomfortable?" <<he>> asks. "Do they make softer ones?"
 
 		<<elseif $NPCList[_nn].penis is "anusentrance">>
@@ -324,7 +308,7 @@
 			<</switch>>
 			<<bottomejacstat>><<ejacstat>><<set $hygiene += 500>><<bodyliquid "bottom" "semen">>
 
-		<<elseif $NPCList[_nn].penis is "anusimminent" and $worn.genitals.type.includes("chastity") and $worn.genitals.anal_shield is 1>>
+		<<elseif $NPCList[_nn].penis is "anusimminent" and playerChastity("anus")>>
 			<<He>> gasps as <<he>> cums onto your $worn.genitals.name. "Isn't that uncomfortable?" <<he>> asks. "Do they make softer ones?"
 
 		<<elseif $NPCList[_nn].penis is "anusimminent">>
@@ -350,7 +334,7 @@
 					<<thighejacstat>><<set $hygiene += 500>><<bodyliquid "thigh" "semen">>
 			<</switch>>
 			<<analejacstat>><<ejacstat>><<set $hygiene += 500>><<bodyliquid "anus" "semen">>
-			<<recordAnusSperm "pc" $NPCList[_nn].fullDescription "human">>
+			<<recordAnusSperm "pc" $NPCList[_nn] "human">>
 		<<elseif $NPCList[_nn].penis is "chest">>
 			<<switch random(1, 7)>>
 				<<case 1 2 3>>
@@ -372,7 +356,7 @@
 				<<case 7>>
 					<<He>> gasps and strokes <<his>> cock while aiming straight at your mouth. Thick ropes of cum cover your face and push past your closed lips into your mouth. You're impressed by the volume and <<he>> looks oddly pleased with <<himself>>.
 					<<set $hygiene += 500>><<bodyliquid "face" "semen">>
-					<<cumswallow `$NPCList[_nn].type`>>
+					<<cumswallow `$NPCList[_nn].type` null `npcSemenMod($NPCList[_nn].penissize)`>>
 			<</switch>>
 			<<faceejacstat>><<ejacstat>>
 
@@ -385,7 +369,7 @@
 				<<He>> brushes <<his>> cock against your face, causing <<him>> to ejaculate early. Cum drips down your lips and chin; <<he>> seems disappointed.
 			<<case 7>>
 				<<He>> cups your head but in <<his>> excitement cums before <<he>> can enter your mouth. Thick ropes of cum cover your cheeks, chin, and into your waiting mouth.
-				<<cumswallow `$NPCList[_nn].type`>>
+				<<cumswallow `$NPCList[_nn].type` null `npcSemenMod($NPCList[_nn].penissize)`>>
 			<</switch>>
 			<<faceejacstat>><<ejacstat>><<set $hygiene += 500>><<bodyliquid "face" "semen">>
 
@@ -400,7 +384,7 @@
 					<<He>> palms your head, wildly thrusting <<his>> cock in your mouth as <<he>> cums. Semen streams down your throat, fills your mouth and covers your face as <<he>> flails. "Wow, that was fun!"
 					<<faceejacstat>><<set $hygiene += 500>><<bodyliquid "face" "semen">>
 			<</switch>>
-			<<oralejacstat>><<ejacstat>><<cumswallow `$NPCList[_nn].type`>>
+			<<oralejacstat>><<ejacstat>><<cumswallow `$NPCList[_nn].type` null `npcSemenMod($NPCList[_nn].penissize)`>>
 
 		<<elseif $NPCList[_nn].penis is "feet">>
 			<<switch random(1, 7)>>
@@ -473,7 +457,7 @@
 					<<He>> sighs as <<he>> ejaculates onto <<his>> own chest. "That was great; when can we do it again?"
 			<</switch>>
 
-		<<elseif ($NPCList[_nn].penis is "otheranusfrot" or $NPCList[_nn].penis is "otheranusentrance" or $NPCList[_nn].penis is "otheranusimminent") and $worn.genitals.type.includes("chastity")>>
+		<<elseif ($NPCList[_nn].penis is "otheranusfrot" or $NPCList[_nn].penis is "otheranusentrance" or $NPCList[_nn].penis is "otheranusimminent") and playerChastity("penis")>>
 			<<He>> gasps as <<he>> cums onto your $worn.genitals.name. "Isn't that uncomfortable?" <<he>> asks. "Do they make softer ones?"
 
 		<<elseif $NPCList[_nn].penis is "otheranusfrot" or $NPCList[_nn].penis is "otheranusentrance" or $NPCList[_nn].penis is "otheranusimminent">>
@@ -486,14 +470,14 @@
 					<<He>> sighs as <<he>> ejaculates onto <<his>> own chest.
 			<</switch>>
 
-		<<elseif $NPCList[_nn].penis is "penis" and $worn.genitals.type.includes("chastity")>>
+		<<elseif $NPCList[_nn].penis is "penis" and playerChastity("penis")>>
 			<<He>> gasps as <<he>> shoots <<his>> cum over your $worn.genitals.name. <<He>> strokes your face. "You're so cute."
 
 		<<elseif $NPCList[_nn].penis is "penis">>
 			<<He>> cums as you knead your <<penises>> together, moaning with pleasure. "That was fun."
 
 		<<elseif $NPCList[_nn].penis is "penisentrance" or $NPCList[_nn].penis is "penisimminent">>
-			<<if $worn.genitals.type.includes("chastity")>>
+			<<if playerChastity("penis")>>
 				<<He>> gasps as <<he>> shoots <<his>> cum over your $worn.genitals.name. <<He>> strokes your face. "You're so cute."
 			<<else>>
 				<<He>> cums before <<he>> can frot your <<penis>>. <<His>> Semen coats your cock and tummy. <<He>> smiles contentedly.
