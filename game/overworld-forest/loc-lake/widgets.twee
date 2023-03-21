@@ -1,8 +1,8 @@
 :: Widgets Lake [widget]
 <<widget "lakeeffects">>
-	<<if $schoolday is 1>>
-		<<if $daystate is "day" or $daystate is "dusk">>
-			<<if $hour gte 15 and $weather isnot "rain" and $weather isnot "snow">>
+	<<if Time.schoolDay>>
+		<<if Time.dayState is "day" or Time.dayState is "dusk">>
+			<<if Time.hour gte 15 and $weather isnot "rain" and $weather isnot "snow">>
 				<<set $laketeenspresent to 1>>
 			<<else>>
 				<<set $laketeenspresent to 0>>
@@ -11,7 +11,7 @@
 			<<set $laketeenspresent to 0>>
 		<</if>>
 	<<else>>
-		<<if $daystate is "day" or $daystate is "dusk">>
+		<<if Time.dayState is "day" or Time.dayState is "dusk">>
 			<<if $weather isnot "rain" and $weather isnot "snow">>
 				<<set $laketeenspresent to 1>>
 			<<else>>
@@ -22,7 +22,7 @@
 		<</if>>
 	<</if>>
 
-	<<if $weather isnot "rain" and $weather isnot "snow" and $hour gte 18>>
+	<<if $weather isnot "rain" and $weather isnot "snow" and Time.hour gte 18>>
 		<<set $laketeensfire to 1>>
 	<<else>>
 		<<set $laketeensfire to 0>>
@@ -50,6 +50,9 @@
 	<<elseif $bus is "lakewaterfall">>
 		<<link [[Next|Lake Waterfall]]>><</link>>
 		<br>
+	<<elseif $bus is "lakebus">>
+		<<link [[Next|Lake Bus]]>><</link>>
+		<br>
 	<<else>>
 		<<link [[Next|Lake Shore]]>><</link>>
 		<br>
@@ -57,8 +60,7 @@
 <</widget>>
 
 <<widget "passoutlake">>
-	/*ToDo: Pregnancy, remove $pregnancyTesting to properly enable*/
-	<<if isPlayerNonparasitePregnancyEnding() and $pregnancyTesting>>
+	<<if isPlayerNonparasitePregnancyEnding()>>
 		<<pregnancyWatersBrokenPassout "lake">>
 	<<else>>
 		You've pushed yourself too much.
@@ -70,7 +72,7 @@
 		<<if $exposed gte 1 and $exhibitionism lte 54 and isLoveInterest("Eden") and random(1,2) is 2>>
 			<<link [[Next|Eden Passout Lake Rescue]]>><</link>>
 		<<elseif $danger gte (9900 - $allure)>>
-			<<if $laketeenspresent is 1 and $season isnot "winter">>
+			<<if $laketeenspresent is 1 and Time.season isnot "winter">>
 				<<link [[Next|Lake Mermaid]]>><</link>>
 				<br>
 			<<else>>
@@ -105,7 +107,7 @@
 <</widget>>
 
 <<widget "lakereturnjourney">>
-	<<if $laketeenspresent is 1 and $hour is 20>>
+	<<if $laketeenspresent is 1 and Time.hour is 20>>
 		It's getting late, and the shadows of the forest grow longer. People are preparing to return to town. No one wants to be left to travel alone.
 		<br><br>
 
@@ -163,7 +165,7 @@
 			<<link [[Next|Lake Depths Swarm]]>><<set $molestationstart to 1>><</link>>
 			<br>
 		<<else>>
-			<<if $daystate is "night" and $weather is "rain">>
+			<<if Time.dayState is "night" and $weather is "rain">>
 			Something brushes your leg and startles you. You look beneath the dark and violent water, but can't see anything. You feel strange.
 			<<garousal>><<arousal 600>><<gstress>><<stress 6>>
 			<br><br>
@@ -187,11 +189,14 @@
 		<<dancedifficulty 1 1000 true>>
 		<<if $danceSuccess>>
 			The wind picks up, almost knocking you over, <span class="green">but you manage to keep your footing.</span>
-			<br><br>
 		<<else>>
-			The wind picks up, <span class="red">and you lose your footing,</span> slipping on the ice.<<gstress>><<gpain>><<stress 6>><<pain 4>>
-			<br><br>
+			The wind picks up, <span class="red">and you lose your footing,</span> slipping on the ice. 
+			<<if playerIsPregnant() and playerAwareTheyArePregnant()>>
+				Your hands and knees hurt from the hard landing, but at least you were able to protect your <<pregnancyBabyText "pc">>.<<gstress>><<gpain>><<stress 6>><<pain 4>>
+			<</if>>
+			<<gstress>><<gpain>><<stress 6>><<pain 4>>
 		<</if>>
+		<br><br>
 		<<destination_lake_ice>>
 	<<elseif $rng gte 61>>
 		You're struck by a sudden terror. <span class="pink">You feel watched.</span>
@@ -225,7 +230,7 @@
 				<br><br>
 			<</if>>
 		<<elseif $weather is "clear">>
-			<<if $daystate is "night">>
+			<<if Time.dayState is "night">>
 				<<if isBloodmoon()>>
 					The red moon reflects off the ice. Dread stabs at you.<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
 					<br><br>
@@ -238,7 +243,7 @@
 				<br><br>
 			<</if>>
 		<<else>>
-			<<if $daystate is "night">>
+			<<if Time.dayState is "night">>
 				The surrounding trees are almost invisible in the dark.<<gstress>><<stress 6>>
 				<br><br>
 			<<else>>

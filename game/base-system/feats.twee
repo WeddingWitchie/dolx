@@ -448,7 +448,7 @@
 	<<if $feats.locked is false and $cheatdisable is "t" and $debug is 0 and $gamemode isnot "soft" and $alluremod gte 1 and $replayScene is undefined>>
 		<<if _args[0] is true>>
 			/*Rarely occuring feats*/
-			<<if $days gte 50>>
+			<<if Time.days gte 50>>
 				<<if $player.gender is "m">>
 					<<earnFeat "Being a Boy">>
 				<<elseif $player.gender is "f">>
@@ -457,13 +457,13 @@
 					<<earnFeat "Being a Hermaphrodite">>
 				<</if>>
 
-				<<if $days gte 150>>
+				<<if Time.days gte 150>>
 					<<earnFeat "Being an Orphan">>
 				<</if>>
 
 				<<if $passoutstat is 0>>
 					<<earnFeat "Stressful Challenge">>
-					<<if $days gte 150>>
+					<<if Time.days gte 150>>
 						<<earnFeat "Long Stressful Challenge">>
 					<</if>>
 				<</if>>
@@ -583,13 +583,15 @@
 			<<if $sadism_level gte 4>>
 				<<earnFeat "Served Hot">>
 			<</if>>
-			<!-- ToDo: Pregnancy, remove $pregnancyTesting to properly enable -->
-			<<if $fame.sex lte 29 and $fame.prostitution lte 29 and $fame.rape lte 29 and $fame.bestiality lte 29 and $fame.exhibitionism lte 29 and (!$pregnancyTesting or $fame.pregnancy lte 29)
+			<<if $fame.sex lte 29 and $fame.prostitution lte 29 and $fame.rape lte 29 and $fame.bestiality lte 29 and $fame.exhibitionism lte 29 and $fame.pregnancy lte 29
 			and $fame.scrap gte 1000 and $fame.good gte 1000 and $fame.business gte 1000 and $fame.social gte 1000 and $fame.model gte 1000 /* and $fame.pimp gte 1000 */>>
 				<<earnFeat "Shining Reputation">>
 			<</if>>
 
-			<<if Object.values($children).reduce((prev,curr) => prev.pushUnique(curr.type), []).length gte Object.keys(pregnancyGenerator).filter(type => type !== "parasite").length>>
+			<<if Object.values($children).reduce((prev,curr) => {
+				prev.pushUnique(curr.type);
+				return prev;
+			}, []).length gte Object.keys(pregnancyGenerator).filter(type => type !== "parasite").length>>
 				<<earnFeat "Diversity of Life">>
 			<</if>>
 
@@ -635,6 +637,9 @@
 		<<if $tending gte 1000>>
 			<<earnFeat "Green Fingered">>
 		<</if>>
+		<<if $housekeeping gte 1000>>
+			<<earnFeat "Majordomo">>
+		<</if>>
 
 		<<if $baseAllure gte 7000 and $outside is 1 and $moonstate is 0>>
 			<<earnFeat "Alluring">>
@@ -645,6 +650,10 @@
 		<<if $corruption_slime gte 100>>
 			<<earnFeat "Ear Slime Lover">>
 		<</if>>
+		<<if $feats.allSaves.points gte 300>>
+			<<earnFeat "My Timeless Collection of Feats">>
+		<</if>>
+		<<specialClothesUpdate>>
 	<</if>>
 <</widget>>
 
@@ -652,5 +661,5 @@
 Paste in the console to get the total number of vrelcoins
 var count = 0;
 for (var i = 0; i < Object.keys(setup.feats).length;i++){
-	count += T.feats[Object.keys(setup.feats)[i]].difficulty
+	count += setup.feats[Object.keys(setup.feats)[i]].difficulty
 }-->

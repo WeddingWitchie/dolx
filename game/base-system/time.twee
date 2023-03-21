@@ -1,7 +1,8 @@
-:: Widgets Time [widget]
+/* Obsoleted - converted to time.js
+//:: Widgets Time [widget]
 <<widget "day">>
 	<<if $statFreeze isnot true>>
-		/*<<run checkNewVersion()>>*/
+		/*<<run checkNewVersion()>>*/ /*
 		<<seenPassageChecks>>
 
 		<<earnAllFeats true>>
@@ -21,9 +22,10 @@
 			<<set $deviancy to Math.clamp($deviancy, 0, 100)>>
 		<</if>>
 
-		/* reset daily variables */
+		/* reset daily variables */ /*
 		<<run delete $daily; $daily = { school: {}, whitney: {}, robin: {}, kylar: {}, morgan: {}, eden: {}, alex: {}, sydney: {}, ex: {}, pharm: {} }>>
 		<<run delete $bird.satisfied>>
+		<<unset $pregnancyBusDaily>>
 
 		<<set $yeardays += 1>>
 
@@ -85,6 +87,9 @@
 			<</if>>
 			<<set $mathslibrarystudent to 0>>
 		<</if>>
+
+		-- MOVED TO dailySchoolEffects()
+
 		<<if $englishPlay is "ongoing">>
 			<<set $englishPlayDays -= 1>>
 			<<if $englishPlayLate>>
@@ -99,6 +104,8 @@
 				<<set $englishPlay to "missed">>
 			<</if>>
 		<</if>>
+
+
 		<<if $medicated>>
 			<<set $medicated -= 1>>
 			<<set $medicated *= 0.5>>
@@ -143,6 +150,7 @@
 		<<else>>
 			<<set $brothel_basement_price to 500>>
 		<</if>>
+		<<unset $tentacle_forest_lurker>>
 
 		<<corruption -1>>
 		<<if $parasite.left_ear.name is "slime">>
@@ -439,10 +447,12 @@
 			<<set $awarelevel to 0>>
 		<</if>>
 		<<if $awarelevel lte 1 and $loveInterest.secondary isnot "None">>
+			<<set $loveInterest_message to 1>>
 			<<set $loveInterest.secondary to "None">><<unset $loveInterestAwareMessage>>
 			<span class = "blue"><i>You feel that having multiple lovers is wrong. You can no longer choose more than one love interest.</i></span>
 		<</if>>
 		<<if $awarelevel gte 2 and $loveInterest.primary isnot "None" and $loveInterest.secondary is "None" and !$loveInterestAwareMessage>>
+			<<set $loveInterest_message to 2>>
 			<<set $loveInterestAwareMessage to 1>>
 			<span class = "pink"><i>Your mind is open to the possibility of multiple lovers. You may now choose a second love interest.</i></span>
 		<</if>>
@@ -550,7 +560,7 @@
 		<<case "january" "may" "september">>
 			<<if $weekday is 1 or $weekday is 2>>
 				<<set $schoolterm to 1>>
-				/* reset inspections event cycle; inspections per term to "track students' growth" */
+				/* reset inspections event cycle; inspections per term to "track students' growth" */ /*
 				<<if $schoolevent gt 2>>
 					<<set $schoolevent to 0>>
 					<<set $schooleventtimer to 10>>
@@ -559,7 +569,7 @@
 		<<case "april" "july" "december">>
 			<<if $weekday is 1>>
 				<!-- If it's the last day of the Holidays and a Sunday, then tomorrow is a school day -->
-				<<if $monthday is getLastDayOfMonth()>>
+				<<if $monthday is Time.lastDayOfMonth>>
 					<<set $schoolterm to 1>>
 				<<else>>
 					<<set $schoolterm to 0>>
@@ -568,7 +578,7 @@
 				<<set $schoolterm to 0>>
 			<</if>>
 		<<case "march" "june" "november">>
-			<<if $weekday is 1 and $monthday is getLastDayOfMonth()>>
+			<<if $weekday is 1 and $monthday is Time.lastDayOfMonth>>
 				<!-- If it's the last day before the Holidays and a Sunday, then tomorrow is not a school day -->
 				<<set $schoolterm to 0>>
 			<</if>>
@@ -703,8 +713,8 @@
 			<</if>>
 		<</if>>
 		<<if $purity lte 0>>
-			<<if $fallenangel is 2 or $fallenangel is 3>>
-				<<fallenDescend>> /* Moved to transformations.twee */
+			<<if $fallenangel gte 2>>>>
+				<<fallenDescend>> /* Moved to transformations.twee 
 
 			<</if>>
 			<<if $fallenangel gte 4>>
@@ -1007,7 +1017,7 @@
 		<</if>>
 
 		<<if $sydneyScience isnot 1 and $days gte random(14, 21)>>
-			/*<<set $sydneyLate to 1>><<set $sydneyScience to 1>>*/ <!-- Uncomment this when Sydney can show up in Science Class -->
+			/*<<set $sydneyLate to 1>><<set $sydneyScience to 1>>*/ /* <!-- Uncomment this when Sydney can show up in Science Class -->
 		<</if>>
 
 		<<if $adultshopprogress lt 22 and $weekday is 6>>
@@ -1043,7 +1053,7 @@
 			<<if $sydneySeen.includes("library") and ($sydneyLibraryEvent is 2 or $libraryMoneyStolen or $sydneyStolenKnown) and !$sydneyLeightonConfrontTimer>>
 				<<if $sydneyLibraryEvent is 2>>
 					<<set $sydneyLeightonConfront to 1>>
-					<<set $sydneyLeightonWhitneyGuilty to 1>> /* currently unused */
+					<<set $sydneyLeightonWhitneyGuilty to 1>> /* currently unused */ /*
 				<<elseif $libraryMoneyStolen gte 100 or $sydneyStolenKnown>>
 					<<set $sydneyLeightonConfront to 1>>
 					<<set $sydneyLeightonPlayerGuilty to 1>>
@@ -1325,15 +1335,12 @@
 				<</if>>
 			<</for>>
 		<</if>>
-
-		/*ToDo: Pregnancy, remove check to properly enable*/
-		<<if $pregnancyTesting>>
-			<<menstruationCycle "daily">>
-			<<pregnancyProgress>>
-			<<pregnancyProgress "anus">>
-			<<rutCycle>>
-			<<npcPregnancyCycle>>
-		<</if>>
+		<<menstruationCycle "daily">>
+		<<pregnancyProgress>>
+		<<pregnancyProgress "anus">>
+		<<rutCycle>>
+		<<npcPregnancyCycle>>
+		<<randomPregnancyProgress>>
 
 		<<if $robinPilloryFail>>
 			<<unset $robinPilloryFail>>
@@ -1347,7 +1354,7 @@
 			<!-- Clear any strapons that were randomly generated for the NNPCs -->
 			<<run $NPCName.forEach(npc => {
 				if (npc.strapons && npc.strapons.length >= 1){
-					/* This removes all strapons that have the temp tag, and ignores any that lack this variable */
+					/* This removes all strapons that have the temp tag, and ignores any that lack this variable */ /*
 					npc.strapons = npc.strapons.filter(strapon => !strapon.temp);
 					console.log("Removed temp strap-ons");
 				}
@@ -1359,7 +1366,7 @@
 		<</if>>
 		<<unset $masturbation_oralSkillMax>>
 
-		<<if $pillory_tenant.exists and $pillory_tenant.endday lt $days>> /* If the pillory tenant was supposed to be released on a previous day */
+		<<if $pillory_tenant.exists and $pillory_tenant.endday lt $days>> /* If the pillory tenant was supposed to be released on a previous day */ /*
 			<<clear_pillory>>
 		<</if>>
 	<</if>>
@@ -1381,12 +1388,9 @@
 	<<if $lake_ice_broken lte 0>>
 		<<unset $lake_ice_broken>>
 	<</if>>
-	/*ToDo: Pregnancy, remove check to properly enable*/
-	<<if $pregnancyTesting>>
-		<<menstruationCycle>>
-		<<pregnancyProgress>>
-		<<pregnancyProgress "anus">>
-	<</if>>
+	<<menstruationCycle>>
+	<<pregnancyProgress>>
+	<<pregnancyProgress "anus">>
 	<<unset $birdSleep>>
 	<<unset $glideScared>>
 	<<unset $edenbed>>
@@ -1426,9 +1430,9 @@
 			<<if $parasite.nipples.name>>
 			<<milkvolume 1>>
 			<</if>>
-			<<if $hour gte 12 and $noon_check isnot 1>>
+			<<if Time.hour gte 12 and $noon_check isnot 1>>
 				<<noon>>
-			<<elseif $hour gte 6 and $dawn_check isnot 1>>
+			<<elseif Time.hour gte 6 and $dawn_check isnot 1>>
 				<<dawn>>
 			<</if>>
 			<<arousal 0 "time">>
@@ -1451,7 +1455,7 @@
 					<<unset $slimeDefyCooldown>>
 				<</if>>
 			<</if>>
-			<<if $hour gte 8 and $hour lt 21>>
+			<<if Time.hour gte 8 and Time.hour lt 21>>
 				<<set $openinghours to 1>>
 			<<else>>
 				<<set $openinghours to 0>>
@@ -1466,9 +1470,7 @@
 			<<set $wolfevent to 1>>
 		<</if>>
 
-		/*ToDo: Pregnancy, remove $pregnancyTesting to properly enable*/
-		<<if $pregnancyTesting is undefined>>
-		<<elseif $sexStats.vagina.menstruation.running and ($sexStats.vagina.menstruation.currentState is "pregnant" or ($sexStats.vagina.menstruation.currentState is "normal" and ($playerPregnancyHumanDisable is "f" or $playerPregnancyBeastDisable is "f")))>>
+		<<if $sexStats.vagina.menstruation.running and ($sexStats.vagina.menstruation.currentState is "pregnant" or ($sexStats.vagina.menstruation.currentState is "normal" and ($playerPregnancyHumanDisable is "f" or $playerPregnancyBeastDisable is "f")))>>
 			<<set $pregnancyDailyEvent to true>>
 		<</if>>
 		<<playerEndWaterProgress>>
@@ -1491,7 +1493,7 @@
 							<<set $temple_quarters += 1>>
 						<</if>>
 					<<default>>
-					/* Do Nothing */
+					/* Do Nothing */ /*
 				<</switch>>
 			<</if>>
 		<</if>>
@@ -1514,7 +1516,7 @@
 			<<robinPilloryHour>>
 		<</if>>
 
-		<<if $pillory_tenant.exists and $pillory_tenant.endday is $days and $pillory_tenant.endhour lt $hour>> /* If the pillory tenant was supposed to be released earlier today */
+		<<if $pillory_tenant.exists and $pillory_tenant.endday is $days and $pillory_tenant.endhour lt Time.hour>> /* If the pillory tenant was supposed to be released earlier today */ /*
 			<<clear_pillory>>
 		<</if>>
 	<<else>>
@@ -1526,19 +1528,19 @@
 
 <<widget "temperature_hour">>
 	<<set $chill to $chill_day>>
-	<<if $hour gte 21 or $hour lte 5>>
+	<<if Time.hour gte 21 or Time.hour lte 5>>
 		<<if $weather is "clear">>
 			<<set $chill += 50>>
 		<<else>>
 			<<set $chill += 30>>
 		<</if>>
-	<<elseif $hour gte 18>>
+	<<elseif Time.hour gte 18>>
 		<<if $weather is "clear">>
 			<<set $chill -= 5>>
 		<<else>>
 			<<set $chill += 15>>
 		<</if>>
-	<<elseif $hour gte 9>>
+	<<elseif Time.hour gte 9>>
 		<<if $weather is "clear">>
 			<<set $chill -= 10>>
 		<<else>>
@@ -1552,9 +1554,9 @@
 		<</if>>
 	<</if>>
 <</widget>>
-
+/*
 <<widget "advancetohour">>
-	<<set _min to 60 - ($time - ($hour * 60))>>
+	<<set _min to 60 - ($time - (Time.hour * 60))>>
 	<<pass _min>>
 <</widget>>
 
@@ -1640,7 +1642,12 @@
 	<<unset $infirmarydrugstheft>>
 	<<unset $furnitureshoptheft>>
 
+
+	<<unset $watchingforest>>
+
 	<<unset $kylarBathroom>>
+
+	<<unset $gadenvoyeur>>
 
 	<<set $streetpolice to 0>>
 	<<unset $sewersantiquecrystal>>
@@ -1704,7 +1711,7 @@
 <</widget>>
 
 <<widget "moonstate">>
-	<<if $monthday is getLastDayOfMonth()>>
+	<<if $monthday is Time.lastDayOfMonth>>
 		<<set $moonstate to "evening">>
 		<<set $moonEvent to true>>
 		<<checkWraith true>>
@@ -1718,3 +1725,4 @@
 		<<unset $noEarSlime>>
 	<</if>>
 <</widget>>
+*/

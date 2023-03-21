@@ -55,10 +55,12 @@
 	<<set $toydildodisable to "f">>
 	<<set $toymultiplepenetration to "f">>
 	<<set $pregnancyspeechdisable to "f">>
+	<<set $hypnosisdisable to "f">>
 	<<set $statdisable to "f">>
 	<<set $cheatdisable to "t">>
 	<<set $watersportsdisable to "t">>
 	<<set $facesitdisable to "f">>
+	<<set $ruffledisable to "f">>
 	<<set $saveName to "">>
 	<<set $checkstyle to "words">>
 	<<set $blackwolfmonster to 1>>
@@ -69,7 +71,7 @@
 	<<set $clothesPriceSchool to 1>>
 	<<set $clothesPriceLewd to 1>>
 	<<set $furniturePriceFactor to 1>>
-	<<set $baseVaginalPregnancyChance to 80>>
+	<<set $basePlayerPregnancyChance to 80>>
 	<<set $baseNpcPregnancyChance to 8>>
 	<<set $humanPregnancyMonths to 3>>
 	<<set $wolfPregnancyWeeks to 4>>
@@ -677,7 +679,7 @@
 		</div>
 
 		<div class="settingsToggle">
-			<span class="gold">Starting season:</span> <mouse class="tooltip linkBlue">(?)<span>The game will start on the chosen season's fourth day.</span></mouse>
+			<span class="gold">Starting season:</span> <mouse class="tooltip linkBlue">(?)<span>The game will start on the first sunday of the chosen season.</span></mouse>
 			<br>
 			<label><mouse class="tooltip tangerine">Autumn <<radiobutton "$startingseason" "autumn" autocheck>><span class="green"><i>Recommended for beginners.</i></span></mouse></label> |
 			<label><span class="teal">Winter</span> <<radiobutton "$startingseason" "winter" autocheck>></label> |
@@ -934,10 +936,6 @@
 		<label><div class="settingsToggle">
 		<<checkbox "$parasitedisable" "t" "f" autocheck>> Enable parasites
 		</div></label>
-		/*ToDo: Pregnancy, remove duplicate option once enabled*/
-		<label><div class="settingsToggle">
-		<<checkbox "$parasitepregdisable" "t" "f" autocheck>> Enable parasitic pregnancy
-		</div></label>
 		<label><div class="settingsToggle">
 		<<checkbox "$tentacledisable" "t" "f" autocheck>> Enable tentacles
 		</div></label>
@@ -1028,6 +1026,16 @@
 		<<checkbox "$facesitdisable" "t" "f" autocheck>> Enable facesitting
 		<mouse class="tooltip linkBlue">(?)<span>Does not prevent cunnilingus.</span></mouse>
 		</div></label>
+
+		<label><div class="settingsToggle">
+		<<checkbox "$hypnosisdisable" "t" "f" autocheck>> Enable hypnosis
+		</div></label>
+
+		<label><div class="settingsToggle">
+		<<checkbox "$ruffledisable" "t" "f" autocheck>> Hair can be ruffled
+		<mouse class="tooltip linkBlue">(?)<span>Allows passing out and other situations to change the PC's hair to a messier style.</span></mouse>
+		</div></label>
+
 
 		<div class="settingsToggle" role="group" aria-labelledby="settingsToysHead">
 		<span id="settingsSexToysHead">Sex toys:</span>
@@ -1150,13 +1158,13 @@
 	<div class="solidBorderContainer settings-container">
 		<span class="bold gold">Pregnancy Settings</span>
 		<div class="numberslider-group">
-			<div class="numberslider-inline basevaginalpregnancychance-container">
-				<span class="gold">Base Vaginal Pregnancy Chance</span>
-				<div class="small-description">Chance of conceiving when only being inseminated once at the right time. Some events may leave you with more than one helping of cum. Other effects may modify the base chance, to both increase and decrease the chance of pregnancy.</div>
-				<<numberslider "$baseVaginalPregnancyChance" $baseVaginalPregnancyChance 0 96 4>>
+			<div class="numberslider-inline basePlayerPregnancyChance-container">
+				<span class="gold">Base Player Pregnancy Chance</span>
+				<div class="small-description">Chance of conceiving when inseminated at the right time. Some events may leave you with more than one helping of cum. Other effects may modify the base chance, to both increase and decrease the chance of pregnancy.</div>
+				<<numberslider "$basePlayerPregnancyChance" $basePlayerPregnancyChance 0 96 4>>
 			</div>
 		</div>
-		<<run $(() => { $('.basevaginalpregnancychance-container input').on('input change', e => {
+		<<run $(() => { $('.basePlayerPregnancyChance-container input').on('input change', e => {
 			let valSpan = $(e.currentTarget).siblings().first();
 			let value = valSpan.text();
 
@@ -1165,7 +1173,7 @@
 
 		<div class="numberslider-inline basenpcpregnancychance-container">
 			<span class="gold">Base NPC Pregnancy Chance</span>
-			<div class="small-description">Chance of an npc conceiving when only being inseminated once at the right time.</div>
+			<div class="small-description">Chance of an npc conceiving when inseminated at the right time.</div>
 			<<numberslider "$baseNpcPregnancyChance" $baseNpcPregnancyChance 0 16 4>>
 		</div>
 		<<run $(() => { $('.basenpcpregnancychance-container input').on('input change', e => {
@@ -1236,7 +1244,9 @@
 		<label><div class="settingsToggle">
 			Pregnancy type:
 			<label><<radiobutton "$pregnancytype" "realistic" autocheck>> <mouse class="tooltip green">Realistic<span>Pregnancy will not happen immediately, and you won't know right away when it happens. You may need to use a pregnancy test, and the father may not be known to you initially. In addition, cum on the outside of your vagina, if washed off within several hours, will prevent it from potentially getting you pregnant.</span></mouse></label> |
-			<label><<radiobutton "$pregnancytype" "fetish" autocheck>> <mouse class="tooltip pink">Fetishised<span>Pregnancy may happen as soon as semen gets inside you. You will know as soon as it happens, and will immediately know the father.</span></mouse></label>
+			<label><<radiobutton "$pregnancytype" "fetish" autocheck>> <mouse class="tooltip pink">Fetishised<span>Pregnancy may happen as soon as semen gets inside you. You will know as soon as it happens, and will immediately know the father.</span></mouse></label> |
+			<!-- ToDo: Pregnancy Idea: Not actually working or setup at all, but an idea for a bit of fun coding later-->
+			<!--<label><<radiobutton "$pregnancytype" "realistic" autocheck>> <mouse class="tooltip gold">Silly<span>Pregnancy may happen as soon as you hold hands or kiss.</span></mouse></label>-->
 		</div></label>
 		<label><div class="settingsToggle">
 			<<checkbox "$pregnancyspeechdisable" "t" "f" autocheck>> Enable fertility references
@@ -1612,7 +1622,7 @@
 			<label><<radiobutton "$greathawkmonster" 2 autocheck>> Always a monster girl or boy</label>
 		<</if>>
 	</div>
-	
+
 	<div style="clear:both;"></div>
 
 	<<if $debug is 1>>
@@ -1741,11 +1751,13 @@
 <</widget>>
 
 <<widget "saveNameSection">>
-	<span class="gold">Save Name</span>
+	<span class="gold">Save Name</span> <i>(optional)</i>
 	<br>
 	<<textbox "$saveName" $saveName>>
+	/*
 	<div class="description">Shows in the save menu in place of the save id.</div>
 	<div class="description"><span class="red">Only 10 characters at most will show in the save menu, leave empty to show the save ID.</span></div>
+	*/
 	<br>
 <</widget>>
 

@@ -201,7 +201,7 @@
 
 <<widget "getadultshopstate">>
 	<<sydneySchedule>>
-	<<if $hour gte 21 or $weekday is 1 or ($weekday is 7 ? $hour lt 9 : $hour lt 16) or $adultshophelped is 1>>
+	<<if Time.hour gte 21 or Time.weekDay is 1 or (Time.weekDay is 7 ? Time.hour lt 9 : Time.hour lt 16) or $adultshophelped is 1>>
 		<<set $adultshopstate to "closed">>
 	<<elseif _sydney_location is "shop">>
 		<<set $adultshopstate to "sydney">>
@@ -486,10 +486,10 @@
 		<</addinlineevent>>
 	<</if>>
 
-	<<if $NPCName[$NPCNameList.indexOf("Whitney")].state isnot "dungeon" and $whitneyromance gte 1 and !$adultShopWhitney and $adultshopstate isnot "sydney" and $NPCName[$NPCNameList.indexOf("Whitney")].dom gte 10>>
+	<<if $NPCName[$NPCNameList.indexOf("Whitney")].state isnot "dungeon" and $whitneyromance gte 1 and !$weekly.adultShopWhitney and $adultshopstate isnot "sydney" and $NPCName[$NPCNameList.indexOf("Whitney")].dom gte 10>>
 		<<addinlineevent "whitneytoysex" 1>>
 			/*Whitney arm locks you, forces you outside, spanks you with a flog.*/
-			<<set $adultShopWhitney to true>> /* this event will only happen once a week */
+			<<set $weekly.adultShopWhitney to true>> /* this event will only happen once a week */
 			<<npc "Whitney">>
 			As you're leaning over stocking shelves, a hand twists your arm behind your back. The faint scent of cigarettes fills your nostrils.
 			<br><br>
@@ -547,7 +547,7 @@
 		<</addinlineevent>>
 	<</if>>
 
-	<<if $weekday is 7 or $weekday is 6>>
+	<<if Time.weekDay is 7 or Time.weekDay is 6>>
 		<<addinlineevent "adultshopleighton" 0.5>>
 			Leighton walks into the store.
 			<<npc "Leighton">><<person1>>
@@ -682,8 +682,7 @@
 <</widget>>
 
 <<widget "passoutadultshop">>
-	/*ToDo: Pregnancy, remove $pregnancyTesting to properly enable*/
-	<<if isPlayerNonparasitePregnancyEnding() and $pregnancyTesting>>
+	<<if isPlayerNonparasitePregnancyEnding()>>
 		<<pregnancyWatersBrokenPassout "adultShop">>
 	<<else>>
 		<<link [[Everything fades to black...|Adult Shop Passout Bondage]]>><</link>>

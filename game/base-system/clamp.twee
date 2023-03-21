@@ -18,8 +18,6 @@
 
 <<widget "caption_clamp">>
 	<<set $stress = Math.clamp($stress, 0, $stressmax)>>
-	<<set $time = Math.clamp($time, 0, 1440)>>
-	<<set $minute = Math.clamp($minute, 0, 1440)>>
 	<<set $enemyanger to Math.clamp($enemyanger, 0, 200)>>
 	<<set $audienceexcitement to Math.clamp($audienceexcitement, 0, 100)>>
 	<<set $audiencearousal to Math.clamp($audiencearousal, 0, 100)>>
@@ -95,6 +93,16 @@
 
 	<<painclamp>>
 
+	<<set $housekeeping to Math.clamp($housekeeping, 0, 1000)>>
+
+
+	<<if $gamemode is "soft">>
+		<<set $pain to Math.clamp($pain, 0, 0)>>
+	<<else>>
+		<<set $pain to Math.clamp($pain, 0, 200)>>
+	<</if>>
+
+
 	<<set $facebruise to Math.clamp($facebruise, 0, 100)>>
 	<<set $chestbruise to Math.clamp($chestbruise, 0, 100)>>
 	<<set $tummybruise to Math.clamp($tummybruise, 0, 100)>>
@@ -132,7 +140,7 @@
 		<<set $fame[_t] to Math.clamp($fame[_t], 0, 2000)>>
 	<</for>>
 	<!-- limit preg fame growth by the number of actual pregnancies -->
-	<<set $fame.pregnancy to Math.clamp($fame.pregnancy, 0, Math.clamp($sexStats.vagina.pregnancy.totalBirthEvents + $sexStats.anus.pregnancy.totalBirthEvents,1,20) * 100)>>
+	<<set $fame.pregnancy to Math.clamp($fame.pregnancy, 0, Math.clamp(playerNormalPregnancyTotal(),1,20) * 100)>>
 	<<set $fame.scrap to Math.clamp($fame.scrap, 0, 2000)>>
 	<<set $fame.good to Math.clamp($fame.good, 0, 2000)>>
 	<<set $fame.business to Math.clamp($fame.business, 0, 2000)>>
@@ -150,8 +158,12 @@
 		<<set $pain to Math.clamp($pain, 0, 0)>>
 	<<else>>
 		<<set $_minPain to 0>>
-		<<if $lactating is 1 and $breastfeedingdisable is "f" and $milkFullPain gt 150>>
-			<<set $_minPain += $milkFullPain ? Math.ceil(($milkFullPain - 150) / 5) : 0>>
+		<<if $lactating is 1 and $breastfeedingdisable is "f" and $milkFullPain gt 200>>
+			<<set $_minPain += $milkFullPain ? Math.ceil(($milkFullPain - 200) / 5) : 0>>
+			<<if !$daily.milkFullPainMessage>>
+				<<set $milkFullPainMessage to 1>>
+				<<set $effectsmessage to 1>>
+			<</if>>
 		<</if>>
 		<<set $pain to Math.clamp($pain, Math.clamp($_minPain,0,50), 200)>>
 	<</if>>

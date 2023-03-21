@@ -24,6 +24,8 @@
 		<<else>>
 			You sneak through the undergrowth, scanning the ground for anything of value.
 		<</if>>
+	<<elseif $forestmove is "road">>
+		You walk along the smooth road, safe from the dangers of the wild.
 	<</if>>
 	<<if $weather is "rain">>
 		Thick drops of rain fall around you, gathered by the canopy.
@@ -31,7 +33,7 @@
 	<<if $forestmove or $possessed>>
 		<br><br>
 	<</if>>
-	<<set $forestmove to 0>>
+<<set $forestmove to 0>>
 <</widget>>
 
 <<widget "forestdeeper">>
@@ -51,9 +53,12 @@
 		<</if>>
 		<br>
 		<<sneakicon>><<link [[Carefully (0:30)|Forest]]>><<set $forestmod to 1>><<set $forest += 5>><<pass 30>><<set $forestmove to "carefully">><<if $foresthunt gte 1>><<set $foresthunt += 2>><</if>><</link>><<lharass>>
-	<</if>>
+		<<if $town_projects.road gte 4 and $forest lte 24>>
+			<br>
+			<<forestroaddeepicon>><<link [[Follow road (0:05)|Forest]]>><<set $forestmod to 1>><<set $forest += 5>><<set $forestmove to "road">><<pass 5>><<if $foresthunt gte 1>><<set $foresthunt += 1>><</if>><<set $eventskip to 1>><</link>><<noharass>>
+		<</if>>
+<</if>>
 <</widget>>
-
 
 <<widget "forestsearch">>
 	Search this area <<gtreasure>>
@@ -66,7 +71,6 @@
 	<br>
 	<<sneakicon>><<link [[Carefully (0:30)|Forest]]>><<set $forest_search to true>><<set $forestmod to 1>><<pass 30>><<set $forestmove to "careful_search">><<if $foresthunt gte 1>><<set $foresthunt += 2>><</if>><</link>><<lharass>>
 <</widget>>
-
 
 <<widget "forestlessdeep">>
 	Go towards town
@@ -85,7 +89,11 @@
 		<</if>>
 		<br>
 		<<sneakicon>><<link [[Carefully (0:30)|Forest]]>><<set $forestmod to 1>><<set $forest -= 5>><<pass 30>><<set $forestmove to "carefully">><<if $foresthunt gte 1>><<set $foresthunt += 2>><</if>><</link>><<lharass>>
-	<</if>>
+		<<if $town_projects.road gte 4 and $forest lte 25 and $forest gte 1>>
+			<br>
+			<<forestroadtownicon>><<link [[Follow road (0:05)|Forest]]>><<set $forestmod to 1>><<set $forest -= 5>><<set $forestmove to "road">><<pass 5>><<if $foresthunt gte 1>><<set $foresthunt += 1>><</if>><<set $eventskip to 1>><</link>><<noharass>>
+		<</if>>
+<</if>>
 <</widget>>
 
 <<widget "eventforestoutskirts">>
@@ -190,7 +198,7 @@
 		<</if>>
 	<</addinlineevent>>
 	<<addinlineevent "forestoutskirts_safeperson">>
-		<<if $daystate is "night">>
+		<<if Time.dayState is "night">>
 			<<generate1>><<person1>>
 			You see a <<person>> through the trees, leaning against a tree and smoking a cigarette.
 
@@ -419,7 +427,7 @@
 				You remember learning about the local species' rut and oestrus period with Sirri. Best not to linger.<br><br>
 				<<gstress>><<stress 10>>
 			<<else>>
-				You don't know why the wolves sound different tonight.<br><br>		
+				You don't know why the wolves sound different tonight.<br><br>
 				<<gstress>><<stress 1>>
 			<</if>>
 
@@ -465,7 +473,7 @@
 			<br>
 		<</addinlineevent>>
 	<</if>>
-	<<if $halloween is 1 and $monthday is 31 and !$halloween_lake>>
+	<<if $halloween is 1 and Time.monthDay is 31 and !$halloween_lake>>
 		<<addevent "halloween_lake_invite" 1000>>
 	<</if>>
 	<<runeventpool>>
@@ -820,7 +828,7 @@
 		<</if>>
 	<<else>>
 		<<rngWraith 2 "night">>
-		<<if _wraithEvent and ($wraith.state is "haunt" or $wraith.offspring is "dead") and $syndromeeden is 1>>
+		<<if _wraithEvent and (["haunt", "despair"].includes($wraith.state) or $wraith.offspring is "dead") and $syndromeeden is 1>>
 
 			<<set $wraith.mimic to "Eden">><<npc Eden>><<person1>>Something whizzes past and hits a tree in front of you. You shield your face with your arms and stagger backwards. Something presses against your back, and you hear a <<personsimple>>'s voice. "I've got you now. Don't resist."
 			<br><br>
@@ -880,7 +888,7 @@
 
 		<<elseif $edenfreedom gte 1>>
 			<<rng>>
-			<<if $daystate isnot "night">>
+			<<if Time.dayState isnot "night">>
 				<<if $rng gte 51>>
 					<<if $feetskill gte 800>>
 						<<npc Eden>><<person1>>
@@ -954,7 +962,7 @@
 <</widget>>
 
 <<widget "cabintime">>
-	<<switch $hour>>
+	<<switch Time.hour>>
 		<<case 6>>
 			<<pass 1 hour>><<tiredness -12>>
 		<<case 5>>
@@ -976,8 +984,7 @@
 
 
 <<widget "passoutforest">>
-	/*ToDo: Pregnancy, remove $pregnancyTesting to properly enable*/
-	<<if isPlayerNonparasitePregnancyEnding() and $pregnancyTesting>>
+	<<if isPlayerNonparasitePregnancyEnding()>>
 		<<pregnancyWatersBrokenPassout "forest">>
 	<<else>>
 		You've pushed yourself too much.
