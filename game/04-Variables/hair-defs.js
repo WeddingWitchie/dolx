@@ -12,19 +12,20 @@ setup.hair = {
 				"neat",
 				"curly side up",
 				"heart braid",
-				"ruffled"
+				"ruffled",
+				"sidecut",
+				"space buns",
 			],
 			devolve: ["ruffled"],
 		},
 		{
 			name: "single tail",
-			list: ["flat ponytail", "ponytail", "side tail left", "side tail right"],
+			list: ["flat ponytail", "ponytail", "side tail left", "side tail right", "fluffy ponytail"],
 			devolve: ["ponytail"],
 		},
 		{
 			name: "double tail",
-			list: ["pigtails", "twintails", "curly pigtails", "sailor buns", "loop braid", 
-			"thick twintails"],
+			list: ["pigtails", "twintails", "curly pigtails", "sailor buns", "loop braid", "thick twintails", "drill ringlets"],
 			devolve: ["twintails"],
 		},
 		{
@@ -72,13 +73,15 @@ setup.hair = {
 				"ringlet curl",
 				"curtain",
 				"trident",
-				"framed"
+				"framed",
+				"sidecut",
+				"drill ringlets",
+				"front braids",
 			],
 			devolve: ["messy", "trident", "thin flaps"],
 		},
 	],
 };
-
 
 function hairLengthStringToNumber(hairLength) {
 	return {
@@ -90,3 +93,4 @@ function hairLengthStringToNumber(hairLength) {
 		feet: 900,
 	}[hairLength];
 }
+window.hairLengthStringToNumber = hairLengthStringToNumber;

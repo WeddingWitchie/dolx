@@ -1367,6 +1367,7 @@
 	Cat Transform: <<link "Set">><<catTransform>><<updatesidebarimg>><</link>> / <<link "Clear">><<catTransform 99>><<updatesidebarimg>><</link>><br>
 	Cow Transform: <<link "Set">><<cowTransform>><<updatesidebarimg>><</link>> / <<link "Clear">><<cowTransform 99>><<updatesidebarimg>><</link>><br>
 	Bird Transform: <<link "Set">><<harpyTransform>><<updatesidebarimg>><</link>> / <<link "Clear">><<harpyTransform 99>><<updatesidebarimg>><</link>><br>
+	Fox Transform: <<link "Set">><<foxTransform>><<updatesidebarimg>><</link>> / <<link "Clear">><<foxTransform 99>><<updatesidebarimg>><</link>><br>
 	<br>
 
 	Wolf (30 needed for full transformation):
@@ -1417,6 +1418,13 @@
 	<span id="statsbirdbuild"><<print Math.trunc($birdbuild)>></span>
 	| <<link ">">><<set $birdbuild += 5>><<transformationAlteration>><<clamp>><<replace "#statsbirdbuild">><<print Math.trunc($birdbuild)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>">><<set $birdbuild += 50>><<transformationAlteration>><<clamp>><<replace "#statsbirdbuild">><<print Math.trunc($birdbuild)>><</replace>> <<updatesidebarimg>><</link>>
+	<br>
+	Fox (30 needed for full transformation):
+	<<link "<<">><<set $foxbuild -= 50>><<transformationAlteration>><<clamp>><<replace "#statsfoxbuild">><<print Math.trunc($foxbuild)>><</replace>> <<updatesidebarimg>><</link>> |
+	<<link "<">><<set $foxbuild -= 5>><<transformationAlteration>><<clamp>><<replace "#statsfoxbuild">><<print Math.trunc($foxbuild)>><</replace>> <<updatesidebarimg>><</link>> |
+	<span id="statsfoxbuild"><<print Math.trunc($foxbuild)>></span>
+	| <<link ">">><<set $foxbuild += 5>><<transformationAlteration>><<clamp>><<replace "#statsfoxbuild">><<print Math.trunc($foxbuild)>><</replace>> <<updatesidebarimg>><</link>>
+	| <<link ">>">><<set $foxbuild += 50>><<transformationAlteration>><<clamp>><<replace "#statsfoxbuild">><<print Math.trunc($foxbuild)>><</replace>> <<updatesidebarimg>><</link>>
 	<br>
 <</widget>>
 
@@ -2275,6 +2283,7 @@
 <</widget>>
 
 <<widget "cheatsPregnancyOptions">>
+	<<set _womb to ($player.vaginaExist ? "vagina" : "anus")>>
 	<<set _elegible to ["Avery", "Eden", "Harper", "Kylar", "Morgan", "Robin", "Whitney", "Black Wolf", "Alex", "Wren", "Sydney"]>>
 	<<set _impregnatableNPC to []>>
 	<<set _impregnatorNPC to []>>
@@ -2327,7 +2336,7 @@
 			<</link>>
 			<br><br>
 			<<link [[Clear current pregnancy|$passage]]>>
-				<<set _pregnancyClear to $sexStats[_womb].pregnancy>>
+				<<set _pregnancyClear to getPregnancyObject()>>
 				<<set _pregnancyClear.type to null>>
 				<<set _pregnancyClear.fetus to []>>
 				<<set _pregnancyClear.waterBreaking to false>>
@@ -2335,9 +2344,10 @@
 				<<set _pregnancyClear.timer to null>>
 				<<set _pregnancyClear.timerEnd to null>>
 				<<set _pregnancyClear.awareOf to null>>
+				<<set _pregnancyClear.awareOfMultiple to null>>
 				<<set _pregnancyClear.awareOfDetails to null>>
 				<<set _pregnancyClear.potentialFathers to []>>
-				<<set _pregnancyClear.sperm to []>>
+				<<set $sexStats[($player.vaginaExist ? "vagina" : "anus")].sperm to []>>
 				<<set _menstruation.currentDay to .5>>
 				<<menstruationCycle>>
 			<</link>>

@@ -245,7 +245,7 @@ args[3] - "both" to include unrelated children or "only" to exclude the player c
 		<<switch $children[_id].gender>>
 			<<case "m">><<set $_text_output to "Him">>
 			<<case "f" "h">><<set $_text_output to "Her">>
-			<<case "h">><<set $_text_output to "Their">>
+			<<case "h">><<set $_text_output to "Them">>
 		<</switch>>
 	<</if>>
 <</silently>><<if $_text_output>><<print $_text_output>><</if>><</widget>>
@@ -261,7 +261,7 @@ args[3] - "both" to include unrelated children or "only" to exclude the player c
 		<<switch $children[_id].gender>>
 			<<case "m">><<set $_text_output to "him">>
 			<<case "f" "h">><<set $_text_output to "her">>
-			<<case "h">><<set $_text_output to "their">>
+			<<case "h">><<set $_text_output to "them">>
 		<</switch>>
 	<</if>>
 <</silently>><<if $_text_output>><<print $_text_output>><</if>><</widget>>
@@ -307,9 +307,9 @@ args[3] - "both" to include unrelated children or "only" to exclude the player c
 	<</if>>
 	<<if _id isnot undefined>>
 		<<switch $children[_id].gender>>
-			<<case "m">><<set $_text_output to "hisself">>
+			<<case "m">><<set $_text_output to "himself">>
 			<<case "f" "h">><<set $_text_output to "herself">>
-			<<case "h">><<set $_text_output to "theirself">>
+			<<case "h">><<set $_text_output to "themself">>
 		<</switch>>
 	<</if>>
 <</silently>><<if $_text_output>><<print $_text_output>><</if>><</widget>>
@@ -523,9 +523,10 @@ args[3] - "both" to include unrelated children or "only" to exclude the player c
 <<widget "childViewerDisplayElements">>
 	<div class="childrenUi">
 		<<for $_i to _childStart; $_i lt _childEnd; $_i++>>
-			<<capture $_i>>
-				<div @id="'child-' + _childrenIds[$_i]">
-					<<childViewerElement `_childrenIds[$_i]`>>
+			<<set _childId to _childrenIds[$_i]>>
+			<<capture _childId>>
+				<div @id="'child-' + _childId">
+					<<childViewerElement `_childId`>>
 				</div>
 			<</capture>>
 		<</for>>
@@ -610,7 +611,7 @@ args[3] - "both" to include unrelated children or "only" to exclude the player c
 				<br>
 			<</if>>
 			<span class="no-numberify">
-			<<link "Re-name">>
+			<<link "Rename">>
 				<<set $children[_args[0]].name to generateBabyName(_children[_args[0]], $children[_args[0]].gender, _args[0])>>
 				<<replace `"#child-" + _args[0]`>><<childViewerElement _args[0] true>><</replace>>
 			<</link>> |
@@ -678,6 +679,7 @@ args[3] - "both" to include unrelated children or "only" to exclude the player c
 			<</for>>
 		<</if>>
 		/*Which event is picked, should match the case where the event is shown to the player*/
+		<<run statusCheck("Robin")>>
 		<<set _activity to 'noEvent'>>
 		<<if between(_childTotalDays, 0, 100)>>
 			<<if Time.dayState is "night">>
@@ -700,6 +702,9 @@ args[3] - "both" to include unrelated children or "only" to exclude the player c
 				<</if>>
 				<<if _toyNames.includes("clown")>>
 					<<run _activity.push("clown")>>
+				<</if>>
+				<<if _robin_location is "orphanage">>
+					<<run _activity.push("Robin")>>
 				<</if>>
 			<</if>>
 		<<elseif between(_childTotalDays, 101, 200)>>
@@ -751,7 +756,21 @@ args[3] - "both" to include unrelated children or "only" to exclude the player c
 		<<childHe>>'s sleeping soundly.
 		<<if $children[_args[0]].localVariables.event is true>>
 			<br>
-			<<capture _childid>><<link [[Watch them (0:05)|Children Activity Events]]>><<pass 5>><<set $childActivityEvent to {event:"shiverInCot", childid:_childid}>><</link>><</capture>> |
+			<<set _rng to random(1, 6)>>
+			<<switch _rng>>
+				<<case 1>>
+					<<capture _childid>><<link [[Watch them (0:05)|Children Activity Events]]>><<pass 5>><<set $childActivityEvent to {event:"transfixed", childid:_childid}>><</link>><</capture>> |
+				<<case 2>>
+					<<capture _childid>><<link [[Watch them (0:05)|Children Activity Events]]>><<pass 5>><<set $childActivityEvent to {event:"stroke", childid:_childid}>><</link>><</capture>> |
+				<<case 3>>
+					<<capture _childid>><<link [[Watch them (0:05)|Children Activity Events]]>><<pass 5>><<set $childActivityEvent to {event:"yawn", childid:_childid}>><</link>><</capture>> |
+				<<case 4>>
+					<<capture _childid>><<link [[Watch them (0:05)|Children Activity Events]]>><<pass 5>><<set $childActivityEvent to {event:"murmur", childid:_childid}>><</link>><</capture>> |
+				<<case 5>>
+					<<capture _childid>><<link [[Nap (0:30)|Children Activity Events]]>><<pass 30>><<set $childActivityEvent to {event:"cotNap", childid:_childid}>><</link>><</capture>> |
+				<<default>>
+					<<capture _childid>><<link [[Watch them (0:05)|Children Activity Events]]>><<pass 5>><<set $childActivityEvent to {event:"shiverInCot", childid:_childid}>><</link>><</capture>> |
+			<</switch>>
 		<</if>>
 	<<case "restlessSleep">>
 		<<childHe>>'s moving restlessly in <<childhis>> sleep.
@@ -763,7 +782,44 @@ args[3] - "both" to include unrelated children or "only" to exclude the player c
 		<<childHe>>'s distressed and crying.
 		<<if $children[_args[0]].localVariables.event is true>>
 			<br>
-			<<capture _childid>><<link [[Comfort (0:20)|Children Activity Events]]>><<pass 20>><<set $childActivityEvent to {event:"rockToSleep", childid:_childid}>><</link>><</capture>> |
+			<<set _rng to random(1, 6)>>
+			<<switch _rng>>
+				<<case 1>>
+					<<capture _childid>><<link [[Comfort (0:20)|Children Activity Events]]>><<pass 20>><<set $childActivityEvent to {event:"holdToShoulder", childid:_childid}>><</link>><</capture>> |
+				<<case 2>>
+					<<capture _childid>><<link [[Comfort (0:20)|Children Activity Events]]>><<pass 20>><<set $childActivityEvent to {event:"melodicLullaby", childid:_childid}>><</link>><</capture>> |
+				<<case 3>>
+					<<capture _childid>><<link [[Comfort (0:20)|Children Activity Events]]>><<pass 20>><<set $childActivityEvent to {event:"foreheadKiss", childid:_childid}>><</link>><</capture>> |
+				<<case 4>>
+					<<capture _childid>><<link [[Comfort (0:20)|Children Activity Events]]>><<pass 20>><<set $childActivityEvent to {event:"objectShow", childid:_childid}>><</link>><</capture>> |
+				<<case 5>>
+					<<capture _childid>><<link [[Comfort (0:20)|Children Activity Events]]>><<pass 20>><<set $childActivityEvent to {event:"carryRevolt", childid:_childid}>><</link>><</capture>> |
+				<<default>>
+					<<capture _childid>><<link [[Comfort (0:20)|Children Activity Events]]>><<pass 20>><<set $childActivityEvent to {event:"rockToSleep", childid:_childid}>><</link>><</capture>> |
+			<</switch>>
+			<<set _rng to random(1, 10)>>
+			<<switch _rng>>
+				<<case 1>>
+					<<capture _childid>><<link [[Soothe (0:20)|Children Activity Events]]>><<pass 20>><<set $childActivityEvent to {event:"nurseryRhymes", childid:_childid}>><</link>><</capture>> |
+				<<case 2>>
+					<<capture _childid>><<link [[Soothe (0:20)|Children Activity Events]]>><<pass 20>><<set $childActivityEvent to {event:"FeetCup", childid:_childid}>><</link>><</capture>> |
+				<<case 3>>
+					<<capture _childid>><<link [[Soothe (0:20)|Children Activity Events]]>><<pass 20>><<set $childActivityEvent to {event:"shareThoughts", childid:_childid}>><</link>><</capture>> |
+				<<case 4>>
+					<<capture _childid>><<link [[Soothe (0:20)|Children Activity Events]]>><<pass 20>><<set $childActivityEvent to {event:"speakCry", childid:_childid}>><</link>><</capture>> |
+				<<case 5>>
+					<<capture _childid>><<link [[Soothe (0:20)|Children Activity Events]]>><<pass 20>><<set $childActivityEvent to {event:"waveTongue", childid:_childid}>><</link>><</capture>> |
+				<<case 6>>
+					<<capture _childid>><<link [[Soothe (0:20)|Children Activity Events]]>><<pass 20>><<set $childActivityEvent to {event:"handsClap", childid:_childid}>><</link>><</capture>> |
+				<<case 7>>
+					<<capture _childid>><<link [[Soothe (0:20)|Children Activity Events]]>><<pass 20>><<set $childActivityEvent to {event:"peekaboo", childid:_childid}>><</link>><</capture>> |
+				<<case 8>>
+					<<capture _childid>><<link [[Soothe (0:20)|Children Activity Events]]>><<pass 20>><<set $childActivityEvent to {event:"blowRaspberriesHappy", childid:_childid}>><</link>><</capture>> |
+				<<case 9>>
+					<<capture _childid>><<link [[Soothe (0:20)|Children Activity Events]]>><<pass 20>><<set $childActivityEvent to {event:"blowRaspberriesUpset", childid:_childid}>><</link>><</capture>> |
+				<<default>>
+					<<capture _childid>><<link [[Soothe (0:20)|Children Activity Events]]>><<pass 20>><<set $childActivityEvent to {event:"faceStudy", childid:_childid}>><</link>><</capture>> |
+			<</switch>>
 		<</if>>
 	<<case "happy">>
 		<<childHe>>'s smiling and happily cooing.
@@ -787,7 +843,19 @@ args[3] - "both" to include unrelated children or "only" to exclude the player c
 		<<childHe>>'s looking uncomfortable and smells.
 		<<if $children[_args[0]].localVariables.event is true>>
 			<br>
-			<<capture _childid>><<link [[Clean up (0:10)|Children Activity Events]]>><<pass 10>><<set $childActivityEvent to {event:"nappyChange", childid:_childid}>><</link>><</capture>> |
+			<<set _rng to random(1, 5)>>
+			<<switch _rng>>
+				<<case 1>>
+					<<capture _childid>><<link [[Bathe (0:10)|Children Activity Events]]>><<pass 10>><<set $childActivityEvent to {event:"batheGentle", childid:_childid}>><</link>><</capture>> |
+				<<case 2>>
+					<<capture _childid>><<link [[Bathe (0:20)|Children Activity Events]]>><<pass 20>><<set $childActivityEvent to {event:"batheShampoo", childid:_childid}>><</link>><</capture>> |
+				<<case 3>>
+					<<capture _childid>><<link [[Bathe (0:20)|Children Activity Events]]>><<pass 20>><<set $childActivityEvent to {event:"BatheCalm", childid:_childid}>><</link>><</capture>> |
+				<<case 4>>
+					<<capture _childid>><<link [[Bathe (0:20)|Children Activity Events]]>><<pass 20>><<set $childActivityEvent to {event:"batheTantrum", childid:_childid}>><</link>><</capture>> |
+				<<default>>
+					<<capture _childid>><<link [[Clean up (0:10)|Children Activity Events]]>><<pass 10>><<set $childActivityEvent to {event:"nappyChange", childid:_childid}>><</link>><</capture>> |
+			<</switch>>
 		<</if>>
 	<<case "thumbSucking">>
 		<<childHe>>'s happily sucking on <<childhis>> thumb.
@@ -826,7 +894,7 @@ args[3] - "both" to include unrelated children or "only" to exclude the player c
 				<<capture _childid _toyid>><<link [[Shake it (0:05)|Children Activity Events]]>><<pass 5>><<set $childActivityEvent to {event:"babyRattle", childid:_childid, toyid:_toyid}>><</link>><</capture>> |
 			<</if>>
 		<<else>>
-			<<humanChildActivityNoToy>>
+			<<humanChildActivityNoToy _args[0]>>
 		<</if>>
 	<<case "teddyBear">>
 		<<childtoy $location "teddy bears" "notext">>
@@ -837,7 +905,7 @@ args[3] - "both" to include unrelated children or "only" to exclude the player c
 				<<capture _childid _toyid>><<link [["Give " + _toyName + " (0:05)"|Children Activity Events]]>><<pass 5>><<set $childActivityEvent to {event:"teddyBear", childid:_childid, toyid:_toyid}>><</link>><</capture>> |
 			<</if>>
 		<<else>>
-			<<humanChildActivityNoToy>>
+			<<humanChildActivityNoToy _args[0]>>
 		<</if>>
 	<<case "teddyBear2">>
 		<<childHe>>'s sleeping soundly by <<childhis>> <<print $children[_args[0]].localVariables.toy>>.
@@ -850,7 +918,7 @@ args[3] - "both" to include unrelated children or "only" to exclude the player c
 				<<capture _childid _toyid>><<link [[Play with (0:05)|Children Activity Events]]>><<pass 5>><<set $childActivityEvent to {event:"toyCar", childid:_childid, toyid:_toyid}>><</link>><</capture>> |
 			<</if>>
 		<<else>>
-			<<humanChildActivityNoToy>>
+			<<humanChildActivityNoToy _args[0]>>
 		<</if>>
 	<<case "dummy">>
 		<<childtoy $location "dummies" "notext">>
@@ -862,7 +930,7 @@ args[3] - "both" to include unrelated children or "only" to exclude the player c
 				<<capture _childid _toyid _rng>><<link [[Pacify (0:15)|Children Activity Events]]>><<pass 15>><<set $childActivityEvent to {event:"dummy", childid:_childid, toyid:_toyid, childCry:_rng}>><</link>><</capture>> |
 			<</if>>
 		<<else>>
-			<<humanChildActivityNoToy>>
+			<<humanChildActivityNoToy _args[0]>>
 		<</if>>
 	<<case "dummySucking">>
 		<<childHe>>'s suckling loudly on <<childhis>> dummy.
@@ -875,10 +943,16 @@ args[3] - "both" to include unrelated children or "only" to exclude the player c
 				<<capture _childid _toyid>><<link [[Play with (0:05)|Children Activity Events]]>><<pass 5>><<set $childActivityEvent to {event:"clown", childid:_childid, toyid:_toyid}>><</link>><</capture>> |
 			<</if>>
 		<<else>>
-			<<humanChildActivityNoToy>>
+			<<humanChildActivityNoToy _args[0]>>
 		<</if>>
 	<<case "clownHappy">>
 		<<childHe>>'s playing happily with the clown, pulling its cord and making it chuckle every now and then.
+	<<case "Robin">>
+		Robin cradles <<childhim>>.
+		<<if $children[_args[0]].localVariables.event is true>>
+			<br>
+			<<capture _childid _toyid>><<link [[Hold (0:05)|Children Activity Events]]>><<pass 5>><<set $childActivityEvent to {event:"Robin", childid:_childid}>><</link>><</capture>> |
+		<</if>>
 	<<default>>
 		<<childHe>>'s has figured out that they're in a video game (This is an error, please report).
 		<<print $children[_args[0]].localVariables.activity>>

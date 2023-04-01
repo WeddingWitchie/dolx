@@ -129,6 +129,10 @@ setup.debugMenu.eventList = {
 			},
 		},
 		{
+			link: [`Replay current passage with new RNG`, ""],
+			widgets: [`<<run updateSessionRNG()>>`],
+		},
+		{
 			link: [`RNG 1`, stayOnPassageFn],
 			widgets: [`<<set $rng to 1>>`],
 		},
@@ -1455,6 +1459,22 @@ setup.debugMenu.eventList = {
 			widgets: [`<<set $wolfbuild -= 40>>`],
 		},
 		{
+			link: [`Oh For Fox Sake`, stayOnPassageFn],
+			widgets: [`<<set $fox to 0>>`],
+		},
+		{
+			link: [`Go Fox Yourself`, stayOnPassageFn],
+			widgets: [`<<set $fox += 1>>`],
+		},
+		{
+			link: [`Fox build up`, stayOnPassageFn],
+			widgets: [`<<set $foxbuild += 40>>`],
+		},
+		{
+			link: [`Fox build down`, stayOnPassageFn],
+			widgets: [`<<set $foxbuild -= 40>>`],
+		},
+		{
 			link: [`Cow build up`, stayOnPassageFn],
 			widgets: [`<<set $cowbuild += 40>>`],
 		},
@@ -1778,7 +1798,10 @@ function debugCreateLinkAndRedirect(section, index, id) {
 			let widgets = "";
 
 			for (const widget of setup.debugMenu.eventList[section][index].widgets) widgets += typeof widget === "function" ? widget() : widget;
-			const newLink = new Wikifier(null, `<<link [[` + passageTitle + `|` + passageName + `]]>>` + widgets + `<</link>>`);
+			const newLink = new Wikifier(
+				null,
+				`<<link ${passageName ? "[[" + passageTitle + "|" + passageName + "]]" : '"' + passageTitle + '"'}>>${widgets}<</link>>`
+			);
 			newLink.output.children[0].click();
 		}
 	});

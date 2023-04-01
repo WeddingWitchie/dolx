@@ -139,6 +139,9 @@ replace (?<!["'\w])_(?=\w) with T.
  * "bird_malar_type": "disabled"|"hidden"|"default"
  * "bird_plumage_type": "disabled"|"hidden"|"default"
  * "bird_pubes_type": "disabled"|"hidden"|"default"
+ * "fox_tail_type": "disabled"|"hidden"|"default"|
+ * "fox_ears_type": "disabled"|"hidden"|"default"|
+ * "fox_cheeks_type": "disabled"|"hidden"|
  *
  * BODY WRITING OPTIONS:
  * --------------------
@@ -339,6 +342,9 @@ Renderer.CanvasModels["main"] = {
 			"bird_malar_type": "disabled",
 			"bird_plumage_type": "disabled",
 			"bird_pubes_type": "disabled",
+			"fox_tail_type": "disabled",
+			"fox_ears_type": "disabled",
+			"fox_cheeks_type": "disabled",
 			// body writings
 			"writing_forehead": "",
 			"writing_left_cheek": "",
@@ -532,11 +538,19 @@ Renderer.CanvasModels["main"] = {
 			const filterPrototype = filterPrototypeLibrary[hairType] || filterPrototypeLibrary.all;
 			const filter = {
 				blend: clone(filterPrototype),
+				brightness: {
+					gradient: filterPrototype.gradient,
+					values: filterPrototype.values,
+					adjustments: [[], []]
+				},
 				blendMode: "hard-light"
 			};
 			for (const colorIndex in filter.blend.colors) {
 				filter.blend.colors[colorIndex][0] = filter.blend.lengthFunctions[0](hairLength, filter.blend.colors[colorIndex][0]);
 				filter.blend.colors[colorIndex][1] = setup.colours.hair_map[gradient.colours[colorIndex]].canvasfilter.blend;
+
+				filter.brightness.adjustments[colorIndex][0] = filter.blend.lengthFunctions[0](hairLength, filter.blend.colors[colorIndex][0]);
+				filter.brightness.adjustments[colorIndex][1] = setup.colours.hair_map[gradient.colours[colorIndex]].canvasfilter.brightness || 0;
 			}
 			Renderer.mergeLayerData(filter, setup.colours.sprite_prefilters[prefilterName], true);
 
@@ -1860,7 +1874,51 @@ Renderer.CanvasModels["main"] = {
 			z: ZIndices.hirsute,
 			animation: "idle"
 		},
-
+		/***
+		 *    ███████  ██████  ██   ██ 
+		 *    ██      ██    ██  ██ ██  
+		 *    █████   ██    ██   ███   
+		 *    ██      ██    ██  ██ ██  
+		 *    ██       ██████  ██   ██ 
+		 *                             
+		 *                             
+		 */
+		"fox_tail": {
+			srcfn(options) {
+				return `img/transformations/fox/tail/${options.fox_tail_type}.png`;
+			},
+			showfn(options) {
+				return options.show_tf && isPartEnabled(options.fox_tail_type);
+			},
+			filters: ["hair"],
+			z: ZIndices.backhair,
+			animation: "idle"
+		},
+		"fox_ears": {
+			srcfn(options) {
+				return `img/transformations/fox/ears/${options.fox_ears_type}.png`;
+			},
+			showfn(options) {
+				return options.show_tf && isPartEnabled(options.fox_ears_type);
+			},
+			masksrcfn(options) {
+				return options.head_mask_src;
+			},
+			filters: ["hair"],
+			z: ZIndices.backhair,
+			animation: "idle"
+		},
+		"fox_cheeks": {
+			srcfn(options) {
+				return `img/transformations/fox/cheeks/${options.fox_cheeks_type}.png`;
+			},
+			showfn(options) {
+				return options.show_tf && isPartEnabled(options.fox_cheeks_type);
+			},
+			filters: ["hair"],
+			z: ZIndices.lower,
+			animation: "idle"
+		},
 		/***
 		 *    ██     ██ ██████  ██ ████████ ██ ███    ██  ██████  ███████
 		 *    ██     ██ ██   ██ ██    ██    ██ ████   ██ ██       ██
@@ -2595,7 +2653,7 @@ Renderer.CanvasModels["main"] = {
 		 */
 		"under_upper": genlayer_clothing_main('under_upper', {
 			masksrcfn(options) {
-				return options.belly_mask_src;
+				return options.shirt_mask_clip_src;
 			}
 		}),
 		"under_upper_belly_2": genlayer_clothing_belly_2("under_upper", {

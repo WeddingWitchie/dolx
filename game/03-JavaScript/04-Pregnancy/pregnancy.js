@@ -12,7 +12,7 @@ function generateBabyName(name, gender, childId) {
 		});
 	}
 	if (!!name && name !== "Unnamed") {
-		result = name.replace(/[^a-zA-ZÀ-ÿ ]+/g, "").substring(0, 30);
+		result = name.replace(/[^a-zA-ZÀ-ÿ0-9 ]+/g, "").substring(0, 30);
 		if (usedNames.includes(result)) {
 			result += " - " + childId;
 		}
@@ -322,6 +322,7 @@ function endPlayerPregnancy(birthLocation, location) {
 		timer: null,
 		timerEnd: null,
 		awareOf: null,
+		awareOfMultiple: null,
 		awareOfDetails: null,
 		potentialFathers: [],
 	};

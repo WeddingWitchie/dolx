@@ -2,7 +2,7 @@
 
 <<widget "characteristics">>
 	You are
-	<<if $wolfgirl gte 6 or $cat gte 6 or $cow gte 6 or $harpy gte 6>>
+	<<if $wolfgirl gte 6 or $cat gte 6 or $cow gte 6 or $harpy gte 6 or $fox gte 6>>
 		<<if $angel gte 6>>
 			an angelic
 		<<elseif $fallenangel gte 2>>
@@ -32,6 +32,8 @@
 			<<else>>
 				bird
 			<</if>>
+		<<elseif $fox gte 6>>
+			fox
 		<</if>>
 	<<else>>
 		<<if $angel gte 6>>
@@ -134,26 +136,32 @@
 			<<set _trimester to "third">>
 		<</if>>
 		<<if $_pregnancy.awareOfDetails || $_pregnancy.potentialFathers.every((father, index, array) => father.type === array[0].type)>>
-			<<set $_number to $_pregnancy.awareOfDetails ? $_pregnancy.fetus.length : "an unknown number of">>
+			<<if $_pregnancy.awareOfDetails>>
+				<<set $_number to $_pregnancy.fetus.length>>
+			<<elseif $_pregnancy.awareOfMultiple>>
+				<<set $_number to $_pregnancy.fetus.length is 1 ? 1 : "more than one">>
+			<<else>>
+				<<set $_number to "an unknown number of">>
+			<</if>>
 			<<switch $_pregnancy.type>>
 				<<case "human">>
-					<<if $_number isnot "an unknown number of" and $_number gt 1>>
+					<<if $_number isnot "an unknown number of" and $_number isnot "more than one" and $_number gt 1>>
 						<<set _childType to "">>
 						<<if $_pregnancy.fetus[0].features.identical is true and $_pregnancy.awareOfDetails>>
 							<<set _childType += "identical ">>
 						<</if>>
 						<<set _childType += ($_number is 3 ? "triplets" : "twins")>>
 					<<else>>
-						<<set _childType to ($_number is 1 ? "baby" : "babies")>>
+						<<set _childType to ($_number is 1 || $_number is "more than one" ? "baby" : "babies")>>
 					<</if>>
 				<<case "wolf">>
-					<<set _childType to ($_number is 1 ? "wolf pup" : "wolf pups")>>
+					<<set _childType to ($_number is 1 || $_number is "more than one" ? "wolf pup" : "wolf pups")>>
 			<</switch>>
 			You're pregnant with <<number $_number>> _childType, in the _trimester trimester of your pregnancy.
 		<<else>>
 			You know you're in the _trimester trimester of your pregnancy.
 		<</if>>
-		<<if !$_pregnancy.awareOfDetails>>
+		<<if between($_pregnancy.timer / $_pregnancy.timerEnd, 0.1, 1) and !$daily.ultrasoundDone>>
 			<span class="blue">You can get an ultrasound done at the hospital.</span>
 		<</if>>
 		<<if $_pregnancy.potentialFathers.length is 1>>
@@ -185,7 +193,7 @@
 			<</switch>>
 
 			<<if $_heatArousal>>
-				<<if $wolfgirl gte 2 or $cat gte 2 or $cow gte 2>>
+				<<if $wolfgirl gte 2 or $cat gte 2 or $cow gte 2 or $fox gte 2>>
 					Your inner beast is sending you into heat.
 				<<else>>
 					Something is keeping you aroused.
@@ -197,9 +205,9 @@
 			<br><br>
 		<</if>>
 	<<elseif $_heatArousal>>
-		<<if ($wolfgirl gte 2 or $cat gte 2 or $cow gte 2) and playerAwareTheyAreInHeat()>>
+		<<if ($wolfgirl gte 2 or $cat gte 2 or $cow gte 2 or $fox gte 2) and playerAwareTheyAreInHeat()>>
 			Your inner beast is sending you into heat.
-		<<elseif ($wolfgirl gte 2 or $cat gte 2 or $cow gte 2) and !$player.vaginaExist>>
+		<<elseif ($wolfgirl gte 2 or $cat gte 2 or $cow gte 2 or $fox gte 2) and !$player.vaginaExist>>
 			Your inner beast is sending you into rut.
 		<<else>>
 			Something is keeping you aroused.
@@ -547,6 +555,10 @@
 				<<if $transformationParts.traits.sharpEyes isnot "disabled">>
 					<<set _skulduggeryConfig.modifier to Math.floor(_skulduggeryConfig.modifier * 1.05)>>
 					<<set _skulduggeryConfig.modTypes.good.pushUnique("sharp eyes")>>
+				<</if>>
+				<<if $fox gte 6>>
+					<<set _skulduggeryConfig.modifier to Math.floor(_skulduggeryConfig.modifier * 1.10)>>
+					<<set _skulduggeryConfig.modTypes.good.pushUnique("fox")>>					
 				<</if>>
 				<<if $worn.under_upper.type.includesAny("dance", "naked") and $worn.under_lower.type.includesAny("dance", "naked")
 				and $worn.upper.type.includesAny("dance", "naked")and $worn.lower.type.includesAny("dance", "naked")>>

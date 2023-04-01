@@ -46,6 +46,7 @@ module.exports = {
 		variables: "readonly",
 		visited: "readonly",
 		visitedTags: "readonly",
+		throwError: "writeable",
 		// Dol shortcuts
 		C: "readonly",
 		DeserializeGame: "readonly",
@@ -76,6 +77,7 @@ module.exports = {
 		Utils: "readonly",
 		ZIndices: "readonly",
 		Time: "readonly",
+		EventSystem: "readonly",
 		// DoL functions
 		assignDefaults: "readonly",
 		between: "readonly",
@@ -125,6 +127,7 @@ module.exports = {
 		updateMannequin: "readonly",
 		updateSavesCount: "readonly",
 		validateValue: "readonly",
+		tanned: "readonly",
 		// DoL classes
 		ObservableValue: "readonly",
 		CanvasModel: "readonly",
@@ -136,6 +139,7 @@ module.exports = {
 		LZString: "readonly",
 		md5: "readonly",
 		tinycolor: "readonly",
+		Mousetrap: "readonly",
 		// Unknown (Can't find declaration either in SugarCube docs nor in codebase)
 		config: "readonly",
 		saveAs: "readonly",
@@ -143,6 +147,9 @@ module.exports = {
 		session: "readonly",
 		Util: "readonly",
 		version: "readonly",
+		getClothingCost: "readonly",
+		isLoveInterest: "readonly",
+		skinColor: "readonly",
 	},
 
 	ignorePatterns: [
@@ -189,7 +196,7 @@ module.exports = {
 		/* eslint-plugin-jsdoc */
 
 		// Descriptions should be sentence-like not comment-like
-		"jsdoc/require-description-complete-sentence": "warn",
+		"jsdoc/require-description-complete-sentence": "off",
 		"jsdoc/require-hyphen-before-param-description": ["error", "never", { tags: { property: "never" } }],
 		// Adding JSDoc is preferable but not required
 		"jsdoc/require-jsdoc": "off",

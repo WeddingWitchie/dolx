@@ -1386,9 +1386,6 @@
 				}>>
 			<</if>>
 		<</if>>
-		<<if $uncomfortable.flaunting is undefined>>
-			<<set $uncomfortable.flaunting to true>>
-		<</if>>
 		<<set $objectVersion.uncomfortable to 2>>
 	<</if>>
 
@@ -3585,10 +3582,10 @@
 		Remove `colour_combat` or `accessory_colour_combat` where this is the case, they are independant so `colour_combat` will only clear `colour`-->
 	<</if>>
 
-	<<if $objectVersion.specialClothes lt 12 or $objectVersion.specialClothes is undefined>>
+	<<if $objectVersion.specialClothes lt 13 or $objectVersion.specialClothes is undefined>>
 		<<specialClothesSetup>>
 		<<specialClothesUpdate>>
-		<<set $objectVersion.specialClothes to 12>>
+		<<set $objectVersion.specialClothes to 13>>
 	<</if>>
 
 	<<if $objectVersion.museumAntiques lt 12 or $objectVersion.museumAntiques is undefined>>
@@ -4048,46 +4045,6 @@
 		<<unset $debugdisable>>
 	<</if>>
 
-	
-	<!-- v0.4 Time refactor -->
-	<<if $time isnot undefined>>
-		<<if !$timeStamp>>
-			/* Tries to set the date to the same as the previous version's date. If weekday is different from the real date, move the date back until the weekday matches.  */
-			<<script>>
-				const month = DateTime.monthNames.map(month => month.toLowerCase()).indexOf(V.month) + 1;
-				const date = new DateTime(V.year, month, V.monthday, V.hour, V.minute).getPreviousWeekdayDate(V.weekday);
-				const startDate = new DateTime(date);
-				Time.startDate = startDate.addDays(-V.days);
-				Time.setDate(date);
-			<</script>>
-		<</if>>
-		<<unset $time>>
-		<<unset $yeardays>>
-		<<unset $year>>
-		<<unset $season>>
-		<<unset $month>>
-		<<unset $monthday>>
-		<<unset $weekday>>
-		<<unset $schoolday>>
-		<<unset $days>>
-		<<unset $daystate>>
-		<<unset $dayname>>
-		<<unset $hour>>
-		<<unset $minute>>
-		<<unset $seconds>>
-		<<unset $pass>>
-	<</if>>
-	<<if $real_season isnot undefined>>
-		<<set $real_timeStamp to new DateTime($real_year, $real_month, $real_monthday, $real_hour, $real_minute).timeStamp>>
-		<<unset $real_season>>
-		<<unset $real_weekday>>
-		<<unset $real_monthday>>
-		<<unset $real_month>>
-		<<unset $real_year>>
-		<<unset $real_hour>>
-		<<unset $real_minute>>
-		<<unset $real_time>>
-	<</if>>
 	<<if $masturbationtimestat isnot undefined>>
 		<<if !$secondsSpentMasturbating>>
 			<<set $secondsSpentMasturbating to $masturbationtimestat * 60>>
@@ -4280,6 +4237,25 @@
 		<<unset $adultShopWhitney>>
 	<</if>>
 
+	<!-- v0.4 Time refactor -->
+	<<if $time isnot undefined and !$timeStamp>>
+		<<script>>
+			/* Tries to set the date to the same as the previous version's date.
+			If weekday is different from the real date, well shit, we're faking it. */
+			const month = DateTime.monthNames.map(month => month.toLowerCase()).indexOf(V.month) + 1;
+			const date = new DateTime(V.year, month, V.monthday, Math.min(V.hour, 23), Math.min(V.minute, 59), V.seconds);
+			const startDate = new DateTime(date);
+			T.passMinutes = (V.hour > 23 ? (V.hour - 23) * 60 : 0) + (V.minute > 59 ? V.minute - 59 : 0);
+			if (V.real_season) V.real_timeStamp = new DateTime(V.real_year, V.real_month, V.real_monthday, V.real_hour, V.real_minute).timeStamp;
+			Time.startDate = startDate.addDays(-V.days);
+			Time.setDate(date);
+			V.weekDayOffset = (V.weekday - Time.weekDay + 6) % 7; /* stay positive */
+			if (V.weekDayOffset === 6) delete V.weekDayOffset; /* and clean the rubbish */
+			["time", "year", "yeardays", "season", "month", "monthday", "weekday", "schoolday", "days", "daystate", "dayname", "hour", "minute", "seconds", "pass", "real_year", "real_season", "real_month", "real_monthday", "real_hour", "real_minute", "real_time"].forEach(v => delete V[v]);
+		<</script>>
+		<<pass _passMinutes>>
+	<</if>>
+
 	<!-- v0.4 Vrel stuff that he forgot to label -->
 	<<if $hypnosisdisable is undefined>>
 		<<set $hypnosisdisable to "f">>
@@ -4309,6 +4285,36 @@
 		<<else>>
 			<<set $necklaceThief to "">>
 		<</if>>
+	<</if>>
+
+	<!-- v0.4 Fox TF and fox encounters -->
+	<<if $fox is undefined or typeof $fox is "string">>
+		<<set $foxbuild to 0>>
+		<<set $fox to 0>>
+		<<set $transformationParts.traits.mateForLife to ($harpy gte 3 ? "default" : "disabled")>>
+
+		<!-- Unrelated fix for fallenbuild being NaN on existing saves -->
+		<<if !$fallenbuild>>
+			<<set $fallenbuild to 0>>
+		<</if>>
+	<</if>>
+
+	<!-- V0.4 Moving flaunting to mirror -->
+	<<if $uncomfortable.flaunting isnot undefined>>
+		<<if $uncomfortable.flaunting is false and $demon gte 4 and $exhibitionism gte 95>>
+			<<set $transformationParts.traits.flaunting to "default">>
+		<<else>>
+			<<set $transformationParts.traits.flaunting to "disabled">>
+		<</if>>
+		<<run delete $uncomfortable.flaunting>>
+	<</if>>
+
+	<!-- V0.4 egg -->
+	<<if $plants.egg>>
+		<<set $plants.chicken_egg to $plants.egg>>
+		<<run delete $plants.egg>>
+		<<set $plants.chicken_egg.name to "chicken_egg">>
+		<<set $plants.chicken_egg.plural to "chicken eggs">>
 	<</if>>
 
 <</widget>>

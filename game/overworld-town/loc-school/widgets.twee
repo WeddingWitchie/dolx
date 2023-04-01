@@ -25,7 +25,7 @@
 
 		<!-- changing room is in use a bit longer than school is in session. also include changing times before first, after fifth and during midday break -->
 		<<set $changingroomstate to "empty">>
-		<<if (Time.hour gte 8 and Time.minute gte 58) and (Time.hour lte 15 and Time.minute lte 4)>>
+		<<if (Time.hour gt 8 or Time.hour is 8 and Time.minute gte 58) and (Time.hour lt 15 or Time.hour is 15 and Time.minute lte 4)>>
 			<<if Time.minute lte 4 or Time.minute gte 58>>
 				<<if Time.hour gte 14 and Time.minute gte 58>>
 					<<set $changingroomstate to "own">>
@@ -515,14 +515,14 @@
 <<widget "eventsmaths">>
 	<<cleareventpool>>
 
-	<<if  (($wolfgirl gte 4 and $transformationParts.wolf.ears isnot "hidden") or ($cat gte 4 and $transformationParts.cat.ears isnot "hidden"))>>
+	<<if  (($wolfgirl gte 4 and $transformationParts.wolf.ears isnot "hidden") or ($cat gte 4 and $transformationParts.cat.ears isnot "hidden") or ($fox gte 4 and $transformationParts.fox.ears isnot "hidden"))>>
 		<<addinlineevent "mathsTFears">>
 			<<npc River>><<person1>>River marches up and down the class. <<He>> stops beside you.
 			<<if $riverbite isnot 1>>
 				<<set $riverbite to 1>>
-				"That headband is against school regulations," <<he>> says, grabbing one of your <<if $wolfgirl gte 4>>wolf<<else>>cat<</if>> ears.
+				"That headband is against school regulations," <<he>> says, grabbing one of your <<if $wolfgirl gte 4>>wolf<<elseif $fox gte 4>>fox<<else>>cat<</if>> ears.
 			<<else>>
-				"You're still wearing that silly headband?" <<he>> says. "I thought I made myself clear." <<He>> grabs one of your <<if $wolfgirl gte 4>>wolf<<else>>cat<</if>> ears.
+				"You're still wearing that silly headband?" <<he>> says. "I thought I made myself clear." <<He>> grabs one of your <<if $wolfgirl gte 4>>wolf<<elseif $fox gte 4>>fox<<else>>cat<</if>> ears.
 			<</if>>
 			<<He>> tugs painfully.<<gpain>><<gstress>><<pain 2>><<stress 1>>
 			<br><br>
@@ -1793,7 +1793,7 @@
 			<br>
 			<<link [[Conceal it|History Lesson Conceal]]>><<detention 3>><</link>><<gdelinquency>>
 			<br>
-		<<elseif ($cat gte 6 and $transformationParts.cat.ears isnot "hidden") or ($wolfgirl gte 4 and $transformationParts.wolf.ears isnot "hidden") or ($demon gte 6 and $transformationParts.demon.horns isnot "hidden")>>
+		<<elseif ($cat gte 6 and $transformationParts.cat.ears isnot "hidden") or ($wolfgirl gte 4 and $transformationParts.wolf.ears isnot "hidden") or ($fox gte 4 and $transformationParts.fox.ears isnot "hidden") or ($demon gte 6 and $transformationParts.demon.horns isnot "hidden")>>
 			"What are these on your head?" <<he>> asks.
 			<br><br>
 
@@ -2604,7 +2604,7 @@
 		<<set $studyBooks.rented to "none">>
 		<<set $studyBooks.stolen to "none">>
 	<</if>>
-	<<if (Time.schoolDay or $schoolstate is "early" or $schoolstate is "late")>>
+	<<if (!Time.schoolDay or $schoolstate is "early" or $schoolstate is "late")>>
 		The library is eerily quiet.
 	<<else>>
 		There are a number of textbooks available for rental.
