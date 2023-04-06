@@ -12,11 +12,7 @@ function generateBabyName(name, gender, childId) {
 		});
 	}
 	if (!!name && name !== "Unnamed") {
-		result = name.replace(/[^a-zA-ZÀ-ÿ0-9 ]+/g, "").substring(0, 30);
-		if (usedNames.includes(result)) {
-			result += " - " + childId;
-		}
-		return result;
+		return name.replace(/[^a-zA-ZÀ-ÿ ]+/g, "").substring(0, 30);
 	}
 	let names = [];
 	switch (gender) {
@@ -200,7 +196,7 @@ window.playerPregnancyTest = (npc, npcType, fatherKnown, genital, trackedNPCs, a
 // eslint-disable-next-line no-unused-vars
 function pregnancyProgress(genital = "vagina") {
 	const pregnancy = V.sexStats[genital].pregnancy;
-	if (!pregnancy || pregnancy.type === null || pregnancy.type === "parasites") return null;
+	if (!pregnancy || pregnancy.type === null || pregnancy.type === "parasites" || V.statFreeze) return null;
 
 	V.pregnancyStats.totalDaysPregnant += 0.5;
 	if (pregnancy.awareOf) V.pregnancyStats.totalDaysPregnancyKnown += 0.5;
@@ -259,15 +255,26 @@ function pregnancyProgress(genital = "vagina") {
 // eslint-disable-next-line no-unused-vars
 function playerEndWaterProgress() {
 	const pregnancy = getPregnancyObject();
-	if (!pregnancy || pregnancy.type === null || pregnancy.type === "parasites" || pregnancy.timer < pregnancy.timerEnd) return null;
+	if (!pregnancy || !pregnancy.type || pregnancy.type === "parasites" || pregnancy.timer < pregnancy.timerEnd || V.statFreeze) return null;
 
-	if (!isNaN(pregnancy.waterBreakingTimer) && pregnancy.waterBreakingTimer > 0) {
+	if (
+		!isNaN(pregnancy.waterBreakingTimer) &&
+		pregnancy.waterBreakingTimer > 0 &&
+		(pregnancy.waterBreakingTimer > 1 || (!V.NPCList[0].type && !V.possessed) || V.eventAllowsWaterBreaking)
+	) {
 		pregnancy.waterBreakingTimer--;
 		if (pregnancy.waterBreakingTimer <= 0) {
 			pregnancy.waterBreaking = true;
+			// To prevent new events from occuring, allowing players to more easily go to the hospital or similar locations
+			V.eventskip = 1;
 			return true;
 		}
 		return false;
+	} else if (!pregnancy.waterBreaking && pregnancy.waterBreakingTimer <= 0) {
+		pregnancy.waterBreaking = true;
+		// To prevent new events from occuring, allowing players to more easily go to the hospital or similar locations
+		V.eventskip = 1;
+		return true;
 	}
 }
 
@@ -346,6 +353,7 @@ window.endPlayerPregnancyTest = (birthLocation, location) => {
 /* Named NPC pregnancy starts here */
 // eslint-disable-next-line no-unused-vars
 function npcPregnancyCycle() {
+	if (V.statFreeze) return null;
 	for (const npcName of V.NPCNameList) {
 		const npc = C.npc[npcName];
 		const pregnancy = npc.pregnancy;
@@ -513,6 +521,7 @@ function endNpcPregnancy(npcName, birthLocation, location) {
 
 	V.NPCName[V.NPCNameList.indexOf(npcName)].pregnancy = {
 		...pregnancy,
+		totalBirthEvents: (pregnancy.totalBirthEvents || 0) + 1,
 		fetus: [],
 		birthEvents,
 		timer: null,
@@ -536,7 +545,7 @@ window.endNpcPregnancyTest = (npcName, birthLocation, location) => {
 
 // eslint-disable-next-line no-unused-vars
 function randomPregnancyProgress() {
-	if (!V || !V.storedNPCs) return false;
+	if (!V || !V.storedNPCs || V.statFreeze) return false;
 	const toDelete = [];
 	Object.keys(V.storedNPCs).forEach(npcKey => {
 		const npc = V.storedNPCs[npcKey];
@@ -596,13 +605,15 @@ function giveBirthToChildren(mother, birthLocation, location, pregnancyOverride)
 		if (parentId) {
 			if (Array.isArray(parentId)) parentId = parentId[0];
 			parentFunction.increaseBirths(parentId.id, 0);
+			// Fix for previous named npc's not updating totalBirthEvents
+			if (mother !== "pc") pregnancy.totalBirthEvents = parentId.births;
 		}
 	}
 
 	const birthId = mother + pregnancy.fetus[0].birthId;
 	switch (location) {
 		case "home":
-			setKnowsAboutPregnancy(mother, "Bailey", birthId);
+			setKnowsAboutPregnancy(mother, "Bailey", birthId, true, pregnancyOverride);
 			break;
 		case "wolf_cave":
 			setKnowsAboutPregnancy(mother, "Black Wolf", birthId);

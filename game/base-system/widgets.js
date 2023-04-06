@@ -396,9 +396,9 @@ function bodywritingExposureCheck(overwrite, skipRng) {
 			T.visible_areas.push("breasts");
 		}
 		if (
-			(V.worn.over_upper.exposed >= 1 || V.worn.over_upper.state === "waist") &&
-			(V.worn.upper.exposed >= 1 || V.worn.upper.state === "waist") &&
-			(V.worn.under_upper.exposed >= 1 || V.worn.under_upper.state === "waist")
+			(V.worn.over_upper.exposed >= 1 || V.worn.over_upper.state !== "waist") &&
+			(V.worn.upper.exposed >= 1 || V.worn.upper.state !== "waist") &&
+			(V.worn.under_upper.exposed >= 1 || V.worn.under_upper.state !== "waist")
 		) {
 			T.visible_areas.push("back");
 		}
@@ -424,7 +424,7 @@ function bodywritingExposureCheck(overwrite, skipRng) {
 
 		if (T.skin_array.length >= 1) T.bodywriting_exposed = 1;
 	}
-	if (!skipRng) T.bodypart = T.skin_array[random(0, T.skin_array.length - 1)];
+	if (!skipRng) T.bodypart = T.skin_array.random();
 }
 DefineMacro("bodywritingExposureCheck", bodywritingExposureCheck);
 

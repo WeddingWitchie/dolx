@@ -39,7 +39,6 @@
 	<<else>>
 		<<childrenEvents "wolf_cave" $passage>>
 		<<if npcIsPregnant("Black Wolf") and npcPregnancyBellyVisible("Black Wolf") and !knowsAboutPregnancy("Black Wolf","pc")>>
-			<<run console.log("blackWolfPresentsPregnancyToPlayer")>>
 			<<addevent "blackWolfPresentsPregnancyToPlayer" 5000>>
 		<</if>>
 		<<if $wolfpackferocity + random(1, 20) gte $wolfpackharmony + random(1, 20)>>
@@ -183,35 +182,91 @@
 <</widget>>
 
 <<widget "wolfcaveselect">>
-	<<if Time.dayState is "day" or Time.dayState is "dawn">>
-		<<set $huntstate to "failed">>
-	<</if>>
+	<<if $huntstate is "ongoing" and ["dawn", "day"].includes(Time.dayState)>>
+		<<if $wolfstate is "hunt">>
+			<<set $wolfstate to "cave">>
+			<<if $blackWolfPregnancyHunt and playerIsPregnant()>>
+				The pack returns from the hunt. Many carry pieces of meat for the younger <<wolf_cave_plural>> that stayed at the cave. The Black Wolf drops some by your side before moving away. The hunt was successful.
+				<<gharmony>><<gferocity>>
+				<br><br>
+			<<elseif $rng + $wolfpackferocity + $wolfpackharmony gte 80>>
+				The pack returns from the hunt. Some carry pieces of meat for the younger <<wolf_cave_plural>> that stayed at the cave. The hunt was successful.
+				<<gharmony>><<lferocity>>
+				<br><br>
+			<<else>>
+				The pack returns from the hunt. They failed to catch anything.
+				<<gferocity>><<lharmony>>
+				<br><br>
+				<<if $blackWolfPregnancyHunt and playerIsPregnant()>>
+					The Black Wolf approaches you. 
+					<<if $monster is 1>>
+						Now that <<bhe>> is closer you can see something in <<bhis>> hands. 
+						<br><br>
 
-	<<if $wolfstate is "hunt" and Time.dayState is "dawn" or $wolfstate is "hunt" and Time.dayState is "day">>
-		<<set $wolfstate to "cave">>
-		<<if $blackWolfPregnancyHunt and playerIsPregnant()>>
-			The pack returns from the hunt. Many carry pieces of meat for the younger <<wolf_cave_plural>> that stayed at the cave. The Black Wolf drops some by your side before moving away. The hunt was successful.
-			<<gharmony>><<gferocity>>
-			<br><br>
-		<<elseif $rng + $wolfpackferocity + $wolfpackharmony gte 80>>
-			The pack returns from the hunt. Some carry pieces of meat for the younger <<wolf_cave_plural>> that stayed at the cave. The hunt was successful.
-			<<gharmony>><<lferocity>>
-			<br><br>
+						"<<pPackbrother>> lucky to eat plants." The Black Wolf hands you some pears. 
+						<br><br>
+
+						<<bHe>> looks down at your pregnant belly. "Should try meat next hunt. Good for pups."
+						<br><br>
+					<<else>>
+						Some pears are in <<bhis>> mouth. <<bHe>> drops them in front of you before shaking <<bhis>> head. <<bHe>> doesn't seem to enjoy the taste.
+						<br><br>
+
+						<<bHe>> sniffs at your pregnant belly before looking back into the forest. <<bHe>> seems disappointed with <<bhimself>>.
+						<br><br>
+					<</if>>
+				<</if>>
+			<</if>>
 		<<else>>
-			The pack returns from the hunt. They failed to catch anything.
-			<<gferocity>><<lharmony>>
-			<br><br>
+			<<if $rng + $wolfpackferocity + $wolfpackharmony gte 80>>
+				The pack returns from the hunt. Some carry pieces of meat for the younger <<wolf_cave_plural>> that stayed at the cave.
+				<<if npcIsPregnant("Black Wolf")>>
+					Some of it is brought to the Black Wolf. <<nnpc_He "Black Wolf">> scarfs it down quickly.
+				<</if>>
+				The hunt was successful.
+				<<gharmony>><<lferocity>>
+				<br><br>
+			<<else>>
+				The pack returns from the hunt. They failed to catch anything.
+				<<gferocity>><<lharmony>>
+				<br><br>
+
+				<<if npcIsPregnant("Black Wolf") and npcPregnancyBellyVisible("Black Wolf") and knowsAboutPregnancy("Black Wolf","pc")>>
+					<<if $monster is 1>>
+						You hear a grumble. It seems to be coming from the Black Wolf's stomach.
+						<br><br>
+						"Need more prey." <<bHe>> looks on wistfully into the forest.
+						<br><br>
+					<<else>>
+						You hear a grumble. It seems to be coming from the Black Wolf's pregnant stomach.
+						<br><br>
+						<<bHe>> makes another grumble, this time from <<bhis>> maw. The Black Wolf doesn't usually complain about hunger. <<bHe>> must be worried about the pups.
+						<br><br>
+					<</if>>
+				<</if>>
+			<</if>>
 		<</if>>
+		<<unset $blackWolfNotHunting>>
 		<<unset $blackWolfPregnancyHunt>>
 		<<destinationwolfcave>>
-	<<elseif $wolfstate is "cave" and $huntstate isnot "finished" and Time.dayState is "dusk" or $wolfstate is "cave" and $huntstate isnot "finished" and Time.dayState is "night">>
-		<<set $wolfstate to "hunt">><<set $huntstate to "failed">><<set $wolfpackpoisoned to 0>>
-		The Black Wolf howls and the others join in.
+	<<elseif $wolfstate is "cave" and !["finished","ongoing"].includes($huntstate) and ["dusk", "night"].includes(Time.dayState)>>
+		<<set $huntstate to "ongoing">><<set $wolfpackpoisoned to 0>>
 		<<npc "Black Wolf">>
-		<<if $monster is 1>>
-			"We hunt soon. Be ready."
+		<<if npcBellySize("Black Wolf") lte 15>>
+			<<set $wolfstate to "hunt">>
+			The Black Wolf howls and the others join in.
+			<<if $monster is 1>>
+				"We hunt soon. Be ready."
+			<<else>>
+				They're going hunting.
+			<</if>>
 		<<else>>
-			They're going hunting.
+			<<set $blackWolfNotHunting to true>>
+			The pack begins to howl and bay as they run through the trees. One usual member is missing. Turning, you see the Black Wolf resting on <<bhis>> usual rock, nudging <<bhis>> pregnant belly.
+			<<if $monster is 1>>
+				<br><br>
+				<<bHe>> sighs, laying down and looking on after the pack.
+			<</if>>
 		<</if>>
 		<<endevent>>
 		<br><br>
@@ -244,6 +299,10 @@
 	<<else>>
 		<<wolfcaveevent>>
 	<</if>>
+
+	<<if Time.dayState is "day" or Time.dayState is "dawn">>
+		<<set $huntstate to "notStarted">>
+	<</if>>
 <</widget>>
 
 <<widget "destinationwolfcave">>
@@ -259,21 +318,29 @@
 <<widget "wolfhuntevents">>
 	<<if $huntstate is "success">>
 		<<set $huntstate to "finished">>
-		<<set $wolfstate to "cave">>
-		Satiated, the pack heads back to the cave. Some carry food for the younger <<wolf_cave_plural>>.
+		<<if $wolfstate is "hunt">><<set $wolfstate to "cave">><</if>>
+		Satiated, the pack heads back to the cave. Some carry food for the younger <<wolf_cave_plural>><<if $blackWolfNotHunting>> and the Black Wolf. <<nnpc_He "Black Wolf">> scarfs it down quickly<</if>>.
 		<<lferocity>><<gharmony>>
 		<br><br>
 
-		<<link [[Next|Wolf Cave]]>><</link>>
+		<<link [[Next|Wolf Cave]]>><<unset $blackWolfNotHunting>><</link>>
 		<br>
-	<<elseif Time.dayState is "dawn" or Time.dayState is "day">>
+	<<elseif $huntstate is "ongoing" and (Time.dayState is "dawn" or Time.dayState is "day")>>
 		<<set $huntstate to "finished">>
-		<<set $wolfstate to "cave">>
+		<<if $wolfstate is "hunt">><<set $wolfstate to "cave">><</if>>
 		With the sun rising on the horizon, the pack returns to the cave. The failure of the hunt has the pack riled.
 		<<gferocity>><<lharmony>>
 		<br><br>
 
-		<<link [[Next|Wolf Cave]]>><</link>>
+		<<link [[Next|Wolf Cave]]>><<unset $blackWolfNotHunting>><</link>>
+		<br>
+	<<elseif $huntstate is "failure">>
+		<<set $huntstate to "finished">>
+		<<if $wolfstate is "hunt">><<set $wolfstate to "cave">><</if>>		
+		<<gferocity>><<lharmony>>
+		<<if $wolfstate is "hunt">><<set $wolfstate to "cave">><</if>>
+		<br><br>
+		<<link [[Next|Wolf Cave]]>><<unset $blackWolfNotHunting>><</link>>
 		<br>
 	<<else>>
 		<<rng>>
@@ -468,3 +535,118 @@
 		<<set _text_output to "wolves">>
 	<</if>>
 <</silently>><<print _text_output>><</widget>>
+
+<<widget "wolf_cave_singular">><<silently>>
+	<<if _args[0]>>
+		<<set _wolves_singular to _args[0]>>
+	<<elseif $beastmalechance gte 100 or ($beastmalechance gte 1 and $beastmalechance gte random(0,100))>>
+		<<set _wolves_singular to "m">>
+	<<else>>
+		<<set _wolves_singular to "f">>
+	<</if>>
+	<<if $bestialitydisable is "t" or $wolfcave_monster_roll is true or ($monsterchance gte random(1, 100) and ($hallucinations gte 1 or $monsterhallucinations is "f"))>>
+		<<if _wolves_singular is "m">>
+			<<set _text_output to "wolfboy">>
+		<<else>>
+			<<set _text_output to "wolfgirl">>
+		<</if>>
+	<<else>>
+		<<set _text_output to "wolf">>
+	<</if>>
+<</silently>><<print _text_output>><</widget>>
+
+<<widget "bwpcinteraction">>
+	<<set _pregnancy to C.npc["Black Wolf"].pregnancy>>
+	<<set _pregnancyProgress to Math.clamp(_pregnancy.timer / _pregnancy.timerEnd, 0, 1)>>
+
+	<<if playerIsPregnant() and playerAwareTheyArePregnant()>>
+
+		<<if $body_temperature is "chilly" or $body_temperature is "cold">>
+			<<if $monster is 1>>
+				The Black Wolf shuffles closer to you as you sit next to <<bhim>>. 
+				<br><br>
+
+				"<<pPackbrother>> should stay warm. Pups grow better." You lean against <<bhim>>, thankful for the warmth.
+			<<else>>
+
+				The Black Wolf shuffles closer to you as you sit next to <<bhim>>. <<bHe>> seems to be trying to keep you warm. 
+				<br><br>
+
+				<<bHe>> nudges your pregnant stomach with <<bhis>> snout before returning to ignoring you.
+			<</if>>
+		<<else>>
+			<<if $monster is 1>>
+				The Black Wolf sniffs at your belly, nuzzling it.
+				<br><br>
+
+				"<<pPackbrother>> eat well? Should eat meat on hunt. Good for pups."
+				<br><br>
+
+				You shiver at the thought of eating raw meat.
+			<<else>>
+
+				The Black Wolf sniffs at your pregnant belly before nuzzling it.
+				<br><br>
+
+				<<bHe>> presses <<bhis>> ear close to your tummy, listening for something. When your stomach rumbles, <<bhe>> looks up, concerned.
+				<br><br>
+
+				"I'll get some food, don't worry." Your words seem to be enough and the Black Wolf calms.
+			<</if>>
+		<</if>>
+
+	<<else>>
+
+		<<if between($_pregnancyStage, 0.7)>>
+			<<if $monster is 1>>
+				The Black Wolf shifts, looking down at <<bhis>> pregnant belly. You can see a little <<if $_pregnancy.fetus[0].monster>>foot<<else>>paw<</if>> kicking against it.
+				<br><br>
+
+				"Pups already strong." You can hear pride in <<bhis>> voice.
+
+			<<else>>
+				The Black Wolf shifts, looking down at <<bhis>> pregnant belly. You can see a little paw kicking against it.
+				<br><br>
+
+				You watch as <<bhe>> licks the spot the pup kicks from, holding a laugh when the little paw retreats.
+
+			<</if>>
+
+		<<elseif Time.hour gte 18 and Time.hour lte 6>>
+
+			<<if $monster is 1>>
+
+				"No more hunt soon." The Black Wolf grumbles as <<bhe>> looks down at <<bhis>> growing belly. "Dangerous for pups."
+
+			<<else>>
+
+				The Black Wolf watches over the pack with a longing in <<bhis>> eyes. You can see <<bhis>> pregnant belly, it is growing bigger as the days go by. <<bHe>> won't be able to hunt soon.
+
+			<</if>>
+
+		<<elseif npcPregnancyBellyVisible("Black Wolf")>>
+
+			<<if $monster is 1>>
+
+				You hear a brief snore before the Black Wolf shakes <<bhis>> head. <<bHe>> looks away.
+				<br><br>
+				
+				"Carrying pups tiring sometimes," <<bhe>> grumbles under <<bhis>> breath.
+				<br><br>
+
+				Looking over every so often, you can see that <<bhe>> continues to fight off sleep.
+
+			<<else>>
+
+				The Black Wolf shifts, looking down at <<bhis>> pregnant belly. You can see a little paw kicking against it.
+				<br><br>
+
+				You watch as <<bhe>> licks the spot the pup kicks from, holding a laugh when the little paw retreats.
+
+			<</if>>
+
+		<</if>>
+
+	<</if>>
+
+<</widget>>

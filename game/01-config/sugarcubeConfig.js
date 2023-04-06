@@ -18,6 +18,11 @@ Save.onLoad.add(save => {
 	DoLSave.decompressIfNeeded(save);
 
 	save.state.history.forEach(h => {
+		if (h.prng && Array.isArray(h.prng.S)) {
+			h.prng.S.forEach((i, index, array) => {
+				if (i < 0 || i > 255) array[index] %= 256;
+			});
+		}
 		h.variables.saveDetails = defaultSaveDetails(h.variables.saveDetails);
 		h.variables.saveDetails.loadTime = new Date();
 	});
@@ -45,9 +50,9 @@ window.StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.3.14.0",
-	versionName: "Pregnancy Test",
-	sneaky: false,
+	version: "0.4.0.3",
+	versionName: "",
+	sneaky: true,
 };
 
 /* convert version string to numeric value */
@@ -185,6 +190,12 @@ Config.navigation.override = function (dest) {
 			case "Legs Shop":
 			case "Shoe Shop":
 				return "Clothing Shop";
+
+			case "Danube Oak":
+				return "Danube Challenge";
+
+			case "Danube Oak Strip":
+				return "Danube Challenge";
 
 			case "Penis Inspection Flaunt Crossdress":
 				return "Penis Inspection Flaunt No Penis";

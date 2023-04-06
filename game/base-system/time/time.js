@@ -483,8 +483,8 @@ function dayPassed() {
 				V.fameDecayTimer[fameKeys]--;
 				V.fame[fameKeys] -= V.fameDecay[fameKeys];
 			} else if (V.fameDecayTimer[fameKeys] <= 0) {
-				delete fameDecayTimer[fameKeys];
-				delete fameDecay[fameKeys];
+				delete V.fameDecayTimer[fameKeys];
+				delete V.fameDecay[fameKeys];
 				V.fame[fameKeys] = Math.round(V.fame[fameKeys]);
 			}
 		}
@@ -544,6 +544,11 @@ function dayPassed() {
 
 	delete V.daily;
 	V.daily = { school: { attended: {} }, whitney: {}, robin: {}, kylar: {}, morgan: {}, eden: {}, alex: {}, sydney: {}, ex: {}, pharm: {}, prison: {} };
+
+	if (Number.isInteger(V.challengetimer)) {
+		V.challengetimer--;
+		if (V.challengetimer < 0) delete V.challengetimer;
+	}
 
 	return fragment;
 }
@@ -628,7 +633,11 @@ function minutePassed(minutes) {
 
 	parasiteProgressTime(minutes);
 	parasiteProgressTime(minutes, "vagina");
-	if (isPlayerNonparasitePregnancyEnding()) V.stress += Math.ceil(minutes * 0.75);
+	if (isPlayerNonparasitePregnancyEnding()) {
+		// To prevent new events from occuring, allowing players to more easily go to the hospital or similar locations
+		V.eventskip = 1;
+		V.stress += Math.floor(minutes * 40);
+	}
 
 	if (V.body_temperature === "cold") V.stress += minutes * 2;
 	else if (V.body_temperature === "chilly") V.stress += minutes;
@@ -646,7 +655,7 @@ function minutePassed(minutes) {
 	const arousalMultiplier = V.backgroundTraits.includes("lustful") ? 0.2 * (12 - Math.floor(V.purity / 80)) + 1 + (V.purity <= 50 ? 1 : 0) : -10;
 	fragment.append(wikifier("arousal", minutes * arousalMultiplier + getArousal(minutes)));
 	V.timeSinceArousal = V.arousal < V.arousalmax / 4 ? V.timeSinceArousal + minutes : 1;
-	if (V.player.vaginaExists) fragment.append(passArousalWetness(minutes));
+	if (V.player.vaginaExist) fragment.append(passArousalWetness(minutes));
 
 	// Tanning
 	if (Time.dayState === "day" && V.weather === "clear" && V.outside && V.location !== "forest" && !V.worn.head.type.includes("shade")) {
@@ -1294,7 +1303,7 @@ function dailySchoolEffects() {
 			} else if (V.book_rent_timer < 0) {
 				if (V.bookOverdue === undefined) V.bookOverdue = 0;
 				V.bookOverdue++;
-				if (bookOverdue >= 7) {
+				if (V.bookOverdue >= 7) {
 					V.bookoverduemessage = 1;
 					V.effectsmessage = 1;
 				} else {
@@ -1496,7 +1505,7 @@ function passArousalWetness(passMinutes) {
 	if (V.arousal >= V.arousalmax * (2 / 5)) {
 		wetnessChange = 1 + arousalPercent * 2;
 		// It also gets harder to build up the closer you get to full wetness
-		wetnessPercent = Math.clamp(V.vaginaArousalWetness / 100, 0, 1);
+		const wetnessPercent = Math.clamp(V.vaginaArousalWetness / 100, 0, 1);
 		wetnessChange = Math.floor(wetnessChange * 2 * (1 - wetnessPercent));
 	}
 
@@ -1522,7 +1531,7 @@ function passArousalWetness(passMinutes) {
 		}
 	}
 
-	V.vaginaArousalWetness = Math.clamp(vaginaArousalWetness, 0, 100);
+	V.vaginaArousalWetness = Math.clamp(V.vaginaArousalWetness, 0, 100);
 	fragment.append(wikifier("vaginaWetnessCalculate"));
 
 	return fragment;

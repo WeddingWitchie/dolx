@@ -4,7 +4,7 @@
 	<<set $_robinWasInRoom to _args[0]>>
 
 	"Time to pay up," <<he>> says.
-	<<if $baileydefeatedchain gte 3 or ($robinpaid is 1 and $robinromance gte 1 and $bus is "home" and $robinfirstrentfight isnot 1 and $baileyOverdue gte 14)>>
+	<<if $baileydefeatedchain gte 3 or ($robinpaid is 1 and $robinromance gte 1 and $bus is "home" and $robinfirstrentfight isnot 1 and $renttime lte -14)>>
 		<<generateRole 1 0 "thug">><<generateRole 2 0 "thug">>
 		A rough-looking <<person2>><<person>> and <<person3>><<person>> stand next to <<person1>><<him>>.
 		The <<person2>><<person>> cracks <<his>> knuckles, and the <<person3>><<person>> grins darkly.
@@ -29,7 +29,12 @@
 	<</if>>
 	<br><br>
 
-	<<if $money gte $rentmoney>>
+	<<if $babyIntros and $babyIntros.Bailey and $babyIntros.Bailey.length gt 0>>
+		<<set _homeBabyRent to true>>
+		<<homeBabyIntro>>
+	<</if>>
+	<<babyRent>>
+	<<if $money gte $rentmoney + ($babyRent or 0)>>
 		<<link [[Pay|Rent Pay]]>><<set $phase to $_robinWasInRoom>><</link>>
 		<br>
 		<<link [[Refuse|Rent Refuse]]>><<def 1>><</link>>
@@ -97,7 +102,12 @@
 	<<if $baileyOfficeSeduced is 1>>
 		<<unset $baileyOfficeSeduced>>
 	<</if>>
-	<<if $money gte $rentmoney>>
+	<<if $babyIntros and $babyIntros.Bailey and $babyIntros.Bailey.length gt 0>>
+		<<set _homeBabyRent to true>>
+		<<homeBabyIntro>>
+	<</if>>
+	<<babyRent>>
+	<<if $money gte $rentmoney + ($babyRent or 0)>>
 		<<if $inRobinsRoom>>
 			<<link [[Pay|Rent Pay Robin]]>><<set $inRobinsRoom to true>><</link>>
 		<<else>>
@@ -143,7 +153,7 @@
 <<widget "rentnopay">>
 	<<set $baileypaychain to 0>>
 	<<set $_seduceAllowed to _args[0]>>
-	<<if $robinpaid is 1 and $robinromance is 1 and $bus is "home" and $robinfirstrentfight isnot 1 and ($baileydefeatedchain gte 3 or $baileyOverdue gte 14)>>
+	<<if $robinpaid is 1 and $robinromance is 1 and $bus is "home" and $robinfirstrentfight isnot 1 and ($baileydefeatedchain gte 3 or $renttime lte -14)>>
 		<<set $robinfirstrentfight to 1>>
 		Bailey is silent for a few seconds, before shrugging. "That's okay," <<he>> says.
 		"I've learned my lesson. Trying to get value out of you directly is fruitless."
@@ -181,6 +191,32 @@
 	<</if>>
 <</widget>>
 
+<<widget "babyRentDisplay">>
+<<babyRent true>><<if $babyRent>><<print _args[0]>><<printmoney $babyRent _args[2]>><<print _args[1]>><</if>>
+<</widget>>
+
+<<widget "babyRent">><<silently>>
+	<<set _skipReductions to _args[0]>>
+	<<set $_childrenRentCount to Object.values($children).reduce((prev, curr) => {
+		if(curr.location === "home") {
+			if(!(curr.localVariables.interactions >= 6)) {
+				if (!T.skipReductions) curr.localVariables.interactions = 0;
+				return prev + 1;
+			}
+			if (!T.skipReductions) curr.localVariables.interactions = 0;
+		}
+		return prev;
+	}, 0)>>
+	<<set $_milkRentReduction to Math.clamp(Math.floor($pregnancyStats.orphanageMilkBottles / 7), 0, Math.min(Math.floor($pregnancyStats.orphanageMilkBottles / 7), $_childrenRentCount))>>
+
+	<<set $_childrenRentCount -= $_milkRentReduction>>
+	<<if !_skipReductions>>
+		<<set $pregnancyStats.orphanageMilkBottles -= $_milkRentReduction * 7>>
+	<</if>>
+
+	<<set $babyRent to $_childrenRentCount * 10000>>
+<</silently>><</widget>>
+
 <<widget "rentmod">>
 	<<set $rentmoney to Math.floor($rentmoney * $rentmod)>>
 	<<if $robinpaid is 1>>
@@ -189,15 +225,15 @@
 <</widget>>
 
 <<widget "rentpay">>
-	<<set $money -= $rentmoney>>
+	<<set $money -= $rentmoney + ($babyRent or 0)>>
 	<<set $rentmoney to [10000,30000,50000,70000,100000,150000,200000][Math.clamp($rentstage,1,6)]>> <!-- note: clamping to 1 is intentional -->
 	<<rentmod>>
 
 	Bailey snatches the money from your hand and starts counting. "Good," <<nnpc_he "Bailey">> says, satisfied. "You came through.
 	<<if $rentstage is 1>>
-		Next week I want <<printmoney $rentmoney "pink">>. You didn't think it would get any easier did you?"
+		Next week I want <<printmoney $rentmoney "pink">><<babyRentDisplay " plus " " if you don't look after your children" "pink">>. You didn't think it would get any easier did you?"
 	<<else>>
-		Next week I want <<printmoney $rentmoney "pink">>."
+		Next week I want <<printmoney $rentmoney "pink">><<babyRentDisplay " plus " " if you don't look after your children" "pink">>."
 	<</if>>
 	<br><br>
 
@@ -208,7 +244,6 @@
 	<<if $robinpaid>>
 		<<npcincr Robin trauma -7>>
 	<</if>>
-	<<set $baileyOverdue to 0>>
 <</widget>>
 
 <<widget "rentRobinPunishment">>
@@ -305,6 +340,100 @@
 		<<link [[Next|Forest Hunter Intro]]>><</link>>
 		<br>
 	<</if>>
+<</widget>>
+
+<<widget "homeBabyIntro">>
+	<<set _fatherEvent to !!$babyIntros.Bailey.find(child => child.mother !== "pc")>>
+	<<set _motherEvent to !!$babyIntros.Bailey.find(child => child.mother === "pc")>>
+	<<set $_newChildrenCount to $babyIntros.Bailey.reduce((prev, curr) => prev + curr.children, 0)>>
+	<<set _playerBornChildren to []>>
+	<<set _playerChildrenBirthLocations to []>>
+	<<set _playerFatheredChildren to []>>
+	<<set _birthIds to $babyIntros.Bailey.reduce((prev, curr) => {
+		prev.pushUnique(curr.mother + curr.birthId);
+		return prev;
+	}, [])>>
+	<<run Object.values($children).forEach(child => {
+		if(T.birthIds.includes(child.mother + child.birthId)){
+			if(child.mother === "pc"){
+				T.playerBornChildren.push(child.childId);
+				T.playerChildrenBirthLocations.pushUnique(child.birthLocation);
+			} else {
+				T.playerFatheredChildren.push(child.childId);
+			}
+			child.localVariables.interactionsTotal = 0;
+			child.localVariables.interactions = 7 - Math.clamp(V.renttime, 0, 7);
+		}
+	})>>
+	<<person1>>
+	<<if _homeBabyRent>>
+		"Before we begin, I have news for you." <<He>> pulls out a piece of paper, and looks back to you.
+	<<else>>
+		<<He>> pulls out a piece of paper, and looks back to you.
+	<</if>>
+	<<if $babyIntros.Bailey.length gte 5>>
+		"You've been fucking busy. Or busy fucking. Congratulations
+	<<else>>
+		"First of all, congratulations
+	<</if>>
+	<<if _fatherEvent and _motherEvent>>
+		<span class="lewd">on being both a mother and a father</span>. <span class="green"><<childrenNames _playerBornChildren>> got here safely from the <<print formatList(_playerChildrenBirthLocations, "and", true)>></span>."
+	<<elseif _fatherEvent>>
+		<span class="lewd">on being a father</span>."
+	<<else>>
+		on being a mother. <span class="green"><<childrenNames _playerBornChildren>> arrived safely from the <<print formatList(_playerChildrenBirthLocations, "and", true)>></span>."
+	<</if>>
+	<<if _fatherEvent>>
+		<<set _impregFame to (_playerFatheredChildren.length * 5)>>
+		<<fameimpreg _impregFame>>
+		<br><<He>> looks back to the paper.<br>
+		<<for _key, _value range $babyIntros.Bailey.filter(child => child.mother !== "pc")>>
+			<!--
+			<<set _childIds to []>>
+			<<run Object.values($children).forEach(child => {
+				if(child.mother === T.value.mother && child.birthId === T.value.birthId){T.childIds.push(child.childId)}
+			})>> -->
+			<<switch _value.children>>
+				<<case 1>><<set _childrenText to "a brat">>
+				<<case 2>><<set _childrenText to "a pair of brats">>
+				<<default>><<set _childrenText to "a trio of brats">>
+			<</switch>>
+			<<if _continues>>
+				<br><<He>> continues.
+			<</if>>
+			<<if _value.mother is "Robin">>
+				"That waif popped out <<print _childrenText>>, and insists that they're yours. I'm inclined to believe <<nnpc_him "Robin">> with how much time you two spend together."
+			<<elseif $NPCNameList.includes(_value.mother)>>
+				"Someone named _value.mother dropped off <<print _childrenText>>, and a paternity test with your name on it to match."
+			<<else>>
+				"A _value.mother dropped off <<print _childrenText>>, and a paternity test with your name on it."
+			<</if>>
+			<<set _continues to true>>
+		<</for>>
+	<</if>>
+	<br><br>
+
+	"They're in the ward already.
+	<<set _knownPregnancyCount to knowsAboutChildrenTotal("pc","Bailey","home")>>
+	<<if _knownPregnancyCount is 1 or !$ward_unlocked>>
+		You're responsible for your offspring's care," <<he>> says. "If I have to intervene, it'll cost you an extra <span class="red">£100</span> a week, starting now. They don't leave the nursery. Ever."
+	<<elseif _knownPregnancyCount lte 4>>
+		You already know that you're responsible for your offspring's care," <<he>> says. "If I have to intervene, it'll cost you an extra <span class="red">£100</span> a week, each."
+	<<else>>
+		You're an irresponsible slut," <<he>> says. "Remember that if I have to intervene in the care of your offspring, it'll cost you an extra <span class="red">£100</span> a week, each."
+	<</if>>
+	<<if $baileydefeatedchain gte 3>>
+		You see <<him>> sneer, but only for a brief instant. "I'd rather not make someone else take care of your twerps, but if you keep being a difficult little shit, don't think you'll be allowed to see them again."
+	<<elseif _homeBabyRent>>
+		You see <<his>> face soften for a moment, but it was so slight that you might have imagined it. "And if you want the luxury of being able to take care of them, you'll pay up."
+	<</if>>
+	<br><br>
+
+	<<if !$ward_unlocked>>
+		<span class="gold">You can now access the youth ward, and the nursery.</span>
+		<br><br>
+	<</if>>
+	<<set $ward_unlocked to true>><<run delete $babyIntros.Bailey>>
 <</widget>>
 
 :: Rent Pay
@@ -438,7 +567,7 @@ Robin hugs you softly after Bailey leaves. "I'm so sorry," <<he>> says.
 	<br><br>
 
 	<<He>> releases you and presses <<his>> hand on your chest, shoving you. You stumble backwards as Bailey takes a menacing step towards you
-	<<if $money gte $rentmoney>>
+	<<if $money gte $rentmoney + ($babyRent or 0)>>
 		with <<his>> palm open expectantly. "Your payment. Now."
 		<br><br>
 
@@ -474,7 +603,7 @@ Robin hugs you softly after Bailey leaves. "I'm so sorry," <<he>> says.
 	<</if>>
 	It's too late to negotiate with Bailey. <<He>> wants <<his>> payment.
 
-	<<if $money gte $rentmoney>>
+	<<if $money gte $rentmoney + ($babyRent or 0)>>
 		<<He>> holds out <<his>> hand.
 		<br><br>
 

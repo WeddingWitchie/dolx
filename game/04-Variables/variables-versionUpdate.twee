@@ -3050,8 +3050,7 @@
 		<<set $robinLastPunishment to "docks">>
 	<</if>>
 
-	<<if $baileyOverdue is undefined>>
-		<<set $baileyOverdue to 0>>
+	<<if $baileypaychain is undefined>>
 		<<set $baileypaychain to 0>>
 	<</if>>
 
@@ -3553,6 +3552,8 @@
 			<<set $swimmingmissed += $_totalToAdd>>
 		<</if>>
 	<</if>>
+
+	<<if $wolfstate is "hunt" and $huntstate isnot "success">><<set $huntstate to "ongoing">><</if>>
 <</widget>>
 
 <<widget "backComp">>
@@ -3613,13 +3614,6 @@
 	<!-- Jimmy: Run updater for EventSystem.
 				Only runs if behind on schema, and if $event exists. -->
 	<<run EventSystem.update()>>
-
-	<!-- Jimmy: Perform chrono check. -->
-	<<if $time isnot ($hour * 60 + $minute)>>
-		<!-- Correct $minute to $time.
-			Do not correct hours, that is done automatically. -->
-		<<set $minute to $time - ($hour * 60)>>
-	<</if>>
 
 	<!-- v0.3.6.2: Updating NPC clothing when needed -->
 	<<if $objectVersion.npcClothes lt 1 or $objectVersion.npcClothes is undefined>>
@@ -4315,6 +4309,33 @@
 		<<run delete $plants.egg>>
 		<<set $plants.chicken_egg.name to "chicken_egg">>
 		<<set $plants.chicken_egg.plural to "chicken eggs">>
+	<</if>>
+
+	<!-- V0.4 tower guard state saved -->
+	<<if $per_npc.farm_tower_guard and $per_npc.farm_tower_guard.active isnot undefined>>
+		<<run delete $per_npc.farm_tower_guard.active>>
+		<<set $per_npc.farm_tower_guard.bold to 0>>
+		<<set $per_npc.farm_tower_guard.lefthand to 0>>
+		<<set $per_npc.farm_tower_guard.righthand to 0>>
+		<<set $per_npc.farm_tower_guard.mouth to 0>>
+		<<set $per_npc.farm_tower_guard.chest to "clothed">>
+		<<set $per_npc.farm_tower_guard.health to $per_npc.farm_tower_guard.healthmax>>
+		<<set $per_npc.farm_tower_guard.location to {head: 0, genitals: 0}>>
+		<<set $per_npc.farm_tower_guard.penis to ($per_npc.farm_tower_guard.penis isnot "none") ? "clothed" : "none">>
+		<<set $per_npc.farm_tower_guard.vagina to ($per_npc.farm_tower_guard.vagina isnot "none") ? "clothed" : "none">>
+	<</if>>
+
+	<!-- V0.4.0.2 SNEAKY posture undefined -->
+	<<if $player.gender_posture is undefined>>
+		<<if $background is "crossdresser">>
+			<<if $player.gender is "f">>
+				<<set $player.gender_posture to "m">>
+			<<elseif $player.gender is "m">>
+				<<set $player.gender_posture to "f">>
+			<</if>>
+		<<else>>
+			<<set $player.gender_posture to "n">>
+		<</if>>
 	<</if>>
 
 <</widget>>
