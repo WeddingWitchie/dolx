@@ -243,9 +243,9 @@ function weekPassed() {
 	}
 	if (Time.schoolTerm) {
 		V.science_exam = Math.clamp(V.science_exam - 7, -107, 200);
-		V.maths_exam = Math.clamp(V.science_exam - 7, -107, 200);
-		V.english_exam = Math.clamp(V.science_exam - 7, -107, 200);
-		V.history_exam = Math.clamp(V.science_exam - 7, -107, 200);
+		V.maths_exam = Math.clamp(V.maths_exam - 7, -107, 200);
+		V.english_exam = Math.clamp(V.english_exam - 7, -107, 200);
+		V.history_exam = Math.clamp(V.history_exam - 7, -107, 200);
 		fragment.append(wikifier("exam_difficulty"));
 	}
 	if (V.robinpaid === 1) V.robinPayout = 0;
@@ -386,7 +386,7 @@ function dayPassed() {
 	if (V.slimeSleepEvent < 1) delete V.slimeEvent;
 	if (V.lake_ice_broken >= 1) V.lake_ice_broken--;
 	if (V.lake_ice_broken < 1) delete V.lake_ice_broken;
-	if (V.community_service >= 1) {
+	if (V.community_service >= 1 && !V.community_service_done !== 1) {
 		if (!["asylum", "prison"].includes(V.location)) {
 			fragment.append(wikifier("crimeup", 200));
 			V.effectsmessage = 1;
@@ -403,11 +403,9 @@ function dayPassed() {
 	if (V.awarelevel <= 1 && V.loveInterest.secondary !== "None") {
 		V.loveInterest_message = 1;
 		V.loveInterest.secondary = "None";
-		delete V.loveInterestAwareMessage;
 		V.effectsmessage = 1;
 	} else if (V.awarelevel >= 2 && V.loveInterest.primary !== "None" && V.loveInterest.secondary === "None" && !V.loveInterestAwareMessage) {
 		V.loveInterest_message = 2;
-		V.loveInterestAwareMessage = 1;
 		V.effectsmessage = 1;
 	}
 	if (V.pound) {

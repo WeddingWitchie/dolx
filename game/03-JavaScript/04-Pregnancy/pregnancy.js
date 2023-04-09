@@ -124,14 +124,13 @@ function playerPregnancyAttempt(baseMulti = 1, genital = "vagina") {
 	const [trackedNPCs, spermArray] = spermObjectToArray(V.sexStats[genital].sperm, true);
 
 	const pills = V.sexStats.pills;
-	const lastPillsTaken = pills.lastTaken.pregnancy;
-	const contraceptive = lastPillsTaken === "contraceptive" ? pills.pills[lastPillsTaken].doseTaken : 0;
+	const contraceptive = Math.clamp(pills.pills.contraceptive.doseTaken || 0, 0, Infinity);
 
 	if (spermArray.length === 0 || (contraceptive && (random(0, 100) >= 10 || contraceptive > 1))) return false;
 	let fertilityBoost = 1;
-	if (lastPillsTaken === "fertility booster") {
-		fertilityBoost -= Math.clamp(pills.pills[lastPillsTaken].doseTaken * 0.2, 0, 0.7);
-	}
+
+	fertilityBoost -= Math.clamp(Math.clamp(pills.pills["fertility booster"].doseTaken || 0, 0, Infinity) * 0.2, 0, 0.7);
+
 	if (V.skin.pubic.pen === "magic" && V.skin.pubic.special === "pregnancy") {
 		fertilityBoost -= 0.4;
 	}
@@ -196,7 +195,7 @@ window.playerPregnancyTest = (npc, npcType, fatherKnown, genital, trackedNPCs, a
 // eslint-disable-next-line no-unused-vars
 function pregnancyProgress(genital = "vagina") {
 	const pregnancy = V.sexStats[genital].pregnancy;
-	if (!pregnancy || pregnancy.type === null || pregnancy.type === "parasites" || V.statFreeze) return null;
+	if (!pregnancy || pregnancy.type === null || pregnancy.type === "parasite" || V.statFreeze) return null;
 
 	V.pregnancyStats.totalDaysPregnant += 0.5;
 	if (pregnancy.awareOf) V.pregnancyStats.totalDaysPregnancyKnown += 0.5;
@@ -255,7 +254,11 @@ function pregnancyProgress(genital = "vagina") {
 // eslint-disable-next-line no-unused-vars
 function playerEndWaterProgress() {
 	const pregnancy = getPregnancyObject();
-	if (!pregnancy || !pregnancy.type || pregnancy.type === "parasites" || pregnancy.timer < pregnancy.timerEnd || V.statFreeze) return null;
+	if (!pregnancy || !pregnancy.type || pregnancy.type === "parasite" || pregnancy.timer < pregnancy.timerEnd || V.statFreeze) {
+		// Fixes an issue when the above "parasite" was "parasites"
+		if (pregnancy && (!pregnancy.type || pregnancy.type === "parasite") && pregnancy.waterBreaking) waterBreaking = false;
+		return null;
+	}
 
 	if (
 		!isNaN(pregnancy.waterBreakingTimer) &&
@@ -270,7 +273,7 @@ function playerEndWaterProgress() {
 			return true;
 		}
 		return false;
-	} else if (!pregnancy.waterBreaking && pregnancy.waterBreakingTimer <= 0) {
+	} else if (!isNaN(pregnancy.waterBreakingTimer) && !pregnancy.waterBreaking && pregnancy.waterBreakingTimer <= 0) {
 		pregnancy.waterBreaking = true;
 		// To prevent new events from occuring, allowing players to more easily go to the hospital or similar locations
 		V.eventskip = 1;
@@ -713,14 +716,10 @@ function recordSperm({
 
 		if (spermOwnerName === "pc") {
 			const pills = V.sexStats.pills;
-			const lastPillsTaken = pills.lastTaken.pregnancy;
-			switch (lastPillsTaken) {
-				case "fertility booster":
-					rngModifier += (pills.pills[lastPillsTaken].doseTaken || 0) * 25;
-					break;
-				case "contraceptive":
-					rngModifier -= (pills.pills[lastPillsTaken].doseTaken || 0) * 50;
-					break;
+			if (pills.pills["fertility booster"].doseTaken) {
+				rngModifier += Math.clamp(pills.pills["fertility booster"].doseTaken || 0, 0, Infinity) * 25;
+			} else if (pills.pills.contraceptive.doseTaken) {
+				rngModifier -= Math.clamp(pills.pills.contraceptive.doseTaken || 0, 0, Infinity) * 50;
 			}
 		} else if (C.npc[spermOwnerName] && C.npc[spermOwnerName].pregnancy) {
 			switch (C.npc[spermOwnerName].pregnancy.pills) {

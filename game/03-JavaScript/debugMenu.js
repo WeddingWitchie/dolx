@@ -633,6 +633,14 @@ setup.debugMenu.eventList = {
 			widgets: [`<<endcombat>>`, `<<set $sexstart to 1>>`, `<<npc Robin>>`, `<<person1>>`],
 		},
 		{
+			link: [`Robin Pillory Watch`, `Robin Pillory Watch`],
+			widgets: [`<<robinPunishment "pillory">>`, `<<set $robinmissing to "pillory">>`, `<<set $robinPillory.known to 1>>`],
+		},
+		{
+			link: [`Distract Robin Crowd`, stayOnPassageFn],
+			widgets: [`<<set $robinPillory.distracted to 1>>`],
+		},
+		{
 			link: [`Briar Pay Refuse`, `Brothel Pay Refuse`],
 			widgets: [`<<endcombat>>`, `<<set $molestationstart to 1>>`, `<<npc Briar>>`, `<<generate2>>`, `<<generate3>>`, `<<person1>>`],
 		},
@@ -743,7 +751,7 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Street Police Extreme`, `Street Police Extreme`],
-			widgets: [`<pass 1 week>>`, `<<pass 1 week>>`, `<<npc Leighton>>`, `<<person1>>`],
+			widgets: [`<<pass 1 week>>`, `<<pass 1 week>>`, `<<npc Leighton>>`, `<<person1>>`],
 		},
 		{
 			link: [`Brothel Show Swarm`, `Brothel Show Swarm`],
