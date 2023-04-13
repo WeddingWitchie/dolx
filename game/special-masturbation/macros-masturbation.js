@@ -9,4 +9,5 @@ function getToyName(index, capitalise = false) {
 	const name = capitalise ? toy.namecap : toy.name;
 	return toy.colour ? toy.colour + " " + name : name;
 }
+window.getToyName = getToyName;
 DefineMacroS("toyName", getToyName);

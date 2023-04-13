@@ -1607,7 +1607,7 @@ Renderer.CanvasModels["main"] = {
 				return options.show_tf && isPartEnabled(options.wolf_tail_type);
 			},
 			filters: ["hair"],
-			z: ZIndices.backhair,
+			z: ZIndices.tail,
 			animation: "idle"
 		},
 		"wolf_ears": {
@@ -1677,7 +1677,7 @@ Renderer.CanvasModels["main"] = {
 				return options.show_tf && isPartEnabled(options.cat_tail_type) && options.cat_tail_state === "idle";
 			},
 			filters: ["hair"],
-			z: ZIndices.backhair,
+			z: ZIndices.tail,
 			animation: "idle"
 		},
 		"cat_tail_flaunt": {
@@ -1765,7 +1765,7 @@ Renderer.CanvasModels["main"] = {
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.cow_tail_type);
 			},
-			z: ZIndices.backhair,
+			z: ZIndices.tail,
 			animation: "idle"
 		},
 		/***
@@ -1830,7 +1830,7 @@ Renderer.CanvasModels["main"] = {
 				return options.show_tf && isPartEnabled(options.bird_tail_type);
 			},
 			filters: ["hair"],
-			z: ZIndices.lower,
+			z: ZIndices.tail,
 			animation: "idle"
 		},
 		"bird_eyes": {
@@ -1895,7 +1895,7 @@ Renderer.CanvasModels["main"] = {
 				return options.show_tf && isPartEnabled(options.fox_tail_type);
 			},
 			filters: ["hair"],
-			z: ZIndices.backhair,
+			z: ZIndices.tail,
 			animation: "idle"
 		},
 		"fox_ears": {
@@ -2182,12 +2182,12 @@ Renderer.CanvasModels["main"] = {
 				return "img/body/cum/MouthCumDrip" + options.drip_mouth + ".png"
 			},
 			showfn(options) {
-				return options.show_face && !!options.drip_mouth;
+				return options.show_face && !!options.drip_mouth && !options.worn_face_setup.type.includesAny("mask", "covered");
 			},
 			dxfn(options) {
 				return options.facestyle === "small-eyes" ? 2 : 0;
 			},
-			z: ZIndices.tears,
+			z: ZIndices.semencough,
 			animationfn(options) {
 				return "MouthCumDrip" + options.drip_mouth;
 			}
@@ -2847,9 +2847,20 @@ Renderer.CanvasModels["main"] = {
 					options.worn_neck_setup.variable + '/' +
 					options.worn_neck_integrity + (options.worn_neck_setup.name === "necktie" && options.worn_upper_setup.has_collar === 1 ? '_nocollar' : '') + '.png';
 				return gray_suffix(path, options.filters['worn_neck']);
-			}
+			},
+			zfn(options) {
+				return (options.worn_head_setup.mask_img === 1 &&
+				!(options.hood_down && options.worn_head_setup.hood && options.worn_head_setup.outfitSecondary !== undefined))
+				? ZIndices.over_lower : ZIndices.neck;
+			},
 		}),
-		"neck_acc": genlayer_clothing_accessory('neck'),
+		"neck_acc": genlayer_clothing_accessory('neck', {
+			zfn(options) {
+				return (options.worn_head_setup.mask_img === 1 &&
+				!(options.hood_down && options.worn_head_setup.hood && options.worn_head_setup.outfitSecondary !== undefined))
+				? ZIndices.over_lower : ZIndices.neck;
+			},
+		}),
 		/***
 		 *    ██      ███████  ██████  ███████
 		 *    ██      ██      ██       ██

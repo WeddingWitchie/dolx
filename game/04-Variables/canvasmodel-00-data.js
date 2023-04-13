@@ -4,6 +4,7 @@ const ZIndices = {
 	over_head_back: 0,
 	head_back: 1,
 	basehead: 5,
+	tail: 9,
 	backhair: 10,
 	back_lower: 15,
 	base: 20,
@@ -75,6 +76,7 @@ const ZIndices = {
 
 	hairforwards: 132,
 	fronthair: 133,
+	semencough: 135,
 	brow: 138,
 	horns: 140,
 	face: 145,

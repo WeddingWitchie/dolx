@@ -590,7 +590,7 @@ function getRobinLocation() {
 	} else if (!between(Time.hour, 7, 20)) {
 		// if hour is 6 or lower, or 21 or higher.
 		T.robin_location = "sleep";
-	} else if (Time.schoolTime) {
+	} else if (Time.schoolDay && between(Time.hour, 8, 15)) {
 		T.robin_location = "school";
 	} else if (Time.hour === 16 && between(Time.minute, 31, 59) && !V.daily.robin.bath) {
 		T.robin_location = "bath";
@@ -667,7 +667,7 @@ function isInPark(name) {
 		case "whitney":
 			return ["active", "rescued"].includes(V.NPCName[V.NPCNameList.indexOf("Whitney")].state)
 				&& V.NPCName[V.NPCNameList.indexOf("Whitney")].init === 1 && ["snow", "rain"].includes(V.weather)
-				&& Time.dayState === "day" && Time.schoolTime
+				&& Time.dayState === "day" && !Time.schoolTime
 				&& V.daily.whitney.park === undefined && V.pillory_tenant.special.name !== "Whitney";
 		default:
 			return false;
