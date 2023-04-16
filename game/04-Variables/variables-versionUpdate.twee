@@ -3576,9 +3576,14 @@
 	/* Code that should not be moved into a check like above */
 	<<set $runWardrobeSanityChecker to true>>
 
-	<<if $objectVersion.updateClothes lt 37 or $objectVersion.updateClothes is undefined>>
+	<<if $objectVersion.updateClothes lt 38 or $objectVersion.updateClothes is undefined>>
 		<<updateClothes>>
-		<<set $objectVersion.updateClothes to 37>>
+		<<if $objectVersion.updateClothes lt 38>>
+			<!-- V0.4.0.7 return items stuck in $store without proper .location -->
+			<<run for (const slot in V.store) V.store[slot].forEach(i => { if (i.location === 0) i.location = "getBack" })>>
+			<<storeon "getBack" "return">>
+		<</if>>
+		<<set $objectVersion.updateClothes to 38>>
 		<!--If you have added any `colour_combat` or `accessory_colour_combat` to clothes that need their `colour` or `accessory_colour`, this will clear them.
 		Remove `colour_combat` or `accessory_colour_combat` where this is the case, they are independant so `colour_combat` will only clear `colour`-->
 	<</if>>
@@ -4444,6 +4449,20 @@
 	<!-- V0.4.0.6 Separating tentacle forest lurker from daily object to prevent midnight errors in tentacle forest -->
 	<<if $daily and $daily.tentacle_forest_lurker>>
 		<<set $tentacle_forest_lurker to $daily.tentacle_forest_lurker>>
+	<</if>>
+
+	<!-- To fix issue where Dr Harper failed to remove both hermaphrodite parasites -->
+	<<if $sexStats.vagina.pregnancy.type is "parasite" and $sexStats.vagina.pregnancy.fetus.find(parasite => parasite.stats.gender === "Hermaphrodite")>>
+		<<set $sexStats.vagina.pregnancy.motherStatus to 2>>
+	<</if>>
+
+	<<if !$objectVersion.wardForceUnlock>>
+		<<if !$objectVersion.wardForceUnlock and !$ward_unlocked and Object.values($children).find(child => child.location is "home" and child.birthLocation isnot "hospital")>>
+			<<set $_childrenToIntro to Object.values($children).filter(child => child.location is "home" and child.birthLocation isnot "hospital")>>
+			<<run console.log($_childrenToIntro)>>
+			<<run $_childrenToIntro.forEach(child => wikifier("setBabyIntro", child.mother, "Bailey", child.birthId))>>
+		<</if>>
+		<<set $objectVersion.wardForceUnlock to 1>>
 	<</if>>
 
 <</widget>>

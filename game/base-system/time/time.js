@@ -470,7 +470,7 @@ function dayPassed() {
 
 	if (V.pubfame) {
 		if (V.pubfame.timer >= 1) V.pubfame.timer--;
-		else if (V.pubfame.timer <= 0) {
+		if (V.pubfame.timer <= 0) {
 			if (V.pubfame.status === "hiding") V.pubfame.detail = "hiding";
 			if (V.pubfame.target) V.pubfame.status = "accepted";
 			else V.pubfame.status = "ready";
@@ -1024,10 +1024,11 @@ function dailyTransformationEffects() {
 	const fragment = document.createDocumentFragment();
 
 	if (V.purity <= 0) {
-		if (V.fallenangel >= 2) fragment.append(wikifier("fallenDescend"));
 		if (V.fallenangel >= 4) {
 			V.fallenangelmessage = 1;
 			V.effectsmessage = 1;
+		} else if (V.fallenangel >= 2) {
+			fragment.append(wikifier("fallenDescend"));
 		} else {
 			fragment.append(wikifier("transform", "demon", 1));
 		}

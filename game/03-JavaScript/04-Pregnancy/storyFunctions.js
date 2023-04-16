@@ -403,21 +403,27 @@ function playerPregnancyRisk() {
 		case "fetish":
 			switch (Math.abs(menstruation.stages[2] - menstruation.currentDay)) {
 				case 0:
+				case 0.5:
 					risk = 0;
 					break;
 				case 1:
+				case 1.5:
 					risk = 1;
 					break;
 				case 2:
+				case 2.5:
 					risk = 2;
 					break;
 				case 3:
+				case 3.5:
 					risk = 3;
 					break;
 				case 4:
+				case 4.5:
 				case 5:
 					risk = 4;
 					break;
+				case 5.5:
 				case 6:
 					risk = 5;
 					break;
@@ -599,7 +605,9 @@ function setKnowsAboutPregnancy(mother, whoNowKnows, existingId, track, pregnanc
 			awareOfBirthId[birthId].push(whoNowKnowsConverted);
 			if (track) {
 				if (!V.babyIntros[whoNowKnows]) V.babyIntros[whoNowKnows] = [];
-				V.babyIntros[whoNowKnows].push(tracked);
+				if (!V.babyIntros[whoNowKnows].find(intro => intro.birthId === tracked.birthId && intro.mother === tracked.mother)) {
+					V.babyIntros[whoNowKnows].push(tracked);
+				}
 			}
 			return true;
 		}
@@ -692,19 +700,59 @@ function knowsAboutChildrenTotal(motherOrFather, whoToCheck, location) {
 }
 window.knowsAboutChildrenTotal = knowsAboutChildrenTotal;
 
-function childrenCountBetweenParents(parent1, parent2){
-    return Object.values(V.children).reduce((prev, curr) => {
-      if (curr.father !== curr.mother && [parent1, parent2].includes(curr.mother) && [parent1,parent2].includes(curr.father)) return prev + 1;
-      return prev;
-    }, 0)
+function childrenCountBetweenParents(parent1, parent2) {
+	return Object.values(V.children).reduce((prev, curr) => {
+		if (curr.father !== curr.mother && [parent1, parent2].includes(curr.mother) && [parent1, parent2].includes(curr.father)) return prev + 1;
+		return prev;
+	}, 0);
 }
 window.childrenCountBetweenParents = childrenCountBetweenParents;
 
 function pregnancyCountBetweenParents(parent1, parent2) {
-    return Object.values(V.children).reduce((prev, curr) => {
-        if (curr.father !== curr.mother && [parent1, parent2].includes(curr.mother) && [parent1, parent2].includes(curr.father))
-            prev.pushUnique(curr.mother + curr.birthId);
-        return prev;
-    }, []).length;
+	return Object.values(V.children).reduce((prev, curr) => {
+		if (curr.father !== curr.mother && [parent1, parent2].includes(curr.mother) && [parent1, parent2].includes(curr.father))
+			prev.pushUnique(curr.mother + curr.birthId);
+		return prev;
+	}, []).length;
 }
 window.pregnancyCountBetweenParents = pregnancyCountBetweenParents;
+
+// Not required for random npc's at all, should only be used for the PC
+function setBabyIntro(mother, introFor, birthId) {
+	if (!mother || !introFor) return false;
+	if (!V.babyIntros) V.babyIntros = {};
+	if (!V.babyIntros[introFor]) V.babyIntros[introFor] = [];
+
+	if (birthId !== undefined) {
+		// Player already gave birth
+		const children = Object.values(V.children).filter(child => child.mother === mother && child.birthId === birthId);
+		if (children.length && !V.babyIntros[introFor].find(intro => intro.birthId === birthId && intro.mother === mother)) {
+			V.babyIntros[introFor].push({ birthId: children[0].birthId, mother: children[0].mother, children: children.length });
+		}
+	} else {
+		// Before the player gives birth
+		const pregnancy = getPregnancyObject(mother === "pc" ? undefined : mother);
+		if (
+			pregnancy &&
+			pregnancy.type !== null &&
+			pregnancy.type !== "parasite" &&
+			pregnancy.fetus &&
+			pregnancy.fetus.length &&
+			!V.babyIntros[introFor].find(intro => intro.birthId === pregnancy.fetus[0].birthId && intro.mother === pregnancy.fetus[0].mother)
+		) {
+			V.babyIntros[introFor].push({ birthId: pregnancy.fetus[0].birthId, mother: pregnancy.fetus[0].mother, children: pregnancy.fetus.length });
+		}
+	}
+}
+DefineMacro("setBabyIntro", setBabyIntro);
+
+// Birth Id is required here
+function removeBabyIntro(mother, introFor, birthId) {
+	if (!V.babyIntros || !V.babyIntros[introFor] || !mother || !introFor || birthId === undefined) return false;
+	const children = Object.values(V.children).filter(child => child.mother === mother && child.birthId === birthId);
+	if (children.length) {
+		V.babyIntros[introFor] = V.babyIntros[introFor].filter(intro => !(intro.birthId === birthId && intro.mother === mother));
+		if (!V.babyIntros[introFor].length) delete V.babyIntros[introFor];
+	}
+}
+DefineMacro("removeBabyIntro", removeBabyIntro);
