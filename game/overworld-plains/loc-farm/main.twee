@@ -198,9 +198,9 @@ You arrive at the chicken coop. "These girls are easy enough. They just need to 
 Alex leads you around the coop, toward a long stone building. You hear oinking. "The pigs are harder to keep fed. They're hungry buggers. It's a job to carry it all." You enter the sty.
 <!-- Modified for monster people -->
 <<if ($monsterchance gte random(1, 100) and ($hallucinations gte 1 or $monsterhallucinations is "f")) or ($bestialitydisable is "t")>>
-	<<if $beastmalechance gte 100>>
+	<<if beastMaleChance() gte 100>>
 		Several pigboys sit in pens.
-	<<elseif $beastmalechance gte 1>>
+	<<elseif beastMaleChance() gte 1>>
 		Several pigboys and girls sit in pens.
 	<<else>>
 		Several piggirls sit in pens.
@@ -223,7 +223,7 @@ Some look quizzical, others lie on their sides.
 <<He>> leads you away from the sty, through an old wooden gate and onto a paved road. You see a stable up ahead.
 <!-- Modified for monster people -->
 <<if ($monsterchance gte random(1, 100) and ($hallucinations gte 1 or $monsterhallucinations is "f")) or ($bestialitydisable is "t")>>
-	<<if $beastmalechance lte $rng>>
+	<<if beastMaleChance() lte $rng>>
 		<<set _horse_gender to "f">>
 	<<else>>
 		<<set _horse_gender to "m">>
@@ -263,18 +263,18 @@ You follow Alex through the field, toward a barn. A dog sits outside, its mouth 
 <br><br>
 <!-- Modified for monster people -->
 <<if ($monsterchance gte random(1, 100) and ($hallucinations gte 1 or $monsterhallucinations is "f")) or ($bestialitydisable is "t")>>
-	<<if $beastmalechance gte 100>>
+	<<if beastMaleChance() gte 100>>
 		Inside, a number of bullboys stand on all-fours, each with a tube attached to his penis. They moo in pleasure.
-	<<elseif $beastmalechance lte 0>>
+	<<elseif beastMaleChance() lte 0>>
 		Inside, a number of cowgirls stand on all-fours, each with two tubes attached to her breasts. They moo in pleasure.
 	<<else>>
 		Inside, a number of cowgirls and bullboys stand on all-fours, each attached to a milking machine. They moo in pleasure.
 	<</if>>
 
 <<else>>
-	<<if $beastmalechance gte 100>>
+	<<if beastMaleChance() gte 100>>
 		A number of bulls stand inside, each attached to a milking machine.
-	<<elseif $beastmalechance lte 0>>
+	<<elseif beastMaleChance() lte 0>>
 		A number of cows stand inside, each attached to a milking machine.
 	<<else>>
 		A number of cattle stand inside, each attached to a milking machine.
@@ -452,13 +452,26 @@ Alex beams. "Great! You can start whenever you like, and don't be afraid to ask 
 	"We've done it," says Alex. <<He>> sounds tired, <<his>> clothes are torn, and <<his>> hair is matted with sweat, but a smile spreads across <<his>> face. "We cleared a second field."
 	<br><br>
 
-	<<He>> leads you to the field in question, stopping at the fence. <<He>> gestures for you to follow as <<he>> sits. "I couldn't have done it without you," <<he>> says, taking a swig from a glass bottle. <<He>> pulls another from <<his>> pocket, and offers it to you.
-	<br><br>
+	<<He>> leads you to the field in question, stopping at the fence. <<He>> gestures for you to follow as <<he>> sits. "I couldn't have done it without you," <<he>> says, taking a swig from a glass bottle.
+	<<if pregnancyBellyVisible()>>
+		<<He>> pulls another from <<his>> pocket, before quickly looking at your <<bellyDescription "pc">> and frowning.
+		<br><br>
 
-	<<link [[Drink|Farm Stage 4]]>><<set $phase to 0>><<stress -6>><<set $farm_stage to 4>><<set $farm.clearing to 100>><</link>><<lstress>>
-	<br>
-	<<link [[Refuse|Farm Stage 4]]>><<set $phase to 1>><<set $farm_stage to 4>><<set $farm.clearing to 100>><</link>>
-	<br>
+		<<link [[Next|Farm Stage 4]]>><<set $phase to 1>><<set $farm_stage to 4>><<set $farm.clearing to 100>><</link>>
+		<br>
+	<<else>>
+		<<He>> pulls another from <<his>> pocket, and offers it to you.
+		<br><br>
+
+		<<if playerIsPregnant() and playerAwareTheyArePregnant()>>
+			<span class="blue">You can't bring yourself to drink while you know you're with child.</span>
+		<<else>>
+			<<link [[Drink|Farm Stage 4]]>><<set $phase to 0>><<stress -6>><<set $farm_stage to 4>><<set $farm.clearing to 100>><</link>><<lstress>>
+		<</if>>
+		<br>
+		<<link [[Refuse|Farm Stage 4]]>><<set $phase to 1>><<set $farm_stage to 4>><<set $farm.clearing to 100>><</link>>
+		<br>
+	<</if>>
 <</widget>>
 
 <<widget "farmStage5">>
@@ -646,6 +659,8 @@ You listen to Alex talk over the phone to <<his>> <<if $pronoun is "m">>dad<<els
 		It's a checkered shirt.<<upperwear 33>>
 		<<if $NPCName[$NPCNameList.indexOf("Alex")].dom gte $npcdomhigh and $NPCName[$NPCNameList.indexOf("Alex")].lust gte 10>>
 			A smaller bundle follows. A pair of denim shorts.<<lowerwear 31>>
+		<<elseif playerBellySize() gte 8>>
+			Another bundle thumps to the ground in front of you. A pair of sweatpants.<<lowerwear 67>>
 		<<else>>
 			Another bundle thumps to the ground in front of you. A pair of jeans.<<lowerwear 22>>
 		<</if>>
@@ -654,6 +669,8 @@ You listen to Alex talk over the phone to <<his>> <<if $pronoun is "m">>dad<<els
 	<<else>>
 		<<if $NPCName[$NPCNameList.indexOf("Alex")].dom gte $npcdomhigh and $NPCName[$NPCNameList.indexOf("Alex")].lust gte 10>>
 			It's a pair of denim shorts.<<lowerwear 31>>
+		<<elseif playerBellySize() gte 8>>
+			It's a pair of sweatpants.<<lowerwear 67>>
 		<<else>>
 			It's a pair of jeans.<<lowerwear 22>>
 		<</if>>

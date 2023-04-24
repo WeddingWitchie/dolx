@@ -2611,46 +2611,32 @@
 <</widget>>
 
 <<widget "wet_all">>
-	<<if !$worn.upper.type.includes("swim") and !$worn.upper.type.includes("naked")>>
-		<<set $upperwet to 200>>
-		<<set $upperwetstage to 3>>
-	<</if>>
-	<<if !$worn.lower.type.includes("swim") and !$worn.lower.type.includes("naked")>>
-		<<set $lowerwet to 200>>
-		<<set $lowerwetstage to 3>>
-	<</if>>
-	<<if !$worn.under_upper.type.includes("swim") and !$worn.under_upper.type.includes("naked")>>
-		<<set $underupperwet to 200>>
-		<<set $underupperwetstage to 3>>
-	<</if>>
-	<<if !$worn.under_lower.type.includes("swim") and !$worn.under_lower.type.includes("naked")>>
-		<<set $underlowerwet to 200>>
-		<<set $underlowerwetstage to 3>>
-	<</if>>
+	<<wet_upper>>
+	<<wet_lower>>
 <</widget>>
 
 <<widget "wet_upper">>
-	<<if !$worn.upper.type.includes("swim") and !$worn.upper.type.includes("naked")>>
-		<<set $upperwet to 200>>
-	<</if>>
+	<<for _slot range ["over_upper", "upper", "under_upper"]>>
+		<<if waterproofCheck($worn[_slot])>>
+			/* if the clothing is waterproof, protect it and layers below from getting wet */
+			<<break>>
+		<<elseif !$worn[_slot].type.includes("naked")>>
+			/* skin wetness system is not implemented... yet? */
+			<<set V[_slot + "wet"] to 200>>
+			<<set V[_slot + "wetstage"] to 3>>
+		<</if>>
+	<</for>>
 <</widget>>
 
 <<widget "wet_lower">>
-	<<if !$worn.lower.type.includes("swim") and !$worn.lower.type.includes("naked")>>
-		<<set $lowerwet to 200>>
-	<</if>>
-<</widget>>
-
-<<widget "wet_under_upper">>
-	<<if !$worn.under_upper.type.includes("swim") and !$worn.under_upper.type.includes("naked")>>
-		<<set $underupperwet to 200>>
-	<</if>>
-<</widget>>
-
-<<widget "wet_under_lower">>
-	<<if !$worn.under_lower.type.includes("swim") and !$worn.under_lower.type.includes("naked")>>
-		<<set $underlowerwet to 200>>
-	<</if>>
+	<<for _slot range ["over_lower", "lower", "under_lower"]>>
+		<<if waterproofCheck($worn[_slot])>>
+			<<break>>
+		<<elseif !$worn[_slot].type.includes("naked")>>
+			<<set V[_slot + "wet"] to 200>>
+			<<set V[_slot + "wetstage"] to 3>>
+		<</if>>
+	<</for>>
 <</widget>>
 
 <<widget "storecleanup">>
@@ -4556,11 +4542,11 @@
 				The crowd watch and photograph as a stray dog rapes <<the_pillory_person>>. A <<person2>><<person>> rewards the dog with a <<print either("biscuit.","pat on the head.","sweet.","cream bun.")>>
 				<br>
 				The crowd enjoys such a perverted spectacle.
-			<<elseif $rng gte 6 and $malechance gt 0 and ($homochance gt 0 or $pillory_tenant.person.gender isnot "m")>> /* 5% - with men allowed */
+			<<elseif $rng gte 6 and maleChance() gt 0 and (maleChance() lt 100 or $pillory_tenant.person.gender isnot "m")>> /* 5% - with men allowed */
 				<<set $pillory_tenant.ass += 1>><<set $pillory_tenant.face += 1>>
 				<<if $rng % 3 is 0>>A couple of off-duty policemen approach. They make a <<person>> record as they<<else>>Two men approach. Together they<</if>>
 				<<if $pillory_tenant.person.gender is "m">>anally-<<else>>_ly <</if>>spit-roast <<the_pillory_person>>. The crowd enjoys the spectacle.
-			<<elseif $rng gte 6 and $malechance lt 100 and ($homochance gt 0 or $pillory_tenant.person.gender isnot "f")>> /* 5% - with women allowed */
+			<<elseif $rng gte 6 and maleChance() lt 100 and (maleChance() gt 0 or $pillory_tenant.person.gender isnot "f")>> /* 5% - with women allowed */
 				<<set $pillory_tenant.ass += 1>><<set $pillory_tenant.face += 1>>
 				<<if $rng % 3 is 0>>A couple of off-duty policewomen approach. They make a <<person>> record as they<<else>>Two women approach. Together they<</if>>
 				<<if $pillory_tenant.person.gender is "m">>anally-<<else>>_ly <</if>>spit-roast <<the_pillory_person>> with strap-ons. The crowd enjoys the spectacle.

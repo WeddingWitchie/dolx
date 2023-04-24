@@ -15,8 +15,10 @@ You are in the tailor shop. It has cloth of various colours hanging on racks.
 <</if>>
 
 <<set $tailor_cost to 0>>
+<<set $outfitRepair to []>>
 <<set _time to 0>>
 <<set _outfitTime to 0>>
+<<set _brokenOutfit to 0>>
 
 <<for _active_clothes range Object.keys($worn)>>
 	<<if _active_clothes is "butt_plug">>
@@ -34,14 +36,21 @@ You are in the tailor shop. It has cloth of various colours hanging on racks.
 		<<set $tailor_cost += Math.trunc(getClothingCost($worn[_active_clothes],_active_clothes) * (1 - $worn[_active_clothes].integrity / clothingData(_active_clothes,$worn[_active_clothes],'integrity_max')))>>
 		<<set _time += 5>>
 	<</if>>
+
+	<<if _brokenOutfit is 0>>
+		<<set _brokenOutfit to getOutfitPair()>>
+		<<if _brokenOutfit.length is 0>>
+			<<set _brokenOutfit to 1>>
+		<</if>>	
+	<</if>>
 <</for>>
 
 <<if $stress gte $stressmax>>
 	<<passoutshop>>
 <<else>>
 	<<if Time.hour is 21>>
-	It's closing time. Security is herding everyone outside. <<if $exposed gte 1>>Panic swells within you as you realise how exposed you'll be should security find you in this state of dress.<</if>>
-	<br><br>
+		It's closing time. Security is herding everyone outside. <<if $exposed gte 1>>Panic swells within you as you realise how exposed you'll be should security find you in this state of dress.<</if>>
+		<br><br>
 
 		<<if $exposed lte 0>>
 			<<link [[Go outside|High Street]]>><<endevent>><</link>>
@@ -63,6 +72,33 @@ You are in the tailor shop. It has cloth of various colours hanging on racks.
 
 			You are hiding behind bolts of cloth to protect your dignity.
 			<br><br>
+
+			<<if _brokenOutfit isnot 0 && _brokenOutfit isnot 1>>
+				<<generate1>><<person1>>You get the attention of the <<person>> working behind the counter and <<he>> tells you that <<he>> can help.
+
+				<<for _i = 0; _i lt _brokenOutfit.length; _i++>>
+					<<set _brokenOutfitTime to 15>><<set _tailorCostMod to .55>>
+					<<set _tailorCostMod += .43 * (1 - $worn[_brokenOutfit[_i].wornHalf].integrity / clothingData(_brokenOutfit[_i].wornHalf,$worn[_brokenOutfit[_i].wornHalf],'integrity_max'))>>
+					
+					<<if _brokenOutfit[_i].brokenHalf.includes("under")>>
+						<<set _brokenOutfitTime += 5>><<set _tailorCostMod += .06>>
+						<<He>> tells you that your <<print _brokenOutfit[_i].name>> will take a little more time and effort if you're willing to take the risk. The repair will cost <<printmoney `Math.trunc(_brokenOutfit[_i].cost * _tailorCostMod)`>>.
+					<<else>>
+						<<He>> can repair your missing <<print _brokenOutfit[_i].name>> for <<printmoney `Math.trunc(_brokenOutfit[_i].cost * _tailorCostMod)`>>.
+					<</if>>
+					<br>
+
+					<<set _tempText to `Repair ` + _brokenOutfit[_i].name + ` (0:` + (_brokenOutfitTime lt 10 ? "0":"") + _brokenOutfitTime + `)`>>
+
+					<<capture _i>>
+						<<link [[_tempText|Fix Outfit]]>> <<set $outfitRepair to _brokenOutfit[_i]>><<pass _brokenOutfitTime>><<set $money -= Math.trunc(_brokenOutfit[_i].cost * _tailorCostMod)>> <</link>>
+					<</capture>>
+					<br><br>
+				<</for>>
+
+				<<unset _tempText>>
+			<</if>>
+
 		<<else>>
 			<<generate1>><<person1>>"Welcome," the tailor says. "What services are you looking for today?
 			We offer repairs on clothes. We also offer a monthly service to repair by delivery."
@@ -84,6 +120,56 @@ You are in the tailor shop. It has cloth of various colours hanging on racks.
 				<br>
 				<<print '<<link [[Fix clothes (0:'+(_outfitTime lt 10 ? "0":"")+_outfitTime+')|Fix Lower]]>><<pass _outfitTime>><</link>>'>>
 				<br><br>
+				<<set _options to true>>
+			<</if>>
+
+			<<if _brokenOutfit isnot 0 && _brokenOutfit isnot 1>>
+
+				<<He>> notices that your <<print _brokenOutfit[random(0,_brokenOutfit.length -1)].name>> is destroyed.
+				"It'll take a while but I can fit those to another half to make them whole." <<He>> pauses for a second to gauge your reaction. "Interested?"
+				<br><br>
+
+				<<set _secondUnderItem to false>><<set _secondOverItem to false>>
+
+				<<for _i = 0; _i lt _brokenOutfit.length; _i++>>
+					<<set _brokenOutfitTime to 15>><<set _tailorCostMod to .55>>
+					<<set _tailorCostMod += .43 * (1 - $worn[_brokenOutfit[_i].wornHalf].integrity / clothingData(_brokenOutfit[_i].wornHalf,$worn[_brokenOutfit[_i].wornHalf],'integrity_max'))>>
+					
+					<<if _brokenOutfit[_i].brokenHalf.includes("under")>>
+						<<set _brokenOutfitTime += 5>><<set _tailorCostMod += .06>>
+
+						<<if _secondUnderItem isnot true>>
+							<<set _secondUnderItem to true>>
+							"Ah, things like your <<print _brokenOutfit[_i].name>> take a little more time and effort to fix than other items." <<He>> stops to show you some specialized fabric <<he>> would need to use.
+							"If you're fine with that, I can replace it for <<printmoney `Math.trunc(_brokenOutfit[_i].cost * _tailorCostMod)`>>."
+						<<else>>
+							<<He>> can fix your <<print _brokenOutfit[_i].name>> for <<printmoney `Math.trunc(_brokenOutfit[_i].cost * _tailorCostMod)`>>.
+						<</if>>
+
+					<<elseif _brokenOutfit[_i].brokenHalf.includes("over")>>
+						<<set _brokenOutfitTime -= 5>><<set _tailorCostMod -= .08>>
+
+						<<if _secondOverItem isnot true>>
+							<<set _secondOverItem to true>>
+							"Repairs on <<print _brokenOutfit[_i].name>> are fairly simple for someone of my skill." <<He>> points to a few of the more complex items in the store as proof.
+							"This repair is relatively easy, so I can do it for <<printmoney `Math.trunc(_brokenOutfit.over.outfitCost * _tailorCostMod)`>>. Deal?"
+						<<else>>
+							The ease of the repair means <<he>> can patch up your <<print _brokenOutfit[_i].name>> for <<printmoney `Math.trunc(_brokenOutfit[_i].cost * _tailorCostMod)`>>.
+						<</if>>
+		
+					<<else>>
+						<<He>> offers to replace your missing <<print _brokenOutfit[_i].name>> for <<printmoney `Math.trunc(_brokenOutfit[_i].cost * _tailorCostMod)`>>.
+					<</if>>
+					<br>
+
+					<<set _tempText to `Repair ` + _brokenOutfit[_i].name + ` (0:` + (_brokenOutfitTime lt 10 ? "0":"") + _brokenOutfitTime + `)`>>
+					<<capture _i>>
+						<<link [[_tempText|Fix Outfit]]>> <<set $outfitRepair to _brokenOutfit[_i]>><<pass _brokenOutfitTime>><<set $money -= Math.trunc(_brokenOutfit[_i].cost * _tailorCostMod)>> <</link>>
+					<</capture>>
+					<br><br>
+				<</for>>
+
+				<<unset _tempText>><<unset _secondUnderItem>><<unset _secondOverItem>>
 				<<set _options to true>>
 			<</if>>
 
@@ -114,7 +200,7 @@ You are in the tailor shop. It has cloth of various colours hanging on racks.
 				<br><br>
 			<</if>>
 		<</if>>
-		<<link [[Leave|Shopping Centre Top]]>><<endevent>><</link>>
+		<<link [[Leave|Shopping Centre Top]]>><<endevent>><<unset $outfitRepair>><</link>>
 	<</if>>
 <</if>>
 
@@ -254,3 +340,19 @@ currently with the deposit reducing the cost.
 The tailor picks up the crate and carries it into the back of the shop.
 <br><br>
 <<link [[Next|Tailor Shop]]>><<endevent>><</link>>
+
+:: Fix Outfit
+	<<if $exposed gte 1>>
+		You continue to hide while the tailor makes the needed repairs. After what feels like an eternity, <<he>> passed you back your <<print $outfitRepair.name>> and you slip it on.
+		<br><br>
+	<<else>>
+		You loiter around the shop until the Tailor calls you over for a few minor adjustments.
+		Just like that, your <<print $outfitRepair.name>> is as good as new.
+		<br><br>
+	<</if>>
+
+	<<set $worn[$outfitRepair.wornHalf].integrity = clothingData($outfitRepair.wornHalf,$worn[$outfitRepair.wornHalf],'integrity_max')>>
+	<<set makeMissingOutfit($outfitRepair)>>
+	<<unset $outfitRepair>>
+
+<<link [[Back|Tailor Shop]]>><<endevent>><</link>>
