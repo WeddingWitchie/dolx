@@ -29,7 +29,7 @@ function masturbationeffects() {
 		return toy;
 	};
 	const toyDisplay = (toy1, toy2) => {
-		if (toy1 && toy2) return (toy1.colour ? toy1.colour + " " : "") + toy1.name + " and " + (toy2.colour ? toy2.colour + "" : "") + toy2.name;
+		if (toy1 && toy2) return (toy1.colour ? toy1.colour + " " : "") + toy1.name + " and " + (toy2.colour ? toy2.colour + " " : "") + toy2.name;
 		if (toy1) return (toy1.colour ? toy1.colour + " " : "") + toy1.name;
 		return "";
 	};
@@ -446,9 +446,9 @@ function masturbationeffectsArms(
 	if (V.vaginause === "mdildopenetrate" || V.anususe === "mdildopenetrate") {
 		if (["mvaginaentrancedildo", "mvaginadildo", "manusentrancedildo", "manusdildo"].includes(V.leftarm)) {
 			if (V.leftarm.includes("vagina")) {
-				fragment.append(span(`You move your ${toyDisplay(selectedToy("left"))} from your anus after finding it difficult to reach.`, "red"));
-			} else {
 				fragment.append(span(`You move your ${toyDisplay(selectedToy("left"))} from your vagina after finding it difficult to reach.`, "red"));
+			} else {
+				fragment.append(span(`You move your ${toyDisplay(selectedToy("left"))} from your anus after finding it difficult to reach.`, "red"));
 			}
 			fragment.append(" ");
 			V.leftarm = "mpickupdildo";
@@ -457,9 +457,9 @@ function masturbationeffectsArms(
 		}
 		if (["mvaginaentrancedildo", "mvaginadildo", "manusentrancedildo", "manusdildo"].includes(V.rightarm)) {
 			if (V.rightarm.includes("vagina")) {
-				fragment.append(span(`You move your ${toyDisplay(selectedToy("right"))} from your anus after finding it difficult to reach.`, "red"));
-			} else {
 				fragment.append(span(`You move your ${toyDisplay(selectedToy("right"))} from your vagina after finding it difficult to reach.`, "red"));
+			} else {
+				fragment.append(span(`You move your ${toyDisplay(selectedToy("right"))} from your anus after finding it difficult to reach.`, "red"));
 			}
 			fragment.append(" ");
 			V.rightarm = "mpickupdildo";
@@ -608,7 +608,7 @@ function masturbationeffectsArms(
 				if (V.milk_amount >= 1) {
 					if (V.worn.over_upper.exposed === 0 || V.worn.upper.exposed === 0 || V.worn.under_upper.exposed === 0) {
 						fragment.append(span("Milk leaks from your buds, flowing into your top", "lewd"));
-						if (V.masturbation_bowl === 1) fragment.append(otherElement("i", "You should remove your top if you want to gather any."));
+						if (V.masturbation_bowl === 1) fragment.append(otherElement("i", " You should remove your top if you want to gather any."));
 					} else {
 						fragment.append(span("Milk leaks from your buds.", "lewd"));
 					}
@@ -639,19 +639,25 @@ function masturbationeffectsArms(
 			if (!V.worn.over_lower.vagina_exposed) {
 				fragment.append(
 					Wikifier.wikifyEval(
-						`<span class="blue">You run your fingers over your <<penis>>, feeling the bulge beneath your ${V.worn.over_lower.name}.</span>`
+						`<span class="blue">You run your fingers over your <<penis>>${
+							calculatePenisBulge() ? `, feeling the bulge beneath your ${V.worn.over_lower.name}` : ""
+						}.</span>`
 					)
 				);
 			} else if (!V.worn.lower.vagina_exposed) {
 				fragment.append(
 					Wikifier.wikifyEval(
-						`<span class="blue">You run your fingers over your <<penis>>, feeling the bulge beneath your ${V.worn.lower.name}.</span>`
+						`<span class="blue">You run your fingers over your <<penis>>${
+							calculatePenisBulge() ? `, feeling the bulge beneath your ${V.worn.over_lower.name}` : ""
+						}.</span>`
 					)
 				);
 			} else if (!V.worn.under_lower.vagina_exposed) {
 				fragment.append(
 					Wikifier.wikifyEval(
-						`<span class="blue">You run your fingers over your <<penis>>, feeling the bulge beneath your ${V.worn.under_lower.name}.</span>`
+						`<span class="blue">You run your fingers over your <<penis>>${
+							calculatePenisBulge() ? `, feeling the bulge beneath your ${V.worn.over_lower.name}` : ""
+						}.</span>`
 					)
 				);
 			} else {
@@ -1526,6 +1532,7 @@ function masturbationeffectsArms(
 				wikifier("addVaginalWetness", 1);
 				altText.lubricated = (arm === "left" && V.leftFingersSemen >= 1) || (arm === "right" && V.rightFingersSemen >= 1) ? " semen-lubricated" : "";
 				altText.finger = V.mVaginaFingerAdd === 2 ? `two${altText.lubricated} fingers` : `a${altText.lubricated} finger`;
+				if (altText.lubricated.includes("semen")) V.semenInVagina = true;
 				if (hymenIntact) {
 					fragment.append(
 						Wikifier.wikifyEval(
@@ -1776,6 +1783,7 @@ function masturbationeffectsArms(
 			} else {
 				altText.lubricated = V[arm + "FingersSemen"] >= 1 ? "semen-lubricated" : "";
 			}
+			if (altText.lubricated.includes("semen")) V.semenInVagina = true;
 			wikifier("arousal", 150 * handsOn, "masturbationVagina");
 			wikifier("addVaginalWetness", 1);
 			altText.toyDisplay = toyDisplay(altText.selectedToy, altText.selectedOtherToy);
@@ -1944,6 +1952,7 @@ function masturbationeffectsArms(
 						(arm === "left" && V.leftFingersSemen >= 1) || (arm === "right" && V.rightFingersSemen >= 1) ? " semen-lubricated" : "";
 					fragment.append(Wikifier.wikifyEval(`<span class="purple">You push a ${altText.lubricated} finger into your <<bottom>>.</span>`));
 				}
+				if (altText.lubricated.includes("semen")) V.semenInAnus = true;
 			} else {
 				clearAction("manusrub");
 			}
@@ -2072,6 +2081,7 @@ function masturbationeffectsArms(
 					)
 				);
 			}
+			if (altText.lubricated.includes("semen")) V.semenInAnus = true;
 			break;
 		case "manusrubdildo":
 			clearAction();
@@ -2351,7 +2361,9 @@ function masturbationeffectsMouth({ span, otherElement, additionalEffect, select
 				} else {
 					fragment.append(
 						Wikifier.wikifyEval(
-							`<span class="blue">You run your tongue over your <<penis>>, feeling the bulge beneath your <<exposedlower>>.</span>`
+							`<span class="blue">You run your tongue over your <<penis>>${
+								calculatePenisBulge() ? ", feeling the bulge beneath your <<exposedlower>>" : ""
+							}.</span>`
 						)
 					);
 				}
@@ -2372,7 +2384,11 @@ function masturbationeffectsMouth({ span, otherElement, additionalEffect, select
 				}
 			} else {
 				fragment.append(
-					Wikifier.wikifyEval(`<span class="blue">You run your tongue over your <<penis>>, feeling the bulge beneath your <<exposedlower>>.</span>`)
+					Wikifier.wikifyEval(
+						`<span class="blue">You run your tongue over your <<penis>>${
+							calculatePenisBulge() ? ", feeling the bulge beneath your <<exposedlower>>" : ""
+						}.</span>`
+					)
 				);
 			}
 			break;
@@ -2394,10 +2410,10 @@ function masturbationeffectsMouth({ span, otherElement, additionalEffect, select
 			clearAction(V.selfsuckDepth < V.selfsuckLimit ? "mpenisdeepthroat" : "mpenissuck");
 			V.selfsuckDepth++;
 			wikifier("arousal", 200 + 50 * V.selfsuckDepth, "masturbationGenital");
-			fragment.append(Wikifier.wikifyEval(`You push your <<penis>> deeper into your mouth.`));
+			fragment.append(Wikifier.wikifyEval(`You push your <<penis>> deeper into your mouth. `));
 			if (V.selfsuckDepth === V.penisHeight) {
 				if (V.leftarm === "mpenisentrance" && V.rightarm === "mpenisentrance") {
-					altText.hands = "both hands";
+					altText.hands = "hands";
 					V.leftarm = 0;
 					V.leftarmaction = "mrest";
 					V.rightarm = 0;
@@ -2411,8 +2427,8 @@ function masturbationeffectsMouth({ span, otherElement, additionalEffect, select
 					V.rightarm = 0;
 					V.rightarmaction = "mrest";
 				}
-				fragment.append(Wikifier.wikifyEval(`<span class="lblue">You move your ${altText.hands} away from your <<penis>> to make room.</span>`));
-				fragment.append(" ");
+				if (altText.hands)
+					fragment.append(Wikifier.wikifyEval(`<span class="lblue">You move your ${altText.hands} away from your <<penis>> to make room.</span> `));
 				fragment.append(deepthroateffects(span));
 			}
 			break;

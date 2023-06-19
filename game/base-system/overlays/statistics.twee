@@ -92,7 +92,12 @@
 		Wild plants picked: $wild_plant_stat
 		<br>
 		Aphrodisiacs sold: $stat_aphrodisiacs_sold
-		<br><br>
+		<br>
+		<<if $brothelVending and $brothelVending.total>>
+			Products sold at the brothel: $brothelVending.total
+			<br>
+		<</if>>
+		<br>
 	<</foldout>>
 
 	<<foldout false "_sexFoldout">>
@@ -840,8 +845,8 @@
 				<</if>>
 			<</if>>
 		<</foldout>>
+		<<set $_menstruation to $sexStats.vagina.menstruation>>
 		<<if $cycledisable is "f">>
-			<<set $_menstruation to $sexStats.vagina.menstruation>>
 			<<foldout false "_menstruationFoldout">>
 				<span class="gold">Menstruation cycle</span>
 				Running: <<print $_menstruation.running ? "true" : "false">>
@@ -858,18 +863,19 @@
 		<</if>>
 		<<foldout false "_pregnancyFoldout">>
 			<span class="gold">Pregnancy</span>
-			/* commented out for being a major spoil, leave as is for now
+			/* Previously commented out for being a major spoil, but caused players to think a bug had occured */
 			Total days being pregnant: <<print Math.floor($pregnancyStats.totalDaysPregnant)>>
 			<br>
-			*/
 			Total days knowingly being pregnant: <<print Math.floor($pregnancyStats.totalDaysPregnancyKnown)>>
 			<br>
 			<<if canBeMPregnant()>>
-			<<elseif !$player.vaginaExist>>
+			<<elseif !$player.vaginaExist or !$_menstruation.running>>
 				Can not currently get pregnant.
 			<<elseif $_vPregnancy.type is "parasite">>
 				Parasites in the womb are preventing normal pregnancy from occuring.
-			<<elseif $_vPregnancy.type isnot null and playerAwareTheyArePregnant()>>
+			<<elseif $_menstruation.currentState is "recovering">>
+				You are not quite ready to get pregnant so soon after your last one.
+			<<elseif $_vPregnancy.type isnot null>>
 				Currently pregnant with: <<print $_vPregnancy.fetus.length>>
 					<<extraStatisticsPregnancyType $_vPregnancy.type>>
 				<br>
@@ -888,10 +894,16 @@
 					Number of sources of sperm that can get you pregnant: <<print _spermArray.length>>.
 					<<if _trackedNPCs.length>>
 						<br>
-						Those who's sperm you have inside you currently:
+						Those whose sperm you have inside you currently:
 						<ul>
 							<<for _name range _trackedNPCs>>
-								<li><<print pregnancyNameCorrection(_name.source)>></li>
+								<<set $_count to _spermArray.filter(s => s.source === T.name.source).length>>
+								<li>
+									<<print pregnancyNameCorrection(_name.source)>>
+									<<if $_count gt 1>>
+										(x<<print $_count>>)
+									<</if>>
+								</li>
 							<</for>>
 						</ul>
 					<</if>>
@@ -900,7 +912,11 @@
 			<<if canBeMPregnant()>>
 				<<if $_aPregnancy.type is "parasite">>
 					Parasites in the womb are preventing normal pregnancy from occuring.
-				<<elseif $_aPregnancy.type isnot null and playerAwareTheyArePregnant()>>
+				<<elseif !$_menstruation.running>>
+					You can not current get pregnant.
+				<<elseif $_menstruation.currentState is "recovering">>
+					You are not quite ready to get pregnant so soon after your last one.
+				<<elseif $_aPregnancy.type isnot null>>
 					Currently pregnant with: <<print $_aPregnancy.fetus.length>>
 					<<extraStatisticsPregnancyType $_aPregnancy.type>>
 					<br>
@@ -919,10 +935,16 @@
 						Number of sources of sperm that can get you pregnant: <<print _spermArray.length>>.
 						<<if _trackedNPCs.length>>
 							<br>
-							Those who's sperm you have inside you currently:
+							Those whose sperm you have inside you currently:
 							<ul>
 								<<for _name range _trackedNPCs>>
-									<li><<print pregnancyNameCorrection(_name.source)>></li>
+									<<set $_count to _spermArray.filter(s => s.source === T.name.source).length>>
+									<li>
+										<<print pregnancyNameCorrection(_name.source)>>
+										<<if $_count gt 1>>
+											(x<<print $_count>>)
+										<</if>>
+									</li>
 								<</for>>
 							</ul>
 						<</if>>

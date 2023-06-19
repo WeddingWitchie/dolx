@@ -45,7 +45,7 @@ function npcPregObject(person, mother) {
 				parentId: Array.isArray(parentId) ? parentId[0] : parentId,
 				skinColour: V.skinColor.natural,
 				hairColour: V.naturalhaircolour,
-				eyeColour: V.eyeselected,
+				eyeColour: V.eyeselect,
 			};
 		} else if (C.npc[person]) {
 			result = {
@@ -255,6 +255,7 @@ function beastTransform(mother, father) {
 function divineTransform(mother, father) {
 	if (mother === "pc" || father === "pc") {
 		if (V.angel >= 6) return "angel";
+		if (V.fallenangel >= 4) return "fallen";
 		if (V.demon >= 6) return "demon";
 	}
 	return null;

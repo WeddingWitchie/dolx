@@ -1222,7 +1222,7 @@
 				<</if>>
 			</div>
 
-			<<if $allure gte 8000>><<set $allure to 8000>><</if>>
+			<<if $allure gte 8000 * $alluremod>><<set $allure to 8000 * $alluremod>><</if>>
 			<<if $alluretest is 1>>
 				<<set $allure += 100000>>
 			<<elseif $alluretest is 2>>
@@ -1558,6 +1558,8 @@
 			<<switch $location>>
 				<<case "beach">>
 					<img id="location" @src="'img/misc/' + _weather_display + '/beachday.gif'">
+				<<case "chalets">>
+					<img id="location" @src="'img/misc/' + _weather_display + '/beachday.gif'">
 				<<case "sea">>
 					<img id="location" @src="'img/misc/' + _weather_display + '/ocean_day.gif'">
 				<<case "home">>
@@ -1724,6 +1726,8 @@
 			<<switch $location>>
 				<<case "beach">>
 					<img id="location" @src="'img/misc/' + _weather_display + '/beachnight.gif'">
+				<<case "chalets">>
+					<img id="location" @src="'img/misc/' + _weather_display + '/beachnight.gif'">
 				<<case "sea">>
 					<img id="location" @src="'img/misc/' + _weather_display + '/ocean_night.gif'">
 				<<case "home">>
@@ -1882,6 +1886,8 @@
 			<<switch $location>>
 				<<case "beach">>
 					<img id="location" @src="'img/misc/' + _weather_display + '/beachdawn.gif'">
+				<<case "chalets">>
+					<img id="location" @src="'img/misc/' + _weather_display + '/beachdawn.gif'">
 				<<case "sea">>
 					<img id="location" @src="'img/misc/' + _weather_display + '/ocean_dawn.gif'">
 				<<case "home">>
@@ -2035,6 +2041,8 @@
 
 			<<switch $location>>
 				<<case "beach">>
+					<img id="location" @src="'img/misc/' + _weather_display + '/beachdusk.gif'">
+				<<case "chalets">>
 					<img id="location" @src="'img/misc/' + _weather_display + '/beachdusk.gif'">
 				<<case "sea">>
 					<img id="location" @src="'img/misc/' + _weather_display + '/ocean_dusk.gif'">
@@ -3244,7 +3252,7 @@
 				<br>
 		<</switch>>
 		<<if $christmas_gift is "clothes_unwrapped">>
-			<<link [[Wrap the orphan's gifts (3:00)|Bedroom Orphans Clothes Wrap]]>><<pass 180>><<set $christmas_gift to "clothes">><</link>>
+			<<link [[Wrap the orphans' gifts (3:00)|Bedroom Orphans Clothes Wrap]]>><<pass 180>><<set $christmas_gift to "clothes">><</link>>
 			<br>
 		<</if>>
 	<</if>>
@@ -3554,6 +3562,30 @@
 	</div>
 <</widget>>
 
+<<widget "relation-box-wolves">>
+	<<if $wolfpackfear gte 1 || $wolfpacktrust gte 1 || $syndromewolves gte 1 || $wolfpackleader gte 1>>
+	<div class="relation-box" @style="(_boxConfig.style || '')">
+		<div class="relation-top-line">
+			<<if $options.images>>
+					<img class="relation-icon" src="img/misc/icon/wolfpup.png" />
+			<</if>>
+			<span class="relation-name">Wolf Pack</span>
+		</div>
+		<div class="relation-description">
+			The wolves
+			<<if $wolfpackleader gte 1>>view you as <span class="green">the leader of the pack.</span>
+				<<elseif $syndromewolves gte 1>>view you as <span class="green">their <<ppackbrother>>.</span>
+				<<elseif $wolfpacktrust gte 12>><span class="green">trust you.</span>
+				<<elseif $wolfpacktrust gte 6>>are<span class="teal">starting to accept you.</span>
+				<<elseif $wolfpackfear gte 12>><span class="red">fear you.</span>
+				<<elseif $wolfpackfear gte 6>>are <span class="purple">starting to fear you.</span>
+				<<else>><span class="pink">view you as prey.</span>
+			<</if>>
+		</div>
+	</div>
+	<</if>>
+<</widget>>
+
 <<widget "relation-box">>
 	<<silently>>
 		<<set _npcData = _args[0]>>
@@ -3571,7 +3603,7 @@
 					return true;
 			};
 
-			T.importantNpcStats = ["love", "lust", "dom", "trauma", "rage", "purity", "corruption"];
+			T.importantNpcStats = ["love", "lust", "dom", "trauma", "rage", "purity", "corruption", "harmony","ferocity"];
 			T.otherNpcStats = ["love", "lust"];
 
 			let statDefaults = {
@@ -3619,6 +3651,20 @@
 					value: T.npcData.corruption,
 					iconOrientation : 'horizontal-inverted',
 					activeIcon: "img/ui/sym_demon_purity.png",
+					color: 'purple'
+				},
+				"harmony" : {
+					name: "Harmony",
+					value: V.wolfpackharmony,
+					iconOrientation : 'vertical',
+					activeIcon: "img/ui/wolfharmony.png",
+					color: 'purple'
+				},
+				"ferocity" : {
+					name: "ferocity",
+					value: V.wolfpackferocity,
+					iconOrientation : 'vertical',
+					activeIcon: "img/ui/wolfferocity.png",
 					color: 'purple'
 				}
 			};
@@ -3812,6 +3858,10 @@
 	<<set $NPCName[_i].lust = Math.clamp($NPCName[_i].lust, 0, 100)>>
 	<<set $NPCName[_i].purity = Math.clamp($NPCName[_i].purity, 0, 100)>>
 	<<set $NPCName[_i].corruption = Math.clamp($NPCName[_i].corruption, 0, 50)>>
+	<<set _i to $NPCNameList.indexOf("Black Wolf")>>
+	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, 0, 150)>>
+	<<set $NPCName[_i].harmony = Math.clamp($wolfpackharmony, 0, 100)>>
+	<<set $NPCName[_i].ferocity = Math.clamp($wolfpackferocity, 0, 100)>>
 
 	<<set _i to $NPCNameList.indexOf("Darryl")>>
 	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, -50, 50)>>
@@ -4683,6 +4733,70 @@
 	</span>
 <</widget>>
 
+<<widget "deskText">>
+<<if $studyBooks is undefined>>
+	<<set $studyBooks to {}>>
+	<<set $studyBooks.rented to "none">>
+	<<set $studyBooks.stolen to "none">>
+<</if>>
+<<set _desk to Furniture.get('desk')>>
+<<set _chair to Furniture.get('chair')>>
+<<set _projectOptions to [$scienceproject, $mathsproject].includes("ongoing")>>
+<<set _bookOptions to [$studyBooks.stolen, $studyBooks.rented].includesAny("Raul and Janet","Pinch")>>
+<<set _wardrobe to Furniture.get('wardrobe')>>
+<<set _playOptions to ($englishPlay is 'ongoing' and $englishPlayRoles.Player isnot 'none')>>
+
+<<if _projectOptions || _playOptions || _bookOptions || $christmas_gift is "clothes_unwrapped" || ($christmas_gift_robin and $christmas_gift_robin_wrapped isnot 1)>>
+	<<if _args[0] is "noicon">>
+		Your _desk.name and <<if _chair.name isnot "chair">>_chair.article <</if>>_chair.nameSolo are wedged next to your wardrobe.
+		<br>
+		<<projectoptions>>
+		<<homeStudyOptions>>
+		<<christmas_options>>
+		<br>
+	<</if>>
+<<else>>
+	<<if _args[0] is "icon">>
+		<br>
+		<<deskchairicon>>Your _desk.name and <<if _chair.name isnot "chair">>_chair.article <</if>>_chair.nameSolo are wedged next to your wardrobe.
+	<</if>>
+<</if>>
+<</widget>>
+
+
+<<widget "tableText">>
+<<set _table to Furniture.get('table')>>
+<<set _chair to Furniture.get('chair')>>
+<<if $pregnancyStats.parasiteDoctorEvents gte 2>>
+	<<if _args[0] is "noicon">>
+		<<if _table>>
+			<br>
+			Your _table.name <<if _chair and _chair.name isnot "chair">>and one of your _chair.name are <<else>>is <</if>> situated next to a wall.
+			<br>
+		<<elseif _chair and _chair.name isnot "chair">>
+			<br>
+			One of your _chair.name is situated next to a wall.
+			<br>
+		<<else>>
+			<br>
+			Your fish tank sits on the floor.
+			<br>
+		<</if>>
+		<<fishtankicon>><<containersLink>>
+	<</if>>
+<<else>>
+	<<if _args[0] is "icon">>
+		<<if _table>>
+			<br>
+			<<bedroomtablechairicon>> Your _table.name <<if _chair and _chair.name isnot "chair">>and another _chair.nameSolo are <<else>>is <</if>> situated next to a wall.
+		<<elseif _chair and _chair.name isnot "chair">>
+			<br>
+			<<bedroomtablechairicon>> A second _chair.nameSolo is situated next to a wall.
+		<</if>>
+	<</if>>
+<</if>>
+<</widget>>
+
 <<widget "radiogroup">>
 	<<set _receiver_name to _args[0]>>
 	<<set _possible_values_by_label to _args[1]>>
@@ -4985,9 +5099,7 @@
 <</widget>>
 
 <<widget "enable_rescue">>
-	<<if $drugged lte 0>>
-		<<set $rescue to 1>>
-	<</if>>
+	<<set $rescue to 1>>
 <</widget>>
 
 <<widget "hypnotised">>

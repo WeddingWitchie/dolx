@@ -66,7 +66,7 @@ You are in your cell. There's a bed in one corner, and a cupboard in another. A 
 	<<wardrobeicon>><<link [[Cupboard|Prison Wardrobe]]>><</link>>
 	<br>
 	<<if $prison.mirror gte 1>>
-		<<mirroricon>><<link [[Mirror|Prison Mirror]]>><</link>>
+		<<mirroricon>><<link [[Mirror|Prison Mirror]]>><<preMirror>><</link>>
 		<br>
 	<</if>>
 	<br>
@@ -92,7 +92,7 @@ You are in your cell. There's a bed in one corner, and a cupboard in another. A 
 :: Prison Mirror
 <<effects>>
 
-<<link [[Step away|Prison Cell]]>><<unset $mirrorMenu>><<unset $bodywritingSet>><</link>>
+<<link [[Step away|Prison Cell]]>><<unset $mirrorMenu>><<unset $bodywritingSet>><<postMirror>><</link>>
 <br>
 
 <<mirror>>
@@ -331,10 +331,20 @@ You lie on your mattress. It's hard to get comfortable<<if ($worn.neck.name is "
 :: Prison Sleep
 <<set _autosavehere to true>>
 <<sleep>><<effects>>
+
+<<wakingEffects $sleepHoursTotal>>
 <<if $nightmares gte 1 and $controlled is 0>>
-	You dream you are being hunted by something <<if ["haunt", "despair"].includes($wraith.state) and $rng lte 25>>pale<<else>>dark<</if>> and terrible.
+	<<if _wakingEffect isnot undefined>>
+		You dreamt of
+	<<else>>
+		You dream you are
+	<</if>>
+	being hunted by something <<if ["haunt", "despair"].includes($wraith.state) and $rng lte 25>>pale<<else>>dark<</if>> and terrible.
 <<else>>
-	<<if $specialClothesEffects.bimboTotal gte random(100,1000) or $arousal gte 9000>>
+	<<if ["dryheaving","nausea"].includes(_wakingEffect)>>
+		You slept soundly, but now feel a little rough.
+		<br><br>
+	<<elseif $specialClothesEffects.bimboTotal gte random(100,1000) or $arousal gte 9000>>
 		Your sleep is plagued by dirty dreams.
 		<<arousal `$specialClothesEffects.bimboTotal / 10 * $sleepHoursTotal`>>
 		<<arousal `100 * $sleepHoursTotal`>>
@@ -1694,6 +1704,12 @@ Panting, <<veteran_guard 0>> steps away from the curled <<person2>><<person>>. Y
 				<br>
 			<</if>>
 		<<else>>
+			<<if $harpy gte 6 and $birdFly gte 1>>
+				Your wings, and the wind, are strong. You think you could fly all the way to the mainland from here.
+				<br>
+				<<link [[Soar to the mainland|Prison Soar]]>><</link>>
+				<br><br>
+			<</if>>
 			<<link [[Leave (0:05)|Prison Yard]]>><<pass 5>><</link>>
 			<br>
 		<</if>>
@@ -1983,9 +1999,15 @@ It's enough to bask in your victory, for now.
 :: Prison Revolt
 <<effects>>
 <<set $prison.schedule to "revolt">>
-<<if $submissive gte 1150>>
+<<if $worn.face.type.includes("gag")>>
+	You mumble insistently at a pair of nearby inmates. They tug at your gag. It takes a bit of effort, but they manage to snap it enough that you can pull it out.
+	<<set $worn.face.type.push("broken")>>
+	<<faceruined>>
+	<br><br>
+<</if>>
+<<if $speech_attitude is "meek">>
 	"It's time to end their bullying," you shout. "Let's show them we won't be pushed around!"
-<<elseif $submissive lte 850>>
+<<elseif $speech_attitude is "bratty">>
 	"I'm fed up with these fuckers telling us what to do!" you shout. "Let's fuck them up!"
 <<else>>
 	"It's time for some changes around here," you should. "We're in charge now!"
@@ -2020,7 +2042,7 @@ Another voice cuts through the haze. It sounds like <<anxious_guard 2>> "I-I can
 
 "Quiet, please. I'm going to need to undress you."
 <<if playerChastity("hidden")>>
-	<<He>> notices your chastity belt, and opens a chest-high cupboard. <<He>> retrieves a tool shaped like a pair of prongs, but bulkier. "We need to remove that device. This won't hurt."
+	<<He>> notices your <<print $worn.genitals.name>>, and opens a chest-high cupboard. <<He>> retrieves a tool shaped like a pair of prongs, but bulkier. "We need to remove that device. This won't hurt."
 	<br><br>
 	<<He>> grasps your <<print $worn.genitals.name>> with the prongs, and presses a button on the handle. You hear a whirring noise within the tool, <span class="pink">and they snap the metal.</span>
 	<<set $worn.genitals.type.push("broken")>>
@@ -2079,7 +2101,7 @@ Another voice cuts through the haze. It sounds like <<anxious_guard 2>> "I-I can
 <<effects>>
 <<generate5>><<person5>>
 <<set $litter_size to getPregnancyObject().fetus.length>>
-You awaken in the medical room. A smiling midwife stands beside your bed, 
+You awaken in the medical room. A smiling midwife stands beside your bed,
 <<if $litter_size is 1>>
 	holding a bundled baby in <<his>> arms.
 	<br><br>
@@ -2131,7 +2153,7 @@ You awaken in the medical room. A smiling midwife stands beside your bed,
 	<<if $first_birth>>
 		<<He>> teaches you how to change <<childname>>'s nappy, and how to bathe <<childhim>>.
 	<<else>>
-		<<He>> assists you with changing <<childname>>'s nappy, and bathing <<childhim>>. 
+		<<He>> assists you with changing <<childname>>'s nappy, and bathing <<childhim>>.
 	<</if>>
 	"Let me know when you're feeling sleepy," <<he>> says. "You need your rest as well, and we can take care of your baby in the meantime. You've been exempted from your duties for the day."
 	<br><br>
@@ -2145,7 +2167,7 @@ You awaken in the medical room. A smiling midwife stands beside your bed,
 	<<if $first_birth>>
 		<<He>> teaches you how to change their nappies and how to bathe them.
 	<<else>>
-		<<He>> assists you with changing their nappies, and with bathing them. 
+		<<He>> assists you with changing their nappies, and with bathing them.
 	<</if>>
 	"Let me know when you're feeling sleepy," <<he>> says. "You need your rest as well, and we can take care of your babies in the meantime. You've been exempted from your duties for the day."
 	<br><br>
@@ -2159,7 +2181,7 @@ You awaken in the medical room. A smiling midwife stands beside your bed,
 	<<if $first_birth>>
 		<<He>> teaches you how to change their nappies, and how to bathe them.
 	<<else>>
-		<<He>> assists you with changing their nappies, and with bathing them. 
+		<<He>> assists you with changing their nappies, and with bathing them.
 	<</if>>
 	"Let me know when you're feeling sleepy," <<he>> says. "You need your rest as well, and we can take care of your babies in the meantime. You've been exempted from your duties for the day."
 	<br><br>
@@ -2236,7 +2258,7 @@ You're returned to your cell. You alreasy miss the embrace of <<childrenNames $b
 <<generate1>><<person1>>
 <<set $litter_size to getPregnancyObject().fetus.length>>
 <<set _baby_type to getPregnancyObject().fetus[0].type>>
-You awaken in another room. You hear faint whimpering. A smiling midwife stands beside your bed, 
+You awaken in another room. You hear faint whimpering. A smiling midwife stands beside your bed,
 <<if $litter_size is 1>>
 	holding a bundled _baby_type pup in <<his>> arms.
 	<br><br>

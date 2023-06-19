@@ -32,9 +32,31 @@
 <</if>>
 <<schoolperiodtext>>
 <<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-<<if $whitneypantiesmaths>>
+<<if $forcedcrossdressingdisable is "t">><<unset $whitneyskirtmaths>><</if>>
+<<if $whitneypantiesmaths or $whitneyskirtmaths>>
 	<<if $whitneypantiesmaths is "seen">>
-		You've barely stepped into the hallway when <<npc Whitney>><<person1>>Whitney and <<his>> friends surround you. "You've been a bad <<girl>>," <<he>> grins. <<His>> friends look excited. "I said no <<if $player.gender_appearance is "f">>panties<<else>>underwear<</if>>, and I meant it. I'll have to take everything now."
+		You've barely stepped into the hallway when <<npc Whitney>><<person1>>Whitney and <<his>> friends surround you. "You've been a bad <<girl>>," <<he>> grins. <<His>> friends look excited.
+		<<if $whitneypantiescheck is 1>>
+			"I said no <<if $player.gender_appearance is "f">>panties<<else>>underwear<</if>>, and I meant it. I'll have to take everything now."
+		<<elseif $whitneypantiescheck is 2>>
+			"I said you should wear panties, and I meant it. I'll have to take everything now."
+		<</if>>
+		<<if $forcedcrossdressingdisable is "t">>
+		<<elseif $whitneyskirtcheck is 1 and setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1 and $worn.lower.reveal gt 200>>
+			<<He>> sneers. "You're not even wearing a short skirt."
+		<<elseif $whitneyskirtcheck is 1 and setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt isnot 1>>
+			<<He>> sneers. "You're not even wearing a skirt."
+		<</if>>
+		<br><br>
+
+		<<link [[Let it happen|Bully Panties]]>><<trauma 6>><<stress 3>><<sub 1>><<npcincr Whitney dom 1>><</link>><<gtrauma>><<gstress>><<garousal>><<gdom>>
+		<br>
+		<<link [[Fight|Bully Panties Fight]]>><<set $fightstart to 1>><<def 1>><<npcincr Whitney dom -1>><</link>><<ldom>>
+		<br>
+	<<elseif $whitneyskirtmaths>>
+		You've barely stepped into the hallway when <<npc Whitney>><<person1>>Whitney and <<his>> friends surround you. "You've been a bad <<girl>>," <<he>> grins. <<His>> friends look excited.
+
+		"Sluts don't dress like that. I said short skirts, and I meant it. I'll have to take everything now."
 		<br><br>
 
 		<<link [[Let it happen|Bully Panties]]>><<trauma 6>><<stress 3>><<sub 1>><<npcincr Whitney dom 1>><</link>><<gtrauma>><<gstress>><<garousal>><<gdom>>
@@ -45,7 +67,7 @@
 		You've barely stepped into the hallway when <<npc Whitney>><<person1>>Whitney and <<his>> friends surround you. "I think you have something to hide," <<he>> says, smiling as <<he>> feels beneath your $worn.lower.name.
 		<br><br>
 
-		<<if $worn.under_lower.type.includes("naked")>>
+		<<if $worn.under_lower.type.includes("naked") or ($whitneypantiescheck is 2 and $worn.under_lower.gender is "f")>>
 			"Hmm," <<he>> continues. "I guess you're a good <<girl>> after all. You should cooperate next time."
 			<br><br>
 
@@ -66,6 +88,7 @@
 		<</if>>
 	<</if>>
 	<<unset $whitneypantiesmaths>>
+	<<unset $whitneyskirtmaths>>
 <<elseif $stress gte $stressmax>>
 <<link [[Everything fades to black...|School Passout]]>><</link>>
 
@@ -79,7 +102,7 @@
 	<<schoolperiod>>
 
 	<<if !["early", "late", "earlynoschool", "latenoschool", "daynoschool"].includes($schoolstate) and $exposed gte 1>>
-		<<link [[Sneak to rear courtyard (0:05)|School Rear Courtyard]]>><<pass 5>><</link>>
+		<<schoolcourtyardicon>><<link [[Sneak to rear courtyard (0:05)|School Rear Courtyard]]>><<pass 5>><</link>>
 		<br>
 		<<swimmingicon>><<link [[Sneak to pool (0:03)|School Pool Entrance]]>><<pass 3>><</link>>
 		<br>
@@ -89,7 +112,7 @@
 		<br>
 	<<else>>
 		<<if $schoolstate is "afternoon" and $detention gte 1 and $daily.school.detentionAttended isnot 1 and $pillory_tenant.special.name isnot "Leighton">>
-		<<link [[Go to detention|School Detention]]>><</link>>
+		<<headdeskicon>><<link [[Go to detention|School Detention]]>><</link>>
 		<br>
 			<<if $headdrive gte 1 and $headnodetention isnot 1 and $headmoney isnot 1 and $headphotoshoot isnot 1>>
 			<<link [[Blackmail Leighton|Head's Office Blackmail]]>><<npc Leighton>><<person1>><<set $phase to 1>><</link>><<crime>>
@@ -247,7 +270,7 @@
 	"<<pShes>> so embarrassed, look at <<phim>> squirm!"
 	<br><br>
 
-	<<if $submissive gte 1150>>
+	<<if $speech_attitude is "meek">>
 		"P-please give me my clothes back. It's cold," you say, kneeling and pressing your face against the ground.
 		<br><br>
 
@@ -259,7 +282,7 @@
 		<<endcombat>>
 
 		<<link [[Next|Hallways]]>><</link>>
-	<<elseif $submissive lte 850>>
+	<<elseif $speech_attitude is "bratty">>
 		You glare at the students. "Give me back my clothes, this instant," you say with surprising confidence given your predicament.
 		<br><br>
 
@@ -848,9 +871,9 @@ The <<person>> becomes more forceful.
 :: Hallways Breast Tease
 <<effects>>
 
-<<if $submissive gte 1150>>
+<<if $speech_attitude is "meek">>
 	"You like them?" you say, thrusting your chest forward to put more emphasis on your <<breasts>>.
-<<elseif $submissive lte 850>>
+<<elseif $speech_attitude is "bratty">>
 	"Wanna beg for a touch?" you say, cupping your <<breasts>>.
 <<else>>
 	"Jealous?" you say, giving your <<breasts>> a little shake.
@@ -873,18 +896,18 @@ The <<person>> becomes more forceful.
 
 <<if setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1>>
 	You lift the hem of your $worn.lower.name, just short of showing off your <<undies>>.
-	<<if $submissive gte 1150>>
+	<<if $speech_attitude is "meek">>
 		"You think I'm cute?" you ask.
-	<<elseif $submissive lte 850>>
+	<<elseif $speech_attitude is "bratty">>
 		"You're all talk," you say.
 	<<else>>
 		"You look okay too," you say.
 	<</if>>
 <<else>>
 	You lean against a locker.
-	<<if $submissive gte 1150>>
+	<<if $speech_attitude is "meek">>
 		"You think I'm cute?" you ask.
-	<<elseif $submissive lte 850>>
+	<<elseif $speech_attitude is "bratty">>
 		"You're all talk," you say. "Wanna prove me wrong?"
 	<<else>>
 		"You look okay too," you say.
@@ -912,9 +935,9 @@ The <<person>> becomes more forceful.
 :: Hallways Cupboard Refuse
 <<effects>>
 
-<<if $submissive gte 1150>>
+<<if $speech_attitude is "meek">>
 	"I'm sorry," you say. "I'm not interested."
-<<elseif $submissive lte 850>>
+<<elseif $speech_attitude is "bratty">>
 	"Nice try," you say. "Piss off."
 <<else>>
 	"You're not that good," you say.
@@ -1039,9 +1062,9 @@ You shove the <<person>> away from you. "Crazy fuck," <<he>> says. "I'm telling 
 <<effects>>
 
 You lift the hem of your $worn.lower.name, giving the <<person>> a brief glimpse of your <<undies>>.
-<<if $submissive gte 1150>>
+<<if $speech_attitude is "meek">>
 	"Oops!" you say. "Clumsy me."
-<<elseif $submissive lte 850>>
+<<elseif $speech_attitude is "bratty">>
 	"Like what you saw?" you say. "I bet you did."
 <<else>>
 	"Like what you see?" you say.
@@ -1069,9 +1092,9 @@ You lift the hem of your $worn.lower.name, giving the <<person>> a brief glimpse
 <<effects>>
 
 You lift the hem of your $worn.lower.name, giving the <<person>> a brief glimpse of your <<genitals>>.
-<<if $submissive gte 1150>>
+<<if $speech_attitude is "meek">>
 	"Oops!" you say. "Clumsy me."
-<<elseif $submissive lte 850>>
+<<elseif $speech_attitude is "bratty">>
 	"Like what you saw?" you say. "I bet you did."
 <<else>>
 	"Like what you see?" you say.
@@ -1236,9 +1259,9 @@ With a serene grace, you step out into the open. The students stop at the sight 
 :: Hallways Exposed Tell
 <<effects>>
 
-<<if $submissive gte 1150>>
+<<if $speech_attitude is "meek">>
 	"Pl-please let me go," you say.
-<<elseif $submissive lte 850>>
+<<elseif $speech_attitude is "bratty">>
 	"Get out of my way," you say. "Or else."
 <<else>>
 	"Please let me go," you say.
@@ -1381,9 +1404,9 @@ The pair of you draw some odd looks on the walk over. The staff room is small, w
 :: Hallways Exposed Goad
 <<effects>>
 
-<<if $submissive gte 1150>>
+<<if $speech_attitude is "meek">>
 	"You caught me," you say. "I'm a nasty pervert. I need to be punished, don't you think?"
-<<elseif $submissive lte 850>>
+<<elseif $speech_attitude is "bratty">>
 	"Any of you perverts gonna make the first move," you say. "Or do I have to do everything?"
 <<else>>
 	"You caught me," you say. "What are you gonna do now?"
@@ -2100,9 +2123,9 @@ The <<person>> grasps your collar tightly. "My parents took me to see a doc beca
 
 :: Hallways Pregnant Student Refuse
 <<effects>>
-<<if $submissive gte 1150>>
+<<if $speech_attitude is "meek">>
 	"B-But... It's your baby!" you argue. "You should take care of it!"
-<<elseif $submissive lte 850>>
+<<elseif $speech_attitude is "bratty">>
 	"Look, I'm very sorry for you," you explain. "It was my mistake, but I can't help you right now."
 <<else>>
 	"Tough shit," you tell <<him>>. "Guess it's time for you to learn to be a mommy, good luck."
@@ -2135,9 +2158,9 @@ The <<person1>> looks at you with concern, <<his>> anger begins to turn into sad
 	<<if $skulduggery lt 100>>
 		<<skulduggeryskilluse>><<skulduggery 5>>
 	<<else>>
-		<span class="blue">There's nothing more you can learn from locks this simple.</span><br>
+		<span class="blue">There's nothing more you can learn from locks this simple.</span>
+		<br>
 	<</if>>
-	<br>
 	When the door finally opens, a grateful <<person>> emerges. "Thank you so much. <<print either("It was so dark in there!","It was so cramped in there!","I'm bursting for a wee!","That was kind of scary!","Bullies are the worst.")>>"
 	<br>
 	The <<person>> gives you a broad smile and dashes away. <<lstress>><<stress -2>>
@@ -2189,7 +2212,7 @@ The <<person1>> looks at you with concern, <<his>> anger begins to turn into sad
 		Whoever locked them in there probably had their reasons.
 	<<elseif $stress gte (($stressmax / 5) * 2)>>
 		We all have problems.
-	<<elseif $submissive gte 1150>>
+	<<elseif $speech_attitude is "meek">>
 		Whoever locked them in there might still be around.
 	<<elseif $cool gte 140>>
 		Nerds these days are beyond help. They can deal with their own problems.
@@ -2204,7 +2227,7 @@ The <<person1>> looks at you with concern, <<his>> anger begins to turn into sad
 <<if $phase is 0>> /* Intervene */
 	<<person1>>You approach the <<person>>.
 	<br>
-	<<if $submissive gte 1150>>
+	<<if $speech_attitude is "meek">>
 		<<set _skulcheck_hi to random(400,700)>>
 		<<set _skulcheck_lo to random(100,300)>>
 		<<if $physique gte (($physiquesize / 7) * 5)>>
@@ -2283,7 +2306,7 @@ The <<person1>> looks at you with concern, <<his>> anger begins to turn into sad
 			<br><br>
 			With a scowl, the <<person1>><<person>> walks away. At least you saved the <<person2>><<person>>. <<gpain>><<pain 3>>
 		<</if>>
-	<<elseif $submissive lte 850>>
+	<<elseif $speech_attitude is "bratty">>
 		<<person2>>"Leave <<him>> alone, creep," you say. "Walk away."
 		<br><br>
 		<<if $physique gte (($physiquesize / 7) * 5)>>
@@ -2413,7 +2436,7 @@ The <<person1>> looks at you with concern, <<his>> anger begins to turn into sad
 		People need to learn to look after themselves.
 	<<elseif $stress gte (($stressmax / 5) * 3)>>
 		You don't feel like you can handle more stress today.
-	<<elseif $submissive gte 1150>>
+	<<elseif $speech_attitude is "meek">>
 		If you tried to intervene <<person1>><<he>> might come after you.
 	<<elseif $physique lt ($physiquesize / 7) * 3>>
 		It's not like you're strong enough to stop them.
@@ -2430,10 +2453,10 @@ The <<person1>> looks at you with concern, <<his>> anger begins to turn into sad
 
 <<if $athleticsSuccess>>
 
-	<span class="green">You manage to grab your skirt just as someone tugs it downward.</span>
+	<span class="green">You manage to grab your $worn.lower.name just as someone tugs it downward.</span>
 	<br><br>
 
-	Whirling around, you catch the culprit, a <<person1>><<person>>, redhanded  You yank your <<if setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1>>skirt<<else>>pants<</if>> free, shooting them a dirty look. Looking annoyed at <<his>> failure, the student runs away. You fix your clothing.
+	Whirling around, you catch the culprit, a <<person1>><<person>>, redhanded. You yank your <<if setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1>>skirt<<else>>pants<</if>> free, shooting them a dirty look. Looking annoyed at <<his>> failure, the student runs away. You fix your clothing.
 	<br><br>
 
 	<<link [[Next|Hallways]]>><<endevent>><<set $eventskip to 1>><</link>>
@@ -2472,12 +2495,12 @@ The group of students fight to pull down your <<if setup.clothes.lower[clothesIn
 :: Hallways Pantsed Reveal
 <<effects>><<generatey1>><<person1>><<underlowerstrip>><<lowerstrip>><<integritycheck no_text>>
 
-<<if $pantsed.lowerintegrity lte 0 and $pantsed.underlowerintegrity lte 0 and $worn.genitals.type.includes("chastity")>>
+<<if $pantsed.lowerintegrity lte 0 and $pantsed.underlowerintegrity lte 0 and playerChastity()>>
 
-	One of the students pulls hard, and your $pantsed.lower and $pantsed.underlower get ripped off your body, but your chastity belt stays in place.
+	One of the students pulls hard, and your $pantsed.lower and $pantsed.underlower get ripped off your body, but your <<print $worn.genitals.name>> stays in place.
 	<br><br>
 
-	"Look, every..." your tormenter cuts off, your torn $pantsed.lower in his hand, when <<he>> sees your chastity belt. All the other students look curiously at it, a few laugh nervously. 
+	"Look, every..." your tormenter cuts off, your torn $pantsed.lower in his hand, when <<he>> sees your <<print $worn.genitals.name>>. All the other students look curiously at it, a few laugh nervously. 
 	<br><br>
 
 	Red-faced, you run off down the hallway while the other students look on in confusion.
@@ -2509,12 +2532,12 @@ The group of students fight to pull down your <<if setup.clothes.lower[clothesIn
 	<<link [[Run|Hallways Pantsed Run]]>><<trauma 2>><<stress 6>><<set $phase to 4>><</link>><<gstress>><<gtrauma>>
 
 
-<<elseif $pantsed.underlowerintegrity lte 0 and $worn.genitals.type.includes("chastity")>>
+<<elseif $pantsed.underlowerintegrity lte 0 and playerChastity()>>
 
 	One of the students pulls hard, yanking your $pantsed.lower down to your feet and ripping your $pantsed.underlower to shreds.
 	<br><br>
 
-	"Look, every..." your tormenter cuts off when <<he>> sees your chastity belt. All the other students look curiously at it. A few laugh nervously.
+	"Look, every..." your tormenter cuts off when <<he>> sees your <<print $worn.genitals.name>>. All the other students look curiously at it. A few laugh nervously.
 	<br><br>
 
 	You quickly pull your $pantsed.lower up, hiding your belt from the other students. You run off red-faced, the other students looking after you in confusion.
@@ -2564,7 +2587,7 @@ The group of students fight to pull down your <<if setup.clothes.lower[clothesIn
 
 	<<if $exhibitionism gte 55>>
 
-		<<link [[Flaunt|Hallways Pantsed Flaunt]]>><<set $phase to 2>><</link>><<exhibitionist5>>
+		<<link [[Flaunt|Hallways Pantsed Flaunt]]>><<set $phase to 2>><</link>><<exhibitionist4>>
 		<br>
 
 	<</if>>
@@ -2574,9 +2597,9 @@ The group of students fight to pull down your <<if setup.clothes.lower[clothesIn
 <<else>>
 	<<underlowerstrip>><<lowerstrip>>
 
-	<<if $worn.genitals.type.includes("chastity")>>
+	<<if playerChastity()>>
 
-		"Look, every..." your tormenter cuts off when <<he>> sees your chastity belt. All the other students look curiously at it. A few laugh nervously.
+		"Look, every..." your tormenter cuts off when <<he>> sees your <<print $worn.genitals.name>>. All the other students look curiously at it. A few laugh nervously.
 		<br><br>
 
 		You quickly pull your $pantsed.lower up, hiding your belt from the other students. You run off red-faced, the other students looking after you in confusion.
@@ -2611,7 +2634,7 @@ The group of students fight to pull down your <<if setup.clothes.lower[clothesIn
 
 		<<if $exhibitionism gte 55>>
 
-			<<link [[Flaunt|Hallways Pantsed Flaunt]]>><<set $phase to 1>><</link>><<exhibitionist5>>
+			<<link [[Flaunt|Hallways Pantsed Flaunt]]>><<set $phase to 1>><</link>><<exhibitionist4>>
 			<br>
 
 		<</if>>
@@ -2685,7 +2708,7 @@ The group of students fight to pull down your <<if setup.clothes.lower[clothesIn
 
 <<elseif $phase is 3>>
 
-	You pull your $pantsed.underlower and $pantsed.lower up and run off down the hallway, the laughter and cheers following you all the way. 
+	You pull your <<if $pantsed.underlower isnot "naked">>$pantsed.underlower and <</if>>$pantsed.lower up and run off down the hallway, the laughter and cheers following you all the way. 
 	<br><br>
 
 	<<link [[Next|Hallways]]>><<endevent>><<clotheson>><<unset $pantsed>><<set $eventskip to 1>><</link>>

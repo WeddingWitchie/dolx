@@ -891,7 +891,7 @@
 	<</if>>
 
 	<<if $brothelshowdata is undefined>>
-		<<set $brothelshowdata to { counts:{ agreed:0, done:0 }, type:"none", intro:false, done:false, missed:false }>>
+		<<set $brothelshowdata to { counts:{ agreed:0, done:0 }, type:"none", intro:0, done:false, missed:false }>>
 		<<if $brothelshow isnot undefined>>
 			<<set $brothelshowdata.type to $brothelshow>>
 			<<unset $brothelshow>>
@@ -3576,14 +3576,18 @@
 	/* Code that should not be moved into a check like above */
 	<<set $runWardrobeSanityChecker to true>>
 
-	<<if $objectVersion.updateClothes lt 38 or $objectVersion.updateClothes is undefined>>
+	<<if $objectVersion.updateClothes lt 40 or $objectVersion.updateClothes is undefined>>
 		<<updateClothes>>
 		<<if $objectVersion.updateClothes lt 38>>
 			<!-- V0.4.0.7 return items stuck in $store without proper .location -->
 			<<run for (const slot in V.store) V.store[slot].forEach(i => { if (i.location === 0) i.location = "getBack" })>>
 			<<storeon "getBack" "return">>
 		<</if>>
-		<<set $objectVersion.updateClothes to 38>>
+		<<if $objectVersion.updateClothes lt 40>>
+			<!--Should'nt need to re-run that often-->
+			<<run clothesDataTrimmerLoop()>>
+		<</if>>
+		<<set $objectVersion.updateClothes to 40>>
 		<!--If you have added any `colour_combat` or `accessory_colour_combat` to clothes that need their `colour` or `accessory_colour`, this will clear them.
 		Remove `colour_combat` or `accessory_colour_combat` where this is the case, they are independant so `colour_combat` will only clear `colour`-->
 	<</if>>
@@ -3594,10 +3598,13 @@
 		<<set $objectVersion.specialClothes to 13>>
 	<</if>>
 
-	<<if $objectVersion.museumAntiques lt 12 or $objectVersion.museumAntiques is undefined>>
+	<<if $objectVersion.museumAntiques lte 13 and $museumAntiques.antiques.antiquewhitescrystal isnot undefined>>
+		<<run delete $museumAntiques.antiques.antiquewhitescrystal>>
+	<</if>>
+	<<if $objectVersion.museumAntiques lt 14 or $objectVersion.museumAntiques is undefined>>
 		/*Moved undefined checks for new antiques to the widget below*/
 		<<updateMuseumAntiques>>
-		<<set $objectVersion.museumAntiques to 12>>
+		<<set $objectVersion.museumAntiques to 14>>
 	<</if>>
 
 	<<pregnancyVar>>
@@ -4253,7 +4260,7 @@
 		<<script>>
 			/* Tries to set the date to the same as the previous version's date.
 			If weekday is different from the real date, well shit, we're faking it. */
-			const month = DateTime.monthNames.map(month => month.toLowerCase()).indexOf(V.month) + 1;
+			const month = Time.monthNames.map(month => month.toLowerCase()).indexOf(V.month) + 1;
 			const date = new DateTime(V.year, month, V.monthday, Math.min(V.hour, 23), Math.min(V.minute, 59), V.seconds);
 			const startDate = new DateTime(date);
 			T.passMinutes = (V.hour > 23 ? (V.hour - 23) * 60 : 0) + (V.minute > 59 ? V.minute - 59 : 0);
@@ -4493,4 +4500,22 @@
 		<<set $beastMaleChanceSplit to "f">>
 	<</if>>
 
+	<<if $forcedcrossdressingdisable is undefined>>
+		<<set $forcedcrossdressingdisable to "f">>
+	<</if>>
+
+	<!-- V0.4.0.9 $currentFurnishing should not be a story variable, and no story variables should be (or include) functions -->
+	<<if $currentFurnishing>>
+		<<unset $currentFurnishing>>
+		<<run State.history.forEach(s => delete s.variables.currentFurnishing)>>
+	<</if>>
+
+	<!-- V0.4.1.1 Fixed for some wolves having "human" sperm -->
+	<<if !$objectVersion.pregnancyFix>>
+		<<physicalAdjustmentsInit>>
+	<</if>>
+
+	<<if $speech_attitude is undefined>>
+		<<set $speech_attitude to "neutral">>
+	<</if>>
 <</widget>>

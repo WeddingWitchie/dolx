@@ -277,8 +277,11 @@ You follow along with the troubleshooting guide in the manual, running through t
         <br><br>
 <</switch>>
 
-<<if $rng gte 81>>
-    You turn it on just to make sure. There's 
+<<cleareventpool>>
+
+<<addinlineevent "tech_support_normal" 4>>
+
+	You turn it on just to make sure. There's 
     <<switch random(1,4)>>
         <<case 1>>
             a news broadcast
@@ -294,8 +297,11 @@ You follow along with the troubleshooting guide in the manual, running through t
 
     <<link [[Next|Domus Tech Support Normal]]>><</link>>
 
-<<else>>
-    <<if $awareness gte 200>>
+<</addinlineevent>>
+
+<<addinlineevent "tech_support_lewd" 1>>
+
+	<<if $awareness gte 200>>
         You turn it on just to make sure. There's hardcore pornography playing on the channel it was set to previously.<<garousal>><<gtrauma>><<arousal 600>><<trauma 1>>
         <br><br>
     <<else>>
@@ -305,7 +311,8 @@ You follow along with the troubleshooting guide in the manual, running through t
 
     <<link [[Next|Domus Tech Support Lewd]]>><</link>>
 
-<</if>>
+<</addinlineevent>>
+<<runeventpool>>
 
 :: Domus Tech Support Normal
 <<effects>>
@@ -335,7 +342,7 @@ The <<person1>><<person>> freezes. <<He>> looks absolutely horrified.
 <br><br>
 <<if $seductionskill lt 1000>><span class="gold">You feel more confident in your powers of seduction.</span><</if>><<seductionskilluse>>
 
-You walk over in front of the <<person1>><<person>> and kneel down, head between <<his>> legs, attempting to emulate the people on the television.
+You walk over in front of the <<person1>><<person>> and kneel down, head between <<his>> legs, attempting to emulate the <<if $player.gender_appearance is "m">>man<<else>>woman<</if>> on the television.
 <br><br>
 
 <<if $seductionrating gte $seductionrequired>>
@@ -394,23 +401,26 @@ You walk over in front of the <<person1>><<person>> and kneel down, head between
     <<endcombat>>
     <<clotheson>>
     
-    <<link [[Next|Domus Street]]>><</link>>
+    <<link [[Next|Domus Street]]>><<pass 15>><</link>>
 
 <<elseif $enemyarousal gte $enemyarousalmax and $consensual is 0>>
     <<ejaculation>>
+	<<He>> hauls you to your feet and drags you to the door. "You're a strange one, you know that? Going into a stranger's house, asking <<him>> to fuck you, then begging <<him>> to stop once <<he>> does. You're lucky I'm not the kind of person to take further advantage."
+	<br><br>
+
     You're shoved out the door. It slams shut behind you.
     <br><br>
 
     <<endcombat>>
     <<clotheson>>
 
-    <<link [[Next|Domus Street]]>><</link>>
+    <<link [[Next|Domus Street]]>><<pass 15>><</link>>
 
 <<elseif $finish is 1>>
     <<He>> frowns. "Oh. I thought you wanted to..."
     <br><br>
 
-    <He>> bolts to his feet. "S-sorry! Thanks for fixing the TV," <<he>> says, hurriedly escorting you out. A wad of bills is shoved into your hand as you're practically pushed out the door.
+    <<He>> bolts to his feet. "S-sorry! Thanks for fixing the TV," <<he>> says, hurriedly escorting you out. A wad of bills is shoved into your hand as you're practically pushed out the door.
     <br><br>
 
     You've made <<moneyGain 10>>.
@@ -418,7 +428,7 @@ You walk over in front of the <<person1>><<person>> and kneel down, head between
     <<endcombat>>
     <<clotheson>>
 
-    <<link [[Next|Domus Street]]>><</link>>
+    <<link [[Next|Domus Street]]>><<pass 15>><</link>>
 
 <<elseif $enemyhealth lte 0>>
     <<He>> stumbles backwards over the coffee table, and you take the chance to run for the front door. The <<person1>><<person>> doesn't follow you, thankfully.
@@ -427,7 +437,7 @@ You walk over in front of the <<person1>><<person>> and kneel down, head between
     <<endcombat>>
     <<clotheson>>
 
-    <<link [[Next|Domus Street]]>><</link>>
+    <<link [[Next|Domus Street]]>><<pass 15>><</link>>
 
 <</if>>
 
@@ -585,7 +595,7 @@ You've made <<moneyGain 15>>.
 		You are not lewd enough to pose nude.
 		<br>
 	<<elseif playerChastity()>>
-		You cannot go nude while wearing $worn.genitals.name.
+		You cannot go nude while wearing a $worn.genitals.name.
 		<br>
 	<<else>>
 		<<link [[Accept and go nude (2:00)|Domus Model]]>><</link>>
@@ -661,9 +671,10 @@ You climb a ladder to reach the rooftop, and get to work clearing moss.
 		<<if $worn.under_lower.type.includes("naked")>>
 			"You're a lewd thing to be clambering around with no underwear."
 		<<elseif playerChastity()>>
-			"Nice $worn.under_lower.name, who has the key?"
+			"Nice $worn.genitals.name, who has the key?"
 		<<else>>
-			"You have nice pair of $worn.under_lower.name there."
+			<<set $worn.under_lower.name_simple to setup.clothes.under_lower[clothesIndex('under_lower', $worn.under_lower)].name_simple>>
+			"You've got <<print ($worn.under_lower.plural is 1 ? "some" : "a")>> nice $worn.under_lower.name_simple there."
 		<</if>>
 		<<He>> laughs and walks back inside.
 		<br><br>
@@ -674,7 +685,7 @@ You climb a ladder to reach the rooftop, and get to work clearing moss.
 
 		"Here's the deal," <<he>> says. "I'll let you delete these pictures, and in return I get to know you more intimately.
 
-		<<if $worn.under_lower.vagina_exposed is 1>>
+		<<if !playerChastity() and $worn.under_lower.vagina_exposed is 1>>
 			<<if $player.gender is "h">>
 				You don't want people knowing you have both sets of gear, do you?"
 			<<elseif $player.gender_appearance isnot $player.gender>>
@@ -1351,9 +1362,9 @@ You enter a lavish antechamber as a <<person1>><<person>> descends a staircase. 
 		"I'm coming!" you hear a <<person>> shout as <<he>> runs down the road. <<He>> leans against the gate and stares wide-eyed at you.
 		<br><br>
 
-		<<if $submissive lte 850>>
+		<<if $speech_attitude is "bratty">>
 			"Stop staring idiot, get this <<beasttype>> off me," you say.
-		<<elseif $submissive gte 1150>>
+		<<elseif $speech_attitude is "meek">>
 			"H-help me. I don't wanna be a doggy bitch," you say.
 		<<else>>
 			"Please help," you say.
@@ -1366,9 +1377,9 @@ You enter a lavish antechamber as a <<person1>><<person>> descends a staircase. 
 		<</if>>
 		<<tearful>> you struggle to your feet.
 
-		<<if $submissive lte 850>>
+		<<if $speech_attitude is "bratty">>
 			"Don't you dare tell anyone about this," you say.
-		<<elseif $submissive gte 1150>>
+		<<elseif $speech_attitude is "meek">>
 			"Don't let anyone know," you mumble, staring at your feet.
 		<<else>>
 			"Please don't tell anyone," you say.
@@ -1384,9 +1395,9 @@ You enter a lavish antechamber as a <<person1>><<person>> descends a staircase. 
 		You feel <<his>> eyes bore into your <<lewdness>> as <<he>> opens the gate.
 		<br><br>
 
-		<<if $submissive lte 850>>
+		<<if $speech_attitude is "bratty">>
 			"Stop staring idiot, get this <<beasttype 0>> off me," you say.
-		<<elseif $submissive gte 1150>>
+		<<elseif $speech_attitude is "meek">>
 			"H-help me," you say.
 		<<else>>
 			"Please help," you say.
@@ -1399,9 +1410,9 @@ You enter a lavish antechamber as a <<person1>><<person>> descends a staircase. 
 		<</if>>
 		<<tearful>> you struggle to your feet.
 
-		<<if $submissive lte 850>>
+		<<if $speech_attitude is "bratty">>
 			"I said stop staring!" you say, face reddening.
-		<<elseif $submissive gte 1150>>
+		<<elseif $speech_attitude is "meek">>
 			"Please don't look," you say.
 		<<else>>
 			You cover yourself to escape <<his>> gaze.
@@ -1415,9 +1426,9 @@ You enter a lavish antechamber as a <<person1>><<person>> descends a staircase. 
 		"I'm coming!" you hear a <<person>> shout as <<he>> runs down the road. <<He>> leans against the gate and stares wide-eyed at you.
 		<br><br>
 
-		<<if $submissive lte 850>>
+		<<if $speech_attitude is "bratty">>
 			"Stop staring idiot, get this <<beasttype 0>> off me," you say.
-		<<elseif $submissive gte 1150>>
+		<<elseif $speech_attitude is "meek">>
 			"H-help me," you say.
 		<<else>>
 			"Please help," you say.
@@ -1427,9 +1438,9 @@ You enter a lavish antechamber as a <<person1>><<person>> descends a staircase. 
 		<<He>> breaks free from <<his>> stupor and grabs the <<beasttype 0>> by the collar. <<He>> hauls it away from you and shoos it back to its kennel. <<tearful>> you struggle to your feet. "Are you OK?" <<he>> enquires.
 		<br><br>
 
-		<<if $submissive lte 850>>
+		<<if $speech_attitude is "bratty">>
 			"Took you long enough," you say. Satisfied that <<his>> job is done, <<he>> leaves the premises.
-		<<elseif $submissive gte 1150>>
+		<<elseif $speech_attitude is "meek">>
 			"Yes, thank you," you say. Satisfied that <<his>> job is done, <<he>> leaves the premises.
 		<<else>>
 			"Yes thanks," you say. Satisfied that <<his>> job is done, <<he>> leaves the premises.
@@ -1476,9 +1487,9 @@ You enter a lavish antechamber as a <<person1>><<person>> descends a staircase. 
 	<<fameexhibitionism 5 "pic">>
 <</if>>
 <<def 1>>
-<<if $submissive lte 850>>
+<<if $speech_attitude is "bratty">>
 	"Go fuck yourself," you say, holding out your hand. "My money." <<He>> looks taken aback, but hands you what you're owed.
-<<elseif $submissive gte 1150>>
+<<elseif $speech_attitude is "meek">>
 	"N-no. I won't," you say. <<He>> shrugs.
 <<else>>
 	"I won't do what you want," you say, defiant. <<He>> sighs in disappointment.
@@ -1644,7 +1655,7 @@ The bathroom is <<print either("small","tiny","very clean")>>.
 		There's a fun mood in the room, and you enjoy flirting with the audience.
 		<<promiscuity2>>
 
-		The paintings produced are varied but mostly focus on your <<if pregnancyBellyVisible()>>belly, <</if>><<breasts>> and <<genitals>>.
+		The paintings produced are varied but mostly focus on your <<if playerBellyVisible()>>belly, <</if>><<breasts>> and <<genitals>>.
 		<<fameexhibitionism 10 "pic">><<famemodel 2 art>>
 	<<else>>
 		While they maintain the pretence that this is life-art, it's quite clear they just enjoy getting a
@@ -1690,7 +1701,7 @@ The bathroom is <<print either("small","tiny","very clean")>>.
 			<<else>>
 				"You're <<print either("pretty.","alright.","cute.","good-looking.","attractive.","an improvement.")>>
 			<</if>>
-			<<if pregnancyBellyVisible()>>No wonder you're pregnant.<</if>>
+			<<if playerBellyVisible()>>No wonder you're pregnant.<</if>>
 			Finally, someone I'll enjoy working with."
 			<br><br>
 		<<else>>
@@ -1789,7 +1800,7 @@ The bathroom is <<print either("small","tiny","very clean")>>.
 		<br><br>
 
 		Over the next couple of hours, the <<person>> theatrically whips and beats you, making a lot of noise but inflicting almost no pain.
-		<<if pregnancyBellyVisible()>>
+		<<if playerBellyVisible()>>
 			While being extra careful around your belly, <<he>>
 		<<else>>
 			<<He>>
@@ -1838,7 +1849,7 @@ The bathroom is <<print either("small","tiny","very clean")>>.
 		<br><br>
 
 		Over the next hour, the <<person>> theatrically whips and beats you, making a lot of noise but inflicting almost no pain.
-		<<if pregnancyBellyVisible()>>
+		<<if playerBellyVisible()>>
 			While being extra careful around your belly, <<he>>
 		<<else>>
 			<<He>>
@@ -2072,6 +2083,15 @@ You've made <<moneyGain 30>>.
 
 	<<link [[Next|Domus Model Pillory Wait]]>><</link>>
 	<br>
+<<else>>
+	The art group continue to paint excitedly.
+	<br><br>
+
+	<<endcombat>>
+	<<set $phase to 0>>
+
+	<<link [[Next|Domus Model Pillory Wait]]>><</link>>
+	<br>	
 <</if>>
 
 

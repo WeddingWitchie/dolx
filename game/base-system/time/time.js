@@ -1,7 +1,68 @@
+/*Time namespace
+	Use Time prefix when accessing any getters or functions (e.g. Time.second, Time.schoolDay, or Time.getLastDayOfMonth(), etc.)
+	Getters: (Most of these are being used in one way or another)
+	
+	Time.date - Returns Date object of current date.
+	
+	Time.holidayMonths - Returns array of all months that are considered holidays.
+
+	Time.second - Returns current number of seconds since last whole minute.
+
+	Time.minute - Returns current number of minutes since last whole hour.
+
+	Time.hour - Returns current hour of the day.
+
+	Time.weekDay - previously $weekday - Returns day of the week (1 being sunday, 7 being saturday)
+
+	Time.weekDayName - Returns the day of the week, with first letter in uppercase. (e.g. Monday)
+
+	Time.monthDay - Returns current date - (e.g. 12 if its the 12th)
+
+	Time.month - previously $month - Returns current month of the year (1 being january, 12 being december)
+
+	Time.monthName - Returns name of the current month, with first letter in uppercase. (e.g. January)
+
+	Time.year - Returns current year
+
+	Time.days - Returns total number of days since game start. (starts at 0)
+
+	Time.season - Previously $season - Returns string of current season (e.g. "winter")
+
+	Time.startDate - Returns Date object of start date
+
+	Time.tomorrow - Returns Date object of day after today
+
+	Time.yesterday - Returns Date object of day before today
+
+	Time.schoolTerm - Returns true if current day is during a school term, and false if a holiday.
+
+	Time.schoolDay - Returns true if current day is a school day, and false otherwise
+
+	Time.schoolTime - Returns true if current time is between 8-15 and is a school day
+
+	Time.dayState - previously $daystate - Returns string of day state (e.g. "dawn", or "day")
+
+	Time.nightState - previously $nightstate- Returns string of night state (e.g. "evening", or "morning")
+
+	Time.nextSchoolTermStartDate - Returns date object of the day when the next school term starts
+
+	Time.nextSchoolTermEndDate - Returns date object of the day when the current school term ends
+
+*/
+
 /* eslint-disable jsdoc/require-description-complete-sentence */
 /* eslint-disable no-undef */
 const Time = (() => {
-	const holidayMonths = [4, 8, 12];
+	const secondsPerDay = 86400;
+	const secondsPerHour = 3600;
+	const secondsPerMinute = 60;
+	const standardYearMonths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+	const leapYearMonths = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+	const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+	const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+	const holidayMonths = [4, 7, 8, 12];
+
 	let currentDate = {};
 
 	function set(timeStamp = V.timeStamp) {
@@ -75,13 +136,16 @@ const Time = (() => {
 
 	function nextSchoolTermEndDate(date) {
 		const newDate = new DateTime(date);
-		newDate.addMonths(holidayMonths.find(e => e > newDate.month) - newDate.month);
-		return newDate.getFirstWeekdayOfMonth(2).addDays(-3);
+		newDate.addMonths(holidayMonths.find(e => e >= newDate.month) - newDate.month);
+		return newDate.getFirstWeekdayOfMonth(2).addDays(-3).addHours(15);
 	}
 
 	function isSchoolTerm(date) {
-		const firstMonday = date.getFirstWeekdayOfMonth(2).day;
-		return !holidayMonths.some(month => (month === date.month && date.day >= firstMonday) || (month % 12 === date.month && date.day < firstMonday));
+		const firstMonday = date.getFirstWeekdayOfMonth(2);
+		const startOfHoliday = firstMonday.addDays(-2);
+		return !holidayMonths.some(
+			month => (month === date.month && date.day >= startOfHoliday.day) || (month % 12 === date.month && date.day < startOfHoliday.day)
+		);
 	}
 
 	function isSchoolDay(date) {
@@ -127,7 +191,7 @@ const Time = (() => {
 			return currentDate.year;
 		},
 		get days() {
-			return Math.floor((currentDate.timeStamp - this.startDate.timeStamp) / DateTime.secondsPerDay);
+			return Math.floor((currentDate.timeStamp - this.startDate.timeStamp) / Time.secondsPerDay);
 		},
 		get season() {
 			return this.month > 11 || this.month < 3 ? "winter" : this.month > 8 ? "autumn" : this.month > 5 ? "summer" : "spring";
@@ -179,6 +243,15 @@ const Time = (() => {
 		isSchoolTerm,
 		isSchoolDay,
 		isSchoolTime,
+
+		secondsPerDay,
+		secondsPerHour,
+		secondsPerMinute,
+		standardYearMonths,
+		leapYearMonths,
+		monthNames,
+		daysOfWeek,
+
 		getNextSchoolTermStartDate: nextSchoolTermStartDate,
 		getNextSchoolTermEndDate: nextSchoolTermEndDate,
 		getNextWeekdayDate: weekDay => currentDate.getNextWeekdayDate(weekDay),
@@ -261,7 +334,7 @@ function weekPassed() {
 		V.robineventnote = 1;
 	}
 	V.robinmoney += 300;
-
+	V.compoundcentre = 0;
 	if (V.edenfreedom >= 1 && V.edenshopping === 2) V.edenshopping = 0;
 	if (V.loft_kylar) V.loft_spray = 0;
 	if (V.farm) {
@@ -284,6 +357,10 @@ function weekPassed() {
 	if (V.nightmareTimer > 0) {
 		V.nightmareTimer--;
 		if (V.nightmareTimer <= 0) delete V.nightmareTimer;
+	}
+	if (V.brothelVending) {
+		if (V.brothelVending.condoms === 0 && V.brothelVending.lube === 0) V.brothelVending.weeksEmpty += 1;
+		V.brothelVending.weeksRent++;
 	}
 
 	delete V.weekly;
@@ -329,6 +406,11 @@ function dayPassed() {
 		}
 		V.brothelshowdata.done = false;
 	}
+
+	if (V.brothel_escortjob !== undefined && Time.date.timeStamp > V.brothel_escortjob.date){
+		V.brothel_escortjob.missed = true;
+	}
+
 	if (Time.weekDay === 2) {
 		delete V.museumhorse;
 		delete V.museumduck;
@@ -413,7 +495,6 @@ function dayPassed() {
 		fragment.append(wikifier("stray_happiness", -1));
 		V.pound.tasks = [];
 	}
-	if (V.renttime < 1) V.baileyOverdue++;
 	V.renttime--;
 
 	if (V.flashbacktown > 0) V.flashbacktown--;
@@ -519,6 +600,20 @@ function dayPassed() {
 		delete V.tentacle_forest_lurker;
 	}
 
+	if (V.brothelVending) {
+		const rng = random(Math.min(1, V.brothelVending.condoms), Math.min(10, V.brothelVending.condoms));
+		V.brothelVending.condoms -= rng;
+		V.brothelVending.condomsSold += rng;
+		V.brothelVending.total = (V.brothelVending.total || 0) + rng;
+	}
+
+	if (V.brothelVending) {
+		const rng = random(Math.min(1, V.brothelVending.lube), Math.min(10, V.brothelVending.lube));
+		V.brothelVending.lube -= rng;
+		V.brothelVending.lubeSold += rng;
+		V.brothelVending.total = (V.brothelVending.total || 0) + rng;
+	}
+
 	fragment.append(wikifier("menstruationCycle", "daily"));
 	pregnancyProgress();
 	pregnancyProgress("anus");
@@ -550,6 +645,19 @@ function dayPassed() {
 	if (Number.isInteger(V.challengetimer)) {
 		V.challengetimer--;
 		if (V.challengetimer < 0) delete V.challengetimer;
+	}
+
+	if (V.whitneyRescueStatus) {
+		V.whitneyRescueTimer = (V.whitneyRescueTimer || 8) - 1;
+		if (V.whitneyRescueTimer <= 0) {
+			if (V.whitneyRescueStatus === "humiliated") {
+				V.whitneyRescueStatus = "shaken";
+				V.whitneyRescueTimer = 14;
+			} else {
+				delete V.whitneyRescueTimer;
+				delete V.whitneyRescueStatus;
+			}
+		}
 	}
 
 	return fragment;

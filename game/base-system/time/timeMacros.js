@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 function timeAfterXHours(hours) {
 	const date = new DateTime(Time.date);
-	date.addSeconds(hours * DateTime.secondsPerHour);
+	date.addSeconds(hours * Time.secondsPerHour);
 	return ampm(date.hour, date.minute);
 }
 DefineMacroS("timeAfterXHours", timeAfterXHours);
@@ -49,16 +49,16 @@ Macro.add("passTimeUntil", {
 const secondsMapper = {
 	sec: 1,
 	seconds: 1,
-	min: DateTime.secondsPerMinute,
-	mins: DateTime.secondsPerMinute,
-	minute: DateTime.secondsPerMinute,
-	minutes: DateTime.secondsPerMinute,
-	hour: DateTime.secondsPerHour,
-	hours: DateTime.secondsPerHour,
-	day: DateTime.secondsPerDay,
-	days: DateTime.secondsPerDay,
-	week: DateTime.secondsPerDay * 7,
-	weeks: DateTime.secondsPerDay * 7,
+	min: Time.secondsPerMinute,
+	mins: Time.secondsPerMinute,
+	minute: Time.secondsPerMinute,
+	minutes: Time.secondsPerMinute,
+	hour: Time.secondsPerHour,
+	hours: Time.secondsPerHour,
+	day: Time.secondsPerDay,
+	days: Time.secondsPerDay,
+	week: Time.secondsPerDay * 7,
+	weeks: Time.secondsPerDay * 7,
 };
 
 /**
@@ -69,6 +69,7 @@ const secondsMapper = {
  * @returns {DocumentFragment} The fragment to render elements from.
  */
 function passTime(time = 0, type = "min") {
+	if (!Number.isInteger(time)) return Errors.report("Invalid time to pass: " + time, Utils.GetStack());
 	const multiplier = secondsMapper[type] || 1;
 	const fragment = Time.pass(time * multiplier);
 	return fragment;
@@ -110,10 +111,14 @@ Macro.add("clock", {
 function schoolTerm() {
 	if (Time.schoolTerm) {
 		const date = Time.nextSchoolTermEndDate;
-		return "School term finishes on " + date.weekDayName + " the " + ordinalSuffixOf(date.day) + " of " + date.monthName;
-	} else {
-		const date = Time.nextSchoolTermStartDate;
-		return "School term starts on " + date.weekDayName + " the " + ordinalSuffixOf(date.day) + " of " + date.monthName;
+		if (date.year === Time.year && date.month === Time.month && date.day === Time.monthDay) {
+			if (date.timeStamp > Time.date.timeStamp) return "School term finishes today.";
+		} else {
+			return "School term finishes on " + date.weekDayName + " the " + ordinalSuffixOf(date.day) + " of " + date.monthName;
+		}
 	}
+	const date = Time.nextSchoolTermStartDate;
+	return "School term starts on " + date.weekDayName + " the " + ordinalSuffixOf(date.day) + " of " + date.monthName;
 }
+
 DefineMacroS("schoolterm", schoolTerm);

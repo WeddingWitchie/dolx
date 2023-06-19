@@ -68,7 +68,7 @@ function playerBellySize(pregnancyOnly = false) {
 }
 window.playerBellySize = playerBellySize;
 
-function pregnancyBellyVisible(pregnancyOnly = false) {
+function playerBellyVisible(pregnancyOnly = false) {
 	const size = playerBellySize(pregnancyOnly);
 	if (size <= 7) return false;
 	if (size <= 12 && ((V.worn.upper.name !== "naked" && !V.worn.upper.type.includes("bellyShow")) || !V.worn.over_upper.type.includes("naked"))) return false;
@@ -76,7 +76,7 @@ function pregnancyBellyVisible(pregnancyOnly = false) {
 
 	return true;
 }
-window.pregnancyBellyVisible = pregnancyBellyVisible;
+window.playerBellyVisible = playerBellyVisible;
 
 function npcBellySize(npc) {
 	let bellySize = 0;
@@ -93,20 +93,21 @@ function npcBellySize(npc) {
 				maxSize += 20 + Math.clamp(pregnancy.fetus.length / 2, 1, 4);
 				break;
 		}
-		bellySize += pregnancyProgress * Math.clamp(maxSize, 0, 20);
+		// The '+ 5' inflates the pregnancy belly size, meaning that the early stages of pregnancy will have no belly size increase due to it being reduced by the '- 5'
+		bellySize += Math.clamp(pregnancyProgress * Math.clamp(maxSize + 5, 0, 24 + 5) - 5, 0, 24);
 	}
 
-	return Math.floor(Math.clamp(bellySize, 0, 20));
+	return Math.floor(Math.clamp(bellySize, 0, 24));
 }
 window.npcBellySize = npcBellySize;
 
-function npcPregnancyBellyVisible(npc) {
+function npcBellyVisible(npc) {
 	const size = npcBellySize(npc);
 	if (size <= 7) return false;
 
 	return true;
 }
-window.npcPregnancyBellyVisible = npcPregnancyBellyVisible;
+window.npcBellyVisible = npcBellyVisible;
 
 function npcIsPregnant(npc) {
 	return C.npc[npc] && C.npc[npc].pregnancy && C.npc[npc].pregnancy.enabled !== undefined && C.npc[npc].pregnancy.type;
@@ -164,6 +165,7 @@ window.playerNormalPregnancyType = playerNormalPregnancyType;
 function wakingPregnancyEvent() {
 	const pregnancy = getPregnancyObject();
 	if (!pregnancy.fetus || V.statFreeze) return false;
+	if ((!V.player.vaginaExist && playerNormalPregnancyTotal() === 0) || pregnancy.type === "parasite") return false;
 
 	const rng = random(0, 100);
 	const menstruation = V.sexStats.vagina.menstruation;
@@ -254,6 +256,7 @@ window.wakingPregnancyEvent = wakingPregnancyEvent;
 function dailyPregnancyEvent() {
 	const pregnancy = getPregnancyObject();
 	if (!pregnancy.fetus || V.statFreeze) return false;
+	if ((!V.player.vaginaExist && playerNormalPregnancyTotal() === 0) || pregnancy.type === "parasite") return false;
 
 	const rng = random(0, 100) + (V.daily.pregnancyEvent || 0);
 	const menstruation = V.sexStats.vagina.menstruation;
@@ -280,7 +283,8 @@ function dailyPregnancyEvent() {
 	} else if (
 		V.cycledisable === "f" &&
 		menstruation.currentState === "normal" &&
-		(menstruation.currentDay < 3 || (menstruation.currentDay >= menstruation.currentDaysMax - 1 && rng >= 80))
+		(menstruation.currentDay < 3 || (menstruation.currentDay >= menstruation.currentDaysMax - 1 && rng >= 80)) &&
+		menstruation.periodEnabled
 	) {
 		dailyEffects = "periodIssues";
 	}
@@ -513,9 +517,9 @@ function pregnancyDaysEta(pregnancyObject) {
 	const timerLeft = pregnancyObject.timerEnd - pregnancyObject.timer;
 	switch (pregnancyObject.type) {
 		case "human":
-			return Math.floor(timerLeft / (1 / ((1 / 9) * V.humanPregnancyMonths)));
+			return Math.floor(timerLeft / (9 / V.humanPregnancyMonths));
 		case "wolf":
-			return Math.floor(timerLeft / (1 / ((1 / 12) * V.wolfPregnancyWeeks)));
+			return Math.floor(timerLeft / (12 / V.wolfPregnancyWeeks));
 		default:
 			return null;
 	}
@@ -619,7 +623,7 @@ DefineMacro("setKnowsAboutPregnancy", setKnowsAboutPregnancy);
 
 function setKnowsAboutPregnancyCurrentLoaded() {
 	if (V.statFreeze) return null;
-	if (playerIsPregnant() && pregnancyBellyVisible(true)) {
+	if (playerIsPregnant() && playerBellyVisible(true)) {
 		V.NPCList.forEach(npc => {
 			if (V.NPCList.includes(npc.fullDescription)) setKnowsAboutPregnancy("pc", npc.fullDescription);
 		});
@@ -676,6 +680,21 @@ function knowsAboutPregnancyTotal(motherOrFather, whoToCheck, location) {
 	}, 0);
 }
 window.knowsAboutPregnancyTotal = knowsAboutPregnancyTotal;
+
+function knowsAboutAnyPregnancy(mother, whoToCheck) {
+	let whoToCheckConverted;
+	if (whoToCheck === "pc") {
+		whoToCheckConverted = whoToCheck;
+	} else if (V.NPCNameList.includes(whoToCheck)) {
+		whoToCheckConverted = V.NPCNameList.indexOf(whoToCheck);
+	} else {
+		return false;
+	}
+	return !!Object.entries(V.pregnancyStats.awareOfBirthId)
+		.filter(awareOf => awareOf[0].includes(mother))
+		.find(awareOf => awareOf.includes(whoToCheckConverted));
+}
+window.knowsAboutAnyPregnancy = knowsAboutAnyPregnancy;
 
 function knowsAboutChildrenTotal(motherOrFather, whoToCheck, location) {
 	let whoToCheckConverted;

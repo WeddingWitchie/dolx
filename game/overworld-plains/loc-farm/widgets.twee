@@ -565,14 +565,14 @@
 <<widget "farm_actions">>
 	<<farm_gen_all>>
 	<<set _actions to 0>>
-	<<if $farm_work.alex is "shower">>
+	<<if $farm_work.alex is "shower" and !$daily.farmAlexShowerSpy>>
 		<<set $skulduggerydifficulty to 700>>
 		<<ind>><<link [[Spy on Alex (0:20)|Farm Spy]]>><<pass 20>><</link>><<promiscuous1>><<skulduggerydifficulty>>
 		<br>
 	<</if>>
 	<<if Time.hour gte 6>>
 		<<if $farm_work.border lt 1>>
-			<<ind>><<link [[Investigate the perimeter (0:20)|Farm Border]]>><<farm_count 20>><<set $farm_work.border to 1>><<pass 20>><</link>><<run _actions++>>
+			<<investigateicon>><<link [[Investigate the perimeter (0:20)|Farm Border]]>><<farm_count 20>><<set $farm_work.border to 1>><<pass 20>><</link>><<run _actions++>>
 			<br>
 		<<elseif $farm_work.fence_damage gte 1>>
 			<<if $farm_work.alex is "fence_damage">>
@@ -585,7 +585,7 @@
 		<</if>>
 	<</if>>
 		<<if $farm_work.yard lt 1>>
-			<<ind>><<link [[Clear the yard (0:20)|Farm Yard]]>><<farm_count 20>><<set $farm_work.yard to 1>><<pass 20>><<tiredness 2>><</link>><<gtiredness>><<run _actions++>>
+			<<clearyardicon>><<link [[Clear the yard (0:20)|Farm Yard]]>><<farm_count 20>><<set $farm_work.yard to 1>><<pass 20>><<tiredness 2>><</link>><<gtiredness>><<run _actions++>>
 			<br>
 		<</if>>
 	<<if Time.hour gte 6>>
@@ -954,10 +954,11 @@
 	<<set $outside to 0>>
 	<<if $farm_work.cattle_need gte 1>>
 		<span class="purple">$farm_work.cattle_need</span> need milking.
+		<br>
 	<<else>>
 		<span class="teal">The cattle are satisfied.</span>
+		<br><br>
 	<</if>>
-	<br><br>
 
 	<<if Time.hour is 21 and $farm_end is undefined and $alex_to_bed isnot 1>>
 		<<set $farm_end to 1>>
@@ -987,7 +988,7 @@
 				<<set $cattle_milked += $farm_work.cattle_need>>
 			<</if>>
 		<</link>><<gtending>>
-		<br>
+		<br><br>
 	<!-- Modified for monster people -->
 
 		A <<beasttype>> gives you a strained moo.
@@ -1737,7 +1738,7 @@
 				<</if>>
 			<<else>>
 				<<generate1>><<generate2>><<generate3>><<person1>>
-				"Hey <<girl>>," says a voice. You look up, and see a <<person>> leering at you across the fence. "What's a cute<<if pregnancyBellyVisible() and $pregnancyspeechdisable is "f">> pregnant<</if>> <<girl>> like you doing working the fields?"
+				"Hey <<girl>>," says a voice. You look up, and see a <<person>> leering at you across the fence. "What's a cute<<if playerBellyVisible() and $pregnancyspeechdisable is "f">> pregnant<</if>> <<girl>> like you doing working the fields?"
 				<br><br>
 
 				<<if currentSkillValue('skulduggery') gte random(500, 700)>>
@@ -1773,7 +1774,7 @@
 				across the fence.
 			<</if>>
 
-			"What's a cute<<if pregnancyBellyVisible() and $pregnancyspeechdisable is "f">> pregnant<</if>> <<girl>> like you doing working the fields?"
+			"What's a cute<<if playerBellyVisible() and $pregnancyspeechdisable is "f">> pregnant<</if>> <<girl>> like you doing working the fields?"
 			<br><br>
 
 			<<link [[Ignore|Farm Tending Ignore]]>><<set $phase to 0>><</link>>
@@ -2318,9 +2319,9 @@
 		<br>
 	<<else>>
 		<<set $baileypaychain to 0>>
-		<<if $submissive gte 1150>>
+		<<if $speech_attitude is "meek">>
 			"I-I don't have the money," you tell Bailey. "Please don't hurt Alex."
-		<<elseif $submissive lte 850>>
+		<<elseif $speech_attitude is "bratty">>
 			"I don't have it," you tell Bailey. "And wouldn't give you a penny if I did."
 		<<else>>
 			"I don't have it," you tell Bailey. "You're wasting your time."

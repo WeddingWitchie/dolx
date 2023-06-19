@@ -189,7 +189,7 @@ Forth argument - item index*/
 		<br><br>
 			<<shopBuyItemStatus _wardrobeSlots>>
 			<<if _spaceLeft lt 1>>
-				<span class="blue">Your wardrobe is full.</span>
+				<span class="red">Your wardrobe is full.</span>
 				<br>
 			<<elseif Time.dayState is "night">>
 				<<if $clothingShop.stolenClothes lte 20>>
@@ -527,6 +527,25 @@ Forth argument - item index*/
 			<<set _clothesDesc to "Reveals what cannot be.">>
 		<<case "unstealthy">>
 			<<set _clothesDesc to "Makes it more difficult to hide.">>
+		/*Hairstyle Traits*/	
+		<<case "loose">>
+			<<set _clothesDesc to "Hair that falls loosely around your face. Grows to be long.">>
+		<<case "short">>
+			<<set _clothesDesc to "Hair that looks short when styled, even when your hair has grown long.">>
+		<<case "curly">>
+			<<set _clothesDesc to "Curly hair.">>
+		<<case "sleek">>
+			<<set _clothesDesc to "Straight hair.">>
+		<<case "wavy">>
+			<<set _clothesDesc to "Not quite curly, not quite straight.">>
+		<<case "pigtails">>
+			<<set _clothesDesc to "Two bunches of hair that hang on either side of the head.">>
+		<<case "buns">>
+			<<set _clothesDesc to "Hair that has been coiled around itself and secured in place.">>
+		<<case "braids">>
+			<<set _clothesDesc to "Interwoven strands of hair. Includes styles that aren't technically braids, such as dreadlocks.">>
+		<<case "ponytail">>
+			<<set _clothesDesc to "Hair gathered at the back of the head.">>			
 		<<default>>
 			<<set $noTraitDescription to 1>>
 	<</switch>>
@@ -607,7 +626,7 @@ Forth argument - item index*/
 	<<addclass #shopDefault "hidden">>
 <</widget>>
 
-<<widget "shopClothingFilterSettings">>
+<<widget "shopClothingFilterSettingsDefault">>
 	<<if $shopClothingFilter is undefined>>
 		<<set $shopClothingFilter to {
 			gender: "none",
@@ -635,6 +654,9 @@ Forth argument - item index*/
 		<<unset $shopClothingFilterGender>>
 		<<unset $clothingTraitTypes>>
 	<</if>>
+<</widget>>
+
+<<widget "shopClothingFilterSettings">>
 	<br>
 	<b>Gender:</b>
 	<<listbox "$shopClothingFilter.gender" autoselect>>
@@ -879,7 +901,7 @@ Forth argument - item index*/
 						<<set _undamagedCount++>>
 						<<if _returnWardrobe[_args[0][0]][_j].outfitPrimary isnot undefined>>
 							<<for _valueShop range _returnWardrobe[_args[0][0]][_j].outfitPrimary>>
-								<<if _valueShop is "broken">>
+								<<if _valueShop is "broken" or _valueShop is "split">>
 									<<set _damagedCount++>>
 									<<set _undamagedCount-->>
 									<<break>>

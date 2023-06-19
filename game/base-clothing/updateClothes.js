@@ -30,6 +30,9 @@ function updateClothingColours(item, itemRef) {
 		case "glasses":
 			if (item.colour === 0) item.colour = "silver";
 			break;
+		case "lace choker":
+			if (item.colour === 0) item.colour = "black";
+			break;
 		default:
 			// Catch-all case if people forget to adjust this widget for whatever clothing item is updated. Can make weird looking clothes if "custom" is selected.
 			if (item.colour === 0) item.colour = itemRef.colour_options.random();
@@ -104,10 +107,10 @@ function updateClothesItem(slot, item, debug) {
 				if (item.outfitPrimary === undefined) item.outfitPrimary = clone(itemRef.outfitPrimary);
 				for (const k in itemRef.outfitPrimary) {
 					// if one_piece is broken, everything is broken
-					if (item.one_piece === "broken") item.outfitPrimary[k] = "broken";
+					if (item.one_piece === "broken" || item.one_piece === "split") item.outfitPrimary[k] = item.one_piece;
 					else if (k === "head" && item.hoodposition === "down") delete item.outfitPrimary[k];
 					// if an item is still in one piece, it's safe to regenerate it's value from itemRef
-					else if (item.outfitPrimary[k] !== "broken") item.outfitPrimary[k] = clone(itemRef.outfitPrimary[k]);
+					else if (item.outfitPrimary[k] !== "broken" && item.outfitPrimary[k] !== "split") item.outfitPrimary[k] = clone(itemRef.outfitPrimary[k]);
 				}
 			}
 			continue;
@@ -115,7 +118,7 @@ function updateClothesItem(slot, item, debug) {
 		if (key === "outfitSecondary") {
 			if (itemRef[key] !== undefined) {
 				if (item[key] === undefined) item[key] = clone(itemRef[key]);
-				if (item.one_piece === "broken") item[key][1] = "broken";
+				if (item.one_piece === "broken" || item.one_piece === "split") item[key][1] = item.one_piece;
 			}
 			continue;
 		}

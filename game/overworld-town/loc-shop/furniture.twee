@@ -62,7 +62,7 @@ You approach the paperhangings corner. Samples of pre-made posters and wallpaper
 	"Puppy"		: "puppy"
 }>>
 
-<<set _posterCost to Furniture.get('poster', true).cost()>>
+<<set _posterCost to Furniture.setPrice(Furniture.get('poster', true).cost)>>
 <<if Time.dayState is "night" and Time.hour isnot 21 and !$weekly.theft.furnitureShop>>
 	<<listbox "_chosenPoster" autoselect>>
 		<<optionsfrom _availablePosters>>
@@ -126,7 +126,7 @@ You approach the paperhangings corner. Samples of pre-made posters and wallpaper
 	"Crosses"		: "crosses"
 }>>
 
-<<set _wallpaperCost to Furniture.get('wallpaper', true).cost()>>
+<<set _wallpaperCost to Furniture.setPrice(Furniture.get('wallpaper', true).cost)>>
 <<if Time.dayState is "night" and Time.hour isnot 21 and !$weekly.theft.furnitureShop>>
 	<<listbox "_chosenWallpaper" autoselect>>
 		<<optionsfrom _availableWallpapers>>
@@ -213,13 +213,15 @@ You approach the paperhangings corner. Samples of pre-made posters and wallpaper
 		<<case "table">>
 			You browse the tables. They're huge, but some of the corner tables might fit in your room.
 		<<case "chair">>
-			You browse the chairs. A pair could fit in your room, if you find a small enough table.
+			You browse the chairs. You could replace your desk chair and squeeze a second one in your room, alongside a small table.
 		<<case "wardrobe">>
 			You browse the wardrobes. Some are near-identical to your old wardrobe in size.
 		<<case "decoration">>
 			You browse the decorations. You struggle to find anything suitable for your room.
 		<<case "windowsill">>
 			You browse the miscellaneous goods. Odds and ends of dubious utility line the page.
+		<<case "desk">>
+			You browse the desks. A few appear to be small enough to replace your old desk.
 		<<default>>
 			/* Do nothing */
 	<</switch>>
@@ -238,6 +240,7 @@ You approach the paperhangings corner. Samples of pre-made posters and wallpaper
 		{ id: 'bed', label: 'Bed' },
 		{ id: 'table', label: 'Table' },
 		{ id: 'chair', label: 'Chairs' },
+		{ id: 'desk', label: 'Desks'},
 		{ id: 'wardrobe', label: 'Wardrobe' },
 		{ id: 'decoration', label: 'Decorations' },
 		{ id: 'windowsill', label: 'Miscellaneous' }
@@ -254,19 +257,28 @@ You approach the paperhangings corner. Samples of pre-made posters and wallpaper
 
 <<widget "furnitureList">>
 	<<set $currentFurnishing to Furniture.get($chosenFurnitureCategory)>>
-	Currently installed in your bedroom:
+	<<if $chosenFurnitureCategory is "desk" and $currentFurnishing is null>>
+		<<set $currentFurnishing to Furniture.set('desk','desk')>>
+	<</if>>	
+Currently installed in your bedroom:
 	<<if $currentFurnishing>>
 		<<furnitureicon $currentFurnishing.iconFile>>
 		$currentFurnishing.nameCap
 		<a onclick="document.getElementById('furnitureDetails').classList.toggle('hidden')">Extra Info</a>
 		<div id="furnitureDetails" class="hidden">
 			$currentFurnishing.description
-			<<if $currentFurnishing.type && $currentFurnishing.category.includes("wardrobe") && $currentFurnishing.type.includesAny('comfy','double','starter','spacious','organiser')>>
+			<<if $currentFurnishing.type && $currentFurnishing.type.includesAny('comfy','double','starter','spacious','organiser')>>
 				<br>
-				<<if $currentFurnishing.type.includes('starter')>><br>Can hold 20 of each item type.<</if>>
+				<<if $currentFurnishing.type.includes('starter') and $chosenFurnitureCategory is 'wardrobe'>><br>Can hold 20 of each item type.<</if>>
 				<<if $currentFurnishing.type.includes('spacious')>><br>Can hold 30 of each item type.<</if>>
 				<<if $currentFurnishing.type.includes('organiser')>><br>Can hold 40 of each item type.<</if>>
-				<<if $currentFurnishing.type.includes('comfy')>><br>Improves sleep quality.<</if>>
+				<<if $currentFurnishing.type.includes('comfy')>>
+					<<if $chosenFurnitureCategory is 'bed'>>
+						<br>Improves sleep quality.
+					<<else>>
+						<br>Makes working on projects at your desk more effective.
+					<</if>>
+				<</if>>	
 				<<if $currentFurnishing.type.includes('double')>><br>Has enough space for a proper sleepover.<</if>>
 			<</if>>
 		</div>
@@ -291,7 +303,7 @@ You approach the paperhangings corner. Samples of pre-made posters and wallpaper
 		<<set $_isInCategory to $_furnishing.category.includes($chosenFurnitureCategory)>>
 		<<set $_isDefault to $_furnishing.type.includes('starter')>>
 		<<set $_isCurrent to !(!$currentFurnishing or $_key isnot $currentFurnishing.id)>>
-		<<set $_isShowing to $_furnishing.hasOwnProperty('showFn') ? $_furnishing.showFn() : true>>
+		<<set $_isShowing to $_furnishing.showCheck ? Furniture.showFn($_furnishing) : true>>
 		<<if $_isInCategory and !$_isDefault and !$_isCurrent and $_isShowing>>
 			<div class="furnitureBlock no-numberify">
 				<<furnitureicon $_furnishing.iconFile>> $_furnishing.nameCap |
@@ -302,18 +314,24 @@ You approach the paperhangings corner. Samples of pre-made posters and wallpaper
 					<<if $_furnishing.type.includes('spacious')>> Spacious | <</if>>
 					<<if $_furnishing.type.includes('organiser')>> Organiser | <</if>>
 				<</if>>
-				<<set $_cost to $_furnishing.cost()>>
+				<<set $_cost to Furniture.setPrice($_furnishing.cost)>>
 				<<set $_name to $_furnishing.name>>
 				<<if $_furnishing.description>>
 					<<capture $_name>>
 						<mouse class="tooltip linkBlue">(?)<span>
 							$_furnishing.description
-							<<if $_furnishing.type && $_furnishing.category.includes("wardrobe") && $_furnishing.type.includesAny('comfy','double','starter','spacious','organiser')>>
+							<<if $_furnishing.type && $_furnishing.type.includesAny('comfy','double','starter','spacious','organiser')>>
 								<br>
 								<<if $_furnishing.type.includes('starter')>><br>Can hold 20 of each item type.<</if>>
 								<<if $_furnishing.type.includes('spacious')>><br>Can hold 30 of each item type.<</if>>
 								<<if $_furnishing.type.includes('organiser')>><br>Can hold 40 of each item type.<</if>>
-								<<if $_furnishing.type.includes('comfy')>><br>Improves sleep quality.<</if>>
+								<<if $_furnishing.type.includes('comfy')>>
+									<<if $chosenFurnitureCategory is 'bed'>>
+										<br>Improves sleep quality.
+									<<else>>
+										<br>Makes studying at your desk more effective.
+									<</if>>
+								<</if>>	
 								<<if $_furnishing.type.includes('double')>><br>Has enough space for a proper sleepover.<</if>>
 							<</if>>
 						</span></mouse> |
@@ -330,7 +348,6 @@ You approach the paperhangings corner. Samples of pre-made posters and wallpaper
 									nameCap: $_furnishing.nameCap,
 									iconFile: $_furnishing.iconFile,
 									type: $_furnishing.type,
-									category: $_furnishing.category,
 								}>>
 							<<else>>
 								<<set $money -= $_cost>>
@@ -351,7 +368,7 @@ You approach the paperhangings corner. Samples of pre-made posters and wallpaper
 <<widget "furnitureDowngrade">>
 	<<furnitureicon $furnitureDowngrade.iconFile>>
 	<<print $furnitureDowngrade.nameCap>>
-	<<if $furnitureDowngrade.type && $furnitureDowngrade.category.includes("wardrobe") && $furnitureDowngrade.type.includesAny('comfy','double','starter','spacious','organiser')>>
+	<<if $furnitureDowngrade.type && $furnitureDowngrade.type.includesAny('comfy','double','starter','spacious','organiser')>>
 		<<if $furnitureDowngrade.type.includes('starter')>><br>Can hold 20 of each item type.<</if>>
 		<<if $furnitureDowngrade.type.includes('spacious')>><br>Can hold 30 of each item type.<</if>>
 		<<if $furnitureDowngrade.type.includes('organiser')>><br>Can hold 40 of each item type.<</if>>

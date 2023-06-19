@@ -717,6 +717,7 @@ setup.feats = {
 		filter: ["All", "Pregnancy"],
 		hint: "Hint: Gained something but not at the cost of something else.",
 		pregnancyLockable: true,
+		pregnancySillyLockable: true,
 	},
 	"Bicycle Mother": {
 		title: "Bicycle Mother",
@@ -1547,6 +1548,14 @@ setup.feats = {
 		series: "Adult Shop",
 		filter: ["All", "Discoveries"],
 		hint: "Hint: Is it worth opening the toybox?",
+	},
+	"Brothel Provider": {
+		title: "Brothel Provider",
+		desc: "Installed a vending machine to sell products at a profit.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Discoveries"],
+		hint: "Hint: Convince Briar to do business.",
 	},
 	"Opened Pandoras Cocks": {
 		title: "Opened Pandora's Cocks",

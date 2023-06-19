@@ -1570,7 +1570,7 @@
 				<<if $enemyanger lte 20>>
 					<<if $enemyarousal gte ($enemyarousalmax / 5) * 4>>
 						<<He>> is lost in the moment. "I'm gonna fill you up soon, I hope you're ready!"
-					<<elseif pregnancyBellyVisible() and $pregnancyspeechdisable is "f">>
+					<<elseif playerBellyVisible() and $pregnancyspeechdisable is "f">>
 						"For a bred bitch, you're still pretty tight."
 						<<insecurity "pregnancy" 2>><<ginsecurity "pregnancy">>
 					<<elseif $enemyarousal gte ($enemyarousalmax / 5) * 2>>
@@ -1581,7 +1581,7 @@
 				<<elseif $enemyanger lte 100>>
 					<<if $enemyarousal gte ($enemyarousalmax / 5) * 4>>
 						<<He>> is lost in the moment. "That's it! Take it, whore!"
-					<<elseif pregnancyBellyVisible() and $pregnancyspeechdisable is "f">>
+					<<elseif playerBellyVisible() and $pregnancyspeechdisable is "f">>
 						"The more you struggle, the rougher I get, and that can't be good for the little brat, now can it?"
 						<<insecurity "pregnancy" 2>><<ginsecurity "pregnancy">>
 					<<elseif $enemyarousal gte ($enemyarousalmax / 5) * 2>>
@@ -1836,7 +1836,7 @@
 					][random(0,1)]>>
 				<</if>>
 			<<else>>
-				<<if pregnancyBellyVisible() and $pregnancyspeechdisable is "f">>
+				<<if playerBellyVisible() and $pregnancyspeechdisable is "f">>
 					"Maybe if you're lucky, when that brat is born, I'll come and put one of my own in ya."
 				<<elseif $enemyanger lte 60>>
 					<<print [
@@ -1954,7 +1954,7 @@
 					"I'm an inch away from taking your anal virginity, bitch."
 				<</if>>
 			<<else>>
-				<<if pregnancyBellyVisible() and $pregnancyspeechdisable is "f">>
+				<<if playerBellyVisible() and $pregnancyspeechdisable is "f">>
 					"Don't worry, I'll put it up your ass instead to keep the kid safe."
 				<<elseif $enemyanger lte 60>>
 					"Just having the tip pressing against you like this is driving me mad!"
@@ -4534,7 +4534,7 @@
 				<<default>>
 					<<if $tentacletrait is 1 and random(1,5) is 1>>
 						<<He>> grins. "I can see it in your eyes. You've been dying for this, haven't you?" <<He>> leans in to whisper in your ear. "Someone like me, filling your every hole with my vines.
-						<<if $submissive lte 850>>
+						<<if $speech_attitude is "bratty">>
 							Let me fulfill that wish, little <span class="lewd">witch</span>."
 						<<else>>
 							Turning you into my <span class="lewd">prey</span>."
@@ -4612,6 +4612,8 @@
 			<<elseif $speechanusvirgin is 1 and $player.virginity.anal is _args[0]>>
 				<<if $player.vaginaExist and $pregnancyspeechdisable is "f">>
 					<<set $_text_output to `<<He>> gasps. "We can't make babies this way, but I just couldn't resist you."`>>
+				<<elseif !$player.vaginaExist and _kylar.gender is "m" and knowsAboutAnyPregnancy("pc","Kylar") and $pregnancyspeechdisable is "f">>
+					<<set $_text_output to `<<He>> gasps. "Is this how you got pregnant before? But you were still a virgin!"`>>
 				<<else>>
 					<<set $_text_output to `<<He>> gasps. "Every part of you, the deepest part of you. I wanna feel it all!"`>>
 				<</if>>
@@ -4629,9 +4631,17 @@
 					<<set $_text_output to `<<He>> gasps. "I can make you pregnant. I'd given up on making a family, but..." <<He>> starts to cry. "I can make you pregnant...!"`>>
 				<</if>>
 			<<elseif $speechcrossdressdisappointed is 1>>
-				<<set $_text_output to `<<He>> sighs. "Oh. I thought you were..." <<He>> shakes <<his>> head. "I-it's okay. We can always adopt."`>>
+				<<if !$player.vaginaExist and knowsAboutAnyPregnancy("pc","Kylar")>>
+					<<set $_text_output to `<<He>> sighs. "Oh. I thought you were..." <<He>> suddenly looks excited. "But weren't you pregnant before? Hmm, there's still a chance then."`>>
+				<<else>>
+					<<set $_text_output to `<<He>> sighs. "Oh. I thought you were..." <<He>> shakes <<his>> head. "I-it's okay. We can always adopt."`>>
+				<</if>>
 			<<elseif $speechhermaroused is 1>>
-				<<set $_text_output to `<<He>> gasps. "You have both...? I didn't think you could get any more perfect..."`>>
+				<<if _kylar.gender is "h" and $pregnancyspeechdisable is "f">>
+					<<set $_text_output to `<<He>> gasps. "You have both...? Just like me...? We could make so many children...perfection..."`>>
+				<<else>>
+					<<set $_text_output to `<<He>> gasps. "You have both...? I didn't think you could get any more perfect..."`>>
+				<</if>>
 			<<elseif $speechnamedrop is 1>>
 				<<set $speechnamedrop to 0>>
 				<<if _loveInterest is "Black Wolf" or _loveInterest is "Great Hawk">>
@@ -4666,7 +4676,7 @@
 				<<set $kylarsexcycle to $kylarsexcycle or 0>>
 				<<switch $kylarsexcycle>>
 					<<case 0>>
-						<<if $pregnancyspeechdisable is "f" and playerCanBreedWith("Kylar")>>
+						<<if $pregnancyspeechdisable is "f" and (playerCanBreedWith("Kylar") or (!$genderknown.includes("Kylar") and $player.gender_appearance is "f"))>>
 							<<set $_text_output to `<<He>> whispers into your ear. "We're going to make lots of babies."`>>
 						<<else>>
 							<<set $_text_output to `"We're going to adopt lots of babies," <<he>> says.`>>

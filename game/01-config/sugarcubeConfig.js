@@ -10,7 +10,7 @@ window.onLoadUpdateCheck = false;
 
 let pageLoading = false;
 
-Save.onLoad.add(save => {
+function onLoad(save) {
 	pageLoading = true;
 	window.onLoadUpdateCheck = true;
 
@@ -30,21 +30,28 @@ Save.onLoad.add(save => {
 		h.variables.saveDetails = defaultSaveDetails(h.variables.saveDetails);
 		h.variables.saveDetails.loadTime = new Date();
 	});
-});
+}
+window.onLoad = onLoad;
+Save.onLoad.add(onLoad);
 
-Save.onSave.add(save => {
+function onSave(save) {
 	Wikifier.wikifyEval("<<updateFeats>>");
 	save.state.history.forEach(h => {
 		h.variables.saveDetails = defaultSaveDetails(h.variables.saveDetails);
 		h.variables.saveDetails.playTime += h.variables.saveDetails.loadTime ? new Date() - h.variables.saveDetails.loadTime : 0;
 		h.variables.saveDetails.loadCount++;
 	});
-	// eslint-disable-next-line no-undef
-	prepareSaveDetails(); // defined in save.js
+	// don't run legacy code when idb is active
+	if (!(window.idb && window.idb.active)) {
+		// eslint-disable-next-line no-undef
+		prepareSaveDetails(); // defined in save.js
 
-	// compression should be the LAST save modification
-	DoLSave.compressIfNeeded(save);
-});
+		// compression should be the LAST save modification
+		DoLSave.compressIfNeeded(save);
+	}
+}
+window.onSave = onSave;
+Save.onSave.add(onSave);
 
 /* LinkNumberify and images will enable or disable the feature completely */
 /* debug will enable or disable the feature only for new games */
@@ -54,7 +61,7 @@ window.StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.4.0.9",
+	version: "0.4.1.4",
 	versionName: "",
 	sneaky: false,
 };
@@ -429,6 +436,13 @@ Config.navigation.override = function (dest) {
 			case "Robin Forest Witch Compliment":
 			case "Robin Forest Witch Buy":
 				return "Robin Forest Costume Intro"; /* Send the player back to the start, they won't mind. */
+
+			case "Trash Compare Breasts Refuse":
+			case "Trash Compare Penis Refuse":
+				return "Trash Compare Show Refuse";
+			case "Trash Compare Penis Secret":
+			case "Trash Compare Breast Secret":
+				return "Trash Compare Secret";
 
 			default:
 				return false;

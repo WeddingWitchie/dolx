@@ -153,7 +153,7 @@
 	You round a corner, and almost walk right into a <<generate1>><<person1>><<person>>.
 	<br><br>
 
-	<<if playerIsPregnant() and playerAwareTheyArePregnant() and pregnancyBellyVisible() and $rng gte 70>>
+	<<if playerIsPregnant() and playerAwareTheyArePregnant() and playerBellyVisible() and $rng gte 70>>
 		<<He>> apologises profusely before noticing your baby bump.
 		<<if $NPCList[0].pronoun is "f">> 
 			<<He>> ends up talking your ear off about <<his>> own pregnancy. A particularly graphic explanation of <<his>> experience giving birth leaves you feeling ill, and you politely excuse yourself.
@@ -477,7 +477,7 @@
 	This close to their goal, the attackers are distracted and vulnerable.
 	<br><br>
 
-	<<link [[Watch|StreetEx4]]>><<set $phase to 0>><</link>><<gtrauma>><<if $submissive gte 1150>><<garousal>><<else>><<gstress>><</if>>
+	<<link [[Watch|StreetEx4]]>><<set $phase to 0>><</link>><<gtrauma>><<if $speech_attitude is "meek">><<garousal>><<else>><<gstress>><</if>>
 	<br>
 	<<link [[Stay put|StreetEx4]]>><<set $phase to 1>><<trauma 6>><</link>><<gtrauma>>
 	<br>
@@ -1689,7 +1689,7 @@
 
 <<widget "streetpregnancyfame">>
 	<<rng>>
-	<<if pregnancyBellyVisible()>>
+	<<if playerBellyVisible()>>
 		<<if $rng gte 81>>
 			<<generate1>><<generate2>><<person1>>A <<person>> and <<person2>><<person>> walk past you. The <<person1>><<person>> looks back at you and leans toward <<his>> friend, "I recognise <<phim>>, the one who always seems to be knocked up." The <<person2>><<person>> looks at you and laughs. You blush.
 		<<elseif $rng gte 61>>
@@ -1969,7 +1969,7 @@
 <<widget "shadyFan">>
 	You round a corner and walk right into a <<generate1>><<person1>><<person>>, causing the large package that they were holding to fall to the ground.
 	<br><br>
-	<<if $fame.exhibitionism gte 400 or $fame.sex gte 400 or $fame.prostitution gte 400 or $fame.rape gte 400>>
+	<<if ($fame.exhibitionism gte 400 or $fame.sex gte 400 or $fame.prostitution gte 400 or $fame.rape gte 400) and ($player.gender_appearance is "f" or $forcedcrossdressingdisable is "f")>>
 		"Careful <<girl>>," <<he>> says while checking the package. Happy it isn't damaged, <<he>> takes another look at you and continues,
 		"You look familiar. Do I know you from somewhere?"
 		<br><br>
@@ -2139,17 +2139,17 @@
 	You stop and look at <<his>> coat for a moment. As you're staring, the <<person>> grins and opens <<his>> trench coat before you can look away, <<npcRevealText $NPCList[0] "both">>, in all <<his>> glory.
 	<<if $exhibitionism gte 75 and $worn.under_lower.type.includes("naked")>>
 		<br><br>
-		<<link [["Flash " + $NPCList[0].pronouns.him + " back"|Street Flash]]>><<set $phase to 5>><</link>><<exhibitionist5>><<lstress>><<garousal>>
+		<<link [["Flash " + $NPCList[0].pronouns.him + " back"|Street Flash]]>><<set $phase to 5>><</link>><<exhibitionist5>>
 		<br>
 		<<link [[Ignore|Street Flash]]>><<set $phase to 0>><<stress 3>><</link>><<gstress>>
 	<<elseif $exhibitionism gte 55 and $player.gender_appearance is "f" and $worn.under_upper.type.includes("naked") and !$worn.under_lower.type.includes("naked")>>
 		<br><br>
-		<<link [["Flash " + $NPCList[0].pronouns.him + " back"|Street Flash]]>><<set $phase to 4>><</link>><<exhibitionist4>><<lstress>><<garousal>>
+		<<link [["Flash " + $NPCList[0].pronouns.him + " back"|Street Flash]]>><<set $phase to 4>><</link>><<exhibitionist4>>
 		<br>
 		<<link [[Ignore|Street Flash]]>><<set $phase to 0>><<stress 3>><</link>><<gstress>>
 	<<elseif $exhibitionism gte 15 and !$worn.under_lower.type.includes("naked") and ($player.gender_appearance is "m" or !$worn.under_upper.type.includes("naked"))>>
 		<br><br>
-		<<link [["Flash " + $NPCList[0].pronouns.him + " back"|Street Flash]]>><<set $phase to 2>><</link>><<exhibitionist2>><<lstress>><<garousal>>
+		<<link [["Flash " + $NPCList[0].pronouns.him + " back"|Street Flash]]>><<set $phase to 2>><</link>><<exhibitionist2>>
 		<br>
 		<<link [[Ignore|Street Flash]]>><<set $phase to 0>><<stress 3>><</link>><<gstress>>
 	<<else>>
@@ -2174,10 +2174,10 @@
 
 			<<if $temple_rank is "initiate" and !$worn.face.type.includes("mask")>>
 				"I thought I recognised you from the temple! We're promoting the benefits of abstinence. Wanna help out?"
-				<<if pregnancyBellyVisible()>>
+				<<if playerBellyVisible()>>
 					<<He>> looks down at your baby bump. "You'll make a good example!"
 				<</if>>
-			<<elseif pregnancyBellyVisible()>>
+			<<elseif playerBellyVisible()>>
 				<<He>> pauses upon seeing your visibly pregnant belly. <<He>> seems unsure of what to do for a moment, until another initiate meets <<his>> gaze and nods.
 				<br><br>
 
@@ -2217,7 +2217,7 @@
 			<br><br>
 
 			"How are you today? Good? We're handing out informative pamphlets about sexual healthcare and contraceptive options. Would you care for one?"
-			<<if pregnancyBellyVisible()>>
+			<<if playerBellyVisible()>>
 				<<He>> looks down at your baby bump. "It's never too late to prepare for next time."
 			<</if>>
 			<br><br>
@@ -2315,6 +2315,35 @@
 			<<link [[Refuse both|Street Duo Refuse Both]]>><</link>>
 			<br>
 	<</switch>>
+<</widget>>
+
+<<widget "rainyDayHarass">>
+	<<generate1>><<person1>>
+
+	A <<person>> calls out to you from the doorway of a nearby <<if $bus is "domus">>house<<else>>mansion<</if>>.
+	<br><br>
+
+	<<switch random(1,5)>>
+		<<case 1>>
+			"What're you doing out alone in this awful weather, <<girl>>? C'mon inside, I'll let you dry off," <<he>> says, gesturing towards the door.
+		<<case 2>>
+			"Good lord, <<girl>>, you're drenched!" <<he>> laughs. "C'mon in, I'll let you hide from the rain for a bit," <<he>> says, gesturing towards the door.
+		<<case 3>>
+			"You're going to get yourself sick walking around like that," <<he>> tuts. "C'mere and get dried off," <<he>> says, gesturing towards the door.
+		<<case 4>>
+			"You seem like you're lost, <<girl>>. How about you come inside and dry off while you get your bearings?" <<he>> asks, gesturing towards the door.
+		<<case 5>>
+			"Cats and dogs today, 'eh <<girl>>? Need somewhere to take shelter for a bit?" <<he>> asks, gesturing towards the door.
+	<</switch>>
+	<br><br>
+
+	<<link [["Follow " + $NPCList[0].pronouns.him|Street Rainy Follow]]>><</link>>
+	<br>
+	<<if $bus is "domus">>
+		<<link [[Keep walking|Street Rainy Walk]]>><</link>>
+	<<else>>
+		<<link [[Keep walking|Street Rainy Walk]]>><</link>>
+	<</if>>
 <</widget>>
 
 :: Widget Passout Street [widget]
@@ -3249,17 +3278,68 @@
 		<<He>> reaches <<his>> hands towards the waistband of your bottoms.
 		<br><br>
 	<</if>>
-<<link [[Remain still|High Public Pants Down Still]]>><<trauma 6>><<stress 6>><<set $submissive += 1>><<npcincr Whitney dom 1>><</link>><<gstress>><<gtrauma>><<gdom>>
+<<link [[Remain still|High Public Pants Down Still]]>><<trauma 6>><<stress 6>><<sub 1>><<npcincr Whitney dom 1>><</link>><<gstress>><<gtrauma>><<gdom>>
 <br>
 <<if $leftarm isnot "bound" and $rightarm isnot "bound">>
-	<<link [[Push Whitney's Hands Away|High Public Pants Down Push]]>><<set $fightstart to 1>><<set $submissive -= 1>><<npcincr Whitney dom -1>><</link>><<ldom>>
+	<<link [[Push Whitney's Hands Away|High Public Pants Down Push]]>><<set $fightstart to 1>><<def 1>><<npcincr Whitney dom -1>><</link>><<ldom>>
 <<else>>
 	<span class="blue">With your arms bound, you can't stop <<him>>.</span>
 <</if>>
 <</widget>>
 
+<<widget "street_alley_detour">>
+	You walk along the street when you see the familiar blue flashing lights of the police up ahead.
+	<br><br>
+	
+	As you approach, you find the intersection blocked by a car wreck still in the process of being cleaned up. The crosswalk has been closed in the meantime. You could wait for the authorities to finish here, or you could take a detour through <<if $bus isnot "park">>a nearby alley<<else>> the park.<</if>>
+	<br><br>
+
+	<<if $bus is "domus" or $bus is "danube" or $bus is "barb">>
+		<<link[[Take the detour|Residential alleyways]]>><</link>>
+	<<elseif $bus is "cliff" or $bus is "high" or $bus is "wolf">>
+		<<link[[Take the detour|Commercial alleyways]]>><</link>>
+	<<elseif $bus is "oxford" or $bus is "mer" or $bus is "elk">>
+		<<link[[Take the detour|Industrial alleyways]]>><</link>>
+	<<elseif $bus is "starfish">>
+		<<link[[Take the detour|Park]]>><</link>>
+	<</if>>
+	<br>
+
+	<<switch $bus>>
+		<<case "nightingale">>
+			<<link[[Wait (0:20)|Nightingale Street]]>><<pass 20>><</link>>
+		<<case "domus">>
+			<<link[[Wait (0:20)|Domus Street]]>><<pass 20>><</link>>
+		<<case "elk">>
+			<<link[[Wait (0:20)|Elk Street]]>><<pass 20>><</link>>
+		<<case "high">>
+			<<link[[Wait (0:20)|High Street]]>><<pass 20>><</link>>
+		<<case "starfish">>
+			<<link[[Wait (0:20)|Starfish Street]]>><<pass 20>><</link>>
+		<<case "barb">>
+			<<link[[Wait (0:20)|Barb Street]]>><<pass 20>><</link>>
+		<<case "connudatus">>
+			<<link[[Wait (0:20)|Connudatus Street]]>><<pass 20>><</link>>
+		<<case "wolf">>
+			<<link[[Wait (0:20)|Wolf Street]]>><<pass 20>><</link>>
+		<<case "harvest">>
+			<<link[[Wait (0:20)|Harvest Street]]>><<pass 20>><</link>>
+		<<case "oxford">>
+			<<link[[Wait (0:20)|Oxford Street]]>><<pass 20>><</link>>
+		<<case "danube">>
+			<<link[[Wait (0:20)|Danube Street]]>><<pass 20>><</link>>
+		<<case "mer">>
+			<<link[[Wait (0:20)|Mer Street]]>><<pass 20>><</link>>
+		<<case "cliff">>
+			<<link[[Wait (0:20)|Cliff Street]]>><<pass 20>><</link>>
+		<<case "park">>
+			<<link[[Wait (0:20)|Park]]>><<pass 20>><</link>>
+	<</switch>>
+
+<</widget>>
+
 <<widget "eventsstreetday">>
-	<<set $dangerevent to random(1, 184)>>
+	<<set $dangerevent to random(1, 190)>>
 	<<rng>>
 	<<if $location is "alley" and !Time.schoolDay and $bullytimer gte $rng and C.npc.Whitney.init is 1 and !["dungeon", "pillory"].includes(C.npc.Whitney.state) and $daily.whitney.park is undefined>>
 		<<set $bullytimer to 0>>
@@ -3273,6 +3353,8 @@
 		<<street1>>
 	<<elseif $dangerevent lte 10>>
 		<<streetfamerape>>
+	<<elseif $dangerevent lte 15 and $location isnot "alley">>
+		<<street_alley_detour>>
 	<<elseif $dangerevent lte 20>>
 		<<streetbox>>
 	<<elseif $dangerevent lte 30>>
@@ -3318,6 +3400,13 @@
 		<<streetmodelshow>>
 	<<elseif $dangerevent lte 184>>
 		<<streetnpcflash>>
+	<<elseif $dangerevent lte 190>>
+		<<if ($bus is "domus" or $bus is "danube") and $weather is "rainy" and ($upperwetstage is 1 or $lowerwetstage is 1)>>
+			<<rainyDayHarass>>
+		<<else>>
+			<<eventAmbient>>
+			<<destinationeventend>>
+		<</if>>
 	<</if>>
 <</widget>>
 
@@ -3460,9 +3549,9 @@
 	<<if $player.gender_appearance is "m">>
 		One person in the crowd thinks they remembers seeing you stuffing a suspicious bag of powder into your underpants. Another is certain of it.
 		<<if $worn.under_lower.type.includes("naked")>><br>
-			<<if $submissive gte 1150>>
+			<<if $speech_attitude is "meek">>
 				You're shocked to see someone so blatantly lie to police. You're not even wearing underpants!
-			<<elseif $submissive lte 850>>
+			<<elseif $speech_attitude is "bratty">>
 				"Well that's <<print either("obviously","blatantly")>> a lie,"
 				<<if $exhibitionism gte _exhib_bar>>
 					you snap, pulling down the back of your $worn.lower.name to briefly flash your butt. "No underpants. See?!"
@@ -3484,9 +3573,9 @@
 	<<else>>
 		One person in the crowd remembers seeing you stuffing a suspicious bag of powder into your bra. Another confirms, but is certain you hid it in your panties.
 		<<if $worn.under_lower.type.includes("naked")>><br>
-			<<if $submissive gte 1150>>
+			<<if $speech_attitude is "meek">>
 				You're shocked to see someone so blatantly lie to police. You're not even wearing panties!
-			<<elseif $submissive lte 850>>
+			<<elseif $speech_attitude is "bratty">>
 				"Well that's <<print either("obviously","blatantly")>> a lie,"
 				<<if $exhibitionism gte _exhib_bar>>
 					you snap, pulling down the back of your $worn.lower.name to briefly flash your butt. "See?! No panties!"
@@ -3505,9 +3594,9 @@
 				From the look on <<his>> face, you sense that setting the record straight did not help your case. 
 			<</if>>
 		<<elseif $worn.under_upper.type.includes("naked")>><br>
-			<<if $submissive gte 1150>>
+			<<if $speech_attitude is "meek">>
 				You're shocked to see someone so blatantly lie to police. You're not wearing a bra!
-			<<elseif $submissive lte 850>>
+			<<elseif $speech_attitude is "bratty">>
 				"Well that's <<print either("obviously","blatantly")>> a lie,"
 				<<if $exhibitionism gte _exhib_bar>>
 					you snap, you <<if $breastsize lte 3>>try to<</if>> jiggle your <<breasts>> through your $worn.upper.name. "No bra! See?"

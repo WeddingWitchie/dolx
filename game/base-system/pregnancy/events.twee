@@ -44,7 +44,7 @@ You shake your head. <<He>> holds open the door for you, and you leave the offic
 	<<link [[Inquire about feeling something large in your stomach (0:10)|Pregnancy Futa Introduction]]>><<pass 10>><<set $firstOption to false>><</link>>
 	<br>
 <</if>>
-<<if $pregnancyStats.parasiteDoctorEvents gte 4 and ($sexStats.anus.pregnancy.motherStatus is 2 or ($sexStats.anus.pregnancy.motherStatus is 2 and !$worn.genitals.type.includes("hidden")))>>
+<<if $pregnancyStats.parasiteDoctorEvents gte 4 and ($sexStats.anus.pregnancy.motherStatus is 2 or ($sexStats.vagina.pregnancy.motherStatus is 2 and !$worn.genitals.type.includes("hidden")))>>
 	<<link [[Inquire about parasite hermaphrodite removal (0:30)|Remove Futa Pregnancy]]>><<pass 30>><<set $futaCheck to true>><<set $firstOption to false>><</link>>
 	<br>
 <</if>>
@@ -165,7 +165,7 @@ You <<nervously>> remove your clothing while <<his>> back is turned. You lie dow
 	<br><br>
 <</if>>
 
-<<He>> opens another drawer, and pulls out a smooth white rod with a round ball on one end. <<He>> pushes the thin end against your <<bottom>>. "Just relax,<<if pregnancyBellyVisible() and !_vaginaFuta>> this won't hurt the baby,<</if>>" <<he>> says. It slides in without pain, as if lubricated. Harper twists the other side, and you feel it pulse within you.
+<<He>> opens another drawer, and pulls out a smooth white rod with a round ball on one end. <<He>> pushes the thin end against your <<bottom>>. "Just relax,<<if playerBellyVisible() and !_vaginaFuta>> this won't hurt the baby,<</if>>" <<he>> says. It slides in without pain, as if lubricated. Harper twists the other side, and you feel it pulse within you.
 <<garousal>><<arousal 1200 "bottom">>
 <br><br>
 
@@ -393,8 +393,9 @@ Following the directions from Doctor Harper, you get into position and attempt t
 <<case "ReplaceSelected">>
 	<<for _i to 0; _i lt $pregResult.length;_i++>>
 		<<if $checkboxResult[$pregResult[_i]] is true>>
-			<<if _i lt $parasiteReplaceArray.length>>
-				<<moveCreature $pregResult[_i] "replace" $parasiteReplaceArray[_i] $giveBirthLocation>>
+			<<if $parasiteReplaceArray.length gt 0>>
+				<<moveCreature $pregResult[_i] "replace" $parasiteReplaceArray[0] $giveBirthLocation>>
+				<<run $parasiteReplaceArray.deleteAt(0)>>
 			<<else>>
 				<<moveCreature $pregResult[_i] "container" undefined $giveBirthLocation>>
 			<</if>>
@@ -517,7 +518,7 @@ You feel yourself being lifted. You hear a voice, but the words don't make sense
 	"Please take a deep breath," the doctor says.
 <</if>>
 <<if playerChastity("hidden")>>
-	<<He>> notices your chastity belt, and opens a chest-high cupboard. <<He>> retrieves a tool shaped like a pair of prongs, but bulkier. "We need to remove that device. <<if $phase isnot 1>>Please lie down.<</if>> This won't hurt."
+	<<He>> notices your <<print $worn.genitals.name>>, and opens a chest-high cupboard. <<He>> retrieves a tool shaped like a pair of prongs, but bulkier. "We need to remove that device. <<if $phase isnot 1>>Please lie down.<</if>> This won't hurt."
 	<br><br>
 	<<if $phase isnot 1>>You lie down. The ceiling is plain white. There's a fan right above you. <</if>><<He>> grasps your <<print $worn.genitals.name>> with the prongs, and presses a button on the handle. You hear a whirring noise within the tool, <span class="pink">and they snap the metal.</span>
 	<<set $worn.genitals.type.push("broken")>>
@@ -559,7 +560,7 @@ The midwife places a mask over your face. You feel your consciousness fade. Seve
 <<switch playerNormalPregnancyType()>>
 	<<case "human">>
 		<<setKnowsAboutPregnancy "pc" "Bailey">>
-		Harper's voice floats through the fog. "Normal human, but keep the others on the line, just in case..."
+		Harper's voice floats through the fog. "Normal human<<if !$player.vaginaExist>>, abnormal delivery<</if>>, but keep the others on the line, just in case..."
 		<br><br>
 
 		The pain grows as time seems to rapidly speed up and slow down. You hear the words "breathe" and "push" many times, and you do your best to comply.
@@ -963,7 +964,8 @@ The packaging said to wait 3 minutes, but it feels like an eternity passes. <<gs
 		<span class="lewd">It's positive.</span> Many thoughts rush through your head, and you sit to collect yourself. <<gstress>><<stress 3>><<garousal>><<arousal 100>>
 		<br><br>
 		<<if _pregnancyTest.potentialFathers.length is 1>>
-			<span class="lewd">It's clear that _pregnancyTest.potentialFathers[0].source is the father.</span>
+			<<set _fatherName to pregnancyNameCorrection(_pregnancyTest.potentialFathers[0].source)>>
+			<span class="lewd">It's clear that <<print _fatherName === "yourself" ? "you are" : _fatherName + " is">> the father.</span>
 		<<else>>
 			<span class="red">You wonder who the father is.</span>
 		<</if>>
@@ -972,7 +974,8 @@ The packaging said to wait 3 minutes, but it feels like an eternity passes. <<gs
 		<span class="lewd">It's positive.</span> You briefly wonder if you're seeing things or have gone crazy. Many thoughts rush through your head, and you sit to collect yourself. <<ggstress>><<stress 10>><<ggarousal>><<arousal 200>>
 		<br><br>
 		<<if _pregnancyTest.potentialFathers.length is 1>>
-			<span class="lewd">It's clear that _pregnancyTest.potentialFathers[0].source is the father.</span>
+			<<set _fatherName to pregnancyNameCorrection(_pregnancyTest.potentialFathers[0].source)>>
+			<span class="lewd">It's clear that <<print _fatherName === "yourself" ? "you are" : _fatherName + " is">> the father.</span>
 		<<else>>
 			<span class="red">You wonder who the father is.</span>
 		<</if>>
@@ -986,7 +989,8 @@ The packaging said to wait 3 minutes, but it feels like an eternity passes. <<gs
 		<span class="lewd">It's positive.</span> Many thoughts rush through your head, and you sit to collect yourself. <<gstress>><<stress 3>><<garousal>><<arousal 100>>
 		<br><br>
 		<<if _pregnancyTest.potentialFathers.length is 1>>
-			<span class="lewd">It's clear that _pregnancyTest.potentialFathers[0].source is the father.</span>
+			<<set _fatherName to pregnancyNameCorrection(_pregnancyTest.potentialFathers[0].source)>>
+			<span class="lewd">It's clear that <<print _fatherName === "yourself" ? "you are" : _fatherName + " is">> the father.</span>
 		<<else>>
 			<span class="red">You wonder who the father is.</span>
 		<</if>>
@@ -1002,10 +1006,10 @@ The packaging said to wait 3 minutes, but it feels like an eternity passes. <<gs
 	<<if _args[0]>>
 		<<if $pregnancyTest gt 0>>
 			<<if getPregnancyObject().awareOf isnot true>>
-				<<link [[Take a pregnancy test (0:05)|pregnancyTest]]>><<pass 5>><<set $lastPassage to _args[0]>><</link>>
+				<<pregnancytesticon>><<link [[Take a pregnancy test (0:05)|pregnancyTest]]>><<pass 5>><<set $lastPassage to _args[0]>><</link>>
 				<br>
 			<<elseif getPregnancyObject().awareOf is true>>
-				<span class="lewd">You have a pregnancy test, but you already know you're pregnant.</span>
+				<<pregnancytesticon>><span class="lewd"> You have a pregnancy test, but you already know you're pregnant.</span>
 				<br>
 			<</if>>
 		<</if>>
@@ -1346,7 +1350,7 @@ You strip and lie down.
 			<</if>>
 		<<default>>
 	<</switch>>
-	<<set _pregnancy.awareOfDetails to true>>
+	<<makeAwareOfDetails>>
 	<<set _pregnancy.awareOfMultiple to true>>
 <</if>>
 

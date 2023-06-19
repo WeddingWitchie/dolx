@@ -12,7 +12,7 @@ function masturbationActions() {
 		return toy;
 	};
 	const toyDisplay = (toy1, toy2) => {
-		if (toy1 && toy2) return (toy1.colour ? toy1.colour + " " : "") + toy1.name + " and " + (toy2.colour ? toy2.colour + "" : "") + toy2.name;
+		if (toy1 && toy2) return (toy1.colour ? toy1.colour + " " : "") + toy1.name + " and " + (toy2.colour ? toy2.colour + " " : "") + toy2.name;
 		if (toy1) return (toy1.colour ? toy1.colour + " " : "") + toy1.name;
 		return "";
 	};
@@ -124,7 +124,7 @@ function masturbationActions() {
 	return fragment;
 }
 
-function masturbationActionsHands(arm, { selectedToy, toyDisplay, genitalsExposed, ballsExposed }) {
+function masturbationActionsHands(arm, { selectedToy, toyDisplay, genitalsExposed, breastsExposed, ballsExposed }) {
 	const result = {
 		text: "",
 		options: [],
@@ -446,7 +446,7 @@ function masturbationActionsHands(arm, { selectedToy, toyDisplay, genitalsExpose
 			break;
 		case "mpenisentrancestroker":
 			result.text = `You tease your glans with the ${toyDisplay(selectedToy(arm))} your ${arm} hand.`;
-			if (genitalsExposedq()) {
+			if (genitalsExposed()) {
 				result.options.push({
 					action: "mpenisstroker",
 					text: `Penetrate your ${toyDisplay(selectedToy(arm))}`,
@@ -653,9 +653,9 @@ function masturbationActionsHands(arm, { selectedToy, toyDisplay, genitalsExpose
 	}
 
 	if (V[arm + "arm"] !== "bound") {
-		if (V.worn.over_upper.exposed < 1) result.options.push({ action: "moverupper", text: `Displace your ${V.worn.over_upper.name}` });
-		if (V.worn.upper.exposed < 1) result.options.push({ action: "mupper", text: `Displace your ${V.worn.upper.name}` });
-		if (V.worn.under_upper.exposed < 0) result.options.push({ action: "munder_upper", text: `Displace your ${V.worn.under_upper.name}` });
+		if (V.worn.over_upper.exposed <= 1) result.options.push({ action: "moverupper", text: `Displace your ${V.worn.over_upper.name}` });
+		if (V.worn.upper.exposed <= 1) result.options.push({ action: "mupper", text: `Displace your ${V.worn.upper.name}` });
+		if (V.worn.under_upper.exposed <= 0) result.options.push({ action: "munder_upper", text: `Displace your ${V.worn.under_upper.name}` });
 
 		if (V.worn.over_lower.exposed <= 1) result.options.push({ action: "moverlower", text: `Displace your ${V.worn.over_lower.name}` });
 		if (V.worn.lower.exposed <= 1) result.options.push({ action: "mlower", text: `Displace your ${V.worn.lower.name}` });
@@ -765,7 +765,7 @@ function masturbationActionsMouth({ selectedToy, toyDisplay, genitalsExposed }) 
 		case "mvaginaentrance":
 			result.text = corruptionCheck
 				? '<span class="red">The slimes in your ear are forcing you to lick your pussy.</span>'
-				: "Your mouth is in front of your penis.";
+				: "Your mouth is in front of your pussy.";
 			if (awarenessCheck) {
 				result.options.push({
 					action: "mvaginalick",
