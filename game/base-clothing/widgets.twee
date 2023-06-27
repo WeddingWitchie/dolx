@@ -629,20 +629,30 @@
 
 		<<if $_setupItem.shop.length isnot 0 and $_item.one_piece isnot "broken" and $_setupItem.cursed isnot 1>> /* NO SPLIT ADDED */
 			/*If item is half of an outfit, rebuy the primary half instead by redefining the variables defined above*/
-			<<if $_item.outfitSecondary isnot undefined and $_item.outfitSecondary[1] isnot "broken">> /* NO SPLIT ADDED */
+			<<if $_item.outfitSecondary isnot undefined and $_item.outfitSecondary[1] isnot "broken" and $_item.outfitSecondary[1] isnot "split">>
 				<<set $_slot to $_item.outfitSecondary[0]>>
 				<<set $_item to _args[1][$_slot]>>
 				<<set $_setupItem to setup.clothes[$_slot][clothesIndex($_slot,$_item)]>>
 			<</if>>
 
-			<<set $_cost to Math.trunc(getClothingCost($_item, $_slot) * 1.5)>>
+			<<set $_cost to Math.trunc(tailorClothingCost($_item, $_slot) * 1.5)>>
 			<<set _hoodDown to $_item.hoodposition is "down">>
 			<<if $_item.colourCustom isnot undefined>><<set _colourCustom to $_item.colourCustom>><</if>>
 			<<if $_item.accessory_colourCustom isnot undefined>><<set _accessory_colourCustom to $_item.accessory_colourCustom>><</if>>
 
-			<<if $_item.outfitSecondary isnot undefined and $_item.outfitSecondary[1] is "broken">> /* NO SPLIT ADDED */
+			<<if $_item.outfitSecondary isnot undefined and $_item.outfitSecondary[1] is "broken">> /* NO SPLIT ADDED */ 
 			<<elseif $money gte $_cost>>
 				<<generalSend $_return $_slot $_setupItem.index $_item.colour $_item.accessory_colour>>
+				<<if $_item.one_piece is "split">>
+					<<set $_return[$_slot].last().one_piece to "split">>
+					<<if $_item.outfitPrimary>>
+						<<for $_rangeSlot, $_value range $_return[$_slot].last().outfitPrimary>>
+							<<set $_return[$_slot].last().outfitPrimary[$_rangeSlot] to "split">>
+						<</for>>
+					<<elseif $_outfitSecondary>>
+						<<set $_return[$_slot].last().outfitSecondary[1] to "split">>
+					<</if>>
+				<</if>>
 				<<set $money -= $_cost>>
 				<<run $rebuy_success.push([clone($_item.name), $_return])>>
 				<<set $effectsmessage to 1>>
@@ -1646,11 +1656,6 @@
 		<div id="pepper-sprays" class="pepper-sprays">
 			<!-- Compact style (dots) -->
 			<<if $spraymax gt 1 and ($options.pepperSprayDisplay is "compact" or $spraymax gt 7 or ($spraymax gt 5 and $options.sidebarRenderer is "both"))>>
-				<<if $spray gt 0>>
-					<img src="img/ui/pepperspray.png">
-				<<else>>
-					<img src="img/ui/emptyspray.png">
-				<</if>>
 				<div class="pepper-sprays-dots">
 					<<for _i to 1; _i lte $spraymax; _i++>>
 						<<if $spray gte _i>>
@@ -1676,7 +1681,7 @@
 <</widget>>
 
 <<widget "condomsSidebar">>
-	<<if $condomLvl gte 1 and $options.condomsDisplay isnot "none" and $condoms isnot undefined>>
+	<<if $condomLvl gte 1 and $options.condomsDisplay isnot "none" and $condoms isnot null and $condoms isnot undefined>>
 		<div id="condoms-sidebar" class="condoms-sidebar">
 			<img src="img/ui/condom.png">
 		</div>

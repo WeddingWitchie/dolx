@@ -1160,11 +1160,11 @@ window.randomizeSettings = function (filter) {
 	const randomNumber = function (min, max, decimals = 0) {
 		const decimalsMult = Math.pow(10, decimals);
 		const minMult = min * decimalsMult;
-		const maxMult = max * decimalsMult;
-		const rn = (Math.floor(Math.random() * (maxMult - minMult)) + minMult) / decimalsMult;
+		const maxMult = (max + 1) * decimalsMult;
+		const rn = Math.floor(Math.random() * (maxMult - minMult)) / decimalsMult + min;
 		return parseFloat(rn.toFixed(decimals));
 	};
-	const randomizeSettingSet = function (setting) {
+		  const randomizeSettingSet = function (setting) {
 		let result;
 		const keys = Object.keys(setting);
 		if (keys.includes("min")) {
@@ -1258,7 +1258,7 @@ window.recurseNaN = recurseNaN;
 /**
  * Recursively traverse target object, finding and returning an object containing all the NaN vars inside.
  *
- * Use with objectAssignDeep to re-assign 0 to all bad NaN'd vars.	Use with caution.
+ * Use with nukeNaNs to re-assign 0 to all bad NaN'd vars.	Use with caution.
  *
  * @param {object} target The object to traverse.	Defaults to V ($).
  * @returns {object} An object containing all the properties/sub-props that were NaN.
@@ -1291,3 +1291,12 @@ function scanNaNs(target = V) {
 	return isMutated ? current : null;
 }
 window.scanNaNs = scanNaNs;
+
+function nukeNaNs(target = V) {
+	for (const key in target) {
+		const value = target[key];
+		if (typeof value === "object" && value !== null) nukeNaNs(value);
+		else if (Number.isNaN(value)) target[key] = 0;
+	}
+}
+window.nukeNaNs = nukeNaNs;
