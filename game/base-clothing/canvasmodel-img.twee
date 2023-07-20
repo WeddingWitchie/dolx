@@ -100,6 +100,9 @@ Requires prior <<selectmodel "main">>
 		██████  ██   ██ ███████ ███████
 	-->
 
+	<<set _modeloptions.body_type to $player.gender_body>>
+
+	<<run apparentbreastsizecheck()>>
 	<<switch $player.perceived_breastsize>>
 		<<case 12>>
 			<<set _modeloptions.breast_size to 6>>
@@ -111,8 +114,10 @@ Requires prior <<selectmodel "main">>
 			<<set _modeloptions.breast_size to 3>>
 		<<case 3>>
 			<<set _modeloptions.breast_size to 2>>
-		<<case 0 1 2>>
+		<<case 1 2>>
 			<<set _modeloptions.breast_size to 1>>
+		<<default>>
+			<<set _modeloptions.breast_size to 0>>
 	<</switch>>
 	<<set _modeloptions.breasts to "default">>
 	<<if $sexStats>>
@@ -154,9 +159,10 @@ Requires prior <<selectmodel "main">>
 	-
 	-->
 
+	<<set _coverBreastsWithArm to false>>
 	<<if $leftarm isnot "bound" and $leftarm isnot "grappled">>
 		<<if $dontHide is false and $worn.over_upper.exposed gte 1 and ($worn.upper.exposed gte 1 or $upperwetstage gte 3)
-		and ($exposed gte 2 and $uncomfortable.nude is true or $exposed is 1 and $uncomfortable.underwear is true)>>
+		and (($uncomfortable.underwear is true and !$worn.under_upper.type.includes("naked")) or ($uncomfortable.nude is true and ($worn.under_upper.exposed gte 1 or $underupperwetstage gte 3)))>>
 			<<set _coverBreasts to true>>
 			<<set _modeloptions.arm_left to "cover">> <!-- might be changed back to "idle" if covering with wings -->
 		<<else>>
@@ -169,7 +175,7 @@ Requires prior <<selectmodel "main">>
 
 	<<if $rightarm isnot "bound" and $rightarm isnot "grappled">>
 		<<if $dontHide is false and $worn.over_lower.exposed gte 1 and ($worn.lower.exposed gte 1 or $lowerwetstage gte 3)
-		and ($exposed gte 2 and $uncomfortable.nude is true or $exposed is 1 and $uncomfortable.underwear is true)>>
+		and (($uncomfortable.underwear is true and !$worn.under_lower.type.includes("naked")) or ($uncomfortable.nude is true and ($worn.under_lower.exposed gte 1 or $underlowerwetstage gte 3)))>>
 			<<set _coverCrotch to true>>
 			<<set _modeloptions.arm_right to "cover">> <!-- might be changed back to "idle" if covering with wings/tail -->
 		<<else>>
@@ -204,6 +210,8 @@ Requires prior <<selectmodel "main">>
 			<<elseif !_disabled.includes($transformationParts.bird.wings)>>
 				<<set _modeloptions.bird_wing_right to "cover">>
 				<<set _modeloptions.arm_left to "idle">>
+			<<else>>
+				<<set _coverBreastsWithArm to true>>
 			<</if>>
 		<</if>>
 	<</if>>
@@ -343,15 +351,19 @@ Requires prior <<selectmodel "main">>
 	<!-- wing and tail idle/cover/flaunt state is configured in the arms section above -->
 
 	<<set _modeloptions.angel_wings_type to $transformationParts.angel.wings>>
+	<<set _modeloptions.angel_wings_layer to $wingslayer>>
 	<<set _modeloptions.angel_halo_type to $transformationParts.angel.halo>>
 
 	<<set _modeloptions.fallen_wings_type to $transformationParts.fallenAngel.wings>>
+	<<set _modeloptions.fallen_wings_layer to $wingslayer>>
 	<<set _modeloptions.fallen_halo_type to $transformationParts.fallenAngel.halo>>
 
 	<<set _modeloptions.demon_wings_type to $transformationParts.demon.wings>>
+	<<set _modeloptions.demon_wings_layer to $wingslayer>>
 	<<set _modeloptions.demon_tail_type to $transformationParts.demon.tail>>
-	<<set _modeloptions.demon_tail_index to ZIndices.backhair>>
+	<<set _modeloptions.demon_tail_layer to $taillayer>>
 	<<set _modeloptions.demon_horns_type to $transformationParts.demon.horns>>
+	<<set _modeloptions.demon_horns_layer to $hornslayer>>
 
 	<!-- Calculate blend pattern for demon TF here. -->
 
@@ -367,26 +379,33 @@ Requires prior <<selectmodel "main">>
 	}))>>
 
 	<<set _modeloptions.wolf_tail_type to $transformationParts.wolf.tail>>
+	<<set _modeloptions.wolf_tail_layer to $taillayer>>
 	<<set _modeloptions.wolf_ears_type to $transformationParts.wolf.ears>>
 	<<set _modeloptions.wolf_pits_type to $transformationParts.wolf.pits>>
 	<<set _modeloptions.wolf_pubes_type to $transformationParts.wolf.pubes>>
 	<<set _modeloptions.wolf_cheeks_type to $transformationParts.wolf.cheeks>>
 
 	<<set _modeloptions.cat_tail_type to $transformationParts.cat.tail>>
+	<<set _modeloptions.cat_tail_layer to $taillayer>>
 	<<set _modeloptions.cat_ears_type to $transformationParts.cat.ears>>
 
 	<<set _modeloptions.cow_horns_type to $transformationParts.cow.horns>>
+	<<set _modeloptions.cow_horns_layer to $hornslayer>>
 	<<set _modeloptions.cow_tail_type to $transformationParts.cow.tail>>
+	<<set _modeloptions.cow_tail_layer to $taillayer>>
 	<<set _modeloptions.cow_ears_type to $transformationParts.cow.ears>>
 
 	<<set _modeloptions.bird_wings_type to $transformationParts.bird.wings>>
+	<<set _modeloptions.bird_wings_layer to $wingslayer>>
 	<<set _modeloptions.bird_tail_type to $transformationParts.bird.tail>>
+	<<set _modeloptions.bird_tail_layer to $taillayer>>
 	<<set _modeloptions.bird_eyes_type to $transformationParts.bird.eyes>>
 	<<set _modeloptions.bird_malar_type to $transformationParts.bird.malar>>
 	<<set _modeloptions.bird_plumage_type to $transformationParts.bird.plumage>>
 	<<set _modeloptions.bird_pubes_type to $transformationParts.bird.pubes>>
 
 	<<set _modeloptions.fox_tail_type to $transformationParts.fox.tail>>
+	<<set _modeloptions.fox_tail_layer to $taillayer>>
 	<<set _modeloptions.fox_ears_type to $transformationParts.fox.ears>>
 	<<set _modeloptions.fox_cheeks_type to $transformationParts.fox.cheeks>>
 
@@ -401,7 +420,7 @@ Requires prior <<selectmodel "main">>
 	<!-- Demon-cat tail -->
 	<<if isPartEnabled(_modeloptions.cat_tail_type) and isPartEnabled(_modeloptions.demon_tail_type) and isChimeraEnabled("demoncat", "tail")>>
 		<<set _modeloptions.demon_tail_type to 'default-cat'>>
-		<<set _modeloptions.demon_tail_index to ZIndices.tailPenisCoverOverlay>>
+		<<set _modeloptions.demon_tail_layer to "cover">>
 	<</if>>
 	<!-- Demon-harpy wings -->
 	<<if isPartEnabled(_modeloptions.demon_wings_type) and isPartEnabled(_modeloptions.bird_wings_type) and isChimeraEnabled("demonharpy", "wings")>>
@@ -506,7 +525,7 @@ Set model options & filters for player clothes
 -->
 <<widget "modelprepare-player-clothes">>
 	<<if $worn.upper.type.includes("naked") and $worn.over_upper.type.includes("naked")>>
-		<<if !$worn.under_upper.type.includes("naked")>>
+		<<if !$worn.under_upper.type.includes("naked") or _coverBreastsWithArm>>
 			<<set _modeloptions.breasts to "cleavage">>
 		<<else>>
 			<<set _modeloptions.breasts to "default">>

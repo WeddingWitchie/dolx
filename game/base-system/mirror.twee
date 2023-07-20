@@ -33,7 +33,11 @@
 
 <<widget "mirror">>
 	<div id="mirror">
-		<<mirrorDisplay>>
+		<<if _args[0] isnot undefined>>
+			<<mirrorDisplay _args[0]>>
+		<<else>>
+			<<mirrorDisplay>>
+		<</if>>
 	</div>
 <</widget>>
 
@@ -862,6 +866,14 @@
 	<</if>>
 	<<bodywriting>>
 	<br>
+
+	<<bodywritingOptions>>
+
+	/*Needs to be last*/
+	<<bodywritingMenuLinks>>
+<</widget>>
+
+<<widget "bodywritingOptions">>
 	<<set _bodyWritingOptions to {
 		General: {
 		"Cute boy":"cute_boy",
@@ -1101,8 +1113,9 @@
 		<br/>
 		<<print Object.values(setup.bodywriting).length>> known bodywriting options.
 	<</if>>
+<</widget>>
 
-	/*Needs to be last*/
+<<widget "bodywritingMenuLinks">>
 	<div id="bodywritingMenuLinks">
 	<<set _keys to Object.keys(_bodyWritingOptions)>>
 	<<if $bodywritingSet is undefined>>
@@ -1115,15 +1128,16 @@
 				<<removeclass `'#link-'+$bodywritingSet.replace(/ /g,'-')` "selected">>
 				<<set $bodywritingSet to clone(_keys[_i])>>
 				<<addclass `'#link-'+$bodywritingSet.replace(/ /g,'-')` "selected">>
-				<<replace "#bodywritingMenu">><<bodywritingMenu>><</replace>>
+				<<replace "#bodywritingMenu">><<bodywritingMenu _args[0]>><</replace>>
 			<</link>> |
 			</span>
 		<</capture>>
 	<</for>>
 	</div>
+
 	<br>
 	<div id="bodywritingMenu" class="no-numberify">
-		<<bodywritingMenu>>
+		<<bodywritingMenu _args[0]>>
 	</div>
 	<br><br>
 <</widget>>
@@ -1131,7 +1145,11 @@
 <<widget "bodywritingMenu">>
 	<<if Object.keys(_bodyWritingOptions[$bodywritingSet]).length gt 0>>
 		<<set _bodyPartOptions to {}>>
-		<<set _bodyPartOptionsSkip to ["back", "left_bottom", "right_bottom"]>>
+		<<if _args[0] isnot undefined>>
+			<<set _bodyPartOptionsSkip to _args[0]>>
+		<<else>>
+			<<set _bodyPartOptionsSkip to ["back", "left_bottom", "right_bottom"]>>
+		<</if>>
 		<<for _label, _value range $skin>>
 			<<if _bodyPartOptionsSkip.includes(_label)>>
 				<<continue>>
@@ -1363,7 +1381,7 @@
 <<widget "mirrorhairdisplay">>
 	<<if _hairCategory isnot _args[0]>>
 		<<set _perPage to $showMannequins ? 14 : 100>>
-		<<set _page to 0>>
+		<<set _page to 1>>
 	<</if>>
 	<<set _hairCategory to _args[0]>>
 	<<mirrorhairOptions _args[1]>>
@@ -1377,14 +1395,12 @@
 <</widget>>
 
 <<widget "mirrorhairControls">>
-	<<set _pagereal to _page + 1>>
-	<<set _pagemaxreal to _pageMax + 1>>
 	<<if $showMannequins>>
 		<div id="hairContainerFooter">
 			<div class="tab">
-			<<if _page gt 0>>
+			<<if _page gt 1>>
 				<<button '<span class="fa-icon fa-left"></span> Previous'>>
-					<<if _page gt 0>><<set _page-->><</if>>
+					<<if _page gt 1>><<set _page-->><</if>>
 					<<mirrorhairOptions _args[0]>>
 					<<replace "#hairContainerElements">><<mirrorhairdisplayElements _hairOptions>><</replace>>
 					<<replace "#hairContainerPages">><<mirrorhairControls _args[0]>><</replace>>
@@ -1403,7 +1419,7 @@
 			</div>
 			<div class="tab">
 				<div id="buttonpage">
-					<<button '_pagereal/_pagemaxreal'>>
+					<<button '_page/_pageMax'>>
 					<</button>>
 				</div>
 			</div>
@@ -1435,10 +1451,10 @@
 	<<run setup.hairstyles[_args[0]].forEach(style => {
 		if (!V.shopClothingFilter.active || !V.shopClothingFilter.traits.length || style.type.find(type => V.shopClothingFilter.traits.includes(type))) T.hairOptions[style.name_cap] = style.variable;
 	})>>
-	<<set _pageMax to Math.floor(Object.keys(_hairOptions).length / (_perPage + 1))>>
+	<<set _pageMax to Math.ceil(Object.keys(_hairOptions).length / _perPage)>>
 
-	<<run Object.keys(clone(_hairOptions)).forEach((key, index) => {
-        if (!between(index, T.perPage * T.page, (T.perPage * (T.page + 1)) - 1)) {
+	<<run Object.keys(_hairOptions).forEach((key, index) => {
+    if (!between(index, T.perPage * (T.page - 1), (T.perPage * T.page) - 1)) {
             delete T.hairOptions[key];
         }
     })>>
@@ -2475,6 +2491,68 @@
 							<<option "Hide" false>>
 						<</listbox>>
 					</div>
+				<</if>>
+			</div>
+			<div class="no-numberify">
+				<<if !["demon", "cow"].every(transform => T[transform].horns is "disabled")>>
+					<<switch $hornslayer>>
+						<<case "front">>
+							<<link "Prioritise headwear over horns">>
+								<<run State.setVar("$hornslayer", "back")>>
+								<<run Engine.show()>>
+							<</link>>
+						<<case "back">>
+							<<link "Prioritise horns over headwear">>
+								<<run State.setVar("$hornslayer", "front")>>
+								<<run Engine.show()>>
+							<</link>>
+						<<default>>
+							<<link "Prioritise horns over headwear">>
+								<<run State.setVar("$hornslayer", "front")>>
+								<<run Engine.show()>>
+							<</link>>
+					<</switch>>
+					<br>
+				<</if>>
+				<<if !["demon", "cat", "cow", "wolf", "bird", "fox"].every(transform => T[transform].tail is "disabled")>>
+					<<switch $taillayer>>
+						<<case "front">>
+							<<link "Push tail back">>
+								<<run State.setVar("$taillayer", "back")>>
+								<<run Engine.show()>>
+							<</link>>
+						<<case "back">>
+							<<link "Move tail forward">>
+								<<run State.setVar("$taillayer", "front")>>
+								<<run Engine.show()>>
+							<</link>>
+						<<default>>
+							<<link "Push tail back">>
+								<<run State.setVar("$taillayer", "back")>>
+								<<run Engine.show()>>
+							<</link>>
+					<</switch>>
+					<br>
+				<</if>>
+				<<if !["angel", "fallen", "demon", "bird"].every(transform => T[transform].wings is "disabled")>>
+					<<switch $wingslayer>>
+						<<case "front">>
+							<<link "Push wings behind">>
+								<<run State.setVar("$wingslayer", "back")>>
+								<<run Engine.show()>>
+							<</link>>
+						<<case "back">>
+							<<link "Move wings forward">>
+								<<run State.setVar("$wingslayer", "front")>>
+								<<run Engine.show()>>
+							<</link>>
+						<<default>>
+							<<link "Push wings behind">>
+								<<run State.setVar("$wingslayer", "back")>>
+								<<run Engine.show()>>
+							<</link>>
+					<</switch>>
+					<br>
 				<</if>>
 			</div>
 		</div>

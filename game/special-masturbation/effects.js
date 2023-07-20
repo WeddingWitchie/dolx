@@ -640,7 +640,7 @@ function masturbationeffectsArms(
 				fragment.append(
 					Wikifier.wikifyEval(
 						`<span class="blue">You run your fingers over your <<penis>>${
-							calculatePenisBulge() ? `, feeling the bulge beneath your ${V.worn.over_lower.name}` : ""
+							calculatePenisBulge() ? ", feeling the bulge beneath your <<exposedlower>>" : ""
 						}.</span>`
 					)
 				);
@@ -648,7 +648,7 @@ function masturbationeffectsArms(
 				fragment.append(
 					Wikifier.wikifyEval(
 						`<span class="blue">You run your fingers over your <<penis>>${
-							calculatePenisBulge() ? `, feeling the bulge beneath your ${V.worn.over_lower.name}` : ""
+							calculatePenisBulge() ? ", feeling the bulge beneath your <<exposedlower>>" : ""
 						}.</span>`
 					)
 				);
@@ -656,7 +656,7 @@ function masturbationeffectsArms(
 				fragment.append(
 					Wikifier.wikifyEval(
 						`<span class="blue">You run your fingers over your <<penis>>${
-							calculatePenisBulge() ? `, feeling the bulge beneath your ${V.worn.over_lower.name}` : ""
+							calculatePenisBulge() ? ", feeling the bulge beneath your <<exposedlower>>" : ""
 						}.</span>`
 					)
 				);
@@ -1239,7 +1239,7 @@ function masturbationeffectsArms(
 			if (V.lactating === 1 && V.breastfeedingdisable === "f") {
 				if (V.milk_amount >= 1) {
 					fragment.append(Wikifier.wikifyEval(`${altText.toys} <span class="lewd">and milk flows from your buds into the bottle.</span>`));
-					fragment.append(wikifier("breastfeed", Math.floor(handsOn * 3.5)));
+					fragment.append(wikifier("breastfeed", Math.floor(handsOn * 3.5), "pump"));
 				} else {
 					fragment.append(Wikifier.wikifyEval(`${altText.toys} but no milk flows from your buds. You must be dry.`));
 				}
@@ -1885,7 +1885,7 @@ function masturbationeffectsArms(
 		case "mvaginastopdildo":
 			clearAction("mrest");
 			V[arm + "arm"] = 0;
-			altText.selectedToy = selectedToy(arm);
+			altText.selectedToy = selectedToy(arm, false);
 			if (doubleAction) {
 				V[otherArm + "arm"] = 0;
 				altText.selectedOtherToy = selectedToy(otherArm);
@@ -2205,7 +2205,7 @@ function masturbationeffectsArms(
 		case "manusstopdildo":
 			clearAction("mrest");
 			V[arm + "arm"] = 0;
-			altText.selectedToy = selectedToy(arm);
+			altText.selectedToy = selectedToy(arm, false);
 			if (doubleAction) {
 				V[otherArm + "arm"] = 0;
 				altText.selectedOtherToy = selectedToy(otherArm);
@@ -2237,7 +2237,7 @@ function masturbationeffectsArms(
 			clearAction("mrest");
 			V[arm + "arm"] = 0;
 			V.mouth = 0;
-			altText.selectedToy = selectedToy(arm);
+			altText.selectedToy = selectedToy(arm, false);
 			fragment.append(span(`You move your ${toyDisplay(altText.selectedToy)} in your ${arm} hand away from your mouth.`, "purple"));
 			break;
 		default:
@@ -2767,7 +2767,7 @@ function masturbationeffectsVaginaAnus({ span, otherElement, additionalEffect, s
 			wikifier("arousal", 300, "oral");
 			wikifier("drugs", 10);
 			if (V.player.virginity.oral === true) {
-				fragment.append(wikifier("takeVirginity", "phallus plant", "oral"));
+				fragment.append(wikifier("takeVirginity", "'phallus plant'", "oral"));
 				fragment.append(" ");
 				fragment.append(
 					Wikifier.wikifyEval('You suck on the plant. <span class="red">It tastes very strange</span>, and you feel yourself heating up.')
@@ -2844,10 +2844,10 @@ function masturbationeffectsVaginaAnus({ span, otherElement, additionalEffect, s
 			wikifier("vaginalstat");
 			wikifier("drugs", 10);
 			wikifier("vaginaraped");
-			if (V.player.virginity.oral === true) {
+			if (V.player.virginity.vaginal === true) {
 				fragment.append(span("You lower yourself down, allowing the plant to penetrate you."));
 				fragment.append(" ");
-				fragment.append(wikifier("takeVirginity", "phallus plant", "vaginal"));
+				fragment.append(wikifier("takeVirginity", "'phallus plant'", "vaginal"));
 				fragment.append(" ");
 				fragment.append(
 					Wikifier.wikifyEval(
@@ -2937,10 +2937,10 @@ function masturbationeffectsVaginaAnus({ span, otherElement, additionalEffect, s
 			wikifier("arousal", 1000, "anal");
 			wikifier("analstat");
 			wikifier("drugs", 10);
-			if (V.player.virginity.oral === true) {
+			if (V.player.virginity.anal === true) {
 				fragment.append(span("You lower yourself down, allowing the plant to penetrate you."));
 				fragment.append(" ");
-				fragment.append(wikifier("takeVirginity", "phallus plant", "anal"));
+				fragment.append(wikifier("takeVirginity", "'phallus plant'", "anal"));
 				fragment.append(" ");
 				fragment.append(
 					Wikifier.wikifyEval(

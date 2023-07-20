@@ -575,14 +575,16 @@ function masturbationActionsHands(arm, { selectedToy, toyDisplay, genitalsExpose
 						break;
 					case "small dildo":
 					case "dildo":
-						result.options.push({
-							action: "mdildomouthentrance",
-							text: "Hold against your mouth",
-							colour: "sub",
-						});
-						break;
+						if (V.mouth === 0) {
+							result.options.push({
+								action: "mdildomouthentrance",
+								text: "Hold against your mouth",
+								colour: "sub",
+							});
+							break;
+						}
 				}
-				result.options.push(stop("mvaginastopdildo"));
+				result.options.push(stop("mdildostop"));
 			}
 			break;
 		case "mballs":
@@ -908,7 +910,7 @@ function masturbationActionsVagina({ selectedToy, toyDisplay, genitalsExposed })
 
 	switch (V.vaginause) {
 		case 0:
-			result.text = `You're pussy is ${genitalsExposed() ? "free" : "free, but clothed"}.`;
+			result.text = `Your pussy is ${genitalsExposed() ? "free" : "free, but clothed"}.`;
 			if (V.moorPhallusPlant === 1) {
 				result.options.push({
 					action: "mpenisflowerrub",
@@ -989,7 +991,7 @@ function masturbationActionsAnus({ selectedToy, toyDisplay, genitalsExposed }) {
 
 	switch (V.anususe) {
 		case 0:
-			result.text = `You're ${genitalsExposed() ? "anus" : "ass"} is ${genitalsExposed() ? "free" : "free, but clothed"}.`;
+			result.text = `Your ${genitalsExposed() ? "anus" : "ass"} is ${genitalsExposed() ? "free" : "free, but clothed"}.`;
 			if (V.moorPhallusPlant === 1) {
 				result.options.push({
 					action: "mpenisflowerrub",

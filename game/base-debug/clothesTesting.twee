@@ -54,32 +54,44 @@
 			penisVirgin: "virgin",
 			ballsExist: true,
 			bellySize: 0,
-			vaginaCum:"",
-			anusCum:"",
-			mouthCum:"",
+			vaginaCum: 0,
+			anusCum: 0,
+			mouthCum: 0,
+			bodytype: 0,
+			rightArmCovering: false,
+			leftArmCovering: false,
 			angelHalo:"hidden",
 			angelWings:"hidden",
 			angelWingsLeftType:"idle",
 			angelWingsRightType:"idle",
+			angelWingsLayer:"front",
 			fallenAngelHalo:"hidden",
 			fallenAngelWings:"hidden",
 			fallenAngelWingsLeftType:"idle",
 			fallenAngelWingsRightType:"idle",
+			fallenAngelWingsLayer:"front",
 			demonHorns:"hidden",
+			demonHornsLayer:"back",
 			demonTail:"hidden",
 			demonTailType:"idle",
+			demonTailLayer:"front",
 			demonWings:"hidden",
 			demonWingsType:"idle",
+			demonWingsLayer:"front",
 			wolfEars:"hidden",
 			wolfTail:"hidden",
+			wolfTailLayer:"front",
 			wolfPits:"hidden",
 			wolfPubes:"hidden",
 			catEars:"hidden",
 			catTail:"hidden",
+			catTailLayer:"front",
 			catTailType:"idle",
 			cowHorns:"hidden",
+			cowHornsLayer:"back",
 			cowEars:"hidden",
 			cowTail:"hidden",
+			cowTailLayer:"front",
 			birdEyes:"hidden",
 			birdMalar:"hidden",
 			birdPlumage:"hidden",
@@ -87,9 +99,12 @@
 			birdWings:"hidden",
 			birdWingsLeftType:"idle",
 			birdWingsRightType:"idle",
+			birdWingsLayer:"front",
 			birdTail:"hidden",
+			birdTailLayer:"front",
 			foxEars:"hidden",
 			foxTail:"hidden",
+			foxTailLayer:"front",
 			foxCheeks:"hidden",
 		}>>
 		<<set $characterViewer.colours to {
@@ -118,7 +133,7 @@
 			charactersToShow: 1,
 			page: "body",
 			animations: true,
-			autoRefresh: false,
+			autoRefresh: true,
 			expand: false,
 		}>>
 	<</if>>
@@ -126,7 +141,9 @@
 		<<set $characterViewer.controls to clone($tempCharacterViewerControls)>>
 		<<unset $tempCharacterViewerControls>>
 	<</if>>
-	<<clothesTestingGenerateClothes>>
+	<<if !_clothes>>
+		<<clothesTestingGenerateClothes>>
+	<</if>>
 	<div id="images">
 		<<clothesTestingImageGenerateAll>>
 	</div>
@@ -209,9 +226,9 @@
 		<<unset $characterViewer>>
 	<</link>>
 	<<if $characterViewer.controls.autoRefresh>>
-		<<run $(() => { $('#controls input, #controls select').on('input change', e => {
-			wikifier('<<clothesTestingImageUpdate>>');
-		}).trigger('change') })>>
+		<<run $(() =>
+			$('#controls input, #controls select').on('input change', e => wikifier('<<clothesTestingImageUpdate>>'))
+		)>>
 	<</if>>
 	<<if $characterViewer.controls.expand>>
 		<<addclass "#passages" "debugPassages">>
@@ -256,36 +273,42 @@
 	<<set _clothes to {}>>
 	<<set _equip to ["upper","lower","under_upper","under_lower","head","face","neck","hands","legs","feet","genitals"]>>
 	<<for _i to 0; _i lt _equip.length; _i++>>
-		<<set _clothes[_equip[_i]] to {}>>
-		<<set _keys to Object.keys(setup.clothes[_equip[_i]])>>
+		<<set _slot to _equip[_i]>>
+		<<set _clothes[_slot] to {}>>
+		<<set _keys to Object.keys(setup.clothes[_slot])>>
 		<<for _j to 0; _j lt _keys.length; _j++>>
-			<<set _clothes[_equip[_i]][setup.clothes[_equip[_i]][_j].name] to setup.clothes[_equip[_i]][_j].index>>
+			<<set _clothes[_slot][setup.clothes[_slot][_j].name] to setup.clothes[_slot][_j].index>>
 		<</for>>
 	<</for>>
 <</widget>>
 
 <<widget "clothesTestingBodyControls">>
 	<h4>Body</h4>
+	
+	<<set _bodytypename to ["Masculine", "Androgynous", "Feminine"]>>
+	Body Type:
+	<<numberslider "$characterViewer.bodyState.bodytype" $characterViewer.bodyState.bodytype 0 2 1>>
+	<br>
 
 	<span class="gold">Skin Colour</span>
 	<br>
-	<label>Enable <<print '<<radiobutton "$options.tanImgEnabled" true ' + ($options.tanImgEnabled ? "checked" : "") + '>>'>></label> |
-	<label>Disable <<print '<<radiobutton "$options.tanImgEnabled" false' + (!$options.tanImgEnabled ? "checked" : "") + '>>'>></label> |
+	<label>Enable <<radiobutton "$options.tanImgEnabled" true autocheck>></label> |
+	<label>Disable <<radiobutton "$options.tanImgEnabled" false autocheck>></label> |
 	<br>
 	Reddish:
-	<label>Light <<print '<<radiobutton "$characterViewer.skinColour.type" "light" ' + ($characterViewer.skinColour.type is "light" ? "checked" : "") + '>>'>></label> |
-	<label>Medium <<print '<<radiobutton "$characterViewer.skinColour.type" "medium" ' + ($characterViewer.skinColour.type is "medium" ? "checked" : "") + '>>'>></label> |
-	<label>Dark <<print '<<radiobutton "$characterViewer.skinColour.type" "dark" ' + ($characterViewer.skinColour.type is "dark" ? "checked" : "") + '>>'>></label> |
-	<label>Gyaru <<print '<<radiobutton "$characterViewer.skinColour.type" "gyaru" ' + ($characterViewer.skinColour.type is "gyaru" ? "checked" : "") + '>>'>> (Pale with no tan, very dark with full tan)</label>
+	<label>Light <<radiobutton "$characterViewer.skinColour.type" "light" autocheck>></label> |
+	<label>Medium <<radiobutton "$characterViewer.skinColour.type" "medium" autocheck>></label> |
+	<label>Dark <<radiobutton "$characterViewer.skinColour.type" "dark" autocheck>></label> |
+	<label>Gyaru <<radiobutton "$characterViewer.skinColour.type" "gyaru" autocheck>> (Pale with no tan, very dark with full tan)</label>
 	<br>
 	Yellowish:
-	<label>Light <<print '<<radiobutton "$characterViewer.skinColour.type" "ylight" ' + ($characterViewer.skinColour.type is "ylight" ? "checked" : "") + '>>'>></label> |
-	<label>Medium <<print '<<radiobutton "$characterViewer.skinColour.type" "ymedium" ' + ($characterViewer.skinColour.type is "ymedium" ? "checked" : "") + '>>'>></label> |
-	<label>Dark <<print '<<radiobutton "$characterViewer.skinColour.type" "ydark" ' + ($characterViewer.skinColour.type is "ydark" ? "checked" : "") + '>>'>></label> |
-	<label>Gyaru <<print '<<radiobutton "$characterViewer.skinColour.type" "ygyaru" ' + ($characterViewer.skinColour.type is "ygyaru" ? "checked" : "") + '>>'>></label>
+	<label>Light <<radiobutton "$characterViewer.skinColour.type" "ylight" autocheck>></label> |
+	<label>Medium <<radiobutton "$characterViewer.skinColour.type" "ymedium" autocheck>></label> |
+	<label>Dark <<radiobutton "$characterViewer.skinColour.type" "ydark" autocheck>></label> |
+	<label>Gyaru <<radiobutton "$characterViewer.skinColour.type" "ygyaru" autocheck>></label>
 	<br><br>
 
-	<label>Initial Tan: <<print '<<numberslider "$characterViewer.skinColour.range" '+($characterViewer.skinColour.range isnot undefined? $characterViewer.skinColour.range:0)+' 0 100 1>>'>></label>
+	<label>Initial Tan: <<numberslider "$characterViewer.skinColour.range" $characterViewer.skinColour.range 0 100 1>></label>
 	<br><br>
 
 	<span class="gold">Penis Size</span>
@@ -311,11 +334,13 @@
 	<label>No <<radiobutton "$characterViewer.bodyState.ballsExist" false autocheck>></label> |
 	<br><br>
 
+	<<set _breastNames to ["Flat", "Budding", "Tiny", "Small", "Pert", "Modest", "Full", "Large", "Ample", "Massive", "Huge", "Gigantic", "Enormous"]>>
+	<<set _liquidNames to ["None","Drops","Some","Lots","Dripping","Overflowing"]>>
+
 	<span class="gold">Breasts</span>
-	<<set _name to ["Flat", "Budding", "Tiny", "Small", "Pert", "Modest", "Full", "Large", "Ample", "Massive", "Huge", "Gigantic", "Enormous"]>>
-	<<for _i to 0; _i lt _name.length; _i++>>
-		<label><<print _name[_i]>> <<print '<<radiobutton "$characterViewer.bodyState.breastSize" _i ' + ($characterViewer.bodyState.breastSize is _i ? "checked" : "") + '>>'>></label> |
-	<</for>>
+	<<numberslider "$characterViewer.bodyState.breastSize" $characterViewer.bodyState.breastSize 0 _breastNames.length-1 1>>
+	<br>
+	Breast Cleavage: <<checkbox "$characterViewer.bodyState.cleavage" false true autocheck>>
 	<br><br>
 
 	<span class="gold">Belly Size</span>
@@ -323,41 +348,41 @@
 	<<numberslider "$characterViewer.bodyState.bellySize" $characterViewer.bodyState.bellySize 0 24 1>>
 	<br><br>
 
-	<span class="gold">Vagina Cum</span>
+	<span class="gold">Vagina Cum Amount</span>
 	<br>
-	<<listbox "$characterViewer.bodyState.vaginaCum" autoselect>>
-		<<option "None" "">>
-		<<option "Start" "Start">>
-		<<option "Very Slow" "VerySlow">>
-		<<option "Slow" "Slow">>
-		<<option "Fast" "Fast">>
-		<<option "Very Fast" "VeryFast">>
-	<</listbox>>
+	<<numberslider "$characterViewer.bodyState.vaginaCum" $characterViewer.bodyState.vaginaCum 0 _liquidNames.length-1 1>>
 	<br><br>
 
-	<span class="gold">Anus Cum</span>
+	<span class="gold">Anus Cum Amount</span>
 	<br>
-	<<listbox "$characterViewer.bodyState.anusCum" autoselect>>
-		<<option "None" "">>
-		<<option "Start" "Start">>
-		<<option "Very Slow" "VerySlow">>
-		<<option "Slow" "Slow">>
-		<<option "Fast" "Fast">>
-		<<option "Very Fast" "VeryFast">>
-	<</listbox>>
+	<<numberslider "$characterViewer.bodyState.anusCum" $characterViewer.bodyState.anusCum 0 _liquidNames.length-1 1>>
 	<br><br>
 
-	<span class="gold">Mouth Cum</span>
+	<span class="gold">Mouth Cum Amount</span>
 	<br>
-	<<listbox "$characterViewer.bodyState.mouthCum" autoselect>>
-		<<option "None" "">>
-		<<option "Start" "Start">>
-		<<option "Very Slow" "VerySlow">>
-		<<option "Slow" "Slow">>
-		<<option "Fast" "Fast">>
-		<<option "Very Fast" "VeryFast">>
-	<</listbox>>
+	<<numberslider "$characterViewer.bodyState.mouthCum" $characterViewer.bodyState.mouthCum 0 _liquidNames.length-1 1>>
 	<br><br>
+
+	<span class="gold">Left Arm Covering Chest:</span>
+	<<checkbox "$characterViewer.bodyState.leftArmCovering" false true autocheck>>
+	<br>
+	<span class="gold">Right Arm Covering Crotch:</span>
+	<<checkbox "$characterViewer.bodyState.rightArmCovering" false true autocheck>>
+	<br><br>
+
+	<<run $(() => {
+		function setupListener(name, labels) {
+			let className = name.toLowerCase();
+			$('#numberslider-input-characterviewerbodystate' + className).on('input change', e =>
+				$('#numberslider-value-characterviewerbodystate' + className).html(" "+labels[e.currentTarget.value]));
+			$('#numberslider-value-characterviewerbodystate' + className).html(" "+labels[$characterViewer.bodyState[name]]);	
+		}
+		setupListener("bodytype", _bodytypename);
+		setupListener("breastSize", _breastNames);
+		setupListener("vaginaCum", _liquidNames);
+		setupListener("anusCum", _liquidNames);
+		setupListener("mouthCum", _liquidNames);
+	})>>
 <</widget>>
 
 <<widget "clothesTestingFaceControls">>
@@ -436,13 +461,13 @@
 
 	<span class="gold">Hair Length</span>
 	<br>
-	<label>None <<print '<<radiobutton "$characterViewer.bodyState.hairStage" "none" ' + ($characterViewer.bodyState.hairStage is "none" ? "checked" : "") + '>>'>></label> |
-	<label>Short <<print '<<radiobutton "$characterViewer.bodyState.hairStage" "short" ' + ($characterViewer.bodyState.hairStage is "short" ? "checked" : "") + '>>'>></label> |
-	<label>Shoulder <<print '<<radiobutton "$characterViewer.bodyState.hairStage" "shoulder" ' + ($characterViewer.bodyState.hairStage is "shoulder" ? "checked" : "") + '>>'>></label> |
-	<label>Chest <<print '<<radiobutton "$characterViewer.bodyState.hairStage" "chest" ' + ($characterViewer.bodyState.hairStage is "chest" ? "checked" : "") + '>>'>></label> |
-	<label>Navel <<print '<<radiobutton "$characterViewer.bodyState.hairStage" "navel" ' + ($characterViewer.bodyState.hairStage is "navel" ? "checked" : "") + '>>'>></label> |
-	<label>Thighs <<print '<<radiobutton "$characterViewer.bodyState.hairStage" "thighs" ' + ($characterViewer.bodyState.hairStage is "thighs" ? "checked" : "") + '>>'>></label> |
-	<label>Feet <<print '<<radiobutton "$characterViewer.bodyState.hairStage" "feet" ' + ($characterViewer.bodyState.hairStage is "feet" ? "checked" : "") + '>>'>></label> |
+	<label>None <<radiobutton "$characterViewer.bodyState.hairStage" "none" autocheck>></label> |
+	<label>Short <<radiobutton "$characterViewer.bodyState.hairStage" "short" autocheck>></label> |
+	<label>Shoulder <<radiobutton "$characterViewer.bodyState.hairStage" "shoulder" autocheck>></label> |
+	<label>Chest <<radiobutton "$characterViewer.bodyState.hairStage" "chest" autocheck>></label> |
+	<label>Navel <<radiobutton "$characterViewer.bodyState.hairStage" "navel" autocheck>></label> |
+	<label>Thighs <<radiobutton "$characterViewer.bodyState.hairStage" "thighs" autocheck>></label> |
+	<label>Feet <<radiobutton "$characterViewer.bodyState.hairStage" "feet" autocheck>></label> |
 	<br><br>
 
 	<span class="gold">Hair Type</span>
@@ -557,6 +582,12 @@
 		<<option "Normal" "idle">>
 		<<option "Cover" "cover">>
 	<</listbox>>
+	<br>
+	Wing Layering:
+	<<listbox "$characterViewer.bodyState.angelWingsLayer" autoselect>>
+		<<option "Front" "front">>
+		<<option "Back" "back">>
+	<</listbox>>
 	<br><br>
 
 	<span class="gold">Fallen Angel:</span>
@@ -583,6 +614,12 @@
 	<<listbox "$characterViewer.bodyState.fallenAngelWingsRightType" autoselect>>
 		<<option "Normal" "idle">>
 		<<option "Cover" "cover">>
+	<</listbox>>
+	<br>
+	Wing Layering:
+	<<listbox "$characterViewer.bodyState.fallenAngelWingsLayer" autoselect>>
+		<<option "Front" "front">>
+		<<option "Back" "back">>
 	<</listbox>>
 	<br><br>
 
@@ -616,12 +653,31 @@
 		<<option "Normal" "idle">>
 		<<option "Cover" "cover">>
 		<<option "Flaunt" "flaunt">>
-	<</listbox>><br>
+	<</listbox>>
+	<br>
 	Demon Tail Type:
 	<<listbox "$characterViewer.bodyState.demonTailType" autoselect>>
 		<<option "Normal" "idle">>
 		<<option "Cover" "cover">>
 		<<option "Flaunt" "flaunt">>
+	<</listbox>>
+	<br>
+	Horn Layering:
+	<<listbox "$characterViewer.bodyState.demonHornsLayer" autoselect>>
+		<<option "Front" "front">>
+		<<option "Back" "back">>
+	<</listbox>>
+	||
+	Tail Layering:
+	<<listbox "$characterViewer.bodyState.demonTailLayer" autoselect>>
+		<<option "Front" "front">>
+		<<option "Back" "back">>
+	<</listbox>>
+	||
+	Wing Layering:
+	<<listbox "$characterViewer.bodyState.demonWingsLayer" autoselect>>
+		<<option "Front" "front">>
+		<<option "Back" "back">>
 	<</listbox>>
 	<br><br>
 
@@ -637,6 +693,12 @@
 	<<listbox "$characterViewer.bodyState.wolfTail" autoselect>>
 		<<option "Hide" "hidden">>
 		<<option "Default" "default">>
+	<</listbox>>
+	<br>
+	Tail Layering:
+	<<listbox "$characterViewer.bodyState.wolfTailLayer" autoselect>>
+		<<option "Front" "front">>
+		<<option "Back" "back">>
 	<</listbox>>
 	<br><br>
 
@@ -660,6 +722,12 @@
 		<<option "Cover" "cover">>
 		<<option "Flaunt" "flaunt">>
 	<</listbox>>
+	<br>
+	Tail Layering:
+	<<listbox "$characterViewer.bodyState.catTailLayer" autoselect>>
+		<<option "Front" "front">>
+		<<option "Back" "back">>
+	<</listbox>>
 	<br><br>
 
 	<span class="gold">Cow:</span>
@@ -680,6 +748,18 @@
 	<<listbox "$characterViewer.bodyState.cowTail" autoselect>>
 		<<option "Hide" "hidden">>
 		<<option "Default" "default">>
+	<</listbox>>
+	<br>
+	Horn Layering:
+	<<listbox "$characterViewer.bodyState.cowHornsLayer" autoselect>>
+		<<option "Front" "front">>
+		<<option "Back" "back">>
+	<</listbox>>
+	||
+	Tail Layering:
+	<<listbox "$characterViewer.bodyState.cowTailLayer" autoselect>>
+		<<option "Front" "front">>
+		<<option "Back" "back">>
 	<</listbox>>
 	<br><br>
 
@@ -732,6 +812,18 @@
 		<<option "Normal" "idle">>
 		<<option "Cover" "cover">>
 	<</listbox>>
+	<br>
+	Tail Layering:
+	<<listbox "$characterViewer.bodyState.birdTailLayer" autoselect>>
+		<<option "Front" "front">>
+		<<option "Back" "back">>
+	<</listbox>>
+	||
+	Wing Layering:
+	<<listbox "$characterViewer.bodyState.birdWingsLayer" autoselect>>
+		<<option "Front" "front">>
+		<<option "Back" "back">>
+	<</listbox>>
 	<br><br>
 
 	<span class="gold">Fox:</span>
@@ -753,6 +845,12 @@
 		<<option "Hide" "hidden">>
 		<<option "Default" "default">>
 	<</listbox>>
+	<br>
+	Tail Layering:
+	<<listbox "$characterViewer.bodyState.foxTailLayer" autoselect>>
+		<<option "Front" "front">>
+		<<option "Back" "back">>
+	<</listbox>>
 	<br><br>
 <</widget>>
 
@@ -768,7 +866,11 @@
 	<<set _modeloptions.show_face to $characterViewer.bodyState.show_face>>
 
 	/*body*/
-	<<set _modeloptions.breasts to "cleavage">>
+	<<set _modeloptions.body_type to ["m","a","f","o"][$characterViewer.bodyState.bodytype]>>
+	<<set _modeloptions.breasts to $characterViewer.bodyState.cleavage ? "cleavage" : "default">>
+	/* <<set _modeloptions.breasts to $characterViewer.clothesEquipped.under_upper isnot 0 ? "cleavage" : "default">> */
+	<<set _modeloptions.arm_left to $characterViewer.bodyState.leftArmCovering ? "cover" : "idle">>
+	<<set _modeloptions.arm_right to $characterViewer.bodyState.rightArmCovering ? "cover" : "idle">>
 	<<switch $characterViewer.bodyState.breastSize>>
 		<<case 12>>
 			<<set _modeloptions.breast_size to 6>>
@@ -780,8 +882,10 @@
 			<<set _modeloptions.breast_size to 3>>
 		<<case 3>>
 			<<set _modeloptions.breast_size to 2>>
-		<<case 0 1 2>>
+		<<case 1 2>>
 			<<set _modeloptions.breast_size to 1>>
+		<<default>>
+			<<set _modeloptions.breast_size to 0>>
 	<</switch>>
 	<<set _modeloptions.crotch_visible to $characterViewer.bodyState.penisSize !== "none">>
 	<<set _modeloptions.crotch_exposed to $characterViewer.bodyState.penisSize !== "none">>
@@ -825,9 +929,10 @@
 	<</if>>
 
 	/*Fluid*/
-	<<set _modeloptions.drip_vaginal to $characterViewer.bodyState.vaginaCum>>
-	<<set _modeloptions.drip_anal to $characterViewer.bodyState.anusCum>>
-	<<set _modeloptions.drip_mouth to $characterViewer.bodyState.mouthCum>>
+	<<set _baseArray to ["", "Start", "VerySlow", "Slow", "Fast", "VeryFast"]>>
+	<<set _modeloptions.drip_vaginal to _baseArray[$characterViewer.bodyState.vaginaCum]>>
+	<<set _modeloptions.drip_anal to _baseArray[$characterViewer.bodyState.anusCum]>>
+	<<set _modeloptions.drip_mouth to _baseArray[$characterViewer.bodyState.mouthCum]>>
 
 	/*Clothes*/
 	<<characterViewerModelClothes $_id "head">>
@@ -846,36 +951,48 @@
 	<<set _modeloptions.angel_wings_type to $characterViewer.bodyState.angelWings>>
 	<<set _modeloptions.angel_wing_right to $characterViewer.bodyState.angelWingsRightType>>
 	<<set _modeloptions.angel_wing_left to $characterViewer.bodyState.angelWingsLeftType>>
+	<<set _modeloptions.angel_wings_layer to $characterViewer.bodyState.angelWingsLayer>>
 	<<set _modeloptions.angel_halo_type to $characterViewer.bodyState.angelHalo>>
 	<<set _modeloptions.fallen_wings_type to $characterViewer.bodyState.fallenAngelWings>>
 	<<set _modeloptions.fallen_wing_right to $characterViewer.bodyState.fallenAngelWingsRightType>>
 	<<set _modeloptions.fallen_wing_left to $characterViewer.bodyState.fallenAngelWingsLeftType>>
+	<<set _modeloptions.fallen_wings_layer to $characterViewer.bodyState.fallenAngelWingsLayer>>
 	<<set _modeloptions.fallen_halo_type to $characterViewer.bodyState.fallenAngelHalo>>
 	<<set _modeloptions.demon_wings_type to $characterViewer.bodyState.demonWings>>
 	<<set _modeloptions.demon_wings_state to $characterViewer.bodyState.demonWingsType>>
+	<<set _modeloptions.demon_wings_layer to $characterViewer.bodyState.demonWingsLayer>>
 	<<set _modeloptions.demon_tail_type to $characterViewer.bodyState.demonTail>>
 	<<set _modeloptions.demon_tail_state to $characterViewer.bodyState.demonTailType>>
+	<<set _modeloptions.demon_tail_layer to $characterViewer.bodyState.demonTailLayer>>
 	<<set _modeloptions.demon_horns_type to $characterViewer.bodyState.demonHorns>>
+	<<set _modeloptions.demon_horns_layer to $characterViewer.bodyState.demonHornsLayer>>
 	<<set _modeloptions.wolf_tail_type to $characterViewer.bodyState.wolfTail>>
+	<<set _modeloptions.wolf_tail_layer to $characterViewer.bodyState.wolfTailLayer>>
 	<<set _modeloptions.wolf_ears_type to $characterViewer.bodyState.wolfEars>>
 	<<set _modeloptions.wolf_pits_type to $characterViewer.bodyState.wolfPits>>
 	<<set _modeloptions.wolf_pubes_type to $characterViewer.bodyState.wolfPubes>>
 	<<set _modeloptions.wolf_cheeks_type to "disabled">>
 	<<set _modeloptions.cat_tail_type to $characterViewer.bodyState.catTail>>
 	<<set _modeloptions.cat_tail_state to $characterViewer.bodyState.catTailType>>
+	<<set _modeloptions.cat_tail_layer to $characterViewer.bodyState.catTailLayer>>
 	<<set _modeloptions.cat_ears_type to $characterViewer.bodyState.catEars>>
 	<<set _modeloptions.cow_horns_type to $characterViewer.bodyState.cowHorns>>
+	<<set _modeloptions.cow_horns_layer to $characterViewer.bodyState.cowHornsLayer>>
 	<<set _modeloptions.cow_tail_type to $characterViewer.bodyState.cowTail>>
+	<<set _modeloptions.cow_tail_layer to $characterViewer.bodyState.cowTailLayer>>
 	<<set _modeloptions.cow_ears_type to $characterViewer.bodyState.cowEars>>
 	<<set _modeloptions.bird_wings_type to $characterViewer.bodyState.birdWings>>
 	<<set _modeloptions.bird_wing_right to $characterViewer.bodyState.birdWingsRightType>>
 	<<set _modeloptions.bird_wing_left to $characterViewer.bodyState.birdWingsLeftType>>
+	<<set _modeloptions.bird_wings_layer to $characterViewer.bodyState.birdWingsLayer>>
 	<<set _modeloptions.bird_tail_type to $characterViewer.bodyState.birdTail>>
+	<<set _modeloptions.bird_tail_layer to $characterViewer.bodyState.birdTailLayer>>
 	<<set _modeloptions.bird_eyes_type to $characterViewer.bodyState.birdEyes>>
 	<<set _modeloptions.bird_malar_type to $characterViewer.bodyState.birdMalar>>
 	<<set _modeloptions.bird_plumage_type to $characterViewer.bodyState.birdPlumage>>
 	<<set _modeloptions.bird_pubes_type to $characterViewer.bodyState.birdPubes>>
 	<<set _modeloptions.fox_tail_type to $characterViewer.bodyState.foxTail>>
+	<<set _modeloptions.fox_tail_layer to $characterViewer.bodyState.foxTailLayer>>
 	<<set _modeloptions.fox_ears_type to $characterViewer.bodyState.foxEars>>
 	<<set _modeloptions.fox_cheeks_type to $characterViewer.bodyState.foxCheeks>>
 
@@ -1000,7 +1117,7 @@
 		<</link>>
 	<<else>>
 		<<link [[Enable|$passage]]>>
-			<<set $characterViewer.controls.autoRefresh to false>>
+			<<set $characterViewer.controls.autoRefresh to true>>
 		<</link>>
 	<</if>>
 	<br><br>
