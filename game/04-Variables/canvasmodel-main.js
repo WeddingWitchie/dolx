@@ -2482,12 +2482,12 @@ Renderer.CanvasModels["main"] = {
 		}),
 		"upper_breasts": genlayer_clothing_breasts("upper", {
 			zfn(options) {
-				return options.zupper
+				return options.zupper + (options["worn_upper_setup"].accessory_main === 1 ? 1 : 0)
 			}
 		}),
 		"upper_acc": genlayer_clothing_accessory("upper", {
 			zfn(options) {
-				return options.zupper
+				return options.zupper;
 			}
 		}),
 		"upper_breasts_acc": genlayer_clothing_breasts_acc("upper", {
@@ -3129,7 +3129,9 @@ function genlayer_clothing_accessory(slot, overrideOptions) {
 		alphafn(options) {
 			return options["worn_" + slot + "_alpha"]
 		},
-		z: ZIndices[slot],
+		zfn(options) {
+			return ZIndices[slot+(options["worn_" + slot + "_setup"].accessory_main === 1 ? "_acc" : '')];
+		},
 		filters: ["worn_" + slot + "_acc"],
 		animation: "idle"
 	}, overrideOptions)
