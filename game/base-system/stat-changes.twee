@@ -293,7 +293,12 @@
 				<<set _arousalPart to $bottomsensitivity>>
 				<<set $bottomsensitivity += _gain * 0.00001>>
 			<<case "genital" "genitals" "penis" "penile" "pussy" "vaginal" "masturbationGenital" "masturbationPenis" "masturbationVagina">>
-				<<set _arousalPart to $genitalsensitivity>>
+				<<if $player.vaginaExist is "t">>
+					<<set _wetnessPenalty to Math.min($vaginaWetness/60, 1)>>
+				<<else>>
+					<<set _wetnessPenalty to 1>>
+				<</if>>
+				<<set _arousalPart to Math.max($genitalsensitivity * _wetnessPenalty, 0.01)>>
 				<<set $genitalsensitivity += _gain * 0.00001>>
 				<<if playerIsPregnant()>>
 					<<set $_arousalPart += 0.5>>
@@ -333,6 +338,7 @@
 		<<if $player.gender is "f" and _gain*_mod gte 400 and _arousalPart gt 1>>
 			<<if $arousal lt $arousalmax * 0.2 and $orgasmcurrent lt 1>>
 			<<elseif $arousal lt $arousalmax * 0.4 and $orgasmcurrent lt 1>>
+				
 				<<switch $speechcycle>>
 					<<case 0>>
 						"M-mh!" 
@@ -415,6 +421,8 @@
 				<<set $timeSinceArousal to 0>>
 			<</if>>
 		<</if>>
+
+		<<update-audio>>
 
 	<<else>>
 		<<error {
@@ -577,6 +585,23 @@
 		<<else>>
 			<<set $purity = Math.clamp($purity, 0, 999)>>
 		<</if>>
+		/* <<if $player.trans is "t" and $player.gender is "f">>
+			<<if $purity gte 800>>
+				<<set $player.gender_body to "m">>
+			<<elseif $purity gte 700>>
+				<<set $player.gender_body to "a">>
+			<<else>>
+				<<set $player.gender_body to "f">>
+			<</if>>
+		<<elseif $player.trans is "t" and $player.gender is "m">>
+			<<if $purity gte 800>>
+				<<set $player.gender_body to "f">>
+			<<elseif $purity gte 700>>
+				<<set $player.gender_body to "a">>
+			<<else>>
+				<<set $player.gender_body to "m">>
+			<</if>>
+		<</if>> */
 	<</if>>
 <</widget>>
 
