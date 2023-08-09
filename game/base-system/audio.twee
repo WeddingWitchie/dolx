@@ -15,9 +15,13 @@
 	<<cacheaudio "breath_fast1" "aud/bgv/breath/breath-fast01.ogg">>
 	<<cacheaudio "breath_fast2" "aud/bgv/breath/breath-fast02.ogg">>
 	<<cacheaudio "breath_fast3" "aud/bgv/breath/breath-fast03.ogg">>
+		<<createplaylist "breath_vvslow">>
+			<<track "breath_vslow1" volume 0.5>>
+			<<track "breath_vslow2" volume 0.5>>
+		<</createplaylist>>
 		<<createplaylist "breath_vslow">>
-			<<track "breath_vslow1">>
-			<<track "breath_vslow2">>
+			<<track "breath_vslow1" copy>>
+			<<track "breath_vslow2" copy>>
 		<</createplaylist>>
 		<<createplaylist "breath_slow">>
 			<<track "breath_slow1">>
@@ -124,26 +128,6 @@
 			"orgasm6"
 		]>>
 
-		/* <<createplaylist "breath_orgasm">>
-			<<track "breath_orgasm1">>
-			<<track "breath_orgasm2">>
-			<<track "breath_orgasm3">>
-			<<track "breath_orgasm4">>
-		<</createplaylist>>
-		<<createplaylist "chupa_orgasm">>
-			<<track "chupa_orgasm1">>
-			<<track "chupa_orgasm2">>
-			<<track "chupa_orgasm3">>
-		<</createplaylist>>
-		<<createplaylist "orgasm">>
-			<<track "orgasm1">>
-			<<track "orgasm2">>
-			<<track "orgasm3">>
-			<<track "orgasm4">>
-			<<track "orgasm5">>
-			<<track "orgasm6">>
-		<</createplaylist>> */
-
 	/* BGS - sound effects meant to be played on loop */
 	<<cacheaudio "sex_slow1" "aud/bgs/sex/slow_heavy1.ogg">>
 	<<cacheaudio "sex_slow2" "aud/bgs/sex/slow_heavy2.ogg">>
@@ -214,90 +198,12 @@
 
 <</widget>>
 
-<<widget "bgs">>
-	<<if $bgsCurrentPlaylist is undefined>>
-		<<set $bgsCurrentPlaylist to "none">>
-	<</if>>
-	<<if $voiceoverActive is undefined>>
-		<<set $voiceoverActive to "f">>
-	<</if>>
-	<<if _args[0] is "stop" and $bgsCurrentPlaylist neq "none">>
-		/* Stop the current BGS playlist */
-		<<playlist $bgsCurrentPlaylist stop>>
-		<<set $bgsCurrentPlaylist to "none">>
-	
-	<<elseif _args[0] neq "stop" and _args[0] neq $bgsCurrentPlaylist and $voiceoverActive is "f">>
-		/* Stop the previous BGS playlist */
-		<<if $bgsCurrentPlaylist neq "none">>
-			<<playlist $bgsCurrentPlaylist stop>>
-		<</if>>
-
-		/* Start playing the current BGS playlist */
-		<<set $bgsCurrentPlaylist to _args[0]>>
-		<<playlist $bgsCurrentPlaylist volume 0>>
-		<<playlist $bgsCurrentPlaylist fadein loop shuffle>>
-
-	<</if>>	
-<</widget>>
-
-<<widget "bgv">>
-	<<if $bgvCurrentPlaylist is undefined>>
-		<<set $bgvCurrentPlaylist to "none">>
-	<</if>>
-	<<if $voiceoverActive is undefined>>
-		<<set $voiceoverActive to "f">>
-	<</if>>
-	<<if _args[0] is "stop" and $bgvCurrentPlaylist neq "none">>
-		/* Stop the current BGV playlist */
-		<<playlist $bgvCurrentPlaylist stop>>
-		<<set $bgvCurrentPlaylist to "none">>
-
-	<<elseif _args[0] neq "stop" and _args[0] neq $bgvCurrentPlaylist and ($voiceoverActive is "f" or _args[1] is "override")>>
-		/* Stop the previous BGV playlist */
-		<<if $bgvCurrentPlaylist neq "none">>
-			<<playlist $bgvCurrentPlaylist stop>>
-		<</if>>
-
-		/* Start playing the current BGV playlist */
-		<<set $bgvCurrentPlaylist to _args[0]>>
-		<<playlist $bgvCurrentPlaylist volume 0>>
-		<<playlist $bgvCurrentPlaylist fadein loop shuffle>>
-	
-	<</if>>	
-<</widget>>
-
-<<widget "voiceover">>
-	<<if $bgvCurrentPlaylist neq "none">>
-		/* Fade out the BGV */
-		<<playlist $bgvCurrentPlaylist fadeout>>
-		<<set $voiceoverActive to "t">>
-
-		<<timed 4500ms>>
-			/* Play the voiceover */
-			<<audio _args[0][random(0,_args[0].length-1)] play>>
-			
-			<<if $fingersInVagina gte 1>>
-				<<playlist $bgsCurrentPlaylist fadeout>>
-			<</if>>
-
-			/* Wait 6 seconds and then resume the BGV */
-			<<next 6s>>
-				/* <<playlist $bgvCurrentPlaylist volume 0 >> */
-				<<arousal-voice "override">>
-				<<set $voiceoverActive to "f">>
-		<</timed>>
-	<</if>>
-<</widget>>
-
 <<widget "update-audio">>
 	/* Lists of relevant states */
 	<<set _penisPenetration to ["penetrated", "othervagina", "otheranus"]>>
 	<<set _penisRubbing to ["otherhand", "othermouth", "tentacle"]>>
 	<<set _penetration to ["penetrated", "doublepenetrated", "tentacle", "tentacledeep"]>>
 	<<set _rubbing to ["otherhand", "othermouth", "othervagina"]>>
-
-	/* <<set _mPenetration to ["mpenisflowerpenetrate", "mdildopenetrate"]>>
-	<<set _masturbation to ["manus" ]>> */
 
 	/* Update BGS */
 	<<if _penetration.includes($vaginastate) or _penetration.includes($anusstate) or _penisPenetration.includes($penisstate)>>
@@ -319,7 +225,97 @@
 		<<else>>
 			<<bgv "stop">>
 		<</if>>
-		
+	<</if>>
+
+<</widget>>
+
+<<widget "bgs">>
+	<<if setup.bgsCurrentPlaylist is undefined>>
+		<<set setup.bgsCurrentPlaylist to "none">>
+	<</if>>
+	<<if $voiceoverActive is undefined>>
+		<<set $voiceoverActive to "f">>
+	<</if>>
+	<<if _args[0] is "stop" and setup.bgsCurrentPlaylist neq "none">>
+		/* Stop the current BGS playlist */
+		<<playlist setup.bgsCurrentPlaylist stop>>
+		<<set setup.bgsCurrentPlaylist to "none">>
+	
+	<<elseif _args[0] neq "stop" and _args[0] neq setup.bgsCurrentPlaylist and $voiceoverActive is "f">>
+		/* Stop the previous BGS playlist */
+		<<if setup.bgsCurrentPlaylist neq "none">>
+			<<playlist setup.bgsCurrentPlaylist stop>>
+		<</if>>
+
+		/* Start playing the current BGS playlist */
+		<<set setup.bgsCurrentPlaylist to _args[0]>>
+		<<playlist setup.bgsCurrentPlaylist volume 0>>
+		<<playlist setup.bgsCurrentPlaylist fadein loop shuffle>>
+
+	<</if>>	
+<</widget>>
+
+<<widget "bgv">>
+	<<if setup.bgvCurrentPlaylist is undefined>>
+		<<set setup.bgvCurrentPlaylist to "none">>
+	<</if>>
+	<<if $voiceoverActive is undefined>>
+		<<set $voiceoverActive to "f">>
+	<</if>>
+	<<if _args[0] is "stop" and setup.bgvCurrentPlaylist neq "none">>
+		/* Stop the current BGV playlist */
+		<<playlist setup.bgvCurrentPlaylist stop>>
+		<<set setup.bgvCurrentPlaylist to "none">>
+
+	<<elseif _args[0] neq "stop" and _args[0] neq setup.bgvCurrentPlaylist and ($voiceoverActive is "f" or _args[1] is "override")>>
+		/* Stop the previous BGV playlist */
+		<<if setup.bgvCurrentPlaylist neq "none">>
+			<<playlist setup.bgvCurrentPlaylist stop>>
+		<</if>>
+
+		/* Start playing the current BGV playlist */
+		<<set setup.bgvCurrentPlaylist to _args[0]>>
+		<<playlist setup.bgvCurrentPlaylist volume 0>>
+		<<playlist setup.bgvCurrentPlaylist fadein loop shuffle>>
+	
+	<</if>>	
+<</widget>>
+
+<<widget "voiceover">>
+	<<if setup.bgvCurrentPlaylist neq "none">>
+		/* Fade out the BGV */
+		<<playlist setup.bgvCurrentPlaylist volume 1>>
+		<<playlist setup.bgvCurrentPlaylist fadeout>>
+		<<set setup.bgvCurrentPlaylist to "none">>
+		<<set $voiceoverActive to "t">>
+
+		<<timed 4500ms>>
+			/* Play the voiceover */
+			<<audio _args[0][random(0,_args[0].length-1)] play>>
+			
+			<<if $fingersInVagina gte 1>>
+				<<playlist setup.bgsCurrentPlaylist fadeout>>
+				<<set setup.bgsCurrentPlaylist to "none">>
+			<</if>>
+
+			<<set $voiceoverActive to "f">>
+			
+			/* Wait 6 seconds and then resume the BGV */
+			<<next 6s>>
+				/* <<playlist setup.bgvCurrentPlaylist volume 0 >> */
+				/* <<arousal-voice "override">> */
+				<<if $player.gender is "f">>
+					<<if _penetration.includes($mouthstate)>>
+						<<chupa-voice "override">>
+					<<elseif _penetration.includes($vaginastate) or _penetration.includes($anusstate)>>
+						<<sex-voice "override">>
+					<<else>>
+						<<arousal-voice "override">>
+					<</if>>
+				<</if>>
+
+		<</timed>>
+
 	<</if>>
 <</widget>>
 
@@ -357,11 +353,11 @@
 
 <<widget "sex-voice">>
 	<<if $arousal gte $arousalmax * 0.8>>
-		<<bgv "moan_fast">>
+		<<bgv "moan_fast" _args[0]>>
 	<<elseif $arousal gte $arousalmax * 0.4 or $orgasmcurrent gte 1>>
-		<<bgv "moan">>
+		<<bgv "moan" _args[0]>>
 	<<else>>
-		<<bgv "moan_slow">>
+		<<bgv "moan_slow" _args[0]>>
 	<</if>>	
 <</widget>>
 
@@ -372,8 +368,10 @@
 		<<bgv "breath" _args[0]>>
 	<<elseif $arousal gte $arousalmax * 0.4>>
 		<<bgv "breath_slow" _args[0]>>
-	<<elseif $arousal gte $arousalmax * 0.1>>
+	<<elseif $arousal gte $arousalmax * 0.2>>
 		<<bgv "breath_vslow" _args[0]>>
+	<<elseif $arousal gte $arousalmax * 0.1>>
+		<<bgv "breath_vvslow" _args[0]>>
 	<</if>>	
 <</widget>>
 

@@ -786,7 +786,7 @@ function minutePassed(minutes) {
 	// Stress
 	// decay/rise and crossdresser trait
 	const isCrossdresser = V.backgroundTraits.includes("crossdresser");
-	const isCrossdressing = V.player.gender !== V.player.gender_appearance && V.player.gender !== "h";
+	const isCrossdressing = V.player.gender !== V.player.gender_appearance && V.player.gender !== "h" && V.purity >= 700;
 	if (V.controlled === 0 && V.anxiety >= 2) V.stress += minutes * ((isCrossdresser && !isCrossdressing) + 1);
 	else if (V.stress < V.stressmax && (V.controlled === 1 || V.anxiety === 0)) V.stress -= minutes * ((isCrossdresser && isCrossdressing) + 1);
 
@@ -1085,8 +1085,8 @@ function dailyPlayerEffects() {
 	fragment.append(wikifier("tanned", -60, true));
 	V.skinColor.sunBlock = false;
 
-	V.hairlength += 3;
-	V.fringelength += 3;
+	V.hairlength += 3 * (1+V.purity/1000);
+	V.fringelength += 3 * (1+V.purity/1000);
 	fragment.append(wikifier("calchairlengthstage"));
 	fragment.append(wikifier("beauty", 100 - (V.trauma / V.traumamax) * 100));
 	fragment.append(wikifier("bimboUpdate"));
