@@ -4855,7 +4855,7 @@ function initLower() {
 			one_piece: 0,
 			skirt: 1,
 			skirt_down: 1,
-			short: 0,
+			short: 1,
 			state: "waist",
 			state_base: "waist",
 			plural: 0,
