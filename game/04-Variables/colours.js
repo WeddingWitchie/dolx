@@ -702,6 +702,17 @@ setup.colours.eyes = [
 		},
 	},
 	{
+		variable: "black",
+		name: "black",
+		name_cap: "Black",
+		csstext: "black",
+		natural: true,
+		lens: true,
+		canvasfilter: {
+			blend: "#353535",
+		},
+	},
+	{
 		variable: "purple",
 		name: "purple",
 		name_cap: "Purple",
