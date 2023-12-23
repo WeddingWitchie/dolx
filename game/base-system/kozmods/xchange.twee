@@ -145,6 +145,7 @@
 		<<set V.xchangePill to {
 			active: false,
 			duration: 0,
+			testPending: false,
 			breederEffect: false,
 			resistanceEffect: false,
 			resistanceChance: 100,
@@ -234,4 +235,49 @@
 	<<if _pill.continueEffect>>
 		<<set _pill.duration += 1>>
 	<</if>>
+<</widget>>
+
+<<widget "xchange-random-spike">>
+	<<if !playerIsXChanged()>>
+		<<set _rng to random(0,100)>>
+		<<if $player.gender is "m">>
+			<<if _rng lt 20>>
+				<<xchange-pink 1 "continue">>
+			<<elseif _rng lt 40>>
+				<<xchange-pink 1 "resistance">>
+			<<else>>
+				<<xchange-pink 1>>
+			<</if>>
+		<<elseif $player.gender is "f">>
+			<<if _rng lt 20>>
+				<<xchange-blue 1 "continue">>
+			<<elseif _rng lt 40>>
+				<<xchange-blue 1 "resistance">>
+			<<else>>
+				<<xchange-blue 1>>
+			<</if>>
+		<</if>>
+		<<if $args[0] isnot "suppress">>
+			<span class="pink">You got spiked with an unknown pill when you weren't looking.</span>
+			<br><br>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "xchange-test">>
+	<br>
+	<<set V.xchangePill.testPending to false>>
+	The display indicates that, <span class="pink">you're under 
+	<<if V.xchangePill.continueEffect>>
+		the effects of a Continue pill.
+	<<elseif V.xchangePill.resistanceEffect>>
+		the effects of a Resistance pill.
+	<<elseif V.xchangePill.breederEffect>>
+		the effects of a Breeder pill.
+	<<else>>
+		no special effects.
+	<</if>>
+	</span><br>
+	And the remaining duration of the pill is: <span class="blue"><<print V.xchangePill.duration>> day<<if V.xchangePill.duration gt 1>>s<</if>>.</span>
+	<br><br>
 <</widget>>

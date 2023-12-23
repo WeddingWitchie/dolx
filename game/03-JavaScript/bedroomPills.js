@@ -859,6 +859,46 @@ setup.pills = [
 		},
 		effects: [`<<xchange-blue 1 "resistance">>`],
 	},
+	{
+		name: "X-Change Test",
+		description:
+			"A single-use test that helps you determine what kind of X-Change pill was ingested. To make it work, simply expose the tip to the user's urine and await the message on the display.",
+		onTakeMessage: 
+			"You do as instructed by the product manual, and await for a moment as the display begins to blink.",
+		warning_label:
+			"Warning: Do not re-use. Readings will not be accurate.",
+		autoTake() {
+			return V.sexStats.pills["pills"][this.name].autoTake;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_pills() {
+			return "Take test";
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "test",
+		shape: "spray",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pregnancy_test.gif",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return (V.xchangePill && V.xchangePill.active)
+				? 1
+				: 0;
+		},
+		effects: [`<<set V.xchangePill.testPending to true>>`],
+	},
 ];
 // ToDo: figure out a means to allow applying the Hair Growth Formula to pubic hair as well
 
@@ -1081,6 +1121,8 @@ function onTakeClick(itemName) {
 						V.overdosePillsTaken = item.name;
 						Engine.play("PillCollectionSecondDosePregnancy");
 						return;
+					case "xchange":
+						break;
 					default:
 						Engine.play("PillCollectionSecondDose");
 						return;
@@ -1198,6 +1240,7 @@ function backCompPillsInventory() {
 		"X-Change Blue Xtra Strength": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Blue Resistance": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Blue Continue": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+		"X-Change Test": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 	});
 	if (typeof oPills === "undefined") {
 		/* If our $sexStats.pills was empty, simply set the object in preparation to assign. */
