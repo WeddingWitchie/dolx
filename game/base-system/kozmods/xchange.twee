@@ -1,0 +1,237 @@
+:: X-Change Pill Widgets [widget]
+
+<<widget "become-girl">>
+	<<wash>>
+	<<set $player.gender_body to "f">>
+
+	<<if $player.gender !== "f" && Object.keys(V.xchangePill.changedBody).length gt 0>>
+		<<load-body "genderswapped">>
+	<<else>>
+		<<set $bodysize to Math.clamp($bodysize-1, 0,3)>>
+		<<set $player.breastsize to random(1,12)>>
+		<<set $player.bottomsize to random(1,8)>>
+		<<set $player.penissize to -2>>
+		<<set $ballsssize to -2>>
+		<<if $hairlength lt 400>>
+			<<set $hairlength to 400>>
+		<</if>>
+		<<if $fringelength lt 200>>
+			<<set $fringelength to 200>>
+		<</if>>
+		<<set $beauty += 5000>>
+		<<set _physiquesizes to [6000, 10000, 12000, 16000]>>
+		<<set _physique_max_old to $physiquesize>>
+		<<set $physiquesize to _physiquesizes[$bodysize]>>
+		<<set $physique *= $physiquesize / _physique_max_old>>
+		<<set $breastsensitivity to Math.min($breastsensitivity+1, 6)>>
+		<<set $bottomsensitivity to Math.min($bottomsensitivity+1, 3)>>
+		<<set $genitalsensitivity to Math.min($genitalsensitivity+2, 10)>>
+
+		<<clamp>>
+		<<calchairlengthstage>>
+	<</if>>
+
+	<<set $vaginause to 0>>
+	<<set $vaginastate to 0>>
+	<<set $penisuse to "none">>
+	<<set $penisstate to "none">>
+	<<set $player.sex to "f">>
+	<<set $player.ballsExist to false>>
+	<<set $player.penisExist to false>>
+	<<set $player.vaginaExist to true>>
+	<<if $args[0] is "fertile" or $args[0] is "breeder">>
+		<<set $sexStats.vagina.menstruation.running = true>>
+	<<else>>
+		<<set $sexStats.vagina.menstruation.running = false>>
+	<</if>>
+<</widget>>
+
+<<widget "become-boy">>
+	<<wash>>
+	<<set $player.gender_body to "m">>
+
+	<<if $player.gender !== "m" && Object.keys(V.xchangePill.changedBody).length gt 0>>
+		<<load-body "genderswapped">>
+	<<else>>
+		<<set $bodysize to Math.clamp($bodysize+1, 0,3)>>
+		<<set $player.breastsize to 0>>
+		<<set $player.bottomsize to 0>>
+		<<set $player.penissize to random(-2,4)>>
+		<<set $ballsssize to random(-2,3)>>
+		<<if $hairlength gte 200>>
+			<<set $hairlength to 0>>
+		<</if>>
+		<<if $fringelength gte 200>>
+			<<set $fringelength to 0>>
+		<</if>>
+		<<set $beauty += 2000>>
+		<<set _physiquesizes to [6000, 10000, 12000, 16000]>>
+		<<set _physique_max_old to $physiquesize>>
+		<<set $physiquesize to _physiquesizes[$bodysize]>>
+		<<set $physique *= $physiquesize / _physique_max_old>>
+		<<set $breastsensitivity to Math.max($breastsensitivity-1, 1)>>
+		<<set $bottomsensitivity to Math.max($bottomsensitivity-1, 1)>>
+		<<set $genitalsensitivity to Math.max($genitalsensitivity-2, 1)>>
+
+		<<clamp>>
+		<<calchairlengthstage>>
+	<</if>>
+
+	<<set $vaginause to "none">>
+	<<set $vaginastate to "none">>
+	<<set $penisuse to 0>>
+	<<set $penisstate to 0>>
+	<<set $player.sex to "m">>
+	<<set $player.ballsExist to true>>
+	<<set $player.penisExist to true>>
+	<<set $player.vaginaExist to false>>
+	<<set $sexStats.vagina.menstruation.running = false>>
+
+<</widget>>
+
+<<widget "save-body">>
+	<<set _savedbody to {
+		bodysize: $bodysize,
+		gender_body: $player.gender_body,
+		breastsize: $player.breastsize,
+		bottomsize: $player.bottomsize,
+		penissize: $player.penissize,
+		ballssize: $ballssize,
+		hairlength: $hairlength,
+		fringelength: $fringelength,
+		beauty: $beauty,
+		physique: $physique,
+		physiquesize: $physiquesize,
+		breastsensitivity: $breastsensitivity,
+		bottomsensitivity: $bottomsensitivity,
+		genitalsensitivity: $genitalsensitivity,
+	}>>
+
+	<<if $args[0] is undefined>>
+		<<set V.xchangePill.originalBody to _savedbody>>
+	<<elseif $args[0] is "genderswapped">>
+		<<set V.xchangePill.changedBody to _savedbody>>
+	<</if>>
+<</widget>>
+
+<<widget "load-body">>
+	<<if $args[0] is undefined>>
+		<<set _body to V.xchangePill.originalBody>>
+	<<elseif $args[0] is "genderswapped">>
+		<<set _body to V.xchangePill.changedBody>>
+	<</if>>
+
+	<<set $bodysize to _body.bodysize>>
+	<<set $player.gender_body to _body.gender_body>>
+	<<set $player.breastsize to _body.breastsize>>
+	<<set $player.bottomsize to _body.bottomsize>>
+	<<set $player.penissize to _body.penissize>>
+	<<set $ballsize to _body.ballsize>>
+	<<set $hairlength to _body.hairlength>>
+	<<set $fringelength to _body.fringelength>>
+	<<set $beauty to _body.beauty>>
+	<<set $physique to _body.physique>>
+	<<set $physiquesize to _body.physiquesize>>
+	<<set $breastsensitivity to _body.breastsensitivity>>
+	<<set $bottomsensitivity to _body.bottomsensitivity>>
+	<<set $genitalsensitivity to _body.genitalsensitivity>>
+
+
+	<<calchairlengthstage>>
+<</widget>>
+
+<<widget "xchange-init">>
+	<<if V.xchangePill is undefined>>
+		<<set V.xchangePill to {
+			active: false,
+			duration: 0,
+			breederEffect: false,
+			resistanceEffect: false,
+			resistanceChance: 100,
+			continueEffect: false,
+			originalBody: {},
+			changedBody: {},
+		}>>
+	<</if>>
+
+<</widget>>
+
+<<widget "xchange-effects">>
+	<<set $player.trans to "t">>
+	<<set V.xchangePill.active to true>>
+	<<set V.xchangePill.duration to $args[0]>>
+
+	<<set V.xchangePill.breederEffect to false>>
+	<<set V.xchangePill.resistanceEffect to false>>
+	<<set V.xchangePill.continueEffect to false>>
+
+	<<if $args[1] is "resistance">>
+		<<set V.xchangePill.resistanceEffect to true>>
+		<<set V.xchangePill.resistanceChance to 100>>
+	<<elseif $args[1] is "continue">>
+		<<set V.xchangePill.continueEffect to true>>
+	<</if>>
+<</widget>>
+
+<<widget "xchange-pink">>
+/* 	args[0]: duration of the pill
+	args[1]: "fertile" to enable fertility cycle 
+			 "resistance" enables resistance effect
+			 "continue" enables continue effect 
+*/	
+	<<xchange-init>> 
+	<<xchange-effects $args[0] $args[1]>>
+
+	<<save-body>>
+	<<become-girl $args[1]>>
+<</widget>>
+
+<<widget "xchange-blue">>
+/* 	args[0]: duration of the pill
+	args[1]: "fertile" to enable fertility cycle 
+			 "resistance" enables resistance effect
+			 "continue" enables continue effect 
+*/
+	<<xchange-init>>
+	<<xchange-effects $args[0] $args[1]>>
+
+	<<save-body>>
+	<<become-boy>>
+<</widget>>
+
+<<widget "xchange-restore">>
+	<<set $player.trans to "f">>
+	<<set V.xchangePill.active to false>>
+
+	<<save-body "genderswapped">>
+
+	<<if $player.gender is "m">>
+		<<become-boy>>
+	<<elseif $player.gender is "f">>
+		<<become-girl "fertile">>
+	<</if>>
+
+	<<load-body>>
+
+	<span class="pink">Your body twists and turns as it returns to its original sex.</span>
+	<br>
+<</widget>>
+
+<<widget "xchange-setpermanent">>
+	<<set V.xchangePill.duration to -1>>
+	<<if $player.sex is "f">>
+		<<set $sexStats.vagina.menstruation.running = true>>
+	<</if>>
+	<span class="red">Your X-Change transformation has become permanent.</span>
+	<br>
+<</widget>>
+
+<<widget "xchange-orgasm">>
+	<<set _pill to V.xchangePill>>
+	<<if _pill.resistanceEffect>>
+		<<set _pill.resistanceChance to Math.max(_pill.resistanceChance - random(10,15), 0)>>
+	<</if>>
+	<<if _pill.continueEffect>>
+		<<set _pill.duration += 1>>
+	<</if>>
+<</widget>>

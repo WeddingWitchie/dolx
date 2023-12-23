@@ -587,6 +587,278 @@ setup.pills = [
 		},
 		effects: [],
 	},
+	{
+		name: "X-Change Pink Basic",
+		description:
+			"X-Change's hallmark product. They're affordable and dosages typically last 24 hours or less, after which you turn back. It's impossible to get pregnant on Basic.",
+		onTakeMessage: 
+			"You take the pill.<br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a woman's body.<br><br>Your new body feels smaller, lighter, and strangely sensitive to the touch.<br><br>Looking in the mirror, you also realise you look exceedingly beautiful as well.",
+		warning_label:
+			"Warning: Mild discomfort might be incurred during transformation. Certain parasitic infections might result in permanence, in particular those affecting the vagina.",
+		autoTake() {
+			return V.sexStats.pills["pills"][this.name].autoTake;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		type: "xchange",
+		subtype: "pink basic",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/xchangePink.png",
+		display_condition() {
+			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
+		},
+		take_condition() {
+			return (V.xchangePill && !V.xchangePill.active) || !V.xchangePill
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-pink 1>>`],
+	},
+	{
+		name: "X-Change Pink Xtra Strength",
+		description:
+			"These are more expensive dosages that typically last 30 days. It is possible to become pregnant on Xtra Strength, but the chance of that happening is very low.",
+		onTakeMessage: 
+			"You take the pill.<br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a woman's body.<br><br>Your new body feels smaller, lighter, and strangely sensitive to the touch.<br><br>Looking in the mirror, you also realise you look exceedingly beautiful as well.",
+		warning_label:
+			"Warning: Pregnancy will result in transformation becoming permanent. Certain parasitic infections might also result in permanence as well, in particular those affecting the genitalia.",
+		autoTake() {
+			return V.sexStats.pills["pills"][this.name].autoTake;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		type: "xchange",
+		subtype: "pink xtra strength",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/xchangePink.png",
+		display_condition() {
+			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
+		},
+		take_condition() {
+			return (V.xchangePill && !V.xchangePill.active) || !V.xchangePill
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-pink 30 "fertile">>`],
+	},
+	{
+		name: "X-Change Pink Continue",
+		description:
+			"Temporary pill where every time you climax, the duration gets extended. Initial duration is 72 hours or less. Each climax adds an additional day to the duration. It is impossible to become pregnant while under the non-permanent effects of Continue.",
+		onTakeMessage: 
+			"You take the pill.<br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a woman's body.<br><br>Your new body feels smaller, lighter, and strangely sensitive to the touch.<br><br>Looking in the mirror, you also realise you look exceedingly beautiful as well.",
+		warning_label:
+			"Warning: May become permanent upon climaxing if remaining duration ever exceeds 30 days. Certain parasitic infections may also result in permanence as well, in particular those affecting the genitalia.",
+		autoTake() {
+			return V.sexStats.pills["pills"][this.name].autoTake;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		type: "xchange",
+		subtype: "pink continue",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/xchangePink.png",
+		display_condition() {
+			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
+		},
+		take_condition() {
+			return (V.xchangePill && !V.xchangePill.active) || !V.xchangePill
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-pink 3 "continue">>`],
+	},
+	{
+		name: "X-Change Pink Resistance",
+		description:
+			"Temporary pill but if you climax, there's a chance it becomes permanent. Each climax increases the likelihood of permanence. Pill effects last may last upto 24 hours or less. It is impossible to become pregnant while under the non-permanent effects of Resistance.",
+		onTakeMessage: 
+			"You take the pill.<br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a woman's body.<br><br>Your new body feels smaller, lighter, and strangely sensitive to the touch.<br><br>Looking in the mirror, you also realise you look exceedingly beautiful as well.",
+		warning_label:
+			"Warning: While there is no risk of conventional pregnancy, certain parasitic infections may result in permanence, in particular those affecting the genitalia.",
+		autoTake() {
+			return V.sexStats.pills["pills"][this.name].autoTake;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		type: "xchange",
+		subtype: "pink resistance",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/xchangePink.png",
+		display_condition() {
+			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
+		},
+		take_condition() {
+			return (V.xchangePill && !V.xchangePill.active) || !V.xchangePill
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-pink 1 "resistance">>`],
+	},
+	{
+		name: "X-Change Blue Basic",
+		description:
+			"X-Change's hallmark product. They're affordable and dosages typically last 24 hours or less, after which you turn back.",
+		onTakeMessage: 
+			"You take the pill.<br><br>All of a sudden, you feel a heat coursing through your body, as it slowly begins to twist and turn, rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a man's body.<br><br>Your new body feels larger, stronger, and quite ready to dish out and receive punishment.<br><br>And upon looking in the mirror, you realise you're quite handsome as well!",
+		warning_label:
+			"Warning: Mild discomfort might be incurred during transformation. Certain parasitic infections might result in permanence, in particular those affecting the genitalia..",
+		autoTake() {
+			return V.sexStats.pills["pills"][this.name].autoTake;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		type: "xchange",
+		subtype: "blue basic",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/xchangeBlue.png",
+		display_condition() {
+			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
+		},
+		take_condition() {
+			return !V.xchangePill || (V.xchangePill && !V.xchangePill.active)
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-blue 1>>`],
+	},
+	{
+		name: "X-Change Blue Xtra Strength",
+		description:
+			"These are more expensive dosages that typically last 30 days. After which you turn back.",
+		onTakeMessage: 
+			"You take the pill.<br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a man's body.<br><br>Your new body feels larger, stronger, and quite ready to dish out and receive punishment.<br><br>And upon looking in the mirror, you realise you're quite handsome as well!",
+		warning_label:
+			"Warning: Certain parasitic infections might also result in permanence, in particular those affecting the genitalia.",
+		autoTake() {
+			return V.sexStats.pills["pills"][this.name].autoTake;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		type: "xchange",
+		subtype: "blue xtra strength",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/xchangeBlue.png",
+		display_condition() {
+			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
+		},
+		take_condition() {
+			return (V.xchangePill && !V.xchangePill.active) || !V.xchangePill
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-blue 30>>`],
+	},
+	{
+		name: "X-Change Blue Continue",
+		description:
+			"Temporary pill where every time you climax, the duration gets extended. Initial duration is 72 hours or less. Each climax adds an additional day to the duration.",
+		onTakeMessage: 
+			"You take the pill.<br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a man's body.<br><br>Your new body feels larger, stronger, and quite ready to dish out and receive punishment.<br><br>And upon looking in the mirror, you realise you're quite handsome as well!",
+		warning_label:
+			"Warning: May become permanent upon climaxing if remaining duration ever exceeds 30 days. Certain parasitic infections may also result in permanence as well, in particular those affecting the genitalia.",
+		autoTake() {
+			return V.sexStats.pills["pills"][this.name].autoTake;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		type: "xchange",
+		subtype: "blue continue",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/xchangeBlue.png",
+		display_condition() {
+			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
+		},
+		take_condition() {
+			return (V.xchangePill && !V.xchangePill.active) || !V.xchangePill
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-blue 3 "continue">>`],
+	},
+	{
+		name: "X-Change Blue Resistance",
+		description:
+			"Temporary pill but if you climax, there's a chance it becomes permanent. Each climax increases the likelihood of permanence. Pill effects last may last upto 24 hours or less.",
+		onTakeMessage: 
+			"You take the pill.<br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a man's body.<br><br>Your new body feels larger, stronger, and quite ready to dish out and receive punishment.<br><br>And upon looking in the mirror, you realise you're quite handsome as well!",
+		warning_label:
+			"Warning: Certain parasitic infections may result in permanence, in particular those affecting the genitalia.",
+		autoTake() {
+			return V.sexStats.pills["pills"][this.name].autoTake;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		type: "xchange",
+		subtype: "blue resistance",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/xchangeBlue.png",
+		display_condition() {
+			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
+		},
+		take_condition() {
+			return (V.xchangePill && !V.xchangePill.active) || !V.xchangePill
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-blue 1 "resistance">>`],
+	},
 ];
 // ToDo: figure out a means to allow applying the Hair Growth Formula to pubic hair as well
 
@@ -918,6 +1190,14 @@ function backCompPillsInventory() {
 		"asylum's prescription": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0 },
 		"Dr Harper's prescription": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0 },
 		"Anti-Parasite Cream": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0 },
+		"X-Change Pink Basic": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+		"X-Change Pink Xtra Strength": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+		"X-Change Pink Resistance": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+		"X-Change Pink Continue": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+		"X-Change Blue Basic": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+		"X-Change Blue Xtra Strength": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+		"X-Change Blue Resistance": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+		"X-Change Blue Continue": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 	});
 	if (typeof oPills === "undefined") {
 		/* If our $sexStats.pills was empty, simply set the object in preparation to assign. */
