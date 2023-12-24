@@ -83637,7 +83637,7 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 			result.text = `You rub your <<pussy>> with your ${arm} hand.`;
 			if (genitalsExposed()) {
 				/* Can't recall the intention for this commented out piece, leaving it in for now in case I recall later */
-				if (V.vaginause === 0 /* && ([0, "mvaginaentrance"].includes(V[otherArm + "arm"]) || V[otherArm + "arm"].startsWith("mvagina")) */) {
+				if (V.vaginause === 0 && ([0, "mvaginaentrance"].includes(V[otherArm + "arm"]) || V[otherArm + "arm"].startsWith("mvagina")) ) {
 					if (V.vaginaFingerLimit >= 3 && currentSkillValue("vaginalskill") >= 300) {
 						result.options.push({
 							action: "mvaginafingerstarttwo",
@@ -98347,8 +98347,16 @@ Requires prior &lt;&lt;selectmodel &quot;main&quot;&gt;&gt;
 	&lt;&lt;if $leftarm isnot &quot;bound&quot; and $leftarm isnot &quot;grappled&quot;&gt;&gt;
 		&lt;&lt;if $dontHide is false and $worn.over_upper.exposed gte 1 and ($worn.upper.exposed gte 1 or $upperwetstage gte 3)
 		and (($uncomfortable.underwear is true and !$worn.under_upper.type.includes(&quot;naked&quot;)) or ($uncomfortable.nude is true and ($worn.under_upper.exposed gte 1 or $underupperwetstage gte 3)))&gt;&gt;
-			&lt;&lt;set _coverBreasts to true&gt;&gt;
-			&lt;&lt;set _modeloptions.arm_left to &quot;cover&quot;&gt;&gt; &lt;!-- might be changed back to &quot;idle&quot; if covering with wings --&gt;
+			
+			&lt;&lt;if ($player.gender_appearance is &quot;m&quot; and $player.perceived_breastsize lte 2) 
+			or ([&quot;pool&quot;, &quot;lake&quot;, &quot;beach&quot;].includes($location) and ($worn.under_upper.exposed lt 1 and $underupperwetstage lt 3))&gt;&gt;
+				&lt;&lt;set _coverBreasts to false&gt;&gt;
+				&lt;&lt;set _modeloptions.arm_left to &quot;idle&quot;&gt;&gt;
+			&lt;&lt;else&gt;&gt;
+				&lt;&lt;set _coverBreasts to true&gt;&gt;
+				&lt;&lt;set _modeloptions.arm_left to &quot;cover&quot;&gt;&gt; &lt;!-- might be changed back to &quot;idle&quot; if covering with wings --&gt;
+			&lt;&lt;/if&gt;&gt;
+		
 		&lt;&lt;else&gt;&gt;
 			&lt;&lt;set _coverBreasts to false&gt;&gt;
 			&lt;&lt;set _modeloptions.arm_left to &quot;idle&quot;&gt;&gt;
@@ -98360,8 +98368,15 @@ Requires prior &lt;&lt;selectmodel &quot;main&quot;&gt;&gt;
 	&lt;&lt;if $rightarm isnot &quot;bound&quot; and $rightarm isnot &quot;grappled&quot;&gt;&gt;
 		&lt;&lt;if $dontHide is false and $worn.over_lower.exposed gte 1 and ($worn.lower.exposed gte 1 or $lowerwetstage gte 3)
 		and (($uncomfortable.underwear is true and !$worn.under_lower.type.includes(&quot;naked&quot;)) or ($uncomfortable.nude is true and ($worn.under_lower.exposed gte 1 or $underlowerwetstage gte 3)))&gt;&gt;
-			&lt;&lt;set _coverCrotch to true&gt;&gt;
-			&lt;&lt;set _modeloptions.arm_right to &quot;cover&quot;&gt;&gt; &lt;!-- might be changed back to &quot;idle&quot; if covering with wings/tail --&gt;
+			
+			&lt;&lt;if ([&quot;pool&quot;, &quot;lake&quot;, &quot;beach&quot;].includes($location) and ($worn.under_lower.exposed lt 1 and $underlowerwetstage lt 3))&gt;&gt;
+				&lt;&lt;set _coverCrotch to false&gt;&gt;
+				&lt;&lt;set _modeloptions.arm_right to $worn.handheld.name isnot &quot;naked&quot; ? &quot;hold&quot; : &quot;idle&quot;&gt;&gt;
+			&lt;&lt;else&gt;&gt;
+				&lt;&lt;set _coverCrotch to true&gt;&gt;
+				&lt;&lt;set _modeloptions.arm_right to &quot;cover&quot;&gt;&gt; &lt;!-- might be changed back to &quot;idle&quot; if covering with wings/tail --&gt;
+			&lt;&lt;/if&gt;&gt;
+
 		&lt;&lt;else&gt;&gt;
 			&lt;&lt;set _coverCrotch to false&gt;&gt;
 			&lt;&lt;set _modeloptions.arm_right to $worn.handheld.name isnot &quot;naked&quot; ? &quot;hold&quot; : &quot;idle&quot;&gt;&gt;
@@ -101267,7 +101282,8 @@ If CSSANIM is true (default false), render multiple frames for CSS animation
 
 		&lt;&lt;if $leftarm isnot &quot;bound&quot; and $leftarm isnot &quot;grappled&quot; and $leftarm isnot &quot;behind&quot;&gt;&gt;
 			&lt;&lt;if $dontHide is false and $worn.over_upper.exposed gte 1 and ($worn.upper.exposed gte 1 or $upperwetstage gte 3)
-			and ($exposed gte 2 and $uncomfortable.nude is true or $exposed is 1 and $uncomfortable.underwear is true)&gt;&gt;
+			and ($exposed gte 2 and $uncomfortable.nude is true or $exposed is 1 and $uncomfortable.underwear is true) 
+			and ($player.gender_appearance isnot &quot;m&quot; or $player.perceived_breastsize gt 2)&gt;&gt;
 				&lt;&lt;set _coverLeft to true&gt;&gt;
 			&lt;&lt;else&gt;&gt;
 				&lt;&lt;set _coverLeft to false&gt;&gt;
@@ -203349,7 +203365,7 @@ for (var i = 0; i &lt; Object.keys(setup.feats).length;i++){
 			&lt;&lt;/if&gt;&gt;
 		&lt;&lt;/if&gt;&gt;
 		&lt;&lt;if $args[0] isnot &quot;suppress&quot;&gt;&gt;
-			&lt;span class=&quot;pink&quot;&gt;You got spiked with an unknown pill when you weren&#39;t looking.&lt;/span&gt;
+			&lt;span class=&quot;pink&quot;&gt;You got spiked with an unknown pill.&lt;/span&gt;
 			&lt;br&gt;&lt;br&gt;
 		&lt;&lt;/if&gt;&gt;
 	&lt;&lt;/if&gt;&gt;
@@ -361840,6 +361856,7 @@ There&#39;s a ladder to your left; you think it will take you to the rooftops.
 &lt;&lt;endcombat&gt;&gt;
 &lt;&lt;industrialeventend&gt;&gt;</tw-passagedata><tw-passagedata pid="3377" name="Molestation alley" tags="" position="850,42225" size="100,100">&lt;&lt;if $molestationstart is 1&gt;&gt;
 	&lt;&lt;set $molestationstart to 0&gt;&gt;
+	&lt;&lt;if $player.gender is &quot;m&quot; and random(1,5) gt 2&gt;&gt;&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;/if&gt;&gt;
 	&lt;&lt;controlloss&gt;&gt;
 	&lt;&lt;violence 1&gt;&gt;
 	&lt;&lt;neutral 1&gt;&gt;
@@ -364398,7 +364415,8 @@ You&#39;ve pushed yourself too much.
 
 &lt;&lt;pass 1 hour&gt;&gt;
 
-&lt;&lt;trauma 6&gt;&gt;&lt;&lt;set $stress -= 2000&gt;&gt;</tw-passagedata><tw-passagedata pid="3458" name="Arcade Crane" tags="" position="975,43225" size="100,100">&lt;&lt;set $outside to 0&gt;&gt;&lt;&lt;set $location to &quot;arcade&quot;&gt;&gt;&lt;&lt;effects&gt;&gt;
+&lt;&lt;trauma 6&gt;&gt;&lt;&lt;set $stress -= 2000&gt;&gt;</tw-passagedata><tw-passagedata pid="3458" name="Arcade Crane" tags="" position="975,43225" size="100,100">&lt;&lt;if $player.gender is &quot;m&quot; and random(1,5) isnot 1&gt;&gt;&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;/if&gt;&gt;
+&lt;&lt;set $outside to 0&gt;&gt;&lt;&lt;set $location to &quot;arcade&quot;&gt;&gt;&lt;&lt;effects&gt;&gt;
 &lt;&lt;generatey1&gt;&gt;&lt;&lt;generatey2&gt;&gt;&lt;&lt;generatey3&gt;&gt;&lt;&lt;generatey4&gt;&gt;&lt;&lt;generatey5&gt;&gt;&lt;&lt;generatey6&gt;&gt;&lt;&lt;person1&gt;&gt;
 You awaken on something soft yet bumpy. It&#39;s a bed of plush toys. Your wrists and ankles are tied down. A metal claw hovers above you.
 &lt;br&gt;&lt;br&gt;
@@ -366936,6 +366954,7 @@ You wrap a towel around your nether regions, creating a makeshift skirt.
 
 	&lt;&lt;trauma 6&gt;&gt;&lt;&lt;set $stress -= 2000&gt;&gt;
 &lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="3529" name="Beach Abduction" tags="" position="1100,44100" size="100,100">&lt;&lt;location &quot;beach&quot;&gt;&gt;&lt;&lt;effects&gt;&gt;
+&lt;&lt;if $player.gender is &quot;m&quot; and random(1,5) isnot 1&gt;&gt;&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;/if&gt;&gt;
 
 &lt;&lt;generatey1&gt;&gt;&lt;&lt;generatey2&gt;&gt;&lt;&lt;person1&gt;&gt;You wake up lying on your back, naked in the dunes. You hear a voice, &quot;You&#39;re awake.&quot; You hasten to your feet and see the speaker, a &lt;&lt;person&gt;&gt;. A &lt;&lt;person2&gt;&gt;&lt;&lt;person&gt;&gt; stands next to &lt;&lt;person1&gt;&gt;&lt;&lt;him&gt;&gt;.
 &lt;br&gt;&lt;br&gt;
@@ -375108,6 +375127,7 @@ You cautiously look around the bus. No one seems to have noticed your predicamen
 	&lt;br&gt;&lt;br&gt;
 &lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="3762" name="Molestation bus" tags="" position="225,47100" size="100,100">&lt;&lt;if $molestationstart is 1&gt;&gt;
 	&lt;&lt;set $molestationstart to 0&gt;&gt;
+	&lt;&lt;if random(1,5) gt 2&gt;&gt;&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;/if&gt;&gt;
 	&lt;&lt;controlloss&gt;&gt;
 	&lt;&lt;violence 1&gt;&gt;
 	&lt;&lt;neutral 1&gt;&gt;
@@ -509652,14 +509672,15 @@ The hairdresser makes small talk as &lt;&lt;he&gt;&gt; rings up your purchase. &
 &lt;&lt;trauma 6&gt;&gt;&lt;&lt;set $stress -= 2000&gt;&gt;</tw-passagedata><tw-passagedata pid="7766" name="Abduction Shop" tags="" position="725,97100" size="100,100">&lt;&lt;set $outside to 0&gt;&gt;&lt;&lt;effects&gt;&gt;
 
 &lt;&lt;if $phase is 0&gt;&gt;&lt;&lt;set $phase to 1&gt;&gt;
-&lt;&lt;drugs 180&gt;&gt;
-&lt;&lt;lowerruined&gt;&gt;
-&lt;&lt;upperruined&gt;&gt;
-&lt;&lt;underruined&gt;&gt;
-&lt;&lt;handheldruined&gt;&gt;
+	&lt;&lt;xchange-random-spike&gt;&gt;
+	&lt;&lt;drugs 180&gt;&gt;
+	&lt;&lt;lowerruined&gt;&gt;
+	&lt;&lt;upperruined&gt;&gt;
+	&lt;&lt;underruined&gt;&gt;
+	&lt;&lt;handheldruined&gt;&gt;
 
-&lt;&lt;underupperwear 1&gt;&gt;
-&lt;&lt;underlowerwear 2&gt;&gt;
+	&lt;&lt;underupperwear 1&gt;&gt;
+	&lt;&lt;underlowerwear 2&gt;&gt;
 
 &lt;&lt;generate1&gt;&gt;&lt;&lt;generate2&gt;&gt;
 You feel light-headed as you regain consciousness. Your vision clears, and you find yourself facing out a window onto the High Street. You cannot move an inch, but you&#39;re stood upright. You feel straps against your skin, they must be holding you steady. They&#39;re also contorting your limbs into a specific pose; your hands are resting on your hips and your head is cocked to one side.
@@ -509756,6 +509777,7 @@ True to &lt;&lt;his&gt;&gt; word, there&#39;s £15 on the table, along with a bo
 
 &lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="7767" name="Molestation Shop" tags="" position="850,97100" size="100,100">&lt;&lt;if $molestationstart is 1&gt;&gt;
 	&lt;&lt;set $molestationstart to 0&gt;&gt;
+	&lt;&lt;if $player.gender is &quot;m&quot; and random(1,5) isnot 1&gt;&gt;&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;/if&gt;&gt;
 	&lt;&lt;controlloss&gt;&gt;
 	&lt;&lt;violence 1&gt;&gt;
 	&lt;&lt;neutral 1&gt;&gt;
@@ -517766,7 +517788,8 @@ They laugh and leave you lying on the sandy ground.
 
 		&lt;&lt;link [[Next|Bondage Two Rape]]&gt;&gt;&lt;&lt;set $molestationstart to 1&gt;&gt;&lt;&lt;/link&gt;&gt;
 	&lt;&lt;/if&gt;&gt;
-&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="7957" name="Street Wake Blindfold" tags="" position="850,99475" size="100,100">&lt;&lt;set $outside to 1&gt;&gt;&lt;&lt;set $location to &quot;town&quot;&gt;&gt;&lt;&lt;effects&gt;&gt;
+&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="7957" name="Street Wake Blindfold" tags="" position="850,99475" size="100,100">&lt;&lt;if random(1,5) isnot 1&gt;&gt;&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;/if&gt;&gt;
+&lt;&lt;set $outside to 1&gt;&gt;&lt;&lt;set $location to &quot;town&quot;&gt;&gt;&lt;&lt;effects&gt;&gt;
 &lt;&lt;set $stress -= 5000&gt;&gt;
 &lt;&lt;bind&gt;&gt;
 &lt;&lt;facewear 5&gt;&gt;
@@ -521615,6 +521638,7 @@ Deciding that &lt;&lt;he&gt;&gt; might have bitten off more than &lt;&lt;he&gt;&
 &lt;&lt;endcombat&gt;&gt;
 &lt;&lt;destinationeventend&gt;&gt;</tw-passagedata><tw-passagedata pid="8050" name="Abduction" tags="" position="1225,100600" size="100,100">&lt;&lt;if $molestationstart is 1&gt;&gt;
 	&lt;&lt;set $molestationstart to 0&gt;&gt;
+	&lt;&lt;if random(1,5) isnot 1&gt;&gt;&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;/if&gt;&gt;
 	&lt;&lt;controlloss&gt;&gt;
 	&lt;&lt;violence 1&gt;&gt;
 	&lt;&lt;neutral 1&gt;&gt;
@@ -523905,7 +523929,8 @@ You follow the slime&#39;s urging and approach the &lt;&lt;person&gt;&gt;.
 	&lt;&lt;endcombat&gt;&gt;
 	&lt;&lt;destinationeventend&gt;&gt;
 &lt;&lt;/if&gt;&gt;
-&lt;&lt;clearNPC street_collar_dog&gt;&gt;</tw-passagedata><tw-passagedata pid="8121" name="Street Wake" tags="" position="100,101600" size="100,100">&lt;&lt;set $outside to 1&gt;&gt;&lt;&lt;effects&gt;&gt;
+&lt;&lt;clearNPC street_collar_dog&gt;&gt;</tw-passagedata><tw-passagedata pid="8121" name="Street Wake" tags="" position="100,101600" size="100,100">&lt;&lt;if $player.gender is &quot;m&quot; and random(1,5) isnot 1&gt;&gt;&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;/if&gt;&gt;
+&lt;&lt;set $outside to 1&gt;&gt;&lt;&lt;effects&gt;&gt;
 You wake up by the side of the road, leaning against a wall. A &lt;&lt;generate1&gt;&gt;&lt;&lt;person1&gt;&gt;&lt;&lt;person&gt;&gt; stands above you, holding a camera.
 &lt;br&gt;&lt;br&gt;
 &lt;&lt;if $exposed gte 2&gt;&gt;
@@ -528804,7 +528829,8 @@ The &lt;&lt;person&gt;&gt; opens &lt;&lt;his&gt;&gt; mouth to argue, but decides
 	&lt;&lt;endcombat&gt;&gt;
 	&lt;&lt;destinationeventend&gt;&gt;
 
-&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="8298" name="Street Wake Shackle" tags="" position="975,103725" size="100,100">&lt;&lt;set $outside to 0&gt;&gt;&lt;&lt;effects&gt;&gt;
+&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="8298" name="Street Wake Shackle" tags="" position="975,103725" size="100,100">&lt;&lt;if $player.gender is &quot;m&quot; and random(1,5) isnot 1&gt;&gt;&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;/if&gt;&gt;
+&lt;&lt;set $outside to 0&gt;&gt;&lt;&lt;effects&gt;&gt;
 
 &lt;&lt;generate1&gt;&gt;&lt;&lt;generate2&gt;&gt;&lt;&lt;person1&gt;&gt;
 &quot;Hurry up,&quot; says a &lt;&lt;personsimple&gt;&gt;&#39;s voice. &quot;&lt;&lt;pShes&gt;&gt; waking up.&quot;
@@ -628363,7 +628389,7 @@ You fondle yourself. &lt;&lt;if $phase2 is 1&gt;&gt;They watch&lt;&lt;else&gt;&g
 	&lt;&lt;set $mouth to 0&gt;&gt;
 	&lt;&lt;set $mouthactiondefault to &quot;mrest&quot;&gt;&gt;
 	&lt;&lt;set $mouthaction to 0&gt;&gt;
-	&lt;&lt;switch $player.gender&gt;&gt;
+	&lt;&lt;switch $player.sex&gt;&gt;
 		&lt;&lt;case &quot;f&quot;&gt;&gt;
 			&lt;&lt;set $vaginause to 0&gt;&gt;
 			&lt;&lt;set $penisuse to &quot;none&quot;&gt;&gt;
