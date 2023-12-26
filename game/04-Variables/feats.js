@@ -736,6 +736,14 @@ setup.feats = {
 		hint: "Hint: Three of a kind.",
 		pregnancyLockable: true,
 	},
+	"Life begins when you least expect": {
+		title: "Life begins when you least expect",
+		desc: "Gave birth to children as a male.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Pregnancy"],
+		hint: "Hint: The Magic that helps creates that what should not be.",
+	},
 	"Diversity of Life": {
 		title: "Diversity of Life",
 		desc: "Gave birth to children of many different species.",
@@ -745,14 +753,6 @@ setup.feats = {
 		hint: "Hint: Many forms of existence.",
 		pregnancyLockable: true,
 	},
-	/* "Life begins when you least expect":{ ToDo: Pregnancy: uncomment once MPreg is possable in-game
-		title: "Life begins when you least expect",
-		desc: "Gave birth to children as a male.",
-		difficulty: 2,
-		series: "",
-		filter: ["All", "Pregnancy"],
-		hint: "Hint: The Magic that helps creates that what should not be.",
-	}, */
 	/* "Broken Dam":{ //Not in the code right now
 		title: "Broken Dam",
 		desc: "Get impregnated thanks to a broken condom.",
@@ -1532,6 +1532,87 @@ setup.feats = {
 		hint: "Hint: Discover intense security on Barb Street.",
 		softLockable: true,
 	},
+	"Lost World": {
+		title: "Lost World",
+		desc: "Discovered an island lost to history.",
+		difficulty: 1,
+		series: "",
+		filter: ["All", "Discoveries"],
+		hint: "Hint: A mist-shrouded island waits.",
+		softLockable: true,
+	},
+	"Prehistoric Landscape": {
+		title: "Prehistoric Landscape",
+		desc: "Discovered all the areas on the island.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Discoveries"],
+		hint: "Hint: Explore a mist-shrouded island.",
+		softLockable: true,
+	},
+	"Face of a Guardian": {
+		title: "Face of a Guardian",
+		desc: "Built an islander mask of your own.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Discoveries"],
+		hint: "Hint: Practise wilderness woodwork.",
+		softLockable: true,
+	},
+	"Wild Monarch": {
+		title: "Wild Monarch",
+		desc: "Built a throne.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Discoveries"],
+		hint: "Hint: Practise vain wilderness woodwork.",
+		softLockable: true,
+	},
+	Naturalised: {
+		title: "Naturalised",
+		desc: "Infiltrated the islander castle, without being captured.",
+		difficulty: 3,
+		series: "",
+		filter: ["All", "Discoveries"],
+		hint: "Hint: Disguise yourself and enter a foreign stronghold.",
+		softLockable: true,
+	},
+	"Gilded Spear": {
+		title: "Gilded Spear",
+		desc: "Retrieved the gilded spear.",
+		difficulty: 3,
+		series: "",
+		filter: ["All", "Discoveries"],
+		hint: "Hint: At the root of an island, waiting.",
+		softLockable: true,
+	},
+	"Defy the Night": {
+		title: "Defy the Night",
+		desc: "Endured the Trial of Anguish to completion.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Discoveries"],
+		hint: "Hint: Climb the temple hierarchy.",
+		softLockable: true,
+	},
+	"Withering Truth": {
+		title: "Withering Truth",
+		desc: "Met the bishop.",
+		difficulty: 3,
+		series: "",
+		filter: ["All", "Discoveries"],
+		hint: "Hint: Through confession, revelation.",
+		softLockable: true,
+	},
+	"Lost Heirloom": {
+		title: "Lost Heirloom",
+		desc: "Retrieved the gold compass.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Discoveries"],
+		hint: "Hint: Stolen abroad.",
+		softLockable: true,
+	},
 	"Max Those Shots": {
 		title: "Max Those Shots",
 		desc: "Holding a lot of pepper spray.",
@@ -1572,6 +1653,14 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Special"],
 		hint: "Hint: Whispers in your ear.",
+	},
+	"Ear Slime Amalgam": {
+		title: "Ear Slime Amalgam",
+		desc: "You became one with your best friend.",
+		difficulty: 3,
+		series: "",
+		filter: ["All", "Special"],
+		hint: "Hint: Given time and love to bloom.",
 	},
 	"The Path to Redemption": {
 		title: "The Path to Redemption",
@@ -1624,3 +1713,151 @@ setup.feats = {
 		hint: "Hint: Time and effort.",
 	},
 };
+
+async function featsMergePre() {
+	// Replace getting the count with a better method that gets included with the sugarcube format
+	T.saveDataImportCount = 0;
+	const localStorageSaves = DoLSave.getSaves();
+
+	const result = () => {
+		if (!T.saveDataImportCount) {
+			$("#featsBeginText").html(`0 saves detected, did you make a local save before trying this?`);
+		} else if ((T.saveDataImportCount >= 10 && Browser.isMobile.any()) || T.saveDataImportCount >= 25) {
+			$("#featsBeginText").html(`${T.saveDataImportCount} saves detected, this might take some time on a slower device.`);
+		} else {
+			$("#featsBeginText").html(`Only ${T.saveDataImportCount} saves detected, this shouldn't take too long.`);
+		}
+		$("#featsBeginLoadingText").addClass("hidden");
+		$("#featsBeginButton").removeClass("hidden");
+	};
+
+	// Count the local storage saves
+	if (localStorageSaves.autosave) T.saveDataImportCount++;
+	if (localStorageSaves.slots) {
+		localStorageSaves.slots.forEach(slot => {
+			if (slot) T.saveDataImportCount++;
+		});
+	}
+
+	// Count the index db saves
+	try {
+		// eslint-disable-next-line no-undef
+		idb.getSaveDetails()
+			.then(saveDataDetails => {
+				T.saveDataImportCount += saveDataDetails.length;
+			})
+			.finally(() => {
+				result();
+			});
+	} catch {
+		result();
+	}
+}
+DefineMacro("featsMergePre", featsMergePre);
+
+function featsMerge() {
+	if (window.featsMerge) return;
+	window.featsMerge = true;
+
+	const savesToLoad = T.saveDataImportCount;
+	const loadingBar = $("#featsLoadingMeter .greenbar");
+	const loadingText = $("#featsLoadingText");
+	let featData = localStorage.getItem("dolFeats");
+	if (featData) {
+		featData = JSON.parse(featData);
+	} else {
+		featData = {};
+	}
+
+	const loadFeats = (data = {}) => {
+		Object.entries(data).forEach(([key, date]) => {
+			if (!featData[key] || new Date(date).getTime() < new Date(featData[key]).getTime()) {
+				featData[key] = date;
+			}
+		});
+	};
+
+	const result = () => {
+		let points = 0;
+		Object.keys(featData).forEach(key => {
+			if (setup.feats[key]) points += setup.feats[key].difficulty;
+		});
+		featData.points = points;
+
+		V.feats.allSaves = featData;
+		localStorage.setItem("dolFeats", JSON.stringify(featData));
+
+		loadingBar.css("width", "100%");
+		loadingText.html("All feat data imported.");
+		$("#featsFinishButton").removeClass("hidden");
+
+		delete window.featsMerge;
+	};
+
+	// Read the local storage saves
+	let localSavesChecked = 0;
+	const localStorageSaves = clone(DoLSave.getSaves());
+	if (localStorageSaves) {
+		if (localStorageSaves.autosave) {
+			localStorageSaves.autosave.state.history = State.deltaDecode(localStorageSaves.autosave.state.delta);
+			DoLSave.decompressIfNeeded(localStorageSaves.autosave);
+
+			if (
+				localStorageSaves.autosave.state.history &&
+				localStorageSaves.autosave.state.history[0] &&
+				localStorageSaves.autosave.state.history[0].variables
+			) {
+				const variables = localStorageSaves.autosave.state.history[0].variables;
+				if (variables.feats) {
+					loadFeats(variables.feats.allSaves);
+					loadFeats(variables.feats.currentSave);
+				}
+			}
+			localSavesChecked++;
+			loadingBar.css("width", `${(localSavesChecked / savesToLoad) * 100}%`);
+		}
+		if (localStorageSaves.slots) {
+			localStorageSaves.slots.forEach(slot => {
+				if (slot) {
+					slot.state.history = State.deltaDecode(slot.state.delta);
+					DoLSave.decompressIfNeeded(slot);
+					if (slot.state.history && slot.state.history[0] && slot.state.history[0].variables) {
+						const variables = slot.state.history[0].variables;
+						if (variables.feats) {
+							loadFeats(variables.feats.allSaves);
+							loadFeats(variables.feats.currentSave);
+						}
+					}
+					localSavesChecked++;
+					loadingBar.css("width", `${(localSavesChecked / savesToLoad) * 100}%`);
+				}
+			});
+		}
+	}
+
+	// Read the index db saves
+	try {
+		// eslint-disable-next-line no-undef
+		idb.getAllSaves()
+			.then(saves =>
+				saves.forEach((slot, index) => {
+					if (slot.data && Array.isArray(slot.data.history)) {
+						slot.data.history.forEach(saveData => {
+							if (saveData.variables && saveData.variables.feats) {
+								loadFeats(saveData.variables.feats.allSaves);
+								loadFeats(saveData.variables.feats.currentSave);
+							}
+						});
+					}
+					loadingBar.css("width", `${((localSavesChecked + index + 1) / savesToLoad) * 100}%`);
+					loadingText.html(`${index + 1} out of ${savesToLoad} saves checked.`);
+				})
+			)
+			.finally(() => {
+				result();
+			});
+	} catch {
+		result();
+	}
+}
+DefineMacro("featsMerge", featsMerge);

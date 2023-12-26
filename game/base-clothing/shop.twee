@@ -59,7 +59,7 @@
 
 <<widget "forestShop-leave">>
 	<<shopClothingFilterReset>><<unset $clothes_choice>><<ShowUnderEquip "normal">><<ShowUnderEquip "over">>
-	<<set $tryOn.autoReset to true>><<set $eventskip to 1>><<unset $tempDisable>>
+	<<set $tryOn.autoReset to true>><<set $eventskip to 1>><<unset $tempDisable>><<shopCommandoCheck>>
 <</widget>>
 
 <<widget "forestShop-main">>
@@ -87,7 +87,8 @@
 		<br><br>
 
 		<<if $christmas_gift_robin is undefined and $christmas is 1 and $NPCName[$NPCNameList.indexOf("Robin")].init is 1>>
-			<<ind>><<link [[Find a gift for Robin (0:10)|Forest Christmas Robin]]>><<pass 10>><</link>>
+			<<checkforloveinterests>>
+			<<if isLoveInterest("Robin")>><<gifticon "love">><<else>><<gifticon "christmas">><</if>><<link [[Find a gift for Robin (0:10)|Forest Christmas Robin]]>><<pass 10>><</link>>
 			<br>
 		<</if>>
 		<<if isPubfameTaskAccepted("gwylan")>>
@@ -99,7 +100,7 @@
 			<br>
 		<</if>>
 		<<clothingcategoryicon "all">>
-		<<link "View all">><<replace "#clothingShop-div">><<AllShop>><</replace>><</link>>
+		<<link "View All">><<replace "#clothingShop-div">><<AllShop>><</replace>><</link>>
 		<br><br>
 		<<clothingcategoryicon "outfit">>
 		<<link "Look behind the dark screen">><<replace "#clothingShop-div">><<OutfitShop>><</replace>><</link>>
@@ -141,6 +142,8 @@
 
 		<<if $tryOn.value gt 0 and $tryOn.value lt $money>>
 			<<sendItemsToDropdown>>
+			<<link "Buy clothes">><<buyTryOnClothes "wear">><<updateclothingshop>><</link>>
+			<br>
 			<<link "Buy clothes and send to wardrobe">>
 				<<buyTryOnClothes "wardrobe">>
 				<<updatesidebarmoney>>
@@ -154,9 +157,9 @@
 			<br>
 		<<elseif $tryOn.value is 0>>
 			<<if $robin_in_forest_shop>>
-				<<link [[Leave with Robin (0:10)|Robin Forest Shop Home]]>><<endnpc "Gwylan">><<forestShop-leave>><<pass 10>><</link>>
+				<<getouticon>><<link [[Leave with Robin (0:10)|Robin Forest Shop Home]]>><<endnpc "Gwylan">><<forestShop-leave>><<pass 10>><</link>>
 			<<else>>
-				<<link [[Leave|Forest]]>><<endnpc "Gwylan">><<forestShop-leave>><</link>>
+				<<getouticon>><<link [[Leave|Forest]]>><<endnpc "Gwylan">><<forestShop-leave>><</link>>
 			<</if>>
 		<</if>>
 	<</if>>
@@ -170,10 +173,10 @@ You search through an assortment of strange clothes, before finding a Christmas-
 <br><br>
 
 <<if $money gte 8000>>
-	<<link [[Buy it|Forest Christmas Robin Buy]]>><<set $christmas_gift_robin to "christmas_unwrapped">><</link>>
+	<<gifticon "christmas hat">><<link [[Buy it|Forest Christmas Robin Buy]]>><<set $christmas_gift_robin to "christmas_unwrapped">><</link>>
 	<br>
 <</if>>
-<<link [[Next|Forest Shop]]>><</link>>
+<<getouticon>><<link [[Leave|Forest Shop]]>><</link>>
 <br>
 
 
@@ -205,7 +208,7 @@ You prowl around the shop, looking under cloaks, on top of shelves and behind dr
 <</if>>
 <br>
 
-<<He>> grins. "There's plenty of snow globe around, if that's the case."
+<<He>> grins. "There's plenty of snow globes around, if that's the case."
 <br>
 
 You shake your head. "I need a specific one. It has something written on the bottom."

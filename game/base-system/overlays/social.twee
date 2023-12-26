@@ -63,6 +63,10 @@
 					"Sam" : {
 						love : { maxValue : 50 }
 					},
+					"Zephyr" : {
+						love : { maxValue : 100 },
+						dom : { maxValue : 50 }
+					},
 					"Ivory Wraith" : {
 						lust : { name: "Obsession", activeIcon : (V.wraith && (V.wraith.state == "haunt" || V.wraith.state == "despair") ? "img/ui/obsessionblood.png" : "img/ui/obsession.png"), inactiveIcon : "img/ui/obsessionempty.png", maxValue : 20 }
 					}
@@ -123,7 +127,7 @@
 		<div id="faction-reputations" class="relation-box-list">
 			<<silently>>
 				/* Police config */
-				<<set _policeCrimeConfig = { currentValue : $crimehistory, states : [
+				<<set _policeCrimeConfig = { currentValue : crimeSumHistory(), states : [
 					{ requiredValue: 0,		color: 'green',		description: 'The police aren\'t concerned with you,'},
 					{ requiredValue: 1000,	color: 'teal',		description: 'The police have you on their records,'},
 					{ requiredValue: 2000,	color: 'lblue',		description: 'The police consider you a person of interest,'},
@@ -132,7 +136,7 @@
 					{ requiredValue: 10000,	color: 'pink',		description: 'The police have a binder devoted to you,'},
 					{ requiredValue: 30000,	color: 'red',		description: 'The police have a filing cabinet devoted to you,'}
 				]}>>
-				<<set _policeEvidenceConfig = { currentValue : $crimehistory, secondaryValue : $crime, states : [
+				<<set _policeEvidenceConfig = { currentValue : crimeSumHistory(), secondaryValue : crimeSumCurrent(), states : [
 					{ requiredValue: 0, secondaryStates : [
 						{ requiredValue: 0,	color: 'green',	description: 'and have no evidence linking you to any crime.'},
 						{ requiredValue: 1,	color: 'teal',	description: 'despite having a little evidence linking you to crime.'},
@@ -303,6 +307,26 @@
 					]}>>
 					<<set _dockBoxConfig = { name : "Docks", icon : "img/misc/icon/mer.png", description : '<<relation-text _dockRepConfig>>'}>>
 				<</if>>
+				/*Pirates */
+				<<set _pirateStatusConfig = { currentValue: $pirate_rank, secondaryValue: $pirate_status, preText: 'The pirates view you as  ', states : [
+						{ requiredValue: 0, secondaryStates : [
+							{ requiredValue: 0,	color: 'red',	description: 'wretched scum.'},
+							{ requiredValue: 10,	color: 'pink',	description: 'worthless scum.'},
+							{ requiredValue: 30,	color: 'pink',	description: 'pathetic scum.'},
+							{ requiredValue: 50,	color: 'pink',	description: 'sloppy scum.'},
+							{ requiredValue: 70,	color: 'pink',	description: 'endearing scum.'},
+							{ requiredValue: 90,	color: 'purple',	description: 'scum no longer.'},
+						]},
+						{ requiredValue: 1, secondaryStates : [
+							{ requiredValue: 0,	color: 'blue',	description: 'a scummy mate.'},
+							{ requiredValue: 10,	color: 'blue',	description: 'a useless mate.'},
+							{ requiredValue: 30,	color: 'blue',	description: 'an untested mate.'},
+							{ requiredValue: 50,	color: 'blue',	description: 'a second-class mate.'},
+							{ requiredValue: 70,	color: 'blue',	description: 'a mate in good standing.'},
+							{ requiredValue: 90,	color: 'lblue',		description: 'a first-class mate.'},
+						]},
+					]}>>
+					<<set _pirateBoxConfig = { name : "Pirate Rank", icon : "img/misc/icon/mer.png", description: "<<relation-text _pirateStatusConfig>>"}>>
 			<</silently>>
 			<<relation-box-simple _policeBoxConfig>>
 			<<relation-box-simple _orphanageBoxConfig>>
@@ -321,6 +345,9 @@
 			<</if>>
 			<<if $dockwork gte 2>>
 				<<relation-box-simple _dockBoxConfig>>
+			<</if>>
+			<<if $pirate_rank gte 0>>
+				<<relation-box-simple _pirateBoxConfig>>
 			<</if>>
 				<<relation-box-wolves>>
 

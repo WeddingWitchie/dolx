@@ -232,9 +232,9 @@ You remain still. The <<beasttype>> watches you a moment longer, then beats <<bh
 	<<npc "Great Hawk">>
 	You awaken in a stone room, a sheet of feathers covering you. It's a wing.
 	<<if $monster is 1>>
-		The <<beasttype>> chirps beside you.
-	<<else>>
 		"I'm glad you're well," the <<beasttype>> says. "Spotted you asleep. Very dangerous. You should be careful. Come to nest when tired."
+	<<else>>
+		The <<beasttype>> chirps beside you.
 	<</if>>
 	<br><br>
 
@@ -250,7 +250,7 @@ You remain still. The <<beasttype>> watches you a moment longer, then beats <<bh
 	<<set $bird.timer to 60>>
 	<<set $bird.state to "home">>
 
-	<<link [[Bird Tower]]>><<endevent>><</link>>
+	<<link [[Next|Bird Tower]]>><<endevent>><</link>>
 	<br>
 <<else>>
 	<<npc "Great Hawk">>
@@ -268,7 +268,7 @@ You remain still. The <<beasttype>> watches you a moment longer, then beats <<bh
 <</if>>
 <<bird_schedule>>
 
-You are inside a ruined tower, deep in the moor.
+You are inside <<if $syndromebird is 1>>your tower<<else>>a ruined tower<</if>>, deep in the moor.
 <<if $syndromebird isnot 1>><<hunger_description>><</if>>
 <br><br>
 
@@ -414,44 +414,48 @@ You are inside a ruined tower, deep in the moor.
 	<<link [[Next|Bird Tower]]>><<endevent>><</link>>
 	<br>
 <<else>>
+	<<npc "Great Hawk">><<person1>>
 	<<if $leftarm is "bound" or $rightarm is "bound" or $feetuse is "bound">>
 		<<if $possessed>>
 			You stare down at your bindings. You pull, and they fall apart, unable to hold against you.
 			<br><br>
 			<<unbind>>
 		<<else>>
-			<<link [[Undo your bindings (0:10)|Bird Tower Unbind]]>><<bird_pass 10>><<unbind>><</link>>
+			<<undobindingsicon>><<link [[Undo your bindings (0:10)|Bird Tower Unbind]]>><<bird_pass 10>><<unbind>><</link>>
 			<br><br>
 		<</if>>
 	<</if>>
-	<<link [[Approach the perch|Bird Tower Perch]]>><</link>>
+	<<mooricon "perch">><<link [[Approach the perch|Bird Tower Perch]]>><</link>>
 	<br>
-	<<link [[Sit by the rainwater pool|Bird Tower Rainwater Pool]]>><</link>>
+	<<mooricon "rainwater">><<link [[Sit by the rainwater pool|Bird Tower Rainwater Pool]]>><</link>>
 	<br>
 	<<if $syndromebird isnot 1>>
-		<<link [[Look out the tower (0:05)|Bird Tower Look]]>><<bird_pass 5>><</link>>
+		<<crimeicon "mark">><<link [[Look out the tower (0:05)|Bird Tower Look]]>><<bird_pass 5>><</link>>
 		<br>
 	<</if>>
 	<<if $bird.lock is 1>>
-		<<link [[Examine the trap door (0:05)|Bird Tower Door]]>><<bird_pass 5>><</link>>
+		<<investigateicon>><<link [[Examine the trap door (0:05)|Bird Tower Door]]>><<bird_pass 5>><</link>>
 		<br>
 	<<else>>
-		<<link [[Enter the trap door (0:05)|Bird Tower Base Descend]]>><<bird_pass 5>><</link>>
+		<<getouticon "hole">><<link [[Enter the trap door (0:05)|Bird Tower Base Descend]]>><<bird_pass 5>><</link>>
 		<br>
 	<</if>>
 	<br>
 	<<if $syndromebird isnot 1>>
-		<<link [[Search for materials (1:00)|Bird Tower Search]]>><<bird_pass 60>><</link>>
+		<<investigateicon>><<link [[Search for materials (1:00)|Bird Tower Search]]>><<bird_pass 60>><</link>>
+		<br>
+	<</if>>
+	<<if $syndromebird and $lurkers_held gte 1 and $bird.state is "home" and $bird.activity is "build">>
+		<<ind>><<link "Give <<bhim>> the lurker" "Bird Tower Give Captured Lurker">><</link>><<glove>>
 		<br>
 	<</if>>
 	<<if $estate_fence is "quest" and $syndromebird is 1 and $bird.state is "home" and $bird.activity isnot "sleep">>
-		<<link [[Ask for help breaking into the Remy Estate|Bird Tower Estate]]>><</link>>
+		<<askicon>><<link [[Ask for help breaking into the Remy Estate|Bird Tower Estate]]>><</link>>
 		<br>
 	<</if>>
+	<<mooricon "nest">><<link [[Sleep in the nest|Bird Tower Bed]]>><</link>>
 	<br>
-	<<link [[Sleep in the nest|Bird Tower Bed]]>><</link>>
-	<br>
-	<<link [[Sleep elsewhere|Bird Tower Bed Alone]]>><<bird_stockholm -2>><</link>><<if $syndromebird isnot 1>><<lstockholm>><</if>>
+	<<bedicon "zzz">><<link [[Sleep elsewhere|Bird Tower Bed Alone]]>><<bird_stockholm -2>><</link>><<if $syndromebird isnot 1>><<lstockholm>><</if>>
 	<<if $bird.mirror is 1>>
 		<br>
 		<<if $nextPassageCheck is "Bird Tower Mirror">>
@@ -462,6 +466,7 @@ You are inside a ruined tower, deep in the moor.
 	<</if>>
 		<br>
 	<<if $syndromebird is 1>>
+		<br>
 		<<link [[Settings]]>><<set $settingsExitPassage to "Bird Tower">><</link>>
 		<br>
 		<<attitudesControlCheck>>
@@ -472,7 +477,7 @@ You are inside a ruined tower, deep in the moor.
 		<</if>>
 		<br><br>
 	<</if>>
-
+	<<endevent>>
 <</if>>
 
 :: Bird Tower Estate
@@ -557,9 +562,9 @@ You are in the base of the ruined tower, deep in the moor. There's a slit in the
 	<</if>>
 <</if>>
 
-<<link [[Climb the stairs (0:05)|Bird Tower Base Climb]]>><<bird_pass 5>><</link>>
+<<stairsicon "up">><<link [[Climb the stairs (0:05)|Bird Tower Base Climb]]>><<bird_pass 5>><</link>>
 <br>
-<<link [[Leave the tower|Bird Tower Base Leave]]>><</link>>
+<<getouticon>><<link [[Leave the tower|Bird Tower Base Leave]]>><</link>>
 <br>
 
 
@@ -625,7 +630,7 @@ You have <<number $bird.fabric>> spare material<<if $bird.fabric gt 1>>s<</if>>.
 		<br>
 	<</if>>
 	<<if $worn.under_lower.name isnot "naked" and $worn.under_lower.cursed isnot 1>>
-		Tear up your <<link [[$worn.under_lower.name|Bird Tower Rope Clothes]]>><<set $bird.fabric += 1>><<underlowerruined>><</link>>
+		Tear up your <<link [[$worn.under_lower.name|Bird Tower Rope Clothes]]>><<set $bird.fabric += 1>><<underlowerruined undefined "commando">><</link>>
 		<br>
 	<</if>>
 	<<if $worn.over_upper.name isnot "naked" and $worn.over_upper.cursed isnot 1>>
@@ -654,6 +659,10 @@ You have <<number $bird.fabric>> spare material<<if $bird.fabric gt 1>>s<</if>>.
 	<</if>>
 	<<if $worn.hands.name isnot "naked" and $worn.hands.cursed isnot 1>>
 		Tear up your <<link [[$worn.hands.name|Bird Tower Rope Clothes]]>><<set $bird.fabric += 1>><<handsruined>><</link>>
+		<br>
+	<</if>>
+	<<if $worn.handheld.name isnot "naked" and $worn.handheld.cursed isnot 1>>
+		Tear up your <<link [[$worn.hands.name|Bird Tower Rope Clothes]]>><<set $bird.fabric += 1>><<handheldruined>><</link>>
 		<br>
 	<</if>>
 	<<if $worn.legs.name isnot "naked" and $worn.legs.cursed isnot 1>>
@@ -1414,31 +1423,7 @@ You don't move.
 
 <<nightmareCheck "Bird Tower Sleep">>
 
-<<if $sleeptrouble is 1 and $controlled is 0>>
-	<<link [[Sleep for 10 hours|Bird Tower Sleep]]>><<set $sleephour to 10>><<incrementautosave>><</link>> (<<timeAfterXHours 10>>)<<ltiredness>>
-	<br>
-	<<link [[Sleep for 9 hours|Bird Tower Sleep]]>><<set $sleephour to 9>><<incrementautosave>><</link>> (<<timeAfterXHours 9>>)<<ltiredness>>
-	<br>
-<</if>>
-
-<<link [[Sleep for 8 hours|Bird Tower Sleep]]>><<set $sleephour to 8>><<incrementautosave>><</link>> (<<timeAfterXHours 8>>)<<ltiredness>>
-<br>
-<<link [[Sleep for 7 hours|Bird Tower Sleep]]>><<set $sleephour to 7>><<incrementautosave>><</link>> (<<timeAfterXHours 7>>)<<ltiredness>>
-<br>
-<<link [[Sleep for 6 hours|Bird Tower Sleep]]>><<set $sleephour to 6>><<incrementautosave>><</link>> (<<timeAfterXHours 6>>)<<ltiredness>>
-<br>
-<<link [[Sleep for 5 hours|Bird Tower Sleep]]>><<set $sleephour to 5>><<incrementautosave>><</link>> (<<timeAfterXHours 5>>)<<ltiredness>>
-<br>
-<<link [[Sleep for 4 hours|Bird Tower Sleep]]>><<set $sleephour to 4>><<incrementautosave>><</link>> (<<timeAfterXHours 4>>)<<ltiredness>>
-<br>
-<<link [[Sleep for 3 hours|Bird Tower Sleep]]>><<set $sleephour to 3>><<incrementautosave>><</link>> (<<timeAfterXHours 3>>)<<ltiredness>>
-<br>
-<<link [[Sleep for 2 hours|Bird Tower Sleep]]>><<set $sleephour to 2>><<incrementautosave>><</link>> (<<timeAfterXHours 2>>)<<ltiredness>>
-<br>
-<<link [[Sleep for 1 hour|Bird Tower Sleep]]>><<set $sleephour to 1>><<incrementautosave>><</link>> &#8194;(<<timeAfterXHours 1>>)<<ltiredness>>
-<br>
-<<link [[Just sleep|Bird Tower Sleep]]>><<set $sleephour to -1>><<incrementautosave>><</link>> (??:??)<<ltiredness>>
-<br><br>
+<<generateSleepLinks "Bird Tower Sleep">>
 <<link [[Climb out of bed|Bird Tower]]>><<loadTempHairStyle>><<unset $bedGuest>><</link>>
 <br><br>
 
@@ -1450,31 +1435,7 @@ You lie in a covered corner of the tower. It's hard to get comfortable.
 
 <<nightmareCheck "Bird Tower Sleep">>
 
-<<if $sleeptrouble is 1 and $controlled is 0>>
-	<<link [[Sleep for 10 hours|Bird Tower Sleep Alone]]>><<set $sleephour to 10>><<incrementautosave>><</link>> (<<timeAfterXHours 10>>)<<ltiredness>>
-	<br>
-	<<link [[Sleep for 9 hours|Bird Tower Sleep Alone]]>><<set $sleephour to 9>><<incrementautosave>><</link>> (<<timeAfterXHours 9>>)<<ltiredness>>
-	<br>
-<</if>>
-
-<<link [[Sleep for 8 hours|Bird Tower Sleep Alone]]>><<set $sleephour to 8>><<incrementautosave>><</link>> (<<timeAfterXHours 8>>)<<ltiredness>>
-<br>
-<<link [[Sleep for 7 hours|Bird Tower Sleep Alone]]>><<set $sleephour to 7>><<incrementautosave>><</link>> (<<timeAfterXHours 7>>)<<ltiredness>>
-<br>
-<<link [[Sleep for 6 hours|Bird Tower Sleep Alone]]>><<set $sleephour to 6>><<incrementautosave>><</link>> (<<timeAfterXHours 6>>)<<ltiredness>>
-<br>
-<<link [[Sleep for 5 hours|Bird Tower Sleep Alone]]>><<set $sleephour to 5>><<incrementautosave>><</link>> (<<timeAfterXHours 5>>)<<ltiredness>>
-<br>
-<<link [[Sleep for 4 hours|Bird Tower Sleep Alone]]>><<set $sleephour to 4>><<incrementautosave>><</link>> (<<timeAfterXHours 4>>)<<ltiredness>>
-<br>
-<<link [[Sleep for 3 hours|Bird Tower Sleep Alone]]>><<set $sleephour to 3>><<incrementautosave>><</link>> (<<timeAfterXHours 3>>)<<ltiredness>>
-<br>
-<<link [[Sleep for 2 hours|Bird Tower Sleep Alone]]>><<set $sleephour to 2>><<incrementautosave>><</link>> (<<timeAfterXHours 2>>)<<ltiredness>>
-<br>
-<<link [[Sleep for 1 hour|Bird Tower Sleep Alone]]>><<set $sleephour to 1>><<incrementautosave>><</link>> &#8194;(<<timeAfterXHours 1>>)<<ltiredness>>
-<br>
-<<link [[Just sleep|Bird Tower Sleep Alone]]>><<set $sleephour to -1>><<incrementautosave>><</link>> (??:??)<<ltiredness>>
-<br><br>
+<<generateSleepLinks "Bird Tower Sleep Alone">>
 <<link [[Climb out of bed|Bird Tower]]>><<loadTempHairStyle>><</link>>
 <br><br>
 
@@ -1528,7 +1489,8 @@ You sit by the rainwater pool.
 
 :: Bird Tower Sleep
 <<set _autosavehere to true>>
-<<sleep>><<effects>>
+<<sleep>>
+<<effects>>
 
 <<if $wraith.nightmare is 2 and isBloodmoon()>>
 	<<sleepeffects>>
@@ -1630,7 +1592,8 @@ You sit by the rainwater pool.
 
 :: Bird Tower Sleep Alone
 <<set _autosavehere to true>>
-<<sleep>><<effects>>
+<<sleep>>
+<<effects>>
 
 <<if $wraith.nightmare is 2 and isBloodmoon()>>
 	<<sleepeffects>>
@@ -1872,7 +1835,8 @@ You're soon squeaky clean.
 <</if>>
 <<strip>>
 <<wash>>
-You remove your clothing. The <<beasttype>> swims to the other side of the pool, making room for you. You slip into the water. It's cold, but you soon get used to it.
+<<noClothingCheck>>
+<<if _nude is false>>You remove your clothing.<</if>> The <<beasttype>> swims to the other side of the pool, making room for you. You slip into the water. It's cold, but you soon get used to it.
 <br><br>
 
 <<if $daily.birdWash is undefined>>
@@ -2759,6 +2723,99 @@ You wonder if anything you just experienced was real for a moment. The vertigo a
 	You rub your bindings against some jagged stone. It takes some effort, but eventually the material yields, freeing your limbs.
 	<br><br>
 <</if>>
+<br><br>
+<<link [[Next|Bird Tower]]>><<endevent>><</link>>
+<br>
+
+:: Bird Tower Give Captured Lurker
+<<npc "Great Hawk">><<person1>>
+<<if ndef $bird_lurkers>><<set $bird_lurkers to 0>><</if>>
+<<run $bird_lurkers += $lurkers_held>>
+<<if $speech_attitude is "meek">>
+	"I brought something for you," you say. "I really hope you like it."
+<<elseif $speech_attitude is "bratty">>
+	"I have something for you," you say. "You're welcome."
+<<else>>
+	"I brought you a gift," you say. "I hope you like it."
+<</if>>
+You take your netted lurker and give it to your <<if $monster is 1>><<nnpc_wife "Great Hawk">><<else>>partner<</if>>. <<glove>>
+<br><br>
+<<if $monster is 1>>
+	The <<beasttype>> perks up at your offer.
+	<br><br>
+	"<<Wife>> went hunting for me?" <<bhe>> asks. "<<Wife>> is very generous. And strong." <<bHe>> lunges forward, grasping the lurker in an almost crushing grip with <<bhis>> talons. A few moments later, <<bhe>> releases the now motionless lurker. <<bHe>> opens up the net and begins to eat.
+	<br><br>
+	After taking a couple of bites, <<bhe>> pauses before looking up at you.
+	<br><br>
+	"<<Wife>> should have some," <<bhe>> offers. "Celebrate <<if $bird_lurkers eq $lurkers_held>>your first<<else>>a good<</if>> hunt."
+<<else>>
+	The <<beasttype>> lets out an elated squawk before leaping forward and pinning the lurker down, squeezing it tight with <<bhis>> talons. <<bHe>> tears the net open before pulling a chunk of meat off the now motionless lurker.
+	<br><br>
+	After eating for a few moments, the <<beasttype>> lifts <<bhis>> head from <<bhis>> meal and takes a short hop backwards. <<bHe>> tilts his head slightly, before looking between you and the lurker, almost expectantly.
+<</if>>
+<br><br>
+<<set $lurkers_held to 0>>
+<<link "Accept <<bhis>> offer" "Bird Tower Give Captured Lurker Accept">><<npcincr "Great Hawk" love 1>><<npcincr "Great Hawk" dom 1>><<stress -16>><</link>> <<llstress>><<glove>><<gdom>>
+<br>
+<<link [[Decline|Bird Tower Give Captured Lurker Refuse]]>>
+<<npcincr "Great Hawk" dom -1>>
+<</link>> <<ldom>>
+<br>
+
+:: Bird Tower Give Captured Lurker Accept
+<<if $speech_attitude is "meek">>
+	"Thank you," you say.
+<<elseif $speech_attitude is "bratty">>
+	"Well, thanks," you say.
+<<else>>
+	"Thanks," you say.
+<</if>>
+	You sit down next to the lurker and begin to eat. The <<beasttype>> also resumes <<bhis>> meal, and the two of you devour the lurker in companionable silence.
+	<br><br>
+<<if $monster is 1>>
+	"<<Wife>> should go hunting more often," <<bhe>> says after you've both polished off the lurker. "Maybe go hunting together sometime?" <<bHe>> seems keen on the idea.
+	You make a noncommittal <<if $speech_attitude is "bratty">>grunt<<else>>hum<</if>> and scooch over so that you're sitting next to <<bhim>>.
+	<br><br>
+<<else>>
+	Once you've finished your meal, the <<beasttype>> lets out a satisfied chirp, before sidling over to sit next to you.
+	<br><br>
+<</if>>
+<<bHe>> wraps a wing around you, and you snuggle into <<bhis>> plumage. <br><br>
+<<if $bodysize lte 1 and $monster is 1>>
+	<<bHe>> leans over slightly and rests <<bhis>> head atop yours. 
+<<elseif $monster isnot 1 and $bodysize gte 3>>
+	<<bHe>> nuzzles <<bhis>> head under your chin, resting it on the front of your shoulder. <</if>>The two of you spend a minute or two like that, just enjoying being with each other. <<lstress>>
+<<bird_pass 15>>
+<br><br>
+<<link [[Next|Bird Tower]]>><<endevent>><</link>>
+<br>
+
+:: Bird Tower Give Captured Lurker Refuse
+<<if $speech_attitude is "meek">>
+	"I'm not very hungry," you say. "You can have it."
+<<elseif $speech_attitude is "bratty">>
+	"Nah. I'll pass," you say.
+<<else>>
+	"No thanks," you say. "You can have it."
+<</if>>
+<br><br>
+<<if $monster is 1>>
+	<<bHe>> looks uncertain. "Alright," <<bhe>> says. "But if <<wife>> wants to share in the future, <<wife>> only has to ask."
+	<br><br>
+	<<bHe>> resumes eating, although <<bhe>> seems slightly subdued.
+	<br><br>
+<<else>>
+	<<bHe>> hesitates for a moment, before diving back into <<bhis>> meal.
+	<br><br>
+<</if>>
+	While your <<if $monster is 1>><<nnpc_wife "Great Hawk">><<else>>partner<</if>> eats, you sit down next to <<bhim>> and rest for a moment. Once <<bhes>> finished with the lurker, <<bhe>> sits back, then <<if $monster is 1>>leans<<else>>nuzzles<</if>> into your side<<if $monster is 1>>, wrapping an arm around you<</if>>.
+	<br><br>
+<<if $monster is 1>>
+	"I'm so happy to have <<wife>>," <<bhe>> says.
+	<br><br>
+<</if>>
+<<bird_pass 10>><<bird_schedule>>
+After a minute of cuddling, <<bhe>> <<if $monster is 1>>releases<<else>>pulls away from<</if>> you.
 <br><br>
 <<link [[Next|Bird Tower]]>><<endevent>><</link>>
 <br>

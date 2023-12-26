@@ -47,6 +47,7 @@ const hairStyleCap = {
 		pigtails: 300,
 		ponytail: 300,
 		short: 100,
+		"shaved": 100,
 	},
 	fringetype: {
 		default: 100,
@@ -68,6 +69,8 @@ const hairStyleCap = {
 		"ringlet curl": 300,
 		curtain: 200,
 		trident: 200,
+		"buzzcut": 100,
+		"mohawk": 100,
 	},
 };
 
@@ -134,6 +137,7 @@ function genderappearancecheck() {
 	addfemininityofclothingarticle("face", V.worn.face);
 	addfemininityofclothingarticle("neck", V.worn.neck);
 	addfemininityofclothingarticle("legs", V.worn.legs);
+	addfemininityofclothingarticle("handheld", V.worn.handheld);
 	addfemininityofclothingarticle("feet", V.worn.feet);
 	/* Hair length */
 	if (V.worn.over_head.hood !== 1 && V.worn.head.hood !== 1) {
@@ -265,6 +269,11 @@ function genderappearancecheck() {
 	/* Pregnant Belly */
 	if (V.sexStats === undefined || !playerBellyVisible()) {
 		// do glorious nothing
+	} else if (V.NudeGenderDC <= 1) {
+		addfemininityfromfactor(
+			Math.clamp((playerBellySize() - 7) * (V.NudeGenderDC === 1 ? 90 : 70), 0, Infinity),
+			playerAwareTheyArePregnant() ? "Pregnant Belly" : "Pregnant Looking Belly"
+		);
 	} else if (playerBellySize() >= 18) {
 		addfemininityfromfactor(Math.clamp(10000, 0, Infinity), playerAwareTheyArePregnant() ? "Pregnant Belly" : "Pregnant Looking Belly");
 	} else if (playerBellySize() >= 8) {
@@ -342,7 +351,8 @@ function apparentbreastsizecheck() {
 	if (clothingData("over_upper", V.worn.over_upper, "bustresize") != null) {
 		T.tempbreast += clothingData("over_upper", V.worn.over_upper, "bustresize");
 	}
-	V.player.perceived_breastsize = Math.clamp(T.tempbreast, V.breastsizemin, V.breastsizemax);
+	// using the default values of $breastsizemin and $breastsizemax, to avoid issues with the values changing during the game
+	V.player.perceived_breastsize = Math.clamp(T.tempbreast, 0, setup.breastsizes.length - 1);
 }
 window.apparentbreastsizecheck = apparentbreastsizecheck;
 
@@ -357,7 +367,8 @@ function apparentbottomsizecheck() {
 	if (V.worn.lower.rearresize != null) {
 		T.tempbutt += V.worn.over_lower.rearresize;
 	}
-	V.player.perceived_bottomsize = Math.clamp(T.tempbutt, V.bottomsizemin, V.bottomsizemax);
+	// using the default values of $bottomsizemin and $bottomsizemax, to avoid issues with the values changing during the game
+	V.player.perceived_bottomsize = Math.clamp(T.tempbutt, 0, 8);
 }
 
 function exposedcheck(alwaysRun) {

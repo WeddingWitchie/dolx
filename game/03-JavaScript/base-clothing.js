@@ -175,15 +175,15 @@ window.getClothingCost = getClothingCost;
 function tailorClothingCost(item, slot) {
 	let cost = 0;
 	if (setup.clothes[slot][clothesIndex(slot, item)].outfitSecondary) {
-		let upperSlot = setup.clothes[slot][clothesIndex(slot, item)].outfitSecondary[0];
-		let upperItem = setup.clothes[upperSlot].findIndex(x => x.name === setup.clothes[slot][clothesIndex(slot, item)].outfitSecondary[1]);
-		if (upperItem >= 0) cost = setup.clothes[upperSlot][upperItem].cost * V.clothesPrice * .2;
+		const upperSlot = setup.clothes[slot][clothesIndex(slot, item)].outfitSecondary[0];
+		const upperItem = setup.clothes[upperSlot].findIndex(x => x.name === setup.clothes[slot][clothesIndex(slot, item)].outfitSecondary[1]);
+		if (upperItem >= 0) cost = setup.clothes[upperSlot][upperItem].cost * V.clothesPrice * 0.2;
 	} else if (setup.clothes[slot][clothesIndex(slot, item)].outfitPrimary) {
-		cost = setup.clothes[slot][clothesIndex(slot, item)].cost * V.clothesPrice * .8;
+		cost = setup.clothes[slot][clothesIndex(slot, item)].cost * V.clothesPrice * 0.8;
 	} else {
 		cost = setup.clothes[slot][clothesIndex(slot, item)].cost * V.clothesPrice;
 	}
-	
+
 	if (
 		setup.clothes.under_lower.findIndex(x => x.name === item.name && x.modder === item.modder) >= 0 ||
 		setup.clothes.under_upper.findIndex(x => x.name === item.name && x.modder === item.modder) >= 0
@@ -333,14 +333,14 @@ function convertNormalToOver() {
 window.convertNormalToOver = convertNormalToOver;
 
 function getVisibleClothesList() {
-	const visibleClothes = [V.worn.over_upper, V.worn.over_lower, V.worn.over_head, V.worn.face, V.worn.neck, V.worn.hands, V.worn.legs, V.worn.feet];
+	const visibleClothes = [V.worn.over_upper, V.worn.over_lower, V.worn.over_head, V.worn.face, V.worn.neck, V.worn.hands, V.worn.handheld, V.worn.legs, V.worn.feet];
 	// over_head doesn't have 'exposed' parameter, but maybe it will some day (in which case remove check for 'naked')
 	if (V.worn.over_head.name === "naked" || V.worn.over_head.exposed >= 2) visibleClothes.push(V.worn.head);
 	if (V.worn.over_upper.exposed >= 2 || V.overupperwetstage >= 3) visibleClothes.push(V.worn.upper);
 	if (V.worn.over_lower.exposed >= 2 || V.overlowerwetstage >= 3) visibleClothes.push(V.worn.lower);
 	if (V.worn.upper.exposed >= 2 || V.upperwetstage >= 3) visibleClothes.push(V.worn.under_upper);
 	if (V.worn.lower.exposed >= 2 || V.lowerwetstage >= 3) visibleClothes.push(V.worn.under_lower);
-	if (V.worn.under_lower.exposed >= 2 || V.underlowerwetstage >= 3) visibleClothes.push(V.worn.genitals);
+	if (V.worn.under_lower.exposed >= 1 || V.underlowerwetstage >= 3) visibleClothes.push(V.worn.genitals);
 	return visibleClothes;
 }
 window.getVisibleClothesList = getVisibleClothesList;

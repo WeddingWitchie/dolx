@@ -3,6 +3,19 @@ Config.history.controls = false;
 Config.saves.slots = 9;
 Config.history.maxStates = 1;
 
+/* LinkNumberify and images will enable or disable the feature completely */
+/* debug will enable or disable the feature only for new games */
+/* sneaky will enable the Sneaky notice banner on the opening screen and save display */
+/* versionName will be displayed in the top right of the screen, leave as "" to not display anything */
+window.StartConfig = {
+	debug: false,
+	enableImages: true,
+	enableLinkNumberify: true,
+	version: "0.4.5.2",
+	versionName: "",
+	sneaky: false,
+};
+
 State.prng.init();
 
 window.versionUpdateCheck = true;
@@ -10,7 +23,29 @@ window.onLoadUpdateCheck = false;
 
 let pageLoading = false;
 
+Config.saves.isAllowed = () => {
+	if (tags().includes("nosave") || V.replayScene) return false;
+	return true;
+}
+
+idb.footerHTML = `
+	<div class="savesListRow">
+		<div class="saveGroup">
+			<span style="margin: 0;">
+				Special thanks to all those who <a target="_blank" class="link-external" href="https://subscribestar.adult/vrelnir" tabindex="0">Support Degrees of Lewdity</a>
+			</span>
+			<div class="saveId"></div>
+			<div class="saveButton"></div>
+			<div class="saveName"></div>
+			<div class="saveDetails"></div>
+		</div>
+		<div class="saveButton">
+			<input type="button" class="saveMenuButton right" value="Delete All" onclick="idb.saveList('confirm clear')">
+		</div>
+	</div>`
+
 function onLoad(save) {
+	// some flags for version update. ideally, all updating should be done here in onLoad, but we don't live in an ideal world
 	pageLoading = true;
 	window.onLoadUpdateCheck = true;
 
@@ -21,27 +56,75 @@ function onLoad(save) {
 	// decompression should be the FIRST save modification
 	DoLSave.decompressIfNeeded(save);
 
+	// cache current date before assigning it to every frame in history
+	const date = new Date();
 	save.state.history.forEach(h => {
 		if (h.prng && Array.isArray(h.prng.S)) {
 			h.prng.S.forEach((i, index, array) => {
 				if (i < 0 || i > 255) array[index] %= 256;
 			});
 		}
-		h.variables.saveDetails = defaultSaveDetails(h.variables.saveDetails);
-		h.variables.saveDetails.loadTime = new Date();
+		const details = h.variables.saveDetails;
+		if (details) {
+			if (!details.playTime) details.playTime = 0;
+			if (!details.loadCount) details.loadCount = 0;
+			details.loadTime = date;
+			details.loadCount++;
+		}
 	});
 }
 window.onLoad = onLoad;
 Save.onLoad.add(onLoad);
 
-function onSave(save) {
+/**
+ * increment saves counter and update relevant statistics
+ *
+ * @param {object} storyVars State.variables or similar object to modify
+ * @param {"slot"|"autosave"|"disk"|"serialize"} type save type
+ * @param {Date} date cached date object so we don't have to run `new Date()` hundreds of times
+ */
+function incSavesCount(storyVars = V, type, date) {
+	const details = storyVars.saveDetails;
+	if (!details) return; // really ancient save that somehow didn't get updated
+	switch (type) {
+		case "slot":
+			details.slot.count++;
+			break;
+		case "autosave":
+			details.auto.count++;
+			break;
+		case "disk":
+			details.exported.days = Time.days;
+			details.exported.count++;
+			break;
+		case "serialize":
+			details.exported.count++;
+			break;
+	}
+	if (date) details.playTime += date - details.loadTime;
+}
+
+function onSave(save, details) {
+	// * update feats * //
 	Wikifier.wikifyEval("<<updateFeats>>");
-	save.state.history.forEach(h => {
-		h.variables.saveDetails = defaultSaveDetails(h.variables.saveDetails);
-		h.variables.saveDetails.playTime += h.variables.saveDetails.loadTime ? new Date() - h.variables.saveDetails.loadTime : 0;
-		h.variables.saveDetails.loadCount++;
-	});
-	// don't run legacy code when idb is active
+
+	// * update $saveDetails wherever possible * //
+	const type = details.type;
+	const date = save.date;
+	// start with active vars, so we can view statistics
+	incSavesCount(V, type, date);
+	// then saved history, so moving back and forth doesn't reset it
+	State.history.forEach(h => incSavesCount(h.variables, type, date));
+	// then actual save vars
+	save.state.history.forEach(sh => incSavesCount(sh.variables, type, date));
+	// and finally, session data, so it persists even after f5
+	const session = State.getSessionState();
+	if (session != null) {
+		session.history.forEach(s => incSavesCount(s.variables, type, date));
+		State.setSessionState(session);
+	}
+
+	// * legacy code for old saves system * //
 	if (!(window.idb && window.idb.active)) {
 		// eslint-disable-next-line no-undef
 		prepareSaveDetails(); // defined in save.js
@@ -52,19 +135,6 @@ function onSave(save) {
 }
 window.onSave = onSave;
 Save.onSave.add(onSave);
-
-/* LinkNumberify and images will enable or disable the feature completely */
-/* debug will enable or disable the feature only for new games */
-/* sneaky will enable the Sneaky notice banner on the opening screen and save display */
-/* versionName will be displayed in the top right of the screen, leave as "" to not display anything */
-window.StartConfig = {
-	debug: false,
-	enableImages: true,
-	enableLinkNumberify: true,
-	version: "0.4.1.7",
-	versionName: "",
-	sneaky: false,
-};
 
 /* convert version string to numeric value */
 const tmpver = StartConfig.version.replace(/[^0-9.]+/g, "").split(".");
@@ -78,16 +148,6 @@ Config.saves.isAllowed = function () {
 	}
 	return true;
 };
-
-$(document).on(":passagestart", function (ev) {
-	if (ev.passage.title === "Start2") {
-		$.event.trigger({
-			type: ":start2",
-			content: ev.content,
-			passage: ev.passage,
-		});
-	}
-});
 
 importStyles("style.css")
 	.then(function () {
@@ -118,41 +178,6 @@ importScripts([
 .catch(function (err) {
 	console.log(err);
 }); */
-
-function defaultSaveDetails(input) {
-	let saveDetails = input;
-	if (!saveDetails) {
-		// In the rare case the variable doesnt exist
-		saveDetails = {
-			exported: {
-				days: clone(variables.days),
-				frequency: 15,
-				count: 0,
-				dayCount: 0,
-			},
-			auto: {
-				count: 0,
-			},
-			slot: {
-				count: 0,
-				dayCount: 0,
-			},
-		};
-	}
-	if (!saveDetails.playTime) {
-		saveDetails.playTime = 0;
-		saveDetails.loadCount = 0;
-	}
-	if (!saveDetails.f || saveDetails.f < 1) {
-		saveDetails.f = 1;
-		saveDetails.playTime = 0;
-	}
-	if (saveDetails.f < 3) {
-		saveDetails.playTime = 0;
-		saveDetails.f = 3;
-	}
-	return saveDetails;
-}
 
 // Runs before a passage load, returning a string redirects to the new passage name.
 Config.navigation.override = function (dest) {
@@ -186,6 +211,13 @@ Config.navigation.override = function (dest) {
 			case "Forest Shop Legs":
 			case "Forest Shop Feet":
 				return "Forest Shop";
+
+			case "Cafe Fruit Salad":
+			case "Cafe Autumn Ale":
+			case "Cafe Summer Ale":
+			case "Cafe Spring Ale":
+			case "Cafe Winter Ale":
+				return "Cafe Eat";
 
 			case "Over Outfit Shop":
 			case "Outfit Shop":
@@ -451,6 +483,17 @@ Config.navigation.override = function (dest) {
 				return "Chalets Work One Sex";
 			case "Chalets Work One Rape Finish":
 				return "Chalets Work One Sex Finish";
+			
+			case "Whitney Bully Parasite Event Submit":
+			case "Whitney Bully Parasite Event Escape Attempt":
+				return "Bully Parasite";
+			
+			case "Whitney Bully Parasite Event Combat":
+				return "Bully Parasite Fight";
+
+			case "Whitney Bully Parasite Event Combat Loss":
+			case "Whitney Bully Parasite Event Combat Victory":
+				return "Bully Parasite Fight Finish";
 			default:
 				return false;
 		}

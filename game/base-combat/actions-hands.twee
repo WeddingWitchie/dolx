@@ -113,6 +113,12 @@
 			<</if>>
 		<</if>>
 
+		<<if $worn.under_lower.state is setup.clothes.under_lower[clothesIndex('under_lower', $worn.under_lower)].state_base and !$worn.under_lower.type.includes("naked") and !playerHasStrapon()>>
+			<<if $worn.lower.state isnot setup.clothes.lower[clothesIndex('lower', $worn.lower)].state_base or setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1 or $worn.lower.type.includes("naked")>>
+				<<set _leftaction["Pull your "+$worn.under_lower.name+" to the side"] to "under_lower_to_the_side">>
+			<</if>>
+		<</if>>
+
 		<<if $worn.face.state is setup.clothes.face[clothesIndex('face', $worn.face)].state_base and !$worn.face.type.includes("naked") and $worn.face.type.includes("mask")>>
 				<<set _leftaction["Displace your "+$worn.face.name] to "mask">>
 		<</if>>
@@ -133,7 +139,8 @@
 			<<set $skulduggerydifficulty to (1000 - ($enemyarousal / $enemyarousalmax * 400) - $skulduggery - $enemytrust + $enemyanger) * $stealdifficulty>>
 			<<if $easySteal is 1>><<set $skulduggerydifficulty to 0>><</if>>
 			/*Missing <<skulduggerydifficulty>><<combatcrime>>*/
-			<<if $stealstateleft is undefined>>
+			<<if !isNaN($lefttarget) and $NPCList[$lefttarget] and $NPCList[$lefttarget].clothes and $NPCList[$lefttarget].clothes.set is "naked">>
+			<<elseif $stealstateleft is undefined>>
 				<<set _leftaction["Steal"] to "steal">>
 			<<elseif $stealstateleft is 2>>
 				<<set _leftaction["Take " + $NPCList[$lefttarget].pronouns.his + " belongings"] to "steal">>
@@ -183,28 +190,40 @@
 <</widget>>
 
 <<widget "leftFixAndCoverActions">>
-	<<if $worn.lower.vagina_exposed is 1 and $worn.under_lower.vagina_exposed is 1>>
+	<<if ($worn.lower.vagina_exposed is 1 and $worn.under_lower.vagina_exposed is 1) or $leftactiondefault is "leftcovervaginalewd">>
 		<<if $NPCList[0].state is "stalk" and $NPCList[0].legs isnot "run">>
 			<<if $vaginause is "cover">>
-				<<set _leftaction["Keep covering your pussy"] to "leftcovervaginameek">>
+				<<if $leftactiondefault is "leftcovervaginalewd" or $rightactiondefault is "rightcovervaginalewd">>
+					<<set _leftaction["Keep playing with your pussy"] to "leftcovervaginalewd">>
+				<<else>>
+					<<set _leftaction["Keep covering your pussy"] to "leftcovervaginameek">>
+				<</if>>
 			<<elseif $vaginause is 0>>
 				<<set _leftaction["Cover your pussy"] to "leftcovervaginameek">>
 			<</if>>
 		<<elseif $lefttarget is "self" or $options.targetYourself is false or _targetnumber is 1 or $NPCList[0].state is "stalk">>
 			<<if $vaginause is "cover">>
-				<<set _leftaction["Keep covering your pussy"] to "leftcovervagina">>
+				<<if $leftactiondefault is "leftcovervaginalewd" or $rightactiondefault is "rightcovervaginalewd">>
+					<<set _leftaction["Keep playing with your pussy"] to "leftcovervaginalewd">>
+				<<else>>
+					<<set _leftaction["Keep covering your pussy"] to "leftcovervagina">>
+				<</if>>
 			<<elseif $vaginause is 0>>
 				<<set _leftaction["Cover your pussy"] to "leftcovervagina">>
 			<</if>>
 		<</if>>
 	<</if>>
 
-	<<if $worn.lower.vagina_exposed is 1 and $worn.under_lower.vagina_exposed is 1>>
-		<<set _penis to playerHasStrapon() ? 'strap-on' : 'penis'>>
+	<<if ($worn.lower.vagina_exposed is 1 and $worn.under_lower.vagina_exposed is 1) or $leftactiondefault is "leftcoverpenislewd">>
+		<<set _penis to playerHasStrapon() ? "strap-on" : (playerChastity("penis") ? $worn.genitals.name : "penis")>>
 		<<set _straponDisplaced to (!playerHasStrapon() && $worn.under_lower.type.includes("strap-on"))>>
 		<<if $NPCList[0].state is "stalk" and $NPCList[0].legs isnot "run">>
 			<<if $penisuse is "cover">>
-				<<set _leftaction["Keep covering your " + _penis] to "leftcoverpenismeek">>
+				<<if $leftactiondefault is "leftcoverpenislewd" or $rightactiondefault is "rightcoverpenislewd">>
+					<<set _leftaction["Keep playing with your " + _penis] to "leftcoverpenislewd">>
+				<<else>>
+					<<set _leftaction["Keep covering your " + _penis] to "leftcoverpenismeek">>
+				<</if>>
 			<<elseif $penisuse is 0>>
 				<<if !_straponDisplaced>>
 					<<set _leftaction["Cover your " + _penis] to "leftcoverpenismeek">>
@@ -212,7 +231,11 @@
 			<</if>>
 		<<elseif $lefttarget is "self" or $options.targetYourself is false or _targetnumber is 1 or $NPCList[0].state is "stalk">>
 			<<if $penisuse is "cover">>
-				<<set _leftaction["Keep covering your " + _penis] to "leftcoverpenis">>
+				<<if $leftactiondefault is "leftcoverpenislewd" or $rightactiondefault is "rightcoverpenislewd">>
+					<<set _leftaction["Keep playing with your " + _penis] to "leftcoverpenislewd">>
+				<<else>>
+					<<set _leftaction["Keep covering your " + _penis] to "leftcoverpenis">>
+				<</if>>
 			<<elseif $penisuse is 0>>
 				<<if !_straponDisplaced>>
 					<<set _leftaction["Cover your " + _penis] to "leftcoverpenis">>
@@ -221,16 +244,24 @@
 		<</if>>
 	<</if>>
 
-	<<if $worn.lower.anus_exposed is 1 and $worn.under_lower.anus_exposed is 1>>
+	<<if ($worn.lower.anus_exposed is 1 and $worn.under_lower.anus_exposed is 1) or $leftactiondefault is "leftcoveranuslewd">>
 		<<if $NPCList[0].state is "stalk" and $NPCList[0].legs isnot "run">>
 			<<if $anususe is "cover">>
-				<<set _leftaction["Keep covering your ass"] to "leftcoveranusmeek">>
+				<<if $leftactiondefault is "leftcoveranuslewd" or $rightactiondefault is "rightcoveranuslewd">>
+					<<set _leftaction["Keep playing with your ass"] to "leftcoveranuslewd">>
+				<<else>>
+					<<set _leftaction["Keep covering your ass"] to "leftcoveranusmeek">>
+				<</if>>
 			<<else>>
 				<<set _leftaction["Cover your ass"] to "leftcoveranusmeek">>
 			<</if>>
 		<<elseif $lefttarget is "self" or $options.targetYourself is false or _targetnumber is 1 or $NPCList[0].state is "stalk">>
 			<<if $anususe is "cover">>
-				<<set _leftaction["Keep covering your ass"] to "leftcoveranus">>
+				<<if $leftactiondefault is "leftcoveranuslewd" or $rightactiondefault is "rightcoveranuslewd">>
+					<<set _leftaction["Keep playing with your ass"] to "leftcoveranuslewd">>
+				<<else>>
+					<<set _leftaction["Keep covering your ass"] to "leftcoveranus">>
+				<</if>>
 			<<else>>
 				<<set _leftaction["Cover your ass"] to "leftcoveranus">>
 			<</if>>
@@ -470,6 +501,12 @@
 			<</if>>
 		<</if>>
 
+		<<if $worn.under_lower.state is setup.clothes.under_lower[clothesIndex('under_lower', $worn.under_lower)].state_base and !$worn.under_lower.type.includes("naked") and !playerHasStrapon()>>
+			<<if $worn.lower.state isnot setup.clothes.lower[clothesIndex('lower', $worn.lower)].state_base or setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1 or $worn.lower.type.includes("naked")>>
+				<<set _rightaction["Pull your "+$worn.under_lower.name+" to the side"] to "under_lower_to_the_side">>
+			<</if>>
+		<</if>>
+
 		<<if $worn.face.state is setup.clothes.face[clothesIndex('face', $worn.face)].state_base and !$worn.face.type.includes("naked") and $worn.face.type.includes("mask")>>
 				<<set _rightaction["Displace your "+$worn.face.name] to "mask">>
 		<</if>>
@@ -490,7 +527,8 @@
 			<<set $skulduggerydifficulty to (1000 - ($enemyarousal / $enemyarousalmax * 400) - $skulduggery - $enemytrust + $enemyanger) * $stealdifficulty>>
 			<<if $easySteal is 1>><<set $skulduggerydifficulty to 0>><</if>>
 			/*Missing <<skulduggerydifficulty>><<combatcrime>>*/
-			<<if $stealstateright is undefined>>
+			<<if !isNaN($righttarget) and $NPCList[$righttarget] and $NPCList[$righttarget].clothes and $NPCList[$righttarget].clothes.set is "naked">>
+			<<elseif $stealstateright is undefined>>
 				<<set _rightaction["Steal"] to "steal">>
 			<<elseif $stealstateright is 2>>
 				<<set _rightaction["Take " + $NPCList[$righttarget].pronouns.his + " belongings"] to "steal">>
@@ -540,28 +578,40 @@
 <</widget>>
 
 <<widget "rightFixAndCoverActions">>
-	<<if $worn.lower.vagina_exposed is 1 and $worn.under_lower.vagina_exposed is 1>>
+	<<if ($worn.lower.vagina_exposed is 1 and $worn.under_lower.vagina_exposed is 1) or $rightactiondefault is "rightcovervaginalewd">>
 		<<if $NPCList[0].state is "stalk" and $NPCList[0].legs isnot "run">>
 			<<if $vaginause is "cover">>
-				<<set _rightaction["Keep covering your pussy"] to "rightcovervaginameek">>
+				<<if $leftactiondefault is "leftcovervaginalewd" or $rightactiondefault is "rightcovervaginalewd">>
+					<<set _rightaction["Keep playing with your pussy"] to "rightcovervaginalewd">>
+				<<else>>
+					<<set _rightaction["Keep covering your pussy"] to "rightcovervaginameek">>
+				<</if>>
 			<<elseif $vaginause is 0>>
 				<<set _rightaction["Cover your pussy"] to "rightcovervaginameek">>
 			<</if>>
 		<<elseif $righttarget is "self" or $options.targetYourself is false or _targetnumber is 1 or $NPCList[0].state is "stalk">>
 			<<if $vaginause is "cover">>
-				<<set _rightaction["Keep covering your pussy"] to "rightcovervagina">>
+				<<if $leftactiondefault is "leftcovervaginalewd" or $rightactiondefault is "rightcovervaginalewd">>
+					<<set _rightaction["Keep playing with your pussy"] to "rightcovervaginalewd">>
+				<<else>>
+					<<set _rightaction["Keep covering your pussy"] to "rightcovervagina">>
+				<</if>>
 			<<elseif $vaginause is 0>>
 				<<set _rightaction["Cover your pussy"] to "rightcovervagina">>
 			<</if>>
 		<</if>>
 	<</if>>
 
-	<<if $worn.lower.vagina_exposed is 1 and $worn.under_lower.vagina_exposed is 1>>
-		<<set _penis to playerHasStrapon() ? 'strap-on' : 'penis'>>
+	<<if ($worn.lower.vagina_exposed is 1 and $worn.under_lower.vagina_exposed is 1) or $rightactiondefault is "rightcoverpenislewd">>
+		<<set _penis to playerHasStrapon() ? "strap-on" : (playerChastity("penis") ? $worn.genitals.name : "penis")>>
 		<<set _straponDisplaced to (!playerHasStrapon() && $worn.under_lower.type.includes("strap-on"))>>
 		<<if $NPCList[0].state is "stalk" and $NPCList[0].legs isnot "run">>
 			<<if $penisuse is "cover">>
-				<<set _rightaction["Keep covering your " + _penis] to "rightcoverpenismeek">>
+				<<if $leftactiondefault is "leftcoverpenislewd" or $rightactiondefault is "rightcoverpenislewd">>
+					<<set _rightaction["Keep playing with your " + _penis] to "rightcoverpenislewd">>
+				<<else>>
+					<<set _rightaction["Keep covering your " + _penis] to "rightcoverpenismeek">>
+				<</if>>
 			<<elseif $penisuse is 0>>
 				<<if !_straponDisplaced>>
 					<<set _rightaction["Cover your " + _penis] to "rightcoverpenismeek">>
@@ -569,7 +619,11 @@
 			<</if>>
 		<<elseif $righttarget is "self" or $options.targetYourself is false or _targetnumber is 1 or $NPCList[0].state is "stalk">>
 			<<if $penisuse is "cover">>
-				<<set _rightaction["Keep covering your " + _penis] to "rightcoverpenis">>
+				<<if $leftactiondefault is "leftcoverpenislewd" or $rightactiondefault is "rightcoverpenislewd">>
+					<<set _rightaction["Keep playing with your " + _penis] to "rightcoverpenislewd">>
+				<<else>>
+					<<set _rightaction["Keep covering your " + _penis] to "rightcoverpenis">>
+				<</if>>
 			<<elseif $penisuse is 0>>
 				<<if !_straponDisplaced>>
 					<<set _rightaction["Cover your " + _penis] to "rightcoverpenis">>
@@ -578,16 +632,24 @@
 		<</if>>
 	<</if>>
 
-	<<if $worn.lower.anus_exposed is 1 and $worn.under_lower.anus_exposed is 1>>
+	<<if ($worn.lower.anus_exposed is 1 and $worn.under_lower.anus_exposed is 1) or $rightactiondefault is "rightcoveranuslewd">>
 		<<if $NPCList[0].state is "stalk" and $NPCList[0].legs isnot "run">>
 			<<if $anususe is "cover">>
-				<<set _rightaction["Keep covering your ass"] to "rightcoveranusmeek">>
+				<<if $leftactiondefault is "leftcoveranuslewd" or $rightactiondefault is "rightcoveranuslewd">>
+					<<set _rightaction["Keep playing with your ass"] to "rightcoveranuslewd">>
+				<<else>>
+					<<set _rightaction["Keep covering your ass"] to "rightcoveranusmeek">>
+				<</if>>
 			<<else>>
 				<<set _rightaction["Cover your ass"] to "rightcoveranusmeek">>
 			<</if>>
 		<<elseif $righttarget is "self" or $options.targetYourself is false or _targetnumber is 1 or $NPCList[0].state is "stalk">>
 			<<if $anususe is "cover">>
-				<<set _rightaction["Keep covering your ass"] to "rightcoveranus">>
+				<<if $leftactiondefault is "leftcoveranuslewd" or $rightactiondefault is "rightcoveranuslewd">>
+					<<set _rightaction["Keep playing with your ass"] to "rightcoveranuslewd">>
+				<<else>>
+					<<set _rightaction["Keep covering your ass"] to "rightcoveranus">>
+				<</if>>
 			<<else>>
 				<<set _rightaction["Cover your ass"] to "rightcoveranus">>
 			<</if>>
@@ -1183,6 +1245,21 @@
 		<</if>>
 	<</if>>
 
+	<<if $leftaction is "under_lower_to_the_side" or $rightaction is "under_lower_to_the_side">>
+		<<if $leftaction is "under_lower_to_the_side">><<set $leftaction to 0>><<set $leftactiondefault to "rest">><</if>>
+		<<if $rightaction is "under_lower_to_the_side">><<set $rightaction to 0>><<set $rightactiondefault to "rest">><</if>>
+
+		<<set $worn.under_lower.anus_exposed to 1>><<set $worn.under_lower.vagina_exposed to 1>><<set $worn.under_lower.exposed to 2>>
+		<<set $worn.under_lower.state to "totheside">>
+		<<if $worn.under_lower.name is "naked">>
+			You clutch the tattered remains of your clothing.
+		<<elseif $worn.lower.exposed gte 2>>
+			You pull your $worn.under_lower.name to the side, <span class="lewd">exposing your <<genitals>>.</span>
+		<<else>>
+			You pull your $worn.under_lower.name to the side under your $worn.lower.name.
+		<</if>>
+	<</if>>
+
 	<<if $leftaction is "mask" or $rightaction is "mask">>
 		<<if $leftaction is "mask">><<set $leftaction to 0>><<set $leftactiondefault to "rest">><</if>>
 		<<if $rightaction is "mask">><<set $rightaction to 0>><<set $rightactiondefault to "rest">><</if>>
@@ -1207,13 +1284,13 @@
 				You hold the spray in both hands, and unload a full blast in the figure's face. <span class="red">It doesn't even blink.</span>
 			<<elseif $enemyno gte 2>>
 				You hold the spray in both hands, and unload a full blast at the <<group>>. They clutch their faces.
-				<<if !$npc.includes("Eden") and !$npc.includes("Morgan") and !$npc.includes("Kylar") and !$abomination>>
-					<<ggcrime>><<crimeup 500>>
+				<<if !$npc.includes("Eden") and !$npc.includes("Morgan") and !$npc.includes("Kylar") and !$abomination and !["island"].includes($location)>>
+					<<ggcrime "assault">><<crimeUp 500 "assault">>
 				<</if>>
 			<<else>>
 				You hold the spray in both hands, and unload a full blast at the assailant. <<He>> clutches <<his>> face.
-				<<if !$npc.includes("Eden") and !$npc.includes("Morgan") and !$npc.includes("Kylar") and !$abomination>>
-					<<ggcrime>><<crimeup 500>>
+				<<if !$npc.includes("Eden") and !$npc.includes("Morgan") and !$npc.includes("Kylar") and !$abomination and !["island"].includes($location)>>
+					<<ggcrime "assault">><<crimeUp 500 "assault">>
 				<</if>>
 			<</if>>
 		<<elseif $spray gte 1>>
@@ -1225,13 +1302,13 @@
 				You spray the figure in the face. <span class="red">It doesn't even blink.</span>
 			<<elseif $enemyno gte 2>>
 				You spray the <<group>>. They clutch their faces.
-				<<if !$npc.includes("Eden") and !$npc.includes("Morgan") and !$npc.includes("Kylar") and !$abomination>>
-					<<ggcrime>><<crimeup 500>>
+				<<if !$npc.includes("Eden") and !$npc.includes("Morgan") and !$npc.includes("Kylar") and !$abomination and !["island"].includes($location)>>
+					<<ggcrime "assault">><<crimeUp 500 "assault">>
 				<</if>>
 			<<else>>
 				You spray the assailant. <<He>> clutches <<his>> face.
-				<<if !$npc.includes("Eden") and !$npc.includes("Morgan") and !$npc.includes("Kylar") and !$abomination>>
-					<<ggcrime>><<crimeup 500>>
+				<<if !$npc.includes("Eden") and !$npc.includes("Morgan") and !$npc.includes("Kylar") and !$abomination and !["island"].includes($location)>>
+					<<ggcrime "assault">><<crimeUp 500 "assault">>
 				<</if>>
 			<</if>>
 		<<else>>
@@ -1254,13 +1331,13 @@
 				You spray the figure in the face. <span class="red">It doesn't even blink.</span>
 			<<elseif $enemyno gte 2>>
 				You spray the <<group>>. They clutch their faces.
-				<<if !$npc.includes("Eden") and !$npc.includes("Morgan") and !$npc.includes("Kylar") and !$abomination>>
-					<<ggcrime>><<crimeup 500>>
+				<<if !$npc.includes("Eden") and !$npc.includes("Morgan") and !$npc.includes("Kylar") and !$abomination and !["island"].includes($location)>>
+					<<ggcrime "assault">><<crimeUp 500 "assault">>
 				<</if>>
 			<<else>>
 				You spray the assailant. <<He>> clutches <<his>> face.
-				<<if !$npc.includes("Eden") and !$npc.includes("Morgan") and !$npc.includes("Kylar") and !$abomination>>
-					<<ggcrime>><<crimeup 500>>
+				<<if !$npc.includes("Eden") and !$npc.includes("Morgan") and !$npc.includes("Kylar") and !$abomination and !["island"].includes($location)>>
+					<<ggcrime "assault">><<crimeUp 500 "assault">>
 				<</if>>
 			<</if>>
 		<<else>>
@@ -1283,13 +1360,13 @@
 				You spray the figure in the face. <span class="red">It doesn't even blink.</span>
 			<<elseif $enemyno gte 2>>
 				You spray the <<group>>. They clutch their faces.
-				<<if !$npc.includes("Eden") and !$npc.includes("Morgan") and !$npc.includes("Kylar") and !$abomination>>
-					<<ggcrime>><<crimeup 500>>
+				<<if !$npc.includes("Eden") and !$npc.includes("Morgan") and !$npc.includes("Kylar") and !$abomination and !["island"].includes($location)>>
+					<<ggcrime "assault">><<crimeUp 500 "assault">>
 				<</if>>
 			<<else>>
 				You spray the assailant. <<He>> clutches <<his>> face.
-				<<if !$npc.includes("Eden") and !$npc.includes("Morgan") and !$npc.includes("Kylar") and !$abomination>>
-					<<ggcrime>><<crimeup 500>>
+				<<if !$npc.includes("Eden") and !$npc.includes("Morgan") and !$npc.includes("Kylar") and !$abomination and !["island"].includes($location)>>
+					<<ggcrime "assault">><<crimeUp 500 "assault">>
 				<</if>>
 			<</if>>
 		<<else>>
@@ -1338,11 +1415,11 @@
 		<<personselect $lefttarget>>
 		<<if $skulduggerysuccess is 1>>
 			<<set $stealtarget += $lefttarget>><<set $stealdifficulty += 0.2>>
-			You rummage through the <<persons>> <<wallet>>. <<encountersteal>>
+			You rummage through the <<persons>> <<wallet $lefttarget>>. <<encountersteal>>
 			<<set $leftactiondefault to "rest">><<set $rightactiondefault to "rest">>
 		<<else>>
 			<<brat 30 $lefttarget>><<set $speechsteal to 1>>
-			You rummage inside the <<persons>> <<wallet>>. <<He>> notices and shifts <<his>> valuables away from your hands.
+			You rummage inside the <<persons>> <<wallet $lefttarget>>. <<He>> notices and shifts <<his>> valuables away from your hands.
 		<</if>>
 	<</if>>
 
@@ -1352,27 +1429,27 @@
 		<<if $skulduggerysuccess is 1>>
 			<<if $stealstateleft is undefined>>
 				<<set $stealstateleft to 0>>
-				You run your hand over the <<persons>> skin, until it rests on <<his>> <<wallet>>.
+				You run your hand over the <<persons>> skin, until it rests on <<his>> <<wallet $lefttarget>>.
 			<<elseif $stealstateleft is 0>>
 				<<set $stealstateleft to 1>>
-				You open the <<persons>> <<wallet>>.
+				You open the <<persons>> <<wallet $lefttarget>>.
 			<<elseif $stealstateleft is 1>>
 				<<set $stealstateleft to 2>>
-				You rummage through the <<persons>> <<wallet>>.
+				You rummage through the <<persons>> <<wallet $lefttarget>>.
 			<<else>>
 				<<unset $stealstateleft>><<set $stealtarget += $lefttarget>><<set $stealdifficulty += 0.2>>
-				You sneak your hand into the <<persons>> <<wallet>>. <<encountersteal>><<set $leftactiondefault to "rest">>
+				You sneak your hand into the <<persons>> <<wallet $lefttarget>>. <<encountersteal>><<set $leftactiondefault to "rest">>
 			<</if>>
 		<<else>>
 			<<brat 30 $lefttarget>><<set $speechsteal to 1>>
 			<<if $stealstateleft is undefined>>
-				You run your hand over the <<persons>> skin, until it rests on <<his>> <<wallet>>. <<He>> isn't fooled. <<He>> shifts <<his>> valuables away from you.
+				You run your hand over the <<persons>> skin, until it rests on <<his>> <<wallet $lefttarget>>. <<He>> isn't fooled. <<He>> shifts <<his>> valuables away from you.
 			<<elseif $stealstateleft is 0>>
-				You try to open the <<persons>> <<wallet>>. <<He>> notices and shifts <<his>> valuables away.
+				You try to open the <<persons>> <<wallet $lefttarget>>. <<He>> notices and shifts <<his>> valuables away.
 			<<elseif $stealstateleft is 1>>
-				You rummage through the <<persons>> <<wallet>>. <<He>> notices and shifts <<his>> valuables away.
+				You rummage through the <<persons>> <<wallet $lefttarget>>. <<He>> notices and shifts <<his>> valuables away.
 			<<else>>
-				You sneak your hand into the <<persons>> <<wallet>>. <<He>> notices and shifts <<his>> valuables away.
+				You sneak your hand into the <<persons>> <<wallet $lefttarget>>. <<He>> notices and shifts <<his>> valuables away.
 			<</if>>
 			<<unset $stealstateleft>>
 		<</if>>
@@ -1384,27 +1461,27 @@
 		<<if $skulduggerysuccess is 1>>
 			<<if $stealstateright is undefined>>
 				<<set $stealstateright to 0>>
-				You run your hand over the <<persons>> skin, until it rests on <<his>> <<wallet>>.
+				You run your hand over the <<persons>> skin, until it rests on <<his>> <<wallet $righttarget>>.
 			<<elseif $stealstateright is 0>>
 				<<set $stealstateright to 1>>
-				You open the <<persons>> <<wallet>>.
+				You open the <<persons>> <<wallet $righttarget>>.
 			<<elseif $stealstateright is 1>>
 				<<set $stealstateright to 2>>
-				You rummage through the <<persons>> <<wallet>>.
+				You rummage through the <<persons>> <<wallet $righttarget>>.
 			<<else>>
 				<<unset $stealstateright>><<set $stealtarget += $righttarget>><<set $stealdifficulty += 0.2>>
-				You sneak your hand into the <<persons>> <<wallet>>. <<encountersteal>><<set $rightactiondefault to "rest">>
+				You sneak your hand into the <<persons>> <<wallet $righttarget>>. <<encountersteal>><<set $rightactiondefault to "rest">>
 			<</if>>
 		<<else>>
 			<<brat 30 $righttarget>><<set $speechsteal to 1>>
 			<<if $stealstateright is undefined>>
-				You run your hand over the <<persons>> skin, until it rests on <<his>> <<wallet>>. <<He>> isn't fooled. <<He>> shifts <<his>> valuables away from you.
+				You run your hand over the <<persons>> skin, until it rests on <<his>> <<wallet $righttarget>>. <<He>> isn't fooled. <<He>> shifts <<his>> valuables away from you.
 			<<elseif $stealstateright is 0>>
-				You try to open the <<persons>> <<wallet>>. <<He>> notices and shifts <<his>> valuables away.
+				You try to open the <<persons>> <<wallet $righttarget>>. <<He>> notices and shifts <<his>> valuables away.
 			<<elseif $stealstateright is 1>>
-				You rummage through the <<persons>> <<wallet>>. <<He>> notices and shifts <<his>> valuables away.
+				You rummage through the <<persons>> <<wallet $righttarget>>. <<He>> notices and shifts <<his>> valuables away.
 			<<else>>
-				You sneak your hand into the <<persons>> <<wallet>>. <<He>> notices and shifts <<his>> valuables away.
+				You sneak your hand into the <<persons>> <<wallet $righttarget>>. <<He>> notices and shifts <<his>> valuables away.
 			<</if>>
 			<<unset $stealstateright>>
 		<</if>>
@@ -1739,7 +1816,7 @@
 						<<else>>
 							<<print either(
 								"but cannot escape <<his>> _npc.breastsdesc.",
-								"but <<his>> _npc.breastsdesc continue to <<if _npc.breastsize gte 6>>ingulf<<else>>press against<</if>> your face.",
+								"but <<his>> _npc.breastsdesc continue to <<if _npc.breastsize gte 6>>engulf<<else>>press against<</if>> your face.",
 								"but aren't able to push <<his>> _npc.breastsdesc away from your face."
 							)>>
 						<</if>>
@@ -2188,6 +2265,339 @@
 			<<if $penisuse is "strokerSelfPenis">>
 				<<set $penisuse to 0>><<set $penisstate to 0>>
 			<</if>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "effectsCoverVagina">>
+	<<if $args[1] is "lewd">>
+		<<set $_hypnosis to "lewd">>
+	<<elseif $uncomfortable.hypnosis is false and $hypnosis_traits.cover gte random(1,5)>>
+		<<set $_hypnosis to "accepted">>
+	<<elseif $hypnosis_traits.cover gte 1 and $willpower lt random(1, (200 * $hypnosis_traits.cover))>>
+		<<set $_hypnosis to "forced">>
+	<</if>>
+	<<switch $args[0]>>
+		<<case "both">>
+			<<set $_hands to "hands">>
+			<<set $leftactiondefault to $leftaction>>
+			<<set $rightactiondefault to $rightaction>>
+			<<set $leftaction to 0>><<set $rightaction to 0>>
+			<<if $_hypnosis is "forced">>
+				<<set $leftarm to 0>><<set $rightarm to 0>><<set $vaginause to 0>>
+				<<set $leftactiondefault to "leftstopvagina">>
+				<<set $rightactiondefault to "rightstopvagina">>
+			<<elseif $_hypnosis>>
+				<<set $leftarm to "vagina">><<set $rightarm to "vagina">><<set $vaginause to "cover">>
+				<<set $leftactiondefault to "leftcovervaginalewd">>
+				<<set $rightactiondefault to "rightcovervaginalewd">>
+			<<else>>
+				<<meek 2>><<set $leftarm to "vagina">><<set $rightarm to "vagina">><<set $vaginause to "cover">><<set $speechcovervagina to 1>>
+			<</if>>
+		<<case "left">>
+			<<set $_hands to $args[0] + " hand">>
+			<<set $leftactiondefault to $leftaction>>
+			<<set $leftaction to 0>>
+			<<if $_hypnosis is "forced">>
+				<<set $leftarm to 0>><<if !$rightactiondefault.includes("leftcovervagina")>><<set $vaginause to 0>><</if>>
+				<<set $leftactiondefault to "leftstopvagina">>
+			<<elseif $_hypnosis>>
+				<<set $leftarm to "vagina">><<set $vaginause to "cover">>
+				<<set $leftactiondefault to "leftcovervaginalewd">>
+			<<else>>
+				<<meek 1>><<set $leftarm to "vagina">><<set $vaginause to "cover">><<set $speechcovervagina to 1>>
+			<</if>>
+		<<case "right">>
+			<<set $_hands to $args[0] + " hand">>
+			<<set $rightactiondefault to $rightaction>>
+			<<set $rightaction to 0>>
+			<<if $_hypnosis is "forced">>
+				<<set $rightarm to 0>><<if !$leftactiondefault.includes("leftcovervagina")>><<set $vaginause to 0>><</if>>
+				<<set $rightactiondefault to "rightstopvagina">>
+			<<elseif $_hypnosis>>
+				<<set $rightarm to "vagina">><<set $vaginause to "cover">>
+				<<set $rightactiondefault to "rightcovervaginalewd">>
+			<<else>>
+				<<meek 1>><<set $rightarm to "vagina">><<set $vaginause to "cover">><<set $speechcovervagina to 1>>
+			<</if>>
+	<</switch>>
+	<<if playerChastity("vagina")>>
+		<<set $_genital to $worn.genitals.name>>
+	<<else>>
+		<<set $_genital to "pussy">>
+	<</if>>
+	<<if $args[1] is "lewd">>
+		<<if $worn.genitals.name is "chastity parasite">>
+			You squeeze your chastity parasite, enjoying the waves of pleasure moving through your body.
+			<<if $args[0] is "both">>
+				<<arousal 500 "genitals">>
+			<<else>>
+				<<arousal 250 "genitals">>
+			<</if>>
+			<<if !$stalk_end>>
+				<<submission 5>><<set _stalkNoRunning to "chastity parasite">>
+			<</if>>
+		<<elseif playerChastity("vagina")>>
+			You caress your inner thighs.
+		<<elseif $args[0] is "both">>
+			You tease your pussy, spreading it open with <<print $_hands>>.
+		<<else>>
+			You tease your pussy with your <<print $_hands>>, pointing at it.
+		<</if>>
+		<<submission 1>><<set $speechcamerapose to 1>>
+	<<elseif $_hypnosis>>
+		<<hypnosisicon>>
+		You intend to cover your vagina,
+		<<if $_hypnosis is "accepted">>
+			but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span>
+		<<else>>
+			<span class="pink">but the thought is snatched from your mind, and replaced with another.</span>
+		<</if>>
+		<<if $worn.genitals.name is "chastity parasite">>
+			You gently squeeze your chastity parasite, it sends a wave of pleasure through your body.
+			<<if $args[0] is "both">>
+				<<arousal 400 "genitals">>
+			<<else>>
+				<<arousal 200 "genitals">>
+			<</if>>
+			<<if !$stalk_end>>
+				<<meek 5>><<set _stalkNoRunning to "chastity parasite">>
+			<</if>>
+		<<elseif playerChastity("vagina")>>
+			You gently caress your inner thighs.
+		<<elseif $args[0] is "both">>
+			You gently tease your pussy, spreading it open with <<print $_hands>>.
+		<<else>>
+			You gently tease your pussy with your <<print $_hands>>, pointing at it.
+		<</if>>
+		<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>>
+		<<if $_hypnosis is "forced" and $daily.stalkWillpower lt 20>>
+			<<gwillpower>><<willpower 1>>
+			<<set $daily.stalkWillpower to ($daily.stalkWillpower or 0) + 1>>
+		<</if>>
+		<<hypnosisicon>>
+	<<else>>
+		You
+		<<if $hypnosis_traits.cover gte 1>>
+			<span class="green">resist intrusive thoughts</span> and
+		<</if>>
+		<<if ($worn.lower.name is "towel skirt" or $worn.lower.name is "large towel bottom") and $worn.lower.state is "waist">>
+			cover your <<print $_genital>> with your <<print $_hands>>, tugging the towel further over it.
+		<<else>>
+			cover your <<print $_genital>> with your <<print $_hands>>.
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "effectsCoverPenis">>
+	<<if $args[1] is "lewd">>
+		<<set $_hypnosis to "lewd">>
+	<<elseif $uncomfortable.hypnosis is false and $hypnosis_traits.cover gte random(1,5)>>
+		<<set $_hypnosis to "accepted">>
+	<<elseif $hypnosis_traits.cover gte 1 and $willpower lt random(1, (200 * $hypnosis_traits.cover))>>
+		<<set $_hypnosis to "forced">>
+	<</if>>
+	<<switch $args[0]>>
+		<<case "both">>
+			<<set $_hands to "hands">>
+			<<set $leftactiondefault to $leftaction>>
+			<<set $rightactiondefault to $rightaction>>
+			<<set $leftaction to 0>><<set $rightaction to 0>>
+			<<if $_hypnosis is "forced">>
+				<<set $leftarm to 0>><<set $rightarm to 0>><<set $penisuse to 0>>
+				<<set $leftactiondefault to "leftstopcoverpenis">>
+				<<set $rightactiondefault to "rightstopcoverpenis">>
+			<<elseif $_hypnosis>>
+				<<set $leftarm to "coverpenis">><<set $rightarm to "coverpenis">><<set $penisuse to "cover">>
+				<<set $leftactiondefault to "leftcoverpenislewd">>
+				<<set $rightactiondefault to "rightcoverpenislewd">>
+			<<else>>
+				<<meek 2>><<set $leftarm to "coverpenis">><<set $rightarm to "coverpenis">><<set $penisuse to "cover">><<set $speechcoverpenis to 1>>
+			<</if>>
+		<<case "left">>
+			<<set $_hands to $args[0] + " hand">>
+			<<set $leftactiondefault to $leftaction>>
+			<<set $leftaction to 0>>
+			<<if $_hypnosis is "forced">>
+				<<set $leftarm to 0>><<set $rightarm to 0>><<if !$leftactiondefault.includes("leftcoverpenis")>><<set $penisuse to 0>><</if>>
+				<<set $leftactiondefault to "leftstopcoverpenis">>
+				<<set $rightactiondefault to "rightstopcoverpenis">>
+			<<elseif $_hypnosis>>
+				<<set $leftarm to "coverpenis">><<set $rightarm to "coverpenis">><<set $penisuse to "cover">>
+				<<set $leftactiondefault to "leftcoverpenislewd">>
+				<<set $rightactiondefault to "rightcoverpenislewd">>
+			<<else>>
+				<<meek 1>><<set $leftarm to "coverpenis">><<set $penisuse to "cover">><<set $speechcoverpenis to 1>>
+			<</if>>
+		<<case "right">>
+			<<set $_hands to $args[0] + " hand">>
+			<<set $rightactiondefault to $rightaction>>
+			<<set $rightaction to 0>>
+			<<if $_hypnosis is "forced">>
+				<<set $rightarm to 0>><<if !$leftactiondefault.includes("leftcoverpenis")>><<set $penisuse to 0>><</if>>
+				<<set $rightactiondefault to "rightstopcoverpenis">>
+			<<elseif $_hypnosis>>
+				<<set $rightarm to "coverpenis">><<set $penisuse to "cover">>
+				<<set $rightactiondefault to "rightcoverpenislewd">>
+			<<else>>
+				<<meek 1>><<set $rightarm to "coverpenis">><<set $penisuse to "cover">><<set $speechcoverpenis to 1>>
+			<</if>>
+	<</switch>>
+	<<if playerChastity("penis")>>
+		<<set $_genital to $worn.genitals.name>>
+	<<else>>
+		<<set $_genital to "penis">>
+	<</if>>
+	<<if $args[1] is "lewd">>
+		<<if $worn.genitals.name is "chastity parasite">>
+			You squeeze your chastity parasite, enjoying the waves of pleasure moving through your body.
+			<<if $args[0] is "both">>
+				<<arousal 500 "genitals">>
+			<<else>>
+				<<arousal 250 "genitals">>
+			<</if>>
+			<<if !$stalk_end>>
+				<<submission 5>><<set _stalkNoRunning to "chastity parasite">>
+			<</if>>
+		<<elseif playerChastity("penis")>>
+			You caress your inner thighs.
+		<<elseif $args[0] is "both">>
+			You tease your penis, tracing a finger down the length with one hand and circling the tip with another.
+		<<else>>
+			You tease your penis with your left hand, tracing a finger down the length.
+		<</if>>
+		<<submission 1>><<set $speechcamerapose to 1>>
+	<<elseif $_hypnosis>>
+		<<hypnosisicon>>
+		You intend to cover your penis,
+		<<if $_hypnosis is "accepted">>
+			but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span>
+		<<else>>
+			<span class="pink">but the thought is snatched from your mind, and replaced with another.</span>
+		<</if>>
+		<<if $worn.genitals.name is "chastity parasite">>
+			You gently squeeze your chastity parasite, it sends a wave of pleasure through your body.
+			<<if $args[0] is "both">>
+				<<arousal 400 "genitals">>
+			<<else>>
+				<<arousal 200 "genitals">>
+			<</if>>
+			<<if !$stalk_end>>
+				<<meek 5>><<set _stalkNoRunning to "chastity parasite">>
+			<</if>>
+		<<elseif playerChastity("penis")>>
+			You gently caress your inner thighs.
+		<<elseif $args[0] is "both">>
+			You gently tease your penis, tracing a finger down the length with one hand and circling the tip with another.
+		<<else>>
+			You gently tease your penis with your left hand, tracing a finger down the length.
+		<</if>>
+		<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>>
+		<<if $_hypnosis is "forced" and $daily.stalkWillpower lt 20>>
+			<<gwillpower>><<willpower 1>>
+			<<set $daily.stalkWillpower to ($daily.stalkWillpower or 0) + 1>>
+		<</if>>
+		<<hypnosisicon>>
+	<<else>>
+		You
+		<<if $hypnosis_traits.cover gte 1>>
+			<span class="green">resist intrusive thoughts</span> and
+		<</if>>
+		<<if ($worn.lower.name is "towel skirt" or $worn.lower.name is "large towel bottom") and $worn.lower.state is "waist">>
+			cover your <<print $_genital>> with your <<print $_hands>>, tugging the towel further over it.
+		<<else>>
+			cover your <<print $_genital>> with your <<print $_hands>>.
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "effectsCoverAnus">>
+	<<if $args[1] is "lewd">>
+		<<set $_hypnosis to "lewd">>
+	<<elseif $uncomfortable.hypnosis is false and $hypnosis_traits.cover gte random(1,5)>>
+		<<set $_hypnosis to "accepted">>
+	<<elseif $hypnosis_traits.cover gte 1 and $willpower lt random(1, (200 * $hypnosis_traits.cover))>>
+		<<set $_hypnosis to "forced">>
+	<</if>>
+	<<switch $args[0]>>
+		<<case "both">>
+			<<set $_hands to "hands">>
+			<<set $leftactiondefault to $leftaction>>
+			<<set $rightactiondefault to $rightaction>>
+			<<set $leftaction to 0>><<set $rightaction to 0>>
+			<<if $_hypnosis is "forced">>
+				<<set $leftarm to 0>><<set $rightarm to 0>><<set $anususe to 0>>
+				<<set $leftactiondefault to "leftstopanus">>
+				<<set $rightactiondefault to "rightstopanus">>
+			<<elseif $_hypnosis>>
+				<<set $leftarm to "anus">><<set $rightarm to "anus">><<set $anususe to "cover">>
+				<<set $leftactiondefault to "leftcoveranuslewd">>
+				<<set $rightactiondefault to "rightcoveranuslewd">>
+			<<else>>
+				<<meek 2>><<set $leftarm to "anus">><<set $rightarm to "anus">><<set $anususe to "cover">>
+			<</if>>
+		<<case "left">>
+			<<set $_hands to $args[0] + " hand">>
+			<<set $leftactiondefault to $leftaction>>
+			<<set $leftaction to 0>>
+			<<if $_hypnosis is "forced">>
+				<<set $leftarm to 0>><<set $rightarm to 0>><<if !$rightactiondefault.includes("leftcoveranus")>><<set $anususe to 0>><</if>>
+				<<set $leftactiondefault to "leftstopanus">>
+			<<elseif $_hypnosis>>
+				<<set $leftarm to "anus">><<set $anususe to "cover">>
+				<<set $leftactiondefault to "leftcoveranuslewd">>
+			<<else>>
+				<<meek 2>><<set $leftarm to "anus">><<set $anususe to "cover">>
+			<</if>>
+		<<case "right">>
+			<<set $_hands to $args[0] + " hand">>
+			<<set $rightactiondefault to $rightaction>>
+			<<set $rightaction to 0>>
+			<<if $_hypnosis is "forced">>
+				<<set $rightarm to 0>><<if !$leftactiondefault.includes("leftcoveranus")>><<set $anususe to 0>><</if>>
+				<<set $rightactiondefault to "rightstopanus">>
+			<<elseif $_hypnosis>>
+				<<set $rightarm to "anus">><<set $anususe to "cover">>
+				<<set $rightactiondefault to "rightcoveranuslewd">>
+			<<else>>
+				<<meek 2>><<set $rightarm to "anus">><<set $anususe to "cover">>
+			<</if>>
+	<</switch>>
+	<<if $args[1] is "lewd">>
+		<<if $args[0] is "both">>
+			You grope your <<bottom>>, spreading your cheeks apart with both hands.
+		<<else>>
+			You grope your <<bottom>> with your <<print $_hands>>, giving it small slaps.
+		<</if>>
+		<<submission 1>><<set $speechcamerapose to 1>>
+	<<elseif $_hypnosis>>
+		<<hypnosisicon>>
+		You intend to cover your ass
+		<<if $_hypnosis is "accepted">>
+			but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span>
+		<<else>>
+			<span class="pink">but the thought is snatched from your mind, and replaced with another.</span>
+		<</if>>
+		<<if $args[0] is "both">>
+			You grope your <<bottom>>, spreading your cheeks apart with both hands.
+		<<else>>
+			You grope your <<bottom>> with your <<print $_hands>>, giving it a small slap.
+		<</if>>
+		<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>>
+		<<if $_hypnosis is "forced" and $daily.stalkWillpower lt 20>>
+			<<gwillpower>><<willpower 1>>
+			<<set $daily.stalkWillpower to ($daily.stalkWillpower or 0) + 1>>
+		<</if>>
+		<<hypnosisicon>>
+	<<else>>
+		You
+		<<if $hypnosis_traits.cover gte 1>>
+			<span class="green">resist intrusive thoughts</span> and
+		<</if>>
+		<<if ($worn.lower.name is "towel skirt" or $worn.lower.name is "large towel bottom") and $worn.lower.state is "waist">>
+			cover your ass with your <<print $_hands>>, tugging the towel further over it.
+		<<else>>
+			cover your ass with your <<print $_hands>>.
 		<</if>>
 	<</if>>
 <</widget>>

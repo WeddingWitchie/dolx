@@ -193,24 +193,15 @@
 			<</switch>>
 
 			<<if $_heatArousal or $_rutArousal>>
-				<<if $wolfgirl gte 2 or $cat gte 2 or $cow gte 2 or $fox gte 2>>
-					Your inner beast is sending you into <<print $_heatRutDisplay>>.
-				<<else>>
-					Something is keeping you aroused.
-				<</if>>
+				<<heatRutDisplay>>
 				Intercourse will be <span @class="$_pregnancyRiskColour">$_pregnancyRisk</span>.
 			<<else>>
 				You feel that it's <span @class="$_pregnancyRiskColour">$_pregnancyRisk</span> to have intercourse.
 			<</if>>
 			<br><br>
 		<</if>>
-	<<elseif $_heatArousal or $_rutArousal>>
-		<<if ($wolfgirl gte 2 or $cat gte 2 or $cow gte 2 or $fox gte 2)>>
-			Your inner beast is sending you into <<print $_heatRutDisplay>>.
-		<<else>>
-			Something is keeping you aroused.
-		<</if>>
-		<br><br>
+	<<else>>
+		<<heatRutDisplay true>>
 	<</if>>
 
 	<!--Semen Details-->
@@ -400,7 +391,7 @@
 							<<set _physiqueConfig.modTypes.bad.pushUnique("heels")>>
 						<</if>>
 						<<if $worn.feet.type.includes("rugged")>>
-							<<set _physiqueConfig.modifier to Math.floor(_physiqueConfig.modifier * (1 + ($feetskill / 10000)))>>
+							<<set _physiqueConfig.modifier to Math.floor(_physiqueConfig.modifier * (1 + (currentSkillValue("feetskill") / 10000)))>>
 							<<set _physiqueConfig.modTypes.good.pushUnique("rugged footwear")>>
 						<</if>>
 				<</switch>>
@@ -417,7 +408,10 @@
 						{ requiredValue:	($willpowermax / 7) * 6,	level: 6, color: 'green',	description: 'Your will is iron.'}
 					]
 				}>>
-				<<if $parasite.left_ear.name is "slime" and $parasite.right_ear.name is "slime">>
+				<<if numberOfEarSlime() gte 2 and $earSlime.growth gt 50>>
+					<<set _willpowerConfig.modifier to Math.floor(_willpowerConfig.modifier * (0.9 - Math.clamp(($earSlime.growth - 50) / 1000, 0, 0.1)))>>
+					<<set _willpowerConfig.modTypes.bad.pushUnique("ear slimes")>>
+				<<elseif numberOfEarSlime() gte 2>>
 					<<set _willpowerConfig.modifier to Math.floor(_willpowerConfig.modifier * 0.9)>>
 					<<set _willpowerConfig.modTypes.bad.pushUnique("ear slimes")>>
 				<</if>>
@@ -525,9 +519,9 @@
 		<div id="base-skills" class="characteristic-box-list" @style="($parasite.left_ear.name == 'slime' || $parasite.right_ear.name == 'slime') ? '--min-width: 30%;' : ''">
 			<!--Additional skills configurations-->
 			<<silently>>
-				<<set _corruptionConfig =	{ name : "Corruption",	displayType : "none",	currentValue : $corruption_slime,	modifier: 100, modTypes: { good: [], bad: [] },		meterColor: 'red'}>>
+				<<set _corruptionConfig =	{ name : "Corruption",	displayType : "none",	currentValue : $earSlime.corruption,	modifier: 100, modTypes: { good: [], bad: [] },		meterColor: $earSlime.startedThreats ? "purple" : "blue", secondValue: $earSlime.growth / 2, secondMeterColor: "red"}>>
 				<<set _skulduggeryConfig =	{ name : "Skulduggery", displayType : "grade",	currentValue : $skulduggery,		modifier: 100, modTypes: { good: [], bad: [] },		states : _detailedSkillGrades}>>
-				<<set _dancingConfig =		{ name : "Dancing",		displayType : "grade",	currentValue : $danceskill,			modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades}>>
+				<<set _dancingConfig =		{ name : "Dancing",		displayType : "grade",	currentValue : $danceskill,			modifier: 100, modTypes: { good: [], bad: [] },		states : _detailedSkillGrades}>>
 				<<set _swimmingConfig =		{ name : "Swimming",	displayType : "grade",	currentValue : $swimmingskill,		modifier: 100, modTypes: { good: [], bad: [] },		states : _detailedSkillGrades}>>
 				<<set _athleticsConfig =	{ name : "Athletics",	displayType : "grade",	currentValue : $athletics,			modifier: 100, modTypes: { good: [], bad: [] },		states : _detailedSkillGrades}>>
 				<<set _tendingConfig =		{ name : "Tending",		displayType : "grade",	currentValue : $tending,			modifier: 100, modTypes: { good: [], bad: [] },		states : _detailedSkillGrades}>>
@@ -581,7 +575,7 @@
 					<</if>>
 				<</if>>
 				<<if $worn.feet.type.includes("swim")>>
-					<<set _swimmingConfig.modifier to Math.floor(_swimmingConfig.modifier * (1 + ($feetskill / 10000)))>>
+					<<set _swimmingConfig.modifier to Math.floor(_swimmingConfig.modifier * (1 + (currentSkillValue("feetskill") / 10000)))>>
 					<<set _swimmingConfig.modTypes.good.pushUnique("flippers")>>
 				<<elseif !$worn.feet.type.includes("naked")>>
 					<<if $worn.feet.type.includes("heels")>>
@@ -591,7 +585,7 @@
 						<<set _heels to 0>>
 						<<set _swimmingConfig.modTypes.bad.pushUnique("shoes")>>
 					<</if>>
-					<<set _swimmingConfig.modifier to Math.floor(_swimmingConfig.modifier * (0.9 + ($feetskill / 10000) - _heels))>>
+					<<set _swimmingConfig.modifier to Math.floor(_swimmingConfig.modifier * (0.9 + (currentSkillValue("feetskill") / 10000) - _heels))>>
 				<</if>>
 				<<switch $location>>
 					<<case "forest" "moor" "farm" "alex_farm">>
@@ -600,7 +594,7 @@
 							<<set _athleticsConfig.modTypes.bad.pushUnique("heels")>>
 						<</if>>
 						<<if $worn.feet.type.includes("rugged")>>
-							<<set _athleticsConfig.modifier to Math.floor(_athleticsConfig.modifier * (1 + ($feetskill / 10000)))>>
+							<<set _athleticsConfig.modifier to Math.floor(_athleticsConfig.modifier * (1 + (currentSkillValue("feetskill") / 10000)))>>
 							<<set _athleticsConfig.modTypes.good.pushUnique("rugged footwear")>>
 						<</if>>
 				<</switch>>
@@ -648,16 +642,15 @@
 					<<set _housekeepingConfig.modTypes.good.pushUnique("<i>????</i>")>>
 				<</if>>
 			<</silently>>
-
-			<<if $parasite.left_ear.name is "slime" or $parasite.right_ear.name is "slime">>
-				<<characteristic-box _corruptionConfig>>
-			<</if>>
 			<<characteristic-box _skulduggeryConfig>>
 			<<characteristic-box _dancingConfig>>
 			<<characteristic-box _swimmingConfig>>
 			<<characteristic-box _athleticsConfig>>
 			<<characteristic-box _tendingConfig>>
 			<<characteristic-box _housekeepingConfig>>
+			<<if numberOfEarSlime()>>
+				<<characteristic-box _corruptionConfig>>
+			<</if>>
 		</div>
 
 		<br>
@@ -680,6 +673,48 @@
 			<</if>>
 			<<if $player.vaginaExist>>
 				<<set _vaginalConfig =	{ name : "Vaginal",		displayType : "grade",	currentValue : $vaginalskill,	modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades}>>
+			<</if>>
+			<<if $earSlime.growth gt 50 and !V.earSlime.defyCooldown>>
+				<<set _seductionConfig.modTypes.good.pushUnique("ear slimes")>>
+				<<set _seductionConfig.modifier to Math.floor(_seductionConfig.modifier * (1 + (($earSlime.growth - 50) / 600)))>>
+			<</if>>
+			<<if $earSlime.growth gte 100 and $earSlime.focus is "pregnancy">>
+				<<if _vaginalConfig>>
+					<<set _vaginalConfig.modTypes.good.pushUnique("ear slimes")>>
+					<<set _vaginalConfig.modifier to Math.floor(_vaginalConfig.modifier * (1 + (($earSlime.growth - 100) / 500)))>>
+				<</if>>
+				<<if _penileConfig>>
+					<<set _penileConfig.modTypes.bad.pushUnique("ear slimes")>>
+					<<set _penileConfig.modifier to Math.floor(_penileConfig.modifier * (1 - (($earSlime.growth - 100) / 400)))>>
+				<</if>>
+				<<if !$player.vaginaExist>>
+					<<set _analConfig.modTypes.good.pushUnique("ear slimes")>>
+					<<set _analConfig.modifier to Math.floor(_analConfig.modifier * (1 + (($earSlime.growth - 100) / 500)))>>
+				<</if>>
+			<</if>>
+			<<if $earSlime.growth gte 100 and $earSlime.focus is "impregnation">>
+				<<if _vaginalConfig>>
+					<<set _vaginalConfig.modTypes.bad.pushUnique("ear slimes")>>
+					<<set _vaginalConfig.modifier to Math.floor(_vaginalConfig.modifier * (1 - (($earSlime.growth - 100) / 400)))>>
+				<</if>>
+				<<if _penileConfig>>
+					<<set _penileConfig.modTypes.good.pushUnique("ear slimes")>>
+					<<set _penileConfig.modifier to Math.floor(_penileConfig.modifier * (1 + (($earSlime.growth - 100) / 500)))>>
+				<</if>>
+			<</if>>
+			<<if playerHeatMinArousal()>>
+				<<if _vaginalConfig>>
+					<<set _vaginalConfig.modTypes.good.pushUnique("in heat")>>
+					<<set _vaginalConfig.modifier to Math.floor(_vaginalConfig.modifier * (1 + (Math.clamp(playerHeatMinArousal(), 0, 4000) / 20000)))>>
+				<</if>>
+				<<if !$player.vaginaExist>>
+					<<set _analConfig.modTypes.good.pushUnique(playerAwareTheyCanBePregnant() ? "in heat" : "<i>????</i>")>>
+					<<set _analConfig.modifier to Math.floor(_analConfig.modifier * (1 + (Math.clamp(playerHeatMinArousal(), 0, 4000) / 20000)))>>
+				<</if>>
+			<</if>>
+			<<if playerRutMinArousal()>>
+				<<set _penileConfig.modTypes.good.pushUnique("in rut")>>
+				<<set _penileConfig.modifier to Math.floor(_penileConfig.modifier * (1 + (Math.clamp(playerRutMinArousal(), 0, 4000) / 20000)))>>
 			<</if>>
 		<</silently>>
 		<<if $options.images is 1>>
@@ -829,11 +864,23 @@
 			<<silently>>
 				<<set _sprayConfig =		{ name : "Sprays",		displayType : "grade",	currentValue : $prof.spray,		modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades}>>
 				<<set _netConfig =			{ name : "Nets",		displayType : "grade",	currentValue : $prof.net,		modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades}>>
+				<<set _batonConfig =			{ name : "Batons",		displayType : "grade",	currentValue : $prof.baton,		modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades}>>
+				<<set _whipConfig =			{ name : "Whips",		displayType : "grade",	currentValue : $prof.whip,		modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades}>>
 				<<set _hiddenConfig =		{ name : "<i>????</i>",	displayType : "grade",	currentValue : 0,				modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades}>>
 			<</silently>>
 			<<characteristic-box _sprayConfig>>
 			<<if $prof.net isnot undefined>>
 				<<characteristic-box _netConfig>>
+			<<else>>
+				<<characteristic-box _hiddenConfig>>
+			<</if>>
+			<<if $prof.baton isnot undefined>>
+				<<characteristic-box _batonConfig>>
+			<<else>>
+				<<characteristic-box _hiddenConfig>>
+			<</if>>
+			<<if $prof.whip isnot undefined>>
+				<<characteristic-box _whipConfig>>
 			<<else>>
 				<<characteristic-box _hiddenConfig>>
 			<</if>>
@@ -985,4 +1032,39 @@
 	<</if>>
 
 	<br>
+<</widget>>
+
+<<widget "heatRutDisplay">><<silently>>
+	<<set $_knowsTheyCanBecomePregnant to ($playerPregnancyHumanDisable is "f" or $playerPregnancyBeastDisable is "f") and playerAwareTheyCanBePregnant()>>
+	<<set $_heatArousal to playerHeatMinArousal()>>
+	<<set $_rutArousal to playerRutMinArousal()>>
+	<<if $_heatArousal or $_rutArousal>>
+		<<set $_source to []>>
+		<<set $_sourceText to "Something">>
+		<<set $_arousal to []>>
+		<<set $_arousedText to "keeping you aroused">>
+
+		/* SourceText */
+		<<if $wolfgirl gte 2 or $cat gte 2 or $cow gte 2 or $fox gte 2>>
+			<<run $_source.push("inner beast")>>
+		<</if>>
+		<<if $earSlime.growth gt 50 and (($earSlime.focus is "pregnancy" and $_heatArousal) or ($earSlime.focus is "impregnation" and $_rutArousal))>>
+			<<run $_source.push("ear slime")>>
+		<</if>>
+		<<if $_source.length>>
+			<<set $_sourceText to "Your " + formatList($_source, "and")>>
+		<</if>>
+
+		/* arousedText */
+		<<if $_source.length and $_heatArousal and $_knowsTheyCanBecomePregnant>>
+			<<run $_arousal.push("heat")>>
+		<</if>>
+		<<if $_source.length and $_rutArousal>>
+			<<run $_arousal.push("rut")>>
+		<</if>>
+		<<if $_arousal.length>>
+			<<set $_arousedText to "sending you into " + formatList($_arousal, "and")>>
+		<</if>>
+	<</if>>
+	<</silently>><<if $_sourceText>><<print $_sourceText>><<print $_source.length and $_source.length gte 2 ? " are " : " is">> <<print $_arousedText>>.<<if _args[0]>><br><br><</if>><</if>>
 <</widget>>

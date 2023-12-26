@@ -48,6 +48,14 @@ function compile() {
 					TWEEGO_EXE="./devTools/tweego/tweego_linux86"
 				fi
 				;;
+			arm64)
+				echoMessage "arm64 arch"
+				if [ "$(uname -s)" = "Darwin" ]; then
+					TWEEGO_EXE="./devTools/tweego/tweego_m1"  #for mac m1 and m2
+				#else
+				#not linux arm
+				fi
+				;;
 			*)
 				echoError "No system tweego binary found, and no precompiled binary for your platform available."
 				echoError "Please compile tweego and put the executable in PATH."
@@ -63,8 +71,8 @@ function compile() {
 		exit 1
 	else
 		if [ "$TARGET" != "Degrees of Lewdity.html" ]; then
-			# android builder expects to find a file by this name, and it has to be full copy, not just symlink
-			cp "$TARGET" "Degrees of Lewdity.html";
+			# android builder expects to find a file by this name. this is a symbolic link, not a full copy
+			ln -fs "$TARGET" "Degrees of Lewdity.html";
 		fi
 		echo "Done: \"$TARGET\""
 		exit 0

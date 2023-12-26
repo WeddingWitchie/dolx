@@ -100,7 +100,7 @@ Requires prior <<selectmodel "main">>
 		██████  ██   ██ ███████ ███████
 	-->
 
-	<<set _modeloptions.body_type to $player.gender_body>>
+	<<set _modeloptions.body_type to !$options.genderBody || $options.genderBody === "default" ? $player.gender_body : $options.genderBody>>
 
 	<<run apparentbreastsizecheck()>>
 	<<switch $player.perceived_breastsize>>
@@ -161,8 +161,7 @@ Requires prior <<selectmodel "main">>
 
 	<<set _coverBreastsWithArm to false>>
 	<<if $leftarm isnot "bound" and $leftarm isnot "grappled">>
-		<<if $dontHide is false and $worn.over_upper.exposed gte 1 and ($worn.upper.exposed gte 1 or $upperwetstage gte 3)
-		and (($uncomfortable.underwear is true and !$worn.under_upper.type.includes("naked")) or ($uncomfortable.nude is true and ($worn.under_upper.exposed gte 1 or $underupperwetstage gte 3)))>>
+		<<if $dontHide is false and $worn.over_upper.exposed gte 1 and ($worn.upper.exposed gte 1 or $upperwetstage gte 3) and ($worn.lower.covers_top isnot 1) and (($uncomfortable.underwear is true and !$worn.under_upper.type.includes("naked")) or ($uncomfortable.nude is true and ($worn.under_upper.exposed gte 1 or $underupperwetstage gte 3)))>>
 			<<set _coverBreasts to true>>
 			<<set _modeloptions.arm_left to "cover">> <!-- might be changed back to "idle" if covering with wings -->
 		<<else>>
@@ -180,7 +179,7 @@ Requires prior <<selectmodel "main">>
 			<<set _modeloptions.arm_right to "cover">> <!-- might be changed back to "idle" if covering with wings/tail -->
 		<<else>>
 			<<set _coverCrotch to false>>
-			<<set _modeloptions.arm_right to "idle">>
+			<<set _modeloptions.arm_right to $worn.handheld.name isnot "naked" ? "hold" : "idle">>
 		<</if>>
 	<<else>>
 		<<set _modeloptions.arm_right to "none">>
@@ -234,16 +233,16 @@ Requires prior <<selectmodel "main">>
 			<<if !_disabled.includes($transformationParts.demon.tail)>>
 				<<set _modeloptions.demon_tail_state to ($transformationParts.traits.flaunting is "default" ? "flaunt" : "cover")>>
 				<<set _modeloptions.cat_tail_state to "cover">>
-				<<set _modeloptions.arm_right to "idle">>
+				<<set _modeloptions.arm_right to $worn.handheld.name isnot "naked" ? "hold" : "idle">>
 			<<elseif !_disabled.includes($transformationParts.angel.wings)>>
 				<<set _modeloptions.angel_wing_left to "cover">>
-				<<set _modeloptions.arm_right to "idle">>
+				<<set _modeloptions.arm_right to $worn.handheld.name isnot "naked" ? "hold" : "idle">>
 			<<elseif !_disabled.includes($transformationParts.fallenAngel.wings)>>
 				<<set _modeloptions.fallen_wing_left to "cover">>
-				<<set _modeloptions.arm_right to "idle">>
+				<<set _modeloptions.arm_right to $worn.handheld.name isnot "naked" ? "hold" : "idle">>
 			<<elseif !_disabled.includes($transformationParts.bird.wings)>>
 				<<set _modeloptions.bird_wing_left to "cover">>
-				<<set _modeloptions.arm_right to "idle">>
+				<<set _modeloptions.arm_right to $worn.handheld.name isnot "naked" ? "hold" : "idle">>
 			<</if>>
 		<</if>>
 	<</if>>
@@ -276,6 +275,8 @@ Requires prior <<selectmodel "main">>
 
 	<<set _modeloptions.freckles = $player.freckles == true and $makeup.concealer != 1>>
 
+	<<set _modeloptions.ears_position to $earsposition>>
+
 	<<set _modeloptions.toast = _toast == true>>
 
 	<!-- Eyes -->
@@ -300,6 +301,7 @@ Requires prior <<selectmodel "main">>
 	<<else>>
 		<<set _modeloptions.brows = "top">>
 	<</if>>
+	<<set _modeloptions.brows_position to $browsposition>>
 
 	<!-- Mouth -->
 	<<if $trauma gte $traumamax>>
@@ -461,6 +463,25 @@ Requires prior <<selectmodel "main">>
 	<<if $player.vaginaExist>>
 		<<set _modeloptions.clit_parasite to $parasite.clit.name>>
 	<</if>>
+	<<if _modeloptions.penis_parasite is "parasite" or _modeloptions.clit_parasite is "parasite">>
+		/* Always uses the clit image as a base */
+		<<if $earSlime.focus is "impregnation">>
+			<<set _modeloptions.clit_parasite to "parasitem">>
+		<<else>>
+			<<set _modeloptions.clit_parasite to "parasite">>
+		<</if>>
+		<<if $player.penisExist and $player.ballsExist and $player.penissize gte -1>>
+			<<set _modeloptions.penis_parasite to "parasite">>
+		<<else>>
+			<<set _modeloptions.penis_parasite to "">>
+		<</if>>
+		/* Ensure its always displayed */
+		<<if $worn.genitals.name is "chastity parasite">>
+			<<set _modeloptions['worn_genitals'] = clothesIndex("genitals", $worn.genitals)>>
+			<<set _modeloptions['worn_genitals_integrity'] = integrityKeyword($worn.genitals, "genitals")>>
+			<<set _modeloptions['worn_genitals_colour'] = $worn.genitals.colour>>
+		<</if>>
+	<</if>>
 
 	<!-- Dripping Speeds -->
 	<<set $_dripspeeds to ["", "Start", "VerySlow", "Slow", "Fast", "VeryFast"]>>
@@ -484,6 +505,7 @@ Requires prior <<selectmodel "main">>
 	<</if>>
 	<<if _chestVisible>>
 		<<set _modeloptions.nipples_parasite to $parasite.nipples.name>>
+		<<set _modeloptions.breasts_parasite to $parasite.breasts.name>>
 	<</if>>
 
 	<!--
@@ -524,14 +546,10 @@ Requires prior <<selectmodel "main">>
 Set model options & filters for player clothes
 -->
 <<widget "modelprepare-player-clothes">>
-	<<if $worn.upper.type.includes("naked") and $worn.over_upper.type.includes("naked")>>
-		<<if !$worn.under_upper.type.includes("naked") or _coverBreastsWithArm>>
-			<<set _modeloptions.breasts to "cleavage">>
-		<<else>>
-			<<set _modeloptions.breasts to "default">>
-		<</if>>
+	<<if !$worn.upper.type.includes("naked") || !$worn.under_upper.type.includes("naked") || _coverBreastsWithArm>>
+		<<set _modeloptions.breasts to "cleavage">>
 	<<else>>
-		<<set _modeloptions.breasts to "">>
+		<<set _modeloptions.breasts to "default">>
 	<</if>>
 
 	<<if $worn.under_upper.type.includes("chest_bind")>>
@@ -554,6 +572,11 @@ Set model options & filters for player clothes
 		<<set _modeloptions.hair_fringe_length to "short">>
 	<</if>>
 
+	<<set _modeloptions.alt_position to $worn.upper.altposition is "alt">>
+	<<set _modeloptions.alt_position_neck to $worn.neck.altposition is "alt">>
+
+	<<set _modeloptions.facewear_layer to $facelayer>>
+
 	<<set _modeloptions.upper_tucked to $upperTucked and !setup.clothes.upper[clothesIndex('upper', $worn.upper)].notuck and $worn.upper.outfitPrimary is undefined>>
 
 	<<twinescript>>
@@ -566,6 +589,7 @@ Set model options & filters for player clothes
 			["under_lower", $underlowerwetstage],
 			["under_upper", $underupperwetstage],
 			["hands"],
+			["handheld"],
 			["head"],
 			["over_head"],
 			["face"],
@@ -593,6 +617,9 @@ Set model options & filters for player clothes
 			if (worn.accessory_colour === 'custom') {
 				_modeloptions.filters['worn_'+slot+'_acc_custom'] = worn.accessory_colourCanvasFilter || getCustomClothesColourCanvasFilter(worn.accessory_colourCustom);
 			}
+			if (worn.accessory_layer_under) {
+				_modeloptions.acc_layer_under = worn.accessory_layer_under;
+			}
 		}
 	<</twinescript>>
 
@@ -605,6 +632,7 @@ Set model options & filters for player clothes
 
 <<widget "canvas-player-base-body">>
 	<<selectmodel "main">>
+	<<set _chestVisible to !$options.neverNudeMenus>>
 	<<modelprepare-player-body>>
 
 	<!-- Reset covering -->

@@ -33,9 +33,21 @@ You are in the temple quarters on the second floor of the temple, where the monk
 	<<passouttemple>>
 <<else>>
 	<<if $exposed gte 1>>
-		You hide beneath a bunk to protect your dignity.
-		<br><br>
+		<<if $temple_rank is "monk">>
+			You hide beneath your bunk to protect your dignity.
+			<br><br>
+
+			<<ind>><<link [[Your bunk|Temple Bunk]]>><</link>>
+			<br>
+		<<else>>
+			You hide beneath a bunk to protect your dignity.
+			<br><br>
+		<</if>>
 	<<else>>
+		<<if $temple_rank is "monk">>
+			<<ind>><<link [[Your bunk|Temple Bunk]]>><</link>>
+			<br>
+		<</if>>
 		<<if Time.dayState is "night">>
 			You'll wake people up if you cleaned now.
 			<br><br>
@@ -43,6 +55,7 @@ You are in the temple quarters on the second floor of the temple, where the monk
 			<span class="green">The rooms are perfectly clean. There's nothing more you can do today.</span>
 			<br><br>
 		<<else>>
+			<<edenicon "broom">>
 			<<link [[Clean rooms (1:00)|Temple Quarters Clean]]>>
 				<<if currentSkillValue('housekeeping') gte 1500>>
 					<<set $temple_quarters += 9>>
@@ -59,15 +72,19 @@ You are in the temple quarters on the second floor of the temple, where the monk
 				<<else>>
 					<<set $temple_quarters += 3>>
 				<</if>>
-			<<pass 60>><<grace 1>><<housekeeping 1 1000>><</link>><<ghousekeeping>><<ggrace>> <i>Housekeeping skill affects efficiency.</i>
+			<<pass 60>><<grace 1 monk>><<housekeeping 1 1000>><</link>><<ghousekeeping>><<ggrace monk>> <i>Housekeeping skill affects efficiency.</i>
 			<br>
 		<</if>>
 		<<if isPubfameTaskAccepted("temple")>>
-			<<link [[Look for the book (0:05)|Temple Quarters Book]]>><<set $pubfame.temple.chance to 0>><<pass 5>><</link>>
+			<<schoolicon "library">><<link [[Look for the book (0:05)|Temple Quarters Book]]>><<set $pubfame.temple.chance to 0>><<pass 5>><</link>>
 		<</if>>
 	<</if>>
 	<br>
-	<<link [[Downstairs|Temple]]>><</link>>
+	<<if $temple_cloister_progress gte 1>>
+		<<ind>><<link [[Secret passage to cloister (0:01)|Temple Cloister]]>><<pass 1>><</link>>
+		<br>
+	<</if>>
+	<<getouticon>><<link [[Downstairs (0:01)|Temple]]>><<pass 1>><</link>>
 	<br>
 <</if>>
 
@@ -102,7 +119,7 @@ You are in the temple quarters on the second floor of the temple, where the monk
 	<br><br>
 	<<if $danger gte (9900 - $allure)>>
 		<<generateyTemple 1>><<person1>>
-		You see another initiate checking you out. <<He>> looks away and blushes.
+		You see <<if $temple_rank is "initiate">>another<<else>>an<</if>> initiate checking you out. <<He>> looks away and blushes.
 		<br><br>
 		<<link [[Flirt|Temple Quarters Flirt]]>><</link>><<promiscuous1>>
 		<br>
@@ -135,7 +152,7 @@ You are in the temple quarters on the second floor of the temple, where the monk
 		<br><br>
 		A minute later the same <<monk>> brushes past again, groping you once more. The same <<monk>> makes multiple trips across the room, pretending to be busy while molesting you in front of everyone.
 		<br><br>
-		<<link [[Endure|Temple Quarters Endure]]>><<grace 3 monk>><<trauma 6>><<stress 6>><</link>><<gggrace>><<gtrauma>><<gstress>>
+		<<link [[Endure|Temple Quarters Endure]]>><<grace 3 monk>><<trauma 6>><<stress 6>><</link>><<gggrace monk>><<gtrauma>><<gstress>>
 		<br>
 		<<link [[Get angry|Temple Quarters Harassed Anger]]>><<grace -3 monk>><<trauma -6>><<stress -6>><</link>><<llgrace monk>><<ltrauma>><<lstress>>
 		<br>
@@ -443,7 +460,7 @@ You feel <<his>> hands on your <<bottom>>. You try to escape, <span class="red">
 	<<violence 1>>
 	<<neutral 1>>
 	<<molested>>
-	<<maninit>><<set $position to "wall">><<set $leftarm to "bound">><<set $rightarm to "bound">><<set $head to "bound">>
+	<<maninit>><<set $position to "wall">><<set $leftarm to "bound">><<set $rightarm to "bound">><<handheldruined>><<set $head to "bound">>
 	<<set $timer to 15>>
 <</if>>
 
@@ -525,6 +542,7 @@ You don't recognise the language, but you recognise the voice. It's Jordan.
 :: Temple Jordan Peek
 
 <<set $outside to 0>><<set $location to "temple">><<temple_effects>><<effects>>
+<<set $jordanSin to 1>>
 You tiptoe to the curtain, and poke your head around the side.
 <br><br>
 <<npc Jordan>><<person1>>You see Jordan. <<Hes>> having a shower. Water runs over <<his>> closed eyes, and down <<his>> naked body.
@@ -557,12 +575,13 @@ Golden locks of hair tumble around <<him>>, almost reaching <<his>> feet. <<His>
 
 <<effects>>
 <<if $masturbationstart is 1>>
+	<<set $jordanSin to 2>>
 	<<set $masturbationstart to 0>>
 	<<set $masturbationstat += 1>>
 	<<masturbationstart>>
 	<<set $timer to random(6, 24)>>
 <</if>>
-Jordan continues singing and rubbing their body, oblivious to your presence. You don't know how long that'll last.
+Jordan continues singing and rubbing <<nnpc_his "Jordan">> body, oblivious to your presence. You don't know how long that'll last.
 <br><br>
 <<masturbationeffects>>
 <<masturbationactions>>
@@ -604,7 +623,7 @@ Jordan continues singing and rubbing their body, oblivious to your presence. You
 You tiptoe toward the door.
 <<skulduggerycheck>>
 <<if $skulduggerysuccess is 1>>
-	<span class="green">They can't hear you over the sound of the water, and their own voice. You creak open the door, and step into a dark stone corridor.</span>
+	<span class="green"><<nnpc_He "Jordan">> can't hear you over the sound of the water, and <<nnpc_his "Jordan">> own voice. You creak open the door, and step into a dark stone corridor.</span>
 	<br><br>
 	<<skulduggeryuse>>
 	<<pass 10>>
@@ -812,7 +831,7 @@ You return to work, but lean over a little more than you have to. You wiggle you
 You turn once the shelf is in order. The <<monk>> has slipped a hand beneath <<his>> habit. <<Hes>> pleasuring <<himself>>.
 <br><br>
 <<if $promiscuity gte 35>>
-	<<link [[Give them a hand|Temple Quarters Hand]]>><<grace 3 monk>><</link>><<promiscuous3>><<gggrace>>
+	<<link [[Give them a hand|Temple Quarters Hand]]>><<grace 3 monk>><</link>><<promiscuous3>><<gggrace monk>>
 	<br>
 <</if>>
 <<link [[Ignore|Temple Quarters]]>><<endevent>><</link>>
@@ -822,7 +841,7 @@ You turn once the shelf is in order. The <<monk>> has slipped a hand beneath <<h
 <<set $outside to 0>><<set $location to "temple">><<temple_effects>><<effects>>
 You walk over to <<him>>. "Excuse me," you purr. You pretend to lean over to dust a shelf behind <<him>>. Your other hand slips beneath <<his>> habit.
 <<promiscuity3>>
-The <<monk>> doesn't stop you, but <<he>> does cast a nervous look around the room. There are several other initiates at work. You doubt <<he>> expected you to take it this far.
+The <<monk>> doesn't stop you, but <<he>> does cast a nervous look around the room. There are several <<if $temple_rank is "initiate">>other <</if>>initiates at work. You doubt <<he>> expected you to take it this far.
 <br><br>
 <<if $NPCList[0].penis isnot "none">>
 	<<His>> nerves dissipate when your hand finds <<his>> already-erect cock. You <<handtext>> work the shaft. <<He>> lies back and groans.
@@ -831,10 +850,10 @@ The <<monk>> doesn't stop you, but <<he>> does cast a nervous look around the ro
 <</if>>
 <<handstat>>
 <br><br>
-<<if $handskill gte 800>>
+<<if currentSkillValue("handskill") gte 800>>
 	Your skilled fingers make quick work of <<him>>. <<He>> ejaculates almost immediately. You withdraw your hand and continue dusting as if nothing is amiss. <<He>> pants beneath you, unable to muster the strength to move.
 	<br><br>
-<<elseif $handskill gte 100>>
+<<elseif currentSkillValue("handskill") gte 100>>
 	You keep working, speeding up as <<he>> approaches <<his>> peak. <<His>> body tenses, and <<he>> cums against your hand.
 	<br><br>
 	A few people look over, eyes drawn by <<his>> moans. You don't think they can see what you're up to.

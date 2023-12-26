@@ -174,7 +174,22 @@ window.integrityKeyword = integrityKeyword;
 function integrityWord(worn, slot) {
 	const kw = integrityKeyword(worn, slot);
 	const alt = setup.clothes[slot][clothesIndex(slot, worn)].altDamage;
-	if (alt) {
+	if (alt === "parasite") {
+		switch (kw) {
+			case "tattered":
+				T.text_output = "shredded ";
+				break;
+			case "torn":
+				T.text_output = "patchy ";
+				break;
+			case "frayed":
+				T.text_output = "hurt ";
+				break;
+			case "full":
+			default:
+				T.text_output = "";
+		}
+	} else if (alt) {
 		switch (kw) {
 			case "tattered":
 				T.text_output = "cracked ";
@@ -201,7 +216,27 @@ function integrityWord(worn, slot) {
 				T.text_output = "";
 		}
 	}
-	return T.text_output;
+    let colorClass;
+    switch (kw) {
+        case "full":
+            colorClass = "green";
+            break;
+        case "tattered":
+            colorClass = "red";
+            break;
+        case "torn":
+            colorClass = "purple";
+            break;
+        case "frayed":
+            colorClass = "teal";
+            break;
+        default:
+            colorClass = ""; // default without color
+    }
+    if (T.text_output) {
+        T.text_output = `<span class="${colorClass}">${T.text_output.trim()}</span> `;
+    }
+    return T.text_output;
 }
 window.integrityWord = integrityWord;
 DefineMacroS("integrityWord", integrityWord);
@@ -274,7 +309,7 @@ function outfitChecks() {
 	T.underNaked = V.worn.under_lower.name === "naked" && V.worn.under_upper.name === "naked";
 	T.middleNaked = V.worn.lower.name === "naked" && V.worn.upper.name === "naked";
 	T.overNaked = V.worn.over_lower.name === "naked" && V.worn.over_upper.name === "naked";
-	T.topless = V.worn.over_upper.name === "naked" && V.worn.upper.name === "naked" && V.worn.under_upper.name === "naked";
+	T.topless = V.worn.over_upper.name === "naked" && V.worn.upper.name === "naked" && V.worn.under_upper.name === "naked" && V.worn.lower.covers_top !== 1;
 	T.bottomless = V.worn.over_lower.name === "naked" && V.worn.lower.name === "naked" && V.worn.under_lower.name === "naked";
 	T.fullyNaked = T.topless && T.bottomless;
 }
@@ -382,88 +417,6 @@ function saveDataCompare(save1, save2) {
 	return result;
 }
 window.saveDataCompare = saveDataCompare;
-
-/**
- * @returns {object} decoded session state
- */
-function getSessionState() {
-	if (Config.history.maxSessionStates === 0) return;
-
-	const sessionState = session.get("state");
-	if (Object.hasOwn(sessionState, "delta")) {
-		sessionState.history = State.deltaDecode(sessionState.delta);
-		delete sessionState.delta;
-	}
-	return sessionState;
-}
-window.getSessionState = getSessionState;
-
-/**
- * Tries saving sessionState into sessionStorage until it fits the quota.
- * sessionState must have history property.
- *
- * @param {object} sessionState decoded session state
- */
-function setSessionState(sessionState) {
-	if (!sessionState || !sessionState.history) throw new Error("setSessionState error: not a valid sessionState object");
-	let pass = false;
-	let sstates = Config.history.maxSessionStates;
-	if (sstates === 0) return pass;
-
-	try {
-		// if history is bigger than session states limit, reduce the history to match
-		if (sessionState.history.length > sstates) sessionState.history = State.marshalForSave(sstates).history;
-		if (sstates) session.set("state", sessionState); // don't do session writes if sstates is 0, NaN, undefined, etc.
-		pass = true;
-	} catch (ex) {
-		console.log("session.set failed, recovering");
-		if (sstates > sessionState.history.length) sstates = sessionState.length;
-		while (sstates && !pass) {
-			try {
-				sstates--;
-				sessionState.history = State.marshalForSave(sstates).history;
-				sessionState.history.forEach(s => (s.variables.options.maxStates = sstates));
-				session.set("state", sessionState);
-				pass = true;
-			} catch (ex) {
-				continue;
-			}
-		}
-		V.options.maxStates = Config.history.maxStates = Config.history.maxSessionStates = sstates;
-		Errors.report("Save data is too big for current History depth setting. It's value was automatically adjusted to " + V.maxStates);
-	}
-	return pass;
-}
-window.setSessionState = setSessionState;
-
-/**
- * Replays current passage with different RNG and records updated RNG into sessionStorage
- */
-function updateSessionRNG() {
-	if (!(V.debug || V.cheatdisable === "f" || V.testing)) return; // do nothing unless debug is enabled
-	if (!State.restore()) return; // restore game state before the passage was processed. do nothing if failed
-	const sessionState = getSessionState(); // get game state from session storage
-	const frame = sessionState.history[sessionState.index]; // current history frame
-	State.random(); // re-roll rng
-	frame.prng = State.prng.state; // save new rng state
-	setSessionState(sessionState); // send altered session data back into storage
-	Engine.show(); // replay the passage with new rng
-}
-window.updateSessionRNG = updateSessionRNG;
-
-// Add binds for going back and forth in history and re-rolling RNG
-Mousetrap.bind("/", () => {
-	Engine.backward();
-	return false;
-});
-Mousetrap.bind("*", () => {
-	updateSessionRNG();
-	return false;
-});
-Mousetrap.bind("-", () => {
-	Engine.forward();
-	return false;
-});
 
 // For the optional numpad to the right of the screen
 function mobClick(index) {
@@ -639,7 +592,7 @@ Macro.add("foldout", {
 		const e = $("<div>").addClass("foldout").append(Wikifier.wikifyEval(content));
 		const header = e.children().first().addClass("foldoutHeader");
 		const toggle = $("<span>").addClass("foldoutToggle").appendTo(header);
-		const body = e.contents().not(header).wrapAll("<div>").parent().insertAfter(header);
+		const body = e.contents().not(header).wrapAll("<div>").parent().addClass("foldoutBody").insertAfter(header);
 
 		setFoldoutState(foldoutState);
 

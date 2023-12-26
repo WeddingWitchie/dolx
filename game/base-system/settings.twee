@@ -31,6 +31,7 @@
 	<<set $horsedisable to "f">>
 	<<set $bodywritingLvl to 3>>
 	<<set $parasitedisable to "f">>
+	<<set $ruinedorgasmdisable to "f">>
 	<<set $bestialitydisable to "f">>
 	<<set $slimedisable to "f">>
 	<<set $voredisable to "f">>
@@ -234,7 +235,10 @@
 	<</switch>>
 	/*Container for different tabs*/
 	<div id="settingsDiv">
-		<<startDescriptions _selectedStart>>
+		<<switch $currentSettings>>
+			<<case "featSettings" "feat">><<featSettings>>
+			<<default>><<startDescriptions _selectedStart>>
+		<</switch>>
 	</div>
 <</widget>>
 
@@ -272,6 +276,7 @@
 	<div @class="_selectedSettings is 'game' ? 'gold buttonStartSelected' : 'buttonStart'" >
 		<<button "Game Settings">>
 			<<set _selectedSettings to "game">>
+			<<set _subsection to "human">>
 			<<replace #settingsOptions>><<settingsOptions>><</replace>>
 			<<replace #settingsExit>><<settingsExit>><</replace>>
 			<<displaySettings "gameSettings">>
@@ -321,7 +326,7 @@
 
 <<widget "settingsExit">>
 	<<saveNameSection>>
-	<div class="no-numberify" style="margin-top:15px">
+	<div style="margin-top:15px">
 	<<if $passage is "Start">>
 		<<switch _selectedStart>>
 		<<case "default">>
@@ -404,8 +409,8 @@
 					<<presets _kinkPreset "save">>
 					<<presets _namedNpcPreset "save">>
 					<<presets _monstersPreset "save">>
-					<<set $malechance to _malechance or "f">>
-					<<set $beastmalechance to _beastmalechance or "f">>
+					<<set $malechance to _malechance is undefined ? $malechance : _malechance>>
+					<<set $beastmalechance to _beastmalechance is undefined ? $beastmalechance : _beastmalechance>>
 					<<set $maleChanceSplit to _maleChanceSplit or "f">>
 					<<set $beastMaleChanceSplit to _beastMaleChanceSplit or "f">>
 					<<if _maleChanceSplit is "t">>
@@ -451,7 +456,7 @@
 						<<set $playerPregnancyBeastDisable to "t">>
 						<<set $npcPregnancyDisable to "t">>
 					<<else>>
-						<<set $pregnancytype to _pregnancytype or "f">>
+						<<set $pregnancytype to _pregnancytype or "realistic">>
 						<<set $playerPregnancyHumanDisable to "f">>
 						<<set $playerPregnancyBeastDisable to "f">>
 						<<set $npcPregnancyDisable to "f">>
@@ -467,6 +472,7 @@
 						<<replace #settingsExit>><<settingsExitConfirm>><</replace>>
 					<</if>>
 				<</button>>
+				<div><span class="red small-description">If changes were made to fetish toggles while in <span class="gold">Advanced Start,</span> they will be overwritten by your current selected settings.</span></div>
 		<<case "custom">>
 				<div><span class="gold bold">Current Settings:</span> <i style="color:var(--000);">Customisable</i></div>
 				<<button "Start Game!">>
@@ -671,7 +677,7 @@
 	<<set _settingsExitPassage to clone($settingsExitPassage)>>
 	<<unset $settingsExitPassage>>
 	<<run State.display(_settingsExitPassage)>>
-	<<set $saveName to $saveName.replace(/[^a-zA-Z 0-9]+/g,"")>>
+	<<set $saveName to $saveName.replace(/[^a-zA-Z\u4e00-\u9fa5 0-9]+/g,"")>>
 	<<unset $importString>>
 <</widget>>
 
@@ -775,34 +781,34 @@
 			</div>
 
 			<div class="settingsToggleItem">
+				<<if $passage is "Start">>
+				<span class="gold">Generic NPC Genders</span>
+					<<numberslider "_malechance" `_malechance is undefined ? $malechance : _malechance` 0 100 25>>
+					<<run settingsNpcGenders()>>
+					<span id="humanSplitBy"><<humanSplitBy>></span>
+				<<else>>
+					<<npcAttractionSettings>>
+				<</if>>
+			</div>
+
+			<div class="settingsToggleItem">
+				<<if $passage is "Start">>
+					<span class="gold">Beast Genders</span>
+					<<numberslider "_beastmalechance" `_beastmalechance is undefined ? $beastmalechance : _beastmalechance` 0 100 25>>
+					<<run settingsBeastGenders()>>
+					<span id="beastSplitBy"><<beastSplitBy>></span>
+				<<else>>
+					<<beastAttractionSettings>>
+				<</if>>
+			</div>
+
+			<div class="settingsToggleItem">
 				<span class="gold">Named NPC Genders</span>
 				<br>
 				<<if _namedNpcPreset is undefined>><<set _namedNpcPreset to "namedNpcDefaultGender">><</if>>
 				<label>All Male <<radiobutton "_namedNpcPreset" "namedNpcAllMaleGender" autocheck>></label> |
 				<label><<print $passage is "Start" ? "Random Genders" : "Current Genders">> <<radiobutton "_namedNpcPreset" "namedNpcDefaultGender" autocheck>></label> |
 				<label>All Female <<radiobutton "_namedNpcPreset" "namedNpcAllFemaleGender" autocheck>></label>
-			</div>
-
-			<div class="settingsToggleItem">
-				<span class="gold">Generic NPC Genders</span>
-				<<if $passage is "Start">>
-					<<numberslider "_malechance" `_malechance is undefined ? $malechance : _malechance` 0 100 25>>
-					<<run settingsNpcGenders()>>
-					<span id="humanSplitBy"><<humanSplitBy>></span>
-				<<else>>
-					<<genericGenders>>
-				<</if>>
-			</div>
-
-			<div class="settingsToggleItem">
-				<span class="gold">Beast Genders</span>
-				<<if $passage is "Start">>
-					<<numberslider "_beastmalechance" `_beastmalechance is undefined ? $beastmalechance : _beastmalechance` 0 100 25>>
-					<<run settingsBeastGenders()>>
-					<span id="beastSplitBy"><<beastSplitBy>></span>
-				<<else>>
-					<<beastGenders>>
-				<</if>>
 			</div>
 
 			<div class="settingsToggleItem">
@@ -967,7 +973,7 @@
 
 	<div class="settingsGrid">
 		<div class="settingsHeader">
-			Skin Colour <mouse class="tooltip linkBlue">(?)<span  style="font-size:16px;">Visual representation of the player's and NPC's skin colour and tanning changes must be enabled through the Performance tab of the Options menu before they will function. They are disabled by default due to performance issues on some devices.</span></mouse>
+			Skin Colour
 		</div>
 		<div class="settingsToggleItem">
 			<span class="gold">Reddish:</span><br>
@@ -1167,15 +1173,21 @@
 		<<replace #featExplanation>><</replace>>
 		<<toggleclass '#explain' 'hidden'>>
 	<</link>><br>
+	If you choose not to import all feats earned across multiple save files, only the feats marked as unlocked in your <span class="gold">most recently loaded save</span> will carry over to your next playthrough. Keep this in mind if you are aiming for 100% completion!
+	<br><br>
 	<span class="green">Spending coins on feat boosters does not permanently use up your coins, and coins earned from a feat cannot be earned a second time.</span> Any spent coins will remain in your personal bank of coins and will be available the next time you start a new game.
 	<br><br>
 	<span class="red">Changing settings in specific ways may prevent you from earning some feats, and coins, in your current game.</span> Enabling cheats at any point will prevent you from earning feats for the remainder of your current playthrough. You will be warned if you are about to change any setting that does this.
+	<br><br>
+	 Some feats display as earned as soon as you meet the requirements, while others won't trigger until the next in-game hour or at midnight. Happy hunting!
 <</widget>>
 
 <<widget "featSettings">>
 	<div class="solidBorderContainer settings-container">
 		<div class="settingsToggleIndent">
-				As you play through Degrees of Lewdity, you will obtain <span class="gold">feats</span> by completing different tasks. The more feats you earn, the more <span class="gold">VrelCoins</span> you will earn. When you start a new game, you can use these coins to purchase <span class="gold">feat boosters</span>, which grant you bonuses in your next game.
+				As you play through Degrees of Lewdity, you will obtain <span class="gold">feats</span> by completing different tasks. The more feats you earn, the more <span class="gold">VrelCoins</span> you will earn. When you start a new game, the coins associated with your most recently loaded save can be used to purchase <span class="gold">feat boosters</span>. These boosters grant you bonuses in your next game.
+				<br><br>
+				Feats are earned linearly over the course of a single playthrough. If you load an earlier save or switch to a different playthrough, <span class="red">you will lose the feat and its VrelCoins, unless you import all of your feats using the link below.</span> This will reset all feat boosters.
 				<span id="explain">
 					<<link "Read more...">>
 						<<replace #featExplanation>><<featExplanation>><</replace>>
@@ -1184,6 +1196,14 @@
 				</span>
 				<span id="featExplanation"></span>
 		</div>
+			<div class="settingsToggleIndent">
+				<<link "Import all feats:">>
+					<<replace #settingsStart>>
+						<<loadAllFeats>>
+					<</replace>>
+				<</link>>
+				<span class="green"> Checks for all feats earned across your local save files, combining your earned Vrelcoins and unlocked feat boosters.</span>
+			</div>
 			<<if $feats.allSaves.points isnot undefined or $feats.allSaves.points isnot 0>>
 				<div class="settingsToggleIndent">
 				<<link "Reset All Feats:">>
@@ -1253,7 +1273,7 @@
 		</label>
 	<</if>>
 	<br>
-	<<if $ironmanmode>>
+	<<if $ironmanmode and $passage isnot "Start">>
 		<span class="red">Cheats cannot be enabled during Ironman mode.</span>
 	<<else>>
 		<<if $passage is "Start">>
@@ -1311,7 +1331,7 @@
 				</label>
 			</div>
 
-			<div class="settingsToggleItem">
+			<div class="settingsToggleItemWide">
 				<span class="gold">Randomise:</span><br>
 
 				<<link "Gameplay">><<presets "randomize" "gameSettings" `randomizeSettings('gameplay')`>><</link>>
@@ -1390,11 +1410,6 @@
 		<<numberslider "$malechance" $malechance 0 100 1>>
 		<<run settingsGenericGenders("NPCs")>>
 	</div>
-	<<run $(() => { $('.maleChance input').on('input change', e => {
-		let value = parseInt(e.currentTarget.value);
-		V.maleChanceMale = value;
-		V.maleChanceFemale = value;
-	}).trigger('change') })>>
 <</widget>>
 
 <<widget "beastGenders">>
@@ -1402,11 +1417,6 @@
 		<<numberslider "$beastmalechance" $beastmalechance 0 100 1>>
 		<<run settingsGenericGenders("beasts")>>
 	</div>
-	<<run $(() => { $('.beastmalechance input').on('input change', e => {
-		let value = parseInt(e.currentTarget.value);
-		V.beastMaleChanceMale = value;
-		V.beastMaleChanceFemale = value;
-	}).trigger('change') })>>
 <</widget>>
 
 <<widget "monsterSettings">>
@@ -1420,6 +1430,28 @@
 	</label>
 <</widget>>
 
+<<widget "npcAttractionSettings">>
+	<div id="simpleGenders" @class="(V.maleChanceSplit === 't' ? ' hidden' : '')">
+		<span class="gold">Generic NPC Genders</span>
+		<<genericGenders>>
+	</div>
+	<div id="splitGenders" @class="(V.maleChanceSplit === 'f' ? ' hidden' : '')">
+		<<maleChanceSplitControls>>
+	</div>
+	<span id="humanSplitByFull"><<humanSplitByFull>></span>
+<</widget>>
+
+<<widget "beastAttractionSettings">>
+	<div id="simpleBeastGenders" @class="(V.beastMaleChanceSplit === 't' ? ' hidden' : '')">
+		<span class="gold">Beast Genders</span>
+		<<beastGenders>>
+	</div>
+	<div id="splitBeastGenders" @class="(V.beastMaleChanceSplit === 'f' ? ' hidden' : '')">
+		<<beastMaleChanceSplitControls>>
+	</div>
+	<span id="beastSplitByFull"><<beastSplitByFull>></span>
+<</widget>>
+
 <<widget "humanSettings">>
 	<div class="solidBorderContainer settings-container">
 		<div class="settingsGrid">
@@ -1427,14 +1459,7 @@
 				NPC Genders
 			</div>
 			<div class="settingsToggleItem">
-				<div id="simpleGenders" @class="(V.maleChanceSplit === 't' ? ' hidden' : '')">
-					<span class="gold">Generic NPCs</span>
-					<<genericGenders>>
-				</div>
-				<div id="splitGenders" @class="(V.maleChanceSplit === 'f' ? ' hidden' : '')">
-					<<maleChanceSplitControls>>
-				</div>
-				<span id="humanSplitByFull"><<humanSplitByFull>></span>
+				<<npcAttractionSettings>>
 			</div>
 			<div class="settingsToggleItem">
 				<div class="numberslider-inline malevictimchance">
@@ -1530,14 +1555,7 @@
 				Beast Preferences
 			</div>
 			<div class="settingsToggleItem">
-				<div id="simpleBeastGenders" @class="(V.beastMaleChanceSplit === 't' ? ' hidden' : '')">
-					<span class="gold">Beast Genders</span>
-					<<beastGenders>>
-				</div>
-				<div id="splitBeastGenders" @class="(V.beastMaleChanceSplit === 'f' ? ' hidden' : '')">
-					<<beastMaleChanceSplitControls>>
-				</div>
-				<span id="beastSplitByFull"><<beastSplitByFull>></span>
+				<<beastAttractionSettings>>
 			</div>
 			<div class="settingsToggleItem">
 				<<monsterSettings>>
@@ -1735,9 +1753,17 @@
 				<<checkbox "$forcedcrossdressingdisable" "t" "f" autocheck>> Enable forced crossdressing
 			</label>
 		</div>
+		
+		<div class="settingsToggleItem">
+			<label>
+				<<checkbox "$ruinedorgasmdisable" "t" "f" autocheck>> Enable ruined orgasms
+				<mouse class="tooltip linkBlue">(?)<span>Ear slimes only.</span></mouse>
+			</label>
+		</div>
 
 		<div class="settingsToggleItem" role="group" aria-labelledby="settingsToysHead">
 			<span id="settingsSexToysHead">Sex toys:</span>
+			<br>
 			<label>
 				<<checkbox "$toydildodisable" "t" "f" autocheck>> Dildos
 			</label>
@@ -1765,7 +1791,7 @@
 			<<run settingsAsphyxiation()>>
 		</div>
 
-		<div class="settingsToggleItemWide">
+		<div class="settingsToggleItem">
 			Nude Gender Appearance:
 			<<numberslider "$NudeGenderDC" $NudeGenderDC -1 2 1>>
 			<<run settingsNudeGenderAppearance()>>
@@ -1948,7 +1974,7 @@
 				</div>
 				<<run $(() => { $('.humanPregnancyMonths-container input, .wolfPregnancyWeeks-container input').on('input change', e => {
 					if(V.feats.pregnancyLocked){
-						$('#pregnancyFeatsDisabled').text("Some Pregnancy Feats are be disabled.");
+						$('#pregnancyFeatsDisabled').text("Some Pregnancy Feats are disabled.");
 						$('#pregnancyFeatsDisabled').css('display', 'block');
 					} else if(V.humanPregnancyMonths < 3 || V.wolfPregnancyWeeks < 4){
 						$('#pregnancyFeatsDisabled').text("Some Pregnancy Feats will be disabled.");
@@ -2048,7 +2074,7 @@
 		</div>
 
 		<div class="settingsToggleItem">
-			<span class="gold">Minimum breast size:</span> /*<mouse class="tooltip linkBlue">(?)<span>Breasts already below this size won't automatically grow.</span></mouse>*/
+			<span class="gold">Minimum breast size:</span> <mouse class="tooltip linkBlue">(?)<span>Breasts already below this size won't automatically grow.</span></mouse>
 			<br>
 			<<set _name to ["Flat", "Budding", "Tiny", "Small", "Pert"]>>
 			<<for _i to 0; _i lt _name.length; _i++>>
@@ -2060,7 +2086,7 @@
 		</div>
 
 		<div class="settingsToggleItem">
-			<span class="gold">Maximum breast size:</span> /*<mouse class="tooltip linkBlue">(?)<span>Breasts already above this size won't automatically shrink. Your breasts will grow regardless of gender. Males and those with high purity experience slower growth. Surgery, pills and parasites can influence growth in both directions. Having breasts played with and hosting internal parasites both increase growth.</span></mouse>*/
+			<span class="gold">Maximum breast size:</span> <mouse class="tooltip linkBlue">(?)<span>Breasts already above this size won't automatically shrink.</span></mouse>
 			<br>
 			<<set _name to ["Flat", "Budding", "Tiny", "Small", "Pert", "Modest", "Full", "Large", "Ample", "Massive", "Huge", "Gigantic", "Enormous"]>>
 			<<for _i to 0; _i lt _name.length; _i++>>
@@ -2072,7 +2098,7 @@
 		</div>
 
 		<div class="settingsToggleItem">
-			<span class="gold">Minimum ass size:</span> /*<mouse class="tooltip linkBlue">(?)<span>Bottoms already below this size won't automatically grow.</span></mouse>*/
+			<span class="gold">Minimum ass size:</span> <mouse class="tooltip linkBlue">(?)<span>Bottoms already below this size won't automatically grow.</span></mouse>
 			<br>
 			<<set _name to ["Slender", "Slim", "Modest", "Cushioned"]>>
 			<<for _i to 0; _i lt _name.length; _i++>>
@@ -2084,7 +2110,7 @@
 		</div>
 
 		<div class="settingsToggleItem">
-			<span class="gold">Maximum ass size:</span> /*<mouse class="tooltip linkBlue">(?)<span>Bottoms already above this size won't automatically shrink.</span></mouse>*/
+			<span class="gold">Maximum ass size:</span> <mouse class="tooltip linkBlue">(?)<span>Bottoms already above this size won't automatically shrink.</span></mouse>
 			<br>
 			<<set _name to ["Slender", "Slim", "Modest", "Cushioned", "Soft", "Round", "Plump", "Large", "Huge"]>>
 			<<for _i to 0; _i lt _name.length; _i++>>
@@ -2096,7 +2122,7 @@
 		</div>
 		<<if $passage is "Start" or $player.penisExist>>
 			<div class="settingsToggleItem">
-				<span class="gold" data-target="player.gender" data-disabledif="V.player.gender==='f'">Minimum penis size - if applicable:</span> /*<mouse class="tooltip linkBlue">(?)<span>Penises already below this size won't automatically grow. The smaller sizes have additional requirements to shrink to/grow from.</span></mouse>*/
+				<span class="gold" data-target="player.gender" data-disabledif="V.player.gender==='f'">Minimum penis size - if applicable:</span> <mouse class="tooltip linkBlue">(?)<span>Penises already below this size won't automatically grow.</span></mouse>
 				<br>
 				<<set _name to ["Micro","Mini", "Tiny"]>>
 				<<for _i to 0; _i lt _name.length; _i++>>
@@ -2108,7 +2134,7 @@
 			</div>
 
 			<div class="settingsToggleItem">
-				<span class="gold" data-target="player.gender" data-disabledif="V.player.gender==='f'">Maximum penis size - if applicable:</span> /*<mouse class="tooltip linkBlue">(?)<span>Penises already above this size won't automatically shrink. Surgery, pills and parasites can influence growth in both directions.</span></mouse>*/
+				<span class="gold" data-target="player.gender" data-disabledif="V.player.gender==='f'">Maximum penis size - if applicable:</span> <mouse class="tooltip linkBlue">(?)<span>Penises already above this size won't automatically shrink.</span></mouse>
 				<br>
 				<<set _name to ["Micro","Mini", "Tiny", "Small", "Normal", "Large", "Enormous"]>>
 				<<for _i to 0; _i lt _name.length; _i++>>
@@ -2305,7 +2331,7 @@
 
 					T.keys = {};
 					T.keyNames = [];
-					const allowed_npcs = ["steed", "guard", "inmate", "panty_thief", "school_nurse", "tower_creature", "pinch", "black_dog", "hacker"];
+					const allowed_npcs = ["steed", "guard", "inmate", "panty_thief", "school_nurse", "tower_creature", "pinch", "black_dog", "hacker", "bishop", "bishop_right_hand", "bishop_left_hand"];
 					Object.keys(V.per_npc).forEach(k => {
 						for (const j of allowed_npcs){
 							if (k.includes(j)){
@@ -2387,7 +2413,7 @@
 				<<case "default">><span class="gold bold">Basic Start:</span> Fetish toggles and difficulty settings will be left at their <span class="teal">default</span> settings. NPCs will be <span class="teal">randomly</span> generated. <i class="teal">Recommended for beginners.</i>
 				<<case "adjusted">><span class="gold bold">Moderate Start:</span> You can make <span class="teal">broad changes</span> to difficulty settings, preset kinks, and NPC genders. NPCs will be <span class="teal">randomly</span> generated according to these settings.
 				<<case "custom">><span class="gold bold">Advanced Start:</span> You can adjust <span class="teal">all settings</span>, including fetish toggles, difficulty settings, and NPC genders, to create a playthrough tailored to your desires.
-				<<case "random">><span class="gold bold">Randomised Start:</span> Starts the game with <span class="teal">all settings</span> randomised, including character appearance, character traits, and difficulty settings. Both your character and NPCs will be <span class="teal">randomly</span> generated.
+				<<case "random">><span class="gold bold">Randomised Start:</span> Starts the game with <span class="teal">all settings</span> randomised, including character appearance, character traits, and difficulty settings. Both your character and NPCs will be <span class="teal">randomly</span> generated for a completely blind playthrough. <i><span class="teal">To randomise specific settings prior to starting the game, select</span> <span class="gold">Advanced Start</span><span class="teal"> instead.</span></i>
 			<</switch>>
 			<br>
 			<div class="small-description">Most settings can be changed later in your room. <span class="red">You will not be able to change your character's genitalia or feat boosts after starting the game.</span></div>
@@ -2597,6 +2623,12 @@
 			<span class="gold">The Night Monster</span>
 		<<elseif _pNPCId is "hacker">>
 			<span class="gold">'Mickey' the hacker</span>
+		<<elseif _pNPCId is "bishop">>
+			<span class="gold">The Bishop</span>
+		<<elseif _pNPCId is "bishop_right_hand">>
+			<span class="gold">The Bishop's right hand</span>
+		<<elseif _pNPCId is "bishop_left_hand">>
+			<span class="gold">The Bishop's left hand</span>
 		<<else>>
 			<span class="gold"><<print _pNPCId.toUpperFirst().replace(/_/g, ' ')>></span>
 		<</if>>
@@ -2662,6 +2694,43 @@
 	<br>
 <</widget>>
 
+<<widget "loadAllFeats">>
+	<div id="featsBeginLoadingText">
+		Running some basic checks...
+		<br>
+	</div>
+	<div id="featsBeginButton" class="hidden">
+		<span id="featsBeginText"></span> Once you click "begin", please avoid refreshing the game, you will have to run the process again.
+		<br><br>
+		Exported saves are excluded from this process, unless you first import and make a local save of them.
+		<br>
+		<<link "Begin">>
+			<<replace "#overlayButtons">><</replace>>
+			<<replace "#settingsStart">><<loadingAllFeats>><</replace>>
+		<</link>>
+	</div>
+	<<run $(() => {wikifier("featsMergePre")})>>
+	<br><br>
+	<<link "Cancel">>
+		<<replace "#settingsStart">><<settingsStart>><</replace>>
+	<</link>>
+<</widget>>
+
+<<widget "loadingAllFeats">>
+	<div id="featsLoadingMeter" class="meter">
+		<div class="greenbar" style="width:0%"></div>
+		<span id="featsLoadingText">0 out of _saveDataImportCount saves checked.</span>
+	</div>
+	<br><br>
+	<div id="featsFinishButton" class="hidden">
+		<<link "Next">>
+			<<setupFeats true>>
+			<<replace "#overlayButtons">><<startCaption>><</replace>>
+			<<replace "#settingsStart">><<settingsStart>><</replace>>
+		<</link>>
+	</div>
+	<<run $(() => {wikifier("featsMerge")})>>
+<</widget>>
 
 :: Settings [exitCheckBypass]
 <<settings>>

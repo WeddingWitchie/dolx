@@ -88,24 +88,24 @@
 <<widget "schoolperiod">>
 	<<if $exposed lte 0>>
 		<<if $schoolstate is "morning" or ($schoolstate is "first" and Time.minute lte 58)>>
-			<<scienceicon>><<link [[Go to your science lesson (0:01)|Science Classroom]]>><<pass 1>><</link>>
+			<<scienceicon>><<link [[Go to your science lesson (0:01)|Science Classroom]]>><<set $justEntered to true>><<pass 1>><</link>>
 			<br><br>
 		<<elseif $schoolstate is "first" or ($schoolstate is "second" and Time.minute lte 58)>>
-			<<mathicon>><<link [[Go to your maths lesson (0:01)|Maths Classroom]]>><<pass 1>><</link>>
+			<<mathicon>><<link [[Go to your maths lesson (0:01)|Maths Classroom]]>><<set $justEntered to true>><<pass 1>><</link>>
 			<br><br>
 		<<elseif $schoolstate is "second" or ($schoolstate is "third" and Time.minute lte 58)>>
-			<<englishicon>><<link [[Go to your English lesson (0:01)|English Classroom]]>><<pass 1>><</link>>
+			<<englishicon>><<link [[Go to your English lesson (0:01)|English Classroom]]>><<set $justEntered to true>><<pass 1>><</link>>
 			<br><br>
 		<<elseif $schoolstate is "third" or ($schoolstate is "lunch" and Time.minute lte 58)>>
-			<<eaticon>><<link [[Join the masses in the canteen (0:01)|Canteen]]>><<pass 1>><</link>>
+			<<foodicon "eat">><<link [[Join the masses in the canteen (0:01)|Canteen]]>><<pass 1>><</link>>
 			<br>
-			<<historyicon>><<link [[Wait in the history classroom (0:01)|History Classroom]]>><<pass 1>><</link>>
+			<<historyicon>><<link [[Wait in the history classroom (0:01)|History Classroom]]>><<set $justEntered to true>><<pass 1>><</link>>
 			<br><br>
 		<<elseif $schoolstate is "lunch" or ($schoolstate is "fourth" and Time.minute lte 58)>>
-			<<historyicon>><<link [[Go to your history lesson (0:01)|History Classroom]]>><<pass 1>><</link>>
+			<<historyicon>><<link [[Go to your history lesson (0:01)|History Classroom]]>><<set $justEntered to true>><<pass 1>><</link>>
 			<br><br>
 		<<elseif $schoolstate is "fourth" or ($schoolstate is "fifth" and Time.minute lte 58)>>
-			<<swimmingicon>><<link [[Go to your swimming lesson (0:01)|School Pool Entrance]]>><<pass 1>><</link>>
+			<<swimmingicon>><<link [[Go to your swimming lesson (0:01)|School Pool Entrance]]>><<set $justEntered to true>><<pass 1>><</link>>
 			<br><br>
 		<</if>>
 	<</if>>
@@ -435,7 +435,17 @@
 		<</if>>
 
 	<<elseif $rng gte 81>>
-		Sirris asks the class to turn to page $rng of their textbook. The classroom has a laid-back atmosphere; most of the students spend more time chatting than reading.
+		Sirris asks the class to turn to page $rng of their textbook.
+		<<if $worn.handheld.name isnot "naked" and !$worn.handheld.type.includes("bookbag")>>
+			You realise too late that you forgot your bookbag.
+			<<if $NPCName[$NPCNameList.indexOf("Sirris")].love gte 10>>
+			Sirris gently chides you, but passes you a spare copy of the textbook. "I'll excuse it this time, but please be more prepared in the future."
+			<<else>>
+				Sirris shakes <<his>> head. "I'm sorry, but I need you to be more prepared next time," <<he>> admonishes as <<he>> hands you a spare copy of the textbook. <<detention 1>><<gdelinquency>>
+			<</if>>
+		<<else>>
+			The classroom has a laid-back atmosphere; most of the students spend more time chatting than reading.
+		<</if>>
 	<<elseif $rng gte 71>>
 		Sirris puts on a short video about <<print either("nature","space","magnetic fields","electrons","chemical bonds","Einstein","the pioneers of the scientific method","Isaac Newton","nuclear fusion","the role of enzymes","DNA")>>. The classroom has a laid-back atmosphere. Most students watch, but many carry on chatting.
 	<<elseif $rng gte 61>>
@@ -778,7 +788,7 @@
 				<<link [[Deny|Maths Whitney Grope Deny]]>><<stress 6>><<npcincr Whitney love -1>><</link>><<gstress>><<llove>>
 				<br>
 				<<if $speech_attitude is "bratty">>
-					<<link [[Retaliate|Maths Whitney Grope Retaliate]]>><<npcincr Whitney dom -1>><</link>><<ldom>><<skill_difficulty "$handskill" "Hand Skill" 1 600>>
+					<<link [[Retaliate|Maths Whitney Grope Retaliate]]>><<npcincr Whitney dom -1>><</link>><<ldom>><<skill_difficulty `currentSkillValue("handskill")` "Hand Skill" 1 600>>
 					<br>
 				<</if>>
 			<</addinlineevent>>
@@ -840,7 +850,7 @@
 			You brush the ruler away and fix your $worn.lower.name, but not before the class gets a good look at your <<print ($worn.under_lower.anus_exposed is 1 ? "bare ass" : $worn.under_lower.name)>>.
 			<<gtrauma>><<gstress>><<trauma 1>><<stress `($_skirt is 1 ? 1 : 2)`>>
 
-			<<if $whitneymaths is "active" and ($whitneypantiescheck is 1 or ($whitneypantiescheck is 2 or $worn.under_lower.gender isnot "f"))>>
+			<<if $whitneymaths is "active" and ($whitneypantiescheck is 1 or ($whitneypantiescheck is 2 and $worn.under_lower.gender isnot "f"))>>
 				<br><br>
 
 				Whitney glares at you, but doesn't say anything. This won't be the end of it.
@@ -1277,10 +1287,10 @@
 					<<if $schoolrep.crossdress gte 3 or $schoolrep.herm gte 3>>
 						The other students <<print ($_seat_glued ? "look almost satisfied by" : "giggle at")>> your plight.
 						You overhear a few whispers while Doren is busy helping you,
-						and can make out something about <<print ($player.gender is "h" ? "your genitals" : "you crossdressing")>>. They saw, and they know the rumours are true.
+						and can make out something about <<print ($player.penisExist and $player.vaginaExist ? "your genitals" : "you crossdressing")>>. They saw, and they know the rumours are true.
 					<<else>>
 						The other students gasp, and the classroom fills with hushed whispers while Doren is busy helping you.
-						You can make out something about <<print ($player.gender is "h" ? "your genitals" : "you crossdressing")>>. They saw.
+						You can make out something about <<print ($player.penisExist and $player.vaginaExist ? "your genitals" : "you crossdressing")>>. They saw.
 					<</if>>
 					<<schoolrep_naked>>
 				<</if>>
@@ -1372,25 +1382,51 @@
 		A student near you finishes reading a passage. Now Doren points to you.
 		<br><br>
 
-		<<if $trauma gte (($traumamax / 5) * 3)>>
-			But due to the stress you've been under, you forgot your book! <<gstress>><<stress 4>>
-		<<elseif $delinquency gte 666>>
-			Does <<he>> seriously expect you to read like these nerds? You haven't even brought your book.
-		<<elseif $tiredness gte (C.tiredness.max / 5) * 3>>
-			But you're so tired, you left your book in your locker.
+		<<if $worn.handheld.name isnot "naked" and !$worn.handheld.type.includes("bookbag")>>
+			<<if $trauma gte (($traumamax / 5) * 3)>>
+				But due to the stress you've been under, you forgot your bookbag! <<gstress>><<stress 4>>
+			<<elseif $delinquency gte 666>>
+				Does <<he>> seriously expect you to read like these nerds? You haven't even brought your book.
+			<<elseif $tiredness gte (C.tiredness.max / 5) * 3>>
+				But you're so tired, you left your book in your locker.
+			<<else>>
+				But you forgot your bookbag today.
+			<</if>>
+			<br><br>
+
+			<<link [[Tell Doren you don't have your book|English Read Passage]]>><<set $phase to 0>><</link>>
+			<br>
+			<<link [[Look to classmates for help|English Read Passage]]>><<set $phase to 1>><</link>>
+			<br>
+			<<link [[Try to make something up|English Read Passage]]>><<set $phase to 2>><</link>>
+			<br>
+			<<if $speech_attitude is "bratty" or $delinquency gte 400>><<link [[Refuse to read|English Read Passage]]>><<set $phase to 3>><</link>><br><</if>>
 		<<else>>
-			But you forgot your book today.
+			You turn the page and begin reciting the passage aloud.
+
+			<<if $englishtrait gte 4>>
+				You add a dramatic flair to your reading, and the class hangs on every word. Doren compliments your diction. "You have a mighty fine gift there, <<lass>>.
+				<<if $englishPlay is "ongoing" and $englishPlayRoles.Player isnot "none">>
+					I'm looking forward to seeing you shine onstage.
+				<<elseif $englishPlay is "ongoing">>
+					It's a shame you didn't sign up for the play.
+					<<if $englishPlayLate>>There's still time, you know!<</if>>
+				<<else>>
+					Have you ever considered a career in theatre?
+				<</if>>" <<npcincr Doren love 1>>
+			<<elseif $englishtrait is 3>>
+				Your voice is strong and clear as you breeze through the text. Doren gives you a nod of approval and moves on to the next student.
+			<<elseif $englishtrait is 2>>
+				You stutter when you reach some foreign phrases, but you manage to get through the reading decently enough.
+			<<elseif $englishtrait is 1>>
+				The text is too erudite for you, and you falter as you read. Doren corrects your mispronunciation of an unfamiliar word, and someone in the back of the room titters. <<lcool>><<status -1>>
+			<<else>>
+				You try to make it through the passage, but it's beyond your comprehension. Your classmates openly snicker as you fumble over the words. Doren reprimands the class but takes pity on you by moving on to the next person. You sink into your seat and console yourself with the knowledge that you at least remembered to bring your book to class. <<lcool>><<status -3>>
+			<</if>>
 		<</if>>
 		<br><br>
-
-		<<link [[Tell Doren you don't have your book|English Read Passage]]>><<set $phase to 0>><</link>>
-		<br>
-		<<link [[Look to classmates for help|English Read Passage]]>><<set $phase to 1>><</link>>
-		<br>
-		<<link [[Try to make something up|English Read Passage]]>><<set $phase to 2>><</link>>
-		<br>
-		<<if $speech_attitude is "bratty" or $delinquency gte 400>><<link [[Refuse to read|English Read Passage]]>><<set $phase to 3>><</link>><br><</if>>
-
+		<<endevent>>
+		<<link [[Next|English Lesson]]>><</link>>
 	<<elseif $rng gte 41>>
 		<<if $delinquency gte 400>>
 			<<npc Doren>><<person1>>In a bid to keep the classroom ruckus down, Doren has the less controllable students separated, which includes you <<if $kylarenglishstate is "active">>and Kylar<</if>>. <<He>><<endevent>> seats you next to a quiet <<generates1>><<person1>><<person>> who never causes any trouble.
@@ -1678,7 +1714,7 @@
 			It's pretty funny. <<lstress>>
 		<<elseif $rng gte 34>>
 			They act it out excellently, really bringing the scene to life.<br>
-			<<if currentSkillValue('english') lt 700>>You learned something from it.<<genglish>><<else>>You enjoyed it a lot.<</if>>
+			<<if currentSkillValue('english') lt 700>>You learned something from it.<<genglish>><<englishskill>><<else>>You enjoyed it a lot.<</if>>
 		<<else>>
 			They flatly read out lines from the book.<br>
 			Doren tactfully moves the lesson forward before things start to drag.
@@ -1878,7 +1914,7 @@
 			<br>
 			<<link [[Make excuse|History Lesson Excuse]]>><</link>>
 			<br>
-		<<elseif $history gte 600>>
+		<<elseif currentSkillValue("history") gte 600>>
 			"Good," <<he>> nods, reading over your shoulder. "Good work."<<stress -2>><<lstress>>
 			<br><br>
 
@@ -2467,12 +2503,12 @@
 				<<gtrauma>><<trauma 2>><<gstress>><<stress 2>>
 				<br><br>
 				<<if $exhibitionism gte 75>>
-					<<link [[Flaunt|Events Swimming Flaunt]]>><</link>><<exhibitionist5>>
+					<<ind>><<link [[Flaunt|Events Swimming Flaunt]]>><</link>><<exhibitionist5>>
 					<br>
 				<</if>>
-				<<link [[Dive anyway|Events Swimming Lewd Dive]]>><<trauma 2>><<stress 2>><</link>><<gtrauma>><<gstress>>
+				<<swimicon "dive">><<link [[Dive anyway|Events Swimming Lewd Dive]]>><<trauma 2>><<stress 2>><</link>><<gtrauma>><<gstress>>
 				<br>
-				<<link [[Run away|Event Swimming Run]]>><<detention 1>><</link>><<gdelinquency>>
+				<<runicon>><<link [[Run away|Event Swimming Run]]>><<detention 1>><</link>><<gdelinquency>>
 				<br>
 			<<else>>
 				You glance at the rest of the class, and see their backs still turned. You dive <<swimmingtext>> into the water.
@@ -2593,6 +2629,10 @@
 <<widget "schoolpoolexposed">>
 	<<if $schoolstate is "fifth" and $swimnudecounter gte 1>>
 		You step into the pool room. <<covered>>
+		<<schoolpoolmasoncheck>>
+		<<if _masonCanUnlock>>
+			<<include "Mason Chastity Prompt">>
+		<</if>>
 		<br><br>
 	<<else>>
 		<<npc Mason>><<generatey2>><<generatey3>>You take a deep breath, and walk into the pool room with your <<lewdness>> on display.
@@ -2622,10 +2662,34 @@
 		Mason refuses to look at you. <<Hes>> blushing. "Get back in the changing room. P-please."
 		<br><br>
 	<</if>>
-	<<maleicon>><<link [[Boy's changing room|School Boy Changing Room]]>><<endevent>><</link>>
-	<br>
-	<<femaleicon>><<link [[Girl's changing room|School Girl Changing Room]]>><<endevent>><</link>>
-	<br>
+	<<if !_masonCanUnlock or $schoolstate isnot "fifth">>
+		<<maleicon>><<link [[Boy's changing room|School Boy Changing Room]]>><<endevent>><</link>>
+		<br>
+		<<femaleicon>><<link [[Girl's changing room|School Girl Changing Room]]>><<endevent>><</link>>
+		<br>
+	<</if>>
+<</widget>>
+
+<<widget "schoolpoolmasoncheck">>
+	<<set _anyBound to $rightarm is "bound" or $leftarm is "bound" or $feetuse is "bound">>
+	<<if _anyBound>>
+		Mason instantly notices your bound <<boundBodyParts>>.
+		<<print [
+			`"It wouldn't be safe to let you swim like that."`,
+			`"T-that's a little too much."`,
+			`"Well... obviously it wouldn't be safe to let you swim like that."`,
+			`"I can't let you swim like that."`
+		].random()>>
+		<br><br>
+		<<He>> moves behind you and <span class="green">you feel your limbs fall free.</span><<unbind>>
+	<</if>>
+	<<if !C.npc.Mason.chastityKeyCarried and playerChastity() and $worn.genitals.origin is "Winter" and (C.npc.Mason.love gte 5 or C.npc.Mason.lust gte 10)
+		and getVisibleClothesList().find(o => o === V.worn.genitals)>>
+		<<if _anyBound>><<He>>
+		<<else>>Mason<</if>> cannot help but notice and stare at the $worn.genitals.name.
+		<<He>> stares hard enough that it briefly becomes uncomfortable before <<he>> catches <<himself>> and turns away with a blush.
+		<<set C.npc.Mason.chastityKeyCarried to 1>><<set $daily.masonChastityRemovalDeclined to 1>>
+	<</if>>
 <</widget>>
 
 :: Lesson Effects Widget [widget]
@@ -2638,11 +2702,11 @@
 	<<if $phase is 1>>
 		<<set $phase to 0>>
 		<<if $exposed gte 1 and $swimall isnot 1>>
-			The bell rings, signifying the end of the lesson. You wait as the other students leave. Some students linger, doubtlessly hoping to get a nice view when you climb out, but Mason herds them away, giving you some privacy.
+			The bell rings, signifying the end of the lesson. You wait as the other students leave. Some students linger, doubtlessly hoping to get a nice view when you climb out, but Mason herds them away, giving you some privacy. You climb out of the pool<<if playerBellyVisible()>> once Mason gives the go ahead, and <<nnpc_he "Mason">> sticks close by to assist you<</if>>.
 			<br><br>
 
 		<<elseif $exposed lte 0>>
-			The bell rings, signifying the end of the lesson. You climb out of the pool.
+			The bell rings, signifying the end of the lesson. You climb out of the pool<<if playerBellyVisible()>> once Mason gives the go ahead, and <<nnpc_he "Mason">> sticks close by to assist you<</if>>.
 			<br><br>
 
 		<</if>>
@@ -2699,44 +2763,26 @@
 	<</if>>
 	<br>
 	<<switch $studyBooks.rented>>
-		<<case "science">>
-			<<link [[Return your science textbook|Book Rental]]>><<set $bookRent to "return">><</link>>
-			<br>
-		<<case "maths">>
-			<<link [[Return your maths textbook|Book Rental]]>><<set $bookRent to "return">><</link>>
-			<br>
-		<<case "English">>
-			<<link [[Return your English textbook|Book Rental]]>><<set $bookRent to "return">><</link>>
-			<br>
-		<<case "history">>
-			<<link [[Return your history textbook|Book Rental]]>><<set $bookRent to "return">><</link>>
+		<<case "science" "maths" "English" "history">>
+			<<schoolicon "library">><<link [[`Return your ${$studyBooks.rented} textbook`|Book Rental]]>><<set $bookRent to "return">><</link>>
 			<br>
 		<<case "Raul and Janet">>
-			<<link [[Return "Raul and Janet"|Book Rental]]>><<set $phase to 5>><<set $bookRent to "return">><</link>>
+			<<schoolicon "library">><<link [[Return "Raul and Janet"|Book Rental]]>><<set $phase to 5>><<set $bookRent to "return">><</link>>
 			<br>
 		<<case "Pinch">>
-			<<link [[Return the olive-coloured book|Book Rental]]>><<set $phase to 6>><<set $bookRent to "return">><</link>>
+			<<schoolicon "library">><<link [[Return the olive-coloured book|Book Rental]]>><<set $phase to 6>><<set $bookRent to "return">><</link>>
 			<br>
 		<<default>>
 	<</switch>>
 	<<switch $studyBooks.stolen>>
-		<<case "science">>
-			<<link [[Return your stolen science textbook|Book Rental Return Stolen]]>><</link>>
-			<br>
-		<<case "maths">>
-			<<link [[Return your stolen maths textbook|Book Rental Return Stolen]]>><</link>>
-			<br>
-		<<case "English">>
-			<<link [[Return your stolen English textbook|Book Rental Return Stolen]]>><</link>>
-			<br>
-		<<case "history">>
-			<<link [[Return your stolen history textbook|Book Rental Return Stolen]]>><</link>>
+		<<case "science" "maths" "English" "history">>
+			<<schoolicon "library">><<link [[`Return your stolen ${$studyBooks.stolen} textbook`|Book Rental Return Stolen]]>><</link>>
 			<br>
 		<<case "Raul and Janet">>
-			<<link [[Return your stolen copy of "Raul and Janet"|Book Rental Return Stolen]]>><<set $phase to 5>><</link>>
+			<<schoolicon "library">><<link [[Return your stolen copy of "Raul and Janet"|Book Rental Return Stolen]]>><<set $phase to 5>><</link>>
 			<br>
 		<<case "Pinch">>
-			<<link [[Return the olive-coloured book|Book Rental Return Stolen]]>><<set $phase to 6>><</link>>
+			<<schoolicon "library">><<link [[Return the olive-coloured book|Book Rental Return Stolen]]>><<set $phase to 6>><</link>>
 			<br>
 		<<default>>
 	<</switch>>
@@ -2745,32 +2791,32 @@
 		<<if $money gte 2000>>
 			<<if $studyBooks.rented is "none">>
 				<<if $studyBooks.stolen isnot "science">>
-					<<link [[Rent a science textbook (£20)|Book Rental]]>><<set $money -= 2000>><<set $bookRent to "rent">><<set $phase to 1>><<set $studyBooks.rented to "science">><</link>><<note "+ Passive Science" "green">>
+					<<scienceicon>><<link [[Rent a science textbook (£20)|Book Rental]]>><<set $money -= 2000>><<set $bookRent to "rent">><<set $phase to 1>><<set $studyBooks.rented to "science">><</link>><<note "+ Passive Science" "green">>
 					<br>
 				<</if>>
 				<<if $studyBooks.stolen isnot "maths">>
-					<<link [[Rent a maths textbook (£20)|Book Rental]]>><<set $money -= 2000>><<set $bookRent to "rent">><<set $phase to 2>><<set $studyBooks.rented to "maths">><</link>><<note "+ Passive Maths" "green">>
+					<<mathicon>><<link [[Rent a maths textbook (£20)|Book Rental]]>><<set $money -= 2000>><<set $bookRent to "rent">><<set $phase to 2>><<set $studyBooks.rented to "maths">><</link>><<note "+ Passive Maths" "green">>
 					<br>
 				<</if>>
 				<<if $studyBooks.stolen isnot "English">>
-					<<link [[Rent an English textbook (£20)|Book Rental]]>><<set $money -= 2000>><<set $bookRent to "rent">><<set $phase to 3>><<set $studyBooks.rented to "English">><</link>><<note "+ Passive English" "green">>
+					<<englishicon>><<link [[Rent an English textbook (£20)|Book Rental]]>><<set $money -= 2000>><<set $bookRent to "rent">><<set $phase to 3>><<set $studyBooks.rented to "English">><</link>><<note "+ Passive English" "green">>
 					<br>
 				<</if>>
 				<<if $studyBooks.stolen isnot "history">>
-					<<link [[Rent a history textbook (£20)|Book Rental]]>><<set $money -= 2000>><<set $bookRent to "rent">><<set $phase to 4>><<set $studyBooks.rented to "history">><</link>><<note "+ Passive History" "green">>
+					<<historyicon>><<link [[Rent a history textbook (£20)|Book Rental]]>><<set $money -= 2000>><<set $bookRent to "rent">><<set $phase to 4>><<set $studyBooks.rented to "history">><</link>><<note "+ Passive History" "green">>
 					<br>
 				<</if>>
 				<<if currentSkillValue('english') gte 300 and $studyBooks.stolen isnot "Raul and Janet">>
-					<<link [[Rent "Raul and Janet" (£20)|Book Rental]]>><<set $money -= 2000>><<set $bookRent to "rent">><<set $phase to 5>><<set $studyBooks.rented to "Raul and Janet">><</link>>
+					<<scarleticon>><<link [[Rent "Raul and Janet" (£20)|Book Rental]]>><<set $money -= 2000>><<set $bookRent to "rent">><<set $phase to 5>><<set $studyBooks.rented to "Raul and Janet">><</link>>
 					<br>
 				<</if>>
 				<<if ((Time.monthName is "November" and Time.monthDay gte 24) or Time.monthName is "December") and $studyBooks.stolen isnot "Pinch">>
-					<<link [[Rent the olive-coloured book (£20)|Book Rental]]>><<set $money -= 2000>><<set $bookRent to "rent">><<set $phase to 6>><<set $studyBooks.rented to "Pinch">><</link>>
+					<<oliveicon>><<link [[Rent the olive-coloured book (£20)|Book Rental]]>><<set $money -= 2000>><<set $bookRent to "rent">><<set $phase to 6>><<set $studyBooks.rented to "Pinch">><</link>>
 					<br>
 				<</if>>
 			<<else>>
 				<<if $money gte 1500 and $book_rent_timer lte 13 and $book_rent_timer gt 0>>
-					<<link [[Renew your book rental (£15)|Book Rental]]>><<set $money -= 1500>><<set $bookRent to "renew">><</link>>
+					<<highicon>><<link [[Renew your book rental (£15)|Book Rental]]>><<set $money -= 1500>><<set $bookRent to "renew">><</link>>
 					<br>
 				<<elseif $money lt 1500>>
 					<span class=purple>You can't afford to renew your rental.</span>
@@ -2786,27 +2832,27 @@
 		<<if (!Time.schoolDay or $schoolstate is "early" or $schoolstate is "late")>>
 			<<if $studyBooks.stolen is "none">>
 				<<if $studyBooks.rented isnot "science">>
-					<<link [[Steal a science textbook|Book Rental]]>><<set $bookRent to "steal">><<set $studyBooks.stolen to "science">><</link>><<crime>><<note "+ Passive Science" "green">>
+					<<scienceicon>><<link [[Steal a science textbook|Book Rental]]>><<set $bookRent to "steal">><<set $studyBooks.stolen to "science">><</link>><<crime "thievery">><<note "+ Passive Science" "green">>
 					<br>
 				<</if>>
 				<<if $studyBooks.rented isnot "maths">>
-					<<link [[Steal a maths textbook|Book Rental]]>><<set $bookRent to "steal">><<set $studyBooks.stolen to "maths">><</link>><<crime>><<note "+ Passive Maths" "green">>
+					<<mathicon>><<link [[Steal a maths textbook|Book Rental]]>><<set $bookRent to "steal">><<set $studyBooks.stolen to "maths">><</link>><<crime "thievery">><<note "+ Passive Maths" "green">>
 					<br>
 				<</if>>
 				<<if $studyBooks.rented isnot "English">>
-					<<link [[Steal an English textbook|Book Rental]]>><<set $bookRent to "steal">><<set $studyBooks.stolen to "English">><</link>><<crime>><<note "+ Passive English" "green">>
+					<<englishicon>><<link [[Steal an English textbook|Book Rental]]>><<set $bookRent to "steal">><<set $studyBooks.stolen to "English">><</link>><<crime "thievery">><<note "+ Passive English" "green">>
 					<br>
 				<</if>>
 				<<if $studyBooks.rented isnot "history">>
-					<<link [[Steal a history textbook|Book Rental]]>><<set $bookRent to "steal">><<set $studyBooks.stolen to "history">><</link>><<crime>><<note "+ Passive History" "green">>
+					<<historyicon>><<link [[Steal a history textbook|Book Rental]]>><<set $bookRent to "steal">><<set $studyBooks.stolen to "history">><</link>><<crime "thievery">><<note "+ Passive History" "green">>
 					<br>
 				<</if>>
 				<<if currentSkillValue('english') gte 300 and $studyBooks.rented isnot "Raul and Janet">>
-					<<link [[Steal "Raul and Janet"|Book Rental]]>><<set $phase to 5>><<set $bookRent to "steal">><<set $studyBooks.stolen to "Raul and Janet">><</link>><<crime>>
+					<<scarleticon>><<link [[Steal "Raul and Janet"|Book Rental]]>><<set $phase to 5>><<set $bookRent to "steal">><<set $studyBooks.stolen to "Raul and Janet">><</link>><<crime "thievery">>
 					<br>
 				<</if>>
 				<<if ((Time.monthName is "November" and Time.monthDay gte 24) or Time.monthName is "December") and $studyBooks.stolen isnot "Pinch">>
-					<<link [[Steal the olive-coloured book|Book Rental]]>><<set $phase to 6>><<set $bookRent to "steal">><<set $studyBooks.stolen to "Pinch">><</link>><<crime>>
+					<<oliveicon>><<link [[Steal the olive-coloured book|Book Rental]]>><<set $phase to 6>><<set $bookRent to "steal">><<set $studyBooks.stolen to "Pinch">><</link>><<crime "thievery">>
 					<br>
 				<</if>>
 			<<else>>
@@ -2833,10 +2879,10 @@
 				/*<<link [[Study history (0:20)|$passage]]>><<set $study to 1>><<pass 20>><<set $phase to 4>><</link>><<ghistory>>
 				<br>*/
 			<<case "Raul and Janet">>
-				<<scarletnewicon>><<link [[Read "Raul and Janet" (0:01)|ScarletBook1]]>><<pass 1>><<set $scarletExitPassage to $passage>><</link>>
+				<<scarleticon>><<link [[Read "Raul and Janet" (0:01)|ScarletBook1]]>><<pass 1>><<set $scarletExitPassage to $passage>><</link>>
 				<br>
 			<<case "Pinch">>
-				<<olivenewicon>><<link [[Read the olive-coloured book (0:01)|Olive Book 1]]>><<pass 1>><<set $oliveExitPassage to $passage>><</link>>
+				<<oliveicon>><<link [[Read the olive-coloured book (0:01)|Olive Book 1]]>><<pass 1>><<set $oliveExitPassage to $passage>><</link>>
 				<br>
 			<<default>>
 		<</switch>>
@@ -2854,10 +2900,10 @@
 				/*<<link [[Study history (0:20)|$passage]]>><<set $study to 1>><<pass 20>><<set $phase to 4>><</link>><<ghistory>>
 				<br>*/
 			<<case "Raul and Janet">>
-				<<scarletnewicon>><<link [[Read "Raul and Janet" (0:01)|ScarletBook1]]>><<pass 1>><<set $scarletExitPassage to $passage>><</link>>
+				<<scarleticon>><<link [[Read "Raul and Janet" (0:01)|ScarletBook1]]>><<pass 1>><<set $scarletExitPassage to $passage>><</link>>
 				<br>
 			<<case "Pinch">>
-				<<olivenewicon>><<link [[Read the olive-coloured book (0:01)|Olive Book 1]]>><<pass 1>><<set $oliveExitPassage to $passage>><</link>>
+				<<oliveicon>><<link [[Read the olive-coloured book (0:01)|Olive Book 1]]>><<pass 1>><<set $oliveExitPassage to $passage>><</link>>
 				<br>
 			<<default>>
 		<</switch>>
@@ -2910,18 +2956,19 @@
 
 <<widget "school_infirmary_options">>
 	<<if $passage isnot "School Infirmary Ask Painkiller">>
-		<<link [[Ask for a painkiller|School Infirmary Ask Painkiller]]>><</link>>
+		<<schoolicon "infirmary">><<link [[Ask for a painkiller|School Infirmary Ask Painkiller]]>><</link>>
 		<br>
 	<</if>>
 	<<if $passage isnot "School Infirmary Ask Bed">>
-		<<link [[Ask to use one of the beds|School Infirmary Ask Bed]]>><</link>>
+		<<bedroomicon>><<link [[Ask to use one of the beds|School Infirmary Ask Bed]]>><</link>>
 		<br>
 	<</if>>
 	<<if $passage isnot "School Infirmary Cabinet">>
-		<<link [[Look inside a cabinet|School Infirmary Cabinet]]>><</link>>
+		<<pillicon>><<link [[Look inside a cabinet|School Infirmary Cabinet]]>><</link>>
 		<br>
 	<</if>>
-	<<link [[Leave|Hallways]]>><<endevent>><</link>>
+	<br>
+	<<getouticon>><<link [[Leave|Hallways]]>><<endevent>><</link>>
 	<br>
 <</widget>>
 
@@ -3012,21 +3059,85 @@
 		A red display reads "Empty".
 		<br>
 		<<if !Time.schoolTime>>
-			<<link [[Rob|Vending Machine Rob]]>><</link>>
+			<<condomicon "machine">><<link [[Rob|Vending Machine Rob]]>><</link>>
 			<br>
 		<</if>>
 	<<else>>
 		<<if $money gte 2000>>
-			<<link [[Buy condoms (2-pack £20)|Vending Machine Buy]]>><</link>>
+			<<condomicon "machine">><<link [[Buy condoms (2-pack £20)|Vending Machine Buy]]>><</link>>
 			<br>
 		<<else>>
 			You can't afford them.
 			<br>
 		<</if>>
 		<<if !Time.schoolTime>>
-			<<link [[Rob|Vending Machine Rob]]>><</link>>
+			<<condomicon "machine">><<link [[Rob|Vending Machine Rob]]>><</link>>
 			<br>
 		<</if>>
 	<</if>>
 	<br>
 <</widget>>
+
+<<widget "classRoomEarSlime">>
+	<<if $args[0] is $daily.earSlimeSkipLesson and $justEntered>>
+		You try to ignore the slime's command, but find yourself unable to enter the <<if $daily.earSlimeSkipLesson is "swimming">>pool<<else>>classroom<</if>>.
+		<br><br>
+		<<if $daily.earSlimeSkipLesson is "swimming">>
+			<<link [[Next|$lastChangingRoom]]>><<endevent>><</link>>
+		<<else>>
+			<<link [[Next|Hallways]]>><<endevent>><</link>>
+		<</if>>
+		<<unset $justEntered>>
+		<<exitAll>>
+	<<elseif $args[0] and !$daily.earSlimeSkipLesson and $args[0] isnot $weekly.earSlimeSkipLesson and numberOfEarSlime() and earSlimeMakingMundaneRequests() and $justEntered and random(0,200) gte 175 - $earSlime.corruption>>
+		<<set $daily.earSlimeSkipLesson to $args[0]>>
+		<<set $weekly.earSlimeSkipLesson to $args[0]>>
+		<span @class="$earSlime.startedThreats ? 'lewd' : 'lblue'">You feel the slime in your head command you to skip the $args[0] lesson.</span> It promises rewards if you comply<<if $earSlime.startedThreats>>, and threatens consequences if you do not<</if>>.
+		<br><br>
+		<<link [[Obey|School Lesson Slime]]>><<set $phase to 0>><<set $lessonPassage to $passage>><<corruption 1>><<pain -4>><<stress -6>><<trauma -12>><<sub 2>><</link>><<gcorruption>><<lpain>><<lltrauma>><<lstress>>
+		<br>
+		<<if $earSlime.startedThreats>>
+			<<link [[Defy|School Lesson Slime]]>><<set $phase to 2>><<set $lessonPassage to $passage>><<corruption -1>><<pain 8>><<stress 6>><<trauma 6>><<def 1>><</link>><<lcorruption>><<ggpain>><<ggtrauma>><<ggstress>>
+		<<else>>
+			<<link [[Ignore|School Lesson Slime]]>><<set $phase to 1>><<set $lessonPassage to $passage>><</link>>
+		<</if>>
+		<br>
+		<<unset $justEntered>>
+		<<exitAll>>
+	<</if>>
+<</widget>>
+
+:: School Lesson Slime
+<<effects>>
+
+<<if $phase is 2>>
+	<<if $earSlime.corruption gte (currentSkillValue('willpower') / 10)>>
+		<<set $earSlime.defyCooldown += 2>>
+		The slime tries to assert control. <span class="red">It overpowers your will,</span> forcing you to turn around and leave the <<if $daily.earSlimeSkipLesson is "swimming">>pool<<else>>classroom<</if>>.
+		<<ggwillpower>><<willpower 1>>
+		<br><br>
+		<<if $daily.earSlimeSkipLesson is "swimming">>
+			<<link [[Next|$lastChangingRoom]]>><<endevent>><</link>>
+		<<else>>
+			<<link [[Next|Hallways]]>><<endevent>><</link>>
+		<</if>>
+	<<else>>
+		You try to ignore the command from the slime and continue on. It tries <span class="green">but fails</span> to force you out of the <<if $daily.earSlimeSkipLesson is "swimming">>pool<<else>>classroom<</if>>.
+		<br><br>
+		<<link [[Next|$lessonPassage]]>><<unset $lessonPassage>><<endevent>><</link>>
+		<<set $daily.earSlimeSkipLesson to "failed">>
+	<</if>>
+<<elseif $phase is 1>>
+	You ignore the command from the slime and continue on.
+	<br><br>
+	<<link [[Next|$lessonPassage]]>><<unset $lessonPassage>><<endevent>><</link>>
+	<<set $daily.earSlimeSkipLesson to "ignored">>	
+<<else>>
+	You follow the ear slime's command and leave the <<if $daily.earSlimeSkipLesson is "swimming">>pool<<else>>classroom<</if>>.
+	<br><br>
+	<<if $daily.earSlimeSkipLesson is "swimming">>
+		<<link [[Next|$lastChangingRoom]]>><<endevent>><</link>>
+	<<else>>
+		<<link [[Next|Hallways]]>><<endevent>><</link>>
+	<</if>>
+<</if>>

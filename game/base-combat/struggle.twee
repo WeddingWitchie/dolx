@@ -1123,7 +1123,7 @@
 	<</if>>
 
 	<!-- FEET -->
-	<<set _grip_strength to currentSkillValue('physique') / 20 + $handskill>>
+	<<set _grip_strength to currentSkillValue('physique') / 20 + currentSkillValue("handskill")>>
 	<<if $feetaction is "rest">>
 		<<unset $dodging>>
 		You rest your legs.
@@ -1136,7 +1136,7 @@
 		<</if>>
 	<<elseif $feetaction is "plant">>
 		<<unset $dodging>>
-		<<set _grip_strength += $feetskill>>
+		<<set _grip_strength += currentSkillValue("feetskill")>>
 		<<if $underwater is 1 or ["sea","lake"].includes($location)>>
 			You tread water, helping you steady your grip.
 		<<else>>
@@ -1808,15 +1808,15 @@
 			<!-- lurkers attacc -->
 			<<rng>>
 			<<if $dodging gte 1>>
-				<<set _doge_chance to (($feetskill / 3) + (currentSkillValue('danceskill') / 3) - $drunk - (!!$worn.feet.type.includes("heels") * 200))>>
+				<<set _doge_chance to ((currentSkillValue("feetskill") / 3) + (currentSkillValue('danceskill') / 3) - $drunk - (!!$worn.feet.type.includes("heels") * 200))>>
 				<<feetskilluse>>
 			<</if>>
 			<<if $left_guard is 1>>
-				<<set _left_guard_chance to ($handskill / 3)>>
+				<<set _left_guard_chance to (currentSkillValue("handskill") / 3)>>
 				<<handskilluse>>
 			<</if>>
 			<<if $right_guard is 1>>
-				<<set _right_guard_chance to ($handskill / 3)>>
+				<<set _right_guard_chance to (currentSkillValue("handskill") / 3)>>
 				<<handskilluse>>
 			<</if>>
 			<<set _hit_chance to random(1, 1000)>>
@@ -1832,9 +1832,9 @@
 				<<set $dodging -= 1>>
 				<<if $drunk gte 60>>
 					but you drunkenly stagger out of the way<<if !random(100)>> like the drunk master you are<</if>>,
-				<<elseif $feetskill gte 800 or currentSkillValue('danceskill') gte 400>>
+				<<elseif currentSkillValue("feetskill") gte 800 or currentSkillValue('danceskill') gte 400>>
 					but you dance aside,
-				<<elseif $feetskill gte 200>>
+				<<elseif currentSkillValue("feetskill") gte 200>>
 					but you step aside,
 				<<else>>
 					but you stumble aside,
@@ -1865,9 +1865,9 @@
 				<<else>>
 					leaps towards you,
 				<</if>>
-				<<if $handskill gte 800>>
+				<<if currentSkillValue("handskill") gte 800>>
 					but you redirect its momentum with a well-timed blow,
-				<<elseif $handskill gte 200>>
+				<<elseif currentSkillValue("handskill") gte 200>>
 					but you bat it aside,
 				<<else>>
 					but your flailing knocks it aside,
@@ -1997,7 +1997,7 @@
 			<<set _struggle_exposed to "main">>
 		<<elseif $worn.under_lower.vagina_exposed is 0 or (setup.clothes.under_lower[clothesIndex('under_lower', $worn.under_lower)].skirt is 1 and $worn.under_lower.skirt_down is 1)>>
 			<<set _struggle_exposed to "under">>
-		<<elseif playerChastity()>>
+		<<elseif (playerChastity("penis") and _args[0] is "penis") or (playerChastity("vagina") and _args[0] is "vagina")>>
 			<<set _struggle_exposed to "genitals">>
 		<<else>>
 			<<set _struggle_exposed to "naked">>
@@ -2161,9 +2161,19 @@
 	<<elseif _struggle_exposed is "genitals">>
 		<<set $struggle[_args[0]].progress -= 1>>
 		<<if $struggle[_args[0]].legs is "tentacles">>
-			The <<print $struggle[_args[0]].creature>>'s tentacles worm behind your $worn.genitals.name, brushing against your <<struggle_bodypart _args[0]>> as they search for a way in.<<neutral 2 "genitals">><<set $worn.genitals.integrity -= 10>>
+			<<if $worn.genitals.name is "chastity parasite">>
+				The <<print $struggle[_args[0]].creature>>'s tentacles worm round your $worn.genitals.name, rubbing and squeezing it in the process. <span class="lewd">Your clearly aroused reaction, encourages it further.</span>
+				<<arousal 200 "genitals">><<neutral 2 "genitals">><<set $worn.genitals.integrity -= 5>>
+			<<else>>
+				The <<print $struggle[_args[0]].creature>>'s tentacles worm behind your $worn.genitals.name, brushing against your <<struggle_bodypart _args[0]>> as they search for a way in.<<neutral 2 "genitals">><<set $worn.genitals.integrity -= 10>>
+			<</if>>
 		<<else>>
-			The <<print $struggle[_args[0]].creature>> tears at your $worn.genitals.name, trying to get to your <<struggle_bodypart _args[0]>> beneath.<<neutral 1 "genitals">><<set $worn.genitals.integrity -= 10>>
+			<<if $worn.genitals.name is "chastity parasite">>
+				The <<print $struggle[_args[0]].creature>> attempts to tear at your $worn.genitals.name, but only succeed at squeezing it and <span>further arousing you.</span>
+				<<neutral 1 "genitals">><<arousal 100 "genitals">><<set $worn.genitals.integrity -= 5>>
+			<<else>>
+				The <<print $struggle[_args[0]].creature>> tears at your $worn.genitals.name, trying to get to your <<struggle_bodypart _args[0]>> beneath.<<neutral 1 "genitals">><<set $worn.genitals.integrity -= 10>>
+			<</if>>
 		<</if>>
 		<<if $struggle[_args[0]].creature is "slime">>
 			<span class="purple">The material hisses as it dissolves in the slime.</span><<set $worn.genitals.integrity -= 30>>
@@ -2173,13 +2183,25 @@
 		<<if $worn.genitals.integrity lte 0>>
 			<<integritycheck no_text>><<exposure>>
 			<<if $struggle[_args[0]].legs is "tentacles">>
-				Its tentacles wrap around the material, and pull. The material groans <span class="pink">as the <<print $struggle[_args[0]].creature>> tears it off your body with a flick, exposing your <<genitals>>.</span>
+				Its tentacles wrap around the material, and pull. The material
+				<<if $worn.genitals.name is "chastity parasite">>
+					pops
+				<<else>>
+					groans
+				<</if>>
+				<span class="pink">as the <<print $struggle[_args[0]].creature>> tears it off your body with a flick, exposing your <<genitals>>.</span>
 			<<else>>
-				Its appendage pierces the material, and pulls. The material groans <span class="pink">as the <<print $struggle[_args[0]].creature>> tears it off your body with a flick, exposing your <<genitals>>.</span>
+				Its appendage pierces the material, and pulls. The material 
+				<<if $worn.genitals.name is "chastity parasite">>
+					pops
+				<<else>>
+					groans
+				<</if>>
+				<span class="pink">as the <<print $struggle[_args[0]].creature>> tears it off your body with a flick, exposing your <<genitals>>.</span>
 			<</if>>
 		<<else>>
 			<<if $struggle[_args[0]].damage gte 10>>
-				It hurts itself against the material, <span class="green">and leaps away.</span>
+				It <<if $worn.genitals.name is "chastity parasite">>tired<<else>>hurt<</if>> itself against the material, <span class="green">and leaps away.</span>
 				<<if _args[0] is "vagina">>
 					<<set $vaginause to 0>>
 					<<set $vaginastate to 0>>
@@ -2200,7 +2222,7 @@
 					<<struggleClearActions "anus_">>
 				<</if>>
 			<<else>>
-				It hurts itself against the material.
+				It <<if $worn.genitals.name is "chastity parasite">>tires<<else>>hurts<</if>> itself against the material.
 				<<set $struggle[_args[0]].damage += 1>>
 			<</if>>
 		<</if>>

@@ -36,12 +36,12 @@ IMPORTANT:
 				<<checkbox "$options.neverNudeMenus" false true autocheck>>
 				Hide player nudity in menus
 			</label>
-		</div>		
+		</div>
 		<div class="settingsToggle">
 			<label data-disabledif="V.ironmanmode===true">
 				<<checkbox "$options.autosaveDisabled" false true autocheck>> Disable autosave on sleeping
 			</label>
-		</div>		
+		</div>
 		<div class="settingsToggle">
 			<label data-disabledif="!StartConfig.enableLinkNumberify">
 				<<checkbox "$options.numberify_enabled" 0 1 autocheck>> Enable numbered link navigation
@@ -54,20 +54,22 @@ IMPORTANT:
 	<span class="gold">Sidebar</span>
 	<div>
 		<div class="settingsToggle">
-			Closed sidebar stats:
+			Show stats when sidebar is closed:
 			<<listbox "$options.sidebarStats" autoselect>>
 				<<option "Disabled" "disabled">>
 				<<option "Limited" "limited">>
 				<<option "Show all" "all">>
 			<</listbox>>
+			<div class="mobile-rec gold">It's a good idea to enable this on mobile!</div>
 		</div>
 		<div class="settingsToggle">
-			Closed sidebar time:
+			Show clock when sidebar is closed:
 			<<listbox "$options.sidebarTime" autoselect>>
 				<<option "Disabled" "disabled">>
 				<<option "Above" "top">>
 				<<option "Below" "bottom">>
 			<</listbox>>
+			<div class="mobile-rec gold">It's a good idea to enable this on mobile!</div>
 		</div>
 		<div class="settingsToggle">
 			Time format:
@@ -80,7 +82,6 @@ IMPORTANT:
 		<div class="settingsToggle">
 			<label><<checkbox "$options.showCaptionText" false true autocheck>> Show Caption Text in Sidebar</label>
 		</div>
-
 		<!-- Old renderer should stop being supported very soon.
 		Sidebar character renderer:
 		<label><<radiovar "$options.sidebarRenderer" "img">><<updatesidebarimg>><</radiovar>> Old</label> |
@@ -100,6 +101,13 @@ IMPORTANT:
 				<<option "Compact (dots)" "compact">>
 				<<option "None" "none">>
 			<</listbox>>
+		</div>
+		<div class="settingsToggle">
+			<<if !$options.genderBody>><<set $options.genderBody to "default">><</if>>
+			<label><<radiobutton "$options.genderBody" "default" autocheck>> Default</label> |
+			<label><<radiobutton "$options.genderBody" "m" autocheck>> Masculine</label> |
+			<label><<radiobutton "$options.genderBody" "a" autocheck>> Androgynous</label> |
+			<label><<radiobutton "$options.genderBody" "f" autocheck>> Feminine</label>
 		</div>
 		<div class="settingsToggle">
 			<label><<checkbox "$options.tipdisable" "t" "f" autocheck>> Enable sidebar hints and tips</label>
@@ -181,7 +189,7 @@ IMPORTANT:
 		</div>
 		<div class="settingsToggle">
 			Display play time in the top right of the screen
-			<mouse class="tooltip linkBlue">(?)<span>Formatted into 'h:mm:ss'. Be aware that leaving the game for hours alone, then saving will have its time tracked, to avoid, save the game before ending play and then load the save when you resume play. Not tracked in versions '0.3.13.X' and older</span></mouse>
+			<mouse class="tooltip linkBlue">(?)<span>Formatted into 'h:mm:ss'. Be aware that leaving the game for hours alone, then saving will have its time tracked. To avoid, save the game before ending play and then load the save when you resume play. Not tracked in versions '0.3.13.X' and older</span></mouse>
 			<br>
 			<label><<radiobutton "$options.playtime" false autocheck>> Disable</label>
 			<br>
@@ -202,9 +210,33 @@ IMPORTANT:
 
 <<widget "optionstheme">>
 	<<setupOptions>>
-	<span class="gold">Theme</span>
-	<br>
 
+	<<set _globalThemeDefaults to JSON.parse(localStorage.getItem("dolDefaultThemeSettings"))>>
+	<<if !_globalThemeDefaults>>
+		<<set _globalThemeDefaults to {}>>
+	<</if>>
+
+	<<button "Save Current As Default">>
+		<<set _toSaveDefaults to {}>>
+		<<if $options.theme>><<set _toSaveDefaults.theme to $options.theme>><</if>>
+		<<if $options.dateFormat>><<set _toSaveDefaults.dateFormat to $options.dateFormat>><</if>>
+		<<if $options.passageMaxWidth>><<set _toSaveDefaults.passageMaxWidth to $options.passageMaxWidth>><</if>>
+		<<if $options.passageLineHeight>><<set _toSaveDefaults.passageLineHeight to $options.passageLineHeight>><</if>>
+		<<if $options.overlayLineHeight>><<set _toSaveDefaults.overlayLineHeight to $options.overlayLineHeight>><</if>>
+		<<if $options.sidebarLineHeight>><<set _toSaveDefaults.sidebarLineHeight to $options.sidebarLineHeight>><</if>>
+		<<if $options.passageFontSize>><<set _toSaveDefaults.passageFontSize to $options.passageFontSize>><</if>>
+		<<if $options.overlayFontSize>><<set _toSaveDefaults.overlayFontSize to $options.overlayFontSize>><</if>>
+		<<if $options.sidebarFontSize>><<set _toSaveDefaults.sidebarFontSize to $options.sidebarFontSize>><</if>>
+		<<if $options.font>><<set _toSaveDefaults.font to $options.font>><</if>>
+		<<run localStorage.setItem("dolDefaultThemeSettings",JSON.stringify(_toSaveDefaults))>>
+		<<replace #customOverlayContent>><<optionstheme>><</replace>>
+	<</button>>
+	<<button "Reset Defaults">>
+		<<run localStorage.removeItem("dolDefaultThemeSettings")>>
+	<</button>>
+	<br><br>
+	<span class="gold">Theme</span><<optionsThemeDefault "theme">><mouse class="tooltip linkBlue">(!)<span>Currently unable to save as default.</span></mouse>
+	<br>
 	Theme:
 	<label><input type="radio" name="theme" value="system-default" /> Default</label> |
 	<label><input type="radio" name="theme" value="dark" /> Dark</label> |
@@ -213,6 +245,34 @@ IMPORTANT:
 	<label><input type="radio" name="theme" value="monokai" /> Monokai</label> |
 	<label><input type="radio" name="theme" value="storm" /> Storm</label> |
 	<br><br>
+
+	<span class="gold">Date Format</span><<optionsThemeDefault "dateFormat">>
+	<br>
+	<label><<radiobutton "$options.dateFormat" "en-GB" autocheck>> dd/mm/yyyy</label>
+	<label><<radiobutton "$options.dateFormat" "en-US" autocheck>> mm/dd/yyyy</label>
+	<label><<radiobutton "$options.dateFormat" "zh-CN" autocheck>> yyyy/mm/dd</label>
+	<br><br>
+
+	<<if $debug is 1>>
+		<!-- Known issues in the start menu, might cause other issues elsewhere -->
+		<span class="gold">Passage Max Width</span> <mouse class="tooltip linkBlue">(!)<span>May have issues with certain UI element.</span></mouse>
+		<div>
+			<div class="settingsToggle">
+				<<listbox "$options.passageMaxWidth" autoselect>>
+					<<option "Default" undefined>>
+					<<option "50em" 50>>
+					<<option "60em" 60>>
+					<<option "65em" 65>>
+					<<option "70em" 70>>
+					<<option "75em" 75>>
+					<<option "80em" 80>>
+				<</listbox>>
+				<<optionsThemeDefault "passageMaxWidth">>
+			</div>
+			<div style="clear:both;">/*Keep at end of toggles*/</div>
+		</div>
+		<br>
+	<</if>>
 
 	<span class="gold">Line Height</span>
 	<div>
@@ -226,6 +286,7 @@ IMPORTANT:
 				<<option "1.75" 1.75>>
 				<<option "2" 2>>
 			<</listbox>>
+			<<optionsThemeDefault "passageLineHeight">>
 		</div>
 		<div class="settingsToggle">
 			Overlay:
@@ -237,6 +298,7 @@ IMPORTANT:
 				<<option "1.75" 1.75>>
 				<<option "2" 2>>
 			<</listbox>>
+			<<optionsThemeDefault "overlayLineHeight">>
 		</div>
 		<div class="settingsToggle">
 			Sidebar:
@@ -248,6 +310,7 @@ IMPORTANT:
 				<<option "1.75" 1.75>>
 				<<option "2" 2>>
 			<</listbox>>
+			<<optionsThemeDefault "sidebarLineHeight">>
 		</div>
 		<div style="clear:both;">/*Keep at end of toggles*/</div>
 	</div>
@@ -265,6 +328,7 @@ IMPORTANT:
 				<<option "18px" 18>>
 				<<option "20px" 20>>
 			<</listbox>>
+			<<optionsThemeDefault "passageFontSize">>
 		</div>
 		<div class="settingsToggle">
 			Overlay <mouse class="tooltip linkBlue">(?)<span>Default is equal to passage font size.</span></mouse>:
@@ -277,6 +341,7 @@ IMPORTANT:
 				<<option "18px" 18>>
 				<<option "20px" 20>>
 			<</listbox>>
+			<<optionsThemeDefault "overlayFontSize">>
 		</div>
 		<div class="settingsToggle">
 			Sidebar:
@@ -288,33 +353,44 @@ IMPORTANT:
 				<<option "18px" 18>>
 				<<option "20px" 20>>
 			<</listbox>>
+			<<optionsThemeDefault "sidebarFontSize">>
 		</div>
 		<div style="clear:both;">/*Keep at end of toggles*/</div>
 	</div>
 	<br>
 
-	<span class="gold">Font Style</span>
+	<span class="gold">Font Style</span> <<optionsThemeDefault "font">>
 	<br>
-	<label><<radiobutton "$options.font" "" `$options.font is undefined ? 'checked' : 'autocheck'`>> Default</label> |
+	<label><<radiobutton "$options.font" "" `$options.font is undefined ? 'checked' : 'autocheck'`>> Use system default</label>
 	<br>
 	Sans-serif:
 	<label class="Arial"><<radiobutton "$options.font" "Arial" autocheck>> Arial</label> |
-	<label class="Verdana"><<radiobutton "$options.font" "Verdana" autocheck>> Verdana</label> |
+	<label class="Verdana"><<radiobutton "$options.font" "Verdana" autocheck>> Verdana</label>
 	<br>
 	Serif:
 	<label class="TimesNewRoman"><<radiobutton "$options.font" "TimesNewRoman" autocheck>> Times New Roman</label> |
 	<label class="Georgia"><<radiobutton "$options.font" "Georgia" autocheck>> Georgia</label> |
-	<label class="Garamond"><<radiobutton "$options.font" "Garamond" autocheck>> Garamond</label> |
+	<label class="Garamond"><<radiobutton "$options.font" "Garamond" autocheck>> Garamond</label>
 	<br>
 	Monospace:
 	<label class="CourierNew"><<radiobutton "$options.font" "CourierNew" autocheck>> Courier New</label> |
 	<label class="LucidaConsole"><<radiobutton "$options.font" "LucidaConsole" autocheck>> Lucida Console</label> |
-	<label class="Monaco"><<radiobutton "$options.font" "Monaco" autocheck>> Monaco</label> |
+	<label class="Monaco"><<radiobutton "$options.font" "Monaco" autocheck>> Monaco</label>
 	<br>
-	Cursive:
-	<label class="ComicSans"><<radiobutton "$options.font" "ComicSans" autocheck>> Comic Sans</label> |
+	Accessibility:
+	<label class="OpenDyslexicMono"><<radiobutton "$options.font" "OpenDyslexicMono" autocheck>> OpenDyslexic Mono</label> |
+	<label class="ComicSans"><<radiobutton "$options.font" "ComicSans" autocheck>> Comic Sans</label>
+
 
 	<br><br>
+<</widget>>
+
+<<widget "optionsThemeDefault">>
+	<<if _args[0]>>
+		<span @id="'optionsThemeDefault-' + _args[0]">
+			<<if _globalThemeDefaults[_args[0]]>> Default: (<<print _globalThemeDefaults[_args[0]]>>)<</if>>
+		</span>
+	<</if>>
 <</widget>>
 
 <<widget "optionsperformance">>
@@ -477,13 +553,9 @@ IMPORTANT:
 			<label><<checkbox "$options.showDebugRenderer" false true autocheck>> Enable renderer debugger</label>
 		</div>
 		<div class="settingsToggle">
-			<label id="idbToggle">
-				/* checkbox macro doesn't allow changing variables that do not start with "$" or "_". this is a bypass hack. */
-				<<run setTimeout(() => jQuery(document.createElement("input"))
-					.attr({ id: "checkbox-idbactive", name: "checkbox-idbactive", type: "checkbox", checked: idb.active, disabled: idb.lock })
-					.addClass("macro-checkbox")
-					.on("change.macros", () => idb.active = document.getElementById("checkbox-idbactive").checked)
-					.prependTo("#idbToggle"))>> Enable indexedDB
+			<label onclick="setTimeout(() => {toggleConfirmDialogUponTabClose();}, 100)">
+				<<checkbox "$options.confirmDialogUponTabClose" false true autocheck>>
+				Prompt confirmation dialog upon closing tab
 			</label>
 		</div>
 		<div style="clear:both;">/*Keep at end of toggles*/</div>
@@ -506,6 +578,18 @@ IMPORTANT:
 <</widget>>
 
 <<widget "setFont">>
+	<<set _globalThemeDefaults to JSON.parse(localStorage.getItem("dolDefaultThemeSettings"))>>
+	<<if !_globalThemeDefaults>>
+		<<set _globalThemeDefaults to {}>>
+	<</if>>
+	<<removeclass "#passages" "passageMaxWidth50">>
+	<<removeclass "#passages" "passageMaxWidth55">>
+	<<removeclass "#passages" "passageMaxWidth60">>
+	<<removeclass "#passages" "passageMaxWidth65">>
+	<<removeclass "#passages" "passageMaxWidth70">>
+	<<removeclass "#passages" "passageMaxWidth75">>
+	<<if $options.passageMaxWidth>><<addclass "#passages" `"passageMaxWidth" + $options.passageMaxWidth`>><</if>>
+
 	<<removeclass "#passages" "fontSize10">>
 	<<removeclass "#passages" "fontSize12">>
 	<<removeclass "#passages" "fontSize14">>
@@ -563,5 +647,6 @@ IMPORTANT:
 	<<removeclass "html" "LucidaConsole">>
 	<<removeclass "html" "Monaco">>
 	<<removeclass "html" "ComicSans">>
+	<<removeclass "html" "OpenDyslexicMono">>
 	<<if $options.font>><<addclass "html" $options.font>><</if>> <!--Adding to the body would remove it on changing passage-->
 <</widget>>

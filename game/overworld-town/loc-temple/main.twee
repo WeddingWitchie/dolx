@@ -22,7 +22,7 @@ You are in the main hall of the temple. Stone walls and pillars tower into darkn
 		<<if Time.dayState isnot "night" and Time.dayState isnot "dusk">>
 			The figure turns. It's Jordan. "My child," <<he>> says. "It is time for your chastity examination.
 		<<else>>
-			"My child," says a voice from the side. It's Jordan. "It is time for you chastity examination.
+			"My child," says a voice from the side. It's Jordan. "It is time for your chastity examination.
 		<</if>>
 		We must make sure you're still pure. You and your partner will be purified if you are not."
 		<br><br>
@@ -73,7 +73,7 @@ You are in the main hall of the temple. Stone walls and pillars tower into darkn
 <<elseif $temple_event is 1 and Time.dayState isnot "night" and $exposed lte 0>><<set $temple_event to 0>>
 	<<eventstemple>>
 
-<<elseif _sydneyTemple and $sydneyAnalRosary>>
+<<elseif _sydneyTemple and $sydneyAnalRosary and $exposed lte 0>>
 	<<npc Sydney>><<person1>>
 	<<run statusCheck("Sydney")>>
 	<<unset $sydneyAnalRosary>>
@@ -107,7 +107,7 @@ You are in the main hall of the temple. Stone walls and pillars tower into darkn
 		<</if>>
 		<br><br>
 
-		<<link [["Encourage " + $NPCList[0].pronouns.him + " to flaunt it"|Temple Sydney Rosary]]>><<set $phase to 2>><<grace -3 monk>><<npcincr Sydney purity -5>><</link>><<llgrace monk>><<llspurity>><<sydneyWarning>>
+		<<link [["Encourage " + $NPCList[0].pronouns.him + " to flaunt it"|Temple Sydney Rosary]]>><<set $phase to 2>><<grace -3>><<npcincr Sydney purity -5>><</link>><<llgrace>><<llspurity>><<sydneyWarning>>
 		<br>
 		<<link [["Commend " + $NPCList[0].pronouns.him|Temple Sydney Rosary]]>><<set $phase to 1>><<npcincr Sydney love 1>><<npcincr Sydney purity -1>><</link>><<glove>><<lspurity>>
 		<br>
@@ -115,7 +115,7 @@ You are in the main hall of the temple. Stone walls and pillars tower into darkn
 		<br>
 	<</if>>
 
-<<elseif $dance_job_intro and $jordan_ritual_dance is undefined and ($grace gte 80 and $temple_rank is "initiate" or $temple_rank is "monk" or $temple_rank is "priest")>>
+<<elseif $dance_job_intro and $jordan_ritual_dance is undefined and ($grace gte 80 and $temple_rank is "initiate" or $temple_rank is "monk" or $temple_rank is "priest") and $exposed lte 0>>
 	<<npc Jordan>><<person1>>
 	"My child," says a voice from the side. It's Jordan, looking more haggard than usual. A rogue strand of hair falls between <<his>> eyes. "I must ask a favour. <span class="gold">Do you know Charlie?</span> Forgive me my enquiry, but you have something of a reputation as a dancer."
 	<br><br>
@@ -125,7 +125,7 @@ You are in the main hall of the temple. Stone walls and pillars tower into darkn
 
 	<<link [[Next|Temple]]>><<set $jordan_ritual_dance to 1>><<endevent>><</link>>
 	<br>
-<<elseif $adultshopgrandopening is true and _sydneyTemple is true and $NPCName[$NPCNameList.indexOf("Sydney")].init is 1 and $adultshopunlocked isnot true>>
+<<elseif $adultshopgrandopening is true and _sydneyTemple is true and $NPCName[$NPCNameList.indexOf("Sydney")].init is 1 and $adultshopunlocked isnot true and $exposed lte 0>>
 	<<set $adultshopopeningsydney to true>>
 	<<npc Sydney>><<person1>>
 	<<run statusCheck("Sydney")>>
@@ -144,39 +144,117 @@ You are in the main hall of the temple. Stone walls and pillars tower into darkn
 	<br>
 	<<link [[Refuse|Temple]]>><<endevent>><</link>>
 	<br>
+<<elseif ($temple_rank is "monk" or $temple_rank is "priest") and ($renttime lte -2 or $renttime lte 0 and Time.hour gte 4 and Time.hour lte 21)>>
+	<<if $temple_bailey is undefined>>
+		<<npc "Bailey" 1>>
+		<<npc "Jordan" 2>>
+		<<if $per_npc.bishop_right_hand>>
+			<<loadNPC 2 "bishop_right_hand">><<loadNPC 3 "bishop_left_hand">>
+		<<else>>
+			<<generateConfessor 3>><<set _generate_partner to 2>><<generateConfessor 4>>
+			<<saveNPC 2 "bishop_right_hand">><<saveNPC 3 "bishop_left_hand">>
+		<</if>>
+		<<person2>>Jordan stands in front of the altar, flanked by
+		<<if $per_npc.bishop_right_hand.pronoun is $per_npc.bishop_left_hand.pronoun>>
+			a pair of <<priests>> in dark robes.
+		<<else>>
+			a priest and a priestess in dark robes.
+		<</if>>
+		They address a familiar figure. <span class="red">Bailey.</span>
+		<br><br>
+		"Thank you for your understanding," Jordan says to Bailey as you approach. "You've every right to be concerned for your ward." <<He>> notices you. "Ah, there they are."
+		<br><br>
+		Bailey turns to you, an uncharacteristic, warm smile spreading across <<person1>><<his>> face. "It's good to see you," <<he>> says. "You do make me worry." <<He>> leans closer, and whispers so that only you can hear. <span class="gold">"You're off the hook this week,</span> but I'll be visiting now and then. To take what's mine."
+		<br><br>
+
+		<<link [[Nod|Temple Bailey Intro Nod]]>><<set $temple_bailey to 1>><<stress 6>><<grace 1>><</link>><<gstress>><<ggrace>>
+		<br>
+		<<link [[Refuse|Temple Bailey Intro Refuse]]>><<set $temple_bailey to 1>><<trauma -6>><<grace -3>><</link>><<llgrace>><<ltrauma>>
+		<br>
+		<<link [[Remain silent|Temple Bailey Intro Silent]]>><<set $temple_bailey to 1>><</link>>
+		<br>
+		<<set $renttime to 7>><<set $rentday to Time.weekDay>>
+	<<else>>
+		<<npc "Bailey">><<person1>>
+		<<if $per_npc.bishop_right_hand>>
+			<<loadNPC 1 "bishop_right_hand">><<loadNPC 2 "bishop_left_hand">>
+		<<else>>
+			<<generateConfessor 2>><<set _generate_partner to 1>><<generateConfessor 3>>
+			<<saveNPC 1 "bishop_right_hand">><<saveNPC 2 "bishop_left_hand">>
+		<</if>>
+		A hand rests on your shoulder. <span class="red">It's Bailey.</span> <<Hes>> flanked by the <<person2>><<person>> and <<person3>><<person>>. "I've come to check up on you," <<person1>><<he>> says, a practised, enthralling smile on <<his>> face. <<His>> grip tightens and <<he>> leans closer, so that only you can hear. "Time to pay up."
+		<br>
+		"The temple must support the community."
+		<br>
+		"Time to pay up."
+		<br><br>
+
+		Bailey winces at the latter's words.
+		<br><br>
+
+		<<temple_bailey_options>>
+	<</if>>
 <<else>>
 	<<if $arousal gte $arousalmax>>
 		<<orgasmLocation "temple">>
 	<</if>>
 	<<if $scienceproject is "ongoing" and $sciencelichentemple is 0 and $exposed lte 0>>
-		<<link [[Search for lichen (0:30)|Temple Lichen]]>><<pass 30>><<set $sciencelichentemple to 1>><</link>>
+		<<scienceicon "pink lichen">><<link [[Search for lichen (0:30)|Temple Lichen]]>><<pass 30>><<set $sciencelichentemple to 1>><</link>>
 		<br>
 	<</if>>
-	<<if Time.dayState isnot "night" and Time.dayState isnot "dusk" and $exposed is 0 and $daily.jordanMissing isnot 1>>
-		<<link [[Approach the figure|Temple Jordan]]>><</link>>
+	<<if Time.dayState isnot "night" and $exposed is 0 and $daily.jordanMissing isnot 1>>
+		<<templeicon "altar">><<link [[Approach the figure|Temple Jordan]]>><</link>>
 		<br>
 	<</if>>
 
 	<<if Time.weekDay is 1 and Time.hour gte 11 and Time.hour lte 12 and $daily.massAttended isnot 1 and $exposed lte 0 and $NPCName[$NPCNameList.indexOf("Jordan")].init is 1>>
 		<<if $angel gte 6>>
-			<<link [[Attend mass (1:00)|Temple Mass Angel]]>><<purity 10>><<pass 60>><<trauma -18>><<stress -18>><<set $daily.massAttended to 1>><</link>><<gpurity>><<lltrauma>><<llstress>>
+			<<templeicon "altar">><<link [[Attend mass (1:00)|Temple Mass Angel]]>><<purity 10>><<pass 60>><<trauma -18>><<stress -18>><<set $daily.massAttended to 1>><</link>><<gpurity>><<lltrauma>><<llstress>>
 			<br>
 		<<elseif $fallenangel gte 2>>
-			<<link [[Attend mass (1:00)|Temple Mass Fallen Angel]]>><<purity 70>><<pass 60>><<trauma 6>><<stress 6>><<pain 6>><<set $daily.massAttended to 1>><</link>><<gggpurity>><<gtrauma>><<gstress>><<gpain>>
+			<<templeicon "altar">><<link [[Attend mass (1:00)|Temple Mass Fallen Angel]]>><<purity 70>><<pass 60>><<trauma 6>><<stress 6>><<pain 6>><<set $daily.massAttended to 1>><</link>><<gggpurity>><<gtrauma>><<gstress>><<gpain>>
 			<br>
 		<<elseif $demon gte 6>>
-			<<link [[Attend mass (1:00)|Temple Mass Demon]]>><<purity 10>><<pass 60>><<trauma 6>><<stress 6>><<pain 6>><<set $daily.massAttended to 1>><</link>><<gggpurity>><<gtrauma>><<gstress>><<gpain>>
+			<<templeicon "altar">><<link [[Attend mass (1:00)|Temple Mass Demon]]>><<purity 10>><<pass 60>><<trauma 6>><<stress 6>><<pain 6>><<set $daily.massAttended to 1>><</link>><<gggpurity>><<gtrauma>><<gstress>><<gpain>>
 			<br>
 		<<else>>
-			<<link [[Attend mass (1:00)|Temple Mass]]>><<purity 10>><<pass 60>><<set $daily.massAttended to 1>><</link>><<gpurity>>
+			<<templeicon "altar">><<link [[Attend mass (1:00)|Temple Mass]]>><<purity 10>><<pass 60>><<set $daily.massAttended to 1>><</link>><<gpurity>>
 			<br>
 		<</if>>
 	<<elseif $exposed lte 0>>
-		<<link [[Pray (1:00)|Temple Pray]]>><<set $eventskip to 1>><<set $phase to 1>><</link>>
+		<<templeicon "pray">><<link [[Pray (1:00)|Temple Pray]]>><<set $eventskip to 1>><<set $phase to 1>><</link>>
 		<br>
 	<</if>>
+	<<if $exposed lte 0>>
+		<<if Time.weekDay is 1 and Time.hour gte 11 and Time.hour lte 12>>
+			<span class="purple">The confessional is locked during mass.</span>
+			<br>
+		<<elseif Time.hour gte 6 and Time.hour lt 22>>
+			<<if $temple_rank is "monk" and !$confessionsTaken>>
+				<<templeicon "confession">><<link [[Approach the confessional|Temple Confess Tutorial]]>><<endevent>><</link>>
+				<br>
+			<<else>>
+				<<templeicon "confession">><<link [[Approach the confessional|Temple Confess Approach]]>><<endevent>><</link>>
+				<br>
+			<</if>>
+		<<else>>
+			<span class="purple">The confessional is locked for the night.</span>
+			<br>
+		<</if>>
+	<<elseif $exposed gte 1>>
+		<<if Time.weekDay is 1 and Time.hour gte 11 and Time.hour lte 12>>
+			<span class="red">The confessional is locked during mass. You can't hide in it.</span>
+			<br>
+		<<elseif Time.hour gte 6 and Time.hour lt 22 and !($temple_rank is "monk" and !$confessionsTaken)>>
+			<<templeicon "confession">><<link [[Approach the confessional|Temple Confess Approach]]>><<endevent>><</link>>
+			<br>
+		<<else>>
+			<span class="red">The confessional is locked for the night. You can't hide in it.</span>
+			<br>
+		<</if>>
+	<</if>>
 	<<if $exhibitionism gte 55 and $angel lte 0>>
-		<<link [[Masturbate (0:20)|Temple Masturbation]]>><<pass 20>><<set $masturbationstart to 1>><</link>><<llpurity>>
+		<<ind>><<link [[Masturbate (0:20)|Temple Masturbation]]>><<pass 20>><<set $masturbationstart to 1>><</link>><<llpurity>>
 		<br>
 	<</if>>
 
@@ -188,7 +266,7 @@ You are in the main hall of the temple. Stone walls and pillars tower into darkn
 				<br>
 				You see a figure asleep at one of the pews. Upon closer examination, you realise it's Sydney. <<if Time.hour is 9>><<nnpc_Hes "Sydney">> late for school.<<else>><<nnpc_He "Sydney">> might be late for school if someone doesn't wake <<nnpc_him "Sydney">>.<</if>>
 				<br>
-				<<link [["Wake " + $NPCName[$NPCNameList.indexOf("Sydney")].pronouns.him|Temple Sydney Wakeup]]>><<npcincr Sydney love 1>><</link>><<glove>>
+				<<templeicon "pew">><<link [["Wake " + $NPCName[$NPCNameList.indexOf("Sydney")].pronouns.him|Temple Sydney Wakeup]]>><<endevent>><<npcincr Sydney love 1>><</link>><<glove>>
 				<br>
 			<</if>>
 		<<elseif _sydney_location is "temple">>
@@ -197,7 +275,7 @@ You are in the main hall of the temple. Stone walls and pillars tower into darkn
 				<<case "pray">>
 					You see Sydney sitting on a pew, head bowed in prayer.
 					<br>
-					<<link [[Approach Sydney|Temple Sydney]]>><<set $phase to 1>><</link>>
+					<<templeicon "pew">><<link [[Approach Sydney|Temple Sydney]]>><<set $phase to 1>><</link>>
 				<<case "garden">>
 					<span class="teal">You see Sydney carrying garden supplies in and out of the temple.</span>
 				<<case "quarters">>
@@ -206,31 +284,43 @@ You are in the main hall of the temple. Stone walls and pillars tower into darkn
 					<span class="teal">Sydney is likely preparing for mass.</span>
 				<<case "sleep">>
 					<span class="teal">Sydney is staying overnight.</span>
+				<<case "anguish">>
+					<<if $weekly.trialFailed>>
+						<span class="teal">Sydney is still at the trial.</span>
+					<<else>>
+						<span class="teal">Sydney is staying overnight.</span>
+					<</if>>
 			<</switch>>
 		<<elseif !$daily.sydney.offSchedule and (_sydney_location_message is "shop" or _sydney_location_message is "home" or _sydney_location_message is "rehearsal")>>
 			<span class="blue">You don't see Sydney around.</span>
 			<br>
-			<<link [[Ask around for Sydney|Temple Sydney Ask]]>><<set $daily.sydney.offSchedule to true>><</link>>
+			<<askicon>><<link [[Ask around for Sydney|Temple Sydney Ask]]>><<set $daily.sydney.offSchedule to true>><</link>>
 		<</if>>
 	<</if>>
+
+
 
 	<<if $temple_rank isnot undefined and $temple_rank isnot "prospective">>
-	<br>
+		<br>
 		<<if $prayer_room_init is 1>>
-			<<link [[Garden|Temple Garden]]>><</link>>
+			<<templeicon "garden">><<link [[Garden|Temple Garden]]>><</link>>
 			<br>
-			<<link [[Quarters|Temple Quarters]]>><</link>>
+			<<templeicon "quarters">><<link [[Quarters|Temple Quarters]]>><</link>>
 			<br>
-			<<link [[Prayer room|Temple Prayer Entrance]]>><</link>>
+			<<templeicon "prayer room">><<link [[Prayer room|Temple Prayer Entrance]]>><</link>>
 			<br>
 		<<else>>
-			<<link [[Explore temple (0:30)|Temple Prayer Explore]]>><<pass 30>><<set $prayer_room_init to 1>><</link>>
+			<<templeicon>><<link [[Explore temple (0:30)|Temple Prayer Explore]]>><<pass 30>><<set $prayer_room_init to 1>><</link>>
+			<br>
 		<</if>>
-		<br>
+		<<if $temple_rank is "monk" or $temple_rank is "priest">>
+			<<ind>><<link [[Cloister|Temple Cloister]]>><</link>>
+			<br>
+		<</if>>
 
 	<</if>>
 	<br>
-	<<link [[Leave (0:01)|Wolf Street]]>><<pass 1>><</link>>
+	<<wolficon>><<link [[Leave (0:01)|Wolf Street]]>><<pass 1>><</link>>
 	<br>
 <</if>>
 <<set $eventskip to 0>>
@@ -250,7 +340,13 @@ You are in the main hall of the temple. Stone walls and pillars tower into darkn
 <<elseif $phase is 3>>
 	<<set $phase to 0>>
 	<<set _people to random(22, 34)>>
-	You open one eye and examine the room. There are others like you, praying in the pews. <<if $NPCName[$NPCNameList.indexOf("Jordan")].pronoun is "m">>Monks<<else>>Nuns<</if>> prowl the aisles, passing furtive messages to one another. There are many more than you'd expect. You count <<number _people>> coming and going.
+	<<set _people -= Math.clamp(Math.floor($world_corruption_soft / 10), 5, 34)>>
+	You open one eye and examine the room. There are others like you, praying in the pews. <<if $NPCName[$NPCNameList.indexOf("Jordan")].pronoun is "m">>Monks<<else>>Nuns<</if>> prowl the aisles, passing furtive messages to one another.
+	<<if _people gte 15>>
+		There are many more than you'd expect. You count <<number _people>> coming and going.
+	<<else>>
+		There seem to be fewer than normal. You count <<number _people>> coming and going.
+	<</if>>
 	<br><br>
 	<<if $awareness gte 400>>
 		You glance up at the shadowed ceiling, at the gaping abyss perched above. Terror shivers up your spine. Your gaze is forced away.
@@ -351,7 +447,7 @@ You are in the main hall of the temple. Stone walls and pillars tower into darkn
 			<br>
 		<</if>>
 		<<set $skulduggerydifficulty to 100>>
-		<<link [[Steal|Temple Plate Steal]]>><<crimeup 5>><</link>><<crime>><<skulduggerydifficulty>>
+		<<link [[Steal|Temple Plate Steal]]>><<crimeUp 5 "petty">><</link>><<crime "petty">><<skulduggerydifficulty>>
 		<br>
 
 	<<elseif $rng gte 71>>
@@ -715,7 +811,7 @@ You look away from the <<monk>>, and <<he>> continues down the aisle.
 	<<else>>
 		You take a sip of the sweet fluid and make way for the next person.<<alcohol 15>>
 	<</if>>
-	<br><br>	
+	<br><br>
 	<<sydneyMass>>
 	Jordan finishes with a prayer.
 	<br><br>
@@ -775,7 +871,7 @@ You look away from the <<monk>>, and <<he>> continues down the aisle.
 	<<npc Jordan>><<person1>>
 	You approach the figure. As you near, <<he>> stands and turns to face you. <<His>> outfit covers <<him>> from head to toe, only <<his>> youthful face is visible. Locks of hair protrude from the sides of the cowl, betraying a golden shade. <<His>> smile does not reach <<his>> blue eyes.
 	<br><br>
-	"Welcome," <<he>> says. "I don't recall meeting you. I'm <<if $pronoun is "m">>brother<<else>>sister<</if>> Jordan." <<He>> bows <<his>> head slightly. "Are you here for the protective measures we provide for the pure-bodied, in the form of chastity belts? Keep in mind that while the impure may also benefit from this service, they do so at a cost."
+	"Welcome," <<he>> says. "I don't recall meeting you. I'm <<nnpc_brother "Jordan">> Jordan." <<He>> bows <<his>> head slightly. "Are you here for the protective measures we provide for the pure-bodied, in the form of chastity belts? Keep in mind that while the impure may also benefit from this service, they do so at a cost."
 	<br><br>
 	<<He>> continues. "Please don't disturb the other <<if $pronoun is "m">>monks<<else>>nuns<</if>>, for they have taken sacred vows and your presence may distract them."
 	<br><br>
@@ -784,63 +880,155 @@ You look away from the <<monk>>, and <<he>> continues down the aisle.
 	You approach the figure. <<He>> turns to greet you as you near, revealing Jordan's familiar face. "Welcome back," <<he>> says.
 	<br><br>
 <</if>>
-<<if $vaginalchastityparasite is 0 and $analchastityparasite is 0 and $penilechastityparasite is 0>>
-<<else>>
-	<<He>> looks at your crotch with a concerned look on <<his>> face. "If you have a belt-induced parasite problem, we can help for £20."
+<<if $spear_vessel is "held">>
+	<<if $temple_spear_mission is 1>>
+		<<His>> breath quickens as <<he>> beholds the spear. Then <<he>> averts <<his>> eyes and whispers a prayer. "Oh child," <<he>> says. "You've done more for the world than you know."
+	<<else>>
+		<<His>> eyes regard the spear. "My child, weapons aren't-" the hint of a frown appears on <<his>> brow, then <<he>> averts <<his>> eyes.
+		<br><br>
+		"Child," <<he>> whispers. "That spear. Where did you- It doesn't matter. Thank you. You've done more for the world than you know."
+	<</if>>
 	<br><br>
-<</if>>
-<<if $kylar_manor_secret is 1>>
-	<<link [["Inquire about the monstrance you found in Kylar's manor"|Temple Kylar Monstrance]]>><<set $kylar_manor_secret to 2>><</link>>
+	<<link [[Next|Temple Spear]]>><</link>>
 	<br>
+<<elseif $temple_spear_mission is undefined and ($temple_rank is "monk" or $temple_rank is "priest") and $grace gte 100>>
+	"I'm glad you're here," <<he>> says. "There's a holiday approaching, one that happens just once a century. Each century a member of our order is chosen to go on a pilgrimage to an island off the coast, to retrieve an artifact spear. The spear is the centerpiece of the holiday. We'd like to give this role to you."
+	<br><br>
+	"There is a problem though," <<he>> continues. "There's no record of the island existing. We've lots of records here at the temple, but we seem to be the only ones. The historian at the museum suggested that our tales have confused it with the prison, or with somewhere along the shore."
+	<br><br>
+	"Your first task is to find where the island is, and how to get there. I'm sorry I can't be more helpful. Perhaps this is part of the pilgrimage. I have every faith in you."
+	<br><br>
+	<<set $spearQuestions to []>>
+	<<link [[Ask why they're sending you in particular|Temple Spear Questions]]>><<set $temple_spear_mission to 1>><<set $spearQuestion to "why">><<set $spearQuestions.push("why")>><</link>>
+	<br>
+	<<link [[Ask what the festival involves|Temple Spear Questions]]>><<set $temple_spear_mission to 1>><<set $spearQuestion to "what">><<set $spearQuestions.push("what")>><</link>>
+	<br>
+	<<link [[Ask where you should look|Temple Spear Questions]]>><<set $spearQuestion to "where">><<set $spearQuestions.push("where")>><</link>>
+	<br><br>
+<<else>>
+	<<if $vaginalchastityparasite is 0 and $analchastityparasite is 0 and $penilechastityparasite is 0>>
+	<<else>>
+		<<He>> looks at your crotch with a concerned look on <<his>> face. "If you have a belt-induced parasite problem, we can help for £20."
+		<br><br>
+	<</if>>
+	<<if $kylar_manor_secret is 1>>
+		<<askicon>><<link [["Inquire about the monstrance you found in Kylar's manor"|Temple Kylar Monstrance]]>><<set $kylar_manor_secret to 2>><</link>>
+		<br>
+	<</if>>
+	<<if numberOfEarSlime()>>
+		<<askicon>><<link [[Inquire about ear slime|Temple Slime]]>><</link>>
+	<br>
+	<</if>>
+	<<if $wraith.seen gte 10>>
+		<<wraithicon>><<link [[Inquire about the pale figure|Temple Pale Story]]>><</link>>
+	<br>
+	<</if>>
+	<<templeicon "chastity">><<link [[Inquire about chastity devices|Temple Chastity]]>><</link>>
+	<br>
+	<<if $vaginalchastityparasite is 0 and $analchastityparasite is 0 and $penilechastityparasite is 0>>
+	<<elseif $money gte 2000>>
+		<<ind>><<link [[Have parasites removed (£20 0:05)|Temple Parasite]]>><<set $money -= 2000>><<pass 5>><</link>>
+		<br>
+	<</if>>
+	<<if $forgiveintro isnot 1 and $fallenangel gte 2>>
+		<<templeicon "pray">><<link [[Request forgiveness|Temple Forgiveness]]>><</link>><<fallenangel>>
+		<br>
+	<<elseif $money gte 1000000 and $fallenangel gte 2>>
+		<<templeicon "pray">><<link [[Buy forgiveness (£10,000 1:00)|Temple Buy Forgiveness]]>><<trauma 6>><<set $money -= 1000000>><</link>><<gtrauma>><<garousal>><<fallenangel>> <<note "Removes the fallen angel trait" "italic">>
+		<br>
+	<<elseif $fallenangel gte 2>>
+		<span class="blue">You can't afford forgiveness.</span>
+		<br>
+	<</if>>
+	<<if $temple_rank is undefined or $temple_rank is "prospective">>
+		<<askicon>><<link [[Inquire about joining the temple|Temple Join]]>><</link>>
+		<br>
+	<<elseif !$weekly.templeFire>>
+		<<templeicon "trial">><<link [[Inquire about the trial of purity|Temple Fire Repeat]]>><</link>>
+		<br>
+	<</if>>
+	<<if $temple_rank is "initiate">>
+		<<askicon>><<link [[Inquire about temple advancement|Temple Vigil Inquire]]>><</link>>
+		<br>
+	<</if>>
+	<<if $temple_harassed is 1>>
+		<<templeicon>><<link [[Say you were harassed by a member of the church (0:05)|Temple Harass Inform]]>><<pass 5>><</link>>
+		<br>
+	<<elseif $temple_harassed gte 2>>
+		<<templeicon>><<link [[Say you were harassed by members of the church (0:05)|Temple Harass Inform]]>><<pass 5>><</link>>
+		<br>
+	<</if>>
+	<<if isPubfameTaskAccepted("temple")>>
+		<<schoolicon "library">><<link [[Inquire about the book (0:05)|Temple Book Ask]]>><</link>>
+		<br>
+	<</if>>
+	<<if $jordan_ritual_dance is 2>>
+		<<danubeicon>><<link [[Inform Jordan of what you found beneath the Danube manor|Temple Ritual Inform]]>><<set $jordan_ritual_dance to 3>><</link>>
+		<br>
+	<</if>>
+	<<if $spear_vessel is "sea" and !($temple_spear_mission gte 2)>>
+		<<ind>><<link [[Inform Jordan that the spear was lost at sea|Temple Spear Sea]]>><</link>>
+		<br>
+	<</if>>
+	<<if $spear_vessel is "Zephyr" and !($temple_spear_mission gte 2)>>
+		<<ind>><<link [[Inform Jordan that the spear was taken by pirates|Temple Spear Zephyr]]>><</link>>
+		<br>
+	<</if>>
+	<<getouticon>><<link [[Leave|Temple]]>><<endevent>><</link>>
 <</if>>
-<<if $parasite.left_ear.name is "slime" or $parasite.right_ear.name is "slime">>
-<<link [[Inquire about ear slime|Temple Slime]]>><</link>>
+
+:: Temple Spear
+<<effects>>
+
+<<generate2>><<generate3>><<generate4>>
+Jordan kneels once more, but this time <<he>> feels along the ground beside it. <<He>> pries loose a stone brick, and reaches into a revealed chamber. A bell is lifted out without a sound. The priest holds it carefully as <<he>> produces a baton from <<his>> robe.
+<br><br>
+
+The baton strikes the bell. It only makes a gentle jingle, but most of the resonance doesn't pass through the air. Jordan's arm quivers, and you feel it enter your feet, rooting you to the spot and travelling up your spine as a shiver of ecstasy.
+<br><br>
+
+You hear a heavy door open. Three <<monks_and_nuns>> ascend a staircase, and gaze at the spear with naked awe. Until Jordan coughs. One of them, a <<person2>><<monk>>, takes the spear with careful hands.
+<br><br>
+
+<<person1>>
+Jordan watches the <<monks_and_nuns>> take the spear underground. "It will be safe there, until we're ready." <<He>> bows. "Perhaps you'll take part. It would make me feel better. Ah, but I say too much!" <<He>> bows thrice more, before turning away.<<if $temple_rank isnot undefined and $temple_rank isnot "prospective">><<ggggrace>><<grace 15>><</if>><<lltrauma>><<llstress>><<trauma -18>><<stress -18>>
+<br><br>
+
+<<link [[Next|Temple]]>><<set $spear_vessel to "temple">><<set $temple_spear_mission to 2>><<temple_spear_mission_end>><<endevent>><</link>>
 <br>
-<</if>>
-<<if $wraith.seen gte 10>>
-<<link [[Inquire about the pale figure|Temple Pale Story]]>><</link>>
+
+:: Temple Spear Sea
+<<effects>>
+<<generate2>>
+Jordan listens with an unreadable expression as you tell <<him>> of how you retrieved the spear, but were accosted by pirates, and the spear was lost beneath the waves. When you finish, <<he>> claps a heel against the ground, making you jump.
+<br><br>
+<<person2>>
+You hear a door open, and <<monk>> emerges from a staircase, leading up from some underground area. Jordan whispers something into <<his>> ear, and the <<monk>> leaves with an anxious haste.
+<br><br>
+<<person1>>
+"Forgive me child," Jordan says once alone again. "Despite the setback, you managed to retrieve the spear, and at great danger to your person. Please, allow me to extend you the temple's gratitude." <<He>> bows, then turns away.<<if $temple_rank isnot undefined and $temple_rank isnot "prospective">><<gggrace>><<grace 3>><</if>>
+<br><br>
+
+<<link [[Next|Temple]]>><<set $temple_spear_mission to 2>><<temple_spear_mission_end>><<endevent>><</link>>
 <br>
-<</if>>
-<<link [[Inquire about chastity devices|Temple Chastity]]>><</link>>
+
+
+:: Temple Spear Zephyr
+<<effects>>
+
+<<generate2>>
+Jordan listens with an unreadable expression as you tell <<him>> of how you retrieved the spear, only to be waylaid by pirates. When you finish, <<he>> claps a heel against the ground, making you jump.
+<br><br>
+<<person2>>
+You hear a door open, and <<monk>> emerges from a staircase, leading up from some underground area. Jordan whispers something into <<his>> ear, and the <<monk>> leaves with an anxious haste.
+<br><br>
+<<person1>>
+"Forgive me child," Jordan says once alone again. "Despite the setback, you managed to retrieve the spear, and at great danger to your person. Please, allow me to extend you the temple's gratitude." <<He>> bows, then turns away.<<if $temple_rank isnot undefined and $temple_rank isnot "prospective">><<gggrace>><<grace 3>><</if>>
+<br><br>
+
+<<link [[Next|Temple]]>><<set $temple_spear_mission to 2>><<temple_spear_mission_end>><<endevent>><</link>>
 <br>
-<<if $vaginalchastityparasite is 0 and $analchastityparasite is 0 and $penilechastityparasite is 0>>
-<<elseif $money gte 2000>>
-	<<link [[Have parasites removed (£20 0:05)|Temple Parasite]]>><<set $money -= 2000>><<pass 5>><</link>>
-	<br>
-<</if>>
-<<if $forgiveintro isnot 1 and $fallenangel gte 2>>
-	<<link [[Request forgiveness|Temple Forgiveness]]>><</link>><<fallenangel>>
-	<br>
-<<elseif $money gte 1000000 and $fallenangel gte 2>>
-	<<link [[Buy forgiveness (£10,000 1:00)|Temple Buy Forgiveness]]>><<trauma 6>><<set $money -= 1000000>><</link>><<gtrauma>><<garousal>><<fallenangel>> <<note "Removes the fallen angel trait" "italic">>
-	<br>
-<<elseif $fallenangel gte 2>>
-	<span class="blue">You can't afford forgiveness.</span>
-	<br>
-<</if>>
-<<if $temple_rank is undefined or $temple_rank is "prospective">>
-	<<link [[Inquire about joining the temple|Temple Join]]>><</link>>
-	<br>
-<<elseif !$weekly.templeFire>>
-	<<link [[Inquire about the trial of purity|Temple Fire Repeat]]>><</link>>
-	<br>
-<</if>>
-<<if $temple_harassed is 1>>
-	<<link [[Say you were harassed by a member of the church (0:05)|Temple Harass Inform]]>><<pass 5>><</link>>
-	<br>
-<<elseif $temple_harassed gte 2>>
-	<<link [[Say you were harassed by members of the church (0:05)|Temple Harass Inform]]>><<pass 5>><</link>>
-	<br>
-<</if>>
-<<if isPubfameTaskAccepted("temple")>>
-	<<link [[Inquire about the book (0:05)|Temple Book Ask]]>><</link>>
-	<br>
-<</if>>
-<<if $jordan_ritual_dance is 2>>
-	<<link [[Inform Jordan of what you found beneath the Danube manor|Temple Ritual Inform]]>><<set $jordan_ritual_dance to 3>><</link>>
-	<br>
-<</if>>
-<<link [[Leave|Temple]]>><<endevent>><</link>>
+
 
 :: Temple Ritual Inform
 <<effects>>
@@ -894,11 +1082,11 @@ You tell Jordan you were attacked. <<He>> listens without a word, only speaking 
 	<</if>>
 	<br><br>
 	<<if !$weekly.templeFire>>
-	<<link [[Trial by fire (1:00)|Temple Join Fire]]>><<set $phase to 0>><<pass 60>><<set $weekly.templeFire to true>><</link>>
+	<<templeicon "trial">><<link [[Trial by fire (1:00)|Temple Join Fire]]>><<set $phase to 0>><<pass 60>><<set $weekly.templeFire to true>><</link>>
 	<br>
 	<</if>>
 	<<if $templetest isnot "failed">>
-		<<link [[Virginity test|Temple Test]]>><<set $phase to 1>><</link>>
+		<<templeicon "virginity">><<link [[Virginity test|Temple Test]]>><<set $phase to 1>><</link>>
 		<br>
 	<</if>>
 	<<link [[Leave|Temple]]>><<endevent>><</link>>
@@ -908,11 +1096,11 @@ You tell Jordan you were attacked. <<He>> listens without a word, only speaking 
 		<<if $fame.good gte 0>>
 			Jordan observes you, unblinking. "Admission to the <<if $player.gender_appearance is "m">>brotherhood<<else>>sisterhood<</if>> is restricted to virgins, and those who have made amends via the trial of purity."
 			<br><br>
-			<<link [[Virginity test|Temple Test]]>><<set $phase to 1>><</link>>
+			<<templeicon "virginity">><<link [[Virginity test|Temple Test]]>><<set $phase to 1>><</link>>
 			<br>
-			<<link [[Ask about trial|Temple Trial Intro]]>><</link>>
+			<<templeicon "trial">><<link [[Ask about trial|Temple Trial Intro]]>><</link>>
 			<br>
-			<<link [[Leave|Temple]]>><<endevent>><</link>>
+			<<getouticon>><<link [[Leave|Temple]]>><<endevent>><</link>>
 			<br>
 		<<else>>
 			Jordan observes you, unblinking. "Admission to the <<if $player.gender_appearance is "m">>brotherhood<<else>>sisterhood<</if>> is restricted to virgins, and those who have made amends via the trial of purity."
@@ -929,9 +1117,9 @@ You tell Jordan you were attacked. <<He>> listens without a word, only speaking 
 		"I'm sorry child," Jordan says. "Admission to the <<if $player.gender_appearance is "m">>brotherhood<<else>>sisterhood<</if>> is restricted to virgins, and those who have made amends via the trial of purity."
 		<br><br>
 			<<if $fame.good gte 0>>
-				<<link [[Ask about trial|Temple Trial Intro]]>><</link>>
+				<<templeicon "trial">><<link [[Ask about trial|Temple Trial Intro]]>><</link>>
 				<br>
-				<<link [[Leave|Temple]]>><<endevent>><</link>>
+				<<getouticon>><<link [[Leave|Temple]]>><<endevent>><</link>>
 				<br>
 			<<else>>
 				"You also need a modest reputation for kindness. We do important work, and it requires people trust us. If you pray here you'll often see someone going round with a collection plate. Giving to charity would be a good way to prove yourself."
@@ -963,11 +1151,19 @@ You tell Jordan you were attacked. <<He>> listens without a word, only speaking 
 <<else>>
 	<<if playerBellyVisible()>>
 		<<setKnowsAboutPregnancy("pc", "Jordan")>>
-		"We should remove yours immediately. It's unsafe to wear one whilst pregnant."
+		<<if playerChastity("vagina") and $worn.genitals.name is "chastity belt">>
+			"We should remove yours immediately. It's unsafe to wear one whilst pregnant."
+		<<elseif playerChastity("vagina")>>
+			"You should get yours removed immediately. However, we can only remove temple-provided devices. You'll need to speak to the keyholder or find another method of removal."
+		<<else>>
+			"You should be safe to keep yours on, it won't hinder the pregnancy."
+		<</if>>
 	<<elseif $player.virginity.penile is true and $player.virginity.vaginal is true>>
 		"It is written that we should never remove the chastity belt from a virgin. However, if you really want it removed, we will overlook that rule in return for an £80 donation."
+	<<elseif ["chastity belt", "chastity cage"].includes($worn.genitals.name)>>
+		"We can remove your device if you like. Once it's off however, you'll need to pay again to have another put on."
 	<<else>>
-		"We can remove your belt if you like. Once it's off however, you'll need to pay again to have another put on."
+		"We can only remove temple-provided devices. You'll need to speak to the keyholder or find another method of removal."
 	<</if>>
 	<br><br>
 
@@ -978,26 +1174,26 @@ You tell Jordan you were attacked. <<He>> listens without a word, only speaking 
 <</if>>
 <<if !playerChastity() and !playerBellyVisible() and !knowsAboutPregnancy("pc", "Jordan")>>
 	<<if $templetest isnot "failed">>
-		<<link [[Virginity test (0:05)|Temple Test]]>><<set $phase to 0>><<pass 5>><</link>>
+		<<templeicon "virginity">><<link [[Virginity test (0:05)|Temple Test]]>><<set $phase to 0>><<pass 5>><</link>>
 		<br>
 	<</if>>
 	<<if $money gte 8000>>
-		<<link [[Have a chastity device fitted (£80 0:05)|Temple Chastity Fitting]]>><<pass 5>><<set $money -= 8000>><</link>>
+		<<templeicon "chastity">><<link [[Have a chastity device fitted (£80 0:05)|Temple Chastity Fitting]]>><<pass 5>><<set $money -= 8000>><</link>>
 		<br>
 	<</if>>
 <<elseif !playerChastity() and $player.penisExist and (playerBellyVisible() or knowsAboutPregnancy("pc", "Jordan"))>>
 	<<if $templetest isnot "failed">>
-		<<link [[Virginity test (0:05)|Temple Test]]>><<set $phase to 0>><<pass 5>><</link>>
+		<<templeicon "virginity">><<link [[Virginity test (0:05)|Temple Test]]>><<set $phase to 0>><<pass 5>><</link>>
 		<br>
 	<</if>>
 	<<if $money gte 8000>>
-		<<link [[Have a chastity cage fitted (£80 0:05)|Temple Male Chastity Fitting]]>><<genitalswear 2>><<pass 5>><<set $money -= 8000>><</link>>
+		<<templeicon "chastity">><<link [[Have a chastity cage fitted (£80 0:05)|Temple Male Chastity Fitting]]>><<genitalswear 2>><<pass 5>><<set $money -= 8000>><</link>>
 		<br>
 	<</if>>
 <</if>>
 <<if playerChastity() and $worn.genitals.anal_shield is 0 and !playerBellyVisible()>>
 	<<if $money gte 5000>>
-		<<link [[Have a shield fitted (£50 0:05)|Temple Chastity Shield]]>><<pass 5>><<set $money -= 5000>><</link>>
+		<<templeicon "chastity">><<link [[Have a shield fitted (£50 0:05)|Temple Chastity Shield]]>><<pass 5>><<set $money -= 5000>><</link>>
 		<br>
 	<<else>>
 		You can't afford to have a shield fitted.
@@ -1008,20 +1204,20 @@ You tell Jordan you were attacked. <<He>> listens without a word, only speaking 
 	<br>
 <</if>>
 <<if playerChastity() and playerChastity("anus")>>
-	<<link [[Have the shield removed (0:05)|Temple Chastity Shield Removal]]>><<pass 5>><</link>>
+	<<templeicon "chastity release">><<link [[Have the shield removed (0:05)|Temple Chastity Shield Removal]]>><<pass 5>><</link>>
 	<br>
 <</if>>
 <<if playerChastity() and $player.virginity.penile is true and $player.virginity.vaginal is true and !playerBellyVisible()>>
 	<<if $money gte 8000>>
-		<<link [[Have the chastity device removed (£80 0:05)|Temple Chastity Removal]]>><<set $money -= 8000>><<pass 5>><</link>>
+		<<templeicon "chastity release">><<link [[Have the chastity device removed (£80 0:05)|Temple Chastity Removal]]>><<set $money -= 8000>><<pass 5>><</link>>
 		<br>
 	<<else>>
 	<</if>>
 <<elseif playerChastity()>>
-	<<link [[Have the chastity device removed (0:05)|Temple Chastity Removal]]>><<pass 5>><</link>>
+	<<templeicon "chastity release">><<link [[Have the chastity device removed (0:05)|Temple Chastity Removal]]>><<pass 5>><</link>>
 	<br>
 <</if>>
-<<link [[Leave|Temple]]>><<endevent>><</link>>
+<<getouticon>><<link [[Leave|Temple]]>><<endevent>><</link>>
 <br>
 
 :: Temple Test
@@ -1043,29 +1239,38 @@ You remove your clothing, wishing it wasn't quite so cold in here. Jordan rubs w
 	<</if>>
 <</if>>
 <<if $player.penisExist>>
-	<<He>> holds your penis between both forefingers, and stares at it intently, gently manipulating the length. You try to distract yourself, but you soon feel it hardening under <<his>> scrutiny.
+	<<if playerChastity("penis") and $worn.genitals.origin isnot "temple">>
+		<<He>> holds your $worn.genitals.name between both forefingers, gently manipulating it while <<he>> inspects it. You try to distract yourself, but soon feel your <<penis>> attempt to harden under <<his>> scrutiny.
+	<<else>>
+		<<He>> holds your penis between both forefingers, and stares at it intently, gently manipulating the length. You try to distract yourself, but you soon feel it hardening under <<his>> scrutiny.
+	<</if>>
 <</if>>
 <<if $player.vaginaExist>>
-	<<He>> places <<his>> thumbs against your pussy and gently opens your
-	<<if setup.bodyliquid.combined("vagina") gte 2>>
-		<<if setup.bodyliquid.combined("vagina") gte 6>>
-			lips. Cum bursts out, spraying across Jordan's face and running in streams down both <<his>> arms.
-			<<He>> falls back in shock, hurriedly wiping cum from <<his>> eyes and mouth.
-			<br>
-			<<He>> looks at you.
-		<<elseif setup.bodyliquid.combined("vagina") gte 4>>
-			lips. A thick stream of lewd fluids gushes out. Some runs down Jordan's arm and quickly disappears up <<his>> sleeve.
-			<<He>> jumps back with a yelp, shaking <<his>> arms in alarm.
-			<br>
+	<<if playerChastity("vagina") and $worn.genitals.origin isnot "temple">>
+		<<He>> places <<his>> thumbs against the side of your $worn.genitals.name and attempts to inspect your pussy.
+		<br>
+	<<else>>
+		<<He>> places <<his>> thumbs against your pussy and gently opens your
+		<<if setup.bodyliquid.combined("vagina") gte 2>>
+			<<if setup.bodyliquid.combined("vagina") gte 6>>
+				lips. Cum bursts out, spraying across Jordan's face and running in streams down both <<his>> arms.
+				<<He>> falls back in shock, hurriedly wiping cum from <<his>> eyes and mouth.
+				<br>
+				<<He>> looks at you.
+			<<elseif setup.bodyliquid.combined("vagina") gte 4>>
+				lips. A thick stream of lewd fluids gushes out. Some runs down Jordan's arm and quickly disappears up <<his>> sleeve.
+				<<He>> jumps back with a yelp, shaking <<his>> arms in alarm.
+				<br>
+			<<else>>
+				lips. Cum runs out in a thin stream down your legs. Jordan withdraws <<his>> hands in surprise.
+				<br>
+			<</if>>
+			"That's a bad sign," <<he>> mutters.
+			<br><br>
 		<<else>>
-			lips. Cum runs out in a thin stream down your legs. Jordan withdraws <<his>> hands in surprise.
+			lips, giving <<him>> a clear view inside.
 			<br>
 		<</if>>
-		"That's a bad sign," <<he>> mutters.
-		<br><br>
-	<<else>>
-		lips, giving <<him>> a clear view inside.
-		<br>
 	<</if>>
 	You don't want to admit it, but your body responds lewdly to being examined like this.
 <</if>>
@@ -1079,7 +1284,7 @@ The fondling continues for a few minutes. Finally, <<he>> finishes <<his>> work.
 			<<set _preggy to getPregnancyObject()>><<setKnowsAboutPregnancy "pc" "Jordan">><<set $templeVirginPregnancy to true>>
 			<<He>> fails to conceal <<his>> happiness.
 			<<if !_preggy.awareOf>>
-				<<set _preggy.awareOf to true>>
+				<<set _preggy.awareOf to "temple">>
 				<<if _pregnancyGenital is "vagina">>
 					"<span class="green">You are unblemished</span>. And yet, <span class="lewd">you are with child</span>. My sincerest congratulations. You've been blessed with a miracle."
 				<<else>>
@@ -1119,7 +1324,7 @@ The fondling continues for a few minutes. Finally, <<he>> finishes <<his>> work.
 				<<if playerChastity("hidden") and playerIsPregnant() and knowsAboutPregnancy("pc", "Jordan")>>
 					"I'm sorry, but I can't return your chastity belt while you are bearing children. It's unsafe."
 					<<set $worn.genitals.type.push("broken")>>
-					<<genitalsruined>>			
+					<<genitalsruined>>
 				<<else>>
 					With one anxious motion, <<he>> returns your $worn.genitals.name to its place, guarding your crotch.
 				<</if>>
@@ -1158,7 +1363,7 @@ The fondling continues for a few minutes. Finally, <<he>> finishes <<his>> work.
 		<<if playerIsPregnant() and _pregnancyObject.timer / _pregnancyObject.timerEnd gte 0.1 and !playerAwareTheyArePregnant>>
 			<<set _preggy to getPregnancyObject()>><<setKnowsAboutPregnancy "pc" "Jordan">>
 			<<if !_preggy.awareOf>>
-				<<set _preggy.awareOf to true>>
+				<<set _preggy.awareOf to "temple">>
 				<<if _pregnancyGenital is "vagina">>
 					"And... <span class="red">you are with child</span>."
 				<<else>>
@@ -1174,7 +1379,7 @@ The fondling continues for a few minutes. Finally, <<he>> finishes <<his>> work.
 					<span class="red">You wonder who the father is.</span>
 				<</if>>
 				<br><br>
-			<</if>>			
+			<</if>>
 		<</if>>
 		"You must be purified. I will summon the specialists. Please cooperate with them." <<He>> produces a small bell from <<his>> robes, and rings.
 		<br><br>
@@ -1190,7 +1395,7 @@ The fondling continues for a few minutes. Finally, <<he>> finishes <<his>> work.
 			<<set _preggy to getPregnancyObject()>><<setKnowsAboutPregnancy "pc" "Jordan">><<set $templeVirginPregnancy to true>>
 			<<He>> fails to conceal <<his>> happiness.
 			<<if !_preggy.awareOf>>
-				<<set _preggy.awareOf to true>>
+				<<set _preggy.awareOf to "temple">>
 				<<if _pregnancyGenital is "vagina">>
 					"<span class="green">You are unblemished</span>. And yet, <span class="lewd">you are with child</span>. My sincerest congratulations. You've been blessed with a miracle."
 				<<else>>
@@ -1220,7 +1425,7 @@ The fondling continues for a few minutes. Finally, <<he>> finishes <<his>> work.
 				<<genitalsruined>>
 				<br><br>
 			<</if>>
-			"You are now an initiate of the temple. Welcome, <<if $player.gender_appearance is "m">>brother.<<else>>sister.<</if>>"
+			"You are now an initiate of the temple. Welcome, <<sister>>."
 			<<if playerChastity() and $worn.genitals.origin is "temple">>
 				With one anxious motion, <<he>> returns your $worn.genitals.name to its place, guarding your crotch.
 			<</if>>
@@ -1235,12 +1440,12 @@ The fondling continues for a few minutes. Finally, <<he>> finishes <<his>> work.
 			<<endevent>>
 			<<link [[Next|Temple]]>><</link>>
 		<<else>>
-			"You are unblemished, and may it stay that way. You are now an initiate of the temple. Welcome, <<if $player.gender_appearance is "m">>brother.<<else>>sister.<</if>>"
+			"You are unblemished, and may it stay that way. You are now an initiate of the temple. Welcome, <<sister>>."
 			<<if playerChastity() and $worn.genitals.origin is "temple">>
 				<<if playerChastity("hidden") and playerIsPregnant() and _pregnancyObject.timer / _pregnancyObject.timerEnd gte 0.1 and knowsAboutPregnancy("pc", "Jordan")>>
 					"I'm sorry, but I can't return your chastity belt while you are bearing children. It's unsafe."
 					<<set $worn.genitals.type.push("broken")>>
-					<<genitalsruined>>			
+					<<genitalsruined>>
 				<<else>>
 					With one anxious motion, <<he>> returns your $worn.genitals.name to its place, guarding your crotch.
 				<</if>>
@@ -1262,7 +1467,7 @@ The fondling continues for a few minutes. Finally, <<he>> finishes <<his>> work.
 		<<if playerIsPregnant() and _pregnancyObject.timer / _pregnancyObject.timerEnd gte 0.1 and !playerAwareTheyArePregnant()>>
 			<<set _preggy to getPregnancyObject()>><<setKnowsAboutPregnancy "pc" "Jordan">>
 			<<if !_preggy.awareOf>>
-				<<set _preggy.awareOf to true>>
+				<<set _preggy.awareOf to "temple">>
 				<<if _pregnancyGenital is "vagina">>
 					"And... <span class="red">you are with child</span>."
 				<<else>>
@@ -1291,7 +1496,7 @@ The fondling continues for a few minutes. Finally, <<he>> finishes <<his>> work.
 				<<set _preggy to getPregnancyObject()>><<setKnowsAboutPregnancy "pc" "Jordan">><<set $templeVirginPregnancy to true>>
 				<<He>> fails to conceal <<his>> happiness.
 				<<if !_preggy.awareOf>>
-					<<set _preggy.awareOf to true>>
+					<<set _preggy.awareOf to "temple">>
 					<<if _pregnancyGenital is "vagina">>
 						"<span class="green">You are unblemished</span>. And yet, <span class="lewd">you are with child</span>. My sincerest congratulations. You've been blessed with a miracle."
 					<<else>>
@@ -1372,7 +1577,7 @@ The fondling continues for a few minutes. Finally, <<he>> finishes <<his>> work.
 		<<if playerIsPregnant() and _pregnancyObject.timer / _pregnancyObject.timerEnd gte 0.1 and !playerAwareTheyArePregnant()>>
 			<<set _preggy to getPregnancyObject()>><<setKnowsAboutPregnancy "pc" "Jordan">>
 			<<if !_preggy.awareOf>>
-				<<set _preggy.awareOf to true>>
+				<<set _preggy.awareOf to "temple">>
 				"And... <span class="red">you are with child</span>."
 				<br><br>
 
@@ -1388,7 +1593,7 @@ The fondling continues for a few minutes. Finally, <<he>> finishes <<his>> work.
 			<</if>>
 		<<else>>
 			"We can still fit you with a belt, but you'll need to pay for it." <<He>> walks out of the room, but stops in the doorway. "I'm sorry you were taken while still so young." <<He>> disappears around the corner.
-		<</if>>	
+		<</if>>
 		<br><br>
 
 		<<link [[Next|Temple]]>><<endevent>><</link>>
@@ -1418,7 +1623,7 @@ You look down to examine it yourself. It doesn't feel as tight or uncomfortable 
 <<if playerIsPregnant() and playerBellySize() gte 8>>
 	<<setKnowsAboutPregnancy "pc" "Jordan">>
 	<<He>> pauses upon seeing your belly. "You are... with child? I'm sorry, but we can't provide chastity belt to those bearing children. It's unsafe."
-	
+
 	<<if $player.penisExist>>
 		<<He>> glances at your <<penis>>. "You could wear this cage and it would provide protection for just your <<penisSimple>> and be secured at its base, however, it will be unable to protect you from sodomy."
 		<br><br>
@@ -1521,7 +1726,11 @@ You look down to examine it yourself. It doesn't feel as tight or uncomfortable 
 	<<clotheson>>
 <<else>>
 	<br><br>
-	<<He>> looks at you with a confused expression, "I'm sorry, but I can't remove your $worn.genitals.name, we only have keys to belts or cages that you get directly from here."
+	<<if $worn.genitals.name is "chastity parasite">>
+		<<He>> looks at you with a confused expression, "I'm sorry, but I can't remove that, it looks like a parasite of some kind, maybe the hospital can help you."
+	<<else>>
+		<<He>> looks at you with a confused expression, "I'm sorry, but I can't remove your $worn.genitals.name, we only have keys to belts or cages that you get directly from here."
+	<</if>>
 	<br><br>
 <</if>>
 
@@ -1852,9 +2061,9 @@ You tell Jordan about the ghostly figure <<if $wraith.state is "haunt">>that's b
 "You can attempt the trial of purity once a week," Jordan says. "Some brothers and sisters find it helps focus their will."
 <br><br>
 
-<<link [[Attempt trial (1:00)|Temple Join Fire]]>><<set $weekly.templeFire to true>><<pass 60>><<set $phase to 1>><</link>>
+<<templeicon "trial">><<link [[Attempt trial (1:00)|Temple Join Fire]]>><<set $weekly.templeFire to true>><<pass 60>><<set $phase to 1>><</link>>
 <br>
-<<link [[Leave|Temple]]>><<endevent>><</link>>
+<<getouticon>><<link [[Leave|Temple]]>><<endevent>><</link>>
 <br>
 
 :: Temple Join Fire
@@ -1869,7 +2078,7 @@ The <<monk>> produces a bell from <<his>> habit. <<He>> rings it twice. Three in
 Jordan watches, impassive, as the initiates work. The <<monk>> pokes a pair of bellows into the fire, and pumps. The flames spread.
 <br><br>
 
-<<link [[Next|Temple Firewalk]]>><</link>>
+<<templeicon "trialcontinue">><<link [[Next|Temple Firewalk]]>><</link>>
 <br>
 
 :: Temple Firewalk
@@ -1889,10 +2098,10 @@ The <<monk>> and initiates watch as the coals heat. They soon glow. The initiate
 <br><br>
 <</if>>
 
-<<link [[Walk|Temple Firewalk 2]]>><</link>>
+<<templeicon "trialcontinue">><<link [[Walk|Temple Firewalk 2]]>><</link>>
 <br>
 <<if $phase is 0>>
-<<link [[Refuse|Temple Firewalk Refuse]]>><</link>>
+<<refuseicon>><<link [[Refuse|Temple Firewalk Refuse]]>><</link>>
 <br>
 <</if>>
 
@@ -1916,9 +2125,9 @@ The <<person2>><<person>> looks disappointed as <<he>> smothers the coals with a
 Smoke rises from the coals. You take a deep breath, and step on them. It's a little warm, but doesn't hurt. Maybe this won't be so bad.
 <br><br>
 
-<<link [[Continue|Temple Firewalk 3]]>><</link>><<gpain>>
+<<templeicon "trialcontinue">><<link [[Continue|Temple Firewalk 3]]>><</link>><<gpain>>
 <br>
-<<link [[Jump off|Temple Firewalk Jump]]>><</link>>
+<<templeicon "trialbail">><<link [[Jump off|Temple Firewalk Jump]]>><</link>>
 <br>
 
 :: Temple Firewalk Jump
@@ -1954,9 +2163,9 @@ You step forward as quick as you can. You feel the coals heat beneath you.
 	<span class="green">A little sting isn't enough to stop you.</span>
 	<<gwillpower>><<willpower 1>>
 	<br><br>
-	<<link [[Continue|Temple Firewalk 4]]>><</link>><<gpain>>
+	<<templeicon "trialcontinue">><<link [[Continue|Temple Firewalk 4]]>><</link>><<gpain>>
 	<br>
-	<<link [[Jump off|Temple Firewalk Jump]]>><</link>>
+	<<templeicon "trialbail">><<link [[Jump off|Temple Firewalk Jump]]>><</link>>
 	<br>
 <<else>>
 	<span class="red">You feel your feet burning. Panicked, you leap off the coals onto the cool dirt.</span>
@@ -1976,9 +2185,9 @@ You step forward again. The coals are even hotter.
 	<span class="green">Still nothing you can't handle.</span>
 	<<gwillpower>><<willpower 1>>
 	<br><br>
-	<<link [[Continue|Temple Firewalk 5]]>><</link>><<gpain>>
+	<<templeicon "trialcontinue">><<link [[Continue|Temple Firewalk 5]]>><</link>><<gpain>>
 	<br>
-	<<link [[Jump off|Temple Firewalk Jump]]>><</link>>
+	<<templeicon "trialbail">><<link [[Jump off|Temple Firewalk Jump]]>><</link>>
 	<br>
 <<else>>
 	<span class="red">It hurts. You gasp and jump away from the heat.</span>
@@ -1998,9 +2207,9 @@ You step forward again, now about halfway across the coals. The heat continues t
 	<span class="green">You feel your soles burn, but you're determined to continue.</span>
 	<<gwillpower>><<willpower 1>>
 	<br><br>
-	<<link [[Continue|Temple Firewalk 6]]>><</link>><<gpain>>
+	<<templeicon "trialcontinue">><<link [[Continue|Temple Firewalk 6]]>><</link>><<gpain>>
 	<br>
-	<<link [[Jump off|Temple Firewalk Jump]]>><</link>>
+	<<templeicon "trialbail">><<link [[Jump off|Temple Firewalk Jump]]>><</link>>
 	<br>
 <<else>>
 	<span class="red">You feel your soles burn. It's too much for you.</span> You leap to safety. The <<person2>><<monk>> and initiates applaud your attempt.
@@ -2020,9 +2229,9 @@ You tense as your foot comes down again, the coals now hotter still.
 	<span class="green">You manage to keep your cool.</span>
 	<<gwillpower>><<willpower 1>>
 	<br><br>
-	<<link [[Continue|Temple Firewalk 7]]>><</link>><<gpain>>
+	<<templeicon "trialcontinue">><<link [[Continue|Temple Firewalk 7]]>><</link>><<gpain>>
 	<br>
-	<<link [[Jump off|Temple Firewalk Jump]]>><</link>>
+	<<templeicon "trialbail">><<link [[Jump off|Temple Firewalk Jump]]>><</link>>
 	<br>
 <<else>>
 	<span class="red">You feel an incredible heat. Like your feet are on fire.</span> You leap to safety. The <<person2>><<monk>> and initiates applaud your attempt. "So close," you hear one whisper.
@@ -2042,7 +2251,7 @@ You cringe as your foot comes down again. You're so close.
 	<span class="green">You wonder if you'll need to visit the hospital after. You don't care.</span>
 	<<gwillpower>><<willpower 1>>
 	<br><br>
-	<<link [[Continue|Temple Firewalk 8]]>><</link>><<gpain>>
+	<<templeicon "trialcontinue">><<link [[Continue|Temple Firewalk 8]]>><</link>><<gpain>>
 	<br>
 <<else>>
 	<span class="red">You can't take it anymore. You can smell your feet burning.</span> You leap to safety. The <<person2>><<monk>> and initiates applaud your attempt. "So close," you hear one whisper. The <<monk>> shakes <<his>> head.
@@ -2093,7 +2302,7 @@ Your feet sink into the cool earth. The <<person2>><<monk>> looks impressed. Stu
 <<inittemple>>
 You follow Jordan back inside as the <<person2>><<monk>> smothers the coal with a bucket of sand.
 <br><br>
-<<person1>>"You are unblemished, and may it stay that way. You are now an initiate of the temple. Welcome, <<if $player.gender_appearance is "m">>brother.<<else>>sister.<</if>>"
+<<person1>>"You are unblemished, and may it stay that way. You are now an initiate of the temple. Welcome, <<sister>>."
 <<if playerChastity()>>
 	With one anxious motion, <<he>> returns your $worn.genitals.name to its place, guarding your crotch.
 <</if>>
@@ -2130,7 +2339,7 @@ We have some other rules. No stealing. No violence. No sex, <span class="pink">e
 
 	<<link [[Next|Temple Book Ask 2]]>><<pass 10>><</link>>
 <<else>>
-	"A book on arcitecture?" Jordan smiles gently. "I believe the library would be a better resource than our humble temple. Though, if it were anywhere here, <span class="gold">it would probably be in the quarters.</span> Best of luck, <<if $player.gender_appearance is "m">>brother<<else>>sister<</if>>."
+	"A book on architecture?" Jordan smiles gently. "I believe the library would be a better resource than our humble temple. Though, if it were anywhere here, <span class="gold">it would probably be in the quarters.</span> Best of luck, <<sister>>."
 	<br><br>
 
 	<<link [[Next|Temple]]>><<endevent>><</link>>
@@ -2173,11 +2382,11 @@ Jordan soon returns, holding a book. The <<monk>> nods at <<person1>><<him>> as 
 <<effects>>
 
 <<if $speech_attitude is "meek">>
-"I-it was taken from me," you say. "I'm sorry."
+	"I-it was taken from me," you say. "I'm sorry."
 <<elseif $speech_attitude is "bratty">>
-"No need," you say. "I failed your dumb task."
+	"No need," you say. "I failed your dumb task."
 <<else>>
-"I'm sorry," you say. "But I didn't remain chaste."
+	"I'm sorry," you say. "But I didn't remain chaste."
 <</if>>
 <br><br>
 
@@ -2188,7 +2397,7 @@ Jordan soon returns, holding a book. The <<monk>> nods at <<person1>><<him>> as 
 
 :: Temple Arcade Intro
 <<effects>>
-<<generateCultist 1>><<person1>><<generateCultist 2>><<generateCultist 3>>
+<<generateConfessor 1>><<person1>><<generateConfessor 2>><<generateConfessor 3>>
 A <<monk>> emerges from a door marked with a red cross. <<Hes>> flanked by two others. One of them assures Jordan that you'll be treated gently.
 <br><br>
 Head bowed, Jordan leaves the room as a <<monk>> pulls a gag from <<his>> habit. "To make amends you must perform a service. Stay still."
@@ -2435,11 +2644,24 @@ You hear a set of doors open behind you, followed by footsteps and laughter.
 
 :: Temple Arcade End
 <<effects>>
-
-<<generate1>><<person1>>
-Stern-faced <<monks>> cluster you and the other victims together. A <<priest>> stands in the middle of the room, wearing robes of pitch black.
-<br><br>
-"Congratulations my children," <<he>> drawls. "You are pure once more. Thank you for your service." A <<monk>> steps behind you and unties your gag. <<He>> also removes your collar. "A warning," the <<priest>> continues. "Breathe not a word of this to anyone. Not your friends. Not Jordan. Not your parents, should you be so blessed. I'd hate to consider you impure again." The dark-haired $temple_wall_victim whimpers.
+<<if $per_npc.bishop>>
+	<<loadNPC 0 "bishop">>
+<<else>>
+	<<generateConfessor 1>>
+	<<saveNPC 0 "bishop">>
+<</if>>
+<<person1>>
+Stern-faced <<monks>> cluster you and the other victims together.
+<<if $temple_confessor_intro>>
+	<<loadNPC 1 "bishop_right_hand">><<loadNPC 2 "bishop_left_hand">>
+	The bishop stands in the middle of the room, flanked by <<his>> two usual companions.
+	<br><br>
+	"Congratulations my children," <<he>> drawls. "You are pure once more. Thank you for your service." The left <<person3>><<priest>> steps behind you and unties your gag. <<He>> also removes your collar. "A warning," the <<person1>><<bishop>> continues. "Breathe not a word of this to anyone. Not your friends. Not Jordan. Not your parents, should you be so blessed. I'd hate to consider you impure again." The dark-haired $temple_wall_victim whimpers.
+<<else>>
+	A <<priest>> stands in the middle of the room, wearing robes of pitch black. <<Hes>> flanked by two more black-robed figures.
+	<br><br>
+	"Congratulations my children," <<he>> drawls. "You are pure once more. Thank you for your service." A <<monk>> steps behind you and unties your gag. <<He>> also removes your collar. "A warning," the <<priest>> continues. "Breathe not a word of this to anyone. Not your friends. Not Jordan. Not your parents, should you be so blessed. I'd hate to consider you impure again." The dark-haired $temple_wall_victim whimpers.
+<</if>>
 <br><br>
 <<if $player.virginity.penile isnot true or $player.virginity.vaginal isnot true>>
 	You've gained the <span class="blue">Chastity Vow</span> trait.
@@ -2506,7 +2728,7 @@ You search for a secluded spot. It's not easy, as the temple is so busy. You wat
 		<<He>> faces you. "You can't just sit where you like initiate!" <<he>> says. "I've half a mind to report you to the bishop."
 		<<lgrace monk>><<grace -1 monk>>
 	<<elseif $temple_rank is "monk">>
-		<<He>> faces you. "Terribly sorry <<if $player.gender_appearance is "m">>brother<<else>>sister<</if>>," <<he>> says. "I'll be more careful in the future."
+		<<He>> faces you. "Terribly sorry <<sister>>," <<he>> says. "I'll be more careful in the future."
 	<<else>>
 		<<He>> faces you. "Forgive me," <<he>> says. "I'll be more careful in the future."
 	<</if>>
@@ -2571,9 +2793,9 @@ You open your mouth. Jordan examines the interior, and sighs in relief. "You are
 
 You shake your head. Jordan moves at once,
 <<if playerBellySize(true) gte 8>>
-	<span class="red">roughly grabbing your cheeks with one hand and applying pressure.</span>. Jordan seizes your jaws with <<his>> free hand, holding them open. 
+	<span class="red">roughly grabbing your cheeks with one hand and applying pressure.</span>. Jordan seizes your jaws with <<his>> free hand, holding them open.
 <<else>>
-	<span class="red">striking your stomach</span>. You lurch forward, mouth open. Jordan seizes your jaws with both hands, holding them open. 
+	<span class="red">striking your stomach</span>. You lurch forward, mouth open. Jordan seizes your jaws with both hands, holding them open.
 <</if>>
 Then <<he>> sighs with relief, and pulls away.
 <br><br>
@@ -2587,4 +2809,717 @@ Then <<he>> sighs with relief, and pulls away.
 <<link [[Next|Temple]]>><<endevent>><</link>>
 <br>
 
+:: Temple Vigil Inquire
+<<effects>>
+<<npc "Jordan">><<person1>>
+<<if $temple_vigil_asked is undefined>>
+	"You wish to become a <<if $player.gender_appearance is "f">>nun<<else>>monk<</if>>?" Jordan asks. "That burden is borne only by those who have proven their <span class="gold">grace."</span>
+	<br><br>
+	"Even if you qualify, there is another trial," Jordan continues. "You must spend a night in vigil, unclad, within a restricted cloister. It is an old and harsh tradition, but we cannot allow the gentle to join our number. It would be a cruelty."
+	<br><br>
+	"If you are serious, return when you have proven yourself. The trial always begins at <span class="gold"><<ampm 20>> on Sunday evening</span>. Make sure you're well-rested before the attempt." <<He>> turns away.
+	<br><br>
 
+	<<link [[Next|Temple]]>><<endevent>><<set $temple_vigil_asked to 1>><</link>>
+	<br>
+<<elseif $weekly.templeVigil>>
+	"You can only attempt the trial once a week," Jordan says. "Time enough to warm your bones."
+	<br><br>
+	<<link [[Next|Temple]]>><<endevent>><</link>>
+	<br>
+<<elseif $grace lt 100>>
+	"You have yet to convince our order of your <span class="gold">grace,"</span> Jordan says. "Focus on your duties as an initiate, and return when you are ready."
+	<br><br>
+	<<link [[Next|Temple]]>><<endevent>><</link>>
+	<br>
+<<elseif Time.weekDay isnot 1>>
+	"It is not the right day child," Jordan says. "Return on <span class="gold">Sunday at <<ampm 20>>.</span> The vigil will last all night."
+	<br><br>
+	<<link [[Next|Temple]]>><<endevent>><<set $temple_vigil_asked to 1>><</link>>
+	<br>
+<<elseif Time.hour isnot 20>>
+	"It is not the right hour child," Jordan says. "Return at <span class="gold"><<ampm 20>>.</span> The vigil will last all night. Make sure you are well-rested before hand."
+	<br><br>
+	<<link [[Next|Temple]]>><<endevent>><</link>>
+	<br>
+<<else>>
+	"It is the hour." There's a finality in <<his>> tone. "I hope you're well-rested. I can lead you to the vigil if you wish. Should you endure the night, you may be inducted into the <<if $player.gender_appearance is "f">>sisterhood<<else>>brotherhood<</if>>."
+	<br><br>
+
+	<<link [[Begin trial (9:00)|Temple Vigil]]>><</link>>
+	<br>
+	<<link [[Leave|Temple]]>><<endevent>><</link>>
+	<br>
+<</if>>
+
+:: Temple Vigil
+<<set $outside to 1>><<effects>>
+
+<<generateyTemple 2>><<generateyTemple 3>><<generateyTemple 4>><<generateyTemple 5>>
+Jordan leads you down a flight of steps, and through a thick wooden door. Modern lights illuminate ancient walls, etched with archaic writing. The <<person1>><<priest>> doesn't slow a step, and continues down a passage. You pass other doors, hearing the sound of metal clanging behind some, and the smells of strange incenses seeping between the cracks of others.
+<br><br>
+
+You are led to another set of stairs, these leading up. There is no door this time. Natural light invades the subterranean passage.
+<br><br>
+
+<<templeicon "trialcontinue">><<link [[Next|Temple Vigil 2]]>><</link>>
+<br>
+
+:: Temple Vigil 2
+<<effects>>
+
+You emerge in a cloister, a place you've never seen before. Ghoulish gargoyles stand on each others backs, forming columns that surround the interior courtyard. Jordan notices your gaze. "Don't be afraid of the statues," <<he>> reassures you, an odd mirth touching <<his>> tone. "They have a sense of humour, if you look close."
+<br><br>
+
+The priest still doesn't slow <<his>> steps as <<he>> speaks, giving you no chance to investigate. You follow <<him>> into the courtyard proper, and find other initiates stood in the centre, waiting beneath the resolute gaze of a six-armed, six-winged statue. Its lower arms hold something to the ground, but it's been covered by a sheet.
+<br><br>
+
+<<templeicon "trialcontinue">><<link [[Next|Temple Vigil 3]]>><</link>>
+<br>
+
+
+:: Temple Vigil 3
+<<effects>>
+
+You share a furtive glance with the closest initiate, a <<person2>><<person>>. <<He>> clutches the crucifix at <<his>> neck.
+<br><br>
+
+On the other side of <<him>>,
+<<if $sydneySeen is undefined>>
+	<<npc Sydney 6>><<person6>>
+	<<set $sydneySeen.pushUnique("anguish")>><<set $sydneyFirstSeen to "anguish">>
+	you see a <<personsimple>> with <<npcHairColour "Sydney">> hair tied back in a ponytail and glasses. You've seen <<him>> before. It's Sydney, an initiate known for <<his>> innocent nature and work ethic. <<He>> gives you a knowing nod. Before you can examine the rest of the initiates
+<<else>>
+	<<npc Sydney 6>><<person6>>
+	you see Sydney.
+	<<if $sydneyromance is 1>>
+		<<He>> gives you a loving smile. Before you can return it
+	<<elseif C.npc.Sydney.love gte 10>>
+		<<He>> smiles and waves before quickly returning to a stoic posture. Before you can examine the rest of the initiates
+	<<else>>
+		<<He>> gives you a knowing nod. Before you can examine the others
+	<</if>>
+<</if>>
+however, a bell echoes through the cloister. Jordan has produced the instrument, and a hammer, from <<person1>><<his>> robes.
+<br><br>
+
+"Initiates!" <<he>> shouts, <<his>> voice echoing such that you'd be unable to pinpoint it were the <<priest>> not stood in front of you. "This night you face the trial of anguish. You will wait here. All night. The cold will seep into your bones and break you, one by one, until only one remains. God is watching. God will spare the worthy."
+<br><br>
+
+The bell rings again, and Jordan's expression softens. "That was the scripture. Apologies if it sounded severe." <<He>> bows. "We're rooting for you!" <<He>> turns and walks away, <<his>> habit skirt flailing in the breeze.
+<br><br>
+
+<<templeicon "trialcontinue">><<link [[Next|Temple Vigil 4]]>><<pass 60>><</link>>
+<br>
+
+
+:: Temple Vigil 4
+<<effects>>
+
+You wait in the cloister with the other initiates, watching the sun disappear. Night falls, and the surrounding buildings, free of artificial light, vanish in the gloom. The gargoyles, too, are overcome by incorrigible night.
+<br><br>
+
+The crack of a whip makes the other initiates jump. The bell rings. "Initiates!" Jordan's voice echoes around you. "Undress at once. You've only the gaze of the Lord to fear."
+<br><br>
+
+Several <<monks_and_nuns>> emerge from the dark, their arms held in front, to receive. They're blindfolded. You sense more of them, lurking in the dark.
+<br><br>
+
+<<templeicon "trialcontinue">><<link [[Undress|Temple Vigil Undress]]>><<pain 4>><</link>><<gpain>>
+<br>
+<<refuseicon>><<link [[Refuse|Temple Vigil Undress Refuse]]>><</link>>
+<br>
+
+:: Temple Vigil Undress
+<<effects>>
+
+You remove your clothing. The other initiates cover themselves, and avert their eyes from one another. A sudden breeze makes one of them, a <<person3>><<person>>, shiver. <<He>> closes <<his>> eyes and mouths a prayer. Any whisper is snatched by the wind before it reaches you.
+<<strip>>
+<br><br>
+
+<<if $sydney.glasses is "glasses">>
+	Sydney removes <<person6>><<his>> glasses, handing them away along with <<his>> clothes.
+<<else>>
+	Sydney stands motionless, covering <<person6>><<his>> eyes instead of <<his>> body.
+<</if>>
+Some of the other initiates seem reassured with one less pair of eyes on them.
+<br><br>
+
+The <<monks_and_nuns>> step backwards, bundles of clothes in their arms, and vanish into the night.
+<br><br>
+
+<<templeicon "trialcontinue">><<link [[Next (2:00)|Temple Vigil 5]]>><<pass 120>><<pain 6>><</link>>
+<br>
+
+
+:: Temple Vigil Undress Refuse
+<<effects>>
+
+The other initiates begin to strip around you.
+
+<<if $speech_attitude is "meek">>
+	"I'm sorry," you say. "But I'm too embarrassed to strip."
+<<elseif $speech_attitude is "bratty">>
+	"I'm not getting naked in front of you perverts," you say. "Blindfolds or no."
+<<else>>
+	"I don't want to take my clothes off," you say.
+<</if>>
+<br><br>
+
+"If you do not strip," Jordan's voice echoes. "You will fail the trial."
+<br><br>
+
+<<templeicon "trialcontinue">><<link [[Undress|Temple Vigil Undress]]>><<pain 6>><</link>><<gpain>>
+<br>
+<<refuseicon>><<link [[Refuse|Temple Vigil Undress Refuse 2]]>><<pain 4>><</link>><<gpain>>
+<br>
+
+:: Temple Vigil Undress Refuse 2
+<<effects>>
+
+Whips crack around your arms and legs, and pull you forward. You stagger and fall on your face, but the <<monks_and_nuns>> don't stop there. They drag you along the ground, until you reach the edge of the cloister.
+<br><br>
+
+Jordan waits for you, and helps you to your feet. "Apologies, child," <<he>> says. "But nudity is required. I hope you try again next week."
+<br><br>
+
+<<He>> leads you back underground, past the scent of incense. The banging of metal against metal is absent this time. You emerge back in the temple proper.
+<br><br>
+
+<<templeicon "trialcontinue">><<link [[Next|Temple]]>><<set $weekly.trialFailed to "strip">><<endevent>><</link>>
+<br>
+
+:: Temple Vigil 5
+<<effects>><<set $body_temperature to "cold">>
+
+You stand naked in a circle with the other initiates. The only indication that you aren't alone in a sea of darkness are the sounds of town, the din of traffic. Even they seem muted, suffocated by oppressive shadow.
+<br><br>
+
+Time passes. Your body shivers, and your teeth chatter. The wind picks up.
+<<switch Time.season>>
+	<<case "spring" "autumn">>
+		The cold licks you like a flame.
+	<<case "winter">>
+		The frigid winter air steals the breath from your lungs.
+	<<case "summer">>
+		It feels unnaturally cold for a summer's night.
+<</switch>>
+
+<<if (currentSkillValue('willpower') / 10) gte ($pain + random(0, 10))>>
+	<span class="green">You remain rooted to the spot, your shivers a violent defiance of the night.</span>
+	<<gwillpower>><<willpower 1>>
+	<br><br>
+	<<templeicon "trialcontinue">><<link [[Huddle together (2:00)|Temple Vigil 6]]>><<pass 120>><<pain 10>><</link>><<gpain>>
+	<br>
+	<<templeicon "trialbail">><<link [[Abandon the vigil|Temple Vigil Abandon]]>><<set $weekly.trialFailed to "cold">><</link>>
+	<br>
+<<else>>
+	<span class="red">It's too much for you.</span> You run from your vigil, into the dark, and the waiting arms of Jordan.
+	<<ggwillpower>><<willpower 10>>
+	<br><br>
+
+	<<link [[Next|Temple Vigil End]]>><<set $weekly.trialFailed to "cold">><</link>>
+	<br>
+<</if>>
+
+:: Temple Vigil Abandon
+<<effects>><<set $body_temperature to "cold">>
+
+You run from your vigil, into the dark, and the waiting arms of Jordan.
+<br><br>
+
+<<link [[Next|Temple Vigil End]]>><</link>>
+<br>
+
+
+:: Temple Vigil End
+<<effects>>
+
+<<person1>>
+<<His>> arms are blessedly warm. So is the fabric <<he>> wraps you in, heated somehow beforehand. "Oh child," <<he>> says. "You've failed the trial, but I hope you try against next week. Come, let's get you dressed."
+<br><br>
+"We've hot chocolate too," <<he>> adds in a whisper as <<he>> steers you from the cloister. "That's not part of the scripture."
+<br><br>
+
+<<link [[Next|Temple Vigil End 2]]>><<clotheson>><</link>>
+<br>
+
+
+:: Temple Vigil End 2
+<<effects>><<set $outside to 0>>
+
+The room is small, with a cozy fire in a hearth. Jordan hands you a steaming cup of hot chocolate. The warmth is almost painful against your hands, but you don't mind.<<pain -50>><<lllpain>>
+<br><br>
+
+<<pass 15>>
+Jordan waits with you until the shivers subside, then leads you back to the temple proper.
+<br><br>
+
+<<link [[Next|Temple]]>><<endevent>><</link>>
+<br>
+
+
+:: Temple Vigil End Sydney
+<<effects>>
+
+<<person1>>
+<<His>> arms are blessedly warm. So is the fabric <<he>> wraps you in, heated somehow beforehand. "Oh children," <<he>> says. "You've failed the trial, but I hope you try against next week. Come, let's get you dressed."
+<br><br>
+
+"We've hot chocolate too," <<he>> adds in a whisper as <<he>> steers you and Sydney from the cloister. "That's not part of the scripture."
+<br><br>
+
+<<link [[Next|Temple Vigil End Sydney 2]]>><<clotheson>><</link>>
+<br>
+
+
+:: Temple Vigil End Sydney 2
+<<effects>><<set $outside to 0>>
+
+The room is small, with a cozy fire in a hearth. Jordan hands you a steaming cup of hot chocolate. The warmth is almost painful against your hands, but you don't mind.<<pain -50>><<lllpain>>
+<br><br>
+
+<<pass 15>>
+Jordan waits with you and Sydney until the shivers subside, then leads you back to the temple proper. Sydney stays behind, staring blankly ahead.
+<br><br>
+
+<<link [[Next|Temple]]>><<endevent>><</link>>
+<br>
+
+
+:: Temple Vigil 6
+<<effects>><<set $body_temperature to "cold">>
+
+The initiates are stood defiant against the cold, but their bashfulness is less stalwart. They huddle against you, and each other, for warmth.
+<br><br>
+
+You press against each other, hoping to escape the bitter cold. The wind picks up again, howling through the cloister and stealing warmth you didn't know you had.
+<br><br>
+
+<<link [[Next|Temple Vigil 7]]>><</link>>
+<br>
+
+:: Temple Vigil 7
+<<effects>><<set $body_temperature to "cold">>
+
+One of the initiates, a <<person4>><<person>>, tries to push into the centre of the huddle. Someone shoves <<him>>, and a struggle breaks out. The initiates are driven apart to avoid being struck, just as an arctic gust sweeps between them.
+<br><br>
+
+Shaken by the outbreak of violence, separated from warmth, and assailed by this new chill, most initiates are broken.
+<br><br>
+
+<<if (currentSkillValue('willpower') / 10) gte ($pain + random(0, 10))>>
+	They abandon their vigil, and their silence, calling for help and running into the dark. <span class="green">You are not one of them.</span>
+	Less than a third of you remain. The <<person2>><<person>> clutches <<his>> crucifix, and the <<person3>><<person>> mouths another prayer. Sydney gives you a nudge, wordlessly trying to confirm that you're still there. You nudge <<person6>><<him>> back.
+	<<gwillpower>><<willpower 1>>
+	<br><br>
+	<<templeicon "trialcontinue">><<link [[Huddle together (2:00)|Temple Vigil 8]]>><<pass 120>><<pain 12>><</link>><<ggpain>>
+	<br>
+	<<templeicon "trialbail">><<link [[Abandon the vigil|Temple Vigil Abandon]]>><<set $weekly.trialFailed to "cold">><</link>>
+	<br>
+<<else>>
+	They abandon their vigil, and their silence, calling for help and running into the dark.
+	<<if $sydneyromance is 1 and (currentSkillValue('willpower') / 10) gte (($pain - 10) + random(0, 10))>>
+		<span class="red">You start to join them.</span> However, just as you turn, someone grabs you by the wrist, and pulls you in. It's Sydney. <span class="green">The added warmth gives you the perseverence to hold on,</span> for just a little longer.
+		<br><br>
+
+		Less than a third of you remain. The <<person2>><<person>> clutches <<his>> crucifix, and the <<person3>><<person>> mouths another prayer. Sydney holds you tightly, and you shakily wrap your numbed arms around <<person6>><<him>> in turn. <<His>> skin is cold, but not as cold as the unforgiving night air.
+		<<gwillpower>><<willpower 1>>
+		<br><br>
+		<<templeicon "trialcontinue">><<link [[Huddle together (2:00)|Temple Vigil 8]]>><<pass 120>><<pain 8>><</link>><<gpain>>
+		<br>
+		<<templeicon "trialbail">><<link [[Abandon the vigil|Temple Vigil Abandon]]>><<set $weekly.trialFailed to "cold">><</link>>
+		<br>
+	<<else>>
+		<span class="red">You are among them.</span> You run from your vigil, into the dark, and the waiting arms of Jordan.
+		<<ggwillpower>><<willpower 10>>
+		<br><br>
+
+		<<link [[Next|Temple Vigil End]]>><<set $weekly.trialFailed to "cold">><</link>>
+		<br>
+	<</if>>
+<</if>>
+
+:: Temple Vigil 8
+<<effects>><<set $body_temperature to "cold">>
+
+The four of you huddle with the rest of the initiates, your arms around each other, paying no heed to shame or embarrassment about your lack of clothing. There's no room for it. Not here.
+<br><br>
+
+<<if $wolfgirl gte 6>>
+	Your ears prick. You hear a whisper, carried by the breeze. The words escape comprehension, but they burrow into you, and provoke a primal fear. <<wolfgirl>>
+<<elseif $cat gte 6>>
+	Your ears prick. You hear a whisper, carried by the breeze. The words escape comprehension, but they burrow into you, and provoke a primal fear. <<cat>>
+<<elseif $fox gte 6>>
+	Your ears prick. You hear a whisper, carried by the breeze. The words escape comprehension, but they burrow into you, and provoke a primal fear. <<fox>>
+<<else>>
+	The <<person3>><<person>> interrupts <<his>> prayer, as if shocked by some new horror. Sydney covers <<person6>><<his>> ears and starts to breathe heavily. Then you hear it too. The breeze carries an alien whisper. You can't comprehend the words, but they elicit a primal fear.
+<</if>>
+<br><br>
+
+Something important, something precious, is in danger. In danger as long as you stay here. You need help. From anyone.
+<br><br>
+
+The other initiates must feel the same. They break from the huddle with a cry, and flee their vigil.
+
+<<if (currentSkillValue('willpower') / 10) gte ($pain + random(0, 10))>>
+	Terror grips you, <span class="green">but mere terror cannot break your faith.</span> You huddle with the <<person2>><<person>>, <<person3>><<person>>, and Sydney, now the only ones remaining.
+	<<gwillpower>><<willpower 1>>
+	<br><br>
+
+	<<templeicon "trialcontinue">><<link [[Defy the night (2:00)|Temple Vigil 9]]>><<pass 120>><<pain 8>><</link>><<ggpain>>
+	<br>
+	<<templeicon "trialbail">><<link [[Abandon the vigil|Temple Vigil Abandon]]>><<set $weekly.trialFailed to "whisper">><</link>>
+	<br>
+<<else>>
+	<span class="red">You run with them.</span> Terror grips you, and more than that, you don't want to be left alone.
+	<<ggwillpower>><<willpower 10>>
+	<br><br>
+
+	<<link [[Next|Temple Vigil End]]>><<set $weekly.trialFailed to "whisper">><</link>>
+	<br>
+<</if>>
+
+:: Temple Vigil 9
+<<effects>><<set $body_temperature to "cold">>
+<<person1>>
+The wind has died down, but you find a constant temperature is not a constant struggle. One moment you feel you could endure all night, and the next threatens to overwhelm you. But you perservere.
+<br><br>
+
+The bell tolls, sending such a shiver down your spine that you almost lose your footing. "Initiates!" It's Jordan's voice. Perhaps they stood a vigil of their own.
+<br><br>
+
+"There is but one challenge remaining." Several <<monks_and_nuns>> emerge from the dark. "It's time for you to drive away this night." Whips emerge from beneath habits. "There are sticks and logs around the cloister. Bring them to the centre. Now!"
+<br><br>
+<<templeicon "trialcontinue">><<link [[Build a pyre|Temple Vigil 10]]>><<pain 2>><</link>><<gpain>>
+<br>
+
+:: Temple Vigil 10
+<<effects>><<set $body_temperature to "cold">>
+
+<<if currentSkillValue('athletics') gte 400>>
+	You run back and forth, delivering the wood to the centre. Whips crack, though none strike you. An odd thrill energises you. It feels good to get moving. It's not as dark is it was; dawn threatens to break. You and the other initiates soon have the wood piled up.
+<<else>>
+	You run back and forth, delivering the wood to the centre. Whips crack, though none strike you. However, one comes uncomfortably close, and you <span class="red">lose your footing.</span> You quickly recover, but it hurt nonetheless. You and the other initiates soon have the wood piled up. <<pain 3>><<gpain>>
+<</if>>
+<br><br>
+
+A blinding glow flashes into existence, transforming the night into a dance of shadows. Jordan strides towards you, a flaming torch in <<his>> hand. "We deem you <span class="red">unworthy,"</span> <<he>> says. "Now you must give yourself to the Lord." <<He>> shoves the torch into the pile of wood. A wave of heat washes over you, almost knocking you on your back. The blaze reaches the sky.
+<br><br>
+
+"This pyre is for you," <<he>> says. The other <<monks_and_nuns>> form a circle. The strange play of light hides their features. "Throw yourself into the flame and let God judge you."
+<br><br>
+
+Sydney mutters something. You can barely hear it. "...only burns away impurity. It doesn't hurt..." Despite <<person6>><<his>> words, <<he>> doesn't look convinced.
+<br><br>
+
+<<templeicon "trialcontinue">><<link [[Throw yourself into the flame (1:00)|Temple Vigil 11]]>><<pain 10>><</link>><<gpain>>
+<br>
+<<if $sydneyromance is 1 or $NPCName[$NPCNameList.indexOf("Sydney")].love gte 90>>
+	<<templeicon "trialcontinue">><<link [[Take Sydney's hand (1:00)|Temple Vigil 11]]>><<set $phase to 2>><<pain 8>><</link>><<gpain>><<handholdingvirginitywarning>><<NPCvirginitywarning "Sydney" "handholding">>
+	<br>
+<</if>>
+<<refuseicon>><<link [[Refuse|Temple Vigil Refuse]]>><<pain 2>><</link>><<gpain>>
+<br>
+
+:: Temple Vigil Refuse
+<<effects>><<set $body_temperature to "hot">>
+
+<<if $speech_attitude is "meek">>
+	"I don't want to burn myself," you say. "This is too far!"
+<<elseif $speech_attitude is "bratty">>
+	"You're not fit to judge me," you say.
+<<else>>
+	"This is too extreme," you say.
+<</if>>
+<br><br>
+
+Jordan gives you an encouraging look. <<He>> wouldn't put you in real harm, you're sure of that. Still, the heat stings even from here.
+<br><br>
+
+<<templeicon "trialcontinue">><<link [[Throw yourself into the flame (1:00)|Temple Vigil 11]]>><<pain 10>><</link>><<gpain>>
+<br>
+<<refuseicon>><<link [[Refuse|Temple Vigil Refuse 2]]>><<pain 2>><<clotheson>><<set $weekly.trialFailed to "pyre">><</link>><<gpain>>
+<br>
+
+:: Temple Vigil Refuse 2
+<<effects>>
+
+Whips crack around your arms and legs, and pull you forward. You stagger and fall on your face, but the <<monks_and_nuns>> don't stop there. They drag you along the ground, until you reach the edge of the cloister.
+<br><br>
+
+Jordan waits for you, and helps you to your feet. "You did very well, child," <<he>> says. "I hope you try again next week."
+<br><br>
+
+<<He>> leads you back underground, past the scent of incense. The banging of metal against metal is absent this time. You emerge back in the temple proper.
+<br><br>
+
+<<templeicon "trialcontinue">><<link [[Next|Temple]]>><<endevent>><</link>>
+<br>
+
+:: Temple Vigil 11
+<<effects>><<set $body_temperature to "hot">>
+
+<<if $phase is 2>>
+	<<canvas-model-override "arm_left" "idle">>
+	You take Sydney by the hand. <<person6>><<His>> doubts vanish from <<his>> face, and <<he>> smiles at you once more. <<takeHandholdingVirginity "Sydney" "romantic">>
+	<br><br>
+<</if>>
+
+You step towards the pyre. The heat purges you of the cold you've endured all night. You break into a sweat.
+<br><br>
+
+The <<person2>><<person>> stares at the fire with grim determination, <<his>> knuckles white as <<he>> grips the crucifix. The <<person3>><<person>>'s eyes are shut. <<His>> lips move with a mad alacrity.
+<<if $phase is 2>>
+	Sydney holds your hand tighter.
+<<elseif $templePromised is "Sydney">>
+	<<set $phase to 2>><<canvas-model-override "arm_left" "idle">>
+	Sydney stumbles next to you. You catch <<person6>><<him>>, and take <<his>> hand for stability. <<takeHandholdingVirginity "Sydney" "romantic">>
+<<else>>
+	Sydney repeats something, but is drowned out by the crackle of the flame.
+<</if>>
+<br><br>
+
+Your eyes sting, you blink, and your vision changes. A manifestation of evil hangs over the town, its scythe sweeping across entire districts, tearing holes in reality. Holes too small. All too small! But big enough for servants to squirm through. Big enough for new servants to be found. Servants who will create more, larger tears.
+<br><br>
+
+Your skin stings. Overpowering heat surrounds you. You feel your skin blister, melting like wax.
+
+<<if $phase is 2>>
+	<<if (currentSkillValue('willpower') / 10) gte (($pain - 10) + random(0, 10))>>
+		<span class="green">But these bodies are mere shells.</span> The fire frees you. You suffer no fear because you have no fear.
+		<<gwillpower>><<willpower 1>><<wash>>
+		<br><br>
+
+		<<link [[Next|Temple Vigil 12]]>><</link>>
+		<br>
+	<<else>>
+		<span class="red">Overcome by terror and pain, madness seizes you both.</span> You flee from the pyre, into the arms of Jordan.
+		<<ggwillpower>><<willpower 10>>
+		<br><br>
+
+		<<link [[Next|Temple Vigil End Sydney]]>><<set $weekly.trialFailed to "Sydney">><<canvas-model-override "clear">><</link>>
+		<br>
+	<</if>>
+<<else>>
+	<<if (currentSkillValue('willpower') / 10) gte ($pain + random(0, 10))>>
+		<span class="green">But this body is but a shell.</span> The fire frees you. You suffer no fear because you have no fear.
+		<<gwillpower>><<willpower 1>><<wash>>
+		<br><br>
+
+		<<link [[Next|Temple Vigil 12]]>><</link>>
+		<br>
+	<<else>>
+		<span class="red">Overcome by terror and pain, madness seizes you.</span> You flee from the pyre, into the arms of Jordan.
+		<<ggwillpower>><<willpower 10>>
+		<br><br>
+
+		<<link [[Next|Temple Vigil End]]>><<set $weekly.trialFailed to "pyre">><<canvas-model-override "clear">><</link>>
+		<br>
+	<</if>>
+<</if>>
+
+:: Temple Vigil 12
+<<effects>><<wash>><<set $body_temperature to "hot">>
+
+The <<person2>><<persons>> resolve falters first. <<He>> drops to <<his>> knees, the crucifix dangling beneath <<his>> neck and <<his>> tears evaporating before they hit the ground. Even over the roar of the flame, you hear <<his>> howls.
+<br><br>
+
+Figures close in on <<him>>, <<monks_and_nuns>> rescuing <<him>> from <<himself>>. It feels like a dream, acknowledged by a corner of your mind.
+<br><br>
+
+<<if $phase is 2>>
+	You and Sydney carry each other forwards.
+	<br><br>
+<<else>>
+	Sydney falls next. <<person6>><<He>> thrashes forward in one last attempt to reach the pyre, but only <<his>> hands make it in. <<He>> continues repeating something, even as <<hes>> lifted away.
+	<br><br>
+<</if>>
+
+<<link [[Next|Temple Vigil 13]]>><</link>>
+<br>
+
+:: Temple Vigil 13
+<<effects>><<canvas-model-override "blink" false>><<canvas-model-override "eyes_half" true>><<canvas-model-override "trauma" true>><<canvas-model-override "mouth" "cry">><<set $body_temperature to "hot">>
+
+No pain, no heat. Just light, engulfing you, baring the outline of your soul.
+<br><br>
+
+The light forms into a blinding figure of immense power and beauty. Your delirious mind averts its awareness, ashamed that such vulgar comprehension could behold such a presence.
+<br><br>
+
+You're vaguely aware of the <<person3>><<person>> shuddering on the ground, overcome by some vision.
+<br><br>
+
+<<link [[Focus|Temple Vigil Focus]]>><</link>>
+<br>
+<<link [[Yield|Temple Vigil Yield]]>><</link>>
+<br>
+
+:: Temple Vigil Focus
+<<effects>><<set $body_temperature to "hot">>
+
+You resist your instincts, and focus your attention on the figure. Innumerable eyes behold its surroundings, and colossal wings beat to an unheard rhythm.
+<br><br>
+
+Something is missing. Tears in the body of this entity match the tears in reality you saw earlier. You can almost see the outline of a whole, as if you've seen it before. A lost arm. A broken wing. A single missing feather. So many holes. You're hit by the realisation that glory masks, distorts and twists. Will is darker than faith. Stronger. Will tore the world, and faith could only meet it.
+<br><br>
+
+<<if $phase is 2>>
+	You melt away. Your body melds together with Sydney's,
+	<<run statusCheck("Sydney")>>
+	<<if !_sydneyStatus.includes("pure")>>
+		and the two of you share this profane revelation.
+	<<else>>
+		and you feel Sydney's mind reject what you're both seeing.
+	<</if>>
+	<br><br>
+<</if>>
+
+Then the flame vanishes. The light vanishes. You're on your knees in the centre of the cloister.
+<br><br>
+
+<<link [[Next|Temple Vigil 14]]>><</link>>
+<br>
+
+:: Temple Vigil Yield
+<<effects>><<set $body_temperature to "hot">>
+
+<<if $phase is 2>>
+	You fall to your knees, dragging Sydney down to the ground with you. Or perhaps <<person6>><<he>> fell first. You feel <<him>> hit the ground, as if you were in <<his>> body. You drag each other into the fire.
+	<br><br>
+
+	The pain envelopes you, each lick of flame making you shudder. But it doesn't matter. Before such beauty, life itself evaporates in joyous ecstacy.
+	<<run statusCheck("Sydney")>>
+	<<if !_sydneyStatus.includes("corrupt")>>
+		As one, you behold glory.
+	<<else>>
+		Yet, there is conflict. You feel Sydney's curiosity, as if it were your own, begging you to peer deeper inside, to search for some answer.
+	<</if>>
+<<else>>
+	You fall to your knees and crawl into the fire. The pain envelopes you, each lick of flame making you shudder. But it doesn't matter. Before such beauty, life itself evaporates in joyous ecstacy.
+<</if>>
+<br><br>
+
+Then the flame vanishes. The light vanishes. You're on your knees in the centre of the cloister.
+<br><br>
+
+<<link [[Next|Temple Vigil 14]]>><</link>>
+<br>
+
+:: Temple Vigil 14
+<<effects>><<canvas-model-override "clear">>
+<<pass 60>>
+<<set $pain to 0>><<tiredness -20>><<stress -40>>
+<<if $phase is 2>>
+	There's no sign of the fire. Just a pyre of unlit wood beneath you. The only flame crests the roof of the temple, breaking the night with holy dawn.
+	<br><br>
+
+	The bell rings, thrice in quick succession. Jordan drops it in <<person1>><<his>> haste to reach you. <<He>> throws a warm fabric over you and Sydney, concealing your nudity. Despite the flame, you find that you are very cold. Jordan and Sydney's warmth fill you.
+	<br><br>
+
+	"I knew you'd do it!" <<he>> says. "Normally only one initiate is permitted to succeed. However, you entered the pyre as one. You did not disobey the scripture. Congratulations, both of you." The other <<monks_and_nuns>> close in, smiling and congratulating you, calling you <<person6>><<if $player.gender_appearance is "m" and $pronoun is "m">>brothers<<elseif $player.gender_appearance is "f" and $pronoun is "f">>sisters<<else>>brother and sister<</if>>. You're still disoriented.
+	<br><br>
+
+	<<run statusCheck("Sydney")>>
+	<<person6>>
+	<<if _sydneyStatus.includes("corrupt")>>
+		Sydney pushes closer to you under the fabric, and gives you a squeeze of appreciation before hugging you.
+	<<else>>
+		Sydney's embarassment at being exposed quickly returns, but <<he>> doesn't make any effort to move away from you. Instead, <<he>> hugs you in appreciation.
+	<</if>>
+	"I couldn't have done it without you here with me." <<npcincr Sydney love 10>><<gglove>><<arousal 10>><<garousal>>
+	<br><br>
+
+	<<set $grace to 0>>
+	<<set $temple_rank to "monk">>
+	<<set $sydney.rank to "monk">>
+	<<set $temple_monk_days to 0>>
+	<<set $wardrobes.temple.unlocked to true>>
+	<<earnFeat "Defy the Night">>
+
+	<<link [[Next|Temple Vigil 15 Sydney]]>><<clotheson>><<endevent>><</link>>
+	<br>
+<<else>>
+	There's no sign of the fire. Just a pyre of unlit wood beneath you. The only flame crests the roof of the temple, breaking the night with holy dawn.
+	<br><br>
+
+	The bell rings, thrice in quick succession. Jordan drops it in <<person1>><<his>> haste to reach you. <<He>> throws a warm fabric over your body, concealing your nudity. Despite the flame, you find that you are very cold. Jordan's warmth fills you.
+	<br><br>
+
+	"I knew you'd do it!" <<he>> says. The other <<monks_and_nuns>> close in, smiling and congratulating you, calling you <<sister>>. Sydney rushes forwards and hugs you, stammering words of pride and happiness. <<person6>><<He>> doesn't seem bothered by <<his>> own failure, or your nudity. You're still disoriented. <<npcincr Sydney love 5>><<glove>>
+	<br><br>
+
+	<<set $grace to 0>>
+	<<set $temple_rank to "monk">>
+	<<set $temple_monk_days to 0>>
+	<<set $wardrobes.temple.unlocked to true>>
+	<<earnFeat "Defy the Night">>
+
+	<<link [[Next|Temple Vigil 15]]>><<clotheson>><<endevent>><</link>>
+	<br>
+<</if>>
+
+:: Temple Vigil 15
+<<effects>>
+<<npc "Jordan">><<person1>>
+<<generateTemple 2>>
+Jordan leads you back underground, to a small room with a lit fireplace. <<He>> beckons you to sit as a <<person2>><<monk>> follows you in, carrying your clothes.
+<br><br>
+
+"This temple is now your home. We've much to show you, but there's no hurry. We'll fill you in when you're ready."
+<br><br>
+<<person1>><<He>> pauses at the door, and smiles back at you. "I'm happy you could join us."
+<br><br>
+
+<<link [[Next|Temple Cloister]]>><<endevent>><</link>>
+<br>
+
+:: Temple Vigil 15 Sydney
+<<effects>>
+<<npc "Jordan" 1>><<npc "Sydney" 2>><<person1>>
+<<generateTemple 3>>
+Jordan leads you both back underground, to a small room with a lit fireplace. <<He>> beckons you to sit as Sydney and a <<person3>><<monk>> follows you in, carrying your clothes.
+<br><br>
+
+"This temple is now your home. We've much to show you, but there's no hurry. We'll fill you in when you're ready."
+<br><br>
+<<person1>><<He>> pauses at the door, and smiles back at you. "I'm happy you could both join us."
+<br><br>
+
+Sydney hugs you again before leaving.
+<br><br>
+
+<<link [[Next|Temple Cloister]]>><<endevent>><</link>>
+<br>
+
+:: Temple Spear Questions
+<<effects>>
+
+<<switch $spearQuestion>>
+	<<case "why">>
+		"Well," Jordan says. "It has to be someone brave and kind-hearted." <<He>> ends there, as if that explanation suffices.
+	<<case "what">>
+		"Lots of food and drink. We host it in the temple gardens, and invite the whole town. When the sun sets, and the blood moon rises, one of our number will hold the spear aloft. They'll defy the night, and keep the town safe for another century."
+		<br><br>
+		Jordan smiles.
+	<<case "where">>
+		"I would start with the museum," Jordan says. "It's only open at weekends, but the historian there was happy to help. Perhaps <<nnpc_he "Winter">>'s dug something up."
+<</switch>>
+<br><br>
+
+<<if !$spearQuestions.includes("why")>>
+	<<link [[Ask why they're sending you in particular|Temple Spear Questions]]>><<set $temple_spear_mission to 1>><<set $spearQuestion to "why">><<set $spearQuestions.push("why")>><</link>>
+	<br>
+<</if>>
+<<if !$spearQuestions.includes("what")>>
+	<<link [[Ask what the festival involves|Temple Spear Questions]]>><<set $temple_spear_mission to 1>><<set $spearQuestion to "what">><<set $spearQuestions.push("what")>><</link>>
+	<br>
+<</if>>
+<<if !$spearQuestions.includes("where")>>
+	<<link [[Ask where you should look|Temple Spear Questions]]>><<set $spearQuestion to "where">><<set $spearQuestions.push("where")>><</link>>
+<br>
+<</if>>
+<br><br>
+<<link [[Leave|Temple]]>><<set $temple_spear_mission to 1>><<unset $spearQuestion>><<unset $spearQuestions>><</link>>
+<br>

@@ -239,6 +239,7 @@
 	<br><br>
 
 	<<set $baileydefeatedchain to 0>>
+	<<set $baileyRefusedToPay to 0>>
 	<<set $baileypaychain to ($baileypaychain || 0) + 1>>
 	<<unset $bailey_encroach>>
 	<<set $rentstage += 1>>
@@ -388,7 +389,7 @@
 		<<earnFeat "First Fatherhood">>
 		<<set _impregFame to (_playerFatheredChildren.length * 5)>>
 		<<fameimpreg _impregFame>>
-		<br><<He>> looks back to the paper.<br>
+		<br><<He>> looks back to the paper.<br><br>
 		<<for _key, _value range $babyIntros.Bailey.filter(child => child.mother !== "pc")>>
 			<!--
 			<<set _childIds to []>>
@@ -405,6 +406,24 @@
 			<</if>>
 			<<if _value.mother is "Robin">>
 				"That waif popped out <<print _childrenText>>, and insists that they're yours. I'm inclined to believe <<nnpc_him "Robin">> with how much time you two spend together."
+			<<elseif _value.mother is "Alex">>
+				<<if pregnancyCountBetweenParents("Alex","pc") is 1 or pregnancyCountBetweenParents("pc","Alex")>>
+					<<if C.npc.Alex.pregnancy.selfKnowledge or C.npc.Alex.pregnancy.pcKnowledge>>
+						"I got word that you knocked up some <<if $NPCName[$NPCNameList.indexOf("Alex")].pronoun is "f">>bitch<<else>>slut<</if>> outside town. I paid them a little visit and saw that that farm's no place for a brat. I did you the favour of bringing your spawn back here, where it belongs."
+					
+					<<else>>
+						"I've paid a little visit to that farmer <<if $NPCName[$NPCNameList.indexOf("Alex")].pronoun is "f">>girl<<else>>boy<</if>> You should have done the same. Anyway, <<nnpc_he "Alex">> popped out <<print _childrenText>>, and I already know it's yours."
+
+					<</if>>
+
+				<<else>>
+					"You're a careless little fuck, you know that? Making me drive all the way there again just because you don't know how to assume your own responsibilities, instead, making more and more," <<he>> says.
+					<br><br>
+
+					"It's from that farmer <<if $NPCName[$NPCNameList.indexOf("Alex")].pronoun is "f">>girl<<else>>boy<</if>>, again."
+
+				<</if>>
+
 			<<elseif $NPCNameList.includes(_value.mother)>>
 				"Someone named _value.mother dropped off <<print _childrenText>>, and a paternity test with your name on it to match."
 			<<else>>
@@ -444,7 +463,7 @@
 <<rentpay>>
 
 <<if $bus is "hospital">>
-	<<if $crime gte 1000>>
+	<<if crimeSumCurrent() gte 1000>>
 		<<link [[Next|Hospital Arrest]]>><<pass 10>><<endevent>><</link>>
 		<br>
 	<<else>>
@@ -480,7 +499,7 @@ Robin hugs you softly after Bailey leaves. "I'm so sorry," <<he>> says.
 	<br><br>
 
 	<<set $companion to "Robinrent">>
-	<<if $crime gte 1000>>
+	<<if crimeSumCurrent() gte 1000>>
 		<<link [[Next|Hospital Arrest]]>><<pass 10>><<endevent>><</link>>
 		<br>
 	<<else>>
@@ -634,6 +653,7 @@ Robin hugs you softly after Bailey leaves. "I'm so sorry," <<he>> says.
 :: Rent Intro
 <<effects>>
 <<set $baileydefeatedchain to 0>><<set $soldCount += 1>>
+<<set $baileyRefusedToPay to 0>>
 <<set _robin to statusCheck("Robin")>>
 <<unset $bailey_encroach>>
 <<npc Bailey 1>>
@@ -662,9 +682,9 @@ You trip a couple of times, prompting Bailey to drag you back to your feet and s
 		"Yes, I'm just taking my <<girl>> for a tour of the outside world,"
 	<</if>>
 	says Bailey, <<person1>><<nnpc_his "Bailey">> temper barely concealed beneath the sarcasm.
-	"Just give me the cash. And I want you gone in 10 minutes, you're not paying enough..."
+	"Just give me the cash. And I want you gone in 10 minutes."
 	<br><br>
-	A moment later, your hood is removed as the <<person>> clearfully says, "You're the cutest thing I've seen all week! Come 'ere."
+	Someone presses their hand between your shoulders and shoves you forward, into another pair of arms. A moment later, your hood is removed, revealing a <<person>>. "You're the cutest thing I've seen all week! Come 'ere."
 	<br><br>
 	<<link [[Next|Tutorial]]>><<set $molestationstart to 1>><<set $tutorialExit to "Tutorial Bailey">><</link>>
 
@@ -969,6 +989,7 @@ You trip a couple of times, prompting Bailey to drag you back to your feet and s
 
 <<else>>
 	<<set $baileydefeatedchain to 0>>
+	<<set $baileyRefusedToPay to 0>>
 	<<unset $bailey_encroach>>
 
 
@@ -1032,6 +1053,7 @@ You trip a couple of times, prompting Bailey to drag you back to your feet and s
 
 <<else>>
 	<<set $baileydefeatedchain to 0>>
+	<<set $baileyRefusedToPay to 0>>
 	<<unset $bailey_encroach>>
 
 

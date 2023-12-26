@@ -530,7 +530,7 @@ const Furniture = (() => {
 		}
 		switch (versions.furniture) {
 			case 0:
-				V.furniturePriceFactor = 1;
+				if (!V.furniturePriceFactor) V.furniturePriceFactor = 1;
 				V.furniture = {
 					bedroom: {
 						bed: {
@@ -666,10 +666,6 @@ const Furniture = (() => {
 		if (!Array.isArray(V.furnitureLog)) V.furnitureLog = [];
 		if (!V.furnitureLog.includes(id)) V.furnitureLog.push(id);
 	}
-
-	$(document).on(":start2", function () {
-		furnitureUpdate();
-	});
 
 	/* Call the initiator function immediately. This happens when the game starts up and is loading. (Spinny wheel) */
 	furnitureInit();

@@ -17,10 +17,10 @@
 
 			<<set $adultshopstate to "closed">>
 			<<if $exposed lte 0>>
-				<<link [[Go outside|Elk Street]]>><<adultShopClear>><</link>>
+				<<elkicon>><<link [[Go outside|Elk Street]]>><<adultShopClear>><</link>>
 				<br>
 			<<else>>
-				<<link [["Hide until it's over (1:00)"|Adult Shop]]>><<pass 1 hour>><</link>>
+				<<ind>><<link [["Hide until it's over (1:00)"|Adult Shop]]>><<pass 1 hour>><</link>>
 			<</if>>
 		<<else>>
 			<div id="tryonstats-div"><<tryOnStats>></div>
@@ -42,35 +42,38 @@
 				<<warmth_description>>
 			</div>
 			<br><br>
+			<<clothingcategoryicon "all">>
+			<<link "View All">><<replace "#clothingShop-div">><<AllShop>><</replace>><</link>>
+			<br><br>
 			<<if $debug is 1>>
 				<<clothingcategoryicon "overoutfit">>
-				<<link "View over outfits">><<replace "#clothingShop-div">><<OverOutfitShop>><</replace>><</link>>
+				<<link "View Over Outfits">><<replace "#clothingShop-div">><<OverOutfitShop>><</replace>><</link>>
 				<br>
 				<<clothingcategoryicon "overoutfit">>
-				<<link "View over tops">><<replace "#clothingShop-div">><<OverTopShop>><</replace>><</link>>
+				<<link "View Over Tops">><<replace "#clothingShop-div">><<OverTopShop>><</replace>><</link>>
 				<br><br>
 			<</if>>
 			<<clothingcategoryicon "outfit">>
-			<<link "View outfits">><<replace "#clothingShop-div">><<OutfitShop>><</replace>><</link>>
+			<<link "View Outfits">><<replace "#clothingShop-div">><<OutfitShop>><</replace>><</link>>
 			<br>
 			<<clothingcategoryicon "upper">>
-			<<link "View tops">><<replace "#clothingShop-div">><<TopShop>><</replace>><</link>>
+			<<link "View Tops">><<replace "#clothingShop-div">><<TopShop>><</replace>><</link>>
 			<br>
 			<<clothingcategoryicon "lower">>
-			<<link "View bottoms">><<replace "#clothingShop-div">><<BottomShop>><</replace>><</link>>
+			<<link "View Bottoms">><<replace "#clothingShop-div">><<BottomShop>><</replace>><</link>>
 			<br><br>
 			<<clothingcategoryicon "underoutfit">>
-			<<link "View under outfits">><<replace "#clothingShop-div">><<UnderOutfitShop>><</replace>><</link>>
+			<<link "View Under Outfits">><<replace "#clothingShop-div">><<UnderOutfitShop>><</replace>><</link>>
 			<br>
 			<<clothingcategoryicon "underupper">>
-			<<link "View under tops">><<replace "#clothingShop-div">><<UnderTopShop>><</replace>><</link>>
+			<<link "View Under Tops">><<replace "#clothingShop-div">><<UnderTopShop>><</replace>><</link>>
 			<br>
 			<<clothingcategoryicon "underlower">>
-			<<link "View under bottoms">><<replace "#clothingShop-div">><<UnderBottomShop>><</replace>><</link>>
+			<<link "View Under Bottoms">><<replace "#clothingShop-div">><<UnderBottomShop>><</replace>><</link>>
 			/* Left here for future expansion */
 			/*<br>
 			<<clothingcategoryicon "genitals">>
-			<<link "View Genital wear">><<replace "#clothingShop-div">><<GenitalShop>><</replace>><</link>>*/
+			<<link "View Genital Wear">><<replace "#clothingShop-div">><<GenitalShop>><</replace>><</link>>*/
 			<br><br>
 			<<clothingcategoryicon "head">>
 			<<link "View Head Accessories">><<replace "#clothingShop-div">><<HeadShop>><</replace>><</link>>
@@ -81,6 +84,9 @@
 			<<clothingcategoryicon "neck">>
 			<<link "View Neck Accessories">><<replace "#clothingShop-div">><<NeckShop>><</replace>><</link>>
 			<br>
+			/*<<clothingcategoryicon "handheld">>
+			<<link "View Handheld Items">><<replace "#clothingShop-div">><<HandheldShop>><</replace>><</link>>
+			<br>*/
 			<<clothingcategoryicon "hand">>
 			<<link "View Hand Accessories">><<replace "#clothingShop-div">><<HandsShop>><</replace>><</link>>
 			<br>
@@ -109,26 +115,28 @@
 
 			<<if Time.dayState is "night" or $tryOn.value is 0>>
 				<<if Time.dayState is "night" and $adultShop.spotted is true and $adultShop.stolenClothes gt 0>>
-					<<link [[Leave|Adult Shop Night Guard Found]]>>
+					<<elkicon>><<link [[Leave|Adult Shop Night Guard Found]]>>
 						<<shopClothingFilterReset>>
 						<<ShowUnderEquip "normal">>
 						<<ShowUnderEquip "over">>
 						<<set $tryOn.autoReset to true>>
-						<<crimeup `$tryOn.value / 100`>>
+						<<crimeUp `$tryOn.value / 100` "thievery">>
 						<<set $adultshopstate to "closed">>
+						<<shopCommandoCheck>>
 					<</link>>
 				<<else>>
-					<<link [[Leave|Adult Shop]]>>
+					<<elkicon>><<link [[Leave|Adult Shop]]>>
 						<<shopClothingFilterReset>>
 						<<ShowUnderEquip "normal">>
 						<<ShowUnderEquip "over">>
 						<<set $tryOn.autoReset to true>>
-						<<crimeup `$tryOn.value / 100`>>
+						<<crimeUp `$tryOn.value / 100` "thievery">>
 						<<set $adultshopstate to "closed">>
+						<<shopCommandoCheck>>
 					<</link>>
 				<</if>>
 				<<if $tryOn.value gt 0>>
-					<<crime>>
+					<<crime "thievery">>
 				<</if>>
 				<br><br>
 			<<elseif $tryOn.value gt 0>>
@@ -159,7 +167,7 @@
 					<</link>>
 					<br>
 				<</if>>
-				<<link [[Leave with stolen clothes|Stolen Adult Shop Result]]>><<shopClothingFilterReset>><</link>>
+				<<elkicon>><<link [[Leave with stolen clothes|Stolen Adult Shop Result]]>><<shopClothingFilterReset>><<shopCommandoCheck>><</link>>
 				<br>
 			<</if>>
 		<</if>>
@@ -176,8 +184,8 @@
 	<<clothingReset>>
 <<else>>
 	<<rng>>
-	<<if $crime gte 50000 or ($crime gte 40000 and $rng * 20 gte currentSkillValue('skulduggery')) or ($crime gte 25000 and $rng * 10 gte $skulduggery)
-	or ($crime gte 10000 and $rng * 5 gte currentSkillValue('skulduggery'))>>
+	<<if crimeSumCurrent("thievery","petty") gte 50000 or (crimeSumCurrent("thievery","petty") gte 40000 and $rng * 20 gte currentSkillValue('skulduggery')) or (crimeSumCurrent("thievery","petty") gte 25000 and $rng * 10 gte currentSkillValue('skulduggery'))
+	or (crimeSumCurrent("thievery","petty") gte 10000 and $rng * 5 gte currentSkillValue('skulduggery'))>>
 		<<generate1>><<person1>>
 		Sirris watches the entrance out of the corner of <<nnpc_his "Sirris">> eye, and as you try to stroll past, <<he>> stops you.
 		<br><br>
@@ -190,14 +198,14 @@
 		<<else>>
 			<<set $adultShop.ban to 14>>
 		<</if>>
-		<<crime>>
+		<<crime "thievery">>
 		<<set $adultShop.banCount++>>
 	<<else>>
 		Sirris watches the entrance out of the corner of <<nnpc_his "Sirris">> eye, but you leave without arousing suspicion.
-		<<crime>>
+		<<crime "thievery">>
 	<</if>>
 	<<set _crime to ($tryOn.value / 100)>>
-	<<crimeup _crime>>
+	<<crimeUp _crime "thievery">>
 <</if>>
 <br><br>
 <<link [[Next|Elk Street]]>><<set $tryOn.autoReset to true>><<adultShopClear>><</link>>
@@ -249,7 +257,7 @@ disapproving expression, "I'll be informing the owners of this situation."
 <</if>>
 <br><br>
 "Now follow me, I'll be escorting you away from here. You're lucky that I don't just take you straight to the pillory."
-
+<<tryOnReset>>
 <br><br>
 <<link [[Run|Adult Shop Night Guard Found Run]]>><</link>><<athleticsdifficulty 500>>
 <br>
@@ -344,13 +352,13 @@ A standard cash register sits on a counter. It's locked tight.
 <<if currentSkillValue('skulduggery') gte $lock>>
 	<span class="green">The lock looks easy to pick.</span>
 	<br><br>
-	<<lockpickicon>><<link [[Pick it (0:10)|Adult Shop Register Sneak]]>><<pass 10>><<crimeup 1>><</link>><<crime>>
+	<<lockpickicon>><<link [[Pick it (0:10)|Adult Shop Register Sneak]]>><<pass 10>><<crimeUp 1 "thievery">><</link>><<crime "thievery">>
 	<br>
 <<else>>
 	<span class="red">The lock looks beyond your ability to pick.</span><<skulduggeryrequired>>
 	<br><br>
 <</if>>
-<<ind>><<link [[Leave|Adult Shop]]>><</link>>
+<<getouticon>><<link [[Leave|Adult Shop]]>><</link>>
 <br>
 
 :: Adult Shop Register Sneak
@@ -370,7 +378,7 @@ There's <<printmoney $tip>>.
 <<if $rng gte 86>>
 	<<skulshopevents>>
 <<else>>
-	<<link [[Take it|Adult Shop]]>><<set $money += $tip>><<crimeup `$tip / 100`>><</link>><<crime>>
+	<<link [[Take it|Adult Shop]]>><<set $money += $tip>><<crimeUp `$tip / 100` "thievery">><</link>><<crime "thievery">>
 	<br>
 	<<link [[Leave it|Adult Shop]]>><</link>>
 	<br>

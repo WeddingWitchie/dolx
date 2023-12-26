@@ -218,7 +218,6 @@ var IronMan = (Save => {
 	}
 
 	function exportSlot(slot = 8) {
-		updateExportDay();
 		const data = Save.slots.get(slot);
 		const saveId = data.metadata.saveId;
 		const saveName = data.metadata.saveName;
@@ -232,7 +231,6 @@ var IronMan = (Save => {
 	 */
 	// eslint-disable-next-line no-unused-vars
 	function exportCurrent() {
-		updateExportDay();
 		Save.export();
 	}
 
@@ -243,7 +241,6 @@ var IronMan = (Save => {
 	 * @returns {string} Containing the encoded data.
 	 */
 	function exportDebug(slot) {
-		updateExportDay();
 		const data = Save.slots.get(slot);
 		const details = DoLSave.SaveDetails.get(slot);
 		if (data == null) {
@@ -320,12 +317,11 @@ var IronMan = (Save => {
 	 */
 	function uiExportButton() {
 		const exportName = "degrees-of-lewdity" + (V.saveName !== "" ? "-" + V.saveName : "");
-		updateExportDay();
 		Save.export(exportName);
 	}
 
 	function scheduledSaves() {
-		const date = new Date(Time.date);
+		const date = new Date(Time.month + " " + Time.monthDay + ", " + Time.year);
 
 		if (!V.ironmanautosaveschedule) V.ironmanautosaveschedule = date.getTime().toString(8);
 		if (parseInt(V.ironmanautosaveschedule, 8) < date.getTime()) {

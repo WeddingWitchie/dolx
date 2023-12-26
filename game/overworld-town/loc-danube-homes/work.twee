@@ -8,19 +8,28 @@ You walk up to one of the mansions and knock on the door.
 	There's no response.
 	<br><br>
 
-	<<link [[Break in|Danube House Lock]]>><</link>>
+	<<lockpickicon>><<link [[Break in|Danube House Lock]]>><</link>>
 	<br>
-	<<link [[Go to the next house (0:02)|Danube House Knock]]>><<pass 2>><</link>>
+	<<ind>><<link [[Go to the next house (0:02)|Danube House Knock]]>><<pass 2>><</link>>
 	<br>
-	<<link [[Stop|Danube Street]]>><</link>>
+	<<getouticon>><<link [[Stop|Danube Street]]>><</link>>
 	<br>
-<<elseif $danube_housekeeping is undefined>>
-	<<generate1>><<person1>>A <<person>> answers the door. "You're not one of the guests I'm expecting," <<he>> says. "What can I do for you?"
-	<br><br>
-	<<link [[Ask for work|Danube House Intro]]>><</link>>
-	<br>
-	<<link [[Say you've got the wrong address and leave|Danube Street]]>><<endevent>><</link>>
-	<br>
+
+<<elseif $unlocked is true>>
+	/*To return this housekeeping check?
+	- Remove `$unlocked is true` and place
+	- Add `danube_housekeeping is undefined`*/
+
+	<<if $danube_housekeeping is undefined>>
+		<<generate1>><<person1>>A <<person>> answers the door. "You're not one of the guests I'm expecting," <<he>> says. "What can I do for you?"
+		<br><br>
+		<<askicon>><<link [[Ask for work|Danube House Intro]]>><</link>>
+		<br>
+		<<getouticon>><<link [[Say you've got the wrong address and leave|Danube Street]]>><<endevent>><</link>>
+		<br>
+
+	<</if>>
+
 <<else>>
 	<<cleareventpool>>
 
@@ -71,12 +80,12 @@ You walk up to one of the mansions and knock on the door.
 	<<if $phase is 0>>
 		<<errorp "Eventpool selection failed! Please export your save on this screen and report this bug.">>
 	<<elseif $phase is 8>>
-		<<link [[Ask for work|Danube Catperson Intro]]>><</link>>
+		<<askicon>><<link [[Ask for work|Danube Catperson Intro]]>><</link>>
 	<<else>>
-		<<link [[Ask for work|Danube House Work]]>><</link>>
+		<<askicon>><<link [[Ask for work|Danube House Work]]>><</link>>
 	<</if>>
 	<br>
-	<<link [[Say you've got the wrong address and leave|Danube Street]]>><<endevent>><</link>>
+	<<getouticon>><<link [[Say you've got the wrong address and leave|Danube Street]]>><<endevent>><</link>>
 	<br>
 <</if>>
 
@@ -401,9 +410,16 @@ You lean toward <<his>> other breast, and suckle. <<He>> laughs, and inches <<hi
 
 <<if playerChastity("hidden")>>
 	"Trying to stay pure?" <<he>> questions while withdrawing <<his>> hand.
+	<<set _arousal to "low">>
 <<elseif $player.penisExist>>
-	<<if playerChastity("cage")>>
+	<<set _canDrinkCum to true>>
+	<<if $worn.genitals.name is "chastity parasite">>
+		"Odd, what is this?" <<he>> asks while massaging and squeezing your chastity parasite as you suckle.
+		<<set _arousal to "high">>
+		<<set _canDrinkCum to false>>
+	<<elseif playerChastity("cage")>>
 		"Cute," <<he>> says. <<He>> while <<if $player.ballsExist>>massaging your balls<<else>>withdrawing <<his>> hand<</if>> as you suckle.
+		<<set _arousal to "low">>
 	<<elseif $player.penissize gte 4>>
 		"Ah!" <<He>> withdraws <<his>> hand and stares at your crotch. <<He>> looks startled.
 		"How are you so big? Sorry, I don't mean to be rude." <<He>> returns <<his>> hand and continues to stroke as you suckle.
@@ -422,11 +438,40 @@ You lean toward <<his>> other breast, and suckle. <<He>> laughs, and inches <<hi
 <<else>>
 	<<He>> strokes your clit as you suckle.
 <</if>>
-<<arousal 1200 "genitals">><<ggarousal>>
+<<if _arousal is "high">>
+	<<arousal 2000 "genitals">><<gggarousal>>
+<<elseif _arousal is "low">>
+	<<arousal 600 "genitals">><<garousal>>
+<<else>>
+	<<arousal 1200 "genitals">><<ggarousal>>
+<</if>>
 /* Note: Add some dialog describing the player orgasming from this if it puts them at max arousal? */
+/* Not sure why a simple scene was not added at least */
 <br><br>
+<<if $arousal gte $arousalmax>>
+	You briefly stop drinking as your pushed over the edge.
+	<<if _canDrinkCum>><<set _released to calculateSemenReleased()>><</if>>
+	<<orgasm>>
+	<<if $femaleclimax or _deniedOrgasm>><<set _canDrinkCum to false>><</if>>
+	<<if _canDrinkCum and _released gte 1>>
+		<<if random(0,100) gte 50>>
+			<<He>> smiles at you, "Oh you spilt some, let me help you with that." Carefully feeding it to you from <<his>> hand.
+			<<semenswallowedstat _released>>
+			<<bodyliquid "mouth" "semen" 1>>
+			<<set $hunger -= _released>>
+			<<set $thirst -= _released>>
+		<<else>>
+			<<He>> smiles at you after swallowing your cum, "I'm glad we were both able to get release from sharing our milk."
+		<</if>>
+	<<else>>
+		<<He>> smiles at you, "I'm glad we were both able to get release."
+	<</if>>
+	<br><br>
+	You continue to drink for another several minutes, until the leaking slows to a trickle.
+<<else>>
+	This continues for several minutes, until the leaking slows to a trickle.
+<</if>>
 
-This continues for several minutes, until the leaking slows to a trickle.
 <<He>> pulls <<his>> shirt back on and shows you to the door, where <<he>> hands you more money than was promised.
 <br><br>
 
@@ -917,7 +962,7 @@ The <<person>> leads you to <<his>> garden,
 	<<default>> where a table has already been set.
 <</switch>>
 A teapot and some cups sit there along with a plate of biscuits, and a bowl of strawberries and cream.
-The <<person>> takes a seat and gestures for you to do the same.
+<<He>> takes a seat and gestures for you to do the same.
 <br><br>
 
 <<if $rightarm is "bound" or $leftarm is "bound">>
@@ -1749,7 +1794,7 @@ You don't say much, but <<he>> seems content.
 
 	You <<nervously>> remove your <<outfit>>.
 	The <<person>> gasps as your <<breasts>> <<if $player.breastsize gte 2>>flop out<<else>>are exposed<</if>>.
-	"You're a girl!, <<he>> exclaims. You feel your face flush.
+	"You're a girl!," <<he>> exclaims. You feel your face flush.
 	Once stripped down to your $worn.under_lower.name, you sit back at the table.
 	Your exposure impacts <<his>> behaviour, <<he>> can't keep <<his>> eyes off you.
 	<<He>> makes excuses to cross the room so <<he>> can look at you from other angles and sneak peeks at your <<undies>>.
@@ -1913,7 +1958,7 @@ You enter the lounge. The <<person2>><<person>> briefly quizzes you on _subject.
 			<br><br>
 			<<He>> laughs in your face. <<if $rapestat gte 5>>It's rude, but at least <<he>> isn't trying to rape you.<<else>>It's rude.<</if>>
 			<br><br>
-			<<He>> shakes <<his>> head. "Explaining the basics to you will be good English practise."
+			<<He>> shakes <<his>> head. "Explaining the basics to you will be good English practice."
 			<br><br>
 			<<person2>><<He>> hands you <<moneyGain 20>>.
 			<<set $phase to 0>>
@@ -2003,9 +2048,9 @@ prompting the arrival of three <<beastsplural>>.
 "These are my babies," <<person1>><<he>> purrs. "I need to fetch them some things. I'll give <<printmoney 3500>> to watch the little rascals while I'm out." <<He>> nuzzles one on the nose. "Maybe more, if they like you!"
 <br><br>
 
-<<link [[Accept (1:30)|Danube Catperson Accept]]>><</link>>
+<<getinicon>><<link [[Accept (1:30)|Danube Catperson Accept]]>><</link>>
 <br>
-<<link [[Refuse|Danube Catperson Refuse]]>><</link>>
+<<refuseicon>><<link [[Refuse|Danube Catperson Refuse]]>><</link>>
 <br>
 
 :: Danube Catperson Refuse

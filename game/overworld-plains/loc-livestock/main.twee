@@ -32,13 +32,14 @@ You are in your cell in the barn. There's a bucket of what looks like clean wate
 	Remy and the farmhands circle the barn, opening cells and releasing their occupants. One of them opens yours.
 	<br><br>
 
-	<<link [[Leave your cell|Livestock Cell Leave]]>><<livestock_obey 1>><</link>><<gobey>>
+	<<getouticon>><<link [[Leave your cell|Livestock Cell Leave]]>><<livestock_obey 1>><</link>><<gobey>>
 	<br>
-	<<link [[Refuse to leave|Livestock Cell Refuse]]>><<livestock_obey -1>><<pain 6>><</link>><<lobey>><<gpain>>
+	<<refuseicon>><<link [[Refuse to leave|Livestock Cell Refuse]]>><<livestock_obey -1>><<pain 6>><</link>><<lobey>><<gpain>>
 	<br>
 <<elseif Time.hour gte 18 and Time.hour lt 21>>
-	/* once every 4 days after pc's been missing for more than they have permissions for, when eden cares strongly enough to leave the forest and go all the way to the farmlands. if you think it's too easy, remember that grinding enough swimming to escape is easier than grinding eden's love, so see Figure 1. looking at you, fangi. */
-	<<if !(Time.days % 4) and $daily.eden.farmRescue isnot 1 and C.npc.Eden.love gte 120 and ($edenfreedom is 1 and $edendays gte 4 or $edenfreedom gte 2 and $edendays gte 9)>>
+	/* once every 4 days after pc's been missing for more than they have permissions for, when eden cares strongly enough to leave the forest and go all the way to the farmlands. */
+	<!-- <<if undefined and !(Time.days % 4) and $daily.eden.farmRescue isnot 1 and C.npc.Eden.love gte 120 and ($edenfreedom is 1 and $edendays gte 4 or $edenfreedom gte 2 and $edendays gte 9)>>
+		Made unreachable until it's either massively reworked or removed. Eden has no business this far in the moor.
 		<<npc Eden>><<person1>>You feel a draft as Remy opens the gate and enters your cell. A hat drifts to your feet. Before you know what to do, something else <<if 150 - $submissive / 20 lt C.npc.Eden.dom>>commands<<else>>draws<</if>> your attention.
 		<br><br>
 		<span class="green">You hear Eden's voice,</span> arguing with someone near the front of the barn.
@@ -46,8 +47,9 @@ You are in your cell in the barn. There's a bucket of what looks like clean wate
 		<<link [[Shout for Eden|Eden Shout]]>><<npcincr Eden dom 5>><<set $daily.eden.farmRescue to 1>><<livestock_obey -20>><</link>><<lllobey>><<gggdom>>
 		<br>
 		<<link [[Ignore it|Eden Shout Ignore]]>><<npcincr Remy dom 1>><<set $daily.eden.farmRescue to 1>><<livestock_obey 5>><</link>><<ggobey>>
-		<br>
-	<<elseif $livestock_obey lte 30>>
+		<br> -->
+		<!-- <</if>> Added the closing if here due to sugarcube being stupid, is not part of the above commented out code itself. confirmed the commented code is still not running <<set _errorCheck to "failed">>-->
+	<<if $livestock_obey lte 30>>
 		<<npc Remy>><<person1>>Remy marches over, looking you right in the eyes. "You're a problem specimen," <<he>> says, entering your cell. "So I'll handle you myself. Come here."
 		<br><br>
 
@@ -71,7 +73,7 @@ You are in your cell in the barn. There's a bucket of what looks like clean wate
 		<<link [[Make noise (0:10)|Livestock Noise]]>><<pass 10>><<stress -12>><<trauma -6>><<set $livestock_noise to true>><</link>><<llstress>><<ltrauma>><<lobey>>
 		<br>
 	<</if>>
-	<<link [[Sleep until dawn|Livestock Sleep]]>><<incrementautosave>><<set $phase to 0>><</link>><<ltiredness>>
+	<<link [[Sleep until dawn|Livestock Sleep]]>><<set $phase to 0>><</link>><<ltiredness>>
 	<br><br>
 	<<link [[Settings|Livestock Settings]]>><</link>>
 	<br>
@@ -375,7 +377,12 @@ Remy kneels, <<his>> eyes level with your <<penis>>.
 	<<if $player.penissize gt -2>>
 		<<set $worn.genitals.integrity -= 100>>
 		<<if $worn.genitals.integrity gt 0>>
-			Remy frowns while looking at the $worn.genitals.name, "Looks like we will have to leave it in place for now."
+			Remy frowns while looking at the $worn.genitals.name,
+			<<if $worn.genitals.name is "chastity parasite">>
+				"Looks like a parasite of somekind, not sure if I can help you."
+			<<else>>
+				"Looks like we will have to leave it in place for now."
+			<</if>>
 			<br><br>
 		<<else>>
 			Upon the $worn.genitals.name breaking, Remy smiles at you. "There we go, you're all free now."
@@ -401,7 +408,12 @@ Remy kneels, <<his>> eyes level with your <<penis>>.
 			<<garousal>><<arousal 1800 "genitals">>
 			<br><br>
 			<<if $arousal gte $arousalmax>>
-				<<orgasm>> It gets all over <<his>> face, which snaps <<him>> out of <<his>> stupor. <<He>> pulls a handkerchief from <<his>> jacket and dabs <<his>> face, a hint of a blush spreading on <<his>> cheeks.
+				<<orgasm>>
+				<<if $femaleclimax or _deniedOrgasm>>
+					<<He>> shifts aside as you climax, anticipating spillage, and frowns when you don't release any cum. <<He>> stands up as your spasms subside. "Not a good sign," he says, stepping towards the gate.
+				<<else>>
+					It gets all over <<his>> face, which snaps <<him>> out of <<his>> stupor. <<He>> pulls a handkerchief from <<his>> jacket and dabs <<his>> face, a hint of a blush spreading on <<his>> cheeks.
+				<</if>>
 				<br><br>
 			<<else>>
 				<<He>> snaps out of it, and glances around the barn as if afraid someone is watching. <<He>> stands up. "Examination concluded," <<he>> says, stepping towards the gate.
@@ -415,7 +427,12 @@ Remy kneels, <<his>> eyes level with your <<penis>>.
 			<<He>> retrieves a small pot of purple gel from <<his>> jacket pocket, and rubs it into <<his>> hands. <<He>> reaches forward and grasps your cock. With gentle strokes, <<he>> rubs the gel into your skin. A warmth spreads through your pelvis, and your cock grows more sensitive as <<he>> works.
 			<br><br>
 			<<if $arousal gte $arousalmax>>
-				<<orgasm>> <<He>> shifts aside as you cum, as if expecting it and wanting to stay clean of any spillage. <<He>> stands up as your spasms subside. "A sign of good health," <<he>> says, stepping towards the gate.
+				<<orgasm>>
+				<<if $femaleclimax or _deniedOrgasm>>
+					<<He>> shifts aside as you climax, anticipating spillage, and frowns when you don't release any cum. <<He>> stands up as your spasms subside. "Not a good sign," he says, stepping towards the gate.
+				<<else>>
+					<<He>> shifts aside as you cum, as if expecting it and wanting to stay clean of any spillage. <<He>> stands up as your spasms subside. "A sign of good health," <<he>> says, stepping towards the gate.
+				<</if>>
 				<br><br>
 			<<else>>
 				<<He>> stands up, and walks towards the gate.
@@ -429,7 +446,12 @@ Remy kneels, <<his>> eyes level with your <<penis>>.
 			<<He>> retrieves a small pot of purple gel from <<his>> jacket pocket, and rubs it into <<his>> hands. <<He>> reaches forward and grasps your cock. With gentle strokes, <<he>> rubs the gel into your skin. A warmth spreads through your pelvis, and your cock grows more sensitive as <<he>> works.
 			<br><br>
 			<<if $arousal gte $arousalmax>>
-				<<orgasm>> <<He>> shifts aside as you cum, as if expecting it and wanting to stay clean of any spillage. <<He>> stands up as your spasms subside. "A sign of good health," <<he>> says, stepping towards the gate.
+				<<orgasm>>
+				<<if $femaleclimax or _deniedOrgasm>>
+					<<He>> shifts aside as you climax, anticipating spillage, and frowns when you don't release any cum. <<He>> stands up as your spasms subside. "Not a good sign," he says, stepping towards the gate.
+				<<else>>
+					<<He>> shifts aside as you cum, as if expecting it and wanting to stay clean of any spillage. <<He>> stands up as your spasms subside. "A sign of good health," <<he>> says, stepping towards the gate.
+				<</if>>
 				<br><br>
 			<<else>>
 				<<He>> stands up, and walks towards the gate.
@@ -443,7 +465,12 @@ Remy kneels, <<his>> eyes level with your <<penis>>.
 			<<He>> retrieves a small pot of purple gel from <<his>> jacket pocket, and rubs it into <<his>> hands. <<He>> reaches forward and grasps your cock. With gentle strokes, <<he>> rubs the gel into your skin. A warmth spreads through your pelvis, and your cock grows more sensitive as <<he>> works.
 			<br><br>
 			<<if $arousal gte $arousalmax>>
-				<<orgasm>> <<He>> shifts aside as you cum, as if expecting it and wanting to stay clean of any spillage. <<He>> stands up as your spasms subside. "A sign of good health," <<he>> says, stepping towards the gate.
+				<<orgasm>>
+				<<if $femaleclimax or _deniedOrgasm>>
+					<<He>> shifts aside as you climax, anticipating spillage, and frowns when you don't release any cum. <<He>> stands up as your spasms subside. "Not a good sign," he says, stepping towards the gate.
+				<<else>>
+					<<He>> shifts aside as you cum, as if expecting it and wanting to stay clean of any spillage. <<He>> stands up as your spasms subside. "A sign of good health," <<he>> says, stepping towards the gate.
+				<</if>>
 				<br><br>
 			<<else>>
 				<<He>> stands up, and walks towards the gate.
@@ -457,7 +484,12 @@ Remy kneels, <<his>> eyes level with your <<penis>>.
 			<<He>> retrieves a small pot of purple gel from <<his>> jacket pocket, and rubs it into <<his>> hands. <<He>> reaches forward and between thumb and forefinger. With gentle strokes, <<he>> rubs the gel into your skin. A warmth spreads through your pelvis, and your cock grows more sensitive as <<he>> works.
 			<br><br>
 			<<if $arousal gte $arousalmax>>
-				<<orgasm>> <<He>> shifts aside as you cum, as if expecting it and wanting to stay clean of any spillage. <<He>> stands up as your spasms subside. "A sign of good health," <<he>> says, stepping towards the gate.
+				<<orgasm>>
+				<<if $femaleclimax or _deniedOrgasm>>
+					<<He>> shifts aside as you climax, anticipating spillage, and frowns when you don't release any cum. <<He>> stands up as your spasms subside. "Not a good sign," he says, stepping towards the gate.
+				<<else>>
+					<<He>> shifts aside as you cum, as if expecting it and wanting to stay clean of any spillage. <<He>> stands up as your spasms subside. "A sign of good health," <<he>> says, stepping towards the gate.
+				<</if>>
 				<br><br>
 			<<else>>
 				<<He>> stands up, and walks towards the gate.
@@ -472,7 +504,7 @@ Remy kneels, <<his>> eyes level with your <<penis>>.
 			<br><br>
 			<<if $arousal gte $arousalmax>>
 				<<orgasm>>
-				<<if $femaleclimax>>
+				<<if $femaleclimax or _deniedOrgasm>>
 					<<He>> shifts aside as you climax, anticipating spillage, and frowns when you don't release any cum. <<He>> stands up as your spasms subside. "Not a good sign," he says, stepping towards the gate.
 				<<else>>
 					<<He>> shifts aside as you cum, as if expecting it and wanting to stay clean of any spillage. <<He>> stands up as your spasms subside. "A sign of good health," <<he>> says, stepping towards the gate.
@@ -484,7 +516,7 @@ Remy kneels, <<his>> eyes level with your <<penis>>.
 			<</if>>
 		<<case -2>>
 			<<if _penisComment isnot true>>
-			<<He>> pauses, squinting at it. "Oh. Oh, that's not a clit." <<He>> purses <<his>> lips. "I don't think I can fix this. Seems like you'd make a better cow than bull anyway." <<insecurity "penis_tiny" 1>><<ginsecurity "penis_tiny">>
+				<<He>> pauses, squinting at it. "Oh. Oh, that's not a clit." <<He>> purses <<his>> lips. "I don't think I can fix this. Seems like you'd make a better cow than bull anyway." <<insecurity "penis_tiny" 1>><<ginsecurity "penis_tiny">>
 				<br><br>
 			<</if>>
 			<<He>> retrieves a small pot of purple gel from <<his>> jacket pocket, and rubs it into <<his>> hands. <<He>> reaches forward and between thumb and forefinger. With gentle strokes, <<he>> rubs the gel into your skin. A warmth spreads through your pelvis, and your cock grows more sensitive as <<he>> works.
@@ -724,7 +756,7 @@ Perhaps the farmers will treat you better if you play along. You allow the vibra
 <<orgasm>>
 <br><br>
 
-You've barely recovered from the orgasm when the vibrations become more intense. You remember the gel Remy rubbed into you, and how unnatural that warmth felt. You feel it against now as the gel works into your core, preparing your body to cum again and again.
+You've barely recovered from the <<if _deniedOrgasm>>ruined <</if>>orgasm when the vibrations become more intense. You remember the gel Remy rubbed into you, and how unnatural that warmth felt. You feel it against now as the gel works into your core, preparing your body to cum again and again.
 <br><br>
 
 <<link [[Next|Livestock None Give 2]]>><</link>>
@@ -746,14 +778,14 @@ The next comes faster still, almost blurring with the previous.
 <<orgasm>>
 <<orgasm>>
 <<orgasm>>
-<<link [[Next|Livestock None Give 3]]>><</link>>
+<<link [[Next|Livestock None Give 3]]>><<set $deniedOrgasm to _deniedOrgasm>><</link>>
 <br>
 
 :: Livestock None Give 3
 
 <<effects>>
 
-Your body is wracked time and again, until the orgasm just doesn't stop. Your body is kept in a state of constant climax, the toys tormenting your body vibrating without pause.
+Your body is wracked time and again, until the <<if $deniedOrgasm>>ruined <</if>>orgasm just doesn't stop. Your body is kept in a state of constant climax, the toys tormenting your body vibrating without pause.
 
 <<if $cow gte 6>>
 	<<if $worn.face.type.includes("gag")>>
@@ -768,7 +800,7 @@ Your body is wracked time and again, until the orgasm just doesn't stop. Your bo
 <</if>>
 <br><br>
 
-<<link [[Next|Livestock None End]]>><</link>>
+<<link [[Next|Livestock None End]]>><<unset $deniedOrgasm>><</link>>
 <br>
 
 :: Livestock None Resist
@@ -831,19 +863,38 @@ Perhaps the farmers will treat you better if you play along. You allow the sucki
 <br><br>
 <<set $livestock_semen to $semen_amount>>
 <<orgasm>>
-<<if $semen_amount gte 1>>
-	Your semen is sucked up the tube, reappearing in a glass canister attached to the milking machine outside your cell. You're still wrestling with the thought of your semen output being visible to anyone who cares to look when the suction becomes more intense.
+<<if $femaleclimax or _deniedOrgasm>>
+	<<unset $livestock_semen>>
+	Despite the aid of the pump on your <<penis>>, no semen is collected as you have multiple <<if _deniedOrgasm>>ruined <</if>>orgasms.
+	<br><br>
+	<<orgasm>>
+	<<orgasm>>
+
+	You remember the gel Remy rubbed into you, and how unnatural that warmth felt. You feel it again now, as the gel works its devilry on your cock, it also failing to do it's job.
+	<br><br>
+
+	<<orgasm>>
+	<<orgasm>>
+	<<orgasm>>
+
+	<<barn_img penis no_livestock>>
+
+	<<link [[Next|Livestock Milking End]]>><</link>>
 <<else>>
-	You've barely recovered from the orgasm when the suction becomes more intense.
+	<<if $semen_amount gte 1>>
+		Your semen is sucked up the tube, reappearing in a glass canister attached to the milking machine outside your cell. You're still wrestling with the thought of your semen output being visible to anyone who cares to look when the suction becomes more intense.
+	<<else>>
+		You've barely recovered from the orgasm when the suction becomes more intense.
+	<</if>>
+	<br><br>
+	You remember the gel Remy rubbed into you, and how unnatural that warmth felt. You feel it again now, as the gel works its devilry on your cock, keeping it primed and ready to be "milked" again and again.
+	<br><br>
+
+	<<barn_img penis no_livestock>>
+
+	<<link [[Next|Livestock Penis Give 2]]>><</link>>
+	<br>
 <</if>>
-<br><br>
-You remember the gel Remy rubbed into you, and how unnatural that warmth felt. You feel it again now, as the gel works its devilry on your cock, keeping it primed and ready to be "milked" again and again.
-<br><br>
-
-<<barn_img penis no_livestock>>
-
-<<link [[Next|Livestock Penis Give 2]]>><</link>>
-<br>
 
 :: Livestock Penis Give 2
 
@@ -915,19 +966,38 @@ You try to focus on something, anything other than the sucking on your penis. Yo
 	<<set $livestock_semen to $semen_amount>>
 	You can't take it. <span class="red">Your body gives in.</span> <<orgasm>> <<gggwillpower>><<willpower 24>>
 	<br><br>
-	<<if $semen_amount gte 1>>
-	Your semen is sucked up the tube, reappearing in a glass canister attached to the milking machine outside your cell. You're still wrestling with the thought of your semen output being visible to anyone who cares to look when the suction becomes more intense.
+	<<if $femaleclimax or _deniedOrgasm>>
+		<<unset $livestock_semen>>
+		Despite the aid of the pump on your <<penis>>, no semen is collected as you have multiple <<if _deniedOrgasm>>ruined <</if>>orgasms.
+		<br><br>
+		<<orgasm>>
+		<<orgasm>>
+
+		You remember the gel Remy rubbed into you, and how unnatural that warmth felt. You feel it again now, as the gel works its devilry on your cock, it also failing to do it's job.
+		<br><br>
+
+		<<orgasm>>
+		<<orgasm>>
+		<<orgasm>>
+
+		<<barn_img penis no_livestock>>
+
+		<<link [[Next|Livestock Milking End]]>><</link>>
 	<<else>>
-		You've barely recovered from the orgasm when the suction becomes more intense.
+		<<if $semen_amount gte 1>>
+		Your semen is sucked up the tube, reappearing in a glass canister attached to the milking machine outside your cell. You're still wrestling with the thought of your semen output being visible to anyone who cares to look when the suction becomes more intense.
+		<<else>>
+			You've barely recovered from the orgasm when the suction becomes more intense.
+		<</if>>
+		<br><br>
+		You remember the gel Remy rubbed into you, and how unnatural that warmth felt. You feel it again as the gel works its devilry on your cock, keeping it primed and ready to be "milked" again and again.
+		<br><br>
+
+		<<barn_img penis no_livestock>>
+
+		<<link [[Next|Livestock Penis Give 2]]>><</link>>
+		<br>
 	<</if>>
-	<br><br>
-	You remember the gel Remy rubbed into you, and how unnatural that warmth felt. You feel it again as the gel works its devilry on your cock, keeping it primed and ready to be "milked" again and again.
-	<br><br>
-
-	<<barn_img penis no_livestock>>
-
-	<<link [[Next|Livestock Penis Give 2]]>><</link>>
-	<br>
 <</if>>
 
 :: Livestock Breasts Give
@@ -957,10 +1027,10 @@ You remember the gel Remy rubbed into you, and how unnatural that warmth felt. Y
 <<else>>
 <</if>>
 
-The machine continues to suck your <<breasts>>, forcing your body toward another orgasm, and you approach your peak once more.
+The machine continues to suck your <<breasts>>, forcing your body toward another <<if _deniedOrgasm>>ruined <</if>>orgasm, and you approach your peak once more.
 <<orgasm>>
 
-You're still shaking from climax when you feel the next start to build. It's on you within moments.
+You're still shaking from <<if _deniedOrgasm>>your last ruined orgasm<<else>>climax<</if>> when you feel the next start to build. It's on you within moments.
 <<orgasm>>
 
 The next comes faster still, almost blurring with the previous.
@@ -972,13 +1042,13 @@ The next comes faster still, almost blurring with the previous.
 
 <<barn_img breasts half_livestock>>
 
-<<link [[Next|Livestock Breasts Give 3]]>><</link>>
+<<link [[Next|Livestock Breasts Give 3]]>><<set $deniedOrgasm to _deniedOrgasm>><</link>>
 <br>
 
 :: Livestock Breasts Give 3
 <<effects>>
 
-Your body is wracked time and again, until the orgasm just doesn't stop. Your body is kept in a state of constant climax, the pump tormenting your <<breasts>> sucking without pause.
+Your body is wracked time and again, until the <<if $deniedOrgasm>>ruined <</if>>orgasm just doesn't stop. Your body is kept in a state of constant climax, the pump tormenting your <<breasts>> sucking without pause.
 
 <<if $cow gte 6>>
 	<<if $worn.face.type.includes("gag")>>
@@ -1053,14 +1123,19 @@ Perhaps the farmers will treat you better if you play along. You allow the sucki
 <br><br>
 <<set $livestock_semen to $semen_amount>>
 <<orgasm>>
-<<if $semen_amount gte 1>>
-	<<if $livestock_milk gte 1>>
-		Your semen is sucked up the tube, joining the milk in the glass canister. You've barely recovered from the orgasm when the suction becomes more intense.
-	<<else>>
-		Your semen is sucked up the tube, and drips into a glass canister attached to the milking machine outside your cell. You try not to think about how your milk output is visible to anyone who cares to look. You've barely recovered from the orgasm when the suction becomes more intense.
-	<</if>>
+<<if $femaleclimax or _deniedOrgasm>>
+	<<unset $livestock_semen>>
+	You've barely recovered from the <<if $deniedOrgasm>>ruined <</if>>orgasm when the suction becomes more intense.
 <<else>>
-	You've barely recovered from the orgasm when the suction becomes more intense.
+	<<if $semen_amount gte 1>>
+		<<if $livestock_milk gte 1>>
+			Your semen is sucked up the tube, joining the milk in the glass canister. You've barely recovered from the orgasm when the suction becomes more intense.
+		<<else>>
+			Your semen is sucked up the tube, and drips into a glass canister attached to the milking machine outside your cell. You try not to think about how your milk output is visible to anyone who cares to look. You've barely recovered from the orgasm when the suction becomes more intense.
+		<</if>>
+	<<else>>
+		You've barely recovered from the orgasm when the suction becomes more intense.
+	<</if>>
 <</if>>
 <br><br>
 You remember the gel Remy rubbed into you, and how unnatural that warmth felt. You feel it again now as the gel works its devilry on your cock, keeping it primed and ready to be "milked" again and again.
@@ -1068,7 +1143,7 @@ You remember the gel Remy rubbed into you, and how unnatural that warmth felt. Y
 
 <<barn_img both no_livestock>>
 
-<<link [[Next|Livestock Both Give 2]]>><</link>>
+<<link [[Next|Livestock Both Give 2]]>><<set $deniedOrgasm to _deniedOrgasm>><</link>>
 <br>
 
 :: Livestock Both Give 2
@@ -1079,17 +1154,27 @@ You remember the gel Remy rubbed into you, and how unnatural that warmth felt. Y
 <<else>>
 <</if>>
 
-The machine continues to suck your <<penis>>, forcing your body toward another orgasm. You approach your peak once more.
+The machine continues to suck your <<penis>>, forcing your body toward another <<if $deniedOrgasm>>ruined <</if>>orgasm. You approach your peak once more.
 <<orgasm>>
+<<if $femaleclimax or _deniedOrgasm>>
+	You're still shaking from <<if $deniedOrgasm>>ruined orgasms<<else>>climax<</if>> when you feel the next start to build. It's on you within moments.
+	<<orgasm>>
 
-You're still shaking from climax when you feel the next start to build. It's on you within moments.
-<<orgasm>>
+	The next comes faster still, almost blurring with the previous. <<orgasm>>
 
-The next comes faster still, almost blurring with the previous. <<orgasm>>
+	<<orgasm>>
 
-<<orgasm>>
+	<<orgasm>>
+<<else>>
+	You're still shaking from climax when you feel the next start to build. It's on you within moments.
+	<<orgasm>>
 
-<<orgasm>>
+	The next comes faster still, almost blurring with the previous. <<orgasm>>
+
+	<<orgasm>>
+
+	<<orgasm>>
+<</if>>
 
 <<barn_img both half_livestock>>
 
@@ -1098,8 +1183,12 @@ The next comes faster still, almost blurring with the previous. <<orgasm>>
 
 :: Livestock Both Give 3
 <<effects>>
-
-Your body is wracked time and again, until the orgasm just doesn't stop. Your body is kept in a state of constant climax, the pump tormenting your <<penis>> sucking without pause.
+<<if $femaleclimax or $deniedOrgasm>>
+	Your body is wracked time and again, until the <<if $deniedOrgasm>>ruined <</if>>orgasm just doesn't stop. Your body is kept in a state of constant <<if $deniedOrgasm>>ruined orgasms<<else>>climax<</if>>, the pump tormenting your <<penis>> sucking without pause.
+<<else>>
+	Your body is wracked time and again, until the orgasm just doesn't stop. Your body is kept in a state of constant climax, the pump tormenting your <<penis>> sucking without pause.
+	<<set $semen_amount to 0>>
+<</if>>
 
 <<if $cow gte 6>>
 	<<if $worn.face.type.includes("gag")>>
@@ -1116,7 +1205,6 @@ Your body is wracked time and again, until the orgasm just doesn't stop. Your bo
 
 <<barn_img both livestock>>
 
-<<set $semen_amount to 0>>
 <<set $milk_amount to 0>>
 
 <<link [[Next|Livestock Milking End]]>><<machine_end>><</link>>
@@ -1152,18 +1240,24 @@ You try to focus on something, anything other than the sucking on your penis and
 	<<set $livestock_semen to $semen_amount>>
 	You can't take it. <span class="red">Your body gives in.</span> <<orgasm>> <<gggwillpower>><<willpower 24>>
 	<br><br>
-	<<if $semen_amount gte 1>>
-	Your semen is sucked up the tube, reappearing in a glass canister attached to the milking machine outside your cell. You're still wrestling with the thought of your semen output being visible to anyone who cares to look when the suction becomes more intense.
+	<<if $femaleclimax or _deniedOrgasm>>
+		<<unset $livestock_semen>>
+		Despite the aid of the pump on your <<penis>>, no semen is collected as you have the first <<if _deniedOrgasm>>ruined <</if>>orgasm. Remembering the gel Remy rubbed into you, and how unnatural that warmth felt.
+		<br><br>
 	<<else>>
-		You've barely recovered from the orgasm when the suction becomes more intense.
+		<<if $semen_amount gte 1>>
+		Your semen is sucked up the tube, reappearing in a glass canister attached to the milking machine outside your cell. You're still wrestling with the thought of your semen output being visible to anyone who cares to look when the suction becomes more intense.
+		<<else>>
+			You've barely recovered from the orgasm when the suction becomes more intense.
+		<</if>>
+		<br><br>
+		You remember the gel Remy rubbed into you, and how unnatural that warmth felt. You feel it again as the gel works its devilry on your cock, keeping it primed and ready to be "milked" again and again.
+		<br><br>
 	<</if>>
-	<br><br>
-	You remember the gel Remy rubbed into you, and how unnatural that warmth felt. You feel it again as the gel works its devilry on your cock, keeping it primed and ready to be "milked" again and again.
-	<br><br>
 
 	<<barn_img both no_livestock>>
 
-	<<link [[Next|Livestock Both Give 2]]>><</link>>
+	<<link [[Next|Livestock Both Give 2]]>><<set $deniedOrgasm to _deniedOrgasm>><</link>>
 	<br>
 <</if>>
 
@@ -1226,6 +1320,7 @@ Remy and the farmhands finish freeing the cattle from the machine. They turn off
 
 <<unset $livestock_semen>>
 <<unset $livestock_milk>>
+<<unset $deniedOrgasm>>
 <<unbind>>
 
 <<link [[Next|Livestock Cell]]>><</link>>
@@ -1569,9 +1664,9 @@ You hear the thundering of hooves behind you. You glance over your shoulder, and
 		<br>
 	<</if>>
 <<else>>
-	<<if $edenwhip is 0>>
+	<!--<<if $edenwhip is 0>>
 		<<set $edenwhip to 1>>
-	<</if>>
+	<</if>> -->
 
 	<<He>> raises <<his>> arm above <<his>> head, and brings it down against your exposed skin.
 	<<ggpain>><<pain 12>>
@@ -1936,9 +2031,9 @@ The farmhands form a circle around you. They struggle to hold back the dogs. Rem
 	<<link [[Next|Livestock Caught Dog Molestation]]>><<set $molestationstart to 1>><</link>>
 	<br>
 <<else>>
-	<<if $edenwhip is 0>>
+	<!--<<if $edenwhip is 0>>
 		<<set $edenwhip to 1>>
-	<</if>>
+	<</if>> -->
 	"I know what you deserve," <<nnpc_he "Remy">> says, dismounting <<nnpc_his "Remy">> steed. Two farmhands rush forward. They grasp your arms and legs, lift you into the air, and bend you over a hay bale. They hold your shoulders down, with your <<bottom>> facing Remy.
 	<br><br>
 
@@ -2762,7 +2857,7 @@ The farmhands form a circle around you. They struggle to hold back the dogs. Rem
 <<livestockescape>>
 <<set $livestockEscape to "birth">>
 
-You fade in and out of consciousness. A large blanket has been draped over you. You hear a <<if $harperintro is 1>>familair<</if>> voice.
+You fade in and out of consciousness. A large blanket has been draped over you. You hear a <<if $harperintro is 1>>familiar<</if>> voice.
 <br><br>
 
 "This one should be transported to the hospital immediately." Someone pats your knee, right before you feel a sting in your arm. All the pain in your body starts to fade almost immediately.

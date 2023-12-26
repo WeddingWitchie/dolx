@@ -108,7 +108,7 @@
 <</widget>>
 
 <<widget "menstruationCycleState">>
-	<<set $sexStats.vagina.menstruation.running to $player.vaginaExist or (!$player.vaginaExist and $skin and $skin.pubic.pen is "magic" and $skin.pubic.special is "pregnancy")>>
+	<<set $sexStats.vagina.menstruation.running to $player.vaginaExist or (!$player.vaginaExist and $skin and $skin.pubic.pen is "magic" and $skin.pubic.special is "pregnancy") or ($earSlime and $earSlime.growth gte 100 and ["pregnancy", "mixed"].includes($earSlime.focus))>>
 <</widget>>
 
 <<widget "menstruationCycle">>
@@ -127,6 +127,10 @@
 		<<set _pills to $sexStats.pills>>
 		<<switch _menstruation.currentState>>
 			<<case "normal">>
+				<<if $harpy gte 6 and $harpyEggs and $sexStats[$_pregLocation].sperm.find(source => sorce.type is "hawk")>>
+					<<playerPregnancyHawkAttempt $_pregLocation>>
+					<<if $_pregnancy.type is "hawk">><<exit>><</if>>
+				<</if>>
 				<<if $cycledisable is "t">>
 					<<playerPregnancyAttempt `Math.pow(4,_menstruation.nonCycleRng[0])` $_pregLocation>>
 				<<elseif _menstruation.currentDay lt _menstruation.currentDaysMax>>
@@ -138,7 +142,7 @@
 						<<if _pills.pills["fertility booster"].doseTaken gte 2>>
 							<<set _menstruation.currentDay += 0.5>>
 						<</if>>
-						<<if $skin.pubic.type is "magic" and $skin.pubic.special is "pregnancy">>
+						<<if $skin.pubic.pen is "magic" and $skin.pubic.special is "pregnancy">>
 							<<set _menstruation.currentDay += 0.5>>
 						<</if>>
 						<<if (_pills.pills["contraceptive"].doseTaken gte 1 and random(0,100) gte 50) or _pills.pills["contraceptive"].doseTaken gte 2>>
@@ -147,10 +151,10 @@
 						<</if>>
 					<<elseif _menstruation.currentDay lt _menstruation.stages[2]>>
 						/*Follicular phase*/
-						<<if _pills.pills["fertility booster"].doseTakenn gte 2 and _menstruation.currentDay lt _menstruation.stages[2]>>
+						<<if _pills.pills["fertility booster"].doseTaken gte 2 and _menstruation.currentDay lt _menstruation.stages[2]>>
 							<<set _menstruation.currentDay += 0.5>>
 						<</if>>
-						<<if $skin.pubic.type is "magic" and $skin.pubic.special is "pregnancy" and _menstruation.currentDay lt _menstruation.stages[2]>>
+						<<if $skin.pubic.pen is "magic" and $skin.pubic.special is "pregnancy" and _menstruation.currentDay lt _menstruation.stages[2]>>
 							<<set _menstruation.currentDay += 0.5>>
 						<</if>>
 						<<if _menstruation.currentDay lt _menstruation.stages[2]>>
@@ -178,7 +182,7 @@
 						<<if _pills.pills["fertility booster"].doseTaken gte 2>>
 							<<set _menstruation.currentDay += 0.5>>
 						<</if>>
-						<<if $skin.pubic.type is "magic" and $skin.pubic.special is "pregnancy">>
+						<<if $skin.pubic.pen is "magic" and $skin.pubic.special is "pregnancy">>
 							<<set _menstruation.currentDay += 0.5>>
 						<</if>>
 						<<if (_pills.pills["contraceptive"].doseTaken gte 1 and random(0,100) gte 50) or _pills.pills["contraceptive"].doseTaken gte 2>>
@@ -199,7 +203,7 @@
 						<<set _menstruation.currentDay += 0.5>>
 					<</if>>
 					<<if _menstruation.currentDay lt _menstruation.currentDaysMax>>
-						<<if $skin.pubic.type is "magic" and $skin.pubic.special is "pregnancy">>
+						<<if $skin.pubic.pen is "magic" and $skin.pubic.special is "pregnancy">>
 							<<set _menstruation.currentDay += 0.5>>
 						<</if>>
 						<<if _pills.pills["fertility booster"].doseTaken gte 2>>
@@ -224,7 +228,7 @@
 					<<case 1>><<set _menstruation.recoveryTime -= 0.5>>
 					<<case 2 3 4>><<set _menstruation.recoveryTime -= 1>>
 				<</switch>>
-				<<if $skin.pubic.type is "magic" and $skin.pubic.special is "pregnancy">>
+				<<if $skin.pubic.pen is "magic" and $skin.pubic.special is "pregnancy">>
 					<<set _menstruation.recoveryTime -= 0.5>>
 				<</if>>
 				<<if $_pregnancy.totalBirthEvents gt 2>>
@@ -309,9 +313,9 @@
 <</widget>>
 
 /*args[0] - mother, args[1] - birth location, args[2] - location of where the clildren should go to, _args[3] - next passage, _args[4] - time passage*/
-/*args[0] - birth location, args[1] - location of where the clildren should go to, _args[2] - next passage, _args[3] - time passage*/
 <<widget "birthUi">>
 	<<if _args[0] is "pc">>
+		<<makeAwareOfDetails>>
 		<<set _pregnancyBirth to getPregnancyObject()>>
 	<<elseif C.npc[_args[0]]>>
 		<<set _pregnancyBirth to getPregnancyObject(_args[0])>>
@@ -359,9 +363,7 @@
 			<<earnFeat "Hail Mary">>
 		<</if>>
 		<<if !$player.vaginaExist>>
-			/* ToDo: Pregnancy: uncomment once MPreg is possable in-game
-				<<earnFeat "Life begins when you least expect">>
-			*/
+			<<earnFeat "Life begins when you least expect">>
 		<</if>>
 	<</if>>
 	<<if _args[0] isnot "pc">>
@@ -479,7 +481,7 @@
 				<<else>>
 					<<set $_text_output to "You wake up feeling nauseous, causing you to scramble out of bed to a nearby bin. You're forced to do a dry heave into it.<<stress 10>><<gstress>><<pain 1>><<gpain>>">>
 				<</if>>
-				<<if $awareness gte 200 and $sciencetrait gte 4 and playerNormalPregnancyTotal() gte 1>>
+				<<if $awareness gte 200 and $sciencetrait gte 4 and playerNormalPregnancyTotal() gte 1 and !$_pregnancy.awareOf>>
 					<<set $_text_output += " <span class='red'>Maybe you should get tested</span>.">>
 				<</if>>
 			<<case "lightBabyKick">>
@@ -500,10 +502,10 @@
 				<<else>>
 					<<set $_text_output += " <span class='red'>You wonder who the father is.</span>">>
 				<</if>>
-				<<set $_pregnancy.awareOf to true>>
+				<<set $_pregnancy.awareOf to "wakingUp">>
 			<<case "missedPeriod">>
 				<<set $_text_output to "You wake and come to a realisation. Your current cycle is late.">>
-				<<if $awareness gte 200 and $sciencetrait gte 4 and playerNormalPregnancyTotal() gte 1>>
+				<<if $awareness gte 200 and $sciencetrait gte 4 and playerNormalPregnancyTotal() gte 1 and !$_pregnancy.awareOf>>
 					<<set $_text_output += "You wonder if you're pregnant again. <span class='red'>Maybe you should get tested</span>.">>
 				<</if>>
 				<<set $sexStats.vagina.awareOfPeriodDelay to true>>
@@ -703,6 +705,25 @@
 				<br><br>
 
 				You involuntarily whimper. Even the effort of staying standing is causing a burning pain. A branch cracks to your left.
+			<<case "bog">>
+				<<pass 1 hour>>
+				<<if $bogwater is 1>>
+					You stumble, barely managing to make it back to the path. A horrible pressure shoots through you. You're going into labour.
+					<br><br>
+
+					You involuntarily whimper. You don't have the strength to pull yourself out of the water. Just staying above the surface takes everything you have.					
+				<<else>>
+					You stumble, barely managing to stabilise yourself against a large tree trunk. You look down to see a clear liquid dripping down your leg. You're going into labour.
+					<br><br>
+
+					You involuntarily whimper. Even the effort of staying standing is causing a burning pain. You collapse onto the wooden walkway.
+				<</if>>
+				<br><br>
+
+				Time passes. You start to scream in pain. Adrenaline and fear shoot through you. You're so far away from anyone that can help. The thought of no one hearing you redoubles your fear. You've never felt so alone.
+				<br><br>
+
+				Shapes start to move amidst the trees. The sound of footsteps on wood. You can't look, but they're getting closer. You come face to face with a featureless white mask. A black hood sprouts antlers. The image sears itself into your mind as you black out.
 			<<case "tentacleworld" "tentacleforest">>
 				You hunch over in pain. All of the tentacles retreat away from you. You fall to your knees, gripping the ground as hard as you can.
 				<br><br>
@@ -926,7 +947,7 @@
 					<<relaxed_guard 1 cap>> comes up behind you, and the prisoner scowls but leaves to do <<person1>><<his>> work. <<person2>><<He>> looks down at your legs but doesn't get to ask anything. Pain shoots through your stomach again, and you hunch over. 
 					<br><br>
 
-					"H-Help... My baby...” you whimper out.
+					"H-Help... My baby..." you whimper out.
 					<br><br>
 
 					<<relaxed_guard 1 cap>> takes your elbow, propping you up.
@@ -1026,6 +1047,28 @@
 				/*Wake up while being put in an ambulance?*/
 			<<case "adultShop">>
 			<<case "office">>
+			<<case "island">>
+				<<endevent>>
+				You're going into labor.
+				<br><br>
+				A spasm of pain wracks your body, and you cry out.
+				<br><br>
+
+				Figures emerge from the trees, weapons held ready. They lower them when they see your state, and their motions become panicked.
+				<br><br>
+				<<if $islander_language gte 100>>
+					"I think <<pshe>> going into labor,"
+					<br>
+					"Fuck! You're right!"
+					<br>
+					"Get the druids, now!"
+				<<elseif $islander_language gte 50>>
+					They call for help. It's strange, but in your pain you can almost determine the meaning behind their words. It floats at the edge of awareness.<<gggcomprehension>><<islander_language 30>>
+				<<else>>
+					They shout something in their incomprehensible language. It's strange, but in your pain you feel the meaning behind them. They're calling for help.<<gggcomprehension>><<islander_language 30>>
+				<</if>>
+				<br><br>
+				The figures fade into fog as you pass out.
 			<<default>>
 				With your waters broken, you're too weak to continue.
 		<</switch>>
@@ -1132,10 +1175,14 @@
 				<<else>>
 					<<link [[Next|Pregnancy Birth Hospital Passout]]>><<set $stress -= 5000>><<endevent>><</link>>
 				<</if>>
+			<<case "bog">>
+				<<link [[Next|Pregnancy Birth Hospital Rescue]]>><<set $stress -= 5000>><<endevent>><</link>>
 			<<case "dungeon" "pound" "temple">>
 				<<link [[Next|Pregnancy Birth Hospital Rescue]]>><<set $stress -= 5000>><<endevent>><</link>>
 			<<case "hospital">>
 				<<link [[Next|Pregnancy Birth Hospital]]>><<set $stress -= 5000>><<endevent>><</link>>
+			<<case "island">>
+				<<link [[Next|Pregnancy Island]]>><<set $stress -= 5000>><<endevent>><</link>>
 			<<default>>
 				<<link [[Next|Pregnancy Birth Hospital Passout]]>><<set $stress -= 5000>><<endevent>><</link>>
 		<</switch>>
@@ -1348,6 +1395,12 @@
 			<<switch $_name>>
 				<<case "Kylar">><<set $_pregnancy.pills to "fertility">>
 				<<case "Alex" "Wren">><<set $_pregnancy.pills to "contraceptive">>
+				<<case "Great Hawk">>
+					/* Has a much shorter cycle, when cycleDay is 1, assume the hawk should lay eggs that have not been fertilised*/
+					<<set $_pregnancy.cycleDaysTotal to random(12,16)>>
+					<<set $_pregnancy.cycleDay to random(1,$_pregnancy.cycleDaysTotal)>>
+					<<set $_pregnancy.cycleDangerousDay to $_pregnancy.cycleDaysTotal - 4>>
+					<<set $_pregnancy.pills to null>>
 				<<default>><<set $_pregnancy.pills to null>>
 			<</switch>>
 		<<elseif setup.pregnancy.infertile.includes($_name) or (!setup.pregnancy.canBePregnant.includes($_name) and $incompletePregnancyDisable isnot "f")>>
@@ -1371,22 +1424,22 @@
 
 /*ToDo: Pregnancy Story Content: Not used in events at the moment, add to appropriate story passages, when the player gives birth to their children*/
 <<widget "earSlimePregnancy">>
-	<<if _args[0] and $corruption_slime gte 80>>
+	<<if _args[0] and $earSlime.corruption gte 80>>
 		<<switch _args[0]>>
 			<<case "human">><<set $_type to _args[1]? 'babies' : 'baby'>>
 			<<case "wolf">><<set $_type to _args[1] ? 'wolf puppies' : 'wolf pup'>>
 			<<default>><<set $_type to _args[1] ? 'babies' : 'baby'>>
 		<</switch>>
 		<<set $_babiesText to _args[1] ? `to some beautiful ${$_type}` : `to a beautiful ${$_type}`>>
-		<<if $parasite.left_ear.name is "slime" and $parasite.right_ear.name is "slime">>
+		<<if numberOfEarSlime() gte 2>>
 			<span class="green">A fulfilled warmth fills you.</span>
 			You almost forget the strife of the world. You can tell it's the slimes in your ears, rewarding you for giving birth <<print $_babiesText>>.
-			<<lllcorruption>><<lltrauma>><<llstress>><<trauma -24>><<stress -24>><<corruption `Math.floor($corruption_slime * -0.4)`>>
+			<<lllcorruption true>><<lltrauma>><<llstress>><<trauma -24>><<stress -24>><<corruption `Math.floor($earSlime.corruption * -0.4)`>>
 			<br><br>
-		<<elseif $parasite.left_ear.name is "slime" or $parasite.right_ear.name is "slime">>
+		<<elseif numberOfEarSlime()>>
 			<span class="green">A fulfilled warmth fills you.</span>
 			You almost forget the strife of the world. You can tell it's the slime in your ear, rewarding you for giving birth <<print $_babiesText>>.
-			<<llcorruption>><<ltrauma>><<lstress>><<trauma -12>><<stress -12>><<corruption `Math.floor($corruption_slime * -0.2)`>>
+			<<llcorruption true>><<ltrauma>><<lstress>><<trauma -12>><<stress -12>><<corruption `Math.floor($earSlime.corruption * -0.2)`>>
 			<br><br>
 		<</if>>
 	<</if>>

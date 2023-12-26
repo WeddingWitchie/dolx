@@ -95,6 +95,38 @@ You are in the Ocean Breeze Cafe.
 	<<link [[Next|Ocean Breeze]]>><</link>>
 	<br>
 
+<<elseif !$daily.earSlimeOceanBreezeCafeEat and $openinghours is 1 and $exposed lt 1 and !$daily.cafeEaten and $money gte 200 and numberOfEarSlime() and earSlimeMakingMundaneRequests() and random(0,100) gte 92>>
+	<<set _cafeOptions to []>>
+	<<if $money gte 200>>
+		<<run _cafeOptions.push("coffee")>>
+	<</if>>
+	<<if $money gte 700 and !playerAwareTheyArePregnant()>>
+		<<switch Time.season>>
+			<<case "winter">><<run _cafeOptions.push("winter ale")>>
+			<<case "spring">><<run _cafeOptions.push("fruity ale")>>
+			<<case "summer">><<run _cafeOptions.push("shandy")>>
+			<<default>><<run _cafeOptions.push("autumn ale")>>
+		<</switch>>
+	<</if>>
+	<<if $money gte 500>>
+		<<run _cafeOptions.push("fruit salad")>>
+	<</if>>
+	<<if $money gte 1000>>
+		<<run _cafeOptions.push("pancake")>>
+	<</if>>
+	<<if $money gte 5000>>
+		<<run _cafeOptions.push("deluxe cream bun")>>
+	<</if>>
+	<<set $daily.earSlimeOceanBreezeCafeEat to _cafeOptions.random()>>
+	<span @class="$earSlime.startedThreats ? 'lewd' : 'lblue'">You feel the slime in your head command you to have a $daily.earSlimeOceanBreezeCafeEat.</span> It promises rewards if you comply<<if $earSlime.startedThreats>>, and threatens consequences if you do not<</if>>.
+	<br><br>
+	<<earSlimeCafeLinks "Obey">>
+	<br>
+	<<if $earSlime.startedThreats>>
+		<<link [[Defy|Ocean Breeze Slime Defy]]>><<corruption -1>><<pain 8>><<stress 6>><<trauma 6>><<def 1>><</link>><<lcorruption>><<ggpain>><<ggtrauma>><<ggstress>>
+	<<else>>
+		<<link [[Ignore|Ocean Breeze]]>><</link>>
+	<</if>>
 <<else>>
 	<<if Time.hour is $closinghour>>
 		It's closing time. Sam is herding everyone outside.
@@ -119,10 +151,10 @@ You are in the Ocean Breeze Cafe.
 
 	<<if $openinghours is 1 and $exposed lt 1 and $oceanbreezejob isnot 1>>
 		<<if $oceanbreezejoboffer is 1>>
-			<<ind>><<link [[Ask for work|Ocean Breeze Ask Again]]>><</link>>
+			<<askicon>><<link [[Ask for work|Ocean Breeze Ask Again]]>><</link>>
 			<br>
 		<<else>>
-			<<ind>><<link [[Ask for work|Ocean Breeze Ask]]>><</link>>
+			<<askicon>><<link [[Ask for work|Ocean Breeze Ask]]>><</link>>
 			<br>
 		<</if>>
 	<</if>>
@@ -151,39 +183,39 @@ You are in the Ocean Breeze Cafe.
 <<if $openinghours is 1 and $exposed lt 1 and $daily.cafeEaten isnot 1>>
 
 	<<if $money gte 200>>
-		<<coffeeicon>><<link [[Buy coffee (0:02 £2)|Cafe Coffee]]>>
+		<<foodicon "coffee">><<link [[Buy coffee (0:02 £2)|Cafe Coffee]]>>
 			<<set $daily.cafeEaten to 1>><<set $money -= 200>><<stress -3>><<tiredness -4>><<pass 2>>
 		<</link>><<lstress>><<ltiredness>>
 		<br>
 	<</if>>
 	<<if $money gte 700>>
-		<<icon "beer_bottle.png">>
+		<<foodicon "beerbottle">>
 		<<if Time.season is "winter">>
 			<<if playerIsPregnant() and playerAwareTheyArePregnant()>>
 				<span class="blue">You can't bring yourself to drink winter ale while you know you're with child.</span>
 			<<else>>
-				<<link [[Buy winter ale (0:10 £7)|Cafe Winter Ale]]>><<set $daily.cafeEaten to 1>><<set $money -= 700>><<stress -6>><<alcohol 100>><<pass 10>><</link>><<lstress>><<galcohol>>
+				<<link [[Buy winter ale (0:10 £7)|Cafe Eat]]>><<set $phase to "winter ale">><<set $daily.cafeEaten to 1>><<set $money -= 700>><<stress -6>><<alcohol 100>><<pass 10>><</link>><<lstress>><<galcohol>>
 			<</if>>
 			<br>
 		<<elseif Time.season is "spring">>
 			<<if playerIsPregnant() and playerAwareTheyArePregnant()>>
 				<span class="blue">You can't bring yourself to drink fruity ale while you know you're with child.</span>
 			<<else>>
-				<<link [[Buy fruity ale (0:10 £7)|Cafe Spring Ale]]>><<set $daily.cafeEaten to 1>><<set $money -= 700>><<stress -6>><<alcohol 60>><<pass 10>><</link>><<lstress>><<galcohol>>
+				<<link [[Buy fruity ale (0:10 £7)|Cafe Eat]]>><<set $phase to "fruity ale">><<set $daily.cafeEaten to 1>><<set $money -= 700>><<stress -6>><<alcohol 60>><<pass 10>><</link>><<lstress>><<galcohol>>
 			<</if>>
 			<br>
 		<<elseif Time.season is "summer">>
 			<<if playerIsPregnant() and playerAwareTheyArePregnant()>>
-				<span class="blue">You can't bring yourself to drink shandy ale while you know you're with child.</span>
+				<span class="blue">You can't bring yourself to drink shandy while you know you're with child.</span>
 			<<else>>
-				<<link [[Buy shandy (0:10 £7)|Cafe Summer Ale]]>><<set $daily.cafeEaten to 1>><<set $money -= 700>><<stress -6>><<alcohol 40>><<pass 10>><</link>><<lstress>><<galcohol>>
+				<<link [[Buy shandy (0:10 £7)|Cafe Eat]]>><<set $phase to "shandy">><<set $daily.cafeEaten to 1>><<set $money -= 700>><<stress -6>><<alcohol 40>><<pass 10>><</link>><<lstress>><<galcohol>>
 			<</if>>
 			<br>
 		<<else>>
 			<<if playerIsPregnant() and playerAwareTheyArePregnant()>>
 				<span class="blue">You can't bring yourself to drink autumn ale while you know you're with child.</span>
 			<<else>>
-				<<link [[Buy autumn ale (0:10 £7)|Cafe Autumn Ale]]>><<set $daily.cafeEaten to 1>><<set $money -= 700>><<stress -6>><<alcohol 80>><<pass 10>><</link>><<lstress>><<galcohol>>
+				<<link [[Buy autumn ale (0:10 £7)|Cafe Eat]]>><<set $phase to "autumn ale">><<set $daily.cafeEaten to 1>><<set $money -= 700>><<stress -6>><<alcohol 80>><<pass 10>><</link>><<lstress>><<galcohol>>
 			<</if>>
 			<br>
 		<</if>>
@@ -191,34 +223,39 @@ You are in the Ocean Breeze Cafe.
 	<<if $money gte 300>>
 		<<if ndef $milkshake>><<set $milkshake to 0>><</if>>
 		<<if $milkshake lt 2>>
-			<<milkshakeicon>><<link [[Buy milkshake to go (0:02 £3)|Ocean Breeze]]>><<set $money -= 300>> <<set $milkshake +=1>> <<pass 2>><</link>>
+			<<foodicon "milkshake">><<link [[Buy milkshake to go (0:02 £3)|Ocean Breeze]]>><<set $money -= 300>> <<set $milkshake +=1>> <<pass 2>><</link>>
 			<br>
 		<</if>>
 	<</if>>
 	<<if $money gte 500>>
-		<<icon "food_fruitsalad.png">>
-		<<link [[Buy fruit salad (0:20 £5)|Cafe Fruit Salad]]>><<set $daily.cafeEaten to 1>><<set $money -= 500>><<stress -6>><<pass 20>><</link>><<lstress>>
+		<<foodicon "fruitsalad">>
+		<<link [[Buy fruit salad (0:20 £5)|Cafe Eat]]>><<set $phase to "fruit salad">><<set $daily.cafeEaten to 1>><<set $money -= 500>><<stress -6>><<pass 20>><</link>><<lstress>>
+		<br>
+	<</if>>
+	<<if $money gte 600 and Time.season is "winter">>
+		<<foodicon "gingerbread">>
+		<<link [[Buy gingerbread (0:20 £6)|Cafe Eat]]>><<set $phase to "gingerbread">><<set $daily.cafeEaten to 1>><<set $money -= 600>><<stress -8>><<pass 20>><</link>><<lstress>>
 		<br>
 	<</if>>
 	<<if $money gte 1000>>
-		<<icon "food_pancakes.png">>
+		<<foodicon "pancakes">>
 		<<link [[Buy pancakes (0:20 £10)|Cafe Pancakes]]>><<set $daily.cafeEaten to 1>><<set $money -= 1000>><<tiredness -6>><<pass 20>><</link>><<ltiredness>>
 		<br>
 	<</if>>
 	<<if $money gte 5000>>
-		<<icon "food_creambun.png">>
+		<<foodicon "creambun">>
 		<<link [[Buy Deluxe Cream Bun (0:20 £50)|Cafe Cream Bun]]>><<set $daily.cafeEaten to 1>><<transform cat 1>><<set $money -= 5000>><<pass 20>><<stress -18>><</link>><<llstress>>
 		<br>
 	<</if>>
 <</if>>
 
 <<if $openinghours is 0 and Time.hour isnot $closinghour and !$weekly.theft.oceanBreeze>>
-	<<link [[Examine the cash register|Ocean Breeze Register]]>><</link>>
+	<<shopicon "register">><<link [[Examine the cash register|Ocean Breeze Register]]>><</link>>
 	<br>
 <</if>>
 
 <br>
-<<link [[Leave|Cliff Street]]>><</link>>
+<<clifficon>><<link [[Leave|Cliff Street]]>><</link>>
 <br><br>
 
 <</if>>
@@ -232,7 +269,7 @@ You are in the Ocean Breeze Cafe.
 	<span class="green">The lock looks easy to pick.</span>
 	<br><br>
 
-	<<link [[Pick it (0:10)|Ocean Breeze]]>><<pass 10>><<crimeup 1>><</link>><<crime>>
+	<<lockpickicon>><<link [[Pick it (0:10)|Ocean Breeze]]>><<pass 10>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
 	<br>
 
 <<else>>
@@ -241,7 +278,7 @@ You are in the Ocean Breeze Cafe.
 
 <</if>>
 
-<<link [[Leave|Cliff Street]]>><</link>>
+<<clifficon>><<link [[Leave|Cliff Street]]>><</link>>
 <br>
 
 :: Ocean Breeze Ask
@@ -1285,7 +1322,7 @@ You let the <<person>> continue.
 		"They're beautiful," <<he>> says, before closing <<his>> eyes in rapture and planting kisses down your shaft, from tip to base, and then over your labia.
 		<br><br>
 
-		<<if playerChastity("cage")>>You erect in response. <</if>><<He>> pulls away and examines you.
+		<<if !playerChastity("cage")>>You erect in response. <</if>><<He>> pulls away and examines you.
 		<<if $player.virginity.penile is true or $player.virginity.vaginal is true>>
 			"You're a virgin," <<he>> whispers, gazing at your groin in awe. "That's so precious. It's not my place to take it. I need to be gentle."
 		<<else>>
@@ -1298,7 +1335,7 @@ You let the <<person>> continue.
 		<<promiscuity1>>
 
 		<<if $player.penisExist>>
-			<<if playerChastity("cage")>>You erect in response. <</if>><<He>> pulls away and examines you.
+			<<if !playerChastity("cage")>>You erect in response. <</if>><<He>> pulls away and examines you.
 			<<if $player.virginity.penile is true>>
 				"You're a virgin," <<he>> whispers, gazing at your groin in awe. "That's so precious. It's not my place to take it. I need to be gentle."
 			<<else>>
@@ -1399,11 +1436,31 @@ The rest of the shift passes uneventfully. You earn <<moneyGain 5>>.
 <<link [[Next|Ocean Breeze]]>><<endevent>><</link>>
 <br>
 
+:: Ocean Breeze Slime Defy
+<<effects>>
+<<if $earSlime.corruption gte (currentSkillValue('willpower') / 10)>>
+	<<set $earSlime.defyCooldown += 2>>
+	The slime tries to assert control. <span class="red">It overpowers your will,</span> forcing you to buy the $daily.earSlimeOceanBreezeCafeEat.
+	<<ggwillpower>><<willpower 1>>
+	<br><br>
+	<<earSlimeCafeLinks>>
+<<else>>
+	You try to ignore the command from the slime and continue on. You feel it try, <span class="green">but fail,</span> to force you to buy the $daily.earSlimeOceanBreezeCafeEat.
+	<br><br>
+	<<link [[Next|Ocean Breeze]]>><<endevent>><</link>>
+	<br>
+<</if>>
+
 :: Cafe Coffee
 <<endevent>>
 <<set _coffee to ["mocha", "latte", "caramel latte", "white chocolate mocha", "flat white", "caramel iced latte"].pluck()>>
-You take a seat at one of the elevated seats at the window and order a <<print _coffee>> from the menu.
-It arrives promptly; Wafting the delicious smell of fresh coffee up your nose.
+<<if $daily.earSlimeOceanBreezeCafeEat>>
+	You decide that the ear slime is right and
+<<else>>
+	You
+<</if>>
+take a seat at one of the elevated seats at the window and order a <<print _coffee>> from the menu.
+It arrives promptly, wafting the delicious smell of fresh coffee up your nose.
 
 <<if setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1 and $exhibitionism gte 55>>
 	A wicked thought occurs to you as you take a sip of your coffee.
@@ -1722,42 +1779,24 @@ You feel a little more refreshed with the caffeine in your system.
 <<endevent>>
 <<link [[Next|Ocean Breeze]]>><</link>>
 
-:: Cafe Fruit Salad
-<<set $outside to 0>><<set $location to "cafe">><<effects>>
-
-<<if $weather is "rain">>
-	You take a seat and order a fruit salad.
-	It arrives promptly; fresh strawberries, blueberries, kiwifruit, and chunks of pineapple. It's sweet and delicious.
-	You stare out the window at the rain-filled street, and feel comfy.
-	<br><br>
-<<elseif $weather is "snow">>
-	You take a seat and order a fruit salad.
-	It arrives promptly; fresh strawberries, blueberries, kiwifruit, and chunks of pineapple. It's sweet and delicious.
-	You stare out the window at the snowy street, and feel comfy.
-	<br><br>
-<<else>>
-	You take a seat outside and order a fruit salad.
-	It arrives promptly; fresh strawberries, blueberries, kiwifruit, and chunks of pineapple. It's sweet and delicious.
-	You stare out over the sea, and enjoy the breeze.
-	<br><br>
-<</if>>
-
-<<link [[Next|Ocean Breeze]]>><</link>>
-<br>
-
 :: Cafe Pancakes
-
 <<set $outside to 0>><<set $location to "cafe">><<effects>>
+
+<<if $daily.earSlimeOceanBreezeCafeEat>>
+	You decide that the ear slime is right and
+<<else>>
+	You
+<</if>>
 <<if $weather is "rain">>
-	You take a seat and order pancakes. They arrive soon after, along with a cup of coffee.
+	take a seat and order pancakes. They arrive soon after, along with a cup of coffee.
 	It's tastier than anything you've had at the orphanage. You stare out the window at the rain-filled street, and feel comfy.
 	<br><br>
 <<elseif $weather is "snow">>
-	You take a seat and order pancakes. They arrive soon after, along with a cup of coffee.
+	take a seat and order pancakes. They arrive soon after, along with a cup of coffee.
 	It's tastier than anything you've had at the orphanage. You stare out the window at the snowy street, and feel comfy.
 	<br><br>
 <<else>>
-	You take a seat and order pancakes. They arrive soon after, along with a cup of coffee.
+	take a seat and order pancakes. They arrive soon after, along with a cup of coffee.
 	It's tastier than anything you've had at the orphanage. You stare out over the sea, and enjoy the breeze.
 	<br><br>
 <</if>>
@@ -1887,7 +1926,7 @@ giving <<him>> a complete unobstructed view of your inner thighs and everything 
 The <<persons>> eyes visibly widen in shock as <<he>> stares at your bare <<genitals>>, unsure of how to react to your clearly deliberate act of exhibitionism.
 <<if $player.gender_appearance isnot $player.gender>>
 	From the look on <<his>> face it's clear <<he>> was not expecting you to
-	<<if $player.gender is "h">>
+	<<if $player.penisExist and $player.vaginaExist>>
 		have both a penis and pussy.
 	<<else>>
 		be a <<print ($player.gender is "m" ? "boy" : "girl")>>.
@@ -2008,7 +2047,12 @@ The mildly disappointed but clearly quite aroused <<person>> stares at you as yo
 :: Cafe Cream Bun
 <<set $outside to 0>><<set $location to "cafe">><<effects>>
 
-You take a seat and order a cream bun, advertised on the menu as using "locally sourced milk." It soon arrives.
+<<if $daily.earSlimeOceanBreezeCafeEat>>
+	You decide that the ear slime is right and
+<<else>>
+	You
+<</if>>
+take a seat and order a cream bun, advertised on the menu as using "locally sourced milk." It soon arrives.
 <br><br>
 
 It's big, and bursting with cream. It's a struggle to eat without cream squeezing onto the plate at odd angles.
@@ -2066,97 +2110,30 @@ You ignore the <<person>> and finish licking the plate clean. You lean back, sat
 <<link [[Next|Ocean Breeze]]>><</link>>
 <br>
 
-:: Cafe Winter Ale
+:: Cafe Eat
 <<set $outside to 0>><<set $location to "cafe">><<effects>>
+<<switch $phase>>
+	<<case "fruity ale">>
+		<<set _food to "a fruity ale. It arrives quickly, served in a regular beer glass. It's very sweet and light. It's delicious">>
+	<<case "winter ale">>
+		<<set _food to "winter ale.	It arrives promptly, served in a beautifully curved glass. It's sweet, rather than bitter. It's delicious">>
+	<<case "shandy">>
+		<<set _food to "a shandy. It arrives quickly. It's served in a can with a beer glass; you're clearly meant to pour it yourself. It's lemon flavoured and very refreshing">>
+	<<case "autumn ale">>
+		<<set _food to "an autumn ale. It arrives quickly. It's sweet and has a hint of caramel. It's delicious">>
+	<<case "fruit salad">>
+		<<set _food to "a fruit salad. It arrives promptly, full of fresh strawberries, blueberries, kiwi, and chunks of pineapple. It's sweet and delicious">>
+	<<case "gingerbread">>
+		<<set _food to "a gingerbread man. It arrives promptly, a friendly icing face smiling up at you. It's sweet and delicious, and it reminds you of Christmas">>
+		<<wearProp "gingerbread">>
+	<<default>>
+		<<set _food to "your food. It arrives promptly, and you finish it quickly. It's delicious">>
+<</switch>>
 
-<<if $weather is "rain">>
-	You take a seat and order a winter ale.
-	It arrives promptly; it's served in a beautifully curved glass. It's sweet, rather than bitter. It's delicious.
-	You stare out the window at the rain-filled street, and feel warm inside.
-	<br><br>
-<<elseif $weather is "snow">>
-	You take a seat and order a winter ale.
-	It arrives promptly; it's served in a beautifully curved glass. It's sweet, rather than bitter. It's delicious.
-	You stare out the window at the snowy street, and feel the alcohol warming you inside.
-	<br><br>
-<<else>>
-	You take a seat and order a winter ale.
-	It arrives promptly; it's served in a beautifully curved glass. It's sweet, rather than bitter. It's delicious.
-	You stare out the window, and feel the alcohol warming you inside.
-	<br><br>
-<</if>>
-
-<<link [[Next|Ocean Breeze]]>><</link>>
-<br>
-
-:: Cafe Spring Ale
-<<set $outside to 0>><<set $location to "cafe">><<effects>>
-
-<<if $weather is "rain">>
-	You take a seat and, considering the season, order a fruity ale.
-	It arrives quickly and served in a regular beer glass. It's very sweet and light. It's delicious.
-	You stare out the window at the rain-filled street, and feel comfy.
-	<br><br>
-<<elseif $weather is "snow">>
-	You take a seat and, considering the season, order a fruity ale.
-	It arrives quickly and served in a regular beer glass. It's very sweet and light. It's delicious.
-	You stare out the window at the snowy street, and feel comfy.
-	<br><br>
-<<else>>
-	You take a seat and, considering the season, order a fruity ale.
-	It arrives quickly and served in a regular beer glass. It's very sweet and light. It's delicious.
-	You stare out over the sea, and enjoy the spring breeze.
-	<br><br>
-<</if>>
-
-<<link [[Next|Ocean Breeze]]>><</link>>
-<br>
-
-:: Cafe Summer Ale
-<<set $outside to 0>><<set $location to "cafe">><<effects>>
-
-<<if $weather is "rain">>
-	You take a seat and, considering the season, order a shandy.
-	It arrives quickly. It's served in a can with a beer glass; you're clearly meant to pour it yourself. It's lemon flavoured and very refreshing!
-	You stare out the window at the rain-filled street, and feel comfy.
-	<br><br>
-<<elseif $weather is "snow">>
-	You take a seat and, considering the season, order a shandy.
-	It arrives quickly. It's served in a can with a beer glass; you're clearly meant to pour it yourself. It's lemon flavoured and very refreshing!
-	You stare out the window at the snowy street, and feel comfy.
-	<br><br>
-<<else>>
-	You take a seat and, considering the season, order a shandy.
-	It arrives quickly. It's served in a can with a beer glass; you're clearly meant to pour it yourself. It's lemon flavoured and very refreshing!
-	You stare out over the sea, and enjoy the summer breeze.
-	<br><br>
-<</if>>
-
-<<link [[Next|Ocean Breeze]]>><</link>>
-<br>
-
-:: Cafe Autumn Ale
-<<set $outside to 0>><<set $location to "cafe">><<effects>>
-
-<<if $weather is "rain">>
-	You take a seat and order an autumn ale.
-	It arrives quickly. It's sweet and has a hint of caramel. It's delicious.
-	You stare out the window at the rain-filled street, and feel comfy.
-	<br><br>
-<<elseif $weather is "snow">>
-	You take a seat and order an autumn ale.
-	It arrives quickly. It's sweet and has a hint of caramel. It's delicious.
-	You stare out the window at the snowy street, and feel comfy.
-	<br><br>
-<<else>>
-	You take a seat and order an autumn ale.
-	It arrives quickly. It's sweet and has a hint of caramel. It's delicious.
-	You stare out over the sea, and enjoy the autumn breeze.
-	<br><br>
-<</if>>
-
-<<link [[Next|Ocean Breeze]]>><</link>>
-<br>
+<<print $daily.earSlimeOceanBreezeCafeEat ? "You decide that the ear slime is right and" : "You">> take a seat and order _food.
+You stare out the window <<print $weather is "rain" ? "at the rain-filled street, feeling comfy" : $weather is "snow" ? "at the snowy street, feeling comfy" : "and gaze at the sea, enjoying the breeze">>.
+<br><br>
+<<link [[Next|Ocean Breeze]]>><<endevent>><</link>>
 
 :: Ocean Breeze Tourist
 <<set $outside to 0>><<set $location to "cafe">><<effects>>
@@ -2403,5 +2380,5 @@ People from all over the world are coming, so the town's movers and shakers will
 
 <<endevent>>
 
-<<link [[Leave|Cliff Street]]>><<set $eventskip to 1>><</link>>
+<<clifficon>><<link [[Leave|Cliff Street]]>><<set $eventskip to 1>><</link>>
 <br>

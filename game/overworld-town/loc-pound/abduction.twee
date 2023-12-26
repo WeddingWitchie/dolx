@@ -208,7 +208,7 @@ You are imprisoned in the pound on Starfish Street. <<pound_text cap>> fill the 
 <<elseif Time.hour is 12 and !$pound.compete>>
 	<<set $pound.compete to 1>>
 	<<generate1>><<person1>>
-	A <<person>> stops outside your cage. "Time for practise," <<he>> says, opening the door. "Be on your best behaviour."
+	A <<person>> stops outside your cage. "Time for practice," <<he>> says, opening the door. "Be on your best behaviour."
 	<br><br>
 
 	<<link [[Crawl outside|Pound Show Crawl]]>><<sub 1>><</link>>
@@ -428,7 +428,20 @@ Sated, the more dominant <<pound_text>> laze around the yard, while others hunt 
 <br><br>
 <<beastNEWinit 1 dog>>
 <<if $rng gte 67 and ($bestialitydisable is "f" or $monster is 1)>>
-	<<if $pound.status gte 80>>
+	<<if numberOfEarSlime() and ($earSlime.growth gte 80 - ($earSlime.deviancy * 10))>>
+		A <<beasttype>> watches you from afar with lust in <<bhis>> eyes.
+		<span class="lewd">You feel the slime in your head command you to give yourself to <<bhim>>.</span> It promises rewards if you comply, and threatens consequences if you do not.
+		<br><br>
+
+		<<if $deviancy gte 55 and $submissive gte 1900>>
+			<<link [[Submit willingly|Pound Food Event Slime Submit willingly]]>><<corruption 3>><<pain -8>><<stress -12>><<trauma -24>><<sub 2>><</link>><<promiscuous4>><<ggcorruption>><<llpain>><<llltrauma>><<llstress>>
+			<br>
+		<</if>>
+		<<link [[Obey|Pound Food Event Slime Obey]]>><<corruption 1>><<pain -4>><<stress -6>><<trauma -12>><<sub 1>><</link>><<gcorruption>><<lpain>><<lltrauma>><<lstress>>
+		<br>
+		<<link [[Defy|Pound Food Event Slime Defy]]>><<corruption -1>><<pain 8>><<stress 6>><<trauma 6>><<def 1>><</link>><<lcorruption>><<ggpain>><<ggtrauma>><<ggstress>>
+		<br>
+	<<elseif $pound.status gte 80>>
 		A <<beasttype>> watches you from afar with lust in <<bhis>> eyes, but knows better than to try anything.
 		<br><br>
 
@@ -549,6 +562,63 @@ You allow the <<person>> to attach the leash to your collar.
 
 <<link [[Next|Pound Food End]]>><<set $molestationstart to 1>><</link>>
 
+:: Pound Food Event Slime Submit willingly
+<<effects>>
+
+You crawl to the <<beasttype>>, then turn and drop to a submissive position. You wiggle provocatively, and growl.
+<<deviancy4>>
+
+It steps towards you, sniffs you, then mounts.
+<br><br>
+"Love is in the air," says a member of staff. Several are watching.
+
+<br><br>
+<<link [[Next|Pound Food Rape]]>><<set $sexstart to 1>><<sub 3>><</link>>
+
+:: Pound Food Event Slime Obey
+<<effects>>
+
+Your forced to crawl to the <<beasttype>>, then drop to a submissive position. <<bHe>> growls, and bares <<bhis>> fangs. <<llpound_status>>
+<br><br>
+"Love is in the air," says a member of staff. Several are watching.
+
+<br><br>
+<<link [[Next|Pound Food Rape]]>><<set $molestationstart to 1>><<set $phase to 1>><<sub 3>><<pound_status -9>><</link>>
+
+:: Pound Food Event Slime Defy
+<<effects>>
+
+<<if $earSlime.defyCooldown>>
+	<<if $earSlime.growth gte 100>>
+		<<set $earSlime.defyCooldown += 2>>
+		You turn away and move away from the <<beasttype>>. You feel a jolt of pain as the slime punishes you for defiance, however, <span class="red">it doesn't stop you, knowing that it can punish you in other ways.</span>
+	<<else>>
+		You turn away and move away from the <<beasttype>>. The slime tries to overpower your will, and feel a jolt of pain as the slime punishes you for defiance, however, <span class="teal">it's still worn out from overpowering you earlier.</span> You feel it try, <span class="green">but fail,</span> to force you to present yourself to the <<beasttype>>.
+	<</if>>
+	<br><br>
+	<<link [[Next|Pound Food End]]>><<endevent>><</link>>
+	<br>
+<<elseif $earSlime.corruption gte (currentSkillValue('willpower') / 10)>>
+	<<if $deviancy gte 55 and $earSlime.growth lt 100>>
+		<<set $earSlime.defyCooldown += 4>>
+	<<else>>
+		<<set $earSlime.defyCooldown += 8>>
+	<</if>>
+	The slime tries to assert control. <span class="red">It overpowers your will,</span> forcing you to present yourself to the <<beasttype>>. <<bHe>> growls, and bares <<bhis>> fangs.
+	<<ggwillpower>><<willpower 3>><<llpound_status>>
+	<br><br>
+	"Love is in the air," says a member of staff. Several are watching.
+	<br><br>
+	<<link [[Next|Pound Food Rape]]>><<set $molestationstart to 1>><<set $phase to 1>><<sub 3>><<pound_status -9>><</link>>
+<<else>>
+	The slime tries to assert control, <span class="green">but you fight it,</span> and manage to wrench yourself away from the <<beasttype>>.
+	<<gwillpower>><<willpower 1>>
+	<br><br>
+
+	<<link [[Next|Pound Food End]]>><<endevent>><</link>>
+	<br>
+<</if>>
+
 :: Pound Food Rape
 <<if $molestationstart is 1>>
 	<<set $molestationstart to 0>>
@@ -563,6 +633,13 @@ You allow the <<person>> to attach the leash to your collar.
 		You smack the <<beasttype>> across the nose. It backs off, but prepares to attack.
 		<<set $enemyanger += 100>>
 	<</if>>
+<<elseif $sexstart is 1>>
+	<<set $sexstart to 0>>
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+	<<beastCombatInit>>
+	<<npc_attempt_sex>>
 <</if>>
 
 <<effects>>
@@ -1234,39 +1311,15 @@ You emerge part way up a cliff, above the beach. You hear traffic above. The bea
 You lie on the hard floor.
 <br><br>
 
-<<if $sleeptrouble is 1 and $controlled is 0>>
-	<<link [[Sleep for 10 hours|Pound Sleep]]>><<set $sleephour to 10>><<incrementautosave>><</link>> (<<timeAfterXHours 10>>)<<ltiredness>>
-	<br>
-	<<link [[Sleep for 9 hours|Pound Sleep]]>><<set $sleephour to 9>><<incrementautosave>><</link>> (<<timeAfterXHours 9>>)<<ltiredness>>
-	<br>
-<</if>>
-
-<<link [[Sleep for 8 hours|Pound Sleep]]>><<set $sleephour to 8>><<incrementautosave>><</link>> (<<timeAfterXHours 8>>)<<ltiredness>>
-<br>
-<<link [[Sleep for 7 hours|Pound Sleep]]>><<set $sleephour to 7>><<incrementautosave>><</link>> (<<timeAfterXHours 7>>)<<ltiredness>>
-<br>
-<<link [[Sleep for 6 hours|Pound Sleep]]>><<set $sleephour to 6>><<incrementautosave>><</link>> (<<timeAfterXHours 6>>)<<ltiredness>>
-<br>
-<<link [[Sleep for 5 hours|Pound Sleep]]>><<set $sleephour to 5>><<incrementautosave>><</link>> (<<timeAfterXHours 5>>)<<ltiredness>>
-<br>
-<<link [[Sleep for 4 hours|Pound Sleep]]>><<set $sleephour to 4>><<incrementautosave>><</link>> (<<timeAfterXHours 4>>)<<ltiredness>>
-<br>
-<<link [[Sleep for 3 hours|Pound Sleep]]>><<set $sleephour to 3>><<incrementautosave>><</link>> (<<timeAfterXHours 3>>)<<ltiredness>>
-<br>
-<<link [[Sleep for 2 hours|Pound Sleep]]>><<set $sleephour to 2>><<incrementautosave>><</link>> (<<timeAfterXHours 2>>)<<ltiredness>>
-<br>
-<<link [[Sleep for 1 hour|Pound Sleep]]>><<set $sleephour to 1>><<incrementautosave>><</link>> &#8194;(<<timeAfterXHours 1>>)<<ltiredness>>
-<br>
-<<link [[Just sleep|Pound Sleep]]>><<set $sleephour to -1>><<incrementautosave>><</link>> (??:??)<<ltiredness>>
-<br><br>
+<<generateSleepLinks "Pound Sleep">>
 
 <<link [[Rise|Pound Cage]]>><<endevent>><<loadTempHairStyle>><</link>>
 <br><br>
 
 :: Pound Sleep
 <<set _autosavehere to true>>
-<<sleep>><<effects>>
-
+<<sleep>>
+<<effects>>
 <<wakingEffects $sleepHoursTotal>>
 <<if ["dryheaving","nausea"].includes(_wakingEffect)>>
 	You slept soundly, but now feel a little rough.
@@ -1390,7 +1443,7 @@ You crawl towards the obstacle course as fast as your posture will allow. The fi
 <<pound_compete_text>>
 <br><br>
 
-<<link [[Intimidate|Pound Show Compete Intimidate]]>><</link>><<skill_difficulty "$pound.status" "Respect" 40 100>>
+<<link [[Intimidate|Pound Show Compete Intimidate]]>><</link>><<skill_difficulty $pound.status "Respect" 40 100>>
 <br>
 <<link [[Weave|Pound Show Compete Skill]]>><</link>><<dancedifficulty 1 1000>>
 <br>
@@ -1462,7 +1515,7 @@ A tunnel is up next.
 The <<pound_text>> disappear into the colourful tunnel. The watching <<people>> cheer on their favourites. It sounds like they've made bets.
 <br><br>
 
-<<link [[Intimidate|Pound Show Compete 2 Intimidate]]>><</link>><<skill_difficulty "$pound.status" "Respect" 40 100>>
+<<link [[Intimidate|Pound Show Compete 2 Intimidate]]>><</link>><<skill_difficulty $pound.status "Respect" 40 100>>
 <br>
 <<link [[Squeeze through|Pound Show Compete 2 Skill]]>><</link>>
 <<if $physiquesize gte 16000>>
@@ -1523,7 +1576,7 @@ You squeeze into the tunnel. You almost get stuck on the other side,
 You approach the hurdle. The <<beasttype 3>> in the lead makes it over, followed by the <<beasttype 2>> behind <<bhim 3>>.
 <br><br>
 
-<<link [[Intimidate|Pound Show Compete 3 Intimidate]]>><</link>><<skill_difficulty "$pound.status" "Respect" 40 100>>
+<<link [[Intimidate|Pound Show Compete 3 Intimidate]]>><</link>><<skill_difficulty $pound.status "Respect" 40 100>>
 <br>
 <<link [[Jump|Pound Show Compete 3 Skill]]>><</link>><<athleticsdifficulty 1 1000>>
 <br>
@@ -1568,7 +1621,7 @@ You put your weight on your legs,
 A trench has been dug through the middle of the course, and filled with rainwater.
 <br><br>
 
-<<link [[Intimidate|Pound Show Compete 4 Intimidate]]>><</link>><<skill_difficulty "$pound.status" "Respect" 40 100>>
+<<link [[Intimidate|Pound Show Compete 4 Intimidate]]>><</link>><<skill_difficulty $pound.status "Respect" 40 100>>
 <br>
 <<link [[Swim|Pound Show Compete 4 Skill]]>><</link>><<swimmingdifficulty 1 1000>>
 <br>
@@ -1631,7 +1684,7 @@ You approach the bridge.
 <</if>>
 <br><br>
 
-<<link [[Intimidate|Pound Show Compete 5 Intimidate]]>><</link>><<skill_difficulty "$pound.status" "Respect" 40 100>>
+<<link [[Intimidate|Pound Show Compete 5 Intimidate]]>><</link>><<skill_difficulty $pound.status "Respect" 40 100>>
 <br>
 <<link [[Crawl as fast as you can|Pound Show Compete 5 Skill]]>><</link>><<athleticsdifficulty 1 1000>>
 <br>
@@ -1803,7 +1856,11 @@ The <<person1>><<person>> holds you still as the guests continue to talk about y
 <<if (!$player.vaginaExist and playerChastity("cage")) or playerChastity("hidden")>>
 	and the <<person>> tugs on your <<print $worn.genitals.name>>.
 	<br><br>
-	"Lost the key," the <<person1>><<person>> says, sheepish. "Though it might be for the best. These mutts breed like rabbits."
+	<<if $worn.genitals.name is "chastity parasite">>
+		"Some sort of parasite," the <<person1>><<person>> says, sheepish. "Though it might be for the best. These mutts breed like rabbits."
+	<<else>>
+		"Lost the key," the <<person1>><<person>> says, sheepish. "Though it might be for the best. These mutts breed like rabbits."
+	<</if>>
 	<br><br>
 <<else>>
 	<<if $player.penisExist and $player.vaginaExist and playerChastity("cage")>>

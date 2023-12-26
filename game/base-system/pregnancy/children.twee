@@ -12,21 +12,20 @@
 	<</for>>
 <</widget>>
 
-/*args[0] - location, args[1] - "both" to include unrelated children or "only" to exclude the player children*/
+/*args[0] - filter in the form of an object, args[1] - "both" to include unrelated children or "only" to exclude the player children*/
 <<widget "getChildrenIds">>
 	<<set _childrenIds to []>>
-	<<for $_label, $_value range $children>>
-		<<if $_value.mother isnot "pc" and $_value.father isnot "pc">>
-			<<if _args[1] isnot "both" and _args[1] isnot "only">>
-				<<continue>>
-			<</if>>
-		<<elseif _args[1] is "only">>
-			<<continue>>
-		<</if>>
-		<<if _args[0] is undefined or $_value.location is _args[0]>>
-			<<run _childrenIds.push($_label)>>
-		<</if>>
-	<</for>>
+	<<run Object.values($children).forEach(child => {
+		if ((child.mother === "pc" || child.father === "pc") && _args[1] === "only") {
+			return;
+		} else if ((child.mother !== "pc" && child.father !== "pc") and !_args[1]) {
+			return;
+		}
+		if (T.args[0] && !Object.entries(T.args[0]).every(([key, value]) => child[key] === value)) {
+			return;
+		}
+		if (child.childId) T.childrenIds.push(child.childId);
+	})>>
 <</widget>>
 
 /*args[0] - location, args[1] - min length requirement, args[2] - max length requirement,
@@ -474,6 +473,7 @@ args[3] - "both" to include unrelated children or "only" to exclude the player c
 		<<switch $children[$_id].features.divineTransform>>
 			<<case "angel">><<set $_text_output += "Angelic">>
 			<<case "demon">><<set $_text_output += "Demonic">>
+			<<case "fallen">><<set $_text_output += "Fallen">>
 		<</switch>>
 		<<if $children[$_id].features.divineTransform and $children[$_id].features.beastTransform>><<set $_text_output += " ">><</if>>
 		<<switch $children[$_id].features.beastTransform>>
@@ -532,6 +532,11 @@ args[3] - "both" to include unrelated children or "only" to exclude the player c
 		<</if>>
 	<</if>>
 <</silently>><<if $_text_output>><<print $_text_output>><</if>><</widget>>
+
+/*args[0] - location*/
+<<widget "childSelectRandom">>
+    <<set $childSelected to Object.values($children).filter(child => !_args[0] or child.location === _args[0]).random()>>
+<</widget>>
 
 <<widget "childViewerDisplay">>
 	<<set _idList to _args[0]>>
@@ -910,7 +915,7 @@ args[3] - "both" to include unrelated children or "only" to exclude the player c
 					<<childHe>>'s playing happily with the clown, pulling its cord and making it chuckle every now and then.
 				<</if>>
 			<<case "Robin">>
-				<<if getRobinLocation() isnot "orphanage">>
+				<<if getRobinLocation() isnot "orphanage" or $location is "alex_cottage">>
 					<<childHe>>'s happily sucking on <<childhis>> thumb.
 				<<else>>
 					Robin cradles <<childhim>>.
@@ -919,6 +924,10 @@ args[3] - "both" to include unrelated children or "only" to exclude the player c
 						<<link [[Hold (0:05)|Children Activity Events]]>><<pass 5>><<set $childActivityEvent to {event:"Robin", childid:_args[0]}>><</link>>
 					<</if>>
 				<</if>>
+			<<case "Wraith">>
+				<<childHe>>'s laughing and reaching for something unseen.
+				<br>
+				<<link [[Watch them (0:05)|Children Activity Events]]>><<pass 5>><<set $childActivityEvent to {event:"Wraith", childid:_args[0]}>><</link>>
 			<<default>>
 				<<childHe>>'s has figured out that they're in a video game (This is an error, please report).
 				<<print $children[_args[0]].localVariables.activity>>
@@ -1024,7 +1033,7 @@ args[3] - "both" to include unrelated children or "only" to exclude the player c
 		<<case "ylight">><<set $_text_output to "light">>
 		<<case "ymedium">><<set $_text_output to "medium">>
 		<<case "ydark">><<set $_text_output to "dark">>
-		<<case "ghostlyPale">><<set $_text_output to "ghostly pale">>
+		<<case "ghostlyPale" "ghost">><<set $_text_output to "ghostly pale">>
 		<<case "gyaru" "ygyaru">><<set $_text_output to "medium">>
 		<<default>><<set $_text_output to _args[0]>>
 	<</switch>>

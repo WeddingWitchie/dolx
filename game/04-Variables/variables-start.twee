@@ -8,56 +8,71 @@
 :: gameStartOnly [widget]
 /* The following is only run when the widget is called, which is only on new game start. Add to this if you want something to be run when you start a new game. */
 <<widget "gameStartOnly">>
+	<<set _globalThemeDefaults to JSON.parse(localStorage.getItem("dolDefaultThemeSettings"))>>
+	<<if !_globalThemeDefaults>>
+		<<set _globalThemeDefaults to {}>>
+	<</if>>
 	<<set $options to {
-			neverNudeMenus: false,
-			autosaveDisabled: false,
-			showCaptionText: true,
-			sidebarRenderer: "canvas",
-			sidebarStats: "disabled",
-			sidebarTime: "disabled",
-			combatControls: "radio",
-			targetYourself: false,
-			scrollRemember: false,
-			mapMovement: true,
-			mapLegacy: false,
-			mapMarkers: false,
-			mapTop: false,
-			images: 1,
-			combatImages: 1,
-			bodywritingImages: true,
-			silhouetteEnabled: true,
-			tanImgEnabled: true,
-			tanningEnabled: true,
-			sidebarAnimations: true,
-			blinkingEnabled: true,
-			combatAnimations: true,
-			halfClosedEnabled: false,
-			characterLightEnabled: true,
-			lightSpotlight: 0.2,
-			lightGradient: 0.1,
-			lightGlow: 0.1,
-			lightFlat: 0,
-			lightCombat: 0.2,
-			lightTFColor: 0.2,
-			maxStates: 1,
-			numpad: false,
-			newWardrobeStyle: true,
-			useNarrowMarket: false,
-			skipStatisticsConfirmation: false,
-			showDebugRenderer: false,
-			pepperSprayDisplay: "sprays",
-			condomsDisplay: "standard",
-			closeButtonMobile: false,
-			zoom: 100,
-			numberify_enabled: 1,
-			timestyle: "military",
-			oldclock: false,
-			tipdisable: "f",
-			passageCount: "disabled",
-			playtime: false,
-			traitOverlayFormat: "table",
-			debugdisable: "t"
-		}>>
+		neverNudeMenus: false,
+		autosaveDisabled: false,
+		showCaptionText: true,
+		sidebarRenderer: "canvas",
+		sidebarStats: "disabled",
+		sidebarTime: "disabled",
+		combatControls: "radio",
+		targetYourself: false,
+		scrollRemember: false,
+		mapMovement: true,
+		mapLegacy: false,
+		mapMarkers: false,
+		mapTop: false,
+		images: 1,
+		combatImages: 1,
+		bodywritingImages: true,
+		silhouetteEnabled: true,
+		tanImgEnabled: true,
+		tanningEnabled: true,
+		sidebarAnimations: true,
+		blinkingEnabled: true,
+		combatAnimations: true,
+		halfClosedEnabled: false,
+		characterLightEnabled: true,
+		lightSpotlight: 0.2,
+		lightGradient: 0.1,
+		lightGlow: 0.1,
+		lightFlat: 0,
+		lightCombat: 0.2,
+		lightTFColor: 0.2,
+		maxStates: 1,
+		numpad: false,
+		newWardrobeStyle: true,
+		useNarrowMarket: false,
+		skipStatisticsConfirmation: false,
+		showDebugRenderer: false,
+		pepperSprayDisplay: "sprays",
+		condomsDisplay: "standard",
+		closeButtonMobile: false,
+		zoom: 100,
+		numberify_enabled: 1,
+		timestyle: "military",
+		oldclock: false,
+		tipdisable: "f",
+		passageCount: "disabled",
+		playtime: false,
+		traitOverlayFormat: "table",
+		debugdisable: "t",
+		theme: _globalThemeDefaults.theme,
+		dateFormat: _globalThemeDefaults.dateFormat or "en-GB",
+		passageMaxWidth: _globalThemeDefaults.passageMaxWidth,
+		passageLineHeight: _globalThemeDefaults.passageLineHeight,
+		overlayLineHeight: _globalThemeDefaults.overlayLineHeight,
+		sidebarLineHeight: _globalThemeDefaults.sidebarLineHeight,
+		passageFontSize: _globalThemeDefaults.passageFontSize,
+		overlayFontSize: _globalThemeDefaults.overlayFontSize,
+		sidebarFontSize: _globalThemeDefaults.sidebarFontSize,
+		font: _globalThemeDefaults.font,
+	}>>
+	<<setFont>>
 
 	<<set Time.startDate to new DateTime()>>
 	<<set $timeStamp to 0>>
@@ -155,15 +170,21 @@
 	<<set $tipmod to 1>>
 	/*<<set $worn.genitals.anal_shield to 0>>*/
 	<<set $blackmoney to 0>>
-	<<set $crime to 0>>
+	<<set $crime to {}>>
+	<<for _cr range Object.keys(setup.crimeNames)>>
+		/* look in variables-static for the list of crime categories */
+		<<set $crime[_cr] to {current: 0, history: 0, daily: 0, count: 0, countHistory: 0}>>
+	<</for>>
+	<<set $crime.events to {}>>
 	<<set $ironmanmode to false>>
-	<<set $crimehistory to 0>>
 	<<set $worn.neck.collaredpolice to 0>>
 	<<set $bullytimer to 50>>
 	<<set $bullytimeroutside to 0>>
 	<<set $bullyevent to 0>>
 	<<set $bullyeventoutside to 0>>
 	<<set $masturbationorgasm to 0>>
+	<<set $masturbationRuinedOrgasm to 0>>
+	<<set $ruinedOrgasmStat to 0>>
 	<<set $malechance to 50>>
 	<<set $maleChanceMale to 50>>
 	<<set $maleChanceFemale to 50>>
@@ -180,6 +201,7 @@
 	<<set $baileydefeated to 0>>
 	<<set $baileydefeatedlewd to 0>>
 	<<set $baileydefeatedchain to 0>>
+	<<set $baileyRefusedToPay to 0>>
 	<<set $soldCount to 0>>
 	<<set $robinmoney to 300>>
 	<<set $alluremod to 1>>
@@ -199,7 +221,7 @@
 	<<set $home_event_ward_timer to 3>>
 	<<set $home_event_ward_count to 0>>
 	<<set $home_gone to 0>>
-	<<set $corruption_slime to 0>>
+	<<resetEarSlime>>
 	<<set $lactating to 0>>
 	<<set $lactation_pressure to 0>>
 	<<set $milk_amount to 30>>
@@ -436,6 +458,7 @@
 	<<set $bottomejacstat to 0>>
 	<<set $penilestat to 0>>
 	<<set $penileejacstat to 0>>
+	<<set $straponstat to 0>>
 	<<set $clothesstripstat to 0>>
 	<<set $clothesruinstat to 0>>
 	<<set $orgasmstat to 0>>
@@ -894,7 +917,7 @@
 	<<if $saveDetails is undefined>>
 		<<set $saveDetails to {
 			exported:{
-				days: clone(0),
+				days: 0,
 				frequency: 15,
 				count: 0,
 				dayCount: 0,
@@ -909,7 +932,6 @@
 			playTime: 0,
 			loadTime: new Date(),
 			loadCount: 0,
-			f: 3,
 		}>>
 		<<unset $lastExported>>
 	<</if>>
@@ -948,4 +970,8 @@
 	<<set $modeloptionsOverride to {}>>
 	<<set $wraith to {"state": "", "init": 0}>>
 	<<set $necklaceThief to "">>
+
+	<<set $world_corruption_soft to 0>>
+	<<set $world_corruption_hard to 2>>
+	<<set $world_corruption_reduced to 0>>
 <</widget>>

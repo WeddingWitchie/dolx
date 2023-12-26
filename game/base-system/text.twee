@@ -367,6 +367,10 @@
 	<</if>>
 <</silently>>_text_output<</widget>>
 
+<<widget "A">><<silently>>
+	<<a _args[0]>><<capitalise>>
+<</silently>>_text_output<</widget>>
+
 <<widget "theowner">><<silently>>
 	<<if $enemyno gte 2 and $enemytype is "man">>
 		<<set _text_output to "the owner">>
@@ -1157,7 +1161,13 @@
 
 <<widget "genitalstate">><<silently>>
 	<<set _text_output to "">>
-	<<if $orgasmcount gte 23>>
+	<<if $args[0] is "penis" and $player.gender is "f" and $parasite.clit.name is "parasite">>
+		<<set _text_output to "parasitic ">>
+	<<elseif $args[0] is "penis" and $earSlime.focus is "impregnation" and $earSlime.growth gte 100>>
+		<<set _text_output to "dripping ">>
+	<<elseif $args[0] is "pussy" and $earSlime.focus is "pregnancy" and $earSlime.growth gte 100>>
+		<<set _text_output to "dripping ">>
+	<<elseif $orgasmcount gte 23>>
 		<<if $orgasmdown gte 1>>
 			<<set _text_output to "tortured ">>
 		<<else>>
@@ -1213,7 +1223,7 @@
 
 <!-- [0] - if truthy, genital sensitivity is omitted -->
 <<widget "pussy">><<silently>>
-	<<genitalstate>><<set _genital_state_text to _text_output>>
+	<<genitalstate "pussy">><<set _genital_state_text to _text_output>>
 	<<set _text_output to "">>
 	<<if !_args[0]>>
 		<<genitalsensitivity>>
@@ -1240,7 +1250,7 @@
 	<<if _penissize_text isnot "">>
 		<<set _penissize_text to _penissize_text + " ">>
 	<</if>>
-	<<genitalstate>><<set _genital_state_text to _text_output>>
+	<<genitalstate "penis">><<set _genital_state_text to _text_output>>
 	<<set _text_output to "">>
 	<<if !_args[0]>>
 		<<genitalsensitivity>>
@@ -1572,6 +1582,22 @@
 	<<wife>><<capitalise>>
 <</silently>><<print _text_output>><</widget>>
 
+<<widget "sister">><<silently>>
+	<<set _text_output to ($player.gender_appearance is "m" ? "brother" : "sister")>>
+<</silently>><<print _text_output>><</widget>>
+
+<<widget "Sister">><<silently>>
+	<<sister>><<capitalise>>
+<</silently>><<print _text_output>><</widget>>
+
+<<widget "sister_npc">><<silently>>
+	<<set _text_output to ($pronoun is "m" ? "brother" : "sister")>>
+<</silently>><<print _text_output>><</widget>>
+
+<<widget "Sister_npc">><<silently>>
+	<<sister_npc>><<capitalise>>
+<</silently>><<print _text_output>><</widget>>
+
 <<widget "victimgirl">>
 	<<if $malevictimchance is 0>>
 		<<set _text_output to "girl">>
@@ -1655,11 +1681,16 @@
 	<<else>>
 		<<genitalsensitivity>>
 		<<if $player.penisExist>>
-			<<if playerChastity("cage")>>
+			<<if $worn.genitals.name is "chastity parasite">>
+				<<set _text_output += "sealed ">>
+			<<elseif playerChastity("cage")>>
 				<<set _text_output += "caged ">>
 			<</if>>
 			<<if $player.virginity.penile is true and _args[0] isnot 2>>
 				<<set _text_output += "virgin ">>
+			<</if>>
+			<<if $player.gender is "f" and $parasite.clit.name is "parasite" and _args[0] isnot 2>>
+				<<set _text_output += "parasitic ">>
 			<</if>>
 			<<set _text_output += "penis">>
 		<</if>>
@@ -1696,37 +1727,40 @@
 <</widget>>
 
 <<widget "lcorruption">>
-	<<if $statdisable is "f">> |
+	<<if $statdisable is "f" and $earSlime.corruption gt $earSlime.growth / 2>> |
 		<span class="teal">- Corruption</span>
 	<</if>>
+	<<if $earSlime.startedThreats and !_args[0]>><<set $earSlime.startedThreats to true>><</if>>
 <</widget>>
 
 <<widget "llcorruption">>
-	<<if $statdisable is "f">> |
+	<<if $statdisable is "f" and $earSlime.corruption gt $earSlime.growth / 2>> |
 		<span class="teal">- - Corruption</span>
 	<</if>>
+	<<if $earSlime.startedThreats and !_args[0]>><<set $earSlime.startedThreats to true>><</if>>
 <</widget>>
 
 <<widget "lllcorruption">>
-	<<if $statdisable is "f">> |
+	<<if $statdisable is "f" and $earSlime.corruption gt $earSlime.growth / 2>> |
 		<span class="teal">- - - Corruption</span>
 	<</if>>
+	<<if $earSlime.startedThreats and !_args[0]>><<set $earSlime.startedThreats to true>><</if>>
 <</widget>>
 
 <<widget "gcorruption">>
-	<<if $statdisable is "f">> |
+	<<if $statdisable is "f" and $earSlime.corruption lt 100>> |
 		<span class="pink">+ Corruption</span>
 	<</if>>
 <</widget>>
 
 <<widget "ggcorruption">>
-	<<if $statdisable is "f">> |
+	<<if $statdisable is "f" and $earSlime.corruption lt 100>> |
 		<span class="pink">+ + Corruption</span>
 	<</if>>
 <</widget>>
 
 <<widget "gggcorruption">>
-	<<if $statdisable is "f">> |
+	<<if $statdisable is "f" and $earSlime.corruption lt 100>> |
 		<span class="pink">+ + +Corruption</span>
 	<</if>>
 <</widget>>
@@ -1954,19 +1988,19 @@
 <</widget>>
 
 <<widget "gattention">>
-	<<if (_args[0] is "prison" and !$daily.prison.attentionDay) and $statdisable is "f">> |
+	<<if (!_args[0] or (_args[0] is "prison" and !$daily.prison.attentionDay)) and $statdisable is "f">> |
 		<span class="lewd">+ Attention</span>
 	<</if>>
 <</widget>>
 
 <<widget "ggattention">>
-	<<if (_args[0] is "prison" and !$daily.prison.attentionDay) and $statdisable is "f">> |
+	<<if (!_args[0] or (_args[0] is "prison" and !$daily.prison.attentionDay)) and $statdisable is "f">> |
 		<span class="lewd">+ + Attention</span>
 	<</if>>
 <</widget>>
 
 <<widget "gggattention">>
-	<<if (_args[0] is "prison" and !$daily.prison.attentionDay) and $statdisable is "f">> |
+	<<if (!_args[0] or (_args[0] is "prison" and !$daily.prison.attentionDay)) and $statdisable is "f">> |
 		<span class="lewd">+ + + Attention</span>
 	<</if>>
 <</widget>>
@@ -2683,6 +2717,42 @@
 	<</if>>
 <</widget>>
 
+<<widget "gsaltiness">>
+	<<if $statdisable is "f">> |
+		<span class="green">+ Saltiness</span>
+	<</if>>
+<</widget>>
+
+<<widget "ggsaltiness">>
+	<<if $statdisable is "f">> |
+		<span class="green">+ + Saltiness</span>
+	<</if>>
+<</widget>>
+
+<<widget "gggsaltiness">>
+	<<if $statdisable is "f">> |
+		<span class="green">+ + + Saltiness</span>
+	<</if>>
+<</widget>>
+
+<<widget "lsaltiness">>
+	<<if $statdisable is "f">> |
+		<span class="red">- Saltiness</span>
+	<</if>>
+<</widget>>
+
+<<widget "llsaltiness">>
+	<<if $statdisable is "f">> |
+		<span class="red">- - Saltiness</span>
+	<</if>>
+<</widget>>
+
+<<widget "lllsaltiness">>
+	<<if $statdisable is "f">> |
+		<span class="red">- - - Saltiness</span>
+	<</if>>
+<</widget>>
+
 <<widget "gchaos">>
 	<<if $statdisable is "f">> |
 		<span class="green">+ Chaos</span>
@@ -2960,20 +3030,29 @@
 <</widget>>
 
 <<widget "grespect">>
-	<<if $statdisable is "f">> |
-		<span class="green">+ Respect</span>
+	<<if _args[0] is "scum" and $pirate_rank isnot 0 or _args[0] is "mate" and $pirate_rank isnot 1>>
+	<<else>>
+		<<if $statdisable is "f">> |
+			<span class="green">+ Respect</span>
+		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "ggrespect">>
-	<<if $statdisable is "f">> |
-		<span class="green">+ + Respect</span>
+	<<if _args[0] is "scum" and $pirate_rank isnot 0 or _args[0] is "mate" and $pirate_rank isnot 1>>
+	<<else>>
+		<<if $statdisable is "f">> |
+			<span class="green">+ + Respect</span>
+		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "gggrespect">>
-	<<if $statdisable is "f">> |
-		<span class="green">+ + + Respect</span>
+	<<if _args[0] is "scum" and $pirate_rank isnot 0 or _args[0] is "mate" and $pirate_rank isnot 1>>
+	<<else>>
+		<<if $statdisable is "f">> |
+			<span class="green">+ + + Respect</span>
+		<</if>>
 	<</if>>
 <</widget>>
 
@@ -3032,37 +3111,37 @@
 <</widget>>
 
 <<widget "gaggro">>
-	<<if $statdisable is "f">> |
+	<<if $statdisable is "f" and $farm>> |
 		<span class="red">+ Remy's Encroachment</span>
 	<</if>>
 <</widget>>
 
 <<widget "ggaggro">>
-	<<if $statdisable is "f">> |
+	<<if $statdisable is "f" and $farm>> |
 		<span class="red">+ + Remy's Encroachment</span>
 	<</if>>
 <</widget>>
 
 <<widget "gggaggro">>
-	<<if $statdisable is "f">> |
+	<<if $statdisable is "f" and $farm>> |
 		<span class="red">+ + + Remy's Encroachment</span>
 	<</if>>
 <</widget>>
 
 <<widget "laggro">>
-	<<if $statdisable is "f">> |
+	<<if $statdisable is "f" and $farm>> |
 		<span class="green">- Remy's Encroachment</span>
 	<</if>>
 <</widget>>
 
 <<widget "llaggro">>
-	<<if $statdisable is "f">> |
+	<<if $statdisable is "f" and $farm>> |
 		<span class="green">- - Remy's Encroachment</span>
 	<</if>>
 <</widget>>
 
 <<widget "lllaggro">>
-	<<if $statdisable is "f">> |
+	<<if $statdisable is "f" and $farm>> |
 		<span class="green">- - - Remy's Encroachment</span>
 	<</if>>
 <</widget>>
@@ -3451,6 +3530,42 @@
 	<</if>>
 <</widget>>
 
+<<widget "gbaton">>
+	<<if $statdisable is "f">> |
+		<span class="green">+ Baton proficiency</span>
+	<</if>>
+<</widget>>
+
+<<widget "ggbaton">>
+	<<if $statdisable is "f">> |
+		<span class="green">+ + Baton proficiency</span>
+	<</if>>
+<</widget>>
+
+<<widget "gggbaton">>
+	<<if $statdisable is "f">> |
+		<span class="green">+ + + Baton proficiency</span>
+	<</if>>
+<</widget>>
+
+<<widget "gwhip">>
+	<<if $statdisable is "f">> |
+		<span class="green">+ Whip proficiency</span>
+	<</if>>
+<</widget>>
+
+<<widget "ggwhip">>
+	<<if $statdisable is "f">> |
+		<span class="green">+ + Whip proficiency</span>
+	<</if>>
+<</widget>>
+
+<<widget "gggwhip">>
+	<<if $statdisable is "f">> |
+		<span class="green">+ + + Whip proficiency</span>
+	<</if>>
+<</widget>>
+
 <<widget "gsecurity">>
 	<<if $statdisable is "f">> |
 		<span class="red">+ Security</span>
@@ -3682,7 +3797,7 @@
 <</widget>>
 
 <<widget "lgrace">>
-	<<if $statdisable is "f">>
+	<<if $statdisable is "f" and $temple_rank isnot undefined and $temple_rank isnot "prospective">>
 		<<if _args[0] is "monk">>
 			<<if $temple_rank is "initiate">> |
 				<span class="red">- Grace</span>
@@ -3705,7 +3820,7 @@
 <</widget>>
 
 <<widget "llgrace">>
-	<<if $statdisable is "f">>
+	<<if $statdisable is "f" and $temple_rank isnot undefined and $temple_rank isnot "prospective">>
 		<<if _args[0] is "monk">>
 			<<if $temple_rank is "initiate">> |
 				<span class="red">- - Grace</span>
@@ -3728,7 +3843,7 @@
 <</widget>>
 
 <<widget "lllgrace">>
-	<<if $statdisable is "f">>
+	<<if $statdisable is "f" and $temple_rank isnot undefined and $temple_rank isnot "prospective">>
 		<<if _args[0] is "monk">>
 			<<if $temple_rank is "initiate">> |
 				<span class="red">- - - Grace</span>
@@ -4234,30 +4349,77 @@
 <<widget "crime">>
 	<<if $statdisable is "f">> |
 		<span class="red">Crime</span>
+		<<if _args[0]>>
+			<<crimeType _args[0]>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "crimes">>
+	<<if $statdisable is "f">> |
+		<span class="red">Crime</span>
+		<<if _args[0]>>
+			<<set $_crimeTypes to _args>>
+			<<set $_crimeDisplay to []>>
+			<<for $_crimeKey range $_crimeTypes>>
+				<<if !setup.crimeNames[$_crimeKey]>>
+					<<run Errors.report("Extra-Illegal crimes displayed; " + $_crimeKey)>>
+				<<else>>
+					<<set $_crimeDisplay.push(toTitleCase(setup.crimeNames[$_crimeKey]))>>
+				<</if>>
+			<</for>>
+			<span class="red">(<<print formatList($_crimeDisplay)>>)</span>
+		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "combatcrime">>
 	<<if $statdisable is "f">>
 		<span class="red">Crime</span>
+		<<if _args[0]>>
+			<<crimeType _args[0]>>
+		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "gcrime">>
 	<<if $statdisable is "f">> |
 		<span class="red">+ Crime</span>
+		<<if _args[0]>>
+			<<crimeType _args[0]>>
+		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "ggcrime">>
 	<<if $statdisable is "f">> |
 		<span class="red">+ + Crime</span>
+		<<if _args[0]>>
+			<<crimeType _args[0]>>
+		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "gggcrime">>
 	<<if $statdisable is "f">> |
 		<span class="red">+ + + Crime</span>
+		<<if _args[0]>>
+			<<crimeType _args[0]>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "crimeType">>
+	<<if _args[0]>>
+		<<set $_crimeType to _args[0]>>
+		<<if !setup.crimeNames[$_crimeType] and $_crimeType isnot "???">>
+			<<run Errors.report("Extra-Illegal crime displayed; " + $_crimeType)>>
+		<<else>>
+			<<if $_crimeType isnot "???">>
+				<<set $_crimeType to setup.crimeNames[$_crimeType].toUpperFirst()>>
+			<</if>>
+			<span class="red">($_crimeType)</span>
+		<</if>>
 	<</if>>
 <</widget>>
 
@@ -4645,148 +4807,168 @@
 <</widget>>
 
 <<widget "seductiontext">><<silently>>
-	<<if $seductionskill gte 0 and $seductionskill lt 200>><<set _text_output to '<span class="pink">awkwardly</span>'>>
-	<<elseif $seductionskill gte 200 and $seductionskill lt 400>><<set _text_output to '<span class="purple">cautiously</span>'>>
-	<<elseif $seductionskill gte 400 and $seductionskill lt 600>><<set _text_output to '<span class="blue">rhythmically</span>'>>
-	<<elseif $seductionskill gte 600 and $seductionskill lt 800>><<set _text_output to '<span class="lblue">smoothly</span>'>>
-	<<elseif $seductionskill gte 800 and $seductionskill lt 1000>><<set _text_output to '<span class="teal">skilfully</span>'>>
-	<<elseif $seductionskill gte 1000>><<set _text_output to '<span class="green">expertly</span>'>>
+	<<set $_skillText to currentSkillValue("seductionskill")>>
+	<<if $_skillText lt 200>><<set _text_output to '<span class="pink">awkwardly</span>'>>
+	<<elseif $_skillText lt 400>><<set _text_output to '<span class="purple">cautiously</span>'>>
+	<<elseif $_skillText lt 600>><<set _text_output to '<span class="blue">rhythmically</span>'>>
+	<<elseif $_skillText lt 800>><<set _text_output to '<span class="lblue">smoothly</span>'>>
+	<<elseif $_skillText lt 1000>><<set _text_output to '<span class="teal">skilfully</span>'>>
+	<<elseif $_skillText lt 1200>><<set _text_output to '<span class="green">expertly</span>'>>
+	<<else>><<set _text_output to '<span class="gold">effortlessly</span>'>>
 	<</if>>
 <</silently>>_text_output<</widget>>
 
 <<widget "oraltext">><<silently>>
-	<<if $oralskill gte 0 and $oralskill lt 200>><<set _text_output to '<span class="pink">awkwardly</span>'>>
-	<<elseif $oralskill gte 200 and $oralskill lt 400>><<set _text_output to '<span class="purple">cautiously</span>'>>
-	<<elseif $oralskill gte 400 and $oralskill lt 600>><<set _text_output to '<span class="blue">rhythmically</span>'>>
-	<<elseif $oralskill gte 600 and $oralskill lt 800>><<set _text_output to '<span class="lblue">smoothly</span>'>>
-	<<elseif $oralskill gte 800 and $oralskill lt 1000>><<set _text_output to '<span class="teal">skilfully</span>'>>
-	<<elseif $oralskill gte 1000>><<set _text_output to '<span class="green">expertly</span>'>>
+	<<set $_skillText to currentSkillValue("oralskill")>>
+	<<if $_skillText lt 200>><<set _text_output to '<span class="pink">awkwardly</span>'>>
+	<<elseif $_skillText lt 400>><<set _text_output to '<span class="purple">cautiously</span>'>>
+	<<elseif $_skillText lt 600>><<set _text_output to '<span class="blue">rhythmically</span>'>>
+	<<elseif $_skillText lt 800>><<set _text_output to '<span class="lblue">smoothly</span>'>>
+	<<elseif $_skillText lt 1000>><<set _text_output to '<span class="teal">skilfully</span>'>>
+	<<elseif $_skillText lt 1200>><<set _text_output to '<span class="green">expertly</span>'>>
+	<<else>><<set _text_output to '<span class="gold">effortlessly</span>'>>
 	<</if>>
 <</silently>>_text_output<</widget>>
 
 <<widget "vaginaltext">><<silently>>
-	<<if $vaginalskill gte 0 and $vaginalskill lt 200>><<set _text_output to '<span class="pink">awkwardly</span>'>>
-	<<elseif $vaginalskill gte 200 and $vaginalskill lt 400>><<set _text_output to '<span class="purple">cautiously</span>'>>
-	<<elseif $vaginalskill gte 400 and $vaginalskill lt 600>><<set _text_output to '<span class="blue">rhythmically</span>'>>
-	<<elseif $vaginalskill gte 600 and $vaginalskill lt 800>><<set _text_output to '<span class="lblue">smoothly</span>'>>
-	<<elseif $vaginalskill gte 800 and $vaginalskill lt 1000>><<set _text_output to '<span class="teal">skilfully</span>'>>
-	<<elseif $vaginalskill gte 1000>><<set _text_output to '<span class="green">expertly</span>'>>
+	<<set $_skillText to currentSkillValue("vaginalskill")>>
+	<<if $_skillText lt 200>><<set _text_output to '<span class="pink">awkwardly</span>'>>
+	<<elseif $_skillText lt 400>><<set _text_output to '<span class="purple">cautiously</span>'>>
+	<<elseif $_skillText lt 600>><<set _text_output to '<span class="blue">rhythmically</span>'>>
+	<<elseif $_skillText lt 800>><<set _text_output to '<span class="lblue">smoothly</span>'>>
+	<<elseif $_skillText lt 1000>><<set _text_output to '<span class="teal">skilfully</span>'>>
+	<<elseif $_skillText lt 1200>><<set _text_output to '<span class="green">expertly</span>'>>
+	<<else>><<set _text_output to '<span class="gold">effortlessly</span>'>>
 	<</if>>
 <</silently>>_text_output<</widget>>
 
 <<widget "peniletext">><<silently>>
-	<<if $penileskill gte 0 and $penileskill lt 200>><<set _text_output to '<span class="pink">awkwardly</span>'>>
-	<<elseif $penileskill gte 200 and $penileskill lt 400>><<set _text_output to '<span class="purple">cautiously</span>'>>
-	<<elseif $penileskill gte 400 and $penileskill lt 600>><<set _text_output to '<span class="blue">rhythmically</span>'>>
-	<<elseif $penileskill gte 600 and $penileskill lt 800>><<set _text_output to '<span class="lblue">smoothly</span>'>>
-	<<elseif $penileskill gte 800 and $penileskill lt 1000>><<set _text_output to '<span class="teal">skilfully</span>'>>
-	<<elseif $penileskill gte 1000>><<set _text_output to '<span class="green">expertly</span>'>>
+	<<set $_skillText to currentSkillValue("penileskill")>>
+	<<if $_skillText lt 200>><<set _text_output to '<span class="pink">awkwardly</span>'>>
+	<<elseif $_skillText lt 400>><<set _text_output to '<span class="purple">cautiously</span>'>>
+	<<elseif $_skillText lt 600>><<set _text_output to '<span class="blue">rhythmically</span>'>>
+	<<elseif $_skillText lt 800>><<set _text_output to '<span class="lblue">smoothly</span>'>>
+	<<elseif $_skillText lt 1000>><<set _text_output to '<span class="teal">skilfully</span>'>>
+	<<elseif $_skillText lt 1200>><<set _text_output to '<span class="green">expertly</span>'>>
+	<<else>><<set _text_output to '<span class="gold">effortlessly</span>'>>
 	<</if>>
 <</silently>>_text_output<</widget>>
 
 <<widget "analtext">><<silently>>
-	<<if $analskill gte 0 and $analskill lt 200>><<set _text_output to '<span class="pink">awkwardly</span>'>>
-	<<elseif $analskill gte 200 and $analskill lt 400>><<set _text_output to '<span class="purple">cautiously</span>'>>
-	<<elseif $analskill gte 400 and $analskill lt 600>><<set _text_output to '<span class="blue">rhythmically</span>'>>
-	<<elseif $analskill gte 600 and $analskill lt 800>><<set _text_output to '<span class="lblue">smoothly</span>'>>
-	<<elseif $analskill gte 800 and $analskill lt 1000>><<set _text_output to '<span class="teal">skilfully</span>'>>
-	<<elseif $analskill gte 1000>><<set _text_output to '<span class="green">expertly</span>'>>
+	<<set $_skillText to currentSkillValue("analskill")>>
+	<<if $_skillText lt 200>><<set _text_output to '<span class="pink">awkwardly</span>'>>
+	<<elseif $_skillText lt 400>><<set _text_output to '<span class="purple">cautiously</span>'>>
+	<<elseif $_skillText lt 600>><<set _text_output to '<span class="blue">rhythmically</span>'>>
+	<<elseif $_skillText lt 800>><<set _text_output to '<span class="lblue">smoothly</span>'>>
+	<<elseif $_skillText lt 1000>><<set _text_output to '<span class="teal">skilfully</span>'>>
+	<<elseif $_skillText lt 1200>><<set _text_output to '<span class="green">expertly</span>'>>
+	<<else>><<set _text_output to '<span class="gold">effortlessly</span>'>>
 	<</if>>
 <</silently>>_text_output<</widget>>
 
 <<widget "handtext">><<silently>>
-	<<if $handskill gte 0 and $handskill lt 200>><<set _text_output to '<span class="pink">awkwardly</span>'>>
-	<<elseif $handskill gte 200 and $handskill lt 400>><<set _text_output to '<span class="purple">cautiously</span>'>>
-	<<elseif $handskill gte 400 and $handskill lt 600>><<set _text_output to '<span class="blue">rhythmically</span>'>>
-	<<elseif $handskill gte 600 and $handskill lt 800>><<set _text_output to '<span class="lblue">smoothly</span>'>>
-	<<elseif $handskill gte 800 and $handskill lt 1000>><<set _text_output to '<span class="teal">skilfully</span>'>>
-	<<elseif $handskill gte 1000>><<set _text_output to '<span class="green">expertly</span>'>>
+	<<set $_skillText to currentSkillValue("handskill")>>
+	<<if $_skillText lt 200>><<set _text_output to '<span class="pink">awkwardly</span>'>>
+	<<elseif $_skillText lt 400>><<set _text_output to '<span class="purple">cautiously</span>'>>
+	<<elseif $_skillText lt 600>><<set _text_output to '<span class="blue">rhythmically</span>'>>
+	<<elseif $_skillText lt 800>><<set _text_output to '<span class="lblue">smoothly</span>'>>
+	<<elseif $_skillText lt 1000>><<set _text_output to '<span class="teal">skilfully</span>'>>
+	<<elseif $_skillText lt 1200>><<set _text_output to '<span class="green">expertly</span>'>>
+	<<else>><<set _text_output to '<span class="gold">effortlessly</span>'>>
 	<</if>>
 <</silently>>_text_output<</widget>>
 
 <<widget "feettext">><<silently>>
-	<<if $feetskill gte 0 and $feetskill lt 200>><<set _text_output to '<span class="pink">awkwardly</span>'>>
-	<<elseif $feetskill gte 200 and $feetskill lt 400>><<set _text_output to '<span class="purple">cautiously</span>'>>
-	<<elseif $feetskill gte 400 and $feetskill lt 600>><<set _text_output to '<span class="blue">rhythmically</span>'>>
-	<<elseif $feetskill gte 600 and $feetskill lt 800>><<set _text_output to '<span class="lblue">smoothly</span>'>>
-	<<elseif $feetskill gte 800 and $feetskill lt 1000>><<set _text_output to '<span class="teal">skilfully</span>'>>
-	<<elseif $feetskill gte 1000>><<set _text_output to '<span class="green">expertly</span>'>>
+	<<set $_skillText to currentSkillValue("feetskill")>>
+	<<if $_skillText lt 200>><<set _text_output to '<span class="pink">awkwardly</span>'>>
+	<<elseif $_skillText lt 400>><<set _text_output to '<span class="purple">cautiously</span>'>>
+	<<elseif $_skillText lt 600>><<set _text_output to '<span class="blue">rhythmically</span>'>>
+	<<elseif $_skillText lt 800>><<set _text_output to '<span class="lblue">smoothly</span>'>>
+	<<elseif $_skillText lt 1000>><<set _text_output to '<span class="teal">skilfully</span>'>>
+	<<elseif $_skillText lt 1200>><<set _text_output to '<span class="green">expertly</span>'>>
+	<<else>><<set _text_output to '<span class="gold">effortlessly</span>'>>
 	<</if>>
 <</silently>>_text_output<</widget>>
 
 <<widget "bottomtext">><<silently>>
-	<<if $bottomskill gte 0 and $bottomskill lt 200>><<set _text_output to '<span class="pink">awkwardly</span>'>>
-	<<elseif $bottomskill gte 200 and $bottomskill lt 400>><<set _text_output to '<span class="purple">cautiously</span>'>>
-	<<elseif $bottomskill gte 400 and $bottomskill lt 600>><<set _text_output to '<span class="blue">rhythmically</span>'>>
-	<<elseif $bottomskill gte 600 and $bottomskill lt 800>><<set _text_output to '<span class="lblue">smoothly</span>'>>
-	<<elseif $bottomskill gte 800 and $bottomskill lt 1000>><<set _text_output to '<span class="teal">skilfully</span>'>>
-	<<elseif $bottomskill gte 1000>><<set _text_output to '<span class="green">expertly</span>'>>
+	<<set $_skillText to currentSkillValue("bottomskill")>>
+	<<if $_skillText lt 200>><<set _text_output to '<span class="pink">awkwardly</span>'>>
+	<<elseif $_skillText lt 400>><<set _text_output to '<span class="purple">cautiously</span>'>>
+	<<elseif $_skillText lt 600>><<set _text_output to '<span class="blue">rhythmically</span>'>>
+	<<elseif $_skillText lt 800>><<set _text_output to '<span class="lblue">smoothly</span>'>>
+	<<elseif $_skillText lt 1000>><<set _text_output to '<span class="teal">skilfully</span>'>>
+	<<elseif $_skillText lt 1200>><<set _text_output to '<span class="green">expertly</span>'>>
+	<<else>><<set _text_output to '<span class="gold">effortlessly</span>'>>
 	<</if>>
 <</silently>>_text_output<</widget>>
 
 <<widget "thightext">><<silently>>
-	<<if $thighskill gte 0 and $thighskill lt 200>><<set _text_output to '<span class="pink">awkwardly</span>'>>
-	<<elseif $thighskill gte 200 and $thighskill lt 400>><<set _text_output to '<span class="purple">cautiously</span>'>>
-	<<elseif $thighskill gte 400 and $thighskill lt 600>><<set _text_output to '<span class="blue">rhythmically</span>'>>
-	<<elseif $thighskill gte 600 and $thighskill lt 800>><<set _text_output to '<span class="lblue">smoothly</span>'>>
-	<<elseif $thighskill gte 800 and $thighskill lt 1000>><<set _text_output to '<span class="teal">skilfully</span>'>>
-	<<elseif $thighskill gte 1000>><<set _text_output to '<span class="green">expertly</span>'>>
+	<<set $_skillText to currentSkillValue("thighskill")>>
+	<<if $_skillText lt 200>><<set _text_output to '<span class="pink">awkwardly</span>'>>
+	<<elseif $_skillText lt 400>><<set _text_output to '<span class="purple">cautiously</span>'>>
+	<<elseif $_skillText lt 600>><<set _text_output to '<span class="blue">rhythmically</span>'>>
+	<<elseif $_skillText lt 800>><<set _text_output to '<span class="lblue">smoothly</span>'>>
+	<<elseif $_skillText lt 1000>><<set _text_output to '<span class="teal">skilfully</span>'>>
+	<<elseif $_skillText lt 1200>><<set _text_output to '<span class="green">expertly</span>'>>
+	<<else>><<set _text_output to '<span class="gold">effortlessly</span>'>>
 	<</if>>
 <</silently>>_text_output<</widget>>
 
 <<widget "chesttext">><<silently>>
-	<<if $chestskill gte 0 and $chestskill lt 200>><<set _text_output to '<span class="pink">awkwardly</span>'>>
-	<<elseif $chestskill gte 200 and $chestskill lt 400>><<set _text_output to '<span class="purple">cautiously</span>'>>
-	<<elseif $chestskill gte 400 and $chestskill lt 600>><<set _text_output to '<span class="blue">rhythmically</span>'>>
-	<<elseif $chestskill gte 600 and $chestskill lt 800>><<set _text_output to '<span class="lblue">smoothly</span>'>>
-	<<elseif $chestskill gte 800 and $chestskill lt 1000>><<set _text_output to '<span class="teal">skilfully</span>'>>
-	<<elseif $chestskill gte 1000>><<set _text_output to '<span class="green">expertly</span>'>>
+	<<set $_skillText to currentSkillValue("chestskill")>>
+	<<if $_skillText lt 200>><<set _text_output to '<span class="pink">awkwardly</span>'>>
+	<<elseif $_skillText lt 400>><<set _text_output to '<span class="purple">cautiously</span>'>>
+	<<elseif $_skillText lt 600>><<set _text_output to '<span class="blue">rhythmically</span>'>>
+	<<elseif $_skillText lt 800>><<set _text_output to '<span class="lblue">smoothly</span>'>>
+	<<elseif $_skillText lt 1000>><<set _text_output to '<span class="teal">skilfully</span>'>>
+	<<elseif $_skillText lt 1200>><<set _text_output to '<span class="green">expertly</span>'>>
+	<<else>><<set _text_output to '<span class="gold">effortlessly</span>'>>
 	<</if>>
 <</silently>>_text_output<</widget>>
 
 <<widget "swimmingtext">>
 	<<set $_swimmingskillText to currentSkillValue('swimmingskill')>>
-	<<if $_swimmingskillText gte 0 and $_swimmingskillText lt 200>><span class="pink">haphazardly</span>
-	<<elseif $_swimmingskillText gte 200 and $_swimmingskillText lt 400>><span class="purple">awkwardly</span>
-	<<elseif $_swimmingskillText gte 400 and $_swimmingskillText lt 600>><span class="blue">adequately</span>
-	<<elseif $_swimmingskillText gte 600 and $_swimmingskillText lt 800>><span class="lblue">smoothly</span>
-	<<elseif $_swimmingskillText gte 800 and $_swimmingskillText lt 1000>><span class="teal">skilfully</span>
-	<<elseif $_swimmingskillText gte 1000 and $_swimmingskillText lt 1200>><span class="green">expertly</span>
-	<<elseif $_swimmingskillText gte 1200>><span class="gold">effortlessly</span>
+	<<if $_swimmingskillText lt 200>><span class="pink">haphazardly</span>
+	<<elseif $_swimmingskillText lt 400>><span class="purple">awkwardly</span>
+	<<elseif $_swimmingskillText lt 600>><span class="blue">adequately</span>
+	<<elseif $_swimmingskillText lt 800>><span class="lblue">smoothly</span>
+	<<elseif $_swimmingskillText lt 1000>><span class="teal">skilfully</span>
+	<<elseif $_swimmingskillText lt 1200>><span class="green">expertly</span>
+	<<else>><span class="gold">effortlessly</span>
 	<</if>>
 <</widget>>
 
 <<widget "tendingtext">>
 	<<set $_tendingText to currentSkillValue('tending')>>
-	<<if $_tendingText gte 0 and $_tendingText lt 200>><span class="pink">awkwardly</span>
-	<<elseif $_tendingText gte 200 and $_tendingText lt 400>><span class="purple">cautiously</span>
-	<<elseif $_tendingText gte 400 and $_tendingText lt 600>><span class="blue">rhythmically</span>
-	<<elseif $_tendingText gte 600 and $_tendingText lt 800>><span class="lblue">smoothly</span>
-	<<elseif $_tendingText gte 800 and $_tendingText lt 1000>><span class="teal">skilfully</span>
-	<<elseif $_tendingText gte 1000 and $_tendingText lt 1200>><span class="green">expertly</span>
-	<<elseif $_tendingText gte 1200>><span class="gold">effortlessly</span><</if>>
+	<<if $_tendingText lt 200>><span class="pink">awkwardly</span>
+	<<elseif $_tendingText lt 400>><span class="purple">cautiously</span>
+	<<elseif $_tendingText lt 600>><span class="blue">rhythmically</span>
+	<<elseif $_tendingText lt 800>><span class="lblue">smoothly</span>
+	<<elseif $_tendingText lt 1000>><span class="teal">skilfully</span>
+	<<elseif $_tendingText lt 1200>><span class="green">expertly</span>
+	<<else>><span class="gold">effortlessly</span><</if>>
 <</widget>>
 
 <<widget "dancetext">>
 	<<set $_danceskillText to currentSkillValue('danceskill')>>
-	<<if $_danceskillText gte 0 and $_danceskillText lt 200>><span class="pink">awkwardly</span>
-	<<elseif $_danceskillText gte 200 and $_danceskillText lt 400>><span class="purple">cautiously</span>
-	<<elseif $_danceskillText gte 400 and $_danceskillText lt 600>><span class="blue">rhythmically</span>
-	<<elseif $_danceskillText gte 600 and $_danceskillText lt 800>><span class="lblue">smoothly</span>
-	<<elseif $_danceskillText gte 800 and $_danceskillText lt 1000>><span class="teal">skilfully</span>
-	<<elseif $_danceskillText gte 1000 and $_danceskillText lt 1200>><span class="green">expertly</span>
-	<<elseif $_danceskillText gte 1200>><span class="gold">effortlessly</span><</if>>
+	<<if $_danceskillText lt 200>><span class="pink">awkwardly</span>
+	<<elseif $_danceskillText lt 400>><span class="purple">cautiously</span>
+	<<elseif $_danceskillText lt 600>><span class="blue">rhythmically</span>
+	<<elseif $_danceskillText lt 800>><span class="lblue">smoothly</span>
+	<<elseif $_danceskillText lt 1000>><span class="teal">skilfully</span>
+	<<elseif $_danceskillText lt 1200>><span class="green">expertly</span>
+	<<else>><span class="gold">effortlessly</span><</if>>
 <</widget>>
 
 <<widget "housekeepingtext">>
-<<set $_housekeepingText to currentSkillValue('housekeeping')>>
-<<if $_housekeepingText gte 0 and $_housekeepingText lt 200>><span class="pink">awkwardly</span>
-<<elseif $_housekeepingText gte 200 and $_housekeepingText lt 400>><span class="purple">cautiously</span>
-<<elseif $_housekeepingText gte 400 and $_housekeepingText lt 600>><span class="blue">rhythmically</span>
-<<elseif $_housekeepingText gte 600 and $_housekeepingText lt 800>><span class="lblue">smoothly</span>
-<<elseif $_housekeepingText gte 800 and $_housekeepingText lt 1000>><span class="teal">skilfully</span>
-<<elseif $_housekeepingText gte 1000 and $_housekeepingText lt 1200>><span class="green">expertly</span>
-<<elseif $_housekeepingText gte 1200>><span class="gold">effortlessly</span><</if>>
+	<<set $_housekeepingText to currentSkillValue('housekeeping')>>
+	<<if $_housekeepingText lt 200>><span class="pink">awkwardly</span>
+	<<elseif $_housekeepingText lt 400>><span class="purple">cautiously</span>
+	<<elseif $_housekeepingText lt 600>><span class="blue">rhythmically</span>
+	<<elseif $_housekeepingText lt 800>><span class="lblue">smoothly</span>
+	<<elseif $_housekeepingText lt 1000>><span class="teal">skilfully</span>
+	<<elseif $_housekeepingText lt 1200>><span class="green">expertly</span>
+	<<else>><span class="gold">effortlessly</span><</if>>
 <</widget>>
 
 <<widget "nervously">><<silently>>
@@ -5120,7 +5302,7 @@
 			<</if>>
 		<<set _clothing_strip_sequence += 1>><<lowerstrip>><<exposure>>
 		<</if>>
-		<<if $worn.under_upper.exposed lte 0>>
+		<<if $worn.under_upper.exposed lte 0 and _args[0] isnot "undies">>
 			<<if _underOutfit is true>>
 				<<if _clothing_strip_sequence is 0>>
 					<<flaunting>> you shuffle out of your $worn.under_upper.name, revealing your <<breasts>> and <<genitals>>.
@@ -5133,7 +5315,7 @@
 				<<if _clothing_strip_sequence is 0>>
 					<<flaunting>> you tug off your $worn.under_upper.name, revealing your <<breasts>>.
 				<<elseif _clothing_strip_sequence is 1>>
-					You $worn.under_upper.name comes next, revealing your <<breasts>>.
+					Your $worn.under_upper.name comes next, revealing your <<breasts>>.
 				<<else>>
 					<<if $worn.under_lower.exposed lte 0>>
 						Your $worn.under_upper.name follows, revealing your <<breasts>>.
@@ -5144,7 +5326,7 @@
 			<</if>>
 		<<set _clothing_strip_sequence += 1>><<underupperstrip>><<exposure>>
 		<</if>>
-		<<if $worn.under_lower.exposed lte 0>>
+		<<if $worn.under_lower.exposed lte 0 and _args[0] isnot "undies">>
 			<<if _clothing_strip_sequence is 0>>
 				<<flaunting>> you pull down your $worn.under_lower.name, displaying your <<genitals>>.
 			<<elseif _clothing_strip_sequence is 1>>
@@ -5492,6 +5674,15 @@
 	<</if>>
 <</silently>>_text_output<</widget>>
 
+<<widget "bitch_pirate">><<silently>>
+	<<if $player.gender_appearance is "m">>
+		<<set _text_output to "dog">>
+	<<else>>
+		<<set _text_output to "bitch">>
+	<</if>>
+<</silently>>_text_output<</widget>>
+
+
 <<widget "bastard">><<silently>>
 	<<if $player.gender_appearance is "m">>
 		<<set _text_output to "bastard">>
@@ -5709,7 +5900,11 @@
 				<</if>>
 			<<else>>
 				<<if $pain gte 100>>
-					Face covered in tears,
+					<<if $water is 1>>
+						Tears streaking away into the water,
+					<<else>>
+						Face covered in tears,
+					<</if>>
 				<<elseif $pain gte 40>>
 					Feeling battered, but still determined to make the best of things,
 				<<else>>
@@ -5837,7 +6032,20 @@
 <</widget>>
 
 <<widget "wallet">><<silently>>
-	<<set _text_output to ($pronoun is "m" ? "wallet" : "purse")>>
+	<<if !isNaN(_args[0]) and $NPCList[_args[0]] and $NPCList[_args[0]].clothes and $NPCList[_args[0]].clothes.set>>
+		<<set $_clothesSet to $NPCList[_args[0]].clothes.set>>
+	<</if>>
+	<<if $location is "island">>
+		<<set _text_output to "clothes">>
+	<<elseif ["maleSchoolSwim", "maleSchoolSwimShirt", "femaleSchoolSwim", "maleSwim1", "maleSwim2", "femaleSwim1", "femaleSwim2", "neutralSwim", "divingSuit"].includes($_clothesSet)>>
+		<<set _text_output to "swimsuit">>
+		<<set $_clothesType to setup.npcClothesSets.find(set => set.name is $_clothesSet)>>
+		<<if $_clothesType>>
+			<<set _stealType to $_clothesType.type>>
+		<</if>>
+	<<else>>
+		<<set _text_output to ($pronoun is "m" ? "wallet" : "purse")>>
+	<</if>>
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "pullupall">>
@@ -6055,7 +6263,12 @@
 <</widget>>
 
 <<widget "monk">><<silently>>
-	<<set _text_output to ($pronoun is "m" ? "monk" : "nun")>>
+	<<if _args[0] is "desc">>
+		<<set _text_output to $description + " ">>
+		<<set _text_output += ($pronoun is "m" ? "monk" : "nun")>>
+	<<else>>
+		<<set _text_output to ($pronoun is "m" ? "monk" : "nun")>>
+	<</if>>
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "monks">><<silently>>
@@ -6069,6 +6282,26 @@
 		<<set _text_output to "nuns">>
 	<<else>>
 		<<set _text_output to "monks and nuns">>
+	<</if>>
+<</silently>><<print _text_output>><</widget>>
+
+<<widget "Monks_and_Nuns">><<silently>>
+	<<if maleChance() is 100>>
+		<<set _text_output to "monks">>
+	<<elseif maleChance() is 0>>
+		<<set _text_output to "nuns">>
+	<<else>>
+		<<set _text_output to "monks and nuns">>
+	<</if>><<capitalise>>
+<</silently>><<print _text_output>><</widget>>
+
+<<widget "brothers_and_sisters">><<silently>>
+	<<if maleChance() is 100>>
+		<<set _text_output to "brothers">>
+	<<elseif maleChance() is 0>>
+		<<set _text_output to "sisters">>
+	<<else>>
+		<<set _text_output to "brothers and sisters">>
 	<</if>>
 <</silently>><<print _text_output>><</widget>>
 
@@ -6086,6 +6319,30 @@
 
 <<widget "priestapo">><<silently>>
 	<<set _text_output to ($pronoun is "m" ? "priest's" : "priestess'")>>
+<</silently>><<print _text_output>><</widget>>
+
+<<widget "bishop">><<silently>>
+	<<if $temple_confessor_intro>>
+		<<set _text_output to "bishop">>
+	<<else>>
+		<<set _text_output to ($pronoun is "m" ? "priest" : "priestess")>>
+	<</if>>
+<</silently>><<print _text_output>><</widget>>
+
+<<widget "bishop_hands">><<silently>>
+	<<if $temple_confessor_intro and _args[0] isnot "long">>
+		<<set _text_output to "bishop's hands">>
+	<<elseif $per_npc.bishop_right_hand>>
+		<<if $per_npc.bishop_right_hand.pronoun is "m" and $per_npc.bishop_left_hand.pronoun is "m">>
+			<<set _text_output to "priests">>
+		<<elseif $per_npc.bishop_right_hand.pronoun is "f" and $per_npc.bishop_left_hand.pronoun is "f">>
+			<<set _text_output to "priestesses">>
+		<<else>>
+			<<set _text_output to "priest and priestess">>
+		<</if>>
+	<<else>>
+		<<set _text_output to "dark-robed pair">>
+	<</if>>
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "vaginalvirginitywarning">>
@@ -6188,7 +6445,7 @@
 
 <<widget "fox">>
 	<<if $statdisable is "f">> |
-		<span class="orange"><<print ($player.gender_appearance is "m" ? "Foxboy" : "Foxgirl")>></span>
+		<span class="orange"><<print ($player.gender_appearance is "m" ? "Foxboy" : "Vixen")>></span>
 	<</if>>
 <</widget>>
 
@@ -7442,6 +7699,16 @@ Argument 2, where appropriate, determines whether it's the player undressing the
 	<</if>>
 <</widget>>
 
+<<widget "npcHurt">>
+	<<switch _args[0]>>
+		<<case "robin">>
+			<<set _text_output to "upset about "+$robin.hurtReason>>
+		<<default>>
+			<<set _text_output to either("hurt","upset")>>
+	<</switch>>
+	<<print _text_output>>
+<</widget>>
+
 <<widget "gbeauty">>
 	<<if $statdisable is "f">> |
 		<span class="green">+ Beauty</span>
@@ -7607,7 +7874,7 @@ Argument 2, where appropriate, determines whether it's the player undressing the
 <</widget>>
 
 <<widget "plant_details">><<silently>>
-	<<if ($location is "moor" and _args[0] isnot "forest") or _args[0] is "moor">>
+	<<if ($location is "moor" and _args[0] isnot "forest" and _args[0] isnot "bog") or _args[0] is "moor">>
 		<<switch Time.season>>
 			<<case "spring">>
 				<<set _text_output to "yellow willow leaves">>
@@ -7617,6 +7884,15 @@ Argument 2, where appropriate, determines whether it's the player undressing the
 				<<set _text_output to "large amber flowers">>
 			<<case "winter">>
 				<<set _text_output to "straw-coloured reeds">>
+		<</switch>>
+	<<elseif ($location is "bog" and _args[0] isnot "forest" and _args[0] isnot "moor") or _args[0] is "bog">>
+		<<switch Time.season>>
+			<<case "spring">>
+				<<set _text_output to "budding twigs">>
+			<<case "summer" "autimn">>
+				<<set _text_output to "braided bundles of wet leaves">>
+			<<case "winter">>
+				<<set _text_output to "briars and thorns">>
 		<</switch>>
 	<<else>>
 		<<switch Time.season>>
@@ -7634,6 +7910,19 @@ Argument 2, where appropriate, determines whether it's the player undressing the
 
 <<widget "Plant_details">><<silently>>
 	<<plant_details _args[0]>><<capitalise>>
+<</silently>><<print _text_output>><</widget>>
+
+<<widget "seasonal_beverage">><<silently>>
+	<<switch Time.season>>
+		<<case "spring">>
+			<<set _text_output to "strawberry lemonade">>
+		<<case "summer">>
+			<<set _text_output to "lemonade">>
+		<<case "autumn">>
+			<<set _text_output to "mulled apple cider">>
+		<<case "winter">>
+			<<set _text_output to "hot chocolate">>
+	<</switch>>
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "tower_creature_text">>
@@ -7660,7 +7949,7 @@ Argument 2, where appropriate, determines whether it's the player undressing the
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "gfabric">>
-	<<if $statdisable is "f">>
+	<<if $statdisable is "f">> |
 		<span class="green">+ Fabric</span>
 	<</if>>
 <</widget>>

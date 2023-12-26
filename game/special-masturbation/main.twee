@@ -189,7 +189,8 @@ You listen out in case anyone snuck in while you were distracted. You don't hear
 
 <<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
 
-<<if !$edenpush and $danger gte (9900 - $allure) and ((Time.hour gt 6 and Time.hour lt 11) or Time.hour gt 14)>>
+<<if (!$edenpush and $danger gte (9900 - $allure) and (between(Time.hour, 6, 11) or Time.hour gt 14)) or $edenpush is 2>>
+	<<if $edenpush is 2>><<unset $edenpush>><</if>>
 
 	<<npc Eden>><<person1>>Out of nowhere, you feel your hands being grabbed by someone else's.
 	<br><br>
@@ -208,14 +209,14 @@ You listen out in case anyone snuck in while you were distracted. You don't hear
 
 	<<link [[Push away|Clearing Spring Masturbation Push]]>><<npcincr Eden love -1>><<npcincr Eden dom -1>><</link>>
 	<br>
-	<<link [[Lean into Eden|Clearing Spring Masturbation Sex]]>><<set $sexstart to 1>><<npcincr Eden love 1>><<npcincr Eden dom 1>><</link>><<promiscuous1>>
+	<<link [[Lean into Eden|Clearing Spring Masturbation Pre Sex]]>><<npcincr Eden love 1>><<npcincr Eden dom 1>><</link>><<promiscuous1>>
 	<br>
 
 <<else>>
 
 	<<masturbationeffects>>
 	<<masturbationactions>>
-	<<masturbationControls>>
+	<<masturbationControls "edenPush">>
 <</if>>
 
 :: Clearing Spring Masturbation Push
@@ -224,6 +225,14 @@ You listen out in case anyone snuck in while you were distracted. You don't hear
 <<npc Eden>><<person1>> You gently push Eden away from you. <<He>> raises <<his>> eyebrows and shoots you an incredulous look, before shrugging and walking away from the spring.
 
 <<masturbationControls undefined "Clearing Spring Masturbation">>
+
+:: Clearing Spring Masturbation Pre Sex
+<<effects>>
+<<endmasturbation>>
+<br>
+<<npc Eden>><<person1>> You gently pull Eden closer to you. <<He>> shoots you a surprised yet lustful look as <<he>> matches your movements. <<promiscuity1>>
+
+<<link [[Next|Clearing Spring Masturbation Sex]]>><<set $sexstart to 1>><</link>>
 
 :: Clearing Spring Masturbation Finish
 <<effects>>
@@ -235,9 +244,9 @@ The gentle waters caress you as you open your eyes.
 <<clotheson>>
 <<endcombat>>
 
-<<link [[Stay in the spring (0:30)|Clearing Spring]]>><<endevent>><<pass 30>><<stress -6>><<set $phase to 1>><</link>><<lstress>>
+<<ind>><<link [[Stay in the spring (0:30)|Clearing Spring]]>><<endevent>><<pass 30>><<stress -6>><<set $phase to 1>><</link>><<lstress>>
 <br>
-<<link [[Get out|Eden Clearing]]>><<clotheson>><</link>>
+<<getouticon>><<link [[Get out|Eden Clearing]]>><<clotheson>><</link>>
 
 :: Maths Lesson Masturbate
 <<effects>>
@@ -267,7 +276,7 @@ The gentle waters caress you as you open your eyes.
 
 <<masturbationeffects>>
 <<masturbationactions>>
-<<masturbationControls "timer">>
+<<masturbationControls `"timer|arousal100" + ($whitneymaths is "seat" ? "|whitneySeat" : "")`>>
 
 :: Maths Lesson Masturbate Finish
 <<set $outside to 0>><<set $location to "school">><<effects>>
@@ -344,7 +353,7 @@ You fondle yourself. The other students are so near, they could so easily see wh
 
 <<masturbationeffects>>
 <<masturbationactions>>
-<<masturbationControls "timer">>
+<<masturbationControls "timer|arousal100">>
 
 :: Science Lesson Masturbate Finish
 <<set $outside to 0>><<set $location to "school">><<effects>>
@@ -455,7 +464,7 @@ You fondle yourself. The other students are so near, they could so easily see wh
 	<br><br>
 <</if>>
 
-<<masturbationControls "timer">>
+<<masturbationControls `"timer|arousal100" + ($kylarenglishstate is "active" ? "|kylarSeat" : "")`>>
 
 :: English Lesson Masturbate Finish
 <<set $outside to 0>>
@@ -609,7 +618,7 @@ The other students are so near, they could so easily see what you're doing.
 
 <<masturbationeffects>>
 <<masturbationactions>>
-<<masturbationControls "timer">>
+<<masturbationControls `"timer|arousal100" + ($robinhistory is "seat" ? "|robinSeat" : "")`>>
 
 :: History Lesson Masturbate Finish
 <<set $outside to 0>><<set $location to "school">><<effects>>
@@ -712,7 +721,7 @@ You fondle yourself. The other students are so near, they could so easily see wh
 
 <<masturbationeffects>>
 <<masturbationactions>>
-<<masturbationControls "timer">>
+<<masturbationControls "timer|arousal100">>
 
 :: Swimming Lesson Masturbate Finish
 <<set $outside to 0>><<set $location to "pool">><<effects>>
@@ -1014,7 +1023,7 @@ You put on a brave face and tell <<him>> you're fine. "Okay. If you say so," <<h
 		<<underlowerstrip>>
 	<</if>>
 	<<lowerstrip>>
-	<<if $player.gender is "h">>
+	<<if $player.penisExist and $player.vaginaExist>>
 		If <<hes>> surprised by your unique genitalia, <<he>> gives no sign.
 	<</if>>
 	<<if playerBellySize() lte 7 or $player.gender isnot "f">>
@@ -1170,7 +1179,7 @@ You fondle yourself. <<if $phase2 is 1>>They watch<<else>>The <<person1>><<perso
 
 <<masturbationeffects>>
 <<masturbationactions>>
-<<masturbationControls "timer">>
+<<masturbationControls "timer|arousal50">>
 
 :: Toilets Watched Masturbation Finish
 <<effects>>
@@ -1287,7 +1296,7 @@ You fondle yourself. <<if $phase2 is 1>>They watch<<else>>The <<person1>><<perso
 <<masturbationactions>>
 <<if $robinWatchingMasturbation and $timer gt 0 and $orgasmdown is 3>><<set $robinWatchingMasturbation++>><</if>>
 
-<<masturbationControls>>
+<<masturbationControls "robinWatching">>
 
 :: Home Masturbation Finish
 <<effects>>
@@ -1377,7 +1386,7 @@ You fondle yourself. <<if $phase2 is 1>>They watch<<else>>The <<person1>><<perso
 	<</if>>
 	<<masturbationeffects>>
 	<<masturbationactions>>
-	
+
 	<<masturbationControls>>
 
 :: Brothel Shower Masturbation Finish
@@ -1391,7 +1400,7 @@ You fondle yourself. <<if $phase2 is 1>>They watch<<else>>The <<person1>><<perso
 :: Strip Club Shower Masturbation
 	<<effects>><<set _enableSexToys to true>>
 	<<if $masturbationstart is 1>>
-		You can't stop yourself from thinking about all the people on the other side of the cubicle and what it would be like if they were watching you. 
+		You can't stop yourself from thinking about all the people on the other side of the cubicle and what it would be like if they were watching you.
 		<<set $masturbationstart to 0>>
 		<<set $masturbationstat += 1>>
 		<<masturbationstart>>

@@ -80,6 +80,8 @@
 		<<set _newLife to _keys.count("Broodmother Host") + _keys.count("Top Broodmother Host")>>
 		<<set _newLifeLimit to (_newLife * 20)>>
 
+		<<set _earSlimeFeats to _keys.count("Ear Slime Lover") + _keys.count("Ear Slime Amalgam")>>
+
 		<<set _tattoosFeats to _keys.count("A Living Canvas") + _keys.count("Billboard")>>
 
 		<<set _sexToysFeats to _keys.count("Opened Pandoras Box") + _keys.count("Opened Pandoras Cocks")>>
@@ -118,7 +120,7 @@
 				purity:{cost:20, limit: 100, minCount: 2, count:_purityFeats, exclusive:"impurity"},
 				impurity:{cost:20, limit: 100, minCount: 1, count:_keys.count("Demon"), exclusive:"purity"},
 				newLife:{cost:20, limit: _newLifeLimit, minCount: 1, count:_newLife, exclusive:""},
-				aNewBestFriend:{cost:10, limit: 10, minCount: 1, count:_keys.count("Ear Slime Lover"), exclusive:""},
+				aNewBestFriend:{cost:10, limit: 10 * _earSlimeFeats, minCount: 1, count:_earSlimeFeats, exclusive:""},
 				tattoos:{cost:5, limit: 25, minCount: 2, count:_tattoosFeats, exclusive:""},
 				defaultMoves:{cost:5, limit: 25, minCount: 1, count:_keys.count("A New Life"), exclusive:""},
 				randomClothing:{cost:1, limit: 20, minCount: 0, count:0, exclusive:""},
@@ -175,6 +177,7 @@
 				5:{bodypart:"Random",tattoo:"Random",pen:"Tattoo"},
 			},
 			sexToys:[{},{},{},{},{},{}],
+			earSlimeType: "immaturePassive",
 		}>>
 	<</if>>
 <</widget>>
@@ -251,6 +254,27 @@
 	<</if>>
 	<<if _upgrades.aNewBestFriend gt 0>>
 		<<parasite left_ear slime>>
+		<<switch $featsBoosts.earSlimeType>>
+			<<case "immatureAggressive">>
+				<<set $earSlime.corruption to 20>>
+				<<set $earSlime.growth to 0>>
+				<<set $earSlime.startedThreats to true>>
+				<<set $earSlime.exhibitionism to 2>>
+				<<set $earSlime.deviancy to 2>>
+				<<set $earSlime.promiscuity to 2>>
+			<<case "grownAggressive">>
+				<<set $earSlime.corruption to 100>>
+				<<set $earSlime.growth to 25>>
+				<<set $earSlime.startedThreats to true>>
+				<<set $earSlime.exhibitionism to 2>>
+				<<set $earSlime.promiscuity to 2>>
+				<<set $earSlime.deviancy to 2>>
+			<<default>>
+				<<set $earSlime.corruption to 0>>
+		<</switch>>
+	<</if>>
+	<<if _upgrades.aNewBestFriend gt 10>>
+		<<parasite right_ear slime>>
 	<</if>>
 	<<if _upgrades.greenThumb gt 0>>
 		<<set $backgroundTraits.pushUnique("greenthumb")>>
@@ -265,6 +289,7 @@
 			face:[],
 			neck:[],
 			hands:[],
+			handheld:[],
 			upper:[],
 			lower:[],
 			under_upper:[],
@@ -451,7 +476,7 @@
 	<<specialClothesUpdate>>
 	<<if $feats.locked is false and $cheatdisable is "t" and $debug is 0 and $gamemode isnot "soft" and $alluremod gte 1 and $replayScene is undefined>>
 		<<if _args[0] is true>>
-			/*Rarely occuring feats*/
+			/*Rarely occurring feats*/
 			<<if Time.days gte 50>>
 				<<if $player.gender is "m">>
 					<<earnFeat "Being a Boy">>
@@ -599,9 +624,9 @@
 			<</if>>
 
 			<<if Object.values($children).reduce((prev,curr) => {
-				prev.pushUnique(curr.type);
+				if (curr.mother === "pc") prev.pushUnique(curr.type);
 				return prev;
-			}, []).length gte Object.keys(pregnancyGenerator).filter(type => type !== "parasite").length>>
+			}, []).length gte Object.keys(pregnancyGenerator).filter(type => setup.pregnancy.typesEnabled.includes(type)).length>>
 				<<earnFeat "Diversity of Life">>
 			<</if>>
 
@@ -657,11 +682,11 @@
 		<<if $science gte 1000 and $maths gte 1000 and $english gte 1000 and $history gte 1000>>
 			<<earnFeat "Perfect Record">>
 		<</if>>
-		<<if $corruption_slime gte 100>>
+		<<if $earSlime.corruption gte 100>>
 			<<earnFeat "Ear Slime Lover">>
 		<</if>>
-		<<if $feats.allSaves.points gte 300>>
-			<<earnFeat "My Timeless Collection of Feats">>
+		<<if $earSlime.corruption gte 100 and $earSlime.growth gte 200>>
+			<<earnFeat "Ear Slime Amalgam">>
 		<</if>>
 		<<specialClothesUpdate>>
 	<</if>>

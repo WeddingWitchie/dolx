@@ -1,5 +1,6 @@
 :: Lake Shore
 <<set $outside to 1>><<set $location to "lake">><<effects>><<lakeeffects>>
+<<set _earSlimeEnableSwimwear to true>>
 <<set $forest to 30>><<set $bus to "lakeshore">><<wearoutfit>>
 
 <<if Time.season is "winter">>
@@ -108,6 +109,31 @@
 	<<earnFeat "Field Work">>
 	<<link [[Next|Lake Shore Diving]]>><</link>>
 	<br>
+<<elseif Time.season isnot "winter" and !isBloodmoon() and numberOfEarSlime() and !$daily.earSlimeStroll and random(0,100) gte 92 and (($exposed lte 1 and earSlimeMakingMundaneRequests()) or ($laketeenspresent isnot 1 and $exposed gte 2 and $earSlime.growth gte 20 - $earSlime.exhibitionism) or ($laketeenspresent is 1 and $exposed gte 2 and $earSlime.growth gte 50 - $earSlime.exhibitionism))>>
+	<<set $daily.earSlimeStroll to true>>
+	<span @class="$earSlime.startedThreats ? 'lewd' : 'lblue'">You feel the slime in your head command you to go for a stroll by the lake.</span> It promises rewards if you comply<<if $earSlime.startedThreats>>, and threatens consequences if you do not<</if>>.
+	<br><br>
+	/* Link decreases stress by both the ear slime and taking a stroll */
+	<<link [[Obey|Lake Stroll]]>>
+		<<pass 60>><<set $earSlimeLakeStroll to true>>
+		<<if $exposed gte 2>>
+			<<arousal 1000>><<rng>>
+			<<if $laketeenspresent is 1>>
+				<<set $phase to 2>>
+			<<else>>
+				<<set $phase to 3>>
+			<</if>>
+		<<else>>
+			<<set $phase to 1>>
+		<</if>>
+		<<corruption 1>><<pain -4>><<stress -12>><<trauma -12>><<sub 2>>
+	<</link>><<gcorruption>><<lpain>><<lltrauma>><<llstress>><<if $exposed gte 2>><<garousal>><</if>>
+	<br>
+	<<if $earSlime.startedThreats>>
+		<<link [[Defy|Lake Stroll Slime Defy]]>><<corruption -1>><<pain 8>><<stress 6>><<trauma 6>><<def 1>><</link>><<lcorruption>><<ggpain>><<ggtrauma>><<ggstress>>
+	<<else>>
+		<<link [[Ignore|Lake Shore]]>><</link>>
+	<</if>>
 <<else>>
 	<<eventlakesafe>>
 	<<lakereturnjourney>>
@@ -135,17 +161,17 @@
 		<br><br>
 
 		<<if Time.hour gte 18 and $halloween is 1 and Time.monthDay is 31 and $halloween_lake is 1>>
-			<<ind>><<link [[Join the party (0:10)|Lake Halloween Party]]>><<pass 10>><<stress -6>><<status 1>><</link>><<gcool>><<lstress>>
+			<<socialiseicon "party">><<link [[Join the party (0:10)|Lake Halloween Party]]>><<pass 10>><<stress -6>><<status 1>><</link>><<gcool>><<lstress>>
 			<br>
 		<<elseif $laketeenspresent is 1 and $exposed lte 0 and Time.hour isnot 20 and Time.season isnot "winter">>
-			<<ind>><<link [[Hang out (0:30)|Lake Hang]]>><<pass 30>><<stress -6>><<status 1>><</link>><<gcool>><<lstress>>
+			<<socialiseicon>><<link [[Hang out (0:30)|Lake Hang]]>><<pass 30>><<stress -6>><<status 1>><</link>><<gcool>><<lstress>>
 			<br>
 		<</if>>
 		<<if Time.season is "winter">>
 			<<if $nextPassageCheck is "Lake Shallows Ice">>
-				<span class="nextLink"><<ind>><<link [[Walk.|Lake Shallows Ice]]>><<pass 2>><</link>></span>
+				<span class="nextLink"><<lakeicon>><<link [[Walk.|Lake Shallows Ice]]>><<pass 2>><</link>></span>
 			<<else>>
-				<<ind>><<link [[Walk onto the ice (0:02)|Lake Shallows Ice]]>><<pass 2>><</link>>
+				<<lakeicon>><<link [[Walk onto the ice (0:02)|Lake Shallows Ice]]>><<pass 2>><</link>>
 			<</if>>
 			<br>
 		<<else>>
@@ -157,20 +183,20 @@
 			<br>
 		<</if>>
 		<<if $town_projects.diving gte 4>>
-			<<ind>><<link [[Archeological field office (0:02)|Lake Office]]>><<pass 2>><</link>>
+			<<lakeicon "field office">><<link [[Archeological field office (0:02)|Lake Office]]>><<pass 2>><</link>>
 			<br>
 		<</if>>
 		<<if Time.season isnot "winter" and !isBloodmoon()>>
 			<<if $exposed gte 2>>
 				<<if $exhibitionism gte 75 and $laketeenspresent is 1>>
-					<<ind>><<link [[Take a stroll (1:00)|Lake Stroll]]>><<pass 60>><<stress -6>><<arousal 1000>><<rng>><<set $phase to 2>><</link>><<exhibitionist5>><<garousal>><<lstress>>
+					<<walkicon>><<link [[Take a stroll (1:00)|Lake Stroll]]>><<pass 60>><<stress -6>><<arousal 1000>><<rng>><<set $phase to 2>><</link>><<exhibitionist5>><<garousal>><<lstress>>
 					<br>
 				<<elseif $exhibitionism gte 55 and $laketeenspresent isnot 1>>
-					<<ind>><<link [[Take a stroll (1:00)|Lake Stroll]]>><<pass 60>><<stress -6>><<arousal 1000>><<rng>><<set $phase to 3>><</link>><<exhibitionist4>><<garousal>><<lstress>>
+					<<walkicon>><<link [[Take a stroll (1:00)|Lake Stroll]]>><<pass 60>><<stress -6>><<arousal 1000>><<rng>><<set $phase to 3>><</link>><<exhibitionist4>><<garousal>><<lstress>>
 					<br>
 				<</if>>
 			<<else>>
-				<<ind>><<link [[Take a stroll (1:00)|Lake Stroll]]>><<pass 60>><<stress -6>><<set $phase to 1>><</link>><<lstress>>
+				<<walkicon>><<link [[Take a stroll (1:00)|Lake Stroll]]>><<pass 60>><<stress -6>><<set $phase to 1>><</link>><<lstress>>
 				<br>
 			<</if>>
 		<</if>>
@@ -179,18 +205,23 @@
 			<<ind>><<link [[North to firepit (0:10)|Lake Firepit]]>><<pass 10>><</link>>
 			<br>
 		<</if>>
-		<<if $town_projects.road gte 4>>
+		<<if $earSlime.forcedCommando isnot undefined and $worn.under_lower.name isnot "naked">>
+		<<elseif $town_projects.road gte 4>>
 			<<busicon>><<link [[North to bus stop|Lake Bus]]>><</link>>
 			<br>
 		<</if>>
 	<<if $nextPassageCheck is "Lake Waterfall">>
-		<span class="nextLink"><<ind>><<link [[South to waterfall (0:10)|Lake Waterfall]]>><<pass 10>><</link>></span>
+		<span class="nextLink"><<lakeicon "waterfall">><<link [[South to waterfall (0:10)|Lake Waterfall]]>><<pass 10>><</link>></span>
 	<<else>>
-		<<ind>><<link [[South to waterfall (0:10)|Lake Waterfall]]>><<pass 10>><</link>>
+		<<lakeicon "waterfall">><<link [[South to waterfall (0:10)|Lake Waterfall]]>><<pass 10>><</link>>
 	<</if>>
 	<br><br>
-
-	<<foresticon>><<link [[Forest (0:10)|Forest]]>><<pass 10>><</link>>
+	/* Added $exhibitionism due to situations where the player can be soft locked and unsure how best to deal with it */
+	<<if $earSlime.forcedCommando isnot undefined and !$worn.under_lower.type.includes("naked") and $exhibitionism gte 35>>
+		<span class="red">The slime in your ear refuses to allow you to leave with swimwear on.</span>
+	<<else>>
+		<<foresticon>><<link [[Forest (0:10)|Forest]]>><<pass 10>><</link>>
+	<</if>>
 	<br>
 	<<set $eventskip to 0>>
 <</if>>
@@ -233,7 +264,206 @@ You are in the archeological office at the lake. Green tent walls surround a spa
 <</if>>
 <br><br>
 
-<<link [[Leave|Lake Shore]]>><<endevent>><</link>>
+<<if (Time.schoolDay and Time.hour gte 16 and Time.hour lte 20 or !Time.schoolDay and Time.hour gte 6 and Time.hour lte 20)>>
+	<<if !$weekly.winterLakeTalk>>
+		<<askicon>><<link [[Ask about Winter's research|Lake Office Ask]]>><</link>>
+		<br>
+	<</if>>
+	<<if $winterLakeTalk is 1 and $bogProgress is 1>>
+		<<ind>><<link [[Tell Winter about the bog|Lake Office Ask Bog]]>><<npcincr Winter love 2>><</link>><<glove>>
+		<br>
+	<</if>>
+<</if>>
+<<getouticon>><<link [[Leave|Lake Shore]]>><<endevent>><</link>>
+<br>
+
+:: Lake Office Ask
+<<set $outside to 0>><<effects>>
+<<set $winterLakeTalk = ($winterLakeTalk || 0)>>
+<<if $winterLakeTalk is 0>>
+	<<if $speech_attitude is "meek">>
+		"Was... was this worth it? Have you learned anything?"
+	<<elseif $speech_attitude is "bratty">>
+		"So, was this whole project worth the money? Did you learn anything?"
+	<<else>>
+		"Has the office been helpul? Did you learn anything?"
+	<</if>>
+<<else>>
+	<<if $speech_attitude is "meek">>
+		"H-have you learned anything new?"
+	<<elseif $speech_attitude is "bratty">>
+		"Anything new?"
+	<<else>>
+		"What's new?"
+	<</if>>
+<</if>>
+You ask.
+<br><br>
+
+<<switch $winterLakeTalk>>
+	<<case 0>>
+		<<set $winterLakeTalk to 1>><<set $weekly.winterLakeTalk to true>>
+		<<His>> head tilts slightly. "Normally I wouldn't be so inclined to share new and potentially flawed information, but you're to thank for all of this. I can make an exception." <<npcincr Winter love 1>><<glove>>
+		<br><br>
+
+		"Manmade interference is obvious, even beyond the submerged ruins. Erosion patterns show that the channel leading north towards the town is at least partially artificial. The former natural waterway that leads east became a small brook due to the redirection."
+		<br><br>
+
+		<<He>> pauses for a moment. "We can't place a definitive date, and nothing about the northern waterway exists in the town's records. However, the stagnation caused by the reduced flow may have led to the formation of the bog to the east. <span class="green">One could possibly traverse the dry section of the riverbed to bypass the dense foliage between here and there</span>. I may have more information for you soon, depending on whether or not I can find someone to <span class="blue">scout the brook for me.</span>"
+		<br><br>
+
+		<<if !$brookIntro>>
+			<<set $brookIntro to 1>>
+			<span class="gold">You've discovered the offshoot brook near the waterfall.</span>
+			<br><br>
+		<</if>>
+
+		<<link [[Next|Lake Office]]>><</link>>
+		<br>
+	<<case 1>>
+		<<if $bogProgress gte 2>>
+			<<set $winterLakeTalk to 2>><<set $weekly.winterLakeTalk to true>>
+			<<He>> turns to you. "The lake is fed by a tributary river that forms in the mountain to the west. However, the lake wasn't always here. That much is made obvious by the old ruins. The questions are when, and why? Where did the river lead to before then?"
+			<br><br>
+
+			<<He>> pauses. "I'll be sending a group to take notes on the bog. <span class="green">We finally have some volunteers thanks to your scouting.</span> Come see me in a week, and I may have more for you."
+		<<else>>
+			<<set $weekly.winterLakeTalk to true>>
+			<<He>> frowns. "Afraid not. <span class="blue">I need someone to investigate the brook's path.</span> Until then, we're stuck."
+		<</if>>
+		<br><br>
+
+		<<link [[Next|Lake Office]]>><</link>>
+		<br>
+	<<case 2>>
+		<<set $winterLakeTalk to 3>>
+		<<set $bogTeam to {
+			state: "active",
+			robinKnown: false,
+			robinPresent: false,
+			timer: 0
+		}>>
+		<<He>> nods. "My team has collected samples-"
+		<br><br>
+
+		As if on cue, someone enters the tent. It's Sirris. <<npc Sirris 2>><<person2>> <<He>> drops a large backpack onto the desk beside Winter, smiling. "Branch trimmings, a sketch of the heartwood rings, and a small jar of sap," <<he>> says proudly before smiling at you.
+		<br><br>
+
+		<<npc Niki 3>><<npc Wren 4>>
+		<<run getRobinLocation()>>
+		<<if _robin_location isnot $robinmissing>>
+			<<npc Robin 5>><<set $bogTeam.robinKnown to true>><<set $bogTeam.robinPresent to true>>
+			Two more enter. You first notice Robin shuffling awkwardly and looking downtrodden. <<person5>><<He>> lightens up upon seeing you. "Hey. Winter said <<person1>><<he>> needed help, so I volunteered!"
+			Behind <<person5>><<him>> is a <<person4>><<personsimple>> with <<if $pronoun is "m">>short<<else>>shoulder-length<</if>> hair. There's a pistol holstered on <<his>> belt.
+			<<if $wren_seen is "cards" or $wren_seen is "letter" or $wren_seen is "catsuit" or $wren_seen is "prison">>
+				<span class="gold">It's Wren.</span>
+				<br><br>
+
+				"Well, if it isn't my favourite troublemaker," <<he>> says with a grin. <<He>> places a hand on Robin's head, ruffling <<person5>><<his>> hair.
+				<<if $robinromance is 1>>
+					"Never guessed this would be your <<girlfriend>>, Ro." Robin pushes Wren's hand away. The emotion on <<his>> face is hard to read, but you think you catch a mixture of disgust and 'help me'.
+				<<else>>
+					"Never guessed this would be the friend you were telling me all about, Ro." Robin pushes Wren's hand away and takes a step out of reach. The emotion on <<his>> face is hard to read.
+				<</if>>
+			<<else>>
+				<br><br>
+
+				<<if $robinromance is 1>>
+					"Oh, is this your <<girlfriend>>, Ro? <span class="gold">The name's Wren,</span>" <<he>> says, ruffling Robin's hair as <<he>> looks at you. Robin pushes Wren's hand away. The emotion on <<person5>><<his>> face is hard to read, but you think you catch a mixture of disgust and 'help me'.
+				<<else>>
+					"Oh, is this the friend you were telling me about, Ro? <span class="gold">The name's Wren,</span>" <<he>> says, ruffling Robin's hair as <<he>> looks at you. Robin pushes Wren's hand away and takes a step out of reach. The emotion on <<person5>><<his>> face is hard to read.
+				<</if>>
+			<</if>>
+			Wren frowns, but is cut off by
+		<<else>>
+			Two more enter the tent. You first notice a <<person4>><<personsimple>> with <<if $pronoun is "m">>short<<else>>shoulder-length<</if>> hair. There's a pistol holstered on <<his>> belt.
+			<<if $wren_seen is "cards" or $wren_seen is "letter" or $wren_seen is "catsuit" or $wren_seen is "prison">>
+				<span class="gold">It's Wren.</span>
+				<br><br>
+
+				"Well, if it isn't my favourite troublemaker," <<he>> says with a grin.
+			<<else>>
+				"Damn, how much more help are you planning on pulling in, Winter?" <<He>> regards you with a grin. <span class="gold">"The name's Wren."</span>
+			<</if>>
+			<<Hes>> cut off by
+		<</if>>
+		a young <<person3>><<personsimple>> with a stick in <<his>> mouth pushing in, looking down at a camera.
+		<br><br>
+
+		<<if $niki_seen is undefined>>
+			"That's Niki," Sirris says. "A photographer who works in town. When Winter came calling, I thought <<he>> would be interested." Niki acknowledges you with a nod.
+		<<elseif $niki_seen is "adult_shop_opening">>
+			It's Niki, the photographer. "You remember Niki, right?" Sirris asks. "From the opening of the shop." Niki acknowledges you with a nod.
+		<<elseif $niki_seen is "farm">>
+			<span class="red">It's Niki,</span> the photographer from Remy's farm. <<He>> looks alarmed to see you. "That's Niki," Sirris says. "A photographer who works in town. When Winter came calling, I thought <<he>> would be interested." <<gtrauma>><<trauma 6>>
+		<<else>>
+			It's Niki, the photographer. <<He>> acknowledges you with a nod. "That's Niki, a photographer who works in town. When Winter came calling, I thought <<he>> would be interested."
+		<</if>>
+		<br><br>
+
+		<<set $wren_seen to "winter">>
+		<<set $niki_seen to "winter">>
+
+		<<link [[Next|Lake Office Volunteers]]>><</link>>
+		<br>
+	<<case 3>>
+		"Nothing new, yet. It may be some time before we make any meaningful progress."
+		<br><br>
+
+		<<link [[Next|Lake Office]]>><</link>>
+		<br>
+	<<default>>
+		"Nothing yet," <<he>> says with a hint of regret. "We've hit something of a standstill."
+		<br><br>
+
+		<<link [[Next|Lake Office]]>><</link>>
+		<br>
+<</switch>>
+
+:: Lake Office Ask Bog
+<<set $outside to 0>><<effects>>
+<<set $bogProgress to 2>><<set $weekly.winterLakeTalk to false>>
+<<if $speech_attitude is "meek">>
+	"You were right about that brook, it leads into a scary bog," you say. "It looks dangerous."
+<<elseif $speech_attitude is "bratty">>
+	"You're right on the money about the brook, it leads into a bog," you say. "I went and looked for you. Aren't I sweet?"
+<<else>>
+	"You were right about the brook. It leads into a bog," you say.
+<</if>>
+You also tell <<him>> how it can be safely traversed, and about the one-way drop into the bog.
+<br><br>
+
+You see a smile cross <<his>> face, but only for a moment. "You didn't have to do that. It could have been dangerous. But this is valuable information. Thank you." <<glove>>
+<br><br>
+
+<<He>> pauses. "I'm sure I'll be able to find volunteers now that they won't have to go in completely blind, or go all the way around through the moor."
+<br><br>
+
+<<link [[Next|Lake Office]]>><</link>>
+<br>
+
+:: Lake Office Volunteers
+<<set $outside to 0>><<effects>>
+
+<<person1>>Winter clears <<his>> throat. "Thank you, you <<if $bogTeam.robinKnown>>four<<else>>three<</if>>. You look like you've worked hard today. I appreciate excellence, but remember not to overdo it."
+<<if !$bogTeam.robinKnown>>
+	Winter turns to you. "I had hoped to ask your classmate Robin for aid as well, but I haven't seen <<nnpc_him "Robin">>."
+<</if>>
+<br><br>
+
+The group leaves the tent, saying their goodbyes. "I may ask you to join them on one of their trips in the future. However, to answer your initial question..." <<he>> begins to dig through Sirris' backpack.
+"This lake should not exist. More water drains than is fed into it. The only explanation currently feasible is that the lake is connected to an underground aquifer or aqueduct that feeds it. But the divers have found no such passage."
+<br><br>
+
+<<He>> examines a jar of tree sap. "Patterns of old growth trees show that the area around the lake was logged heavily. Sirris' current theory is that the lack of sturdy vegitation, combined with an unseasonably warm spring and rapid snowmelt, led to the river bursting its banks and forming a large sinkhole some centuries ago."
+<br><br>
+
+<<He>> continues. "The persistence of such dense vegitation around the brook still eludes me. Perhaps its an invasive species that requires less water. This is all we've learned as of now."
+
+<<endevent>><<npc Winter>><<person1>>
+<br><br>
+
+<<link [[Next|Lake Office]]>><</link>>
 <br>
 
 :: Lake Shore Mirror
@@ -254,7 +484,7 @@ You are at the bus stop beside the lake. The road from town terminates here, end
 	<<busicon>><<link [[Wait for a bus (0:02)|Bus]]>><<pass 2>><</link>><br>
 <</if>>
 
-<<ind>><<link [[South to shore|Lake Shore]]>><</link>>
+<<lakeicon>><<link [[South to shore|Lake Shore]]>><</link>>
 <br>
 
 :: Lake Waterfall
@@ -304,26 +534,51 @@ You are at the bus stop beside the lake. The road from town terminates here, end
 	<<foresthunt>>
 <<elseif $danger gte (9900 - $allure) and $eventskip is 0 and $laketeenspresent isnot 1>>
 	<<eventlake>>
+<<elseif !$brookIntro and $historytrait gte 4 and $sciencetrait gte 2 and $tending gte 200 and !$possessed>>
+	<<set $brookIntro to 1>>
+	You let yourself listen to the trickle of water for a moment. Curiosity gets the better of you. You look at the waterfall, and follow the stream that runs off. It slowly but gradually gets weaker as it disappears into a nearly impassible wall of foliage. <span class="green">Nearly.</span>
+	<br><br>
+
+	You remember your science and history lessons. This is an offshoot distributary of the lake. It flows east towards the moor, instead of north towards the ocean. All rivers end somewhere, and this one must flow sharply downwards into the bog between the forest and moor.
+	<br><br>
+
+	<span class="gold">With some care, you could traverse the brook's channel deeper into the forest, and eventually into the bog and moor.</span> <span class="red">But it would be a one-way trip.</span>
+	<br><br>
+
+	<<link [[Next|Lake Waterfall]]>><<set $eventskip to 1>><</link>>
+	<br>
 <<else>>
 	<<eventlakesafe>>
 	<<lakereturnjourney>>
 	<<if $pregnancyStats.parasiteDoctorEvents gte 2>>
-		<<containersLink>>
+		<<investigateicon>><<containersLink>>
 	<</if>>
 	<<if $mason_count gte 2 and Time.season isnot "winter">>
-		<<link [[Mason's pond (0:05)|Mason Pond]]>><<pass 5>><</link>>
+		<<lakeicon "pond">><<link [[Mason's pond (0:05)|Mason Pond]]>><<pass 5>><</link>>
 		<br>
 	<</if>>
 	<<if $nextPassageCheck is "Lake Shore">>
-		<span class="nextLink"><<link [[The lake.|Lake Shore]]>><<pass 10>><</link>></span>
+		<<lakeicon>><span class="nextLink"><<link [[The lake.|Lake Shore]]>><<pass 10>><</link>></span>
 	<<else>>
-		<<link [[North to shore (0:10)|Lake Shore]]>><<pass 10>><</link>>
+		<<lakeicon>><<link [[North to shore (0:10)|Lake Shore]]>><<pass 10>><</link>>
 	<</if>>
 	<br>
-	<<link [[South to fishing rock (0:10)|Lake Fishing Rock]]>><<pass 10>><</link>>
-	<br><br>
-
-	<<link [[Forest (0:10)|Forest]]>><<pass 10>><</link>>
+	<<lakeicon "fishing">><<link [[South to fishing rock (0:10)|Lake Fishing Rock]]>><<pass 10>><</link>>
+	<br>
+	<<if $brookIntro gte 1>>
+		<<if $worn.feet.type.includes("heels")>>
+			<span class="red">Traversing the brook in heels would be impossible.</span>
+		<<else>>
+			<<foresticon "river">><<link [[East to brook (0:30)|Forest Brook]]>><<pass 30>><<tiredness 4>><</link>><<gtiredness>>
+		<</if>>
+		<br>
+	<</if>>
+	<br>
+	<<if $earSlime.forcedCommando isnot undefined and !$worn.under_lower.type.includes("naked") and $exhibitionism gte 35>>
+		<span class="red">The slime in your ear refuses to allow you to leave with swimwear on.</span>
+	<<else>>
+		<<foresticon>><<link [[Forest (0:10)|Forest]]>><<pass 10>><</link>>
+	<</if>>
 	<br>
 	<<set $eventskip to 0>>
 <</if>>
@@ -384,18 +639,22 @@ You are at the bus stop beside the lake. The road from town terminates here, end
 <<else>>
 	<<eventlakesafe>>
 	<<lakereturnjourney>>
-	<<link [[Meditate|Lake Meditate]]>><<set $phase to 1>><</link>>
+	<<lakeicon "meditate">><<link [[Meditate|Lake Meditate]]>><<set $phase to 1>><</link>>
 	<br>
 	<<if $nextPassageCheck is "Lake Waterfall">>
-		<span class="nextLink"><<link [[The lake.|Lake Waterfall]]>><<pass 10>><</link>></span>
+		<<lakeicon>><span class="nextLink"><<link [[The lake.|Lake Waterfall]]>><<pass 10>><</link>></span>
 	<<else>>
-		<<link [[North to waterfall (0:10)|Lake Waterfall]]>><<pass 10>><</link>>
+		<<lakeicon "waterfall">><<link [[North to waterfall (0:10)|Lake Waterfall]]>><<pass 10>><</link>>
 	<</if>>
 	<br>
-	<<link [[South to campsite (0:20)|Lake Campsite]]>><<pass 20>><</link>>
+	<<lakeicon "campfire">><<link [[South to campsite (0:20)|Lake Campsite]]>><<pass 20>><</link>>
 	<br><br>
 
-	<<foresticon>><<link [[Forest (0:10)|Forest]]>><<pass 10>><</link>>
+	<<if $earSlime.forcedCommando isnot undefined and !$worn.under_lower.type.includes("naked") and $exhibitionism gte 35>>
+		<span class="red">The slime in your ear refuses to allow you to leave with swimwear on.</span>
+	<<else>>
+		<<foresticon>><<link [[Forest (0:10)|Forest]]>><<pass 10>><</link>>
+	<</if>>
 	<br>
 	<<set $eventskip to 0>>
 <</if>>
@@ -467,10 +726,14 @@ You are at the bus stop beside the lake. The road from town terminates here, end
 	<</if>>
 	<<eventlakesafe>>
 	<<lakereturnjourney>>
-	<<link [[Soth to shore (0:10)|Lake Shore]]>><<pass 10>><</link>>
+	<<link [[South to shore (0:10)|Lake Shore]]>><<pass 10>><</link>>
 	<br><br>
 
-	<<foresticon>><<link [[Forest (0:10)|Forest]]>><<pass 10>><</link>>
+	<<if $earSlime.forcedCommando isnot undefined and !$worn.under_lower.type.includes("naked") and $exhibitionism gte 35>>
+		<span class="red">The slime in your ear refuses to allow you to leave with swimwear on.</span>
+	<<else>>
+		<<foresticon>><<link [[Forest (0:10)|Forest]]>><<pass 10>><</link>>
+	<</if>>
 	<br>
 	<<set $eventskip to 0>>
 <</if>>
@@ -533,17 +796,21 @@ You are at the bus stop beside the lake. The road from town terminates here, end
 	<<eventlakesafe>>
 	<<lakereturnjourney>>
 	<<if $weather isnot "rain" and $weather isnot "snow" and Time.hour gte 18 and $exposed lte 0 and $daily.lakeCouple isnot 1>>
-		<<link [[Approach the couple|Lake Couple]]>><</link>>
+		<<ind>><<link [[Approach the couple|Lake Couple]]>><</link>>
 		<br>
 	<</if>>
 	<<if $nextPassageCheck is "Lake Fishing Rock">>
-		<span class="nextLink"><<link [[The lake.|Lake Fishing Rock]]>><</link>></span>
+		<<lakeicon>><span class="nextLink"><<link [[The lake.|Lake Fishing Rock]]>><</link>></span>
 	<<else>>
-		<<link [[North to fishing rock (0:10)|Lake Fishing Rock]]>><<pass 10>><</link>>
+		<<lakeicon "fishing">><<link [[North to fishing rock (0:10)|Lake Fishing Rock]]>><<pass 10>><</link>>
 	<</if>>
 	<br><br>
 
-	<<foresticon>><<link [[Forest (0:10)|Forest]]>><<pass 10>><</link>>
+	<<if $earSlime.forcedCommando isnot undefined and !$worn.under_lower.type.includes("naked") and $exhibitionism gte 35>>
+		<span class="red">The slime in your ear refuses to allow you to leave with swimwear on.</span>
+	<<else>>
+		<<foresticon>><<link [[Forest (0:10)|Forest]]>><<pass 10>><</link>>
+	<</if>>
 	<br>
 	<<set $eventskip to 0>>
 <</if>>
@@ -626,7 +893,9 @@ You are at the bus stop beside the lake. The road from town terminates here, end
 	You improvise a garment made from reeds and lilies and tie it around your waist. It's fragile and revealing, and you don't think you could take it off without breaking it, but it's better than nothing.
 	<<plantlower>>
 	<br><br>
-	<<if $rng gte 91 and $parasite.penis.name is undefined and $player.penisExist and $parasitedisable is "f" and !playerChastity("penis")>>
+	<<if $parasite.penis.name is "parasite" or $parasite.clit.name is "parasite">>
+		/* Prevents the 2 types of parasites from interacting */
+	<<elseif $rng gte 91 and $parasite.penis.name is undefined and $player.penisExist and $parasitedisable is "f" and !playerChastity("penis")>>
 		Your satisfaction is interrupted by a pinching sensation on your <<penis>>. Shocked, you lift your skirt to find the culprit. A small and soft invertebrate has latched on. It massages and sucks as if trying to nurse. It doesn't hurt at all, but the sensations are making you feel shamefully aroused. You tug it in a bid to be free of its molestation, but it clings too tightly. What's more, touching it with any amount of force makes it suck more intensely. You'll need help to remove it.
 		<<parasite penis urchin>><<garousal>><<arousal 600 "genitals">>
 		<br><br>
@@ -646,20 +915,20 @@ You are at the bus stop beside the lake. The road from town terminates here, end
 <<elseif $danger gte (9900 - ($allure / 2)) and $eventskip is 0>>
 	<<eventlakewater>>
 <<else>>
-	<<link [[Practise swimming (0:30)|Lake Shallows]]>><<pass 30>><<stress -6>><<tiredness 6>><<set $lakeswim to 1>><<slimeEventEnd>><</link>><<gswimming>><<lstress>><<gtiredness>>
+	<<swimicon "back">><<link [[Practise swimming (0:30)|Lake Shallows]]>><<pass 30>><<stress -6>><<tiredness 6>><<set $lakeswim to 1>><<slimeEventEnd "swimming">><</link>><<gswimming>><<lstress>><<gtiredness>>
 	<br>
 	<<if $worn.upper.exposed gte 2 and $worn.under_upper.exposed gte 1
 	or $worn.upper.exposed gte 2 and $underupperwetstage gte 3
 	or $upperwetstage gte 3 and $worn.under_upper.exposed gte 1
 	or $upperwetstage gte 3 and $underupperwetstage gte 3>>
-		<<link [[Make a top out of plants (0:20)|Lake Shallows]]>><<pass 20>><<set $phase to 1>><</link>>
+		<<beachicon "seaweed">><<link [[Make a top out of plants (0:20)|Lake Shallows]]>><<pass 20>><<set $phase to 1>><</link>>
 		<br>
 	<</if>>
 	<<if $worn.lower.exposed gte 2 and $worn.under_lower.exposed gte 1
 	or $worn.lower.exposed gte 2 and $underlowerwetstage gte 3
 	or $lowerwetstage gte 3 and $worn.under_lower.exposed gte 1
 	or $lowerwetstage gte 3 and $underlowerwetstage gte 3>>
-		<<link [[Make a skirt out of plants (0:20)|Lake Shallows]]>><<pass 20>><<set $phase to 2>><</link>>
+		<<beachicon "seaweed">><<link [[Make a skirt out of plants (0:20)|Lake Shallows]]>><<pass 20>><<set $phase to 2>><</link>>
 		<br>
 	<</if>>
 	<<if $sciencetrait gte 2 and !$plants_known.includes("lotus")>>
@@ -669,23 +938,23 @@ You are at the bus stop beside the lake. The road from town terminates here, end
 	<<if $exposed gte 1 and $laketeenspresent is 1>>
 		<br>
 	<<elseif $debug is 1>>
-		<<link [[Swim to dock (0:10)|Lake Dock]]>><<pass 10>><</link>>
+		<<docksicon>><<link [[Swim to dock (0:10)|Lake Dock]]>><<pass 10>><</link>>
 		<br>
 	<</if>>
 	<<if $nextPassageCheck is "Lake Depths">>
 		<span class="nextLink"><<link [[Further.|Lake Depths]]>><<pass 12>><</link>></span>
 	<<else>>
-		<<link [[Swim further out (0:12)|Lake Depths]]>><<pass 12>><</link>>
+		<<swimicon>><<link [[Swim further out (0:12)|Lake Depths]]>><<pass 12>><</link>>
 	<</if>>
 	<br>
 	<<if $exposed gte 1 and $laketeenspresent is 1>>
 		<<if $exposed gte 2 and $exhibitionism gte 75>>
-			<<link [[Leave the water exposed (0:02)|Lake Shore Exposed]]>><<set $phase to 0>><<pass 2>><</link>><<exhibitionist5>>
+			<<lakeicon>><<link [[Leave the water exposed (0:02)|Lake Shore Exposed]]>><<set $phase to 0>><<pass 2>><</link>><<exhibitionist5>>
 		<<elseif $exposed gte 1 and $exhibitionism gte 55>>
-			<<link [[Leave the water exposed (0:02)|Lake Shore Exposed]]>><<set $phase to 1>><<pass 2>><</link>><<exhibitionist4>>
+			<<lakeicon>><<link [[Leave the water exposed (0:02)|Lake Shore Exposed]]>><<set $phase to 1>><<pass 2>><</link>><<exhibitionist4>>
 		<</if>>
 	<<else>>
-		<<link [[Shore (0:02)|Lake Shore]]>><<pass 2>><</link>>
+		<<lakeicon>><<link [[Shore (0:02)|Lake Shore]]>><<pass 2>><</link>>
 		<br>
 	<</if>>
 	<<set $eventskip to 0>>
@@ -758,19 +1027,19 @@ You are at the bus stop beside the lake. The road from town terminates here, end
 	<<eventlakesafe>>
 	<<lakereturnjourney>>
 
-	<<link [[Ice skate (0:30)|Lake Skate]]>><<pass 30>><<tiredness 5>><<danceskill 5>><</link>><<gtiredness>><<gdanceskill>>
+	<<lakeicon "skate">><<link [[Ice skate (0:30)|Lake Skate]]>><<pass 30>><<tiredness 5>><<danceskill 5>><</link>><<gtiredness>><<gdanceskill>>
 	<br>
 	<<if $sciencetrait gte 2 and !$plants_known.includes("lotus")>>
 		<<icon "tending/lotus.png">> <<link [[Search for seeds (0:30)|Lake Lotus Ice]]>><<set $plants_known.push("lotus")>><<pass 30>><<tending 6>><</link>><<gtending>>
 		<br>
 	<</if>>
 	<<if $nextPassageCheck is "Lake Depths Ice">>
-		<span class="nextLink"><<link [[Further (0:12)|Lake Depths Ice]]>><<pass 12>><</link>></span>
+		<<ind>><span class="nextLink"><<link [[Further (0:12)|Lake Depths Ice]]>><<pass 12>><</link>></span>
 	<<else>>
-		<<link [[Walk further out (0:12)|Lake Depths Ice]]>><<pass 12>><</link>>
+		<<getinicon>><<link [[Walk further out (0:12)|Lake Depths Ice]]>><<pass 12>><</link>>
 	<</if>>
 	<br>
-	<<link [[Shore (0:02)|Lake Shore]]>><<pass 2>><</link>>
+	<<lakeicon>><<link [[Shore (0:02)|Lake Shore]]>><<pass 2>><</link>>
 	<br>
 	<<set $eventskip to 0>>
 <</if>>
@@ -867,7 +1136,9 @@ You free the lotus flowers from the ice, gathering the seeds. <span class="gold"
 	You improvise a garment made from reeds and lilies and tie it around your waist. It's fragile and revealing, and you don't think you could take it off without breaking it, but it's better than nothing.
 	<<plantlower>>
 	<br><br>
-	<<if $rng gte 91 and $parasite.penis.name is undefined and $player.penisExist and $parasitedisable is "f" and !playerChastity("penis")>>
+	<<if $parasite.penis.name is "parasite" or $parasite.clit.name is "parasite">>
+		/* Prevents the 2 types of parasites from interacting */
+	<<elseif $rng gte 91 and $parasite.penis.name is undefined and $player.penisExist and $parasitedisable is "f" and !playerChastity("penis")>>
 		Your satisfaction is interrupted by a pinching sensation on your <<penis>>. Shocked, you lift your skirt to find the culprit. A small and soft invertebrate has latched on. It massages and sucks as if trying to nurse. It doesn't hurt at all, but the sensations are making you feel shamefully aroused. You tug it in a bid to be free of its molestation, but it clings too tightly. What's more, touching it with any amount of force makes it suck more intensely. You'll need help to remove it.
 		<<parasite penis urchin>><<garousal>><<arousal 600 "genitals">>
 		<br><br>
@@ -888,14 +1159,14 @@ You free the lotus flowers from the ice, gathering the seeds. <span class="gold"
 <<elseif $danger gte (9900 - ($allure / 2)) and $eventskip is 0>>
 	<<eventlakewater>>
 <<else>>
-	<<link [[Practise swimming (0:30)|Lake Depths]]>><<pass 30>><<stress -6>><<tiredness 6>><<set $lakeswim to 1>><<slimeEventEnd>><</link>><<gswimming>><<lstress>><<gtiredness>>
+	<<swimicon>><<link [[Practise swimming (0:30)|Lake Depths]]>><<pass 30>><<stress -6>><<tiredness 6>><<set $lakeswim to 1>><<slimeEventEnd "swimming">><</link>><<gswimming>><<lstress>><<gtiredness>>
 	<br>
 	<<if !Time.schoolDay and $weather is "rain" and Time.dayState is "day" and $daily.masonSpoken isnot 1 and !$possessed>>
 		<<if $mason_count gte 1>>
-			<<link [[Swim out to Mason (0:05)|Lake Mason]]>><<pass 5>><<set $daily.masonSpoken to 1>><</link>>
+			<<swimicon>><<link [[Swim out to Mason (0:05)|Lake Mason]]>><<pass 5>><<set $daily.masonSpoken to 1>><</link>>
 			<br>
 		<<else>>
-			<<link [[Swim out to Mason (0:05)|Lake Mason Intro]]>><<pass 5>><</link>>
+			<<swimicon>><<link [[Swim out to Mason (0:05)|Lake Mason Intro]]>><<pass 5>><</link>>
 			<br>
 		<</if>>
 	<</if>>
@@ -903,28 +1174,28 @@ You free the lotus flowers from the ice, gathering the seeds. <span class="gold"
 	or $worn.upper.exposed gte 2 and $underupperwetstage gte 3
 	or $upperwetstage gte 3 and $worn.under_upper.exposed gte 1
 	or $upperwetstage gte 3 and $underupperwetstage gte 3>>
-		<<link [[Make a top out of plants (0:20)|Lake Depths]]>><<pass 20>><<set $phase to 1>><</link>>
+		<<beachicon "seaweed">><<link [[Make a top out of plants (0:20)|Lake Depths]]>><<pass 20>><<set $phase to 1>><</link>>
 		<br>
 	<</if>>
 	<<if $worn.lower.exposed gte 2 and $worn.under_lower.exposed gte 1
 	or $worn.lower.exposed gte 2 and $underlowerwetstage gte 3
 	or $lowerwetstage gte 3 and $worn.under_lower.exposed gte 1
 	or $lowerwetstage gte 3 and $underlowerwetstage gte 3>>
-		<<link [[Make a skirt out of plants (0:20)|Lake Depths]]>><<pass 20>><<set $phase to 2>><</link>>
+		<<beachicon "seaweed">><<link [[Make a skirt out of plants (0:20)|Lake Depths]]>><<pass 20>><<set $phase to 2>><</link>>
 		<br>
 	<</if>>
 	<<if $nextPassageCheck is "Lake Underwater">>
-		<span class="nextLink"><<link [[Down.|Lake Underwater]]>><<pass 1>><</link>></span>
+		<<swimicon "down">><span class="nextLink"><<link [[Down.|Lake Underwater]]>><<pass 1>><</link>></span>
 	<<else>>
-		<<link [[Dive (0:01)|Lake Underwater]]>><<pass 1>><</link>>
+		<<swimicon "dive">><<link [[Dive (0:01)|Lake Underwater]]>><<pass 1>><</link>>
 	<</if>>
 	<br>
-	<<link [[Swim towards shore (0:12)|Lake Shallows]]>><<pass 12>><</link>>
+	<<swimicon "back">><<link [[Swim towards shore (0:12)|Lake Shallows]]>><<pass 12>><</link>>
 	<br><br>
 
 	<<if $exposed gte 1 and $laketeenspresent is 1>>
 	<<elseif $debug is 1>>
-		<<link [[Swim to dock (0:02)|Lake Dock]]>><<pass 2>><</link>>
+		<<docksicon>><<link [[Swim to dock (0:02)|Lake Dock]]>><<pass 2>><</link>>
 		<br>
 	<</if>>
 	<<set $eventskip to 0>>
@@ -975,17 +1246,17 @@ You free the lotus flowers from the ice, gathering the seeds. <span class="gold"
 		<<set $lake_ice_broken to 1>>
 	<</if>>
 	<<if $nextPassageCheck is "Lake Depths Ice Break">>
-		<span class="nextLink"><<link [[Down.|Lake Depths Ice Break]]>><<pass 12>><</link>></span>
+		<<swimicon "down">><span class="nextLink"><<link [[Down.|Lake Depths Ice Break]]>><<pass 12>><</link>></span>
 		<br>
 	<<elseif $lake_ice_broken is undefined>>
-		<<link [[Break the ice (0:30)|Lake Ice Break]]>><<pass 30>><<set $lake_ice_broken to 2>><<tiredness 3>><</link>><<gtiredness>>
+		<<swimicon "break">><<link [[Break the ice (0:30)|Lake Ice Break]]>><<pass 30>><<set $lake_ice_broken to 2>><<tiredness 3>><</link>><<gtiredness>>
 		<br>
 	<<else>>
-		<<link [[Dive (0:01)|Lake Underwater]]>><<pass 1>><</link>>
+		<<swimicon "dive">><<link [[Dive (0:01)|Lake Underwater]]>><<pass 1>><</link>>
 		<br>
 	<</if>>
 
-	<<link [[Walk towards shore (0:12)|Lake Shallows Ice]]>><<pass 12>><</link>>
+	<<lakeicon>><<link [[Walk towards shore (0:12)|Lake Shallows Ice]]>><<pass 12>><</link>>
 	<br><br>
 
 	<<set $eventskip to 0>>
@@ -1271,28 +1542,39 @@ The others try to entertain themselves with ghost stories.
 	The party is suddenly silenced by a cry from the woods. A howl, followed by cursing, then a pained yelp.
 	<br><br>
 
-	<<link [[Investigate|Lake Halloween Wolves Investigate]]>><</link>>
+	<<investigateicon>><<link [[Investigate|Lake Halloween Wolves Investigate]]>><</link>>
 	<br>
-	<<link [[Stay seated|Lake Halloween Wolves Ignore]]>><</link>>
+	<<ind>><<link [[Stay seated|Lake Halloween Wolves Ignore]]>><</link>>
 	<br>
 <<elseif Time.monthDay isnot 31>>
 	It's getting late, and the shadows of the forest are lengthening. People are preparing to return to town. No one wants to be left to travel alone.
 	<br><br>
+	<<set _storedClothes to clothingInStorage("lakeshore")>>
 
-	<<if $exposed lte 0>>
-		<<link [[Go with them (0:30)|Lake Return Journey]]>><<set $foresthunt to 0>><<pass 30>><</link>>
+	<<if $earSlime.forcedCommando isnot undefined and _storedClothes.find(item => item.slot is "under_lower" and !item.type.includes("naked"))>>
+		<span class="red">The slime in your ear refuses to allow you to leave with swimwear on.</span>
+		<<set _earSlimeText to true>>
+	<<elseif _storedClothes.length>>
+		<<ind>><<link [[Get changed, then go with them (0:40)|Lake Return Journey]]>><<storeload "lakeshore">><<set $foresthunt to 0>><<pass 30>><</link>>
 		<br>
 	<</if>>
-	<<link [[Stay|Lake Shore]]>><</link>>
+	<<if $earSlime.forcedCommando isnot undefined and !$worn.under_lower.type.includes("naked")>>
+		<<if _earSlimeText>><span class="red">The slime in your ear refuses to allow you to leave with swimwear on.</span><</if>>
+	<<elseif $exposed lte 0>>
+		<<ind>><<link [[Go with them (0:30)|Lake Return Journey]]>><<set $foresthunt to 0>><<pass 30>><</link>>
+		<br>
+	<</if>>
+
+	<<ind>><<link [[Stay|Lake Shore]]>><</link>>
 	<br>
 <<else>>
 	<<if playerAwareTheyArePregnant()>>
-		<<link [[Keep partying (0:10)|Lake Halloween Party]]>><<set $phase to 1>><<stress -4>><<status 1>><<pass 10>><</link>><<lstress>><<gcool>>
+		<<socialiseicon "party">><<link [[Keep partying (0:10)|Lake Halloween Party]]>><<set $phase to 1>><<stress -4>><<status 1>><<pass 10>><</link>><<lstress>><<gcool>>
 	<<else>>
-		<<link [[Keep partying (0:10)|Lake Halloween Party]]>><<set $phase to 1>><<stress -4>><<alcohol 20>><<status 1>><<pass 10>><</link>><<lstress>><<gcool>><<galcohol>>
+		<<socialiseicon "party">><<link [[Keep partying (0:10)|Lake Halloween Party]]>><<set $phase to 1>><<stress -4>><<alcohol 20>><<status 1>><<pass 10>><</link>><<lstress>><<gcool>><<galcohol>>
 	<</if>>
 	<br>
-	<<link [[Leave|Lake Shore]]>><<set $phase to 0>><</link>>
+	<<getouticon>><<link [[Leave|Lake Shore]]>><<set $phase to 0>><</link>>
 	<br>
 <</if>>
 
@@ -1333,7 +1615,7 @@ Guilt takes you as you watch the <<beasttype>> limp <<bhis 0>> way into the brus
 <br><br>
 
 <<endevent>>
-<<link [[Keep partying (0:10)|Lake Halloween Party]]>><<set $phase to 1>><<pass 10>><<status 1>><</link>><<gcool>>
+<<socialiseicon "party">><<link [[Keep partying (0:10)|Lake Halloween Party]]>><<set $phase to 1>><<pass 10>><<status 1>><</link>><<gcool>>
 <br>
-<<link [[Leave|Lake Shore]]>><</link>>
+<<getouticon>><<link [[Leave|Lake Shore]]>><</link>>
 <br>

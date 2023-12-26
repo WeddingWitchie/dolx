@@ -2,9 +2,6 @@
 <div @class="(Errors.log.length==0?'hidden':'') + ' error-reporter-btn'" onclick="Errors.Reporter.toggle()"></div>
 <<run T.buttons = new window.Tab("overlayButtons", "macro-button-selected")>>
 <<if $intro is 0>>
-	<<if $debug is 1>>
-		<div id="debugOverlay" class="debugOverlay unstowable"></div>
-	<</if>>
 
 	<<weatherdisplay>>
 	<<if $gamemode is "soft">>
@@ -94,8 +91,8 @@
 				<span class="pink">You missed $lessonmissedtext lessons yesterday.</span>
 			<</if>>
 			<<if $lessonmissed gte 25>>
-				<span class="red">You've missed many lessons. The police have been informed.</span>
-				<<crimeup 25>>
+				<span class="red">You've missed many lessons. Your reputation has taken a hit.</span>
+				<<detention 50>><<gggdelinquency>><<status -5>><<lcool>>
 			<</if>>
 			<<set $lessonmissedtext to 0>>
 			<br>
@@ -170,9 +167,29 @@
 			<</switch>>
 		<</for>>
 
+		<<if $worn.genitals.name isnot "chastity parasite">>
+			<<if $parasite.penis.name and $parasite.penis.name is "parasite">>
+				<<if $earSlime.defyCooldown>>
+					<span class="red">The parasite compresses your <<if $player.ballsExist>>balls<<else>>penis<</if>>.</span>
+				<<elseif $earSlime.vibration and $earSlime.vibration lte 20>>
+					<span class="pink">The parasite pulsates around your penis.</span>
+				<<elseif $earSlime.vibration>>
+					<span class="pink">The parasite vibrates around your penis.</span>
+				<</if>>
+			<<elseif $parasite.clit.name and $parasite.clit.name is "parasite">>
+				<<if $earSlime.defyCooldown>>
+					<span class="red">The parasite<<if $earSlime.focus isnot "pregnancy">> penis<</if>> compresses your clit.</span>
+				<<elseif $earSlime.vibration and $earSlime.vibration lte 20>>
+					<span class="pink">The parasite<<if $earSlime.focus isnot "pregnancy">> penis<</if>> pulsates around your clit.</span>
+				<<elseif $earSlime.vibration>>
+					<span class="pink">The parasite<<if $earSlime.focus isnot "pregnancy">> penis<</if>> vibrates around your clit.</span>
+				<</if>>
+			<</if>>
+		<</if>>
+
 		<<if $parasite.left_ear.name and $parasite.left_ear.name eq $parasite.right_ear.name>>
 			<<if $parasite.left_ear.name is "slime">>
-				<span class="lewd">The $parasite.left_ear.name in each ear influences your thoughts.</span>
+				<span class="lewd">The $parasite.left_ear.name in each ear influences your thoughts<<if $earSlime.growth gte 100>> and actions<</if>>.</span>
 				<br>
 			<</if>>
 		<<else>>
@@ -316,18 +333,7 @@
 		<div id="startingPlayerImage" class="hidden"></div>
 	<</if>>
 	<div id="overlayButtons">
-		<div id="versioninfo"><<versioninfo>></div>
-			<<button SAVES>>
-				<<overlayReplace "saves">>
-			<</button>>
-		<div class="sidebarButtonSplit">
-			<<button OPTIONS>>
-				<<overlayReplace "options">>
-			<</button>>
-			<<button FEATS>>
-				<<overlayReplace "startFeats">>
-			<</button>>
-		</div>
+		<<startCaption>>
 	</div>
 <</if>>
 
@@ -337,6 +343,21 @@
 
 
 :: Widgets Clothing Caption [widget]
+<<widget "startCaption">>
+	<div id="versioninfo"><<versioninfo>></div>
+		<<button SAVES>>
+			<<overlayReplace "saves">>
+		<</button>>
+	<div class="sidebarButtonSplit">
+		<<button OPTIONS>>
+			<<overlayReplace "options">>
+		<</button>>
+		<<button FEATS>>
+			<<overlayReplace "startFeats">>
+		<</button>>
+	</div>
+<</widget>>
+
 <<widget "sidebarlookdescription">>
 	<!--old version
 	<<clothingcaption>>
@@ -432,21 +453,24 @@
 	<<if $makeup.eyeshadow != 0>><<set $allure += 100>><</if>>
 	<<if $makeup.mascara != 0>><<set $allure += 100>><</if>>
 
-	<<set $allure += ($fame.sex / 10)>>
-	<<set $allure += ($fame.prostitution / 10)>>
-	<<set $allure += ($fame.rape / 10)>>
-	<<set $allure += ($fame.bestiality / 10)>>
-	<<set $allure += ($fame.exhibitionism / 10)>>
-	<<set $allure += ($fame.pregnancy / 10)>>
-	<<set $allure += ($fame.impreg / 10)>>
+	<<if $earSlime.growth gt 50>><<set $allure += ($earSlime.growth - 50) * 10>><</if>>
+	<<if !["island"].includes($location)>>
+		<<set $allure += ($fame.sex / 10)>>
+		<<set $allure += ($fame.prostitution / 10)>>
+		<<set $allure += ($fame.rape / 10)>>
+		<<set $allure += ($fame.bestiality / 10)>>
+		<<set $allure += ($fame.exhibitionism / 10)>>
+		<<set $allure += ($fame.pregnancy / 10)>>
+		<<set $allure += ($fame.impreg / 10)>>
 
-	<<set $allure -= ($fame.scrap / 2)>>
-	<<set $allure -= ($fame.good / 2)>>
-	<<set $allure -= ($fame.business / 2)>>
-	<<set $allure -= ($fame.social / 2)>>
-	<<set $allure -= ($fame.model / 2)>>
-	<<if $debug is 1>>
-		<<set $allure -= ($fame.pimp / 2)>>
+		<<set $allure -= ($fame.scrap / 2)>>
+		<<set $allure -= ($fame.good / 2)>>
+		<<set $allure -= ($fame.business / 2)>>
+		<<set $allure -= ($fame.social / 2)>>
+		<<set $allure -= ($fame.model / 2)>>
+		<<if $debug is 1>>
+			<<set $allure -= ($fame.pimp / 2)>>
+		<</if>>
 	<</if>>
 	<<if $moonstate is "evening" and Time.hour gte 21 or $moonstate is "morning" and Time.hour lt 6>>
 		<<set $allure += 2000>>

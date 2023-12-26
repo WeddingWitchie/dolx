@@ -127,7 +127,7 @@
 			<<set $machine_tattoo_success to true>>/*Just controls NPC response following encounter in underground dungeon.*/
 			<<if $machine.tattoo.ammo gte 1>>
 				The <<machine_damage tattoo>> tattoo gun pulls away, but remains primed.
-				<<set $machine.tattoo.use to $machine.tattoo.use to "ready">>
+				<<set $machine.tattoo.use to "ready">>
 				<<set $machine.tattoo.state to "ready">>
 			<<else>>
 				The <<machine_damage tattoo>> tattoo gun pulls away, <span class="green">and falls inert.</span>
@@ -137,11 +137,19 @@
 				<<set $machine_stat += 1>>
 			<</if>>
 		<<case "foam">>
-			<span class="pink">The <<machine_damage tattoo>> tattoo gun sprays a pink foam over your <<bodypart $machine.tattoo.use>>.</span> The ink of your <<tattoo $machine.tattoo.use>> runs away, <span class="blue">clearing your skin.</span>
-			<<bodywriting_clear $machine.tattoo.use>>
-			<br><br>
-			The <<machine_damage tattoo>> tattoo gun presses against your <<bodypart $machine.tattoo.use>>. <span class="pink">The whirring intensifies as it prepares to write.</span>
-			<<set $machine.tattoo.state to "imminent">>
+			<span class="pink">The <<machine_damage tattoo>> tattoo gun sprays a pink foam over your <<bodypart $machine.tattoo.use>>.</span>
+			<<if $skin[$machine.tattoo.use] and $skin[$machine.tattoo.use].pen and ["brand", "magic"].includes($skin[$machine.tattoo.use].pen)>>
+				<span class="blue">Nothing happens to your <<tattoo $machine.tattoo.use>> as the foam clears.</span>
+				The <<machine_damage tattoo>> tattoo gun pulls away.
+				<<set $machine.tattoo.use to "ready">>
+				<<set $machine.tattoo.state to "ready">>
+				<<set $machine.tattoo.ammo -= 1>>
+			<<else>>
+				<<bodywriting_clear $machine.tattoo.use>>
+				<br><br>
+				The <<machine_damage tattoo>> tattoo gun presses against your <<bodypart $machine.tattoo.use>>. <span class="pink">The whirring intensifies as it prepares to write.</span>
+				<<set $machine.tattoo.state to "imminent">>
+			<</if>>
 		<</switch>>
 		<br>
 	<</if>>
@@ -189,7 +197,7 @@
 						The <<machine_damage vaginal>> phallic machine tries to push through your $worn.under_lower.name, tearing the fabric.
 						<<set $worn.under_lower.integrity -= 20>>
 					<</if>>
-				<<elseif playerChastity()>>
+				<<elseif playerChastity("vagina")>>
 					<<if $machine.vaginal.armed is 1>>
 						A canister atop the <<machine_damage vaginal>> phallic machine opens, and sprays a pink foam over your $worn.genitals.name, <span class="purple">dissolving the fabric.</span>
 						<<set $worn.genitals.integrity -= 100>>

@@ -99,10 +99,10 @@ You are in the compound on Elk Street. Three red brick buildings stand surrounde
 				<</if>>
 				<<link [[Fight|Elk Compound Bestiality]]>><<set $molestationstart to 1>><</link>>
 				<br>
-				<<link [[Escape the compound|Elk Compound Run]]>><<crimeup 30>><</link>><<athleticsdifficulty 1 1000>><<crime>>
+				<<link [[Escape the compound|Elk Compound Run]]>><<crimeUp 30 "trespassing">><</link>><<athleticsdifficulty 1 1000>><<crime "trespassing">>
 				<br>
 			<<else>>
-				<<link [[Escape the compound|Elk Compound Run]]>><<crimeup 30>><<set $athleticsSuccess to true>><</link>><<crime>>
+				<<link [[Escape the compound|Elk Compound Run]]>><<crimeUp 30 "trespassing">><<set $athleticsSuccess to true>><</link>><<crime "trespassing">>
 				<br>
 			<</if>>
 		<<else>>
@@ -128,18 +128,18 @@ You are in the compound on Elk Street. Three red brick buildings stand surrounde
 			<br><br>
 		<</if>>
 		<<if $compoundpipes isnot 1 or isPubfameTaskAccepted("compound") and !$pubfame.compound.cameras.includes("the building with storage tanks")>>
-			<<link [[Investigate the building with storage tanks outside|Elk Compound Pipes]]>><</link>>
+			<<investigateicon>><<link [[Investigate the building with storage tanks outside|Elk Compound Pipes]]>><</link>>
 			<br>
 		<</if>>
 		<<if $compoundsmoke isnot 1 or isPubfameTaskAccepted("compound") and !$pubfame.compound.cameras.includes("the building with smokestacks")>>
-			<<link [[Investigate the building with smokestacks|Elk Compound Smoke]]>><</link>>
+			<<investigateicon>><<link [[Investigate the building with smokestacks|Elk Compound Smoke]]>><</link>>
 			<br>
 		<</if>>
 		<<if $compoundcentre isnot 1 or $phials_held gte 1 or isPubfameTaskAccepted("compound") and !$pubfame.compound.cameras.includes("the central building")>>
-			<<link [[Investigate the central building|Elk Compound Central]]>><</link>>
+			<<investigateicon>><<link [[Investigate the central building|Elk Compound Central]]>><</link>>
 			<br>
 		<</if>>
-		<<link [[Climb the fence to safety|Elk Compound Climb]]>><</link>>
+		<<getouticon>><<link [[Climb the fence to safety|Elk Compound Climb]]>><</link>>
 		<br>
 	<</if>>
 <</if>>
@@ -152,18 +152,18 @@ The door to the building opens easily, and you enter. The inside is dominated by
 <<if !$compoundpipes>>
 	In the centre sits a pink crystal on a plinth, connected to the side by a thin walkway. It looks valuable.
 	<br><br>
-	<<link [[Take|Elk Compound Crystal]]>><</link>><<crime>><<gsecurity>>
+	<<ind>><<link [[Take|Elk Compound Crystal]]>><</link>><<crime "thievery">><<gsecurity>>
 	<br>
 <<else>>
 	<br><br>
 <</if>>
 
 <<if isPubfameTaskAccepted("compound") and !$pubfame.compound.cameras.includes("the building with storage tanks")>>
-	<<link [[Put down a camera|Elk Compound Pipes Camera]]>><<set $compoundalarm++>><<set $pubfame.compound.cameras.pushUnique("the building with storage tanks")>><</link>><<gsecurity>>
+	<<ind>><<link [[Put down a camera|Elk Compound Pipes Camera]]>><<set $compoundalarm++>><<set $pubfame.compound.cameras.pushUnique("the building with storage tanks")>><</link>><<gsecurity>>
 	<br>
 <</if>>
 
-<<link [[Leave|Elk Compound]]>><</link>>
+<<getouticon>><<link [[Leave|Elk Compound]]>><</link>>
 <br>
 
 :: Elk Compound Smoke
@@ -173,15 +173,15 @@ The door opens easily and you enter the building. The inside is full of a sweet-
 <br><br>
 
 <<if !$compoundsmoke>>
-	<<link [[Explore (0:10)|Elk Compound Explore]]>><<pass 10>><</link>>
+	<<ind>><<link [[Explore (0:10)|Elk Compound Explore]]>><<pass 10>><</link>>
 	<br>
 <</if>>
 <<if isPubfameTaskAccepted("compound") and !$pubfame.compound.cameras.includes("the building with smoke stacks")>>
-	<<link [[Put down a camera|Elk Compound Smoke Camera]]>><<set $compoundalarm++>><<set $pubfame.compound.cameras.pushUnique("the building with smoke stacks")>><</link>><<gsecurity>>
+	<<ind>><<link [[Put down a camera|Elk Compound Smoke Camera]]>><<set $compoundalarm++>><<set $pubfame.compound.cameras.pushUnique("the building with smoke stacks")>><</link>><<gsecurity>>
 	<br>
 <</if>>
 <br>
-<<link [[Leave|Elk Compound]]>><</link>>
+<<getouticon>><<link [[Leave|Elk Compound]]>><</link>>
 <br>
 
 :: Elk Compound Central
@@ -192,7 +192,7 @@ The door is locked tight.
 <<if currentSkillValue('skulduggery') gte $lock>>
 	<span class="green">The lock looks easy to pick.</span>
 	<br><br>
-	<<link [[Break in (0:05)|Elk Compound Interior]]>><<pass 5>><<crimeup 1>><</link>><<crime>><<gsecurity>>
+	<<lockpickicon>><<link [[Break in (0:05)|Elk Compound Interior]]>><<pass 5>><<crimeUp 30 "trespassing">><</link>><<ggcrime "trespassing">><<gsecurity>>
 	<br>
 <<else>>
 	<span class="red">The lock looks beyond your ability to pick.</span>
@@ -204,12 +204,12 @@ The door is locked tight.
 		<span class="blue">You'll need to wait for security to relax before making your delivery.</span>
 		<br>
 	<<else>>
-		<<link [[Ring the doorbell|Elk Compound Central Ring]]>><</link>>
+		<<ind>><<link [[Ring the doorbell|Elk Compound Central Ring]]>><</link>>
 		<br>
 	<</if>>
 
 <</if>>
-<<link [[Leave|Elk Compound]]>><</link>>
+<<getouticon>><<link [[Leave|Elk Compound]]>><</link>>
 <br>
 
 :: Elk Compound Central Ring
@@ -244,6 +244,7 @@ The <<person>> examines the fluid without a word, then pulls a wad of cash from 
 <<set $money += ($phials_held * 100000)>>
 <span class="gold">You've made £<<print ($phials_held * 1000)>>.</span>
 <br><br>
+<<world_corruption "soft" $phials_held>>
 <<set $stat_aphrodisiacs_sold += $phials_held>>
 <<set $phials_held to 0>>
 <<earnFeat "Dealing">>
@@ -363,8 +364,8 @@ The <<person>> slams the door. An alarm blares a moment later.
 	<br>
 <<else>>
 	The <<beasttype 0>> turns and darts away, barking.
-	<<crime>><<set $compoundalarm += 1>>
-	<<crimeup 50>>
+	<<crime "trespassing">><<set $compoundalarm += 1>>
+	<<crimeUp 50 "trespassing">>
 	<br><br>
 	<<tearful>> you rise to your feet.
 	<br><br>
@@ -521,7 +522,7 @@ A <<generate3>><<npcClothesType $NPCList[2] "compoundLab">><<person3>><<person>>
 As soon as the <<person>> touches your arm a jolt surges through you. You lose consciousness.
 <br><br>
 
-<<link [[Next|Elk Compound Experiment]]>><<upperruined>><<lowerruined>><<underruined>><<underupperruined>><<endcombat>><</link>>
+<<link [[Next|Elk Compound Experiment]]>><<upperruined>><<lowerruined>><<underruined>><<underupperruined>><<handheldruined>><<endcombat>><</link>>
 <br>
 
 :: Elk Compound Fight Finish
@@ -567,8 +568,12 @@ The wires have pads on one end. <<He>> starts sticking them to your body. <<He>>
 <<if $player.penisExist and $player.vaginaExist and !playerChastity("hidden")>>
 	<<He>> places one right on the tip of your <<penis>>, one on each teste, and then pushes one into your <<pussy>>. You tense at the sensation.
 <<else>>
-	<<if $player.penisExist and !playerChastity("cage")>>
-		<<He>> places one right on the tip of your <<penis>> and one on each teste. You tense at the sensation.
+	<<if $player.penisExist>>
+		<<if $worn.genitals.name is "chastity parasite">>
+			<<He>> places one right on your chastity parasite and teases it. You tense at the sensation.
+		<<elseif !playerChastity("cage")>>
+			<<He>> places one right on the tip of your <<penis>> and one on each teste. You tense at the sensation.
+		<</if>>
 	<</if>>
 	<<if $player.vaginaExist and !playerChastity("hidden")>>
 		<<He>> pushes one into your <<pussy>>, then another. You tense at the sensation.
@@ -617,11 +622,11 @@ The wires have pads on one end. <<He>> starts sticking them to your body. <<He>>
 		<<set $compoundpipes to 1>>
 		<<set $blackmoney += 50>>
 		<<set $compoundalarm += 1>>
-		<<crimeup 50>>
+		<<crimeUp 50 "thievery">>
 		<<if isPubfameTaskAccepted("compound") and !$pubfame.compound.cameras.includes("the building with storage tanks")>>
-			<<link [[Put down a camera|Elk Compound Pipes Camera]]>><<set $compoundalarm++>><<set $pubfame.compound.cameras.pushUnique("the building with storage tanks")>><</link>><<gsecurity>>
+			<<ind>><<link [[Put down a camera|Elk Compound Pipes Camera]]>><<set $compoundalarm++>><<set $pubfame.compound.cameras.pushUnique("the building with storage tanks")>><</link>><<gsecurity>>
 			<br>
-			<<link [[Leave|Elk Compound]]>><</link>>
+			<<getouticon>><<link [[Leave|Elk Compound]]>><</link>>
 			<br>
 		<<else>>
 			<<link [[Next|Elk Compound]]>><</link>>
@@ -634,11 +639,11 @@ The wires have pads on one end. <<He>> starts sticking them to your body. <<He>>
 	<<set $compoundpipes to 1>>
 	<<set $blackmoney += 50>>
 	<<set $compoundalarm += 1>>
-	<<crimeup 50>>
+	<<crimeUp 50 "thievery">>
 	<<if isPubfameTaskAccepted("compound") and !$pubfame.compound.cameras.includes("the building with storage tanks")>>
-		<<link [[Put down a camera|Elk Compound Pipes Camera]]>><<set $compoundalarm++>><<set $pubfame.compound.cameras.pushUnique("the building with storage tanks")>><</link>><<gsecurity>>
+		<<ind>><<link [[Put down a camera|Elk Compound Pipes Camera]]>><<set $compoundalarm++>><<set $pubfame.compound.cameras.pushUnique("the building with storage tanks")>><</link>><<gsecurity>>
 		<br>
-		<<link [[Leave|Elk Compound]]>><</link>>
+		<<getouticon>><<link [[Leave|Elk Compound]]>><</link>>
 		<br>
 	<<else>>
 		<<link [[Next|Elk Compound]]>><</link>>
@@ -678,7 +683,7 @@ The creature loses interest in you, and disappears into the pink liquid. <<tearf
 <<set $compoundpipes to 1>>
 <<set $blackmoney += 50>>
 <<set $compoundalarm += 1>>
-<<crimeup 50>>
+<<crimeUp 50 "thievery">>
 <<if isPubfameTaskAccepted("compound") and !$pubfame.compound.cameras.includes("the building with storage tanks")>>
 	<<link [[Put down a camera|Elk Compound Pipes Camera]]>><<set $compoundalarm++>><<set $pubfame.compound.cameras.pushUnique("the building with storage tanks")>><</link>><<gsecurity>>
 	<br>
@@ -698,9 +703,9 @@ You walk deeper into the building. The entrance is swallowed behind you. You mak
 You come to a plinth with a purple crystal sat atop it. It looks valuable.
 <<if $trash_key isnot 1>>Beside it is a large discoloured key.<</if>>
 <br><br>
-<<link [[Take|Elk Compound Purple]]>><</link>><<crime>><<gsecurity>>
+<<ind>><<link [[Take|Elk Compound Purple]]>><</link>><<crime "thievery">><<gsecurity>>
 <br>
-<<link [[Leave|Elk Compound]]>><</link>>
+<<getouticon>><<link [[Leave|Elk Compound]]>><</link>>
 <br>
 
 :: Elk Compound Purple
@@ -717,7 +722,7 @@ Finding your way out is much easier than getting here.
 <<set $compoundsmoke to 1>>
 <<set $blackmoney += 50>>
 <<set $compoundalarm += 1>>
-<<crimeup 50>>
+<<crimeUp 50 "thievery">>
 <<link [[Next|Elk Compound]]>><</link>>
 <br>
 
@@ -814,7 +819,7 @@ Finding your way out is much easier than getting here.
 	<<He>> turns the dial once more and the pain surges through you again. "This could be so much easier for you," <<he>> says.
 	<br><br>
 <<elseif $compoundlie is 3>>
-	"I'm looking for my ball," <<he>> interrupts you with another surge of pain.
+	"I'm looking for my ball—" Your excuse is interrupted by another surge of pain.
 	<br><br>
 	"I'm not falling for that one," <<he>> says.
 	<br><br>
@@ -943,18 +948,18 @@ The inside is dominated by a large lift.
 <br><br>
 <<if $compoundcentre isnot 1>>
 	<<if $compoundspray isnot 1>>
-		<<link [[Take them and leave|Elk Compound Interior Take]]>><<set $blackmoney += 100>><<crimeup 100>><<set $spraymax += 1>><<spray 5>><</link>><<crime>><<gspraymax>>
+		<<ind>><<link [[Take them and leave|Elk Compound Interior Take]]>><<set $blackmoney += 100>><<crimeUp 100 "thievery">><<set $spraymax += 1>><<spray 5>><<world_corruption "soft" -10>><</link>><<crime "thievery">><<gspraymax>>
 	<<else>>
-		<<link [[Take them and leave|Elk Compound Interior Take]]>><<set $blackmoney += 100>><<crimeup 100>><<spray 1>><</link>><<crime>><<gspray>>
+		<<ind>><<link [[Take them and leave|Elk Compound Interior Take]]>><<set $blackmoney += 100>><<crimeUp 100 "thievery">><<spray 1>><</link>><<crime "thievery">><<gspray>>
 	<</if>>
 	<br>
 <</if>>
 <<if isPubfameTaskAccepted("compound") and !$pubfame.compound.cameras.includes("the central building")>>
-	<<link [[Put down a camera|Elk Compound Interior Camera]]>><<set $compoundalarm++>><<set $pubfame.compound.cameras.pushUnique("the central building")>><</link>><<gsecurity>>
+	<<ind>><<link [[Put down a camera|Elk Compound Interior Camera]]>><<set $compoundalarm++>><<set $pubfame.compound.cameras.pushUnique("the central building")>><</link>><<gsecurity>>
 	<br>
 <</if>>
 <br>
-<<link [[Leave|Elk Compound]]>><</link>>
+<<getouticon>><<link [[Leave|Elk Compound]]>><</link>>
 <br>
 
 :: Elk Compound Interior Take
@@ -981,13 +986,13 @@ The inside is dominated by a large lift.
 	<<set $daily.compoundState to 1>>
 	<br><br>
 	<<if $player.vaginaExist or $analdisable is "f">>
-		<<link [[Protest|Elk Compound Interior Seduce]]>><</link>>
+		<<ind>><<link [[Protest|Elk Compound Interior Seduce]]>><</link>>
 		<br>
 	<</if>>
-	<<link [[Struggle|Elk Compound Interior Struggle]]>><</link>>
+	<<ind>><<link [[Struggle|Elk Compound Interior Struggle]]>><</link>>
 	<br>
 <<else>>
-	<<link [[Leave|Elk Compound]]>><</link>>
+	<<getouticon>><<link [[Leave|Elk Compound]]>><</link>>
 	<br>
 <</if>>
 
@@ -1257,14 +1262,14 @@ You walk up to the gate. It's guarded by two security guards. <<generateSecurity
 <br><br>
 
 <<if $phials_held gte 1>>
-	<<link [[Show them the aphrodisiac phial|Elk Compound Show]]>><</link>>
+	<<ind>><<link [[Show them the aphrodisiac phial|Elk Compound Show]]>><</link>>
 	<br>
 <</if>>
 <<if $compoundcard is 1>>
-	<<link [[Show them the stolen card|Elk Compound Card]]>><<set $compoundcard to 2>><</link>>
+	<<ind>><<link [[Show them the stolen card|Elk Compound Card]]>><<set $compoundcard to 2>><</link>>
 	<br>
 <</if>>
-<<link [[Leave|Elk Street]]>><<endevent>><</link>>
+<<elkicon>><<link [[Leave|Elk Street]]>><<endevent>><</link>>
 <br>
 
 
@@ -1324,13 +1329,13 @@ A small canister rolls out of a pouch at the <<person1>><<persons>> side. The bl
 <br><br>
 
 <<if $compoundspray2 isnot 1>>
-	<<link [[Take the canister|Elk Compound Station Canister]]>><<set $spraymax += 1>><<spray 5>><</link>><<gspraymax>>
+	<<peppersprayicon>><<link [[Take the canister|Elk Compound Station Canister]]>><<set $spraymax += 1>><<spray 5>><<world_corruption "soft" -10>><</link>><<gspraymax>>
 	<br>
 <<else>>
-	<<link [[Take the canister|Elk Compound Station Canister]]>><<spray 1>><</link>><<gspray>>
+	<<peppersprayicon>><<link [[Take the canister|Elk Compound Station Canister]]>><<spray 1>><</link>><<gspray>>
 	<br>
 <</if>>
-<<link [[Just leave|Elk Compound Station Leave]]>><</link>>
+<<getouticon>><<link [[Just leave|Elk Compound Station Leave]]>><</link>>
 <br>
 
 

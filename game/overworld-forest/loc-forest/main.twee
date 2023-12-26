@@ -84,10 +84,10 @@
 
 			<<if $exposed lte 1>>
 				<<if $forest_shop_intro is 1>>
-					<<forestshopicon>><<link [[Forest shop|Forest Shop]]>><</link>>
+					<<shopicon "forest">><<link [[Forest shop|Forest Shop]]>><</link>>
 					<br><br>
 				<<else>>
-					<<forestshopicon>><<link [[Strange shop|Forest Shop]]>><</link>>
+					<<shopicon "forest">><<link [[Strange shop|Forest Shop]]>><</link>>
 					<br><br>
 				<</if>>
 			<</if>>
@@ -117,6 +117,7 @@
 				<br>
 			<</if>>
 			<<if $historytrait gte 3>>
+				<<forestroadicon "secret">>
 				<<link [[Take secret path deeper into the woods (0:10)|Forest]]>>
 					<<set $forestmod to 1.5>><<set $forest += 50>><<set $forestmove to "secretin">><<pass 10>>
 					<<if $foresthunt gte 1>><<set $foresthunt += 1>><</if>>
@@ -148,7 +149,7 @@
 			<br><br>
 
 			<<if $forest gte 10 and $forest lte 14>>
-				<<ind>><<link [[Old Churchyard|Churchyard]]>><</link>>
+				<<foresticon "churchyard">><<link [[Old Churchyard|Churchyard]]>><</link>>
 				<br><br>
 			<</if>>
 
@@ -220,6 +221,7 @@
 			<br><br>
 
 			<<if $historytrait gte 3>>
+				<<forestroadicon "secret">>
 				<<link [[Take secret path out of the woods (0:10)|Forest]]>>
 					<<set $forestmod to 1.5>><<set $forest -= 50>><<set $forestmove to "secretout">><<pass 10>>
 					<<if $foresthunt gte 1>><<set $foresthunt += 1>><</if>>
@@ -251,14 +253,14 @@
 			<br><br>
 
 			<<if $edenfreedom gte 1>>
-				<<link [[Eden's cabin (0:10)|Eden Clearing]]>><<pass 10>><</link>>
+				<<edenicon>><<link [[Eden's cabin (0:10)|Eden Clearing]]>><<pass 10>><</link>>
 				<br>
 			<<elseif $syndromeeden gte 1>>
-				<<link [[Eden's cabin (0:10)|Eden Clearing]]>><<pass 10>><</link>>
+				<<edenicon>><<link [[Eden's cabin (0:10)|Eden Clearing]]>><<pass 10>><</link>>
 				<br>
 			<</if>>
 			<<if $syndromewolves gte 1 and $caveHumanPregnancyDiscovered isnot 1>>
-				<<link [[Wolf cave (0:10)|Wolf Cave Clearing]]>><<pass 10>><</link>>
+				<<wolfcaveicon>><<link [[Wolf cave (0:10)|Wolf Cave Clearing]]>><<pass 10>><</link>>
 				<br>
 			<<elseif $syndromewolves gte 1 and $caveHumanPregnancyDiscovered is 1>>
 				<span class="blue">You don't think the wolves would allow you to come back until your pregnancy is over.</span>
@@ -268,16 +270,25 @@
 				<<rng>>
 				<!-- Modified for Monster People -->
 				<<if $pubtasksetting is "bear" and $bestialitydisable is "f">>
-					<<link [[Search for Landry's black box|Forest Bear Box]]>><</link>>
+					<<crimeicon "black box">><<link [[Search for Landry's black box|Forest Bear Box]]>><</link>>
 				<<elseif $pubtasksetting is "pair">>
-					<<link [[Search for Landry's black box|Forest Box]]>><</link>>
+					<<crimeicon "black box">><<link [[Search for Landry's black box|Forest Box]]>><</link>>
 				<<elseif $rng gte 51 and $bestialitydisable is "f">>
-					<<link [[Search for Landry's black box|Forest Bear Box]]>><</link>>
+					<<crimeicon "black box">><<link [[Search for Landry's black box|Forest Bear Box]]>><</link>>
 				<<else>>
-					<<link [[Search for Landry's black box|Forest Box]]>><</link>>
+					<<crimeicon "black box">><<link [[Search for Landry's black box|Forest Box]]>><</link>>
 				<</if>>
+				<br>
 			<</if>>
-			<br><br>
+			<<if $forest gte 80 and $forest lte 90 and $brookIntro gte 1>>
+				<<if $worn.feet.type.includes("heels")>>
+					<span class="red">Traversing the brook in heels would be impossible.</span>
+				<<else>>
+					<<foresticon "river">><<link [[Follow the brook (0:20)|Forest Brook]]>><<pass 20>><</link>>
+				<</if>>
+				<br>
+			<</if>>
+			<br>
 
 			<<forestdeeper>>
 			<br><br>
@@ -338,9 +349,9 @@
 <</if>>
 <br><br>
 
-<<link [[Enter|Forest Bear Box Molestation]]>><<set $molestationstart to 1>><</link>>
+<<getinicon>><<link [[Enter|Forest Bear Box Molestation]]>><<set $molestationstart to 1>><</link>>
 <br>
-<<link [[Leave|Forest]]>><</link>>
+<<getouticon>><<link [[Leave|Forest]]>><</link>>
 
 :: Forest Box
 <<location "forest">><<effects>>
@@ -545,4 +556,28 @@
 <</if>>
 
 <<link [[Next|Forest]]>><<set $eventskip to 1>><</link>>
+<br>
+
+:: Forest Brook
+<<location "forest">><<effects>>
+You follow the lake's offshoot brook carefully. The shoreline is choked with dense foliage, forcing you to shimmy along the steep bank.
+<br><br>
+
+There's sharp declines and sharper rocks pointing downstream. Any further will make for a one-way trip.
+<br><br>
+
+<<lakeicon "waterfall">><<link [[Go upstream towards the lake (0:30)|Lake Waterfall]]>><<pass 30>><<tiredness 6>><</link>><<gtiredness>>
+<br>
+
+<<if $earSlime.forcedCommando isnot undefined and !$worn.under_lower.type.includes("naked") and $exhibitionism gte 35>>
+	<span class="red">The slime in your ear refuses to allow you to leave with swimwear on.</span>
+<<else>>
+	<<if $bogProgress gte 1>>
+		<<foresticon "bog">><<link [[Go downstream towards the bog (0:30)|Bog Intro]]>><<pass 30>><<tiredness 6>><<set $forest to 0>><</link>><<note "One-way" "red">><<gtiredness>>
+	<<else>>
+		<<askicon>><<link [[Explore downstream (0:30)|Bog Intro]]>><<pass 30>><<tiredness 6>><<set $forest to 0>><</link>><<note "One-way" "red">><<gtiredness>>
+	<</if>>
+	<br><br>
+	<<foresticon>><<link [[Forest (0:10)|Forest]]>><<pass 10>><<set $forest to 80>><</link>>
+<</if>>
 <br>

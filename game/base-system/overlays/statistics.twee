@@ -18,6 +18,11 @@
 		Handholding virginity: <<print ($player.virginity.handholding is true ? "Present" : "Taken by " + ($player.virginity.handholding is false ? "unknown" : $player.virginity.handholding))>>
 		<br>
 		First kiss: <<print ($player.virginity.kiss is true ? "Present" : "Taken by " + ($player.virginity.kiss is false ? "unknown" : $player.virginity.kiss))>>
+		<br>
+		<<if $temple_rank isnot undefined and $temple_rank isnot "prospective">>
+			Temple vow: <<print ($player.virginity.temple is true ? "Unbroken" : "Broken by " + ($player.virginity.temple is false ? "unknown" : $player.virginity.temple))>>
+			<br>
+		<</if>>
 		<br><br>
 	<</foldout>>
 
@@ -98,18 +103,34 @@
 			<br>
 		<</if>>
 		<br>
+		<<if $confessionsDone>>
+			Sins confessed: $confessionsDone
+			<br>
+		<</if>>
+		<<if $confessionsTaken>>
+			Confessions taken: $confessionsTaken
+			<br>
+		<</if>>
 	<</foldout>>
 
 	<<foldout false "_sexFoldout">>
 		<span class="gold">Sex</span>
 		Number of orgasms you've experienced: $orgasmstat
 		<br>
+		<<if $ruinedOrgasmStat>>
+			Number of ruined orgasms you've experienced: $ruinedOrgasmStat
+			<br>
+		<</if>>
 		<<if $asphyxiaLvl gte 2>>
 			Orgasms while being choked: $chokeorgasm
 			<br>
 		<</if>>
 		<<if $player.penisExist or $toydildodisable is "f">>
 			Penetrated others: $penilestat
+			<br>
+		<</if>>
+		<<if $straponstat>>
+			Penetrated others with a strapon: $straponstat
 			<br>
 		<</if>>
 		<<if $player.penisExist>>
@@ -132,11 +153,11 @@
 		<br>
 		Ejaculated in orally: $oralejacstat
 		<br>
-		Semen swallowed: $semenswallowedstat mL
+		Semen swallowed: <<print Math.floor($semenswallowedstat)>> mL
 		<<if $bestialitydisable is "f">>
 			<br>
-			Animal semen swallowed: $animalsemenswallowedstat mL
-			<</if>>
+			Animal semen swallowed: <<print Math.floor($animalsemenswallowedstat)>> mL
+		<</if>>
 		<br>
 		Handjobs given: $handstat
 		<br>
@@ -183,13 +204,13 @@
 		Minutes spent masturbating: <<print Math.trunc($secondsSpentMasturbating / 60)>>
 		<br>
 		<<if $breastfeedingdisable is "f">>
-			Breast milk drank: $milk_drank_stat mL
+			Breast milk drank: <<print Math.floor($milk_drank_stat)>> mL
 			<br>
-			Breast milk produced: $milk_produced_stat mL
+			Breast milk produced: <<print Math.floor($milk_produced_stat)>> mL
 			<br>
 		<</if>>
 		<<if $plantdisable is "f">>
-			Nectar drank: $nectar_drank_stat mL
+			Nectar drank: <<print Math.floor($nectar_drank_stat)>> mL
 			<br>
 		<</if>>
 		<<if $player.penisExist>>
@@ -201,7 +222,7 @@
 			<br>
 		<</if>>
 		<<if $player.penisExist or $breastfeedingdisable is "f">>
-			Fluid forcibly milked: $fluid_forced_stat mL
+			Fluid forcibly milked: <<print Math.floor($fluid_forced_stat)>> mL
 			<br>
 		<</if>>
 		<<if $knot_stat isnot undefined>>
@@ -405,8 +426,6 @@
 		<br>
 		Passed out: $passoutstat
 		<br>
-		Crime History: $crimehistory
-		<br>
 		Distinctions won: $distinction_stat
 		<br>
 		Hours slept: $sleepStat
@@ -437,7 +456,24 @@
 		History lessons missed: $schoolLessonsMissed.history
 		<br>
 		Swimming lessons missed: $schoolLessonsMissed.swimming
-		<br><br>
+		<br>
+		<<if $earSlimeDaysStat>>
+			Days with an ear slime: $earSlimeDaysStat
+			<br>
+		<</if>>
+		<<if $earSlime.days>>
+			Days with the current ear slime: $earSlime.days
+			<br>
+		<</if>>
+		<<if $earSlimePassiveDaysStat>>
+			Most days with a passive ear slime: $earSlimePassiveDaysStat
+			<br>
+		<</if>>
+		<<if $whitney_smoke gte 1>>
+			Cigarettes smoked: $whitney_smoke
+			<br>
+		<</if>>
+		<br>
 	<</foldout>>
 
 
@@ -463,7 +499,7 @@
 			<mouse class="tooltip linkBlue">(?)<span>Total number of times a save has been loaded, does not track repeated load times of the same save. Not tracked in versions '0.3.12.X' and older</span></mouse>
 			<br>
 			Play Time: <<print msToTime(($saveDetails.playTime ? $saveDetails.playTime : 0) + ($saveDetails.loadTime ? new Date() - $saveDetails.loadTime : 0))>>
-			<mouse class="tooltip linkBlue">(?)<span>Formatted into 'h:mm:ss'. Be aware that leaving the game for hours alone, then saving will have its time tracked, to avoid, save the game before ending play and then load the save when you resume play. Not tracked in versions '0.3.13.X' and older</span></mouse>
+			<mouse class="tooltip linkBlue">(?)<span>Formatted into 'h:mm:ss'. Be aware that leaving the game for hours alone, then saving will have its time tracked. To avoid, save the game before ending play and then load the save when you resume play. Not tracked in versions '0.3.13.X' and older</span></mouse>
 			<br>
 		<</if>>
 		<<if $saveVersions isnot undefined>>
@@ -547,8 +583,12 @@
 			<br>
 			Deviancy: <<print Math.trunc($deviancy)>>
 			<br>
-			Corruption: <<print Math.trunc($corruption_slime)>>
+			Corruption: <<print Math.trunc($earSlime.corruption)>>
 			<br>
+			<<if $earSlime.growth>>
+				Growth: <<print Math.trunc($earSlime.growth)>>
+				<br>
+			<</if>>
 			<<if $temple_rank is "initiate" or $temple_rank is "monk" or $temple_rank is "priest">>
 				Grace: <<print Math.trunc($grace)>>
 				<br>
@@ -566,6 +606,14 @@
 				0
 			<</if>>
 			<br><br>
+			Sensitivities:
+			<mouse class="tooltip linkBlue">(?)<span>These are arousal multipliers applied when that part of the body is stimulated.</span></mouse>
+			<ul style="margin-top:0px;margin-left:-5px;">
+				<li>Mouth: <<print $mouthsensitivity.toFixed(2)>></li>
+				<li>Breast: <<print $breastsensitivity.toFixed(2)>></li>
+				<li>Genital: <<print $genitalsensitivity.toFixed(2)>></li>
+				<li>Bottom: <<print $bottomsensitivity.toFixed(2)>></li>
+			</ul>
 			Breast Growth: <<print Math.trunc(100 - ($breastgrowthtimer / 10))>>%
 			<mouse class="tooltip linkBlue">(?)<span>Reach 100% or above to grow, 0% or below to shrink.</span></mouse>
 			<br>
@@ -610,15 +658,15 @@
 				<mouse class="tooltip linkBlue">(?)<span>Reach 100% or above to grow, 0% or below to shrink.</span></mouse>
 				<br>
 				<<if $sexStats && $sexStats.pills>>
-					Penis can grow: <<print $player.penissize lt $penissizemax and ($player.penissize gte -1 or $sexStats.pills["pills"]["penis growth"].overdose - $sexStats.pills["pills"]["penis reduction"].overdose gte 20)>>
-					<<if $player.penissize is -2 and $sexStats.pills["pills"]["penis growth"].overdose - $sexStats.pills["pills"]["penis reduction"].overdose lt 20>>
-						<mouse class="tooltip linkBlue">(?)<span>Need to overdose on gorwing pills or use a urchin penis parasite.</span></mouse>
+					Penis can grow: <<print $player.penissize lt $penissizemax and ($player.penissize gte -1 or $sexStats.pills["pills"]["penis growth"].overdose - $sexStats.pills["pills"]["penis reduction"].overdose - ($worn.genitals.type.includes("shrinking") ? 20 : 0) gte 20)>>
+					<<if $player.penissize is -2 and $sexStats.pills["pills"]["penis growth"].overdose - $sexStats.pills["pills"]["penis reduction"].overdose - ($worn.genitals.type.includes("shrinking") ? 20 : 0) lt 20>>
+						<mouse class="tooltip linkBlue">(?)<span>Need to overdose on growing pills or use a urchin penis parasite.</span></mouse>
 					<<elseif $player.penissize is $penissizemax>>
 						<mouse class="tooltip linkBlue">(?)<span>At max size.</span></mouse>
 					<</if>>
 					<br>
-					Penis can shrink: <<print $player.penissize gt $penissizemin and ($player.penissize gte 0 or $sexStats.pills["pills"]["penis growth"].overdose - $sexStats.pills["pills"]["penis reduction"].overdose lte -20)>>
-					<<if $player.penissize is -1 and $sexStats.pills["pills"]["penis growth"].overdose - $sexStats.pills["pills"]["penis reduction"].overdose gt -20>>
+					Penis can shrink: <<print $player.penissize gt $penissizemin and ($player.penissize gte 0 or $sexStats.pills["pills"]["penis growth"].overdose - $sexStats.pills["pills"]["penis reduction"].overdose - ($worn.genitals.type.includes("shrinking") ? 20 : 0) lte -20)>>
+					<<if $player.penissize is -1 and $sexStats.pills["pills"]["penis growth"].overdose - $sexStats.pills["pills"]["penis reduction"].overdose - ($worn.genitals.type.includes("shrinking") ? 20 : 0) gt -20>>
 						<mouse class="tooltip linkBlue">(?)<span>Need to overdose on shrinking pills or use a slime penis parasite.</span></mouse>
 					<<elseif $player.penissize is $penissizemin>>
 						<mouse class="tooltip linkBlue">(?)<span>At min size.</span></mouse>
@@ -643,7 +691,7 @@
 			<<if $player.bottomsize is $bottomsizemin>>
 				<mouse class="tooltip linkBlue">(?)<span>At min size.</span></mouse>
 			<</if>>
-			<br>
+			<br><br>
 		<</foldout>>
 
 		<<foldout false "_clothesFoldout">>
@@ -687,7 +735,7 @@
 			<br>
 			Detention: <<print Math.trunc($detention)>>
 			<br>
-			Crime: <<print Math.trunc($crime)>>
+			Crime: <<print Math.trunc(crimeSumCurrent())>>
 			<br>
 			Orphanage hope: <<print Math.trunc($orphan_hope)>>
 			<br>
@@ -724,7 +772,46 @@
 			Socialite fame: <<print Math.trunc($fame.social)>>
 			<br>
 			Model fame: <<print Math.trunc($fame.model)>>
+			<br>
+			Islander language: <<if $islander_language is undefined>>0<<else>><<print Math.trunc($islander_language)>><</if>>
 			<br><br>
+		<</foldout>>
+
+		<<foldout false "_crimeFoldout">>
+			<span class="gold">Crime</span>
+			<<for $_cr range Object.keys(setup.crimeNames)>>
+				<<foldout false $_cr>>
+					<span class="gold"><<print toTitleCase(setup.crimeNames[$_cr]) + ":">></span>
+					<<print "Current: " + Math.trunc($crime[$_cr].current)>>
+					<br>
+					<<print "History: " + Math.trunc($crime[$_cr].history)>>
+					<br>
+					<<print "Daily: " + Math.trunc($crime[$_cr].daily)>>
+					<br>
+					<<print "Count: " + Math.trunc($crime[$_cr].count)>>
+					<br>
+					<<print "Count History: " + Math.trunc($crime[$_cr].countHistory)>>
+					<br>
+				<</foldout>>
+			<</for>>
+			<<foldout false "_crimeTotalsFoldout">>
+				<span class="gold">Totals:</span>
+				<<print "Current: " + crimeSumCurrent()>>
+				<br>
+				<<print "History: " + crimeSumHistory()>>
+				<br>
+				<<print "Daily: " + crimeSumDaily()>>
+				<br>
+				<<print "Count: " + crimeSumCount()>>
+				<br>
+				<<print "Count History: " + crimeSumCountHistory()>>
+				<br>
+			<</foldout>>
+			<<foldout false "_crimeEventsFoldout">>
+				<span class="gold">Crime Events:</span>
+				<span id="statscrimeevents"><<listCrimeCheats>></span>
+				<br>
+			<</foldout>>
 		<</foldout>>
 
 		<<foldout false "_transformationFoldout">>
@@ -872,7 +959,7 @@
 			<<elseif !$player.vaginaExist or !$_menstruation.running>>
 				Can not currently get pregnant.
 			<<elseif $_vPregnancy.type is "parasite">>
-				Parasites in the womb are preventing normal pregnancy from occuring.
+				Parasites in the womb are preventing normal pregnancy from occurring.
 			<<elseif $_menstruation.currentState is "recovering">>
 				You are not quite ready to get pregnant so soon after your last one.
 			<<elseif $_vPregnancy.type isnot null>>
@@ -911,7 +998,7 @@
 			<</if>>
 			<<if canBeMPregnant()>>
 				<<if $_aPregnancy.type is "parasite">>
-					Parasites in the womb are preventing normal pregnancy from occuring.
+					Parasites in the womb are preventing normal pregnancy from occurring.
 				<<elseif !$_menstruation.running>>
 					You can not current get pregnant.
 				<<elseif $_menstruation.currentState is "recovering">>

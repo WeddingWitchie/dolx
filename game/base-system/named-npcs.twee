@@ -234,7 +234,23 @@ Zohar
 
 	<!-- Set Pronoun -->
 	<<if !$NPCName[_i].pronoun or $NPCName[_i].pronoun is "none" or _args[1] is "genders">>
-		<<if maleChance() lt random(1, 100)>>
+		<<if $passage is "Start">>
+			<<if $player.gender is "m">>
+				<<set _override to "m">>
+			<<elseif $player.gender is "h">>
+				<<if $player.gender_body is "m" or ($player.gender_body is "a" and $player.breastsize lte 3)>>
+					<<set _override to "m">>
+				<<else>> <!-- if $player.gender_body is "f" or ($player.gender_body is "a" and $player.breastsize gt 3)) -->
+					<<set _override to "f">>
+				<</if>>
+			<<else>> <!-- if $player.gender is "f" -->
+				<<set _override to "f">>
+			<</if>>
+			<<if $background is "crossdresser">>
+				<<set _override to (_override is "m" ? "f" : "m")>>
+			<</if>>
+		<</if>>
+		<<if ($NPCName[_i].type is "human" and maleChance(_override) lt random(1, 100)) or ($NPCName[_i].type isnot "human" and beastMaleChance(_override) lt random(1, 100))>>
 			<<set $NPCName[_i].pronoun to "f">>
 		<<else>>
 			<<set $NPCName[_i].pronoun to "m">>
@@ -369,7 +385,7 @@ Zohar
 	<</if>>
 
 	<<switch $NPCName[_i].nam>>
-		<<case "Jordan">> <<set $NPCName[_i].title to ($NPCName[_i].pronoun is "m" ? "monk" : "nun")>>
+		<<case "Jordan">> <<set $NPCName[_i].title to ($NPCName[_i].pronoun is "m" ? "priest" : "priestess")>>
 		<<case "Leighton">> <<set $NPCName[_i].title to ($NPCName[_i].pronoun is "m" ? "headmaster" : "headmistress")>>
 		<<case "Eden">> <<set $NPCName[_i].title to ($NPCName[_i].pronoun is "m" ? "hunter" : "huntress")>>
 		<<case "Avery">> <<set $NPCName[_i].title to ($NPCName[_i].pronoun is "m" ? "businessman" : "businesswoman")>>
@@ -432,6 +448,9 @@ Zohar
 				<<else>>
 					//Mason is the swimming teacher at the local school. She's the youngest teacher, only a few years older than some of the students. Her toned body is naturally shown off during class, but if she notices the way she's leered at, she gives no indication.//
 				<</if>>
+				<<set $NPCName[_i].chastityKeyCarried to 0>> /* Mason is carrying the key to unlock Winter's Chastity belt. 1 is carried, 2 player knows it is carried */
+				<<set $NPCName[_i].chastityRemoved to 0>> /* Number of chastity devices Mason has removed */
+				<<set $NPCName[_i].chastityRemovalDeclined to 0>> /* Whether you've declined Mason's offer to remove it (prompts more passive checking). Resets when a device is removed */
 			<<case Winter>>
 				<<if $NPCName[_i].pronoun is "m">>
 					//Winter teaches history at the local school. He's an older gentleman, well-groomed and sophisticated.//
@@ -464,9 +483,9 @@ Zohar
 				<</if>>
 			<<case Jordan>>
 				<<if $NPCName[_i].pronoun is "m">>
-					<<set $NPCName[_i].title to "monk">>
+					<<set $NPCName[_i].title to "priest">>
 				<<else>>
-					<<set $NPCName[_i].title to "nun">>
+					<<set $NPCName[_i].title to "priestess">>
 				<</if>>
 			<<case Whitney>>
 				<<set $NPCName[$NPCNameList.indexOf("Whitney")].dom to 10>>
@@ -482,6 +501,7 @@ Zohar
 					hair: "ponytail",
 					swim: "school",
 					sexTotal: 0,
+					rank: "initiate",
 				}>>
 			<<case "Ivory Wraith">>
 				<<checkWraith>>
@@ -1197,7 +1217,11 @@ Zohar
 	<<switch _npc>>
 		<<case Robin>>
 			Robin
-			<<if $robinromance is 1>>
+			<<if $robin.timer.hurt gte 2>>
+				<span class="red">feels betrayed.</span>
+			<<elseif $robin.timer.hurt gte 1>>
+				<span class="purple">feels conflicted.</span>
+			<<elseif $robinromance is 1>>
 				<<if $NPCName[_i].trauma gte 80>>
 					<<if $NPCName[_i].lust gte 50>>
 						<span class="red">is lost in need for you.</span>
@@ -1319,7 +1343,7 @@ Zohar
 					<<if $NPCName[_i].dom gte 20>>
 						<span class="lewd">owns you.</span>
 					<<elseif $NPCName[_i].dom lte 8>>
-						thinks you're <span class="green"><<nnpc_his "Whitney">> <<girl>>friend.</span>
+						thinks you're <span class="green"><<nnpc_his "Whitney">> <<girlfriend>>.</span>
 					<<else>>
 						<span class="lewd">thinks you're <<nnpc_his "Whitney">> pet.</span>
 					<</if>>
@@ -1387,8 +1411,10 @@ Zohar
 				<<if $NPCName[_i].purity gte 50>>
 					<<if $purity lte 500 or $demon gte 6>>
 						<span class="blue">wants to save you.</span>
-					<<elseif $temple_rank is "initiate" or $angel gte 6>>
+					<<elseif $temple_rank is "monk" or $temple_rank is "priest" or $angel gte 6>>
 						<span class="green">considers you an inspiration.</span>
+					<<elseif $temple_rank is "initiate">>
+						<span class="green">considers you a prodigy.</span>
 					<<else>>
 						<span class="green">is very fond of you.</span>
 					<</if>>
@@ -1401,8 +1427,10 @@ Zohar
 				<<if $NPCName[_i].purity gte 50>>
 					<<if $purity lte 500 or $demon gte 6>>
 						thinks you're <span class="blue">misguided.</span>
-					<<elseif $temple_rank is "initiate" or $angel gte 6>>
+					<<elseif $temple_rank is "monk" or $temple_rank is "priest" or $angel gte 6>>
 						<span class="teal">looks up to you.</span>
+					<<elseif $temple_rank is "initiate">>
+						<span class="teal">sees you as an equal.</span>
 					<<else>>
 						<span class="teal">enjoys your company.</span>
 					<</if>>
@@ -1425,8 +1453,10 @@ Zohar
 				<<if $sydneySeen and $sydneySeen.includes("initiate")>>
 					<<if $purity lte 500 or $demon gte 6>>
 						<span class="red">thinks you're heretical.</span>
-					<<else>>
+					<<elseif $sydney.rank is "initiate" and $temple_rank is "initiate">>
 						<span class="blue">is happy to know another initiate.</span>
+					<<else>>
+						<span class="blue">is happy to know another worshipper.</span>
 					<</if>>
 				<<else>>
 					has no strong opinion of you.

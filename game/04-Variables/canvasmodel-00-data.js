@@ -68,10 +68,12 @@ const ZIndices = {
 	upper_top: 97.5,
 	bellyClothes: 98,
 	bellyClothesShadow: 99,
+	lower_cover: 100,
 
 	collar: 103,
 	neck: 103,
 
+	handheld: 104,
 	arms_cover: 105,
 	under_upper_arms_cover: 109,
 	hands: 110,
@@ -81,7 +83,9 @@ const ZIndices = {
 
 	hairforwards: 132,
 	fronthair: 133,
+	ears: 132.5,
 	semencough: 135,
+	backbrow: 58,
 	brow: 138,
 	horns: 140,
 	face: 145,
@@ -93,7 +97,7 @@ const ZIndices = {
 
 	over_lower: 170,
 	over_upper: 171,
-	over_upper_arms: 170,
+	over_upper_arm: 170,
 	over_upper_arms_cover: 174,
 };
 window.ZIndices = ZIndices;

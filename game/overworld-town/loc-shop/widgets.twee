@@ -117,7 +117,13 @@ Forth argument - item index*/
 		<br><br>
 		<<shoptraits>>
 		<<set _slimeSlots to setup.clothingLayer.torso>>
-		<<if !_slimeSlots.includes($clothingShopSlot) or currentSkillValue('willpower') gte 800 or _temp_choice.reveal gte 500 or _temp_choice.type.includesAny("school", "event") or $corruption_slime lt 80>>
+		<<if $earSlime.forcedCommando and $clothingShopSlot is "under_lower">>
+			<span class="red">The slime in your ear refuses to allow you to try on or buy the  _temp_choice.name as it is forcing you to go commando.</span>
+			<br>
+		<<elseif _slimeSlots.includes($clothingShopSlot) and $daily.corruptionSlimeClothes and _temp_choice.reveal lt Math.clamp($daily.corruptionSlimeClothes, 0, 500) and !(_temp_choice.type.includesAny("school") and Time.schoolDay) and !_temp_choice.type.includesAny("event")>>
+			<span class="red">The slime in your ear refuses to allow you to try on or buy the _temp_choice.name.</span>
+			<br>
+		<<else>>
 			<<if _temp_choice.colour_options.length gt 1>>
 				<<run _temp_choice.colour_options.pushUnique("random")>>
 				There's a range of colours to choose from:
@@ -207,20 +213,20 @@ Forth argument - item index*/
 						<<printpreggy _temp_choice>>
 					<<else>>
 						<<link [[Steal and wear|$passage]]>>
-							<<shopbuy $clothingShopSlot "steal" "wear" $clothes_choice>><<crimeup `_cost / 100`>><<unset $clothes_choice>>
+							<<shopbuy $clothingShopSlot "steal" "wear" $clothes_choice>><<crimeUp `_cost / 100` "thievery">><<unset $clothes_choice>>
 							<<set $clothingShop.stolenClothes++>>
 							<<set $clothingShop.totalStolenClothes++>>
-						<</link>><<crime>>
+						<</link>><<crime "thievery">>
 						<br>
 					<</if>>
 					<<link [[Steal and take home|$passage]]>>
-						<<shopbuy $clothingShopSlot "steal" "send" $clothes_choice>><<crimeup `_cost / 100`>>
+						<<shopbuy $clothingShopSlot "steal" "send" $clothes_choice>><<crimeUp `_cost / 100` "thievery">>
 						<<set $clothingShop.stolenClothes++>>
 						<<set $clothingShop.totalStolenClothes++>>
 						<<if $shopDefaults.disableReturn is false>>
 							<<unset $clothes_choice>>
 						<</if>>
-					<</link>><<crime>>
+					<</link>><<crime "thievery">>
 					<br>
 				<<else>>
 					<span class="red">You can't carry any more clothes with you.</span> You should take them to your wardrobe.
@@ -280,9 +286,6 @@ Forth argument - item index*/
 				<br>
 				<</if>>
 			<</if>>
-		<<else>>
-			<span class="red">The slime in your ear refuses to allow you to try on or buy the _temp_choice.name.</span>
-			<br>
 		<</if>>
 	<</if>>
 	<br>
@@ -355,7 +358,7 @@ Forth argument - item index*/
 				<<continue>>
 			<</if>>
 			<<clothingicon _item $clothingShopSlot>>
-			<<if $specialClothes[_item.name.replace(/ /g,"")] is "locked">>
+			<<if $specialClothes[_item.name.replace(/[- ]/g,"")] is "locked">>
 				<span class="lblue">_itemData.name_cap</span>
 			<<else>>
 				<<capture _item _itemData _i>>
@@ -372,14 +375,14 @@ Forth argument - item index*/
 			<<elseif _item.gender is "f">>
 				<span class="pink">♀</span>
 			<</if>>
-			<<if $specialClothes[_item.name.replace(/ /g,"")] isnot undefined>>
-				<<if $specialClothes[_item.name.replace(/ /g,"")] is "locked">>
+			<<if $specialClothes[_item.name.replace(/[- ]/g,"")] isnot undefined>>
+				<<if $specialClothes[_item.name.replace(/[- ]/g,"")] is "locked">>
 					<span class="black">Locked</span>
-				<<elseif $specialClothes[_item.name.replace(/ /g,"")] is "unlocked">>
+				<<elseif $specialClothes[_item.name.replace(/[- ]/g,"")] is "unlocked">>
 					<span class="gold">Unlocked</span>
 				<</if>>
 				<<specialClothesHint>>
-				- <<print _specialClothesHint[_item.name.replace(/ /g,"")]>>
+				- <<print _specialClothesHint[_item.name.replace(/[- ]/g,"")]>>
 			<</if>>
 			<br>
 		<</for>>
@@ -497,7 +500,7 @@ Forth argument - item index*/
 			<<set _clothesDesc to "So revealing, you may as well be wearing nothing at all.">>
 		<<case "athletic">>
 			<<set _clothesDesc to "Sporty.">>
-		<<case "riding">>
+		<<case "riding" "rag">>
 			<<set _clothesDesc to "Part of a costume set.">>
 		<<case "maid">>
 			<<set _clothesDesc to "Improves your housecleaning.">>
@@ -522,12 +525,14 @@ Forth argument - item index*/
 			<<set _clothesDesc to "Exposes your belly. Makes pregnancy more obvious.">>
 		<<case "constricting">>
 			<<set _clothesDesc to "Unable to be worn after a certain point during pregnancy.">>
+		<<case "bookbag">>
+			<<set _clothesDesc to "Allows you to bring school textbooks to class.">>
 		/*<<case "maternity">><<set _clothesDesc to "Large and comfortable, belly unbidden.">>*/
 		<<case "esoteric">>
 			<<set _clothesDesc to "Reveals what cannot be.">>
 		<<case "unstealthy">>
 			<<set _clothesDesc to "Makes it more difficult to hide.">>
-		/*Hairstyle Traits*/	
+		/*Hairstyle Traits*/
 		<<case "loose">>
 			<<set _clothesDesc to "Hair that falls loosely around your face. Grows to be long.">>
 		<<case "short">>
@@ -536,6 +541,8 @@ Forth argument - item index*/
 			<<set _clothesDesc to "Curly hair.">>
 		<<case "sleek">>
 			<<set _clothesDesc to "Straight hair.">>
+		<<case "textured">>
+			<<set _clothesDesc to "Afro-textured hair.">>
 		<<case "wavy">>
 			<<set _clothesDesc to "Not quite curly, not quite straight.">>
 		<<case "pigtails">>
@@ -545,7 +552,7 @@ Forth argument - item index*/
 		<<case "braids">>
 			<<set _clothesDesc to "Interwoven strands of hair. Includes styles that aren't technically braids, such as dreadlocks.">>
 		<<case "ponytail">>
-			<<set _clothesDesc to "Hair gathered at the back of the head.">>			
+			<<set _clothesDesc to "Hair gathered at the back of the head.">>
 		<<default>>
 			<<set $noTraitDescription to 1>>
 	<</switch>>
@@ -836,7 +843,7 @@ Forth argument - item index*/
 	<br>
 	<<link [[Save set|$passage]]>>
 		<<script>>
-			T.colorName = document.getElementById("colorName").value.replace(/[^a-zA-Z 0-9]+/g,"");
+			T.colorName = document.getElementById("colorName").value.replace(/[^a-zA-Z\u4e00-\u9fa5 0-9]+/g,"");
 		<</script>>
 		<<set $customColors.presets[_colorName] to {
 			color: $customColors.color,
@@ -1011,6 +1018,8 @@ Forth argument - item index*/
 		<<set $specialClothes to {
 			"witchdress":"locked",
 			"christmasdress":"locked",
+			"jinglebelldress":"locked",
+			"sleevelessjinglebelldress":"locked",
 			"serafuku":"locked",
 			"vampirejacket":"locked",
 			"slutshirt":"locked",
@@ -1052,6 +1061,13 @@ Forth argument - item index*/
 			"daisy":"locked",
 			"esotericspectacles":"locked",
 			"spiritmask":"locked",
+			"ragtop":"locked",
+			"ragskirt":"locked",
+			"minipumpkin":"locked",
+			"gakuran":"locked",
+			"classicserafuku":"locked",
+			"sailorribbon":"locked",
+			"islandermask":"locked",
 		}>>
 	<</if>>
 	<!-- the following lines are for backwards compatibility with older saves. if you want to add a new item, add it above as well. -->
@@ -1108,11 +1124,39 @@ Forth argument - item index*/
 	<<if $specialClothes.spiritmask is undefined>>
 		<<set $specialClothes.spiritmask to "locked">>
 	<</if>>
+	<<if $specialClothes.ragtop is undefined>>
+		<<set $specialClothes.ragtop to "locked">>
+	<</if>>
+	<<if $specialClothes.ragskirt is undefined>>
+		<<set $specialClothes.ragskirt to "locked">>
+	<</if>>
+	<<if $specialClothes.minipumpkin is undefined>>
+		<<set $specialClothes.minipumpkin to "locked">>
+	<</if>>
+	<<if $specialClothes.gakuran is undefined>>
+		<<set $specialClothes.gakuran to "locked">>
+	<</if>>
+	<<if $specialClothes.sailorribbon is undefined>>
+		<<set $specialClothes.sailorribbon to $specialClothes.serafuku is "unlocked" ? "unlocked" : "locked">>
+		<<set $specialClothes.classicserafuku to $specialClothes.serafuku is "unlocked" ? "unlocked" : "locked">>
+	<</if>>
+	<<if $specialClothes.islandermask is undefined>>
+		<<set $specialClothes.islandermask to "locked">>
+	<</if>>
+	<<if $specialClothes.sleevelessjinglebelldress is undefined>>
+		<<set $specialClothes.sleevelessjinglebelldress to "locked">>
+	<</if>>
+	<<if $specialClothes.jinglebelldress is undefined>>
+		<<set $specialClothes.jinglebelldress to "locked">>
+	<</if>>
 <</widget>>
 
 <<widget "specialClothesUpdate">>
 	<<if $headdrive is 1>>
+		<<set $specialClothes["classicserafuku"] to "unlocked">>
 		<<set $specialClothes["serafuku"] to "unlocked">>
+		<<set $specialClothes["gakuran"] to "unlocked">>
+		<<set $specialClothes["sailorribbon"] to "unlocked">>
 	<</if>>
 	<<if $undergroundbrothelescaped>>
 		<<set $specialClothes["slutshirt"] to "unlocked">>
@@ -1131,6 +1175,7 @@ Forth argument - item index*/
 		<<set $specialClothes["skeletonoutfit"] to "unlocked">>
 		<<set $specialClothes["classyvampirejacket"] to "unlocked">>
 		<<set $specialClothes["futuristicbodysuit"] to "unlocked">>
+		<<set $specialClothes["minipumpkin"] to "unlocked">>
 	<</if>>
 	<<if $christmas is 1>>
 		<<set $specialClothes["christmasdress"] to "unlocked">>
@@ -1139,6 +1184,8 @@ Forth argument - item index*/
 		<<set $specialClothes["christmashat"] to "unlocked">>
 		<<set $specialClothes["christmaslegwarmers"] to "unlocked">>
 		<<set $specialClothes["minisnowman"] to "unlocked">>
+		<<set $specialClothes["jinglebelldress"] to "unlocked">>
+		<<set $specialClothes["sleevelessjinglebelldress"] to "unlocked">>
 	<</if>>
 	<<if $valentines is 1>>
 		<<set $specialClothes["rose"] to "unlocked">>
@@ -1192,6 +1239,13 @@ Forth argument - item index*/
 	<<if $fox gte 6>>
 		<<set $specialClothes["spiritmask"] to "unlocked">>
 	<</if>>
+	<<if ($feats.currentSave["Pain Rider"] isnot undefined) and ($feats.currentSave["Submerged"] isnot undefined)>>
+		<<set $specialClothes["ragtop"] to "unlocked">>
+		<<set $specialClothes["ragskirt"] to "unlocked">>
+	<</if>>
+	<<if $islander_mask gte 100>>
+		<<set $specialClothes["islandermask"] to "unlocked">>
+	<</if>>
 
 	<<if Object.values($specialClothes).every(item => item is "unlocked")>>
 		<<earnFeat "Curious Attire">>
@@ -1203,6 +1257,8 @@ Forth argument - item index*/
 		<<set _specialClothesHint to {
 			"witchdress":"In stock from the 21st of October.",
 			"christmasdress":"In stock from the 18th of December.",
+			"jinglebelldress":"In stock from the 18th of December.",
+			"sleevelessjinglebelldress":"In stock from the 18th of December.",
 			"serafuku":"Discover the headteacher's secret.",
 			"vampirejacket":"In stock from the 21st of October.",
 			"slutshirt":"Survive slavery in an underground brothel.",
@@ -1243,7 +1299,14 @@ Forth argument - item index*/
 			"futuristicbodysuit":"In stock from the 21st of October.",
 			"daisy":"Find daisy seeds.",
 			"esotericspectacles":"Succeed a master.",
-			"spiritmask":"Become sufficiently foxy."
+			"spiritmask":"Become sufficiently foxy.",
+			"ragtop":"Demonstrate historical torture devices to completion.",
+			"ragskirt":"Demonstrate historical torture devices to completion.",
+			"minipumpkin":"In stock from the 21st of October.",
+			"gakuran":"Discover the headteacher's secret.",
+			"classicserafuku":"Discover the headteacher's secret.",
+			"sailorribbon":"Discover the headteacher's secret.",
+			"islandermask":"Build with foreign wood."
 		}>>
 	<</if>>
 <</widget>>
@@ -1259,4 +1322,21 @@ Forth argument - item index*/
 			<</if>>
 		<</if>>
 	<</if>>
+<</widget>>
+
+<<widget "earSlimeShoppingExhibitionism">>
+	<<set $shoppingCentreExit to $passage>>
+	<<set $weekly.earSlimeShoppingCentre to 1>>
+	<span class="lewd">You feel the slime in your head command you to expose yourself to the whole mall.</span> It doesn't promise anything now. It imposes its will, and expects you to obey.
+	<br><br>
+
+	<<if $exhibitionism gte 75 and $submissive gte 1900>>
+		<<link [[Submit willingly|Shopping Centre Slime Exhibitionism Obey]]>><<corruption 5>><<pain -8>><<stress -12>><<trauma -24>><<sub 2>><<set $phase to 1>><</link>><<promiscuous5>><<ggcorruption>><<llpain>><<llltrauma>><<llstress>>
+		<br>
+	<</if>>
+	<<link [[Obey|Shopping Centre Slime Exhibitionism Obey]]>><<corruption 1>><<pain -4>><<stress -6>><<trauma -12>><<sub 1>><</link>><<gcorruption>><<lpain>><<lltrauma>><<lstress>>
+	<br>
+	/* Different than normal stat changes as the slime will never for the player to act */
+	<<link [[Defy|Shopping Centre Slime Exhibitionism Defy]]>><<corruption -1>><<pain 35>><<stress 18>><<trauma 12>><<def 1>><</link>><<llcorruption>><<ggpain>><<ggtrauma>><<ggstress>>
+	<br>
 <</widget>>

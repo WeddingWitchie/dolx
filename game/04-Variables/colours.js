@@ -593,7 +593,7 @@ setup.colours.hairgradients_prototypes = {
 			},
 			mohawk: {
 				gradient: "radial",
-				values: [93, 60, 0, 93, 60, 170],
+				values: [93, 60, 0, 93, 100, 202],
 				lengthFunctions: [(length, value) => value, (length, value) => value],
 				colors: [
 					[0.155, "rgba(0, 0, 0, 1)"],
@@ -1023,6 +1023,13 @@ setup.colours.clothes = [
 		canvasfilter: { blend: "#c3ad91" },
 	},
 	{
+		variable: "fleshy",
+		name: "fleshy",
+		name_cap: "Fleshy",
+		csstext: "fleshy",
+		canvasfilter: { blend: "#ffddc8" },
+	},
+	{
 		variable: "grey",
 		name: "grey",
 		name_cap: "Grey",
@@ -1049,6 +1056,13 @@ setup.colours.clothes = [
 		name_cap: "Navy",
 		csstext: "navy",
 		canvasfilter: { blend: "#292934" },
+	},
+	{
+		variable: "navy blue",
+		name: "navy blue",
+		name_cap: "Navy blue",
+		csstext: "navy blue",
+		canvasfilter: { blend: "#16168d" },
 	},
 	{
 		variable: "olive",

@@ -323,22 +323,26 @@
 			<img class="layer-sexmouth anim-idle-2f" @src="_img.activeeyelids" @style="'filter: '+_filters.body">
 			-->
 			<<if $player.penisExist or playerHasStrapon()>>
-				<<if $worn.genitals.name is "chastity belt" and !playerHasStrapon()>>
-					<img class="layer-sexmouth" src="img/sex/missionary/active/body/activepenischastity.png">
-				<<elseif $worn.lower.exposed gte 2 and ($worn.under_lower.exposed gte 1 or playerHasStrapon())>>
-					<<if $worn.genitals.name.includes("cage") and !playerHasStrapon()>>
+				<<if $worn.lower.exposed gte 2 and $worn.under_lower.exposed gte 1>>
+					<<if playerChastity("cage") and !playerHasStrapon()>>
 						<<switch $worn.genitals.name>>
 							<<case "flat chastity cage">><<set $_chastityCage to "flat">>
 							<<case "small chastity cage">><<set $_chastityCage to "small">>
+							<<case "chastity parasite">>
+								<<set $_chastityCage to "parasite">>
+								<<switch $player.penissize>>
+									<<case -2 -1>><<set $_chastityCage += "-1">>
+									<<case 0>><<set $_chastityCage += "0">>
+									<<case 1 2>><<set $_chastityCage += "1">>
+									<<case 3 4>><<set $_chastityCage += "2">>
+								<</switch>>
 							<<default>><<set $_chastityCage to "">>
 						<</switch>>
 						<img class="layer-sexlashes colour-genitals" @src="'img/sex/missionary/active/body/activechastitycagedown' + $_chastityCage + '.png'">
-						<<if $_chastityCage is "flat">>
-						<<elseif $anususe is "penis">>
-							<img class="layer-sexmouth" @src="_img['activechastitycagedownpenis' + $_chastityCage]" @style="'filter: '+_filters.body">
-						<<else>>
+						<<if $worn.genitals.name isnot "chastity parasite">>
 							<img class="layer-sexmouth" @src="_img['activechastitycagedownpenis' + $_chastityCage]" @style="'filter: '+_filters.body">
 						<</if>>
+					<<elseif $worn.genitals.name.includes("chastity belt")>>
 					<<elseif playerHasStrapon()>>
 						<<if $anususe is "penis">>
 							<img class="layer-sexlashes" @src="_img.activestrapon" @style="'filter: '+_filters.body">
@@ -404,6 +408,21 @@
 				<<else>>
 					<img class="layer-sexhair colour-hair anim-idle-2f" @src="'img/sex/missionary/active/hair/' + $fringetype + '/activeshort.png'">
 				<</if>>
+			<<elseif ["layered bob"].includes($hairtype)>>
+				/* Sprites designed to reflect hair length */
+				<<if $hairlength gte 900>>
+					<img class="layer-sexhair colour-hair anim-idle-2f" @src="'img/sex/missionary/active/hair/' + $hairtype + '/activefeet.png'">
+				<<elseif $hairlength gte 700>>
+					<img class="layer-sexhair colour-hair anim-idle-2f" @src="'img/sex/missionary/active/hair/' + $hairtype + '/activethighs.png'">
+				<<elseif $hairlength gte 600>>
+					<img class="layer-sexhair colour-hair anim-idle-2f" @src="'img/sex/missionary/active/hair/' + $hairtype + '/activenavel.png'">
+				<<elseif $hairlength gte 400>>
+					<img class="layer-sexhair colour-hair anim-idle-2f" @src="'img/sex/missionary/active/hair/' + $hairtype + '/activechest.png'">
+				<<elseif $hairlength gte 200>>
+					<img class="layer-sexhair colour-hair anim-idle-2f" @src="'img/sex/missionary/active/hair/' + $hairtype + '/activeshoulder.png'">
+				<<else>>
+					<img class="layer-sexhair colour-hair anim-idle-2f" @src="'img/sex/missionary/active/hair/' + $hairtype + '/activeshort.png'">
+				<</if>>
 			<<else>>
 				<<if $hairlength gte 900>>
 					<img class="layer-sexhair colour-hair anim-idle-2f" src="img/sex/missionary/active/hair/activefeet.png">
@@ -425,7 +444,7 @@
 			<img class="layer-sexlashes colour-hair anim-idle-2f" src="img/sex/missionary/active/hair/activelashes.png">
 			-->
 			<img class="layer-sexlashes colour-hair anim-idle-2f" src="img/sex/missionary/active/hair/idlelashes.png">
-			<<if $hairtype isnot "short" and !["buzzcut", "mohawk"].includes($fringetype)>>
+			<<if !["short", "layered bob"].includes($hairtype) and !["buzzcut", "mohawk"].includes($fringetype)>>
 				<img class="layer-sexbrow colour-hair anim-idle-2f" src="img/sex/missionary/active/hair/activeoverlay.png">
 			<</if>>
 
@@ -442,15 +461,23 @@
 			<<breastsidlemissionary>>
 			<<img_tf_miss_idle>>
 
-			<<if $worn.genitals.name is "chastity belt">>
+			<<if $parasite.penis.name is "parasite" or $parasite.clit.name is "parasite">>
+				<<if $earSlime.focus is "impregnation">>
+					<img class="layer-sexbaseoverlay anim-idle-2f" src="img/sex/missionary/active/body/activeparasiteshorts.png">
+				<<else>>
+					<img class="layer-sexbaseoverlay anim-idle-2f" src="img/sex/missionary/active/body/activeparasitepanty.png">
+				<</if>>
+			<</if>>
+
+			<<if $worn.genitals.name is "chastity belt" and $worn.lower.exposed gte 2 and $worn.under_lower.exposed gte 1>>
 				<img class="layer-sexbaseoverlay" src="img/sex/missionary/active/body/activechastitybelt.png">
-			<<elseif $worn.genitals.name is "gold chastity belt">>
+			<<elseif $worn.genitals.name is "gold chastity belt" and $worn.lower.exposed gte 2 and $worn.under_lower.exposed gte 1>>
 				<img class="layer-sexbaseoverlay" src="img/sex/missionary/active/body/activegoldchastitybelt.png">
 			<</if>>
 
 			<<if $options.bodywritingImages is true>>
 				<<if $skin.right_cheek.writing>>
-					<<if $skin.right_cheek.type is "text">>
+					<<if $skin.right_cheek.type is "text" or $skin.right_cheek.special is "islander">>
 						<<if $skin.right_cheek.arrow is 1>>
 							<img class="layer-sexskin anim-idle-2f" src="img/sex/missionary/bodywriting/right_cheek_arrow.png">
 						<<else>>
@@ -461,7 +488,7 @@
 					<</if>>
 				<</if>>
 				<<if $skin.right_shoulder.writing>>
-					<<if $skin.right_shoulder.type is "text">>
+					<<if $skin.right_shoulder.type is "text" or $skin.right_shoulder.special is "islander">>
 						<<if $rightarm is "bound" or $rightarm is "grappled" or $rightarm is "behind">>
 							<img class="layer-sexarmsboundskin anim-idle-2f" src="img/sex/missionary/bodywriting/right_shoulder_bound.png">
 						<<else>>
@@ -486,7 +513,7 @@
 					<</if>>
 				<</if>>
 				<<if $skin.pubic.writing>>
-					<<if $skin.pubic.type is "object">>
+					<<if $skin.pubic.type is "object" and $skin.pubic.special isnot "islander">>
 						<img class="layer-sexskin anim-idle-2f" @src="'img/sex/missionary/bodywriting/' + $skin.pubic.writing + '/pubic.png'">
 					<<elseif $skin.pubic.type is "text">>
 						<<if $skin.pubic.arrow is 1>>
@@ -497,7 +524,7 @@
 					<</if>>
 				<</if>>
 				<<if $skin.left_thigh.writing>>
-					<<if $skin.left_thigh.type is "text">>
+					<<if $skin.left_thigh.type is "text" or $skin.left_thigh.special is "islander">>
 						<<if _leg_position is "up">>
 							<<if $skin.left_thigh.arrow is 1>>
 								<img class="layer-sexskinback anim-idle-2f" src="img/sex/missionary/bodywriting/left_thigh_up_arrow.png">
@@ -594,8 +621,8 @@
 			<<beastimgmissionary>>
 			<<clothesactivemissionary>>
 
-			<<if $hairtype isnot "short" and !["buzzcut", "mohawk"].includes($fringetype)>>
-				<img @class="'layer-sexblush colour-hair anim-doggy-4f-'+_animspeed" src="img/sex/missionary/active/hair/activeoverlay.png">
+			<<if !["short", "layered bob"].includes($hairtype) and !["buzzcut", "mohawk"].includes($fringetype)>>
+				<img class="layer-sexbrow colour-hair anim-idle-2f" src="img/sex/missionary/active/hair/activeoverlay.png">
 			<</if>>
 
 			<img @class="'layer-sexbase anim-doggy-4f-'+_animspeed" @src="_img.activebase" @style="'filter: '+_filters.body">
@@ -957,7 +984,7 @@
 
 			<<if $penisstate is "otherpenis">>
 				<img @class="'layer-sexhair anim-doggy-4f-'+_animspeed+' '+(npcHasStrapon($penistarget) && $options.tanImgEnabled ? 'strapon-' + $NPCList[$penistarget].strapon.color : '')"
-				@src="_img.doggyactivefencing"
+				@src="_img.activefencing"
 				@style="'filter: '+(!npcHasStrapon($penistarget) && $options.tanImgEnabled ? setup.npcSkinDefaults[$NPCList[$penistarget].skincolour] : '')">
 			<</if>>
 
@@ -973,28 +1000,48 @@
 			<</if>>
 
 			<<if $player.penisExist or playerHasStrapon()>>
-				<<if playerChastity("penis") and !playerHasStrapon()>> /* PLAYER STRAP-ON IMPORTANT IMAGE */
-					<<if $worn.genitals.name is "chastity cage">>
-						<img @class="'layer-sexhair anim-doggy-4f-'+_animspeed" @src="'img/sex/missionary/active/body/activepenischastity'+$_chastityCage+'.png'">
+				<<if playerChastity("cage") and !playerHasStrapon()>>
+					<<switch $worn.genitals.name>>
+						<<case "flat chastity cage">><<set $_chastityCage to "flat">>
+						<<case "small chastity cage">><<set $_chastityCage to "small">>
+						<<case "chastity parasite">>
+							<<set $_chastityCage to "parasite">>
+							<<switch $player.penissize>>
+								<<case -2 -1>><<set $_chastityCage += "-1">>
+								<<case 0>><<set $_chastityCage += "0">>
+								<<case 1 2>><<set $_chastityCage += "1">>
+								<<case 3 4>><<set $_chastityCage += "2">>
+							<</switch>>
+						<<default>><<set $_chastityCage to "">>
+					<</switch>>
+					<img @class="'layer-sexlashes colour-genitals anim-doggy-4f-'+_animspeed" @src="'img/sex/missionary/active/body/activechastitycagedown' + $_chastityCage + '.png'">
+					<<if $worn.genitals.name isnot "chastity parasite">>
+						<img @class="'layer-sexmouth anim-doggy-4f-'+_animspeed" @src="_img['activechastitycagedownpenis' + $_chastityCage]" @style="'filter: '+_filters.body">
 					<</if>>
-				<<elseif $penisstate is "penetrated" or $penisstate is "otheranus">>
-					<<if $enemytype isnot "beast" or $monster is 1>>
-						/* I was doing something important here. COlours maybe? */
-						<<if $player.virginity.penile is true>>
-							<img @class="'layer-frontforeground anim-doggy-4f-'+_animspeed" @src="_img.activepenisvirgindown" @style="'filter: '+_filters.body">
-						<<else>>
-							<img @class="'layer-frontforeground anim-doggy-4f-'+_animspeed" @src="_img.activepenisdown" @style="'filter: '+_filters.body">
-						<</if>>
+				<<elseif $worn.genitals.name.includes("chastity belt")>>
+				<<elseif playerHasStrapon()>>
+					<<if $anususe is "penis">>
+						<img @class="'layer-sexlashes anim-doggy-4f-'+_animspeed" @src="_img.activestrapon" @style="'filter: '+_filters.body">
+					<<else>>
+						<img @class="'layer-sexbasefront anim-doggy-4f-'+_animspeed" @src="_img.activestrapon" @style="'filter: '+_filters.body">
 					<</if>>
 				<<elseif $player.virginity.penile is true>>
-					<img @class="'layer-sexlashes anim-doggy-4f-'+_animspeed" @src="_img.activepenisvirgin" @style="'filter: '+_filters.body">
+					<<if $anususe is "penis">>
+						<img @class="'layer-sexlashes anim-doggy-4f-'+_animspeed" @src="_img.activepenisvirgin" @style="'filter: '+_filters.body">
+					<<else>>
+						<img @class="'layer-sexbasefront anim-doggy-4f-'+_animspeed" @src="_img.activepenisvirgin" @style="'filter: '+_filters.body">
+					<</if>>
 				<<else>>
-					<img @class="'layer-sexlashes anim-doggy-4f-'+_animspeed" @src="_img.activepenis" @style="'filter: '+_filters.body">
+					<<if $anususe is "penis">>
+						<img @class="'layer-sexlashes anim-doggy-4f-'+_animspeed" @src="_img.activepenis" @style="'filter: '+_filters.body">
+					<<else>>
+						<img @class="'layer-sexbasefront anim-doggy-4f-'+_animspeed" @src="_img.activepenis" @style="'filter: '+_filters.body">
+					<</if>>
 				<</if>>
 				<<if wearingCondom("player")>>
 					<img @class="'layer-sexshoes anim-doggy-4f-'+_animspeed+' condom-' + $player.condom.colour.replace(/ /g, '-')" src="img/sex/missionary/active/body/activepenis_condom.png">
 				<</if>>
-				<<if $orgasmdown gte 1 and $penisstate isnot "penetrated" and $orgasmcount lte 24 and $femaleclimax isnot 1 and !playerChastity("penis") and !playerHasStrapon() and wearingCondom("player") isnot "worn">>
+				<<if $orgasmdown gte 1 and $penisstate isnot "penetrated" and $orgasmcount lte 24 and $femaleclimax isnot 1 and !$worn.genitals.name.includes("chastity belt") and !playerHasStrapon() and wearingCondom("player") isnot "worn">>
 					<img @class="'layer-sexhair anim-doggy-4f-'+_animspeed" src="img/sex/missionary/active/body/activecum.png">
 				<</if>>
 			<</if>>
@@ -1039,6 +1086,21 @@
 				<<else>>
 					<img @class="'colour-hair layer-sexhair anim-doggy-4f-'+_animspeed" @src="'img/sex/missionary/active/hair/' + $fringetype + '/activeshort.png'">
 				<</if>>
+			<<elseif ["layered bob"].includes($hairtype)>>
+				/* Sprites designed to reflect hair length */
+				<<if $hairlength gte 900>>
+					<img @class="'layer-sexhair colour-hair anim-doggy-4f-'+_animspeed" @src="'img/sex/missionary/active/hair/' + $hairtype + '/activefeet.png'">
+				<<elseif $hairlength gte 700>>
+					<img @class="'layer-sexhair colour-hair anim-doggy-4f-'+_animspeed" @src="'img/sex/missionary/active/hair/' + $hairtype + '/activethighs.png'">
+				<<elseif $hairlength gte 600>>
+					<img @class="'layer-sexhair colour-hair anim-doggy-4f-'+_animspeed" @src="'img/sex/missionary/active/hair/' + $hairtype + '/activenavel.png'">
+				<<elseif $hairlength gte 400>>
+					<img @class="'layer-sexhair colour-hair anim-doggy-4f-'+_animspeed" @src="'img/sex/missionary/active/hair/' + $hairtype + '/activechest.png'">
+				<<elseif $hairlength gte 200>>
+					<img @class="'layer-sexhair colour-hair anim-doggy-4f-'+_animspeed" @src="'img/sex/missionary/active/hair/' + $hairtype + '/activeshoulder.png'">
+				<<else>>
+					<img @class="'layer-sexhair colour-hair anim-doggy-4f-'+_animspeed" @src="'img/sex/missionary/active/hair/' + $hairtype + '/activeshort.png'">
+				<</if>>
 			<<else>>
 				<<if $hairlength gte 900>>
 					<img @class="'layer-sexhair colour-hair anim-doggy-4f-'+_animspeed" src="img/sex/missionary/active/hair/activefeet.png">
@@ -1072,6 +1134,14 @@
 			<<breastsactivemissionary>>
 			<<img_tf_miss_active>>
 
+			<<if $parasite.penis.name is "parasite" or $parasite.clit.name is "parasite">>
+				<<if $earSlime.focus is "impregnation">>
+					<img @class="'layer-sexbaseoverlay anim-doggy-4f-'+_animspeed" src="img/sex/missionary/active/body/activeparasiteshorts.png">
+				<<else>>
+					<img @class="'layer-sexbaseoverlay anim-doggy-4f-'+_animspeed" src="img/sex/missionary/active/body/activeparasitepanty.png">
+				<</if>>
+			<</if>>
+
 			<<if $worn.genitals.name is "chastity belt">>
 				<img @class="'layer-sexbaseoverlay anim-doggy-4f-'+_animspeed" src="img/sex/missionary/active/body/activechastitybelt.png">
 			<<elseif $worn.genitals.name is "gold chastity belt">>
@@ -1080,7 +1150,7 @@
 
 			<<if $options.bodywritingImages is true>>
 				<<if $skin.right_cheek.writing>>
-					<<if $skin.right_cheek.type is "text">>
+					<<if $skin.right_cheek.type is "text" or $skin.right_cheek.special is "islander">>
 						<<if $skin.right_cheek.arrow is 1>>
 							<img @class="'layer-sexskin anim-doggy-4f-'+_animspeed" src="img/sex/missionary/bodywriting/right_cheek_arrow.png">
 						<<else>>
@@ -1091,7 +1161,7 @@
 					<</if>>
 				<</if>>
 				<<if $skin.right_shoulder.writing>>
-					<<if $skin.right_shoulder.type is "text">>
+					<<if $skin.right_shoulder.type is "text" or $skin.right_shoulder.special is "islander">>
 						<<if $rightarm is "bound" or $rightarm is "grappled" or $rightarm is "behind">>
 							<img @class="'layer-sexarmsboundskin anim-doggy-4f-'+_animspeed" src="img/sex/missionary/bodywriting/right_shoulder_bound.png">
 						<<else>>
@@ -1116,7 +1186,7 @@
 					<</if>>
 				<</if>>
 				<<if $skin.pubic.writing>>
-					<<if $skin.pubic.type is "object">>
+					<<if $skin.pubic.type is "object" and $skin.pubic.special isnot "islander">>
 						<img @class="'layer-sexskin anim-doggy-4f-'+_animspeed" @src="'img/sex/missionary/bodywriting/' + $skin.pubic.writing + '/pubic.png'">
 					<<elseif $skin.pubic.type is "text">>
 						<<if $skin.pubic.arrow is 1>>
@@ -1135,7 +1205,7 @@
 					<</if>>
 				<</if>>
 				<<if $skin.left_thigh.writing>>
-					<<if $skin.left_thigh.type is "text">>
+					<<if $skin.left_thigh.type is "text" or $skin.left_thigh.special is "islander">>
 						<<if _leg_position is "up">>
 							<<if $skin.left_thigh.arrow is 1>>
 								<img @class="'layer-sexskinback anim-doggy-4f-'+_animspeed" src="img/sex/missionary/bodywriting/left_thigh_up_arrow.png">

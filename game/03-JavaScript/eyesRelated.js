@@ -10,7 +10,7 @@ function buildEyeDetails() {
 			sentence += setup.colours.eyes_map[lenses.left].name;
 			concatFlag = true;
 		}
-		if (typeof lenses.right === "string") {
+		if (typeof lenses.right === "string" && lenses.left !== lenses.right) {
 			if (concatFlag) sentence += " and ";
 			sentence += setup.colours.eyes_map[lenses.right].name;
 			concatFlag = true;
@@ -216,7 +216,7 @@ window.defineCustomEyeColourStyle = function () {
 					T[varSideStyle] =
 						"filter: " +
 						(V.makeup.eyelenses[side].includes("colorWheelTemporary")
-							? window.colorNameTranslate(colour.csstext, "hue")
+							? window.colorNameTranslate(window.colorNamer(colour.canvasfilter.blend), "hue")
 							: window.colorNameTranslate(V.makeup.eyelenses[side], "hue"));
 			}
 		} else if (normalEyes[side] !== 0 && (normalEyes[side].includes("colorWheelTemporary") || normalEyes[side].includes("cat_tf_stage"))) {
@@ -224,7 +224,7 @@ window.defineCustomEyeColourStyle = function () {
 			const colourArray = normalEyes[side].includes("cat_tf_stage") ? V.custom_eyecolours : setup.colours.eyes;
 			for (const colour of colourArray) {
 				/* this does this for left and right */
-				if (colour.variable === normalEyes[side]) T[varSideStyle] = "filter: " + window.colorNameTranslate(colour.csstext, "hue");
+				if (colour.variable === normalEyes[side]) T[varSideStyle] = "filter: " + window.colorNameTranslate(window.colorNamer(colour.canvasfilter.blend), "hue");
 			}
 		}
 	}

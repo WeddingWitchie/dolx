@@ -145,8 +145,12 @@
 
 <<widget "corruption">>
 	<<if _args[0]>>
-		<<set $corruption_slime += _args[0]>>
-		<<set $corruption_slime = Math.clamp($corruption_slime, 0, 100)>>
+		<<set $earSlime.corruption += _args[0]>>
+		<<if _args[0] gt 0 and $earSlime.growth gt 50 and !_args[1]>>
+			<<sub 1>>
+		<</if>>
+		<<set $earSlime.corruption = Math.clamp($earSlime.corruption, $earSlime.growth / 2, 100)>>
+		<<if $earSlime.corruption gte 60 and !$earSlime.startedThreats>><<set $earSlime.startedThreats to true>><</if>>
 	<</if>>
 <</widget>>
 
@@ -731,7 +735,7 @@
 <</widget>>
 
 <<widget "grace">>/*Optional second variable is the rank of the NPC giving the order. Grace changes won't apply if the player's rank equals or exceeds the NPC's.*/
-	<<if _args[0] and $statFreeze isnot true>>
+	<<if _args[0] and $statFreeze isnot true and $temple_rank isnot undefined and $temple_rank isnot "prospective">>
 		<<if _args[1] is "monk">>
 			<<if $temple_rank is "initiate">>
 				<<set $grace += _args[0]>>
@@ -753,6 +757,9 @@
 		<<else>>
 			<<set $grace += _args[0]>>
 			<<set $grace = Math.clamp($grace, -100, 100)>>
+		<</if>>
+		<<if _args[0] gt 0>>
+			<<set $daily.graceUp to true>>
 		<</if>>
 	<</if>>
 <</widget>>
@@ -933,5 +940,28 @@
 	<<if _args[0]>>
 		<<set $underlowerwet += _args[0]>>
 		<<set $underlowerwet = Math.clamp($underlowerwet, 0, 200)>>
+	<</if>>
+<</widget>>
+
+<<widget "world_corruption">>
+	<<if _args[0] and _args[1] and $statFreeze isnot true>>
+		<<set $_cor to _args[1]>>
+		<<if _args[0] is "hard">>
+			<<set $world_corruption_hard += $_cor>>
+			<<set $world_corruption_hard = Math.clamp($world_corruption_hard, -30, 30)>>
+		<<elseif _args[0] is "soft">>
+			<<set $world_corruption_soft += $_cor>>
+			<<if $world_corruption_soft lt 0>>
+				<<set $_overflowC to $world_corruption_soft>>
+			<</if>>
+			<!-- Unclamp or adjust upper limit once world corruption effects are added -->
+			<<set $world_corruption_soft = Math.clamp($world_corruption_soft, 0, 100)>>
+			<<if $_cor lt 0>>
+				<<if $_overflowC>>
+					<<set $_cor -= $_overflowC>>
+				<</if>>
+				<<set $world_corruption_reduced -= $_cor>>
+			<</if>>
+		<</if>>
 	<</if>>
 <</widget>>

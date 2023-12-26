@@ -15,7 +15,7 @@ const DoLSave = ((Story, Save) => {
 	// see game/00-framework-tools/03-compression/dictionaries.js
 	const COMPRESSOR_DICTIONARIES = DoLCompressorDictionaries;
 	// id of the dictionary to use for saving
-	const COMPRESSOR_CURRENT_DICTIONARY_ID = "v0";
+	const COMPRESSOR_CURRENT_DICTIONARY_ID = "v1";
 	/**
 	 * When saving, decompress and compare with the original.
 	 * If results differ, report an error and save the uncompressed version instead.
@@ -133,7 +133,6 @@ const DoLSave = ((Story, Save) => {
 			Wikifier.wikifyEval(`<<saveConfirm ${saveSlot}>>`);
 		} else {
 			if (saveSlot != null) {
-				updateSavesCount();
 				const success = Save.slots.save(saveSlot, null, {
 					saveId,
 					saveName,
@@ -305,7 +304,6 @@ const DoLSave = ((Story, Save) => {
 
 	function ironmanAutoSave() {
 		const saveSlot = 8;
-		updateSavesCount();
 		const success = Save.slots.save(saveSlot, null, {
 			saveId: V.saveId,
 			saveName: V.saveName,
@@ -427,7 +425,26 @@ const DoLSave = ((Story, Save) => {
 	function decompressIfNeeded(saveObj) {
 		const isCompressed = (saveObj.metadata && saveObj.metadata.jsoncompressed === 1) || looksLikeCompressedSave(saveObj.state.history[0]);
 		if (!isCompressed) return;
-		saveObj.state.history = saveObj.state.history.map(state => (JsonDecompressor.isCompressed(state) ? decompressState(state) : state));
+		let dictOverride = saveObj.state.history[0].dictionary;
+		saveObj.state.history = saveObj.state.history.map(state => {
+			state.dictionary = dictOverride;
+			if (JsonDecompressor.isCompressed(state)) {
+				let decompressed = decompressState(state);
+				if (!decompressed.variables || !decompressed.prng || !decompressed.variables.saveVersions) {
+					// Before giving up, check if dictionary is mislabeled
+					const otherDicts = Object.keys(COMPRESSOR_DICTIONARIES).filter(d => d !== dictOverride);
+					for (let k = 0; k < otherDicts.length; k++) {
+						state.dictionary = otherDicts[k];
+						decompressed = decompressState(state);
+						if (decompressed.variables && decompressed.prng && decompressed.variables.saveVersion) {
+							dictOverride = otherDicts[k];
+							break;
+						}
+					}
+				}
+				return decompressed;
+			} else return state;
+		});
 	}
 
 	return Object.freeze({
@@ -483,7 +500,6 @@ window.getSaveData = function () {
 	const compressionWasEnabled = DoLSave.isCompressionEnabled();
 	DoLSave.disableCompression();
 	const input = document.getElementById("saveDataInput");
-	updateExportDay();
 	input.value = Save.serialize();
 	if (compressionWasEnabled) DoLSave.enableCompression();
 };
@@ -521,43 +537,6 @@ window.copySavedata = function (id) {
 		const copyTextArea = document.getElementById("CopyTextArea");
 		copyTextArea.value = "Copying Error";
 		console.log("Unable to copy: ", err);
-	}
-};
-
-window.updateExportDay = function () {
-	const idx = State.activeIndex;
-	if (V.saveDetails != null && State.history[idx].variables.saveDetails != null) {
-		V.saveDetails.exported.days = clone(Time.days);
-		State.history[idx].variables.saveDetails.exported.days = clone(Time.days);
-		V.saveDetails.exported.count++;
-		State.history[idx].variables.saveDetails.exported.count++;
-		V.saveDetails.exported.dayCount++;
-		State.history[idx].variables.saveDetails.exported.dayCount++;
-		const sessionState = getSessionState();
-		if (sessionState != null) {
-			const sidx = sessionState.index;
-			sessionState.history[sidx].variables.saveDetails.exported.days = clone(Time.days);
-			sessionState.history[sidx].variables.saveDetails.exported.dayCount++;
-			sessionState.history[sidx].variables.saveDetails.exported.count++;
-			setSessionState(sessionState);
-		}
-	}
-};
-
-window.updateSavesCount = function () {
-	const idx = State.activeIndex;
-	if (V.saveDetails != null && State.history[idx].variables.saveDetails != null) {
-		V.saveDetails.slot.count++;
-		State.history[idx].variables.saveDetails.slot.count++;
-		V.saveDetails.slot.dayCount++;
-		State.history[idx].variables.saveDetails.slot.dayCount++;
-		const sessionState = getSessionState();
-		if (sessionState != null) {
-			const sidx = sessionState.index;
-			sessionState.history[sidx].variables.saveDetails.slot.dayCount++;
-			sessionState.history[sidx].variables.saveDetails.slot.count++;
-			setSessionState(sessionState);
-		}
 	}
 };
 
@@ -784,14 +763,14 @@ function exportSettings(data, type) {
 	for (let i = 0; i < V.NPCNameList.length; i++) {
 		S.npc[V.NPCNameList[i]] = {};
 		for (let j = 0; j < listKey.length; j++) {
-		  // Overwrite to allow for "none" default value in the start passage to allow for rng to decide
-		  if (V.passage === "Start" && ["pronoun", "gender"].includes(listKey[j]) && V.NPCName[i][listKey[j]] === "none") {
-			S.npc[V.NPCNameList[i]][listKey[j]] = V.NPCName[i][listKey[j]];
-		  } else if (validateValue(listObject[listKey[j]], V.NPCName[i][listKey[j]])) {
-			S.npc[V.NPCNameList[i]][listKey[j]] = V.NPCName[i][listKey[j]];
-		  }
+			// Overwrite to allow for "none" default value in the start passage to allow for rng to decide
+			if (V.passage === "Start" && ["pronoun", "gender"].includes(listKey[j]) && V.NPCName[i][listKey[j]] === "none") {
+				S.npc[V.NPCNameList[i]][listKey[j]] = V.NPCName[i][listKey[j]];
+			} else if (validateValue(listObject[listKey[j]], V.NPCName[i][listKey[j]])) {
+				S.npc[V.NPCNameList[i]][listKey[j]] = V.NPCName[i][listKey[j]];
+			}
 		}
-	  }
+	}
 
 	if (V.passage === "Start") {
 		S.starting = settingsConvert(true, "starting", S.starting);
@@ -816,15 +795,50 @@ function settingsObjects(type) {
 	switch (type) {
 		case "starting":
 			result = {
-				bodysize: { min: 0, max: 3, decimals: 0, displayName: "Body size:", textMap: { '0': 'Tiny', '1': 'Small', '2': 'Normal', '3': 'Large' }, randomize: "characterAppearance" },
-				breastsensitivity: { min: 1, max: 3, displayName: "Breast sensitivity:", decimals: 0, textMap: { 1: 'Normal', 2: 'Sensitive', 3: 'Very Sensitive' }, randomize: "characterTrait" },
-				genitalsensitivity: { min: 1, max: 3, displayName: "Genital sensitivity:", decimals: 0, textMap: { 1: 'Normal', 2: 'Sensitive', 3: 'Very Sensitive' }, randomize: "characterTrait" },
-				mouthsensitivity: { min: 1, max: 3, decimals: 0, displayName: "Mouth sensitivity:", textMap: { 1: 'Normal', 2: 'Sensitive', 3: 'Very Sensitive' }, randomize: "characterTrait" },
-				bottomsensitivity: { min: 1, max: 3, decimals: 0, displayName: "Bottom sensitivity:", textMap: { 1: 'Normal', 2: 'Sensitive', 3: 'Very Sensitive' }, randomize: "characterTrait" },
+				bodysize: {
+					min: 0,
+					max: 3,
+					decimals: 0,
+					displayName: "Body size:",
+					textMap: { 0: "Tiny", 1: "Small", 2: "Normal", 3: "Large" },
+					randomize: "characterAppearance",
+				},
+				breastsensitivity: {
+					min: 1,
+					max: 3,
+					displayName: "Breast sensitivity:",
+					decimals: 0,
+					textMap: { 1: "Normal", 2: "Sensitive", 3: "Very Sensitive" },
+					randomize: "characterTrait",
+				},
+				genitalsensitivity: {
+					min: 1,
+					max: 3,
+					displayName: "Genital sensitivity:",
+					decimals: 0,
+					textMap: { 1: "Normal", 2: "Sensitive", 3: "Very Sensitive" },
+					randomize: "characterTrait",
+				},
+				mouthsensitivity: {
+					min: 1,
+					max: 3,
+					decimals: 0,
+					displayName: "Mouth sensitivity:",
+					textMap: { 1: "Normal", 2: "Sensitive", 3: "Very Sensitive" },
+					randomize: "characterTrait",
+				},
+				bottomsensitivity: {
+					min: 1,
+					max: 3,
+					decimals: 0,
+					displayName: "Bottom sensitivity:",
+					textMap: { 1: "Normal", 2: "Sensitive", 3: "Very Sensitive" },
+					randomize: "characterTrait",
+				},
 				eyeselect: {
 					strings: ["purple", "dark blue", "light blue", "amber", "hazel", "green", "lime green", "red", "pink", "grey", "light grey", "random"],
 					randomize: "characterAppearance",
-					displayName: "Eye colour:"
+					displayName: "Eye colour:",
 				},
 				hairselect: {
 					strings: [
@@ -844,7 +858,7 @@ function settingsObjects(type) {
 						"random",
 					],
 					displayName: "Hair colour:",
-					randomize: "characterAppearance"
+					randomize: "characterAppearance",
 				},
 				hairlength: { min: 0, max: 400, decimals: 0, displayName: "Hair length:", randomize: "characterAppearance" },
 				awareselect: {
@@ -874,27 +888,65 @@ function settingsObjects(type) {
 				startingseason: { strings: ["autumn", "winter", "spring", "summer", "random"], displayName: "Starting season:", randomize: "gameplay" },
 				ironmanmode: { bool: false, displayName: "Ironman mode:" },
 				player: {
-					gender: { strings: ["m", "f", "h"], displayName: "Gender:", textMap: {"m": "Male", "f": "Female", "h": "Hermaphrodite"}, randomize: "characterAppearance" },
-					gender_body: { strings: ["m", "f", "a"], displayName: "Body type:", textMap: {"m": "Masculine", "f": "Feminine", "a": "Androgynous"}, randomize: "characterAppearance" },
+					gender: {
+						strings: ["m", "f", "h"],
+						displayName: "Gender:",
+						textMap: { m: "Male", f: "Female", h: "Hermaphrodite" },
+						randomize: "characterAppearance",
+					},
+					gender_body: {
+						strings: ["m", "f", "a"],
+						displayName: "Body type:",
+						textMap: { m: "Masculine", f: "Feminine", a: "Androgynous" },
+						randomize: "characterAppearance",
+					},
 					ballsExist: { bool: true, displayName: "Balls:", textMap: { true: "Existent", false: "Nonexistent" }, randomize: "characterAppearance" },
-					freckles: { bool: true, displayName: "Freckles:", textMap: { true: "Existent", false: "Nonexistent" }, strings: ["random"], randomize: "characterAppearance" },
-					breastsize: { min: 0, max: 4, decimals: 0, displayName: "Breast size:", textMap: { '0': 'Flat', '1': 'Budding', '2': 'Tiny', '3': 'Small', '4': 'Pert' }, randomize: "characterAppearance" },
-					penissize: { min: 0, max: 2, decimals: 0, displayName: "Penis size:", textMap: { '0': 'Tiny', '1': 'Small', '2': 'Normal' }, randomize: "characterAppearance" },
-					bottomsize: { min: 0, max: 3, decimals: 0, displayName: "Bottom size:", textMap: { 0: 'Slender', 1: 'Slim', 2: 'Modest', 3: 'Cushioned' }, randomize: "characterAppearance" },				},
+					freckles: {
+						bool: true,
+						displayName: "Freckles:",
+						textMap: { true: "Existent", false: "Nonexistent" },
+						strings: ["random"],
+						randomize: "characterAppearance",
+					},
+					breastsize: {
+						min: 0,
+						max: 4,
+						decimals: 0,
+						displayName: "Breast size:",
+						textMap: { 0: "Flat", 1: "Budding", 2: "Tiny", 3: "Small", 4: "Pert" },
+						randomize: "characterAppearance",
+					},
+					penissize: {
+						min: 0,
+						max: 2,
+						decimals: 0,
+						displayName: "Penis size:",
+						textMap: { 0: "Tiny", 1: "Small", 2: "Normal" },
+						randomize: "characterAppearance",
+					},
+					bottomsize: {
+						min: 0,
+						max: 3,
+						decimals: 0,
+						displayName: "Bottom size:",
+						textMap: { 0: "Slender", 1: "Slim", 2: "Modest", 3: "Cushioned" },
+						randomize: "characterAppearance",
+					},
+				},
 				skinColor: {
 					natural: {
 						strings: ["light", "medium", "dark", "gyaru", "ylight", "ymedium", "ydark", "ygyaru"],
 						randomize: "characterAppearance",
-						displayName: "Natural Skintone:"
+						displayName: "Natural Skintone:",
 					},
-					range: { min: 0, max: 100, decimals: 0, randomize: "characterAppearance", displayName: "Initial Tan Value:" }
+					range: { min: 0, max: 100, decimals: 0, randomize: "characterAppearance", displayName: "Initial Tan Value:" },
 				},
 			};
 			break;
 		case "general":
 			result = {
 				malechance: { min: 0, max: 100, decimals: 0, displayName: "Percentage of people attracted to you that are male:", randomize: "encounter" },
-				maleChanceSplit: { boolLetter: true, bool: true, displayName: "NPC attraction split by gender appearance:", },
+				maleChanceSplit: { boolLetter: true, bool: true, displayName: "NPC attraction split by gender appearance:" },
 				maleChanceMale: { min: 0, max: 100, decimals: 0, displayName: "NPCs who are attracted to men:", randomize: "encounter" },
 				maleChanceFemale: { min: 0, max: 100, decimals: 0, displayName: "NPCs who are attracted to women:", randomize: "encounter" },
 				dgchance: { min: 0, max: 100, decimals: 0, displayName: "Percentage of women that have penises:", randomize: "encounter" },
@@ -912,16 +964,42 @@ function settingsObjects(type) {
 				clothesPriceUnderwear: { min: 1, max: 2, decimals: 1, displayName: "Cost of underwear:", randomize: "gameplay" },
 				clothesPriceSchool: { min: 1, max: 2, decimals: 1, displayName: "Cost of school clothes:", randomize: "gameplay" },
 				clothesPriceLewd: { min: 0.1, max: 2, decimals: 1, displayName: "Cost of lewd clothes:", randomize: "gameplay" },
+				furniturePriceFactor: { min: 0.6, max: 2, decimals: 1, displayName: "Cost of furniture:", randomize: "gameplay" },
 				tending_yield_factor: { min: 1, max: 10, decimals: 1, displayName: "Crop yield:", randomize: "gameplay" },
 				rentmod: { min: 0.1, max: 3, decimals: 1, displayName: "Bailey's rent:", randomize: "gameplay" },
 				beastmalechance: { min: 0, max: 100, decimals: 0, displayName: "Percentage of beasts attracted to you that are male:", randomize: "encounter" },
 				beastMaleChanceSplit: { boolLetter: true, bool: true, displayName: "Beast attraction split by gender appearance:" },
 				beastMaleChanceMale: { min: 0, max: 100, decimals: 0, displayName: "Beasts who are attracted to men:", randomize: "encounter" },
 				beastMaleChanceFemale: { min: 0, max: 100, decimals: 0, displayName: "Beasts who are attracted to women:", randomize: "encounter" },
-				monsterchance: { min: 0, max: 100, decimals: 0, displayName: "Percentage of beasts that are replaced with monster girls or boys:", randomize: "encounter" },
-				monsterhallucinations: { boolLetter: true, bool: true, displayName: "Only replace beasts with monsters while hallucinating:", randomize: "encounter" },
-				blackwolfmonster: { min: 0, max: 2, decimals: 0, displayName: "Black Wolf beast type:", textMap: { 0: 'Always a beast', 1: 'Monster girl or boy when requirements met', 2: 'Always a monster girl or boy' }, randomize: "encounter" },
-				greathawkmonster: { min: 0, max: 2, decimals: 0, displayName: "Great Hawk beast type:", textMap: { 0: 'Always a beast', 1: 'Monster girl or boy when requirements met', 2: 'Always a monster girl or boy' }, randomize: "encounter" },
+				monsterchance: {
+					min: 0,
+					max: 100,
+					decimals: 0,
+					displayName: "Percentage of beasts that are replaced with monster girls or boys:",
+					randomize: "encounter",
+				},
+				monsterhallucinations: {
+					boolLetter: true,
+					bool: true,
+					displayName: "Only replace beasts with monsters while hallucinating:",
+					randomize: "encounter",
+				},
+				blackwolfmonster: {
+					min: 0,
+					max: 2,
+					decimals: 0,
+					displayName: "Black Wolf beast type:",
+					textMap: { 0: "Always a beast", 1: "Monster girl or boy when requirements met", 2: "Always a monster girl or boy" },
+					randomize: "encounter",
+				},
+				greathawkmonster: {
+					min: 0,
+					max: 2,
+					decimals: 0,
+					displayName: "Great Hawk beast type:",
+					textMap: { 0: "Always a beast", 1: "Monster girl or boy when requirements met", 2: "Always a monster girl or boy" },
+					randomize: "encounter",
+				},
 				bestialitydisable: { boolLetter: true, bool: true, displayName: "Bestiality:" },
 				swarmdisable: { boolLetter: true, bool: true, displayName: "Swarms:" },
 				slimedisable: { boolLetter: true, bool: true, displayName: "Slimes:" },
@@ -941,8 +1019,20 @@ function settingsObjects(type) {
 				watersportsdisable: { boolLetter: true, bool: true, displayName: "Watersports:" },
 				facesitdisable: { boolLetter: true, bool: true, displayName: "Facesitting:" },
 				spiderdisable: { boolLetter: true, bool: true, displayName: "Spiders:" },
-				bodywritingLvl: { min: 0, max: 3, decimals: 0, displayName: "Bodywriting:", textMap: { 0: 'NPCs will not write on you', 1: 'NPCs may ask to write on you', 2: 'NPCs may forcibly write on you', 3: 'NPCs may forcibly write on and tattoo you' } },
+				bodywritingLvl: {
+					min: 0,
+					max: 3,
+					decimals: 0,
+					displayName: "Bodywriting:",
+					textMap: {
+						0: "NPCs will not write on you",
+						1: "NPCs may ask to write on you",
+						2: "NPCs may forcibly write on you",
+						3: "NPCs may forcibly write on and tattoo you",
+					},
+				},
 				parasitedisable: { boolLetter: true, bool: true, displayName: "Parasites:" },
+				ruinedorgasmdisable: { boolLetter: true, bool: true, displayName: "Ruined orgasms:" },
 				slugdisable: { boolLetter: true, bool: true, displayName: "Slugs:" },
 				waspdisable: { boolLetter: true, bool: true, displayName: "Wasps:" },
 				beedisable: { boolLetter: true, bool: true, displayName: "Bees:" },
@@ -957,14 +1047,80 @@ function settingsObjects(type) {
 				hypnosisdisable: { boolLetter: true, bool: true, displayName: "Hypnosis:" },
 				ruffledisable: { boolLetter: true, bool: true, displayName: "Ruffled hair:" },
 				forcedcrossdressingdisable: { boolLetter: true, bool: true, displayName: "Forced crossdressing:" },
-				asphyxiaLvl: { min: 0, max: 4, decimals: 0, displayName: "Asphyxiation:", textMap: { 0: 'NPCs will not touch your neck', 1: 'NPCs may grab you by the neck without impeding breathing', 2: 'NPCs may try to choke you during consensual encounters', 3: 'NPCs may try to strangle you during non-consensual encounters' } },
-				NudeGenderDC: { min: 0, max: 2, decimals: 0, displayName: "Nude gender appearance:", textMap: { '-1': 'NPCs will ignore genitals when perceiving gender, and crossdressing warnings will not be displayed', 0: 'NPCs will ignore genitals when perceiving gender', 1: 'NPCs will consider your genitals when perceiving your gender', 2: 'NPCs will judge your gender based on your genitals' } },
-				breastsizemin: { min: 0, max: 4, decimals: 0, displayName: "Minimum breast size:", textMap: { '0': 'Flat', '1': 'Budding', '2': 'Tiny', '3': 'Small', '4': 'Pert' } },
-				breastsizemax: { min: 0, max: 12, decimals: 0, displayName: "Maximum breast size:", textMap: { '0': 'Flat', '1': 'Budding', '2': 'Tiny', '3': 'Small', '4': 'Pert', '5': 'Modest', '6': 'Full', '7': 'Large', '8': 'Ample', '9': 'Massive', '10': 'Huge', '11': 'Gigantic', '12': 'Enormous' } },
-				bottomsizemin: { min: 0, max: 2, decimals: 0, displayName: "Minimum bottom size:", textMap: { 0: 'Slender', 1: 'Slim', 2: 'Modest', 3: 'Cushioned' } },
-				bottomsizemax: { min: 0, max: 9, decimals: 0, displayName: "Maximum bottom size:", textMap: { 0: 'Slender', 1: 'Slim', 2: 'Modest', 3: 'Cushioned', 4: 'Soft', 5: 'Round', 6: 'Plump', 7: 'Large', 8: 'Huge', 9: 'Huge' } },
-				penissizemin: { min: -2, max: 0, decimals: 0, displayName: "Minimum penis size:", textMap: { '-2': 'Micro', '-1': 'Mini', '0': 'Tiny' } },
-				penissizemax: { min: -2, max: 4, decimals: 0, displayName: "Maximum penis size:", textMap: { '-2': 'Micro', '-1': 'Mini', '0': 'Tiny', '1': 'Small', '2': 'Normal', '3': 'Large', '4': 'Enormous' } },
+				asphyxiaLvl: {
+					min: 0,
+					max: 4,
+					decimals: 0,
+					displayName: "Asphyxiation:",
+					textMap: {
+						0: "NPCs will not touch your neck",
+						1: "NPCs may grab you by the neck without impeding breathing",
+						2: "NPCs may try to choke you during consensual encounters",
+						3: "NPCs may try to strangle you during non-consensual encounters",
+					},
+				},
+				NudeGenderDC: {
+					min: 0,
+					max: 2,
+					decimals: 0,
+					displayName: "Nude gender appearance:",
+					textMap: {
+						"-1": "NPCs will ignore genitals when perceiving gender, and crossdressing warnings will not be displayed",
+						0: "NPCs will ignore genitals when perceiving gender",
+						1: "NPCs will consider your genitals when perceiving your gender",
+						2: "NPCs will judge your gender based on your genitals",
+					},
+				},
+				breastsizemin: {
+					min: 0,
+					max: 4,
+					decimals: 0,
+					displayName: "Minimum breast size:",
+					textMap: { 0: "Flat", 1: "Budding", 2: "Tiny", 3: "Small", 4: "Pert" },
+				},
+				breastsizemax: {
+					min: 0,
+					max: 12,
+					decimals: 0,
+					displayName: "Maximum breast size:",
+					textMap: {
+						0: "Flat",
+						1: "Budding",
+						2: "Tiny",
+						3: "Small",
+						4: "Pert",
+						5: "Modest",
+						6: "Full",
+						7: "Large",
+						8: "Ample",
+						9: "Massive",
+						10: "Huge",
+						11: "Gigantic",
+						12: "Enormous",
+					},
+				},
+				bottomsizemin: {
+					min: 0,
+					max: 2,
+					decimals: 0,
+					displayName: "Minimum bottom size:",
+					textMap: { 0: "Slender", 1: "Slim", 2: "Modest", 3: "Cushioned" },
+				},
+				bottomsizemax: {
+					min: 0,
+					max: 9,
+					decimals: 0,
+					displayName: "Maximum bottom size:",
+					textMap: { 0: "Slender", 1: "Slim", 2: "Modest", 3: "Cushioned", 4: "Soft", 5: "Round", 6: "Plump", 7: "Large", 8: "Huge", 9: "Huge" },
+				},
+				penissizemin: { min: -2, max: 0, decimals: 0, displayName: "Minimum penis size:", textMap: { "-2": "Micro", "-1": "Mini", 0: "Tiny" } },
+				penissizemax: {
+					min: -2,
+					max: 4,
+					decimals: 0,
+					displayName: "Maximum penis size:",
+					textMap: { "-2": "Micro", "-1": "Mini", 0: "Tiny", 1: "Small", 2: "Normal", 3: "Large", 4: "Enormous" },
+				},
 				basePlayerPregnancyChance: { min: 0, max: 96, decimals: 0, displayName: "Base player pregnancy chance:", randomize: "gameplay" },
 				baseNpcPregnancyChance: { min: 0, max: 16, decimals: 0, displayName: "Base NPC pregnancy chance:", randomize: "gameplay" },
 				humanPregnancyMonths: { min: 1, max: 9, decimals: 0, displayName: "Human pregnancy length:" },
@@ -974,8 +1130,20 @@ function settingsObjects(type) {
 				npcPregnancyDisable: { boolLetter: true, bool: true, displayName: "NPC pregnancy:" },
 				cycledisable: { boolLetter: true, bool: true, displayName: "Menstrual cycle:" },
 				pregnancytype: { strings: ["realistic", "fetish", "silly"], displayName: "Pregnancy mode:" },
-				condomLvl: { min: 0, max: 3, decimals: 0, displayName: "Condoms:", textMap: { 0: 'Everyone is allergic to latex and safe sex', 1: 'Only you may use condoms, but you may give NPCs condoms', 2: 'NPCs will only have condoms if pregnancy between them and the player is possible', 3: 'NPCs may have and use condoms whenever they please' }, randomize: "gameplay" },
-				checkstyle: { strings: ["percentage", "words", "skillname"], randomize: "gameplay", displayName: "Skill check display:"	},
+				condomLvl: {
+					min: 0,
+					max: 3,
+					decimals: 0,
+					displayName: "Condoms:",
+					textMap: {
+						0: "Everyone is allergic to latex and safe sex",
+						1: "Only you may use condoms, but you may give NPCs condoms",
+						2: "NPCs will only have condoms if pregnancy between them and the player is possible",
+						3: "NPCs may have and use condoms whenever they please",
+					},
+					randomize: "gameplay",
+				},
+				checkstyle: { strings: ["percentage", "words", "skillname"], randomize: "gameplay", displayName: "Skill check display:" },
 				debugdisable: { boolLetter: true, bool: true, displayName: "Debug mode:" },
 				statdisable: { boolLetter: true, bool: true, displayName: "Blind stats mode:" },
 				cheatdisabletoggle: { boolLetter: true, bool: true, displayName: "Cheat mode:" },
@@ -1027,13 +1195,19 @@ function settingsObjects(type) {
 					showDebugRenderer: { bool: true, displayName: "Enable renderer debugger:" },
 					numpad: { bool: true, displayName: "Enable numpad:" },
 					traitOverlayFormat: { strings: ["table", "reducedTable", "list"], displayName: "Display traits:" },
-					font: { strings: ["", "Arial", "Verdana", "TimesNewRoman", "Georgia", "Garamond", "CourierNew", "LucidaConsole", "Monaco", "ComicSans"], displayName: "Font:" },
+					font: {
+						strings: ["", "Arial", "Verdana", "TimesNewRoman", "Georgia", "Garamond", "CourierNew", "LucidaConsole", "Monaco", "ComicSans"],
+						displayName: "Font:",
+					},
 					passageLineHeight: { strings: [0, 1, 1.25, 1.5, 1.75, 2], displayName: "Passage line height:" },
 					overlayLineHeight: { strings: [0, 1, 1.25, 1.5, 1.75, 2], displayName: "Overlay line height:" },
 					sidebarLineHeight: { strings: [0, 1, 1.25, 1.5, 1.75, 2], displayName: "Sidebar line height:" },
 					passageFontSize: { strings: [0, 10, 12, 14, 16, 18, 20], displayName: "Passage font size:" },
 					overlayFontSize: { strings: [0, 10, 12, 14, 16, 18, 20], displayName: "Overlay font size:" },
 					sidebarFontSize: { strings: [0, 12, 14, 16, 18, 20], displayName: "Sidebar font size:" },
+					genderBody: { strings: ["default", "m", "a", "f"], displayName: "Body type displayed:" },
+					notesAutoSave: { bool: true, displayName: "Notes auto saving:" },
+					dateFormat: { strings: ["en-GB", "en-US", "zh-CN"], displayName: "Date format:" },
 				},
 				shopDefaults: {
 					alwaysBackToShopButton: { bool: true },
@@ -1056,10 +1230,31 @@ function settingsObjects(type) {
 			break;
 		case "npc":
 			result = {
-				pronoun: { strings: ["m", "f"], displayName: "Pronoun: ", textMap: { 'none': 'N/A', 'm': 'Male', 'f': 'Female' } },
-				gender: { strings: ["m", "f"], displayName: "Genitalia: ", textMap: { 'none': 'N/A', 'm': 'Penis', 'f': 'Vagina' } },
-				penissize: { min: 0, max: 4, decimals: 0, displayName: "Penis size: ", textMap: { '0': 'N/A', '1': 'Tiny', '2': 'Average', '3': 'Thick', '4': 'Huge' } },
-				breastsize: { min: 0, max: 12, decimals: 0, displayName: "Breast size: ", textMap: { 'none': 'N/A', '0': 'Flat', '1': 'Budding', '2': 'Tiny', '3': 'Small', '4': 'Pert', '5': 'Modest', '6': 'Full', '7': 'Large', '8': 'Ample', '9': 'Massive', '10': 'Huge', '11': 'Gigantic', '12': 'Enormous' } },
+				pronoun: { strings: ["m", "f"], displayName: "Pronoun: ", textMap: { none: "N/A", m: "Male", f: "Female" } },
+				gender: { strings: ["m", "f"], displayName: "Genitalia: ", textMap: { none: "N/A", m: "Penis", f: "Vagina" } },
+				penissize: { min: 0, max: 4, decimals: 0, displayName: "Penis size: ", textMap: { 0: "N/A", 1: "Tiny", 2: "Average", 3: "Thick", 4: "Huge" } },
+				breastsize: {
+					min: 0,
+					max: 12,
+					decimals: 0,
+					displayName: "Breast size: ",
+					textMap: {
+						none: "N/A",
+						0: "Flat",
+						1: "Budding",
+						2: "Tiny",
+						3: "Small",
+						4: "Pert",
+						5: "Modest",
+						6: "Full",
+						7: "Large",
+						8: "Ample",
+						9: "Massive",
+						10: "Huge",
+						11: "Gigantic",
+						12: "Enormous",
+					},
+				},
 			};
 			break;
 	}
@@ -1164,7 +1359,7 @@ window.randomizeSettings = function (filter) {
 		const rn = Math.floor(Math.random() * (maxMult - minMult)) / decimalsMult + min;
 		return parseFloat(rn.toFixed(decimals));
 	};
-		  const randomizeSettingSet = function (setting) {
+	const randomizeSettingSet = function (setting) {
 		let result;
 		const keys = Object.keys(setting);
 		if (keys.includes("min")) {
@@ -1201,7 +1396,7 @@ window.updateMoment = function () {
 	// delete Object.assign(moment, { delta: State.deltaEncode(moment.history) }).history;
 
 	// replace saved moment in session with the new one
-	setSessionState(moment);
+	State.setSessionState(moment);
 
 	// Voilà! F5 will reload the current state now without going to another passage!
 };

@@ -335,12 +335,12 @@
 
 		<<if $leftaction is "handedge">>
 			<<personselect $lefttarget>><<actionshandedge $lefttarget $leftarm>><<set $leftaction to 0>><<set $leftactiondefault to "handedge">>
-			<<submission 5>><<sexControl 5 $handskill $lefttarget>><<handskilluse>>
+			<<submission 5>><<sexControl 5 `currentSkillValue("handskill")` $lefttarget>><<handskilluse>>
 		<</if>>
 
 		<<if $rightaction is "handedge">>
 			<<personselect $righttarget>><<actionshandedge $righttarget $rightarm>><<set $rightaction to 0>><<set $rightactiondefault to "handedge">>
-			<<submission 5>><<sexControl 5 $handskill $righttarget>><<handskilluse>>
+			<<submission 5>><<sexControl 5 `currentSkillValue("handskill")` $righttarget>><<handskilluse>>
 		<</if>>
 
 		<<if $leftaction is "leftstoppenis" and $NPCList[$lefttarget].penis is "leftarm">>
@@ -481,13 +481,17 @@
 
 		<<if $leftaction is "lefthit">>
 			<<set $leftaction to 0>><<set $leftactiondefault to "lefthit">>
-			<<if $parasite.left_ear.name is "slime" and random(1, 3) is 3 or $parasite.right_ear.name is "slime" and random(1, 3) is 3>>
-				<<if $corruption_slime gte (currentSkillValue('willpower') / 10)>>
+			<<if ($parasite.left_ear.name is "slime" and random(1, 3) is 3) or ($parasite.right_ear.name is "slime" and random(1, 3) is 3) or ($earSlime.growth gte 50 and random(1, 3) is 3)>>
+				<<if $earSlime.growth gte (currentSkillValue('willpower') / 10) and random(0,100) gte $earSlime.growth / 3>>
 					You try to hit the <<if $enemytype is "beast">><<beasttype>><<else>><<personselect $lefttarget>><<person>><</if>>
 					with your left hand, <span class="red">but the slime immobilises your limb.</span>
+					<<if $earSlime.growth gt 50>><<set $earSlime.defyCooldown++>><</if>>
+				<<elseif $earSlime.corruption gte (currentSkillValue('willpower') / 10) and random(0,100) gte 50>>
+					You try to hit the <<if $enemytype is "beast">><<beasttype>><<else>><<personselect $lefttarget>><<person>><</if>>
+					with your left hand, <span class="red">but the slime distracts you, so you miss.</span>
 					<<gwillpower>><<willpower 1>>
 				<<else>>
-					The slime tries to immobilise your left arm, <span class="green">but you wrestle control away from it.</span>
+					The slime tries to prevent you from hitting the <<if $enemytype is "beast">><<beasttype>><<else>><<personselect $lefttarget>><<person>><</if>>, <span class="green">but you make contact regardless.</span>
 					<<actionshit $lefttarget>><<defiance 2 $lefttarget>><<set $speechhit to 1>><<set $attackstat += 1>>
 				<</if>>
 			<<else>>
@@ -497,13 +501,17 @@
 
 		<<if $rightaction is "righthit">>
 			<<set $rightaction to 0>><<set $rightactiondefault to "righthit">><<personselect $righttarget>>
-			<<if $parasite.left_ear.name is "slime" and random(1, 3) is 3 or $parasite.right_ear.name is "slime" and random(1, 3) is 3>>
-				<<if $corruption_slime gte (currentSkillValue('willpower') / 10)>>
+			<<if ($parasite.left_ear.name is "slime" and random(1, 3) is 3) or ($parasite.right_ear.name is "slime" and random(1, 3) is 3) or ($earSlime.growth gte 50 and random(1, 3) is 3)>>
+				<<if $earSlime.growth gte (currentSkillValue('willpower') / 10) and random(0,100) gte $earSlime.growth / 3>>
 					You try to hit the <<if $enemytype is "beast">><<beasttype>><<else>><<person>><</if>>
 					with your right hand, <span class="red">but the slime immobilises your limb.</span>
+					<<if $earSlime.growth gt 50>><<set $earSlime.defyCooldown++>><</if>>
+				<<elseif $earSlime.corruption gte (currentSkillValue('willpower') / 10) and random(0,100) gte 50>>
+					You try to hit the <<if $enemytype is "beast">><<beasttype>><<else>><<person>><</if>>
+					with your right hand, <span class="red">but the slime distracts you, so you miss.</span>
 					<<gwillpower>><<willpower 1>>
 				<<else>>
-					The slime tries to immobilise your right arm, <span class="green">but you wrestle control away from it.</span>
+					The slime tries to prevent you from hitting the <<if $enemytype is "beast">><<beasttype>><<else>><<personselect $lefttarget>><<person>><</if>>, <span class="green">but you make contact regardless.</span>
 					<<actionshit $righttarget>><<defiance 2 $righttarget>><<set $speechhit to 1>><<set $attackstat += 1>>
 				<</if>>
 			<<else>>
@@ -592,509 +600,82 @@
 			<</if>>
 		<</if>>
 
+		/* Vagina Cover */
+
+		<<if $leftaction is "leftcovervaginalewd" and $rightaction is "rightcovervaginalewd">>
+			<<effectsCoverVagina "both" "lewd">>
+		<<elseif $leftaction is "leftcovervaginalewd">>
+			<<effectsCoverVagina "left" "lewd">>
+		<<elseif $rightaction is "rightcovervaginalewd">>
+			<<effectsCoverVagina "right" "lewd">>
+		<</if>>
+
 		<<if $leftaction is "leftcovervaginameek" and $rightaction is "rightcovervaginameek">>
-			<<if $uncomfortable.hypnosis is false and $hypnosis_traits.cover gte random(1,5)>>
-				<<hypnosisicon>> You intend to cover your face, but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span>
-				You gently tease your pussy, spreading it open with both hands.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>>
-				<<hypnosisicon>>
-				<<set $leftaction to 0>><<set $rightaction to 0>><<set $leftactiondefault to "leftstopvagina">><<set $rightactiondefault to "rightstopvagina">><<set $leftarm to 0>><<set $rightarm to 0>><<set $vaginause to 0>>
-			<<elseif $hypnosis_traits.cover gte 1 and $willpower lt random(1, (200 * $hypnosis_traits.cover))>>
-				<<hypnosisicon>> You intend to cover your vagina, <span class="pink">but the thought is snatched from your mind, and replaced with another.</span>
-				You gently tease your pussy, spreading it open with both hands.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>><<willpower 1>>
-				<<hypnosisicon>>
-				<<set $leftaction to 0>><<set $rightaction to 0>><<set $leftactiondefault to "leftstopvagina">><<set $rightactiondefault to "rightstopvagina">><<set $leftarm to 0>><<set $rightarm to 0>><<set $vaginause to 0>>
-			<<else>>
-				You
-				<<if $hypnosis_traits.cover gte 1>>
-					<span class="green">resist intrusive thoughts</span> and
-				<</if>>
-				<<if ($worn.lower.name is "towel skirt" or $worn.lower.name is "large towel bottom") and $worn.lower.state is "waist">>
-					cover your pussy with your hands, tugging the towel further over it.
-				<<else>>
-					cover your pussy with your hands.
-				<</if>>
-				<<meek 2>><<set $leftarm to "vagina">><<set $rightarm to "vagina">><<set $vaginause to "cover">><<set $speechcovervagina to 1>>
-				<<set $leftaction to 0>><<set $rightaction to 0>><<set $leftactiondefault to "leftcovervaginameek">><<set $rightactiondefault to "rightcovervaginameek">>
-			<</if>>
-		<</if>>
-
-		<<if $leftaction is "leftcovervaginameek">>
-			<<if $uncomfortable.hypnosis is false and $hypnosis_traits.cover gte random(1,5)>>
-				<<hypnosisicon>> You intend to cover your vagina, but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span>
-				You gently tease your pussy with your left hand, pointing at it.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>>
-				<<hypnosisicon>>
-				<<set $leftaction to 0>><<set $leftactiondefault to "leftstopvagina">><<set $leftarm to 0>><<set $vaginause to 0>>
-			<<elseif $hypnosis_traits.cover gte 1 and $willpower lt random(1, (200 * $hypnosis_traits.cover))>>
-				<<hypnosisicon>> You intend to cover your vagina, <span class="pink">but the thought is snatched from your mind, and replaced with another.</span>
-				You gently tease your pussy with your left hand, pointing at it.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>><<willpower 1>>
-				<<hypnosisicon>>
-				<<set $leftaction to 0>><<set $leftactiondefault to "leftstopvagina">><<set $leftarm to 0>><<set $vaginause to 0>>
-			<<else>>
-				You
-				<<if $hypnosis_traits.cover gte 1>>
-					<span class="green">resist intrusive thoughts</span> and
-				<</if>>
-				<<if ($worn.lower.name is "towel skirt" or $worn.lower.name is "large towel bottom") and $worn.lower.state is "waist">>
-					cover your pussy with your left hand, tugging the towel further over it.
-				<<else>>
-					cover your pussy with your left hand.
-				<</if>>
-				<<meek 1>><<set $leftarm to "vagina">><<set $vaginause to "cover">><<set $speechcovervagina to 1>>
-				<<set $leftaction to 0>><<set $leftactiondefault to "leftcovervaginameek">>
-			<</if>>
-		<</if>>
-
-		<<if $rightaction is "rightcovervaginameek">>
-			<<if $uncomfortable.hypnosis is false and $hypnosis_traits.cover gte random(1,5)>>
-				<<hypnosisicon>> You intend to cover your vagina, but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span>
-				You gently tease your pussy with your right hand, pointing at it.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>>
-				<<hypnosisicon>>
-				<<set $rightaction to 0>><<set $rightactiondefault to "rightstopvagina">><<set $rightarm to 0>><<set $vaginause to 0>>
-			<<elseif $hypnosis_traits.cover gte 1 and $willpower lt random(1, (200 * $hypnosis_traits.cover))>>
-				<<hypnosisicon>> You intend to cover your vagina, <span class="pink">but the thought is snatched from your mind, and replaced with another.</span>
-				You gently tease your pussy with your right hand, pointing at it.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>><<willpower 1>>
-				<<hypnosisicon>>
-				<<set $rightaction to 0>><<set $rightactiondefault to "rightstopvagina">><<set $rightarm to 0>><<set $vaginause to 0>>
-			<<else>>
-				You
-				<<if $hypnosis_traits.cover gte 1>>
-					<span class="green">resist intrusive thoughts</span> and
-				<</if>>
-				<<if ($worn.lower.name is "towel skirt" or $worn.lower.name is "large towel bottom") and $worn.lower.state is "waist">>
-					cover your pussy with your right hand, tugging the towel further over it.
-				<<else>>
-					cover your pussy with your right hand.
-				<</if>>
-				<<meek 1>><<set $rightarm to "vagina">><<set $vaginause to "cover">><<set $speechcovervagina to 1>>
-				<<set $rightaction to 0>><<set $rightactiondefault to "rightcovervaginameek">>
-			<</if>>
+			<<effectsCoverVagina "both" "meek">>
+		<<elseif $leftaction is "leftcovervaginameek">>
+			<<effectsCoverVagina "left" "meek">>
+		<<elseif $rightaction is "rightcovervaginameek">>
+			<<effectsCoverVagina "right" "meek">>
 		<</if>>
 
 		<<if $leftaction is "leftcovervagina" and $rightaction is "rightcovervagina">>
-			<<if $uncomfortable.hypnosis is false and $hypnosis_traits.cover gte random(1,5)>>
-				<<hypnosisicon>> You intend to cover your vagina, but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span>
-				You gently tease your pussy, spreading it open with both hands.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>>
-				<<hypnosisicon>>
-				<<set $leftaction to 0>><<set $rightaction to 0>><<set $leftactiondefault to "leftstopvagina">><<set $rightactiondefault to "rightstopvagina">><<set $leftarm to 0>><<set $rightarm to 0>><<set $vaginause to 0>>
-			<<elseif $hypnosis_traits.cover gte 1 and $willpower lt random(1, (200 * $hypnosis_traits.cover))>>
-				<<hypnosisicon>> You intend to cover your vagina, <span class="pink">but the thought is snatched from your mind, and replaced with another.</span>
-				You gently tease your pussy, spreading it open with both hands.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>><<willpower 1>>
-				<<hypnosisicon>>
-				<<set $leftaction to 0>><<set $rightaction to 0>><<set $leftactiondefault to "leftstopvagina">><<set $rightactiondefault to "rightstopvagina">><<set $leftarm to 0>><<set $rightarm to 0>><<set $vaginause to 0>>
-			<<else>>
-				You
-				<<if $hypnosis_traits.cover gte 1>>
-					<span class="green">resist intrusive thoughts</span> and
-				<</if>>
-				<<if ($worn.lower.name is "towel skirt" or $worn.lower.name is "large towel bottom") and $worn.lower.state is "waist">>
-					cover your pussy with your hands, tugging the towel further over it.
-				<<else>>
-					cover your pussy with your hands.
-				<</if>>
-				<<brat 2>><<set $leftarm to "vagina">><<set $rightarm to "vagina">><<set $vaginause to "cover">><<set $speechcovervagina to 1>>
-				<<set $leftaction to 0>><<set $rightaction to 0>><<set $leftactiondefault to "leftcovervagina">><<set $rightactiondefault to "rightcovervagina">>
-			<</if>>
+			<<effectsCoverVagina "both">>
+		<<elseif $leftaction is "leftcovervagina">>
+			<<effectsCoverVagina "left">>
+		<<elseif $rightaction is "rightcovervagina">>
+			<<effectsCoverVagina "right">>
 		<</if>>
 
-		<<if $leftaction is "leftcovervagina">>
-			<<if $uncomfortable.hypnosis is false and $hypnosis_traits.cover gte random(1,5)>>
-				<<hypnosisicon>> You intend to cover your vagina, but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span>
-				You gently tease your pussy with your left hand, pointing at it.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>>
-				<<hypnosisicon>>
-				<<set $leftaction to 0>><<set $leftactiondefault to "leftstopvagina">><<set $leftarm to 0>><<set $vaginause to 0>>
-			<<elseif $hypnosis_traits.cover gte 1 and $willpower lt random(1, (200 * $hypnosis_traits.cover))>>
-				<<hypnosisicon>> You intend to cover your vagina, <span class="pink">but the thought is snatched from your mind, and replaced with another.</span>
-				You gently tease your pussy with your left hand, pointing at it.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>><<willpower 1>>
-				<<hypnosisicon>>
-				<<set $leftaction to 0>><<set $leftactiondefault to "leftstopvagina">><<set $leftarm to 0>><<set $vaginause to 0>>
-			<<else>>
-				You
-				<<if $hypnosis_traits.cover gte 1>>
-					<span class="green">resist intrusive thoughts</span> and
-				<</if>>
-				<<if ($worn.lower.name is "towel skirt" or $worn.lower.name is "large towel bottom") and $worn.lower.state is "waist">>
-					cover your pussy with your left hand, tugging the towel further over it.
-				<<else>>
-					cover your pussy with your left hand.
-				<</if>>
-				<<brat 1>><<set $leftarm to "vagina">><<set $vaginause to "cover">><<set $speechcovervagina to 1>>
-				<<set $leftaction to 0>><<set $leftactiondefault to "leftcovervagina">>
-			<</if>>
-		<</if>>
+		/* Penis Cover */
 
-		<<if $rightaction is "rightcovervagina">>
-			<<if $uncomfortable.hypnosis is false and $hypnosis_traits.cover gte random(1,5)>>
-				<<hypnosisicon>> You intend to cover your vagina, but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span>
-				You gently tease your pussy with your right hand, pointing at it.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>>
-				<<hypnosisicon>>
-				<<set $rightaction to 0>><<set $rightactiondefault to "rightstopvagina">><<set $rightarm to 0>><<set $vaginause to 0>>
-			<<elseif $hypnosis_traits.cover gte 1 and $willpower lt random(1, (200 * $hypnosis_traits.cover))>>
-				<<hypnosisicon>> You intend to cover your vagina, <span class="pink">but the thought is snatched from your mind, and replaced with another.</span>
-				You gently tease your pussy with your right hand, pointing at it.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>><<willpower 1>>
-				<<hypnosisicon>>
-				<<set $rightaction to 0>><<set $rightactiondefault to "rightstopvagina">><<set $rightarm to 0>><<set $vaginause to 0>>
-			<<else>>
-				You
-				<<if $hypnosis_traits.cover gte 1>>
-					<span class="green">resist intrusive thoughts</span> and
-				<</if>>
-				<<if ($worn.lower.name is "towel skirt" or $worn.lower.name is "large towel bottom") and $worn.lower.state is "waist">>
-					cover your pussy with your right hand, tugging the towel further over it.
-				<<else>>
-					cover your pussy with your right hand.
-				<</if>>
-				<<brat 1>><<set $rightarm to "vagina">><<set $vaginause to "cover">><<set $speechcovervagina to 1>>
-				<<set $rightaction to 0>><<set $rightactiondefault to "rightcovervagina">>
-			<</if>>
+		<<if $leftaction is "leftcoverpenislewd" and $rightaction is "rightcoverpenislewd">>
+			<<effectsCoverPenis "both" "lewd">>
+		<<elseif $leftaction is "leftcoverpenislewd">>
+			<<effectsCoverPenis "left" "lewd">>
+		<<elseif $rightaction is "rightcoverpenislewd">>
+			<<effectsCoverPenis "right" "lewd">>
 		<</if>>
 
 		<<if $leftaction is "leftcoverpenismeek" and $rightaction is "rightcoverpenismeek">>
-			<<if $uncomfortable.hypnosis is false and $hypnosis_traits.cover gte random(1,5)>>
-				<<hypnosisicon>> You intend to cover your penis, but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span>
-				You gently tease your penis, tracing a finger down the length with one hand and circling the tip with another.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>>
-				<<hypnosisicon>>
-				<<set $leftaction to 0>><<set $rightaction to 0>><<set $leftactiondefault to "leftstopcoverpenis">><<set $rightactiondefault to "rightstopcoverpenis">><<set $leftarm to 0>><<set $rightarm to 0>><<set $penisuse to 0>>
-			<<elseif $hypnosis_traits.cover gte 1 and $willpower lt random(1, (200 * $hypnosis_traits.cover))>>
-				<<hypnosisicon>> You intend to cover your penis <span class="pink">but the thought is snatched from your mind, and replaced with another.</span>
-				You gently tease your penis, tracing a finger down the length with one hand and circling the tip with another.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>><<willpower 1>>
-				<<hypnosisicon>>
-				<<set $leftaction to 0>><<set $rightaction to 0>><<set $leftactiondefault to "leftstopcoverpenis">><<set $rightactiondefault to "rightstopcoverpenis">><<set $leftarm to 0>><<set $rightarm to 0>><<set $penisuse to 0>>
-			<<else>>
-				You
-				<<if $hypnosis_traits.cover gte 1>>
-					<span class="green">resist intrusive thoughts</span> and
-				<</if>>
-				<<if ($worn.lower.name is "towel skirt" or $worn.lower.name is "large towel bottom") and $worn.lower.state is "waist">>
-					cover your penis with your hands, tugging the towel further over it.
-				<<else>>
-					cover your penis with your hands.
-				<</if>>
-				<<meek 2>><<set $leftarm to "coverpenis">><<set $rightarm to "coverpenis">><<set $penisuse to "cover">><<set $speechcoverpenis to 1>>
-				<<set $leftaction to 0>><<set $rightaction to 0>><<set $leftactiondefault to "leftcoverpenismeek">><<set $rightactiondefault to "rightcoverpenismeek">>
-			<</if>>
+			<<effectsCoverPenis "both" "meek">>
+		<<elseif $leftaction is "leftcoverpenismeek">>
+			<<effectsCoverPenis "left" "meek">>
+		<<elseif $rightaction is "rightcoverpenismeek">>
+			<<effectsCoverPenis "right" "meek">>
 		<</if>>
-
-		<<if $leftaction is "leftcoverpenismeek">>
-			<<if $uncomfortable.hypnosis is false and $hypnosis_traits.cover gte random(1,5)>>
-				<<hypnosisicon>> You intend to cover your penis, but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span>
-				You gently tease your penis with your left hand, tracing a finger down the length.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>>
-				<<hypnosisicon>>
-				<<set $leftaction to 0>><<set $leftactiondefault to "leftstopcoverpenis">><<set $leftarm to 0>><<set $penisuse to 0>>
-			<<elseif $hypnosis_traits.cover gte 1 and $willpower lt random(1, (200 * $hypnosis_traits.cover))>>
-				<<hypnosisicon>> You intend to cover your penis <span class="pink">but the thought is snatched from your mind, and replaced with another.</span>
-				You gently tease your penis with your left hand, tracing a finger down the length.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>><<willpower 1>>
-				<<hypnosisicon>>
-				<<set $leftaction to 0>><<set $leftactiondefault to "leftstopcoverpenis">><<set $leftarm to 0>><<set $penisuse to 0>>
-			<<else>>
-				You
-				<<if $hypnosis_traits.cover gte 1>>
-					<span class="green">resist intrusive thoughts</span> and
-				<</if>>
-				<<if ($worn.lower.name is "towel skirt" or $worn.lower.name is "large towel bottom") and $worn.lower.state is "waist">>
-					cover your penis with your left hand, tugging the towel further over it.
-				<<else>>
-					cover your penis with your left hand.
-				<</if>>
-				<<meek 1>><<set $leftarm to "coverpenis">><<set $penisuse to "cover">><<set $speechcoverpenis to 1>>
-				<<set $leftaction to 0>><<set $leftactiondefault to "leftcoverpenismeek">>
-			<</if>>
-		<</if>>
-
-		<<if $rightaction is "rightcoverpenismeek">>
-			<<if $uncomfortable.hypnosis is false and $hypnosis_traits.cover gte random(1,5)>>
-				<<hypnosisicon>> You intend to cover your penis, but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span>
-				You gently tease your penis with your right hand, tracing a finger down the length.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>>
-				<<hypnosisicon>>
-				<<set $rightaction to 0>><<set $rightactiondefault to "rightstopcoverpenis">><<set $rightarm to 0>><<set $penisuse to 0>>
-			<<elseif $hypnosis_traits.cover gte 1 and $willpower lt random(1, (200 * $hypnosis_traits.cover))>>
-				<<hypnosisicon>> You intend to cover your penis <span class="pink">but the thought is snatched from your mind, and replaced with another.</span>
-				You gently tease your penis with your right hand, tracing a finger down the length.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>><<willpower 1>>
-				<<hypnosisicon>>
-				<<set $rightaction to 0>><<set $rightactiondefault to "rightstopcoverpenis">><<set $rightarm to 0>><<set $penisuse to 0>>
-			<<else>>
-				You
-				<<if $hypnosis_traits.cover gte 1>>
-					<span class="green">resist intrusive thoughts</span> and
-				<</if>>
-				<<if ($worn.lower.name is "towel skirt" or $worn.lower.name is "large towel bottom") and $worn.lower.state is "waist">>
-					cover your penis with your right hand, tugging the towel further over it.
-				<<else>>
-					cover your penis with your right hand.
-				<</if>>
-				<<meek 1>><<set $righttarm to "coverpenis">><<set $penisuse to "cover">><<set $speechcoverpenis to 1>>
-				<<set $rightaction to 0>><<set $rightactiondefault to "rightcoverpenismeek">>
-			<</if>>
-		<</if>>
-
 
 		<<if $leftaction is "leftcoverpenis" and $rightaction is "rightcoverpenis">>
-			<<if $uncomfortable.hypnosis is false and $hypnosis_traits.cover gte random(1,5)>>
-				<<hypnosisicon>> You intend to cover your penis, but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span>
-				You gently tease your penis, tracing a finger down the length with one hand and circling the tip with another.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>>
-				<<hypnosisicon>>
-				<<set $leftaction to 0>><<set $rightaction to 0>><<set $leftactiondefault to "leftstopcoverpenis">><<set $rightactiondefault to "rightstopcoverpenis">><<set $leftarm to 0>><<set $rightarm to 0>><<set $penisuse to 0>>
-			<<elseif $hypnosis_traits.cover gte 1 and $willpower lt random(1, (200 * $hypnosis_traits.cover))>>
-				<<hypnosisicon>> You intend to cover your penis <span class="pink">but the thought is snatched from your mind, and replaced with another.</span>
-				You gently tease your penis, tracing a finger down the length with one hand and circling the tip with another.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>><<willpower 1>>
-				<<hypnosisicon>>
-				<<set $leftaction to 0>><<set $rightaction to 0>><<set $leftactiondefault to "leftstopcoverpenis">><<set $rightactiondefault to "rightstopcoverpenis">><<set $leftarm to 0>><<set $rightarm to 0>><<set $penisuse to 0>>
-			<<else>>
-				You
-				<<if $hypnosis_traits.cover gte 1>>
-					<span class="green">resist intrusive thoughts</span> and
-				<</if>>
-				<<if ($worn.lower.name is "towel skirt" or $worn.lower.name is "large towel bottom") and $worn.lower.state is "waist">>
-					cover your penis with your hands, tugging the towel further over it.
-				<<else>>
-					cover your penis with your hands.
-				<</if>>
-				<<brat 2>><<set $leftarm to "coverpenis">><<set $rightarm to "coverpenis">><<set $penisuse to "cover">><<set $speechcoverpenis to 1>>
-				<<set $leftaction to 0>><<set $rightaction to 0>><<set $leftactiondefault to "leftcoverpenis">><<set $rightactiondefault to "rightcoverpenis">>
-			<</if>>
+			<<effectsCoverPenis "both">>
+		<<elseif $leftaction is "leftcoverpenis">>
+			<<effectsCoverPenis "left">>
+		<<elseif $rightaction is "rightcoverpenis">>
+			<<effectsCoverPenis "right">>
 		<</if>>
 
-		<<if $leftaction is "leftcoverpenis">>
-			<<if $uncomfortable.hypnosis is false and $hypnosis_traits.cover gte random(1,5)>>
-				<<hypnosisicon>> You intend to cover your penis, but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span>
-				You gently tease your penis with your left hand, tracing a finger down the length.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>>
-				<<hypnosisicon>>
-				<<set $leftaction to 0>><<set $leftactiondefault to "leftstopcoverpenis">><<set $leftarm to 0>><<set $penisuse to 0>>
-			<<elseif $hypnosis_traits.cover gte 1 and $willpower lt random(1, (200 * $hypnosis_traits.cover))>>
-				<<hypnosisicon>> You intend to cover your penis <span class="pink">but the thought is snatched from your mind, and replaced with another.</span>
-				You gently tease your penis with your left hand, tracing a finger down the length.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>><<willpower 1>>
-				<<hypnosisicon>>
-				<<set $leftaction to 0>><<set $leftactiondefault to "leftstopcoverpenis">><<set $leftarm to 0>><<set $penisuse to 0>>
-			<<else>>
-				You
-				<<if $hypnosis_traits.cover gte 1>>
-					<span class="green">resist intrusive thoughts</span> and
-				<</if>>
-				<<if ($worn.lower.name is "towel skirt" or $worn.lower.name is "large towel bottom") and $worn.lower.state is "waist">>
-					cover your penis with your left hand, tugging the towel further over it.
-				<<else>>
-					cover your penis with your left hand.
-				<</if>>
-				<<brat 1>><<set $leftarm to "coverpenis">><<set $penisuse to "cover">><<set $speechcoverpenis to 1>>
-				<<set $leftaction to 0>><<set $leftactiondefault to "leftcoverpenis">>
-			<</if>>
-		<</if>>
+		/* Anus Cover */
 
-		<<if $rightaction is "rightcoverpenis">>
-			<<if $uncomfortable.hypnosis is false and $hypnosis_traits.cover gte random(1,5)>>
-				<<hypnosisicon>> You intend to cover your penis, but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span>
-				You gently tease your penis with your right hand, tracing a finger down the length.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>>
-				<<hypnosisicon>>
-				<<set $rightaction to 0>><<set $rightactiondefault to "rightstopcoverpenis">><<set $rightarm to 0>><<set $penisuse to 0>>
-			<<elseif $hypnosis_traits.cover gte 1 and $willpower lt random(1, (200 * $hypnosis_traits.cover))>>
-				<<hypnosisicon>> You intend to cover your penis <span class="pink">but the thought is snatched from your mind, and replaced with another.</span>
-				You gently tease your penis with your right hand, tracing a finger down the length.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>><<willpower 1>>
-				<<hypnosisicon>>
-				<<set $rightaction to 0>><<set $rightactiondefault to "rightstopcoverpenis">><<set $rightarm to 0>><<set $penisuse to 0>>
-			<<else>>
-				You
-				<<if $hypnosis_traits.cover gte 1>>
-					<span class="green">resist intrusive thoughts</span> and
-				<</if>>
-				<<if ($worn.lower.name is "towel skirt" or $worn.lower.name is "large towel bottom") and $worn.lower.state is "waist">>
-					cover your penis with your right hand, tugging the towel further over it.
-				<<else>>
-					cover your penis with your right hand.
-				<</if>>
-				<<brat 1>><<set $righttarm to "coverpenis">><<set $penisuse to "cover">><<set $speechcoverpenis to 1>>
-				<<set $rightaction to 0>><<set $rightactiondefault to "rightcoverpenis">>
-			<</if>>
+		<<if $leftaction is "leftcoveranuslewd" and $rightaction is "rightcoveranuslewd">>
+			<<effectsCoverAnus "both" "lewd">>
+		<<elseif $leftaction is "leftcoveranuslewd">>
+			<<effectsCoverAnus "left" "lewd">>
+		<<elseif $rightaction is "rightcoveranuslewd">>
+			<<effectsCoverAnus "right" "lewd">>
 		<</if>>
 
 		<<if $leftaction is "leftcoveranusmeek" and $rightaction is "rightcoveranusmeek">>
-			<<if $uncomfortable.hypnosis is false and $hypnosis_traits.cover gte random(1,5)>>
-				<<hypnosisicon>> You intend to cover your ass, but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span>
-				You grope your <<bottom>>, spreading your cheeks apart with both hands.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>>
-				<<hypnosisicon>>
-				<<set $leftaction to 0>><<set $rightaction to 0>><<set $leftactiondefault to "leftstopanus">><<set $rightactiondefault to "rightstopanus">><<set $leftarm to 0>><<set $rightarm to 0>><<set $anususe to 0>>
-			<<elseif $hypnosis_traits.cover gte 1 and $willpower lt random(1, (200 * $hypnosis_traits.cover))>>
-				<<hypnosisicon>> You intend to cover your ass, <span class="pink">but the thought is snatched from your mind, and replaced with another.</span>
-				You grope your <<bottom>>, spreading your cheeks apart with both hands.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>><<willpower 1>>
-				<<hypnosisicon>>
-				<<set $leftaction to 0>><<set $rightaction to 0>><<set $leftactiondefault to "leftstopanus">><<set $rightactiondefault to "rightstopanus">><<set $leftarm to 0>><<set $rightarm to 0>><<set $anususe to 0>>
-			<<else>>
-				You
-				<<if $hypnosis_traits.cover gte 1>>
-					<span class="green">resist intrusive thoughts</span> and
-				<</if>>
-				<<if ($worn.lower.name is "towel skirt" or $worn.lower.name is "large towel bottom") and $worn.lower.state is "waist">>
-					cover your ass with your hands, tugging the towel further over it.
-				<<else>>
-					cover your ass with your hands.
-				<</if>>
-				<<meek 2>><<set $leftarm to "anus">><<set $rightarm to "anus">><<set $anususe to "cover">>
-				<<set $leftaction to 0>><<set $rightaction to 0>><<set $leftactiondefault to "leftcoveranusmeek">><<set $rightactiondefault to "rightcoveranusmeek">>
-			<</if>>
-		<</if>>
-
-		<<if $leftaction is "leftcoveranusmeek">>
-			<<if $uncomfortable.hypnosis is false and $hypnosis_traits.cover gte random(1,5)>>
-				<<hypnosisicon>> You intend to cover your ass, but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span>
-				You grope your <<bottom>> with your left hand, giving it a small slap.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>>
-				<<hypnosisicon>>
-				<<set $leftaction to 0>><<set $leftactiondefault to "leftstopanus">><<set $leftarm to 0>><<set $anususe to 0>>
-			<<elseif $hypnosis_traits.cover gte 1 and $willpower lt random(1, (200 * $hypnosis_traits.cover))>>
-				<<hypnosisicon>> You intend to cover your ass, <span class="pink">but the thought is snatched from your mind, and replaced with another.</span>
-				You grope your <<bottom>> with your left hand, giving it a small slap.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>><<willpower 1>>
-				<<hypnosisicon>>
-				<<set $leftaction to 0>><<set $leftactiondefault to "leftstopanus">><<set $leftarm to 0>><<set $anususe to 0>>
-			<<else>>
-				You
-				<<if $hypnosis_traits.cover gte 1>>
-					<span class="green">resist intrusive thoughts</span> and
-				<</if>>
-				<<if ($worn.lower.name is "towel skirt" or $worn.lower.name is "large towel bottom") and $worn.lower.state is "waist">>
-					cover your ass with your left hand, tugging the towel further over it.
-				<<else>>
-					cover your ass with your left hand.
-				<</if>>
-				<<meek 1>><<set $leftarm to "anus">><<set $anususe to "cover">>
-				<<set $leftaction to 0>><<set $leftactiondefault to "leftcoveranusmeek">>
-			<</if>>
-		<</if>>
-
-		<<if $rightaction is "rightcoveranusmeek">>
-			<<if $uncomfortable.hypnosis is false and $hypnosis_traits.cover gte random(1,5)>>
-				<<hypnosisicon>> You intend to cover your ass, but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span>
-				You grope your <<bottom>> with your right hand, giving it a small slap.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>>
-				<<hypnosisicon>>
-				<<set $rightaction to 0>><<set $rightactiondefault to "rightstopanus">><<set $rightarm to 0>><<set $anususe to 0>>
-			<<elseif $hypnosis_traits.cover gte 1 and $willpower lt random(1, (200 * $hypnosis_traits.cover))>>
-				<<hypnosisicon>> You intend to cover your ass, <span class="pink">but the thought is snatched from your mind, and replaced with another.</span>
-				You grope your <<bottom>> with your right hand, giving it a small slap.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>><<willpower 1>>
-				<<hypnosisicon>>
-				<<set $rightaction to 0>><<set $rightactiondefault to "rightstopanus">><<set $rightarm to 0>><<set $anususe to 0>>
-			<<else>>
-				You
-				<<if $hypnosis_traits.cover gte 1>>
-					<span class="green">resist intrusive thoughts</span> and
-				<</if>>
-				<<if ($worn.lower.name is "towel skirt" or $worn.lower.name is "large towel bottom") and $worn.lower.state is "waist">>
-					cover your ass with your right hand, tugging the towel further over it.
-				<<else>>
-					cover your ass with your right hand.
-				<</if>>
-				<<meek 1>><<set $rightarm to "anus">><<set $anususe to "cover">>
-				<<set $rightaction to 0>><<set $rightactiondefault to "rightcoveranusmeek">>
-			<</if>>
+			<<effectsCoverAnus "both" "meek">>
+		<<elseif $leftaction is "leftcoveranusmeek">>
+			<<effectsCoverAnus "left" "meek">>
+		<<elseif $rightaction is "rightcoveranusmeek">>
+			<<effectsCoverAnus "right" "meek">>
 		<</if>>
 
 		<<if $leftaction is "leftcoveranus" and $rightaction is "rightcoveranus">>
-			<<if $uncomfortable.hypnosis is false and $hypnosis_traits.cover gte random(1,5)>>
-				<<hypnosisicon>> You intend to cover your ass, but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span>
-				You grope your <<bottom>>, spreading your cheeks apart with both hands.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>>
-				<<hypnosisicon>>
-				<<set $leftaction to 0>><<set $rightaction to 0>><<set $leftactiondefault to "leftstopanus">><<set $rightactiondefault to "rightstopanus">><<set $leftarm to 0>><<set $rightarm to 0>><<set $anususe to 0>>
-			<<elseif $hypnosis_traits.cover gte 1 and $willpower lt random(1, (200 * $hypnosis_traits.cover))>>
-				<<hypnosisicon>> You intend to cover your ass, <span class="pink">but the thought is snatched from your mind, and replaced with another.</span>
-				You grope your <<bottom>>, spreading your cheeks apart with both hands.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>><<willpower 1>>
-				<<hypnosisicon>>
-				<<set $leftaction to 0>><<set $rightaction to 0>><<set $leftactiondefault to "leftstopanus">><<set $rightactiondefault to "rightstopanus">><<set $leftarm to 0>><<set $rightarm to 0>><<set $anususe to 0>>
-			<<else>>
-				You
-				<<if $hypnosis_traits.cover gte 1>>
-					<span class="green">resist intrusive thoughts</span> and
-				<</if>>
-				<<if ($worn.lower.name is "towel skirt" or $worn.lower.name is "large towel bottom") and $worn.lower.state is "waist">>
-					cover your ass with your hands, tugging the towel further over it.
-				<<else>>
-					cover your ass with your hands.
-				<</if>>
-				<<brat 2>><<set $leftarm to "anus">><<set $rightarm to "anus">><<set $anususe to "cover">>
-				<<set $leftaction to 0>><<set $rightaction to 0>><<set $leftactiondefault to "leftcoveranus">><<set $rightactiondefault to "rightcoveranus">>
-			<</if>>
-		<</if>>
-
-		<<if $leftaction is "leftcoveranus">>
-			<<if $uncomfortable.hypnosis is false and $hypnosis_traits.cover gte random(1,5)>>
-				<<hypnosisicon>> You intend to cover your ass, but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span>
-				You grope your <<bottom>> with your left hand, giving it a small slap.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>>
-				<<hypnosisicon>>
-				<<set $leftaction to 0>><<set $leftactiondefault to "leftstopanus">><<set $leftarm to 0>><<set $anususe to 0>>
-			<<elseif $hypnosis_traits.cover gte 1 and $willpower lt random(1, (200 * $hypnosis_traits.cover))>>
-				<<hypnosisicon>> You intend to cover your ass, <span class="pink">but the thought is snatched from your mind, and replaced with another.</span>
-				You grope your <<bottom>> with your left hand, giving it a small slap.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>><<willpower 1>>
-				<<hypnosisicon>>
-				<<set $leftaction to 0>><<set $leftactiondefault to "leftstopanus">><<set $leftarm to 0>><<set $anususe to 0>>
-			<<else>>
-				You
-				<<if $hypnosis_traits.cover gte 1>>
-					<span class="green">resist intrusive thoughts</span> and
-				<</if>>
-				<<if ($worn.lower.name is "towel skirt" or $worn.lower.name is "large towel bottom") and $worn.lower.state is "waist">>
-					cover your ass with your left hand, tugging the towel further over it.
-				<<else>>
-					cover your ass with your left hand.
-				<</if>>
-				<<brat 1>><<set $leftarm to "anus">><<set $anususe to "cover">>
-				<<set $leftaction to 0>><<set $leftactiondefault to "leftcoveranus">>
-			<</if>>
-		<</if>>
-
-		<<if $rightaction is "rightcoveranus">>
-			<<if $uncomfortable.hypnosis is false and $hypnosis_traits.cover gte random(1,5)>>
-				<<hypnosisicon>> You intend to cover your ass, but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span>
-				You grope your <<bottom>> with your right hand, giving it a small slap.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>>
-				<<hypnosisicon>>
-				<<set $rightaction to 0>><<set $rightactiondefault to "rightstopanus">><<set $rightarm to 0>><<set $anususe to 0>>
-			<<elseif $hypnosis_traits.cover gte 1 and $willpower lt random(1, (200 * $hypnosis_traits.cover))>>
-				<<hypnosisicon>> You intend to cover your ass, <span class="pink">but the thought is snatched from your mind, and replaced with another.</span>
-				You grope your <<bottom>> with your right hand, giving it a small slap.
-				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>><<willpower 1>>
-				<<hypnosisicon>>
-				<<set $rightaction to 0>><<set $rightactiondefault to "rightstopanus">><<set $rightarm to 0>><<set $anususe to 0>>
-			<<else>>
-				You
-				<<if $hypnosis_traits.cover gte 1>>
-					<span class="green">resist intrusive thoughts</span> and
-				<</if>>
-				<<if ($worn.lower.name is "towel skirt" or $worn.lower.name is "large towel bottom") and $worn.lower.state is "waist">>
-					cover your ass with your right hand, tugging the towel further over it.
-				<<else>>
-					cover your ass with your right hand.
-				<</if>>
-				<<brat 1>><<set $rightarm to "anus">><<set $anususe to "cover">>
-				<<set $rightaction to 0>><<set $rightactiondefault to "rightcoveranus">>
-			<</if>>
+			<<effectsCoverAnus "both">>
+		<<elseif $leftaction is "leftcoveranus">>
+			<<effectsCoverAnus "left">>
+		<<elseif $rightaction is "rightcoveranus">>
+			<<effectsCoverAnus "right">>
 		<</if>>
 
 		<<if $leftaction is "leftstopvagina" and $rightaction is "rightstopvagina">>
@@ -1716,7 +1297,7 @@
 					<</switch>>
 				<<else>>
 					You try to <<npcUndressText $_npc $_clothesTarget>>, but <<he>> holds on to <<his>> clothes.
-					<<set $_npc.clothes[$_clothesTarget].integrity -= Math.floor(($handskill / 100) * 1.5)>>
+					<<set $_npc.clothes[$_clothesTarget].integrity -= Math.floor((currentSkillValue("handskill") / 100) * 1.5)>>
 				<</if>>
 			<</if>>
 			<<unset $undressLeftTarget>><<unset $undressRightTarget>>
@@ -1753,7 +1334,7 @@
 					<</switch>>
 				<<else>>
 					You try to <<npcUndressText $_npc $_clothesTarget>>, but <<he>> holds on to <<his>> clothes.
-					<<set $_npc.clothes[$_clothesTarget].integrity -= Math.floor($handskill / 100)>>
+					<<set $_npc.clothes[$_clothesTarget].integrity -= Math.floor(currentSkillValue("handskill") / 100)>>
 				<</if>>
 			<</if>>
 			<<unset $undressRightTarget>>
@@ -1790,7 +1371,7 @@
 					<</switch>>
 				<<else>>
 					You try to <<npcUndressText $_npc $_clothesTarget>>, but <<he>> holds on to <<his>> clothes.
-					<<set $_npc.clothes[$_clothesTarget].integrity -= Math.floor($handskill / 100)>>
+					<<set $_npc.clothes[$_clothesTarget].integrity -= Math.floor(currentSkillValue("handskill") / 100)>>
 				<</if>>
 			<</if>>
 			<<unset $undressLeftTarget>>
@@ -2737,18 +2318,71 @@
 		/*Stalked actions */
 		<<if !$stalk_end>>
 			<<if $leftaction is "clench" and $rightaction is "clench">>
-				<<set $leftactiondefault to "clench">><<set $leftaction to 0>><<set $rightactiondefault to "clench">><<set $rightaction to 0>><<brat 6>>
-				You clench your fists.
-			<</if>>
-
-			<<if $leftaction is "clench">>
-				<<set $leftactiondefault to "clench">><<set $leftaction to 0>><<brat 3>>
-				You clench your left fist.
-			<</if>>
-
-			<<if $rightaction is "clench">>
-				<<set $rightactiondefault to "clench">><<set $rightaction to 0>><<brat 3>>
-				You clench your right fist.
+				<<if $earSlime.growth gt 50 and $earSlime.growth - random(0, Math.clamp(300 - ($earSlime.defyCooldown * 20), 0, 300)) gte (currentSkillValue('willpower')/ 10) and $exhibitionism gte 15>>
+					<<if ($player.penisExist or playerHasStrapon()) and (!$player.vaginaExist or $worn.genitals.name is "chastity parasite" or random(0,100) gte 50)>>
+						<<set _slimeTarget to playerHasStrapon() ? "strap-on" : (playerChastity("penis") ? $worn.genitals.name : "penis")>>
+						<<set _slimeWidget to "penis">>
+					<<elseif $player.vaginaExist>>
+						<<set _slimeTarget to "vagina">>
+						<<set _slimeWidget to "vagina">>
+					<<else>>
+						<<set _slimeTarget to "butt">>
+						<<set _slimeWidget to "anus">>
+					<</if>>
+					You try to clench your fists, <span class="red">but you suddenly find them moving towards your _slimeTarget.</span> You feel the slime steal your control away.
+					<<switch _slimeWidget>>
+						<<case "penis">><<effectsCoverPenis "both" "lewd">>
+						<<case "vagina">><<effectsCoverVagina "both" "lewd">>
+						<<case "anus">><<effectsCoverAnus "both" "lewd">>
+					<</switch>>
+				<<else>>
+					<<set $leftactiondefault to "clench">><<set $leftaction to 0>><<set $rightactiondefault to "clench">><<set $rightaction to 0>><<brat 6>>
+					You clench your fists.
+				<</if>>
+			<<elseif $leftaction is "clench">>
+				<<if $earSlime.growth gt 50 and $earSlime.growth - random(0, Math.clamp(300 - ($earSlime.defyCooldown * 20), 0, 300)) gte (currentSkillValue('willpower')/ 10) and $exhibitionism gte 15>>
+					<<if ($player.penisExist or playerHasStrapon()) and (!$player.vaginaExist or $worn.genitals.name is "chastity parasite" or random(0,100) gte 50)>>
+						<<set _slimeTarget to playerHasStrapon() ? "strap-on" : (playerChastity("penis") ? $worn.genitals.name : "penis")>>
+						<<set _slimeWidget to "penis">>
+					<<elseif $player.vaginaExist>>
+						<<set _slimeTarget to "vagina">>
+						<<set _slimeWidget to "vagina">>
+					<<else>>
+						<<set _slimeTarget to "butt">>
+						<<set _slimeWidget to "anus">>
+					<</if>>
+					You try to clench your fists, <span class="red">but you suddenly find them moving towards your _slimeTarget.</span> You feel the slime steal your control away.
+					<<switch _slimeWidget>>
+						<<case "penis">><<effectsCoverPenis "left" "lewd">>
+						<<case "vagina">><<effectsCoverVagina "left" "lewd">>
+						<<case "anus">><<effectsCoverAnus "left" "lewd">>
+					<</switch>>
+				<<else>>
+					<<set $leftactiondefault to "clench">><<set $leftaction to 0>><<brat 3>>
+					You clench your left fist.
+				<</if>>
+			<<elseif $rightaction is "clench">>
+				<<if $earSlime.growth gt 50 and $earSlime.growth - random(0, Math.clamp(300 - ($earSlime.defyCooldown * 20), 0, 300)) gte (currentSkillValue('willpower')/ 10) and $exhibitionism gte 15>>
+					<<if ($player.penisExist or playerHasStrapon()) and (!$player.vaginaExist or $worn.genitals.name is "chastity parasite" or random(0,100) gte 50)>>
+						<<set _slimeTarget to playerHasStrapon() ? "strap-on" : (playerChastity("penis") ? $worn.genitals.name : "penis")>>
+						<<set _slimeWidget to "penis">>
+					<<elseif $player.vaginaExist>>
+						<<set _slimeTarget to "vagina">>
+						<<set _slimeWidget to "vagina">>
+					<<else>>
+						<<set _slimeTarget to "butt">>
+						<<set _slimeWidget to "anus">>
+					<</if>>
+					You try to clench your fists, <span class="red">but you suddenly find them moving towards your _slimeTarget.</span> You feel the slime steal your control away.
+					<<switch _slimeWidget>>
+						<<case "penis">><<effectsCoverPenis "right" "lewd">>
+						<<case "vagina">><<effectsCoverVagina "right" "lewd">>
+						<<case "anus">><<effectsCoverAnus "right" "lewd">>
+					<</switch>>
+				<<else>>
+					<<set $rightactiondefault to "clench">><<set $rightaction to 0>><<brat 3>>
+					You clench your right fist.
+				<</if>>
 			<</if>>
 
 			<<if $leftaction is "fold" and $rightaction is "fold">>
@@ -2842,13 +2476,17 @@
 
 		<<if $feetaction is "kick">>
 			<<set $feetaction to 0>><<set $feetactiondefault to "kick">>
-			<<if $parasite.left_ear.name is "slime" and random(1, 3) is 3 or $parasite.right_ear.name is "slime" and random(1, 3) is 3>>
-				<<if $corruption_slime gte (currentSkillValue('willpower') / 10)>>
+			<<if ($parasite.left_ear.name is "slime" and random(1, 3) is 3) or ($parasite.right_ear.name is "slime" and random(1, 3) is 3) or ($earSlime.growth gte 50 and random(1, 3) is 3)>>
+				<<if $earSlime.growth gte (currentSkillValue('willpower') / 10) and random(0,100) gte $earSlime.growth / 3>>
 					You try to kick the <<if $enemytype is "beast">><<beasttype>>,<<else>><<personselect $feettarget>><<person>>,<</if>>
 					<span class="red">but the slime immobilises your legs.</span>
+					<<if $earSlime.growth gt 50>><<set $earSlime.defyCooldown++>><</if>>
+				<<elseif $earSlime.corruption gte (currentSkillValue('willpower') / 10) and random(0,100) gte 50>>
+					You try to kick the <<if $enemytype is "beast">><<beasttype>>,<<else>><<personselect $feettarget>><<person>>,<</if>>
+					<span class="red">but the slime distracts you, so you miss.</span>
 					<<gwillpower>><<willpower 1>>
 				<<else>>
-					The slime tries to immobilise your legs, <span class="green">but you wrestle control away from it.</span>
+					The slime tries to prevent you from kicking the <<if $enemytype is "beast">><<beasttype>><<else>><<personselect $lefttarget>><<person>><</if>>, <span class="green">but you make contact regardless.</span>
 					<<actionskick $feettarget>><<defiance 5 $feettarget>><<set $attackstat += 1>>
 					<<if $worn.feet.type.includes("heels")>>
 						Your high heels strengthen the blow!
@@ -2976,21 +2614,26 @@
 		/*Stalked actions */
 		<<if !$stalk_end>>
 			<<if $feetaction is "walk">>
-				<<set $feetaction to 0>><<set $feetactiondefault to "walk">>
-				<<set $feetuse to "walk">>
-				You keep walking,
-				<<if $control gte ($controlmax * 0.8)>>
-					your feet sure and steady.
-				<<elseif $control gte ($controlmax * 0.6)>>
-					putting one foot in front of the other.
-				<<elseif $control gte ($controlmax * 0.4)>>
-					though worried about the gaining footsteps.
-				<<elseif $control gte ($controlmax * 0.2)>>
-					doing your best to stay calm.
+				<<if $earSlime.growth gt 50 and $earSlime.growth - random(0, Math.clamp(75 - ($earSlime.defyCooldown * 5), 0, 75)) gte (currentSkillValue('willpower')/ 10) and $exhibitionism gte 15>>
+					Your walking, <span class="red">but you suddenly find yourself moving differently.</span> You feel the slime steal your control away.
+					<<set $feetaction to "strut">>
 				<<else>>
-					suppressing the urge to break into a run.
+					<<set $feetaction to 0>><<set $feetactiondefault to "walk">>
+					<<set $feetuse to "walk">>
+					You keep walking,
+					<<if $control gte ($controlmax * 0.8)>>
+						your feet sure and steady.
+					<<elseif $control gte ($controlmax * 0.6)>>
+						putting one foot in front of the other.
+					<<elseif $control gte ($controlmax * 0.4)>>
+						though worried about the gaining footsteps.
+					<<elseif $control gte ($controlmax * 0.2)>>
+						doing your best to stay calm.
+					<<else>>
+						suppressing the urge to break into a run.
+					<</if>>
+					<<stalk_walk_events>>
 				<</if>>
-				<<stalk_walk_events>>
 			<</if>>
 
 			<<if $feetaction is "strut">>
@@ -3014,7 +2657,27 @@
 
 			<<if $feetaction is "run">>
 				<<set $feetaction to 0>><<set $feetactiondefault to "run">>
-				<<if $NPCList[0].state is "pursuit">>
+				<<if _stalkNoRunning is "chastity parasite">>
+					<<set $feetactiondefault to "walk">><<set $feetuse to "walk">>
+					<<if $earSlime.growth gte 150>><<set $earSlime.defyCooldown++>><</if>>
+					You attempt to run, <span class="lewd">but you find the pleasure your feeling too much to run.</span>
+					<<stalk_walk_events>>
+				<<elseif $earSlime.growth - random(0, Math.clamp(110 - ($earSlime.defyCooldown * 10), 0, 110)) gte (currentSkillValue('willpower')/ 10)>>
+					<<if $earSlime.growth gt 50 and $exhibitionism gte 15>>
+						<<set $feetactiondefault to "strut">><<set $feetuse to "strut">>
+						You attempt to run, <span class="red">but you suddenly find yourself strutting.</span> You feel the slime steal your control away.
+						<<meek 3>>
+					<<else>>
+						<<set $feetactiondefault to "walk">><<set $feetuse to "walk">>
+						You attempt to run, <span class="red">but you find yourself being unable to move any quicker.</span> You feel the slime steal your control away.
+					<</if>>
+					<<if $daily.stalkWillpower lt 20>>
+						<<gwillpower>><<willpower 1>>
+						<<set $daily.stalkWillpower to ($daily.stalkWillpower or 0) + 1>>
+					<</if>>
+
+					<<stalk_walk_events>>
+				<<elseif $NPCList[0].state is "pursuit">>
 					<<if $feetuse isnot "run">>
 						You break into a run, and chase the thief.
 						<<stalk_run>>
@@ -3023,7 +2686,7 @@
 					<</if>>
 					<<run_text>>
 					<<if $worn.feet.type.includes("heels")>>
-						<<if $feetskill gte random(1, 1000)>>
+						<<if currentSkillValue("feetskill") gte random(1, 1000)>>
 							<<set _stalk_feet to true>>
 						<<else>>
 							<<set _stalk_feet to false>>
@@ -3051,7 +2714,7 @@
 							The footsteps behind you speed up. <span class="red">You are being chased.</span>
 							<<stalk_run>>
 							<<if $worn.feet.type.includes("heels")>>
-								<<if $feetskill gte random(1, 1000)>>
+								<<if currentSkillValue("feetskill") gte random(1, 1000)>>
 									<<set _stalk_feet to true>>
 								<</if>>
 							<<else>>
@@ -3076,7 +2739,7 @@
 						You keep running.
 						<<run_text>>
 						<<if $worn.feet.type.includes("heels")>>
-							<<if $feetskill gte random(1, 1000)>>
+							<<if currentSkillValue("feetskill") gte random(1, 1000)>>
 								<<set _stalk_feet to true>>
 							<</if>>
 						<<else>>
@@ -3146,7 +2809,23 @@
 				<<if currentSkillValue('skulduggery') gte random(1, _difficulty)>>
 					<<set _hide_success to true>>
 				<</if>>
-				<<if _hide_success and $NPCList[0].state is "pursuit">>
+				<<if $earSlime.growth - random(0, Math.clamp(75 - ($earSlime.defyCooldown * 5), 0, 75)) gte (currentSkillValue('willpower')/ 10)>>
+					<<if $earSlime.growth gte 150>><<set $earSlime.defyCooldown++>><</if>>
+					<<if $earSlime.growth gt 50 and $exhibitionism gte 15>>
+						<<set $feetactiondefault to "strut">><<set $feetuse to "strut">>
+						You attempt to hide, <span class="red">but you suddenly find yourself strutting.</span> You feel the slime steal your control away.
+						<<meek 3>>
+					<<else>>
+						<<set $feetactiondefault to "walk">><<set $feetuse to "walk">>
+						You attempt to hide, <span class="red">but you find yourself being unable to move any quicker.</span> You feel the slime steal your control away.
+					<</if>>
+					<<if $daily.stalkWillpower lt 20>>
+						<<gwillpower>><<willpower 1>>
+						<<set $daily.stalkWillpower to ($daily.stalkWillpower or 0) + 1>>
+					<</if>>
+
+					<<stalk_walk_events>>
+				<<elseif _hide_success and $NPCList[0].state is "pursuit">>
 					<<switch $location>>
 						<<case forest lake>>
 							You hide behind a tree, and hope that no one's watching.
@@ -3389,6 +3068,9 @@
 			<<else>>
 				<<set $mouthactiondefault to "plead">>
 				<<actionsplead>><<set $speechplead to 1>>
+				<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
+					<<if $enemyno gte 2>>They don't<<else>><<He>> doesn't<</if>> understand your words, but <<if $enemyno gte 2>>react<<else>>reacts<</if>> to your tone.
+				<</if>>
 				<<meek `1 + $englishtrait`>>
 			<</if>>
 		<</if>>
@@ -3400,6 +3082,9 @@
 			<<else>>
 				<<set $mouthactiondefault to "moan">>
 				<<actionsmoan>><<set $speechmoan to 1>>
+				<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
+					<<if $enemyno gte 2>>They don't<<else>><<He>> doesn't<</if>> understand your words, but <<if $enemyno gte 2>>react<<else>>reacts<</if>> to your tone.
+				<</if>>
 				<<submission `1 + $englishtrait`>>
 			<</if>>
 		<</if>>
@@ -3412,6 +3097,9 @@
 				<<set $askedtochoke to 1>>
 				<<set $mouthactiondefault to 0>>
 				<<actionschoke>>
+				<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
+					<span class="red"><<if $enemyno gte 2>>They don't<<else>><<He>> doesn't<</if>> understand your words,</span> and <<if $enemyno gte 2>>ignore<<else>>ignores<</if>> them.
+				<</if>>
 				<<submission `1 + $englishtrait`>>
 			<</if>>
 		<</if>>
@@ -3422,6 +3110,9 @@
 				<<wheeze "ask to be rougher" 2>>
 			<<else>>
 				<<askrough>>
+				<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
+					<span class="red"><<if $enemyno gte 2>>They don't<<else>><<He>> doesn't<</if>> understand your words,</span> and <<if $enemyno gte 2>>ignore<<else>>ignores<</if>> them.
+				<</if>>
 				<<submission 1>><<set $enemyanger += (10 * $englishtrait)>><<set $speechaskrough to 1>>
 			<</if>>
 		<</if>>
@@ -3433,19 +3124,36 @@
 			<<else>>
 				<<set $mouthactiondefault to "demand">>
 				<<actionsdemand>><<set $speechdemand to 1>>
+				<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
+					<<if $enemyno gte 2>>They don't<<else>><<He>> doesn't<</if>> understand your words, but <<if $enemyno gte 2>>flinch<<else>>flinches<</if>> at your tone.
+				<</if>>
 				<<defiance `1 + $englishtrait`>>
 			<</if>>
 		<</if>>
 
-		<<if $mouthaction is "mock">>
+		<<if $mouthaction is "mock" or $mouthaction is "disparage">>
+			<<if $mouthaction is "disparage">>
+				<<set _disparage to true>>
+			<<else>>
+				<<set _disparage to false>>
+			<</if>>
 			<<set $mouthaction to 0>><<set _sound to 1>>
 			<<if $neckuse is "hand" and $oxygen lt $oxygenmax and $asphyxiaLvl gte 2>>
 				<<wheeze "mock <<him>>">>
 			<<else>>
-				<<set $mouthactiondefault to "mock">>
+				<<if _disparage is false>>
+					<<set $mouthactiondefault to "mock">>
+				<<else>> /*Fallen Angel disparage */
+					<<set $enemyanger += 50>>
+					<<set $mockaction to $NPCList[$mouthtarget].insecurity>>
+					<<set $angelforgive to 1>>
+					<<set $mouthactiondefault to "rest">>
+					<<set _disparage to false>>
+				<</if>>
 				<<actionsmock>><<set $speechdemand to 1>>
 				<<brat `1 + $englishtrait` $mouthtarget>>
-				<<if $mockaction is $NPCList[$mouthtarget].insecurity>>
+				<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
+				<<elseif $mockaction is $NPCList[$mouthtarget].insecurity>>
 					<<if $consensual is 1>>
 						<<submission `1 + $englishtrait` $mouthtarget>>
 					<<else>>
@@ -3590,23 +3298,29 @@
 		<</if>>
 
 		<<if $mouthaction is "breastbite" and $NPCList[$mouthtarget].chest is "mouth">>
-			<<set $mouthaction to 0>><<set $mouthactiondefault to "breastbite">><<personselect $mouthtarget>>
-			You bite down on the nipple, <<he>> <<if $enemytype is "man">>yelps<<elseif $enemytype is "beast">>growls<<else>>shrieks<</if>> and recoils in agony.
-			<<defiance 20 $mouthtarget>><<attackstat>><<set $mouthuse to 0>><<set $breastbitten to 1>><<set $mouthstate to 0>>
-			<<if $transformationParts.traits.fangs isnot "disabled">>
-				<<defiance 40 $mouthtarget>>
-				You lick your fangs clean.
-			<</if>>
-			<<if $head is "breasts">>
-				<<set $head to 0>>
-			<</if>>
-			<<set $NPCList[$mouthtarget].chest to 0>>
-			<<set $NPCList[$mouthtarget].location.head to 0>>
-			<<if $NPCList[$mouthtarget].lefthand is "head_nipples">>
-				<<set $NPCList[$mouthtarget].lefthand to 0>>
-			<</if>>
-			<<if $NPCList[$mouthtarget].righthand is "head_nipples">>
-				<<set $NPCList[$mouthtarget].righthand to 0>>
+			<<if $earSlime.growth gt 50 and $earSlime.growth - random(0, Math.clamp(50 - ($earSlime.defyCooldown * 5), 0, 50)) gte (currentSkillValue('willpower')/ 10)>>
+				You try to bite down on the nipple, <span class="red">but find you're unable to.</span> You feel the slime steal your control away.
+				<<set $mouthaction to "breastsuck">>
+				<<if $earSlime.growth gte 100>><<set $earSlime.defyCooldown++>><</if>>
+			<<else>>
+				<<set $mouthaction to 0>><<set $mouthactiondefault to "breastbite">><<personselect $mouthtarget>>
+				You bite down on the nipple, <<he>> <<if $enemytype is "man">>yelps<<elseif $enemytype is "beast">>growls<<else>>shrieks<</if>> and recoils in agony.
+				<<defiance 20 $mouthtarget>><<attackstat>><<set $mouthuse to 0>><<set $breastbitten to 1>><<set $mouthstate to 0>>
+				<<if $transformationParts.traits.fangs isnot "disabled">>
+					<<defiance 40 $mouthtarget>>
+					You lick your fangs clean.
+				<</if>>
+				<<if $head is "breasts">>
+					<<set $head to 0>>
+				<</if>>
+				<<set $NPCList[$mouthtarget].chest to 0>>
+				<<set $NPCList[$mouthtarget].location.head to 0>>
+				<<if $NPCList[$mouthtarget].lefthand is "head_nipples">>
+					<<set $NPCList[$mouthtarget].lefthand to 0>>
+				<</if>>
+				<<if $NPCList[$mouthtarget].righthand is "head_nipples">>
+					<<set $NPCList[$mouthtarget].righthand to 0>>
+				<</if>>
 			<</if>>
 		<</if>>
 
@@ -3643,53 +3357,57 @@
 			<</if>>
 		<</if>>
 
-<<if $mouthaction is "scream">>
-	<<set $mouthaction to 0>><<set _sound to 1>>
-	<<if $neckuse is "hand" and $oxygen lt $oxygenmax and $asphyxiaLvl gte 2>>
-		<<wheeze "scream for help">>
-	<<elseif $drugged gt 0 or $arousal gte $arousalmax * 0.6>>
-		You try to scream for help, <span class="pink">but your arousal makes it sound like a lewd moan.</span>
-		<<neutral 1>><<set $speechmoan to 1>>
-	<<elseif $uncomfortable.hypnosis is false and $hypnosis_traits.scream gte random(1,5)>>
-		<<hypnosisicon>> You intend to scream for help, but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span>
-		<<hypnotised 1>>
-		<<set $mouthaction to 0>><<unset $askAction>><<set _sound to 1>>
-		<<askrough>>
-		<<submission 1>><<set $enemyanger += (10 * $englishtrait)>>
-		<<hypnosisicon>>
-	<<elseif $hypnosis_traits.scream gte 1 and $willpower lt random(1, (200 * $hypnosis_traits.scream))>>
-		<<hypnosisicon>> You intend to scream for help, <span class="pink">but the thought is snatched from your mind, and replaced with another.</span>
-		<<hypnotised 1>><<willpower 1>>
-		<<set $mouthaction to 0>><<unset $askAction>><<set _sound to 1>>
-		<<askrough>>
-		<<submission 1>><<set $enemyanger += (10 * $englishtrait)>>
-		<<hypnosisicon>>
-	<<elseif ($parasite.left_ear.name is "slime" or $parasite.right_ear.name is "slime") and $corruption_slime gte (currentSkillValue('willpower')/ 10)>>
-		You open your mouth to scream for help, <span class="red">but your voice catches in your throat.</span> You feel the slime steal your breath away.
-		<<gwillpower>><<willpower 1>>
-	<<else>>
-		<<if $hypnosis_traits.scream gte 1>>
-			<span class="green">You resist intrusive thoughts,</span> and scream for help.
-		<<else>>
-			You scream for help.
-		<</if>>
-		<<if isLoveInterest("Eden") and $location is "forest" and !($npc.includes("Eden")) and (!$undergroundbrothel or !$undergroundbrothel.active)>>
-			<<if $rng lte 50>>
-				"Eden! Get them off of me!"
+		<<if $mouthaction is "scream">>
+			<<set $mouthaction to 0>><<set _sound to 1>>
+			<<if $neckuse is "hand" and $oxygen lt $oxygenmax and $asphyxiaLvl gte 2>>
+				<<wheeze "scream for help">>
+			<<elseif $drugged gt 0 or $arousal gte $arousalmax * 0.9>>
+				You try to scream for help, <span class="pink">but your arousal makes it sound like a lewd moan.</span>
+				<<neutral 1>><<set $speechmoan to 1>>
+			<<elseif $uncomfortable.hypnosis is false and $hypnosis_traits.scream gte random(1,5)>>
+				<<hypnosisicon>> You intend to scream for help, but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span>
+				<<hypnotised 1>>
+				<<set $mouthaction to 0>><<unset $askAction>><<set _sound to 1>>
+				<<askrough>>
+				<<submission 1>><<set $enemyanger += (10 * $englishtrait)>>
+				<<hypnosisicon>>
+			<<elseif $hypnosis_traits.scream gte 1 and $willpower lt random(1, (200 * $hypnosis_traits.scream))>>
+				<<hypnosisicon>> You intend to scream for help, <span class="pink">but the thought is snatched from your mind, and replaced with another.</span>
+				<<hypnotised 1>><<willpower 1>>
+				<<set $mouthaction to 0>><<unset $askAction>><<set _sound to 1>>
+				<<askrough>>
+				<<submission 1>><<set $enemyanger += (10 * $englishtrait)>>
+				<<hypnosisicon>>
+			<<elseif numberOfEarSlime() and $earSlime.growth gte (currentSkillValue('willpower')/ 10)>>
+				You open your mouth to scream for help, <span class="lewd">but sudden arousal makes it sound like a lewd moan.</span> You feel the slime rapidly drug you.
+				<<if $earSlime.growth gt 50>><<set $earSlime.defyCooldown++>><</if>>
+				<<submission 1>><<set $speechmoan to 1>><<drugs 10>><<arousal 1000>>
+			<<elseif numberOfEarSlime() and $earSlime.corruption gte (currentSkillValue('willpower')/ 10) and random(0,100) gte 50>>
+				You open your mouth to scream for help, <span class="red">but your voice catches in your throat.</span> You feel the slime steal your focus away.
+				<<gwillpower>><<willpower 1>>
 			<<else>>
-				"Eden! Help!"
+				<<if $hypnosis_traits.scream gte 1>>
+					<span class="green">You resist intrusive thoughts,</span> and scream for help.
+				<<else>>
+					You scream for help.
+				<</if>>
+				<<if isLoveInterest("Eden") and $location is "forest" and !($npc.includes("Eden")) and (!$undergroundbrothel or !$undergroundbrothel.active)>>
+					<<if $rng lte 50>>
+						"Eden! Get them off of me!"
+					<<else>>
+						"Eden! Help!"
+					<</if>>
+				<</if>>
+				<<brat 10>><<set $alarm to 1>><<set $mouthactiondefault to "scream">><<set $speechscream to 1>>
+				<<if $NPCList[0].lefthand is 0 and $mouthuse is 0 and $position isnot "wall" and !$robinRentEvent>>
+					<<set $NPCList[0].lefthand to "mouth">><<person1>><<He>> clasps <<his>> hand over your mouth to silence you.
+					<<set $enemytrust -= 40>><<set $mouthuse to "lefthand">>
+				<<elseif $NPCList[0].righthand is 0 and $mouthuse is 0 and $position isnot "wall" and !$robinRentEvent>>
+					<<set $NPCList[0].righthand to "mouth">><<person1>><<He>> clasps <<his>> hand over your mouth to silence you.
+					<<set $enemytrust -= 40>><<set $mouthuse to "righthand">>
+				<</if>>
 			<</if>>
 		<</if>>
-		<<brat 10>><<set $alarm to 1>><<set $mouthactiondefault to "scream">><<set $speechscream to 1>>
-		<<if $NPCList[0].lefthand is 0 and $mouthuse is 0 and $position isnot "wall" and !$robinRentEvent>>
-			<<set $NPCList[0].lefthand to "mouth">><<person1>><<He>> clasps <<his>> hand over your mouth to silence you.
-			<<set $enemytrust -= 40>><<set $mouthuse to "lefthand">>
-		<<elseif $NPCList[0].righthand is 0 and $mouthuse is 0 and $position isnot "wall" and !$robinRentEvent>>
-			<<set $NPCList[0].righthand to "mouth">><<person1>><<He>> clasps <<his>> hand over your mouth to silence you.
-			<<set $enemytrust -= 40>><<set $mouthuse to "righthand">>
-		<</if>>
-	<</if>>
-<</if>>
 
 		<<if $mouthaction is "apologise">>
 			<<set $mouthaction to 0>><<set _sound to 1>>
@@ -3778,7 +3496,7 @@
 
 		<<if $mouthaction is "oraledge">>
 			<<personselect $mouthtarget>><<actionsoraledge $mouthtarget>><<set $mouthaction to 0>><<set $mouthactiondefault to "oraledge">>
-			<<submission 5>><<sexControl 5 $oralskill $mouthtarget>><<oralskilluse>>
+			<<submission 5>><<sexControl 5 `currentSkillValue("oralskill")` $mouthtarget>><<oralskilluse>>
 		<</if>>
 
 		<<if $mouthaction is "pullaway">>
@@ -3849,29 +3567,41 @@
 		<</if>>
 
 		<<if $mouthaction is "bite" and $NPCList[$mouthtarget].penis is "mouth">>
-			<<set $mouthaction to 0>><<set $mouthactiondefault to "bite">><<personselect $mouthtarget>>
-			You bite down on <<his>> <<npcPenisSimple $mouthtarget>>,
-			<<if npcHasStrapon($mouthtarget)>>
-				but it has no effect.
+			<<if $earSlime.growth gt 50 and $earSlime.growth - random(0, Math.clamp(50 - ($earSlime.defyCooldown * 5), 0, 50)) gte (currentSkillValue('willpower')/ 10)>>
+				You try to bite down on the <<npcPenisSimple $mouthtarget>>, <span class="red">but find you're unable to.</span> You feel the slime steal your control away.
+				<<set $mouthaction to 0>><<set $mouthactiondefault to "suck">><<actionspenissuck $mouthtarget>><<submission 10>><<oralskilluse>>
+				<<if $earSlime.growth gte 100>><<set $earSlime.defyCooldown++>><</if>>
 			<<else>>
-				<<he>> <<if $enemytype is "man">>yelps<<elseif $enemytype is "beast">>growls<<else>>shrieks<</if>> and recoils in agony.
-				<<set $NPCList[$mouthtarget].penis to 0>><<set $NPCList[$mouthtarget].location.genitals to 0>>
-				<<defiance 20 $mouthtarget>><<attackstat>><<control 15>><<set $mouthuse to 0>><<set $penisbitten to 1>><<set $mouthstate to 0>>
-				<<if $transformationParts.traits.fangs isnot "disabled">>
-					<<defiance 20 $mouthtarget>><<defiance 20 $mouthtarget>>
-					You lick your fangs clean.
+				<<set $mouthaction to 0>><<set $mouthactiondefault to "bite">><<personselect $mouthtarget>>
+				You bite down on <<his>> <<npcPenisSimple $mouthtarget>>,
+				<<if npcHasStrapon($mouthtarget)>>
+					but it has no effect.
+				<<else>>
+					<<he>> <<if $enemytype is "man">>yelps<<elseif $enemytype is "beast">>growls<<else>>shrieks<</if>> and recoils in agony.
+					<<set $NPCList[$mouthtarget].penis to 0>><<set $NPCList[$mouthtarget].location.genitals to 0>>
+					<<defiance 20 $mouthtarget>><<attackstat>><<control 15>><<set $mouthuse to 0>><<set $penisbitten to 1>><<set $mouthstate to 0>>
+					<<if $transformationParts.traits.fangs isnot "disabled">>
+						<<defiance 20 $mouthtarget>><<defiance 20 $mouthtarget>>
+						You lick your fangs clean.
+					<</if>>
 				<</if>>
 			<</if>>
 		<</if>>
 
 		<<if $mouthaction is "bitepussy" and ($NPCList[$mouthtarget].vagina is "mouth" or $NPCList[$mouthtarget].vagina is "facesit")>>
-			<<set $mouthaction to 0>><<set $mouthactiondefault to "bitepussy">><<personselect $mouthtarget>>
-			You bite down on <<hisselect $mouthtarget>> labia. <<He>> <<if $enemytype is "man">>yelps<<elseif $enemytype is "beast">>growls<<else>>shrieks<</if>> and recoils in agony.
-			<<set $NPCList[$mouthtarget].vagina to 0>><<set $NPCList[$mouthtarget].location.genitals to 0>>
-			<<defiance 20 $mouthtarget>><<attackstat>><<control 15>><<set $mouthuse to 0>><<set $penisbitten to 1>><<set $mouthstate to 0>><<set $speechhit to 1>>
-			<<if $transformationParts.traits.fangs isnot "disabled">>
-				<<defiance 40 $mouthtarget>>
-				You lick your fangs clean.
+			<<if $earSlime.growth gt 50 and $earSlime.growth - random(0, Math.clamp(50 - ($earSlime.defyCooldown * 5), 0, 50)) gte (currentSkillValue('willpower')/ 10)>>
+				You try to bite down on <<hisselect $mouthtarget>> labia, <span class="red">but find you're unable to.</span> You feel the slime steal your control away.
+				<<set $mouthaction to "vaginalick">>
+				<<if $earSlime.growth gte 100>><<set $earSlime.defyCooldown++>><</if>>
+			<<else>>
+				<<set $mouthaction to 0>><<set $mouthactiondefault to "bitepussy">><<personselect $mouthtarget>>
+				You bite down on <<hisselect $mouthtarget>> labia. <<He>> <<if $enemytype is "man">>yelps<<elseif $enemytype is "beast">>growls<<else>>shrieks<</if>> and recoils in agony.
+				<<set $NPCList[$mouthtarget].vagina to 0>><<set $NPCList[$mouthtarget].location.genitals to 0>>
+				<<defiance 20 $mouthtarget>><<attackstat>><<control 15>><<set $mouthuse to 0>><<set $penisbitten to 1>><<set $mouthstate to 0>><<set $speechhit to 1>>
+				<<if $transformationParts.traits.fangs isnot "disabled">>
+					<<defiance 40 $mouthtarget>>
+					You lick your fangs clean.
+				<</if>>
 			<</if>>
 		<</if>>
 
@@ -3946,28 +3676,34 @@
 		<<rng>>
 
 		<<if $mouthaction is "handbite">>
-			<<set $mouthaction to 0>><<set $mouthactiondefault to "handbite">><<personselect $mouthtarget>>
-			<<actionshandbite $mouthtarget>>
-			<<if $transformationParts.traits.fangs isnot "disabled">>
-				<<defiance 6 $mouthtarget>>
+			<<if $earSlime.growth gt 50 and $earSlime.growth - random(0, Math.clamp(50 - ($earSlime.defyCooldown * 5), 0, 50)) gte (currentSkillValue('willpower')/ 10)>>
+				You try to bite down on <<hisselect $mouthtarget>> hand, <span class="red">but find you're unable to.</span> You feel the slime steal your control away.
+				<<set $mouthactiondefault to "rest">>
+				<<if $earSlime.growth gte 100>><<set $earSlime.defyCooldown++>><</if>>
 			<<else>>
-				<<defiance 2 $mouthtarget>>
-			<</if>>
-			<<if random(1, 5) gte 3 and ($transformationParts.traits.fangs isnot "disabled") or random(1, 5) gte 5>>
-				<<set $mouthuse to 0>>
-				<<if $NPCList[$mouthtarget].lefthand is "mouth">>
-					<<set $NPCList[$mouthtarget].lefthand to 0>>
-					<<control 15>>
-					<span class="teal"><<He>> flinches away in pain, freeing your mouth.</span>
+				<<set $mouthaction to 0>><<set $mouthactiondefault to "handbite">><<personselect $mouthtarget>>
+				<<actionshandbite $mouthtarget>>
+				<<if $transformationParts.traits.fangs isnot "disabled">>
+					<<defiance 6 $mouthtarget>>
+				<<else>>
+					<<defiance 2 $mouthtarget>>
 				<</if>>
-				<<if $NPCList[$mouthtarget].righthand is "mouth">>
-					<<set $NPCList[$mouthtarget].righthand to 0>>
-					<<control 15>>
-					<span class="teal"><<He>> flinches away in pain, freeing your mouth.</span>
+				<<if random(1, 5) gte 3 and ($transformationParts.traits.fangs isnot "disabled") or random(1, 5) gte 5>>
+					<<set $mouthuse to 0>>
+					<<if $NPCList[$mouthtarget].lefthand is "mouth">>
+						<<set $NPCList[$mouthtarget].lefthand to 0>>
+						<<control 15>>
+						<span class="teal"><<He>> flinches away in pain, freeing your mouth.</span>
+					<</if>>
+					<<if $NPCList[$mouthtarget].righthand is "mouth">>
+						<<set $NPCList[$mouthtarget].righthand to 0>>
+						<<control 15>>
+						<span class="teal"><<He>> flinches away in pain, freeing your mouth.</span>
+					<</if>>
+				<<else>>
+					<<control -5>>
+					<span class="purple">It remains over your mouth.</span>
 				<</if>>
-			<<else>>
-				<<control -5>>
-				<span class="purple">It remains over your mouth.</span>
 			<</if>>
 		<</if>>
 
@@ -4038,7 +3774,9 @@
 			<<else>>
 				<<set $mouthactiondefault to "rest">><<brat 10>>
 				You tell <<him>> you've had enough and want to stop.
-				<<if !$loveDrunk and $NPCList[0].type isnot "plant" and combatSkillCheck("seduction", $mouthtarget) or $gamemode is "soft" or $gloryhole>>
+				<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
+					<span class="red"><<if $enemyno gte 2>>They don't<<else>><<He>> doesn't<</if>> understand your words,</span> and <<if $enemyno gte 2>>ignore<<else>>ignores<</if>> them.
+				<<elseif !$loveDrunk and $NPCList[0].type isnot "plant" and combatSkillCheck("seduction", $mouthtarget) or $gamemode is "soft" or $gloryhole>>
 					<<set $finish to 1>>
 					<<if $trueconsensual isnot 1 and $gamemode is "soft">>
 						<<set $enemyhealth to -100>>
@@ -4077,7 +3815,9 @@
 				<<else>>
 					You tell <<him>> you don't want anything penetrating your vagina.
 				<</if>>
-				<<if combatSkillCheck("seduction", $mouthtarget) or $gamemode is "soft" or $gloryhole>>
+				<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
+					<span class="red"><<if $enemyno gte 2>>They don't<<else>><<He>> doesn't<</if>> understand your words,</span> and <<if $enemyno gte 2>>ignore<<else>>ignores<</if>> them.
+				<<elseif combatSkillCheck("seduction", $mouthtarget) or $gamemode is "soft" or $gloryhole>>
 					<<set $novaginal to 1>><span class="green"><<if $enemyno gte 2>>They nod<<else>><<He_Short>> nods<</if>> in acknowledgement.</span>
 					<<if $vaginastate is "doublepenetrated">>
 						<<set $vaginastate to "doubleentrance">><<set $vaginaaction to 0>>
@@ -4116,7 +3856,9 @@
 				<<else>>
 					You tell <<him>> you don't want anything penetrating your anus.
 				<</if>>
-				<<if combatSkillCheck("seduction", $mouthtarget) or $gamemode is "soft" or $gloryhole>>
+				<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
+					<span class="red"><<if $enemyno gte 2>>They don't<<else>><<He>> doesn't<</if>> understand your words,</span> and <<if $enemyno gte 2>>ignore<<else>>ignores<</if>> them.
+				<<elseif combatSkillCheck("seduction", $mouthtarget) or $gamemode is "soft" or $gloryhole>>
 					<<set $noanal to 1>><span class="green"><<if $enemyno gte 2>>They nod<<else>><<He_Short>> nods<</if>> in acknowledgement.</span>
 					<<if $anusstate is "doublepenetrated">>
 						<<set $anusstate to "doubleentrance">><<set $anusaction to 0>>
@@ -4155,7 +3897,9 @@
 				<<else>>
 					You tell <<him>> you don't want your penis put inside anything.
 				<</if>>
-				<<if combatSkillCheck("seduction", $mouthtarget) or $gamemode is "soft" or $gloryhole>>
+				<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
+					<span class="red"><<if $enemyno gte 2>>They don't<<else>><<He>> doesn't<</if>> understand your words,</span> and <<if $enemyno gte 2>>ignore<<else>>ignores<</if>> them.
+				<<elseif combatSkillCheck("seduction", $mouthtarget) or $gamemode is "soft" or $gloryhole>>
 					<<set $nopenile to 1>><span class="green"><<if $enemyno gte 2>>They nod<<else>><<He_Short>> nods<</if>> in acknowledgement.</span>
 					<<if $penisstate is "penetrated">>
 						<<set $penisstate to "entrance">>
@@ -4199,7 +3943,9 @@
 				<<set $noupperasked to 1>>
 				You tell <<him>> to leave your top on.
 
-				<<if $combatgoal is "strip">>
+				<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
+					<span class="red"><<if $enemyno gte 2>>They don't<<else>><<He>> doesn't<</if>> understand your words,</span> and <<if $enemyno gte 2>>ignore<<else>>ignores<</if>> them.
+				<<elseif $combatgoal is "strip">>
 					<span class="pink">"No," <<if $enemyno gte 2>>they laugh<<else>><<he>> laughs<</if>>. "You'll look better without it."</span>
 				<<elseif combatSkillCheck("seduction", $mouthtarget) or $gamemode is "soft" or $gloryhole>>
 					<<set $noupper to 1>><span class="green"><<if $enemyno gte 2>>They nod<<else>><<He_Short>> nods<</if>> in acknowledgement.</span>
@@ -4246,7 +3992,9 @@
 				<<set $noupperasked to 1>>
 				You tell <<him>> to leave your $worn.face.name on.
 
-				<<if $combatgoal is "strip">>
+				<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
+					<span class="red"><<if $enemyno gte 2>>They don't<<else>><<He>> doesn't<</if>> understand your words,</span> and <<if $enemyno gte 2>>ignore<<else>>ignores<</if>> them.
+				<<elseif $combatgoal is "strip">>
 					<span class="pink">"No," <<if $enemyno gte 2>>they laugh<<else>><<he>> laughs<</if>>. "You'll look better without it."</span>
 				<<elseif combatSkillCheck("seduction", $mouthtarget) or $gamemode is "soft" or $gloryhole>>
 					<<set $noupper to 1>><span class="green"><<if $enemyno gte 2>>They nod<<else>><<He_Short>> nods<</if>> in acknowledgement.</span>
@@ -4279,7 +4027,9 @@
 			<<else>>
 				<<set $mouthactiondefault to "rest">><<brat 5>><<if !$gloryhole and $gamemode isnot "soft">><<seductionskillusecombat>><</if>>
 				You tell <<him>> you don't want <<his>> hands around your neck.
-				<<if combatSkillCheck("seduction", $mouthtarget) or $gamemode is "soft" or $gloryhole>>
+				<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
+					<span class="red"><<if $enemyno gte 2>>They don't<<else>><<He>> doesn't<</if>> understand your words,</span> and <<if $enemyno gte 2>>ignore<<else>>ignores<</if>> them.
+				<<elseif combatSkillCheck("seduction", $mouthtarget) or $gamemode is "soft" or $gloryhole>>
 					<<set $nochoke to 1>><span class="green"><<if $enemyno gte 2>>They nod<<else>><<He_Short>> nods<</if>> in acknowledgement.</span>
 					<<if $neckuse is "hand">>
 						<<unset $neckuse>>
@@ -4297,9 +4047,9 @@
 					<<if $NPCList[$mouthtarget].type is "plant">>
 						<<He>> scoffs.
 						<<if $NPCList[0].lefthand is 0 or $NPCList[0].righthand is 0>>
-							<span class="red">Are you kidding? That's the fun part! Here, look!"</span>
+							<span class="red">"Are you kidding? That's the fun part! Here, look!"</span>
 						<<else>>
-							<span class="red">Are you kidding? That's the fun part!"</span>
+							<span class="red">"Are you kidding? That's the fun part!"</span>
 						<</if>>
 					<<else>>
 						They pause a moment before responding, <span class="red">"Stupid slut, you think you can tell me what to do?"</span>
@@ -4342,7 +4092,9 @@
 				<<if !$gloryhole and $gamemode isnot "soft" and !$npcrow.includes($mouthtarget) and !$_checkSkip>><<seductionskillusecombat>><</if>>
 				<<set $NPCList[$mouthtarget].condomAsk to true>>
 				You ask <<combatperson>> to use a condom.
-				<<if combatSkillCheck("seduction", $mouthtarget, $_condomAskBaseDifficulty, $_condomAskDifficultyMultiplier) or $gamemode is "soft" or $gloryhole or $npcrow.includes($mouthtarget) or $_checkSkip>>
+				<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
+					<span class="red"><<if $enemyno gte 2>>They don't<<else>><<He>> doesn't<</if>> understand your words,</span> and <<if $enemyno gte 2>>ignore<<else>>ignores<</if>> them.
+				<<elseif combatSkillCheck("seduction", $mouthtarget, $_condomAskBaseDifficulty, $_condomAskDifficultyMultiplier) or $gamemode is "soft" or $gloryhole or $npcrow.includes($mouthtarget) or $_checkSkip>>
 					<<if !$npcrow.includes($mouthtarget)>>
 						<<if $condomLvl is 1 or !$NPCList[$mouthtarget].condom>>
 							<<set $NPCList[$mouthtarget].condomCanGive to true>>
@@ -4623,41 +4375,45 @@
 				<<else>>
 					You tell <<combatperson>> you don't want to use a condom.
 				<</if>>
-				<<if combatSkillCheck("seduction", $mouthtarget) or $gamemode is "soft" or $gloryhole or $npcrow.includes($mouthtarget) or $_checkSkip>>
+				<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
+					<span class="red"><<if $enemyno gte 2>>They don't<<else>><<He>> doesn't<</if>> understand your words,</span> and <<if $enemyno gte 2>>ignore<<else>>ignores<</if>> them.
+				<<elseif combatSkillCheck("seduction", $mouthtarget) or $gamemode is "soft" or $gloryhole or $npcrow.includes($mouthtarget) or $_checkSkip>>
 					<<if !$npcrow.includes($mouthtarget)>>
 						<<if $NPCList[$mouthtarget].pregnancyAvoidance lt 80 or ($condomLvl is 2 and !pregnancyCompatible($NPCList[$mouthtarget]))>>
-							<<if !$NPCList[$mouthtarget].condom and !$player.condom>>
-								<<if $consensual is 0>>
-									<<He_Short>> grins.
-									<<set _response to [
-										"Didn't have one anyway.",
-										"Do you think I carry around condoms?",
-										"Ah, yes, let me get the condom I specifically put aside for when I want to molest someone. Oh, wait. Stupid whore.",
-										"Condoms are expensive. Don't have one.",
-										"I don't have one anyways, slut."
-									]>>
+							<<if !$player.condom and (!$NPCList[$mouthtarget].condom or $NPCList[$mouthtarget].condom.willUse is false)>>
+								<<if !$NPCList[$mouthtarget].condom>>
+									<<if $consensual is 0>>
+										<<He_Short>> grins.
+										<<set _response to [
+											"Didn't have one anyway.",
+											"Do you think I carry around condoms?",
+											"Ah, yes, let me get the condom I specifically put aside for when I want to molest someone. Oh, wait. Stupid whore.",
+											"Condoms are expensive. Don't have one.",
+											"I don't have one anyways, slut."
+										]>>
+									<<else>>
+										<<He_Short>> looks at you with a smug grin.
+										<<set _response to [
+											"I didn't bring one, anyways."
+										]>>
+									<</if>>
+									<span class="blue">"<<print _response.pluck()>>"</span>
 								<<else>>
-									<<He_Short>> looks at you with a smug grin.
-									<<set _response to [
-										"I didn't bring one, anyways."
-									]>>
+									<<if $consensual is 0>>
+										<<He_Short>> grins.
+										<<set _response to [
+											"Wasn't gonna use one anyways, slut.",
+											"These things are expensive, I wouldn't waste one on you.",
+											"I prefer it raw, anyways."
+										]>>
+									<<else>>
+										<<He_Short>> looks at you with a smug grin.
+										<<set _response to [
+											"I wasn't planning on using it, anyways."
+										]>>
+									<</if>>
+									<span class="teal">"<<print _response.pluck()>>"</span>
 								<</if>>
-								<span class="blue">"<<print _response.pluck()>>"</span>
-							<<elseif $NPCList[$mouthtarget].condom.willUse is false and !$player.condom>>
-								<<if $consensual is 0>>
-									<<He_Short>> grins.
-									<<set _response to [
-										"Wasn't gonna use one anyways, slut.",
-										"These things are expensive, I wouldn't waste one on you.",
-										"I prefer it raw, anyways."
-									]>>
-								<<else>>
-									<<He_Short>> looks at you with a smug grin.
-									<<set _response to [
-										"I wasn't planning on using it, anyways."
-									]>>
-								<</if>>
-								<span class="teal">"<<print _response.pluck()>>"</span>
 							<<else>>
 								<<if $NPCList[$mouthtarget].condom>>
 									<<set $NPCList[$mouthtarget].condom.willUse to false>>
@@ -4905,7 +4661,9 @@
 				<<set $mouthactiondefault to "rest">><<if !$gloryhole and $gamemode isnot "soft" and !$_checkSkip>><<seductionskillusecombat>><</if>>
 				<<brat `Math.floor((100 - $NPCList[$mouthtarget].pregnancyAvoidance) / 20)`>>
 				You ask <<combatperson>> to pull out and finish outside.
-				<<if $npc[$npcrow.indexOf($mouthtarget)] is "Kylar">>
+				<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
+					<span class="red"><<if $enemyno gte 2>>They don't<<else>><<He>> doesn't<</if>> understand your words,</span> and <<if $enemyno gte 2>>ignore<<else>>ignores<</if>> them.
+				<<elseif $npc[$npcrow.indexOf($mouthtarget)] is "Kylar">>
 					<<He_Short>> freezes for a moment. <span class="red">"No, my love."</span>
 				<<elseif combatSkillCheck("seduction", $mouthtarget, $_pullOutAskBaseDifficulty) or $gamemode is "soft" or $gloryhole or $_checkSkip>>
 					<<set $pullOut to true>>
@@ -4975,7 +4733,9 @@
 				<<brat 5>>
 				<<set $mouthactiondefault to "rest">>
 				You ask <<him>> to wear <<his>> strap-on.
-				<<if ($npc[$npcrow.indexOf(_n)] is "Eden" and $NPCName[$NPCNameList.indexOf("Eden")].love lte 100)
+				<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
+					<span class="red"><<if $enemyno gte 2>>They don't<<else>><<He>> doesn't<</if>> understand your words,</span> and <<if $enemyno gte 2>>ignore<<else>>ignores<</if>> them.
+				<<elseif ($npc[$npcrow.indexOf(_n)] is "Eden" and $NPCName[$NPCNameList.indexOf("Eden")].love lte 100)
 				or ($npc[$npcrow.indexOf(_n)] is "Whitney" and $NPCName[$NPCNameList.indexOf("Whitney")].love lte 10)>>
 					<<print either("I'll do what I want, bitch.","Shut up slut, I'm in control here.")>>
 					<<violence 5>><<brat 2>>
@@ -4995,8 +4755,10 @@
 			<<else>>
 				<<brat 5>><<set $mouthactiondefault to "rest">>
 				You ask <<personselect $mouthtarget>><<combatperson>> to remove <<his>> strap-on.
-				<<if !$gloryhole and $gamemode isnot "soft">><<seductionskillusecombat>><</if>>
-				<<if (1000 - ($rng * 10) - ($enemytrust * 10) - $seductionskill + $enemyanger) lte (($enemyarousalmax / ($enemyarousal + 1)) * 100) or $gamemode is "soft" or $gloryhole>>
+				<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
+					<span class="red"><<if $enemyno gte 2>>They don't<<else>><<He>> doesn't<</if>> understand your words,</span> and <<if $enemyno gte 2>>ignore<<else>>ignores<</if>> them.
+				<<elseif !$gloryhole and $gamemode isnot "soft">><<seductionskillusecombat>><</if>>
+				<<if (1000 - ($rng * 10) - ($enemytrust * 10) - currentSkillValue("seductionskill") + $enemyanger) lte (($enemyarousalmax / ($enemyarousal + 1)) * 100) or $gamemode is "soft" or $gloryhole>>
 					<<He>> nods and removes <<his>> $NPCList[$mouthtarget].penisdesc.
 
 					/* Remove their strap-on. If they have a penis, give them back their penis. */
@@ -5298,7 +5060,7 @@
 		<</if>>
 
 		<<if $vaginaaction is "penisDoubleEdging">>
-			<<set $vaginaaction to 0>><<set $vaginaactiondefault to "penisDoubleEdging">><<actionspenisdoubleedging>><<submission 5>><<sexControl 5 $vaginalskill>><<vaginalskilluse>>
+			<<set $vaginaaction to 0>><<set $vaginaactiondefault to "penisDoubleEdging">><<actionspenisdoubleedging>><<submission 5>><<sexControl 5 `currentSkillValue("vaginalskill")`>><<vaginalskilluse>>
 		<</if>>
 
 		<<if $vaginaaction is "doubletake">>
@@ -5314,7 +5076,7 @@
 		<</if>>
 
 		<<if $vaginaaction is "penisEdging">>
-			<<set $vaginaaction to 0>><<set $vaginaactiondefault to "penisEdging">><<actionspenisedging $vaginatarget>><<submission 5>><<sexControl 5 $vaginalskill $vaginatarget>><<vaginalskilluse>>
+			<<set $vaginaaction to 0>><<set $vaginaactiondefault to "penisEdging">><<actionspenisedging $vaginatarget>><<submission 5>><<sexControl 5 `currentSkillValue("vaginalskill")` $vaginatarget>><<vaginalskilluse>>
 		<</if>>
 
 		<<if $vaginaaction is "take">>
@@ -5335,7 +5097,7 @@
 
 		<<if $vaginaaction is "tribedge">>
 			<<personselect $vaginatarget>><<actionstribedge $vaginatarget>><<set $vaginaaction to 0>><<set $vaginaactiondefault to "tribedge">>
-			<<submission 5>><<sexControl 5 $vaginalskill $vaginatarget>><<vaginalskilluse>>
+			<<submission 5>><<sexControl 5 `currentSkillValue("vaginalskill")` $vaginatarget>><<vaginalskilluse>>
 		<</if>>
 
 		<<if $vaginaaction is "tribrest">>
@@ -5682,7 +5444,7 @@
 		<</if>>
 
 		<<if $anusaction is "penisEdging">>
-			<<set $anusaction to 0>><<set $anusactiondefault to "penisEdging">><<actionsanusedging $anustarget>><<submission 5>><<sexControl 5 $analskill $anustarget>><<analskilluse>>
+			<<set $anusaction to 0>><<set $anusactiondefault to "penisEdging">><<actionsanusedging $anustarget>><<submission 5>><<sexControl 5 `currentSkillValue("analskill")` $anustarget>><<analskilluse>>
 		<</if>>
 
 		<<if $anusaction is "take">>
@@ -5763,7 +5525,7 @@
 		<</if>>
 
 		<<if $anusaction is "penisDoubleEdging">>
-			<<set $anusaction to 0>><<set $anusactiondefault to "penisDoubleEdging">><<actionsanusdoubleedging $anustarget $anusdoubletarget>><<submission 5>><<sexControl 5 $analskill $anustarget $anusdoubletarget>><<analskilluse>>
+			<<set $anusaction to 0>><<set $anusactiondefault to "penisDoubleEdging">><<actionsanusdoubleedging $anustarget $anusdoubletarget>><<submission 5>><<sexControl 5 `currentSkillValue("analskill")` $anustarget $anusdoubletarget>><<analskilluse>>
 		<</if>>
 
 		<<if $anusaction is "doubletake">>
@@ -6075,7 +5837,7 @@
 		<</if>>
 
 		<<if $penisaction is "vaginaEdging">>
-			<<set $penisaction to 0>><<set $penisactiondefault to "vaginaEdging">><<actionspussyedging $penistarget>><<submission 5>><<sexControl 5 $penileskill $penistarget>><<penileskilluse>>
+			<<set $penisaction to 0>><<set $penisactiondefault to "vaginaEdging">><<actionspussyedging $penistarget>><<submission 5>><<sexControl 5 `currentSkillValue("penileskill")` $penistarget>><<penileskilluse>>
 		<</if>>
 
 		<<if $penisaction is "take">>
@@ -6259,7 +6021,7 @@
 		<</if>>
 
 		<<if $penisaction is "otheranusEdging">>
-			<<set $penisaction to 0>><<set $penisactiondefault to "otheranusEdging">><<actionsotheranusedging $penistarget>><<submission 5>><<sexControl 5 $penileskill $penistarget>><<penileskilluse>>
+			<<set $penisaction to 0>><<set $penisactiondefault to "otheranusEdging">><<actionsotheranusedging $penistarget>><<submission 5>><<sexControl 5 `currentSkillValue("penileskill")` $penistarget>><<penileskilluse>>
 		<</if>>
 
 		<<if $penisaction is "otheranustake">>
@@ -6343,7 +6105,7 @@
 				You spread your thighs, but just receive a slap. "Settle down, <<bitch>>."
 				<<violence 2>><<hitstat>><<bruise bottom>>
 			<<elseif ["penisentrance", "penisimminent"].includes($NPCList[$penistarget].penis)>>
-				<<set $penisaction to 0>><<meek 10 $penistarget>><<penileskill>><<set $penisactiondefault to "penispussy">>
+				<<set $penisaction to 0>><<meek 10 $penistarget>><<penileskilluse>><<set $penisactiondefault to "penispussy">>
 				<<if combatSkillCheck("vaginal", $penistarget)>>
 					<<personselect $penistarget>>
 					<<submission 2>><<set $vaginause to "penis">><<set $NPCList[$penistarget].penis to "vaginaentrance">><<set $penisuse to 0>>

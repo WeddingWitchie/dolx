@@ -5,6 +5,13 @@
 	and are required for processing for loops, default objects, etc.*/
 	/*Can be found at 'SugarCube.setup'*/
 
+	<<run try { new Function("const foo = {}; foo?.bar;"); } catch (e) {
+		window.Utils.Defer(() => {
+			Errors.report('This browser does not meet the minimum requirements for DoL (ES2020). Please alert Vrelnir + the dev team and update your web browser.');
+			Errors.Reporter.show();
+		});
+	}>>
+
 	<<set setup.test to "testing">>
 	<<set setup.baseNPC = {
 		"chastity": { penis: "", vagina: "", anus: "" },
@@ -22,10 +29,34 @@
 	<<init_tips>>
 
 	<<set setup.baseNNPC = {penis : 0, vagina: 0, gender: "none", description: 0, title: 0, insecurity: 0, pronoun: "none", penissize: 0, penisdesc: "none", bottomsize: 0, ballssize: 0, breastsize: 0, breastdesc: 0, breastsdesc: 0, skincolour: 0, teen: 0, adult: 0, init: 0, intro: 0, type: "human", trust: 0, love: 0, dom: 0, lust: 0, rage: 0, state: "", trauma: 0, eyeColour: 0, hairColour: 0, chastity: {penis: "", vagina: "", anus: ""}}>>
-	<<set setup.NPCNameList = ["Avery","Bailey","Briar","Charlie","Darryl","Doren","Eden","Gwylan","Harper","Jordan","Kylar","Landry","Leighton","Mason","Morgan","River","Robin","Sam","Sirris","Whitney","Winter","Black Wolf","Niki","Quinn","Remy","Alex","Great Hawk","Wren","Sydney","Ivory Wraith"]>>
+	<<set setup.NPCNameList = ["Avery","Bailey","Briar","Charlie","Darryl","Doren","Eden","Gwylan","Harper","Jordan","Kylar","Landry","Leighton","Mason","Morgan","River","Robin","Sam","Sirris","Whitney","Winter","Black Wolf","Niki","Quinn","Remy","Alex","Great Hawk","Wren","Sydney","Ivory Wraith","Zephyr"]>>
 
 	/* this initialises the C.npc object */
 	<<run initCNPC()>>
+
+	<<set setup.crimeNames to {
+		assault: "assault",
+		coercion: "coercion",
+		destruction: "destruction of property",
+		exposure: "indecent exposure",
+		obstruction: "obstruction of justice",
+		prostitution: "prostitution",
+		resisting: "resisting arrest",
+		thievery: "thievery",
+		petty: "petty thievery",
+		trespassing: "trespassing",
+	}>>
+
+	<<set setup.crimeDescs to {
+		default: "general",
+		legacy: "a string of crimes that slipped through the cracks",
+		escape: "escaping prison",
+		cake: "a high-profile theft involving a noble's wedding cake",
+		kylarPrison: "assisting in a prison escape",
+	}>>
+
+	/* this initialises the C.crime object */
+	<<run initCCrime()>>
 
 	<<set setup.skinColor to {
 		tanLoc: ["body", "breasts", "penis", "swimshorts", "swimsuitTop", "swimsuitBottom", "bikiniTop", "bikiniBottom", "tshirt"],
@@ -66,6 +97,7 @@
 				"mouthsmile":"img/bodyRed/mouthsmile.png",
 				"rightarm":"img/bodyRed/rightarm.png",
 				"rightarmidle":"img/bodyRed/rightarmidle.png",
+				"rightarmhold":"img/bodyRed/rightarmhold.png",
 				"breasts1":"img/bodyRed/breasts/breasts1.png",
 				"breasts1_clothed":"img/bodyRed/breasts/breasts1.png",
 				"breasts2":"img/bodyRed/breasts/breasts2.png",
@@ -134,6 +166,7 @@
 				"mouthsmile":"img/body/mouthsmile.png",
 				"rightarm":"img/body/rightarm.png",
 				"rightarmidle":"img/body/rightarmidle.png",
+				"rightarmhold":"img/body/rightarmhold.png",
 				"breasts1":"img/body/breasts/breasts1.png",
 				"breasts1_clothed":"img/body/breasts/breasts1.png",
 				"breasts2":"img/body/breasts/breasts2.png",
@@ -450,25 +483,33 @@
 					"anus":"img/sex/closeRed/missionary/anus.png",
 					"anuspenetrate":"img/sex/closeRed/missionary/anuspenetrate.png",
 					"penis":"img/sex/closeRed/missionary/penis.png",
+					"penisparasite":"img/sex/closeRed/missionary/penisparasite.png",
 					"penisentrance":"img/sex/closeRed/missionary/penisentrance.png",
 					"penispenetrated":"img/sex/closeRed/missionary/penispenetrated.png",
 					"chastitypenis":"img/sex/closeRed/missionary/chastitypenis.png",
+					"chastitypenisparasite":"img/sex/closeRed/missionary/chastitypenisparasite.png",
 					"chastitypenissmall":"img/sex/closeRed/missionary/chastitypenissmall.png",
+					"chastitypenisparasitesmall":"img/sex/closeRed/missionary/chastitypenisparasitesmall.png",
 					"chastitypenisflat":"img/sex/closeRed/missionary/chastitypenisflat.png",
+					"chastitypenisparasiteflat":"img/sex/closeRed/missionary/chastitypenisparasiteflat.png",
 					"penisbase":"img/sex/closeRed/missionary/penisbase.png",
 					"futapenisnoballs":"img/sex/closeRed/missionary/futapenisnoballs.png",
 					"futapenisbase":"img/sex/closeRed/missionary/futapenisbase.png",
 					"vagina":"img/sex/closeRed/missionary/vagina.png",
 					"vaginaaroused":"img/sex/closeRed/missionary/vaginaaroused.png",
 					"futavagina":"img/sex/closeRed/missionary/futavagina.png",
+					"futavaginaparasite":"img/sex/closeRed/missionary/futavaginaparasite.png",
 					"futavaginanoballs":"img/sex/closeRed/missionary/futavaginanoballs.png",
 					"vaginaChastityBase":"img/sex/closeRed/missionary/chastityBelt/vaginaBase.png",
 					"vaginaChastityMan":"img/sex/closeRed/missionary/chastityBelt/man.png",
 					"vaginapenetrate":"img/sex/closeRed/missionary/vaginapenetrate.png",
 					"vaginapenetratebig":"img/sex/closeRed/missionary/vaginapenetratebig.png",
 					"penis1":"img/sex/closeRed/missionary/beast/penis1.png",
+					"penisparasite1":"img/sex/closeRed/missionary/beast/penisparasite1.png",
 					"penisentrance1":"img/sex/closeRed/missionary/beast/penisentrance1.png",
+					"penisparasiteentrance1":"img/sex/closeRed/missionary/beast/penisparasiteentrance1.png",
 					"penisimminent1":"img/sex/closeRed/missionary/beast/penisimminent1.png",
+					"penisparasiteimminent1":"img/sex/closeRed/missionary/beast/penisparasiteimminent1.png",
 					"penisnoballs":"img/sex/closeRed/missionary/beast/penisnoballs.png",
 					"penisentrancenoballs":"img/sex/closeRed/missionary/beast/penisentrancenoballs.png",
 					"penisimminentnoballs":"img/sex/closeRed/missionary/beast/penisimminentnoballs.png",
@@ -478,25 +519,33 @@
 					"anus":"img/sex/close/missionary/anus.png",
 					"anuspenetrate":"img/sex/close/missionary/anuspenetrate.png",
 					"penis":"img/sex/close/missionary/penis.png",
+					"penisparasite":"img/sex/close/missionary/penisparasite.png",
 					"penisentrance":"img/sex/close/missionary/penisentrance.png",
 					"penispenetrated":"img/sex/close/missionary/penispenetrated.png",
 					"chastitypenis":"img/sex/close/missionary/chastitypenis.png",
+					"chastitypenisparasite":"img/sex/close/missionary/chastitypenis.png",
 					"chastitypenissmall":"img/sex/close/missionary/chastitypenissmall.png",
+					"chastitypenisparasitesmall":"img/sex/close/missionary/chastitypenissmall.png",
 					"chastitypenisflat":"img/sex/close/missionary/chastitypenisflat.png",
+					"chastitypenisparasiteflat":"img/sex/close/missionary/chastitypenisflat.png",
 					"penisbase":"img/sex/close/missionary/penisbase.png",
 					"futapenisnoballs":"img/sex/close/missionary/futapenisnoballs.png",
 					"futapenisbase":"img/sex/close/missionary/futapenisbase.png",
 					"vagina":"img/sex/close/missionary/vagina.png",
 					"vaginaaroused":"img/sex/close/missionary/vaginaaroused.png",
 					"futavagina":"img/sex/close/missionary/futavagina.png",
+					"futavaginaparasite":"img/sex/close/missionary/futavaginaparasite.png",
 					"futavaginanoballs":"img/sex/close/missionary/futavaginanoballs.png",
 					"vaginaChastityBase":"img/sex/close/missionary/chastityBelt/vaginaBase.png",
 					"vaginaChastityMan":"img/sex/close/missionary/chastityBelt/man.png",
 					"vaginapenetrate":"img/sex/close/missionary/vaginapenetrate.png",
 					"vaginapenetratebig":"img/sex/close/missionary/vaginapenetratebig.png",
 					"penis1":"img/sex/close/missionary/beast/penis1.png",
+					"penisparasite1":"img/sex/close/missionary/beast/penisparasite1.png",
 					"penisentrance1":"img/sex/close/missionary/beast/penisentrance1.png",
+					"penisparasiteentrance1":"img/sex/close/missionary/beast/penisparasiteentrance1.png",
 					"penisimminent1":"img/sex/close/missionary/beast/penisimminent1.png",
+					"penisparasiteimminent1":"img/sex/close/missionary/beast/penisparasiteimminent1.png",
 					"penisnoballs":"img/sex/close/missionary/beast/penisnoballs.png",
 					"penisentrancenoballs":"img/sex/close/missionary/beast/penisentrancenoballs.png",
 					"penisimminentnoballs":"img/sex/close/missionary/beast/penisimminentnoballs.png",
@@ -509,25 +558,33 @@
 					"anus":"img/sex/closeRed/doggy/anus.png",
 					"anuspenetrate":"img/sex/closeRed/doggy/anuspenetrate.png",
 					"penis":"img/sex/closeRed/doggy/penis.png",
+					"penisparasite":"img/sex/closeRed/doggy/penisparasite.png",
 					"penisentrance":"img/sex/closeRed/doggy/penisentrance.png",
 					"penispenetrated":"img/sex/closeRed/doggy/penispenetrated.png",
 					"chastitypenis":"img/sex/closeRed/doggy/chastitypenis.png",
+					"chastitypenisparasite":"img/sex/closeRed/doggy/chastitypenisparasite.png",
 					"chastitypenissmall":"img/sex/closeRed/doggy/chastitypenissmall.png",
+					"chastitypenisparasitesmall":"img/sex/closeRed/doggy/chastitypenisparasitesmall.png",
 					"chastitypenisflat":"img/sex/closeRed/doggy/chastitypenisflat.png",
+					"chastitypenisparasiteflat":"img/sex/closeRed/doggy/chastitypenisparasiteflat.png",
 					"penisbase":"img/sex/closeRed/doggy/penisbase.png",
 					"futapenisnoballs":"img/sex/closeRed/doggy/futapenisnoballs.png",
 					"futapenisbase":"img/sex/closeRed/doggy/futapenisbase.png",
 					"vagina":"img/sex/closeRed/doggy/vagina.png",
 					"vaginaaroused":"img/sex/closeRed/doggy/vaginaaroused.png",
 					"futavagina":"img/sex/closeRed/doggy/futavagina.png",
+					"futavaginaparasite":"img/sex/closeRed/doggy/futavaginaparasite.png",
 					"futavaginanoballs":"img/sex/closeRed/doggy/futavaginanoballs.png",
 					"vaginaChastityBase":"img/sex/closeRed/doggy/chastityBelt/vaginaBase.png",
 					"vaginaChastityMan":"img/sex/closeRed/doggy/chastityBelt/man.png",
 					"vaginapenetrate":"img/sex/closeRed/doggy/vaginapenetrate.png",
 					"vaginapenetratebig":"img/sex/closeRed/doggy/vaginapenetratebig.png",
 					"penis1":"img/sex/closeRed/doggy/beast/penis1.png",
+					"penisparasite1":"img/sex/closeRed/doggy/beast/penisparasite1.png",
 					"penisentrance1":"img/sex/closeRed/doggy/beast/penisentrance1.png",
+					"penisparasiteentrance1":"img/sex/closeRed/doggy/beast/penisparasiteentrance1.png",
 					"penisimminent1":"img/sex/closeRed/doggy/beast/penisimminent1.png",
+					"penisparasiteimminent1":"img/sex/closeRed/doggy/beast/penisparasiteimminent1.png",
 					"penisnoballs":"img/sex/closeRed/doggy/beast/penisnoballs.png",
 					"penisentrancenoballs":"img/sex/closeRed/doggy/beast/penisentrancenoballs.png",
 					"penisimminentnoballs":"img/sex/closeRed/doggy/beast/penisimminentnoballs.png",
@@ -537,25 +594,33 @@
 					"anus":"img/sex/close/doggy/anus.png",
 					"anuspenetrate":"img/sex/close/doggy/anuspenetrate.png",
 					"penis":"img/sex/close/doggy/penis.png",
+					"penisparasite":"img/sex/close/doggy/penisparasite.png",
 					"penisentrance":"img/sex/close/doggy/penisentrance.png",
 					"penispenetrated":"img/sex/close/doggy/penispenetrated.png",
 					"chastitypenis":"img/sex/close/doggy/chastitypenis.png",
+					"chastityparasitepenis":"img/sex/close/doggy/chastitypenis.png",
 					"chastitypenissmall":"img/sex/close/doggy/chastitypenissmall.png",
+					"chastitypenisparasitesmall":"img/sex/close/doggy/chastitypenissmall.png",
 					"chastitypenisflat":"img/sex/close/doggy/chastitypenisflat.png",
+					"chastitypenisparasiteflat":"img/sex/close/doggy/chastitypenisflat.png",
 					"penisbase":"img/sex/close/doggy/penisbase.png",
 					"futapenisnoballs":"img/sex/close/doggy/futapenisnoballs.png",
 					"futapenisbase":"img/sex/close/doggy/futapenisbase.png",
 					"vagina":"img/sex/close/doggy/vagina.png",
 					"vaginaaroused":"img/sex/close/doggy/vaginaaroused.png",
 					"futavagina":"img/sex/close/doggy/futavagina.png",
+					"futavaginaparasite":"img/sex/close/doggy/futavaginaparasite.png",
 					"futavaginanoballs":"img/sex/close/doggy/futavaginanoballs.png",
 					"vaginaChastityBase":"img/sex/close/doggy/chastityBelt/vaginaBase.png",
 					"vaginaChastityMan":"img/sex/close/doggy/chastityBelt/man.png",
 					"vaginapenetrate":"img/sex/close/doggy/vaginapenetrate.png",
 					"vaginapenetratebig":"img/sex/close/doggy/vaginapenetratebig.png",
 					"penis1":"img/sex/close/doggy/beast/penis1.png",
+					"penisparasite1":"img/sex/close/doggy/beast/penisparasite1.png",
 					"penisentrance1":"img/sex/close/doggy/beast/penisentrance1.png",
+					"penisparasiteentrance1":"img/sex/close/doggy/beast/penisparasiteentrance1.png",
 					"penisimminent1":"img/sex/close/doggy/beast/penisimminent1.png",
+					"penisparasiteimminent1":"img/sex/close/doggy/beast/penisparasiteimminent1.png",
 					"penisnoballs":"img/sex/close/doggy/beast/penisnoballs.png",
 					"penisentrancenoballs":"img/sex/close/doggy/beast/penisentrancenoballs.png",
 					"penisimminentnoballs":"img/sex/close/doggy/beast/penisimminentnoballs.png",
@@ -599,8 +664,8 @@
 	<<set setup.bodyparts to ["forehead", "left_cheek", "right_cheek", "left_shoulder", "right_shoulder", "breasts", "back", "left_bottom", "right_bottom", "pubic", "left_thigh", "right_thigh"]>>
 
 	<<set setup.clothingLayer to {
-		"all": ["over_upper","over_lower","over_head","upper","lower","under_upper","under_lower","head","face","neck","hands","legs","feet"],
-		"body": ["upper","lower","under_upper","under_lower","head","face","neck","hands","legs","feet"],
+		"all": ["over_upper","over_lower","over_head","upper","lower","under_upper","under_lower","head","face","neck","hands","handheld","legs","feet"],
+		"body": ["upper","lower","under_upper","under_lower","head","face","neck","hands","handheld","legs","feet"],
 		"torso": ["over_upper","over_lower","upper","lower","under_upper","under_lower"],
 		"torso_inner": ["upper","lower","under_upper","under_lower"],
 		"torso_outer": ["over_upper","over_lower","upper","lower"],
@@ -629,7 +694,7 @@
 		"Harvest Street", "High Street", "Mer Street", "Nightingale Street", "Oxford Street", "Starfish Street", "Wolf Street",
 		"Residential alleyways", "Commercial alleyways", "Industrial alleyways", "Park", "Hallways", "Brothel", "Strip Club",
 		"Beach", "Ocean Breeze", "Docks Work", "Residential Drain", "Commercial Drain", "Industrial Drain", "Forest", "Farmland",
-		"Livestock Field", "Moor", "Forest Wolf Cave", "Wolf Cave", "Wolf Cave Clearing", "Asylum", "Asylum Cell", "Underground Cell", "Prison Cell"
+		"Livestock Field", "Moor", "Forest Wolf Cave", "Wolf Cave", "Wolf Cave Clearing", "Asylum", "Asylum Cell", "Underground Cell", "Prison Cell", "Island"
 	]>>
 
 	<<set setup.clothingStateIndex to {"chest": 6, "midriff": 5, "waist": 4, "thighs": 3, "knees": 2, "ankles": 1}>>
@@ -792,12 +857,18 @@
 	/*Note: Pregnancy - adjust as require and ensure that <<npcPregnancyUpdater>> is running in backComp*/
 	/*Should match with $NPCNameList*/
 	/*FOR `canBePregnant` DO NOT REMOVE FROM LIST ONCE ENABLED FOR OFFICAL VERSIONS, IT WILL DELETE EXISTING PREGNANCIES FOR NPCS*/
+	/*For `typesEnabled` only include pregnancy types that can be achieved ingame, parasites or their sub-types should never be included*/
 	<<set setup.pregnancy to {
-		canBePregnant: ["Black Wolf"],
-		canImpregnatePlayer: ["Black Wolf"],
+		canBePregnant: ["Alex","Black Wolf"],
+		canImpregnatePlayer: ["Alex","Black Wolf"],
 		infertile: ["Bailey", "Leighton"],
 		ignoresIncompeteCheck: ["Ivory Wraith"],
 		typesEnabled: ["human" , "wolf", "wolfboy", "wolfgirl"],
 		randomAlwaysKeep: ["wolf_cave"]
 	}>>
+	/* ToDo: Enable hawk pregnancy:
+		To be added to typesEnabled - "hawk", "harpy"
+		To be added to canBePregnant - "Great Hawk"
+		To be added to canImpregnatePlayer - "Great Hawk"
+	*/
 <</widget>>

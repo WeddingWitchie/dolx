@@ -33,6 +33,12 @@ function updateClothingColours(item, itemRef) {
 		case "lace choker":
 			if (item.colour === 0) item.colour = "black";
 			break;
+		case "school shirt":
+			if (item.accessory_colour === 0) {
+				item.accessory_colour = "light blue";
+				item.accessory_colour_combat = "light blue";
+			}
+			break;
 		default:
 			// Catch-all case if people forget to adjust this widget for whatever clothing item is updated. Can make weird looking clothes if "custom" is selected.
 			if (item.colour === 0) item.colour = itemRef.colour_options.random();
@@ -100,6 +106,8 @@ function updateClothesItem(slot, item, debug) {
 	// transfer new properties from itemRef to the item
 	const itemRef = setup.clothes[slot][clothesIndex(slot, item)];
 	for (const key in itemRef) {
+		// one_piece fix for items that shouldn't have it set
+		if (["school pinafore", "plaid school pinafore"].includes(item.name) && item.one_piece === 1) item.one_piece = 0;
 		if (skip.includes(key)) continue;
 		if (key === "hoodposition" && V.objectVersion.updateClothes >= 31) continue;
 		if (key === "outfitPrimary") {
@@ -142,6 +150,9 @@ function updateClothesItem(slot, item, debug) {
 			if (slot === "lower") item.name = "overall bottoms";
 			else if (item.outfitPrimary.lower === "overalls") item.outfitPrimary.lower = "overall bottoms";
 			break;
+		case "sleeveless jingle-bell dress":
+			if (item.outfitPrimary.lower === "jingle-bell skirt") item.outfitPrimary.lower = "sleeveless jingle-bell skirt";
+			break;
 	}
 	if (debug) console.log("updateClothesItem:", slot, itemOld, clone(item));
 }
@@ -181,7 +192,10 @@ function updateClothes() {
 				case "overalls":
 					if (slot === "lower") outfit[slot] = "overall bottoms";
 					break;
-			}
+				case "sleeveless jingle-bell dress":
+					if (slot === "lower") outfit[slot] = "sleeveless jingle-bell skirt";
+					break;
+				}
 		}
 	}
 }
@@ -193,6 +207,7 @@ function wardrobesUpdate() {
 		face: [],
 		feet: [],
 		hands: [],
+		handheld: [],
 		head: [],
 		legs: [],
 		lower: [],
@@ -305,6 +320,21 @@ function wardrobesUpdate() {
 		for (const w in V.wardrobes) {
 			if (w !== "wardrobe" && V.wardrobes[w].unlocked !== undefined && V.wardrobes[w].genitals === undefined) V.wardrobes[w].genitals = [];
 		}
+	}
+	if (!V.wardrobes.temple) {
+		V.wardrobes.temple = clone(defWardrobe);
+		V.wardrobes.temple.unlocked = V.temple_rank === "monk";
+		V.wardrobes.temple.space = 20;
+	}
+	if (!V.wardrobes.pirate) {
+		V.wardrobes.pirate = clone(defWardrobe);
+		V.wardrobes.pirate.unlocked = V.pirate_rank >= 0;
+		V.wardrobes.pirate.space = 5;
+	}
+	if (V.objectVersion.wardrobes < 7) {
+		Object.values(V.wardrobes).forEach(wardrobe => {
+			if (wardrobe && Array.isArray(wardrobe.upper) && !wardrobe.handheld) wardrobe.handheld = [];
+		});
 	}
 }
 DefineMacro("wardrobesUpdate", wardrobesUpdate);

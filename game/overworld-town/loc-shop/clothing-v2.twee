@@ -60,12 +60,25 @@
 			<<shopCategoryReplace `clothingSlotToIconName($clothingShopSlot, _outfits)`>>
 		<</button>>
 	</span>
-		<<run $(() => {
+	<<if $daily.corruptionSlimeClothes is undefined and $earSlime.corruption gte 10>>
+		<<set _baseCorruption to (($earSlime.corruption / 2) + ($earSlime.growth / 2))>>
+		<<set $daily.corruptionSlimeClothes to random(_baseCorruption * 5, _baseCorruption * 25) - currentSkillValue('willpower')>>
+	<</if>>
+	<<set _unavailableItems to !!$daily.corruptionSlimeClothes or ($earSlime.forcedCommando and $earSlime.forcedCommando gt 0) or ($earSlime.forcedDressing and $earSlime.forcedDressing.days) or playerBellySize() gte 12>>
+	<<if _unavailableItems>>
+		<label><<checkbox "$shopClothingFilter.availableOnly" false true autocheck>> Hide unavailable items</label>
+	<<else>>
+		<<set $shopClothingFilter.available to false>>
+	<</if>>
+	<<run $(() => {
 		var shopTimer = null;
 		$('#textbox--shopnamefiltertextbox').on('input change', e => {
 			T.shopNameFilter = shopSearchReplacer(e.target.value);
 			clearTimeout(shopTimer);
 			shopTimer = setTimeout(updateShop, 300);
+		});
+		$('#checkbox-shopclothingfilteravailableonly').on('change', e => {
+			updateShop();
 		});
 		var updateShop = () => {
 			new Wikifier (null, "<<shopCategoryReplace `clothingSlotToIconName($clothingShopSlot, _outfits)`>>");
@@ -81,9 +94,15 @@
 			or
 			(!_outfits and (x.outfitPrimary is undefined or Object.keys(x.outfitPrimary).every(secSlot => !secSlot.includes("lower")))))
 		and (_shopNameFilter is '' or x.name.includes(_shopNameFilter.toLowerCase()))
+		and (!V.shopClothingFilter.availableOnly or !(
+			(setup.clothingLayer.torso.includes(V.clothingShopSlot) and x.reveal < Math.clamp(V.daily.corruptionSlimeClothes, 0, 500) and !x.type.includesAny("school", "event")) or
+			(V.earSlime.forcedDressing and V.earSlime.forcedDressing.days gt 0 and x.gender isnot V.earSlime.forcedDressing.type and x.gender isnot "n" and !x.type.includesAny("event")) or
+			(playerBellySize() >= 12 and x.type.includes("constricting"))
+		))
 	)>>
 	<<set _items = applyClothingShopFilters(_items)>>
-	<<set _maxPage = Math.ceil(_items.length / $shopItemsPerPage)>>
+
+	<<set _maxPage = Math.ceil(filterShopGroup(_items).length / $shopItemsPerPage)>>
 	<!-- Makes sure $shopPage is never showing a blank page -->
 	<<if $shopPage gte _maxPage>>
 		<<set $shopPage to 0>>
@@ -247,7 +266,7 @@
 	<<run $('#shop-pagination > .btn-pagination.next').toggleClass('disabled', $shopPage >= _maxPage - 1)>>
 
 	<!-- Re-generate keyboard shortcuts -->
-	<<run Links.generateLinkNumbers($('#clothingShop-div'))>>
+	/*<<run Links.generateLinkNumbers($('#clothingShop-div'))>>*/
 
 	<!-- Change page number text on small screens -->
 	<<replace '#shop-pagination > .shop-pages-number'>><<print ($shopPage + 1) + " out of " + _maxPage>><</replace>>
@@ -255,7 +274,9 @@
 
 <<widget "generateshoppage">>
 	<<set _page = _args[0]>>
-	<<set _itemsOnPage = _items.slice(_page * $shopItemsPerPage, (_page + 1) * $shopItemsPerPage)>>
+	<<set _itemGroups to []>>
+	<<set _itemsOnPage = filterShopGroup(_items)>>
+	<<set _itemsOnPage = _itemsOnPage.slice(_page * $shopItemsPerPage, (_page + 1) * $shopItemsPerPage)>>
 	<<set _hidden = _page == $shopPage ? "" : " hidden">>
 	<<set _compact = $shopDefaults.compactMode ? "compact" : "">>
 
@@ -267,32 +288,40 @@
 			<<set _item = clone(_itemTemp)>>
 			<<set $_realSlot to ($clothingShopSlot is "all" ? _item.realSlot : $clothingShopSlot)>>
 			<<set _itemData = setup.clothes[$_realSlot][clothesIndex($_realSlot,_item)]>>
-			<<set _locked = $specialClothes[_item.name.replace(/ /g,"")] is "locked">>
-			<<set _unlocked = $specialClothes[_item.name.replace(/ /g,"")] is "unlocked">>
+			<<set _locked = $specialClothes[_item.name.replace(/[- ]/g,"")] is "locked">>
+			<<set _unlocked = $specialClothes[_item.name.replace(/[- ]/g,"")] is "unlocked">>
 			<div class="clothing-item div-link">
 				<!-- Clothing icon -->
 				<div @class="'clothing-icon ' + _compact">
+					<<if $options.images is 1 and _itemData.shopGroup and _items.reduce((prev, curr) => {
+						if (!curr.shopGroup) return prev;
+						if (curr.shopGroup === _itemData.shopGroup) return prev + 1;
+						return prev;
+					},0) gt 1>><div class='fa-icon fa-plus clothing-icon-plus'></div>
+					<</if>>
 					<<if _locked and $options.images is 1>>
 						<img src="img/misc/icon/lock.png" class="clothing-locked">
 					<<else>>
-						<<if _item.colour_options.length > 0>>
-							<<if $shopDefaults.colourItems == "random">>
-								<<set _item.colour = _item.colour_options[random(_item.colour_options.length - 1)]>>
-							<<elseif $shopDefaults.colourItems == "default" and _item.colour_options.includes($shopDefaults.color)>>
-								<<set _item.colour = $shopDefaults.color>>
-								<<if $shopDefaults.color == "custom">>
+						<<if _item.colour_options.length gt 0>>
+							<<if $shopDefaults.colourItems is "random">>
+								<<set _item.colour to _item.colour_options.random()>>
+							<<elseif $shopDefaults.colourItems is "default" and _item.colour_options.includes($shopDefaults.color)>>
+								<<set _item.colour to $shopDefaults.color>>
+								<<if $shopDefaults.color is "custom">>
 									<<set _item.colourCustom = _colCustomPrimary>>
 								<</if>>
 							<</if>>
 						<</if>>
-						<<if _item.accessory_colour_options.length > 0>>
-							<<if $shopDefaults.colourItems == "random">>
-								<<set _item.accessory_colour = _item.accessory_colour_options[random(_item.accessory_colour_options.length - 1)]>>
-							<<elseif $shopDefaults.colourItems == "default" and _item.accessory_colour_options.includes($shopDefaults.secColor)>>
-								<<set _item.accessory_colour = $shopDefaults.secColor>>
-								<<if $shopDefaults.secColor == "custom">>
-									<<set _item.accessory_colourCustom = _colCustomSecondary>>
+						<<if _item.accessory_colour_options.length gt 0>>
+							<<if $shopDefaults.colourItems is "random">>
+								<<set _item.accessory_colour to _item.accessory_colour_options.random()>>
+							<<elseif $shopDefaults.colourItems is "default" and _item.accessory_colour_options.includes($shopDefaults.secColor)>>
+								<<set _item.accessory_colour to $shopDefaults.secColor>>
+								<<if $shopDefaults.secColor is "custom">>
+									<<set _item.accessory_colourCustom to _colCustomSecondary>>
 								<</if>>
+							<<else>> /* clothing not available with selected acc colour */
+								<<set _item.accessory_colour to 0>>
 							<</if>>
 						<</if>>
 						<<clothingicon _item $_realSlot>>
@@ -339,6 +368,7 @@
 									<<set $clothes_choice = clothesIndex(_csslot,_item)>>
 									<<set $clothes_choice_reveal = _item.reveal>>
 									<<set $clothes_choice_integrity = _itemData.integrity_max>>
+									<<if ["over_upper", "upper", "under_upper"].includes(_csslot) and _itemData.outfitPrimary>><<set _outfits to true>><</if>>
 									<<unset $colouraction>>
 									<<unset $accessorycolouraction>>
 									<<run window.scrollTo(0, 0)>>
@@ -364,7 +394,7 @@
 					<<if _locked>>
 						<div class="locked-hint">
 							<<specialClothesHint>>
-							<<print _specialClothesHint[_item.name.replace(/ /g,"")]>>
+							<<print _specialClothesHint[_item.name.replace(/[- ]/g,"")]>>
 						</div>
 					<<else>>
 						<!-- Price tag -->
@@ -462,7 +492,7 @@
 		<<set _realIndex to _temp_choice.index>>
 
 		<!-- Unlocked text -->
-		<<if $specialClothes[_temp_choice.name.replace(/ /g,"")] is "unlocked">>
+		<<if $specialClothes[_temp_choice.name.replace(/[- ]/g,"")] is "unlocked">>
 			<<specialClothesHint>>
 			<div class="unlocked-hint">
 				<span class="gold">Unlocked | </span><span class="grey"><<print _specialClothesHint[_temp_choice.name.replace(/ /g,"")]>></span>
@@ -488,7 +518,26 @@
 		<br><br>
 		<<shoptraits>>
 		<<set _slimeSlots to setup.clothingLayer.torso>>
-		<<if !_slimeSlots.includes($clothingShopSlot) or currentSkillValue('willpower') gte 800 or _temp_choice.reveal gte 500 or _temp_choice.type.includesAny("school", "event") or $corruption_slime lt 80>>
+		<<if $earSlime.forcedCommando and $earSlime.forcedCommando gt 0 and ($clothingShopSlot is "under_lower" or (_temp_choice.outfitPrimary and _temp_choice.outfitPrimary.under_lower)) and !_temp_choice.type.includesAny("swim", "dance", "naked")>>
+			<span class="red">The slime in your ear refuses to allow you to try on or buy the  _temp_choice.name as it is forcing you to go commando.</span>
+			<br>
+		<<elseif _slimeSlots.includes($clothingShopSlot) and $daily.corruptionSlimeClothes and _temp_choice.reveal lt Math.clamp($daily.corruptionSlimeClothes, 0, 500) and !_temp_choice.type.includesAny("school","event")>>
+			<span class="red">The slime in your ear refuses to allow you to try on or buy the _temp_choice.name.</span>
+			<br>
+		<<elseif $earSlime.forcedDressing and $earSlime.forcedDressing.days and _item.gender isnot $earSlime.forcedDressing.type and _item.gender isnot "n" and !_item.type.includesAny("event")>>
+			<span class="red">The slime in your ear refuses to allow you to try on or buy the _temp_choice.name as it is only permitting more <<print $earSlime.forcedDressing.type is "f" ? "feminine" : "masculine">> clothing.</span>
+		<<else>>
+			<<if $earSlime.forcedCommando and $earSlime.forcedCommando gt 0 and !_temp_choice.type.includesAny("naked") and ($clothingShopSlot is "under_lower" or (_temp_choice.outfitPrimary and _temp_choice.outfitPrimary.under_lower))>>
+				<span class="red">The slime in your ear refuses to allow you to try on or wear the _temp_choice.name while not at an appropriate location.</span>
+				<br>
+				<<set _wearingBlocked to true>>
+			<<elseif _slimeSlots.includes($clothingShopSlot) and $daily.corruptionSlimeClothes and _temp_choice.reveal lt Math.clamp($daily.corruptionSlimeClothes, 0, 500) and (_temp_choice.type.includesAny("school") and !Time.schoolDay) and !_temp_choice.type.includesAny("event")>>
+				<span class="red">The slime in your ear refuses to allow you to try on or wear the _temp_choice.name when you don't have school today.</span>
+				<br>
+				<<set _wearingBlocked to true>>
+			<<else>>
+				<<set _wearingBlocked to false>>
+			<</if>>
 			<div class="clothing-colours-div">
 				<<set _hiddenMannequin = $options.images is 1 ? "" : "hidden">>
 				<!-- Item preview -->
@@ -546,6 +595,24 @@
 				<<warmth_description>>
 			</div>
 			<br>
+
+			<<if !$options.images and _temp_choice.shopGroup>>
+				<<link "Previous Style">>
+					<<set _groupIndex to _itemGroups[_temp_choice.shopGroup].indexOf($clothes_choice)>>
+					<<set _groupIndexMax to _itemGroups[_temp_choice.shopGroup].length - 1>>
+					<<set $clothes_choice to _groupIndex gt 0 ? _itemGroups[_temp_choice.shopGroup][_groupIndex - 1] : _itemGroups[_temp_choice.shopGroup][_groupIndexMax]>>
+					<<replace ".clothing-details">><<shopDetailsv2>><</replace>>
+					<<run linkifyDivs('.clothing-details')>>
+				<</link>> |
+				<<link "Next Style">>
+					<<set _groupIndex to _itemGroups[_temp_choice.shopGroup].indexOf($clothes_choice)>>
+					<<set $clothes_choice to _itemGroups[_temp_choice.shopGroup][_groupIndex + 1] ? _itemGroups[_temp_choice.shopGroup][_groupIndex + 1] : _itemGroups[_temp_choice.shopGroup][0]>>
+					<<replace ".clothing-details">><<shopDetailsv2>><</replace>>
+					<<run linkifyDivs('.clothing-details')>>
+				<</link>>
+				<br>
+			<</if>>
+
 			<<if $multipleWardrobes is "all">>
 				<span>Send items to:</span>
 				<div id="sendItemsTo">
@@ -564,9 +631,9 @@
 						<<printcursed>>
 					<<elseif _preggyPrevent>>
 						<<printpreggy _temp_choice>>
-					<<else>>
+					<<elseif !_wearingBlocked>>
 						<<link "Steal and wear">>
-							<<shopbuyv2 _realSlot "steal" "wear" _realIndex>><<crimeup `getClothingCost(_temp_choice,$clothingShopSlot) / 100`>>
+							<<shopbuyv2 _realSlot "steal" "wear" _realIndex>><<crimeUp `getClothingCost(_temp_choice,$clothingShopSlot) / 100` "thievery">>
 							<<set $clothingShop.stolenClothes++>>
 							<<set $clothingShop.totalStolenClothes++>>
 							<<if $shopDefaults.disableReturn is false>>
@@ -582,11 +649,11 @@
 								<<updatewarmthdescription>>
 							<</if>>
 							<<run updateMoment()>>
-						<</link>><<crime>>
+						<</link>><<crime "thievery">>
 						<br>
 					<</if>>
 					<<link "Steal and take home">>
-						<<shopbuyv2 _realSlot "steal" "send" _realIndex>><<crimeup `getClothingCost(_temp_choice,$clothingShopSlot) / 100`>>
+						<<shopbuyv2 _realSlot "steal" "send" _realIndex>><<crimeUp `getClothingCost(_temp_choice,$clothingShopSlot) / 100` "thievery">>
 						<<set $clothingShop.stolenClothes++>>
 						<<set $clothingShop.totalStolenClothes++>>
 						<<if $shopDefaults.disableReturn is false>>
@@ -595,7 +662,7 @@
 						<<updateclotheslist>>
 						<<updatesidebarimg>>
 						<<run updateMoment()>>
-					<</link>><<crime>>
+					<</link>><<crime "thievery">>
 					<br>
 				<<else>>
 					<span class="red">You can't carry any more clothes with you.</span> You should take them to your wardrobe.
@@ -609,10 +676,10 @@
 				<</if>>
 
 				<div class="buy-buttons">
-					<<set _cantWear = (_cursedPrevent == true || _preggyPrevent == true ? "disabled" : "div-link")>>
+					<<set _cantWear = (_cursedPrevent == true || _preggyPrevent == true || _wearingBlocked ? "disabled" : "div-link")>>
 					<div class="buy-button">
 						<div @class="'buy-button-inner ' + _cantWear">
-							<<if _cursedPrevent or _preggyPrevent>>
+							<<if _cursedPrevent or _preggyPrevent or _wearingBlocked>>
 								Buy and wear
 							<<else>>
 								<<link "Buy and wear">>
@@ -651,7 +718,7 @@
 			<</if>>
 
 			<<if _spaceLeft < 1>>
-			<<elseif _cursedPrevent != true and _preggyPrevent != true and $tryOn.tryingOn>>
+			<<elseif _cursedPrevent != true and _preggyPrevent != true and !_wearingBlocked and $tryOn.tryingOn>>
 				<div class="try-buttons">
 					<div class="try-button div-link">
 						<<link "Try On">>
@@ -686,15 +753,20 @@
 						<div class="try-button div-link"><<toggleHoodLink "shop">></div>
 						<br>
 					<</if>>
+					<<if _temp_choice.variable is $worn[$clothingShopSlot].variable and _temp_choice.altposition>>
+						<div class="try-button div-link toggleAltLink"><<toggleAltLink $clothingShopSlot "shop">></div>
+						<br>
+					<</if>>
 					<<if ["upper","lower"].includes($clothingShopSlot) and $worn.lower.name isnot "naked" and $worn.upper.outfitPrimary is undefined and !setup.clothes.upper[clothesIndex("upper",$worn.upper)].notuck>>
 						<div class="try-button div-link"><<toggleUpperTuck>></div>
 						<br>
 					<</if>>
+					<<if ["face"].includes($clothingShopSlot) and $worn.face.name isnot "naked">>
+						<div class="try-button div-link"><<toggleFaceLayer "shop">></div>
+						<br>
+					<</if>>
 				</div>
 			<</if>>
-		<<else>>
-			<span class="red">The slime in your ear refuses to allow you to try on or buy the _temp_choice.name.</span>
-			<br>
 		<</if>>
 	<</if>>
 <</widget>>
@@ -1096,6 +1168,10 @@
 							<<set _item = _items_list[0].item>>
 							<<set _slot = _items_list[0].slot>>
 						<</if>>
+						<<if _slot is "handheld">>
+							<<set _modeloptions.arm_right to "hold">>
+						<</if>>
+
 					<<rendermodel "canvas-mannequin">>
 				<</if>>
 
@@ -1143,6 +1219,33 @@
 						<<link "">><<toggleMannequinGender>><</link>>
 					</div>
 				</div>
+				<<if _temp_choice.shopGroup and Array.isArray(_items) and _items.reduce((prev, curr) => {
+						if (!curr.shopGroup) return prev;
+						if (curr.shopGroup === _temp_choice.shopGroup) return prev + 1;
+						return prev;
+					},0) gt 1>>
+					<div class="mannequin-buttons-right no-numberify">
+						<<set _groupIndex to _itemGroups[_temp_choice.shopGroup].indexOf($clothes_choice)>>
+						<<link "<span class='fa-icon fa-left-arrow'></span>">>
+							<<set _groupIndex to _itemGroups[_temp_choice.shopGroup].indexOf($clothes_choice)>>
+							<<set _groupIndexMax to _itemGroups[_temp_choice.shopGroup].length - 1>>
+							<<set $clothes_choice to _groupIndex gt 0 ? _itemGroups[_temp_choice.shopGroup][_groupIndex - 1] : _itemGroups[_temp_choice.shopGroup][_groupIndexMax]>>
+							<<replace ".clothing-details">><<shopDetailsv2>><</replace>>
+							<<run linkifyDivs('.clothing-details')>>
+							/* The below widget ends up breaking the shop list when clicking fast enough */
+							/*<<updateclotheslist>>*/
+						<</link>>
+						_groupIndex
+						<<link "<span class='fa-icon fa-right-arrow'></span>">>
+							<<set _groupIndex to _itemGroups[_temp_choice.shopGroup].indexOf($clothes_choice)>>
+							<<set $clothes_choice to _itemGroups[_temp_choice.shopGroup][_groupIndex + 1] ? _itemGroups[_temp_choice.shopGroup][_groupIndex + 1] : _itemGroups[_temp_choice.shopGroup][0]>>
+							<<replace ".clothing-details">><<shopDetailsv2>><</replace>>
+							<<run linkifyDivs('.clothing-details')>>
+							/* The below widget ends up breaking the shop list when clicking fast enough */
+							/*<<updateclotheslist>>*/
+						<</link>>
+					</div>
+				<</if>>
 
 				<<if $options.sidebarRenderer isnot "canvas">>
 				<div class="mannequin-clothes">
@@ -1220,7 +1323,7 @@
 	<<if _mannequinGender is "f">>
 		<<set _mannequinGenderOverride to "m">>
 	<<else>>
-		<<if $player.gender is "h" and _mannequinGender is "m">> /* if player is herm, toggle mannequin through herm gender */
+		<<if $player.penisExist and $player.vaginaExist and _mannequinGender is "m">> /* if player is herm, toggle mannequin through herm gender */
 			<<set _mannequinGenderOverride to "h">>
 		<<else>>
 			<<set _mannequinGenderOverride to "f">>
@@ -1668,5 +1771,16 @@
 <<widget "shopHoodCheck">>
 	<<if $tryOn.tryingOn.head is null and $tryOn.ownedStored.head.name isnot "naked" and $tryOn.ownedStored.head.name isnot $worn.head.name and $worn.head.hood is 1>>
 		<<wardrobeSend "head" $tryOn.ownedStored.head>>
+	<</if>>
+<</widget>>
+
+<<widget "shopCommandoCheck">>
+	<<if $earSlime.forcedCommando isnot undefined or ($worn.under_lower.type.includes("naked") and setup.clothes.under_lower.find(item => {
+		if (!item.shop.includes($shopName) or $money lt getClothingCost(item, "under_lower")) return false;
+		if (playerBellySize() >= 12 and item.type.includes("constricting")) return false;
+		if (V.earSlime.forcedDressing and V.earSlime.forcedDressing.days gt 0 and item.gender isnot V.earSlime.forcedDressing.type and item.gender isnot "n" and !item.type.includesAny("event")) return false;
+		return true;
+	}))>>
+		<<set $worn.under_lower.exposedType to "notBought">>
 	<</if>>
 <</widget>>
