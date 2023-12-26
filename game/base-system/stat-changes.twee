@@ -576,7 +576,14 @@
 
 <<widget "purity">>
 	<<if _args[0] and $statFreeze isnot true>>
-		<<set $purity += (_args[0])>>
+		<<if _args[0] lt 0>>
+			<<if V.xchangePill and V.xchangePill.active>>
+				<<set $genderidentity += Math.abs(_args[0])>>
+			<<else>>
+				<<set $genderidentity -= Math.abs(_args[0])>>	
+			<</if>>
+		<</if>>
+		<<set $purity += Math.abs(_args[0])>>
 		<<for _active_clothes range Object.keys($worn)>>
 			<<if $worn[_active_clothes].type.includes("holy")>>
 				<<set $purity += (_args[0])>>
@@ -589,23 +596,6 @@
 		<<else>>
 			<<set $purity = Math.clamp($purity, 0, 999)>>
 		<</if>>
-		/* <<if $player.trans is "t" and $player.gender is "f">>
-			<<if $purity gte 800>>
-				<<set $player.gender_body to "m">>
-			<<elseif $purity gte 700>>
-				<<set $player.gender_body to "a">>
-			<<else>>
-				<<set $player.gender_body to "f">>
-			<</if>>
-		<<elseif $player.trans is "t" and $player.gender is "m">>
-			<<if $purity gte 800>>
-				<<set $player.gender_body to "f">>
-			<<elseif $purity gte 700>>
-				<<set $player.gender_body to "a">>
-			<<else>>
-				<<set $player.gender_body to "m">>
-			<</if>>
-		<</if>> */
 	<</if>>
 <</widget>>
 

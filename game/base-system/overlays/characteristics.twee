@@ -13,6 +13,9 @@
 		<<else>>
 			a
 		<</if>>
+		<<if V.xchangePill and V.xchangePill.active>>
+			pilled
+		<</if>>
 		<<if $wolfgirl gte 6 and ($demon gte 6 or $fallenangel gte 2)>>
 			hellhound
 		<<elseif $wolfgirl gte 6 and $angel gte 6>>
@@ -46,7 +49,11 @@
 		<<else>>
 			a<<if $NudeGenderDC lt 0 and $player.gender_posture is "n">>n<</if>>
 		<</if>>
+		<<if V.xchangePill and V.xchangePill.active>>
+			pilled
+		<</if>>
 	<</if>>
+	
 	<<if $NudeGenderDC gte 0>>
 		<<gender>>.
 	<<else>>
@@ -325,6 +332,50 @@
 			<!--Core skill configurations-->
 			<<silently>>
 
+				<!--GENDER IDENTITY -->
+				<<if $player.gender is "m">>
+					<<if $genderidentity gte 800>>
+						<<set _icon='misc/icon/male'>>
+					<<elseif $genderidentity gte 700>>
+						<<set _icon='misc/icon/unisex'>>
+					<<else>>
+						<<set _icon='misc/icon/female'>>
+					<</if>>
+					<<set _genderConfig = { name : "Gender Identity", icon : _icon, displayType : "level", currentValue : $genderidentity, modifier: 100, modTypes: { good: [], bad: [] },
+						states : [
+							{ requiredValue: 0,		level: 0, color: 'red',		description: 'You are a woman.'},
+							{ requiredValue: 1,		level: 1, color: 'red',		description: 'You are a woman.'},
+							{ requiredValue: 500,	level: 2, color: 'pink',	description: 'You feel pretty feminine.'},
+							{ requiredValue: 600,	level: 3, color: 'purple',	description: 'You feel a bit feminine.'},
+							{ requiredValue: 700,	level: 4, color: 'blue',	description: 'You feel non-gendered.'},
+							{ requiredValue: 800,	level: 5, color: 'lblue',	description: 'You barely feel like a man.'},
+							{ requiredValue: 900,	level: 6, color: 'teal',	description: "You don\'t feel entirely manly."},
+							{ requiredValue: 1000,	level: 7, color: 'green',	description: 'You feel like a man.'}
+						]
+					}>>
+				<<else>>
+					<<if $genderidentity gte 800>>
+						<<set _icon='misc/icon/female'>>
+					<<elseif $genderidentity gte 700>>
+						<<set _icon='misc/icon/unisex'>>
+					<<else>>
+						<<set _icon='misc/icon/male'>>
+					<</if>>
+					<<set _genderConfig = { name : "Gender Identity", icon : _icon, displayType : "level", currentValue : $genderidentity, modifier: 100, modTypes: { good: [], bad: [] },
+						states : [
+							{ requiredValue: 0,		level: 0, color: 'red',		description: 'You are a man.'},
+							{ requiredValue: 1,		level: 1, color: 'red',		description: 'You are a man.'},
+							{ requiredValue: 500,	level: 2, color: 'pink',	description: 'You feel fairly masculine.'},
+							{ requiredValue: 600,	level: 3, color: 'purple',	description: 'You feel a bit masculine.'},
+							{ requiredValue: 700,	level: 4, color: 'blue',	description: 'You feel non-gendered.'},
+							{ requiredValue: 800,	level: 5, color: 'lblue',	description: 'You barely feel like a woman.'},
+							{ requiredValue: 900,	level: 6, color: 'teal',	description: "You don\'t feel entirely feminine."},
+							{ requiredValue: 1000,	level: 7, color: 'green',	description: 'You feel like a woman.'}
+						]
+					}>>
+				<</if>>
+
+
 				<!--PURITY-->
 				<<if $demon gte 6>>
 					<<set _purityIcon='ui/sym_demon_purity'>>
@@ -334,7 +385,7 @@
 					<<set _purityIcon='ui/sym_purity'>>
 				<</if>>
 				
-				<<if $player.trans is "t">>
+				/* <<if $player.trans is "t">>
 					<<if $player.gender is "f">>
 						<<if $purity gte 800>>
 							<<set _icon='misc/icon/male'>>
@@ -376,7 +427,7 @@
 							]
 						}>>
 					<</if>>
-				<<else>>
+				<<else>> */
 					<<set _purityConfig = { name : "Purity", icon : _purityIcon, displayType : "level", currentValue : $purity, modifier: 100, modTypes: { good: [], bad: [] },
 						states : [
 							{ requiredValue: 0,		level: 0, color: 'red',		description: 'You are beyond defiled.'},
@@ -389,7 +440,7 @@
 							{ requiredValue: 1000,	level: 7, color: 'green',	description: 'You are angelic.'}
 						]
 					}>>
-				<</if>>
+				/* <</if>> */
 
 				<!--AWARENESS-->
 				<<set _awarenessConfig = { name : "Awareness", icon : "ui/sym_awareness", displayType : "level", currentValue : $awareness, modifier: 100, modTypes: { good: [], bad: [] },
@@ -530,6 +581,7 @@
 			<<characteristic-box _promiscuityConfig>>
 			<<characteristic-box _exhibitionismConfig>>
 			<<characteristic-box _deviancyConfig>>
+			<<characteristic-box _genderConfig>>
 		</div>
 
 		<!--Common states for skills with grades-->
