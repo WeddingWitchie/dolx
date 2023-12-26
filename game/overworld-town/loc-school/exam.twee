@@ -91,7 +91,16 @@
 
 <<widget "school_mark">>
 	<<set $_trait to V[_args[0] + 'trait']>>
-	<<switch Math.clamp($_trait,-1,4)>>
+	<<if (_args[0] is "english" and $AMCTraits.english is 2) or (_args[0] is "maths" and $AMCTraits.maths is 2) or (_args[0] is "science" and $AMCTraits.science is 2) or (_args[0] is "history" and $AMCTraits.history is 2)>>
+		<<set _AMCmod to 2>>
+	<<else>>
+		<<set _AMCmod to 1>>
+	<</if>>
+	<<switch Math.clamp($_trait,-1,4 * _AMCmod)>>
+		<<case 8>> an <span class="lustful">SSS</span>
+		<<case 7>> an <span class="gold">SS</span>
+		<<case 6>> an <span class="yellow">S+</span>
+		<<case 5>> an <span class="yellow">S</span>
 		<<case 4>> an <span class="green">A*</span>
 		<<case 3>> an <span class="teal">A</span>
 		<<case 2>> a <span class="lblue">B</span>
@@ -115,8 +124,14 @@
 	<<set $_change to _args[1]>>
 	<<set $_trait to  $_skill + "trait">>
 
-	<<set V[$_trait] to Math.clamp(V[$_trait] + $_change, -1, 4)>>
-	<<set V[$_skill] to [0,100,200,400,700,1000][V[$_trait] + 1]>>
+	<<if ($_skill is "english" and $AMCTraits.english is 2) or ($_skill is "maths" and $AMCTraits.maths is 2) or ($_skill is "science" and $AMCTraits.science is 2) or ($_skill is "history" and $AMCTraits.history is 2)>>
+		<<set _AMCmod to 2>>
+	<<else>>
+		<<set _AMCmod to 1>>
+	<</if>>
+
+	<<set V[$_trait] to Math.clamp(V[$_trait] + $_change, -1, 4 * _AMCmod)>>
+	<<set V[$_skill] to [0,100,200,400,700,1000,1250,1500,1750,2000][V[$_trait] + 1]>>
 	<<set V[$_skill + '_exam'] to 0>>
 <</widget>>
 
@@ -148,14 +163,18 @@
 	<<if $_trait lt 1>>
 		Keep at it, and you're sure to benefit.
 	<<else>>
-		<<set $_colour to ["","blue", "lblue", "teal", "green"][$_trait]>>
-		<<set $_traitname to ["", "Passable", "Decent", "Good", "Excellent"][$_trait] + " " + $_subject>>
+		<<set $_colour to ["","blue", "lblue", "teal", "green", "yellow", "yellow", "gold", "lustful"][$_trait]>>
+		<<set $_traitname to ["", "Passable", "Decent", "Good", "Excellent", "Outstanding", "Exceptional", "Exemplary", "Superlative"][$_trait] + " " + $_subject>>
 		<span class="gold">
 			You've gained the <span @class="$_colour">$_traitname</span> trait,
 		</span>
 		<<switch _args[0]>>
 			<<case "science">>
 				<<switch $_trait>>
+					<<case 8>> making pain almost a non-factor. <!-- Superlative Science -->
+					<<case 7>> making pain incredibly easy to cope with. <!-- Exemplary Science -->
+					<<case 6>> making pain very easy to cope with. <!-- Exceptional Science -->
+					<<case 5>> making pain easy to cope with. <!-- Outstanding Science -->
 					<<case 4>> making pain much easier to cope with. <!-- Excellent Science -->
 					<<case 3>> making pain easier to cope with. <!-- Good Science -->
 					<<case 2>> making pain moderately easier to cope with. <!-- Decent Science -->
@@ -163,6 +182,10 @@
 				<</switch>>
 			<<case "maths">>
 				<<switch $_trait>>
+					<<case 8>> letting you make 200% more from tips and negotiated fees. <!-- Superlative Maths -->
+					<<case 7>> letting you make 175% more from tips and negotiated fees. <!-- Exemplary Maths -->
+					22`	223<<case 6>> letting you make 150% more from tips and negotiated fees. <!-- Exceptional Maths -->
+					<<case 5>> letting you make 125% more from tips and negotiated fees. <!-- Outstanding Maths -->
 					<<case 4>> letting you make 100% more from tips and negotiated fees. <!-- Excellent Maths -->
 					<<case 3>> letting you make 75% more from tips and negotiated fees. <!-- Good Maths -->
 					<<case 2>> letting you make 50% more from tips and negotiated fees. <!-- Decent Maths -->
@@ -170,6 +193,10 @@
 				<</switch>>
 			<<case "english">>
 				<<switch $_trait>>
+					<<case 8>> making speech actions nine times as effective. <!-- Superlative English -->
+					<<case 7>> making speech actions eight times as effective. <!-- Exemplary English -->
+					<<case 6>> making speech actions seven times as effective. <!-- Exceptional English -->
+					<<case 5>> making speech actions six times as effective. <!-- Outstanding English -->
 					<<case 4>> making speech actions five times as effective. <!-- Excellent English -->
 					<<case 3>> making speech actions four times as effective. <!-- Good English -->
 					<<case 2>> making speech actions three times as effective. <!-- Decent English -->
@@ -177,6 +204,10 @@
 				<</switch>>
 			<<case "history">>
 				<<switch $_trait>>
+					<<case 8>> teaching you more secret paths around town. <!-- Superlative History -->
+					<<case 7>> teaching you more secret paths around town. <!-- Exemplary History -->
+					<<case 6>> teaching you more secret paths around town. <!-- Exceptional History -->
+					<<case 5>> teaching you more secret paths around town. <!-- Outstanding History -->
 					<<case 4>> teaching you more secret paths around town. <!-- Excellent History -->
 					<<case 3>> teaching you more secret paths around town. <!-- Good History -->
 					<<case 2>> teaching you more secret paths around town. <!-- Decent History -->
@@ -184,7 +215,14 @@
 				<</switch>>
 		<</switch>>
 	<</if>>
-	<<if $_trait lt 4>>
+
+	<<if ($_subject is "English" and $AMCTraits.english is 2) or ($_subject is "Maths" and $AMCTraits.maths is 2) or ($_subject is "Science" and $AMCTraits.science is 2) or ($_subject is "History" and $AMCTraits.history is 2)>>
+		<<set _AMCmod to 2>>
+	<<else>>
+		<<set _AMCmod to 1>>
+	<</if>>
+
+	<<if $_trait lt 4 * _AMCmod and ($passage is "Science Exam" or $passage is "Maths Exam" or $passage is "English Exam" or $passage is "History Exam")>>
 		However, the next exam will be harder.
 	<</if>>
 <</widget>>
@@ -507,3 +545,113 @@ The bell rings, and you join the throng of students in the hallway.
 
 <<link [[Next|Hallways]]>><<endevent>><</link>>
 <br>
+
+
+:: Swimming Exam
+<<schooleffects>><<effects>>
+
+<<set _time_temp to (59 - Time.minute)>>
+<<pass _time_temp>>
+
+<<npc Mason>><<person1>>
+
+<<set _swimdiff to 0>>
+
+<<switch $phase>>
+	<<case 0>>
+		You focus on the exam, exerting yourself and ignoring the other students.<<set _swimdiff += 100>><<tiredness 4>>
+	<<case 1>>
+		You take a deep breath, and try not to let the pressure get to you.
+	<<case 2>>
+		<<skulduggerycheck>>
+		Mason has many students to watch, and there's some leeway for "accidents".
+
+
+		<<if $skulduggerysuccess is 1>>
+			You wait for your chances. There are moments, here and there, where the teacher's attention is taken. You sneak in a few splashes into the others' faces or sneakily get in their way, <span class="green">and manage to sabotage your competitors.</span>
+			<<set _swimdiff += -200>>
+		<<else>>
+			You take the chance, and try to sabotage your competitors.
+			<br><br>
+			<span class="red">"Stop that!"</span> Mason shouts. You flinch, shrinking under their intense glare.<<gstress>><<stress 6>><<set _swimdiff += 200>><<ggdelinquency>><<detention 5>>
+		<</if>>
+		<br><br>
+
+		<<skulduggeryuse true>>
+<</switch>>
+<br><br>
+
+Mason keeps watch and writes down notes in <<his>> clipboard while the students swim. <<He>> whistles. "Stop!" <<he>> announces.
+<br><br>
+
+You all gather around Mason as <<he>> reads out the results.
+<br><br>
+
+<<set _swimmingdifficultymax to 1000 + _swimdiff>>
+<<swimmingdifficulty 900 _swimmingdifficultymax 0>>
+
+<<if $swimmingSuccess is 1>>
+	You puff your chest out in pride, <span class="green">you're easily the best among your class.</span><<stress -18>><<trauma -18>><<tiredness 4>><<lllstress>><<llltrauma>><<gtiredness>>
+<<else>>
+	<<set _swimmingdifficultymax to 800 + _swimdiff>>
+	<<swimmingdifficulty 500 _swimmingdifficultymax 0>>
+
+	<<if $swimmingSuccess is 1>>
+		You beam in happiness, <span class="green">you're among the best in class.</span><<stress -12>><<trauma -12>><<tiredness 4>><<llstress>><<lltrauma>><<gtiredness>>
+	<<else>>
+		<<set _swimmingdifficultymax to 250 + _swimdiff>>
+		<<swimmingdifficulty 100 _swimmingdifficultymax 0>>
+		<<if $swimmingSuccess is 1>>
+			You're in the middle of the pack, not bad.<<stress -6>><<trauma -6>><<tiredness 4>><<lstress>><<ltrauma>><<gtiredness>>
+		<<else>>
+			<span class="red">You're among the worst.</span><<stress 6>><<trauma 6>><<tiredness 4>><<gstress>><<gtrauma>><<gtiredness>>
+		<</if>>
+	<</if>>
+<</if>>
+<br><br>
+
+<<if $swimall is 1>>
+	<<if playerBellyVisible()>>
+		The bell rings, signifying the end of the lesson. You climb out of the pool once Mason gives the go ahead, and <<nnpc_he "Mason">> sticks close by to assist you. Despite everyone being naked, no one seems concerned. A <<generatey1>><<person1>><<person>> hands out towels to the other students as they pass, trying to avoid eye contact.<<endevent>>
+	<<else>>
+		The bell rings, signifying the end of the lesson. You climb out of the pool. Despite everyone being naked, no one seems concerned. Mason hands out towels to each student as they pass, trying to avoid eye contact.
+	<</if>>
+	<br><br>
+<<elseif $exposed gte 1>>
+	<<if playerBellyVisible()>>
+		The bell rings, signifying the end of the lesson. You wait as the other students leave, climbing out of the pool once Mason gives the go ahead, and <<nnpc_he "Mason">> sticks close by to assist you. Some students linger, doubtlessly hoping to get a nice view when you climb out, but Mason herds them away, giving you some privacy.
+	<<else>>
+		The bell rings, signifying the end of the lesson. You wait as the other students leave. Some students linger,
+		doubtlessly hoping to get a nice view when you climb out, but Mason herds them away, giving you some privacy.
+	<</if>>
+	<br><br>
+<<elseif $exposed lte 0>>
+	<<if playerBellyVisible()>>
+		The bell rings, signifying the end of the lesson. You climb out of the pool once Mason gives the go ahead, and <<nnpc_he "Mason">> sticks close by to assist you.
+	<<else>>
+		The bell rings, signifying the end of the lesson. You climb out of the pool.
+	<</if>>
+	<br><br>
+<</if>>
+<<if $exposed lte 0>>
+	<<maleicon>><<link [[Boys' changing room|School Boy Changing Room]]>><</link>>
+	<br>
+	<<femaleicon>><<link [[Girls' changing room|School Girl Changing Room]]>><</link>>
+	<br><br>
+<<elseif $exposed gte 1>>
+	<<maleicon>><<link [[Grab some towels and enter the boys' changing room|School Boy Changing Room]]>><<towelupm>><</link>>
+	<br>
+	<<femaleicon>><<link [[Grab some towels and enter the girls' changing room|School Girl Changing Room]]>><<towelup>><</link>>
+	<br><br>
+<</if>>
+<<if Time.minute gte 5 and Time.minute lte 57>>
+<<else>>
+	<<if $player.gender_appearance is "m">>
+		<<loitericon>><<link [[Wait for the girls to leave (0:05)|School Pool]]>><<pass 5>><</link>>
+		<br><br>
+	<</if>>
+	<<if $player.gender_appearance is "f">>
+		<<loitericon>><<link [[Wait for the boys to leave (0:05)|School Pool]]>><<pass 5>><</link>>
+		<br><br>
+	<</if>>
+<</if>>

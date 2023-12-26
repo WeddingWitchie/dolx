@@ -834,9 +834,23 @@
 		<<set _i to $_range.pluck()>>
 	<</if>>
 
+	<<set _buffAmount to Math.floor(Time.days / $combatExtended.enemyDayScaling)>>
+	<<if $combatExtended.enemyLevelDayScaling is 1 and (_buffAmount lte $combatExtended.enemyDayScalingLimit or $combatExtended.enemyInfiniteDayScaling is 1)>>
+		<<set _i to Math.clamp(_i + (_buffAmount * $combatExtended.enemyLevelDayScalingMult), 1, 20)>>
+	<</if>>
+
+	<<set _buffAmount to Math.floor($enemiesDefeatedStat / $combatExtended.enemyDefeatScaling)>>
+	<<if $combatExtended.enemyLevelDayScaling is 1 and (_buffAmount lte $combatExtended.enemyDefeatScalingLimit or $combatExtended.enemyInfiniteDefeatScaling is 1)>>
+		<<set _i to Math.clamp(_i + (_buffAmount * $combatExtended.enemyLevelDefeatScaling), 1, 20)>>
+	<</if>>
+
 	<<set $NPCList[_n].healthmax to $_hpMax[_i]>>
 	<<set $NPCList[_n].health to $NPCList[_n].healthmax>>
 	<<set $NPCList[_n].description to $_desc[_i]>>
+
+	<<if $combatExtended.enemyPassiveDodging is 1>>
+		<<set $NPCList[_n].dodgeChance to _i * 2>>
+	<</if>>
 
 	<<if $NPCList[_n].penis isnot "none">><!-- set pp size based on the upper and lower bounds for the selected description -->
 		<<if $penis_mod gte $_penisMin[_i]>><<set $_penisMin[_i] to $penis_mod>><</if>>

@@ -157,6 +157,9 @@ You are inside the hospital foyer. <<if $psych is 1>>You see a sign directing to
 				<<break>>
 			<</if>>
 		<</for>>
+		<<if ($hypnosis_traits.scream isnot undefined and $hypnosis_traits.scream gte 1) or ($hypnosis_traits.cover isnot undefined and $hypnosis_traits.cover gte 1) or ($hypnosis_traits.deviancy isnot undefined and $hypnosis_traits.deviancy gte 1)>>
+			<<askicon>><<link [[Inquire about reverse hypnosis (0:10)|Hospital Reverse Hypnosis]]>><<pass 10>><</link>>
+		<</if>>
 		<br>
 
 		<<pillicon>><<link [[Pharmacy (0:02)|Pharmacy]]>><<pass 2>><</link>>
@@ -208,7 +211,7 @@ Through the door and to the left there is a precipitous drop. You peer down and 
 <br><br>
 <<actionsman>>
 
-<<if $alarm is 1>>
+<<if $alarm is 1 and _combatend is true>>
 	<<if $rescue is 0>>
 		<<set $alarm to 0>>
 		<br><br>
@@ -220,9 +223,9 @@ Through the door and to the left there is a precipitous drop. You peer down and 
 			<span id="next"><<link [[Next->Molestation Hospital]]>><</link>></span><<nexttext>>
 		<</if>>
 	<</if>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
+<<elseif $enemyarousal gte $enemyarousalmax and _combatend is true>>
 	<span id="next"><<link [[Next->Hospital Ejaculation]]>><</link>></span><<nexttext>>
-<<elseif $enemyhealth lte 0>>
+<<elseif $enemyhealth lte 0 and _combatend is true>>
 	<span id="next"><<link [[Next->Hospital Escape]]>><</link>></span><<nexttext>>
 <<else>>
 	<span id="next"><<link [[Next->Molestation Hospital]]>><</link>></span><<nexttext>>
@@ -1760,3 +1763,59 @@ You watch Sydney walk back to the car, and they both wait for you to go inside b
 <br><br>
 <<link [[Next|Orphanage]]>><<pass 10>><<endevent>><</link>>
 <br>
+
+:: Hospital Reverse Hypnosis
+<<set $outside to 0>><<set $location to "hospital">><<effects>><<npc Harper>><<person1>>
+"So, I hear you have a hypnosis problem." <<he>> says, both hands clasped over <<his>> mouth as <<he>> stares at you. "I may be able to help you, but of course, the deeper the issue, the higher the cost."
+<br><br>
+
+<<reverseHypnosisPrice>>
+
+<<if $hypnosis_traits.scream isnot undefined and $hypnosis_traits.scream gte 1>>
+	<<link [["Reverse Hypnotic Yearning (£" + _price1 + ")"|Hospital Reverse Hypnosis 2]]>><<set $money -= _price1 * 100>><<set $phase to 1>><</link>>
+	<br>
+<</if>>
+<<if $hypnosis_traits.cover isnot undefined and $hypnosis_traits.cover gte 1>>
+	<<link [["Reverse Hypnotic Flaunting (£" + _price2 + ")"|Hospital Reverse Hypnosis 2]]>><<set $money -= _price2 * 100>><<set $phase to 2>><</link>>
+	<br>
+<</if>>
+<<if $hypnosis_traits.deviancy isnot undefined and $hypnosis_traits.deviancy gte 1>>
+	<<link [["Reverse Hypnotic Deviancy (£" + _price3 + ")"|Hospital Reverse Hypnosis 2]]>><<set $money -= _price3 * 100>><<set $phase to 3>><</link>>
+	<br>
+<</if>>
+<<link [[Nevermind|Hospital Foyer]]>><<endevent>><</link>>
+
+:: Hospital Reverse Hypnosis 2
+<<set $outside to 0>><<set $location to "hospital">><<effects>>
+"Please, sit down and relax." You do so, and <<he>> swivels to face you. <<His>> voice takes on a soothing quality. "I want you to breathe deeply." <<He>> holds up <<his>> pen. "Focus on the pen. There's nothing in the universe except this pen, my voice, and your own breath."
+<br><br>
+
+This continues for several minutes. Harper somehow picks up on whenever your minds starts to wander, and brings you back to focus. You start to feel something shift in your consciousness, as if you're entering a trance.
+<br><br>
+
+<<if $hypnosis is 0>><<set $hypnosis to 1>><<hypnotised 1>>
+	You slip deeper into the trance. <span class="green">You don't remember ever feeling so tranquil.</span> You hear Harper's voice drifting toward you. "That's very good. Now, the next time you feel overwhelmed by it all, I want you to remember this feeling, and..." <<He>> gives you instructions. "...you won't remember this."
+<<elseif $hypnosis gte 1>>
+	You slip deeper into the trance. <span class="green">You return to the familiar state of tranquillity.</span> You hear Harper's voice drifting toward you. "That's very good."
+<</if>>
+<br><br>
+
+<<if $phase is 1>>
+	<<set $hypnosis_traits.scream to 0>>
+	"When I drop this pen, you will <span class="green">stop begging for rougher treatment instead of screaming...</span> and awaken."
+<<elseif $phase is 2>>
+	<<set $hypnosis_traits.cover to 0>>
+	"When I drop this pen, you will <span class="green">stop flaunting your body parts instead of covering them...</span> and awaken."
+<<elseif $phase is 3>>
+	<<set $hypnosis_traits.deviancy to 0>>
+	"When I drop this pen, you will <span class="green">stop provoking beasts...</span> and awaken."
+<</if>>
+<br><br>
+
+The pen clatters to the floor. You blink. You're back in reality, but feeling better and much more in control than you were before you entered the office. You recall Harper talking to you while you were entranced, but can't recall what was said.
+<br><br>
+
+<<He>> smiles at you. "That was a success. Well done." <<He>> holds open the door for you. "Be well."
+<br><br>
+
+<<link [[Next|Hospital Foyer]]>><<endevent>><</link>>

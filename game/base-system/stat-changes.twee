@@ -159,7 +159,7 @@
 		<<run throw new Error("The semenvolume widget was passed a non-numeric argument (or none at all)!")>>
 	<<elseif $player.penisExist>>
 		<<set $_volume_increase to _args[0] * 3>>
-		<<if $cow gte 6>>
+		<<if ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black")>>
 			<<set $_volume_increase *= 2>>
 		<</if>>
 		/*Prevents those who can only have "female climax" increase their cum volume*/
@@ -182,7 +182,7 @@
 		<<run throw new Error("The milkvolume widget was passed a non-numeric argument (or none at all)!")>>
 	<<else>>
 		<<if _args[0] gt 0>>
-			<<if $cow gte 6>>
+			<<if ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black")>>
 				<<lactation_pressure 2>>
 			<<else>>
 				<<lactation_pressure 1>>
@@ -190,7 +190,7 @@
 		<</if>>
 		<<if $lactating is 1>>
 			<<set $_volume_increase to (_args[0] * 2)>>
-			<<if $cow gte 6>>
+			<<if ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black")>>
 				<<set $_volume_increase *= 2>>
 			<</if>>
 			<<set $milk_volume += $_volume_increase>>
@@ -789,9 +789,13 @@
 
 <<widget "willpower">>
 	<<if _args[0] and $statFreeze isnot true>>
-		<<set $willpower += (_args[0] * 2)>>
+		<<if $willpower gt 1000>>
+			<<set $willpower += (_args[0] * 2 / $AMCTraits.willpower)>>
+		<<else>>
+			<<set $willpower += (_args[0] * 2)>>
+		<</if>>
 	<</if>>
-	<<set $willpower = Math.clamp($willpower, 0, $willpowermax)>>
+	<<set $willpower = Math.clamp($willpower, 0, $willpowermax * $AMCTraits.willpower)>>
 <</widget>>
 
 <<widget "hope">>
@@ -863,64 +867,100 @@
 
 <<widget "oralskill">>
 	<<if _args[0] and $statFreeze isnot true>>
-		<<set $oralskill += _args[0]>>
-		<<set $oralskill = Math.clamp($oralskill, 0, 1000)>>
+		<<if $oralskill gt 1000>>
+			<<set $oralskill += _args[0] / $AMCTraits.oral>>
+		<<else>>
+			<<set $oralskill += _args[0]>>
+		<</if>>
+		<<set $oralskill = Math.clamp($oralskill, 0, 1000 * $AMCTraits.oral)>>
 	<</if>>
 <</widget>>
 
 <<widget "vaginalskill">>
 	<<if _args[0] and $statFreeze isnot true>>
-		<<set $vaginalskill += _args[0]>>
-		<<set $vaginalskill = Math.clamp($vaginalskill, 0, 1000)>>
+		<<if $vaginalskill gt 1000>>
+			<<set $vaginalskill += _args[0] / $AMCTraits.vaginal>>
+		<<else>>
+			<<set $vaginalskill += _args[0]>>
+		<</if>>
+		<<set $vaginalskill = Math.clamp($vaginalskill, 0, 1000 * $AMCTraits.vaginal)>>
 	<</if>>
 <</widget>>
 
 <<widget "penileskill">>
 	<<if _args[0] and ($player.penisExist or playerHasStrapon()) and $statFreeze isnot true>>
-		<<set $penileskill += _args[0]>>
-		<<set $penileskill = Math.clamp($penileskill, 0, 1000)>>
+		<<if $penileskill gt 1000>>
+			<<set $penileskill += _args[0] / $AMCTraits.penile>>
+		<<else>>
+			<<set $penileskill += _args[0]>>
+		<</if>>
+		<<set $penileskill = Math.clamp($penileskill, 0, 1000 * $AMCTraits.penile)>>
 	<</if>>
 <</widget>>
 
 <<widget "handskill">>
 	<<if _args[0] and $statFreeze isnot true>>
-		<<set $handskill += _args[0]>>
-		<<set $handskill = Math.clamp($handskill, 0, 1000)>>
+		<<if $handskill gt 1000>>
+			<<set $handskill += _args[0] / $AMCTraits.hands>>
+		<<else>>
+			<<set $handskill += _args[0]>>
+		<</if>>
+		<<set $handskill = Math.clamp($handskill, 0, 1000 * $AMCTraits.hands)>>
 	<</if>>
 <</widget>>
 
 <<widget "analskill">>
 	<<if _args[0] and $statFreeze isnot true>>
-		<<set $analskill += _args[0]>>
-		<<set $analskill = Math.clamp($analskill, 0, 1000)>>
+		<<if $analskill gt 1000>>
+			<<set $analskill += _args[0] / $AMCTraits.anal>>
+		<<else>>
+			<<set $analskill += _args[0]>>
+		<</if>>
+		<<set $analskill = Math.clamp($analskill, 0, 1000 * $AMCTraits.anal)>>
 	<</if>>
 <</widget>>
 
 <<widget "feetskill">>
 	<<if _args[0] and $statFreeze isnot true>>
-		<<set $feetskill += _args[0]>>
-		<<set $feetskill = Math.clamp($feetskill, 0, 1000)>>
+		<<if $feetskill gt 1000>>
+			<<set $feetskill += _args[0] / $AMCTraits.feet>>
+		<<else>>
+			<<set $feetskill += _args[0]>>
+		<</if>>
+		<<set $feetskill = Math.clamp($feetskill, 0, 1000 * $AMCTraits.feet)>>
 	<</if>>
 <</widget>>
 
 <<widget "bottomskill">>
 	<<if _args[0] and $statFreeze isnot true>>
-		<<set $bottomskill += _args[0]>>
-		<<set $bottomskill = Math.clamp($bottomskill, 0, 1000)>>
+		<<if $bottomskill gt 1000>>
+			<<set $bottomskill += _args[0] / $AMCTraits.buttocks>>
+		<<else>>
+			<<set $bottomskill += _args[0]>>
+		<</if>>
+		<<set $bottomskill = Math.clamp($bottomskill, 0, 1000 * $AMCTraits.buttocks)>>
 	<</if>>
 <</widget>>
 
 <<widget "thighskill">>
 	<<if _args[0] and $statFreeze isnot true>>
-		<<set $thighskill += _args[0]>>
-		<<set $thighskill = Math.clamp($thighskill, 0, 1000)>>
+		<<if $thighskill gt 1000>>
+			<<set $thighskill += _args[0] / $AMCTraits.thighs>>
+		<<else>>
+			<<set $thighskill += _args[0]>>
+		<</if>>
+		<<set $thighskill = Math.clamp($thighskill, 0, 1000 * $AMCTraits.thighs)>>
 	<</if>>
 <</widget>>
 
 <<widget "chestskill">>
 	<<if _args[0] and $statFreeze isnot true>>
-		<<set $chestskill += _args[0]>>
-		<<set $chestskill = Math.clamp($chestskill, 0, 1000)>>
+		<<if $chestskill gt 1000>>
+			<<set $chestskill += _args[0] / $AMCTraits.chest>>
+		<<else>>
+			<<set $chestskill += _args[0]>>
+		<</if>>
+		<<set $chestskill = Math.clamp($chestskill, 0, 1000 * $AMCTraits.chest)>>
 	<</if>>
 <</widget>>
 
@@ -933,15 +973,23 @@
 
 <<widget "seductionskill">>
 	<<if _args[0]>>
-		<<set $seductionskill += _args[0]>>
-		<<set $seductionskill = Math.clamp($seductionskill, 0, 1000)>>
+		<<if $seductionskill gt 1000>>
+			<<set $seductionskill += _args[0] / $AMCTraits.seduction>>
+		<<else>>
+			<<set $seductionskill += _args[0]>>
+		<</if>>
+		<<set $seductionskill = Math.clamp($seductionskill, 0, 1000 * $AMCTraits.seduction)>>
 	<</if>>
 <</widget>>
 
 <<widget "skulduggery">>
 	<<if _args[0]>>
-		<<set $skulduggery += _args[0]>>
-		<<set $skulduggery to Math.clamp($skulduggery, 0, 1000)>>
+		<<if $skulduggery gt 1000>>
+			<<set $skulduggery += _args[0] / $AMCTraits.skulduggery>>
+		<<else>>
+			<<set $skulduggery += _args[0]>>
+		<</if>>
+		<<set $skulduggery to Math.clamp($skulduggery, 0, 1000 * $AMCTraits.skulduggery)>>
 	<</if>>
 <</widget>>
 

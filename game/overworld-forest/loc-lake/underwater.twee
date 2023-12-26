@@ -419,6 +419,10 @@ You are deep in the lake ruin, in a small room with a plinth.
 		<<ind>><<link [[Take the necklace|Lake Ruin Ivory]]>><<set $antiquemoney += 2000>><<museumAntiqueStatus "antiqueivorynecklace" "found">><<set $necklaceThief to "player">><</link>>
 		<br>
 	<</if>>
+	<<if $museumAntiques.antiques.antiqueivorynecklace is "found">>
+		<<link [[Return the necklace|Lake Ruin Ivory Return]]>><<set $antiquemoney -= 2000>><<set $museumAntiques.antiques["antiqueivorynecklace"] to "notFound">><<set $necklaceThief to "">><</link>>
+		<br>
+	<</if>>
 	<<swimicon "back">><<link [[Leave|Lake Ruin Deep]]>><<set $phase to 0>><</link>>
 	<br>
 <</if>>
@@ -1011,3 +1015,35 @@ The creature recoils from you and disappears into darkness. <<tearful>> you turn
 	<<link [[Next|Lake Depths]]>><<set $eventskip to 1>><</link>>
 	<br>
 <</if>>
+
+:: Lake Ruin Ivory Return
+<<effects>>
+You place the necklace back onto the plinth. <<if $wraith.seen gte 1>>You decided that the money would simply not be worth it.<<else>>You have a bad feeling about the necklace.<</if>>
+<br><br>
+<<if C.npc["Ivory Wraith"].init is 1>>
+	<<set C.npc["Ivory Wraith"].lust to 0>>
+<</if>>
+<<if isBloodmoon()>>
+	You suddenly hear crying from the walls all around you. <<if $wraith.seen gte 1>>A familiar<<else>>An unfamiliar<</if>> voice cries out, but it sounds like cries of relief and happiness instead of despair or anger. <<trauma -12>><<lltrauma>>
+	<br><br>
+	It dies down after a few moments, leaving you puzzled.
+	<<if $wraith.hunt>>
+		The dread slowly passes, and you no longer sense the presence hunting you. <span class="blue"><i>You're safe until the next blood moon.</i></span>
+		<br><br>
+	<</if>>
+	<<if $wraith>>
+		<<set $wraith.state to "">>
+		<<clearWraith>>
+		<<set $wraithSkip to true>>
+	<</if>>
+	You exit the room.
+<<elseif $wraith.state>>
+	You feel curious as you look at your reflection in the blue gemstones. You look happy. <<stress -6>><<lstress>>
+	<br><br>
+	You linger for a bit, and leave the room with the necklace in its rightful place.
+<<else>>
+	You can see your reflection in the blue gemstones. This would fetch a high price.
+<</if>>
+<br><br>
+<<link [[Next|Lake Ruin Deep]]>><</link>>
+<br>

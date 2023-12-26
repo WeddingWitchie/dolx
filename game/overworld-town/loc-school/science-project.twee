@@ -1,24 +1,67 @@
 :: Science Project
 <<effects>>
 
+<<set _baseTime1 to 180>>
+<<set _baseTime2 to 60>>
+
+<<set _chair to Furniture.get('chair')>>
+<<if _chair is undefined or _chair is null>>
+	<<set _chair to Furniture.get('chair','chair')>>
+<</if>>
+<<if _chair.name is "chair">>
+	<<set _timeMult1 to 1>>
+<<elseif _chair.name is "stools">>
+	<<set _timeMult1 to 0.91>>
+<<elseif _chair.name is "wooden chairs">>
+	<<set _timeMult1 to 0.83>>
+<<elseif _chair.name is "swivel chairs">>
+	<<set _timeMult1 to 0.75>>
+<<elseif _chair.name is "shell chairs">>
+	<<set _timeMult1 to 0.67>>
+<<elseif _chair.name is "armchairs">>
+	<<set _timeMult1 to 0.58>>
+<<elseif _chair.name is "egg armchairs">>
+	<<set _timeMult1 to 0.5>>
+<</if>>
+
+<<set _desk to Furniture.get('desk')>>
+<<if _desk is undefined or _desk is null>>
+	<<set _desk to Furniture.get('desk','desk')>>
+<</if>>
+<<if _desk.name is "basic desk">>
+	<<set _timeMult2 to 1>>
+<<elseif _desk.name is "glass desk">>
+	<<set _timeMult2 to 0.83>>
+<<elseif _desk.name is "mid-century modern desk">>
+	<<set _timeMult2 to 0.67>>
+<<elseif _desk.name is "antique desk">>
+	<<set _timeMult2 to 0.5>>
+<</if>>
+
+<<set _finalTime1 to Math.round((_baseTime1 * _timeMult1) * _timeMult2)>>
+<<set _finalTime2 to Math.round((_baseTime2 * _timeMult1) * _timeMult2)>>
+
+<<set _timeString1 to getTimeString(_finalTime1)>>
+<<set _timeString2 to getTimeString(_finalTime2)>>
+
 <<if $sciencelichenknown is 1>>
 	You have an ongoing project on lichen. It has a <<print ($sciencelichenparkready * 25 + $sciencelichenlakeready * 25 + $sciencelichendrainready * 25 + $sciencelichentempleready * 25)>>% chance of winning the fair.
 	<br>
 <</if>>
 <<if $sciencelichentemple is 1 and $sciencelichentempleready lt 1>>
-	<<scienceicon "pink lichen">><<link [[Add pink lichen (3:00)|Science Project Lichen]]>><<set $phase to 0>><<pass 3 hours>><<scienceskill 18>><</link>><<gggscience>>
+	<<scienceicon "pink lichen">><<link [["Add pink lichen(" + _timeString1 + ")"|Science Project Lichen]]>><<set $phase to 0>><<pass _finalTime1>><<scienceskill 18>><</link>><<gggscience>>
 	<br>
 <</if>>
 <<if $sciencelichenpark is 1 and $sciencelichenparkready lt 1>>
-	<<scienceicon "white lichen">><<link [[Add white lichen (3:00)|Science Project Lichen]]>><<set $phase to 1>><<pass 3 hours>><<scienceskill 18>><</link>><<gggscience>>
+	<<scienceicon "white lichen">><<link [["Add white lichen(" + _timeString1 + ")"|Science Project Lichen]]>><<set $phase to 1>><<pass _finalTime1>><<scienceskill 18>><</link>><<gggscience>>
 	<br>
 <</if>>
 <<if $sciencelichendrain is 1 and $sciencelichendrainready lt 1>>
-	<<scienceicon "violet lichen">><<link [[Add violet lichen (3:00)|Science Project Lichen]]>><<set $phase to 2>><<pass 3 hours>><<scienceskill 18>><</link>><<gggscience>>
+	<<scienceicon "violet lichen">><<link [["Add violet lichen(" + _timeString1 + ")"|Science Project Lichen]]>><<set $phase to 2>><<pass _finalTime1>><<scienceskill 18>><</link>><<gggscience>>
 	<br>
 <</if>>
 <<if $sciencelichenlake is 1 and $sciencelichenlakeready lt 1>>
-	<<scienceicon "purple lichen">><<link [[Add purple lichen (3:00)|Science Project Lichen]]>><<set $phase to 3>><<pass 3 hours>><<scienceskill 18>><</link>><<gggscience>>
+	<<scienceicon "purple lichen">><<link [["Add purple lichen(" + _timeString1 + ")"|Science Project Lichen]]>><<set $phase to 3>><<pass _finalTime1>><<scienceskill 18>><</link>><<gggscience>>
 	<br>
 <</if>>
 <br>
@@ -31,11 +74,11 @@
 	<br>
 <</if>>
 <<if $scienceshroomheart gt $scienceshroomheartready>>
-	<<tendingicon "mushrooms">><<link [[Add heart shroom (1:00)|Science Project Shroom]]>><<set $phase to 0>><<pass 1 hour>><<scienceskill 6>><</link>><<ggscience>>
+	<<tendingicon "mushrooms">><<link [["Add heart shroom (" + _timeString2 + ")"|Science Project Shroom]]>><<set $phase to 0>><<pass _finalTime2>><<scienceskill 6>><</link>><<ggscience>>
 	<br>
 <</if>>
 <<if $scienceshroomwolf gt $scienceshroomwolfready>>
-	<<tendingicon "wolfshrooms">><<link [[Add wolf shroom (1:00)|Science Project Shroom]]>><<set $phase to 1>><<pass 1 hour>><<scienceskill 6>><</link>><<ggscience>>
+	<<tendingicon "wolfshrooms">><<link [["Add wolf shroom (" + _timeString2 + ")"|Science Project Shroom]]>><<set $phase to 1>><<pass _finalTime2>><<scienceskill 6>><</link>><<ggscience>>
 	<br>
 <</if>>
 <br>
@@ -43,7 +86,7 @@
 	You have an ongoing project on phallus size. It has a <<print ($sciencephallusready * 10)>>% chance of winning the fair.
 	<br>
 	<<if $sciencephallus gt $sciencephallusready>>
-		<<icon "projectScience.png">><<link [[Add phallus (1:00)|Science Project Phallus]]>><<set $phase to 0>><<pass 1 hour>><<scienceskill 6>><</link>><<ggscience>>
+		<<icon "projectScience.png">><<link [["Add phallus (" + _timeString2 + ")"|Science Project Phallus]]>><<set $phase to 0>><<pass _finalTime2>><<scienceskill 6>><</link>><<ggscience>>
 		<br>
 	<</if>>
 <</if>>
@@ -53,6 +96,9 @@ You can only submit one project to the fair.
 
 <<if $location is "home">>
 	<<getouticon>><<link [[Stop|Bedroom]]>><</link>>
+	<br>
+<<elseif $location is "alex_cottage">>
+	<<getouticon>><<link [[Stop|Farm Bedroom]]>><</link>>
 	<br>
 <<else>>
 	<<getouticon>><<link [[Stop|School Library]]>><</link>>
@@ -94,6 +140,8 @@ You can only submit one project to the fair.
 
 	<<if $location is "home">>
 		<<link [[Next|Bedroom]]>><</link>>
+	<<elseif $location is "alex_cottage">>
+		<<link [[Next|Farm Bedroom]]>><</link>>
 	<<else>>
 		<<link [[Next|School Library]]>><</link>>
 	<</if>>
@@ -126,6 +174,8 @@ You can only submit one project to the fair.
 
 	<<if $location is "home">>
 		<<link [[Next|Bedroom]]>><</link>>
+	<<elseif $location is "alex_cottage">>
+		<<link [[Next|Farm Bedroom]]>><</link>>
 	<<else>>
 		<<link [[Next|School Library]]>><</link>>
 	<</if>>
@@ -152,6 +202,8 @@ The things you do for school.
 
 	<<if $location is "home">>
 		<<link [[Next|Bedroom]]>><</link>>
+	<<elseif $location is "alex_cottage">>
+		<<link [[Next|Farm Bedroom]]>><</link>>
 	<<else>>
 		<<link [[Next|School Library]]>><</link>>
 	<</if>>

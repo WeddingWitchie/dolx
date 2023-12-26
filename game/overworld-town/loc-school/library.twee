@@ -183,7 +183,7 @@ Next to it is a small basket with returned and not yet sorted books.
 		<<npc "Sydney">><<person1>>
 		You hear footsteps behind you, and feel a hand on your shoulder. "Perfect timing." It's Leighton. "It seems you just can't learn your lesson. I should get the police involved with how often you've been stealing from us, but I'll settle for a more... homely punishment instead."
 		<br><br>
-		<<nnpc_He "Leighton">> begins to lead you towards the rental counter. "Your friend will be sharing in your punishment.<<if $studyBooks.stolen isnot "none">><<set $studyBooks.stolen to "none">><<unset $sydneyStolenKnown>> Oh, and I'll be taking that stolen book back.<</if>>"
+		<<nnpc_He "Leighton">> begins to lead you towards the rental counter. "Your friend will be sharing in your punishment.<<if $studyBooks.stolen.count gte 1>><<set $studyBooks.stolen.science to 0>><<set $studyBooks.stolen.maths to 0>><<set $studyBooks.stolen.english to 0>><<set $studyBooks.stolen.history to 0>><<unset $sydneyStolenKnown>> Oh, and I'll be taking that stolen <<if $studyBooks.stolen.count gt 1>>books<<else>>book<</if>> back.<<set $studyBooks.stolen.count to 0>><</if>>"
 		<br><br>
 		A few students linger, but a glare from Leighton hurries them out. Leighton locks the door behind them.
 		<br><br>
@@ -263,14 +263,14 @@ Next to it is a small basket with returned and not yet sorted books.
 			<br>
 		<</if>>
 		/*indev - scarlet book possible to be taken. English 200+ required*/
-		<<if currentSkillValue('english') gte 300>>
+		<<if currentSkillValue('english') gte 300 and $studyBooks.stolen.RaulAndJanet is 0>>
 			<<scarleticon>><<link [[Take "Raul and Janet" from the basket (0:01)|ScarletBook1]]>><<pass 1>><<set $scarletExitPassage to "School Library">><</link>>
 			<br>
-		<<elseif currentSkillValue('english') gte 200>>
+		<<elseif currentSkillValue('english') gte 200 and $studyBooks.stolen.RaulAndJanet is 0>>
 			<<scarleticon>><<link [[Take the medium-sized scarlet book from the basket (0:01)|ScarletBook1]]>><<pass 1>><</link>>
 			<br>
 		<</if>>
-		<<if (Time.monthName is "November" and Time.monthDay gte 24) or Time.monthName is "December">>
+		<<if (Time.monthName is "November" and Time.monthDay gte 24) or Time.monthName is "December" and $studyBooks.stolen.pinch is 0>>
 			<<oliveicon>><<link [[Take the olive-coloured book from the basket (0:01)|Olive Book 1]]>><<set $oliveExitPassage to "School Library">><<pass 1>><</link>>
 			<br>
 		<</if>>
@@ -928,7 +928,7 @@ You
 		<<elseif $phase is 5>>
 			a copy of "Raul and Janet".
 		<<else>>
-			a $studyBooks.stolen textbook.
+			a $studyBooks.stolen.last textbook.
 		<</if>>
 		<<set $bookStolen to 1>>
 		<br><br>
@@ -955,7 +955,7 @@ You return the stolen
 <<elseif $phase is 5>>
 	copy of "Raul and Janet".
 <<else>>
-	$studyBooks.stolen textbook.
+	$studyBooks.stolen.last textbook.
 <</if>>
 <<if _sydney_location is "library">>
 	<<if $bookStolenKnown isnot undefined>>
@@ -975,12 +975,45 @@ You return the stolen
 	<<else>>
 		Sydney looks at you, confused. "That book was never checked out. Did you just find it lying around?"
 	<</if>>
-	<<set $studyBooks.stolen to "none">>
+	<<if $returnBook is "science">>
+		<<set $studyBooks.stolen.science to 0>><<set $studyBooks.stolen.count -= 1>><<set $returnBook to "">>
+	<</if>>
+	<<if $returnBook is "maths">>
+		<<set $studyBooks.stolen.maths to 0>><<set $studyBooks.stolen.count -= 1>><<set $returnBook to "">>
+	<</if>>
+	<<if $returnBook is "english">>
+		<<set $studyBooks.stolen.english to 0>><<set $studyBooks.stolen.count -= 1>><<set $returnBook to "">>
+	<</if>>
+	<<if $returnBook is "history">>
+		<<set $studyBooks.stolen.history to 0>><<set $studyBooks.stolen.count -= 1>><<set $returnBook to "">>
+	<</if>>
+	<<if $returnBook is "RaulAndJanet">>
+		<<set $studyBooks.stolen.RaulAndJanet to 0>><<set $studyBooks.stolen.count -= 1>><<set $returnBook to "">>
+	<</if>>
+	<<if $returnBook is "pinch">>
+		<<set $studyBooks.stolen.pinch to 0>><<set $studyBooks.stolen.count -= 1>><<set $returnBook to "">>
+	<</if>>
 	<br><br>
 	<<sydneyOptions>>
 <<else>>
-	<<set $bookStolenAbsent to 1>>
-	<<set $studyBooks.stolen to "none">>
+	<<if $returnBook is "science">>
+		<<set $studyBooks.stolen.science to 0>><<set $studyBooks.stolen.count -= 1>><<set $returnBook to "">>
+	<</if>>
+	<<if $returnBook is "maths">>
+		<<set $studyBooks.stolen.maths to 0>><<set $studyBooks.stolen.count -= 1>><<set $returnBook to "">>
+	<</if>>
+	<<if $returnBook is "english">>
+		<<set $studyBooks.stolen.english to 0>><<set $studyBooks.stolen.count -= 1>><<set $returnBook to "">>
+	<</if>>
+	<<if $returnBook is "history">>
+		<<set $studyBooks.stolen.history to 0>><<set $studyBooks.stolen.count -= 1>><<set $returnBook to "">>
+	<</if>>
+	<<if $returnBook is "RaulAndJanet">>
+		<<set $studyBooks.stolen.RaulAndJanet to 0>><<set $studyBooks.stolen.count -= 1>><<set $returnBook to "">>
+	<</if>>
+	<<if $returnBook is "pinch">>
+		<<set $studyBooks.stolen.pinch to 0>><<set $studyBooks.stolen.count -= 1>><<set $returnBook to "">>
+	<</if>>
 	<<unset $sydneyStolenKnown>>
 	<br><br>
 	<<bookRentalOptions>>

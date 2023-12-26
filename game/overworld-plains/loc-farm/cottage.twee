@@ -203,11 +203,59 @@ You are downstairs in Alex's cottage. It's tight, and cozy. There's a kitchen wi
 You are in your room at Alex's cottage. It's cramped, but larger than your room at the orphanage. A wardrobe stands opposite your bed. There's a desk beside a window overlooking the farm.
 <br><br>
 
+<<set _furniture to $furniture.bedroom>>
+	<<if _furniture.wallpaper>>
+		<<switch _furniture.wallpaper.name>>
+			<<case "vines">>
+				Lewd green vines writhe on the walls.
+				<<if $backgroundTraits.includes("plantlover")>>
+					Thoughts of sweet nectar wrack your mind.
+				<</if>>
+			<<case "tentacles">>
+				Purple tentacles slither on the walls.
+				<<if ($demon gte 6 or $transformationParts.demon.wings is "default" or $transformationParts.demon.wings is "succubus")>>
+					Thoughts of pleasure cross your mind.
+				<</if>>
+			<<case "plainwhite">>
+				Plain white wallpapers cover the walls.
+			<<case "wavywhite">>
+				The white wallpapers gradient to black in a wavy pattern. Is there a lewd subtext?
+			<<case "hearts">>
+				Pink hearts cover the walls.
+			<<case "cowgirls">>
+				Cowgirls dance on the walls.
+			<<case "trees">>
+				Green trees bring you a feeling of being in a forest.
+			<<case "crosses">>
+				Golden crosses cover the walls.
+			<<default>> /* Custom */
+				Images of _furniture.wallpaper.name cover the walls.
+				<<if ['dol', 'degrees of lewdity'].some(e => _furniture.wallpaper.name === e)>>
+					Somehow, they look familiar.
+				<<elseif _furniture.wallpaper.name.startsWith('&lt;&lt')>>
+					<span class="black">You feel like you got caught cheating.</span>
+				<</if>>
+		<</switch>>
+	<<else>>
+		Bleak walls protect you from the outside.
+	<</if>>
+
 <<if $unbind is 1>>
 	<<unset $unbind>>
 	You remove your bindings.
 	<br><br>
 <</if>>
+
+<<if $furnitureLocation is "farm cottage">>
+	<<set _desk to Furniture.get('desk')>>
+	<<set _chair to Furniture.get('chair')>>
+	<<set _deco to Furniture.get('decoration')>>
+	<<set _owlplush to Furniture.get('owlplushie')>>
+	<<set _windowsill to Furniture.get('windowsill')>>
+	<<set _bed to Furniture.get('bed')>>
+	<<set _wardrobe to Furniture.get('wardrobe')>>
+<</if>>
+<<set _poster to Furniture.get('poster')>>
 
 <<if $alex_bed is "player">>
 	Alex snores in your bed.
@@ -267,6 +315,73 @@ You are in your room at Alex's cottage. It's cramped, but larger than your room 
 	<<link [[Prepare|Farm Assault Wardrobe]]>><<endevent>><<set $phase to 3>><</link>>
 	<br>
 <<else>>
+	/* Misc Furniture */
+	<<if _desk is undefined or _desk is null>>
+		<<set _desk to Furniture.get('desk','desk')>>
+	<</if>>
+	<<if _chair is undefined or _chair is null>>
+		<<set _chair to Furniture.get('chair','chair')>>
+	<</if>>
+	<<deskText "icon">> /* If no desk options (read a book, work on project, etc.) are available, desk and icon appear here */
+	<<tableText "icon">> /* If no fish tank is available to be placed on an owned table or chairs, table and chairs appear here */
+
+	<<if $ltsUsed isnot undefined>>
+		<<unset $ltsUsed>>
+		<br>
+		You fiddle with your lockpick training set. <<skulduggerycheck>><<skulduggeryuse>>
+	<</if>>
+
+	<<if $lockpickTrainingSet gte 1 and $stress lt $stressmax and !$possessed>>
+		<br>
+		<<lockpickTrainingSet>>
+	<</if>>
+
+	/* Decorations */
+	<<if _deco>>
+		<br>
+		<<switch _deco.name>>
+			<<case "large bear plushie">>
+				<<furnitureicon _deco.iconFile>>The _deco.name is sitting in a corner.
+			<<default>>
+				<<furnitureicon _deco.iconFile>>The _deco.name is hanging on a wall.
+		<</switch>>
+	<</if>>
+
+	<<if _owlplush>>
+		<br>
+		<<switch _owlplush.id>>
+			<<case "owlplushie">>
+				<<furnitureicon _owlplush.iconFile>>The _owlplush.name stares down from the wardrobe, blending into the gloom.
+		<</switch>>
+	<</if>>
+	<<if _windowsill>>
+		<br>
+		<<switch _windowsill.name>> /* can be expanded further */
+			<<case "ominous jar">> /* unused */
+				<<furnitureicon _windowsill.iconFile>>_windowsill.nameCap stands on the windowsill menacingly.
+			<<default>>
+				<<furnitureicon _windowsill.iconFile>> Your _windowsill.name sits on the windowsill.
+		<</switch>>
+	<</if>>
+
+	<<if _furniture.poster>>
+		<br>
+		<<switch _furniture.poster.name>>
+			<<case "cowgirl">>
+				<<furnitureicon _poster.iconFile>>A cowgirl poster hangs on a wall.
+			<<case "cat">>
+				<<furnitureicon _poster.iconFile>>A poster of a cat hangs on a wall. The text below reads, "Hang in there!"
+			<<case "puppy">>
+				<<furnitureicon _poster.iconFile>>A puppy poster hangs on a wall.
+			<<default>> /* Custom */
+				<<furnitureicon _poster.iconFile>>A poster of _furniture.poster.name hangs on a wall.
+				<<if ['dol', 'degrees of lewdity'].some(e => _furniture.poster.name === e)>>
+					You feel an odd sense of familiarity.
+				<<elseif _furniture.poster.name.startsWith('&lt;&lt;')>>
+					<span class="black">You feel like you got caught cheating.</span>
+				<</if>>
+		<</switch>>
+	<</if>>
 	<<if $leftarm is "bound" or $rightarm is "bound" or $feetuse is "bound">>
 		<<if $possessed>>
 			You stare down at your bindings. You pull, and they fall apart, unable to hold against you.
@@ -277,13 +392,39 @@ You are in your room at Alex's cottage. It's cramped, but larger than your room 
 			<br><br>
 		<</if>>
 	<</if>>
+	<<if $study is 1>>
+		<<unset $study>>
+		<<if $phase is 1>>
+			You crack open your science textbook and read through the material.
+		<<elseif $phase is 2>>
+			You crack open your maths textbook and read through the material.
+		<<elseif $phase is 3>>
+			You crack open your English textbook and read through the material.
+		<<elseif $phase is 4>>
+			You crack open your history textbook and read through the material.
+		<</if>>
+		<<endevent>>
+		<br><br>
+	<</if>>
+	<<projectoptions>>
+		<br><br>
+		/* <<christmas_options>> */
+		<<if _deco>>
+			<<if _deco.name is "large bear plushie">>
+				<<furnitureicon _deco.iconFile>><<link [[Cuddle with the large bear plushie (0:10)|Farm Cottage Large Bear Plushie Cuddle]]>><<pass 10>><</link>><<ltrauma>><<lstress>>
+				<br><br>
+			<</if>>
+		<</if>>
 	<<if !($earSlime.event and $earSlime.noSleep)>>
-		<<bedicon>><<link [[Strip and get in bed|Farm Bed]]>><<undressSleep "Farm Bed">><</link>>
+		<<if _bed is undefined or _bed is null>>
+			<<set _bed to Furniture.get("bed")>>
+		<</if>>
+		<<furnitureicon _bed.iconFile>><<link [[Strip and get in bed|Farm Bed]]>><<undressSleep "Farm Bed">><</link>>
 		<br>
 		<<listsleepoutfits "Farm Bed">>
 		<<roomoptions>>
 
-		<<wardrobeicon>><<link [[Wardrobe|Farm Wardrobe]]>><</link>>
+		<<furnitureicon _wardrobe.iconFile>><<link [[Wardrobe|Farm Wardrobe]]>><</link>>
 		<br>
 	<<else>>
 		<br>
@@ -2024,15 +2165,15 @@ You get comfy beside Alex.
 		You displace <<his>> <<npcClothesText _alex "upper">>, exposing <<his>> toned midriff. You blow hot air and rub your face against it. <<He>> cracks up at the sight.<<npcincr Alex lust 1>><<glust>>
 	<<case 6>>
 		"It's nice and quiet," <<he>> says as <<he>> fluffs the pillows. "Wish we could spend all day like this." <<He>> spoons you, and
-		<<if ($harpy gte 6 and $transformationParts.bird.wings isnot "hidden") or ($angel gte 6 and $transformationParts.angel.wings isnot "hidden") or ($demon gte 6 and $transformationParts.demon.wings isnot "hidden") or ($fallenangel gte 2 and $transformationParts.fallenAngel.wings isnot "hidden")>>
+		<<if (($harpy gte 6 or $transformationParts.bird.wings is "default") and $transformationParts.bird.wings isnot "hidden") or (($angel gte 6 or $transformationParts.angel.wings is "default") and $transformationParts.angel.wings isnot "hidden") or (($demon gte 6 or $transformationParts.demon.wings is "default" or $transformationParts.demon.wings is "succubus") and $transformationParts.demon.wings isnot "hidden") or (($fallenangel gte 2 or $transformationParts.fallenAngel.wings is "default") and $transformationParts.fallenAngel.wings isnot "hidden")>>
 			strokes your wings.
 		<<elseif ($wolfgirl gte 3 and $transformationParts.wolf.ears isnot "hidden") or ($cat gte 4 and $transformationParts.cat.ears isnot "hidden") or ($cow gte 4 and $transformationParts.cow.ears isnot "hidden") or ($fox gte 4 and $transformationParts.fox.ears isnot "hidden")>>
 			scratches behind your ears.
-		<<elseif $wolfgirl gte 6 or $fox gte 6>>
+		<<elseif ($wolfgirl gte 6 or $transformationParts.wolf.tail is "default" or $transformationParts.wolf.tail is "feral") or ($fox gte 6 or $transformationParts.fox.tail is "default")>>
 			rubs your tummy.
-		<<elseif $cat gte 6>>
+		<<elseif ($cat gte 6 or $transformationParts.cat.tail is "default")>>
 			pets your hair.
-		<<elseif $cow gte 6>>
+		<<elseif ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black")>>
 			scratches your nose.
 		<<else>>
 			strokes your face.
@@ -2341,7 +2482,7 @@ You sit beside Alex, and make yourself comfy.
 		You rub your cheek against <<his>>, content to listen to the sound of <<his>> voice.
 	<<case 7>>
 		Bored, you bump your head against <<hers>>.
-		<<if ($demon gte 2 and $transformationParts.demon.horns isnot "hidden") or ($cow gte 2 and $transformationParts.cow.horns isnot "hidden")>>
+		<<if (($demon gte 2 or $transformationParts.demon.horns is "default") and $transformationParts.demon.horns isnot "hidden") or (($cow gte 2 or $transformationParts.cow.horns is "default") and $transformationParts.cow.horns isnot "hidden")>>
 			<<He>> recoils in pain, and you suddenly remember you have horns. Before you can apologise, <<he>> bumps back. You both laugh, hands on your foreheads.
 		<<else>>
 			<<He>> does the same. This exchange continues for quite some time.
@@ -4519,6 +4660,24 @@ You try to pull <<him>> closer but
 <</if>>
 
 <<link [[Next|Farm Cottage]]>><<endevent>><<pass 20>><</link>>
+
+:: Farm Cottage Large Bear Plushie Cuddle
+<<effects>>
+<<if $trauma gte ($traumamax / 7) * 3 or $stress gte ($stressmax / 7) * 5>>
+	You desperately cling onto the large bear plushie with your entire body and almost wind up pulling it down onto the ground, whimpering and crying loudly into it.<<trauma -6>><<stress -6>>
+<<elseif $trauma gte ($traumamax / 7) * 2 or $stress gte ($stressmax / 7) * 3>>
+	You cling to the large bear plushie and bury your head in it's back, silently crying into it.<<trauma -4>><<stress -4>>
+<<elseif $trauma gte ($traumamax / 7) * 1 or $stress gte ($stressmax / 7) * 1>>
+	You wrap your arms around the large bear plushie from behind and rest your head against it's shoulder, hugging it quietly.<<trauma -2>><<stress -2>>
+<<else>>
+	You happily take the large bear plushie in your arms.<<trauma -1>><<stress -1>>
+<</if>>
+<br><br>
+
+
+<<link [[Cuddle with the large bear plushie (0:10)|$passage]]>><<pass 10>><</link>><<ltrauma>><<lstress>>
+<br>
+<<link [[Next|Farm Bedroom]]>><</link>>
 
 :: Farm PC Ultrasound Pics Show
 <<effects>><<npc "Alex">><<person1>>

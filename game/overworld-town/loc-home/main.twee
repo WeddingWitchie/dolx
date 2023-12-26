@@ -15,7 +15,7 @@ You are in your bedroom.
 			<</if>>
 		<<case "tentacles">>
 			Purple tentacles slither on the walls.
-			<<if $demon gte 6>>
+			<<if ($demon gte 6 or $transformationParts.demon.wings is "default" or $transformationParts.demon.wings is "succubus")>>
 				Thoughts of pleasure cross your mind.
 			<</if>>
 		<<case "plainwhite">>
@@ -42,20 +42,39 @@ You are in your bedroom.
 	Bleak walls protect you from the outside.
 <</if>>
 
+<<if $furnitureLocation is "orphanage">>
+	<<set _desk to Furniture.get('desk')>>
+	<<set _chair to Furniture.get('chair')>>
+	<<set _deco to Furniture.get('decoration')>>
+	<<set _owlplush to Furniture.get('owlplushie')>>
+	<<set _windowsill to Furniture.get('windowsill')>>
+	<<set _poster to Furniture.get('poster')>>
+	<<set _bed to Furniture.get('bed')>>
+	<<set _wardrobe to Furniture.get('wardrobe')>>
+<</if>>
+
 /* Misc Furniture */
-<<set _desk to Furniture.get('desk')>>
-<<if _desk is null>>
-	<<set _desk to Furniture.set('desk','desk')>>
+<<if _desk is undefined or _desk is null>>
+	<<set _desk to Furniture.get('desk','desk')>>
 <</if>>
-<<set _chair to Furniture.get('chair')>>
-<<if _chair is null>>
-	<<set _chair to Furniture.set('chair','chair')>>
+<<if _chair is undefined or _chair is null>>
+	<<set _chair to Furniture.get('chair','chair')>>
 <</if>>
-	<<deskText "icon">> /* If no desk options (read a book, work on project, etc.) are available, desk and icon appear here */
-	<<tableText "icon">> /* If no fish tank is available to be placed on an owned table or chairs, table and chairs appear here */
+<<deskText "icon">> /* If no desk options (read a book, work on project, etc.) are available, desk and icon appear here */
+<<tableText "icon">> /* If no fish tank is available to be placed on an owned table or chairs, table and chairs appear here */
+
+<<if $ltsUsed isnot undefined>>
+	<<unset $ltsUsed>>
+	<br>
+	You fiddle with your lockpick training set. <<skulduggerycheck>><<skulduggeryuse>>
+<</if>>
+
+<<if $lockpickTrainingSet gte 1 and $stress lt $stressmax and !$possessed>>
+	<br>
+	<<lockpickTrainingSet>>
+<</if>>
 
 /* Decorations */
-<<set _deco to Furniture.get('decoration')>>
 <<if _deco>>
 	<br>
 	<<switch _deco.name>>
@@ -66,7 +85,6 @@ You are in your bedroom.
 	<</switch>>
 <</if>>
 
-<<set _owlplush to Furniture.get('owlplushie')>>
 <<if _owlplush>>
 	<br>
 	<<switch _owlplush.id>>
@@ -75,7 +93,6 @@ You are in your bedroom.
 	<</switch>>
 <</if>>
 
-<<set _windowsill to Furniture.get('windowsill')>>
 <<if _windowsill>>
 	<br>
 	<<switch _windowsill.name>> /* can be expanded further */
@@ -86,7 +103,6 @@ You are in your bedroom.
 	<</switch>>
 <</if>>
 
-<<set _poster to Furniture.get('poster')>>
 <<if _furniture.poster>>
 	<br>
 	<<switch _furniture.poster.name>>
@@ -174,9 +190,19 @@ You are in your bedroom.
 /* Desk */
 <<deskText "noicon">> /* If project, study, or Christmas options are available, desk location appears here, in line with bed/wardrobe/etc locations */
 
+<<if _deco>>
+	<br>
+	<<if _deco.name is "large bear plushie">>
+		<<furnitureicon _deco.iconFile>><<link [[Cuddle with the large bear plushie (0:10)|Home Large Bear Plushie Cuddle]]>><<pass 10>><</link>><<ltrauma>><<lstress>>
+		<br><br>
+	<</if>>
+<</if>>
+
 /* Bed */
 Your bed takes up most of the room.
-<<set _bed to Furniture.get('bed')>>
+<<if _bed is undefined or _bed is null>>
+	<<set _bed to Furniture.get("bed", "bed")>>
+<</if>>
 <<if $nextPassageCheck is "Bed">>
 	<br>
 	<<if $robinbed is "yours" or $robinbed is "theirs">>
@@ -201,15 +227,15 @@ Your bed takes up most of the room.
 	<br>
 <</if>>
 
-<<if _bed.type.includes("comfy")>>
-	<<furnitureicon _bed.iconFile>><<link [[Masturbate in bed|Home Masturbation]]>><<set $masturbationstart to 1>><</link>>
-	<br>
-<</if>>
+<<furnitureicon _bed.iconFile>><<link [[Masturbate in bed|Home Masturbation]]>><<set $masturbationstart to 1>><</link>>
+<br>
 
 <<roomoptions>>
 <br>
 /* Wardrobe */
-<<set _wardrobe to Furniture.get('wardrobe')>>
+<<if _wardrobe is undefined>>
+	<<set _wardrobe to Furniture.get("wardrobe", "wardrobe")>>
+<</if>>
 <<if _wardrobe>>
 	Your clothes are kept in the _wardrobe.name.
 <</if>>
@@ -1850,7 +1876,7 @@ You've pushed yourself too much.
 <<stateman>>
 <br><br>
 <<actionsman>>
-<<if $alarm is 1>>
+<<if $alarm is 1 and _combatend is true>>
 	<<if $rescue is 1>>
 		<span id="next"><<link [[Next->Molestation Alarm]]>><</link>></span><<nexttext>>
 	<<else>>
@@ -1864,9 +1890,9 @@ You've pushed yourself too much.
 			<span id="next"><<link [[Next->Molestation]]>><</link>></span><<nexttext>>
 		<</if>>
 	<</if>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
+<<elseif $enemyarousal gte $enemyarousalmax and _combatend is true>>
 	<span id="next"><<link [[Next->Molestation Ejaculation]]>><</link>></span><<nexttext>>
-<<elseif $enemyhealth lte 0>>
+<<elseif $enemyhealth lte 0 and _combatend is true>>
 	<span id="next"><<link [[Next->Molestation Escape]]>><</link>></span><<nexttext>>
 <<else>>
 	<span id="next"><<link [[Next->Molestation]]>><</link>></span><<nexttext>>
@@ -4133,3 +4159,21 @@ The pair blame each other for the mishap, and spend a few moments arguing before
 	<<endcombat>>
 	<<link [[Next|Harvest Street]]>><<set $eventskip to 1>><</link>>
 <</if>>
+
+:: Home Large Bear Plushie Cuddle
+<<effects>>
+<<if $trauma gte ($traumamax / 7) * 3 or $stress gte ($stressmax / 7) * 5>>
+	You desperately cling onto the large bear plushie with your entire body and almost wind up pulling it down onto the ground, whimpering and crying loudly into it.<<trauma -6>><<stress -6>>
+<<elseif $trauma gte ($traumamax / 7) * 2 or $stress gte ($stressmax / 7) * 3>>
+	You cling to the large bear plushie and bury your head in it's back, silently crying into it.<<trauma -4>><<stress -4>>
+<<elseif $trauma gte ($traumamax / 7) * 1 or $stress gte ($stressmax / 7) * 1>>
+	You wrap your arms around the large bear plushie from behind and rest your head against it's shoulder, hugging it quietly.<<trauma -2>><<stress -2>>
+<<else>>
+	You happily take the large bear plushie in your arms.<<trauma -1>><<stress -1>>
+<</if>>
+<br><br>
+
+
+<<link [[Cuddle with the large bear plushie (0:10)|$passage]]>><<pass 10>><</link>><<ltrauma>><<lstress>>
+<br>
+<<link [[Next|Bedroom]]>><</link>>

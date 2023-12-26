@@ -82,6 +82,15 @@
 		<br><br>
 	<</if>>
 
+	<<if $attitudesControl.unlockSadoMaso>>
+		<label><<checkbox "$uncomfortable.sadoMaso" false true autocheck>> You're uncomfortable reflecting on your depravity. <i>If unchecked, sadism and masochism will not decay.</i></label>
+	<<else>>
+		You're uncomfortable reflecting on your depravity.
+		<br>
+		<span class="black"><i>Unlock level 2 sadism or masochism.</i></span>
+	<</if>>
+	<br><br>
+
 	<<if $attitudesControl.unlockHypnosis>>
 		<label><<checkbox "$uncomfortable.hypnosis" false true autocheck>> You're uncomfortable being hypnotised during sex. <i>If unchecked, you will accept hypnosis attempts during combat regardless of willpower.</i></label>
 		<br>
@@ -297,6 +306,21 @@
 
 	<<if _args[0] is true>>
 		<<set _leftHand["Punch"] to "lefthit">>
+		<<if $worn.handheld.type.includes("rainproof") and $worn.handheld.integrity gte 1>>
+			<<set _leftHand["Umbrella"] to "leftumbrella">>
+		<</if>>
+		<<if $combatExtended.blocking is 1>>
+			<<set _leftHand["Block"] to "leftblock">>
+		<</if>>
+		<<if $combatExtended.countering is 1>>
+			<<set _leftHand["Counter"] to "leftcounter">>
+		<</if>>
+		<<if $combatExtended.feinting is 1>>
+			<<set _leftHand["Feint"] to "leftfeint">>
+		<</if>>
+		<<if $combatExtended.hookpunching is 1 and $combatExtended.stabilityLost is 0>>
+			<<set _leftHand["Hook Punch"] to "lefthookpunch">>
+		<</if>>
 		<<set _leftHand["Pull their hand off your neck"] to "stopchokenoncon">>
 	<<else>>
 		<<set _leftHand["Press their hand to your neck"] to "keepchoke">>
@@ -343,6 +367,21 @@
 
 	<<if _args[0] is true>>
 		<<set _rightHand["Punch"] to "righthit">>
+		<<if $worn.handheld.type.includes("rainproof") and $worn.handheld.integrity gte 1>>
+			<<set _rightHand["Umbrella"] to "rightumbrella">>
+		<</if>>
+		<<if $combatExtended.blocking is 1>>
+			<<set _rightHand["Block"] to "rightblock">>
+		<</if>>
+		<<if $combatExtended.countering is 1>>
+			<<set _rightHand["Counter"] to "rightcounter">>
+		<</if>>
+		<<if $combatExtended.feinting is 1>>
+			<<set _rightHand["Feint"] to "rightfeint">>
+		<</if>>
+		<<if $combatExtended.hookpunching is 1 and $combatExtended.stabilityLost is 0>>
+			<<set _rightHand["Hook Punch"] to "righthookpunch">>
+		<</if>>
 		<<set _rightHand["Pull their hand off your neck"] to "stopchokenoncon">>
 	<<else>>
 		<<set _rightHand["Press their hand to your neck"] to "keepchoke">>
@@ -385,6 +424,9 @@
 	}>>
 	<<if _args[0] is true>>
 		<<set _feet["Kick"] to "kick">>
+		<<set _feet["Dodge"] to "dodge">>
+		<<set _feet["Plant"] to "plant">>
+		<<set _feet["Submit"] to "submit">>
 	<</if>>
 	<<if $promiscuity gt 34 or $deviancy gt 34 or _args[0] is true>>
 		<<set _feet["Grab their penis"] to "grab">>
@@ -415,10 +457,16 @@
 	<<if $submissive gte 1150>>
 		<<set _mouth["Moan"] to "moan">>
 	<</if>>
-	<<if $angel gte 6 and $angelforgive isnot 1 and _args[0] is true>>
+	<<if (($angel gte 6 or $transformationParts.angel.wings is "default") or $angeltf is 1) and $angelforgive isnot 1>>
 		<<set _mouth["Forgive"] to "forgive">>
 	<</if>>
-	<<if $fallenangel gte 4 and $angelforgive isnot 1 and _args[0] is true>>
+	<<if (($fallenangel gte 2 or $transformationParts.fallenAngel.wings is "default") or $fallenangeltf is 1 or $fallenangelplustf is 1) and $fallenangelretribution isnot 1>>
+		<<set _mouth["Retribution"] to "retribution">>
+	<</if>>
+	<<if (($demon gte 6 or $transformationParts.demon.wings is "default" or $transformationParts.demon.wings is "succubus") or $demontf is 1) and $demonseduce isnot 1>>
+		<<set _mouth["Seduce"] to "seduce">>
+	<</if>>
+	<<if ($fallenangel gte 4 or $transformationParts.fallenAngel.wings is "fallenplus") and $angelforgive isnot 1 and _args[0] is true>>
 		<<set _mouth["Disparage"] to "disparage">>
 	<</if>>
 	<<if $submissive lte 850 and _args[0] is true>>
@@ -824,6 +872,7 @@
 		V.attitudesControl.unlockLoveInterest2 = V.awarelevel >= 2 && V.loveInterest.primary !== "None" && V.loveInterest.secondary === "None";
 		V.attitudesControl.unlockDefaultActions = V.moleststat > 0;
 		V.attitudesControl.unlockLewd = V.exhibitionism >= 35 || V.promiscuity >= 35 || V.deviancy >= 35;
+		V.attitudesControl.unlockSadoMaso = V.sadism >= 300 || V.masochism >= 300;
 		V.attitudesControl.unlockHypnosis = Object.keys(V.hypnosis_traits).length >= 1;
 		/* set the highlight flag when one of the controls switches to true */
 		for (const c in V.attitudesControl) {

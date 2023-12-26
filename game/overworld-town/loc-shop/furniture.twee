@@ -45,6 +45,10 @@ You are in the furniture shop. Most of its stock is too large for your room.
 			<<furnitureicon "wallpaper.png">><<link [[Paperhangings|Furniture Shop Papers]]>><</link>>
 			<br>
 		<</if>>
+		<<if $exposed lte 0 and Time.dayState isnot "night" and Time.hour isnot 21>>
+			<<link [[Furniture Moving Services|Furniture Shop Moving Services]]>><</link>>
+			<br>
+		<</if>>
 		<br>
 		<<getouticon>><<link [[Leave|Shopping Centre]]>><</link>>
 		<br>
@@ -259,7 +263,7 @@ You approach the paperhangings corner. Samples of pre-made posters and wallpaper
 <<widget "furnitureList">>
 	<<set $currentFurnishing to Furniture.get($chosenFurnitureCategory)>>
 	<<if $chosenFurnitureCategory is "desk" and $currentFurnishing is null>>
-		<<set $currentFurnishing to Furniture.set('desk','desk')>>
+		<<set $currentFurnishing to Furniture.get('desk','desk')>>
 	<</if>>
 Currently installed in your bedroom:
 	<<if $currentFurnishing>>
@@ -391,3 +395,38 @@ Currently installed in your bedroom:
 		<<unset $furnitureDowngrade>>
 	<</link>>
 <</widget>>
+
+:: Furniture Shop Moving Services
+You are at the furniture moving services kiosk. Your furniture is current at the <<print $furnitureLocation>>.
+<br><br>
+
+<<furnitureMovePrice>>
+
+<<if $furnitureLocation isnot "orphanage">>
+	<<if $money gte $furnitureMovePrice[0]>>
+		<<link [["Move to the Orphanage (£" + $furnitureMovePrice[0] / 100 + ")"|$passage]]>><<set $furnitureLocation to "orphanage">><<set $money -= $furnitureMovePrice[0]>><</link>>
+		<br>
+	<<elseif $money lt $furnitureMovePrice[0]>>
+		You don't have the £<<print $furnitureMovePrice[0] / 100>> to move to the Orphanage.
+		<br>
+	<</if>>
+<</if>>
+<<if $furnitureLocation isnot "farm cottage" and $farm_stage gte 7>>
+	<<if $money gte $furnitureMovePrice[1]>>
+		<<link [["Move to the Farm Cottage (£" + $furnitureMovePrice[1] / 100 + ")"|$passage]]>><<set $furnitureLocation to "farm cottage">><<set $money -= $furnitureMovePrice[1]>><</link>>
+		<br>
+	<<elseif $money lt $furnitureMovePrice[1]>>
+		You don't have the £<<print $furnitureMovePrice[1] / 100>> to move to the Farm Cottage.
+		<br>
+	<</if>>
+<</if>>
+<<if $furnitureLocation isnot "lake house" and $lakehouse isnot undefined>>
+	<<if $money gte $furnitureMovePrice[2]>>
+		<<link [["Move to the Lake House (£" + $furnitureMovePrice[2] / 100 + ")"|$passage]]>><<set $furnitureLocation to "lake house">><<set $money -= $furnitureMovePrice[2]>><</link>>
+		<br>
+	<<elseif $money lt $furnitureMovePrice[2]>>
+		You don't have the £<<print $furnitureMovePrice[2] / 100>> to move to the Lake House.
+		<br>
+	<</if>>
+<</if>>
+<<link [[Leave|Furniture Shop]]>><</link>>

@@ -95,6 +95,14 @@ You climb the tower.
 	<br><br>
 
 	<<farm_guard_pay>>
+	<<if $farm.watchtowerDailyAttempt is 0>>
+		<<link [[Spar|Farm Tower Spar]]>><<set $fightstart to 1>><<set $farm.watchtowerDailyAttempt to 1>><</link>>
+		<br>
+		<<if $promiscuity gte 15>>
+			<<link [[Seduce (0:01)|Farm Tower Seduce]]>><<pass 1>><</link>><<promiscuous2>>
+			<br>
+		<</if>>
+	<</if>>
 <<else>>
 	The moor stretches to the horizon in one direction, and the sea in the other.
 	<br><br>
@@ -370,5 +378,290 @@ You climb the tower.
 	<<loadNPC 0 "farm_tower_guard">><<person1>>
 	<<farm_guard_pay>>
 	<<link [[Say you can't afford it right now|Farm Guard Pay Refuse]]>><</link>><<lltrust>>
+	<br>
+<</if>>
+
+:: Farm Tower Spar
+<<if $fightstart is 1>>
+	<<set $fightstart to 0>>
+	<<neutral 1>>
+	<<maninit>>
+	<<set $enemyanger += 200>>
+	<<set $enemyhealthmax to $enemyhealthmax + ($farm.tower_guard_skill / 2)>>
+	<<set $enemyhealth to $enemyhealthmax>>
+	<<healthMultiplier>>
+	<<npcidlegenitals>>
+	<<if $NPCList[0].traits.includes("relaxed")>>
+		<<print $NPCList[0].name>> puts out <<his>> cigarette. "Come on then, let's get this over with."
+	<<elseif $NPCList[0].traits.includes("sociable")>>
+		<<print $NPCList[0].name>> grins. "I won't go easy on you!"
+	<<elseif $NPCList[0].traits.includes("brooding")>>
+		<<print $NPCList[0].name>> sighs. "Fine, could use the practice."
+	<<else>>
+		<<print $NPCList[0].name>> shrugs. "I would prefer getting my hands on you some other way but you're the boss."
+	<</if>>
+	<br><br>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<<man>>
+
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<if _combatend or ($pain gte 100 and $willpowerpain is 0)>>
+	<span id="next"><<link [[Next|Farm Tower Spar Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Farm Tower Spar]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Farm Tower Spar Finish
+<<effects>>
+
+<<if $enemyarousal gte $enemyarousalmax>>
+	<<ejaculation "short">>
+
+	<<if $NPCList[0].traits.includes("relaxed")>>
+		"That was unexpected, but I'll take it." <<print $NPCList[0].name>> says.
+	<<elseif $NPCList[0].traits.includes("sociable")>>
+		"That was cheating..." <<print $NPCList[0].name>> says.
+	<<elseif $NPCList[0].traits.includes("brooding")>>
+		"Unconventional, but it did work." <<print $NPCList[0].name>> says.
+	<<else>>
+		"That was a lot more fun than I expected, you could've just been honest." <<print $NPCList[0].name>> says.
+	<</if>>
+	<br><br>
+
+	<<set $NPCList[0].trust += 1>><<securityskill>><<gtrust>><<note "+ Security skill" "green">>
+
+	<<clotheson>>
+	<<endcombat>>
+
+	<<link [[Next|Farm Tower]]>><</link>>
+<<elseif $enemyhealth lte 0>>
+
+	<<if $NPCList[0].traits.includes("relaxed")>>
+		<<print $NPCList[0].name>> staggers. "Alright alright, stop, you win."
+	<<elseif $NPCList[0].traits.includes("sociable")>>
+		<<print $NPCList[0].name>> winces. "Damn, you're a good! I ought to practice more."
+	<<elseif $NPCList[0].traits.includes("brooding")>>
+		<<print $NPCList[0].name>> holds a hand up. "Let's stop there, you fought very well. I must be getting rusty."
+	<<else>>
+		<<print $NPCList[0].name>> holds both hands up. "Okay stop, I do like it rough but geez."
+	<</if>>
+	<br><br>
+
+	<<set $NPCList[0].trust += 1>><<securityskill>><<gtrust>><<note "+ Security skill" "green">>
+
+	<<clotheson>>
+	<<endcombat>>
+
+	<<link [[Next|Farm Tower]]>><</link>>
+
+<<else>>
+	You fall to the ground, too hurt to move.
+	<br><br>
+	<<if $NPCList[0].traits.includes("relaxed")>>
+		<<print $NPCList[0].name>> asks. "Are you okay? May have gone too hard sorry."
+	<<elseif $NPCList[0].traits.includes("sociable")>>
+		<<print $NPCList[0].name>> exclaims. "Ha! I win! You okay though?."
+	<<elseif $NPCList[0].traits.includes("brooding")>>
+		<<print $NPCList[0].name>> reaches his arm out. "Good effort."
+	<<else>>
+		<<print $NPCList[0].name>> smirks. "Does this mean to the winner the spoils? I'm kidding, you ok boss?"
+	<</if>>
+	<br><br>
+
+	<<securityskill>><<note "+ Security skill" "green">>
+
+	<<clotheson>>
+	<<endcombat>>
+
+	<<link [[Next|Farm Tower]]>><</link>>
+<</if>>
+
+:: Farm Tower Seduce
+<<effects>>
+
+<<if $NPCList[0].traits.includes("relaxed")>>
+	<<set $seductiondifficulty to 4000>>
+<<elseif $NPCList[0].traits.includes("sociable")>>
+	<<set $seductiondifficulty to 4000>>
+<<elseif $NPCList[0].traits.includes("brooding")>>
+	<<set $seductiondifficulty to 6000>>
+<<else>>
+	<<set $seductiondifficulty to 2000>>
+<</if>>
+
+<<seductioncheck>>
+<br><br>
+<<if $seductionskill lt 1000>>
+	<span class="gold">You feel more confident in your powers of seduction.</span>
+	<br><br>
+<</if>>
+<<seductionskilluse>>
+
+<<if $speech_attitude is "meek">>
+	"D-do you want to have some fun?" you purr.
+<<elseif $speech_attitude is "bratty">>
+	"Let's have some fun." you say.
+<<else>>
+	"Come on, let's have some fun?" you purr.
+<</if>>
+<<promiscuity3>>
+
+<<if $seductionrating gte $seductionrequired>>
+	<<if $NPCList[0].traits.includes("relaxed")>>
+		<span class="green">"Why not?"</span> <<print $NPCList[0].name>> says. "Let's go." You take <<his>> hand, and lead <<him>> to a secluded spot in the barn.
+	<<elseif $NPCList[0].traits.includes("sociable")>>
+		<<print $NPCList[0].name>> tries to speak, <span class="green">but can only manage a gulp.</span> You take <<his>> hand, and lead <<him>> to a secluded spot in the barn.
+	<<elseif $NPCList[0].traits.includes("brooding")>>
+		<span class="green">"I could use the break,"</span> <<print $NPCList[0].name>> says. "Come on then." You take <<his>> hand, and lead <<him>> to a secluded spot in the barn.
+	<<else>>
+		<span class="green">"Nice,"</span> <<print $NPCList[0].name>> says. "Let's do it in the barn."
+		<br><br>
+		You find a secluded spot at the back.
+	<</if>>
+	<br><br>
+
+	<<link [[Next|Farm Guard Seduce Sex]]>><<set $sexstart to 1>><<set $farm.watchtowerDailyAttempt to 1>><</link>>
+	<br>
+<<else>>
+	<<if $NPCList[0].traits.includes("relaxed")>>
+		<span class="red">"Sorry,"</span> <<print $NPCList[0].name>> says. "You're cute, but I don't just sleep with anyone."
+	<<elseif $NPCList[0].traits.includes("sociable")>>
+		"You're a lewd one," <<print $NPCList[0].name>> says. <span class="red">"But I prefer to know who I sleep with."</span>
+	<<elseif $NPCList[0].traits.includes("brooding")>>
+		<span class="red">"Not interested,"</span> <<print $NPCList[0].name>> says. "Let's keep it professional."
+	<<else>>
+		"Tempting," <<print $NPCList[0].name>> says. <span class="red">"But no, no offense.</span> Sorry."
+	<</if>>
+	<br><br>
+	
+	<<link [[Next|Farm Tower]]>><<set $farm.watchtowerDailyAttempt to 1>><</link>>
+	<br>
+
+<</if>>
+
+:: Farm Guard Seduce Sex
+<<if $sexstart is 1>>
+	<<set $sexstart to 0>>
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+	<<maninit>>
+	<<set $enemytrust += 100>>
+	<<set $enemyhealthmax to $enemyhealthmax + ($farm.tower_guard_skill / 2)>>
+	<<set $enemyhealth to $enemyhealthmax>>
+	<<healthMultiplier>>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<if _combatend>>
+	<span id="next"><<link [[Next|Farm Guard Seduce Sex Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Farm Guard Seduce Sex]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Farm Guard Seduce Sex Finish
+<<set $outside to 0>><<effects>>
+<<if $enemyarousal gte $enemyarousalmax>>
+	<<ejaculation>>
+	<<if $NPCList[0].traits.includes("relaxed")>>
+		"Hoo," <<print $NPCList[0].name>> says. "That was good. Wouldn't mind doing that again."
+	<<elseif $NPCList[0].traits.includes("sociable")>>
+		"Thanks love," <<print $NPCList[0].name>> says. "Didn't know I was the type to roll around in hay until I met you."
+	<<elseif $NPCList[0].traits.includes("brooding")>>
+		"Thank you," <<print $NPCList[0].name>> says. "I needed that."
+	<<else>>
+		"Damn <<girl>>," <<print $NPCList[0].name>> says. "You're good at this. Wanna brag to my friends, but also wanna keep you to myself. Decisions."
+	<</if>>
+	Your employee leaves the barn.
+	<<securityskill>><<note "+ Security skill" "green">>
+	<br><br>
+	<<tearful>> you brush off hay.
+	<br><br>
+
+	<<set $per_npc.farm_tower_guard.skills.security to clone($NPCList[0].skills.security)>>
+	<<set $per_npc.farm_tower_guard.virginity to clone($NPCList[0].virginity)>>
+
+	<<clotheson>>
+	<<endcombat>>
+	<<link [[Next|Farm Work]]>><</link>>
+<<elseif $enemyhealth lte 0>>
+	<<if $NPCList[0].traits.includes("relaxed")>>
+		"Sorry," <<print $NPCList[0].name>> says, backing away. "I misread things."
+	<<elseif $NPCList[0].traits.includes("sociable")>>
+		"Alright alright!" <<print $NPCList[0].name>> says, holding <<his>> hands up. "I get it. No more touching."
+	<<elseif $NPCList[0].traits.includes("brooding")>>
+		"Easy <<girl>>," <<print $NPCList[0].name>> says, backing off. "Let's keep things civil."
+	<<else>>
+		"I like it rough, but damn," <<print $NPCList[0].name>> says.
+	<</if>>
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
+	<<loadNPC 0 "farm_tower_guard">><<person1>>
+	<<set $NPCList[0].trust -= 3>><<lltrust>>
+	<<link [[Next|Farm Work]]>><</link>>
+	<br>
+<<elseif $alarm is 1 and $rescue is 1>>
+	<<set $rescued += 1>>
+	"I'm coming!" Alex enters the barn.
+	<br><br>
+
+	<<if $NPCList[0].traits.includes("relaxed")>>
+		<<print $NPCList[0].name>> backs away from you. "This isn't what this looks like," <<he>> says.
+	<<elseif $NPCList[0].traits.includes("sociable")>>
+		<<print $NPCList[0].name>> steps away from you. "Sorry boss," <<he>> says. "Er, bosses. I didn't mean nothing by it."
+	<<elseif $NPCList[0].traits.includes("brooding")>>
+		<<print $NPCList[0].name>> throws up <<his>> arms. "I lost my cool," <<he>> says. "I'm sorry."
+	<<else>>
+		<<print $NPCList[0].name>> stumbles away from you. "It was <<his>> idea," <<he>> says. "I swear!"
+	<</if>>
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
+	<<npc Alex>>
+	<<loadNPC 1 "farm_tower_guard">>
+
+	"Get the fuck off <<if $NPCName[$NPCNameList.indexOf("Alex")].dom gte 20>>my<<else>>our<</if>> farm," Alex says. "You're fired."
+	<br>
+	<<person2>>
+	<<print $NPCList[0].name>> opens <<his>> mouth to protest, but decides against it. <<He>> leaves the barn.
+	<br><br>
+	<<person1>>
+	"Are you okay?" Alex asks as <<he>> helps you off the hay. "I thought we could trust <<person2>><<him>><<person1>>. I'll be more watchful in the future.<<ggdom>><<npcincr Alex dom 3>>
+	<br><br>
+
+	<span class="purple">The watchtower will no longer operate until a replacement is found.</span>
+	<br><br>
+	<<link [[Next|Farm Work]]>><<endevent>><<clearNPC "farm_tower_guard">><<set $farm.tower_guard to 0>><</link>>
+	<br>
+<<else>>
+	<<if $NPCList[0].traits.includes("relaxed")>>
+		"Fine," <<print $NPCList[0].name>> says.
+	<<elseif $NPCList[0].traits.includes("sociable")>>
+		"Suit yourself," <<print $NPCList[0].name>> says. "I'm calm."
+	<<elseif $NPCList[0].traits.includes("brooding")>>
+		"Didn't expect you to work me up so easily." <<print $NPCList[0].name>> says.
+	<<else>>
+		"You little tease," <<print $NPCList[0].name>> says. "Getting me all worked up like that. Hope you appreciate the willpower this takes."
+	<</if>>
+	<br><br>
+	<<tearful>> you brush off the hay.
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
+	<<loadNPC 0 "farm_tower_guard">><<person1>>
+	<<link [[Next|Farm Work]]>><</link>>
 	<br>
 <</if>>

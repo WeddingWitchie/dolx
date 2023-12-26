@@ -64,7 +64,7 @@
 				<<set $stall_stats[_plant_keys[_t]] to { inventory:{amount:0, price:0, total:0}, sold:{amount:0, total:0} }>>
 			<</if>>
 			<<if $plants[_plant_keys[_t]].amount gte 1>>
-				<<set _plant_value to Math.round(setup.plants[$plants[_plant_keys[_t]].name].plant_cost)>>
+				<<set _plant_value to Math.round(setup.plants[$plants[_plant_keys[_t]].name].plant_cost) * (1 + ($mathstrait/4))>>
 				<<set _total_worth += $plants[_plant_keys[_t]].amount * _plant_value>>
 				<<set _total_amount += $plants[_plant_keys[_t]].amount>>
 				<<set _inventory_found to 1>>
@@ -89,7 +89,7 @@
 			<<set _canmath to 4>>
 		<<case 2>><!-- B -->
 			<<set _canmath to 5>>
-		<<case 3 4>><!-- A, A* -->
+		<<case 3 4 5 6 7 8>><!-- A, A* -->
 			<<set _canmath to 6>>
 		<<default>>
 			<<set _canmath to 0>>
@@ -331,7 +331,19 @@
 		It feels good to make so much money at once.
 		<<ltrauma>><<lstress>>
 	<</if>>
-	<<famebusiness 1>>
+	<<if $enemytrust gte 50>>
+		<<famebusiness 10>>
+	<<elseif $enemytrust gte 30>>
+		<<famebusiness 3>>
+	<<elseif $enemytrust gte 10>>
+		<<famebusiness 1>>
+	<<elseif $enemytrust gte -10>>
+		<<famebusiness 0>>
+	<<elseif $enemytrust gte -30>>
+		<<famebusiness -3>>
+	<<else>>
+		<<famebusiness -10>>
+	<</if>>
 <</widget>>
 
 <<widget "eventsstall">>

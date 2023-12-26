@@ -1,4 +1,5 @@
 /* eslint-disable prefer-const */
+Config.saves.id = "degrees-of-lewdity";
 Config.history.controls = false;
 Config.saves.slots = 9;
 Config.history.maxStates = 1;
@@ -11,7 +12,7 @@ window.StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.4.5.2 DoLX 0.1",
+	version: "0.4.5.2 DoLP 0.5 DoLX 0.1",
 	versionName: "",
 	sneaky: false,
 };

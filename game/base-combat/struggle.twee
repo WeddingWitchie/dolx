@@ -1809,7 +1809,7 @@
 			<<rng>>
 			<<if $dodging gte 1>>
 				<<set _doge_chance to ((currentSkillValue("feetskill") / 3) + (currentSkillValue('danceskill') / 3) - $drunk - (!!$worn.feet.type.includes("heels") * 200))>>
-				<<feetskilluse>>
+				<<feetskilluse>><<danceskilluse>>
 			<</if>>
 			<<if $left_guard is 1>>
 				<<set _left_guard_chance to (currentSkillValue("handskill") / 3)>>
@@ -1855,6 +1855,25 @@
 						It whips you as it passes. <<pain 2>>
 					<</if>>
 					<<neutral 2>>
+				<</if>>
+				<<if $struggle.enemy[_i].dodge is undefined>>
+					<<set $struggle.enemy[_i].dodge to 1>>
+				<<elseif $struggle.enemy[_i].dodge lt 3>>
+					<<set $struggle.enemy[_i].dodge ++>>
+				<<else>>
+					<<set $struggle.enemy[_i].dodge to 0>>
+					<<set $struggle.enemy[_i].health -= 1>>
+					<<set $struggle.enemy[_i].dodged to 1>>
+					<<if $struggle.enemy[_i].dodged is undefined>>
+						<span class="green">Its running out of steam. </span>
+					<<else>>
+						<span class="green">It ran out of steam. </span>
+					<</if>>
+					<<if $struggle.enemy[_i].health lte 0>>
+						<span class="green">It won't return.</span>
+						<<set $struggle.done += 1>>
+						<<set $struggle.enemy[_i].location to "fled">>
+					<</if>>
 				<</if>>
 			<<elseif _left_guard_chance gte _hit_chance or _right_guard_chance gte _hit_chance>>
 				<<struggle_bide_the>> <<print $struggle.enemy[_i].description>> <<print $struggle.enemy[_i].name>>

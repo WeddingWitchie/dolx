@@ -18,6 +18,46 @@
 	Your solution for the maths competition lies on the desk in front of you. You weren't supposed to solve it. You're confident you have. You have a <span class="green">$mathschance%</span> chance of winning the competition.
 <</if>>
 
+<<set _baseTime to 120>>
+
+<<set _chair to Furniture.get('chair')>>
+<<if _chair is undefined or _chair is null>>
+	<<set _chair to Furniture.get('chair','chair')>>
+<</if>>
+<<if _chair.name is "chair">>
+	<<set _timeMult1 to 1>>
+<<elseif _chair.name is "stools">>
+	<<set _timeMult1 to 0.91>>
+<<elseif _chair.name is "wooden chairs">>
+	<<set _timeMult1 to 0.83>>
+<<elseif _chair.name is "swivel chairs">>
+	<<set _timeMult1 to 0.75>>
+<<elseif _chair.name is "shell chairs">>
+	<<set _timeMult1 to 0.67>>
+<<elseif _chair.name is "armchairs">>
+	<<set _timeMult1 to 0.58>>
+<<elseif _chair.name is "egg armchairs">>
+	<<set _timeMult1 to 0.5>>
+<</if>>
+
+<<set _desk to Furniture.get('desk')>>
+<<if _desk is undefined or _desk is null>>
+	<<set _desk to Furniture.get('desk','desk')>>
+<</if>>
+<<if _desk.name is "basic desk">>
+	<<set _timeMult2 to 1>>
+<<elseif _desk.name is "glass desk">>
+	<<set _timeMult2 to 0.83>>
+<<elseif _desk.name is "mid-century modern desk">>
+	<<set _timeMult2 to 0.67>>
+<<elseif _desk.name is "antique desk">>
+	<<set _timeMult2 to 0.5>>
+<</if>>
+
+<<set _finalTime to Math.round((_baseTime * _timeMult1) * _timeMult2)>>
+
+<<set _timeString to getTimeString(_finalTime)>>
+
 <br><br>
 You have <span class="gold">$mathsinfo</span> insights.
 <br>
@@ -26,22 +66,24 @@ You have <span class="gold">$mathsinfo</span> insights.
 	<br>
 <</if>>
 <br>
-<<set _chair to Furniture.get('chair')>>
-<<icon "projectMaths.png">><<link [[Work on solution (2:00)|Maths Project Work]]>><<if $location is "home" and _chair.type.includes("comfy")>><<set $mathschance += 5>><<else>><<set $mathschance += 1>><</if>><<mathsskill 2>><<pass 120>><<stress 12>><</link>><<gstress>><<gmaths>>
+<<icon "projectMaths.png">><<link [["Work on solution (" + _timeString + ")"|Maths Project Work]]>><<if ($location is "home" or $location is "alex_cottage") and _chair.type.includes("comfy")>><<set $mathschance += 5>><<else>><<set $mathschance += 1>><</if>><<mathsskill 2>><<pass _finalTime>><<stress 12>><</link>><<gstress>><<gmaths>>
 <br>
 <<if $mathsstim gte 1 and playerIsPregnant() and playerAwareTheyArePregnant()>>
 	<span class="blue">You can't bring yourself to take stimulants while you know you're with child.</span>
 <<elseif $mathsstim gte 1>>
-	<<pillicon "stimulant">><<link [[Use stimulant (2:00)|Maths Project Stim]]>><<if $location is "home" and _chair.type.includes("comfy")>><<set $mathschance += 20>><<else>><<set $mathschance += 16>><</if>><<set $mathsstim -= 1>><<set $mathsstimused += 1>><<mathsskill 40>><<pass 120>><</link>><<gggmaths>>
+	<<pillicon "stimulant">><<link [["Use stimulant (" + _timeString + ")"|Maths Project Stim]]>><<if ($location is "home" or $location is "alex_cottage") and _chair.type.includes("comfy")>><<set $mathschance += 20>><<else>><<set $mathschance += 16>><</if>><<set $mathsstim -= 1>><<set $mathsstimused += 1>><<mathsskill 40>><<pass _finalTime>><</link>><<gggmaths>>
 	<br>
 <</if>>
 <<if $mathsinfo gte 1>>
-	<<investigateicon>><<link [[Use a mathematical insight (2:00)|Maths Project Work]]>><<set $mathsinfo -= 1>><<if $location is "home" and _chair.type.includes("comfy")>><<set $mathschance += 12>><<else>><<set $mathschance += 8>><</if>><<mathsskill 40>><<pass 120>><</link>><<ggmaths>>
+	<<investigateicon>><<link [["Use a mathematical insight (" + _timeString + ")"|Maths Project Work]]>><<set $mathsinfo -= 1>><<if ($location is "home" or $location is "alex_cottage") and _chair.type.includes("comfy")>><<set $mathschance += 12>><<else>><<set $mathschance += 8>><</if>><<mathsskill 40>><<pass _finalTime>><</link>><<ggmaths>>
 	<br>
 <</if>>
 <br>
 <<if $location is "home">>
 	<<getouticon>><<link [[Stop|Bedroom]]>><</link>>
+	<br>
+<<elseif $location is "alex_cottage">>
+	<<getouticon>><<link [[Stop|Farm Bedroom]]>><</link>>
 	<br>
 <<else>>
 	<<getouticon>><<link [[Stop|School Library]]>><</link>>
@@ -53,6 +95,9 @@ You have <span class="gold">$mathsinfo</span> insights.
 <<effects>>
 You sit down and get to work.
 <<set _chair to Furniture.get('chair')>>
+<<if _chair is undefined or _chair is null>>
+	<<set _chair to Furniture.get('chair','chair')>>
+<</if>>
 <<if $location is "home" and _chair.type.includes("comfy")>>
 	Your <span class="green">comfortable</span> chair makes it easier to concentrate on the project.
 <<else>>
@@ -112,6 +157,24 @@ You sit down and get to work.
 	<<else>>
 		You watch the clock as you work, continuing through midnight and into the next day.
 		<br><br>
+	<</if>>
+<<elseif $location is "alex_cottage">>
+	<<if Time.hour lte 2>>
+		Time speeds by, and you're late to notice that midnight has passed and the next day has begun.
+	<<elseif Time.hour lte 3>>
+		The cottage is silent.
+	<<elseif Time.hour lte 5>>
+		You're so focused on your work that the sun catches you by surprise when it rises above the horizon.
+	<<elseif Time.hour lte 12 and Time.schoolDay>>
+		You may be skipping school, but you're still learning a lot as you work.
+	<<elseif Time.hour lte 12>>
+		The day flies by as you work.
+	<<elseif Time.hour lte 18>>
+		The sounds of the farm grow quiet as its residents wind down for the night, but you're still working as quickly as ever.
+	<<elseif Time.hour lte 20>>
+		You're so focused on your work that the sun catches you by surprise when it dips below the horizon.
+	<<else>>
+		The farm is silent at this hour. You focus on your work.
 	<</if>>
 <<else>>
 	<<if Time.schoolDay>>
@@ -181,6 +244,8 @@ You sit down and get to work.
 
 	<<if $location is "home">>
 		<<link [[Next|Bedroom]]>><</link>>
+	<<elseif $location is "alex_cottage">>
+		<<link [[Next|Farm Bedroom]]>><</link>>
 	<<else>>
 		<<link [[Next|School Library]]>><</link>>
 	<</if>>
@@ -192,7 +257,10 @@ You sit down and get to work.
 <<effects>>
 You take the stimulant, sit down, and get to work.
 <<set _chair to Furniture.get('chair')>>
-<<if $location is "home" and _chair.type.includes("comfy")>>
+<<if _chair is undefined or _chair is null>>
+	<<set _chair to Furniture.get('chair','chair')>>
+<</if>>
+<<if ($location is "home" or $location is "alex_cottage") and _chair.type.includes("comfy")>>
 	Between the drugs and your <span class="green">comfortable</span> chair, it's easier than ever to concentrate on the project.
 <<else>>
 	Your focus is heightened, but the minor aches and pains from your <span class="red">uncomfortable</span> chair makes the stimulant marginally less effective.
@@ -235,6 +303,24 @@ You take the stimulant, sit down, and get to work.
 		You're so focused on your work that the sun catches you by surprise when it dips below the horizon.
 	<<else>>
 		The orphanage is silent at this hour. You focus on your work.
+	<</if>>
+<<elseif $location is "alex_cottage">>
+	<<if Time.hour lte 2>>
+		Time speeds by, and you're late to notice that midnight has passed and the next day has begun.
+	<<elseif Time.hour lte 3>>
+		The cottage is silent.
+	<<elseif Time.hour lte 5>>
+		You're so focused on your work that the sun catches you by surprise when it rises above the horizon.
+	<<elseif Time.hour lte 12 and Time.schoolDay>>
+		You may be skipping school, but you're still learning a lot as you work.
+	<<elseif Time.hour lte 12>>
+		The day flies by as you work.
+	<<elseif Time.hour lte 18>>
+		The sounds of the farm grow quiet as its residents wind down for the night, but you're still working as quickly as ever.
+	<<elseif Time.hour lte 20>>
+		You're so focused on your work that the sun catches you by surprise when it dips below the horizon.
+	<<else>>
+		The farm is silent at this hour. You focus on your work.
 	<</if>>
 <<else>>
 	<<if Time.schoolDay>>
@@ -297,13 +383,18 @@ You take the stimulant, sit down, and get to work.
 		<br>
 		<<link [[Go outside|Maths Project Outside Home]]>><</link>>
 		<br>
+	<<elseif $location is "alex_cottage">>
+		<<link [[Endure (4:00)|Maths Project Endure Home]]>><<pass 240>><<stress 24>><</link>><<ggstress>>
+		<br>
+		<<link [[Go outside|Maths Project Outside Home]]>><</link>>
+		<br>
 	<<else>>
 		<<link [[Endure (4:00)|Maths Project Endure Library]]>><<pass 240>><<stress 24>><</link>>
 		<br>
 		<<link [[Go outside|Maths Project Outside Library]]>><</link>>
 		<br>
 	<</if>>
-<<elseif $mathsstimused is 3 or $mathsstimused gte 4 and $rng gte 50>>
+<<elseif $mathsstimused is 3 or $mathsstimused gte 4 and $rng gte 50 and $location isnot "alex_cottage">>
 	You sit back and admire your work, but something is wrong. The objects in <<if $location is "home">>your room<<else>>the library<</if>> begin to shift and warp, becoming covered in strange patterns. You lose your sense of balance and find yourself wobbling. You almost fall over. That dose must have been contaminated with a concentrated hallucinogen. The knowledge does nothing to make the experience less real.
 	<<hallucinogen 500>>
 	<br><br>
@@ -349,6 +440,8 @@ You take the stimulant, sit down, and get to work.
 
 		<<if $location is "home">>
 			<<link [[Next|Bedroom]]>><</link>>
+		<<elseif $location is "alex_cottage">>
+			<<link [[Next|Farm Bedroom]]>><</link>>
 		<<else>>
 			<<link [[Next|School Library]]>><</link>>
 		<</if>>
@@ -374,6 +467,7 @@ You tell Robin you're fine, and thank <<him>> for bringing you to your bed. <<He
 	<<maninit>>
 	<<set $enemytrust += 500>>
 	<<set $enemyarousalmax to 600>>
+	<<set $enemyarousalmax to $enemyarousalmax * ($npcArousalMult / 100)>>
 <</if>>
 
 <<set $enemyanger to 0>>
@@ -494,8 +588,13 @@ You lie down on your bed and hope you can endure the experience. Doing anything 
 Your muscles ache from the tension by the time the aches fade. You realise that your teeth have been clenched too. You're still aroused and frustrated. At least you can think straight again.
 <br><br>
 
-<<link [[Next|Bedroom]]>><</link>>
-<br>
+<<if $location is "home">>
+	<<link [[Next|Bedroom]]>><</link>>
+	<br>
+<<else>>
+	<<link [[Next|Farm Bedroom]]>><</link>>
+	<br>
+<</if>>
 
 :: Maths Project Endure Library
 <<effects>>
@@ -518,6 +617,23 @@ You stumble outside, leaning against a wall for support. <<if $exposed gte 1>>Th
 "P-please..."
 <br><br>
 <<He>> doesn't wait for clarification. After glancing around to make sure no one is watching, <<he>> grabs your arm and pulls you down an alleyway. Your reflexive scream of protest comes out as a lewd moan.
+<br><br>
+<<His>> hand explores between your legs, and the pleasure overwhelms you once more. But this time the spasms don't stop the stimulation. You can only thrash helplessly as <<his>> fingers continue their work.
+<br><br>
+"You're a naughty one, aren't you?" <<he>> says. "Don't worry. I know just what you need."
+<br><br>
+<<link [[Next|Maths Project Outside Rape]]>><<set $molestationstart to 1>><</link>>
+<br>
+
+:: Maths Project Outside Cottage
+
+<<effects>>
+<<generate1>><<person1>>
+You stumble outside, leaning against a wall for support. <<if $exposed gte 1>>The air is cold against your skin. You were in such a hurry that you didn't even get dressed, but you're past the point of caring. If it means that someone notices you sooner, all the better.<<else>>The stimulation of your clothes brushing against your <<genitals_are 1>> almost too much to bear, forcing you to stop every few steps as you convulse with pleasure.<</if>> At first, no one else notices, until a <<person>> notices and casts a leer up and down your body. You try to speak to <<him>>.
+<br><br>
+"P-please..."
+<br><br>
+<<He>> doesn't wait for clarification. After glancing around to make sure no one is watching, <<he>> grabs your arm and pulls you down into the foliage. Your reflexive scream of protest comes out as a lewd moan.
 <br><br>
 <<His>> hand explores between your legs, and the pleasure overwhelms you once more. But this time the spasms don't stop the stimulation. You can only thrash helplessly as <<his>> fingers continue their work.
 <br><br>
@@ -585,7 +701,11 @@ You stumble from the library, through the corridors, and outside. <<if Time.scho
 <<clotheson>>
 <<endcombat>>
 
-<<destinationeventend>>
+<<if $location is "alex_cottage">>
+	<<link [[Next|Farm Work]]>><</link>>
+<<else>>
+	<<destinationeventend>>
+<</if>>
 
 <<else>>
 
@@ -598,7 +718,11 @@ You manage to shove <<him>> against the alley wall and stagger into the open.
 <<clotheson>>
 <<endcombat>>
 
-<<destinationeventend>>
+<<if $location is "alex_cottage">>
+	<<link [[Next|Farm Work]]>><</link>>
+<<else>>
+	<<destinationeventend>>
+<</if>>
 
 <</if>>
 

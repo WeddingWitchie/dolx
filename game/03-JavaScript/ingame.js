@@ -80,9 +80,9 @@ const combatActionColours = {
 	Default: {
 		brat: [
 			/* leftaction or rightaction */
-			"steal", "penwhack", "freeface", "leftcovervagina", "leftcoverpenis", "leftcoveranus", "rightcovervagina", "rightcoverpenis", "rightcoveranus", "leftunderpull", "leftskirtpull", "leftlowerpull", "leftupperpull", "rightunderpull", "rightskirtpull", "rightlowerpull", "rightupperpull", "rightUndressOther", "leftUndressOther", "stopchoke", "clench", "shacklewhack", "leftfold", "rightfold", "dildowhack", "hypnosiswhack", "leftstruggleweak", "rightstruggleweak", "handpullpenis", "handpullvagina", "handpullanus", "leftresistW", "rightresistW", "leftstillW", "rightstillW", "penisremovecondom", "npcremovecondom",
+			"steal", "penwhack", "freeface", "leftcovervagina", "leftcoverpenis", "leftcoveranus", "rightcovervagina", "rightcoverpenis", "rightcoveranus", "leftunderpull", "leftskirtpull", "leftlowerpull", "leftupperpull", "rightunderpull", "rightskirtpull", "rightlowerpull", "rightupperpull", "rightUndressOther", "leftUndressOther", "stopchoke", "clench", "shacklewhack", "leftfold", "rightfold", "dildowhack", "hypnosiswhack", "leftstruggleweak", "rightstruggleweak", "handpullpenis", "handpullvagina", "handpullanus", "leftresistW", "rightresistW", "leftstillW", "rightstillW", "penisremovecondom", "npcremovecondom", "leftblock", "rightblock",
 			/* feetaction */
-			"run", "hide", "confront", "feetresistW", "legLock", "legLocked", "feetHold",
+			"run", "hide", "confront", "feetresistW", "legLock", "legLocked", "feetHold", "dodge", "plant",	
 			/* mouthaction */
 			"pullaway", "ejacspit", "pullawayvagina", "finish", "novaginal", "nopenile", "noanal", "scream", "mock", "breastclosed", "breastpull", "pullawaykiss", "noupper", "analpull", "up", "stifleorgasm", "stifle", "mouthresistW", "handcloseW", "growl", "askPullOut","disparage",
 			/* penisaction */
@@ -94,11 +94,11 @@ const combatActionColours = {
 		],
 		def: [
 			/* leftaction or rightaction */
-			"spray", "lefthit", "righthit", "leftstruggle", "rightstruggle", "stopchokenoncon", "pursuit_grab",
+			"spray", "lefthit", "righthit", "leftstruggle", "rightstruggle", "stopchokenoncon", "pursuit_grab", "leftumbrella", "rightumbrella", "leftcounter", "rightcounter", "leftfeint", "rightfeint", "lefthookpunch", "righthookpunch",
 			/* feetaction */
 			"kick",
 			/* mouthaction */
-			"bite", "demand", "breastbite", "handbite", "headbutt", "bitepussy",
+			"bite", "demand", "breastbite", "handbite", "headbutt", "bitepussy", "retribution",
 		],
 		meek: [
 			/* leftaction or rightaction */
@@ -118,9 +118,9 @@ const combatActionColours = {
 			/* leftaction or rightaction */
 			"leftplay", "leftgrab", "leftstroke", "leftchest", "rightplay", "rightgrab", "rightstroke", "rightchest", "leftchest", "rightchest", "leftwork", "rightwork", "leftclit", "rightclit", "handedge", "keepchoke", "leftmasturbatepussy", "rightmasturbatepussy", "leftmasturbateanus", "rightmasturbateanus", "leftmasturbatepenis", "rightmasturbatepenis", "lefthandholdkeep", "righthandholdkeep", "lefthandholdnew", "righthandholdnew", "handguide", "lubeanus", "lubepussy", "lubepenis", "removebuttplug", "dildoOtherPussyTease", "dildoOtherPussyFuck", "dildoOtherAnusTease", "dildoOtherAnusFuck", "strokerOtherPenisTease", "strokerOtherPenisFuck", "dildoSelfPussyEntrance", "dildoSelfAnusEntrance", "dildoSelfPussy", "dildoSelfAnus", "strokerSelfPenisEntrance", "strokerSelfPenis", "leftcovervaginalewd", "rightcovervaginalewd", "leftcoverpenislewd", "rightcoverpenislewd", "leftcoveranuslewd", "rightcoveranuslewd",
 			/* feetaction */
-			"grab", "vaginagrab", "grabrub", "vaginagrabrub", "rub",
+			"grab", "vaginagrab", "grabrub", "vaginagrabrub", "rub", "submit",
 			/* mouthaction */
-			"peniskiss", "kisslips", "kissskin", "suck", "lick", "ejacswallow", "moan", "breastsuck", "breastlick", "swallow", "movetochest", "othervagina", "mouth", "kissback", "vaginalick", "oraledge", "askchoke", "anallick", "analkiss", "askrough", "condoms", "noCondoms",
+			"peniskiss", "kisslips", "kissskin", "suck", "lick", "ejacswallow", "moan", "breastsuck", "breastlick", "swallow", "movetochest", "othervagina", "mouth", "kissback", "vaginalick", "oraledge", "askchoke", "anallick", "analkiss", "askrough", "condoms", "noCondoms", "seduce",
 			/* penisaction */
 			"penistovagina", "penistoanus", "penisvaginafuck", "penisanusfuck", "othermouthtease", "othermouthrub", "othermouthcooperate", "tease", "cooperate", "otheranustease", "otheranusrub", "otheranuscooperate", "clitrub", "vaginaEdging", "otheranusEdging", "handtease", "handAnusRub", "handcooperate", "strokerCooperate",
 			/* fencing */
@@ -855,14 +855,14 @@ window.DefaultActions = {
 		this.addMany(type, "Submissive", "penisaction", ["tease", "cooperate"]);
 		this.addMany(type, "Submissive", "vaginaaction", ["penistease", "cooperate"]);
 		this.addMany(type, "Submissive", "anusaction", ["penistease", "cooperate"]);
-		this.addMany(type, "Submissive", "feetaction", ["grabrub", "grabrub", "vaginagrabrub"]);
+		this.addMany(type, "Submissive", "feetaction", ["grabrub", "grabrub", "vaginagrabrub", "submit"]);
 		this.addMany(type, "Defiant", "leftaction", ["lefthit", "leftstruggle"]);
 		this.addMany(type, "Defiant", "rightaction", ["penwhack", "righthit", "rightstruggle", "hypnosiswhack"]);
 		this.addMany(type, "Defiant", "mouthaction", ["pullaway", "bite", "breastbite", "headbutt"]);
 		this.addMany(type, "Defiant", "penisaction", ["escape", "otheranusescape", "othermouthescape"]);
 		this.addMany(type, "Defiant", "vaginaaction", ["escape", "othermouthescape"]);
 		this.addMany(type, "Defiant", "anusaction", ["escape", "othermouthescape"]);
-		this.addMany(type, "Defiant", "feetaction", ["kick"]);
+		this.addMany(type, "Defiant", "feetaction", ["kick", "dodge", "plant"]);
 		this.addMany(type, "Tentacles", "regrab", [0]);
 		type = "consensual";
 		this.addMany(type, "Submissive", "leftaction", ["leftchest"]);

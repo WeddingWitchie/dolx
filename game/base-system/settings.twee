@@ -138,6 +138,8 @@
 		<<case "priceSettings">><<set _subsection to "price">><<replace #subsectionDiv>><<priceSettings>><</replace>>
 		<<case "pregnancySettings">><<set _subsection to "pregnancy">><<replace #subsectionDiv>><<pregnancySettings>><</replace>>
 		<<case "sizeLimitsSettings">><<set _subsection to "sizeLimits">><<replace #subsectionDiv>><div class="solidBorderContainer settings-container"><<sizeLimitsSettings>></div><</replace>>
+		<<case "combatExtendedSettings">><<set _subsection to "combat">><<replace #subsectionDiv>><<combatExtendedSettings>><</replace>>
+		<<case "amcTraitsSettings">><<set _subsection to "amcTraits">><<replace #subsectionDiv>><<amcTraitsSettings>><</replace>>
 		<<default>><<set _subsection to "human">><<replace #subsectionDiv>><<humanSettings>><</replace>>
 	<</switch>>
 	<<run settingsDisableElement()>>
@@ -629,6 +631,18 @@
 <</widget>>
 
 <<widget "settingsExitFunction">>
+	<<set $npcHealthMult to Math.clamp($npcHealthMult, 1, 1000000)>>
+	<<set $npcArousalMult to Math.clamp($npcArousalMult, 1, 1000000)>>
+	<<set $beastHealthMult to Math.clamp($beastHealthMult, 1, 1000000)>>
+	<<set $beastArousalMult to Math.clamp($beastArousalMult, 1, 1000000)>>
+	<<set $combatExtended.enemyLevelDayScalingMult to Math.clamp($combatExtended.enemyLevelDayScalingMult, 1, 1000000)>>
+	<<set $combatExtended.enemyHealthDayScalingMult to Math.clamp($combatExtended.enemyHealthDayScalingMult, 1, 1000000)>>
+	<<set $combatExtended.enemyDayScaling to Math.clamp($combatExtended.enemyDayScaling, 1, 1000000)>>
+	<<set $combatExtended.enemyDayScalingLimit to Math.clamp($combatExtended.enemyDayScalingLimit, 1, 1000000)>>
+	<<set $combatExtended.enemyLevelDefeatScalingMult to Math.clamp($combatExtended.enemyLevelDefeatScalingMult, 1, 1000000)>>
+	<<set $combatExtended.enemyHealthDefeatScalingMult to Math.clamp($combatExtended.enemyHealthDefeatScalingMult, 1, 1000000)>>
+	<<set $combatExtended.enemyDefeatScaling to Math.clamp($combatExtended.enemyDefeatScaling, 1, 1000000)>>
+	<<set $combatExtended.enemyDefeatScalingLimit to Math.clamp($combatExtended.enemyDefeatScalingLimit, 1, 1000000)>>
 	<<if $settingsExitPassage is "Start2">>
 		<<setSkinColorBase>>
 	<</if>>
@@ -1334,6 +1348,46 @@
 				</label>
 			</div>
 
+			<div class="settingsToggleItem">
+				<span class="gold">Enemy Stats Display</span> <mouse class = "tooltip linkBlue">(?)<span>As you enter an encounter, you will be given textual descriptions for the state of the enemy. The toggle here allows you to see exactly what number the enemy's stats are at.</span></mouse>
+				<br>
+				<label>Show exact numbers <<radiobutton "$enemystatstyle" "full" autocheck>></label> |
+				<label>Show only description <<radiobutton "$enemystatstyle" "default" autocheck>></label>
+				<br>
+			</div>
+
+			<div class="settingsToggleItem">
+				<span class="gold">Banner Toggle</span> <mouse class = "tooltip linkBlue">(?)<span>Toggle which version of the banner you want to use.</span></mouse>
+				<br>
+				<<link [[Default Banner|$passage]]>><<set $bannerstyle to "default">><</link>>
+				<<if $feats.allSaves.points isnot undefined and $feats.allSaves.points gte 25>>
+					 | <<link [[Alien Banner|$passage]]>><<set $bannerstyle to "alien">><</link>>
+				<<else>>
+					 | <label><span class="red">25 VrelCoins</span></label>
+				<</if>>
+				<<if $feats.allSaves.points isnot undefined and $feats.allSaves.points gte 50>>
+					 | <<link [[Blood Banner|$passage]]>><<set $bannerstyle to "blood">><</link>>
+				<<else>>
+					 | <label><span class="red">50 VrelCoins</span></label>
+				<</if>>
+				<<if $feats.allSaves.points isnot undefined and $feats.allSaves.points gte 100>>
+					 | <<link [[Bronze Banner|$passage]]>><<set $bannerstyle to "bronze">><</link>>
+				<<else>>
+					 | <label><span class="red">100 VrelCoins</span></label>
+				<</if>>
+				<<if $feats.allSaves.points isnot undefined and $feats.allSaves.points gte 150>>
+					 | <<link [[Silver Banner|$passage]]>><<set $bannerstyle to "silver">><</link>>
+				<<else>>
+					 | <label><span class="red">150 VrelCoins</span></label>
+				<</if>>
+				<<if $feats.allSaves.points isnot undefined and $feats.allSaves.points gte 200>>
+					 | <<link [[Golden Banner|$passage]]>><<set $bannerstyle to "gold">><</link>>
+				<<else>>
+					 | <label><span class="red">200 VrelCoins</span></label>
+				<</if>>
+				<br>
+			</div>
+
 			<div class="settingsToggleItemWide">
 				<span class="gold">Randomise:</span><br>
 
@@ -1405,6 +1459,12 @@
 				<<subsectionSettingsTabButton "Body Part Size Limits" "sizeLimits">>
 			</div>
 		<</if>>
+		<div id="settingsCombatExtended">
+			<<subsectionSettingsTabButton "Combat Extended Settings" "combatExtended">>
+		</div>
+		<div id="settingsAMCTraits">
+			<<subsectionSettingsTabButton "AMC Traits Settings" "amcTraits">>
+		</div>
 	</div>
 <</widget>>
 
@@ -1530,6 +1590,33 @@
 				<<numberslider "$blackchance" $blackchance 0 100 1>>
 			</div>
 		</div>
+		<div class="settingsGrid">
+			<div class="settingsHeader">
+				NPC DoL Plus Settings
+			</div>
+			<div class="settingsToggleItem numberslider-inline">
+				<span class="gold">NPC Health Max Multiplier (%)
+				<mouse class="tooltip linkBlue">(?)<span>Multiplies the health max of human enemies. Range 1 - 1000000</span></mouse>
+				</span>
+				<<numberbox "$npcHealthMult" $npcHealthMult>>
+			</div>
+			<div class="settingsToggleItem numberslider-inline">
+				<span class="gold">NPC Arousal Max Multiplier (%)
+				<mouse class="tooltip linkBlue">(?)<span>Multiplies the arousal max of human enemies. Range 1 - 1000000</span></mouse>
+				</span>
+				<<numberbox "$npcArousalMult" $npcArousalMult>>
+			</div>
+			<label>
+				<<checkbox "$npcStealMoneyToggle" 0 1 autocheck>> Enable NPCs stealing your money.
+				<mouse class="tooltip linkBlue">(?)<span>Will only happen if the NPC is angry.</span></mouse>
+			</label>
+			<div class="settingsToggleItem numberslider-inline">
+				<span class="gold">NPC Stolen Money Percentage (%)
+				<mouse class="tooltip linkBlue">(?)<span>The percentage of your money NPCs will steal.</span></mouse>
+				</span>
+				<<numberslider "$npcStealMoneyPercentage" $npcStealMoneyPercentage 1 100 1>>
+			</div>
+		</div>
 	</div>
 <</widget>>
 
@@ -1556,6 +1643,18 @@
 		<div class="settingsGrid">
 			<div class="settingsHeader">
 				Beast Preferences
+			</div>
+			<div class="settingsToggleItem numberslider-inline">
+				<span class="gold">Beast Health Max Multiplier (%)
+				<mouse class="tooltip linkBlue">(?)<span>Multiplies the health max of beast enemies. Range 1 - 1000000</span></mouse>
+				</span>
+				<<numberbox "$beastHealthMult" $beastHealthMult>>
+			</div>
+			<div class="settingsToggleItem numberslider-inline">
+				<span class="gold">Beast Arousal Max Multiplier (%)
+				<mouse class="tooltip linkBlue">(?)<span>Multiplies the arousal max of beast enemies. Range 1 - 1000000</span></mouse>
+				</span>
+				<<numberbox "$beastArousalMult" $beastArousalMult>>
 			</div>
 			<div class="settingsToggleItem">
 				<<beastAttractionSettings>>
@@ -2695,6 +2794,274 @@
 	<div class="description"><span class="red">Only 10 characters at most will show in the save menu, leave empty to show the save ID.</span></div>
 	*/
 	<br>
+<</widget>>
+
+<<widget "combatExtendedSettings">>
+	<div class="solidBorderContainer settings-container">
+		<div class="settingsGrid">
+			<div class="settingsHeader">
+				Encounter Reworks
+			</div>
+			<div class="settingsToggleItem">
+				<label>
+					<<checkbox "$combatExtended.standingFights" 0 1 autocheck>> Enable Standing Fights
+					<mouse class="tooltip linkBlue">(?)<span>All non-consensual encounters that isn't stuck in a wall or a glory hole will start as a standing fight.</span></mouse>
+				</label>
+				<br>
+				<label>
+					<<checkbox "$combatExtended.reverseRape" 0 1 autocheck>> Enable Reverse Rape
+					<mouse class="tooltip linkBlue">(?)<span>If you've beaten the enemy, all encounters will set the enemy to submissive and not end until you end it yourself. 75+ Promiscuity is required for it to trigger.</span></mouse>
+				</label>
+			</div>
+		</div>
+		<div class="settingsGrid">
+			<div class="settingsHeader">
+				Dodging
+			</div>
+			<div class="settingsToggleItem">
+				<label>
+					<<checkbox "$combatExtended.passiveDodging" 0 1 autocheck>> Enable Passive Dodging
+					<mouse class="tooltip linkBlue">(?)<span>Passive dodges. Become the matrix.</span></mouse>
+				</label>
+			</div>
+			<div class="settingsToggleItem">
+				<label>
+					<<checkbox "$combatExtended.activeDodging" 0 1 autocheck>> Enable Active Dodging
+					<mouse class="tooltip linkBlue">(?)<span>New feet action to dodge. A seperate, better dodge check compared to Passive Dodging but costs a feet action and will cause stability damage on failure.</span></mouse>
+				</label>
+			</div>
+			<div class="settingsToggleItem">
+				<label>
+					<<checkbox "$combatExtended.uncappedDodgeChance" 0 1 autocheck>> Enable Uncapped Dodge Chance
+					<mouse class="tooltip linkBlue">(?)<span>Embrace your inner matrix.</span></mouse>
+				</label>
+			</div>
+			<div class="settingsToggleItem numberslider-inline">
+				<span class="gold">Dodge Chance Cap
+				<mouse class="tooltip linkBlue">(?)<span>The cap for dodge chance.</span></mouse>
+				</span>
+				<<numberslider "$combatExtended.dodgeChanceCap" $combatExtended.dodgeChanceCap 0 100 1>>
+			</div>
+		</div>
+		<div class="settingsGrid">
+			<div class="settingsHeader">
+				Guarding
+			</div>
+			<div class="settingsToggleItem">
+				<label>
+					<<checkbox "$combatExtended.blocking" 0 1 autocheck>> Enable Blocking
+					<mouse class="tooltip linkBlue">(?)<span>Reduces damage taken up to 80%. Damage reduction scales off of physique.</span></mouse>
+				</label>
+			</div>
+			<div class="settingsToggleItem">
+				<label>
+					<<checkbox "$combatExtended.countering" 0 1 autocheck>> Enable Countering
+					<mouse class="tooltip linkBlue">(?)<span>A chance to deal damage instead of taking it when an enemy attacks. Success scales off of skulduggery.</span></mouse>
+				</label>
+			</div>
+		</div>
+		<div class="settingsGrid">
+			<div class="settingsHeader">
+				Attacking
+			</div>
+			<div class="settingsToggleItem">
+				<label>
+					<<checkbox "$combatExtended.feinting" 0 1 autocheck>> Enable Feinting
+					<mouse class="tooltip linkBlue">(?)<span>Negates some enemy dodge chance in exchange for lower damage. Scales off of skulduggery.</span></mouse>
+				</label>
+			</div>
+			<div class="settingsToggleItem">
+				<label>
+					<<checkbox "$combatExtended.hookpunching" 0 1 autocheck>> Enable Hook Punching
+					<mouse class="tooltip linkBlue">(?)<span>A chance to deal double damage in return for higher enemy dodge chance.</span></mouse>
+				</label>
+			</div>
+		</div>
+		<div class="settingsGrid">
+			<div class="settingsHeader">
+				Skills
+			</div>
+			<div class="settingsToggleItem">
+				<label>
+					<<checkbox "$combatExtended.brawlingToggle" 0 1 autocheck>> Enable Brawling
+					<mouse class="tooltip linkBlue">(?)<span>Brawling skill. It increases the more people you fight and scales better when you're fighting more people.</span></mouse>
+				</label>
+			</div>
+		</div>
+		<div class="settingsGrid">
+			<div class="settingsHeader">
+				Enemy Modifications
+			</div>
+			<div class="settingsToggleItem" role="group" aria-labelledby="settingsCEActions">
+				<span id="settingsCEActions">Enemy CE Actions:</span>
+				<br>
+				<label>
+					<<checkbox "$combatExtended.enemyPassiveDodging" 0 1 autocheck>> Enable Enemy Passive Dodges
+					<mouse class="tooltip linkBlue">(?)<span>A chance for enemies to dodge your attacks.</span></mouse>
+				</label>
+				<br>
+				<label>
+					<<checkbox "$combatExtended.enemyActiveDodging" 0 1 autocheck>> Enable Enemy Active Dodges
+					<mouse class="tooltip linkBlue">(?)<span>A chance for the dodge chance to be doubled for that turn.</span></mouse>
+				</label>
+				<br>
+				<label>
+					<<checkbox "$combatExtended.enemyBlocking" 0 1 autocheck>> Enable Enemy Blocking Attacks
+					<mouse class="tooltip linkBlue">(?)<span>A chance for enemies to block your attacks.</span></mouse>
+				</label>
+				<br>
+				<label>
+					<<checkbox "$combatExtended.enemyCountering" 0 1 autocheck>> Enable Enemy Counter-Attacks
+					<mouse class="tooltip linkBlue">(?)<span>A chance for enemies to counter your attacks.</span></mouse>
+				</label>
+				<br>
+				<label>
+					<<checkbox "$combatExtended.enemyFeinting" 0 1 autocheck>> Enable Enemy Feinting Attacks
+					<mouse class="tooltip linkBlue">(?)<span>A chance for enemies to negate some of your dodge chance.</span></mouse>
+				</label>
+			</div>
+			<div class="settingsToggleItem" role="group" aria-labelledby="settingsScaling">
+				<span id="settingsScaling">Enemy Day Scaling:</span>
+				<br>
+				<label>
+					<<checkbox "$combatExtended.enemyLevelDayScaling" 0 1 autocheck>> Enable Enemy Level Scaling with ingame days
+					<mouse class="tooltip linkBlue">(?)<span>Every scaling buff increases all generic NPC's level .</span></mouse>
+				</label>
+				<div class="settingsToggleItem numberslider-inline">
+					<span class="gold">Level Buff Scaling (levels)
+					<mouse class="tooltip linkBlue">(?)<span>The level increase each scaling buff gives. 1 is a +1 modifier to the enemy's level each time the buff is applied. Range 1 - 1000000</span></mouse>
+					</span>
+					<<numberbox "$combatExtended.enemyLevelDayScalingMult" $combatExtended.enemyLevelDayScalingMult>>
+				</div>
+				<label>
+					<<checkbox "$combatExtended.enemyHealthDayScaling" 0 1 autocheck>> Enable Enemy Health Scaling with ingame days
+					<mouse class="tooltip linkBlue">(?)<span>Every scaling buff increases every NPC and Beast's health on top of the Health Multiplier.</span></mouse>
+				</label>
+				<div class="settingsToggleItem numberslider-inline">
+					<span class="gold">Health Percentage Buff Scaling (%)
+					<mouse class="tooltip linkBlue">(?)<span>The health percentage buff each scaling trigger gives. 5 is a +5% health modifier each time the buff is applied. Range 1 - 1000000</span></mouse>
+					</span>
+					<<numberbox "$combatExtended.enemyHealthDayScalingMult" $combatExtended.enemyHealthDayScalingMult>>
+				</div>
+				<div class="settingsToggleItem numberslider-inline">
+					<span class="gold">Scaling Interval (days)
+					<mouse class="tooltip linkBlue">(?)<span>The interval of days the scaling buff gets triggered. Range 1 - 1000000</span></mouse>
+					</span>
+					<<numberbox "$combatExtended.enemyDayScaling" $combatExtended.enemyDayScaling>>
+				</div>
+				<label>
+					<<checkbox "$combatExtended.enemyInfiniteDayScaling" 0 1 autocheck>> Enable Infinite Buffs
+					<mouse class="tooltip linkBlue">(?)<span>No limits on amount of times the scaling buff can be applied.</span></mouse>
+				</label>
+				<div class="settingsToggleItem numberslider-inline">
+					<span class="gold">Scaling Limit (buffs)
+					<mouse class="tooltip linkBlue">(?)<span>The limit for amount of times the scaling buff can be applied. Range 1 - 1000000</span></mouse>
+					</span>
+					<<numberbox "$combatExtended.enemyDayScalingLimit" $combatExtended.enemyDayScalingLimit>>
+				</div>
+			</div>
+			<div class="settingsToggleItem" role="group" aria-labelledby="settingsScaling">
+				<span id="settingsScaling">Enemy Defeats Scaling:</span>
+				<br>
+				<label>
+					<<checkbox "$combatExtended.enemyLevelDefeatScaling" 0 1 autocheck>> Enable Enemy Level Scaling with defeats
+					<mouse class="tooltip linkBlue">(?)<span>Every defeated enemy increases all generic NPC's level .</span></mouse>
+				</label>
+				<div class="settingsToggleItem numberslider-inline">
+					<span class="gold">Level Buff Scaling (levels)
+					<mouse class="tooltip linkBlue">(?)<span>How many enemy defeats until a level buff is applied. 1 is a +1 modifier to the enemy's level each time the buff is applied. Range 1 - 1000000</span></mouse>
+					</span>
+					<<numberbox "$combatExtended.enemyLevelDefeatScalingMult" $combatExtended.enemyLevelDefeatScalingMult>>
+				</div>
+				<label>
+					<<checkbox "$combatExtended.enemyHealthDefeatScaling" 0 1 autocheck>> Enable Enemy Health Scaling with defeats
+					<mouse class="tooltip linkBlue">(?)<span>Every scaling buff increases every NPC and Beast's health on top of the Health Multiplier.</span></mouse>
+				</label>
+				<div class="settingsToggleItem numberslider-inline">
+					<span class="gold">Health Percentage Buff Scaling (%)
+					<mouse class="tooltip linkBlue">(?)<span>The health percentage buff each scaling trigger gives. 0.05 is a +5% health modifier each time the buff is applied. Range 1 - 1000000</span></mouse>
+					</span>
+					<<numberbox "$combatExtended.enemyHealthDefeatScalingMult" $combatExtended.enemyHealthDefeatScalingMult>>
+				</div>
+				<div class="settingsToggleItem numberslider-inline">
+					<span class="gold">Enemy Defeats Scaling Threshold (enemies)
+					<mouse class="tooltip linkBlue">(?)<span>The threshold of defeated enemies until the buff is applied. Range 1 - 1000000</span></mouse>
+					</span>
+					<<numberbox "$combatExtended.enemyDefeatScaling" $combatExtended.enemyDefeatScaling>>
+				</div>
+				<label>
+					<<checkbox "$combatExtended.enemyInfiniteDefeatScaling" 0 1 autocheck>> Enable Infinite Buffs
+					<mouse class="tooltip linkBlue">(?)<span>No limits on amount of times the scaling buff can be applied.</span></mouse>
+				</label>
+				<div class="settingsToggleItem numberslider-inline">
+					<span class="gold">Scaling Limit (buffs)
+					<mouse class="tooltip linkBlue">(?)<span>The limit for amount of times the scaling buff can be applied. Range 1 - 1000000</span></mouse>
+					</span>
+					<<numberbox "$combatExtended.enemyDefeatScalingLimit" $combatExtended.enemyDefeatScalingLimit>>
+				</div>
+			</div>
+		</div>
+	</div>
+<</widget>>
+
+<<widget "amcTraitsSettings">>
+	<div class="solidBorderContainer settings-container">
+		<div class="settingsGrid">
+			<div class="settingsToggleItemWide">
+				<span class="gold">Anime Main Character Traits:</span><mouse class="tooltip linkBlue">(?)<span>These traits will halve your gains of the corresponding stat but will double the cap.</span></mouse><br>
+				
+				<<link "Toggle All">>
+					<<set $AMCTraits.physique to 2>>
+					<<set $AMCTraits.willpower to 2>>
+					<<set $AMCTraits.skulduggery to 2>>
+					<<set $AMCTraits.dancing to 2>>
+					<<set $AMCTraits.swimming to 2>>
+					<<set $AMCTraits.athletics to 2>>
+					<<set $AMCTraits.tending to 2>>
+					<<set $AMCTraits.housekeeping to 2>>
+					<<set $AMCTraits.brawling to 2>>
+					<<set $AMCTraits.science to 2>>
+					<<set $AMCTraits.maths to 2>>
+					<<set $AMCTraits.english to 2>>
+					<<set $AMCTraits.history to 2>>
+					<<set $AMCTraits.seduction to 2>>
+					<<set $AMCTraits.oral to 2>>
+					<<set $AMCTraits.chest to 2>>
+					<<set $AMCTraits.hands to 2>>
+					<<set $AMCTraits.buttocks to 2>>
+					<<set $AMCTraits.penile to 2>>
+					<<set $AMCTraits.vaginal to 2>>
+					<<set $AMCTraits.anal to 2>>
+					<<set $AMCTraits.thighs to 2>>
+					<<set $AMCTraits.feet to 2>>
+					<<set _subsection to "amcTraits">><<replace #subsectionDiv>><<amcTraitsSettings>><</replace>>
+				<</link>><br>
+				<label><span class="green">Tempered Physique</span> <<checkbox "$AMCTraits.physique" 1 2 autocheck>></label><br>
+				<label><span class="green">Tempered Willpower</span> <<checkbox "$AMCTraits.willpower" 1 2 autocheck>></label><br>
+				<label><span class="green">Tempered Skulduggery</span> <<checkbox "$AMCTraits.skulduggery" 1 2 autocheck>></label><br>
+				<label><span class="green">Tempered Dancing</span> <<checkbox "$AMCTraits.dancing" 1 2 autocheck>></label><br>
+				<label><span class="green">Tempered Swimming</span> <<checkbox "$AMCTraits.swimming" 1 2 autocheck>></label><br>
+				<label><span class="green">Tempered Athletics</span> <<checkbox "$AMCTraits.athletics" 1 2 autocheck>></label><br>
+				<label><span class="green">Tempered Tending</span> <<checkbox "$AMCTraits.tending" 1 2 autocheck>></label><br>
+				<label><span class="green">Tempered Housekeeping</span> <<checkbox "$AMCTraits.housekeeping" 1 2 autocheck>></label><br>
+				<label><span class="green">Tempered Brawling</span> <<checkbox "$AMCTraits.brawling" 1 2 autocheck>></label><br>
+				<label><span class="teal">Tempered Science</span> <<checkbox "$AMCTraits.science" 1 2 autocheck>></label><br>
+				<label><span class="teal">Tempered Maths</span> <<checkbox "$AMCTraits.maths" 1 2 autocheck>></label><br>
+				<label><span class="teal">Tempered English</span> <<checkbox "$AMCTraits.english" 1 2 autocheck>></label><br>
+				<label><span class="teal">Tempered History</span> <<checkbox "$AMCTraits.history" 1 2 autocheck>></label><br>
+				<label><span class="blue">Tempered Seduction Skill</span> <<checkbox "$AMCTraits.seduction" 1 2 autocheck>></label><br>
+				<label><span class="blue">Tempered Oral Skill</span> <<checkbox "$AMCTraits.oral" 1 2 autocheck>></label><br>
+				<label><span class="blue">Tempered Chest Skill</span> <<checkbox "$AMCTraits.chest" 1 2 autocheck>></label><br>
+				<label><span class="blue">Tempered Hands Skill</span> <<checkbox "$AMCTraits.hands" 1 2 autocheck>></label><br>
+				<label><span class="blue">Tempered Buttocks Skill</span> <<checkbox "$AMCTraits.buttocks" 1 2 autocheck>></label><br>
+				<label><span class="blue">Tempered Penile Skill</span> <<checkbox "$AMCTraits.penile" 1 2 autocheck>></label><br>
+				<label><span class="blue">Tempered Vaginal Skill</span> <<checkbox "$AMCTraits.vaginal" 1 2 autocheck>></label><br>
+				<label><span class="blue">Tempered Anal Skill</span> <<checkbox "$AMCTraits.anal" 1 2 autocheck>></label><br>
+				<label><span class="blue">Tempered Thighs Skill</span> <<checkbox "$AMCTraits.thighs" 1 2 autocheck>></label><br>
+				<label><span class="blue">Tempered Feet Skill</span> <<checkbox "$AMCTraits.feet" 1 2 autocheck>></label><br>
+			</div>
+		</div>
+	</div>
 <</widget>>
 
 <<widget "loadAllFeats">>

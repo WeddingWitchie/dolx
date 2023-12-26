@@ -237,7 +237,11 @@
 <</widget>>
 
 <<widget "enemyarousal">>
-	<<set $enemyarousal += _args[0]>>
+	<<if $demonseduce is 1>>
+		<<set $enemyarousal += _args[0] * 2>>
+	<<else>>
+		<<set $enemyarousal += _args[0]>>
+	<</if>>
 <</widget>>
 
 <<widget "sex">>
@@ -330,6 +334,10 @@
 		<<set _painMod = _args[3] || 1>>
 		<!-- args[4] - indicates NPC id (but is currently unused) -->
 
+		<<if $combatExtended.blockingActive gte 1>>
+			<<set _violence to Math.round(_violence - (_violence * ((0.4 * (1 * ($physique / 16000))) * $combatExtended.blockingActive)))>>
+		<</if>>
+
 		<<if _violence gt 0 or _violence lt 0>>
 			<<if $drunk gt 0>>
 				<<set $_drunk_level to Math.clamp(Math.floor($drunk / 120), 0, 4)>>
@@ -370,6 +378,7 @@
 			<</if>>
 			<<set $enemyarousal += 1>>
 			<<painclamp>>
+			<<set $encounterHit to 1>>
 		<</if>>
 	<</if>>
 <</widget>>
@@ -434,7 +443,11 @@
 		<</if>>
 		<<set _arousal to 20 * _args[0]>>
 		<<arousal _arousal>>
-		<<set $enemyarousal += 3 * _args[0]>>
+		<<if $demonseduce is 1>>
+			<<set $enemyarousal += (3 * _args[0]) * 2>>
+		<<else>>
+			<<set $enemyarousal += 3 * _args[0]>>
+		<</if>>
 		<<set $enemytrust += 2>>
 	<</if>>
 <</widget>>
@@ -453,10 +466,20 @@
 			<<sadism _args[0]>>
 		<</if>>
 		<<set _thedamage to (2 * _defiance * ($physique / 4000))>>
+		<<if $combatExtended.brawlingToggle is 1>>
+			<<set _thedamage to _thedamage * (1 + (($combatExtended.brawling * $enemyno * (1 + ($enemyno / 2))) / 10000))>>
+		<</if>>
+		<<if $fallenangelretribution is 1>>
+			<<set _thedamage to _thedamage * 2>>
+		<</if>>
+		<<if $enemyBlockingActive is 1>>
+			<<set _reduction to $NPCList[_args[1]].dodgeChance * 2>>
+			<<set _thedamage to _thedamage * (1 - (_reduction / 100))>>
+		<</if>>
 		<<if $enemyno gte 2>>
 			<<npcdamage _args[1]>>
 		<</if>>
-		<<set $enemyhealth -= _thedamage>>
+		<<set $enemyhealth -= Math.round(_thedamage)>>
 	<</if>>
 <</widget>>
 
@@ -774,7 +797,11 @@
 <</widget>>
 
 <<widget "seductionskilluse">>
-	<<set $enemyarousal += (currentSkillValue("seductionskill") / 100)>><<seductionskill 5>>
+	<<if $demonseduce is 1>>
+		<<set $enemyarousal += (currentSkillValue("seductionskill") / 100) * 2>><<seductionskill 5>><<set $seductionskillup to 1>>
+	<<else>>
+		<<set $enemyarousal += (currentSkillValue("seductionskill") / 100)>><<seductionskill 5>><<set $seductionskillup to 1>>
+	<</if>>
 <</widget>>
 
 <<widget "seductionskilluptext">>
@@ -785,43 +812,83 @@
 <</widget>>
 
 <<widget "seductionskillusecombat">>
-	<<set $enemyarousal += (currentSkillValue("seductionskill") / 100)>><<seductionskill 5>><<set $seductionskillup to 1>>
+	<<if $demonseduce is 1>>
+		<<set $enemyarousal += (currentSkillValue("seductionskill") / 100) * 2>><<seductionskill 5>><<set $seductionskillup to 1>>
+	<<else>>
+		<<set $enemyarousal += (currentSkillValue("seductionskill") / 100)>><<seductionskill 5>><<set $seductionskillup to 1>>
+	<</if>>
 <</widget>>
 
 <<widget "oralskilluse">>
-	<<set $enemyarousal += (currentSkillValue("oralskill") / 100)>><<oralskill 5>><<set $oralskillup to 1>>
+	<<if $demonseduce is 1>>
+		<<set $enemyarousal += (currentSkillValue("oralskill") / 100) * 2>><<oralskill 5>><<set $oralskillup to 1>>
+	<<else>>
+		<<set $enemyarousal += (currentSkillValue("oralskill") / 100)>><<oralskill 5>><<set $oralskillup to 1>>
+	<</if>>
 <</widget>>
 
 <<widget "vaginalskilluse">>
-	<<set $enemyarousal += (currentSkillValue("vaginalskill") / 100)>><<vaginalskill 5>><<set $vaginalskillup to 1>>
+	<<if $demonseduce is 1>>
+		<<set $enemyarousal += (currentSkillValue("vaginalskill") / 100) * 2>><<vaginalskill 5>><<set $vaginalskillup to 1>>
+	<<else>>
+		<<set $enemyarousal += (currentSkillValue("vaginalskill") / 100)>><<vaginalskill 5>><<set $vaginalskillup to 1>>
+	<</if>>
 <</widget>>
 
 <<widget "analskilluse">>
-	<<set $enemyarousal += (currentSkillValue("analskill") / 100)>><<analskill 5>><<set $analskillup to 1>>
+	<<if $demonseduce is 1>>
+		<<set $enemyarousal += (currentSkillValue("analskill") / 100) * 2>><<analskill 5>><<set $analskillup to 1>>
+	<<else>>
+		<<set $enemyarousal += (currentSkillValue("analskill") / 100)>><<analskill 5>><<set $analskillup to 1>>
+	<</if>>
 <</widget>>
 
 <<widget "handskilluse">>
-	<<set $enemyarousal += (currentSkillValue("handskill") / 100)>><<handskill 5>><<set $handskillup to 1>>
+	<<if $demonseduce is 1>>
+		<<set $enemyarousal += (currentSkillValue("handskill") / 100) * 2>><<handskill 5>><<set $handskillup to 1>>
+	<<else>>
+		<<set $enemyarousal += (currentSkillValue("handskill") / 100)>><<handskill 5>><<set $handskillup to 1>>
+	<</if>>
 <</widget>>
 
 <<widget "feetskilluse">>
-	<<set $enemyarousal += (currentSkillValue("feetskill") / 100)>><<feetskill 5>><<set $feetskillup to 1>>
+	<<if $demonseduce is 1>>
+		<<set $enemyarousal += (currentSkillValue("feetskill") / 100) * 2>><<feetskill 5>><<set $feetskillup to 1>>
+	<<else>>
+		<<set $enemyarousal += (currentSkillValue("feetskill") / 100)>><<feetskill 5>><<set $feetskillup to 1>>
+	<</if>>
 <</widget>>
 
 <<widget "bottomskilluse">>
-	<<set $enemyarousal += (currentSkillValue("bottomskill") / 100)>><<bottomskill 5>><<set $bottomskillup to 1>>
+	<<if $demonseduce is 1>>
+		<<set $enemyarousal += (currentSkillValue("bottomskill") / 100) * 2>><<bottomskill 5>><<set $bottomskillup to 1>>
+	<<else>>
+		<<set $enemyarousal += (currentSkillValue("bottomskill") / 100)>><<bottomskill 5>><<set $bottomskillup to 1>>
+	<</if>>
 <</widget>>
 
 <<widget "thighskilluse">>
-	<<set $enemyarousal += (currentSkillValue("thighskill") / 100)>><<thighskill 5>><<set $thighskillup to 1>>
+	<<if $demonseduce is 1>>
+		<<set $enemyarousal += (currentSkillValue("thighskill") / 100) * 2>><<thighskill 5>><<set $thighskillup to 1>>
+	<<else>>
+		<<set $enemyarousal += (currentSkillValue("thighskill") / 100)>><<thighskill 5>><<set $thighskillup to 1>>
+	<</if>>
 <</widget>>
 
 <<widget "chestskilluse">>
-	<<set $enemyarousal += (currentSkillValue("chestskill") / 100)>><<chestskill 5>><<set $chestskillup to 1>>
+	<<if $demonseduce is 1>>
+		<<set $enemyarousal += (currentSkillValue("chestskill") / 100) * 2>><<chestskill 5>><<set $chestskillup to 1>>
+	<<else>>
+		<<set $enemyarousal += (currentSkillValue("chestskill") / 100)>><<chestskill 5>><<set $chestskillup to 1>>
+	<</if>>
 <</widget>>
 
 <<widget "penileskilluse">>
-	<<set $enemyarousal += (currentSkillValue("penileskill") / 100)>><<penileskill 5>><<set $penileskillup to 1>>
+	<<if $demonseduce is 1>>
+		<<set $enemyarousal += (currentSkillValue("penileskill") / 100) * 2>><<penileskill 5>><<set $penileskillup to 1>>
+	<<else>>
+		<<set $enemyarousal += (currentSkillValue("penileskill") / 100)>><<penileskill 5>><<set $penileskillup to 1>>
+	<</if>>
 <</widget>>
 
 <<widget "skulduggeryskilluse">>
@@ -836,28 +903,51 @@
 
 <<widget "combatskulduggeryskilluse">>
 	<<if $statFreeze isnot true>>
-		<<set $skulduggery += 3>>
-		<<set $skulduggery to Math.clamp($skulduggery, 0, 1000)>>
-		<<if $skulduggery lt 1000>>
+		<<if $skulduggery gt 1000>>
+			<<set $skulduggery += 3 / $AMCTraits.skulduggery>>
+		<<else>>
+			<<set $skulduggery += 3>>
+		<</if>>
+		<<set $skulduggery to Math.clamp($skulduggery, 0, 1000 * $AMCTraits.skulduggery)>>
+		<<if $skulduggery lt 1000 * $AMCTraits.skulduggery>>
 			<span class="gold"> You learned a thing or two about skulduggery.</span>
 		<</if>>
 	<</if>>
 <</widget>>
 
+<<widget "lockpickTrainingSetuse">>
+	<<if $statFreeze isnot true>>
+		<<if $skulduggery gt 1000>>
+			<<set $skulduggery += _args[0] / $AMCTraits.skulduggery>>
+		<<else>>
+			<<set $skulduggery += _args[0]>>
+		<</if>>
+		<<set $skulduggery to Math.clamp($skulduggery, 0, 1000 * $AMCTraits.skulduggery)>>
+		<<if $skulduggery lt 1000 * $AMCTraits.skulduggery>>
+			<span class="gold"> You learned a thing or two about skulduggery.</span>
+		<</if>>
+	<</if>>
+	<br><br>
+<</widget>>
+
 <<widget "swimmingskilluse">>
 	<<if $statFreeze isnot true>>
-		<<set $swimmingskill += 9>>
-		<<if $swimmingskill lt 1000>>
+		<<if $swimmingskill gt 1000>>
+			<<set $swimmingskill += 9 / $AMCTraits.swimming>>
+		<<else>>
+			<<set $swimmingskill += 9>>
+		<</if>>
+		<<if $swimmingskill lt 1000 * $AMCTraits.swimming>>
 			<span class="gold"> You've become more confident at swimming.</span>
 		<</if>>
-		<<set $swimmingskill to Math.clamp($swimmingskill, 0, 1000)>>
+		<<set $swimmingskill to Math.clamp($swimmingskill, 0, 1000 * $AMCTraits.swimming)>>
 	<</if>>
 <</widget>>
 
 <<widget "danceskilluse">>
 	<<if $statFreeze isnot true>>
 		<<danceskill 1>>
-		<<if $danceskill lt 1000>>
+		<<if $danceskill lt 1000 * $AMCTraits.swimming>>
 			<span class="gold"> You feel more confident in your dancing abilities.</span>
 		<</if>>
 	<</if>>
@@ -867,6 +957,12 @@
 	<<if $statFreeze isnot true>>
 		<<set $_subject to _args[0]>>
 		<<set $_gain to _args[1] || 1>>
+
+		<<if ($_subject is "english" and $AMCTraits.english is 2) or ($_subject is "maths" and $AMCTraits.maths is 2) or ($_subject is "science" and $AMCTraits.science is 2) or ($_subject is "history" and $AMCTraits.history is 2)>>
+			<<set _AMCmod to 2>>
+		<<else>>
+			<<set _AMCmod to 1>>
+		<</if>>
 
 		<<set _skill_mod to [2.4, 1.2, 0.6, 0.3][Math.clamp(V[$_subject + "trait"], 0, 3)]>>
 
@@ -882,29 +978,99 @@
 			<</if>>
 		<</if>>
 
-		<<set V[$_subject + "_exam"] to Math.clamp(V[$_subject + "_exam"] + ($_gain * _skill_mod), -107, 200)>>
+		<<if _AMCmod is 2 and V[$subject] gt 1000>>
+			<<set V[$_subject + "_exam"] to Math.clamp(V[$_subject + "_exam"] + ($_gain * _skill_mod / _AMCmod), -107, 200)>>
+		<<else>>
+			<<set V[$_subject + "_exam"] to Math.clamp(V[$_subject + "_exam"] + ($_gain * _skill_mod), -107, 200)>>
+		<</if>>
+		<<if V[$_subject + "_exam"] gte 100 and V[$_subject + 'trait'] lt 4 * _AMCmod>>
+			<<school_skill_up $_subject>>
+			<<school_skill_up_text $_subject>>
+		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "scienceskill">>
+	<<if $science gt 1000>>
+		<<set _args[0] to _args[0] / $AMCTraits.science>>
+	<<else>>
+		<<set _args[0] to _args[0]>>
+	<</if>>
 	<<schoolskillgeneral "science" _args[0] _args[1]>>
 <</widget>>
 
 <<widget "mathsskill">>
+	<<if $maths gt 1000>>
+		<<set _args[0] to _args[0] / $AMCTraits.maths>>
+	<<else>>
+		<<set _args[0] to _args[0]>>
+	<</if>>
 	<<schoolskillgeneral "maths" _args[0] _args[1]>>
 <</widget>>
 
 <<widget "englishskill">>
+	<<if $english gt 1000>>
+		<<set _args[0] to _args[0] / $AMCTraits.english>>
+	<<else>>
+		<<set _args[0] to _args[0]>>
+	<</if>>
 	<<schoolskillgeneral "english" _args[0] _args[1]>>
 <</widget>>
 
 <<widget "historyskill">>
+	<<if $history gt 1000>>
+		<<set _args[0] to _args[0] / $AMCTraits.history>>
+	<<else>>
+		<<set _args[0] to _args[0]>>
+	<</if>>
 	<<schoolskillgeneral "history" _args[0] _args[1]>>
 <</widget>>
 
 <<widget "passiveStudy">>
 	<<if $statFreeze isnot true>>
+		<<set _chair to Furniture.get('chair')>>
+		<<if _chair is undefined or _chair is null>>
+			<<set _chair to Furniture.get('chair','chair')>>
+		<</if>>
+		<<if _chair.name is "chair">>
+			<<set _studyGain to 6>>
+		<<elseif _chair.name is "stools">>
+			<<set _studyGain to 7>>
+		<<elseif _chair.name is "wooden chairs">>
+			<<set _studyGain to 8>>
+		<<elseif _chair.name is "swivel chairs">>
+			<<set _studyGain to 9>>
+		<<elseif _chair.name is "shell chairs">>
+			<<set _studyGain to 10>>
+		<<elseif _chair.name is "armchairs">>
+			<<set _studyGain to 11>>
+		<<elseif _chair.name is "egg armchairs">>
+			<<set _studyGain to 12>>
+		<</if>>
 		<<switch $studyBooks.rented>>
+			<<case "science">>
+				<<scienceskill _studyGain "no_star">>
+			<<case "maths">>
+				<<mathsskill _studyGain "no_star">>
+			<<case "English">>
+				<<englishskill _studyGain "no_star">>
+			<<case "history">>
+				<<historyskill _studyGain "no_star">>
+			<<default>>
+		<</switch>>
+		<<if $studyBooks.stolen.science is 1>>
+			<<scienceskill _studyGain "no_star">>
+		<</if>>
+		<<if $studyBooks.stolen.maths is 1>>
+			<<mathsskill _studyGain "no_star">>
+		<</if>>
+		<<if $studyBooks.stolen.english is 1>>
+			<<englishskill _studyGain "no_star">>
+		<</if>>
+		<<if $studyBooks.stolen.history is 1>>
+			<<historyskill _studyGain "no_star">>
+		<</if>>
+		/* <<switch $studyBooks.rented>>
 			<<case "science">>
 				<<scienceskill 6 "no_star">>
 			<<case "maths">>
@@ -925,7 +1091,7 @@
 			<<case "history">>
 				<<historyskill 6 "no_star">>
 			<<default>>
-		<</switch>>
+		<</switch>> */
 	<</if>>
 <</widget>>
 
@@ -951,30 +1117,45 @@
 		<<elseif $exposed is 1>>
 			<<set $athletics += 1>>
 		<</if>>
-		<<set $athletics += Math.trunc(_temp * 1.4)>>
-		<<set $athletics to Math.clamp($athletics, 0, 1000)>>
-		<<set $tending to Math.clamp($tending, 0, 1000)>>
+		<<if $athletics gt 1000>>
+			<<set $athletics += Math.trunc(_temp * 1.4 / $AMCTraits.athletics)>>
+		<<else>>
+			<<set $athletics += Math.trunc(_temp * 1.4)>>
+		<</if>>
+		<<set $athletics to Math.clamp($athletics, 0, 1000 * $AMCTraits.athletics)>>
 	<</if>>
 <</widget>>
 
 <<widget "tending">>
 	<<if _args[0] and $statFreeze isnot true>>
-		<<set $tending += (_args[0] * 2)>>
-		<<set $tending to Math.clamp($tending, 0, 1000)>>
+		<<if $tending gt 1000>>
+			<<set $tending += (_args[0] * 2 / $AMCTraits.tending)>>
+		<<else>>
+			<<set $tending += (_args[0] * 2)>>
+		<</if>>
+		<<set $tending to Math.clamp($tending, 0, 1000 * $AMCTraits.tending)>>
 	<</if>>
 <</widget>>
 
 <<widget "housekeeping">>
 <<if _args[0] and $statFreeze isnot true and $housekeeping lt _args[1]>>
-	<<set $housekeeping += (_args[0] * 2)>>
-	<<set $housekeeping to Math.clamp($housekeeping, 0, 1000)>>
+	<<if $housekeeping gt 1000>>
+		<<set $housekeeping += (_args[0] * 2 / $AMCTraits.housekeeping)>>
+	<<else>>
+		<<set $housekeeping += (_args[0] * 2)>>
+	<</if>>
+	<<set $housekeeping to Math.clamp($housekeeping, 0, 1000 * $AMCTraits.housekeeping)>>
 <</if>>
 <</widget>>
 
 <<widget "danceskill">>
 	<<if _args[0] and $statFreeze isnot true>>
-		<<set $danceskill += _args[0]>>
-		<<set $danceskill to Math.clamp($danceskill, 0, 1000)>>
+		<<if $danceskill gt 1000>>
+			<<set $danceskill += _args[0] / $AMCTraits.dancing>>
+		<<else>>
+			<<set $danceskill += _args[0]>>
+		<</if>>
+		<<set $danceskill to Math.clamp($danceskill, 0, 1000 * $AMCTraits.dancing)>>
 	<</if>>
 <</widget>>
 
@@ -986,7 +1167,12 @@
 		<<elseif $exposed is 1>>
 			<<set _temp *= 1.1>>
 		<</if>>
-		<<set $physique += 10 * _temp>><<set $physiqueuse += _temp>>
+		<<if $physique gt $physiquesize>>
+			<<set $physique += 10 * _temp / $AMCTraits.physique>>
+		<<else>>
+			<<set $physique += 10 * _temp>>
+		<</if>>
+		<<set $physiqueuse += _temp>>
 		<<if _args[1]>>
 			<<if _args[1] isnot "noMessage">>
 				<<if ($combat is 1 and _args[1] isnot "workout") or _args[1] is "invig">>
@@ -1000,7 +1186,7 @@
 		<<else>>
 			<span class="gold"> You get a good workout.</span>
 		<</if>>
-		<<set $physique = Math.clamp($physique, 0, $physiquesize)>>
+		<<set $physique = Math.clamp($physique, 0, $physiquesize * $AMCTraits.physique)>>
 	<</if>>
 <</widget>>
 
@@ -1146,6 +1332,14 @@
 <<widget "sextoystat">><<if $statFreeze isnot true>><<set $sextoystat += 1>><</if>><</widget>>
 
 <<widget "urinestat">><<if $statFreeze isnot true>><<if _args[0]>><<set $urinestat += _args[0]>><<else>><<set $urinestat += 1>><</if>><</if>><</widget>>
+
+<<widget "dodgeStat">><<if $statFreeze isnot true>><<set $dodgeStat += 1>><</if>><</widget>>
+
+<<widget "partialDodgeStat">><<if $statFreeze isnot true>><<set $partialDodgeStat += 1>><</if>><</widget>>
+
+<<widget "counterStat">><<if $statFreeze isnot true>><<set $counterStat += 1>><</if>><</widget>>
+
+<<widget "partialCounterStat">><<if $statFreeze isnot true>><<set $partialCounterStat += 1>><</if>><</widget>>
 
 <<widget "distinction_stat">>
 	<<if $statFreeze isnot true>>
@@ -1482,6 +1676,21 @@
 			<<unset _showCaptionText>>
 		<</if>>
 		<<statbarinverted $oxygen $oxygenmax _showCaptionText>>
+		<div style="clear:both;"></div>
+	</div>
+<</widget>>
+
+<<widget "combatExtendedStabilityCaption">>
+	<div id="combatExtendedStabilityCaption">
+		<<if _args[0] is true>>
+			<div @class="($options.showCaptionText is true ? '' : 'rightMeterText')">
+				Stability:
+			</div>
+			<<set _showCaptionText to !$options.showCaptionText>>
+		<<else>>
+			<<unset _showCaptionText>>
+		<</if>>
+		<<statbarinverted $combatExtended.stability 100 _showCaptionText>>
 		<div style="clear:both;"></div>
 	</div>
 <</widget>>
@@ -2286,6 +2495,11 @@
 			<<genitalsruined>><<clothesruinstat>>
 		<</if>>
 	<</if>>
+	<<if $worn.handheld.type.includes("rainproof") and $worn.handheld.integrity lte 0>>
+		<span class="red">Your $worn.handheld.name breaks from the abuse.
+		<br>
+		<<set $worn.handheld to 0>><<set $umbrellaStat += 1>>
+	<</if>>
 <</widget>>
 
 <<widget "arm_unbind">>
@@ -2874,7 +3088,7 @@
 <</widget>>
 
 <<widget "internalejac">>
-	<<if $demon gte 6>>
+	<<if ($demon gte 6 or $transformationParts.demon.wings is "default" or $transformationParts.demon.wings is "succubus")>>
 		<<set $demonabsorb += 1>>
 	<</if>>
 <</widget>>
@@ -4555,12 +4769,26 @@
 <<if $studyBooks is undefined>>
 	<<set $studyBooks to {}>>
 	<<set $studyBooks.rented to "none">>
-	<<set $studyBooks.stolen to "none">>
+	/* <<set $studyBooks.stolen to "none">> */
+	<<set $studyBooks.stolen.science to 0>>
+	<<set $studyBooks.stolen.maths to 0>>
+	<<set $studyBooks.stolen.english to 0>>
+	<<set $studyBooks.stolen.history to 0>>
+	<<set $studyBooks.stolen.RaulAndJanet to 0>>
+	<<set $studyBooks.stolen.pinch to 0>>
 <</if>>
-<<set _desk to Furniture.get('desk')>>
-<<set _chair to Furniture.get('chair')>>
+<<if ($furnitureLocation is "orphanage" and $location is "home") or ($furnitureLocation is "farm cottage" and $location is "alex_cottage") or ($furnitureLocation is "lake house" and $location is "lakehouse")>>
+	<<set _desk to Furniture.get('desk')>>
+	<<set _chair to Furniture.get('chair')>>
+<</if>>
+<<if _desk is undefined or _desk is null>>
+	<<set _desk to Furniture.get('desk','desk')>>
+<</if>>
+<<if _chair is undefined or _chair is null>>
+	<<set _chair to Furniture.get('chair','chair')>>
+<</if>>
 <<set _projectOptions to [$scienceproject, $mathsproject].includes("ongoing")>>
-<<set _bookOptions to ($studyBooks.stolen is 'Raul and Janet' or $studyBooks.rented is 'Raul and Janet' or $studyBooks.stolen is 'Pinch' or $studyBooks.rented is 'Pinch')>>
+<<set _bookOptions to ($studyBooks.stolen.science is 1 or $studyBooks.rented is 'science' or $studyBooks.stolen.maths is 1 or $studyBooks.rented is 'maths' or $studyBooks.stolen.english is 1 or $studyBooks.rented is 'english' or $studyBooks.stolen.history is 1 or $studyBooks.rented is 'history' or $studyBooks.stolen.RaulAndJanet is 1 or $studyBooks.rented is 'Raul and Janet' or $studyBooks.stolen.pinch is 1 or $studyBooks.rented is 'Pinch')>>
 <<set _wardrobe to Furniture.get('wardrobe')>>
 <<set _playOptions to ($englishPlay is 'ongoing' and $englishPlayRoles.Player isnot 'none')>>
 
@@ -4583,8 +4811,12 @@
 
 
 <<widget "tableText">>
-<<set _table to Furniture.get('table')>>
-<<set _chair to Furniture.get('chair')>>
+<<if ($furnitureLocation is "orphanage" and $location is "home") or ($furnitureLocation is "farm cottage" and $location is "alex_cottage") or ($furnitureLocation is "lake house" and $location is "lakehouse")>>
+	<<set _table to Furniture.get('table')>>
+	<<set _chair to Furniture.get('chair')>>
+<<else>>
+	<<set _chair to Furniture.get('chair','chair')>>
+<</if>>
 <<if $pregnancyStats.parasiteDoctorEvents gte 2>>
 	<<if _args[0] is "noicon">>
 		<<if _table>>
@@ -4677,7 +4909,7 @@
 			<span class="blue">That was too easy. You didn't learn anything.</span>
 		<</if>>
 	<<else>>
-		<<if $skulduggery lte ($skulduggerydifficulty + 100)>>
+		<<if $skulduggery lte ($skulduggerydifficulty + 100) or $lockpickTrainingSet is 5>>
 			<<skulduggeryskilluse>>
 		<<else>>
 			<span class="blue">That was too easy. You didn't learn anything.</span>
@@ -4787,7 +5019,15 @@
 <</widget>>
 
 <<widget "adjust_school_traits">>
-	<<if $science gte 1000>>
+	<<if $science gte 2000>>
+		<<set $sciencetrait to 8>>
+	<<elseif $science gte 1750>>
+		<<set $sciencetrait to 7>>
+	<<elseif $science gte 1500>>
+		<<set $sciencetrait to 6>>
+	<<elseif $science gte 1250>>
+		<<set $sciencetrait to 5>>
+	<<elseif $science gte 1000>>
 		<<set $sciencetrait to 4>>
 	<<elseif $science gte 700>>
 		<<set $sciencetrait to 3>>
@@ -4798,7 +5038,15 @@
 	<<else>>
 		<<set $sciencetrait to 0>>
 	<</if>>
-	<<if $maths gte 1000>>
+	<<if $maths gte 2000>>
+		<<set $mathstrait to 8>>
+	<<elseif $maths gte 1750>>
+		<<set $mathstrait to 7>>
+	<<elseif $maths gte 1500>>
+		<<set $mathstrait to 6>>
+	<<elseif $maths gte 1250>>
+		<<set $mathstrait to 5>>
+	<<elseif $maths gte 1000>>
 		<<set $mathstrait to 4>>
 	<<elseif $maths gte 700>>
 		<<set $mathstrait to 3>>
@@ -4809,7 +5057,15 @@
 	<<else>>
 		<<set $mathstrait to 0>>
 	<</if>>
-	<<if $english gte 1000>>
+	<<if $english gte 2000>>
+		<<set $englishtrait to 8>>
+	<<elseif $english gte 1750>>
+		<<set $englishtrait to 7>>
+	<<elseif $english gte 1500>>
+		<<set $englishtrait to 6>>
+	<<elseif $english gte 1250>>
+		<<set $englishtrait to 5>>
+	<<elseif $english gte 1000>>
 		<<set $englishtrait to 4>>
 	<<elseif $english gte 700>>
 		<<set $englishtrait to 3>>
@@ -4820,7 +5076,15 @@
 	<<else>>
 		<<set $englishtrait to 0>>
 	<</if>>
-	<<if $history gte 1000>>
+	<<if $history gte 2000>>
+		<<set $historytrait to 8>>
+	<<elseif $history gte 1750>>
+		<<set $historytrait to 7>>
+	<<elseif $history gte 1500>>
+		<<set $historytrait to 6>>
+	<<elseif $history gte 1250>>
+		<<set $historytrait to 5>>
+	<<elseif $history gte 1000>>
 		<<set $historytrait to 4>>
 	<<elseif $history gte 700>>
 		<<set $historytrait to 3>>
@@ -4831,10 +5095,10 @@
 	<<else>>
 		<<set $historytrait to 0>>
 	<</if>>
-	<<set $english to Math.clamp($english, 0, 1000)>>
-	<<set $maths to Math.clamp($maths, 0, 1000)>>
-	<<set $science to Math.clamp($science, 0, 1000)>>
-	<<set $history to Math.clamp($history, 0, 1000)>>
+	<<set $english to Math.clamp($english, 0, 1000 * $AMCTraits.english)>>
+	<<set $maths to Math.clamp($maths, 0, 1000 * $AMCTraits.maths)>>
+	<<set $science to Math.clamp($science, 0, 1000 * $AMCTraits.science)>>
+	<<set $history to Math.clamp($history, 0, 1000 * $AMCTraits.history)>>
 <</widget>>
 
 /*
@@ -5047,5 +5311,253 @@
 <<widget "animalsemenswallowedstat">>
 	<<if $statFreeze isnot true and $args[0] isnot undefined>>
 		<<set $animalsemenswallowedstat += $args[0]>>
+	<</if>>
+<</widget>>
+
+<<widget "clearcheeks">>
+	<<set $transformationParts.wolf.cheeks = "disabled">>
+	<<set $transformationParts.fox.cheeks = "disabled">>
+<</widget>>
+
+<<widget "clearhalo">>
+	<<set $transformationParts.angel.halo = "disabled">>
+	<<set $transformationParts.fallenAngel.halo = "disabled">>
+<</widget>>
+
+<<widget "clearears">>
+	<<set $transformationParts.cat.ears = "disabled">>
+	<<set $transformationParts.cow.ears = "disabled">>
+	<<set $transformationParts.wolf.ears = "disabled">>
+	<<set $transformationParts.fox.ears = "disabled">>
+<</widget>>
+
+<<widget "cleareyes">>
+	<<set $transformationParts.bird.eyes = "disabled">>
+<</widget>>
+
+<<widget "clearhorns">>
+	<<if $transformationParts.demon.horns !== "disabled" and $transformationParts.cow.horns !== "disabled">>
+		<<set $transformationParts.demon.horns = "disabled">>
+		<<set $transformationParts.cow.horns = "disabled">>
+	<</if>>
+	<<if $transformationParts.cow.horns == "disabled">>
+		<<set $transformationParts.demon.horns = "disabled">>
+	<</if>>
+	<<if $transformationParts.demon.horns == "disabled">>
+		<<set $transformationParts.cow.horns = "disabled">>
+	<</if>>
+<</widget>>
+
+<<widget "cleartail">>
+	<<if $transformationParts.demon.tail !== "disabled" and $transformationParts.cat.tail !== "disabled">>
+		<<set $transformationParts.demon.tail = "disabled">>
+		<<set $transformationParts.bird.tail = "disabled">>
+	<</if>>
+	<<if $transformationParts.cat.tail == "disabled">>
+		<<set $transformationParts.demon.tail = "disabled">>
+	<</if>>
+	<<if $transformationParts.demon.tail == "disabled">>
+		<<set $transformationParts.cat.tail = "disabled">>
+	<</if>>
+	<<set $transformationParts.cow.tail = "disabled">>
+	<<set $transformationParts.wolf.tail = "disabled">>
+	<<set $transformationParts.bird.tail = "disabled">>
+	<<set $transformationParts.fox.tail = "disabled">>
+<</widget>>
+
+<<widget "clearwings">>
+	<<if $transformationParts.demon.wings !== "disabled" and $transformationParts.bird.wings !== "disabled">>
+		<<set $transformationParts.demon.wings = "disabled">>
+		<<set $transformationParts.bird.wings = "disabled">>
+		<<set $birdFly to 0>>
+	<</if>>
+	<<set $transformationParts.angel.wings = "disabled">>
+	<<if $transformationParts.bird.wings == "disabled">>
+		<<set $transformationParts.demon.wings = "disabled">>
+	<</if>>
+	<<set $transformationParts.fallenAngel.wings = "disabled">>
+	<<if $transformationParts.demon.wings == "disabled">>
+		<<set $transformationParts.bird.wings = "disabled">>
+		<<set $birdFly to 0>>
+	<</if>>
+<</widget>>
+
+<<widget "lockpickTrainingSet">>
+	<<if $lockpickTrainingSet gte 1>>
+		<<if $lockpickTrainingSet is 1>>
+			<<set _LTS to "Basic">>
+			<<set $skulduggerydifficulty to 200>>
+		<<elseif $lockpickTrainingSet is 2>>
+			<<set _LTS to "Intermediate">>
+			<<set $skulduggerydifficulty to 400>>
+		<<elseif $lockpickTrainingSet is 3>>
+			<<set _LTS to "Advanced">>
+			<<set $skulduggerydifficulty to 600>>
+		<<elseif $lockpickTrainingSet is 4>>
+			<<set _LTS to "Master">>
+			<<set $skulduggerydifficulty to 800>>
+		<<elseif $lockpickTrainingSet is 5>>
+			<<set _LTS to "Lockpick Lawyer">>
+			<<set $skulduggerydifficulty to 900>>
+		<</if>>
+
+		<<link [["Train with your " + _LTS + " Lockpick Training Set (0:30)"|$passage]]>><<pass 30>><<stress 6>><<set $ltsUsed to 1>><</link>><<gstress>><<skulduggerydifficulty>>	
+	<</if>>
+<</widget>>
+
+<<widget "tfcheck">>
+	<<if ($fallenangel gte 2 or $transformationParts.fallenAngel.wings is "default")>>
+		<<set $fallenangeltf to 1>>
+	<</if>>
+	<<if ($fallenangel gte 4 or $transformationParts.fallenAngel.wings is "fallenplus") or $fallenangelbuild gte 30>>
+		<<set $fallenangelplustf to 1>>
+	<</if>>
+	<<if $$demonbuild gte 30 or ($demon gte 6 or $transformationParts.demon.wings is "default" or $transformationParts.demon.wings is "succubus")>>
+		<<set $demontf to 1>>
+	<</if>>
+	<<if $$angelbuild gte 50 or ($angel gte 6 or $transformationParts.angel.wings is "default")>>
+		<<set $angeltf to 1>>
+	<</if>>
+	<<if $wolfbuild gte 30 or ($wolfgirl gte 6 or $transformationParts.wolf.tail is "default" or $transformationParts.wolf.tail is "feral")>>
+		<<set $wolftf to 1>>
+	<</if>>
+	<<if $catbuild gte 50 or ($cat gte 6 or $transformationParts.cat.tail is "default")>>
+		<<set $cattf to 1>>
+	<</if>>
+	<<if $cowbuild gte 30 or ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black")>>
+		<<set $cowtf to 1>>
+	<</if>>
+	<<if $birdbuild gte 30 or ($harpy gte 6 or $transformationParts.bird.wings is "default")>>
+		<<set $harpytf to 1>>
+	<</if>>
+	<<if $foxbuild gte 30 or ($fox gte 6 or $transformationParts.fox.tail is "default")>>
+		<<set $foxtf to 1>>
+	<</if>>
+<</widget>>
+
+<<widget "unlockplants">>
+	/*<<set _plant_keys to Object.keys($plants)>>
+	<<for _i to 0; _i lt _plant_keys.length; _i++>>
+		<<set $plants_known.push(setup.plants[_plant_keys[_i]].name)>>
+	<</for>>*/
+	<<set $plants_known.push("red_rose")>>
+	<<set $plants_known.push("white_rose")>>
+	<<set $plants_known.push("orchid")>>
+	<<set $plants_known.push("daisy")>>
+	<<set $plants_known.push("tulip")>>
+	<<set $plants_known.push("lotus")>>
+	<<set $plants_known.push("lily")>>
+	<<set $plants_known.push("poppy")>>
+	<<set $plants_known.push("wild_carrot")>>
+	<<set $plants_known.push("onion")>>
+	<<set $plants_known.push("garlic_bulb")>>
+	<<set $plants_known.push("potato")>>
+	<<set $plants_known.push("strange_flower")>>
+	<<set $plants_known.push("cabbage")>>
+	<<set $plants_known.push("turnip")>>
+	<<set $plants_known.push("broccoli")>>
+	<<set $plants_known.push("green_manure")>>
+<</widget>>
+
+<<widget "unlockspecialclothing">>
+	<<set $specialClothes to {
+		"witchdress":"unlocked",
+		"christmasdress":"unlocked",
+		"serafuku":"unlocked",
+		"vampirejacket":"unlocked",
+		"slutshirt":"unlocked",
+		"christmasshirt":"unlocked",
+		"bellydancer'stop":"unlocked",
+		"christmastrousers":"unlocked",
+		"bellydancer'sbottoms":"unlocked",
+		"loincloth":"unlocked",
+		"witchhat":"unlocked",
+		"christmashat":"unlocked",
+		"chefhat":"unlocked",
+		"fedora":"unlocked",
+		"holypendant":"unlocked",
+		"darkpendant":"unlocked",
+		"stonependant":"unlocked",
+		"christmaslegwarmers":"unlocked",
+		"witchshoes":"unlocked",
+		"mummyfacewrap":"unlocked",
+		"mummytop":"unlocked",
+		"mummyskirt":"unlocked",
+		"cowbell":"unlocked",
+		"featheredhairclip":"unlocked",
+		"catsuit":"unlocked",
+		"holystole":"unlocked",
+		"minisnowman":"unlocked",
+		"cowbra":"unlocked",
+		"cowpanties":"unlocked",
+		"cowsocks":"unlocked",
+		"cowsleeves":"unlocked",
+		"bellydancer'sveil":"unlocked",
+		"rose":"unlocked",
+		"scarecrowshirt":"unlocked",
+		"scarecrowhat":"unlocked",
+		"skeletonmask":"unlocked",
+		"skeletonoutfit":"unlocked",
+		"classyvampirejacket":"unlocked",
+		"bellydancer'sshoes":"unlocked",
+		"futuristicbodysuit":"unlocked",
+		"daisy":"unlocked",
+		"esotericspectacles":"unlocked",
+		"spiritmask":"unlocked",
+		"ragtop":"unlocked",
+		"ragskirt":"unlocked",
+		"minipumpkin":"unlocked",
+		"gakuran":"unlocked",
+		"classicserafuku":"unlocked",
+		"sailorribbon":"unlocked",
+		"islandermask":"unlocked",
+	}>>
+<</widget>>
+
+<<widget "farmincrcheat">>
+	<<if $farm_stage_cheat is 1>>
+		<<set $farm_stage_cheat to 2>>
+		<<set $farm_stage to 4>>
+	<<elseif $farm_stage_cheat is 2>>
+		<<set $farm_stage_cheat to 3>>
+		<<set $farm_stage to 5>>
+	<<elseif $farm_stage_cheat is 3>>
+		<<set $farm_stage_cheat to 4>>
+		<<set $farm_stage to 6>>
+	<<elseif $farm_stage_cheat is 4>>
+		<<set $farm_attack_timer to 30>>
+		<<fields_init>>
+		<<set $farm_fields_intro to 1>>
+		<<farm_stock_init>>
+		<<set $farm_stage_cheat to 5>>
+		<<set $farm_stage to 8>>
+		<<add_plot farm earth 3 large>>
+	<<elseif $farm_stage_cheat gte 5 and $farm_stage_cheat lte 8>>
+		<<set $farm_stage_cheat += 1>>
+		<<set $farm_stage += 1>>
+		<<add_plot farm earth 3 large>>
+	<</if>>
+<</widget>>
+
+<<widget "farmcheatsync">>
+	<<if $farm_stage gte 8>>
+		<<set $farm_stage_cheat to $farm_stage - 3>>
+	<<elseif $farm_stage gte 6>>
+		<<set $farm_stage_cheat to 4>>
+	<<elseif $farm_stage gte 5>>
+		<<set $farm_stage_cheat to 3>>
+	<<elseif $farm_stage gte 4>>
+		<<set $farm_stage_cheat to 2>>
+	<<elseif $farm_stage gte 2>>
+		<<set $farm_stage_cheat to 1>>
+	<</if>>
+<</widget>>
+
+<<widget "umbrellaDurability">>
+	<<if $umbrellaHit isnot undefined>>
+		<<set $worn.handheld.integrity -= Math.round(15 * $umbrellaHit)>>
+		<<unset $umbrellaHit>>
+	<<else>>
+		<<set $worn.handheld.integrity -= 10>>
 	<</if>>
 <</widget>>

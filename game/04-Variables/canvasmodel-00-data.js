@@ -21,6 +21,7 @@ const ZIndices = {
 	armsidle: 30,
 	handsidle: 31.5,
 	under_upper_arms: 32,
+	under_upper_arm_right: 90.3,
 	bellyBase: 33,
 	breasts: 35,
 	breastsparasite: 36,

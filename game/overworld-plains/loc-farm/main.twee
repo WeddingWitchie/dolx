@@ -622,7 +622,7 @@ Once inside, Alex insists on making the drinks before proceeding.
 
 <<if $ridingschoolintro is undefined>>
 	"You should drop by the riding school sometime," <<he>> says. "I might have a thing or two to teach."
-<<elseif $livestock_intro isnot undefined and $cow gte 6>>
+<<elseif $livestock_intro isnot undefined and ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black")>>
 	"You should be wiser about your choice of employer," <<he>> says, "I could keep you safe." Your mind is wrenched from the moment by <<his>> words. Visions of tranquil fields invade, along with memories of abuse.<<gstress>><<stress 6>>
 	<br>
 	"What a weird thing to say," Alex interrupts, bringing your thoughts back to reality. "So you're a weirdo as well as a thug."
@@ -2363,6 +2363,27 @@ You are inside Alex's lab.
 <<else>>
 	The cages are empty.
 <</if>>
+<br><br>
+
+<<if $farm.extract is 2 and $farm.player_still_timer gte 1>>
+	Your auto-extraction system is hard at work, extracting lurkers for their aphrodisiac and switching them out when it has run out.
+	<br><br>
+<<elseif $farm.extract is 1 and $farm.player_still_timer gte 1>>
+	Your extraction system is hard at work, extracting the aphrodisiac out of the captive lurker. It will be 
+	<<if $farm.player_still_timer gte 2>>
+		<<print $farm.player_still_timer>> days
+	<<else>>
+		<<print $farm.player_still_timer>> day
+	<</if>>
+	until it extracts enough for a phial.
+	<br><br>
+<<elseif $farm.extract is 2>>
+	Your auto-extraction system is idle, waiting for more lurkers to extract.
+	<br><br>
+<<elseif $farm.extract is 1>>
+	Your extraction system is idle, waiting for a lurker to be trapped in it.
+	<br><br>
+<</if>>
 
 <<if $phials_stored gte 2>>
 	There are <<number $phials_stored>> phials of aphrodisiac stored beneath the table.
@@ -2383,6 +2404,11 @@ You are inside Alex's lab.
 	<br>
 <</if>>
 
+<<if $lurkers_stored gte 1 and $sciencetrait gte 2 and $farm.extract is 1 and $farm.player_still_timer lte 0>>
+	<<link [[Start your own lurker extraction (0:05)|Farm Still Player Extract]]>><<set $lurkers_stored -= 1>><<pass 5>><</link>>
+	<br>
+<</if>>
+
 <<link [[Leave (0:01)|Farm Work]]>><<pass 1>><</link>>
 <br>
 
@@ -2396,10 +2422,29 @@ You lock the creature in a cage, and pull the net through the bars. It'll take t
 <<if $farm.still_timer lte 0 or $farm.still_timer is undefined>>
 	<<set $farm.still_timer to 7>>
 <</if>>
+<<if ($farm.player_still_timer lte 0 or $farm.player_still_timer is undefined) and $farm.extract is 2>>
+	<<set $farm.player_still_timer to 9 - $sciencetrait>>
+<</if>>
 
 <<link [[Next|Farm Still]]>><</link>>
 <br>
 
+:: Farm Still Player Extract
+<<effects>>
+<<if $farm.player_still_timer lte 0 or $farm.player_still_timer is undefined>>
+	<<set $farm.player_still_timer to 9 - $sciencetrait>>
+<</if>>
+
+You grab a lurker from a cage and hook it up to your extraction setup. It'll produce a phial of aphrodisiac in 
+<<if $farm.player_still_timer gte 2>>
+	<<print $farm.player_still_timer>> days.
+<<else>>
+	<<print $farm.player_still_timer>> day.
+<</if>>
+<br><br>
+
+<<link [[Next|Farm Still]]>><</link>>
+<br>
 
 :: Farm Stage 10 Impressed
 <<effects>>

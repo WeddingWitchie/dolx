@@ -79,6 +79,7 @@ You drop to your knees, and search beneath the decaying roots.
 	<<beastCombatInit>>
 
 	<<set $enemyhealth to 600>><<set $enemyhealthmax to 600>><<set $enemytrust -= 40>>
+	<<healthMultiplier>>
 <</if>>
 
 <<effects>>
@@ -182,6 +183,7 @@ Six pairs of eyes stare at you through the dim light. The pack advances on you.
 	<<neutral 1>>
 	<<molested>>
 	<<maninit>><<set $enemyhealth to 600>><<set $enemyhealthmax to 600>>
+	<<healthMultiplier>>
 <</if>>
 <<effects>>
 <<effectsman>>
@@ -334,6 +336,7 @@ Six pairs of eyes stare at you through the dim light. The pack advances on you.
 	<<beastCombatInit>>
 
 	/*<<beastNNPCinit>>*/<<set $enemyhealth to 600>><<set $enemyhealthmax to 600>><<set $enemytrust -= 40>><<set $enemyanger += 200>>
+	<<healthMultiplier>>
 <</if>>
 
 <<effects>>
@@ -1131,6 +1134,8 @@ The snakes slither off of you, escaping through nooks and crannies all around th
 	<<molested>>
 
 	<<beastCombatInit>><<set $enemytrust -= 40>><<set $enemyanger += 40>><<set $enemyhealthmax to 400>><<set $enemyhealth to 400>><<set $enemyarousalmax to 1000>>
+	<<healthMultiplier>>
+	<<set $enemyarousalmax to $enemyarousalmax * ($beastArousalMult / 100)>>
 	You continue on your path. You don't get far before hearing a roar behind you.
 	<<if $monster is 1>>
 		"Tiny, squishy little morsel!"
@@ -3002,6 +3007,7 @@ The slimes disappear into the river. <<tearful>> you look around frantically.
 	<</if>>
 	<<maninit "plant">><<npcexpose>>
 	<<set $enemyarousalmax to 800>>
+	<<set $enemyarousalmax to $enemyarousalmax * ($npcArousalMult / 100)>>
 	<<if $phase is 2>>
 		<<set _randomtentacles to random(10, 12)>>
 	<<else>>
@@ -3423,7 +3429,7 @@ You start to climb the tree towards the nest. You make it up half way, before ne
 			<</if>>
 			<br><br>
 
-			<<if $fox gte 6>>
+			<<if ($fox gte 6 or $transformationParts.fox.tail is "default")>>
 				<<link [[Eat one|Forest Nest Share]]>><<transform fox 1>><<stress -4>><</link>><<lstress>>
 				<br>
 			<<else>>
@@ -3454,7 +3460,7 @@ You start to climb the tree towards the nest. You make it up half way, before ne
 :: Forest Nest Throw
 <<effects>>
 You grab a rock and toss it at the nest. It gets knocked loose, falling down in a messy heap. You see goo and yolk leaking through the twigs.
-<<if $harpy gte 6>><<stress 6>><<ggstress>><</if>>
+<<if ($harpy gte 6 or $transformationParts.bird.wings is "default")>><<stress 6>><<ggstress>><</if>>
 <br><br>
 
 <<if $forest_nest.fox isnot 3>>
@@ -3653,7 +3659,7 @@ That is, until you hear rapid footsteps behind you. You turn just in time to be
 	<</if>>
 	<br><br>
 
-	<<if $fox gte 6>>
+	<<if ($fox gte 6 or $transformationParts.fox.tail is "default")>>
 		<<link [[Eat one|Forest Nest Share]]>><<transform fox 1>><<stress -4>><</link>><<lstress>>
 		<br>
 	<<else>>
@@ -3667,9 +3673,9 @@ That is, until you hear rapid footsteps behind you. You turn just in time to be
 :: Forest Nest Share
 <<effects>>
 <<if $forest_nest.eggs lte 0>>
-	You pick up a broken egg and <<if $fox gte 6>>eagerly lap up its yolk<<else>>hesitantly pour the white and yolk into your mouth. It's not as bad as you thought it'd be<</if>>.
+	You pick up a broken egg and <<if ($fox gte 6 or $transformationParts.fox.tail is "default")>>eagerly lap up its yolk<<else>>hesitantly pour the white and yolk into your mouth. It's not as bad as you thought it'd be<</if>>.
 <<else>>
-	You pick up an egg and <<if $fox gte 6>>eagerly break it open into your mouth<<else>>hesitantly break it open into your mouth. It's not as bad as you thought it'd be<</if>>.
+	You pick up an egg and <<if ($fox gte 6 or $transformationParts.fox.tail is "default")>>eagerly break it open into your mouth<<else>>hesitantly break it open into your mouth. It's not as bad as you thought it'd be<</if>>.
 <</if>>
 <br><br>
 
@@ -3696,7 +3702,7 @@ You eventually say goodbye.
 <<effects>>
 You hide and wait, watching the nest intently.
 <<if $forest_nest.fox is 3>>
-	<<if $fox gte 6>>
+	<<if ($fox gte 6 or $transformationParts.fox.tail is "default")>>
 		The smell is getting closer. Before long, you hear rustling.
 	<<else>>
 		Before long, the rustling continues.
@@ -3753,7 +3759,7 @@ You hide and wait, watching the nest intently.
 
 	<<link [[Just watch (0:05)|Forest Fox Nest Watch]]>><<pass 5>><<stress -3>><</link>><<lstress>>
 	<br>
-	<<if $harpy gte 6>>
+	<<if ($harpy gte 6 or $transformationParts.bird.wings is "default")>>
 		<<link [[Challenge|Forest Fox Nest Challenge]]>><</link>><<harpy>>
 		<br>
 	<<else>>
@@ -3762,7 +3768,7 @@ You hide and wait, watching the nest intently.
 	<</if>>
 	<<link [[Sneak up|Forest Fox Nest Sneak]]>><</link>><<skulduggerydifficulty>>
 	<br>
-	<<if $fox gte 6>>
+	<<if ($fox gte 6 or $transformationParts.fox.tail is "default")>>
 		<<link [[Chase!|Forest Fox Nest Chase]]>><<set $phase2 to 1>><<stress -6>><<transform fox 1>><</link>><<llstress>><<fox>><<note "No eggs" "red">>
 		<br>
 	<<else>>
@@ -3880,9 +3886,9 @@ The <<beasttype>> dives behind a bush and starts to dig a hole. You slowly step 
 		<<if $monster is 1 or $bestialitydisable is "f">>
 			<<if $monster is 1>>
 				<<bHe>> holds both of your arms down.
-				<<if $fox gte 6>>
+				<<if ($fox gte 6 or $transformationParts.fox.tail is "default")>>
 					"What's this? Hoping to catch an easy mate, kit?"
-				<<elseif $cat gte 6>>
+				<<elseif ($cat gte 6 or $transformationParts.cat.tail is "default")>>
 					<<if $NPCList[0].pronoun is "f" and $NPCList[0].breastsize gte 4 and $NPCList[0].lactation is 1>>
 						"Hoping to get some milk, stray?" <<bHe>> presses <<bhis>> $NPCList[0].breastsdesc against you, <<bhis>> face only inches from yours.
 					<<else>>
@@ -3944,7 +3950,7 @@ The <<beasttype>> dives behind a bush and starts to dig a hole. You slowly step 
 
 		<<link [[Pet|Forest Fox Nest Pet]]>><<set $phase2 to 1>><</link>><<tendingdifficulty 1 200>><<llstress>>
 		<br>
-		<<if $fox gte 6 and $monster is 1>>
+		<<if ($fox gte 6 or $transformationParts.fox.tail is "default") and $monster is 1>>
 			<<link [["Lick " + $NPCList[0].pronouns.him + " clean"|Forest Fox Nest Lick]]>><<set $phase2 to 1>><</link>><<deviant1>><<fox>>
 			<br>
 		<</if>>
@@ -3970,7 +3976,7 @@ The <<beasttype>> dives behind a bush and starts to dig a hole. You take the cha
 <br><br>
 
 <<bHe>> doesn't notice you until you're close. <<bHe>> starts to run.
-<<if $fox gte 6 or $athleticsSuccess>>
+<<if ($fox gte 6 or $transformationParts.fox.tail is "default") or $athleticsSuccess>>
 	<<if $athleticsSuccess>>
 		<span class="green">But you're too fast.</span> You dive, catching <<bhim>> and rolling until <<bhes>> pinned under you.
 	<<else>>
@@ -4036,9 +4042,9 @@ The <<beasttype>> dives behind a bush and starts to dig a hole. You take the cha
 		<<if $monster is 1 or $bestialitydisable is "f">>
 			<<if $monster is 1>>
 				<<bHe>> holds both of your arms down.
-				<<if $fox gte 6>>
+				<<if ($fox gte 6 or $transformationParts.fox.tail is "default")>>
 					"What's this? Hoping to catch an easy mate, kit?"
-				<<elseif $cat gte 6>>
+				<<elseif ($cat gte 6 or $transformationParts.cat.tail is "default")>>
 					<<if $NPCList[0].pronoun is "f" and $NPCList[0].breastsize gte 4 and $NPCList[0].lactation is 1>>
 						"Hoping to get some milk, stray?" <<bHe>> presses <<bhis>> $NPCList[0].breastsdesc against you, <<bhis>> face only inches from yours.
 					<<else>>
@@ -4170,7 +4176,7 @@ Without warning, the rope releases, dropping you back on the ground. You shakily
 
 :: Forest Fox Nest Challenge
 <<effects>>
-<<if $harpy gte 6>>
+<<if ($harpy gte 6 or $transformationParts.bird.wings is "default")>>
 	You let out a piercing shriek, flaring out your wings.
 <<else>>
 	You make your presence known, yelling at the <<beasttype>> to get <<bhis>> attention.
@@ -4191,7 +4197,7 @@ Without warning, the rope releases, dropping you back on the ground. You shakily
 
 	<<link [[Pet|Forest Fox Nest Pet]]>><<set $phase2 to 1>><</link>><<tendingdifficulty 1 200>><<llstress>>
 	<br>
-	<<if $fox gte 6 and $monster is 1>>
+	<<if ($fox gte 6 or $transformationParts.fox.tail is "default") and $monster is 1>>
 		<<link [["Lick " + $NPCList[0].pronouns.him + " clean"|Forest Fox Nest Lick]]>><<set $phase2 to 1>><</link>><<deviant1>><<fox>>
 		<br>
 	<</if>>
@@ -4213,7 +4219,7 @@ Without warning, the rope releases, dropping you back on the ground. You shakily
 	<br>
 <<else>>
 	You make yourself appear as large as possible,
-	<<if $physiqueSuccess or $harpy gte 6>>
+	<<if $physiqueSuccess or ($harpy gte 6 or $transformationParts.bird.wings is "default")>>
 		<span class="green">and <<bhis>> tail puffs out.</span>
 		<<if $NPCList[0].traits.includes("territorial")>>
 			<<if $monster is 1>>
@@ -4296,7 +4302,7 @@ Without warning, the rope releases, dropping you back on the ground. You shakily
 			<</if>>
 			<br><br>
 
-			<<if $fox gte 6>>
+			<<if ($fox gte 6 or $transformationParts.fox.tail is "default")>>
 				<<link [[Eat one|Forest Nest Share]]>><<transform fox 1>><<stress -4>><</link>><<lstress>>
 				<br>
 			<<else>>
@@ -4387,9 +4393,9 @@ You gently touch the <<beasttypes>> tail. It is incredibly soft. You start to pe
 		<<if $monster is 1 or $bestialitydisable is "f">>
 			<<if $monster is 1>>
 				<<bHe>> smugly straddles you, arms crossed over <<bhis>> bare <<print $NPCList[0].breastsdesc>>.
-				<<if $fox gte 6>>
+				<<if ($fox gte 6 or $transformationParts.fox.tail is "default")>>
 					"This is my territory, kit. I will not share." <<bHe>> lowers <<bhimself>> down until your faces are nearly touching. "Of course... if you were my mate, things would be different."
-				<<elseif $cat gte 6>>
+				<<elseif ($cat gte 6 or $transformationParts.cat.tail is "default")>>
 					"Haughty little stray. I should teach you a lesson."
 				<<elseif $wolf gte 6>>
 					"This is my territory, insolent pup. Let this be a warning to your pack."
@@ -4648,15 +4654,15 @@ You let the <<beasttype>> go.
 You put your head right next to the <<beasttype>>.
 <br><br>
 
-<<if $fox gte 6>>
+<<if ($fox gte 6 or $transformationParts.fox.tail is "default")>>
 	You let out a high-pitched scream, and <<bhe>> jumps and lets a similar one out in response. You both stare each other down, screaming, before <<bhe>> scrambles away.
-<<elseif $harpy gte 6>>
+<<elseif ($harpy gte 6 or $transformationParts.bird.wings is "default")>>
 	You let out a piercing screech, and <<bhe>> jumps and screams in response. You both stare each other down, screaming, before <<bhe>> scrambles away.
 <<elseif $wolf gte 6>>
 	"Woof." <<bHe>> jumps, tail puffed out, and lets out a high-pitched scream before scrambling away.
-<<elseif $cat gte 6>>
+<<elseif ($cat gte 6 or $transformationParts.cat.tail is "default")>>
 	"Meow." <<bHe>> jumps, tail puffed out, and lets out a high-pitched scream before scrambling away.
-<<elseif $cow gte 6>>
+<<elseif ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black")>>
 	"Moo." <<bHe>> jumps, tail puffed out, and lets out a high-pitched scream before scrambling away.
 <<else>>
 	"Caught you." <<bHe>> jumps, tail puffed out, and lets out a high-pitched scream before scrambling away.

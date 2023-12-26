@@ -27,6 +27,9 @@
 		<<set _text_output += formatList(_clothingCaptionItems) + _finally>>
 		<<print _text_output>>
 		<<clothingCaptionTextGenitals>>
+		<<if $worn.handheld.type.includes("rainproof")>>
+			<br><br>
+		<</if>>
 		<<clothingCaptionTextHandheld>>
 	<</if>>
 	<<clothingCaptionTextNothing>>
@@ -142,7 +145,17 @@
 <<widget "clothingCaptionTextHandheld">>
 	<<silently>>
 	<<if $worn.handheld.name isnot "naked">>
-		<<set $_text_output to "You are carrying <<word 'handheld'>>  $worn.handheld.name.">>
+		<<set $_text_output to "You are carrying ">>
+		<<if $worn.handheld.integrity lte 24>>
+			<<set _state to "a tattered ">>
+		<<elseif $worn.handheld.integrity lte 60>>
+			<<set _state to "a torn ">>
+		<<elseif $worn.handheld.integrity lte 108>>
+			<<set _state to "a frayed ">>
+		<<else>>
+			<<set _state to "<<word 'handheld'>> ">>
+		<</if>>
+		<<set $_text_output += _state + "$worn.handheld.name.">>
 	<</if>>
 	<</silently>>
 	<<if $_text_output>><<print $_text_output>><</if>>

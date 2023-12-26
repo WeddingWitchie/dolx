@@ -291,7 +291,7 @@ function yearPassed() {
 function weekPassed() {
 	const fragment = document.createDocumentFragment();
 
-	if (V.science_exam >= 200 && V.sciencetrait < 4) {
+	if (V.science_exam >= 200 && V.sciencetrait < 4 * V.AMCTraits.science) {
 		V.effectsmessage = 1;
 		V.science_up_message = 1;
 		fragment.append(wikifier("school_skill_up", "science"));
@@ -300,7 +300,7 @@ function weekPassed() {
 		V.science_down_message = 1;
 		fragment.append(wikifier("school_skill_down", "science"));
 	}
-	if (V.maths_exam >= 200 && V.mathstrait < 4) {
+	if (V.maths_exam >= 200 && V.mathstrait < 4 * V.AMCTraits.maths) {
 		V.effectsmessage = 1;
 		V.maths_up_message = 1;
 		fragment.append(wikifier("school_skill_up", "maths"));
@@ -309,7 +309,7 @@ function weekPassed() {
 		V.maths_down_message = 1;
 		fragment.append(wikifier("school_skill_down", "maths"));
 	}
-	if (V.english_exam >= 200 && V.englishtrait < 4) {
+	if (V.english_exam >= 200 && V.englishtrait < 4 * V.AMCTraits.english) {
 		V.effectsmessage = 1;
 		V.english_up_message = 1;
 		fragment.append(wikifier("school_skill_up", "english"));
@@ -318,7 +318,7 @@ function weekPassed() {
 		V.english_down_message = 1;
 		fragment.append(wikifier("school_skill_down", "english"));
 	}
-	if (V.history_exam >= 200 && V.historytrait < 4) {
+	if (V.history_exam >= 200 && V.historytrait < 4 * V.AMCTraits.history) {
 		V.effectsmessage = 1;
 		V.history_up_message = 1;
 		fragment.append(wikifier("school_skill_up", "history"));
@@ -1436,7 +1436,11 @@ function dailySchoolEffects() {
 			V.englishPlay = "missed";
 		}
 	}
-	if (V.schooltrait >= 4) fragment.append(wikifier("trauma", -50));
+	if (V.schooltrait >= 8) fragment.append(wikifier("trauma", -150));
+	else if (V.schooltrait === 7) fragment.append(wikifier("trauma", -125));
+	else if (V.schooltrait === 6) fragment.append(wikifier("trauma", -100));
+	else if (V.schooltrait === 5) fragment.append(wikifier("trauma", -75));
+	else if (V.schooltrait === 4) fragment.append(wikifier("trauma", -50));
 	else if (V.schooltrait === 3) fragment.append(wikifier("trauma", -40));
 	else if (V.schooltrait === 2) fragment.append(wikifier("trauma", -30));
 	else if (V.schooltrait === 1) fragment.append(wikifier("trauma", -20));
@@ -1492,7 +1496,7 @@ function dailySchoolEffects() {
 	}
 
 	V.school = V.science + V.english + V.maths + V.history;
-	V.schooltrait = V.school >= 2800 ? 4 : V.school >= 2000 ? 3 : V.school >= 1600 ? 2 : V.school >= 1200 ? 1 : 0;
+	V.schooltrait = V.school >= 8000 ? 8 : V.school >= 6500 ? 7 : V.school >= 5000 ? 6 : V.school >= 4000 ? 5 : V.school >= 2800 ? 4 : V.school >= 2000 ? 3 : V.school >= 1600 ? 2 : V.school >= 1200 ? 1 : 0;
 
 	if (V.studyBooks) {
 		fragment.append(wikifier("passiveStudy"));
@@ -1511,7 +1515,11 @@ function dailySchoolEffects() {
 				}
 			}
 		}
-		if (V.studyBooks.stolen !== "none" && Time.schoolTerm) fragment.append(wikifier("crimeUp", 1, "thievery"));
+		// if (V.studyBooks.stolen !== "none" && Time.schoolTerm) fragment.append(wikifier("crimeUp", 1, "thievery"));
+		if (V.studyBooks.stolen.science !== 0 && Time.schoolTerm) fragment.append(wikifier("crimeUp", 1, "thievery"));
+		if (V.studyBooks.stolen.maths !== 0 && Time.schoolTerm) fragment.append(wikifier("crimeUp", 1, "thievery"));
+		if (V.studyBooks.stolen.english !== 0 && Time.schoolTerm) fragment.append(wikifier("crimeUp", 1, "thievery"));
+		if (V.studyBooks.stolen.history !== 0 && Time.schoolTerm) fragment.append(wikifier("crimeUp", 1, "thievery"));
 		if (V.recentReturnTimer) {
 			V.recentReturnTimer--;
 			if (V.recentReturnTimer <= 0) delete V.recentReturnTimer;
@@ -1573,14 +1581,16 @@ function dailyMasochismSadismEffects() {
 		return false;
 	};
 
-	V.masochism *= 0.985;
+	if (V.uncomfortable.sadoMaso === true) {
+		V.masochism *= 0.985;
+		V.sadism *= 0.985;
+	}
 	const masochism = effects(V.masochism_level, V.masochism);
 	if (masochism) {
 		V.masochism_level = masochism.level;
 		V.masochism_message = masochism.message;
 		V.effectsmessage = 1;
 	}
-	V.sadism *= 0.985;
 	const sadism = effects(V.sadism_level, V.sadism);
 	if (sadism) {
 		V.sadism_level = sadism.level;
@@ -1638,6 +1648,15 @@ function dailyFarmEvents() {
 			fragment.append(wikifier("farm_cattle", -1));
 		}
 		fragment.append(wikifier("farm_build_day"));
+		if (V.farm.compostbin >= 1){
+			fragment.append(wikifier("composting"));
+		}
+		if (V.farm.watchtowerDailyAttempt == 1){
+			V.farm.watchtowerDailyAttempt = 0;
+		}
+		if (V.farm.dailyHelp == 1){
+			V.farm.dailyHelp = 0;
+		}
 	}
 	if (V.farm_stage >= 9) {
 		if (V.lurkers_stored >= 1) {
@@ -1646,6 +1665,16 @@ function dailyFarmEvents() {
 				V.lurkers_stored--;
 				V.phials_stored++;
 				V.farm.still_timer = 7;
+			}
+			if (V.farm.player_still_timer >= 0) {
+				V.farm.player_still_timer--;
+			}
+			if (V.farm.player_still_timer == 0) {
+				V.lurkers_stored--;
+				V.phials_stored++;
+				if (V.farm.extract == 2 && V.lurkers_stored > 0){
+					V.farm.player_still_timer = 9 - V.sciencetrait;
+				}
 			}
 		}
 	}
