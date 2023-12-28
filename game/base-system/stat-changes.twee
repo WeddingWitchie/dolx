@@ -259,6 +259,9 @@
 		<<set _mod to 1>>
 		<<set _arousalPart to 1>>
 
+		<!-- Low Purity adds a scaling flat bonus to sensitivity of up to 1 for breast and bottom, and up to 2 for genitals  -->
+		<<set _purityMod to ((1000 - $purity)/1000)>>
+
 		<!-- Trait checks & effects below -->
 		<<if $orgasmtrait gte 1 and _gain gt 0>>
 			<<set _mod *= 0.6>>
@@ -282,24 +285,20 @@
 				<!-- No modifier. The usual behaviour for this widget -->
 			<<case "mouth" "oral" "lips" "masturbationMouth" "masturbationOral">>
 				<<set _arousalPart to $mouthsensitivity>>
-				<<set $mouthsensitivity += _gain * 0.00001>>
 			<<case "breast" "breasts" "chest" "nipple" "nipples" "masturbationBreasts" "masturbationNipples">>
-				<<set _arousalPart to $breastsensitivity>>
-				<<set $breastsensitivity += _gain * 0.00001>>
+				<<set _arousalPart to $breastsensitivity + _purityMod>>
 				<<if playerIsPregnant()>>
 					<<set $_arousalPart += 0.5>>
 				<</if>>
 			<<case "bottom" "anus" "anal" "ass" "butt" "masturbationAnal" "masturbationAss">>
-				<<set _arousalPart to $bottomsensitivity>>
-				<<set $bottomsensitivity += _gain * 0.00001>>
+				<<set _arousalPart to $bottomsensitivity + _purityMod>>
 			<<case "genital" "genitals" "penis" "penile" "pussy" "vaginal" "masturbationGenital" "masturbationPenis" "masturbationVagina">>
 				<<if $player.vaginaExist is "t">>
 					<<set _wetnessPenalty to Math.min($vaginaWetness/60, 1)>>
 				<<else>>
 					<<set _wetnessPenalty to 1>>
 				<</if>>
-				<<set _arousalPart to Math.max($genitalsensitivity * _wetnessPenalty, 0.01)>>
-				<<set $genitalsensitivity += _gain * 0.00001>>
+				<<set _arousalPart to Math.max($genitalsensitivity * _wetnessPenalty, 0.01) + 2*_purityMod>>
 				<<if playerIsPregnant()>>
 					<<set $_arousalPart += 0.5>>
 				<</if>>
@@ -341,7 +340,7 @@
 			<<set $vaginaArousalWetness to Math.max($vaginaArousalWetness, 5)>>
 		<</if>>
 
-		<<if $player.gender is "f" and _gain*_mod gte 400 and _arousalPart gt 1>>
+		<<if $player.sex is "f" and _gain*_mod gte 400 and _arousalPart gt 1>>
 			<<if $arousal lt $arousalmax * 0.2 and $orgasmcurrent lt 1>>
 			<<elseif $arousal lt $arousalmax * 0.4 and $orgasmcurrent lt 1>>
 				
@@ -574,14 +573,19 @@
 	<</if>>
 <</widget>>
 
+<<widget "genderidentity">>
+	<<if V.xchangePill and V.xchangePill.active>>
+		<<set $genderidentity -= Math.abs(_args[0]) * 5>>
+	<<else>>
+		<<set $genderidentity += Math.abs(_args[0]) * 5>>	
+	<</if>>
+	<<set $genderidentity to Math.clamp($genderidentity,0, 1000)>>
+<</widget>>
+
 <<widget "purity">>
 	<<if _args[0] and $statFreeze isnot true>>
 		<<if _args[0] lt 0>>
-			<<if V.xchangePill and V.xchangePill.active>>
-				<<set $genderidentity += Math.abs(_args[0])>>
-			<<else>>
-				<<set $genderidentity -= Math.abs(_args[0])>>	
-			<</if>>
+			<<genderidentity _args[0]>>
 		<</if>>
 		<<set $purity += Math.abs(_args[0])>>
 		<<for _active_clothes range Object.keys($worn)>>
@@ -966,7 +970,7 @@
 
 <<widget "beauty">>
 	<<if _args[0]>>
-		<<set $beauty += _args[0]>>
+		<<set $beauty += _args[0] / 4>>
 		<<set $beauty = Math.clamp($beauty, 0, $beautymax)>>
 	<</if>>
 <</widget>>

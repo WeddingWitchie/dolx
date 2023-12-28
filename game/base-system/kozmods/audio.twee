@@ -199,32 +199,44 @@
 <</widget>>
 
 <<widget "update-audio">>
-	/* Lists of relevant states */
-	<<set _penisPenetration to ["penetrated", "othervagina", "otheranus"]>>
-	<<set _penisRubbing to ["otherhand", "othermouth", "tentacle"]>>
-	<<set _penetration to ["penetrated", "doublepenetrated", "tentacle", "tentacledeep"]>>
-	<<set _rubbing to ["otherhand", "othermouth", "othervagina"]>>
-	
+	<<if $options.audio is 1>>
+		/* Lists of relevant states */
+		<<set _penisPenetration to ["penetrated", "othervagina", "otheranus"]>>
+		<<set _penisRubbing to ["otherhand", "othermouth", "tentacle"]>>
+		<<set _penetration to ["penetrated", "doublepenetrated", "tentacle", "tentacledeep"]>>
+		<<set _rubbing to ["otherhand", "othermouth", "othervagina"]>>
 
-	/* Update BGS */
-	<<if _penetration.includes($vaginastate) or _penetration.includes($anusstate) or _penisPenetration.includes($penisstate)>>
-		<<sex-sound>>
-	<<elseif _rubbing.includes($vaginastate) or _rubbing.includes($anusstate) or _penisRubbing.includes($penisstate) or $fingersInVagina gte 1>>
-		<<rub-sound>>
+		<<set _NPCpenetration to ["penis", "otheranus"]>>
+		<<set _NPCrubbing to ["lefthand", "righthand"]>>
+
+		/* Consider adding a check for NPC genitals being rubbed/penetrated by checking $NPCList[_n].vagina is "penis" for example, but remember to check if $NPCList[_n].vagina isnot "none"	 */
+
+		/* Update BGS */
+		<<if _penetration.includes($vaginastate) or _penetration.includes($anusstate) or _penisPenetration.includes($penisstate)>>
+			<<sex-sound>>
+		<<elseif _rubbing.includes($vaginastate) or _rubbing.includes($anusstate) or _penisRubbing.includes($penisstate) or $fingersInVagina gte 1>>
+			<<rub-sound>>
+		<<else>>
+			<<bgs "stop">>
+		<</if>>
+
+		/* Update BGV */
+		<<if $options.voiceoverAudio and $player.sex is "f">>
+			<<if _penetration.includes($mouthstate)>>
+				<<chupa-voice>>
+			<<elseif _penetration.includes($vaginastate) or _penetration.includes($anusstate)>>
+				<<sex-voice>>
+			<<elseif $arousal gte $arousalmax * 0.1>>
+				<<arousal-voice>>
+			<<else>>
+				<<bgv "stop">>
+			<</if>>
+		<<else>>
+			<<bgv "stop">>
+		<</if>>
+	
 	<<else>>
 		<<bgs "stop">>
-	<</if>>
-
-	/* Update BGV */
-	<<if $player.sex is "f">>
-		<<if _penetration.includes($mouthstate)>>
-			<<chupa-voice>>
-		<<elseif _penetration.includes($vaginastate) or _penetration.includes($anusstate)>>
-			<<sex-voice>>
-		<<elseif $arousal gte $arousalmax * 0.1>>
-			<<arousal-voice>>
-		<</if>>
-	<<else>>
 		<<bgv "stop">>
 	<</if>>
 
@@ -237,14 +249,14 @@
 	<<if $voiceoverActive is undefined>>
 		<<set $voiceoverActive to "f">>
 	<</if>>
-	<<if _args[0] is "stop" and setup.bgsCurrentPlaylist neq "none">>
+	<<if _args[0] is "stop" and setup.bgsCurrentPlaylist isnot "none">>
 		/* Stop the current BGS playlist */
 		<<playlist setup.bgsCurrentPlaylist stop>>
 		<<set setup.bgsCurrentPlaylist to "none">>
 	
-	<<elseif _args[0] neq "stop" and _args[0] neq setup.bgsCurrentPlaylist and $voiceoverActive is "f">>
+	<<elseif _args[0] isnot "stop" and _args[0] isnot setup.bgsCurrentPlaylist and $voiceoverActive is "f">>
 		/* Stop the previous BGS playlist */
-		<<if setup.bgsCurrentPlaylist neq "none">>
+		<<if setup.bgsCurrentPlaylist isnot "none">>
 			<<playlist setup.bgsCurrentPlaylist stop>>
 		<</if>>
 
@@ -263,14 +275,14 @@
 	<<if $voiceoverActive is undefined>>
 		<<set $voiceoverActive to "f">>
 	<</if>>
-	<<if _args[0] is "stop" and setup.bgvCurrentPlaylist neq "none">>
+	<<if _args[0] is "stop" and setup.bgvCurrentPlaylist isnot "none">>
 		/* Stop the current BGV playlist */
 		<<playlist setup.bgvCurrentPlaylist stop>>
 		<<set setup.bgvCurrentPlaylist to "none">>
 
-	<<elseif _args[0] neq "stop" and _args[0] neq setup.bgvCurrentPlaylist and ($voiceoverActive is "f" or _args[1] is "override")>>
+	<<elseif _args[0] isnot "stop" and _args[0] isnot setup.bgvCurrentPlaylist and ($voiceoverActive is "f" or _args[1] is "override")>>
 		/* Stop the previous BGV playlist */
-		<<if setup.bgvCurrentPlaylist neq "none">>
+		<<if setup.bgvCurrentPlaylist isnot "none">>
 			<<playlist setup.bgvCurrentPlaylist stop>>
 		<</if>>
 
@@ -283,7 +295,7 @@
 <</widget>>
 
 <<widget "voiceover">>
-	<<if setup.bgvCurrentPlaylist neq "none">>
+	<<if setup.bgvCurrentPlaylist isnot "none">>
 		/* Fade out the BGV */
 		<<playlist setup.bgvCurrentPlaylist volume 1>>
 		<<playlist setup.bgvCurrentPlaylist fadeout>>
@@ -294,7 +306,7 @@
 			/* Play the voiceover */
 			<<audio _args[0][random(0,_args[0].length-1)] play>>
 			
-			<<if $fingersInVagina gte 1>>
+			<<if $fingersInVagina gte 1 and setup.bgsCurrentPlaylist isnot "none">>
 				<<playlist setup.bgsCurrentPlaylist fadeout>>
 				<<set setup.bgsCurrentPlaylist to "none">>
 			<</if>>
