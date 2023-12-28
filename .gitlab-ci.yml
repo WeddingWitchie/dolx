@@ -11,54 +11,64 @@ before_script:
     - apk add --no-cache zip
     - apk add --no-cache curl
     - apk add --no-cache jq
-    - mkdir -p releases/DoLP_Vanilla/img/
-    - mkdir -p releases/DoLP_BEEESSS/img/
-    - mkdir -p releases/DoLP_BEEESSS+Hikari_Female/img/
-    - mkdir -p releases/DoLP_BEEESSS+Hikari_Male/img/
-    - mkdir -p releases/DoLP_BEEESSS+Paril+Hairstyle_Extended/img/
+    - apk add --no-cache nodejs
+    - mkdir -p releases/DoLXE_Vanilla/img/
+    - mkdir -p releases/DoLXE_BEEESSS/img/
+    - mkdir -p releases/DoLXE_BEEESSS+Hikari_Female/img/
+    - mkdir -p releases/DoLXE_BEEESSS+Hikari_Male/img/
+    - mkdir -p releases/DoLXE_BEEESSS+Paril+Hairstyle_Extended/img/
+    - mkdir -p releases/DoLXE_Modloader/img/
 
 build_job:
     stage: build
     script:
     - echo "Building version $VERSION"
     - sh ./compile.sh
-    - cp "Degrees of Lewdity.html" ./releases/DoLP_Vanilla/
-    - cp -r -f ./vanillaimg/* ./releases/DoLP_Vanilla/img/
-    - cp "Degrees of Lewdity.html" ./releases/DoLP_BEEESSS/
-    - cp -r -f ./beeesssimg/* ./releases/DoLP_BEEESSS/img/
-    - cp "Degrees of Lewdity.html" ./releases/DoLP_BEEESSS+Hikari_Female/
-    - cp -r -f ./beeessshikarifemaleimg/* ./releases/DoLP_BEEESSS+Hikari_Female/img/
-    - cp "Degrees of Lewdity.html" ./releases/DoLP_BEEESSS+Hikari_Male/
-    - cp -r -f ./beeessshikarimaleimg/* ./releases/DoLP_BEEESSS+Hikari_Male/img/
-    - cp "Degrees of Lewdity.html" ./releases/DoLP_BEEESSS+Paril+Hairstyle_Extended/
-    - cp -r -f ./beeesssparilhairstyleextendedimg/* ./releases/DoLP_BEEESSS+Paril+Hairstyle_Extended/img/
+    - node "dist-insertTools/insert2html.cjs" "Degrees of Lewdity.html" "modList.json" "dist-BeforeSC2/BeforeSC2.js"
+    - cp "Degrees of Lewdity.html" ./releases/DoLXE_Vanilla/
+    - cp -r -f ./vanillaimg/* ./releases/DoLXE_Vanilla/img/
+    - cp "Degrees of Lewdity.html" ./releases/DoLXE_BEEESSS/
+    - cp -r -f ./beeesssimg/* ./releases/DoLXE_BEEESSS/img/
+    - cp "Degrees of Lewdity.html" ./releases/DoLXE_BEEESSS+Hikari_Female/
+    - cp -r -f ./beeessshikarifemaleimg/* ./releases/DoLXE_BEEESSS+Hikari_Female/img/
+    - cp "Degrees of Lewdity.html" ./releases/DoLXE_BEEESSS+Hikari_Male/
+    - cp -r -f ./beeessshikarimaleimg/* ./releases/DoLXE_BEEESSS+Hikari_Male/img/
+    - cp "Degrees of Lewdity.html" ./releases/DoLXE_BEEESSS+Paril+Hairstyle_Extended/
+    - cp -r -f ./beeesssparilhairstyleextendedimg/* ./releases/DoLXE_BEEESSS+Paril+Hairstyle_Extended/img/
+    - cp "Degrees of Lewdity.html.mod.html" ./releases/DoLXE_Modloader/
+    - cp -r -f ./vanillaimg/* ./releases/DoLXE_Modloader/img/
     - 'curl -H "PRIVATE-TOKEN: $CI_API_TOKEN" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/repository/changelog?version=$CI_COMMIT_TAG" | jq -r .notes > release_notes.md'
     - cd ./releases/
-    - zip -r ./DoLP_Vanilla/DoLP_Vanilla.zip ./DoLP_Vanilla/
+    - zip -r ./DoLXE_Vanilla/DoLXE_Vanilla.zip ./DoLXE_Vanilla/ 1>NUL
     - 'curl 
         --header "JOB-TOKEN: $CI_JOB_TOKEN"
-        --upload-file ./DoLP_Vanilla/DoLP_Vanilla.zip
-        "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Content/1.0.0/DoLP_Vanilla.zip"'
-    - zip -r ./DoLP_BEEESSS/DoLP_BEEESSS.zip ./DoLP_BEEESSS/
+        --upload-file ./DoLXE_Vanilla/DoLXE_Vanilla.zip
+        "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Content/1.0.0/DoLXE_Vanilla.zip"'
+    - zip -r ./DoLXE_BEEESSS/DoLXE_BEEESSS.zip ./DoLXE_BEEESSS/ 1>NUL
     - 'curl 
         --header "JOB-TOKEN: $CI_JOB_TOKEN"
-        --upload-file ./DoLP_BEEESSS/DoLP_BEEESSS.zip
-        "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Content/1.0.0/DoLP_BEEESSS.zip"'
-    - zip -r ./DoLP_BEEESSS+Hikari_Female/DoLP_BEEESSS+Hikari_Female.zip ./DoLP_BEEESSS+Hikari_Female/
+        --upload-file ./DoLXE_BEEESSS/DoLXE_BEEESSS.zip
+        "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Content/1.0.0/DoLXE_BEEESSS.zip"'
+    - zip -r ./DoLXE_BEEESSS+Hikari_Female/DoLXE_BEEESSS+Hikari_Female.zip ./DoLXE_BEEESSS+Hikari_Female/ 1>NUL
     - 'curl 
         --header "JOB-TOKEN: $CI_JOB_TOKEN"
-        --upload-file ./DoLP_BEEESSS+Hikari_Female/DoLP_BEEESSS+Hikari_Female.zip
-        "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Content/1.0.0/DoLP_BEEESSS+Hikari_Female.zip"'
-    - zip -r ./DoLP_BEEESSS+Hikari_Male/DoLP_BEEESSS+Hikari_Male.zip ./DoLP_BEEESSS+Hikari_Male/
+        --upload-file ./DoLXE_BEEESSS+Hikari_Female/DoLXE_BEEESSS+Hikari_Female.zip
+        "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Content/1.0.0/DoLXE_BEEESSS+Hikari_Female.zip"'
+    - zip -r ./DoLXE_BEEESSS+Hikari_Male/DoLXE_BEEESSS+Hikari_Male.zip ./DoLXE_BEEESSS+Hikari_Male/ 1>NUL
     - 'curl 
         --header "JOB-TOKEN: $CI_JOB_TOKEN"
-        --upload-file ./DoLP_BEEESSS+Hikari_Male/DoLP_BEEESSS+Hikari_Male.zip
-        "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Content/1.0.0/DoLP_BEEESSS+Hikari_Male.zip"'
-    - zip -r ./DoLP_BEEESSS+Paril+Hairstyle_Extended/DoLP_BEEESSS+Paril+Hairstyle_Extended.zip ./DoLP_BEEESSS+Paril+Hairstyle_Extended/
+        --upload-file ./DoLXE_BEEESSS+Hikari_Male/DoLXE_BEEESSS+Hikari_Male.zip
+        "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Content/1.0.0/DoLXE_BEEESSS+Hikari_Male.zip"'
+    - zip -r ./DoLXE_BEEESSS+Paril+Hairstyle_Extended/DoLXE_BEEESSS+Paril+Hairstyle_Extended.zip ./DoLXE_BEEESSS+Paril+Hairstyle_Extended/ 1>NUL
     - 'curl 
         --header "JOB-TOKEN: $CI_JOB_TOKEN"
-        --upload-file ./DoLP_BEEESSS+Paril+Hairstyle_Extended/DoLP_BEEESSS+Paril+Hairstyle_Extended.zip
-        "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Content/1.0.0/DoLP_BEEESSS+Paril+Hairstyle_Extended.zip"'
+        --upload-file ./DoLXE_BEEESSS+Paril+Hairstyle_Extended/DoLXE_BEEESSS+Paril+Hairstyle_Extended.zip
+        "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Content/1.0.0/DoLXE_BEEESSS+Paril+Hairstyle_Extended.zip"'
+    - zip -r ./DoLXE_Modloader/DoLXE_Modloader.zip ./DoLXE_Modloader/ 1>NUL
+    - 'curl 
+        --header "JOB-TOKEN: $CI_JOB_TOKEN"
+        --upload-file ./DoLXE_Modloader/DoLXE_Modloader.zip
+        "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Content/1.0.0/DoLXE_Modloader.zip"'
     only:
     - master
     artifacts:
@@ -86,13 +96,15 @@ release_job:
         ref: '$CI_COMMIT_SHA'
         assets:
             links:
-                - name: 'DoLP_Vanilla'
-                  url: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Content/1.0.0/DoLP_Vanilla.zip"
-                - name: 'DoLP_BEEESSS'
-                  url: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Content/1.0.0/DoLP_BEEESSS.zip"
-                - name: 'DoLP_BEEESSS+Hikari_Female'
-                  url: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Content/1.0.0/DoLP_BEEESSS+Hikari_Female.zip"
-                - name: 'DoLP_BEEESSS+Hikari_Male'
-                  url: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Content/1.0.0/DoLP_BEEESSS+Hikari_Male.zip"
-                - name: 'DoLP_BEEESSS+Paril+Hairstyle_Extended'
-                  url: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Content/1.0.0/DoLP_BEEESSS+Paril+Hairstyle_Extended.zip"
+                - name: 'DoLXE_Vanilla'
+                  url: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Content/1.0.0/DoLXE_Vanilla.zip"
+                - name: 'DoLXE_BEEESSS'
+                  url: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Content/1.0.0/DoLXE_BEEESSS.zip"
+                - name: 'DoLXE_BEEESSS+Hikari_Female'
+                  url: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Content/1.0.0/DoLXE_BEEESSS+Hikari_Female.zip"
+                - name: 'DoLXE_BEEESSS+Hikari_Male'
+                  url: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Content/1.0.0/DoLXE_BEEESSS+Hikari_Male.zip"
+                - name: 'DoLXE_BEEESSS+Paril+Hairstyle_Extended'
+                  url: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Content/1.0.0/DoLXE_BEEESSS+Paril+Hairstyle_Extended.zip"
+                - name: 'DoLXE_Modloader'
+                  url: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Content/1.0.0/DoLXE_Modloader.zip"
