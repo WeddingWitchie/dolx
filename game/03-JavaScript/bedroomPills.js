@@ -730,7 +730,7 @@ setup.pills = [
 		onTakeMessage: 
 			"You take the pill.<br><br>All of a sudden, you feel a heat coursing through your body, as it slowly begins to twist and turn, rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a man's body.<br><br>Your new body feels larger, stronger, and quite ready to dish out and receive punishment.<br><br>And upon looking in the mirror, you realise you're quite handsome as well!",
 		warning_label:
-			"Warning: Mild discomfort might be incurred during transformation. Certain parasitic infections might result in permanence, in particular those affecting the genitalia..",
+			"Warning: CANNOT BE TAKEN DURING PREGNANCY. Mild discomfort might be incurred during transformation. Certain parasitic infections might result in permanence, in particular those affecting the genitalia.",
 		autoTake() {
 			return V.sexStats.pills["pills"][this.name].autoTake;
 		},
@@ -751,7 +751,7 @@ setup.pills = [
 			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
 		},
 		take_condition() {
-			return !V.xchangePill || (V.xchangePill && !V.xchangePill.active)
+			return (!V.xchangePill || (V.xchangePill && !V.xchangePill.active)) && V.sexStats.vagina.pregnancy.type === null
 				? 1
 				: 0;
 		},
@@ -764,7 +764,7 @@ setup.pills = [
 		onTakeMessage: 
 			"You take the pill.<br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a man's body.<br><br>Your new body feels larger, stronger, and quite ready to dish out and receive punishment.<br><br>And upon looking in the mirror, you realise you're quite handsome as well!",
 		warning_label:
-			"Warning: Certain parasitic infections might also result in permanence, in particular those affecting the genitalia.",
+			"Warning: CANNOT BE TAKEN DURING PREGNANCY. Certain parasitic infections might also result in permanence, in particular those affecting the genitalia.",
 		autoTake() {
 			return V.sexStats.pills["pills"][this.name].autoTake;
 		},
@@ -785,7 +785,7 @@ setup.pills = [
 			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
 		},
 		take_condition() {
-			return (V.xchangePill && !V.xchangePill.active) || !V.xchangePill
+			return ((V.xchangePill && !V.xchangePill.active) || !V.xchangePill) && V.sexStats.vagina.pregnancy.type === null
 				? 1
 				: 0;
 		},
@@ -798,7 +798,7 @@ setup.pills = [
 		onTakeMessage: 
 			"You take the pill.<br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a man's body.<br><br>Your new body feels larger, stronger, and quite ready to dish out and receive punishment.<br><br>And upon looking in the mirror, you realise you're quite handsome as well!",
 		warning_label:
-			"Warning: May become permanent upon climaxing if remaining duration ever exceeds 30 days. Certain parasitic infections may also result in permanence as well, in particular those affecting the genitalia.",
+			"Warning: CANNOT BE TAKEN DURING PREGNANCY. May become permanent upon climaxing if remaining duration ever exceeds 30 days. Certain parasitic infections may also result in permanence as well, in particular those affecting the genitalia.",
 		autoTake() {
 			return V.sexStats.pills["pills"][this.name].autoTake;
 		},
@@ -819,7 +819,7 @@ setup.pills = [
 			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
 		},
 		take_condition() {
-			return (V.xchangePill && !V.xchangePill.active) || !V.xchangePill
+			return ((V.xchangePill && !V.xchangePill.active) || !V.xchangePill) && V.sexStats.vagina.pregnancy.type === null
 				? 1
 				: 0;
 		},
@@ -832,7 +832,7 @@ setup.pills = [
 		onTakeMessage: 
 			"You take the pill.<br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a man's body.<br><br>Your new body feels larger, stronger, and quite ready to dish out and receive punishment.<br><br>And upon looking in the mirror, you realise you're quite handsome as well!",
 		warning_label:
-			"Warning: Certain parasitic infections may result in permanence, in particular those affecting the genitalia.",
+			"Warning: CANNOT BE TAKEN DURING PREGNANCY. Certain parasitic infections may result in permanence, in particular those affecting the genitalia.",
 		autoTake() {
 			return V.sexStats.pills["pills"][this.name].autoTake;
 		},
@@ -853,7 +853,7 @@ setup.pills = [
 			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
 		},
 		take_condition() {
-			return (V.xchangePill && !V.xchangePill.active) || !V.xchangePill
+			return ((V.xchangePill && !V.xchangePill.active) || !V.xchangePill) && V.sexStats.vagina.pregnancy.type === null
 				? 1
 				: 0;
 		},
