@@ -86,6 +86,31 @@
 
 		<<set _sexToysFeats to _keys.count("Opened Pandoras Box") + _keys.count("Opened Pandoras Cocks")>>
 
+		<<set _gradesFeats to _keys.count("Perfect Record") + _keys.count("Return to Monke")>>
+		<<set _gradesFeatsLimit to (_gradesFeats * 30)>>
+
+		<<set _skulduggeryFeats to _keys.count("Thief") + _keys.count("Agent 47")>>
+		<<set _skulduggeryFeatsLimit to (_skulduggeryFeats * 25)>>
+
+		<<set _dancingFeats to _keys.count("May I have this Dance?") + _keys.count("Can't Touch This")>>
+		<<set _dancingFeatsLimit to (_dancingFeats * 25)>>
+
+		<<set _swimmingFeats to _keys.count("Aquanaut") + _keys.count("Atlantean")>>
+		<<set _swimmingFeatsLimit to (_swimmingFeats * 25)>>
+
+		<<set _athleticsFeats to _keys.count("Swift") + _keys.count("Ludicrous Speed")>>
+		<<set _athleticsFeatsLimit to (_athleticsFeats * 25)>>
+
+		<<set _tendingFeats to _keys.count("Green Fingered") + _keys.count("Grass Toucher")>>
+		<<set _tendingFeatsLimit to (_tendingFeats * 25)>>
+
+		<<set _seductionFeats to _keys.count("Seductress") + _keys.count("Irresistible")>>
+		<<set _seductionFeatsLimit to (_seductionFeats * 25)>>
+
+		<<set _divineTFsFeats to _keys.count("Angel") + _keys.count("Fallen Angel") + _keys.count("Demon")>>
+
+		<<set _animalTFsFeats to _keys.count("Neko") + _keys.count("Wolf") + _keys.count("Cattle") + _keys.count("Harpy") + _keys.count("Fox")>>
+
 		<<set $featsBoosts to {
 			upgrades:{
 				money:0,
@@ -106,17 +131,19 @@
 				randomClothing:0,
 				specialClothing:0,
 				sexToys:0,
+				divineTFs:0,
+				animalTFs:0,
 			},
 			upgradeDetails:{
 				money:{cost:5, limit: _moneyFeatsLimit, minCount: 1, count:_moneyFeats, exclusive:""},
-				grades:{cost:15, limit: 30, minCount: 1, count:_keys.count("Perfect Record"), exclusive:""},
-				skulduggery:{cost:5, limit: 20, minCount: 1, count:_keys.count("Thief"), exclusive:""},
-				dancing:{cost:5, limit: 20, minCount: 1, count:_keys.count("May I have this Dance?"), exclusive:""},
-				swimming:{cost:5, limit: 20, minCount: 1, count:_keys.count("Aquanaut"), exclusive:""},
-				athletics:{cost:5, limit: 20, minCount: 1, count:_keys.count("Swift"), exclusive:""},
-				tending:{cost:5, limit: 20, minCount: 1, count:_keys.count("Green Fingered"), exclusive:""},
-				greenThumb:{cost:40, limit: 40, minCount: 1, count:_keys.count("Green Fingered"), exclusive:"", hidden:true},
-				seduction:{cost:5, limit: 20, minCount: 1, count:_keys.count("Seductress"), exclusive:""},
+				grades:{cost:15, limit: _gradesFeatsLimit, minCount: 1, count:_gradesFeats, exclusive:""},
+				skulduggery:{cost:5, limit: _skulduggeryFeatsLimit, minCount: 1, count:_skulduggeryFeats, exclusive:""},
+				dancing:{cost:5, limit: _dancingFeatsLimit, minCount: 1, count:_dancingFeats, exclusive:""},
+				swimming:{cost:5, limit: _swimmingFeatsLimit, minCount: 1, count:_swimmingFeats, exclusive:""},
+				athletics:{cost:5, limit: _athleticsFeatsLimit, minCount: 1, count:_athleticsFeats, exclusive:""},
+				tending:{cost:5, limit: _tendingFeatsLimit, minCount: 1, count:_tendingFeats, exclusive:""},
+				greenThumb:{cost:40, limit: 40, minCount: 1, count:_keys.count("Green Fingered"), exclusive:""},
+				seduction:{cost:5, limit: _seductionFeatsLimit, minCount: 1, count:_seductionFeats, exclusive:""},
 				purity:{cost:20, limit: 100, minCount: 2, count:_purityFeats, exclusive:"impurity"},
 				impurity:{cost:20, limit: 100, minCount: 1, count:_keys.count("Demon"), exclusive:"purity"},
 				newLife:{cost:20, limit: _newLifeLimit, minCount: 1, count:_newLife, exclusive:""},
@@ -126,6 +153,8 @@
 				randomClothing:{cost:1, limit: 20, minCount: 0, count:0, exclusive:""},
 				specialClothing:{cost:40, limit: 40, minCount: 1, count:_keys.count("Curious Attire"), exclusive:""},
 				sexToys:{cost:30, limit: 30 * _sexToysFeats, minCount: 1, count:_sexToysFeats, exclusive:""},
+				divineTFs:{cost:50, limit: 50, minCount: 1, count:_divineTFsFeats, exclusive:""},
+				animalTFs:{cost:30, limit: 30, minCount: 1, count:_animalTFsFeats, exclusive:""},
 			},
 			missing:{
 				money:"Unlock this boost by obtaining the 'Pocket Change' feat",
@@ -145,6 +174,8 @@
 				randomClothing:"",
 				specialClothing:"Unlock this boost by obtaining a hidden feat (" + setup.feats["Curious Attire"].hint + ")",
 				sexToys:"Unlock this boost by obtaining a hidden feat (" + setup.feats["Opened Pandoras Box"].hint + ")",
+				divineTFs:"Unlock this boost by obtaining one of the divine transformations",
+				animalTFs:"Unlock this boost by obtaining one of the animal transformations",
 			},
 			name:{
 				money:"Money",
@@ -165,6 +196,8 @@
 				randomClothing:"Random Clothing",
 				specialClothing:"Special Clothing",
 				sexToys:"Sex Toys",
+				divineTFs:"Divine Transformations",
+				animalTFs:"Animal Transformations",
 			},
 			pointsUsed: 0,
 			clothingGender:"Either",
@@ -178,6 +211,8 @@
 			},
 			sexToys:[{},{},{},{},{},{}],
 			earSlimeType: "immaturePassive",
+			divineTFs: "",
+			animalTFs: "",
 		}>>
 	<</if>>
 <</widget>>
@@ -276,6 +311,28 @@
 	<<if _upgrades.aNewBestFriend gt 10>>
 		<<parasite right_ear slime>>
 	<</if>>
+	<<switch $featsBoosts.divineTFs>>
+		<<case "angel">>
+			<<angelTransform>>
+		<<case "fallenAngel">>
+			<<fallenButNotOut 98>>
+		<<case "demon">>
+			<<demonTransform>>
+		<<default>>
+	<</switch>>
+	<<switch $featsBoosts.animalTFs>>
+		<<case "cat">>
+			<<catTransform>>
+		<<case "wolf">>
+			<<wolfTransform>>
+		<<case "cow">>
+			<<cowTransform>>
+		<<case "harpy">>
+			<<harpyTransform>>
+		<<case "fox">>
+			<<foxTransform>>
+		<<default>>
+	<</switch>>
 	<<if _upgrades.greenThumb gt 0>>
 		<<set $backgroundTraits.pushUnique("greenthumb")>>
 		<<if $fertiliser>>
