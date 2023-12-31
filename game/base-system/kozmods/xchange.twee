@@ -41,6 +41,11 @@
 			sex: 0,
 			social: 0,
 		}>>
+		<<set $crime to {}>>
+		<<for _cr range Object.keys(setup.crimeNames)>>
+			<<set $crime[_cr] to {current: 0, history: 0, daily: 0, count: 0, countHistory: 0}>>
+		<</for>>
+		<<set $crime.events to {}>>
 
 		<<clamp>>
 		<<calchairlengthstage>>
@@ -102,6 +107,11 @@
 			sex: 0,
 			social: 0,
 		}>>
+		<<set $crime to {}>>
+		<<for _cr range Object.keys(setup.crimeNames)>>
+			<<set $crime[_cr] to {current: 0, history: 0, daily: 0, count: 0, countHistory: 0}>>
+		<</for>>
+		<<set $crime.events to {}>>
 
 		<<clamp>>
 		<<calchairlengthstage>>
@@ -136,6 +146,7 @@
 		bottomsensitivity: $bottomsensitivity,
 		genitalsensitivity: $genitalsensitivity,
 		fame: $fame,
+		crime: $crime,
 	}>>
 
 	<<if $args[0] is undefined>>
@@ -167,6 +178,40 @@
 	<<set $bottomsensitivity to _body.bottomsensitivity>>
 	<<set $genitalsensitivity to _body.genitalsensitivity>>
 	<<set $fame to _body.fame>>
+	<<set $crime to _body.fame>>
+
+	<<if $xchange_fame gte 400>>
+		<<set _ogFame to V.xchangePill.originalBody.fame>>
+		<<set _newFame to V.xchangePill.changedBody.fame>>
+		<<set $fame to {
+			bestiality: 	Math.max(_ogFame.bestiality, _newFame.bestiality),
+			business: 		Math.max(_ogFame.business, _newFame.business),
+			exhibitionism: 	Math.max(_ogFame.exhibitionism, _newFame.exhibitionism),
+			good: 			Math.max(_ogFame.good, _newFame.good),
+			impreg: 		Math.max(_ogFame.impreg, _newFame.impreg),
+			model: 			Math.max(_ogFame.model, _newFame.model),
+			pimp: 			Math.max(_ogFame.pimp, _newFame.pimp),
+			pregnancy: 		Math.max(_ogFame.pregnancy, _newFame.pregnancy),
+			prostitution: 	Math.max(_ogFame.prostitution, _newFame.prostitution),
+			rape: 			Math.max(_ogFame.rape, _newFame.rape),
+			scrap: 			Math.max(_ogFame.scrap, _newFame.scrap),
+			sex: 			Math.max(_ogFame.sex, _newFame.sex),
+			social: 		Math.max(_ogFame.social, _newFame.social),
+		}>>
+
+		<<set _ogCrime to V.xchangePill.originalBody.crime>>
+		<<set _newCrime to V.xchangePill.changedBody.crime>>
+		<<set $crime to {}>>
+		<<for _cr range Object.keys(setup.crimeNames)>>
+			<<set $crime[_cr] to {
+				current: 		_ogCrime.current + _newCrime.current, 
+				history: 		_ogCrime.history + _newCrime.history, 
+				daily: 			_ogCrime.daily + _newCrime.daily, 
+				count: 			_ogCrime.count + _newCrime.count, 
+				countHistory: 	_ogCrime.countHistory + _newCrime.countHistory}>>
+		<</for>>
+		<<set $crime.events to {..._ogCrime.events, ..._newCrime.events}>>
+	<</if>>
 
 	<<calchairlengthstage>>
 <</widget>>
@@ -265,6 +310,19 @@
 	<<if _pill.continueEffect>>
 		<<set _pill.duration += 1>>
 	<</if>>
+<</widget>>
+
+<<widget "xchange-fame">>
+	<<if _args[0] and $statFreeze isnot true>>
+		<<if playerIsXChanged() and $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole>>
+			<<set $xchange_fame += $args[0]>>
+			<<set $xchange_fame to Math.clamp($xchange_fame, 0, 2000)>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "xchange-seen">>
+	<<xchange-fame 10 * _args[0]>>
 <</widget>>
 
 <<widget "xchange-random-spike">>

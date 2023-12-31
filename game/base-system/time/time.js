@@ -371,7 +371,7 @@ function weekPassed() {
 		V.nightmareTimer--;
 		if (V.nightmareTimer <= 0) delete V.nightmareTimer;
 	}
-	if (V.brothelVending) {
+	if (V.brothelVending && V.brothelVending.products >= 1) {
 		if (V.brothelVending.condoms === 0 && V.brothelVending.lube === 0) V.brothelVending.weeksEmpty += 1;
 		V.brothelVending.weeksRent++;
 		if (V.brothelVending.weeksEmpty >= 4) V.brothelVending.status = "sold";
@@ -629,6 +629,7 @@ function dayPassed() {
 		const rng = random(Math.min(1, V.brothelVending.condoms), Math.min(10, V.brothelVending.condoms));
 		V.brothelVending.condoms -= rng;
 		V.brothelVending.condomsSold += rng;
+		V.brothelVending.condomsToRefill = 200 - (V.brothelVending.condoms);
 		V.brothelVending.total = (V.brothelVending.total || 0) + rng;
 	}
 
@@ -636,6 +637,7 @@ function dayPassed() {
 		const rng = random(Math.min(1, V.brothelVending.lube), Math.min(10, V.brothelVending.lube));
 		V.brothelVending.lube -= rng;
 		V.brothelVending.lubeSold += rng;
+		V.brothelVending.lubeToRefill = 200 - (V.brothelVending.lube);
 		V.brothelVending.total = (V.brothelVending.total || 0) + rng;
 	}
 
@@ -729,9 +731,11 @@ function hourPassed(hours) {
 		if (V.ejactrait >= 1) V.stress -= (V.goocount + V.semencount) * 10;
 		if (V.kylarwatched) V.kylarwatchedtimer--;
 		if (V.parasite.nipples.name) fragment.append(wikifier("milkvolume", 1));
-		if ((V.worn.head.name === "hairpin" && random(0, 100) >= 75) || V.sexStats.pills.pills["Hair Growth Formula"].doseTaken) {
-			V.hairlength++;
-			V.fringelength++;
+		if (V.worn.head.name === "hairpin" || V.sexStats.pills.pills["Hair Growth Formula"].doseTaken) {
+			let count = 0 + (V.worn.head.name === "hairpin" && random(0, 100) >= 75 ? 1 : 0);
+			count += V.sexStats.pills.pills["Hair Growth Formula"].doseTaken ? 1 : 0;
+			V.hairlength += count;
+			V.fringelength += count;
 			fragment.append(wikifier("calchairlengthstage"));
 		}
 		if (V.earSlime.defyCooldown) {
@@ -1063,7 +1067,9 @@ function dailyNPCEffects() {
 function dailyPlayerEffects() {
 	const fragment = document.createDocumentFragment();
 
-	V.willpower *= 0.99;
+	if (V.willpowerDecay == 1){
+		V.willpower *= 0.99;
+	}
 
 	if (V.awareness <= -200 && V.innocencestate !== 1) {
 		V.innocencestate = 1;
@@ -1143,6 +1149,9 @@ function dailyPlayerEffects() {
 	else if (V.skulduggery >= 200 && V.skulduggeryday < 200) V.skulduggerymessage = 9;
 	else if (V.skulduggery >= 100 && V.skulduggeryday < 100) V.skulduggerymessage = 10;
 	if (V.skulduggerymessage) V.effectsmessage = 1;
+
+	if (V.xchange_fame >= 400 && !V.xchange_discovered) V.xchange_fame_message = 1;
+	if (V.xchange_fame_message) V.effectsmessage = 1;
 
 	if (V.pbdisable === "f") {
 		V.pbgrowth++;
