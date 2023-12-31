@@ -901,6 +901,7 @@ function dawnCheck() {
 	delete V.robin_kicked_out;
 
 	delete V.foxCrimeProgress;
+
 	for (const crimeKeys of Object.keys(setup.crimeNames)) {
 		if (V.crime[crimeKeys].daily >= C.crime.spree) {
 			// If the player commits too much of the same type of crime in one day, they leave behind more evidence.
