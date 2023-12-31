@@ -1150,6 +1150,9 @@ function dailyPlayerEffects() {
 	else if (V.skulduggery >= 100 && V.skulduggeryday < 100) V.skulduggerymessage = 10;
 	if (V.skulduggerymessage) V.effectsmessage = 1;
 
+	if (V.xchange_fame >= 400 && !V.xchange_discovered) V.xchange_fame_message = 1;
+	if (V.xchange_fame_message) V.effectsmessage = 1;
+
 	if (V.pbdisable === "f") {
 		V.pbgrowth++;
 		if (V.pbgrowth >= 24) V.pblevel = 9;

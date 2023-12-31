@@ -81629,6 +81629,9 @@ function dailyPlayerEffects() {
 	else if (V.skulduggery >= 100 && V.skulduggeryday < 100) V.skulduggerymessage = 10;
 	if (V.skulduggerymessage) V.effectsmessage = 1;
 
+	if (V.xchange_fame >= 400 && !V.xchange_discovered) V.xchange_fame_message = 1;
+	if (V.xchange_fame_message) V.effectsmessage = 1;
+
 	if (V.pbdisable === "f") {
 		V.pbgrowth++;
 		if (V.pbgrowth >= 24) V.pblevel = 9;
@@ -91149,6 +91152,7 @@ If you want to avoid trouble, dress modestly and stick to safe, well-lit areas. 
 		pregnancy: 0,
 		impreg: 0
 	}&gt;&gt;
+	&lt;&lt;set $xchange_fame to 0&gt;&gt;
 
 	&lt;&lt;set $park_fame to 0&gt;&gt;
 	&lt;&lt;set $park_run_seen_by to []&gt;&gt;
@@ -97638,6 +97642,9 @@ If you want to avoid trouble, dress modestly and stick to safe, well-lit areas. 
 		&lt;&lt;set $genderidentity to 1000&gt;&gt;
 		&lt;&lt;set $genderidentitymax to 1000&gt;&gt;
 	&lt;&lt;/if&gt;&gt;
+	&lt;&lt;if $xchange_fame is undefined&gt;&gt;
+		&lt;&lt;set $xchange_fame to 0&gt;&gt;
+	&lt;&lt;/if&gt;&gt;
 
 	&lt;!-- V0.4.5.0 Handheld Items --&gt;
 	&lt;&lt;if $worn.handheld is undefined&gt;&gt;
@@ -98063,6 +98070,11 @@ If you want to avoid trouble, dress modestly and stick to safe, well-lit areas. 
 	&lt;&lt;/if&gt;&gt;
 	&lt;&lt;if $combatExtended.enemyDefeatScalingLimit is undefined&gt;&gt;
 		&lt;&lt;set $combatExtended.enemyDefeatScalingLimit to 1&gt;&gt;
+	&lt;&lt;/if&gt;&gt;
+	&lt;&lt;if $combatExtended.domPCsubNPCChance is undefined&gt;&gt;
+		&lt;&lt;set $combatExtended.domPCsubNPCChance to 90&gt;&gt;
+		&lt;&lt;set $combatExtended.neutralPCsubNPCChance to 50&gt;&gt;
+		&lt;&lt;set $combatExtended.subPCsubNPCChance to 10&gt;&gt;
 	&lt;&lt;/if&gt;&gt;
 	&lt;&lt;if $dodgeStat is undefined&gt;&gt;
 		&lt;&lt;set $dodgeStat to 0&gt;&gt;
@@ -134301,7 +134313,11 @@ It will cost you
 			&lt;&lt;set $combatExtended.reverseRapeStart to 1&gt;&gt;
 			&lt;&lt;set $combatExtended.stability to -100&gt;&gt;
 			&lt;&lt;reversenpcidlegenitals&gt;&gt;
-			&lt;&lt;if ($consensual is 0) or ($submissive lte 850) or ($submissive lt 1150 and random(0,1) is 1)&gt;&gt;
+			&lt;&lt;set _rng to random(0,100)&gt;&gt;
+			&lt;&lt;if ($consensual is 0) 
+			  or ($submissive lte 850 and _rng lte $combatExtended.domPCsubNPCChance) 
+			  or ($submissive lt 1150 and _rng lte $combatExtended.neutralPCsubNPCChance)
+			  or (_rng lte $combatExtended.subPCsubNPCChance)&gt;&gt;
 				&lt;&lt;npc_submissive_multiple&gt;&gt;
 			&lt;&lt;/if&gt;&gt;
 			&lt;&lt;if $consensual isnot 1&gt;&gt;
@@ -165427,7 +165443,11 @@ Hands are &#39;inverted&#39;: NPC holds PC&#39;s left hand with their right one,
 &lt;&lt;/widget&gt;&gt;
 
 &lt;&lt;widget &quot;npc_submissive_multiple&quot;&gt;&gt;
+	&lt;&lt;set _anyNamedNPC to false&gt;&gt;
 	&lt;&lt;for _i = 0; _i &lt; $NPCList.length; _i++&gt;&gt;
+		&lt;&lt;if V.NPCNameList.includes($NPCList[_i].name)&gt;&gt;
+			&lt;&lt;set _anyNamedNPC to true&gt;&gt;
+		&lt;&lt;/if&gt;&gt;
 		&lt;&lt;if $enemytype is &quot;man&quot;&gt;&gt;
 			&lt;&lt;if $NPCList[_i].penis isnot &quot;none&quot;&gt;&gt;
 				&lt;&lt;set $NPCList[_i].penis to &quot;clothed&quot;&gt;&gt;
@@ -165442,10 +165462,12 @@ Hands are &#39;inverted&#39;: NPC holds PC&#39;s left hand with their right one,
 		&lt;&lt;set $NPCList[_i].location.genitals to 0&gt;&gt;
 		&lt;&lt;set $NPCList[_i].stance to 0&gt;&gt;
 	&lt;&lt;/for&gt;&gt;
-	&lt;&lt;set $enemyarousal to 0&gt;&gt;
-	&lt;&lt;set $npcSub to 1&gt;&gt;
-	&lt;&lt;set $promiscuityIgnore to 1&gt;&gt;
-	&lt;span class=&quot;green&quot;&gt;Your partner is submissive. You may take the lead. [Promiscuity requirements will be ignored for this encounter]&lt;/span&gt;&lt;br&gt;
+	&lt;&lt;if !_anyNamedNPC&gt;&gt;
+		&lt;&lt;set $enemyarousal to 0&gt;&gt;
+		&lt;&lt;set $npcSub to 1&gt;&gt;
+		&lt;&lt;set $promiscuityIgnore to 1&gt;&gt;
+		&lt;span class=&quot;green&quot;&gt;Your partner is submissive. You may take the lead. [Promiscuity requirements will be ignored for this encounter]&lt;/span&gt;&lt;br&gt;
+	&lt;&lt;/if&gt;&gt;
 &lt;&lt;/widget&gt;&gt;</tw-passagedata><tw-passagedata pid="125" name="Widgets NPC Damage" tags="widget" position="600,1600" size="100,100">&lt;&lt;widget &quot;npcdamage&quot;&gt;&gt;
 	/*
 	* Deducts the true damage dealt by the PC from each individual NPC&#39;s health,
@@ -198497,6 +198519,12 @@ hue-rotate(45deg) saturate(0.4) brightness(0.5)
 			&lt;&lt;unset $recovered_from_pregnancy&gt;&gt;
 			&lt;span class=&quot;green&quot;&gt;You feel a familiar emptiness return in your womb.&lt;/span&gt;
 		&lt;&lt;/if&gt;&gt;
+		&lt;&lt;if $xchange_fame_message&gt;&gt;
+			&lt;span class=&quot;pink&quot;&gt;Your genderswapping personas are well-known enough now.&lt;/span&gt;&lt;br&gt;
+			&lt;span class=&quot;red&quot;&gt;You no longer benefit from having two separate identities.&lt;/span&gt;&lt;br&gt;
+			&lt;&lt;unset $xchange_fame_message&gt;&gt;
+			&lt;&lt;set $xchange_discovered to true&gt;&gt;
+		&lt;&lt;/if&gt;&gt;
 		&lt;&lt;if $skulduggerymessage&gt;&gt;
 			&lt;span class=&quot;gold&quot;&gt;Your skulduggery has improved to&lt;/span&gt;
 			&lt;&lt;switch $skulduggerymessage&gt;&gt;
@@ -203237,6 +203265,11 @@ for (var i = 0; i &lt; Object.keys(setup.feats).length;i++){
 			sex: 0,
 			social: 0,
 		}&gt;&gt;
+		&lt;&lt;set $crime to {}&gt;&gt;
+		&lt;&lt;for _cr range Object.keys(setup.crimeNames)&gt;&gt;
+			&lt;&lt;set $crime[_cr] to {current: 0, history: 0, daily: 0, count: 0, countHistory: 0}&gt;&gt;
+		&lt;&lt;/for&gt;&gt;
+		&lt;&lt;set $crime.events to {}&gt;&gt;
 
 		&lt;&lt;clamp&gt;&gt;
 		&lt;&lt;calchairlengthstage&gt;&gt;
@@ -203298,6 +203331,11 @@ for (var i = 0; i &lt; Object.keys(setup.feats).length;i++){
 			sex: 0,
 			social: 0,
 		}&gt;&gt;
+		&lt;&lt;set $crime to {}&gt;&gt;
+		&lt;&lt;for _cr range Object.keys(setup.crimeNames)&gt;&gt;
+			&lt;&lt;set $crime[_cr] to {current: 0, history: 0, daily: 0, count: 0, countHistory: 0}&gt;&gt;
+		&lt;&lt;/for&gt;&gt;
+		&lt;&lt;set $crime.events to {}&gt;&gt;
 
 		&lt;&lt;clamp&gt;&gt;
 		&lt;&lt;calchairlengthstage&gt;&gt;
@@ -203332,6 +203370,7 @@ for (var i = 0; i &lt; Object.keys(setup.feats).length;i++){
 		bottomsensitivity: $bottomsensitivity,
 		genitalsensitivity: $genitalsensitivity,
 		fame: $fame,
+		crime: $crime,
 	}&gt;&gt;
 
 	&lt;&lt;if $args[0] is undefined&gt;&gt;
@@ -203363,6 +203402,40 @@ for (var i = 0; i &lt; Object.keys(setup.feats).length;i++){
 	&lt;&lt;set $bottomsensitivity to _body.bottomsensitivity&gt;&gt;
 	&lt;&lt;set $genitalsensitivity to _body.genitalsensitivity&gt;&gt;
 	&lt;&lt;set $fame to _body.fame&gt;&gt;
+	&lt;&lt;set $crime to _body.fame&gt;&gt;
+
+	&lt;&lt;if $xchange_fame gte 400&gt;&gt;
+		&lt;&lt;set _ogFame to V.xchangePill.originalBody.fame&gt;&gt;
+		&lt;&lt;set _newFame to V.xchangePill.changedBody.fame&gt;&gt;
+		&lt;&lt;set $fame to {
+			bestiality: 	Math.max(_ogFame.bestiality, _newFame.bestiality),
+			business: 		Math.max(_ogFame.business, _newFame.business),
+			exhibitionism: 	Math.max(_ogFame.exhibitionism, _newFame.exhibitionism),
+			good: 			Math.max(_ogFame.good, _newFame.good),
+			impreg: 		Math.max(_ogFame.impreg, _newFame.impreg),
+			model: 			Math.max(_ogFame.model, _newFame.model),
+			pimp: 			Math.max(_ogFame.pimp, _newFame.pimp),
+			pregnancy: 		Math.max(_ogFame.pregnancy, _newFame.pregnancy),
+			prostitution: 	Math.max(_ogFame.prostitution, _newFame.prostitution),
+			rape: 			Math.max(_ogFame.rape, _newFame.rape),
+			scrap: 			Math.max(_ogFame.scrap, _newFame.scrap),
+			sex: 			Math.max(_ogFame.sex, _newFame.sex),
+			social: 		Math.max(_ogFame.social, _newFame.social),
+		}&gt;&gt;
+
+		&lt;&lt;set _ogCrime to V.xchangePill.originalBody.crime&gt;&gt;
+		&lt;&lt;set _newCrime to V.xchangePill.changedBody.crime&gt;&gt;
+		&lt;&lt;set $crime to {}&gt;&gt;
+		&lt;&lt;for _cr range Object.keys(setup.crimeNames)&gt;&gt;
+			&lt;&lt;set $crime[_cr] to {
+				current: 		_ogCrime.current + _newCrime.current, 
+				history: 		_ogCrime.history + _newCrime.history, 
+				daily: 			_ogCrime.daily + _newCrime.daily, 
+				count: 			_ogCrime.count + _newCrime.count, 
+				countHistory: 	_ogCrime.countHistory + _newCrime.countHistory}&gt;&gt;
+		&lt;&lt;/for&gt;&gt;
+		&lt;&lt;set $crime.events to {..._ogCrime.events, ..._newCrime.events}&gt;&gt;
+	&lt;&lt;/if&gt;&gt;
 
 	&lt;&lt;calchairlengthstage&gt;&gt;
 &lt;&lt;/widget&gt;&gt;
@@ -203461,6 +203534,19 @@ for (var i = 0; i &lt; Object.keys(setup.feats).length;i++){
 	&lt;&lt;if _pill.continueEffect&gt;&gt;
 		&lt;&lt;set _pill.duration += 1&gt;&gt;
 	&lt;&lt;/if&gt;&gt;
+&lt;&lt;/widget&gt;&gt;
+
+&lt;&lt;widget &quot;xchange-fame&quot;&gt;&gt;
+	&lt;&lt;if _args[0] and $statFreeze isnot true&gt;&gt;
+		&lt;&lt;if playerIsXChanged() and $face isnot &quot;covered&quot; and !$worn.face.type.includes(&quot;mask&quot;) and !$gloryhole&gt;&gt;
+			&lt;&lt;set $xchange_fame += $args[0]&gt;&gt;
+			&lt;&lt;set $xchange_fame to Math.clamp($xchange_fame, 0, 2000)&gt;&gt;
+		&lt;&lt;/if&gt;&gt;
+	&lt;&lt;/if&gt;&gt;
+&lt;&lt;/widget&gt;&gt;
+
+&lt;&lt;widget &quot;xchange-seen&quot;&gt;&gt;
+	&lt;&lt;xchange-fame 10 * _args[0]&gt;&gt;
 &lt;&lt;/widget&gt;&gt;
 
 &lt;&lt;widget &quot;xchange-random-spike&quot;&gt;&gt;
@@ -218573,6 +218659,7 @@ Zohar
 					&lt;&lt;set $_name to &quot;inseminator&quot;&gt;&gt;
 				&lt;&lt;/if&gt;&gt;
 				&lt;&lt;set _impregFameConfig =			{ currentValue: $fame.impreg,			preText: &#39;Pregnancy:&#39;,		flavorText: $_name,				states: _fameStates }&gt;&gt;
+				&lt;&lt;set _xchangeFameConfig = 			{ currentValue: $xchange_fame,			preText: &#39;Genderswap:&#39;,		flavorText: &#39;piller&#39;,			states: _fameStates }&gt;&gt;
 				&lt;&lt;set _combatFameConfig =			{ currentValue: $fame.scrap,			preText: &#39;Combat:&#39;,			flavorText: &#39;scrapper&#39;,			states: _inverseFameStates }&gt;&gt;
 				&lt;&lt;set _kindnessFameConfig =			{ currentValue: $fame.good,				preText: &#39;Kindness:&#39;,		flavorText: &#39;do-gooder&#39;,		states: _inverseFameStates }&gt;&gt;
 				&lt;&lt;set _businessFameConfig =			{ currentValue: $fame.business,			preText: &#39;Business:&#39;,		flavorText: &#39;entrepreneur&#39;,		states: _inverseFameStates }&gt;&gt;
@@ -218594,6 +218681,7 @@ Zohar
 				&lt;&lt;set _bestialityFameBoxConfig =	{ description : &#39;&lt;&lt;relation-text _bestialityFameConfig&gt;&gt;&#39; }&gt;&gt;
 				&lt;&lt;set _exhibitionismFameBoxConfig =	{ description : &#39;&lt;&lt;relation-text _exhibitionismFameConfig&gt;&gt;&#39; }&gt;&gt;
 				&lt;&lt;set _pregnancyFameBoxConfig =		{ description : &#39;&lt;&lt;relation-text _pregnancyFameConfig&gt;&gt;&#39; }&gt;&gt;
+				&lt;&lt;set _xchangeFameBoxConfig =		{ description : &#39;&lt;&lt;relation-text _xchangeFameConfig&gt;&gt;&#39; }&gt;&gt;
 				&lt;&lt;set _combatFameBoxConfig =		{ description : &#39;&lt;&lt;relation-text _combatFameConfig&gt;&gt;&#39; }&gt;&gt;
 				&lt;&lt;set _kindnessFameBoxConfig =		{ description : &#39;&lt;&lt;relation-text _kindnessFameConfig&gt;&gt;&#39; }&gt;&gt;
 				&lt;&lt;set _businessFameBoxConfig =		{ description : &#39;&lt;&lt;relation-text _businessFameConfig&gt;&gt;&#39; }&gt;&gt;
@@ -218611,6 +218699,9 @@ Zohar
 				&lt;&lt;relation-box-simple _modelFameBoxConfig&gt;&gt;
 			&lt;&lt;/if&gt;&gt;
 			&lt;&lt;relation-box-simple _pregnancyFameBoxConfig&gt;&gt;
+			&lt;&lt;if $xchange_fame gte 1&gt;&gt;
+				&lt;&lt;relation-box-simple _xchangeFameBoxConfig&gt;&gt;
+			&lt;&lt;/if&gt;&gt;
 			&lt;&lt;relation-box-simple _combatFameBoxConfig&gt;&gt;
 			&lt;&lt;relation-box-simple _kindnessFameBoxConfig&gt;&gt;
 			&lt;&lt;relation-box-simple _businessFameBoxConfig&gt;&gt;
@@ -232499,7 +232590,7 @@ Alex helps you leave the vehicle and take your &lt;&lt;print $litter_size &gt; 1
 		&lt;&lt;case &quot;priceSettings&quot;&gt;&gt;&lt;&lt;set _subsection to &quot;price&quot;&gt;&gt;&lt;&lt;replace #subsectionDiv&gt;&gt;&lt;&lt;priceSettings&gt;&gt;&lt;&lt;/replace&gt;&gt;
 		&lt;&lt;case &quot;pregnancySettings&quot;&gt;&gt;&lt;&lt;set _subsection to &quot;pregnancy&quot;&gt;&gt;&lt;&lt;replace #subsectionDiv&gt;&gt;&lt;&lt;pregnancySettings&gt;&gt;&lt;&lt;/replace&gt;&gt;
 		&lt;&lt;case &quot;sizeLimitsSettings&quot;&gt;&gt;&lt;&lt;set _subsection to &quot;sizeLimits&quot;&gt;&gt;&lt;&lt;replace #subsectionDiv&gt;&gt;&lt;div class=&quot;solidBorderContainer settings-container&quot;&gt;&lt;&lt;sizeLimitsSettings&gt;&gt;&lt;/div&gt;&lt;&lt;/replace&gt;&gt;
-		&lt;&lt;case &quot;combatExtendedSettings&quot;&gt;&gt;&lt;&lt;set _subsection to &quot;combat&quot;&gt;&gt;&lt;&lt;replace #subsectionDiv&gt;&gt;&lt;&lt;combatExtendedSettings&gt;&gt;&lt;&lt;/replace&gt;&gt;
+		&lt;&lt;case &quot;combatExtendedSettings&quot;&gt;&gt;&lt;&lt;set _subsection to &quot;combatExtended&quot;&gt;&gt;&lt;&lt;replace #subsectionDiv&gt;&gt;&lt;&lt;combatExtendedSettings&gt;&gt;&lt;&lt;/replace&gt;&gt;
 		&lt;&lt;case &quot;amcTraitsSettings&quot;&gt;&gt;&lt;&lt;set _subsection to &quot;amcTraits&quot;&gt;&gt;&lt;&lt;replace #subsectionDiv&gt;&gt;&lt;&lt;amcTraitsSettings&gt;&gt;&lt;&lt;/replace&gt;&gt;
 		&lt;&lt;default&gt;&gt;&lt;&lt;set _subsection to &quot;human&quot;&gt;&gt;&lt;&lt;replace #subsectionDiv&gt;&gt;&lt;&lt;humanSettings&gt;&gt;&lt;&lt;/replace&gt;&gt;
 	&lt;&lt;/switch&gt;&gt;
@@ -235252,6 +235343,28 @@ Alex helps you leave the vehicle and take your &lt;&lt;print $litter_size &gt; 1
 		&lt;div class=&quot;settingsGrid&quot;&gt;
 			&lt;div class=&quot;settingsHeader&quot;&gt;
 				Enemy Modifications
+			&lt;/div&gt;
+			&lt;div class=&quot;settingsToggleItem&quot;&gt;
+				&lt;span class=&quot;gold&quot;&gt;NPC Consensual Submissiveness Chance&lt;/span&gt;
+				&lt;mouse class=&quot;tooltip linkBlue&quot;&gt;(?)&lt;span&gt;Requires &quot;Reverse Rape&quot; enabled. Chance that a generic NPC will be submissive during consensual encounters.  Does not affect Named NPCs.&lt;/span&gt;&lt;/mouse&gt;
+				&lt;div class=&quot;settingsToggleItem  numberslider-inline&quot;&gt;
+					&lt;span class=&quot;gold&quot;&gt;Against Defiant PC
+					&lt;mouse class=&quot;tooltip linkBlue&quot;&gt;(?)&lt;span&gt;The chance a defiant player encounters a submissive generic NPC.&lt;/span&gt;&lt;/mouse&gt;
+					&lt;/span&gt;
+					&lt;&lt;numberslider &quot;$combatExtended.domPCsubNPCChance&quot; $combatExtended.domPCsubNPCChance 0 100 1&gt;&gt;
+				&lt;/div&gt;
+				&lt;div class=&quot;settingsToggleItem  numberslider-inline&quot;&gt;
+					&lt;span class=&quot;gold&quot;&gt;Against Neutral PC
+					&lt;mouse class=&quot;tooltip linkBlue&quot;&gt;(?)&lt;span&gt;The chance a neutral player encounters a submissive generic NPC.&lt;/span&gt;&lt;/mouse&gt;
+					&lt;/span&gt;
+					&lt;&lt;numberslider &quot;$combatExtended.neutralPCsubNPCChance&quot; $combatExtended.neutralPCsubNPCChance 0 100 1&gt;&gt;
+				&lt;/div&gt;
+				&lt;div class=&quot;settingsToggleItem  numberslider-inline&quot;&gt;
+					&lt;span class=&quot;gold&quot;&gt;Against Submissive PC
+					&lt;mouse class=&quot;tooltip linkBlue&quot;&gt;(?)&lt;span&gt;The chance a submissive player encounters a submissive generic NPC.&lt;/span&gt;&lt;/mouse&gt;
+					&lt;/span&gt;
+					&lt;&lt;numberslider &quot;$combatExtended.subPCsubNPCChance&quot; $combatExtended.subPCsubNPCChance 0 100 1&gt;&gt;
+				&lt;/div&gt;
 			&lt;/div&gt;
 			&lt;div class=&quot;settingsToggleItem&quot; role=&quot;group&quot; aria-labelledby=&quot;settingsCEActions&quot;&gt;
 				&lt;span id=&quot;settingsCEActions&quot;&gt;Enemy CE Actions:&lt;/span&gt;
@@ -303569,16 +303682,18 @@ Before &lt;&lt;he&gt;&gt; can say anything, you continue.
 &lt;br&gt;&lt;br&gt;
 Not quite knowing what effects this pill might have, you nervously await for them to kick in.
 &lt;br&gt;&lt;br&gt;
-Suddenly, you a small grin form in Wren&#39;s lips as a soothing heat starts to rise in your body. 
+Suddenly, you spot a small grin form in Wren&#39;s lips as a soothing heat starts to rise in your body. 
 &lt;&lt;if $phase is 0&gt;&gt;
 	Your &lt;&lt;if $player.gender_body is &quot;m&quot;&gt;&gt;toned&lt;&lt;/if&gt;&gt; flesh twist and turns in odd ways, as your body begins to rearrange itself into the shapely form of a woman.
-	&lt;&lt;xchange-pink 1 &quot;resistance&quot;&gt;&gt;
+	&lt;&lt;xchange-pink 1 &quot;resistance&quot;&gt;&gt;&lt;&lt;xchange-seen 6&gt;&gt;
 &lt;&lt;elseif $phase is 1&gt;&gt;
 	Your &lt;&lt;if $player.gender_body is &quot;f&quot;&gt;&gt;soft&lt;&lt;/if&gt;&gt; flesh twist and turns in inconceivable ways, as your body begins to rearrange itself into the rough frame of a man.
-	&lt;&lt;xchange-blue 1 &quot;resistance&quot;&gt;&gt;
+	&lt;&lt;xchange-blue 1 &quot;resistance&quot;&gt;&gt;&lt;&lt;xchange-seen 6&gt;&gt;
 &lt;&lt;/if&gt;&gt;
 &lt;br&gt;&lt;br&gt;
-Wren draws a wolfish grin at the sight. &quot;Now the fun can really begin!,&quot; Wren laughs.
+Wren draws a wolfish grin at the sight. &quot;Now the fun can really begin!,&quot; &lt;&lt;nnpc_he &quot;Wren&quot;&gt;&gt; laughs. 
+&lt;br&gt;
+&quot;&lt;span class=&quot;pink&quot;&gt;That&#39;s a &#39;Resistance&#39;&lt;/span&gt;, by the way,&quot; &lt;&lt;nnpc_he &quot;Wren&quot;&gt;&gt; points out. &quot;So you might want to hold back,&quot; &lt;&lt;nnpc_he &quot;Wren&quot;&gt;&gt; licks &lt;&lt;nnpc_his &quot;Wren&quot;&gt;&gt; lips.
 &lt;br&gt;&lt;br&gt;
 
 &lt;&lt;estate_cards_bet&gt;&gt;
@@ -307435,7 +307550,7 @@ A terrible warmth spreads from chest. Your skin yearns to be touched. It spreads
 &lt;br&gt;&lt;br&gt;
 
 &lt;&lt;if $player.gender isnot &quot;f&quot; and !playerIsXChanged()&gt;&gt;
-	&lt;&lt;xchange-random-spike &quot;suppress&quot;&gt;&gt;
+	&lt;&lt;xchange-random-spike &quot;suppress&quot;&gt;&gt;&lt;&lt;xchange-seen 2&gt;&gt;
 	Distracted by such overwhelming sensations, you even fail to notice your body changing right under you until it becomes utterly obvious.
 	&lt;br&gt;&lt;br&gt;
 &lt;&lt;/if&gt;&gt;
@@ -307452,7 +307567,7 @@ A terrible warmth spreads from chest. Your skin yearns to be touched. It spreads
 &lt;br&gt;&lt;br&gt;
 
 &lt;&lt;if $player.gender isnot &quot;f&quot; and !playerIsXChanged()&gt;&gt;
-	&lt;&lt;xchange-random-spike &quot;suppress&quot;&gt;&gt;
+	&lt;&lt;xchange-random-spike &quot;suppress&quot;&gt;&gt;&lt;&lt;xchange-seen 2&gt;&gt;
 	Distracted by such overwhelming sensations, you even fail to notice your body changing right under you until it becomes utterly obvious.
 	&lt;br&gt;&lt;br&gt;
 &lt;&lt;/if&gt;&gt;
@@ -347273,7 +347388,7 @@ You let the &lt;&lt;person&gt;&gt; pour the canteen into your mouth.
 	&lt;br&gt;&lt;br&gt;
 	Rough hands grasp your shoulders, sending shivers down your body. You&#39;re pulled ot your feet. &quot;We&#39;ve a way to go yet,&quot; the &lt;&lt;person&gt;&gt; says. &quot;You should be ready by the time we arrive.&quot;
 	&lt;&lt;if $player.gender isnot &quot;f&quot; and !playerIsXChanged()&gt;&gt;
-		&lt;&lt;xchange-random-spike &quot;suppress&quot;&gt;&gt;
+		&lt;&lt;xchange-random-spike &quot;suppress&quot;&gt;&gt;&lt;&lt;xchange-seen 5&gt;&gt;
 	&lt;&lt;/if&gt;&gt;
 &lt;&lt;elseif $rng gte 51 and !playerIsPregnant()&gt;&gt;
 	It&#39;s booze, and pretty strong. You almost gag. The &lt;&lt;person&gt;&gt; chuckles.&lt;&lt;lstress&gt;&gt;&lt;&lt;stress -6&gt;&gt;&lt;&lt;alcohol 120&gt;&gt;
@@ -347316,7 +347431,7 @@ You let the &lt;&lt;person&gt;&gt; pour the canteen into your mouth.
 	&lt;br&gt;&lt;br&gt;
 	Rough hands grasp your shoulders, sending shivers down your body. You&#39;re pulled ot your feet. &quot;We&#39;ve a way to go yet,&quot; the &lt;&lt;person&gt;&gt; says. &quot;You should be ready by the time we arrive.&quot;
 	&lt;&lt;if $player.gender isnot &quot;f&quot; and !playerIsXChanged()&gt;&gt;
-		&lt;&lt;xchange-random-spike &quot;suppress&quot;&gt;&gt;
+		&lt;&lt;xchange-random-spike &quot;suppress&quot;&gt;&gt;&lt;&lt;xchange-seen 5&gt;&gt;
 	&lt;&lt;/if&gt;&gt;
 &lt;&lt;elseif $phase is 1 and !playerIsPregnant()&gt;&gt;
 	It&#39;s booze, and pretty strong. You almost gag. The &lt;&lt;person&gt;&gt; chuckles.&lt;&lt;lstress&gt;&gt;&lt;&lt;stress -6&gt;&gt;&lt;&lt;alcohol 120&gt;&gt;
@@ -361752,7 +361867,9 @@ There&#39;s a ladder to your left; you think it will take you to the rooftops.
 &lt;&lt;endcombat&gt;&gt;
 &lt;&lt;industrialeventend&gt;&gt;</tw-passagedata><tw-passagedata pid="3380" name="Molestation alley" tags="" position="1225,42225" size="100,100">&lt;&lt;if $molestationstart is 1&gt;&gt;
 	&lt;&lt;set $molestationstart to 0&gt;&gt;
-	&lt;&lt;if $player.gender is &quot;m&quot; and random(1,6) gt 2&gt;&gt;&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;/if&gt;&gt;
+	&lt;&lt;if $player.gender is &quot;m&quot; and random(1,6) gt 2&gt;&gt;
+		&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;xchange-seen 1&gt;&gt;
+	&lt;&lt;/if&gt;&gt;
 	&lt;&lt;controlloss&gt;&gt;
 	&lt;&lt;violence 1&gt;&gt;
 	&lt;&lt;neutral 1&gt;&gt;
@@ -364311,7 +364428,7 @@ You&#39;ve pushed yourself too much.
 
 &lt;&lt;pass 1 hour&gt;&gt;
 
-&lt;&lt;trauma 6&gt;&gt;&lt;&lt;set $stress -= 2000&gt;&gt;</tw-passagedata><tw-passagedata pid="3461" name="Arcade Crane" tags="" position="100,43350" size="100,100">&lt;&lt;if $player.gender is &quot;m&quot; and random(1,6) isnot 1&gt;&gt;&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;/if&gt;&gt;
+&lt;&lt;trauma 6&gt;&gt;&lt;&lt;set $stress -= 2000&gt;&gt;</tw-passagedata><tw-passagedata pid="3461" name="Arcade Crane" tags="" position="100,43350" size="100,100">&lt;&lt;if $player.gender is &quot;m&quot; and random(1,6) isnot 1&gt;&gt;&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;xchange-seen 6&gt;&gt;&lt;&lt;/if&gt;&gt;
 &lt;&lt;set $outside to 0&gt;&gt;&lt;&lt;set $location to &quot;arcade&quot;&gt;&gt;&lt;&lt;effects&gt;&gt;
 &lt;&lt;generatey1&gt;&gt;&lt;&lt;generatey2&gt;&gt;&lt;&lt;generatey3&gt;&gt;&lt;&lt;generatey4&gt;&gt;&lt;&lt;generatey5&gt;&gt;&lt;&lt;generatey6&gt;&gt;&lt;&lt;person1&gt;&gt;
 You awaken on something soft yet bumpy. It&#39;s a bed of plush toys. Your wrists and ankles are tied down. A metal claw hovers above you.
@@ -366850,7 +366967,7 @@ You wrap a towel around your nether regions, creating a makeshift skirt.
 
 	&lt;&lt;trauma 6&gt;&gt;&lt;&lt;set $stress -= 2000&gt;&gt;
 &lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="3532" name="Beach Abduction" tags="" position="225,44225" size="100,100">&lt;&lt;location &quot;beach&quot;&gt;&gt;&lt;&lt;effects&gt;&gt;
-&lt;&lt;if $player.gender is &quot;m&quot; and random(1,6) isnot 1&gt;&gt;&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;/if&gt;&gt;
+&lt;&lt;if $player.gender is &quot;m&quot; and random(1,6) isnot 1&gt;&gt;&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;xchange-seen 2&gt;&gt;&lt;&lt;/if&gt;&gt;
 
 &lt;&lt;generatey1&gt;&gt;&lt;&lt;generatey2&gt;&gt;&lt;&lt;person1&gt;&gt;You wake up lying on your back, naked in the dunes. You hear a voice, &quot;You&#39;re awake.&quot; You hasten to your feet and see the speaker, a &lt;&lt;person&gt;&gt;. A &lt;&lt;person2&gt;&gt;&lt;&lt;person&gt;&gt; stands next to &lt;&lt;person1&gt;&gt;&lt;&lt;him&gt;&gt;.
 &lt;br&gt;&lt;br&gt;
@@ -375032,7 +375149,7 @@ You cautiously look around the bus. No one seems to have noticed your predicamen
 	&lt;br&gt;&lt;br&gt;
 &lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="3765" name="Molestation bus" tags="" position="600,47100" size="100,100">&lt;&lt;if $molestationstart is 1&gt;&gt;
 	&lt;&lt;set $molestationstart to 0&gt;&gt;
-	&lt;&lt;if random(1,6) gt 2 and !playerIsPregnant()&gt;&gt;&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;/if&gt;&gt;
+	&lt;&lt;if random(1,6) gt 2 and !playerIsPregnant()&gt;&gt;&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;xchange-seen 2&gt;&gt;&lt;&lt;/if&gt;&gt;
 	&lt;&lt;controlloss&gt;&gt;
 	&lt;&lt;violence 1&gt;&gt;
 	&lt;&lt;neutral 1&gt;&gt;
@@ -403555,7 +403672,7 @@ You refuse the drink, and get to work ironing the clothes and folding them neatl
 	&lt;br&gt;&lt;br&gt;
 
 	&lt;&lt;if $pronoun is $player.gender and !playerIsXChanged() and !playerIsPregnant()&gt;&gt;
-		&lt;&lt;xchange-random-spike &quot;suppress&quot;&gt;&gt;
+		&lt;&lt;xchange-random-spike &quot;suppress&quot;&gt;&gt;&lt;&lt;xchange-seen 1&gt;&gt;
 		Your body subtly begins to shape and shift right under your notice. And once you realise your old body is no more, it becomes evident that you now sport the features of the opposite gender.
 		&lt;br&gt;&lt;br&gt;
 	&lt;&lt;/if&gt;&gt;
@@ -431660,7 +431777,7 @@ You decide you better get back to work before the &lt;&lt;person1&gt;&gt;&lt;&lt
 	&lt;&lt;link [[Next|Office Secretary Finish]]&gt;&gt;&lt;&lt;set $phase to 1&gt;&gt;&lt;&lt;/link&gt;&gt;
 &lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="5611" name="Office Secretary Party Molest" tags="" position="100,70225" size="100,100">&lt;&lt;if $molestationstart is 1&gt;&gt;
 	&lt;&lt;set $molestationstart to 0&gt;&gt;
-	&lt;&lt;xchange-random-spike&gt;&gt;
+	&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;xchange-seen 3&gt;&gt;
 	&lt;&lt;controlloss&gt;&gt;
 	&lt;&lt;violence 1&gt;&gt;
 	&lt;&lt;neutral 1&gt;&gt;
@@ -463328,11 +463445,11 @@ Landry clicks &lt;&lt;his&gt;&gt; tongue. &quot;Sorry, &lt;span class=&quot;red&
 &lt;&lt;else&gt;&gt;
 	&lt;&lt;if $pubbooze is &quot;herbal&quot;&gt;&gt;
 		&lt;&lt;set $pubbooze to 0&gt;&gt;
-		&lt;&lt;if random(0,100) lt 10 and !playerIsPregnant()&gt;&gt;&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;/if&gt;&gt;
+		&lt;&lt;if random(0,100) lt 10 and !playerIsPregnant()&gt;&gt;&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;xchange-seen 6&gt;&gt;&lt;&lt;/if&gt;&gt;
 		The bartender pours a glass of a locally produced spirit. The pub seems more colourful after drinking it.
 	&lt;&lt;elseif $pubbooze is &quot;booze&quot;&gt;&gt;
 		&lt;&lt;set $pubbooze to 0&gt;&gt;
-		&lt;&lt;if random(0,100) lt 10 and !playerIsPregnant()&gt;&gt;&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;/if&gt;&gt;
+		&lt;&lt;if random(0,100) lt 10 and !playerIsPregnant()&gt;&gt;&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;xchange-seen 6&gt;&gt;&lt;&lt;/if&gt;&gt;
 		The bartender pours a glass of a cheap and popular beverage.
 	&lt;&lt;else&gt;&gt;
 		You enter the pub. It&#39;s busy as always.
@@ -464891,7 +465008,7 @@ You awaken on a hard surface. You take a look around, and find you&#39;re in the
 
 &lt;&lt;link [[Next|Street Van Journey]]&gt;&gt;&lt;&lt;pass 60&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="6803" name="Pub Pill" tags="" position="350,85100" size="100,100">&lt;&lt;location &quot;forest&quot;&gt;&gt;&lt;&lt;effects&gt;&gt;
 &lt;&lt;if $player.gender is &quot;m&quot; and !playerIsXChanged()&gt;&gt;
-	&lt;&lt;xchange-random-spike &quot;suppress&quot;&gt;&gt;
+	&lt;&lt;xchange-random-spike &quot;suppress&quot;&gt;&gt;&lt;&lt;xchange-seen 1&gt;&gt;
 &lt;&lt;/if&gt;&gt;
 
 You swallow the pill. A daze descends on you and a perverse warmth grows in your belly. &quot;Nice, isn&#39;t it. Now come here.&quot;
@@ -508869,7 +508986,7 @@ The hairdresser makes small talk as &lt;&lt;he&gt;&gt; rings up your purchase. &
 &lt;&lt;trauma 6&gt;&gt;&lt;&lt;set $stress -= 2000&gt;&gt;</tw-passagedata><tw-passagedata pid="7761" name="Abduction Shop" tags="" position="100,97100" size="100,100">&lt;&lt;set $outside to 0&gt;&gt;&lt;&lt;effects&gt;&gt;
 
 &lt;&lt;if $phase is 0&gt;&gt;&lt;&lt;set $phase to 1&gt;&gt;
-	&lt;&lt;xchange-random-spike&gt;&gt;
+	&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;xchange-seen 2&gt;&gt;
 	&lt;&lt;drugs 180&gt;&gt;
 	&lt;&lt;lowerruined&gt;&gt;
 	&lt;&lt;upperruined&gt;&gt;
@@ -508974,7 +509091,7 @@ True to &lt;&lt;his&gt;&gt; word, there&#39;s £15 on the table, along with a bo
 
 &lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="7762" name="Molestation Shop" tags="" position="225,97100" size="100,100">&lt;&lt;if $molestationstart is 1&gt;&gt;
 	&lt;&lt;set $molestationstart to 0&gt;&gt;
-	&lt;&lt;if $player.gender is &quot;m&quot; and random(1,6) isnot 1&gt;&gt;&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;/if&gt;&gt;
+	&lt;&lt;if $player.gender is &quot;m&quot; and random(1,6) isnot 1&gt;&gt;&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;xchange-seen 2&gt;&gt;&lt;&lt;/if&gt;&gt;
 	&lt;&lt;controlloss&gt;&gt;
 	&lt;&lt;violence 1&gt;&gt;
 	&lt;&lt;neutral 1&gt;&gt;
@@ -516981,7 +517098,7 @@ They laugh and leave you lying on the sandy ground.
 
 		&lt;&lt;link [[Next|Bondage Two Rape]]&gt;&gt;&lt;&lt;set $molestationstart to 1&gt;&gt;&lt;&lt;/link&gt;&gt;
 	&lt;&lt;/if&gt;&gt;
-&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="7952" name="Street Wake Blindfold" tags="" position="225,99475" size="100,100">&lt;&lt;if random(1,5) isnot 1&gt;&gt;&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;/if&gt;&gt;
+&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="7952" name="Street Wake Blindfold" tags="" position="225,99475" size="100,100">&lt;&lt;if random(1,5) isnot 1&gt;&gt;&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;xchange-seen 2&gt;&gt;&lt;&lt;/if&gt;&gt;
 &lt;&lt;set $outside to 1&gt;&gt;&lt;&lt;set $location to &quot;town&quot;&gt;&gt;&lt;&lt;effects&gt;&gt;
 &lt;&lt;set $stress -= 5000&gt;&gt;
 &lt;&lt;bind&gt;&gt;
@@ -520837,7 +520954,7 @@ Deciding that &lt;&lt;he&gt;&gt; might have bitten off more than &lt;&lt;he&gt;&
 &lt;&lt;endcombat&gt;&gt;
 &lt;&lt;destinationeventend&gt;&gt;</tw-passagedata><tw-passagedata pid="8045" name="Abduction" tags="" position="600,100600" size="100,100">&lt;&lt;if $molestationstart is 1&gt;&gt;
 	&lt;&lt;set $molestationstart to 0&gt;&gt;
-	&lt;&lt;if random(1,5) isnot 1&gt;&gt;&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;/if&gt;&gt;
+	&lt;&lt;if random(1,5) isnot 1&gt;&gt;&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;xchange-seen 2&gt;&gt;&lt;&lt;/if&gt;&gt;
 	&lt;&lt;controlloss&gt;&gt;
 	&lt;&lt;violence 1&gt;&gt;
 	&lt;&lt;neutral 1&gt;&gt;
@@ -523127,7 +523244,7 @@ You follow the slime&#39;s urging and approach the &lt;&lt;person&gt;&gt;.
 	&lt;&lt;endcombat&gt;&gt;
 	&lt;&lt;destinationeventend&gt;&gt;
 &lt;&lt;/if&gt;&gt;
-&lt;&lt;clearNPC street_collar_dog&gt;&gt;</tw-passagedata><tw-passagedata pid="8116" name="Street Wake" tags="" position="725,101475" size="100,100">&lt;&lt;if $player.gender is &quot;m&quot; and random(1,5) isnot 1&gt;&gt;&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;/if&gt;&gt;
+&lt;&lt;clearNPC street_collar_dog&gt;&gt;</tw-passagedata><tw-passagedata pid="8116" name="Street Wake" tags="" position="725,101475" size="100,100">&lt;&lt;if $player.gender is &quot;m&quot; and random(1,5) isnot 1&gt;&gt;&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;xchange-seen 1&gt;&gt;&lt;&lt;/if&gt;&gt;
 &lt;&lt;set $outside to 1&gt;&gt;&lt;&lt;effects&gt;&gt;
 You wake up by the side of the road, leaning against a wall. A &lt;&lt;generate1&gt;&gt;&lt;&lt;person1&gt;&gt;&lt;&lt;person&gt;&gt; stands above you, holding a camera.
 &lt;br&gt;&lt;br&gt;
@@ -528027,7 +528144,7 @@ The &lt;&lt;person&gt;&gt; opens &lt;&lt;his&gt;&gt; mouth to argue, but decides
 	&lt;&lt;endcombat&gt;&gt;
 	&lt;&lt;destinationeventend&gt;&gt;
 
-&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="8293" name="Street Wake Shackle" tags="" position="350,103725" size="100,100">&lt;&lt;if $player.gender is &quot;m&quot; and random(1,5) isnot 1&gt;&gt;&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;/if&gt;&gt;
+&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="8293" name="Street Wake Shackle" tags="" position="350,103725" size="100,100">&lt;&lt;if $player.gender is &quot;m&quot; and random(1,5) isnot 1&gt;&gt;&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;xchange-seen 2&gt;&gt;&lt;&lt;/if&gt;&gt;
 &lt;&lt;set $outside to 0&gt;&gt;&lt;&lt;effects&gt;&gt;
 
 &lt;&lt;generate1&gt;&gt;&lt;&lt;generate2&gt;&gt;&lt;&lt;person1&gt;&gt;
@@ -543910,7 +544027,7 @@ You sip the drink. It&#39;s &lt;span class=&quot;red&quot;&gt;sweet&lt;/span&gt;
 
 &lt;&lt;link [[Next|Temple Garden Bound]]&gt;&gt;&lt;&lt;/link&gt;&gt;
 &lt;br&gt;</tw-passagedata><tw-passagedata pid="8627" name="Temple Garden Bound" tags="" position="850,107850" size="100,100">&lt;&lt;set $outside to 0&gt;&gt;&lt;&lt;set $location to &quot;temple&quot;&gt;&gt;&lt;&lt;temple_effects&gt;&gt;&lt;&lt;effects&gt;&gt;
-&lt;&lt;xchange-random-spike&gt;&gt;
+&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;xchange-seen 2&gt;&gt;
 &lt;&lt;generateTemple 2&gt;&gt;&lt;&lt;pass 60&gt;&gt;
 &lt;&lt;bind&gt;&gt;&lt;&lt;facewear 6&gt;&gt;
 You awaken in darkness. &lt;span class=&quot;red&quot;&gt;Your arms are bound and mouth gagged.&lt;/span&gt; You feel something around your head. A blindfold. You&#39;re sat down.
@@ -617326,7 +617443,7 @@ You walk towards the flickering.
 		&lt;&lt;if $danceSuccess&gt;&gt;
 			You take the drink, &lt;span class=&quot;green&quot;&gt;weaving the motion into the dance,&lt;/span&gt; and down it. The audience cheer.
 			&lt;&lt;if random(1, 10) is 10&gt;&gt;
-				&lt;span class=&quot;pink&quot;&gt;You feel warm. &lt;/span&gt;&lt;&lt;drugs 60&gt;&gt;&lt;&lt;xchange-random-spike&gt;&gt;
+				&lt;span class=&quot;pink&quot;&gt;You feel warm. &lt;/span&gt;&lt;&lt;drugs 60&gt;&gt;&lt;&lt;xchange-random-spike&gt;&gt;&lt;&lt;xchange-seen $audience&gt;&gt;
 			&lt;&lt;else&gt;&gt;
 				You feel dizzier.
 			&lt;&lt;/if&gt;&gt;
