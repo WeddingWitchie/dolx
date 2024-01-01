@@ -716,6 +716,31 @@ function dayPassed() {
 function hourPassed(hours) {
 	const fragment = document.createDocumentFragment();
 
+	if (V.xchangePill && V.xchangePill.active)
+	{
+		const pill = V.xchangePill;
+		// If got impregnated in the vagina, or allowed an ear slime to grow to a certain point
+		// then, the change becomes permanent 
+		if (V.sexStats.vagina.pregnancy.type !== null || V.earSlime.growth > 50)
+			fragment.append(wikifier("xchange-setpermanent"));
+	
+		// If the pill has the continue effect, and a remaining duration of 30 days is accumulated
+		// then, the change becomes permanent
+		if (pill.continueEffect && pill.duration > 30)
+			fragment.append(wikifier("xchange-setpermanent"));
+	
+		if (pill.duration > 0) {
+			pill.duration = Math.max(pill.duration-1, 0);
+			if (pill.duration == 0)
+			{
+				if (pill.resistanceEffect && random(0,100) > pill.resistanceChance)
+					fragment.append(wikifier("xchange-setpermanent"));
+				else
+					fragment.append(wikifier("xchange-restore"));
+			} 
+		}
+	}
+
 	if (V.statFreeze) return fragment;
 
 	for (let i = 0; i < hours; i++) {
@@ -1238,30 +1263,30 @@ function dailyTransformationEffects() {
 
 	fragment.append(wikifier("transformationStateUpdate"));
 
-	if (V.xchangePill && V.xchangePill.active)
-	{
-		const pill = V.xchangePill;
-		// If got impregnated in the vagina, or allowed an ear slime to grow to a certain point
-		// then, the change becomes permanent 
-		if (V.sexStats.vagina.pregnancy.type !== null || V.earSlime.growth > 50)
-			fragment.append(wikifier("xchange-setpermanent"));
+	// if (V.xchangePill && V.xchangePill.active)
+	// {
+	// 	const pill = V.xchangePill;
+	// 	// If got impregnated in the vagina, or allowed an ear slime to grow to a certain point
+	// 	// then, the change becomes permanent 
+	// 	if (V.sexStats.vagina.pregnancy.type !== null || V.earSlime.growth > 50)
+	// 		fragment.append(wikifier("xchange-setpermanent"));
 	
-		// If the pill has the continue effect, and a remaining duration of 30 days is accumulated
-		// then, the change becomes permanent
-		if (pill.continueEffect && pill.duration > 30)
-			fragment.append(wikifier("xchange-setpermanent"));
+	// 	// If the pill has the continue effect, and a remaining duration of 30 days is accumulated
+	// 	// then, the change becomes permanent
+	// 	if (pill.continueEffect && pill.duration > 30)
+	// 		fragment.append(wikifier("xchange-setpermanent"));
 	
-		if (pill.duration > 0) {
-			pill.duration = Math.max(pill.duration-1, 0);
-			if (pill.duration == 0)
-			{
-				if (pill.resistanceEffect && random(0,100) > pill.resistanceChance)
-					fragment.append(wikifier("xchange-setpermanent"));
-				else
-					fragment.append(wikifier("xchange-restore"));
-			} 
-		}
-	}
+	// 	if (pill.duration > 0) {
+	// 		pill.duration = Math.max(pill.duration-1, 0);
+	// 		if (pill.duration == 0)
+	// 		{
+	// 			if (pill.resistanceEffect && random(0,100) > pill.resistanceChance)
+	// 				fragment.append(wikifier("xchange-setpermanent"));
+	// 			else
+	// 				fragment.append(wikifier("xchange-restore"));
+	// 		} 
+	// 	}
+	// }
 
 	return fragment;
 }
