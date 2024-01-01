@@ -18184,7 +18184,7 @@ window.StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.4.5.3 DoLP 0.6 DoLX 0.2.1",
+	version: "0.4.5.3 DoLP 0.6 DoLX 0.2.2",
 	versionName: "",
 	sneaky: false,
 };
@@ -81630,6 +81630,7 @@ function dailyPlayerEffects() {
 	if (V.skulduggerymessage) V.effectsmessage = 1;
 
 	if (V.xchange_fame >= 400 && !V.xchange_discovered) V.xchange_fame_message = 1;
+	else if (V.xchange_fame < 400 && V.xchange_discovered) V.xchange_fame_message = 0;
 	if (V.xchange_fame_message) V.effectsmessage = 1;
 
 	if (V.pbdisable === "f") {
@@ -165445,22 +165446,23 @@ Hands are &#39;inverted&#39;: NPC holds PC&#39;s left hand with their right one,
 &lt;&lt;widget &quot;npc_submissive_multiple&quot;&gt;&gt;
 	&lt;&lt;set _anyNamedNPC to false&gt;&gt;
 	&lt;&lt;for _i = 0; _i &lt; $NPCList.length; _i++&gt;&gt;
-		&lt;&lt;if V.NPCNameList.includes($NPCList[_i].name)&gt;&gt;
+		&lt;&lt;if V.NPCNameList.includes($NPCList[_i].name) or V.NPCNameList.includes($NPCList[_i].fullDescription)&gt;&gt;
 			&lt;&lt;set _anyNamedNPC to true&gt;&gt;
-		&lt;&lt;/if&gt;&gt;
-		&lt;&lt;if $enemytype is &quot;man&quot;&gt;&gt;
-			&lt;&lt;if $NPCList[_i].penis isnot &quot;none&quot;&gt;&gt;
-				&lt;&lt;set $NPCList[_i].penis to &quot;clothed&quot;&gt;&gt;
+		&lt;&lt;else&gt;&gt;
+			&lt;&lt;if $enemytype is &quot;man&quot;&gt;&gt;
+				&lt;&lt;if $NPCList[_i].penis isnot &quot;none&quot;&gt;&gt;
+					&lt;&lt;set $NPCList[_i].penis to &quot;clothed&quot;&gt;&gt;
+				&lt;&lt;/if&gt;&gt;
+				&lt;&lt;if $NPCList[_i].vagina isnot &quot;none&quot;&gt;&gt;
+					&lt;&lt;set $NPCList[_i].vagina to &quot;clothed&quot;&gt;&gt;
+				&lt;&lt;/if&gt;&gt;
+				&lt;&lt;set $NPCList[_i].chest to &quot;clothed&quot;&gt;&gt;
 			&lt;&lt;/if&gt;&gt;
-			&lt;&lt;if $NPCList[_i].vagina isnot &quot;none&quot;&gt;&gt;
-				&lt;&lt;set $NPCList[_i].vagina to &quot;clothed&quot;&gt;&gt;
-			&lt;&lt;/if&gt;&gt;
-			&lt;&lt;set $NPCList[_i].chest to &quot;clothed&quot;&gt;&gt;
+			&lt;&lt;set $NPCList[_i].lefthand to &quot;idle&quot;&gt;&gt;
+			&lt;&lt;set $NPCList[_i].righthand to &quot;idle&quot;&gt;&gt;
+			&lt;&lt;set $NPCList[_i].location.genitals to 0&gt;&gt;
+			&lt;&lt;set $NPCList[_i].stance to 0&gt;&gt;
 		&lt;&lt;/if&gt;&gt;
-		&lt;&lt;set $NPCList[_i].lefthand to &quot;idle&quot;&gt;&gt;
-		&lt;&lt;set $NPCList[_i].righthand to &quot;idle&quot;&gt;&gt;
-		&lt;&lt;set $NPCList[_i].location.genitals to 0&gt;&gt;
-		&lt;&lt;set $NPCList[_i].stance to 0&gt;&gt;
 	&lt;&lt;/for&gt;&gt;
 	&lt;&lt;if !_anyNamedNPC&gt;&gt;
 		&lt;&lt;set $enemyarousal to 0&gt;&gt;
@@ -198519,11 +198521,16 @@ hue-rotate(45deg) saturate(0.4) brightness(0.5)
 			&lt;&lt;unset $recovered_from_pregnancy&gt;&gt;
 			&lt;span class=&quot;green&quot;&gt;You feel a familiar emptiness return in your womb.&lt;/span&gt;
 		&lt;&lt;/if&gt;&gt;
-		&lt;&lt;if $xchange_fame_message&gt;&gt;
+		&lt;&lt;if $xchange_fame_message is 1&gt;&gt;
 			&lt;span class=&quot;pink&quot;&gt;Your genderswapping personas are well-known enough now.&lt;/span&gt;&lt;br&gt;
 			&lt;span class=&quot;red&quot;&gt;You no longer benefit from having two separate identities.&lt;/span&gt;&lt;br&gt;
 			&lt;&lt;unset $xchange_fame_message&gt;&gt;
 			&lt;&lt;set $xchange_discovered to true&gt;&gt;
+		&lt;&lt;elseif $xchange_fame_message is 0&gt;&gt;
+			&lt;span class=&quot;pink&quot;&gt;People have stopped caring about your genderswapping personas and have forgotten.&lt;/span&gt;&lt;br&gt;
+			&lt;span class=&quot;red&quot;&gt;You regained the benefits of having two separate identities.&lt;/span&gt;&lt;br&gt;
+			&lt;&lt;unset $xchange_fame_message&gt;&gt;
+			&lt;&lt;set $xchange_discovered to false&gt;&gt;
 		&lt;&lt;/if&gt;&gt;
 		&lt;&lt;if $skulduggerymessage&gt;&gt;
 			&lt;span class=&quot;gold&quot;&gt;Your skulduggery has improved to&lt;/span&gt;
@@ -203402,7 +203409,15 @@ for (var i = 0; i &lt; Object.keys(setup.feats).length;i++){
 	&lt;&lt;set $bottomsensitivity to _body.bottomsensitivity&gt;&gt;
 	&lt;&lt;set $genitalsensitivity to _body.genitalsensitivity&gt;&gt;
 	&lt;&lt;set $fame to _body.fame&gt;&gt;
-	&lt;&lt;set $crime to _body.crime&gt;&gt;
+	&lt;&lt;if _body.crime isnot undefined&gt;&gt;
+		&lt;&lt;set $crime to _body.crime&gt;&gt;
+	&lt;&lt;else&gt;&gt;
+		&lt;&lt;set $crime to {}&gt;&gt;
+		&lt;&lt;for _cr range Object.keys(setup.crimeNames)&gt;&gt;
+			&lt;&lt;set $crime[_cr] to {current: 0, history: 0, daily: 0, count: 0, countHistory: 0}&gt;&gt;
+		&lt;&lt;/for&gt;&gt;
+		&lt;&lt;set $crime.events to {}&gt;&gt;
+	&lt;&lt;/if&gt;&gt;
 
 	&lt;&lt;if $xchange_fame gte 400&gt;&gt;
 		&lt;&lt;set _ogFame to V.xchangePill.originalBody.fame&gt;&gt;
