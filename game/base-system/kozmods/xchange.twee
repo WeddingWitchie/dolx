@@ -13,10 +13,11 @@
 		<<set $player.penissize to -2>>
 		<<set $ballsssize to -2>>
 		<<if $hairlength lt 400>>
-			<<set $hairlength to 400>>
+			<<set _hairLengthLevels to [400,400,400,600,600,800,1000]>>
+			<<set $hairlength to _hairLengthLevels[random(0,_hairLengthLevels.length-1)]>>
 		<</if>>
 		<<if $fringelength lt 200>>
-			<<set $fringelength to 200>>
+			<<set $fringelength to Math.clamp($hairlength - 200, 200, 600)>>
 		<</if>>
 		<<set $beauty += 5000>>
 		<<set _physiquesizes to [6000, 10000, 12000, 16000]>>
@@ -243,7 +244,7 @@
 
 <<widget "xchange-effects">>
 	<<set V.xchangePill.active to true>>
-	<<set V.xchangePill.duration to $args[0] * 24>>
+	<<set V.xchangePill.duration to $args[0] * 24>> <!-- duration now in hours instead of days -->
 
 	<<set V.xchangePill.breederEffect to false>>
 	<<set V.xchangePill.resistanceEffect to false>>
@@ -374,6 +375,6 @@
 		no special effects.
 	<</if>>
 	</span><br>
-	And the remaining duration of the pill is: <span class="blue"><<print V.xchangePill.duration>> day<<if V.xchangePill.duration gt 1>>s<</if>>.</span>
+	And the remaining duration of the pill is: <span class="blue"><<print `Math.ceiling(V.xchangePill.duration/24)`>> day<<if `Math.ceiling(V.xchangePill.duration/24)` gt 1>>s<</if>>.</span>
 	<br><br>
 <</widget>>
