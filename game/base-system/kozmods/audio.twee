@@ -295,7 +295,7 @@
 		<</if>>
 
 		/* Update BGV */
-		<<if $options.voiceoverAudio and $player.sex is "f">>
+		<<if $options.voiceoverAudio and ($player.gender_posture is "f" or ($player.sex is "f" and $player.gender_posture is "n"))>>
 			<<if _penetration.includes($mouthstate)>>
 				<<chupa-voice>>
 			<<elseif _penetration.includes($vaginastate) or _penetration.includes($anusstate)>>
@@ -305,7 +305,7 @@
 			<<else>>
 				<<bgv "stop">>
 			<</if>>
-		<<elseif $options.voiceoverAudio and $player.sex is "m">>
+		<<elseif $options.voiceoverAudio and ($player.gender_posture is "m" or ($player.sex is "m" and $player.gender_posture is "n"))>>
 			<<if $arousal gte $arousalmax * 0.1>>
 				<<arousal-voice>>
 			<<else>>
@@ -398,7 +398,7 @@
 			<<next 6s>>
 				/* <<playlist setup.bgvCurrentPlaylist volume 0 >> */
 				/* <<arousal-voice "override">> */
-				<<if $player.sex is "f">>
+				<<if ($player.gender_posture is "f" or ($player.sex is "f" and $player.gender_posture is "n"))>>
 					<<if _penetration.includes($mouthstate)>>
 						<<chupa-voice "override">>
 					<<elseif _penetration.includes($vaginastate) or _penetration.includes($anusstate)>>
@@ -406,6 +406,8 @@
 					<<else>>
 						<<arousal-voice "override">>
 					<</if>>
+				<<elseif ($player.gender_posture is "m" or ($player.sex is "m" and $player.gender_posture is "n"))>>
+					<<arousal-voice "override">>
 				<</if>>
 
 		<</timed>>
@@ -471,7 +473,7 @@
 <</widget>>
 
 <<widget "arousal-voice">>
-	<<if $player.sex is "f">>
+	<<if ($player.gender_posture is "f" or ($player.sex is "f" and $player.gender_posture is "n"))>>
 		<<if $arousal gte $arousalmax * 0.8>>
 			<<bgv "breath_fast" _args[0]>>
 		<<elseif $arousal gte $arousalmax * 0.6 or $orgasmcurrent gte 1>>
@@ -483,7 +485,7 @@
 		<<elseif $arousal gte $arousalmax * 0.1>>
 			<<bgv "breath_vvslow" _args[0]>>
 		<</if>>	
-	<<elseif $player.sex is "m">>
+	<<elseif ($player.gender_posture is "m" or ($player.sex is "m" and $player.gender_posture is "n"))>>
 		<<if $arousal gte $arousalmax * 0.8>>
 			<<bgv "m_breath_fast" _args[0]>>
 		<<elseif $arousal gte $arousalmax * 0.6 or $orgasmcurrent gte 1>>
@@ -501,7 +503,7 @@
 <<widget "orgasm-voice">>
 	<<set _penetration to ["penetrated", "doublepenetrated", "tentacle", "tentacledeep"]>>
 	<<if _args[0] is undefined>>
-		<<if $player.sex is "f">>
+		<<if ($player.gender_posture is "f" or ($player.sex is "f" and $player.gender_posture is "n"))>>
 			<<if _penetration.includes($mouthstate)>>
 				<<voiceover setup.chupa_orgasm>>
 			<<elseif _penetration.includes($vaginastate) or _penetration.includes($anusstate)>>
@@ -509,13 +511,13 @@
 			<<else>>
 				<<voiceover setup.breath_orgasm>>
 			<</if>>
-		<<elseif $player.sex is "m">>
+		<<elseif ($player.gender_posture is "m" or ($player.sex is "m" and $player.gender_posture is "n"))>>
 			<<voiceover setup.m_orgasm>>
 		<</if>>
 	<<else>>
 		<<if _args[0] is "npc_f">>
 			<<voiceover setup.breath_orgasm _args[0]>>
-		<<else>>
+		<<elseif _args[0] is "npc_m">>
 			<<voiceover setup.m_orgasm _args[0]>>
 		<</if>>
 	<</if>>
