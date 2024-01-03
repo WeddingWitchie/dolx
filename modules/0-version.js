@@ -1,0 +1,1 @@
+const GameVersion = "dolp";
