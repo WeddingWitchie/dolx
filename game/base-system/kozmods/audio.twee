@@ -107,6 +107,9 @@
 	<<cacheaudio "orgasm4" "aud/ve/orgasm/orgasm-04.ogg">>
 	<<cacheaudio "orgasm5" "aud/ve/orgasm/orgasm-05.ogg">>
 	<<cacheaudio "orgasm6" "aud/ve/orgasm/orgasm-06.ogg">>
+	<<cacheaudio "m_orgasm1" "aud/ve/morgasm/orgasm-01.ogg">>
+	<<cacheaudio "m_orgasm2" "aud/ve/morgasm/orgasm-02.ogg">>
+	<<cacheaudio "m_orgasm3" "aud/ve/morgasm/orgasm-03.ogg">>
 		<<set setup.breath_orgasm to [
 			"breath_orgasm1",
 			"breath_orgasm2",
@@ -126,6 +129,11 @@
 			"orgasm4",
 			"orgasm5",
 			"orgasm6"
+		]>>
+		<<set setup.m_orgasm to [
+			"m_orgasm1",
+			"m_orgasm2",
+			"m_orgasm3"
 		]>>
 
 	/* BGS - sound effects meant to be played on loop */
@@ -194,6 +202,57 @@
 			<<track "piston_rotor1">>
 		<</createplaylist>>
 
+	<<cacheaudio "m_breath_vslow1" "aud/bgv/mbreath/breath-veryslow-01.ogg">>
+	<<cacheaudio "m_breath_vslow2" "aud/bgv/mbreath/breath-veryslow-02.ogg">>
+	<<cacheaudio "m_breath_vslow3" "aud/bgv/mbreath/breath-veryslow-03.ogg">>
+	<<cacheaudio "m_breath_vslow4" "aud/bgv/mbreath/breath-veryslow-04.ogg">>
+	<<cacheaudio "m_breath_slow1" "aud/bgv/mbreath/breath-slow-01.ogg">>
+	<<cacheaudio "m_breath_slow2" "aud/bgv/mbreath/breath-slow-02.ogg">>
+	<<cacheaudio "m_breath_slow3" "aud/bgv/mbreath/breath-slow-03.ogg">>
+	<<cacheaudio "m_breath1" "aud/bgv/mbreath/breath-01.ogg">>
+	<<cacheaudio "m_breath2" "aud/bgv/mbreath/breath-02.ogg">>
+	<<cacheaudio "m_breath3" "aud/bgv/mbreath/breath-03.ogg">>
+	<<cacheaudio "m_breath4" "aud/bgv/mbreath/breath-04.ogg">>
+	<<cacheaudio "m_breath5" "aud/bgv/mbreath/breath-05.ogg">>
+	<<cacheaudio "m_breath6" "aud/bgv/mbreath/breath-06.ogg">>
+	<<cacheaudio "m_breath_fast1" "aud/bgv/mbreath/breath-fast-01.ogg">>
+	<<cacheaudio "m_breath_fast2" "aud/bgv/mbreath/breath-fast-02.ogg">>
+	<<cacheaudio "m_breath_fast3" "aud/bgv/mbreath/breath-fast-03.ogg">>
+	<<cacheaudio "m_breath_fast4" "aud/bgv/mbreath/breath-fast-04.ogg">>
+	<<cacheaudio "m_breath_fast5" "aud/bgv/mbreath/breath-fast-05.ogg">>
+		<<createplaylist "m_breath_vvslow">>
+			<<track "m_breath_vslow1" volume 0.5>>
+			<<track "m_breath_vslow2" volume 0.5>>
+			<<track "m_breath_vslow3" volume 0.5>>
+			<<track "m_breath_vslow4" volume 0.5>>
+		<</createplaylist>>
+		<<createplaylist "m_breath_vslow">>
+			<<track "m_breath_vslow1" copy>>
+			<<track "m_breath_vslow2" copy>>
+			<<track "m_breath_vslow3" copy>>
+			<<track "m_breath_vslow4" copy>>
+		<</createplaylist>>
+		<<createplaylist "m_breath_slow">>
+			<<track "m_breath_slow1">>
+			<<track "m_breath_slow2">>
+			<<track "m_breath_slow3">>
+		<</createplaylist>>
+		<<createplaylist "m_breath">>
+			<<track "m_breath1">>
+			<<track "m_breath2">>
+			<<track "m_breath3">>
+			<<track "m_breath4">>
+			<<track "m_breath5">>
+			<<track "m_breath6">>
+		<</createplaylist>>
+		<<createplaylist "m_breath_fast">>
+			<<track "m_breath_fast1">>
+			<<track "m_breath_fast2">>
+			<<track "m_breath_fast3">>
+			<<track "m_breath_fast4">>
+			<<track "m_breath_fast5">>
+		<</createplaylist>>
+
 	<<waitforaudio>>
 
 <</widget>>
@@ -205,17 +264,32 @@
 		<<set _penisRubbing to ["otherhand", "othermouth", "tentacle"]>>
 		<<set _penetration to ["penetrated", "doublepenetrated", "tentacle", "tentacledeep"]>>
 		<<set _rubbing to ["otherhand", "othermouth", "othervagina"]>>
+		<<set _NPCrubbing to ["leftarm", "rightarm"]>>
 
-		<<set _NPCpenetration to ["penis", "otheranus"]>>
-		<<set _NPCrubbing to ["lefthand", "righthand"]>>
+		/* Condition shorthands */
+		<<set _beingPenetrated to _penetration.includes($vaginastate) or _penetration.includes($anusstate)>>
+		<<set _penetrating to _penisPenetration.includes($penisstate)>>
+		<<set _beingRubbed to 
+			_rubbing.includes($vaginastate) or _rubbing.includes($anusstate) or 
+			_penisRubbing.includes($penisstate) or $fingersInVagina gte 1
+		>>
+		<<for _n = 0; _n lt $NPCList.length; _n++>>
+			<<if _NPCrubbing.includes($NPCList[_n].vagina) or _NPCrubbing.includes($NPCList[_n].anus)>>
+				<<set _anyNPCRubbed to "t">>
+			<<elseif _anyNPCRubbed isnot "t" and _NPCrubbing.includes($NPCList[_n].penis)>>
+				<<set _anyNPCRubbed to "penis">>
+			<</if>>
+		<</for>>
 
 		/* Consider adding a check for NPC genitals being rubbed/penetrated by checking $NPCList[_n].vagina is "penis" for example, but remember to check if $NPCList[_n].vagina isnot "none"	 */
 
 		/* Update BGS */
-		<<if _penetration.includes($vaginastate) or _penetration.includes($anusstate) or _penisPenetration.includes($penisstate)>>
+		<<if _beingPenetrated or _penetrating>>
 			<<sex-sound>>
-		<<elseif _rubbing.includes($vaginastate) or _rubbing.includes($anusstate) or _penisRubbing.includes($penisstate) or $fingersInVagina gte 1>>
+		<<elseif _beingRubbed>>
 			<<rub-sound>>
+		<<elseif _anyNPCRubbed>>  <!-- This feels weird if you can't hear the NPC orgasm -->
+			<<rub-sound _anyNPCRubbed>>
 		<<else>>
 			<<bgs "stop">>
 		<</if>>
@@ -227,6 +301,12 @@
 			<<elseif _penetration.includes($vaginastate) or _penetration.includes($anusstate)>>
 				<<sex-voice>>
 			<<elseif $arousal gte $arousalmax * 0.1>>
+				<<arousal-voice>>
+			<<else>>
+				<<bgv "stop">>
+			<</if>>
+		<<elseif $options.voiceoverAudio and $player.sex is "m">>
+			<<if $arousal gte $arousalmax * 0.1>>
 				<<arousal-voice>>
 			<<else>>
 				<<bgv "stop">>
@@ -295,7 +375,7 @@
 <</widget>>
 
 <<widget "voiceover">>
-	<<if setup.bgvCurrentPlaylist isnot "none">>
+	<<if _args[1] is undefined and setup.bgvCurrentPlaylist isnot "none">>
 		/* Fade out the BGV */
 		<<playlist setup.bgvCurrentPlaylist volume 1>>
 		<<playlist setup.bgvCurrentPlaylist fadeout>>
@@ -304,7 +384,8 @@
 
 		<<timed 4500ms>>
 			/* Play the voiceover */
-			<<audio _args[0][random(0,_args[0].length-1)] play>>
+			<<set _VOList to _args[0]>>
+			<<audio _VOList[random(0,_args[0].length-1)] play>>
 			
 			<<if $fingersInVagina gte 1 and setup.bgsCurrentPlaylist isnot "none">>
 				<<playlist setup.bgsCurrentPlaylist fadeout>>
@@ -328,7 +409,10 @@
 				<</if>>
 
 		<</timed>>
-
+	
+	<<elseif _args[1] is "npc_f" or _args[1] is "npc_m">>
+		<<set _VOList to _args[0]>>
+		<<audio _VOList[random(0,_args[0].length-1)] play volume 0.3>>
 	<</if>>
 <</widget>>
 
@@ -343,12 +427,24 @@
 <</widget>>
 
 <<widget "rub-sound">>
-	<<if $vaginaArousalWetness gte 10 or $anusWetness gte 10 or $penisWetness gte 10>>
-		<<bgs "rub_wet">>
-	<<elseif $vaginaArousalWetness gte 5 or $anusWetness gte 5 or $penisWetness gte 5>>
-		<<bgs "rub_damp">>
-	<<else>>
+	<<if _args[0] is undefined>>
+		<<if $vaginaArousalWetness gte 10 or $anusWetness gte 10 or $penisWetness gte 10>>
+			<<bgs "rub_wet">>
+		<<elseif $vaginaArousalWetness gte 5 or $anusWetness gte 5 or $penisWetness gte 5>>
+			<<bgs "rub_damp">>
+		<<else>>
+			<<bgs "rub">>
+		<</if>>
+	<<elseif _args[0] is "penis">>
 		<<bgs "rub">>
+	<<else>>
+		<<if $enemyarousal gte ($enemyarousalmax * (2/3))>>
+			<<bgs "rub_wet">>
+		<<elseif $enemyarousal gte ($enemyarousalmax * (1/3))>>
+			<<bgs "rub_damp">>
+		<<else>>
+			<<bgs "rub">>
+		<</if>>
 	<</if>>
 <</widget>>
 
@@ -375,27 +471,52 @@
 <</widget>>
 
 <<widget "arousal-voice">>
-	<<if $arousal gte $arousalmax * 0.8>>
-		<<bgv "breath_fast" _args[0]>>
-	<<elseif $arousal gte $arousalmax * 0.6 or $orgasmcurrent gte 1>>
-		<<bgv "breath" _args[0]>>
-	<<elseif $arousal gte $arousalmax * 0.4>>
-		<<bgv "breath_slow" _args[0]>>
-	<<elseif $arousal gte $arousalmax * 0.2>>
-		<<bgv "breath_vslow" _args[0]>>
-	<<elseif $arousal gte $arousalmax * 0.1>>
-		<<bgv "breath_vvslow" _args[0]>>
-	<</if>>	
+	<<if $player.sex is "f">>
+		<<if $arousal gte $arousalmax * 0.8>>
+			<<bgv "breath_fast" _args[0]>>
+		<<elseif $arousal gte $arousalmax * 0.6 or $orgasmcurrent gte 1>>
+			<<bgv "breath" _args[0]>>
+		<<elseif $arousal gte $arousalmax * 0.4>>
+			<<bgv "breath_slow" _args[0]>>
+		<<elseif $arousal gte $arousalmax * 0.2>>
+			<<bgv "breath_vslow" _args[0]>>
+		<<elseif $arousal gte $arousalmax * 0.1>>
+			<<bgv "breath_vvslow" _args[0]>>
+		<</if>>	
+	<<elseif $player.sex is "m">>
+		<<if $arousal gte $arousalmax * 0.8>>
+			<<bgv "m_breath_fast" _args[0]>>
+		<<elseif $arousal gte $arousalmax * 0.6 or $orgasmcurrent gte 1>>
+			<<bgv "m_breath" _args[0]>>
+		<<elseif $arousal gte $arousalmax * 0.4>>
+			<<bgv "m_breath_slow" _args[0]>>
+		<<elseif $arousal gte $arousalmax * 0.2>>
+			<<bgv "m_breath_vslow" _args[0]>>
+		<<elseif $arousal gte $arousalmax * 0.1>>
+			<<bgv "m_breath_vvslow" _args[0]>>
+		<</if>>	
+	<</if>>
 <</widget>>
 
 <<widget "orgasm-voice">>
 	<<set _penetration to ["penetrated", "doublepenetrated", "tentacle", "tentacledeep"]>>
-	<<if _penetration.includes($mouthstate)>>
-		<<voiceover setup.chupa_orgasm>>
-	<<elseif _penetration.includes($vaginastate) or _penetration.includes($anusstate)>>
-		<<voiceover setup.orgasm>>
+	<<if _args[0] is undefined>>
+		<<if $player.sex is "f">>
+			<<if _penetration.includes($mouthstate)>>
+				<<voiceover setup.chupa_orgasm>>
+			<<elseif _penetration.includes($vaginastate) or _penetration.includes($anusstate)>>
+				<<voiceover setup.orgasm>>
+			<<else>>
+				<<voiceover setup.breath_orgasm>>
+			<</if>>
+		<<elseif $player.sex is "m">>
+			<<voiceover setup.m_orgasm>>
+		<</if>>
 	<<else>>
-		<<voiceover setup.breath_orgasm>>
+		<<if _args[0] is "npc_f">>
+			<<voiceover setup.breath_orgasm _args[0]>>
+		<<else>>
+			<<voiceover setup.m_orgasm _args[0]>>
+		<</if>>
 	<</if>>
-	
 <</widget>>
