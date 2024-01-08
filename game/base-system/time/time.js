@@ -641,6 +641,14 @@ function dayPassed() {
 		V.brothelVending.total = (V.brothelVending.total || 0) + rng;
 	}
 
+	if ((V.hourlyFemininity > 0 && V.player.gender === "f") || (V.hourlyFemininity < 0 && V.player.gender === "m"))
+		fragment.append(wikifier("genderidentity", 1));
+	else if ((V.hourlyFemininity > 0 && V.player.gender === "m") || (V.hourlyFemininity < 0 && V.player.gender === "f"))
+		fragment.append(wikifier("genderidentity", -1));
+
+	fragment.append(wikifier("genderidentity-text", V.hourlyFemininity > 0? "f": (V.hourlyFemininity < 0? "m": 0)));
+	V.hourlyFemininity = 0;
+
 	fragment.append(wikifier("menstruationCycle", "daily"));
 	pregnancyProgress();
 	pregnancyProgress("anus");
@@ -740,6 +748,44 @@ function hourPassed(hours) {
 			} 
 		}
 	}
+
+	// Compute the sum of all clothing femininity
+	let currentWornFemininity = 0;
+	if (setup.clothes["over_head"][clothesIndex("over_head", V.worn.over_head)].femininity)
+		currentWornFemininity += setup.clothes["over_head"][clothesIndex("over_head", V.worn.over_head)].femininity;
+	if (setup.clothes["head"][clothesIndex("head", V.worn.head)].femininity)
+		currentWornFemininity += setup.clothes["head"][clothesIndex("head", V.worn.head)].femininity;
+	if (setup.clothes["face"][clothesIndex("face", V.worn.face)].femininity)
+		currentWornFemininity += setup.clothes["face"][clothesIndex("face", V.worn.face)].femininity;
+	if (setup.clothes["neck"][clothesIndex("neck", V.worn.neck)].femininity)
+		currentWornFemininity += setup.clothes["neck"][clothesIndex("neck", V.worn.neck)].femininity;
+	if (setup.clothes["over_upper"][clothesIndex("over_upper", V.worn.over_upper)].femininity)
+		currentWornFemininity += setup.clothes["over_upper"][clothesIndex("over_upper", V.worn.over_upper)].femininity;
+	if (setup.clothes["upper"][clothesIndex("upper", V.worn.upper)].femininity)
+		currentWornFemininity += setup.clothes["upper"][clothesIndex("upper", V.worn.upper)].femininity;
+	if (setup.clothes["under_upper"][clothesIndex("under_upper", V.worn.under_upper)].femininity)
+		currentWornFemininity += setup.clothes["under_upper"][clothesIndex("under_upper", V.worn.under_upper)].femininity;
+	if (setup.clothes["over_lower"][clothesIndex("over_lower", V.worn.over_lower)].femininity)
+		currentWornFemininity += setup.clothes["over_lower"][clothesIndex("over_lower", V.worn.over_lower)].femininity;
+	if (setup.clothes["lower"][clothesIndex("lower", V.worn.lower)].femininity)
+		currentWornFemininity += setup.clothes["lower"][clothesIndex("lower", V.worn.lower)].femininity;
+	if (setup.clothes["under_lower"][clothesIndex("under_lower", V.worn.under_lower)].femininity)
+		currentWornFemininity += setup.clothes["under_lower"][clothesIndex("under_lower", V.worn.under_lower)].femininity;
+	if (setup.clothes["legs"][clothesIndex("legs", V.worn.legs)].femininity)
+		currentWornFemininity += setup.clothes["legs"][clothesIndex("legs", V.worn.legs)].femininity;
+	if (setup.clothes["handheld"][clothesIndex("handheld", V.worn.handheld)].femininity)
+		currentWornFemininity += setup.clothes["handheld"][clothesIndex("handheld", V.worn.handheld)].femininity;
+	if (setup.clothes["feet"][clothesIndex("feet", V.worn.feet)].femininity)
+		currentWornFemininity += setup.clothes["feet"][clothesIndex("feet", V.worn.feet)].femininity;
+
+	// Add up the makeup femininity
+	currentWornFemininity += V.makeup.lipstick ? 50 : 0;
+	currentWornFemininity += V.makeup.mascara ? 50 : 0;
+	currentWornFemininity += V.makeup.eyeshadow ? 50 : 0;
+	
+	// Tick the hourly counter
+	V.hourlyFemininity += currentWornFemininity > 0 ? 1 : 0;
+	V.hourlyFemininity += currentWornFemininity < 0 ? -1 : 0;
 
 	if (V.statFreeze) return fragment;
 
