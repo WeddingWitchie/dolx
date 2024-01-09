@@ -646,6 +646,9 @@ function dayPassed() {
 	else if ((V.hourlyFemininity > 0 && V.player.gender === "m") || (V.hourlyFemininity < 0 && V.player.gender === "f"))
 		fragment.append(wikifier("genderidentity", -1));
 
+	if (playerIsXChanged())
+		fragment.append(wikifier("genderidentity", -2));
+
 	fragment.append(wikifier("genderidentity-text", V.hourlyFemininity > 0? "f": (V.hourlyFemininity < 0? "m": 0)));
 	V.hourlyFemininity = 0;
 
@@ -724,6 +727,36 @@ function dayPassed() {
 function hourPassed(hours) {
 	const fragment = document.createDocumentFragment();
 
+	if (V.statFreeze) return fragment;
+
+	for (let i = 0; i < hours; i++) {
+		if (V.innocencestate === 1 && V.control <= 0) fragment.append(wikifier("awareness", 1));
+		fragment.append(wikifier("control", 1));
+		fragment.append(wikifier("orgasmHourlyRecovery"));
+		fragment.append(wikifier("arousal", 0, "time"));
+		fragment.append(wikifier("wetnessCalculate"));
+		fragment.append(wikifier("bimboCheck", "upper"));
+		fragment.append(wikifier("bimboCheck", "lower"));
+		fragment.append(wikifier("bimboCheck", "feet"));
+
+		if (V.ejactrait >= 1) V.stress -= (V.goocount + V.semencount) * 10;
+		if (V.kylarwatched) V.kylarwatchedtimer--;
+		if (V.parasite.nipples.name) fragment.append(wikifier("milkvolume", 1));
+		if (V.worn.head.name === "hairpin" || V.sexStats.pills.pills["Hair Growth Formula"].doseTaken) {
+			let count = 0 + (V.worn.head.name === "hairpin" && random(0, 100) >= 75 ? 1 : 0);
+			count += V.sexStats.pills.pills["Hair Growth Formula"].doseTaken ? 1 : 0;
+			V.hairlength += count;
+			V.fringelength += count;
+			fragment.append(wikifier("calchairlengthstage"));
+		}
+		if (V.earSlime.defyCooldown) {
+			V.earSlime.defyCooldown--;
+			if (numberOfEarSlime() > 1 && V.earSlime.growth < 100) V.earSlime.defyCooldown--;
+			if (V.earSlime.defyCooldown <= 0) V.earSlime.defyCooldown = 0;
+		}
+		playerEndWaterProgress();
+	}
+
 	if (V.xchangePill && V.xchangePill.active)
 	{
 		const pill = V.xchangePill;
@@ -787,36 +820,6 @@ function hourPassed(hours) {
 	V.hourlyFemininity += currentWornFemininity > 0 ? 1 : 0;
 	V.hourlyFemininity += currentWornFemininity < 0 ? -1 : 0;
 
-	if (V.statFreeze) return fragment;
-
-	for (let i = 0; i < hours; i++) {
-		if (V.innocencestate === 1 && V.control <= 0) fragment.append(wikifier("awareness", 1));
-		fragment.append(wikifier("control", 1));
-		fragment.append(wikifier("orgasmHourlyRecovery"));
-		fragment.append(wikifier("arousal", 0, "time"));
-		fragment.append(wikifier("wetnessCalculate"));
-		fragment.append(wikifier("bimboCheck", "upper"));
-		fragment.append(wikifier("bimboCheck", "lower"));
-		fragment.append(wikifier("bimboCheck", "feet"));
-
-		if (V.ejactrait >= 1) V.stress -= (V.goocount + V.semencount) * 10;
-		if (V.kylarwatched) V.kylarwatchedtimer--;
-		if (V.parasite.nipples.name) fragment.append(wikifier("milkvolume", 1));
-		if (V.worn.head.name === "hairpin" || V.sexStats.pills.pills["Hair Growth Formula"].doseTaken) {
-			let count = 0 + (V.worn.head.name === "hairpin" && random(0, 100) >= 75 ? 1 : 0);
-			count += V.sexStats.pills.pills["Hair Growth Formula"].doseTaken ? 1 : 0;
-			V.hairlength += count;
-			V.fringelength += count;
-			fragment.append(wikifier("calchairlengthstage"));
-		}
-		if (V.earSlime.defyCooldown) {
-			V.earSlime.defyCooldown--;
-			if (numberOfEarSlime() > 1 && V.earSlime.growth < 100) V.earSlime.defyCooldown--;
-			if (V.earSlime.defyCooldown <= 0) V.earSlime.defyCooldown = 0;
-		}
-		playerEndWaterProgress();
-	}
-
 	if (
 		V.sexStats.vagina.menstruation.running &&
 		(V.sexStats.vagina.menstruation.currentState === "pregnant" ||
@@ -852,6 +855,8 @@ function hourPassed(hours) {
 	}
 
 	V.home_gone++;
+
+	
 
 	return fragment;
 }
