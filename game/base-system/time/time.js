@@ -767,7 +767,7 @@ function hourPassed(hours) {
 	
 		// If the pill has the continue effect, and a remaining duration of 30 days is accumulated
 		// then, the change becomes permanent
-		if (pill.continueEffect && pill.duration > 30)
+		if (pill.continueEffect && pill.duration > 30 * 24)
 			fragment.append(wikifier("xchange-setpermanent"));
 	
 		if (pill.duration > 0) {

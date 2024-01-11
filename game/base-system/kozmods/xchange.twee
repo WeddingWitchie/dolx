@@ -21,9 +21,10 @@
 		<</if>>
 		<<set $beauty += 5000>>
 		<<set _physiquesizes to [6000, 10000, 12000, 16000]>>
-		<<set _physique_max_old to $physiquesize>>
+		<<set _physiquesize_old to $physiquesize>>
 		<<set $physiquesize to _physiquesizes[$bodysize]>>
-		<<set $physique *= $physiquesize / _physique_max_old>>
+		<<set $physique *= $physiquesize / _physiquesize_old>>
+		<<set $physique *= 0.5>>
 		<<set $breastsensitivity to Math.min($breastsensitivity+1, 6)>>
 		<<set $bottomsensitivity to Math.min($bottomsensitivity+1, 3)>>
 		<<set $genitalsensitivity to Math.min($genitalsensitivity+2, 10)>>
@@ -45,6 +46,7 @@
 			sex: 0,
 			social: 0,
 		}>>
+		<<set $cool to 120>>
 		<<set $crime to {}>>
 		<<for _cr range Object.keys(setup.crimeNames)>>
 			<<set $crime[_cr] to {current: 0, history: 0, daily: 0, count: 0, countHistory: 0}>>
@@ -90,9 +92,9 @@
 		<</if>>
 		<<set $beauty += 2000>>
 		<<set _physiquesizes to [6000, 10000, 12000, 16000]>>
-		<<set _physique_max_old to $physiquesize>>
+		<<set _physiquesize_old to $physiquesize>>
 		<<set $physiquesize to _physiquesizes[$bodysize]>>
-		<<set $physique *= $physiquesize / _physique_max_old>>
+		<<set $physique *= $physiquesize / _physiquesize_old>>
 		<<set $breastsensitivity to Math.max($breastsensitivity-1, 1)>>
 		<<set $bottomsensitivity to Math.max($bottomsensitivity-1, 1)>>
 		<<set $genitalsensitivity to Math.max($genitalsensitivity-2, 1)>>
@@ -114,6 +116,7 @@
 			sex: 0,
 			social: 0,
 		}>>
+		<<set $cool to 120>>
 		<<set $crime to {}>>
 		<<for _cr range Object.keys(setup.crimeNames)>>
 			<<set $crime[_cr] to {current: 0, history: 0, daily: 0, count: 0, countHistory: 0}>>
@@ -156,6 +159,7 @@
 		bottomgrowthtimer: $bottomgrowthtimer,
 		breastgrowthtimer: $breastgrowthtimer,
 		fame: $fame,
+		cool: $cool,
 		crime: $crime,
 	}>>
 
@@ -191,6 +195,11 @@
 	<<set $bottomgrowthtimer to _body.bottomgrowthtimer>>
 	<<set $breastgrowthtimer to _body.breastgrowthtimer>>
 	<<set $fame to _body.fame>>
+	<<if _body.cool isnot undefined>>
+		<<set $cool to _body.cool>>
+	<<elseif _body isnot V.xchangePill.originalBody>>
+		<<set $cool to 120>>
+	<</if>>
 	<<if _body.crime isnot undefined>>
 		<<set $crime to _body.crime>>
 	<<else>>
@@ -403,8 +412,8 @@
 	<</if>>
 	</span><br>
 	And the remaining duration of the pill is: <span class="blue">
-	<<if V.xchangePill.duration gte 48>>
-		<<print (Math.floor(V.xchangePill.duration/24))>> days
+	<<if V.xchangePill.duration gte 36>>
+		<<print (Math.ceil(V.xchangePill.duration/24))>> days
 	<<elseif V.xchangePill.duration gte 24>>
 		1 day
 	<<elseif V.xchangePill.duration gt 1>>
