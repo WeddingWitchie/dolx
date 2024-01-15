@@ -194,20 +194,22 @@
 	<<set $penisgrowthtimer to _body.penisgrowthtimer>>
 	<<set $bottomgrowthtimer to _body.bottomgrowthtimer>>
 	<<set $breastgrowthtimer to _body.breastgrowthtimer>>
-	<<set $fame to _body.fame>>
-	<<if _body.cool isnot undefined>>
-		<<set $cool to _body.cool>>
-	<<elseif _body isnot V.xchangePill.originalBody>>
-		<<set $cool to 120>>
-	<</if>>
-	<<if _body.crime isnot undefined>>
-		<<set $crime to _body.crime>>
-	<<else>>
-		<<set $crime to {}>>
-		<<for _cr range Object.keys(setup.crimeNames)>>
-			<<set $crime[_cr] to {current: 0, history: 0, daily: 0, count: 0, countHistory: 0}>>
-		<</for>>
-		<<set $crime.events to {}>>
+	<<if !$xchangeFameMerged>>
+		<<set $fame to _body.fame>>
+		<<if _body.cool isnot undefined>>
+			<<set $cool to _body.cool>>
+		<<elseif _body isnot V.xchangePill.originalBody>>
+			<<set $cool to 120>>
+		<</if>>
+		<<if _body.crime isnot undefined>>
+			<<set $crime to _body.crime>>
+		<<else>>
+			<<set $crime to {}>>
+			<<for _cr range Object.keys(setup.crimeNames)>>
+				<<set $crime[_cr] to {current: 0, history: 0, daily: 0, count: 0, countHistory: 0}>>
+			<</for>>
+			<<set $crime.events to {}>>
+		<</if>>
 	<</if>>
 	<<if $penisgrowthtimer is undefined or $bottomgrowthtimer is undefined or $breastgrowthtimer is undefined>>
 		<<set $penisgrowthtimer to 500>>
@@ -215,7 +217,7 @@
 		<<set $breastgrowthtimer to 500>>	
 	<</if>>
 
-	<<if $xchange_fame gte 400>>
+	<<if $xchange_fame gte 400 and !$xchangeFameMerged>>
 		<<set _ogFame to V.xchangePill.originalBody.fame>>
 		<<set _newFame to V.xchangePill.changedBody.fame>>
 		<<set $fame to {
@@ -234,6 +236,10 @@
 			social: 		Math.max(_ogFame.social, _newFame.social),
 		}>>
 
+		<<set _ogCool to V.xchangePill.originalBody.cool>>
+		<<set _newCool to V.xchangePill.changedBody.cool>>
+		<<set $cool to (_ogCool + _newCool) / 2>>
+
 		<<set _ogCrime to V.xchangePill.originalBody.crime>>
 		<<set _newCrime to V.xchangePill.changedBody.crime>>
 		<<set $crime to {}>>
@@ -246,6 +252,7 @@
 				countHistory: 	_ogCrime.countHistory + _newCrime.countHistory}>>
 		<</for>>
 		<<set $crime.events to {..._ogCrime.events, ..._newCrime.events}>>
+		<<set $xchangeFameMerged to true>>
 	<</if>>
 
 	<<calchairlengthstage>>
@@ -270,7 +277,7 @@
 
 <<widget "xchange-effects">>
 	<<set V.xchangePill.active to true>>
-	<<set V.xchangePill.duration to $args[0] * 24>> <!-- duration now in hours instead of days -->
+	<<set V.xchangePill.duration to $args[0] * 24 - 1>> <!-- duration now in hours instead of days -->
 	<<set V.xchangePill.fertile to false>>
 
 	<<set V.xchangePill.breederEffect to false>>
