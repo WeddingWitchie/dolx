@@ -16,3 +16,8 @@ function playerBodyIsFemale() {
 	return (V.player.gender === "f" && !playerIsXChanged()) || (V.player.gender === "m" && playerIsXChanged());
 }
 window.playerBodyIsMale = playerBodyIsMale;
+
+function playerMayBeSpiked() {
+	return V.xchange.nonconEnabled === 1 && !playerIsXChanged() && !playerIsPregnant();
+}
+window.playerMayBeSpiked = playerMayBeSpiked;
