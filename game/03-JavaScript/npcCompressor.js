@@ -148,7 +148,7 @@ const { npcCompressor, npcDecompressor, childCompressor, childDecompressor } = (
 		"plump",
 		"wide-eyed",
 		"vulgar",
-		"minor demon",
+		"bitchy",
 		"tutorial",
 		"debug",
 	];
@@ -173,7 +173,7 @@ const { npcCompressor, npcDecompressor, childCompressor, childDecompressor } = (
 		"plump",
 		"wide-eyed",
 		"brutish",
-		"minor demon",
+		"delinquent",
 		"tutorial",
 		"debug",
 	];
@@ -198,7 +198,7 @@ const { npcCompressor, npcDecompressor, childCompressor, childDecompressor } = (
 		"voluptuous",
 		"lush",
 		"vulgar",
-		"demon",
+		"herculean",
 		"tutorial",
 		"debug",
 	];
@@ -223,7 +223,7 @@ const { npcCompressor, npcDecompressor, childCompressor, childDecompressor } = (
 		"muscular",
 		"burly",
 		"brutish",
-		"demon",
+		"herculean",
 		"tutorial",
 		"debug",
 	];
