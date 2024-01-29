@@ -762,21 +762,25 @@ function hourPassed(hours) {
 		const pill = V.xchangePill;
 		// If got impregnated in the vagina, or allowed an ear slime to grow to a certain point
 		// then, the change becomes permanent 
-		if (V.sexStats.vagina.pregnancy.type !== null || V.earSlime.growth > 50)
+		if (V.xchange.pillPermanence === 1 && (V.sexStats.vagina.pregnancy.type !== null || V.earSlime.growth > 50))
 			fragment.append(wikifier("xchange-setpermanent"));
 	
 		// If the pill has the continue effect, and a remaining duration of 30 days is accumulated
 		// then, the change becomes permanent
-		if (pill.continueEffect && pill.duration > 30 * 24)
+		if (V.xchange.pillPermanence === 1 && pill.continueEffect && pill.duration > 30 * 24)
 			fragment.append(wikifier("xchange-setpermanent"));
 	
-		if (pill.duration > 0) {
+		if (!(V.sexStats.vagina.pregnancy.type !== null || V.earSlime.growth > 50) && pill.duration > 0) {
 			pill.duration = Math.max(pill.duration-1, 0);
 			if (pill.duration == 0)
 			{
-				if (pill.resistanceEffect && random(0,100) > pill.resistanceChance)
-					fragment.append(wikifier("xchange-setpermanent"));
-				else
+				if (pill.resistanceEffect && random(0,100) > pill.resistanceChance) {
+					if (V.xchange.pillPermanence === 1) fragment.append(wikifier("xchange-setpermanent"));
+					else {
+						pill.duration += 30 * 24;
+						pill.resistanceEffect = false;
+					}
+				} else
 					fragment.append(wikifier("xchange-restore"));
 			} 
 		}
