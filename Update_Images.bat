@@ -6,6 +6,8 @@ echo 2. BEEESSS
 echo 3. BEEESSS + Hikari Female
 echo 4. BEEESSS + Hikari Male
 echo 5. BEEESSS + Paril + Hairstyle Extended
+echo 6. BEEESSS + WAX
+echo 7. BEEESSS + Okbd
 
 set /p choice=Enter the number of your choice:
 
@@ -30,6 +32,12 @@ if "%choice%"=="1" (
 ) else if "%choice%"=="5" (
     echo You chose BEEESSS + Paril + Hairstyle Extended.
 	xcopy /E /Y beeesssparilhairstyleextendedimg\* "%destinationFolder%\"
+) else if "%choice%"=="6" (
+    echo You chose BEEESSS + WAX.
+	xcopy /E /Y beeessswaximg\* "%destinationFolder%\"
+) else if "%choice%"=="7" (
+    echo You chose BEEESSS + Okbd.
+	xcopy /E /Y beeesssokbdimg\* "%destinationFolder%\"
 ) else (
     echo Invalid choice. Please enter a number from the list.
     exit /b 1
