@@ -25,6 +25,11 @@ function playerMayBeSpiked() {
 }
 window.playerMayBeSpiked = playerMayBeSpiked;
 
+function genderIsIgnored() {
+	return V.xchange.disregardGender === 1;
+}
+window.genderIsIgnored = genderIsIgnored;
+
 
 function xchangeHourlyCheck() {
 	const fragment = document.createDocumentFragment();
