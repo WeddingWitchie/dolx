@@ -3403,18 +3403,21 @@
 		<<elseif $farm.tractor gte 1>>
 			<<set _tractor = 1>>
 		<</if>>
+		<<set _farmCleared to 1>>
 		<<if $farm.tractorloader is true>>
 			<<set _baseTime = Math.round(_baseTime * (0.5 * _tractor))>>
 			<<set _baseTiredsness = Math.round(_baseTiredsness * (0.5 * _tractor))>>
+		<<else>>
+			<<set _farmCleared to _farmCleared + Math.floor($physique / 10000) + Math.floor($tending / 500)>>
 		<</if>>
 	<</if>>
 	<<farm_count _baseTime>>
 	<<pass _baseTime>>
 	<<tiredness _baseTiredsness>>
 	<<if $farm.tractor gte 1>>
-		<<set $farm.clearing = Math.round($farm.clearing - (1 + (1 / _tractor)))>>
+		<<set $farm.clearing = Math.round($farm.clearing - (_farmCleared + Math.floor(1 / _tractor)))>>
 	<<else>>
-		<<set $farm.clearing = Math.round($farm.clearing - 1)>>
+		<<set $farm.clearing = Math.round($farm.clearing - _farmCleared)>>
 	<</if>>
 <</widget>>
 

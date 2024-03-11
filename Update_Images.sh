@@ -8,6 +8,7 @@ echo "4. BEEESSS + Hikari Male"
 echo "5. BEEESSS + Paril + Hairstyle Extended"
 echo "6. BEEESSS + WAX"
 echo "7. BEEESSS + Okbd"
+echo "8. BEEESSS + Hikari Female + WIP Reworked Animations"
 
 read -p "Enter the number of your choice: " choice
 
@@ -38,6 +39,9 @@ elif [ "$choice" == "6" ]; then
 elif [ "$choice" == "7" ]; then
     echo "You chose BEEESSS + Okbd."
     cp -r beeesssokbdimg/* "$destinationFolder/"
+elif [ "$choice" == "7" ]; then
+    echo "You chose BEEESSS + Hikari Female + WIP Reworked Animations."
+    cp -r beeessshfreworkedanimationsimg/* "$destinationFolder/"
 else
     echo "Invalid choice. Please enter a number from the list."
     exit 1

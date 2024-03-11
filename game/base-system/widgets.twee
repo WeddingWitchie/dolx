@@ -903,7 +903,7 @@
 
 <<widget "combatskulduggeryskilluse">>
 	<<if $statFreeze isnot true>>
-		<<if $skulduggery gt 1000>>
+		<<if $skulduggery gt 1000 or $AMCTraits.halfGain is 1>>
 			<<set $skulduggery += 3 / $AMCTraits.skulduggery>>
 		<<else>>
 			<<set $skulduggery += 3>>
@@ -917,7 +917,7 @@
 
 <<widget "lockpickTrainingSetuse">>
 	<<if $statFreeze isnot true>>
-		<<if $skulduggery gt 1000>>
+		<<if $skulduggery gt 1000 or $AMCTraits.halfGain is 1>>
 			<<set $skulduggery += _args[0] / $AMCTraits.skulduggery>>
 		<<else>>
 			<<set $skulduggery += _args[0]>>
@@ -932,7 +932,7 @@
 
 <<widget "swimmingskilluse">>
 	<<if $statFreeze isnot true>>
-		<<if $swimmingskill gt 1000>>
+		<<if $swimmingskill gt 1000 or $AMCTraits.halfGain is 1>>
 			<<set $swimmingskill += 9 / $AMCTraits.swimming>>
 		<<else>>
 			<<set $swimmingskill += 9>>
@@ -978,20 +978,16 @@
 			<</if>>
 		<</if>>
 
-		<<if _AMCmod is 2 and V[$subject] gt 1000>>
+		<<if _AMCmod is 2 and V[$subject] gt 1000 or $AMCTraits.halfGain is 1>>
 			<<set V[$_subject + "_exam"] to Math.clamp(V[$_subject + "_exam"] + ($_gain * _skill_mod / _AMCmod), -107, 200)>>
 		<<else>>
 			<<set V[$_subject + "_exam"] to Math.clamp(V[$_subject + "_exam"] + ($_gain * _skill_mod), -107, 200)>>
-		<</if>>
-		<<if V[$_subject + "_exam"] gte 100 and V[$_subject + 'trait'] lt 4 * _AMCmod>>
-			<<school_skill_up $_subject>>
-			<<school_skill_up_text $_subject>>
 		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "scienceskill">>
-	<<if $science gt 1000>>
+	<<if $science gt 1000 or $AMCTraits.halfGain is 1>>
 		<<set _args[0] to _args[0] / $AMCTraits.science>>
 	<<else>>
 		<<set _args[0] to _args[0]>>
@@ -1000,7 +996,7 @@
 <</widget>>
 
 <<widget "mathsskill">>
-	<<if $maths gt 1000>>
+	<<if $maths gt 1000 or $AMCTraits.halfGain is 1>>
 		<<set _args[0] to _args[0] / $AMCTraits.maths>>
 	<<else>>
 		<<set _args[0] to _args[0]>>
@@ -1009,7 +1005,7 @@
 <</widget>>
 
 <<widget "englishskill">>
-	<<if $english gt 1000>>
+	<<if $english gt 1000 or $AMCTraits.halfGain is 1>>
 		<<set _args[0] to _args[0] / $AMCTraits.english>>
 	<<else>>
 		<<set _args[0] to _args[0]>>
@@ -1018,7 +1014,7 @@
 <</widget>>
 
 <<widget "historyskill">>
-	<<if $history gt 1000>>
+	<<if $history gt 1000 or $AMCTraits.halfGain is 1>>
 		<<set _args[0] to _args[0] / $AMCTraits.history>>
 	<<else>>
 		<<set _args[0] to _args[0]>>
@@ -1117,7 +1113,7 @@
 		<<elseif $exposed is 1>>
 			<<set $athletics += 1>>
 		<</if>>
-		<<if $athletics gt 1000>>
+		<<if $athletics gt 1000 or $AMCTraits.halfGain is 1>>
 			<<set $athletics += Math.trunc(_temp * 1.4 / $AMCTraits.athletics)>>
 		<<else>>
 			<<set $athletics += Math.trunc(_temp * 1.4)>>
@@ -1128,7 +1124,7 @@
 
 <<widget "tending">>
 	<<if _args[0] and $statFreeze isnot true>>
-		<<if $tending gt 1000>>
+		<<if $tending gt 1000 or $AMCTraits.halfGain is 1>>
 			<<set $tending += (_args[0] * 2 / $AMCTraits.tending)>>
 		<<else>>
 			<<set $tending += (_args[0] * 2)>>
@@ -1138,8 +1134,8 @@
 <</widget>>
 
 <<widget "housekeeping">>
-<<if _args[0] and $statFreeze isnot true and $housekeeping lt _args[1]>>
-	<<if $housekeeping gt 1000>>
+<<if _args[0] and $statFreeze isnot true and ($housekeeping lt _args[1] or _args[1] gte 1000)>>
+	<<if $housekeeping gt 1000 or $AMCTraits.halfGain is 1>>
 		<<set $housekeeping += (_args[0] * 2 / $AMCTraits.housekeeping)>>
 	<<else>>
 		<<set $housekeeping += (_args[0] * 2)>>
@@ -1150,7 +1146,7 @@
 
 <<widget "danceskill">>
 	<<if _args[0] and $statFreeze isnot true>>
-		<<if $danceskill gt 1000>>
+		<<if $danceskill gt 1000 or $AMCTraits.halfGain is 1>>
 			<<set $danceskill += _args[0] / $AMCTraits.dancing>>
 		<<else>>
 			<<set $danceskill += _args[0]>>
@@ -5432,63 +5428,41 @@
 <</widget>>
 
 <<widget "tfcheck">>
-	<<if ($fallenangel gte 2 or $transformationParts.fallenAngel.wings is "default")>>
+	<<if $fallenangel gte 2 or $transformationParts.fallenAngel.wings is "default">>
 		<<set $fallenangeltf to 1>>
 	<</if>>
-	<<if ($fallenangel gte 4 or $transformationParts.fallenAngel.wings is "fallenplus") or $fallenangelbuild gte 30>>
+	<<if $fallenangel gte 4 or $transformationParts.fallenAngel.wings is "fallenplus">>
 		<<set $fallenangelplustf to 1>>
 	<</if>>
-	<<if $$demonbuild gte 30 or ($demon gte 6 or $transformationParts.demon.wings is "default" or $transformationParts.demon.wings is "succubus")>>
+	<<if $demon gte 6 or $transformationParts.demon.wings is "default" or $transformationParts.demon.wings is "succubus">>
 		<<set $demontf to 1>>
 	<</if>>
-	<<if $$angelbuild gte 50 or ($angel gte 6 or $transformationParts.angel.wings is "default")>>
+	<<if $angel gte 6 or $transformationParts.angel.wings is "default">>
 		<<set $angeltf to 1>>
 	<</if>>
-	<<if $wolfbuild gte 30 or ($wolfgirl gte 6 or $transformationParts.wolf.tail is "default" or $transformationParts.wolf.tail is "feral")>>
+	<<if $wolfgirl gte 6 or $transformationParts.wolf.tail is "default" or $transformationParts.wolf.tail is "feral">>
 		<<set $wolftf to 1>>
 	<</if>>
-	<<if $catbuild gte 50 or ($cat gte 6 or $transformationParts.cat.tail is "default")>>
+	<<if $cat gte 6 or $transformationParts.cat.tail is "default">>
 		<<set $cattf to 1>>
 	<</if>>
-	<<if $cowbuild gte 30 or ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black")>>
+	<<if $cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black">>
 		<<set $cowtf to 1>>
 	<</if>>
-	<<if $birdbuild gte 30 or ($harpy gte 6 or $transformationParts.bird.wings is "default")>>
+	<<if $harpy gte 6 or $transformationParts.bird.wings is "default">>
 		<<set $harpytf to 1>>
 	<</if>>
-	<<if $foxbuild gte 30 or ($fox gte 6 or $transformationParts.fox.tail is "default")>>
+	<<if $fox gte 6 or $transformationParts.fox.tail is "default">>
 		<<set $foxtf to 1>>
 	<</if>>
-<</widget>>
-
-<<widget "unlockplants">>
-	/*<<set _plant_keys to Object.keys($plants)>>
-	<<for _i to 0; _i lt _plant_keys.length; _i++>>
-		<<set $plants_known.push(setup.plants[_plant_keys[_i]].name)>>
-	<</for>>*/
-	<<set $plants_known.push("red_rose")>>
-	<<set $plants_known.push("white_rose")>>
-	<<set $plants_known.push("orchid")>>
-	<<set $plants_known.push("daisy")>>
-	<<set $plants_known.push("tulip")>>
-	<<set $plants_known.push("lotus")>>
-	<<set $plants_known.push("lily")>>
-	<<set $plants_known.push("poppy")>>
-	<<set $plants_known.push("wild_carrot")>>
-	<<set $plants_known.push("onion")>>
-	<<set $plants_known.push("garlic_bulb")>>
-	<<set $plants_known.push("potato")>>
-	<<set $plants_known.push("strange_flower")>>
-	<<set $plants_known.push("cabbage")>>
-	<<set $plants_known.push("turnip")>>
-	<<set $plants_known.push("broccoli")>>
-	<<set $plants_known.push("green_manure")>>
 <</widget>>
 
 <<widget "unlockspecialclothing">>
 	<<set $specialClothes to {
 		"witchdress":"unlocked",
 		"christmasdress":"unlocked",
+		"jinglebelldress":"unlocked",
+		"sleevelessjinglebelldress":"unlocked",
 		"serafuku":"unlocked",
 		"vampirejacket":"unlocked",
 		"slutshirt":"unlocked",

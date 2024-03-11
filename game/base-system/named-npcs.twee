@@ -835,13 +835,24 @@ Zohar
 		<<set $pronoun to $NPCName[_i].pronoun>>
 	<</if>>
 	/*Sets up multiple orgasms, code needs work*/
-	/*<<set $NPCList[0].maxOrgasms to 1>>
+	<<set $NPCList[0].maxOrgasms to 1>>
 	<<set $NPCList[0].orgasms to 0>>
-	<<if $NPCList[0].fullDescription is "Robin">>
-		<<set $NPCList[0].maxOrgasms to 2>>
+	<<if $multiOrgasmToggle is 1>>
+		<<set _nameCheck to $NPCList[0].fullDescription>>
+		<<if _nameCheck is "Robin" or _nameCheck is "Kylar" or _nameCheck is "Sydney" or _nameCheck is "Leighton" or _nameCheck is "Gwylan">>
+			<<set $NPCList[0].maxOrgasms to 2 + Math.floor($NPCName[$NPCNameList.indexOf(_nameCheck)].lust / 20)>>
+		<<elseif _nameCheck is "Doren" or _nameCheck is "Quinn" or _nameCheck is "Niki" or _nameCheck is "Jordan" or _nameCheck is "Harper" or _nameCheck is "Landry" or _nameCheck is "Morgan" or _nameCheck is "River" or _nameCheck is "Mason" or _nameCheck is "Sam" or _nameCheck is "Winter" or _nameCheck is "Sirris" or _nameCheck is "Darryl">>
+			<<set $NPCList[0].maxOrgasms to 3 + Math.floor($NPCName[$NPCNameList.indexOf(_nameCheck)].lust / 20)>>
+		<<elseif _nameCheck is "Avery" or _nameCheck is "Whitney" or _nameCheck is "Remy" or _nameCheck is "Wren" or _nameCheck is "Alex" or _nameCheck is "Charlie">>
+			<<set $NPCList[0].maxOrgasms to 4 + Math.floor($NPCName[$NPCNameList.indexOf(_nameCheck)].lust / 20)>>
+		<<elseif _nameCheck is "Bailey" or _nameCheck is "Briar" or _nameCheck is "Eden" or _nameCheck is "Black Wolf" or _nameCheck is "Great Hawk" or _nameCheck is "Ivory Wraith" or _nameCheck is "Zephyr">>
+			<<set $NPCList[0].maxOrgasms to 5 + Math.floor($NPCName[$NPCNameList.indexOf(_nameCheck)].lust / 20)>>
+		<</if>>
+	<</if>>
+
+	<<if $NPCList[0].maxOrgasms gt 1>>
 		<<set $setupMidOrgasm to true>>
 	<</if>>
-	*/
 
 	<!-- Set combat variables -->
 
@@ -898,6 +909,26 @@ Zohar
 		<<set $NPCList[_npcno].healthmax to 200>>
 		<<set $NPCList[_npcno].dodgeChance to 20>>
 	<</switch>>
+
+	<<set _buff to 0>>
+	<<set $NPCList[_npcno].healthmax to Math.round($NPCList[_npcno].healthmax * ($npcHealthMult / 100))>>
+	<<set _buffAmount to Math.floor(Time.days / $combatExtended.enemyDayScaling)>>
+	<<if $combatExtended.enemyHealthDayScaling is 1>>
+		<<if _buffAmount lte $combatExtended.enemyDayScalingLimit or $combatExtended.enemyInfiniteDayScaling is 1>>
+			<<set _buff += _buffAmount * $combatExtended.enemyHealthDayScalingMult>>
+		<<else>>
+			<<set _buff += $combatExtended.enemyDayScalingLimit * $combatExtended.enemyHealthDayScalingMult>>
+		<</if>>
+	<</if>>
+	<<set _buffAmount to Math.floor($enemiesDefeatedStat / $combatExtended.enemyDefeatScaling)>>
+	<<if $combatExtended.enemyHealthDefeatScaling is 1>>
+		<<if _buffAmount lte $combatExtended.enemyDefeatScalingLimit or $combatExtended.enemyInfiniteDefeatScaling is 1>>
+			<<set _buff += _buffAmount * $combatExtended.enemyHealthDefeatScalingMult>>
+		<<else>>
+			<<set _buff += $combatExtended.enemyDefeatScalingLimit * $combatExtended.enemyHealthDefeatScalingMult>>
+		<</if>>
+	<</if>>
+	<<set $NPCList[_npcno].healthmax to Math.round($NPCList[_npcno].healthmax * (1 + (_buff / 100)))>>
 
 	<<set $NPCList[_npcno].breastsize to $NPCName[_i].breastsize>>
 	<<set $NPCList[_npcno].breastsdesc to $NPCName[_i].breastsdesc>>

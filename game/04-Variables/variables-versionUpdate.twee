@@ -4507,7 +4507,7 @@
 			<</if>>
 
 			<!-- V0.4.0.8 Fix for non-virgin herm angels from bad fix earlier that didn't take herms into account -->
-			<<if ($angel gte 6 or $transformationParts.angel.wings is "default") and $player.gender is "h" and !$virginityProtected and ($player.virginity.vaginal isnot true or $player.virginity.penile isnot true)>>
+			<<if $angel gte 6 and $player.gender is "h" and !$virginityProtected and ($player.virginity.vaginal isnot true or $player.virginity.penile isnot true)>>
 				<<fallenTransform>>
 			<</if>>
 		<</if>>
@@ -4980,6 +4980,18 @@
 		<<if $farm.compostProducing is undefined>>
 			<<set $farm.compostProducing to [-1,-1,-1,-1]>>
 		<</if>>
+		<<if $farm.compostProducing[0] is undefined>>
+			<<set $farm.compostProducing[0] to -1>>
+		<</if>>
+		<<if $farm.compostProducing[1] is undefined>>
+			<<set $farm.compostProducing[1] to -1>>
+		<</if>>
+		<<if $farm.compostProducing[2] is undefined>>
+			<<set $farm.compostProducing[2] to -1>>
+		<</if>>
+		<<if $farm.compostProducing[3] is undefined>>
+			<<set $farm.compostProducing[3] to -1>>
+		<</if>>
 		<<if $farm.compostReady is undefined>>
 			<<set $farm.compostReady to 0>>
 		<</if>>
@@ -5133,13 +5145,13 @@
 		"Livestock Field", "Moor", "Forest Wolf Cave", "Wolf Cave", "Wolf Cave Clearing", "Asylum", "Asylum Cell", "Underground Cell", "Prison Cell", "Island", "Lake Shore", "Farmland", "Farm Work", "Meadow", "Sea"
 	]>>
 	<<if $hypnosis_traits.scream is undefined>>
-		<<set $hypnosis_traits.scream to 0>>
+		<<set $hypnosis_traits.scream to -1>>
 	<</if>>
 	<<if $hypnosis_traits.cover is undefined>>
-		<<set $hypnosis_traits.cover to 0>>
+		<<set $hypnosis_traits.cover to -1>>
 	<</if>>
 	<<if $hypnosis_traits.deviancy is undefined>>
-		<<set $hypnosis_traits.deviancy to 0>>
+		<<set $hypnosis_traits.deviancy to -1>>
 	<</if>>
 	<<if $enemystatstyle is undefined>>
 		<<set $enemystatstyle to "default">>
@@ -5161,27 +5173,6 @@
 	<</if>>
 	<<if $combatExtended.dodgeSuccess is undefined>>
 		<<set $combatExtended.dodgeSuccess to 0>>
-	<</if>>
-	<<if $combatExtended.enemyDayScaling is undefined>>
-		<<set $combatExtended.enemyDayScaling to 7>>
-	<</if>>
-	<<if $combatExtended.enemyDayScalingLimit is undefined>>
-		<<set $combatExtended.enemyDayScalingLimit to 1>>
-	<</if>>
-	<<if $combatExtended.enemyInfiniteDayScaling is undefined>>
-		<<set $combatExtended.enemyInfiniteDayScaling to 0>>
-	<</if>>
-	<<if $combatExtended.enemyLevelDayScaling is undefined>>
-		<<set $combatExtended.enemyLevelDayScaling to 0>>
-	<</if>>
-	<<if $combatExtended.enemyLevelDayScalingMult is undefined>>
-		<<set $combatExtended.enemyLevelDayScalingMult to 1>>
-	<</if>>
-	<<if $combatExtended.enemyHealthDayScaling is undefined>>
-		<<set $combatExtended.enemyHealthDayScaling to 0>>
-	<</if>>
-	<<if $combatExtended.enemyHealthDayScalingMult is undefined>>
-		<<set $combatExtended.enemyHealthDayScalingMult to 5>>
 	<</if>>
 	<<if $combatExtended.standingFights is undefined>>
 		<<set $combatExtended.standingFights to 0>>
@@ -5270,6 +5261,31 @@
 	<<if $combatExtended.hookpunchingActive is undefined>>
 		<<set $combatExtended.hookpunchingActive to 0>>
 	<</if>>
+
+	/* Enemy Day Scaling */
+	<<if $combatExtended.enemyLevelDayScaling is undefined>>
+		<<set $combatExtended.enemyLevelDayScaling to 0>>
+	<</if>>
+	<<if $combatExtended.enemyLevelDayScalingMult is undefined>>
+		<<set $combatExtended.enemyLevelDayScalingMult to 1>>
+	<</if>>
+	<<if $combatExtended.enemyHealthDayScaling is undefined>>
+		<<set $combatExtended.enemyHealthDayScaling to 0>>
+	<</if>>
+	<<if $combatExtended.enemyHealthDayScalingMult is undefined or ($combatExtended.enemyHealthDayScalingMult is 0.05 and $combatExtended.enemyHealthDayScalingMultFix is undefined)>>
+		<<set $combatExtended.enemyHealthDayScalingMult to 5>>
+	<</if>>
+	<<if $combatExtended.enemyDayScaling is undefined>>
+		<<set $combatExtended.enemyDayScaling to 7>>
+	<</if>>
+	<<if $combatExtended.enemyInfiniteDayScaling is undefined>>
+		<<set $combatExtended.enemyInfiniteDayScaling to 0>>
+	<</if>>
+	<<if $combatExtended.enemyDayScalingLimit is undefined>>
+		<<set $combatExtended.enemyDayScalingLimit to 20>>
+	<</if>>
+
+	/* Enemy Defeat Scaling */
 	<<if $combatExtended.enemyLevelDefeatScaling is undefined>>
 		<<set $combatExtended.enemyLevelDefeatScaling to 0>>
 	<</if>>
@@ -5279,17 +5295,17 @@
 	<<if $combatExtended.enemyHealthDefeatScaling is undefined>>
 		<<set $combatExtended.enemyHealthDefeatScaling to 0>>
 	<</if>>
-	<<if $combatExtended.enemyHealthDefeatScalingMult is undefined>>
-		<<set $combatExtended.enemyHealthDefeatScalingMult to 0.05>>
+	<<if $combatExtended.enemyHealthDefeatScalingMult is undefined or ($combatExtended.enemyHealthDefeatScalingMult is 0.05 and $combatExtended.enemyHealthDefeatScalingMultFix is undefined)>>
+		<<set $combatExtended.enemyHealthDefeatScalingMult to 5>>
 	<</if>>
 	<<if $combatExtended.enemyDefeatScaling is undefined>>
-		<<set $combatExtended.enemyDefeatScaling to 1>>
+		<<set $combatExtended.enemyDefeatScaling to 10>>
 	<</if>>
 	<<if $combatExtended.enemyInfiniteDefeatScaling is undefined>>
 		<<set $combatExtended.enemyInfiniteDefeatScaling to 0>>
 	<</if>>
 	<<if $combatExtended.enemyDefeatScalingLimit is undefined>>
-		<<set $combatExtended.enemyDefeatScalingLimit to 1>>
+		<<set $combatExtended.enemyDefeatScalingLimit to 20>>
 	<</if>>
 	<<if $combatExtended.domPCsubNPCChance is undefined>>
 		<<set $combatExtended.domPCsubNPCChance to 90>>
@@ -5425,5 +5441,24 @@
 
 	<<if $birdFly is 1>>
 		<<set $birdFlyUnlocked to 1>>
+	<</if>>
+
+	<<set $daisyCount to 0>>
+	<<for _i to 0; _i lt $plants_known.length; _i++>>
+		<<if $plants_known[_i] is "daisy">>
+			<<set $daisyCount += 1>>
+		<</if>>
+	<</for>>
+	<<if $daisyCount gte 2>>
+		<<set $plants_known to []>>
+		<<run unlockAllSeeds()>>
+	<</if>>
+
+	<<if $multiOrgasmToggle is undefined>>
+		<<set $multiOrgasmToggle to 0>>
+	<</if>>
+
+	<<if $AMCTraits.halfGain is undefined>>
+		<<set $AMCTraits.halfGain to 0>>
 	<</if>>
 <</widget>>

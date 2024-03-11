@@ -307,7 +307,7 @@
 	<<if $setupMidOrgasm isnot undefined and $enemyarousal gte $enemyarousalmax>>
 		<<set _midOrgasm to false>>
 		<<for _n to 0; _n lt $NPCList.length;_n++>>
-			<<if $NPCList[_n].maxOrgasms gt 1>>
+			<<if $NPCList[_n].maxOrgasms gt $NPCList[_n].orgasms>>
 				<<set $NPCList[_n].orgasms++>>
 			<</if>>
 			<<if $NPCList[_n].orgasms lt $NPCList[_n].maxOrgasms>>
@@ -702,6 +702,9 @@
 		<<if $combatExtended.uncappedDodgeChance is 0>>
 			<<set _dodgeChance to Math.clamp(_dodgeChance, 0, $combatExtended.dodgeChanceCap)>>
 		<</if>>
+		<<if $combatExtended.stabilityLost is 1>>
+			<<set _dodgeChance = Math.round(_dodgeChance / 2)>>
+		<</if>>
 		<<if _dodgeChance gte random(_check1)>>
 			<<set _activeDodgeSuccess to 2>>
 		<<elseif _dodgeChance gte random(_check2)>>
@@ -713,6 +716,9 @@
 	<<if $combatExtended.countering is 1>>
 		<<if $combatExtended.counteringActive gte 1>>
 			<<set _counterChance to 100 * ((0.25 * (1 * ($skulduggery / 1000))) * $combatExtended.counteringActive)>>
+			<<if $combatExtended.stabilityLost is 1>>
+			<<set _counterChance = Math.round(_counterChance / 2)>>
+		<</if>>
 			<<if _counterChance gte random(_check1)>>
 				<<set _counterSuccess to 2>>
 			<<elseif _counterChance gte random(_check2)>>
@@ -731,9 +737,7 @@
 <</widget>>
 
 <<widget "combatExtendedStability">>
-	<<if $combatExtended.activeDodgingActive is 1 or $combatExtended.counteringActive>>
-		<<set $combatExtended.stability += _args[0]>>
-	<</if>>
+	<<set $combatExtended.stability += _args[0]>>
 <</widget>>
 
 <<widget "combatExtendedEnemyCheck">>
@@ -813,7 +817,7 @@
 		<<set _check1 += 50>>
 		<<set _check2 to _check1 * 0.8>>
 		<<if _dodgeChance gte random(_check1)>>
-			<<set _enemyCounter to 2>>multiplier
+			<<set _enemyCounter to 2>>
 		<<elseif _dodgeChance gte random(_check2)>>
 			<<set _enemyCounter to 1>>
 		<<else>>

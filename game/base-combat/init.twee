@@ -66,8 +66,8 @@
 		<</for>>
 	<</if>>
 
-	<<healthMultiplier>>
 	<<set $enemyarousalmax to $enemyarousalmax * ($npcArousalMult / 100)>>
+	<<set $permenemyhealthmax to $enemyhealthmax>>
 	
 	<<combatinit>>
 <</widget>>
@@ -345,6 +345,7 @@
 
 	<<healthMultiplier>>
 	<<set $enemyarousalmax to $enemyarousalmax * ($npcArousalMult / 100)>>
+	<<set $permenemyhealthmax to $enemyhealthmax>>
 
 	<<combatinit>>
 <</widget>>
@@ -380,6 +381,7 @@
 
 	<<healthMultiplier>>
 	<<set $enemyarousalmax to $enemyarousalmax * ($npcArousalMult / 100)>>
+	<<set $permenemyhealthmax to $enemyhealthmax>>
 
 	<<combatinit>>
 <</widget>>
@@ -415,6 +417,7 @@
 
 	<<healthMultiplier>>
 	<<set $enemyarousalmax to $enemyarousalmax * ($npcArousalMult / 100)>>
+	<<set $permenemyhealthmax to $enemyhealthmax>>
 
 	<<combatinit>>
 <</widget>>
@@ -453,6 +456,7 @@
 
 	<<healthMultiplier>>
 	<<set $enemyarousalmax to $enemyarousalmax * ($npcArousalMult / 100)>>
+	<<set $permenemyhealthmax to $enemyhealthmax>>
 
 	<<combatinit>>
 <</widget>>
@@ -492,6 +496,7 @@
 
 	<<healthMultiplier>>
 	<<set $enemyarousalmax to $enemyarousalmax * ($npcArousalMult / 100)>>
+	<<set $permenemyhealthmax to $enemyhealthmax>>
 
 	<<combatinit>>
 <</widget>>
@@ -529,6 +534,7 @@
 
 	<<healthMultiplier>>
 	<<set $enemyarousalmax to $enemyarousalmax * ($npcArousalMult / 100)>>
+	<<set $permenemyhealthmax to $enemyhealthmax>>
 
 	<<combatinit>>
 <</widget>>
@@ -570,6 +576,7 @@
 
 	<<healthMultiplier>>
 	<<set $enemyarousalmax to $enemyarousalmax * ($npcArousalMult / 100)>>
+	<<set $permenemyhealthmax to $enemyhealthmax>>
 
 	<<combatinit>>
 <</widget>>
@@ -607,6 +614,7 @@
 
 	<<healthMultiplier>>
 	<<set $enemyarousalmax to $enemyarousalmax * ($npcArousalMult / 100)>>
+	<<set $permenemyhealthmax to $enemyhealthmax>>
 
 	<<combatinit>>
 <</widget>>
@@ -661,6 +669,7 @@
 
 	<<healthMultiplier>>
 	<<set $enemyarousalmax to $enemyarousalmax * ($npcArousalMult / 100)>>
+	<<set $permenemyhealthmax to $enemyhealthmax>>
 
 	<<combatinit>>
 <</widget>>
@@ -702,6 +711,7 @@
 
 	<<healthMultiplier>>
 	<<set $enemyarousalmax to $enemyarousalmax * ($npcArousalMult / 100)>>
+	<<set $permenemyhealthmax to $enemyhealthmax>>
 
 	<<combatinit>>
 <</widget>>
@@ -737,6 +747,7 @@
 
 	<<healthMultiplier>>
 	<<set $enemyarousalmax to $enemyarousalmax * ($npcArousalMult / 100)>>
+	<<set $permenemyhealthmax to $enemyhealthmax>>
 
 	<<combatinit>>
 <</widget>>
@@ -770,9 +781,8 @@
 	<<set $stresssaved to $stress>>
 	<<set $traumagain to 0>>
 	<<set $stressgain to 0>>
-
-	<<healthMultiplier>>
 	<<set $enemyarousalmax to $enemyarousalmax * ($npcArousalMult / 100)>>
+	<<set $permenemyhealthmax to $enemyhealthmax>>
 
 	<<combatinit>>
 <</widget>>
@@ -1003,8 +1013,16 @@
 	* This will prevent said NPC from entering combat plus deal with all the rest of the math.
 	* Optional arguments [1] and [2] for health and arousal respectivelly. If the original health or arousal values for the NPCs haven't been changed, no need to use those arguments.
 	*/
-	<<set $_hpToReduce to _args[1] || $NPCList[_args[0]].healthmax * ($npcHealthMult / 100)>>
-	<<set $_arousalToReduce to _args[2] || $enemyarousalmax/$enemyno>>
+	<<set _buffAmount to Math.floor(Time.days / $combatExtended.enemyDayScaling)>>
+	<<if $combatExtended.enemyHealthDayScaling is 1 and (_buffAmount lte $combatExtended.enemyDayScalingLimit or $combatExtended.enemyInfiniteDayScaling is 1)>>
+		<<set _buff += _buffAmount * $combatExtended.enemyHealthDayScalingMult>>
+	<</if>>
+	<<set _buffAmount to Math.floor($enemiesDefeatedStat / $combatExtended.enemyDefeatScaling)>>
+	<<if $combatExtended.enemyHealthDefeatScaling is 1 and (_buffAmount lte $combatExtended.enemyDefeatScalingLimit or $combatExtended.enemyInfiniteDefeatScaling is 1)>>
+		<<set _buff += _buffAmount * $combatExtended.enemyHealthDefeatScalingMult>>
+	<</if>>
+	<<set $_hpToReduce to _args[1] || Math.round(($NPCList[_args[0]].healthmax * ($npcHealthMult / 100)) * (1 + (_buff / 100)))>>
+	<<set $_arousalToReduce to _args[2] || ($enemyarousalmax * ($npcArousalMult / 100))/$enemyno>>
 	<<if _args[0] isnot undefined and $NPCList[_args[0]]>>
 		<<if $NPCList[_args[0]].active isnot "inactive">>
 			<<set $NPCList[_args[0]].active to "inactive">>
