@@ -374,7 +374,7 @@
 <</widget>>
 
 <<widget "voiceover">>
-	<<if $options.audio is 1 and _args[1] is undefined and setup.bgvCurrentPlaylist isnot "none">>
+	<<if ($options.audio is 1 and $options.voiceoverAudio is 1) and _args[1] is undefined and setup.bgvCurrentPlaylist isnot "none">>
 		/* Fade out the BGV */
 		<<playlist setup.bgvCurrentPlaylist volume 1>>
 		<<playlist setup.bgvCurrentPlaylist fadeout>>
@@ -411,7 +411,7 @@
 
 		<</timed>>
 	
-	<<elseif $options.audio is 1 and (_args[1] is "npc_f" or _args[1] is "npc_m")>>
+	<<elseif ($options.audio is 1 and $options.voiceoverAudio is 1) and (_args[1] is "npc_f" or _args[1] is "npc_m")>>
 		<<set _VOList to _args[0]>>
 		<<audio _VOList[random(0,_args[0].length-1)] play volume 0.7>>
 	<</if>>
@@ -500,26 +500,24 @@
 <</widget>>
 
 <<widget "orgasm-voice">>
-	<<if $options.audio is 1>>
-		<<set _penetration to ["penetrated", "doublepenetrated", "tentacle", "tentacledeep"]>>
-		<<if _args[0] is undefined>>
-			<<if ($player.gender_posture is "f" or ($player.sex is "f" and $player.gender_posture is "n"))>>
-				<<if _penetration.includes($mouthstate)>>
-					<<voiceover setup.chupa_orgasm>>
-				<<elseif _penetration.includes($vaginastate) or _penetration.includes($anusstate)>>
-					<<voiceover setup.orgasm>>
-				<<else>>
-					<<voiceover setup.breath_orgasm>>
-				<</if>>
-			<<elseif ($player.gender_posture is "m" or ($player.sex is "m" and $player.gender_posture is "n"))>>
-				<<voiceover setup.m_orgasm>>
+	<<set _penetration to ["penetrated", "doublepenetrated", "tentacle", "tentacledeep"]>>
+	<<if _args[0] is undefined>>
+		<<if ($player.gender_posture is "f" or ($player.sex is "f" and $player.gender_posture is "n"))>>
+			<<if _penetration.includes($mouthstate)>>
+				<<voiceover setup.chupa_orgasm>>
+			<<elseif _penetration.includes($vaginastate) or _penetration.includes($anusstate)>>
+				<<voiceover setup.orgasm>>
+			<<else>>
+				<<voiceover setup.breath_orgasm>>
 			<</if>>
-		<<else>>
-			<<if _args[0] is "npc_f">>
-				<<voiceover setup.breath_orgasm _args[0]>>
-			<<elseif _args[0] is "npc_m">>
-				<<voiceover setup.m_orgasm _args[0]>>
-			<</if>>
+		<<elseif ($player.gender_posture is "m" or ($player.sex is "m" and $player.gender_posture is "n"))>>
+			<<voiceover setup.m_orgasm>>
+		<</if>>
+	<<else>>
+		<<if _args[0] is "npc_f">>
+			<<voiceover setup.breath_orgasm _args[0]>>
+		<<elseif _args[0] is "npc_m">>
+			<<voiceover setup.m_orgasm _args[0]>>
 		<</if>>
 	<</if>>
 <</widget>>
