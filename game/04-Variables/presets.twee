@@ -183,6 +183,20 @@
 					<<presetConfirm _args[0].general.options>>
 				<</if>>
 				</div>
+				<div class="settingsToggleItem">
+				<<if _args[0].general.combatExtended isnot undefined>>
+					<span class="gold">Combat Extended Settings:</span>
+					<<set _validatorObject to settingsObjects("general")>>
+					<<presetConfirm _args[0].general.combatExtended>>
+				<</if>>
+				</div>
+				<div class="settingsToggleItem">
+				<<if _args[0].general.AMCTraits isnot undefined>>
+					<span class="gold">AMC Traits Settings:</span>
+					<<set _validatorObject to settingsObjects("general")>>
+					<<presetConfirm _args[0].general.AMCTraits>>
+				<</if>>
+				</div>
 			<</if>>
 
 			<<if _args[0].npc isnot undefined>>
@@ -217,7 +231,7 @@
 		<<for $_label, $_value range _args[0]>>
 			<<unset _altValue>>
 			<<unset _altValue2>>
-			<<if ["player","skinColor","map","shopDefaults","options"].includes($_label)>>
+			<<if ["player","skinColor","map","shopDefaults","options","combatExtended","AMCTraits"].includes($_label)>>
 				<<continue>>
 			<</if>>
 			<<unset _object>>
@@ -432,6 +446,58 @@
 
 							<<print _displayName>> <span class="green"><<print _currentValue>></span>
 						<</if>>
+					<<case "standingFights" "reverseRape" "passiveDodging" "activeDodging" "uncappedDodgeChance" "blocking" "countering" "feinting" "hookpunching" "brawlingToggle" "enemyPassiveDodging" "enemyActiveDodging" "enemyBlocking" "enemyCountering" "enemyFeinting" "enemyLevelDayScaling" "enemyHealthDayScaling" "enemyInfiniteDayScaling" "enemyHealthDefeatScaling" "enemyInfiniteDefeatScaling" "enemyLevelDefeatScaling">>
+						<<set _object to _validatorObject["combatExtended"][$_label]>>
+						<<if _object isnot undefined>>
+							<<set _valid to validateValue(_object, $_value)>>
+						<</if>>
+						<<set _displayName to _validatorObject["combatExtended"][$_label]["displayName"]>>
+						<<set _currentValue to (_altValue2 isnot undefined ? _altValue2 : $_value) is 1 ? "Enabled" : (_altValue2 isnot undefined ? _altValue2 : $_value) is true ? "Enabled" : "Disabled">>
+						<<print _displayName>> <span class="green"><<print _currentValue .toString().toUpperFirst()>></span>
+					<<case "dodgeChanceCap" "enemyLevelDayScalingMult" "enemyHealthDayScalingMult" "enemyLevelDefeatScalingMult" "enemyHealthDefeatScalingMult">>
+						<<set _object to _validatorObject["combatExtended"][$_label]>>
+						<<if _object isnot undefined>>
+							<<set _valid to validateValue(_object, $_value)>>
+						<</if>>
+						<<set _displayName to _object["displayName"]>>
+						<<set _currentValue to (_altValue2 isnot undefined ? _altValue2 : $_value)>>
+						<<print _displayName>> <span class="green"><<print _currentValue + "%">></span>
+					<<case "enemyDayScaling" "enemyDayScalingLimit" "enemyDefeatScaling" "enemyDefeatScalingLimit">>
+						<<set _object to _validatorObject["combatExtended"][$_label]>>
+						<<if _object isnot undefined>>
+							<<set _valid to validateValue(_object, $_value)>>
+						<</if>>
+						<<set _displayName to _object["displayName"]>>
+						<<set _currentValue to (_altValue2 isnot undefined ? _altValue2 : $_value)>>
+						<<print _displayName>> <span class="green"><<print _currentValue>></span>
+					<<case "npcHealthMult" "npcArousalMult" "beastHealthMult" "beastArousalMult">>
+						<<set _displayName to _validatorObject[$_label]["displayName"]>>
+						<<set _currentValue to (_altValue2 isnot undefined ? _altValue2 : $_value)>>
+						<<print _displayName>> <span class="green"><<print _currentValue + "%">></span>
+					<<case "halfGain">>
+						<<set _object to _validatorObject["AMCTraits"][$_label]>>
+						<<if _object isnot undefined>>
+							<<set _valid to validateValue(_object, $_value)>>
+						<</if>>
+						<<set _displayName to _validatorObject["AMCTraits"][$_label]["displayName"]>>
+						<<set _currentValue to (_altValue2 isnot undefined ? _altValue2 : $_value) is 1 ? "Enabled" : (_altValue2 isnot undefined ? _altValue2 : $_value) is true ? "Enabled" : "Disabled">>
+						<<print _displayName>> <span class="green"><<print _currentValue .toString().toUpperFirst()>></span>
+					<<case "physique" "willpower" "skulduggery" "dancing" "swimming" "athletics" "tending" "housekeeping" "brawling" "science" "maths" "english" "history" "seduction" "oral" "chest" "hands" "buttocks" "penile" "vaginal" "anal" "thighs" "feet">>
+						<<set _object to _validatorObject["AMCTraits"][$_label]>>
+						<<if _object isnot undefined>>
+							<<set _valid to validateValue(_object, $_value)>>
+						<</if>>
+						<<set _displayName to _validatorObject["AMCTraits"][$_label]["displayName"]>>
+						<<set _currentValue to (_altValue2 isnot undefined ? _altValue2 : $_value) is 2 ? "Enabled" : (_altValue2 isnot undefined ? _altValue2 : $_value) is true ? "Enabled" : "Disabled">>
+						<<print _displayName>> <span class="green"><<print _currentValue .toString().toUpperFirst()>></span>
+					<<case "multiOrgasmToggle">>
+						<<set _object to _validatorObject[$_label]>>
+						<<if _object isnot undefined>>
+							<<set _valid to validateValue(_object, $_value)>>
+						<</if>>
+						<<set _displayName to _validatorObject[$_label]["displayName"]>>
+						<<set _currentValue to (_altValue2 isnot undefined ? _altValue2 : $_value) is 1 ? "Enabled" : (_altValue2 isnot undefined ? _altValue2 : $_value) is true ? "Enabled" : "Disabled">>
+						<<print _displayName>> <span class="green"><<print _currentValue .toString().toUpperFirst()>></span>
 					<<default>>
 						<<if _validatorObject[$_label]>>
 							<<set _displayName to _validatorObject[$_label]["displayName"]>>

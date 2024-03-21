@@ -159,7 +159,7 @@ function tannedCoverage() {
 }
 
 function tanned(amount, flag) {
-	if (V.options.tanningEnabled === true && (V.location !== "spa" || V.umbrella <= 1 || V.umbrella === 3)) {
+	if (V.options.tanningEnabled === true) {
 		T.coverage = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 		if (flag === "ignoreCoverage") {
 			T.coverage = [0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -182,7 +182,7 @@ function tanned(amount, flag) {
 		V.skinColor.current.mouth = skinColor(V.options.tanImgEnabled, V.skinColor.tanValues[0], V.skinColor.overwrite);
 		return;
 	}
-	if (!V.options.tanImgEnabled && (V.location !== "spa" || V.umbrella <= 1 || V.umbrella === 3)) {
+	if (!V.options.tanImgEnabled) {
 		V.skinColor.current = {
 			test: "",
 			body: "",
@@ -197,7 +197,7 @@ function tanned(amount, flag) {
 			mouth: "",
 		};
 	}
-	if (V.options.tanImgEnabled && (V.location !== "spa" || V.umbrella <= 1 || V.umbrella === 3)) {
+	if (V.options.tanImgEnabled) {
 		for (let s = 0; s < setup.skinColor.tanLoc.length; s++) {
 			V.skinColor.current[setup.skinColor.tanLoc[s]] = skinColor(V.options.tanImgEnabled, V.skinColor.tanValues[s], V.skinColor.overwrite);
 		}

@@ -961,7 +961,7 @@ Renderer.CanvasModels["main"] = {
 			filters: ["body"],
 			zfn(options) {
 				if (options.arm_right === "cover" || options.arm_right === "hold") return ZIndices.arms_cover;
-				return ZIndices.under_upper_arm_right;
+				return ZIndices.under_upper_arm_right - 0.1;
 			},
 			animation: "idle",
 		},
@@ -2327,11 +2327,43 @@ Renderer.CanvasModels["main"] = {
 				return options.show_writings && !!options.writing_right_shoulder;
 			},
 			zfn(options) {
-				if (options.arm_right === "cover" || options.arm_right === "hold") {
-					return ZIndices.arms_cover + 0.1
+				// if (options.arm_right === "cover" || options.arm_right === "hold") {
+				// 	return ZIndices.arms_cover + 0.1
+				// } else {
+				// 	ZIndices.armsidle + 0.1
+				// }
+				if (options.worn_over_upper) {
+					T.zarms = ZIndices.over_upper_arms;
+				} else if (options.worn_upper) {
+					if (options.arm_left === "cover") {
+						if (options.upper_tucked) {
+							T.zarms = ZIndices.upper_arms_tucked;
+						} else {
+							T.zarms = ZIndices.upper_arms;
+						}
+					} else {
+						T.zarms = ZIndices.under_upper_arms;
+					}
+				} else if (options.worn_under_upper) {
+					T.zarms = ZIndices.under_upper_arms;
 				} else {
-					return ZIndices.armsidle + 0.1
+					T.zarms = ZIndices.armsidle
 				}
+				// Do not put skin above sleeves
+				if (options.worn_under_upper_setup.sleeve_img === 1) {
+					T.zarms = ZIndices.under_upper_arms;
+				} else if (options.worn_upper_setup.sleeve_img === 1) {
+					if (options.arm_left === "cover") {
+						if (options.upper_tucked) {
+							T.zarms = ZIndices.upper_arms_tucked;
+						} else {
+							T.zarms = ZIndices.upper_arms;
+						}
+					} else {
+						T.zarms = ZIndices.under_upper_arms;
+					}
+				}
+				return T.zarms - 0.09
 			},
 			animation: "idle"
 		},
@@ -2997,7 +3029,7 @@ Renderer.CanvasModels["main"] = {
 		"under_upper_back": genlayer_clothing_back_img('under_upper'),
 		"under_upper_rightarm": genlayer_clothing_arm("right", "under_upper", {
 			zfn(options) {
-				return (options.arm_right === "cover" || options.arm_right === "hold") ? ZIndices.under_upper_arms_cover : ZIndices.under_upper_arms;
+				return (options.arm_right === "cover" || options.arm_right === "hold") ? ZIndices.under_upper_arms_cover : ZIndices.under_upper_arm_right;   
 			}
 		}),
 		"under_upper_leftarm": genlayer_clothing_arm("left", "under_upper", {

@@ -835,16 +835,45 @@
 	<</if>>
 
 	<<set _buffAmount to Math.floor(Time.days / $combatExtended.enemyDayScaling)>>
-	<<if $combatExtended.enemyLevelDayScaling is 1 and (_buffAmount lte $combatExtended.enemyDayScalingLimit or $combatExtended.enemyInfiniteDayScaling is 1)>>
-		<<set _i to Math.clamp(_i + (_buffAmount * $combatExtended.enemyLevelDayScalingMult), 1, 20)>>
+	<<if $combatExtended.enemyLevelDayScaling is 1>>
+		<<if _buffAmount lte $combatExtended.enemyDayScalingLimit or $combatExtended.enemyInfiniteDayScaling is 1>>
+			<<set _i to Math.clamp(_i + (_buffAmount * $combatExtended.enemyLevelDayScalingMult), 1, 20)>>
+		<<else>>
+			<<set _i to Math.clamp(_i + ($combatExtended.enemyDayScalingLimit * $combatExtended.enemyLevelDayScalingMult), 1, 20)>>
+		<</if>>
 	<</if>>
 
 	<<set _buffAmount to Math.floor($enemiesDefeatedStat / $combatExtended.enemyDefeatScaling)>>
-	<<if $combatExtended.enemyLevelDayScaling is 1 and (_buffAmount lte $combatExtended.enemyDefeatScalingLimit or $combatExtended.enemyInfiniteDefeatScaling is 1)>>
-		<<set _i to Math.clamp(_i + (_buffAmount * $combatExtended.enemyLevelDefeatScaling), 1, 20)>>
+	<<if $combatExtended.enemyLevelDefeatScaling is 1>>
+		<<if _buffAmount lte $combatExtended.enemyDefeatScalingLimit or $combatExtended.enemyInfiniteDefeatScaling is 1>>
+			<<set _i to Math.clamp(_i + (_buffAmount * $combatExtended.enemyLevelDefeatScalingMult), 1, 20)>>
+		<<else>>
+			<<set _i to Math.clamp(_i + ($combatExtended.enemyDefeatScalingLimit * $combatExtended.enemyLevelDefeatScalingMult), 1, 20)>>
+		<</if>>
 	<</if>>
 
 	<<set $NPCList[_n].healthmax to $_hpMax[_i]>>
+
+	<<set _buff to 0>>
+	<<set $NPCList[_n].healthmax to Math.round($NPCList[_n].healthmax * ($npcHealthMult / 100))>>
+	<<set _buffAmount to Math.floor(Time.days / $combatExtended.enemyDayScaling)>>
+	<<if $combatExtended.enemyHealthDayScaling is 1>>
+		<<if _buffAmount lte $combatExtended.enemyDayScalingLimit or $combatExtended.enemyInfiniteDayScaling is 1>>
+			<<set _buff += _buffAmount * $combatExtended.enemyHealthDayScalingMult>>
+		<<else>>
+			<<set _buff += $combatExtended.enemyDayScalingLimit * $combatExtended.enemyHealthDayScalingMult>>
+		<</if>>
+	<</if>>
+	<<set _buffAmount to Math.floor($enemiesDefeatedStat / $combatExtended.enemyDefeatScaling)>>
+	<<if $combatExtended.enemyHealthDefeatScaling is 1>>
+		<<if _buffAmount lte $combatExtended.enemyDefeatScalingLimit or $combatExtended.enemyInfiniteDefeatScaling is 1>>
+			<<set _buff += _buffAmount * $combatExtended.enemyHealthDefeatScalingMult>>
+		<<else>>
+			<<set _buff += $combatExtended.enemyDefeatScalingLimit * $combatExtended.enemyHealthDefeatScalingMult>>
+		<</if>>
+	<</if>>
+	<<set $NPCList[_n].healthmax to Math.round($NPCList[_n].healthmax * (1 + (_buff / 100)))>>
+	
 	<<set $NPCList[_n].health to $NPCList[_n].healthmax>>
 	<<set $NPCList[_n].description to $_desc[random(1, 20)]>>
 
@@ -883,13 +912,47 @@
 	<<set $NPCList[_n].role to "normal">>
 
 	/*Sets up multiple orgasms, code needs work*/
-	/*<<set $NPCList[_n].maxOrgasms to 1>>
+	/* <<set $NPCList[_n].maxOrgasms to 1>>
 	<<set $NPCList[_n].orgasms to 0>>
-	<<if $NPCList[_n].fullDescription is "Robin">>
-		<<set $NPCList[_n].maxOrgasms to 2>>
+
+	<<if $multiOrgasmToggle is 1>>
+		<<set _nameCheck to $NPCList[_n].fullDescription>>
+		
+		<<if ["Robin", "Kylar", "Sydney", "Leighton", "Gwylan"].includes(_nameCheck)>>
+			<<set $NPCList[_n].maxOrgasms to 2 + Math.floor($NPCName[$NPCNameList.indexOf(_nameCheck)].lust / 20)>>
+
+		<<elseif ["Doren","Quinn","Niki","Jordan","Harper","Landry","Morgan","River","Mason","Sam","Winter","Sirris","Darryl"].includes(_nameCheck)>>
+			<<set $NPCList[_n].maxOrgasms to 3 + Math.floor($NPCName[$NPCNameList.indexOf(_nameCheck)].lust / 20)>>
+
+		<<elseif ["Avery","Whitney","Remy","Wren","Alex","Charlie"].includes(_nameCheck)>>
+			<<set $NPCList[_n].maxOrgasms to 4 + Math.floor($NPCName[$NPCNameList.indexOf(_nameCheck)].lust / 20)>>
+
+		<<elseif ["Bailey","Briar","Eden","Black Wolf","Great Hawk","Ivory Wraith","Zephyr"].includes(_nameCheck)>>
+			<<set $NPCList[_n].maxOrgasms to 5 + Math.floor($NPCName[$NPCNameList.indexOf(_nameCheck)].lust / 20)>>
+
+		<<else>>
+			<<set $NPCList[_n].maxOrgasms += Math.floor(_i / 5)>>
+		<</if>>
+
+	<</if>> */
+
+	<<if $multiOrgasmToggle is 1>>
+		<<if !$NPCList[_n].maxOrgasms or $NPCList[_n].maxOrgasms lte 0>>
+			<<set $NPCList[_n].maxOrgasms = 1 + Math.floor(_i / 5)>>
+
+			<<if $NPCList[_n].gender is "m">>
+				<<set $NPCList[_n].maxOrgasms to Math.floor($NPCList[_n].maxOrgasms / 2)>>
+			<</if>>
+
+			<<set $NPCList[_n].maxOrgasms to Math.clamp($NPCList[_n].maxOrgasms, 1, 5)>>
+		<</if>>
+		<<set $NPCList[_n].orgasms to 0>>
+		
+	<</if>>
+
+	<<if $multiOrgasmToggle is 1 and $NPCList[_n].maxOrgasms gt 1>>
 		<<set $setupMidOrgasm to true>>
 	<</if>>
-	*/
 
 	<<if $NPCList[_n].pronoun is "m">>
 		<<set $NPCList[_n].breastsize to 0>>

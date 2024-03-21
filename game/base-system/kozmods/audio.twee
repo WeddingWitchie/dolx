@@ -374,7 +374,7 @@
 <</widget>>
 
 <<widget "voiceover">>
-	<<if _args[1] is undefined and setup.bgvCurrentPlaylist isnot "none">>
+	<<if ($options.audio is 1 and $options.voiceoverAudio is 1) and _args[1] is undefined and setup.bgvCurrentPlaylist isnot "none">>
 		/* Fade out the BGV */
 		<<playlist setup.bgvCurrentPlaylist volume 1>>
 		<<playlist setup.bgvCurrentPlaylist fadeout>>
@@ -411,7 +411,7 @@
 
 		<</timed>>
 	
-	<<elseif _args[1] is "npc_f" or _args[1] is "npc_m">>
+	<<elseif ($options.audio is 1 and $options.voiceoverAudio is 1) and (_args[1] is "npc_f" or _args[1] is "npc_m")>>
 		<<set _VOList to _args[0]>>
 		<<audio _VOList[random(0,_args[0].length-1)] play volume 0.7>>
 	<</if>>
@@ -519,5 +519,25 @@
 		<<elseif _args[0] is "npc_m">>
 			<<voiceover setup.m_orgasm _args[0]>>
 		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "npc-orgasm-voice">>
+	<!-- Count males and females to decide which orgasm voice to play -->
+	<<set _femaleCount to 0>><<set _maleCount to 0>>
+	<<for _n=0; _n lt $NPCList.length; _n++>>
+		<<if $NPCList[_n].pronoun is "f">>
+			<<set _femaleCount++>>
+		<<elseif $NPCList[_n].pronoun is "m">>
+			<<set _maleCount++>>
+		<</if>>
+	<</for>>
+
+	<<if _femaleCount gte _maleCount>>
+		/* <<set $enemyarousal to $enemyarousalmax * (1/3) + random(0,$enemyarousalmax*(1/3)-1)>> */
+		<<orgasm-voice "npc_f">>
+	<<else>>
+		/* <<set $enemyarousal to 0>> */
+		<<orgasm-voice "npc_m">>
 	<</if>>
 <</widget>>
