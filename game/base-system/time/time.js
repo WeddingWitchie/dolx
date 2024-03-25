@@ -839,6 +839,8 @@ function minutePassed(minutes) {
 	fragment.append(wikifier("arousal", minutes * arousalMultiplier + getArousal(minutes)));
 	V.timeSinceArousal = V.arousal < V.arousalmax / 4 ? V.timeSinceArousal + minutes : 1;
 	if (V.player.vaginaExist) fragment.append(passArousalWetness(minutes));
+	if (V.arousal >= V.arousalmax / 2) 
+		fragment.append(wikifier("willpower-spending", minutes * 0.5 * Math.ceil( (V.arousal - V.arousalmax/2) / (V.arousalmax/10) )));
 
 	// Tanning
 	if (Time.dayState === "day" && V.weather === "clear" && V.outside && V.location !== "forest" && !V.worn.head.type.includes("shade")) {
