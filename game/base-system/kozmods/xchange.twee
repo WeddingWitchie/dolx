@@ -439,3 +439,67 @@
 		<span class="blue">Yesterday, you dressed masculine.</span><br>
 	<</if>>
 <</widget>>
+
+<<widget "willpowercaption">>
+	<<if Number.isFinite($arousal)>>
+		<div id="willpowercaption" @title="'Willpower: ' + $xchange.willpowerPoints.toFixed(2)">
+			<div @class="($options.showCaptionText is true ? '' : 'rightMeterText')">
+				Willpower:
+				<<if $options.showCaptionText is true>>
+					<<if $xchange.willpowerPoints gte $willpowermax>>
+						<span class="green">You are resolute.</span>
+					<<elseif $xchange.willpowerPoints gte ($willpowermax / 5) * 4>>
+						<span class="teal">You feel tenacious.</span>
+					<<elseif $xchange.willpowerPoints gte ($willpowermax / 5) * 3>>
+						<span class="lblue">You feel resolved.</span>
+					<<elseif $xchange.willpowerPoints gte ($willpowermax / 5) * 2>>
+						<span class="blue">You feel determined.</span>
+					<<elseif $xchange.willpowerPoints gte $willpowermax / 5>>
+						<span class="purple">You are faltering.</span>
+					<<elseif $xchange.willpowerPoints gte 1>>
+						<span class="pink">You are wavering.</span>
+					<<else>>
+						<span class="red">You can no longer resist.</span>
+					<</if>>
+				<</if>>
+			</div>
+			<<set _showCaptionText to !$options.showCaptionText>>
+			<<statbarinverted $xchange.willpowerPoints $willpowermax _showCaptionText>>
+			<div style="clear:both;"></div>
+		</div>
+	<</if>>
+<</widget>>
+
+<<widget "willpowersuccess">>
+	<<willpower-spending 50>>
+<</widget>>
+
+<<widget "willpowerfailure">>
+	<<willpower-spending 10>>
+<</widget>>
+
+<<widget "willpower-spending">>
+	<<if $args[0] is undefined>>
+		<<set _willpowerExpenditure to 25>>
+	<<else>>
+		<<set _willpowerExpenditure to $args[0]>>
+	<</if>>
+
+	<<set $xchange.willpowerPoints -= _willpowerExpenditure>>
+	<<willpowerpoints-clamp>>
+<</widget>>
+
+<<widget "willpower-recovery">>
+	<<if $args[0] is undefined>>
+		<<set _willpowerRecovery to 25>>
+	<<else>>
+		<<set _willpowerRecovery to $args[0]>>
+	<</if>>
+
+	<<set $xchange.willpowerPoints += _willpowerRecovery>>
+	<<willpowerpoints-clamp>>
+<</widget>>
+
+<<widget "willpowerpoints-clamp">>
+	<<set $xchange.willpowerPoints to Math.clamp($xchange.willpowerPoints, 0, Math.max(200, $willpower))>>
+<</widget>>
