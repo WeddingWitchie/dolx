@@ -1267,6 +1267,15 @@ function currentSkillValue(skill, disableModifiers = 0) {
 			break;
 		case "willpower":
 			result = V.xchange.willpowerPoints;
+
+			if (V.player.gender === "m") {
+				result += 200;
+			} else if (V.player.gender === "f") {
+				result -= 100;
+			}
+			result = Math.max(result, 0);
+
+			result = Math.floor(result * (1000-V.drunk)/1000 * (1000-V.drugged)/1000);
 			if (numberOfEarSlime() >= 2 && V.earSlime.growth > 50) {
 				result = Math.floor(result * (0.9 - Math.clamp((V.earSlime.growth - 50) / 1000, 0, 0.1)));
 			} else if (numberOfEarSlime() >= 2) {
