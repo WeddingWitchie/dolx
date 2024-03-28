@@ -596,13 +596,16 @@ setup.pills = [
 		warning_label:
 			"Warning: Mild discomfort might be incurred during transformation. Certain parasitic infections might result in permanence, in particular those affecting the vagina.",
 		autoTake() {
-			return V.sexStats.pills["pills"][this.name].autoTake;
+			return false;
 		},
 		doseTaken() {
 			return V.sexStats.pills["pills"][this.name].doseTaken;
 		},
 		owned() {
 			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
 		},
 		type: "xchange",
 		subtype: "pink basic",
@@ -630,13 +633,16 @@ setup.pills = [
 		warning_label:
 			"Warning: Pregnancy will result in transformation becoming permanent. Certain parasitic infections might also result in permanence as well, in particular those affecting the genitalia.",
 		autoTake() {
-			return V.sexStats.pills["pills"][this.name].autoTake;
+			return false;
 		},
 		doseTaken() {
 			return V.sexStats.pills["pills"][this.name].doseTaken;
 		},
 		owned() {
 			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
 		},
 		type: "xchange",
 		subtype: "pink xtra strength",
@@ -664,13 +670,16 @@ setup.pills = [
 		warning_label:
 			"Warning: May become permanent upon climaxing if remaining duration ever exceeds 30 days. Certain parasitic infections may also result in permanence as well, in particular those affecting the genitalia.",
 		autoTake() {
-			return V.sexStats.pills["pills"][this.name].autoTake;
+			return false;
 		},
 		doseTaken() {
 			return V.sexStats.pills["pills"][this.name].doseTaken;
 		},
 		owned() {
 			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
 		},
 		type: "xchange",
 		subtype: "pink continue",
@@ -698,13 +707,16 @@ setup.pills = [
 		warning_label:
 			"Warning: While there is no risk of conventional pregnancy, certain parasitic infections may result in permanence, in particular those affecting the genitalia.",
 		autoTake() {
-			return V.sexStats.pills["pills"][this.name].autoTake;
+			return false;
 		},
 		doseTaken() {
 			return V.sexStats.pills["pills"][this.name].doseTaken;
 		},
 		owned() {
 			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
 		},
 		type: "xchange",
 		subtype: "pink resistance",
@@ -732,13 +744,16 @@ setup.pills = [
 		warning_label:
 			"Warning: CANNOT BE TAKEN DURING PREGNANCY. Mild discomfort might be incurred during transformation. Certain parasitic infections might result in permanence, in particular those affecting the genitalia.",
 		autoTake() {
-			return V.sexStats.pills["pills"][this.name].autoTake;
+			return false;
 		},
 		doseTaken() {
 			return V.sexStats.pills["pills"][this.name].doseTaken;
 		},
 		owned() {
 			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
 		},
 		type: "xchange",
 		subtype: "blue basic",
@@ -766,13 +781,16 @@ setup.pills = [
 		warning_label:
 			"Warning: CANNOT BE TAKEN DURING PREGNANCY. Certain parasitic infections might also result in permanence, in particular those affecting the genitalia.",
 		autoTake() {
-			return V.sexStats.pills["pills"][this.name].autoTake;
+			return false;
 		},
 		doseTaken() {
 			return V.sexStats.pills["pills"][this.name].doseTaken;
 		},
 		owned() {
 			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
 		},
 		type: "xchange",
 		subtype: "blue xtra strength",
@@ -800,13 +818,16 @@ setup.pills = [
 		warning_label:
 			"Warning: CANNOT BE TAKEN DURING PREGNANCY. May become permanent upon climaxing if remaining duration ever exceeds 30 days. Certain parasitic infections may also result in permanence as well, in particular those affecting the genitalia.",
 		autoTake() {
-			return V.sexStats.pills["pills"][this.name].autoTake;
+			return false;
 		},
 		doseTaken() {
 			return V.sexStats.pills["pills"][this.name].doseTaken;
 		},
 		owned() {
 			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
 		},
 		type: "xchange",
 		subtype: "blue continue",
@@ -834,13 +855,16 @@ setup.pills = [
 		warning_label:
 			"Warning: CANNOT BE TAKEN DURING PREGNANCY. Certain parasitic infections may result in permanence, in particular those affecting the genitalia.",
 		autoTake() {
-			return V.sexStats.pills["pills"][this.name].autoTake;
+			return false;
 		},
 		doseTaken() {
 			return V.sexStats.pills["pills"][this.name].doseTaken;
 		},
 		owned() {
 			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
 		},
 		type: "xchange",
 		subtype: "blue resistance",
@@ -868,7 +892,7 @@ setup.pills = [
 		warning_label:
 			"Warning: Do not re-use. Readings will not be accurate.",
 		autoTake() {
-			return V.sexStats.pills["pills"][this.name].autoTake;
+			return false;
 		},
 		doseTaken() {
 			return V.sexStats.pills["pills"][this.name].doseTaken;
