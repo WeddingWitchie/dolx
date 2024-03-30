@@ -39,7 +39,7 @@ elif [ "$choice" == "6" ]; then
 elif [ "$choice" == "7" ]; then
     echo "You chose BEEESSS + Okbd."
     cp -r beeesssokbdimg/* "$destinationFolder/"
-elif [ "$choice" == "7" ]; then
+elif [ "$choice" == "8" ]; then
     echo "You chose BEEESSS + Hikari Female + WIP Reworked Animations."
     cp -r beeessshfreworkedanimationsimg/* "$destinationFolder/"
 else

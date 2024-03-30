@@ -1,5 +1,6 @@
 :: Widgets Stats [widget]
 
+/* Depricated widgets
 <<widget "trauma">>
 	<<if _args[0] or _args[1]>>
 		<<if _args[0] gte 0>>
@@ -162,7 +163,7 @@
 		<<if ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black")>>
 			<<set $_volume_increase *= 2>>
 		<</if>>
-		/*Prevents those who can only have "female climax" increase their cum volume*/
+		/*Prevents those who can only have "female climax" increase their cum volume*//*
 		<<if $player.penissize gt -2 or $_volume_increase <= 0>>
 			<<set $semen_volume += $_volume_increase>>
 		<</if>>
@@ -355,6 +356,34 @@
 	<</if>>
 <</widget>>
 
+<<widget "breast_sensitivity">>
+	<<if _args[0]>>
+		<<set $breastsensitivity += _args[0]>>
+		<<set $breastsensitivity to Math.clamp($breastsensitivity, 1, 4)>>
+	<</if>>
+<</widget>>
+
+<<widget "mouth_sensitivity">>
+	<<if _args[0]>>
+		<<set $mouthsensitivity += _args[0]>>
+		<<set $mouthsensitivity to Math.clamp($mouthsensitivity, 1, 4)>>
+	<</if>>
+<</widget>>
+
+<<widget "genital_sensitivity">>
+	<<if _args[0]>>
+		<<set $genitalsensitivity += _args[0]>>
+		<<set $genitalsensitivity to Math.clamp($genitalsensitivity, 1, 4)>>
+	<</if>>
+<</widget>>
+
+<<widget "bottom_sensitivity">>
+	<<if _args[0]>>
+		<<set $bottomsensitivity += _args[0]>>
+		<<set $bottomsensitivity to Math.clamp($bottomsensitivity, 1, 4)>>
+	<</if>>
+<</widget>>
+
 <<widget "arousalError">>
 	<<if $arousalError is undefined>>
 		<<set $arousalError to [[_args[0], _args[1]]]>>
@@ -440,7 +469,13 @@
 
 <<widget "delinquency">>
 	<<if _args[0] and $statFreeze isnot true>>
-		<<set $delinquency += (_args[0] * 4)>>
+		<<if _args[1] is "bonus">>
+			<!-- find how many visible, non-mandatory school clothes are equipped, and add 1 -->
+			<<set $_mult to getVisibleClothesList().reduce((mult, slot) => mult + (slot.type && slot.type.includes("school") && !["upper", "lower"].includes(slot.name)), 1)>>
+			<<set $delinquency += ($_mult gte 1) ? (_args[0] * $_mult) : 0>>
+		<<else>>
+			<<set $delinquency += (_args[0] * 4)>>
+		<</if>>
 		<<set $delinquency to Math.clamp($delinquency, 0, 1000)>>
 	<</if>>
 <</widget>>
@@ -652,7 +687,7 @@
 				<<stress 1>>
 			<</if>>
 			<<set V["insecurity_" + _args[0]] to _insecurity>>
-			/* reduce acceptance by matching amount */
+			/* reduce acceptance by matching amount *//*
 			<<if _stat_gain gt 0>>
 				<<set _acceptance -= _stat_gain>>
 				<<set _acceptance = Math.clamp(_acceptance, 0, 1000)>>
@@ -669,8 +704,8 @@
 		args[0]: insecurity type
 		args[1]: amount to increase by
 	*/
-	<<if _args[0] and _args[1] and $statFreeze isnot true>>
-		/* note: this does not check if a player is capable of gaining acceptance, so don't use this widget without checking. */
+	/*<<if _args[0] and _args[1] and $statFreeze isnot true>>
+		/* note: this does not check if a player is capable of gaining acceptance, so don't use this widget without checking. *//*
 		<<if ["penis_tiny", "penis_small", "penis_big", "breasts_tiny", "breasts_small", "breasts_big", "pregnancy"].includes(_args[0])>>
 			<<set V["acceptance_"+_args[0]] += (_args[1] * 6)>>
 			<<set V["acceptance_"+_args[0]] = Math.clamp(V["acceptance_"+_args[0]], 0, 1000)>>
@@ -722,9 +757,9 @@
 		<<set $orphan_reb += (_args[0] * 2)>>
 		<<set $orphan_reb = Math.clamp($orphan_reb, -50, 50)>>
 	<</if>>
-<</widget>>
+<</widget>>*/
 
-<<widget "grace">>/*Optional second variable is the rank of the NPC giving the order. Grace changes won't apply if the player's rank equals or exceeds the NPC's.*/
+/*<<widget "grace">>/*Optional second variable is the rank of the NPC giving the order. Grace changes won't apply if the player's rank equals or exceeds the NPC's.*//*
 	<<if _args[0] and $statFreeze isnot true and $temple_rank isnot undefined and $temple_rank isnot "prospective">>
 		<<if _args[1] is "monk">>
 			<<if $temple_rank is "initiate">>
@@ -909,7 +944,7 @@
 	<</if>>
 <</widget>>
 
-<<widget "prof">>
+/*<<widget "prof">>
 	<<if _args[0] and _args[1]>>
 		<<set $prof[_args[0]] += (_args[1] * 5)>>
 		<<set $prof[_args[0]] to Math.clamp($prof[_args[0]], 0, 1000)>>
@@ -1002,4 +1037,4 @@
 			<</if>>
 		<</if>>
 	<</if>>
-<</widget>>
+<</widget>>*/

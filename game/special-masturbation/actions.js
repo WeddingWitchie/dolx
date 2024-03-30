@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 function masturbationActions() {
 	const fragment = document.createDocumentFragment();
 
@@ -109,11 +108,13 @@ function masturbationActions() {
 		fragment.append(wikifier("orgasm"));
 		fragment.append(wikifier("promiscuity1"));
 		V.masturbationorgasmstat++;
+		V.masturbationOrgasmTimeStat = Time.date.timeStamp;
 		V.masturbationorgasm++;
 		if (V.femaleclimax !== 1 && !T.deniedOrgasm && V.worn.genitals.name !== "chastity parasite" && V.mouth !== "mpenis") {
 			V.masturbationorgasmsemen++;
 		}
 		fragment.append(wikifier("purity", -1));
+		if (V.corruptionMasturbation) V.corruptionMasturbationCount--;
 	}
 	fragment.append(wikifier("pass", 10, "seconds"));
 	V.secondsSpentMasturbating += 10;
@@ -194,7 +195,7 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 					});
 				} else {
 					result.options.push({
-						action: "mchastity",
+						action: "mpenischastity",
 						text:
 							V.player.gender === "f" && V.parasite.clit.name === "parasite" ? "Try to fondle your parasitic penis" : "Try to fondle your penis",
 						colour: "sub",
@@ -217,7 +218,7 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 					});
 				} else {
 					result.options.push({
-						action: "mchastity",
+						action: "mvaginachastity",
 						text: "Try to fondle your pussy",
 						colour: "sub",
 					});
