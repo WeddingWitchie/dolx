@@ -65,7 +65,7 @@
 	<<set $player.ballsExist to false>>
 	<<set $player.penisExist to false>>
 	<<set $player.vaginaExist to true>>
-	<<if $args.includes("fertile") or $args.includes("breeder")>>
+	<<if _args[0].includes("fertile")>>
 		<<set $sexStats.vagina.menstruation.running = true>>
 	<<else>>
 		<<set $sexStats.vagina.menstruation.running = false>>
@@ -164,17 +164,17 @@
 		crime: $crime,
 	}>>
 
-	<<if $args[0] is undefined>>
+	<<if _args[0] is undefined>>
 		<<set $xchangePill.originalBody to _savedbody>>
-	<<elseif $args[0] is "genderswapped">>
+	<<elseif _args[0] is "genderswapped">>
 		<<set $xchangePill.changedBody to _savedbody>>
 	<</if>>
 <</widget>>
 
 <<widget "load-body">>
-	<<if $args[0] is undefined>>
+	<<if _args[0] is undefined>>
 		<<set _body to $xchangePill.originalBody>>
-	<<elseif $args[0] is "genderswapped">>
+	<<elseif _args[0] is "genderswapped">>
 		<<set _body to $xchangePill.changedBody>>
 	<</if>>
 
@@ -261,7 +261,7 @@
 
 <<widget "xchange-effects">>
 	<<set $xchangePill.active to true>>
-	<<set $xchangePill.duration to $args[0] * 24 - 1>> <!-- duration now in hours instead of days -->
+	<<set $xchangePill.duration to _args[0] * 24 - 1>> <!-- duration now in hours instead of days -->
 	<<set $xchangePill.fertile to false>>
 	<<set $xchangePill.effectsKnown to true>>
 
@@ -269,7 +269,7 @@
 	<<set $xchangePill.resistanceEffect to false>>
 	<<set $xchangePill.continueEffect to false>>
 
-	<<for _arg range _args>>
+	<<for _arg range _args[1]>>
 		<<switch _arg>>
 		<<case "resistance">>
 			<<set $xchangePill.resistanceEffect to true>>
@@ -291,10 +291,10 @@
 			 "resistance" enables resistance effect
 			 "continue" enables continue effect 
 */	
-	<<xchange-effects ...$args>>
+	<<xchange-effects _args[0] _args.slice(1)>>
 
 	<<save-body>>
-	<<become-girl ...$args.slice(1)>>
+	<<become-girl _args.slice(1)>>
 	<<exposedcheck>>
 <</widget>>
 
@@ -304,7 +304,7 @@
 			 "resistance" enables resistance effect
 			 "continue" enables continue effect 
 */
-	<<xchange-effects ...$args>>
+	<<xchange-effects _args[0] _args.slice(1)>>
 
 	<<save-body>>
 	<<become-boy>>
@@ -353,7 +353,7 @@
 <<widget "xchange-fame">>
 	<<if _args[0] and $statFreeze isnot true>>
 		<<if playerIsXChanged() and $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole>>
-			<<set $xchange_fame += $args[0]>>
+			<<set $xchange_fame += _args[0]>>
 			<<set $xchange_fame to Math.clamp($xchange_fame, 0, 2000)>>
 		<</if>>
 	<</if>>
@@ -384,7 +384,7 @@
 				<<xchange-blue 1>>
 			<</if>>
 		<</if>>
-		<<if $args[0] isnot "suppress">>
+		<<if _args[0] isnot "suppress">>
 			<span class="pink">You got spiked with an unknown pill.</span>
 			<br><br>
 		<</if>>
@@ -415,11 +415,23 @@
 		<<print (Math.ceil($xchangePill.duration/24))>> days
 	<<elseif $xchangePill.duration gte 24>>
 		1 day
-	<<elseif $xchangePill.duration gt 1>>
-		<<print $xchangePill.duration>> hours
+	<<elseif $xchangePill.duration gte 1>>
+		<<print ($xchangePill.duration+1)>> hours
 	<<else>>
 		1 hour
 	<</if>>
+<</widget>>
+
+<<widget "currentSexSidebar">>
+	<div id="bodysex-sidebar" class="bodysex-sidebar">
+		<<if $player.sex is "f">>
+			<img src="img/misc/icon/female.png">
+		<<elseif $player.sex is "m">>
+			<img src="img/misc/icon/male.png">
+		<<else>>
+			<img src="img/misc/icon/unisex.png">
+		<</if>>
+	</div>
 <</widget>>
 
 <<widget "pill-characteristics">>
@@ -590,10 +602,10 @@
 <</widget>>
 
 <<widget "willpower-spending">>
-	<<if $args[0] is undefined>>
+	<<if _args[0] is undefined>>
 		<<set _willpowerExpenditure to 25>>
 	<<else>>
-		<<set _willpowerExpenditure to $args[0]>>
+		<<set _willpowerExpenditure to _args[0]>>
 	<</if>>
 
 	<<set $xchange.willpowerPoints -= _willpowerExpenditure>>
@@ -601,10 +613,10 @@
 <</widget>>
 
 <<widget "willpower-recovery">>
-	<<if $args[0] is undefined>>
+	<<if _args[0] is undefined>>
 		<<set _willpowerRecovery to 25>>
 	<<else>>
-		<<set _willpowerRecovery to $args[0]>>
+		<<set _willpowerRecovery to _args[0]>>
 	<</if>>
 
 	<<set $xchange.willpowerPoints += _willpowerRecovery>>
