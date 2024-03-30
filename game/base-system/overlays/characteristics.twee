@@ -126,6 +126,8 @@
 	<<characteristic-text _hairTextConfig>>
 	<br><br>
 
+	<<if $xchangePill.active>><<pill-characteristics>><</if>>
+
 	<!--Pregnancy Details-->
 	<<set $_pregnancy to getPregnancyObject()>>
 	<<set $_menstruation to $sexStats.vagina.menstruation>>
@@ -188,6 +190,31 @@
 			You have taken a contraceptive, reducing your chance of impregnation to almost zero.
 		<</if>>
 		<br><br>
+	<<elseif $xchangePill.active and $xchangePill.effectsKnown>>
+		<<if !$sexStats.vagina.menstruation.running>>
+			It would be <span class="green">very safe</span> to have intercourse with this pill. 
+		<<elseif $xchangePill.breederEffect>>
+			It would be <span class="red">extremely dangerous</span> to have intercourse with this pill.
+		<<else>>
+			<<set $_risk to playerPregnancyRisk()>>
+			<<if $_risk isnot undefined>>
+				<<switch $_risk>>
+					<<case 6>><<set $_pregnancyRisk to "very safe">><<set $_pregnancyRiskColour to "green">>
+					<<case 5>><<set $_pregnancyRisk to "safe">><<set $_pregnancyRiskColour to "teal">>
+					<<case 2 3 4>><<set $_pregnancyRisk to "some-what safe">><<set $_pregnancyRiskColour to "lblue">>
+					<<case 1 2>><<set $_pregnancyRisk to "some-what risky">><<set $_pregnancyRiskColour to "purple">>
+					<<case 0>><<set $_pregnancyRisk to "risky">><<set $_pregnancyRiskColour to "pink">>
+				<</switch>>
+				
+				<<if $_heatArousal or $_rutArousal>>
+					<<heatRutDisplay>>
+					Intercourse will be <span @class="$_pregnancyRiskColour">$_pregnancyRisk</span> currently under this pill.
+				<<else>>
+					You feel that it's <span @class="$_pregnancyRiskColour">$_pregnancyRisk</span> to have intercourse currently under this pill.
+				<</if>>
+			<</if>>
+		<</if>>
+		<br><br>
 	<<elseif $_knowsTheyCanBecomePregnant and (($sciencetrait gte 4 and $awareness gte 200) or $awareness gte 500)>>
 		<<set $_risk to playerPregnancyRisk()>>
 		<<if $_risk isnot undefined>>
@@ -198,7 +225,7 @@
 				<<case 1 2>><<set $_pregnancyRisk to "risky">><<set $_pregnancyRiskColour to "pink">>
 				<<case 0>><<set $_pregnancyRisk to "dangerous">><<set $_pregnancyRiskColour to "red">>
 			<</switch>>
-
+			
 			<<if $_heatArousal or $_rutArousal>>
 				<<heatRutDisplay>>
 				Intercourse will be <span @class="$_pregnancyRiskColour">$_pregnancyRisk</span>.

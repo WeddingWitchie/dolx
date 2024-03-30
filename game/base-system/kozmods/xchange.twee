@@ -65,7 +65,7 @@
 	<<set $player.ballsExist to false>>
 	<<set $player.penisExist to false>>
 	<<set $player.vaginaExist to true>>
-	<<if $args[0] is "fertile" or $args[0] is "breeder">>
+	<<if $args.includes("fertile") or $args.includes("breeder")>>
 		<<set $sexStats.vagina.menstruation.running = true>>
 	<<else>>
 		<<set $sexStats.vagina.menstruation.running = false>>
@@ -259,43 +259,30 @@
 	<<calchairlengthstage>>
 <</widget>>
 
-<<widget "xchange-init">>
-	<<if $xchangePill is undefined>>
-		<<set $xchangePill to {
-			active: false,
-			duration: 0,
-			testPending: false,
-			breederEffect: false,
-			resistanceEffect: false,
-			resistanceChance: 100,
-			continueEffect: false,
-			originalBody: {},
-			changedBody: {},
-		}>>
-	<</if>>
-
-<</widget>>
-
 <<widget "xchange-effects">>
 	<<set $xchangePill.active to true>>
 	<<set $xchangePill.duration to $args[0] * 24 - 1>> <!-- duration now in hours instead of days -->
 	<<set $xchangePill.fertile to false>>
+	<<set $xchangePill.effectsKnown to true>>
 
 	<<set $xchangePill.breederEffect to false>>
 	<<set $xchangePill.resistanceEffect to false>>
 	<<set $xchangePill.continueEffect to false>>
 
-	<<if $args[1] is "resistance">>
-		<<set $xchangePill.resistanceEffect to true>>
-		<<set $xchangePill.resistanceChance to 100>>
-	<<elseif $args[1] is "continue">>
-		<<set $xchangePill.continueEffect to true>>
-	<<elseif $args[1] is "fertile">>
-		<<set $xchangePill.fertile to true>>
-	<<elseif $args[1] is "breeder">>
-		<<set $xchangePill.fertile to true>>
-		<<set $xchangePill.breederEffect to true>>
-	<</if>>
+	<<for _arg range _args>>
+		<<switch _arg>>
+		<<case "resistance">>
+			<<set $xchangePill.resistanceEffect to true>>
+			<<set $xchangePill.resistanceChance to 100>>
+		<<case "continue">>
+			<<set $xchangePill.continueEffect to true>>
+		<<case "fertile">>
+			<<set $xchangePill.fertile to true>>
+		<<case "breeder">>
+			<<set $xchangePill.breederEffect to true>>
+		<<default>>
+		<</switch>>
+	<</for>>
 <</widget>>
 
 <<widget "xchange-pink">>
@@ -304,11 +291,10 @@
 			 "resistance" enables resistance effect
 			 "continue" enables continue effect 
 */	
-	<<xchange-init>> 
-	<<xchange-effects $args[0] $args[1]>>
+	<<xchange-effects ...$args>>
 
 	<<save-body>>
-	<<become-girl $args[1]>>
+	<<become-girl ...$args.slice(1)>>
 	<<exposedcheck>>
 <</widget>>
 
@@ -318,8 +304,7 @@
 			 "resistance" enables resistance effect
 			 "continue" enables continue effect 
 */
-	<<xchange-init>>
-	<<xchange-effects $args[0] $args[1]>>
+	<<xchange-effects ...$args>>
 
 	<<save-body>>
 	<<become-boy>>
@@ -380,6 +365,7 @@
 
 <<widget "xchange-random-spike">>
 	<<if !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null>>
+		<<set $xchangePill.effectsKnown to false>>
 		<<set _rng to random(0,100)>>
 		<<if $player.gender is "m">>
 			<<if _rng lt 20>>
@@ -406,6 +392,7 @@
 <</widget>>
 
 <<widget "xchange-test">>
+	<<set $xchangePill.effectsKnown to true>>
 	<br>
 	<<set $xchangePill.testPending to false>>
 	The display indicates that, <span class="pink">you're under 
@@ -419,7 +406,11 @@
 		no special effects.
 	<</if>>
 	</span><br>
-	And the remaining duration of the pill is: <span class="blue">
+	And the remaining duration of the pill is: <span class="teal"><<print-pillduration>>.</span>
+	<br><br>
+<</widget>>
+
+<<widget "print-pillduration">>
 	<<if $xchangePill.duration gte 36>>
 		<<print (Math.ceil($xchangePill.duration/24))>> days
 	<<elseif $xchangePill.duration gte 24>>
@@ -428,8 +419,21 @@
 		<<print $xchangePill.duration>> hours
 	<<else>>
 		1 hour
-	<</if>>.</span>
-	<br><br>
+	<</if>>
+<</widget>>
+
+<<widget "pill-characteristics">>
+	<<if $xchangePill.effectsKnown>>
+		You're under a pill with the following effects: 
+		<ul>
+			<<if $xchangePill.continueEffect>><li>Continue Effect.</li><</if>>
+			<<if $xchangePill.resistanceEffect>><li>Resistance Effect.</li><</if>>
+			<<if $xchangePill.breederEffect>><li>Breeder Effect.</li><</if>>
+			<li>Duration: <span class="teal"><<print-pillduration>></span> remaining.</li>
+		</ul>
+	<<else>>
+		<span class="purple">You don't know what kind of pill you're currently on.</span>
+	<</if>>
 <</widget>>
 
 <<widget "arousal-wetness">>
