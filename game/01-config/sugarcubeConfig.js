@@ -12,7 +12,7 @@ window.StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.4.6.4 DoLP v0.285 DoLX 0.4.0",
+	version: "0.4.6.4 DoLP v0.287 DoLX 0.4.0",
 	versionName: "",
 	sneaky: false,
 };
