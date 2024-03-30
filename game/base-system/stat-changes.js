@@ -172,6 +172,7 @@ var statChange = (() => {
 			if (amount > 0) lactationPressure(V.cow >= 6 || V.transformationParts.cow.tail === "default" || V.transformationParts.cow.tail === "black" ? 2 : 1);
 			if (V.lactating) {
 				if (V.cow >= 6 || V.transformationParts.cow.tail === "default" || V.transformationParts.cow.tail === "black") amount *= 2;
+				if (V.milk_volume >= V.milk_max || V.AMCTraits.halfGain == 1) amount /= 2;
 				V.milk_volume = Math.clamp(V.milk_volume + amount, 24, V.milk_max * V.AMCTraits.milk);
 			}
 		}
