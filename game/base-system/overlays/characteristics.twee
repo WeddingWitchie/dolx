@@ -126,6 +126,8 @@
 	<<characteristic-text _hairTextConfig>>
 	<br><br>
 
+	<<if $xchangePill.active>><<pill-characteristics>><</if>>
+
 	<!--Pregnancy Details-->
 	<<set $_pregnancy to getPregnancyObject()>>
 	<<set $_menstruation to $sexStats.vagina.menstruation>>
@@ -188,6 +190,31 @@
 			You have taken a contraceptive, reducing your chance of impregnation to almost zero.
 		<</if>>
 		<br><br>
+	<<elseif $xchangePill.active and $xchangePill.effectsKnown>>
+		<<if !$sexStats.vagina.menstruation.running>>
+			It would be <span class="green">very safe</span> to have intercourse with this pill. 
+		<<elseif $xchangePill.breederEffect>>
+			It would be <span class="red">extremely dangerous</span> to have intercourse with this pill.
+		<<else>>
+			<<set $_risk to playerPregnancyRisk()>>
+			<<if $_risk isnot undefined>>
+				<<switch $_risk>>
+					<<case 6>><<set $_pregnancyRisk to "very safe">><<set $_pregnancyRiskColour to "green">>
+					<<case 5>><<set $_pregnancyRisk to "safe">><<set $_pregnancyRiskColour to "teal">>
+					<<case 2 3 4>><<set $_pregnancyRisk to "some-what safe">><<set $_pregnancyRiskColour to "lblue">>
+					<<case 1 2>><<set $_pregnancyRisk to "some-what risky">><<set $_pregnancyRiskColour to "purple">>
+					<<case 0>><<set $_pregnancyRisk to "risky">><<set $_pregnancyRiskColour to "pink">>
+				<</switch>>
+				
+				<<if $_heatArousal or $_rutArousal>>
+					<<heatRutDisplay>>
+					Intercourse will be <span @class="$_pregnancyRiskColour">$_pregnancyRisk</span> currently under this pill.
+				<<else>>
+					You feel that it's <span @class="$_pregnancyRiskColour">$_pregnancyRisk</span> to have intercourse currently under this pill.
+				<</if>>
+			<</if>>
+		<</if>>
+		<br><br>
 	<<elseif $_knowsTheyCanBecomePregnant and (($sciencetrait gte 4 and $awareness gte 200) or $awareness gte 500)>>
 		<<set $_risk to playerPregnancyRisk()>>
 		<<if $_risk isnot undefined>>
@@ -198,7 +225,7 @@
 				<<case 1 2>><<set $_pregnancyRisk to "risky">><<set $_pregnancyRiskColour to "pink">>
 				<<case 0>><<set $_pregnancyRisk to "dangerous">><<set $_pregnancyRiskColour to "red">>
 			<</switch>>
-
+			
 			<<if $_heatArousal or $_rutArousal>>
 				<<heatRutDisplay>>
 				Intercourse will be <span @class="$_pregnancyRiskColour">$_pregnancyRisk</span>.
@@ -593,6 +620,16 @@
 					<<set _willpowerConfig.modifier to Math.floor(_willpowerConfig.modifier * (1 + ($moorLuck / 100)))>>
 					<<set _willpowerConfig.modTypes.good.pushUnique("<i>????</i>")>>
 				<</if>>
+
+
+				<<if $drunk gt 0>>
+					<<set _willpowerConfig.modTypes.bad.pushUnique("Alcohol")>>
+					<<set _willpowerConfig.modifier to Math.floor(_willpowerConfig.modifier * ((1000-$drunk) / 1000))>>
+				<</if>>
+				<<if $drugged gt 0>>
+					<<set _willpowerConfig.modTypes.bad.pushUnique("Aphrodisiacs")>>
+					<<set _willpowerConfig.modifier to Math.floor(_willpowerConfig.modifier * ((1000-$drugged) / 1000))>>
+				<</if>>
 			<</silently>>
 
 			<<characteristic-box _purityConfig>>
@@ -756,6 +793,10 @@
 					<<set _housekeepingConfig.modifier to Math.floor(_housekeepingConfig.modifier * 1.05)>>
 					<<set _housekeepingConfig.modTypes.good.pushUnique("maid outfit")>>
 				<</if>>
+				<<if $worn.handheld.type.includes("maid")>>
+					<<set _housekeepingConfig.modifier to Math.floor(_housekeepingConfig.modifier * 1.05)>>
+					<<set _housekeepingConfig.modTypes.good.pushUnique("cleaning supplies")>>
+				<</if>>
 				<<if $moorLuck gt 0>>
 					<<set _skulduggeryConfig.modifier to Math.floor(_skulduggeryConfig.modifier * (1 + ($moorLuck / 100)))>>
 					<<set _skulduggeryConfig.modTypes.good.pushUnique("<i>????</i>")>>
@@ -789,23 +830,24 @@
 		<span class="gold">Sex Skills</span>
 		<!--Sex skills configurations-->
 		<<silently>>
-			<<set _seductionConfig =	{ name : "Seduction",	displayType : "grade",	currentValue : $seductionskill, modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades}>>
-			<<set _oralConfig =			{ name : "Oral",		displayType : "grade",	currentValue : $oralskill,		modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades}>>
-			<<set _chestConfig =		{ name : "Chest",		displayType : "grade",	currentValue : $chestskill,		modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades}>>
-			<<set _handsConfig =		{ name : "Hands",		displayType : "grade",	currentValue : $handskill,		modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades}>>
-			<<set _buttocksConfig =		{ name : "Buttocks",	displayType : "grade",	currentValue : $bottomskill,	modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades}>>
-			<<set _analConfig =			{ name : "Anal",		displayType : "grade",	currentValue : $analskill,		modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades}>>
-			<<set _thighsConfig =		{ name : "Thighs",		displayType : "grade",	currentValue : $thighskill,		modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades}>>
-			<<set _feetConfig =			{ name : "Feet",		displayType : "grade",	currentValue : $feetskill,		modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades}>>
+			<<set _seductionConfig =	{ name : "Seduction",	displayType : "grade",	currentValue : $seductionskill, modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades, 	sensitivity : 0}>>
+			<<set _oralConfig =			{ name : "Oral",		displayType : "grade",	currentValue : $oralskill,		modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades, 	sensitivity : $mouthsensitivity}>>
+			<<set _chestConfig =		{ name : "Chest",		displayType : "grade",	currentValue : $chestskill,		modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades, 	sensitivity : $breastsensitivity}>>
+			<<set _handsConfig =		{ name : "Hands",		displayType : "grade",	currentValue : $handskill,		modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades, 	sensitivity : 0}>>
+			<<set _buttocksConfig =		{ name : "Buttocks",	displayType : "grade",	currentValue : $bottomskill,	modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades, 	sensitivity : $bottomsensitivity}>>
+			<<set _analConfig =			{ name : "Anal",		displayType : "grade",	currentValue : $analskill,		modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades, 	sensitivity : $bottomsensitivity}>>
+			<<set _thighsConfig =		{ name : "Thighs",		displayType : "grade",	currentValue : $thighskill,		modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades, 	sensitivity : 0}>>
+			<<set _feetConfig =			{ name : "Feet",		displayType : "grade",	currentValue : $feetskill,		modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades, 	sensitivity : 0}>>
 			<<if $player.penisExist>>
-				<<set _penileConfig =	{ name : "Penile",		displayType : "grade",	currentValue : $penileskill,	modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades}>>
+				<<set _penileConfig =	{ name : "Penile",		displayType : "grade",	currentValue : $penileskill,	modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades, 	sensitivity : $genitalsensitivity}>>
 			<</if>>
 			<<if playerHasStrapon()>>
-				<<set _penileConfig =	{ name : "Strap-on use",displayType : "grade",	currentValue : $penileskill,	modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades}>>
+				<<set _penileConfig =	{ name : "Strap-on use",displayType : "grade",	currentValue : $penileskill,	modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades, 	sensitivity : 0}>>
 			<</if>>
 			<<if $player.vaginaExist>>
-				<<set _vaginalConfig =	{ name : "Vaginal",		displayType : "grade",	currentValue : $vaginalskill,	modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades}>>
+				<<set _vaginalConfig =	{ name : "Vaginal",		displayType : "grade",	currentValue : $vaginalskill,	modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades, 	sensitivity : $genitalsensitivity}>>
 			<</if>>
+			
 			<<if $drunk gt 0 and $drunk lt 240>>
 				<<set _seductionConfig.modTypes.good.pushUnique("tipsy")>>
 				<<set _seductionSkill to currentSkillValue("seductionskill")>>

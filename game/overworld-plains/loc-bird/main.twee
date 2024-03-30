@@ -11,6 +11,7 @@ You remain still, rooted to the spot. The <<beasttype>>'s claws open, and grasp 
 <<effects>>
 
 <<if $willpowerSuccess is 1>>
+	<<willpowersuccess>>
 	You tear free of the <<beasttype>>'s gaze, <span class="green">and leap aside.</span> Talons grasp empty air,
 	<<if $rng gte 51>>
 		and the creature takes to the air once more. You're in the clear for now.
@@ -31,6 +32,7 @@ You remain still, rooted to the spot. The <<beasttype>>'s claws open, and grasp 
 		<br>
 	<</if>>
 <<else>>
+	<<willpowerfailure>>
 	<span class="red">You can't tear your eyes away.</span> You remain rooted as <<bhis>> claws grasp your shoulders.<<if $monster is 1>> "Caught you," <<bhe>> says as the wings on <<bhis>> back beat furiously.<</if>> You leave the ground far behind.<<willpower 3>><<gwillpower>>
 	<br><br>
 	<<set $moor_hunt to 0>>
@@ -663,7 +665,7 @@ You have <<number $bird.fabric>> spare material<<if $bird.fabric gt 1>>s<</if>>.
 		<br>
 	<</if>>
 	<<if $worn.handheld.name isnot "naked" and $worn.handheld.cursed isnot 1>>
-		Tear up your <<link [[$worn.hands.name|Bird Tower Rope Clothes]]>><<set $bird.fabric += 1>><<handheldruined>><</link>>
+		Tear up your <<link [[$worn.handheld.name|Bird Tower Rope Clothes]]>><<set $bird.fabric += 1>><<handheldruined>><</link>>
 		<br>
 	<</if>>
 	<<if $worn.legs.name isnot "naked" and $worn.legs.cursed isnot 1>>
@@ -793,11 +795,13 @@ You tie one end of your rope around a chunk of upward-pointing stone, and throw 
 <<effects>>
 You start to walk closer to the edge. You can't help but be amazed at the view from this height.
 <<if $willpowerSuccess>>
+	<<willpowersuccess>>
 	<<set $birdGlide to 1>>
 	<span class="green">You continue, despite the pit forming in your stomach.</span><<gwillpower>><<willpower 1>>
 	<br><br>
 	<<link [[Glide down|Bird Tower Glide]]>><<endevent>><</link>><<flight_text>>
 <<else>>
+	<<willpowerfailure>>
 	<<set $daily.glideScared to true>>
 	<span class="red">You stop, and back away from the edge in fear.</span> It's probably not a good idea to get too close.
 	<br>
@@ -1508,6 +1512,7 @@ You sit by the rainwater pool.
 
 	<<wakingEffects $sleepHoursTotal>>
 	<<if ["dryheaving","nausea"].includes(_wakingEffect)>>
+		<br><br>
 		You slept soundly, but now feel a little rough.
 		<br><br>
 	<<elseif $nightmares gte 1 and $controlled is 0>>
@@ -2036,7 +2041,7 @@ The <<beasttype>> shakes <<bhis>> feathers, and lets you stroke <<bhis>> wings.
 	<<else>>
 		The <<beasttype>> stares down at your back. <<bHe>> rubs it with <<bhis>> wing.
 		<<if $monster is 1>>
-			"Don't worry. I'm sure yours will grow in soon. Then we can fly together." <<if $NPCName[$NPCNameList.indexOf("Great Hawk")].love gte 50>>You turn your head to face <<bhim>>. "I'll be happy. The sky is so empty without you in it."<</if>>
+			"Don't worry. I'm sure yours will grow in soon. Then we can fly together." <<if C.npc["Great Hawk"].love gte 50>>You turn your head to face <<bhim>>. "I'll be happy. The sky is so empty without you in it."<</if>>
 		<</if>>
 			<<bHe>> resumes <<bhis>> song after some time.
 		<br><br>
@@ -2064,9 +2069,9 @@ The <<beasttype>> shakes <<bhis>> feathers, and lets you stroke <<bhis>> wings.
 		<<switch $loveInterest.primary>>
 			<<case "Robin">>
 				Robin.
-				<<if $NPCName[$NPCNameList.indexOf("Robin")].trauma gte 50>>
+				<<if C.npc.Robin.trauma gte 50>>
 					Your heart sinks as you remember how you left <<nnpc_him "Robin">>. <<stress 12>><<ggstress>>
-				<<elseif $NPCName[$NPCNameList.indexOf("Robin")].dom gte 50>>
+				<<elseif C.npc.Robin.dom gte 50>>
 					You wonder if <<nnpc_he "Robin">> will come looking for you.
 				<<else>>
 					You feel a brief sting of guilt as you wonder how <<nnpc_he "Robin">>'s doing.
@@ -2095,7 +2100,7 @@ The <<beasttype>> shakes <<bhis>> feathers, and lets you stroke <<bhis>> wings.
 					<<nnpc_He "Avery">>'s probably looking for you at this very moment, to ask you on another date.
 				<<elseif $averydate is 1>>
 					You have a date later, after all.
-				<<elseif $NPCName[$NPCNameList.indexOf("Avery")].rage gte 20 and $averyragerevealed is 1>>
+				<<elseif C.npc.Avery.rage gte 20 and $averyragerevealed is 1>>
 					You're glad to be so far away, at least until <<nnpc_he "Avery">> calms down.
 				<<else>>
 					You laugh, picturing <<nnpc_him "Avery">> trying to save face explaining your current situation.
@@ -2124,9 +2129,9 @@ The <<beasttype>> shakes <<bhis>> feathers, and lets you stroke <<bhis>> wings.
 		<<switch $loveInterest.secondary>>
 			<<case "Robin">>
 				Robin.
-				<<if $NPCName[$NPCNameList.indexOf("Robin")].trauma gte 50>>
+				<<if C.npc.Robin.trauma gte 50>>
 					Your heart sinks as you remember how you left <<nnpc_him "Robin">>. <<stress 12>><<ggstress>>
-				<<elseif $NPCName[$NPCNameList.indexOf("Robin")].dom gte 50>>
+				<<elseif C.npc.Robin.dom gte 50>>
 					You wonder if <<nnpc_he "Robin">> will come looking for you.
 				<<else>>
 					You feel a brief sting of guilt as you wonder how <<nnpc_he "Robin">>'s doing.
@@ -2155,7 +2160,7 @@ The <<beasttype>> shakes <<bhis>> feathers, and lets you stroke <<bhis>> wings.
 					<<nnpc_he "Avery">>'s probably looking for you at this very moment, to ask you on another date.
 				<<elseif $averydate is 1>>
 					You have a date later, after all.
-				<<elseif $NPCName[$NPCNameList.indexOf("Avery")].rage gte 20 and $averyragerevealed is 1>>
+				<<elseif C.npc.Avery.rage gte 20 and $averyragerevealed is 1>>
 					You're glad to be so far away, at least until <<nnpc_he "Avery">> calms down.
 				<<else>>
 					You laugh, picturing <<nnpc_him "Avery">> trying to save face explaining your current situation.
@@ -2356,6 +2361,7 @@ The <<beasttype>> lifts <<bhis>> wings, allowing you to get up. <<bHe>> resumes 
 :: Bird Tower Bask Groom
 <<effects>>
 You release all the tension in your body and allow <<bhim>> to work. <<bHe>> continues to preen your feathers for some time. <<lstress>>
+<br><br>
 <<if $monster is 1>>
 	"Your wings... so beautiful. But I would love <<wife>> even without them."
 <</if>>

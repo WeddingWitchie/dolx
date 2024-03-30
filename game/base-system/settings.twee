@@ -146,7 +146,7 @@
 	<<run settingsDisableElement()>>
 <</widget>>
 
-<<widget "fa-icon">><span @class="'fa-icon fa-' + $args.raw" alt="' + $args.raw + '"></span><</widget>>
+<<widget "fa-icon">><span @class="'fa-icon fa-' + _args.raw" alt="' + _args.raw + '"></span><</widget>>
 
 <<widget "startOptionsComplexityButton">>
 	<div @class="_selectedStart is _args[1] ? 'gold buttonStartSelected' : 'buttonStart'" >
@@ -290,7 +290,6 @@
 			<<unset _maleChanceSplit>>
 			<<unset _beastMaleChanceSplit>>
 			<<unset _pregnancytype>>
-			<<unset _cycledisable>>
 			<<unset _incompletePregnancyDisable>>
 		<</button>>
 	</div>
@@ -465,7 +464,6 @@
 						<<set $playerPregnancyBeastDisable to "f">>
 						<<set $npcPregnancyDisable to "f">>
 					<</if>>
-					<<set $cycledisable to _cycledisable>>
 					<<if _incompletePregnancyDisable is "t" or (_incompletePregnancyDisable is "f" and !_foundPregnancy)>>
 						<<set $incompletePregnancyDisable to _incompletePregnancyDisable>>
 						<<npcPregnancyUpdater>>
@@ -644,6 +642,7 @@
 	<<set $combatExtended.enemyHealthDefeatScalingMult to Math.clamp($combatExtended.enemyHealthDefeatScalingMult, 1, 1000000)>>
 	<<set $combatExtended.enemyDefeatScaling to Math.clamp($combatExtended.enemyDefeatScaling, 1, 1000000)>>
 	<<set $combatExtended.enemyDefeatScalingLimit to Math.clamp($combatExtended.enemyDefeatScalingLimit, 1, 1000000)>>
+	<<amcTraitsUpdate>>
 	<<if $settingsExitPassage is "Start2">>
 		<<setSkinColorBase>>
 	<</if>>
@@ -695,6 +694,11 @@
 	<<run State.display(_settingsExitPassage)>>
 	<<set $saveName to $saveName.replace(/[^a-zA-Z\u4e00-\u9fa5 0-9]+/g,"")>>
 	<<unset $importString>>
+
+	/* Updates the penis max size for females so its never below 1 */
+	<<if $player.gender is "f" && $penissizemax < 0>>
+		<<set $penissizemax to 0>>
+	<</if>>
 <</widget>>
 
 /*complete:{"Vrelnir (Default)":"vrelDefault","Lollipop Scythe":"lollipopScythe","PurityGuy":"purityGuy","Fangi":"fangi"},*/
@@ -1197,7 +1201,7 @@
 	<br><br>
 	<span class="red">Changing settings in specific ways may prevent you from earning some feats, and coins, in your current game.</span> Enabling cheats at any point will prevent you from earning feats for the remainder of your current playthrough. You will be warned if you are about to change any setting that does this.
 	<br><br>
-	 Some feats display as earned as soon as you meet the requirements, while others won't trigger until the next in-game hour or at midnight. Happy hunting!
+	 Some feats display as earned as soon as you meet the requirements, while others won't trigger until the next in-game hour. Happy hunting!
 <</widget>>
 
 <<widget "featSettings">>
@@ -1373,29 +1377,30 @@
 				<div class="settingsToggleItem">
 					<span class="gold">Banner Toggle</span> <mouse class = "tooltip linkBlue">(?)<span>Toggle which version of the banner you want to use.</span></mouse>
 					<br>
-					<<link "Default Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/banner.png"><</replace>><</link>>
+					<<link "No Banner">><<replace #bannerStyle>><</replace>><<set $bannerstyle to "none">><</link>>
+						| <<link "Default Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/banner.png"><</replace>><<set $bannerstyle to "default">><</link>>
 					<<if $feats.allSaves.points isnot undefined and $feats.allSaves.points gte 25>>
-						| <<link "Alien Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/bannerAlien.png"><</replace>><</link>>
+						| <<link "Alien Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/bannerAlien.png"><</replace>><<set $bannerstyle to "alien">><</link>>
 					<<else>>
 						| <label><span class="red">25 VrelCoins</span></label>
 					<</if>>
 					<<if $feats.allSaves.points isnot undefined and $feats.allSaves.points gte 50>>
-						| <<link "Blood Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/bannerBlood.png"><</replace>><</link>>
+						| <<link "Blood Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/bannerBlood.png"><</replace>><<set $bannerstyle to "blood">><</link>>
 					<<else>>
 						| <label><span class="red">50 VrelCoins</span></label>
 					<</if>>
 					<<if $feats.allSaves.points isnot undefined and $feats.allSaves.points gte 100>>
-						| <<link "Bronze Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/bannerBronze.png"><</replace>><</link>>
+						| <<link "Bronze Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/bannerBronze.png"><</replace>><<set $bannerstyle to "bronze">><</link>>
 					<<else>>
 						| <label><span class="red">100 VrelCoins</span></label>
 					<</if>>
 					<<if $feats.allSaves.points isnot undefined and $feats.allSaves.points gte 150>>
-						| <<link "Silver Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/bannerSilver.png"><</replace>><</link>>
+						| <<link "Silver Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/bannerSilver.png"><</replace>><<set $bannerstyle to "silver">><</link>>
 					<<else>>
 						| <label><span class="red">150 VrelCoins</span></label>
 					<</if>>
 					<<if $feats.allSaves.points isnot undefined and $feats.allSaves.points gte 200>>
-						| <<link "Golden Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/bannerGold.png"><</replace>><</link>>
+						| <<link "Golden Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/bannerGold.png"><</replace>><<set $bannerstyle to "gold">><</link>>
 					<<else>>
 						| <label><span class="red">200 VrelCoins</span></label>
 					<</if>>
@@ -2242,29 +2247,31 @@
 		</div>
 		<<if $passage is "Start" or $player.penisExist>>
 			<div class="settingsToggleItem">
+				<!-- Not applicable to the parasite penis -->
 				<span class="gold" data-target="player.gender" data-disabledif="V.player.gender==='f'">Minimum penis size - if applicable:</span> <mouse class="tooltip linkBlue">(?)<span>Penises already below this size won't automatically grow.</span></mouse>
 				<br>
 				<<set _name to ["Micro","Mini", "Tiny"]>>
 				<<for _i to 0; _i lt _name.length; _i++>>
-					<span data-target="penissizemax" @data-disabledif="_i - 2 + ' > V.penissizemax'">
+					<span data-target="penissizemax" @data-disabledif="_i - 2 + ` > V.penissizemax||V.player.gender==='f'`">
 						<label data-target="player.gender" data-disabledif="V.player.gender==='f'"><<print _name[_i]>> <<radiobutton "$penissizemin" `(_i - 2)` autocheck>></label>
 						<<if _i lt _name.length - 1>>|<</if>>
 					</span>
 				<</for>>
 			</div>
-
-			<div class="settingsToggleItem">
-				<span class="gold" data-target="player.gender" data-disabledif="V.player.gender==='f'">Maximum penis size - if applicable:</span> <mouse class="tooltip linkBlue">(?)<span>Penises already above this size won't automatically shrink.</span></mouse>
-				<br>
-				<<set _name to ["Micro","Mini", "Tiny", "Small", "Normal", "Large", "Enormous"]>>
-				<<for _i to 0; _i lt _name.length; _i++>>
-					<span data-target='["penissizemin", "player.gender"]' @data-disabledif="_i - 2 + ' < V.penissizemin'||V.player.gender==='f'">
-						<label data-target="player.gender" data-disabledif="V.player.gender==='f'"><<print _name[_i]>> <<radiobutton "$penissizemax" `(_i - 2)` autocheck>></label>
-						<<if _i lt _name.length - 1>>|<</if>>
-					</span>
-				<</for>>
-			</div>
 		<</if>>
+
+		<div class="settingsToggleItem">
+			<!-- Not applicable to females without a parasite penis -->
+			<span class="gold" data-target="player.gender">Maximum penis size - if applicable:</span> <mouse class="tooltip linkBlue">(?)<span>Penises already above this size won't automatically shrink.</span></mouse>
+			<br>
+			<<set _name to ["Micro","Mini", "Tiny", "Small", "Normal", "Large", "Enormous"]>>
+			<<for _i to 0; _i lt _name.length; _i++>>
+				<span data-target='["penissizemin", "player.gender"]' @data-disabledif="_i - 2 + ` < V.penissizemin||(` + _i + `<2&&V.player.gender==='f')`">
+					<label data-target="player.gender" @data-disabledif="`(` + _i + `<2&&V.player.gender==='f')`"><<print _name[_i]>> <<radiobutton "$penissizemax" `(_i - 2)` autocheck>></label>
+					<<if _i lt _name.length - 1>>|<</if>>
+				</span>
+			<</for>>
+		</div>
 	</div>
 <</widget>>
 
@@ -3626,9 +3633,13 @@
 			<<elseif ($feats.allSaves.points gte 25 and $bannerstyleintro.alien is false) or $bannerstyle is "alien">>
 				<<set $bannerstyleintro.alien to true>>
 				<img class="resize" src="img/misc/bannerAlien.png">
+			<<elseif $bannerstyle is "none">>
+
 			<<else>>
 				<img class="resize" src="img/misc/banner.png">
 			<</if>>
+		<<elseif $bannerstyle is "none">>
+			
 		<<else>>
 			<img class="resize" src="img/misc/banner.png">
 		<</if>>

@@ -4,12 +4,12 @@
 	<<wash>>
 	<<set $player.gender_body to "f">>
 
-	<<if $player.gender !== "f" && Object.keys(V.xchangePill.changedBody).length gt 0>>
+	<<if $player.gender !== "f" && Object.keys($xchangePill.changedBody).length gt 0>>
 		<<load-body "genderswapped">>
 	<<else>>
 		<<set $bodysize to Math.clamp($bodysize-1, 0,3)>>
-		<<set $player.breastsize to random(3,12)>>
-		<<set $player.bottomsize to random(3,8)>>
+		<<set $player.breastsize to random($breastsizemin,$breastsizemax)>>
+		<<set $player.bottomsize to random($bottomsizemin,$bottomsizemax)>>
 		<<set $player.penissize to -2>>
 		<<set $ballsssize to -2>>
 		<<if $hairlength lt 400>>
@@ -65,7 +65,7 @@
 	<<set $player.ballsExist to false>>
 	<<set $player.penisExist to false>>
 	<<set $player.vaginaExist to true>>
-	<<if $args[0] is "fertile" or $args[0] is "breeder">>
+	<<if _args[0].includes("fertile")>>
 		<<set $sexStats.vagina.menstruation.running = true>>
 	<<else>>
 		<<set $sexStats.vagina.menstruation.running = false>>
@@ -76,13 +76,13 @@
 	<<wash>>
 	<<set $player.gender_body to "m">>
 
-	<<if $player.gender !== "m" && Object.keys(V.xchangePill.changedBody).length gt 0>>
+	<<if $player.gender !== "m" && Object.keys($xchangePill.changedBody).length gt 0>>
 		<<load-body "genderswapped">>
 	<<else>>
 		<<set $bodysize to Math.clamp($bodysize+1, 0,3)>>
 		<<set $player.breastsize to 0>>
 		<<set $player.bottomsize to 0>>
-		<<set $player.penissize to random(-2,4)>>
+		<<set $player.penissize to random($penissizemin,$penissizemax)>>
 		<<set $ballsssize to random(-2,3)>>
 		<<if $hairlength gte 200>>
 			<<set $hairlength to 0>>
@@ -96,9 +96,9 @@
 		<<set $physiquesize to _physiquesizes[$bodysize]>>
 		<<set $physique *= $physiquesize / _physiquesize_old>>
 		<<set $physique to Math.clamp($physique * $xchange.masculinePhysiqueChangePercent / 100, 0, $physiquesize)>>
-		<<set $breastsensitivity to Math.clamp($breastsensitivity-$xchange.pillSensitivityChange, 1, 6)>>
-		<<set $bottomsensitivity to Math.clamp($bottomsensitivity-$xchange.pillSensitivityChange, 1, 3)>>
-		<<set $genitalsensitivity to Math.clamp($genitalsensitivity-$xchange.pillSensitivityChange, 1, 10)>>
+		<<set $breastsensitivity to Math.clamp($breastsensitivity-$xchange.pillSensitivityChange, 1, 4)>>
+		<<set $bottomsensitivity to Math.clamp($bottomsensitivity-$xchange.pillSensitivityChange, 1, 4)>>
+		<<set $genitalsensitivity to Math.clamp($genitalsensitivity-$xchange.pillSensitivityChange, 1, 4)>>
 		<<set $penisgrowthtimer to 500>>
 		<<set $bottomgrowthtimer to 500>>
 		<<set $breastgrowthtimer to 500>>
@@ -164,18 +164,18 @@
 		crime: $crime,
 	}>>
 
-	<<if $args[0] is undefined>>
-		<<set V.xchangePill.originalBody to _savedbody>>
-	<<elseif $args[0] is "genderswapped">>
-		<<set V.xchangePill.changedBody to _savedbody>>
+	<<if _args[0] is undefined>>
+		<<set $xchangePill.originalBody to _savedbody>>
+	<<elseif _args[0] is "genderswapped">>
+		<<set $xchangePill.changedBody to _savedbody>>
 	<</if>>
 <</widget>>
 
 <<widget "load-body">>
-	<<if $args[0] is undefined>>
-		<<set _body to V.xchangePill.originalBody>>
-	<<elseif $args[0] is "genderswapped">>
-		<<set _body to V.xchangePill.changedBody>>
+	<<if _args[0] is undefined>>
+		<<set _body to $xchangePill.originalBody>>
+	<<elseif _args[0] is "genderswapped">>
+		<<set _body to $xchangePill.changedBody>>
 	<</if>>
 
 	<<set $bodysize to _body.bodysize>>
@@ -199,7 +199,7 @@
 		<<set $fame to _body.fame>>
 		<<if _body.cool isnot undefined>>
 			<<set $cool to _body.cool>>
-		<<elseif _body isnot V.xchangePill.originalBody>>
+		<<elseif _body isnot $xchangePill.originalBody>>
 			<<set $cool to 120>>
 		<</if>>
 		<<if _body.crime isnot undefined>>
@@ -219,8 +219,8 @@
 	<</if>>
 
 	<<if $xchange_fame gte 400 and !$xchangeFameMerged>>
-		<<set _ogFame to V.xchangePill.originalBody.fame>>
-		<<set _newFame to V.xchangePill.changedBody.fame>>
+		<<set _ogFame to $xchangePill.originalBody.fame>>
+		<<set _newFame to $xchangePill.changedBody.fame>>
 		<<set $fame to {
 			bestiality: 	Math.max(_ogFame.bestiality, _newFame.bestiality),
 			business: 		Math.max(_ogFame.business, _newFame.business),
@@ -237,12 +237,12 @@
 			social: 		Math.max(_ogFame.social, _newFame.social),
 		}>>
 
-		<<set _ogCool to V.xchangePill.originalBody.cool>>
-		<<set _newCool to V.xchangePill.changedBody.cool>>
+		<<set _ogCool to $xchangePill.originalBody.cool>>
+		<<set _newCool to $xchangePill.changedBody.cool>>
 		<<set $cool to (_ogCool + _newCool) / 2>>
 
-		<<set _ogCrime to V.xchangePill.originalBody.crime>>
-		<<set _newCrime to V.xchangePill.changedBody.crime>>
+		<<set _ogCrime to $xchangePill.originalBody.crime>>
+		<<set _newCrime to $xchangePill.changedBody.crime>>
 		<<set $crime to {}>>
 		<<for _cr range Object.keys(setup.crimeNames)>>
 			<<set $crime[_cr] to {
@@ -259,43 +259,30 @@
 	<<calchairlengthstage>>
 <</widget>>
 
-<<widget "xchange-init">>
-	<<if V.xchangePill is undefined>>
-		<<set V.xchangePill to {
-			active: false,
-			duration: 0,
-			testPending: false,
-			breederEffect: false,
-			resistanceEffect: false,
-			resistanceChance: 100,
-			continueEffect: false,
-			originalBody: {},
-			changedBody: {},
-		}>>
-	<</if>>
-
-<</widget>>
-
 <<widget "xchange-effects">>
-	<<set V.xchangePill.active to true>>
-	<<set V.xchangePill.duration to $args[0] * 24 - 1>> <!-- duration now in hours instead of days -->
-	<<set V.xchangePill.fertile to false>>
+	<<set $xchangePill.active to true>>
+	<<set $xchangePill.duration to _args[0] * 24 - 1>> <!-- duration now in hours instead of days -->
+	<<set $xchangePill.fertile to false>>
+	<<set $xchangePill.effectsKnown to true>>
 
-	<<set V.xchangePill.breederEffect to false>>
-	<<set V.xchangePill.resistanceEffect to false>>
-	<<set V.xchangePill.continueEffect to false>>
+	<<set $xchangePill.breederEffect to false>>
+	<<set $xchangePill.resistanceEffect to false>>
+	<<set $xchangePill.continueEffect to false>>
 
-	<<if $args[1] is "resistance">>
-		<<set V.xchangePill.resistanceEffect to true>>
-		<<set V.xchangePill.resistanceChance to 100>>
-	<<elseif $args[1] is "continue">>
-		<<set V.xchangePill.continueEffect to true>>
-	<<elseif $args[1] is "fertile">>
-		<<set V.xchangePill.fertile to true>>
-	<<elseif $args[1] is "breeder">>
-		<<set V.xchangePill.fertile to true>>
-		<<set V.xchangePill.breederEffect to true>>
-	<</if>>
+	<<for _arg range _args[1]>>
+		<<switch _arg>>
+		<<case "resistance">>
+			<<set $xchangePill.resistanceEffect to true>>
+			<<set $xchangePill.resistanceChance to 100>>
+		<<case "continue">>
+			<<set $xchangePill.continueEffect to true>>
+		<<case "fertile">>
+			<<set $xchangePill.fertile to true>>
+		<<case "breeder">>
+			<<set $xchangePill.breederEffect to true>>
+		<<default>>
+		<</switch>>
+	<</for>>
 <</widget>>
 
 <<widget "xchange-pink">>
@@ -304,11 +291,10 @@
 			 "resistance" enables resistance effect
 			 "continue" enables continue effect 
 */	
-	<<xchange-init>> 
-	<<xchange-effects $args[0] $args[1]>>
+	<<xchange-effects _args[0] _args.slice(1)>>
 
 	<<save-body>>
-	<<become-girl $args[1]>>
+	<<become-girl _args.slice(1)>>
 	<<exposedcheck>>
 <</widget>>
 
@@ -318,8 +304,7 @@
 			 "resistance" enables resistance effect
 			 "continue" enables continue effect 
 */
-	<<xchange-init>>
-	<<xchange-effects $args[0] $args[1]>>
+	<<xchange-effects _args[0] _args.slice(1)>>
 
 	<<save-body>>
 	<<become-boy>>
@@ -327,7 +312,7 @@
 <</widget>>
 
 <<widget "xchange-restore">>
-	<<set V.xchangePill.active to false>>
+	<<set $xchangePill.active to false>>
 	<<save-body "genderswapped">>
 
 	<<if $player.gender is "m">>
@@ -338,7 +323,7 @@
 
 	<<load-body>>
 
-	<<if V.xchangePill.resistanceEffect && V.xchangePill.resistanceChance lt 100>>
+	<<if $xchangePill.resistanceEffect && $xchangePill.resistanceChance lt 100>>
 		<span class="blue">Despite having climaxed under the effects of Resistance, the pill did not become permanent.</span>
 	<<else>>
 		<span class="blue">Your body twists and turns as it returns to its original sex.</span>
@@ -347,7 +332,7 @@
 <</widget>>
 
 <<widget "xchange-setpermanent">>
-	<<set V.xchangePill.duration to -1>>
+	<<set $xchangePill.duration to -1>>
 	<<if $player.sex is "f">>
 		<<set $sexStats.vagina.menstruation.running = true>>
 	<</if>>
@@ -356,19 +341,19 @@
 <</widget>>
 
 <<widget "xchange-orgasm">>
-	<<set _pill to V.xchangePill>>
+	<<set _pill to $xchangePill>>
 	<<if _pill.resistanceEffect>>
 		<<set _pill.resistanceChance to (_pill.resistanceChance * 0.7)>>
 	<</if>>
 	<<if _pill.continueEffect>>
-		<<set _pill.duration += 1 * 24>>
+		<<set _pill.duration += 1 * 16>>
 	<</if>>
 <</widget>>
 
 <<widget "xchange-fame">>
 	<<if _args[0] and $statFreeze isnot true>>
 		<<if playerIsXChanged() and $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole>>
-			<<set $xchange_fame += $args[0]>>
+			<<set $xchange_fame += _args[0]>>
 			<<set $xchange_fame to Math.clamp($xchange_fame, 0, 2000)>>
 		<</if>>
 	<</if>>
@@ -380,6 +365,7 @@
 
 <<widget "xchange-random-spike">>
 	<<if !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null>>
+		<<set $xchangePill.effectsKnown to false>>
 		<<set _rng to random(0,100)>>
 		<<if $player.gender is "m">>
 			<<if _rng lt 20>>
@@ -398,7 +384,7 @@
 				<<xchange-blue 1>>
 			<</if>>
 		<</if>>
-		<<if $args[0] isnot "suppress">>
+		<<if _args[0] isnot "suppress">>
 			<span class="pink">You got spiked with an unknown pill.</span>
 			<br><br>
 		<</if>>
@@ -406,30 +392,154 @@
 <</widget>>
 
 <<widget "xchange-test">>
+	<<set $xchangePill.effectsKnown to true>>
 	<br>
-	<<set V.xchangePill.testPending to false>>
+	<<set $xchangePill.testPending to false>>
 	The display indicates that, <span class="pink">you're under 
-	<<if V.xchangePill.continueEffect>>
+	<<if $xchangePill.continueEffect>>
 		the effects of a Continue pill.
-	<<elseif V.xchangePill.resistanceEffect>>
+	<<elseif $xchangePill.resistanceEffect>>
 		the effects of a Resistance pill.
-	<<elseif V.xchangePill.breederEffect>>
+	<<elseif $xchangePill.breederEffect>>
 		the effects of a Breeder pill.
 	<<else>>
 		no special effects.
 	<</if>>
 	</span><br>
-	And the remaining duration of the pill is: <span class="blue">
-	<<if V.xchangePill.duration gte 36>>
-		<<print (Math.ceil(V.xchangePill.duration/24))>> days
-	<<elseif V.xchangePill.duration gte 24>>
+	And the remaining duration of the pill is: <span class="teal"><<print-pillduration>>.</span>
+	<br><br>
+<</widget>>
+
+<<widget "print-pillduration">>
+	<<if $xchangePill.duration gte 36>>
+		<<print (Math.ceil($xchangePill.duration/24))>> days
+	<<elseif $xchangePill.duration gte 24>>
 		1 day
-	<<elseif V.xchangePill.duration gt 1>>
-		<<print V.xchangePill.duration>> hours
+	<<elseif $xchangePill.duration gte 1>>
+		<<print ($xchangePill.duration+1)>> hours
 	<<else>>
 		1 hour
-	<</if>>.</span>
-	<br><br>
+	<</if>>
+<</widget>>
+
+<<widget "currentSexSidebar">>
+	<div id="bodysex-sidebar" class="bodysex-sidebar">
+		<<if $player.sex is "f">>
+			<img src="img/misc/icon/female.png">
+		<<elseif $player.sex is "m">>
+			<img src="img/misc/icon/male.png">
+		<<else>>
+			<img src="img/misc/icon/unisex.png">
+		<</if>>
+	</div>
+<</widget>>
+
+<<widget "pill-characteristics">>
+	<<if $xchangePill.effectsKnown>>
+		You're under a pill with the following effects: 
+		<ul>
+			<<if $xchangePill.continueEffect>><li>Continue Effect.</li><</if>>
+			<<if $xchangePill.resistanceEffect>><li>Resistance Effect.</li><</if>>
+			<<if $xchangePill.breederEffect>><li>Breeder Effect.</li><</if>>
+			<li>Duration: <span class="teal"><<print-pillduration>></span> remaining.</li>
+		</ul>
+	<<else>>
+		<span class="purple">You don't know what kind of pill you're currently on.</span>
+	<</if>>
+<</widget>>
+
+<<widget "arousal-wetness">>
+	<<if $arousal gte $arousalmax * 0.6>>
+		<<set $vaginaArousalWetness to Math.max($vaginaArousalWetness, 10)>>
+	<<elseif $arousal gte $arousalmax * 0.3>>
+		<<set $vaginaArousalWetness to Math.max($vaginaArousalWetness, 5)>>
+	<</if>>
+<</widget>>
+
+<<widget "arousal-moan">>
+	<<if $player.sex is "f" and _gain*_mod gte 400 and _arousalPart gt 1>>
+		<<if $arousal lt $arousalmax * 0.2 and $orgasmcurrent lt 1>>
+		<<elseif $arousal lt $arousalmax * 0.4 and $orgasmcurrent lt 1>>
+			<<switch $speechcycle>>
+				<<case 0>>
+					"M-mh!" 
+				<<case 1>>
+					"Mmph..." 
+				<<case 2>>
+					"Ngh..." 
+				<<case 3>>
+					"M-mh!" 
+				<<case 4>>
+					"Ngh..." 
+				<<default>>
+					"Mmph..." 
+			<</switch>>
+			<span class="pink">A muffled moan escapes your lips.</span>
+		<<elseif $arousal lt $arousalmax * 0.6 and $orgasmcurrent lt 1>>
+			<<switch $speechcycle>>
+				<<case 0>>
+					"A-Ah!<<hearticon>>" 
+				<<case 1>>
+					"Mmmh...<<hearticon>>" 
+				<<case 2>>
+					"Ngh...<<hearticon>>" 
+				<<case 3>>
+					"A-Ah!<<hearticon>>" 
+				<<case 4>>
+					"Ngh... Ah...<<hearticon>>" 
+				<<default>>
+					"Mmmh...<<hearticon>>" 
+			<</switch>>
+			<span class="pink">You moan softly.</span>
+		<<elseif $arousal lt $arousalmax * 0.8>>
+			<<switch $speechcycle>>
+				<<case 0>>
+					"A-Ah!...<<hearticon>> Ah...<<hearticon>>" 
+				<<case 1>>
+					"Mmmmh...<<hearticon>> Ah!<<hearticon>>" 
+				<<case 2>>
+					"Ngh...<<hearticon>> Ah!<<hearticon>>" 
+				<<case 3>>
+					"Hah...<<hearticon>> Hah...<<hearticon>>" 
+				<<case 4>>
+					"Ngh...<<hearticon>> Ah!<<hearticon>>" 
+				<<default>>
+					"Hah...<<hearticon>> Hah...<<hearticon>>" 
+			<</switch>>
+			<span class="pink">You're moaning rhythmically.</span>	
+		<<elseif $arousal lte $arousalmax>>
+			<<switch $speechcycle>>
+				<<case 0>>
+					"A-Ah!...<<hearticon>> Hah...<<hearticon>> Hah...<<hearticon>>" 
+				<<case 1>>
+					"Ahn!...<<hearticon>> Hah...<<hearticon>> Hah...<<hearticon>>" 
+				<<case 2>>
+					"Fuck...<<hearticon>> Hah...<<hearticon>> Hah...<<hearticon>>" 
+				<<case 3>>
+					"Hah...<<hearticon>> Hah...<<hearticon>> Hah...<<hearticon>>" 
+				<<case 4>>
+					"Ah!<<hearticon>> Ah!<<hearticon>> Fuck!<<hearticon>>" 
+				<<default>>
+					"Ah!...<<hearticon>> Hah...<<hearticon>> Hah...<<hearticon>>" 
+			<</switch>>
+			<<if $arousal is $arousalmax>>
+				<span class="pink">Your climax approaches.</span>
+			<<else>>
+				<span class="pink">You are gasping uncontrollably.</span>	
+			<</if>>
+		<</if>>
+		<<set $speechcycle to random(0,7)>>
+		<<if $speechcycle gte 7>>
+			<<set $speechcycle to 0>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "genderidentity">>
+	<<if _args[0] and $statFreeze isnot true>>
+		<<set $genderidentity += _args[0] * 5>>
+		<<set $genderidentity to Math.clamp($genderidentity,0, 1000)>>
+	<</if>>
 <</widget>>
 
 <<widget "genderidentity-text">>
@@ -438,4 +548,81 @@
 	<<elseif _args[0] is "m">>
 		<span class="blue">Yesterday, you dressed masculine.</span><br>
 	<</if>>
+<</widget>>
+
+<<widget "willpowercaption">>
+	<<if Number.isFinite($arousal)>>
+		<div id="willpowercaption" @title="'Willpower: ' + $xchange.willpowerPoints.toFixed(2)">
+			<div @class="($options.showCaptionText is true ? '' : 'rightMeterText')">
+				Willpower:
+				<<if $options.showCaptionText is true>>
+					<<if $xchange.willpowerPoints gte $willpowermax>>
+						<span class="green">You are resolute.</span>
+					<<elseif $xchange.willpowerPoints gte ($willpowermax / 5) * 4>>
+						<span class="teal">You feel tenacious.</span>
+					<<elseif $xchange.willpowerPoints gte ($willpowermax / 5) * 3>>
+						<span class="lblue">You feel resolved.</span>
+					<<elseif $xchange.willpowerPoints gte ($willpowermax / 5) * 2>>
+						<span class="blue">You feel determined.</span>
+					<<elseif $xchange.willpowerPoints gte $willpowermax / 5>>
+						<span class="purple">You are faltering.</span>
+					<<elseif $xchange.willpowerPoints gte 1>>
+						<span class="pink">You are wavering.</span>
+					<<else>>
+						<span class="red">You can no longer resist.</span>
+					<</if>>
+				<</if>>
+			</div>
+			<<set _showCaptionText to !$options.showCaptionText>>
+			<<statbarinverted $xchange.willpowerPoints $willpowermax _showCaptionText>>
+			<div style="clear:both;"></div>
+		</div>
+	<</if>>
+<</widget>>
+
+<<widget "willpowercombatcheck">>
+	<<if $arousal gte ($arousalmax * 2 / 5) or $orgasmcount gt 0>>
+		<<silently>><<willpowerdifficulty 1 $willpowermax>><</silently>>
+		<<if $willpowerSuccess>>
+			<<willpowersuccess>>
+		<<else>>
+			<<willpowerfailure>>
+		<</if>>
+	<<else>>
+		<<set $willpowerSuccess to 1>>
+	<</if>>
+<</widget>>
+
+<<widget "willpowersuccess">>
+	<<willpower-spending 50>>
+<</widget>>
+
+<<widget "willpowerfailure">>
+	<<willpower-spending 5>>
+<</widget>>
+
+<<widget "willpower-spending">>
+	<<if _args[0] is undefined>>
+		<<set _willpowerExpenditure to 25>>
+	<<else>>
+		<<set _willpowerExpenditure to _args[0]>>
+	<</if>>
+
+	<<set $xchange.willpowerPoints -= _willpowerExpenditure>>
+	<<willpowerpoints-clamp>>
+<</widget>>
+
+<<widget "willpower-recovery">>
+	<<if _args[0] is undefined>>
+		<<set _willpowerRecovery to 25>>
+	<<else>>
+		<<set _willpowerRecovery to _args[0]>>
+	<</if>>
+
+	<<set $xchange.willpowerPoints += _willpowerRecovery>>
+	<<willpowerpoints-clamp>>
+<</widget>>
+
+<<widget "willpowerpoints-clamp">>
+	<<set $xchange.willpowerPoints to Math.clamp($xchange.willpowerPoints, 0, Math.max(200, $willpower))>>
 <</widget>>
