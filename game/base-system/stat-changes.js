@@ -146,8 +146,8 @@ var statChange = (() => {
 		amount = Number(amount);
 		if (V.player.penisExist && amount) {
 			amount *= 3;
-			if (V.cow >= 6 || V.transformationParts.cow.tail === "default" || $transformationParts.cow.tail === "black") amount *= 2;
-
+			if (V.cow >= 6 || V.transformationParts.cow.tail === "default" || V.transformationParts.cow.tail === "black") amount *= 2;
+			if (V.semen_volume >= V.semen_max || V.AMCTraits.halfGain == 1) amount /= 2;
 			/* Prevents those who can only have "female climax" increase their cum volume */
 			if (V.player.penissize > -2 || amount <= 0) V.semen_volume += amount;
 
@@ -880,6 +880,7 @@ var statChange = (() => {
 		if (type === "penileskill" && !(V.player.penisExist || playerHasStrapon())) return;
 		amount = Number(amount);
 		if (amount) {
+			if (V[type] >= 1000 || V.AMCTraits.halfGain == 1) amount /= 2;
 			V[type] = Math.clamp(V[type] + amount, 0, V[type + "max"] || 1000);
 		}
 	}
