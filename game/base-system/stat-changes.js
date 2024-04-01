@@ -762,11 +762,11 @@ var statChange = (() => {
 		if (V.statFreeze) return;
 		if (isNaN(amount)) paramError("willpower", "amount", amount, "Expected a number.");
 		if (V.willpower > 1000 || V.AMCTraits.halfGain === 1)
-			amount = Number(amount) * 2 / V.AMCTraits.willpower;
+			amount = Number(amount) / V.AMCTraits.willpower;
 		else
-			amount = Number(amount) * 2;
+			amount = Number(amount);
 		if (amount) {
-			V.willpower = Math.clamp(V.willpower + amount, 0, V.willpowermax * V.AMCTraits.willpower);
+			V.willpower = Math.clamp(V.willpower + amount * 2, 0, V.willpowermax * V.AMCTraits.willpower);
 		}
 	}
 	DefineMacro("willpower", willpower);
@@ -881,8 +881,8 @@ var statChange = (() => {
 		if (type === "penileskill" && !(V.player.penisExist || playerHasStrapon())) return;
 		amount = Number(amount);
 		if (amount) {
-			if (V[type] >= 1000 || V.AMCTraits.halfGain == 1) amount /= 2;
-			V[type] = Math.clamp(V[type] + amount, 0, V[type + "max"] || 1000);
+			if (V[type] >= V[type + "max"] || V.AMCTraits.halfGain == 1) amount /= 2;
+			V[type] = Math.clamp(V[type] + amount, 0, V[type + "max"] * V.AMCTraits[type] || 1000);
 		}
 	}
 	DefineMacro("oralskill", amount => skill("oralskill", amount));

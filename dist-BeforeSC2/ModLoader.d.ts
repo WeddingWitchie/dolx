@@ -103,8 +103,20 @@ export declare class ModLoader {
     thisWin: Window;
     logger: LogWrapper;
     constructor(gSC2DataManager: SC2DataManager, modLoadControllerCallback: ModLoadControllerCallback, thisWin: Window);
+    /**
+     * 已读取的mod列表（加载但没有初始化）
+     * The mod list that already read (load but not init)
+     */
     private modReadCache;
+    /**
+     * 已加载的mod列表（加载并完成初始化）
+     * The mod list that already loaded (load and init)
+     */
     private modCache;
+    /**
+     * 已加载的Lazy mod列表（使用 `lazyRegisterNewMod` 加载但未完成初始化）
+     * The Lazy mod list that already loaded (load use `lazyRegisterNewMod` but not init)
+     */
     private modLazyCache;
     modLoadRecord: ModOrderItem[];
     /**
@@ -147,7 +159,7 @@ export declare class ModLoader {
     getRemoteLoader(): RemoteLoader | undefined;
     getLazyLoader(): LazyLoader | undefined;
     loadOrder: ModDataLoadType[];
-    private addModeReadZip;
+    private addModReadZip;
     loadMod(loadOrder: ModDataLoadType[]): Promise<boolean>;
     private registerMod2Addon;
     protected triggerAfterModLoad(): Promise<void>;

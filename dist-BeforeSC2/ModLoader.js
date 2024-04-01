@@ -66,8 +66,20 @@ export class ModLoader {
         this.gSC2DataManager = gSC2DataManager;
         this.modLoadControllerCallback = modLoadControllerCallback;
         this.thisWin = thisWin;
+        /**
+         * 已读取的mod列表（加载但没有初始化）
+         * The mod list that already read (load but not init)
+         */
         this.modReadCache = new ModOrderContainer();
+        /**
+         * 已加载的mod列表（加载并完成初始化）
+         * The mod list that already loaded (load and init)
+         */
         this.modCache = new ModOrderContainer();
+        /**
+         * 已加载的Lazy mod列表（使用 `lazyRegisterNewMod` 加载但未完成初始化）
+         * The Lazy mod list that already loaded (load use `lazyRegisterNewMod` but not init)
+         */
         this.modLazyCache = new ModOrderContainer();
         // it recorded the do_initModInjectEarlyLoadInDomScript call
         this.modLoadRecord = [];
@@ -139,13 +151,19 @@ export class ModLoader {
     getLazyLoader() {
         return this.modLazyLoader;
     }
-    addModeReadZip(T, from) {
+    addModReadZip(T, from) {
         if (T.modInfo) {
             const overwrite = this.modReadCache.getHasByName(T.modInfo.name);
             if (overwrite) {
                 this.modReadCache.deleteAll(T.modInfo.name);
             }
-            // // this is invalid
+            // 在这里进行前序依赖检查是无效且不必要的，由于modReadCache是已读取的mod列表，但不是最终的mod加载结果，
+            // 在mod加载过程中可以使用 `canLoadThisMod` 阻止单个mod的加载，或使用 `lazyRegisterNewMod` 插入mod，会最终的mod加载顺序与这里不一致
+            // this is a invalid and unnecessary check, because modReadCache is the mod list that already read, but not the final mod load result,
+            // in mod load progress, we can use `canLoadThisMod` to ban single mod load, or use `lazyRegisterNewMod` to insert mod,
+            // will make the final mod load order different with here.
+            // 但我们在这里进行一次检查可以简单确定加载列表是否有明显的错误
+            // but we can do a simply check here to make sure the load list have no obvious error
             this.gSC2DataManager.getDependenceChecker().checkFor(T.modInfo, [this.modReadCache]);
             this.modReadCache.pushBack(T, from);
             this.modReadCache.checkNameUniq();
@@ -162,7 +180,7 @@ export class ModLoader {
                     }
                     try {
                         ok = await this.modRemoteLoader.load() || ok;
-                        this.modRemoteLoader.modList.forEach(T => this.addModeReadZip(T, ModLoadFromSourceType.Remote));
+                        this.modRemoteLoader.modList.forEach(T => this.addModReadZip(T, ModLoadFromSourceType.Remote));
                     }
                     catch (e) {
                         console.error(e);
@@ -175,7 +193,7 @@ export class ModLoader {
                     }
                     try {
                         ok = await this.modLocalLoader.load() || ok;
-                        this.modLocalLoader.modList.forEach(T => this.addModeReadZip(T, ModLoadFromSourceType.Local));
+                        this.modLocalLoader.modList.forEach(T => this.addModReadZip(T, ModLoadFromSourceType.Local));
                     }
                     catch (e) {
                         console.error(e);
@@ -188,7 +206,7 @@ export class ModLoader {
                     }
                     try {
                         ok = await this.modLocalStorageLoader.load() || ok;
-                        this.modLocalStorageLoader.modList.forEach(T => this.addModeReadZip(T, ModLoadFromSourceType.LocalStorage));
+                        this.modLocalStorageLoader.modList.forEach(T => this.addModReadZip(T, ModLoadFromSourceType.LocalStorage));
                     }
                     catch (e) {
                         console.error(e);
@@ -201,7 +219,7 @@ export class ModLoader {
                     }
                     try {
                         ok = await this.modIndexDBLoader.load() || ok;
-                        this.modIndexDBLoader.modList.forEach(T => this.addModeReadZip(T, ModLoadFromSourceType.IndexDB));
+                        this.modIndexDBLoader.modList.forEach(T => this.addModReadZip(T, ModLoadFromSourceType.IndexDB));
                     }
                     catch (e) {
                         console.error(e);
@@ -314,6 +332,7 @@ export class ModLoader {
     }
     async initModInjectEarlyLoadInDomScript() {
         let toLoadModeList = this.modReadCache.clone();
+        // TODO re-order mod list on there (impl mod re-order on there)
         this.modCache = new ModOrderContainer();
         while (toLoadModeList.size > 0) {
             const nowMod = toLoadModeList.popFront();

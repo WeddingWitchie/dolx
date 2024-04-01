@@ -15,15 +15,22 @@ export declare class ModZipReader {
     log: LogWrapper;
     private gcFinalizationRegistry;
     private _zip;
-    private _zipWeakRef;
     private _zipIsExist;
     get zip(): JSZip;
     constructor(zip: JSZip, loaderBase: LoaderBase, modLoadControllerCallback: ModLoadControllerCallback);
     modInfo?: ModInfo;
     getModInfo(): ModInfo | undefined;
     getZipFile(): JSZip | undefined;
+    /**
+     * use this to release zip object ref, try to remove the object from memory.
+     */
     gcReleaseZip(): void;
-    gcCheckReleased(): [boolean, boolean, boolean | null];
+    /**
+     * use this to debug check if the zip object is really released.
+     * @return [isRefExist(true), isWeakRefExist(false), isWeakRefCleanBeCall(true/(null if not support))]
+     *       only when the return is [true, false, true] the zip object is really released.
+     */
+    gcCheckReleased(): [boolean, /* boolean,*/ /* boolean,*/ boolean | null];
     gcIsReleased(): boolean;
     static validateBootJson(bootJ: any, log?: LogWrapper): bootJ is ModBootJson;
     static modBootFilePath: string;
