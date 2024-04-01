@@ -16,6 +16,15 @@ export class DependenceChecker {
     getInfiniteSemVerApi() {
         return new InfiniteSemVerApi();
     }
+    /**
+     * 检查指定mod是否满足指定mod集合作为前序mod的依赖关系
+     *
+     * check if the mod satisfies the dependencies of the specified mod set as the previous mod
+     *
+     * @param {ModInfo} mod - The mod to check for dependencies.
+     * @param {ModOrderContainer[]} modCaches - An array of mod order containers.
+     * @return {boolean} - Returns true if the mod satisfies its dependencies, false otherwise.
+     */
     checkFor(mod, modCaches) {
         let isOk = true;
         if (mod.bootJson.dependenceInfo) {
@@ -54,6 +63,13 @@ export class DependenceChecker {
         }
         return true;
     }
+    /**
+     * 检查整个加载完毕的mod列表是否满足依赖约束
+     *
+     * Checks the dependencies of the mod order and verifies if they are satisfied.
+     *
+     * @return {boolean} - Returns true if all dependencies are satisfied, otherwise returns false.
+     */
     check() {
         var _a;
         const modOrder = this.gSC2DataManager.getModLoader().getModCacheOneArray();

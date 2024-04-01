@@ -17,7 +17,7 @@ import { SemVerToolsType } from "./SemVer/InfiniteSemVer";
 // @ClassDecoratorUtil.finishClassDecorate({})
 export class ModUtils {
     get version() {
-        return '2.13.1';
+        return '2.16.1';
     }
     constructor(pSC2DataManager, thisWin) {
         this.pSC2DataManager = pSC2DataManager;

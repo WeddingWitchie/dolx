@@ -68,8 +68,6 @@ export class ModZipReader {
             // console.warn('ModZipReader FinalizationRegistry is support.');
         }
         // this._zipWeakRef = new WeakRef(zip);
-        this._zipWeakRef = new WeakMap();
-        this._zipWeakRef.set(this, zip);
         this._zip = zip;
         this.gcFinalizationRegistry.register(this._zip, undefined, this);
         this.log = getLogFromModLoadControllerCallback(modLoadControllerCallback);
@@ -80,17 +78,24 @@ export class ModZipReader {
     getZipFile() {
         return this._zip;
     }
+    /**
+     * use this to release zip object ref, try to remove the object from memory.
+     */
     gcReleaseZip() {
         var _a, _b;
         console.log(`ModLoader ====== ModZipReader gcReleaseZip [${(_a = this.modInfo) === null || _a === void 0 ? void 0 : _a.name}]`);
         this.log.log(`ModLoader ====== ModZipReader gcReleaseZip [${(_b = this.modInfo) === null || _b === void 0 ? void 0 : _b.name}]`);
         this._zip = undefined;
     }
+    /**
+     * use this to debug check if the zip object is really released.
+     * @return [isRefExist(true), isWeakRefExist(false), isWeakRefCleanBeCall(true/(null if not support))]
+     *       only when the return is [true, false, true] the zip object is really released.
+     */
     gcCheckReleased() {
         return [
             !!this._zip,
             // !!this._zipWeakRef.deref(),
-            this._zipWeakRef.has(this),
             this._zipIsExist,
         ];
     }
