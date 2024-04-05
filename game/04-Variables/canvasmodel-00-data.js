@@ -61,6 +61,7 @@ const ZIndices = {
 	lower_top: 92,
 	lower_top_acc: 92.5,
 	upper_arms: 94,
+	upper_arms: 97.5,
 	lower_belly: 94.5,
 	upper: 95,
 	upper_acc: 95.5,
