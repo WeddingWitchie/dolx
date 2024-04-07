@@ -2280,7 +2280,7 @@ function earnHourlyFeats() {
 	if (V.daily.ex.road === 1 && V.daily.ex.cream === 1 && V.daily.ex.flyover === 1) earnFeat("A Lewd Adventure");
 	if (V.athletics >= 1000) earnFeat("Swift");
 
-	if (V.farm_stage && V.farm.beasts.horses >= 20 && V.farm.beasts.cattle >= 20 && V.farm.beasts.dogs >= 20 && V.farm.beasts.pigs >= 20) {
+	if (V.farm_stage >= 2 && V.farm.beasts.horses >= 20 && V.farm.beasts.cattle >= 20 && V.farm.beasts.dogs >= 20 && V.farm.beasts.pigs >= 20) {
 		earnFeat("Animal Tender");
 	}
 
@@ -2339,6 +2339,40 @@ function earnHourlyFeats() {
 	if (V.science >= 1000 && V.maths >= 1000 && V.english >= 1000 && V.history >= 1000) earnFeat("Perfect Record");
 	if (V.earSlime.corruption >= 100) earnFeat("Ear Slime Lover");
 	if (V.earSlime.corruption >= 100 && V.earSlime.growth >= 200) earnFeat("Ear Slime Amalgam");
+
+	if (V.physique >= 32000) earnFeat("Unstoppable Force");
+	if (V.willpower >= 2000) earnFeat("Immovable Object");
+	if (V.skulduggery >= 2000) earnFeat("Agent 47");
+	if (V.danceskill >= 2000) earnFeat("Can't Touch This");
+	if (V.swimmingskill >= 2000) earnFeat("Atlantean");
+	if (V.seductionskill >= 2000) earnFeat("Ludicrous Speed");
+	if (V.tending >= 2000) earnFeat("Grass Toucher");
+	if (V.housekeeping >= 2000) earnFeat("Demolisher of Filth");
+	if (V.sciencetrait >= 8) earnFeat("Smarter than Einstein");
+	if (V.mathstrait >= 8) earnFeat("Human Calculator");
+	if (V.englishtrait >= 8) earnFeat("Voice of All Things");
+	if (V.historytrait >= 8) earnFeat("Errm, ackshually");
+	if (V.schooltrait >= 8) earnFeat("Return to Monke");
+	if (V.seductionskill >= 2000) earnFeat("Irresistible");
+	if (
+		(!V.player.vaginaExist || V.vaginalskill >= 2000) &&
+		(!V.player.penisExist || V.penileskill >= 2000) &&
+		V.oralskill >= 2000 &&
+		(V.analskill >= 2000 || V.analdisable === "t") &&
+		V.handskill >= 2000 &&
+		V.feetskill >= 2000 &&
+		V.bottomskill >= 2000 &&
+		V.thighskill >= 2000 &&
+		V.chestskill >= 2000
+	) {
+		earnFeat("God of Lust");
+	}
+	if (V.combatExtended.brawling >= 1000) earnFeat("Brawler");
+	if (V.combatExtended.brawling >= 2000) earnFeat("Many Punch Man");
+	if (V.birdFly == 1) earnFeat("Catch the Wind");
+	if (V.beauty >= 20000) earnFeat("Brawler");
+	if (V.milk_volume >= 12000) earnFeat("Rivers of White");
+	if (V.semen_volume >= 12000) earnFeat("Sticky Fountain");
 
 	// To earn the feat "Curious Attire"
 	fragment.append(wikifier("specialClothesUpdate"));
