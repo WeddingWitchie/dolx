@@ -280,6 +280,8 @@
 			<<set $xchangePill.fertile to true>>
 		<<case "breeder">>
 			<<set $xchangePill.breederEffect to true>>
+		<<case "spike" "unknown">>
+			<<set $xchangePill.effectsKnown to false>>
 		<<default>>
 		<</switch>>
 	<</for>>
@@ -364,26 +366,25 @@
 <</widget>>
 
 <<widget "xchange-random-spike">>
-	<<if !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null>>
+	<<if playerMayBeSpiked()>>
 		<<set _rng to random(0,100)>>
 		<<if $player.gender is "m">>
 			<<if _rng lt 20>>
-				<<xchange-pink 1 "continue">>
+				<<xchange-pink 1 "continue" "spike">>
 			<<elseif _rng lt 40>>
-				<<xchange-pink 1 "resistance">>
+				<<xchange-pink 1 "resistance" "spike">>
 			<<else>>
-				<<xchange-pink 1>>
+				<<xchange-pink 1 "spike">>
 			<</if>>
 		<<elseif $player.gender is "f">>
 			<<if _rng lt 20>>
-				<<xchange-blue 1 "continue">>
+				<<xchange-blue 1 "continue" "spike">>
 			<<elseif _rng lt 40>>
-				<<xchange-blue 1 "resistance">>
+				<<xchange-blue 1 "resistance" "spike">>
 			<<else>>
-				<<xchange-blue 1>>
+				<<xchange-blue 1 "spike">>
 			<</if>>
 		<</if>>
-		<<set $xchangePill.effectsKnown to false>>
 		<<if _args[0] isnot "suppress">>
 			<span class="pink">You got spiked with an unknown pill.</span>
 			<br><br>
@@ -416,7 +417,7 @@
 	<<elseif $xchangePill.duration gte 24>>
 		1 day
 	<<elseif $xchangePill.duration gte 1>>
-		<<print ($xchangePill.duration+1)>> hours
+		<<print ($xchangePill.duration)>> hours
 	<<else>>
 		1 hour
 	<</if>>
