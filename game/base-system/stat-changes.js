@@ -324,6 +324,7 @@ var statChange = (() => {
 				case "masturbationGenital":
 				case "masturbationPenis":
 				case "masturbationVagina":
+				case "pussy_grope"
 					let wetnessPenalty = 1;
 					if (V.player.vaginaExist === "t")
 						wetnessPenalty = Math.min(V.vaginaWetness/60, 1);
