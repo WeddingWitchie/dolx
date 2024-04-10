@@ -1111,6 +1111,12 @@ function effects() {
 
 	if (V.combat === 0 && V.ironmanmode === true) IronMan.scheduledSaves();
 
+	if (V.tirednessMaxScalingToggle) {
+		C.tiredness.max = 2000 + Math.floor(V.physique / 32) + Math.floor(V.willpower / 2);
+	} else {
+		C.tiredness.max = 2000;
+	}
+
 	return fragment;
 }
 
