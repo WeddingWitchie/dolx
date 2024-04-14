@@ -241,18 +241,18 @@
 		<<set _newCool to $xchangePill.changedBody.cool>>
 		<<set $cool to (_ogCool + _newCool) / 2>>
 
-		<<set _ogCrime to $xchangePill.originalBody.crime>>
-		<<set _newCrime to $xchangePill.changedBody.crime>>
+		<<set _ogCrime = $xchangePill.originalBody.crime>>
+		<<set _newCrime = $xchangePill.changedBody.crime>>
 		<<set $crime to {}>>
 		<<for _cr range Object.keys(setup.crimeNames)>>
 			<<set $crime[_cr] to {
-				current: 		_ogCrime.current + _newCrime.current, 
-				history: 		_ogCrime.history + _newCrime.history, 
-				daily: 			_ogCrime.daily + _newCrime.daily, 
-				count: 			_ogCrime.count + _newCrime.count, 
-				countHistory: 	_ogCrime.countHistory + _newCrime.countHistory}>>
+				current: 		_ogCrime[_cr].current + _newCrime[_cr].current, 
+				history: 		_ogCrime[_cr].history + _newCrime[_cr].history, 
+				daily: 			_ogCrime[_cr].daily + _newCrime[_cr].daily, 
+				count: 			_ogCrime[_cr].count + _newCrime[_cr].count, 
+				countHistory: 	_ogCrime[_cr].countHistory + _newCrime[_cr].countHistory}>>
 		<</for>>
-		<<set $crime.events to {..._ogCrime.events, ..._newCrime.events}>>
+		<<set $crime.events to {...(_ogCrime.events), ...(_newCrime.events)}>>
 		<<set $xchangeFameMerged to true>>
 	<</if>>
 
@@ -321,6 +321,12 @@
 		<<become-girl "fertile">>
 	<</if>>
 
+	<<if $xchange_fame gte 400 && !$xchangeFameMerged>>
+		<span>People have been gossiping about your X-Change escapades and antics. And even the law has fully caught up.</span><br> 
+		<span class="red">You no longer benefit from having two identities.</span>
+		<br>
+	<</if>>
+
 	<<load-body>>
 
 	<<if $xchangePill.resistanceEffect && $xchangePill.resistanceChance lt 100>>
@@ -328,7 +334,9 @@
 	<<else>>
 		<span class="blue">Your body twists and turns as it returns to its original sex.</span>
 	<</if>>
-	<br>
+	<br><br>
+
+
 <</widget>>
 
 <<widget "xchange-setpermanent">>
@@ -360,7 +368,8 @@
 <</widget>>
 
 <<widget "xchange-seen">>
-	<<xchange-fame 10 * _args[0]>>
+	<<set _increase to 10 * _args[0]>>
+	<<xchange-fame _increase>>
 <</widget>>
 
 <<widget "xchange-random-spike">>
