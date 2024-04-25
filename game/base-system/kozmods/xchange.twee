@@ -241,18 +241,18 @@
 		<<set _newCool to $xchangePill.changedBody.cool>>
 		<<set $cool to (_ogCool + _newCool) / 2>>
 
-		<<set _ogCrime to $xchangePill.originalBody.crime>>
-		<<set _newCrime to $xchangePill.changedBody.crime>>
+		<<set _ogCrime = $xchangePill.originalBody.crime>>
+		<<set _newCrime = $xchangePill.changedBody.crime>>
 		<<set $crime to {}>>
 		<<for _cr range Object.keys(setup.crimeNames)>>
 			<<set $crime[_cr] to {
-				current: 		_ogCrime.current + _newCrime.current, 
-				history: 		_ogCrime.history + _newCrime.history, 
-				daily: 			_ogCrime.daily + _newCrime.daily, 
-				count: 			_ogCrime.count + _newCrime.count, 
-				countHistory: 	_ogCrime.countHistory + _newCrime.countHistory}>>
+				current: 		_ogCrime[_cr].current + _newCrime[_cr].current, 
+				history: 		_ogCrime[_cr].history + _newCrime[_cr].history, 
+				daily: 			_ogCrime[_cr].daily + _newCrime[_cr].daily, 
+				count: 			_ogCrime[_cr].count + _newCrime[_cr].count, 
+				countHistory: 	_ogCrime[_cr].countHistory + _newCrime[_cr].countHistory}>>
 		<</for>>
-		<<set $crime.events to {..._ogCrime.events, ..._newCrime.events}>>
+		<<set $crime.events to {...(_ogCrime.events), ...(_newCrime.events)}>>
 		<<set $xchangeFameMerged to true>>
 	<</if>>
 
@@ -323,6 +323,12 @@
 		<<become-girl "fertile">>
 	<</if>>
 
+	<<if $xchange_fame gte 400 && !$xchangeFameMerged>>
+		<span>People have been gossiping about your X-Change escapades, and even the law has fully caught on.</span><br> 
+		<span class="red">You no longer benefit from having two identities.</span>
+		<br>
+	<</if>>
+
 	<<load-body>>
 
 	<<if $xchangePill.resistanceEffect && $xchangePill.resistanceChance lt 100>>
@@ -330,7 +336,9 @@
 	<<else>>
 		<span class="blue">Your body twists and turns as it returns to its original sex.</span>
 	<</if>>
-	<br>
+	<br><br>
+
+
 <</widget>>
 
 <<widget "xchange-setpermanent">>
@@ -338,6 +346,8 @@
 	<<if $player.sex is "f">>
 		<<set $sexStats.vagina.menstruation.running = true>>
 	<</if>>
+	<<set $xchangePill.continueEffect to false>>
+	<<set $xchangePill.resistanceEffect to false>>
 	<span class="red">You didn't turn back. Your pill's effects have become permanent.</span>
 	<br>
 <</widget>>
@@ -347,7 +357,7 @@
 	<<if _pill.resistanceEffect>>
 		<<set _pill.resistanceChance to (_pill.resistanceChance * 0.7)>>
 	<</if>>
-	<<if _pill.continueEffect>>
+	<<if _pill.continueEffect and !(pillIsPermanent() or pillTimerPaused())>>
 		<<set _pill.duration += 1 * 16>>
 	<</if>>
 <</widget>>
@@ -397,19 +407,18 @@
 	<<set $xchangePill.effectsKnown to true>>
 	<br>
 	<<set $xchangePill.testPending to false>>
-	The display indicates that, <span class="pink">you're under 
-	<<if $xchangePill.continueEffect>>
-		the effects of a Continue pill.
-	<<elseif $xchangePill.resistanceEffect>>
-		the effects of a Resistance pill.
-	<<elseif $xchangePill.breederEffect>>
-		the effects of a Breeder pill.
-	<<else>>
-		no special effects.
-	<</if>>
-	</span><br>
-	And the remaining duration of the pill is: <span class="teal"><<print-pillduration>>.</span>
-	<br><br>
+	The display indicates that, you're under the following effects:
+	<ul>
+		<<if $xchangePill.continueEffect>><li>Continue Effect.</li><</if>>
+		<<if $xchangePill.resistanceEffect>><li>Resistance Effect.</li><</if>>
+		<<if $xchangePill.breederEffect>><li>Breeder Effect.</li><</if>>
+		<li>Duration: 
+			<<if pillTimerPaused() or pillIsPermanent()>>
+				<span class="teal">Indefinite.</span>
+			<<else>><span class="teal"><<print-pillduration>></span> remaining.
+			<</if>>
+		</li>
+	</ul>
 <</widget>>
 
 <<widget "print-pillduration">>
@@ -443,7 +452,12 @@
 			<<if $xchangePill.continueEffect>><li>Continue Effect.</li><</if>>
 			<<if $xchangePill.resistanceEffect>><li>Resistance Effect.</li><</if>>
 			<<if $xchangePill.breederEffect>><li>Breeder Effect.</li><</if>>
-			<li>Duration: <span class="teal"><<print-pillduration>></span> remaining.</li>
+			<li>Duration: 
+				<<if pillTimerPaused() or pillIsPermanent()>>
+					<span class="teal">Indefinite.</span>
+				<<else>><span class="teal"><<print-pillduration>></span> remaining.
+				<</if>>
+			</li>
 		</ul>
 	<<else>>
 		<span class="purple">You don't know what kind of pill you're currently on.</span>
@@ -586,12 +600,16 @@
 <</widget>>
 
 <<widget "willpowercombatcheck">>
-	<<if $arousal gte ($arousalmax * 2 / 5) or $orgasmcount gt 0>>
-		<<silently>><<willpowerdifficulty 1 1000>><</silently>>
-		<<if $willpowerSuccess>>
-			<<willpowersuccess>>
+	<<if $xchange.willpowerSystemEnabled is 1>>
+		<<if $arousal gte ($arousalmax * 2 / 5) or $orgasmcount gt 0>>
+			<<silently>><<willpowerdifficulty 1 1000>><</silently>>
+			<<if $willpowerSuccess>>
+				<<willpowersuccess>>
+			<<else>>
+				<<willpowerfailure>>
+			<</if>>
 		<<else>>
-			<<willpowerfailure>>
+			<<set $willpowerSuccess to 1>>
 		<</if>>
 	<<else>>
 		<<set $willpowerSuccess to 1>>
@@ -599,11 +617,11 @@
 <</widget>>
 
 <<widget "willpowersuccess">>
-	<<willpower-spending 50>>
+	<<willpower-spending $xchange.willpowerSuccessCost>>
 <</widget>>
 
 <<widget "willpowerfailure">>
-	<<willpower-spending 5>>
+	<<willpower-spending $xchange.willpowerFailureCost>>
 <</widget>>
 
 <<widget "willpower-spending">>
