@@ -140,7 +140,15 @@
 		</ul>
 	<</if>>
 
-	<<if ($location is "asylum" and ($eden_asylum_window is 1 or ($daily.eden.distract gte 1 and Time.hour lt 21))) || $temple_spear_mission gte 1 || $dockwork gte 2 || ($brothelshowdata.intro and $brothelshowdata.type is "none") || $robindebtevent gte 1 and $robinmissing isnot 0 || $pubtask2 is 1 || $pubtask || $police_hack is 1 || $pub_hack_job gte 1 || $pubfame ||( $earSlime.event and !_tempEventHide) || $earSlime.forcedCommando isnot undefined || $earSlime.forcedDressing isnot undefined || $temple_rank is "prospective" || $chef_state gte 4 || $mason_pond gte 1 || ($brothel_machine_repair gte 1 and $brothel_machine_repair lte 3) || ($harpy gte 6 and $birdFly isnot 1) || ($studyBooks isnot undefined and $studyBooks.rented isnot "none") || $adultshopgrandopening || ($adultshopintro is 1 and $adultshopunlocked is undefined)>>
+	<<if $skul_dock isnot undefined>>
+		<<set _skul_dock_keys to Object.keys($skul_dock)>>
+		<<for _i to 0; _i lt _skul_dock_keys.length; _i++>>
+			<<if $skul_dock[_skul_dock_keys[_i]].state is "known">>
+				<<set _dockKnown to 1>>
+			<</if>>
+		<</for>>
+	<</if>>
+	<<if ($location is "asylum" and ($eden_asylum_window is 1 or ($daily.eden.distract gte 1 and Time.hour lt 21))) || $temple_spear_mission gte 1 || $dockwork gte 2 || ($brothelshowdata.intro and $brothelshowdata.type is "none") || $robindebtevent gte 1 and $robinmissing isnot 0 || $pubtask2 is 1 || $pubtask || $police_hack is 1 || $pub_hack_job gte 1 || $pubfame ||( $earSlime.event and !_tempEventHide) || $earSlime.forcedCommando isnot undefined || $earSlime.forcedDressing isnot undefined || $temple_rank is "prospective" || $chef_state gte 4 || $mason_pond gte 1 || ($brothel_machine_repair gte 1 and $brothel_machine_repair lte 3) || ($harpy gte 6 and $birdFly isnot 1) || ($studyBooks isnot undefined and $studyBooks.rented isnot "none") || $adultshopgrandopening || ($adultshopintro is 1 and $adultshopunlocked is undefined) || _dockKnown isnot undefined>>
 		/*TODO: streamline during eventual Journal UI Overhaul bc lol. lmao, even. */
 		<hr>
 		<span class="gold bold">Reminders</span>
@@ -438,6 +446,27 @@
 						You can help Sydney there on Elk Street, on Fridays after <<ampm 16>>.
 					<</if>>
 				</li>
+			<</if>>
+
+			<<if $skul_dock isnot undefined>>
+				<<set _skul_dock_keys to Object.keys($skul_dock)>>
+				<<for _i to 0; _i lt _skul_dock_keys.length; _i++>>
+					<<if $skul_dock[_skul_dock_keys[_i]].state is "known">>
+						<<set _dock_location to _skul_dock_keys[_i]>>
+						<<set _dock_contents to $skul_dock[_skul_dock_keys[_i]].contents>>
+						<<if _dock_contents is "gold">>
+							<li>There's a bar of gold in a container at the <<skul_dock_location _dock_location>>.</li>
+						<<elseif _dock_contents is "aphrodisiacs">>
+							<li>A local company is moving something special through. It's being kept near the <<skul_dock_location _dock_location>>.</li>
+						<<elseif _dock_contents is "electronics">>
+							<li>There's a container full of goods, including valuable electronics, near the <<skul_dock_location _dock_location>>.</li>
+						<<elseif _dock_contents is "fertiliser">>
+							<li>There's a container full of what looks like fertiliser near the <<skul_dock_location _dock_location>>.</li>
+						<<elseif _dock_contents is "equipment">>
+							<li>There's a container full of specialist equipment near the <<skul_dock_location _dock_location>>.</li>
+						<</if>>
+					<</if>>
+				<</for>>
 			<</if>>
 		</ul>
 	<</if>>
