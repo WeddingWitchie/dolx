@@ -775,6 +775,9 @@ function dayPassed() {
 	
 	if (V.dailyBrothelPriceCheck) {
 		V.dailyBrothelPriceCheck = undefined;
+		V.brothelExclusiveGloryholeAccuratePrice = undefined;
+		V.brothelExclusiveGloryholeEstimatePrice = undefined;
+		V.brothelExclusiveGloryholeRoughEstimatePrice = undefined;
 	}
 
 	fragment.append(wikifier("menstruationCycle", "daily"));
@@ -1660,9 +1663,16 @@ function dailySchoolEffects() {
 
 	if (V.studyBooks) {
 		fragment.append(wikifier("passiveStudy"));
-		if (V.studyBooks.rented !== "none" && Time.schoolTerm) {
-			if (V.book_rent_timer >= 0) {
-				V.book_rent_timer--;
+		if (V.studyBooks.rented.count >= 1 && Time.schoolTerm) {
+			T.totalRentPrice = 0;
+			for (T.i = 1; T.i <= V.studyBooks.rented.count; T.i++) {
+				T.totalRentPrice += Math.round(2000 * (1 + (T.i * T.i)));
+			}
+			if (V.book_rent_deposit >= Math.round(T.totalRentPrice / 14)) {
+				V.book_rent_deposit -= Math.round(T.totalRentPrice / 14);
+				V.book_rent_timer = 14;
+			} else if (V.book_rent_timer >= 0) {
+					V.book_rent_timer--;
 			} else if (V.book_rent_timer < 0) {
 				if (V.bookOverdue === undefined) V.bookOverdue = 0;
 				V.bookOverdue++;

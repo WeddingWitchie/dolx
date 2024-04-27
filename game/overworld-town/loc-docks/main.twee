@@ -521,38 +521,54 @@ You keep an eye out for anything valuable. There's a lot, but you need something
 
 	<br><br>
 
-	<<skul_dock_contents gold>>
-	<<if !_dock_location and $catsuit_found isnot true>>
-		<<skul_dock_contents equipment>>
-	<</if>>
-	<<if !_dock_location>>
-		<<skul_dock_contents aphrodisiacs>>
-	<</if>>
-	<<if !_dock_location>>
-		<<skul_dock_contents electronics>>
-	<</if>>
-	<<if !_dock_location and currentSkillValue('tending') gte 400>>
-		<<skul_dock_contents fertiliser>>
-	<</if>>
+	<<for _j to 0; _j lt (1 + Math.floor($skulduggery/600)); _j++>>
+		<<if _dockCount is undefined>>
+			<<set _dockCount to 0>>
+		<</if>>
+		<<skul_dock_contents gold>>
+		<<if !_dock_location and $catsuit_found isnot true>>
+			<<skul_dock_contents equipment>>
+		<</if>>
+		<<if !_dock_location>>
+			<<skul_dock_contents aphrodisiacs>>
+		<</if>>
+		<<if !_dock_location>>
+			<<skul_dock_contents electronics>>
+		<</if>>
+		<<if !_dock_location and currentSkillValue('tending') gte 400>>
+			<<skul_dock_contents fertiliser>>
+		<</if>>
 
-	<<if _dock_contents is "gold">>
-		There's a bar of gold in a container at the <<skul_dock_location _dock_location>>. <span class="green">It would sell on the black market.</span> You make a mental note of its location.
-	<<elseif _dock_contents is "aphrodisiacs">>
-		A local company is moving something special through. It's being kept near the <<skul_dock_location _dock_location>>. <span class="teal">It would sell on the black market.</span> You make a mental note of its location.
-	<<elseif _dock_contents is "electronics">>
-		There's a container full of goods, including valuable electronics, near the <<skul_dock_location _dock_location>>. <span class="lblue">They would sell on the black market.</span> You make a mental note of its location.
-	<<elseif _dock_contents is "fertiliser">>
-		There's a container full of what looks like fertiliser near the <<skul_dock_location _dock_location>>. <span class="lblue">They might be useful to you.</span> You make a mental note of its location.
-	<<elseif _dock_contents is "equipment">>
-		There's a container full of specialist equipment near the <<skul_dock_location _dock_location>>. <span class="teal">It might be useful to you.</span> You make a mental note of its location.
-	<<elseif !_dock_contents>>
-		You don't find anything suitable. Useful to know.
-		<<set _skul_dock_keys to Object.keys($skul_dock)>>
-		<<for _i to 0; _i lt _skul_dock_keys.length; _i++>>
-			<<set $skul_dock[_skul_dock_keys[_i]].state to "known">>
-		<</for>>
-	<</if>>
-	<br><br>
+		<<if _dock_contents is "gold">>
+			There's a bar of gold in a container at the <<skul_dock_location _dock_location>>. <span class="green">It would sell on the black market.</span> You make a mental note of its location.
+			<<set _dockCount += 1>>
+		<<elseif _dock_contents is "aphrodisiacs">>
+			A local company is moving something special through. It's being kept near the <<skul_dock_location _dock_location>>. <span class="teal">It would sell on the black market.</span> You make a mental note of its location.
+			<<set _dockCount += 1>>
+		<<elseif _dock_contents is "electronics">>
+			There's a container full of goods, including valuable electronics, near the <<skul_dock_location _dock_location>>. <span class="lblue">They would sell on the black market.</span> You make a mental note of its location.
+			<<set _dockCount += 1>>
+		<<elseif _dock_contents is "fertiliser">>
+			There's a container full of what looks like fertiliser near the <<skul_dock_location _dock_location>>. <span class="lblue">They might be useful to you.</span> You make a mental note of its location.
+			<<set _dockCount += 1>>
+		<<elseif _dock_contents is "equipment">>
+			There's a container full of specialist equipment near the <<skul_dock_location _dock_location>>. <span class="teal">It might be useful to you.</span> You make a mental note of its location.
+			<<set _dockCount += 1>>
+		<<elseif !_dock_contents>>
+			<<if _dockCount gte 2>>
+				You don't find anything else suitable. Useful to know.
+			<<else>>
+				You don't find anything suitable. Useful to know.
+			<</if>>
+			<<set _skul_dock_keys to Object.keys($skul_dock)>>
+			<<for _i to 0; _i lt _skul_dock_keys.length; _i++>>
+				<<set $skul_dock[_skul_dock_keys[_i]].state to "known">>
+			<</for>>
+			<<break>>
+		<</if>>
+		<br><br>
+		<<unset _dock_location>><<unset _dock_contents>>
+	<</for>>
 
 	<<skulduggeryuse>>
 

@@ -815,12 +815,32 @@ You
 				<<else>>
 					olive-coloured book.
 				<</if>>
+				<<set $studyBooks.rented.pinch to 0>>
+				<<set $studyBooks.rented.count -= 1>>
 			<<case 5>>
 				copy of "Raul and Janet".
-			<<default>>
-				$studyBooks.rented textbook.
+				<<set $studyBooks.rented.RaulAndJanet to 0>>
+				<<set $studyBooks.rented.count -= 1>>
+			<<case 4>>
+				history textbook.
+				<<set $studyBooks.rented.history to 0>>
+				<<set $studyBooks.rented.count -= 1>>
+			<<case 3>>
+				English textbook.
+				<<set $studyBooks.rented.english to 0>>
+				<<set $studyBooks.rented.count -= 1>>
+			<<case 2>>
+				maths textbook.
+				<<set $studyBooks.rented.maths to 0>>
+				<<set $studyBooks.rented.count -= 1>>
+			<<case 1>>
+				science textbook.
+				<<set $studyBooks.rented.science to 0>>
+				<<set $studyBooks.rented.count -= 1>>
 		<</switch>>
-		<<set $studyBooks.rented to "none">>
+		<<set _rentPrice to Math.round(2000 * (1 + ($studyBooks.rented.count * $studyBooks.rented.count)))>>
+		<<set _fullRefund to _rentPrice / 100>>
+		<<set _partialRefund to _rentPrice / 200>>
 		<<if _sydney_location is "library">>
 			<<if $book_rent_timer lt 0>>
 				<<if C.npc.Sydney.love lt 10>>
@@ -835,14 +855,16 @@ You
 					"Late." Sydney looks up. "I know you know better." <<bookCriminal>>
 				<</if>>
 			<<elseif $book_rent_timer is 14>>
-				"That was... fast." Sydney fumbles around with the register for a moment, before handing you <<moneyGain 15>>.
+				"That was... fast." Sydney fumbles around with the register for a moment, before handing you <<moneyGain _fullRefund>>.
 			<<elseif $book_rent_timer gt 7>>
-				"Done early?" Sydney fumbles around with the register for a moment, before handing you <<moneyGain 10>>.
+				"Done early?" Sydney fumbles around with the register for a moment, before handing you <<moneyGain _partialRefund>>.
 			<<else>>
 				"Thanks for being punctual!" Sydney happily takes the book from you, before returning it to its place.
 			<</if>>
-			<<unset $bookOverdue>>
-			<<set $book_rent_timer to 0>>
+			<<if $studyBooks.rented.count lte 0>>
+				<<unset $bookOverdue>>
+				<<set $book_rent_timer to 0>>
+			<</if>>
 			<br><br>
 			<<sydneyOptions>>
 		<<else>>
@@ -885,7 +907,18 @@ You
 					Sydney looks down at the book and frowns. "A story full of love and sin." <<if $temple_rank>><<He>> leans in and whispers. "Jordan's actually a big fan of this book, but don't tell <<nnpc_him "Jordan">> I told you! <<nnpc_He "Jordan">> says it's a good cautionary tale of the consequences of lust."<</if>> <<He>> hands the book back to you. "Enjoy."
 			<</switch>>
 		<<else>>
-			a $studyBooks.rented textbook.
+			a
+			<<switch $phase>>
+				<<case 1>>
+					science
+				<<case 2>>
+					maths
+				<<case 3>>
+					English
+				<<case 4>>
+					history
+			<</switch>>
+			textbook.
 			<<if $sydneyromance is 1>>
 				Sydney smiles at you. "Look at you, putting the extra work in! I'm proud of you."
 			<<else>>
@@ -897,15 +930,23 @@ You
 		<<sydneyOptions>>
 	<<case "renew">>
 		renew your rented
-		<<if $studyBooks.rented is "Raul and Janet">>
-			copy of "Raul and Janet".
-		<<elseif $studyBooks.rented is "Pinch">>
-			olive-coloured book.
+		<<if $studyBooks.rented.count gt 1>>
+			books.
 		<<else>>
-			$studyBooks.rented textbook.
+			book.
 		<</if>>
 		<<set $book_rent_timer to 14>>
 		Sydney smiles. "Thanks for staying on top of this.<<if $sydneyromance is 1 and _sydneyStatus.includes("corrupt")>> Now if only you'd stay on top of me.<</if>>"
+		<br><br>
+		<<sydneyOptions>>
+	<<case "deposit">>
+		put down a deposit for your rented
+		<<if $studyBooks.rented.count gt 1>>
+			books.
+		<<else>>
+			book.
+		<</if>>
+		Sydney smiles. "Thanks for depositing, it's definitely easy to forget renewing your books every 2 weeks.<<if $sydneyromance is 1 and _sydneyStatus.includes("corrupt")>> I'll make sure you never forget our nights though.<</if>>"
 		<br><br>
 		<<sydneyOptions>>
 	<<case "steal">>
@@ -1008,3 +1049,17 @@ You return the stolen
 	<<getouticon>><<link [[Leave|School Library]]>><<endevent>><<set $eventskip to 1>><</link>>
 	<br>
 <</if>>
+
+:: Book Rental Deposit
+How much are you going to deposit? (£)
+<br>
+<<numberbox "_depositAmount" 0>>
+<br><br>
+
+<div id="depositExit">
+	<<link "Deposit">>
+		<<set _depositAmount = Math.clamp(_depositAmount * 100, 0, $money)>>
+		<<replace #depositExit>><<depositExitConfirm>><</replace>>
+	<</link>>
+</div>
+<<link [[Back|Book Rental]]>><</link>>

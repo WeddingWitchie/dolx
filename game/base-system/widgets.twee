@@ -1072,7 +1072,19 @@
 		<<elseif _chair.name is "egg armchairs">>
 			<<set _studyGain to 12>>
 		<</if>>
-		<<switch $studyBooks.rented>>
+		<<if $studyBooks.rented.science is 1>>
+			<<scienceskill _studyGain "no_star">>
+		<</if>>
+		<<if $studyBooks.rented.maths is 1>>
+			<<mathsskill _studyGain "no_star">>
+		<</if>>
+		<<if $studyBooks.rented.english is 1>>
+			<<englishskill _studyGain "no_star">>
+		<</if>>
+		<<if $studyBooks.rented.history is 1>>
+			<<historyskill _studyGain "no_star">>
+		<</if>>
+		/* <<switch $studyBooks.rented>>
 			<<case "science">>
 				<<scienceskill _studyGain "no_star">>
 			<<case "maths">>
@@ -1082,7 +1094,7 @@
 			<<case "history">>
 				<<historyskill _studyGain "no_star">>
 			<<default>>
-		<</switch>>
+		<</switch>> */
 		<<if $studyBooks.stolen.science is 1>>
 			<<scienceskill _studyGain "no_star">>
 		<</if>>
@@ -4906,8 +4918,14 @@
 <<widget "deskText">>
 <<if $studyBooks is undefined>>
 	<<set $studyBooks to {}>>
-	<<set $studyBooks.rented to "none">>
-	/* <<set $studyBooks.stolen to "none">> */
+	/* <<set $studyBooks.rented to "none">>
+	<<set $studyBooks.stolen to "none">> */
+	<<set $studyBooks.rented.science to 0>>
+	<<set $studyBooks.rented.maths to 0>>
+	<<set $studyBooks.rented.english to 0>>
+	<<set $studyBooks.rented.history to 0>>
+	<<set $studyBooks.rented.RaulAndJanet to 0>>
+	<<set $studyBooks.rented.pinch to 0>>
 	<<set $studyBooks.stolen.science to 0>>
 	<<set $studyBooks.stolen.maths to 0>>
 	<<set $studyBooks.stolen.english to 0>>
@@ -4926,7 +4944,7 @@
 	<<set _chair to Furniture.get('chair','chair')>>
 <</if>>
 <<set _projectOptions to [$scienceproject, $mathsproject].includes("ongoing")>>
-<<set _bookOptions to ($studyBooks.stolen.science is 1 or $studyBooks.rented is 'science' or $studyBooks.stolen.maths is 1 or $studyBooks.rented is 'maths' or $studyBooks.stolen.english is 1 or $studyBooks.rented is 'english' or $studyBooks.stolen.history is 1 or $studyBooks.rented is 'history' or $studyBooks.stolen.RaulAndJanet is 1 or $studyBooks.rented is 'Raul and Janet' or $studyBooks.stolen.pinch is 1 or $studyBooks.rented is 'Pinch')>>
+<<set _bookOptions to ($studyBooks.stolen.science is 1 or $studyBooks.rented.science is 1 or $studyBooks.stolen.maths is 1 or $studyBooks.rented.maths is 1 or $studyBooks.stolen.english is 1 or $studyBooks.rented.english is 1 or $studyBooks.stolen.history is 1 or $studyBooks.rented.history is 1 or $studyBooks.stolen.RaulAndJanet is 1 or $studyBooks.rented.RaulAndJanet is 1 or $studyBooks.stolen.pinch is 1 or $studyBooks.rented.pinch is 1)>>
 <<set _wardrobe to Furniture.get('wardrobe')>>
 <<set _playOptions to ($englishPlay is 'ongoing' and $englishPlayRoles.Player isnot 'none')>>
 
@@ -4936,7 +4954,9 @@
 		<br>
 		<<projectoptions>>
 		<<homeStudyOptions>>
-		<<christmas_options>>
+		<<if $location is "home">>
+			<<christmas_options>>
+		<</if>>
 		<br>
 	<</if>>
 <<else>>

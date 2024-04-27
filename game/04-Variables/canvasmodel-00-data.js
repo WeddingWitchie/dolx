@@ -67,7 +67,6 @@ const ZIndices = {
 	upper_tucked: 89,
 	upper_tucked_acc: 89.5,
 	upper_arms_tucked: 88.5,
-	upper_top: 97,
 	upper_top: 97.5,
 	bellyClothes: 98,
 	bellyClothesShadow: 99,

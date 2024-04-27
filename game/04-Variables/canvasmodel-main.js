@@ -746,11 +746,11 @@ Renderer.CanvasModels["main"] = {
 		if (options.upper_tucked) {
 			options.zupper = ZIndices.upper_tucked;
 			options.zupperleft = ZIndices.upper_arms_tucked;
-			options.zupperright = ZIndices.upper_arms_tucked + 2;
+			options.zupperright = ZIndices.upper_arms_tucked + 3.5;
 		} else {
 			options.zupper = ZIndices.upper;
 			options.zupperleft = ZIndices.upper_arms;
-			options.zupperright = ZIndices.upper_arms;
+			options.zupperright = ZIndices.upper_arms + 3.5;
 		}
 		if (options.arm_right === "cover" || options.arm_right === "hold" ) options.zupperright = ZIndices.upper_arms_cover;
 		if (options.arm_left === "cover") options.zupperleft = ZIndices.upper_arms_cover;
@@ -3602,7 +3602,7 @@ Renderer.CanvasModels["main"] = {
 		"under_upper_back": genlayer_clothing_back_img('under_upper'),
 		"under_upper_rightarm": genlayer_clothing_arm("right", "under_upper", {
 			zfn(options) {
-				return (options.arm_right === "cover" || options.arm_right === "hold") ? ZIndices.under_upper_arms_cover : ZIndices.under_upper_arm_right;   
+				return (options.arm_right === "cover" || options.arm_right === "hold") ? ZIndices.under_upper_arms_cover : ZIndices.under_upper_arm_right;
 			}
 		}),
 		"under_upper_leftarm": genlayer_clothing_arm("left", "under_upper", {
