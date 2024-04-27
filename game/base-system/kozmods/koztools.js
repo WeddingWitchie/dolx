@@ -1,4 +1,3 @@
-const cypher = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
 function kofiValidate(code) {
 	let versionNumber = window.StartConfig.version;
@@ -28,5 +27,4 @@ function kofiValidate(code) {
 		return 0;
 	}
 }
-
 window.kofiValidate = kofiValidate;
