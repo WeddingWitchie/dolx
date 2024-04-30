@@ -21,7 +21,7 @@ function kofiValidate(code) {
 	let isValid = (versionMatch[1] >= verMajor && versionMatch[2] >= verMinor) && (codeMajor == majorHash && codeMinor == minorHash);
 
 	if (isValid) {
-		return +versionMatch[1] * 100 + +versionMatch[2];
+		return +verMajor * 1000 + +verMinor;
 	}
 	else {
 		return 0;
