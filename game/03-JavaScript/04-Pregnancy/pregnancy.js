@@ -123,6 +123,14 @@ function fetishPregnancy({ genital = "vagina", target = null, spermOwner = null,
 		if (V.earSlime.growth >= 100 && V.earSlime.focus === "impregnation") chance /= 2;
 
 		if (!forcePregnancy && chance * quantity * (rngModifier / 100) * (1 + fertility + magicTattoo) * multi < random(1, 100)) return false;
+		// If under X-Change breeding effect, the chance of pregnancy of the pc will be 90%.
+		else if (playerIsXChanged() && V.xchangePill.breederEffect && target ==="pc" && (random(0, 100) >= 10)) {
+			const result = playerPregnancy(spermOwner, spermType, true, genital, undefined, true);
+			if (result === true) {
+				T.playerIsNowPregnant = spermOwner;
+				return true;
+			}
+		}
 
 		if (target === "pc") {
 			const result = playerPregnancy(spermOwner, spermType, true, genital, undefined, true);
@@ -164,11 +172,11 @@ function playerPregnancyAttempt(baseMulti = 1, genital = "vagina") {
 
 	// Under X-Change, pregnancy is 4 times less likely to occur. 
 	// Unless under the effects of a breeder pill, which makes it 4 more likely instead.
-	let xchangePregnancyModifier = V.xchangePill && V.xchangePill.active && !V.xchangePill.breederEffect ? 4 : 1;
-	xchangePregnancyModifier = V.xchangePill && V.xchangePill.active && V.xchangePill.breederEffect ? 0.25 : 1;
+	let xchangePregnancyModifier = playerIsXChanged() && !pillIsPermanent() && !V.xchangePill.breederEffect ? 0.25 : 1;
+	xchangePregnancyModifier = playerIsXChanged() && V.xchangePill.breederEffect ? 4 : 1;
 
 	/* The lower basePenalty is, the easier it is for the player to get pregnant */
-	let basePenalty = Math.floor((100 - V.basePlayerPregnancyChance / xchangePregnancyModifier) * Math.clamp(fertilityBoost, 0.1, 1) * baseMulti);
+	let basePenalty = Math.floor((100 - V.basePlayerPregnancyChance * xchangePregnancyModifier) * Math.clamp(fertilityBoost, 0.1, 1) * baseMulti);
 
 	if (V.earSlime.growth >= 100 && V.earSlime.focus === "pregnancy") basePenalty = Math.floor(basePenalty / 2);
 	if (V.earSlime.growth >= 100 && V.earSlime.focus === "impregnation") basePenalty = Math.floor(basePenalty * 2);
