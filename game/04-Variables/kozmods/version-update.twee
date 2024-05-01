@@ -1,9 +1,7 @@
 :: Widgets X-Change Variable Updates [widget]
 
 <<widget "xchange-init">>
-	<<if $xchangeknown is undefined>>
-		<<set $xchangeknown to []>>
-	<</if>>
+	
 	<<if $xchange is undefined>>
 		<<set $xchange to {
 			nonconEnabled: 1,
@@ -15,6 +13,7 @@
 			impuritySensitivityBonus: 1,
 			pillSensitivityChange: 1,
 			willpowerPoints: Math.max(200,$willpower),
+			known: [],
 		}>>
 	<</if>>
 	<<if $xchangePill is undefined>>
@@ -51,6 +50,12 @@
 	<<if $xchange.supporterCode is undefined>>
 		<<set $xchange.supporterCode to "">>
 	<</if>>
+
+	<<if $xchange.expectedGenderBy is undefined>>
+		<<set $xchange.expectedGenderBy to {}>>
+	<</if>>
+
+	
 <</widget>>
 
 <<widget "xchange-modupdate">>
@@ -112,5 +117,19 @@
 	<<if Object.keys($xchangePill.originalBody).length gt 0 && $xchangePill.originalBody.fame is undefined>>
 		<<set $xchangePill.originalBody.fame to $fame>>
 	<</if>>
+
+	<<if $xchange.known is undefined>>
+		<<set $xchange.known to []>>
+	<</if>>
+
+	<<if $xchangeknown isnot undefined>>
+		<<set $xchange.known to $xchangeknown>>
+		<<unset $xchangeknown>>
+	<</if>>
 	
+
+	<<for _npc range $genderknown>>
+		<<set $xchange.expectedGenderBy[_npc] to $player.gender>>
+	<</for>>
+
 <</widget>>
