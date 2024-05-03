@@ -141,6 +141,12 @@
 <</widget>>
 
 <<widget "save-body">>
+	/* 	args 0: chooses which slot to save the body into. 
+			"genderswapped" for your xchanged body
+			"cloned" for a cloned npc body
+		args 1: used to specify which npc by name
+	 */
+
 	<<set _savedbody to {
 		bodysize: $bodysize,
 		gender_body: $player.gender_body,
@@ -148,8 +154,15 @@
 		bottomsize: $player.bottomsize,
 		penissize: $player.penissize,
 		ballssize: $ballssize,
+		leftEyeColour: $leftEyeColour,
+		rightEyeColour: $rightEyeColour,
+		haircolour: $haircolour,
+		hairtype: $hairtype,
 		hairlength: $hairlength,
+		hairfringecolour: $hairfringecolour,
+		fringetype: $fringetype,
 		fringelength: $fringelength,
+		skinColor: $skinColor.natural,
 		beauty: $beauty,
 		physique: $physique,
 		physiquesize: $physiquesize,
@@ -168,6 +181,9 @@
 		<<set $xchangePill.originalBody to _savedbody>>
 	<<elseif _args[0] is "genderswapped">>
 		<<set $xchangePill.changedBody to _savedbody>>
+	<<elseif _args[0] is "cloned" and _args[1] isnot undefined>>
+		<<set _npcName to _args[1]>>
+		<<set $xchangePill.clonedBody[_npcName] to _savedbody>>
 	<</if>>
 <</widget>>
 
@@ -176,6 +192,9 @@
 		<<set _body to $xchangePill.originalBody>>
 	<<elseif _args[0] is "genderswapped">>
 		<<set _body to $xchangePill.changedBody>>
+	<<elseif _args[0] is "cloned" and _args[1] isnot undefined>>
+		<<set _npcName to _args[1]>>
+		<<set _body to $xchangePill.clonedBody[_npcName]>>
 	<</if>>
 
 	<<set $bodysize to _body.bodysize>>
@@ -184,8 +203,15 @@
 	<<set $player.bottomsize to _body.bottomsize>>
 	<<set $player.penissize to _body.penissize>>
 	<<set $ballsize to _body.ballsize>>
+	<<set $leftEyeColour to _body.leftEyeColour>>
+	<<set $rightEyeColour to _body.rightEyeColour>>
+	<<set $haircolour to _body.haircolour>>
+	<<set $hairtype to _body.hairtype>>
+	<<set $hairfringecolour to _body.hairfringecolour>>
+	<<set $fringetype to _body.fringetype>>
 	<<set $hairlength to _body.hairlength>>
 	<<set $fringelength to _body.fringelength>>
+	<<set $skinColor.natural to _body.skinColor>>
 	<<set $beauty to _body.beauty>>
 	<<set $physique to _body.physique>>
 	<<set $physiquesize to _body.physiquesize>>
@@ -315,7 +341,10 @@
 
 <<widget "xchange-restore">>
 	<<set $xchangePill.active to false>>
-	<<save-body "genderswapped">>
+
+	<<if _args[0] isnot "nosave">>
+		<<save-body "genderswapped">>
+	<</if>>
 
 	<<if $player.gender is "m">>
 		<<become-boy>>
@@ -334,7 +363,7 @@
 	<<if $xchangePill.resistanceEffect && $xchangePill.resistanceChance lt 100>>
 		<span class="blue">Despite having climaxed under the effects of Resistance, the pill did not become permanent.</span>
 	<<else>>
-		<span class="blue">Your body twists and turns as it returns to its original sex.</span>
+		<span class="blue">Your body twists and turns as it returns to its original form.</span>
 	<</if>>
 	<br><br>
 
@@ -418,6 +447,7 @@
 		<<if $xchangePill.continueEffect>><li>Continue Effect.</li><</if>>
 		<<if $xchangePill.resistanceEffect>><li>Resistance Effect.</li><</if>>
 		<<if $xchangePill.breederEffect>><li>Breeder Effect.</li><</if>>
+		<<if $xchangePill.clone isnot "none">><li>Clone '<<print $xchangePill.clone>>' Effect.</li><</if>>
 		<li>Duration: 
 			<<if pillTimerPaused() or pillIsPermanent()>>
 				<span class="teal">Indefinite.</span>
@@ -458,6 +488,7 @@
 			<<if $xchangePill.continueEffect>><li>Continue Effect.</li><</if>>
 			<<if $xchangePill.resistanceEffect>><li>Resistance Effect.</li><</if>>
 			<<if $xchangePill.breederEffect>><li>Breeder Effect.</li><</if>>
+			<<if $xchangePill.clone isnot "none">><li>Clone '<<print $xchangePill.clone>>' Effect.</li><</if>>
 			<li>Duration: 
 				<<if pillTimerPaused() or pillIsPermanent()>>
 					<span class="teal">Indefinite.</span>
