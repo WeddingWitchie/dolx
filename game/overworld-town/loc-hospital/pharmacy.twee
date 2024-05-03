@@ -55,6 +55,8 @@
 		<br>
 		<<pillicon "xchangePink">><<link [[X-Change NOW|Pharmacy Sale]]>><<set $pharmacyItem to setup.pharmacyItems["xchange_pink_now"]>><</link>>
 		<br>
+		<<pillicon "xchangePink">><<link [[X-Change Weekly|Pharmacy Sale]]>><<set $pharmacyItem to setup.pharmacyItems["xchange_pink_weekly"]>><</link>>
+		<br>
 		<<pillicon "xchangePink">><<link [[X-Change Xtra Strength|Pharmacy Sale]]>><<set $pharmacyItem to setup.pharmacyItems["xchange_pink_xtra"]>><</link>>
 		<br>
 		<<pillicon "xchangePink">><<link [[X-Change Continue|Pharmacy Sale]]>><<set $pharmacyItem to setup.pharmacyItems["xchange_pink_continue"]>><</link>>
@@ -65,6 +67,8 @@
 		<<pillicon "xchangeBlue">><<link [[Pack of 3 X-Change Basics|Pharmacy Sale]]>><<set $pharmacyItem to setup.pharmacyItems["xchange_blue_basic"]>><</link>>
 		<br>
 		<<pillicon "xchangeBlue">><<link [[X-Change NOW|Pharmacy Sale]]>><<set $pharmacyItem to setup.pharmacyItems["xchange_blue_now"]>><</link>>
+		<br>
+		<<pillicon "xchangeBlue">><<link [[X-Change Weekly|Pharmacy Sale]]>><<set $pharmacyItem to setup.pharmacyItems["xchange_blue_weekly"]>><</link>>
 		<br>
 		<<pillicon "xchangeBlue">><<link [[X-Change Xtra Strength|Pharmacy Sale]]>><<set $pharmacyItem to setup.pharmacyItems["xchange_blue_xtra"]>><</link>>
 		<br>
@@ -372,6 +376,8 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding,
 		"_printmoney please. Effects last for a day."
 	<<case "X-Change Pink NOW" "X-Change Blue NOW">>
 		"_printmoney please. Effects last for about 6 hours."
+	<<case "X-Change Pink Weekly" "X-Change Blue Weekly">>
+		"_printmoney please. Effects last for about 7 days."
 	<<case "X-Change Pink Xtra Strength" "X-Change Blue Xtra Strength">>
 		"_printmoney please. Effects last 30 days."
 	<<case "X-Change Pink Continue" "X-Change Blue Continue">>
@@ -388,6 +394,21 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding,
 <br><br>
 
 <<if $money gte $pharmacyItem.price>>
+	<<set _singleXChangePills to [
+		"X-Change Pink NOW",
+		"X-Change Blue NOW", 
+		"X-Change Pink Weekly",
+		"X-Change Blue Weekly", 
+		"X-Change Pink Continue", 
+		"X-Change Blue Continue", 
+		"X-Change Pink Resistance", 
+		"X-Change Blue Resistance", 
+		"X-Change Pink Xtra Strength", 
+		"X-Change Blue Xtra Strength", 
+		"X-Change Test", 
+		"X-Change Clone: Whitney"
+	]>>
+	
 	<<if $pharmacyItem.type is "Breast Pump">>
 		<<link [[Hand over the money|Pharmacy]]>><<run sexShopOnBuyClick(11, false)>><</link>>
 	<<elseif $pharmacyItem.type is "condoms">>
@@ -398,17 +419,7 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding,
 		<<link [[Hand over the money|Pharmacy]]>><<set $money -= $pharmacyItem.price>><<set $sexStats.pills.pills[$pharmacyItem.type].owned += 1>><<boughtOnce>><</link>>
 	<<elseif $pharmacyItem.type is "X-Change Pink Basic" or $pharmacyItem.type is "X-Change Blue Basic">>
 		<<link [[Hand over the money|Pharmacy]]>><<set $money -= $pharmacyItem.price>><<set $sexStats.pills.pills[$pharmacyItem.type].owned += 3>><<boughtOnce>><</link>>
-	<<elseif $pharmacyItem.type is "X-Change Pink NOW" or $pharmacyItem.type is "X-Change Blue NOW">>
-		<<link [[Hand over the money|Pharmacy]]>><<set $money -= $pharmacyItem.price>><<set $sexStats.pills.pills[$pharmacyItem.type].owned += 1>><<boughtOnce>><</link>>
-	<<elseif $pharmacyItem.type is "X-Change Pink Continue" or $pharmacyItem.type is "X-Change Blue Continue">>
-		<<link [[Hand over the money|Pharmacy]]>><<set $money -= $pharmacyItem.price>><<set $sexStats.pills.pills[$pharmacyItem.type].owned += 1>><<boughtOnce>><</link>>
-	<<elseif $pharmacyItem.type is "X-Change Pink Resistance" or $pharmacyItem.type is "X-Change Blue Resistance">>
-		<<link [[Hand over the money|Pharmacy]]>><<set $money -= $pharmacyItem.price>><<set $sexStats.pills.pills[$pharmacyItem.type].owned += 1>><<boughtOnce>><</link>>
-	<<elseif $pharmacyItem.type is "X-Change Pink Xtra Strength" || $pharmacyItem.type is "X-Change Blue Xtra Strength">>
-		<<link [[Hand over the money|Pharmacy]]>><<set $money -= $pharmacyItem.price>><<set $sexStats.pills.pills[$pharmacyItem.type].owned += 1>><<boughtOnce>><</link>>
-	<<elseif $pharmacyItem.type is "X-Change Clone: Whitney">>
-		<<link [[Hand over the money|Pharmacy]]>><<set $money -= $pharmacyItem.price>><<set $sexStats.pills.pills[$pharmacyItem.type].owned += 1>><<boughtOnce>><</link>>
-	<<elseif $pharmacyItem.type is "X-Change Test">>
+	<<elseif _singleXChangePills.includes($pharmacyItem.type)>>
 		<<link [[Hand over the money|Pharmacy]]>><<set $money -= $pharmacyItem.price>><<set $sexStats.pills.pills[$pharmacyItem.type].owned += 1>><<boughtOnce>><</link>>
 	<<else>>
 		<<link [[Hand over the money|Pharmacy]]>><<set $money -= $pharmacyItem.price>><<set $sexStats.pills.pills[$pharmacyItem.type].owned += 14>><<boughtOnce>><</link>>

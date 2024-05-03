@@ -671,6 +671,43 @@ setup.pills = [
 		effects: [`<<xchange-pink 1>>`],
 	},
 	{
+		name: "X-Change Pink Weekly",
+		description:
+			"A significantly more concentrated version of X-Change Basic. Intended for those wanting longer duration pills, but still not quite ready for the commitment and risks of an Xtra Strength. Last for about 7 days.",
+		onTakeMessage: 
+			"<span class=\"lblue\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a woman's body.<br><br>Your new body feels smaller, lighter, and strangely sensitive to the touch.<br><br>Looking in the mirror, you also realise you look exceedingly beautiful as well.",
+		warning_label:
+			"Warning: Mild discomfort might be incurred during transformation. Certain parasitic infections might result in permanence, in particular those affecting the vagina.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "pink basic",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/xchangePink.png",
+		display_condition() {
+			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
+		},
+		take_condition() {
+			return (V.xchangePill && !V.xchangePill.active) || !V.xchangePill
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-pink 7>>`],
+	},
+	{
 		name: "X-Change Pink Xtra Strength",
 		description:
 			"These are more expensive dosages that typically last 30 days. It is possible to become pregnant on Xtra Strength, but the chance of that happening is very low.",
@@ -854,6 +891,43 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<xchange-blue 1>>`],
+	},
+	{
+		name: "X-Change Blue Weekly",
+		description:
+			"A significantly more concentrated version of X-Change Basic. Intended for those wanting longer duration pills, but still not quite ready for the commitment and risks of an Xtra Strength. Last for about 7 days.",
+		onTakeMessage: 
+			"<span class=\"lblue\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as it slowly begins to twist and turn, rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a man's body.<br><br>Your new body feels larger, stronger, and quite ready to dish out and receive punishment.<br><br>And upon looking in the mirror, you realise you're quite handsome as well!",
+		warning_label:
+			"Warning: Mild discomfort might be incurred during transformation. Certain parasitic infections might result in permanence, in particular those affecting the genitalia.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "blue basic",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/xchangeBlue.png",
+		display_condition() {
+			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
+		},
+		take_condition() {
+			return (!V.xchangePill || (V.xchangePill && !V.xchangePill.active)) && V.sexStats.vagina.pregnancy.type === null
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-blue 7>>`],
 	},
 	{
 		name: "X-Change Blue Xtra Strength",
@@ -1354,11 +1428,13 @@ function backCompPillsInventory() {
 		"Dr Harper's prescription": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0 },
 		"Anti-Parasite Cream": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0 },
 		"X-Change Pink Basic": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+		"X-Change Pink Weekly": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Pink NOW": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Pink Xtra Strength": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Pink Resistance": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Pink Continue": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Blue Basic": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+		"X-Change Blue Weekly": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Blue NOW": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Blue Xtra Strength": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Blue Resistance": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
