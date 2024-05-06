@@ -75,11 +75,16 @@ const ZIndices = {
 	collar: 103,
 	neck: 103,
 
+	over_lower: 103.3,
+	over_upper: 103.6,
+	over_upper_arm: 103.9,
+
 	handheld: 104,
 	arms_cover: 105,
 	under_upper_arms_cover: 109,
 	hands: 110,
 	upper_arms_cover: 112,
+	over_upper_arms_cover: 113,
 	lower_high: 115,
 	lower_top_high: 117,
 
@@ -97,9 +102,6 @@ const ZIndices = {
 	tailPenisCover: 165,
 	tailPenisCoverOverlay: 166,
 
-	over_lower: 170,
-	over_upper: 171,
-	over_upper_arm: 170,
-	over_upper_arms_cover: 174,
+	old_over_upper: 171,
 };
 window.ZIndices = ZIndices;
