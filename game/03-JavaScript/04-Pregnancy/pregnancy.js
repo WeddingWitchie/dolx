@@ -172,8 +172,8 @@ function playerPregnancyAttempt(baseMulti = 1, genital = "vagina") {
 
 	// Under X-Change, pregnancy is 4 times less likely to occur. 
 	// Unless under the effects of a breeder pill, which makes it 4 more likely instead.
-	let xchangePregnancyModifier = playerIsXChanged() && !pillIsPermanent() && !V.xchangePill.breederEffect ? 0.25 : 1;
-	xchangePregnancyModifier = playerIsXChanged() && V.xchangePill.breederEffect ? 4 : 1;
+	let xchangePregnancyModifier = playerIsXChanged() && !(pillIsPermanent() && V.xchange.postPermanenceFertilityReset) && !V.xchangePill.breederEffect ? 0.25 : 1;
+	xchangePregnancyModifier *= playerIsXChanged() && V.xchangePill.breederEffect ? 4 : 1;
 
 	/* The lower basePenalty is, the easier it is for the player to get pregnant */
 	let basePenalty = Math.floor((100 - V.basePlayerPregnancyChance * xchangePregnancyModifier) * Math.clamp(fertilityBoost, 0.1, 1) * baseMulti);
