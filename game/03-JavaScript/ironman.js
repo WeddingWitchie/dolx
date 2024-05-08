@@ -165,7 +165,7 @@ var IronMan = (Save => {
 						);
 					}
 					if (document.getElementById("sliderRentMode")) {
-						Wikifier.wikifyEval('<<replace #sliderRentMode>><<numberslider "$rentmod" $rentmod 0.1 3 0.1 $ironmanmode>><</replace>>');
+						Wikifier.wikifyEval('<<replace #sliderRentMode>><<numberslider "$rentmod" $rentmod 0.1 10 0.1 $ironmanmode>><</replace>>');
 					}
 					if (document.getElementById("sliderAllureMode")) {
 						Wikifier.wikifyEval('<<replace #sliderAllureMode>><<numberslider "$alluremod" $alluremod 0.2 2 0.1 $ironmanmode>><</replace>>');
