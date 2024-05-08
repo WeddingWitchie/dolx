@@ -5,7 +5,10 @@
 	<<if $combat is 1>>
 		<<set $speechcum to 1>><<set $speechorgasmcount += 1>>
 	<</if>>
+
 	<<tinyPenisDryOrgasmChance>>
+
+	<!-- Orgasm denial -->
 	<<if $earSlime.growth gte 100 and $earSlime.defyCooldown gte Math.clamp(30 - Math.floor($earSlime.growth / 9), 2, 20) and !$possessed and $ruinedorgasmdisable is "f">>
 		<span class="red">You are almost overcome by sensation, but it ends prematurely.</span><<pain 10>><<stress 10>><<gpain>><<gstress>>
 		<<set _deniedOrgasm to true>>
@@ -14,7 +17,10 @@
 		<<if $masturbating>>
 			<<set $masturbationRuinedOrgasm++>>
 		<</if>>
-	<<elseif $player.penisExist>>
+	<</if>>
+
+	<!-- Penile Orgasm -->
+	<<if $player.penisExist and !_deniedOrgasm>>
 		<<if $earSlime.focus is "pregnancy" and $earSlime.growth gte 100>>
 			<<set _cumDesc to "watery cum">>
 		<<elseif $earSlime.focus is "impregnation" and $earSlime.growth gte 100>>
@@ -210,34 +216,19 @@
 	<</if>>
 
 	<!-- X-Change effects -->
-	<<if V.xchangePill && V.xchangePill.active && !_deniedOrgasm>>
+	<<if playerIsXChanged() && !_deniedOrgasm>>
 		<<xchange-orgasm>>
 	<</if>>
 
-	<<set _manlyUse to ["othervagina", "otheranus", "othermouth", "tentacle"]>>
-	<<if $player.gender is "m" and $player.penisExist and _manlyUse.includes($penisuse)>>
-		<<genderidentity 1>>
-	<<elseif $player.gender isnot "m" and $player.penisExist and _manlyUse.includes($penisuse)>>
-		<<genderidentity -3>>
-	<</if>>
-	<<if $player.gender is "f" and $player.vaginaExist>>
-		<<genderidentity 1>>
-	<<elseif $player.gender isnot "f" and $player.vaginaExist>>
-		<<genderidentity -3>>
-	<</if>>
+	<<genderidentity-orgasm>>
+	<<willpower-orgasm _deniedOrgasm>>
 
-	<<if _deniedOrgasm>>
-		<<willpower-spending `25 * $orgasmcount`>>
-	<<elseif $masturbating or $consensual is 1>>
-		<<willpower-spending `5 * $orgasmcount`>>
-	<<else>>
-		<<willpower-spending `10 * $orgasmcount`>>
-	<</if>>
-
+	<!-- Orgasm SFX -->
 	<<if !_deniedOrgasm>>
 		<<orgasm-voice>>
 	<</if>>
 
+	<!-- Vaginal orgasm -->
 	<<if $player.vaginaExist and !_deniedOrgasm>>
 		<<switch $speechcycle>>
 			<<case 0>>
@@ -265,14 +256,22 @@
 		<<elseif $leftarm is "mvagina" or $rightarm is "mvagina">>
 			<span class="pink">You feel your muscles clamp down around your fingers, pulsing as your orgasm runs its course.</span>
 		<</if>>
+
+		<<if $creampied>>
+			<span class="breeder-pink">You spasm and spasm, yet your climax just won't subside. As the <<= ["semen", "cum"].random()>> coats your walls, the trembling increases, <<=["colouring your mind", "dying your head"].random()>> a blissful white. <b>Nothing</b> comes even close to <i>these fireworks!</i></span>
+
+			<<stress -5000>>
+		<</if>>
 	<</if>>
 
+	<!-- Masoquism reaction -->
 	<<if $arousalmasochism/$arousal gte 0.70 and !_deniedOrgasm>>
 		<!-- If over 70% arousal is from pain, PC has added reaction NG v2.7 -->
 		<span class="green"> Your body writhes and yearns for more pain.</span>
 		<<masochism 5>>
 	<</if>>
 
+	<!-- Sexual Fluids handling -->
 	<<if $masturbation_bowl is 1>><<set _liquid_collection_text to []>><</if>>
 	<<if $player.penisExist and !_deniedOrgasm>>
 		<<semenOrgasm>>/*Makes changes to semen values*/
@@ -286,6 +285,7 @@
 		<</if>>
 	<</if>>
 
+	<!-- Ear Slime effects -->
 	<<if _deniedOrgasm>>
 		<span class="blue">A forgiving warmth fills you.</span>
 		You can tell it's the slimes in your ears, rewarding you for having a ruined orgasm.
@@ -319,8 +319,7 @@
 		<<set $swarmchestgrab to 0>>
 	<</if>>
 
-	
-
+	<!-- Text orgasm vocalisations -->
 	<<if $orgasmcount gte 5>>
 		<<switch $speechcycle>>
 			<<case 0>>
@@ -357,6 +356,7 @@
 		<</switch>>
 	<</if>>
 
+	<!-- Orgasm effects for stress and arousal -->
 	<<if $orgasmcount lte 1>>
 		<<set $stress -= 200>>
 		<<set $_arousalDrop to -3000 - ($orgasmcount * 1000)>>
@@ -481,9 +481,9 @@
 	<</if>>
 
 	<!-- Chance to get "dick drunk" after 3rd orgasm, chance is 45% for consensual and 15% otherwise, +5% for each following orgasm, but aphrodisiacs make it 100% -->
-	<<if $orgasmcount gte 3 and $drunk lte 1000 and playerIsPenetrated() and $mouth isnot "mpenis" and !_deniedOrgasm>>
-		<<if $drugged gt 0 or (random(1,100) + ($orgasmcount * 5) gte ($consensual ? 70 : 100))>>
-			<<alcohol 25>>
+	<<if ($orgasmcount gte 3 and $drunk lte 1000 and playerIsPenetrated() and $mouth isnot "mpenis" and !_deniedOrgasm) or (playerIsXChanged() and $xchangePill.breederEffect and $creampied)>>
+		<<if $creampied or $drugged gt 0 or (random(1,100) + ($orgasmcount * 5) gte ($consensual ? 70 : 100))>>
+			<<alcohol 25>><<unset $creampied>>
 			<span class="purple"><<print either("You feel dizzy.", "You feel lightheaded.", "You can't think straight.")>></span>
 		<</if>>
 	<</if>>

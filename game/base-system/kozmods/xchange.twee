@@ -392,6 +392,20 @@
 	<</if>>
 <</widget>>
 
+<<widget "genderidentity-orgasm">>
+	<<set _manlyUse to ["othervagina", "otheranus", "othermouth", "tentacle"]>>
+	<<if $player.gender is "m" and $player.penisExist and _manlyUse.includes($penisuse)>>
+		<<genderidentity 1>>
+	<<elseif $player.gender isnot "m" and $player.penisExist and _manlyUse.includes($penisuse)>>
+		<<genderidentity -3>>
+	<</if>>
+	<<if $player.gender is "f" and $player.vaginaExist>>
+		<<genderidentity 1>>
+	<<elseif $player.gender isnot "f" and $player.vaginaExist>>
+		<<genderidentity -3>>
+	<</if>>
+<</widget>>
+
 <<widget "xchange-fame">>
 	<<if _args[0] and $statFreeze isnot true>>
 		<<if playerIsXChanged() and $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole>>
@@ -413,19 +427,21 @@
 
 <<widget "xchange-random-spike">>
 	<<if playerMayBeSpiked()>>
-		<<set _rng to random(0,100)>>
+		<<rng>>
 		<<if $player.gender is "m">>
-			<<if _rng lt 20>>
+			<<if _rng lte 10>>
+				<<xchange-pink 1 "breeder" "fertile" "spike">>
+			<<elseif _rng lte 30>>
 				<<xchange-pink 1 "continue" "spike">>
-			<<elseif _rng lt 40>>
+			<<elseif _rng lte 50>>
 				<<xchange-pink 1 "resistance" "spike">>
 			<<else>>
 				<<xchange-pink 1 "spike">>
 			<</if>>
 		<<elseif $player.gender is "f">>
-			<<if _rng lt 20>>
+			<<if _rng lte 20>>
 				<<xchange-blue 1 "continue" "spike">>
-			<<elseif _rng lt 40>>
+			<<elseif _rng lte 40>>
 				<<xchange-blue 1 "resistance" "spike">>
 			<<else>>
 				<<xchange-blue 1 "spike">>
@@ -448,6 +464,7 @@
 		<<if $xchangePill.resistanceEffect>><li>Resistance Effect.</li><</if>>
 		<<if $xchangePill.breederEffect>><li>Breeder Effect.</li><</if>>
 		<<if $xchangePill.clone isnot "none">><li>Clone '<<print $xchangePill.clone>>' Effect.</li><</if>>
+		<<if $xchangePill.fertile>><li>You can become pregnant.</li><</if>>
 		<li>Duration: 
 			<<if pillTimerPaused() or pillIsPermanent()>>
 				<span class="teal">Indefinite.</span>
@@ -489,6 +506,7 @@
 			<<if $xchangePill.resistanceEffect>><li>Resistance Effect.</li><</if>>
 			<<if $xchangePill.breederEffect>><li>Breeder Effect.</li><</if>>
 			<<if $xchangePill.clone isnot "none">><li>Clone '<<print $xchangePill.clone>>' Effect.</li><</if>>
+			<<if $xchangePill.fertile>><li>You can become pregnant.</li><</if>>
 			<li>Duration: 
 				<<if pillTimerPaused() or pillIsPermanent()>>
 					<span class="teal">Indefinite.</span>
@@ -685,4 +703,28 @@
 
 <<widget "willpowerpoints-clamp">>
 	<<set $xchange.willpowerPoints to Math.clamp($xchange.willpowerPoints, 0, Math.max(200, $willpower))>>
+<</widget>>
+
+<<widget "willpower-orgasm">>
+	<<set _deniedOrgasm to _args[0]>>
+	<<if _deniedOrgasm or (playerIsXChanged() and $xchangePill.breederEffect)>>
+		<<set _willpowerExpenditure to 25 * $orgasmcount>>
+	<<elseif $masturbating or $consensual is 1>>
+		<<set _willpowerExpenditure to 5 * $orgasmcount>>
+	<<else>>
+		<<set _willpowerExpenditure to 10 * $orgasmcount>>
+	<</if>>
+	<<willpower-spending _willpowerExpenditure>>
+<</widget>>
+
+<<widget "breeder-orgasm">>
+	<<set _bodyparts to _args[0]>>
+	<<set _liquids to _args[1]>>
+	<<set _amount to _args[2]>>
+
+	<<if _bodyparts.includes("vagina") and _liquids.includesAny("cum", "semen") and _amount gte 1>>
+		<<arousal 10000 "vagina">>
+		<<set $creampied to 1>>
+		<<set $breederOrgasm to 1>>
+	<</if>>
 <</widget>>
