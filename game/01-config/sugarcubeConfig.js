@@ -12,7 +12,7 @@ window.StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.4.6.7 DoLP v0.321 DoLX 0.4.8",
+	version: "0.4.7.5 DoLP v0.346 DoLX 0.5.0",
 	versionName: "",
 	sneaky: false,
 };
@@ -599,6 +599,13 @@ Config.navigation.override = function (dest) {
 			case "Livestock Field Horse Lewd Sex Finish":
 			case "Livestock Field Horse Lewd Female Sex Finish":
 				return "Livestock Field Deviancy Sex";
+
+			case "Beach Cave Tentacle Under Top":
+				return "Beach Cave Tentacle Top";
+
+			case "Beach Cave Rope Under Top":
+			case "Beach Cave Rope Over Top":
+				return "Beach Cave Rope Top";
 
 			default:
 				return false;

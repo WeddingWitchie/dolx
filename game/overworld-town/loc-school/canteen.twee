@@ -44,7 +44,7 @@ You are in the school canteen.
 		<<elseif $schoolstate is "lunch">>
 			<<run statusCheck("Robin")>>
 
-			<<if _robin_location is "school" and ($robinReunionScene is "dungeon" or $robinReunionScene is "dungeonRobin") and $exposed lte 0>>
+			<<if _robin_location is "school" and ($robinReunionScene is "dungeon" or $robinReunionScene is "dungeonRobin") and $exposed lte 0 and $xchangePill.clone is "none">>
 				<<npc Robin>><<person1>>
 				<<if $robinReunionScene is "dungeon">><<set $robinPostMortem to true>><</if>>
 				You hear a gasp from one of the tables. Turning in the direction of the sound, you spot Robin at a packed table, mouth agape.
@@ -105,7 +105,7 @@ You are in the school canteen.
 				<<link [[Next|Canteen]]>><<endevent>><</link>>
 				<br>
 			<<else>>
-				<<if C.npc.Robin.init is 0>>
+				<<if C.npc.Robin.init is 0 and $xchangePill.clone is "none">>
 					<<set $robindebt to 0>><<set $robindebtlimit to 5>>
 					<<npc Robin>><<initnpc Robin>><<person1>>You hear a voice shout behind you. "Hey!" It's Robin. <<Hes>> another resident at the orphanage.
 					<<Hes>> always looked up to you, despite being about the same age.
@@ -123,16 +123,20 @@ You are in the school canteen.
 					<<if C.npc.Robin.cdquest is 5 and C.npc.Robin.trauma lte 20>>
 						You see Robin eating lunch, <<npc Robin>><<person1>><<he>> seems to have attracted a bit of attention.<<endevent>>
 						<br>
-						<<foodicon "eat">><<link [[Eat with Robin (0:20)|Canteen Lunch Robin CD 1]]>><<stress -6>><<trauma -2>><<pass 20>><<set $daily.school.lunchEaten to 1>><<npcincr Robin love 1>><</link>><<ltrauma>><<lstress>>
-						<br>
+						<<if $xchangePill.clone is "none">>
+							<<foodicon "eat">><<link [[Eat with Robin (0:20)|Canteen Lunch Robin CD 1]]>><<stress -6>><<trauma -2>><<pass 20>><<set $daily.school.lunchEaten to 1>><<npcincr Robin love 1>><</link>><<ltrauma>><<lstress>>
+							<br>
+						<</if>>
 					<<else>>
 						<<rng>>
 						<<if $rng gte 96>>
 							<<npc Robin>><<person1>>You see Robin trying to eat <<his>> lunch while a group of delinquents harass <<him>>.<<endevent>>
 							<br>
-							<<ind>><<link [[Intervene (0:20)|Canteen Lunch Intervene]]>><<set $daily.school.lunchEaten to 1>><<npcincr Robin love 5>><</link>>
-							<br><br>
-						<<elseif $rng gte 91 and C.npc.Whitney.dom gte 16 and C.npc.Whitney.state isnot "dungeon">>
+							<<if $xchangePill.clone is "none">>
+								<<ind>><<link [[Intervene (0:20)|Canteen Lunch Intervene]]>><<set $daily.school.lunchEaten to 1>><<npcincr Robin love 5>><</link>>
+								<br><br>
+							<</if>>
+						<<elseif $rng gte 91 and C.npc.Whitney.dom gte 16 and C.npc.Whitney.state isnot "dungeon" and $xchangePill.clone isnot "Whitney">>
 							You see Robin eating lunch.
 							<br>
 							<<foodicon "eat">><<link [[Eat with Robin (0:20)|Canteen Robin Whitney]]>><<stress -6>><<trauma -2>><<pass 20>><<set $daily.school.lunchEaten to 1>><<npcincr Robin love 1>><</link>><<ltrauma>><<lstress>>
@@ -140,8 +144,10 @@ You are in the school canteen.
 						<<else>>
 							You see Robin eating lunch.
 							<br>
-							<<foodicon "eat">><<link [[Eat with Robin (0:20)|Canteen Lunch Robin]]>><<stress -6>><<trauma -2>><<pass 20>><<set $daily.school.lunchEaten to 1>><<npcincr Robin love 1>><</link>><<ltrauma>><<lstress>>
-							<br>
+							<<if $xchangePill.clone is "none">>
+								<<foodicon "eat">><<link [[Eat with Robin (0:20)|Canteen Lunch Robin]]>><<stress -6>><<trauma -2>><<pass 20>><<set $daily.school.lunchEaten to 1>><<npcincr Robin love 1>><</link>><<ltrauma>><<lstress>>
+								<br>
+							<</if>>
 						<</if>>
 					<</if>>
 				<</if>>
@@ -149,14 +155,18 @@ You are in the school canteen.
 				<<if $exposed lte 0 && _kylarLocation.area is "canteen">>
 					Kylar sits alone, stabbing food with a fork.
 					<br>
-					<<foodicon "eat">><<link [[Eat with Kylar (0:20)|Canteen Lunch Kylar]]>><<pass 20>><<set $daily.school.lunchEaten to 1>><<npcincr Kylar love 1>><<npcincr Kylar rage -1>><</link>><<glove>><<lksuspicion>>
-					<br>
+					<<if $xchangePill.clone is "none">>
+						<<foodicon "eat">><<link [[Eat with Kylar (0:20)|Canteen Lunch Kylar]]>><<pass 20>><<set $daily.school.lunchEaten to 1>><<npcincr Kylar love 1>><<npcincr Kylar rage -1>><</link>><<glove>><<lksuspicion>>
+						<br>
+					<</if>>
 				<</if>>
 				<<if C.npc.Sydney.init is 1 and _sydney_location is "canteen" and $exposed lte 0>>
 					Sydney sits in an isolated corner with a stack of books and papers.
 					<br>
-					<<foodicon "eat">><<link [[Eat with Sydney (0:15)|Canteen Lunch Sydney]]>><<stress -6>><<trauma -2>><<pass 15>><<set $daily.school.lunchEaten to 1>><<npcincr Sydney love 1>><</link>><<glove>><<lstress>>
-					<br><br>
+					<<if $xchangePill.clone is "none">>
+						<<foodicon "eat">><<link [[Eat with Sydney (0:15)|Canteen Lunch Sydney]]>><<stress -6>><<trauma -2>><<pass 15>><<set $daily.school.lunchEaten to 1>><<npcincr Sydney love 1>><</link>><<glove>><<lstress>>
+						<br><br>
+					<</if>>
 				<</if>>
 				<<if $daily.school.lunchEaten isnot 1 and $exposed lte 0>>
 					<<foodicon "eat">><<link [[Eat lunch (0:10)|Canteen Lunch]]>><<pass 10>><<stress -6>><<set $daily.school.lunchEaten to 1>><</link>><<lstress>>
@@ -208,7 +218,7 @@ You are in the school canteen.
 	<<switch $kylarexit>>
 		<<case "jealous robin" "jealous both">>
 			<<if $robinromance is 1 and C.npc.Robin.dom gte 50 and C.npc.Kylar.love gte 60>>
-				Once Robin's gone, Kylar marches to your table, grabs your face and roughly kisses you in the same spot. "You don't need them," <<nnpc_he "Kylar">> hisses. "<<print $kylarexit is "jealous both" ? "Neither of them. " : "">>You only need me." <<nnpc_He "Kylar">> kisses your other cheek just as roughly before walking away.
+				Once Robin's gone, Kylar marches to your table, grabs your face and roughly kisses you in the same spot. "You don't need them," <<nnpc_he "Kylar">> hisses. "<<if $kylarexit is "jealous both">>Neither of them. <</if>>You only need me." <<nnpc_He "Kylar">> kisses your other cheek just as roughly before walking away.
 			<<else>>
 				Kylar glares after <<nnpc_him "Robin">>, but Robin gives no sign of noticing.
 			<</if>>
@@ -251,7 +261,19 @@ You are in the school canteen.
 	<br>
 	<<link [[Throw it away|Canteen Lunch Sandwich]]>><<set $phase to 0>><<status -5>><</link>><<lcool>>
 <<else>>
-	<<if $cool gte 160>>
+	<<if $xchangePill.clone is "Whitney">>
+		You sit down to eat. The other students quickly flee the table, fearing falling on your sights. 
+		<br><br>
+
+		Soon enough, you're joined by Whitney's goon squad. They keep making inappropriate jokes about other students
+		<<if random(1,5) is 1>>
+			, and even drop a passing mention of you in a situation you'd surely not want to find yourself in.
+			<<stress 1>><<trauma 1>><<gstress>><<gtrauma>>
+		<<else>>
+			until you all finish your meals.
+			<<stress -2>><<trauma -1>><<lstress>><<ltrauma>>
+		<</if>>
+	<<elseif $cool gte 160>>
 		You sit down to eat. The other students at the table vie for your attention.
 		<<stress -2>><<trauma -1>><<lstress>><<ltrauma>>
 	<<elseif $cool lt 40>>
@@ -271,7 +293,15 @@ You are in the school canteen.
 :: Canteen Students
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
 <<generatey1>>
-<<if $rng gte 51>>
+<<if $xchangePill.clone is "Whitney">>
+	You approach the students. A <<person1>><<person>> notices you and flinches defensively, readying <<himself>> for a hit that never comes. "W-Whitney... What do you want?"
+
+	<<link [[Rob|Canteen Students Rob]]>><<detention 6>><</link>><<ggdelinquency>>
+	<br>
+	<<link [[Flirt|Canteen Students Flirt]]>><</link>><<promiscuous1>>
+	<br>
+	<<link [[Leave|Canteen]]>><<endevent>><</link>>
+<<elseif $rng gte 51>>
 	You approach the students. A <<person1>><<person>> looks up at you suspiciously. "What do you want?"
 	<br><br>
 
@@ -370,13 +400,47 @@ You are in the school canteen.
 	<<link [[Next|Canteen]]>><</link>>
 <</if>>
 
+:: Canteen Students Rob
+<<set _moneyGain to random(1000,3000)>>
+<<set $money += _moneyGain>>
+
+<<if $speech_attitude is "bratty">>
+	You shove the <<person>> against the table and demand that they give you their money. "Hand over your quid, you freak!" "Here, you better hand over your lunch money."
+	<br><br>
+	"O-okay, okay! Just... don't hit us," <<he>> cowers. "This is all we have."
+	<br><br>
+<<elseif $speech_attitude is "meek">>
+	You do your best to stand imposingly in front of the <<person>> and demand that they give you their money. "P-please, give me your quid."
+	<br><br>
+	They just stand there, stunned, for a few moments after such a timid approach, yet Whitney's reputation seems to still have been enough to make them comply. "R-right... Here." <<he>> finally speaks. "This is all we have."
+	<br><br>
+<<else>>
+	You shove the <<person>> against the table and demand that they give you their money. "Here, you better hand over your lunch money."
+	<br><br>
+	"O-okay, okay! Just... don't hit us," <<he>> cowers. "This is all we have."
+	<br><br>
+<</if>>
+You count the money and find that you've collected <<printmoney _moneyGain>>. You pocket it all. Then you leave.
+<br><br>
+
+<<link [[Next|Canteen]]>><</link>>
+
 :: Canteen Students Flirt
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
 
 You lean seductively against the table and address the <<person>>. "You look tense, anything I can do to help?"
 <<promiscuity1>>
 
-<<if $cool gte 160>>
+<<if $xchangePill.clone is "Whitney">>
+	<<He>> just stands there completely stunned, and blushes. Not quite knowing whether you're actually serious, or if this is just a ploy to get <<him>> screwed over, <<he>> finally ventures "W-would you... like... S-should we... D-do you want to go somewhere private?" <<He>> seems apprehensive, yet <<his>> words still betray <<his>> lewd intentions.
+	<br><br>
+
+	<<if $promiscuity gte 15>>
+		<<link [[Accept|Canteen Student Encounter]]>><<set $sexstart to 1>><</link>><<promiscuous2>>
+		<br>
+	<</if>>
+	<<link [[Refuse|Canteen]]>><<endevent>><</link>>
+<<elseif $cool gte 160>>
 	<<He>> checks you out, and blushes. "Would you... like to go somewhere private?" <<He>> clearly has lewd intentions.
 	<br><br>
 

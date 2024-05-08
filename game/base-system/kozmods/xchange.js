@@ -28,6 +28,10 @@ function playerBodyIsFemale() {
 }
 window.playerBodyIsMale = playerBodyIsMale;
 
+function playerIsCreampied() {
+	return V.sexStats.vagina.sperm.length > 0;
+}
+window.playerIsCreampied = playerIsCreampied;
 
 function playerMayBeSpiked() {
 	return V.xchange.nonconEnabled === 1 && !playerIsXChanged() && !playerIsPregnant();
@@ -71,8 +75,13 @@ function xchangeHourlyCheck() {
 						pill.duration += 30 * 24;
 						pill.resistanceEffect = false;
 					}
-				} else
+				}
+				else if (V.xchangePill.clone === "none") {
 					fragment.append(wikifier("xchange-restore"));
+				} 
+				else {
+					fragment.append(wikifier("xchange-restore", "nosave"));
+				}
 			} 
 		}
 	}

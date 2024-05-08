@@ -34,6 +34,31 @@
 	</div>
 <</widget>>
 
+<<widget "glowstatbar">>
+	<div @class="(_args[3] is true ? 'rightMeter' : 'meter') + ' glowstatbar'">
+		<<if _args[1] is 0>>
+		<<else>>
+			<<set _percent to Math.floor((_args[1]/_args[2])*100)>>
+			<<set _minPercent to Math.clamp(Math.floor((_args[0]/_args[2])*100), 0, _percent)>>
+			<<set _pin to Math.clamp(Math.floor((_args[4]/_args[2])*100), 0, _args[2])>>
+			<<switch Math.floor(_percent/10)>>
+				<<case 8 9>><<set _statColor to "pinkbar">>
+				<<case 6 7>><<set _statColor to "purplebar">>
+				<<case 4 5>><<set _statColor to "bluebar">>
+				<<case 2 3>><<set _statColor to "lbluebar">>
+				<<case 0 1>><<set _statColor to "tealbar">>
+				<<default>><<set _statColor to "redbar">>
+			<</switch>>
+			<div @class="_statColor" @style="'width:' + _percent + '%'"></div>
+			<<if _minPercent>>
+				<div @class="_statColor + ' meterMin'" @style="'width:' + _minPercent + '%'"></div>
+			<<elseif _pin>>
+				<div class="meterPin" @style="'width:' + _pin + '%'"></div>
+			<</if>>
+		<</if>>
+	</div>
+<</widget>>
+
 <<widget "statbarinverted">>
 	<<set _now to _args[0]>><<set _max to _args[1]>>
 	<div @class="(_args[2] is true ? 'rightMeter' : 'meter')">
@@ -60,7 +85,7 @@
 		<<else>>
 			<<set _percent to Math.floor((_args[0]/_args[1])*100)>>
 			<<switch Math.floor(_percent/10)>>
-				<<case 10 11>><<set _statColor to "greenbar">>
+				<<case 10>><<set _statColor to "greenbar">>
 				<<case 8 9>><<set _statColor to "tealbar">>
 				<<case 6 7>><<set _statColor to "lbluebar">>
 				<<case 4 5>><<set _statColor to "bluebar">>
@@ -69,6 +94,25 @@
 				<<default>><<set _statColor to "goldbar">>
 			<</switch>>
 				<div @class="_statColor" @style="'width:' + _percent + '%'"></div>
+		<</if>>
+	</div>
+<</widget>>
+
+<<widget "glowstatbarinverted">>
+	<<set _now to _args[0]>><<set _max to _args[1]>>
+	<div @class="(_args[2] is true ? 'rightMeter' : 'meter') + ' glowstatbar'">
+		<<if _args[0] is 0>>
+		<<else>>
+			<<set _percent to Math.floor((_args[0]/_args[1])*100)>>
+			<<switch Math.floor(_percent/10)>>
+				<<case 8 9>><<set _statColor to "tealbar">>
+				<<case 6 7>><<set _statColor to "lbluebar">>
+				<<case 4 5>><<set _statColor to "bluebar">>
+				<<case 2 3>><<set _statColor to "purplebar">>
+				<<case 0 1>><<set _statColor to "pinkbar">>
+				<<default>><<set _statColor to "greenbar">>
+			<</switch>>
+			<div @class="_statColor" @style="'width:' + _percent + '%'"></div>
 		<</if>>
 	</div>
 <</widget>>
@@ -1501,8 +1545,11 @@
 
 <<widget "stresscaption">>
 	<<if Number.isFinite($stress)>>
-		<div id="stresscaption" @title="'Stress: ' + $stress.toFixed(2)">
+		<div id="stresscaption" @title="'Stress: ' + $stress.toFixed(2) + (playerIsXChanged() and $xchangePill.breederEffect and playerIsCreampied()? ' \(+90% resist\)': '')">
 			<div @class="($options.showCaptionText is true ? '' : 'rightMeterText')">
+				<<if playerIsXChanged() and $xchangePill.breederEffect and playerIsCreampied()>>
+					<<icon "shield.png">>
+				<</if>>
 				Stress:
 				<<if $options.showCaptionText is true>>
 					<<if $stress gte $stressmax>>
@@ -1660,7 +1707,7 @@
 				<</if>>
 			</div>
 			<<set _showCaptionText to !$options.showCaptionText>>
-			<<statbar `minArousal()` $arousal $arousalmax _showCaptionText>>
+			<<statbar `statChange.minArousal()` $arousal $arousalmax _showCaptionText>>
 			<div style="clear:both;"></div>
 		</div>
 	<</if>>
@@ -1902,7 +1949,7 @@
 			</div>
 			<div @class="($options.showCaptionText is true ? 'meter' : 'rightMeter')">
 				<<set _percent to Math.floor(($pain/100)*100)>>
-				<<set _minPercent to Math.clamp(Math.floor((minPain()/100)*100), 0, _percent)>>
+				<<set _minPercent to Math.clamp(Math.floor((statChange.minPain() / 100)*100), 0, _percent)>>
 				<<if $pain gte 100 and $willpowerpain is 0>>
 					<<set _statColor to "redbar">>
 				<<elseif $pain gte 80>>
@@ -1919,7 +1966,7 @@
 					<<set _statColor to "greenbar">>
 				<</if>>
 				<div @class="_statColor" @style="'width:' + _percent + '%'"></div>
-				<<if minPain()>>
+				<<if statChange.minPain()>>
 					<<if _minPercent>>
 						<div @class="_statColor + ' meterMin'" @style="'width:' + _minPercent + '%'"></div>
 					<</if>>
@@ -2333,17 +2380,16 @@
 <</widget>>
 
 <<widget "towelup">>
-	<<outfitChecks>>
 	<<if $exposed gte 1>>
-		<<if $upperwetstage gte 3 and !_underTop>>
+		<<if $upperwetstage gte 3 and !$worn.under_upper.type.includes("covered") or $underupperwetstage gte 3 and $worn.under_upper.type.includes("covered")>>
 			<<upperwear 3 "white">>
 		<</if>>
-		<<if $lowerwetstage gte 3 and !_underBottoms>>
+		<<if $lowerwetstage gte 3 and !$worn.under_lower.type.includes("covered") or $underlowerwetstage gte 3 and $worn.under_lower.type.includes("covered")>>
 			<<lowerwear 3 "white">>
 		<</if>>
-		<<if $worn.upper.exposed gte 1 and !_underTop>>
+		<<if $worn.upper.exposed gte 1 and !$worn.under_upper.type.includes("covered")>>
 			<<upperwear 14 "white">>
-		<<elseif $worn.lower.exposed gte 1 and !_underBottoms>>
+		<<elseif $worn.lower.exposed gte 1 and !$worn.under_lower.type.includes("covered")>>
 			<<lowerwear 3 "white">>
 		<</if>>
 	<</if>>
@@ -2359,10 +2405,10 @@
 
 <<widget "towelupm">>
 	<<if $exposed gte 1>>
-		<<if $lowerwetstage gte 3 and !_underBottoms>>
+		<<if $lowerwetstage gte 3 and !$worn.under_lower.type.includes("covered")>>
 			<<lowerwear 3 "white">>
 		<</if>>
-		<<if $worn.lower.exposed gte 1 and !_underBottoms>>
+		<<if $worn.lower.exposed gte 1 and !$worn.under_lower.type.includes("covered")>>
 			<<lowerwear 3 "white">>
 		<</if>>
 	<</if>>
@@ -2514,7 +2560,7 @@
 		<<if $worn.over_upper.integrity lte 0>>
 			<<set $worn.over_upper.type.push("broken")>>
 			<<if _args[0] isnot "no_text">>
-				<span class="lewd">Your $worn.over_upper.name <<upperplural>> ripped into scraps<<if $worn.upper.exposed gte 2 and !_underTop>>, exposing your <<breasts>><</if>>.</span>
+				<span class="lewd">Your $worn.over_upper.name <<upperplural>> ripped into scraps<<if $worn.upper.exposed gte 2>>, exposing your <<undertop>><</if>>.</span>
 				<br>
 			<</if>>
 		<<overupperruined>><<clothesruinstat>><<if $worn.upper.exposed gte 2>><<set $upperoff to 0>><</if>>
@@ -2524,7 +2570,7 @@
 		<<if $worn.over_lower.integrity lte 0>>
 			<<set $worn.over_lower.type.push("broken")>>
 			<<if _args[0] isnot "no_text">>
-				<span class="lewd">Your $worn.over_lower.name <<upperplural>> ripped into scraps<<if $worn.lower.exposed gte 2 and !_underBottoms>>, exposing your <<undies>><</if>>.</span>
+				<span class="lewd">Your $worn.over_lower.name <<upperplural>> ripped into scraps<<if $worn.lower.exposed gte 2>>, exposing your <<undies>><</if>>.</span>
 				<br>
 			<</if>>
 		<<overlowerruined>><<clothesruinstat>><<if $worn.lower.exposed gte 2>><<set $upperoff to 0>><</if>>
@@ -2534,7 +2580,7 @@
 		<<if $worn.upper.integrity lte 0>>
 			<<set $worn.upper.type.push("broken")>>
 			<<if _args[0] isnot "no_text">>
-				<span class="lewd">Your $worn.upper.name <<upperplural>> ripped into scraps<<if !_underTop>>, exposing your <<breasts>><</if>>.</span>
+				<span class="lewd">Your $worn.upper.name <<upperplural>> ripped into scraps, exposing your <<undertop>>.</span>
 				<br>
 			<</if>>
 		<<upperruined>><<clothesruinstat>><<set $upperoff to 0>>
@@ -2544,7 +2590,7 @@
 		<<if $worn.lower.integrity lte 0>>
 			<<set $worn.lower.type.push("broken")>>
 			<<if _args[0] isnot "no_text">>
-				<span class="lewd">Your $worn.lower.name <<lowerplural>> ripped into scraps<<if !_underBottoms>>, exposing your <<undies>><</if>>.</span>
+				<span class="lewd">Your $worn.lower.name <<lowerplural>> ripped into scraps, exposing your <<undies>>.</span>
 				<br>
 			<</if>>
 		<<lowerruined>><<clothesruinstat>><<set $loweroff to 0>>
@@ -3600,8 +3646,10 @@
 			<</if>>
 			<span class="characteristic-title">
 				_config.name<<characteristic-box-modifier `clone(_config.modifier)` `clone(_config.modTypes)` `clone(_config.name)`>>
+				
 				<<if _config.sensitivity gte 1>>
-					<<set _fillAmount = (44 * (_config.sensitivity) / 4)>>
+					<<set _iconsWidthSum to 11 * 4>>
+					<<set _fillAmount = (_iconsWidthSum * (_config.sensitivity) / 4)>>
 					<mouse class = "pink tooltip-small">
 						<span @style = "'display: inline-flex; overflow: hidden; width: ' + _fillAmount + 'px; '">
 							<<hearticon>><<hearticon>><<hearticon>><<hearticon>>
@@ -3903,10 +3951,15 @@
 						<<npcrelationship "Ivory Wraith">>
 					</div>
 					<div @class="'relation-stat-list' + ($options.images ? '' : ' no-images')">
+						<<set $_statCount to 0>>
 						<<for _j = 0; _j lt _importantNpcStats.length-2; _j++>>
 							<<if _npcData[_importantNpcStats[_j]] gt 0 and _checkRequirements(_importantNpcStats[_j])>>
+								<<set $_statCount++>>
 								<<relation-box-stat _getStatConfig(_importantNpcStats[_j]) true>>
 							<</if>>
+						<</for>>
+						<<for _j to $_statCount; _j lt 3; _j++>>
+							<div class="relation-stat-block"></div>
 						<</for>>
 					</div>
 				</div>
@@ -3928,13 +3981,18 @@
 					<<npcrelationship _npcData.nam>>
 				</div>
 				<div @class="'relation-stat-list' + ($options.images ? '' : ' no-images')">
+					<<set $_statCount to 0>>
 					<<if _importantNPCs[_k].nam is "Black Wolf">><<set _npcStats to _importantNpcStats.length>>
 						<<else>><<set _npcStats to _importantNpcStats.length-2>>
 					<</if>>
 					<<for _j = 0; _j lt _npcStats; _j++>>
 						<<if _npcData[_importantNpcStats[_j]] gt 0 and _checkRequirements(_importantNpcStats[_j])>>
+							<<set $_statCount++>>
 							<<relation-box-stat _getStatConfig(_importantNpcStats[_j]) true>>
 						<</if>>
+					<</for>>
+					<<for _j to $_statCount; _j lt 3; _j++>>
+						<div class="relation-stat-block"></div>
 					<</for>>
 				</div>
 			</div>
@@ -5463,6 +5521,7 @@
 
 	<<if $_fail is true>>
 	<<else>>
+		<<breeder-orgasm $_bodypart $_liquids $_amount>>
 		<<for $_part range $_bodypart>>
 			<<for $_type range $_liquids>>
 				<<set $player.bodyliquid[$_part][$_type] to Math.clamp($player.bodyliquid[$_part][$_type] + $_amount, 0, 5)>>

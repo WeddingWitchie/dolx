@@ -1137,6 +1137,7 @@
 		<<bodywriting_init>>
 	<</if>>
 
+
 	<<if $newlyWritten is undefined and $combat is 1>>
 		<<set $newlyWritten to []>>
 	<</if>>
@@ -3621,7 +3622,7 @@
 	/* Code that should not be moved into a check like above */
 	<<set $runWardrobeSanityChecker to true>>
 
-	<<if $objectVersion.updateClothes lt 49 or $objectVersion.updateClothes is undefined>>
+	<<if $objectVersion.updateClothes lt 50 or $objectVersion.updateClothes is undefined>>
 		<<updateClothes>>
 		<<if $objectVersion.updateClothes lt 38>>
 			<!-- V0.4.0.7 return items stuck in $store without proper .location -->
@@ -3632,7 +3633,7 @@
 			<!--Should'nt need to re-run that often-->
 			<<run clothesDataTrimmerLoop()>>
 		<</if>>
-		<<set $objectVersion.updateClothes to 49>>
+		<<set $objectVersion.updateClothes to 50>>
 		<!--If you have added any `colour_combat` or `accessory_colour_combat` to clothes that need their `colour` or `accessory_colour`, this will clear them.
 		Remove `colour_combat` or `accessory_colour_combat` where this is the case, they are independant so `colour_combat` will only clear `colour`-->
 	<</if>>
@@ -4300,8 +4301,8 @@
 	<!--
 	v0.4.0.6 change (87f8e633085bb4be8f4f0d099012b1e0b077242a) that I've moved up here.
 	the reason is - this variable is used in the edge-case handled below
-	  (the <<pass _passMinutes>> macro that the v0.4 Time refactor sometimes calls ends up reading schoolLessonsMissed.science,
-	  which obviously breaks if this initialization doesn't happen at this point.
+	(the <<pass _passMinutes>> macro that the v0.4 Time refactor sometimes calls ends up reading schoolLessonsMissed.science,
+	which obviously breaks if this initialization doesn't happen at this point.
 
 	If you add any calls to <<pass>> before this line in backComp - it will also break
 	  for any players whose save doesn't have the schoolLessonsMissed paramm yet.
@@ -5157,13 +5158,22 @@
 		<<set $dock_dog to clone($NPCList[0])>>
 	<</if>>
 	/* Kill the leather leggings with fire */
-	/*  Disabled as there may be a problem with convertLegstoUnder - Vrel
-	<<if !$objectVersion.itemFix lt 1 or $objectVersion.itemnFix is undefined>>
+	/* Commenting out again due to continued issues
+	<<if !$objectVersion.itemFix lt 1 or $objectVersion.itemFix is undefined>>
 		<<if $worn.under_lower.name isnot "naked" and $worn.legs.name is "leather leggings">><<generalUndress "wardrobe" "under_lower">><</if>>
 		<<run convertLegstoUnder()>>
 		<<set $objectVersion.itemFix to 1>>
+	<</if>>*/
+	<<if $sydney_spear_talk is 1>>
+		<<set $sydneySeen.pushUnique("spearMission")>>
+		<<unset $sydney_spear_talk>>
 	<</if>>
-	*/
+
+	<!-- V0.4.7.0 Unmod -->
+	<!-- To mod dev: SIMPLY REMOVE THIS SECTION WHEN MERGING-->
+	<<if $pplace_number isnot undefined or $pplaces>>
+		<<unset $pplace_number>><<unset $pplaces>>
+	<</if>>
 
 	<<modupdate>>
 	<<xchange-modupdate>>
@@ -5383,6 +5393,9 @@
 	<<if $tfearshatposition is undefined>>
 		<<set $tfearshatposition to "under">>
 	<</if>>
+	<<if $tfearsposition is undefined>>
+		<<set $tfearsposition to "back">>
+	<</if>>
 	<<if $bannerstyle is undefined>>
 		<<set $bannerstyle to "default">>
 	<</if>>
@@ -5444,7 +5457,7 @@
 		"Harvest Street", "High Street", "Mer Street", "Nightingale Street", "Oxford Street", "Starfish Street", "Wolf Street",
 		"Residential alleyways", "Commercial alleyways", "Industrial alleyways", "Park", "Hallways", "Brothel", "Strip Club",
 		"Beach", "Ocean Breeze", "Docks Work", "Residential Drain", "Commercial Drain", "Industrial Drain", "Forest", "Farmland",
-		"Livestock Field", "Moor", "Forest Wolf Cave", "Wolf Cave", "Wolf Cave Clearing", "Asylum", "Asylum Cell", "Underground Cell", "Prison Cell", "Island", "Lake Shore", "Farmland", "Farm Work", "Meadow", "Sea"
+		"Livestock Field", "Moor", "Forest Wolf Cave", "Wolf Cave", "Wolf Cave Clearing", "Asylum", "Asylum Cell", "Underground Cell", "Prison Cell", "Island", "Lake Shore", "Farmland", "Farm Work", "Meadow", "Sea", "town"
 	]>>
 	<<if $hypnosis_traits.scream is undefined>>
 		<<set $hypnosis_traits.scream to -1>>
@@ -5698,6 +5711,10 @@
 
 	<<if $tirednessMaxScalingToggle is undefined>>
 		<<set $tirednessMaxScalingToggle to 0>>
+	<</if>>
+
+	<<if $dockbonus is undefined>>
+		<<set $dockbonus to 0>>
 	<</if>>
 
 	<<amcTraitsUpdate>>

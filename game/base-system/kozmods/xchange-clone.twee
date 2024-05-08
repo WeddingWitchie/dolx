@@ -1,0 +1,113 @@
+:: XChange Clone Pill Widgets [widget]
+
+<<widget "xchange-clone">>
+	<<set _npcName to _args[1]>>
+	<<if _npcName is undefined>>
+		<<error {
+			message	: `Widget 'xchange-clone' was called without any arguments.`,
+			source	: `Previous passage: ${$passagePrev} | phase: ${$phase} | rng: ${$rng}.`
+		}>>
+	<</if>>
+
+	<<xchange-effects _args[0] _args.slice(2)>>
+	<<save-body>>
+
+	<<if $xchangePill.clonedBody[_npcName] isnot undefined>>
+		<<load-body "cloned" _npcName>>
+	<<else>>
+		<<if C.npc[_npcName].gender is "m">>
+			<<become-boy>>
+		<<elseif C.npc[_npcName].gender is "f">>
+			<<become-girl>>
+		<</if>>
+		<<set-xchange-clone-body _npcName>>
+	<</if>>
+
+	<<set-xchange-clone-hairstyle _npcName>>
+	<<set-xchange-clone-social _npcName>>
+	<<set-xchange-clone-misc _npcName>>
+
+	<<set $xchangePill.clone to _npcName>>
+	<<save-body "cloned" _npcName>>
+
+<</widget>>
+
+<<widget "set-xchange-clone-body">>
+	<<set _npcName to _args[0]>>
+
+	<!-- Set the npc's body type -->
+	<<if C.npc[_npcName].pronoun is "m" and C.npc[_npcName].gender is "m">>
+		<<set $player.gender_body to "m">>
+	<<elseif C.npc[_npcName].pronoun is "f" and C.npc[_npcName].gender is "f">>
+		<<set $player.gender_body to "f">>
+	<<else>>
+		<<set $player.gender_body to "a">>
+	<</if>>
+
+	<<if C.npc[_npcName].penis isnot "none">>
+		<<set $player.penissize to C.npc[_npcName].penissize>>
+		<<set $player.ballssize to C.npc[_npcName].ballssize>>
+	<</if>>
+
+	<<set $player.breastsize to C.npc[_npcName].breastsize>>
+	<<set $player.bottomsize to C.npc[_npcName].bottomsize>>
+
+	<<set $haircolour to C.npc[_npcName].hairColour>>
+	<<set $hairfringecolour to C.npc[_npcName].hairColour>>
+
+	<<set $leftEyeColour to C.npc[_npcName].eyeColour>>
+	<<set $rightEyeColour to C.npc[_npcName].eyeColour>>
+
+	<<if C.npc[_npcName].skincolour is "black">>
+		<<set $skinColor.natural to ["dark", "ydark", "dark", "ydark", "medium", "ymedium"].pluck()>>
+	<<elseif C.npc[_npcName].skincolour is "white">>
+		<<set $skinColor.natural to ["light", "ylight", "light", "ylight", "medium", "ymedium"].pluck()>>
+	<<else>>
+		<<set $skinColor.natural to C.npc[_npcName].skincolour>>
+	<</if>>
+
+<</widget>>
+
+<<widget "set-xchange-clone-hairstyle">>
+	<<set _npcName to _args[0]>>
+
+	<<switch _npcName>>
+	<<case "Whitney">>
+		<<if C.npc[_npcName].pronoun is "m">>
+			<<set $hairtype to "neat">>
+		<<else>>
+			<<set $hairtype to "fluffy ponytail">>
+		<</if>>
+		<<set $fringetype to "emo left">>
+		<<set $hairposition to "back">>
+		<<set $earposition to "back">>
+	<</switch>>
+
+	<<set $ruffledisable to "t">>
+
+<</widget>>
+
+<<widget "set-xchange-clone-social">>
+	<<set _npcName to _args[0]>>
+
+	<<switch _npcName>>
+	<<case "Whitney">>
+		<<set $cool to $coolmax * (2/3)>>
+		<<set $delinquency to 1000>>
+	<</switch>>
+<</widget>>
+
+<<widget "set-xchange-clone-misc">>
+	<<set _npcName to _args[0]>>
+
+	<<switch _npcName>>
+	<<case "Whitney">>
+		<<set $bodysize to 3>>
+		<<set $physiquesize to 16000>>
+		<<set $physique to 8000>>
+		<<set $beauty to ($beautymax / 7) * 3 + ($player.sex is "f"? 3000 : 0)>>
+		<<if ["ylight", "medium", "ymedium"].includes($skinColor.natural)>>
+			<<set $skinColor.natural to "light">>
+		<</if>>
+	<</switch>>
+<</widget>>
