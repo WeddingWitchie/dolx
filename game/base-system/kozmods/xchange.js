@@ -28,6 +28,10 @@ function playerBodyIsFemale() {
 }
 window.playerBodyIsMale = playerBodyIsMale;
 
+function playerIsCreampied() {
+	return V.sexStats.vagina.sperm.length > 0;
+}
+window.playerIsCreampied = playerIsCreampied;
 
 function playerMayBeSpiked() {
 	return V.xchange.nonconEnabled === 1 && !playerIsXChanged() && !playerIsPregnant();

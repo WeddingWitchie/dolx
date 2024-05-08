@@ -34,6 +34,31 @@
 	</div>
 <</widget>>
 
+<<widget "glowstatbar">>
+	<div @class="(_args[3] is true ? 'rightMeter' : 'meter') + ' glowstatbar'">
+		<<if _args[1] is 0>>
+		<<else>>
+			<<set _percent to Math.floor((_args[1]/_args[2])*100)>>
+			<<set _minPercent to Math.clamp(Math.floor((_args[0]/_args[2])*100), 0, _percent)>>
+			<<set _pin to Math.clamp(Math.floor((_args[4]/_args[2])*100), 0, _args[2])>>
+			<<switch Math.floor(_percent/10)>>
+				<<case 8 9>><<set _statColor to "pinkbar">>
+				<<case 6 7>><<set _statColor to "purplebar">>
+				<<case 4 5>><<set _statColor to "bluebar">>
+				<<case 2 3>><<set _statColor to "lbluebar">>
+				<<case 0 1>><<set _statColor to "tealbar">>
+				<<default>><<set _statColor to "redbar">>
+			<</switch>>
+			<div @class="_statColor" @style="'width:' + _percent + '%'"></div>
+			<<if _minPercent>>
+				<div @class="_statColor + ' meterMin'" @style="'width:' + _minPercent + '%'"></div>
+			<<elseif _pin>>
+				<div class="meterPin" @style="'width:' + _pin + '%'"></div>
+			<</if>>
+		<</if>>
+	</div>
+<</widget>>
+
 <<widget "statbarinverted">>
 	<<set _now to _args[0]>><<set _max to _args[1]>>
 	<div @class="(_args[2] is true ? 'rightMeter' : 'meter')">
@@ -60,7 +85,7 @@
 		<<else>>
 			<<set _percent to Math.floor((_args[0]/_args[1])*100)>>
 			<<switch Math.floor(_percent/10)>>
-				<<case 10 11>><<set _statColor to "greenbar">>
+				<<case 10>><<set _statColor to "greenbar">>
 				<<case 8 9>><<set _statColor to "tealbar">>
 				<<case 6 7>><<set _statColor to "lbluebar">>
 				<<case 4 5>><<set _statColor to "bluebar">>
@@ -69,6 +94,25 @@
 				<<default>><<set _statColor to "goldbar">>
 			<</switch>>
 				<div @class="_statColor" @style="'width:' + _percent + '%'"></div>
+		<</if>>
+	</div>
+<</widget>>
+
+<<widget "glowstatbarinverted">>
+	<<set _now to _args[0]>><<set _max to _args[1]>>
+	<div @class="(_args[2] is true ? 'rightMeter' : 'meter') + ' glowstatbar'">
+		<<if _args[0] is 0>>
+		<<else>>
+			<<set _percent to Math.floor((_args[0]/_args[1])*100)>>
+			<<switch Math.floor(_percent/10)>>
+				<<case 8 9>><<set _statColor to "tealbar">>
+				<<case 6 7>><<set _statColor to "lbluebar">>
+				<<case 4 5>><<set _statColor to "bluebar">>
+				<<case 2 3>><<set _statColor to "purplebar">>
+				<<case 0 1>><<set _statColor to "pinkbar">>
+				<<default>><<set _statColor to "greenbar">>
+			<</switch>>
+			<div @class="_statColor" @style="'width:' + _percent + '%'"></div>
 		<</if>>
 	</div>
 <</widget>>
@@ -1501,8 +1545,11 @@
 
 <<widget "stresscaption">>
 	<<if Number.isFinite($stress)>>
-		<div id="stresscaption" @title="'Stress: ' + $stress.toFixed(2)">
+		<div id="stresscaption" @title="'Stress: ' + $stress.toFixed(2) + (playerIsXChanged() and $xchangePill.breederEffect and playerIsCreampied()? ' \(+90% resist\)': '')">
 			<div @class="($options.showCaptionText is true ? '' : 'rightMeterText')">
+				<<if playerIsXChanged() and $xchangePill.breederEffect and playerIsCreampied()>>
+					<<icon "shield.png">>
+				<</if>>
 				Stress:
 				<<if $options.showCaptionText is true>>
 					<<if $stress gte $stressmax>>
@@ -5465,6 +5512,7 @@
 
 	<<if $_fail is true>>
 	<<else>>
+		<<breeder-orgasm $_bodypart $_liquids $_amount>>
 		<<for $_part range $_bodypart>>
 			<<for $_type range $_liquids>>
 				<<set $player.bodyliquid[$_part][$_type] to Math.clamp($player.bodyliquid[$_part][$_type] + $_amount, 0, 5)>>

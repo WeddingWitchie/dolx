@@ -233,6 +233,10 @@ var statChange = (() => {
 				} else if (V.body_temperature === "chilly") {
 					stressMod *= 1.5;
 				}
+
+				if (playerIsXChanged() && V.xchangePill.breederEffect && playerIsCreampied()) {
+					stressMod *= 0.1;
+				}
 				V.stress += amount * stressMod;
 			}
 		}
