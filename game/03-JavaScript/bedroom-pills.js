@@ -1084,7 +1084,7 @@ setup.pills = [
 		onTakeMessage: 
 			"<span class=\"teal\">You down the pill in a single gulp.</span><br><br>As you close your eyes anticipating the change, the pill's characteristic heat starts to radiate into your body. Reaching every nook and cranny of your being. <span class=\"red\">A sudden wave of fury washes over you, as thoughts of rape, abuse, and self-loathing fill your mind. For a few moments, you're utterly enraged at the world.</span><br><br>Yet once the emotional maelstrom subsides, you look at yourself in the mirror, and there's only Whitney there to stare back at you. The pill has done its work.",
 		warning_label:
-			"Warning: CANNOT BE TAKEN DURING PREGNANCY. Certain parasitic infections may result in permanence, in particular those affecting the genitalia.",
+			"Warning: EXTREMELY UNFINISHED CONTENT. May result in very silly situations. Cannot be taken during pregnancy. Certain parasitic infections may result in permanence, in particular those affecting the genitalia. Use with care.",
 		autoTake() {
 			return false;
 		},
@@ -1105,7 +1105,7 @@ setup.pills = [
 		},
 		icon: "img/misc/icon/pillpremium.png",
 		display_condition() {
-			return kofiValidate(V.xchange.supporterCode) >= 5 && this.owned() > 0 ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null
