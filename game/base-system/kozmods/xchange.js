@@ -8,12 +8,14 @@ function playerIsXChanged() {
 window.playerIsXChanged = playerIsXChanged;
 
 function pillTimerPaused() {
+	let vaginalPregnancy = V.sexStats.vagina.pregnancy.type !== null;
+	let earSlimeHasGrown = V.earSlime.growth > 50;
 	return V.xchange.pillPermanence !== 1 && (vaginalPregnancy || earSlimeHasGrown);
 }
 window.pillTimerPaused = pillTimerPaused;
 
 function pillIsPermanent() {
-	return V.xchangePill.duration === -1;
+	return V.xchangePill.duration <= -1;
 }
 window.pillIsPermanent = pillIsPermanent;
 
@@ -59,10 +61,6 @@ function xchangeHourlyCheck() {
 		// then, the change becomes permanent
 		if (V.xchange.pillPermanence === 1 && pill.continueEffect && pill.duration > 30 * 24)
 			fragment.append(wikifier("xchange-setpermanent"));
-	
-		
-		let vaginalPregnancy = V.sexStats.vagina.pregnancy.type !== null;
-		let earSlimeHasGrown = V.earSlime.growth > 50;
 
 		// Stop the timer from ticking if PC is vaginally pregnant or the ear slime has grown past its point of no return
 		if (!pillTimerPaused() && pill.duration > 0) {
