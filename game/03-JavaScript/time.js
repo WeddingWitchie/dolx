@@ -2056,10 +2056,10 @@ function earSlimeDaily(passageEffects = false) {
 
 	if (V.earSlime.growth >= 100) {
 		if (
-			(V.earSlime.growth >= 100 && V.player.gender !== "f" && V.parasite.penis.name !== "parasite") ||
-			(V.earSlime.growth >= 100 && V.player.gender === "f" && V.parasite.clit.name !== "parasite")
+			(V.earSlime.growth >= 100 && V.player.sex !== "f" && V.parasite.penis.name !== "parasite") ||
+			(V.earSlime.growth >= 100 && V.player.sex === "f" && V.parasite.clit.name !== "parasite")
 		) {
-			if (V.player.gender !== "f") {
+			if (V.player.sex !== "f") {
 				V.effectsmessage = 1;
 				V.earSlimePenisParasite = 1;
 				if (V.parasite.penis.name && V.parasite.penis.name !== "parasite") {
@@ -2075,7 +2075,7 @@ function earSlimeDaily(passageEffects = false) {
 					wikifier("removeparasite", "clit");
 				}
 				wikifier("parasite", "clit", "parasite", "noSuck");
-				if (["mixed", "impregnation"].includes(V.earSlime.focus) && V.player.gender === "f") V.player.penisExist = true;
+				if (["mixed", "impregnation"].includes(V.earSlime.focus) && V.player.sex === "f") V.player.penisExist = true;
 			}
 		}
 

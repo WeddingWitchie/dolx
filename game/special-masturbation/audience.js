@@ -151,7 +151,7 @@ function masturbationAudienceLines(npc) {
 			case 2:
 				break;
 			case 3:
-				if (V.player.gender !== "m") wikifier("insecurity", '"penis_big"', 1);
+				if (V.player.sex !== "m") wikifier("insecurity", '"penis_big"', 1);
 				break;
 			case 4:
 				wikifier("insecurity", '"penis_big"', 1);
@@ -391,7 +391,7 @@ function masturbationAudienceLineText(npc, lineType = "") {
 				`"${V.masturbationAudience > 1 ? "<<pHer>>" : "Your"} penis is the perfect size."`,
 			]
 				.random()
-				.concat(V.player.gender !== "m" ? `<<ginsecurity "penis_big">>` : "");
+				.concat(V.player.sex !== "m" ? `<<ginsecurity "penis_big">>` : "");
 		case "penisSize4":
 			return [
 				`"${V.masturbationAudience > 1 ? "<<pShes>>" : "You're"} huge!"`,
@@ -476,7 +476,7 @@ function masturbationAudienceLineText(npc, lineType = "") {
 			if (V.worn.upper.exposed >= 2) {
 				return [`"Your breasts are very photogenic."`, `"Your breasts are mesmerising."`, `"This picture of your breasts will come in handy later."`]
 					.random()
-					.concat(V.player.gender === "m" ? `<<ginsecurity "breasts_big">>` : "");
+					.concat(V.player.sex === "m" ? `<<ginsecurity "breasts_big">>` : "");
 			} else {
 				return [
 					`"Take ${V.masturbationAudience > 1 ? "<<pher>>" : "your"} top off, I want a clear look at ${
@@ -486,7 +486,7 @@ function masturbationAudienceLineText(npc, lineType = "") {
 					`"I can tell how lovely ${V.masturbationAudience > 1 ? "<<pher>>" : "your"} breasts are, even when they're clothed."`,
 				]
 					.random()
-					.concat(V.player.gender === "m" ? `<<ginsecurity "breasts_big">>` : "");
+					.concat(V.player.sex === "m" ? `<<ginsecurity "breasts_big">>` : "");
 			}
 		case "breastSizeLarge":
 			if (V.worn.upper.exposed >= 2) {
