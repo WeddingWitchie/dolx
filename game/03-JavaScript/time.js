@@ -408,42 +408,42 @@ function yearPassed() {
 function weekPassed() {
 	const fragment = document.createDocumentFragment();
 
-	if (V.science_exam >= 200 && V.sciencetrait < 4 * V.AMCTraits.science) {
-		V.effectsmessage = 1;
-		V.science_up_message = 1;
-		fragment.append(wikifier("school_skill_up", "science"));
-	} else if (V.science_exam <= -100 && V.sciencetrait >= 0) {
-		V.effectsmessage = 1;
-		V.science_down_message = 1;
-		fragment.append(wikifier("school_skill_down", "science"));
-	}
-	if (V.maths_exam >= 200 && V.mathstrait < 4 * V.AMCTraits.maths) {
-		V.effectsmessage = 1;
-		V.maths_up_message = 1;
-		fragment.append(wikifier("school_skill_up", "maths"));
-	} else if (V.maths_exam <= -100 && V.mathstrait >= 0) {
-		V.effectsmessage = 1;
-		V.maths_down_message = 1;
-		fragment.append(wikifier("school_skill_down", "maths"));
-	}
-	if (V.english_exam >= 200 && V.englishtrait < 4 * V.AMCTraits.english) {
-		V.effectsmessage = 1;
-		V.english_up_message = 1;
-		fragment.append(wikifier("school_skill_up", "english"));
-	} else if (V.english_exam <= -100 && V.englishtrait >= 0) {
-		V.effectsmessage = 1;
-		V.english_down_message = 1;
-		fragment.append(wikifier("school_skill_down", "english"));
-	}
-	if (V.history_exam >= 200 && V.historytrait < 4 * V.AMCTraits.history) {
-		V.effectsmessage = 1;
-		V.history_up_message = 1;
-		fragment.append(wikifier("school_skill_up", "history"));
-	} else if (V.history_exam <= -100 && V.historytrait >= 0) {
-		V.effectsmessage = 1;
-		V.history_down_message = 1;
-		fragment.append(wikifier("school_skill_down", "history"));
-	}
+	// if (V.science_exam >= 200 && V.sciencetrait < 4 * V.AMCTraits.science) {
+	// 	V.effectsmessage = 1;
+	// 	V.science_up_message = 1;
+	// 	fragment.append(wikifier("school_skill_up", "science"));
+	// } else if (V.science_exam <= -100 && V.sciencetrait >= 0) {
+	// 	V.effectsmessage = 1;
+	// 	V.science_down_message = 1;
+	// 	fragment.append(wikifier("school_skill_down", "science"));
+	// }
+	// if (V.maths_exam >= 200 && V.mathstrait < 4 * V.AMCTraits.maths) {
+	// 	V.effectsmessage = 1;
+	// 	V.maths_up_message = 1;
+	// 	fragment.append(wikifier("school_skill_up", "maths"));
+	// } else if (V.maths_exam <= -100 && V.mathstrait >= 0) {
+	// 	V.effectsmessage = 1;
+	// 	V.maths_down_message = 1;
+	// 	fragment.append(wikifier("school_skill_down", "maths"));
+	// }
+	// if (V.english_exam >= 200 && V.englishtrait < 4 * V.AMCTraits.english) {
+	// 	V.effectsmessage = 1;
+	// 	V.english_up_message = 1;
+	// 	fragment.append(wikifier("school_skill_up", "english"));
+	// } else if (V.english_exam <= -100 && V.englishtrait >= 0) {
+	// 	V.effectsmessage = 1;
+	// 	V.english_down_message = 1;
+	// 	fragment.append(wikifier("school_skill_down", "english"));
+	// }
+	// if (V.history_exam >= 200 && V.historytrait < 4 * V.AMCTraits.history) {
+	// 	V.effectsmessage = 1;
+	// 	V.history_up_message = 1;
+	// 	fragment.append(wikifier("school_skill_up", "history"));
+	// } else if (V.history_exam <= -100 && V.historytrait >= 0) {
+	// 	V.effectsmessage = 1;
+	// 	V.history_down_message = 1;
+	// 	fragment.append(wikifier("school_skill_down", "history"));
+	// }
 	if (Time.schoolTerm) {
 		V.science_exam = Math.clamp(V.science_exam - 7, -107, 200);
 		V.maths_exam = Math.clamp(V.maths_exam - 7, -107, 200);
@@ -1568,6 +1568,43 @@ function moonState() {
 
 function dailySchoolEffects() {
 	const fragment = document.createDocumentFragment();
+
+	if (V.science_exam >= 200 && V.sciencetrait < 4 * V.AMCTraits.science) {
+		V.effectsmessage = 1;
+		V.science_up_message = 1;
+		fragment.append(wikifier("school_skill_up", "science"));
+	} else if (V.science_exam <= -100 && V.sciencetrait >= 0) {
+		V.effectsmessage = 1;
+		V.science_down_message = 1;
+		fragment.append(wikifier("school_skill_down", "science"));
+	}
+	if (V.maths_exam >= 200 && V.mathstrait < 4 * V.AMCTraits.maths) {
+		V.effectsmessage = 1;
+		V.maths_up_message = 1;
+		fragment.append(wikifier("school_skill_up", "maths"));
+	} else if (V.maths_exam <= -100 && V.mathstrait >= 0) {
+		V.effectsmessage = 1;
+		V.maths_down_message = 1;
+		fragment.append(wikifier("school_skill_down", "maths"));
+	}
+	if (V.english_exam >= 200 && V.englishtrait < 4 * V.AMCTraits.english) {
+		V.effectsmessage = 1;
+		V.english_up_message = 1;
+		fragment.append(wikifier("school_skill_up", "english"));
+	} else if (V.english_exam <= -100 && V.englishtrait >= 0) {
+		V.effectsmessage = 1;
+		V.english_down_message = 1;
+		fragment.append(wikifier("school_skill_down", "english"));
+	}
+	if (V.history_exam >= 200 && V.historytrait < 4 * V.AMCTraits.history) {
+		V.effectsmessage = 1;
+		V.history_up_message = 1;
+		fragment.append(wikifier("school_skill_up", "history"));
+	} else if (V.history_exam <= -100 && V.historytrait >= 0) {
+		V.effectsmessage = 1;
+		V.history_down_message = 1;
+		fragment.append(wikifier("school_skill_down", "history"));
+	}
 
 	V.schooleventtimer--;
 	if (V.scienceproject === "ongoing") {
