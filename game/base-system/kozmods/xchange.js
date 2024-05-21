@@ -82,6 +82,18 @@ function xchangeHourlyCheck() {
 				}
 			} 
 		}
+		// Force the pill to expire if pill permanence is disabled, and no condition is preventing it from expiring
+		else if (V.xchange.pillPermanence !== 1 && pillIsPermanent()) {
+			pill.duration = 0;
+			if (!pillTimerPaused()) {
+				if (V.xchangePill.clone === "none") {
+					fragment.append(wikifier("xchange-restore"));
+				} 
+				else {
+					fragment.append(wikifier("xchange-restore", "nosave"));
+				}
+			}
+		}
 	}
 
 	return fragment;
