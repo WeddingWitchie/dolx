@@ -70,8 +70,9 @@ function xchangeHourlyCheck() {
 				if (pill.resistanceEffect && random(0,100) > pill.resistanceChance) {
 					if (V.xchange.pillPermanence === 1) fragment.append(wikifier("xchange-setpermanent"));
 					else {
-						pill.duration += 30 * 24;
+						pill.duration += 90 * 24;
 						pill.resistanceEffect = false;
+						pill.fertile = true;
 					}
 				}
 				else if (V.xchangePill.clone === "none") {
@@ -81,6 +82,18 @@ function xchangeHourlyCheck() {
 					fragment.append(wikifier("xchange-restore", "nosave"));
 				}
 			} 
+		}
+		// Force the pill to expire if pill permanence is disabled, and no condition is preventing it from expiring
+		else if (V.xchange.pillPermanence !== 1 && pillIsPermanent()) {
+			pill.duration = 0;
+			if (!pillTimerPaused()) {
+				if (V.xchangePill.clone === "none") {
+					fragment.append(wikifier("xchange-restore"));
+				} 
+				else {
+					fragment.append(wikifier("xchange-restore", "nosave"));
+				}
+			}
 		}
 	}
 

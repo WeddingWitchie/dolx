@@ -187,7 +187,7 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 				if (!playerChastity("penis")) {
 					result.options.push({
 						action: "mpenisentrance",
-						text: V.player.gender === "f" && V.parasite.clit.name === "parasite" ? "Fondle your parasitic penis" : "Fondle your penis",
+						text: V.player.sex === "f" && V.parasite.clit.name === "parasite" ? "Fondle your parasitic penis" : "Fondle your penis",
 						colour: "sub",
 					});
 				} else if (V.worn.genitals.name === "chastity parasite") {
@@ -200,7 +200,7 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 					result.options.push({
 						action: "mpenischastity",
 						text:
-							V.player.gender === "f" && V.parasite.clit.name === "parasite" ? "Try to fondle your parasitic penis" : "Try to fondle your penis",
+							V.player.sex === "f" && V.parasite.clit.name === "parasite" ? "Try to fondle your parasitic penis" : "Try to fondle your penis",
 						colour: "sub",
 					});
 				}

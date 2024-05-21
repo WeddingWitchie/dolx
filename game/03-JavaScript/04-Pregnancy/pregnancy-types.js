@@ -43,7 +43,7 @@ function npcPregObject(person, mother) {
 			// pregnancy isnt required for the player
 			result = {
 				name: "pc",
-				gender: V.player.gender,
+				gender: V.player.sex,
 				type: "human",
 				parentId: Array.isArray(parentId) ? parentId[0] : parentId,
 				skinColour: V.skinColor.natural,
