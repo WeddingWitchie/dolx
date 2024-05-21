@@ -70,8 +70,9 @@ function xchangeHourlyCheck() {
 				if (pill.resistanceEffect && random(0,100) > pill.resistanceChance) {
 					if (V.xchange.pillPermanence === 1) fragment.append(wikifier("xchange-setpermanent"));
 					else {
-						pill.duration += 30 * 24;
+						pill.duration += 90 * 24;
 						pill.resistanceEffect = false;
+						pill.fertile = true;
 					}
 				}
 				else if (V.xchangePill.clone === "none") {
