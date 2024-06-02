@@ -292,6 +292,9 @@ It isn't long before the door to the barn opens, and the lights flicker on. Remy
 
 :: Livestock Milking Obey
 <<effects>>
+<<set _isGettingPilled to !playerIsXChanged() or !$xchange.known.includes("Remy")>>
+<<set _isXchanged to playerIsXChanged()>>
+<<xchange-random-spike "suppress">>
 
 <<milkvolume 20>><<lactation_pressure 10>><<set $breastgrowthtimer -= 150>>
 <<if $exhibitionism lt 95 or $uncomfortable.nude is true>>
@@ -300,6 +303,18 @@ It isn't long before the door to the barn opens, and the lights flicker on. Remy
 <<else>>
 	"Keep your arms at your side," <<he>> commands. You feel a thrill as <<his>> eyes flicker over your body.
 <</if>>
+
+<<if _isGettingPilled>>
+	"Here. Swallow this," <<he>> instructs.
+	<<if _isXChanged>>
+		<br><br>
+		<<He>> then awaits a couple moments and after no change ensues <<he>> concludes: "No change? Nevermind."
+	<<else>>
+		You feel the characteristic warmth of an X-Change pill spreading throughout your body, as your figure molds and changes itself into the <<if $player.gender is "f">>handsome form of a man<<elseif $player.gender is "m">>beautiful shape of a woman<</if>>.
+	<</if>>
+	<<run $xchange.known.pushUnique("Remy")>>
+<</if>>
+
 <br><br>
 You flinch as <<his>> cold hands touch your <<breasts>>. <<He>> kneads and caresses them, wearing a thoughtful expression.
 
@@ -797,20 +812,31 @@ You've barely recovered from the <<if _deniedOrgasm>>ruined <</if>>orgasm when t
 <</if>>
 The vibrators continue to assault your body, and you approach your peak once more.
 <<orgasm>>
-You're still shaking from climax when you feel the next start to build. It's on you within moments.
-<<orgasm>>
-The next comes faster still, almost blurring with the previous.
-<<orgasm>>
-<<orgasm>>
-<<orgasm>>
-<<link [[Next|Livestock None Give 3]]>><<set $deniedOrgasm to _deniedOrgasm>><</link>>
+<<set _orgasmCount to 1>>
+<<for _i to 0; _i lt 4; _i++>>
+	<<willpowerdifficulty 1 1000>>
+	<<if !$willpowerSuccess or !$_resist>>
+		<<if $_resist>><<willpowerfailure>><</if>>
+		<<switch _orgasmCount>>
+		<<case 1>>
+			You're still shaking from <<if _deniedOrgasm>>your last ruined orgasm<<else>>climax<</if>> when you feel the next start to build. It's on you within moments.
+		<<case 2>>
+			The next comes faster still, almost blurring with the previous.
+		<</switch>>
+		<<orgasm>><<set _orgasmCount++>>
+	<<else>>
+		<<willpowersuccess>>
+	<</if>>
+<</for>>
+<<unset $_resist>>
+<<link [[Next|Livestock None Give 3]]>><</link>>
 <br>
 
 :: Livestock None Give 3
 
 <<effects>>
 
-Your body is wracked time and again, until the <<if $deniedOrgasm>>ruined <</if>>orgasm just doesn't stop. Your body is kept in a state of constant climax, the toys tormenting your body vibrating without pause.
+Your body is wracked time and again. Your body is kept in a state of constant ecstasy, the toys tormenting your body vibrating without pause.
 
 <<if ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black")>>
 	<<if $worn.face.type.includes("gag")>>
@@ -825,7 +851,7 @@ Your body is wracked time and again, until the <<if $deniedOrgasm>>ruined <</if>
 <</if>>
 <br><br>
 
-<<link [[Next|Livestock None End]]>><<unset $deniedOrgasm>><</link>>
+<<link [[Next|Livestock None End]]>><</link>>
 <br>
 
 :: Livestock None Resist
@@ -852,7 +878,7 @@ You try to focus on something, anything other than the feeling on your <<genital
 	<br><br><br><br>
 	You remember the gel Remy rubbed into you, and how unnatural that warmth felt. You feel it again now, as the gel works its devilry on your body, spreading its yearning into your core.
 	<br><br>
-	<<link [[Next|Livestock None Give 2]]>><</link>>
+	<<link [[Next|Livestock None Give 2]]>><<set $_resist to true>><</link>>
 	<br>
 <</if>>
 
@@ -931,14 +957,26 @@ Perhaps the farmers will treat you better if you play along. You allow the sucki
 	You see the <<livestock_cows>> kneeling up and down the barn, mooing in pleasure, their faces contorted in rapture.
 <<else>>
 <</if>>
-The machine continues to suck your <<penis>>, forcing your body toward another orgasm, and you approach your peak once more.
+The machine continues to suck your <<penis>>, forcing your body toward another <<= (_deniedOrgasm? "ruined ":"")>>orgasm, and you approach your peak once more.
 <<orgasm>>
-You're still shaking from climax when you feel the next start to build. It's on you within moments.
-<<orgasm>>
-The next comes faster still, almost blurring with the previous.
-<<orgasm>>
-<<orgasm>>
-<<orgasm>>
+
+<<set _orgasmCount to 1>>
+<<for _i to 0; _i lt 4; _i++>>
+	<<willpowerdifficulty 1 1000>>
+	<<if !$willpowerSuccess or !$_resist>>
+		<<if $_resist>><<willpowerfailure>><</if>>
+		<<switch _orgasmCount>>
+		<<case 1>>
+			You're still shaking from <<if _deniedOrgasm>>your last ruined orgasm<<else>>climax<</if>> when you feel the next start to build. It's on you within moments.
+		<<case 2>>
+			The next comes faster still, almost blurring with the previous.
+		<</switch>>
+		<<orgasm>><<set _orgasmCount++>>
+	<<else>>
+		<<willpowersuccess>>
+	<</if>>
+<</for>>
+<<unset $_resist>>
 
 <<barn_img penis half_livestock>>
 
@@ -948,7 +986,7 @@ The next comes faster still, almost blurring with the previous.
 :: Livestock Penis Give 3
 <<effects>>
 
-Your body is wracked time and again, until the orgasm just doesn't stop. Your body is kept in a state of constant climax, the pump tormenting your <<penis>> sucking without pause.
+Your body is wracked time and again. Your body is kept in a state of constant ecstasy, the pump tormenting your <<penis>> sucking without pause.
 
 <<if ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black")>>
 	<<if $worn.face.type.includes("gag")>>
@@ -997,17 +1035,24 @@ You try to focus on something, anything other than the sucking on your penis. Yo
 	<br><br>
 	<<if $femaleclimax or _deniedOrgasm>>
 		<<unset $livestock_semen>>
-		Despite the aid of the pump on your <<penis>>, no semen is collected as you have multiple <<if _deniedOrgasm>>ruined <</if>>orgasms.
+		Despite the aid of the pump on your <<penis>>, no semen is collected despite your <<if _deniedOrgasm>>ruined <</if>>orgasms.
 		<br><br>
 		<<orgasm>>
-		<<orgasm>>
-
+		<<for _i to 0; _i lt 1; _i++>>
+			<<willpowercheck>>
+			<<if !$willpowerSuccess>>
+				<<orgasm>>
+			<</if>>
+		<</for>>
 		You remember the gel Remy rubbed into you, and how unnatural that warmth felt. You feel it again now, as the gel works its devilry on your cock, it also failing to do it's job.
 		<br><br>
 
-		<<orgasm>>
-		<<orgasm>>
-		<<orgasm>>
+		<<for _i to 0; _i lt 3; _i++>>
+			<<willpowercheck>>
+			<<if !$willpowerSuccess>>
+				<<orgasm>>
+			<</if>>
+		<</for>>
 
 		<<barn_img penis no_livestock>>
 
@@ -1024,7 +1069,7 @@ You try to focus on something, anything other than the sucking on your penis. Yo
 
 		<<barn_img penis no_livestock>>
 
-		<<link [[Next|Livestock Penis Give 2]]>><</link>>
+		<<link [[Next|Livestock Penis Give 2]]>><<set $_resist to true>><</link>>
 		<br>
 	<</if>>
 <</if>>
@@ -1059,25 +1104,33 @@ You remember the gel Remy rubbed into you, and how unnatural that warmth felt. Y
 The machine continues to suck your <<breasts>>, forcing your body toward another <<if _deniedOrgasm>>ruined <</if>>orgasm, and you approach your peak once more.
 <<orgasm>>
 
-You're still shaking from <<if _deniedOrgasm>>your last ruined orgasm<<else>>climax<</if>> when you feel the next start to build. It's on you within moments.
-<<orgasm>>
-
-The next comes faster still, almost blurring with the previous.
-<<orgasm>>
-
-<<orgasm>>
-
-<<orgasm>>
+<<set _orgasmCount to 1>>
+<<for _i to 0; _i lt 4; _i++>>
+	<<willpowerdifficulty 1 1000>>
+	<<if !$willpowerSuccess or !$_resist>>
+		<<if $_resist>><<willpowerfailure>><</if>>
+		<<switch _orgasmCount>>
+		<<case 1>>
+			You're still shaking from <<if _deniedOrgasm>>your last ruined orgasm<<else>>climax<</if>> when you feel the next start to build. It's on you within moments.
+		<<case 2>>
+			The next comes faster still, almost blurring with the previous.
+		<</switch>>
+		<<orgasm>><<set _orgasmCount++>>
+	<<else>>
+		<<willpowersuccess>>
+	<</if>>
+<</for>>
+<<unset $_resist>>
 
 <<barn_img breasts half_livestock>>
 
-<<link [[Next|Livestock Breasts Give 3]]>><<set $deniedOrgasm to _deniedOrgasm>><</link>>
+<<link [[Next|Livestock Breasts Give 3]]>><</link>>
 <br>
 
 :: Livestock Breasts Give 3
 <<effects>>
 
-Your body is wracked time and again, until the <<if $deniedOrgasm>>ruined <</if>>orgasm just doesn't stop. Your body is kept in a state of constant climax, the pump tormenting your <<breasts>> sucking without pause.
+Your body is wracked time and again. Your body is kept in a state of constant ecstasy, the pump tormenting your <<breasts>> sucking without pause.
 
 <<if ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black")>>
 	<<if $worn.face.type.includes("gag")>>
@@ -1138,7 +1191,7 @@ You try to focus on something, anything other than the sucking on your breasts. 
 
 	<<barn_img breasts no_livestock>>
 
-	<<link [[Next|Livestock Breasts Give 2]]>><</link>>
+	<<link [[Next|Livestock Breasts Give 2]]>><<set $_resist to true>><</link>>
 	<br>
 <</if>>
 
@@ -1156,7 +1209,7 @@ Perhaps the farmers will treat you better if you play along. You allow the sucki
 <<orgasm>>
 <<if $femaleclimax or _deniedOrgasm>>
 	<<unset $livestock_semen>>
-	You've barely recovered from the <<if $deniedOrgasm>>ruined <</if>>orgasm when the suction becomes more intense.
+	You've barely recovered from the <<if _deniedOrgasm>>ruined <</if>>orgasm when the suction becomes more intense.
 <<else>>
 	<<if $semen_amount gte 1>>
 		<<if $livestock_milk gte 1>>
@@ -1174,7 +1227,7 @@ You remember the gel Remy rubbed into you, and how unnatural that warmth felt. Y
 
 <<barn_img both no_livestock>>
 
-<<link [[Next|Livestock Both Give 2]]>><<set $deniedOrgasm to _deniedOrgasm>><</link>>
+<<link [[Next|Livestock Both Give 2]]>><</link>>
 <br>
 
 :: Livestock Both Give 2
@@ -1185,27 +1238,26 @@ You remember the gel Remy rubbed into you, and how unnatural that warmth felt. Y
 <<else>>
 <</if>>
 
-The machine continues to suck your <<penis>>, forcing your body toward another <<if $deniedOrgasm>>ruined <</if>>orgasm. You approach your peak once more.
+The machine continues to suck your <<penis>>, forcing your body toward another <<if _deniedOrgasm>>ruined <</if>>orgasm. You approach your peak once more.
 <<orgasm>>
-<<if $femaleclimax or _deniedOrgasm>>
-	You're still shaking from <<if $deniedOrgasm>>ruined orgasms<<else>>climax<</if>> when you feel the next start to build. It's on you within moments.
-	<<orgasm>>
 
-	The next comes faster still, almost blurring with the previous. <<orgasm>>
-
-	<<orgasm>>
-
-	<<orgasm>>
-<<else>>
-	You're still shaking from climax when you feel the next start to build. It's on you within moments.
-	<<orgasm>>
-
-	The next comes faster still, almost blurring with the previous. <<orgasm>>
-
-	<<orgasm>>
-
-	<<orgasm>>
-<</if>>
+<<set _orgasmCount to 1>>
+<<for _i to 0; _i lt 4; _i++>>
+	<<willpowerdifficulty 1 1000>>
+	<<if !$willpowerSuccess or !$_resist>>
+		<<if $_resist>><<willpowerfailure>><</if>>
+		<<switch _orgasmCount>>
+		<<case 1>>
+			You're still shaking from <<if _deniedOrgasm>>your last ruined orgasm<<else>>climax<</if>> when you feel the next start to build. It's on you within moments.
+		<<case 2>>
+			The next comes faster still, almost blurring with the previous.
+		<</switch>>
+		<<orgasm>><<set _orgasmCount++>>
+	<<else>>
+		<<willpowersuccess>>
+	<</if>>
+<</for>>
+<<unset $_resist>>
 
 <<barn_img both half_livestock>>
 
@@ -1214,10 +1266,8 @@ The machine continues to suck your <<penis>>, forcing your body toward another <
 
 :: Livestock Both Give 3
 <<effects>>
-<<if $femaleclimax or $deniedOrgasm>>
-	Your body is wracked time and again, until the <<if $deniedOrgasm>>ruined <</if>>orgasm just doesn't stop. Your body is kept in a state of constant <<if $deniedOrgasm>>ruined orgasms<<else>>climax<</if>>, the pump tormenting your <<penis>> sucking without pause.
-<<else>>
-	Your body is wracked time and again, until the orgasm just doesn't stop. Your body is kept in a state of constant climax, the pump tormenting your <<penis>> sucking without pause.
+Your body is wracked time and again. Your body is kept in a state of constant ecstasy, the pump tormenting your <<penis>> sucking without pause.
+<<if !$femaleclimax and !_deniedOrgasm>>
 	<<set $semen_amount to 0>>
 <</if>>
 
@@ -1291,7 +1341,7 @@ You try to focus on something, anything other than the sucking on your penis and
 
 	<<barn_img both no_livestock>>
 
-	<<link [[Next|Livestock Both Give 2]]>><<set $deniedOrgasm to _deniedOrgasm>><</link>>
+	<<link [[Next|Livestock Both Give 2]]>><<set $_resist to true>><</link>>
 	<br>
 <</if>>
 
@@ -1357,7 +1407,6 @@ Remy and the farmhands finish freeing the cattle from the machine. They turn off
 
 <<unset $livestock_semen>>
 <<unset $livestock_milk>>
-<<unset $deniedOrgasm>>
 <<unbind>>
 
 <<link [[Next|Livestock Cell]]>><</link>>
