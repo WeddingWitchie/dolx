@@ -40,11 +40,6 @@
 	Looking at the items on the shelves, you notice a few objects of interest.
 	<br><br>
 
-	Premium X-Change Pills:
-	<br>
-	<<pillicon "premium">><<link [[X-Change Clone: Whitney|Pharmacy Sale]]>><<set $pharmacyItem to setup.pharmacyItems["xchange_clone_whitney"]>><</link>><br>
-	<br>
-
 	X-Change:
 	<br>
 	<<if $player.gender is "m">>
@@ -76,8 +71,17 @@
 		<<pillicon "xchangeBlue">><<link [[X-Change Resistance|Pharmacy Sale]]>><<set $pharmacyItem to setup.pharmacyItems["xchange_blue_resistance"]>><</link>>
 		<br>
 	<</if>>
+	<<pillicon "pillcure">><<link [[X-Change Antidote|Pharmacy Sale]]>><<set $pharmacyItem to setup.pharmacyItems["xchange_antidote"]>><</link>>
+	<br>
+	<<pillicon "pillcure">><<link [[X-Change Antidote Forte|Pharmacy Sale]]>><<set $pharmacyItem to setup.pharmacyItems["xchange_antidote_forte"]>><</link>>
+	<br>
 	<<pregnancytesticon>><<link [[X-Change Test|Pharmacy Sale]]>><<set $pharmacyItem to setup.pharmacyItems["xchange_test"]>><</link>>
 	<br><br>
+
+	Under Clinical Trials: (UNFINISHED)
+	<br>
+	<<pillicon "premium">><<link [[X-Change Clone: Whitney|Pharmacy Sale]]>><<set $pharmacyItem to setup.pharmacyItems["xchange_clone_whitney"]>><</link>><br>
+	<br>
 
 	<<if $player.penisExist>>
 		Penis Enhancement Pills:
@@ -372,7 +376,7 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding,
 		<</if>>
 		Take one per day, try to normalise the time. You still need to be careful, the only sure way to be safe is still to be abstinent."
 	<<case "X-Change Pink Basic" "X-Change Blue Basic">>
-		"_printmoney please. Effects last for a day."
+		"These are under a special promotion. Only _printmoney for a pack of 3 pills. Effects last for a day."
 	<<case "X-Change Pink NOW" "X-Change Blue NOW">>
 		"_printmoney please. Effects last for about 6 hours."
 	<<case "X-Change Pink Weekly" "X-Change Blue Weekly">>
@@ -387,6 +391,10 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding,
 		"_printmoney please. Effects last for a week. Beware that this is a very high fertility pill."
 	<<case "X-Change Clone: Whitney">>
 		"_printmoney please. Effects last for only a day."
+	<<case "X-Change Antidote">>
+		"_printmoney please. Reduces current pill duration by 24 hours. Beware that this treatment causes severe pain."
+	<<case "X-Change Antidote Forte">>
+		"_printmoney please. Reduces current pill duration by 7 days. Beware that this treatment causes extreme amounts of pain and stress."
 	<<case "X-Change Test">>
 		"_printmoney please. It helps you determine the effects of whatever X-Change pill you find yourself under."
 	<<default>>
@@ -408,7 +416,9 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding,
 		"X-Change Blue Xtra Strength", 
 		"X-Change Pink Breeder",
 		"X-Change Test", 
-		"X-Change Clone: Whitney"
+		"X-Change Clone: Whitney",
+		"X-Change Antidote",
+		"X-Change Antidote Forte",
 	]>>
 	
 	<<if $pharmacyItem.type is "Breast Pump">>
@@ -422,14 +432,27 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding,
 	<<elseif $pharmacyItem.type is "X-Change Pink Basic" or $pharmacyItem.type is "X-Change Blue Basic">>
 		<<link [[Hand over the money|Pharmacy]]>><<set $money -= $pharmacyItem.price>><<set $sexStats.pills.pills[$pharmacyItem.type].owned += 3>><<boughtOnce>><</link>>
 	<<elseif _singleXChangePills.includes($pharmacyItem.type)>>
-		<<link [[Hand over the money|Pharmacy]]>><<set $money -= $pharmacyItem.price>><<set $sexStats.pills.pills[$pharmacyItem.type].owned += 1>><<boughtOnce>><</link>>
+		<<link [[Buy 1 at once|Pharmacy]]>><<set $money -= $pharmacyItem.price>><<set $sexStats.pills.pills[$pharmacyItem.type].owned += 1>><<boughtOnce>><</link>>
 	<<else>>
 		<<link [[Hand over the money|Pharmacy]]>><<set $money -= $pharmacyItem.price>><<set $sexStats.pills.pills[$pharmacyItem.type].owned += 14>><<boughtOnce>><</link>>
 	<</if>>
+	<br>
+	<<if $money gte ($pharmacyItem.price * 5) and _singleXChangePills.includes($pharmacyItem.type)>>
+		<<link [[Buy 5 at once|Pharmacy]]>><<set $money -= $pharmacyItem.price * 5>><<set $sexStats.pills.pills[$pharmacyItem.type].owned += 5>><<boughtOnce>><</link>><br>
+	<<elseif $money lt ($pharmacyItem.price * 5)>>
+		<span class="purple">You cannot afford 5 at once.</span>
+		<br>
+	<</if>>
+	<<if $money gte ($pharmacyItem.price * 10) and _singleXChangePills.includes($pharmacyItem.type)>>
+		<<link [[Buy 10 at once|Pharmacy]]>><<set $money -= $pharmacyItem.price * 10>><<set $sexStats.pills.pills[$pharmacyItem.type].owned += 10>><<boughtOnce>><</link>><br><br>
+	<<elseif $money lt ($pharmacyItem.price * 10)>>
+		<span class="purple">You cannot afford 10 at once.</span>
+		<br><br>
+	<</if>>
 <<else>>
 	<span class="purple">You cannot afford them.</span>
+	<br>
 <</if>>
-<br>
 <<if $pharmacyItem.type.includes("penis") and $promiscuity gte 15 and !$daily.pharm.seductionResult>>
 	<<link [[Seduce|Pharmacy Seduction]]>><</link>><<seductiondifficulty>><<promiscuous2>>
 	<br>
