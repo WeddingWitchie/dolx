@@ -456,6 +456,21 @@
 	<</if>>
 <</widget>>
 
+<<widget "xchange-antidote">>
+	<<if !isNaN(_args[0])>>
+		<<set _decrease to _args[0] * 24>>
+		<<if playerIsXChanged() and !(pillIsPermanent() or pillTimerPaused())>>
+			<<set $xchangePill.duration to Math.max($xchangePill.duration - _decrease, 0)>>
+			<<pain 200>><<set $stress += Math.max($stressmax * (_args[0] / 8), $stressmax * 0.66)>>
+		<</if>>
+	<<else>>
+		<<error {
+			message	: `Received either no argument or a NaN value in the xchange-antidote widget.`,
+			source	: `Previous passage: ${$passagePrev} | phase: ${$phase} | rng: ${$rng}.`
+		}>>
+	<</if>>
+<</widget>>
+
 <<widget "xchange-test">>
 	<<set $xchangePill.effectsKnown to true>>
 	<br>
@@ -673,6 +688,22 @@
 	<</if>>
 <</widget>>
 
+<<widget "willpowercheck">>
+	<<if _args[0] isnot undefined>>
+		<<set _difficulty to _args[0]>>
+	<<else>>
+		<<set _difficulty to 1000>>
+	<</if>>
+	<<silently>><<willpowerdifficulty 1 _difficulty>><</silently>>
+	<<if $xchange.willpowerSystemEnabled is 1>>
+		<<if $willpowerSuccess>>
+			<<willpowersuccess>>
+		<<else>>
+			<<willpowerfailure>>
+		<</if>>
+	<</if>>
+<</widget>>
+
 <<widget "willpowersuccess">>
 	<<willpower-spending $xchange.willpowerSuccessCost>>
 <</widget>>
@@ -724,9 +755,8 @@
 	<<set _liquids to _args[1]>>
 	<<set _amount to _args[2]>>
 
-	<<if _bodyparts.includes("vagina") and _liquids.includesAny("cum", "semen") and _amount gte 1>>
+	<<if playerIsXChanged() and $xchangePill.breederEffect and _bodyparts.includes("vagina") and _liquids.includesAny("cum", "semen") and _amount gte 1>>
 		<<arousal 10000 "vagina">>
-		<<set $creampied to 1>>
 		<<set $breederOrgasm to 1>>
 	<</if>>
 <</widget>>

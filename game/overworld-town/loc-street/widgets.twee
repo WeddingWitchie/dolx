@@ -129,7 +129,7 @@
 		<<if $earSlime.growth gte 200 and $earSlime.exhibitionism gte 2 and $exhibitionism gte 15>>
 			<span class="red">You know the ear slimes wouldn't let you do anything but expose yourself.</span>
 			<br>
-			<<link [[Cross Slowly|Street Footbridge Cross]]>><<set $phase to 2>><</link>>
+			<<link [[Cross slowly|Street Footbridge Cross]]>><<set $phase to 2>><</link>>
 		<<elseif numberOfEarSlime() and $earSlime.growth gte 30 - ($earSlime.exhibitionism * 10) and $earSlime.corruption gte random(0, 80)>>
 			<span class="lewd">You feel the slime in your head command you to cross the bridge slowly, never looking down at any point.</span> It promises rewards if you comply<<if $earSlime.startedThreats>>, and threatens consequences if you do not<</if>>.
 			<br><br>
@@ -334,7 +334,7 @@
 	"'Ey <<girl>>," a voice says to your right. A <<person1>><<person>> leans against an open van, panting. "Fancy making some cash? My usual help didn't turn up, and I'm struggling to move all these boxes. I'll pay you three times the usual. So <span class="gold">£30.</span> Should take about an hour."
 	<br><br>
 
-	<<link [[Help (1:00)|Street Van Help]]>><<pass 60>><<tiredness 6>><</link>><<gtiredness>>
+	<<link [[Help (1:00)|Street Van Help]]>><<tiredness 6>><</link>><<gtiredness>>
 	<br>
 	<<link [[Refuse|Street Van Refuse]]>><</link>>
 	<br>
@@ -769,12 +769,17 @@
 <<widget "street6">>
 	<<outfitChecks>>
 	<<set $_tornItem to _bottomIsSkirt ? _bottom : !_shirtless ? _top : "none">>
+	<<athleticsdifficulty 0 500 true>>
 	<<if $_tornItem is "none">>
 		<<generate1>><<person1>>A <<person>> shouts at you from a passing car while leering at your exposed chest. "Thanks for the show." You feel self-conscious.
 		<<gtrauma>><<gstress>><<garousal>><<trauma 1>><<stress 1>><<arousal 100>>
 		<br><br>
 		<<endevent>>
 		<<destinationeventend>>
+	<<elseif $athleticsSuccess>>
+		An incoming car passes a little too close to you, but upon hearing it <span class = "green">you reflexively dodge out of the way and it harmlessly passes you by.</span>
+	<<elseif (currentSkillValue('danceskill') + $rng) gte 500>>
+		An incoming car passes a little too close to you, but with a dancer's grace and agility <span class = "green">you manage dodge out of the way in time and it harmlessly passes you by.</span>
 	<<else>>
 		Your $_tornItem.name <<= $_tornItem.plural is 1 ? "snag" : "snags">> on a passing car, <<set $_tornItem.integrity -= 10>>
 		<<if $_tornItem.integrity lte 0>>
@@ -2449,7 +2454,7 @@
 :: Widget Passout Street [widget]
 <<widget "passoutstreet">>
 	<<if isPlayerNonparasitePregnancyEnding()>>
-		<<pregnancyWatersBrokenPassout "street">>
+		<<pregnancyPassout "street">>
 	<<else>>
 		<<link [[Everything fades to black...->Passout street]]>><</link>>
 	<</if>>
@@ -2714,7 +2719,7 @@
 
 <<widget "passoutcompound">>
 	<<if isPlayerNonparasitePregnancyEnding()>>
-		<<pregnancyWatersBrokenPassout "compound">>
+		<<pregnancyPassout "compound">>
 	<<else>>
 		You've pushed yourself too much. You black out.
 		<br><br>
@@ -3149,7 +3154,7 @@
 <<widget "eventsstreet">>
 	<<set $dangerevent to random(1, 100)>>
 	<<rng>>
-	<<if $wraith.state and $eventforced and isBloodmoon() and !_wraithEventSkipped>>
+	<<if $wraith.state and $eventforced and Time.isBloodMoon() and !_wraithEventSkipped>>
 		<<wraithEventStreet>>
 	<<elseif $kylarwatched is 1>>
 		<<kylarwatched>>
@@ -3707,9 +3712,9 @@
 
 	<<if $bus is "domus" or $bus is "danube" or $bus is "barb" or $bus is "connudatus">>
 		<<link[[Take the detour|Residential alleyways]]>><</link>>
-	<<elseif $bus is "cliff" or $bus is "high" or $bus is "wolf" or $bus is "harvest">>
+	<<elseif $bus is "cliff" or $bus is "high" or $bus is "wolf">>
 		<<link[[Take the detour|Commercial alleyways]]>><</link>>
-	<<elseif $bus is "oxford" or $bus is "mer" or $bus is "elk">>
+	<<elseif $bus is "oxford" or $bus is "mer" or $bus is "elk" or $bus is "harvest">>
 		<<link[[Take the detour|Industrial alleyways]]>><</link>>
 	<<elseif $bus is "starfish" or $bus is "nightingale">>
 		<<link[[Take the detour|Park]]>><</link>>
@@ -3820,7 +3825,7 @@
 	<<elseif $dangerevent lte 184>>
 		<<streetnpcflash>>
 	<<elseif $dangerevent lte 190>>
-		<<if ($bus is "domus" or $bus is "danube") and $weather is "rainy" and ($upperwetstage is 1 or $lowerwetstage is 1)>>
+		<<if ($bus is "domus" or $bus is "danube") and Weather.precipitation is "rain" and ($upperwetstage is 1 or $lowerwetstage is 1)>>
 			<<rainyDayHarass>>
 		<<else>>
 			<<eventAmbient>>

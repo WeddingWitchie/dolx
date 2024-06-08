@@ -63,7 +63,7 @@ function xchangeHourlyCheck() {
 			fragment.append(wikifier("xchange-setpermanent"));
 
 		// Stop the timer from ticking if PC is vaginally pregnant or the ear slime has grown past its point of no return
-		if (!pillTimerPaused() && pill.duration > 0) {
+		if (!pillTimerPaused() && pill.duration >= 0) {
 			pill.duration = Math.max(pill.duration-1, 0);
 			if (pill.duration == 0)
 			{

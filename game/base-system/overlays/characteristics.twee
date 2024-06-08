@@ -3,7 +3,9 @@
 <<widget "characteristics">>
 	<br>
 	You are
-	<<if ($wolfgirl gte 6 or $transformationParts.wolf.tail is "default" or $transformationParts.wolf.tail is "feral") or ($cat gte 6 or $transformationParts.cat.tail is "default") or ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black") or ($harpy gte 6 or $transformationParts.bird.wings is "default") or ($fox gte 6 or $transformationParts.fox.tail is "default")>>
+	<<if $wraithSkin>>
+		a spirit
+	<<elseif ($wolfgirl gte 6 or $transformationParts.wolf.tail is "default" or $transformationParts.wolf.tail is "feral") or ($cat gte 6 or $transformationParts.cat.tail is "default") or ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black") or ($harpy gte 6 or $transformationParts.bird.wings is "default") or ($fox gte 6 or $transformationParts.fox.tail is "default")>>
 		<<if ($angel gte 6 or $transformationParts.angel.wings is "default")>>
 			an angelic
 		<<elseif ($fallenangel gte 2 or $transformationParts.fallenAngel.wings is "default")>>
@@ -13,7 +15,7 @@
 		<<else>>
 			a
 		<</if>>
-		<<if V.xchangePill and V.xchangePill.active and $genderidentity gte 375>>
+		<<if playerIsXChanged() and ($genderidentity gte 375 or $xchange.genderIdentityEnabled)>>
 			pilled
 		<</if>>
 		<<if ($wolfgirl gte 6 or $transformationParts.wolf.tail is "default" or $transformationParts.wolf.tail is "feral") and (($demon gte 6 or $transformationParts.demon.wings is "default" or $transformationParts.demon.wings is "succubus") or ($fallenangel gte 2 or $transformationParts.fallenAngel.wings is "default"))>>
@@ -49,7 +51,7 @@
 		<<else>>
 			a<<if $NudeGenderDC lt 0 and $player.gender_posture is "n">>n<</if>>
 		<</if>>
-		<<if V.xchangePill and V.xchangePill.active and $genderidentity gte 375>>
+		<<if playerIsXChanged() and ($genderidentity gte 375 or $xchange.genderIdentityEnabled)>>
 			pilled
 		<</if>>
 	<</if>>
@@ -92,14 +94,14 @@
 	You have a <<bottom true>>.
 	<<if $player.penisExist and $player.vaginaExist>>
 		<<silently>>
-		<<penis>><<set _penis to _text_output>>
-		<<pussy true true>><<set _pussy to _text_output>>
+			<<penis false true>><<set _penis to _text_output>>
+			<<pussy false true>><<set _pussy to _text_output>>
 		<</silently>>
 		You have <<a _penis>> and <<a _pussy>>.
 	<<else>>
 		You have
 		<<if $player.penisExist>>
-			<<silently>><<penis>><<set _penis to _text_output>><</silently>>
+			<<silently>><<penis false true>><<set _penis to _text_output>><</silently>>
 			<<a _penis>>.
 		<</if>>
 		<<if $player.vaginaExist>>
@@ -165,8 +167,19 @@
 					<</if>>
 				<<case "wolf">>
 					<<set _childType to ($_number is 1 || $_number is "more than one" ? "wolf pup" : "wolf pups")>>
+				<<case "hawk">>
+					<<set _childType to ($_number is 1 || $_number is "more than one" ? "hawk egg" : "hawk eggs")>>
 			<</switch>>
-			You're pregnant with <<number $_number>> _childType, in the _trimester trimester of your pregnancy.
+			<<if $_pregnancy.type is "hawk">>
+				You're pregnant with <<number $_number>> _childType,
+				<<switch _trimester>>
+					<<case "first">>and it will be a while before you can lay them.
+					<<case "second">>but it will still take some time to lay them.
+					<<case "third">>and you'll be ready to lay them soon.
+				<</switch>>
+			<<else>>
+				You're pregnant with <<number $_number>> _childType, in the _trimester trimester of your pregnancy.
+			<</if>>
 		<<else>>
 			You know you're in the _trimester trimester of your pregnancy.
 		<</if>>
@@ -360,7 +373,7 @@
 			<<silently>>
 
 				<!--GENDER IDENTITY -->
-				<<if $player.gender is "m">>
+				<<if $player.gender is "m" and $xchange.genderIdentityEnabled>>
 					<<if $genderidentity gte 625>>
 						<<set _icon='misc/icon/male'>>
 					<<elseif $genderidentity gte 375>>
@@ -381,7 +394,7 @@
 							{ requiredValue: 1000,	level: 8, color: 'green',	description: 'You are a man.'}
 						]
 					}>>
-				<<else>>
+				<<elseif $player.gender is "f" and $xchange.genderIdentityEnabled>>
 					<<if $genderidentity gte 625>>
 						<<set _icon='misc/icon/female'>>
 					<<elseif $genderidentity gte 375>>
@@ -407,11 +420,11 @@
 
 				<!--PURITY-->
 				<<if ($demon gte 6 or $transformationParts.demon.wings is "default" or $transformationParts.demon.wings is "succubus")>>
-					<<set _purityIcon='ui/sym_demon_purity'>>
-				<<elseif ($fallenangel gte 2 or $transformationParts.fallenAngel.wings is "default")>>
-					<<set _purityIcon='ui/sym_fallen_purity'>>
+					<<set _purityIcon='misc/icon/tf_demon'>>
+				<<elseif $fallenangel gte 2>>
+					<<set _purityIcon='misc/icon/tf_fallen'>>
 				<<else>>
-					<<set _purityIcon='ui/sym_purity'>>
+					<<set _purityIcon='misc/icon/tf_angel'>>
 				<</if>>
 				
 				
@@ -640,7 +653,9 @@
 			<<characteristic-box _promiscuityConfig>>
 			<<characteristic-box _exhibitionismConfig>>
 			<<characteristic-box _deviancyConfig>>
-			<<characteristic-box _genderConfig>>
+			<<if $xchange.genderIdentityEnabled>>
+				<<characteristic-box _genderConfig>>
+			<</if>>
 		</div>
 
 		<!--Common states for skills with grades-->

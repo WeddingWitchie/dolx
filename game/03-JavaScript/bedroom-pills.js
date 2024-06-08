@@ -1115,6 +1115,80 @@ setup.pills = [
 		effects: [`<<xchange-clone 3 "Whitney">>`],
 	},
 	{
+		name: "X-Change Antidote",
+		description:
+			"An expensive solution for those who are willing and can afford it. A pill that reduces the remaining duration of your current pill by a single day, at the expense of some severe side-effects. If remaining duration reaches zero, your pill shall expire within the next hour.",
+		onTakeMessage: 
+			"<span class=\"purple\">You down the pill with some hesitation after having read the warning label.</span><br><br><span class=\"red\">Almost immediately you're overcome by a searing pain that brings you down to your knees. It burns and hurts like hell. A skull-splitting headache, nausea, sudden fever, shortness of breath. The list goes on. Words cannot even begin to describe how incredibly awful you feel.</span><<gggpain>><<ggstress>><br><br>After several minutes of this, you're bent over on the floor. Clasping your head with one hand, and your chest with the other. Almost blacking out multiple times. Until it finally starts to subside.<<gpain>><<gstress>><br><br>Once your body finally settles down, you manage to stand up despite the grueling experience. Who in their right mind would willingly subject themselves to this kind of pain unless they really had to?<<gstress>>",
+		warning_label:
+			"Warning: Will cause severe pain and nausea. Not recommended while under stress. May only be taken while under the effects of a non-permanent pill. Has no effect for pregnant takers or those genitally afflicted by parasites. Releases a biological agent that targets X-Change compounds embedded all across the body. Does not self replicate.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "antidote",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillcure.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return playerIsXChanged() && !(pillIsPermanent() || pillTimerPaused())
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-antidote 1>>`],
+	},
+	{
+		name: "X-Change Antidote Forte",
+		description:
+			"An very expensive solution for those who are willing and can afford it. A pill that reduces the remaining duration of your current pill by a whole week, at the expense of some extreme side-effects. If remaining duration reaches zero, your pill shall expire within the next hour.",
+		onTakeMessage: 
+			"<span class=\"purple\">You down the pill with some hesitation after having read the warning label.</span><br><br><span class=\"red\">Almost immediately you're overcome by a searing pain that brings you down to your knees. It burns and hurts like hell. A skull-splitting headache, nausea, sudden fever, shortness of breath. The list goes on. Words cannot even begin to describe how incredibly awful you feel.</span><<gggpain>><<gggstress>><br><br>After several minutes of this, you're bent over on the floor. Clasping your head with one hand, and your chest with the other. Almost blacking out multiple times. Until it finally starts to subside.<<ggpain>><<ggstress>><br><br>Once your body finally settles down, you manage to stand up despite the grueling experience. Who in their right mind would willingly subject themselves to this kind of pain unless they really had to?<<gstress>>",
+		warning_label:
+			"Warning: Will cause grueling pain and nausea. Not recommended while under any kind of stress. May only be taken while under the effects of a non-permanent pill. Has no effect for pregnant takers or those genitally afflicted by parasites. Releases a biological agent that targets X-Change compounds embedded all across the body. Does not self replicate.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "antidote",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillcure.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return playerIsXChanged() && !(pillIsPermanent() || pillTimerPaused())
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-antidote 7>>`],
+	},
+	{
 		name: "X-Change Test",
 		description:
 			"A single-use test that helps you determine what kind of X-Change pill was ingested. To make it work, simply expose the tip to the user's urine and await the message on the display.",
@@ -1478,6 +1552,8 @@ function backCompPillsInventory() {
 		"X-Change Blue Resistance": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Blue Continue": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Clone: Whitney": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+		"X-Change Antidote": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+		"X-Change Antidote Forte": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Test": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 	});
 	if (typeof oPills === "undefined") {

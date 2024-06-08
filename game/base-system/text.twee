@@ -140,6 +140,16 @@
 	<</if>>
 <</silently>>_text_output<</widget>>
 
+<<widget "is">><<silently>>
+	<<outfitChecks>>
+	<<if _args[0].plural is 1>>
+		<<set _text_output to "are">>
+	<<else>>
+		<<set _text_output to "is">>
+	<</if>>
+<</silently>>_text_output
+<</widget>>
+
 <<widget "overupperplural">>
 	<<plural "over_upper">>
 <</widget>>
@@ -204,18 +214,10 @@
 	<<it "over_lower">>
 <</widget>>
 <<widget "upperit">>
-	<<if $worn.upper.name is "naked" and $worn.under_upper.type.includes("covered")>>
-		<<it "under_upper">>
-	<<else>>
-		<<it "upper">>
-	<</if>>
+	<<if $worn.upper.name is "naked" and $worn.under_upper.type.includes("covered")>><<it "under_upper">><<else>><<it "upper">><</if>>
 <</widget>>
 <<widget "lowerit">>
-	<<if $worn.lower.name is "naked" and $worn.under_lower.type.includes("covered")>>
-		<<it "under_lower">>
-	<<else>>
-		<<it "lower">>
-	<</if>>
+	<<if $worn.lower.name is "naked" and $worn.under_lower.type.includes("covered")>><<it "under_lower">><<else>><<it "lower">><</if>>
 <</widget>>
 <<widget "underupperit">>
 	<<it "under_upper">>
@@ -1244,7 +1246,8 @@
 	<<if !_args[0]>>
 		<<genitalsensitivity>>
 	<</if>>
-	<<set _text_output += _genital_state_text + ["pussy","pussy","pussy","pussy"].pluck()>>
+	/* _args[1] is a flag to prevent .pluck() from altering state random when calling from overlays */
+	<<set _text_output += _genital_state_text + pussyNames().pluck(_args[1])>>
 <</silently>><<print _text_output>><</widget>>
 
 <!-- [0] - if truthy, genital sensitivity is omitted -->
@@ -1271,7 +1274,8 @@
 	<<if !_args[0]>>
 		<<genitalsensitivity>>
 	<</if>>
-	<<set _text_output += _penissize_text + _genital_state_text + "penis">>
+	/* _args[1] is a flag to prevent .pluck() from altering state random when calling from overlays */
+	<<set _text_output += _penissize_text + _genital_state_text + penisNames().pluck(_args[1])>>
 
 	<<if playerHasStrapon()>>
 		<<if _args[0] isnot undefined and _args[0] is "strap-on" and $player.penisExist>>
@@ -1338,27 +1342,6 @@
 				<span class="red">flimsy</span>
 			<</if>>
 		<</if>>
-	<</if>>
-<</widget>>
-
-<<widget "warmth">>
-	<<if _args[0] gte 75>>
-		Very warm.
-	<<elseif _args[0] gte 50>>
-		Warm and snug.
-	<<elseif _args[0] gte 25>>
-		Should help keep the chill off.
-	<<elseif _args[0] gte 10>>
-		Should help keep the chill off.
-	<<elseif _args[0] gte 1>>
-		Light and cool.
-	<<else>>
-		No effect on warmth.
-	<</if>>
-	<<if $options.images is 1>>
-		(<span class="cold-resist-icon">_args[0]</span>)
-	<<else>>
-		(Warmth rating: _args[0])
 	<</if>>
 <</widget>>
 
@@ -1670,7 +1653,7 @@
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "gender">><<silently>>
-	<<if $genderidentity gte 375>>
+	<<if $genderidentity gte 375 or !$xchange.genderIdentityEnabled>>
 		<<switch $player.gender>>
 		<<case "f">><<set _text_output to "girl">>
 		<<case "m">><<set _text_output to "boy">>
@@ -1742,7 +1725,8 @@
 			<<if $player.sex is "f" and $parasite.clit.name is "parasite" and _args[0] isnot 2>>
 				<<set _text_output += "parasitic ">>
 			<</if>>
-			<<set _text_output += "penis">>
+			/* _args[0] is a flag to prevent .pluck() from altering state random when calling from overlays */
+			<<set _text_output += penisNames().pluck(_args[0])>>
 		<</if>>
 		<<if $player.vaginaExist>>
 			<<if $player.penisExist>>
@@ -1761,7 +1745,7 @@
 				<</if>>
 			<</if>>
 			/* _args[0] is a flag to prevent .pluck() from altering state random when calling from overlays */
-			<<set _text_output += ["pussy", "pussy", "pussy", "pussy"].pluck(_args[0])>>
+			<<set _text_output += pussyNames().pluck(_args[0])>>
 		<</if>>
 	<</if>>
 <</silently>><<print _text_output>><</widget>>
@@ -2338,7 +2322,7 @@
 
 <<widget "bottoms">><<silently>>
 	<<outfitChecks>>
-	<<set _text_output to (_middleOutfit ? $worn.upper.name : $worn.lower.name is "naked" and $worn.under_lower.type.includes("covered") ? $worn.under_lower.name : $worn.lower.name)>>
+	<<set _text_output to _bottom.name>>
 <</silently>>_text_output<</widget>>
 
 <<widget "underbottoms">><<silently>>
@@ -2425,7 +2409,7 @@
 <</silently>>_text_output<</widget>>
 
 <<widget "topaside">><<silently>>
-	<<if $worn.over_upper.exposed lte 2>>
+	<<if $worn.over_upper.exposed lte 1>>
 		<<set _text_output to $worn.over_upper.name>>
 	<<elseif $worn.upper.exposed lte 1>>
 		<<set _text_output to $worn.upper.name>>
@@ -2552,7 +2536,7 @@
 		<<set $_plural = $_plural || _bottom.plural || 0>>
 	<</if>>
 	<<if $_bottomUnderIntegrity lte 0>>
-		<<run $_torn.push(_bottomUnder.name)>>
+		<<run $_torn.push(_bottomUnder?.name)>>
 		<<set $_plural = $_plural || _bottomUnder.plural || 0>>
 	<</if>>
 	<<set $_plural = $_torn.length gt 1 ? 1 : $_plural || 0>>
@@ -2750,7 +2734,7 @@
 <</silently>>_text_output<</widget>>
 
 <<widget "schoolday">>
-	<<if $location isnot "prison" and $location isnot "asylum">>
+	<<if $location isnot "prison" and $location isnot "asylum" and !$statFreeze>>
 		<<if !Time.schoolDay && Time.isSchoolDay(Time.tomorrow)>>
 			You have school tomorrow.
 		<<elseif Time.schoolDay>>
@@ -3084,7 +3068,7 @@
 				<<if _clothing_strip_sequence is 0>>
 					<<flaunting>> you shuffle out of your $worn.under_upper.name, revealing your <<breasts>> and <<genitals>>.
 				<<elseif _clothing_strip_sequence is 1>>
-					Your $worn.under_upper.name <<= $worn.under_.plural is 1 ? "come" : "comes">> next, revealing your <<breasts>> and <<genitals>>.
+					Your $worn.under_upper.name <<= $worn.under_upper.plural is 1 ? "come" : "comes">> next, revealing your <<breasts>> and <<genitals>>.
 				<<else>>
 					Finally, you peel off your $worn.under_upper.name, revealing your <<breasts>> and <<genitals>>.
 				<</if>>
@@ -5022,11 +5006,11 @@
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "daylight">>
-	<<if Time.dayState is "day">>
+	<<if Weather.dayState is "day">>
 		<<set _text_output to "daylight">>
-	<<elseif Time.dayState is "dawn">>
+	<<elseif Weather.dayState is "dawn">>
 		<<set _text_output to "dawn's light">>
-	<<elseif Time.dayState is "dusk">>
+	<<elseif Weather.dayState is "dusk">>
 		<<set _text_output to "fading light">>
 	<<else>>
 		<<if Time.hour is 9 or Time.season is "summer">>
@@ -5523,42 +5507,6 @@ Argument 2, where appropriate, determines whether it's the player undressing the
 		<span class="green">+ + + Skulduggery</span>
 	<</if>>
 <</widget>>
-
-/* Replaced with js macro
-<<widget "ampm">><!-- [hour] [minute] -->
-	/* displays time in accordance with player-set time format *//*
-	<<if ndef _args[0]>>
-		/* when called without arguments, display current time *//*
-		<<set _hour to Time.hour>>
-		<<set _minute to $minute>>
-	<<elseif typeof(_args[0]) is "string">>
-		/* if string, assume format H:mm or hh:mm *//*
-		<<set _numberstring to _args[0].replace(":", ".")>>
-		<<set _hour to Math.trunc(_numberstring)>>
-		<<set _minute to _numberstring * 100 % 100>>
-	<<else>>
-		/* assume first numeric argument is hour *//*
-		<<set _hour to _args[0]>>
-		<<if ndef _args[1]>>
-			/* without a second argument, assume 00 */ /*
-			<<set _minute to 0>>
-		<<else>>
-			<<set _minute to _args[1]>>
-		<</if>>
-	<</if>>
-
-	<<if $options.timestyle is "ampm">>
-		<<if _hour gte 13>>
-			<<set _text_output to (_hour - 12) +":"+ _minute.toString().padStart(2, "0") + " pm">>
-		<<else>>
-			<<set _text_output to (_hour is 0 ? "12" : _hour) +":"+ _minute.toString().padStart(2, "0") + (_hour is 12 ? " pm" : " am")>>
-		<</if>>
-	<<else>>
-		<<set _text_output to _hour.toString().padStart(2,"0") +":"+ _minute.toString().padStart(2, "0")>>
-	<</if>>
-	<<print _text_output>>
-<</widget>>
-*/
 
 <!-- usage
 	<<number -69>> -> "negative sixty-nine"

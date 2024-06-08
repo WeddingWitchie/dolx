@@ -257,7 +257,7 @@
 			<span class="pink">You feel your muscles clamp down around your fingers, pulsing as your orgasm runs its course.</span>
 		<</if>>
 
-		<<if $creampied>>
+		<<if $breederCreampied>>
 			<span class="breeder-pink">You spasm and spasm, yet your climax just won't subside. As the <<= ["semen", "cum"].random()>> coats your walls, the trembling increases, <<=["colouring your mind", "dying your head"].random()>> a blissful white. <b>Nothing</b> comes even close to <i>these fireworks!</i></span>
 
 			<<stress -5000>>
@@ -481,9 +481,9 @@
 	<</if>>
 
 	<!-- Chance to get "dick drunk" after 3rd orgasm, chance is 45% for consensual and 15% otherwise, +5% for each following orgasm, but aphrodisiacs make it 100% -->
-	<<if ($orgasmcount gte 3 and $drunk lte 1000 and playerIsPenetrated() and $mouth isnot "mpenis" and !_deniedOrgasm) or (playerIsXChanged() and $xchangePill.breederEffect and $creampied)>>
-		<<if $creampied or $drugged gt 0 or (random(1,100) + ($orgasmcount * 5) gte ($consensual ? 70 : 100))>>
-			<<alcohol 25>><<unset $creampied>>
+	<<if ($orgasmcount gte 3 and $drunk lte 1000 and playerIsPenetrated() and $mouth isnot "mpenis" and !_deniedOrgasm) or $breederCreampied>>
+		<<if $breederCreampied or $drugged gt 0 or (random(1,100) + ($orgasmcount * 5) gte ($consensual ? 70 : 100))>>
+			<<alcohol 25>>
 			<span class="purple"><<print either("You feel dizzy.", "You feel lightheaded.", "You can't think straight.")>></span>
 		<</if>>
 	<</if>>
@@ -517,18 +517,21 @@
 		<</if>>
 		<br>
 	<</if>>
+
+	<<if $creampie>><<unset $breederCreampied>><</if>>
+
 <</widget>>
 
 <<widget "orgasmstreet">>
 	<<orgasm>>
 	<<if $exposed gte 1>>
-		<<if Time.dayState isnot "night">>
+		<<if Weather.dayState isnot "night">>
 			You steady yourself as your spasms subside, feeling exposed and hoping the noise hasn't given away your hiding place.
 		<<else>>
 			You steady yourself as your spasms subside, feeling exposed and hoping the noise hasn't attracted attention.
 		<</if>>
 	<<else>>
-		<<if Time.dayState isnot "night">>
+		<<if Weather.dayState isnot "night">>
 			The sight and sound of a <<girl>> convulsing in climax draws attention, and as you regain control you find yourself stared at from all directions. Face red, you flee the scene.
 			<<gtrauma>><<gstress>><<trauma 6>><<stress 6>><<fameexhibitionism 10>>
 		<<else>>
@@ -778,7 +781,7 @@
 				<<gtrauma>><<gstress>><<trauma 6>><<stress 6>><<fameexhibitionism 10>>
 			<</if>>
 		<<case "arcade">>
-			<<if Time.dayState is "night" or Time.dayState is "dawn">>
+			<<if Weather.dayState is "night" or Weather.dayState is "dawn">>
 				<<set $_quiet to "arcade">>
 			<<else>>
 				You steady yourself as your spasms subside. Fortunately, the loud ambient noise has stifled your moans, and the dim lights made your spasms almost imperceptible. Still, as you look around, you notice a <<generatey1>><<person1>><<person>> staring at you, with a look of surprise and disbelief. <<His>> attention, however, quickly goes back to the game <<he>> was playing.
@@ -786,7 +789,7 @@
 				<<gtrauma>><<gstress>><<trauma 6>><<stress 6>><<fameexhibitionism 10>>
 			<</if>>
 		<<case "docks">>
-			<<if Time.dayState is "night">>
+			<<if Weather.dayState is "night">>
 				<<set $_quiet to "docks">>
 			<<else>>
 				You steady yourself as your spasms subside. You look around, and it doesn't look like anyone noticed your orgasm. That is, until you take note of a <<generate1>><<person1>><<person>> looking at you from afar. <<He>> gives you a grin, and then goes back to work.
@@ -794,7 +797,7 @@
 				<<gtrauma>><<gstress>><<trauma 6>><<stress 6>><<fameexhibitionism 10>>
 			<</if>>
 		<<case "stripClub">>
-			<<if Time.dayState isnot "night" and Time.dayState isnot "dusk" and Time.hour isnot 6>>
+			<<if Weather.dayState isnot "night" and Weather.dayState isnot "dusk" and Time.hour isnot 6>>
 				<<set $_quiet to "club">>
 			<<else>>
 				You steady yourself as your spasms subside. Fortunately, the loud ambient noise has stifled your moans, and the dim lights made your spasms almost imperceptible. Still, as you look around, you notice a patron staring at you. <<generate1>><<person1>><<He>> grins and gives you a wink, before getting up and leaving.
@@ -916,7 +919,7 @@
 				<<gtrauma>><<gstress>><<trauma 6>><<stress 6>><<fameexhibitionism 10>>
 			<</if>>
 		<<case "campsite">>
-			<<if $weather is "rain" or $weather is "snow" or Time.hour lt 18 or $daily.lakeCouple is 1>>
+			<<if Weather.precipitation !== "none" or Time.hour lt 18 or $daily.lakeCouple is 1>>
 				You steady yourself against a tree as your spasms subside. Fortunately, there's no one around right now to see you in such a state.
 			<<elseif $exposed gte 1>>
 				<<set $_hidden to true>>
