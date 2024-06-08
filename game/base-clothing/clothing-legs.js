@@ -65,7 +65,7 @@ function initLegs() {
 			type: ["normal"],
 			gender: "f",
 			femininity: 200,
-			warmth: 2,
+			warmth: 3,
 			cost: 1000,
 			description: "They don't conceal much.",
 			shop: ["clothing", "adult"],
