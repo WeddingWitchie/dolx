@@ -15,33 +15,33 @@ You are on Cliff Street. Several civic buildings are located here, including the
 <</if>>
 There's a path leading down to the beach.
 <<if Time.dayState is "day">>
-	<<if $weather is "rain">>
+	<<if Weather.precipitation is "rain">>
 		Wind howls in from the sea.
-	<<elseif $weather is "snow">>
+	<<elseif Weather.isFreezing>>
 		Wind howls in from the sea.
 	<<else>>
 		A gentle breeze blows in from the sea.
 	<</if>>
 <<elseif Time.dayState is "dawn">>
-	<<if $weather is "rain">>
+	<<if Weather.precipitation is "rain">>
 		Rain sweeps in from the sea.
-	<<elseif $weather is "snow">>
+	<<elseif Weather.isFreezing>>
 		Icy wind howls in from the sea.
 	<<else>>
 		There's a lot of traffic. People are driving to work.
 	<</if>>
 <<elseif Time.dayState is "dusk">>
-	<<if $weather is "rain">>
+	<<if Weather.precipitation is "rain">>
 		Rain sweeps in from the sea, soddening people on their way home from work.
-	<<elseif $weather is "snow">>
+	<<elseif Weather.isFreezing>>
 		Icy wind sweeps in from the sea, chilling people on their way home from work.
 	<<else>>
 		There's a lot of traffic. People are driving home from work.
 	<</if>>
 <<elseif Time.dayState is "night">>
-	<<if $weather is "rain">>
+	<<if Weather.precipitation is "rain">>
 		The sea roars below.
-	<<elseif $weather is "snow">>
+	<<elseif Weather.isFreezing>>
 		The sea murmers below.
 	<<else>>
 		The street is dark and quiet. Only the ocean can be heard.
@@ -72,11 +72,14 @@ There's a path leading down to the beach.
 	<</if>>
 <<else>>
 	<<if ndef $pillory_tenant>><<setup_pillory>><</if>>
+	<<set _endTime to new DateTime($pillory_tenant.endTime)>>
+	<<set _timeLeft to Time.date.compareWith(_endTime)>>
+
 	<<if $pillory_tenant.exists is 1>> /* If someone is in pillory... */
-		<<if $timeStamp gte $pillory_tenant.endDate>>/* If sentence finished before today. */
+		<<if _endTime.hours lt -2>> /* If sentence finished before today. */
 			<<clear_pillory>>
-		<<elseif ($pillory_tenant.endDate - $timeStamp) lte TimeConstants.secondsPerDay>>
-			<<if Time.hour is $pillory_tenant.endhour>> /* If ending now? */
+		<<elseif _timeLeft.days lt 1>>
+			<<if $pillory_tenant.endTime <= Time.date.timeStamp>> /* If ending now? */
 				<<end_npc_pillory>>
 			<<else>> /* Sentence ongoing. */
 				<<npc_pillory>>
@@ -84,7 +87,7 @@ There's a path leading down to the beach.
 		<<else>> /* Sentence ongoing to tomorrow. */
 			<<npc_pillory>>
 		<</if>>
-	<<elseif $rng %10 is 0>> /* Pillory empty gives 10% chance of new person */
+	<<elseif $rng lte 100>> /* Pillory empty gives 10% chance of new person */
 		<<new_npc_pillory>>
 	<</if>>
 <</if>>
@@ -157,7 +160,8 @@ There's a path leading down to the beach.
 			<</if>>
 			<br>
 		<<elseif $pillory_tenant.exists is 1 and $exposed lte 0>>
-			<<if Time.hour is ($pillory_tenant.endhour -1) and Time.minute gte 50>>
+			<<set _timeLeft to Time.date.compareWith($pillory_tenant.endTime)>>
+			<<if _timeLeft.hours eq 0 and _timeLeft.minutes lte 10>>
 				<span class="blue">A police officer starts trying to disperse the crowd.</span>
 				<br>
 				<<pilloryicon>><<link [[Watch (0:10)|Cliff Street]]>><<pass 10>><</link>>
@@ -176,7 +180,7 @@ There's a path leading down to the beach.
 		<</if>>
 		<<beachicon>><<link [[Beach (0:05)|Beach]]>><<pass 5>><</link>>
 		<br>
-		<<if $exhibitionismrun is "cliff" and $weather is "clear">>
+		<<if $exhibitionismrun is "cliff" and !Weather.isOvercast>>
 			<<ind>><<link [[Take off your clothes (0:07)|Cliff Challenge]]>><</link>>
 			<br>
 		<</if>>
@@ -968,11 +972,14 @@ or whatever and let you off with community service. But it's your call. What'll 
 <br>
 
 :: Cliff Street Prisoner Escape Fail 5
-<<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "cliff">><<earnFeat "You're the Laughingstock">>
-<<set _sentence_days_left to Math.floor(($pillory_tenant.endDate - $timeStamp) / TimeConstants.secondsPerDay)>>/* Calc hours remaining */
-<<set _hours to Math.floor(($pillory_tenant.endDate - $timeStamp) / TimeConstants.secondsPerHour)>>/* hours to end hour */
-<<if _hours gte 27>><<set _hours to 27>><</if>>
-<<if _hours lt 2>><<set _hours to 2>><</if>> /* cap hours: high and low */
+<<set $outside to 1>>
+<<set $location to "town">><<set $bus to "cliff">>
+<<effects>>
+<<earnFeat "You're the Laughingstock">>
+
+<<set _endTime to new DateTime($pillory_tenant.endTime)>>
+<<set _timeLeft to Time.date.compareWith(_endTime, true)>>
+<<set _hours to Math.clamp(_timeLeft / TimeConstants.secondsPerHour, 2, 27)>>
 
 <<person2>>
 <<if $phase lte 1>>
@@ -1000,4 +1007,3 @@ The police officers walk away. The <<person4>><<person>> <<if $phase is 3>>who c
 <<endevent>>
 <br><br>
 <<link [[Next|Pillory]]>><</link>>
-<br>

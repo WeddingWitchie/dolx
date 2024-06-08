@@ -298,7 +298,6 @@
 	<div id="action-popup">Don't look here.</div>
 	<<unset $tempDisable>>
 
-	<<temperature>>
 	<hr>
 	<span>Warmth:</span>
 	<<warmthscale>>
@@ -306,7 +305,6 @@
 		<<warmth_description>>
 	</div>
 	<br>
-	<hr>
 	<div id="clotheson"><<clotheson>></div> /*Fixes perma pulled aside clothes introduced by 0.2.3.0 bug.*/
 	<<if $upperwet gte 1 or $lowerwet gte 1 or $underlowerwet gte 1 or $underupperwet gte 1>>
 		<div class="wardrobe-dry">
@@ -702,8 +700,8 @@
 <</widget>>
 
 <<widget "toggleUpperTuck">>
-	<<set _linkOption1 to _args[0] || "Untuck">>
-	<<set _linkOption2 to _args[1] || "Tuck in">>
+	<<set _linkOption1 to _args[0] || `Untuck from ${$worn.lower.name}`>>
+	<<set _linkOption2 to _args[1] || `Tuck into ${$worn.lower.name}`>>
 	<div class="toggleUpperTuck">
 		<<link `($upperTucked ? _linkOption1 : _linkOption2)`>>
 			<<set $upperTucked to +!$upperTucked>>
@@ -715,8 +713,8 @@
 <</widget>>
 
 <<widget "toggleLowerTuck">>
-	<<set _linkOption1 to _args[0] || "Untuck">>
-	<<set _linkOption2 to _args[1] || "Tuck in">>
+	<<set _linkOption1 to _args[0] || `Untuck from ${$worn.feet.name}`>>
+	<<set _linkOption2 to _args[1] || `Tuck into ${$worn.feet.name}`>>
 	<div class="toggleLowerTuck">
 		<<link `($lowerTucked ? _linkOption1 : _linkOption2)`>>
 			<<set $lowerTucked to +!$lowerTucked>>
@@ -748,11 +746,10 @@
 		<<case "upper">>
 			<<switch $worn.upper.variable>>
 				<<case "schoolcardigan">><<set _altLink to ["Tie cardigan around waist", "Wear cardigan normally"]>>
-				<<case "brownleather" "blackleather" "leathercropjacket">><<set _altLink to ["Zip jacket", "Unzip jacket"]>>
+				<<case "brownleather" "blackleather" "leathercropjacket" "winterjacket">><<set _altLink to ["Zip jacket", "Unzip jacket"]>>
 				<<case "waistcoat" "waistcoatlapel" "blazershirt">><<set _altLink to ["Tuck in", "Untuck"]>>
 				<<case "dress">><<set _altLink to ["Unbutton shirt", "Button up shirt"]>>
-				<<case "kimono">><<set _altLink to ["Loosen", "Tighten"]>>
-				<<case "kimonomini">><<set _altLink to ["Loosen", "Tighten"]>>
+				<<case "kimono" "kimonomini">><<set _altLink to ["Loosen", "Tighten"]>>
 				<<default>><<exit>>
 			<</switch>>
 		<<case "neck">>
@@ -954,7 +951,7 @@
 				<</if>>
 				<<print _wornItemData.description>>
 				<br>
-				<<warmth _wornItem.warmth>>
+				<<print setup.WeatherDescriptions.clothingWarmth(getTrueWarmth(_wornItem))>>
 				<br><br>
 				<<set _temp_choice to $worn[_wardrobe_list]>>
 				<<shoptraits>>
@@ -965,7 +962,7 @@
 				<div class="no-numberify"><<toggleHoodLink>></div>
 				<br>
 			<</if>>
-			<<if _wardrobe_list is "upper" and $worn.lower.name isnot "naked" and !_wornItemData.notuck>>
+			<<if _wardrobe_list is "upper" and $worn.lower.name isnot "naked" and !_wornItemData.notuck and V.worn.upper.outfitPrimary is undefined>>
 				<div class="no-numberify"><<toggleUpperTuck>></div>
 			<<elseif _wardrobe_list is "lower" and $worn.feet.name isnot "naked" and !_wornItemData.notuck and !setup.clothes.feet[clothesIndex("feet",$worn.feet)].notuck>>
 				<div class="no-numberify"><<toggleLowerTuck>></div>
@@ -1001,52 +998,51 @@
 				<</if>>
 			<</if>>
 			<div class="wardrobeItem wardrobe-action no-numberify">
-			<<clothingicon _item _wardrobe_list>>
-			<<wearlink_norefresh _itemData.name_cap _i>>
-			<<if _item.gender is "m">>
-				<span class="blue">♂</span>
-			<<elseif _item.gender is "f">>
-				<span class="pink">♀</span>
-			<<else>>
+				<<clothingicon _item _wardrobe_list>>
+				<<wearlink_norefresh _itemData.name_cap _i>>
+				<<if _item.gender is "m">>
+					<span class="blue">♂</span>
+				<<elseif _item.gender is "f">>
+					<span class="pink">♀</span>
+				<<else>>
 
-			<</if>>
-			<<if _item.colour isnot 0>>
-				<span @class="_selectedWardrobe[_wardrobe_list][_i].colour">(_item.colour)</span>
-			<</if>>
-			<<if _item.outfitPrimary isnot undefined>>
-				<<set _keys to Object.keys(_item.outfitPrimary)>>
-				<<set _broken to 0>>
-				<<for _j to 0; _j lt _keys.length; _j++>>
-					<<if _item.outfitPrimary[_keys[_j]] is "broken">>
-						<<set _broken++>>
+				<</if>>
+				<<if _item.colour isnot 0>>
+					<span @class="_selectedWardrobe[_wardrobe_list][_i].colour">(_item.colour)</span>
+				<</if>>
+				<<if _item.outfitPrimary isnot undefined>>
+					<<set _keys to Object.keys(_item.outfitPrimary)>>
+					<<set _broken to 0>>
+					<<for _j to 0; _j lt _keys.length; _j++>>
+						<<if _item.outfitPrimary[_keys[_j]] is "broken">>
+							<<set _broken++>>
+						<</if>>
+					<</for>>
+					<<if _broken is 0>>
+						<span class="gold">(Outfit)</span>
+					<<elseif _broken lt _keys.length>>
+						<span class="red">(Partly Broken)</span>
+					<<else>>
+						<span class="red">(Broken)</span>
 					<</if>>
-				<</for>>
-				<<if _broken is 0>>
-					<span class="gold">(Outfit)</span>
-				<<elseif _broken lt _keys.length>>
-					<span class="red">(Partly Broken)</span>
-				<<else>>
-					<span class="red">(Broken)</span>
+					<<if _item.one_piece is "split">>
+						<span class="separated-indicator">(Separated)</span>
+					<</if>>
 				<</if>>
-				<<if _item.one_piece is "split">>
-					<span class="separated-indicator">(Separated)</span>
+				<<if _item.outfitSecondary isnot undefined>>
+					<<if _item.one_piece is "split">>
+						<span class="separated-indicator">(Separated)</span>
+					<<else>>
+						<span class="red">(Broken)</span>
+					<</if>>
 				<</if>>
-			<</if>>
-			<<if _item.outfitSecondary isnot undefined>>
-				<<if _item.one_piece is "split">>
-					<span class="separated-indicator">(Separated)</span>
-				<<else>>
-					<span class="red">(Broken)</span>
-				<</if>>
-			<</if>>
-			<<wardrobeintegrity _item _wardrobe_list>>
+				<<wardrobeintegrity _item _wardrobe_list>>
 				<<reveal _item.reveal>>
-				</div>
-			<</for>>
-			<div style="clear:both;"></div>
-		<</if>>
-
-	<<temperature>>
+				| <span class="cold-resist-icon noDivider"><<print getTrueWarmth(_item)>></span>
+			</div>
+		<</for>>
+		<div style="clear:both;"></div>
+	<</if>>
 <</widget>>
 
 <<widget "wearlink_norefresh">>
@@ -1485,22 +1481,24 @@
 <</widget>>
 
 <<widget "warmth_description">>
-	<<switch $body_temperature_outside>>
-	<<case "hot">>
-		<span class="red">You'll be far too hot outside.</span>
-	<<case "warm">>
-		<span class="purple">You'll be too warm outside.</span>
-	<<case "cold">>
-		<span class="red">You'll be cold outside.</span>
-	<<case "chilly">>
-		<span class="purple">You'll be a bit chilly outside.</span>
-	<<default>>
-		<span class="green">You'll be a comfortable temperature outside.</span>
-	<</switch>>
+	<<print setup.WeatherDescriptions.shop()>>
 	<br>
-	$warmth warmth versus $chill chill
+	Your clothing warmth is currently <span class="orange"><<print Weather.BodyTemperature.getWarmth()>></span>.
 	<br>
-	Comfortable warmth range: <<print ($chill + 1)>> - <<print Math.trunc(($chill * 1.3) + 69)>>
+
+	<<set $_minWarmth to getTargetWarmth(36.4)>>
+	<<set $_maxWarmth to getTargetWarmth(37.6)>>
+	To be comfortable you'll need
+	<<if $_minWarmth and $_maxWarmth>>
+		a clothing warmth between <span class="orange"><<print getTargetWarmth(36.5)>></span> and <span class="orange"><<print getTargetWarmth(37.5)>></span>.
+	<<elseif $_minWarmth>>
+		at least a clothing warmth of <span class="orange"><<print getTargetWarmth(36.5)>></span>.
+	<<elseif $_maxWarmth>>
+		at most a clothing warmth of <span class="orange"><<print getTargetWarmth(37.5)>></span>.
+	<<else>>
+		to stay indoors.
+	<</if>>
+	<hr />
 <</widget>>
 
 <<widget "wardrobeSelection">>
@@ -1622,6 +1620,8 @@
 			<<else>>
 				You can't go out like this!
 			<</if>>
+		<<case "Bird Tower Wardrobe">>
+			<<link [[Close|Bird Tower]]>><<cleanupOnWardrobeExit>><</link>>
 	<</switch>>
 	<br><br>
 <</widget>>
@@ -1755,6 +1755,19 @@ You are in the small storage room sanctioned for temps to use for changing.
 <br><br>
 <div id="wardrobewear"><<wardrobewear>></div>
 <div id="wardrobeExits"><<wardrobeExits>></div>
+
+<<wardrobe>>
+
+:: Bird Tower Wardrobe [exitCheckBypass]
+
+<<effects>>
+You look through the wardrobe you built.
+<br><br>
+<<set $wardrobe_location to "birdTower">>
+<<wardrobeSelection>>
+<div id="wardrobewear"><<wardrobewear>></div>
+<div id="wardrobeExits"><<wardrobeExits>></div>
+
 <<wardrobe>>
 
 :: Wardrobe Sale Crate
