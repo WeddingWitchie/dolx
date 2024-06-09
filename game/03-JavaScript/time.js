@@ -1288,8 +1288,12 @@ function dailyPlayerEffects() {
 	tanned(-40, true);
 	V.skinColor.sunBlock = false;
 
-	V.hairlength += 3 * (1+V.purity/1000);
-	V.fringelength += 3 * (1+V.purity/1000);
+	let genderFactor = !V.xchange.genderIdentityEnabled ?
+		1 : V.player.gender === "m"? 
+		1 + (1000 - V.genderidentity) / 1000 :
+		1 + V.genderidentity / 1000;
+	V.hairlength += 3 * genderFactor;
+	V.fringelength += 3 * genderFactor;
 	fragment.append(wikifier("calchairlengthstage"));
 	statChange.skill("beauty", 100 - (V.trauma / V.traumamax) * 100);
 	fragment.append(wikifier("bimboUpdate"));
