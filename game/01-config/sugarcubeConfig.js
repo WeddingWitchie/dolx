@@ -12,9 +12,9 @@ window.StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.5.0.4 DoLP v0.354 DoLX 0.6.0b",
+	version: "0.5.0.4 DoLP v0.354 DoLX 0.6.0d",
 	versionName: "",
-	sneaky: false,
+	sneaky: true,
 };
 
 State.prng.init();
