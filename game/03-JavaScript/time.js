@@ -551,16 +551,16 @@ function dayPassed() {
 		}
 		V.brothelshowdata.done = false;
 	}
-
+	
 	if (V.brothel_escortjob !== undefined && Time.date.timeStamp > V.brothel_escortjob.date) {
 		V.brothel_escortjob.missed = true;
 	}
-
+		
 	if (Time.weekDay === 2) {
 		delete V.museumhorse;
 		delete V.museumduck;
 	}
-
+	
 	if (V.medicated) V.medicated = Math.max(Math.trunc((V.medicated - 1) * 0.5), 0);
 	if (V.asylummedicated) V.asylummedicated = Math.max(Math.trunc((V.asylummedicated - 1) * 0.5), 0);
 	if (V.brothel_rivalry_timer !== undefined) V.brothel_rivalry_timer--;
@@ -1065,7 +1065,6 @@ function dawnCheck() {
 	delete V.robin_kicked_out;
 
 	delete V.foxCrimeProgress;
-
 	for (const crimeKeys of Object.keys(setup.crimeNames)) {
 		if (V.crime[crimeKeys].daily >= C.crime.spree) {
 			// If the player commits too much of the same type of crime in one day, they leave behind more evidence.
@@ -1436,31 +1435,6 @@ function dailyTransformationEffects() {
 
 	fragment.append(wikifier("transformationStateUpdate"));
 
-	// if (V.xchangePill && V.xchangePill.active)
-	// {
-	// 	const pill = V.xchangePill;
-	// 	// If got impregnated in the vagina, or allowed an ear slime to grow to a certain point
-	// 	// then, the change becomes permanent 
-	// 	if (V.sexStats.vagina.pregnancy.type !== null || V.earSlime.growth > 50)
-	// 		fragment.append(wikifier("xchange-setpermanent"));
-	
-	// 	// If the pill has the continue effect, and a remaining duration of 30 days is accumulated
-	// 	// then, the change becomes permanent
-	// 	if (pill.continueEffect && pill.duration > 30)
-	// 		fragment.append(wikifier("xchange-setpermanent"));
-	
-	// 	if (pill.duration > 0) {
-	// 		pill.duration = Math.max(pill.duration-1, 0);
-	// 		if (pill.duration == 0)
-	// 		{
-	// 			if (pill.resistanceEffect && random(0,100) > pill.resistanceChance)
-	// 				fragment.append(wikifier("xchange-setpermanent"));
-	// 			else
-	// 				fragment.append(wikifier("xchange-restore"));
-	// 		} 
-	// 	}
-	// }
-
 	return fragment;
 }
 
@@ -1825,23 +1799,14 @@ function dailyMasochismSadismEffects() {
 		return false;
 	};
 
-	if (!V.featsSadismBoost && V.uncomfortable.sadoMaso === true) V.sadism *= 0.985;
-	if (!V.featsMasochismBoost && V.uncomfortable.sadoMaso === true) V.masochism *= 0.985;
-
-	let dailySadism = 0;
-		if (V.featsSadismBoost) dailySadism += V.featsSadismBoost;
-		fragment.append(wikifier("sadism", dailySadism));
-	let dailyMasochism = 0;
-		if (V.featsMasochismBoost) dailyMasochism += V.featsMasochismBoost;
-		fragment.append(wikifier("masochism", dailyMasochism));
-
-
+	V.masochism *= 0.985;
 	const masochism = effects(V.masochism_level, V.masochism);
 	if (masochism) {
 		V.masochism_level = masochism.level;
 		V.masochism_message = masochism.message;
 		V.effectsmessage = 1;
 	}
+	V.sadism *= 0.985;
 	const sadism = effects(V.sadism_level, V.sadism);
 	if (sadism) {
 		V.sadism_level = sadism.level;
@@ -1849,8 +1814,6 @@ function dailyMasochismSadismEffects() {
 		V.effectsmessage = 1;
 	}
 }
-
-
 
 function dailyFarmEvents() {
 	const fragment = document.createDocumentFragment();
