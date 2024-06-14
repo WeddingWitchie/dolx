@@ -1295,25 +1295,26 @@ function dailyPlayerEffects() {
 	V.hairlength += 3 * genderFactor;
 	V.fringelength += 3 * genderFactor;
 	fragment.append(wikifier("calchairlengthstage"));
+	
 	statChange.skill("beauty", 100 - (V.trauma / V.traumamax) * 100);
 	fragment.append(wikifier("bimboUpdate"));
 
-	if (V.orgasmstat >= 1000 && V.orgasmtrait === 0) {
+	if (V.orgasmstat >= 500 && V.orgasmtrait === 0) {
 		V.effectsmessage = 1;
 		V.orgasm_trait_message = 1;
 		V.orgasmtrait = 1;
 	}
-	if (V.ejacstat >= 1000 && V.ejactrait === 0) {
+	if (V.ejacstat >= 300 && V.ejactrait === 0) {
 		V.effectsmessage = 1;
 		V.cum_trait_message = 1;
 		V.ejactrait = 1;
 	}
-	if (V.moleststat >= 1000 && V.molesttrait === 0) {
+	if (V.moleststat >= 300 && V.molesttrait === 0) {
 		V.effectsmessage = 1;
 		V.molest_trait_message = 1;
 		V.molesttrait = 1;
 	}
-	if (V.rapestat >= 500 && V.rapetrait === 0) {
+	if (V.rapestat >= 200 && V.rapetrait === 0) {
 		V.effectsmessage = 1;
 		V.rape_trait_message = 1;
 		V.rapetrait = 1;
@@ -1333,7 +1334,7 @@ function dailyPlayerEffects() {
 		V.vore_trait_message = 1;
 		V.voretrait = 1;
 	}
-	if (V.milk_drank_stat >= 1000 && V.milkdranktrait === 0) {
+	if (V.milk_drank_stat >= 500 && V.milkdranktrait === 0) {
 		V.effectsmessage = 1;
 		V.milk_trait_message = 1;
 		V.milkdranktrait = 1;
