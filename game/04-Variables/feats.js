@@ -2247,7 +2247,7 @@ function earnHourlyFeats() {
 	if (V.fallenangel >= 2) earnFeat("Fallen Angel");
 	if (V.demon >= 6) earnFeat("Demon");
 	if (V.cow >= 6) earnFeat("Cattle");
-	if (V.harpy >= 6) earnFeat("Harpy");
+	if ((V.harpy >= 6  || V.transformationParts.bird.wings == "default")) earnFeat("Harpy");
 	if (V.fox >= 6) earnFeat("Fox");
 
 	const specialTraits =

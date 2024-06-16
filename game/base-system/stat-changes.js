@@ -367,7 +367,7 @@ const statChange = (() => {
 
 			V.arousal += amount * mod * Weather.BodyTemperature.arousalModifier;
 			wikifier("arousalclamp");
-			wikifier("arousal-wetness");
+			// wikifier("arousal-wetness");
 			wikifier("arousal-moan");
 
 			// Add to the tracker

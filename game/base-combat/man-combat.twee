@@ -1241,7 +1241,7 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 			<<if playerBellyVisible()>><<set $speechpregnant to 1>><</if>>
 		<<case "waist">>
 			<<He>> pulls your $_clothing.name down to your thighs with <<his>> $_hand hand,
-			<<if !_bottomlessExposed and $_slot isnot "under_lower" and setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt isnot 1>>
+			<<if !_bottomlessExposed and $_slot isnot "under_lower">>
 				revealing your <<exposedlower>>.
 				<<neutral 2 _n>>
 			<<else>>
@@ -1344,12 +1344,17 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 		<<if $_clothing.state_top>>
 			<!-- upper clothing has a .state_top variable, and lower doesn't. -->
 			<<set _origin to $_clothing.state_top>>
-			<<set _dest to setup.clothingStateNextDown[$_clothing.state_top]>>
-			<<set $_clothing.state_top to _dest>>
-
-			<<if setup.clothingStateIndex[$_clothing.state_top] lt setup.clothingStateIndex[$_clothing.state]>>
-				<!-- if the top of the clothing is as low as or lower than the bottom -->
+			<<if !_args[3] and setup.clothingStateIndex[$_clothing.state_top] lte setup.clothingStateIndex[$_clothing.state]>>
+				<<set _dest to "chest">>
+				<<set $_clothing.state_top to _dest>>
 				<<set $_clothing.state to _dest>>
+			<<else>>
+				<<set _dest to setup.clothingStateNextDown[$_clothing.state_top]>>
+				<<set $_clothing.state_top to _dest>>
+				<<if setup.clothingStateIndex[$_clothing.state_top] lt setup.clothingStateIndex[$_clothing.state]>>
+					<!-- if the top of the clothing is as low as or lower than the bottom -->
+					<<set $_clothing.state to _dest>>
+				<</if>>
 			<</if>>
 
 			<!-- adjust exposure -->
@@ -1520,7 +1525,7 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 	<<set $_hand to _args[0]>>
 
 	<<if _middleOutfit is false>>
-		<<if $worn.upper.open is 1>>
+		<<if $worn.upper.open is 1 and setup.clothingStateIndex[$worn.under_upper.state_top] gt setup.clothingStateIndex[$worn.under_upper.state]>>
 			<<combat-pull-clothing-down "upper" $_hand>>
 		<<else>>
 			<<combat-pull-clothing-up "upper" $_hand>>
@@ -1542,7 +1547,7 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 	<<set $_hand to _args[0]>>
 
 	<<if _underOutfit is false>>
-		<<if $worn.under_upper.open is 1>>
+		<<if $worn.under_upper.open is 1 and setup.clothingStateIndex[$worn.under_upper.state_top] gt setup.clothingStateIndex[$worn.under_upper.state]>>
 			<<combat-pull-clothing-down "under_upper" $_hand>>
 		<<else>>
 			<<combat-pull-clothing-up "under_upper" $_hand>>
@@ -1564,12 +1569,25 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 
 	<<set $_strugglevar to $_slot.replace("_","") + "struggle">>
 
+	<<set _lowerOffersEasyAccess to 
+		($worn.lower.vagina_exposed or $worn.lower.anal_exposed) and 
+		($worn.under_lower.name is "naked" or $worn.under_lower.vagina_exposed or $worn.under_lower.anal_exposed)
+	>>
+
 	<<rng>>
 	<<if $worn[$_slot].name is "naked">>
-		<<cast_aside_clothes>>
+		/* <<cast_aside_clothes>> */
 		<<combat-reset-hand $_hand>>
+		<<hand_section_two $_hand>>
+		<<exit>>
+	/* <<elseif $worn[$_slot].state is 0>>
+		<<combat-reset-hand $_hand>> */
 	<<elseif $worn[$_slot].type.includes("strap-on") and $worn[$_slot].state is "waist" and $penisstate is 0>>
 		<<combat-reset-hand $_hand>>
+	<<elseif $combatgoal isnot "strip" and $_slot is "lower" and $worn[$_slot].skirt is 1 and _lowerOffersEasyAccess>>
+		<<combat-reset-hand $_hand>>
+		<<hand_section_two $_hand>>
+		<<exit>>
 	<<elseif V[$_strugglevar] is 1>>
 		<<set V[$_strugglevar] to 0>>
 		You manage to keep <<him>> from stripping you of your $worn[$_slot].name.
@@ -1732,8 +1750,10 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 
 <<widget "combat-hand-on-chastity">>
 	<<if $worn.genitals.name is "naked">>
-		<<cast_aside_clothes>>
+		/* <<cast_aside_clothes>> */
 		<<combat-reset-hand _args[0]>>
+		<<hand_section_two $_hand>>
+		<<exit>>
 	<<else>>
 		<<if $worn.genitals.name is "chastity parasite">>
 			<span class="blue"><<He>> pulls on your $worn.genitals.name, only to then squeeze it.</span>
@@ -1808,30 +1828,37 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 		<<combat-set-hand-target _args[0] "throat">>
 		<<neutral 1 _n>>
 	<<elseif $combatgoal is "strip">>
-		<<if $worn.over_upper.name isnot "naked" and $noupper isnot 1>>
-			<span class="purple"><<He>> grasps your $worn.over_upper.name with <<his>> _args[0] hand.</span>
-			<<neutral 1 _n>>
-			<<set $handtarget to "overupperclothes">>
-		<<elseif $worn.upper.name isnot "naked" and $noupper isnot 1>>
-			<span class="purple"><<He>> grasps your $worn.upper.name with <<his>> _args[0] hand.</span>
-			<<neutral 1 _n>>
-			<<set $handtarget to "upperclothes">>
-		<<elseif $worn.under_upper.name isnot "naked" and !$worn.under_upper.type.includes("sticky") and $noupper isnot 1>>
-			<span class="purple"><<He>> grasps your $worn.under_upper.name with <<his>> _args[0] hand.</span>
-			<<neutral 1 _n>>
-			<<set $handtarget to "underupperclothes">>
-		<<elseif $worn.over_lower.name isnot "naked" and $walltype isnot "front">>
-			<span class="purple"><<He>> grasps your $worn.over_lower.name with <<his>> _args[0] hand.</span>
-			<<neutral 1 _n>>
-			<<set $handtarget to "overlowerclothes">>
-		<<elseif $worn.lower.name isnot "naked" and $walltype isnot "front">>
-			<span class="purple"><<He>> grasps your $worn.lower.name with <<his>> _args[0] hand.</span>
-			<<neutral 1 _n>>
-			<<set $handtarget to "lowerclothes">>
-		<<elseif $worn.under_lower.name isnot "naked" and $worn.under_lower.state isnot "totheside" and $walltype isnot "front">>
-			<span class="purple"><<He>> grasps your $worn.under_lower.name with <<his>> _args[0] hand.</span>
-			<<neutral 1 _n>>
-			<<set $handtarget to "underlowerclothes">>
+		<<set _upperIsNaked to $worn.over_upper.name is "naked" and $worn.upper.name is "naked" and $worn.under_upper.name is "naked">>
+		<<set _lowerIsNaked to $worn.over_lower.name is "naked" and $worn.lower.name is "naked" and $worn.under_lower.name is "naked">>
+		
+		<<if !_upperIsNaked and ($rng lt 50 or _lowerIsNaked)>>
+			<<if $worn.over_upper.name isnot "naked" and $noupper isnot 1>>
+				<span class="purple"><<He>> grasps your $worn.over_upper.name with <<his>> _args[0] hand.</span>
+				<<neutral 1 _n>>
+				<<set $handtarget to "overupperclothes">>
+			<<elseif $worn.upper.name isnot "naked" and $noupper isnot 1>>
+				<span class="purple"><<He>> grasps your $worn.upper.name with <<his>> _args[0] hand.</span>
+				<<neutral 1 _n>>
+				<<set $handtarget to "upperclothes">>
+			<<elseif $worn.under_upper.name isnot "naked" and !$worn.under_upper.type.includes("sticky") and $noupper isnot 1>>
+				<span class="purple"><<He>> grasps your $worn.under_upper.name with <<his>> _args[0] hand.</span>
+				<<neutral 1 _n>>
+				<<set $handtarget to "underupperclothes">>
+			<</if>>
+		<<elseif !_lowerIsNaked and ($rng gte 50 or _upperIsNaked)>>
+			<<if $worn.over_lower.name isnot "naked" and $walltype isnot "front">>
+				<span class="purple"><<He>> grasps your $worn.over_lower.name with <<his>> _args[0] hand.</span>
+				<<neutral 1 _n>>
+				<<set $handtarget to "overlowerclothes">>
+			<<elseif $worn.lower.name isnot "naked" and $walltype isnot "front">>
+				<span class="purple"><<He>> grasps your $worn.lower.name with <<his>> _args[0] hand.</span>
+				<<neutral 1 _n>>
+				<<set $handtarget to "lowerclothes">>
+			<<elseif $worn.under_lower.name isnot "naked" and $worn.under_lower.state isnot "totheside" and $walltype isnot "front">>
+				<span class="purple"><<He>> grasps your $worn.under_lower.name with <<his>> _args[0] hand.</span>
+				<<neutral 1 _n>>
+				<<set $handtarget to "underlowerclothes">>
+			<</if>>
 		<<elseif $analdisable is "f" and playerHasButtPlug() and random(0,1) is 0>>
 			<span class="purple"><<He>> places <<his>> hand on your $worn.butt_plug.name.</span>
 			<<neutral 1 _n>><<set $handtarget to "buttplug">>
@@ -6482,7 +6509,7 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 				<<neutral 1 _n>>
 			<</if>>
 		<</if>>
-	<<elseif $enemyanger + $rng lte 150 and ($penisise is 0 or $vaginause is 0) and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals" and $footdisable is "f" and $walltype isnot "front">>
+	<<elseif $enemyanger + $rng lte 150 and ($penisuse is 0 or $vaginause is 0) and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals" and $footdisable is "f" and $walltype isnot "front">>
 		<span class="purple"><<He>> presses <<his>> foot against your <<genitals>>.</span>
 		<<neutral 5 "genitals" _n>><<violence 1>><<set $NPCList[_n].penis to "footjob">>
 		<<if $player.penisExist and $penisuse is 0>>
@@ -6728,7 +6755,7 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 			<<He>> frots against your thigh while squeezing it with <<his>> own.
 			<<violence 3>>
 		<</if>>
-	<<elseif $enemyanger + $rng lte 160 and ($penisise is 0 or $vaginause is 0) and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals" and $footdisable is "f" and $walltype isnot "front">>
+	<<elseif $enemyanger + $rng lte 160 and ($penisuse is 0 or $vaginause is 0) and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals" and $footdisable is "f" and $walltype isnot "front">>
 		<!-- foot job -->
 		<span class="purple"><<He>> presses <<his>> foot against your <<genitals>>.</span>
 		<<neutral 5 "genitals" _n>><<violence 1>><<set $NPCList[_n].vagina to "footjob">>

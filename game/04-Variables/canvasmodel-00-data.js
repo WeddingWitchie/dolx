@@ -24,6 +24,7 @@ const ZIndices = {
 	under_upper_arm_right: 90.3,
 	bellyBase: 33,
 	breasts: 35,
+	highBreasts: 115,
 	breastsparasite: 36,
 	tanbreasts: 30,
 	blush: 50,

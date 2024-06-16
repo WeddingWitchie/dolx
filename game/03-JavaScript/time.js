@@ -1295,25 +1295,26 @@ function dailyPlayerEffects() {
 	V.hairlength += 3 * genderFactor;
 	V.fringelength += 3 * genderFactor;
 	fragment.append(wikifier("calchairlengthstage"));
+	
 	statChange.skill("beauty", 100 - (V.trauma / V.traumamax) * 100);
 	fragment.append(wikifier("bimboUpdate"));
 
-	if (V.orgasmstat >= 1000 && V.orgasmtrait === 0) {
+	if (V.orgasmstat >= 500 && V.orgasmtrait === 0) {
 		V.effectsmessage = 1;
 		V.orgasm_trait_message = 1;
 		V.orgasmtrait = 1;
 	}
-	if (V.ejacstat >= 1000 && V.ejactrait === 0) {
+	if (V.ejacstat >= 300 && V.ejactrait === 0) {
 		V.effectsmessage = 1;
 		V.cum_trait_message = 1;
 		V.ejactrait = 1;
 	}
-	if (V.moleststat >= 1000 && V.molesttrait === 0) {
+	if (V.moleststat >= 300 && V.molesttrait === 0) {
 		V.effectsmessage = 1;
 		V.molest_trait_message = 1;
 		V.molesttrait = 1;
 	}
-	if (V.rapestat >= 500 && V.rapetrait === 0) {
+	if (V.rapestat >= 200 && V.rapetrait === 0) {
 		V.effectsmessage = 1;
 		V.rape_trait_message = 1;
 		V.rapetrait = 1;
@@ -1333,7 +1334,7 @@ function dailyPlayerEffects() {
 		V.vore_trait_message = 1;
 		V.voretrait = 1;
 	}
-	if (V.milk_drank_stat >= 1000 && V.milkdranktrait === 0) {
+	if (V.milk_drank_stat >= 500 && V.milkdranktrait === 0) {
 		V.effectsmessage = 1;
 		V.milk_trait_message = 1;
 		V.milkdranktrait = 1;
@@ -1803,14 +1804,22 @@ function dailyMasochismSadismEffects() {
 		return false;
 	};
 
-	V.masochism *= 0.985;
+	if (!V.featsSadismBoost && V.uncomfortable.sadoMaso === true) V.sadism *= 0.985;
+	if (!V.featsMasochismBoost && V.uncomfortable.sadoMaso === true) V.masochism *= 0.985;
+
+	V.dailySadism = 0;
+		if (V.featsSadismBoost) V.dailySadism += V.featsSadismBoost;
+		Wikifier.wikifyEval("<<sadism $dailySadism>>");
+	V.dailyMasochism = 0;
+		if (V.featsMasochismBoost) V.dailyMasochism += V.featsMasochismBoost;
+		Wikifier.wikifyEval("<<masochism $dailyMaso>>");
+
 	const masochism = effects(V.masochism_level, V.masochism);
 	if (masochism) {
 		V.masochism_level = masochism.level;
 		V.masochism_message = masochism.message;
 		V.effectsmessage = 1;
 	}
-	V.sadism *= 0.985;
 	const sadism = effects(V.sadism_level, V.sadism);
 	if (sadism) {
 		V.sadism_level = sadism.level;

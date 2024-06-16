@@ -892,6 +892,7 @@ function effects() {
 		if (V.demonmessage) {
 			sWikifier('<span class="red">You feel a terrible light sear through you.</span> <<gstress>>');
 			V.stress += V.stressmax;
+			V.trauma += V.traumamax * 0.75;
 			delete V.demonmessage;
 		}
 

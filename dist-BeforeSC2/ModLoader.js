@@ -18,9 +18,14 @@ export class ModImgGetterDefault {
         this.imgPath = imgPath;
         this.logger = logger;
     }
-    // imgCache?: string;
+    async forceCache() {
+        this.imgCache = await this.getBase64Image();
+    }
     async getBase64Image(lruCache) {
         var _a, _b, _c;
+        if (this.imgCache) {
+            return this.imgCache;
+        }
         const cache = (lruCache !== null && lruCache !== void 0 ? lruCache : StaticModImgLruCache).get(this.imgPath);
         if (cache) {
             return cache;
