@@ -12,6 +12,8 @@ export interface IModImgGetter {
      * @return Promise<string>   base64 img string
      */
     getBase64Image(lruCache?: IModImgGetterLRUCache): Promise<string>;
+    imgCache?: string;
+    forceCache(): Promise<any>;
 }
 export declare const StaticModImgLruCache: LRUCache<string, string, unknown>;
 export interface IModImgGetterLRUCache {
@@ -23,6 +25,8 @@ export declare class ModImgGetterDefault implements IModImgGetter {
     imgPath: string;
     logger: LogWrapper;
     constructor(zip: ModZipReader, imgPath: string, logger: LogWrapper);
+    imgCache?: string;
+    forceCache(): Promise<void>;
     getBase64Image(lruCache?: IModImgGetterLRUCache): Promise<string>;
 }
 export interface ModImg {

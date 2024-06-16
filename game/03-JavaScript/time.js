@@ -1804,14 +1804,22 @@ function dailyMasochismSadismEffects() {
 		return false;
 	};
 
-	V.masochism *= 0.985;
+	if (!V.featsSadismBoost && V.uncomfortable.sadoMaso === true) V.sadism *= 0.985;
+	if (!V.featsMasochismBoost && V.uncomfortable.sadoMaso === true) V.masochism *= 0.985;
+
+	V.dailySadism = 0;
+		if (V.featsSadismBoost) V.dailySadism += V.featsSadismBoost;
+		Wikifier.wikifyEval("<<sadism $dailySadism>>");
+	V.dailyMasochism = 0;
+		if (V.featsMasochismBoost) V.dailyMasochism += V.featsMasochismBoost;
+		Wikifier.wikifyEval("<<masochism $dailyMaso>>");
+
 	const masochism = effects(V.masochism_level, V.masochism);
 	if (masochism) {
 		V.masochism_level = masochism.level;
 		V.masochism_message = masochism.message;
 		V.effectsmessage = 1;
 	}
-	V.sadism *= 0.985;
 	const sadism = effects(V.sadism_level, V.sadism);
 	if (sadism) {
 		V.sadism_level = sadism.level;

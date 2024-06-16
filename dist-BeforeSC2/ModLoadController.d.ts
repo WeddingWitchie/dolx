@@ -76,6 +76,10 @@ export declare class ModLoadController implements ModLoadControllerCallback {
     ModLoaderLoadEnd: () => Promise<any>;
     canLoadThisMod(bootJson: ModBootJson, zip: JSZip): Promise<boolean>;
     afterModLoad(bootJson: ModBootJson, zip: JSZip, modInfo: ModInfo): Promise<any>;
+    /**
+     * call by ModLoaderGui (inner use)
+     * @param zip
+     */
     exportDataZip(zip: JSZip): Promise<JSZip>;
     private lifeTimeCircleHookTable;
     addLifeTimeCircleHook(id: string, hook: LifeTimeCircleHook): void;
