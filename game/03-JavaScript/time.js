@@ -794,6 +794,9 @@ function dayPassed() {
 
 	fragment.append(wikifier("genderidentity-text", V.hourlyFemininity > 0? "f": (V.hourlyFemininity < 0? "m": 0)));
 	V.hourlyFemininity = 0;
+
+	V.recentmolest = Math.max(V.recentmolest - 1, 0);
+	V.recentrape = Math.max(V.recentrape - 1, 0);
 	
 	if (V.dailyBrothelPriceCheck) {
 		V.dailyBrothelPriceCheck = undefined;
@@ -1007,6 +1010,11 @@ function minutePassed(minutes) {
 	if (V.player.vaginaExist) fragment.append(passArousalWetness(minutes));
 	if (V.arousal >= V.arousalmax * 2/5) 
 		fragment.append(wikifier("willpower-spending", minutes * 0.5 * Math.ceil( (V.arousal - V.arousalmax*2/5) / (V.arousalmax/10) )));
+	else if (V.xchange.willpowerPoints < V.willpower * 0.5) 
+		fragment.append(wikifier("willpower-recovery", minutes * 0.5 * Math.ceil( (V.arousalmax*2/5 - V.arousal) / (V.arousalmax/10) )));
+
+	// Pub
+	V.xchange.pubtimer = Math.max(V.xchange.pubtimer - 1, 0);
 
 	passWater(minutes);
 
@@ -1309,12 +1317,12 @@ function dailyPlayerEffects() {
 		V.cum_trait_message = 1;
 		V.ejactrait = 1;
 	}
-	if (V.moleststat >= 300 && V.molesttrait === 0) {
+	if ((V.moleststat >= 300 || V.recentmolest >= 50) && V.molesttrait === 0) {
 		V.effectsmessage = 1;
 		V.molest_trait_message = 1;
 		V.molesttrait = 1;
 	}
-	if (V.rapestat >= 200 && V.rapetrait === 0) {
+	if ((V.rapestat >= 200 || V.recentrape >= 30) && V.rapetrait === 0) {
 		V.effectsmessage = 1;
 		V.rape_trait_message = 1;
 		V.rapetrait = 1;
