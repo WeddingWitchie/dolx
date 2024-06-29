@@ -943,11 +943,11 @@ Renderer.CanvasModels["main"] = {
 			srcfn(options) {
 				if (options.breast_size <= 0) return "";
 				T.breastSize = options.breast_size;
-				if (V.worn.over_upper.open == 1) {
+				if (!V.worn.over_upper.type.includes("naked")) {
 					T.slot = "over_upper";
-				} else if (V.worn.upper.open == 1) {
+				} else if (!V.worn.upper.type.includes("naked")) {
 					T.slot = "upper";
-				} else if (V.worn.under_upper.open == 1) {
+				} else if (!V.worn.under_upper.type.includes("naked")) {
 					T.slot = "under_upper";
 				}
 				if (T.slot == "over_upper" || T.slot == "upper" || T.slot == "under_upper") {
