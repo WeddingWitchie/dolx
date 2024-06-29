@@ -264,13 +264,21 @@
 		<<set _penetration to ["penetrated", "doublepenetrated", "tentacle", "tentacledeep"]>>
 		<<set _rubbing to ["otherhand", "othermouth", "othervagina"]>>
 		<<set _NPCrubbing to ["leftarm", "rightarm"]>>
+		<<set _vibration to ["mpenisvibrate", "mvaginaclitvibrate", "mvaginaclitvibrateparasite", "mchestvibrate"]>>
+		<<set _vibeDildo to ["dildoSelfPussy", "dildoSelfAnus", "dildoOtherPussyFuck", "dildoOtherAnusFuck"]>>
+		<<set _machineVibe to ["entrance","imminent","penentrated"]>>
 
 		/* Condition shorthands */
 		<<set _beingPenetrated to _penetration.includes($vaginastate) or _penetration.includes($anusstate)>>
+		<<set _beingVibePenetrated to _vibeDildo.includes($rightaction) or _vibeDildo.includes($leftaction)>>
 		<<set _penetrating to _penisPenetration.includes($penisstate)>>
 		<<set _beingRubbed to 
 			_rubbing.includes($vaginastate) or _rubbing.includes($anusstate) or 
 			_penisRubbing.includes($penisstate) or $fingersInVagina gte 1
+		>>
+		<<set _vibrationEnabled to $machine and 
+			(($machine.vaginal and _machineVibe.includes($machine.vaginal.state)) or 
+			($machine.anal and _machineVibe.includes($machine.anal.state)))
 		>>
 		<<for _n = 0; _n lt $NPCList.length; _n++>>
 			<<if _NPCrubbing.includes($NPCList[_n].vagina) or _NPCrubbing.includes($NPCList[_n].anus)>>
@@ -328,7 +336,13 @@
 	<<if $voiceoverActive is undefined>>
 		<<set $voiceoverActive to "f">>
 	<</if>>
-	<<if _args[0] is "stop" and setup.bgsCurrentPlaylist isnot "none">>
+	<<if _args[0] is "stop" and ["piston_rotor","rotor_fast","rotor_slow"].includes(setup.bgsCurrentPlaylist)>>
+		/* Stop the current BGS audio track */
+		
+		<<audio `setup.bgsCurrentPlaylist+"1"` stop>>
+		<<set setup.bgsCurrentPlaylist to "none">>
+
+	<<elseif _args[0] is "stop" and setup.bgsCurrentPlaylist isnot "none">>
 		/* Stop the current BGS playlist */
 		<<playlist setup.bgsCurrentPlaylist stop>>
 		<<set setup.bgsCurrentPlaylist to "none">>
@@ -341,9 +355,12 @@
 
 		/* Start playing the current BGS playlist */
 		<<set setup.bgsCurrentPlaylist to _args[0]>>
-		<<playlist setup.bgsCurrentPlaylist volume 0>>
-		<<playlist setup.bgsCurrentPlaylist fadein loop shuffle>>
-
+		<<if ["piston_rotor","rotor_fast","rotor_slow"].includes(_args[0])>>
+			<<audio `setup.bgsCurrentPlaylist+"1"` play loop volume 1>>
+		<<else>>
+			<<playlist setup.bgsCurrentPlaylist volume 0>>
+			<<playlist setup.bgsCurrentPlaylist fadein loop shuffle>>
+		<</if>>
 	<</if>>	
 <</widget>>
 
@@ -381,7 +398,7 @@
 		<<set setup.bgvCurrentPlaylist to "none">>
 		<<set $voiceoverActive to "t">>
 
-		<<timed 4500ms>>
+		<<timed 3000ms>>
 			/* Play the voiceover */
 			<<set _VOList to _args[0]>>
 			<<audio _VOList[random(0,_args[0].length-1)] play>>
@@ -446,6 +463,16 @@
 		<<else>>
 			<<bgs "rub">>
 		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "vibe-sound">>
+	<<if _args[0] is "piston">>
+		<<bgs "piston_rotor">>
+	<<elseif $arousal gte ($arousalmax * 0.5)>>
+		<<bgs "rotor_fast">>
+	<<else>>
+		<<bgs "rotor_slow">>
 	<</if>>
 <</widget>>
 
