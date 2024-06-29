@@ -308,10 +308,10 @@ function outfitChecks() {
 	T.overOutfit = (V.worn.over_lower.outfitSecondary && V.worn.over_lower.outfitSecondary[1] === V.worn.over_upper.name) || false;
 
 	T.skirtExposed =
-		(setup.clothes.over_lower[clothesIndex("over_lower", V.worn.over_lower)].skirt === 1 &&
-			setup.clothes.lower[clothesIndex("lower", V.worn.lower)].skirt === 1) ||
-		(setup.clothes.over_lower[clothesIndex("over_lower", V.worn.over_lower)].skirt === 1 && V.worn.lower.type.includes("naked")) ||
-		(V.worn.over_lower.type.includes("naked") && setup.clothes.lower[clothesIndex("lower", V.worn.lower)].skirt === 1);
+		(wornSetupClothes("over_lower").skirt === 1 &&
+			wornSetupClothes("lower").skirt === 1) ||
+		(wornSetupClothes("over_lower").skirt === 1 && V.worn.lower.type.includes("naked")) ||
+		(V.worn.over_lower.type.includes("naked") && wornSetupClothes("lower").skirt === 1);
 	T.bottomExposed = V.worn.over_lower.name === "naked" && V.worn.lower.name === "naked" && !V.worn.under_lower.type.includes("covered");
 	T.shirtless =
 		V.worn.over_upper.name === "naked" &&

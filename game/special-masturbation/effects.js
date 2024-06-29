@@ -357,7 +357,7 @@ function masturbationEffectsArms(
 			V.worn.over_lower.anus_exposed = 1;
 			V.worn.over_lower.vagina_exposed = 1;
 			V.worn.over_lower.exposed = 2;
-			if (setup.clothes.over_lower[clothesIndex("over_lower", V.worn.over_lower)].skirt) {
+			if (wornSetupClothes("over_lower").skirt) {
 				V.worn.over_lower.skirt_down = 0;
 				sWikifier(`You lift up your ${V.worn.over_lower.name}, <span class="lewd">exposing your <<exposedlower>>.</span>`);
 			} else {
@@ -371,7 +371,7 @@ function masturbationEffectsArms(
 			V.worn.lower.anus_exposed = 1;
 			V.worn.lower.vagina_exposed = 1;
 			V.worn.lower.exposed = 2;
-			if (setup.clothes.lower[clothesIndex("lower", V.worn.lower)].skirt) {
+			if (wornSetupClothes("lower").skirt) {
 				V.worn.lower.skirt_down = 0;
 				sWikifier(`You lift up your ${V.worn.lower.name}, <span class="lewd">exposing your <<undies>>.</span>`);
 			} else {

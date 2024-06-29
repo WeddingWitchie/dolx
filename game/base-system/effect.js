@@ -98,7 +98,7 @@ function effectsWater() {
 				// If clothing above underwear is also wet, or missing
 				wetIntro = 2;
 				sWikifier(`<span class="lewd">Your bodily fluids soak through your ${V.worn.under_lower.name}, exposing your <<genitals>>.</span>`);
-			} else if (setup.clothes.lower[clothesIndex("lower", V.worn.lower)].skirt === 1) {
+			} else if (wornSetupClothes("lower").skirt === 1) {
 				sWikifier(
 					`<span class="lewd">Your bodily fluids soak through your ${V.worn.under_lower.name}, exposing your <<genitals>> to the air under your $worn.lower.name.</span>`
 				);

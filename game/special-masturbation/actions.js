@@ -758,8 +758,8 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 
 		if (
 			V.worn.under_lower.exposed <= 0 &&
-			(V.worn.lower.state !== setup.clothes.lower[clothesIndex("lower", V.worn.lower)].state_base ||
-				setup.clothes.lower[clothesIndex("lower", V.worn.lower)].skirt === 1 ||
+			(V.worn.lower.state !== wornSetupClothes("lower").state_base ||
+				wornSetupClothes("lower").skirt === 1 ||
 				V.worn.lower.type.includes("naked"))
 		) {
 			result.options.push({ action: "munder", text: `Pull down your ${V.worn.under_lower.name}` });
