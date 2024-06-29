@@ -282,6 +282,9 @@
 			<<else>>
 				<<set $_stress_multiplier to 10>>
 			<</if>>
+			<<if $multiOrgasmToggle>>
+				<<set $_stress_multiplier *= 0.5>>
+			<</if>>
 			<<stress _args[0] $_stress_multiplier>>
 			<<combattrauma _args[0]>>
 		<</if>>
@@ -338,6 +341,9 @@
 				<<set $_stress_multiplier -= 10>>
 			<<else>>
 				<<set $_stress_multiplier -= $orgasmcount * 2>>
+			<</if>>
+			<<if $multiOrgasmToggle>>
+				<<set $_stress_multiplier *= 0.5>>
 			<</if>>
 			<<stress _args[0] $_stress_multiplier>>
 			<<combattrauma _args[0]>>
@@ -1352,9 +1358,9 @@
 	<</if>>
 <</widget>>
 
-<<widget "rapestat">><<if $statFreeze isnot true>><<set $rapestat += 1>><<set $rapeTimeStat to Time.date.timeStamp>><</if>><</widget>>
+<<widget "rapestat">><<if $statFreeze isnot true>><<set $rapestat += 1>><<set $recentrape += 1>><<set $rapeTimeStat to Time.date.timeStamp>><</if>><</widget>>
 
-<<widget "moleststat">><<if $statFreeze isnot true>><<set $moleststat += 1>><<set $molestTimeStat to Time.date.timeStamp>><</if>><</widget>>
+<<widget "moleststat">><<if $statFreeze isnot true>><<set $moleststat += 1>><<set $recentmolest += 1>><<set $molestTimeStat to Time.date.timeStamp>><</if>><</widget>>
 
 <<widget "vaginalstat">><<if $statFreeze isnot true>><<set $vaginalstat += 1>><<set $vaginalTimeStat to Time.date.timeStamp>><</if>><</widget>>
 
@@ -5014,10 +5020,10 @@
 <<widget "pantsable">>
 	<!-- check if lowerwear allows for player to be pantsed or upskirted
 	_pantsable: lowerwear can be pulled down; _upskirt: skirt can be flipped up -->
-	<<if setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1 and ($worn.lower.set is $worn.upper.set)>>
+	<<if wornSetupClothes("lower").skirt is 1 and ($worn.lower.set is $worn.upper.set)>>
 		<<set _upskirt to 1>>
 		<<set _pantsable to 0>>
-	<<elseif setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1>>
+	<<elseif wornSetupClothes("lower").skirt is 1>>
 		<<set _upskirt to 1>>
 		<<set _pantsable to 1>>
 	<<elseif ["shortalls"].includes($worn.lower.name) or ($worn.lower.set is $worn.upper.set)>>
