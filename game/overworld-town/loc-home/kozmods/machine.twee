@@ -1,0 +1,77 @@
+:: Bedroom Machine Widgets [widget]
+
+<<widget "bedroom_machine">>
+	<<if $player.vaginaExist and $machineVaginalBought>>
+		<<sextoysicon "dildo">><<link [[Use your vaginal fuck machine|Bedroom Machine]]>><<set $sexstart to 1>><<set $phase to 1>><</link>>
+		<br>
+	<</if>>
+	<<if $machineAnalBought>>
+		<<sextoysicon "smalldildo">><<link [[Use your anal fuck machine|Bedroom Machine]]>><<set $sexstart to 1>><<set $phase to 2>><</link>>
+		<br>
+	<</if>>
+	<<if $player.vaginaExist and $machineVaginalBought and $machineAnalBought>>
+		<<sextoysicon "dildo">><<link [[Use both fuck machines|Bedroom Machine]]>><<set $sexstart to 1>><<set $phase to 3>><</link>>
+		<br>
+	<</if>>
+<</widget>>
+
+:: Bedroom Machine
+
+<<if $sexstart is 1>>
+	<<if !wornSetupClothes("lower").skirt or !wornSetupClothes("lower").short>><<lowerstrip>><<set $machineundressed to 1>><</if>>
+	<<if $worn.under_lower.name isnot "naked">><<underlowerstrip>><<set $machineundressed to 1>><</if>>
+	<<set $sexstart to 0>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+
+	<<set $machine_health to 10>><<set $machine_ammo to 20>>
+	<<if $phase is 1>>
+		<<machine_init vaginal arm_chains leg_chains>>
+	<<elseif $phase is 2>>
+		<<machine_init anal arm_chains leg_chains>>
+	<<elseif $phase is 3>>
+		<<machine_init vaginal anal arm_chains leg_chains>>
+	<</if>>
+	<<set $phase to 0>>
+<</if>>
+
+<<if $phase is 0>>
+	You take out the machine from your wardrobe, and hastily assemble its parts. 
+	<br><br>
+	You <<=$worn.lower.name isnot "naked" or $worn.under_lower.name isnot "naked"? "strip yourself of any obstructing clothing and ": "">>lock securely each of the machine's bindings to your limbs. And finally, relax yourself into position, anticipating the pleasure that's to come. 
+	<<set $phase to 1>>
+	<br><br>
+<</if>>
+
+<<effects>>
+
+<<machine_effects>><<machine_combat>>
+<<machine_state>>
+
+<<machine_actions>>
+
+<<if $machine.number lte 0 or $finish is 1>>
+	<span id="next"><<link [[Next|Bedroom Machine End]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Bedroom Machine]]>><</link>></span><<nexttext>>
+<</if>>
+
+
+:: Bedroom Machine End
+<<effects>>
+
+<<if $machine.number lte 0>>
+	You finally manage to hit the off switch somehow, and the machine falls inert. <<tearful>> you undo your bindings<<= $machineundressed? " and wear again your previously discarded clothing":"">>. 
+<<else>>
+	After having fulfilled its function, the machine's preprogrammed cycle finally comes to an end. <<tearful>> the machine automatically releases your bindings<<= $machineundressed? ", allowing you to pick yourself up and wear once again your previously discarded clothing":"">>. 
+<</if>>
+<br><br>
+
+<<clotheson>>
+<<machine_end>>
+<<unset $machineundressed>>
+
+You disassemble the machine and store it safely back in your wardrobe.
+<br><br>
+<<link [[Next|Bedroom]]>><<endevent>><</link>>
+<br>
