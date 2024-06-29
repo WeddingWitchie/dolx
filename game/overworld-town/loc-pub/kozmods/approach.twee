@@ -1,0 +1,239 @@
+:: Pub Approach Widgets [widget]
+
+<<widget "pubapproach">>
+	<<set $xchange.pubtimer to random(10,30)>><<set $pubdrink to 0>><<set $pubresist to 1>>
+	<<generate1>><<person1>>
+	"<<print [
+		`Hey, ${$player.gender_appearance is "f"? "girl" : "boy"}! You look cute. But I suspect that's the least interesting thing about you,`,
+		`Hey, cutie! What's your name?`,
+		`Hey, ${$NPCList[0].gender is "m"? "my cock just died. May I bury it in your ass?" : "my plumbing's a little leaky. Care to check it for me?"}`,
+		`Excuse me, I couldn't help but notice you look an awful lot like my next ${$player.gender_appearance is "f"? "girl": "boy"},`,
+		"Hey, babe! Why don't you sit on my lap and we talk about the first thing that pops up.",
+		"Hey, my hands are cold. May I warm them in your pants?",
+		"Do you know what winks and fucks like a tiger?",
+		"If I said you have a nice body, would you hold it against me?",
+		"Wanna know how I know we are having sex tonight? Because im stronger than you,",
+		"Nice shoes! Wanna fuck?",
+		`You look killer in ${$worn.lower.plural? "those":"that"} ${$worn.lower.name}. Care to share some of that booty?`,
+		`I just can't look at you and breathe at the same time... You're just that stunning,`,
+		`${$player.gender_appearance is "f"? "Nice legs. What time do they open?": "Hey there, postman... Do you have a package for me?"}`,
+		"You know, if I were you, I’d have sex with me. Immediately,",
+	].random()>>" a <<person>> says as <<he>> approaches you.
+	<<if $NPCList[0].skills.security gte 800>><<arousal 500>><<ggarousal>><<elseif $NPCList[0].skills.security gte 400>><<arousal 200>><<garousal>><</if>>
+	<br>
+
+	<<willpowerdifficulty 1 1000 "silent">>
+	<<link [[Flirt (0:10)|Pub Approach Flirt]]>><<pass 10>><</link>><<promiscuous1>>
+	<br>
+	<<if $arousal lt $arousalmax * 2/5 and $drunk lt 240>>
+		<<link [[Reject (0:01)|Pub Approach Reject]]>><<pass 1>><</link>>
+	<<elseif $willpowerSuccess>>
+		<<link [[Reject (0:01)|Pub Approach Reject]]>><<pass 1>><<willpowersuccess>><</link>>
+	<<else>>
+		<<set $pubresist to 0>>
+		<span class="lewd">You're too <<= $arousal gte $arousalmax * 2/5? "horny" : "drunk">> to resist <<his>> advances.</span>
+	<</if>>
+	<br>
+<</widget>>
+
+:: Pub Approach Flirt
+<<set $outside to 0>><<set $location to "pub">><<effects>><<set $bus to "harvest">>
+<<promiscuity1>>
+You reciprocate <<his>> advances. Time goes by swiftly as you both chat. You laugh when <<he>> jokes, smile when you catch <<him>> ogling, and touch <<him>> back whenever <<he>> caresses you.
+<br><br>
+Perhaps it's <<his>> <<= $NPCList[0].skills.security gte 500? "charisma" : "cute awkwardness">>, or perhaps you're just horny. But either way, <<hes>> managed to get through your defences and convince you to accompany <<him>> home.
+<br><br>
+
+<<if $NPCList[0].skills.security gte 500>>
+	<<He>> drives you to <<his>> place at Danube Street. Opens the door. And shows you <<his>> fancy room. You barely hear a word before <<hes>> pushed you down and gotten on top of you. 
+	<br><br>
+	<<link [[Next (0:10)|Pub Approach Sex]]>><<set $phase to 1>><<set $sexstart to 1>><</link>>
+<<else>>
+	<<He>> drives you to <<his>> place at Domus Street. Shakily opens the door. And <<hes>> barely managed to close it behind the both of you before you're backed into a wall, getting groped all over.
+	<br><br>
+	<<link [[Next (0:10)|Pub Approach Sex]]>><<set $phase to 2>><<set $sexstart to 1>><</link>>
+<</if>>
+
+:: Pub Approach Sex
+
+<<if $sexstart is 1>>
+	<<set $sexstart to 0>>
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+	<<maninit>>
+	<<set $enemytrust += 100>>
+<<elseif $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<maninit>>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<if _combatend>>
+	<span id="next"><<link [[Next|Pub Approach Sex Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Pub Approach Sex]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Pub Approach Sex Finish
+
+<<set $outside to 0>><<set $location to "town">><<effects>>
+<<if $phase is 1>>
+	<<if $enemyhealth lte 0>>
+		<<tearful>> you knock <<him>> onto <<his>> bed and dash out the room, down the stairs and out onto the street.
+
+	<<elseif $enemyarousal gte $enemyarousalmax>>
+
+		<<ejaculation>>
+
+		"That was amazing," <<he>> pants. "You're an incredible fuck." <<He>> rolls onto <<his>> side to face you. "I'd have liked for you to stay, but my spouse is bound to be home soon. Though I hope I see you again." <<tearful>> you leave the room. <<He>> stares after you in longing.
+
+	<<else>>
+
+		"Huh? What's wrong?" <<he>> asks. "Ugh, nevermind. This was a mistake. Please leave." <<tearful>> you leave <<him>> in peace.
+
+	<</if>>
+	<br><br>
+
+	<<clotheson>>
+
+	<<endcombat>>
+
+	<<link [[Next|Danube Street]]>><</link>>
+<<else>>
+	<<if $enemyhealth lte 0>>
+
+		<<tearful>> you knock <<him>> back against one of the doors. It gives way and <<he>> tumbles out, letting you escape before <<he>> can get back up.
+
+	<<elseif $enemyarousal gte $enemyarousalmax>>
+
+		<<ejaculation>>
+
+		"I really, really needed that," <<he>> says, stroking your hair. "Let's keep this between just the two of us, though." <<He>> glances at <<his>> watch. "My spouse should be returning home any time soon. So I better hurry and scrub your scent off." <<He>> opens a door for you to get out. "Sorry about the rush. I promise I won't forget you." <<tearful>> you leave the house.
+		
+	<<else>>
+
+		"Alright. I knew I was out of practice. Just go so I can wash up before my spouse returns." <<He>> opens the door for you to leave. <<tearful>> you leave the house.
+
+	<</if>>
+	<br><br>
+
+	<<clotheson>>
+
+	<<endcombat>>
+
+	<<link [[Next|Domus Street]]>><</link>>
+<</if>>
+
+
+:: Pub Approach Reject
+Unimpressed, you shoot down every single one of <<his>> poor attempts at a pick-up line. Mortified that <<he>> would think such cheesy lines would work on you. And somehow, <<he>> still looks shocked that <<his>> clever oneliners missed their mark.
+<br><br>
+
+<<if $NPCList[0].skills.security gte 500>>
+	"Come on! Don't be like that!" <<he>> protests. "At least let me buy you a drink."
+	<br>
+	<<if playerIsPregnant() and playerAwareTheyArePregnant()>>
+		<span class="blue">You can't bring yourself to drink while you know you're with child.</span>
+		<br>
+		<<link [[Refuse|Pub]]>><<endevent>><</link>>
+	<<else>>
+		<<link [[Accept (0:20)|Pub Approach Drink]]>><<alcohol 200>><<pass 20>><<set $pubdrink += 2000>><</link>><<ggalcohol>>
+		<br>
+		<<willpowerdifficulty 1 1000 "silent">>
+		<<if $arousal lt $arousalmax * 0.4 and $drunk lt 240>>
+			<<link [[Refuse|Pub]]>><<endevent>><</link>>
+		<<elseif $willpowerSuccess and $pubresist>>
+			<<link [[Refuse|Pub]]>><<willpowersuccess>><<endevent>><</link>>
+		<<else>>
+			<<set $pubresist to 0>>
+			<span class="lewd"><<He>> has worn you down. You're now going along with <<his>> advances.</span>
+		<</if>>
+	<</if>>
+	<br>
+<<else>>
+	Having run out of ammunition, the <<person>> takes <<his>> leave feeling defeated.
+	<br>
+	<<link [[Next|Pub]]>><<endevent>><</link>>
+<</if>>
+
+:: Pub Approach Drink
+
+<<wearProp "beermug">>
+<<if $pubdrink gte 8000>>
+	You nod and <<he>> stands to get another. By the time <<he>> returns, you're drooped on the table, everything spinning.
+	<br><br>
+	"Actually," <<he>> says. "I think you've had enough. Let's get you home."
+	<br><br>
+	<<link [[Next (0:10)|Pub Journey]]>><<handheldon>><<pass 10>><</link>>
+	<br>
+<<elseif $pubdrink gte 6000>>
+	<<He>> buys you yet another glass of liquor.
+	<br><br>
+
+	<<He>> starts asking questions about you. Innocent enough, where you go to school. Where you live. "One for the road?" <<he>> asks.
+	<br><br>
+	<<link [[Accept (0:20)|Pub Approach Drink]]>><<handheldon>><<alcohol 200>><<pass 20>><<set $pubdrink += 2000>><</link>><<ggalcohol>>
+	<br>
+	<<link [[Flirt (0:10)|Pub Approach Flirt]]>><<handheldon>><<pass 10>><</link>><<promiscuous1>>
+	<br>
+	<<willpowerdifficulty 1 1000 "silent">>
+	<<if $arousal lt $arousalmax * 0.4 and $drunk lt 240>>
+		<<link [[Say goodbye|Pub]]>><<endevent>><</link>>
+	<<elseif $willpowerSuccess and $pubresist>>
+		<<link [[Say goodbye|Pub]]>><<willpowersuccess>><<endevent>><</link>>
+	<<else>>
+		<<set $pubresist to 0>>
+		<span class="lewd"><<He>> has worn down your resistance. You're now going along with <<his>> advances.</span>
+	<</if>>
+	<br>
+<<elseif $pubdrink gte 4000>>
+	<<He>> buys you another glass of liquor. This time it goes down a bit easier.
+	<br><br>
+
+	<<He>> talks a bit more now, vaguely telling you about <<his>> work. It sounds difficult. <<He>> offers you another drink.
+	<br><br>
+	<<link [[Accept (0:20)|Pub Approach Drink]]>><<handheldon>><<alcohol 200>><<pass 20>><<set $pubdrink += 2000>><</link>><<ggalcohol>>
+	<br>
+	<<link [[Flirt (0:10)|Pub Approach Flirt]]>><<handheldon>><<pass 10>><</link>><<promiscuous1>>
+	<br>
+	<<willpowerdifficulty 1 1000 "silent">>
+	<<if $arousal lt $arousalmax * 0.4 and $drunk lt 240>>
+		<<link [[Say goodbye|Pub]]>><<endevent>><</link>>
+	<<elseif $willpowerSuccess and $pubresist>>
+		<<link [[Say goodbye|Pub]]>><<willpowersuccess>><<endevent>><</link>>
+	<<else>>
+		<<set $pubresist to 0>>
+		<span class="lewd"><<He>> has worn down your resistance. You're now going along with <<his>> advances.</span>
+	<</if>>
+	<br>
+<<elseif $pubdrink gte 2000>>
+	<<He>> buys you a glass of liquor. The bartender didn't ask what <<he>> wanted, seeming to know already. It's strong stuff.
+	<br><br>
+	<<He>> encourages you to say what's on your mind, and doesn't speak much. "Would you like another?" <<he>> asks once your glass is empty.
+	<br><br>
+	<<link [[Accept (0:20)|Pub Approach Drink]]>><<handheldon>><<alcohol 200>><<pass 20>><<set $pubdrink += 2000>><</link>><<ggalcohol>>
+	<br>
+	<<link [[Flirt (0:10)|Pub Approach Flirt]]>><<handheldon>><<pass 10>><</link>><<promiscuous1>>
+	<br>
+	<<willpowerdifficulty 1 1000 "silent">>
+	<<if $arousal lt $arousalmax * 0.4 and $drunk lt 240>>
+		<<link [[Say goodbye|Pub]]>><<endevent>><</link>>
+	<<elseif $willpowerSuccess and $pubresist>>
+		<<link [[Say goodbye|Pub]]>><<willpowersuccess>><<endevent>><</link>>
+	<<else>>
+		<<set $pubresist to 0>>
+		<span class="lewd"><<He>> has worn down your resistance. You're now going along with <<his>> advances.</span>
+	<</if>>
+	<br>
+<</if>>
