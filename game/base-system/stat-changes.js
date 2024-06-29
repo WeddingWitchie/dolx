@@ -265,6 +265,7 @@ const statChange = (() => {
 		if (amount) {
 			let mod = 1;
 			let purityMod = (1000 - V.purity) * V.xchange.impuritySensitivityBonus / 1000;
+			const fragment = document.createDocumentFragment();
 
 			// Trait checks & effects
 			if (amount > 0 && V.orgasmtrait) mod *= 0.6;
@@ -285,6 +286,7 @@ const statChange = (() => {
 			// Apply effect according to source
 			let sensitivity = 0;
 			let arousal;
+			let penetration = ["penetrated", "doublepenetrated", "tentacle", "tentacledeep"];
 			switch (source) {
 				case undefined:
 				case "masturbation":
@@ -307,7 +309,7 @@ const statChange = (() => {
 				case "masturbationNipples":
 				case "chest_grope":
 					sensitivity += V.breastsensitivity + purityMod;
-					wikifier("playWithBreasts");
+					fragment.append(wikifier("playWithBreasts"));
 					if (playerIsPregnant()) sensitivity += 0.5;
 					break;
 				case "bottom":
@@ -318,7 +320,10 @@ const statChange = (() => {
 				case "masturbationAnal":
 				case "masturbationAss":
 				case "bottom_grope":
-					sensitivity += V.bottomsensitivity + purityMod;
+					let analWetnessPenalty = 1;
+					if (penetration.includes(V.anusstate))
+						analWetnessPenalty = Math.min(V.anusWetness/60, 1);
+					sensitivity += Math.max((V.analsensitivity + purityMod) * analWetnessPenalty, 0.25);
 					break;
 				case "genital":
 				case "genitals":
@@ -333,9 +338,9 @@ const statChange = (() => {
 				case "pussy_grope":
 				case "penis_grope":
 					let wetnessPenalty = 1;
-					if (V.player.vaginaExist === "t")
+					if (V.player.vaginaExist === "t" && penetration.includes(V.vaginause))
 						wetnessPenalty = Math.min(V.vaginaWetness/60, 1);
-					sensitivity += Math.max(V.genitalsensitivity * wetnessPenalty, 0.25) + 2*purityMod;
+					sensitivity += Math.max((V.genitalsensitivity + 2*purityMod) * wetnessPenalty, 0.25);
 					if (playerIsPregnant()) sensitivity += 0.5;
 					break;
 				case "maso":
@@ -366,18 +371,27 @@ const statChange = (() => {
 			}
 
 			V.arousal += amount * mod * Weather.BodyTemperature.arousalModifier;
-			wikifier("arousalclamp");
-			// wikifier("arousal-wetness");
-			wikifier("arousal-moan");
+			fragment.append(wikifier("arousalclamp"));
+			// fragment.append(wikifier("arousal-wetness"));
+			fragment.append(wikifier("arousal-moan", amount * mod * Weather.BodyTemperature.arousalModifier, sensitivity));
 
 			// Add to the tracker
 			if (amount > 0) {
 				V.trackedArousal[V.trackedArousal.length - 1] += Math.round(amount * mod);
 				V.timeSinceArousal = 0;
 			}
+
+			return fragment;
 		}
 	}
-	DefineMacro("arousal", arousal);
+	Macro.add("arousal", {
+		handler() {
+			const fragment = arousal(...this.args);
+			this.output.append(fragment);
+		},
+	});
+	
+	// DefineMacro("arousal", arousal);
 	DefineMacro("breastarousal", amount => arousal(amount, "breasts"));
 	DefineMacro("genitalarousal", amount => arousal(amount, "genitals"));
 
