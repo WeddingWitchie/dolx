@@ -6,6 +6,8 @@
 <<set $assaultEnergy to random(25,50)>>
 <<generate2>><<generateyv3>><<generate4>>
 
+<<set $NPCList[0].skills.security += (1000 - $submissive) / 5>>
+
 The crude touch of a stranger rapidly sends your senses into high alert.
 <br><br>
 As you scan your surroundings, you quickly notice:
@@ -27,14 +29,15 @@ They all seem to be crowding around you. <span class="purple">Something's not ri
 	The <<person1>><<person>> shifts closer to you.
 	<br><br>
 	<<if $NPCList[0].skills.security gte 600>>
-		"This should be a fun trip," <<he>> whispers as <<he>> glances at you with a lustful gaze.
+		"This should be fun," <<he>> whispers as <<he>> glances at you with a lustful gaze.
 	<<elseif $NPCList[0].skills.security lte 300>>
-		<<He>> accidentally bumps you with <<his>> leg. "S-sorry," <<he>> says nervously.
+		<<He>> accidentally bumps you with <<his>> leg. "S-sorry," <<he>> says.
 	<<else>>
 		<<He>> doesn't say anything, yet you notice <<he>> glances at you several times.
 	<</if>>
 	<br><br>
 	A few moments later, the <<person1>><<persons>> touch turns bolder, as <<he>> begins rubbing your leg through your $worn.lower.name.
+	<<moleststat>>
 	<<chikanmolestactions>>
 <<elseif $rng gte 55>>
 	The trip seems to be passing quickly, but at one point the <<person4>><<person>> starts talking about the orphanage.
@@ -52,6 +55,7 @@ They all seem to be crowding around you. <span class="purple">Something's not ri
 	<</if>>
 	<br><br>
 	A few moments later, as if emboldened by the <<person4>><<persons>> remarks, the <<person1>><<person>> begins rubbing your leg through your $worn.lower.name.
+	<<moleststat>>
 	<<chikanmolestactions>>
 <<elseif $rng gte 40>>
 	During the trip, the <<person4>><<person>> steps closer to the <<person3>><<person>> and places <<person4>><<his>> hand<<person3>>
@@ -99,7 +103,9 @@ You can't bring yourself to watch the violation, so you turn your attention back
 
 :: Bus Chikan Molest Resist
 <<effects>>
-<<set $busChikanPhase++>>
+<<if ($busChikanPhase lt 6) or ($busChikanPhase gte 6 and $arousal gte $arousalmax * 2/5)>>
+	<<set $busChikanPhase++>>
+<</if>>
 <<set $passengerAttention++>>
 <<if $passengerAttention gte 10>>
 	Your attempts to get rid of the <<person1>><<person>> have disturbed the other passengers. The <<people>> all start turning their heads and looking at you in outrage at all the commotion you are making.
@@ -125,7 +131,7 @@ You can't bring yourself to watch the violation, so you turn your attention back
 		<</if>>
 		<br><br>
 		<<if $NPCList[0].skills.security gte 600>>
-			"I love it when they fight back," <<he>> whispers, continuing <<his>> assault.
+			"So cute when they fight back," <<he>> whispers, continuing <<his>> assault.
 			<<set $assaultEnergy += 3>>
 		<<elseif $NPCList[0].skills.security lte 300>>
 			"S-sorry," <<he>> says nervously, <<his>> grip on your leg loosening.
@@ -135,7 +141,7 @@ You can't bring yourself to watch the violation, so you turn your attention back
 		<</if>>
 	<<elseif $busChikanPhase is 3>>
 		The <<person>> gets bolder and
-		<<if setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1>>
+		<<if wornSetupClothes("lower").skirt is 1>>
 			shoves <<his>> hand up your $worn.lower.name and begins rubbing your <<undies>>.
 		<<else>>
 			shoves <<his>> hand down your $worn.lower.name and begins rubbing your <<undies>>.
@@ -166,7 +172,7 @@ You can't bring yourself to watch the violation, so you turn your attention back
 		<</if>>
 	<<elseif $busChikanPhase lte 6>>
 		The <<persons>> hand remains
-		<<if setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1>>
+		<<if wornSetupClothes("lower").skirt is 1>>
 			under your $worn.lower.name as <<he>> continues rubbing your <<undies>>.
 		<<else>>
 			down your $worn.lower.name as <<he>> continues rubbing your <<undies>>.
@@ -284,7 +290,9 @@ You can't bring yourself to watch the violation, so you turn your attention back
 
 :: Bus Chikan Molest Ignore
 <<effects>>
-<<set $busChikanPhase++>>
+<<if ($busChikanPhase lt 6) or ($busChikanPhase gte 6 and $arousal gte $arousalmax * 2/5)>>
+	<<set $busChikanPhase++>>
+<</if>>
 <<set $passengerAttention -=1>>
 <<if $assaultEnergy gte 1>>
 	<<if $arousal gte $arousalmax>>
@@ -302,14 +310,14 @@ You can't bring yourself to watch the violation, so you turn your attention back
 			"How does this feel?" <<he>> whispers, rubbing your thigh.
 			<<set $assaultEnergy -= 5>>
 		<<elseif $NPCList[0].skills.security lte 300>>
-			"D-do you like this?" <<he>> asks nervously, gently rubbing your thigh.
+			<<He>> nervously looks around as <<he>> gently rubs your thigh.
 			<<set $assaultEnergy += 3>>
 		<<else>>
 			<<He>> silently rubs your thigh.
 		<</if>>
 	<<elseif $busChikanPhase is 3>>
 		The <<person>> gets bolder and
-		<<if setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1>>
+		<<if wornSetupClothes("lower").skirt is 1>>
 			shoves <<his>> hand up your $worn.lower.name and begins rubbing your <<undies>>.
 		<<else>>
 			shoves <<his>> hand down your $worn.lower.name and begins rubbing your <<undies>>.
@@ -322,14 +330,19 @@ You can't bring yourself to watch the violation, so you turn your attention back
 			"Your mouth says nothing, but your body says everything," <<he>> says as <<he>> continues rubbing.
 			<<set $assaultEnergy -= 5>>
 		<<elseif $NPCList[0].skills.security lte 300>>
-			"Sh-should I continue?" <<he>> asks softly.
+			"<<= [
+				"Y-your body is so hot",
+				"I-I can't help myself",
+				"I-I'll make you feel good",
+				"Y-you're really cute"
+			].random()>>," <<he>> says softly.
 			<<set $assaultEnergy += 3>>
 		<<else>>
 			<<He>> remains silent.
 		<</if>>
 	<<elseif $busChikanPhase lte 6>>
 		The <<persons>> hand remains
-		<<if setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1>>
+		<<if wornSetupClothes("lower").skirt is 1>>
 			under your $worn.lower.name as <<he>> continues rubbing your <<undies>>.
 		<<else>>
 			down your $worn.lower.name as <<he>> continues rubbing your <<undies>>.
@@ -347,17 +360,18 @@ You can't bring yourself to watch the violation, so you turn your attention back
 			How can you ignore this?" <<he>> says as <<he>> continues rubbing.
 			<<set $assaultEnergy -= 5>>
 		<<elseif $NPCList[0].skills.security lte 300>>
-			"I'm glad you like this," <<he>> says meekly.
+			<<He>> breathes raggedly as <<he>> continues rubbing.
 			<<set $assaultEnergy += 3>>
 		<<else>>
 			<<His>> silent assault on your <<undies>> continues.
 		<</if>>
 	<<elseif $busChikanPhase is 7>>
-		Unable to resist <<himself>>, the <<persons>> hand
+		Unable to resist <<himself>>,
 		<<if $worn.under_lower.name isnot "naked">>
-			goes under your $worn.under_lower.name
+			the <<persons>> hand goes under your $worn.under_lower.name and
+		<<else>>
+			the <<person>>
 		<</if>>
-		and
 		<<if $player.penisExist>>
 			grabs your <<penis>>.
 		<<else>>
@@ -372,7 +386,11 @@ You can't bring yourself to watch the violation, so you turn your attention back
 			"I'm going to make you cum in front of everyone, and you won't even look me in the eye?" <<He>> says, annoyed.
 			<<set $assaultEnergy -= 5>>
 		<<elseif $NPCList[0].skills.security lte 300>>
-			"I'll be gentle," <<he>> whispers.
+			"<<= [
+				"I'll be gentle",
+				"F-feels good, doesn't it?",
+				`$player.vaginaExist?"O-oh, you're so wet already":"O-oh, you're rock hard already"`,
+			].random()>>," <<he>> whispers.
 			<<set $assaultEnergy += 5>>
 		<<else>>
 			<<He>> says nothing as <<he>> steps up <<his>> assault on your <<genitals>>.
@@ -394,7 +412,7 @@ You can't bring yourself to watch the violation, so you turn your attention back
 			"It feels like you're just about ready to burst. Come on! Say something!"
 			<<set $assaultEnergy -= 5>>
 		<<elseif $NPCList[0].skills.security lte 300>>
-			"I'm close too," <<he>> says softly.
+			<<Hes>> leaning on you while moaning softly in your ear.
 			<<set $assaultEnergy += 3>>
 		<<else>>
 			<<He>> continues to look elsewhere, as if <<he>> isn't openly violating you.
