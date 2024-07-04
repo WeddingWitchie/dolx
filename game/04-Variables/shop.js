@@ -252,6 +252,11 @@ setup.shopDetails = {
 		desc: "Makes it more difficult to hide.",
 		details: "Increases the amount of crime gained during thievery.",
 	},
+	portal: {
+		name: "Mysterious",
+		desc: "Feels oddly breezy to wear.",
+		details: "Allows random strangers to use your genitalia remotely.",
+	}
 };
 
 setup.hairDetails = {

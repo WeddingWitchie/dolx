@@ -139,13 +139,13 @@ const Time = (() => {
 		const fragment = document.createDocumentFragment();
 
 		if (seconds < 0) return fragment;
-
+		
 		const prevDate = new DateTime(currentDate);
 		set(V.timeStamp + seconds);
-
+		
 		const minutes = Math.floor((currentDate.timeStamp - prevDate.timeStamp) / 60) || (60 + (currentDate.minute - prevDate.minute)) % 60;
 		if (!minutes) return fragment;
-
+		
 		fragment.append(minutePassed(minutes));
 
 		const hours = Math.floor(minutes / 60) || (24 + (currentDate.hour - prevDate.hour)) % 24;
@@ -177,7 +177,7 @@ const Time = (() => {
 		fragment.append(dayPassed());
 		if (prevDate.yearDay < Time.startDate.yearDay && currentDate.yearDay >= Time.startDate.yearDay) {
 			fragment.append(yearPassed());
-		}
+		}		
 
 		return fragment;
 	}
@@ -1012,6 +1012,9 @@ function minutePassed(minutes) {
 		fragment.append(wikifier("willpower-spending", minutes * 0.5 * Math.ceil( (V.arousal - V.arousalmax*2/5) / (V.arousalmax/10) )));
 	else if (V.xchange.willpowerPoints < V.willpower * 0.5) 
 		fragment.append(wikifier("willpower-recovery", minutes * 0.5 * Math.ceil( (V.arousalmax*2/5 - V.arousal) / (V.arousalmax/10) )));
+
+	// Portal Panties
+	fragment.append(wikifier("portalPantiesPass", minutes));
 
 	// Pub
 	V.xchange.pubtimer = Math.max(V.xchange.pubtimer - 1, 0);
@@ -1972,9 +1975,9 @@ function passArousalWetness(passMinutes) {
 	let wetnessChange = 0;
 	const arousalPercent = Math.clamp(V.arousal / V.arousalmax, 0, 1);
 
-	// Vaginal lube is produced at a fairly linear rate, between 1-3 per minute based on arousal.
+	// Vaginal lube is produced at a fairly linear rate, between 1-4 per minute based on arousal.
 	if (V.arousal >= V.arousalmax * (2 / 5)) {
-		wetnessChange = 1 + arousalPercent * 2;
+		wetnessChange = 1 + arousalPercent * 3;
 		// It also gets harder to build up the closer you get to full wetness
 		const wetnessPercent = Math.clamp(V.vaginaArousalWetness / 100, 0, 1);
 		wetnessChange = Math.floor(wetnessChange * 2 * (1 - wetnessPercent));

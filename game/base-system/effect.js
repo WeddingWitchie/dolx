@@ -1124,6 +1124,8 @@ function effects() {
 		C.tiredness.max = 2000;
 	}
 
+	sWikifier("<<portalPantiesDisplay>>");
+
 	return fragment;
 }
 

@@ -262,10 +262,10 @@ const statChange = (() => {
 	function arousal(amount, source) {
 		if (isNaN(amount)) paramError("arousal", "amount", amount, "Expected a number.");
 		amount = Number(amount);
+		const fragment = document.createDocumentFragment();
 		if (amount) {
 			let mod = 1;
 			let purityMod = (1000 - V.purity) * V.xchange.impuritySensitivityBonus / 1000;
-			const fragment = document.createDocumentFragment();
 
 			// Trait checks & effects
 			if (amount > 0 && V.orgasmtrait) mod *= 0.6;
@@ -286,7 +286,8 @@ const statChange = (() => {
 			// Apply effect according to source
 			let sensitivity = 0;
 			let arousal;
-			let penetration = ["penetrated", "doublepenetrated", "tentacle", "tentacledeep"];
+			let beingPenetrated = ["penetrated", "doublepenetrated", "tentacle", "tentacledeep"];
+			let penetrating = ["penetrated", "othervagina", "otheranus"];
 			switch (source) {
 				case undefined:
 				case "masturbation":
@@ -321,8 +322,10 @@ const statChange = (() => {
 				case "masturbationAss":
 				case "bottom_grope":
 					let analWetnessPenalty = 1;
-					if (penetration.includes(V.anusstate))
+					if (beingPenetrated.includes(V.anusstate)) {
+						pain(V.analPain);
 						analWetnessPenalty = Math.min(V.anusWetness/60, 1);
+					}
 					sensitivity += Math.max((V.analsensitivity + purityMod) * analWetnessPenalty, 0.25);
 					break;
 				case "genital":
@@ -338,8 +341,10 @@ const statChange = (() => {
 				case "pussy_grope":
 				case "penis_grope":
 					let wetnessPenalty = 1;
-					if (V.player.vaginaExist === "t" && penetration.includes(V.vaginause))
+					if (V.player.vaginaExist === "t" && beingPenetrated.includes(V.vaginause)) {
+						pain(V.vaginalPain);
 						wetnessPenalty = Math.min(V.vaginaWetness/60, 1);
+					}
 					sensitivity += Math.max((V.genitalsensitivity + 2*purityMod) * wetnessPenalty, 0.25);
 					if (playerIsPregnant()) sensitivity += 0.5;
 					break;

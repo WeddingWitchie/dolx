@@ -252,6 +252,17 @@
 			<<track "m_breath_fast5">>
 		<</createplaylist>>
 
+	<<cacheaudio "squirt1" "aud/sfx/ejaculation/squirt1.wav">>
+	<<cacheaudio "squirt2" "aud/sfx/ejaculation/squirt2.wav">>
+	<<cacheaudio "squirt3" "aud/sfx/ejaculation/squirt3.wav">>
+	<<cacheaudio "squirt4" "aud/sfx/ejaculation/squirt4.wav">>
+		<<createplaylist "squirt">>
+			<<track "squirt1">>
+			<<track "squirt2">>
+			<<track "squirt3">>
+			<<track "squirt4">>
+		<</createplaylist>>
+
 	<<waitforaudio>>
 
 <</widget>>
@@ -269,7 +280,11 @@
 		<<set _machineVibe to ["entrance","imminent","penentrated"]>>
 
 		/* Condition shorthands */
-		<<set _beingPenetrated to _penetration.includes($vaginastate) or _penetration.includes($anusstate)>>
+		<<set _beingPenetrated to 
+			_penetration.includes($vaginastate) or _penetration.includes($anusstate) or 
+			($portalPanties.state.vagina and !$portalPanties.state.vagina.new and !$portalPanties.state.vagina.tempRemoval) or 
+			($portalPanties.state.anus and !$portalPanties.state.anus.new and !$portalPanties.state.anus.tempRemoval)
+		>>
 		<<set _beingVibePenetrated to _vibeDildo.includes($rightaction) or _vibeDildo.includes($leftaction)>>
 		<<set _penetrating to _penisPenetration.includes($penisstate)>>
 		<<set _beingRubbed to 
@@ -291,7 +306,7 @@
 		/* Consider adding a check for NPC genitals being rubbed/penetrated by checking $NPCList[_n].vagina is "penis" for example, but remember to check if $NPCList[_n].vagina isnot "none"	 */
 
 		/* Update BGS */
-		<<if _beingPenetrated or _penetrating>>
+		<<if _beingPenetrated or _penetrating or $vaginause is "mdildopenetrate" or $anususe is "mdildopenetrate">>
 			<<sex-sound>>
 		<<elseif _beingRubbed>>
 			<<rub-sound>>
@@ -303,9 +318,9 @@
 
 		/* Update BGV */
 		<<if $options.voiceoverAudio and ($player.gender_posture is "f" or ($player.sex is "f" and $player.gender_posture is "n"))>>
-			<<if _penetration.includes($mouthstate)>>
+			<<if _penetration.includes($mouthstate) or $portalPanties.state.mouth isnot null>>
 				<<chupa-voice>>
-			<<elseif _penetration.includes($vaginastate) or _penetration.includes($anusstate)>>
+			<<elseif _beingPenetrated>>
 				<<sex-voice>>
 			<<elseif $arousal gte $arousalmax * 0.1>>
 				<<arousal-voice>>
@@ -434,6 +449,20 @@
 	<</if>>
 <</widget>>
 
+<<widget "ejaculation-sound">>
+	<<if ($options.audio is 1 and $options.voiceoverAudio is 1)>>
+		<<timed 3000ms>>
+		<<audio `"squirt"+random(1,4)` play volume 0.8>>
+		<</timed>>
+		<<timed 4000ms>>
+		<<audio `"squirt"+random(1,4)` play volume 0.8>>
+		<</timed>>
+		<<timed 5000ms>>
+		<<audio `"squirt"+random(1,4)` play volume 0.8>>
+		<</timed>>
+	<</if>>
+<</widget>>
+
 <<widget "sex-sound">>
 	<<if $enemyarousal gte $enemyarousalmax * 0.7>>
 		<<bgs "sex_fast">>
@@ -493,8 +522,10 @@
 		<<bgv "moan_fast" _args[0]>>
 	<<elseif $arousal gte $arousalmax * 0.4 or $orgasmcurrent gte 1>>
 		<<bgv "moan" _args[0]>>
-	<<else>>
+	<<elseif $arousal gte $arousalmax * 0.2>>
 		<<bgv "moan_slow" _args[0]>>
+	<<else>>
+		<<bgv "chupa_vslow">>
 	<</if>>	
 <</widget>>
 
@@ -508,8 +539,8 @@
 			<<bgv "breath_slow" _args[0]>>
 		<<elseif $arousal gte $arousalmax * 0.2>>
 			<<bgv "breath_vslow" _args[0]>>
-		<<elseif $arousal gte $arousalmax * 0.1>>
-			<<bgv "breath_vvslow" _args[0]>>
+		<<else>>
+			<<bgv "stop">>
 		<</if>>	
 	<<elseif ($player.gender_posture is "m" or ($player.sex is "m" and $player.gender_posture is "n"))>>
 		<<if $arousal gte $arousalmax * 0.8>>
@@ -520,8 +551,8 @@
 			<<bgv "m_breath_slow" _args[0]>>
 		<<elseif $arousal gte $arousalmax * 0.2>>
 			<<bgv "m_breath_vslow" _args[0]>>
-		<<elseif $arousal gte $arousalmax * 0.1>>
-			<<bgv "m_breath_vvslow" _args[0]>>
+		<<else>>
+			<<bgv "stop">>
 		<</if>>	
 	<</if>>
 <</widget>>
@@ -539,6 +570,7 @@
 			<</if>>
 		<<elseif ($player.gender_posture is "m" or ($player.sex is "m" and $player.gender_posture is "n"))>>
 			<<voiceover setup.m_orgasm>>
+			<<ejaculation-sound>>
 		<</if>>
 	<<else>>
 		<<if _args[0] is "npc_f">>
@@ -552,11 +584,13 @@
 <<widget "npc-orgasm-voice">>
 	<!-- Count males and females to decide which orgasm voice to play -->
 	<<set _femaleCount to 0>><<set _maleCount to 0>>
+	<<set _anyMale to false>>
 	<<for _n=0; _n lt $NPCList.length; _n++>>
 		<<if $NPCList[_n].pronoun is "f">>
 			<<set _femaleCount++>>
 		<<elseif $NPCList[_n].pronoun is "m">>
 			<<set _maleCount++>>
+			<<set _anyMale to true>>
 		<</if>>
 	<</for>>
 
@@ -567,4 +601,5 @@
 		/* <<set $enemyarousal to 0>> */
 		<<orgasm-voice "npc_m">>
 	<</if>>
+	<<if _anyMale>><<ejaculation-sound>><</if>>
 <</widget>>
