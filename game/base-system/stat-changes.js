@@ -286,8 +286,8 @@ const statChange = (() => {
 			// Apply effect according to source
 			let sensitivity = 0;
 			let arousal;
-			let beingPenetrated = ["penetrated", "doublepenetrated", "tentacle", "tentacledeep"];
-			let penetrating = ["penetrated", "othervagina", "otheranus"];
+			let beingPenetrated = ["penis", "penisdouble", "tentacle", "tentacledeep", "machine"];
+			let penetrating = ["penetrated", "othervagina", "otheranus", "othermouth"];
 			switch (source) {
 				case undefined:
 				case "masturbation":
@@ -376,6 +376,14 @@ const statChange = (() => {
 			}
 
 			V.arousal += amount * mod * Weather.BodyTemperature.arousalModifier;
+			
+			if ( ( !V.penis_addict_trait || ( beingPenetrated.includes(V.vaginause) || beingPenetrated.includes(V.anususe) ) ) && 
+			( !V.hole_addict_trait || penetrating.includes(V.peniuse) ) ) {
+				// Do Nothing
+			} else {
+				V.arousal = Math.clamp(V.arousal, 0, V.arousalmax * 4/5 - 1);
+			}
+
 			fragment.append(wikifier("arousalclamp"));
 			// fragment.append(wikifier("arousal-wetness"));
 			fragment.append(wikifier("arousal-moan", amount * mod * Weather.BodyTemperature.arousalModifier, sensitivity));

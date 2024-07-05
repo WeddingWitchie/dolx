@@ -1012,6 +1012,7 @@ function minutePassed(minutes) {
 		fragment.append(wikifier("willpower-spending", minutes * 0.5 * Math.ceil( (V.arousal - V.arousalmax*2/5) / (V.arousalmax/10) )));
 	else if (V.xchange.willpowerPoints < V.willpower * 0.5) 
 		fragment.append(wikifier("willpower-recovery", minutes * 0.5 * Math.ceil( (V.arousalmax*2/5 - V.arousal) / (V.arousalmax/10) )));
+	if (V.drugged > 0 && V.arousal < V.arousalmax * 2/5) V.arousal += (V.drugged / 50) * minutes;
 
 	// Portal Panties
 	fragment.append(wikifier("portalPantiesPass", minutes));
@@ -1314,6 +1315,16 @@ function dailyPlayerEffects() {
 		V.effectsmessage = 1;
 		V.orgasm_trait_message = 1;
 		V.orgasmtrait = 1;
+	}
+	if ((V.beingPenetratedOrgasmStat >= 500 || (V.orgasmtrait && V.beingPenetratedOrgasmStat >= 50)) && V.penis_addict_trait === 0) {
+		V.effectsmessage = 1;
+		V.penis_addict_trait_message = 1;
+		V.penis_addict_trait = 1;
+	}
+	if ((V.penetratingOrgasmStat >= 500 || (V.orgasmtrait && V.penetratingOrgasmStat >= 50)) && V.hole_addict_trait === 0) {
+		V.effectsmessage = 1;
+		V.hole_addict_trait_message = 1;
+		V.hole_addict_trait = 1;
 	}
 	if (V.ejacstat >= 300 && V.ejactrait === 0) {
 		V.effectsmessage = 1;

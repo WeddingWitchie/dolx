@@ -375,6 +375,12 @@
 				<</switch>>
 			<</if>>
 		<</if>>
+		<<set _penetration to ["penetrated", "doublepenetrated", "tentacle", "tentacledeep"]>>
+		<<if _penetration.includes($anusstate) and $anusWetness lt 60>>
+			<<pain $analPain>>
+		<<elseif _penetration.includes($vaginastate) and $vaginaWetness lt 60>>
+			<<pain $vaginalPain>>
+		<</if>>
 		<<arousal _arousal _args[1]>>
 		<<enemyarousal _enemyarousal>>
 	<</if>>
@@ -4119,14 +4125,19 @@
 	<<if $orgasmdown gte 1 and _willpowerorgasmchecked isnot true>>
 		<<if (currentSkillValue('willpower') / 10) gte (($orgasmdown * 30) + random(1, 80))>>
 			<span class="green">You endure the orgasmic shivers running through you.</span>
-			<<gwillpower>><<willpower 1>><<willpowersuccess>><<set $orgasmdown to 0>>
+			<<willpowersuccess>><<set $orgasmdown to 0>>
 			<br>
 		<<else>>
-			<span class="red">You struggle against the orgasmic spasms overwhelming you.</span>
+			<<if $orgasmtrait>>
+				<span class="pink">You surrender to the orgasmic bliss overcoming you.</span>
+				<<lwillpower>><<willpower -2>>
+			<<else>>
+				<span class="red">You struggle against the orgasmic spasms overwhelming you.</span>
+			<</if>>
 			<<if $position is "stalk">>
 				You fall to your knees.
 			<</if>>
-			<<gwillpower>><<willpower 1>><<willpowerfailure>>
+			<<willpowerfailure>>
 			<br>
 		<</if>>
 	<<set _willpowerorgasmchecked to true>>

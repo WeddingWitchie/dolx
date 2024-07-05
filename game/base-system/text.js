@@ -358,6 +358,9 @@ statDisplay.create("ginsecurity", type => {
 	return "";
 });
 
+statDisplay.create("lwillpower", () => statDisplay.statChange("Willpower", -1, "red"));
+statDisplay.create("llwillpower", () => statDisplay.statChange("Willpower", -2, "red"));
+statDisplay.create("lllwillpower", () => statDisplay.statChange("Willpower", -3, "red"));
 statDisplay.create("gwillpower", () => statDisplay.statChange("Willpower", 1, "green"));
 statDisplay.create("ggwillpower", () => statDisplay.statChange("Willpower", 2, "green"));
 statDisplay.create("gggwillpower", () => statDisplay.statChange("Willpower", 3, "green"));
