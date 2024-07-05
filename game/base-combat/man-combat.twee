@@ -1478,7 +1478,13 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 	<<set $_hand to _args[0]>>
 	<<set $_overlower_open to wornSetupClothes("over_lower").skirt is 1 or $worn.over_lower.type.includes("naked")>>
 	<<set $_lower_open to wornSetupClothes("lower").skirt is 1>>
+	<<set $_lower_short to wornSetupClothes("lower").short is 1>>
 
+	<<if $combatgoal isnot "strip" and $_lower_open and $_lower_short and !$worn.lower.skirt_down>>
+		<<combat-reset-hand $_hand>>
+		<<hand_section_two $_hand>>
+		<<exit>>
+	<</if>>
 
 	<<if $_overlower_open and $_lower_open>>
 		<<if $worn.lower.skirt_down is 1>>
@@ -1850,7 +1856,7 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 				<span class="purple"><<He>> grasps your $worn.over_lower.name with <<his>> _args[0] hand.</span>
 				<<neutral 1 _n>>
 				<<set $handtarget to "overlowerclothes">>
-			<<elseif $worn.lower.name isnot "naked" and $walltype isnot "front">>
+			<<elseif $worn.lower.name isnot "naked" and $walltype isnot "front" and (!wornSetupClothes("lower").skirt or !wornSetupClothes("lower").short or $combatgoal is "strip" or $worn.lower.skirt_down)>>
 				<span class="purple"><<He>> grasps your $worn.lower.name with <<his>> _args[0] hand.</span>
 				<<neutral 1 _n>>
 				<<set $handtarget to "lowerclothes">>
