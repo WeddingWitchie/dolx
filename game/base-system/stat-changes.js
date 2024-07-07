@@ -393,9 +393,9 @@ const statChange = (() => {
 				V.trackedArousal[V.trackedArousal.length - 1] += Math.round(amount * mod);
 				V.timeSinceArousal = 0;
 			}
-
-			return fragment;
 		}
+		
+		return fragment;
 	}
 	Macro.add("arousal", {
 		handler() {
