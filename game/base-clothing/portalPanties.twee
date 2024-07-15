@@ -111,31 +111,35 @@
 
 <<widget "portalPantiesFuck">>
 	<<set _arousalIncrease to 0>>
+	<<set _toPass to Math.min($portalPanties.toPass, $portalPanties.state[_args[0]]?.timer || 31)>>
 	<<set _penisSize to $portalPanties.state[_args[0]] and [3,0].includes($portalPanties.state[_args[0]].new)? _args[1] : 1>>
 	<<if $portalPanties.state[_args[0]] and !$portalPanties.state[_args[0]].tempRemoval>>
 		<<switch $portalPanties.state[_args[0]].new>>
 		<<case 3>>
-			<<set _arousalIncrease to 200>>
+			<<set _arousalIncrease to 100>>
 			<<if $portalPanties.state[_args[0]].timer>>
-				<<set $portalPanties.state[_args[0]].timer -= $portalPanties.toPass>>
+				<<set $portalPanties.state[_args[0]].timer -= _toPass>>
 			<</if>>
+			<<set _toPass to Math.max(_toPass, 10)>>
 		<<case 1 2>>
-			<<set _arousalIncrease to 25>>
+			<<set _arousalIncrease to 200>>
 		<<case 0>>
 			<<set _arousalIncrease to 100>>
 			<<if $portalPanties.state[_args[0]].timer>>
-				<<set $portalPanties.state[_args[0]].timer -= $portalPanties.toPass>>
+				<<set $portalPanties.state[_args[0]].timer -= _toPass>>
 			<</if>>
+			<<set _toPass to Math.max(_toPass, 1)>>
 		<</switch>>
 	<<elseif $portalPanties.state[_args[0]] and $portalPanties.state[_args[0]].tempRemoval>>
 		<<set $portalPanties.state[_args[0]].tempTimer -= $portalPanties.toPass>>
 	<</if>>
 	<<penetrationPainCalculate>>
+	<<set _toPass to ([1,2].includes($portalPanties.state[_args[0]]?.new)? 1 : _toPass)>>
 	<<switch _args[0]>>
 		<<case "vagina">>
-			<<arousal `$portalPanties.toPass * _args[1] * _arousalIncrease` "vagina">>
+			<<arousal `_toPass * _args[1] * _arousalIncrease` "vagina">>
 		<<case "anus">>
-			<<arousal `$portalPanties.toPass * _args[1] * _arousalIncrease` "anus">>
+			<<arousal `_toPass * _args[1] * _arousalIncrease` "anus">>
 	<</switch>>
 <</widget>>
 
@@ -145,6 +149,14 @@
 
 /* Place '<<portalPantiesDisplay>>' within '<<widget "effects">>' */
 <<widget "portalPantiesDisplay">><<silently>>
+	/*Runs the 'fucking' effect */
+	<<set $_penisLocation to ["anus","vagina"].find((location) => $portalPanties.state[location] and $portalPanties.state[location].owner is "pc")>>
+	<<if $player.vaginaExist>>
+		<<portalPantiesFuck "vagina" `$_penisLocation === "vagina" ? 2 : 1`>>
+	<</if>>
+	<<portalPantiesFuck "anus" `$_penisLocation === "anus" ? 2 : 1`>>
+
+	/*Displays the respective message */
 	<<if $worn.under_lower.type.includes("portal")>>
 		<<if $player.vaginaExist>>
 			<<portalPantiesDisplayItem "vagina">>
@@ -152,13 +164,6 @@
 		<<portalPantiesDisplayItem "anus">>
 	<</if>>
 	<</silently>><<portalPantiesDisplayMessage>>
-	
-	/*Runs the 'fucking' effect */
-	<<set $_penisLocation to ["anus","vagina"].find((location) => $portalPanties.state[location] and $portalPanties.state[location].owner is "pc")>>
-	<<if $player.vaginaExist>>
-		<<portalPantiesFuck "vagina" `$_penisLocation === "vagina" ? 2 : 1`>>
-	<</if>>
-	<<portalPantiesFuck "anus" `$_penisLocation === "anus" ? 2 : 1`>>
 
 	<<set $portalPanties.toPass to 0>>
 <</widget>>
@@ -223,6 +228,17 @@
 	<<set $_continuedPlayerPenis to $_continued.find((location) => $portalPanties.state[location] and $portalPanties.state[location].owner is "pc")>>
 	<<set $_penisLocation to ["anus","vagina"].find((location) => $portalPanties.state[location] and $portalPanties.state[location].owner is "pc")>>
 
+	<<set _portalArousalLevel to Math.min($portalPanties.state.vagina?.timer || 100, $portalPanties.state.anus?.timer || 100) / 6>>
+	<<if _portalArousalLevel gte 5>>
+		<<set _animspeed to "slow">>
+	<<elseif _portalArousalLevel gte 4>>
+		<<set _animspeed to "mid">>
+	<<elseif _portalArousalLevel gte 3>>
+		<<set _animspeed to "fast">>
+	<<else>>
+		<<set _animspeed to "vfast">>
+	<</if>>
+
 	<<if $_entrance.length>>
 		<span class="purple">
 			You feel something <<= ["poking at","prodding at","kissing","licking"].random()>> your <<= formatList($_entrance)>>.
@@ -234,7 +250,7 @@
 			The intrusion<<= $_imminent.length gt 1? "s are": " is">> pushing into your <<= formatList($_imminent)>>, seeking to gain entry. 
 		</span>
 		<span class="red">
-			<<= $_imminent.length gt 1? "They're": "It's">> about penetrate!
+			<<= $_imminent.length gt 1? "They're": "It's">> about to penetrate!
 		</span>
 		<br>
 	<</if>>
@@ -248,6 +264,16 @@
 		<</if>>
 		<<= ["penetrate","invade","ravage"].random()>> your <<print formatList($_started)>><<if $_startedPlayerPenis>>, while at the same time your penis is suddenly enveloped by <<if _awareOfPenis>>a <<print $_penisLocation>><<else>>something foreign<</if>><</if>>.</span><span class="lewd"> Your knees buckle on the sudden intrusion.</span><<ggarousal>>
 		<br>
+		<<if window.document.body.clientWidth lt 650>>
+			<div id="divandroidsex" @class="colourContainerClasses() + ($options.combatAnimations isnot false ? '':' noAnimations')">
+			</div>
+			<<xrayimg>>
+		<<else>>
+			<div id="divsex" @class="colourContainerClasses() + ($options.combatAnimations isnot false ? '':' noAnimations')">
+				<<xrayimg>>
+			</div>
+		<</if>>
+		<<run combatCharacterShadow()>>
 	<</if>>
 	<<if $_continued.length>>
 		<span class="lewd">
@@ -263,6 +289,16 @@
 		<</if>>
 		<<= $portalPanties.asleep? "":`keep<<= ($_continued.length gt 1) ? "" : "s">>`>> <<= ["rhythmically","constantly", "continuously", "madly", "sporadically"].random()>> <<= ["thrusting","pistoning","pounding"].random()>> into your <<print formatList($_continued)>><<if $_continuedPlayerPenis>>, just as your penis is forced <<if _awareOfPenis>>into a <<print $_penisLocation>><<else>>in and out of something<</if>><</if>>.</span><<garousal>>
 		<br>
+		<<if window.document.body.clientWidth lt 650>>
+			<div id="divandroidsex" @class="colourContainerClasses() + ($options.combatAnimations isnot false ? '':' noAnimations')">
+			</div>
+			<<xrayimg>>
+		<<else>>
+			<div id="divsex" @class="colourContainerClasses() + ($options.combatAnimations isnot false ? '':' noAnimations')">
+				<<xrayimg>>
+			</div>
+		<</if>>
+		<<run combatCharacterShadow()>>
 	<</if>>
 	<<if $_finished.length>>
 		<span class="purple">
@@ -272,10 +308,20 @@
 			<<= $portalPanties.overloaded? `<<= ($_finished.length gt 1) ? "Several" : "A">>` : "The">> <<= ["voracious","ravenous","invading","ravaging","assailing"].random()>> object<<print ($_finished.length gt 1) ? "s" : "">>
 		<</if>>
 		inside you suddenly begin<<= ($_finished.length gt 1) ? "" : "s">> expanding erractically before releasing their <<= ["sticky", "gooey", "wet", "slimey"].random()>> load into your <<print formatList($_finished)>> and then disappearing.</span>
+		<br>
 		<<for $_item range $_finished>>
 			<<portalPantiesPortalCum $_item>>
 		<</for>>
-		<br>
+		<<if window.document.body.clientWidth lt 650>>
+			<div id="divandroidsex" @class="colourContainerClasses() + ($options.combatAnimations isnot false ? '':' noAnimations')">
+			</div>
+			<<xrayimg>>
+		<<else>>
+			<div id="divsex" @class="colourContainerClasses() + ($options.combatAnimations isnot false ? '':' noAnimations')">
+				<<xrayimg>>
+			</div>
+		<</if>>
+		<<run combatCharacterShadow()>>
 	<</if>>
 	<<if $_disappeared.length>>
 		<span class="lblue">
@@ -297,6 +343,16 @@
 		<</if>>
 		resume<<print ($_resumed.length gt 1) ? "" : "s">> <<= ["violating","plundering","ransacking","despoiling"].random()>> your <<= formatList($_resumed)>>.</span>
 		<br>
+		<<if window.document.body.clientWidth lt 650>>
+			<div id="divandroidsex" @class="colourContainerClasses() + ($options.combatAnimations isnot false ? '':' noAnimations')">
+			</div>
+			<<xrayimg>>
+		<<else>>
+			<div id="divsex" @class="colourContainerClasses() + ($options.combatAnimations isnot false ? '':' noAnimations')">
+				<<xrayimg>>
+			</div>
+		<</if>>
+		<<run combatCharacterShadow()>>
 	<</if>>
 	<<set _firstItem to true>>
 	<<for $_item range $portalPanties.message.started>>
@@ -314,6 +370,8 @@
 	<<set $portalPanties.message.resumed to []>>
 	<<unset $portalPanties.asleep>>
 	<<unset $portalPanties.overloaded>>
+	<<unset $_portalEjacA>>
+	<<unset $_portalEjacV>>
 <</widget>>
 
 /*Every widget below here might need to be checked for issues, didn't spent too long on it */
@@ -360,12 +418,14 @@
 			<<analejacstat>><<ejacstat>><<set $hunger -= 200>><<set $thirst -= 200>><<set $hygiene += 500>><<bodyliquid "anus" "semen">>
 			<<set $portalPanties.portalPenisOrgasms.anus++>>
 			<<portalPantiesClear _args[0]>>
+			<<set $_portalEjacA to 1>>
 		<<case "vagina">>
 			<<recordSperm `{target: "pc", spermOwner: $portalPanties.state[_args[0]].owner, spermType: $portalPanties.state[_args[0]].type}`>>
 			<<portalPantiesClear _args[0]>>
 			<<vaginalejacstat>><<ejacstat>><<set $hygiene += 500>><<bodyliquid "vagina" "semen">>
 			<<set $portalPanties.portalPenisOrgasms.vagina++>>
 			<<portalPantiesClear _args[0]>>
+			<<set $_portalEjacV to 1>>
 	<</switch>>
 	<<ejaculation-sound>>
 <</widget>>

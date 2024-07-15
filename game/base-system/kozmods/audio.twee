@@ -464,9 +464,21 @@
 <</widget>>
 
 <<widget "sex-sound">>
-	<<if $enemyarousal gte $enemyarousalmax * 0.7>>
+	<<if $portalPanties.state.vagina or $portalPanties.state.anus>>
+		<<set _portalArousalLevel to Math.min($portalPanties.state.vagina?.timer || 100, $portalPanties.state.anus?.timer || 100) / 6>>
+		<<if _portalArousalLevel gte 5>>
+			<<set _animspeed to "slow">>
+		<<elseif _portalArousalLevel gte 4>>
+			<<set _animspeed to "mid">>
+		<<elseif _portalArousalLevel gte 3>>
+			<<set _animspeed to "fast">>
+		<<else>>
+			<<set _animspeed to "vfast">>
+		<</if>>
+	<</if>>
+	<<if _animspeed is "vfast" or $enemyarousal gte $enemyarousalmax * 0.7>>
 		<<bgs "sex_fast">>
-	<<elseif $enemyarousal gte $enemyarousalmax * 0.5>>
+	<<elseif _animspeed is "fast" or $enemyarousal gte $enemyarousalmax * 0.5>>
 		<<bgs "sex_middle">>
 	<<else>>
 		<<bgs "sex_slow">>
