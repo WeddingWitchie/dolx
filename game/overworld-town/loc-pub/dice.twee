@@ -1,0 +1,149 @@
+:: Pub Dice Minigame Widgets [widget]
+
+<<widget "dice-display">>
+	<table class="dice-grid">
+		<thead>
+			<tr>
+				<th scope="col"></th>
+				<th scope="col" class="text-center">You</th>
+				<th scope="col" class="text-center"><<silently>><<person1>><<person>><</silently>><<capitalise>></th>
+				<th scope="col" class="text-center"><<silently>><<person2>><<person>><</silently>><<capitalise>></th>
+				<th scope="col" class="text-center"><<silently>><<person3>><<person>><</silently>><<capitalise>></th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<th scope="row">Ante</th>
+				<<for _playerCash range $dice.ante>>
+					<td class="text-right"><<printmoney _playerCash>></td>
+				<</for>>
+			</tr>
+			<tr>
+				<th scope="row">Current Bet</th>
+				<<for _bet range $dice.bets>>
+					<td class="text-right"><<printmoney _bet>></td>
+				<</for>>
+			</tr>
+			<tr>
+				<th scope="row">Position</th>
+				<<for _position range $dice.positions>>
+					<td class="text-center"><span class="gold">_position</span></td>
+				<</for>>
+			</tr>
+			<tr>
+				<th score="row">Winners' Pot</th>
+				<td colspan="4" class="text-center"><b><<printmoney $dice.pot>></b></td>
+			</tr>
+		</tbody>
+	</table>
+	<br>
+
+	<<if $phase gt 1>>
+		<<if $dice.values>>
+			<img @src="'img/misc/die_'+$dice.values[0]+'.png'">
+			<img @src="'img/misc/die_'+$dice.values[1]+'.png'">
+		<<else>>
+			<img src="img/misc/die_roll.gif">
+			<img src="img/misc/die_roll.gif">
+		<</if>>
+
+		<<if $dice.point>>
+			<b>Current Point:</b> $dice.point
+			<br>
+		<</if>>
+		<br>
+	<</if>>
+
+	<<foldout false "_diceInstructionsFoldout">>
+		<span class="gold">Game Instructions</span>
+		<ul>
+			<li>The shooter is the player currently rolling the dice.</li>
+			<li>On the first roll of their turn, 
+			<ul>
+				<li>If the shooter rolls 7 or 11, then the shooter along with those who bet in favour win and divide the pot.</li>
+				<li>If the shooter rolls 2, 3, or 12, the shooter loses, and those who bet against divide the pot.</li>
+				<li>If the shooter rolls anything else, that number becomes "the point".</li>
+			</ul>
+			<li>On subsequent rolls of their turn,</li>
+			<ul>
+				<li>If the shooter rolls "the point", then the shooter along with those who bet in favour win and divide the pot.</li>
+				<li>If the shooter rolls 7, the shooter loses, and those who bet against divide the pot.</li>
+				<li>Otherwise, the shooter keeps rolling until "the point" or 7 come out.</li>
+			</ul>
+			<li>If the shooter wins or loses, the dice pass to the next player who now becomes the new shooter.</li>
+		</ul>
+	<</foldout>>
+	<br>
+<</widget>>
+
+<<widget "dice-roll">>
+	<<set $dice.values to []>>
+	<<rng 1 6>><<set $dice.values.push($rng)>>
+	<<rng 1 6>><<set $dice.values.push($rng)>>
+<</widget>>
+
+<<widget "dice-wager">>
+	<<for _i, _player range $dice.players>>
+		
+		/* Logic for determining whether an npc wagers in favour or against */
+		
+		<<set $dice.ante[_i] -= $dice.bets[_i]>>
+	<</for>>
+<</widget>>
+
+<<widget "dice-endgame">>
+	<<unset $dice>>
+	<<endevent>>
+<</widget>>
+
+:: Pub Dice Minigame
+
+<<if $diceintro>>
+	<<generate1>><<generate2>><<generate3>>
+	
+	<<set $dice to {
+		pot: 0,
+		shooter: $player,
+		values: undefined,
+		point: undefined,
+		players: [$player, $NPCList[0], $NPCList[1], $NPCList[2]],
+		queue: [$NPCList[0], $NPCList[1], $NPCList[2]],
+		ante: [100000,100000,100000,100000],
+		positions: ["Shooter", "", "", ""],
+		bets: [0,0,0,0]
+	}>>
+	<<unset $diceintro>>
+<</if>>
+
+
+<<switch $phase>>
+<<case 1>> /* Opening Bets */
+	The <<people>> are goading each other, and being overall rowdy.
+	<<dice-display>>
+	<<numberbox "$dice.bets[0]" 100>>
+
+	<<link [[Wager|Pub Dice Minigame]]>><<set $dice.bets[0] *= 100>><<set $phase to 2>><<dice-wager>><</link>>
+	<br>
+	<<link [[Stop|Pub]]>><<endevent>><<dice-endgame>><</link>>
+	<br>
+
+<<case 2>> /* Pre-roll */
+
+	<<dice-display>>
+	<<if $dice.shooter is $player>>
+		<<link [[Roll Dice|Pub Dice Minigame]]>><<dice-roll>><<set $phase to 3>><</link>>
+		<br>
+	<<else>>
+		<<link [[Bet|Pub Dice Minigame]]>><<dice-roll>><<set $phase to 3>><</link>>
+		<br>
+	<</if>>
+
+<<case 3>> /* Come out: Roll Results (Win / Lose - Point Discovery) */
+
+<<case 4>> /* Roll  */
+
+<</switch>>
+
+
+
+
