@@ -953,8 +953,8 @@ Renderer.CanvasModels["main"] = {
 				if (T.slot == "over_upper" || T.slot == "upper" || T.slot == "under_upper") {
 					T.breastSize = typeof setup.clothes[T.slot][V.worn[T.slot].index].breast_img === 'object' ? setup.clothes[T.slot][V.worn[T.slot].index].breast_img[options.breast_size] : Math.min(options.breast_size, 6);
 				}
-				if ((!V.worn.over_upper.type.includes("naked") && setup.clothes.over_upper[V.worn.over_upper.index].breast_img == 0) || (!V.worn.upper.type.includes("naked") && setup.clothes.upper[V.worn.upper.index].breast_img == 0) || (!V.worn.under_upper.type.includes("naked") && setup.clothes.under_upper[V.worn.under_upper.index].breast_img == 0) || T.breastSize == null){
-					T.breastSize = 1;
+				if ((!V.worn.over_upper.type.includes("naked") && setup.clothes.over_upper[V.worn.over_upper.index].breast_img == 0) || (!V.worn.upper.type.includes("naked") && setup.clothes.upper[V.worn.upper.index].breast_img == 0) || (!V.worn.under_upper.type.includes("naked") && setup.clothes.under_upper[V.worn.under_upper.index].breast_img == 0) || T.breastSize == null || T.breastSize == 0){
+					return "";
 				}
 				let fn = "breasts" + T.breastSize + (options.breasts === "cleavage" && T.breastSize >= 3 ? "_clothed" : "") + ".png";
 				delete T.breastSize;

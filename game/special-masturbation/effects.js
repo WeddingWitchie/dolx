@@ -2064,9 +2064,9 @@ function masturbationEffectsArms(
 			if (V.arousal >= (V.arousalmax / 5) * 4) {
 				if (V.vaginaArousalWetness >= 60) {
 					wikifier("vaginaFluidActive");
-					sWikifier(`You forcibly pound your tingling <<pussy>> with your entire hand. Your fluids drip down your wrist.`);
+					sWikifier(`You forcibly pound your <<pussy>> with your entire hand. Your fluids drip down your wrist.`);
 				} else {
-					sWikifier(`You forcibly pound your tingling <<pussy>> with your entire hand.`);
+					sWikifier(`You forcibly pound your <<pussy>> with your entire hand.`);
 				}
 			} else if (V.arousal >= (V.arousalmax / 5) * 2) {
 				sWikifier(`You thrust your entire hand inside your <<pussy>>. Your inner walls twitch around it.`);

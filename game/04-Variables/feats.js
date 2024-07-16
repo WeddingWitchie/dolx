@@ -2419,6 +2419,8 @@ function earnHourlyFeats() {
 	if (V.milk_volume >= 12000) earnFeat("Rivers of White");
 	if (V.semen_volume >= 12000) earnFeat("Sticky Fountain");
 
+	if (V.whitneycollar == 1) earnFeat("Owned");
+
 	// To earn the feat "Curious Attire"
 	fragment.append(wikifier("specialClothesUpdate"));
 
