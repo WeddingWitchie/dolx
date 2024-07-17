@@ -229,9 +229,7 @@
 	<<set $_penisLocation to ["anus","vagina"].find((location) => $portalPanties.state[location] and $portalPanties.state[location].owner is "pc")>>
 
 	<<set _portalArousalLevel to Math.min($portalPanties.state.vagina?.timer || 100, $portalPanties.state.anus?.timer || 100) / 6>>
-	<<if _portalArousalLevel gte 5>>
-		<<set _animspeed to "slow">>
-	<<elseif _portalArousalLevel gte 4>>
+	<<if _portalArousalLevel gte 4>>
 		<<set _animspeed to "mid">>
 	<<elseif _portalArousalLevel gte 3>>
 		<<set _animspeed to "fast">>
@@ -322,6 +320,9 @@
 			</div>
 		<</if>>
 		<<run combatCharacterShadow()>>
+		<<for $_item range $_finished>>
+			<<portalPantiesClear $_item>>
+		<</for>>
 	<</if>>
 	<<if $_disappeared.length>>
 		<span class="lblue">
@@ -370,8 +371,8 @@
 	<<set $portalPanties.message.resumed to []>>
 	<<unset $portalPanties.asleep>>
 	<<unset $portalPanties.overloaded>>
-	<<unset $_portalEjacA>>
-	<<unset $_portalEjacV>>
+	<<unset $portalEjacA>>
+	<<unset $portalEjacV>>
 <</widget>>
 
 /*Every widget below here might need to be checked for issues, didn't spent too long on it */
@@ -414,18 +415,14 @@
 	<<switch _args[0]>>
 		<<case "anus">>
 			<<recordSperm `{target: "pc", spermOwner: $portalPanties.state[_args[0]].owner, spermType: $portalPanties.state[_args[0]].type, genital: "anus"}`>>
-			<<portalPantiesClear "anus">>
 			<<analejacstat>><<ejacstat>><<set $hunger -= 200>><<set $thirst -= 200>><<set $hygiene += 500>><<bodyliquid "anus" "semen">>
 			<<set $portalPanties.portalPenisOrgasms.anus++>>
-			<<portalPantiesClear _args[0]>>
-			<<set $_portalEjacA to 1>>
+			<<set $portalEjacA to 1>>
 		<<case "vagina">>
 			<<recordSperm `{target: "pc", spermOwner: $portalPanties.state[_args[0]].owner, spermType: $portalPanties.state[_args[0]].type}`>>
-			<<portalPantiesClear _args[0]>>
 			<<vaginalejacstat>><<ejacstat>><<set $hygiene += 500>><<bodyliquid "vagina" "semen">>
 			<<set $portalPanties.portalPenisOrgasms.vagina++>>
-			<<portalPantiesClear _args[0]>>
-			<<set $_portalEjacV to 1>>
+			<<set $portalEjacV to 1>>
 	<</switch>>
 	<<ejaculation-sound>>
 <</widget>>

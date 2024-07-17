@@ -377,8 +377,7 @@ const statChange = (() => {
 
 			V.arousal += amount * mod * Weather.BodyTemperature.arousalModifier;
 			
-			if ( ( !V.penis_addict_trait || ( beingPenetrated.includes(V.vaginause) || beingPenetrated.includes(V.anususe) ) ) && 
-			( !V.hole_addict_trait || penetrating.includes(V.peniuse) ) ) {
+			if ( ( !V.penis_addict_trait || ( beingPenetrated.includes(V.vaginause) || beingPenetrated.includes(V.anususe) || [0,3].includes(V.portalPanties.state.vagina?.new) || [0,3].includes(V.portalPanties.state.anus?.new) || V.portalEjacV || V.portalEjacA ) ) && ( !V.hole_addict_trait || penetrating.includes(V.peniuse) ) ) {
 				// Do Nothing
 			} else {
 				V.arousal = Math.clamp(V.arousal, 0, V.arousalmax * 4/5 - 1);
