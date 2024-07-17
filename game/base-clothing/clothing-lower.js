@@ -8,8 +8,9 @@ Warmth checklist:
 	Thin: 0
 	Normal: +1
 	Thick: +2
+	Very Thick: +3
 
-	Max warmth: 7
+	Max warmth: 8
 */
 function initLower() {
 	setup.clothes.lower = [
@@ -611,7 +612,7 @@ function initLower() {
 			type: ["formal"],
 			set: "kimono",
 			gender: "n",
-			warmth: 3,
+			warmth: 4,
 			cost: 0,
 			description: "Exotic.",
 			shop: ["clothing"],
@@ -660,7 +661,7 @@ function initLower() {
 			type: ["formal"],
 			set: "kimonomini",
 			gender: "n",
-			warmth: 2,
+			warmth: 3,
 			cost: 0,
 			description: "Exotic. Shows off your legs.",
 			shop: ["clothing", "adult"],
@@ -4851,7 +4852,7 @@ function initLower() {
 			variable: "lacegown",
 			integrity: 80,
 			integrity_max: 80,
-			fabric_strength: 30,
+			fabric_strength: 15,
 			reveal: 800,
 			rearresize: 0,
 			word: "a",
@@ -5450,7 +5451,7 @@ function initLower() {
 			vagina_exposed_base: 0,
 			anus_exposed: 0,
 			anus_exposed_base: 0,
-			type: ["normal", "athletic"],
+			type: ["normal", "athletic", "dance"],
 			set: "lower",
 			gender: "n",
 			warmth: 5,
@@ -5740,7 +5741,7 @@ function initLower() {
 			vagina_exposed_base: 0,
 			anus_exposed: 0,
 			anus_exposed_base: 0,
-			type: ["normal", "athletic"],
+			type: ["normal", "athletic", "dance"],
 			set: "lower",
 			gender: "n",
 			femininity: 0,
@@ -6466,7 +6467,7 @@ function initLower() {
 			variable: "oversizedbuttondown",
 			integrity: 60,
 			integrity_max: 60,
-			fabric_strength: 30,
+			fabric_strength: 15,
 			reveal: 500,
 			rearresize: 0,
 			word: "an",
@@ -6783,7 +6784,7 @@ function initLower() {
 			variable: "sarong",
 			integrity: 10,
 			integrity_max: 10,
-			fabric_strength: 20,
+			fabric_strength: 10,
 			reveal: 800,
 			rearresize: 0,
 			word: "a",
