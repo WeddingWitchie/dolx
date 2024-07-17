@@ -12,7 +12,7 @@ const StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.5.0.6 DoLP v0.412 DoLX 0.6.4",
+	version: "0.5.0.6 DoLP v0.481 DoLX 0.6.5",
 	versionName: `"Head in the Clouds" edition`,
 	sneaky: false,
 	socialMediaEnabled: true,
