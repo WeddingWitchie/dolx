@@ -429,29 +429,33 @@
 	<<if $makeup.mascara != 0>><<set $allure += 100>><</if>>
 
 	<<if $earSlime.growth gt 50>><<set $allure += ($earSlime.growth - 50) * 10>><</if>>
+	<<set _reputation_mod to 1>>
 	<<if !["island"].includes($location)>>
-		<<set $allure += ($fame.sex / 10)>>
-		<<set $allure += ($fame.prostitution / 10)>>
-		<<set $allure += ($fame.rape / 10)>>
-		<<set $allure += ($fame.bestiality / 10)>>
-		<<set $allure += ($fame.exhibitionism / 10)>>
-		<<set $allure += ($fame.pregnancy / 10)>>
-		<<set $allure += ($fame.impreg / 10)>>
+		<<set _reputation_mod to 0>>
+		<<set _reputation_mod = Math.max(_reputation_mod, $fame.sex / 1000)>>
+		<<set _reputation_mod = Math.max(_reputation_mod, $fame.prostitution / 1000)>>
+		<<set _reputation_mod = Math.max(_reputation_mod, $fame.rape / 1000)>>
+		<<set _reputation_mod = Math.max(_reputation_mod, $fame.bestiality / 1000)>>
+		<<set _reputation_mod = Math.max(_reputation_mod, $fame.exhibitionism / 1000)>>
+		<<set _reputation_mod = Math.max(_reputation_mod, $fame.pregnancy / 1000)>>
+		<<set _reputation_mod = Math.max(_reputation_mod, $fame.impreg / 1000)>>
 
-		<<set $allure -= ($fame.scrap / 2)>>
-		<<set $allure -= ($fame.good / 2)>>
-		<<set $allure -= ($fame.business / 2)>>
-		<<set $allure -= ($fame.social / 2)>>
-		<<set $allure -= ($fame.model / 2)>>
+		<<set _mitigator_mod to 1>>
+		<<set _mitigator_mod *= 1 - ($fame.scrap / 4000)>>
+		<<set _mitigator_mod *= 1 - ($fame.good / 4000)>>
+		<<set _mitigator_mod *= 1 - ($fame.business / 4000)>>
+		<<set _mitigator_mod *= 1 - ($fame.social / 4000)>>
+		<<set _mitigator_mod *= 1 - ($fame.model / 4000)>>
 		<<if $debug is 1>>
-			<<set $allure -= ($fame.pimp / 2)>>
+			<<set _mitigator_mod *= 1 - ($fame.pimp / 4000)>>
 		<</if>>
+		<<set _reputation_mod *= _mitigator_mod>>
 	<</if>>
 	<<if Time.isBloodMoon()>>
 		<<set $allure += 2000>>
 	<</if>>
 	<<set $baseAllure to $allure>>
-	<<set $allure *= $alluremod>>
+	<<set $allure *= $alluremod * _reputation_mod>>
 	<<if $allure gte 8000 * $alluremod>><<set $allure to 8000 * $alluremod>><</if>>
 	<<if $moorLuck gt 0>>
 		<<set $allure to Math.floor($allure * (1 - ($moorLuck / 100)))>>
