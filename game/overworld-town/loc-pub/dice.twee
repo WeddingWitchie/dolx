@@ -1,149 +1,313 @@
 :: Pub Dice Minigame Widgets [widget]
 
-<<widget "dice-display">>
-	<table class="dice-grid">
-		<thead>
-			<tr>
-				<th scope="col"></th>
-				<th scope="col" class="text-center">You</th>
-				<th scope="col" class="text-center"><<silently>><<person1>><<person>><</silently>><<capitalise>></th>
-				<th scope="col" class="text-center"><<silently>><<person2>><<person>><</silently>><<capitalise>></th>
-				<th scope="col" class="text-center"><<silently>><<person3>><<person>><</silently>><<capitalise>></th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr>
-				<th scope="row">Ante</th>
-				<<for _playerCash range $dice.ante>>
-					<td class="text-right"><<printmoney _playerCash>></td>
-				<</for>>
-			</tr>
-			<tr>
-				<th scope="row">Current Bet</th>
-				<<for _bet range $dice.bets>>
-					<td class="text-right"><<printmoney _bet>></td>
-				<</for>>
-			</tr>
-			<tr>
-				<th scope="row">Position</th>
-				<<for _position range $dice.positions>>
-					<td class="text-center"><span class="gold">_position</span></td>
-				<</for>>
-			</tr>
-			<tr>
-				<th score="row">Winners' Pot</th>
-				<td colspan="4" class="text-center"><b><<printmoney $dice.pot>></b></td>
-			</tr>
-		</tbody>
-	</table>
-	<br>
-
-	<<if $phase gt 1>>
-		<<if $dice.values>>
-			<img @src="'img/misc/die_'+$dice.values[0]+'.png'">
-			<img @src="'img/misc/die_'+$dice.values[1]+'.png'">
-		<<else>>
-			<img src="img/misc/die_roll.gif">
-			<img src="img/misc/die_roll.gif">
-		<</if>>
-
-		<<if $dice.point>>
-			<b>Current Point:</b> $dice.point
-			<br>
-		<</if>>
+	<<widget "dice-display">>
+		<table class="dice-grid">
+			<thead>
+				<tr>
+					<th scope="col"></th>
+					<th scope="col" class="text-center">You</th>
+					<th scope="col" class="text-center"><<silently>><<person1>><<person>><</silently>><<capitalise>></th>
+					<th scope="col" class="text-center"><<silently>><<person2>><<person>><</silently>><<capitalise>></th>
+					<th scope="col" class="text-center"><<silently>><<person3>><<person>><</silently>><<capitalise>></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<th scope="row">Money</th>
+					<<for _money range $dice.money>>
+						<td class="text-right"><<printmoney _money>></td>
+					<</for>>
+				</tr>
+				<tr>
+					<th scope="row">Current Bet</th>
+					<<for _bet range $dice.bets>>
+						<td class="text-right"><<printmoney _bet>></td>
+					<</for>>
+				</tr>
+				<tr>
+					<th scope="row">Position</th>
+					<<for _position range $dice.positions>>
+						<td class="text-right"><span class="gold">_position</span></td>
+					<</for>>
+				</tr>
+				<tr>
+					<th score="row" class="dice-pot">Winners' Pot</th>
+					<td colspan="4" class="text-center dice-pot"><b><<printmoney $dice.pot>></b></td>
+				</tr>
+			</tbody>
+		</table>
 		<br>
-	<</if>>
 
-	<<foldout false "_diceInstructionsFoldout">>
-		<span class="gold">Game Instructions</span>
-		<ul>
-			<li>The shooter is the player currently rolling the dice.</li>
-			<li>On the first roll of their turn, 
+		<<if $phase gt 1>>
+			<<if $dice.values>>
+				<img @src="'img/misc/die_'+$dice.values[0]+'.png'">
+				<img @src="'img/misc/die_'+$dice.values[1]+'.png'">
+			<<else>>
+				<img src="img/misc/die_roll.gif">
+				<img src="img/misc/die_roll.gif">
+				<br>
+			<</if>>
+
+			<<if $dice.point>>
+				<span class="dice-result-text"><b>Current Point:</b> $dice.point</span>
+			<</if>>
+
+			<<if $dice.shooter is 0 and $dice.round.result is "In Favour">>
+				<span class="green dice-result-text"><b>You win!</b></span><br>
+			<<elseif $dice.shooter is 0 and $dice.round.result is "Against">>
+				<span class="red dice-result-text"><b>You lose...</b></span><br>
+			<<elseif $dice.round.result and $dice.positions[0] is $dice.round.result>>
+				<span class="green dice-result-text"><b>You win!</b></span><br>
+			<<elseif $dice.round.result and $dice.positions[0] isnot $dice.round.result>>
+				<span class="red dice-result-text"><b>You lose...</b></span><br>
+			<<elseif $dice.point>>
+				<br>
+			<</if>>
+		<</if>>
+	<</widget>>
+
+	<<widget "dice-instructions">>
+		<<foldout false "_diceInstructionsFoldout">>
+			<span class="gold">Game Instructions</span>
 			<ul>
-				<li>If the shooter rolls 7 or 11, then the shooter along with those who bet in favour win and divide the pot.</li>
-				<li>If the shooter rolls 2, 3, or 12, the shooter loses, and those who bet against divide the pot.</li>
-				<li>If the shooter rolls anything else, that number becomes "the point".</li>
-			</ul>
-			<li>On subsequent rolls of their turn,</li>
-			<ul>
-				<li>If the shooter rolls "the point", then the shooter along with those who bet in favour win and divide the pot.</li>
-				<li>If the shooter rolls 7, the shooter loses, and those who bet against divide the pot.</li>
-				<li>Otherwise, the shooter keeps rolling until "the point" or 7 come out.</li>
-			</ul>
-			<li>If the shooter wins or loses, the dice pass to the next player who now becomes the new shooter.</li>
-		</ul>
-	<</foldout>>
-	<br>
-<</widget>>
+				<li>All players must pay an ante upfront to play a round.</li>
+				<li>Each round consists of the following stages:</li>
+				<ul>
+					<li>The Bet. In which players decide whether they'll bet with or against the shooter</li>
+					<li>The "Come Out" roll. Which is the first roll, that may decide "the point" for subsequent rolls.</li>
+					<li>The Subsequent rolls. The rolls that follow, until the shooter rolls a 7 or "the point".</li>
+				</ul>
+				<li>The "shooter" is the player currently rolling the dice. And they always make the first bet.</li>
+				<li>The player to the right of the shooter must always bet 'Against'.</li>
+				<li>On the first roll of their turn, 
+				<ul>
+					<li>If the shooter rolls 7 or 11, then the shooter along with those who bet in favour win and divide the pot.</li>
+					<li>If the shooter rolls 2, 3, or 12, the shooter loses, and those who bet against divide the pot.</li>
+					<li>If the shooter rolls anything else, that number becomes "the point".</li>
+				</ul>
+				<li>On subsequent rolls of their turn,</li>
+				<ul>
+					<li>If the shooter rolls "the point", then the shooter along with those who bet in favour win and divide the pot.</li>
+					<li>If the shooter rolls 7, the shooter loses, and those who bet against divide the pot.</li>
+					<li>Otherwise, the shooter keeps rolling until "the point" or 7 come out.</li>
+				</ul>
+				<li>If the shooter wins or loses, the dice pass to the next player who now becomes the new shooter.</li>
+		<</foldout>>
+		<br>
+	<</widget>>
 
-<<widget "dice-roll">>
-	<<set $dice.values to []>>
-	<<rng 1 6>><<set $dice.values.push($rng)>>
-	<<rng 1 6>><<set $dice.values.push($rng)>>
-<</widget>>
+	<<widget "dice-roll">>
+		<<set $dice.values to []>>
+		<<rng 1 6>><<set $dice.values.push($rng)>>
+		<<rng 1 6>><<set $dice.values.push($rng)>>
+	<</widget>>
 
-<<widget "dice-wager">>
-	<<for _i, _player range $dice.players>>
+	<<widget "dice-compute-result">>
+		<<set _rollResult to $dice.values[0] + $dice.values[1]>>
+
+		<<if $dice.point is undefined>> /* Come Out result */
+			<<if [7,11].includes(_rollResult)>>
+				<<set $dice.round.result to "In Favour">>
+			<<elseif [2,3,12].includes(_rollResult)>>
+				<<set $dice.round.result to "Against">>
+			<<else>>
+				<<set $dice.point to _rollResult>>
+			<</if>>
 		
-		/* Logic for determining whether an npc wagers in favour or against */
-		
-		<<set $dice.ante[_i] -= $dice.bets[_i]>>
-	<</for>>
-<</widget>>
+		<<else>> /* Subsequent rolls result */
+			<<if _rollResult is $dice.point>>	
+				<<set $dice.round.result to "In Favour">>
+			<<elseif _rollResult is 7>>
+				<<set $dice.round.result to "Against">>
+			<</if>>
 
-<<widget "dice-endgame">>
-	<<unset $dice>>
-	<<endevent>>
-<</widget>>
+		<</if>>
+	<</widget>>
+
+	<<widget "dice-compute-wagers">>
+		<<set _raisedBet to _args[0]>>
+		<<for _i, _player range $dice.queue>>
+
+			<<if _player is 0>>
+				<<continue>> /* Skip betting in PC's name */
+			<</if>>
+
+			<<if _raisedBet and _player isnot 0>> /* If PC raised the bet, match it */
+				<<dice-bet _player `$dice.bets[0] - $dice.bets[_player]`>>
+
+			<<elseif _player is $dice.shooter and $dice.shooter isnot 0>> /* If shooter is not PC, wager between 10 and 80 */
+				<<dice-bet _player `random(1,8)*1000`>>
+
+			<<elseif _player isnot 0>>/* If current betting player is not PC */
+				
+				/* Match the bet */
+				<<dice-bet _player `$dice.bets[$dice.shooter] - $dice.bets[_player]`>> 
+				
+				/* Force at least one 'Against' position */
+				<<set $dice.positions[_player] to _i is 1 or random(0,1)? "Against" : "In Favour">> 
+
+			<</if>>
+		<</for>>
+	<</widget>>
+
+	<<widget "dice-bet">>
+		<<set _player to _args[0]>> /* Index of player */
+		<<set _amount to _args[1]>> /* Amount to bet */
+		
+		/* Bet whatever remains if can't match the bet */
+		<<if $dice.money[_player] lte _amount>><<set _amount to $dice.money[_player]>><</if>>
+
+		<<set $dice.money[_player] -= _amount>>
+		<<set $dice.bets[_player] += _amount>>
+		<<set $dice.pot += _amount>>
+	<</widget>>
+
+	<<widget "dice-endround">>
+		/* Count winners */
+		<<set _winnerCount to $dice.roundResult is "In Favour"? 1 : 0>>
+		<<for _player range [0,1,2,3]>>
+			<<set $dice.bets[_player] to 0>>
+			<<set _winnerCount += $dice.positions[_player] is $dice.roundResult? 1 : 0>>
+		<</for>>
+		
+		/* Split the pot among winners */
+		<<set _split to $dice.pot / _winnerCount>><<set $dice.pot to 0>>
+		<<if $dice.roundResult is "In Favour">>
+			<<set $dice.money[$dice.shooter] += _split>>
+		<</if>>
+		<<for _player range [0,1,2,3]>>
+			<<set $dice.money[_player] += $dice.positions[_player] is $dice.roundResult? _split : 0>>
+		<</for>>
+		
+		/* Clean up round variables */
+		<<set $dice.roundResult to undefined>>
+	<</widget>>
+
+	<<widget "dice-endgame">>
+		<<set $money += $dice.money[0]>>
+		<<unset $dice>>
+		<<endevent>>
+	<</widget>>
 
 :: Pub Dice Minigame
 
-<<if $diceintro>>
-	<<generate1>><<generate2>><<generate3>>
-	
-	<<set $dice to {
-		pot: 0,
-		shooter: $player,
-		values: undefined,
-		point: undefined,
-		players: [$player, $NPCList[0], $NPCList[1], $NPCList[2]],
-		queue: [$NPCList[0], $NPCList[1], $NPCList[2]],
-		ante: [100000,100000,100000,100000],
-		positions: ["Shooter", "", "", ""],
-		bets: [0,0,0,0]
-	}>>
-	<<unset $diceintro>>
-<</if>>
-
-
-<<switch $phase>>
-<<case 1>> /* Opening Bets */
-	The <<people>> are goading each other, and being overall rowdy.
-	<<dice-display>>
-	<<numberbox "$dice.bets[0]" 100>>
-
-	<<link [[Wager|Pub Dice Minigame]]>><<set $dice.bets[0] *= 100>><<set $phase to 2>><<dice-wager>><</link>>
-	<br>
-	<<link [[Stop|Pub]]>><<endevent>><<dice-endgame>><</link>>
-	<br>
-
-<<case 2>> /* Pre-roll */
-
-	<<dice-display>>
-	<<if $dice.shooter is $player>>
-		<<link [[Roll Dice|Pub Dice Minigame]]>><<dice-roll>><<set $phase to 3>><</link>>
-		<br>
-	<<else>>
-		<<link [[Bet|Pub Dice Minigame]]>><<dice-roll>><<set $phase to 3>><</link>>
-		<br>
+	<<if $diceintro>>
+		<<generate1>><<generate2>><<generate3>>
+		
+		<<set $dice to {
+			pot: 0,
+			players: [$player, $NPCList[0], $NPCList[1], $NPCList[2]], /* Indexing players */
+			shooter: 0, /* Index of player that's currently the shooter */
+			values: undefined, /* Houses the results of the two dice. */
+			queue: [0,1,2,3], /* The shooter queue, using player indices. The first one is always the shooter */
+			money: [100000,100000,100000,100000], 
+			positions: ["Shooter", "", "", ""],
+			bets: [0,0,0,0],
+			round: {
+				point: undefined,
+				result: undefined,
+			}
+		}>>
+		<<unset $diceintro>>
 	<</if>>
 
-<<case 3>> /* Come out: Roll Results (Win / Lose - Point Discovery) */
 
-<<case 4>> /* Roll  */
+	<<switch $phase>>
+	<<case 1>> /* Opening Bets */
+		The <<people>> are goading each other, and being overall rowdy.
 
-<</switch>>
+		<<dice-display>>
+
+		<<link [[Pay ante|Pub Dice Minigame Wager]]>><<set $dicewagerintro to 1>><</link>>
+		<br>
+		<<link [[Stop|Pub]]>><<endevent>><<dice-endgame>><</link>>
+		<br>
+
+	<<case 2>> /* Come out: Roll Results (Win / Lose - Point Discovery) */
+		<<dice-compute-result>>
+		<<dice-display>>
 
 
+	<<case 3>> /* Roll  */
 
+	<</switch>>
+	<br>
 
+	<<dice-instructions>>
+
+:: Pub Dice Minigame Wager
+
+	/* Initialization */
+	<<if $dicewagerintro>> 
+		<<for _player range [0,1,2,3]>>
+			<<dice-bet _player 2000>>
+		<</for>>
+		<<unset $dicewagerintro>>
+		<<set $wagerstage to 1>>
+	<</if>>
+
+	<<if $wagerstage is 1>> /* Initial Bet - Shooter bets first */
+		
+		<<if $dice.shooter isnot 0>>
+			<<dice-compute-wagers>>
+		<</if>>
+
+		<<dice-display>>
+		
+		<<if $dice.shooter is 0>>
+			Amount to wager <span class="gold">(£)</span>: <<numberbox "_bet" 20>> <mouse class="tooltip linkBlue">(?)<span>Increases the current bet by this amount.</span></mouse>
+			<br><br>
+			<<link [[Wager|Pub Dice Minigame Wager]]>>
+				<<set $wagerstage to 2>>
+				<<set $phase to 2>>
+				<<set _pcIndex to 0>>
+				<<dice-bet _pcIndex `_bet * 100`>>
+				<<dice-compute-wagers>>
+			<</link>>
+			<br>
+		<<else>>
+			Raise the bet <span class="gold">(£)</span>: <<numberbox "_bet" 0>> <mouse class="tooltip linkBlue">(?)<span>Increase the current bet by this amount, after matching the amount wagered by the rest of players.</span></mouse>
+			<br>
+			Betting position:
+			<<listbox "_position">>
+				<<option "In Favour">>
+				<<option "Against">>
+			<</listbox>>
+			<br><br>
+			
+			<<link [[Wager|Pub Dice Minigame Wager]]>>
+				<<set $wagerstage to 2>>
+				<<set $phase to 2>>
+				<<set _pcIndex to 0>>
+				<<dice-bet _pcIndex `$dice.bets[$dice.shooter] - $dice.bets[_pcIndex] + _bet * 100`>>
+				<<set $dice.position[_pcIndex] to _position>>
+				<<if _bet gt 0>><<dice-compute-wagers "raise">><</if>>
+			<</link>>
+			<br>
+			/* Here I can add options to wager other things besides money */
+		<</if>>
+
+	<<elseif $wagerstage is 2>> /* Confirmation of Pot / NPCs match current bet */
+
+		Now that all bets are in...<br>
+		<<dice-display>>
+
+		<<if $dice.shooter is 0>>
+			<<link [[Roll|Pub Dice Minigame]]>>
+				<<dice-roll>>
+			<</link>>
+		<<else>>
+			The shooter's about to roll.
+			<br>
+			<<link [[Next|Pub Dice Minigame]]>>
+				<<dice-roll>>
+			<</link>>
+		<</if>>
+
+	<<else>>
+		THIS IS A BUG. YOU SHOULDN'T BE HERE. PLEASE, REPORT THIS.
+		<<run console.error(`Betting Stage: {$wagerstage}`)>>
+	<</if>>
+	<br>
+
+	<<dice-instructions>>
