@@ -20,7 +20,7 @@
 	const configFile = path.resolve("config.xml");
 	const configData = xml.parseElementtreeSync(configFile);
 	// update version
-	configData.getroot().attrib.version = version;
+	// configData.getroot().attrib.version = version;
 	// update package name for debug and release builds
 	let targetName = configData.getroot().attrib['android-packageName'];
 	if (release && targetName.endsWith("_debug")) targetName = targetName.slice(0, -6);

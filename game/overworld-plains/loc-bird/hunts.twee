@@ -15,9 +15,7 @@
 
 :: Bird Tower Hunt Ask
 <<effects>>
-<<if $transformationParts.bird.wings is "hidden">>
-	<<set $transformationParts.bird.wings to "default">>
-<</if>>
+<<bird_fly_reveal_wings>>
 <<if $bird.hunts.unlocked is false>>
 	<!-- First hunt -->
 	You stop <<bhim>> just as <<bhes>> about to launch from the tower.
@@ -278,9 +276,7 @@ You place your lurker in front of the <<beasttype>>.
 :: Bird Hunt Start
 <<effects>>
 <<npc "Great Hawk">>
-<<if $transformationParts.bird.wings is "hidden">>
-	<<set $transformationParts.bird.wings to "default">>
-<</if>>
+<<bird_fly_reveal_wings>>
 You stand on the edge of the perch, spreading your wings. You feel for the wind while looking out to the moor. Your focus sharpens.
 <br><br>
 
@@ -339,9 +335,7 @@ You stand on the edge of the perch, spreading your wings. You feel for the wind 
 
 :: Bird Hunt Start Injured
 <<effects>>
-<<if $transformationParts.bird.wings is "hidden">>
-	<<set $transformationParts.bird.wings to "default">>
-<</if>>
+<<bird_fly_reveal_wings>>
 
 <<if $speech_attitude is "meek">>
 	"I-I'll hunt for you," you say. "I'll bring back something nice."
@@ -610,7 +604,7 @@ What will you hunt for?
 <<endevent>>
 
 <<cleareventpool>>
-<<if $stress gte $stressmax or isPlayerNonparasitePregnancyEnding()>>
+<<if $stress gte $stressmax or isPregnancyEnding()>>
 	You don't have the strength to keep flying. Your wings limply carry you into a clumsy, rapidly descending glide. You black out.
 	<br><br>
 
@@ -649,7 +643,7 @@ What will you hunt for?
 	<<else>>
 		<<if $daily.huntRemyCamp>>
 			You're above
-			<<if $remy_seen is "farm" or $remy_seen is "livestock" or $livestock_intro isnot undefined>>
+			<<if $remy_seen is "farm" or $remy_seen is "livestock" or $remy_seen is "manor" or $livestock_intro isnot undefined>>
 				an encampment belonging to Remy's goons.
 			<<else>>
 				the encampment.
@@ -657,7 +651,7 @@ What will you hunt for?
 		<<else>>
 			<<set $daily.huntRemyCamp to true>>
 			You spot a few tents. Someone seems to have set up camp. You can see the owners sitting outside.
-			<<if $remy_seen is "farm" or $remy_seen is "livestock" or $livestock_intro isnot undefined>>
+			<<if $remy_seen is "farm" or $remy_seen is "livestock" or $remy_seen is "manor" or $livestock_intro isnot undefined>>
 				You recognise them from their uniforms. <span class="red">Remy's goons.</span>
 			<<else>>
 				A few of them carry pronged metal poles, and others carry nets. They look dangerous.
@@ -672,7 +666,7 @@ What will you hunt for?
 			<<else>>
 				Your <<beasttype>> looks them over intently. <<bHe>> doesn't seem to consider them a threat.
 			<</if>>
-			<<if $remy_seen is "farm" or $remy_seen is "livestock">>
+			<<if $remy_seen is "farm" or $remy_seen is "livestock" or $remy_seen is "manor">>
 				You know from experience that they can be dangerous, but now you're not alone.
 			<</if>>
 			<br><br>
@@ -682,7 +676,7 @@ What will you hunt for?
 
 			<<link [[Steal from them (0:05)|Bird Hunt Tent Steal]]>><<bird_pass 5>><</link>><<crime "thievery">>
 			<br>
-			<<if $remy_seen is "farm" or $remy_seen is "livestock" or $livestock_intro isnot undefined>>
+			<<if $remy_seen is "farm" or $remy_seen is "livestock" or $remy_seen is "manor" or $livestock_intro isnot undefined>>
 				<<link [[Scare and harass (0:05)|Bird Hunt Tent Sabotage]]>><<bird_pass 5>><</link>>
 				<br>
 			<<else>>
@@ -1369,7 +1363,7 @@ What will you hunt for?
 		<<link [[Dodge|Bird Hunt Lurker Dodge]]>><</link>><<dancedifficulty 1 1200>>
 		<br>
 		<<if $bestialitydisable is "f" and $lurkerdisable is "f">>
-			<<if $deviancy gte 55>>
+			<<if hasSexStat("deviancy", 4)>>
 				<<link [[Stand still|Bird Hunt Lurker Stand Still]]>><</link>><<deviant4>>
 				<br>
 			<</if>>
@@ -2873,7 +2867,7 @@ You fly lower to the ground and spend some time watching the <<beasttype>> from 
 				<<link [[Take the object|Bird Hunt Fox Take]]>><</link>>
 				<br>
 			<</if>>
-			<<if $bestialitydisable is "f" and $deviancy gte 35>>
+			<<if $bestialitydisable is "f" and hasSexStat("deviancy", 3)>>
 				<<link [[Push over|Bird Hunt Fox Sex]]>><<set $sexstart to 1>><</link>><<deviant3>>
 				<br>
 			<</if>>
@@ -2997,7 +2991,7 @@ You hold out your hand, motioning for <<bhim>> to give you whatever <<bhes>> hid
 <<set $phase to 3>>
 <br><br>
 
-<<if $bestialitydisable is "f" and $deviancy gte 35>>
+<<if $bestialitydisable is "f" and hasSexStat("deviancy", 3)>>
 	<<link [[Reward|Bird Hunt Fox Sex]]>><<set $sexstart to 1>><</link>><<deviant3>>
 	<br>
 <</if>>
@@ -3736,13 +3730,17 @@ You land away from their tents and stay low. <<if $exposed gte 2>>Your heart pou
 			<<link [[Hit|Bird Hunt Tent Steal Hit]]>><<def 1>><</link>><<physiquedifficulty 8000 16000>><<defianttext>>
 			<br>
 		<</if>>
-		<<if $promiscuity gte 15>>
+		<<if hasSexStat("promiscuity", 2)>>
 			<<link [[Seduce|Bird Hunt Tent Steal Seduce]]>><</link>><<promiscuous2>>
 			<br>
 		<</if>>
 	<<elseif $bird.hunts.weight gte 3>>
 		You won't be able to carry any more.
 		<br><br>
+
+		<<set $skulduggerydifficulty to ($tentLootAmount * 100)>>
+		<<link [[Leave with your loot|Bird Hunt Tent Steal Alone Leave]]>><</link>>
+		<br>
 	<<else>>
 		You could look for more, though you don't know when the <<person>> will return.
 		<br><br>
@@ -3755,10 +3753,10 @@ You land away from their tents and stay low. <<if $exposed gte 2>>Your heart pou
 			<<link [[Steal tools|Bird Hunt Tent Steal Alone 2]]>><<set $phase to 3>><</link>><<dangerousText>>
 			<br>
 		<</if>>
+		<<set $skulduggerydifficulty to ($tentLootAmount * 100)>>
+		<<link [[Leave with your loot|Bird Hunt Tent Steal Alone Leave]]>><</link>>
+		<br>
 	<</if>>
-	<<set $skulduggerydifficulty to ($tentLootAmount * 100)>>
-	<<link [[Leave with your loot|Bird Hunt Tent Steal Alone Leave]]>><</link>>
-	<br>
 <<else>>
 	You spot a toolbox amidst their belongings. It's easy to carry, and light enough for you to fly with it.
 	<br><br>
@@ -3775,13 +3773,17 @@ You land away from their tents and stay low. <<if $exposed gte 2>>Your heart pou
 			<<link [[Hit|Bird Hunt Tent Steal Hit]]>><<def 1>><</link>><<physiquedifficulty 8000 16000>><<defianttext>>
 			<br>
 		<</if>>
-		<<if $promiscuity gte 15>>
+		<<if hasSexStat("promiscuity", 2)>>
 			<<link [[Seduce|Bird Hunt Tent Steal Seduce]]>><</link>><<promiscuous2>>
 			<br>
 		<</if>>
 	<<elseif $bird.hunts.weight gte 3>>
 		You won't be able to carry any more.
 		<br><br>
+
+		<<set $skulduggerydifficulty to ($tentLootAmount * 100)>>
+		<<link [[Leave with your loot|Bird Hunt Tent Steal Alone Leave]]>><</link>>
+		<br>
 	<<else>>
 		You could look for more, though you don't know when the <<person>> will return.
 		<br><br>
@@ -3790,10 +3792,10 @@ You land away from their tents and stay low. <<if $exposed gte 2>>Your heart pou
 		<br>
 		<<link [[Steal valuables|Bird Hunt Tent Steal Alone 2]]>><<set $phase to 2>><</link>><<dangerousText>>
 		<br>
+		<<set $skulduggerydifficulty to ($tentLootAmount * 100)>>
+		<<link [[Leave with your loot|Bird Hunt Tent Steal Alone Leave]]>><</link>>
+		<br>
 	<</if>>
-	<<set $skulduggerydifficulty to ($tentLootAmount * 100)>>
-	<<link [[Leave with your loot|Bird Hunt Tent Steal Alone Leave]]>><</link>>
-	<br>
 <</if>>
 
 :: Bird Hunt Tent Steal Clothes
@@ -3817,13 +3819,17 @@ You land away from their tents and stay low. <<if $exposed gte 2>>Your heart pou
 		<<link [[Hit|Bird Hunt Tent Steal Hit]]>><<def 1>><</link>><<physiquedifficulty 8000 16000>><<defianttext>>
 		<br>
 	<</if>>
-	<<if $promiscuity gte 15>>
+	<<if hasSexStat("promiscuity", 2)>>
 		<<link [[Seduce|Bird Hunt Tent Steal Seduce]]>><</link>><<promiscuous2>>
 		<br>
 	<</if>>
 <<elseif $bird.hunts.weight gte 3>>
 	You won't be able to carry any more.
 	<br><br>
+
+	<<set $skulduggerydifficulty to ($tentLootAmount * 100)>>
+	<<link [[Leave with your loot|Bird Hunt Tent Steal Alone Leave]]>><</link>>
+	<br>
 <<else>>
 	You could look for more, though you don't know when the <<person>> will return.
 	<br><br>
@@ -3836,10 +3842,10 @@ You land away from their tents and stay low. <<if $exposed gte 2>>Your heart pou
 		<<link [[Steal tools|Bird Hunt Tent Steal Alone 2]]>><<set $phase to 3>><</link>><<dangerousText>>
 		<br>
 	<</if>>
+	<<set $skulduggerydifficulty to ($tentLootAmount * 100)>>
+	<<link [[Leave with your loot|Bird Hunt Tent Steal Alone Leave]]>><</link>>
+	<br>
 <</if>>
-<<set $skulduggerydifficulty to ($tentLootAmount * 100)>>
-<<link [[Leave with your loot|Bird Hunt Tent Steal Alone Leave]]>><</link>>
-<br>
 
 :: Bird Hunt Tent Steal Run
 <<effects>>
@@ -4449,7 +4455,7 @@ You look behind you. The goons have all started to salvage what they can from th
 
 :: Bird Hunt Tent Scare
 <<effects>>
-<<if $remy_seen is "farm" or $remy_seen is "livestock" or $livestock_intro isnot undefined>>
+<<if $remy_seen is "farm" or $remy_seen is "livestock" or $remy_seen is "manor" or $livestock_intro isnot undefined>>
 	You decide to keep your meddling discreet.
 <<else>>
 	You decide to get this group away from your territory. You don't like them being anywhere near the tower.
@@ -5005,7 +5011,7 @@ You start to make the trap. You scrounge up leaves and sticks to cover the hole.
 					You turn around and notice two people leering at your exposed body from down the path. "Hey... where's your clothes?" asks the <<person1>><<person>>.
 					<br><br>
 
-					<<if $exhibitionism gte 55>>
+					<<if hasSexStat("exhibitionism", 4)>>
 						<<link [[Flaunt|Bird Hunt Ambush Caught Flaunt]]>><</link>><<exhibitionist4>>
 					<<else>>
 						<span class="blue">You aren't exhibitionist enough to flaunt your nudity at them.</span>
@@ -5376,7 +5382,7 @@ You sit atop the pillar, waiting for a potential victim<<if $bird.hunts.duo is t
 
 <<if $birdAmbushTrap is true>>
 	<!-- With trap -->
-	The two walk right into to your trap. The <<person1>><<person>> takes a step forward, crashing through the flimsy cover and plummeting into the hole. At that moment, you descend from the pillar and land right behind them. You let out a loud screech, startling the <<person2>><<person>>.
+	The two walk right into your trap. The <<person1>><<person>> takes a step forward, crashing through the flimsy cover and plummeting into the hole. At that moment, you descend from the pillar and land right behind them. You let out a loud screech, startling the <<person2>><<person>>.
 	"W-What the hell!?" <<he>> yells out.
 	<br><br>
 
@@ -5879,7 +5885,7 @@ Like a predator, you begin slowly circling them. When you notice a good opportun
 	<<flight_time_check _returnTime "silent">>
 	<<link [[Return to the castle (<<print getTimeString(_hoursPassed, _minutesPassed)>>)|Bird Hunt Return]]>><<set $fatigueMod to _fatigueMod>><<set $flightTime to _flightTime>><<bird_pass _flightTime>><<endevent>><</link>><<print _fatigueText>>
 	<br>
-<<elseif $stress gte $stressmax or isPlayerNonparasitePregnancyEnding()>>
+<<elseif $stress gte $stressmax or isPregnancyEnding()>>
 	You feel lightheaded. Before you can return to the top of the pillar, the ground comes hurtling towards you.
 	<br><br>
 
@@ -6564,7 +6570,7 @@ You sit and take a moment to re-orient yourself. You still feel dizzy. You seem 
 :: Bird Hunt Passout
 <<effects>>
 <<npc "Great Hawk">><<person1>>
-<<if isPlayerNonparasitePregnancyEnding()>>
+<<if isPregnancyEnding()>>
 	You're met with the face of the <<beasttype>>.
 	<<if $monster is 1>>
 		<<bHe>> says something to you, but the words sound like gibberish.
@@ -6734,9 +6740,7 @@ chirps and cries go quiet as
 :: Bird Hunt Estate Prepare
 <<effects>>
 <<npc "Great Hawk">>
-<<if $transformationParts.bird.wings is "hidden">>
-	<<set $transformationParts.bird.wings to "default">>
-<</if>>
+<<bird_fly_reveal_wings>>
 
 You tell your <<if $monster is 1>><<nnpc_wife "Great Hawk">><<else>>partner<</if>> about your plan to steal from the inhabitants of the Remy estate. <<bHe>> listens to your plan unusually keenly. After you're done talking, <<bhe>> turns <<bhis>> head north. <<bHis>> gaze is intense.
 <br><br>
@@ -7660,6 +7664,10 @@ You wait for an opportune moment and slip out of your hiding place.
 
 :: Bird Hunt Silver Theft
 <<effects>>
+<<loadNPC 0 "estateHuntGuard0">>
+<<loadNPC 1 "estateHuntGuard1">>
+<<loadNPC 2 "estateHuntGuard2">>
+<<loadNPC 3 "estateHuntGuardCaptain">>
 
 You grab the silver bar from the open box.
 <<if $awarelevel gte 2>>
@@ -7674,6 +7682,9 @@ You take it from the central pedestal, where light shines down. The cave immedia
 
 The <<person4>><<person>> stands up. "There's an intruder! And <<pshe>> has the Lure!"
 <br><br>
+
+<<link [[Next|Bird Hunt Silver Escape]]>><</link>>
+<br>
 
 :: Bird Hunt Silver Escape
 <<effects>>
@@ -7790,7 +7801,7 @@ Exhausted from your mission, you sit down and lean against <<bhis>> fluffy chest
 	<<default>>"I love you," you say.
 <</switch>>
 <<bHe>> looks quite happy to hear your words.
-<<if $remy_seen is "farm" or $remy_seen is "livestock" or $livestock_intro isnot undefined>>
+<<if $remy_seen is "farm" or $remy_seen is "livestock" or $remy_seen is "manor" or $livestock_intro isnot undefined>>
 	As you rest against <<bhim>>, your thoughts drift to Remy. <<nnpc_He "Remy">> probably won't be very happy when <<nnpc_he "Remy">> hears what happened to <<nnpc_his "Remy">> silver bar. But worrying about that won't help, so you just close your eyes and think about your <<if $monster is 1>><<nnpc_wife "Great Hawk">><<else>>partner<</if>> instead.
 <</if>>
 <br><br>

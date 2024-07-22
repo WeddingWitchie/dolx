@@ -10,10 +10,10 @@
 		<<if Time.weekDay is 6 and $framed is "whitney" and C.npc.Whitney.state isnot "pillory">>
 			<br>
 			You hear some shouts and arrive just in time to see a scuffle as <span class="gold">Whitney is dragged out of the school in handcuffs by several police officers.</span><<imprison_whitney>>
-		<<elseif Time.weekDay is 6 and $framed is "leighton" and $pillory_tenant.special.name isnot "Leighton">>
+		<<elseif Time.weekDay is 6 and $framed is "leighton" and $pillory.tenant.special.name isnot "Leighton">>
 			<br>
 			You hear some loud protests and arrive just in time to see <span class="gold">Leighton being led away by police.</span><<imprison_leighton>>
-		<<elseif $detention gte 1 and $daily.school.detentionAttended isnot 1 and $headnodetention isnot 1 and $pillory_tenant.special.name isnot "Leighton">>
+		<<elseif $detention gte 1 and $daily.school.detentionAttended isnot 1 and $headnodetention isnot 1 and $pillory.tenant.special.name isnot "Leighton">>
 			<span class="purple">You see the head guarding the gate.</span> You're meant to be in detention, so if you leave that way, you'll be apprehended.
 		<<elseif $bullytimer gte 1 and $bullytimeroutside gte 1 and $daily.whitney.bullyGate isnot 1 and C.npc.Whitney.init is 1 and !["dungeon", "pillory"].includes(C.npc.Whitney.state)>>
 			<span class="purple">You see Whitney hanging out by the gate.</span>
@@ -45,7 +45,11 @@
 <<schoolperiodtext>>
 
 <<if $stress gte $stressmax>>
-	<<link [[Everything fades to black...|School Passout]]>><</link>>
+	<<if isPregnancyEnding()>>
+		<<pregnancyPassout "school">>
+	<<else>>
+		<<link [[Everything fades to black...|School Passout]]>><</link>>
+	<</if>>
 <<elseif $adultshopintro is undefined and $adultshopunlocked is undefined and $adultshopintrosirris is undefined and $schoolstate is "afternoon" and Time.weekDay is 6 and $exposed lte 0>>
 	<<set $adultshopintrosirris to 1>>
 
@@ -70,7 +74,7 @@
 		<br>
 		<<schoolicon "courtyard">><<link [[Rear courtyard (0:02)|School Rear Courtyard]]>><<pass 2>><</link>>
 		<br><br>
-		<<if $schoolstate is "afternoon" and $detention gte 1 and $daily.school.detentionAttended isnot 1 and $headnodetention isnot 1 and $pillory_tenant.special.name isnot "Leighton">>
+		<<if $schoolstate is "afternoon" and $detention gte 1 and $daily.school.detentionAttended isnot 1 and $headnodetention isnot 1 and $pillory.tenant.special.name isnot "Leighton">>
 			<<oxfordicon>><<link [[Leave the school|School Leave Stop]]>><<schoolclothesreset>><</link>>
 			<br>
 		<<elseif $schoolstate is "afternoon" and $bullytimer gte 1 and $bullytimeroutside gte 1 and $daily.whitney.bullyGate isnot 1 and C.npc.Whitney.init is 1 and !["dungeon", "pillory"].includes(C.npc.Whitney.state)>>
@@ -567,7 +571,7 @@ You haul yourself over the fence and drop down on the other side.
 <</if>>
 <<if _commando>>
 	<br>
-	A breeze caresses your <<genitals>>, making you shiver<<if Weather.BodyTemperature.state is "cold">>. It's getting really cold.<<stress 6>><<gstress>><<elseif $exhibitionism gte 15>> <span class="lewd">with excitement</span>.<<arousal 150>><<garousal>><<else>>.<</if>>
+	A breeze caresses your <<genitals>>, making you shiver<<if Weather.BodyTemperature.state is "cold">>. It's getting really cold.<<stress 6>><<gstress>><<elseif hasSexStat("exhibitionism", 2)>> <span class="lewd">with excitement</span>.<<arousal 150>><<garousal>><<else>>.<</if>>
 <</if>>
 
 <<integritycheck>>
@@ -634,7 +638,7 @@ You haul yourself over the fence and drop down on the other side.
 <</if>>
 <<if _commando>>
 	<br>
-	A breeze caresses your <<genitals>>, making you shiver<<if Weather.BodyTemperature.state is "cold">>. It's getting really cold.<<stress 6>><<gstress>><<elseif $exhibitionism gte 15>> <span class="lewd">with excitement</span>.<<arousal 150>><<garousal>><<else>>.<</if>>
+	A breeze caresses your <<genitals>>, making you shiver<<if Weather.BodyTemperature.state is "cold">>. It's getting really cold.<<stress 6>><<gstress>><<elseif hasSexStat("exhibitionism", 2)>> <span class="lewd">with excitement</span>.<<arousal 150>><<garousal>><<else>>.<</if>>
 <</if>>
 
 <<integritycheck>>
@@ -646,7 +650,7 @@ You haul yourself over the fence and drop down on the other side.
 :: Head's Office
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
 
-<<if Time.schoolDay and $schoolstate isnot "early" and $schoolstate isnot "late" and $pillory_tenant.special.name isnot "Leighton">>
+<<if Time.schoolDay and $schoolstate isnot "early" and $schoolstate isnot "late" and $pillory.tenant.special.name isnot "Leighton">>
 
 	<<npc Leighton>><<person1>>
 	You knock on the <<nnpc_title "Leighton">>'s door. You hear <<his>> voice on the other side. "Enter."
@@ -666,7 +670,7 @@ You haul yourself over the fence and drop down on the other side.
 					<<if $schoolfameconsensual is 1>>
 						<<photographystudioicon>><<link [[Photoshoot (0:20)|Head's Office Photoshoot]]>><<set $schoolfameblackmail to 0>><</link>>
 						<br>
-					<<elseif $exhibitionism gte 55 and $schoolfameblackmail gte 3>>
+					<<elseif hasSexStat("exhibitionism", 4) and $schoolfameblackmail gte 3>>
 						<<photographystudioicon>><<link [[Offer to do photoshoots for money|Head's Office Photoshoot Offer]]>><<set $schoolfameblackmail to 0>><<set $schoolfameconsensual to 1>><</link>><<exhibitionist4>>
 						<br>
 					<</if>>
@@ -706,7 +710,7 @@ You haul yourself over the fence and drop down on the other side.
 					<<if $schoolfameconsensual is 1>>
 						<<photographystudioicon>><<link [[Photoshoot (0:20)|Head's Office Photoshoot]]>><<set $schoolfameblackmail to 0>><</link>>
 						<br>
-					<<elseif $exhibitionism gte 55 and $schoolfameblackmail gte 3>>
+					<<elseif hasSexStat("exhibitionism", 4) and $schoolfameblackmail gte 3>>
 						<<photographystudioicon>><<link [[Offer to do photoshoots for money|Head's Office Photoshoot Offer]]>><<set $schoolfameblackmail to 0>><<set $schoolfameconsensual to 1>><</link>><<exhibitionist4>>
 						<br>
 					<</if>>
@@ -922,7 +926,7 @@ You leave the office, hoping you weren't just robbed.
 
 :: School Passout
 <<sydneySchedule>>
-<<if isPlayerNonparasitePregnancyEnding()>>
+<<if isPregnancyEnding()>>
 	<<pregnancyPassout "school">>
 <<elseif _sydney_location is "library" and (C.npc.Sydney.init isnot 1 or ($sydneySeen and !$sydneySeen.includes("libRescue")) or $rng gte 20)>>
 	<<pass 1 hour>>
@@ -1188,7 +1192,7 @@ The <<group>> recoil in pain. <<tearful>> you seize the opportunity and escape f
 <<elseif $rescue gte 1 and $alarm is 1>><<set $rescued += 1>>
 	<<if $rescue is 2>>
 		The door flies open. Whitney barges in, <<nnpc_his "Whitney">> buddies stood behind <<nnpc_him "Whitney">>.
-		<<if $pillory_tenant.special.name isnot "Leighton">>
+		<<if $pillory.tenant.special.name isnot "Leighton">>
 			<<nnpc_He "Whitney">> looks between you and the two students, then scowls. You can't tell who <<nnpc_his "Whitney">> anger is directed at.<<status 1>><<gcool>>
 			<br><br>
 
@@ -1478,7 +1482,7 @@ You can't bring yourself to look <<him>> in the eye. "I-I've seen what you did t
 <<link [[No more photoshoots|Head's Office No Photoshoots]]>><</link>>
 <br>
 
-	<<if $exhibitionism gte 55>>
+	<<if hasSexStat("exhibitionism", 4)>>
 	<<link [[Pay me for photoshoots|Head's Office Pay Photoshoots]]>><</link>><<exhibitionist4>>
 	<br>
 	<</if>>
@@ -2545,7 +2549,7 @@ You're aware of all the other students looking at their phones. How many of them
 
 <<link [[Walk away|Courtyard Footage Walk]]>><<status -10>><</link>><<lcool>>
 <br>
-<<if $exhibitionism gte 75>>
+<<if hasSexStat("exhibitionism", 5)>>
 	<<link [[Own it|Courtyard Nude Footage Own]]>><</link>><<exhibitionist5>>
 	<br>
 <</if>>
@@ -2572,7 +2576,7 @@ You're aware of all the other students looking at their phones. How many of them
 
 <<link [[Walk away|Courtyard Footage Walk]]>><<status -20>><</link>><<llcool>>
 <br>
-<<if $promiscuity gte 75>>
+<<if hasSexStat("promiscuity", 5)>>
 	<<link [[Own it|Courtyard Assault Footage Own]]>><</link>><<promiscuous5>>
 	<br>
 <</if>>

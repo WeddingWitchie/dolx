@@ -1,0 +1,41 @@
+package org.rnk;
+
+import android.util.Log;
+import android.widget.Toast;
+
+import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.CallbackContext;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+/**
+ * This class echoes a string called from JavaScript.
+ */
+public class ToastPlugin extends CordovaPlugin {
+
+    @Override
+    public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
+        if (action.equals("showToast")) {
+            String message = args.getString(0);
+            int duration = args.getInt(1);
+            this.showToast(message, duration, callbackContext);
+            return true;
+
+        }
+        return false;
+    }
+
+
+    private void showToast(String message, int duration, CallbackContext callbackContext) {
+        if (message != null && message.length() > 0) {
+            // show toast
+            Log.d("Showing Toast", "duration" + duration);
+            Toast.makeText(cordova.getActivity(), message, duration).show();
+            callbackContext.success(message + " toast");
+        } else {
+            callbackContext.error("Expected one non-empty string argument.");
+        }
+    }
+}

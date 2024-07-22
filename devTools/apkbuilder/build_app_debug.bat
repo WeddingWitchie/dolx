@@ -16,4 +16,4 @@ IF NOT EXIST "..\..\Degrees of Lewdity.html" (
 @echo on
 call node scripts/build_app.js
 
-pause
+@REM pause

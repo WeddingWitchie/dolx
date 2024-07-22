@@ -421,14 +421,8 @@
 	__Clothing__
 	<br>
 
-	<<if $options.newWardrobeStyle>>
-		<<dynamic "wardrobeLinks" "wardrobeLinks">>
-		<<dynamic "wardrobeContents" "wardrobeList">>
-	<<else>>
-		<div id="oldWardrobeListDisplay">
-			<<oldWardrobeListDisplay>>
-		</div>
-	<</if>>
+	<<dynamic "wardrobeLinks" "wardrobeLinks">>
+	<<dynamic "wardrobeContents" "wardrobeList">>
 
 	<br>
 
@@ -748,7 +742,7 @@
 				<<case "schoolcardigan">><<set _altLink to ["Tie cardigan around waist", "Wear cardigan normally"]>>
 				<<case "brownleather" "blackleather" "leathercropjacket" "winterjacket">><<set _altLink to ["Zip jacket", "Unzip jacket"]>>
 				<<case "waistcoat" "waistcoatlapel" "blazershirt">><<set _altLink to ["Tuck in", "Untuck"]>>
-				<<case "dress">><<set _altLink to ["Unbutton shirt", "Button up shirt"]>>
+				<<case "dress" "buttondown" "oversizedbuttondown">><<set _altLink to ["Unbutton shirt", "Button up shirt"]>>
 				<<case "kimono" "kimonomini">><<set _altLink to ["Loosen", "Tighten"]>>
 				<<default>><<exit>>
 			<</switch>>
@@ -960,7 +954,6 @@
 			<<if isConnectedToHood(_wardrobe_list)>>
 				<!-- If selected item is a hood or selected item has a secondary hood piece -->
 				<div class="no-numberify"><<toggleHoodLink>></div>
-				<br>
 			<</if>>
 			<<if _wardrobe_list is "upper" and $worn.lower.name isnot "naked" and !_wornItemData.notuck and V.worn.upper.outfitPrimary is undefined>>
 				<div class="no-numberify"><<toggleUpperTuck>></div>
@@ -1537,7 +1530,7 @@
 		<<case "Changing Room">>
 			<<if $exposed lte 1>>
 				<<getouticon>><<link [[Leave|Beach]]>><<cleanupOnWardrobeExit>><</link>>
-			<<elseif $exhibitionism gte 75>>
+			<<elseif hasSexStat("exhibitionism", 5)>>
 				<<sneakicon>><<link [[Sneak outside|Beach Changing Room Sneak]]>><<cleanupOnWardrobeExit>><</link>><<exhibitionist5>>
 			<<else>>
 				You can't go out like this!
@@ -1559,37 +1552,37 @@
 				You can't go out like this!
 			<</if>>
 		<<case "Eden Wardrobe">>
-			<<if isLoveInterest("Eden") or $exhibitionism gte 75 or $exposed lte 0 or ($exhibitionism gte 55 and $exposed lte 1)>>
+			<<if isLoveInterest("Eden") or hasSexStat("exhibitionism", 5) or $exposed lte 0 or (hasSexStat("exhibitionism", 4) and $exposed lte 1)>>
 				<<link [[Done|Eden Cabin]]>><<cleanupOnWardrobeExit>><</link>>
 			<<else>>
 				You can't remain undressed like this!
 			<</if>>
 		<<case "Eden Night Wardrobe">>
-			<<if isLoveInterest("Eden") or $exhibitionism gte 75 or $exposed lte 0 or ($exhibitionism gte 55 and $exposed lte 1)>>
+			<<if isLoveInterest("Eden") or hasSexStat("exhibitionism", 5) or $exposed lte 0 or (hasSexStat("exhibitionism", 4) and $exposed lte 1)>>
 				<<link [[Done|Eden Cabin Bed]]>><<cleanupOnWardrobeExit>><</link>>
 			<<else>>
 				You can't remain undressed like this!
 			<</if>>
 		<<case "Asylum Wardrobe">>
-			<<if $exhibitionism gte 75 or $exposed lte 0 or ($exhibitionism gte 55 and $exposed lte 1)>>
+			<<if hasSexStat("exhibitionism", 5) or $exposed lte 0 or (hasSexStat("exhibitionism", 4) and $exposed lte 1)>>
 				<<link [[Done|Asylum Cell]]>><<cleanupOnWardrobeExit>><</link>>
 			<<else>>
 				You can't remain undressed like this!
 			<</if>>
 		<<case "Farm Wardrobe">>
-			<<if $exhibitionism gte 75 or $exposed lte 0 or ($exhibitionism gte 55 and $exposed lte 1)>>
+			<<if hasSexStat("exhibitionism", 5) or $exposed lte 0 or (hasSexStat("exhibitionism", 4) and $exposed lte 1)>>
 				<<link [[Done|Farm Bedroom]]>><<cleanupOnWardrobeExit>><</link>>
 			<<else>>
 				You can't remain undressed like this!
 			<</if>>
 		<<case "Strip Club Wardrobe">>
-			<<if $exhibitionism gte 55 or $exposed lte 0 or ($exhibitionism gte 15 and $exposed lte 1)>>
+			<<if hasSexStat("exhibitionism", 4) or $exposed lte 0 or (hasSexStat("exhibitionism", 2) and $exposed lte 1)>>
 				<<link [[Step away|Strip Club Dressing Room]]>><<cleanupOnWardrobeExit>><</link>>
 			<<else>>
 				You can't go out like this!
 			<</if>>
 		<<case "Brothel Wardrobe">>
-			<<if $exhibitionism gte 55 or $exposed lte 0 or ($exhibitionism gte 15 and $exposed lte 1)>>
+			<<if hasSexStat("exhibitionism", 4) or $exposed lte 0 or (hasSexStat("exhibitionism", 2) and $exposed lte 1)>>
 				<<link [[Step away|Brothel Dressing Room]]>><<cleanupOnWardrobeExit>><</link>>
 			<<else>>
 				You can't go out like this!
@@ -1601,7 +1594,7 @@
 				<<getouticon>><<link [[Leave|School Girl Changing Room]]>><<cleanupOnWardrobeExit>><</link>>
 			<</if>>
 		<<case "Farm Assault Wardrobe">>
-			<<if $exhibitionism gte 75 or $exposed lte 0 or ($exhibitionism gte 55 and $exposed lte 1)>>
+			<<if hasSexStat("exhibitionism", 5) or $exposed lte 0 or (hasSexStat("exhibitionism", 4) and $exposed lte 1)>>
 				<<link [[Done|Farm Assault Intro]]>><<cleanupOnWardrobeExit>><</link>>
 			<<else>>
 				You can't remain undressed like this!
@@ -1615,7 +1608,7 @@
 		<<case "Office Agency Changing Room">>
 			<<if $exposed lte 1>>
 				<<getouticon>><<link [[Leave|Office Agency]]>><<cleanupOnWardrobeExit>><</link>>
-			<<elseif $exhibitionism gte 55>>
+			<<elseif hasSexStat("exhibitionism", 4)>>
 				<<sneakicon>><<link [[Sneak outside|Office Agency Streak]]>><<cleanupOnWardrobeExit>><</link>><<exhibitionist4>>
 			<<else>>
 				You can't go out like this!
