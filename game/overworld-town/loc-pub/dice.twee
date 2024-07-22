@@ -45,25 +45,62 @@
 			<<else>>
 				<img src="img/misc/die_roll.gif">
 				<img src="img/misc/die_roll.gif">
-				<br>
 			<</if>>
 
-			<<if $dice.point>>
-				<span class="dice-result-text"><b>Current Point:</b> $dice.point</span>
+			<<if $dice.round.point>>
+				<span class="dice-result-text"><b>Current Point:</b> $dice.round.point</span>
 			<</if>>
 
 			<<if $dice.shooter is 0 and $dice.round.result is "In Favour">>
-				<span class="green dice-result-text"><b>You win!</b></span><br>
+				<span class="dice-result-text"><b> | <span class="green">You win!</span></b></span>
 			<<elseif $dice.shooter is 0 and $dice.round.result is "Against">>
-				<span class="red dice-result-text"><b>You lose...</b></span><br>
+				<span class="dice-result-text"><b> | <span class="red">You lose...</span></b></span>
 			<<elseif $dice.round.result and $dice.positions[0] is $dice.round.result>>
-				<span class="green dice-result-text"><b>You win!</b></span><br>
+				<span class="dice-result-text"><b> | <span class="green">You win!</span></b></span>
 			<<elseif $dice.round.result and $dice.positions[0] isnot $dice.round.result>>
-				<span class="red dice-result-text"><b>You lose...</b></span><br>
-			<<elseif $dice.point>>
-				<br>
+				<span class="dice-result-text"><b> | <span class="red">You lose...</span></b></span>
 			<</if>>
+			<br>
 		<</if>>
+	<</widget>>
+
+	<<widget "dice-betting-interface">>
+		<table>
+			<tbody>
+			<tr>
+				<th class="gold"><<if $dice.shooter is 0>>Amount to wager<<else>>Raise the bet<</if>> (£):</th>
+				<td>
+					<<numberbox "_bet" 0>> 
+					<mouse class="tooltip linkBlue">(?)<span>
+					<<if $dice.shooter is 0>>
+						Increases the current bet by this amount.
+					<<else>>
+						Increase the current bet by this amount, after matching the amount wagered by the rest of players.
+					<</if>>
+					</span></mouse>
+					<<if _bet gt 100>>HALLO!<</if>>
+				</td>
+			</tr>
+			<<if $dice.shooter isnot 0 and $dice.positions[0] is "">>
+				<tr>
+					<th class="gold">Betting position:</th>
+					<td>
+						<<if $dice.queue[1] isnot 0>>
+							<<listbox "_position">>
+								<<option "In Favour">>
+								<<option "Against">>
+							<</listbox>>
+						<<else>>
+							<<listbox "_position">>
+								<<option "Against">>
+							<</listbox>>
+							You must bet against the shooter.
+						<</if>>
+					</td>
+				</tr>
+			<</if>>
+			</tbody>
+		</table>
 	<</widget>>
 
 	<<widget "dice-instructions">>
@@ -102,20 +139,24 @@
 		<<rng 1 6>><<set $dice.values.push($rng)>>
 	<</widget>>
 
+	<<widget "dice-clear">>
+		<<set $dice.values to undefined>>
+	<</widget>>
+
 	<<widget "dice-compute-result">>
 		<<set _rollResult to $dice.values[0] + $dice.values[1]>>
 
-		<<if $dice.point is undefined>> /* Come Out result */
+		<<if $dice.round.point is undefined>> /* Come Out result */
 			<<if [7,11].includes(_rollResult)>>
 				<<set $dice.round.result to "In Favour">>
 			<<elseif [2,3,12].includes(_rollResult)>>
 				<<set $dice.round.result to "Against">>
 			<<else>>
-				<<set $dice.point to _rollResult>>
+				<<set $dice.round.point to _rollResult>>
 			<</if>>
 		
 		<<else>> /* Subsequent rolls result */
-			<<if _rollResult is $dice.point>>	
+			<<if _rollResult is $dice.round.point>>	
 				<<set $dice.round.result to "In Favour">>
 			<<elseif _rollResult is 7>>
 				<<set $dice.round.result to "Against">>
@@ -164,23 +205,34 @@
 
 	<<widget "dice-endround">>
 		/* Count winners */
-		<<set _winnerCount to $dice.roundResult is "In Favour"? 1 : 0>>
+		<<set _winnerCount to $dice.round.result is "In Favour"? 1 : 0>>
 		<<for _player range [0,1,2,3]>>
 			<<set $dice.bets[_player] to 0>>
-			<<set _winnerCount += $dice.positions[_player] is $dice.roundResult? 1 : 0>>
+			<<set _winnerCount += $dice.positions[_player] is $dice.round.result? 1 : 0>>
 		<</for>>
 		
 		/* Split the pot among winners */
 		<<set _split to $dice.pot / _winnerCount>><<set $dice.pot to 0>>
-		<<if $dice.roundResult is "In Favour">>
+		<<if $dice.round.result is "In Favour">>
 			<<set $dice.money[$dice.shooter] += _split>>
 		<</if>>
 		<<for _player range [0,1,2,3]>>
-			<<set $dice.money[_player] += $dice.positions[_player] is $dice.roundResult? _split : 0>>
+			<<set $dice.money[_player] += $dice.positions[_player] is $dice.round.result? _split : 0>>
 		<</for>>
 		
 		/* Clean up round variables */
-		<<set $dice.roundResult to undefined>>
+		<<set $dice.round.result to undefined>>
+		<<set $dice.round.point to undefined>>
+		<<set $dice.bets to [0,0,0,0]>>
+		<<set $dice.positions to ["","","",""]>>
+		<<set $dice.values to undefined>>
+
+		/* Prepare the next round */
+		<<set $phase to 1>>
+		<<run $dice.queue.shift()>>
+		<<run $dice.queue.pushUnique($dice.shooter)>>
+		<<set $dice.shooter to $dice.queue.first()>>
+		<<set $dice.positions[$dice.shooter] to "Shooter">>
 	<</widget>>
 
 	<<widget "dice-endgame">>
@@ -218,17 +270,24 @@
 
 		<<dice-display>>
 
-		<<link [[Pay ante|Pub Dice Minigame Wager]]>><<set $dicewagerintro to 1>><</link>>
+		<<link [[Play this round (£20)|Pub Dice Minigame Wager]]>><<set $dicewagerintro to 1>><</link>>
 		<br>
 		<<link [[Stop|Pub]]>><<endevent>><<dice-endgame>><</link>>
 		<br>
 
-	<<case 2>> /* Come out: Roll Results (Win / Lose - Point Discovery) */
+	<<case 2>> /* Roll Results (Win / Lose - Point Discovery) */
 		<<dice-compute-result>>
 		<<dice-display>>
 
-
-	<<case 3>> /* Roll  */
+		<<if $dice.round.result>>
+			<<link [[Next round|Pub Dice Minigame]]>><<dice-endround>><</link>>
+			<br>
+			<<link [[Stop|Pub Dice Minigame]]>><<dice-endgame>><</link>>
+			<br>
+		<<else>>
+			<<link [[Next|Pub Dice Minigame Wager]]>><<dice-clear>><<set $wagerstage to 3>><</link>>
+			<br>
+		<</if>>
 
 	<</switch>>
 	<br>
@@ -255,8 +314,8 @@
 		<<dice-display>>
 		
 		<<if $dice.shooter is 0>>
-			Amount to wager <span class="gold">(£)</span>: <<numberbox "_bet" 20>> <mouse class="tooltip linkBlue">(?)<span>Increases the current bet by this amount.</span></mouse>
-			<br><br>
+			<<dice-betting-interface>>
+
 			<<link [[Wager|Pub Dice Minigame Wager]]>>
 				<<set $wagerstage to 2>>
 				<<set $phase to 2>>
@@ -266,21 +325,15 @@
 			<</link>>
 			<br>
 		<<else>>
-			Raise the bet <span class="gold">(£)</span>: <<numberbox "_bet" 0>> <mouse class="tooltip linkBlue">(?)<span>Increase the current bet by this amount, after matching the amount wagered by the rest of players.</span></mouse>
-			<br>
-			Betting position:
-			<<listbox "_position">>
-				<<option "In Favour">>
-				<<option "Against">>
-			<</listbox>>
-			<br><br>
+			
+			<<dice-betting-interface>>
 			
 			<<link [[Wager|Pub Dice Minigame Wager]]>>
 				<<set $wagerstage to 2>>
 				<<set $phase to 2>>
 				<<set _pcIndex to 0>>
 				<<dice-bet _pcIndex `$dice.bets[$dice.shooter] - $dice.bets[_pcIndex] + _bet * 100`>>
-				<<set $dice.position[_pcIndex] to _position>>
+				<<set $dice.positions[_pcIndex] to _position>>
 				<<if _bet gt 0>><<dice-compute-wagers "raise">><</if>>
 			<</link>>
 			<br>
@@ -291,6 +344,7 @@
 
 		Now that all bets are in...<br>
 		<<dice-display>>
+		<br>
 
 		<<if $dice.shooter is 0>>
 			<<link [[Roll|Pub Dice Minigame]]>>
@@ -303,6 +357,37 @@
 				<<dice-roll>>
 			<</link>>
 		<</if>>
+		<br>
+
+	<<elseif $wagerstage is 3>> /* Raise the stakes after first roll? */
+
+		Everyone's eyes are intensely focused on <<= $dice.shooter is 0? "you": "the shooter">>. Watching every move.<br>
+		<<dice-display>>
+		<<dice-betting-interface>>
+
+		<<if $dice.shooter is 0>>
+			<<link [[Roll|Pub Dice Minigame]]>>
+				<<dice-roll>>
+			<</link>>
+		<<else>>
+			The shooter's about to roll.
+			<br>
+			<<link [[Next|Pub Dice Minigame]]>>
+				<<dice-roll>>
+			<</link>>
+		<</if>>
+		<br>
+		
+		<<link [[Up the stakes|Pub Dice Minigame Wager]]>>
+			<<set $wagerstage to 2>>
+			<<set $phase to 2>>
+			<<set _pcIndex to 0>>
+			<<dice-bet _pcIndex `_bet * 100`>>
+			<<if _bet gt 0>><<dice-compute-wagers "raise">><</if>>
+		<</link>>
+		<br>
+		/* Here I can add options to wager other things besides money */
+
 
 	<<else>>
 		THIS IS A BUG. YOU SHOULDN'T BE HERE. PLEASE, REPORT THIS.
