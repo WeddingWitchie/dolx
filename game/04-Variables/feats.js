@@ -1658,6 +1658,15 @@ setup.feats = {
 		hint: "Hint: Stolen abroad.",
 		softLockable: true,
 	},
+	"Backroom Deals": {
+		title: "Backroom Deals",
+		desc: "Witnessed a game between high level players.",
+		difficulty: 1,
+		series: "",
+		filter: ["All", "Discoveries"],
+		hint: "Hint: Date your way into the town's upper echelons.",
+		softLockable: true,
+	},
 	"Max Those Shots": {
 		title: "Max Those Shots",
 		desc: "Holding a lot of pepper spray.",
@@ -1675,14 +1684,6 @@ setup.feats = {
 		filter: ["All", "Discoveries"],
 		hint: "Hint: Is it worth opening the toybox?",
 	},
-	"Brothel Provider": {
-		title: "Brothel Provider",
-		desc: "Installed a vending machine to sell products at a profit.",
-		difficulty: 2,
-		series: "",
-		filter: ["All", "Discoveries"],
-		hint: "Hint: Convince Briar to do business.",
-	},
 	"Opened Pandoras Cocks": {
 		title: "Opened Pandora's Cocks",
 		desc: "The Adult Shop couldn't have done it without you.",
@@ -1690,6 +1691,14 @@ setup.feats = {
 		series: "Adult Shop",
 		filter: ["All", "Discoveries"],
 		hint: "Hint: Was it worth opening the toybox so fast?",
+	},
+	"Brothel Provider": {
+		title: "Brothel Provider",
+		desc: "Installed a vending machine to sell products at a profit.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Discoveries"],
+		hint: "Hint: Convince Briar to do business.",
 	},
 	"Ear Slime Lover": {
 		title: "Ear Slime Lover",
@@ -2052,6 +2061,15 @@ setup.feats = {
 		filter: ["All", "Special"],
 		softLockable: true,
 		hint: "Hint: Win against the Ivory Wraith.",
+	},
+	"Demon of Purity": {
+		title: "Demon of Purity",
+		desc: "You fell into the depths of lewdity with your purity intact.",
+		difficulty: 3,
+		series: "",
+		filter: ["All", "Transformation"],
+		softLockable: true,
+		hunt: "Hint: A true paradox.",
 	},
 };
 

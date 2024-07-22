@@ -104,6 +104,9 @@
 		<<set _tendingFeats to _keys.count("Green Fingered") + _keys.count("Grass Toucher")>>
 		<<set _tendingFeatsLimit to (_tendingFeats * 25)>>
 
+		<<set _housekeepingFeats to _keys.count("Majordomo") + _keys.count("Demolisher of Filth")>>
+		<<set _housekeepingFeatsLimit to (_housekeepingFeats * 25)>>
+
 		<<set _seductionFeats to _keys.count("Seductress") + _keys.count("Irresistible")>>
 		<<set _seductionFeatsLimit to (_seductionFeats * 25)>>
 
@@ -123,6 +126,7 @@
 				athletics:0,
 				tending:0,
 				greenThumb:0,
+				housekeeping:0,
 				seduction:0,
 				purity:0,
 				impurity:0,
@@ -147,6 +151,7 @@
 				athletics:{cost:5, limit: _athleticsFeatsLimit, minCount: 1, count:_athleticsFeats, exclusive:""},
 				tending:{cost:5, limit: _tendingFeatsLimit, minCount: 1, count:_tendingFeats, exclusive:""},
 				greenThumb:{cost:40, limit: 40, minCount: 1, count:_keys.count("Green Fingered"), exclusive:""},
+				housekeeping:{cost:5, limit: _housekeepingFeatsLimit, minCount: 1, count:_housekeepingFeats, exclusive:""},
 				seduction:{cost:5, limit: _seductionFeatsLimit, minCount: 1, count:_seductionFeats, exclusive:""},
 				purity:{cost:20, limit: 100, minCount: 2, count:_purityFeats, exclusive:"impurity"},
 				impurity:{cost:20, limit: 100, minCount: 1, count:_keys.count("Demon"), exclusive:"purity"},
@@ -170,6 +175,7 @@
 				swimming:"Unlock this boost by obtaining the 'Aquanaut' feat",
 				athletics:"Unlock this boost by obtaining the 'Swift' feat",
 				tending:"Unlock this boost by obtaining the 'Green Fingered' feat",
+				housekeeping:"Unlock this boost by obtaining the 'Majordomo' feat",
 				seduction:"Unlock this boost by obtaining the 'Seductress' feat",
 				purity:"Unlock this boost by obtaining the 'Walk Like an Angel' and 'Falling, Falling, Falling...' feats",
 				impurity:"Unlock this boost by obtaining the 'Devilish Looks' feat",
@@ -194,6 +200,7 @@
 				athletics:"Athletics Grade",
 				tending:"Tending Grade",
 				greenThumb:"Green Thumb trait",
+				housekeeping:"Housekeeping Grade",
 				seduction:"Seduction grade",
 				purity:"Daily purity",
 				impurity:"Daily impurity",
@@ -278,6 +285,9 @@
 	<<if _upgrades.seduction gt 0>>
 		<<set $seductionskill to _upgrades.seduction / _details.seduction.cost * 100>>
 	<</if>>
+	<<if _upgrades.housekeeping gt 0>>
+		<<set $housekeeping to _upgrades.housekeeping / _details.housekeeping.cost * 100>>
+	<</if>>
 	<<if _upgrades.purity gt 0>>
 		<<set $featsPurityBoost to _upgrades.purity / _details.purity.cost>>
 	<</if>>
@@ -342,6 +352,9 @@
 				<<if $player.penisExist or $player.virginity.penile isnot true>>
 					<<set $player.virginity.penile to false>>
 				<</if>>
+			<<case "virginDemon">>
+				<<set $purity to 0>>
+				<<demonTransform>>
 			<<default>>
 		<</switch>>
 	<</if>>
@@ -841,6 +854,9 @@
 		<</if>>
 		<<if $semen_volume gte 12000>>
 			<<earnFeat "Sticky Fountain">>
+		<</if>>
+		<<if (($demon gte 6 or $transformationParts.demon.wings is "default" or $transformationParts.demon.wings is "succubus") or $demontf is 1) and $player.virginity.vaginal is true and $player.virginity.penile is true>>
+			<<earnFeat "Demon of Purity">>
 		<</if>>
 		<<specialClothesUpdate>>
 	<</if>>

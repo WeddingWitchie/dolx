@@ -98,6 +98,7 @@ const statChange = (() => {
 
 	function traumaClamp() {
 		if (V.trauma >= V.traumamax) V.beauty -= (V.trauma - V.traumamax) / 5;
+		V.beauty = Math.clamp(V.beauty, 0, V.beauty * V.AMCTraits.beauty);
 		if (V.innocencestate === 1 && V.trauma > 0) {
 			V.innocencetrauma += V.trauma;
 			V.trauma = 0;

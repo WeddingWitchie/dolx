@@ -5678,7 +5678,7 @@ function initLower() {
 			word: "a",
 			one_piece: 0,
 			skirt: 1,
-			skirt_down: 0,
+			skirt_down: 1,
 			short: 1,
 			state: "waist",
 			state_base: "waist",
