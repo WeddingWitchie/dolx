@@ -3722,6 +3722,8 @@ function initUpper() {
 			accessory_colour_options: [],
 			sleeve_img: 1,
 			breast_img: 1,
+			altposition: "none",
+			altdisabled: ["sleeves"],
 			cursed: 0,
 			location: 0,
 			iconFile: "unitard.png",
