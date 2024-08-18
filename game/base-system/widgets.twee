@@ -424,8 +424,16 @@
 
 		<<if _violence gt 0 or _violence lt 0>>
 			<<if $drunk gt 0>>
-				<<set $_drunk_level to Math.clamp(Math.floor($drunk / 120), 0, 4)>>
-				<<set _drunkMod to [9,8,6,4,3][$_drunk_level]>>
+				<<if $substanceRebalance is 1>>
+					<<if $drunk gte 240>>
+						<<set _drunkMod to Math.max(10 - (1.5 * (1 + Math.round($drunk / 120))), 0)>>
+					<<else>>
+						<<set _drunkMod to 10 - (1 * Math.round($drunk / 120))>>
+					<</if>>
+				<<else>>
+					<<set $_drunk_level to Math.clamp(Math.floor($drunk / 120), 0, 4)>>
+					<<set _drunkMod to [9,8,6,4,3][$_drunk_level]>>
+				<</if>>
 			<<else>>
 				<<set _drunkMod to 10>>
 			<</if>>
@@ -1251,7 +1259,7 @@
 <</widget>>
 
 <<widget "housekeeping">>
-<<if _args[0] and $statFreeze isnot true and ($housekeeping lt _args[1] or _args[1] gte 1000)>>
+<<if _args[0] and $statFreeze isnot true and ($housekeeping lt _args[1] or _args[1] gte 1000 or $easyHousekeeping gte 1)>>
 	<<if $housekeeping gt 1000 or $AMCTraits.halfGain is 1>>
 		<<set $housekeeping += (_args[0] * 2 / $AMCTraits.housekeeping)>>
 	<<else>>

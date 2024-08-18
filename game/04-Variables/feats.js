@@ -2436,6 +2436,7 @@ function earnHourlyFeats() {
 	if (V.beauty >= 20000) earnFeat("Aphrodite");
 	if (V.milk_volume >= 12000) earnFeat("Rivers of White");
 	if (V.semen_volume >= 12000) earnFeat("Sticky Fountain");
+	if ((V.demon >= 6 || V.transformationParts.demon.wings == "default" || V.transformationParts.demon.wings == "succubus" || V.demontf == 1) && V.player.virginity.vaginal == true && V.player.virginity.penile == true) earnFeat("Demon of Purity");
 
 	if (V.whitneycollar == 1) earnFeat("Owned");
 

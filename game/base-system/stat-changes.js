@@ -20,6 +20,7 @@ const statChange = (() => {
 				if (V.rapetrait) traumaMod *= 0.7;
 				if (V.bestialitytrait >= 1 && V.enemytype === "beast") traumaMod *= 0.7;
 				if (V.tentacletrait >= 1 && V.enemytype === "tentacles") traumaMod *= 0.7;
+				if (V.drunk >= 1 && V.substanceRebalance == 1) traumaMod *= 1 - (0.1 * Math.round(V.drunk / 120));
 
 				// eslint-disable-next-line prettier/prettier
 				V.trauma += Math.trunc(((amount * 3) - ((amount * 1.5) * (V.control / V.controlmax))) * traumaMod)
@@ -74,6 +75,7 @@ const statChange = (() => {
 				if (V.rapetrait) traumaMod *= 0.7;
 				if (V.bestialitytrait >= 1 && V.enemytype === "beast") traumaMod *= 0.7;
 				if (V.tentacletrait >= 1 && V.enemytype === "tentacles") traumaMod *= 0.7;
+				if (V.drunk >= 1 && V.substanceRebalance == 1) traumaMod *= 1 - (0.1 * Math.round(V.drunk / 120));
 
 				// eslint-disable-next-line prettier/prettier
 				V.trauma += Math.trunc(((amount * 1) - ((amount * 0.5) * (V.control / V.controlmax))) * traumaMod)
@@ -233,8 +235,13 @@ const statChange = (() => {
 				if (V.drunk <= 0) {
 					stressMod = 40;
 				} else {
-					const drunkMod = Math.clamp(Math.floor(V.drunk / 120), 0, 4);
-					stressMod = 30 - drunkMod * 5;
+					if (V.substanceRebalance == 1) {
+						let drunkMod = Math.floor(V.drunk / 120);
+						stressMod = Math.max(1 - (0.15 * (1 + drunkMod)), 0);
+					} else {
+						let drunkMod = Math.clamp(Math.floor(V.drunk / 120), 0, 4);
+						stressMod = 30 - drunkMod * 5;
+					}
 				}
 				
 				if (playerIsXChanged() && V.xchangePill.breederEffect && playerIsCreampied()) {
@@ -281,7 +288,11 @@ const statChange = (() => {
 					so that the aphrodisiacs become quite threatening during nonconsensual use,
 					and more thrilling when used intentionally
 				*/
-				mod *= 1 + V.drugged / 1000;
+				if (V.substanceRebalance == 1) {
+					mod *= 1 + V.drugged / 250;
+				} else {
+					mod *= 1 + V.drugged / 1000;
+				}
 			}
 
 			// Apply effect according to source
@@ -451,6 +462,8 @@ const statChange = (() => {
 					if (V.arousal < V.arousalmax * 3/5) arousal((amount * V.masochism) / 6, "maso");
 				}
 			}
+
+			if (V.drunk >= 1 && V.substanceRebalance == 1) pain *= 1 - (0.075 * (1 + Math.round(V.drunk / 120)));
 
 			V.pain += pain * Weather.BodyTemperature.painModifier;
 		}

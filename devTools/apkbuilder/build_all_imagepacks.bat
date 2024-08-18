@@ -13,6 +13,7 @@ set target[7]=lllysmasc
 set target[8]=susato
 set target[9]=mizz
 set target[10]=mvcr
+set target[11]=kitmint
 
 set imagepack[0]=vanilla
 set imagepack[1]=beeesss
@@ -25,10 +26,17 @@ set imagepack[7]=lllysmasc
 set imagepack[8]=susato
 set imagepack[9]=mizz
 set imagepack[10]=mvcr
+set imagepack[11]=kitmint
 
-set array_length=10
+set array_length=11
 
 cd ../../
+
+cd ./dist/
+
+del *.apk
+
+cd ../
 
 for /L %%i in (0,1,%array_length%) do (
 	powershell -Command "(Get-Content -Path '.\version') -replace 'DoLP version', 'DoLP v0.%version% !imagepack[%%i]!' | Set-Content -Path '.\version'"
@@ -53,6 +61,10 @@ for /L %%i in (0,1,%array_length%) do (
 
 	ren "!target[%%i]!img" img
 
+	if %%i==11 (
+		move ./img/style.css ../
+	)
+
 	call compile.bat
 
 	cd ./devTools/apkbuilder/
@@ -61,11 +73,21 @@ for /L %%i in (0,1,%array_length%) do (
 
 	cd ../../
 
+	ren img "!target[%%i]!img"
+	
+	ren img1 img
+
 	git reset --hard
 
 	del "Degrees of Lewdity.html"
 
 	rmdir /S /Q "./img1"
+
+	cd ./dist/
+
+	ren "DoLP-v0.%version%-!imagepack[%%i]!-0.5.1.3 DoLP v0.%version% !imagepack[%%i]!-debug.apk" "0.5.1.3 DoLP v0.%version% !imagepack[%%i]!-debug.apk"
+
+	cd ../
 )
 
 endlocal

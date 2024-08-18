@@ -256,6 +256,11 @@ setup.shopDetails = {
 		name: "Mysterious",
 		desc: "Feels oddly breezy to wear.",
 		details: "Allows random strangers to use your genitalia remotely.",
+	},
+	antitransparent: {
+		name: "Anti-Transparent",
+		desc: "Opaque",
+		details: "Still gets wet but doesn't go transparent."
 	}
 };
 

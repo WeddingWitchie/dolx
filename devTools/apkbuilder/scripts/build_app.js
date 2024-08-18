@@ -39,7 +39,10 @@
 			// update project paths
 			const javaDir = "platforms/android/app/src/main/java/";
 			const prevDir = path.resolve(javaDir, prevName.split(".").join("/"));
-			const targetDir = path.resolve(javaDir, targetName.split(".").join("/"))
+			const targetDir = path.resolve(javaDir, targetName.split(".").join("/"));
+			if (fs.existsSync(targetDir)) {
+				fs.removeSync(targetDir);
+			}
 			fs.moveSync(prevDir, targetDir);
 			const mainActivity = path.resolve(targetDir, "MainActivity.java");
 			fs.writeFileSync(mainActivity, fs.readFileSync(mainActivity).toString().replace(prevName, targetName));
