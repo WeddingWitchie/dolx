@@ -93,6 +93,7 @@ With your clothes bundled in <<his>> arms, the <<person>> gives you a mocking lo
 :: Beach Day Encounter
 <<location "beach">><<effects>>
 
+<<silently>><<willpowerdifficulty 1 1000>><</silently>>
 <<if $phase is 0>>
 	You walk over to the <<person>> who pretends not to notice you until you stop in front of <<him>>.
 	<<if playerBellyVisible()>>
@@ -102,12 +103,21 @@ With your clothes bundled in <<his>> arms, the <<person>> gives you a mocking lo
 	<</if>>
 	<br><br>
 
-	<<socialiseicon>><<link [[Friendly chat (0:10)|Beach Day Encounter]]>><<set $phase to 1>><<pass 10>><<stress -2>><<trauma -1>><</link>><<lstress>><<ltrauma>>
-	<br>
 	<<socialiseicon>><<link [[Flirt (0:05)|Beach Day Encounter]]>><<pass 5>><<set $phase to 2>><</link>><<promiscuous1>>
 	<br>
-	<<getouticon>><<link [[Leave|Beach]]>><<endevent>><<set $eventskip to 1>><</link>>
-	<br>
+	<<if $arousal lt $arousalmax * 2/5>>
+		<<socialiseicon>><<link [[Friendly chat (0:10)|Beach Day Encounter]]>><<set $phase to 1>><<pass 10>><<stress -2>><<trauma -1>><</link>><<lstress>><<ltrauma>>
+		<br>
+		<<getouticon>><<link [[Leave|Beach]]>><<endevent>><<set $eventskip to 1>><</link>>
+		<br>
+	<<elseif $willpowerSuccess>>
+		<<socialiseicon>><<link [[Friendly chat (0:10)|Beach Day Encounter]]>><<set $phase to 1>><<pass 10>><<stress -2>><<trauma -1>><<willpowersuccess>><</link>><<lstress>><<ltrauma>>
+		<br>
+		<<getouticon>><<link [[Leave|Beach]]>><<endevent>><<set $eventskip to 1>><<willpowersuccess>><</link>>
+		<br>
+	<<else>>
+		<span class="lewd">You're too horny, and nothing but sex fills your thoughts.</span>
+	<</if>>
 <<elseif $phase is 1>>
 	<<if playerBellyVisible()>>
 		You manage to strike an engaging conversation with <<him>>. It becomes clear to you that the stress of parenthood is really getting to <<him>>. "Kid's got a father too, I imagine?"
@@ -121,10 +131,17 @@ With your clothes bundled in <<his>> arms, the <<person>> gives you a mocking lo
 		You try to bring <<him>> out of <<his>> shell by talking about innocuous things. <<He>> responds politely but you do most of the talking. You catch <<him>> eyeing you up when <<he>> thinks you're not looking.
 		<br><br>
 
-		<<link [[Say goodbye|Beach]]>><<endevent>><<set $eventskip to 1>><</link>>
-		<br>
 		<<link [[Flirt (0:05)|Beach Day Encounter]]>><<pass 5>><<set $phase to 2>><</link>><<promiscuous1>>
 		<br>
+		<<if $arousal lt $arousalmax * 2/5>>
+			<<link [[Say goodbye|Beach]]>><<endevent>><<set $eventskip to 1>><</link>>
+			<br>
+		<<elseif $willpowerSuccess>>
+			<<link [[Say goodbye|Beach]]>><<endevent>><<set $eventskip to 1>><</link>>
+			<br>
+		<<else>>
+			<span class="lewd">You're too horny, and nothing but sex fills your thoughts.</span>
+		<</if>>
 	<</if>>
 <<elseif $phase is 2>>
 	You sit on the towel beside <<him>> and lean close. You tell <<him>> <<he>> is a terrific parent but that <<he>> must be in need of stress relief every now and then.
@@ -137,7 +154,7 @@ With your clothes bundled in <<his>> arms, the <<person>> gives you a mocking lo
 
 	<<link [[Stop|Beach Day Encounter]]>><<set $phase to 3>><</link>>
 	<br>
-	<<if hasSexStat("promiscuity", 2)>>
+	<<if hasSexStat("promiscuity", 2) or ($arousal gte $arousalmax * 2/5 and !$willpowerSuccess)>>
 		<<link [[Seduce|Beach Day Encounter]]>><<set $phase to 4>><</link>> <<seductiondifficulty>><<promiscuous2>>
 		<br>
 	<</if>>
