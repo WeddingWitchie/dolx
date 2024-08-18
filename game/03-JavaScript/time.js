@@ -1016,7 +1016,13 @@ function minutePassed(minutes) {
 		fragment.append(wikifier("willpower-spending", minutes * 0.5 * Math.ceil( (V.arousal - V.arousalmax*2/5) / (V.arousalmax/10) )));
 	else if (V.xchange.willpowerPoints < V.willpower * 0.5) 
 		fragment.append(wikifier("willpower-recovery", minutes * 0.5 * Math.ceil( (V.arousalmax*2/5 - V.arousal) / (V.arousalmax/10) )));
-	if (V.drugged > 0 && V.arousal < V.arousalmax * 2/5) V.arousal += (V.drugged / 50) * minutes;
+	
+	if (V.drugged > 200 && V.arousal < V.arousalmax * 4/5) 
+		V.arousal += (V.drugged / 10) * 3 * minutes;
+	else if (V.drugged > 100 && V.arousal < V.arousalmax * 3/5) 
+		V.arousal += (V.drugged / 10) * 2 * minutes;
+	else if (V.drugged > 0 && V.arousal < V.arousalmax * 2/5)
+		V.arousal += (V.drugged / 10) * minutes;
 
 	// Portal Panties
 	fragment.append(wikifier("portalPantiesPass", minutes));
@@ -1992,9 +1998,9 @@ function passArousalWetness(passMinutes) {
 	let wetnessChange = 0;
 	const arousalPercent = Math.clamp(V.arousal / V.arousalmax, 0, 1);
 
-	// Vaginal lube is produced at a fairly linear rate, between 1-4 per minute based on arousal.
+	// Vaginal lube is produced at a fairly linear rate, between 3-12 per minute based on arousal.
 	if (V.arousal >= V.arousalmax * (2 / 5)) {
-		wetnessChange = 1 + arousalPercent * 3;
+		wetnessChange = 1 + arousalPercent * 10;
 		// It also gets harder to build up the closer you get to full wetness
 		const wetnessPercent = Math.clamp(V.vaginaArousalWetness / 100, 0, 1);
 		wetnessChange = Math.floor(wetnessChange * 2 * (1 - wetnessPercent));
