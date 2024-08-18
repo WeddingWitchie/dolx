@@ -448,7 +448,7 @@ const statChange = (() => {
 				// Including masochism effect for all pain NG v2.7
 				if (V.masochism >= 100) {
 					pain *= 1 - V.masochism / 1200;
-					arousal((amount * V.masochism) / 6, "maso");
+					if (V.arousal < V.arousalmax * 3/5) arousal((amount * V.masochism) / 6, "maso");
 				}
 			}
 
@@ -463,7 +463,7 @@ const statChange = (() => {
 		amount = Number(amount);
 		if (amount) {
 			V.pain += amount * (1 - V.masochism / 1200) * 4;
-			arousal(amount * (0 + V.masochism / 18) * 4);
+			if (V.arousal < V.arousalmax * 3/5) arousal(amount * (0 + V.masochism / 18) * 4);
 			painClamp();
 		}
 	}
