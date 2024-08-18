@@ -137,11 +137,11 @@
 
 	<span class="gold">Body</span> <mouse class="tooltip linkBlue">(?)<span>Changing the player's genitalia will wash the player of lewd fluids, to prevent them from lingering on nonexisting body parts.</span></mouse>
 	<br>
-	Sex:
+	/* Sex:
 	<span id="statsGender">
 		<<cheatsGender>>
 	</span>
-	<br>
+	<br> */
 	<<set _gender_body_words to {"m": "Masculine", "f": "Feminine", "a": "Androgynous"}>>
 	Body type:
 	<span id="statsBodyType">
@@ -864,10 +864,10 @@
 
 	<span class="gold">Traits</span>
 	<br>
-	<<set _traits to {"choke": $choketrait, "milkdrank" : $milkdranktrait, "vore" : $voretrait, "tentacle" : $tentacletrait, "bestiality" : $bestialitytrait, "rape" : $rapetrait, "molest" : $molesttrait, "ejac" : $ejactrait, "orgasm" : $orgasmtrait}>>
+	<<set _traits to {"choke": $choketrait, "milkdrank" : $milkdranktrait, "vore" : $voretrait, "tentacle" : $tentacletrait, "bestiality" : $bestialitytrait, "rape" : $rapetrait, "molest" : $molesttrait, "ejac" : $ejactrait, "orgasm" : $orgasmtrait, "penis_addict": $penis_addict_trait, "hole_addict": $hole_addict_trait}>>
 	<<set _value to  {"1": "On", "-1": "Disabled", "0": "Off"}>>
 
-	Orgasm Addict: <span id="statsorgasmtrait" @class="$choketrait is 1 ? 'green' : 'red'"><<= _value[_traits["choke"].toString()]>></span> |
+	Orgasm Addict: <span id="statsorgasmtrait" @class="$orgasmtrait is 1 ? 'green' : 'red'"><<= _value[_traits["orgasm"].toString()]>></span> |
 	<<link "Change">>
 		<<set $orgasmtrait += 1>>
 		<<if $orgasmtrait gte 2>>
@@ -881,23 +881,31 @@
 	<</link>>
 	<br>
 
-	Cock Addict: <span id="statspenisaddicttrait"><<print $penis_addict_trait>></span> |
+	Cock Addict: <span id="statspenisaddicttrait" @class="$penis_addict_trait is 1 ? 'green' : 'red'"><<= _value[_traits["penis_addict"].toString()]>></span> |
 	<<link "Change">>
-	<<set $penis_addict_trait += 1>>
-	<<if $penis_addict_trait gte 2>>
-	<<set $penis_addict_trait to -1>>
-	<</if>>
-	<<replace "#statsorgasmtrait">><<print $penis_addict_trait>><</replace>>
+		<<set $penis_addict_trait += 1>>
+		<<if $penis_addict_trait gte 2>>
+			<<set $penis_addict_trait to -1>>
+		<</if>>
+		<<replace "#statpenisaddicttrait">>
+			<<set _penis_addict_trait to _value[$penis_addict_trait.toString()]>>
+			<<= _penis_addict_trait>>
+			<<changeCheatClass "#statspenisaddicttrait" _penis_addict_trait>>
+		<</replace>>
 	<</link>>
 	<br>
 
-	Hole Addict: <span id="statsholeaddicttrait"><<print $hole_addict_trait>></span> |
+	Hole Addict: <span id="statsholeaddicttrait" @class="$hole_addict_trait is 1 ? 'green' : 'red'"><<= _value[_traits["hole_addict"].toString()]>></span> |
 	<<link "Change">>
-	<<set $hole_addict_trait += 1>>
-	<<if $hole_addict_trait gte 2>>
-	<<set $hole_addict_trait to -1>>
-	<</if>>
-	<<replace "#statsorgasmtrait">><<print $hole_addict_trait>><</replace>>
+		<<set $hole_addict_trait += 1>>
+		<<if $hole_addict_trait gte 2>>
+			<<set $hole_addict_trait to -1>>
+		<</if>>
+		<<replace "#statsholeaddicttrait">>
+			<<set _penis_addict_trait to _value[$penis_addict_trait.toString()]>>
+			<<= _penis_addict_trait>>
+			<<changeCheatClass "#statspenisaddicttrait" _penis_addict_trait>>
+		<</replace>>
 	<</link>>
 	<br>
 
@@ -1302,18 +1310,6 @@
 	<br>
 	And behind you is your: <span id="statsbottom"><<bottom>></span>
 	<br>
-	<<link "<<">><<set $genitalsensitivity -= 1>><<clamp>><<replace "#statsgenitalsensitivity">><<print $genitalsensitivity>> <<= $genitalsensitivity gte 1.5 ? "- <<genitalsensitivity>>" : "- normal ">><</replace>><</link>> |
-	<<link "<">><<set $genitalsensitivity -= 0.25>><<clamp>><<replace "#statsgenitalsensitivity">><<print $genitalsensitivity>> <<= $genitalsensitivity gte 1.5 ? "- <<genitalsensitivity>>" : "- normal ">><</replace>><</link>> |
-	Genital sensitivity: <span id="statsgenitalsensitivity"><<print $genitalsensitivity>> <<= $genitalsensitivity gte 1.5 ? "- <<genitalsensitivity>>" : "- normal ">></span>
-	| <<link ">">><<set $genitalsensitivity += 0.25>><<clamp>><<replace "#statsgenitalsensitivity">><<print $genitalsensitivity>> <<= $genitalsensitivity gte 1.5 ? "- <<genitalsensitivity>>" : "- normal ">><</replace>><</link>>
-	| <<link ">>">><<set $genitalsensitivity += 1>><<clamp>><<replace "#statsgenitalsensitivity">><<print $genitalsensitivity>> <<= $genitalsensitivity gte 1.5 ? "- <<genitalsensitivity>>" : "- normal ">><</replace>><</link>>
-	<br>
-	<<link "<<">><<set $bottomsensitivity -= 1>><<clamp>><<replace "#statsbottomsensitivity">><<print $bottomsensitivity>> <<= $bottomsensitivity gte 1.5 ? "- <<bottomsensitivity>>" : "- normal ">><</replace>><</link>> |
-	<<link "<">><<set $bottomsensitivity -= 0.25>><<clamp>><<replace "#statsbottomsensitivity">><<print $bottomsensitivity>> <<= $bottomsensitivity gte 1.5 ? "- <<bottomsensitivity>>" : "- normal ">><</replace>><</link>> |
-	Bottom sensitivity: <span id="statsbottomsensitivity"><<print $bottomsensitivity>> <<= $bottomsensitivity gte 1.5 ? "- <<bottomsensitivity>>" : "- normal ">></span>
-	| <<link ">">><<set $bottomsensitivity += 0.25>><<clamp>><<replace "#statsbottomsensitivity">><<print $bottomsensitivity>> <<= $bottomsensitivity gte 1.5 ? "- <<bottomsensitivity>>" : "- normal ">><</replace>><</link>>
-	| <<link ">>">><<set $bottomsensitivity += 1>><<clamp>><<replace "#statsbottomsensitivity">><<print $bottomsensitivity>> <<= $bottomsensitivity gte 1.5 ? "- <<bottomsensitivity>>" : "- normal ">><</replace>><</link>>
-	<br><br>
 
 	<<if $parasitedisable is "f">>
 		<span class="gold">Parasites</span>
