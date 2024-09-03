@@ -809,7 +809,7 @@ Macro.add("canvasModelEditor", {
 						numberOption("pbhair_balls", 0, 9, 1),
 
 						optionCategory("Face"),
-						selectOption("facestyle", ["default"]),
+						selectOption("facestyle", ["default","fem","masc"]),
 						selectOption("ears_position", ["front", "back"]),
 						booleanOption("freckles"),
 						booleanOption("toast"),
