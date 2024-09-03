@@ -10,8 +10,8 @@
 			totalPassed: 0,
 			cooldown: random(300,720),
 			state: {
-				anus: null,
-				vagina: null,
+				anus: undefined,
+				vagina: undefined,
 			},
 			ownPenisOrgasms: {
 				anus: 0,
@@ -44,7 +44,7 @@
 /* Place '<<portalPantiesPass $pass>>' within <<widget "pass">> */
 <<widget "portalPantiesPass">>
 	<<if $event or playerChastity("hidden")>>/*Prevents it from running during events or if the player has a chastity belt*/
-	<<elseif $worn.under_lower.type.includes("portal")>>
+	<<elseif $portalPantiesEnabled and ($worn.under_lower.type.includes("portal") or $xchangePill.portalEffect)>>
 		<<set $portalPanties.totalPassed += _args[0]>>
 		<<set _totalToPass to _args[0]>>
 		<<set _remainingCooldown to $portalPanties.cooldown || 1>>
@@ -144,7 +144,7 @@
 <</widget>>
 
 <<widget "portalPantiesClear">>
-	<<set $portalPanties.state[_args[0]] to null>>
+	<<set $portalPanties.state[_args[0]] to undefined>>
 <</widget>>
 
 /* Place '<<portalPantiesDisplay>>' within '<<widget "effects">>' */
@@ -157,7 +157,7 @@
 	<<portalPantiesFuck "anus" `$_penisLocation === "anus" ? 2 : 1`>>
 
 	/*Displays the respective message */
-	<<if $worn.under_lower.type.includes("portal")>>
+	<<if $worn.under_lower.type.includes("portal") or $xchangePill.portalEffect>>
 		<<if $player.vaginaExist>>
 			<<portalPantiesDisplayItem "vagina">>
 		<</if>>

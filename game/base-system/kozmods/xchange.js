@@ -49,9 +49,9 @@ window.genderIsIgnored = genderIsIgnored;
 function xchangeHourlyCheck() {
 	const fragment = document.createDocumentFragment();
 
-	if (V.xchangePill && V.xchangePill.active)
+	const pill = V.xchangePill;
+	if (pill?.active)
 	{
-		const pill = V.xchangePill;
 		// If got impregnated in the vagina, or allowed an ear slime to grow to a certain point
 		// then, the change becomes permanent 
 		if (V.xchange.pillPermanence === 1 && (V.sexStats.vagina.pregnancy.type !== null || V.earSlime.growth > 50))
@@ -94,6 +94,14 @@ function xchangeHourlyCheck() {
 					fragment.append(wikifier("xchange-restore", "nosave"));
 				}
 			}
+		}
+	}
+
+	// Tick portal effect timer, and end the effect if timer lapses
+	if (pill?.portalEffect && pill?.portalEffectTimer >= 0) {
+		pill.portalEffectTimer = Math.max(pill.portalEffectTimer-1, 0);
+		if (pill.portalEffectTimer === 0) {
+			pill.portalEffect = false;
 		}
 	}
 

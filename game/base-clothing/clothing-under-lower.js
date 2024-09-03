@@ -2177,53 +2177,7 @@ function initUnderLower() {
 		Clothes that modders add go into this array, this should be empty in the base game at all times.
 		These items should have a `modder` variable with a the modders name in a short string
 	*/
-	setup.moddedClothes.under_lower = [
-		{
-			name: "dummy panties",
-			name_cap: "Dummy panties",
-			name_simple: "panties",
-			variable: "plainpanties",
-			modder: "Akoz",
-			integrity: 100,
-			integrity_max: 100,
-			fabric_strength: 15,
-			reveal: 400,
-			rearresize: 0,
-			word: "n",
-			one_piece: 0,
-			state: "waist",
-			state_base: "waist",
-			plural: 1,
-			colour: 0,
-			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "pale tangerine", "teal", "pale white", "pale yellow", "custom"],
-			colour_sidebar: 1,
-			exposed: 0,
-			exposed_base: 0,
-			vagina_exposed: 0,
-			vagina_exposed_base: 0,
-			anus_exposed: 0,
-			anus_exposed_base: 0,
-			type: ["portal"],
-			anal_shield: 0,
-			set: "under_lower",
-			gender: "f",
-			femininity: 300,
-			warmth: 1,
-			cost: 500,
-			description: "No-nonsense.",
-			shop: [],
-			shopGroup: "plainpanties",
-			accessory: 0,
-			accessory_colour: 0,
-			accessory_colour_options: [],
-			penis_img: 1,
-			high_img: 0,
-			cursed: 0,
-			location: 0,
-			iconFile: "plain_panties.png",
-			accIcon: 0,
-		},
-	];
+	setup.moddedClothes.under_lower = [];
 
 	setup.moddedClothes.under_lower.forEach((x, i) => (x.index = setup.clothes.under_lower.length + i));
 	setup.clothes.under_lower.push(...setup.moddedClothes.under_lower);

@@ -2,6 +2,7 @@
 
 <<widget "become-girl">>
 	<<wash>>
+	<<set $facestyle to ["default","fem"].random()>>
 	<<set $player.gender_body to "f">>
 
 	<<if $player.gender !== "f" && Object.keys($xchangePill.changedBody).length gt 0>>
@@ -76,6 +77,7 @@
 
 <<widget "become-boy">>
 	<<wash>>
+	<<set $facestyle to "masc">>
 	<<set $player.gender_body to "m">>
 
 	<<if $player.gender !== "m" && Object.keys($xchangePill.changedBody).length gt 0>>
@@ -153,6 +155,7 @@
 
 	<<set _savedbody to {
 		bodysize: $bodysize,
+		facestyle: $facestyle,
 		gender_body: $player.gender_body,
 		breastsize: $player.breastsize,
 		bottomsize: $player.bottomsize,
@@ -202,6 +205,7 @@
 	<</if>>
 
 	<<set $bodysize to _body.bodysize>>
+	<<set $facestyle to _body.facestyle>>
 	<<set $player.gender_body to _body.gender_body>>
 	<<set $player.breastsize to _body.breastsize>>
 	<<set $player.bottomsize to _body.bottomsize>>
@@ -305,6 +309,8 @@
 	<<set $xchangePill.breederEffect to false>>
 	<<set $xchangePill.resistanceEffect to false>>
 	<<set $xchangePill.continueEffect to false>>
+	<<set $xchangePill.portalEffect to false>>
+	<<set $xchangePill.portalEffectTimer to 0>>
 
 	<<for _arg range _args[1]>>
 		<<switch _arg>>
@@ -317,11 +323,38 @@
 			<<set $xchangePill.fertile to true>>
 		<<case "breeder">>
 			<<set $xchangePill.breederEffect to true>>
+		<<case "portal">>
+			<<if $portalPantiesEnabled>>
+				<<set $xchangePill.portalEffect to true>>
+				<<set $xchangePill.portalEffectTimer to _args[0] * 24 - 1>>
+			<</if>>
 		<<case "spike" "unknown">>
 			<<set $xchangePill.effectsKnown to false>>
 		<<default>>
 		<</switch>>
 	<</for>>
+<</widget>>
+
+<<widget "xchange-addeffect">>
+	<<switch _args[0]>>
+	<<case "resistance">>
+		<<set $xchangePill.resistanceEffect to true>>
+		<<set $xchangePill.resistanceChance to 100>>
+	<<case "continue">>
+		<<set $xchangePill.continueEffect to true>>
+	<<case "fertile">>
+		<<set $xchangePill.fertile to true>>
+	<<case "breeder">>
+		<<set $xchangePill.breederEffect to true>>
+	<<case "portal">>
+		<<if $portalPantiesEnabled>>
+			<<set $xchangePill.portalEffect to true>>
+			<<set $xchangePill.portalEffectTimer to _args[1] * 24 - 1>>
+		<</if>>
+	<<case "spike" "unknown">>
+		<<set $xchangePill.effectsKnown to false>>
+	<<default>>
+	<</switch>>
 <</widget>>
 
 <<widget "xchange-pink">>
@@ -362,6 +395,8 @@
 
 <<widget "xchange-restore">>
 	<<set $xchangePill.active to false>>
+	<<set $xchangePill.portalEffect to false>>
+	<<set $xchangePill.portalEffectTimer to 0>>
 
 	<<if _args[0] isnot "nosave">>
 		<<save-body "genderswapped">>
@@ -448,9 +483,23 @@
 
 <<widget "xchange-random-spike">>
 	<<if playerMayBeSpiked()>>
-		<<rng>>
 		<<if $player.gender is "m">>
-			<<if $rng lte 10>>
+			<<rng>><<xchange-pink 1 "spike">>
+			<<set _effectPool to [
+				"none","none","none","none","none","none","none",
+				"breeder","breeder",
+				"continue","continue","continue",
+				"resistance","resistance","resistance",
+			]>>
+			<<xchange-addeffect _effectPool.random()>>
+			<<if $rng gt 85>>
+				<<xchange-addeffect "fertile">>
+			<</if>>
+			<<rng>>
+			<<if $rng gt 50>>
+				<<xchange-addeffect "portal" 1>>
+			<</if>>
+			/* <<if $rng lte 10>>
 				<<xchange-pink 1 "breeder" "spike">>
 			<<elseif $rng lte 15>>
 				<<xchange-pink 1 "breeder" "fertile" "spike">>
@@ -458,21 +507,44 @@
 				<<xchange-pink 1 "continue" "spike">>
 			<<elseif $rng lte 55>>
 				<<xchange-pink 1 "resistance" "spike">>
+			<<elseif $rng lte 70 and $portalPantiesEnabled>>
+				<<xchange-pink 1 "portal" "spike">>
 			<<else>>
 				<<xchange-pink 1 "spike">>
-			<</if>>
+			<</if>> */
 		<<elseif $player.gender is "f">>
-			<<if $rng lte 20>>
+			<<xchange-blue 1 "spike">>
+			<<set _effectPool to [
+				"none","none","none","none","none","none","none",
+				"continue","continue","continue",
+				"resistance","resistance","resistance",
+			]>>
+			<<xchange-addeffect _effectPool.random()>>
+			<<rng>>
+			<<if $rng gt 50>>
+				<<xchange-addeffect "portal" 1>>
+			<</if>>
+			/* <<if $rng lte 20>>
 				<<xchange-blue 1 "continue" "spike">>
 			<<elseif $rng lte 40>>
 				<<xchange-blue 1 "resistance" "spike">>
 			<<else>>
 				<<xchange-blue 1 "spike">>
-			<</if>>
+			<</if>> */
 		<</if>>
 		<<if _args[0] isnot "suppress">>
 			<span class="pink">You got spiked with an unknown pill.</span>
 			<br><br>
+		<</if>>
+	<<elseif $portalPantiesEnabled>>
+		<<rng>>
+		<<if $rng gt 50>>
+			<<xchange-addeffect "portal" 1>>
+			<<xchange-addeffect "spike">>
+			<<if _args[0] isnot "suppress">>
+				<span class="pink">Your crotch is feeling oddly breezy.</span>
+				<br><br>
+			<</if>>
 		<</if>>
 	<</if>>
 <</widget>>
@@ -501,6 +573,7 @@
 		<<if $xchangePill.continueEffect>><li>Continue Effect.</li><</if>>
 		<<if $xchangePill.resistanceEffect>><li>Resistance Effect.</li><</if>>
 		<<if $xchangePill.breederEffect>><li>Breeder Effect.</li><</if>>
+		<<if $xchangePill.portalEffect>><li>Portal Effect: <span class="teal"><<print-portalduration>></span> remaining.<mouse class="tooltip linkBlue">(?)<span>Allows random NPCs to fuck you remotely, regardless of your consent.</span></mouse></li><</if>>
 		<<if $xchangePill.clone isnot "none">><li>Clone '<<print $xchangePill.clone>>' Effect.</li><</if>>
 		<<if $xchangePill.fertile>><li>You can become pregnant.</li><</if>>
 		<li>Duration: 
@@ -519,6 +592,19 @@
 		1 day
 	<<elseif $xchangePill.duration gte 1>>
 		<<print ($xchangePill.duration)>> hours
+	<<else>>
+		1 hour
+	<</if>>
+<</widget>>
+
+<<widget "print-portalduration">>
+	<<set _duration to Math.min($xchangePill.duration, $xchangePill.portalEffectTimer)>>
+	<<if _duration gte 36>>
+		<<print (Math.ceil(_duration/24))>> days
+	<<elseif _duration gte 24>>
+		1 day
+	<<elseif _duration gte 1>>
+		<<print (_duration)>> hours
 	<<else>>
 		1 hour
 	<</if>>
@@ -543,6 +629,7 @@
 			<<if $xchangePill.continueEffect>><li>Continue Effect.</li><</if>>
 			<<if $xchangePill.resistanceEffect>><li>Resistance Effect.</li><</if>>
 			<<if $xchangePill.breederEffect>><li>Breeder Effect.</li><</if>>
+			<<if $xchangePill.portalEffect>><li>Portal Effect: <span class="teal"><<print-portalduration>></span> remaining.<mouse class="tooltip linkBlue">(?)<span>Allows random NPCs to fuck you remotely, regardless of your consent.</span></mouse></li><</if>>
 			<<if $xchangePill.clone isnot "none">><li>Clone '<<print $xchangePill.clone>>' Effect.</li><</if>>
 			<<if $xchangePill.fertile>><li>You can become pregnant.</li><</if>>
 			<li>Duration: 
