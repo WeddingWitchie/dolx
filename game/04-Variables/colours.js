@@ -731,7 +731,8 @@ setup.colours.eyes = [
 		natural: true,
 		lens: true,
 		canvasfilter: {
-			blend: "#3b6ba4",
+			blend: "#4085d6",
+			brightness: +0.2,
 		},
 	},
 	{
