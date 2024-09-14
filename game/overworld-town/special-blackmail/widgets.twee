@@ -1,0 +1,162 @@
+:: Blackmail Widgets [widget]
+
+<<widget "blackmail-init">>
+	<<set $xchange.blackmail to {
+		intro: 0,
+		activeQuest: undefined,
+		hasMaterial: false,
+		hasReadLetter: false,
+		cooldown: 1, /* counted in days */
+		penaltyThreat: {
+			sex: 0,
+			prostitution: 0,
+			rape: 0,
+			bestiality: 0,
+			exhibitionism: 0,
+			pregnancy: 0,
+			impreg: 0
+		},
+		historicFame: {
+			sex: 0,
+			prostitution: 0,
+			rape: 0,
+			bestiality: 0,
+			exhibitionism: 0,
+			pregnancy: 0,
+			impreg: 0
+		},
+		conclusionPending: false, 
+	}>>
+<</widget>>
+
+<<widget "blackmail-newmaterial">>
+	<<if !$xchange.blackmail.hasMaterial>>
+		<<set $xchange.blackmail.hasNewMaterial to true>>
+		<<set $xchange.blackmail.hasMaterial to true>>
+	<</if>>
+	<<set $_fameTypes to _args>>
+	<<run $_fameTypes.forEach(fameType => 
+		$xchange.blackmail.penaltyThreat[fameType] += $xchange.blackmail.penaltyThreat[fameType] <= 0? 100 : 0)
+	>>
+<</widget>>
+
+<<widget "blackmail-newquest">>
+	<<if !$xchange.blackmail.activeQuest>>
+		<<set _availableQuests to []>>
+
+		<<if historicFameMax("sex","prostitution","rape","exhibitionism","bestiality") gte 400 or hasSexStat("exhibitionism", 5)>>
+			<<for _quest range blackmailQuests.high>>
+				<<if _quest.prerequisites()>><<set _availableQuests.pushUnique(_quest)>><</if>>
+			<</for>>
+		
+		<<elseif historicFameMax("sex","prostitution","rape","exhibitionism","bestiality") gte 200 or hasSexStat("exhibitionism", 3)>>
+			<<for _quest range blackmailQuests.mid>>
+				<<if _quest.prerequisites()>><<set _availableQuests.pushUnique(_quest)>><</if>>
+			<</for>>
+		
+		<<else>>
+			<<for _quest range blackmailQuests.low>>
+				<<if _quest.prerequisites()>><<set _availableQuests.pushUnique(_quest)>><</if>>
+			<</for>>
+
+		<</if>>
+
+		<<rng 0 `_availableQuests.length-1`>>
+		<<set _index to $rng>>
+		<<run console.warn(_availableQuests[_index])>>
+		<<set $xchange.blackmail.activeQuest to clone(_availableQuests[_index])>>
+	<</if>>
+
+	<<blackmail-checkquest>>
+
+<</widget>>
+
+<<widget "blackmail-checkquest">>
+	<ul>
+	<<for _instruction range $xchange.blackmail.activeQuest.instructions>>
+		<li><span class="teal"><<print _instruction>></span></li>
+	<</for>>
+	</ul>
+<</widget>>
+
+<<widget "blackmail-endquest">>
+	<<unset $xchange.blackmail.activeQuest>>
+	<<unset $xchange.blackmail.passedOutRecently>>
+	<<set $xchange.blackmail.hasReadLetter to false>>
+	<<set $xchange.blackmail.conclusionPending to false>>
+<</widget>>
+
+<<widget "blackmail-timepassed">>
+	<<set _activeQuest to $xchange.blackmail.activeQuest>>
+
+	<<if !_activeQuest?.cleared>>
+		<<run _activeQuest?.clearCheck()>>
+		<<if _activeQuest?.cleared>><<set $xchange.blackmail.effectmessage to 2>><</if>>
+	<</if>>
+
+	<<if !_activeQuest?.failed>>
+		<<run _activeQuest?.failCheck()>>
+		<<if _activeQuest?.failed>><<set $xchange.blackmail.effectmessage to 3>><</if>>
+	<</if>>
+<</widget>>
+
+<<widget "blackmail-daypassed">>
+	<<set _activeQuest to $xchange.blackmail.activeQuest>>
+
+	<<if _activeQuest?.cleared and !_activeQuest?.failed>>
+		<<set $xchange.blackmail.conclusionPending to true>>
+		<<run _activeQuest?.onDayCleared()>>
+
+	<<elseif _activeQuest and (!_activeQuest?.cleared or _activeQuest?.failed)>>
+		<<set $xchange.blackmail.conclusionPending to true>>
+		<<set $xchange.blackmail.effectmessage to 1>>
+		<<set $xchange.blackmail.hasMaterial to false>>
+		<<run _activeQuest?.onDayFailed()>>
+
+		<<set $_fameTypes to ["sex","prostitution","rape","exhibitionism","bestiality"]>>
+		<<for _fameType range $_fameTypes>>
+			<<fame $xchange.blackmail.penaltyThreat[_fameType] _fameType>>
+			<<fame-propagate $xchange.blackmail.penaltyThreat[_fameType] _fameType>>
+			<<set $xchange.blackmail.penaltyThreat[_fameType] to 0>>
+		<</for>>
+
+		<<if $xchange.blackmail.hasGenderswapped>>
+			<<xchange-seen 40>>
+		<</if>>
+
+	/* TODO: expand the list of places where you can receive a blackmail letter */
+	/* <<elseif $xchange.blackmail.cooldown is 0>>
+		<<set $xchange.blackmail.conclusionPending to true>>
+		<<set $xchange.blackmail.effectmessage to 1>>
+		<<set $xchange.blackmail.hasMaterial to false>>
+
+		<<set $_fameTypes to ["sex","prostitution","rape","exhibitionism","bestiality"]>>
+		<<for _fameType range $_fameTypes>>
+			<<fame $xchange.blackmail.penaltyThreat[_fameType] _fameType>>
+			<<set $xchange.blackmail.penaltyThreat[_fameType] to 0>>
+		<</for>> */
+
+	<</if>>
+
+	<<if $xchange.blackmail.hasMaterial>>
+		<<set $xchange.blackmail.cooldown to Math.max($xchange.blackmail.cooldown-1, 0)>>
+	<<else>>
+		<<set $xchange.blackmail.cooldown to Math.max($xchange.blackmail.cooldown-1, 1)>>
+	<</if>>
+<</widget>>
+
+<<widget "blackmail-effects">>
+	<<set _activeQuest to $xchange.blackmail.activeQuest>>
+	<<if $xchange.blackmail.hasReadLetter && _activeQuest?.failCondition() && !_activeQuest?.failed>>
+		<span class="gold"><b>Warning:</b></span> <span class="red"><<print _activeQuest.alertMessage>></span><br><br>
+	<</if>>
+	<<if $xchange.blackmail.effectmessage is 1>>
+		<span class="purple">Compromising material displaying your lewdness is now circulating around town.</span><br>
+		<span class="red">Your reputation has worsened.</span><br><br>
+	<<elseif $xchange.blackmail.effectmessage is 2>>
+		<span class="green"><b>You are compliant with your clear conditions.</b> Keep it up until midnight and you'll succeed your task.</span><br><br>
+	<<elseif $xchange.blackmail.effectmessage is 3>>
+		<span class="red"><b>You have failed your task.</b> Your blackmailer won't be happy.</span><br><br>
+	<</if>>
+	<<unset $xchange.blackmail.effectmessage>>
+<</widget>>

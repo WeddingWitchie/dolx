@@ -45,7 +45,6 @@ function genderIsIgnored() {
 }
 window.genderIsIgnored = genderIsIgnored;
 
-
 function xchangeHourlyCheck() {
 	const fragment = document.createDocumentFragment();
 
@@ -97,6 +96,9 @@ function xchangeHourlyCheck() {
 		}
 	}
 
+	// Apply hourly passion effect
+	if (pill?.passionEffect) fragnment.append(wikifier("drugged", 100));
+	
 	// Tick portal effect timer, and end the effect if timer lapses
 	if (pill?.portalEffect && pill?.portalEffectTimer >= 0) {
 		pill.portalEffectTimer = Math.max(pill.portalEffectTimer-1, 0);

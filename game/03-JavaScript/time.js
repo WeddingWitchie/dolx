@@ -142,6 +142,7 @@ const Time = (() => {
 		
 		const prevDate = new DateTime(currentDate);
 		set(V.timeStamp + seconds);
+		fragment.append(wikifier("blackmail-timepassed"));
 		
 		const minutes = Math.floor((currentDate.timeStamp - prevDate.timeStamp) / 60) || (60 + (currentDate.minute - prevDate.minute)) % 60;
 		if (!minutes) return fragment;
@@ -794,6 +795,8 @@ function dayPassed() {
 
 	fragment.append(wikifier("genderidentity-text", V.hourlyFemininity > 0? "f": (V.hourlyFemininity < 0? "m": 0)));
 	V.hourlyFemininity = 0;
+
+	fragment.append(wikifier("blackmail-daypassed"));
 
 	V.recentmolest = Math.max(V.recentmolest - 1, 0);
 	V.recentrape = Math.max(V.recentrape - 1, 0);

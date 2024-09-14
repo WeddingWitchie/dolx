@@ -683,6 +683,9 @@ const statChange = (() => {
 			V.submissive = Math.clamp(V.submissive + amount * modifier, 0, 2000);
 			subCheck();
 		}
+		if (V.xchange.blackmail.activeQuest?.id == 10 && amount < 0) {
+			V.xchange.blackmail.activeQuest.behavedDefiantly = true;
+		}
 	}
 	DefineMacro("sub", (amount, modifier) => submissive(amount, modifier));
 	DefineMacro("def", (amount, modifier) => submissive(-amount, modifier));

@@ -1127,6 +1127,7 @@ function effects() {
 		C.tiredness.max = 2000;
 	}
 
+	sWikifier("<<blackmail-effects>>");
 	sWikifier("<<portalPantiesDisplay>>");
 
 	return fragment;
