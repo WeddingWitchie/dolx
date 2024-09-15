@@ -223,6 +223,7 @@
 					<<set V[_i] to 0>><<clamp>>
 				<</for>>
 				<<replace "#cheatstate">><<cheatSection "state">><</replace>>
+				<<set $xchange.willpowerPoints = $willpower>><<clamp>><<replace "#statswillpowerPoints">><<print Math.trunc($xchange.willpowerPoints)>><</replace>>
 				<<updatesidebarimg>>
 			<</link>> |
 
@@ -232,6 +233,7 @@
 					<<set V[_i] to 20000>><<clamp>>
 				<</for>>
 				<<replace "#cheatstate">><<cheatSection "state">><</replace>>
+				<<set $xchange.willpowerPoints = 0>><<clamp>><<replace "#statswillpowerPoints">><<print Math.trunc($xchange.willpowerPoints)>><</replace>>
 				<<updatesidebarimg>>
 			<</link>>
 			<br><br>
@@ -536,7 +538,7 @@
 	<div class="cheatsGrid">
 		<div class="settingsHeader options">Characteristics</div>
 		<div class="settingsToggleItem">
-			<<set _core to ["purity", "beauty", "physique", "willpower", "awareness", "promiscuity", "exhibitionism", "deviancy"]>>
+			<<set _core to ["purity", "beauty", "physique", "willpower", "awareness", "promiscuity", "exhibitionism", "deviancy", "genderidentity"]>>
 			<<if numberOfEarSlime()>><<set _core.push("earSlime.corruption")>><</if>>
 			<span class="gold">Core Characteristics</span>
 			<br>
@@ -644,9 +646,37 @@
 		</div>
 
 		<div class="settingsToggleItem">
+			<span class="gold">X-Change Pill</span>
+			<br>
+			<<if $xchangePill.active>>
+				Resistance: <span id="xchange-resistance"><<= $xchangePill.resistanceEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchangePill.resistanceEffect to $xchangePill.resistanceEffect? false : true>><<set $xchangePill.resistanceChance to 100>><<replace "#xchange-resistance">><<= $xchangePill.resistanceEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
+				<br>
+				Continue: <span id="xchange-continue"><<= $xchangePill.continueEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchangePill.continueEffect to $xchangePill.continueEffect? false : true>><<replace "#xchange-continue">><<= $xchangePill.continueEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
+				<br>
+				<<if $player.sex isnot "m">>
+					Breeder: <span id="xchange-breeder"><<= $xchangePill.breederEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchangePill.breederEffect to $xchangePill.breederEffect? false : true>><<replace "#xchange-breeder">><<= $xchangePill.breederEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
+					<br>
+					Fertile: <span id="xchange-fertile"><<= $xchangePill.fertile? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchangePill.fertile to $xchangePill.fertile? false : true>><<replace "#xchange-fertile">><<= $xchangePill.fertile? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
+					<br>
+				<</if>>
+				Passion: <span id="xchange-passion"><<= $xchangePill.passionEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchangePill.passionEffect to $xchangePill.passionEffect? false : true>><<replace "#xchange-passion">><<= $xchangePill.passionEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
+				<br>
+				<<if $portalPantiesEnabled>>
+					Portal: <span id="xchange-portal"><<= $xchangePill.portalEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchangePill.portalEffect to $xchangePill.portalEffect? false : true>><<replace "#xchange-portal">><<= $xchangePill.portalEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
+					<br>
+				<</if>>
+				Effects Known: <span id="xchange-spike"><<= $xchangePill.effectsKnown? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchangePill.effectsKnown to $xchangePill.effectsKnown? false : true>><<replace "#xchange-spike">><<= $xchangePill.effectsKnown? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
+				<br><br>
+			<<else>>
+				You need to be under a pill before you can edit its effects.
+				<br><br>
+			<</if>>
+		</div>
+
+		<div class="settingsToggleItem">
 			<span class="gold">Traits</span>
 			<br>
-			<<set $_traits to {"choke": $choketrait, "milkdrank" : $milkdranktrait, "vore" : $voretrait, "tentacle" : $tentacletrait, "bestiality" : $bestialitytrait, "rape" : $rapetrait, "molest" : $molesttrait, "ejac" : $ejactrait, "orgasm" : $orgasmtrait}>>
+			<<set $_traits to {"choke": $choketrait, "milkdrank" : $milkdranktrait, "vore" : $voretrait, "tentacle" : $tentacletrait, "bestiality" : $bestialitytrait, "rape" : $rapetrait, "molest" : $molesttrait, "ejac" : $ejactrait, "orgasm" : $orgasmtrait, "penis_addict": $penis_addict_trait, "hole_addict": $hole_addict_trait}>>
 			<<set _traitValue to  {"1": "On", "-1": "Disabled", "0": "Off"}>>
 
 			Orgasm Addict: <span id="statsorgasmtrait" @class="$orgasmtrait is 1 ? 'green' : 'red'"><<= _traitValue[$_traits["orgasm"].toString()]>></span> |
@@ -659,6 +689,34 @@
 					<<set _orgasmtrait to _traitValue[$orgasmtrait.toString()]>>
 					<<= _orgasmtrait>>
 					<<changeCheatClass "#statsorgasmtrait" _orgasmtrait>>
+				<</replace>>
+			<</link>>
+			<br>
+
+			Cock Addict: <span id="statspenisaddicttrait" @class="$penis_addict_trait is 1 ? 'green' : 'red'"><<= _traitValue[$_traits["penis_addict"].toString()]>></span> |
+			<<link "Change">>
+				<<set $penis_addict_trait += 1>>
+				<<if $penis_addict_trait gte 2>>
+					<<set $penis_addict_trait to -1>>
+				<</if>>
+				<<replace "#statpenisaddicttrait">>
+					<<set _penis_addict_trait to _traitValue[$penis_addict_trait.toString()]>>
+					<<= _penis_addict_trait>>
+					<<changeCheatClass "#statspenisaddicttrait" _penis_addict_trait>>
+				<</replace>>
+			<</link>>
+			<br>
+
+			Hole Addict: <span id="statsholeaddicttrait" @class="$hole_addict_trait is 1 ? 'green' : 'red'"><<= _traitValue[$_traits["hole_addict"].toString()]>></span> |
+			<<link "Change">>
+				<<set $hole_addict_trait += 1>>
+				<<if $hole_addict_trait gte 2>>
+					<<set $hole_addict_trait to -1>>
+				<</if>>
+				<<replace "#statsholeaddicttrait">>
+					<<set _penis_addict_trait to _traitValue[$penis_addict_trait.toString()]>>
+					<<= _penis_addict_trait>>
+					<<changeCheatClass "#statspenisaddicttrait" _penis_addict_trait>>
 				<</replace>>
 			<</link>>
 			<br>
@@ -2599,6 +2657,7 @@
 		<<case "state">>
 			<<numberStepper "Pain" $pain { callback: value => { V.pain = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: 200, reverse: true}>>
 			<<numberStepper "Arousal" $arousal { callback: value => { V.arousal = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: 10000, reverse: true}>>
+			<<numberStepper "Willpower" $xchange.willpowerPoints { callback: value => { V.xchange.willpowerPoints = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: $willpower, reverse: true}>>
 			<<numberStepper "Fatigue" $tiredness { callback: value => { V.tiredness = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: 2000, reverse: true}>>
 			<<numberStepper "Stress" $stress { callback: value => { V.stress = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: 10000, reverse: true}>>
 			<<numberStepper "Trauma" $trauma { callback: value => { V.trauma = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: 5000, reverse: true}>>
@@ -2668,6 +2727,10 @@
 			<<numberStepper "<<symbol deviancy>> Deviancy" $deviancy "deviancy" {reverse: true}>>
 			<<if numberOfEarSlime()>>
 				<<numberStepper "<<symbol corruption>> Corruption" $earSlime.corruption { callback: value => {V.earSlime.corruption = value; Wikifier.wikifyEval("<<updatesidebarimg>>")}, reverse: true}>>
+			<</if>>
+			<<if $xchange.genderIdentityEnabled>>
+				<<if $player.gender is "m">><<set _genderIcon to "male.png">><<else>><<set _genderIcon to "female.png">><</if>>
+				<<numberStepper "<<icon _genderIcon>> Gender Identity" $genderidentity "genderidentity" {reverse: false}>>
 			<</if>>
 		<<case "sex">>
 			<<numberStepper "Seduction" $seductionskill "seductionskill" {max: 1000 * $AMCTraits.seductionskill, percentage: false}>>
