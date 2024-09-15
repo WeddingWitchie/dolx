@@ -102,7 +102,7 @@ const Time = (() => {
 	let currentDate = {};
 
 	function set(time = V.timeStamp) {
-		V.startDate = V.startDate ?? new DateTime(2022, 9, 4, 7).timeStamp;
+		V.startDate ??= new DateTime(2022, 9, 4, 7).timeStamp;
 
 		if (time instanceof DateTime) {
 			currentDate = time;
@@ -139,13 +139,14 @@ const Time = (() => {
 		const fragment = document.createDocumentFragment();
 
 		if (seconds < 0) return fragment;
-
+		
 		const prevDate = new DateTime(currentDate);
 		set(V.timeStamp + seconds);
-
+		fragment.append(wikifier("blackmail-timepassed"));
+		
 		const minutes = Math.floor((currentDate.timeStamp - prevDate.timeStamp) / 60) || (60 + (currentDate.minute - prevDate.minute)) % 60;
 		if (!minutes) return fragment;
-
+		
 		fragment.append(minutePassed(minutes));
 
 		const hours = Math.floor(minutes / 60) || (24 + (currentDate.hour - prevDate.hour)) % 24;
@@ -177,7 +178,7 @@ const Time = (() => {
 		fragment.append(dayPassed());
 		if (prevDate.yearDay < Time.startDate.yearDay && currentDate.yearDay >= Time.startDate.yearDay) {
 			fragment.append(yearPassed());
-		}
+		}		
 
 		return fragment;
 	}
@@ -274,7 +275,7 @@ const Time = (() => {
 	}
 
 	function isBloodMoon(date) {
-		date = date ?? currentDate;
+		date ??= currentDate;
 		return (date.day === date.lastDayOfMonth && date.hour >= 21) || (date.day === 1 && date.hour < 6);
 	}
 
@@ -519,6 +520,9 @@ function dayPassed() {
 	const fragment = document.createDocumentFragment();
 
 	Weather.sky.initSun();
+
+	// Lose one day of tanning
+	Skin.applyTanningLoss(1440);
 
 	if (V.statFreeze) return fragment;
 
@@ -794,6 +798,11 @@ function dayPassed() {
 
 	fragment.append(wikifier("genderidentity-text", V.hourlyFemininity > 0? "f": (V.hourlyFemininity < 0? "m": 0)));
 	V.hourlyFemininity = 0;
+
+	fragment.append(wikifier("blackmail-daypassed"));
+
+	V.recentmolest = Math.max(V.recentmolest - 1, 0);
+	V.recentrape = Math.max(V.recentrape - 1, 0);
 	
 	if (V.dailyBrothelPriceCheck) {
 		V.dailyBrothelPriceCheck = undefined;
@@ -873,7 +882,15 @@ function dayPassed() {
 		if (V.harpyEggsPrevent <= 0) delete V.harpyEggsPrevent;
 	}
 
+	// Activate the robin pillory
+	if (V.robinPillory && V.robinPillory.danger !== undefined && (V.robindebtevent <= 1 || !V.baileySold)) V.robinPillory.active = true;
+
 	V.daily.clearProperties();
+
+	if (V.stallDeposit >= 3000) {
+		V.stallDeposit -= 3000;
+		V.daily.stallRented = 1;
+	}
 
 	return fragment;
 }
@@ -930,8 +947,8 @@ function hourPassed(hours) {
 	if (V.wolfpatrolsent >= 24) delete V.wolfpatrolsent;
 	else if (V.wolfpatrolsent >= 1) V.wolfpatrolsent++;
 
-	if (V.robinPillory && V.robinPillory.danger !== undefined) fragment.append(wikifier("robinPilloryHour"));
-	if (V.pillory_tenant.exists && V.pillory_tenant.endTime < V.timeStamp) fragment.append(wikifier("clear_pillory"));
+	if (V.robinPillory && V.robinPillory.danger !== undefined && V.robinPillory.active) fragment.append(wikifier("robinPilloryHour"));
+	if (V.pillory.tenant.exists && V.pillory.tenant.endTime < V.timeStamp) fragment.append(wikifier("clear_pillory"));
 
 	if (C.npc.Sydney.init === 1) {
 		fragment.append(wikifier("sydneySchedule"));
@@ -968,16 +985,15 @@ function minutePassed(minutes) {
 
 	parasiteProgressTime(minutes);
 	parasiteProgressTime(minutes, "vagina");
-	if (isPlayerNonparasitePregnancyEnding()) {
+	// eslint-disable-next-line no-undef
+	if (isPregnancyEnding()) {
 		// To prevent new events from occurring, allowing players to more easily go to the hospital or similar locations
 		V.eventskip = 1;
 		V.stress += Math.floor(minutes * 40);
 	}
 
 	// Tanning
-	if (V.outside) {
-		tanned(Weather.getTanningFactor().result, "tanLines");
-	}
+	Skin.applyTanningGain(minutes);
 
 	// Body temperature
 	const temperature = V.outside ? Weather.temperature : Weather.insideTemperature;
@@ -1007,6 +1023,21 @@ function minutePassed(minutes) {
 	if (V.player.vaginaExist) fragment.append(passArousalWetness(minutes));
 	if (V.arousal >= V.arousalmax * 2/5) 
 		fragment.append(wikifier("willpower-spending", minutes * 0.5 * Math.ceil( (V.arousal - V.arousalmax*2/5) / (V.arousalmax/10) )));
+	else if (V.xchange.willpowerPoints < V.willpower * 0.5) 
+		fragment.append(wikifier("willpower-recovery", minutes * 0.5 * Math.ceil( (V.arousalmax*2/5 - V.arousal) / (V.arousalmax/10) )));
+	
+	if (V.drugged > 200 && V.arousal < V.arousalmax * 4/5) 
+		V.arousal += (V.drugged / 10) * 3 * minutes;
+	else if (V.drugged > 100 && V.arousal < V.arousalmax * 3/5) 
+		V.arousal += (V.drugged / 10) * 2 * minutes;
+	else if (V.drugged > 0 && V.arousal < V.arousalmax * 2/5)
+		V.arousal += (V.drugged / 10) * minutes;
+
+	// Portal Panties
+	fragment.append(wikifier("portalPantiesPass", minutes));
+
+	// Pub
+	V.xchange.pubtimer = Math.max(V.xchange.pubtimer - 1, 0);
 
 	passWater(minutes);
 
@@ -1061,6 +1092,8 @@ function dawnCheck() {
 	delete V.alexwake;
 	delete V.alex_bed;
 	delete V.alex_bed_spurned;
+	delete V.alexSomno;
+	delete V.alexSomnoAngry;
 	delete V.connudatus_stripped;
 	delete V.robin_kicked_out;
 
@@ -1284,10 +1317,6 @@ function dailyPlayerEffects() {
 		else V.physique = V.physique - V.physique / 2500;
 	}
 
-	/* PC loses 40 minutes of tanning every day */
-	tanned(-40, true);
-	V.skinColor.sunBlock = false;
-
 	let genderFactor = !V.xchange.genderIdentityEnabled ?
 		1 : V.player.gender === "m"? 
 		1 + (1000 - V.genderidentity) / 1000 :
@@ -1304,17 +1333,27 @@ function dailyPlayerEffects() {
 		V.orgasm_trait_message = 1;
 		V.orgasmtrait = 1;
 	}
+	if ((V.beingPenetratedOrgasmStat >= 500 || (V.orgasmtrait && V.beingPenetratedOrgasmStat >= 50)) && V.penis_addict_trait === 0) {
+		V.effectsmessage = 1;
+		V.penis_addict_trait_message = 1;
+		V.penis_addict_trait = 1;
+	}
+	if ((V.penetratingOrgasmStat >= 500 || (V.orgasmtrait && V.penetratingOrgasmStat >= 50)) && V.hole_addict_trait === 0) {
+		V.effectsmessage = 1;
+		V.hole_addict_trait_message = 1;
+		V.hole_addict_trait = 1;
+	}
 	if (V.ejacstat >= 300 && V.ejactrait === 0) {
 		V.effectsmessage = 1;
 		V.cum_trait_message = 1;
 		V.ejactrait = 1;
 	}
-	if (V.moleststat >= 300 && V.molesttrait === 0) {
+	if ((V.moleststat >= 300 || V.recentmolest >= 50) && V.molesttrait === 0) {
 		V.effectsmessage = 1;
 		V.molest_trait_message = 1;
 		V.molesttrait = 1;
 	}
-	if (V.rapestat >= 200 && V.rapetrait === 0) {
+	if ((V.rapestat >= 200 || V.recentrape >= 30) && V.rapetrait === 0) {
 		V.effectsmessage = 1;
 		V.rape_trait_message = 1;
 		V.rapetrait = 1;
@@ -1964,9 +2003,9 @@ function passArousalWetness(passMinutes) {
 	let wetnessChange = 0;
 	const arousalPercent = Math.clamp(V.arousal / V.arousalmax, 0, 1);
 
-	// Vaginal lube is produced at a fairly linear rate, between 1-3 per minute based on arousal.
+	// Vaginal lube is produced at a fairly linear rate, between 3-12 per minute based on arousal.
 	if (V.arousal >= V.arousalmax * (2 / 5)) {
-		wetnessChange = 1 + arousalPercent * 2;
+		wetnessChange = 1 + arousalPercent * 10;
 		// It also gets harder to build up the closer you get to full wetness
 		const wetnessPercent = Math.clamp(V.vaginaArousalWetness / 100, 0, 1);
 		wetnessChange = Math.floor(wetnessChange * 2 * (1 - wetnessPercent));
@@ -2013,6 +2052,7 @@ function getArousal(passMinutes) {
 	if (V.parasite.nipples.name) addedArousal += minuteMultiplier * V.breastsensitivity;
 	if (V.parasite.penis.name && V.parasite.penis.name !== "parasite") addedArousal += minuteMultiplier * V.genitalsensitivity;
 	if (V.parasite.clit.name && V.parasite.clit.name !== "parasite") addedArousal += minuteMultiplier * V.genitalsensitivity;
+	if (V.parasite.tummy.name) addedArousal += minuteMultiplier / 4;
 	if (V.parasite.bottom.name) addedArousal += minuteMultiplier * V.bottomsensitivity;
 	if (V.analchastityparasite) addedArousal += minuteMultiplier;
 	if (V.parasite.tummy.name) addedArousal += minuteMultiplier;

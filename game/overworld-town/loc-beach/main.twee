@@ -225,7 +225,7 @@ You could go for a swim, but make sure to dress appropriately.
 		<<if !Weather.isOvercast and Time.dayState isnot "night" and $exposed lte 0>>
 			<br>
 			<<socialiseicon "volleyball">><<link [[Volleyball|Beach Volleyball]]>><</link>>
-			<<if $exhibitionism gte 75 and $daily.beachStrip isnot 1>>
+			<<if hasSexStat("exhibitionism", 5) and $daily.beachStrip isnot 1>>
 				<br>
 				<<skinicon "strip">><<link [[Strip (0:20)|Beach Strip]]>><<pass 20>><</link>><<exhibitionist5>>
 			<</if>>
@@ -281,9 +281,9 @@ The students are happy to have a sixth player, particularly the <<person1>><<per
 		<<else>>
 			You are so focused on the opposing team you do not notice one of your own sneak up on you. A pair of hands grasp the rim of your $worn.lower.name.
 		<</if>>
-		<<if setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 0 and $worn.lower.set isnot $worn.upper.set>>
+		<<if wornSetupClothes("lower").skirt is 0 and $worn.lower.set isnot $worn.upper.set>>
 			Before you can react, the <<person1>><<person>> has pulled them all the way to your knees,
-		<<elseif setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 0 and $worn.lower.set is $worn.upper.set>>
+		<<elseif wornSetupClothes("lower").skirt is 0 and $worn.lower.set is $worn.upper.set>>
 			Before you can react, the <<person1>><<person>> has pulled it aside,
 		<<else>>
 			Before you can react, the <<person1>><<person>> has lifted it,
@@ -378,11 +378,11 @@ The students are happy to have a sixth player, particularly the <<person1>><<per
 
 <<if $phase is 0>>
 	You join the conversation.
-	<<if $allure gte 3000>>
+	<<if $attractiveness gte 3000>>
 		You quickly become the centre of attention.
-	<<elseif $allure gte 2000>>
+	<<elseif $attractiveness gte 2000>>
 		You draw eyes your way with ease.
-	<<elseif $allure gte 1000>>
+	<<elseif $attractiveness gte 1000>>
 		People acknowledge you when you speak, but otherwise leave you alone.
 	<<else>>
 		Dour as you are, people constantly talk over you, as if unaware of your presence.
@@ -417,6 +417,26 @@ The students are happy to have a sixth player, particularly the <<person1>><<per
 		<</if>>
 	<</if>>
 <<elseif $phase is 1>>
+	"<<= either(
+		"...So I told <<him>>: 'Are you mad? There's no way I'm ever doing that!',",
+		"...Can you believe it? That police officer really did that. No joke,",
+		"...And then a dog comes, sticks it in there, and begins to plow furiously. Utterly insane,",
+		"...So the psycho pulls a knife, and starts threatening everyone with it...,",
+		"...So I just open the door, and there's this man with a raging erection, just standing there...,",
+		"...And then this librarian starts writing 'Book Criminal' on <<his>> bloody forehead. I swear we all bursted out laughing when we saw...,",
+		"...And then she pulls his pants. But the boy was going commando!,",
+		"...And then Leighton took pictures of it all! The poor girl was about to cry...,",
+		"...So then he takes the drink without a clue, and lo and behold, he turns into a bloody woman! And fuck, was she hot, I tell you...,",
+		"...So we dared her to take the pill. And later all her friends were drooling all over her new body like hungry hyenas!...,",
+		"...And I heard he went to the lake, deep into the night as a test of courage, but was never ever seen again...,",
+		"...So if you press all of the buttons at the same time, you can pull off a finisher that all but guarantees you the win...,",
+		"...And then he tasted the bun. His eyes instantly glazed, as if remembering the happiest time of his life, before eagerly gobling it all up...,",
+		"...And we were chased by it all they way until we got out. We were ghastly from what happened...,",
+		"...So we smelled this mossy stuff. And minutes later we could barely keep our sanity with how horny we were...,",
+		"...And then she tells me she jumped the bloke into a sweet tight embrace. The happiest she's ever been, she claimed...,",
+		"...And apparently, he liked the abuse. Like, getting choked right to the moment before blacking out made him orgasm explosively...,"
+	)>>" <<he>> narrates enthusiastically.
+	<br><br>
 	<<if $rng gte 21>>
 		You enjoy talking with the <<person>>. <<He>> ?admires your body when <<he>> thinks you aren't looking.
 		<br><br>
@@ -833,7 +853,7 @@ A <<person1>><<person>> looks at you and audibly gasps. A <<person2>><<person>> 
 <<elseif $player.breastsize gte 6 and $rng % 2 == 0>>Many eyes are drawn to your <<breasts>>.
 <<elseif $player.penisExist and $player.penissize gte 3 and !$worn.genitals.type.includesAll("chastity", "hidden")>>Many eyes fix on your <<penis>>.
 <<elseif $beauty gte (($beautymax / 7) * 5) and $rng % 3>>Some just stare, open-mouthed, blown away by your naked beauty.
-<<elseif $physique gte (($physiquesize / 7) * 5)>>Some marvel at seeing such a stunning physique so fully displayed.
+<<elseif currentSkillValue('physique') gte (($physiquesize / 7) * 5)>>Some marvel at seeing such a stunning physique so fully displayed.
 <<elseif $worn.genitals.type.includesAll("chastity", "hidden")>>Some stare with a curious look at your $worn.genitals.name.
 <</if>>
 Each breeze caressing your bare flesh is a reminder of your exposure. You feel so free, powerful and sexy.
@@ -1137,6 +1157,7 @@ You feel everyone's eyes on your body as you walk onto the dry sand and into the
 <<if playerBellyVisible()>>
 		A <<generatey2>><<person2>><<person>> almost passes you a cold beer, but stops when <<he>> sees your baby bump.
 <<else>>
+	<<wearProp "beerbottle">>
 	You're handed a cold beer by a <<generatey2>><<person2>><<person>>.
 	 <<if playerIsPregnant() and playerAwareTheyArePregnant()>>
 		You're not comfortable drinking while you know you're pregnant.
@@ -1187,7 +1208,7 @@ As the party begins to die down, you say your goodbyes and leave, returning to y
 	<<elseif $player.breastsize gte 6 and $rng % 2 == 0>>gawking at your <<breasts>>
 	<<elseif $player.penisExist and $player.penissize gte 3 and !$worn.genitals.type.includesAll("chastity", "hidden")>>gawking at your <<penis>>.
 	<<elseif $beauty gte (($beautymax / 7) * 5) and $rng % 3>>admiring your beautiful naked body
-	<<elseif $physique gte (($physiquesize / 7) * 5)>>admiring your stunning physique so fully displayed
+	<<elseif currentSkillValue('physique') gte (($physiquesize / 7) * 5)>>admiring your stunning physique so fully displayed
 	<<else>>leering at you
 	<</if>>
 	as you parade across the sand.
@@ -1198,7 +1219,7 @@ As the party begins to die down, you say your goodbyes and leave, returning to y
 	<<elseif $player.breastsize gte 6 and $rng % 2 == 0>>You feel embarrassed by the countless eyes ogling your <<breasts>>.
 	<<elseif $player.penisExist and $player.penissize gte 3 and $rng % 2 == 0 and !$worn.genitals.type.includesAll("chastity", "hidden")>>You feel embarrassed by the countless eyes ogling your <<penis>>.
 	<<elseif $beauty gte (($beautymax / 7) * 5) and $rng % 3>>Every inch of your naked body prickles as you feel countless eyes ogling your naked beauty.
-	<<elseif $physique gte (($physiquesize / 7) * 5)>>Every inch of your toned body prickles as you feel countless eyes ogling your stunning physique.
+	<<elseif currentSkillValue('physique') gte (($physiquesize / 7) * 5)>>Every inch of your toned body prickles as you feel countless eyes ogling your stunning physique.
 	<<else>>Every inch of your naked body prickles as you feel countless eyes ogling you.
 	<</if>>
 	<br><br>

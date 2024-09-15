@@ -9,6 +9,7 @@
 			demon: {horns:"disabled", wings:"disabled", tail: "disabled"},
 			cat: {ears:"disabled", tail:"disabled", heterochromia:"disabled"},
 			cow: {horns:"disabled", ears:"disabled", tail:"disabled"},
+			bear: {plumage:"disabled", pubes:"disabled", ears:"disabled", tail:"disabled"},
 			wolf: {ears:"disabled", tail:"disabled", pubes:"disabled", pits:"disabled"},
 			bird: {tail:"disabled", wings:"disabled", eyes:"disabled", malar:"disabled", plumage:"disabled", pubes:"disabled"},
 			fox: {ears:"disabled", tail:"disabled", cheeks:"disabled"},
@@ -17,10 +18,10 @@
 			<<if $angel gte 4>>
 				<<set $transformationParts.angel.halo to "default">>
 			<</if>>
-			<<if ($angel gte 6 or $transformationParts.angel.wings is "default")>>
+			<<if ($angel gte 6 or $transformationParts.angel.wings is "default" or $transformationParts.angel.wings is "classic")>>
 				<<set $transformationParts.angel.wings to "default">>
 			<</if>>
-			<<if ($fallenangel gte 2 or $transformationParts.fallenAngel.wings is "default")>>
+			<<if ($fallenangel gte 2 or $transformationParts.fallenAngel.wings is "default" or $transformationParts.fallenAngel.wings is "classic")>>
 				<<set $transformationParts.fallenAngel.halo to "default">>
 				<<set $transformationParts.fallenAngel.wings to "default">>
 			<</if>>
@@ -67,7 +68,19 @@
 			<<if ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black")>>
 				<<set $transformationParts.cow.tail to "default">>
 			<</if>>
+			<<if $bear gte 4>>
+				<<set $transformationParts.bear.ears to "default">>
+			<</if>>
+			<<if $bear gte 6>>
+				<<set $transformationParts.bear.tail to "default">>
+			<</if>>
 		<</if>>
+	<</if>>
+	<<if $transformationParts.bear is undefined>>
+		<<set $transformationParts.bear to {tail:"disabled", plumage:"disabled"}>>
+	<</if>>
+	<<if $transformationParts.bear.pubes is undefined>>
+		<<set $transformationParts.bear.pubes to "disabled">>
 	<</if>>
 	<<if $transformationParts.fallenAngel.halo is 1>>
 		<<set $transformationParts.fallenAngel.halo to "default">>
@@ -143,6 +156,7 @@
 			<<case "wolf">>  <<set $wolfbuild  = Math.clamp($wolfbuild  + _args[1], 0, 100)>>
 			<<case "cat">>   <<set $catbuild   = Math.clamp($catbuild   + _args[1], 0, 100)>>
 			<<case "cow">>   <<set $cowbuild   = Math.clamp($cowbuild   + _args[1], 0, 100)>>
+			<<case "bear">>  <<set $bearbuild  = Math.clamp($bearbuild  + _args[1], 0, 100)>>
 			<<case "bird">>  <<set $birdbuild  = Math.clamp($birdbuild  + _args[1], 0, 100)>>
 			<<case "fox">>   <<set $foxbuild   = Math.clamp($foxbuild   + _args[1], 0, 100)>>
 			<<case "angel">> <<set $angelbuild = Math.clamp($angelbuild + _args[1], 0, 100)>>
@@ -159,6 +173,9 @@
 		<</if>>
 		<<if _args[0] isnot "cow" and $worn.neck.name isnot "cow bell">>
 			<<set $cowbuild  = Math.clamp($cowbuild  - _args[1], 0, 100)>>
+		<</if>>
+		<<if _args[0] isnot "bear" and $worn.handheld.name isnot "honey pouch" and $worn.handheld.name isnot "bear bag"and $worn.head.name isnot "honey hair clip">>
+			<<set $bearbuild  = Math.clamp($bearbuild  - _args[1], 0, 100)>>
 		<</if>>
 		<<if _args[0] isnot "bird" and $worn.head.name isnot "feathered hair clip">>
 			<<set $birdbuild = Math.clamp($birdbuild - _args[1], 0, 100)>>
@@ -183,6 +200,10 @@
 		<<transform cow -1>>
 	<</if>>
 
+	<<if $bearbuild gte 1 and $worn.handheld.name isnot "honey pouch" and $worn.handheld.name isnot "bear bag"and $worn.head.name isnot "honey hair clip" and playerNormalPregnancyType() isnot "bear">>
+		<<transform bear -1>>
+	<</if>>
+
 	<<if $birdbuild gte 1 and $worn.head.name isnot "feathered hair clip" and playerNormalPregnancyType() isnot "hawk">>
 		<<transform bird -1>>
 	<</if>>
@@ -197,13 +218,13 @@
 
 	<<transformationAlteration>>
 
-	<<if $cat gt 0 or $wolfgirl gt 0 or $cow gt 0 or $harpy gt 0 or $fox gt 0>>
+	<<if $cat gt 0 or $wolfgirl gt 0 or $cow gt 0 or $harpy gt 0 or $fox gt 0 or $bear gt 0>>
 		<<set $physicalTransform to 1>>
 	<<else>>
 		<<set $physicalTransform to 0>>
 	<</if>>
 	<<if $physicalTransform is 1 or $specialTransform is 1>>
-		<<if ($harpy gte 6 or $transformationParts.bird.wings is "default") and (($angel gte 6 or $transformationParts.angel.wings is "default") or ($fallenangel gte 2 or $transformationParts.fallenAngel.wings is "default") or ($demon gte 6 or $transformationParts.demon.wings is "default" or $transformationParts.demon.wings is "succubus"))>>
+		<<if ($harpy gte 6 or $transformationParts.bird.wings is "default") and (($angel gte 6 or $transformationParts.angel.wings is "default" or $transformationParts.angel.wings is "classic") or ($fallenangel gte 2 or $transformationParts.fallenAngel.wings is "default" or $transformationParts.fallenAngel.wings is "classic") or ($demon gte 6 or $transformationParts.demon.wings is "default" or $transformationParts.demon.wings is "succubus"))>>
 			<<if $transformationParts.bird.wings is "hidden" and ($transformationParts.demon.wings is "hidden" or $transformationParts.angel.wings is "hidden" or $transformationParts.fallenAngel.wings is "hidden")>>
 			<<else>>
 				<<set _excludeWings to true>>
@@ -243,7 +264,7 @@
 			<<demonTransform $demon>>
 		<<elseif ($angelbuild gte 5 and $specialTransform isnot 1) or ($angel gte 1 and $specialTransform is 1)>>
 			<<angelTransform $angel>>
- 		<<elseif ($fallenangel gte 2 or $transformationParts.fallenAngel.wings is "default")>>
+ 		<<elseif ($fallenangel gte 2 or $transformationParts.fallenAngel.wings is "default" or $transformationParts.fallenAngel.wings is "classic")>>
 			<<fallenButNotOut $fallenangel>>
 		<</if>>
 	<</if>>
@@ -256,6 +277,8 @@
 			<<catTransform $cat>>
 		<<elseif ($cowbuild gte 5 and $physicalTransform isnot 1) or ($cow gte 1 and $physicalTransform is 1)>>
 			<<cowTransform $cow>>
+		<<elseif ($bearbuild gte 5 and $physicalTransform isnot 1) or ($bear gte 1 and $physicalTransform is 1)>>
+			<<bearTransform $bear>>
 		<<elseif ($birdbuild gte 5 and $physicalTransform isnot 1) or ($harpy gte 1 and $physicalTransform is 1)>>
 			<<harpyTransform $harpy>>
 		<<elseif ($foxbuild gte 5 and $physicalTransform isnot 1) or ($fox gte 1 and $physicalTransform is 1)>>
@@ -296,7 +319,7 @@
 <</widget>>
 
 <<widget "fallenTransform">>
-	<<if $angel gte 6>>
+	<<if ($angel gte 6 or $transformationParts.angel.wings is "default" or $transformationParts.angel.wings is "classic")>>
 		<span class="red">Your halo shatters and your wings blacken. An overwhelming sense of loss overcomes you.</span>
 		<<set $trauma to $traumamax>>
 		<<set $fallenangel to 2>>
@@ -345,7 +368,7 @@
 					<<set $transformationParts.fallenAngel.wings to "hidden">>
 				<</if>>
 			<<case 99>>
-				<<if $fallenangel gte 4>>
+				<<if ($fallenangel gte 4 or $transformationParts.fallenAngel.wings is "fallenplus" or $transformationParts.fallenAngel.wings is "classicfallenplus")>>
 					<<set $specialTransform to 0>>
 				<</if>>
 				<<set $fallenangel to 0>>
@@ -462,7 +485,7 @@
 					<br><br>
 				<</if>>
 			<<case 99>>
-				<<if $angel gte 6>>
+				<<if ($angel gte 6 or $transformationParts.angel.wings is "default" or $transformationParts.angel.wings is "classic")>>
 					<<set $specialTransform to 0>>
 				<</if>>
 				<<set $angel to 0>>
@@ -573,7 +596,7 @@
 					<<set $demonFeat to true>>
 				<</if>>
 			<<case 99>>
-				<<if $demon gte 6>>
+				<<if ($demon gte 6 or $transformationParts.demon.wings is "default" or $transformationParts.demon.wings is "succubus")>>
 					<<set $specialTransform to 0>>
 				<</if>>
 				<<set $demon to 0>>
@@ -668,6 +691,7 @@
 					<span class="gold">Your bottom feels heavier than usual. You reach behind you and feel your new wolf tail.</span>
 					<<set $transformationParts.wolf.tail to "default">>
 					<<set $wolftf to 1>>
+					<<set $TFWolfBuffs to 1>>
 					<<earnFeat "Wolf">>
 					<br><br>
 				<<elseif $wolfbuild lt 25>>
@@ -683,7 +707,7 @@
 					<br><br>
 				<</if>>
 			<<case 99>>
-				<<if $wolfgirl gte 6>>
+				<<if ($wolfgirl gte 6 or $transformationParts.wolf.tail is "default" or $transformationParts.wolf.tail is "feral")>>
 					<<set $physicalTransform to 0>>
 				<</if>>
 				<<set $wolfgirl to 0>>
@@ -699,6 +723,7 @@
 		<<clearAnimalTransformations>>
 		<<set $physicalTransform to 1>>
 		<<set $wolftf to 1>>
+		<<set $TFWolfBuffs to 1>>
 		<<set $wolfgirl to 6>>
 		<<set $wolfbuild to 100>>
 		<<set $transformationParts.traits.fangs to "default">>
@@ -773,6 +798,7 @@
 					<span class="gold">Your bottom feels weighty, yet perfectly balanced. You reach behind and feel your new cat tail.</span>
 					<<set $transformationParts.cat.tail to "default">>
 					<<set $cattf to 1>>
+					<<set $TFCatBuffs to 1>>
 					<<earnFeat "Neko">>
 					<br><br>
 				<<elseif $catbuild lt 45>>
@@ -837,7 +863,7 @@
 					<<set $cat to 9>>
 				<</if>>
 			<<case 99>>
-				<<if $cat gte 6>>
+				<<if ($cat gte 6 or $transformationParts.cat.tail is "default")>>
 					<<set $physicalTransform to 0>>
 				<</if>>
 				<<set $cat to 0>>
@@ -851,6 +877,7 @@
 		<<clearAnimalTransformations>>
 		<<set $physicalTransform to 1>>
 		<<set $cattf to 1>>
+		<<set $TFCatBuffs to 1>>
 		<<set $cat to 6>>
 		<<set $catbuild to 100>>
 		<<set $transformationParts.traits.fangs to "default">>
@@ -941,6 +968,7 @@
 					<<set $milk_max to 6000>>
 					<<set $transformationParts.cow.tail to "default">>
 					<<set $cowtf to 1>>
+					<<set $TFCowBuffs to 1>>
 					<<earnFeat "Cattle">>
 					<span class="gold">Your bottom feels heavier than usual. You reach behind you and feel your new cow tail. You suppress the urge to moo.</span>
 					<br><br>
@@ -959,7 +987,7 @@
 					<br><br>
 				<</if>>
 			<<case 99>>
-				<<if $cow gte 6>>
+				<<if ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black")>>
 					<<set $physicalTransform to 0>>
 				<</if>>
 				<<set $cow to 0>>
@@ -974,6 +1002,7 @@
 		<<clearAnimalTransformations>>
 		<<set $physicalTransform to 1>>
 		<<set $cowtf to 1>>
+		<<set $TFCowBuffs to 1>>
 		<<set $cow to 6>>
 		<<set $cowbuild to 100>>
 		<<set $semen_max to 6000>>
@@ -986,6 +1015,118 @@
 	<<milkvolume 0>>
 <</widget>>
 
+<<widget "bearTransform">>
+	<<if _args[0] gte 0>>
+		<<switch _args[0]>>
+			<<case 0>>
+				<<if $bearbuild gte 5>>
+					<<set $bear to 1>>
+					<<set $physicalTransform to 1>>
+					<span class="gold">You have a strange toothache and you have a strange craving for honey.</span>
+					<br><br>
+				<</if>>
+			<<case 1>>
+				<<if $bearbuild gte 10 and $transformdisable is "f">>
+					<<set $bear to 2>>
+					<span class="gold">Your mouth feels different. You explore your mouth and wince as your tongue presses against your new fangs.</span>
+					<<set $transformationParts.traits.fangs to "default">>
+					<br><br>
+				<<elseif $bearbuild lt 5>>
+					<<set $bear to 0>><<set $physicalTransform to 0>>
+					<span class="gold">Your toothache has stopped.</span>
+					<br><br>
+				<</if>>
+			<<case 2>>
+				<<if $bearbuild gte 15 and $transformdisable is "f">>
+					<<set $bear to 3>>
+					<span class="gold">Your scalp and neck itch.</span>
+					<br><br>
+				<<elseif $bearbuild lt 10>>
+					<<set $bear to 1>>
+					<span class="gold">Your fangs have turned into regular teeth.</span>
+					<<set $transformationParts.traits.fangs to "disabled">>
+					<br><br>
+				<</if>>
+			<<case 3>>
+				<<if $bearbuild gte 20>>
+					<<set $bear to 4>>
+					<<set $transformationParts.bear.ears to "default">>
+					<span class="gold">Your scalp twitches. You reach up and feel your new pair of bear ears and a patch of fur cover your neck.</span>
+					<<set $transformationParts.bear.plumage to "default">>
+					<br><br>
+				<<elseif $bearbuild lt 15>>
+					<<set $bear to 2>>
+					<span class="gold">Your scalp and neck no longer itch.</span>
+					<br><br>
+				<</if>>
+			<<case 4>>
+				<<if $bearbuild gte 25>>
+					<<set $bear to 5>>
+					<span class="gold">Your lower back tingles.</span>
+					<br><br>
+				<<elseif $bearbuild lt 20>>
+					<<set $bear to 3>>
+					<<set $transformationParts.bear.plumage to "disabled">>
+					<<set $transformationParts.bear.ears to "disabled">>
+					<span class="gold">Your bear ears have disappeared. There apears to be no more fur covering your neck</span>
+					<br><br>
+				<</if>>
+			<<case 5>>
+				<<if $bearbuild gte 30>>
+					<<set $bear to 6>>
+					<<set $transformationParts.bear.tail to "default">>
+					<<if $pbdisable is "f">>
+						<<set $transformationParts.bear.pubes to "default">>
+					<</if>>
+					<<set $beartf to 1>>
+					<<set $TFBearBuffs to 1>>
+					<<earnFeat "Bear">>
+					<span class="gold">Your bottom feels fluffier than usual. You reach behind you and feel your new bear tail. You suppress the urge to growl.</span>
+					<br><br>
+				<<elseif $bearbuild lt 25>>
+					<<set $bear to 4>>
+					<span class="gold">Your lower back has stopped tingling.</span>
+					<br><br>
+				<</if>>
+			<<case 6>>
+				<<if $bearbuild lt 30>>
+					<span class="gold">Your balance feels different. Your bear tail has disappeared.</span>
+					<<set $bear to 5>>
+					<<set $transformationParts.bear.tail to "disabled">>
+					<<set $transformationParts.bear.pubes to "disabled">>
+					<<set $TFBearBuffs to 0>>
+					<br><br>
+				<</if>>
+			<<case 99>>
+				<<if ($bear gte 6 or $transformationParts.bear.tail is "default")>>
+					<<set $physicalTransform to 0>>
+				<</if>>
+				<<set $bear to 0>>
+				<<set $bearbuild to 0>>
+				<<set $transformationParts.bear.tail to "disabled">>
+				<<set $transformationParts.bear.pubes to "disabled">>
+				<<set $transformationParts.bear.plumage to "disabled">>
+				<<set $transformationParts.bear.ears to "disabled">>
+				<<set $transformationParts.traits.fangs to "disabled">>
+				<<set $TFBearBuffs to 0>>
+		<</switch>>
+	<<else>>
+		<<clearAnimalTransformations>>
+		<<set $physicalTransform to 1>>
+		<<set $beartf to 1>>
+		<<set $TFBearBuffs to 1>>
+		<<set $bear to 6>>
+		<<set $bearbuild to 100>>
+		<<set $TFBearBuffs to 1>>
+		<<set $transformationParts.bear.tail to "default">>
+		<<if $pbdisable is "f">>
+			<<set $transformationParts.bear.pubes to "default">>
+		<</if>>
+		<<set $transformationParts.bear.plumage to "default">>
+		<<set $transformationParts.bear.ears to "default">>
+		<<set $transformationParts.traits.fangs to "default">>
+	<</if>>
+<</widget>>
 /* <<harpyTransform step>> If neither is provided, force full transformation */
 <<widget "harpyTransform">>
 	<<if _args[0] gte 0>>
@@ -1066,6 +1207,7 @@
 					<span class="gold">You feel light as a feather. Wings caress your face.
 					<<print ($pbdisable is "f" ? " You also notice that short, feathery hair has grown in your pubic area.":"")>></span>
 					<<set $harpytf to 1>>
+					<<set $TFBirdBuffs to 1>>
 					<<earnFeat "Harpy">>
 					<<set $transformationParts.bird.wings to "default">>
 					<<if $transformationParts.angel.wings is "default">>
@@ -1092,13 +1234,13 @@
 					<<set $harpy to 5>>
 					<<set $transformationParts.bird.wings to "disabled">>
 					<<set $transformationParts.bird.pubes to "disabled">>
-					<<if ($angel gte 6 or $transformationParts.angel.wings is "default")>>
+					<<if ($angel gte 6 or $transformationParts.angel.wings is "default" or $transformationParts.angel.wings is "classic")>>
 						<<set $transformationParts.angel.wings to "default">>
 					<</if>>
 					<<if ($demon gte 6 or $transformationParts.demon.wings is "default" or $transformationParts.demon.wings is "succubus")>>
 						<<set $transformationParts.demon.wings to "default">>
 					<</if>>
-					<<if ($fallenangel gte 2 or $transformationParts.fallenAngel.wings is "default")>>
+					<<if ($fallenangel gte 2 or $transformationParts.fallenAngel.wings is "default" or $transformationParts.fallenAngel.wings is "classic")>>
 						<<set $transformationParts.fallenAngel.wings to "default">>
 					<</if>>
 					<br><br>
@@ -1113,24 +1255,27 @@
 				<<set $transformationParts.bird.malar to "disabled">>
 				<<set $transformationParts.bird.tail to "disabled">>
 				<<set $transformationParts.bird.plumage to "disabled">>
-				<<set $transformationParts.bird.wings to "disabled">>
 				<<set $transformationParts.bird.pubes to "disabled">>
 				<<set $transformationParts.traits.sharpEyes to "disabled">>
 				<<set $transformationParts.traits.mateForLife to "disabled">>
-				<<if ($angel gte 6 or $transformationParts.angel.wings is "default")>>
-					<<set $transformationParts.angel.wings to "default">>
-				<</if>>
-				<<if ($demon gte 6 or $transformationParts.demon.wings is "default" or $transformationParts.demon.wings is "succubus")>>
-					<<set $transformationParts.demon.wings to "default">>
-				<</if>>
-				<<if ($fallenangel gte 2 or $transformationParts.fallenAngel.wings is "default")>>
-					<<set $transformationParts.fallenAngel.wings to "default">>
+				<<if !["hidden", "disabled"].includes($transformationParts.bird.wings)>>
+					<<if ($angel gte 6 or $transformationParts.angel.wings is "default" or $transformationParts.angel.wings is "classic")>>
+						<<set $transformationParts.angel.wings to "default">>
+					<</if>>
+					<<if ($demon gte 6 or $transformationParts.demon.wings is "default" or $transformationParts.demon.wings is "succubus")>>
+						<<set $transformationParts.demon.wings to "default">>
+					<</if>>
+					<<if ($fallenangel gte 2 or $transformationParts.fallenAngel.wings is "default" or $transformationParts.fallenAngel.wings is "classic")>>
+						<<set $transformationParts.fallenAngel.wings to "default">>
+					<</if>>
+					<<set $transformationParts.bird.wings to "disabled">>
 				<</if>>
 		<</switch>>
 	<<else>>
 		<<clearAnimalTransformations>>
 		<<set $physicalTransform to 1>>
 		<<set $harpytf to 1>>
+		<<set $TFBirdBuffs to 1>>
 		<<set $harpy to 6>>
 		<<set $birdbuild to 100>>
 		<<set $transformationParts.bird.eyes to "default">>
@@ -1140,11 +1285,11 @@
 		<<set $transformationParts.bird.wings to "default">>
 		<<set $transformationParts.traits.sharpEyes to "default">>
 		<<set $transformationParts.traits.mateForLife to "default">>
-		<<if $transformationParts.angel.wings is "default">>
+		<<if !["hidden", "disabled"].includes($transformationParts.angel.wings)>>
 			<<set $transformationParts.angel.wings to "hidden">>
-		<<elseif $transformationParts.fallenAngel.wings is "default">>
+		<<elseif !["hidden", "disabled"].includes($transformationParts.fallenAngel.wings)>>
 			<<set $transformationParts.fallenAngel.wings to "hidden">>
-		<<elseif $transformationParts.demon.wings is "default">>
+		<<elseif !["hidden", "disabled"].includes($transformationParts.demon.wings)>>
 			<<set $transformationParts.demon.wings to "hidden">>
 		<</if>>
 		<<if $pbdisable is "f">>
@@ -1234,6 +1379,7 @@
 					<span class="gold">Your bottom feels heavier than usual. You give it a wiggle and feel your new fox tail. It's extremely comforting to touch.</span>
 					<<set $transformationParts.fox.tail to "default">>
 					<<set $foxtf to 1>>
+					<<set $TFFoxBuffs to 1>>
 					<<earnFeat "Fox">>
 					<br><br>
 				<<elseif $foxbuild lt 25>>
@@ -1250,7 +1396,7 @@
 					<br><br>
 				<</if>>
 			<<case 99>>
-				<<if $fox gte 6>>
+				<<if ($fox gte 6 or $transformationParts.fox.tail is "default")>>
 					<<set $physicalTransform to 0>>
 				<</if>>
 				<<set $fox to 0>>
@@ -1266,6 +1412,7 @@
 		<<clearAnimalTransformations>>
 		<<set $physicalTransform to 1>>
 		<<set $foxtf to 1>>
+		<<set $TFFoxBuffs to 1>>
 		<<set $fox to 6>>
 		<<set $foxbuild to 100>>
 		<<set $transformationParts.traits.fangs to "default">>
@@ -1280,6 +1427,7 @@
 <<widget "clearAnimalTransformations">>
 	<<harpyTransform 99>>
 	<<cowTransform 99>>
+	<<bearTransform 99>>
 	<<catTransform 99>>
 	<<wolfTransform 99>>
 	<<foxTransform 99>>

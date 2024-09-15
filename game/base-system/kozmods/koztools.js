@@ -28,3 +28,8 @@ function kofiValidate(code) {
 	}
 }
 window.kofiValidate = kofiValidate;
+
+function wornSetupClothes(slot) {
+	return setup.clothes[slot][clothesIndex(slot, V.worn[slot])];
+}
+window.wornSetupClothes = wornSetupClothes;

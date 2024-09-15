@@ -118,8 +118,8 @@ function genderappearancecheck() {
 	} */
 	/* Determine how visible the player's bottom is */
 	if (
-		(setup.clothes.lower[clothesIndex("lower", V.worn.lower)].skirt === 1 && V.worn.lower.skirt_down === 1 && V.worn.lower.state === "waist") ||
-		(setup.clothes.over_lower[clothesIndex("over_lower", V.worn.over_lower)].skirt === 1 &&
+		(wornSetupClothes("lower").skirt === 1 && V.worn.lower.skirt_down === 1 && V.worn.lower.state === "waist") ||
+		(wornSetupClothes("over_lower").skirt === 1 &&
 			V.worn.over_lower.skirt_down === 1 &&
 			V.worn.over_lower.state === "waist")
 	) {
@@ -164,22 +164,22 @@ function genderappearancecheck() {
 	addfemininityfromfactor(Math.trunc(((V.physique + V.physiquesize / 2) / V.physiquesize) * -100), "Toned muscles");
 	/* Behaviour */
 	setfemininitymultiplierfromgender(V.player.gender_posture);
-	T.acting_multiplier = V.englishtrait + 1;
-	addfemininityfromfactor(T.femininity_multiplier * 100 * T.acting_multiplier, "Posture (x" + T.acting_multiplier + " effectiveness due to English skill)");
+	const actingMultiplier = V.englishtrait + 1;
+	addfemininityfromfactor(T.femininity_multiplier * 100 * actingMultiplier, "Posture (x" + actingMultiplier + " effectiveness due to English skill)");
 	/* Special handling for calculating topless gender */
 	T.over_lower_protected = V.worn.over_lower.exposed < 2;
 	T.lower_protected = V.worn.lower.exposed < 2;
 	T.under_lower_protected = !V.worn.under_lower.exposed;
 	T.apparent_femininity_noow = T.apparent_femininity;
 	T.gender_appearance_factors_noow = clone(T.gender_appearance_factors);
-	T.over_lower_femininity = setup.clothes.over_lower[clothesIndex("over_lower", V.worn.over_lower)].femininity
-		? setup.clothes.over_lower[clothesIndex("over_lower", V.worn.over_lower)].femininity
+	T.over_lower_femininity = wornSetupClothes("over_lower").femininity
+		? wornSetupClothes("over_lower").femininity
 		: 0;
-	T.lower_femininity = setup.clothes.lower[clothesIndex("lower", V.worn.lower)].femininity
-		? setup.clothes.lower[clothesIndex("lower", V.worn.lower)].femininity
+	T.lower_femininity = wornSetupClothes("lower").femininity
+		? wornSetupClothes("lower").femininity
 		: 0;
-	T.under_lower_femininity = setup.clothes.under_lower[clothesIndex("under_lower", V.worn.under_lower)].femininity
-		? setup.clothes.under_lower[clothesIndex("under_lower", V.worn.under_lower)].femininity
+	T.under_lower_femininity = wornSetupClothes("under_lower").femininity
+		? wornSetupClothes("under_lower").femininity
 		: 0;
 	/* find maximum possible femininity of the last lower piece you can strip down to, and add it to the counter */
 	addfemininityfromfactor(Math.max(T.over_lower_femininity, T.lower_femininity, T.under_lower_femininity), "Lower clothes", "noow");

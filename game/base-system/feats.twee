@@ -104,10 +104,13 @@
 		<<set _tendingFeats to _keys.count("Green Fingered") + _keys.count("Grass Toucher")>>
 		<<set _tendingFeatsLimit to (_tendingFeats * 25)>>
 
+		<<set _housekeepingFeats to _keys.count("Majordomo") + _keys.count("Demolisher of Filth")>>
+		<<set _housekeepingFeatsLimit to (_housekeepingFeats * 25)>>
+
 		<<set _seductionFeats to _keys.count("Seductress") + _keys.count("Irresistible")>>
 		<<set _seductionFeatsLimit to (_seductionFeats * 25)>>
 
-		<<set _divineTFsFeats to _keys.count("Angel") + _keys.count("Fallen Angel") + _keys.count("Demon")>>
+		<<set _divineTFsFeats to _keys.count("Angel") + _keys.count("Fallen Angel") + _keys.count("Demon") + _keys.count("Demon of Purity")>>
 
 		<<set _animalTFsFeats to _keys.count("Neko") + _keys.count("Wolf") + _keys.count("Cattle") + _keys.count("Harpy") + _keys.count("Fox")>>
 
@@ -123,6 +126,7 @@
 				athletics:0,
 				tending:0,
 				greenThumb:0,
+				housekeeping:0,
 				seduction:0,
 				purity:0,
 				impurity:0,
@@ -147,6 +151,7 @@
 				athletics:{cost:5, limit: _athleticsFeatsLimit, minCount: 1, count:_athleticsFeats, exclusive:""},
 				tending:{cost:5, limit: _tendingFeatsLimit, minCount: 1, count:_tendingFeats, exclusive:""},
 				greenThumb:{cost:40, limit: 40, minCount: 1, count:_keys.count("Green Fingered"), exclusive:""},
+				housekeeping:{cost:5, limit: _housekeepingFeatsLimit, minCount: 1, count:_housekeepingFeats, exclusive:""},
 				seduction:{cost:5, limit: _seductionFeatsLimit, minCount: 1, count:_seductionFeats, exclusive:""},
 				purity:{cost:20, limit: 100, minCount: 2, count:_purityFeats, exclusive:"impurity"},
 				impurity:{cost:20, limit: 100, minCount: 1, count:_keys.count("Demon"), exclusive:"purity"},
@@ -170,6 +175,7 @@
 				swimming:"Unlock this boost by obtaining the 'Aquanaut' feat",
 				athletics:"Unlock this boost by obtaining the 'Swift' feat",
 				tending:"Unlock this boost by obtaining the 'Green Fingered' feat",
+				housekeeping:"Unlock this boost by obtaining the 'Majordomo' feat",
 				seduction:"Unlock this boost by obtaining the 'Seductress' feat",
 				purity:"Unlock this boost by obtaining the 'Walk Like an Angel' and 'Falling, Falling, Falling...' feats",
 				impurity:"Unlock this boost by obtaining the 'Devilish Looks' feat",
@@ -194,6 +200,7 @@
 				athletics:"Athletics Grade",
 				tending:"Tending Grade",
 				greenThumb:"Green Thumb trait",
+				housekeeping:"Housekeeping Grade",
 				seduction:"Seduction grade",
 				purity:"Daily purity",
 				impurity:"Daily impurity",
@@ -278,6 +285,9 @@
 	<<if _upgrades.seduction gt 0>>
 		<<set $seductionskill to _upgrades.seduction / _details.seduction.cost * 100>>
 	<</if>>
+	<<if _upgrades.housekeeping gt 0>>
+		<<set $housekeeping to _upgrades.housekeeping / _details.housekeeping.cost * 100>>
+	<</if>>
 	<<if _upgrades.purity gt 0>>
 		<<set $featsPurityBoost to _upgrades.purity / _details.purity.cost>>
 	<</if>>
@@ -327,7 +337,22 @@
 				<<angelTransform>>
 			<<case "fallenAngel">>
 				<<fallenButNotOut 98>>
+				<<if $player.vaginaExist or $player.virginity.vaginal isnot true>>
+					<<set $player.virginity.vaginal to false>>
+				<</if>>
+				<<if $player.penisExist or $player.virginity.penile isnot true>>
+					<<set $player.virginity.penile to false>>
+				<</if>>
 			<<case "demon">>
+				<<set $purity to 0>>
+				<<demonTransform>>
+				<<if $player.vaginaExist or $player.virginity.vaginal isnot true>>
+					<<set $player.virginity.vaginal to false>>
+				<</if>>
+				<<if $player.penisExist or $player.virginity.penile isnot true>>
+					<<set $player.virginity.penile to false>>
+				<</if>>
+			<<case "virginDemon">>
 				<<set $purity to 0>>
 				<<demonTransform>>
 			<<default>>
@@ -341,6 +366,8 @@
 				<<wolfTransform>>
 			<<case "cow">>
 				<<cowTransform>>
+			<<case "bear">>
+				<<bearTransform>>
 			<<case "harpy">>
 				<<harpyTransform>>
 			<<case "fox">>
@@ -608,10 +635,10 @@
 			<<if ($wolfgirl gte 6 or $transformationParts.wolf.tail is "default" or $transformationParts.wolf.tail is "feral")>>
 				<<earnFeat "Wolf">>
 			<</if>>
-			<<if ($angel gte 6 or $transformationParts.angel.wings is "default")>>
+			<<if ($angel gte 6 or $transformationParts.angel.wings is "default" or $transformationParts.angel.wings is "classic")>>
 				<<earnFeat "Angel">>
 			<</if>>
-			<<if ($fallenangel gte 2 or $transformationParts.fallenAngel.wings is "default")>>
+			<<if ($fallenangel gte 2 or $transformationParts.fallenAngel.wings is "default" or $transformationParts.fallenAngel.wings is "classic")>>
 				<<earnFeat "Fallen Angel">>
 			<</if>>
 			<<if ($demon gte 6 or $transformationParts.demon.wings is "default" or $transformationParts.demon.wings is "succubus")>>
@@ -619,6 +646,9 @@
 			<</if>>
 			<<if ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black")>>
 				<<earnFeat "Cattle">>
+			<</if>>
+			<<if $bear gte 6 or $transformationParts.bear.tail is "default">>
+				<<earnFeat "Bear">>
 			<</if>>
 			<<if ($harpy gte 6 or $transformationParts.bird.wings is "default")>>
 				<<earnFeat "Harpy">>
@@ -767,7 +797,7 @@
 			<<earnFeat "Ear Slime Amalgam">>
 		<</if>>
 
-		<<if $physique gte 32000>>
+		<<if currentSkillValue('physique') gte 32000>>
 			<<earnFeat "Unstoppable Force">>
 		<</if>>
 		<<if $willpower gte 2000>>
@@ -822,13 +852,16 @@
 			<<earnFeat "Catch the Wind">>
 		<</if>>
 		<<if $beauty gte 20000>>
-			<<earnFeat "Brawler">>
+			<<earnFeat "Aphrodite">>
 		<</if>>
 		<<if $milk_volume gte 12000>>
 			<<earnFeat "Rivers of White">>
 		<</if>>
 		<<if $semen_volume gte 12000>>
 			<<earnFeat "Sticky Fountain">>
+		<</if>>
+		<<if (($demon gte 6 or $transformationParts.demon.wings is "default" or $transformationParts.demon.wings is "succubus") or $demontf is 1) and $player.virginity.vaginal is true and $player.virginity.penile is true>>
+			<<earnFeat "Demon of Purity">>
 		<</if>>
 		<<specialClothesUpdate>>
 	<</if>>

@@ -38,7 +38,13 @@
 					text: "The temple will know.",
 				},
 				{
-					name: "Purity boost",
+					name: "Temple Burden: $temple_burden %",
+					colour: "blue",
+					has: $temple_burden gte 1,
+					text: "You are carrying part of the world's corruption within yourself. Physique, willpower, athletics, dancing, skulduggery, swimming, tending, housekeeping, and English skill checks have a 15% chance to automatically fail.",
+				},
+				{
+					name: "Purity Boost",
 					colour: "green",
 					has: $featsPurityBoost gt 0,
 					text: () => {
@@ -51,7 +57,7 @@
 					},
 				},
 				{
-					name: "Impurity boost",
+					name: "Impurity Boost",
 					colour: "red",
 					has: $featsPurityBoost lt 0,
 					text: () => {
@@ -214,7 +220,7 @@
 					text: "Your breasts are able to hold a tremendous amount of milk.",
 				},
 				{
-					name: "Sperm bank",
+					name: "Sperm Bank",
 					colour: "blue",
 					has: $semen_volume gte 1000 and $player.penisExist,
 					text: "You carry a tremendous amount of semen.",
@@ -236,6 +242,12 @@
 					colour: "grey",
 					has: ($cat gte 6 or $transformationParts.cat.tail is "default"),
 					text: 'You have an urge to lap up cream. Unlocks the "groom" action while dancing with lewd fluid on your person. Your ears and tail make you more conspicuous.',
+				},
+				{
+					name: "Bear <<girl>>",
+					colour: "grey",
+					has: ($bear gte 6 or $transformationParts.bear.tail is "default"),
+					text: 'You have an urge to eat honey and lazy around. Your ears and tail make you more conspicuous.',
 				},
 				{
 					name: () => {
@@ -287,7 +299,7 @@
 					text: "Biting is three times as effective.",
 				},
 				{
-					name: "Sharp eyes",
+					name: "Sharp Eyes",
 					colour: "def",
 					has: $transformationParts.traits.sharpEyes isnot "disabled",
 					text: "Little escapes your notice. +5% skulduggery.",
@@ -304,6 +316,42 @@
 					colour: "def",
 					has: ($cow gte 2 or $transformationParts.cow.horns is "default") and $demon lt 2,
 					text: "Headbutts no longer hurt you.",
+				},
+				{
+					name: "Spirit of the Wild",
+					colour: "def",
+					has: $DoLPTFBuffs is 1 and $TFWolfBuffs is 1,
+					text: "The spirit of the wild courses through you, heightening your senses.",
+				},
+				{
+					name: "Felinous Mischief",
+					colour: "pink",
+					has: $DoLPTFBuffs is 1 and $TFCatBuffs is 1,
+					text: "Agility and mischief blends within you, your movements fluid and stealthy.",
+				},
+				{
+					name: "Nature's Nurturer",
+					colour: "green",
+					has: $DoLPTFBuffs is 1 and $TFCowBuffs is 1,
+					text: "Attuned to nature, you nurture it, and it blesses you.",
+				},
+				{
+					name: "Ursine Strength",
+					colour: "def",
+					has: $DoLPTFBuffs is 1 and $TFBearBuffs is 1,
+					text: "The strength of the largest land carnivore flows through your muscles.",
+				},
+				{
+					name: "Sky's Embrace",
+					colour: "lblue",
+					has: $DoLPTFBuffs is 1 and $TFBirdBuffs is 1,
+					text: "A pep in your step, the winds your friend and the sky your limits.",
+				},
+				{
+					name: "Vixen's Guile",
+					colour: "gold",
+					has: $DoLPTFBuffs is 1 and $TFFoxBuffs is 1,
+					text: "Ever enticing, always within reach, but never within grasp, your guile eludes most.",
 				},
 				{
 					name: "Mate For Life",
@@ -327,7 +375,7 @@
 				{
 					name: "Angel",
 					colour: "gold",
-					has: ($angel gte 6 or $transformationParts.angel.wings is "default"),
+					has: ($angel gte 6 or $transformationParts.angel.wings is "default" or $transformationParts.angel.wings is "classic"),
 					text: 'You radiate purity. Unlocks the "forgive" action once per encounter, removing any trauma gained so far. Beware, losing your virginity will remove this trait and leave you broken.',
 				},
 				{
@@ -367,7 +415,7 @@
 					text: "Your headbutts are vicious. Headbutts are four times as powerful, and no longer hurt you.",
 				},
 				{
-					name: "Strong wings",
+					name: "Strong Wings",
 					colour: "gold",
 					has: ($harpy gte 6 or $transformationParts.bird.wings is "default") and $birdFly gte 1,
 					text: "Can glide from high locations. Can fly where the wind is willing.",
@@ -375,7 +423,7 @@
 				{
 					name: "Wings",
 					colour: "grey",
-					has: !(($harpy gte 6 or $transformationParts.bird.wings is "default") and $birdFly gte 1) and (($angel gte 6 or $transformationParts.angel.wings is "default") or ($fallenangel gte 2 or $transformationParts.fallenAngel.wings is "default") or ($demon gte 6 or $transformationParts.demon.wings is "default" or $transformationParts.demon.wings is "succubus") or ($harpy gte 6 or $transformationParts.bird.wings is "default")),
+					has: !(($harpy gte 6 or $transformationParts.bird.wings is "default") and $birdFly gte 1) and (($angel gte 6 or $transformationParts.angel.wings is "default" or $transformationParts.angel.wings is "classic") or ($fallenangel gte 2 or $transformationParts.fallenAngel.wings is "default" or $transformationParts.fallenAngel.wings is "classic") or ($demon gte 6 or $transformationParts.demon.wings is "default" or $transformationParts.demon.wings is "succubus") or ($harpy gte 6 or $transformationParts.bird.wings is "default")),
 					text: "Can glide from high locations.",
 				},
 				{
@@ -628,13 +676,98 @@
 			]
 		},
 		{
+			title: "X-Change Traits",
+			traits: [
+				{
+					name: "Active",
+					colour: "teal",
+					has: V.xchangePill?.active,
+					text: `You have taken a pill that changes your body's sexual characteristics to those of the opposite gender.`,
+				},
+				{
+					name: "Unknown effects",
+					colour: "purple",
+					has: V.xchangePill?.active && !V.xchangePill?.effectsKnown,
+					text: `You don't know any of this pill's effects, besides the sex change.`,
+				},
+				{
+					name: "Duration",
+					colour: "teal",
+					has: V.xchangePill?.active && V.xchangePill?.effectsKnown,
+					text: () => {
+						let duration = "";
+						if (pillTimerPaused() || pillIsPermanent())
+							duration = `<span class="teal">Indefinite.</span>`;
+						else
+							duration = `<span class="teal"><<print-pillduration>></span> remaining.`;
+						
+						return duration;
+					},
+				},
+				{
+					name: "Fertile",
+					colour: "lewd",
+					has: V.xchangePill?.active && V.xchangePill?.effectsKnown && V.xchangePill?.fertile,
+					text: `You can become pregnant if you aren't careful.`,
+				},
+				{
+					name: "Continue effect",
+					colour: "lewd",
+					has: V.xchangePill?.active && V.xchangePill?.effectsKnown && V.xchangePill?.continueEffect,
+					text: `Extends pill duration with every climax.`,
+				},
+				{
+					name: "Resistance effect",
+					colour: "lewd",
+					has: V.xchangePill?.active && V.xchangePill?.effectsKnown && V.xchangePill?.resistanceEffect,
+					text: `Pill becomes less likely to expire after its expected duration with each orgasm.`,
+				},
+				{
+					name: "Breeder effect",
+					colour: "lewd",
+					has: V.xchangePill?.active && V.xchangePill?.effectsKnown && V.xchangePill?.breederEffect,
+					text: `Enhances your fertility. Triggers orgasms upon insemination. And dimishes stress while sperm remains inside the vagina.`,
+				},
+				{
+					name: "Passion effect",
+					colour: "lewd",
+					has: V.xchangePill?.active && V.xchangePill?.effectsKnown && V.xchangePill?.passionEffect,
+					text: `Steadily dissolves aphrodisiacs into your bloodstream at an hourly rate.`,
+				},
+				{
+					name: "Clone effect",
+					colour: "teal",
+					has: V.xchangePill?.active && V.xchangePill?.effectsKnown && V.xchangePill?.clone != "none",
+					text: `You've been changed into a clone of an existing person.`,
+				},
+				{
+					name: "Portal effect",
+					colour: "lewd",
+					has: V.xchangePill?.active && V.xchangePill?.effectsKnown && V.xchangePill?.portalEffect,
+					text: `Allows random NPCs to fuck you remotely, regardless of your consent. <span class="teal"><<print-portalduration>></span> remaining.`,
+				},
+			],
+		},
+		{
 			title: "Special Traits",
 			traits: [
 				{
 					name: () => V.submissive <= 850 ? "Hedonist" : "Orgasm Addict",
 					colour: "lewd",
 					has: $orgasmtrait gte 1,
-					text: "So many orgasms has had a physiological effect. Cumming is more difficult but pleasurable orgasms relieve more stress and painful orgasms no longer increase stress.",
+					text: "So many orgasms have had a physiological effect. Cumming is more difficult but pleasurable orgasms relieve more stress and painful orgasms no longer increase stress.",
+				},
+				{
+					name: () => V.submissive <= 850 ? "Cock Enthusiast" : "Cock Addict",
+					colour: "lewd",
+					has: $penis_addict_trait gte 1,
+					text: `So many orgasms while getting pounded have had a physiological effect. You've become unable to orgasm unless you're getting railed in your ass<<= $player.vaginaExist? " or your pussy":"">>.`,
+				},
+				{
+					name: () => V.submissive <= 850 ? "Hole Enthusiast" : "Hole Addict",
+					colour: "lewd",
+					has: $hole_addict_trait gte 1,
+					text: "So many orgasms while ramming away at fleshy holes have had a physiological effect. You've become unable to orgasm unless you get your cock into something.",
 				},
 				{
 					name: "Asphyxiophilia",
@@ -693,7 +826,7 @@
 				{
 					name: "Tempered Physique",
 					colour: "green",
-					has: $AMCTraits.physique is 2 and $physique gte $physiquesize,
+					has: $AMCTraits.physique is 2 and currentSkillValue('physique') gte $physiquesize,
 					text: "Your body has reached the human limits... But you can go further."
 				},
 				{
@@ -1188,7 +1321,7 @@
 			title: "NPC Traits",
 			traits: [
 				{
-					name: "Robin's protector",
+					name: "Robin's Protector",
 					colour: "lblue",
 					has: $robinpaid gte 1,
 					text: "Robin is dependent on you. You need to be strong. Increases daily trauma decay.",

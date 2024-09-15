@@ -20,6 +20,7 @@ const statChange = (() => {
 				if (V.rapetrait) traumaMod *= 0.7;
 				if (V.bestialitytrait >= 1 && V.enemytype === "beast") traumaMod *= 0.7;
 				if (V.tentacletrait >= 1 && V.enemytype === "tentacles") traumaMod *= 0.7;
+				if (V.drunk >= 1 && V.substanceRebalance == 1) traumaMod *= 1 - (0.1 * Math.round(V.drunk / 120));
 
 				// eslint-disable-next-line prettier/prettier
 				V.trauma += Math.trunc(((amount * 3) - ((amount * 1.5) * (V.control / V.controlmax))) * traumaMod)
@@ -74,6 +75,7 @@ const statChange = (() => {
 				if (V.rapetrait) traumaMod *= 0.7;
 				if (V.bestialitytrait >= 1 && V.enemytype === "beast") traumaMod *= 0.7;
 				if (V.tentacletrait >= 1 && V.enemytype === "tentacles") traumaMod *= 0.7;
+				if (V.drunk >= 1 && V.substanceRebalance == 1) traumaMod *= 1 - (0.1 * Math.round(V.drunk / 120));
 
 				// eslint-disable-next-line prettier/prettier
 				V.trauma += Math.trunc(((amount * 1) - ((amount * 0.5) * (V.control / V.controlmax))) * traumaMod)
@@ -98,6 +100,7 @@ const statChange = (() => {
 
 	function traumaClamp() {
 		if (V.trauma >= V.traumamax) V.beauty -= (V.trauma - V.traumamax) / 5;
+		V.beauty = Math.clamp(V.beauty, 0, V.beauty * V.AMCTraits.beauty);
 		if (V.innocencestate === 1 && V.trauma > 0) {
 			V.innocencetrauma += V.trauma;
 			V.trauma = 0;
@@ -232,8 +235,13 @@ const statChange = (() => {
 				if (V.drunk <= 0) {
 					stressMod = 40;
 				} else {
-					const drunkMod = Math.clamp(Math.floor(V.drunk / 120), 0, 4);
-					stressMod = 30 - drunkMod * 5;
+					if (V.substanceRebalance == 1) {
+						let drunkMod = Math.floor(V.drunk / 120);
+						stressMod = Math.max(1 - (0.15 * (1 + drunkMod)), 0);
+					} else {
+						let drunkMod = Math.clamp(Math.floor(V.drunk / 120), 0, 4);
+						stressMod = 30 - drunkMod * 5;
+					}
 				}
 				
 				if (playerIsXChanged() && V.xchangePill.breederEffect && playerIsCreampied()) {
@@ -262,6 +270,7 @@ const statChange = (() => {
 	function arousal(amount, source) {
 		if (isNaN(amount)) paramError("arousal", "amount", amount, "Expected a number.");
 		amount = Number(amount);
+		const fragment = document.createDocumentFragment();
 		if (amount) {
 			let mod = 1;
 			let purityMod = (1000 - V.purity) * V.xchange.impuritySensitivityBonus / 1000;
@@ -279,12 +288,18 @@ const statChange = (() => {
 					so that the aphrodisiacs become quite threatening during nonconsensual use,
 					and more thrilling when used intentionally
 				*/
-				mod *= 1 + V.drugged / 1000;
+				if (V.substanceRebalance == 1) {
+					mod *= 1 + V.drugged / 250;
+				} else {
+					mod *= 1 + V.drugged / 1000;
+				}
 			}
 
 			// Apply effect according to source
 			let sensitivity = 0;
 			let arousal;
+			let beingPenetrated = ["penis", "penisdouble", "tentacle", "tentacledeep", "machine"];
+			let penetrating = ["penetrated", "othervagina", "otheranus", "othermouth"];
 			switch (source) {
 				case undefined:
 				case "masturbation":
@@ -307,7 +322,7 @@ const statChange = (() => {
 				case "masturbationNipples":
 				case "chest_grope":
 					sensitivity += V.breastsensitivity + purityMod;
-					wikifier("playWithBreasts");
+					fragment.append(wikifier("playWithBreasts"));
 					if (playerIsPregnant()) sensitivity += 0.5;
 					break;
 				case "bottom":
@@ -318,7 +333,12 @@ const statChange = (() => {
 				case "masturbationAnal":
 				case "masturbationAss":
 				case "bottom_grope":
-					sensitivity += V.bottomsensitivity + purityMod;
+					let analWetnessPenalty = 1;
+					if (beingPenetrated.includes(V.anusstate)) {
+						pain(V.analPain);
+						analWetnessPenalty = Math.min(V.anusWetness/60, 1);
+					}
+					sensitivity += Math.max((V.analsensitivity + purityMod) * analWetnessPenalty, 0.25);
 					break;
 				case "genital":
 				case "genitals":
@@ -333,9 +353,11 @@ const statChange = (() => {
 				case "pussy_grope":
 				case "penis_grope":
 					let wetnessPenalty = 1;
-					if (V.player.vaginaExist === "t")
+					if (V.player.vaginaExist === "t" && beingPenetrated.includes(V.vaginause)) {
+						pain(V.vaginalPain);
 						wetnessPenalty = Math.min(V.vaginaWetness/60, 1);
-					sensitivity += Math.max(V.genitalsensitivity * wetnessPenalty, 0.25) + 2*purityMod;
+					}
+					sensitivity += Math.max((V.genitalsensitivity + 2*purityMod) * wetnessPenalty, 0.25);
 					if (playerIsPregnant()) sensitivity += 0.5;
 					break;
 				case "maso":
@@ -366,9 +388,16 @@ const statChange = (() => {
 			}
 
 			V.arousal += amount * mod * Weather.BodyTemperature.arousalModifier;
-			wikifier("arousalclamp");
-			// wikifier("arousal-wetness");
-			wikifier("arousal-moan");
+			
+			if ( ( !V.penis_addict_trait || ( beingPenetrated.includes(V.vaginause) || beingPenetrated.includes(V.anususe) || [0,3].includes(V.portalPanties.state.vagina?.new) || [0,3].includes(V.portalPanties.state.anus?.new) || V.portalEjacV || V.portalEjacA ) ) && ( !V.hole_addict_trait || penetrating.includes(V.peniuse) ) ) {
+				// Do Nothing
+			} else {
+				V.arousal = Math.clamp(V.arousal, 0, V.arousalmax * 4/5 - 1);
+			}
+
+			fragment.append(wikifier("arousalclamp"));
+			// fragment.append(wikifier("arousal-wetness"));
+			fragment.append(wikifier("arousal-moan", amount * mod * Weather.BodyTemperature.arousalModifier, sensitivity));
 
 			// Add to the tracker
 			if (amount > 0) {
@@ -376,8 +405,17 @@ const statChange = (() => {
 				V.timeSinceArousal = 0;
 			}
 		}
+		
+		return fragment;
 	}
-	DefineMacro("arousal", arousal);
+	Macro.add("arousal", {
+		handler() {
+			const fragment = arousal(...this.args);
+			this.output.append(fragment);
+		},
+	});
+	
+	// DefineMacro("arousal", arousal);
 	DefineMacro("breastarousal", amount => arousal(amount, "breasts"));
 	DefineMacro("genitalarousal", amount => arousal(amount, "genitals"));
 
@@ -421,9 +459,11 @@ const statChange = (() => {
 				// Including masochism effect for all pain NG v2.7
 				if (V.masochism >= 100) {
 					pain *= 1 - V.masochism / 1200;
-					arousal((amount * V.masochism) / 6, "maso");
+					if (V.arousal < V.arousalmax * 3/5) arousal((amount * V.masochism) / 6, "maso");
 				}
 			}
+
+			if (V.drunk >= 1 && V.substanceRebalance == 1) pain *= 1 - (0.075 * (1 + Math.round(V.drunk / 120)));
 
 			V.pain += pain * Weather.BodyTemperature.painModifier;
 		}
@@ -436,7 +476,7 @@ const statChange = (() => {
 		amount = Number(amount);
 		if (amount) {
 			V.pain += amount * (1 - V.masochism / 1200) * 4;
-			arousal(amount * (0 + V.masochism / 18) * 4);
+			if (V.arousal < V.arousalmax * 3/5) arousal(amount * (0 + V.masochism / 18) * 4);
 			painClamp();
 		}
 	}
@@ -642,6 +682,9 @@ const statChange = (() => {
 		if (amount && modifier) {
 			V.submissive = Math.clamp(V.submissive + amount * modifier, 0, 2000);
 			subCheck();
+		}
+		if (V.xchange.blackmail.activeQuest?.id == 10 && amount < 0) {
+			V.xchange.blackmail.activeQuest.behavedDefiantly = true;
 		}
 	}
 	DefineMacro("sub", (amount, modifier) => submissive(amount, modifier));

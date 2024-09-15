@@ -20,7 +20,7 @@
 	const configFile = path.resolve("config.xml");
 	const configData = xml.parseElementtreeSync(configFile);
 	// update version
-	configData.getroot().attrib.version = version;
+	// configData.getroot().attrib.version = version;
 	// update package name for debug and release builds
 	let targetName = configData.getroot().attrib['android-packageName'];
 	if (release && targetName.endsWith("_debug")) targetName = targetName.slice(0, -6);
@@ -39,7 +39,10 @@
 			// update project paths
 			const javaDir = "platforms/android/app/src/main/java/";
 			const prevDir = path.resolve(javaDir, prevName.split(".").join("/"));
-			const targetDir = path.resolve(javaDir, targetName.split(".").join("/"))
+			const targetDir = path.resolve(javaDir, targetName.split(".").join("/"));
+			if (fs.existsSync(targetDir)) {
+				fs.removeSync(targetDir);
+			}
 			fs.moveSync(prevDir, targetDir);
 			const mainActivity = path.resolve(targetDir, "MainActivity.java");
 			fs.writeFileSync(mainActivity, fs.readFileSync(mainActivity).toString().replace(prevName, targetName));

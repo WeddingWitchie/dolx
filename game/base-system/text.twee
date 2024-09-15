@@ -361,19 +361,6 @@
 	<</if>>
 <</widget>>
 
-<<widget "clearPronouns">>
-	<<if _args[0]>>
-		<<set _args[0].pronouns.he = 0>>
-		<<set _args[0].pronouns.his = 0>>
-		<<set _args[0].pronouns.hers = 0>>
-		<<set _args[0].pronouns.him = 0>>
-		<<set _args[0].pronouns.himself = 0>>
-		<<set _args[0].pronouns.man = 0>>
-		<<set _args[0].pronouns.boy = 0>>
-		<<set _args[0].pronouns.men = 0>>
-	<</if>>
-<</widget>>
-
 <!-- [0] - string
 	 prints string [0] prepended with an indefinite article based on the [0]'s first character -->
 <<widget "a">><<silently>>
@@ -869,6 +856,16 @@
 	<</if>>
 <</silently>><<print _text_output>><</widget>>
 
+<<widget "peopleyv">><<silently>>
+	<<if $malevictimchance is 100>>
+		<<set _text_output to "boys">>
+	<<elseif $malevictimchance is 0>>
+		<<set _text_output to "girls">>
+	<<else>>
+		<<set _text_output to "boys and girls">>
+	<</if>>
+<</silently>><<print _text_output>><</widget>>
+
 <<widget "persony">><<silently>>
 	<<rng>>
 	<<set _text_output to ($rng lte maleChance()? "boy" : "girl")>>
@@ -1061,6 +1058,7 @@
 	<<else>>
 		<<set _text_output2 to "">>
 	<</if>>
+	<<set _mouthSensitivityDescribed to true>>
 <</silently>><<print _text_output2>><</widget>>
 
 <<widget "breastsensitivity">><<silently>>
@@ -1074,6 +1072,7 @@
 	<<else>>
 		<<set _text_output2 to "">>
 	<</if>>
+	<<set _breastSensitivityDescribed to true>>
 <</silently>><<print _text_output2>><</widget>>
 
 <<widget "bottomsensitivity">><<silently>>
@@ -1087,10 +1086,11 @@
 	<<else>>
 		<<set _text_output2 to "">>
 	<</if>>
+	<<set _bottomSensitivityDescribed to true>>
 <</silently>><<print _text_output2>><</widget>>
 
 <<widget "nipple">>
-	<<breastsensitivity>><<print "nipple">>
+	<<if !_breastSensitivityDescribed>><<breastsensitivity>><</if>><<print "nipple">>
 <</widget>>
 
 <<widget "nipples">>
@@ -1116,7 +1116,7 @@
 	<<elseif $options.debugdisable is "f">>
 		<<set _text_output to "ERROR - $$player.breastsize is not a number: $player.breastsize">>
 	<</if>>
-<</silently>><<breastsensitivity>><<print _text_output>><</widget>>
+<</silently>><<if !_breastSensitivityDescribed>><<breastsensitivity>><</if>><<print _text_output>><</widget>>
 
 <<widget "breastssimple">><<silently>>
 	<<if Number.isInteger($player.breastsize)>>
@@ -1156,7 +1156,7 @@
 
 <<widget "mouth">><<silently>>
 	<<set _text_output to "lips">>
-<</silently>><<mouthsensitivity>><<print _text_output>><</widget>>
+<</silently>><<if !_mouthSensitivityDescribed>><<mouthsensitivity>><</if>><<print _text_output>><</widget>>
 
 <<widget "undertop">><<silently>>
 	<<if $worn.under_upper.exposed lte 0>>
@@ -1215,13 +1215,18 @@
 			/* ^^^ placeholders for later if people want to fill them out */
 		<</if>>
 	<</if>>
+	<<if _args[0] is "penis">>
+		<<set _penisStateDescribed to true>>
+	<<elseif _args[0] is "pussy">>
+		<<set _pussyStateDescribed to true>>
+	<</if>>
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "bottom">><<silently>>
 	<<set _text_output to ["slender", "slim", "modest", "cushioned", "soft", "round", "plump", "large", "huge"][Math.clamp(0, 8, $player.bottomsize)]>>
 	/* _args[0] is a flag to prevent .pluck() from altering state random when calling from overlays */
 	<<set _text_output to _text_output + [" ass", " bum", " butt"].pluck(_args[0])>>
-<</silently>><<bottomsensitivity>><<print _text_output>><</widget>>
+<</silently>><<if !_bottomSensitivityDescribed>><<bottomsensitivity>><</if>><<print _text_output>><</widget>>
 
 <!-- Too small and too big outputs are intended as error messages
 	so that it's more obvious what's wrong when people report bugs -->
@@ -1237,13 +1242,16 @@
 		<<case 4>><<set _text_output to "enormous">>
 		<<default>><<set _text_output to "[Widget 'penissize' - Invalid Penis Value of - " + $_size + ($playerHasStraponOverride ? " - $playerHasStraponOverride is set" : "") + "]">>
 	<</switch>>
+	<<set _penisSizeDescribed to true>>
 <</silently>><<print _text_output>><</widget>>
 
 <!-- [0] - if truthy, genital sensitivity is omitted -->
 <<widget "pussy">><<silently>>
-	<<genitalstate "pussy">><<set _genital_state_text to _text_output>>
+	<<if !_pussyStateDescribed>>
+		<<genitalstate "pussy">><<set _genital_state_text to _text_output>>
+	<</if>>
 	<<set _text_output to "">>
-	<<if !_args[0]>>
+	<<if !_args[0] and !_genitalSensitivityDescribed>>
 		<<genitalsensitivity>>
 	<</if>>
 	/* _args[1] is a flag to prevent .pluck() from altering state random when calling from overlays */
@@ -1256,7 +1264,7 @@
 		<<penis>>
 	<<else>>
 		<<set _text_output to "">>
-		<<if !_args[0]>>
+		<<if !_args[0] and !_genitalSensitivityDescribed>>
 			<<genitalsensitivity>>
 		<</if>>
 		<<set _text_output += "clit">>
@@ -1265,13 +1273,24 @@
 
 <!-- [0] - if truthy, genital sensitivity is omitted -->
 <<widget "penis">><<silently>>
-	<<penissize>><<set _penissize_text to _text_output>>
-	<<if _penissize_text isnot "">>
-		<<set _penissize_text to _penissize_text + " ">>
+	<!-- Size, skip if mentioned this passage already -->
+	<<if _penisSizeDescribed>>
+		<<set _penissize_text to "">>
+	<<else>>
+		<<penissize>><<set _penissize_text to _text_output>>
+		<<if _penissize_text isnot "">>
+			<<set _penissize_text to _penissize_text + " ">>
+		<</if>>
 	<</if>>
-	<<genitalstate "penis">><<set _genital_state_text to _text_output>>
+	<!-- State, skip if mentioned this passage already -->
+	<<if _penisStateDescribed>>
+		<<set _genital_state_text to "">>
+	<<else>>
+		<<genitalstate "penis">><<set _genital_state_text to _text_output>>
+	<</if>>
 	<<set _text_output to "">>
-	<<if !_args[0]>>
+	<!-- Sensitivity, skip if mentioned this passage already -->
+	<<if !_args[0] and !_genitalSensitivityDescribed>>
 		<<genitalsensitivity>>
 	<</if>>
 	/* _args[1] is a flag to prevent .pluck() from altering state random when calling from overlays */
@@ -1700,6 +1719,7 @@
 	<<else>>
 		<<set _text_output to "">>
 	<</if>>
+	<<set _genitalSensitivityDescribed to true>>
 <</silently>><<print _text_output>><</widget>>
 
 <!--
@@ -1811,7 +1831,7 @@
 	<<if $statdisable is "f">> |
 		<<if ($harpy gte 6 or $transformationParts.bird.wings is "default") and $birdFly gte 1>>
 			<span class="gold">Strong wings</span>
-		<<elseif ($angel gte 6 or $transformationParts.angel.wings is "default") or ($demon gte 6 or $transformationParts.demon.wings is "default" or $transformationParts.demon.wings is "succubus") or ($fallenangel gte 2 or $transformationParts.fallenAngel.wings is "default") or ($harpy gte 6 or $transformationParts.bird.wings is "default")>>
+		<<elseif ($angel gte 6 or $transformationParts.angel.wings is "default" or $transformationParts.angel.wings is "classic") or ($demon gte 6 or $transformationParts.demon.wings is "default" or $transformationParts.demon.wings is "succubus") or ($fallenangel gte 2 or $transformationParts.fallenAngel.wings is "default" or $transformationParts.fallenAngel.wings is "classic") or ($harpy gte 6 or $transformationParts.bird.wings is "default")>>
 			<span class="gold">Wings</span>
 		<</if>>
 	<</if>>
@@ -2047,56 +2067,6 @@
 	<</if>>
 <</widget>>
 
-<<widget "combatdeviant">>
-	<<if $consensual is 1 and $statdisable is "f">>
-		<<set _color to ["","teal","lblue","blue","purple","pink","red"][_args[0]]>>
-		<span @class="_color">Deviancy _args[0]</span>
-	<</if>>
-<</widget>>
-
-<<widget "combatdeviant1">>
-	<<if $consensual is 1 and $statdisable is "f">>
-		<span class="teal">Deviancy 1</span>
-	<</if>>
-<</widget>>
-
-<<widget "combatdeviant2">>
-	<<if $consensual is 1 and $statdisable is "f">>
-		<span class="lblue">Deviancy 2</span>
-	<</if>>
-<</widget>>
-
-<<widget "combatdeviant3">>
-	<<if $consensual is 1 and $statdisable is "f">>
-		<span class="blue">Deviancy 3</span>
-	<</if>>
-<</widget>>
-
-<<widget "combatdeviant4">>
-	<<if $consensual is 1 and $statdisable is "f">>
-		<span class="purple">Deviancy 4</span>
-	<</if>>
-<</widget>>
-
-<<widget "combatdeviant5">>
-	<<if $consensual is 1 and $statdisable is "f">>
-		<span class="pink">Deviancy 5</span>
-	<</if>>
-<</widget>>
-
-<<widget "combatdeviant6">>
-	<<if $consensual is 1 and $statdisable is "f">>
-		<span class="red">!Deviancy 6!</span>
-	<</if>>
-<</widget>>
-
-<!-- Commented out for deprecation. Use: ?admires
-			See 03-JavaScript/Templates/..
-<<widget "admires">>
-	<<print either("leers at", "admires", "ogles", "eyes up")>>
-<</widget>>
--->
-
 <<widget "crime">>
 	<<if $statdisable is "f">> |
 		<span class="red">Crime</span>
@@ -2307,7 +2277,7 @@
  -->
 <<widget "undies">><<silently>>
 	<<outfitChecks>>
-	<<if !$worn.under_lower.type.includes("naked") and _bottom isnot $worn.under_lower>>
+	<<if !$worn.under_lower.type.includes("naked")>>
 		<<if _args[0] and _args[0] gte 1>>
 			<<set _text_output to $worn.under_lower.name_simple>>
 		<<else>>
@@ -2365,6 +2335,7 @@
 <</widget>>
 
 <<widget "allTopsUnderwear">><<silently>>
+	<<outfitChecks>>
 	<<set _tops to []>>
 	<<if $worn.over_upper.name isnot "naked">>
 		<<set _tops.push($worn.over_upper.name)>>
@@ -2375,12 +2346,14 @@
 	<<if $worn.under_upper.name isnot "naked">>
 		<<set _tops.push($worn.under_upper.name)>>
 	<</if>>
+	<<if _tops.length is 0 and _top>><<set _tops.push(_top.name)>><</if>>
 	<<if _tops.length is 1>><<set _text_output to _tops[0]>><</if>>
 	<<if _tops.length is 2>><<set _text_output to _tops[0] + " and " + _tops[1]>><</if>>
 	<<if _tops.length is 3>><<set _text_output to _tops[0] + ", " + _tops[1] + " and " + _tops[2]>><</if>>
 <</silently>>_text_output<</widget>>
 
 <<widget "allBottomsUnderwear">><<silently>>
+	<<outfitChecks>>
 	<<set _bottoms to []>>
 	<<if $worn.over_lower.name isnot "naked">>
 		<<set _bottoms.push($worn.over_lower.name)>>
@@ -2391,6 +2364,7 @@
 	<<if $worn.under_lower.name isnot "naked">>
 		<<set _bottoms.push($worn.under_lower.name)>>
 	<</if>>
+	<<if _bottoms.length is 0 and _bottom>><<set _bottoms.push(_bottom.name)>><</if>>
 	<<if _bottoms.length is 1>><<set _text_output to _bottoms[0]>><</if>>
 	<<if _bottoms.length is 2>><<set _text_output to _bottoms[0] + " and " + _bottoms[1]>><</if>>
 	<<if _bottoms.length is 3>><<set _text_output to _bottoms[0] + ", " + _bottoms[1] + " and " + _bottoms[2]>><</if>>
@@ -3013,9 +2987,9 @@
 
 		<<if $leftarm is "bound" and $rightarm is "bound" and $exposed gte 1>>
 			With your arms bound, there's little you can do to shield your <<lewdness>> from prying eyes.
-			<<if !$uncomfortable.nude and $exposed gte 2 and $exhibitionism gte 95>>
+			<<if !$uncomfortable.nude and $exposed gte 2 and hasSexStat("exhibitionism", 6)>>
 				You quiver with excitement.
-			<<elseif !$uncomfortable.nude and $exposed is 1 and $exhibitionism gte 55>>
+			<<elseif !$uncomfortable.nude and $exposed is 1 and hasSexStat("exhibitionism", 4)>>
 				You quiver with excitement.
 			<</if>>
 		<<elseif ($exposed gte 2 and ($exhibitionism lt 95 or $uncomfortable.nude))
@@ -3098,7 +3072,7 @@
 			<<set _clothing_strip_sequence += 1>><<underlowerstrip>><<exposure>>
 		<</if>>
 	<</if>>
-	<<if !$worn.legs.type.includes("naked") and _args[0] isnot "topless">>
+	<<if !$worn.legs.type.includes("naked") and !["topless", "bottomless"].includes(_args[0])>>
 		You're still wearing your $worn.legs.name, but this somehow makes you feel even more exposed.
 	<<else>>
 	<</if>>
@@ -3841,8 +3815,8 @@
 
 <<widget "pulldownall">>
 	<<outfitChecks>>
-	<<if setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1>>
-		<<if setup.clothes.under_lower[clothesIndex('under_lower', $worn.under_lower)].skirt is 1>>
+	<<if wornSetupClothes("lower").skirt is 1>>
+		<<if wornSetupClothes("under_lower").skirt is 1>>
 			You lift the hem of your $worn.lower.name and $worn.under_lower.name, <span class="lewd">baring your <<genitals>>.</span>
 		<<elseif _underOutfit>>
 			You lift the hem of your $worn.lower.name and pull aside your $worn.under_lower.name, <span class="lewd">baring your <<genitals>>.</span>
@@ -3852,7 +3826,7 @@
 			You lift the hem of your $worn.lower.name, <span class="lewd">baring your <<genitals>>.</span>
 		<</if>>
 	<<elseif _middleOutfit>>
-		<<if setup.clothes.under_lower[clothesIndex('under_lower', $worn.under_lower)].skirt is 1>>
+		<<if wornSetupClothes("under_lower").skirt is 1>>
 			You pull aside your $worn.lower.name and lift the hem of your $worn.under_lower.name, <span class="lewd">baring your <<genitals>>.</span>
 		<<elseif _underOutfit>>
 			You pull aside your $worn.lower.name and $worn.under_lower.name, <span class="lewd">baring your <<genitals>>.</span>
@@ -3862,7 +3836,7 @@
 			You pull aside your $worn.lower.name, <span class="lewd">baring your <<genitals>>.</span>
 		<</if>>
 	<<elseif !$worn.lower.type.includes("naked")>>
-		<<if setup.clothes.under_lower[clothesIndex('under_lower', $worn.under_lower)].skirt is 1>>
+		<<if wornSetupClothes("under_lower").skirt is 1>>
 			You tug down your $worn.lower.name and lift the hem of your $worn.under_lower.name, <span class="lewd">baring your <<genitals>>.</span>
 		<<elseif _middleOutfit>>
 			You tug down your $worn.lower.name and pull aside your $worn.under_lower.name, <span class="lewd">baring your <<genitals>>.</span>
@@ -3872,7 +3846,7 @@
 			You tug down your $worn.lower.name, <span class="lewd">baring your <<genitals>>.</span>
 		<</if>>
 	<<else>>
-		<<if setup.clothes.under_lower[clothesIndex('under_lower', $worn.under_lower)].skirt is 1>>
+		<<if wornSetupClothes("under_lower").skirt is 1>>
 			You lift the hem of your $worn.under_lower.name, <span class="lewd">baring your <<genitals>>.</span>
 		<<elseif _underOutfit>>
 			You pull aside your $worn.under_lower.name, <span class="lewd">baring your <<genitals>>.</span>
@@ -3897,7 +3871,7 @@
 
 <<widget "pulldown">>
 	<<outfitChecks>>
-	<<if setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1>>
+	<<if wornSetupClothes("lower").skirt is 1>>
 		lift up
 	<<elseif _middleOutfit is false>>
 		pull down
@@ -3919,7 +3893,7 @@
 
 <<widget "pullsdown">>
 	<<outfitChecks>>
-	<<if setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1>>
+	<<if wornSetupClothes("lower").skirt is 1>>
 		lifts up
 	<<elseif _middleOutfit is false>>
 		pulls down
@@ -3941,7 +3915,7 @@
 
 <<widget "overpulldown">>
 	<<outfitChecks>>
-	<<if setup.clothes.over_lower[clothesIndex('over_lower', $worn.over_lower)].skirt is 1>>
+	<<if wornSetupClothes("over_lower").skirt is 1>>
 		lift up
 	<<elseif _overOutfit is false>>
 		pull down
@@ -3963,7 +3937,7 @@
 
 <<widget "overpullsdown">>
 	<<outfitChecks>>
-	<<if setup.clothes.over_lower[clothesIndex('over_lower', $worn.over_lower)].skirt is 1>>
+	<<if wornSetupClothes("over_lower").skirt is 1>>
 		lifts up
 	<<elseif _overOutfit is false>>
 		pulls down
@@ -4195,6 +4169,12 @@
 	<</if>>
 <</widget>>
 
+<<widget "bear">>
+	<<if $statdisable is "f">> |
+		<span class="blue">Bear</span>
+	<</if>>
+<</widget>>
+
 <<widget "harpy">>
 	<<if $statdisable is "f">> |
 		<<if $hallucinations gte 2 or $bestialitydisable is "t">>
@@ -4260,7 +4240,7 @@
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "skincolourtext">>
-	<<switch $skinColor.natural>>
+	<<switch Skin.color.natural>>
 		<<case "light" "ylight">>
 			light
 		<<case "medium" "ymedium">>
@@ -4271,18 +4251,18 @@
 			<<set _textOverride to true>>
 	<</switch>>
 	<<if _textOverride is true>>
-		<<if $skinColor.tanValues[0] gte 66>>
+		<<if Skin.color.tan gte 66>>
 			dark
-		<<elseif $skinColor.tanValues[0] gte 33>>
+		<<elseif Skin.color.tan gte 33>>
 			medium
 		<<else>>
 			light
 		<</if>>
 		skin colour.
-	<<elseif $skinColor.tanValues[0] gte 80>> skin colour with a dark tan.
-	<<elseif $skinColor.tanValues[0] gte 60>> skin colour with a medium tan.
-	<<elseif $skinColor.tanValues[0] gte 30>> skin colour with a tan.
-	<<elseif $skinColor.tanValues[0] gte 10>> skin colour with a light tan.
+	<<elseif Skin.color.tan gte 80>> skin colour with a dark tan.
+	<<elseif Skin.color.tan gte 60>> skin colour with a medium tan.
+	<<elseif Skin.color.tan gte 30>> skin colour with a tan.
+	<<elseif Skin.color.tan gte 10>> skin colour with a light tan.
 	<<else>> skin colour.
 	<</if>>
 <</widget>>
@@ -4542,6 +4522,8 @@
 					<<set _text_output to "mewl">>
 				<<elseif $cow gte 4>>
 					<<set _text_output to "moo">>
+				<<elseif $bear gte 4>>
+					<<set _text_output to "yelp">>
 				<<elseif $harpy gte 4>>
 					<<set _text_output to "chirp">>
 				<<elseif $fox gte 4>>
@@ -4577,6 +4559,8 @@
 				<<set _text_output to "purr">>
 			<<elseif $cow gte 4>>
 				<<set _text_output to "moo">>
+			<<elseif $bear gte 4>>
+				<<set _text_output to "purr">>
 			<<elseif $harpy gte 4>>
 				<<set _text_output to "chirp">>
 			<<elseif $fox gte 4>>
@@ -4596,6 +4580,8 @@
 					<<set _text_output to "hiss">>
 				<<elseif $cow gte 4>>
 					<<set _text_output to "exhale through your nostrils threateningly">>
+				<<elseif $bear gte 4>>
+					<<set _text_output to "growl">>
 				<<elseif $harpy gte 4>>
 					<<set _text_output to "screech">>
 				<<elseif $fox gte 4>>
@@ -5119,7 +5105,7 @@
 
 <<widget "dress">>
 	<<if $worn.upper.set is $worn.lower.set>>
-		<<if setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1>>
+		<<if wornSetupClothes("lower").skirt is 1>>
 			<<set _text_output to "dress">>
 		<<else>>
 			<<set _text_output to "clothes">>
@@ -5132,13 +5118,13 @@
 
 <<widget "skirt">>
 	<<if $worn.upper.set is $worn.lower.set>>
-		<<if setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1>>
+		<<if wornSetupClothes("lower").skirt is 1>>
 			<<set _text_output to "dress">>
 		<<else>>
 			<<set _text_output to "clothes">>
 		<</if>>
 	<<else>>
-		<<if setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1>>
+		<<if wornSetupClothes("lower").skirt is 1>>
 			<<set _text_output to "skirt">>
 		<<else>>
 			<<set _text_output to "bottoms">>
@@ -5151,7 +5137,7 @@
 	<<if $worn.under_upper.set is $worn.under_lower.set>>
 		<<set _text_output to "underclothes">>
 	<<else>>
-		<<if setup.clothes.under_lower[clothesIndex('under_lower', $worn.under_lower)].skirt is 1>>
+		<<if wornSetupClothes("under_lower").skirt is 1>>
 			<<set _text_output to "skirt">>
 		<<else>>
 			<<if $worn.under_lower.gender is "f">>
@@ -5172,7 +5158,7 @@
 	<<if $worn.under_upper.set is $worn.under_lower.set>>
 		<<set _text_output to "underclothes">>
 	<<else>>
-		<<if $worn.under_upper.gender is "f" and setup.clothes.under_upper[clothesIndex('under_upper', $worn.under_upper)].state_base is "midriff">>
+		<<if $worn.under_upper.gender is "f" and wornSetupClothes("under_upper").state_base is "midriff">>
 			<<set _text_output to "bra">>
 		<<else>>
 			<<set _text_output to "top">>
@@ -5763,6 +5749,26 @@ Argument 2, where appropriate, determines whether it's the player undressing the
 	<</if>>
 <</widget>>
 
+<<widget "penisAddictTrait">>
+	<<if $statdisable is "f">> |
+		<<if $submissive lte 850>>
+			<span class="lewd">Cock Enthusiast</span>
+		<<else>>
+			<span class="lewd">Cock Addict</span>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "holeAddictTrait">>
+	<<if $statdisable is "f">> |
+		<<if $submissive lte 850>>
+			<span class="lewd">Hole Enthusiast</span>
+		<<else>>
+			<span class="lewd">Hole Addict</span>
+		<</if>>
+	<</if>>
+<</widget>>
+
 <<widget "chokeTrait">>
 	<<if $statdisable is "f">> |
 		<span class="lewd">Asphyxiophilia</span>
@@ -5883,3 +5889,34 @@ Argument 2, where appropriate, determines whether it's the player undressing the
 		<</if>>
 	<</if>>
 <</silently>><<print _text_output>><</widget>>
+
+<<widget "fadeText">>
+	<span class="originalText fade-out">_args[0]</span>
+	<span class="changedText" hidden="">_args[1]</span>
+	<<set _delay to (_delay ? _delay : []).concat(_args[2] ? _args[2] : 1)>>
+
+	<<script>>
+		T.currentPassage = State.passage;
+
+		$(document).one(':passageend', function(ev) {
+			const originalTargets = [...document.getElementsByClassName('originalText')];
+			const changedTargets = [...document.getElementsByClassName('changedText')];
+
+			originalTargets.forEach((ele, index) => {
+				if (ele instanceof HTMLElement) {
+					setTimeout(() => {
+						if (State.passage === T.currentPassage) {
+							ele.remove();
+							changedTargets[index].hidden = false;
+							changedTargets[index].classList.add('fade-in')
+						}
+					}, T.delay[index] * 1000);
+
+					ele.addEventListener('animationend', function() {
+						ele.style.opacity = '0';
+					});
+				}
+			});
+		});
+	<</script>>
+<</widget>>

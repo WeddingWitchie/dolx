@@ -74,13 +74,27 @@
 	<<if $pubbooze is "herbal">>
 		<<wearProp "beermug">>
 		<<set $pubbooze to 0>>
-		<<if random(0,100) lt 10 and playerMayBeSpiked()>><<xchange-random-spike>><<xchange-seen 6>><</if>>
-		The bartender pours a glass of a locally produced spirit. The pub seems more colourful after drinking it.
+		The bartender pours a glass of a locally produced spirit. You take a good swig, and down it one gulp. The taste is bitter, but fuzzy, and makes your head feel a bit lighter. The pub seems more colourful after drinking it.
+		<<if random(0,100) lt 10 and playerMayBeSpiked()>>
+			<br><br>
+			However, as the heat from the alcohol reaches your belly, your body rearranges itself perceptibly under the watchful gaze of everyone present at the pub. You don't know who's responsible, but still... <span class="pink">You've been spiked.</span>
+			<<xchange-random-spike "suppress">>
+			<<xchange-seen 6>>
+			<<drugs 200>>
+			<<set $pub_tf to 1>>
+		<</if>>
 	<<elseif $pubbooze is "booze">>
 		<<wearProp "beermug">>
 		<<set $pubbooze to 0>>
-		<<if random(0,100) lt 10 and playerMayBeSpiked()>><<xchange-random-spike>><<xchange-seen 6>><</if>>
-		The bartender pours a glass of a cheap and popular beverage.
+		The bartender pours a glass of a cheap and popular beverage, and then presents it to you. You take a good swig, and down it one gulp. The taste is bitter, but fuzzy, and makes your head feel a bit lighter.
+		<<if random(0,100) lt 10 and playerMayBeSpiked()>>
+			<br><br>
+			However, as the heat from the alcohol reaches your belly, your body rearranges itself perceptibly under the watchful gaze of everyone present at the pub. You don't know who's responsible, but still... <span class="pink">You've been spiked.</span>
+			<<xchange-random-spike "suppress">>
+			<<xchange-seen 6>>
+			<<drugs 200>>
+			<<set $pub_tf to 1>>
+		<</if>>
 	<<else>>
 		You enter the pub. It's busy as always.
 	<</if>>
@@ -88,6 +102,7 @@
 		<<orgasmLocation "pub">>
 	<</if>>
 	<br><br>
+	<<rng>>
 	<<if $averyPub is 1 and (Time.dayState is "day" or Time.dayState is "dusk")>>
 		<<npc Avery>><<person1>>
 		<<loadNPC 1 avery_sidepiece>><<person2>>
@@ -134,6 +149,8 @@
 		<br>
 		<<link [[Go with them|Pub Accost]]>><<set $phase to 1>><</link>>
 		<br>
+	<<elseif $pub_tf or ($xchange.pubtimer lte 0 and $attractiveness / 50 gte $rng and ($player.gender_appearance is "f" or $xchange.disregardGender))>>
+		<<pubapproach>>
 	<<else>>
 		<<askicon>><<link [[Ask for Landry|Pub Landry]]>><<endevent>><</link>>
 		<br>
@@ -150,6 +167,8 @@
 				<br>
 			<</if>>
 		<</if>>
+		<<loitericon>><<link [[Loiter (0:10)|Pub]]>><<pass 10>><</link>>
+		<br>
 		<<if $farm>>
 			<<if $farm.tower gte 1 and !$farm.tower_guard and $farm.tower_guard_can_hire>>
 				<<investigateicon>><<link [[Look for a guard for your farm (0:30)|Pub Guard]]>><<endevent>><<pass 30>><</link>>
@@ -278,8 +297,8 @@ You put the money on the table. Landry swaps it with a small canister.
 	You put the goods on the table. Landry appraises them with the relaxed demeanour of someone accustomed to their work. "This is quite the haul, I hope you haven't bitten off more than you can chew. You know where to find me if you need help covering your tracks."
 	<br><br>
 <</if>>
-You make <<printmoney `$blackmoney * 100 * (1 + ($mathstrait/4))`>>.
-<<set $money += $blackmoney * 100 * (1 + ($mathstrait/4))>><<set $blackmoney to 0>>
+You make <<if $mathsTraitBuffs.stolen is 1>><<printmoney `$blackmoney * 100 * (1 + ($mathstrait/4))`>><<else>><<printmoney `$blackmoney * 100`>><</if>>.
+<<if $mathsTraitBuffs.stolen is 1>><<set $money += $blackmoney * 100 * (1 + ($mathstrait/4))>><<else>><<set $money += $blackmoney * 100>><</if>><<set $blackmoney to 0>>
 <br><br>
 <<getouticon>><<link [[Pub]]>><<endevent>><</link>>
 <br>
@@ -616,7 +635,7 @@ You scan the room for anything you can cover up with.
 		Your efforts are cut short by an approaching <<person>>. You pull your head back in as <<he>> loads the trolley with dirty dishes. Miraculously, <<he>> doesn't notice you.
 		<br><br>
 
-		A bundle of cleaning rags land in your lap. They smell of whiskey, but they're better than nothing. You wrap them around your body and sneak to safety.
+		A bundle of cleaning rags land in your lap. They smell of whisky, but they're better than nothing. You wrap them around your body and sneak to safety.
 		<<towelup>>
 		<br><br>
 
@@ -708,7 +727,7 @@ They can't tell you're exposed from behind the bar, but you'll look suspicious i
 <br>
 
 :: Pub Exposed Bar Serve
-<<set $outside to 0>><<set $location to "pub">><<effects>>
+<<set $outside to 0>><<set $location to "pub">><<effects>><<wearProp "tray">>
 
 <<if $player.gender_appearance is "f" and $worn.upper.exposed gte 2 and $worn.under_upper.exposed gte 1>>
 	You top off a tray of drinks, holding it to your chest as you make your way over. The froth ought to hide your <<breasts>>. You hope.

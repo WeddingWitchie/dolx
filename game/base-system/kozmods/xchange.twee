@@ -2,6 +2,7 @@
 
 <<widget "become-girl">>
 	<<wash>>
+	<<set $facestyle to ["default","fem"].random()>>
 	<<set $player.gender_body to "f">>
 
 	<<if $player.gender !== "f" && Object.keys($xchangePill.changedBody).length gt 0>>
@@ -31,27 +32,29 @@
 		<<set $penisgrowthtimer to 500>>
 		<<set $bottomgrowthtimer to 500>>
 		<<set $breastgrowthtimer to 500>>
-		<<set $fame to {
-			bestiality: 0,
-			business: 0,
-			exhibitionism: 0,
-			good: 0,
-			impreg: 0,
-			model: 0,
-			pimp: 0,
-			pregnancy: 0,
-			prostitution: 0,
-			rape: 0,
-			scrap: 0,
-			sex: 0,
-			social: 0,
-		}>>
-		<<set $cool to 120>>
-		<<set $crime to {}>>
-		<<for _cr range Object.keys(setup.crimeNames)>>
-			<<set $crime[_cr] to {current: 0, history: 0, daily: 0, count: 0, countHistory: 0}>>
-		<</for>>
-		<<set $crime.events to {}>>
+		<<if !$xchangeFameMerged>>
+			<<set $fame to  {
+				bestiality: 0,
+				business: 0,
+				exhibitionism: 0,
+				good: 0,
+				impreg: 0,
+				model: 0,
+				pimp: 0,
+				pregnancy: 0,
+				prostitution: 0,
+				rape: 0,
+				scrap: 0,
+				sex: 0,
+				social: 0,
+			}>>
+			<<set $cool to 120>>
+			<<set $crime to {}>>
+			<<for _cr range Object.keys(setup.crimeNames)>>
+				<<set $crime[_cr] to {current: 0, history: 0, daily: 0, count: 0, countHistory: 0}>>
+			<</for>>
+			<<set $crime.events to {}>>
+		<</if>>
 
 		<<clamp>>
 		<<calchairlengthstage>>
@@ -74,6 +77,7 @@
 
 <<widget "become-boy">>
 	<<wash>>
+	<<set $facestyle to "masc">>
 	<<set $player.gender_body to "m">>
 
 	<<if $player.gender !== "m" && Object.keys($xchangePill.changedBody).length gt 0>>
@@ -102,27 +106,29 @@
 		<<set $penisgrowthtimer to 500>>
 		<<set $bottomgrowthtimer to 500>>
 		<<set $breastgrowthtimer to 500>>
-		<<set $fame to {
-			bestiality: 0,
-			business: 0,
-			exhibitionism: 0,
-			good: 0,
-			impreg: 0,
-			model: 0,
-			pimp: 0,
-			pregnancy: 0,
-			prostitution: 0,
-			rape: 0,
-			scrap: 0,
-			sex: 0,
-			social: 0,
-		}>>
-		<<set $cool to 120>>
-		<<set $crime to {}>>
-		<<for _cr range Object.keys(setup.crimeNames)>>
-			<<set $crime[_cr] to {current: 0, history: 0, daily: 0, count: 0, countHistory: 0}>>
-		<</for>>
-		<<set $crime.events to {}>>
+		<<if !$xchangeFameMerged>>
+			<<set $fame to  {
+				bestiality: 0,
+				business: 0,
+				exhibitionism: 0,
+				good: 0,
+				impreg: 0,
+				model: 0,
+				pimp: 0,
+				pregnancy: 0,
+				prostitution: 0,
+				rape: 0,
+				scrap: 0,
+				sex: 0,
+				social: 0,
+			}>>
+			<<set $cool to 120>>
+			<<set $crime to {}>>
+			<<for _cr range Object.keys(setup.crimeNames)>>
+				<<set $crime[_cr] to {current: 0, history: 0, daily: 0, count: 0, countHistory: 0}>>
+			<</for>>
+			<<set $crime.events to {}>>
+		<</if>>
 
 		<<clamp>>
 		<<calchairlengthstage>>
@@ -149,6 +155,7 @@
 
 	<<set _savedbody to {
 		bodysize: $bodysize,
+		facestyle: $facestyle,
 		gender_body: $player.gender_body,
 		breastsize: $player.breastsize,
 		bottomsize: $player.bottomsize,
@@ -198,6 +205,7 @@
 	<</if>>
 
 	<<set $bodysize to _body.bodysize>>
+	<<set $facestyle to _body.facestyle>>
 	<<set $player.gender_body to _body.gender_body>>
 	<<set $player.breastsize to _body.breastsize>>
 	<<set $player.bottomsize to _body.bottomsize>>
@@ -262,10 +270,14 @@
 			sex: 			Math.max(_ogFame.sex, _newFame.sex),
 			social: 		Math.max(_ogFame.social, _newFame.social),
 		}>>
+		<<set $xchangePill.originalBody.fame to $fame>>
+		<<set $xchangePill.changedBody.fame to $fame>>
 
 		<<set _ogCool to $xchangePill.originalBody.cool>>
 		<<set _newCool to $xchangePill.changedBody.cool>>
 		<<set $cool to (_ogCool + _newCool) / 2>>
+		<<set $xchangePill.originalBody.cool to $cool>>
+		<<set $xchangePill.changedBody.cool to $cool>>
 
 		<<set _ogCrime = $xchangePill.originalBody.crime>>
 		<<set _newCrime = $xchangePill.changedBody.crime>>
@@ -279,6 +291,9 @@
 				countHistory: 	_ogCrime[_cr].countHistory + _newCrime[_cr].countHistory}>>
 		<</for>>
 		<<set $crime.events to {...(_ogCrime.events), ...(_newCrime.events)}>>
+		<<set $xchangePill.originalBody.crime to $crime>>
+		<<set $xchangePill.changedBody.crime to $crime>>
+
 		<<set $xchangeFameMerged to true>>
 	<</if>>
 
@@ -294,23 +309,37 @@
 	<<set $xchangePill.breederEffect to false>>
 	<<set $xchangePill.resistanceEffect to false>>
 	<<set $xchangePill.continueEffect to false>>
+	<<set $xchangePill.passionEffect to false>>
+	<<set $xchangePill.portalEffect to false>>
+	<<set $xchangePill.portalEffectTimer to 0>>
 
-	<<for _arg range _args[1]>>
-		<<switch _arg>>
-		<<case "resistance">>
-			<<set $xchangePill.resistanceEffect to true>>
-			<<set $xchangePill.resistanceChance to 100>>
-		<<case "continue">>
-			<<set $xchangePill.continueEffect to true>>
-		<<case "fertile">>
-			<<set $xchangePill.fertile to true>>
-		<<case "breeder">>
-			<<set $xchangePill.breederEffect to true>>
-		<<case "spike" "unknown">>
-			<<set $xchangePill.effectsKnown to false>>
-		<<default>>
-		<</switch>>
+	<<for _effect range _args[1]>>
+		<<xchange-addeffect _effect>>
 	<</for>>
+<</widget>>
+
+<<widget "xchange-addeffect">>
+	<<switch _args[0]>>
+	<<case "resistance">>
+		<<set $xchangePill.resistanceEffect to true>>
+		<<set $xchangePill.resistanceChance to 100>>
+	<<case "continue">>
+		<<set $xchangePill.continueEffect to true>>
+	<<case "fertile">>
+		<<set $xchangePill.fertile to true>>
+	<<case "breeder">>
+		<<set $xchangePill.breederEffect to true>>
+	<<case "portal">>
+		<<if $portalPantiesEnabled>>
+			<<set $xchangePill.portalEffect to true>>
+			<<set $xchangePill.portalEffectTimer to _args[1] * 24 - 1>>
+		<</if>>
+	<<case "passion">>
+		<<set $xchangePill.passionEffect to true>>
+	<<case "spike" "unknown">>
+		<<set $xchangePill.effectsKnown to false>>
+	<<default>>
+	<</switch>>
 <</widget>>
 
 <<widget "xchange-pink">>
@@ -328,6 +357,9 @@
 		<<save-body>>
 		<<become-girl _args.slice(1)>>
 		<<exposedcheck>>
+
+		<<if $xchange.blackmail.intro>><<set $xchange.blackmail.hasGenderswapped to true>><</if>>
+		<<if $xchange.blackmail.activeQuest>><<set $xchange.blackmail.hasGenderswappedRecently to true>><</if>>
 	<</if>>
 <</widget>>
 
@@ -346,11 +378,17 @@
 		<<save-body>>
 		<<become-boy>>
 		<<exposedcheck>>
+
+		<<if $xchange.blackmail.intro>><<set $xchange.blackmail.hasGenderswapped to true>><</if>>
+		<<if $xchange.blackmail.activeQuest>><<set $xchange.blackmail.hasGenderswappedRecently to true>><</if>>
 	<</if>>
 <</widget>>
 
 <<widget "xchange-restore">>
 	<<set $xchangePill.active to false>>
+	<<set $xchangePill.portalEffect to false>>
+	<<set $xchangePill.portalEffectTimer to 0>>
+	<<set $xchangePill.passionEffect to false>>
 
 	<<if _args[0] isnot "nosave">>
 		<<save-body "genderswapped">>
@@ -416,6 +454,20 @@
 	<</if>>
 <</widget>>
 
+<<widget "fame-propagate">>
+	<!-- Usage: <<fame 10 "scrap" "good">>. Raises fames regardless of mask, gloryhole, etc. -->
+	<<if _args.length gte 2 and $statFreeze isnot true>>
+		<<set [$_gain, ...($_fameTypes)] to _args>> <!-- remove first element of array since it's the number -->
+		<<if Object.keys($xchangePill.changedBody).length gt 0>>
+			<<run $_fameTypes.forEach(fameType => $xchangePill.changedBody.fame[fameType] += $_gain)>> <!-- add the specified amount to each specified fame type -->
+		<</if>>
+		<<if Object.keys($xchangePill.originalBody).length gt 0>>
+			<<run $_fameTypes.forEach(fameType => $xchangePill.originalBody.fame[fameType] += $_gain)>> <!-- add the specified amount to each specified fame type -->
+		<</if>>
+		<<fameclamp>>
+	<</if>>
+<</widget>>
+
 <<widget "xchange-fame">>
 	<<if _args[0] and $statFreeze isnot true>>
 		<<if playerIsXChanged() and $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole>>
@@ -437,9 +489,19 @@
 
 <<widget "xchange-random-spike">>
 	<<if playerMayBeSpiked()>>
-		<<rng>>
 		<<if $player.gender is "m">>
-			<<if $rng lte 10>>
+			<<rng>><<xchange-pink 1 "spike">>
+			<<set _effectPool to [
+				"none","none","none","none","none","none","none",
+				"breeder","breeder",
+				"continue","continue","continue",
+				"resistance","resistance","resistance",
+			]>>
+			<<xchange-addeffect _effectPool.random()>>
+			<<rng>><<if $rng gt 85>><<xchange-addeffect "fertile">><</if>>
+			<<rng>><<if $rng gt 90>><<xchange-addeffect "passion">><</if>>
+			<<rng>><<if $rng gt 50>><<xchange-addeffect "portal" 1>><</if>>
+			/* <<if $rng lte 10>>
 				<<xchange-pink 1 "breeder" "spike">>
 			<<elseif $rng lte 15>>
 				<<xchange-pink 1 "breeder" "fertile" "spike">>
@@ -447,21 +509,42 @@
 				<<xchange-pink 1 "continue" "spike">>
 			<<elseif $rng lte 55>>
 				<<xchange-pink 1 "resistance" "spike">>
+			<<elseif $rng lte 70 and $portalPantiesEnabled>>
+				<<xchange-pink 1 "portal" "spike">>
 			<<else>>
 				<<xchange-pink 1 "spike">>
-			<</if>>
+			<</if>> */
 		<<elseif $player.gender is "f">>
-			<<if $rng lte 20>>
+			<<xchange-blue 1 "spike">>
+			<<set _effectPool to [
+				"none","none","none","none","none","none","none",
+				"continue","continue","continue",
+				"resistance","resistance","resistance",
+			]>>
+			<<xchange-addeffect _effectPool.random()>>
+			<<rng>><<if $rng gt 90>><<xchange-addeffect "passion">><</if>>
+			<<rng>><<if $rng gt 50>><<xchange-addeffect "portal" 1>><</if>>
+			/* <<if $rng lte 20>>
 				<<xchange-blue 1 "continue" "spike">>
 			<<elseif $rng lte 40>>
 				<<xchange-blue 1 "resistance" "spike">>
 			<<else>>
 				<<xchange-blue 1 "spike">>
-			<</if>>
+			<</if>> */
 		<</if>>
 		<<if _args[0] isnot "suppress">>
 			<span class="pink">You got spiked with an unknown pill.</span>
 			<br><br>
+		<</if>>
+	<<elseif $portalPantiesEnabled>>
+		<<rng>>
+		<<if $rng gt 50>>
+			<<xchange-addeffect "portal" 1>>
+			<<xchange-addeffect "spike">>
+			<<if _args[0] isnot "suppress">>
+				<span class="pink">Your crotch is feeling oddly breezy.</span>
+				<br><br>
+			<</if>>
 		<</if>>
 	<</if>>
 <</widget>>
@@ -487,9 +570,17 @@
 	<<set $xchangePill.testPending to false>>
 	The display indicates that, you're under the following effects:
 	<ul>
-		<<if $xchangePill.continueEffect>><li>Continue Effect.</li><</if>>
-		<<if $xchangePill.resistanceEffect>><li>Resistance Effect.</li><</if>>
-		<<if $xchangePill.breederEffect>><li>Breeder Effect.</li><</if>>
+		<<if $xchangePill.continueEffect>><li>Continue Effect.
+			<mouse class="tooltip linkBlue">(?)<span>Extends its duration every time you climax.</span></mouse></li><</if>>
+		<<if $xchangePill.resistanceEffect>><li>Resistance Effect.
+			<mouse class="tooltip linkBlue">(?)<span>Less likely to expire after its full lapse with each orgasm.</span></mouse></li><</if>>
+		<<if $xchangePill.breederEffect>><li>Breeder Effect.
+			<mouse class="tooltip linkBlue">(?)<span>Enhances your fertility. Triggers orgasms upon insemination. And dimishes stress while sperm remains inside the vagina.</span></mouse>
+		</li><</if>>
+		<<if $xchangePill.passionEffect>><li>Passion Effect.
+			<mouse class="tooltip linkBlue">(?)<span>Steadily dissolves aphrodisiacs into your bloodstream at an hourly rate.</span></mouse></li><</if>>
+		<<if $xchangePill.portalEffect>><li>Portal Effect: <span class="teal"><<print-portalduration>></span> remaining.
+			<mouse class="tooltip linkBlue">(?)<span>Allows random NPCs to fuck you remotely, regardless of your consent.</span></mouse></li><</if>>
 		<<if $xchangePill.clone isnot "none">><li>Clone '<<print $xchangePill.clone>>' Effect.</li><</if>>
 		<<if $xchangePill.fertile>><li>You can become pregnant.</li><</if>>
 		<li>Duration: 
@@ -513,6 +604,19 @@
 	<</if>>
 <</widget>>
 
+<<widget "print-portalduration">>
+	<<set _duration to Math.min($xchangePill.duration, $xchangePill.portalEffectTimer)>>
+	<<if _duration gte 36>>
+		<<print (Math.ceil(_duration/24))>> days
+	<<elseif _duration gte 24>>
+		1 day
+	<<elseif _duration gte 1>>
+		<<print (_duration)>> hours
+	<<else>>
+		1 hour
+	<</if>>
+<</widget>>
+
 <<widget "currentSexSidebar">>
 	<div id="bodysex-sidebar" class="bodysex-sidebar">
 		<<if $player.sex is "f">>
@@ -529,9 +633,17 @@
 	<<if $xchangePill.effectsKnown>>
 		You're under a pill with the following effects: 
 		<ul>
-			<<if $xchangePill.continueEffect>><li>Continue Effect.</li><</if>>
-			<<if $xchangePill.resistanceEffect>><li>Resistance Effect.</li><</if>>
-			<<if $xchangePill.breederEffect>><li>Breeder Effect.</li><</if>>
+			<<if $xchangePill.continueEffect>><li>Continue Effect.
+				<mouse class="tooltip linkBlue">(?)<span>Extends its duration every time you climax.</span></mouse></li><</if>>
+			<<if $xchangePill.resistanceEffect>><li>Resistance Effect.
+				<mouse class="tooltip linkBlue">(?)<span>Less likely to expire after its full lapse with each orgasm.</span></mouse></li><</if>>
+			<<if $xchangePill.breederEffect>><li>Breeder Effect.
+				<mouse class="tooltip linkBlue">(?)<span>Enhances your fertility. Triggers orgasms upon insemination. And dimishes stress while sperm remains inside the vagina.</span></mouse>
+			</li><</if>>
+			<<if $xchangePill.passionEffect>><li>Passion Effect.
+				<mouse class="tooltip linkBlue">(?)<span>Steadily dissolves aphrodisiacs into your bloodstream at an hourly rate.</span></mouse></li><</if>>
+			<<if $xchangePill.portalEffect>><li>Portal Effect: <span class="teal"><<print-portalduration>></span> remaining.
+				<mouse class="tooltip linkBlue">(?)<span>Allows random NPCs to fuck you remotely, regardless of your consent.</span></mouse></li><</if>>
 			<<if $xchangePill.clone isnot "none">><li>Clone '<<print $xchangePill.clone>>' Effect.</li><</if>>
 			<<if $xchangePill.fertile>><li>You can become pregnant.</li><</if>>
 			<li>Duration: 
@@ -556,7 +668,9 @@
 <</widget>>
 
 <<widget "arousal-moan">>
-	<<if $player.sex is "f" and _gain*_mod gte 400 and _arousalPart gt 1>>
+	<<set _gain to _args[0]>>
+	<<set _sensitivity to _args[1]>>
+	<<if $player.sex is "f" and _gain gte 400 and _sensitivity gt 1>>
 		<<if $arousal lt $arousalmax * 0.2 and $orgasmcurrent lt 1>>
 		<<elseif $arousal lt $arousalmax * 0.4 and $orgasmcurrent lt 1>>
 			<<switch $speechcycle>>

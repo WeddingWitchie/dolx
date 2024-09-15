@@ -167,12 +167,13 @@ function getCustomColourStyle(type, valueOnly = false) {
 window.getCustomColourStyle = getCustomColourStyle;
 
 function saveCustomColourPreset(slot = "primary") {
-	const setName = prompt("Enter new colour preset name", "New preset");
+	// const setName = prompt("Enter new colour preset name", "New preset");
+	const setName = T.preset_choice[slot];
 	if (setName != null) {
-		if (Object.keys(V.customColors.presets).includes(setName)) {
-			alert("Preset '" + setName + "' already exists!");
-			return;
-		}
+		// if (Object.keys(V.customColors.presets).includes(setName)) {
+		// 	alert("Preset '" + setName + "' already exists!");
+		// 	return;
+		// }
 
 		V.customColors.presets[setName] = {
 			ver: 3,

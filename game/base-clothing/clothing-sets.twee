@@ -92,11 +92,19 @@
 	<<if $earSlime.alwaysSleepNaked is false>>
 		<<for _index, $_outfit range $outfit>>
 			<<if $_outfit.type.includes("sleep")>>
-				<<set _bed to Furniture.get('bed')>>
-				<<if _bed is undefined or _bed is null>>
-					<<set _bed to Furniture.get('bed','bed')>>
+				<<if _passage is "Bed">>
+					<<set _bed to Furniture.get('bed')>>
+					<<if _bed is undefined or _bed is null>>
+						<<set _bed to Furniture.get('bed','bed')>>
+					<</if>>
+					<<furnitureicon _bed.iconFile>>
+				<<elseif _passage is "Prison Bed">>
+					<<prisonicon "bed">>
+				<<elseif _passage is "Asylum Bed">>
+					<<bedicon "hospital">>
+				<<else>>
+					<<bedicon>>
 				<</if>>
-				<<furnitureicon _bed.iconFile>>
 				<<capture _index>>
 					<<set _outfitname to $_outfit.name + ($_outfit.colors is false ? "" : " [C]")>>
 					<<link [["Wear "+_outfitname+" and climb in bed"|_passage]]>><<set $wear_outfit to _index>><<saveTempHairStyle>><</link>>
@@ -108,6 +116,10 @@
 		<<icon "cross.png" "infront">>
 		<<if _passage is "Bed">>
 			<<furnitureicon _bed.iconFile>>
+		<<elseif _passage is "Prison Bed">>
+			<<prisonicon "bed">>
+		<<elseif _passage is "Asylum Bed">>
+			<<bedicon "hospital">>
 		<<else>>
 			<<bedicon>>
 		<</if>>

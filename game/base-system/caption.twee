@@ -3,7 +3,6 @@
 <<run T.buttons = new window.Tab("overlayButtons", "macro-button-selected")>>
 
 <<if $intro is 0>>
-
 	<<if $options.weatherUpdate && $options.images>>
 		<<skybox>>
 	<<else>>
@@ -25,7 +24,7 @@
 	<</if>>
 	<<combateffects>>
 	<div id="storyCaptionDiv" @class="($extendedStats ? 'statsExtended' : '')">
-		
+
 	<div id="debugWindow"></div>
 	<<if $options.images is 1>>
 		<div id="stats" onclick="extendStats()">
@@ -118,7 +117,6 @@
 		<</if>>
 		<<schoolday>>
 		<br>
-		
 
 		<<caption_clamp>>
 
@@ -263,18 +261,6 @@
 			</div>
 			<br>
 		<</if>>
-		
-		<<if $passage isnot "Start" and $passage isnot "Start2">>
-			<<if $options.sidebarTime is "top">>
-				<<append #mobileStats>><<mobileStatsTime>><</append>>
-			<</if>>
-			<<if $options.sidebarStats isnot "disabled">>
-				<<append #mobileStats>><<mobileStats>><</append>>
-			<</if>>
-			<<if $options.sidebarTime is "bottom">>
-				<<append #mobileStats>><<mobileStatsTime>><</append>>
-			<</if>>
-		<</if>>
 
 		<<if $options.tipdisable is "f" and !$statFreeze>>
 			<span class="gold">Tip:</span> <<tips>>
@@ -315,9 +301,11 @@
 					<<debug>>
 				<</if>>
 			</div>
-			<<button "DOL:XE CREDITS">>
-				<<overlayReplace "DoLPCredits">>
-			<</button>>
+			<div class="no-numberify">
+				<<button "DOL+ CREDITS">>
+					<<overlayReplace "DoLPCredits">>
+				<</button>>
+			</div>
 			<!-- Event debug button - Shows an overlay stored in debug-events.twee. -->
 			<<if $event isnot undefined and $options.debugdisable is "f">>
 				<!-- Default _temp to what we should people regularly if an event active. -->
@@ -354,11 +342,30 @@
 		</div>
 	</div>
 </div>
+	<<if $passage isnot "Start" and $passage isnot "Start2">>
+		<div id="mobileStats">
+			<<if $options.sidebarStats is "all">>
+				<div class="weatherIcon">
+					<<weatherIcon>>
+				</div>
+			<</if>>
+			<<if $options.sidebarTime is "top">>
+				<<mobileStatsTime>>
+			<</if>>
+			<<if $options.sidebarStats isnot "disabled">>
+				<<mobileStats>>
+			<</if>>
+			<<if $options.sidebarTime is "bottom">>
+				<<mobileStatsTime>>
+			<</if>>
+		</div>
+	<</if>>
 <<else>>
+	<<run T.buttons = new window.Tab("startCaption", "macro-button-selected")>>
 	<<if StartConfig.enableImages is true>>
 		<div id="startingPlayerImage" class="hidden"></div>
 	<</if>>
-	<div id="overlayButtons">
+	<div id="startCaption">
 		<<startCaption>>
 	</div>
 <</if>>
@@ -404,7 +411,7 @@
 		<<set $exposedmod to 1>>
 	<</if>>
 
-	<<set $allure to (($beauty / 3) + $hairlength / 4 + $worn.upper.reveal + $worn.lower.reveal + ($arousal / 5))>>
+	<<set $allure to (($beauty / 3) + $hairlength / 4 + $worn.upper.reveal + $worn.lower.reveal)>>
 	<<if $worn.upper.type.includes("naked")>><<set $allure += $worn.under_upper.reveal>><</if>>
 	<<if $worn.lower.type.includes("naked")>><<set $allure += $worn.under_lower.reveal>><</if>>
 	<<set $allure *= $nightmod>>
@@ -416,8 +423,8 @@
 	<<set $allure += $worn.feet.reveal>>
 	<<if ($wolfgirl gte 6 or $transformationParts.wolf.tail is "default" or $transformationParts.wolf.tail is "feral")>><<set $allure += 500>><</if>>
 	<<if ($demon gte 6 or $transformationParts.demon.wings is "default" or $transformationParts.demon.wings is "succubus")>><<set $allure += 500>><</if>>
-	<<if ($angel gte 6 or $transformationParts.angel.wings is "default")>><<set $allure += 500>><</if>>
-	<<if ($fallenangel gte 2 or $transformationParts.fallenAngel.wings is "default")>><<set $allure += 500>><</if>>
+	<<if ($angel gte 6 or $transformationParts.angel.wings is "default" or $transformationParts.angel.wings is "classic")>><<set $allure += 500>><</if>>
+	<<if ($fallenangel gte 2 or $transformationParts.fallenAngel.wings is "default" or $transformationParts.fallenAngel.wings is "classic")>><<set $allure += 500>><</if>>
 	<<if ($cat gte 6 or $transformationParts.cat.tail is "default")>><<set $allure += 500>><</if>>
 	<<if ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black")>><<set $allure += 500>><</if>>
 	<<if ($harpy gte 6 or $transformationParts.bird.wings is "default")>><<set $allure += 500>><</if>>
@@ -429,29 +436,38 @@
 	<<if $makeup.mascara != 0>><<set $allure += 100>><</if>>
 
 	<<if $earSlime.growth gt 50>><<set $allure += ($earSlime.growth - 50) * 10>><</if>>
+	<<set _reputation_mod to 1>>
 	<<if !["island"].includes($location)>>
-		<<set $allure += ($fame.sex / 10)>>
-		<<set $allure += ($fame.prostitution / 10)>>
-		<<set $allure += ($fame.rape / 10)>>
-		<<set $allure += ($fame.bestiality / 10)>>
-		<<set $allure += ($fame.exhibitionism / 10)>>
-		<<set $allure += ($fame.pregnancy / 10)>>
-		<<set $allure += ($fame.impreg / 10)>>
+		<<set _reputation_mod to 0>>
+		<<set _reputation_mod = Math.max(_reputation_mod, $fame.sex * 1.5 / 1000)>>
+		<<set _reputation_mod = Math.max(_reputation_mod, $fame.prostitution * 3 / 1000)>>
+		<<set _reputation_mod = Math.max(_reputation_mod, $fame.rape * 2 / 1000)>>
+		<<set _reputation_mod = Math.max(_reputation_mod, $fame.bestiality * 2 / 1000)>>
+		<<set _reputation_mod = Math.max(_reputation_mod, $fame.exhibitionism / 1000)>>
+		<<set _reputation_mod = Math.max(_reputation_mod, $fame.pregnancy / 1000)>>
+		<<set _reputation_mod = Math.max(_reputation_mod, $fame.impreg / 1000)>>
 
-		<<set $allure -= ($fame.scrap / 2)>>
-		<<set $allure -= ($fame.good / 2)>>
-		<<set $allure -= ($fame.business / 2)>>
-		<<set $allure -= ($fame.social / 2)>>
-		<<set $allure -= ($fame.model / 2)>>
+		<<set _mitigator_mod to 1>>
+		<<set _mitigator_mod *= 1 - ($fame.scrap / 4000)>>
+		<<set _mitigator_mod *= 1 - ($fame.good / 4000)>>
+		<<set _mitigator_mod *= 1 - ($fame.business / 4000)>>
+		<<set _mitigator_mod *= 1 - ($fame.social / 4000)>>
+		<<set _mitigator_mod *= 1 - ($fame.model / 4000)>>
 		<<if $debug is 1>>
-			<<set $allure -= ($fame.pimp / 2)>>
+			<<set _mitigator_mod *= 1 - ($fame.pimp / 4000)>>
 		<</if>>
+		<<set _reputation_mod *= _mitigator_mod>>
 	<</if>>
 	<<if Time.isBloodMoon()>>
 		<<set $allure += 2000>>
 	<</if>>
 	<<set $baseAllure to $allure>>
-	<<set $allure *= $alluremod>>
+	<<set $allure to $baseAllure * $alluremod * 0.05>>
+	<<set $allure += $baseAllure * $alluremod * _reputation_mod * 0.95>>
+	<<set $allure += $arousal / 5>>
+	<<if $hallucinogen >= 1 and $substanceRebalance == 1>>
+		<<set $allure *= 1 + (0.25 * ($hallucinogen / 250))>>
+	<</if>>
 	<<if $allure gte 8000 * $alluremod>><<set $allure to 8000 * $alluremod>><</if>>
 	<<if $moorLuck gt 0>>
 		<<set $allure to Math.floor($allure * (1 - ($moorLuck / 100)))>>
@@ -470,8 +486,8 @@
 	<<set $attractiveness += $worn.feet.reveal>>
 	<<if ($wolfgirl gte 6 or $transformationParts.wolf.tail is "default" or $transformationParts.wolf.tail is "feral")>><<set $attractiveness += 500>><</if>>
 	<<if ($demon gte 6 or $transformationParts.demon.wings is "default" or $transformationParts.demon.wings is "succubus")>><<set $attractiveness += 500>><</if>>
-	<<if ($angel gte 6 or $transformationParts.angel.wings is "default")>><<set $attractiveness += 500>><</if>>
-	<<if ($fallenangel gte 2 or $transformationParts.fallenAngel.wings is "default")>><<set $attractiveness += 500>><</if>>
+	<<if ($angel gte 6 or $transformationParts.angel.wings is "default" or $transformationParts.angel.wings is "classic")>><<set $attractiveness += 500>><</if>>
+	<<if ($fallenangel gte 2 or $transformationParts.fallenAngel.wings is "default" or $transformationParts.fallenAngel.wings is "classic")>><<set $attractiveness += 500>><</if>>
 	<<if ($cat gte 6 or $transformationParts.cat.tail is "default")>><<set $attractiveness += 500>><</if>>
 	<<if ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black")>><<set $attractiveness += 500>><</if>>
 	<<if ($harpy gte 6 or $transformationParts.bird.wings is "default")>><<set $attractiveness += 500>><</if>>
@@ -503,11 +519,7 @@
 					</span>
 				</div>
 				<div>
-					<<if !$options.oldclock>>
-						<<clock>>
-					<<else>>
-						<img class="icon_ui" src="img/ui/icon_time.png">
-					<</if>>
+					<<clock>>
 					<<ampm>>
 				</div>
 				<<if !$extendedStats>>
@@ -533,10 +545,10 @@
 <<widget "startingPlayerImage">>
 	<<set $naturalhaircolour to $hairselect>>
 	<<set _filters to {
-		"body": skinColor("t", $skinColor.range, setup.skinColor[$skinColor.natural]),
-		"breasts": skinColor("t", $skinColor.range, setup.skinColor[$skinColor.natural]),
-		"penis": skinColor("t", $skinColor.range, setup.skinColor[$skinColor.natural]),
-		"mouth": skinColor("t", $skinColor.range, setup.skinColor[$skinColor.natural]),
+		"body": Skin.cssColorFilter(Skin.color.natural),
+		"breasts": Skin.cssColorFilter(Skin.color.natural),
+		"penis": Skin.cssColorFilter(Skin.color.natural),
+		"mouth": Skin.cssColorFilter(Skin.color.natural),
 	}>>
 	<<if $hairlength gte 900>>
 		<<set _hairlengthstage to "feet">>
@@ -569,12 +581,11 @@
 		<<set _clothesType to "female">>
 	<</if>>
 
-	<<if $background is "crossdresser">>
+	<<if $background.crossdresser is true>>
 		<<set _clothesType to (_clothesType is "male" ? "female" : "male")>>
 	<</if>>
 
-	<div id="img" @class="'hair-'+ $hairselect + ' noAnimations'">
-		<<charLight "118px" "187px" "limited">>
+	<div id="startImg" @class="'hair-'+ $hairselect + ' noAnimations'">
 		/*Prep for image checks*/
 		<<switch $player.breastsize>>
 		<<case 12>>
@@ -599,6 +610,11 @@
 		<</if>>
 		<<set _disabled to ["disabled","hidden"]>>
 
+		<<selectmodel "lighting" "sidebar">>
+		<<set _modeloptions.lights.gradient.enabled = false>>
+		<<set _modeloptions.lights.flat.enabled = false>>
+		<<rendermodel "lighting">>
+
 		<<selectmodel "main" "sidebar">> <!-- reuse sidebar cache slot -->
 		<<twinescript>>
 			_modeloptions.body_type = $player.gender_body;
@@ -610,8 +626,8 @@
 				_modeloptions.balls = $player.gender is "h" ? $player.ballsExist : true;
 			}
 
-			_modeloptions.skin_type = $skinColor.natural;
-			_modeloptions.skin_tone = $skinColor.range/100;
+			_modeloptions.skin_type = Skin.color.natural;
+			_modeloptions.skin_tone = Skin.color.tan;
 
 			_modeloptions.hair_colour = $hairselect;
 			_modeloptions.hair_fringe_colour = $hairselect;
@@ -619,9 +635,10 @@
 			_modeloptions.hair_sides_length = _hairlengthstage;
 			_modeloptions.hair_fringe_length = _hairlengthstage;
 
+			_modeloptions.facestyle = $facestyle;
 			_modeloptions.left_eye = $eyeselect;
 			_modeloptions.right_eye = $eyeselect;
-			_modeloptions.mouth = "neutral";
+			_modeloptions.mouth = "smile";
 			_modeloptions.freckles = $player.freckles is true;
 			_modeloptions.toast = _toast is true;
 
@@ -629,35 +646,62 @@
 			_modeloptions.angel_wings_type = $transformationParts.angel.wings;
 			_modeloptions.fallen_wings_type = $transformationParts.fallenAngel.wings;
 
+			_modeloptions.worn =  {};
 			if (_clothesType is "male") {
 				if (_showClothes) {
-					_modeloptions.worn_upper = 4; /* t-shirt */
-					_modeloptions.worn_upper_colour = "tangerine";
-					_modeloptions.worn_lower = 5; /* shorts */
-					_modeloptions.worn_lower_colour = "blue";
-					_modeloptions.worn_legs = 2; /* boysgymsocks */
-					_modeloptions.worn_feet = 1; /* schoolshoes */
+					_modeloptions.worn = {
+						upper: {
+							index: 4, /* t-shirt */
+							colour: "tangerine",
+						},
+						lower: {
+							index: 5, /* shorts */
+							colour: "blue",
+						},
+						legs: {
+							index: 2 /* boysgymsocks */
+						},
+						feet: {
+							index: 1 /* schoolshoes */
+						},
+					};
 				}
 				if (_showUnderwear) {
-					_modeloptions.worn_under_lower = 4; /* briefs */
-					_modeloptions.worn_under_lower_colour = "black";
+					_modeloptions.worn.under_lower = {
+						index: 4, /* briefs */
+						colour: "black",
+					};
 				}
 			} else if (_clothesType is "female") {
 				if (_showClothes) {
-					_modeloptions.worn_upper = 1; /* sundress */
-					_modeloptions.worn_upper_colour = "white";
-					_modeloptions.worn_lower = 1; /* sundress */
-					_modeloptions.worn_lower_colour = "white";
-					_modeloptions.worn_legs = 3; /* girlsgymsocks */
-					_modeloptions.worn_feet = 1; /* schoolshoes */
+					_modeloptions.worn = {
+						upper: {
+							index: 1, /* sundress */
+							colour: "white",
+						},
+						lower: {
+							index: 1, /* sundress */
+							colour: "white",
+						},
+						legs: {
+							index: 3 /* girlsgymsocks */
+						},
+						feet: {
+							index: 1 /* schoolshoes */
+						},
+					};
 				}
 				if (_showUnderwear) {
 					if ($player.breastsize > 3) {
-						_modeloptions.worn_under_upper = 12; /* plainbra */
-						_modeloptions.worn_under_upper_colour = "pale white";
+						_modeloptions.worn.under_upper = {
+							index: 12, /* plainbra */
+							colour: "pale white",
+						};
 					}
-					_modeloptions.worn_under_lower = 1; /* plainpanties */
-					_modeloptions.worn_under_lower_colour = "pale white";
+					_modeloptions.worn.under_lower = {
+						index: 1, /* plainpanties */
+						colour: "pale white",
+					};
 				}
 			}
 			_modeloptions.crotch_visible = !_showClothes && !_showUnderwear;

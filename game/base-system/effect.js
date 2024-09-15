@@ -44,18 +44,18 @@ function effectsWater() {
 			break;
 	}
 	if (!V.worn.upper.type.includes("naked") && !waterproofCheck(V.worn.upper)) {
-		if (V.upperwet >= 100 && V.upperwetstage < 3) {
+		if (V.upperwet >= 100 && V.upperwetstage < 3 && V.worn.upper.fabric_strength < 20 && !antitransparentCheck(V.worn.upper)) {
 			V.upperwetstage = 3;
 			wetIntro = 2;
 			sWikifier(`<span class="lewd">Water soaks through your ${V.worn.upper.name}, exposing your <<undertop>>.</span>`);
-		} else if (V.upperwet < 90 && V.upperwetstage >= 3) {
+		} else if (V.upperwet < 90 && V.upperwetstage >= 3 && V.worn.upper.fabric_strength < 20) {
 			V.upperwetstage = 2;
 			sWikifier(`<span class="green">Your ${V.worn.upper.name} <<upperhas>> dried, concealing your <<undertop>>.</span>`);
-		} else if (V.upperwet >= 80 && V.upperwetstage < 2) {
+		} else if (V.upperwet >= 80 && V.upperwetstage < 2 && V.worn.upper.fabric_strength < 30) {
 			V.upperwetstage = 2;
 			wetIntro = 1;
 			sWikifier(`<span class="purple">Your ${V.worn.upper.name} <<upperplural>> wet.</span>`);
-		} else if (V.upperwet < 70 && V.upperwetstage >= 2) {
+		} else if (V.upperwet < 70 && V.upperwetstage >= 2 && V.worn.upper.fabric_strength < 30) {
 			V.upperwetstage = 1;
 			sWikifier(`<span class="green">Your ${V.worn.upper.name} <<upperplural>> drying out.</span>`);
 		} else if (V.upperwet >= 50 && V.upperwetstage < 1) {
@@ -68,18 +68,18 @@ function effectsWater() {
 	}
 
 	if (!V.worn.lower.type.includes("naked") && !waterproofCheck(V.worn.lower)) {
-		if (V.lowerwet >= 100 && V.lowerwetstage < 3) {
+		if (V.lowerwet >= 100 && V.lowerwetstage < 3 && V.worn.lower.fabric_strength < 20 && !antitransparentCheck(V.worn.lower)) {
 			V.lowerwetstage = 3;
 			wetIntro = 2;
 			sWikifier(`<span class="lewd">Water soaks through your ${V.worn.lower.name}, exposing your <<undies>>.</span>`);
-		} else if (V.lowerwet < 90 && V.lowerwetstage >= 3) {
+		} else if (V.lowerwet < 90 && V.lowerwetstage >= 3 && V.worn.lower.fabric_strength < 20) {
 			V.lowerwetstage = 2;
 			sWikifier(`<span class="green">Your ${V.worn.lower.name} <<lowerhas>> dried, concealing your <<undies>>.</span>`);
-		} else if (V.lowerwet >= 80 && V.lowerwetstage < 2) {
+		} else if (V.lowerwet >= 80 && V.lowerwetstage < 2 && V.worn.lower.fabric_strength < 30) {
 			V.lowerwetstage = 2;
 			wetIntro = 1;
 			sWikifier(`<span class="purple">Your ${V.worn.lower.name} <<lowerplural>> wet.</span>`);
-		} else if (V.lowerwet < 70 && V.lowerwetstage >= 2) {
+		} else if (V.lowerwet < 70 && V.lowerwetstage >= 2 && V.worn.lower.fabric_strength < 30) {
 			V.lowerwetstage = 1;
 			sWikifier(`<span class="green">Your ${V.worn.lower.name} <<lowerplural>> drying out.</span>`);
 		} else if (V.lowerwet >= 50 && V.lowerwetstage < 1) {
@@ -92,31 +92,31 @@ function effectsWater() {
 	}
 
 	if (!V.worn.under_lower.type.includes("naked") && !playerChastity() && !waterproofCheck(V.worn.under_lower)) {
-		if (V.underlowerwet >= 100 && V.underlowerwetstage < 3 && V.pantiesSoaked) {
+		if (V.underlowerwet >= 100 && V.underlowerwetstage < 3 && V.pantiesSoaked && V.worn.under_lower.fabric_strength < 20 && !antitransparentCheck(V.worn.under_lower)) {
 			V.underlowerwetstage = 3;
 			if (V.lowerwetstage === 3 || V.worn.lower.type.includes("naked")) {
 				// If clothing above underwear is also wet, or missing
 				wetIntro = 2;
 				sWikifier(`<span class="lewd">Your bodily fluids soak through your ${V.worn.under_lower.name}, exposing your <<genitals>>.</span>`);
-			} else if (setup.clothes.lower[clothesIndex("lower", V.worn.lower)].skirt === 1) {
+			} else if (wornSetupClothes("lower").skirt === 1) {
 				sWikifier(
 					`<span class="lewd">Your bodily fluids soak through your ${V.worn.under_lower.name}, exposing your <<genitals>> to the air under your $worn.lower.name.</span>`
 				);
 			} else {
 				span(`Your bodily fluids soak through your ${V.worn.under_lower.name}.`, "lewd");
 			}
-		} else if (V.underlowerwet >= 100 && V.underlowerwetstage < 3) {
+		} else if (V.underlowerwet >= 100 && V.underlowerwetstage < 3 && V.worn.under_lower.fabric_strength < 20 && !antitransparentCheck(V.worn.under_lower)) {
 			V.underlowerwetstage = 3;
 			wetIntro = 2;
 			sWikifier(`<span class="lewd">Water soaks through your ${V.worn.under_lower.name}, exposing your <<genitals>>.</span>`);
-		} else if (V.underlowerwet < 90 && V.underlowerwetstage >= 3) {
+		} else if (V.underlowerwet < 90 && V.underlowerwetstage >= 3 && V.worn.under_lower.fabric_strength < 20) {
 			V.underlowerwetstage = 2;
 			sWikifier(`<span class="green">Your ${V.worn.under_lower.name} <<underlowerhas>> dried, concealing your <<genitals>>.</span>`);
-		} else if (V.underlowerwet >= 80 && V.underlowerwetstage < 2) {
+		} else if (V.underlowerwet >= 80 && V.underlowerwetstage < 2 && V.worn.under_lower.fabric_strength < 30) {
 			V.underlowerwetstage = 2;
 			wetIntro = 1;
 			sWikifier(`<span class="purple">Your ${V.worn.under_lower.name} <<underlowerplural>> wet.</span>`);
-		} else if (V.underlowerwet < 70 && V.underlowerwetstage >= 2) {
+		} else if (V.underlowerwet < 70 && V.underlowerwetstage >= 2 && V.worn.under_lower.fabric_strength < 30) {
 			V.underlowerwetstage = 1;
 			sWikifier(`<span class="green">Your ${V.worn.under_lower.name} <<underlowerplural>> drying out.</span>`);
 		} else if (V.underlowerwet >= 50 && V.underlowerwetstage < 1) {
@@ -129,18 +129,18 @@ function effectsWater() {
 	}
 
 	if (!V.worn.under_upper.type.includes("naked") && !V.worn.under_upper.type.includes("chastity") && !waterproofCheck(V.worn.under_upper)) {
-		if (V.underupperwet >= 100 && V.underupperwetstage < 3) {
+		if (V.underupperwet >= 100 && V.underupperwetstage < 3 && V.worn.under_upper.fabric_strength < 20 && !antitransparentCheck(V.worn.under_upper)) {
 			V.underupperwetstage = 3;
 			wetIntro = 2;
 			sWikifier(`<span class="lewd">Water soaks through your ${V.worn.under_upper.name}, exposing your <<breasts>>.</span>`);
-		} else if (V.underupperwet < 90 && V.underupperwetstage >= 3) {
+		} else if (V.underupperwet < 90 && V.underupperwetstage >= 3 && V.worn.under_upper.fabric_strength < 20) {
 			V.underupperwetstage = 2;
 			sWikifier(`<span class="green">Your ${V.worn.under_upper.name} <<underupperhas>> dried, concealing your <<breasts>>.</span>`);
-		} else if (V.underupperwet >= 80 && V.underupperwetstage < 2) {
+		} else if (V.underupperwet >= 80 && V.underupperwetstage < 2 && V.worn.under_upper.fabric_strength < 30) {
 			V.underupperwetstage = 2;
 			wetIntro = 1;
 			sWikifier(`<span class="purple">Your ${V.worn.under_upper.name} <<underupperplural>> wet.</span>`);
-		} else if (V.underupperwet < 70 && V.underupperwetstage >= 2) {
+		} else if (V.underupperwet < 70 && V.underupperwetstage >= 2 && V.worn.under_upper.fabric_strength < 30) {
 			V.underupperwetstage = 1;
 			sWikifier(`<span class="green">Your ${V.worn.under_upper.name} <<underupperplural>> drying out.</span>`);
 		} else if (V.underupperwet >= 50 && V.underupperwetstage < 1) {
@@ -330,8 +330,8 @@ function effects() {
 			}
 			break;
 	}
-
-	if (isPlayerNonparasitePregnancyEnding()) {
+	// eslint-disable-next-line no-undef
+	if (isPregnancyEnding()) {
 		sWikifier(
 			`<span class="red">Your waters have broken.</span> ${
 				["asylum", "prison", "hospital"].includes(V.location) ? "You need to find help, fast!" : "You need to head to the hospital, fast!"
@@ -340,7 +340,7 @@ function effects() {
 		br();
 	}
 
-	if (V.effectsmessage) {
+	if (V.effectsmessage && !V.statFreeze) {
 		delete V.effectsmessage;
 
 		if (V.recovered_from_pregnancy) {
@@ -810,6 +810,8 @@ function effects() {
 			["vore", "Daredevil", "Tasty"],
 			["milk", "Milk Enthusiast", "Milk Addict"],
 			["cum", "Cumoisseur", "Cum Dump"],
+			["penis_addict", "Cock Enthusiast", "Cock Addict"],
+			["hole_addict", "Hole Enthusiast", "Hole Addict"]
 		].forEach(([variable, defiantName, submissiveName]) => {
 			if (V[`${variable}_trait_message`]) {
 				element("span", `You've gained the "${V.submissive <= 850 ? defiantName : submissiveName}" trait.`, "gold");
@@ -892,6 +894,7 @@ function effects() {
 		if (V.demonmessage) {
 			sWikifier('<span class="red">You feel a terrible light sear through you.</span> <<gstress>>');
 			V.stress += V.stressmax;
+			if (V.stress >= V.stressmax) V.stress = V.stressmax - 50;
 			V.trauma += V.traumamax * 0.75;
 			delete V.demonmessage;
 		}
@@ -1054,7 +1057,7 @@ function effects() {
 		}
 	}
 
-	if (numberOfEarSlime() && V.earSlime.event) {
+	if (numberOfEarSlime() && V.earSlime.event && !V.statFreeze) {
 		if (V.earSlime.event.includes("get sperm into your") && V.earSlime.event.includes("completed") && V.earSlime.eventTimer <= 2) {
 			element(
 				"span",
@@ -1094,6 +1097,7 @@ function effects() {
 	sWikifier("<<integritycheck>><<exposure>>");
 
 	V.orgasmdown -= 1;
+	V.orgasmCum -= 1;
 
 	if (V.exposed >= 1 && V.exposedcheck === 1) {
 		V.exposedcheck = 0;
@@ -1123,6 +1127,10 @@ function effects() {
 	} else {
 		C.tiredness.max = 2000;
 	}
+
+	sWikifier("<<blackmail-effects>>");
+	sWikifier("<<portalPantiesDisplay>>");
+	if (V.trauma >= (V.traumamax * 0.9)) V.traumatized = true;
 
 	return fragment;
 }

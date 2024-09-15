@@ -78,8 +78,8 @@
 	<<elseif $exposed gte 2 and $swimall isnot 1>>
 		<<npc Mason>><<person1>>
 		<<schoolpoolexposed>>
-		<<if $exhibitionism gte 75 and $swimall isnot 1>>
-			<<link [[Ask to swim naked|School Pool Ask Naked]]>><<fameexhibitionism 15>><<endevent>><<set $swimnudecounter += 1>><</link>><<exhibitionist5>>
+		<<if hasSexStat("exhibitionism", 5) and $swimall isnot 1>>
+			<<askicon>><<link [[Ask to swim naked|School Pool Ask Naked]]>><<fameexhibitionism 15>><<endevent>><<set $swimnudecounter += 1>><</link>><<exhibitionist5>>
 			<br>
 		<</if>>
 	<<elseif $swimall is 1>>
@@ -171,19 +171,20 @@
 			Go get changed."
 			<br><br>
 
-			<<if $exhibitionism gte 75 and $swimall isnot 1>>
-				<<link [[Ask to swim naked|School Pool Ask Naked]]>><<fameexhibitionism 15>><<endevent>><<set $swimnudecounter += 1>><</link>><<exhibitionist5>>
+			<<if hasSexStat("exhibitionism", 5) and $swimall isnot 1>>
+				<<askicon>><<link [[Ask to swim naked|School Pool Ask Naked]]>><<fameexhibitionism 15>><<endevent>><<set $swimnudecounter += 1>><</link>><<exhibitionist5>>
 				<br>
 			<</if>>
 			<<if $player.sex is "f" or ($player.sex is "h" and $player.gender_appearance is "f")>>
 				<<if !$daily.swimCrossdressPermission>>
-					<<link [[Say you only have a boy's swimming costume|School Pool Wrong]]>><</link>>
+					<<socialiseicon>><<link [[Say you only have a boy's swimming costume|School Pool Wrong]]>><</link>>
 					<br>
 				<</if>>
-				<<link [[Say you don't have anything to change into|School Pool Spare]]>><</link>>
+				<<socialiseicon>><<link [[Say you don't have anything to change into|School Pool Spare]]>><</link>>
 				<br>
 			<<else>>
 				<<if !$daily.swimCrossdressPermission>>
+					<<socialiseicon>>
 					<<if ($worn.upper.type.includes("naked") and $worn.under_upper.type.includes("naked")) and
 					($worn.lower.type.includes("swim") or ($worn.lower.type.includes("naked") and $worn.under_lower.type.includes("swim")))>>
 						<<link [[Say you only have a boy's swimming costume|School Pool Wrong]]>><<set $phase to 1>><</link>>
@@ -192,7 +193,7 @@
 					<</if>>
 					<br>
 				<</if>>
-				<<link [[Say you don't have anything to change into|School Pool Spare]]>><</link>>
+				<<socialiseicon>><<link [[Say you don't have anything to change into|School Pool Spare]]>><</link>>
 				<br>
 			<</if>>
 			<br>
@@ -242,6 +243,7 @@
 		<<unset $poolswim>>
 		You spend some time swimming.
 		<br><br>
+		<<water>>
 	<</if>>
 	<<if $arousal gte $arousalmax>>
 		<<orgasmLocation "emptySwimClassroom">>
@@ -249,7 +251,7 @@
 
 	<<exhibitionclassroom>>
 
-	<<swimicon>><<link [[Practise swimming (0:30)|School Pool]]>><<pass 30>><<stress -6>><<tiredness 6>><<set $poolswim to 0>><<water>><<physique 3>><<swimmingskilluse>><<slimeEventEnd "swimming">><</link>><<gswimming>><<lstress>><<gtiredness>>
+	<<swimicon>><<link [[Practise swimming (0:30)|School Pool]]>><<pass 30>><<stress -6>><<tiredness 6>><<set $poolswim to 0>><<water>><<physique 3>><<swimmingskilluse>><<slimeEventEnd "swimming">><<if $xchange.blackmail.activeQuest?.id is 5 and $exposed gte 2>><<set $xchange.blackmail.activeQuest.swamNaked to true>><</if>><</link>><<gswimming>><<lstress>><<gtiredness>>
 	<br>
 	<<maleicon>><<link [[Boys' changing room|School Boy Changing Room]]>><<endevent>><</link>>
 	<br>
@@ -344,8 +346,8 @@
 		<<flaunting>> you feel their eyes on you as you slip into the water.
 	<<else>>
 		<<flaunting>> you feel their eyes on you as you <<nervously>> strip down to your <<lewdness>>, before slipping into the water. <<covered>>
-	<</if>><<exhibitionism5>>
-	<br><br>
+	<</if>>
+	<<exhibitionism5>>
 
 	<<link [[Next|Swimming Lesson]]>><<endevent>><</link>>
 <</if>>
@@ -377,6 +379,10 @@ Once done, Leighton takes the swimwear and puts it in a hamper.
 	<<run $daily.whitney.whitneyCrossdressSwimwear.push("boys swimwear")>>
 <</if>>
 
+<<if $xchange.blackmail.activeQuest?.id is 5 and $exposed gte 2>>
+	<<set $xchange.blackmail.activeQuest.swamNaked to true>>
+<</if>>
+
 <<if $swimnudecounter gte 10 and $swimall isnot 1>>
 	<<npc Leighton>><<person1>> Leighton storms into the pool room, furious. "Mason!" <<he>> shouts. "Explain this! Why is this class swimming naked?"
 	<br><br>
@@ -390,6 +396,8 @@ Once done, Leighton takes the swimwear and puts it in a hamper.
 	<br><br>
 
 	<<link [[Next|Pool Leighton Nude Punishment]]>><<pass 5>><</link>>
+<<elseif $stress gte $stressmax and isPregnancyEnding()>>
+	<<pregnancyPassout "schoolPool">>
 <<else>>
 	<<if Time.weekDay is 6 and Time.minute gte 37>>
 		<<npc Mason>><<person1>>
@@ -398,7 +406,6 @@ Once done, Leighton takes the swimwear and puts it in a hamper.
 		<<if $arousal gte $arousalmax>>
 			<<orgasmLocation "swimClassroom">>
 		<</if>>
-
 		<br><br>
 		You take your positon, and await Mason's signal. "Ready, set, go!"
 		<br><br>
@@ -444,14 +451,14 @@ Once done, Leighton takes the swimwear and puts it in a hamper.
 		<br>
 		<<socialiseicon>><<link [[Socialise with classmates|Swimming Lesson Socialise]]>><</link>><<gcool>><<ltrauma>><<lstress>><<gharass>>
 		<br>
-		<<if $exposed gte 2 and $exhibitionism gte 75>>
+		<<if $exposed gte 2 and hasSexStat("exhibitionism", 5)>>
 			<<swimicon "back">><<link [[Practise your backstroke|Swimming Lesson Naked Backstroke]]>><</link>><<gswimming>><<gtiredness>><<exhibitionist5>>
 			<br>
 		<</if>>
 		<<daydreamicon>><<link [[Daydream|Swimming Lesson Daydream]]>><</link>><<lstress>><<ltiredness>> <<lharass>>
 		<br>
-		<<if $exhibitionism gte 55>>
-			<<ind>><<link [[Masturbate|Swimming Lesson Masturbate]]>><<set $masturbationstart to 1>><</link>><<exhibitionist4>>
+		<<if hasSexStat("exhibitionism", 4)>>
+			<<skinicon "masturbate">><<link [[Masturbate|Swimming Lesson Masturbate]]>><<set $masturbationstart to 1>><</link>><<exhibitionist4>>
 			<br>
 		<</if>>
 	<</if>>
@@ -667,7 +674,7 @@ There's no way you're doing this. You leave the pool, clothes on and dignity int
 		<br>
 	<</if>>
 <<else>>
-	You slip the tattered <<if $phase is 9>>swimsuit<<else>>swim shorts<</if>> on and store your clothes in the cupboard, before heading out for the lesson.
+	You slip the tattered <<if $phase is 1>>swimsuit<<else>>swim shorts<</if>> on and store your clothes in the cupboard, before heading out for the lesson.
 	<br><br>
 
 	<<link [[Next|Swimming Lesson]]>><</link>>
@@ -686,7 +693,7 @@ You manage to get beneath the flimsy protection of the water, but not before the
 <br>
 
 :: Swimming Lesson Focus
-<<set $outside to 0>><<set $location to "pool">><<schooleffects>><<water>><<effects>>
+<<set $outside to 0>><<set $location to "pool">><<schooleffects>><<water>><<advancelesson>><<effects>>
 
 <<if $exposed lte 0 or $swimall is 1>>
 	You focus on following Mason's instructions and exerting yourself. It's hard going, but you think you're making progress.
@@ -697,7 +704,7 @@ You manage to get beneath the flimsy protection of the water, but not before the
 <</if>>
 <br><br>
 
-<<advancelesson>>
+
 <<stress _lesson_progress>>
 <<tiredness _lesson_progress>>
 
@@ -768,7 +775,7 @@ You manage to get beneath the flimsy protection of the water, but not before the
 
 
 :: Swimming Lesson Naked Backstroke
-<<set $outside to 0>><<set $location to "pool">><<schooleffects>><<water>><<effects>>
+<<set $outside to 0>><<set $location to "pool">><<schooleffects>><<water>><<advancelesson>><<effects>>
 
 You pay little attention to the lesson, instead opting to practise your backstroke.
 <<swimmingskilluse>>
@@ -801,7 +808,6 @@ Mason seems displeased by your choice of activity.
 
 <<status 1>>
 
-<<advancelesson>>
 <<set _stress to _lesson_progress * -1>>
 <<stress _stress>>
 <<set _trauma to _lesson_progress * -0.5>>
@@ -851,7 +857,7 @@ Mason seems displeased by your choice of activity.
 <</if>>
 
 :: Swimming Lesson Socialise
-<<set $outside to 0>><<set $location to "pool">><<schooleffects>><<water>><<effects>>
+<<set $outside to 0>><<set $location to "pool">><<schooleffects>><<water>><<advancelesson>><<effects>>
 
 <<if $exposed gte 1 and $swimall isnot 1>>
 	You pay little attention to the lesson, instead chatting with your fellow students. Some look away bashfully when you try to engage,
@@ -864,7 +870,6 @@ Mason seems displeased by your choice of activity.
 
 <<status 1>>
 
-<<advancelesson>>
 <<set _stress to _lesson_progress * -1>>
 <<stress _stress>>
 <<set _trauma to _lesson_progress * -0.5>>
@@ -915,7 +920,7 @@ Mason seems displeased by your choice of activity.
 <</if>>
 
 :: Swimming Lesson Daydream
-<<set $outside to 0>><<set $location to "pool">><<schooleffects>><<water>><<effects>>
+<<set $outside to 0>><<set $location to "pool">><<schooleffects>><<water>><<advancelesson>><<effects>>
 
 <<if $trauma gte (($traumamax / 10) * 7)>>
 	You keep to yourself, afraid that one wrong move will result in the whole class molesting you.
@@ -934,7 +939,6 @@ Mason seems displeased by your choice of activity.
 
 <<status 1>>
 
-<<advancelesson>>
 <<set _stress to _lesson_progress * -1>>
 <<stress _stress>>
 <<set _trauma to _lesson_progress * -0.5>>

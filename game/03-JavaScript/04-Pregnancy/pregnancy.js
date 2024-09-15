@@ -750,21 +750,10 @@ function randomPregnancyProgress() {
 			}
 			npc.pregnancy.timer += parseFloat(multiplier.toFixed(3));
 			if (npc.pregnancy.timer >= npc.pregnancy.timerEnd) {
-				let npcDecompressed;
-				try {
-					npcDecompressed = npcDecompressor(npc.npc);
-				} catch (e) {
-					console.error("randomPregnancyProgress", e);
-					Errors.report(
-						"randomPregnancyProgress - Compressed NPC '" +
-							npcKey +
-							"' cannot be decompressed for pregnancy compatibility check. Please export your save if reporting.",
-						e
-					);
-				}
+				const npcDetails = npc.npc;
 				const [birthLocation, location] = defaultBirthLocations(npc.pregnancy.type);
-				if (npcDecompressed) {
-					giveBirthToChildren(npcDecompressed.fullDescription, birthLocation, location, npc.pregnancy);
+				if (npcDetails) {
+					giveBirthToChildren(npcDetails.fullDescription, birthLocation, location, npc.pregnancy);
 				} else {
 					giveBirthToChildren(npc.pregnancy.fetus[0].mother, birthLocation, location, npc.pregnancy);
 				}
@@ -1118,6 +1107,8 @@ function playerPregnancyPossibleWith(NPC) {
 		// Check if this is a named NPC, whether the function is provided a string or NPCList object that belongs to a named NPC
 		NPCObject = V.NPCName[V.NPCNameList.indexOf(typeof NPC === "string" ? NPC : NPC.fullDescription)];
 
+		if (NPCObject == undefined) return false;
+
 		const NPCNameCheck = NPCObject.fullDescription || NPCObject.description; // .description is only for backup, should not be needed in normal cases
 		if (
 			setup.pregnancy.infertile.includes(NPCNameCheck) ||
@@ -1178,6 +1169,7 @@ function NPCPregnancyPossibleWithPlayer(NPC) {
 	if (typeof NPC === "string" || V.NPCNameList.includes(NPC.fullDescription)) {
 		// Check if this is a named NPC, whether the function is provided a string or NPCList object that belongs to a named NPC
 		NPCObject = V.NPCName[V.NPCNameList.indexOf(typeof NPC === "string" ? NPC : NPC.fullDescription)];
+		if (NPCObject == undefined) return false;
 		const NPCNameCheck = NPCObject.fullDescription || NPCObject.description;
 		if (!C.npc[NPCNameCheck]) {
 			Errors.report("Named NPC " + NPCNameCheck + " is undefined for pregnancy compatibility check.");

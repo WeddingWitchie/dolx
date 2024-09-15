@@ -143,6 +143,58 @@ function DefineMacroS(macroName, macroFunction, tags, skipArgs, maintainContext)
 }
 
 /**
+ * Creates and returns a keyword describing the wetness of a clothing article.
+ *
+ * @param {string} slot clothing article slot used
+ * @returns {string} condition key word ("drenched"|"torn|"frayed"|"full")
+ */
+
+function wetnessKeyword(slot) {
+	const i = V[`${slot.replace("_", "")}wet`];
+	if (i >= 100) {
+		return "drenched";
+	} else if (i >= 80) {
+		return "wet";
+	} else if (i >= 50) {
+		return "damp";
+	} else {
+		return "dry";
+	}
+}
+window.wetnessKeyword = wetnessKeyword;
+
+/**
+ * Returns an optional wetness prefix for the article of clothing.
+ 
+ * @param {string} slot clothing article slot used
+ * @returns {string} printable integrity prefix
+ */
+function wetnessWord(slot) {
+	const kw = wetnessKeyword(slot);
+	if (!kw) return "";
+	let colorClass;
+	switch (kw) {
+		case "dry":
+			colorClass = "green";
+			break;
+		case "damp":
+			colorClass = "teal";
+			break;
+		case "wet":
+			colorClass = "purple";
+			break;
+		case "drenched":
+			colorClass = "red";
+			break;
+		default:
+			colorClass = ""; // default without color
+	}
+	return `<span class="${colorClass}">${kw.trim()}</span> `;
+}
+window.wetnessWord = wetnessWord;
+DefineMacroS("wetnessWord", wetnessWord);
+
+/**
  * Creates and returns the keyword describing the integrity of a clothing article.
  *
  * @param {object} worn clothing article, State.variables.worn.XXXX
@@ -282,6 +334,39 @@ function faceintegrity() {
 DefineMacroS("faceintegrity", faceintegrity);
 
 /**
+ * @param {number} wetnessValue
+ */
+function getWetStage(wetnessValue) {
+	if (wetnessValue >= 100) return 3;
+	if (wetnessValue >= 80) return 2;
+	if (wetnessValue >= 40) return 1;
+	return 0;
+}
+
+/**
+ * Updates the wetstage for the given "wet" variable and the sidebar image to reflect the changes
+ *
+ * @param {string} wetVar
+ * @param {number} wetnessValue
+ */
+function cheatsShowWetness(wetVar, wetnessValue) {
+	V[wetVar + "stage"] = getWetStage(wetnessValue);
+	wikifier("<<updatesidebarimg false>>");
+}
+window.cheatsShowWetness = cheatsShowWetness;
+
+/**
+ * @param {string} id the slider's full id
+ * @param {number} value
+ */
+function cheatsUpdateSlider(id, value) {
+	const slider = $(id);
+	if (!slider.length) return;
+	slider.val(value).trigger("change");
+}
+window.cheatsUpdateSlider = cheatsUpdateSlider;
+
+/**
  * @param {object} worn clothing article, State.variables.worn.XXXX
  * @returns {string} printable clothing colour
  */
@@ -308,10 +393,10 @@ function outfitChecks() {
 	T.overOutfit = (V.worn.over_lower.outfitSecondary && V.worn.over_lower.outfitSecondary[1] === V.worn.over_upper.name) || false;
 
 	T.skirtExposed =
-		(setup.clothes.over_lower[clothesIndex("over_lower", V.worn.over_lower)].skirt === 1 &&
-			setup.clothes.lower[clothesIndex("lower", V.worn.lower)].skirt === 1) ||
-		(setup.clothes.over_lower[clothesIndex("over_lower", V.worn.over_lower)].skirt === 1 && V.worn.lower.type.includes("naked")) ||
-		(V.worn.over_lower.type.includes("naked") && setup.clothes.lower[clothesIndex("lower", V.worn.lower)].skirt === 1);
+		(wornSetupClothes("over_lower").skirt === 1 &&
+			wornSetupClothes("lower").skirt === 1) ||
+		(wornSetupClothes("over_lower").skirt === 1 && V.worn.lower.type.includes("naked")) ||
+		(V.worn.over_lower.type.includes("naked") && wornSetupClothes("lower").skirt === 1);
 	T.bottomExposed = V.worn.over_lower.name === "naked" && V.worn.lower.name === "naked" && !V.worn.under_lower.type.includes("covered");
 	T.shirtless =
 		V.worn.over_upper.name === "naked" &&
@@ -346,6 +431,7 @@ function outfitChecks() {
 				})
 			];
 	}
+	T.underwear = T.bottomUnder && V.worn.under_lower.name !== "naked";
 	T.swimwear =
 		((V.worn.under_lower.type.includes("swim") && V.worn.lower.type.includes("naked")) || V.worn.lower.type.includes("swim")) &&
 		(V.worn.under_upper.type.includes("swim") || V.worn.under_upper.type.includes("naked")) &&
@@ -483,14 +569,22 @@ window.mobBtnShow = mobBtnShow;
  * Options with a higher weight have a higher chance of being chosen.
  *
  * @param {Array} options Each option is an array where the first item is a value, and the second item is its weight.
+ * @param {Object} [rngInstance] Optional rngInstance. Otherwise it uses State.random.
  * @returns {*} The selected item
  * @example
  *     console.log(weightedRandom(["apple", 1], ["banana", 2], ["cherry", 3]));  // Relative probability for these will be: apple: 16.67%, banana: 33.33%, cherry: 50%
+ *     console.log(weightedRandom(["apple", 1], ["banana", 2], ["cherry", 3], rngInstance));  // Optional rngInstance
  */
 function weightedRandom(...options) {
 	if (!Array.isArray(options) || options.length === 0) {
 		throw new Error("Options must be a non-empty array.");
 	}
+
+	let rngInstance;
+	if (options[options.length - 1] instanceof PRNG) {
+		rngInstance = options.pop();
+	}
+
 	let totalWeight = 0;
 	const processedOptions = options.map(([value, weight]) => {
 		if (typeof weight !== "number") {
@@ -500,7 +594,7 @@ function weightedRandom(...options) {
 		return [value, totalWeight];
 	});
 
-	const random = State.random() * totalWeight;
+	const random = (rngInstance ? rngInstance.random() : State.random()) * totalWeight;
 	for (const [value, cumulativeWeight] of processedOptions) {
 		if (cumulativeWeight >= random) {
 			return value;

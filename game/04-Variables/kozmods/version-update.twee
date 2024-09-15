@@ -16,6 +16,7 @@
 			postPermanenceFertilityReset: 1,
 			willpowerPoints: Math.max(200,$willpower),
 			known: [],
+			pubtimer: 0,
 		}>>
 	<</if>>
 	<<if $xchangePill is undefined>>
@@ -47,7 +48,7 @@
 
 	<<if $xchange.willpowerSystemEnabled is undefined>>
 		<<set $xchange.willpowerSystemEnabled to 1>>
-		<<set $xchange.willpowerSuccessCost to 50>>
+		<<set $xchange.willpowerSuccessCost to 25>>
 		<<set $xchange.willpowerFailureCost to 5>>
 	<</if>>
 
@@ -59,7 +60,19 @@
 		<<set $xchange.expectedGenderBy to {}>>
 	<</if>>
 
-	
+	<<if $portalPantiesEnabled is undefined>>
+		<<set $portalPantiesEnabled to 0>>
+	<</if>>
+
+	<<portalPantiesSetup>>
+
+	<<if $recentmolest is undefined>><<set $recentmolest to -1>><</if>>
+	<<if $recentrape is undefined>><<set $recentrape to -1>><</if>>
+	<<if $hole_addict_trait is undefined>><<set $hole_addict_trait to 0>><</if>>
+	<<if $penis_addict_trait is undefined>><<set $penis_addict_trait to 0>>><</if>>
+
+	<<if $xchange.blackmail is undefined>><<blackmail-init>><</if>>
+
 <</widget>>
 
 <<widget "xchange-modupdate">>
@@ -96,40 +109,6 @@
 			<<break>>
 		<</if>>
 	<</for>>
-
-	<!-- <<if $sexStats.pills.pills && $sexStats.pills.pills["X-Change Pink Basic"] is undefined>>
-		<<physicalAdjustmentsInit>>
-	<</if>>
-	<<if $sexStats.pills.pills && $sexStats.pills.pills["X-Change Pink Xtra Strength"] is undefined>>
-		<<physicalAdjustmentsInit>>
-	<</if>>
-	<<if $sexStats.pills.pills && $sexStats.pills.pills["X-Change Blue Xtra Strength"] is undefined>>
-		<<physicalAdjustmentsInit>>
-	<</if>>
-	<<if $sexStats.pills.pills && $sexStats.pills.pills["X-Change Pink Continue"] is undefined>>
-		<<physicalAdjustmentsInit>>
-	<</if>>
-	<<if $sexStats.pills.pills && $sexStats.pills.pills["X-Change Pink Resistance"] is undefined>>
-		<<physicalAdjustmentsInit>>
-	<</if>>
-	<<if $sexStats.pills.pills && $sexStats.pills.pills["X-Change Blue Resistance"] is undefined>>
-		<<physicalAdjustmentsInit>>
-	<</if>>
-	<<if $sexStats.pills.pills && $sexStats.pills.pills["X-Change Test"] is undefined>>
-		<<physicalAdjustmentsInit>>
-	<</if>>
-	<<if $sexStats.pills.pills && $sexStats.pills.pills["X-Change Pink NOW"] is undefined>>
-		<<physicalAdjustmentsInit>>
-	<</if>>
-	<<if $sexStats.pills.pills && $sexStats.pills.pills["X-Change Clone: Whitney"] is undefined>>
-		<<physicalAdjustmentsInit>>
-	<</if>>
-	<<if $sexStats.pills.pills && $sexStats.pills.pills["X-Change Pink Weekly"] is undefined>>
-		<<physicalAdjustmentsInit>>
-	<</if>>
-	<<if $sexStats.pills.pills && $sexStats.pills.pills["X-Change Pink Breeder"] is undefined>>
-		<<physicalAdjustmentsInit>>
-	<</if>> -->
 
 	<<if Object.keys($xchangePill.changedBody).length gt 0 && $xchangePill.changedBody.fame is undefined>>
 		<<set $xchangePill.changedBody.fame to {
@@ -211,4 +190,54 @@
 		<<set $xchange.genderIdentityEnabled to 1>>
 	<</if>>
 
+	<<if Object.keys($customColors.presets).length lt 10>>
+		<<for _i to 1; _i lte 10; _i++>>
+			<<set $customColors.presets["custom"+_i] to {
+				ver: 3,
+				color: 0,
+				value: 0,
+				brightness: 0,
+				saturation: 0,
+				contrast: 1,
+			}>>
+		<</for>>
+	<</if>>
+
+	<<if $schoolevent gt 2>><<set $schoolevent to 0>><</if>>
+
+	<<if $recentmolest is -1>><<set $recentmolest to Math.max($moleststat - Time.days, 0)>><</if>>
+	<<if $recentrape is -1>><<set $recentrape to Math.max($rapestat - Time.days, 0)>><</if>>
+
+	<<if $xchange.pubtimer is undefined>><<set $xchange.pubtimer to 0>><</if>>
+	<<if $xchange.machine isnot undefined>>
+		<<set $machineVaginalBought to $xchange.machine.vaginalBought? $xchange.machine.vaginalBought : 0>>
+		<<set $machineAnalBought to $xchange.machine.analBought? $xchange.machine.analBought : 0>>
+		<<unset $xchange.machine>>
+	<</if>>
+
+	<<if $portalPantiesEnabled is undefined>>
+		<<set $portalPantiesEnabled to 0>>
+	<</if>>
+	
+	<<if $beingPenetratedOrgasmStat is undefined>>
+		<<set $beingPenetratedOrgasmStat to 0>>
+		<<set $penetratingOrgasmStat to 0>>
+	<</if>>
+
+	<<if $portalPanties.state.mouth isnot undefined>>
+		<<unset $portalPanties.state.mouth>>
+	<</if>>
+
+	<<if Object.keys($xchangePill.changedBody).length gt 0 and $xchangePill.changedBody.facestyle is undefined>>
+		<<set $xchangePill.changedBody.facestyle to $player.gender is "m"? "fem" : "masc">>
+		<<if Object.keys($xchangePill.originalBody).length gt 0 and $xchangePill.originalBody.facestyle is undefined>>
+			<<set $xchangePill.originalBody.facestyle to "default">>
+		<</if>>
+	<</if>>
+
+	<<set _amcFames to ["sexFame","prostitutionFame","rapeFame","bestialityFame","exhibitionismFame","pregnancyFame","impregFame","scrapFame","goodFame","businessFame","socialFame","modelFame"]>>
+
+	<<for _fame range _amcFames>>
+		<<if $AMCTraits[_fame] isnot 1>><<set $AMCTraits[_fame] to 1>><</if>>
+	<</for>>
 <</widget>>

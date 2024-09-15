@@ -635,11 +635,11 @@ const Furniture = (() => {
 		if (!(furniture.type instanceof Array)) return;
 		/* Wardrobe object appears to be good: Is an object, type is an array. */
 		if (furniture.type.includes("organiser")) {
-			wardrobe.space = 40;
+			wardrobe.space = 40 * V.wardrobeMult;
 		} else if (furniture.type.includes("spacious")) {
-			wardrobe.space = 30;
+			wardrobe.space = 30 * V.wardrobeMult;
 		} else {
-			wardrobe.space = 20;
+			wardrobe.space = 20 * V.wardrobeMult;
 		}
 	}
 
