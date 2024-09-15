@@ -24,6 +24,8 @@ function updateClothingColours(item, itemRef) {
 		case "round shades":
 		case "witch shoes":
 		case "mesh shirt":
+		case "fishnet stockings":
+		case "fishnet tights":
 			if (item.colour === 0) item.colour = "black";
 			break;
 		case "square shades":
@@ -88,6 +90,13 @@ function updateClothingColours(item, itemRef) {
 		case "argyle sweater vest":
 			if (item.accessory_colour === 0) item.accessory_colour = item.colour;
 			if (item.colourCustom) item.accessory_colourCustom = item.colourCustom;
+			break;
+		case "karate jacket":
+			if (item.colour === 0) item.colour = "white";
+			if (item.accessory_colour === 0) item.accessory_colour = "red";
+			break;
+		case "karate trousers":
+			if (item.colour === 0) item.colour = "white";
 			break;
 		default:
 			// Catch-all case if people forget to adjust this widget for whatever clothing item is updated. Can make weird looking clothes if "custom" is selected.
@@ -420,7 +429,7 @@ function wardrobesUpdate() {
 		V.wardrobes.changingRoom.unlocked = true;
 		/* eden's */
 		V.wardrobes.edensCabin.name = "Eden's Cabin";
-		V.wardrobes.edensCabin.space = 10;
+		V.wardrobes.edensCabin.space = 10 * V.wardrobeMult;
 		if (V.syndromeeden) V.wardrobes.edensCabin.unlocked = true;
 		/* asylum */
 		V.wardrobes.asylum.locationRequirement.push("asylum");
@@ -430,15 +439,15 @@ function wardrobesUpdate() {
 		/* alex's */
 		V.wardrobes.alexFarm.name = "Alex's Farm";
 		V.wardrobes.alexFarm.shopSend = true;
-		V.wardrobes.alexFarm.space = 40;
+		V.wardrobes.alexFarm.space = 40 * V.wardrobeMult;
 		if (V.farm_stage >= 7) V.wardrobes.alexFarm.unlocked = true;
 		/* strip club */
 		V.wardrobes.stripClub.name = "Strip Club";
-		V.wardrobes.stripClub.space = 10;
+		V.wardrobes.stripClub.space = 10 * V.wardrobeMult;
 		if (V.stripclubdancingintro) V.wardrobes.stripClub.unlocked = true;
 		/* brothel */
 		V.wardrobes.brothel.name = "Brothel";
-		V.wardrobes.brothel.space = 10;
+		V.wardrobes.brothel.space = 10 * V.wardrobeMult;
 		if (V.brotheljob) V.wardrobes.brothel.unlocked = true;
 		/* school pool boys */
 		V.wardrobes.schoolBoys.name = "Schools boy's locker";
@@ -493,7 +502,7 @@ function wardrobesUpdate() {
 	if (!V.wardrobes.temple) {
 		V.wardrobes.temple = clone(defWardrobe);
 		V.wardrobes.temple.unlocked = V.temple_rank === "monk";
-		V.wardrobes.temple.space = 20;
+		V.wardrobes.temple.space = 20 * V.wardrobeMult;
 	}
 	if (!V.wardrobes.temple.name) {
 		V.wardrobes.temple.name = "Temple";
@@ -501,7 +510,7 @@ function wardrobesUpdate() {
 	if (!V.wardrobes.pirate) {
 		V.wardrobes.pirate = clone(defWardrobe);
 		V.wardrobes.pirate.unlocked = V.pirate_rank >= 0;
-		V.wardrobes.pirate.space = 5;
+		V.wardrobes.pirate.space = 5 * V.wardrobeMult;
 	}
 	if (!V.wardrobes.pirate.name) {
 		V.wardrobes.pirate.name = "Pirate Ship";
@@ -516,7 +525,7 @@ function wardrobesUpdate() {
 		V.wardrobes.officeBuilding = clone(defWardrobe);
 		V.wardrobes.officeBuilding.name = "Office agency changing room";
 		V.wardrobes.officeBuilding.unlocked = V.officejobintro === 1;
-		V.wardrobes.officeBuilding.space = 5;
+		V.wardrobes.officeBuilding.space = 5 * V.wardrobeMult;
 	}
 
 	if (!V.wardrobes.birdTower) {
@@ -525,13 +534,13 @@ function wardrobesUpdate() {
 		V.wardrobes.birdTower.name = "Great Hawk's Tower";
 		V.wardrobes.birdTower.unlocked = false;
 		V.wardrobes.birdTower.isolated = true;
-		V.wardrobes.birdTower.space = 15;
+		V.wardrobes.birdTower.space = 15 * V.wardrobeMult;
 	}
-	if (!V.wardrobes.birdTower.locationRequirement) {
+	if (!V.wardrobes.birdTower.locationRequirement?.length) {
 		V.wardrobes.birdTower.locationRequirement = ["tower", "moor"];
 	}
 
-	if (!V.wardrobes.prison.locationRequirement) {
+	if (!V.wardrobes.prison.locationRequirement?.length) {
 		V.wardrobes.prison.locationRequirement = ["prison"];
 	}
 }

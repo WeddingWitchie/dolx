@@ -14,6 +14,8 @@ set target[8]=susato
 set target[9]=mizz
 set target[10]=mvcr
 set target[11]=kitmint
+set target[12]=beeesss_mysterious
+set target[13]=hikfem_mysterious
 
 set imagepack[0]=vanilla
 set imagepack[1]=beeesss
@@ -27,8 +29,10 @@ set imagepack[8]=susato
 set imagepack[9]=mizz
 set imagepack[10]=mvcr
 set imagepack[11]=kitmint
+set imagepack[12]=b3s_mys
+set imagepack[13]=hikfem_mys
 
-set array_length=11
+set array_length=13
 
 cd ../../
 
@@ -51,7 +55,7 @@ for /L %%i in (0,1,%array_length%) do (
 
 	powershell -Command "(Get-Content -Path '.\devTools\apkbuilder\platforms\android\app\src\main\AndroidManifest.xml') -replace 'DoLP version', 'DoLP v0.%version% !imagepack[%%i]!' | Set-Content -Path '.\devTools\apkbuilder\platforms\android\app\src\main\AndroidManifest.xml'"
 
-	powershell -Command "(Get-Content -Path '.\devTools\apkbuilder\platforms\android\app\src\main\assets\www\index.html') -replace 'DoLP version', 'DoLP v0.%version% !imagepack[%%i]!' | Set-Content -Path '.\devTools\apkbuilder\platforms\android\app\src\main\assets\www\index.html'"
+	@REM powershell -Command "(Get-Content -Path '.\devTools\apkbuilder\platforms\android\app\src\main\assets\www\index.html') -replace 'DoLP version', 'DoLP v0.%version% !imagepack[%%i]!' | Set-Content -Path '.\devTools\apkbuilder\platforms\android\app\src\main\assets\www\index.html'"
 
 	powershell -Command "(Get-Content -Path '.\devTools\apkbuilder\platforms\android\app\src\main\res\xml\config.xml') -replace 'DoLP version', 'DoLP v0.%version% !imagepack[%%i]!' | Set-Content -Path '.\devTools\apkbuilder\platforms\android\app\src\main\res\xml\config.xml'"
 
@@ -74,10 +78,12 @@ for /L %%i in (0,1,%array_length%) do (
 	cd ../../
 
 	ren img "!target[%%i]!img"
-	
+
 	ren img1 img
 
 	git reset --hard
+
+	git clean -fd
 
 	del "Degrees of Lewdity.html"
 
@@ -85,7 +91,7 @@ for /L %%i in (0,1,%array_length%) do (
 
 	cd ./dist/
 
-	ren "DoLP-v0.%version%-!imagepack[%%i]!-0.5.1.3 DoLP v0.%version% !imagepack[%%i]!-debug.apk" "0.5.1.3 DoLP v0.%version% !imagepack[%%i]!-debug.apk"
+	ren "DoLP-v0.%version%-!imagepack[%%i]!-0.5.2.8 DoLP v0.%version% !imagepack[%%i]!-debug.apk" "0.5.2.8 DoLP v0.%version% !imagepack[%%i]!-debug.apk"
 
 	cd ../
 )

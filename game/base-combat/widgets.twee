@@ -652,10 +652,6 @@
 	<<set _text_output to (playerHasButtPlug() ? ", "+$_alongside+" your "+$worn.butt_plug.name : "")>>
 <</silently>><<print _text_output>><</widget>>
 
-<<widget "commaButtPlug">><<silently>>
-	<<set _text_output to (playerHasButtPlug() ? ", your $worn.butt_plug.name, " : "")>>
-<</silently>><<print _text_output>><</widget>>
-
 <<widget "combatExtendedCheck">>
 	<<set _dodgeChance to 0>>
 	<<set _passiveDodgeSuccess to 0>>
@@ -860,7 +856,7 @@
 <</widget>>
 
 <<widget "npcStealMoney">>
-	<<if $npcStealMoneyToggle is 1>>
+	<<if $npcStealMoneyToggle is 1 and $npcStolenMoney is undefined>>
 		<br>
 		<<set _stolenMoney to $money * ($npcStealMoneyPercentage/100)>>
 		<<He>> rifles through your pockets and take <<printmoney _stolenMoney>>.
@@ -876,5 +872,64 @@
 			"This is peanuts..."
 		<</if>>
 		<<set $money to $money - _stolenMoney>>
+		<<set $npcStolenMoney to 1>>
 	<</if>>
+<</widget>>
+
+<<widget "struggle_defense_init">>
+	<<if _args[0] is "guard">>
+		<<if currentSkillValue("handskill") gte 800>>
+			but you redirect its momentum with a well-timed blow,
+		<<elseif currentSkillValue("handskill") gte 200>>
+			but you bat it aside,
+		<<else>>
+			but your flailing knocks it aside,
+		<</if>>
+	<<elseif _args[0] is "dodge">>
+		<<set $dodging -= 1>>
+		<<if $drunk gte 60>>
+			but you drunkenly stagger out of the way<<if !random(100)>> like the drunk master you are<</if>>,
+		<<elseif currentSkillValue("feetskill") gte 800 or currentSkillValue('danceskill') gte 400>>
+			but you dance aside,
+		<<elseif currentSkillValue("feetskill") gte 200>>
+			but you step aside,
+		<<else>>
+			but you stumble aside,
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "struggle_defense_result">>
+	<<if _args[0] is "guard">>
+		<<if _left_guard_chance gte _hit_chance>>
+			<<unset $left_guard>>
+		<<elseif _right_guard_chance gte _hit_chance>>
+			<<unset $right_guard>>
+		<</if>>
+		<<if $struggle.enemy[_i].health gt 0>>
+			<span class="teal">It's hurt. </span>
+		<<else>>
+			<span class="green">It's too hurt. </span>
+		<</if>>
+	<<elseif _args[0] is "dodge">>
+		<<if $struggle.enemy[_i].dodge is undefined>>
+			<<set $struggle.enemy[_i].dodge to 1>>
+		<<elseif $struggle.enemy[_i].dodge lt 3>>
+			<<set $struggle.enemy[_i].dodge ++>>
+		<<else>>
+			<<set $struggle.enemy[_i].dodge to 0>>
+			<<set $struggle.enemy[_i].health -= 1>>
+			<<if $struggle.enemy[_i].health gt 0>>
+				<span class="teal">It's running out of steam. </span>
+			<<else>>
+				<span class="green">It ran out of steam. </span>
+			<</if>>
+		<</if>>
+	<</if>>
+	<<if $struggle.enemy[_i].health lte 0>>
+		<span class="green">It won't return.</span>
+		<<set $struggle.done += 1>>
+		<<set $struggle.enemy[_i].location to "fled">>
+	<</if>>
+	<<unset _struggleDefenseResult>>
 <</widget>>

@@ -702,12 +702,13 @@
 					<br>
 					<<if hasSexStat("exhibitionism", 4)>>
 						<<link [["Prove you're not wearing any"|Street Panties]]>><<set $phase to 4>><</link>><<exhibitionist4>>
+						<br>
 					<</if>>
 				<<else>>
 					<<link [[Agree|Street Panties]]>><<set $phase to 1>><<rng>><</link>><<exhibitionist3>>
+					<br>
 				<</if>>
 			<</if>>
-			<br>
 		<</if>>
 		<<if !_slimeNoExit>>
 			<<link [[Refuse|Street Panties]]>><<set $phase to 3>><</link>><<gstress>>
@@ -773,9 +774,7 @@
 	<<if $_tornItem is "none">>
 		<<generate1>><<person1>>A <<person>> shouts at you from a passing car while leering at your exposed chest. "Thanks for the show." You feel self-conscious.
 		<<gtrauma>><<gstress>><<garousal>><<trauma 1>><<stress 1>><<arousal 100>>
-		<br><br>
 		<<endevent>>
-		<<destinationeventend>>
 	<<elseif $athleticsSuccess>>
 		An ongoing car passes right next to you, but upon hearing it closing in <span class = "green">you reflexively dodge out of the way, leaving you unharmed.</span>
 	<<elseif (currentSkillValue('danceskill') + $rng) gte 500>>
@@ -3379,7 +3378,7 @@
 		<<elseif fameTotal() gte 3000 and $photo_known is undefined>>
 			<<set $photo_known to 1>>
 			<<street_niki>>
-			<<set $niki_seen to "street">>
+			<<set $nikiSeen.pushUnique("street")>>
 		<<elseif $rng gte 52>>
 			<<set $dangerevent to random(1, 210)>>
 			<<if $dangerevent lte 10>>
@@ -3909,16 +3908,17 @@
 
 <<widget "streeteffects">>
 	<<if !$possessed>>
+		<<set _kylarLocation to getKylarLocation()>>
 		<<if wraithCanHunt() and $wraith.state and $wraith.hunt is 0 and $wraith.timer gte (random(0, 60))>>
 			<<wHunt "town">>
 		<<elseif $wraith.hunt>>
 			<<wHunt "town">>
-		<<elseif $kylar and $kylar.timer.street gte ($rng + 65) and C.npc.Kylar.state is "active" and $kylarwatched isnot 1 and $exposed lte 0>>
+		<<elseif $kylar and $kylar.timer.street gte ($rng + 65) and C.npc.Kylar.state is "active" and $kylarwatched isnot 1 and $exposed lte 0 and _kylarLocation.area isnot $location>>
 			<<set $kylar.timer.street to 0>><<set $kylarwatchedtimer to 2>>
 			You shiver, a warning from some primal instinct. <span class="blue">Something is watching you.</span>
 			<<set $kylarwatched to 1>><<set $eventskip to 1>>
 		<<elseif $kylarwatched is 1>>
-			<<if $exposed gte 1 or C.npc.Kylar.state isnot "active" or $kylarwatchedtimer lte 0>>
+			<<if $exposed gte 1 or C.npc.Kylar.state isnot "active" or $kylarwatchedtimer lte 0 or _kylarLocation.area is $location>>
 				<<set $kylarwatched to 0>>
 			<<else>>
 				<span class="blue">Something is watching you.</span>

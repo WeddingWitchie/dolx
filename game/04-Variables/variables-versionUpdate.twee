@@ -1001,17 +1001,6 @@
 		<<set $misbehaviour_day to 9999>>
 	<</if>>
 
-
-	<<if $objectVersion.skinColor is undefined>>
-		<<skinColorInitOldSave>>
-	<</if>>
-	<<if $skinColor.tanningEnabled is "t">>
-		<<set $skinColor.tanningEnabled to true>>
-	<</if>>
-	<<if $skinColor.tanningEnabled is "f">>
-		<<set $skinColor.tanningEnabled to false>>
-	<</if>>
-
 	<<if $objectVersion.chastity lt 3 or $objectVersion.chastity is undefined>>
 		<<if $worn.genitals is undefined>>
 			<<set $worn.genitals to clone(setup.clothes.genitals[0])>>
@@ -1159,7 +1148,7 @@
 	<</if>>
 
 	<<if $player.gender_posture is undefined>>
-		<<if $background is "crossdresser">>
+		<<if $background.crossdresser is true>>
 			<<if $player.gender is "f">>
 				<<set $player.gender_posture to "m">>
 			<<elseif $player.gender is "m">>
@@ -1200,7 +1189,35 @@
 	<<unset $transformed>>
 
 	<<if $backgroundTraits is undefined>>
-		<<set $backgroundTraits to [$background]>>
+		<<set $backgroundTraits to []>>
+
+		<<if $background.nerd is true>>
+			<<set $backgroundTraits.push("nerd")>>
+		<</if>>
+		<<if $background.athlete is true>>
+			<<set $backgroundTraits.push("athlete")>>
+		<</if>>
+		<<if $background.delinquent is true>>
+			<<set $backgroundTraits.push("delinquent")>>
+		<</if>>
+		<<if $background.promiscuous is true>>
+			<<set $backgroundTraits.push("promiscuous")>>
+		<</if>>
+		<<if $background.exhibitionist is true>>
+			<<set $backgroundTraits.push("exhibitionist")>>
+		<</if>>
+		<<if $background.deviant is true>>
+			<<set $backgroundTraits.push("deviant")>>
+		<</if>>
+		<<if $background.beautiful is true>>
+			<<set $backgroundTraits.push("beautiful")>>
+		<</if>>
+		<<if $background.crossdresser is true>>
+			<<set $backgroundTraits.push("crossdresser")>>
+		<</if>>
+		<<if $background.plantlover is true>>
+			<<set $backgroundTraits.push("plantlover")>>
+		<</if>>
 	<</if>>
 
 	<<if Array.isArray($rebuy_success) is false>>
@@ -1520,10 +1537,6 @@
 
 	<<set $BeastList to ["dog","cat","pig","wolf","dolphin","lizard","bear","boar","creature","horse","fox","hawk","spider"]>>
 
-	<<if $niki_seen is undefined and $chef_state gte 5>>
-		<<set $niki_seen to "chef">>
-	<</if>>
-
 	<<if $active_enemy is undefined>>
 		<<set $active_enemy to 0>>
 	<</if>>
@@ -1623,8 +1636,7 @@
 	<</if>>
 
 	<<if $livestock_intro is 0>>
-		<<if $remy_seen is undefined>>
-			<<set $remy_seen to "livestock">>
+		<<if $remySeen is undefined>>
 			<<set $livestock_robin to 1>>
 		<</if>>
 		<<if $livestock_noise is undefined>>
@@ -2574,6 +2586,19 @@
 	<!-- pregnancyVar was moved to <<backComp>>-->
 <</widget>>
 
+<<widget "hermNPCsUpdate">>
+	<<if !$hermNPCsVersionFix>>
+		<!-- Version number fixing -->
+		<!-- replaces any "herm" in the save numbers with ".h1", and replaces numbers ending with "h" with ".h1" -->
+		<<for $_i to 0; $_i lt $saveVersions.length; $_i++>>
+			<<set $saveVersions[$_i] to $saveVersions[$_i].replace(/ herm/, ".h1").replace(/(\d)h/, "$1.h1")>>
+		<</for>>
+		<<if $saveVersion>>
+			<<set $saveVersion to $saveVersion.replace(/ herm/, ".h1").replace(/(\d)h/, "$1.h1")>>
+		<</if>>
+	<</if>>
+<</widget>>
+
 <<widget "variablesVersionUpdate2">>
 	/* 0.4.0.0 is the last version that should need the old vvu */
 
@@ -3304,8 +3329,6 @@
 			combatImages: $combatimages !== undefined && StartConfig.enableImages !== false ? $combatimages : 0,
 			bodywritingImages: $bodywritingImages !== undefined ? $bodywritingImages : true,
 			silhouetteEnabled: $silhouettedisable !== undefined ? $silhouettedisable === "f" : true,
-			tanImgEnabled: $skinColor.tanImgEnabled !== undefined ? $skinColor.tanImgEnabled !== "f" : true,
-			tanningEnabled: $skinColor.tanningEnabled !== undefined ? $skinColor.tanningEnabled === "f" : true,
 			sidebarAnimations: $sidebarAnimations !== undefined ? $sidebarAnimations : true,
 			blinkingEnabled: $blinkingdisable !== undefined ? $blinkingdisable === "f" : true,
 			combatAnimations: $combatAnimations !== undefined ? $combatAnimations : true,
@@ -3318,7 +3341,6 @@
 			lightCombat: $lightCombat !== undefined ? $lightCombat : 0.2,
 			lightTFColor: $lightTFColor !== undefined ? $lightTFColor : 0.2,
 			maxStates: $maxStates !== undefined ? $maxStates : 5,
-			maxSessionStates: 1,
 			historyControls: false,
 			numpad: $numpad !== undefined ? $numpad : false,
 			useNarrowMarket: $useNarrowMarket !== undefined ? $useNarrowMarket : false,
@@ -3589,7 +3611,7 @@
 	/* Code that should not be moved into a check like above */
 	<<set $runWardrobeSanityChecker to true>>
 
-	<<if $objectVersion.updateClothes lt 58 or $objectVersion.updateClothes is undefined>>
+	<<if $objectVersion.updateClothes lt 61 or $objectVersion.updateClothes is undefined>>
 		<<updateClothes>>
 		<<if $objectVersion.updateClothes lt 38>>
 			<!-- V0.4.0.7 return items stuck in $store without proper .location -->
@@ -3608,7 +3630,7 @@
 		<<if $objectVersion.updateClothes lt 56>>
 			<<run fixIntegrityUpdater()>>
 		<</if>>
-		<<set $objectVersion.updateClothes to 58>>
+		<<set $objectVersion.updateClothes to 61>>
 	<</if>>
 
 	<<if $objectVersion.specialClothes lt 16 or $objectVersion.specialClothes is undefined>>
@@ -3617,9 +3639,9 @@
 		<<set $objectVersion.specialClothes to 16>>
 	<</if>>
 
-	<<if $objectVersion.wardrobes lt 12 or $objectVersion.wardrobes is undefined>>
+	<<if $objectVersion.wardrobes lt 13 or $objectVersion.wardrobes is undefined>>
 		<<wardrobesUpdate>>
-		<<set $objectVersion.wardrobes to 12>>
+		<<set $objectVersion.wardrobes to 13>>
 	<</if>>
 
 	<<if $objectVersion.museumAntiques lte 14 and $museumAntiques.antiques.antiquewhitescrystal isnot undefined>>
@@ -4392,7 +4414,7 @@
 
 	<!-- V0.4.0.2 SNEAKY posture undefined -->
 	<<if $player.gender_posture is undefined>>
-		<<if $background is "crossdresser">>
+		<<if $background.crossdresser is true>>
 			<<if $player.gender is "f">>
 				<<set $player.gender_posture to "m">>
 			<<elseif $player.gender is "m">>
@@ -4792,12 +4814,12 @@
 		<<set $wardrobe.handheld to []>>
 		<<set $store.handheld to []>>
 		<<set $wear_handheld to "none">>
-		<<if ($player.gender is "f" and $background isnot "crossdresser") or
-		($player.gender is "m" and $background is "crossdresser") or
+		<<if ($player.gender is "f" and $background.crossdresser is false) or
+		($player.gender is "m" and $background.crossdresser is true) or
 		($player.gender is "h" and
 			(
-				(($player.gender_body is "m" or ($player.gender_body is "a" and $player.breastsize lte 3)) and $background is "crossdresser") or
-				(($player.gender_body is "f" or ($player.gender_body is "a" and $player.breastsize gt 3)) and $background isnot "crossdresser")
+				(($player.gender_body is "m" or ($player.gender_body is "a" and $player.breastsize lte 3)) and $background.crossdresser is true) or
+				(($player.gender_body is "f" or ($player.gender_body is "a" and $player.breastsize gt 3)) and $background.crossdresser is false)
 			)
 		)>>
 			<<set $wardrobe.handheld.push(clone(setup.clothes.handheld[8]))>>
@@ -5215,14 +5237,6 @@
 		<<set $dateCount.GreatHawkCasual to 0>>
 	<</if>>
 
-	<!--Skin colours for nonhuman children -->
-    <<if !$objectVersion.missingChildSkinColors>>
-        <<run Object.values($children).forEach(child => {
-            if (!child.features.skinColour) child.features.skinColour = V.skinColor.natural;
-        })>>
-        <<set $objectVersion.missingChildSkinColors to 1>>
-    <</if>>
-
 	<!-- Pillory time fixes -->
 	<<if $pillory_tenant isnot undefined and ($pillory_tenant.starthour isnot undefined or $pillory_tenant.startday isnot undefined)>>
 		<!-- The start day / hour are broken anyways - so resetting the starttime to current time -->
@@ -5243,7 +5257,7 @@
 	<<if $pillory is undefined>>
 		<<set $pillory to {}>>
 	<</if>>
-	<<if $pillorytime isnot undefined>>
+	<<if $pillorytime isnot undefined or $pillory.time is undefined>>
 		<<set _pilloryStartTime to new DateTime(Time.date)>>
 		<<set _pilloryEndTime to new DateTime(Time.date).addMinutes(60 - Time.date.minute)>>
 		<<if !isNaN($pillorytime) and $pillorytime gte 0>>
@@ -5271,6 +5285,73 @@
 	<<if $options.newWardrobeStyle isnot undefined>>
 		<<run delete $options.newWardrobeStyle>>
 	<</if>>
+
+	<!-- 5.2 tanning rework -->
+	<!-- Don't move to bottom -->
+	<<if $player.skin is undefined>>
+		<<set $player.skin to {
+			color: "light",
+			layers: [],
+		}>>
+	<</if>>
+	<<if $skinColor isnot undefined>>
+		<<set $player.skin.color to $skinColor.natural>>
+		<<script>>
+			const colorValue = Math.max(...V.skinColor.tanValues);
+			V.player.skin.layers = [
+				{
+					layers: [],
+					slots: {},
+					value: colorValue,
+				}
+			];
+		<</script>>
+		<<unset $skinColor>>
+	<</if>>
+	<<if $player.skin.sunscreen is undefined>>
+		<<set $player.skin.sunscreen to { usesLeft: 0 }>>
+	<</if>>
+
+	<<if $options.tanningEnabled isnot undefined>>
+		<<set delete $options.tanningEnabled>>
+	<</if>>
+
+	<<if $options.tanLines is undefined>>
+		<<set $options.tanLines to true>>
+	<</if>>
+
+	<<if $tanned isnot undefined>>
+		<<unset $tanned>>
+	<</if>>
+
+	<<if $gameTanImgSetting isnot undefined>>
+		<<unset $gameTanImgSetting>>
+	<</if>>
+
+	<!--Skin colours for nonhuman children and inconsistency npc skin colour fix -->
+    <<if !$objectVersion.missingChildSkinColors or $objectVersion.missingChildSkinColors lt 3>>
+		<<script>>
+			const fixChild = (child) => {
+				if (!child.features) return;
+				if (!child.features.skinColour) child.features.skinColour = Skin.color.natural;
+				if (child.features.skinColour === "black") child.features.skinColour = "dark";
+				if (child.features.skinColour === "white") child.features.skinColour = "light";
+			};
+			Object.values(V.children).forEach(child => fixChild(child));
+			getPregnancyObject().fetus.forEach(child => fixChild(child));
+			Object.values(V.NPCName).forEach(npc => {
+				if (npc.pregnancy.fetus) {
+					npc.pregnancy.fetus.forEach(child => fixChild(child));
+				}
+			});
+			Object.values(V.storedNPCs).forEach(npc => {
+				if (npc?.pregnancy.fetus) {
+					npc.pregnancy.fetus.forEach(child => fixChild(child));
+				}
+			})
+		<</script>>
+		<<set $objectVersion.missingChildSkinColors to 3>>
+    <</if>>
 
 	<!-- 0.5 Weather update -->
 	<<if Time.year is 361 and $location is "temple">>
@@ -5360,36 +5441,12 @@
 	<</if>>
 
 	<!-- 5.0.6 -->
-	<<if $pillory is undefined>>
-		<<set $pillory to {}>>
-	<</if>>
-	<<if $pillorytime isnot undefined or $pillory.time is undefined>>
-		<<set _pilloryStartTime to new DateTime(Time.date)>>
-		<<set _pilloryEndTime to new DateTime(Time.date).addMinutes(60 - Time.date.minute)>>
-		<<if !isNaN($pillorytime) and $pillorytime gte 0>>
-			<<set _pilloryEndTime.addHours($pillortime)>>
+	<!-- Fix for not having an island home set, should only be run once -->
+	<<if !$objectVersion.islandHomeFix>>
+		<<if $passage.startsWith("Island") and $island and $island.home is undefined>>
+			<<set $island.home to "rocky_hillock">>
 		<</if>>
-		<<set $pillory.time to {
-			start: _pilloryStartTime.timeStamp,
-			end: _pilloryEndTime.timeStamp,
-		}>>
-		<<unset $pillorytime>>
-	<</if>>
-	<<if $pilloryaudience isnot undefined>>
-		<<if !isNaN($pilloryaudience) and $pilloryaudience gte 0>>
-			<<set $pillory.audience to $pilloryaudience>>
-		<</if>>
-		<<unset $pilloryaudience>>
-	<</if>>
-	<<if $pillory_tenant isnot undefined>>
-		<<set $pillory.tenant to $pillory_tenant>>
-		<<unset $pillory_tenant>>
-	<</if>>
-	<<if $options.oldclock isnot undefined>>
-		<<run delete $options.oldclock>>
-	<</if>>
-	<<if $options.newWardrobeStyle isnot undefined>>
-		<<run delete $options.newWardrobeStyle>>
+		<<set $objectVersion.islandHomeFix to 1>>
 	<</if>>
 
 		<!-- Fix for not having an island home set, should only be run once -->
@@ -5400,688 +5457,128 @@
 		<<set $objectVersion.islandHomeFix to 1>>
 	<</if>>
 
+	<!-- Fix for older instance of 'cat_tf_stage_' not being cleared, leading to exceeded loop iterations -->
+	<<if $custom_eyecolours.filter(obj => obj.variable.includes("cat_tf_stage_")).length gt 8>>
+		<!-- filter out cat_tf_stages, then append only the first instances of them found in the original array -->
+		<<set _newEyecolours to V.custom_eyecolours.filter(i => !i.variable.startsWith("cat_tf_stage_")).concat(["cat_tf_stage_0_left", "cat_tf_stage_0_right", "cat_tf_stage_1_left", "cat_tf_stage_1_right", "cat_tf_stage_2_left", "cat_tf_stage_2_right", "cat_tf_stage_3_left", "cat_tf_stage_3_right"].map(o => V.custom_eyecolours.find(c => c.variable === o)));>>
+		<<set $custom_eyecolours to _newEyecolours>>
+	<</if>>
+
+	<!-- 0.5.2.0, converting NPC seen variables to arrays -->
+	<<if $remy_seen isnot undefined>>
+		<<set $remySeen to []>>
+		<<set $remySeen.pushUnique($remy_seen)>>
+		<<set $remySeenLast to $remy_seen>>
+		<<unset $remy_seen>>
+		<<if $farm_stage gte 5>>
+			<<set $remySeen.pushUnique("farm")>>
+		<</if>>
+		<<if $livestock_intro isnot undefined>>
+			<<set $remySeen.pushUnique("livestock")>>
+		<</if>>
+		<<if $ridingschoolintro isnot undefined>>
+			<<set $remySeen.pushUnique("riding_school")>>
+		<</if>>
+	<</if>>
+	<<if $wren_seen isnot undefined>>
+		<<set $wrenSeen to []>>
+		<<set $wrenSeen.pushUnique($wren_seen)>>
+		<<set $wrenSeenLast to $wren_seen>>
+		<<unset $wren_seen>>
+		<<if $wren_intro isnot undefined>>
+			<<set $wrenSeen.pushUnique("cards")>>
+		<</if>>
+		<<if $winterLakeTalk gte 3>>
+			<<set $wrenSeen.pushUnique("winter")>>
+		<</if>>
+	<</if>>
+	<<if $niki_seen isnot undefined>>
+		<<set $nikiSeen to []>>
+		<<set $nikiSeen.pushUnique($niki_seen)>>
+		<<unset $niki_seen>>
+		<<if $livestock_pig gte 1>>
+			<<set $nikiSeen.pushUnique("farm")>>
+		<</if>>
+		<<if $chef_state gte 5>>
+			<<set $nikiSeen.pushUnique("chef")>>
+		<</if>>
+		<<if $winterLakeTalk gte 3>>
+			<<set $nikiSeen.pushUnique("winter")>>
+		<</if>>
+	<</if>>
+
+	<!-- Disabled the npc compressor -->
+	<<if !$objectVersion.npcCompressorDisable>>
+		<<set _storedNPCToDelete to []>>
+		<<run Object.entries($storedNPCs).forEach(([key, npcStore]) => {
+			if (npcStore.npc && (typeof npcStore.npc === 'string' || npcStore.npc instanceof String)) {
+				try {
+					npcStore.npc = npcDecompressor(npcStore.npc);
+				} catch (e) {
+					T.storedNPCToDelete.push(key);
+				}
+			}
+		})>>
+		<<run _storedNPCToDelete.forEach(key => {
+			delete $storedNPCs[key];
+		})>>
+		<<set $objectVersion.npcCompressorDisable to 1>>
+	<</if>>
+	<<if $objectVersion.npcCompressorDisable lt 2>>
+		<<script>>
+			const decompress = (parent) => {
+				let result = parent;
+				try {
+					result = npcDecompressor(parent);
+				} catch (e) {
+					result = null;
+				}
+				return result;
+			};
+			V.parentList.fathers.forEach(parent => {
+				if (parent.compressed && parent.compressed !== "none") {
+					parent.npc = decompress(parent.compressed);
+					delete parent.compressed;
+				} else {
+					parent.npc = false;
+					delete parent.compressed;
+				}
+			});
+			V.parentList.mothers.forEach(parent => {
+				if (parent.compressed && parent.compressed !== "none") {
+					parent.npc = decompress(parent.compressed);
+					delete parent.compressed;
+				} else {
+					parent.npc = false;
+					delete parent.compressed;
+				}
+			});
+		<</script>>
+		<<set $objectVersion.npcCompressorDisable to 2>>
+	<</if>>
+
+	<<if Browser.isMobile.any() is true and $mobileZoomFix is undefined>>
+		<<if $options.zoom is 100>>
+			<<set $mobileZoomFix to 1>>
+			<<set $options.zoom to 75>>
+			<<run zoom($options.zoom)>>
+		<<else>>
+			<<set $mobileZoomFix to 1>>
+		<</if>>
+	<</if>>
+
+	<!-- Fix for named npcs whose gender could be changed by the randomizer -->
+	<<if !$objectVersion.npcPregnancyGenderChange>>
+		<<initnpcgender>>
+		<<set $objectVersion.npcPregnancyGenderChange to 1>>
+	<</if>>
+
+	<!-- 0.5.2.5 Temporarily disabling the toggle to fix bleached PCs in combat -->
+	<<if $options?.tanImgEnabled is false>>
+		<<set $options.tanImgEnabled to true>>
+	<</if>>
+
 	<<modupdate>>
 	<<xchange-modupdate>>	
 	
-<</widget>>
-
-<<widget "modupdate">>
-	<<if $angeltf is undefined>>
-		<<set $angeltf to 0>>
-	<</if>>
-	<<if $fallenangeltf is undefined>>
-		<<set $fallenangeltf to 0>>
-	<</if>>
-	<<if $fallenangelplustf is undefined>>
-		<<set $fallenangelplustf to 0>>
-	<</if>>
-	<<if $demontf is undefined>>
-		<<set $demontf to 0>>
-	<</if>>
-	<<if $cattf is undefined>>
-		<<set $cattf to 0>>
-	<</if>>
-	<<if $cowtf is undefined>>
-		<<set $cowtf to 0>>
-	<</if>>
-	<<if $wolftf is undefined>>
-		<<set $wolftf to 0>>
-	<</if>>
-	<<if $harpytf is undefined>>
-		<<set $harpytf to 0>>
-	<</if>>
-	<<if $foxtf is undefined>>
-		<<set $foxtf to 0>>
-	<</if>>
-	<<if $fallenangelretribution is undefined>>
-		<<set $fallenangelretribution to 0>>
-	<</if>>
-	<<if $demonseduce is undefined>>
-		<<set $demonseduce to 0>>
-	<</if>>
-	<<if $begoneThot is undefined>>
-		<<set $begoneThot to 0>>
-	<</if>>
-	<<if $farm isnot undefined>>
-		<<if $farm.tractor is undefined>>
-			<<set $farm.tractor to 0>>
-			<<set $farm.tractorplough to false>>
-			<<set $farm.tractorseeddrill to false>>
-			<<set $farm.tractorharvester to false>>
-			<<set $farm.tractorloader to false>>
-		<</if>>
-		<<if $farm.compostbin is undefined>>
-			<<set $farm.compostbin to 0>>
-		<</if>>
-		<<if $farm.compostToProduce is undefined>>
-			<<set $farm.compostToProduce to 0>>
-		<</if>>
-		<<if $farm.compostWaiting is undefined>>
-			<<set $farm.compostWaiting to 0>>
-		<</if>>
-		<<if $farm.compostProducing is undefined>>
-			<<set $farm.compostProducing to [-1,-1,-1,-1]>>
-		<</if>>
-		<<if $farm.compostProducing[0] is undefined>>
-			<<set $farm.compostProducing[0] to -1>>
-		<</if>>
-		<<if $farm.compostProducing[1] is undefined>>
-			<<set $farm.compostProducing[1] to -1>>
-		<</if>>
-		<<if $farm.compostProducing[2] is undefined>>
-			<<set $farm.compostProducing[2] to -1>>
-		<</if>>
-		<<if $farm.compostProducing[3] is undefined>>
-			<<set $farm.compostProducing[3] to -1>>
-		<</if>>
-		<<if $farm.compostReady is undefined>>
-			<<set $farm.compostReady to 0>>
-		<</if>>
-		<<if $farm.watchtowerDailyAttempt is undefined>>
-			<<set $farm.watchtowerDailyAttempt to 0>>
-		<</if>>
-		<<if $farm.dailyHelp is undefined>>
-			<<set $farm.dailyHelp to 0>>
-		<</if>>
-		<<if $farm.player_still_timer is undefined>>
-			<<set $farm.player_still_timer to -1>>
-		<</if>>
-		<<if $farm.extract is undefined>>
-			<<set $farm.extract to 0>>
-		<</if>>
-	<</if>>
-
-	<<if $studyBooks is undefined>>
-		<<set $studyBooks to {}>>
-		<<set $studyBooks.rented to {}>>
-		<<set $studyBooks.rented.count to 0>>
-		<<set $studyBooks.rented.science to 0>>
-		<<set $studyBooks.rented.maths to 0>>
-		<<set $studyBooks.rented.english to 0>>
-		<<set $studyBooks.rented.history to 0>>
-		<<set $studyBooks.rented.RaulAndJanet to 0>>
-		<<set $studyBooks.rented.pinch to 0>>
-
-		<<set $studyBooks.stolen to {}>>
-		<<set $studyBooks.stolen.count to 0>>
-		<<set $studyBooks.stolen.science to 0>>
-		<<set $studyBooks.stolen.maths to 0>>
-		<<set $studyBooks.stolen.english to 0>>
-		<<set $studyBooks.stolen.history to 0>>
-		<<set $studyBooks.stolen.RaulAndJanet to 0>>
-		<<set $studyBooks.stolen.pinch to 0>>
-	<</if>>
-
-	<<if $studyBooks.rented is "none" or $studyBooks.rented is "science" or $studyBooks.rented is "maths" or $studyBooks.rented is "English" or $studyBooks.rented is "history" or $studyBooks.rented is "Raul and Janet" or $studyBooks.rented is "Pinch">>
-		<<set $studyBooks.rented to {}>>
-		<<set $studyBooks.rented.count to 0>>
-		<<if $studyBooks.rented is "science">>
-			<<set $studyBooks.rented.science to 1>>
-			<<set $studyBooks.rented.count to 1>>
-		<<else>>
-			<<set $studyBooks.rented.science to 0>>
-		<</if>>
-		<<if $studyBooks.rented is "maths">>
-			<<set $studyBooks.rented.maths to 1>>
-			<<set $studyBooks.rented.count to 1>>
-		<<else>>
-			<<set $studyBooks.rented.maths to 0>>
-		<</if>>
-		<<if $studyBooks.rented is "English">>
-			<<set $studyBooks.rented.english to 1>>
-			<<set $studyBooks.rented.count to 1>>
-		<<else>>
-			<<set $studyBooks.rented.english to 0>>
-		<</if>>
-		<<if $studyBooks.rented is "history">>
-			<<set $studyBooks.rented.history to 1>>
-			<<set $studyBooks.rented.count to 1>>
-		<<else>>
-			<<set $studyBooks.rented.history to 0>>
-		<</if>>
-		<<if $studyBooks.rented is "Raul and Janet">>
-			<<set $studyBooks.rented.RaulAndJanet to 1>>
-			<<set $studyBooks.rented.count to 1>>
-		<<else>>
-			<<set $studyBooks.rented.RaulAndJanet to 0>>
-		<</if>>
-		<<if $studyBooks.rented is "Pinch">>
-			<<set $studyBooks.rented.pinch to 1>>
-			<<set $studyBooks.rented.count to 1>>
-		<<else>>
-			<<set $studyBooks.rented.pinch to 0>>
-		<</if>>
-	<</if>>
-
-	<<if $studyBooks.stolen is "none" or $studyBooks.stolen is "science" or $studyBooks.stolen is "maths" or $studyBooks.stolen is "English" or $studyBooks.stolen is "history" or $studyBooks.stolen is "Raul and Janet" or $studyBooks.stolen is "Pinch">>
-		<<set $studyBooks.stolen to {}>>
-		<<set $studyBooks.stolen.count to 0>>
-		<<if $studyBooks.stolen is "science">>
-			<<set $studyBooks.stolen.science to 1>>
-			<<set $studyBooks.stolen.count to 1>>
-		<<else>>
-			<<set $studyBooks.stolen.science to 0>>
-		<</if>>
-		<<if $studyBooks.stolen is "maths">>
-			<<set $studyBooks.stolen.maths to 1>>
-			<<set $studyBooks.stolen.count to 1>>
-		<<else>>
-			<<set $studyBooks.stolen.maths to 0>>
-		<</if>>
-		<<if $studyBooks.stolen is "English">>
-			<<set $studyBooks.stolen.english to 1>>
-			<<set $studyBooks.stolen.count to 1>>
-		<<else>>
-			<<set $studyBooks.stolen.english to 0>>
-		<</if>>
-		<<if $studyBooks.stolen is "history">>
-			<<set $studyBooks.stolen.history to 1>>
-			<<set $studyBooks.stolen.count to 1>>
-		<<else>>
-			<<set $studyBooks.stolen.history to 0>>
-		<</if>>
-		<<if $studyBooks.stolen is "Raul and Janet">>
-			<<set $studyBooks.stolen.RaulAndJanet to 1>>
-			<<set $studyBooks.stolen.count to 1>>
-		<<else>>
-			<<set $studyBooks.stolen.RaulAndJanet to 0>>
-		<</if>>
-		<<if $studyBooks.stolen is "Pinch">>
-			<<set $studyBooks.stolen.pinch to 1>>
-			<<set $studyBooks.stolen.count to 1>>
-		<<else>>
-			<<set $studyBooks.stolen.pinch to 0>>
-		<</if>>
-	<</if>>
-
-	<<if $book_rent_deposit is undefined>>
-		<<set $book_rent_deposit to 0>>
-	<</if>>
-
-	<<if !$plants_known.includes("green_manure")>>
-		<<set $plants_known.push("green_manure")>>
-	<</if>>
-	<<if $lockpickTrainingSet is undefined>>
-		<<set $lockpickTrainingSet to 0>>
-	<</if>>
-	<<if $umbrella isnot undefined>>
-		<<unset $umbrella>>
-	<</if>>
-	<<if $umbrellaDurability isnot undefined>>
-		<<unset $umbrellaDurability>>
-	<</if>>
-	<<if $umbrellaSidebar isnot undefined>>
-		<<unset $umbrellaSidebar>>
-	<</if>>
-	<<if $umbrellaStat is undefined>>
-		<<set $umbrellaStat to 0>>
-	<</if>>
-	<<if $tfearshatposition is undefined>>
-		<<set $tfearshatposition to "under">>
-	<</if>>
-	<<if $tfearsposition is undefined>>
-		<<set $tfearsposition to "back">>
-	<</if>>
-	<<if $bannerstyle is undefined>>
-		<<set $bannerstyle to "default">>
-	<</if>>
-	<<if $bannerstyle is 1>>
-		<<set $bannerstyle to "default">>
-	<</if>>
-	<<if $bannerstyle is 2>>
-		<<set $bannerstyle to "gold">>
-	<</if>>
-	<<if $bannerstyleintro is undefined>>
-		<<set $bannerstyleintro to {}>>
-		<<set $bannerstyleintro.gold to false>>
-		<<set $bannerstyleintro.silver to false>>
-		<<set $bannerstyleintro.bronze to false>>
-		<<set $bannerstyleintro.blood to false>>
-		<<set $bannerstyleintro.alien to false>>
-	<</if>>
-	<<if $bannerstyleintro.silver is undefined>>
-		<<set $bannerstyleintro.silver to false>>
-	<</if>>
-	<<if $bannerstyleintro.bronze is undefined>>
-		<<set $bannerstyleintro.bronze to false>>
-	<</if>>
-	<<if $furnitureLocation is undefined>>
-		<<set $furnitureLocation to "orphanage">>
-	<</if>>
-	<<if $furnitureMovePrice is undefined>>
-		<<set $furnitureMovePrice = []>>
-	<</if>>
-	<<if $multFix is undefined>>
-		<<if $npcHealthMult is 1>>
-			<<set $npcHealthMult to 100>>
-		<</if>>
-		<<if $npcArousalMult is 1>>
-			<<set $npcArousalMult to 100>>
-		<</if>>
-		<<if $beastHealthMult is 1>>
-			<<set $beastHealthMult to 100>>
-		<</if>>
-		<<if $beastArousalMult is 1>>
-			<<set $beastArousalMult to 100>>
-		<</if>>
-		<<set $multFix to 1>>
-	<</if>>
-	<<if $npcHealthMult is undefined>>
-		<<set $npcHealthMult to 100>>
-	<</if>>
-	<<if $npcArousalMult is undefined>>
-		<<set $npcArousalMult to 100>>
-	<</if>>
-	<<if $beastHealthMult is undefined>>
-		<<set $beastHealthMult to 100>>
-	<</if>>
-	<<if $beastArousalMult is undefined>>
-		<<set $beastArousalMult to 100>>
-	<</if>>
-	<<set setup.majorAreas to [
-		"Orphanage", "Bedroom", "Barb Street", "Cliff Street", "Connudatus Street", "Danube Street", "Domus Street", "Elk Street",
-		"Harvest Street", "High Street", "Mer Street", "Nightingale Street", "Oxford Street", "Starfish Street", "Wolf Street",
-		"Residential alleyways", "Commercial alleyways", "Industrial alleyways", "Park", "Hallways", "Brothel", "Strip Club",
-		"Beach", "Ocean Breeze", "Docks Work", "Residential Drain", "Commercial Drain", "Industrial Drain", "Forest", "Farmland",
-		"Livestock Field", "Moor", "Forest Wolf Cave", "Wolf Cave", "Wolf Cave Clearing", "Asylum", "Asylum Cell", "Underground Cell", "Prison Cell", "Island", "Lake Shore", "Farmland", "Farm Work", "Meadow", "Sea", "town"
-	]>>
-	<<if $hypnosis_traits.scream is undefined>>
-		<<set $hypnosis_traits.scream to -1>>
-	<</if>>
-	<<if $hypnosis_traits.cover is undefined>>
-		<<set $hypnosis_traits.cover to -1>>
-	<</if>>
-	<<if $hypnosis_traits.deviancy is undefined>>
-		<<set $hypnosis_traits.deviancy to -1>>
-	<</if>>
-	<<if $enemystatstyle is undefined>>
-		<<set $enemystatstyle to "default">>
-	<</if>>
-	<<if $uncomfortable.sadoMaso is undefined>>
-		<<set $uncomfortable.sadoMaso to true>>
-	<</if>>
-	<<if $combatExtended is undefined>>
-		<<set $combatExtended to {}>>
-	<</if>>
-	<<if $combatExtended.passiveDodging is undefined>>
-		<<set $combatExtended.passiveDodging to 0>>
-	<</if>>
-	<<if $combatExtended.activeDodging is undefined>>
-		<<set $combatExtended.activeDodging to 0>>
-	<</if>>
-	<<if $combatExtended.activeDodgingActive is undefined>>
-		<<set $combatExtended.activeDodgingActive to 0>>
-	<</if>>
-	<<if $combatExtended.dodgeSuccess is undefined>>
-		<<set $combatExtended.dodgeSuccess to 0>>
-	<</if>>
-	<<if $combatExtended.standingFights is undefined>>
-		<<set $combatExtended.standingFights to 0>>
-	<</if>>
-	<<if $combatExtended.standingFightStart is undefined or $combat isnot 1>>
-		<<set $combatExtended.standingFightStart to 1>>
-	<</if>>
-	<<if $combatExtended.reverseRape is undefined>>
-		<<set $combatExtended.reverseRape to 0>>
-	<</if>>
-	<<if $combatExtended.reverseRapeEnd is undefined>>
-		<<set $combatExtended.reverseRapeEnd to 0>>
-	<</if>>
-	<<if $combatExtended.reverseRapeStart is undefined>>
-		<<set $combatExtended.reverseRapeStart to 0>>
-	<</if>>
-	/* <<if $combatExtended.consensualExtended is undefined>>
-		<<set $combatExtended.consensualExtended to 0>>
-	<</if>> */
-	<<if $combatExtended.consensualEnd is undefined>>
-		<<set $combatExtended.consensualEnd to 0>>
-	<</if>>
-	<<if $combatExtended.consensualStart is undefined>>
-		<<set $combatExtended.consensualStart to 0>>
-	<</if>>
-	<<if $combatExtended.stability is undefined>>
-		<<set $combatExtended.stability to 0>>
-	<</if>>
-	<<if $combatExtended.stabilityLost is undefined>>
-		<<set $combatExtended.stabilityLost to 0>>
-	<</if>>
-	<<if $combatExtended.enemyPassiveDodging is undefined>>
-		<<set $combatExtended.enemyPassiveDodging to 0>>
-	<</if>>
-	<<if $combatExtended.enemyActiveDodging is undefined>>
-		<<set $combatExtended.enemyActiveDodging to 0>>
-	<</if>>
-	<<if $combatExtended.enemyFeinting is undefined>>
-		<<set $combatExtended.enemyFeinting to 0>>
-	<</if>>
-	<<if $combatExtended.enemyBlocking is undefined>>
-		<<set $combatExtended.enemyBlocking to 0>>
-	<</if>>
-	<<if $combatExtended.enemyCountering is undefined>>
-		<<set $combatExtended.enemyCountering to 0>>
-	<</if>>
-	<<if $combatExtended.enemyCounterSuccess is undefined>>
-		<<set $combatExtended.enemyCounterSuccess to 0>>
-	<</if>>
-	<<if $combatExtended.brawlingToggle is undefined>>
-		<<set $combatExtended.brawlingToggle to 0>>
-	<</if>>
-	<<if $combatExtended.brawling is undefined>>
-		<<set $combatExtended.brawling to 0>>
-	<</if>>
-	<<if $combatExtended.uncappedDodgeChance is undefined>>
-		<<set $combatExtended.uncappedDodgeChance to 0>>
-	<</if>>
-	<<if $combatExtended.dodgeChanceCap is undefined>>
-		<<set $combatExtended.dodgeChanceCap to 90>>
-	<</if>>
-	<<if $combatExtended.blocking is undefined>>
-		<<set $combatExtended.blocking to 0>>
-	<</if>>
-	<<if $combatExtended.blockingActive is undefined>>
-		<<set $combatExtended.blockingActive to 0>>
-	<</if>>
-	<<if $combatExtended.countering is undefined>>
-		<<set $combatExtended.countering to 0>>
-	<</if>>
-	<<if $combatExtended.counteringActive is undefined>>
-		<<set $combatExtended.counteringActive to 0>>
-	<</if>>
-	<<if $combatExtended.counterSuccess is undefined>>
-		<<set $combatExtended.counterSuccess to 0>>
-	<</if>>
-	<<if $combatExtended.feinting is undefined>>
-		<<set $combatExtended.feinting to 0>>
-	<</if>>
-	<<if $combatExtended.feintingActive is undefined>>
-		<<set $combatExtended.feintingActive to 0>>
-	<</if>>
-	<<if $combatExtended.hookpunching is undefined>>
-		<<set $combatExtended.hookpunching to 0>>
-	<</if>>
-	<<if $combatExtended.hookpunchingActive is undefined>>
-		<<set $combatExtended.hookpunchingActive to 0>>
-	<</if>>
-
-	/* Enemy Day Scaling */
-	<<if $combatExtended.enemyLevelDayScaling is undefined>>
-		<<set $combatExtended.enemyLevelDayScaling to 0>>
-	<</if>>
-	<<if $combatExtended.enemyLevelDayScalingMult is undefined>>
-		<<set $combatExtended.enemyLevelDayScalingMult to 1>>
-	<</if>>
-	<<if $combatExtended.enemyHealthDayScaling is undefined>>
-		<<set $combatExtended.enemyHealthDayScaling to 0>>
-	<</if>>
-	<<if $combatExtended.enemyHealthDayScalingMult is undefined or ($combatExtended.enemyHealthDayScalingMult is 0.05 and $combatExtended.enemyHealthDayScalingMultFix is undefined)>>
-		<<set $combatExtended.enemyHealthDayScalingMult to 5>>
-	<</if>>
-	<<if $combatExtended.enemyDayScaling is undefined>>
-		<<set $combatExtended.enemyDayScaling to 7>>
-	<</if>>
-	<<if $combatExtended.enemyInfiniteDayScaling is undefined>>
-		<<set $combatExtended.enemyInfiniteDayScaling to 0>>
-	<</if>>
-	<<if $combatExtended.enemyDayScalingLimit is undefined>>
-		<<set $combatExtended.enemyDayScalingLimit to 20>>
-	<</if>>
-
-	/* Enemy Defeat Scaling */
-	<<if $combatExtended.enemyLevelDefeatScaling is undefined>>
-		<<set $combatExtended.enemyLevelDefeatScaling to 0>>
-	<</if>>
-	<<if $combatExtended.enemyLevelDefeatScalingMult is undefined>>
-		<<set $combatExtended.enemyLevelDefeatScalingMult to 1>>
-	<</if>>
-	<<if $combatExtended.enemyHealthDefeatScaling is undefined>>
-		<<set $combatExtended.enemyHealthDefeatScaling to 0>>
-	<</if>>
-	<<if $combatExtended.enemyHealthDefeatScalingMult is undefined or ($combatExtended.enemyHealthDefeatScalingMult is 0.05 and $combatExtended.enemyHealthDefeatScalingMultFix is undefined)>>
-		<<set $combatExtended.enemyHealthDefeatScalingMult to 5>>
-	<</if>>
-	<<if $combatExtended.enemyDefeatScaling is undefined>>
-		<<set $combatExtended.enemyDefeatScaling to 10>>
-	<</if>>
-	<<if $combatExtended.enemyInfiniteDefeatScaling is undefined>>
-		<<set $combatExtended.enemyInfiniteDefeatScaling to 0>>
-	<</if>>
-	<<if $combatExtended.enemyDefeatScalingLimit is undefined>>
-		<<set $combatExtended.enemyDefeatScalingLimit to 20>>
-	<</if>>
-	<<if $combatExtended.domPCsubNPCChance is undefined>>
-		<<set $combatExtended.domPCsubNPCChance to 90>>
-		<<set $combatExtended.neutralPCsubNPCChance to 50>>
-		<<set $combatExtended.subPCsubNPCChance to 10>>
-	<</if>>
-	<<if $combatExtended.reverseRapeInit is undefined>>
-		<<set $combatExtended.reverseRapeInit to 0>>
-	<</if>>
-
-	<<if $dodgeStat is undefined>>
-		<<set $dodgeStat to 0>>
-	<</if>>
-	<<if $partialDodgeStat is undefined>>
-		<<set $partialDodgeStat to 0>>
-	<</if>>
-	<<if $counterStat is undefined>>
-		<<set $counterStat to 0>>
-	<</if>>
-	<<if $partialCounterStat is undefined>>
-		<<set $partialCounterStat to 0>>
-	<</if>>
-	<<if $hookpunchStat is undefined>>
-		<<set $hookpunchStat to 0>>
-	<</if>>
-	<<if $enemiesDefeatedStat is undefined>>
-		<<set $enemiesDefeatedStat to 0>>
-	<</if>>
-	<<if $brothelExclusiveGloryholeIntro is undefined>>
-		<<set $brothelExclusiveGloryholeIntro to 0>>
-	<</if>>
-	<<if $brothelExclusiveGloryholePrice is undefined>>
-		<<set $brothelExclusiveGloryholePrice to 10>>
-	<</if>>
-	<<if $combat is 0 and $punishmentposition is "gloryhole">>
-		<<set $punishmentposition to 0>>
-	<</if>>
-
-	<<if $npcStealMoneyToggle is undefined>>
-		<<set $npcStealMoneyToggle to 0>>
-	<</if>>
-	<<if $npcStealMoneyPercentage is undefined>>
-		<<set $npcStealMoneyPercentage to 10>>
-	<</if>>
-	<<if $willpowerDecay is undefined>>
-		<<set $willpowerDecay to 1>>
-	<</if>>
-
-	<<if $birdFly is 1>>
-		<<set $birdFlyUnlocked to 1>>
-	<</if>>
-
-	<<set $daisyCount to 0>>
-	<<for _i to 0; _i lt $plants_known.length; _i++>>
-		<<if $plants_known[_i] is "daisy">>
-			<<set $daisyCount += 1>>
-		<</if>>
-	<</for>>
-	<<if $daisyCount gte 2>>
-		<<set $plants_known to []>>
-		<<run unlockAllSeeds()>>
-	<</if>>
-
-	<<if $multiOrgasmToggle is undefined>>
-		<<set $multiOrgasmToggle to 0>>
-	<</if>>
-
-	<<if $multiOrgasmLustScaling is undefined>>
-		<<set $multiOrgasmLustScaling to 0>>
-	<</if>>
-
-	<<if $NPCName[0].maxOrgasms is undefined>>
-		<<for _i to 0; _i lt $NPCName.length; _i++>>
-			<<set $NPCName[_i].maxOrgasms to 1>>
-		<</for>>
-	<</if>>
-
-	<<if $farm>>
-		<<if $farm.tower>>
-			<<if $farm.tower gte 1 and !$farm.tower_guard>>
-				<<set $farm.tower_guard_can_hire to true>>
-			<</if>>
-		<</if>>
-	<</if>>
-
-	<<if C.tiredness is undefined>>
-		<<set C.tiredness to {
-			max: 2000,
-			min: 0
-		}>>
-	<</if>>
-
-	<<if $tirednessMaxScalingToggle is undefined>>
-		<<set $tirednessMaxScalingToggle to 0>>
-	<</if>>
-
-	<<if $dockbonus is undefined>>
-		<<set $dockbonus to 0>>
-	<</if>>
-
-	<<set $CTAngryLowC to ["snarls", "sneers", "growls", "groans", "yells"]>>
-	<<set $CTAngryMidC to ["mocks you", "sneers", "growls", "groans", "yells"]>>
-	<<set $CTAngryHighC to ["snarls", "sneers", "screams", "shouts", "yells"]>>
-
-	<<set $CTAnnoyedLowC to ["speaks", "snarls", "growl", "jeers"]>>
-	<<set $CTAnnoyedMidC to ["speaks hushedly","snarls","sneers","growls"]>>
-	<<set $CTAnnoyedHighC to ["is lost in the moment","snarls","sneers","growls"]>>
-
-	<<set $CTHappyLowC to ["speaks", "whispers" , "Murmurs" , "breathes"]>>
-	<<set $CTHappyMidC to ["speaks","whispers","moans"]>>
-	<<set $CTHappyHighC to ["is lost in the moment","speaks","coos","whispers", "speaks hushedly"]>>
-
-	<<if Array.isArray($mathsTraitBuffs)>>
-		<<set _mathsTraitBuffs to $mathsTraitBuffs>>
-		<<if $mathsTraitBuffs.antiques isnot undefined>>
-			<<set _mathsTraitBuffs.antiques to $mathsTraitBuffs.antiques>>
-		<</if>>
-		<<if $mathsTraitBuffs.stolen isnot undefined>>
-			<<set _mathsTraitBuffs.stolen to $mathsTraitBuffs.stolen>>
-		<</if>>
-		<<if $mathsTraitBuffs.market isnot undefined>>
-			<<set _mathsTraitBuffs.market to $mathsTraitBuffs.market>>
-		<</if>>
-		<<set $mathsTraitBuffs to {}>>
-		<<if _mathsTraitBuffs.antiques isnot undefined>>
-			<<set $mathsTraitBuffs.antiques to _mathsTraitBuffs.antiques>>
-		<</if>>
-		<<if _mathsTraitBuffs.stolen isnot undefined>>
-			<<set $mathsTraitBuffs.stolen to _mathsTraitBuffs.stolen>>
-		<</if>>
-		<<if _mathsTraitBuffs.market isnot undefined>>
-			<<set $mathsTraitBuffs.market to _mathsTraitBuffs.market>>
-		<</if>>
-		<<unset _mathsTraitBuffs>>
-	<</if>>
-
-	<<if $mathsTraitBuffs is undefined>>
-		<<set $mathsTraitBuffs to {}>>
-	<</if>>
-
-	<<if $mathsTraitBuffs.antiques is undefined>>
-		<<set $mathsTraitBuffs.antiques to 0>>
-	<</if>>
-
-	<<if $mathsTraitBuffs.stolen is undefined>>
-		<<set $mathsTraitBuffs.stolen to 0>>
-	<</if>>
-
-	<<if $mathsTraitBuffs.market is undefined>>
-		<<set $mathsTraitBuffs.market to 0>>
-	<</if>>
-
-	<<if $npcDescGenType is undefined>>
-		<<set $npcDescGenType to "vanilla">>
-	<</if>>
-
-	<<if $npcBreastGenType is undefined>>
-		<<set $npcBreastGenType to "vanilla">>
-	<</if>>
-
-	<<if $npcPenisGenType is undefined>>
-		<<set $npcPenisGenType to "vanilla">>
-	<</if>>
-
-	<<if "antiqueliquor" in $museumAntiques.antiques>>
-		<<run delete $museumAntiques.antiques.antiqueliquor>>
-	<</if>>
-
-	<<if "antiquebogplate" in $museumAntiques.antiques>>
-		<<run delete $museumAntiques.antiques.antiquebogplate>>
-	<</if>>
-
-	<<if "antiquebogbone" in $museumAntiques.antiques>>
-		<<run delete $museumAntiques.antiques.antiquebogbone>>
-	<</if>>
-
-	<<if "antiquebogtool" in $museumAntiques.antiques>>
-		<<run delete $museumAntiques.antiques.antiquebogtool>>
-	<</if>>
-
-	<<if "antiquebunkertablet" in $museumAntiques.antiques>>
-		<<run delete $museumAntiques.antiques.antiquebunkertablet>>
-	<</if>>
-
-	<<if "antiquebunkertag" in $museumAntiques.antiques>>
-		<<run delete $museumAntiques.antiques.antiquebunkertag>>
-	<</if>>
-
-	<<if "antiquecannonball" in $museumAntiques.antiques>>
-		<<run delete $museumAntiques.antiques.antiquecannonball>>
-	<</if>>
-
-	<<if "antiquearttablet" in $museumAntiques.antiques>>
-		<<run delete $museumAntiques.antiques.antiquearttablet>>
-	<</if>>
-
-	<<if "antiqueterracottastatue" in $museumAntiques.antiques>>
-		<<run delete $museumAntiques.antiques.antiqueterracottastatue>>
-	<</if>>
-
-	<<if "antiqueredvial" in $museumAntiques.antiques>>
-		<<run delete $museumAntiques.antiques.antiqueredvial>>
-	<</if>>
-
-	<<if "antiquetribemask" in $museumAntiques.antiques>>
-		<<run delete $museumAntiques.antiques.antiquetribemask>>
-	<</if>>
-
-	<<if "antiqueebonystatuette" in $museumAntiques.antiques>>
-		<<run delete $museumAntiques.antiques.antiqueebonystatuette>>
-	<</if>>
-
-	<<if "antiqueglacierplant" in $museumAntiques.antiques>>
-		<<run delete $museumAntiques.antiques.antiqueglacierplant>>
-	<</if>>
-
-	<<if "antiquereal" in $museumAntiques.antiques>>
-		<<run delete $museumAntiques.antiques.antiquereal>>
-	<</if>>
-
-	<<if "antiquebullion" in $museumAntiques.antiques>>
-		<<run delete $museumAntiques.antiques.antiquebullion>>
-	<</if>>
-
-	<<if "antiqueindigo" in $museumAntiques.antiques>>
-		<<run delete $museumAntiques.antiques.antiqueindigo>>
-	<</if>>
-
-	<<if isNaN($stress)>>
-		<<set $stress to 0>>
-	<</if>>
-
-	<<if isNaN($tiredness)>>
-		<<set $tiredness to 0>>
-	<</if>>
-
-	<<amcTraitsUpdate>>
 <</widget>>

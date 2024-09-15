@@ -71,8 +71,6 @@
 			<<mirrorTransformation>>
 		<<case "genomedump">>
 			<<genomedump>>
-		<<case "debug">>
-			<<mirrorDebug>>
 		<<default>>
 			<<mirrorMenu _args[0]>>
 	<</switch>>
@@ -162,34 +160,44 @@
 		<span class="fading">A pale figure stands behind.</span>
 	<</if>>
 	<br><br>
-	<<link "Examine how you are seen by others">><<set $mirrorMenu to "appearance">><<replace #mirror>><<mirrorDisplay>><</replace>><<numberify "#passages > .passage">><</link>>
+	<<crimeicon "mark">><<link "Examine how you are seen by others">><<set $mirrorMenu to "appearance">><<replace #mirror>><<mirrorDisplay>><</replace>><<numberify "#passages > .passage">><</link>>
 	<br><br>
 	<<if !$simpleMirror>>
 		__Skin__
 		<br>
-		<<link "Examine your skin">><<set $mirrorMenu to "skin">><<replace #mirror>><<mirrorDisplay>><</replace>><<numberify "#passages > .passage">><</link>>
+		<<investigateicon>><<link "Examine your skin">><<set $mirrorMenu to "skin">><<replace #mirror>><<mirrorDisplay>><</replace>><<numberify "#passages > .passage">><</link>>
 		<br><br>
 	<</if>>
 	__Hair__
 	<br>
-	<<link "Change your hair style">><<set $mirrorMenu to "hair">><<replace #mirror>><<mirrorDisplay>><</replace>><<numberify "#passages > .passage">><</link>>
+	<<hairdressericon "hairspray">><<link "Change your hair style">><<set $mirrorMenu to "hair">><<replace #mirror>><<mirrorDisplay>><</replace>><<numberify "#passages > .passage">><</link>>
 	<br><br>
 	__Makeup__
 	<br>
-	<<link "Apply makeup">><<set $mirrorMenu to "makeup">><<replace #mirror>><<mirrorDisplay>><</replace>><<numberify "#passages > .passage">><</link>>
+	<<cosmeticsicon>><<link "Apply makeup">><<set $mirrorMenu to "makeup">><<replace #mirror>><<mirrorDisplay>><</replace>><<numberify "#passages > .passage">><</link>>
 	<br><br>
 
 	<<if $worn.neck.name is "love locket">>
 		__Locket__
 		<br>
-		<<link [[Customise locket|Mirror Locket]]>><<set $passage_mirror to $passage>><</link>>
+		<span @class="'clothes-'+$worn.neck.colour"><<icon "locket.png">></span><<link [[Customise locket|Mirror Locket]]>><<set $passage_mirror to $passage>><</link>>
 		<br><br>
 	<</if>>
 
 	<<if !$simpleMirror>>
-		<<if $specialTransform is 1 or $physicalTransform is 1 or $angeltf is 1 or $fallenangeltf is 1 or $fallenangelplustf is 1 or $demontf is 1 or $wolftf is 1 or $cattf is 1 or $cowtf is 1 or $harpytf is 1 or $foxtf is 1>>
+		<<if $specialTransform is 1 or $physicalTransform is 1 or $angeltf is 1 or $fallenangeltf is 1 or $fallenangelplustf is 1 or $demontf is 1 or $wolftf is 1 or $cattf is 1 or $cowtf is 1 or $beartf is 1 or $harpytf is 1 or $foxtf is 1>>
 			__Transformation__
 			<br>
+			<<if $demon gte 6>><<tficon "demon">>
+			<<elseif $wolf gte 6>><<tficon "wolf">>
+			<<elseif $angel gte 6>><<tficon "angel">>
+			<<elseif $fallenangel gte 2>><<tficon "fallen">>
+			<<elseif $cat gte 6>><<tficon "cat">>
+			<<elseif $cow gte 6>><<tficon "cow">>
+			<<elseif $harpy gte 6>><<tficon "bird">>
+			<<elseif $fox gte 6>><<tficon "fox">>
+			<<else>><<tficon "angel">>
+			<</if>>
 			<<link "Examine your inner self">><<set $mirrorMenu to "transformation">><<replace #mirror>><<mirrorDisplay>><</replace>><<numberify "#passages > .passage">><</link>>
 		<<else>>
 			Obtain otherworldly powers to examine further.
@@ -198,12 +206,12 @@
 	<br><br>
 
 	<<if $debug is 1>>
-		<<link "Debug">><<set $mirrorMenu to "debug">><<replace #mirror>><<mirrorDisplay>><</replace>><</link>>
+		<<ind>><<link "Debug">><<set $mirrorMenu to "debug">><<replace #mirror>><<mirrorDisplay>><</replace>><</link>>
 	<</if>>
 <</widget>>
 
 <<widget "mirrorAppearance">>
-	<<link "Back">><<replace #mirror>><<mirrorMenu>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
+	<<mirroricon>><<link "Back">><<replace #mirror>><<mirrorMenu>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
 	<br><br>
 	<<settextcolorfromgender $player.gender_appearance>>
 	You look like a <span @class="_text_color"><<if playerBellyVisible(true)>>pregnant <</if>><<girl>>.</span>
@@ -340,6 +348,10 @@
 		<</if>>
 		<<if ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black")>>
 			Bovine
+			<br>
+		<</if>>
+		<<if ($bear gte 6 or $transformationParts.bear.tail is "default")>>
+			Bearly
 			<br>
 		<</if>>
 		<<if ($harpy gte 6 or $transformationParts.bird.wings is "default")>>
@@ -482,6 +494,10 @@
 		<</if>>
 		<<if ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black")>>
 			Bovine
+			<br>
+		<</if>>
+		<<if ($bear gte 6 or $transformationParts.bear.tail is "default")>>
+			Bearly
 			<br>
 		<</if>>
 		<<if ($harpy gte 6 or $transformationParts.bird.wings is "default")>>
@@ -864,9 +880,15 @@
 <</widget>>
 
 <<widget "mirrorSkin">>
-	You are looking at your skin.
-	<br>
-	<<link "Back">><<replace #mirror>><<mirrorMenu>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
+	<<mirroricon>><<link "Back">><<handheldon>><<updatesidebarimg>><<replace #mirror>><<mirrorMenu>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
+	<br><br>
+
+	<span id="sunscreenDescription">
+		<<sunscreenDesc>>
+	</span>
+	<span id="sunscreenLinks">
+		<<sunscreenLinks>>
+	</span>
 	<br><br>
 
 	<<if $liquidcount gt 0>>
@@ -887,7 +909,7 @@
 		<<mirrorwet "anus" $player.bodyliquid.anus.semen $player.bodyliquid.anus.goo $player.bodyliquid.anus.nectar>>
 		<<mirrorwet "mouth" $player.bodyliquid.mouth.semen $player.bodyliquid.mouth.goo $player.bodyliquid.mouth.nectar>>
 	<<else>>
-		Your skin feels clean.
+		Your skin feels <span class="green">clean</span>.
 	<</if>>
 	<br><br>
 	__Body Writing__<br>
@@ -918,6 +940,78 @@
 
 	/*Needs to be last*/
 	<<bodywritingMenuLinks>>
+<</widget>>
+
+<<widget "sunscreenLinks">>
+	<<if Skin.Sunscreen.isApplied()>>
+		<br>
+		<<cosmeticsicon "sunscreen">><<link "Remove sunscreen">>
+			<<handheldon>>
+			<<replace #sunscreenDescription>><<sunscreenApply "remove">><</replace>>
+			<<replace #sunscreenLinks>><<sunscreenLinks>><</replace>>
+		<</link>> <<note `Skin.Sunscreen.usesLeft + ' use'+(Skin.Sunscreen.usesLeft > 1 ? 's' : '') + ' left'`>>
+	<<else>>
+		<<if Skin.Sunscreen.usesLeft gt 0>>
+			<br>
+			<<cosmeticsicon "sunscreen">><<link "Apply sunscreen">>
+				<<handheldon>>
+				<<replace #sunscreenDescription>><<sunscreenApply>><</replace>>
+				<<replace #sunscreenLinks>><<sunscreenLinks>><</replace>>
+			<</link>> <<note `Skin.Sunscreen.usesLeft + ' use'+(Skin.Sunscreen.usesLeft > 1 ? 's' : '') + ' left'`>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "sunscreenDesc">>
+	Your skin is
+	<<if Skin.Sunscreen.isApplied()>>
+		<mouse class = "gold tooltip-small" style="border-bottom-color:white">
+			protected against the sun
+			<span class="black">
+				Sunscreen is keeping your skin from getting tanned.
+				<<if Skin.Sunscreen.usesLeft is 0>>
+					<br>
+					<i class="blue">Sunscreen can be acquired at the shops</i>
+				<</if>>
+			</span>
+		</mouse>
+		<<set $_timeLeft to Math.floor(Skin.Sunscreen.timeLeft / 60)>>
+		(<<print getTimeString($_timeLeft)>> left).
+	<<else>>
+		<mouse class = "gold tooltip-small" style="border-bottom-color:white">
+			not protected against the sun.
+			<span class="black">
+				Your skin will tan when exposed to the sun.
+				<<if Skin.Sunscreen.usesLeft is 0>>
+					<br>
+					<i class="blue">Sunscreen can be acquired at the cosmetics shop</i>
+				<</if>>
+			</span>
+		</mouse>
+	<</if>>
+<</widget>>
+
+<<widget "sunscreenApply">>
+	<<if $leftarm isnot "bound" and $rightarm isnot "bound">>
+		<<if _args[0] is "remove">>
+			<<run Skin.Sunscreen.remove()>>
+		<<else>>
+			<<run Skin.Sunscreen.apply()>>
+		<</if>>
+	<</if>>
+	<<if $leftarm is "bound" and $rightarm is "bound">>
+		<span class="red">Both of your arms are bound</span>, and you find it difficult to do anything about your skin this way.
+		<hr>
+	<<elseif _args[0] is "remove">>
+		<<wearProp "rag" "white">><<updatesidebarimg>>
+		You scrub a damp towel over your skin, removing any last traces of sunscreen.
+		<hr>
+	<<else>>
+		<<wearProp "sunscreen">><<updatesidebarimg>>
+		You squirt a hefty dollop of sunscreen onto your hand and rub it into your skin.
+		<hr>
+	<</if>>
+	<<sunscreenDesc>>
 <</widget>>
 
 <<widget "bodywritingOptions">>
@@ -1513,7 +1607,7 @@
 <</widget>>
 
 <<widget "mirrorHair">>
-	<<link "Back">><<replace #mirror>><<mirrorMenu>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
+	<<mirroricon>><<link "Back">><<handheldon>><<updatesidebarimg>><<replace #mirror>><<mirrorMenu>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
 	<<shopClothingFilterSettingsDefault>> /* Due to reusing the traits filtering */
 	<br><br>
 	<div id="hairDescription">
@@ -1527,13 +1621,24 @@
 	<br>
 
 	<<set _hairTypeByName to {}>>
-	<<run setup.hairstyles.sides.forEach(style => {
-		if (!V.shopClothingFilter.active || !V.shopClothingFilter.traits.length || style.type.find(type => V.shopClothingFilter.traits.includes(type))) T.hairTypeByName[style.name_cap] = style.variable;
+	<<run setup.hairstyles.sides.sort((a, b) => {
+		if (a.name === "natural") return -1;
+		if (b.name === "natural") return 1;
+		return a.name.localeCompare(b.name);
+	}).forEach(style => {
+		if (!V.shopClothingFilter.active || !V.shopClothingFilter.traits.length || style.type.find(type => V.shopClothingFilter.traits.includes(type))) {
+			T.hairTypeByName[style.name] = style.variable;
+		}
 	})>>
-
 	<<set _fringeTypeByName to {}>>
-	<<run setup.hairstyles.fringe.forEach(style => {
-		if (!V.shopClothingFilter.active || !V.shopClothingFilter.traits.length || style.type.find(type => V.shopClothingFilter.traits.includes(type))) T.fringeTypeByName[style.name_cap] = style.variable;
+	<<run setup.hairstyles.fringe.sort((a, b) => {
+		if (a.name === "natural") return -1;
+		if (b.name === "natural") return 1;
+		return a.name.localeCompare(b.name);
+	}).forEach(style => {
+		if (!V.shopClothingFilter.active || !V.shopClothingFilter.traits.length || style.type.find(type => V.shopClothingFilter.traits.includes(type))) {
+			T.fringeTypeByName[style.name] = style.variable;
+		}
 	})>>
 
 	<div id="hairContainer">
@@ -1568,8 +1673,9 @@
 	<<hairDescription>>
 	<<if $leftarm is "bound" and $rightarm is "bound">>
 		<span class="red">Both of your arms are bound</span>, and you find it difficult to do anything about your hair this way.
-		<br>
+		<hr>
 	<<else>>
+		<<wearProp "hairgel">><<updatesidebarimg>>
 		You squirt a hefty dollop of hair gel onto your hand and slick it through your hair. By the time you're finished, your hairstyle is securely in place, and the small bottle is empty. <span class="pink">If you decide to change up your hairstyle, you'll need to <<print ($hairgelBottles is 0) ? "acquire" : "apply">> more.</span>
 		<hr>
 	<</if>>
@@ -1577,23 +1683,6 @@
 
 <<widget "hairgelDesc">>
 	You have <span class="gold">$hairgelBottles</span> <<print ($hairgelBottles is 1) ? "bottle" : "bottles">> of hair gel remaining.
-<</widget>>
-
-<<widget "mirrormodel">>
-	<<set _modeloptions.skin_type = $skinColor.natural || "light">>
-	<<set _modeloptions.freckles = $player.freckles == true and $makeup.concealer != 1>>
-	<<set _modeloptions.left_eye = $makeup.eyelenses.left != 0 ? $makeup.eyelenses.left : $leftEyeColour>>
-	<<set _modeloptions.right_eye = $makeup.eyelenses.right != 0 ? $makeup.eyelenses.right : $rightEyeColour>>
-	<<set _modeloptions.mouth to 'neutral'>>
-	<<set _modeloptions.hair_colour = $haircolour>>
-	<<set _modeloptions.hair_fringe_colour = $hairfringecolour>>
-	<<set _modeloptions.hair_fringe_colour_gradient = $hairFringeColourGradient>>
-	<<set _modeloptions.hair_fringe_colour_style = $hairFringeColourStyle>>
-	<<set _modeloptions.hair_colour_gradient = $hairColourGradient>>
-	<<set _modeloptions.hair_colour_style = $hairColourStyle>>
-	<<set _modeloptions.hair_sides_length to $hairlengthstage>>
-	<<set _modeloptions.hair_sides_position to $hairposition>>
-	<<set _modeloptions.hair_fringe_length to $fringelengthstage>>
 <</widget>>
 
 <<widget "mirrorhairdisplay">>
@@ -1667,7 +1756,7 @@
 <<widget "mirrorhairOptions">>
 	<<set _hairOptions to {}>>
 	<<run setup.hairstyles[_args[0]].forEach(style => {
-		if (!V.shopClothingFilter.active || !V.shopClothingFilter.traits.length || style.type.find(type => V.shopClothingFilter.traits.includes(type))) T.hairOptions[style.name_cap] = style.variable;
+		if (!V.shopClothingFilter.active || !V.shopClothingFilter.traits.length || style.type.find(type => V.shopClothingFilter.traits.includes(type))) T.hairOptions[style.name] = style.variable;
 	})>>
 	<<set _pageMax to Math.ceil(Object.keys(_hairOptions).length / _perPage)>>
 
@@ -1738,7 +1827,22 @@
 				<div @id="'hairGrid-' + _hairCategory.replace('$','') + '-' + _hairName.replace(/ /g,'')" @class="'gridItem' + (_hairName is V[_hairCategory.replace('$','')] ? ' selectedHair' : '')" @onclick="`wikifier('mirrorhairdisplayClick', '${T.hairCategory.replace('$','')}', '${T.hairName.replace(/ /g,'_')}');`">
 					<<if $options.images is 1 and $showMannequins is 1>>
 						<<selectmodel "main">>
-						<<mirrormodel>>
+						<<set _modeloptions.tanningEnabled to false>>
+						<<set _modeloptions.skin_type = Skin.color.natural>>
+						<<set _modeloptions.skin_tone = Skin.color.tan>>
+						<<set _modeloptions.freckles = $player.freckles == true and $makeup.concealer != 1>>
+						<<set _modeloptions.left_eye = $makeup.eyelenses.left != 0 ? $makeup.eyelenses.left : $leftEyeColour>>
+						<<set _modeloptions.right_eye = $makeup.eyelenses.right != 0 ? $makeup.eyelenses.right : $rightEyeColour>>
+						<<set _modeloptions.mouth to 'neutral'>>
+						<<set _modeloptions.hair_colour = $haircolour>>
+						<<set _modeloptions.hair_fringe_colour = $hairfringecolour>>
+						<<set _modeloptions.hair_fringe_colour_gradient = $hairFringeColourGradient>>
+						<<set _modeloptions.hair_fringe_colour_style = $hairFringeColourStyle>>
+						<<set _modeloptions.hair_colour_gradient = $hairColourGradient>>
+						<<set _modeloptions.hair_colour_style = $hairColourStyle>>
+						<<set _modeloptions.hair_sides_length to $hairlengthstage>>
+						<<set _modeloptions.hair_sides_position to $hairposition>>
+						<<set _modeloptions.hair_fringe_length to $fringelengthstage>>
 						<<if _hairCategory is "$hairtype">>
 							<<set _modeloptions.hair_sides_type to _hairName>>
 							<<set _modeloptions.hair_fringe_type to $fringetype>>
@@ -1750,7 +1854,7 @@
 						<<rendermodel "hairstyleMannequin">>
 						<br>
 					<</if>>
-					<<print _label>>
+					<<print toTitleCase(_label)>>
 				</div>
 			<</capture>>
 		<</for>>
@@ -2011,7 +2115,7 @@
 <</widget>>
 
 <<widget "mirrorMakeup">>
-	<<link "Back">><<replace #mirror>><<mirrorMenu>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
+	<<mirroricon>><<link "Back">><<replace #mirror>><<mirrorMenu>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
 	<br><br>
 	__Makeup__
 	<br>
@@ -2323,7 +2427,7 @@
 <</widget>>
 
 <<widget "mirrorTransformation">>
-	<<link "Back">><<replace #mirror>><<mirrorMenu>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
+	<<mirroricon>><<link "Back">><<replace #mirror>><<mirrorMenu>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
 	<br><br>
 	/* Hiding parts of your Inner Self will slowly increase your Trauma over time (excludes pubes and pits).
 	If your Trauma gets too high, you will be unable to hide.
@@ -2341,14 +2445,15 @@
 	<<set _demon to $transformationParts.demon>>
 	<<set _cat to $transformationParts.cat>>
 	<<set _cow to $transformationParts.cow>>
+	<<set _bear to $transformationParts.bear>>
 	<<set _wolf to $transformationParts.wolf>>
 	<<set _bird to $transformationParts.bird>>
 	<<set _fox to $transformationParts.fox>>
 	<<set _traits to $transformationParts.traits>>
 
-	<<if $wolfgirl gte 2 or $wolftf is 1 or $cat gte 2 or $cattf is 1 or ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black") or $cowtf is 1 or $harpy gte 3 or $harpytf is 1 or $fox gte 3 or $foxtf is 1 or (($demon gte 4 or $demontf is 1) and $exhibitionism gte 95)>>
+	<<if $wolfgirl gte 2 or $wolftf is 1 or $cat gte 2 or $cattf is 1 or ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black") or $cowtf is 1 or $bear gte 6 or $beartf is 1 or $harpy gte 3 or $harpytf is 1 or $fox gte 3 or $foxtf is 1 or (($demon gte 4 or $demontf is 1) and $exhibitionism gte 95)>>
 		__Traits__<br>
-		<<if $wolfgirl gte 2 or $wolftf is 1 or $cat gte 2 or $cattf is 1 or $fox gte 2 or $foxtf is 1>>
+		<<if $wolfgirl gte 2 or $wolftf is 1 or $cat gte 2 or $cattf is 1 or $fox gte 2 or $foxtf is 1 or $bear gte 2 or $beartf is 1>>
 			Fangs:
 			<<link "Set">><<set _traits.fangs = "default">><</link>> / <<link "Clear">><<set _traits.fangs = "disabled">><</link>><br>
 		<</if>>
@@ -2367,6 +2472,32 @@
 		<<if ($demon gte 4 or $demontf is 1) and hasSexStat("exhibitionism", 6)>>
 			Flaunting when exposed:
 			<<link "Set">><<set _traits.flaunting = "default">><</link>> / <<link "Clear">><<set _traits.flaunting = "hidden">><</link>><br>
+		<</if>>
+		<<if $DoLPTFBuffs is 1>>
+			<<if $wolfgirl gte 6 or $wolftf is 1>>
+				Spirit of the Wild:
+				<<link "Set">><<set $TFWolfBuffs = 1>><</link>> / <<link "Clear">><<set $TFWolfBuffs = 0>><</link>><br>
+			<</if>>
+			<<if $cat gte 6 or $cattf is 1>>
+				Felinous Mischief:
+				<<link "Set">><<set $TFCatBuffs = 1>><</link>> / <<link "Clear">><<set $TFCatBuffs = 0>><</link>><br>
+			<</if>>
+			<<if $cow gte 6 or $cowtf is 1>>
+				Nature's Nurturer:
+				<<link "Set">><<set $TFCowBuffs = 1>><</link>> / <<link "Clear">><<set $TFCowBuffs = 0>><</link>><br>
+			<</if>>
+			<<if $bear gte 6 or $beartf is 1>>
+				Ursine Strength:
+				<<link "Set">><<set $TFBearBuffs = 1>><</link>> / <<link "Clear">><<set $TFBearBuffs = 0>><</link>><br>
+			<</if>>
+			<<if $harpy gte 6 or $harpytf is 1>>
+				Sky's Embrace:
+				<<link "Set">><<set $TFBirdBuffs = 1>><</link>> / <<link "Clear">><<set $TFBirdBuffs = 0>><</link>><br>
+			<</if>>
+			<<if $fox gte 6 or $foxtf is 1>>
+				Vixen's Guile:
+				<<link "Set">><<set $TFFoxBuffs = 1>><</link>> / <<link "Clear">><<set $TFFoxBuffs = 0>><</link>><br>
+			<</if>>
 		<</if>>
 		<br>
 	<</if>>
@@ -2405,16 +2536,25 @@
 		<br>
 	<</if>>
 
-	<<if $harpy gte 4 or $harpytf is 1>>
-		__Plumage__<br>
-		<<link "Set">><<set _bird.plumage = "default">><<updatesidebarimg>><</link>> / <<link "Clear">><<set _bird.plumage = "disabled">><<updatesidebarimg>><</link>><br>
+	<<if $harpy gte 4 or $harpytf is 1 or $bear gte 4 or $beartf is 1>>
+		__Plumage and Fur__<br>
+		<<if $harpy gte 4 or $harpytf is 1>>
+			<<link "Harpy">><<set _bird.plumage = "default">><<updatesidebarimg>><</link>> / <<link "Clear">><<set _bird.plumage = "disabled">><<updatesidebarimg>><</link>><br>
+		<</if>>
+		<<if $bear gte 4 or $beartf is 1>>
+			<<link "Bear">><<set _bear.plumage = "default">><<updatesidebarimg>><</link>> / <<link "Clear">><<set _bear.plumage = "disabled">><<updatesidebarimg>><</link>><br>
+		<</if>>
 		<br>
 	<</if>>
 
-	<<if ($wolfgirl gte 4 or $wolftf is 1 or $harpy gte 4 or $harpytf gte 1) and $pbdisable is "f">>
+	<<if ($wolfgirl gte 4 or $wolftf is 1 or $harpy gte 6 or $harpytf gte 1 or $bear gte 6 or $beartf is 1) and $pbdisable is "f">>
 		__Pubes__<br>
 		<<if $wolfgirl gte 4 or $wolftf is 1>>
 			<<link "Wolf">><<set _wolf.pubes = "default">><<updatesidebarimg>><</link>> / <<link "Clear">><<set _wolf.pubes = "disabled">><<updatesidebarimg>><</link>><br>
+			<br>
+		<</if>>
+		<<if $bear gte 6 or $beartf is 1>>
+			<<link "Bear">><<set _bear.pubes = "default">><<updatesidebarimg>><</link>> / <<link "Clear">><<set _bear.pubes = "disabled">><<updatesidebarimg>><</link>><br>
 			<br>
 		<</if>>
 		<<if $harpy gte 6 or $harpytf is 1>>
@@ -2423,7 +2563,7 @@
 		<</if>>
 	<</if>>
 
-	<<if $cat gte 4 or $cattf is 1 or $cow gte 4 or $cowtf is 1 or $wolfgirl gte 4 or $wolftf is 1 or $fox gte 4 or $foxtf is 1>>
+	<<if $cat gte 4 or $cattf is 1 or $cow gte 4 or $cowtf is 1 or $wolfgirl gte 4 or $wolftf is 1 or $fox gte 4 or $foxtf is 1 or $bear gte 4 or $beartf is 1>>
 		__Ears__<br>
 		<<link "Clear">><<clearears>><<updatesidebarimg>><</link>><br>
 		<<if $cat gte 4 or $cattf is 1>>
@@ -2433,6 +2573,9 @@
 			<<link "Cow">><<clearears>><<set _cow.ears = "default">><<updatesidebarimg>><</link>><br>
 			<<link "Cow Spotted Black">><<clearears>><<set _cow.ears = "spotted black">><<updatesidebarimg>><</link>><br>
 			<<link "Cow Spotted Brown">><<clearears>><<set _cow.ears = "spotted brown">><<updatesidebarimg>><</link>><br>
+		<</if>>
+		<<if $bear gte 4 or $beartf is 1>>
+			<<link "Bear">><<clearears>><<set _bear.ears = "default">><<updatesidebarimg>><</link>><br>
 		<</if>>
 		<<if $wolfgirl gte 4 or $wolftf is 1>>
 			<<link "Wolf Default">><<clearears>><<set _wolf.ears = "default">><<updatesidebarimg>><</link>><br>
@@ -2481,7 +2624,7 @@
 		<br>
 	<</if>>
 
-	<<if $demon gte 4 or $demontf is 1 or ($cat gte 6 or $transformationParts.cat.tail is "default") or $cattf is 1 or ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black") or $cowtf is 1 or ($wolfgirl gte 6 or $transformationParts.wolf.tail is "default" or $transformationParts.wolf.tail is "feral") or $wolftf is 1 or $harpy gte 4 or $harpytf is 1 or ($fox gte 6 or $transformationParts.fox.tail is "default") or $foxtf is 1>>
+	<<if $bear gte 4 or $beartf is 1 or $demon gte 4 or $demontf is 1 or ($cat gte 6 or $transformationParts.cat.tail is "default") or $cattf is 1 or ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black") or $cowtf is 1 or ($wolfgirl gte 6 or $transformationParts.wolf.tail is "default" or $transformationParts.wolf.tail is "feral") or $wolftf is 1 or $harpy gte 4 or $harpytf is 1 or ($fox gte 6 or $transformationParts.fox.tail is "default") or $foxtf is 1>>
 		__Tail__<br>
 		<<link "Clear">><<cleartail>><<updatesidebarimg>><</link>><br>
 		<<if $demon gte 4 or $demontf is 1>>
@@ -2495,6 +2638,9 @@
 		<<if ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black") or $cowtf is 1>>
 			<<link "Cow">><<cleartail>><<set _cow.tail = "default">><<updatesidebarimg>><</link>><br>
 			<<link "Cow Black">><<cleartail>><<set _cow.tail = "black">><<updatesidebarimg>><</link>><br>
+		<</if>>
+		<<if ($bear gte 4 or $transformationParts.bear.tail is "default") or $beartf is 1>>
+			<<link "Bear">><<cleartail>><<set _bear.tail = "default">><<updatesidebarimg>><</link>><br>
 		<</if>>
 		<<if ($wolfgirl gte 6 or $transformationParts.wolf.tail is "default" or $transformationParts.wolf.tail is "feral") or $wolftf is 1>>
 			<<link "Wolf Default">><<cleartail>><<set _wolf.tail = "default">><<updatesidebarimg>><</link>><br>
@@ -2511,29 +2657,25 @@
 
 	<<if ($angel gte 6 or $transformationParts.angel.wings is "default" or $transformationParts.angel.wings is "classic") or $angeltf is 1 or ($demon gte 6 or $transformationParts.demon.wings is "default" or $transformationParts.demon.wings is "succubus") or $demontf is 1 or ($fallenangel gte 2 or $transformationParts.fallenAngel.wings is "default" or $transformationParts.fallenAngel.wings is "classic") or $fallenangeltf is 1 or $fallenangelplustf is 1 or ($harpy gte 6 or $transformationParts.bird.wings is "default") or $harpytf is 1>>
 		__Wings__<br>
-		<<link "Clear">><<clearwings>><<updatesidebarimg>><</link>><br>
+		<<link "Clear">><<clearwings>><<updateFly>><<updatesidebarimg>><</link>><br>
 		<<if ($angel gte 6 or $transformationParts.angel.wings is "default" or $transformationParts.angel.wings is "classic") or $angeltf is 1>>
-			<<link "Angel Default">><<clearwings>><<set _angel.wings = "default">><<updatesidebarimg>><</link>><br>
-			<<link "Angel Classic">><<clearwings>><<set _angel.wings = "classic">><<updatesidebarimg>><</link>><br>
+			<<link "Angel Default">><<clearwings>><<set _angel.wings = "default">><<updateFly>><<updatesidebarimg>><</link>><br>
+			<<link "Angel Classic">><<clearwings>><<set _angel.wings = "classic">><<updateFly>><<updatesidebarimg>><</link>><br>
 		<</if>>
 		<<if ($demon gte 6 or $transformationParts.demon.wings is "default" or $transformationParts.demon.wings is "succubus") or $demontf is 1>>
-			<<link "Demon Default">><<clearwings>><<set _demon.wings = "default">><<gencolourselector "_demon.wings_colour">><<updatesidebarimg>><</link>><<gencolourselector "_demon.wings_colour">><br>
-			<<link "Demon Succubus">><<clearwings>><<set _demon.wings = "succubus">><<gencolourselector "_demon.wings_colour">><<updatesidebarimg>><</link>><<gencolourselector "_demon.wings_colour">><br>
+			<<link "Demon Default">><<clearwings>><<set _demon.wings = "default">><<updateFly>><<gencolourselector "_demon.wings_colour">><<updatesidebarimg>><</link>><<gencolourselector "_demon.wings_colour">><br>
+			<<link "Demon Succubus">><<clearwings>><<set _demon.wings = "succubus">><<updateFly>><<gencolourselector "_demon.wings_colour">><<updatesidebarimg>><</link>><<gencolourselector "_demon.wings_colour">><br>
 		<</if>>
 		<<if ($fallenangel gte 2 or $transformationParts.fallenAngel.wings is "default" or $transformationParts.fallenAngel.wings is "classic") or $fallenangeltf is 1>>
-			<<link "Fallen Angel Default">><<clearwings>><<set _fallen.wings = "default">><<updatesidebarimg>><</link>><br>
-			<<link "Fallen Angel Classic">><<clearwings>><<set _fallen.wings = "classic">><<updatesidebarimg>><</link>><br>
+			<<link "Fallen Angel Default">><<clearwings>><<set _fallen.wings = "default">><<updateFly>><<updatesidebarimg>><</link>><br>
+			<<link "Fallen Angel Classic">><<clearwings>><<set _fallen.wings = "classic">><<updateFly>><<updatesidebarimg>><</link>><br>
 		<</if>>
 		<<if ($fallenangel gte 4 or $transformationParts.fallenAngel.wings is "fallenplus" or $transformationParts.fallenAngel.wings is "classicfallenplus") or $fallenangelplustf is 1>>
-			<<link "Fallen Angel Plus Default">><<clearwings>><<set _fallen.wings = "fallenplus">><<updatesidebarimg>><</link>><br>
-			<<link "Fallen Angel Plus Classic">><<clearwings>><<set _fallen.wings = "classicfallenplus">><<updatesidebarimg>><</link>><br>
+			<<link "Fallen Angel Plus Default">><<clearwings>><<set _fallen.wings = "fallenplus">><<updateFly>><<updatesidebarimg>><</link>><br>
+			<<link "Fallen Angel Plus Classic">><<clearwings>><<set _fallen.wings = "classicfallenplus">><<updateFly>><<updatesidebarimg>><</link>><br>
 		<</if>>
 		<<if ($harpy gte 6 or $transformationParts.bird.wings is "default") or $harpytf is 1>>
-			<<link "Harpy">><<clearwings>><<set _bird.wings = "default">>
-			<<if $birdFlyUnlocked isnot undefined>>
-				<<set $birdFly to 1>>
-			<</if>>
-			<<set $birdGlide to 1>><<updatesidebarimg>><</link>><br>
+			<<link "Harpy">><<clearwings>><<set _bird.wings = "default">><<updateFly>><<updatesidebarimg>><</link>><br>
 		<</if>>
 		<br>
 	<</if>>
@@ -2605,7 +2747,7 @@
 			<</switch>>
 			<br>
 		<</if>>
-		<<if !["demon", "cat", "cow", "wolf", "bird", "fox"].every(transform => T[transform].tail is "disabled")>>
+		<<if !["demon", "cat", "cow", "bear", "wolf", "bird", "fox"].every(transform => T[transform].tail is "disabled")>>
 			<<switch $taillayer>>
 				<<case "front">>
 					<<link "Push tail back">>
@@ -2676,45 +2818,9 @@
 	<!-- Attach an event to every listbox item to update the PC on the sidebar. -->
 	<<script>>
 	jQuery('.passage').on('change', 'select.macro-listbox', function (e) {
-		Wikifier.wikifyEval('<<updatesidebarimg>>');
+		Wikifier.wikifyEval('<<updatesidebarimg true>>');
 	});
 	<</script>>
-<</widget>>
-
-<<widget "mirrorDebug">>
-	<<link "Back">><<replace #mirror>><<mirrorMenu>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
-	<br><br>
-	<br>
-	<<link "<<<">><<set $hairlength -= 1000>><<clamp>><<replace "#statshairlength">><<print Math.trunc($hairlength)>><</replace>><</link>> |
-	<<link "<<">><<set $hairlength -= 100>><<clamp>><<replace "#statshairlength">><<print Math.trunc($hairlength)>><</replace>><</link>> |
-	<<link "<">><<set $hairlength -= 10>><<clamp>><<replace "#statshairlength">><<print Math.trunc($hairlength)>><</replace>><</link>> |
-	Hair length: <span id="statshairlength"><<print Math.trunc($hairlength)>></span>
-	| <<link ">">><<set $hairlength += 10>><<clamp>><<replace "#statshairlength">><<print Math.trunc($hairlength)>><</replace>><</link>>
-	| <<link ">>">><<set $hairlength += 100>><<clamp>><<replace "#statshairlength">><<print Math.trunc($hairlength)>><</replace>><</link>>
-	| <<link ">>>">><<set $hairlength += 1000>><<clamp>><<replace "#statshairlength">><<print Math.trunc($hairlength)>><</replace>><</link>>
-	<br>
-	<<link "<<<">><<set $fringelength -= 1000>><<clamp>><<replace "#statsfringelength">><<print Math.trunc($fringelength)>><</replace>><</link>> |
-	<<link "<<">><<set $fringelength -= 100>><<clamp>><<replace "#statsfringelength">><<print Math.trunc($fringelength)>><</replace>><</link>> |
-	<<link "<">><<set $fringelength -= 10>><<clamp>><<replace "#statsfringelength">><<print Math.trunc($fringelength)>><</replace>><</link>> |
-	Fringe length: <span id="statsfringelength"><<print Math.trunc($fringelength)>></span>
-	| <<link ">">><<set $fringelength += 10>><<clamp>><<replace "#statsfringelength">><<print Math.trunc($fringelength)>><</replace>><</link>>
-	| <<link ">>">><<set $fringelength += 100>><<clamp>><<replace "#statsfringelength">><<print Math.trunc($fringelength)>><</replace>><</link>>
-	| <<link ">>>">><<set $fringelength += 1000>><<clamp>><<replace "#statsfringelength">><<print Math.trunc($fringelength)>><</replace>><</link>>
-	<br>
-	Hair Colour (<<print $haircolour>>):
-	<<link "Black">><<set $haircolour to "black">><<goto "Wardrobe">><</link>> |
-	<<link "Brown">><<set $haircolour to "brown">><<goto "Wardrobe">><</link>> |
-	<<link "Red">><<set $haircolour to "red">><<goto "Wardrobe">><</link>> |
-	<<link "Ginger">><<set $haircolour to "ginger">><<goto "Wardrobe">><</link>> |
-	<<link "Blond">><<set $haircolour to "blond">><<goto "Wardrobe">><</link>> |
-	<<link "Green">><<set $haircolour to "green">><<goto "Wardrobe">><</link>> |
-	<<link "Blue">><<set $haircolour to "blue">><<goto "Wardrobe">><</link>> |
-	<<link "Purple">><<set $haircolour to "purple">><<goto "Wardrobe">><</link>>
-
-	<br><br>
-
-	<<link "Skip day">><<pass 23 hours>><<effects>><<goto "Mirror">><</link>>
-	<br>
 <</widget>>
 
 <<widget "genomedump">>
@@ -2738,6 +2844,9 @@
 	<</if>>
 	<<if $cowbuild gte 1>>
 	Cow Transform: <<link [[Reset|$passage]]>><<cowTransform 99>><<updatesidebarimg>><</link>><br>
+	<</if>>
+	<<if $bearbuild gte 1>>
+	Bear Transform: <<link [[Reset|$passage]]>><<bearTransform 99>><<updatesidebarimg>><</link>><br>
 	<</if>>
 	<<if $birdbuild gte 1>>
 	Bird Transform: <<link [[Reset|$passage]]>><<harpyTransform 99>><<updatesidebarimg>><</link>><br>

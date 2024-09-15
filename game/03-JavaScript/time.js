@@ -102,7 +102,7 @@ const Time = (() => {
 	let currentDate = {};
 
 	function set(time = V.timeStamp) {
-		V.startDate = V.startDate ?? new DateTime(2022, 9, 4, 7).timeStamp;
+		V.startDate ??= new DateTime(2022, 9, 4, 7).timeStamp;
 
 		if (time instanceof DateTime) {
 			currentDate = time;
@@ -275,7 +275,7 @@ const Time = (() => {
 	}
 
 	function isBloodMoon(date) {
-		date = date ?? currentDate;
+		date ??= currentDate;
 		return (date.day === date.lastDayOfMonth && date.hour >= 21) || (date.day === 1 && date.hour < 6);
 	}
 
@@ -520,6 +520,9 @@ function dayPassed() {
 	const fragment = document.createDocumentFragment();
 
 	Weather.sky.initSun();
+
+	// Lose one day of tanning
+	Skin.applyTanningLoss(1440);
 
 	if (V.statFreeze) return fragment;
 
@@ -884,6 +887,11 @@ function dayPassed() {
 
 	V.daily.clearProperties();
 
+	if (V.stallDeposit >= 3000) {
+		V.stallDeposit -= 3000;
+		V.daily.stallRented = 1;
+	}
+
 	return fragment;
 }
 
@@ -985,9 +993,7 @@ function minutePassed(minutes) {
 	}
 
 	// Tanning
-	if (V.outside) {
-		tanned(Weather.getTanningFactor().result, "tanLines");
-	}
+	Skin.applyTanningGain(minutes);
 
 	// Body temperature
 	const temperature = V.outside ? Weather.temperature : Weather.insideTemperature;
@@ -1310,10 +1316,6 @@ function dailyPlayerEffects() {
 		if (V.farm_stage >= 6) V.physique = V.physique - V.physique / 3000;
 		else V.physique = V.physique - V.physique / 2500;
 	}
-
-	/* PC loses 40 minutes of tanning every day */
-	tanned(-40, true);
-	V.skinColor.sunBlock = false;
 
 	let genderFactor = !V.xchange.genderIdentityEnabled ?
 		1 : V.player.gender === "m"? 
@@ -2050,6 +2052,7 @@ function getArousal(passMinutes) {
 	if (V.parasite.nipples.name) addedArousal += minuteMultiplier * V.breastsensitivity;
 	if (V.parasite.penis.name && V.parasite.penis.name !== "parasite") addedArousal += minuteMultiplier * V.genitalsensitivity;
 	if (V.parasite.clit.name && V.parasite.clit.name !== "parasite") addedArousal += minuteMultiplier * V.genitalsensitivity;
+	if (V.parasite.tummy.name) addedArousal += minuteMultiplier / 4;
 	if (V.parasite.bottom.name) addedArousal += minuteMultiplier * V.bottomsensitivity;
 	if (V.analchastityparasite) addedArousal += minuteMultiplier;
 	if (V.parasite.tummy.name) addedArousal += minuteMultiplier;

@@ -46,7 +46,7 @@ function npcPregObject(person, mother) {
 				gender: V.player.sex,
 				type: "human",
 				parentId: Array.isArray(parentId) ? parentId[0] : parentId,
-				skinColour: V.skinColor.natural,
+				skinColour: Skin.color.natural,
 				hairColour: V.naturalhaircolour,
 				eyeColour: V.eyeselect,
 			};
@@ -76,7 +76,7 @@ function npcPregObject(person, mother) {
 				name: person,
 				type: "unknown",
 				parentId: Array.isArray(parentId) ? parentId[0] : parentId,
-				skinColour: random(0, 100) >= V.blackchance ? "black" : "white",
+				skinColour: random(0, 100) >= V.blackchance ? "dark" : "light",
 			};
 		}
 	} else {
@@ -248,8 +248,10 @@ function hairColourCalc(colour) {
 }
 
 function skinColourCalc(colour) {
+	if (colour === "black") return "dark";
+	if (colour === "white") return "light";
 	if (colour) return colour;
-	return ["light", "medium", "dark", "ylight", "ymedium", "ydark"][random(0, 5)];
+	return ["light", "medium", "dark", "gyaru", "ylight", "ymedium", "ydark", "ygyaru"].random();
 }
 
 // Only applies to the pc
@@ -257,6 +259,7 @@ function beastTransform(mother, father) {
 	if (mother === "pc" || father === "pc") {
 		if (V.cat >= 10) return "cat";
 		if (V.cow >= 6) return "cow";
+		if (V.bear >= 6) return "bear";
 		if (V.wolfgirl >= 6) return "wolf";
 		if ((V.harpy >= 6  || V.transformationParts.bird.wings == "default")) return "bird";
 		if (V.fox >= 6) return "fox";

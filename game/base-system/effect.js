@@ -340,7 +340,7 @@ function effects() {
 		br();
 	}
 
-	if (V.effectsmessage) {
+	if (V.effectsmessage && !V.statFreeze) {
 		delete V.effectsmessage;
 
 		if (V.recovered_from_pregnancy) {
@@ -1057,7 +1057,7 @@ function effects() {
 		}
 	}
 
-	if (numberOfEarSlime() && V.earSlime.event) {
+	if (numberOfEarSlime() && V.earSlime.event && !V.statFreeze) {
 		if (V.earSlime.event.includes("get sperm into your") && V.earSlime.event.includes("completed") && V.earSlime.eventTimer <= 2) {
 			element(
 				"span",
@@ -1097,6 +1097,7 @@ function effects() {
 	sWikifier("<<integritycheck>><<exposure>>");
 
 	V.orgasmdown -= 1;
+	V.orgasmCum -= 1;
 
 	if (V.exposed >= 1 && V.exposedcheck === 1) {
 		V.exposedcheck = 0;
@@ -1129,6 +1130,7 @@ function effects() {
 
 	sWikifier("<<blackmail-effects>>");
 	sWikifier("<<portalPantiesDisplay>>");
+	if (V.trauma >= (V.traumamax * 0.9)) V.traumatized = true;
 
 	return fragment;
 }
