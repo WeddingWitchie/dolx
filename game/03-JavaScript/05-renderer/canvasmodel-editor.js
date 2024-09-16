@@ -717,6 +717,8 @@ Macro.add("canvasModelEditor", {
 						booleanOption("show_writings"),
 						booleanOption("show_tf"),
 						booleanOption("show_clothes"),
+						booleanOption("show_background"),
+						booleanOption("show_foreground"),
 						optionCategory("Body"),
 						booleanOption("mannequin"),
 						selectOption("breasts", ["", "default", "cleavage"]),
@@ -921,6 +923,10 @@ Macro.add("canvasModelEditor", {
 						selectOption("drip_vaginal", ["", "Start", "VerySlow", "Slow", "Fast", "VeryFast"]),
 						selectOption("drip_anal", ["", "Start", "VerySlow", "Slow", "Fast", "VeryFast"]),
 						selectOption("drip_mouth", ["", "Start", "VerySlow", "Slow", "Fast", "VeryFast"]),
+
+						optionCategory("Decorations"),
+						selectOption("foreground_image_type", ["", "none", "1", "2", "3", "4", "5", "6", "7", "8"]),
+						selectOption("background_image_type", ["", "none", "1", "2", "3", "4", "5", "6", "7", "8"]),
 					]),
 					element("div", { class: "editormodelgroup" }, [
 						setup.clothes_all_slots.map(slot => [

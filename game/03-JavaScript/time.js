@@ -1888,23 +1888,72 @@ function dailyFarmEvents() {
 		V.farm_attack_timer--;
 		if (V.farm_attack_timer < 0) fragment.append(wikifier("farm_attack_auto"));
 		if (V.farm.stock) {
-			V.farm.stock.truffles = Math.trunc(V.farm.stock.truffles * 0.8);
-			V.farm.stock.milk = Math.trunc(V.farm.stock.milk * 0.8);
-			V.farm.stock.eggs = Math.trunc(V.farm.stock.eggs * 0.8);
+			if (V.farm.cooler >= 3) {
+				V.farm.stock.truffles = Math.trunc(V.farm.stock.truffles * 0.99);
+				V.farm.stock.milk = Math.trunc(V.farm.stock.milk * 0.99);
+				V.farm.stock.eggs = Math.trunc(V.farm.stock.eggs * 0.99);
+			} else if (V.farm.cooler >= 2) {
+				V.farm.stock.truffles = Math.trunc(V.farm.stock.truffles * 0.95);
+				V.farm.stock.milk = Math.trunc(V.farm.stock.milk * 0.95);
+				V.farm.stock.eggs = Math.trunc(V.farm.stock.eggs * 0.95);
+			} else if (V.farm.cooler >= 1) {
+				V.farm.stock.truffles = Math.trunc(V.farm.stock.truffles * 0.9);
+				V.farm.stock.milk = Math.trunc(V.farm.stock.milk * 0.9);
+				V.farm.stock.eggs = Math.trunc(V.farm.stock.eggs * 0.9);
+			} else {
+				V.farm.stock.truffles = Math.trunc(V.farm.stock.truffles * 0.8);
+				V.farm.stock.milk = Math.trunc(V.farm.stock.milk * 0.8);
+				V.farm.stock.eggs = Math.trunc(V.farm.stock.eggs * 0.8);
+			}
 		}
-		if (V.farm.woodland >= 3) {
-			fragment.append(wikifier("farm_stock", "truffles", 6, 12));
+		if (V.farm.woodland >= 7) {
+			fragment.append(wikifier("farm_stock", "truffles", 196, 384));
+			fragment.append(wikifier("farm_pigs", -4));
+		} else if (V.farm.woodland >= 6) {
+			fragment.append(wikifier("farm_stock", "truffles", 96, 196));
+			fragment.append(wikifier("farm_pigs", -3));
+		} else if (V.farm.woodland >= 5) {
+			fragment.append(wikifier("farm_stock", "truffles", 48, 96));
+			fragment.append(wikifier("farm_pigs", -3));
+		} else if (V.farm.woodland >= 4) {
+			fragment.append(wikifier("farm_stock", "truffles", 24, 48));
 			fragment.append(wikifier("farm_pigs", -2));
+		} else if (V.farm.woodland >= 3) {
+			fragment.append(wikifier("farm_stock", "truffles", 12, 24));
+			fragment.append(wikifier("farm_pigs", -2));
+		} else if (V.farm.woodland >= 2) {
+			fragment.append(wikifier("farm_stock", "truffles", 6, 12));
+			fragment.append(wikifier("farm_pigs", -1));
 		} else if (V.farm.woodland >= 1) {
 			fragment.append(wikifier("farm_stock", "truffles", 3, 6));
 			fragment.append(wikifier("farm_pigs", -1));
 		}
-		if (V.farm.barn >= 2) {
+		if (V.farm.barn >= 7) {
+			fragment.append(wikifier("farm_stock", "milk", 384, 768));
+		} else if (V.farm.barn >= 6) {
+			fragment.append(wikifier("farm_stock", "milk", 196, 384));
+		} else if (V.farm.barn >= 5) {
+			fragment.append(wikifier("farm_stock", "milk", 96, 196));
+		} else if (V.farm.barn >= 4) {
+			fragment.append(wikifier("farm_stock", "milk", 48, 96));
+		} else if (V.farm.barn >= 3) {
+			fragment.append(wikifier("farm_stock", "milk", 24, 48));
+		} else if (V.farm.barn >= 2) {
 			fragment.append(wikifier("farm_stock", "milk", 12, 24));
 		} else if (V.farm.barn >= 1) {
 			fragment.append(wikifier("farm_stock", "milk", 6, 12));
 		}
-		if (V.farm.coop >= 2) {
+		if (V.farm.coop >= 7) {
+			fragment.append(wikifier("farm_stock", "eggs", 384, 768));
+		} else if (V.farm.coop >= 6) {
+			fragment.append(wikifier("farm_stock", "eggs", 192, 384));
+		} else if (V.farm.coop >= 5) {
+			fragment.append(wikifier("farm_stock", "eggs", 96, 192));
+		} else if (V.farm.coop >= 4) {
+			fragment.append(wikifier("farm_stock", "eggs", 48, 96));
+		} else if (V.farm.coop >= 3) {
+			fragment.append(wikifier("farm_stock", "eggs", 24, 48));
+		} else if (V.farm.coop >= 2) {
 			fragment.append(wikifier("farm_stock", "eggs", 12, 24));
 		} else if (V.farm.coop >= 1) {
 			fragment.append(wikifier("farm_stock", "eggs", 6, 12));

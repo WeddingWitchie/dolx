@@ -128,9 +128,9 @@
 			<span class="gold">Miscellaneous</span>
 			<br>
 			<<numberStepper "Money" $money "money" {
-				activeButtons: ["single", "double", "triple"],
+				activeButtons: ["single", "double", "triple", "quad", "penta"],
 				step: 1000,
-				max: 100000000,
+				max: 100000000000,
 				colorArr:["--yellow"],
 				percentage: false,
 				valueFormat: (value) => `<b>${formatMoney(value)}</b>`
@@ -606,6 +606,8 @@
 				<<for _i range _subjects>>
 					<<set V[_i] to 0>><<clamp>>
 				<</for>>
+				<<adjust_school_traits>>
+				<<exam_difficulty>>
 				<<replace "#schoolSkills">><<cheatSection "school">><</replace>>
 			<</link>>
 			|
@@ -613,6 +615,8 @@
 				<<for _i range _subjects>>
 					<<set V[_i] to 2000>><<clamp>>
 				<</for>>
+				<<adjust_school_traits>>
+				<<exam_difficulty>>
 				<<replace "#schoolSkills">><<cheatSection "school">><</replace>>
 			<</link>>
 			<br><br>
@@ -1615,11 +1619,31 @@
 				<hr>
 				<span class="gold">Town Outskirts</span>
 				<br>
-				<<foresticon>>[[Forest]]
+				<u>Forest</u><br>
+				<<foresticon>><<link [[Forest Outskirts|Forest]]>><<set $forest = 0>><</link>><br>
+				<<foresticon>><<link [[Forest Sparse|Forest]]>><<set $forest = 20>><</link>><br>
+				<<foresticon>><<link [[Forest Lake|Forest]]>><<set $forest = 50>><</link>><br>
+				<<foresticon>><<link [[Forest Deep|Forest]]>><<set $forest = 99>><</link>><br>
 				<br>
-				<<roadicon>>[[Farm Road 1]]
+				<u>Forest Lake Locations</u><br>
+				<<lakeicon>><<link [[Forest Lake Shore|Lake Shore]]>><</link>><br>
+				<<lakeicon>><<link [[Forest Lake Firepit|Lake Firepit]]>><</link>><br>
+				<<lakeicon>><<link [[Forest Lake Waterfall|Lake Waterfall]]>><</link>><br>
+				<<lakeicon>><<link [[Forest Lake Fishing Rock|Lake Fishing Rock]]>><</link>><br>
+				<<lakeicon>><<link [[Forest Lake Campsite|Lake Campsite]]>><</link>><br>
 				<br>
-				<<farmicon "barn">>[[Farmlands|Farmland]]
+				<u>Plains</u><br>
+				<<farmicon "barn">><<link [[Farmland|Farmland]]>><</link>><br>
+				<<farmicon "meadow">><<link [[Meadow|Meadow]]>><</link>><br>
+				<<farmicon "horse">><<link [[Riding School|Riding School]]>><</link>><br>
+				<<mooricon "remy">><<link [[Remy's Estate (Gate)|Estate]]>><<estate_init gate>><</link>><br>
+				<<getinicon>><<link [[Remy's Estate (Secret)|Estate]]>><<estate_init secret>><</link>><br>
+				<br>
+				<u>Moor</u><br>
+				<<mooricon>><<link [[Moor Plains|Moor]]>><<set $moor = 1>><</link>><br>
+				<<mooricon>><<link [[Moor Rocky|Moor]]>><<set $moor = 21>><</link>><br>
+				<<mooricon>><<link [[Moor Bubbles|Moor]]>><<set $moor = 51>><</link>><br>
+				<<mooricon>><<link [[Moor Castle|Moor]]>><<set $moor = 100>><</link>><br>
 			</div>
 			<div class="settingsToggleItem">
 				<span class="gold">Town Streets</span>
@@ -1671,6 +1695,33 @@
 				<<sewericon>>[[Sewers Commercial]]
 				<br>
 				<<sewericon>>[[Sewers Industrial]]
+				<hr>
+				<span class="gold">Sea</span>
+				<br>
+				<<swimicon>><<link [[Sea Nearby Beach|Sea]]>><<set $sea = 0>><</link>><br>
+				<<swimicon>><<link [[Sea Nearby Town|Sea]]>><<set $sea = 20>><</link>><br>
+				<<swimicon>><<link [[Sea Distant Town|Sea]]>><<set $sea = 50>><</link>><br>
+				<<swimicon>><<link [[Sea Horizon Town|Sea]]>><<set $sea = 99>><</link>><br>
+				<<swimicon>><<link [[Sea Endless Deep|Sea]]>><<set $sea = 100>><</link>><br>
+				<hr>
+				<span class="gold">Unsafe Teleports</span>
+				<br>
+				Caution: Teleporting to these locations may or may not break your save. Use after saving and at your own risk.
+				<br><br>
+				<u>Forest Locations</u><br>
+				<<edenicon>><<link [[Eden Cabin|Eden Cabin]]>><</link>><br>
+				<<foresticon "churchyard">><<link [[Churchyard|Churchyard]]>><</link>><br>
+				<<getinicon>><<link [[Wolf Cave|Wolf Cave]]>><</link>><br>
+				<br>
+				<u>Others</u><br>
+				<<compoundicon>><<link [[Elk Compound|Elk Compound]]>><</link>><br>
+				<<asylumicon  "cell">><<link [[Asylum|Asylum Cell]]>><</link>><br>
+				<<link [[Underground Brothel|Underground Cell]]>><</link>><br>
+				<<link [[Underground Farm|Livestock Cell]]>><</link>><br>
+				<<link [[Tentacle Plains|Tentacle Plains]]>><</link>><br>
+				<<link [[Night Monster Lair|Monster Tower]]>><</link>><br>
+				<<link [[Great Hawk Tower|Bird Tower]]>><</link>><br>
+				<<prisonicon "cell">><<link [[Prison Cell|Prison Cell]]>><<prison_init>><</link>><br>
 			</div>
 		<<else>>
 			<div class="settingsToggleItemWide">
@@ -1694,6 +1745,13 @@
 				<<capture _hr>>
 					<<set _hours to _i is 0 ? "hour" : "hours">>
 					<<link [[_hr _hours|$passage]]>><<pass _hr hour>><</link>>
+					/* <<= _i lt 7 ? "<br>" : "">> */
+					<br>
+				<</capture>>
+			<</for>>
+			<<for _i, _dy range [2, 3, 4, 5, 6, 7, 14, 28]>>
+				<<capture _dy>>
+					<<link [[_dy + " days"|$passage]]>><<pass _dy days>><</link>>
 					<<= _i lt 7 ? "<br>" : "">>
 				<</capture>>
 			<</for>>
@@ -2405,7 +2463,7 @@
 		<<link "<<<">><<set $farm.compostbin -= 3>><<set $farm.compostbin = Math.clamp($farm.compostbin, 0, 3)>><<replace "#farm_compostbin">><<print Math.trunc($farm.compostbin)>><</replace>><</link>> |
 		<<link "<<">><<set $farm.compostbin -= 2>><<set $farm.compostbin = Math.clamp($farm.compostbin, 0, 3)>><<replace "#farm_compostbin">><<print Math.trunc($farm.compostbin)>><</replace>><</link>> |
 		<<link "<">><<set $farm.compostbin -= 1>><<set $farm.compostbin = Math.clamp($farm.compostbin, 0, 3)>><<replace "#farm_compostbin">><<print Math.trunc($farm.compostbin)>><</replace>><</link>> |
-		Farm compostbin: <span id="farm_compostbin"><<print Math.trunc($farm.compostbin)>></span>
+		Farm Compost Bin: <span id="farm_compostbin"><<print Math.trunc($farm.compostbin)>></span>
 		| <<link ">">><<set $farm.compostbin += 1>><<set $farm.compostbin = Math.clamp($farm.compostbin, 0, 3)>><<replace "#farm_compostbin">><<print Math.trunc($farm.compostbin)>><</replace>><</link>>
 		| <<link ">>">><<set $farm.compostbin += 2>><<set $farm.compostbin = Math.clamp($farm.compostbin, 0, 3)>><<replace "#farm_compostbin">><<print Math.trunc($farm.compostbin)>><</replace>><</link>>
 		| <<link ">>>">><<set $farm.compostbin += 3>><<set $farm.compostbin = Math.clamp($farm.compostbin, 0, 3)>><<replace "#farm_compostbin">><<print Math.trunc($farm.compostbin)>><</replace>><</link>>
@@ -2417,9 +2475,35 @@
 		<</if>>
 		<<link "<<">><<set $farm.extract -= 2>><<set $farm.extract = Math.clamp($farm.extract, 0, 2)>><<replace "#farm_extract">><<print Math.trunc($farm.extract)>><</replace>><</link>> |
 		<<link "<">><<set $farm.extract -= 1>><<set $farm.extract = Math.clamp($farm.extract, 0, 2)>><<replace "#farm_extract">><<print Math.trunc($farm.extract)>><</replace>><</link>> |
-		Farm extract: <span id="farm_extract"><<print Math.trunc($farm.extract)>></span>
+		Farm Aphrodisiac Extraction System: <span id="farm_extract"><<print Math.trunc($farm.extract)>></span>
 		| <<link ">">><<set $farm.extract += 1>><<set $farm.extract = Math.clamp($farm.extract, 0, 2)>><<replace "#farm_extract">><<print Math.trunc($farm.extract)>><</replace>><</link>>
 		| <<link ">>">><<set $farm.extract += 2>><<set $farm.extract = Math.clamp($farm.extract, 0, 2)>><<replace "#farm_extract">><<print Math.trunc($farm.extract)>><</replace>><</link>>
+		<br>
+		<<if $farm isnot undefined>>
+			<<if $farm.net is undefined>>
+				<<set $farm.net to 0>>
+			<</if>>
+		<</if>>
+		<<link "<<<">><<set $farm.net -= 4>><<set $farm.net = Math.clamp($farm.net, 0, 4)>><<replace "#farm_net">><<print Math.trunc($farm.net)>><</replace>><</link>> |
+		<<link "<<">><<set $farm.net -= 2>><<set $farm.net = Math.clamp($farm.net, 0, 4)>><<replace "#farm_net">><<print Math.trunc($farm.net)>><</replace>><</link>> |
+		<<link "<">><<set $farm.net -= 1>><<set $farm.net = Math.clamp($farm.net, 0, 4)>><<replace "#farm_net">><<print Math.trunc($farm.net)>><</replace>><</link>> |
+		Farm Net: <span id="farm_net"><<print Math.trunc($farm.net)>></span>
+		| <<link ">">><<set $farm.net += 1>><<set $farm.net = Math.clamp($farm.net, 0, 4)>><<replace "#farm_net">><<print Math.trunc($farm.net)>><</replace>><</link>>
+		| <<link ">>">><<set $farm.net += 2>><<set $farm.net = Math.clamp($farm.net, 0, 4)>><<replace "#farm_net">><<print Math.trunc($farm.net)>><</replace>><</link>>
+		| <<link ">>>">><<set $farm.net += 4>><<set $farm.net = Math.clamp($farm.net, 0, 4)>><<replace "#farm_net">><<print Math.trunc($farm.net)>><</replace>><</link>>
+		<br>
+		<<if $farm isnot undefined>>
+			<<if $farm.cooler is undefined>>
+				<<set $farm.cooler to 0>>
+			<</if>>
+		<</if>>
+		<<link "<<<">><<set $farm.cooler -= 3>><<set $farm.cooler = Math.clamp($farm.cooler, 0, 3)>><<replace "#farm_cooler">><<print Math.trunc($farm.cooler)>><</replace>><</link>> |
+		<<link "<<">><<set $farm.cooler -= 2>><<set $farm.cooler = Math.clamp($farm.cooler, 0, 3)>><<replace "#farm_cooler">><<print Math.trunc($farm.cooler)>><</replace>><</link>> |
+		<<link "<">><<set $farm.cooler -= 1>><<set $farm.cooler = Math.clamp($farm.cooler, 0, 3)>><<replace "#farm_cooler">><<print Math.trunc($farm.cooler)>><</replace>><</link>> |
+		Farm Cooler: <span id="farm_cooler"><<print Math.trunc($farm.cooler)>></span>
+		| <<link ">">><<set $farm.cooler += 1>><<set $farm.cooler = Math.clamp($farm.cooler, 0, 3)>><<replace "#farm_cooler">><<print Math.trunc($farm.cooler)>><</replace>><</link>>
+		| <<link ">>">><<set $farm.cooler += 2>><<set $farm.cooler = Math.clamp($farm.cooler, 0, 3)>><<replace "#farm_cooler">><<print Math.trunc($farm.cooler)>><</replace>><</link>>
+		| <<link ">>>">><<set $farm.cooler += 3>><<set $farm.cooler = Math.clamp($farm.cooler, 0, 3)>><<replace "#farm_cooler">><<print Math.trunc($farm.cooler)>><</replace>><</link>>
 		<br>
 		<<if $farm.irrigation is undefined>>
 			<<set $farm.irrigation to 0>>
