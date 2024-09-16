@@ -892,6 +892,43 @@ function dayPassed() {
 		V.daily.stallRented = 1;
 	}
 
+	if (V.bike >= 1) {
+		if (V.bikeSecurityGear == 5) {
+			T.bikeTheftProtection = 999;
+		} else if (V.bikeSecurityGear == 4) {
+			T.bikeTheftProtection = 750;
+		} else if (V.bikeSecurityGear == 3) {
+			T.bikeTheftProtection = 500;
+		} else if (V.bikeSecurityGear == 2) {
+			T.bikeTheftProtection = 300;
+		} else if (V.bikeSecurityGear == 1) {
+			T.bikeTheftProtection = 100;
+		} else {
+			T.bikeTheftProtection = 0;
+		}
+		if (V.bikeLocationCategory == "lake") {
+			T.bikeTheftChance = 500 - T.bikeTheftProtection;
+		} else if (V.bikeLocationCategory == "left" || V.bikeLocationCategory == "mid" || V.bikeLocationCategory == "right") {
+			if (V.baileydefeatedchain >= 1) {
+				T.bikeTheftChanceBonus = 250;
+			} else {
+				T.bikeTheftChanceBonus = 0;
+			}
+			T.bikeTheftChance = 750 - T.bikeTheftProtection + T.bikeTheftChanceBonus;
+		} else if (V.bikeLocationCategory == "farm") {
+			if (V.farm?.aggro) T.bikeTheftChanceBonus = 900 * (V.farm.aggro / 100);
+			T.bikeTheftChance = 100 - T.bikeTheftProtection + T.bikeTheftChanceBonus;
+		} else {
+			T.bikeTheftChance = 0;
+		}
+		if (random(1, 1000) <= T.bikeTheftChance) {
+			V.bikeStolen = 1;
+			V.bike = 0;
+			if (V.bikeSecurityGear >= 1) V.bikeSecurityGearStolen = 1;
+			V.bikeSecurityGear = 0;
+		}
+	}
+
 	return fragment;
 }
 

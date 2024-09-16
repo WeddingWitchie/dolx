@@ -401,10 +401,10 @@ DefineMacro("modelprepare-player-body", function () {
 		██║  ██║██╔══╝  ██║     ██║   ██║██╔══██╗██╔══██║   ██║   ██║██║   ██║██║╚██╗██║╚════██║
 		██████╔╝███████╗╚██████╗╚██████╔╝██║  ██║██║  ██║   ██║   ██║╚██████╔╝██║ ╚████║███████║
 		╚═════╝ ╚══════╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝
-																								
+
 
 	*/
-	
+
 	T.modeloptions.background_image_type = V.background_image;
 	T.modeloptions.foreground_image_type = V.foreground_image;
 
