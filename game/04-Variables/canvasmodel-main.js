@@ -2530,7 +2530,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle"
 		},
 		/*
-				
+
 
 		██████╗ ███████╗ ██████╗ ██████╗ ██████╗  █████╗ ████████╗██╗ ██████╗ ███╗   ██╗███████╗
 		██╔══██╗██╔════╝██╔════╝██╔═══██╗██╔══██╗██╔══██╗╚══██╔══╝██║██╔═══██╗████╗  ██║██╔════╝
@@ -2538,10 +2538,11 @@ Renderer.CanvasModels.main = {
 		██║  ██║██╔══╝  ██║     ██║   ██║██╔══██╗██╔══██║   ██║   ██║██║   ██║██║╚██╗██║╚════██║
 		██████╔╝███████╗╚██████╗╚██████╔╝██║  ██║██║  ██║   ██║   ██║╚██████╔╝██║ ╚████║███████║
 		╚═════╝ ╚══════╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝
-																								
+
 		*/
 		"decoration_foreground": {
 			srcfn(options) {
+				if (options.foreground_image_type == "" || options.foreground_image_type == "none") return;
 				return `img/decorations/foreground/${options.foreground_image_type}.png`;
 			},
 			showfn(options) {
@@ -2554,6 +2555,7 @@ Renderer.CanvasModels.main = {
 
 		"decoration_background": {
 			srcfn(options) {
+				if (options.background_image_type == "" || options.background_image_type == "none") return;
 				return `img/decorations/background/${options.background_image_type}.png`;
 			},
 			showfn(options) {

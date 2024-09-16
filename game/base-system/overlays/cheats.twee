@@ -650,6 +650,7 @@
 		</div>
 
 		<div class="settingsToggleItem">
+<<<<<<< HEAD
 			<span class="gold">X-Change Pill</span>
 			<br>
 			<<if $xchangePill.active>>
@@ -675,6 +676,28 @@
 				You need to be under a pill before you can edit its effects.
 				<br><br>
 			<</if>>
+=======
+			<<set _hypnosis to ["scream", "cover", "deviancy"]>>
+			<span class="gold">Hypnosis Traits</span>
+			<br>
+			<<link "Set all to 0">>
+				<<for _i range _hypnosis>>
+					<<set V.hypnosis_traits[_i] to 0>><<clamp>>
+				<</for>>
+				<<replace "#hypnosis">><<cheatSection "hypnosis">><</replace>>
+			<</link>>
+			|
+			<<link "Set all to max">>
+				<<for _i range _hypnosis>>
+					<<set V.hypnosis_traits[_i] to 5>><<clamp>>
+				<</for>>
+				<<replace "#hypnosis">><<cheatSection "hypnosis">><</replace>>
+			<</link>>
+			<br><br>
+			<span id="hypnosis">
+				<<cheatSection "hypnosis">>
+			</span>
+>>>>>>> 9f1a274493c447d59483b8656fad52be1c9cb8bc
 		</div>
 
 		<div class="settingsToggleItem">
@@ -1499,21 +1522,88 @@
 				<span class="green">The farm is peaceful.</span>
 			<</if>>
 		<<case "farm">>
-			One of the fields is being cleared,
-			<<if $farm.clearing lte 0>>
-				<span class="green">and is ready for planting!</span>
-			<<elseif $farm.clearing lte 20>>
-				<span class="teal">and is almost ready for planting.</span>
-			<<elseif $farm.clearing lte 40>>
-				<span class="lblue">and is starting to look civilised.</span>
-			<<elseif $farm.clearing lte 60>>
-				<span class="blue">and soil has been exposed in places.</span>
-			<<elseif $farm.clearing lte 80>>
-				<span class="purple">but the tangle remains defiant.</span>
-			<<elseif $farm.clearing lte 99>>
-				<span class="pink">but little progress has been made.</span>
-			<<else>>
-				<span class="red">but remains a jungle of weeds.</span>
+			<<if $farm_stage lt 12>>
+				<<set _clearing to (100 - $farm.clearing)>>
+				<<set _percent=Math.floor((_clearing/100)*100)>>
+				One of the fields is being cleared,
+				<<if $farm.clearing lte 0>>
+					<span class="green">and is ready for planting!</span>
+					<div class="meter">
+					<<print '<div class="greenbar" style="width:' + _percent + '%"></div>'>>
+					</div>
+				<<elseif $farm.clearing lte 20>>
+					<span class="teal">and is almost ready for planting.</span>
+					<div class="meter">
+					<<print '<div class="tealbar" style="width:' + _percent + '%"></div>'>>
+					</div>
+				<<elseif $farm.clearing lte 40>>
+					<span class="lblue">and is starting to look civilised.</span>
+					<div class="meter">
+					<<print '<div class="lbluebar" style="width:' + _percent + '%"></div>'>>
+					</div>
+				<<elseif $farm.clearing lte 60>>
+					<span class="blue">and soil has been exposed in places.</span>
+					<div class="meter">
+					<<print '<div class="bluebar" style="width:' + _percent + '%"></div>'>>
+					</div>
+				<<elseif $farm.clearing lte 80>>
+					<span class="purple">but the tangle remains defiant.</span>
+					<div class="meter">
+					<<print '<div class="purplebar" style="width:' + _percent + '%"></div>'>>
+					</div>
+				<<elseif $farm.clearing lte 99>>
+					<span class="pink">but little progress has been made.</span>
+					<div class="meter">
+					<<print '<div class="pinkbar" style="width:' + _percent + '%"></div>'>>
+					</div>
+				<<else>>
+					<span class="red">but remains a jungle of weeds.</span>
+					<div class="meter">
+					<<print '<div class="redbar" style="width:' + _percent + '%"></div>'>>
+					</div>
+				<</if>>
+				<br>
+			<<elseif $farm.waterField is 1 and !$farm.build_finished.includes("water field 2")>>
+				<<set _clearing to (1200 - $farm.clearing)>>
+				<<set _percent=Math.floor((_clearing/1200)*100)>>
+				The water field is being excavated and shaped,
+				<<if $farm.clearing lte 0>>
+					<span class="green">and is ready for the next phase!</span>
+					<div class="meter">
+					<<print '<div class="greenbar" style="width:' + _percent + '%"></div>'>>
+					</div>
+				<<elseif $farm.clearing lte 240>>
+					<span class="teal">and is almost fully excavated.</span>
+					<div class="meter">
+					<<print '<div class="tealbar" style="width:' + _percent + '%"></div>'>>
+					</div>
+				<<elseif $farm.clearing lte 480>>
+					<span class="lblue">and significant progress has been made.</span>
+					<div class="meter">
+					<<print '<div class="lbluebar" style="width:' + _percent + '%"></div>'>>
+					</div>
+				<<elseif $farm.clearing lte 720>>
+					<span class="blue">and the digging is well underway.</span>
+					<div class="meter">
+					<<print '<div class="bluebar" style="width:' + _percent + '%"></div>'>>
+					</div>
+				<<elseif $farm.clearing lte 960>>
+					<span class="purple">but there's still much earth to move.</span>
+					<div class="meter">
+					<<print '<div class="purplebar" style="width:' + _percent + '%"></div>'>>
+					</div>
+				<<elseif $farm.clearing lte 1199>>
+					<span class="pink">but progress is slow.</span>
+					<div class="meter">
+					<<print '<div class="pinkbar" style="width:' + _percent + '%"></div>'>>
+					</div>
+				<<else>>
+					<span class="red">but the site remains untouched.</span>
+					<div class="meter">
+					<<print '<div class="redbar" style="width:' + _percent + '%"></div>'>>
+					</div>
+				<</if>>
+				<br>
 			<</if>>
 			<<if $farm.clearing gt 0>>
 				| <<farmicon "clear yard">><<link "Clear field">><<set $farm.clearing to 0>><<replace "#farmYard">><<cheatsRep "farm">><</replace>><</link>>
@@ -2827,6 +2917,10 @@
 			<<numberStepper "Hands" $handskill "handskill" {max: 1000 * $AMCTraits.handskill, percentage: false}>>
 			<<numberStepper "Anal" $analskill "analskill" {max: 1000 * $AMCTraits.analskill, percentage: false}>>
 			<<numberStepper "Feet" $feetskill "feetskill" {max: 1000 * $AMCTraits.feetskill, percentage: false}>>
+		<<case "hypnosis">>
+			<<numberStepper "Yearning" $hypnosis_traits.scream {callback: value => { V.hypnosis_traits.scream = value }, step: 1, max: 5, percentage: false}>>
+			<<numberStepper "Flaunting" $hypnosis_traits.cover {callback: value => { V.hypnosis_traits.cover = value }, step: 1, max: 5, percentage: false}>>
+			<<numberStepper "Deviancy" $hypnosis_traits.deviancy {callback: value => { V.hypnosis_traits.deviancy = value }, step: 1, max: 5, percentage: false}>>
 		<<default>>
 			ERROR: Skill issue.
 	<</switch>>

@@ -1,0 +1,200 @@
+:: Bike Depot Lock
+
+<<set $outside to 0>><<effects>><<set $lock to 0>>
+
+<<if currentSkillValue('skulduggery') gte $lock>>
+	<<if $leftarm is "bound" and $rightarm is "bound">>
+		You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
+	<<else>>
+		<span class="green">The lock looks easy to pick.</span>
+		<br><br>
+
+		<<lockpickicon>><<link [[Pick it (0:10)|Bike Depot]]>><<pass 10>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
+	<</if>>
+	<br>
+<<else>>
+	<span class="red">The lock looks beyond your ability to pick.</span>
+	<<skulduggeryrequired>>
+	<br><br>
+<</if>>
+<<getouticon>><<link [[Leave|Shopping Centre]]>><</link>>
+
+:: Bike Depot
+<<set $outside to 0>><<set $location to "shopping_centre">><<effects>>
+
+You are in the Bike Depot. It has a quite the stock of bikes.
+<br><br>
+<<if $phase is 4>>
+	<<if $bikeBroken isnot undefined>>
+		<<unset $bikeBroken>>
+	<</if>>
+	<<if $bike is 3>>
+		<<set _repairAmount to 12000 / 4>>
+		<<set $bikeDurability to Math.min($bikeDurability + _repairAmount, 12000)>>
+	<<elseif $bike is 2>>
+		<<set _repairAmount to 6000 / 4>>
+		<<set $bikeDurability to Math.min($bikeDurability + _repairAmount, 6000)>>
+	<<else>>
+		<<set _repairAmount to 3000 / 4>>
+		<<set $bikeDurability to Math.min($bikeDurability + _repairAmount, 3000)>>
+	<</if>>
+	Your bike has been given a tune-up, restoring _repairAmount minutes of usage time.
+	<br><br>
+	<<set $phase to 0>><<unset _repairAmount>>
+<<elseif $phase is 3>>
+	Your high-end bike has been purchased and put outside of the shopping centre.
+	<br><br>
+	<<set $phase to 0>>
+<<elseif $phase is 2>>
+	Your intermediate bike has been purchased and put outside of the shopping centre.
+	<br><br>
+	<<set $phase to 0>>
+<<elseif $phase is 1>>
+	Your basic bike has been purchased and put outside of the shopping centre.
+	<br><br>
+	<<set $phase to 0>>
+<</if>>
+
+<<if Time.dayState is "night">>
+	You are alone in the darkness.
+	<br><br>
+<<elseif $exposed gte 1>>
+	You hide in a cupboard to protect your dignity.
+	<br><br>
+<</if>>
+
+<<if $stress gte $stressmax>>
+	<<passoutshop>>
+<<else>>
+	<<if Time.hour is 21>>
+		It's closing time. Security is herding everyone outside.
+		<<if $exposed gte 1>>
+			Panic swells within you as you realise how embarrassed you'll be should security find you exposed like this.
+		<</if>>
+		<br><br>
+		<<if $exposed lte 0>>
+			<<highicon>><<link [[Go outside|High Street]]>><</link>>
+			<br>
+		<<else>>
+			<<ind>><<link [["Hide until it's over (1:00)"|Bike Depot]]>><<pass 1 hour>><</link>>
+		<</if>>
+	<<else>>
+		<<if Time.dayState is "night" and Time.hour isnot 21 and !$weekly.theft.bikeDepot>>
+			<<shopicon "register">><<link [[Examine the cash register|Bike Depot Register]]>><</link>>
+			<br><br>
+		<<elseif $exposed lte 0 and Time.dayState isnot "night" and Time.hour isnot 21>>
+			<<if $bike lt 3>>
+				<<if $money gte 250000>>
+					<<bikeicon>><<link [[Purchase a high-end bike (£2500 0:05)|Bike Depot]]>><<pass 5>><<set $phase to 3>><<set $bike to 3>><<set $bikeDurability to 12000>><<set $bikeLocation to "high">><<set $money -= 250000>><</link>>
+				<<else>>
+					<span class="red">You don't have the £2500 to purchase a high-end bike.</span>
+				<</if>>
+				<br>
+			<<elseif $bike is 3>>
+				You already have a high-end bike.
+				<br>
+			<</if>>
+			<<if $bike lt 2>>
+				<<if $money gte 100000>>
+					<<bikeicon>><<link [[Purchase an intermediate bike (£1000 0:05)|Bike Depot]]>><<pass 5>><<set $phase to 2>><<set $bike to 2>><<set $bikeDurability to 6000>><<set $bikeLocation to "high">><<set $money -= 100000>><</link>>
+				<<else>>
+					<span class="red">You don't have the £1000 to purchase an intermediate bike.</span>
+				<</if>>
+				<br>
+			<<elseif $bike is 2>>
+				You already have an intermediate bike.
+				<br>
+			<</if>>
+			<<if $bike lt 1>>
+				<<if $money gte 50000>>
+					<<bikeicon>><<link [[Purchase a basic bike (£500 0:05)|Bike Depot]]>><<pass 5>><<set $phase to 1>><<set $bike to 1>><<set $bikeDurability to 3000>><<set $bikeLocation to "high">><<set $money -= 50000>><</link>>
+				<<else>>
+					<span class="red">You don't have the £500 to purchase a basic bike.</span>
+				<</if>>
+				<br>
+			<<elseif $bike is 1>>
+				You already have a basic bike.
+				<br>
+			<</if>>
+			<br>
+			<<if $bikeSecurity is 1>>
+				<<bikeicon>><<link [[Browse through the security gear (0:05)|Bike Depot Security Gear]]>><<pass 5>><</link>>
+			<</if>>
+			<br>
+			<<if ($bike is 1 and $bikeDurability lt 3000) or ($bike is 2 and $bikeDurability lt 6000) or ($bike is 3 and $bikeDurability lt 12000)>>
+				<<if $money gte 20000>>
+					<<bikeicon>><<link [[Repair your bike (£200 0:20)|Bike Depot]]>><<pass 20>><<set $bikeLocation to "high">><<set $phase to 4>><</link>>
+				<<else>>
+					You don't have the £200 to repair your bike.
+				<</if>>
+			<</if>>
+			<br>
+		<</if>>
+		<<getouticon>><<link [[Leave|Shopping Centre]]>><</link>>
+		<br>
+	<</if>>
+<</if>>
+
+:: Bike Depot Security Gear
+<<set $outside to 0>><<set $location to "shopping_centre">><<effects>>
+
+You browse through the selection of security gears.
+<br><br>
+
+<<if $bikeSecurityGear lt 5>>
+	<<if $money gte 100000>>
+		<<link [[Purchase U-Lock with Alarm|Bike Depot]]>><<set $money -= 100000>><<set $bikeSecurityGear to 5>><</link>><<note "99.9% thief prevention">>
+	<<else>>
+		<span class="red">You don't have the £1000 to purchase a U-Lock with Alarm.</span>
+	<</if>>
+	<br>
+<<elseif $bikeSecurityGear is 5>>
+	You already have a U-Lock with Alarm.
+	<br>
+<</if>>
+<<if $bikeSecurityGear lt 4>>
+	<<if $money gte 75000>>
+		<<link [[Purchase U-Lock|Bike Depot]]>><<set $money -= 75000>><<set $bikeSecurityGear to 4>><</link>><<note "80% thief prevention">>
+	<<else>>
+		<span class="red">You don't have the £750 to purchase a U-Lock.</span>
+	<</if>>
+	<br>
+<<elseif $bikeSecurityGear is 4>>
+	You already have a U-Lock.
+	<br>
+<</if>>
+<<if $bikeSecurityGear lt 3>>
+	<<if $money gte 50000>>
+		<<link [[Purchase Heavy-Duty Chain Lock with Hardened Steel|Bike Depot]]>><<set $money -= 50000>><<set $bikeSecurityGear to 3>><</link>><<note "50% thief prevention">>
+	<<else>>
+		<span class="red">You don't have the £500 to purchase a heavy-duty chain lock with hardnened steel.</span>
+	<</if>>
+	<br>
+<<elseif $bikeSecurityGear is 3>>
+	You already have a Heavy-Duty Chain Lock with Hardened Steel.
+	<br>
+<</if>>
+<<if $bikeSecurityGear lt 2>>
+	<<if $money gte 25000>>
+		<<link [[Purchase Standard Chain Lock|Bike Depot]]>><<set $money -= 25000>><<set $bikeSecurityGear to 2>><</link>><<note "30% thief prevention">>
+	<<else>>
+		<span class="red">You don't have the £250 to purchase a standard chain lock.</span>
+	<</if>>
+	<br>
+<<elseif $bikeSecurityGear is 2>>
+	You already have a Standard Chain Lock.
+	<br>
+<</if>>
+<<if $bikeSecurityGear lt 1>>
+	<<if $money gte 10000>>
+		<<link [[Purchase Wheel Lock|Bike Depot]]>><<set $money -= 10000>><<set $bikeSecurityGear to 1>><</link>><<note "10% thief prevention">>
+	<<else>>
+		<span class="red">You don't have the £100 to purchase a wheel lock.</span>
+	<</if>>
+	<br>
+<<elseif $bikeSecurityGear is 1>>
+	You already have a Wheel Lock.
+	<br>
+<</if>>
+<br>
+<<getouticon>><<link [[Back|Bike Depot]]>><</link>>

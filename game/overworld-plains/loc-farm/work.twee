@@ -79,6 +79,14 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 		<span class="lblue">The insulation and efficiency of the refrigeration unit is being improved.</span>
 	<<case "cooler 3">>
 		<span class="lblue">Advanced climate control technology is being installed on the refrigeration unit.</span>
+	<<case "water field 1">>
+		<span class="lblue">A fence is being build around the water field site.</span>
+	<<case "water field 2">>
+		<span class="lblue">The water field is being excavated.</span>
+	<<case "water field 3">>
+		<span class="lblue">A larger refrigeration unit is being installed.</span>
+	<<case "water field 4">>
+		<span class="lblue">The water source and water control structures are being installed on the water field.</span>
 	<</switch>>
 	<<if Time.hour gte 6>>
 		<span class="blue">Workers traipse across the farm.</span>
@@ -137,6 +145,47 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 		</div>
 	<<else>>
 		<span class="red">but remains a jungle of weeds.</span>
+		<div class="meter">
+		<<print '<div class="redbar" style="width:' + _percent + '%"></div>'>>
+		</div>
+	<</if>>
+	<br>
+<<elseif $farm.waterField is 1 and !$farm.build_finished.includes("water field 2")>>
+	<<set _clearing to (1200 - $farm.clearing)>>
+	<<set _percent=Math.floor((_clearing/1200)*100)>>
+	The water field is being excavated and shaped,
+	<<if $farm.clearing lte 0>>
+		<span class="green">and is ready for the next phase!</span>
+		<div class="meter">
+		<<print '<div class="greenbar" style="width:' + _percent + '%"></div>'>>
+		</div>
+	<<elseif $farm.clearing lte 240>>
+		<span class="teal">and is almost fully excavated.</span>
+		<div class="meter">
+		<<print '<div class="tealbar" style="width:' + _percent + '%"></div>'>>
+		</div>
+	<<elseif $farm.clearing lte 480>>
+		<span class="lblue">and significant progress has been made.</span>
+		<div class="meter">
+		<<print '<div class="lbluebar" style="width:' + _percent + '%"></div>'>>
+		</div>
+	<<elseif $farm.clearing lte 720>>
+		<span class="blue">and the digging is well underway.</span>
+		<div class="meter">
+		<<print '<div class="bluebar" style="width:' + _percent + '%"></div>'>>
+		</div>
+	<<elseif $farm.clearing lte 960>>
+		<span class="purple">but there's still much earth to move.</span>
+		<div class="meter">
+		<<print '<div class="purplebar" style="width:' + _percent + '%"></div>'>>
+		</div>
+	<<elseif $farm.clearing lte 1199>>
+		<span class="pink">but progress is slow.</span>
+		<div class="meter">
+		<<print '<div class="pinkbar" style="width:' + _percent + '%"></div>'>>
+		</div>
+	<<else>>
+		<span class="red">but the site remains untouched.</span>
 		<div class="meter">
 		<<print '<div class="redbar" style="width:' + _percent + '%"></div>'>>
 		</div>
@@ -289,6 +338,8 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 <<elseif $farm_stage is 11 and $farm.clearing lte 0>>
 	<<earnFeat "Cultivator">>
 	<<farmStage12>>
+<<elseif $farm.waterField is 1 and $farm.clearing lte 0>>
+	<<waterField>>
 <<elseif Time.hour is 21 and $farm_end is undefined and $farm_stage lt 7>>
 	<<set $farm_end to 1>>
 	<<npc Alex>><<person1>>
@@ -787,6 +838,39 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 	<<run $farm.build_finished.delete("cooler 3")>>
 	<span class="gold">The advanced climate control system has been fully installed.</span>
     Your produce preservation is now at peak efficiency, ensuring minimal loss due to spoilage.
+    <br><br>
+
+	<<link [[Next|Farm Work]]>><<endevent>><</link>>
+	<br>
+<<elseif $farm.build_finished.includes("water field 1")>>
+	<<run $farm.build_finished.delete("water field 1")>>
+	<span class="gold">You arrive at the construction site and see that a fence has been built around the water field area.</span>
+    The new fence secures the site, marking the beginning of your water field project.
+    <br><br>
+
+	<<link [[Next|Farm Work]]>><<endevent>><</link>>
+	<br>
+<<elseif $farm.build_finished.includes("water field 2")>>
+	<<run $farm.build_finished.delete("water field 2")>>
+	<span class="gold">The water field has been excavated.</span>
+    The land is now properly shaped and prepared for the next phase of development.
+    <br><br>
+
+	<<link [[Next|Farm Work]]>><<endevent>><</link>>
+	<br>
+<<elseif $farm.build_finished.includes("water field 3")>>
+	<<run $farm.build_finished.delete("water field 3")>>
+	<span class="gold">Synthetic liners have been installed in the water field.</span>
+    These liners will help maintain water levels and prevent leakage.
+    <br><br>
+
+	<<link [[Next|Farm Work]]>><<endevent>><</link>>
+	<br>
+<<elseif $farm.build_finished.includes("water field 4")>>
+	<<run $farm.build_finished.delete("water field 4")>>
+	<<add_plot farm water 3 large>>
+	<span class="gold">The water source and control structures are now installed.</span>
+    With the water field fully operational, you can begin lotus cultivation.
     <br><br>
 
 	<<link [[Next|Farm Work]]>><<endevent>><</link>>
@@ -2616,34 +2700,66 @@ You sneak up to the shed, and push the door open.
 :: Farm Clearing
 <<effects>>
 
-<<if Weather.precipitation is "rain">>
-	You endure the rain as you help Alex clear the invasive weeds, digging them up at the roots and freeing the land for cultivation.
-<<elseif !Weather.isOvercast>>
-	<<if Time.dayState is "night">>
-	The stars twinkle above you as you help Alex clear the invasive weeds, digging them up at the roots and freeing the land for cultivation.
+<<if $farm.waterField is 1>>
+	<<if Weather.precipitation is "rain">>
+        You endure the rain as you help Alex excavate the field, digging deep into the earth to shape the water field.
+    <<elseif !Weather.isOvercast>>
+        <<if Time.dayState is "night">>
+            The stars twinkle above you as you help Alex excavate the field, digging deep into the earth to shape the water field.
+        <<else>>
+            The sun beats down as you help Alex excavate the field, digging deep into the earth to shape the water field.
+        <</if>>
+    <<elseif Weather.isSnow>>
+        You endure the cold as you help Alex excavate the field, breaking through the frozen ground to shape the water field.
+    <<else>>
+        You help Alex excavate the field, digging deep into the earth to shape the water field.
+    <</if>>
+    <<if $rng gte 51>>
+        You encounter large rocks that need to be removed, requiring extra effort.
+    <<else>>
+        The soil is tough and compacted, making the excavation challenging.
+    <</if>>
+<<else>>
+	<<if Weather.precipitation is "rain">>
+		You endure the rain as you help Alex clear the invasive weeds, digging them up at the roots and freeing the land for cultivation.
+	<<elseif !Weather.isOvercast>>
+		<<if Time.dayState is "night">>
+		The stars twinkle above you as you help Alex clear the invasive weeds, digging them up at the roots and freeing the land for cultivation.
+		<<else>>
+		The sun beats down as you help Alex clear the invasive weeds, digging them up at the roots and freeing the land for cultivation.
+		<</if>>
+	<<elseif Weather.isSnow>>
+		You endure the cold as you help Alex clear the invasive weeds, digging them up at the roots and freeing the land for cultivation.
 	<<else>>
-	The sun beats down as you help Alex clear the invasive weeds, digging them up at the roots and freeing the land for cultivation.
+		You help Alex clear the invasive weeds, digging them up at the roots and freeing the land for cultivation.
 	<</if>>
-<<elseif Weather.isSnow>>
-	You endure the cold as you help Alex clear the invasive weeds, digging them up at the roots and freeing the land for cultivation.
-<<else>>
-	You help Alex clear the invasive weeds, digging them up at the roots and freeing the land for cultivation.
-<</if>>
-<<if $rng gte 51>>
-	There are young trees growing in places. Alex insists on digging them a new home near the surrounding woodland.
-<<else>>
-	Some of the plants are rooted deep, and need to be dug out.
+	<<if $rng gte 51>>
+		There are young trees growing in places. Alex insists on digging them a new home near the surrounding woodland.
+	<<else>>
+		Some of the plants are rooted deep, and need to be dug out.
+	<</if>>
 <</if>>
 <br><br>
-
-<<if $farm.clearing gte 50>>
-	You make good progress, <span class="blue">but there's still a long way to go.</span>
-<<elseif $farm.clearing gte 10>>
-	You make good progress. <span class="lblue">Most of the field is clear.</span>
-<<elseif $farm.clearing gte 1>>
-	You make good progress. <span class="teal">The field is almost cleared.</span>
+<<if $farm.waterField is 1>>
+	<<if $farm.excavation gte 600>>
+        You make good progress, <span class="blue">but there's still a long way to go.</span>
+    <<elseif $farm.excavation gte 120>>
+        You make good progress. <span class="lblue">Half of the field has been excavated.</span>
+    <<elseif $farm.excavation gte 1>>
+        You make good progress. <span class="teal">Most of the field has been excavated.</span>
+    <<else>>
+        You make good progress, <span class="green">and finish excavating the field!</span>
+    <</if>>
 <<else>>
-	You make good progress, <span class="green">and remove the last of the weeds!</span>
+	<<if $farm.clearing gte 50>>
+		You make good progress, <span class="blue">but there's still a long way to go.</span>
+	<<elseif $farm.clearing gte 10>>
+		You make good progress. <span class="lblue">Most of the field is clear.</span>
+	<<elseif $farm.clearing gte 1>>
+		You make good progress. <span class="teal">The field is almost cleared.</span>
+	<<else>>
+		You make good progress, <span class="green">and remove the last of the weeds!</span>
+	<</if>>
 <</if>>
 <br><br>
 <<if $arousal gte $arousalmax>>

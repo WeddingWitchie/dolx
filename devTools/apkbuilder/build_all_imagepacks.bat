@@ -57,7 +57,11 @@ for /L %%i in (0,1,%array_length%) do (
 
 	powershell -Command "(Get-Content -Path '.\game\01-config\sugarcubeConfig.js') -replace 'DoLP version', 'DoLP v0.%version% !imagepack[%%i]!' | Set-Content -Path '.\game\01-config\sugarcubeConfig.js'"
 
-	call ".\devTools\apkbuilder\imagepack_builds\!target[%%i]!.bat"
+	cd .\devTools\apkbuilder\imagepack_builds\
+
+	call "!target[%%i]!.bat"
+
+	cd ..\..\..\
 
 	if %%i==11 (
 		move .\img\style.css ..\
@@ -65,9 +69,15 @@ for /L %%i in (0,1,%array_length%) do (
 
 	call compile.bat
 
-	call .\devTools\apkbuilder\build_app_debug.bat
+	cd .\devTools\apkbuilder\
 
-	call .\devTools\apkbuilder\imagepack_builds\reset.bat
+	call .\build_app_debug.bat
+
+	cd .\imagepack_builds\
+
+	call .\reset.bat
+
+	cd ..\..\..\
 
 	git reset --hard
 
