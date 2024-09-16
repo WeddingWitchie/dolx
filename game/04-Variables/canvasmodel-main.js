@@ -235,6 +235,8 @@ Renderer.CanvasModels.main = {
 			"show_writings": true,
 			"show_tf": true,
 			"show_clothes": true,
+			"show_background": true,
+			"show_foreground": true,
 			// body
 			"mannequin": false,
 			"breasts": "",
@@ -354,6 +356,9 @@ Renderer.CanvasModels.main = {
 			"bear_tail_type": "disabled",
 			"bear_tail_layer": "front",
 			"bear_ears_type": "disabled",
+			//Decorations
+			"background_image_type": "",
+			"foreground_image_type": "",
 			// body writings
 			"writing_forehead": "",
 			"writing_left_cheek": "",
@@ -1177,7 +1182,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				const iris = options.trauma || V.traumatized ? "irisempty" : "iris";
+				const iris = options.trauma || V.traumaeyes ? "irisempty" : "iris";
 				const half = options.eyes_half ? "_halfclosed" : "";
 				return `img/face/${options.facestyle}/${iris}${half}_left.png`;
 			},
@@ -1191,7 +1196,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				const iris = options.trauma || V.traumatized ? "irisempty" : "iris";
+				const iris = options.trauma || V.traumaeyes ? "irisempty" : "iris";
 				const half = options.eyes_half ? "_halfclosed" : "";
 				return `img/face/${options.facestyle}/${iris}${half}_right.png`;
 			},
@@ -2522,6 +2527,40 @@ Renderer.CanvasModels.main = {
 			},
 			filters: ["hair"],
 			z: ZIndices.hirsute,
+			animation: "idle"
+		},
+		/*
+				
+
+		██████╗ ███████╗ ██████╗ ██████╗ ██████╗  █████╗ ████████╗██╗ ██████╗ ███╗   ██╗███████╗
+		██╔══██╗██╔════╝██╔════╝██╔═══██╗██╔══██╗██╔══██╗╚══██╔══╝██║██╔═══██╗████╗  ██║██╔════╝
+		██║  ██║█████╗  ██║     ██║   ██║██████╔╝███████║   ██║   ██║██║   ██║██╔██╗ ██║███████╗
+		██║  ██║██╔══╝  ██║     ██║   ██║██╔══██╗██╔══██║   ██║   ██║██║   ██║██║╚██╗██║╚════██║
+		██████╔╝███████╗╚██████╗╚██████╔╝██║  ██║██║  ██║   ██║   ██║╚██████╔╝██║ ╚████║███████║
+		╚═════╝ ╚══════╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝
+																								
+		*/
+		"decoration_foreground": {
+			srcfn(options) {
+				return `img/decorations/foreground/${options.foreground_image_type}.png`;
+			},
+			showfn(options) {
+				return options.show_foreground
+				&& isPartEnabled(options.foreground_image_type);
+			},
+			z: ZIndices.deco_fg,
+			animation: "idle"
+		},
+
+		"decoration_background": {
+			srcfn(options) {
+				return `img/decorations/background/${options.background_image_type}.png`;
+			},
+			showfn(options) {
+				return options.show_background
+				&& isPartEnabled(options.background_image_type);
+			},
+			z: ZIndices.deco_bg,
 			animation: "idle"
 		},
 
