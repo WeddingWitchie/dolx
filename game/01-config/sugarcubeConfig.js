@@ -12,7 +12,7 @@ const StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.5.2.8 DoLP v0.558 DoLX 0.8.0",
+	version: "0.5.2.8 DoLP v0.566 DoLX 0.8.1",
 	versionName: `"Thinking with Portals" edition`,
 	sneaky: false,
 	socialMediaEnabled: true,
