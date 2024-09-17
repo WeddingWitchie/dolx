@@ -1,0 +1,57 @@
+stages:
+    - compilation
+    - upload
+
+variables:
+    GIT_STRATEGY: fetch
+
+build_upload_vanilla_job:
+    stage: compilation
+    script:
+        - VERSION=$(cat version)
+        - echo "Building release $version"
+        # - find ./version -type f -exec sed -i "s/DoLX version/DoLX v0.8.$CI_PIPELINE_IID/g" {} +
+        # - find ./devTools/androidsdk/image/cordova/config.xml -type f -exec sed -i "s/DoLX version/DoLX v0.8.$CI_PIPELINE_IID/g" {} +
+        # - find ./devTools/apkbuilder/config.xml -type f -exec sed -i "s/DoLX version/DoLX v0.8.$CI_PIPELINE_IID/g" {} +
+        # - find ./game/01-config/sugarcubeConfig.js -type f -exec sed -i "s/DoLX version/DoLX v0.8.$CI_PIPELINE_IID/g" {} +
+        - mkdir -p build/
+        - ./compile.bat
+        - cp "Degrees of Lewdity.html" ./build/
+        - cp -r -f ./img/* ./build/img/
+        - cp -r -f ./aud/* ./build/aud/
+        - tar -cvfz ./release_$VERSION.zip ./build/* 
+        - echo "Finished Building Release $VERSION"
+        - echo "Uploading Release $VERSION"
+        - 'curl
+            --header "JOB-TOKEN: $CI_JOB_TOKEN"
+            --upload-file ./release_$VERSION.zip
+            "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/release/$VERSION/release_$VERSION.zip"'
+        - rm -rf ./build
+        - rm -rf ./release_$VERSION.zip
+        - echo "Finished Uploading Release $VERSION"
+    only:
+        - master
+
+release_job:
+    stage: upload
+    image: registry.gitlab.com/gitlab-org/release-cli:latest
+    needs:
+        - job: build_upload_vanilla_job
+    rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    script:
+        - echo "Creating releases..."
+    release:
+        description: 'Click on one of the links under OTHER with the image pack you want to use, extract the downloaded zip and play.
+
+            Changelogs:'
+        tag_name: 'v0.$CI_PIPELINE_IID'
+        ref: '$CI_COMMIT_SHA'
+        assets:
+            links:
+                - name: 'DoLX'
+                  url: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/release/$VERSION/release_$VERSION.zip"
+    after_script:
+        - echo "Finished creating releases."
