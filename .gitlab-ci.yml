@@ -9,7 +9,7 @@ build_upload_vanilla_job:
     stage: compilation
     script:
         - SET VERSION=(cat version)
-        - echo "Building release %VERSION%"
+        - echo "Building release $VERSION"
         # - find ./version -type f -exec sed -i "s/DoLX version/DoLX v0.8.$CI_PIPELINE_IID/g" {} +
         # - find ./devTools/androidsdk/image/cordova/config.xml -type f -exec sed -i "s/DoLX version/DoLX v0.8.$CI_PIPELINE_IID/g" {} +
         # - find ./devTools/apkbuilder/config.xml -type f -exec sed -i "s/DoLX version/DoLX v0.8.$CI_PIPELINE_IID/g" {} +
@@ -21,16 +21,16 @@ build_upload_vanilla_job:
         - cp "Degrees of Lewdity VERSION.html" ./build/
         - cp -Recurse -Force ./img/* ./build/img/
         - cp -Recurse -Force ./aud/* ./build/aud/
-        - Compress-Archive ./build/* ./release_%VERSION%.zip
-        - echo "Finished Building Release %VERSION%"
-        - echo "Uploading Release %VERSION%"
+        - Compress-Archive ./build/* ./release_$VERSION.zip
+        - echo "Finished Building Release $VERSION"
+        - echo "Uploading Release $VERSION"
         - 'curl
             --header "JOB-TOKEN: $CI_JOB_TOKEN"
-            --upload-file ./release_%VERSION%.zip
-            "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/release/%VERSION%/release_%VERSION%.zip"'
+            --upload-file ./release_$VERSION.zip
+            "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/release/$VERSION/release_$VERSION.zip"'
         - rem -rf ./build
-        - rem -rf ./release_%VERSION%.zip
-        - echo "Finished Uploading Release %VERSION%"
+        - rem -rf ./release_$VERSION.zip
+        - echo "Finished Uploading Release $VERSION"
     only:
         - master
 
