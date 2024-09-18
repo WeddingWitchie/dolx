@@ -5,6 +5,7 @@ stages:
 variables:
     GIT_STRATEGY: fetch
     VERSION:
+	FILE:
 
 build_upload_vanilla_job:
     stage: compilation
@@ -25,11 +26,17 @@ build_upload_vanilla_job:
         - Compress-Archive ./build/* "./DoLX - $VERSION.zip"
         - echo "Finished Building Release $VERSION"
         - echo "Uploading Release $VERSION"
-        - 'curl
-			--request POST
-            --header "JOB-TOKEN: $CI_JOB_TOKEN"
-            --upload-file "./DoLX - $VERSION.zip"
-            "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/release/$VERSION/DoLX - $VERSION.zip"'
+		- $FILE=$(Get-Content -Raw -Path "./DoLX - $VERSION.zip")
+		- 'curl
+			-Headers "JOB-TOKEN: $CI_JOB_TOKEN"
+			-Method POST
+			-InFile $FILE'
+			-Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/release/${VERSION}/DoLX - ${VERSION}.zip"
+        # - 'curl
+		# 	--request POST
+        #     --header "JOB-TOKEN: $CI_JOB_TOKEN"
+        #     --upload-file "./DoLX - $VERSION.zip"
+        #     "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/release/${VERSION}/DoLX - ${VERSION}.zip"'
         - rem -rf ./build
         - rem -rf "./DoLX - $VERSION.zip"
         - echo "Finished Uploading Release $VERSION"
@@ -51,11 +58,11 @@ release_job:
         description: 'Click on one of the links under OTHER with the image pack you want to use, extract the downloaded zip and play.
 
             Changelogs:'
-        tag_name: '%VERSION%'
+        tag_name: '$VERSION'
         ref: '$CI_COMMIT_SHA'
         assets:
             links:
                 - name: 'DoLX'
-                  url: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/release/%VERSION%/release_%VERSION%.zip"
+                  url: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/release/$VERSION/DoLX - $VERSION.zip"
     after_script:
         - echo "Finished creating releases."
