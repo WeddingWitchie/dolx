@@ -5,7 +5,6 @@ stages:
 variables:
     GIT_STRATEGY: fetch
     VERSION:
-	FILE:
 
 build_upload_vanilla_job:
     stage: compilation
@@ -26,12 +25,16 @@ build_upload_vanilla_job:
         - Compress-Archive ./build/* "./DoLX - $VERSION.zip"
         - echo "Finished Building Release $VERSION"
         - echo "Uploading Release $VERSION"
-		- $FILE=$(Get-Content -Raw -Path "./DoLX - $VERSION.zip")
+		- $releaseFile=$(Get-Content -Raw -Path "./DoLX - $VERSION.zip")
 		- 'curl
 			-Headers "JOB-TOKEN: $CI_JOB_TOKEN"
 			-Method POST
-			-InFile $FILE
-			-Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/release/${VERSION}/DoLX - ${VERSION}.zip"'
+			-Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/release/${VERSION}/DoLX - ${VERSION}.zip"
+			-InFile $releaseFile'
+        # - 'curl
+        #     --header "JOB-TOKEN: $CI_JOB_TOKEN"
+        #     --upload-file "./DoLX - $VERSION.zip"
+        #     "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/release/${VERSION}/DoLX - ${VERSION}.zip"'
         - rem -rf ./build
         - rem -rf "./DoLX - $VERSION.zip"
         - echo "Finished Uploading Release $VERSION"
