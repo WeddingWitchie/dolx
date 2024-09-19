@@ -26,18 +26,8 @@ build_upload_job:
         - echo "Finished Building Release $VERSION"
         - echo "Uploading Release $VERSION"
         - 'Invoke-RestMethod -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" }  -InFile "./DoLX_$VERSION.zip" -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX_$VERSION.zip" -Method PUT'
-        # - '$response=curl 
-        #     -Method POST 
-        #     -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/$VERSION/DoLX - $VERSION.zip" 
-        #     -Headers @{"JOB-TOKEN"=$CI_JOB_TOKEN} 
-        #     -InFile "./DoLX - $VERSION.zip"'
-        # - echo $response
-        # - 'curl
-        #     --header "JOB-TOKEN: $CI_JOB_TOKEN"
-        #     --upload-file "./DoLX - $VERSION.zip"
-        #     "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/release/${VERSION}/DoLX - ${VERSION}.zip"'
-        - rm -rf ./build
-        - rm -rf "./DoLX_$VERSION.zip"
+        - rm -Recurse -Force ./build
+        - rm -Recurse -Force "./DoLX_$VERSION.zip"
         - echo "Finished Uploading Release $VERSION"
     only:
         - master
@@ -52,11 +42,9 @@ release_job:
       when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     script:
-        - echo "Creating releases..."
+        - echo "Creating release..."
     release:
-        description: 'Click on one of the links under OTHER with the image pack you want to use, extract the downloaded zip and play.
-
-            Changelogs:'
+        description: '**Changelog:**'
         tag_name: '$VERSION'
         ref: '$CI_COMMIT_SHA'
         assets:
