@@ -25,12 +25,13 @@ build_upload_job:
         - Compress-Archive ./build/* "./DoLX - $VERSION.zip"
         - echo "Finished Building Release $VERSION"
         - echo "Uploading Release $VERSION"
-        - '$response=curl 
-            -Method POST 
-            -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/DoLX_$VERSION/$VERSION/DoLX - $VERSION.zip" 
-            -Headers @{"JOB-TOKEN"=$CI_JOB_TOKEN} 
-            -InFile "./DoLX - $VERSION.zip"'
-        - echo $response
+        - 'Invoke-RestMethod -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" }  -InFile "./DoLX - $VERSION.zip" -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX - $VERSION.zip" -Method PUT'
+        # - '$response=curl 
+        #     -Method POST 
+        #     -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/$VERSION/DoLX - $VERSION.zip" 
+        #     -Headers @{"JOB-TOKEN"=$CI_JOB_TOKEN} 
+        #     -InFile "./DoLX - $VERSION.zip"'
+        # - echo $response
         # - 'curl
         #     --header "JOB-TOKEN: $CI_JOB_TOKEN"
         #     --upload-file "./DoLX - $VERSION.zip"
