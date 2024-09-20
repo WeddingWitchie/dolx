@@ -4,12 +4,11 @@ stages:
 
 variables:
     GIT_STRATEGY: fetch
-    VERSION:
+    VERSION: "$(cat version)"
 
 build_job:
     stage: build
     script:
-        - $VERSION=$(cat version)
         - echo "Building release $VERSION"
         # - find ./version -type f -exec sed -i "s/DoLX version/DoLX v0.8.$CI_PIPELINE_IID/g" {} +
         # - find ./devTools/androidsdk/image/cordova/config.xml -type f -exec sed -i "s/DoLX version/DoLX v0.8.$CI_PIPELINE_IID/g" {} +
@@ -42,8 +41,7 @@ release_job:
       when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     script:
-        - $VERSION=$(cat version)
-        - echo "Creating release..."
+        - echo "Creating release $VERSION..."
     release:
         name: "DoL ~ X-Change Edition ${VERSION}"
         description: "Changelog:"
