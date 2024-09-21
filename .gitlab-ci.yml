@@ -1,37 +1,37 @@
 stages:
-    # - build
+    - build
     - release
 
 variables:
     GIT_STRATEGY: fetch
 
-# build_job:
-#     stage: build
-#     script:
-#         - $VERSION=$(cat version)
-#         - echo "Building release $VERSION"
-#         - mkdir -p build/
-#         - mkdir -p build/img/
-#         - mkdir -p build/aud/
-#         - ./compile.bat
-#         - cp "Degrees of Lewdity VERSION.html" ./build/
-#         - cp -Recurse -Force ./img/* ./build/img/
-#         - cp -Recurse -Force ./aud/* ./build/aud/
-#         - Compress-Archive ./build/* "./DoLX_$VERSION.zip"
-#         - echo "Finished Building Release $VERSION"
-#         - echo "Uploading Release $VERSION"
-#         - 'Invoke-RestMethod -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" }  -InFile "./DoLX_$VERSION.zip" -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX_$VERSION.zip" -Method PUT'
-#         - rm -Recurse -Force ./build
-#         - rm -Recurse -Force "./DoLX_$VERSION.zip"
-#         - echo "Finished Uploading Release $VERSION"
-#     only:
-#         - master
+build_job:
+    stage: build
+    script:
+        - $VERSION=$(cat version)
+        - echo "Building release $VERSION"
+        - mkdir -p build/
+        - mkdir -p build/img/
+        - mkdir -p build/aud/
+        - ./compile.bat
+        - cp "Degrees of Lewdity VERSION.html" ./build/
+        - cp -Recurse -Force ./img/* ./build/img/
+        - cp -Recurse -Force ./aud/* ./build/aud/
+        - Compress-Archive ./build/* "./DoLX_$VERSION.zip"
+        - echo "Finished Building Release $VERSION"
+        - echo "Uploading Release $VERSION"
+        - 'Invoke-RestMethod -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" }  -InFile "./DoLX_$VERSION.zip" -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX_$VERSION.zip" -Method PUT'
+        - rm -Recurse -Force ./build
+        - rm -Recurse -Force "./DoLX_$VERSION.zip"
+        - echo "Finished Uploading Release $VERSION"
+    only:
+        - master
 
 release_job:
     stage: release
     image: registry.gitlab.com/gitlab-org/release-cli:latest
-    # needs:
-    #     - job: build_job
+    needs:
+        - job: build_job
     rules:
     - if: $CI_COMMIT_TAG
       when: never
@@ -45,16 +45,5 @@ release_job:
         - $payloadJSON=$payload | ConvertTo-Json -Depth 3
         - echo $payloadJSON
         - Invoke-RestMethod -Method Post -ContentType "application/json" -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" } -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases" -Body $payloadJSON 
-        # - release-cli create --name "DoL ~ X-Change Edition 0.8.2" --description "Changelog:" --tag-name "0.8.2" --ref "85436fe9b1334312edb159915138c889656d4653" --assets-link "{\"url\":\"https://gitgud.io/api/v4/projects/28859/packages/generic/DoLX_0.8.2/0.8.2/DoLX_0.8.2.zip\",\"name\":\"DoLX ~ 0.8.2\"}"
-    # release:
-    #     name: "DoL ~ X-Change Edition $VERSION"
-    #     description: "Changelog:"
-    #     tag_name: $VERSION
-    #     ref: $CI_COMMIT_SHA
-    #     assets:
-    #         links:
-    #             - name: "DoLX ~ $VERSION"
-    #               url: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX_$VERSION.zip"
-
     after_script:
         - echo "Finished creating release."
