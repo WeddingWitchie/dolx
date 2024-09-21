@@ -30,8 +30,8 @@ variables:
 release_job:
     stage: release
     image: registry.gitlab.com/gitlab-org/release-cli:latest
-    needs:
-        - job: build_job
+    # needs:
+    #     - job: build_job
     rules:
     - if: $CI_COMMIT_TAG
       when: never
@@ -42,7 +42,7 @@ release_job:
         - $VERSION=$(cat version)
         - echo "Creating release ${VERSION}..."
         - $payload=@{ "name"="DoL~X-Change Edition $VERSION", "description"="Changelog", "tag_name"="$VERSION", "ref"=$CI_COMMIT_SHA, "assets"=@{"links"=@({"name"="DoLX~$VERSION", "url"="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX_$VERSION.zip"})} }
-		- $payloadJSON=$payload | ConvertTo-Json
+        - $payloadJSON=$payload | ConvertTo-Json
         - Invoke-RestMethod -Method Post -ContentType "application/json" -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" } -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases" -Body $payloadJSON 
         # - release-cli create --name "DoL ~ X-Change Edition 0.8.2" --description "Changelog:" --tag-name "0.8.2" --ref "85436fe9b1334312edb159915138c889656d4653" --assets-link "{\"url\":\"https://gitgud.io/api/v4/projects/28859/packages/generic/DoLX_0.8.2/0.8.2/DoLX_0.8.2.zip\",\"name\":\"DoLX ~ 0.8.2\"}"
     # release:
