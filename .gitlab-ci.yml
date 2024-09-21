@@ -39,17 +39,19 @@ release_job:
     variables:
         VERSION: $(cat version)
     script:
-        # - $VERSION=$(cat version)
-        - echo "Creating release $VERSION..."
-    release:
-        name: "DoL ~ X-Change Edition $VERSION"
-        description: "Changelog:"
-        tag_name: $VERSION
-        ref: $CI_COMMIT_SHA
-        assets:
-            links:
-                - name: "DoLX ~ $VERSION"
-                  url: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX_$VERSION.zip"
+        - $VERSION=$(cat version)
+        - echo "Creating release ${VERSION}..."
+		- Invoke-RestMethod -Method POST -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN"; "Content-Type"="application/json" } -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases -Body '{ "name":"DoL~X-Change Edition $VERSION", "description":"Changelog:", "tag_name":"$VERSION", "ref":$CI_COMMIT_SHA, "assets":{"links":[{"name":"DoLX~$VERSION", "url":"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX_$VERSION.zip"}]} }' 
+        # - release-cli create --name "DoL ~ X-Change Edition 0.8.2" --description "Changelog:" --tag-name "0.8.2" --ref "85436fe9b1334312edb159915138c889656d4653" --assets-link "{\"url\":\"https://gitgud.io/api/v4/projects/28859/packages/generic/DoLX_0.8.2/0.8.2/DoLX_0.8.2.zip\",\"name\":\"DoLX ~ 0.8.2\"}"
+    # release:
+    #     name: "DoL ~ X-Change Edition $VERSION"
+    #     description: "Changelog:"
+    #     tag_name: $VERSION
+    #     ref: $CI_COMMIT_SHA
+    #     assets:
+    #         links:
+    #             - name: "DoLX ~ $VERSION"
+    #               url: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX_$VERSION.zip"
 
     after_script:
         - echo "Finished creating release."
