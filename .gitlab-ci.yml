@@ -4,8 +4,6 @@ stages:
 
 variables:
     GIT_STRATEGY: fetch
-    HTML_PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX_HTML_$VERSION.zip"
-    MEDIA_PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX_Media_$VERSION.zip"
 
 build_job:
     stage: build
@@ -23,8 +21,8 @@ build_job:
         # - Compress-Archive ./build/* "./DoLX_Media_$VERSION.zip"
         - echo "Finished Building Release $VERSION"
         - echo "Uploading Release $VERSION"
-        - 'Invoke-RestMethod -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" }  -InFile "./DoLX_HTML_$VERSION.zip" -Uri "$HTML_PACKAGE_REGISTRY_URL" -Method PUT'
-        # - 'Invoke-RestMethod -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" }  -InFile "./DoLX_Media_$VERSION.zip" -Uri "$MEDIA_PACKAGE_REGISTRY_URL" -Method PUT'
+        - 'Invoke-RestMethod -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" }  -InFile "./DoLX_HTML_$VERSION.zip" -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX_HTML_$VERSION.zip" -Method PUT'
+        # - 'Invoke-RestMethod -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" }  -InFile "./DoLX_Media_$VERSION.zip" -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX_Media_$VERSION.zip" -Method PUT'
         - rm -Recurse -Force ./build
         - rm -Recurse -Force "./DoLX_HTML_$VERSION.zip"
         - rm -Recurse -Force "./DoLX_Media_$VERSION.zip"
@@ -43,9 +41,9 @@ release_job:
     script:
         - $VERSION=$(cat version)
         - echo "Creating release ${VERSION}..."
-        - $env:html = "{`"name`":`"DoLX_HTML_$VERSION`", `"url`":`"$HTML_PACKAGE_REGISTRY_URL`"}"
+        - $env:html = "{`"name`":`"DoLX_HTML_$VERSION`", `"url`":`"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX_HTML_$VERSION.zip`"}"
         - $env:htmlJSON = $env:html | ConvertTo-Json
-        # - $env:media = "{`"name`":`"DoLX_Media_$VERSION`", `"url`":`"$MEDIA_PACKAGE_REGISTRY_URL`"}"
+        # - $env:media = "{`"name`":`"DoLX_Media_$VERSION`", `"url`":`"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX_Media_$VERSION.zip`"}"
         # - $env:mediaJSON = $env:media | ConvertTo-Json
         - release-cli create --name "DoL:X-Change Edition $VERSION" --ref $CI_COMMIT_SHA --tag-name $VERSION --assets-link=$env:htmlJSON #--assets-link=$env:mediaJSON
 
