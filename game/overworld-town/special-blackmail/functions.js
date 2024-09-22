@@ -18,3 +18,15 @@ function penaltyFameSum(...fameTypes) {
 	return result;
 }
 window.historicFameMax = historicFameMax;
+
+function getStaticQuestData(quest) {
+	let match = blackmailQuests.low.find((template) => template.index === quest.index);
+	if (match) return match;
+
+	match = blackmailQuests.mid.find((template) => template.index === quest.index);
+	if (match) return match;
+
+	match = blackmailQuests.high.find((template) => template.index === quest.index);
+	if (match) return match;
+}
+window.getStaticQuestData = getStaticQuestData;
