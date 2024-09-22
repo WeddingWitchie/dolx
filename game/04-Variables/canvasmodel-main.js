@@ -4652,6 +4652,8 @@ function genlayer_clothing_breasts_acc(slot, overrideOptions) {
 				breastAcc = 1;
 			else if (typeof breastAccImg === 'object' && options.worn[slot].setup.breast_acc_img[options.breast_size] !== null)
 				breastAcc = 1;
+			else if (breastAccImg === 1)
+				breastAcc = 1;
 
 			return options.show_clothes
 				&& options.worn[slot].index > 0

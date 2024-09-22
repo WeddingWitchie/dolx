@@ -557,6 +557,45 @@
 			<mouse class="tooltip linkBlue">(?)<span>Not tracked in versions '0.4.5.X' and older</span></mouse>
 			<br>
 		<</if>>
+		<<set _buffDaysAmount to Math.floor(Time.days / $combatExtended.enemyDayScaling)>>
+		Enemy Day Scaling Buff Applied: <<print "x" + _buffDaysAmount>>
+		<br>
+		<<if $combatExtended.enemyHealthDayScaling is 1 and (_buffDaysAmount lte $combatExtended.enemyDayScalingLimit or $combatExtended.enemyInfiniteDayScaling is 1)>>
+			<<set _daysHealthBuff to _buffDaysAmount * $combatExtended.enemyHealthDayScalingMult>>
+		<<else>>
+			<<set _daysHealthBuff to _buffDaysAmount * $combatExtended.enemyDayScalingLimit>>
+		<</if>>
+		Enemy Health Day Scaling Buff: <<print "+" + _daysHealthBuff + "%">>
+		<br>
+		<<if _buffDaysAmount lte $combatExtended.enemyDayScalingLimit or $combatExtended.enemyInfiniteDayScaling is 1>>
+			<<set _dayLevelBuff to Math.clamp(_buffDaysAmount * $combatExtended.enemyLevelDayScalingMult, 0 , 21)>>
+		<<else>>
+			<<set _dayLevelBuff to Math.clamp($combatExtended.enemyDayScalingLimit * $combatExtended.enemyLevelDayScalingMult, 0 , 21)>>
+		<</if>>
+		Enemy Level Day Scaling Buff: <<print "+" + _dayLevelBuff>>
+		<br>
+		<<set _buffDefeatsAmount  to Math.floor($enemiesDefeatedStat / $combatExtended.enemyDefeatScaling)>>
+		Enemy Defeat Scaling Buff Applied: <<print "x" + _buffDefeatsAmount >>
+		<br>
+		<<if $combatExtended.enemyHealthDefeatScaling is 1 and (_buffDefeatsAmount  lte $combatExtended.enemyDefeatScalingLimit or $combatExtended.enemyInfiniteDefeatScaling is 1)>>
+			<<set _defeatsHealthBuff to _buffDefeatsAmount  * $combatExtended.enemyHealthDefeatScalingMult>>
+		<<else>>
+			<<set _defeatsHealthBuff to _buffDefeatsAmount  * $combatExtended.enemyDefeatScalingLimit>>
+		<</if>>
+		Enemy Health Defeat Scaling Buff: <<print "+" + _defeatsHealthBuff + "%">>
+		<br>
+		<<if _buffDefeatsAmount  lte $combatExtended.enemyLevelDefeatScalingMult or $combatExtended.enemyInfiniteDefeatScaling is 1>>
+			<<set _defeatLevelBuff to Math.clamp(_buffDefeatsAmount  * $combatExtended.enemyLevelDefeatScalingMult, 0 , 21)>>
+		<<else>>
+			<<set _defeatLevelBuff to Math.clamp($combatExtended.enemyDefeatScalingLimit * $combatExtended.enemyLevelDefeatScalingMult, 0 , 21)>>
+		<</if>>
+		Enemy Level Defeat Scaling Buff: <<print "+" + _defeatLevelBuff>>
+		<br>
+		<<set _totalHealthBuff to _daysHealthBuff + _defeatsHealthBuff>>
+		Total Enemy Health Buff: <<print "+" + _totalHealthBuff + "%">>
+		<br>
+		<<set _totalLevelBuff to Math.clamp(_dayLevelBuff + _defeatLevelBuff, 0 , 21)>>
+		Total Enemy Level Buff: <<print "+" + _totalLevelBuff>>
 		<br>
 	<</foldout>>
 
