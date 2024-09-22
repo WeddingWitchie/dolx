@@ -165,11 +165,11 @@ blackmailQuests.mid.push( // Take a pill and flirt with 3 people
 		receiveItems: function() { 
 			if (V.player.gender == "m") {
 				wikifier("xchange-pink", 1, "spike", "passion");
-				wikifier("drugged", 1000);
+				wikifier("drugs", 1000);
 			}
 			else {
 				wikifier("xchange-blue", 1, "spike", "passion");
-				wikifier("drugged", 1000);
+				wikifier("drugs", 1000);
 			}
 			this.tookPill = true;
 		},
