@@ -921,7 +921,7 @@ function dayPassed() {
 		} else {
 			T.bikeTheftChance = 0;
 		}
-		if (random(1, 1000) <= T.bikeTheftChance) {
+		if ((random(1, 1000) <= T.bikeTheftChance) && V.bikeSecurity == 1) {
 			V.bikeStolen = 1;
 			V.bike = 0;
 			if (V.bikeSecurityGear >= 1) V.bikeSecurityGearStolen = 1;
@@ -1944,10 +1944,10 @@ function dailyFarmEvents() {
 			}
 		}
 		if (V.farm.woodland >= 7) {
-			fragment.append(wikifier("farm_stock", "truffles", 196, 384));
+			fragment.append(wikifier("farm_stock", "truffles", 192, 384));
 			fragment.append(wikifier("farm_pigs", -4));
 		} else if (V.farm.woodland >= 6) {
-			fragment.append(wikifier("farm_stock", "truffles", 96, 196));
+			fragment.append(wikifier("farm_stock", "truffles", 96, 192));
 			fragment.append(wikifier("farm_pigs", -3));
 		} else if (V.farm.woodland >= 5) {
 			fragment.append(wikifier("farm_stock", "truffles", 48, 96));
@@ -1966,34 +1966,34 @@ function dailyFarmEvents() {
 			fragment.append(wikifier("farm_pigs", -1));
 		}
 		if (V.farm.barn >= 7) {
-			fragment.append(wikifier("farm_stock", "milk", 384, 768));
+			fragment.append(wikifier("farm_stock", "milk", 1280, 2560));
 		} else if (V.farm.barn >= 6) {
-			fragment.append(wikifier("farm_stock", "milk", 196, 384));
+			fragment.append(wikifier("farm_stock", "milk", 640, 1280));
 		} else if (V.farm.barn >= 5) {
-			fragment.append(wikifier("farm_stock", "milk", 96, 196));
+			fragment.append(wikifier("farm_stock", "milk", 320, 640));
 		} else if (V.farm.barn >= 4) {
-			fragment.append(wikifier("farm_stock", "milk", 48, 96));
+			fragment.append(wikifier("farm_stock", "milk", 160, 320));
 		} else if (V.farm.barn >= 3) {
-			fragment.append(wikifier("farm_stock", "milk", 24, 48));
+			fragment.append(wikifier("farm_stock", "milk", 80, 160));
 		} else if (V.farm.barn >= 2) {
-			fragment.append(wikifier("farm_stock", "milk", 12, 24));
+			fragment.append(wikifier("farm_stock", "milk", 40, 80));
 		} else if (V.farm.barn >= 1) {
-			fragment.append(wikifier("farm_stock", "milk", 6, 12));
+			fragment.append(wikifier("farm_stock", "milk", 20, 40));
 		}
 		if (V.farm.coop >= 7) {
-			fragment.append(wikifier("farm_stock", "eggs", 384, 768));
+			fragment.append(wikifier("farm_stock", "eggs", 1280, 2560));
 		} else if (V.farm.coop >= 6) {
-			fragment.append(wikifier("farm_stock", "eggs", 192, 384));
+			fragment.append(wikifier("farm_stock", "eggs", 640, 1280));
 		} else if (V.farm.coop >= 5) {
-			fragment.append(wikifier("farm_stock", "eggs", 96, 192));
+			fragment.append(wikifier("farm_stock", "eggs", 320, 640));
 		} else if (V.farm.coop >= 4) {
-			fragment.append(wikifier("farm_stock", "eggs", 48, 96));
+			fragment.append(wikifier("farm_stock", "eggs", 160, 320));
 		} else if (V.farm.coop >= 3) {
-			fragment.append(wikifier("farm_stock", "eggs", 24, 48));
+			fragment.append(wikifier("farm_stock", "eggs", 80, 160));
 		} else if (V.farm.coop >= 2) {
-			fragment.append(wikifier("farm_stock", "eggs", 12, 24));
+			fragment.append(wikifier("farm_stock", "eggs", 40, 80));
 		} else if (V.farm.coop >= 1) {
-			fragment.append(wikifier("farm_stock", "eggs", 6, 12));
+			fragment.append(wikifier("farm_stock", "eggs", 20, 40));
 		}
 		if (V.farm.kennel >= 1) {
 			fragment.append(wikifier("farm_dogs", -1));

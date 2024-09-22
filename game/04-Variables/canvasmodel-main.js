@@ -1038,7 +1038,6 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 			zfn(options) {
 				if (options.arm_left === "cover") {
-					if ((V.worn.over_upper.type.includes("naked") && V.worn.upper.type.includes("naked") && V.worn.under_upper.type.includes("naked"))) return ZIndices.arms_cover + 11;
 					return ZIndices.arms_cover;
 				}
 				return options.zarms;
@@ -1058,7 +1057,6 @@ Renderer.CanvasModels.main = {
 
 			zfn(options) {
 				if (options.arm_right === "cover" || options.arm_right === "hold"){
-					if ((V.worn.over_upper.type.includes("naked") && V.worn.upper.type.includes("naked") && V.worn.under_upper.type.includes("naked"))) return ZIndices.arms_cover + 11;
 					return ZIndices.arms_cover;
 				}
 				return ZIndices.under_upper_arm_right - 0.1;
@@ -2542,7 +2540,7 @@ Renderer.CanvasModels.main = {
 		*/
 		"decoration_foreground": {
 			srcfn(options) {
-				if (options.foreground_image_type == "" || options.foreground_image_type == "none") return;
+				if (options.foreground_image_type == "" || options.foreground_image_type == "none" || options.foreground_image_type == undefined) return;
 				return `img/decorations/foreground/${options.foreground_image_type}.png`;
 			},
 			showfn(options) {
@@ -2555,7 +2553,7 @@ Renderer.CanvasModels.main = {
 
 		"decoration_background": {
 			srcfn(options) {
-				if (options.background_image_type == "" || options.background_image_type == "none") return;
+				if (options.background_image_type == "" || options.background_image_type == "none" || options.background_image_type == undefined) return;
 				return `img/decorations/background/${options.background_image_type}.png`;
 			},
 			showfn(options) {

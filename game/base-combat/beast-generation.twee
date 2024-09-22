@@ -45,7 +45,7 @@
 		head: 0,
 		genitals: 0,
 	}>>
-	
+
 	<<if $NPCList[_n].pregnancy is undefined>>
 		<<set $NPCList[_n].pregnancy to 0>>
 	<</if>>
@@ -99,21 +99,22 @@
 
 	<<set _h to [200,150,200,300,200,250,500,300,200,500,225,150,400,300]>> <!-- Health Max per type -->
 	<<set _t to ["dog","cat","pig","wolf","dolphin","lizard","bear","boar","creature","horse","fox","hawk","cow","spider"]>> <!-- Name of each type -->
-	<<set _d to [["large"],
-		["large"],
-		["fat"],
-		["enormous", "girthy", "huge", "mighty", "hefty", "colossal", "humongous", "large"],
-		["bottlenose"],
-		["scaly"],
-		["brown"],
-		["hairy"],
-		["strange"],
-		["huge"],
-		["large"],
-		["fierce"],
-		["huge"],
-		["slimy"]
-		]>> <!-- Descriptor of each type -->
+	<<set _d to [
+		["large", "furry", "strong", "muscular", "heavily-built", "short-haired", "long-haired", "broad-chested", "well-groomed", "sleek"],
+		["sleek", "small", "agile", "soft-furred", "flexible", "short-haired", "long-haired", "thin", "slender", "delicate"],
+		["large", "round", "fat", "pink-skinned", "heavy", "thick-skinned", "broad", "solid", "short-snouted", "thick-bodied"],
+		["large", "wild", "muscular", "sharp-toothed", "thick-furred", "lean", "broad-chested", "strong-jawed", "sleek", "sharp-eyed"],
+		["sleek", "smooth", "aquatic", "streamlined", "gray-skinned", "shiny", "smooth-skinned", "curved", "glossy", "fast"],
+		["small", "scaly", "cold", "dry-skinned", "thin", "long-bodied", "smooth", "reptilian", "shiny", "sharp-eyed"],
+		["large", "furry", "muscular", "heavily-built", "thick-furred", "broad-shouldered", "solid", "powerful", "dark-furred", "sturdy"],
+		["large", "hairy", "stocky", "tough-skinned", "muscular", "heavy", "wild", "broad-shouldered", "thick-boned", "strong"],
+		["large", "strange", "unnatural", "mysterious", "powerful", "odd", "solid", "broad", "muscular", "shadowy"],
+		["large", "muscular", "strong", "sleek", "smooth-coated", "broad-chested", "tall", "long-legged", "solid", "well-built"],
+		["small", "sleek", "quick", "agile", "thin", "sharp-eyed", "slender", "narrow-bodied", "red-furred", "pointy-eared"],
+		["sleek", "sharp-eyed", "broad-winged", "strong", "smooth-feathered", "fast", "streamlined", "sharp-beaked", "sharp-taloned", "powerful"],
+		["large", "broad", "thick-bodied", "sturdy", "solid", "short-haired", "heavy", "strong", "tough-skinned", "muscular"],
+		["small", "slimy", "eight-legged", "hairy", "dark", "creepy", "thin-legged", "fast-moving", "venomous", "skittering"]
+	]>> <!-- Descriptor of each type -->
 	<<set _pd to ["knotted penis","spiked penis","penis","knotted penis","strange penis","penis","penis","penis","penis","equine cock","knotted penis","avian cock","bovine cock","arachnid penis"]>> <!-- Descriptor of Penises -->
 	/% <<set _cla to [1,1,1,1,0,1,1,1]>> %/
 	<<set _ps to [2,2,2,3,2,2,3,3,2,5,2,2,4,2]>> <!-- Size of penises -->
@@ -123,6 +124,28 @@
 	<<set $NPCList[_n].health to $NPCList[_n].healthmax>>
 	<<set $NPCList[_n].description to _d[_i].pluck()>>
 	<<set $NPCList[_n].type to _t[_i]>>
+
+	<<if $beastMultiOrgasmToggle is 1>>
+		<<if !$NPCList[_n].maxOrgasms or $NPCList[_n].maxOrgasms lte 0>>
+			<<set _t to ["dog","cat","pig","wolf","dolphin","lizard","bear","boar","creature","horse","fox","hawk","cow","spider"]>>
+			<<switch $NPCList[_n].type>>
+				<<case "cat" "dolphin" "creature">>
+					<<set $NPCList[_n].maxOrgasms to 4>>
+				<<case "dog" "wolf" "pig" "bear" "boar" "horse" "cow">>
+					<<set $NPCList[_n].maxOrgasms to 3>>
+				<<case "lizard" "fox" "hawk" "spider">>
+					<<set $NPCList[_n].maxOrgasms to 2>>
+				<<default>>
+					<<set $NPCList[_n].maxOrgasms to 1>>
+			<</switch>>
+		<</if>>
+		<<set $NPCList[_n].orgasms to 0>>
+	<</if>>
+
+	<<if $beastMultiOrgasmToggle is 1 and $NPCList[_n].maxOrgasms gt 1 and $abomination isnot 1>>
+		<<set $setupMidOrgasm to true>>
+	<</if>>
+
 	<<if $NPCList[_n].type is "wolf" or $NPCList[_n].type is "cat" or $NPCList[_n].type is "fox">>
 		<<set $NPCList[_n].dodgeChance to 30>>
 	<<elseif $NPCList[_n].type is "dog" or $NPCList[_n].type is "dolphin" or $NPCList[_n].type is "hawk">>
