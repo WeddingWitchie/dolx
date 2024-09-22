@@ -14,18 +14,17 @@ build_job:
         - mkdir -p build/img/
         - mkdir -p build/aud/
         - ./compile.bat
-        # - cp "Degrees of Lewdity VERSION.html" ./build/
-        # - cp -Recurse -Force ./img/* ./build/img/
-        # - cp -Recurse -Force ./aud/* ./build/aud/
+        - cp -Recurse -Force ./img/* ./build/img/
+        - cp -Recurse -Force ./aud/* ./build/aud/
         - Compress-Archive "./Degrees of Lewdity VERSION.html" "./DoLX_HTML_$VERSION.zip"
-        # - Compress-Archive ./build/* "./DoLX_Media_$VERSION.zip"
+        - Compress-Archive ./build/* "./DoLX_Media_$VERSION.zip"
         - echo "Finished Building Release $VERSION"
         - echo "Uploading Release $VERSION"
         - 'Invoke-RestMethod -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" }  -InFile "./DoLX_HTML_$VERSION.zip" -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX_HTML_$VERSION.zip" -Method PUT'
-        # - 'Invoke-RestMethod -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" }  -InFile "./DoLX_Media_$VERSION.zip" -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX_Media_$VERSION.zip" -Method PUT'
+        - 'Invoke-RestMethod -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" }  -InFile "./DoLX_Media_$VERSION.zip" -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX_Media_$VERSION.zip" -Method PUT'
         - rm -Recurse -Force ./build
         - rm -Recurse -Force "./DoLX_HTML_$VERSION.zip"
-        # - rm -Recurse -Force "./DoLX_Media_$VERSION.zip"
+        - rm -Recurse -Force "./DoLX_Media_$VERSION.zip"
         - echo "Finished Uploading Release $VERSION"
     only:
         - master
@@ -43,9 +42,9 @@ release_job:
         - echo "Creating release ${VERSION}..."
         - $env:html = "{`"name`":`"DoLX_HTML_$VERSION`", `"url`":`"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX_HTML_$VERSION.zip`"}"
         - $env:htmlJSON = $env:html | ConvertTo-Json
-        # - $env:media = "{`"name`":`"DoLX_Media_$VERSION`", `"url`":`"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX_Media_$VERSION.zip`"}"
-        # - $env:mediaJSON = $env:media | ConvertTo-Json
-        - release-cli create --name "DoL:X-Change Edition $VERSION" --ref $CI_COMMIT_SHA --tag-name $VERSION --assets-link=$env:htmlJSON #--assets-link=$env:mediaJSON
+        - $env:media = "{`"name`":`"DoLX_Media_$VERSION`", `"url`":`"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX_Media_$VERSION.zip`"}"
+        - $env:mediaJSON = $env:media | ConvertTo-Json
+        - release-cli create --name "DoL:X-Change Edition $VERSION" --ref $CI_COMMIT_SHA --tag-name $VERSION --assets-link=$env:htmlJSON --assets-link=$env:mediaJSON
 
         # - $payload=@{ "name"="DoL:X-Change Edition $VERSION"; "tag_name"="$VERSION"; "ref"=$CI_COMMIT_SHA; "assets"=@{"links"=@(@{"name"="DoLX_HTML_$VERSION"; "url"="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_HTML_$VERSION/$VERSION/DoLX_HTML_$VERSION.zip"}, @{"name"="DoLX_Media_$VERSION"; "url"="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_Media_$VERSION/$VERSION/DoLX_Media_$VERSION.zip"})} }
         # - $payloadJSON=$payload | ConvertTo-Json -Depth 3
