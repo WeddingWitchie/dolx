@@ -39,12 +39,13 @@ release_job:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     script:
         - $VERSION=$(cat version)
+        - $CHANGELOG=$(cat DoLX_Changelog)
         - echo "Creating release ${VERSION}..."
         - $env:html = "{`"name`":`"DoLX_HTML_$VERSION`", `"url`":`"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX_HTML_$VERSION.zip`"}"
         - $env:htmlJSON = $env:html | ConvertTo-Json
         - $env:media = "{`"name`":`"DoLX_Media_$VERSION`", `"url`":`"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX_Media_$VERSION.zip`"}"
         - $env:mediaJSON = $env:media | ConvertTo-Json
-        - release-cli create --name "DoL:X-Change Edition $VERSION" --ref $CI_COMMIT_SHA --tag-name $VERSION --assets-link=$env:htmlJSON --assets-link=$env:mediaJSON
+        - release-cli create --name "DoL:X-Change Edition $VERSION" --description $CHANGELOG --ref $CI_COMMIT_SHA --tag-name $VERSION --assets-link=$env:htmlJSON --assets-link=$env:mediaJSON
 
         # - $payload=@{ "name"="DoL:X-Change Edition $VERSION"; "tag_name"="$VERSION"; "ref"=$CI_COMMIT_SHA; "assets"=@{"links"=@(@{"name"="DoLX_HTML_$VERSION"; "url"="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_HTML_$VERSION/$VERSION/DoLX_HTML_$VERSION.zip"}, @{"name"="DoLX_Media_$VERSION"; "url"="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_Media_$VERSION/$VERSION/DoLX_Media_$VERSION.zip"})} }
         # - $payloadJSON=$payload | ConvertTo-Json -Depth 3
