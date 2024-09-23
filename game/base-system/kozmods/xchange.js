@@ -53,12 +53,12 @@ function xchangeHourlyCheck() {
 	{
 		// If got impregnated in the vagina, or allowed an ear slime to grow to a certain point
 		// then, the change becomes permanent 
-		if (V.xchange.pillPermanence === 1 && (V.sexStats.vagina.pregnancy.type !== null || V.earSlime.growth > 50))
+		if (V.xchange.pillPermanence === 1 && !pillIsPermanent() && (V.sexStats.vagina.pregnancy.type !== null || V.earSlime.growth > 50))
 			fragment.append(wikifier("xchange-setpermanent"));
 	
 		// If the pill has the continue effect, and a remaining duration of 30 days is accumulated
 		// then, the change becomes permanent
-		if (V.xchange.pillPermanence === 1 && pill.continueEffect && pill.duration > 30 * 24)
+		if (V.xchange.pillPermanence === 1 && !pillIsPermanent() && pill.continueEffect && pill.duration > 30 * 24)
 			fragment.append(wikifier("xchange-setpermanent"));
 
 		// Stop the timer from ticking if PC is vaginally pregnant or the ear slime has grown past its point of no return
