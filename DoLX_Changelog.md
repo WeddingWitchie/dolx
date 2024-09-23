@@ -1,0 +1,3 @@
+* Fixed a typo causing an error on Leighton's penis inspection when presenting as male without a penis.
+* Fixed bug causing error if you ignore a blackmail letter for a whole day.
+* Fixed bug causing "You didn't turn back" messages to keep appearing every hour if you got pregnant.
