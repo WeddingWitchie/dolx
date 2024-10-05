@@ -97,7 +97,7 @@ function xchangeHourlyCheck() {
 	}
 
 	// Apply hourly passion effect
-	if (pill?.passionEffect) fragment.append(wikifier("drugs", 100));
+	if (pill?.passionEffect) fragment.append(wikifier("drugs", 50));
 	
 	// Tick portal effect timer, and end the effect if timer lapses
 	if (pill?.portalEffect && pill?.portalEffectTimer >= 0) {
