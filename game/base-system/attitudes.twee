@@ -121,6 +121,10 @@
 
 	<<set _loveIntStart1 to $loveInterest.primary>>
 	<<set _loveIntStart2 to $loveInterest.secondary>>
+	<<set _loveIntStart3 to $loveInterest.tertiary>>
+	<<set _loveIntStart4 to $loveInterest.quarternary>>
+	<<set _loveIntStart5 to $loveInterest.quinary>>
+	<<set _loveIntStart6 to $loveInterest.senary>>
 	<div id="loveInterest">
 		<<loveInterest>>
 	</div>
@@ -862,13 +866,99 @@
 			<<listbox "$loveInterest.secondary" autoselect>>
 				<<optionsfrom _potentialLoveInterests>>
 			<</listbox>>
+			<<if $loveInterest.secondary isnot "None">>
+				<<run _potentialLoveInterests.delete($loveInterest.secondary)>>
 			<</if>>
+			<</if>>
+			<br>
 		<<else>>
 			<span class="black">You don't consider it possible to have more than one love interest.</span>
-			<<set $loveInterest.secondary to "None">>
+			<<set $loveInterest.secondary to "None">><<set _awareChecked to 1>>
+			<br>
+		<</if>>
+
+		<<if $awarelevel gte 3>>
+			<<if $loveInterest.secondary is "None">>
+				<<set $loveInterest.tertiary to "None">>
+				<span class="black">You need to choose secondary love interest before you can choose a tertiary.</span>
+			<<else>>
+			Who do you consider to be your tertiary love interest?
+			<br>
+			<<listbox "$loveInterest.tertiary" autoselect>>
+				<<optionsfrom _potentialLoveInterests>>
+			<</listbox>>
+			<<if $loveInterest.tertiary isnot "None">>
+				<<run _potentialLoveInterests.delete($loveInterest.tertiary)>>
+			<</if>>
+			<</if>>
+			<br>
+		<<elseif _awareChecked isnot 1>>
+			<span class="black">You don't consider it possible to have more than two love interests.</span>
+			<<set $loveInterest.tertiary to "None">><<set _awareChecked to 1>>
+			<br>
+		<</if>>
+
+		<<if $awarelevel gte 4>>
+			<<if $loveInterest.tertiary is "None">>
+				<<set $loveInterest.quarternary to "None">>
+				<span class="black">You need to choose tertiary love interest before you can choose a quarternary.</span>
+			<<else>>
+			Who do you consider to be your quarternary love interest?
+			<br>
+			<<listbox "$loveInterest.quarternary" autoselect>>
+				<<optionsfrom _potentialLoveInterests>>
+			<</listbox>>
+			<<if $loveInterest.quarternary isnot "None">>
+				<<run _potentialLoveInterests.delete($loveInterest.quarternary)>>
+			<</if>>
+			<</if>>
+			<br>
+		<<elseif _awareChecked isnot 1>>
+			<span class="black">You don't consider it possible to have more than three love interests.</span>
+			<<set $loveInterest.quarternary to "None">><<set _awareChecked to 1>>
+			<br>
+		<</if>>
+
+		<<if $awarelevel gte 5>>
+			<<if $loveInterest.quarternary is "None">>
+				<<set $loveInterest.quinary to "None">>
+				<span class="black">You need to choose quarternary love interest before you can choose a quinary.</span>
+			<<else>>
+			Who do you consider to be your quinary love interest?
+			<br>
+			<<listbox "$loveInterest.quinary" autoselect>>
+				<<optionsfrom _potentialLoveInterests>>
+			<</listbox>>
+			<<if $loveInterest.quinary isnot "None">>
+				<<run _potentialLoveInterests.delete($loveInterest.quinary)>>
+			<</if>>
+			<</if>>
+			<br>
+		<<elseif _awareChecked isnot 1>>
+			<span class="black">You don't consider it possible to have more than four love interests.</span>
+			<<set $loveInterest.quinary to "None">><<set _awareChecked to 1>>
+			<br>
+		<</if>>
+
+		<<if $awarelevel gte 6>>
+			<<if $loveInterest.quinary is "None">>
+				<<set $loveInterest.senary to "None">>
+				<span class="black">You need to choose quinary love interest before you can choose a senary.</span>
+			<<else>>
+			Who do you consider to be your senary love interest?
+			<br>
+			<<listbox "$loveInterest.senary" autoselect>>
+				<<optionsfrom _potentialLoveInterests>>
+			<</listbox>>
+			<</if>>
+			<br>
+		<<elseif _awareChecked isnot 1>>
+			<span class="black">You don't consider it possible to have more than five love interests.</span>
+			<<set $loveInterest.senary to "None">><<set _awareChecked to 1>>
+			<br>
 		<</if>>
 	<</if>>
-	<<if $transformationParts.traits.mateForLife isnot "disabled" and (!isLoveInterest(_loveIntStart1) or (_loveIntStart2 isnot "None" and !isLoveInterest(_loveIntStart2)))>>
+	<<if $transformationParts.traits.mateForLife isnot "disabled" and (!isLoveInterest(_loveIntStart1) or (_loveIntStart2 isnot "None" and !isLoveInterest(_loveIntStart2)) or (_loveIntStart3 isnot "None" and !isLoveInterest(_loveIntStart3)) or (_loveIntStart4 isnot "None" and !isLoveInterest(_loveIntStart4)) or (_loveIntStart5 isnot "None" and !isLoveInterest(_loveIntStart5)) or (_loveIntStart6 isnot "None" and !isLoveInterest(_loveIntStart6)))>>
 		<<set $LIChanged to true>>
 		<br>
 		<span class="red">Changing your partners goes against your instincts to mate for life. It will take a toll on your mental state.</span>
@@ -892,6 +982,10 @@
 		V.attitudesControl.unlockLoveInterest1 = V.loveInterest.primary !== "None";
 		/* there's no point in highlighting that you can assign the second LI if you've not assigned the first one */
 		V.attitudesControl.unlockLoveInterest2 = V.awarelevel >= 2 && V.loveInterest.primary !== "None" && V.loveInterest.secondary === "None";
+		V.attitudesControl.unlockLoveInterest3 = V.awarelevel >= 3 && V.loveInterest.primary !== "None" && V.loveInterest.secondary !== "None" && V.loveInterest.tertiary === "None";
+		V.attitudesControl.unlockLoveInterest4 = V.awarelevel >= 4 && V.loveInterest.primary !== "None" && V.loveInterest.secondary !== "None" && V.loveInterest.tertiary !== "None" && V.loveInterest.quarternary === "None";
+		V.attitudesControl.unlockLoveInterest5 = V.awarelevel >= 5 && V.loveInterest.primary !== "None" && V.loveInterest.secondary !== "None" && V.loveInterest.tertiary !== "None" && V.loveInterest.quarternary !== "None" && V.loveInterest.quinary === "None";
+		V.attitudesControl.unlockLoveInterest6 = V.awarelevel >= 6 && V.loveInterest.primary !== "None" && V.loveInterest.secondary !== "None" && V.loveInterest.tertiary !== "None" && V.loveInterest.quarternary !== "None" && V.loveInterest.quinary !== "None" && V.loveInterest.senary === "None";
 		V.attitudesControl.unlockDefaultActions = V.moleststat > 0;
 		V.attitudesControl.unlockLewd = V.exhibitionism >= 35 || V.promiscuity >= 35 || V.deviancy >= 35;
 		V.attitudesControl.unlockSadoMaso = V.sadism >= 300 || V.masochism >= 300;

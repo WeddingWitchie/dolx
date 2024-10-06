@@ -381,9 +381,27 @@ DefineMacro("NPCSettingsReset", NPCSettingsReset);
 
 function loveInterestFunction() {
 	jQuery(document).on("change", "#listbox-loveinterestprimary", function (e) {
+		delete T.awareChecked;
 		Wikifier.wikifyEval("<<replace #loveInterest>><<loveInterest>><</replace>>");
 	});
 	jQuery(document).on("change", "#listbox-loveinterestsecondary", function (e) {
+		delete T.awareChecked;
+		Wikifier.wikifyEval("<<replace #loveInterest>><<loveInterest>><</replace>>");
+	});
+	jQuery(document).on("change", "#listbox-loveinteresttertiary", function (e) {
+		delete T.awareChecked;
+		Wikifier.wikifyEval("<<replace #loveInterest>><<loveInterest>><</replace>>");
+	});
+	jQuery(document).on("change", "#listbox-loveinterestquarternary", function (e) {
+		delete T.awareChecked;
+		Wikifier.wikifyEval("<<replace #loveInterest>><<loveInterest>><</replace>>");
+	});
+	jQuery(document).on("change", "#listbox-loveinterestquinary", function (e) {
+		delete T.awareChecked;
+		Wikifier.wikifyEval("<<replace #loveInterest>><<loveInterest>><</replace>>");
+	});
+	jQuery(document).on("change", "#listbox-loveinterestsenary", function (e) {
+		delete T.awareChecked;
 		Wikifier.wikifyEval("<<replace #loveInterest>><<loveInterest>><</replace>>");
 	});
 }

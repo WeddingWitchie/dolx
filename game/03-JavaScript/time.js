@@ -637,7 +637,11 @@ function dayPassed() {
 		delete V.community_service_done;
 	}
 
-	if (V.awareness >= 300) V.awarelevel = 2;
+	if (V.awareness >= 1000) V.awarelevel = 6;
+	else if (V.awareness >= 800) V.awarelevel = 5;
+	else if (V.awareness >= 600) V.awarelevel = 4;
+	else if (V.awareness >= 400) V.awarelevel = 3;
+	else if (V.awareness >= 300) V.awarelevel = 2;
 	else if (V.awareness >= 200) V.awarelevel = 1;
 	else if (V.awareness <= -1) V.awarelevel = -1;
 	else V.awarelevel = 0;
@@ -648,6 +652,18 @@ function dayPassed() {
 		V.effectsmessage = 1;
 	} else if (V.awarelevel >= 2 && V.loveInterest.primary !== "None" && V.loveInterest.secondary === "None" && !V.loveInterestAwareMessage) {
 		V.loveInterest_message = 2;
+		V.effectsmessage = 1;
+	} else if (V.awarelevel >= 3 && V.loveInterest.primary !== "None" && V.loveInterest.secondary !== "None" && V.loveInterest.tertiary === "None" && V.loveInterestAwareMessage == 1) {
+		V.loveInterest_message = 3;
+		V.effectsmessage = 1;
+	} else if (V.awarelevel >= 4 && V.loveInterest.primary !== "None" && V.loveInterest.secondary !== "None" && V.loveInterest.tertiary !== "None" && V.loveInterest.quarternary === "None" && V.loveInterestAwareMessage == 2) {
+		V.loveInterest_message = 4;
+		V.effectsmessage = 1;
+	} else if (V.awarelevel >= 5 && V.loveInterest.primary !== "None" && V.loveInterest.secondary !== "None" && V.loveInterest.tertiary === "None" && V.loveInterest.quarternary !== "None" && V.loveInterest.quinary === "None" && V.loveInterestAwareMessage == 3) {
+		V.loveInterest_message = 5;
+		V.effectsmessage = 1;
+	} else if (V.awarelevel >= 6 && V.loveInterest.primary !== "None" && V.loveInterest.secondary !== "None" && V.loveInterest.tertiary !== "None" && V.loveInterest.quarternary !== "None" && V.loveInterest.quinary !== "None" && V.loveInterest.senary === "None" && V.loveInterestAwareMessage == 4) {
+		V.loveInterest_message = 6;
 		V.effectsmessage = 1;
 	}
 	if (V.pound) {
@@ -1892,7 +1908,7 @@ function dailyMasochismSadismEffects() {
 		Wikifier.wikifyEval("<<sadism $dailySadism>>");
 	V.dailyMasochism = 0;
 		if (V.featsMasochismBoost) V.dailyMasochism += V.featsMasochismBoost;
-		Wikifier.wikifyEval("<<masochism $dailyMaso>>");
+		Wikifier.wikifyEval("<<masochism $dailyMasochism>>");
 
 	const masochism = effects(V.masochism_level, V.masochism);
 	if (masochism) {
