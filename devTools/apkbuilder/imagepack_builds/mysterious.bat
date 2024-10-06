@@ -1,0 +1,1 @@
+xcopy /E /Y ..\..\..\imagepacks\mysterious\* ..\..\..\img\

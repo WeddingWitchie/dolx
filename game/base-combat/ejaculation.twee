@@ -146,6 +146,7 @@
 						<<elseif _condomResult is "burst">>
 							<span class="red">The tip of the condom bursts and rips, exposing the head of <<his>> penis.</span>
 						<</if>>
+						<<unset $NPCList[_nn].condom>>
 					<</if>>
 
 					<<if $NPCList[_nn].penis is "otheranusfrot">>
@@ -1124,9 +1125,9 @@
 						<</if>>
 					<!-- Start Consensual -->
 					<<elseif $consensual is 1>>
-						<<if _condomResult is "leaked">>
+						<<if _condomResult is "leaked">><<unset $NPCList[_nn].condom>>
 							<span class="red">The condom broke.</span>
-						<<elseif _condomResult is "burst">>
+						<<elseif _condomResult is "burst">><<unset $NPCList[_nn].condom>>
 							<span class="red">The tip of the condom bursts and rips, exposing the head of <<his>> penis.</span>
 						<</if>>
 						<<if $NPCList[_nn].penis is "idle">>
@@ -2500,6 +2501,9 @@
 	<<set $enemyejaculated += 1>>
 	<<set $pronoun to "i">>
 	<<set _jj to $active_enemy>>
+	<<if $NPCList[_jj] is undefined or $NPCList[_jj].type is undefined>>
+		<<set _jj to 0>>
+	<</if>>
 	<<set _npcisWolfType to ["wolf","wolfboy","wolfgirl"].includes($NPCList[_jj].type)>>
 	<<set _npcisDogType to ["dog","dogboy","doggirl"].includes($NPCList[_jj].type)>>
 	<<set _npcisFoxType to ["fox","foxboy","foxgirl"].includes($NPCList[_jj].type)>>
@@ -2939,7 +2943,9 @@
 	<</if>>
 	<<fetishPregnancyImg>>
 
-	<<set $active_enemy += 1>>
+	<<if $beastMultiOrgasmToggle is 0 and ($NNPCMultiOrgasmToggle is 0 and ($NPCList[0].fullDescription.includes("Great Hawk") or $NPCList[0].fullDescription.includes("Black Wolf")))>>
+		<<set $active_enemy += 1>>
+	<</if>>
 	<<if _args[0] isnot "short">>
 		<<if $water is 0>>
 			<<if _knotted is true>>
@@ -2977,91 +2983,92 @@
 	<</if>>
 
 	<!-- Index BEAST to next up -->
+	<<if $beastGroupFight is 0>>
+		<<switch $active_enemy>>
+		<<case 0>>
+			<<set $enemyarousal to $enemyarousal1>>
+			<<set $enemyanger to $enemyanger1>>
+			<<set $enemyhealth to $enemyhealth1>>
+			<<set $enemytrust to $enemytrust1>>
+		<<case 1>>
+			<<set $enemyarousal to $enemyarousal2>>
+			<<set $enemyanger to $enemyanger2>>
+			<<set $enemyhealth to $enemyhealth2>>
+			<<set $enemytrust to $enemytrust2>>
+		<<case 2>>
+			<<set $enemyarousal to $enemyarousal3>>
+			<<set $enemyanger to $enemyanger3>>
+			<<set $enemyhealth to $enemyhealth3>>
+			<<set $enemytrust to $enemytrust3>>
+		<<case 3>>
+			<<set $enemyarousal to $enemyarousal4>>
+			<<set $enemyanger to $enemyanger4>>
+			<<set $enemyhealth to $enemyhealth4>>
+			<<set $enemytrust to $enemytrust4>>
+		<<case 4>>
+			<<set $enemyarousal to $enemyarousal5>>
+			<<set $enemyanger to $enemyanger5>>
+			<<set $enemyhealth to $enemyhealth5>>
+			<<set $enemytrust to $enemytrust5>>
+		<<case 5>><!-- Should be unused case -->
+			<<set $enemyarousal to $enemyarousal6>>
+			<<set $enemyanger to $enemyanger6>>
+			<<set $enemyhealth to $enemyhealth6>>
+			<<set $enemytrust to $enemytrust6>>
+		<<default>>
+			<span class="red">ERROR: Beastejac index error</span>
+		<</switch>>
 
-	<<switch $active_enemy>>
-	<<case 0>>
-		<<set $enemyarousal to $enemyarousal1>>
-		<<set $enemyanger to $enemyanger1>>
-		<<set $enemyhealth to $enemyhealth1>>
-		<<set $enemytrust to $enemytrust1>>
-	<<case 1>>
-		<<set $enemyarousal to $enemyarousal2>>
-		<<set $enemyanger to $enemyanger2>>
-		<<set $enemyhealth to $enemyhealth2>>
-		<<set $enemytrust to $enemytrust2>>
-	<<case 2>>
-		<<set $enemyarousal to $enemyarousal3>>
-		<<set $enemyanger to $enemyanger3>>
-		<<set $enemyhealth to $enemyhealth3>>
-		<<set $enemytrust to $enemytrust3>>
-	<<case 3>>
-		<<set $enemyarousal to $enemyarousal4>>
-		<<set $enemyanger to $enemyanger4>>
-		<<set $enemyhealth to $enemyhealth4>>
-		<<set $enemytrust to $enemytrust4>>
-	<<case 4>>
-		<<set $enemyarousal to $enemyarousal5>>
-		<<set $enemyanger to $enemyanger5>>
-		<<set $enemyhealth to $enemyhealth5>>
-		<<set $enemytrust to $enemytrust5>>
-	<<case 5>><!-- Should be unused case -->
-		<<set $enemyarousal to $enemyarousal6>>
-		<<set $enemyanger to $enemyanger6>>
-		<<set $enemyhealth to $enemyhealth6>>
-		<<set $enemytrust to $enemytrust6>>
-	<<default>>
-		<span class="red">ERROR: Beastejac index error</span>
-	<</switch>>
+		<<if $player.vaginaExist>>
+			<<set $vaginause to 0>>
+			<<set $vaginastate to 0>>
+		<</if>>
 
-	<<if $player.vaginaExist>>
-		<<set $vaginause to 0>>
-		<<set $vaginastate to 0>>
+		<<if playerHasStrapon() or $player.penisExist>>
+			<<set $penisuse to 0>>
+			<<set $penisstate to 0>>
+		<</if>>
+
+
+		<<set $mouthuse to 0>>
+		<<set $anususe to 0>>
+		<<unset $neckuse>>
+
+		<<if $worn.face.type.includes("gag")>>
+			<<set $mouthuse to "gagged">>
+		<</if>>
+
+		<<set $thighuse to 0>>
+		<<set $bottomuse to 0>>
+		<<set $feetuse to 0>>
+		<<if $leftarm isnot "bound" and $position isnot "wall">>
+			<<set $leftarm to 0>>
+		<</if>>
+		<<if $rightarm isnot "bound" and $position isnot "wall">>
+			<<set $rightarm to 0>>
+		<</if>>
+		<<set $chestuse to 0>>
+		<<set $cheststate to 0>>
+		<<if $head isnot "bound" and $position isnot "wall">>
+			<<set $head to 0>>
+		<</if>>
+
+		<<set $anusstate to 0>>
+		<<set $mouthstate to 0>>
+
+		<<set $leftaction to 0>>
+		<<set $rightaction to 0>>
+		<<set $vaginaaction to 0>>
+		<<set $penisaction to 0>>
+		<<set $anusaction to 0>>
+		<<set $thighaction to 0>>
+		<<set $cheekaction to 0>>
+		<<set $feetaction to 0>>
+		<<set $mouthaction to 0>>
+
+		<<set $rapeavoid to 1>>
+		<<set $ejaculating to 0>>
 	<</if>>
-
-	<<if playerHasStrapon() or $player.penisExist>>
-		<<set $penisuse to 0>>
-		<<set $penisstate to 0>>
-	<</if>>
-
-
-	<<set $mouthuse to 0>>
-	<<set $anususe to 0>>
-	<<unset $neckuse>>
-
-	<<if $worn.face.type.includes("gag")>>
-		<<set $mouthuse to "gagged">>
-	<</if>>
-
-	<<set $thighuse to 0>>
-	<<set $bottomuse to 0>>
-	<<set $feetuse to 0>>
-	<<if $leftarm isnot "bound" and $position isnot "wall">>
-		<<set $leftarm to 0>>
-	<</if>>
-	<<if $rightarm isnot "bound" and $position isnot "wall">>
-		<<set $rightarm to 0>>
-	<</if>>
-	<<set $chestuse to 0>>
-	<<set $cheststate to 0>>
-	<<if $head isnot "bound" and $position isnot "wall">>
-		<<set $head to 0>>
-	<</if>>
-
-	<<set $anusstate to 0>>
-	<<set $mouthstate to 0>>
-
-	<<set $leftaction to 0>>
-	<<set $rightaction to 0>>
-	<<set $vaginaaction to 0>>
-	<<set $penisaction to 0>>
-	<<set $anusaction to 0>>
-	<<set $thighaction to 0>>
-	<<set $cheekaction to 0>>
-	<<set $feetaction to 0>>
-	<<set $mouthaction to 0>>
-
-	<<set $rapeavoid to 1>>
-	<<set $ejaculating to 0>>
 <</widget>>
 
 :: Widgets Wound [widget]
@@ -3070,86 +3077,88 @@
 	<<set $active_enemy += 1>>
 	<!-- Index beasts -->
 
-	<<switch $active_enemy>>
-	<<case 0>>
-		<<set $enemyarousal to $enemyarousal1>>
-		<<set $enemyanger to $enemyanger1>>
-		<<set $enemyhealth to $enemyhealth1>>
-		<<set $enemytrust to $enemytrust1>>
-	<<case 1>>
-		<<set $enemyarousal to $enemyarousal2>>
-		<<set $enemyanger to $enemyanger2>>
-		<<set $enemyhealth to $enemyhealth2>>
-		<<set $enemytrust to $enemytrust2>>
-	<<case 2>>
-		<<set $enemyarousal to $enemyarousal3>>
-		<<set $enemyanger to $enemyanger3>>
-		<<set $enemyhealth to $enemyhealth3>>
-		<<set $enemytrust to $enemytrust3>>
-	<<case 3>>
-		<<set $enemyarousal to $enemyarousal4>>
-		<<set $enemyanger to $enemyanger4>>
-		<<set $enemyhealth to $enemyhealth4>>
-		<<set $enemytrust to $enemytrust4>>
-	<<case 4>>
-		<<set $enemyarousal to $enemyarousal5>>
-		<<set $enemyanger to $enemyanger5>>
-		<<set $enemyhealth to $enemyhealth5>>
-		<<set $enemytrust to $enemytrust5>>
-	<<case 5>><!-- Should be unused case -->
-		<<set $enemyarousal to $enemyarousal6>>
-		<<set $enemyanger to $enemyanger6>>
-		<<set $enemyhealth to $enemyhealth6>>
-		<<set $enemytrust to $enemytrust6>>
-	<<default>>
-		<span class="red">ERROR: Beastwound index error</span>
-	<</switch>>
+	<<if $beastGroupFight is 0>>
+		<<switch $active_enemy>>
+		<<case 0>>
+			<<set $enemyarousal to $enemyarousal1>>
+			<<set $enemyanger to $enemyanger1>>
+			<<set $enemyhealth to $enemyhealth1>>
+			<<set $enemytrust to $enemytrust1>>
+		<<case 1>>
+			<<set $enemyarousal to $enemyarousal2>>
+			<<set $enemyanger to $enemyanger2>>
+			<<set $enemyhealth to $enemyhealth2>>
+			<<set $enemytrust to $enemytrust2>>
+		<<case 2>>
+			<<set $enemyarousal to $enemyarousal3>>
+			<<set $enemyanger to $enemyanger3>>
+			<<set $enemyhealth to $enemyhealth3>>
+			<<set $enemytrust to $enemytrust3>>
+		<<case 3>>
+			<<set $enemyarousal to $enemyarousal4>>
+			<<set $enemyanger to $enemyanger4>>
+			<<set $enemyhealth to $enemyhealth4>>
+			<<set $enemytrust to $enemytrust4>>
+		<<case 4>>
+			<<set $enemyarousal to $enemyarousal5>>
+			<<set $enemyanger to $enemyanger5>>
+			<<set $enemyhealth to $enemyhealth5>>
+			<<set $enemytrust to $enemytrust5>>
+		<<case 5>><!-- Should be unused case -->
+			<<set $enemyarousal to $enemyarousal6>>
+			<<set $enemyanger to $enemyanger6>>
+			<<set $enemyhealth to $enemyhealth6>>
+			<<set $enemytrust to $enemytrust6>>
+		<<default>>
+			<span class="red">ERROR: Beastwound index error</span>
+		<</switch>>
+	
+		<<if $player.vaginaExist>>
+			<<set $vaginause to 0>>
+			<<set $vaginastate to 0>>
+		<</if>>
 
-	<<if $player.vaginaExist>>
-		<<set $vaginause to 0>>
-		<<set $vaginastate to 0>>
+		<<if playerHasStrapon() or $player.penisExist>>
+			<<set $penisuse to 0>>
+			<<set $penisstate to 0>>
+		<</if>>
+
+		<<set $mouthuse to 0>>
+		<<set $anususe to 0>>
+		<<unset $neckuse>>
+
+		<<if $worn.face.type.includes("gag")>>
+			<<set $mouthuse to "gagged">>
+		<</if>>
+
+		<<set $thighuse to 0>>
+		<<set $bottomuse to 0>>
+		<<set $feetuse to 0>>
+		<<if $leftarm isnot "bound" and $position isnot "wall">>
+			<<set $leftarm to 0>>
+		<</if>>
+		<<if $rightarm isnot "bound" and $position isnot "wall">>
+			<<set $rightarm to 0>>
+		<</if>>
+		<<set $chestuse to 0>>
+		<<set $cheststate to 0>>
+		<<if $head isnot "bound" and $position isnot "wall">>
+			<<set $head to 0>>
+		<</if>>
+		<<set $anusstate to 0>>
+		<<set $mouthstate to 0>>
+
+		<<set $leftaction to 0>>
+		<<set $rightaction to 0>>
+		<<set $vaginaaction to 0>>
+		<<set $anusaction to 0>>
+		<<set $thighaction to 0>>
+		<<set $cheekaction to 0>>
+		<<set $feetaction to 0>>
+		<<set $mouthaction to 0>>
+
+		<<set $rapeavoid to 1>>
 	<</if>>
-
-	<<if playerHasStrapon() or $player.penisExist>>
-		<<set $penisuse to 0>>
-		<<set $penisstate to 0>>
-	<</if>>
-
-	<<set $mouthuse to 0>>
-	<<set $anususe to 0>>
-	<<unset $neckuse>>
-
-	<<if $worn.face.type.includes("gag")>>
-		<<set $mouthuse to "gagged">>
-	<</if>>
-
-	<<set $thighuse to 0>>
-	<<set $bottomuse to 0>>
-	<<set $feetuse to 0>>
-	<<if $leftarm isnot "bound" and $position isnot "wall">>
-		<<set $leftarm to 0>>
-	<</if>>
-	<<if $rightarm isnot "bound" and $position isnot "wall">>
-		<<set $rightarm to 0>>
-	<</if>>
-	<<set $chestuse to 0>>
-	<<set $cheststate to 0>>
-	<<if $head isnot "bound" and $position isnot "wall">>
-		<<set $head to 0>>
-	<</if>>
-	<<set $anusstate to 0>>
-	<<set $mouthstate to 0>>
-
-	<<set $leftaction to 0>>
-	<<set $rightaction to 0>>
-	<<set $vaginaaction to 0>>
-	<<set $anusaction to 0>>
-	<<set $thighaction to 0>>
-	<<set $cheekaction to 0>>
-	<<set $feetaction to 0>>
-	<<set $mouthaction to 0>>
-
-	<<set $rapeavoid to 1>>
 <</widget>>
 
 <<widget "genericCondomEjaculation">>

@@ -325,7 +325,9 @@
 <</widget>>
 
 <<widget "combatTrainAdvance">>/*For use after a beast/monster in a train is finished with their turn. Loads next in line into $NPCList[0]. Loads them all back into $NPCList if at the end of the train.*/
-	<<clearnpc>>
+	<<if $beastGroupFight is 0 or $ejaculatingMid>>
+		<<clearnpc>>
+	<</if>>
 	<<if $combatTrain.length gt 0>>
 		<<set $combatTrain.length-->>
 		<<set $combatTrain.active += 1>>
@@ -338,13 +340,19 @@
 	<<else>>
 		<<for _e_n to 0; _e_n lt $combatTrain.total_length + 1; _e_n++>>
 			<<loadNPC _e_n `"beast_" + _e_n`>>
-			<<clearNPC `"beast_" + _e_n`>>
+			<<if $beastGroupFight is 0 or $ejaculatingMid>>
+				<<clearNPC `"beast_" + _e_n`>>
+			<</if>>
 		<</for>>
 	<</if>>
 	<<if $combatExtended.reverseRapeStart is 1>>
 		<<set $consensual to 0>>
 		<<set $combatExtended.reverseRapeStart to 0>>
 		<<set $combatExtended.standingFightStart to 1>>
+	<</if>>
+	<<if $finish is 1>>
+		<<set $enemyhealth to 1>>
+		<<set $enemyarousal to 0>>
 	<</if>>
 	<<set $active_enemy to 0>>
 	<<unset $hypnosis_deviancy_check>>
@@ -370,8 +378,8 @@
 	<</for>>
 	<<if $beastGroupFight is 0>>
 		<<clearnpc>>
-		<<loadNPC 0 beast_0>>
 	<</if>>
+	<<loadNPC 0 beast_0>>
 <</widget>>
 
 
@@ -845,16 +853,20 @@
 		<<set $enemyhealth to Math.round($enemyhealth * ($npcHealthMult / 100))>>
 	<</if>>
 	<<set _buffAmount to Math.floor(Time.days / $combatExtended.enemyDayScaling)>>
-	<<if $combatExtended.enemyHealthDayScaling is 1 and (_buffAmount lte $combatExtended.enemyDayScalingLimit or $combatExtended.enemyInfiniteDayScaling is 1)>>
-		<<set _buff += _buffAmount * $combatExtended.enemyHealthDayScalingMult>>
-	<<else>>
-		<<set _buff += _buffAmount * $combatExtended.enemyDayScalingLimit>>
+	<<if $combatExtended.enemyHealthDayScaling is 1>>
+		<<if _buffAmount lte $combatExtended.enemyDayScalingLimit or $combatExtended.enemyInfiniteDayScaling is 1>>
+			<<set _buff += _buffAmount * $combatExtended.enemyHealthDayScalingMult>>
+		<<else>>
+			<<set _buff += _buffAmount * $combatExtended.enemyDayScalingLimit>>
+		<</if>>
 	<</if>>
 	<<set _buffAmount to Math.floor($enemiesDefeatedStat / $combatExtended.enemyDefeatScaling)>>
-	<<if $combatExtended.enemyHealthDefeatScaling is 1 and (_buffAmount lte $combatExtended.enemyDefeatScalingLimit or $combatExtended.enemyInfiniteDefeatScaling is 1)>>
-		<<set _buff += _buffAmount * $combatExtended.enemyHealthDefeatScalingMult>>
-	<<else>>
-		<<set _buff += _buffAmount * $combatExtended.enemyDefeatScalingLimit>>
+	<<if $combatExtended.enemyHealthDefeatScaling is 1>>
+		<<if _buffAmount lte $combatExtended.enemyDefeatScalingLimit or $combatExtended.enemyInfiniteDefeatScaling is 1>>
+			<<set _buff += _buffAmount * $combatExtended.enemyHealthDefeatScalingMult>>
+		<<else>>
+			<<set _buff += _buffAmount * $combatExtended.enemyDefeatScalingLimit>>
+		<</if>>
 	<</if>>
 	<<set $enemyhealth to  Math.round($enemyhealth * (1 + (_buff / 100)))>>
 	<<set $enemyhealthmax to $enemyhealth>>

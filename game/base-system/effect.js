@@ -892,6 +892,22 @@ function effects() {
 			element("i", "Your mind is open to the possibility of multiple lovers. You may now choose a second love interest.", "pink");
 			delete V.loveInterest_message;
 			V.loveInterestAwareMessage = 1;
+		} else if (V.loveInterest_message === 3 && V.loveInterestAwareMessage == 1) {
+			element("i", "Your mind is open to the possibility of multiple lovers. You may now choose a third love interest.", "pink");
+			delete V.loveInterest_message;
+			V.loveInterestAwareMessage = 2;
+		} else if (V.loveInterest_message === 4 && V.loveInterestAwareMessage == 2) {
+			element("i", "Your mind is open to the possibility of multiple lovers. You may now choose a fourth love interest.", "pink");
+			delete V.loveInterest_message;
+			V.loveInterestAwareMessage = 3;
+		} else if (V.loveInterest_message === 5 && V.loveInterestAwareMessage == 3) {
+			element("i", "Your mind is open to the possibility of multiple lovers. You may now choose a fifth love interest.", "pink");
+			delete V.loveInterest_message;
+			V.loveInterestAwareMessage = 4;
+		} else if (V.loveInterest_message === 6 && V.loveInterestAwareMessage == 4) {
+			element("i", "Your mind is open to the possibility of multiple lovers. You may now choose a sixth love interest.", "pink");
+			delete V.loveInterest_message;
+			V.loveInterestAwareMessage = 5;
 		}
 
 		if (V.fallenangelmessage) {
@@ -1132,13 +1148,26 @@ function effects() {
 	if (V.combat === 0 && V.ironmanmode === true) IronMan.scheduledSaves();
 
 	if (V.tirednessMaxScalingToggle) {
-		C.tiredness.max = 2000 + Math.floor(V.physique / 32) + Math.floor(V.willpower / 2);
+		C.tiredness.max = 2000 + Math.floor(V.physique / 32);
 	} else {
 		C.tiredness.max = 2000;
 	}
 
+	if (V.stressMaxScalingToggle) {
+		V.stressmax = 10000 + Math.floor(V.willpower * 5);
+	} else {
+		V.stressmax = 10000;
+	}
+
+	if (V.stressMaxScalingToggle) {
+		V.stressmax = 10000 + Math.floor(V.willpower * 5);
+	} else {
+		V.stressmax = 10000;
+	}
+
 	sWikifier("<<blackmail-effects>>");
 	sWikifier("<<portalPantiesDisplay>>");
+	
 	if (V.trauma >= (V.traumamax * 0.9)) V.traumatized = true;
 
 	return fragment;

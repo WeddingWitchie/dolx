@@ -114,6 +114,7 @@
 			<<if StartConfig.enableImages and $passage is "Start">><<startingPlayerImageUpdate>><<removeclass #startingPlayerImage "hidden">><</if>>
 		<<case "featSettings" "feat">><<replace #settingsDiv>><<featSettings>><</replace>>
 		<<case "gameSettings" "game">><<replace #settingsDiv>><<gameSettings>><</replace>>
+		<<case "dolpSettings" "dolp">><<replace #settingsDiv>><<dolpSettings>><</replace>>
 		<<case "sizeLimitsSettings" "size">><<replace #settingsDiv>><<sizeLimitsSettings>><</replace>>
 		<<case "npcSettings" "npc">><<replace #settingsDiv>><<npcSettings>><</replace>>
 		<<case "exportsettings" "export">><<replace #settingsDiv>><<exportsettings>><</replace>>
@@ -140,11 +141,23 @@
 		<<case "priceSettings">><<set _subsection to "price">><<replace #subsectionDiv>><<priceSettings>><</replace>>
 		<<case "pregnancySettings">><<set _subsection to "pregnancy">><<replace #subsectionDiv>><<pregnancySettings>><</replace>>
 		<<case "sizeLimitsSettings">><<set _subsection to "sizeLimits">><<replace #subsectionDiv>><div class="solidBorderContainer settings-container"><<sizeLimitsSettings>></div><</replace>>
-		<<case "dolpSettings">><<set _subsection to "dolp">><<replace #subsectionDiv>><<dolpSettings>><</replace>>
-		<<case "combatExtendedSettings">><<set _subsection to "combatExtended">><<replace #subsectionDiv>><<combatExtendedSettings>><</replace>>
-		<<case "amcTraitsSettings">><<set _subsection to "amcTraits">><<replace #subsectionDiv>><<amcTraitsSettings>><</replace>>
-		<<case "xchangeSettings">><<set _subsection to "xchange">><<replace #subsectionDiv>><<xchangeSettings>><</replace>>
 		<<default>><<set _subsection to "human">><<replace #subsectionDiv>><<humanSettings>><</replace>>
+	<</switch>>
+	<<run settingsDisableElement()>>
+<</widget>>
+
+<<widget "displayDoLP">>
+	<<if _args[0]>>
+		<<set $currentDoLP to _args[0]>>
+	<</if>>
+	<<switch $currentDoLP>>
+		<<case "rebalanceSettings">><<set _dolp to "rebalance">><<replace #subsectionDiv>><<rebalanceSettings>><</replace>>
+		<<case "npcDoLPSettings">><<set _dolp to "npcDoLP">><<replace #subsectionDiv>><<npcDoLPSettings>><</replace>>
+		<<case "beastDoLPSettings">><<set _dolp to "beastDoLP">><<replace #subsectionDiv>><<beastDoLPSettings>><</replace>>
+		<<case "combatExtendedSettings">><<set _dolp to "combatExtended">><<replace #subsectionDiv>><<combatExtendedSettings>><</replace>>
+		<<case "amcTraitsSettings">><<set _dolp to "amcTraits">><<replace #subsectionDiv>><<amcTraitsSettings>><</replace>>
+		<<case "xchangeSettings">><<set _subsection to "xchange">><<replace #subsectionDiv>><<xchangeSettings>><</replace>>
+		<<default>><<set _dolp to "rebalance">><<replace #subsectionDiv>><<rebalanceSettings>><</replace>>
 	<</switch>>
 	<<run settingsDisableElement()>>
 <</widget>>
@@ -222,6 +235,8 @@
 				<<settingsTabButton "Character Creation<span class='red'> *</span>" "character">>
 			/*Game Settings*/
 				<<settingsTabButton "Game Settings" "game">>
+			/*DoLP Settings*/
+				<<settingsTabButton "Modded Settings" "dolp">>
 			/*Feat Boosts*/
 				<<settingsTabButton _featTabName "feat">>
 			/*Gallery*/
@@ -292,6 +307,15 @@
 			<<unset _beastMaleChanceSplit>>
 			<<unset _pregnancytype>>
 			<<unset _incompletePregnancyDisable>>
+		<</button>>
+	</div>
+	<div @class="_selectedSettings is 'dolp' ? 'gold buttonStartSelected' : 'buttonStart'" >
+		<<button "DoLP Settings">>
+			<<set _selectedSettings to "dolp">>
+			<<set _dolp to "rebalance">>
+			<<replace #settingsOptions>><<settingsOptions>><</replace>>
+			<<replace #settingsExit>><<settingsExit>><</replace>>
+			<<displaySettings "dolpSettings">>
 		<</button>>
 	</div>
 	<div @class="_selectedSettings is 'gallery' ? 'gold buttonStartSelected' : 'buttonStart'" >
@@ -646,6 +670,7 @@
 	<<set $combatExtended.enemyHealthDefeatScalingMult to Math.clamp($combatExtended.enemyHealthDefeatScalingMult, 1, 1000000)>>
 	<<set $combatExtended.enemyDefeatScaling to Math.clamp($combatExtended.enemyDefeatScaling, 1, 1000000)>>
 	<<set $combatExtended.enemyDefeatScalingLimit to Math.clamp($combatExtended.enemyDefeatScalingLimit, 1, 1000000)>>
+	<<set $combatTimePass to Math.clamp($combatTimePass, 1, 1000000)>>
 	<<amcTraitsUpdate>>
 	<<modWardrobeUpdate>>
 	<<if !$ironmanmode>>
@@ -1447,17 +1472,41 @@
 				<<subsectionSettingsTabButton "Body Part Size Limits" "sizeLimits">>
 			</div>
 		<</if>>
-		<div id="settingsDoLP">
-			<<subsectionSettingsTabButton "DoLP Settings" "dolp">>
+	</div>
+<</widget>>
+
+<<widget "dolpSettingsTabButton">>
+	<div @class="_dolp is _args[1] ? 'gold buttonSettingsSelected' : 'buttonSettings'" >
+		<<button _args[0]>>
+			<<if _dolp isnot _args[1]>>
+				<<set _dolp to _args[1]>>
+				<<displayDoLP `_args[1] + "Settings"`>>
+				<<replace #dolpTabSettings>><<allDoLPSettings>><</replace>>
+			<</if>>
+		<</button>>
+	</div>
+<</widget>>
+
+<<widget "allDoLPSettings">>
+	<<if _dolp is undefined>><<set _dolp to "rebalance">><</if>>
+	<div id="containerStart" class="containerWrap">
+		<div id="settingsRebalance">
+			<<dolpSettingsTabButton "Rebalance Settings" "rebalance">>
+		</div>
+		<div id="settingsNPCDoLP">
+			<<dolpSettingsTabButton "NPC Settings" "npcDoLP">>
+		</div>
+		<div id="settingsBeastDoLP">
+			<<dolpSettingsTabButton "Beast Settings" "beastDoLP">>
 		</div>
 		<div id="settingsCombatExtended">
-			<<subsectionSettingsTabButton "Combat Extended Settings" "combatExtended">>
+			<<dolpSettingsTabButton "Combat Extended Settings" "combatExtended">>
 		</div>
 		<div id="settingsAMCTraits">
-			<<subsectionSettingsTabButton "AMC Traits Settings" "amcTraits">>
+			<<dolpSettingsTabButton "AMC Traits Settings" "amcTraits">>
 		</div>
 		<div id="settingsXChange">
-			<<subsectionSettingsTabButton "X-Change Settings" "xchange">>
+			<<dolpSettingsTabButton "X-Change Settings" "xchange">>
 		</div>
 	</div>
 <</widget>>
@@ -1612,55 +1661,6 @@
 				<<numberslider "$blackchance" $blackchance 0 100 1>>
 			</div>
 		</div>
-		<hr>
-		<div class="settingsGrid">
-			<div class="settingsHeader">
-				DoLP NPC Settings
-			</div>
-			<div class="settingsToggleItem numberslider-inline">
-				<span class="gold">NPC Health Max Multiplier (%)
-				<mouse class="tooltip linkBlue">(?)<span>Multiplies the health max of human enemies. Range 1 - 1000000</span></mouse>
-				</span>
-				<<numberbox "$npcHealthMult" $npcHealthMult>>
-			</div>
-			<div class="settingsToggleItem numberslider-inline">
-				<span class="gold">NPC Arousal Max Multiplier (%)
-				<mouse class="tooltip linkBlue">(?)<span>Multiplies the arousal max of human enemies. Range 1 - 1000000</span></mouse>
-				</span>
-				<<numberbox "$npcArousalMult" $npcArousalMult>>
-			</div>
-			<div class="settingsToggleItem">
-				<<checkbox "$npcStealMoneyToggle" 0 1 autocheck>> Enable NPCs stealing your money.
-				<mouse class="tooltip linkBlue">(?)<span>Will only happen if the NPC is angry.</span></mouse>
-			</div>
-			<div class="settingsToggleItem numberslider-inline">
-				<span class="gold">NPC Stolen Money Percentage (%)
-				<mouse class="tooltip linkBlue">(?)<span>The percentage of your money NPCs will steal.</span></mouse>
-				</span>
-				<<numberslider "$npcStealMoneyPercentage" $npcStealMoneyPercentage 1 100 1>>
-			</div>
-			<div class="settingsToggleItem">
-				<span class="gold">NPC Description Generation</span> <mouse class = "tooltip linkBlue">(?)<span>In Vanilla, their descriptions are tied to their levels which may cause every NPC to appear as Demons with really high level scaling. Randomized will completely randomize this.</span></mouse>
-				<br>
-				<label>Vanilla <<radiobutton "$npcDescGenType" "vanilla" autocheck>></label> |
-				<label>Randomized <<radiobutton "$npcDescGenType" "randomized" autocheck>></label>
-				<br>
-			</div>
-			<div class="settingsToggleItem">
-				<span class="gold">NPC Breast Generation</span> <mouse class = "tooltip linkBlue">(?)<span>In Vanilla, their breast sizes are tied to their levels which may cause every NPC to have huge breast sizes with really high level scaling. Randomized will completely randomize this.</span></mouse>
-				<br>
-				<label>Vanilla <<radiobutton "$npcBreastGenType" "vanilla" autocheck>></label> |
-				<label>Randomized <<radiobutton "$npcBreastGenType" "randomized" autocheck>></label>
-				<br>
-			</div>
-			<div class="settingsToggleItem">
-				<span class="gold">NPC Penis Generation</span> <mouse class = "tooltip linkBlue">(?)<span>In Vanilla, level 19-20 NPCs are forced to have max size penises. Randomized will completely randomize this.</span></mouse>
-				<br>
-				<label>Vanilla <<radiobutton "$npcPenisGenType" "vanilla" autocheck>></label> |
-				<label>Randomized <<radiobutton "$npcPenisGenType" "randomized" autocheck>></label>
-				<br>
-			</div>
-		</div>
 	</div>
 <</widget>>
 
@@ -1693,24 +1693,6 @@
 			</div>
 			<div class="settingsToggleItem">
 				<<monsterSettings>>
-			</div>
-		</div>
-		<hr>
-		<div class="settingsGrid">
-			<div class="settingsHeader">
-				DoLP Beast Settings
-			</div>
-			<div class="settingsToggleItem numberslider-inline">
-				<span class="gold">Beast Health Max Multiplier (%)
-				<mouse class="tooltip linkBlue">(?)<span>Multiplies the health max of beast enemies. Range 1 - 1000000</span></mouse>
-				</span>
-				<<numberbox "$beastHealthMult" $beastHealthMult>>
-			</div>
-			<div class="settingsToggleItem numberslider-inline">
-				<span class="gold">Beast Arousal Max Multiplier (%)
-				<mouse class="tooltip linkBlue">(?)<span>Multiplies the arousal max of beast enemies. Range 1 - 1000000</span></mouse>
-				</span>
-				<<numberbox "$beastArousalMult" $beastArousalMult>>
 			</div>
 		</div>
 		<hr>
@@ -3697,6 +3679,40 @@
 <<widget "dolpSettings">>
 	<div class="solidBorderContainer settings-container">
 		<div class="settingsGrid">
+			<<if $options.images is 1>>
+				<div class="settingsToggleItem">
+					<span class="gold">Banner Toggle</span> <mouse class = "tooltip linkBlue">(?)<span>Toggle which version of the banner you want to use.</span></mouse>
+					<br>
+					<<link "No Banner">><<replace #bannerStyle>><</replace>><<set $bannerstyle to "none">><</link>>
+						| <<link "Default Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/banner.png"><</replace>><<set $bannerstyle to "default">><</link>>
+					<<if $feats.allSaves.points isnot undefined and $feats.allSaves.points gte 25>>
+						| <<link "Alien Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/bannerAlien.png"><</replace>><<set $bannerstyle to "alien">><</link>>
+					<<else>>
+						| <label><span class="red">25 VrelCoins</span></label>
+					<</if>>
+					<<if $feats.allSaves.points isnot undefined and $feats.allSaves.points gte 50>>
+						| <<link "Blood Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/bannerBlood.png"><</replace>><<set $bannerstyle to "blood">><</link>>
+					<<else>>
+						| <label><span class="red">50 VrelCoins</span></label>
+					<</if>>
+					<<if $feats.allSaves.points isnot undefined and $feats.allSaves.points gte 100>>
+						| <<link "Bronze Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/bannerBronze.png"><</replace>><<set $bannerstyle to "bronze">><</link>>
+					<<else>>
+						| <label><span class="red">100 VrelCoins</span></label>
+					<</if>>
+					<<if $feats.allSaves.points isnot undefined and $feats.allSaves.points gte 150>>
+						| <<link "Silver Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/bannerSilver.png"><</replace>><<set $bannerstyle to "silver">><</link>>
+					<<else>>
+						| <label><span class="red">150 VrelCoins</span></label>
+					<</if>>
+					<<if $feats.allSaves.points isnot undefined and $feats.allSaves.points gte 200>>
+						| <<link "Golden Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/bannerGold.png"><</replace>><<set $bannerstyle to "gold">><</link>>
+					<<else>>
+						| <label><span class="red">200 VrelCoins</span></label>
+					<</if>>
+					<br>
+				</div>
+			<</if>>
 			<div class="settingsToggleItem">
 				<span class="gold">Enemy Stats Display</span> <mouse class = "tooltip linkBlue">(?)<span>As you enter an encounter, you will be given textual descriptions for the state of the enemy. The toggle here allows you to see exactly what number the enemy's stats are at.</span></mouse>
 				<br>
@@ -3706,34 +3722,83 @@
 			</div>
 
 			<div class="settingsToggleItem">
-				<span class="gold">Enemy Multi-Orgasm</span>
-				<br>
-				<label>
-					<<checkbox "$multiOrgasmToggle" 0 1 autocheck>> Enable NPC multi-orgasm <mouse class = "tooltip linkBlue">(?)<span>Human and Named NPCs will be able to orgasm multiple times.</span></mouse>
-				</label>
-				<br>
-				<label>
-					<<checkbox "$beastMultiOrgasmToggle" 0 1 autocheck>> Enable beast multi-orgasm <mouse class = "tooltip linkBlue">(?)<span>Beasts will be able to orgasm multiple times.</span></mouse>
-				</label>
-				<br>
-				<label>
-					<<checkbox "$multiOrgasmLustScaling" 0 1 autocheck>> Enable NNPC lust scaling <mouse class = "tooltip linkBlue">(?)<span>Named NPCs will get +1 to max orgasm per 20 lust.</span></mouse>
-				</label>
-			</div>
-
-			<div class="settingsToggleItem">
-				<span class="gold">Tiredness Max Scaling</span>
-				<br>
-				<label>
-					<<checkbox "$tirednessMaxScalingToggle" 0 1 autocheck>> Enable Tiredness Max Scaling <mouse class = "tooltip linkBlue">(?)<span>Tiredness max will now increase with your physique and willpower.</span></mouse>
-				</label>
-			</div>
-
-			<div class="settingsToggleItem">
 				<span class="gold">Meme Text expanded</span>
 				<br>
 				<label>
 					<<checkbox "$dpctext" 0 1 autocheck>> Enable Additional Unofficial Dol+ Text  <mouse class = "tooltip linkBlue">(?)<span>Added scenes with favorite contributors from dol+ </span></mouse>
+				</label>
+			</div>
+
+			<div class="settingsToggleItem">
+				<span class="gold">Realistic Clothing Transparency</span>
+				<br>
+				<label>
+					<<checkbox "$realisticTransparency" 0 1 autocheck>> Enable Realistic Clothing Transparency  <mouse class = "tooltip linkBlue">(?)<span>In Vanilla, most clothes go transparent. This toggle changes it so it is based on the type of material it is usually made with.</span></mouse>
+				</label>
+			</div>
+
+			<div class="settingsToggleItem numberslider-inline">
+				<span class="gold">Wardrobe Capacity Multiplier</span>
+				<br>
+				<div class="small-description">Modifies the capacity of wardrobes.</div>
+				<<numberslider "$wardrobeMult" $wardrobeMult 1 20 1>>
+			</div>
+
+			<div class="settingsToggleItem">
+				<span class="gold">Bike Settings</span>
+				<br>
+				<label>
+					<<checkbox "$bikePersistentLocation" 0 1 autocheck>> Enable Persistent Bike Location  <mouse class = "tooltip linkBlue">(?)<span>When enabled, the game will keep track of where you left the bike and you'll only be able to use it again there. When disabled, you will be able to use it from any elligible location.</span></mouse>
+				</label>
+				<br>
+				<label>
+					<<checkbox "$bikeSecurity" 0 1 autocheck>> Enable Bike Security  <mouse class = "tooltip linkBlue">(?)<span>When enabled, your bike will have the risk of getting stolen every midnight and you will have access to security upgrades. When disabled, your bike will never get stolen.</span></mouse>
+				</label>
+			</div>
+
+			
+
+			/* <div class="settingsToggleItem">
+				<span class="gold">Combat Time Pass
+				<mouse class="tooltip linkBlue">(?)<span>How many seconds each turn of combat takes. Default is 10. Range 1 - 1000000</span></mouse>
+				</span><br>
+				<<numberbox "$combatTimePass" $combatTimePass>>
+			</div> */
+		</div>
+	</div>
+	<hr>
+	<div id="dolpTabSettings">
+		<<allDoLPSettings>>
+	</div>
+	<div id="subsectionDiv">
+		<<rebalanceSettings>>
+	</div>
+	<br>
+	<<link "Top of Page">>
+		<<script>>
+			document.body.scrollTop = 0;
+			document.documentElement.scrollTop = 0;
+		<</script>>
+	<</link>>
+	<div style="clear:both;">/*Keep at end of toggles*/</div>
+<</widget>>
+
+<<widget "rebalanceSettings">>
+	<div class="solidBorderContainer settings-container">
+		<div class="settingsGrid">
+			<div class="settingsHeader">
+				Rebalancing Settings
+			</div>
+
+			<div class="settingsToggleItem">
+				<span class="gold">Max Scaling</span>
+				<br>
+				<label>
+					<<checkbox "$tirednessMaxScalingToggle" 0 1 autocheck>> Enable Tiredness Max Scaling <mouse class = "tooltip linkBlue">(?)<span>Tiredness max will now increase with your physique.</span></mouse>
+				</label>
+				<br>
+				<label>
+					<<checkbox "$stressMaxScalingToggle" 0 1 autocheck>> Enable Stress Max Scaling <mouse class = "tooltip linkBlue">(?)<span>Stress max will now increase with your willpower.</span></mouse>
 				</label>
 			</div>
 
@@ -3770,34 +3835,11 @@
 			</div>
 
 			<div class="settingsToggleItem">
-				<span class="gold">Grind Rebalance</span>
-				<br>
-				<label>
-					<<checkbox "$easyHousekeeping" 0 1 autocheck>> Enable Easy Housekeeping  <mouse class = "tooltip linkBlue">(?)<span>In Vanilla, each housekeeping action has an upper cap where it will then stop increasing the housekeeping skill. Enabling this toggle disables this upper cap and you will always gain housekeeping skill.</span></mouse>
-				</label>
-			</div>
-
-			<div class="settingsToggleItem">
 				<span class="gold">Vanilla Substance Rebalance</span>
 				<br>
 				<label>
 					<<checkbox "$substanceRebalance" 0 1 autocheck>> Enable Vanilla Substance Rebalance  <mouse class = "tooltip linkBlue">(?)<span>In Vanilla, the effects of alcohol, hallucinogens and aphrodisiacs are rather disappointing. This attempts to rebalance and extend their effects.</span></mouse>
 				</label>
-			</div>
-
-			<div class="settingsToggleItem">
-				<span class="gold">Realistic Clothing Transparency</span>
-				<br>
-				<label>
-					<<checkbox "$realisticTransparency" 0 1 autocheck>> Enable Realistic Clothing Transparency  <mouse class = "tooltip linkBlue">(?)<span>In Vanilla, most clothes go transparent. This toggle changes it so it is based on the type of material it is usually made with.</span></mouse>
-				</label>
-			</div>
-
-			<div class="settingsToggleItem">
-				<span class="gold">Wardrobe Capacity Multiplier</span>
-				<br>
-				<div class="small-description">Modifies the capacity of wardrobes.</div>
-				<<numberslider "$wardrobeMult" $wardrobeMult 1 20 1>>
 			</div>
 
 			<div class="settingsToggleItem">
@@ -3808,31 +3850,24 @@
 				</label>
 			</div>
 
-			<div class="settingsToggleItem">
-				<span class="gold">Bike Settings</span>
-				<br>
-				<label>
-					<<checkbox "$bikePersistentLocation" 0 1 autocheck>> Enable Persistent Bike Location  <mouse class = "tooltip linkBlue">(?)<span>When enabled, the game will keep track of where you left the bike and you'll only be able to use it again there. When disabled, you will be able to use it from any elligible location.</span></mouse>
-				</label>
-				<br>
-				<label>
-					<<checkbox "$bikeSecurity" 0 1 autocheck>> Enable Bike Security  <mouse class = "tooltip linkBlue">(?)<span>When enabled, your bike will have the risk of getting stolen every midnight and you will have access to security upgrades. When disabled, your bike will never get stolen.</span></mouse>
-				</label>
-			</div>
-
-			<div class="settingsToggleItem">
-				<span class="gold">Produce Yield</span>
+			<div class="settingsToggleItem numberslider-inline">
+				<span class="gold">Produce Yield <mouse class = "tooltip linkBlue">(?)<span>Bottles of Milk, Truffles and Eggs.</span></mouse></span>
 				<br>
 				<div class="small-description">Modifies the amount of produce. 100% is balanced around 500% plot yield.
 					<<numberslider "$produce_yield_factor" $produce_yield_factor 10 200 10>>
 				</div>
 			</div>
+		</div>
 
+		<hr>
+
+		<div class="settingsGrid">
+			<div class="settingsHeader">
+				Grind Settings
+			</div>
 			<div class="settingsToggleItem">
-				<span class="gold">Beast Gangbangs</span>
-				<br>
 				<label>
-					<<checkbox "$beastGroupFight" 0 1 autocheck>> Enable Beast Gangbangs  <mouse class = "tooltip linkBlue">(?)<span>When enabled, multi-beast encounters will behave the same as gangbangs.</span></mouse>
+					<<checkbox "$easyHousekeeping" 0 1 autocheck>> Enable Easy Housekeeping  <mouse class = "tooltip linkBlue">(?)<span>In Vanilla, each housekeeping action has an upper cap where it will stop increasing housekeeping skill. Enabling this toggle disables this upper cap and you will always gain housekeeping skill.</span></mouse>
 				</label>
 			</div>
 
@@ -3842,41 +3877,167 @@
 				</span>
 				<<numberbox "$combatTimePass" $combatTimePass>>
 			</div> */
-
-			<<if $options.images is 1>>
-				<div class="settingsToggleItem">
-					<span class="gold">Banner Toggle</span> <mouse class = "tooltip linkBlue">(?)<span>Toggle which version of the banner you want to use.</span></mouse>
-					<br>
-					<<link "No Banner">><<replace #bannerStyle>><</replace>><<set $bannerstyle to "none">><</link>>
-						| <<link "Default Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/banner.png"><</replace>><<set $bannerstyle to "default">><</link>>
-					<<if $feats.allSaves.points isnot undefined and $feats.allSaves.points gte 25>>
-						| <<link "Alien Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/bannerAlien.png"><</replace>><<set $bannerstyle to "alien">><</link>>
-					<<else>>
-						| <label><span class="red">25 VrelCoins</span></label>
-					<</if>>
-					<<if $feats.allSaves.points isnot undefined and $feats.allSaves.points gte 50>>
-						| <<link "Blood Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/bannerBlood.png"><</replace>><<set $bannerstyle to "blood">><</link>>
-					<<else>>
-						| <label><span class="red">50 VrelCoins</span></label>
-					<</if>>
-					<<if $feats.allSaves.points isnot undefined and $feats.allSaves.points gte 100>>
-						| <<link "Bronze Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/bannerBronze.png"><</replace>><<set $bannerstyle to "bronze">><</link>>
-					<<else>>
-						| <label><span class="red">100 VrelCoins</span></label>
-					<</if>>
-					<<if $feats.allSaves.points isnot undefined and $feats.allSaves.points gte 150>>
-						| <<link "Silver Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/bannerSilver.png"><</replace>><<set $bannerstyle to "silver">><</link>>
-					<<else>>
-						| <label><span class="red">150 VrelCoins</span></label>
-					<</if>>
-					<<if $feats.allSaves.points isnot undefined and $feats.allSaves.points gte 200>>
-						| <<link "Golden Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/bannerGold.png"><</replace>><<set $bannerstyle to "gold">><</link>>
-					<<else>>
-						| <label><span class="red">200 VrelCoins</span></label>
-					<</if>>
-					<br>
+			<div class="settingsToggleItem">
+				<span class="gold">Stat Gain Reduction Multiplier</span>
+				<br>
+				<div class="small-description">Reduces stat gain. 100% means normal stat gains.
+					<<numberslider "$statGainReductionMult" $statGainReductionMult 1 100 1>>
 				</div>
-			<</if>>
+			</div>
+		</div>
+	</div>
+<</widget>>
+
+<<widget "npcDoLPSettings">>
+	<div class="solidBorderContainer settings-container">
+		<div class="settingsGrid">
+			<div class="settingsHeader">
+				NPC Multi-Orgasm
+			</div>
+
+			<div class="settingsToggleItem">
+				<label>
+					<<checkbox "$multiOrgasmToggle" 0 1 autocheck>> Enable NPC multi-orgasm <mouse class = "tooltip linkBlue">(?)<span>Generic NPCs will be able to orgasm multiple times.</span></mouse>
+				</label>
+			</div>
+			<div class="settingsToggleItem">
+				<label>
+					<<checkbox "$NNPCMultiOrgasmToggle" 0 1 autocheck>> Enable NNPC multi-orgasm <mouse class = "tooltip linkBlue">(?)<span>Named NPCs will be able to orgasm multiple times.</span></mouse>
+				</label>
+			</div>
+			<div class="settingsToggleItem">
+				<label>
+					<<checkbox "$multiOrgasmLustScaling" 0 1 autocheck>> Enable NNPC lust scaling <mouse class = "tooltip linkBlue">(?)<span>Named NPCs will get +1 to max orgasm per 20 lust.</span></mouse>
+				</label>
+			</div>
+		</div>
+
+		<hr>
+
+		<div class="settingsGrid">
+			<div class="settingsHeader">
+				NPC Multipliers
+			</div>
+
+			<div class="settingsToggleItem numberslider-inline">
+				<span class="gold">NPC Health Max Multiplier (%)
+				<mouse class="tooltip linkBlue">(?)<span>Multiplies the health max of human enemies. Range 1 - 1000000</span></mouse>
+				</span>
+				<<numberbox "$npcHealthMult" $npcHealthMult>>
+			</div>
+
+			<div class="settingsToggleItem numberslider-inline">
+				<span class="gold">NPC Arousal Max Multiplier (%)
+				<mouse class="tooltip linkBlue">(?)<span>Multiplies the arousal max of human enemies. Range 1 - 1000000</span></mouse>
+				</span>
+				<<numberbox "$npcArousalMult" $npcArousalMult>>
+			</div>
+		</div>
+
+		<hr>
+
+		<div class="settingsGrid">
+			<div class="settingsHeader">
+				NPCs Stealing Money Settings
+			</div>
+
+			<div class="settingsToggleItem">
+				<<checkbox "$npcStealMoneyToggle" 0 1 autocheck>> Enable NPCs stealing your money.
+				<mouse class="tooltip linkBlue">(?)<span>Will only happen if the NPC is angry.</span></mouse>
+			</div>
+
+			<div class="settingsToggleItem numberslider-inline">
+				<span class="gold">NPC Stolen Money Percentage (%)
+				<mouse class="tooltip linkBlue">(?)<span>The percentage of your money NPCs will steal.</span></mouse>
+				</span>
+				<<numberslider "$npcStealMoneyPercentage" $npcStealMoneyPercentage 1 100 1>>
+			</div>
+		</div>
+
+		<hr>
+		
+		<div class="settingsGrid">
+			<div class="settingsHeader">
+				NPC Flavor Generation Settings
+			</div>
+
+			<div class="settingsToggleItem">
+				<span class="gold">NPC Description Generation</span> <mouse class = "tooltip linkBlue">(?)<span>In Vanilla, their descriptions are tied to their levels which may cause every NPC to appear as Demons with really high level scaling. Randomized will completely randomize this.</span></mouse>
+				<br>
+				<label>Vanilla <<radiobutton "$npcDescGenType" "vanilla" autocheck>></label> |
+				<label>Randomized <<radiobutton "$npcDescGenType" "randomized" autocheck>></label>
+				<br>
+				<<checkbox "$npcDescDemonDisable" 0 1 autocheck>> Disable Demon descriptions.
+				<mouse class="tooltip linkBlue">(?)<span>Prevents Demon and Minor Demon descriptions.</span></mouse>
+				<br>
+			</div>
+
+			<div class="settingsToggleItem">
+				<span class="gold">NPC Breast Generation</span> <mouse class = "tooltip linkBlue">(?)<span>In Vanilla, their breast sizes are tied to their levels which may cause every NPC to have huge breast sizes with really high level scaling. Randomized will completely randomize this.</span></mouse>
+				<br>
+				<label>Vanilla <<radiobutton "$npcBreastGenType" "vanilla" autocheck>></label> |
+				<label>Randomized <<radiobutton "$npcBreastGenType" "randomized" autocheck>></label>
+				<br>
+			</div>
+
+			<div class="settingsToggleItem">
+				<span class="gold">NPC Penis Generation</span> <mouse class = "tooltip linkBlue">(?)<span>In Vanilla, level 19-20 NPCs are forced to have max size penises. Randomized will completely randomize this.</span></mouse>
+				<br>
+				<label>Vanilla <<radiobutton "$npcPenisGenType" "vanilla" autocheck>></label> |
+				<label>Randomized <<radiobutton "$npcPenisGenType" "randomized" autocheck>></label>
+				<br>
+			</div>
+		</div>
+	</div>
+<</widget>>
+
+<<widget "beastDoLPSettings">>
+	<div class="solidBorderContainer settings-container">
+		<div class="settingsGrid">
+			<div class="settingsHeader">
+				Beast Multi-Orgasm
+			</div>
+
+			<div class="settingsToggleItemWide">
+				<label>
+					<<checkbox "$beastMultiOrgasmToggle" 0 1 autocheck>> Enable beast multi-orgasm <mouse class = "tooltip linkBlue">(?)<span>Beasts will be able to orgasm multiple times.</span></mouse>
+				</label>
+			</div>
+		</div>
+
+		<hr>
+
+		<div class="settingsGrid">
+			<div class="settingsHeader">
+				Beast Gangbangs
+			</div>
+			<div class="settingsToggleItemWide">
+				<label>
+					<<checkbox "$beastGroupFight" 0 1 autocheck>> Enable Beast Gangbangs  <mouse class = "tooltip linkBlue">(?)<span>When enabled, multi-beast encounters will behave the same as gangbangs.</span></mouse>
+				</label>
+			</div>
+		</div>
+
+		<hr>
+
+		<div class="settingsGrid">
+			<div class="settingsHeader">
+				Beast Multipliers
+			</div>
+
+			<div class="settingsToggleItem numberslider-inline">
+				<span class="gold">Beast Health Max Multiplier (%)
+				<mouse class="tooltip linkBlue">(?)<span>Multiplies the health max of beast enemies. Range 1 - 1000000</span></mouse>
+				</span>
+				<<numberbox "$beastHealthMult" $beastHealthMult>>
+			</div>
+
+			<div class="settingsToggleItem numberslider-inline">
+				<span class="gold">Beast Arousal Max Multiplier (%)
+				<mouse class="tooltip linkBlue">(?)<span>Multiplies the arousal max of beast enemies. Range 1 - 1000000</span></mouse>
+				</span>
+				<<numberbox "$beastArousalMult" $beastArousalMult>>
+			</div>
 		</div>
 	</div>
 <</widget>>
@@ -3914,7 +4075,7 @@
 
 				<label>Enable Gender Identity: <<checkbox "$xchange.genderIdentityEnabled" 0 1 autocheck>></label> <mouse class="tooltip linkBlue">(?)<span>Enables a flavour meter that measures your character's current gender identity, and plots their journey exploring gender through X-Change. No actual gameplay effects.</span></mouse><br>
 
-				<label>Enable Portal Spiking: <<checkbox "$portalPantiesEnabled" 0 1 autocheck>></label> <mouse class="tooltip linkBlue">(?)<span>Requires Non-Con Spiking to be enabled. Adds a special pill effect to the spiking pool. When applied, this effect allows random NPCs to fuck you at semi-random intervals, remotely, stealthily, and regardless of context. BE WARNED: May result in loss of virginity and/or pregnancy with no way to counter or avoid it.</span></mouse><br>
+				<label>Enable Portal Spiking: <<checkbox "$portalPantiesEnabled" 0 1 autocheck>></label> <mouse class="tooltip linkBlue">(?)<span>Requires Non-Con Spiking to be enabled. Adds a special pill effect to the spiking pool. When applied, this effect allows random NPCs to fuck you at semi-random intervals, remotely, stealthily, and regardless of context. <br><br><b>BE WARNED:</b> May result in loss of virginity and/or pregnancy with no way to counter or avoid it.</span></mouse><br>
 			</div>
 			<div class="settingsHeader">
 				<span class="gold">Physique Changes</span><br>
