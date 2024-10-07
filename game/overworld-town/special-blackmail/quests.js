@@ -511,3 +511,40 @@ blackmailQuests.low.push( // Wear no shirt if male
 		},
 	}
 );
+
+// blackmailQuests.low.push( // Flash your underwear to at least 5 strangers
+// 	{
+// 		id: 12,
+// 		prerequisites: function() { return hasSexStat("exhibitionism", 2); },
+// 		reward: function() { return V.rentmoney / 3; },
+// 		instructions: [
+// 			"Flash at least 5 strangers on the street.",
+// 			"We recommend you visit Connudatus Street to do this task."
+// 			"Complete this task before midnight.",
+// 		],
+// 		clearCondition: function() { return this.flashedPeople >= 5; },
+// 		failCondition: function() { return false; },
+// 		alertMessage: ``,
+// 		clearCheck: function() {
+// 			if (this.clearCondition()) {
+// 				this.cleared = true;
+// 			}
+// 		},
+// 		failCheck: function() { 
+// 			if (this.failCondition()) {
+// 				this.failed = true;
+// 			}
+// 		},
+// 		cleared: false,
+// 		failed: false,
+// 		flashedPeople: 0,
+// 		failMessage: function() { },
+// 		includesItems: false,
+// 		receiveItems: function() { },
+// 		onDayCleared: function() { 
+// 			V.xchange.blackmail.penaltyThreat.exhibitionism += 50;
+// 			V.xchange.blackmail.cooldown = 2;
+// 		},
+// 		onDayFailed: function() { },
+// 	},
+// );

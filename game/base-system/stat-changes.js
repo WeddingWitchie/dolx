@@ -387,7 +387,7 @@ const statChange = (() => {
 				mod *= 1 - Math.clamp(playerHeatMinArousal() + playerRutMinArousal(), 0, 4000) / 5000;
 			}
 
-			V.arousal += amount * mod * Weather.BodyTemperature.arousalModifier;
+			V.arousal += amount * mod * (amount > 0? Weather.BodyTemperature.arousalModifier : 1);
 			
 			if ( ( !V.penis_addict_trait || ( beingPenetrated.includes(V.vaginause) || beingPenetrated.includes(V.anususe) || [0,3].includes(V.portalPanties.state.vagina?.new) || [0,3].includes(V.portalPanties.state.anus?.new) || V.portalEjacV || V.portalEjacA ) ) && ( !V.hole_addict_trait || penetrating.includes(V.peniuse) ) ) {
 				// Do Nothing
@@ -397,7 +397,7 @@ const statChange = (() => {
 
 			fragment.append(wikifier("arousalclamp"));
 			// fragment.append(wikifier("arousal-wetness"));
-			fragment.append(wikifier("arousal-moan", amount * mod * Weather.BodyTemperature.arousalModifier, sensitivity));
+			fragment.append(wikifier("arousal-moan", amount * mod * (amount > 0? Weather.BodyTemperature.arousalModifier : 1), sensitivity));
 
 			// Add to the tracker
 			if (amount > 0) {
