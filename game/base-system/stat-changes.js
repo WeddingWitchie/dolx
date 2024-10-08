@@ -970,7 +970,7 @@ const statChange = (() => {
 	DefineMacro("bottomskill", amount => skill("bottomskill", amount));
 	DefineMacro("thighskill", amount => skill("thighskill", amount));
 	DefineMacro("chestskill", amount => skill("chestskill", amount));
-	DefineMacro("beauty", amount => skill("beauty", amount / 5));
+	DefineMacro("beauty", amount => skill("beauty", amount / 10.0));
 	DefineMacro("seductionskill", amount => skill("seductionskill", amount));
 	DefineMacro("skulduggery", amount => skill("skulduggery", amount));
 
