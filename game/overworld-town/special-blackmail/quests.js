@@ -32,7 +32,7 @@ const blackmailQuests = {
 			receiveItems: function() { },
 			onDayCleared: function() { },
 			onDayFailed: function() { },
-		},
+		}
 	],
 }
 window.blackmailQuests = blackmailQuests;
@@ -546,5 +546,113 @@ blackmailQuests.low.push( // Wear no shirt if male
 // 			V.xchange.blackmail.cooldown = 2;
 // 		},
 // 		onDayFailed: function() { },
-// 	},
+// 	}
 // );
+
+blackmailQuests.low.push( // Sell flowers on a market stall, without any lower clothing (undies allowed)
+	{
+		id: 13,
+		prerequisites: function() { return Time.dayState == "dawn"; },
+		reward: function() { return V.rentmoney / 3; },
+		instructions: [
+			"Take this pill and these 200 flowers we've provided.", 
+			"Drink the pill, and go sell flowers on Connadatus Street.",
+			"If you sell over <<printmoney 25000>> in profits, we will boost your business fame on top of your normal payment.",
+			"You're not allowed to test the effects of the pill",
+			"Any sale made while wearing lowerwear (undies permited) won't be counted for your goal.",
+			"Complete this task before midnight.",
+		],
+		clearCondition: function() { return this.tookPill && this.soldFlowers; },
+		failCondition: function() { return false; },
+		alertMessage: ``,
+		clearCheck: function() {
+			if (this.clearCondition()) {
+				this.cleared = true;
+			}
+		},
+		failCheck: function() { 
+			if (this.failCondition()) {
+				this.failed = true;
+			}
+		},
+		cleared: false,
+		failed: false,
+		failMessage: function() { },
+		includesItems: true,
+		tookPill: false,
+		soldFlowers: false,
+		profit: 0,
+		receiveItems: function() { 
+			wikifier("xchange-random-spike", "suppress");
+
+			if (V.plants.daisy === undefined)
+				V.plants.daisy = {"name": setup.plants.daisy.name, "plural": setup.plants.daisy.plural, "amount": 0};
+			else if (V.plants.daisy.name === undefined)
+				V.plants.daisy to {"name": setup.plants.daisy.name, "plural": setup.plants.daisy.plural, "amount": V.plants.daisy.amount};
+			V.plants.daisy.amount += 200;
+
+			this.tookPill = true;
+		},
+		onDayCleared: function() { 
+			if (this.profit >= 25000) wikifier("famebusiness", 50);
+			V.xchange.blackmail.penaltyThreat.exhibitionism += 50;
+			V.xchange.blackmail.cooldown = 2;
+		},
+		onDayFailed: function() { },
+	}
+);
+
+blackmailQuests.mid.push( // Sell flowers on a market stall, without any lower clothing (undies allowed), and masturbate at least once
+	{
+		id: 14,
+		prerequisites: function() { return Time.dayState == "dawn"; },
+		reward: function() { return V.rentmoney / 2; },
+		instructions: [
+			"Take this pill and these 200 flowers we've provided.", 
+			"Drink the pill, and go sell flowers on Connadatus Street.",
+			"Masturbate at least once while at your stall.",
+			"If you sell over <<printmoney 25000>> in profits, we will boost your business fame on top of your normal payment.",
+			"You're not allowed to test the effects of the pill",
+			"Any sale made while wearing lowerwear (undies permited) won't be counted for your goal.",
+			"Complete this task before midnight.",
+		],
+		clearCondition: function() { return this.tookPill && this.soldFlowers && this.masturbatedOnce; },
+		failCondition: function() { return false; },
+		alertMessage: ``,
+		clearCheck: function() {
+			if (this.clearCondition()) {
+				this.cleared = true;
+			}
+		},
+		failCheck: function() { 
+			if (this.failCondition()) {
+				this.failed = true;
+			}
+		},
+		cleared: false,
+		failed: false,
+		failMessage: function() { },
+		includesItems: true,
+		tookPill: false,
+		soldFlowers: false,
+		masturbatedOnce: false,
+		profit: 0,
+		receiveItems: function() { 
+			wikifier("xchange-random-spike", "suppress");
+
+			if (V.plants.daisy === undefined)
+				V.plants.daisy = {"name": setup.plants.daisy.name, "plural": setup.plants.daisy.plural, "amount": 0};
+			else if (V.plants.daisy.name === undefined)
+				V.plants.daisy to {"name": setup.plants.daisy.name, "plural": setup.plants.daisy.plural, "amount": V.plants.daisy.amount};
+			V.plants.daisy.amount += 200;
+
+			this.tookPill = true;
+		},
+		onDayCleared: function() { 
+			if (this.profit >= 25000) wikifier("famebusiness", 50);
+			V.xchange.blackmail.penaltyThreat.exhibitionism += 50;
+			V.xchange.blackmail.cooldown = 3;
+		},
+		onDayFailed: function() { },
+	}
+);
