@@ -173,7 +173,7 @@ blackmailQuests.mid.push( // Take a pill and flirt with 3 people
 			}
 			this.tookPill = true;
 		},
-		onDayCleared: function() { },
+		onDayCleared: function() { V.xchange.blackmail.cooldown = 3; },
 		onDayFailed: function() { },
 	}
 );
@@ -242,7 +242,7 @@ blackmailQuests.mid.push( // Skinny dip into the school's pool
 		failMessage: function() { },
 		includesItems: false,
 		receiveItems: function() { },
-		onDayCleared: function() { },
+		onDayCleared: function() { V.xchange.blackmail.cooldown = 3; },
 		onDayFailed: function() { },
 	}
 );
@@ -275,7 +275,10 @@ blackmailQuests.mid.push( // Go for a run in your underwear at park
 		failMessage: function() { },
 		includesItems: false,
 		receiveItems: function() { },
-		onDayCleared: function() { V.xchange.blackmail.penaltyThreat.exhibitionism += 100; },
+		onDayCleared: function() { 
+			V.xchange.blackmail.penaltyThreat.exhibitionism += 100;
+			V.xchange.blackmail.cooldown = 3; 
+		},
 		onDayFailed: function() { },
 		timeSpent: 0,
 	}
@@ -452,7 +455,7 @@ blackmailQuests.mid.push( // Avoid defiance for a day
 		failMessage: function() { },
 		includesItems: false,
 		receiveItems: function() { },
-		onDayCleared: function() { },
+		onDayCleared: function() { V.xchange.blackmail.cooldown = 3; },
 		onDayFailed: function() { },
 	},
 );
