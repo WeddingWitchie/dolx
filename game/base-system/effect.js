@@ -1080,6 +1080,11 @@ function effects() {
 			br();
 			delete V.daily.parasiteEvent;
 		}
+
+		if (V.xchange_passion_message) {
+			element("span", `Aphrodisiacs have been released into your bloodstream.`, "pink");
+			delete V.xchange_passion_message;
+		}
 	}
 
 	if (numberOfEarSlime() && V.earSlime.event && !V.statFreeze) {

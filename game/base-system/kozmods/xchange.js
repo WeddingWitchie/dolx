@@ -96,8 +96,12 @@ function xchangeHourlyCheck() {
 		}
 	}
 
-	// Apply hourly passion effect
-	if (pill?.passionEffect) fragment.append(wikifier("drugs", 50));
+	// Apply hour-random passion effect
+	if (pill?.passionEffect && random(0,6) == 0) {
+		fragment.append(wikifier("drugs", 300)); 
+		V.effectsmessage = 1;
+		V.xchange_passion_message = 1;
+	}
 	
 	// Tick portal effect timer, and end the effect if timer lapses
 	if (pill?.portalEffect && pill?.portalEffectTimer >= 0) {

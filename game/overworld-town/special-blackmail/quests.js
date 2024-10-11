@@ -50,7 +50,7 @@ blackmailQuests.low.push( // Generic wear no underwear
 			"Wear no underwear today.", 
 			"You may not put on any upper or lower underwear.", 
 			"Swimsuits and leotards will still count as underwear for the purposes of this task.",
-			"Wearing any piece at any point of the day before midnight will result in failure.",
+			`<span class="red">Wearing any piece at any point of the day before midnight will result in failure.</span>`,
 		],
 		clearCondition: function() { return true; },
 		failCondition: function() { 
@@ -173,7 +173,7 @@ blackmailQuests.mid.push( // Take a pill and flirt with 3 people
 			}
 			this.tookPill = true;
 		},
-		onDayCleared: function() { },
+		onDayCleared: function() { V.xchange.blackmail.cooldown = 3; },
 		onDayFailed: function() { },
 	}
 );
@@ -187,7 +187,7 @@ blackmailQuests.high.push( // Masturbate in an empty classroom
 		reward: function() { return V.rentmoney; },
 		instructions: [
 			"Masturbate naked for 5 minutes, within an empty classroom.",
-			"If you stop before the exact 5 minutes have lapsed, you must start over.",
+			"<span class="red">If you stop before the exact 5 minutes have lapsed, you must start over.</span>",
 			"Complete this task before midnight.",
 		],
 		clearCondition: function() { return this.masturbationtimer >= 30; },
@@ -242,12 +242,12 @@ blackmailQuests.mid.push( // Skinny dip into the school's pool
 		failMessage: function() { },
 		includesItems: false,
 		receiveItems: function() { },
-		onDayCleared: function() { },
+		onDayCleared: function() { V.xchange.blackmail.cooldown = 3; },
 		onDayFailed: function() { },
 	}
 );
 
-blackmailQuests.mid.push( // Go for a run in your underwear at park
+blackmailQuests.low.push( // Go for a run in your underwear at park
 	{
 		id: 6, // Implemented.
 		prerequisites: function() { return true; },
@@ -275,13 +275,16 @@ blackmailQuests.mid.push( // Go for a run in your underwear at park
 		failMessage: function() { },
 		includesItems: false,
 		receiveItems: function() { },
-		onDayCleared: function() { V.xchange.blackmail.penaltyThreat.exhibitionism += 100; },
+		onDayCleared: function() { 
+			V.xchange.blackmail.penaltyThreat.exhibitionism += 100;
+			V.xchange.blackmail.cooldown = 2; 
+		},
 		onDayFailed: function() { },
 		timeSpent: 0,
 	}
 );
 
-blackmailQuests.high.push( // Go for a run naked at park
+blackmailQuests.mid.push( // Go for a run naked at park
 	{
 		id: 7, // Implemented.
 		prerequisites: function() { return true; },
@@ -309,7 +312,7 @@ blackmailQuests.high.push( // Go for a run naked at park
 		failMessage: function() { },
 		includesItems: false,
 		receiveItems: function() { },
-		onDayCleared: function() {V.xchange.blackmail.penaltyThreat.exhibitionism += 200; },
+		onDayCleared: function() {V.xchange.blackmail.penaltyThreat.exhibitionism += 200; V.xchange.blackmail.cooldown = 3; },
 		onDayFailed: function() { },
 		timeSpent: 0,
 	}
@@ -326,7 +329,7 @@ blackmailQuests.low.push( // Take a pill and wear a skirt
 			"You will also either wear the skirt we've provided, or any other if you have one available.",
 			"No other piece of lowerwear will be acceptable.",
 			"You may also choose to not wear any lowerwear at all (meaning swimsuits at the pool are a-okay)",
-			"Wearing any piece of lowerwear other than a skirt at any point of the day before midnight will result in failure.",
+			`<span class="red">Wearing any piece of lowerwear other than a skirt at any point of the day before midnight will result in failure.</span>`,
 		],
 		clearCondition: function() { return this.tookPill; },
 		failCondition: function() { 
@@ -380,7 +383,7 @@ blackmailQuests.low.push( // Clean 5 chalets in uniform without underwear
 			"Go clean 5 challets at the beach.",
 			"Wear the uniform we've included with this envelope while doing so.",
 			"You're not allowed underwear while wearing your uniform.",
-			"If you wear underwear with your uniform you will fail automatically.",
+			`<span class="red">If you wear underwear with your uniform you will fail automatically.</span>`,
 			"You only need to wear your uniform while cleaning the chalets.",
 			"Cleaning a chalet without your uniform will not count.",
 			"Complete this task before midnight.",
@@ -452,7 +455,7 @@ blackmailQuests.mid.push( // Avoid defiance for a day
 		failMessage: function() { },
 		includesItems: false,
 		receiveItems: function() { },
-		onDayCleared: function() { },
+		onDayCleared: function() { V.xchange.blackmail.cooldown = 3; },
 		onDayFailed: function() { },
 	},
 );
@@ -466,7 +469,7 @@ blackmailQuests.low.push( // Wear no shirt if male
 			"You're not allowed to wear a shirt today, nor any other clothing that covers your torso.", 
 			"You may only cover your torso if you're within school grounds (does not include its pool).", 
 			"The previous exemption only applies on schooldays.",
-			"Wearing any torso-covering piece outside of school at any point of the day before midnight will result in failure.",
+			`<span class="red">Wearing any torso-covering piece outside of school at any point of the day before midnight will result in failure.`,
 		],
 		clearCondition: function() { return true; },
 		failCondition: function() { 
@@ -558,7 +561,7 @@ blackmailQuests.low.push( // Sell flowers on a market stall, without any lower c
 			"Take this pill and these 200 flowers we've provided.", 
 			"Drink the pill, and go sell flowers on Connadatus Street.",
 			"If you sell over <<printmoney 25000>> in profits, we will boost your business fame on top of your normal payment.",
-			"You're not allowed to test the effects of the pill",
+			`<span class="red">You're not allowed to test the effects of the pill</span>`,
 			"Any sale made while wearing lowerwear (undies permited) won't be counted for your goal.",
 			"Complete this task before midnight.",
 		],
@@ -608,11 +611,10 @@ blackmailQuests.mid.push( // Sell flowers on a market stall, without any lower c
 		prerequisites: function() { return Time.dayState == "dawn"; },
 		reward: function() { return V.rentmoney / 2; },
 		instructions: [
+			"Masturbate at least once while selling flowers at a market stall.",
 			"Take this pill and these 200 flowers we've provided.", 
-			"Drink the pill, and go sell flowers on Connadatus Street.",
-			"Masturbate at least once while at your stall.",
 			"If you sell over <<printmoney 25000>> in profits, we will boost your business fame on top of your normal payment.",
-			"You're not allowed to test the effects of the pill",
+			`<span class="red">You're not allowed to test the effects of the pill</span>`,
 			"Any sale made while wearing lowerwear (undies permited) won't be counted for your goal.",
 			"Complete this task before midnight.",
 		],
@@ -654,5 +656,38 @@ blackmailQuests.mid.push( // Sell flowers on a market stall, without any lower c
 			V.xchange.blackmail.cooldown = 3;
 		},
 		onDayFailed: function() { },
+	}
+);
+
+blackmailQuests.high.push( // Go streaking naked at the park during the day
+	{
+		id: 15, // Implemented.
+		prerequisites: function() { return true; },
+		reward: function() { return V.rentmoney; },
+		instructions: [
+			"Go streaking at the park naked during the day.", 
+			"Complete this task before midnight.",
+		],
+		clearCondition: function() { return $daily.parkStreak; },
+		failCondition: function() { return false; },
+		alertMessage: ``,
+		clearCheck: function() {
+			if (this.clearCondition()) {
+				this.cleared = true;
+			}
+		},
+		failCheck: function() { 
+			if (this.failCondition()) {
+				this.failed = true;
+			}
+		},
+		cleared: false,
+		failed: false,
+		failMessage: function() { },
+		includesItems: false,
+		receiveItems: function() { },
+		onDayCleared: function() {V.xchange.blackmail.penaltyThreat.exhibitionism += 300; },
+		onDayFailed: function() { },
+		timeSpent: 0,
 	}
 );
