@@ -187,7 +187,7 @@ blackmailQuests.high.push( // Masturbate in an empty classroom
 		reward: function() { return V.rentmoney; },
 		instructions: [
 			"Masturbate naked for 5 minutes, within an empty classroom.",
-			"<span class="red">If you stop before the exact 5 minutes have lapsed, you must start over.</span>",
+			`<span class="red">If you stop before the exact 5 minutes have lapsed, you must start over.</span>`,
 			"Complete this task before midnight.",
 		],
 		clearCondition: function() { return this.masturbationtimer >= 30; },
