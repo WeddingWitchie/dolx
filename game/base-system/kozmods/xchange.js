@@ -97,7 +97,7 @@ function xchangeHourlyCheck() {
 	}
 
 	// Apply hour-random passion effect
-	if (pill?.passionEffect && random(0,6) == 0) {
+	if (pill?.passionEffect && random(0,8) == 0) {
 		fragment.append(wikifier("drugs", 300)); 
 		V.effectsmessage = 1;
 		V.xchange_passion_message = 1;
