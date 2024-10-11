@@ -632,13 +632,13 @@ function effects() {
 			delete V.pillsTakenLast;
 		}
 
-		if (V.dailySunscreen == true) {
-			if (Skin.Sunscreen.usesLeft > 0) {
-				Skin.Sunscreen.apply();
-				element("span", "You apply sunscreen for the day.", "purple");
-			} else {
-				element("span", "You don't have any sunscreen to apply.", "red");
-			}
+		if (V.daily_sunscreen_message === 1) {
+			element("span", "You apply sunscreen for the day.", "purple");
+			delete V.daily_sunscreen_message;
+		}
+		else if (V.daily_sunscreen_message === 2) {
+			element("span", "You don't have any sunscreen to apply.", "red");
+			delete V.daily_sunscreen_message;
 		}
 
 		if (V.hairGrowthApplied) {

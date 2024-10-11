@@ -142,7 +142,7 @@ const Time = (() => {
 		
 		const prevDate = new DateTime(currentDate);
 		set(V.timeStamp + seconds);
-		fragment.append(wikifier("blackmail-timepassed"));
+		
 		
 		const minutes = Math.floor((currentDate.timeStamp - prevDate.timeStamp) / 60) || (60 + (currentDate.minute - prevDate.minute)) % 60;
 		if (!minutes) return fragment;
@@ -523,6 +523,18 @@ function dayPassed() {
 
 	// Lose one day of tanning
 	Skin.applyTanningLoss(1440);
+	if (V.dailySunscreen) {
+		if (Skin.Sunscreen.usesLeft > 0) {
+			Skin.Sunscreen.apply();
+			V.effectsmessage = 1;
+			V.daily_sunscreen_message = 1;
+		}
+		else {
+			V.effectsmessage = 1;
+			V.daily_sunscreen_message = 2;
+			V.dailySunscreen = false;
+		}
+	} 
 
 	if (V.statFreeze) return fragment;
 
@@ -1089,6 +1101,8 @@ function minutePassed(minutes) {
 		V.arousal += (V.drugged / 10) * 2 * minutes;
 	else if (V.drugged > 0 && V.arousal < V.arousalmax * 2/5)
 		V.arousal += (V.drugged / 10) * minutes;
+
+	fragment.append(wikifier("blackmail-timepassed"));
 
 	// Portal Panties
 	fragment.append(wikifier("portalPantiesPass", minutes));
