@@ -668,7 +668,7 @@ blackmailQuests.high.push( // Go streaking naked at the park during the day
 			"Go streaking at the park naked during the day.", 
 			"Complete this task before midnight.",
 		],
-		clearCondition: function() { return $daily.parkStreak; },
+		clearCondition: function() { return V.daily.parkStreak; },
 		failCondition: function() { return false; },
 		alertMessage: ``,
 		clearCheck: function() {
