@@ -1,8 +1,5 @@
 
 **Changelog:**
-* Reshuffled park quests into low and mid tiers.
-* Added new high tier naked park streaking quest (done during the day).
-* Made Passion effect combos with Continue and Resistance a bit less evil, by releasing larger doses of aphrodisiacs into the bloodstream at random (chance equivalent to roughly 1 out of every 6 hours), rather than smaller doses consistently every hour. Could be way more evil, or way more benevolent. Pray to RNGsus.
-* Fixed mid tier quests cooldown which made them be dispensed once every week, instead of once every 3 days as was the intent.
-* Scheduled Leighton's Inspections to start earlier on a new game (within the first week). 
-
+* One last adjustment to the passion pill. Reduced the frequency to roughly 1 out of every 8 hours, since the previous random chance was still too frequent.
+* Fixed an issue from vanilla, causing sunscreen lotion to be used every time an effect message was displayed, even if unrelated to the lotion.
+* Fixed a typo on park streaking quest causing an error on time passing. 
