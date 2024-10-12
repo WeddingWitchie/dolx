@@ -84,7 +84,7 @@
 		You knock on the door. Robin opens it and smiles. <<His>> eyes are red. "Hey," <<he>> says. "Come in." You enter and sit on the bed. <<He>> sits beside you.
 		<br><br>
 
-	<<elseif $robinpaid is 1 and $robinPayout is 0 and $robinmoney gte 20 and _robin.love gte 80 and _robin.trauma lte 20 and $robin.timer.hurt is 0>>
+	<<elseif $robinpaid is 1 and $robinPayout is 0 and $robinmoney gte 20 and _robin.love gte 80 and _robin.trauma lte 20 and $robin.timer.hurt is 0 and !$robinbreakupCooldown>>
 		<<robinPayout>>
 		<br><br>
 
@@ -103,7 +103,7 @@
 	<<elseif _robin.comforted is 0>>
 		<<set _robin.comforted to 1>>
 
-		You knock on the door. Robin throws it open and <<print $robin.timer.hurt gte 1 ? "stares blankly at you" : "hugs you, though <<he>> looks upset">>.
+		You knock on the door. Robin throws it open and <<print $robin.timer.hurt gte 1 or $robinbreakupCooldown ? "stares blankly at you" : "hugs you, though <<he>> looks upset">>.
 		<<switch $robinLastPunishment>>
 			<<case "dinner">>
 				"I'm having trouble eating lately," <<he>> gives a pained laugh.
@@ -135,6 +135,16 @@
 			You open your mouth to speak, but Robin interrupts you. "Thank you," <<he>> says. "For everything." <<He>> rests <<his>> head on your shoulder.
 			<br><br>
 		<</if>>
+
+	<<elseif $robinbreakupCooldown gt 0>>
+		You go to Robin's room. There's a note on the door. "Please, leave me be."
+		<br><br>
+
+		Robin must still be grieving. Better give <<him>> some space.
+		<br><br>
+
+		<<getouticon>><<link [[Leave|Orphanage]]>><<set $fromRobinRoom to true>><<endevent>><</link>>
+		<br>
 
 	<<else>>
 		<<if $robinconsoleintro isnot 1>>
@@ -187,7 +197,7 @@
 			<<getouticon>><<link [[Leave|Orphanage]]>><<set $fromRobinRoom to true>><<endevent>><</link>>
 			<br>
 		<!-- Normal Robin events -->
-		<<elseif $robin.timer.hurt gte 1>>
+		<<elseif $robin.timer.hurt gte 1 or $robinbreakupCooldown>>
 			You knock on the door. <<robinOpen>> <<He>> sits on the bed beside the television and picks up the controller.
 			<<if _robin.crossdressing gte 2>>
 				<<if _robin.pronoun is "f">>
@@ -323,7 +333,7 @@
 			<</if>>
 			<br><br>
 
-			<<if $robinromance and !$daily.robin.traumarequest and $rng gte 51>>
+			<<if ($robinromance is 1 or $robinbreakup or $robinsexfriend is 1) and !$daily.robin.traumarequest and $rng gte 51>>
 				<<set $daily.robin.traumarequest to 1>>
 				<<set _robinrequest to 1>>
 				"D-do you think you could walk with me<<if $exposed gte 1 and _schoolItemsInRoom>> after you get changed<</if>>?" <<he>> asks, rubbing <<his>> arm.
@@ -364,8 +374,8 @@
 		<</if>>
 	<<elseif Time.hour gte 21 or Time.hour lte 5>>
 		Robin looks at the clock on the wall.
-		<<if $robin.timer.hurt gte 1>>
-			"<<print _robin.trauma lte 30 ? "It's past my bed time," : "I-I should probably go to sleep,">>" <<he>> says. "<<print $robin.timer.hurt gte 1 ? "I'd rather sleep alone tonight, if you don't mind" : "You should get some sleep too">>."
+		<<if $robin.timer.hurt gte 1 or $robinbreakupCooldown>>
+			"<<print _robin.trauma lte 30 ? "It's past my bed time," : "I-I should probably go to sleep,">>" <<he>> says. "<<print $robin.timer.hurt gte 1 or $robinbreakupCooldown ? "I'd rather sleep alone tonight, if you don't mind" : "You should get some sleep too">>."
 		<<elseif $robin.stayup is 1>>
 			"It's late," <<he>> says. <<He>> hugs you. "You should get some sleep." <<He>> closes the door somewhat anxiously, as if <<he>> has something else to do.
 		<<elseif _robin.trauma lte 30>>
@@ -381,7 +391,7 @@
 		<br><br>
 		<<if _robinrequest is 1>>
 			<<bedroomicon>><<link [[Stay with Robin|Robin Room Bed Intro]]>><<npcincr Robin trauma -3>><<npcincr Robin love 1>><<handheldon 1>><</link>><<glove>><<lrtrauma>>
-		<<elseif $robin.timer.hurt is 0 and $robin.stayup isnot 1 and ($robinromance or _robin.trauma gt 30)>>
+		<<elseif $robin.timer.hurt is 0 and !$robinbreakupCooldown and $robin.stayup isnot 1 and ($$robinromance is 1 or $robinsexfriend is 1 or _robin.trauma gt 30)>>
 			<<bedroomicon>><<link [[Ask to stay|Robin Room Bed Intro]]>><<handheldon 1>><</link>>
 		<</if>>
 		<br>
@@ -511,7 +521,7 @@
 		/* Was fully commented out by Vrelnir - Converted to a false condition to fix SugarCube parsing errors. */
 		<<setKnowsAboutPregnancy "pc" "Robin">>
 		Robin looks at your belly. Realisation dawns on <<his>> face, and <<he>> covers <<his>> mouth with <<his>> hands. "Are you pregnant?"
-		<<if $robinromance is 1>>
+		<<if $robinromance is 1 or $robinbreakup>>
 			<<He>> looks conflicted.
 			<br><br>
 		<<else>>
@@ -525,7 +535,7 @@
 		<<link [[Say you were raped|Robin Pregnancy Raped]]>><</link>>
 		<br>
 	<<else>>
-		<<if _robin.trauma lt 80 and $robin.timer.hurt is 0>>
+		<<if _robin.trauma lt 80 and $robin.timer.hurt is 0 and !$robinbreakupCooldown>>
 			<<if _robin.love gte 5 and _robin.lovestage is undefined>>
 				<<set _robin.lovestage to 0>>
 				"Thanks for spending time with me," <<he>> says. "It's less fun alone."
@@ -562,6 +572,14 @@
 		<</if>>
 		<<if $robinnote is 1 and $robinromance isnot 1>>
 			<<loveicon>><<link [[Kiss|Robin Romance]]>><<set $robinroomentered to 1>><<set $robinromance to 1>><<handheldon 1>><</link>>
+			<br>
+		<</if>>
+		<<if $robinromance>>
+			<<ind>><<link [[Break up|Robin Breakup]]>><<set $robinroomentered to 1>><<set $robinromance to 0>><<set $robinbreakup to 1>><<handheldon 1>><</link>>
+			<br>
+		<</if>>
+		<<if $robinbreakup>>
+			<<ind>><<link [[Ask to become sexfriends|Robin PostBreakup Sexfriends]]>><<set $robinroomentered to 1>><<set $robinsexfriend to 1>><<handheldon 1>><</link>>
 			<br>
 		<</if>>
 		<<if hasSexStat("exhibitionism", 5) and $exposed lte 0 and _store_check isnot 1>>
@@ -664,7 +682,7 @@
 <</widget>>
 
 <<widget "robinhug">>
-	<<if $robin.timer.hurt gte 1>>
+	<<if $robin.timer.hurt gte 1 or $robinbreakupCooldown>>
 		Robin lets you hug <<him>> for a moment before gently untangling <<himself>> from you. "I'm sorry," <<he>> says. "I'm still a little upset with you. I need some space."
 		<br><br>
 	<<else>>
@@ -715,7 +733,7 @@
 <</widget>>
 
 <<widget "robinOpen">>
-	<<if $robin.timer.hurt gte 1>>
+	<<if $robin.timer.hurt gte 1 or $robinbreakupCooldown>>
 		 Robin throws it open, pausing when <<he>> sees you. "Come in," <<he>> says, standing aside from so you can enter <<his>> room. It's clear <<hes>> still <<npcHurt "Robin">>, but <<hes>> willing to spend time with you, at least.
 	<<else>>
 		<<if playerIsXChanged() and !$xchange.known.includes("Robin")>>
@@ -772,7 +790,7 @@
 <<widget "robinbrothelappear">>
 	<<unset $robinBrothel>>
 	<<set _robin to statusCheck("Robin")>>
-	<<if $robinromance is 1 and (_robin_location is "orphanage" or _robin_location is "sleep") and $fame.prostitution gte 600 and _robin.dom gte 50 and !$weekly.robinBrothel>>
+	<<if ($robinromance is 1 or $robinsexfriend is 1) and (_robin_location is "orphanage" or _robin_location is "sleep") and $fame.prostitution gte 600 and _robin.dom gte 50 and !$weekly.robinBrothel>>
 		<<set $robinBrothel to true>>
 	<</if>>
 <</widget>>

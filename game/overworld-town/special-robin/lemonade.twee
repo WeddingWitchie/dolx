@@ -6,12 +6,12 @@
 <<set _scandalous to ($robinromance is 1 and $worn.under_upper.type.includesAny("swim", "naked") and $worn.under_lower.type.includesAny("swim", "naked") and $worn.upper.type.includes("naked") and $worn.lower.type.includes("naked") and $worn.under_upper.reveal gte 800 and $worn.under_lower.reveal gte 800)>>
 
 You see Robin <<if $robin.stayup isnot 2>>stood<<else>>nodding off<</if>> behind <<his>> lemonade stand.
-<<print $robin.timer.hurt gte 1 ? "<<He>> glances away when <<he>> sees you." : _robin.trauma gte 40 ? "<<He>> flinches whenever somebody passes <<him>>. When <<he>> sees you, <<he>> gives a timid wave." : _scandalous ? "<<He>> stares at you with <<his>> mouth agape, scandalised by your swimwear. <<He>> raises <<his>> hand in a tentative wave." : $robin.stayup is 2 ? "<<He>> startles awake when <<he>> sees you." : "<<He>> waves when <<he>> sees you.">>
+<<print $robin.timer.hurt gte 1 or $robinbreakupCooldown? "<<He>> glances away when <<he>> sees you." : _robin.trauma gte 40 ? "<<He>> flinches whenever somebody passes <<him>>. When <<he>> sees you, <<he>> gives a timid wave." : _scandalous ? "<<He>> stares at you with <<his>> mouth agape, scandalised by your swimwear. <<He>> raises <<his>> hand in a tentative wave." : $robin.stayup is 2 ? "<<He>> startles awake when <<he>> sees you." : "<<He>> waves when <<he>> sees you.">>
 
 <<if $daily.robin.passout gte 1 and !$daily.robin.passoutTalk>>
 	"Hey," <<he>> says as you draw close. "Are you feeling better? You had me worried, you know."
 	<<set $daily.robin.passoutTalk to 1>>
-<<elseif $robin.timer.hurt gte 1>>
+<<elseif $robin.timer.hurt gte 1 or $robinbreakupCooldown>>
 	<br><br>
 	"Hey," <<he>> says as you draw close. <<He>> sounds distant, and doesn't greet you further. The silence is made more awkward by the lack of customers.
 <<elseif $robinlemonadeintro isnot 1>><<set $robinlemonadeintro to 1>><<set $daily.robin.freeDrink to 1>>
@@ -50,13 +50,13 @@ You see Robin <<if $robin.stayup isnot 2>>stood<<else>>nodding off<</if>> behind
 <<npc Robin>><<person1>>
 <<set $money -= 100>>
 
-"<<print $robin.timer.hurt gte 1 ? "I guess." : "Sure!">> Just give me a minute..." Robin says, pouring the lemonade into a glass.
+"<<print $robin.timer.hurt gte 1 or $robinbreakupCooldown? "I guess." : "Sure!">> Just give me a minute..." Robin says, pouring the lemonade into a glass.
 <br><br>
 
-<<He>> hands you the glass with a <<print $robin.timer.hurt gte 1 ? "blank expression" : "smile">>, and you slide £1 across the counter.
+<<He>> hands you the glass with a <<print $robin.timer.hurt gte 1 or $robinbreakupCooldown ? "blank expression" : "smile">>, and you slide £1 across the counter.
 <br><br>
 
-<<if $robin.timer.hurt gte 1>>
+<<if $robin.timer.hurt gte 1 or $robinbreakupCooldown>>
 	<<set $robinmoney += 1>>
 	<<balloonRobinAngryPurchase>>
 
@@ -131,7 +131,7 @@ You down the glass almost in one go, listening to the waves as you watch the tid
 	<<endevent>>
 	<<link [[Next|Orphanage]]>><</link>>
 	<br>
-<<elseif $robin.timer.hurt gte 1>>
+<<elseif $robin.timer.hurt gte 1 or $robinbreakupCooldown>>
 	<<balloonRobinAngryHelp>>
 	<<lemonade_stand_options>>
 <<else>>

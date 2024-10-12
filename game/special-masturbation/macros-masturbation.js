@@ -57,7 +57,7 @@ function masturbationRobinWatching() {
 		T.robin.trauma < 20
 	) {
 		V.daily.robin.masturbation = true;
-		if (V.robinromance && T.robin.lust >= 30 && T.robin.love >= 80 && V.daily.test) {
+		if ((V.robinromance || V.robinsexfriend) && T.robin.lust >= 30 && T.robin.love >= 80 && V.daily.test) {
 			V.timer = 20;
 			V.robinWatchingMasturbation = 1;
 			V.robinWatchingMasturbationCount = (V.robinWatchingMasturbationCount || 0) + 1;
