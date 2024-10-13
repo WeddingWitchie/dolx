@@ -577,6 +577,8 @@ function getRobinLocation() {
 	} else if (!between(Time.hour, 7, 20)) {
 		// if hour is 6 or lower, or 21 or higher.
 		T.robin_location = "sleep";
+	} else if (V.robinbreakupCooldown > 0) {
+		T.robin_location = "orphanage";
 	} else if (Time.schoolDay && between(Time.hour, 8, 15)) {
 		T.robin_location = "school";
 	} else if (Time.hour === 16 && between(Time.minute, 31, 59)) {

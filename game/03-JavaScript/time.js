@@ -961,6 +961,10 @@ function dayPassed() {
 		V.effectsmessage = 1;
 	}
 
+	if (V.robinbreakupCooldown > 0) {
+		V.robinbreakupCooldown -= 1;
+	}
+
 	return fragment;
 }
 
