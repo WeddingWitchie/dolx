@@ -686,8 +686,44 @@ blackmailQuests.high.push( // Go streaking naked at the park during the day
 		failMessage: function() { },
 		includesItems: false,
 		receiveItems: function() { },
-		onDayCleared: function() {V.xchange.blackmail.penaltyThreat.exhibitionism += 300; },
+		onDayCleared: function() { V.xchange.blackmail.penaltyThreat.exhibitionism += 300; },
 		onDayFailed: function() { },
 		timeSpent: 0,
+	}
+);
+
+blackmailQuests.high.push( // Go play air hockey at the arcade, and either fully strip, or be stripped by, the other player.
+	{
+		id: 16, // Implemented.
+		prerequisites: function() { return true; },
+		reward: function() { return V.rentmoney; },
+		instructions: [
+			"Go to the arcade and play some air hockey.",
+			"Play a stripping game with another player until either of you is fully naked.",
+			"We're providing a free optional pill for this task.",
+			`<span class="red">If you take the pill, you're not allowed to test it.</span>`, 
+			"Complete this task before midnight.",
+		],
+		clearCondition: function() { return this.finishedGame; },
+		failCondition: function() { return false; },
+		alertMessage: ``,
+		clearCheck: function() {
+			if (this.clearCondition()) {
+				this.cleared = true;
+			}
+		},
+		failCheck: function() { 
+			if (this.failCondition()) {
+				this.failed = true;
+			}
+		},
+		cleared: false,
+		failed: false,
+		failMessage: function() { },
+		includesItems: true,
+		receiveItems: function() { wikifier("xchange-random-spike", "supress"); },
+		onDayCleared: function() { V.xchange.blackmail.penaltyThreat.exhibitionism += 300; },
+		onDayFailed: function() { },
+		finishedGame: false,
 	}
 );
