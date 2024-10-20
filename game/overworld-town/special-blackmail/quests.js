@@ -469,7 +469,7 @@ blackmailQuests.low.push( // Wear no shirt if male
 			"You're not allowed to wear a shirt today, nor any other clothing that covers your torso.", 
 			"You may only cover your torso if you're within school grounds (does not include its pool).", 
 			"The previous exemption only applies on schooldays.",
-			`<span class="red">Wearing any torso-covering piece outside of school at any point of the day before midnight will result in failure.`,
+			`<span class="red">Wearing any torso-covering piece outside of school at any point of the day before midnight will result in failure.</span>`,
 		],
 		clearCondition: function() { return true; },
 		failCondition: function() { 
