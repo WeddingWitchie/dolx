@@ -374,13 +374,13 @@ blackmailQuests.low.push( // Take a pill and wear a skirt
 	}
 );
 
-blackmailQuests.low.push( // Clean 5 chalets in uniform without underwear
+blackmailQuests.low.push( // Clean 3 chalets in uniform without underwear
 	{
 		id: 9, // Implemented
-		prerequisites: function() { return true; },
+		prerequisites: function() { return Time.hour < 17; },
 		reward: function() { return V.rentmoney / 3; },
 		instructions: [
-			"Go clean 5 challets at the beach.",
+			"Go clean 3 challets at the beach.",
 			"Wear the uniform we've included with this envelope while doing so.",
 			"You're not allowed underwear while wearing your uniform.",
 			`<span class="red">If you wear underwear with your uniform you will fail automatically.</span>`,
@@ -388,7 +388,7 @@ blackmailQuests.low.push( // Clean 5 chalets in uniform without underwear
 			"Cleaning a chalet without your uniform will not count.",
 			"Complete this task before midnight.",
 		],
-		clearCondition: function() { return this.chaletsCleaned >= 5; },
+		clearCondition: function() { return this.chaletsCleaned >= 3; },
 		failCondition: function() { return this.woreUnderwear; },
 		alertMessage: ``,
 		clearCheck: function() {
@@ -469,7 +469,7 @@ blackmailQuests.low.push( // Wear no shirt if male
 			"You're not allowed to wear a shirt today, nor any other clothing that covers your torso.", 
 			"You may only cover your torso if you're within school grounds (does not include its pool).", 
 			"The previous exemption only applies on schooldays.",
-			`<span class="red">Wearing any torso-covering piece outside of school at any point of the day before midnight will result in failure.`,
+			`<span class="red">Wearing any torso-covering piece outside of school at any point of the day before midnight will result in failure.</span>`,
 		],
 		clearCondition: function() { return true; },
 		failCondition: function() { 
@@ -662,7 +662,7 @@ blackmailQuests.mid.push( // Sell flowers on a market stall, without any lower c
 blackmailQuests.high.push( // Go streaking naked at the park during the day
 	{
 		id: 15, // Implemented.
-		prerequisites: function() { return true; },
+		prerequisites: function() { return Time.hour <= 16; },
 		reward: function() { return V.rentmoney; },
 		instructions: [
 			"Go streaking at the park naked during the day.", 
@@ -695,7 +695,7 @@ blackmailQuests.high.push( // Go streaking naked at the park during the day
 blackmailQuests.high.push( // Go play air hockey at the arcade, and either fully strip, or be stripped by, the other player.
 	{
 		id: 16, // Implemented.
-		prerequisites: function() { return true; },
+		prerequisites: function() { return Time.hour < 20; },
 		reward: function() { return V.rentmoney; },
 		instructions: [
 			"Go to the arcade and play some air hockey.",
