@@ -78,6 +78,13 @@ function masturbationEffects() {
 			fragment.append(" ");
 			V.corruptionMasturbation = false;
 			delete V.corruptionMasturbationCount;
+		} else if (V.penis_addict_trait || V.hole_addict_trait) {
+			sWikifier(
+				`The slime in your ears gets frustrated as it notices that, despite its best effort, you're unable to cum. And making no progress, <span class="blue">it gives up.</span><<arousal 600 "masturbation">><<pain 4>><<stress 6>><<gstress>><<gpain>>`
+			);
+			fragment.append(" ");
+			V.corruptionMasturbation = false;
+			delete V.corruptionMasturbationCount;
 		} else {
 			if (V.orgasmdown >= 2) {
 				if (isNaN(V.corruptionMasturbationCount)) V.corruptionMasturbationCount = random(2, 6);
@@ -281,7 +288,8 @@ function masturbationEffects() {
 	if (
 		random(0, 100) >= Math.clamp(135 - V.earSlime.corruption / 2, 80, 98) &&
 		V.earSlime.corruption > currentSkillValue("willpower") / 10 &&
-		V.corruptionMasturbation === undefined
+		V.corruptionMasturbation === undefined &&
+		!V.penis_addict_trait && !V.hole_addict_trait 
 	) {
 		V.corruptionMasturbation = true;
 		V.corruptionMasturbationCount = random(1, 4);
