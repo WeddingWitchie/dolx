@@ -83,10 +83,6 @@ To achieve that, the allure system has been rethought in the following manner:
 
 That's how allure is computed in vague terms. If you wish to understand specifics of how it is computed read the following spoilered text:
 
-||* Only the highest valued bad reputation is taken into account to determine the baseline allure increase.
-* Beauty acts as a factor that multiplies the previous allure baseline. And on top it also adds a very small flat bonus to the baseline.
-* For each good reputation that is maxed out, the resulting allure from the previous steps is halved. Meaning that if you have 2 good reputations maxed, you get 1/4 the allure. 3 good reputations maxed, get you 1/8 the allure.||
-
 The result is that, if you lack any bad reputation at all, you should barely get any negative effects from your beauty.
 
 But if you have a bad reputation, not even a good reputation will fully get rid of molesters.
@@ -170,7 +166,7 @@ Victims slowly descend into lust and debauchery, as they find themselves more an
 
 **To begin this event chain (hint):** being a good student that doesn't misbehave should have you meeting them eventually.
 
-**But more specifically:** ||you must attend to at least one of Leighton's inspections, and be on the receiving end of said inspection.||
+**But more specifically:** (spoilers) you must attend to at least one of Leighton's inspections, and be on the receiving end of said inspection.
 
 ------------
 Quests are divided into 3 tiers: low, mid, and high.
@@ -222,7 +218,7 @@ This is the list of the early to mid game quests and their prerequisites:
 * **Go for a run naked at the park:**
   * always available.
 
-### ## HIGH TIER QUESTS
+### HIGH TIER QUESTS
 This is the list of the mid to late game quests and their prerequisites:
 
 * **Masturbate in an empty classroom:**
