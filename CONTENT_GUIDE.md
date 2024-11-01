@@ -1,6 +1,7 @@
 # Content Guide
 
-Here's an (incomplete) over all the content that's already in this mod. Beware, some of these might contain spoilers.
+Here's an (incomplete) guide covering most of the content already available in this mod. 
+Beware, some of these sections may contain spoilers.
 
 ## PILL CATALOGUE
 The following come in both Pink and Blue variants (meaning female and male TFs respectively):
