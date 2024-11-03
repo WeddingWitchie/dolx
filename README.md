@@ -34,4 +34,4 @@ And start enjoying both sexes!
 
 ## Discord
 
-Join the #xchange-gender-pills on the [DOLP](https://discord.gg/dolp) discord
+Join the #xchange-gender-pills channel on [DOLP](https://discord.gg/dolp)'s discord server.

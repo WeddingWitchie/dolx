@@ -1,3 +1,3 @@
 
 **Changelog:**
-* Attempt at making audio download in the background without halting game execution.
+* Audio should now be cached on-demand rather than upfront.
