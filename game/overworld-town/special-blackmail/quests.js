@@ -611,7 +611,7 @@ blackmailQuests.mid.push( // Sell flowers on a market stall, without any lower c
 		prerequisites: function() { return Time.dayState == "dawn" && !V.penis_addict_trait && !V.hole_addict_trait; },
 		reward: function() { return V.rentmoney / 2; },
 		instructions: [
-			"Masturbate at least once while selling flowers at a market stall.",
+			"Masturbate (and orgasm) at least once while selling flowers at a market stall.",
 			"Take this pill and these 200 flowers we've provided.", 
 			"If you sell over <<printmoney 25000>> in profits, we will boost your business fame on top of your normal payment.",
 			`<span class="red">You're not allowed to test the effects of the pill</span>`,
