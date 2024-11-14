@@ -1412,6 +1412,7 @@ function currentSkillValue(skill, disableModifiers = 0) {
 			if (V.TFCowBuffs == 1) {
 				result = Math.round(result * 1.4);
 			}
+			result = Math.round(result * (1 + 0.1 * V.sciencetrait))
 			break;
 		case "housekeeping":
 			if (V.worn.upper.type.includes("maid")) {
