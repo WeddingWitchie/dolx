@@ -1,0 +1,94 @@
+:: School Rear Pick Fight
+<<schooleffects>><<effects>>
+<<if maleChance(`$player.gender is "m"? "f": "m"`)>>
+    <<generatesm1>>
+<<else>>
+    <<generatesf1>>
+<</if>>
+<<person1>>
+
+You approach the group, and start provoking one of the delinquents there. You mock <<his>> face and crowd erupts in laughter, and ask <<him>> if <<hes>> gonna take it lying down.
+<br><br>
+
+Your provocations turn out quite effective, and shortly after you're both squaring up, readying yourselves for a fight.
+<br><br>
+
+<<link [[Shove|School Rear Fight]]>><<set $fightstart to 1>><</link>>
+
+:: School Rear Fight
+<<if $fightstart is 1>>
+	<<set $fightstart to 0>>
+	<<neutral 1>>
+	<<maninit>>
+	<<set $enemytrust -= 100>>
+	<<set $enemyanger += 200>>
+	<<npcidlegenitals>>
+    <<if $delinquency lt 400>><<enable_rescue>><</if>>
+<</if>>
+
+<<if $combatpill is 1>>
+	<<unset $combatpill>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+    <<xchange-random-spike "suppress">><<hand_gag 0 left>>
+    Unable to bear the pain any further, you're knocked on your back. And as you struggle to regain your senses, the <<person>> climbs on top of you and forces a pill down your throat.
+    <br><br>
+	<<molested>>
+    <<reversenpcidlegenitals>>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<<alarmstate "<span class='red'>No one comes to your aid, likely due to your reputation as a delinquent.</span>">>
+<<man>>
+<<audience>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<rng 3>>
+<<if !playerIsXChanged() and $pain gte 100 and $willpowerpain is 0 and $rng is 0>>
+    <span id="next"><<link [[Next|School Rear Fight]]>><<set $combatpill to 1>><</link>></span><<nexttext>>
+<<elseif _combatend or ($pain gte 100 and $willpowerpain is 0)>>
+	<span id="next"><<link [[Next|School Rear Fight Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|School Rear Fight]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: School Rear Fight Finish
+<<effects>>
+<<if $enemyarousal gte $enemyarousalmax>>
+	<<ejaculation>>
+	Still slightly dizzy from <<his>> orgasm, the <<person>> loses <<his>> will to fight and walks away. 
+	<br><br>
+	<<tearful>> you recover.
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
+	<<link [[Next|School Rear Courtyard]]>><</link>>
+
+<<elseif $enemyhealth lte 0>>
+	With one last hit, you knock <<his>> smug ass into the ground, showing <<him>> who's boss.
+	<br><br>
+    It seems in the heat of the fight, the <<person>> dropped <<his>> wallet containing <<moneyGainDisplay 20 true true>>
+	<<tearful>> you regain some of your composure and ponder whether to take the money or not.
+    <<status 2>><<ggcool>>
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
+    <<link [[Take money|School Rear Courtyard]]>><<moneyGain _money_gain false true>><</link>><<crime "petty">>
+    <br>
+	<<link [[Walk away|School Rear Courtyard]]>><</link>>
+
+<<else>>
+	Too beat up to continue fighting, you protect yourself with your arms until the <<person>> stops hitting you. Still somewhat pissed, <<he>> mocks your sorry state before finally walking away. 
+	<br><br>
+	<<tearful>> you pick yourself up, with your pride in shambles.
+    <<status -2>><<llcool>>
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
+	<<link [[Next|School Rear Courtyard]]>><</link>>
+
+<</if>>
