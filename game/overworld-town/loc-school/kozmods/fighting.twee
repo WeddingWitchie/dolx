@@ -26,13 +26,13 @@ Your provocations turn out quite effective, and shortly after you're both squari
     <<if $delinquency lt 400>><<enable_rescue>><</if>>
 <</if>>
 
-<<if $combatpill is 1>>
-	<<unset $combatpill>>
+<<if $combatpill is 0>>
+	<<set $combatpill to 1>>
 	<<controlloss>>
 	<<violence 1>>
 	<<neutral 1>>
     <<xchange-random-spike "suppress">><<hand_gag 0 left>>
-    Unable to bear the pain any further, you're knocked on your back. And as you struggle to regain your senses, the <<person>> climbs on top of you and forces a pill down your throat.
+    <span class="red">Unable to bear the pain any longer, you hesitate for a moment and get knocked off your feet. And as you struggle to regain your senses, the <<person>> climbs on top of you and forces a pill down your throat.</span>
     <br><br>
 	<<molested>>
     <<reversenpcidlegenitals>>
@@ -48,16 +48,16 @@ Your provocations turn out quite effective, and shortly after you're both squari
 <<actionsman>>
 
 <<rng 3>>
-<<if !playerIsXChanged() and $pain gte 100 and $willpowerpain is 0 and $rng is 0>>
-    <span id="next"><<link [[Next|School Rear Fight]]>><<set $combatpill to 1>><</link>></span><<nexttext>>
-<<elseif _combatend or ($pain gte 100 and $willpowerpain is 0)>>
+<<if _combatend or ($pain gte 100 and $willpowerpain is 0 and (playerIsXChanged() or $rng isnot 1) and $combatpill isnot 1)>>
 	<span id="next"><<link [[Next|School Rear Fight Finish]]>><</link>></span><<nexttext>>
+<<elseif !playerIsXChanged() and $pain gte 100 and $willpowerpain is 0 and $rng is 1>>
+    <span id="next"><<link [[Next|School Rear Fight]]>><<set $combatpill to 0>><</link>></span><<nexttext>>
 <<else>>
 	<span id="next"><<link [[Next|School Rear Fight]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: School Rear Fight Finish
-<<effects>>
+<<effects>><<unset $combatpill>>
 <<if $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation>>
 	Still slightly dizzy from <<his>> orgasm, the <<person>> loses <<his>> will to fight and walks away. 
@@ -70,22 +70,22 @@ Your provocations turn out quite effective, and shortly after you're both squari
 
 <<elseif $enemyhealth lte 0>>
 	With one last hit, you knock <<his>> smug ass into the ground, showing <<him>> who's boss.
-	<br><br>
-    It seems in the heat of the fight, the <<person>> dropped <<his>> wallet containing <<moneyGainDisplay 20 true true>>
-	<<tearful>> you regain some of your composure and ponder whether to take the money or not.
     <<status 2>><<ggcool>>
+	<br><br>
+    It seems in the heat of the fight, the <<person>> dropped <<his>> wallet containing <<moneyGainDisplay 20 true true>>.<br>
+	<<tearful>> you regain some of your composure and ponder whether to take the money or not.
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
-    <<link [[Take money|School Rear Courtyard]]>><<moneyGain _money_gain false true>><</link>><<crime "petty">>
+    <<link [[Take money|School Rear Courtyard]]>><<moneyGain `_money_gain / 100` false true>><</link>><<crime "petty">>
     <br>
 	<<link [[Walk away|School Rear Courtyard]]>><</link>>
 
 <<else>>
 	Too beat up to continue fighting, you protect yourself with your arms until the <<person>> stops hitting you. Still somewhat pissed, <<he>> mocks your sorry state before finally walking away. 
+    <<status -2>><<llcool>>
 	<br><br>
 	<<tearful>> you pick yourself up, with your pride in shambles.
-    <<status -2>><<llcool>>
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
