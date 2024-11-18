@@ -157,6 +157,42 @@
 					You will receive an <span class="gold">allowance</span> when passing the exam.
 				</li>
 			<</if>>
+
+			<<if $bike gte 1>>
+				<<switch $bikeLocation>>
+					<<case "nightingale">>
+						<<set _bikeString to "Nightingale Street (Hospital)">>
+					<<case "domus">>
+						<<set _bikeString to "Domus Street (Home)">>
+					<<case "elk">>
+						<<set _bikeString to "Elk Street">>
+					<<case "high">>
+						<<set _bikeString to "High Street (Shopping centre)">>
+					<<case "starfish">>
+						<<set _bikeString to "Starfish Street (Beach)">>
+					<<case "barb">>
+						<<set _bikeString to "Barb Street (Studio)">>
+					<<case "connudatus">>
+						<<set _bikeString to "Connudatus Street (Clubs)">>
+					<<case "wolf">>
+						<<set _bikeString to "Wolf Street (Temple)">>
+					<<case "harvest">>
+						<<set _bikeString to "Harvest Street (Pub)">>
+					<<case "oxford">>
+						<<set _bikeString to "Oxford Street (School)">>
+					<<case "danube">>
+						<<set _bikeString to "Danube Street (Mansions)">>
+					<<case "mer">>
+						<<set _bikeString to "Mer Street (Docks)">>
+					<<case "cliff">>
+						<<set _bikeString to "Cliff Street (Cafe)">>
+					<<case "lake">>
+						<<set _bikeString to "the Lake">>
+					<<case "farm">>
+						<<set _bikeString to "the Farmlands">>
+				<</switch>>
+				<li><<if $bikePersistentLocation is 1>>Your bike is at _bikeString.<</if>> Your bike has $bikeDurability minutes of usage time left in it.</li>
+			<</if>>
 		</ul>
 	<</if>>
 
@@ -168,7 +204,7 @@
 			<</if>>
 		<</for>>
 	<</if>>
-	<<if !$statFreeze and ($location is "asylum" and ($eden_asylum_window is 1 or ($daily.eden.distract gte 1 and Time.hour lt 21))) || $temple_spear_mission gte 1 || $dockwork gte 2 || ($brothelshowdata.intro and $brothelshowdata.type is "none") || $robindebtevent gte 1 and $robinmissing isnot 0 || $pubtask2 is 1 || $pubtask || $police_hack is 1 || $pub_hack_job gte 1 || $pubfame ||( $earSlime.event and !_tempEventHide) || $earSlime.forcedCommando isnot undefined || $earSlime.forcedDressing isnot undefined || $temple_rank is "prospective" || $chef_state gte 4 || $mason_pond gte 1 || ($brothel_machine_repair gte 1 and $brothel_machine_repair lte 3) || ($harpy gte 6 and $birdFly isnot 1) || ($studyBooks isnot undefined and $studyBooks.rented.count gte 1) || $adultshopgrandopening || ($adultshopintro is 1 and $adultshopunlocked is undefined) || _dockKnown isnot undefined>>
+	<<if !$statFreeze and ($location is "asylum" and ($eden_asylum_window is 1 or ($daily.eden.distract gte 1 and Time.hour lt 21))) || $temple_spear_mission gte 1 || $dockwork gte 2 || ($brothelshowdata.intro and $brothelshowdata.type is "none") || $robindebtevent gte 1 and $robinmissing isnot 0 || $pubtask2 is 1 || $pubtask || $police_hack is 1 || $pub_hack_job gte 1 || $pubfame ||( $earSlime.event and !_tempEventHide) || $earSlime.forcedCommando isnot undefined || $earSlime.forcedDressing isnot undefined || $temple_rank is "prospective" || $chef_state gte 4 || $mason_pond gte 1 || ($brothel_machine_repair gte 1 and $brothel_machine_repair lte 3) || ($harpy gte 6 and $birdFly isnot 1) || ($studyBooks isnot undefined and $studyBooks.rented.count gte 1) || $adultshopgrandopening || ($adultshopintro is 1 and $adultshopunlocked is undefined) || _dockKnown isnot undefined || $daily.stallRented isnot undefined || ($farm isnot undefined and $farm.build isnot "")>>
 		/*TODO: streamline during eventual Journal UI Overhaul bc lol. lmao, even. */
 		<hr>
 		<h1 class="header gold bold">Reminders</h1>
@@ -423,6 +459,17 @@
 				<</if>>
 			<</if>>
 
+			<<if $daily.stallRented isnot undefined and $daily.stallRented is 1>>
+				<li>
+				<<if $stallDeposit gte 3000>>
+					<<set _string to Math.floor($stallDeposit / 3000)>>
+					You are renting a stall and still have _string days worth of deposit.
+				<<else>>
+					You are renting a stall and it will expire by today.
+				<</if>>
+				</li>
+			<</if>>
+
 			<<if $farm>>
 				<<if $farm.build>>
 				<li>
@@ -445,13 +492,13 @@
 							Searchlights are being affixed atop the watchtower.
 						<<case "kennel 1">>
 							A guard dog training facility is being constructed.
-						<<case "barn 1" "barn 2">>
+						<<case "barn 1" "barn 2" "barn 3" "barn 4" "barn 5" "barn 6" "barn 7">>
 							The barn is being expanded.
-						<<case "woodland 1" "woodland 2" "woodland 3">>
+						<<case "woodland 1" "woodland 2" "woodland 3" "woodland 4" "woodland 5" "woodland 6" "woodland 7">>
 							A fence is being built around the nearby woodland.
 						<<case "stable 1">>
 							The stable is being expanded.
-						<<case "coop 1" "coop 2">>
+						<<case "coop 1" "coop 2" "coop 3" "coop 4" "coop 5" "coop 6" "coop 7">>
 							The coop is being expanded.
 						<<case "irrigation">>
 							Irrigation is being installed in a field.
@@ -465,6 +512,18 @@
 							The aphrodisiac extraction system is being installed.
 						<<case "extract 2">>
 							The aphrodisiac extraction system is being upgraded.
+						<<case "cooler 1">>
+							An industrial cooler is being installed.
+						<<case "cooler 2" "cooler 3">>
+							The industrial cooler is being upgraded.
+						<<case "water field 1">>
+							A fence is being build around the water field site.
+						<<case "water field 2">>
+							The water field is being excavated.
+						<<case "water field 3">>
+							Synethetic liners is being installed on the water field.
+						<<case "water field 4">>
+							The water source and water control structures are being installed on the water field.
 					<</switch>>
 					<<if $farm.build_timer is 1>>
 						It'll be finished <span class="gold">tomorrow.</span>
@@ -848,7 +907,10 @@
 			<li><span class="clothes-white"><<icon "clothes/plain_panties.png">></span> <<print $panties_held is 1 ? "a pair" : "<span class='green'>$panties_held</span> pairs">> of stolen underwear. You can sell <<print $panties_held is 1 ? "it" : "them">> during lunchtime in the school rear courtyard.</li>
 		<</if>>
 		<<if _plant_keys.length gt 0>>
-			<li><<tendingicon>> <span class="green">produce</span>. You can sell it by renting a stand on Connudatus Street at dawn.</li>
+			<li><<tendingicon>> <span class="green">Produce</span>. You can sell it by renting a stand on Connudatus Street at dawn.</li>
+		<</if>>
+		<<if $DoLPSpools isnot undefined>>
+			<li><<shopicon "tailor">> <span class="green">$DoLPSpools</span> spools.</li>
 		<</if>>
 	</ul>
 

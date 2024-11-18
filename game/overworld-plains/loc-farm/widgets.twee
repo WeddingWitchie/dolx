@@ -54,12 +54,22 @@
 
 <<widget "farm_milk_check">>
 	<<farm_work_time>>
-	<<if _farm_work_time gte 30>>
-		<<set $farm_work.cattle_need to (18 - $farm_work.cattle_milked)>>
-	<<elseif _farm_work_time gte 10>>
-		<<set $farm_work.cattle_need to (12 - $farm_work.cattle_milked)>>
+	<<if $farm isnot undefined and $farm.barn isnot undefined>>
+		<<if _farm_work_time gte 30>>
+			<<set $farm_work.cattle_need to Math.trunc(18 * (1 + (0.5 * $farm.barn))) - $farm_work.cattle_milked>>
+		<<elseif _farm_work_time gte 10>>
+			<<set $farm_work.cattle_need to Math.trunc(12 * (1 + (0.5 * $farm.barn))) - $farm_work.cattle_milked>>
+		<<else>>
+			<<set $farm_work.cattle_need to Math.trunc(6 * (1 + (0.5 * $farm.barn))) - $farm_work.cattle_milked>>
+		<</if>>
 	<<else>>
-		<<set $farm_work.cattle_need to (6 - $farm_work.cattle_milked)>>
+		<<if _farm_work_time gte 30>>
+			<<set $farm_work.cattle_need to (18 - $farm_work.cattle_milked)>>
+		<<elseif _farm_work_time gte 10>>
+			<<set $farm_work.cattle_need to (12 - $farm_work.cattle_milked)>>
+		<<else>>
+			<<set $farm_work.cattle_need to (6 - $farm_work.cattle_milked)>>
+		<</if>>
 	<</if>>
 <</widget>>
 
@@ -571,7 +581,7 @@
 		<br>
 	<</if>>
 	<<if Time.hour gte 6>>
-		<<if $farm.build isnot undefined and $farm.build isnot 0 and $farm.dailyHelp is 0>>
+		<<if $farm.build isnot undefined and $farm.build isnot 0 and $farm.dailyHelp is 0 and $farm.build_timer gte 2>>
 			<<link [[Help out the builders (1:00)|Farm Builders Help]]>><<pass 60>><<set $farm.dailyHelp to 1>><</link>><<physiquedifficulty 1 16000>><<note "Might speed construction if successful" "green">>
 			<br>
 		<</if>>
@@ -760,12 +770,17 @@
 		<</if>>
 	<</if>>
 	<<set _timeString to getTimeString(_baseTime)>>
-	<<if $farm_stage isnot 12 and $farm_work.alex is "clearing" and ($exposed lt 2 or hasSexStat("exhibitionism", 5)) and Time.dayState isnot "night">>
-		<<farmicon "clear yard">><<link [["Help Alex clear a field ("+ _timeString +")"|Farm Clearing]]>><<physique 2>><<farm_clear>><</link>><<gtiredness>><<run _actions++>>
+	<<if $farm.waterField is 1 and !$farm.build_finished.includes("water field 2")>>
+		<<set _string to "the water">>
+	<<else>>
+		<<set _string to "a">>
+	<</if>>
+	<<if ($farm_stage isnot 12 or ($farm.waterField is 1 and !$farm.build_finished.includes("water field 2"))) and $farm_work.alex is "clearing" and ($exposed lt 2 or hasSexStat("exhibitionism", 5)) and Time.dayState isnot "night">>
+		<<farmicon "clear yard">><<link [["Help Alex clear " + _string + " field ("+ _timeString +")"|Farm Clearing]]>><<physique 2>><<farm_clear>><</link>><<gtiredness>><<run _actions++>>
 		<br>
 	<</if>>
-	<<if $farm_stage isnot 12 and $farm_stage gte 2 and _actions lt 2 and $farm_work.alex isnot "clearing" and ($exposed lt 2 or hasSexStat("exhibitionism", 5))>>
-		<<farmicon "clear yard">><<link [["Clear a field alone ("+ _timeString +")"|Farm Clearing Alone]]>><<physique 4>><<farm_clear>><</link>><<ggtiredness>><<run _actions++>>
+	<<if ($farm_stage isnot 12 or ($farm.waterField is 1 and !$farm.build_finished.includes("water field 2"))) and $farm_stage gte 2 and _actions lt 2 and $farm_work.alex isnot "clearing" and ($exposed lt 2 or hasSexStat("exhibitionism", 5))>>
+		<<farmicon "clear yard">><<link [["Clear " + _string + " field alone ("+ _timeString +")"|Farm Clearing Alone]]>><<physique 4>><<farm_clear>><</link>><<ggtiredness>><<run _actions++>>
 		<br>
 	<</if>>
 
@@ -1005,12 +1020,22 @@
 	<<elseif $farm_work.cattle_need gte 1>>
 		<<beastNEWinit 1 cow>><<person1>>
 		<<ind>><<link [[Milk them with the machine (0:20)|Farm Cattle Milk Machine]]>><<pass 20>><<endevent>><<farm_count 20>><<tending 2>>
-			<<if $farm_work.cattle_need gte 6>>
-				<<set $farm_work.cattle_milked += 6>>
-				<<set $cattle_milked += 6>>
+			<<if $farm.barn isnot undefined and $farm.barn gte 7>>
+				<<if $farm_work.cattle_need gte 24>>
+					<<set $farm_work.cattle_milked += 24>>
+					<<set $cattle_milked += 24>>
+				<<else>>
+					<<set $farm_work.cattle_milked += $farm_work.cattle_need>>
+					<<set $cattle_milked += $farm_work.cattle_need>>
+				<</if>>
 			<<else>>
-				<<set $farm_work.cattle_milked += $farm_work.cattle_need>>
-				<<set $cattle_milked += $farm_work.cattle_need>>
+				<<if $farm_work.cattle_need gte 6>>
+					<<set $farm_work.cattle_milked += 6>>
+					<<set $cattle_milked += 6>>
+				<<else>>
+					<<set $farm_work.cattle_milked += $farm_work.cattle_need>>
+					<<set $cattle_milked += $farm_work.cattle_need>>
+				<</if>>
 			<</if>>
 		<</link>><<gtending>>
 		<br>
@@ -1018,7 +1043,11 @@
 
 		A <<beasttype>> gives you a strained moo.
 		<br>
-		<<if currentSkillValue('tending') gte 1500>>
+		<<if currentSkillValue('tending') gte 2000>>
+			<<set _cattleMilkHand to 1>>
+		<<elseif currentSkillValue('tending') gte 1750>>
+			<<set _cattleMilkHand to 2>>
+		<<elseif currentSkillValue('tending') gte 1500>>
 			<<set _cattleMilkHand to 3>>
 		<<elseif currentSkillValue('tending') gte 1200>>
 			<<set _cattleMilkHand to 4>>
@@ -1187,6 +1216,7 @@
 			<br>
 		<<else>>
 			<<rng 5>>
+			<<if $farm.build_timer lt 2 and $rng is 4>><<rng 3>><</if>>
 			<<switch $rng>>
 			<<case 1>>
 				<<npc Alex>><<generate2>><<generate3>><<generate4>><<person2>>
@@ -2134,10 +2164,6 @@
 	<<set $farm_fight.screws to 10>>
 <</widget>>
 
-<<widget "farm_fight_end">>
-	<<unset $farm_fight>>
-<</widget>>
-
 <<widget "farm_fight_alex">>
 	<<person1>>
 	<<if $farm_fight.distraction is 2>>
@@ -2496,18 +2522,46 @@
 					<<set $farm.woodland to 2>>
 				<<case "woodland 3">>
 					<<set $farm.woodland to 3>>
+				<<case "woodland 4">>
+					<<set $farm.woodland to 4>>
+				<<case "woodland 5">>
+					<<set $farm.woodland to 5>>
+				<<case "woodland 6">>
+					<<set $farm.woodland to 6>>
+				<<case "woodland 7">>
+					<<set $farm.woodland to 7>>
 				<<case "kennel 1">>
 					<<set $farm.kennel to 1>>
 				<<case "barn 1">>
 					<<set $farm.barn to 1>>
 				<<case "barn 2">>
 					<<set $farm.barn to 2>>
+				<<case "barn 3">>
+					<<set $farm.barn to 3>>
+				<<case "barn 4">>
+					<<set $farm.barn to 4>>
+				<<case "barn 5">>
+					<<set $farm.barn to 5>>
+				<<case "barn 6">>
+					<<set $farm.barn to 6>>
+				<<case "barn 7">>
+					<<set $farm.barn to 7>>
 				<<case "stable 1">>
 					<<set $farm.stable to 1>>
 				<<case "coop 1">>
 					<<set $farm.coop to 1>>
 				<<case "coop 2">>
 					<<set $farm.coop to 2>>
+				<<case "coop 3">>
+					<<set $farm.coop to 3>>
+				<<case "coop 4">>
+					<<set $farm.coop to 4>>
+				<<case "coop 5">>
+					<<set $farm.coop to 5>>
+				<<case "coop 6">>
+					<<set $farm.coop to 6>>
+				<<case "coop 7">>
+					<<set $farm.coop to 7>>
 				<<case "parasites 1">>
 					<<set $farm.parasitebarn to 1>>
 				<<case "parasites 2">>
@@ -2524,6 +2578,32 @@
 					<<elseif $farm.irrigation lt 9>>
 						<<set $farm.irrigation++>>
 					<</if>>
+				<<case "compost bin 1">>
+					<<set $farm.compostbin to 1>>
+				<<case "compost bin 2">>
+					<<set $farm.compostbin to 2>>
+				<<case "compost bin 3">>
+					<<set $farm.compostbin to 3>>
+				<<case "extract 1">>
+					<<set $farm.extract to 1>>
+				<<case "extract 2">>
+					<<set $farm.extract to 2>>
+				<<case "cooler 1">>
+					<<set $farm.cooler to 1>>
+				<<case "cooler 2">>
+					<<set $farm.cooler to 2>>
+				<<case "cooler 3">>
+					<<set $farm.cooler to 3>>
+				<<case "water field 1">>
+					<<set $farm.waterField to 1>>
+					<<set $farm.clearing to 1200>>
+				<<case "water field 2">>
+					<<set $farm.waterField to 2>>
+					<<set $farm.clearing to 100>>
+				<<case "water field 3">>
+					<<set $farm.waterField to 3>>
+				<<case "water field 4">>
+					<<set $farm.waterField to 4>>
 			<</switch>>
 			<<if $farm.build_finished is undefined or $farm.build_finished is 0>>
 				<<set $farm.build_finished to []>>
@@ -2623,11 +2703,11 @@
 <<widget "farm_stock">>
 	<<if _args[0]>>
 		<<if _args[1] and _args[2]>>
-			<<set $farm.stock[_args[0]] += random(_args[1], _args[2])>>
+			<<set $farm.stock[_args[0]] += Math.round(random(_args[1], _args[2]) * ($produce_yield_factor / 100))>>
 		<<elseif _args[1]>>
-			<<set $farm.stock[_args[0]] += _args[1]>>
+			<<set $farm.stock[_args[0]] += Math.round(_args[1] * ($produce_yield_factor / 100))>>
 		<<else>>
-			<<set $farm.stock[_args[0]] += 1>>
+			<<set $farm.stock[_args[0]] += Math.round(1 * ($produce_yield_factor / 100))>>
 		<</if>>
 	<</if>>
 <</widget>>
@@ -2888,13 +2968,13 @@
 				Searchlights are being affixed atop the watchtower.
 			<<case "kennel 1">>
 				A guard dog training facility is being constructed.
-			<<case "barn 1" "barn 2">>
+			<<case "barn 1" "barn 2" "barn 3" "barn 4" "barn 5" "barn 6" "barn 7">>
 				The barn is being expanded.
-			<<case "woodland 1" "woodland 2" "woodland 3">>
+			<<case "woodland 1" "woodland 2" "woodland 3" "woodland 4" "woodland 5" "woodland 6" "woodland 7">>
 				A fence is being built around the nearby woodland.
 			<<case "stable 1">>
 				The stable is being expanded.
-			<<case "coop 1" "coop 2">>
+			<<case "coop 1" "coop 2" "coop 3" "coop 4" "coop 5" "coop 6" "coop 7">>
 				The coop is being expanded.
 			<<case "irrigation">>
 				Irrigation is being installed in a field.
@@ -2908,6 +2988,18 @@
 				The aphrodisiac extraction system is being installed.
 			<<case "extract 2">>
 				The aphrodisiac extraction system is being upgraded.
+			<<case "cooler 1">>
+				The industrial cooler is being installed.
+			<<case "cooler 2" "cooler 3">>
+				The industrial cooler is being upgraded.
+			<<case "water field 1">>
+				A fence is being build around the water field site.
+			<<case "water field 2">>
+				The water field is being excavated.
+			<<case "water field 3">>
+				Synethetic liners is being installed on the water field.
+			<<case "water field 4">>
+				The water source and water control structures are being installed on the water field.
 		<</switch>>
 		<<if $farm.build_timer is 1>>
 			It'll be finished tomorrow.
@@ -2957,9 +3049,17 @@
 		<</if>>
 		<br>
 		Woodland:
-		<<if $farm.woodland gte 3 or $farm.build is "woodland 3">>
+		<<if $farm.woodland gte 7 or $farm.build is "woodland 7">>
 			<span class="green">Annexed by the farm</span>
 			<<set _upgrade_count += 1>>
+		<<elseif $farm.woodland gte 6 or $farm.build is "woodland 6">>
+			<<link [[PURCHASE ALL OF IT!!!|Farm Upgrades Woodland 7]]>><</link>>
+		<<elseif $farm.woodland gte 5 or $farm.build is "woodland 5">>
+			<<link [[Purchase even more!!!|Farm Upgrades Woodland 6]]>><</link>>
+		<<elseif $farm.woodland gte 4 or $farm.build is "woodland 4">>
+			<<link [[Purchase even more!!|Farm Upgrades Woodland 5]]>><</link>>
+		<<elseif $farm.woodland gte 3 or $farm.build is "woodland 3">>
+			<<link [[Purchase even more!|Farm Upgrades Woodland 4]]>><</link>>
 		<<elseif $farm.woodland gte 2 or $farm.build is "woodland 2">>
 			<<link [[Purchase even more|Farm Upgrades Woodland 3]]>><</link>>
 		<<elseif $farm.woodland gte 1 or $farm.build is "woodland 1">>
@@ -2977,9 +3077,19 @@
 		<</if>>
 		<br>
 		Barn:
-		<<if $farm.barn gte 2 or $farm.build is "barn 2">>
+		<<if $farm.barn gte 7 or $farm.build is "barn 7">>
 			<span class="green">As robust as can be</span>
 			<<set _upgrade_count += 1>>
+		<<elseif $farm.barn gte 6 or $farm.build is "barn 6">>
+			<<link [[Expand|Farm Upgrades Barn 7]]>><</link>>
+		<<elseif $farm.barn gte 5 or $farm.build is "barn 5">>
+			<<link [[Expand|Farm Upgrades Barn 6]]>><</link>>
+		<<elseif $farm.barn gte 4 or $farm.build is "barn 4">>
+			<<link [[Expand|Farm Upgrades Barn 5]]>><</link>>
+		<<elseif $farm.barn gte 3 or $farm.build is "barn 3">>
+			<<link [[Expand|Farm Upgrades Barn 4]]>><</link>>
+		<<elseif $farm.barn gte 2 or $farm.build is "barn 2">>
+			<<link [[Expand|Farm Upgrades Barn 3]]>><</link>>
 		<<elseif $farm.barn gte 1 or $farm.build is "barn 1">>
 			<<link [[Expand|Farm Upgrades Barn 2]]>><</link>>
 		<<else>>
@@ -2995,9 +3105,19 @@
 		<</if>>
 		<br>
 		Coop:
-		<<if $farm.coop gte 2 or $farm.build is "coop 2">>
+		<<if $farm.coop gte 7 or $farm.build is "coop 7">>
 			<span class="green">As big as can be</span>
 			<<set _upgrade_count += 1>>
+		<<elseif $farm.coop gte 6 or $farm.build is "coop 6">>
+			<<link [[MOREEEEEEEEE!!!|Farm Upgrades Coop 7]]>><</link>>
+		<<elseif $farm.coop gte 5 or $farm.build is "coop 5">>
+			<<link [[EXPAND AGAIN!!!|Farm Upgrades Coop 6]]>><</link>>
+		<<elseif $farm.coop gte 4 or $farm.build is "coop 4">>
+			<<link [[Expand again!!!|Farm Upgrades Coop 5]]>><</link>>
+		<<elseif $farm.coop gte 3 or $farm.build is "coop 3">>
+			<<link [[Expand again!!|Farm Upgrades Coop 4]]>><</link>>
+		<<elseif $farm.coop gte 2 or $farm.build is "coop 2">>
+			<<link [[Expand again!|Farm Upgrades Coop 3]]>><</link>>
 		<<elseif $farm.coop gte 1 or $farm.build is "coop 1">>
 			<<link [[Expand again|Farm Upgrades Coop 2]]>><</link>>
 		<<else>>
@@ -3050,7 +3170,6 @@
 			<</if>>
 			<br>
 		<</if>>
-		<br>
 		Compost Bin:
 		<<if $farm isnot undefined>>
 			<<if $farm.compostbin is undefined>>
@@ -3060,17 +3179,16 @@
 		<<if $farm.compostbin gte 3 or $farm.build is "compost bin 3">>
 			<span class="green">As large as it can be</span>
 			<br>
-		<<elseif $farm.compostbin gte 2>>
+		<<elseif $farm.compostbin gte 2 or $farm.build is "compost bin 2">>
 			<<link [[Upgrade|Farm Upgrades Compost Bin 3]]>><</link>>
 			<br>
-		<<elseif $farm.compostbin gte 1>>
+		<<elseif $farm.compostbin gte 1 or $farm.build is "compost bin 2">>
 			<<link [[Upgrade|Farm Upgrades Compost Bin 2]]>><</link>>
 			<br>
 		<<else>>
 			<<link [[Purchase|Farm Upgrades Compost Bin 1]]>><</link>>
 			<br>
 		<</if>>
-		<br>
 		<<if $sciencetrait gte 2>>
 			Aphrodisiac Extraction System:
 			<<if $farm isnot undefined>>
@@ -3080,15 +3198,76 @@
 			<</if>>
 			<<if $farm.extract gte 2 or $farm.build is "extract 2">>
 				<span class="green">As large as it can be</span>
-				<br>
-			<<elseif $farm.extract gte 1 and $sciencetrait gte 4>>
+			<<elseif $farm.extract gte 1 and $sciencetrait gte 4 or $farm.build is "extract 1">>
 				<<link [[Upgrade|Farm Upgrades Extract 2]]>><</link>>
-				<br>
 			<<elseif $farm.extract is 0>>
 				<<link [[Purchase|Farm Upgrades Extract 1]]>><</link>>
-				<br>
 			<</if>>
 			<br>
+		<</if>>
+		<<if $farm_stage gte 10>>
+			Net Upgrades:
+			<<if $farm isnot undefined>>
+				<<if $farm.net is undefined>>
+					<<set $farm.net = 0>>
+				<</if>>
+			<</if>>
+			<<if $farm.net gte 4>>
+				<span class="green">Your nets are as portable as they can be.</span>
+				<<set _upgrade_count += 1>>
+			<<elseif $farm.net gte 3>>
+				<<link [[Upgrade to Polypropylene|Farm Upgrades Net 4]]>><</link>>
+			<<elseif $farm.net gte 2>>
+				<<link [[Upgrade to Polyethylene|Farm Upgrades Net 3]]>><</link>>
+			<<elseif $farm.net gte 1>>
+				<<link [[Upgrade to Nylon|Farm Upgrades Net 2]]>><</link>>
+			<<elseif $farm.net is 0>>
+				<<link [[Upgrade to Polyester|Farm Upgrades Net 1]]>><</link>>
+			<</if>>
+			<br>
+		<</if>>
+		Industrial Cooler:
+		<<if $farm isnot undefined>>
+			<<if $farm.cooler is undefined>>
+				<<set $farm.cooler = 0>>
+			<</if>>
+		<</if>>
+		<<if $farm.cooler gte 3 or $farm.build is "cooler 3">>
+			<span class="green">As large as it can be</span>
+			<br>
+		<<elseif $farm.cooler gte 2 or $farm.build is "cooler 2">>
+			<<link [[Upgrade|Farm Upgrades Cooler 3]]>><</link>>
+			<br>
+		<<elseif $farm.cooler gte 1 or $farm.build is "cooler 1">>
+			<<link [[Upgrade|Farm Upgrades Cooler 2]]>><</link>>
+			<br>
+		<<else>>
+			<<link [[Purchase|Farm Upgrades Cooler 1]]>><</link>>
+			<br>
+		<</if>>
+		<<if $farm_stage gte 12>>
+			Water field:
+			<<if $farm isnot undefined>>
+				<<if $farm.waterField is undefined>>
+					<<set $farm.waterField = 0>>
+				<</if>>
+			<</if>>
+			<<if $farm.waterField gte 4 or $farm.build is "water field 4">>
+				<span class="green">Completed</span>
+				<br>
+			<<elseif $farm.waterField gte 3 or $farm.build is "water field 3">>
+				<<link [[Install the water infrastructure|Farm Upgrades Water Field 4]]>><</link>>
+				<br>
+			<<elseif $farm.waterField gte 2 or $farm.build is "water field 2">>
+				<<link [[Install synthetic lining|Farm Upgrades Water Field 3]]>><</link>>
+				<br>
+			<<elseif $farm.waterField gte 1 or $farm.build is "water field 1">>
+				<<link [[Hire an excavation team|Farm Upgrades Water Field 2]]>><</link>>
+				<br>
+			<<else>>
+				<<link [[Purchase land|Farm Upgrades Water Field 1]]>><</link>>
+				<br>
+			<</if>>
 		<</if>>
 		Farm Irrigation:
 		<<if $farm.irrigation gte 9>>
@@ -3447,7 +3626,7 @@
 			<<set _baseTime = Math.round(_baseTime * (0.5 * _tractor))>>
 			<<set _baseTiredsness = Math.round(_baseTiredsness * (0.5 * _tractor))>>
 		<<else>>
-			<<set _farmCleared to _farmCleared + Math.floor($physique / 10000) + Math.floor($tending / 500)>>
+			<<set _farmCleared to _farmCleared + Math.floor(currentSkillValue('physique') / 10000) + Math.floor(currentSkillValue('tending') / 500)>>
 		<</if>>
 	<</if>>
 	<<farm_count _baseTime>>

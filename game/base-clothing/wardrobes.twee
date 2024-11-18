@@ -608,13 +608,13 @@
 	<<set $_item to _args[0]>>
 	<<set $_integrityMax to clothingData(_args[1],$_item,'integrity_max')>>
 	<<if $_item.integrity gt ($_integrityMax * 9 / 10)>>
-		<<set $_output to "">>
+		<<set $_output to "($_item.integrity/$_integrityMax)">>
 	<<elseif $_item.integrity gt ($_integrityMax * 5 / 10)>>
-		<<set $_output to "<span>(frayed)</span>">>
+		<<set $_output to "<span>(frayed) ($_item.integrity/$_integrityMax)</span>">>
 	<<elseif $_item.integrity gt ($_integrityMax * 2 / 10)>>
-		<<set $_output to "<span>(torn)</span>">>
+		<<set $_output to "<span>(torn) ($_item.integrity/$_integrityMax)</span>">>
 	<<else>>
-		<<set $_output to "<span>(tattered)</span>">>
+		<<set $_output to "<span>(tattered) ($_item.integrity/$_integrityMax)</span>">>
 	<</if>>
 <</silently>><<print $_output>><</widget>>
 
@@ -743,6 +743,7 @@
 				<<case "brownleather" "blackleather" "leathercropjacket" "winterjacket">><<set _altLink to ["Zip jacket", "Unzip jacket"]>>
 				<<case "waistcoat" "waistcoatlapel" "blazershirt">><<set _altLink to ["Tuck in", "Untuck"]>>
 				<<case "dress" "buttondown" "oversizedbuttondown">><<set _altLink to ["Unbutton shirt", "Button up shirt"]>>
+				<<case "catsuit">><<set _altLink to ["Unzip", "Zip"]>>
 				<<case "kimono" "kimonomini">><<set _altLink to ["Loosen", "Tighten"]>>
 				<<default>><<exit>>
 			<</switch>>
@@ -849,6 +850,27 @@
 	<br>
 <</widget>>
 
+<<widget "repairClothing">>
+	<div class="repairClothing">
+		<<if _wornItem.integrity lt _wornItemData.integrity_max>>
+			<<if $DoLPSpools gte 1>>
+				<<set _timeNeeded to 10 - (1 * Math.round($housekeeping / 250))>>
+				<<set _timeString to getTimeString(_timeNeeded)>>
+				<<link [["Repair your _wornItem.name (_timeString)"|$passage]]>>
+					<<set $worn[_wardrobe_list].integrity to Math.min($worn[_wardrobe_list].integrity + 25, setup.clothes[_wardrobe_list][clothesIndex(_wardrobe_list,_wornItem)].integrity_max)>>
+					<<set _gain to Math.max(6 - (2 * Math.round($housekeeping / 200)), 2)>>
+					<<housekeeping _gain 1000>>
+					<<updatesidebarimg>>
+					<<set $DoLPSpools -= 1>>
+					<<pass _timeNeeded>>
+				<</link>><<ghousekeeping 1000>>
+			<<else>>
+				You don't have any spools to repair your _wornItem.name with.
+			<</if>>
+		<</if>>
+	</div>
+<</widget>>
+
 <<widget "wardrobeList">>
 	<<wardrobeClothingOptions>>
 	<<set _wardrobe_list to _args[0]>>
@@ -950,6 +972,10 @@
 				<<set _temp_choice to $worn[_wardrobe_list]>>
 				<<shoptraits>>
 			</div>
+			<<if $DoLPSpools isnot undefined>>
+				<<shopicon "tailor">> You have <span class="green">$DoLPSpools</span> spools.
+				<div class="no-numberify"><<repairClothing>></div>
+			<</if>>
 
 			<<if isConnectedToHood(_wardrobe_list)>>
 				<!-- If selected item is a hood or selected item has a secondary hood piece -->

@@ -388,22 +388,22 @@ You step forward, and slam a fist into the <<beasttype>>'s wing. <<bHe>> shrieks
 			"<<Wife>>...?" <<bHe>> says,
 		<</if>>
 		looking hurt<<if C.npc["Great Hawk"].love gte 60>> and confused<</if>>.
-		<<if $physique gte 12500>>
+		<<if currentSkillValue('physique') gte 12500>>
 			<<bHe>> stares from the far side of the tower, watching you<<if C.npc["Great Hawk"].love gte 60>> in confusion<<elseif C.npc["Great Hawk"].dom lte 30>> warily<</if>>.
 		<</if>>
 	<<else>>
 		<<bHe>> lets out a <<if understandsBirdBehaviour()>>hurt<<else>>soft<</if>> cry, and hops back.
-		<<if $physique gte 12500>>
+		<<if currentSkillValue('physique') gte 12500>>
 			<<bHe>> stares from the far side of the tower, watching you warily.
 		<</if>>
 	<</if>>
 	<br><br>
 <</if>>
 
-<<if $physique gte 15000>>
+<<if currentSkillValue('physique') gte 15000>>
 	<<pass 15>>
 	The two of you sit there for a while, watching each other from across the room. The <<beasttype>> occasionally stretches out <<bhis>> wing. Once <<bhe>> seems content that the wing isn't injured, <<bhe>> walks towards the edge of the tower and flies away.
-<<elseif $physique gte 10000>>
+<<elseif currentSkillValue('physique') gte 10000>>
 	<<pass 5>>
 	<<bHe>> stays there for a few minutes. Once <<bhe>> seems to have recovered, <<bhe>> turns towards the perch and launches <<bhimself>> from the tower without another <<if $monster is 1>>word<<else>>sound<</if>>.
 <<else>>
@@ -1286,6 +1286,7 @@ You are inside <<if $syndromebird is 1>>your tower<<else>>a ruined tower<</if>>,
 	<<else>>
 		<<bHe>> holds a torn piece of fabric in <<bhis>> beak. It looks like <<bhe>> was trying to put it in your wardrobe. <<bHe>> drops it at your feet apologetically before hopping away.
 	<</if>>
+	<<wearProp "rag">>
 	<<set $bird.materials.fabric ++>>
 	<br><br>
 
@@ -1867,13 +1868,14 @@ You rifle through the wood and detritus, searching for anything that could help 
 <</if>>
 
 <<if $rng gte 66>>
+	<<wearProp "rag">>
 	You find a torn but strong piece of fabric. It could be used for a rope. <<set $bird.materials.fabric += 1>><<gfabric>>
 <<else>>
 	You don't find anything.
 <</if>>
 <br><br>
 
-<<link [[Next|Bird Tower]]>><</link>>
+<<link [[Next|Bird Tower]]>><<handheldon>><</link>>
 <br>
 
 :: Bird Tower Base Descend
@@ -1967,67 +1969,71 @@ You squeeze through the slit, and tumble to the ground outside. You're in the ca
 The wind snatches your hair as you peer over the edge. It's a long way down.
 <br><br>
 
-You have <<number $bird.materials.fabric>> spare material<<if $bird.materials.fabric gt 1>>s<</if>>.
+You have <span class="gold"><<number $bird.materials.fabric>></span><<birdicon "fabric">> <<= $bird.materials.fabric is 1 ? "piece" : "pieces">> of fabric.
 <<if $syndromebird isnot 1>>
 	You could tear up your clothes for more.
 <</if>>
 <br>
 
 <<if $syndromebird isnot 1>>
+	<<if setup.clothes_all_slots.some(slot => $worn[slot].name !== "naked")>>
+		Tear up your:
+		<br>
+	<</if>>
 	<<if $worn.upper.name isnot "naked" and $worn.upper.cursed isnot 1>>
-		Tear up your <<link [[$worn.upper.name|Bird Tower Rope Clothes]]>><<set $bird.materials.fabric += 1>><<upperruined>><</link>>
+		<<clothingicon $worn.upper "upper">><<link [[$worn.upper.name.toUpperFirst()|Bird Tower Rope Clothes]]>><<set $bird.materials.fabric += 1>><<set $fabricColour to $worn.upper.colour>><<upperruined>><</link>>
 		<br>
 	<</if>>
 	<<if $worn.lower.name isnot "naked" and $worn.lower.cursed isnot 1>>
-		Tear up your <<link [[$worn.lower.name|Bird Tower Rope Clothes]]>><<set $bird.materials.fabric += 1>><<lowerruined>><</link>>
+		<<clothingicon $worn.lower "lower">><<link [[$worn.lower.name.toUpperFirst()|Bird Tower Rope Clothes]]>><<set $fabricColour to $worn.lower.colour>><<set $bird.materials.fabric += 1>><<lowerruined>><</link>>
 		<br>
 	<</if>>
 	<<if $worn.under_upper.name isnot "naked" and $worn.under_upper.cursed isnot 1>>
-		Tear up your <<link [[$worn.under_upper.name|Bird Tower Rope Clothes]]>><<set $bird.materials.fabric += 1>><<underupperruined>><</link>>
+		<<clothingicon $worn.under_upper "under_upper">><<link [[$worn.under_upper.name.toUpperFirst()|Bird Tower Rope Clothes]]>><<set $fabricColour to $worn.under_upper.colour>><<set $bird.materials.fabric += 1>><<underupperruined>><</link>>
 		<br>
 	<</if>>
 	<<if $worn.under_lower.name isnot "naked" and $worn.under_lower.cursed isnot 1>>
-		Tear up your <<link [[$worn.under_lower.name|Bird Tower Rope Clothes]]>><<set $bird.materials.fabric += 1>><<underlowerruined undefined "commando">><</link>>
+		<<clothingicon $worn.under_lower "under_lower">><<link [[$worn.under_lower.name.toUpperFirst()|Bird Tower Rope Clothes]]>><<set $fabricColour to $worn.under_lower.colour>><<set $bird.materials.fabric += 1>><<underlowerruined undefined "commando">><</link>>
 		<br>
 	<</if>>
 	<<if $worn.over_upper.name isnot "naked" and $worn.over_upper.cursed isnot 1>>
-		Tear up your <<link [[$worn.over_upper.name|Bird Tower Rope Clothes]]>><<set $bird.materials.fabric += 1>><<overupperruined>><</link>>
+		<<clothingicon $worn.over_upper "over_upper">><<link [[$worn.over_upper.name.toUpperFirst()|Bird Tower Rope Clothes]]>><<set $fabricColour to $worn.over_upper.colour>><<set $bird.materials.fabric += 1>><<overupperruined>><</link>>
 		<br>
 	<</if>>
 	<<if $worn.over_lower.name isnot "naked" and $worn.over_lower.cursed isnot 1>>
-		Tear up your <<link [[$worn.over_lower.name|Bird Tower Rope Clothes]]>><<set $bird.materials.fabric += 1>><<overlowerruined>><</link>>
+		<<clothingicon $worn.over_lower "over_lower">><<link [[$worn.over_lower.name.toUpperFirst()|Bird Tower Rope Clothes]]>><<set $fabricColour to $worn.over_lower.colour>><<set $bird.materials.fabric += 1>><<overlowerruined>><</link>>
 		<br>
 	<</if>>
 	<<if $worn.over_head.name isnot "naked" and $worn.over_head.cursed isnot 1>>
-		Tear up your <<link [[$worn.over_head.name|Bird Tower Rope Clothes]]>><<set $bird.materials.fabric += 1>><<overheadruined>><</link>>
+		<<clothingicon $worn.over_head "over_head">><<link [[$worn.over_head.name.toUpperFirst()|Bird Tower Rope Clothes]]>><<set $bird.materials.fabric += 1>><<set $fabricColour to $worn.over_head.colour>><<overheadruined>><</link>>
 		<br>
 	<</if>>
 	<<if $worn.head.name isnot "naked" and $worn.head.cursed isnot 1>>
-		Tear up your <<link [[$worn.head.name|Bird Tower Rope Clothes]]>><<set $bird.materials.fabric += 1>><<headruined>><</link>>
+		<<clothingicon $worn.head "head">><<link [[$worn.head.name.toUpperFirst()|Bird Tower Rope Clothes]]>><<set $bird.materials.fabric += 1>><<set $fabricColour to $worn.head.colour>><<headruined>><</link>>
 		<br>
 	<</if>>
 	<<if $worn.face.name isnot "naked" and $worn.face.cursed isnot 1>>
-		Tear up your <<link [[$worn.face.name|Bird Tower Rope Clothes]]>><<set $bird.materials.fabric += 1>><<faceruined>><</link>>
+		<<clothingicon $worn.face "face">><<link [[$worn.face.name.toUpperFirst()|Bird Tower Rope Clothes]]>><<set $bird.materials.fabric += 1>><<set $fabricColour to $worn.face.colour>><<faceruined>><</link>>
 		<br>
 	<</if>>
 	<<if $worn.neck.name isnot "naked" and $worn.neck.cursed isnot 1>>
-		Tear up your <<link [[$worn.neck.name|Bird Tower Rope Clothes]]>><<set $bird.materials.fabric += 1>><<neckruined>><</link>>
+		<<clothingicon $worn.neck "neck">><<link [[$worn.neck.name.toUpperFirst()|Bird Tower Rope Clothes]]>><<set $bird.materials.fabric += 1>><<set $fabricColour to $worn.neck.colour>><<neckruined>><</link>>
 		<br>
 	<</if>>
 	<<if $worn.hands.name isnot "naked" and $worn.hands.cursed isnot 1>>
-		Tear up your <<link [[$worn.hands.name|Bird Tower Rope Clothes]]>><<set $bird.materials.fabric += 1>><<handsruined>><</link>>
+		<<clothingicon $worn.hands "hands">><<link [[$worn.hands.name.toUpperFirst()|Bird Tower Rope Clothes]]>><<set $bird.materials.fabric += 1>><<set $fabricColour to $worn.hands.colour>><<handsruined>><</link>>
 		<br>
 	<</if>>
 	<<if $worn.handheld.name isnot "naked" and $worn.handheld.cursed isnot 1>>
-		Tear up your <<link [[$worn.handheld.name|Bird Tower Rope Clothes]]>><<set $bird.materials.fabric += 1>><<handheldruined>><</link>>
+		<<clothingicon $worn.handheld "handheld">><<link [[$worn.handheld.name.toUpperFirst()|Bird Tower Rope Clothes]]>><<set $bird.materials.fabric += 1>><<set $fabricColour to $worn.handheld.colour>><<handheldruined>><</link>>
 		<br>
 	<</if>>
 	<<if $worn.legs.name isnot "naked" and $worn.legs.cursed isnot 1>>
-		Tear up your <<link [[$worn.legs.name|Bird Tower Rope Clothes]]>><<set $bird.materials.fabric += 1>><<legsruined>><</link>>
+		<<clothingicon $worn.legs "legs">><<link [[$worn.legs.name.toUpperFirst()|Bird Tower Rope Clothes]]>><<set $bird.materials.fabric += 1>><<set $fabricColour to $worn.legs.colour>><<legsruined>><</link>>
 		<br>
 	<</if>>
 	<<if $worn.feet.name isnot "naked" and $worn.feet.cursed isnot 1>>
-		Tear up your <<link [[$worn.feet.name|Bird Tower Rope Clothes]]>><<set $bird.materials.fabric += 1>><<feetruined>><</link>>
+		<<clothingicon $worn.feet "feet">><<link [[$worn.feet.name.toUpperFirst()|Bird Tower Rope Clothes]]>><<set $bird.materials.fabric += 1>><<set $fabricColour to $worn.feet.colour>><<feetruined>><</link>>
 		<br>
 	<</if>>
 	<br>
@@ -2044,7 +2050,6 @@ You have <<number $bird.materials.fabric>> spare material<<if $bird.materials.fa
 		Your wings would carry you down, if you had a better jumping point. <span class="blue">The perch might be perfect.</span>
 	<</if>>
 <</if>>
-<br>
 <<if $bird.rope lt 7>>
 	<<if $bird.materials.fabric gte 1>>
 		<<if $bird.rope is 0>>
@@ -2068,6 +2073,8 @@ You have <<number $bird.materials.fabric>> spare material<<if $bird.materials.fa
 
 :: Bird Tower Rope Clothes
 <<effects>>
+<<set $fabricColour to $fabricColour is 0 ? "white" : $fabricColour>>
+<<wearProp "rag" $fabricColour>>
 
 You tear off your clothing, giving yourself more raw material to work with.
 <<if $exposed gte 1>>
@@ -2076,7 +2083,7 @@ You tear off your clothing, giving yourself more raw material to work with.
 <<covered>>
 <br><br>
 
-<<link [[Next|Bird Tower Look]]>><</link>>
+<<link [[Next|Bird Tower Look]]>><<run delete $fabricColour>><<handheldon>><</link>>
 <br>
 
 
@@ -2621,9 +2628,11 @@ You turn the container upside down.
 		You tear open the packet, and shovel crisps into your mouth. They're soon gone.
 		<<hunger -200>>
 	<<case "chocolate">>
+		<<wearProp "chocolate bar">>
 		You tear open the wrapper, and take a bite of chocolate. It melts in your mouth. You savour the sweetness.
 		<<hunger -1000>>
 	<<case "apple">>
+		<<wearProp "apple">>
 		You bite into the crisp apple. It's juicy.
 		<<hunger -100>>
 	<<case "carrot">>
@@ -3005,7 +3014,7 @@ You sit by the rainwater pool.
 			<<set $eggLayNumber to $harpyEggs.count>>
 		<</if>>
 
-		You awaken feeling disoriented, and feel a building pressure in your abdomen. A bestial instinct washes over you. You <<if V.transformationParts.bird.plumage isnot "hidden">>ruffle your feathers and <</if>>get on your hands and knees.
+		You awaken feeling disoriented, and feel a building pressure in your abdomen. A bestial instinct washes over you. You <<if $harpy gte 6 and V.transformationParts.bird.plumage isnot "hidden">>ruffle your feathers and <</if>>get on your hands and knees.
 		<br><br>
 
 		<<if $bird.state is "hunting">>
@@ -3358,7 +3367,7 @@ You slowly run your hands down the <<beasttypes>> feathers, towards <<bhis>> <<n
 :: Bird Tower Mirror
 <<setTowerTemp>><<effects>>
 
-<<link [[Step away|Bird Tower]]>><<unset $mirrorMenu>><<unset $bodywritingSet>><<postMirror>><</link>>
+<<birdicon "tower">><<link [[Step away|Bird Tower]]>><<handheldon>><<unset $mirrorMenu>><<unset $bodywritingSet>><<postMirror>><</link>>
 <br>
 
 <<mirror>>
@@ -3964,8 +3973,248 @@ You bring your attentive touch down towards <<bhis>> groin.
 					<</if>>
 					you feel untouchable. <<trauma -10>><<lltrauma>>
 			<</switch>>
-		<<elseif $loveInterest.secondary isnot "None">>
+		<<elseif $loveInterest.secondary isnot "None" and random(1,2) is 1>>
 			<<switch $loveInterest.secondary>>
+				<<case "Robin">>
+					Robin.
+					<<if C.npc.Robin.trauma gte 50>>
+						Your heart sinks as you remember how you left <<nnpc_him "Robin">>. <<stress 12>><<ggstress>>
+					<<elseif C.npc.Robin.dom gte 50>>
+						You wonder if <<nnpc_he "Robin">> will come looking for you.
+					<<else>>
+						You feel a brief sting of guilt as you wonder how <<nnpc_he "Robin">>'s doing.
+					<</if>>
+				<<case "Kylar">>
+					Kylar.
+					<<if _kylarStatus.includes("Rage")>>
+						You wonder if <<nnpc_he "Kylar">> will come looking for you. After mulling it over, you realise that "if" should be replaced with "when". <<stress 3>><<gstress>>
+					<<else>>
+						You hope <<nnpc_he "Kylar">> isn't being bullied in your absence.
+					<</if>>
+				<<case "Whitney">>
+					Whitney. You can only imagine what <<nnpc_he "Whitney">> would do if <<nnpc_he "Whitney">> found out about all this.
+				<<case "Sydney">>
+					Sydney.
+					<<if Time.weekDay is 1>>
+						<<nnpc_He "Sydney">>'s probably hard at work at the temple right now.
+					<<else>>
+						The thought of <<nnpc_his "Sydney">> smile makes you feel warm.
+					<</if>>
+				<<case "Eden">>
+					Eden. <<nnpc_He "Eden">> would probably hunt the Great Hawk for sport, especially if <<nnpc_he "Eden">> found out about what you've been doing.
+				<<case "Avery">>
+					Avery.
+					<<if Time.weekDay is 7 and $averyseen isnot 1>>
+						<<nnpc_He "Avery">>'s probably looking for you at this very moment, to ask you on another date.
+					<<elseif $averydate is 1>>
+						You have a date later, after all.
+					<<elseif C.npc.Avery.rage gte 20 and $averyragerevealed is 1>>
+						You're glad to be so far away, at least until <<nnpc_he "Avery">> calms down.
+					<<else>>
+						You laugh, picturing <<nnpc_him "Avery">> trying to save face explaining your current situation.
+					<</if>>
+				<<case "Alex">>
+					Alex, and the farm.
+					<<if $farm.aggro gte 60>>
+						You hope Remy's not causing <<nnpc_him "Alex">> too much trouble.
+					<<elseif $farm.tower_guard_unpaid gte 1>>
+						$farm.tower_guard hasn't been paid yet. You hope it's not a dealbreaker.
+					<<else>>
+						You hope the harvest is good.
+					<</if>>
+				<<case "Black Wolf">>
+					the forest, and your pack. You wonder if they miss you.
+				<<default>>
+					all the troubles you've faced, and how they can't reach you here. For the moment, wrapped in the wings of your
+					<<if $monster is 1>>
+						<<nnpc_wife "Great Hawk">>,
+					<<else>>
+						Great Hawk,
+					<</if>>
+					you feel untouchable. <<trauma -10>><<lltrauma>>
+			<</switch>>
+		<<elseif $loveInterest.tertiary isnot "None" and random(1,2) is 1>>
+			<<switch $loveInterest.tertiary>>
+				<<case "Robin">>
+					Robin.
+					<<if C.npc.Robin.trauma gte 50>>
+						Your heart sinks as you remember how you left <<nnpc_him "Robin">>. <<stress 12>><<ggstress>>
+					<<elseif C.npc.Robin.dom gte 50>>
+						You wonder if <<nnpc_he "Robin">> will come looking for you.
+					<<else>>
+						You feel a brief sting of guilt as you wonder how <<nnpc_he "Robin">>'s doing.
+					<</if>>
+				<<case "Kylar">>
+					Kylar.
+					<<if _kylarStatus.includes("Rage")>>
+						You wonder if <<nnpc_he "Kylar">> will come looking for you. After mulling it over, you realise that "if" should be replaced with "when". <<stress 3>><<gstress>>
+					<<else>>
+						You hope <<nnpc_he "Kylar">> isn't being bullied in your absence.
+					<</if>>
+				<<case "Whitney">>
+					Whitney. You can only imagine what <<nnpc_he "Whitney">> would do if <<nnpc_he "Whitney">> found out about all this.
+				<<case "Sydney">>
+					Sydney.
+					<<if Time.weekDay is 1>>
+						<<nnpc_He "Sydney">>'s probably hard at work at the temple right now.
+					<<else>>
+						The thought of <<nnpc_his "Sydney">> smile makes you feel warm.
+					<</if>>
+				<<case "Eden">>
+					Eden. <<nnpc_He "Eden">> would probably hunt the Great Hawk for sport, especially if <<nnpc_he "Eden">> found out about what you've been doing.
+				<<case "Avery">>
+					Avery.
+					<<if Time.weekDay is 7 and $averyseen isnot 1>>
+						<<nnpc_He "Avery">>'s probably looking for you at this very moment, to ask you on another date.
+					<<elseif $averydate is 1>>
+						You have a date later, after all.
+					<<elseif C.npc.Avery.rage gte 20 and $averyragerevealed is 1>>
+						You're glad to be so far away, at least until <<nnpc_he "Avery">> calms down.
+					<<else>>
+						You laugh, picturing <<nnpc_him "Avery">> trying to save face explaining your current situation.
+					<</if>>
+				<<case "Alex">>
+					Alex, and the farm.
+					<<if $farm.aggro gte 60>>
+						You hope Remy's not causing <<nnpc_him "Alex">> too much trouble.
+					<<elseif $farm.tower_guard_unpaid gte 1>>
+						$farm.tower_guard hasn't been paid yet. You hope it's not a dealbreaker.
+					<<else>>
+						You hope the harvest is good.
+					<</if>>
+				<<case "Black Wolf">>
+					the forest, and your pack. You wonder if they miss you.
+				<<default>>
+					all the troubles you've faced, and how they can't reach you here. For the moment, wrapped in the wings of your
+					<<if $monster is 1>>
+						<<nnpc_wife "Great Hawk">>,
+					<<else>>
+						Great Hawk,
+					<</if>>
+					you feel untouchable. <<trauma -10>><<lltrauma>>
+			<</switch>>
+		<<elseif $loveInterest.quarternary isnot "None" and random(1,2) is 1>>
+			<<switch $loveInterest.quarternary>>
+				<<case "Robin">>
+					Robin.
+					<<if C.npc.Robin.trauma gte 50>>
+						Your heart sinks as you remember how you left <<nnpc_him "Robin">>. <<stress 12>><<ggstress>>
+					<<elseif C.npc.Robin.dom gte 50>>
+						You wonder if <<nnpc_he "Robin">> will come looking for you.
+					<<else>>
+						You feel a brief sting of guilt as you wonder how <<nnpc_he "Robin">>'s doing.
+					<</if>>
+				<<case "Kylar">>
+					Kylar.
+					<<if _kylarStatus.includes("Rage")>>
+						You wonder if <<nnpc_he "Kylar">> will come looking for you. After mulling it over, you realise that "if" should be replaced with "when". <<stress 3>><<gstress>>
+					<<else>>
+						You hope <<nnpc_he "Kylar">> isn't being bullied in your absence.
+					<</if>>
+				<<case "Whitney">>
+					Whitney. You can only imagine what <<nnpc_he "Whitney">> would do if <<nnpc_he "Whitney">> found out about all this.
+				<<case "Sydney">>
+					Sydney.
+					<<if Time.weekDay is 1>>
+						<<nnpc_He "Sydney">>'s probably hard at work at the temple right now.
+					<<else>>
+						The thought of <<nnpc_his "Sydney">> smile makes you feel warm.
+					<</if>>
+				<<case "Eden">>
+					Eden. <<nnpc_He "Eden">> would probably hunt the Great Hawk for sport, especially if <<nnpc_he "Eden">> found out about what you've been doing.
+				<<case "Avery">>
+					Avery.
+					<<if Time.weekDay is 7 and $averyseen isnot 1>>
+						<<nnpc_He "Avery">>'s probably looking for you at this very moment, to ask you on another date.
+					<<elseif $averydate is 1>>
+						You have a date later, after all.
+					<<elseif C.npc.Avery.rage gte 20 and $averyragerevealed is 1>>
+						You're glad to be so far away, at least until <<nnpc_he "Avery">> calms down.
+					<<else>>
+						You laugh, picturing <<nnpc_him "Avery">> trying to save face explaining your current situation.
+					<</if>>
+				<<case "Alex">>
+					Alex, and the farm.
+					<<if $farm.aggro gte 60>>
+						You hope Remy's not causing <<nnpc_him "Alex">> too much trouble.
+					<<elseif $farm.tower_guard_unpaid gte 1>>
+						$farm.tower_guard hasn't been paid yet. You hope it's not a dealbreaker.
+					<<else>>
+						You hope the harvest is good.
+					<</if>>
+				<<case "Black Wolf">>
+					the forest, and your pack. You wonder if they miss you.
+				<<default>>
+					all the troubles you've faced, and how they can't reach you here. For the moment, wrapped in the wings of your
+					<<if $monster is 1>>
+						<<nnpc_wife "Great Hawk">>,
+					<<else>>
+						Great Hawk,
+					<</if>>
+					you feel untouchable. <<trauma -10>><<lltrauma>>
+			<</switch>>
+		<<elseif $loveInterest.quinary isnot "None" and random(1,2) is 1>>
+			<<switch $loveInterest.quinary>>
+				<<case "Robin">>
+					Robin.
+					<<if C.npc.Robin.trauma gte 50>>
+						Your heart sinks as you remember how you left <<nnpc_him "Robin">>. <<stress 12>><<ggstress>>
+					<<elseif C.npc.Robin.dom gte 50>>
+						You wonder if <<nnpc_he "Robin">> will come looking for you.
+					<<else>>
+						You feel a brief sting of guilt as you wonder how <<nnpc_he "Robin">>'s doing.
+					<</if>>
+				<<case "Kylar">>
+					Kylar.
+					<<if _kylarStatus.includes("Rage")>>
+						You wonder if <<nnpc_he "Kylar">> will come looking for you. After mulling it over, you realise that "if" should be replaced with "when". <<stress 3>><<gstress>>
+					<<else>>
+						You hope <<nnpc_he "Kylar">> isn't being bullied in your absence.
+					<</if>>
+				<<case "Whitney">>
+					Whitney. You can only imagine what <<nnpc_he "Whitney">> would do if <<nnpc_he "Whitney">> found out about all this.
+				<<case "Sydney">>
+					Sydney.
+					<<if Time.weekDay is 1>>
+						<<nnpc_He "Sydney">>'s probably hard at work at the temple right now.
+					<<else>>
+						The thought of <<nnpc_his "Sydney">> smile makes you feel warm.
+					<</if>>
+				<<case "Eden">>
+					Eden. <<nnpc_He "Eden">> would probably hunt the Great Hawk for sport, especially if <<nnpc_he "Eden">> found out about what you've been doing.
+				<<case "Avery">>
+					Avery.
+					<<if Time.weekDay is 7 and $averyseen isnot 1>>
+						<<nnpc_He "Avery">>'s probably looking for you at this very moment, to ask you on another date.
+					<<elseif $averydate is 1>>
+						You have a date later, after all.
+					<<elseif C.npc.Avery.rage gte 20 and $averyragerevealed is 1>>
+						You're glad to be so far away, at least until <<nnpc_he "Avery">> calms down.
+					<<else>>
+						You laugh, picturing <<nnpc_him "Avery">> trying to save face explaining your current situation.
+					<</if>>
+				<<case "Alex">>
+					Alex, and the farm.
+					<<if $farm.aggro gte 60>>
+						You hope Remy's not causing <<nnpc_him "Alex">> too much trouble.
+					<<elseif $farm.tower_guard_unpaid gte 1>>
+						$farm.tower_guard hasn't been paid yet. You hope it's not a dealbreaker.
+					<<else>>
+						You hope the harvest is good.
+					<</if>>
+				<<case "Black Wolf">>
+					the forest, and your pack. You wonder if they miss you.
+				<<default>>
+					all the troubles you've faced, and how they can't reach you here. For the moment, wrapped in the wings of your
+					<<if $monster is 1>>
+						<<nnpc_wife "Great Hawk">>,
+					<<else>>
+						Great Hawk,
+					<</if>>
+					you feel untouchable. <<trauma -10>><<lltrauma>>
+			<</switch>>
+		<<elseif $loveInterest.senary isnot "None" and random(1,2) is 1>>
+			<<switch $loveInterest.senary>>
 				<<case "Robin">>
 					Robin.
 					<<if C.npc.Robin.trauma gte 50>>
@@ -4236,7 +4485,7 @@ You bring your attentive touch down towards <<bhis>> groin.
 		<<addinlineevent "bird_bask_rescued">>
 			<<run delete $weekly.birdRescued>>
 			As you bask, your thoughts turn to your recent ordeal with
-			<<if $remy_seen is "farm" or $remy_seen is "livestock" or $remy_seen is "manor" or $livestock_intro isnot undefined>>
+			<<if $remySeen?.includesAny("farm","livestock","manor") or $livestock_intro isnot undefined>>
 				Remy's thugs out in the moor.
 			<<else>>
 				the people that tried to kidnap you out on the moor.
@@ -5652,7 +5901,7 @@ You consider your options. The moor itself has nothing special, neither do the a
 <br><br>
 
 Eventually your mind settles on the
-<<if $remy_seen is "farm" or $remy_seen is "livestock" or $remy_seen is "manor" or $livestock_intro isnot undefined>>
+<<if $remySeen?.includesAny("farm","livestock","manor") or $livestock_intro isnot undefined>>
 	Remy estate. Knowing the kind of business they do, you're sure they would have something special.
 	<<if $estate and $estate.chaos>>
 		You're no stranger to causing trouble for Remy, but the mere thought of stealing something from the estate with <<your_bird_text>> fills you with adrenaline.
@@ -5858,6 +6107,7 @@ Whose feathers will you use?
 
 :: Bird Tower Telescope Get
 <<setTowerTemp>><<effects>>
+<<wearProp "ornatetelescope">>
 <<set $bird.upgrades.telescope to 1>>
 You kneel down in the corner. A small hint of something shiny peeks out of the wall. You touch it, and what you first thought to be a solid brick crumbles at your touch. The brick must have been knocked loose a long time ago, and the hole was filled over centuries with compacted dust.
 <br><br>
@@ -5871,7 +6121,7 @@ You tug on the shiny bit, and a large cylindrical object escapes the dust. It ca
 You dust it off, and set it up near the perch.
 <br><br>
 
-<<link [[Next|Bird Tower Perch]]>><<if $propEquipped is 1>><<if $carried.handheld.name isnot "naked">><<handheldon>><<else>><<handheldruined true>><</if>><<set $propEquipped to 0>><</if>><<endevent>><</link>>
+<<link [[Next|Bird Tower Perch]]>><<endevent>><</link>>
 <br>
 
 :: Bird Tower Casual Flight
@@ -6069,7 +6319,7 @@ Where will you fly?
 		<</addinlineevent>>
 	<</if>>
 
-	<<if $remy_seen is "farm" or $remy_seen is "livestock" or $remy_seen is "manor" or $livestock_intro isnot undefined>>
+	<<if $remySeen?.includesAny("farm","livestock","manor") or $livestock_intro isnot undefined>>
 		<<addinlineevent "flight_casual_moor_remy" 1>>
 			You end up close to the outskirts of the moor. You spot Remy's estate a bit further away. <<your_bird_text "cap">> looks uneasy.
 			<<if $monster is 1>>
@@ -6699,7 +6949,6 @@ The Great Hawk dives directly towards you, talons extended.
 
 :: Bird Tower Telescope
 <<setTowerTemp>><<effects>>
-<<wearProp "ornatetelescope">>
 You look through your telescope.
 <<if Time.dayState isnot "night">>
 	It's too early to look at the sky.
@@ -6758,7 +7007,7 @@ You look through your telescope.
 			You see a group of campfires.
 		<</if>>
 		They're surrounded by tents, which are themselves surrounded by supplies and makeshift barriers. The occupants are dressed in matching uniforms.
-		<<if $remy_seen is "farm" or $remy_seen is "livestock" or $remy_seen is "manor" or $livestock_intro isnot undefined>>
+		<<if $remySeen?.includesAny("farm","livestock","manor") or $livestock_intro isnot undefined>>
 			You recognise them. <span class="red">Remy's goons.</span>
 		<<else>>
 			They look dangerous.
@@ -7251,13 +7500,13 @@ You look up to the sky.
 <br>
 
 :: Bird Tower Eggs Take
-<<setTowerTemp>><<effects>>
+<<setTowerTemp>><<effects>><<wearProp "bird egg">>
 
 You take the unfertilised egg<<if $eggLayNumber gt 1>>s<</if>> from the nest. <<your_bird_text "cap">> doesn't seem to mind. <<tending_pick bird_egg $eggLayNumber $eggLayNumber>>
 <br><br>
 
 <<if $birdEggContext is "huntReturn">>
-	<<link [[Next|Bird Tower Great Hawk Egg Laying Hunt Finish]]>><<endBirdEggLaying>><</link>>
+	<<link [[Next|Bird Tower Great Hawk Egg Laying Hunt Finish]]>><<endBirdEggLaying>><<handheldon>><</link>>
 <<else>>
 	<<link [[Next|Bird Tower]]>><<endevent>><<endBirdEggLaying>><</link>>
 <</if>>
@@ -7319,7 +7568,7 @@ You let out a short gasp as you feel
 		<</if>>
 		<<if $eggLayNumber is 2>>
 			The second egg passes much easier, joining its sibling in your nest.
-		<<elseif $eggLayNumber gte 3>>
+		<<elseif $eggLayNumber is 3>>
 			The second egg passes easily, but the third one gets stuck, having nothing behind it to help push. <<if $phase is 0>>The Great Hawk presses down gently, helping the egg exit with a pop.<<else>>You sit there pushing for more agonising minutes, but eventually you manage to push it out.<</if>> Your <<pussy>> remains slightly opened. You pant in exertion, feeling dizzy.
 		<<else>>
 			The next eggs pass easily, but the last one gets stuck, having nothing behind it to help push. <<if $phase is 0>>The Great Hawk presses down gently, helping the egg exit with a pop.<<else>>You sit there pushing for more agonising minutes, but eventually you manage to push it out.<</if>> Your <<pussy>> remains slightly opened. You pant in exertion, feeling dizzy.
@@ -7418,13 +7667,14 @@ You're filled with a sense of maternal bliss.
 			<<bHe>> prods at <<if $eggLayNumber gt 1>>them<<else>>it<</if>>, before looking to you. They're unfertilised, of course.
 		<</if>>
 	<</if>>
+	<<wearProp "bird egg">>
 	<<tending_pick bird_egg $eggLayNumber $eggLayNumber>>
 	<<unset $harpyEggs>>
 	<<set $harpyEggsPrevent to 14>>
 	<br><br>
 
 	<<if _optionReassure>>
-		<<link [[Reassure|Bird Tower Player Eggs Reassure]]>><<npcincr "Great Hawk" love 1>><<bird_stockholm 3>><</link>><<glove>><<ggbirdstockholm>>
+		<<link [[Reassure|Bird Tower Player Eggs Reassure]]>><<handheldon>><<npcincr "Great Hawk" love 1>><<bird_stockholm 3>><</link>><<glove>><<ggbirdstockholm>>
 		<br>
 	<</if>>
 <</if>>
@@ -7772,6 +8022,9 @@ You carefully pluck away the last bits of egg shell from <<if $eggsHatched.lengt
 	<<unset $birdescaped>>
 	<<run delete $bird.syndrome>>
 <</if>>
+
+<<set $bird.activity to "rest">>
+<<set $bird.timer to 30>>
 
 <<link [[Next|Bird Tower]]>><<endevent>><<unset $eggsHatched>><<unset $eggsMoved>><</link>>
 <br>

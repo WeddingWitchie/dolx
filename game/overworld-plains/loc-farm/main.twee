@@ -1,5 +1,5 @@
 :: Farmland
-<<set $outside to 1>><<set $location to "farm">><<set $bus to "farm">>
+<<set $outside to 1>><<set $location to "farm">><<set $bus to "farm">><<set $bikeStartCategory to "farm">><<set $bikeStart to "farm">>
 <<if $slimeFarmNakedStored is true>>
 	<<storeon "farmHidingSpot">>
 	<<exposure>>
@@ -102,6 +102,7 @@ You are in the farmlands.
 	<br>
 	<<roadicon>><<link [[Walk towards town (0:05)|Farm Road 6]]>><<pass 5>><<set $phase to 0>><</link>>
 	<br>
+	<<bike>>
 <</if>>
 
 <<set $eventskip to 0>>
@@ -523,14 +524,14 @@ Alex beams. "Great! You can start whenever you like, and don't be afraid to ask 
 	"It's done," Alex says, leaning against the wall of the farmhouse. "Another field ready to go." <<He>> reaches into <<his>> pocket, but stops when <<he>> hears the clop of hooves approaching from the lane.
 	<br><br>
 	<<person2>>
-	<<if $remy_seen is "livestock">>
+	<<if $remySeen.includes("livestock")>>
 		A <<farm_text horse>> rides into the farm. Upon its back sits Remy, <<if $pronoun is "m">><<his>> pale brown hair flicking in the breeze<<else>><<his>> pale brown hair tied in a neat bun<</if>>. You tense as memories of your treatment at <<his>> farm invade your mind. However, there's no domineering malice in <<his>> eyes this time. There's no recognition at all.
 		<br><br>
 		<<He>> dismounts, and tugs off <<his>> gloves. <<He>> smiles at you, then at Alex. <<His>> green eyes glimmer.
 		<br><br>
 		"Sorry to arrive unannounced," <<he>> says. "I had trouble getting hold of you. I'm here to discuss business."
 		<br><br>
-	<<elseif $remy_seen is "riding_school">>
+	<<elseif $remySeen.includes("riding_school")>>
 		A <<farm_text horse>> rides into the farm. Upon its back sits Remy, owner of the nearby riding school. <<if $pronoun is "m">><<His>> pale brown hair flicks in the breeze<<else>><<His>> pale brown hair is tied in a neat bun<</if>>.
 		<br><br>
 		<<He>> dismounts, and tugs off <<his>> gloves. <<He>> smiles at you, then at Alex. <<His>> green eyes glimmer.
@@ -677,6 +678,17 @@ Alex beams. "Great! You can start whenever you like, and don't be afraid to ask 
 	<br>
 <</widget>>
 
+<<widget "waterField">>
+	You observe the water field site. The excavation is complete, and the land is ready for the next phase of development.
+	<br><br>
+	<<npc Alex>><<person1>>
+	Alex stands by your side, "I thought a greenhouse was too much, but here you are making an entire water field." <<he>> chuckles, stepping back with both arms raised. "This is all yours, I'm busy enough as is."
+	<br><br>
+
+	<<link [[Next|Farm Work]]>><<endevent>><<set $farm.waterField to 2>><</link>>
+	<br>
+<</widget>>
+
 :: Farm Visitor
 <<effects>>
 
@@ -695,7 +707,7 @@ Alex seems less tense now the <<person>> is gone. <<person1>>"Sorry," <<he>> say
 
 <<if $phase is 0>>
 	<<alcohol 60>>
-	You take the proferred bottle, and take a swig. It's a bitter spirit.
+	You take the profferred bottle, and take a swig. It's a bitter spirit.
 <<else>>
 	Alex puts the bottle away.
 <</if>>
@@ -1606,7 +1618,7 @@ Alex laughs. "That's what I need," <<he>> says. <<He>> leans against the fence a
 
 
 :: Farm Fight End 4
-<<set $location to "alex_cottage">><<set $outside to 0>><<effects>>
+<<set $location to "alex_cottage">><<set $outside to 0>><<effects>><<wearProp "tea">>
 
 <<if $farm_fight.stage gte 9>>
 	Alex sits at the kitchen table, nursing <<his>> injuries while you make <<him>> a cup of tea.
@@ -1618,11 +1630,11 @@ You place the cup on the table. <<He>> warms <<his>> hands against it, and stare
 
 "That <<nnpc_gender "Bailey">>," <<he>> says. "That was Bailey, the orphanage caretaker?" You nod. Alex shakes <<his>> head. "I shouldn't be surprised Remy deals with that sort."<br><br>
 
-<<link [[Ask what Alex knows of Bailey|Farm Fight End Ask]]>><</link>>
+<<link [[Ask what Alex knows of Bailey|Farm Fight End Ask]]>><<handheldon>><</link>>
 <br>
-<<link [[Apologise|Farm Fight End Apologise]]>><<sub 1>><</link>>
+<<link [[Apologise|Farm Fight End Apologise]]>><<handheldon>><<sub 1>><</link>>
 <br>
-<<link [[Suggest teaming up|Farm Fight End Suggest]]>><<def 1>><</link>>
+<<link [[Suggest teaming up|Farm Fight End Suggest]]>><<handheldon>><<def 1>><</link>>
 <br>
 
 
@@ -1760,6 +1772,7 @@ You are inside the shed with the shower.
 :: Farm Shave
 <<effects>>
 <<dontHideForNow>><<shavestrip>>
+<<wearProp "razor">>
 You take off your clothes and look at your <<genitals>>.
 <br>
 <<if $worn.genitals.name is "chastity belt" or $worn.genitals.name is "gold chastity belt">>
@@ -1861,7 +1874,7 @@ You spread your legs, and start carefully trimming your pubes. After a few minut
 <<link [[Next|Farm Shed]]>><<clotheson>><<dontHideRevert>><</link>>
 
 :: Farm Dye
-<<effects>>
+<<effects>><<wearProp "hairdye">>
 
 <<set _ownedColours = $makeup.owned.hairdye.filter(x => x.count > 0)>>
 <<if _ownedColours.length == 0>>
@@ -1938,7 +1951,7 @@ You remove your clothes, and wash until you're squeaky clean.<<wash>>
 		<br>
 	<</if>>
 <<else>>
-	<<ind>><<link [[Masturbate|Farm Shower Masturbation]]>><<set $masturbationstart to 1>><</link>>
+	<<skinicon "masturbate">><<link [[Masturbate|Farm Shower Masturbation]]>><<set $masturbationstart to 1>><</link>>
 	<br>
 	<<getouticon>><<link [[Leave|Farm Work]]>><<clotheson>><</link>>
 	<br>
@@ -2511,19 +2524,25 @@ You are inside Alex's lab.
 <<if $phials_stored gte 2>>
 	There are <<number $phials_stored>> phials of aphrodisiac stored beneath the table.
 	<br><br>
-	<img class="icon" src="img/ui/sym_promiscuity.png"><<link [[Take them (0:01)|Farm Work]]>><<pass 1>><<set $phials_held += $phials_stored>><<set $phials_stored to 0>><</link>>
+	<<symbol "lust">><<link [[Take them (0:01)|Farm Work]]>><<pass 1>><<set $phials_held += $phials_stored>><<set $phials_stored to 0>><</link>>
 	<br>
 <<elseif $phials_stored is 1>>
 	There's a full phial stored beneath the table.
 	<br><br>
-	<img class="icon" src="img/ui/sym_promiscuity.png"><<link [[Take it (0:01)|Farm Work]]>><<pass 1>><<set $phials_held += $phials_stored>><<set $phials_stored to 0>><</link>>
+	<<symbol "lust">><<link [[Take it (0:01)|Farm Work]]>><<pass 1>><<set $phials_held += $phials_stored>><<set $phials_stored to 0>><</link>>
 	<br>
 <<else>>
 	<br><br>
 <</if>>
 
+<<if $lurkers_held gt 1>>
+	<<set _string to "lurkers">><<set _phase to 1>>
+<<elseif $lurkers_held is 1>>
+	<<set _string to "lurker">><<set _phase to 0>>
+<</if>>
+
 <<if $lurkers_held gte 1>>
-	<<petshopicon "cage">><<link [[Move your lurker to a cage|Farm Still Cage]]>><<set $lurkers_stored += $lurkers_held>><<set $lurkers_held to 0>><</link>>
+	<<petshopicon "cage">><<link [["Move your " + _string + " to a cage"|Farm Still Cage]]>><<set $lurkers_stored += $lurkers_held>><<set $lurkers_held to 0>><</link>>
 	<br>
 <</if>>
 
@@ -2539,7 +2558,7 @@ You are inside Alex's lab.
 :: Farm Still Cage
 <<effects>>
 
-You lock the creature in a cage, and pull the net through the bars. It'll take time, but Alex will be able to produce a phial of aphrodisiac. <<nnpc_He "Alex">>'ll leave it in the lab when ready.
+You lock the <<if _phase is 0>>creature<<else>>creatures each<</if>> in a cage, and pull the <<if _phase is 0>>net<<else>>nets<</if>> through the bars. It'll take time, but Alex will be able to produce <<if _phase is 0>>a phial of aphrodisiac<<else>>phials of aphrodisiacs<</if>>. <<nnpc_He "Alex">>'ll leave <<if _phase is 0>>it<<else>>them<</if>> in the lab when ready.
 <br><br>
 
 <<if $farm.still_timer lte 0 or $farm.still_timer is undefined>>
@@ -2760,7 +2779,7 @@ You turn your head as Alex leans in. <<His>> lips peck your cheek before <<he>> 
 
 
 :: Farm Builders Tea
-<<effects>>
+<<effects>><<wearProp "tea">>
 
 You ask if the <<person>> takes sugar, then make <<him>> a cup of tea. <<He>> takes a sip. "Cheers."
 <br><br>
@@ -2769,7 +2788,7 @@ You ask if the <<person>> takes sugar, then make <<him>> a cup of tea. <<He>> ta
 <br>
 
 :: Farm Builders Tea Chat
-<<effects>>
+<<effects>><<wearProp "tea">>
 
 You ask the <<person>> if <<he>> takes sugar, then make <<him>> a cup of tea. <<He>> takes a sip. "Cheers."
 <br><br>
@@ -2822,7 +2841,7 @@ Truffles: $farm.stock.truffles
 <br>
 <<if $farm.stock.truffles gte 1>>
 	<<set _farm_stocked to true>>
-	<<tendingicon "truffles">><<link [[Take|Farm Stock]]>><<tending_give truffle $farm.stock.truffles>><<set $farm.stock.truffles to 0>><</link>>
+	<<tendingicon "truffles">><<link [[Take|Farm Stock]]>><<wearProp "truffle">><<tending_give truffle $farm.stock.truffles>><<set $farm.stock.truffles to 0>><</link>>
 	<br>
 <</if>>
 <br>
@@ -2830,7 +2849,7 @@ Eggs: $farm.stock.eggs
 <br>
 <<if $farm.stock.eggs gte 1>>
 	<<set _farm_stocked to true>>
-	<<tendingicon "eggs">><<link [[Take|Farm Stock]]>><<tending_give chicken_egg $farm.stock.eggs>><<set $farm.stock.eggs to 0>><</link>>
+	<<tendingicon "eggs">><<link [[Take|Farm Stock]]>><<wearProp "bird egg">><<tending_give chicken_egg $farm.stock.eggs>><<set $farm.stock.eggs to 0>><</link>>
 	<br>
 <</if>>
 <br>
@@ -2838,7 +2857,7 @@ Bottles of milk: $farm.stock.milk
 <br>
 <<if $farm.stock.milk gte 1>>
 	<<set _farm_stocked to true>>
-	<<tendingicon "milk">><<link [[Take|Farm Stock]]>><<tending_give bottle_of_milk $farm.stock.milk>><<set $farm.stock.milk to 0>><</link>>
+	<<tendingicon "milk">><<link [[Take|Farm Stock]]>><<wearProp "milk bottle">><<tending_give bottle_of_milk $farm.stock.milk>><<set $farm.stock.milk to 0>><</link>>
 	<br>
 <</if>>
 <br>
@@ -2847,12 +2866,15 @@ Bottles of milk: $farm.stock.milk
 	<<tendingicon>>
 	<<link [[Take all|Farm Cottage]]>>
 		<<if $farm.stock.truffles gte 1>>
+			<<wearProp "truffle">>
 			<<tending_give truffle $farm.stock.truffles>><<set $farm.stock.truffles to 0>>
 		<</if>>
 		<<if $farm.stock.eggs gte 1>>
+			<<wearProp "bird egg">>
 			<<tending_give chicken_egg $farm.stock.eggs>><<set $farm.stock.eggs to 0>>
 		<</if>>
 		<<if $farm.stock.milk gte 1>>
+			<<wearProp "milk bottle">>
 			<<tending_give bottle_of_milk $farm.stock.milk>><<set $farm.stock.milk to 0>>
 		<</if>>
 	<</link>>

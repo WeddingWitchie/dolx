@@ -75,7 +75,7 @@ const combatActionColours = {
 			/* leftaction or rightaction */
 			"steal", "penwhack", "freeface", "leftcovervagina", "leftcoverpenis", "leftcoveranus", "rightcovervagina", "rightcoverpenis", "rightcoveranus", "leftunderpull", "leftskirtpull", "leftlowerpull", "leftupperpull", "rightunderpull", "rightskirtpull", "rightlowerpull", "rightupperpull", "rightUndressOther", "leftUndressOther", "stopchoke", "clench", "shacklewhack", "leftfold", "rightfold", "dildowhack", "hypnosiswhack", "leftstruggleweak", "rightstruggleweak", "handpullpenis", "handpullvagina", "handpullanus", "leftresistW", "rightresistW", "leftstillW", "rightstillW", "penisremovecondom", "npcremovecondom", "leftblock", "rightblock",
 			/* feetaction */
-			"run", "hide", "confront", "feetresistW", "legLock", "legLocked", "feetHold", "dodge", "plant",	
+			"run", "hide", "confront", "feetresistW", "legLock", "legLocked", "feetHold", "dodge", "plant",
 			/* mouthaction */
 			"pullaway", "ejacspit", "pullawayvagina", "finish", "novaginal", "nopenile", "noanal", "scream", "mock", "breastclosed", "breastpull", "pullawaykiss", "noupper", "analpull", "up", "stifleorgasm", "stifle", "mouthresistW", "handcloseW", "growl", "askPullOut","disparage",
 			/* penisaction */
@@ -381,9 +381,27 @@ DefineMacro("NPCSettingsReset", NPCSettingsReset);
 
 function loveInterestFunction() {
 	jQuery(document).on("change", "#listbox-loveinterestprimary", function (e) {
+		delete T.awareChecked;
 		Wikifier.wikifyEval("<<replace #loveInterest>><<loveInterest>><</replace>>");
 	});
 	jQuery(document).on("change", "#listbox-loveinterestsecondary", function (e) {
+		delete T.awareChecked;
+		Wikifier.wikifyEval("<<replace #loveInterest>><<loveInterest>><</replace>>");
+	});
+	jQuery(document).on("change", "#listbox-loveinteresttertiary", function (e) {
+		delete T.awareChecked;
+		Wikifier.wikifyEval("<<replace #loveInterest>><<loveInterest>><</replace>>");
+	});
+	jQuery(document).on("change", "#listbox-loveinterestquarternary", function (e) {
+		delete T.awareChecked;
+		Wikifier.wikifyEval("<<replace #loveInterest>><<loveInterest>><</replace>>");
+	});
+	jQuery(document).on("change", "#listbox-loveinterestquinary", function (e) {
+		delete T.awareChecked;
+		Wikifier.wikifyEval("<<replace #loveInterest>><<loveInterest>><</replace>>");
+	});
+	jQuery(document).on("change", "#listbox-loveinterestsenary", function (e) {
+		delete T.awareChecked;
 		Wikifier.wikifyEval("<<replace #loveInterest>><<loveInterest>><</replace>>");
 	});
 }
@@ -405,7 +423,7 @@ function featsPointsMenuReset() {
 DefineMacroS("featsPointsMenuReset", featsPointsMenuReset);
 
 function startingPlayerImageReset() {
-	jQuery(document).on("change", "#settingsDiv .macro-radiobutton,#settingsDiv .macro-numberslider,#settingsDiv .macro-checkbox", () => {
+	jQuery(document).on("change", "#settingsDiv .macro-radiobutton,#settingsDiv ,#settingsDiv .macro-checkbox", () => {
 		Wikifier.wikifyEval("<<startingPlayerImageUpdate>>");
 	});
 	return "";
@@ -1194,6 +1212,23 @@ function currentSkillValue(skill, disableModifiers = 0) {
 			if (V.worn.hands.type.includes("sticky_fingers")) result = Math.floor(result * 1.05);
 			if (V.transformationParts.traits.sharpEyes !== "disabled") result = Math.floor(result * 1.05);
 			if (V.fox >= 6) result = Math.floor(result * 1.1);
+			if (V.hallucinogen >= 1 && V.substanceRebalance == 1) {
+				result = Math.round(result * (1 + (0.125 * Math.round(V.hallucinogen / 250))));
+			}
+			if (V.DoLPTFBuffs == 1) {
+				if (V.TFCatBuffs == 1) {
+					result = Math.round(result * 1.2);
+				}
+				if (V.TFBearBuffs == 1) {
+					result = Math.round(result * 0.9);
+				}
+				if (V.TFBirdBuffs == 1) {
+					result = Math.round(result * 1.1);
+				}
+				if (V.TFFoxBuffs == 1) {
+					result = Math.round(result * 1.3);
+				}
+			}
 			break;
 		case "physique":
 			if (["forest", "moor", "farm"].includes(V.location)) {
@@ -1202,6 +1237,29 @@ function currentSkillValue(skill, disableModifiers = 0) {
 				}
 				if (V.worn.feet.type.includes("rugged")) {
 					result = Math.floor(result * (1 + currentSkillValue("feetskill", disableModifiers + 1) / 10000));
+				}
+			}
+			if (V.hallucinogen >= 1 && V.substanceRebalance == 1) {
+				result = Math.round(result * (1 - (0.125 * Math.round(V.hallucinogen / 250))));
+			}
+			if (V.DoLPTFBuffs == 1) {
+				if (V.TFWolfBuffs == 1) {
+					result = Math.round(result * 1.2);
+				}
+				if (V.TFCatBuffs == 1) {
+					result = Math.round(result * 0.8);
+				}
+				if (V.TFCowBuffs == 1) {
+					result = Math.round(result * 1.4);
+				}
+				if (V.TFBearBuffs == 1) {
+					result = Math.round(result * 1.5);
+				}
+				if (V.TFBirdBuffs == 1) {
+					result = Math.round(result * 0.7);
+				}
+				if (V.TFFoxBuffs == 1) {
+					result = Math.round(result * 0.9);
 				}
 			}
 			break;
@@ -1216,6 +1274,29 @@ function currentSkillValue(skill, disableModifiers = 0) {
 			}
 			if (V.worn.feet.type.includes("shackle")) {
 				result = Math.floor(result * 0.5);
+			}
+			if (V.hallucinogen >= 1 && V.substanceRebalance == 1) {
+				result = Math.round(result * (1 + (0.125 * Math.round(V.hallucinogen / 250))));
+			}
+			if (V.DoLPTFBuffs == 1) {
+				if (V.TFWolfBuffs == 1) {
+					result = Math.round(result * 1.1);
+				}
+				if (V.TFCatBuffs == 1) {
+					result = Math.round(result * 1.4);
+				}
+				if (V.TFCowBuffs == 1) {
+					result = Math.round(result * 0.9);
+				}
+				if (V.TFBearBuffs == 1) {
+					result = Math.round(result * 0.7);
+				}
+				if (V.TFBirdBuffs == 1) {
+					result = Math.round(result * 1.3);
+				}
+				if (V.TFFoxBuffs == 1) {
+					result = Math.round(result * 1.1);
+				}
 			}
 			break;
 		case "swimmingskill":
@@ -1237,6 +1318,21 @@ function currentSkillValue(skill, disableModifiers = 0) {
 			if (V.worn.feet.type.includes("shackle")) {
 				result = Math.floor(result * 0.5);
 			}
+			if (V.hallucinogen >= 1 && V.substanceRebalance == 1) {
+				result = Math.round(result * (1 - (0.125 * Math.round(V.hallucinogen / 250))));
+			}
+			if (V.TFCatBuffs == 1) {
+				result = Math.round(result * 0.8);
+			}
+			if (V.TFBearBuffs == 1) {
+				result = Math.round(result * 1.3);
+			}
+			if (V.TFBirdBuffs == 1) {
+				result = Math.round(result * 0.8);
+			}
+			if (V.TFFoxBuffs == 1) {
+				result = Math.round(result * 0.9);
+			}
 			break;
 		case "athletics":
 			if (["forest", "moor", "farm"].includes(V.location)) {
@@ -1248,6 +1344,27 @@ function currentSkillValue(skill, disableModifiers = 0) {
 				}
 			}
 			if (V.worn.feet.type.includes("shackle")) result /= 10;
+			if (V.hallucinogen >= 1 && V.substanceRebalance == 1) {
+				result = Math.round(result * (1 - (0.125 * Math.round(V.hallucinogen / 250))));
+			}
+			if (V.TFWolfBuffs == 1) {
+				result = Math.round(result * 1.2);
+			}
+			if (V.TFCatBuffs == 1) {
+				result = Math.round(result * 1.1);
+			}
+			if (V.TFCowBuffs == 1) {
+				result = Math.round(result * 0.9);
+			}
+			if (V.TFBearBuffs == 1) {
+				result = Math.round(result * 1.2);
+			}
+			if (V.TFBirdBuffs == 1) {
+				result = Math.round(result * 1.2);
+			}
+			if (V.TFFoxBuffs == 1) {
+				result = Math.round(result * 1.1);
+			}
 			break;
 		case "willpower":
 			if (numberOfEarSlime() >= 2 && V.earSlime.growth > 50) {
@@ -1255,10 +1372,31 @@ function currentSkillValue(skill, disableModifiers = 0) {
 			} else if (numberOfEarSlime() >= 2) {
 				result = Math.floor(result * 0.9);
 			}
+			if (V.hallucinogen >= 1 && V.substanceRebalance == 1) {
+				result = Math.round(result * (1 + (0.125 * Math.round(V.hallucinogen / 250))));
+			}
+			if (V.TFWolfBuffs == 1) {
+				result = Math.round(result * 1.1);
+			}
+			if (V.TFCatBuffs == 1) {
+				result = Math.round(result * 1.1);
+			}
+			if (V.TFCowBuffs == 1) {
+				result = Math.round(result * 0.8);
+			}
+			if (V.TFBearBuffs == 1) {
+				result = Math.round(result * 1.2);
+			}
 			break;
 		case "tending":
 			if (V.backgroundTraits.includes("plantlover")) {
 				result = Math.floor(result * (1 + V.trauma / (V.traumamax * 2)));
+			}
+			if (V.hallucinogen >= 1 && V.substanceRebalance == 1) {
+				result = Math.round(result * (1 + (0.125 * Math.round(V.hallucinogen / 250))));
+			}
+			if (V.TFCowBuffs == 1) {
+				result = Math.round(result * 1.4);
 			}
 			break;
 		case "housekeeping":
@@ -1274,6 +1412,21 @@ function currentSkillValue(skill, disableModifiers = 0) {
 			if (V.worn.handheld.type.includes("maid")) {
 				result = Math.floor(result * 1.05);
 			}
+			if (V.hallucinogen >= 1 && V.substanceRebalance == 1) {
+				result = Math.round(result * (1 + (0.125 * Math.round(V.hallucinogen / 250))));
+			}
+			if (V.TFWolfBuffs == 1) {
+				result = Math.round(result * 0.9);
+			}
+			if (V.TFCatBuffs == 1) {
+				result = Math.round(result * 0.9);
+			}
+			if (V.TFBearBuffs == 1) {
+				result = Math.round(result * 0.8);
+			}
+			if (V.TFBirdBuffs == 1) {
+				result = Math.round(result * 1.3);
+			}
 			break;
 		case "vaginalskill":
 			if (V.earSlime.growth > 100) {
@@ -1285,6 +1438,9 @@ function currentSkillValue(skill, disableModifiers = 0) {
 			}
 			if (playerHeatMinArousal()) {
 				result = Math.floor(result * (1 + Math.clamp(playerHeatMinArousal(), 0, 4000) / 20000));
+			}
+			if (V.hallucinogen >= 1 && V.substanceRebalance == 1) {
+				result = Math.round(result * (1 + (0.125 * Math.round(V.hallucinogen / 250))));
 			}
 			break;
 		case "penileskill":
@@ -1298,6 +1454,9 @@ function currentSkillValue(skill, disableModifiers = 0) {
 			if (playerRutMinArousal()) {
 				result = Math.floor(result * (1 + Math.clamp(playerRutMinArousal(), 0, 4000) / 20000));
 			}
+			if (V.hallucinogen >= 1 && V.substanceRebalance == 1) {
+				result = Math.round(result * (1 + (0.125 * Math.round(V.hallucinogen / 250))));
+			}
 			break;
 		case "analskill":
 			if (V.earSlime.growth > 100 && !V.player.vaginaExist && V.earSlime.focus === "pregnancy") {
@@ -1306,12 +1465,38 @@ function currentSkillValue(skill, disableModifiers = 0) {
 			if (playerHeatMinArousal() && canBeMPregnant()) {
 				result = Math.floor(result * (1 + Math.clamp(playerHeatMinArousal(), 0, 4000) / 20000));
 			}
+			if (V.hallucinogen >= 1 && V.substanceRebalance == 1) {
+				result = Math.round(result * (1 + (0.125 * Math.round(V.hallucinogen / 250))));
+			}
 			break;
 		case "seductionskill":
 			if (V.earSlime.growth > 50 && !V.earSlime.defyCooldown) {
 				result = Math.floor(result * (1 + (V.earSlime.growth - 50) / 600));
 			}
+			if (V.hallucinogen >= 1 && V.substanceRebalance == 1) {
+				result = Math.round(result * (1 + (0.125 * Math.round(V.hallucinogen / 250))));
+			}
+			if (V.TFCatBuffs == 1) {
+				result = Math.round(result * 1.2);
+			}
+			if (V.TFCowBuffs == 1) {
+				result = Math.round(result * 1.1);
+			}
+			if (V.TFBearBuffs == 1) {
+				result = Math.round(result * 0.9);
+			}
+			if (V.TFBirdBuffs == 1) {
+				result = Math.round(result * 1.1);
+			}
+			if (V.TFFoxBuffs == 1) {
+				result = Math.round(result * 1.2);
+			}
 			break;
+	}
+	if (V.drunk >= 120 && V.substanceRebalance == 1) {
+		result = Math.round(result * (1 - (0.1 * Math.round(V.drunk / 120))));
+	} else if (V.drunk >= 1 && V.substanceRebalance == 1) {
+		result = Math.round(result * 0.95);
 	}
 	return result;
 }
@@ -1478,6 +1663,11 @@ function waterproofCheck(clothing) {
 }
 window.waterproofCheck = waterproofCheck;
 
+function antitransparentCheck(clothing) {
+	return (clothing.type.includesAny("antitransparent") && V.realisticTransparency == 1);
+}
+window.antitransparentCheck = antitransparentCheck;
+
 function isLoveInterest(name) {
 	for (const l in V.loveInterest) if (V.loveInterest[l] === name) return true;
 	return false;
@@ -1549,16 +1739,42 @@ window.getSexesFromRandomGroup = getSexesFromRandomGroup;
  * Example: $drugged goes higher than 500, but we want the bar to become red at 500, so we call this function as getColourClassFromPercentage($drugged / 5).
  *
  * @param {number} percentage The percentage of the desired bar colour.
+ * @param {string} stat Stat name, to determine whether or not the bar should use inverted colours (green for min, red for max).
  * @returns {string} Colour name to use.
  */
-function getColourClassFromPercentage(percentage) {
-	if (percentage <= 0) return "green";
-	if (percentage < 20) return "teal";
-	if (percentage < 40) return "lblue";
+function getColourClassFromPercentage(percentage, stat) {
+	const inverted = ![
+		"pain",
+		"arousal",
+		"tiredness",
+		"stress",
+		"trauma",
+		"drugged",
+		"hallucinogen",
+		"drunk",
+		"awareness",
+		"sex",
+		"prostitution",
+		"rape",
+		"bestiality",
+		"pregnancy",
+		"impreg",
+		"promiscuity",
+		"exhibitionism",
+		"delinquency",
+		"deviancy",
+		"corruption",
+		"crime",
+		"aggro",
+		"rage",
+	].includes(stat);
+	if (percentage <= 0) return inverted ? "red" : "green";
+	if (percentage < 20) return inverted ? "pink" : "teal";
+	if (percentage < 40) return inverted ? "purple" : "lblue";
 	if (percentage < 60) return "blue";
-	if (percentage < 80) return "purple";
-	if (percentage < 100) return "pink";
-	return "red";
+	if (percentage < 80) return inverted ? "lblue" : "purple";
+	if (percentage < 100) return inverted ? "teal" : "pink";
+	return inverted ? "green" : "red";
 }
 window.getColourClassFromPercentage = getColourClassFromPercentage;
 
@@ -1715,6 +1931,8 @@ function getHalloweenCostume() {
 		return "harpy TF";
 	} else if (T.tf.foxEars && T.tf.foxTail) {
 		return "fox TF";
+	} else if (T.tf.bearEars && T.tf.BearTail) {
+		return "bear TF";
 
 		/* Misc outcomes */
 	} else if (
@@ -2130,3 +2348,23 @@ function fixIntegrityMax(slot, value) {
 	value.integrity_max = setupClothing.integrity_max;
 }
 window.fixIntegrityMax = fixIntegrityMax;
+
+function formatMoney(amount) {
+	const integerPart = Math.floor(amount / 100);
+	let formattedAmount = Math.abs(integerPart).toLocaleString("en-GB");
+	if (Math.abs(integerPart) <= 9999) {
+		const decimalPart = amount % 100;
+		if (decimalPart) {
+			formattedAmount += "." + ("0" + Math.floor(Math.abs(decimalPart))).slice(-2);
+		}
+	}
+	T.printmoney = (amount >= 0 ? "" : "-") + "£" + formattedAmount;
+	return T.printmoney;
+}
+window.formatMoney = formatMoney;
+DefineMacro("formatmoney", money => formatMoney(money));
+
+function lurkerCap() {
+	return Math.min(Math.max(V.farm.net * 2, 1), Math.floor(currentSkillValue("physique") / 4000));
+}
+window.lurkerCap = lurkerCap;

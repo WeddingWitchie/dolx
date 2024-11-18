@@ -153,6 +153,20 @@
 		<<set $enemytrust -= 40>>
 	<</if>>
 
+	<<if $beastGroupFight is 1>>
+		<<set $enemynomax to $enemyno>>
+		<<set $enemyhealth to 0>>
+		<<for _i to 0; _i lt $enemyno; _i++>>
+			<<if $NPCList[_i].health isnot undefined>>
+				<<set $enemyhealth += $NPCList[_i].health>>
+			<</if>>
+		<</for>>
+		<<if $enemyhealth is 0>><<set $enemyhealth to 199>><</if>><!-- This is set for compatibility elsewhere if needed, v2.2.0... -->
+		<<set $enemyhealthmax to $enemyhealth>>
+		<<if $enemyhealthmax is 0>><<set $enemyhealthmax to 199>><</if>><!-- This is set for compatibility elsewhere if needed, v2.2.0... -->
+		<<set $enemyarousalmax to 500 * $enemyno>>
+	<</if>>
+
 	<<healthMultiplier>>
 	<<set $enemyarousalmax to $enemyarousalmax * ($beastArousalMult / 100)>>
 
@@ -226,6 +240,20 @@
 	<<set $enemyno to _nn>>
 	<<set $enemytype to "beast">>
 
+	<<if $beastGroupFight is 1>>
+		<<set $enemynomax to $enemyno>>
+		<<set $enemyhealth to 0>>
+		<<for _i to 0; _i lt $enemyno; _i++>>
+			<<if $NPCList[_i].health isnot undefined>>
+				<<set $enemyhealth += $NPCList[_i].health>>
+			<</if>>
+		<</for>>
+		<<if $enemyhealth is 0>><<set $enemyhealth to 199>><</if>><!-- This is set for compatibility elsewhere if needed, v2.2.0... -->
+		<<set $enemyhealthmax to $enemyhealth>>
+		<<if $enemyhealthmax is 0>><<set $enemyhealthmax to 199>><</if>><!-- This is set for compatibility elsewhere if needed, v2.2.0... -->
+		<<set $enemyarousalmax to 500 * $enemyno>>
+	<</if>>
+
 	<!-- NG This means if Beast 1 is a monster, they are all monsters -->
 	<!-- This should be fixed globally later -->
 	<<set $monster to ($NPCList[0].monster is "monster" ? 1 : 0)>>
@@ -295,6 +323,20 @@
 	<<set $stresssaved to $stress>>
 	<<set $traumagain to 0>>
 	<<set $stressgain to 0>>
+
+	<<if $beastGroupFight is 1>>
+		<<set $enemynomax to $enemyno>>
+		<<set $enemyhealth to 0>>
+		<<for _i to 0; _i lt $enemyno; _i++>>
+			<<if $NPCList[_i].health isnot undefined>>
+				<<set $enemyhealth += $NPCList[_i].health>>
+			<</if>>
+		<</for>>
+		<<if $enemyhealth is 0>><<set $enemyhealth to 199>><</if>><!-- This is set for compatibility elsewhere if needed, v2.2.0... -->
+		<<set $enemyhealthmax to $enemyhealth>>
+		<<if $enemyhealthmax is 0>><<set $enemyhealthmax to 199>><</if>><!-- This is set for compatibility elsewhere if needed, v2.2.0... -->
+		<<set $enemyarousalmax to 500 * $enemyno>>
+	<</if>>
 
 	<<healthMultiplier>>
 	<<set $enemyarousalmax to $enemyarousalmax * ($beastArousalMult / 100)>>
@@ -519,44 +561,6 @@
 	<<if Time.dayState isnot "night">><<enable_rescue>><</if>>
 
 	<<hand_gag 0 left>>
-
-	<<healthMultiplier>>
-	<<set $enemyarousalmax to $enemyarousalmax * ($npcArousalMult / 100)>>
-	<<set $permenemyhealthmax to $enemyhealthmax>>
-
-	<<combatinit>>
-<</widget>>
-
-<<widget "busmoveinit">>
-	<<set $enemyhealth to 200>>
-	<<set $enemyarousal to $allure / 50>>
-	<<set $enemyanger to 0>>
-	<<set $enemystrength to 20000>>
-	<<set $combat to 1>>
-	<<set $enemyarousalmax to 200>>
-	<<set $enemyangermax to 200>>
-	<<set $enemyhealthmax to 200>>
-	<<set $enemytrust to 0>>
-	<<if $dissociation gte 1>>
-		<<set $enemytrust -= 40>>
-	<</if>>
-	<<set $enemytype to "man">>
-
-	<<set $rapeavoid to 1>>
-	<<set $orgasmdown to 0>>
-	<<set $penisbitten to 0>>
-	<<set $apologised to 0>>
-	<<set $underlowerstruggle to 0>>
-	<<set $lowerstruggle to 0>>
-	<<set $upperstruggle to 0>>
-	<<set $leftaction to 0>>
-	<<set $rightaction to 0>>
-	<<set $traumasaved to $trauma>>
-	<<set $stresssaved to $stress>>
-	<<set $traumagain to 0>>
-	<<set $stressgain to 0>>
-
-	<<if Time.dayState isnot "night">><<enable_rescue>><</if>>
 
 	<<healthMultiplier>>
 	<<set $enemyarousalmax to $enemyarousalmax * ($npcArousalMult / 100)>>
@@ -965,6 +969,8 @@
 		<</for>>
 	<</if>>
 
+	<<set $initialGenderAppearance to $player.gender_appearance>>
+
 	<<set $newlyWritten to []>>
 
 	<<if _genderknownbeforehand or _genderexposed>>
@@ -1033,37 +1039,6 @@
 	<<wetnessCalculate>>
 <</widget>>
 
-<<widget "deactivateNPC">>
-	/* How to use:
-	* Call this widget as <<deactivateNPC _n>> where _n is any number between 0 and 5, and is an active NPC.
-	* This will prevent said NPC from entering combat plus deal with all the rest of the math.
-	* Optional arguments [1] and [2] for health and arousal respectivelly. If the original health or arousal values for the NPCs haven't been changed, no need to use those arguments.
-	*/
-	<<set _buffAmount to Math.floor(Time.days / $combatExtended.enemyDayScaling)>>
-	<<if $combatExtended.enemyHealthDayScaling is 1 and (_buffAmount lte $combatExtended.enemyDayScalingLimit or $combatExtended.enemyInfiniteDayScaling is 1)>>
-		<<set _buff += _buffAmount * $combatExtended.enemyHealthDayScalingMult>>
-	<</if>>
-	<<set _buffAmount to Math.floor($enemiesDefeatedStat / $combatExtended.enemyDefeatScaling)>>
-	<<if $combatExtended.enemyHealthDefeatScaling is 1 and (_buffAmount lte $combatExtended.enemyDefeatScalingLimit or $combatExtended.enemyInfiniteDefeatScaling is 1)>>
-		<<set _buff += _buffAmount * $combatExtended.enemyHealthDefeatScalingMult>>
-	<</if>>
-	<<set $_hpToReduce to _args[1] || Math.round(($NPCList[_args[0]].healthmax * ($npcHealthMult / 100)) * (1 + (_buff / 100)))>>
-	<<set $_arousalToReduce to _args[2] || ($enemyarousalmax * ($npcArousalMult / 100))/$enemyno>>
-	<<if _args[0] isnot undefined and $NPCList[_args[0]]>>
-		<<if $NPCList[_args[0]].active isnot "inactive">>
-			<<set $NPCList[_args[0]].active to "inactive">>
-			<<set $enemyhealth -= $_hpToReduce>>
-			<<set $enemyhealthmax to $enemyhealth>>
-			<<set $enemyarousalmax -= $_arousalToReduce>>
-			<<set $enemyno-->>
-		<<else>>
-			<span class="red">deactivateNPC ERROR: NPC _args[0] is already inactive.</span>
-		<</if>>
-	<<else>>
-		<span class="red">deactivateNPC ERROR: Invalid or missing index specified.</span>
-	<</if>>
-<</widget>>
-
 <<widget "man">>
 	<<if $finish isnot 1>>
 		<<if $setupMidOrgasm is true>>
@@ -1093,7 +1068,7 @@
 				Air: <<oxygencaption>>
 				<br>
 			<</if>>
-			<<if $combatExtended.stability lte 100 and $combatExtended.stabilityLost isnot 1 and $position isnot "stalk">>
+			<<if $combatExtended.stability gt 0 and $combatExtended.stabilityLost isnot 1 and $combatExtended.standingFights is 1 and $position isnot "stalk">>
 				Stability: <<combatExtendedStabilityCaption>>
 				<br>
 			<</if>>
@@ -1113,6 +1088,22 @@
 			<<schoolrep_naked>>
 		<</if>>
 		<<if $genitalReactionDisable>>
+			<<set _noReaction to true>>
+		<<elseif $player.penisExist and $player.vaginaExist>>
+			<<if $initialGenderAppearance is "m" ? $mhermchance gte 50 : $fhermchance gte 50>>
+				<<set _noReaction to true>>
+			<</if>>
+		<<elseif $player.penisExist>>
+			<<if $initialGenderAppearance is "m" ? $mregularchance gte 50 : $dgchance gte 50>>
+				<<set _noReaction to true>>
+			<</if>>
+		<<elseif $player.vaginaExist>>
+			<<if $initialGenderAppearance is "m" ? $cbchance gte 50 : $fregularchance gte 50>>
+				<<set _noReaction to true>>
+			<</if>>
+		<</if>>
+
+		<<if _noReaction>>
 			<!-- No reaction -->
 		<<elseif $crossdressing is 2>> <!-- Herm PC -->
 			<<if $npc.length is 1 and (["Kylar","Sydney"].includes($npc[0]))>>
@@ -1233,7 +1224,9 @@
 			<</if>>
 		<</if>>
 		<<set $crossdressing to 0>>
-		<br><br>
+		<<if !_noReaction>>
+			<br><br>
+		<</if>>
 
 	<</if>>
 
@@ -1365,11 +1358,19 @@
 					<<link [[Stop|$passage]]>><<set $combatExtended.reverseRapeEnd to 1>><</link>>
 				</label>
 			<<else>>
+				<<if $reverseRapeOptOutInit is undefined>>
+					<<set $combatExtended.reverseRapeInit to $reverseRapeOptOut>>
+					<<unset $reverseRapeOptOutInit>>
+				<</if>>
 				<label class="cbtOption">
 					<p>Reverse Rape</p>
-					<label>
-						<<checkbox "$combatExtended.reverseRapeInit" 0 1 autocheck>>
-					</label><br>
+					<<if hasSexStat("promiscuity", 5)>>
+						<label>
+							<<checkbox "$combatExtended.reverseRapeInit" 0 1 autocheck>>
+						</label><br>
+					<<else>>
+						<span class="black"><i>Unlock level 5 promiscuity.</i></span>
+					<</if>>
 				</label>
 			<</if>>
 		<</if>>

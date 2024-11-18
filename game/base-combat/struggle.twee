@@ -193,7 +193,7 @@
 		<<if $struggle.enemy[_i].location is "fleeing" or $struggle.enemy[_i].location is "lurking">>
 			The <<struggle_name _i>> keeps at a distance.
 			<br>
-			<<if $farm_stage gte 10 and $lurkers_held lt 1>>
+			<<if $farm_stage gte 10 and $lurkers_held lt lurkerCap()>>
 				<<set _lurker_net_possible to true>>
 			<</if>>
 		<</if>>
@@ -383,7 +383,7 @@
 								<<set _leftaction["Strengthen your grip"] to $_part + '_strengthen'>>
 							<</if>>
 							<<set _leftaction["Pull"] to $_part + '_pull'>>
-						<<elseif $struggle[$_part].success lt 100>>
+						<<elseif $struggle[$_part].success lt 100 or $struggle[$_part].grip lte 0>>
 							<<set _leftaction['Grasp' + $_desc] to $_part + '_grasp'>>
 						<</if>>
 						<<if $spray gte 1 and $consensual isnot 1>>
@@ -525,7 +525,7 @@
 								<<set _rightaction["Strengthen your grip"] to $_part + '_strengthen'>>
 							<</if>>
 							<<set _rightaction["Pull"] to $_part + '_pull'>>
-						<<elseif $struggle[$_part].success lt 100>>
+						<<elseif $struggle[$_part].success lt 100 or $struggle[$_part].grip lte 0>>
 							<<set _rightaction['Grasp' + $_desc] to $_part + '_grasp'>>
 						<</if>>
 						<<if $spray gte 1 and $consensual isnot 1>>
@@ -924,7 +924,7 @@
 				<<struggle_name _dlurkers[_i]>><<if _i gte 2>>, the<<elseif _i is 1>> and the<</if>>
 			<</for>>
 			keep<<if _dlurkers.length is 1>>s<</if>> at a distance.
-			<<if $farm_stage gte 10 and $lurkers_held lt 1>>
+			<<if $farm_stage gte 10 and $lurkers_held lt lurkerCap()>>
 				<<if $leftarm isnot "grappled" and $leftarm isnot "bound">>
 					<br>
 					Left arm: <label><span class="def">Hurl net</span> <<radiobutton "$leftaction" "capture" autocheck>></label>
@@ -957,7 +957,7 @@
 						<label><<radiobutton `'$' + _hhand + 'action'` `_hpart + '_strengthen'` autocheck>> <span class="brat">Strengthen your grip</span></label> |
 					<</if>>
 					<label><<radiobutton `'$' + _hhand + 'action'` `_hpart + '_pull'` autocheck>> <span class="def">Pull</span></label> |
-				<<elseif $struggle[_hpart].success lt 100>>
+				<<elseif $struggle[_hpart].success lt 100 or $struggle[_hpart].grip lte 0>>
 					<label><<radiobutton `'$' + _hhand + 'action'` `_hpart + '_grasp'` autocheck>> <span class="brat">Grasp</span></label> |
 				<</if>>
 				<<if $spray gte 1 and !$consensual>>
@@ -984,7 +984,7 @@
 						<label><<radiobutton `'$' + _hhand + 'action'` `_hpart + '_strengthen'` autocheck>> <span class="brat">Strengthen your grip</span></label> |
 					<</if>>
 					<label><<radiobutton `'$' + _hhand + 'action'` `_hpart + '_pull'` autocheck>> <span class="def">Pull</span></label> |
-				<<elseif $struggle[_hpart].success lt 100>>
+				<<elseif $struggle[_hpart].success lt 100 or $struggle[_hpart].grip lte 0>>
 					<label><<radiobutton `'$' + _hhand + 'action'` `_hpart + '_grasp'` autocheck>> <span class="brat">Grasp</span></label> |
 				<</if>>
 				<<if $spray gte 1 and !$consensual>>
@@ -1006,7 +1006,7 @@
 		<<for _hhand range ["left", "right"]>>
 			<<if V[_hhand + 'arm'] isnot "bound" and !(V[_hhand + 'arm'] and V[_hhand + 'arm'].includes("grappled"))>>
 				<<print (_hhand is "left" ? "Left" : "Right")>> arm:
-				<<if $struggle[_hpart].success lt 100>>
+				<<if $struggle[_hpart].success lt 100 or $struggle[_hpart].grip lte 0>>
 					<<if !V[_hhand + 'armstate'].includes(_hpart)>>
 						<label><<radiobutton `'$' + _hhand + 'action'` `_hpart + '_grasp'` autocheck>> <span class="brat">Grasp</span></label> |
 					<<else>>
@@ -1327,10 +1327,10 @@
 			<</if>>
 			<<set $struggle.done += 1>>
 			<<set $struggle.enemy[_capture_creature].location to "fled">>
-			<<if $leftaction is "capture">>
+			<<if $leftaction is "capture" and $lurkers_held gte lurkerCap()>>
 				<<set $leftaction to "rest">>
 			<</if>>
-			<<if $rightaction is "capture">>
+			<<if $rightaction is "capture" and $lurkers_held gte lurkerCap()>>
 				<<set $rightaction to "rest">>
 			<</if>>
 		<<else>>
@@ -1808,19 +1808,19 @@
 			<!-- lurkers attacc -->
 			<<rng>>
 			<<if $dodging gte 1>>
-				<<set _doge_chance to ((currentSkillValue("feetskill") / 3) + (currentSkillValue('danceskill') / 3) - $drunk - (!!$worn.feet.type.includes("heels") * 200))>>
+				<<set _doge_chance to ((currentSkillValue("feetskill") / 5) + (currentSkillValue('danceskill') / 3))>>
 				<<feetskilluse>><<danceskilluse>>
 			<</if>>
 			<<if $left_guard is 1>>
-				<<set _left_guard_chance to (currentSkillValue("handskill") / 3)>>
+				<<set _left_guard_chance to ((currentSkillValue("handskill") / 5) + (currentSkillValue("physique") / 160))>>
 				<<handskilluse>>
 			<</if>>
 			<<if $right_guard is 1>>
-				<<set _right_guard_chance to (currentSkillValue("handskill") / 3)>>
+				<<set _right_guard_chance to ((currentSkillValue("handskill") / 5) + (currentSkillValue("physique") / 160))>>
 				<<handskilluse>>
 			<</if>>
 			<<set _hit_chance to random(1, 1000)>>
-			<<if _doge_chance gte _hit_chance>>
+			<<if _doge_chance gte _hit_chance or _left_guard_chance gte _hit_chance or _right_guard_chance gte _hit_chance>>
 				<<struggle_bide_the>> <<print $struggle.enemy[_i].description>> <<print $struggle.enemy[_i].name>>
 				<<if $underwater is 1 or $struggle.enemy[_i].motion is "swimming">>
 					swims towards you,
@@ -1828,75 +1828,27 @@
 					flies towards you,
 				<<else>>
 					leaps towards you,
-				<</if>>
-				<<set $dodging -= 1>>
-				<<if $drunk gte 60>>
-					but you drunkenly stagger out of the way<<if !random(100)>> like the drunk master you are<</if>>,
-				<<elseif currentSkillValue("feetskill") gte 800 or currentSkillValue('danceskill') gte 400>>
-					but you dance aside,
-				<<elseif currentSkillValue("feetskill") gte 200>>
-					but you step aside,
-				<<else>>
-					but you stumble aside,
-				<</if>>
-				<<if _doge_chance - _hit_chance gte 200>>
-					<span class="green">dodging it.</span>
-				<<else>>
-					<span class="teal">narrowly dodging it.</span>
-					<<for $_slot range setup.clothingLayer.torso>>
-						<<if $worn[$_slot].name isnot "naked">>
-							<<set $worn[$_slot].integrity -= random(10, 15)>>
-							<<set _clothesdamaged to true>>
-							It tears your $worn[$_slot].name as it passes
-							<<break>>
-						<</if>>
-					<</for>>
-					<<if !_clothesdamaged>>
-						It whips you as it passes. <<pain 2>>
-					<</if>>
-					<<neutral 2>>
-				<</if>>
-				<<if $struggle.enemy[_i].dodge is undefined>>
-					<<set $struggle.enemy[_i].dodge to 1>>
-				<<elseif $struggle.enemy[_i].dodge lt 3>>
-					<<set $struggle.enemy[_i].dodge ++>>
-				<<else>>
-					<<set $struggle.enemy[_i].dodge to 0>>
-					<<set $struggle.enemy[_i].health -= 1>>
-					<<set $struggle.enemy[_i].dodged to 1>>
-					<<if $struggle.enemy[_i].dodged is undefined>>
-						<span class="green">Its running out of steam. </span>
-					<<else>>
-						<span class="green">It ran out of steam. </span>
-					<</if>>
-					<<if $struggle.enemy[_i].health lte 0>>
-						<span class="green">It won't return.</span>
-						<<set $struggle.done += 1>>
-						<<set $struggle.enemy[_i].location to "fled">>
-					<</if>>
-				<</if>>
-			<<elseif _left_guard_chance gte _hit_chance or _right_guard_chance gte _hit_chance>>
-				<<struggle_bide_the>> <<print $struggle.enemy[_i].description>> <<print $struggle.enemy[_i].name>>
-				<<if $underwater is 1 or $struggle.enemy[_i].motion is "swimming">>
-					swims towards you,
-				<<elseif $struggle.enemy[_i].motion is "flying">>
-					flies towards you,
-				<<else>>
-					leaps towards you,
-				<</if>>
-				<<if currentSkillValue("handskill") gte 800>>
-					but you redirect its momentum with a well-timed blow,
-				<<elseif currentSkillValue("handskill") gte 200>>
-					but you bat it aside,
-				<<else>>
-					but your flailing knocks it aside,
 				<</if>>
 				<<if _left_guard_chance - _hit_chance gte 200 or _right_guard_chance - _hit_chance gte 200>>
+					<<struggle_defense_init "guard">>
 					<span class="green">smacking it against the ground.</span>
 					<<set $struggle.enemy[_i].health -= 1>>
+					<<set _struggleDefenseResult to "guard">>
+				<<elseif _doge_chance - _hit_chance gte 20>>
+					<<struggle_defense_init "dodge">>
+					<span class="green">dodging it.</span>
+					<<set _struggleDefenseResult to "dodge">>
 				<<else>>
-					<span class="teal">narrowly dodging it.</span>
-					<<for $_slot range ["over_upper", "over_lower", "upper", "lower", "under_upper", "under_lower"]>>
+					<<if _doge_chance gte _hit_chance>>
+						<<struggle_defense_init "dodge">>
+						<span class="teal">narrowly dodging it.</span>
+						<<set _struggleDefenseResult to "dodge">>
+					<<else>>
+						<<struggle_defense_init "guard">>
+						<span class="teal">deflecting it away.</span>
+						<<set _struggleDefenseResult to "dodge">>
+					<</if>>
+					<<for $_slot range setup.clothingLayer.torso>>
 						<<if $worn[$_slot].name isnot "naked">>
 							<<set $worn[$_slot].integrity -= random(10, 15)>>
 							<<set _clothesdamaged to true>>
@@ -1909,11 +1861,7 @@
 					<</if>>
 					<<neutral 2>>
 				<</if>>
-				<<if _left_guard_chance gte _hit_chance>>
-					<<unset $left_guard>>
-				<<elseif _right_guard_chance gte _hit_chance>>
-					<<unset $right_guard>>
-				<</if>>
+				<<struggle_defense_result _struggleDefenseResult>>
 			<<elseif $rng lte 66 and _targets.length gt 0>>
 				<<set _target to _targets.pluck()>>
 				<<struggle_bide_the>> <<print $struggle.enemy[_i].description>> <<print $struggle.enemy[_i].name>>

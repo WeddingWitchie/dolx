@@ -102,7 +102,7 @@ const Time = (() => {
 	let currentDate = {};
 
 	function set(time = V.timeStamp) {
-		V.startDate = V.startDate ?? new DateTime(2022, 9, 4, 7).timeStamp;
+		V.startDate ??= new DateTime(2022, 9, 4, 7).timeStamp;
 
 		if (time instanceof DateTime) {
 			currentDate = time;
@@ -274,7 +274,7 @@ const Time = (() => {
 	}
 
 	function isBloodMoon(date) {
-		date = date ?? currentDate;
+		date ??= currentDate;
 		return (date.day === date.lastDayOfMonth && date.hour >= 21) || (date.day === 1 && date.hour < 6);
 	}
 
@@ -520,6 +520,9 @@ function dayPassed() {
 
 	Weather.sky.initSun();
 
+	// Lose one day of tanning
+	Skin.applyTanningLoss(1440);
+
 	if (V.statFreeze) return fragment;
 
 	fragment.append(wikifier("seenPassageChecks"));
@@ -633,7 +636,11 @@ function dayPassed() {
 		delete V.community_service_done;
 	}
 
-	if (V.awareness >= 300) V.awarelevel = 2;
+	if (V.awareness >= 1000) V.awarelevel = 6;
+	else if (V.awareness >= 800) V.awarelevel = 5;
+	else if (V.awareness >= 600) V.awarelevel = 4;
+	else if (V.awareness >= 400) V.awarelevel = 3;
+	else if (V.awareness >= 300) V.awarelevel = 2;
 	else if (V.awareness >= 200) V.awarelevel = 1;
 	else if (V.awareness <= -1) V.awarelevel = -1;
 	else V.awarelevel = 0;
@@ -644,6 +651,18 @@ function dayPassed() {
 		V.effectsmessage = 1;
 	} else if (V.awarelevel >= 2 && V.loveInterest.primary !== "None" && V.loveInterest.secondary === "None" && !V.loveInterestAwareMessage) {
 		V.loveInterest_message = 2;
+		V.effectsmessage = 1;
+	} else if (V.awarelevel >= 3 && V.loveInterest.primary !== "None" && V.loveInterest.secondary !== "None" && V.loveInterest.tertiary === "None" && V.loveInterestAwareMessage == 1) {
+		V.loveInterest_message = 3;
+		V.effectsmessage = 1;
+	} else if (V.awarelevel >= 4 && V.loveInterest.primary !== "None" && V.loveInterest.secondary !== "None" && V.loveInterest.tertiary !== "None" && V.loveInterest.quarternary === "None" && V.loveInterestAwareMessage == 2) {
+		V.loveInterest_message = 4;
+		V.effectsmessage = 1;
+	} else if (V.awarelevel >= 5 && V.loveInterest.primary !== "None" && V.loveInterest.secondary !== "None" && V.loveInterest.tertiary === "None" && V.loveInterest.quarternary !== "None" && V.loveInterest.quinary === "None" && V.loveInterestAwareMessage == 3) {
+		V.loveInterest_message = 5;
+		V.effectsmessage = 1;
+	} else if (V.awarelevel >= 6 && V.loveInterest.primary !== "None" && V.loveInterest.secondary !== "None" && V.loveInterest.tertiary !== "None" && V.loveInterest.quarternary !== "None" && V.loveInterest.quinary !== "None" && V.loveInterest.senary === "None" && V.loveInterestAwareMessage == 4) {
+		V.loveInterest_message = 6;
 		V.effectsmessage = 1;
 	}
 	if (V.pound) {
@@ -867,6 +886,52 @@ function dayPassed() {
 
 	V.daily.clearProperties();
 
+	if (V.stallDeposit >= 3000) {
+		V.stallDeposit -= 3000;
+		V.daily.stallRented = 1;
+	}
+
+	if (V.bike >= 1) {
+		if (V.bikeSecurityGear == 5) {
+			T.bikeTheftProtection = 999;
+		} else if (V.bikeSecurityGear == 4) {
+			T.bikeTheftProtection = 750;
+		} else if (V.bikeSecurityGear == 3) {
+			T.bikeTheftProtection = 500;
+		} else if (V.bikeSecurityGear == 2) {
+			T.bikeTheftProtection = 300;
+		} else if (V.bikeSecurityGear == 1) {
+			T.bikeTheftProtection = 100;
+		} else {
+			T.bikeTheftProtection = 0;
+		}
+		if (V.bikeLocationCategory == "lake") {
+			T.bikeTheftChance = 500 - T.bikeTheftProtection;
+		} else if (V.bikeLocationCategory == "left" || V.bikeLocationCategory == "mid" || V.bikeLocationCategory == "right") {
+			if (V.baileydefeatedchain >= 1) {
+				T.bikeTheftChanceBonus = 250;
+			} else {
+				T.bikeTheftChanceBonus = 0;
+			}
+			T.bikeTheftChance = 750 - T.bikeTheftProtection + T.bikeTheftChanceBonus;
+		} else if (V.bikeLocationCategory == "farm") {
+			if (V.farm?.aggro) T.bikeTheftChanceBonus = 900 * (V.farm.aggro / 100);
+			T.bikeTheftChance = 100 - T.bikeTheftProtection + T.bikeTheftChanceBonus;
+		} else {
+			T.bikeTheftChance = 0;
+		}
+		if ((random(1, 1000) <= T.bikeTheftChance) && V.bikeSecurity == 1) {
+			V.bikeStolen = 1;
+			V.bike = 0;
+			if (V.bikeSecurityGear >= 1) V.bikeSecurityGearStolen = 1;
+			V.bikeSecurityGear = 0;
+		}
+	}
+
+	if (V.dailySunscreen == true) {
+		V.effectsmessage = 1;
+	}
+
 	return fragment;
 }
 
@@ -963,9 +1028,7 @@ function minutePassed(minutes) {
 	}
 
 	// Tanning
-	if (V.outside) {
-		tanned(Weather.getTanningFactor().result, "tanLines");
-	}
+	Skin.applyTanningGain(minutes);
 
 	// Body temperature
 	const temperature = V.outside ? Weather.temperature : Weather.insideTemperature;
@@ -1271,10 +1334,6 @@ function dailyPlayerEffects() {
 		if (V.farm_stage >= 6) V.physique = V.physique - V.physique / 3000;
 		else V.physique = V.physique - V.physique / 2500;
 	}
-
-	/* PC loses 40 minutes of tanning every day */
-	tanned(-40, true);
-	V.skinColor.sunBlock = false;
 
 	V.hairlength += 3;
 	V.fringelength += 3;
@@ -1791,7 +1850,7 @@ function dailyMasochismSadismEffects() {
 		Wikifier.wikifyEval("<<sadism $dailySadism>>");
 	V.dailyMasochism = 0;
 		if (V.featsMasochismBoost) V.dailyMasochism += V.featsMasochismBoost;
-		Wikifier.wikifyEval("masochism $dailyMaso");
+		Wikifier.wikifyEval("<<masochism $dailyMasochism>>");
 
 	const masochism = effects(V.masochism_level, V.masochism);
 	if (masochism) {
@@ -1830,26 +1889,75 @@ function dailyFarmEvents() {
 		V.farm_attack_timer--;
 		if (V.farm_attack_timer < 0) fragment.append(wikifier("farm_attack_auto"));
 		if (V.farm.stock) {
-			V.farm.stock.truffles = Math.trunc(V.farm.stock.truffles * 0.8);
-			V.farm.stock.milk = Math.trunc(V.farm.stock.milk * 0.8);
-			V.farm.stock.eggs = Math.trunc(V.farm.stock.eggs * 0.8);
+			if (V.farm.cooler >= 3) {
+				V.farm.stock.truffles = Math.trunc(V.farm.stock.truffles * 0.99);
+				V.farm.stock.milk = Math.trunc(V.farm.stock.milk * 0.99);
+				V.farm.stock.eggs = Math.trunc(V.farm.stock.eggs * 0.99);
+			} else if (V.farm.cooler >= 2) {
+				V.farm.stock.truffles = Math.trunc(V.farm.stock.truffles * 0.95);
+				V.farm.stock.milk = Math.trunc(V.farm.stock.milk * 0.95);
+				V.farm.stock.eggs = Math.trunc(V.farm.stock.eggs * 0.95);
+			} else if (V.farm.cooler >= 1) {
+				V.farm.stock.truffles = Math.trunc(V.farm.stock.truffles * 0.9);
+				V.farm.stock.milk = Math.trunc(V.farm.stock.milk * 0.9);
+				V.farm.stock.eggs = Math.trunc(V.farm.stock.eggs * 0.9);
+			} else {
+				V.farm.stock.truffles = Math.trunc(V.farm.stock.truffles * 0.8);
+				V.farm.stock.milk = Math.trunc(V.farm.stock.milk * 0.8);
+				V.farm.stock.eggs = Math.trunc(V.farm.stock.eggs * 0.8);
+			}
 		}
-		if (V.farm.woodland >= 3) {
-			fragment.append(wikifier("farm_stock", "truffles", 6, 12));
+		if (V.farm.woodland >= 7) {
+			fragment.append(wikifier("farm_stock", "truffles", 192, 384));
+			fragment.append(wikifier("farm_pigs", -4));
+		} else if (V.farm.woodland >= 6) {
+			fragment.append(wikifier("farm_stock", "truffles", 96, 192));
+			fragment.append(wikifier("farm_pigs", -3));
+		} else if (V.farm.woodland >= 5) {
+			fragment.append(wikifier("farm_stock", "truffles", 48, 96));
+			fragment.append(wikifier("farm_pigs", -3));
+		} else if (V.farm.woodland >= 4) {
+			fragment.append(wikifier("farm_stock", "truffles", 24, 48));
 			fragment.append(wikifier("farm_pigs", -2));
+		} else if (V.farm.woodland >= 3) {
+			fragment.append(wikifier("farm_stock", "truffles", 12, 24));
+			fragment.append(wikifier("farm_pigs", -2));
+		} else if (V.farm.woodland >= 2) {
+			fragment.append(wikifier("farm_stock", "truffles", 6, 12));
+			fragment.append(wikifier("farm_pigs", -1));
 		} else if (V.farm.woodland >= 1) {
 			fragment.append(wikifier("farm_stock", "truffles", 3, 6));
 			fragment.append(wikifier("farm_pigs", -1));
 		}
-		if (V.farm.barn >= 2) {
-			fragment.append(wikifier("farm_stock", "milk", 12, 24));
+		if (V.farm.barn >= 7) {
+			fragment.append(wikifier("farm_stock", "milk", 1280, 2560));
+		} else if (V.farm.barn >= 6) {
+			fragment.append(wikifier("farm_stock", "milk", 640, 1280));
+		} else if (V.farm.barn >= 5) {
+			fragment.append(wikifier("farm_stock", "milk", 320, 640));
+		} else if (V.farm.barn >= 4) {
+			fragment.append(wikifier("farm_stock", "milk", 160, 320));
+		} else if (V.farm.barn >= 3) {
+			fragment.append(wikifier("farm_stock", "milk", 80, 160));
+		} else if (V.farm.barn >= 2) {
+			fragment.append(wikifier("farm_stock", "milk", 40, 80));
 		} else if (V.farm.barn >= 1) {
-			fragment.append(wikifier("farm_stock", "milk", 6, 12));
+			fragment.append(wikifier("farm_stock", "milk", 20, 40));
 		}
-		if (V.farm.coop >= 2) {
-			fragment.append(wikifier("farm_stock", "eggs", 12, 24));
+		if (V.farm.coop >= 7) {
+			fragment.append(wikifier("farm_stock", "eggs", 1280, 2560));
+		} else if (V.farm.coop >= 6) {
+			fragment.append(wikifier("farm_stock", "eggs", 640, 1280));
+		} else if (V.farm.coop >= 5) {
+			fragment.append(wikifier("farm_stock", "eggs", 320, 640));
+		} else if (V.farm.coop >= 4) {
+			fragment.append(wikifier("farm_stock", "eggs", 160, 320));
+		} else if (V.farm.coop >= 3) {
+			fragment.append(wikifier("farm_stock", "eggs", 80, 160));
+		} else if (V.farm.coop >= 2) {
+			fragment.append(wikifier("farm_stock", "eggs", 40, 80));
 		} else if (V.farm.coop >= 1) {
-			fragment.append(wikifier("farm_stock", "eggs", 6, 12));
+			fragment.append(wikifier("farm_stock", "eggs", 20, 40));
 		}
 		if (V.farm.kennel >= 1) {
 			fragment.append(wikifier("farm_dogs", -1));
@@ -1994,6 +2102,7 @@ function getArousal(passMinutes) {
 	if (V.parasite.nipples.name) addedArousal += minuteMultiplier * V.breastsensitivity;
 	if (V.parasite.penis.name && V.parasite.penis.name !== "parasite") addedArousal += minuteMultiplier * V.genitalsensitivity;
 	if (V.parasite.clit.name && V.parasite.clit.name !== "parasite") addedArousal += minuteMultiplier * V.genitalsensitivity;
+	if (V.parasite.tummy.name) addedArousal += minuteMultiplier / 4;
 	if (V.parasite.bottom.name) addedArousal += minuteMultiplier * V.bottomsensitivity;
 	if (V.analchastityparasite) addedArousal += minuteMultiplier;
 	if (V.parasite.tummy.name) addedArousal += minuteMultiplier;

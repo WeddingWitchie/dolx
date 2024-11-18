@@ -1,0 +1,208 @@
+:: Widgets Bike [widget]
+
+<<widget "bike">>
+	<<if ($bikeLocation is $bikeStart and $bikePersistentLocation is 1) or $bikePersistentLocation is 0>>
+		<<if (($exposed gte 1 and Time.dayState is "night") or $exposed is 0) and $bike gte 1 and $bikeBroken is undefined and $bikeStolen is undefined>>
+			<<bikeicon>><<link [[Get on your bike (0:01)|Bike]]>><<pass 1>><</link>>
+		<<elseif $bikeStolen isnot undefined>>
+			<span class="red">Your bike was stolen!</span>
+			<<if $bikeSecurityGearStolen isnot undefined>>
+				<span class="red">They've even taken your security gear!</span>
+			<</if>>
+			<<if $bikeLocationCategory is "lake">>
+				Some student must've stolen it.
+			<<elseif $bikeLocationCategory is "left" or $bikeLocationCategory is "mid" or $bikeLocationCategory is "right">>
+				<<if $baileydefeatedchain gte 1>>
+					Bailey's goons probably had something to do with it.
+				<<else>>
+					Some townie must've stolen it.
+				<</if>>
+			<<elseif $bikeLocationCategory is "farm">>
+				<<if $farm?.aggro gte 20>>
+					Remy's goons probably had something to do with it.
+				<<else>>
+					Some bumpkin must've stolen it.
+				<</if>>
+			<</if>>
+			<<unset $bikeStolen>>
+			<<unset $bikeSecurityGearStolen>>
+		<<elseif $bikeBroken isnot undefined>>
+			<span class="red">Your bike is broken!</span> It's unusable until you repair it back at the bike depot.
+		<</if>>
+		<br>
+	<</if>>
+<</widget>>
+
+<<widget "cancelBike">>
+	<<switch $bikeStart>>
+		<<case "nightingale">>
+			<<nightingalequick>>
+		<<case "domus">>
+			<<domusquick>>
+		<<case "elk">>
+			<<elkquick>>
+		<<case "high">>
+			<<highquick>>
+		<<case "starfish">>
+			<<starfishquick>>
+		<<case "barb">>
+			<<barbquick>>
+		<<case "connudatus">>
+			<<connudatusquick>>
+		<<case "wolf">>
+			<<wolfquick>>
+		<<case "harvest">>
+			<<harvestquick>>
+		<<case "oxford">>
+			<<oxfordquick>>
+		<<case "danube">>
+			<<danubequick>>
+		<<case "mer">>
+			<<merquick>>
+		<<case "cliff">>
+			<<cliffquick>>
+		<<case "lake">>
+			<<lakequick>>
+		<<case "farm">>
+			<<farmicon>><<link [[Farmland|Farmland]]>><</link>>
+	<</switch>>
+	<br><br>
+<</widget>>
+
+<<widget "destinationBike">>
+	<<if $bikeStartCategory is "lake">>
+		<<if $bikeEndCategory is "lake">>
+			<<set _quick to 1>>
+		<<elseif $bikeEndCategory is "left">>
+			<<set _time to 2>>
+		<<elseif $bikeEndCategory is "mid">>
+			<<set _time to 2>>
+		<<elseif $bikeEndCategory is "right">>
+			<<set _time to 3>>
+		<<elseif $bikeEndCategory is "farm">>
+			<<set _time to 38>>
+		<<else>>
+			<<set _error to true>>
+		<</if>>
+	<<elseif $bikeStartCategory is "left">>
+		<<if $bikeEndCategory is "lake">>
+			<<set _time to 2>>
+		<<elseif $bikeEndCategory is "left">>
+			<<set _time to 1>>
+		<<elseif $bikeEndCategory is "mid">>
+			<<set _time to 2>>
+		<<elseif $bikeEndCategory is "right">>
+			<<set _time to 3>>
+		<<elseif $bikeEndCategory is "farm">>
+			<<set _time to 38>>
+		<<else>>
+			<<set _error to true>>
+		<</if>>
+	<<elseif $bikeStartCategory is "mid">>
+		<<if $bikeEndCategory is "lake">>
+			<<set _time to 2>>
+		<<elseif $bikeEndCategory is "left">>
+			<<set _time to 1>>
+		<<elseif $bikeEndCategory is "mid">>
+			<<set _time to 1>>
+		<<elseif $bikeEndCategory is "right">>
+			<<set _time to 1>>
+		<<elseif $bikeEndCategory is "farm">>
+			<<set _time to 36>>
+		<<else>>
+			<<set _error to true>>
+		<</if>>
+	<<elseif $bikeStartCategory is "right">>
+		<<if $bikeEndCategory is "lake">>
+			<<set _time to 3>>
+		<<elseif $bikeEndCategory is "left">>
+			<<set _time to 2>>
+		<<elseif $bikeEndCategory is "mid">>
+			<<set _time to 1>>
+		<<elseif $bikeEndCategory is "right">>
+			<<set _time to 1>>
+		<<elseif $bikeEndCategory is "farm">>
+			<<set _time to 36>>
+		<<else>>
+			<<set _error to true>>
+		<</if>>
+	<<elseif $bikeStartCategory is "farm">>
+		<<if $bikeEndCategory is "lake">>
+			<<set _time to 39>>
+		<<elseif $bikeEndCategory is "left">>
+			<<set _time to 38>>
+		<<elseif $bikeEndCategory is "mid">>
+			<<set _time to 37>>
+		<<elseif $bikeEndCategory is "right">>
+			<<set _time to 36>>
+		<<elseif $bikeEndCategory is "farm">>
+			<<set _quick to 1>>
+		<<else>>
+			<<set _error to true>>
+		<</if>>
+	<<else>>
+		<<set _error to true>>
+	<</if>>
+	<<if _error isnot undefined>>
+		<<unset _error>>
+		<<bikeError>>
+	<<elseif _quick isnot undefined>>
+		<<unset _quick>>
+		<<if $bikeStartCategory is "lake">>
+			<<lakequick>>
+		<<elseif $bikeStartCategory is "farm">>
+			<<farmicon>><<link [[Farmland|Farmland]]>><</link>>
+		<<else>>
+			<<bikeError>>
+		<</if>>
+	<<else>>
+		<<set $bikeDurability to Math.max($bikeDurability - _time, 0)>>
+		<<if $bikeDurability is 0>><<set $bikeBroken to 1>><</if>>
+		<<set $bikeLocation to $bikeDestination>>
+		<<set $bikeLocationCategory to $bikeEndCategory>>
+		<<set _tirednessGain to _time / 3>><<set _athleticsGain to _time / 6>><<set _physiqueGain to _baseGain / 12>>
+		<<tiredness _tirednessGain>><<athletics _athleticsGain>><<physique _physiqueGain>>
+		<<gtiredness>><<gathletics>>
+		<br><br>
+		<<set _timeString to getTimeString(_time)>>
+		<<switch $bikeDestination>>
+			<<case "nightingale">>
+				<<nightingaleicon>><<link [["Nightingale Street (" + _timeString + ") (Hospital)"|Nightingale Street]]>><<pass _time>><</link>><br>
+			<<case "domus">>
+				<<domusicon>><<link [["Domus Street (" + _timeString + ") (Home)"|Domus Street]]>><<pass _time>><</link>><br>
+			<<case "elk">>
+				<<elkicon>><<link [["Elk Street (" + _timeString + ")"|Elk Street]]>><<pass _time>><</link>><br>
+			<<case "high">>
+				<<highicon>><<link [["High Street (" + _timeString + ") (Shopping Centre)"|High Street]]>><<pass _time>><</link>><br>
+			<<case "starfish">>
+				<<starfishicon>><<link [["Starfish Street (" + _timeString + ") (Beach)"|Starfish Street]]>><<pass _time>><</link>><br>
+			<<case "barb">>
+				<<barbicon>><<link [["Barb Street (" + _timeString + ") (Studio)"|Barb Street]]>><<pass _time>><</link>><br>
+			<<case "connudatus">>
+				<<connudatusicon>><<link [["Connudatus Street (" + _timeString + ") (Clubs)"|Connudatus Street]]>><<pass _time>><</link>><br>
+			<<case "wolf">>
+				<<wolficon>><<link [["Wolf Street (" + _timeString + ") (Temple)"|Wolf Street]]>><<pass _time>><</link>><br>
+			<<case "harvest">>
+				<<harvesticon>><<link [["Harvest Street (" + _timeString + ") (Pub)"|Harvest Street]]>><<pass _time>><</link>><br>
+			<<case "oxford">>
+				<<oxfordicon>><<link [["Oxford Street (" + _timeString + ") (School)"|Oxford Street]]>><<pass _time>><</link>><br>
+			<<case "danube">>
+				<<danubeicon>><<link [["Danube Street (" + _timeString + ") (Mansions)"|Danube Street]]>><<pass _time>><</link>><br>
+			<<case "mer">>
+				<<mericon>><<link [["Mer Street (" + _timeString + ") (Docks)"|Mer Street]]>><<pass _time>><</link>><br>
+			<<case "cliff">>
+				<<clifficon>><<link [["Cliff Street (" + _timeString + ") (Cafe)"|Cliff Street]]>><<pass _time>><</link>><br>
+			<<case "lake">>
+				<<lakeicon>><<link [["Lake (" + _timeString + ")"|Lake Bus]]>><<pass _time>><</link>><br>
+			<<case "farm">>
+				<<farmicon>><<link [["Farmland (" + _timeString + ")"|Farmland]]>><<pass _time>><</link>><br>
+		<</switch>>
+	<</if>>
+
+<</widget>>
+
+<<widget "bikeError">>
+	<span class="red">Something went wrong.</span> Please inform Frostberg and include your save.
+	<br><br>
+	<<domusquick>>
+<</widget>>

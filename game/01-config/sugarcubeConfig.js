@@ -12,7 +12,7 @@ const StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.5.1.3 DoLP version",
+	version: "0.5.2.8 DoLP version",
 	versionName: `"Head in the Clouds" edition`,
 	sneaky: false,
 	socialMediaEnabled: true,
@@ -162,6 +162,10 @@ Config.navigation.override = function (dest) {
 	const checkPassages = dest => {
 		const lastVersion = DoLSave.Utils.parseVer(V.saveVersions.last());
 		const currVersion = DoLSave.Utils.parseVer(StartConfig.version);
+		if (V.saveVersion.includes("DoLP") && !StartConfig.version.includes("DoLP")) {
+			V.bypassHeader = true;
+			return "Modded Waiting Room";
+		}
 		if (lastVersion > currVersion) {
 			V.bypassHeader = true;
 			return "Downgrade Waiting Room";
@@ -171,6 +175,9 @@ Config.navigation.override = function (dest) {
 			/* Try not to include "Playground" in any passage names after this. */
 		}
 		switch (dest) {
+			case "Modded Waiting Room":
+				return V.passage;
+
 			case "Downgrade Waiting Room":
 				return V.passage;
 

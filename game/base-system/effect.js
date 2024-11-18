@@ -44,7 +44,7 @@ function effectsWater() {
 			break;
 	}
 	if (!V.worn.upper.type.includes("naked") && !waterproofCheck(V.worn.upper)) {
-		if (V.upperwet >= 100 && V.upperwetstage < 3) {
+		if (V.upperwet >= 100 && V.upperwetstage < 3 && !antitransparentCheck(V.worn.upper)) {
 			V.upperwetstage = 3;
 			wetIntro = 2;
 			sWikifier(`<span class="lewd">Water soaks through your ${V.worn.upper.name}, exposing your <<undertop>>.</span>`);
@@ -68,7 +68,7 @@ function effectsWater() {
 	}
 
 	if (!V.worn.lower.type.includes("naked") && !waterproofCheck(V.worn.lower)) {
-		if (V.lowerwet >= 100 && V.lowerwetstage < 3) {
+		if (V.lowerwet >= 100 && V.lowerwetstage < 3 && !antitransparentCheck(V.worn.lower)) {
 			V.lowerwetstage = 3;
 			wetIntro = 2;
 			sWikifier(`<span class="lewd">Water soaks through your ${V.worn.lower.name}, exposing your <<undies>>.</span>`);
@@ -92,7 +92,7 @@ function effectsWater() {
 	}
 
 	if (!V.worn.under_lower.type.includes("naked") && !playerChastity() && !waterproofCheck(V.worn.under_lower)) {
-		if (V.underlowerwet >= 100 && V.underlowerwetstage < 3 && V.pantiesSoaked) {
+		if (V.underlowerwet >= 100 && V.underlowerwetstage < 3 && V.pantiesSoaked && !antitransparentCheck(V.worn.under_lower)) {
 			V.underlowerwetstage = 3;
 			if (V.lowerwetstage === 3 || V.worn.lower.type.includes("naked")) {
 				// If clothing above underwear is also wet, or missing
@@ -105,7 +105,7 @@ function effectsWater() {
 			} else {
 				span(`Your bodily fluids soak through your ${V.worn.under_lower.name}.`, "lewd");
 			}
-		} else if (V.underlowerwet >= 100 && V.underlowerwetstage < 3) {
+		} else if (V.underlowerwet >= 100 && V.underlowerwetstage < 3 && !antitransparentCheck(V.worn.under_lower)) {
 			V.underlowerwetstage = 3;
 			wetIntro = 2;
 			sWikifier(`<span class="lewd">Water soaks through your ${V.worn.under_lower.name}, exposing your <<genitals>>.</span>`);
@@ -129,7 +129,7 @@ function effectsWater() {
 	}
 
 	if (!V.worn.under_upper.type.includes("naked") && !V.worn.under_upper.type.includes("chastity") && !waterproofCheck(V.worn.under_upper)) {
-		if (V.underupperwet >= 100 && V.underupperwetstage < 3) {
+		if (V.underupperwet >= 100 && V.underupperwetstage < 3 && !antitransparentCheck(V.worn.under_upper)) {
 			V.underupperwetstage = 3;
 			wetIntro = 2;
 			sWikifier(`<span class="lewd">Water soaks through your ${V.worn.under_upper.name}, exposing your <<breasts>>.</span>`);
@@ -340,7 +340,7 @@ function effects() {
 		br();
 	}
 
-	if (V.effectsmessage) {
+	if (V.effectsmessage && !V.statFreeze) {
 		delete V.effectsmessage;
 
 		if (V.recovered_from_pregnancy) {
@@ -632,6 +632,15 @@ function effects() {
 			delete V.pillsTakenLast;
 		}
 
+		if (V.dailySunscreen == true) {
+			if (Skin.Sunscreen.usesLeft > 0) {
+				Skin.Sunscreen.apply();
+				element("span", "You apply sunscreen for the day.", "purple");
+			} else {
+				element("span", "You don't have any sunscreen to apply.", "red");
+			}
+		}
+
 		if (V.hairGrowthApplied) {
 			element("span", `You apply growth formula to your hair${V.hairGrowthAppliedLast ? "," : "."}`, "purple");
 			if (V.hairGrowthAppliedLast) element("span", "but used the last of it.", "red");
@@ -881,6 +890,22 @@ function effects() {
 			element("i", "Your mind is open to the possibility of multiple lovers. You may now choose a second love interest.", "pink");
 			delete V.loveInterest_message;
 			V.loveInterestAwareMessage = 1;
+		} else if (V.loveInterest_message === 3 && V.loveInterestAwareMessage == 1) {
+			element("i", "Your mind is open to the possibility of multiple lovers. You may now choose a third love interest.", "pink");
+			delete V.loveInterest_message;
+			V.loveInterestAwareMessage = 2;
+		} else if (V.loveInterest_message === 4 && V.loveInterestAwareMessage == 2) {
+			element("i", "Your mind is open to the possibility of multiple lovers. You may now choose a fourth love interest.", "pink");
+			delete V.loveInterest_message;
+			V.loveInterestAwareMessage = 3;
+		} else if (V.loveInterest_message === 5 && V.loveInterestAwareMessage == 3) {
+			element("i", "Your mind is open to the possibility of multiple lovers. You may now choose a fifth love interest.", "pink");
+			delete V.loveInterest_message;
+			V.loveInterestAwareMessage = 4;
+		} else if (V.loveInterest_message === 6 && V.loveInterestAwareMessage == 4) {
+			element("i", "Your mind is open to the possibility of multiple lovers. You may now choose a sixth love interest.", "pink");
+			delete V.loveInterest_message;
+			V.loveInterestAwareMessage = 5;
 		}
 
 		if (V.fallenangelmessage) {
@@ -1053,7 +1078,7 @@ function effects() {
 		}
 	}
 
-	if (numberOfEarSlime() && V.earSlime.event) {
+	if (numberOfEarSlime() && V.earSlime.event && !V.statFreeze) {
 		if (V.earSlime.event.includes("get sperm into your") && V.earSlime.event.includes("completed") && V.earSlime.eventTimer <= 2) {
 			element(
 				"span",
@@ -1093,6 +1118,7 @@ function effects() {
 	sWikifier("<<integritycheck>><<exposure>>");
 
 	V.orgasmdown -= 1;
+	V.orgasmCum -= 1;
 
 	if (V.exposed >= 1 && V.exposedcheck === 1) {
 		V.exposedcheck = 0;
@@ -1109,7 +1135,7 @@ function effects() {
 
 	sWikifier("<<heelsUpdate>>");
 
-	if (V.combat) sWikifier("<<pass 10 seconds>>");
+	if (V.combat) sWikifier("<<pass $combatTimePass seconds>>");
 
 	if (fragment.children.length) br();
 
@@ -1118,10 +1144,18 @@ function effects() {
 	if (V.combat === 0 && V.ironmanmode === true) IronMan.scheduledSaves();
 
 	if (V.tirednessMaxScalingToggle) {
-		C.tiredness.max = 2000 + Math.floor(V.physique / 32) + Math.floor(V.willpower / 2);
+		C.tiredness.max = 2000 + Math.floor(V.physique / 32);
 	} else {
 		C.tiredness.max = 2000;
 	}
+
+	if (V.stressMaxScalingToggle) {
+		V.stressmax = 10000 + Math.floor(V.willpower * 5);
+	} else {
+		V.stressmax = 10000;
+	}
+
+	if (V.trauma >= (V.traumamax * 0.9)) V.traumatized = true;
 
 	return fragment;
 }

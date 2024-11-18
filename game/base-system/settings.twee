@@ -17,7 +17,7 @@
 	<<set $hairselect to "red">>
 	<<set $hairlength to 200>>
 	<<set $awareselect to "innocent">>
-	<<set $background to "waif">>
+	/* <<set $background to "waif">> */
 	<<set $startingseason to "autumn">>
 	<<set $gamemode to "normal">>
 	<<set $blackchance to 10>>
@@ -91,8 +91,8 @@
 	<<set $condomUseChanceCon to 83>>
 	<<set $multipleWardrobes to "isolated">>
 	<<set $tending_yield_factor to 5>>
-
 	<<set $notifyUpdate = true>>
+	<<set _tan to 0>>
 
 	<<startingPlayerImageReset>>
 <</widget>>
@@ -112,6 +112,7 @@
 			<<if StartConfig.enableImages and $passage is "Start">><<startingPlayerImageUpdate>><<removeclass #startingPlayerImage "hidden">><</if>>
 		<<case "featSettings" "feat">><<replace #settingsDiv>><<featSettings>><</replace>>
 		<<case "gameSettings" "game">><<replace #settingsDiv>><<gameSettings>><</replace>>
+		<<case "dolpSettings" "dolp">><<replace #settingsDiv>><<dolpSettings>><</replace>>
 		<<case "sizeLimitsSettings" "size">><<replace #settingsDiv>><<sizeLimitsSettings>><</replace>>
 		<<case "npcSettings" "npc">><<replace #settingsDiv>><<npcSettings>><</replace>>
 		<<case "exportsettings" "export">><<replace #settingsDiv>><<exportsettings>><</replace>>
@@ -138,14 +139,25 @@
 		<<case "priceSettings">><<set _subsection to "price">><<replace #subsectionDiv>><<priceSettings>><</replace>>
 		<<case "pregnancySettings">><<set _subsection to "pregnancy">><<replace #subsectionDiv>><<pregnancySettings>><</replace>>
 		<<case "sizeLimitsSettings">><<set _subsection to "sizeLimits">><<replace #subsectionDiv>><div class="solidBorderContainer settings-container"><<sizeLimitsSettings>></div><</replace>>
-		<<case "combatExtendedSettings">><<set _subsection to "combatExtended">><<replace #subsectionDiv>><<combatExtendedSettings>><</replace>>
-		<<case "amcTraitsSettings">><<set _subsection to "amcTraits">><<replace #subsectionDiv>><<amcTraitsSettings>><</replace>>
 		<<default>><<set _subsection to "human">><<replace #subsectionDiv>><<humanSettings>><</replace>>
 	<</switch>>
 	<<run settingsDisableElement()>>
 <</widget>>
 
-<<widget "fa-icon">><span @class="'fa-icon fa-' + _args.raw" alt="' + _args.raw + '"></span><</widget>>
+<<widget "displayDoLP">>
+	<<if _args[0]>>
+		<<set $currentDoLP to _args[0]>>
+	<</if>>
+	<<switch $currentDoLP>>
+		<<case "rebalanceSettings">><<set _dolp to "rebalance">><<replace #subsectionDiv>><<rebalanceSettings>><</replace>>
+		<<case "npcDoLPSettings">><<set _dolp to "npcDoLP">><<replace #subsectionDiv>><<npcDoLPSettings>><</replace>>
+		<<case "beastDoLPSettings">><<set _dolp to "beastDoLP">><<replace #subsectionDiv>><<beastDoLPSettings>><</replace>>
+		<<case "combatExtendedSettings">><<set _dolp to "combatExtended">><<replace #subsectionDiv>><<combatExtendedSettings>><</replace>>
+		<<case "amcTraitsSettings">><<set _dolp to "amcTraits">><<replace #subsectionDiv>><<amcTraitsSettings>><</replace>>
+		<<default>><<set _dolp to "rebalance">><<replace #subsectionDiv>><<rebalanceSettings>><</replace>>
+	<</switch>>
+	<<run settingsDisableElement()>>
+<</widget>>
 
 <<widget "startOptionsComplexityButton">>
 	<div @class="_selectedStart is _args[1] ? 'gold buttonStartSelected' : 'buttonStart'" >
@@ -220,6 +232,8 @@
 				<<settingsTabButton "Character Creation<span class='red'> *</span>" "character">>
 			/*Game Settings*/
 				<<settingsTabButton "Game Settings" "game">>
+			/*DoLP Settings*/
+				<<settingsTabButton "DoLP Settings" "dolp">>
 			/*Feat Boosts*/
 				<<settingsTabButton _featTabName "feat">>
 			/*Gallery*/
@@ -290,6 +304,15 @@
 			<<unset _beastMaleChanceSplit>>
 			<<unset _pregnancytype>>
 			<<unset _incompletePregnancyDisable>>
+		<</button>>
+	</div>
+	<div @class="_selectedSettings is 'dolp' ? 'gold buttonStartSelected' : 'buttonStart'" >
+		<<button "DoLP Settings">>
+			<<set _selectedSettings to "dolp">>
+			<<set _dolp to "rebalance">>
+			<<replace #settingsOptions>><<settingsOptions>><</replace>>
+			<<replace #settingsExit>><<settingsExit>><</replace>>
+			<<displaySettings "dolpSettings">>
 		<</button>>
 	</div>
 	<div @class="_selectedSettings is 'gallery' ? 'gold buttonStartSelected' : 'buttonStart'" >
@@ -644,10 +667,9 @@
 	<<set $combatExtended.enemyHealthDefeatScalingMult to Math.clamp($combatExtended.enemyHealthDefeatScalingMult, 1, 1000000)>>
 	<<set $combatExtended.enemyDefeatScaling to Math.clamp($combatExtended.enemyDefeatScaling, 1, 1000000)>>
 	<<set $combatExtended.enemyDefeatScalingLimit to Math.clamp($combatExtended.enemyDefeatScalingLimit, 1, 1000000)>>
+	<<set $combatTimePass to Math.clamp($combatTimePass, 1, 1000000)>>
 	<<amcTraitsUpdate>>
-	<<if $settingsExitPassage is "Start2">>
-		<<setSkinColorBase>>
-	<</if>>
+	<<modWardrobeUpdate>>
 	<<if !$ironmanmode>>
 		<<set $cheatdisable to $cheatdisabletoggle>>
 	<</if>>
@@ -669,7 +691,6 @@
 	<<updatePersistentNPCs>>
 	<<hirsuteHideCheck>>
 	<<generateTipsList>>
-	<<tanned 0 "ignoreCoverage">>
 	<<if $player.freckles is "random">>
 		<<set $player.freckles to (random(1, 5) is 1)>>
 	<</if>>
@@ -1007,7 +1028,6 @@
 	<hr>
 
 	<<sizeLimitsSettings>>
-
 	<hr>
 
 	<div class="settingsGrid">
@@ -1016,31 +1036,30 @@
 		</div>
 		<div class="settingsToggleItem">
 			<span class="gold">Reddish:</span><br>
-			<label>Light <<radiobutton "$skinColor.natural" "light" autocheck>></label> |
-			<label>Medium <<radiobutton "$skinColor.natural" "medium" autocheck>></label> |
-			<label>Dark <<radiobutton "$skinColor.natural" "dark" autocheck>></label> |
-			<label>Gyaru <<radiobutton "$skinColor.natural" "gyaru" autocheck>></label>
+			<label>Light <<radiobutton "$player.skin.color" "light" autocheck>></label> |
+			<label>Medium <<radiobutton "$player.skin.color" "medium" autocheck>></label> |
+			<label>Dark <<radiobutton "$player.skin.color" "dark" autocheck>></label> |
+			<label>Gyaru <<radiobutton "$player.skin.color" "gyaru" autocheck>></label>
 		</div>
 		<div class="settingsToggleItem">
 			<span class="gold">Yellowish:</span><br>
-			<label>Light <<radiobutton "$skinColor.natural" "ylight" autocheck>></label> |
-			<label>Medium <<radiobutton "$skinColor.natural" "ymedium" autocheck>></label> |
-			<label>Dark <<radiobutton "$skinColor.natural" "ydark" autocheck>></label> |
-			<label>Gyaru <<radiobutton "$skinColor.natural" "ygyaru" autocheck>></label>
+			<label>Light <<radiobutton "$player.skin.color" "ylight" autocheck>></label> |
+			<label>Medium <<radiobutton "$player.skin.color" "ymedium" autocheck>></label> |
+			<label>Dark <<radiobutton "$player.skin.color" "ydark" autocheck>></label> |
+			<label>Gyaru <<radiobutton "$player.skin.color" "ygyaru" autocheck>></label>
 		</div>
 		<div class="settingsToggleItemWide">
 			<div class="numberslider-inline">
-			<label><span class="gold">Initial Tan Value:</span> <<numberslider "$skinColor.range" $skinColor.range 0 100 1>></label>
+			<label><span class="gold">Initial Tan Value:</span>
+			<<numberslider "_tan" _tan 0 100 1 {
+				onInputChange: value => {
+					 Skin.color.setTan(value);
+					 Wikifier.wikifyEval("<<startingPlayerImageUpdate>>");
+				},
+				value: v => `${v}%`
+			}>>
+			</label>
 			</div>
-			<<if StartConfig.enableImages is true>>
-				<<link "Test Colour">>
-					<<replace #test>>
-						<<print '<div style="height: 30px; width: 50px; background-color: red; filter: '
-						+skinColor(true, $skinColor.range, setup.skinColor[$skinColor.natural])+';"></div>'>>
-					<</replace>>
-				<</link>> (approximate)
-				<div id="test">/*<<print '<div style="height: 30px; width: 50px; background-color: red; filter: '+skinColor($options.tanImgEnabled, $skinColor.range,setup.skinColor[$skinColor.natural])+';"></div>'>>*/</div>
-			<</if>>
 		</div>
 	</div>
 
@@ -1086,7 +1105,10 @@
 			<span class="gold">Hair length:</span><br>
 			<label>Ear <<radiobutton "$hairlength" 0 autocheck>></label> |
 			<label>Neck <<radiobutton "$hairlength" 200 autocheck>></label> |
-			<label>Chest <<radiobutton "$hairlength" 400 autocheck>></label>
+			<label>Chest <<radiobutton "$hairlength" 400 autocheck>></label> |
+			<label>Navel <<radiobutton "$hairlength" 600 autocheck>></label> |
+			<label>Thighs <<radiobutton "$hairlength" 700 autocheck>></label> |
+			<label>Feet <<radiobutton "$hairlength" 900 autocheck>></label>
 		</div>
 		<div class="settingsToggleItem">
 			<span class="gold">Freckles:</span><br>
@@ -1105,28 +1127,32 @@
 		<div class="settingsToggleItem">
 			<span class="gold">Mouth sensitivity:</span><br>
 			<label>Normal <<radiobutton "$mouthsensitivity" 1 autocheck>></label> |
-			<label><span class="pink">Sensitive</span> <<radiobutton "$mouthsensitivity" 2 autocheck>></label> |
-			<label><span class="red">Very sensitive</span> <<radiobutton "$mouthsensitivity" 3 autocheck>></label>
+			<label><span class="light-pink">Sensitive</span> <<radiobutton "$mouthsensitivity" 2 autocheck>></label> |
+			<label><span class="pink">Very sensitive</span> <<radiobutton "$mouthsensitivity" 3 autocheck>></label> |
+			<label><span class="red">Hyper sensitive</span> <<radiobutton "$mouthsensitivity" 4 autocheck>></label>
 		</div>
 		<div class="settingsToggleItem">
 			<span class="gold">Chest sensitivity:</span><br>
 			<label>Normal <<radiobutton "$breastsensitivity" 1 autocheck>></label> |
-			<label><span class="pink">Sensitive</span> <<radiobutton "$breastsensitivity" 2 autocheck>></label> |
-			<label><span class="red">Very sensitive</span> <<radiobutton "$breastsensitivity" 3 autocheck>></label>
+			<label><span class="light-pink">Sensitive</span> <<radiobutton "$breastsensitivity" 2 autocheck>></label> |
+			<label><span class="pink">Very sensitive</span> <<radiobutton "$breastsensitivity" 3 autocheck>></label> |
+			<label><span class="red">Hyper sensitive</span> <<radiobutton "$breastsensitivity" 4 autocheck>></label>
 		</div>
 
 		<div class="settingsToggleItem">
 			<span class="gold">Ass sensitivity:</span><br>
 			<label>Normal <<radiobutton "$bottomsensitivity" 1 autocheck>></label> |
-			<label><span class="pink">Sensitive</span> <<radiobutton "$bottomsensitivity" 2 autocheck>></label> |
-			<label><span class="red">Very sensitive</span> <<radiobutton "$bottomsensitivity" 3 autocheck>></label>
+			<label><span class="light-pink">Sensitive</span> <<radiobutton "$bottomsensitivity" 2 autocheck>></label> |
+			<label><span class="pink">Very sensitive</span> <<radiobutton "$bottomsensitivity" 3 autocheck>></label> |
+			<label><span class="red">Hyper sensitive</span> <<radiobutton "$bottomsensitivity" 4 autocheck>></label>
 		</div>
 
 		<div class="settingsToggleItem">
 			<span class="gold">Genital sensitivity:</span><br>
 			<label>Normal <<radiobutton "$genitalsensitivity" 1 autocheck>></label> |
-			<label><span class="pink">Sensitive</span> <<radiobutton "$genitalsensitivity" 2 autocheck>></label> |
-			<label><span class="red">Very sensitive</span> <<radiobutton "$genitalsensitivity" 3 autocheck>></label>
+			<label><span class="light-pink">Sensitive</span> <<radiobutton "$genitalsensitivity" 2 autocheck>></label> |
+			<label><span class="pink">Very sensitive</span> <<radiobutton "$genitalsensitivity" 3 autocheck>></label> |
+			<label><span class="red">Hyper sensitive</span> <<radiobutton "$genitalsensitivity" 4 autocheck>></label>
 		</div>
 	</div>
 
@@ -1151,35 +1177,28 @@
 		</div>
 		<div class="settingsToggleItemWide">
 			<span class="gold">Background:</span><br>
-			<label><span class="green">Waif</span> <<radiobutton "$background" "waif" autocheck>> - No special advantages or disadvantages. <i>Recommended for beginners.</i></label>
+			<label><span class="teal">Nerd</span> <<checkbox "$background.nerd" false true autocheck>> - Good at school. Picked on. <span class="red">(This will prevent the 'Unsocial Moth' feat from being earned)</span></label>
 			<br>
-			<label><span class="teal">Nerd</span> <<radiobutton "$background" "nerd" autocheck>> - Good at school. Picked on. <span class="red">(This will prevent the 'Unsocial Moth' feat from being earned)</span></label>
+			<label><span class="teal">Athlete</span> <<checkbox "$background.athlete" false true autocheck>> - Physically capable. Grades have suffered.</label>
 			<br>
-			<label><span class="teal">Athlete</span> <<radiobutton "$background" "athlete" autocheck>> - Physically capable. Grades have suffered.</label>
+			<label><span class="teal">Delinquent</span> <<checkbox "$background.delinquent" false true autocheck>> - Your antics have made you popular with other students. Less so with the teachers.</label>
 			<br>
-			<label><span class="teal">Delinquent</span> <<radiobutton "$background" "delinquent" autocheck>> - Your antics have made you popular with other students. Less so with the teachers.</label>
+			<label><span class="blue">Promiscuous</span> <<checkbox "$background.promiscuous" false true autocheck>> - You've experimented sexually.</label>
 			<br>
-			<label><span class="blue">Promiscuous</span> <<radiobutton "$background" "promiscuous" autocheck>> - You've experimented sexually.</label>
+			<label><span class="blue">Exhibitionist</span> <<checkbox "$background.exhibitionist" false true autocheck>> - You have an affinity for exposing yourself in public places.</label>
 			<br>
-			<label><span class="blue">Exhibitionist</span> <<radiobutton "$background" "exhibitionist" autocheck>> - You have an affinity for exposing yourself in public places.</label>
+			<label><span class="blue">Deviant</span> <<checkbox "$background.deviant" false true autocheck>> - You <i>really</i> like animals.</label>
 			<br>
-			<label><span class="blue">Deviant</span> <<radiobutton "$background" "deviant" autocheck>> - You <i>really</i> like animals.</label>
+			<label><span class="lewd">Beautiful</span> <<checkbox "$background.beautiful" false true autocheck>> - You turn heads. <i>Not recommended for beginners.</i></label>
 			<br>
-			<label><span class="lewd">Beautiful</span> <<radiobutton "$background" "beautiful" autocheck>> - You turn heads. <i>Not recommended for beginners.</i></label>
+			<label data-target="player.gender" data-disabledif="V.player.gender==='h'"><span class="lewd">Crossdresser</span> <<checkbox "$background.crossdresser" false true autocheck>> - You've taken a liking to the clothing of the opposite sex. Does nothing for hermaphrodites.</label>
 			<br>
-			<label data-target="player.gender" data-disabledif="V.player.gender==='h'"><span class="lewd">Crossdresser</span> <<radiobutton "$background" "crossdresser" autocheck>> - You've taken a liking to the clothing of the opposite sex. Does nothing for hermaphrodites.</label>
-			<br>
-			<label><span class="lewd">Lustful</span> <<radiobutton "$background" "lustful" autocheck>> - Arousal increases over time, and needs to be managed.</label>
+			<label><span class="lewd">Lustful</span> <<checkbox "$background.lustful" false true autocheck>> - Arousal increases over time, and needs to be managed.</label>
 			/*<br>
-			<label>Green Thumb <<radiobutton "$background" "greenthumb" autocheck>> - More bountiful crops and no decay when using fertiliser. Start with ne unit of fertiliser.</label>*/
+			<label>Green Thumb <<checkbox "$background" "greenthumb" autocheck>> - More bountiful crops and no decay when using fertiliser. Start with ne unit of fertiliser.</label>*/
 			<br>
-			<label><mouse class="tooltip"><span class="lewd">Dendrophile</span> <<radiobutton "$background" "plantlover" autocheck>> - Plants are everything to you.<span class="green">You're addicted to nectar. You're more vulnerable to aphrodisiacs and alcohol. Plantpeople and plant-based tentacles no longer require hallucinations to encounter. You get a bonus to Tending, as your Trauma increases.</span></mouse>
+			<label><mouse class="tooltip"><span class="lewd">Dendrophile</span> <<checkbox "$background.plantlover" false true autocheck>> - Plants are everything to you.<span class="green">You're addicted to nectar. You're more vulnerable to aphrodisiacs and alcohol. Plantpeople and plant-based tentacles no longer require hallucinations to encounter. You get a bonus to Tending, as your Trauma increases.</span></mouse>
 			</label>
-			/*<br>
-			 Keep last, in 'widget "variablesStart2"' be sure to add any new traits to the array after if '$background is "random"'
-			Commenting out due to be ing redundant with the randomise character traits link
-			<label>Random <<radiobutton "$background" "random" autocheck>></label>
-			<br>*/
 		</div>
 	</div>
 
@@ -1370,93 +1389,6 @@
 				</label>
 			</div>
 
-			<div class="settingsToggleItem">
-				<span class="gold">Enemy Stats Display</span> <mouse class = "tooltip linkBlue">(?)<span>As you enter an encounter, you will be given textual descriptions for the state of the enemy. The toggle here allows you to see exactly what number the enemy's stats are at.</span></mouse>
-				<br>
-				<label>Show exact numbers <<radiobutton "$enemystatstyle" "full" autocheck>></label> |
-				<label>Show only description <<radiobutton "$enemystatstyle" "default" autocheck>></label>
-				<br>
-			</div>
-
-			<div class="settingsToggleItem">
-				<span class="gold">Enemy Multi-Orgasm</span>
-				<br>
-				<label>
-					<<checkbox "$multiOrgasmToggle" 0 1 autocheck>> Enable multi-orgasm <mouse class = "tooltip linkBlue">(?)<span>Human and Named NPCs will be able to orgasm multiple times.</span></mouse>
-				</label>
-				<br>
-				<label>
-					<<checkbox "$multiOrgasmLustScaling" 0 1 autocheck>> Enable NNPC lust scaling <mouse class = "tooltip linkBlue">(?)<span>Named NPCs will get +1 to max orgasm per 20 lust.</span></mouse>
-				</label>
-			</div>
-
-			<div class="settingsToggleItem">
-				<span class="gold">Tiredness Max Scaling</span>
-				<br>
-				<label>
-					<<checkbox "$tirednessMaxScalingToggle" 0 1 autocheck>> Enable Tiredness Max Scaling <mouse class = "tooltip linkBlue">(?)<span>Tiredness max will now increase with your physique and willpower.</span></mouse>
-				</label>
-			</div>
-
-			<div class="settingsToggleItem">
-				<span class="gold">Meme Text expanded</span>
-				<br>
-				<label>
-					<<checkbox "$dpctext" 0 1 autocheck>> Enable Additional Unoffical Dol+ Text  <mouse class = "tooltip linkBlue">(?)<span>Added scenes with favorite contributors from dol+ </span></mouse>
-				</label>
-			</div>
-
-			<div class="settingsToggleItem">
-				<span class="gold">Maths Trait buffs</span>
-				<br>
-				<label>
-					<<checkbox "$mathsTraitBuffs.antiques" 0 1 autocheck>> Enable Antique Price Buff  <mouse class = "tooltip linkBlue">(?)<span>Antique prices will now be affected by the maths trait buff.</span></mouse>
-				</label>
-				<br>
-				<label>
-					<<checkbox "$mathsTraitBuffs.stolen" 0 1 autocheck>> Enable Stolen Goods Price Buff  <mouse class = "tooltip linkBlue">(?)<span>Stolen goods prices will now be affected by the maths trait buff.</span></mouse>
-				</label>
-				<br>
-				<label>
-					<<checkbox "$mathsTraitBuffs.market" 0 1 autocheck>> Enable Market Stall Price Buff  <mouse class = "tooltip linkBlue">(?)<span>Market stall prices will now be affected by the maths trait buff.</span></mouse>
-				</label>
-			</div>
-
-			<<if $options.images is 1>>
-				<div class="settingsToggleItem">
-					<span class="gold">Banner Toggle</span> <mouse class = "tooltip linkBlue">(?)<span>Toggle which version of the banner you want to use.</span></mouse>
-					<br>
-					<<link "No Banner">><<replace #bannerStyle>><</replace>><<set $bannerstyle to "none">><</link>>
-						| <<link "Default Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/banner.png"><</replace>><<set $bannerstyle to "default">><</link>>
-					<<if $feats.allSaves.points isnot undefined and $feats.allSaves.points gte 25>>
-						| <<link "Alien Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/bannerAlien.png"><</replace>><<set $bannerstyle to "alien">><</link>>
-					<<else>>
-						| <label><span class="red">25 VrelCoins</span></label>
-					<</if>>
-					<<if $feats.allSaves.points isnot undefined and $feats.allSaves.points gte 50>>
-						| <<link "Blood Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/bannerBlood.png"><</replace>><<set $bannerstyle to "blood">><</link>>
-					<<else>>
-						| <label><span class="red">50 VrelCoins</span></label>
-					<</if>>
-					<<if $feats.allSaves.points isnot undefined and $feats.allSaves.points gte 100>>
-						| <<link "Bronze Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/bannerBronze.png"><</replace>><<set $bannerstyle to "bronze">><</link>>
-					<<else>>
-						| <label><span class="red">100 VrelCoins</span></label>
-					<</if>>
-					<<if $feats.allSaves.points isnot undefined and $feats.allSaves.points gte 150>>
-						| <<link "Silver Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/bannerSilver.png"><</replace>><<set $bannerstyle to "silver">><</link>>
-					<<else>>
-						| <label><span class="red">150 VrelCoins</span></label>
-					<</if>>
-					<<if $feats.allSaves.points isnot undefined and $feats.allSaves.points gte 200>>
-						| <<link "Golden Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/bannerGold.png"><</replace>><<set $bannerstyle to "gold">><</link>>
-					<<else>>
-						| <label><span class="red">200 VrelCoins</span></label>
-					<</if>>
-					<br>
-				</div>
-			<</if>>
-
 			<div class="settingsToggleItemWide">
 				<span class="gold">Randomise:</span><br>
 
@@ -1528,11 +1460,38 @@
 				<<subsectionSettingsTabButton "Body Part Size Limits" "sizeLimits">>
 			</div>
 		<</if>>
+	</div>
+<</widget>>
+
+<<widget "dolpSettingsTabButton">>
+	<div @class="_dolp is _args[1] ? 'gold buttonSettingsSelected' : 'buttonSettings'" >
+		<<button _args[0]>>
+			<<if _dolp isnot _args[1]>>
+				<<set _dolp to _args[1]>>
+				<<displayDoLP `_args[1] + "Settings"`>>
+				<<replace #dolpTabSettings>><<allDoLPSettings>><</replace>>
+			<</if>>
+		<</button>>
+	</div>
+<</widget>>
+
+<<widget "allDoLPSettings">>
+	<<if _dolp is undefined>><<set _dolp to "rebalance">><</if>>
+	<div id="containerStart" class="containerWrap">
+		<div id="settingsRebalance">
+			<<dolpSettingsTabButton "Rebalance Settings" "rebalance">>
+		</div>
+		<div id="settingsNPCDoLP">
+			<<dolpSettingsTabButton "NPC Settings" "npcDoLP">>
+		</div>
+		<div id="settingsBeastDoLP">
+			<<dolpSettingsTabButton "Beast Settings" "beastDoLP">>
+		</div>
 		<div id="settingsCombatExtended">
-			<<subsectionSettingsTabButton "Combat Extended Settings" "combatExtended">>
+			<<dolpSettingsTabButton "Combat Extended Settings" "combatExtended">>
 		</div>
 		<div id="settingsAMCTraits">
-			<<subsectionSettingsTabButton "AMC Traits Settings" "amcTraits">>
+			<<dolpSettingsTabButton "AMC Traits Settings" "amcTraits">>
 		</div>
 	</div>
 <</widget>>
@@ -1620,13 +1579,41 @@
 				</span>
 				<<numberslider "$penis_mod" $penis_mod -8 8 1>>
 			</div>
-			<div class="settingsToggleItem numberslider-inline">
-				<span class="gold">Percentage of women that have penises</span>
-				<<numberslider "$dgchance" $dgchance 0 100 1>>
+			<div class="solidBorderContainer">
+				<<if $fregularchance is undefined>>
+					<<if $fregular isnot undefined>>
+						<<set $fregularchance to $fregular>>
+						<<run delete $fregular>>
+					<<else>>
+						<<set $fregularchance to 100-$dgchance>>
+						<<set $fhermchance to 0>>
+					<</if>>
+				<</if>>
+				<div style="font-size:0.9em; margin-bottom: 1%">
+					<span class="gold">Percentage of women that have only a vagina:</span> <span id="numberslider-value-fregularchance">$fregularchance</span><br>
+					<span class="gold">Percentage of women that have both:</span> <span id="numberslider-value-fhermchance">$fhermchance</span><br>
+					<span class="gold">Percentage of women that have only a penis:</span> <span id="numberslider-value-dgchance">$dgchance</span><br>
+				</div>
+
+				<<doubleslider "fregularchance" "fhermchance" "dgchance" "var(--pink)" "var(--purple-secondary)" "var(--blue)">>
 			</div>
-			<div class="settingsToggleItem numberslider-inline">
-				<span class="gold">Percentage of men that have vaginas</span>
-				<<numberslider "$cbchance" $cbchance 0 100 1>>
+			<div class="solidBorderContainer">
+				<<if $mregularchance is undefined>>
+					<<if $mregular isnot undefined>>
+						<<set $mregularchance to $mregular>>
+						<<run delete $mregular>>
+					<<else>>
+						<<set $mregularchance to 100-$cbchance>>
+						<<set $mhermchance to 0>>
+					<</if>>
+				<</if>>
+				<div style="font-size:0.9em; margin-bottom: 1%">
+					<span class="gold">Percentage of men that have only a penis:</span> <span id="numberslider-value-mregularchance">$mregularchance</span><br>
+					<span class="gold">Percentage of men that have both:</span> <span id="numberslider-value-mhermchance">$mhermchance</span><br>
+					<span class="gold">Percentage of men that have only a vagina:</span> <span id="numberslider-value-cbchance">$cbchance</span><br>
+				</div>
+
+				<<doubleslider "mregularchance" "mhermchance" "cbchance" "var(--blue)" "var(--purple-secondary)" "var(--pink)">>
 			</div>
 			<div class="settingsToggleItemWide numberslider-inline">
 				<span class="gold">Percentage of women that have strap-on penises
@@ -1659,54 +1646,6 @@
 				<<numberslider "$blackchance" $blackchance 0 100 1>>
 			</div>
 		</div>
-		<div class="settingsGrid">
-			<div class="settingsHeader">
-				NPC DoLP Settings
-			</div>
-			<div class="settingsToggleItem numberslider-inline">
-				<span class="gold">NPC Health Max Multiplier (%)
-				<mouse class="tooltip linkBlue">(?)<span>Multiplies the health max of human enemies. Range 1 - 1000000</span></mouse>
-				</span>
-				<<numberbox "$npcHealthMult" $npcHealthMult>>
-			</div>
-			<div class="settingsToggleItem numberslider-inline">
-				<span class="gold">NPC Arousal Max Multiplier (%)
-				<mouse class="tooltip linkBlue">(?)<span>Multiplies the arousal max of human enemies. Range 1 - 1000000</span></mouse>
-				</span>
-				<<numberbox "$npcArousalMult" $npcArousalMult>>
-			</div>
-			<label>
-				<<checkbox "$npcStealMoneyToggle" 0 1 autocheck>> Enable NPCs stealing your money.
-				<mouse class="tooltip linkBlue">(?)<span>Will only happen if the NPC is angry.</span></mouse>
-			</label>
-			<div class="settingsToggleItem numberslider-inline">
-				<span class="gold">NPC Stolen Money Percentage (%)
-				<mouse class="tooltip linkBlue">(?)<span>The percentage of your money NPCs will steal.</span></mouse>
-				</span>
-				<<numberslider "$npcStealMoneyPercentage" $npcStealMoneyPercentage 1 100 1>>
-			</div>
-			<div class="settingsToggleItem">
-				<span class="gold">NPC Description Generation</span> <mouse class = "tooltip linkBlue">(?)<span>In Vanilla, their descriptions are tied to their levels which may cause every NPC to appear as Demons with really high level scaling. Randomized will completely randomize this.</span></mouse>
-				<br>
-				<label>Vanilla <<radiobutton "$npcDescGenType" "vanilla" autocheck>></label> |
-				<label>Randomized <<radiobutton "$npcDescGenType" "randomized" autocheck>></label>
-				<br>
-			</div>
-			<div class="settingsToggleItem">
-				<span class="gold">NPC Breast Generation</span> <mouse class = "tooltip linkBlue">(?)<span>In Vanilla, their breast sizes are tied to their levels which may cause every NPC to have huge breast sizes with really high level scaling. Randomized will completely randomize this.</span></mouse>
-				<br>
-				<label>Vanilla <<radiobutton "$npcBreastGenType" "vanilla" autocheck>></label> |
-				<label>Randomized <<radiobutton "$npcBreastGenType" "randomized" autocheck>></label>
-				<br>
-			</div>
-			<div class="settingsToggleItem">
-				<span class="gold">NPC Penis Generation</span> <mouse class = "tooltip linkBlue">(?)<span>In Vanilla, level 19-20 NPCs are forced to have max size penises. Randomized will completely randomize this.</span></mouse>
-				<br>
-				<label>Vanilla <<radiobutton "$npcPenisGenType" "vanilla" autocheck>></label> |
-				<label>Randomized <<radiobutton "$npcPenisGenType" "randomized" autocheck>></label>
-				<br>
-			</div>
-		</div>
 	</div>
 <</widget>>
 
@@ -1733,18 +1672,6 @@
 		<div class="settingsGrid">
 			<div class="settingsHeader">
 				Beast Preferences
-			</div>
-			<div class="settingsToggleItem numberslider-inline">
-				<span class="gold">Beast Health Max Multiplier (%)
-				<mouse class="tooltip linkBlue">(?)<span>Multiplies the health max of beast enemies. Range 1 - 1000000</span></mouse>
-				</span>
-				<<numberbox "$beastHealthMult" $beastHealthMult>>
-			</div>
-			<div class="settingsToggleItem numberslider-inline">
-				<span class="gold">Beast Arousal Max Multiplier (%)
-				<mouse class="tooltip linkBlue">(?)<span>Multiplies the arousal max of beast enemies. Range 1 - 1000000</span></mouse>
-				</span>
-				<<numberbox "$beastArousalMult" $beastArousalMult>>
 			</div>
 			<div class="settingsToggleItem">
 				<<beastAttractionSettings>>
@@ -2414,7 +2341,6 @@
 			<span class="bold">
 				<<link [[Character Viewer|Clothes Testing]]>>
 					<<set $lastPassage to $passage>>
-					<<set $gameTanImgSetting to clone($options.tanImgEnabled)>>
 				<</link>>
 			</span>
 			- This will allow you to have a play with the character sprites.
@@ -2535,14 +2461,14 @@
 						new Wikifier(null, '<<replace #perNPCSettingsMenu>><<perNPCSettingsMenu>><</replace>>');
 					});
 
-					T.keys = {};
-					T.keyNames = [];
+					T.npcKeys = {};
+					T.npcKeyNames = [];
 					const allowed_npcs = ["steed", "guard", "inmate", "panty_thief", "school_nurse", "tower_creature", "pinch", "black_dog", "hacker", "bishop", "bishop_right_hand", "bishop_left_hand"];
 					Object.keys(V.per_npc).forEach(k => {
 						for (const j of allowed_npcs){
 							if (k.includes(j)){
-								T.keyNames.push(k);
-								T.keys[k.toUpperFirst().replace(/_/g, ' ')] = k;
+								T.npcKeyNames.push(k);
+								T.npcKeys[k.toUpperFirst().replace(/_/g, ' ')] = k;
 								break
 							}
 						}
@@ -2550,7 +2476,7 @@
 					T.perNPCLock = true;
 				}
 			>>
-			<<if T.keyNames and T.keyNames.length>>
+			<<if T.npcKeyNames and T.npcKeyNames.length>>
 				<hr>
 				<div id="perNPCSettingsMenu">
 					<<perNPCSettingsMenu>>
@@ -2664,8 +2590,7 @@
 			</span>
 		</div>
 		<<if V.NPCName[T.npcId].pregnancy.type>>
-			<div class="settingsToggleItem">
-				<br><br>
+			<div class="settingsToggleItemWide">
 				This NPC is currently pregnant. You will not be able to change some settings for the duration of their pregnancy.
 			</div>
 		<</if>>
@@ -2683,7 +2608,7 @@
 			<span data-target="npcname-pregnancy" data-disabledif="V.NPCName[T.npcId].pregnancy.type">
 				<label><<radiobutton "$NPCName[_npcId].gender" "f" autocheck>> Vagina</label> |
 				<label><<radiobutton "$NPCName[_npcId].gender" "m" autocheck>> Penis</label>
-				<<if $debug is 1>>| <label><<radiobutton "$NPCName[_npcId].gender" "h" autocheck>> Both</label><</if>>
+				| <label><<radiobutton "$NPCName[_npcId].gender" "h" autocheck>> Both</label>
 			</span>
 		</div>
 		<div class="settingsToggleItem">
@@ -2797,7 +2722,7 @@
 	<span class="gold">Persistent NPCs:</span>
 	<br>
 	<<listbox "_pNPCId" autoselect>>
-		<<optionsfrom _keys>>
+		<<optionsfrom _npcKeys>>
 	<</listbox>>
 	<<switch _pNPCId>>
 		<<case "scarred_inmate">>
@@ -2811,15 +2736,15 @@
 				<<clearsinglenpc 0>>
 			<</if>>
 	<</switch>>
-	<<set _index to _keyNames.indexOf(_pNPCId)>>
+	<<set _npcIndex to _npcKeyNames.indexOf(_pNPCId)>>
 	| <<link "Previous">>
-		<<set _index to (_index is 0 ? _keyNames.length - 1 : --_index)>>
-		<<set _pNPCId to _keyNames[_index]>>
+		<<set _npcIndex to (_npcIndex is 0 ? _npcKeyNames.length - 1 : --_npcIndex)>>
+		<<set _pNPCId to _npcKeyNames[_npcIndex]>>
 		<<replace #perNPCSettingsMenu>><<perNPCSettingsMenu>><</replace>>
 	<</link>> |
 	<<link "Next">>
-		<<set _index++>>
-		<<set _pNPCId to _keyNames[_index]>>
+		<<set _npcIndex++>>
+		<<set _pNPCId to _npcKeyNames[_npcIndex]>>
 		<<replace #perNPCSettingsMenu>><<perNPCSettingsMenu>><</replace>>
 	<</link>>
 	<br><br>
@@ -2864,6 +2789,7 @@
 		<div class="settingsToggle">
 			<label><<radiobutton "$per_npc[_pNPCId].gender" "f" autocheck>> Vagina</label> |
 			<label><<radiobutton "$per_npc[_pNPCId].gender" "m" autocheck>> Penis</label>
+			| <label><<radiobutton "$per_npc[_pNPCId].gender" "h" autocheck>> Both</label>
 		</div>
 		<div class="settingsToggle">
 			Penis size - if applicable:
@@ -3266,6 +3192,7 @@
 				<</link>>
 			</div>
 		</div>
+		<hr>
 		<div class="settingsGrid">
 			<div class="settingsHeader">
 				Encounter Reworks
@@ -3286,6 +3213,7 @@
 				</label><br>
 			</div>
 		</div>
+		<hr>
 		<div class="settingsGrid">
 			<div class="settingsHeader">
 				Dodging
@@ -3317,6 +3245,7 @@
 				<<numberslider "$combatExtended.dodgeChanceCap" $combatExtended.dodgeChanceCap 0 100 1>>
 			</div>
 		</div>
+		<hr>
 		<div class="settingsGrid">
 			<div class="settingsHeader">
 				Guarding
@@ -3337,6 +3266,7 @@
 				</label>
 			</div>
 		</div>
+		<hr>
 		<div class="settingsGrid">
 			<div class="settingsHeader">
 				Attacking
@@ -3357,6 +3287,7 @@
 				</label>
 			</div>
 		</div>
+		<hr>
 		<div class="settingsGrid">
 			<div class="settingsHeader">
 				Skills
@@ -3368,6 +3299,7 @@
 				</label>
 			</div>
 		</div>
+		<hr>
 		<div class="settingsGrid">
 			<div class="settingsHeader">
 				Enemy Modifications
@@ -3501,42 +3433,95 @@
 <<widget "amcTraitsSettings">>
 	<div class="solidBorderContainer settings-container">
 		<div class="settingsGrid">
+			<<if _amcToggleCharacteristics is undefined>>
+				<<set _amcToggleCharacteristics to 0>>
+			<</if>>
+			<<if _amcToggleSkills is undefined>>
+				<<set _amcToggleSkills to 0>>
+			<</if>>
+			<<if _amcToggleSexSkills is undefined>>
+				<<set _amcToggleSexSkills to 0>>
+			<</if>>
+			<<if _amcToggleFluids is undefined>>
+				<<set _amcToggleFluids to 0>>
+			<</if>>
+			<<if _amcToggleNegativeFames is undefined>>
+				<<set _amcToggleNegativeFames to 0>>
+			<</if>>
+			<<if _amcTogglePositiveFames is undefined>>
+				<<set _amcTogglePositiveFames to 0>>
+			<</if>>
 			<div class="settingsToggleItemWide">
 				<span class="gold">Anime Main Character Traits:</span><mouse class="tooltip linkBlue">(?)<span>These traits will halve your gains of the corresponding stat but will double the cap.</span></mouse><br>
 
-				<<link "Toggle All">>
-					<<set $AMCTraits.beauty to 2>>
-					<<set $AMCTraits.physique to 2>>
-					<<set $AMCTraits.willpower to 2>>
-					<<set $AMCTraits.skulduggery to 2>>
-					<<set $AMCTraits.dancing to 2>>
-					<<set $AMCTraits.swimming to 2>>
-					<<set $AMCTraits.athletics to 2>>
-					<<set $AMCTraits.tending to 2>>
-					<<set $AMCTraits.housekeeping to 2>>
-					<<set $AMCTraits.brawling to 2>>
-					<<set $AMCTraits.science to 2>>
-					<<set $AMCTraits.maths to 2>>
-					<<set $AMCTraits.english to 2>>
-					<<set $AMCTraits.history to 2>>
-					<<set $AMCTraits.seductionskill to 2>>
-					<<set $AMCTraits.oralskill to 2>>
-					<<set $AMCTraits.chestskill to 2>>
-					<<set $AMCTraits.handskill to 2>>
-					<<set $AMCTraits.bottomskill to 2>>
-					<<set $AMCTraits.penileskill to 2>>
-					<<set $AMCTraits.vaginalskill to 2>>
-					<<set $AMCTraits.analskill to 2>>
-					<<set $AMCTraits.thighskill to 2>>
-					<<set $AMCTraits.feetskill to 2>>
-					<<set $AMCTraits.milk to 2>>
-					<<set $AMCTraits.semen to 2>>
+				<label><span class="green">Universal Half Gains Toggle</span> <<checkbox "$AMCTraits.halfGain" 0 1 autocheck>></label><br>
+			</div>
+			<div class="settingsToggleItem">
+				<<link "Toggle All Characteristics">>
+					<<if _amcToggleCharacteristics is 0>>
+						<<set $AMCTraits.beauty to 2>>
+						<<set $AMCTraits.physique to 2>>
+						<<set $AMCTraits.willpower to 2>>
+						<<set _amcToggleCharacteristics to 1>>
+					<<else>>
+						<<set $AMCTraits.beauty to 1>>
+						<<set $AMCTraits.physique to 1>>
+						<<set $AMCTraits.willpower to 1>>
+						<<set _amcToggleCharacteristics to 0>>
+					<</if>>
 					<<set _subsection to "amcTraits">><<replace #subsectionDiv>><<amcTraitsSettings>><</replace>>
 				<</link>><br>
-				<label><span class="green">Universal Half Gains Toggle</span> <<checkbox "$AMCTraits.halfGain" 0 1 autocheck>></label><br>
 				<label><span class="green">Tempered Beauty</span> <<checkbox "$AMCTraits.beauty" 1 2 autocheck>></label><br>
 				<label><span class="green">Tempered Physique</span> <<checkbox "$AMCTraits.physique" 1 2 autocheck>></label><br>
 				<label><span class="green">Tempered Willpower</span> <<checkbox "$AMCTraits.willpower" 1 2 autocheck>></label><br>
+			</div>
+			<div class="settingsToggleItem">
+				<<link "Toggle All Fluids">>
+					<<if _amcToggleFluids is 0>>
+						<<set $AMCTraits.milk to 2>>
+						<<set $AMCTraits.semen to 2>>
+						<<set _amcToggleFluids to 1>>
+					<<else>>
+						<<set $AMCTraits.milk to 1>>
+						<<set $AMCTraits.semen to 1>>
+						<<set _amcToggleFluids to 0>>
+					<</if>>
+					<<set _subsection to "amcTraits">><<replace #subsectionDiv>><<amcTraitsSettings>><</replace>>
+				<</link>><br>
+				<label><span class="blue">Tempered Milk Volume</span> <<checkbox "$AMCTraits.milk" 1 2 autocheck>></label><br>
+				<label><span class="blue">Tempered Semen Volume</span> <<checkbox "$AMCTraits.semen" 1 2 autocheck>></label><br>
+			</div>
+			<div class="settingsToggleItem">
+				<<link "Toggle All Skills">>
+					<<if _amcToggleSkills is 0>>
+						<<set $AMCTraits.skulduggery to 2>>
+						<<set $AMCTraits.dancing to 2>>
+						<<set $AMCTraits.swimming to 2>>
+						<<set $AMCTraits.athletics to 2>>
+						<<set $AMCTraits.tending to 2>>
+						<<set $AMCTraits.housekeeping to 2>>
+						<<set $AMCTraits.brawling to 2>>
+						<<set $AMCTraits.science to 2>>
+						<<set $AMCTraits.maths to 2>>
+						<<set $AMCTraits.english to 2>>
+						<<set $AMCTraits.history to 2>>
+						<<set _amcToggleSkills to 1>>
+					<<else>>
+						<<set $AMCTraits.skulduggery to 1>>
+						<<set $AMCTraits.dancing to 1>>
+						<<set $AMCTraits.swimming to 1>>
+						<<set $AMCTraits.athletics to 1>>
+						<<set $AMCTraits.tending to 1>>
+						<<set $AMCTraits.housekeeping to 1>>
+						<<set $AMCTraits.brawling to 1>>
+						<<set $AMCTraits.science to 1>>
+						<<set $AMCTraits.maths to 1>>
+						<<set $AMCTraits.english to 1>>
+						<<set $AMCTraits.history to 1>>
+						<<set _amcToggleSkills to 0>>
+					<</if>>
+					<<set _subsection to "amcTraits">><<replace #subsectionDiv>><<amcTraitsSettings>><</replace>>
+				<</link>><br>
 				<label><span class="green">Tempered Skulduggery</span> <<checkbox "$AMCTraits.skulduggery" 1 2 autocheck>></label><br>
 				<label><span class="green">Tempered Dancing</span> <<checkbox "$AMCTraits.dancing" 1 2 autocheck>></label><br>
 				<label><span class="green">Tempered Swimming</span> <<checkbox "$AMCTraits.swimming" 1 2 autocheck>></label><br>
@@ -3548,6 +3533,36 @@
 				<label><span class="teal">Tempered Maths</span> <<checkbox "$AMCTraits.maths" 1 2 autocheck>></label><br>
 				<label><span class="teal">Tempered English</span> <<checkbox "$AMCTraits.english" 1 2 autocheck>></label><br>
 				<label><span class="teal">Tempered History</span> <<checkbox "$AMCTraits.history" 1 2 autocheck>></label><br>
+			</div>
+			<div class="settingsToggleItem">
+				<<link "Toggle All Sex Skills">>
+					<<if _amcToggleSexSkills is 0>>
+						<<set $AMCTraits.seductionskill to 2>>
+						<<set $AMCTraits.oralskill to 2>>
+						<<set $AMCTraits.chestskill to 2>>
+						<<set $AMCTraits.handskill to 2>>
+						<<set $AMCTraits.bottomskill to 2>>
+						<<set $AMCTraits.penileskill to 2>>
+						<<set $AMCTraits.vaginalskill to 2>>
+						<<set $AMCTraits.analskill to 2>>
+						<<set $AMCTraits.thighskill to 2>>
+						<<set $AMCTraits.feetskill to 2>>
+						<<set _amcToggleSexSkills to 1>>
+					<<else>>
+						<<set $AMCTraits.seductionskill to 1>>
+						<<set $AMCTraits.oralskill to 1>>
+						<<set $AMCTraits.chestskill to 1>>
+						<<set $AMCTraits.handskill to 1>>
+						<<set $AMCTraits.bottomskill to 1>>
+						<<set $AMCTraits.penileskill to 1>>
+						<<set $AMCTraits.vaginalskill to 1>>
+						<<set $AMCTraits.analskill to 1>>
+						<<set $AMCTraits.thighskill to 1>>
+						<<set $AMCTraits.feetskill to 1>>
+						<<set _amcToggleSexSkills to 0>>
+					<</if>>
+					<<set _subsection to "amcTraits">><<replace #subsectionDiv>><<amcTraitsSettings>><</replace>>
+				<</link>><br>
 				<label><span class="blue">Tempered Seduction Skill</span> <<checkbox "$AMCTraits.seductionskill" 1 2 autocheck>></label><br>
 				<label><span class="blue">Tempered Oral Skill</span> <<checkbox "$AMCTraits.oralskill" 1 2 autocheck>></label><br>
 				<label><span class="blue">Tempered Chest Skill</span> <<checkbox "$AMCTraits.chestskill" 1 2 autocheck>></label><br>
@@ -3558,8 +3573,422 @@
 				<label><span class="blue">Tempered Anal Skill</span> <<checkbox "$AMCTraits.analskill" 1 2 autocheck>></label><br>
 				<label><span class="blue">Tempered Thighs Skill</span> <<checkbox "$AMCTraits.thighskill" 1 2 autocheck>></label><br>
 				<label><span class="blue">Tempered Feet Skill</span> <<checkbox "$AMCTraits.feetskill" 1 2 autocheck>></label><br>
-				<label><span class="blue">Tempered Milk Volume</span> <<checkbox "$AMCTraits.milk" 1 2 autocheck>></label><br>
-				<label><span class="blue">Tempered Semen Volume</span> <<checkbox "$AMCTraits.semen" 1 2 autocheck>></label><br>
+			</div>
+			<div class="settingsToggleItem">
+				<<link "Toggle All Negative Fames">>
+					<<if _amcToggleNegativeFames is 0>>
+						<<set $AMCTraits.sexFame to 2>>
+						<<set $AMCTraits.prostitutionFame to 2>>
+						<<set $AMCTraits.rapeFame to 2>>
+						<<set $AMCTraits.bestialityFame to 2>>
+						<<set $AMCTraits.exhibitionismFame to 2>>
+						<<set $AMCTraits.pregnancyFame to 2>>
+						<<set $AMCTraits.impregFame to 2>>
+						<<set _amcToggleNegativeFames to 1>>
+					<<else>>
+						<<set $AMCTraits.sexFame to 1>>
+						<<set $AMCTraits.prostitutionFame to 1>>
+						<<set $AMCTraits.rapeFame to 1>>
+						<<set $AMCTraits.bestialityFame to 1>>
+						<<set $AMCTraits.exhibitionismFame to 1>>
+						<<set $AMCTraits.pregnancyFame to 1>>
+						<<set $AMCTraits.impregFame to 1>>
+						<<set _amcToggleNegativeFames to 0>>
+					<</if>>
+					<<set _subsection to "amcTraits">><<replace #subsectionDiv>><<amcTraitsSettings>><</replace>>
+				<</link>><br>
+				<label><span class="red">Tempered Sex Fame</span> <<checkbox "$AMCTraits.sexFame" 1 2 autocheck>></label><br>
+				<label><span class="red">Tempered Prostitution Fame</span> <<checkbox "$AMCTraits.prostitutionFame" 1 2 autocheck>></label><br>
+				<label><span class="red">Tempered Rape Fame</span> <<checkbox "$AMCTraits.rapeFame" 1 2 autocheck>></label><br>
+				<label><span class="red">Tempered Bestiality Fame</span> <<checkbox "$AMCTraits.bestialityFame" 1 2 autocheck>></label><br>
+				<label><span class="red">Tempered Exhibitionism Fame</span> <<checkbox "$AMCTraits.exhibitionismFame" 1 2 autocheck>></label><br>
+				<label><span class="red">Tempered Pregnancy Fame</span> <<checkbox "$AMCTraits.pregnancyFame" 1 2 autocheck>></label><br>
+				<label><span class="red">Tempered Impregnation Fame</span> <<checkbox "$AMCTraits.impregFame" 1 2 autocheck>></label><br>
+			</div>
+			<div class="settingsToggleItem">
+				<<link "Toggle All Positive Fames">>
+					<<if _amcTogglePositiveFames is 0>>
+						<<set $AMCTraits.scrapFame to 2>>
+						<<set $AMCTraits.goodFame to 2>>
+						<<set $AMCTraits.businessFame to 2>>
+						<<set $AMCTraits.socialFame to 2>>
+						<<set $AMCTraits.modelFame to 2>>
+						<<set _amcTogglePositiveFames to 1>>
+					<<else>>
+						<<set $AMCTraits.scrapFame to 1>>
+						<<set $AMCTraits.goodFame to 1>>
+						<<set $AMCTraits.businessFame to 1>>
+						<<set $AMCTraits.socialFame to 1>>
+						<<set $AMCTraits.modelFame to 1>>
+						<<set _amcTogglePositiveFames to 0>>
+					<</if>>
+					<<set _subsection to "amcTraits">><<replace #subsectionDiv>><<amcTraitsSettings>><</replace>>
+				<</link>><br>
+				<label><span class="green">Tempered Combat Fame</span> <<checkbox "$AMCTraits.scrapFame" 1 2 autocheck>></label><br>
+				<label><span class="green">Tempered Kindness Fame</span> <<checkbox "$AMCTraits.goodFame" 1 2 autocheck>></label><br>
+				<label><span class="green">Tempered Business Fame</span> <<checkbox "$AMCTraits.businessFame" 1 2 autocheck>></label><br>
+				<label><span class="green">Tempered Socialite Fame</span> <<checkbox "$AMCTraits.socialFame" 1 2 autocheck>></label><br>
+				<label><span class="green">Tempered Model Fame</span> <<checkbox "$AMCTraits.modelFame" 1 2 autocheck>></label><br>
+			</div>
+		</div>
+	</div>
+<</widget>>
+
+<<widget "dolpSettings">>
+	<div class="solidBorderContainer settings-container">
+		<div class="settingsGrid">
+			<<if $options.images is 1>>
+				<div class="settingsToggleItem">
+					<span class="gold">Banner Toggle</span> <mouse class = "tooltip linkBlue">(?)<span>Toggle which version of the banner you want to use.</span></mouse>
+					<br>
+					<<link "No Banner">><<replace #bannerStyle>><</replace>><<set $bannerstyle to "none">><</link>>
+						| <<link "Default Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/banner.png"><</replace>><<set $bannerstyle to "default">><</link>>
+					<<if $feats.allSaves.points isnot undefined and $feats.allSaves.points gte 25>>
+						| <<link "Alien Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/bannerAlien.png"><</replace>><<set $bannerstyle to "alien">><</link>>
+					<<else>>
+						| <label><span class="red">25 VrelCoins</span></label>
+					<</if>>
+					<<if $feats.allSaves.points isnot undefined and $feats.allSaves.points gte 50>>
+						| <<link "Blood Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/bannerBlood.png"><</replace>><<set $bannerstyle to "blood">><</link>>
+					<<else>>
+						| <label><span class="red">50 VrelCoins</span></label>
+					<</if>>
+					<<if $feats.allSaves.points isnot undefined and $feats.allSaves.points gte 100>>
+						| <<link "Bronze Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/bannerBronze.png"><</replace>><<set $bannerstyle to "bronze">><</link>>
+					<<else>>
+						| <label><span class="red">100 VrelCoins</span></label>
+					<</if>>
+					<<if $feats.allSaves.points isnot undefined and $feats.allSaves.points gte 150>>
+						| <<link "Silver Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/bannerSilver.png"><</replace>><<set $bannerstyle to "silver">><</link>>
+					<<else>>
+						| <label><span class="red">150 VrelCoins</span></label>
+					<</if>>
+					<<if $feats.allSaves.points isnot undefined and $feats.allSaves.points gte 200>>
+						| <<link "Golden Banner">><<replace #bannerStyle>><img class="resize" src="img/misc/bannerGold.png"><</replace>><<set $bannerstyle to "gold">><</link>>
+					<<else>>
+						| <label><span class="red">200 VrelCoins</span></label>
+					<</if>>
+					<br>
+				</div>
+			<</if>>
+			<div class="settingsToggleItem">
+				<span class="gold">Enemy Stats Display</span> <mouse class = "tooltip linkBlue">(?)<span>As you enter an encounter, you will be given textual descriptions for the state of the enemy. The toggle here allows you to see exactly what number the enemy's stats are at.</span></mouse>
+				<br>
+				<label>Show exact numbers <<radiobutton "$enemystatstyle" "full" autocheck>></label> |
+				<label>Show only description <<radiobutton "$enemystatstyle" "default" autocheck>></label>
+				<br>
+			</div>
+
+			<div class="settingsToggleItem">
+				<span class="gold">Meme Text expanded</span>
+				<br>
+				<label>
+					<<checkbox "$dpctext" 0 1 autocheck>> Enable Additional Unofficial Dol+ Text  <mouse class = "tooltip linkBlue">(?)<span>Added scenes with favorite contributors from dol+ </span></mouse>
+				</label>
+			</div>
+
+			<div class="settingsToggleItem">
+				<span class="gold">Realistic Clothing Transparency</span>
+				<br>
+				<label>
+					<<checkbox "$realisticTransparency" 0 1 autocheck>> Enable Realistic Clothing Transparency  <mouse class = "tooltip linkBlue">(?)<span>In Vanilla, most clothes go transparent. This toggle changes it so it is based on the type of material it is usually made with.</span></mouse>
+				</label>
+			</div>
+
+			<div class="settingsToggleItem numberslider-inline">
+				<span class="gold">Wardrobe Capacity Multiplier</span>
+				<br>
+				<div class="small-description">Modifies the capacity of wardrobes.</div>
+				<<numberslider "$wardrobeMult" $wardrobeMult 1 20 1>>
+			</div>
+
+			<div class="settingsToggleItem">
+				<span class="gold">Bike Settings</span>
+				<br>
+				<label>
+					<<checkbox "$bikePersistentLocation" 0 1 autocheck>> Enable Persistent Bike Location  <mouse class = "tooltip linkBlue">(?)<span>When enabled, the game will keep track of where you left the bike and you'll only be able to use it again there. When disabled, you will be able to use it from any elligible location.</span></mouse>
+				</label>
+				<br>
+				<label>
+					<<checkbox "$bikeSecurity" 0 1 autocheck>> Enable Bike Security  <mouse class = "tooltip linkBlue">(?)<span>When enabled, your bike will have the risk of getting stolen every midnight and you will have access to security upgrades. When disabled, your bike will never get stolen.</span></mouse>
+				</label>
+			</div>
+
+			
+
+			<div class="settingsToggleItem">
+				<span class="gold">Combat Time Pass
+				<mouse class="tooltip linkBlue">(?)<span>How many seconds each turn of combat takes. Default is 10. Range 1 - 1000000</span></mouse>
+				</span><br>
+				<<numberbox "$combatTimePass" $combatTimePass>>
+			</div>
+		</div>
+	</div>
+	<hr>
+	<div id="dolpTabSettings">
+		<<allDoLPSettings>>
+	</div>
+	<div id="subsectionDiv">
+		<<rebalanceSettings>>
+	</div>
+	<br>
+	<<link "Top of Page">>
+		<<script>>
+			document.body.scrollTop = 0;
+			document.documentElement.scrollTop = 0;
+		<</script>>
+	<</link>>
+	<div style="clear:both;">/*Keep at end of toggles*/</div>
+<</widget>>
+
+<<widget "rebalanceSettings">>
+	<div class="solidBorderContainer settings-container">
+		<div class="settingsGrid">
+			<div class="settingsHeader">
+				Rebalancing Settings
+			</div>
+
+			<div class="settingsToggleItem">
+				<span class="gold">Max Scaling</span>
+				<br>
+				<label>
+					<<checkbox "$tirednessMaxScalingToggle" 0 1 autocheck>> Enable Tiredness Max Scaling <mouse class = "tooltip linkBlue">(?)<span>Tiredness max will now increase with your physique.</span></mouse>
+				</label>
+				<br>
+				<label>
+					<<checkbox "$stressMaxScalingToggle" 0 1 autocheck>> Enable Stress Max Scaling <mouse class = "tooltip linkBlue">(?)<span>Stress max will now increase with your willpower.</span></mouse>
+				</label>
+			</div>
+
+			<div class="settingsToggleItem">
+				<span class="gold">Maths Trait buffs</span>
+				<br>
+				<label>
+					<<checkbox "$mathsTraitBuffs.antiques" 0 1 autocheck>> Enable Antique Price Buff  <mouse class = "tooltip linkBlue">(?)<span>Antique prices will now be affected by the maths trait buff.</span></mouse>
+				</label>
+				<br>
+				<label>
+					<<checkbox "$mathsTraitBuffs.stolen" 0 1 autocheck>> Enable Stolen Goods Price Buff  <mouse class = "tooltip linkBlue">(?)<span>Stolen goods prices will now be affected by the maths trait buff.</span></mouse>
+				</label>
+				<br>
+				<label>
+					<<checkbox "$mathsTraitBuffs.market" 0 1 autocheck>> Enable Market Stall Price Buff  <mouse class = "tooltip linkBlue">(?)<span>Market stall prices will now be affected by the maths trait buff.</span></mouse>
+				</label>
+			</div>
+
+			<div class="settingsToggleItem">
+				<span class="gold">History Trait buffs</span>
+				<br>
+				<label>
+					<<checkbox "$historyTraitBuffs.improvedChances" 0 1 autocheck>> Enable Antique Chance Buff  <mouse class = "tooltip linkBlue">(?)<span>The chances to get antiques in certain locations will be buffed.</span></mouse>
+				</label>
+			</div>
+
+			<div class="settingsToggleItem">
+				<span class="gold">Animal TF Buffs and Nerfs</span>
+				<br>
+				<label>
+					<<checkbox "$DoLPTFBuffs" 0 1 autocheck>> Enable Animal TF Buffs and Nerfs <mouse class = "tooltip linkBlue">(?)<span>Every animal TF will various buffs and nerfs to certain stats and skills. </span></mouse>
+				</label>
+			</div>
+
+			<div class="settingsToggleItem">
+				<span class="gold">Vanilla Substance Rebalance</span>
+				<br>
+				<label>
+					<<checkbox "$substanceRebalance" 0 1 autocheck>> Enable Vanilla Substance Rebalance  <mouse class = "tooltip linkBlue">(?)<span>In Vanilla, the effects of alcohol, hallucinogens and aphrodisiacs are rather disappointing. This attempts to rebalance and extend their effects.</span></mouse>
+				</label>
+			</div>
+
+			<div class="settingsToggleItem">
+				<span class="gold">Dancing Rebalance</span>
+				<br>
+				<label>
+					<<checkbox "$dancingRebalance" 0 1 autocheck>> Enable Dancing Rebalance  <mouse class = "tooltip linkBlue">(?)<span>In Vanilla, dancing is rather difficult or a pain in the ass to manage and keep it profitable while still staying safe. The rebalance attempts to make it so it's viable to make dancing your main income with high enough skills.</span></mouse>
+				</label>
+			</div>
+
+			<div class="settingsToggleItem numberslider-inline">
+				<span class="gold">Produce Yield <mouse class = "tooltip linkBlue">(?)<span>Bottles of Milk, Truffles and Eggs.</span></mouse></span>
+				<br>
+				<div class="small-description">Modifies the amount of produce. 100% is balanced around 500% plot yield.
+					<<numberslider "$produce_yield_factor" $produce_yield_factor 10 200 10>>
+				</div>
+			</div>
+		</div>
+
+		<hr>
+
+		<div class="settingsGrid">
+			<div class="settingsHeader">
+				Grind Settings
+			</div>
+			<div class="settingsToggleItem">
+				<label>
+					<<checkbox "$easyHousekeeping" 0 1 autocheck>> Enable Easy Housekeeping  <mouse class = "tooltip linkBlue">(?)<span>In Vanilla, each housekeeping action has an upper cap where it will stop increasing housekeeping skill. Enabling this toggle disables this upper cap and you will always gain housekeeping skill.</span></mouse>
+				</label>
+			</div>
+
+			<div class="settingsToggleItem">
+				<span class="gold">Stat Gain Reduction Multiplier</span>
+				<br>
+				<div class="small-description">Reduces stat gain. 100% means normal stat gains.
+					<<numberslider "$statGainReductionMult" $statGainReductionMult 1 100 1>>
+				</div>
+			</div>
+		</div>
+	</div>
+<</widget>>
+
+<<widget "npcDoLPSettings">>
+	<div class="solidBorderContainer settings-container">
+		<div class="settingsGrid">
+			<div class="settingsHeader">
+				NPC Multi-Orgasm
+			</div>
+
+			<div class="settingsToggleItem">
+				<label>
+					<<checkbox "$multiOrgasmToggle" 0 1 autocheck>> Enable NPC multi-orgasm <mouse class = "tooltip linkBlue">(?)<span>Generic NPCs will be able to orgasm multiple times.</span></mouse>
+				</label>
+			</div>
+			<div class="settingsToggleItem">
+				<label>
+					<<checkbox "$NNPCMultiOrgasmToggle" 0 1 autocheck>> Enable NNPC multi-orgasm <mouse class = "tooltip linkBlue">(?)<span>Named NPCs will be able to orgasm multiple times.</span></mouse>
+				</label>
+			</div>
+			<div class="settingsToggleItem">
+				<label>
+					<<checkbox "$multiOrgasmLustScaling" 0 1 autocheck>> Enable NNPC lust scaling <mouse class = "tooltip linkBlue">(?)<span>Named NPCs will get +1 to max orgasm per 20 lust.</span></mouse>
+				</label>
+			</div>
+		</div>
+
+		<hr>
+
+		<div class="settingsGrid">
+			<div class="settingsHeader">
+				NPC Multipliers
+			</div>
+
+			<div class="settingsToggleItem numberslider-inline">
+				<span class="gold">NPC Health Max Multiplier (%)
+				<mouse class="tooltip linkBlue">(?)<span>Multiplies the health max of human enemies. Range 1 - 1000000</span></mouse>
+				</span>
+				<<numberbox "$npcHealthMult" $npcHealthMult>>
+			</div>
+
+			<div class="settingsToggleItem numberslider-inline">
+				<span class="gold">NPC Arousal Max Multiplier (%)
+				<mouse class="tooltip linkBlue">(?)<span>Multiplies the arousal max of human enemies. Range 1 - 1000000</span></mouse>
+				</span>
+				<<numberbox "$npcArousalMult" $npcArousalMult>>
+			</div>
+		</div>
+
+		<hr>
+
+		<div class="settingsGrid">
+			<div class="settingsHeader">
+				NPCs Stealing Money Settings
+			</div>
+
+			<div class="settingsToggleItem">
+				<<checkbox "$npcStealMoneyToggle" 0 1 autocheck>> Enable NPCs stealing your money.
+				<mouse class="tooltip linkBlue">(?)<span>Will only happen if the NPC is angry.</span></mouse>
+			</div>
+
+			<div class="settingsToggleItem numberslider-inline">
+				<span class="gold">NPC Stolen Money Percentage (%)
+				<mouse class="tooltip linkBlue">(?)<span>The percentage of your money NPCs will steal.</span></mouse>
+				</span>
+				<<numberslider "$npcStealMoneyPercentage" $npcStealMoneyPercentage 1 100 1>>
+			</div>
+		</div>
+
+		<hr>
+		
+		<div class="settingsGrid">
+			<div class="settingsHeader">
+				NPC Flavor Generation Settings
+			</div>
+
+			<div class="settingsToggleItem">
+				<span class="gold">NPC Description Generation</span> <mouse class = "tooltip linkBlue">(?)<span>In Vanilla, their descriptions are tied to their levels which may cause every NPC to appear as Demons with really high level scaling. Randomized will completely randomize this.</span></mouse>
+				<br>
+				<label>Vanilla <<radiobutton "$npcDescGenType" "vanilla" autocheck>></label> |
+				<label>Randomized <<radiobutton "$npcDescGenType" "randomized" autocheck>></label>
+				<br>
+				<<checkbox "$npcDescDemonDisable" 0 1 autocheck>> Disable Demon descriptions.
+				<mouse class="tooltip linkBlue">(?)<span>Prevents Demon and Minor Demon descriptions.</span></mouse>
+				<br>
+			</div>
+
+			<div class="settingsToggleItem">
+				<span class="gold">NPC Breast Generation</span> <mouse class = "tooltip linkBlue">(?)<span>In Vanilla, their breast sizes are tied to their levels which may cause every NPC to have huge breast sizes with really high level scaling. Randomized will completely randomize this.</span></mouse>
+				<br>
+				<label>Vanilla <<radiobutton "$npcBreastGenType" "vanilla" autocheck>></label> |
+				<label>Randomized <<radiobutton "$npcBreastGenType" "randomized" autocheck>></label>
+				<br>
+			</div>
+
+			<div class="settingsToggleItem">
+				<span class="gold">NPC Penis Generation</span> <mouse class = "tooltip linkBlue">(?)<span>In Vanilla, level 19-20 NPCs are forced to have max size penises. Randomized will completely randomize this.</span></mouse>
+				<br>
+				<label>Vanilla <<radiobutton "$npcPenisGenType" "vanilla" autocheck>></label> |
+				<label>Randomized <<radiobutton "$npcPenisGenType" "randomized" autocheck>></label>
+				<br>
+			</div>
+		</div>
+	</div>
+<</widget>>
+
+<<widget "beastDoLPSettings">>
+	<div class="solidBorderContainer settings-container">
+		<div class="settingsGrid">
+			<div class="settingsHeader">
+				Beast Multi-Orgasm
+			</div>
+
+			<div class="settingsToggleItemWide">
+				<label>
+					<<checkbox "$beastMultiOrgasmToggle" 0 1 autocheck>> Enable beast multi-orgasm <mouse class = "tooltip linkBlue">(?)<span>Beasts will be able to orgasm multiple times.</span></mouse>
+				</label>
+			</div>
+		</div>
+
+		<hr>
+
+		<div class="settingsGrid">
+			<div class="settingsHeader">
+				Beast Gangbangs
+			</div>
+			<div class="settingsToggleItemWide">
+				<label>
+					<<checkbox "$beastGroupFight" 0 1 autocheck>> Enable Beast Gangbangs  <mouse class = "tooltip linkBlue">(?)<span>When enabled, multi-beast encounters will behave the same as gangbangs.</span></mouse>
+				</label>
+			</div>
+		</div>
+
+		<hr>
+
+		<div class="settingsGrid">
+			<div class="settingsHeader">
+				Beast Multipliers
+			</div>
+
+			<div class="settingsToggleItem numberslider-inline">
+				<span class="gold">Beast Health Max Multiplier (%)
+				<mouse class="tooltip linkBlue">(?)<span>Multiplies the health max of beast enemies. Range 1 - 1000000</span></mouse>
+				</span>
+				<<numberbox "$beastHealthMult" $beastHealthMult>>
+			</div>
+
+			<div class="settingsToggleItem numberslider-inline">
+				<span class="gold">Beast Arousal Max Multiplier (%)
+				<mouse class="tooltip linkBlue">(?)<span>Multiplies the arousal max of beast enemies. Range 1 - 1000000</span></mouse>
+				</span>
+				<<numberbox "$beastArousalMult" $beastArousalMult>>
 			</div>
 		</div>
 	</div>

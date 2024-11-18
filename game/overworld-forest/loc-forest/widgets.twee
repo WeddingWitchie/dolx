@@ -468,7 +468,7 @@
 				You remember learning about the local species' rut and oestrus period with Sirris. Best not to linger.
 				<<gstress>><<stress 10>>
 			<<else>>
-				You don't know why the wolves sound different tonight.
+				You don't know why but you think the wolves sound different.
 				<<gstress>><<stress 1>>
 			<</if>>
 			<br><br>
@@ -526,13 +526,18 @@
 	<<cleareventpool>>
 	<<addevent "forestgather">>
 	<<addevent "mushroompick" 0.33>>
+	<<addevent "berrypick" 0.33>>
 	<<addevent "forest_nest" 0.25>>
+	<<set _antiqueChance to 0.5>>
+	<<if $historyTraitBuffs.improvedChances is 1>>
+		<<set _antiqueChance += 0.15 * $historytrait>>
+	<</if>>
 	<<if $forest lte 20>>
-		<<addevent "forestarrow" 0.5>>
+		<<addevent "forestarrow" _antiqueChance>>
 	<<elseif $forest lte 50>>
-		<<addevent "forestdagger" 0.5>>
+		<<addevent "forestdagger" _antiqueChance>>
 	<<else>>
-		<<addevent "forestgem" 0.5>>
+		<<addevent "forestgem" _antiqueChance>>
 		<<if $beedisable is "f">>
 			<<addinlineevent>>
 				You hear a gentle buzz up ahead. A large beehive hangs from a tree. Workers fly in and out in a quest for pollen. The honey would be valuable.
@@ -693,7 +698,8 @@
 	<<link [[Take a detour (0:30)|Forest]]>><<endevent>><<pass 30>><<if $foresthunt gte 1>><<set $foresthunt += 2>><</if>><<set $eventskip to 1>><</link>>
 	<br>
 	<!-- Modified for Monster People -->
-	<<if random(1, 5) is 5 and ($bestialitydisable is "f" or $monster is 1)>>
+	<<set _bearChance to Math.floor(1 * ($allure / 1500))>>
+	<<if random(1, 5) lte _bearChance and ($bestialitydisable is "f" or $monster is 1)>>
 		<<link [[Ignore them|Forest Bear Molestation]]>><<set $molestationstart to 1>><</link>>
 		<br>
 	<<else>>
@@ -807,15 +813,17 @@
 <</widget>>
 
 <<widget "forestdagger">>
+	<<wearProp "dagger">>
 	You tread on something hard. You kneel and pull it from the forest detritus. It's an ancient dagger, worn beyond use. A collector might pay for this.
 	<br><br>
 
 	<<set $antiquemoney += 40>><<museumAntiqueStatus "antiqueforestdagger" "found">>
-	<<link [[Next|Forest]]>><<set $eventskip to 1>><</link>>
+	<<link [[Next|Forest]]>><<handheldon>><<set $eventskip to 1>><</link>>
 	<br>
 <</widget>>
 
 <<widget "forestgem">>
+	<<wearProp "forest gem">>
 	Something glints at the base of a tree stump. You tug it free. A calmness falls over you.
 	<<lstress>><<stress -3>>
 	<br><br>
@@ -824,16 +832,17 @@
 	<br><br>
 
 	<<set $antiquemoney += 100>><<museumAntiqueStatus "antiqueforestgem" "found">>
-	<<link [[Next|Forest]]>><<set $eventskip to 1>><</link>>
+	<<link [[Next|Forest]]>><<handheldon>><<set $eventskip to 1>><</link>>
 	<br>
 <</widget>>
 
 <<widget "forestarrow">>
+	<<wearProp "arrow">>
 	You spot a decaying metal shard amongst the fallen bark at your feet. It's an arrowhead. A collector might pay for it.
 	<br><br>
 
 	<<set $antiquemoney += 20>><<museumAntiqueStatus "antiqueforestarrow" "found">>
-	<<link [[Next|Forest]]>><<set $eventskip to 1>><</link>>
+	<<link [[Next|Forest]]>><<handheldon>><<set $eventskip to 1>><</link>>
 	<br>
 <</widget>>
 
@@ -996,7 +1005,21 @@
 						You reach up to untie yourself, and spot someone watching. It's Eden.
 						<br><br>
 
-						"Those traps are meant for animals," <<he>> says. "You should watch where you're going." <<He>> takes your weight in <<his>> arms while <<he>> unties you, then eases you to the ground.
+						"Those traps are meant for animals," <<he>> says. "You should watch where you're going." <<He>> takes your weight in <<his>> arms while <<he>>
+
+						<<if C.npc.Eden.lust gte 60>>
+							begins to untie you. <<He>> pauses before <<he>> does.
+							<br><br>
+							“We should have some fun first, though, don’t you agree?” <<He>> smiles down at you as <<he>> unzips <<his>> pants.
+							<br><br>
+
+							<<link [[Help Eden pull <<his>> pants down|Forest Eden Snare Oral]]>><<set $phase to 0>><<npcincr Eden love 1>><<npcincr Eden dom 1>><<sub 1>><</link>><<glove>><<gdom>>
+							<br>
+							<<link [[Push Eden away|Forest Eden Snare Oral]]>><<set $phase to 1>><<npcincr Eden love -1>><<npcincr Eden dom -1>><<def 1>><</link>><<llove>><<ldom>>
+							<<exit>>
+						<<else>>
+							unties you, then eases you to the ground.
+						<</if>>
 					<</if>>
 				<<else>>
 					<<npc Eden>><<person1>>
@@ -1162,6 +1185,33 @@
 	<br>
 <</widget>>
 
+<<widget "berrypick">>
+	<<if $forest lte 50>>
+		<<set _forest_berries to 1>>
+	<<else>>
+		<<set _forest_berries to 2>>
+	<</if>>
+
+	You find a cluster of edible berries growing on a patch of bushes.
+	<br><br>
+
+	<<if _forest_berries is 1>>
+		<<icon "tending/blackberry.png">><<link [[Search for saleable specimens (0:20)|Forest Berries Pick]]>><<pass 20>><</link>><<tendingdifficulty 1 300>>
+		<br>
+	<<else>>
+		<<if currentSkillValue('tending') gte 150>>
+			<<icon "tending/strawberry.png">><<link [[Search for saleable specimens (0:20)|Forest Berries2 Pick]]>><<pass 20>><</link>><<tendingdifficulty 150 450>>
+			<br>
+		<<else>>
+			<span class="blue">You need a higher tending skill to pick saleable berries.</span>
+			<br>
+		<</if>>
+	<</if>>
+	<br>
+	<<getouticon>><<link [[Best leave them alone|Forest]]>><<set $eventskip to 1>><</link>>
+	<br>
+<</widget>>
+
 <<widget "forest_nest">>
 	<<if !$forest_nest_intro>>
 		<<set $forest_nest_intro to true>>
@@ -1256,7 +1306,7 @@
 		<<if $forest_nest.type lte 2>>
 			<<ind>><<link [[Climb up to the nest|Forest Nest Climb]]>><</link>><<athleticsdifficulty 0 800>>
 			<br>
-			<<ind>><<link [[Knock the nest down|Forest Nest Throw]]>><<set $forest_nest.eggs -= 4>><<set $forest_nest.type to 3>><</link>><<note "Less eggs" "red">>
+			<<ind>><<link [[Knock the nest down|Forest Nest Throw]]>><<set $forest_nest.eggs -= 4>><<set $forest_nest.type to 3>><</link>><<note "Fewer eggs" "red">>
 			<br>
 		<<elseif $forest_nest.type is 3>>
 			<<ind>><<link [[Search the nest|Forest Nest Search]]>><</link>>
@@ -1269,7 +1319,7 @@
 			<br>
 		<</if>>
 		<<if $forest_nest.fox is 3>>
-			<<ind>><<link [[Hide and wait (0:05)|Forest Nest Hide]]>><<unset $athleticsSuccess>><<set $forest_nest.eggs -= 2>><<pass 5>><</link>><<note "Less eggs" "red">>
+			<<ind>><<link [[Hide and wait (0:05)|Forest Nest Hide]]>><<unset $athleticsSuccess>><<set $forest_nest.eggs -= 2>><<pass 5>><</link>><<note "Fewer eggs" "red">>
 			<br>
 		<</if>>
 	<</if>>
@@ -1612,6 +1662,7 @@
 				<<set $_max to (_args[0] + 4)>>
 			<</if>>
 		<</if>>
+		<<wearProp "bird egg">>
 		<span class="green"><<tending_pick bird_egg $_min $_max>></span>
 	<<else>>
 		<span class="red">There's no intact eggs left.</span>

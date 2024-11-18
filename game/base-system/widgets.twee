@@ -338,13 +338,21 @@
 		<!-- args[4] - indicates NPC id (but is currently unused) -->
 
 		<<if $combatExtended.blockingActive gte 1>>
-			<<set _violence to Math.round(_violence - (_violence * ((0.4 * (1 * ($physique / 16000))) * $combatExtended.blockingActive)))>>
+			<<set _violence to Math.round(_violence - (_violence * ((0.4 * (1 * (currentSkillValue('physique') / 16000))) * $combatExtended.blockingActive)))>>
 		<</if>>
 
 		<<if _violence gt 0 or _violence lt 0>>
 			<<if $drunk gt 0>>
-				<<set $_drunk_level to Math.clamp(Math.floor($drunk / 120), 0, 4)>>
-				<<set _drunkMod to [9,8,6,4,3][$_drunk_level]>>
+				<<if $substanceRebalance is 1>>
+					<<if $drunk gte 240>>
+						<<set _drunkMod to Math.max(10 - (1.5 * (1 + Math.round($drunk / 120))), 0)>>
+					<<else>>
+						<<set _drunkMod to 10 - (1 * Math.round($drunk / 120))>>
+					<</if>>
+				<<else>>
+					<<set $_drunk_level to Math.clamp(Math.floor($drunk / 120), 0, 4)>>
+					<<set _drunkMod to [9,8,6,4,3][$_drunk_level]>>
+				<</if>>
 			<<else>>
 				<<set _drunkMod to 10>>
 			<</if>>
@@ -468,7 +476,7 @@
 		<<if $arousal gte ($arousalmax * 0.8)>>
 			<<sadism _args[0]>>
 		<</if>>
-		<<set _thedamage to (2 * _defiance * ($physique / 4000))>>
+		<<set _thedamage to (2 * _defiance * (currentSkillValue('physique') / 4000))>>
 		<<if $combatExtended.brawlingToggle is 1>>
 			<<set _thedamage to _thedamage * (1 + (($combatExtended.brawling * $enemyno * (1 + ($enemyno / 2))) / 10000))>>
 		<</if>>
@@ -905,7 +913,8 @@
 <<widget "skulduggeryskilluse">>
 	<<if $statFreeze isnot true>>
 		<<set $skulduggery += 3>>
-		<<if $skulduggery lt 1000>>
+		<<set $skulduggery = Math.clamp($skulduggery, 0, 1000 * $AMCTraits.skulduggery)>>
+		<<if $skulduggery lt 1000 * $AMCTraits.skulduggery>>
 			<span class="gold"> You learned a thing or two about skulduggery.</span>
 		<</if>>
 	<</if>>
@@ -915,38 +924,23 @@
 <<widget "combatskulduggeryskilluse">>
 	<<if $statFreeze isnot true>>
 		<<if $skulduggery gt 1000 or $AMCTraits.halfGain is 1>>
-			<<set $skulduggery += 3 / $AMCTraits.skulduggery>>
+			<<set $skulduggery += 3 / $AMCTraits.skulduggery * ($statGainReductionMult / 100)>>
 		<<else>>
-			<<set $skulduggery += 3>>
+			<<set $skulduggery += 3 * ($statGainReductionMult / 100)>>
 		<</if>>
 		<<set $skulduggery to Math.clamp($skulduggery, 0, 1000 * $AMCTraits.skulduggery)>>
 		<<if $skulduggery lt 1000 * $AMCTraits.skulduggery>>
 			<span class="gold"> You learned a thing or two about skulduggery.</span>
 		<</if>>
 	<</if>>
-<</widget>>
-
-<<widget "lockpickTrainingSetuse">>
-	<<if $statFreeze isnot true>>
-		<<if $skulduggery gt 1000 or $AMCTraits.halfGain is 1>>
-			<<set $skulduggery += _args[0] / $AMCTraits.skulduggery>>
-		<<else>>
-			<<set $skulduggery += _args[0]>>
-		<</if>>
-		<<set $skulduggery to Math.clamp($skulduggery, 0, 1000 * $AMCTraits.skulduggery)>>
-		<<if $skulduggery lt 1000 * $AMCTraits.skulduggery>>
-			<span class="gold"> You learned a thing or two about skulduggery.</span>
-		<</if>>
-	<</if>>
-	<br><br>
 <</widget>>
 
 <<widget "swimmingskilluse">>
 	<<if $statFreeze isnot true>>
 		<<if $swimmingskill gt 1000 or $AMCTraits.halfGain is 1>>
-			<<set $swimmingskill += 9 / $AMCTraits.swimming>>
+			<<set $swimmingskill += 9 / $AMCTraits.swimming * ($statGainReductionMult / 100)>>
 		<<else>>
-			<<set $swimmingskill += 9>>
+			<<set $swimmingskill += 9 * ($statGainReductionMult / 100)>>
 		<</if>>
 		<<if $swimmingskill lt 1000 * $AMCTraits.swimming>>
 			<span class="gold"> You've become more confident at swimming.</span>
@@ -990,45 +984,45 @@
 		<</if>>
 
 		<<if _AMCmod is 2 and V[$subject] gt 1000 or $AMCTraits.halfGain is 1>>
-			<<set V[$_subject + "_exam"] to Math.clamp(V[$_subject + "_exam"] + ($_gain * _skill_mod / _AMCmod), -107, 200)>>
+			<<set V[$_subject + "_exam"] to Math.clamp(V[$_subject + "_exam"] + ($_gain * _skill_mod / _AMCmod * ($statGainReductionMult / 100)), -107, 200)>>
 		<<else>>
-			<<set V[$_subject + "_exam"] to Math.clamp(V[$_subject + "_exam"] + ($_gain * _skill_mod), -107, 200)>>
+			<<set V[$_subject + "_exam"] to Math.clamp(V[$_subject + "_exam"] + ($_gain * _skill_mod * ($statGainReductionMult / 100)), -107, 200)>>
 		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "scienceskill">>
 	<<if $science gt 1000 or $AMCTraits.halfGain is 1>>
-		<<set _args[0] to _args[0] / $AMCTraits.science>>
+		<<set _args[0] to _args[0] / $AMCTraits.science * ($statGainReductionMult / 100)>>
 	<<else>>
-		<<set _args[0] to _args[0]>>
+		<<set _args[0] to _args[0] * ($statGainReductionMult / 100)>>
 	<</if>>
 	<<schoolskillgeneral "science" _args[0] _args[1]>>
 <</widget>>
 
 <<widget "mathsskill">>
 	<<if $maths gt 1000 or $AMCTraits.halfGain is 1>>
-		<<set _args[0] to _args[0] / $AMCTraits.maths>>
+		<<set _args[0] to _args[0] / $AMCTraits.maths * ($statGainReductionMult / 100)>>
 	<<else>>
-		<<set _args[0] to _args[0]>>
+		<<set _args[0] to _args[0] * ($statGainReductionMult / 100)>>
 	<</if>>
 	<<schoolskillgeneral "maths" _args[0] _args[1]>>
 <</widget>>
 
 <<widget "englishskill">>
 	<<if $english gt 1000 or $AMCTraits.halfGain is 1>>
-		<<set _args[0] to _args[0] / $AMCTraits.english>>
+		<<set _args[0] to _args[0] / $AMCTraits.english * ($statGainReductionMult / 100)>>
 	<<else>>
-		<<set _args[0] to _args[0]>>
+		<<set _args[0] to _args[0] * ($statGainReductionMult / 100)>>
 	<</if>>
 	<<schoolskillgeneral "english" _args[0] _args[1]>>
 <</widget>>
 
 <<widget "historyskill">>
 	<<if $history gt 1000 or $AMCTraits.halfGain is 1>>
-		<<set _args[0] to _args[0] / $AMCTraits.history>>
+		<<set _args[0] to _args[0] / $AMCTraits.history * ($statGainReductionMult / 100)>>
 	<<else>>
-		<<set _args[0] to _args[0]>>
+		<<set _args[0] to _args[0] * ($statGainReductionMult / 100)>>
 	<</if>>
 	<<schoolskillgeneral "history" _args[0] _args[1]>>
 <</widget>>
@@ -1148,9 +1142,9 @@
 		<<set _temp /= 1.1>>
 	<</if>>
 	<<if $athletics gt 1000 or $AMCTraits.halfGain is 1>>
-		<<set $athletics += Math.trunc(_temp * 1.3 / $AMCTraits.athletics)>>
+		<<set $athletics += _temp * 1.3 / $AMCTraits.athletics * ($statGainReductionMult / 100)>>
 	<<else>>
-		<<set $athletics += Math.trunc(_temp * 1.3)>>
+		<<set $athletics += _temp * 1.3 * ($statGainReductionMult / 100)>>
 	<</if>>
 	<<set $athletics to Math.clamp($athletics, 0, 1000 * $AMCTraits.athletics)>>
 	<<set Weather.BodyTemperature.addActivity("athletics")>>
@@ -1159,20 +1153,20 @@
 <<widget "tending">>
 	<<if _args[0] and $statFreeze isnot true>>
 		<<if $tending gt 1000 or $AMCTraits.halfGain is 1>>
-			<<set $tending += (_args[0] * 2 / $AMCTraits.tending)>>
+			<<set $tending += (_args[0] * 2 / $AMCTraits.tending * ($statGainReductionMult / 100))>>
 		<<else>>
-			<<set $tending += (_args[0] * 2)>>
+			<<set $tending += (_args[0] * 2 * ($statGainReductionMult / 100))>>
 		<</if>>
 		<<set $tending to Math.clamp($tending, 0, 1000 * $AMCTraits.tending)>>
 	<</if>>
 <</widget>>
 
 <<widget "housekeeping">>
-<<if _args[0] and $statFreeze isnot true and ($housekeeping lt _args[1] or _args[1] gte 1000)>>
+<<if _args[0] and $statFreeze isnot true and ($housekeeping lt _args[1] or _args[1] gte 1000 or $easyHousekeeping gte 1)>>
 	<<if $housekeeping gt 1000 or $AMCTraits.halfGain is 1>>
-		<<set $housekeeping += (_args[0] * 2 / $AMCTraits.housekeeping)>>
+		<<set $housekeeping += (_args[0] * 2 / $AMCTraits.housekeeping * ($statGainReductionMult / 100))>>
 	<<else>>
-		<<set $housekeeping += (_args[0] * 2)>>
+		<<set $housekeeping += (_args[0] * 2 * ($statGainReductionMult / 100))>>
 	<</if>>
 	<<set $housekeeping to Math.clamp($housekeeping, 0, 1000 * $AMCTraits.housekeeping)>>
 <</if>>
@@ -1181,9 +1175,9 @@
 <<widget "danceskill">>
 	<<if _args[0] and $statFreeze isnot true>>
 		<<if $danceskill gt 1000 or $AMCTraits.halfGain is 1>>
-			<<set $danceskill += _args[0] / $AMCTraits.dancing>>
+			<<set $danceskill += _args[0] / $AMCTraits.dancing * ($statGainReductionMult / 100)>>
 		<<else>>
-			<<set $danceskill += _args[0]>>
+			<<set $danceskill += _args[0] * ($statGainReductionMult / 100)>>
 		<</if>>
 		<<set $danceskill to Math.clamp($danceskill, 0, 1000 * $AMCTraits.dancing)>>
 	<</if>>
@@ -1798,7 +1792,7 @@
 
 <<widget "drunkcaption">>
 	<<if $drunk gt 0>>
-		<<set $_colour to getColourClassFromPercentage($drunk * (100 / 480))>>
+		<<set $_colour to getColourClassFromPercentage($drunk * (100 / 480), "drunk")>>
 		<<set $_barColour to $_colour + "bar">>
 		<<set $_percent to Math.floor(($drunk/1000)*100)>>
 		<<set $_barWidth to `width:${$_percent}%`>>
@@ -1828,7 +1822,7 @@
 
 <<widget "druggedcaption">>
 	<<if $drugged gt 0>>
-		<<set $_colour to getColourClassFromPercentage($drugged / 5)>>
+		<<set $_colour to getColourClassFromPercentage($drugged / 5, "drugged")>>
 		<<set $_barColour to $_colour + "bar">>
 		<<set $_percent to Math.floor(($drugged/1000)*100)>>
 		<<set $_barWidth to `width:${$_percent}%`>>
@@ -1851,7 +1845,7 @@
 
 <<widget "hallucinogencaption">>
 	<<if $hallucinogen gt 0>>
-		<<set $_colour to getColourClassFromPercentage($hallucinogen / 5)>>
+		<<set $_colour to getColourClassFromPercentage($hallucinogen / 5, "hallucinogen")>>
 		<<set $_barColour to $_colour + "bar">>
 		<<set $_percent to Math.floor(($hallucinogen/1000)*100)>>
 		<<set $_barWidth to `width:${$_percent}%`>>
@@ -2287,7 +2281,7 @@
 
 <<widget "exposure">>
 	<!-- In safe locations, while alone, the player won't cover up. Love interest check is likely not hitting everywhere it should be due to NPCs generating after this check. -->
-	<<if ["Bedroom", "Sleep", "Bird Tower", "Bird Hunt"].some(keyword => V.passage.includes(keyword)) and !($NPCList.some(obj => Object.hasOwn(obj, "type")) and !$NPCList.find(({fullDescription:fd}) => fd && Object.values($loveInterest).includes(fd)))>>
+	<<if ["Wardrobe", "Bedroom", "Sleep", "Bird Tower", "Bird Hunt", "Spa Tan Underwear", "Spa Tan Curtains", "Spa Tan Naked"].some(keyword => V.passage.includes(keyword)) and !($NPCList.some(obj => Object.hasOwn(obj, "type")) and !$NPCList.find(({fullDescription:fd}) => fd && Object.values($loveInterest).includes(fd)))>>
 		<<set $libertine to 2>>
 	<<else>>
 		<<set $libertine to 0>>
@@ -3210,7 +3204,7 @@
 
 <<widget "roomoptions">>
 	<<if $sexStats.pills.boughtOnce is true or $sexStats.pills["pills"]["Dr Harper\'s prescription"].owned gte 1 or $sexStats.pills["pills"]["asylum\'s prescription"].owned gte 1>>
-		<<pillicon>><<link [[Check your Medicine Drawer|PillCollection]]>><<set $pillsExitPassage to $passage>><<endevent>><</link>>
+		<<pillicon>><<link [[Check your medicine drawer|PillCollection]]>><<set $pillsExitPassage to $passage>><<endevent>><</link>>
 		<br>
 	<</if>>
 <</widget>>
@@ -3635,7 +3629,7 @@
 				"love" : {
 					name : "Love",
 					value : T.npcData.love,
-					activeIcon : 'img/ui/heart.png',
+					activeIcon : 'img/ui/sym_love.png',
 					inactiveIcon: 'img/ui/emptyheart.png',
 					color: 'red'
 				},
@@ -3643,26 +3637,26 @@
 					name : "Lust",
 					value : T.npcData.lust,
 					iconOrientation : 'vertical',
-					activeIcon : 'img/ui/vial.png',
+					activeIcon : 'img/ui/sym_lust.png',
 					inactiveIcon : 'img/ui/emptyvial.png',
 					color: 'pink'
 				},
 				"dom" : {
 					name : "Dominance",
 					value : T.npcData.dom,
-					activeIcon : "img/ui/collar.png",
+					activeIcon : "img/ui/sym_dominance.png",
 					color: 'purple'
 				},
 				"trauma" : {
 					name : "Trauma",
 					value : T.npcData.trauma,
-					activeIcon : "img/ui/redbolt.png",
+					activeIcon : "img/ui/sym_trauma.png",
 					color: 'teal'
 				},
 				"rage" : {
 					name : "Rage",
 					value : T.npcData.rage,
-					activeIcon : "img/ui/rage.png",
+					activeIcon : "img/ui/sym_rage.png",
 					color: 'gold'
 				},
 				"purity" : {
@@ -3707,7 +3701,13 @@
 					T.loveInterest = true;
 				} else if (V.loveInterest.tertiary == T.npcData.nam) {
 					T.loveInterest = true;
-				} else {
+				} else if (V.loveInterest.quarternary == T.npcData.nam) {
+					T.loveInterest = true;
+				}  else if (V.loveInterest.quinary == T.npcData.nam) {
+					T.loveInterest = true;
+				}  else if (V.loveInterest.senary == T.npcData.nam) {
+					T.loveInterest = true;
+				}  else {
 					T.loveInterest = false;
 				}
 			}
@@ -3976,12 +3976,6 @@
 	<</if>>
 <</widget>>
 
-<<widget "fringecheck">>
-	<<if $fringetype is "default">>
-		<<set $fringetype to "messy">>
-	<</if>>
-<</widget>>
-
 <<widget "haircheck">>
 	<<if $hairtype is "default">>
 		<<set $hairtype to "messy">>
@@ -4037,7 +4031,7 @@
 	<<if $orgasmdown gte 1 and _willpowerorgasmchecked isnot true>>
 		<<if (currentSkillValue('willpower') / 10) gte (($orgasmdown * 30) + random(1, 80))>>
 			<span class="green">You endure the orgasmic shivers running through you.</span>
-			<<gwillpower>><<willpower 1>><<set $orgasmdown to 0>>
+			<<gwillpower>><<willpower 1>><<if $willpowerCum is 1 and $orgasmCum lt $orgasmdown>><<set $orgasmCum to $orgasmdown>><</if>><<set $orgasmdown to 0>>
 			<br>
 		<<else>>
 			<span class="red">You struggle against the orgasmic spasms overwhelming you.</span>
@@ -4084,7 +4078,7 @@
 <</widget>>
 
 <<widget "breastfed">>
-	<<set $milk_drank_stat += random(1, 5)>>
+	<<set $milk_drank_stat += _args[0] or random(1, 5)>>
 	<<if random(1, 100) gte 70>>
 		<<if $NPCList[0].type and $NPCList[0].type is "wolfgirl">>
 			<<transform wolf 1>>
@@ -4133,7 +4127,7 @@
 
 <<widget "new_npc_pillory">>
 	<<if not _args[0]>>
-		<<if $rng gte 20>><<generate1>><<else>><<generatey1>><</if>>
+		<<if $rng gte 20>><<generatev1>><<else>><<generateyv1>><</if>>
 		<<set $_already_served to random(0,2)>>
 	<<else>>
 		<<set $_already_served to 0>>
@@ -5073,6 +5067,10 @@
 <</widget>>
 
 <<widget "adjust_school_traits">>
+	<<set $english to Math.clamp($english, 0, 1000 * $AMCTraits.english)>>
+	<<set $maths to Math.clamp($maths, 0, 1000 * $AMCTraits.maths)>>
+	<<set $science to Math.clamp($science, 0, 1000 * $AMCTraits.science)>>
+	<<set $history to Math.clamp($history, 0, 1000 * $AMCTraits.history)>>
 	<<if $science gte 2000>>
 		<<set $sciencetrait to 8>>
 	<<elseif $science gte 1750>>
@@ -5149,10 +5147,6 @@
 	<<else>>
 		<<set $historytrait to 0>>
 	<</if>>
-	<<set $english to Math.clamp($english, 0, 1000 * $AMCTraits.english)>>
-	<<set $maths to Math.clamp($maths, 0, 1000 * $AMCTraits.maths)>>
-	<<set $science to Math.clamp($science, 0, 1000 * $AMCTraits.science)>>
-	<<set $history to Math.clamp($history, 0, 1000 * $AMCTraits.history)>>
 <</widget>>
 
 /*
@@ -5211,23 +5205,14 @@
 	<<set _money_gain to Math.floor((_base_amount + _variation) * _skulduggeryMulti)>>
 <</silently>><<printmoney _money_gain>><</widget>>
 
-<<widget "formatmoney">>
-	<<set _integer to Math.floor(_args[0] / 100)>>
-	<<set _printargs to Math.abs(_integer).toLocaleString("en-GB")>>
-	<<if _integer <= 9999>>
-		<<set _printargs to _printargs + (_args[0] % 100 ? "." + ("0" + Math.floor(Math.abs(_args[0] % 100))).slice(-2) : "")>>
-	<</if>>
-	<<set _printmoney to (_args[0] gte 0 ? "" : "-") + "£" + _printargs>>
-<</widget>>
-
 <<widget "printmoney">><<silently>><!-- (amount in pennies, highlight toggle) -->
 	<<if _args.length gt 2 or typeof(_args[0]) isnot "number">><!-- sanity checks -->
-		<<set _printmoney to '<span class="red">printmoney error: invalid arguments: _args</span>'>>
+		<<set $_printmoney to '<span class="red">printmoney error: invalid arguments: _args</span>'>>
 	<<else>>
-		<<formatmoney _args[0]>>
+		<<set $_printmoney to formatMoney(_args[0])>>
 	<</if>>
-	<<set _text_output to `<span @class='_args[1]?_args[1]:"gold"'>` + _printmoney + '</span>'>>
-<</silently>><<print _text_output>><</widget>>
+	<<set $_text_output to `<span @class='_args[1]?_args[1]:"gold"'>` + $_printmoney + '</span>'>>
+<</silently>><<print $_text_output>><</widget>>
 
 <<widget "sadism">>
 	<<if _args[0]>>
@@ -5384,6 +5369,7 @@
 <<widget "clearears">>
 	<<set $transformationParts.cat.ears = "disabled">>
 	<<set $transformationParts.cow.ears = "disabled">>
+	<<set $transformationParts.bear.ears = "disabled">>
 	<<set $transformationParts.wolf.ears = "disabled">>
 	<<set $transformationParts.fox.ears = "disabled">>
 <</widget>>
@@ -5417,6 +5403,7 @@
 		<<set $transformationParts.cat.tail = "disabled">>
 	<</if>>
 	<<set $transformationParts.cow.tail = "disabled">>
+	<<set $transformationParts.bear.tail = "disabled">>
 	<<set $transformationParts.wolf.tail = "disabled">>
 	<<set $transformationParts.bird.tail = "disabled">>
 	<<set $transformationParts.fox.tail = "disabled">>
@@ -5426,7 +5413,6 @@
 	<<if $transformationParts.demon.wings !== "disabled" and $transformationParts.bird.wings !== "disabled">>
 		<<set $transformationParts.demon.wings = "disabled">>
 		<<set $transformationParts.bird.wings = "disabled">>
-		<<set $birdFly to 0>>
 	<</if>>
 	<<set $transformationParts.angel.wings = "disabled">>
 	<<if $transformationParts.bird.wings == "disabled">>
@@ -5435,7 +5421,19 @@
 	<<set $transformationParts.fallenAngel.wings = "disabled">>
 	<<if $transformationParts.demon.wings == "disabled">>
 		<<set $transformationParts.bird.wings = "disabled">>
+	<</if>>
+<</widget>>
+
+<<widget "updateFly">>
+	<<if $transformationParts.bird.wings == "default" and $birdFlyUnlocked isnot undefined>>
+		<<set $birdFly to 1>>
+	<<else>>
 		<<set $birdFly to 0>>
+	<</if>>
+	<<if ($transformationParts.angel.wings is "default" or $transformationParts.angel.wings is "classic") or ($transformationParts.demon.wings is "default" or $transformationParts.demon.wings is "succubus") or ($transformationParts.fallenAngel.wings is "default" or $transformationParts.fallenAngel.wings is "classic") or ($transformationParts.bird.wings is "default")>>
+		<<set $birdGlide to 1>>
+	<<else>>
+		<<set $birdGlide to 0>>
 	<</if>>
 <</widget>>
 
@@ -5483,6 +5481,9 @@
 	<</if>>
 	<<if ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black")>>
 		<<set $cowtf to 1>>
+	<</if>>
+	<<if ($bear gte 6 or $transformationParts.bear.tail is "default")>>
+		<<set $beartf to 1>>
 	<</if>>
 	<<if ($harpy gte 6 or $transformationParts.bird.wings is "default")>>
 		<<set $harpytf to 1>>
@@ -5580,6 +5581,8 @@
 	<<set $catbuild to 0>>
 	<<set $cow to 0>>
 	<<set $cowbuild to 0>>
+	<<set $bear to 0>>
+	<<set $bearbuild to 0>>
 	<<set $harpy to 0>>
 	<<set $birdbuild to 0>>
 	<<set $fox to 0>>
@@ -5593,151 +5596,6 @@
 	})>>
 	<<set $skulduggery to 0>>
 	<<set $spray to 0>>
-<</widget>>
-
-<<widget "amcTraitsUpdate">>
-	<<if $AMCTraits is undefined>>
-		<<set $AMCTraits to {}>>
-	<</if>>
-	<<if $AMCTraits.halfGain is undefined>>
-		<<set $AMCTraits.halfGain to 0>>
-	<</if>>
-	<<if $AMCTraits.beauty is undefined>>
-		<<set $AMCTraits.beauty to 1>>
-	<</if>>
-	<<if $AMCTraits.physique is undefined>>
-		<<set $AMCTraits.physique to 1>>
-	<</if>>
-	<<if $AMCTraits.willpower is undefined>>
-		<<set $AMCTraits.willpower to 1>>
-	<</if>>
-	<<if $AMCTraits.skulduggery is undefined>>
-		<<set $AMCTraits.skulduggery to 1>>
-	<</if>>
-	<<if $AMCTraits.dancing is undefined>>
-		<<set $AMCTraits.dancing to 1>>
-	<</if>>
-	<<if $AMCTraits.swimming is undefined>>
-		<<set $AMCTraits.swimming to 1>>
-	<</if>>
-	<<if $AMCTraits.athletics is undefined>>
-		<<set $AMCTraits.athletics to 1>>
-	<</if>>
-	<<if $AMCTraits.tending is undefined>>
-		<<set $AMCTraits.tending to 1>>
-	<</if>>
-	<<if $AMCTraits.housekeeping is undefined>>
-		<<set $AMCTraits.housekeeping to 1>>
-	<</if>>
-	<<if $AMCTraits.brawling is undefined>>
-		<<set $AMCTraits.brawling to 1>>
-	<</if>>
-	<<if $AMCTraits.science is undefined>>
-		<<set $AMCTraits.science to 1>>
-	<</if>>
-	<<if $AMCTraits.maths is undefined>>
-		<<set $AMCTraits.maths to 1>>
-	<</if>>
-	<<if $AMCTraits.english is undefined>>
-		<<set $AMCTraits.english to 1>>
-	<</if>>
-	<<if $AMCTraits.history is undefined>>
-		<<set $AMCTraits.history to 1>>
-	<</if>>
-	<<if $AMCTraits.seductionskill is undefined>>
-		<<set $AMCTraits.seductionskill to 1>>
-	<</if>>
-	<<if $AMCTraits.oralskill is undefined>>
-		<<set $AMCTraits.oralskill to 1>>
-	<</if>>
-	<<if $AMCTraits.chestskill is undefined>>
-		<<set $AMCTraits.chestskill to 1>>
-	<</if>>
-	<<if $AMCTraits.handskill is undefined>>
-		<<set $AMCTraits.handskill to 1>>
-	<</if>>
-	<<if $AMCTraits.bottomskill is undefined>>
-		<<set $AMCTraits.bottomskill to 1>>
-	<</if>>
-	<<if $AMCTraits.penileskill is undefined>>
-		<<set $AMCTraits.penileskill to 1>>
-	<</if>>
-	<<if $AMCTraits.vaginalskill is undefined>>
-		<<set $AMCTraits.vaginalskill to 1>>
-	<</if>>
-	<<if $AMCTraits.analskill is undefined>>
-		<<set $AMCTraits.analskill to 1>>
-	<</if>>
-	<<if $AMCTraits.thighskill is undefined>>
-		<<set $AMCTraits.thighskill to 1>>
-	<</if>>
-	<<if $AMCTraits.feetskill is undefined>>
-		<<set $AMCTraits.feetskill to 1>>
-	<</if>>
-	<<if $AMCTraits.milk is undefined>>
-		<<set $AMCTraits.milk to 1>>
-	<</if>>
-	<<if $AMCTraits.semen is undefined>>
-		<<set $AMCTraits.semen to 1>>
-	<</if>>
-
-	<<set $beautymax to 10000>>
-	<<set $willpowermax to 1000>>
-	<<set $skulduggerymax to 1000>>
-	<<set $dancingmax to 1000>>
-	<<set $swimmingmax to 1000>>
-	<<set $athleticsmax to 1000>>
-	<<set $tendingmax to 1000>>
-	<<set $housekeepingmax to 1000>>
-	<<set $brawlingmax to 1000>>
-	<<set $seductionskillmax to 1000>>
-	<<set $oralskillmax to 1000>>
-	<<set $chestskillmax to 1000>>
-	<<set $handskillmax to 1000>>
-	<<set $bottomskillmax to 1000>>
-	<<set $penileskillmax to 1000>>
-	<<set $vaginalskillmax to 1000>>
-	<<set $analskillmax to 1000>>
-	<<set $thighskillmax to 1000>>
-	<<set $feetskillmax to 1000>>
-	<<if $AMCTraits.oral>>
-		<<set $AMCTraits.oralskill to $AMCTraits.oral>>
-		<<unset $AMCTraits.oral>>
-	<</if>>
-	<<if $AMCTraits.chest>>
-		<<set $AMCTraits.chestskill to $AMCTraits.chest>>
-		<<unset $AMCTraits.chest>>
-	<</if>>
-	<<if $AMCTraits.hands>>
-		<<set $AMCTraits.handskill to $AMCTraits.hands>>
-		<<unset $AMCTraits.hands>>
-	<</if>>
-	<<if $AMCTraits.buttocks>>
-		<<set $AMCTraits.bottomskill to $AMCTraits.buttocks>>
-		<<unset $AMCTraits.buttocks>>
-	<</if>>
-	<<if $AMCTraits.penile>>
-		<<set $AMCTraits.penileskill to $AMCTraits.penile>>
-		<<unset $AMCTraits.penile>>
-	<</if>>
-	<<if $AMCTraits.vaginal>>
-		<<set $AMCTraits.vaginalskill to $AMCTraits.vaginal>>
-		<<unset $AMCTraits.vaginal>>
-	<</if>>
-	<<if $AMCTraits.anal>>
-		<<set $AMCTraits.analskill to $AMCTraits.anal>>
-		<<unset $AMCTraits.anal>>
-	<</if>>
-	<<if $AMCTraits.thighs>>
-		<<set $AMCTraits.thighskill to $AMCTraits.thighs>>
-		<<unset $AMCTraits.thighs>>
-	<</if>>
-	<<if $AMCTraits.feet>>
-		<<set $AMCTraits.feetskill to $AMCTraits.feet>>
-		<<unset $AMCTraits.feet>>
-	<</if>>
-	<<if $AMCTraits.seduction>>
-		<<set $AMCTraits.seductionskill to $AMCTraits.seduction>>
-		<<unset $AMCTraits.seduction>>
-	<</if>>
+	<<set Skin.color.natural to "light">>
+	<<set Skin.color.tan to 0>>
 <</widget>>

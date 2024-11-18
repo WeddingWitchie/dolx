@@ -29,6 +29,8 @@
 			<<else>>
 				cow
 			<</if>>
+		<<elseif $bear gte 6 or $transformationParts.bear.tail is "default">>
+			bear
 		<<elseif ($harpy gte 6 or $transformationParts.bird.wings is "default")>>
 			<<if $hallucinations gte 2 or $bestialitydisable is "t">>
 				harpy
@@ -429,10 +431,47 @@
 							<<set _physiqueConfig.modTypes.good.pushUnique("rugged footwear")>>
 						<</if>>
 				<</switch>>
+				<<if $drunk gte 120 and $substanceRebalance is 1>>
+					<<set _physiqueConfig.modifier to Math.round(_physiqueConfig.modifier * (1 - (0.1 * Math.round(V.drunk / 120))))>>
+					<<set _physiqueConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+				<<elseif $drunk gte 1 and $substanceRebalance is 1>>
+					<<set _physiqueConfig.modifier to Math.round(_physiqueConfig.modifier * 0.95)>>
+					<<set _physiqueConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+				<</if>>
+				<<if $hallucinogen gte 1 and $substanceRebalance is 1>>
+					<<set _physiqueConfig.modifier to Math.round(_physiqueConfig.modifier * (1 - (0.125 * Math.round(V.hallucinogen / 250))))>>
+					<<set _physiqueConfig.modTypes.bad.pushUnique("hallucinogens - muscle weakness")>>
+				<</if>>
+				<<if $DoLPTFBuffs is 1>>
+					<<if $TFWolfBuffs is 1>>
+						<<set _physiqueConfig.modifier to Math.round(_physiqueConfig.modifier * 1.2)>>
+						<<set _physiqueConfig.modTypes.good.pushUnique("spirit of the wild")>>
+					<</if>>
+					<<if $TFCatBuffs is 1>>
+						<<set _physiqueConfig.modifier to Math.round(_physiqueConfig.modifier * 0.8)>>
+						<<set _physiqueConfig.modTypes.bad.pushUnique("felinous mischief")>>
+					<</if>>
+					<<if $TFCowBuffs is 1>>
+						<<set _physiqueConfig.modifier to Math.round(_physiqueConfig.modifier * 1.4)>>
+						<<set _physiqueConfig.modTypes.good.pushUnique("nature's nurturer")>>
+					<</if>>
+					<<if $TFBearBuffs is 1>>
+						<<set _physiqueConfig.modifier to Math.round(_physiqueConfig.modifier * 1.5)>>
+						<<set _physiqueConfig.modTypes.good.pushUnique("ursine strength")>>
+					<</if>>
+					<<if $TFBirdBuffs is 1>>
+						<<set _physiqueConfig.modifier to Math.round(_physiqueConfig.modifier * 0.7)>>
+						<<set _physiqueConfig.modTypes.bad.pushUnique("sky's embrace")>>
+					<</if>>
+					<<if $TFFoxBuffs is 1>>
+						<<set _physiqueConfig.modifier to Math.round(_physiqueConfig.modifier * 0.9)>>
+						<<set _physiqueConfig.modTypes.bad.pushUnique("vixen's guile")>>
+					<</if>>
+				<</if>>
 
 				<!--WILLPOWER-->
 				<<if $AMCTraits.willpower is 2>>
-					<<set _willpowerConfig = { name : "Willpower", icon : "ui/redbolt", displayType : "level", currentValue : $willpower, maxValue: $willpowermax * $AMCTraits.willpower, modifier: 100, modTypes: { good: [], bad: [] },
+					<<set _willpowerConfig = { name : "Willpower", icon : "ui/sym_trauma", displayType : "level", currentValue : $willpower, maxValue: $willpowermax * $AMCTraits.willpower, modifier: 100, modTypes: { good: [], bad: [] },
 						states : [
 							{ requiredValue:	0,							level: 0, color: 'red',		description: 'You are timid.'},
 							{ requiredValue:	$willpowermax / 7,			level: 1, color: 'pink',	description: 'You are fainthearted.'},
@@ -451,7 +490,7 @@
 						]
 					}>>
 				<<else>>
-					<<set _willpowerConfig = { name : "Willpower", icon : "ui/redbolt", displayType : "level", currentValue : $willpower, maxValue: $willpowermax, modifier: 100, modTypes: { good: [], bad: [] },
+					<<set _willpowerConfig = { name : "Willpower", icon : "ui/sym_trauma", displayType : "level", currentValue : $willpower, maxValue: $willpowermax, modifier: 100, modTypes: { good: [], bad: [] },
 						states : [
 							{ requiredValue:	0,							level: 0, color: 'red',		description: 'You are timid.'},
 							{ requiredValue:	$willpowermax / 7,			level: 1, color: 'pink',	description: 'You are fainthearted.'},
@@ -469,6 +508,35 @@
 				<<elseif numberOfEarSlime() gte 2>>
 					<<set _willpowerConfig.modifier to Math.floor(_willpowerConfig.modifier * 0.9)>>
 					<<set _willpowerConfig.modTypes.bad.pushUnique("ear slimes")>>
+				<</if>>
+				<<if $drunk gte 120 and $substanceRebalance is 1>>
+					<<set _willpowerConfig.modifier to Math.round(_willpowerConfig.modifier * (1 - (0.1 * Math.round(V.drunk / 120))))>>
+					<<set _willpowerConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+				<<elseif $drunk gte 1 and $substanceRebalance is 1>>
+					<<set _willpowerConfig.modifier to Math.round(_willpowerConfig.modifier * 0.95)>>
+					<<set _willpowerConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+				<</if>>
+				<<if $hallucinogen gte 1 and $substanceRebalance is 1>>
+					<<set _willpowerConfig.modifier to Math.floor(_willpowerConfig.modifier * (1 + (0.125 * Math.round(V.hallucinogen / 250))))>>
+					<<set _willpowerConfig.modTypes.good.pushUnique("hallucinogens - enhanced focus")>>
+				<</if>>
+				<<if $DoLPTFBuffs is 1>>
+					<<if $TFWolfBuffs is 1>>
+						<<set _willpowerConfig.modifier to Math.round(_willpowerConfig.modifier * 1.1)>>
+						<<set _willpowerConfig.modTypes.good.pushUnique("spirit of the wild")>>
+					<</if>>
+					<<if $TFCatBuffs is 1>>
+						<<set _willpowerConfig.modifier to Math.round(_willpowerConfig.modifier * 1.1)>>
+						<<set _willpowerConfig.modTypes.good.pushUnique("felinous mischief")>>
+					<</if>>
+					<<if $TFCowBuffs is 1>>
+						<<set _willpowerConfig.modifier to Math.round(_willpowerConfig.modifier * 0.8)>>
+						<<set _willpowerConfig.modTypes.bad.pushUnique("nature's nurturer")>>
+					<</if>>
+					<<if $TFBearBuffs is 1>>
+						<<set _willpowerConfig.modifier to Math.round(_willpowerConfig.modifier * 1.2)>>
+						<<set _willpowerConfig.modTypes.good.pushUnique("ursine strength")>>
+					<</if>>
 				<</if>>
 
 				<!--BEAUTY-->
@@ -506,7 +574,7 @@
 				<</if>>
 
 				<!--PROMISCUITY-->
-				<<set _promiscuityConfig = { name : "Promiscuity", icon : "ui/sym_promiscuity", displayType : "level", currentValue : $promiscuity, maxValue: 100, modifier: 100, modTypes: { good: [], bad: [] },
+				<<set _promiscuityConfig = { name : "Promiscuity", icon : "ui/sym_lust", displayType : "level", currentValue : $promiscuity, maxValue: 100, modifier: 100, modTypes: { good: [], bad: [] },
 					states : [
 						{ requiredValue: 0,		level: 0, color: 'green',	description: 'You are chaste and pure.'},
 						{ requiredValue: 1,		level: 1, color: 'teal',	description: 'You are prudish.'},
@@ -716,6 +784,111 @@
 					<<set _housekeepingConfig.modifier to Math.floor(_housekeepingConfig.modifier * 1.05)>>
 					<<set _housekeepingConfig.modTypes.good.pushUnique("cleaning supplies")>>
 				<</if>>
+				<<if $drunk gte 120 and $substanceRebalance is 1>>
+					<<set _skulduggeryConfig.modifier to Math.round(_skulduggeryConfig.modifier * (1 - (0.1 * Math.round(V.drunk / 120))))>>
+					<<set _skulduggeryConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+					<<set _dancingConfig.modifier to Math.round(_dancingConfig.modifier * (1 - (0.1 * Math.round(V.drunk / 120))))>>
+					<<set _dancingConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+					<<set _swimmingConfig.modifier to Math.round(_swimmingConfig.modifier * (1 - (0.1 * Math.round(V.drunk / 120))))>>
+					<<set _swimmingConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+					<<set _athleticsConfig.modifier to Math.round(_athleticsConfig.modifier * (1 - (0.1 * Math.round(V.drunk / 120))))>>
+					<<set _athleticsConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+					<<set _tendingConfig.modifier to Math.round(_tendingConfig.modifier * (1 - (0.1 * Math.round(V.drunk / 120))))>>
+					<<set _tendingConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+					<<set _housekeepingConfig.modifier to Math.round(_housekeepingConfig.modifier * (1 - (0.1 * Math.round(V.drunk / 120))))>>
+					<<set _housekeepingConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+				<<elseif $drunk gte 1 and $substanceRebalance is 1>>
+					<<set _skulduggeryConfig.modifier to Math.round(_skulduggeryConfig.modifier * 0.95)>>
+					<<set _skulduggeryConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+					<<set _dancingConfig.modifier to Math.round(_dancingConfig.modifier * 0.95)>>
+					<<set _dancingConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+					<<set _swimmingConfig.modifier to Math.round(_swimmingConfig.modifier * 0.95)>>
+					<<set _swimmingConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+					<<set _athleticsConfig.modifier to Math.round(_athleticsConfig.modifier * 0.95)>>
+					<<set _athleticsConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+					<<set _tendingConfig.modifier to Math.round(_tendingConfig.modifier * 0.95)>>
+					<<set _tendingConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+					<<set _housekeepingConfig.modifier to Math.round(_housekeepingConfig.modifier * 0.95)>>
+					<<set _housekeepingConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+				<</if>>
+				<<if $hallucinogen gte 1 and $substanceRebalance is 1>>
+					<<set _skulduggeryConfig.modifier to Math.round(_skulduggeryConfig.modifier * (1 + (0.125 * Math.round(V.hallucinogen / 250))))>>
+					<<set _skulduggeryConfig.modTypes.good.pushUnique("hallucinogens - enhanced focus")>>
+					<<set _dancingConfig.modifier to Math.round(_dancingConfig.modifier * (1 + (0.125 * Math.round(V.hallucinogen / 250))))>>
+					<<set _dancingConfig.modTypes.good.pushUnique("hallucinogens - enhanced focus")>>
+					<<set _swimmingConfig.modifier to Math.round(_swimmingConfig.modifier * (1 - (0.125 * Math.round(V.hallucinogen / 250))))>>
+					<<set _swimmingConfig.modTypes.bad.pushUnique("hallucinogens - muscle weakness")>>
+					<<set _athleticsConfig.modifier to Math.round(_athleticsConfig.modifier * (1 - (0.125 * Math.round(V.hallucinogen / 250))))>>
+					<<set _athleticsConfig.modTypes.bad.pushUnique("hallucinogens - muscle weakness")>>
+					<<set _tendingConfig.modifier to Math.round(_tendingConfig.modifier * (1 + (0.125 * Math.round(V.hallucinogen / 250))))>>
+					<<set _tendingConfig.modTypes.good.pushUnique("hallucinogens - enhanced focus")>>
+					<<set _housekeepingConfig.modifier to Math.round(_housekeepingConfig.modifier * (1 + (0.125 * Math.round(V.hallucinogen / 250))))>>
+					<<set _housekeepingConfig.modTypes.good.pushUnique("hallucinogens - enhanced focus")>>
+				<</if>>
+				<<if $DoLPTFBuffs is 1>>
+					<<if $TFWolfBuffs is 1>>
+						<<set _dancingConfig.modifier to Math.round(_dancingConfig.modifier * 1.1)>>
+						<<set _dancingConfig.modTypes.good.pushUnique("spirit of the wild")>>
+						<<set _athleticsConfig.modifier to Math.round(_athleticsConfig.modifier * 1.2)>>
+						<<set _athleticsConfig.modTypes.good.pushUnique("spirit of the wild")>>
+						<<set _housekeepingConfig.modifier to Math.round(_housekeepingConfig.modifier * 0.9)>>
+						<<set _housekeepingConfig.modTypes.bad.pushUnique("spirit of the wild")>>
+					<</if>>
+					<<if $TFCatBuffs is 1>>
+						<<set _skulduggeryConfig.modifier to Math.round(_skulduggeryConfig.modifier * 1.2)>>
+						<<set _skulduggeryConfig.modTypes.good.pushUnique("felinous mischief")>>
+						<<set _dancingConfig.modifier to Math.round(_dancingConfig.modifier * 1.4)>>
+						<<set _dancingConfig.modTypes.good.pushUnique("felinous mischief")>>
+						<<set _swimmingConfig.modifier to Math.round(_swimmingConfig.modifier * 0.8)>>
+						<<set _swimmingConfig.modTypes.bad.pushUnique("felinous mischief")>>
+						<<set _athleticsConfig.modifier to Math.round(_athleticsConfig.modifier * 1.1)>>
+						<<set _athleticsConfig.modTypes.good.pushUnique("felinous mischief")>>
+						<<set _housekeepingConfig.modifier to Math.round(_housekeepingConfig.modifier * 0.9)>>
+						<<set _housekeepingConfig.modTypes.bad.pushUnique("felinous mischief")>>
+					<</if>>
+					<<if $TFCowBuffs is 1>>
+						<<set _dancingConfig.modifier to Math.round(_dancingConfig.modifier * 0.9)>>
+						<<set _dancingConfig.modTypes.bad.pushUnique("nature's nurturer")>>
+						<<set _athleticsConfig.modifier to Math.round(_athleticsConfig.modifier * 0.9)>>
+						<<set _athleticsConfig.modTypes.bad.pushUnique("nature's nurturer")>>
+						<<set _tendingConfig.modifier to Math.round(_tendingConfig.modifier * 1.4)>>
+						<<set _tendingConfig.modTypes.good.pushUnique("nature's nurturer")>>
+					<</if>>
+					<<if $TFBearBuffs is 1>>
+						<<set _skulduggeryConfig.modifier to Math.round(_skulduggeryConfig.modifier * 0.9)>>
+						<<set _skulduggeryConfig.modTypes.bad.pushUnique("ursine strength")>>
+						<<set _dancingConfig.modifier to Math.round(_dancingConfig.modifier * 0.7)>>
+						<<set _dancingConfig.modTypes.bad.pushUnique("ursine strength")>>
+						<<set _swimmingConfig.modifier to Math.round(_swimmingConfig.modifier * 1.3)>>
+						<<set _swimmingConfig.modTypes.good.pushUnique("ursine strength")>>
+						<<set _athleticsConfig.modifier to Math.round(_athleticsConfig.modifier * 1.2)>>
+						<<set _athleticsConfig.modTypes.good.pushUnique("ursine strength")>>
+						<<set _housekeepingConfig.modifier to Math.round(_housekeepingConfig.modifier * 0.8)>>
+						<<set _housekeepingConfig.modTypes.bad.pushUnique("ursine strength")>>
+					<</if>>
+					<<if $TFBirdBuffs is 1>>
+						<<set _skulduggeryConfig.modifier to Math.round(_skulduggeryConfig.modifier * 1.1)>>
+						<<set _skulduggeryConfig.modTypes.good.pushUnique("sky's embrace")>>
+						<<set _dancingConfig.modifier to Math.round(_dancingConfig.modifier * 1.3)>>
+						<<set _dancingConfig.modTypes.good.pushUnique("sky's embrace")>>
+						<<set _swimmingConfig.modifier to Math.round(_swimmingConfig.modifier * 0.8)>>
+						<<set _swimmingConfig.modTypes.bad.pushUnique("sky's embrace")>>
+						<<set _athleticsConfig.modifier to Math.round(_athleticsConfig.modifier * 1.2)>>
+						<<set _athleticsConfig.modTypes.good.pushUnique("sky's embrace")>>
+						<<set _housekeepingConfig.modifier to Math.round(_housekeepingConfig.modifier * 1.3)>>
+						<<set _housekeepingConfig.modTypes.good.pushUnique("sky's embrace")>>
+					<</if>>
+					<<if $TFFoxBuffs is 1>>
+						<<set _skulduggeryConfig.modifier to Math.round(_skulduggeryConfig.modifier * 1.3)>>
+						<<set _skulduggeryConfig.modTypes.good.pushUnique("vixen's guile")>>
+						<<set _dancingConfig.modifier to Math.round(_dancingConfig.modifier * 1.1)>>
+						<<set _dancingConfig.modTypes.good.pushUnique("vixen's guile")>>
+						<<set _swimmingConfig.modifier to Math.round(_swimmingConfig.modifier * 0.9)>>
+						<<set _swimmingConfig.modTypes.bad.pushUnique("vixen's guile")>>
+						<<set _athleticsConfig.modifier to Math.round(_athleticsConfig.modifier * 1.1)>>
+						<<set _athleticsConfig.modTypes.good.pushUnique("vixen's guile")>>
+					<</if>>
+				<</if>>
 				<<if $moorLuck gt 0>>
 					<<set _skulduggeryConfig.modifier to Math.floor(_skulduggeryConfig.modifier * (1 + ($moorLuck / 100)))>>
 					<<set _skulduggeryConfig.modTypes.good.pushUnique("<i>????</i>")>>
@@ -807,6 +980,69 @@
 			<<if playerRutMinArousal()>>
 				<<set _penileConfig.modTypes.good.pushUnique("in rut")>>
 				<<set _penileConfig.modifier to Math.floor(_penileConfig.modifier * (1 + (Math.clamp(playerRutMinArousal(), 0, 4000) / 20000)))>>
+			<</if>>
+			<<if $drunk gte 120 and $substanceRebalance is 1>>
+				<<if _vaginalConfig>>
+					<<set _vaginalConfig.modifier to Math.round(_vaginalConfig.modifier * (1 - (0.1 * Math.round(V.drunk / 120))))>>
+					<<set _vaginalConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+				<</if>>
+				<<if _penileConfig>>
+					<<set _penileConfig.modifier to Math.round(_penileConfig.modifier * (1 - (0.1 * Math.round(V.drunk / 120))))>>
+					<<set _penileConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+				<</if>>
+				<<set _analConfig.modifier to Math.round(_analConfig.modifier * (1 - (0.1 * Math.round(V.drunk / 120))))>>
+				<<set _analConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+				<<set _seductionConfig.modifier to Math.round(_seductionConfig.modifier * (1 - (0.1 * Math.round(V.drunk / 120))))>>
+				<<set _seductionConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+			<<elseif $drunk gte 1 and $substanceRebalance is 1>>
+				<<if _vaginalConfig>>
+					<<set _vaginalConfig.modifier to Math.round(_vaginalConfig.modifier * 0.95)>>
+					<<set _vaginalConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+				<</if>>
+				<<if _penileConfig>>
+					<<set _penileConfig.modifier to Math.round(_penileConfig.modifier * 0.95)>>
+					<<set _penileConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+				<</if>>
+				<<set _analConfig.modifier to Math.round(_analConfig.modifier * 0.95)>>
+				<<set _analConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+				<<set _seductionConfig.modifier to Math.round(_seductionConfig.modifier * 0.95)>>
+				<<set _seductionConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+			<</if>>
+			<<if $hallucinogen gte 1 and $substanceRebalance is 1>>
+				<<if _vaginalConfig>>
+					<<set _vaginalConfig.modifier to Math.round(_vaginalConfig.modifier * (1 + (0.125 * Math.round(V.hallucinogen / 250))))>>
+					<<set _vaginalConfig.modTypes.good.pushUnique("hallucinogens - enhanced focus")>>
+				<</if>>
+				<<if _penileConfig>>
+					<<set _penileConfig.modifier to Math.round(_penileConfig.modifier * (1 + (0.125 * Math.round(V.hallucinogen / 250))))>>
+					<<set _penileConfig.modTypes.good.pushUnique("hallucinogens - enhanced focus")>>
+				<</if>>
+				<<set _analConfig.modifier to Math.round(_analConfig.modifier * (1 + (0.125 * Math.round(V.hallucinogen / 250))))>>
+				<<set _analConfig.modTypes.good.pushUnique("hallucinogens - enhanced focus")>>
+				<<set _seductionConfig.modifier to Math.round(_seductionConfig.modifier * (1 + (0.125 * Math.round(V.hallucinogen / 250))))>>
+				<<set _seductionConfig.modTypes.good.pushUnique("hallucinogens - enhanced focus")>>
+			<</if>>
+			<<if $DoLPTFBuffs is 1>>
+				<<if $TFCatBuffs is 1>>
+					<<set _seductionConfig.modifier to Math.round(_seductionConfig.modifier * 1.2)>>
+					<<set _seductionConfig.modTypes.good.pushUnique("felinous mischief")>>
+				<</if>>
+				<<if $TFCowBuffs is 1>>
+					<<set _seductionConfig.modifier to Math.round(_seductionConfig.modifier * 1.1)>>
+					<<set _seductionConfig.modTypes.good.pushUnique("nature's nurturer")>>
+				<</if>>
+				<<if $TFBearBuffs is 1>>
+					<<set _seductionConfig.modifier to Math.round(_seductionConfig.modifier * 0.9)>>
+					<<set _seductionConfig.modTypes.bad.pushUnique("ursine strength")>>
+				<</if>>
+				<<if $TFBirdBuffs is 1>>
+					<<set _seductionConfig.modifier to Math.round(_seductionConfig.modifier * 1.1)>>
+					<<set _seductionConfig.modTypes.good.pushUnique("sky's embrace")>>
+				<</if>>
+				<<if $TFFoxBuffs is 1>>
+					<<set _seductionConfig.modifier to Math.round(_seductionConfig.modifier * 1.2)>>
+					<<set _seductionConfig.modTypes.good.pushUnique("vixen's guile")>>
+				<</if>>
 			<</if>>
 		<</silently>>
 		<<if $options.images is 1>>
@@ -922,6 +1158,35 @@
 				<<set _mathsConfig =	{ name : 'Maths',	icon : 'misc/icon/math',	displayType : "grade",	currentValue : $mathstrait,		modifier: 100, modTypes: { good: [], bad: [] },	percent: $maths_exam,		showStars: true, starLevel: $maths_star,	states : _schoolGradeStates}>>
 				<<set _englishConfig =	{ name : 'English', icon : 'misc/icon/english', displayType : "grade",	currentValue : $englishtrait,	modifier: 100, modTypes: { good: [], bad: [] },	percent: $english_exam,		showStars: true, starLevel: $english_star,	states : _schoolGradeStates}>>
 				<<set _historyConfig =	{ name : 'History', icon : 'misc/icon/history', displayType : "grade",	currentValue : $historytrait,	modifier: 100, modTypes: { good: [], bad: [] },	percent: $history_exam,		showStars: true, starLevel: $history_star,	states : _schoolGradeStates}>>
+				<<if $drunk gte 120 and $substanceRebalance is 1>>
+					<<set _scienceConfig.modifier to Math.round(_scienceConfig.modifier * (1 - (0.1 * Math.round(V.drunk / 120))))>>
+					<<set _scienceConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+					<<set _mathsConfig.modifier to Math.round(_mathsConfig.modifier * (1 - (0.1 * Math.round(V.drunk / 120))))>>
+					<<set _mathsConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+					<<set _englishConfig.modifier to Math.round(_englishConfig.modifier * (1 - (0.1 * Math.round(V.drunk / 120))))>>
+					<<set _englishConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+					<<set _historyConfig.modifier to Math.round(_historyConfig.modifier * (1 - (0.1 * Math.round(V.drunk / 120))))>>
+					<<set _historyConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+				<<elseif $drunk gte 1 and $substanceRebalance is 1>>
+					<<set _scienceConfig.modifier to Math.round(_scienceConfig.modifier * 0.95)>>
+					<<set _scienceConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+					<<set _mathsConfig.modifier to Math.round(_mathsConfig.modifier * 0.95)>>
+					<<set _mathsConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+					<<set _englishConfig.modifier to Math.round(_englishConfig.modifier * 0.95)>>
+					<<set _englishConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+					<<set _historyConfig.modifier to Math.round(_historyConfig.modifier * 0.95)>>
+					<<set _historyConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+				<</if>>
+				<<if $DoLPTFBuffs is 1>>
+					<<if $TFBirdBuffs is 1>>
+						<<set _englishConfig.modifier to Math.round(_englishConfig.modifier * 1.1)>>
+						<<set _englishConfig.modTypes.good.pushUnique("sky's embrace")>>
+					<</if>>
+					<<if $TFFoxBuffs is 1>>
+						<<set _englishConfig.modifier to Math.round(_englishConfig.modifier * 1.2)>>
+						<<set _englishConfig.modTypes.good.pushUnique("vixen's guile")>>
+					<</if>>
+				<</if>>
 				<<if $moorLuck gt 0>>
 					<<set _scienceConfig.modifier to Math.floor(_scienceConfig.modifier * (1 + ($moorLuck / 100)))>>
 					<<set _scienceConfig.modTypes.good.pushUnique("<i>????</i>")>>
@@ -958,12 +1223,12 @@
 		</div>
 
 		<br>
-		<span class="gold">Weapon skills</span>
+		<span class="gold">Weapon Skills</span>
 		<div id="prof" class="characteristic-box-list">
 			<<silently>>
 				<<set _sprayConfig =		{ name : "Sprays",		displayType : "grade",	currentValue : $prof.spray,		modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades}>>
 				<<set _netConfig =			{ name : "Nets",		displayType : "grade",	currentValue : $prof.net,		modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades}>>
-				<<set _batonConfig =			{ name : "Batons",		displayType : "grade",	currentValue : $prof.baton,		modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades}>>
+				<<set _batonConfig =		{ name : "Batons",		displayType : "grade",	currentValue : $prof.baton,		modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades}>>
 				<<set _whipConfig =			{ name : "Whips",		displayType : "grade",	currentValue : $prof.whip,		modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades}>>
 				<<set _hiddenConfig =		{ name : "<i>????</i>",	displayType : "grade",	currentValue : 0,				modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades}>>
 			<</silently>>
@@ -1144,7 +1409,7 @@
 		<<set $_arousedText to "keeping you aroused">>
 
 		/* SourceText */
-		<<if $wolfgirl gte 2 or $cat gte 2 or ($cow gte 2 or $transformationParts.cow.horns is "default") or $fox gte 2>>
+		<<if $wolfgirl gte 2 or $cat gte 2 or ($cow gte 2 or $transformationParts.cow.horns is "default") or $fox gte 2 or $bear gte 2>>
 			<<run $_source.push("inner beast")>>
 		<</if>>
 		<<if $earSlime.growth gt 50 and (($earSlime.focus is "pregnancy" and $_heatArousal) or ($earSlime.focus is "impregnation" and $_rutArousal))>>

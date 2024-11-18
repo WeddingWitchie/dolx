@@ -48,6 +48,7 @@
 			<<set $_bonusFatigueLoss -= 100>>
 		<</if>>
 	<</if>>
+
 	<!-- note: every hour of sleep gives a standard 250 fatigue reduction, so this bonus may not be all that much. -->
 
 	<!-- sleephour repeats this until you have slept for the selected number of hours -->
@@ -266,30 +267,45 @@
 		<</if>>
 
 		<!-- fatigue is lowered by 200 for every hour slept, and another 50 more if the player has no trauma. -->
-		<<set $tiredness -= 200>>
+		<<set _tiredness = 200>>
 		<<if !($sleeptrouble is 1 and $controlled is 0)>>
-			<<set $tiredness -= 50>>
+			<<set _tiredness += 50>>
 		<</if>>
 		<<if $location is "island">>
 			<<if $island[$island.home].curtains is "simple">>
-				<<set $tiredness -= 15>>
+				<<set _tiredness += 15>>
 			<<elseif $island[$island.home].curtains is "basic">>
-				<<set $tiredness -= 30>>
+				<<set _tiredness += 30>>
 			<<elseif $island[$island.home].curtains is "advanced">>
-				<<set $tiredness -= 45>>
+				<<set _tiredness += 45>>
 			<</if>>
 		<<elseif $location is "tower" and $bedGuest isnot "alone">>
 			<<switch $bird.upgrades.nest>>
 				<<case 0>>
-				<<case 1>><<set $tiredness -= 15>>
-				<<case 2>><<set $tiredness -= 30>>
-				<<case 3>><<set $tiredness -= 45>>
+				<<case 1>><<set _tiredness += 15>>
+				<<case 2>><<set _tiredness += 30>>
+				<<case 3>><<set _tiredness += 45>>
 			<</switch>>
 		<</if>>
-		<<set $tiredness -= $_bonusFatigueLoss>>
+
+		<<set _tiredness += $_bonusFatigueLoss>>
+
+		<<if $substanceRebalance is 1>>
+			<<if $drunk gte 120>>
+				<<set _tiredness to _tiredness * (1 - (0.1 * (1 + Math.round($drunk / 120))))>>
+			<<elseif $drunk gte 1>>
+				<<set _tiredness to _tiredness * 0.95>>
+			<</if>>
+		<</if>>
+		<<if $DoLPTFBuffs is 1>>
+			<<if $TFBearBuffs is 1>>
+				<<set _tiredness to _tiredness * 0.8>>
+			<</if>>
+		<</if>>
+		<<set $tiredness -= Math.round(_tiredness)>>
 
 		<<set Weather.BodyTemperature.addActivity("sleep")>>
-		
+
 		<<if $location is "tower">>
 			<<bird_pass 60>>
 		<<else>>
@@ -648,14 +664,14 @@
 	The figures tell you that you have a choice to make, one <span class="sub">that cannot be ignored or easily taken back</span>.<<if $earSlime.dreamRejected gte 10>> The volume of their combined voices makes it sound like a demand rather than an offer.<</if>>
 	<br><br>
 
-	The voice from the left whispers in your ear. Its words overlap themselves, promising you many things at once. It claims it will bring you fulfilment by granting you 
+	The voice from the left whispers in your ear. Its words overlap themselves, promising you many things at once. It claims it will bring you fulfilment by granting you
 	<<if _pregnancyEnabled>>
 		a womb filled with life<<if $breastfeedingdisable is "f">> and breasts filled with milk<</if>>.
 		<<if !$player.vaginaExist and !(playerIsPregnant() and playerAwareTheyArePregnant()) and Object.values($children).find(child => child.mother === "pc")>>
 			It also promises that the limits of your current body will not hold you back.
 		<</if>>
 	<<else>>
-		pure femininity. 
+		pure femininity.
 	<</if>>
 	<br>
 	The first voice is interrupted by the one on your right, grabbing your attention. Your mind is assaulted with more promises. It tells you that it will help you fulfil yourself through

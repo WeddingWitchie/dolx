@@ -1,6 +1,6 @@
 :: Connudatus Street
 
-<<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "connudatus">><<getTarget true>>
+<<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "connudatus">><<set $bikeStartCategory to "left">><<set $bikeStart to "connudatus">><<getTarget true>>
 You are on Connudatus Street. The numerous clubs, bars and restaurants make it the town's most lively locale by night. During the day the street is lined by hawkers selling various wares.
 <<if Time.dayState is "day">>
 	<<if Weather.precipitation is "rain">>
@@ -97,7 +97,7 @@ You are on Connudatus Street. The numerous clubs, bars and restaurants make it t
 	<br>
 
 <<elseif $rng gte 95 and Time.dayState is "day">>
-	<<generatey1>><<person1>>
+	<<generateyv1>><<person1>>
 	There's a noise from the market and some loud shouting. A market stall owner has just grabbed a <<person>>
 	<<if $rng % 2 == 0>>you recognise from the orphanage<<set $phase to 0>>
 	<<else>>you recognise from school<<set $phase to 10>>
@@ -151,6 +151,15 @@ You are on Connudatus Street. The numerous clubs, bars and restaurants make it t
 			<<stallicon "open">><<link [[Attend your stall (0:20)|Stall]]>><<pass 20>><</link>>
 			<br>
 		<</if>>
+		<<if (Time.dayState is "dawn" or $daily.stallRented is 1) and $money gte 3000 and $exposed lte 0>>
+			<<if $daily.stallRented is 1>>
+				<<set _string to "your">>
+			<<else>>
+				<<set _string to "a">>
+			<</if>>
+			<<stallicon>><<link [["Put down a deposit for " + _string + " stall (0:05 £30)"|Stall Deposit]]>><<pass 5>><</link>>
+			<br>
+		<</if>>
 		<<if Time.hour gte 6 and Time.hour lte 20 and $exposed lte 0>>
 			<<stallicon "open">><<link [[Explore the markets (0:30)|Connudatus Markets]]>><<pass 15>><</link>>
 			<br>
@@ -173,6 +182,7 @@ You are on Connudatus Street. The numerous clubs, bars and restaurants make it t
 			<<if $exposed lte 0>>
 				<<buswait>>
 			<</if>>
+			<<bike>>
 			<<loiter>>
 		<</if>>
 		<<add_link "<br>Alternate routes<br>">><<hideDisplay>>

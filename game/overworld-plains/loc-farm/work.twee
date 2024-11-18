@@ -27,24 +27,66 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 		<span class="lblue">The fence is being extended around a fecund area of woodland.</span>
 	<<case "woodland 3">>
 		<span class="lblue">The fence is being extended around a prodigious area of woodland.</span>
+	<<case "woodland 4">>
+		<span class="lblue">The fence is being extended around an expansive area of woodland.</span>
+	<<case "woodland 5">>
+		<span class="lblue">The fence is being extended around a vast expanse of woodland.</span>
+	<<case "woodland 6">>
+		<span class="lblue">The fence is being extended around an immense tract of woodland.</span>
+	<<case "woodland 7">>
+		<span class="lblue">The fence is being extended around a colossal stretch of woodland.</span>
 	<<case "kennel 1">>
 		<span class="lblue">Vicious apparatus are being installed in the kennel.</span>
 	<<case "barn 1">>
 		<span class="lblue">New milking equipment is being installed in the barn.</span>
 	<<case "barn 2">>
 		<span class="lblue">An extension is being built on the barn.</span>
+	<<case "barn 3">>
+		<span class="lblue">A spacious loft is being added above the barn to move the equipment into.</span>
+	<<case "barn 4">>
+		<span class="lblue">Modern feeding systems are being installed to improve efficiency.</span>
+	<<case "barn 5">>
+		<span class="lblue">An advanced ventilation system is being fitted to enhance animal comfort.</span>
+	<<case "barn 6">>
+		<span class="lblue">A new wing is being constructed to house more livestock.</span>
+	<<case "barn 7">>
+		<span class="lblue">Cutting-edge automation technology is being integrated into the barn.</span>
 	<<case "stable 1">>
 		<span class="lblue">The stable is being expanded.</span>
 	<<case "coop 1">>
 		<span class="lblue">The coop is being expanded.</span>
 	<<case "coop 2">>
 		<span class="lblue">The coop is being expanded.</span>
+	<<case "coop 3">>
+		<span class="lblue">An outdoor run is being added for the chickens to explore.</span>
+	<<case "coop 4">>
+		<span class="lblue">An automatic feeding system is being set up in the coop.</span>
+	<<case "coop 5">>
+		<span class="lblue">Perches are being upgraded to improve chicken comfort.</span>
+	<<case "coop 6">>
+		<span class="lblue">A modern ventilation system is being installed in the coop.</span>
+	<<case "coop 7">>
+		<span class="lblue">Security measures are being enhanced to protect the chickens from predators.</span>
 	<<case "parasites 1">>
 		<span class="lblue">The parasite barn is being built.</span>
 	<<case "parasites 2">>
 		<span class="lblue">The parasite barn is being expanded.</span>
 	<<case "irrigation">>
 		<span class="lblue">Irrigation is being installed in a field.</span>
+	<<case "cooler 1">>
+		<span class="lblue">A larger refrigeration unit is being installed.</span>
+	<<case "cooler 2">>
+		<span class="lblue">The insulation and efficiency of the refrigeration unit is being improved.</span>
+	<<case "cooler 3">>
+		<span class="lblue">Advanced climate control technology is being installed on the refrigeration unit.</span>
+	<<case "water field 1">>
+		<span class="lblue">A fence is being build around the water field site.</span>
+	<<case "water field 2">>
+		<span class="lblue">The water field is being excavated.</span>
+	<<case "water field 3">>
+		<span class="lblue">A larger refrigeration unit is being installed.</span>
+	<<case "water field 4">>
+		<span class="lblue">The water source and water control structures are being installed on the water field.</span>
 	<</switch>>
 	<<if Time.hour gte 6>>
 		<span class="blue">Workers traipse across the farm.</span>
@@ -108,6 +150,47 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 		</div>
 	<</if>>
 	<br>
+<<elseif $farm.waterField is 1 and !$farm.build_finished.includes("water field 2")>>
+	<<set _clearing to (1200 - $farm.clearing)>>
+	<<set _percent=Math.floor((_clearing/1200)*100)>>
+	The water field is being excavated and shaped,
+	<<if $farm.clearing lte 0>>
+		<span class="green">and is ready for the next phase!</span>
+		<div class="meter">
+		<<print '<div class="greenbar" style="width:' + _percent + '%"></div>'>>
+		</div>
+	<<elseif $farm.clearing lte 240>>
+		<span class="teal">and is almost fully excavated.</span>
+		<div class="meter">
+		<<print '<div class="tealbar" style="width:' + _percent + '%"></div>'>>
+		</div>
+	<<elseif $farm.clearing lte 480>>
+		<span class="lblue">and significant progress has been made.</span>
+		<div class="meter">
+		<<print '<div class="lbluebar" style="width:' + _percent + '%"></div>'>>
+		</div>
+	<<elseif $farm.clearing lte 720>>
+		<span class="blue">and the digging is well underway.</span>
+		<div class="meter">
+		<<print '<div class="bluebar" style="width:' + _percent + '%"></div>'>>
+		</div>
+	<<elseif $farm.clearing lte 960>>
+		<span class="purple">but there's still much earth to move.</span>
+		<div class="meter">
+		<<print '<div class="purplebar" style="width:' + _percent + '%"></div>'>>
+		</div>
+	<<elseif $farm.clearing lte 1199>>
+		<span class="pink">but progress is slow.</span>
+		<div class="meter">
+		<<print '<div class="pinkbar" style="width:' + _percent + '%"></div>'>>
+		</div>
+	<<else>>
+		<span class="red">but the site remains untouched.</span>
+		<div class="meter">
+		<<print '<div class="redbar" style="width:' + _percent + '%"></div>'>>
+		</div>
+	<</if>>
+	<br>
 <</if>>
 
 
@@ -129,7 +212,7 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 
 	<<link [[Next|Farm Work]]>><</link>>
 	<br>
-<<elseif $stress gte 10000>>
+<<elseif $stress gte $stressmax>>
 	<<passoutfarmroad>>
 <<elseif $farm_attack_timer is 0 and Time.hour gte 21>>
 	<<npc Alex>><<person1>>
@@ -206,10 +289,10 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 	<<getouticon>><<link [[Leave|Farmland]]>><</link>>
 	<br>
 
-<<elseif !npcIsPregnant("Alex") and Time.hour gte 6 and Time.hour lte 7 and !$weekly.alexHungOver and $rng gte 76 and !$daily.farmAlexShowerSpy>>
+<<elseif !npcIsPregnant("Alex") and Time.hour gte 6 and Time.hour lte 7 and !$weekly.alexHungOver and $rng gte 76 and !$daily.farmAlexShowerSpy and $farm_work.alex isnot "shower">>
 	<<set $weekly.alexHungOver to 1>>
 
-	You notice that Alex isn't in the shower shed, like <<nnpc_he "Alex">> usually is at this hour. The animals are all in their holdings. Alex must still be in the farmhouse.
+	You notice that Alex isn't in the shower shed. The animals are all in their holdings. Alex must still be in the farmhouse.
 	<br><br>
 
 	<<link [[Next|Farm Alex Hungover]]>><</link>>
@@ -222,7 +305,8 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 <<elseif $farm_stage is 4 and $farm.clearing lte 0>>
 	<<set $farm.aggro to 0>>
 	<<farmStage5>>
-	<<set $remy_seen to "farm">>
+	<<set $remySeen.pushUnique("farm")>>
+	<<set $remySeenLast to "farm">>
 <<elseif $farm_stage is 5 and $farm.clearing lte 0>>
 	<<earnFeat "Farmer">>
 	<<set $farm_countdown to 3>>
@@ -254,6 +338,8 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 <<elseif $farm_stage is 11 and $farm.clearing lte 0>>
 	<<earnFeat "Cultivator">>
 	<<farmStage12>>
+<<elseif $farm.waterField is 1 and $farm.clearing lte 0>>
+	<<waterField>>
 <<elseif Time.hour is 21 and $farm_end is undefined and $farm_stage lt 7>>
 	<<set $farm_end to 1>>
 	<<npc Alex>><<person1>>
@@ -371,6 +457,38 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 		<<link [[Say Alex should come indoors (0:05)|Farm Woodland Safe Indoors]]>><<npcincr Alex dom 1>><<pass 5>><</link>><<gdom>>
 		<br>
 	<</if>>
+<<elseif $farm.build_finished.includes("woodland 4")>>
+	<<run $farm.build_finished.delete("woodland 4")>>
+	<<location "forest">>
+    <span class="gold">You enter the expanded woodland. The trees are taller, and the area feels more secluded.</span> The tranquility of the forest eases your mind.<<ltrauma>><<llstress>><<trauma -7>><<stress -14>>
+    <br><br>
+
+	<<link [[Next|Farm Work]]>><</link>>
+	<br>
+<<elseif $farm.build_finished.includes("woodland 5")>>
+	<<run $farm.build_finished.delete("woodland 5")>>
+	<<location "forest">>
+	<span class="gold">The woodland has grown even larger. You notice new flora and hear the calls of distant wildlife.</span> The serenity here calms your nerves.<<ltrauma>><<llstress>><<trauma -8>><<stress -16>>
+    <br><br>
+
+	<<link [[Next|Farm Work]]>><</link>>
+	<br>
+<<elseif $farm.build_finished.includes("woodland 6")>>
+	<<run $farm.build_finished.delete("woodland 6")>>
+	<<location "forest">>
+	<span class="gold">Your woodland now stretches far into the distance. The canopy overhead filters the sunlight, casting dappled shadows.</span> You feel deeply connected to nature here.<<ltrauma>><<llstress>><<trauma -9>><<stress -18>>
+    <br><br>
+
+	<<link [[Next|Farm Work]]>><</link>>
+	<br>
+<<elseif $farm.build_finished.includes("woodland 7")>>
+	<<run $farm.build_finished.delete("woodland 7")>>
+	<<location "forest">>
+	<span class="gold">The woodland has become vast and wild. You could spend hours exploring its depths.</span> The immensity of the forest brings you peace.<<ltrauma>><<llstress>><<trauma -10>><<stress -20>>
+    <br><br>
+
+	<<link [[Next|Farm Work]]>><</link>>
+	<br>
 <<elseif $farm.build_finished.includes("kennel 1")>>
 	<<run $farm.build_finished.delete("kennel 1")>>
 	You hear the baying of hounds. You follow the sound to the kennel. <span class="gold">A yard has been enclosed outside, a safe training area for the <<farm_text_many dog>>.</span> You watch as one rips the head off a human-shaped dummy.
@@ -411,6 +529,84 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 
 	<<He>> closes the gate, and rests a hand on your shoulder as <<he>> walks by.
 	<br><br>
+
+	<<link [[Next|Farm Work]]>><<endevent>><</link>>
+	<br>
+<<elseif $farm.build_finished.includes("barn 3")>>
+	<<run $farm.build_finished.delete("barn 3")>>
+	 <<npc Alex>><<person1>>
+    <span class="gold">You notice a new staircase inside the barn leading upwards.</span> Alex catches your eye and gestures toward it. "Come take a look at the new loft," <<he>> says.
+    <br><br>
+    You follow <<him>> up the stairs to the spacious loft. Sunlight filters through small windows, illuminating the area filled with neatly stacked hay bales and equipment. "With this additional space, we'll keep everything organized," Alex explains. "It makes things so much easier and lets us have more <<farm_text_many cattle>>!"
+    <br><br>
+    <<He>> smiles. "Couldn't have done it without your help."
+    <br><br>
+    <<link [[Next|Farm Work]]>><<endevent>><</link>>
+    <br>
+
+	<<link [[Next|Farm Work]]>><<endevent>><</link>>
+	<br>
+<<elseif $farm.build_finished.includes("barn 4")>>
+	<<run $farm.build_finished.delete("barn 4")>>
+	<<npc Alex>><<person1>>
+    As you enter the barn, you notice sleek new machinery lining the feeding areas. <span class="gold">Modern feeding systems have been installed.</span>
+    <br><br>
+    Alex approaches with a satisfied look. "These new feeders will streamline our work," <<he>> says. "They dispense the right amount of feed automatically."
+    <br><br>
+    <<He>> nods. "More time for us to focus on other tasks or maybe even relax a bit."
+    <br><br>
+    "<<He>> pats a nearby <<farm_text cattle>> affectionately. "The herd will benefit from consistent feeding schedules."
+    <br><br>
+
+	<<link [[Next|Farm Work]]>><<endevent>><</link>>
+	<br>
+<<elseif $farm.build_finished.includes("barn 5")>>
+	<<run $farm.build_finished.delete("barn 5")>>
+	<<npc Alex>><<person1>>
+    Stepping into the barn, you're greeted by a refreshing flow of air. <span class="gold">An advanced ventilation system is now operational.</span>
+    <br><br>
+    Alex adjusts a control panel nearby and turns to you with a grin. "Feel the difference?"
+    <br><br>
+    You nod appreciatively.
+    <br><br>
+    "Better air quality means healthier animals," <<he>> says.
+    <br><br>
+    <<He>> gestures around. "This system regulates temperature and humidity too. It's a big upgrade for the barn."
+    <br><br>
+    <<He>> seems pleased. "Thanks for making this possible."
+    <br><br>
+
+	<<link [[Next|Farm Work]]>><<endevent>><</link>>
+	<br>
+<<elseif $farm.build_finished.includes("barn 6")>>
+	<<run $farm.build_finished.delete("barn 6")>>
+	<<npc Alex>><<person1>>
+    Alex meets you at the barn entrance. "Come see the new wing," <<he>> says, leading the way.
+    <br><br>
+    <span class="gold">A new wing has been added to the barn, doubling its size.</span> Inside, spacious stalls await new livestock.
+    <br><br>
+    "With this expansion, we can increase our herd significantly," Alex explains. "It's a big step forward for the farm."
+    <br><br>
+    <<He>> smiles warmly. "There's a lot of work ahead, but it's exciting."
+    <br><br>
+    <<He>> adds, "I appreciate your support in making this happen."
+    <br><br>
+
+	<<link [[Next|Farm Work]]>><<endevent>><</link>>
+	<br>
+<<elseif $farm.build_finished.includes("barn 7")>>
+	<<run $farm.build_finished.delete("barn 7")>>
+	<<npc Alex>><<person1>>
+    "You've got to see the latest upgrade," Alex calls out as you approach.
+    <br><br>
+    Inside the barn, you find a series of monitors and control panels. <span class="gold">Cutting-edge automation technology has been integrated throughout the barn.</span>
+    <br><br>
+    "We can monitor feeding, milking, and even the animals' health from here," <<he>> explains enthusiastically, pointing to various displays showing real-time data.
+    <br><br>
+    <<He>> nods. "It'll revolutionize how we manage the farm. More efficiency means better productivity."
+    <br><br>
+    <<He>> places a hand on your shoulder. "Couldn't have done it without you."
+    <br><br>
 
 	<<link [[Next|Farm Work]]>><<endevent>><</link>>
 	<br>
@@ -456,6 +652,72 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 
 	<<link [[Next|Farm Work]]>><<endevent>><</link>>
 	<br>
+<<elseif $farm.build_finished.includes("coop 3")>>
+	<<run $farm.build_finished.delete("coop 3")>>
+	<span class="gold">You approach the coop and notice the new addition.</span>
+    <<if $farm_work.chickens_out is 1>>
+        The chickens are happily exploring their new outdoor run, pecking at the ground and flapping their wings.
+    <<else>>
+        The coop now features an outdoor run for the chickens to explore when they're let out.
+    <</if>>
+    The chickens seem more active and content.
+    <br><br>
+
+	<<link [[Next|Farm Work]]>><<endevent>><</link>>
+	<br>
+<<elseif $farm.build_finished.includes("coop 4")>>
+	<<run $farm.build_finished.delete("coop 4")>>
+	<span class="gold">You notice new equipment installed inside the coop. An automatic feeding system has been set up.</span>
+    <<if $farm_work.chickens_out is 1>>
+        Some chickens wander back into the coop, attracted by the steady supply of feed.
+    <<else>>
+        The chickens gather around the feeders, pecking at the fresh feed that is dispensed automatically.
+    <</if>>
+    This will make feeding them much more efficient.
+    <br><br>
+
+	<<link [[Next|Farm Work]]>><<endevent>><</link>>
+	<br>
+<<elseif $farm.build_finished.includes("coop 5")>>
+	<<run $farm.build_finished.delete("coop 5")>>
+	<span class="gold">You step into the coop and see new perches installed throughout.</span>
+    The chickens are already making use of the upgraded perches, roosting comfortably.
+    <<if $farm_work.chickens_out is 1>>
+        Some chickens perch on the outdoor structures, enjoying the view.
+    <<else>>
+        The coop feels more spacious and the chickens seem happier.
+    <</if>>
+    Improved comfort should lead to better egg production.
+    <br><br>
+
+	<<link [[Next|Farm Work]]>><<endevent>><</link>>
+	<br>
+<<elseif $farm.build_finished.includes("coop 6")>>
+	<<run $farm.build_finished.delete("coop 6")>>
+	A gentle breeze flows through the coop as you enter. <span class="gold">A modern ventilation system has been installed.</span>
+    The air feels fresher, and the chickens appear more energetic.
+    <<if $farm_work.chickens_out is 1>>
+        Even when indoors, the chickens now enjoy better air quality.
+    <<else>>
+        The improved environment should keep the chickens healthier.
+    <</if>>
+    <br><br>
+
+	<<link [[Next|Farm Work]]>><<endevent>><</link>>
+	<br>
+<<elseif $farm.build_finished.includes("coop 7")>>
+	<<run $farm.build_finished.delete("coop 7")>>
+	<span class="gold">You notice new fencing and protective measures around the coop. Security measures have been enhanced to protect the chickens from predators and intruders.</span>
+    The coop feels secure, and you can rest easy knowing the chickens are safe.
+    <<if $farm_work.chickens_out is 1>>
+        The chickens roam freely within the secure area, undisturbed.
+    <<else>>
+        The reinforced coop provides excellent shelter.
+    <</if>>
+    <br><br>
+
+	<<link [[Next|Farm Work]]>><<endevent>><</link>>
+	<br>
 <<elseif $farm.build_finished.includes("parasites 1")>>
 	<<run $farm.build_finished.delete("parasites 1")>>
 	<span class="gold">You approach the newly built parasite barn.</span>
@@ -495,7 +757,30 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 	<br>
 <<elseif $farm.build_finished.includes("compost bin 1")>>
 	<<run $farm.build_finished.delete("compost bin 1")>>
-	<<set $farm.compostbin to 1>>
+	<<if $farm.compostToProduce is undefined>>
+		<<set $farm.compostToProduce to 0>>
+	<</if>>
+	<<if $farm.compostWaiting is undefined>>
+		<<set $farm.compostWaiting to 0>>
+	<</if>>
+	<<if $farm.compostProducing is undefined>>
+		<<set $farm.compostProducing to [-1,-1,-1,-1]>>
+	<</if>>
+	<<if $farm.compostProducing[0] is undefined>>
+		<<set $farm.compostProducing[0] to -1>>
+	<</if>>
+	<<if $farm.compostProducing[1] is undefined>>
+		<<set $farm.compostProducing[1] to -1>>
+	<</if>>
+	<<if $farm.compostProducing[2] is undefined>>
+		<<set $farm.compostProducing[2] to -1>>
+	<</if>>
+	<<if $farm.compostProducing[3] is undefined>>
+		<<set $farm.compostProducing[3] to -1>>
+	<</if>>
+	<<if $farm.compostReady is undefined>>
+		<<set $farm.compostReady to 0>>
+	<</if>>
 	<span class="gold">You approach the newly built compost bin.</span>
 	It has just about enough space for you to compost 1 batch of fertiliser.
 	<<composting1>>
@@ -504,7 +789,6 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 	<br>
 <<elseif $farm.build_finished.includes("compost bin 2")>>
 	<<run $farm.build_finished.delete("compost bin 2")>>
-	<<set $farm.compostbin to 2>>
 	<span class="gold">You approach the expanded compost bin.</span>
 	It has enough space for you to compost 2 batches of fertiliser.
 	<<composting2>>
@@ -513,7 +797,6 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 	<br>
 <<elseif $farm.build_finished.includes("compost bin 3")>>
 	<<run $farm.build_finished.delete("compost bin 3")>>
-	<<set $farm.compostbin to 3>>
 	<span class="gold">You approach the expanded compost bin.</span>
 	It now has enough space for you to compost 4 batches of fertiliser.
 	<<composting3>>
@@ -523,7 +806,6 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 	<br>
 <<elseif $farm.build_finished.includes("extract 1")>>
 	<<run $farm.build_finished.delete("extract 1")>>
-	<<set $farm.extract to 1>>
 	<span class="gold">You approach the newly built aphrodisiac extraction system.</span>
 	It can extract aphrodisiac from lurkers automatically but will require manual input.
 	<br><br>
@@ -531,10 +813,66 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 	<br>
 <<elseif $farm.build_finished.includes("extract 2")>>
 	<<run $farm.build_finished.delete("extract 2")>>
-	<<set $farm.extract to 2>>
 	<span class="gold">You approach the upgraded aphrodisiac extraction system.</span>
 	It will now automataically take lurkers from the cages, making it fully automated.
 	<br><br>
+	<<link [[Next|Farm Work]]>><<endevent>><</link>>
+	<br>
+<<elseif $farm.build_finished.includes("cooler 1")>>
+	<<run $farm.build_finished.delete("cooler 1")>>
+	<span class="gold">You enter the storage area and see the new refrigeration unit humming quietly.</span>
+    The larger cooler will help keep your produce fresh for longer, reducing spoilage.
+    <br><br>
+
+	<<link [[Next|Farm Work]]>><<endevent>><</link>>
+	<br>
+<<elseif $farm.build_finished.includes("cooler 2")>>
+	<<run $farm.build_finished.delete("cooler 2")>>
+	<span class="gold">The upgraded cooling system is now operational.</span>
+    The improved insulation and efficiency will significantly extend the freshness of your produce.
+    <br><br>
+
+	<<link [[Next|Farm Work]]>><<endevent>><</link>>
+	<br>
+<<elseif $farm.build_finished.includes("cooler 3")>>
+	<<run $farm.build_finished.delete("cooler 3")>>
+	<span class="gold">The advanced climate control system has been fully installed.</span>
+    Your produce preservation is now at peak efficiency, ensuring minimal loss due to spoilage.
+    <br><br>
+
+	<<link [[Next|Farm Work]]>><<endevent>><</link>>
+	<br>
+<<elseif $farm.build_finished.includes("water field 1")>>
+	<<run $farm.build_finished.delete("water field 1")>>
+	<span class="gold">You arrive at the construction site and see that a fence has been built around the water field area.</span>
+    The new fence secures the site, marking the beginning of your water field project.
+    <br><br>
+
+	<<link [[Next|Farm Work]]>><<endevent>><</link>>
+	<br>
+<<elseif $farm.build_finished.includes("water field 2")>>
+	<<run $farm.build_finished.delete("water field 2")>>
+	<span class="gold">The water field has been excavated.</span>
+    The land is now properly shaped and prepared for the next phase of development.
+    <br><br>
+
+	<<link [[Next|Farm Work]]>><<endevent>><</link>>
+	<br>
+<<elseif $farm.build_finished.includes("water field 3")>>
+	<<run $farm.build_finished.delete("water field 3")>>
+	<span class="gold">Synthetic liners have been installed in the water field.</span>
+    These liners will help maintain water levels and prevent leakage.
+    <br><br>
+
+	<<link [[Next|Farm Work]]>><<endevent>><</link>>
+	<br>
+<<elseif $farm.build_finished.includes("water field 4")>>
+	<<run $farm.build_finished.delete("water field 4")>>
+	<<add_plot farm water 3 large>>
+	<span class="gold">The water source and control structures are now installed.</span>
+    With the water field fully operational, you can begin lotus cultivation.
+    <br><br>
+
 	<<link [[Next|Farm Work]]>><<endevent>><</link>>
 	<br>
 <<elseif $farm.tower_guard and $farm.tower_guard_unpaid gte 2 and $farm.tower_guard_patience isnot 1>>
@@ -818,7 +1156,7 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 			<br>
 		<</if>>
 		<<if $farm.compostbin gte 1>>
-			<<link [[Compost Bin (0:03)|Farm Compost Bin]]>><<pass 3>><</link>>
+			<<farmicon "compostbin">><<link [[Compost Bin (0:03)|Farm Compost Bin]]>><<pass 3>><</link>>
 			<br>
 		<</if>>
 		<<if $farm.parasitebarn gte 1>>
@@ -1135,7 +1473,7 @@ A great hedge shields most of the fields from the forest beyond, though some are
 		<br>
 		<<link [[Scream|Farm Yard Scream]]>><</link>><<gdom "Alex">>
 		<br>
-		<<if $farm_stage gte 10 and $lurkers_held lt 1>>
+		<<if $farm_stage gte 10 and $lurkers_held lt lurkerCap()>>
 			<<link [[Hurl net|Farm Yard Hurl net]]>><</link>><<dancedifficulty 1 1200>><<athleticsdifficulty 0 1200>>
 			<br>
 		<</if>>
@@ -1244,7 +1582,11 @@ The chickens follow as you retrieve a sack of grain from the shed beside the yar
 			One jumps and latches onto your _bottom.name with its beak. You hear the fabric tear as you shake it free.
 			<br><br>
 
-			You finish feeding the chickens, and return the sack to the shed.
+			<<if $farm.coop gte 4>>
+				You finish restocking the automatic feeding system.
+			<<else>>
+				You finish feeding the chickens, and return the sack to the shed.
+			<</if>>
 			<br><br>
 
 			<<link [[Next|Farm Work]]>><</link>>
@@ -1883,7 +2225,11 @@ You enter the cattle barn.
 <<else>>
 	A large milking machine sits in the middle.
 <</if>>
-The <<farm_text_many cattle>> prefer to be milked by hand, but the machine can milk six at once.
+<<if $farm.barn gte 7>>
+	The <<farm_text_many cattle>> prefer to be milked by hand, but the machine can milk twenty four at once.
+<<else>>
+	The <<farm_text_many cattle>> prefer to be milked by hand, but the machine can milk six at once.
+<</if>>
 <br><br>
 
 <<farm_milk_actions>>
@@ -2020,6 +2366,8 @@ The milking machine works fast, and soon finishes gathering fluid. You release t
 
 You <<tendingtext>> squeeze and rub.
 <<switch $phase>>
+	<<case 1>><<farm_count 1>> One minute later,
+	<<case 2>><<farm_count 2>> Two minutes later,
 	<<case 3>><<farm_count 3>> Three minutes later,
 	<<case 4>><<farm_count 4>> Four minutes later,
 	<<case 5>><<farm_count 5>> Five minutes later,
@@ -2354,34 +2702,66 @@ You sneak up to the shed, and push the door open.
 :: Farm Clearing
 <<effects>>
 
-<<if Weather.precipitation is "rain">>
-	You endure the rain as you help Alex clear the invasive weeds, digging them up at the roots and freeing the land for cultivation.
-<<elseif !Weather.isOvercast>>
-	<<if Time.dayState is "night">>
-	The stars twinkle above you as you help Alex clear the invasive weeds, digging them up at the roots and freeing the land for cultivation.
+<<if $farm.waterField is 1>>
+	<<if Weather.precipitation is "rain">>
+        You endure the rain as you help Alex excavate the field, digging deep into the earth to shape the water field.
+    <<elseif !Weather.isOvercast>>
+        <<if Time.dayState is "night">>
+            The stars twinkle above you as you help Alex excavate the field, digging deep into the earth to shape the water field.
+        <<else>>
+            The sun beats down as you help Alex excavate the field, digging deep into the earth to shape the water field.
+        <</if>>
+    <<elseif Weather.isSnow>>
+        You endure the cold as you help Alex excavate the field, breaking through the frozen ground to shape the water field.
+    <<else>>
+        You help Alex excavate the field, digging deep into the earth to shape the water field.
+    <</if>>
+    <<if $rng gte 51>>
+        You encounter large rocks that need to be removed, requiring extra effort.
+    <<else>>
+        The soil is tough and compacted, making the excavation challenging.
+    <</if>>
+<<else>>
+	<<if Weather.precipitation is "rain">>
+		You endure the rain as you help Alex clear the invasive weeds, digging them up at the roots and freeing the land for cultivation.
+	<<elseif !Weather.isOvercast>>
+		<<if Time.dayState is "night">>
+		The stars twinkle above you as you help Alex clear the invasive weeds, digging them up at the roots and freeing the land for cultivation.
+		<<else>>
+		The sun beats down as you help Alex clear the invasive weeds, digging them up at the roots and freeing the land for cultivation.
+		<</if>>
+	<<elseif Weather.isSnow>>
+		You endure the cold as you help Alex clear the invasive weeds, digging them up at the roots and freeing the land for cultivation.
 	<<else>>
-	The sun beats down as you help Alex clear the invasive weeds, digging them up at the roots and freeing the land for cultivation.
+		You help Alex clear the invasive weeds, digging them up at the roots and freeing the land for cultivation.
 	<</if>>
-<<elseif Weather.isSnow>>
-	You endure the cold as you help Alex clear the invasive weeds, digging them up at the roots and freeing the land for cultivation.
-<<else>>
-	You help Alex clear the invasive weeds, digging them up at the roots and freeing the land for cultivation.
-<</if>>
-<<if $rng gte 51>>
-	There are young trees growing in places. Alex insists on digging them a new home near the surrounding woodland.
-<<else>>
-	Some of the plants are rooted deep, and need to be dug out.
+	<<if $rng gte 51>>
+		There are young trees growing in places. Alex insists on digging them a new home near the surrounding woodland.
+	<<else>>
+		Some of the plants are rooted deep, and need to be dug out.
+	<</if>>
 <</if>>
 <br><br>
-
-<<if $farm.clearing gte 50>>
-	You make good progress, <span class="blue">but there's still a long way to go.</span>
-<<elseif $farm.clearing gte 10>>
-	You make good progress. <span class="lblue">Most of the field is clear.</span>
-<<elseif $farm.clearing gte 1>>
-	You make good progress. <span class="teal">The field is almost cleared.</span>
+<<if $farm.waterField is 1>>
+	<<if $farm.excavation gte 600>>
+        You make good progress, <span class="blue">but there's still a long way to go.</span>
+    <<elseif $farm.excavation gte 120>>
+        You make good progress. <span class="lblue">Half of the field has been excavated.</span>
+    <<elseif $farm.excavation gte 1>>
+        You make good progress. <span class="teal">Most of the field has been excavated.</span>
+    <<else>>
+        You make good progress, <span class="green">and finish excavating the field!</span>
+    <</if>>
 <<else>>
-	You make good progress, <span class="green">and remove the last of the weeds!</span>
+	<<if $farm.clearing gte 50>>
+		You make good progress, <span class="blue">but there's still a long way to go.</span>
+	<<elseif $farm.clearing gte 10>>
+		You make good progress. <span class="lblue">Most of the field is clear.</span>
+	<<elseif $farm.clearing gte 1>>
+		You make good progress. <span class="teal">The field is almost cleared.</span>
+	<<else>>
+		You make good progress, <span class="green">and remove the last of the weeds!</span>
+	<</if>>
 <</if>>
 <br><br>
 <<if $arousal gte $arousalmax>>
@@ -2526,9 +2906,11 @@ You sneak up to the shed, and push the door open.
 		<<if npcIsPregnant("Alex") and talkedAboutPregnancy("Alex","pc")>>
 			You put your hand on Alex's <<bellyDescription "Alex">>, and <<he>> kisses your temple. As <<he>> does so, you feel the baby kick - and naturally, so does <<he>>.
 			"Strong little bugger in there," <<he>> chuckles. "Reminds me of someone I know." <<He>> smiles at you.
+			<br><br>
 		<<elseif playerIsPregnant() and playerAwareTheyArePregnant() and playerBellyVisible() and getPregnancyObject().fetus[0].father is "Alex" and talkedAboutPregnancy("pc","Alex")>>
 			Alex puts <<his>> hand on your <<bellyDescription "pc">> and kisses your temple. As <<he>> does so, you feel the baby kick - and evidently, so does <<he>>.
 			"Strong little bugger in there," <<he>> chuckles. "Reminds me of someone I know." <<He>> smiles at you.
+			<br><br>
 		<</if>>
 	<</if>>
 <<else>>
@@ -2859,10 +3241,12 @@ The machine continues its devilish work, sucking with more intensity. You feel a
 	<</if>>
 	<br><br>
 	<<if $farm_breast_milk gte 2000>>
+		<<wearProp "breast milk bottle">>
 		<<set $farm_breast_milk to Math.trunc($farm_breast_milk / 1000)>>
 		<span class="gold">You've filled $farm_breast_milk bottles of milk.</span>
 		<<tending_give bottle_of_breast_milk $farm_breast_milk>>
 	<<elseif $farm_breast_milk gte 1000>>
+		<<wearProp "breast milk bottle">>
 		<<set $farm_breast_milk to Math.trunc($farm_breast_milk / 1000)>>
 		<span class="gold">You've filled a bottle with milk.</span>
 		<<tending_give bottle_of_breast_milk $farm_breast_milk>>
@@ -3008,11 +3392,13 @@ The machine continues its devilish work, sucking with more intensity. You feel a
 	<br><br>
 
 	<<if $farm_penis_milk gte 2000>>
+		<<wearProp "semen bottle">>
 		<<set $farm_penis_milk to Math.trunc($farm_penis_milk / 1000)>>
 		<span class="gold">You've filled $farm_penis_milk bottles of semen.</span>
 		<<tending_give bottle_of_semen $farm_penis_milk>>
 		<br><br>
 	<<elseif $farm_penis_milk gte 1000>>
+		<<wearProp "semen bottle">>
 		<<set $farm_penis_milk to Math.trunc($farm_penis_milk / 1000)>>
 		<span class="gold">You've filled a bottle with semen.</span>
 		<<tending_give bottle_of_semen $farm_penis_milk>>
