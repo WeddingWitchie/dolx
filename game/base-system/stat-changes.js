@@ -382,6 +382,15 @@ const statChange = (() => {
 				mod += (sensitivity - 1) * (sensitivity >= 2 ? 0.5 : 1);
 			}
 
+			// Concentration reduces incoming arousal by half
+			// Whilst failed concentration adds half a point of sensitivity to all incoming arousal
+			if (V.xchange.resistCombatArousal === 1) {
+				mod *= 0.50;
+			}
+			else if (V.xchange.resistCombatArousal === -1) {
+				mod += 0.50;
+			}
+
 			// Reduce the mod if masturbating while in heat and/or rut
 			if (source && source.includes("masturbation")) {
 				mod *= 1 - Math.clamp(playerHeatMinArousal() + playerRutMinArousal(), 0, 4000) / 5000;
@@ -453,8 +462,8 @@ const statChange = (() => {
 			let pain = amount * modifier;
 
 			if (pain > 0) {
-				// science reduction
-				pain *= 1 - V.sciencetrait / 10;
+				// physique reduction
+				pain *= 1 - Math.min(V.physique / 20000, 0.9);
 
 				// Including masochism effect for all pain NG v2.7
 				if (V.masochism >= 100) {

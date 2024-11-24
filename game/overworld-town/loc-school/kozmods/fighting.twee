@@ -1,0 +1,106 @@
+:: School Rear Pick Fight
+<<schooleffects>><<effects>>
+<<if maleChance(`$player.gender is "m"? "f": "m"`)>>
+    <<generatesm1>><<generatesm2>><<generatesm3>>
+<<else>>
+    <<generatesf1>><<generatesf2>><<generatesf3>>
+<</if>>
+<<person1>>
+
+You approach a group of delinquents, and start provoking the crowd there. A <<person>> takes point in response to your provocations, accompanied by a <<person2>><<person>> and a <<person3>><<person>> on each side. You mock <<person1>><<his>> face and crowd erupts in laughter, and ask <<him>> if <<hes>> gonna take it lying down.
+<br><br>
+
+Your provocations turn out quite effective, and shortly after you and the <<person>> are both squaring up, readying yourselves for a fight.
+<br><br>
+
+<<link [[Shove|School Rear Fight]]>>
+	<<set $fightstart to 1>>
+	<<saveNPC 2 "schoolFight2">>
+	<<saveNPC 3 "schoolFight3">>
+<</link>>
+<br>
+<<link [[Provoke sidekicks to join|School Rear Fight]]>><<set $fightstart to 1>><</link>>
+<br>
+<<link [[Back down|School Rear Courtyard]]>><<endevent>><<status -1>><</link>><<lcool>>
+
+:: School Rear Fight
+<<if $fightstart is 1>>
+	<<set $fightstart to 0>>
+	<<neutral 1>>
+	<<maninit>>
+	<<set $enemytrust -= 100>>
+	<<set $enemyanger += 150>>
+	<<npcidlegenitals>>
+    <<if $delinquency lt 400>><<enable_rescue>><</if>>
+<</if>>
+
+<<if $combatpill is 0>>
+	<<set $combatpill to 1>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+    <<xchange-random-spike "suppress">><<xchange-seen 3>><<hand_gag 0 left>>
+	<<set $combatExtended.stability to 0>><<set $combatExtended.stabilityLost to 1>>
+    <span class="red">Unable to bear the pain any longer, you hesitate for a moment and get knocked off your feet. As you struggle to regain your senses, the <<person>> climbs on top of you and forces a pill down your throat.</span>
+    <br><br>
+	<<molested>>
+    <<reversenpcidlegenitals>>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<<alarmstate "<span class='red'>No one comes to your aid. Nobody's willing to face delinquents for you.</span>">>
+<<man>>
+<<audience>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<rng 3>><<set _feelsOverwhelmingPain to ($pain gte 100 and $willpowerpain is 0)>>
+
+<<if _combatend or ((_feelsOverwhelmingPain or $combatExtended.stability lte 0) and (playerIsXChanged() or $rng isnot 1) and $combatpill isnot 1)>>
+	<span id="next"><<link [[Next|School Rear Fight Finish]]>><</link>></span><<nexttext>>
+<<elseif !playerIsXChanged() and _feelsOverwhelmingPain and $rng is 1>>
+    <span id="next"><<link [[Next|School Rear Fight]]>><<set $combatpill to 0>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|School Rear Fight]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: School Rear Fight Finish
+<<effects>><<unset $combatpill>>
+<<if $enemyarousal gte $enemyarousalmax>>
+	<<ejaculation>>
+	Still slightly dizzy from <<his>> orgasm, the <<person>> loses <<his>> will to fight and walks away<<if $enemynomax gt 1>> along the others<</if>>. 
+	<br><br>
+	<<tearful>> you recover.
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
+	<<link [[Next|School Rear Courtyard]]>><</link>>
+
+<<elseif $enemyhealth lte 0>>
+	With one last hit, you knock <<his>> smug ass into the ground, showing <<him>> who's boss.
+    <<status `10 * $enemynomax`>><<ggcool>>
+	<br><br>
+    It seems in the heat of the battle, the <<person>> dropped <<his>> wallet containing <<moneyGainDisplay `20 * $enemynomax` true true>>.<br>
+	<<tearful>> you ponder whether to take the money or not.
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
+    <<link [[Take money|School Rear Courtyard]]>><<moneyGain `_money_gain / 100` false true>><</link>><<crime "petty">>
+    <br>
+	<<link [[Walk away|School Rear Courtyard]]>><</link>>
+
+<<else>>
+	During the onslaught, you suffer a lapse in judgement and end up knocked on your ass. You protect yourself with your arms as best as you can expecting a barrage, but the <<person>> does not immediately follow. Confused, you drop your guard for moment, which give <<him>> a short window to land a brutal kick to your stomach. <<pain 20>><<gggpain>>
+	<br><br>
+	Still noticeably pissed, <<he>> spits on you before finally walking away<<if $enemynomax gt 1>> with the others<</if>>. 
+    <<status -3>><<llcool>>
+	<br><br>
+	<<tearful>> you pick yourself up. Pride in shambles.
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
+	<<link [[Next|School Rear Courtyard]]>><</link>>
+
+<</if>>
