@@ -1126,6 +1126,26 @@ function effects() {
 
 	sWikifier("<<integritycheck>><<exposure>>");
 
+	if (V.orgasmCum > 0) 
+	{
+		let arousalDrop = 0;
+		if (V.player.sex === "m") {
+			arousalDrop = -2000 - (V.orgasmcount * 1000);
+		}
+		else {
+			arousalDrop = -1000 - (V.orgasmcount * 500);
+		}
+		
+		if (V.drugged > 0) {
+			fragment.append(wikifier("arousal", arousalDrop));
+		}
+		else {
+			fragment.append(wikifier("arousal", arousalDrop*2));
+		}
+
+		sWikifier(`<span class="pink">Your body continues to convulse as it releases the tension from your orgasm.</span> <<llarousal>>`);
+	}
+
 	V.orgasmdown -= 1;
 	V.orgasmCum -= 1;
 
