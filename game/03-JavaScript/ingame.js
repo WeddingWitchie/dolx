@@ -99,7 +99,7 @@ const combatActionColours = {
 			/* feetaction */
 			"strut", "feetCurl",
 			/* mouthaction */
-			"grasp", "plead", "forgive", "down", "letout", "letoutorgasm", "noises", "pay",
+			"grasp", "plead", "forgive", "down", "letout", "letoutorgasm", "noises", "pay", "focus",
 			/* penisaction */
 			"thighbay", "bay", "otheranusbay",
 			/* vaginaaction */
