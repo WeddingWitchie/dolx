@@ -61,6 +61,9 @@ function xchangeHourlyCheck() {
 		if (V.xchange.pillPermanence === 1 && !pillIsPermanent() && pill.continueEffect && pill.duration > 30 * 24)
 			fragment.append(wikifier("xchange-setpermanent"));
 
+		// Clamp the pill duration to only ever save up to 30 days (in particular for Continue pills)
+		pill.duration = Math.min(pill.duration, 30*24);
+
 		// Stop the timer from ticking if PC is vaginally pregnant or the ear slime has grown past its point of no return
 		if (!pillTimerPaused() && pill.duration >= 0) {
 			pill.duration = Math.max(pill.duration-1, 0);
@@ -69,7 +72,7 @@ function xchangeHourlyCheck() {
 				if (pill.resistanceEffect && random(0,100) > pill.resistanceChance) {
 					if (V.xchange.pillPermanence === 1) fragment.append(wikifier("xchange-setpermanent"));
 					else {
-						pill.duration += 90 * 24;
+						pill.duration += 30 * 24;
 						pill.resistanceEffect = false;
 						pill.fertile = true;
 					}
