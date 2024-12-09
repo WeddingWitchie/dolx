@@ -141,7 +141,7 @@ blackmailQuests.mid.push( // Take a pill and flirt with 3 people
 			"Getting approached and hit on doesn't count, so you may ignore those people.",
 			"Complete this task before midnight.",
 		],
-		clearCondition: function() { return this.tookPill && this.flirtCount >= 5; },
+		clearCondition: function() { return this.tookPill && this.flirtCount >= 3; },
 		failCondition: function() { return false; },
 		alertMessage: ``,
 		clearCheck: function() {
