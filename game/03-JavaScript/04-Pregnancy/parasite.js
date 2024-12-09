@@ -66,6 +66,7 @@ function parasiteProgressTime(pass, genital = "anus") {
 							V.daily.parasiteEvent.pushUnique(genital + 3);
 						}
 					}
+					if (V.daily.parasiteEvent.length > 0) V.effectsmessage = 1;
 				}
 			}
 		});
