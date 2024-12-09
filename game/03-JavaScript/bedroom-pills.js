@@ -886,7 +886,7 @@ setup.pills = [
 			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
 		},
 		take_condition() {
-			return !playerIsXChanged() 
+			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null
 				? 1
 				: 0;
 		},
