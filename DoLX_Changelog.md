@@ -14,3 +14,4 @@
   * Fixed issue preventing reverse rape from triggering, at last.
   * Fixed a bug that could occur during combat against the Wraith.
   * Parasite pregnancy events now get triggered properly when they should.
+  * Quest that requires you to clean chalets should no longer require you to take envelope contents to comply with its request. Just that you wear *a uniform* with no underwear.
