@@ -382,7 +382,8 @@ blackmailQuests.low.push( // Clean 3 chalets in uniform without underwear
 		reward: function() { return V.rentmoney / 3; },
 		instructions: [
 			"Go clean 3 challets at the beach.",
-			"Wear the uniform we've included with this envelope while doing so.",
+			"Wear either a maid dress or a butler suit while doing so.", 
+			"We've included an outfit with this envelope for your convenience.",
 			"You're not allowed underwear while wearing your uniform.",
 			`<span class="red">If you wear underwear with your uniform you will fail automatically.</span>`,
 			"You only need to wear your uniform while cleaning the chalets.",
@@ -411,11 +412,9 @@ blackmailQuests.low.push( // Clean 3 chalets in uniform without underwear
 			if (V.player.sex == "m") {
 				wikifier("generalWear", "upper", 53); // Waiter's shirt
 				wikifier("generalWear", "lower", 131, "black"); // Suit trousers
-				this.butlerSet = true;
 			}
 			else if (V.player.sex == "f") {
 				wikifier("generalWear", "upper", 12); // Maid dress
-				this.maidSet = true;
 			}
 			wikifier("generalWear", "handheld", 12); // Feather duster
 			wikifier("updatesidebarimg");
