@@ -363,6 +363,7 @@ blackmailQuests.low.push( // Take a pill and wear a skirt
 		receiveItems: function() {
 			wikifier("generalWear", "lower", 27, "brown");
 			wikifier("xchange-pink", 1, "spike");
+			wikifier("updatesidebarimg");
 			this.tookPill = true;
 		},
 		onDayCleared: function() {
@@ -417,6 +418,7 @@ blackmailQuests.low.push( // Clean 3 chalets in uniform without underwear
 				this.maidSet = true;
 			}
 			wikifier("generalWear", "handheld", 12); // Feather duster
+			wikifier("updatesidebarimg");
 		},
 		onDayCleared: function() { 
 			V.xchange.blackmail.penaltyThreat.exhibitionism += 50; 
