@@ -463,7 +463,7 @@ const statChange = (() => {
 
 			if (pain > 0) {
 				// physique reduction
-				pain *= 1 - Math.min(V.physique / 20000, 0.9);
+				pain *= 1 - Math.min(V.physique / 16000, 0.9);
 
 				// Including masochism effect for all pain NG v2.7
 				if (V.masochism >= 100) {
