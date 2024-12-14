@@ -361,7 +361,7 @@ blackmailQuests.low.push( // Take a pill and wear a skirt
 		},
 		includesItems: true,
 		receiveItems: function() {
-			wikifier("generalWear", "lower", 27, "brown");
+			wikifier("generalWear", "lower", 27, "black");
 			wikifier("xchange-pink", 1, "spike");
 			this.tookPill = true;
 		},
