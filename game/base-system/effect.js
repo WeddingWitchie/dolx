@@ -92,7 +92,7 @@ function effectsWater() {
 	}
 
 	if (!V.worn.under_lower.type.includes("naked") && !playerChastity() && !waterproofCheck(V.worn.under_lower)) {
-		if (V.underlowerwet >= 100 && V.underlowerwetstage < 3 && V.pantiesSoaked && wornSetupClothes("under_lower").fabric_strength <= 20) {
+		if (V.underlowerwet >= 100 && V.underlowerwetstage < 3 && (V.player.sex == "f" && V.pantiesSoaked) && wornSetupClothes("under_lower").fabric_strength <= 20) {
 			V.underlowerwetstage = 3;
 			if (V.lowerwetstage === 3 || V.worn.lower.type.includes("naked")) {
 				// If clothing above underwear is also wet, or missing
@@ -1081,10 +1081,7 @@ function effects() {
 			delete V.daily.parasiteEvent;
 		}
 
-		if (V.xchange_passion_message) {
-			element("span", `Aphrodisiacs have been released into your bloodstream.`, "pink");
-			delete V.xchange_passion_message;
-		}
+		fragment.append(xchangeEffectsMessages());
 	}
 
 	if (numberOfEarSlime() && V.earSlime.event && !V.statFreeze) {

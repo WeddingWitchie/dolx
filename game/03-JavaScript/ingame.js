@@ -1372,9 +1372,9 @@ function currentSkillValue(skill, disableModifiers = 0) {
 			if (V.xchange.willpowerSystemEnabled === 1) {
 				result = V.xchange.willpowerPoints;
 	
-				if (V.player.gender === "m") {
+				if (V.player.sex === "m") {
 					result += 200;
-				} else if (V.player.gender === "f") {
+				} else if (V.player.sex === "f") {
 					result -= 100;
 				}
 				result = Math.max(result, 0);

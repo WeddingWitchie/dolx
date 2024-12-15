@@ -15,6 +15,7 @@ DefineMacroS("toyName", getToyName);
 // May require updating when new masturbation scenes are added
 function skipToOrgasm(modifiers = "") {
 	if (T.noMasturbationOutput) return;
+	V.orgasmCum = 0;
 	const startArousal = V.arousal;
 	let count = 0;
 	T.noMasturbationOutput = true;
