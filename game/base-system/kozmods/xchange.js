@@ -156,5 +156,103 @@ function hourlyClothingFemininityCheck() {
 	// Tick the hourly counter
 	V.hourlyFemininity += currentWornFemininity > 0 ? 1 : 0;
 	V.hourlyFemininity += currentWornFemininity < 0 ? -1 : 0;
+
+	if (V.xchangePill.genderificationEffect) {
+		if (V.player.gender === "m" && currentWornFemininity < 0) {
+			stress(100,1);
+			V.genderificationStressMessage = 1;
+		}
+		else if (V.player.gender === "m" && currentWornFemininity > 0) {
+			stress(-250);
+			V.tiredness -= 200;
+			V.genderificationStressMessage = 2;
+		}
+		if (V.player.gender === "f" && currentWornFemininity > 0) {
+			stress(100,1);
+			V.genderificationStressMessage = 3;
+		}
+		else if (V.player.gender === "f" && currentWornFemininity < 0) {
+			stress(-250);
+			V.tiredness -= 200;
+			V.genderificationStressMessage = 4;
+		}
+	}
 }
 window.hourlyClothingFemininityCheck = hourlyClothingFemininityCheck;
+
+function xchangeEffectsMessages() {
+	const fragment = document.createDocumentFragment();
+	const element = (element, text, colour) => {
+		const result = document.createElement(element);
+		if (colour) result.classList.add(colour);
+		result.textContent = text + " ";
+		fragment.append(result);
+	};
+	const br = () => fragment.append(document.createElement("br"));
+
+
+	if (V.xchange_passion_message) {
+		element("span", `Aphrodisiacs have been released into your bloodstream.`, "pink"); br();
+		delete V.xchange_passion_message;
+	}
+
+	if (V.xchangeFameMessage) {
+		element("span", "People have been gossiping about your X-Change escapades, and even the law has fully caught on."); br();
+		element("span", "You no longer benefit from having two identities.", "red");
+		delete V.xchangeFameMessage
+	}
+
+	if (V.xchangePermanenceMessage) {
+		element("span", "You didn't turn back. Your pill's effects have become permanent", "red"); br();
+		delete V.xchangePermanenceMessage
+	}
+
+	switch (V.xchangeRestoreMessage) {
+		case 1:
+			element("span", "Your body twists and turns as it returns to its original form.", "blue"); br();
+			delete V.xchangeRestoreMessage;
+			break;
+		case 2:
+			element("span", "Despite having climaxed under the effects of Resistance, the pill did not become permanent.", "blue"); br();
+			delete V.xchangeRestoreMessage;
+			break;
+		case 3:
+			element("span", "The pill's effects should be running out right about now.", "blue"); br();
+			delete V.xchangeRestoreMessage;
+			break;
+		default:
+			break;
+	}
+
+	switch (V.genderificationStressMessage) {
+		case 1:
+			element("span", "You have an urge to feel cute.", "purple");
+			// element("span", "This outfit is stressing you out.", "red"); 
+			wikifier("gstress"); br();
+			delete V.genderificationStressMessage;
+			break;
+		case 1:
+			element("span", "You are feeling cute and refreshed today.", "yellow");
+			// element("span", "This outfit makes you happy.", "green"); br();
+			wikifier("llstress"); wikifier("lfatigue"); br();
+			delete V.genderificationStressMessage;
+			break;
+		case 3:
+			element("span", "You have an urge to feel manly.", "purple");
+			// element("span", "This outfit is stressing you out.", "red"); br();
+			wikifier("gstress"); br();
+			delete V.genderificationStressMessage;
+			break;
+		case 3:
+			element("span", "You are feeling manly and vigourous today.", "yellow");
+			// element("span", "This outfit makes you happy.", "red"); br();
+			wikifier("llstress"); wikifier("lfatigue"); br();
+			delete V.genderificationStressMessage;
+			break;
+		default:
+			break;
+	}
+
+	return fragment;
+}
+window.xchangeEffectsMessages = xchangeEffectsMessages;
