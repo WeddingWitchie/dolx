@@ -1,4 +1,7 @@
+* **Changes and additions:**
+  * Added sissification/butchification to the pool of spike effects.
+
 * **Fixes:**
-  * Disabling the cock/hole addict traits on the cheat menu should now work as intented.
-  * Physique pain reductions should now properly apply in combat.
-  * Fixed esoteric error that happened when ejaculating with a condom that should break or leak.
+  * Fixed issue preventing "Take contents" function on blackmail quests from working.
+  * Finishing an encounter while still orgasming now clears your arousal instead of interrupting the orgasm.
+  * Fixed issue preventing "To orgasm" option during masturbation from working.
