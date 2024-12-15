@@ -158,6 +158,7 @@ function hourlyClothingFemininityCheck() {
 	V.hourlyFemininity += currentWornFemininity < 0 ? -1 : 0;
 
 	if (V.xchangePill.genderificationEffect) {
+		V.effectsmessage = 1;
 		if (V.player.gender === "m" && currentWornFemininity < 0) {
 			wikifier("stress",100,1);
 			V.genderificationStressMessage = 1;
@@ -199,12 +200,12 @@ function xchangeEffectsMessages() {
 	if (V.xchangeFameMessage) {
 		element("span", "People have been gossiping about your X-Change escapades, and even the law has fully caught on."); br();
 		element("span", "You no longer benefit from having two identities.", "red");
-		delete V.xchangeFameMessage
+		delete V.xchangeFameMessage;
 	}
 
 	if (V.xchangePermanenceMessage) {
 		element("span", "You didn't turn back. Your pill's effects have become permanent", "red"); br();
-		delete V.xchangePermanenceMessage
+		delete V.xchangePermanenceMessage;
 	}
 
 	switch (V.xchangeRestoreMessage) {
@@ -228,25 +229,25 @@ function xchangeEffectsMessages() {
 		case 1:
 			element("span", "You have an urge to feel cute.", "purple");
 			// element("span", "This outfit is stressing you out.", "red"); 
-			wikifier("gstress"); br();
+			fragment.append(wikifier("gstress")); br();
 			delete V.genderificationStressMessage;
 			break;
-		case 1:
-			element("span", "You are feeling cute and refreshed today.", "yellow");
+		case 2:
+			element("span", "You are feeling cute and refreshed with your outfit.", "light-pink");
 			// element("span", "This outfit makes you happy.", "green"); br();
-			wikifier("llstress"); wikifier("lfatigue"); br();
+			fragment.append(wikifier("llstress")); fragment.append(wikifier("ltiredness")); br();
 			delete V.genderificationStressMessage;
 			break;
 		case 3:
 			element("span", "You have an urge to feel manly.", "purple");
 			// element("span", "This outfit is stressing you out.", "red"); br();
-			wikifier("gstress"); br();
+			fragment.append(wikifier("gstress")); br();
 			delete V.genderificationStressMessage;
 			break;
 		case 3:
-			element("span", "You are feeling manly and vigourous today.", "yellow");
+			element("span", "You are feeling manly and vigourous with your fit.", "blue");
 			// element("span", "This outfit makes you happy.", "red"); br();
-			wikifier("llstress"); wikifier("lfatigue"); br();
+			fragment.append(wikifier("llstress")); fragment.append(wikifier("ltiredness")); br();
 			delete V.genderificationStressMessage;
 			break;
 		default:
