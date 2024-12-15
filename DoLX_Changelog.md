@@ -1,7 +1,6 @@
-* **Changes and additions:**
-  * Added sissification/butchification to the pool of spike effects.
-
 * **Fixes:**
-  * Fixed issue preventing "Take contents" function on blackmail quests from working.
-  * Finishing an encounter while still orgasming now clears your arousal instead of interrupting the orgasm.
-  * Fixed issue preventing "To orgasm" option during masturbation from working.
+  * Fixed sissification/butchification effects not working properly.
+  * Fixed xchange effect messages not displaying in a timely fashion.
+  * Fixed new xchange traits not being displayed properly on traits menu.
+  * Fixed xchange test not reporting sissification/butchification effect.
+  * Avery dates should no longer feature non-genderflip pills.
