@@ -160,21 +160,21 @@ function hourlyClothingFemininityCheck() {
 	if (V.xchangePill.active && V.xchangePill.genderificationEffect) {
 		V.effectsmessage = 1;
 		if (V.player.gender === "m" && currentWornFemininity < 0) {
-			wikifier("stress",100,1);
+			wikifier("stress",10);
 			V.genderificationStressMessage = 1;
 		}
 		else if (V.player.gender === "m" && currentWornFemininity > 0) {
-			wikifier("stress",-250);
-			V.tiredness -= 200;
+			wikifier("stress",-10);
+			V.tiredness -= 400;
 			V.genderificationStressMessage = 2;
 		}
 		if (V.player.gender === "f" && currentWornFemininity > 0) {
-			wikifier("stress",100,1);
+			wikifier("stress",10);
 			V.genderificationStressMessage = 3;
 		}
 		else if (V.player.gender === "f" && currentWornFemininity < 0) {
-			wikifier("stress",-250);
-			V.tiredness -= 200;
+			wikifier("stress",-10);
+			V.tiredness -= 400;
 			V.genderificationStressMessage = 4;
 		}
 	}
