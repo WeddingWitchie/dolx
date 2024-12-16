@@ -1,6 +1,5 @@
+* **Changes and additions:**
+  * Dropping an enemy's hp below the 3/5th point before losing the fight develops brawling at thrice the normal rate of a win.
+
 * **Fixes:**
-  * Fixed sissification/butchification effects not working properly.
-  * Fixed xchange effect messages not displaying in a timely fashion.
-  * Fixed new xchange traits not being displayed properly on traits menu.
-  * Fixed xchange test not reporting sissification/butchification effect.
-  * Avery dates should no longer feature non-genderflip pills.
+  * Sissification/butchification no longer applies if the pill already expired.
