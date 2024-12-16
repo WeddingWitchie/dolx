@@ -157,7 +157,7 @@ function hourlyClothingFemininityCheck() {
 	V.hourlyFemininity += currentWornFemininity > 0 ? 1 : 0;
 	V.hourlyFemininity += currentWornFemininity < 0 ? -1 : 0;
 
-	if (V.xchangePill.genderificationEffect) {
+	if (V.xchangePill.active && V.xchangePill.genderificationEffect) {
 		V.effectsmessage = 1;
 		if (V.player.gender === "m" && currentWornFemininity < 0) {
 			wikifier("stress",100,1);
