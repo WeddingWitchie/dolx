@@ -969,7 +969,7 @@ setup.colours.clothes = [
 		name: "blue",
 		name_cap: "Blue",
 		csstext: "blue",
-		canvasfilter: { blend: "#5C76E6" },
+		canvasfilter: { blend: "#475CB3" },
 	},
 	{
 		variable: "light blue",
@@ -1081,7 +1081,7 @@ setup.colours.clothes = [
 		name: "teal",
 		name_cap: "Teal",
 		csstext: "teal",
-		canvasfilter: { blend: "#79F2F2" },
+		canvasfilter: { blend: "#70E0C4" },
 	},
 	{
 		variable: "yellow",
