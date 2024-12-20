@@ -1032,7 +1032,7 @@ setup.colours.clothes = [
 		name: "black",
 		name_cap: "Black",
 		csstext: "black",
-		canvasfilter: { blend: "#4D4D4D" },
+		canvasfilter: { blend: "#4B4B4B" },
 	},
 	{
 		variable: "pink",
@@ -1053,7 +1053,7 @@ setup.colours.clothes = [
 		name: "purple",
 		name_cap: "Purple",
 		csstext: "purple",
-		canvasfilter: { blend: "#9C63C7" },
+		canvasfilter: { blend: "#9450C7" },
 	},
 	{
 		variable: "lilac",
