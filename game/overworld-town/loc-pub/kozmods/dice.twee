@@ -1,4 +1,111 @@
+:: Pub Dice Minigame Intro
+<<effects>>
+<<generate1>><<generate2>><<generate3>>
+
+You approach a table of rough-looking <<group>> loadly playing dice, overtly dissing and goading each other. You see the <<person2>><<person>> shoot <<his>> dice with a silent prayer, only to watch <<him>> curse out loud as the rest of the group sparks into celebration upon having won that round.
+<br><br>
+
+The <<person1>><<person>> turns around to face you, eyeing you up and down. An implied hunger in <<his>> gaze. <br>
+"Looking to play, or are you just gonna watch?" 
+<br><br>
+
+<<link [[Looking to play|Pub Dice Minigame Intro 2]]>><</link>>
+<br>
+<<link [[Leave|Pub]]>><</link>>
+<br>
+
+:: Pub Dice Minigame Intro 2
+<<effects>><<set $phase to 1>><<set $diceintro to 1>>
+
+"Is that so?" <<he>> flashes a cocky smile. "Hear that, folks? I think we fancy ourselves a new player over here." The <<group>> laugh heartily as the <<person1>><<person>> motions you to a chair. You sit.
+<br><br>
+
+"So..." the <<person>> leans forwards on the table. "Are you a high-roller, or are you a little <<bitch>>?" The <<group>> mock you overtly, thinking you're just some drunken waif. 
+<br><br>
+
+"Just so you know," <<he>> continues. "you'll need at least <<printmoney 50000>> to play with us."
+<br><br>
+
+<<if $money gte 50000>>
+	<<link [[Play (£500)|Pub Dice Minigame]]>><<set $wagerLvl to 0>><<set $money -= 50000>><<set $diceintro to 1>><</link>>
+	<br>
+<</if>>
+<<if $money gte 100000>>
+	<<link [[Play (£1000)|Pub Dice Minigame]]>><<set $wagerLvl to 1>><<set $money -= 100000>><<set $diceintro to 1>><</link>>
+	<br>
+<</if>>
+<<if $money gte 300000>>
+	<<link [[Play (£3000)|Pub Dice Minigame]]>><<set $wagerLvl to 2>><<set $money -= 300000>><<set $diceintro to 1>><</link>>
+	<br>
+<</if>>
+<<if $money lt 50000>>
+	You don't have enough cash.
+<</if>>
+
+<br>
+<<link [[Back out|Pub]]>><</link>>
+
 :: Pub Dice Minigame Widgets [widget]
+
+	<<widget "dice-log">>
+		<<for $dice.log.length gt 0>>
+			<<print $dice.log.shift()>><br>
+		<</for>>
+		<br>
+	<</widget>>
+
+	<<widget "dice-events">>
+		<<if $dice.event.pending is 0>>
+			<<if $dice.event.drinkIntro is 1>>
+				After the last few rounds, the <<group>> have gotten fired up enough already and have decided to up the stakes further by introducing penalties. Regardless of your opinion, you'd still be outvoted. <span class="purple">Losers must now drink as a penalty.</span><br><br>
+				<<set $dice.event.diceIntro to 2>>
+				<<set $dice.event.drinkEnabled to 1>>
+			<</if>>
+			<<set _text_output to "The <<people>> are goading each other, and just being rowdy overall.">>
+			<<print _text_output>>
+		<<else>>
+			<<if $dice.event.drinkEnabled>>
+				After taking tally of who lost and who won, an spectator picks what seems like a random bottle and begins serving shots. Each one from a different bottle, three shots are placed on a tray out of sight, and offered to the losers in order.
+				<br><br>
+				<<set _shotsRemaining to 3>><<rng 1 3>>
+				<<for _i to 1; _i lte 3; _i++>>
+					<<if $dice.event.roundLoss[_i]>>
+						Having lost the previous round, the <<= "<<person"+_i+">>">><<person>> picks a glass and <<= either("downs", "drinks", "gulps")>> <<his>> shot.
+						<<set _shotsRemaining-->>
+					<<else>>
+						The <<= "<<person"+_i+">>">><<person>> rejoices, as <<hes>> managed to win the previous round.
+					<</if>>
+					<br>
+				<</for>>
+				<br>
+				<<if $dice.event.roundLoss[0]>>
+					It is now your turn to pick your glass, and down your shot.
+					<br><br>
+					<<for _i to 1; _i lte _shotsRemaining; _i++>>
+						<<capture _i, $rng>>
+							<<link [[Pick shot #_i|Pub Dice Minigame]]>>
+								<<if $rng is _i and !playerIsXChanged()>>
+									<<xchange-random-spike>>
+									<<run $dice.log.push('You\'ve changed. <span class="purple">There was something in your drink.</span>')>>
+									<<set _comment to either(
+										"To be honest, you look much better like this.",
+										$player.sex is "f"? "Looking pretty cute, ehh?":"Looking quite handsome, ehh?",
+										"I was thinking we needed some eye candy.",
+										"Things are getting quite interesting now.",
+										"Oh yes, that's a fine piece of ass indeed."
+									)>>
+									<<run $dice.log.push('"Gahahaha!" the <<person1>><<person>> laughs. "'+_comment+'"')>>
+								<</if>>
+								<<alcohol either(30,30,30,60,60,120,180)>>
+							<</link>><br>
+						<</capture>>
+					<</for>>
+				<<else>>
+					<<link [[Next|Pub Dice Minigame]]>><</link>>
+				<</if>>
+			<</if>>
+		<</if>>
+	<</widget>>
 
 	<<widget "dice-display">>
 		<table class="dice-grid">
@@ -175,26 +282,36 @@
 	<<widget "dice-compute-wagers">>
 		<<set _raisedBet to _args[0]>>
 		<<for _i, _player range $dice.queue>>
+			<<capture _player>>
+				<<if _player is 0>>
+					<<continue>> /* Skip betting in PC's name */
+				<</if>>
 
-			<<if _player is 0>>
-				<<continue>> /* Skip betting in PC's name */
-			<</if>>
+				<<if _raisedBet and _player isnot 0>> /* If PC raised the bet, match it */
+					<<dice-bet _player `$dice.bets[0] - $dice.bets[_player]`>>
+					<<run $dice.log.push("The <<person"+_player+">><<person>> matches the bet.")>>
 
-			<<if _raisedBet and _player isnot 0>> /* If PC raised the bet, match it */
-				<<dice-bet _player `$dice.bets[0] - $dice.bets[_player]`>>
+				<<elseif _player is $dice.shooter and $dice.shooter isnot 0>> /* If shooter is not PC, wager between 10 and 80 */
+					<<set _wagerScale to [500,1000,3000][$dice.wagerLvl]>>
+					<<set _wagerAmount to random(1,8)*_wagerScale>>
+					<<dice-bet _player _wagerAmount>>
+					<<run $dice.log.push("The <<person"+_player+">><<person>> raises the stake by <<printmoney "+_wagerAmount+">>.")>>
 
-			<<elseif _player is $dice.shooter and $dice.shooter isnot 0>> /* If shooter is not PC, wager between 10 and 80 */
-				<<dice-bet _player `random(1,8)*1000`>>
+				<<elseif _player isnot 0>>/* If current betting player is not PC */
+					
+					/* Match the bet */
+					<<set _raiseAmount to $dice.bets[$dice.shooter] - $dice.bets[_player]>>
+					<<dice-bet _player _raiseAmount>> 
+					
+					/* Force at least one 'Against' position */
+					<<set $dice.positions[_player] to _i is 1 or random(0,1)? "Against" : "In Favour">> 
 
-			<<elseif _player isnot 0>>/* If current betting player is not PC */
-				
-				/* Match the bet */
-				<<dice-bet _player `$dice.bets[$dice.shooter] - $dice.bets[_player]`>> 
-				
-				/* Force at least one 'Against' position */
-				<<set $dice.positions[_player] to _i is 1 or random(0,1)? "Against" : "In Favour">> 
-
-			<</if>>
+					/* Queue up the log message */
+					<<if _raiseAmount gt 0>>
+						<<run $dice.log.push("The <<person"+_player+">><<person>> matches the bet.")>>
+					<</if>>
+				<</if>>
+			<</capture>>
 		<</for>>
 	<</widget>>
 
@@ -222,11 +339,44 @@
 		<<set _split to $dice.pot / _winnerCount>><<set $dice.pot to 0>>
 		<<if $dice.round.result is "In Favour">>
 			<<set $dice.money[$dice.shooter] += _split>>
+			<<set $dice.event.roundLoss[$dice.shooter] to 0>>
+			<<capture _split>>
+				<<set _gains to _split - $dice.bets[$dice.shooter]>>
+				<<if $dice.shooter is 0>>
+					<<run $dice.log.push("You won <<printmoney "+_gains+">>.")>>
+				<<else>>
+					<<run $dice.log.push("The <<person"+$dice.shooter+">><<person>> won <<printmoney "+_gains+">>.")>>
+				<</if>>
+			<</capture>>
+		<<else>>
+			<<set $dice.event.roundLoss[$dice.shooter] to 1>>
 		<</if>>
 		<<for _player range [0,1,2,3]>>
-			<<set $dice.money[_player] += $dice.positions[_player] is $dice.round.result? _split : 0>>
+			<<if $dice.positions[_player] is $dice.round.result>>
+				<<set $dice.money[_player] += _split>>
+				<<set $dice.event.roundLoss[_player] to 0>>
+				<<capture _player, _split>>
+					<<set _gains to _split - $dice.bets[_player]>>
+					<<if _player is 0>>
+						<<run $dice.log.push("You won <<printmoney "+_gains+">>.")>>
+					<<else>>
+						<<run $dice.log.push("The <<person"+_player+">><<person>> won <<printmoney "+_gains+">>.")>>
+					<</if>>
+				<</capture>>
+			<<else>>
+				<<set $dice.event.roundLoss[_player] to 1>>
+			<</if>>
 		<</for>>
-		
+
+		/* Tick or Trigger drinks event */
+		<<if $dice.event.drinkEnabled>>
+			<<set $dice.event.pending to 1>>
+		<<elseif $dice.event.roundsUntilAlcohol lte 0 and $dice.event.drinkIntro lt 1>>
+			<<set $dice.event.drinkIntro to 1>>
+		<<else>>
+			<<set $dice.event.roundsUntilAlcohol-->>
+		<</if>>
+
 		/* Clean up round variables */
 		<<set $dice.round.result to undefined>>
 		<<set $dice.round.point to undefined>>
@@ -249,41 +399,60 @@
 	<</widget>>
 
 :: Pub Dice Minigame
+	<<effects>>
 
 	<<if $diceintro>>
 		<<generate1>><<generate2>><<generate3>>
 		
+		<<set _playerMoney to [50000,100000,300000]>>
+		<<set _playerMoney to _playerMoney[$wagerLvl]>>
 		<<set $dice to {
+			wagerLvl: $wagerLvl,
 			pot: 0,
 			players: [$player, $NPCList[0], $NPCList[1], $NPCList[2]], /* Indexing players */
 			shooter: 0, /* Index of player that's currently the shooter */
 			values: undefined, /* Houses the results of the two dice. */
 			queue: [0,1,2,3], /* The shooter queue, using player indices. The first one is always the shooter */
-			money: [100000,100000,100000,100000], 
+			money: [_playerMoney,_playerMoney,_playerMoney,_playerMoney], 
 			positions: ["Shooter", "", "", ""],
 			bets: [0,0,0,0],
 			round: {
 				point: undefined,
 				result: undefined,
+			},
+			log: [],
+			event: {
+				pending: 0,
+				roundLoss: [0,0,0,0],
+				roundsUntilAlcohol: random(2,4),
+				drinkIntro: 0,
+				drinkEnabled: 0,
 			}
 		}>>
 		<<unset $diceintro>>
+		<<unset $wagerLvl>>
 	<</if>>
 
 
 	<<switch $phase>>
 	<<case 1>> /* Opening Bets */
-		The <<people>> are goading each other, and being overall rowdy.
 
-		<<dice-display>>
+		<<dice-log>>
+		<<dice-events>>
 
-		<<link [[Play this round (£20)|Pub Dice Minigame Wager]]>><<set $dicewagerintro to 1>><</link>>
-		<br>
-		<<link [[Stop|Pub]]>><<endevent>><<dice-endgame>><</link>>
-		<br>
+		<<if !$dice.event.pending>>
+			<<dice-display>>
+
+			<<link [[Play this round (£20)|Pub Dice Minigame Wager]]>><<set $dicewagerintro to 1>><</link>>
+			<br>
+			<<link [[Stop|Pub]]>><<endevent>><<dice-endgame>><</link>>
+			<br>
+		<</if>>
 
 	<<case 2>> /* Roll Results (Win / Lose - Point Discovery) */
+
 		<<dice-compute-result>>
+		<<dice-log>>
 		<<dice-display>>
 
 		<<if $dice.round.result>>
@@ -295,9 +464,12 @@
 		<</if>>
 
 	<</switch>>
-	<br>
 
-	<<dice-instructions>>
+	<br>
+	<<if !$dice.event.pending>>
+		<<dice-instructions>>
+	<</if>>
+	<<set $dice.event.pending to 0>>
 
 :: Pub Dice Minigame Wager
 
@@ -305,6 +477,11 @@
 	<<if $dicewagerintro>> 
 		<<for _player range [0,1,2,3]>>
 			<<dice-bet _player 2000>>
+			<<capture _player>>
+				<<if _player isnot 0>>
+					<<run $dice.log.push("The <<person"+_player+">><<person>> joins this round.")>>
+				<</if>>
+			<</capture>>
 		<</for>>
 		<<unset $dicewagerintro>>
 		<<set $wagerstage to 1>>
@@ -316,30 +493,33 @@
 			<<dice-compute-wagers>>
 		<</if>>
 
+		<<dice-log>>
 		<<dice-display>>
 		
 		<<if $dice.shooter is 0>>
 			<<dice-betting-interface>>
 
-			<<link [[Wager|Pub Dice Minigame Wager]]>>
+			<<link [[Wager (0:02)|Pub Dice Minigame Wager]]>>
 				<<set $wagerstage to 2>>
 				<<set $phase to 2>>
 				<<set _pcIndex to 0>>
 				<<dice-bet _pcIndex `_bet * 100`>>
 				<<dice-compute-wagers>>
+				<<pass 2>>
 			<</link>>
 			<br>
 		<<else>>
 			
 			<<dice-betting-interface>>
 			
-			<<link [[Wager|Pub Dice Minigame Wager]]>>
+			<<link [[Wager (0:02)|Pub Dice Minigame Wager]]>>
 				<<set $wagerstage to 2>>
 				<<set $phase to 2>>
 				<<set _pcIndex to 0>>
 				<<dice-bet _pcIndex `$dice.bets[$dice.shooter] - $dice.bets[_pcIndex] + _bet * 100`>>
 				<<set $dice.positions[_pcIndex] to _position>>
 				<<if _bet gt 0>><<dice-compute-wagers "raise">><</if>>
+				<<pass 2>>
 			<</link>>
 			<br>
 			/* Here I can add options to wager other things besides money */
@@ -347,48 +527,53 @@
 
 	<<elseif $wagerstage is 2>> /* Confirmation of Pot / NPCs match current bet */
 
+		<<dice-log>>
 		Now that all bets are in...<br>
+
 		<<dice-display>>
 		<br>
 
 		<<if $dice.shooter is 0>>
-			<<link [[Roll|Pub Dice Minigame]]>>
-				<<dice-roll>>
+			<<link [[Roll (0:02)|Pub Dice Minigame]]>>
+				<<dice-roll>><<pass 2>>
 			<</link>>
 		<<else>>
 			The shooter's about to roll.
 			<br>
-			<<link [[Next|Pub Dice Minigame]]>>
-				<<dice-roll>>
+			<<link [[Next (0:02)|Pub Dice Minigame]]>>
+				<<dice-roll>><<pass 2>>
 			<</link>>
 		<</if>>
 		<br>
 
 	<<elseif $wagerstage is 3>> /* Raise the stakes after first roll? */
 
-		Everyone's eyes are intensely focused on <<= $dice.shooter is 0? "you": "the shooter">>. Watching every move.<br>
+		<<dice-log>>
+		Everyone's eyes are intensely focused on <<= $dice.shooter is 0? "you": "the shooter">>. Watching each and every move.<br>
+		
 		<<dice-display>>
 		<<dice-betting-interface>>
 
 		<<if $dice.shooter is 0>>
-			<<link [[Roll|Pub Dice Minigame]]>>
-				<<dice-roll>>
+			<<link [[Roll (0:02)|Pub Dice Minigame]]>>
+				<<dice-roll>><<pass 2>>
 			<</link>>
 		<<else>>
 			The shooter's about to roll.
 			<br>
-			<<link [[Next|Pub Dice Minigame]]>>
-				<<dice-roll>>
+			<<link [[Next (0:02)|Pub Dice Minigame]]>>
+				<<dice-roll>><<pass 2>>
 			<</link>>
 		<</if>>
 		<br>
 		
-		<<link [[Up the stakes|Pub Dice Minigame Wager]]>>
+		<<link [[Up the stakes (0:02)|Pub Dice Minigame Wager]]>>
 			<<set $wagerstage to 2>>
 			<<set $phase to 2>>
 			<<set _pcIndex to 0>>
 			<<dice-bet _pcIndex `_bet * 100`>>
 			<<if _bet gt 0>><<dice-compute-wagers "raise">><</if>>
+			<<pass 2>>
 		<</link>>
 		<br>
 		/* Here I can add options to wager other things besides money */
