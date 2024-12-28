@@ -153,7 +153,7 @@ blackmailQuests.mid.push( // Take a pill and flirt with 3 people
 			if (this.failCondition()) {
 				this.failed = true;
 			}
-			else if (V.xchangePill.active && V.xchangePill.effectsKnown) {
+			else if (V.xchange.pill.active && V.xchange.pill.effectsKnown) {
 				this.failed = true;
 			}
 		},
@@ -347,7 +347,7 @@ blackmailQuests.low.push( // Take a pill and wear a skirt
 				this.failed = true; 
 				this.worn = clone(V.worn);
 			}
-			else if (V.xchangePill.active && V.xchangePill.effectsKnown) {
+			else if (V.xchange.pill.active && V.xchange.pill.effectsKnown) {
 				this.failed = true;
 			}
 		},

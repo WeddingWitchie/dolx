@@ -244,7 +244,7 @@ const statChange = (() => {
 					}
 				}
 				
-				if (playerIsXChanged() && V.xchangePill.breederEffect && playerIsCreampied()) {
+				if (playerIsXChanged() && V.xchange.pill.breederEffect && playerIsCreampied()) {
 					stressMod *= 0.1;
 				}
 				V.stress += amount * stressMod;

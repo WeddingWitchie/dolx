@@ -2,7 +2,7 @@
 
 function playerIsXChanged() {
 	return (
-		V.xchangePill && V.xchangePill.active
+		V.xchange.pill && V.xchange.pill.active
 	);
 }
 window.playerIsXChanged = playerIsXChanged;
@@ -15,7 +15,7 @@ function pillTimerPaused() {
 window.pillTimerPaused = pillTimerPaused;
 
 function pillIsPermanent() {
-	return V.xchangePill.duration <= -1;
+	return V.xchange.pill.duration <= -1;
 }
 window.pillIsPermanent = pillIsPermanent;
 
@@ -48,7 +48,7 @@ window.genderIsIgnored = genderIsIgnored;
 function xchangeHourlyCheck() {
 	const fragment = document.createDocumentFragment();
 
-	const pill = V.xchangePill;
+	const pill = V.xchange.pill;
 	if (pill?.active)
 	{
 		// If got impregnated in the vagina, or allowed an ear slime to grow to a certain point
@@ -77,7 +77,7 @@ function xchangeHourlyCheck() {
 						pill.fertile = true;
 					}
 				}
-				else if (V.xchangePill.clone === "none") {
+				else if (V.xchange.pill.clone === "none") {
 					fragment.append(wikifier("xchange-restore"));
 				} 
 				else {
@@ -89,7 +89,7 @@ function xchangeHourlyCheck() {
 		else if (V.xchange.pillPermanence !== 1 && pillIsPermanent()) {
 			pill.duration = 0;
 			if (!pillTimerPaused()) {
-				if (V.xchangePill.clone === "none") {
+				if (V.xchange.pill.clone === "none") {
 					fragment.append(wikifier("xchange-restore"));
 				} 
 				else {
@@ -157,7 +157,7 @@ function hourlyClothingFemininityCheck() {
 	V.hourlyFemininity += currentWornFemininity > 0 ? 1 : 0;
 	V.hourlyFemininity += currentWornFemininity < 0 ? -1 : 0;
 
-	if (V.xchangePill.active && V.xchangePill.genderificationEffect) {
+	if (V.xchange.pill.active && V.xchange.pill.genderificationEffect) {
 		V.effectsmessage = 1;
 		if (V.player.gender === "m" && currentWornFemininity < 0) {
 			wikifier("stress",20);

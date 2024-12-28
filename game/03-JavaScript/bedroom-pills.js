@@ -1222,11 +1222,11 @@ setup.pills = [
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return (V.xchangePill && V.xchangePill.active)
+			return (V.xchange.pill && V.xchange.pill.active)
 				? 1
 				: 0;
 		},
-		effects: [`<<set V.xchangePill.testPending to true>>`],
+		effects: [`<<set V.xchange.pill.testPending to true>>`],
 	},
 ];
 // ToDo: figure out a means to allow applying the Hair Growth Formula to pubic hair as well
