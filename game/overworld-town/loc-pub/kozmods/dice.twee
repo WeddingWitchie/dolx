@@ -1,49 +1,49 @@
 :: Pub Dice Minigame Intro
-<<effects>>
-<<generate1>><<generate2>><<generate3>>
+	<<effects>>
+	<<generate1>><<generate2>><<generate3>>
 
-You approach a table of rough-looking <<group>> loadly playing dice, overtly dissing and goading each other. You see the <<person2>><<person>> shoot <<his>> dice with a silent prayer, only to watch <<him>> curse out loud as the rest of the group sparks into celebration upon having won that round.
-<br><br>
+	You approach a table of rough-looking <<group>> loadly playing dice, overtly dissing and goading each other. You see the <<person2>><<person>> shoot <<his>> dice with a silent prayer, only to watch <<him>> curse out loud as the rest of the group sparks into celebration upon having won that round.
+	<br><br>
 
-The <<person1>><<person>> turns around to face you, eyeing you up and down. An implied hunger in <<his>> gaze. <br>
-"Looking to play, or are you just gonna watch?" 
-<br><br>
+	The <<person1>><<person>> turns around to face you, eyeing you up and down. An implied hunger in <<his>> gaze. <br>
+	"Looking to play, or are you just gonna watch?" 
+	<br><br>
 
-<<link [[Looking to play|Pub Dice Minigame Intro 2]]>><</link>>
-<br>
-<<link [[Leave|Pub]]>><</link>>
-<br>
+	<<link [[Looking to play|Pub Dice Minigame Intro 2]]>><</link>>
+	<br>
+	<<link [[Leave|Pub]]>><</link>>
+	<br>
 
 :: Pub Dice Minigame Intro 2
-<<effects>><<set $phase to 1>><<set $diceintro to 1>>
+	<<effects>><<set $phase to 1>><<set $diceintro to 1>>
 
-"Is that so?" <<he>> flashes a cocky smile. "Hear that, folks? I think we fancy ourselves a new player over here." The <<group>> laugh heartily as the <<person1>><<person>> motions you to a chair. You sit.
-<br><br>
+	"Is that so?" <<he>> flashes a cocky smile. "Hear that, folks? I think we fancy ourselves a new player over here." The <<group>> laugh heartily as the <<person1>><<person>> motions you to a chair. You sit.
+	<br><br>
 
-"So..." the <<person>> leans forwards on the table. "Are you a high-roller, or are you a little <<bitch>>?" The <<group>> mock you overtly, thinking you're just some drunken waif. 
-<br><br>
+	"So..." the <<person>> leans forwards on the table. "Are you a high-roller, or are you a little <<bitch>>?" The <<group>> mock you overtly, thinking you're just some drunken waif. 
+	<br><br>
 
-"Just so you know," <<he>> continues. "you'll need at least <<printmoney 50000>> to play with us."
-<br><br>
+	"Just so you know," <<he>> continues. "you'll need at least <<printmoney 50000>> to play with us."
+	<br><br>
 
-<<if $money gte 50000>>
-	<<link [[Play (£500)|Pub Dice Minigame]]>><<set $wagerLvl to 0>><<set $money -= 50000>><<set $diceintro to 1>><</link>>
+	<<if $money gte 50000>>
+		<<link [[Play (£500)|Pub Dice Minigame]]>><<set $wagerLvl to 0>><<set $money -= 50000>><<set $diceintro to 1>><</link>>
+		<br>
+	<</if>>
+	<<if $money gte 100000>>
+		<<link [[Play (£1000)|Pub Dice Minigame]]>><<set $wagerLvl to 1>><<set $money -= 100000>><<set $diceintro to 1>><</link>>
+		<br>
+	<</if>>
+	<<if $money gte 300000>>
+		<<link [[Play (£3000)|Pub Dice Minigame]]>><<set $wagerLvl to 2>><<set $money -= 300000>><<set $diceintro to 1>><</link>>
+		<br>
+	<</if>>
+	<<if $money lt 50000>>
+		You don't have enough cash.
+	<</if>>
+
 	<br>
-<</if>>
-<<if $money gte 100000>>
-	<<link [[Play (£1000)|Pub Dice Minigame]]>><<set $wagerLvl to 1>><<set $money -= 100000>><<set $diceintro to 1>><</link>>
-	<br>
-<</if>>
-<<if $money gte 300000>>
-	<<link [[Play (£3000)|Pub Dice Minigame]]>><<set $wagerLvl to 2>><<set $money -= 300000>><<set $diceintro to 1>><</link>>
-	<br>
-<</if>>
-<<if $money lt 50000>>
-	You don't have enough cash.
-<</if>>
-
-<br>
-<<link [[Back out|Pub]]>><</link>>
+	<<link [[Back out|Pub]]>><</link>>
 
 :: Pub Dice Minigame Widgets [widget]
 
@@ -54,20 +54,92 @@ The <<person1>><<person>> turns around to face you, eyeing you up and down. An i
 		<br>
 	<</widget>>
 
-	<<widget "dice-events">>
+	<<widget "dice-eventchecks">>
+
+		/* Tick or Trigger drinks event */
+		<<if $dice.event.drinkEnabled>>
+			<<set $dice.event.pending to 1>>
+		<<elseif $dice.event.roundsUntilAlcohol lte 0 and $dice.event.drinkIntro lt 1>>
+			<<set $dice.event.drinkIntro to 1>>
+		<<else>>
+			<<set $dice.event.roundsUntilAlcohol-->>
+		<</if>>
+
+		/* Queue up agreed penalty event from loss */
+		<<if $dice.event.roundLoss[0]>>
+			<<switch $dice.altbet>>
+			<<case "a kiss">>
+				<<set $dice.event.pending to 1>>
+				<<set $dice.event.kiss to 1>>
+			<<case "an oral">>
+				<<set $dice.event.pending to 1>>
+				<<set $dice.event.oral to 1>>
+			<<case "your body">>
+				<<set $dice.event.pending to 1>>
+				<<set $dice.event.sex to 1>>
+			<</switch>>
+		<</if>>
+
+	<</widget>>
+
+	<<widget "dice-runevents">>
 		<<if $dice.event.pending is 0>>
 			<<if $dice.event.drinkIntro is 1>>
-				After the last few rounds, the <<group>> have gotten fired up enough already and have decided to up the stakes further by introducing penalties. Regardless of your opinion, you'd still be outvoted. <span class="purple">Losers must now drink as a penalty.</span><br><br>
-				<<set $dice.event.diceIntro to 2>>
+				After the last few rounds, the <<group>> have gotten fired up enough already and have decided to up the stakes further by introducing penalties. Regardless of your opinion, you're still outvoted. <span class="purple">Losers must now drink as a penalty.</span><br><br>
+				<<set $dice.event.drinkIntro to 2>>
 				<<set $dice.event.drinkEnabled to 1>>
 			<</if>>
 			<<set _text_output to "The <<people>> are goading each other, and just being rowdy overall.">>
 			<<print _text_output>>
 		<<else>>
-			<<if $dice.event.drinkEnabled>>
+			<<if $dice.event.kiss>>
+				Being aware of your loss, you know the time has come to make good on your promise. The <<group>> look on you expectantly, awaiting for you to reward the winners of the round as you had pledged.
+				<br><br>
+				<span class="purple">A kiss was offered. And a kiss must be delivered.</span>
+				<br><br>
+				<<link [[Kiss|Pub Dice Minigame Kiss]]>><</link>>
+				<br>
+				<<link [[Refuse|Pub Dice Minigame Sex]]>><<set $molestationstart to 1>><</link>>
+				<br>
+
+			<<elseif $dice.event.oral>>
+				Being aware of your loss, you know the time has come to make good on your promise. The <<group>> look on you expectantly, awaiting for you to reward the winners of the round as you had pledged.
+				<br><br>
+				<span class="purple">Oral sex was offered. And oral sex must be delivered.</span>
+				<br><br>
+				<<link [[Get on your knees|Pub Dice Minigame Oral]]>><</link>>
+				<br>
+				<<link [[Refuse|Pub Dice Minigame Sex]]>><<set $molestationstart to 1>><</link>>
+				<br>
+
+			<<elseif $dice.event.sex>>
+				Being aware of your loss, you know the time has come to make good on your promise. The <<group>> look on you expectantly, awaiting for you to reward the winners of the round as you had pledged.
+				<br><br>
+				<span class="purple">Your body was offered. And your body must be delivered.</span>
+				<br><br>
+		
+				<<saveNPC 0 "dice_npc_1">>
+				<<saveNPC 1 "dice_npc_2">>
+				<<saveNPC 2 "dice_npc_3">>
+				<<endevent>>
+
+				<<set _i to 0>>
+				<<for _player range [1,2,3]>>
+					<<if $dice.event.roundLoss[_player] is 0>>
+						<<loadNPC _i `"dice_npc_"+_player`>>
+						<<set _i++>>
+					<</if>>
+				<</for>>
+		
+				<<link [[Surrender yourself|Pub Dice Minigame Sex]]>><<set $sexstart to 1>><</link>>
+				<br>
+				<<link [[Refuse|Pub Dice Minigame Sex]]>><<set $molestationstart to 1>><</link>>
+				<br>
+
+			<<elseif $dice.event.drinkEnabled>>
 				After taking tally of who lost and who won, an spectator picks what seems like a random bottle and begins serving shots. Each one from a different bottle, three shots are placed on a tray out of sight, and offered to the losers in order.
 				<br><br>
-				<<set _shotsRemaining to 3>><<rng 1 3>>
+				<<set _shotsRemaining to 4>><<rng 1 3>>
 				<<for _i to 1; _i lte 3; _i++>>
 					<<if $dice.event.roundLoss[_i]>>
 						Having lost the previous round, the <<= "<<person"+_i+">>">><<person>> picks a glass and <<= either("downs", "drinks", "gulps")>> <<his>> shot.
@@ -106,6 +178,12 @@ The <<person1>><<person>> turns around to face you, eyeing you up and down. An i
 				<</if>>
 			<</if>>
 		<</if>>
+
+		<<dice-clearevents>>
+	<</widget>>
+
+	<<widget "dice-clearevents">>
+		<<set $dice.event.roundLoss to [0,0,0,0]>>
 	<</widget>>
 
 	<<widget "dice-display">>
@@ -128,8 +206,12 @@ The <<person1>><<person>> turns around to face you, eyeing you up and down. An i
 				</tr>
 				<tr>
 					<th scope="row">Current Bet</th>
-					<<for _bet range $dice.bets>>
-						<td class="text-right"><<printmoney _bet>></td>
+					<<for _i, _bet range $dice.bets>>
+						<<if $dice.altbet isnot undefined and _i is 0>>
+							<td class="text-right"><<set _text_output to $dice.altbet>><<capitalise>></td>
+						<<else>>
+							<td class="text-right"><<printmoney _bet>></td>
+						<</if>>
 					<</for>>
 				</tr>
 				<tr>
@@ -341,7 +423,7 @@ The <<person1>><<person>> turns around to face you, eyeing you up and down. An i
 		<<if $dice.round.result is "In Favour">>
 			<<set $dice.money[$dice.shooter] += _split>>
 			<<set $dice.event.roundLoss[$dice.shooter] to 0>>
-			<<capture _split>>
+			<<capture _split, $dice.bets>>
 				<<set _gains to _split - $dice.bets[$dice.shooter]>>
 				<<if $dice.shooter is 0>>
 					<<run $dice.log.push("You won <<printmoney "+_gains+">>.")>>
@@ -356,7 +438,7 @@ The <<person1>><<person>> turns around to face you, eyeing you up and down. An i
 			<<if $dice.positions[_player] is $dice.round.result>>
 				<<set $dice.money[_player] += _split>>
 				<<set $dice.event.roundLoss[_player] to 0>>
-				<<capture _player, _split>>
+				<<capture _player, _split, $dice.bets>>
 					<<set _gains to _split - $dice.bets[_player]>>
 					<<if _player is 0>>
 						<<run $dice.log.push("You won <<printmoney "+_gains+">>.")>>
@@ -369,19 +451,14 @@ The <<person1>><<person>> turns around to face you, eyeing you up and down. An i
 			<</if>>
 		<</for>>
 
-		/* Tick or Trigger drinks event */
-		<<if $dice.event.drinkEnabled>>
-			<<set $dice.event.pending to 1>>
-		<<elseif $dice.event.roundsUntilAlcohol lte 0 and $dice.event.drinkIntro lt 1>>
-			<<set $dice.event.drinkIntro to 1>>
-		<<else>>
-			<<set $dice.event.roundsUntilAlcohol-->>
-		<</if>>
+		/* Run checks that trigger events on next round */
+		<<dice-eventchecks>>
 
 		/* Clean up round variables */
 		<<set $dice.round.result to undefined>>
 		<<set $dice.round.point to undefined>>
 		<<set $dice.bets to [0,0,0,0]>>
+		<<set $dice.altbet to undefined>>
 		<<set $dice.positions to ["","","",""]>>
 		<<set $dice.values to undefined>>
 
@@ -417,6 +494,9 @@ The <<person1>><<person>> turns around to face you, eyeing you up and down. An i
 			money: [_playerMoney,_playerMoney,_playerMoney,_playerMoney], 
 			positions: ["Shooter", "", "", ""],
 			bets: [0,0,0,0],
+			altbet: undefined,
+			altbetcount: 0,
+			prevAltBets: [],
 			round: {
 				point: undefined,
 				result: undefined,
@@ -439,7 +519,7 @@ The <<person1>><<person>> turns around to face you, eyeing you up and down. An i
 	<<case 1>> /* Opening Bets */
 
 		<<dice-log>>
-		<<dice-events>>
+		<<dice-runevents>>
 
 		<<if !$dice.event.pending>>
 			<<dice-display>>
@@ -448,6 +528,40 @@ The <<person1>><<person>> turns around to face you, eyeing you up and down. An i
 				<<link [[Play this round (£20)|Pub Dice Minigame Wager]]>><<set $dicewagerintro to 1>><</link>>
 			<<else>>
 				You ran out of money.
+				<<if $dice.altbetcount lt 3>>
+					<<if hasSexStat("promiscuity", 2)>>
+						<br>
+						<<link [[Play round offering a kiss|Pub Dice Minigame Wager]]>>
+							<<set $dicewagerintro to 1>>
+							<<set $dice.altbet to "a kiss">>
+							<<set $dice.altbetcount++>>
+							<<run $dice.prevAltBets.pushUnique("a kiss")>>
+							<<promiscuity2>>
+						<</link>><<promiscuous2>>
+					<</if>>
+					<<if hasSexStat("promiscuity", 3)>>
+						<br>
+						<<link [[Play round offering an oral|Pub Dice Minigame Wager]]>>
+							<<set $dicewagerintro to 1>>
+							<<set $dice.altbet to "an oral">>
+							<<set $dice.altbetcount++>>
+							<<run $dice.prevAltBets.pushUnique("an oral")>>
+							<<promiscuity3>>
+						<</link>><<promiscuous3>>
+					<</if>>
+					<<if hasSexStat("promiscuity", 4)>>
+						<br>
+						<<link [[Play round offering your body|Pub Dice Minigame Wager]]>>
+							<<set $dicewagerintro to 1>>
+							<<set $dice.altbet to "your body">>
+							<<set $dice.altbetcount++>>
+							<<run $dice.prevAltBets.pushUnique("your body")>>
+							<<promiscuity4>>
+						<</link>><<promiscuous4>>
+					<</if>>
+				<<else>>
+					And you're also out of special favours to wager.
+				<</if>>
 			<</if>>
 			<br>
 			<<link [[Stop|Pub]]>><<endevent>><<dice-endgame>><</link>>
@@ -480,11 +594,22 @@ The <<person1>><<person>> turns around to face you, eyeing you up and down. An i
 
 	/* Initialization */
 	<<if $dicewagerintro>> 
+		<<set _favoursValueMap to {
+			"a kiss": 2000,
+			"an oral": 5000,
+			"your body": 20000
+		}>>
 		<<for _player range [0,1,2,3]>>
-			<<dice-bet _player 2000>>
+			<<if $dice.altbet isnot undefined>>
+				<<dice-bet _player _favoursValueMap[$dice.altbet]>>
+			<<else>>
+				<<dice-bet _player 2000>>
+			<</if>>
 			<<capture _player>>
 				<<if _player isnot 0>>
 					<<run $dice.log.push("The <<person"+_player+">><<person>> joins this round.")>>
+				<<elseif $dice.altbet isnot undefined>>
+					<<run $dice.log.push('<span class="lewd">You joined this round by betting '+$dice.altbet+" valued at</span> <<printmoney "+_favoursValueMap[$dice.altbet]+">>.")>>
 				<</if>>
 			<</capture>>
 		<</for>>
@@ -591,3 +716,179 @@ The <<person1>><<person>> turns around to face you, eyeing you up and down. An i
 	<br>
 
 	<<dice-instructions>>
+
+:: Pub Dice Minigame Kiss
+	<<effects>>
+
+	<<set _lastNPC to 1>>
+	<<for _player range [1,2,3]>>
+		<<if $dice.event.roundLoss[_player] is 0>>
+			<<set _lastNPC to _player>>
+			<<break>>
+		<</if>>
+	<</for>>
+	
+	<<if $dice.event.roundLoss.count(0) gt 1>>
+		You try making a quick show of fulfilling your promise by giving simple pecks to each of the winners. But as you approach the last one, leaning forward,
+	<<else>>
+		You try making a quick show of fulfilling your promise by giving a simple peck to the winner, but as you lean forward 
+	<</if>>
+	the <<= "<<person"+_lastNPC+">>">><<person>> pulls you in, forcing you to sit on <<his>> lap.
+	<br><br>
+
+	Still stunned by the unexpected move, you lay motionless as the <<person>> cups your cheek gently, before planting a deep kiss into your lips. Your eyes open wide, shocked by the sudden bold act. You feel <<him>> force <<his>> tongue into your mouth, gleefully exploring its depths.
+	<br><br>
+
+	Recovering from the shock, you allow <<him>> to continue <<his>> tongue's ministrations, while also reciprocating the appendage's caresses with some of your own. <<arousal 50 "kiss">><<garousal>>
+	<br><br>
+	
+	Seeing as you've consented to <<his>> advances, the <<personsimple>> grows bolder. With one hand, <<he>> sneaks <<his>> way into your chest, fondling your nipples with intent. <<arousal 300 "breasts">> And with the other, <<he>> cups your groin atop your clothes with practiced dexterity, exerting pleasant pressure into your now engorging genitals. <<arousal 100 "genitals">><<gggarousal>>
+	<br><br> 
+
+	Taking a moment to breathe, your lips part with each other, yet the fondling continues. <<silently>><<arousal 100 "breasts">><</silently>><<arousal 100 "genitals">><<ggarousal>>
+	<br><br>
+
+	"You're getting flustered," <<he>> asserts. "I can tell." Pushing boundaries even further, the <<personsimple>> tries to slip <<his>> hand under your clothes, parting your legs slightly to facilitate <<his>> intrusion, should you allow him to continue.
+	<br><br>
+
+	<<willpowercheck>>
+	<<if $willpowerSuccess>>
+		<<link [[Resist|Pub Dice Minigame Kiss Resist]]>><</link>>
+	<<else>>
+		You're either too drunk or too horny to resist.
+	<</if>>
+	<br>
+	<<link [[Give in|Pub Dice Minigame Sex]]>>
+		<<set $sexstart to 1>>
+		<<saveNPC 0 "dice_npc_1">>
+		<<saveNPC 1 "dice_npc_2">>
+		<<saveNPC 2 "dice_npc_3">>
+		<<endevent>>
+		<<loadNPC 0 `"dice_npc_"+_lastNPC`>>
+	<</link>>
+	<br>
+
+:: Pub Dice Minigame Kiss Resist
+	<<effects>>
+
+	Before the <<person>> could take things any further you pull <<his>> hands away. And with a show of willpower, you extricate yourself from <<his>> grasp.
+	<br><br>
+
+	The <<personsimple>> has left you a panting hot mess. But luckily you still have your wits about you, allowing you to regain control.
+	<br><br>
+
+	You feel <<his>> gaze exploring you lustfully as you head back to your seat, before finally resuming the game.
+	<br><br>
+
+	<<link [[Next|Pub Dice Minigame]]>><</link>>
+	<br>
+
+:: Pub Dice Minigame Oral
+	<<effects>>
+
+	<<set _lastNPC to 1>>
+	<<for _player range [1,2,3]>>
+		<<if $dice.event.roundLoss[_player] is 0>>
+			<<set _lastNPC to _player>>
+			<<break>>
+		<</if>>
+	<</for>>
+	
+	This branch hasn't been implemented yet.
+
+	/* <<if $dice.event.roundLoss.count(0) gt 1>>
+		You try making a quick show of fulfilling your promise by giving simple pecks to each of the winners. But as you approach the last one, leaning forward,
+	<<else>>
+		You try making a quick show of fulfilling your promise by giving a simple peck to the winner, but as you lean forward 
+	<</if>>
+	the <<= "<<person"+_lastNPC+">>">><<person>> pulls you in, forcing you to sit on <<his>> lap.
+	<br><br> */
+
+	<<link [[Next|Pub Dice Minigame]]>><</link>>
+	<br>
+
+:: Pub Dice Minigame Sex
+	
+	<<if $molestationstart is 1>>
+		<<set $molestationstart to 0>>
+		<<set $dicerape to 1>>
+		<<violence 1>>
+		<<neutral 1>>
+		<<molested>>
+		<<controlloss>>
+		<<maninit>>
+
+		<<set $enemyanger += 100>>
+
+		The <<group>> surge forward, raising from their seats. Determined to enforce your pledge on you, and perhaps something more as well. "You think you can get away just like that?" the <<person1>><<person>> says in outrage. <<His>> hands reaching for you. "Guess we'll have to teach you how to honour your word, by force."
+		<br><br>
+
+	<<elseif $sexstart is 1>>
+		<<set $sexstart to 0>>
+		<<consensual>>
+		<<set $consensual to 1>>
+		<<neutral 1>>
+
+		<<maninit>>
+		<<set $enemytrust += 100>>
+
+		The <<person1>><<person>> smiles, coming closer. "Don't you worry," <<he>> says, with <<his>> hands reaching for you. "I promise I'll make you feel real good."
+		<br><br>
+	<</if>>
+
+	<<effects>>
+	<<effectsman>>
+	<<man>>
+	<<stateman>>
+	<br><br>
+	<<actionsman>>
+
+	<<if _combatend>>
+		<span id="next"><<link [[Next|Pub Dice Minigame Sex Finish]]>><</link>></span><<nexttext>>
+	<<else>>
+		<span id="next"><<link [[Next|Pub Dice Minigame Sex]]>><</link>></span><<nexttext>>
+	<</if>>
+
+:: Pub Dice Minigame Sex Finish 
+	<<set $outside to 0>><<effects>>
+
+	<<if $enemyhealth lte 0>>
+		<<He>> staggers back. <<tearful>> you flee to safety, forsaking all of your cash at play.
+		<br><br>
+
+		<<clotheson>>
+		<<endcombat>>
+
+		<<link [[Next|Pub]]>><<unset $dice>><<endevent>><</link>>
+		<br>
+
+	<<elseif $enemyarousal gte $enemyarousalmax>>
+		<<ejaculation>>
+		<<if $dicerape>>
+			"I hope you've learned your lesson," <<he>> remarks. "Go. Your cash was forfeit the moment reneged on your word." You dress yourself before picking up your things and leaving.
+			<br><br>
+		
+			<<link [[Next|Pub]]>>
+				<<unset $dice>><<endevent>><<unset $dicerape>>
+			<</link>>
+			<br>
+		<<else>>
+			"That was great," <<he>> comments. "Let's play another round so I can have you again." You redress yourself before finally joining back on the table.
+			<br><br>
+		
+			<<link [[Next|Pub Dice Minigame]]>>
+				<<loadNPC 0 "dice_npc_1">>
+				<<loadNPC 1 "dice_npc_2">>
+				<<loadNPC 2 "dice_npc_3">>
+				<<clearNPC "dice_npc_1">>
+				<<clearNPC "dice_npc_2">>
+				<<clearNPC "dice_npc_3">>
+			<</link>>
+			<br>
+		<</if>>
+		
+		<<clotheson>>
+		<<endcombat>>
+
+		
+	<</if>>
