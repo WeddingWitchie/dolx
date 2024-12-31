@@ -220,7 +220,7 @@
 						<<if $dice.status[_player] isnot "Playing">>
 							<td class="text-right"><span class="red">$dice.status[_player]</span></td>
 						<<else>>
-							<td class="text-right"><span @class="$dice.positions[_player] is 'Withdrew'? 'red':'gold'">$dice.positions[_player]</span></td>
+							<td class="text-right"><span @class="$dice.positions[_player] is 'Withdrew'? 'red': $dice.positions[_player] is 'Shooter'? 'teal' :'gold'">$dice.positions[_player]</span></td>
 						<</if>>
 					<</for>>
 				</tr>
@@ -561,6 +561,11 @@
 		<<run $dice.queue.shift()>>
 		<<run $dice.queue.pushUnique($dice.shooter)>>
 		<<set $dice.shooter to $dice.queue.first()>>
+		<<for $dice.status[$dice.shooter] is "Out">>
+			<<run $dice.queue.shift()>>
+			<<run $dice.queue.pushUnique($dice.shooter)>>
+			<<set $dice.shooter to $dice.queue.first()>>
+		<</for>>
 		<<set $dice.positions[$dice.shooter] to "Shooter">>
 	<</widget>>
 
