@@ -394,8 +394,6 @@
 	<<widget "dice-compute-wagers">>
 		<<set _initiative to _args[0]>>
 		<<set _npcRaisingAllowed to _args[1]>>
-		<<set _lvlToMoneyMap to [50000,100000,300000]>>
-		<<set _baseline to _lvlToMoneyMap[$dice.wagerLvl] * 0.5>>
 		<<for _i, _player range $dice.queue>>
 			<<capture _player>>
 				<<if _player is 0 or $dice.status[_player] isnot "Playing" or $dice.positions[_player] is "Withdrew">>
@@ -426,15 +424,15 @@
 
 		<!-- Compute willingness to match current bet -->
 		<<rng 1 10>><<set _foolish to $rng lte 3>>
-		<<set _confidence to 800 + $NPCList[_player-1].skills.security - $dice.currentBet * 1000 / _riskThreshold>>
+		<<set _confidence to 800 + $NPCList[_player-1].skills.security - $dice.currentBet * 1000 / _riskThreshold + $dice.bets[_player] * 0.1 / ($dice.wagerLvl + 1)>>
 		<<rng 1000>><<set _daresToMatchBet to _confidence gt $rng or _foolish>>
-		<<set _raiseAmount to $dice.currentBet - $dice.bets[_player]>>
+		<<set _raiseAmount to Math.min($dice.currentBet - $dice.bets[_player], $dice.money[_player])>>
 
 		<<if _raiseAmount lte 0>>
 			<!-- Consider raising the stakes if allowed -->
 			<<if _raisingAllowed>>
 				<<rng 1 10>><<set _greedy to $rng lte 3>>
-				<<set _confidence to 500 + $NPCList[_player-1].skills.security - $dice.bets[$dice.shooter] * 1000 / _baseline>>
+				<<set _confidence to 500 + $NPCList[_player-1].skills.security - $dice.bets[$dice.shooter] * 1000 / _riskThreshold>>
 				<<rng 1000>><<set _daresToRaise to _confidence gt $rng and _greedy>>
 
 				<<if _daresToRaise>>
@@ -456,7 +454,7 @@
 			<!-- Consider raising the stakes if allowed -->
 			<<if _raisingAllowed>>
 				<<rng 1 10>><<set _greedy to $rng lte 3>>
-				<<set _confidence to 500 + $NPCList[_player-1].skills.security - $dice.bets[$dice.shooter] * 1000 / _baseline>>
+				<<set _confidence to 500 + $NPCList[_player-1].skills.security - $dice.bets[$dice.shooter] * 1000 / _riskThreshold>>
 				<<rng 1000>><<set _daresToRaise to _confidence gt $rng and _greedy>>
 
 				<<if _daresToRaise>>
