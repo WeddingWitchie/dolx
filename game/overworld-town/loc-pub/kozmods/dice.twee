@@ -402,7 +402,7 @@
 
 				<!-- Assign betting positions for each NPCs if they have none -->
 				<<if $dice.positions[_player] is "">>
-					<<set $dice.positions[_player] to _i is 1 or random(0,1)? "Against" : "In Favour">> <!-- Force at least one 'Against' position -->
+					<<rng 0 1>><<set $dice.positions[_player] to _i is 1 or $rng is 1? "Against" : "In Favour">> <!-- Force at least one 'Against' position -->
 				<</if>>
 
 				<<if _initiative is "pc">> /* If PC raised the bet, match it */
@@ -536,10 +536,6 @@
 				<</if>>
 			<</if>>
 
-			/* Expel NPCs who ran out of cash */
-			<<if $dice.money[_player] lte 0 and _player isnot 0>>
-				<<set $dice.status[_player] to "Out">>
-			<</if>>
 		<</for>>
 
 		/* Run checks that trigger events on next round */
@@ -556,14 +552,17 @@
 
 		/* Prepare the next round */
 		<<set $phase to 1>>
-		<<run $dice.queue.shift()>>
-		<<run $dice.queue.pushUnique($dice.shooter)>>
-		<<set $dice.shooter to $dice.queue.first()>>
-		<<for $dice.status[$dice.shooter] is "Out">>
-			<<run $dice.queue.shift()>>
-			<<run $dice.queue.pushUnique($dice.shooter)>>
-			<<set $dice.shooter to $dice.queue.first()>>
+		<<run $dice.queue.shift()>> <!-- Advance the shooter queue -->
+		<<for _player range $dice.queue>> <!-- Expel NPCs who ran out of cash -->
+			<<if $dice.money[_player] lte 0 and _player isnot 0>> 
+				<<set $dice.status[_player] to "Out">>
+				<<run $dice.queue.deleteWith((value) => value is _player)>>
+			<</if>>
 		<</for>>
+		<<if $dice.money[$dice.shooter] gt 0 or $dice.shooter is 0>> <!-- Do not re-add the shooter to queue if out of cash -->
+			<<run $dice.queue.pushUnique($dice.shooter)>>
+		<</if>>
+		<<set $dice.shooter to $dice.queue.first()>>
 		<<set $dice.positions[$dice.shooter] to "Shooter">>
 	<</widget>>
 
@@ -1011,6 +1010,7 @@
 			<br><br>
 		
 			<<link [[Next|Pub Dice Minigame]]>>
+				<<set $phase to 1>>
 				<<loadNPC 0 "dice_npc_1">>
 				<<loadNPC 1 "dice_npc_2">>
 				<<loadNPC 2 "dice_npc_3">>
@@ -1033,6 +1033,7 @@
 		<<endcombat>>
 
 		<<link [[Next|Pub Dice Minigame]]>>
+			<<set $phase to 1>>
 			<<loadNPC 0 "dice_npc_1">>
 			<<loadNPC 1 "dice_npc_2">>
 			<<loadNPC 2 "dice_npc_3">>
