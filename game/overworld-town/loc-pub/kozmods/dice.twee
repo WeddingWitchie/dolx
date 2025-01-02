@@ -553,6 +553,9 @@
 		/* Prepare the next round */
 		<<set $phase to 1>>
 		<<run $dice.queue.shift()>> <!-- Advance the shooter queue -->
+		<<if $dice.money[$dice.shooter] lte 0 and $dice.shooter isnot 0>> <!-- Expel Shooter if they ran out of cash -->
+			<<set $dice.status[$dice.shooter] to "Out">>
+		<</if>>
 		<<for _player range $dice.queue>> <!-- Expel NPCs who ran out of cash -->
 			<<if $dice.money[_player] lte 0 and _player isnot 0>> 
 				<<set $dice.status[_player] to "Out">>
@@ -569,6 +572,7 @@
 	<<widget "dice-endgame">>
 		<<set $money += $dice.money[0]>>
 		<<unset $dice>>
+		<<set $daily.dicegame to 1>>
 		<<endevent>>
 	<</widget>>
 
@@ -621,9 +625,9 @@
 		<<if !$dice.event.pending>>
 			<<dice-display>>
 
-			<<if $dice.money[0] gte 2000>>
+			<<if $dice.money[0] gte 2000 and $dice.queue.length gt 1>>
 				<<link [[Play this round (£20)|Pub Dice Minigame Wager]]>><<set $dicewagerintro to 1>><</link>>
-			<<else>>
+			<<elseif $dice.money[0] lt 2000>>
 				You ran out of money.
 				<<if $dice.altbetcount lt 3>>
 					<<if hasSexStat("promiscuity", 2)>>
@@ -656,9 +660,11 @@
 				<<else>>
 					And you're also out of special favours to wager.
 				<</if>>
+			<<else>>
+				All other players are out.
 			<</if>>
 			<br>
-			<<link [[Stop|Pub]]>><<endevent>><<dice-endgame>><</link>>
+			<<link [[Stop|Pub Dice Minigame End]]>><<endevent>><<dice-endgame>><</link>>
 			<br>
 		<</if>>
 
@@ -693,7 +699,7 @@
 			"an oral": 5000,
 			"your body": 20000
 		}>>
-		<<for _player range [0,1,2,3]>>
+		<<for _player range $dice.queue>>
 			<<if $dice.altbet isnot undefined>>
 				<<dice-bet _player `_favoursValueMap[$dice.altbet]*(1+$dice.wagerLvl)`>>
 			<<else>>
@@ -742,14 +748,6 @@
 				<<set $dice.positions[_pcIndex] to _position>>
 				<<if _bet gt 0>><<dice-compute-wagers "pc">><</if>>
 				<<pass 2>>
-			<</link>>
-			<br>
-			<<link [[Withdraw (0:05)|Pub Dice Minigame]]>>
-				<<set $dice.positions[0] to "Withdrew">>
-				<<for $dice.round.result is undefined>>
-					<<dice-roll>><<dice-compute-result>>
-				<</for>>
-				<<pass 5>>
 			<</link>>
 			<br>
 		<</if>>
@@ -844,6 +842,29 @@
 
 	<<dice-instructions>>
 
+:: Pub Dice Minigame End
+	
+	<<set _startingMoney to [50000,100000,300000]>>
+	<<set _startingMoney to _startingMoney[$wagerLvl]>>
+	<<set _netChange to $dice.money[0] - _startingMoney>>
+
+	<<if _netChange eq _startingMoney * 3>>
+		Having wiped the floor with your opponents, you leave satisfied in the knowledge that you earned <<printmoney _netChange>> fair and square, as a champion.<<stress -30>><<llstress>>
+	
+	<<elseif _netChange gte 0>>
+		You decide to quit playing while you're still ahead. You managed to earn <<printmoney _netChange>>.<<stress -5>><<lstress>>
+	
+	<<elseif _netChange gt -(_startingMoney)>>
+		You decide to cut your losses, leaving while you still have some dignity left. You lost <<printmoney `-_netChange`>>.<<stress 400>><<gstress>>
+
+	<<else>>
+		Having suffered a crushing defeat,<<if $dice.altbetcount gt 0>> even to the point of selling yourself off for a couple extra chances to recover,<</if>> you pick up what's left of your pride and leave as the <<group>> mock you in the background. You lost <<printmoney `-_netChange`>>.<<stress 800>><<ggstress>>
+
+	<</if>>
+	<br><br>
+
+	<<link [[Next|Pub]]>><<endevent>><<dice-endgame>><</link>>
+
 :: Pub Dice Minigame Kiss
 	<<effects>>
 
@@ -882,7 +903,7 @@
 	<<if $willpowerSuccess>>
 		<<link [[Resist|Pub Dice Minigame Kiss Resist]]>><</link>>
 	<<else>>
-		You're either too drunk or too horny to resist.
+		<span class="lewd">You're either too drunk or too horny to resist.</span>
 	<</if>>
 	<br>
 	<<link [[Give in|Pub Dice Minigame Sex]]>>
