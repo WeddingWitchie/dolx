@@ -175,6 +175,9 @@ const Time = (() => {
 		if (prevDate.weekDay === 7 && currentDate.weekDay === 1) {
 			fragment.append(weekPassed());
 		}
+		if (prevDate.day === prevDate.lastDayOfMonth && currentDate.day === 1) {
+			fragment.append(monthPassed());
+		}
 		fragment.append(dayPassed());
 		if (prevDate.yearDay < Time.startDate.yearDay && currentDate.yearDay >= Time.startDate.yearDay) {
 			fragment.append(yearPassed());
@@ -415,6 +418,14 @@ function yearPassed() {
 	V.englishPlay = "none";
 
 	V.yearly.clearProperties();
+
+	return fragment;
+}
+
+function monthPassed() {
+	const fragment = document.createDocumentFragment();
+
+	V.monthly.clearProperties();
 
 	return fragment;
 }
@@ -815,22 +826,6 @@ function dayPassed() {
 		V.brothelVending.lubeToRefill = 200 - V.brothelVending.lube;
 		V.brothelVending.total = (V.brothelVending.total || 0) + rng;
 	}
-
-	if ((V.hourlyFemininity > 0 && V.player.gender === "f") || (V.hourlyFemininity < 0 && V.player.gender === "m"))
-		fragment.append(wikifier("genderidentity", 1));
-	else if ((V.hourlyFemininity > 0 && V.player.gender === "m") || (V.hourlyFemininity < 0 && V.player.gender === "f"))
-		fragment.append(wikifier("genderidentity", -1));
-
-	if (playerIsXChanged())
-		fragment.append(wikifier("genderidentity", -2));
-
-	fragment.append(wikifier("genderidentity-text", V.hourlyFemininity > 0? "f": (V.hourlyFemininity < 0? "m": 0)));
-	V.hourlyFemininity = 0;
-
-	fragment.append(wikifier("blackmail-daypassed"));
-
-	V.recentmolest = Math.max(V.recentmolest - 1, 0);
-	V.recentrape = Math.max(V.recentrape - 1, 0);
 	
 	if (V.dailyBrothelPriceCheck) {
 		V.dailyBrothelPriceCheck = undefined;
@@ -961,9 +956,9 @@ function dayPassed() {
 		V.effectsmessage = 1;
 	}
 
-	if (V.robinbreakupCooldown > 0) {
-		V.robinbreakupCooldown -= 1;
-	}
+	fragment.append(xchangeDailyCheck());
+
+	
 
 	return fragment;
 }

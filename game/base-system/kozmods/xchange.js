@@ -45,6 +45,35 @@ function genderIsIgnored() {
 }
 window.genderIsIgnored = genderIsIgnored;
 
+function xchangeDailyCheck() {
+	const fragment = document.createDocumentFragment();
+
+	if ((V.hourlyFemininity > 0 && V.player.gender === "f") || (V.hourlyFemininity < 0 && V.player.gender === "m"))
+		fragment.append(wikifier("genderidentity", 1));
+	else if ((V.hourlyFemininity > 0 && V.player.gender === "m") || (V.hourlyFemininity < 0 && V.player.gender === "f"))
+		fragment.append(wikifier("genderidentity", -1));
+
+	if (playerIsXChanged())
+		fragment.append(wikifier("genderidentity", -2));
+
+	fragment.append(wikifier("genderidentity-text", V.hourlyFemininity > 0? "f": (V.hourlyFemininity < 0? "m": 0)));
+	V.hourlyFemininity = 0;
+
+	fragment.append(wikifier("blackmail-daypassed"));
+
+	V.recentmolest = Math.max(V.recentmolest - 1, 0);
+	V.recentrape = Math.max(V.recentrape - 1, 0);
+
+	if (V.robinbreakupCooldown > 0) {
+		V.robinbreakupCooldown -= 1;
+	}
+
+	V.xchange.blackmailHalt = Math.max(0, V.xchange.blackmailHalt - 1);
+
+	return fragment;
+}
+window.xchangeDailyCheck = xchangeDailyCheck;
+
 function xchangeHourlyCheck() {
 	const fragment = document.createDocumentFragment();
 
