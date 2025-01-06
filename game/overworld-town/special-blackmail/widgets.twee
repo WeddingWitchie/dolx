@@ -30,14 +30,16 @@
 <</widget>>
 
 <<widget "blackmail-newmaterial">>
-	<<if !$xchange.blackmail.hasMaterial>>
-		<<set $xchange.blackmail.hasNewMaterial to true>>
-		<<set $xchange.blackmail.hasMaterial to true>>
+	<<if $xchange.blackmailHalt lte 0>>
+		<<if !$xchange.blackmail.hasMaterial>>
+			<<set $xchange.blackmail.hasNewMaterial to true>>
+			<<set $xchange.blackmail.hasMaterial to true>>
+		<</if>>
+		<<set $_fameTypes to _args>>
+		<<run $_fameTypes.forEach(fameType => 
+			$xchange.blackmail.penaltyThreat[fameType] += $xchange.blackmail.penaltyThreat[fameType] <= 0? 100 : 0)
+		>>
 	<</if>>
-	<<set $_fameTypes to _args>>
-	<<run $_fameTypes.forEach(fameType => 
-		$xchange.blackmail.penaltyThreat[fameType] += $xchange.blackmail.penaltyThreat[fameType] <= 0? 100 : 0)
-	>>
 <</widget>>
 
 <<widget "blackmail-newquest">>
@@ -69,7 +71,6 @@
 
 		<<rng 0 `_availableQuests.length-1`>>
 		<<set _index to $rng>>
-		<<run console.warn(_availableQuests[_index])>>
 		<<set $xchange.blackmail.activeQuest to clone(_availableQuests[_index])>>
 	<</if>>
 
