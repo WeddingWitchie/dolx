@@ -45,6 +45,24 @@ function genderIsIgnored() {
 }
 window.genderIsIgnored = genderIsIgnored;
 
+function xchangeWeeklyCheck() {
+	const fragment = document.createDocumentFragment();
+
+	if (V.xchange.pubGamblingEnabled && !V.weekly.gamblingUpkeepPaid) {
+		V.xchange.gamblingUpkeepFailed = 1;
+		V.xchange.pubGamblingEnabled = 0;
+
+		fragment.append(wikifier("crimeUp", 3000, "obstruction"));
+		fragment.append(wikifier("crimeUpFlat", V.xchange.gamblingEarnings, "thievery"));
+
+		V.gamblingUpkeepFailedMessage = 1;
+		V.effectsmessage = 1;
+	}
+
+	return fragment;
+}
+window.xchangeWeeklyCheck = xchangeWeeklyCheck;
+
 function xchangeDailyCheck() {
 	const fragment = document.createDocumentFragment();
 
@@ -220,6 +238,12 @@ function xchangeEffectsMessages() {
 	};
 	const br = () => fragment.append(document.createElement("br"));
 
+	if (V.gamblingUpkeepFailedMessage) {
+		element("span", "The cops didn't receive their bribe this week. Your gambling ring has been raided.", "purple");
+		fragment.append(wikifier("gggcrime", "thievery"));
+		br();
+		delete V.gamblingUpkeepFailedMessage;
+	}
 
 	if (V.xchange_passion_message) {
 		element("span", `Aphrodisiacs have been released into your bloodstream.`, "pink"); br();

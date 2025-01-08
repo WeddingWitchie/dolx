@@ -520,6 +520,8 @@ function weekPassed() {
 		if (V.brothelVending.weeksEmpty >= 4) V.brothelVending.status = "sold";
 	}
 
+	fragment.append(xchangeWeeklyCheck());
+
 	statChange.worldCorruption("soft", V.world_corruption_hard);
 
 	V.weekly.clearProperties();
