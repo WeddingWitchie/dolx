@@ -42,8 +42,13 @@
 		However, people from our club have been asking for more. They've been making requests. Requests that we're all too happy to extend onto you.
 		<br><br>
 
-		The deal is the same as last time. Indulge our request, and <span class="gold">we'll help with your weekly debt</span>.<br>
-		Refuse, and we'll signal-boost whatever stuff is out there. The choice is yours.
+		<<if _penaltyFameSum lt 1000 and !$xchange.blackmail.paymentsRemoved>>
+			The deal is the same as last time. Indulge our request, and <span class="gold">we'll help with your weekly debt</span>.<br>
+			Refuse, and we'll signal-boost whatever stuff is out there. The choice is yours.
+		<<else>>
+			Please, we hope you'll indulge our humble request willingly.<br>
+			But if you refuse, we'll have to signal-boost whatever stuff is out there. The choice is yours.
+		<</if>>
 		<br><br>
 
 		Here's your task:
@@ -93,12 +98,25 @@
 	You peek into the contents and, horrified, verify that this is indeed true. Plenty of photos where your aroused expression is squarely within view. And even those that do not show your face directly still have a small portrait photo attached to a corner, implying that's still you. 
 	<br><br>
 
-	To make matters worse, they've managed to make you look even lewder through skillful use of camera angles. Way worse than if anyone had seen you live. You have no idea how they accomplished such a feat. <span class="red">It would be a complete disaster if these got out.</span>
+	To make matters worse, they've managed to make you look even lewder through skillful use of camera angles. Way worse than if anyone had seen you live. You have no idea how they accomplished such a feat. 
+	<<set _penaltyFameSum to penaltyFameSum()>>
+	<<if _penaltyFameSum gt 1000>>
+		<span class="red">It would be a complete disaster if these got out.</span>
+	<<elseif _penaltyFameSum gt 400>>
+		<span class="pink">This would ruin your reputation if they got out.</span>
+	<<else>>
+		<span class="purple">This would really hurt your reputation if they got out.</span>
+	<</if>>
 	<br><br>
 
 	<p class="indent-block italic">
-		"The deal is the same as last time. Indulge our request, and <span class="gold">we'll help with your weekly debt</span>.<br>
-		Refuse, and we'll release these into the wild. The choice is yours.
+		<<if _penaltyFameSum lt 1000 and !$xchange.blackmail.paymentsRemoved>>
+			"The deal is the same as last time. Indulge our request, and <span class="gold">we'll help with your weekly debt</span>.<br>
+			Refuse, and we'll release these into the wild. The choice is yours.
+		<<else>>
+			"Please, we hope you'll indulge our humble request willingly.<br>
+			But if you refuse, we'll be forced to release these into the wild. The choice is yours.
+		<</if>>
 		<br><br>
 
 		Here's your task:
@@ -132,10 +150,10 @@
 
 :: Blackmail Letter Intro 2
 
-Within you find the aforementioned pictures. And while looking at them, their horror dawns on you. They display your disrobed body on a classroom. Your classroom. And you look incredibly lewd.
+Within you find the aforementioned pictures. And while looking at them, their horror dawns on you. They display what seems like a disrobed body in very graphic detail. Your body, to be exact. And it looks incredibly lewd.
 <br><br>
 
-There's several close-ups on your most intimate areas, and even pictures showing your face squarely within frame. Leaving no doubt to anyone seeing them that they indeed are photos of you. And Leighton is most likely to blame for their existence.
+There's several close-ups on your most intimate areas, and even pictures showing your face squarely within frame. Leaving no doubt to anyone seeing them as to the fact that they indeed are photos of you.
 <br><br>
 
 <p class="indent-block italic">
@@ -237,8 +255,15 @@ Steeling your resolve, you open the envelope and read the letter inside:
 		<span class="green">Our people have been singing your praises.</span> They really were pleased with the exquisite material we managed to produce in partnership with you. <<if $xchange.blackmail.hasGenderswappedRecently>>In particular, your recent transformation was especially titillating for them. <</if>>You could even say they've been licking their lips in delight ever since. Truly outstanding.
 		<br><br>
 
-		Since you've oh-so gracefully complied with our humble request, we've taken the liberty to include your payment within this very same envelope for the amount of <<moneyGainDisplay `getStaticQuestData(_activeQuest).reward() / 100`>>.
-		<br><br>
+		<<if penaltyFameSum() lt 1000>>
+			Since you've oh-so gracefully complied with our humble request, we've taken the liberty to include your payment within this very same envelope for the amount of <<moneyGainDisplay `getStaticQuestData(_activeQuest).reward() / 100`>>.
+			<<run delete V.xchange.blackmail.paymentsRemoved>>
+			<br><br>
+		<<elseif !$xchange.blackmail.paymentsRemoved>>
+			We believe you've really come to enjoy our tasks, <<underworld_nickname>>. And therefore, <span class="purple">we've concluded paying you for them is no longer a necessity.</span> But do keep in mind we'll still be forced to take action should you refuse to comply with future requests as a reprisal.
+			<<set $xchange.blackmail.paymentsRemoved to 1>> 
+			<br><br>
+		<</if>>
 
 		Please enjoy the rest of your day. We'll be in touch.
 		<br><br>
@@ -250,7 +275,13 @@ Steeling your resolve, you open the envelope and read the letter inside:
 
 	<<blackmail-endquest>>
 
-	<<link [[Take money and discard the envelope|Bedroom]]>><<moneyGain `getStaticQuestData(_activeQuest).reward() / 100`>><</link>>
+	<<if !$xchange.blackmail.paymentsRemoved>>
+		<<link [[Take money and discard the envelope|Bedroom]]>>
+			<<moneyGain `getStaticQuestData(_activeQuest).reward() / 100`>>
+		<</link>>
+	<<else>>
+		<<link [[Discard|Bedroom]]>><</link>>
+	<</if>>
 	<br><br>
 
 <<else>>
