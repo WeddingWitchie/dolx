@@ -133,7 +133,7 @@ function xchangeHourlyCheck() {
 			} 
 		}
 		// Force the pill to expire if pill permanence is disabled, and no condition is preventing it from expiring
-		else if (V.xchange.pillPermanence !== 1 && pillIsPermanent()) {
+		else if (V.xchange.pillPermanence !== 1 && pillIsPermanent() && !V.xchange.pill.choiceEffect) {
 			pill.duration = 0;
 			if (!pillTimerPaused()) {
 				if (V.xchange.pill.clone === "none") {
