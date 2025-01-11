@@ -188,19 +188,39 @@ Bailey takes a step closer, and the officers tense up. "There'll be blood to pay
 Bailey drives away as the boat leaves the harbour. Even at this distance, you can see the officers relax their posture.
 <br><br>
 
+<<if !playerIsXChanged() or !$xchange.pill.choiceEffect>>
+	<<set _ingestedPill to 1>><<xchange-choice>>
+	With Bailey now gone, the officers resume procedure by forcing a pill down your throat. "Well, rules are rules. So here's your Choice pill," the <<person2>><<person>> continues. "And as regulation states, this is now your new life until you serve your sentence."
+	<br><br>
+<</if>>
+
 <<link [[Next|Prison Intro Boat]]>><<endevent>><</link>>
 <br>
 
 :: Police Prison Intro Docks
 <<effects>>
 
-The officers shove you into the boat. You struggle to your knees as the crew untie the mooring rope, and the boat sails from the harbour.
+The officers 
+<<if !playerIsXChanged() or !$xchange.pill.choiceEffect>>
+	<<set _ingestedPill to 1>><<xchange-choice>>
+	shove a pill down your throat before pushing
+<<else>>shoves<</if>> you into the boat. You struggle to your knees as the crew untie the mooring rope, and the boat sails from the harbour.
 <br><br>
 
 <<if $prison_intro is undefined>>
+	<<if _ingestedPill>>
+		"That's a Choice pill," says the <<person2>><<person>>. "This is your new life until you serve your sentence."
+		<br><br>
+	<</if>>
+		
 	<<link [[Next|Prison Intro Boat]]>><<endevent>><</link>>
 	<br>
 <<else>>
+	<<if _ingestedPill>>
+		"You already know the drill," says the <<person2>><<person>>. "This is your new life until you serve your sentence."
+		<br><br>
+	<</if>>
+
 	<<link [[Next|Prison Intro Repeat]]>><<endevent>><</link>>
 	<br>
 <</if>>
@@ -1093,7 +1113,8 @@ You emerge on a walkway above a long hall, stretching in both directions. Three 
 <</if>>
 <br><br>
 
-<<methodical_guard 3 cap>><<person4>> sits behind the desk, and rifles through the attached cupboard. "You are a free member of society once again," <<he>> says.
+<<set _colour to $player.gender is "m"?"Pink":"Blue">>
+<<methodical_guard 3 cap>><<person4>> sits behind the desk, and rifles through the attached cupboard. "You are a free member of society once again," <<if !$sexStats.pills["pills"]["X-Change "+_colour+" Choice Reversal"].owned>><<he>> pulls out a tiny box with your name, containing a small <<= $player.gender is "m"?"blue":"pink">> pill, which <<he>> then hands over to you.<<else>><<he>> says.<</if>>
 
 <<if $prison.methodical_guard gte 80>>
 	"It was... a pleasure."
@@ -1101,8 +1122,14 @@ You emerge on a walkway above a long hall, stretching in both directions. Three 
 	"Thank you for cooperating."
 <<else>>
 	<<He>> stamps a sheet of paper without another word.
+<</if>> 
+<<if !$sexStats.pills["pills"]["X-Change "+_colour+" Choice Reversal"].owned>>
+	| <span class="blue">+1 Choice Reversal pill</span>
+	<<set $sexStats.pills["pills"]["X-Change "+_colour+" Choice Reversal"].owned++>>
+	<<set $sexStats.pills.boughtOnce to true>>
 <</if>>
 <br><br>
+
 
 <<storeon "prison intro" check>>
 <<if _store_check is 1>>
