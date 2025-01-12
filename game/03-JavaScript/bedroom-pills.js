@@ -856,7 +856,7 @@ setup.pills = [
 		effects: [`<<xchange-pink 7 "breeder" "fertile">>`],
 	},
 	{
-		name: "X-Change Pink Choice",
+		name: "X-Change Choice (F)",
 		description:
 			"Temporary genderswapping pill whose effects last indefinitely until its included reverse pill is ingested.",
 		onTakeMessage: 
@@ -890,10 +890,10 @@ setup.pills = [
 				? 1
 				: 0;
 		},
-		effects: [`<<xchange-choice>>`],
+		effects: [`<<xchange-choice>>`, `<<set V.sexStats.pills["pills"]["X-Change Choice Reversal (F)"].owned++>>`],
 	},
 	{
-		name: "X-Change Pink Choice Reversal",
+		name: "X-Change Choice Reversal (F)",
 		description:
 			"Genderswapping pill that reverses the effects of a previously consumed Choice pill.",
 		onTakeMessage: 
@@ -1154,7 +1154,7 @@ setup.pills = [
 		effects: [`<<xchange-blue 1 "resistance">>`],
 	},
 	{
-		name: "X-Change Blue Choice",
+		name: "X-Change Choice (M)",
 		description:
 			"Temporary genderswapping pill whose effects last indefinitely until its included reverse pill is ingested.",
 		onTakeMessage: 
@@ -1188,10 +1188,10 @@ setup.pills = [
 				? 1
 				: 0;
 		},
-		effects: [`<<xchange-choice>>`],
+		effects: [`<<xchange-choice>>`, `<<set V.sexStats.pills["pills"]["X-Change Choice Reversal (M)"].owned++>>`],
 	},
 	{
-		name: "X-Change Blue Choice Reversal",
+		name: "X-Change Choice Reversal (M)",
 		description:
 			"Genderswapping pill that reverses the effects of a previously consumed Choice pill.",
 		onTakeMessage: 
