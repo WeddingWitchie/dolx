@@ -661,47 +661,55 @@
 			<<set _winnerCount += $dice.positions[_player] is $dice.round.result? 1 : 0>>
 		<</for>>
 		
-		/* Split the pot among winners */
-		<<set _split to $dice.pot / _winnerCount>><<set $dice.pot to 0>>
+		<<if _winnerCount is 0>> /* If nobody won, wagered amounts return to each player */
+			<<for _player range [0,1,2,3]>>
+				<<set $dice.money[_player] += $dice.bets[_player]>>
+			<</for>>
 
-		/* Reward the shooter if in favour */
-		<<if $dice.round.result is "In Favour">>
-			<<set $dice.money[$dice.shooter] += _split>>
-			<<set $dice.event.roundLoss[$dice.shooter] to 0>>
-			<<capture _split, $dice.bets>>
-				<<set _gains to _split - $dice.bets[$dice.shooter]>>
-				<<if $dice.shooter is 0>>
-					<<run $dice.log.push("You won <<printmoney "+_gains+">>.")>>
-				<<else>>
-					<<run $dice.log.push("The <<person"+$dice.shooter+">><<person>> won <<printmoney "+_gains+">>.")>>
-				<</if>>
-			<</capture>>
 		<<else>>
-			<<set $dice.event.roundLoss[$dice.shooter] to 1>>
-		<</if>>
+			/* Split the pot among winners */
+			<<set _split to $dice.pot / _winnerCount>><<set $dice.pot to 0>>
 
-		/* Reward the rest of the winners */
-		<<for _player range [0,1,2,3]>>
-			<<if $dice.positions[_player] is $dice.round.result>>
-				<<set $dice.money[_player] += _split>>
-				<<if _player isnot $dice.shooter>>
-					<<set $dice.event.roundLoss[_player] to 0>>
-				<</if>>
-				<<capture _player, _split, $dice.bets>>
-					<<set _gains to _split - $dice.bets[_player]>>
-					<<if _player is 0>>
+			/* Reward the shooter if in favour */
+			<<if $dice.round.result is "In Favour">>
+				<<set $dice.money[$dice.shooter] += _split>>
+				<<set $dice.event.roundLoss[$dice.shooter] to 0>>
+				<<capture _split, $dice.bets>>
+					<<set _gains to _split - $dice.bets[$dice.shooter]>>
+					<<if $dice.shooter is 0>>
 						<<run $dice.log.push("You won <<printmoney "+_gains+">>.")>>
 					<<else>>
-						<<run $dice.log.push("The <<person"+_player+">><<person>> won <<printmoney "+_gains+">>.")>>
+						<<run $dice.log.push("The <<person"+$dice.shooter+">><<person>> won <<printmoney "+_gains+">>.")>>
 					<</if>>
 				<</capture>>
 			<<else>>
-				<<if _player isnot $dice.shooter>>
-					<<set $dice.event.roundLoss[_player] to 1>>
-				<</if>>
+				<<set $dice.event.roundLoss[$dice.shooter] to 1>>
 			<</if>>
 
-		<</for>>
+			/* Reward the rest of the winners */
+			<<for _player range [0,1,2,3]>>
+				<<if $dice.positions[_player] is $dice.round.result>>
+					<<set $dice.money[_player] += _split>>
+					<<if _player isnot $dice.shooter>>
+						<<set $dice.event.roundLoss[_player] to 0>>
+					<</if>>
+					<<capture _player, _split, $dice.bets>>
+						<<set _gains to _split - $dice.bets[_player]>>
+						<<if _player is 0>>
+							<<run $dice.log.push("You won <<printmoney "+_gains+">>.")>>
+						<<else>>
+							<<run $dice.log.push("The <<person"+_player+">><<person>> won <<printmoney "+_gains+">>.")>>
+						<</if>>
+					<</capture>>
+				<<else>>
+					<<if _player isnot $dice.shooter>>
+						<<set $dice.event.roundLoss[_player] to 1>>
+					<</if>>
+				<</if>>
+
+			<</for>>
+		<</if>>
+
 
 		/* Run checks that trigger events on next round */
 		<<dice-eventchecks>>
