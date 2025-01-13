@@ -52,11 +52,13 @@ function xchangeWeeklyCheck() {
 		V.xchange.gamblingUpkeepFailed = 1;
 		V.xchange.pubGamblingEnabled = 0;
 
-		fragment.append(wikifier("crimeUp", 3000, "obstruction"));
-		fragment.append(wikifier("crimeUpFlat", V.xchange.gamblingEarnings, "thievery"));
-
-		V.gamblingUpkeepFailedMessage = 1;
-		V.effectsmessage = 1;
+		if (V.location != "prison") {
+			fragment.append(wikifier("crimeUp", 3000, "obstruction"));
+			fragment.append(wikifier("crimeUpFlat", V.xchange.gamblingEarnings, "thievery"));
+	
+			V.gamblingUpkeepFailedMessage = 1;
+			V.effectsmessage = 1;
+		}
 	}
 
 	return fragment;
