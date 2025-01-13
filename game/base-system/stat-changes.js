@@ -244,7 +244,7 @@ const statChange = (() => {
 					}
 				}
 				
-				if (playerIsXChanged() && V.xchangePill.breederEffect && playerIsCreampied()) {
+				if (playerIsXChanged() && V.xchange.pill.breederEffect && playerIsCreampied()) {
 					stressMod *= 0.1;
 				}
 				V.stress += amount * stressMod;
@@ -384,10 +384,10 @@ const statChange = (() => {
 
 			// Concentration reduces incoming arousal by half
 			// Whilst failed concentration adds half a point of sensitivity to all incoming arousal
-			if (V.xchange.resistCombatArousal === 1) {
+			if (V.xchange.resistCombatArousal === 1 && amount > 0) {
 				mod *= 0.50;
 			}
-			else if (V.xchange.resistCombatArousal === -1) {
+			else if (V.xchange.resistCombatArousal === -1 && amount > 0) {
 				mod += 0.50;
 			}
 

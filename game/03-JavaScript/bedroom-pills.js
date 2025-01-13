@@ -856,6 +856,82 @@ setup.pills = [
 		effects: [`<<xchange-pink 7 "breeder" "fertile">>`],
 	},
 	{
+		name: "X-Change Choice (F)",
+		description:
+			"Temporary genderswapping pill whose effects last indefinitely until its included reverse pill is ingested.",
+		onTakeMessage: 
+			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a woman's body.<br><br>Your new body feels smaller, lighter, and strangely sensitive to the touch.<br><br>Looking in the mirror, you also realise you look exceedingly beautiful as well.",
+		warning_label:
+			"Warning: Do not ingest while pregnant or infected by parasites. And do not lose the reversal pill included in this packaging. No other pill (not even of the same type) can reverse the effects of this Choice pill.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "pink choice",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillbreast.png",
+		display_condition() {
+			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
+		},
+		take_condition() {
+			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-choice>>`, `<<set V.sexStats.pills["pills"]["X-Change Choice Reversal (F)"].owned++>>`],
+	},
+	{
+		name: "X-Change Choice Reversal (F)",
+		description:
+			"Genderswapping pill that reverses the effects of a previously consumed Choice pill.",
+		onTakeMessage: 
+			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as it slowly begins to twist and turn, rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a man's body.<br><br>Being back in your old body feels rather nostalgic after having spent some time genderswapped.",
+		warning_label:
+			"Warning: Do not ingest while pregnant or infected by parasites. And do not lose this pill. No other pill (not even of the same type) can reverse the effects of the Choice pill included in this packaging.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "pink choice",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillpenis.png",
+		display_condition() {
+			return this.owned() > 0 && V.player.gender !== "f" && V.xchange.pill.choiceEffect 
+				? 1 
+				: 0;
+		},
+		take_condition() {
+			return playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null && V.xchange.pill.choiceEffect
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-restore>>`],
+	},
+	{
 		name: "X-Change Blue NOW",
 		description:
 			"A significantly diluted version of X-Change Basic, intended for those on a tight schedule. Lasts about 6 hours.",
@@ -1078,6 +1154,82 @@ setup.pills = [
 		effects: [`<<xchange-blue 1 "resistance">>`],
 	},
 	{
+		name: "X-Change Choice (M)",
+		description:
+			"Temporary genderswapping pill whose effects last indefinitely until its included reverse pill is ingested.",
+		onTakeMessage: 
+			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a man's body.<br><br>Your new body feels larger, stronger, and quite ready to dish out and receive punishment.<br><br>And upon looking in the mirror, you realise you're quite handsome as well!",
+		warning_label:
+			"Warning: Do not ingest while pregnant or infected by parasites. And do not lose the reversal pill included in this packaging. No other pill (not even of the same type) can reverse the effects of this Choice pill.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "blue choice",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillpenis.png",
+		display_condition() {
+			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
+		},
+		take_condition() {
+			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-choice>>`, `<<set V.sexStats.pills["pills"]["X-Change Choice Reversal (M)"].owned++>>`],
+	},
+	{
+		name: "X-Change Choice Reversal (M)",
+		description:
+			"Genderswapping pill that reverses the effects of a previously consumed Choice pill.",
+		onTakeMessage: 
+			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a woman's body.<br><br>Being back in your old body feels rather nostalgic after having spent some time genderswapped.",
+		warning_label:
+			"Warning: Do not ingest while pregnant or infected by parasites. And do not lose this pill. No other pill (not even of the same type) can reverse the effects of the Choice pill included in this packaging.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "blue choice",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillbreast.png",
+		display_condition() {
+			return this.owned() > 0 && V.player.gender !== "m" && V.xchange.pill.choiceEffect 
+				? 1 
+				: 0;
+		},
+		take_condition() {
+			return playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null && V.xchange.pill.choiceEffect
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-restore>>`],
+	},
+	{
 		name: "X-Change Clone: Whitney",
 		description:
 			"Custom-tailored temporary pill, based upon the genetic material of subject Whitney. Pill effects last up to 24 hours or less. And regardless of target's gender, it remains impossible to become pregnant under this pill.",
@@ -1222,11 +1374,11 @@ setup.pills = [
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return (V.xchangePill && V.xchangePill.active)
+			return (V.xchange.pill && V.xchange.pill.active)
 				? 1
 				: 0;
 		},
-		effects: [`<<set V.xchangePill.testPending to true>>`],
+		effects: [`<<set V.xchange.pill.testPending to true>>`],
 	},
 ];
 // ToDo: figure out a means to allow applying the Hair Growth Formula to pubic hair as well

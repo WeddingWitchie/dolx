@@ -2,7 +2,7 @@
 
 function playerIsXChanged() {
 	return (
-		V.xchangePill && V.xchangePill.active
+		V.xchange.pill && V.xchange.pill.active
 	);
 }
 window.playerIsXChanged = playerIsXChanged;
@@ -15,7 +15,7 @@ function pillTimerPaused() {
 window.pillTimerPaused = pillTimerPaused;
 
 function pillIsPermanent() {
-	return V.xchangePill.duration <= -1;
+	return V.xchange.pill.duration <= -1;
 }
 window.pillIsPermanent = pillIsPermanent;
 
@@ -45,10 +45,59 @@ function genderIsIgnored() {
 }
 window.genderIsIgnored = genderIsIgnored;
 
+function xchangeWeeklyCheck() {
+	const fragment = document.createDocumentFragment();
+
+	if (V.xchange.pubGamblingEnabled && !V.weekly.gamblingUpkeepPaid) {
+		V.xchange.gamblingUpkeepFailed = 1;
+		V.xchange.pubGamblingEnabled = 0;
+
+		if (V.location != "prison") {
+			fragment.append(wikifier("crimeUp", 3000, "obstruction"));
+			fragment.append(wikifier("crimeUpFlat", V.xchange.gamblingEarnings, "thievery"));
+	
+			V.gamblingUpkeepFailedMessage = 1;
+			V.effectsmessage = 1;
+		}
+	}
+
+	return fragment;
+}
+window.xchangeWeeklyCheck = xchangeWeeklyCheck;
+
+function xchangeDailyCheck() {
+	const fragment = document.createDocumentFragment();
+
+	if ((V.hourlyFemininity > 0 && V.player.gender === "f") || (V.hourlyFemininity < 0 && V.player.gender === "m"))
+		fragment.append(wikifier("genderidentity", 1));
+	else if ((V.hourlyFemininity > 0 && V.player.gender === "m") || (V.hourlyFemininity < 0 && V.player.gender === "f"))
+		fragment.append(wikifier("genderidentity", -1));
+
+	if (playerIsXChanged())
+		fragment.append(wikifier("genderidentity", -2));
+
+	fragment.append(wikifier("genderidentity-text", V.hourlyFemininity > 0? "f": (V.hourlyFemininity < 0? "m": 0)));
+	V.hourlyFemininity = 0;
+
+	fragment.append(wikifier("blackmail-daypassed"));
+
+	V.recentmolest = Math.max(V.recentmolest - 1, 0);
+	V.recentrape = Math.max(V.recentrape - 1, 0);
+
+	if (V.robinbreakupCooldown > 0) {
+		V.robinbreakupCooldown -= 1;
+	}
+
+	V.xchange.blackmailHalt = Math.max(0, V.xchange.blackmailHalt - 1);
+
+	return fragment;
+}
+window.xchangeDailyCheck = xchangeDailyCheck;
+
 function xchangeHourlyCheck() {
 	const fragment = document.createDocumentFragment();
 
-	const pill = V.xchangePill;
+	const pill = V.xchange.pill;
 	if (pill?.active)
 	{
 		// If got impregnated in the vagina, or allowed an ear slime to grow to a certain point
@@ -77,7 +126,7 @@ function xchangeHourlyCheck() {
 						pill.fertile = true;
 					}
 				}
-				else if (V.xchangePill.clone === "none") {
+				else if (V.xchange.pill.clone === "none") {
 					fragment.append(wikifier("xchange-restore"));
 				} 
 				else {
@@ -86,10 +135,10 @@ function xchangeHourlyCheck() {
 			} 
 		}
 		// Force the pill to expire if pill permanence is disabled, and no condition is preventing it from expiring
-		else if (V.xchange.pillPermanence !== 1 && pillIsPermanent()) {
+		else if (V.xchange.pillPermanence !== 1 && pillIsPermanent() && !V.xchange.pill.choiceEffect) {
 			pill.duration = 0;
 			if (!pillTimerPaused()) {
-				if (V.xchangePill.clone === "none") {
+				if (V.xchange.pill.clone === "none") {
 					fragment.append(wikifier("xchange-restore"));
 				} 
 				else {
@@ -157,10 +206,10 @@ function hourlyClothingFemininityCheck() {
 	V.hourlyFemininity += currentWornFemininity > 0 ? 1 : 0;
 	V.hourlyFemininity += currentWornFemininity < 0 ? -1 : 0;
 
-	if (V.xchangePill.active && V.xchangePill.genderificationEffect) {
+	if (V.xchange.pill.active && V.xchange.pill.genderificationEffect) {
 		V.effectsmessage = 1;
 		if (V.player.gender === "m" && currentWornFemininity < 0) {
-			wikifier("stress",20);
+			wikifier("stress",800,1);
 			V.genderificationStressMessage = 1;
 		}
 		else if (V.player.gender === "m" && currentWornFemininity > 0) {
@@ -169,7 +218,7 @@ function hourlyClothingFemininityCheck() {
 			V.genderificationStressMessage = 2;
 		}
 		if (V.player.gender === "f" && currentWornFemininity > 0) {
-			wikifier("stress",20);
+			wikifier("stress",800,1);
 			V.genderificationStressMessage = 3;
 		}
 		else if (V.player.gender === "f" && currentWornFemininity < 0) {
@@ -191,6 +240,12 @@ function xchangeEffectsMessages() {
 	};
 	const br = () => fragment.append(document.createElement("br"));
 
+	if (V.gamblingUpkeepFailedMessage) {
+		element("span", "The cops didn't receive their bribe this week. Your gambling ring has been raided.", "purple");
+		fragment.append(wikifier("gggcrime", "thievery"));
+		br();
+		delete V.gamblingUpkeepFailedMessage;
+	}
 
 	if (V.xchange_passion_message) {
 		element("span", `Aphrodisiacs have been released into your bloodstream.`, "pink"); br();

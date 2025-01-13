@@ -57,8 +57,10 @@ You are on Domus Street. The orphanage is here. The street is dominated by small
 	<<if $stress gte $stressmax and !$possessed>>
 		<<passoutstreet>>
 	<<else>>
+		<<location-danger>>
 		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-		<<if $halloween is 1 and Time.monthDay is 31 and Time.hour gte 19 and C.npc.Whitney.state isnot "dungeon" and C.npc.Whitney.init is 1 and $halloween_whitney_proposed isnot 1 and !$possessed and $xchangePill.clone isnot "Whitney">>
+		<<set _crime to Math.clamp(crimeSumCurrent() / 10, 0, 9900)>>
+		<<if $halloween is 1 and Time.monthDay is 31 and Time.hour gte 19 and C.npc.Whitney.state isnot "dungeon" and C.npc.Whitney.init is 1 and $halloween_whitney_proposed isnot 1 and !$possessed and $xchange.pill.clone isnot "Whitney">>
 			<<set $halloween_whitney_proposed to 1>>
 			<<halloweenwhitney>>
 		<<elseif $averyDismissalScene and $averyDismissalSceneWait isnot 1 and Time.weekDay is 7 and Time.hour is 20>>
@@ -102,8 +104,10 @@ You are on Domus Street. The orphanage is here. The street is dominated by small
 			<br><br>
 			<<endevent>>
 			<<destinationeventend>>
-		<<elseif ($danger gte (9900 - $allure) or $eventforced) and $eventskip is 0>>
+		<<elseif ($danger gte (9900 - $allure - _locationDanger) or $eventforced) and $eventskip is 0>>
 			<<eventsstreet>>
+		<<elseif ($danger gte (8900 - _crime)) and !$daily.streetPolice and $eventskip is 0>>
+			<<streetpolice>>
 		<<else>>
 			<<if $options.mapTop is true>>
 				<<map "domus">>

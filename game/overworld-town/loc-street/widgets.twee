@@ -1087,6 +1087,19 @@
 
 <<widget "streetpolice">>
 	<<set $rng1 to random(1, 100)>><<set $rng2 to random(1, 100)>><<set $rng3 to random(1, 100)>><<set $rng4 to random(1, 100)>>
+	<<if crimeSumHistory() lte 1000 and $policemolestation lt 1>>
+		<<set $policemolestation to 0>>
+	<<elseif crimeSumHistory() lte 3000>>
+		<<set $policemolestation to 1>>
+	<<elseif crimeSumHistory() lte 5000>>
+		<<set $policemolestation to 2>>
+	<<elseif crimeSumHistory() lte 10000>>
+		<<set $policemolestation to 3>>
+	<<elseif crimeSumHistory() lte 15000>>
+		<<set $policemolestation to 4>>
+	<<elseif crimeSumHistory() lte 30000>>
+		<<set $policemolestation to 5>>
+	<</if>>
 	<<if currentSkillValue('skulduggery') gte 700 and $rng4 gte 40 and $policemolestation gte 4>>
 		<<if $streetpoliceintro isnot 1>>
 			<<set $streetpoliceintro to 1>>
@@ -1114,27 +1127,27 @@
 
 		Their car speeds up as they
 		<<if $rng4 lte 20>>
-		<<generateyv1>>
-		spot an unwary pickpocket <<personsimple>>.
-		<br>
-		You hear some shouts as
+			<<generateyv1>>
+			spot an unwary pickpocket <<personsimple>>.
+			<br>
+			You hear some shouts as
 		<<elseif $rng4 lte 40>>
-		spot a nearby donut stand.
-		<br>
-		You see one of them lumbering out of the car as
+			spot a nearby donut stand.
+			<br>
+			You see one of them lumbering out of the car as
 		<<elseif $rng4 lte 60>>
-		<<generateyv1>>
-		spot a passed out <<if $pronoun is "m">>escort<<else>>hooker<</if>>.
-		<br>
-		You can see them lifting the <<personsimple>> into the back of their car as
+			<<generateyv1>>
+			spot a passed out <<if $pronoun is "m">>escort<<else>>hooker<</if>>.
+			<br>
+			You can see them lifting the <<personsimple>> into the back of their car as
 		<<elseif $rng4 lte 80>>
-		spot a gang of boisterous street urchins.
-		<br>
-		You hear some shouts as
+			spot a gang of boisterous street urchins.
+			<br>
+			You hear some shouts as
 		<<else>>
-		approach the end of the street.
-		<br>
-		You notice other criminals emerging from their hiding places as
+			approach the end of the street.
+			<br>
+			You notice other criminals emerging from their hiding places as
 		<</if>>you swiftly leave the scene.
 		<br><br>
 		<<endevent>>
@@ -1142,6 +1155,7 @@
 	<<else>>
 		<<generatePolice 1>><<generatePolice 2>><<generates3>><<person1>>
 		<<set $weekly.streetPolice to true>>
+		<<set $daily.streetPolice to true>>
 		<<if $policemolestation gte 5 and $rng1 gte 50>>
 			A police car screeches to a halt beside you. A <<person>> and <<person2>><<person>> step out.
 			<br>
@@ -1176,13 +1190,16 @@
 			<br><br>
 			<<link [[Let them|Street Police Extreme]]>><<set $phase to 1>><</link>>
 			<br>
-			<<link [[Run|Street Police Run Extreme]]>><<crimeUp 100 "resisting">><</link>><<athleticsdifficulty 1 1200>><<crime "resisting">>
+			<<link [[Shake off and run|Street Police Run Extreme]]>><<crimeUp 100 "resisting">><</link>><<athleticsdifficulty 1 1200>><<physiquedifficulty 6500 16000>><<crime "resisting">>
 			<br>
-			<<if $money gte 30000>>
-				<<link [[Bribe (£300)|Street Police Bribe]]>><<set $money -= 30000>><</link>>
+			<<set _crimePercent to Math.max(crimeSumCurrent()/25, 30000)>>
+			<<if $money gte _crimePercent>>
+				<<link [["Bribe (£"+_crimePercent/100+")"|Street Police Bribe]]>><<set $money -= _crimePercent>><</link>>
 				<br>
+			<<else>>
+				You don't have enough money to convincingly bribe them, considering your crime history.
 			<</if>>
-		<<elseif $policemolestation gte 4 and $rng2 gte 50>>
+		<<elseif $policemolestation gte 4 and $rng1 gte 50>>
 			A police car pulls up beside you. A <<person>> and <<person2>><<person>> step out. They press against you and a hand takes hold of the back of your neck.
 			<br><br>
 
@@ -1213,13 +1230,16 @@
 
 			<<link [[Let them|Street Police Full]]>><<set $phase to 1>><</link>>
 			<br>
-			<<link [[Run|Street Police Run]]>><<crimeUp 100 "resisting">><</link>><<athleticsdifficulty 1 1200>><<crime "resisting">>
+			<<link [[Shake off and run|Street Police Run]]>><<crimeUp 100 "resisting">><</link>><<athleticsdifficulty 1 1200>><<physiquedifficulty 6500 12000>><<crime "resisting">>
 			<br>
-			<<if $money gte 30000>>
-				<<link [[Bribe (£300)|Street Police Bribe]]>><<set $money -= 30000>><</link>>
+			<<set _crimePercent to Math.max(crimeSumCurrent()/25, 30000)>>
+			<<if $money gte _crimePercent>>
+				<<link [["Bribe (£"+_crimePercent/100+")"|Street Police Bribe]]>><<set $money -= _crimePercent>><</link>>
 				<br>
+			<<else>>
+				You don't have enough money to convincingly bribe them, considering your crime history.
 			<</if>>
-		<<elseif $policemolestation gte 3 and $rng3 gte 50>>
+		<<elseif $policemolestation gte 3 and $rng1 gte 50>>
 			A police car pulls up beside you. A <<person>> and <<person2>><<person>> step out. They quickly approach and a hand clamps down on your shoulder.
 			<br><br>
 
@@ -1252,13 +1272,16 @@
 			<br><br>
 			<<link [[Let them|Street Police Mid]]>><<set $phase to 1>><</link>>
 			<br>
-			<<link [[Run|Street Police Run Mid]]>><<crimeUp 100 "resisting">><</link>><<physiquedifficulty 4500 12000>><<crime "resisting">>
+			<<link [[Shake off and run|Street Police Run Mid]]>><<crimeUp 100 "resisting">><</link>><<athleticsdifficulty 1 800>><<physiquedifficulty 4500 10000>><<crime "resisting">>
 			<br>
-			<<if $money gte 30000>>
-				<<link [[Bribe (£300)|Street Police Bribe]]>><<set $money -= 30000>><</link>>
+			<<set _crimePercent to Math.max(crimeSumCurrent()/25, 30000)>>
+			<<if $money gte _crimePercent>>
+				<<link [["Bribe (£"+_crimePercent/100+")"|Street Police Bribe]]>><<set $money -= _crimePercent>><</link>>
 				<br>
+			<<else>>
+				You don't have enough money to convincingly bribe them, considering your crime history.
 			<</if>>
-		<<elseif $policemolestation gte 2 and $rng4 gte 50>>
+		<<elseif $policemolestation gte 2 and $rng1 gte 50>>
 			A police car pulls up beside you. A <<person>> and <<person2>><<person>> step out.
 			<br>
 			"You!
@@ -1302,11 +1325,14 @@
 			<br><br>
 			<<link [[Assent|Street Police Lite]]>><<set $phase to 1>><</link>>
 			<br>
-			<<link [[Run|Street Police Run Mid]]>><<crimeUp 50 "resisting">><</link>><<physiquedifficulty 4500 12000>><<crime "resisting">>
+			<<link [[Shake off and run|Street Police Run Mid]]>><<crimeUp 50 "resisting">><</link>><<athleticsdifficulty 1 800>><<physiquedifficulty 4500 10000>><<crime "resisting">>
 			<br>
-			<<if $money gte 30000>>
-				<<link [[Bribe (£300)|Street Police Bribe]]>><<set $money -= 30000>><</link>>
+			<<set _crimePercent to Math.max(crimeSumCurrent()/25, 30000)>>
+			<<if $money gte _crimePercent>>
+				<<link [["Bribe (£"+_crimePercent/100+")"|Street Police Bribe]]>><<set $money -= _crimePercent>><</link>>
 				<br>
+			<<else>>
+				You don't have enough money to convincingly bribe them, considering your crime history.
 			<</if>>
 		<<elseif $policemolestation gte 1 and $rng1 gte 50>>
 			A police car pulls up beside you. A <<person>> and <<person2>><<person>> step out.
@@ -1345,11 +1371,14 @@
 			<br><br>
 			<<link [[Assent|Street Police Search Lewd]]>><<set $phase to 1>><</link>>
 			<br>
-			<<link [[Run|Street Police Run Lite]]>><<crimeUp 50 "resisting">><</link>><<physiquedifficulty 3000 8000>><<crime "resisting">>
+			<<link [[Shake off and run|Street Police Run Lite]]>><<crimeUp 50 "resisting">><</link>><<physiquedifficulty 3000 8000>><<crime "resisting">>
 			<br>
-			<<if $money gte 30000>>
-				<<link [[Bribe (£300)|Street Police Bribe]]>><<set $money -= 30000>><</link>>
+			<<set _crimePercent to Math.max(crimeSumCurrent()/25, 30000)>>
+			<<if $money gte _crimePercent>>
+				<<link [["Bribe (£"+_crimePercent/100+")"|Street Police Bribe]]>><<set $money -= _crimePercent>><</link>>
 				<br>
+			<<else>>
+				You don't have enough money to convincingly bribe them, considering your crime history.
 			<</if>>
 		<<else>>
 			A police car pulls up beside you. A <<person>> and <<person2>><<person>> step out.
@@ -1393,13 +1422,42 @@
 
 			"So, we can search you?" the <<person2>><<person>> asks as an elderly couple ramble past. A <<person3>><<person>>, about your age watches with some interest, probably hoping to catch a glimpse of something.
 			<br><br>
+
+			<<if crimeSumHistory() lte 1000>>
+				<<set _policeZeal to 0>>
+			<<elseif crimeSumHistory() lte 3000>>
+				<<set _policeZeal to 1>>
+			<<elseif crimeSumHistory() lte 5000>>
+				<<set _policeZeal to 2>>
+			<<elseif crimeSumHistory() lte 10000>>
+				<<set _policeZeal to 3>>
+			<<elseif crimeSumHistory() lte 15000>>
+				<<set _policeZeal to 4>>
+			<<elseif crimeSumHistory() lte 30000>>
+				<<set _policeZeal to 5>>
+			<</if>>
+
 			<<link [[Agree|Street Police Search]]>><<set $phase to 1>><</link>>
 			<br>
-			<<link [[Run|Street Police Run Lite]]>><<crimeUp 50 "resisting">><</link>><<physiquedifficulty 3000 8000>><<crime "resisting">>
+
+			<<switch _policeZeal>>
+				<<case 0 1>>
+					<<link [[Shake off and run|Street Police Run Lite]]>><<crimeUp 50 "resisting">><</link>><<physiquedifficulty 3000 8000>><<crime "resisting">>
+				<<case 2 3>>
+					<<link [[Shake off and run|Street Police Run Mid]]>><<crimeUp 50 "resisting">><</link>><<athleticsdifficulty 1 800>><<physiquedifficulty 4500 10000>><<crime "resisting">>
+				<<case 4>>
+					<<link [[Shake off and run|Street Police Run]]>><<crimeUp 100 "resisting">><</link>><<athleticsdifficulty 1 1200>><<physiquedifficulty 6500 12000>><<crime "resisting">>
+				<<case 5>>
+					<<link [[Shake off and run|Street Police Run Extreme]]>><<crimeUp 100 "resisting">><</link>><<athleticsdifficulty 1 1200>><<physiquedifficulty 6500 16000>><<crime "resisting">>
+			<</switch>>
 			<br>
-			<<if $money gte 30000>>
-				<<link [[Bribe (£300)|Street Police Bribe]]>><<set $money -= 30000>><</link>>
+
+			<<set _crimePercent to Math.max(crimeSumCurrent()/25, 30000)>>
+			<<if $money gte _crimePercent>>
+				<<link [["Bribe (£"+_crimePercent/100+")"|Street Police Bribe]]>><<set $money -= _crimePercent>><</link>>
 				<br>
+			<<else>>
+				You don't have enough money to convincingly bribe them, considering your crime history.
 			<</if>>
 		<</if>>
 	<</if>>
@@ -3286,7 +3344,7 @@
 					<<eventsstreetnight>>
 				<</if>>
 			<<elseif $dangerevent lte 100>>
-				<<if !$weekly.streetPolice and crimeSumCurrent() gte 1000 and !$worn.lower.type.includes("naked")>>
+				<<if ((!$weekly.streetPolice and crimeSumCurrent() gte 1000) or crimeSumCurrent() gte 10000) and !$worn.lower.type.includes("naked")>>
 					<<streetpolice>>
 				<<else>>
 					<<eventsstreetnight>>
@@ -3768,13 +3826,13 @@
 	<<set $dangerevent to random(1, 220)>>
 	<<rng>>
 	<<set _disabled to true>>
-	<<if !_disabled and $location isnot "alley" and ($bullytimer gte $rng or $policeSergeantHunt) and $xchangePill.clone is "Whitney">>
+	<<if !_disabled and $location isnot "alley" and ($bullytimer gte $rng or $policeSergeantHunt) and $xchange.pill.clone is "Whitney">>
 		<<set $bullytimer to 0>>
 		<<eventsPoliceSergeant>>
-	<<elseif $location is "alley" and !Time.schoolDay and $bullytimer gte $rng and C.npc.Whitney.init is 1 and !["dungeon", "pillory"].includes(C.npc.Whitney.state) and $daily.whitney.park is undefined and $xchangePill.clone isnot "Whitney">>
+	<<elseif $location is "alley" and !Time.schoolDay and $bullytimer gte $rng and C.npc.Whitney.init is 1 and !["dungeon", "pillory"].includes(C.npc.Whitney.state) and $daily.whitney.park is undefined and $xchange.pill.clone isnot "Whitney">>
 		<<set $bullytimer to 0>>
 		<<eventsWhitneyStreet>>
-	<<elseif !Time.schoolDay and $bullytimer gte $rng and C.npc.Whitney.init is 1 and !["dungeon", "pillory"].includes(C.npc.Whitney.state) and $bus is "high" and $dangerevent lte 30 and C.npc.Whitney.dom gte 10 and $xchangePill.clone isnot "Whitney">>
+	<<elseif !Time.schoolDay and $bullytimer gte $rng and C.npc.Whitney.init is 1 and !["dungeon", "pillory"].includes(C.npc.Whitney.state) and $bus is "high" and $dangerevent lte 30 and C.npc.Whitney.dom gte 10 and $xchange.pill.clone isnot "Whitney">>
 		<<set $bullytimer to 0>>
 		<<if random(0, 100) gte 50 and Time.dayState is "day" and ($whitneyromance is 1 or ($whitneyskirtcheck gte 1 and $forcedcrossdressingdisable is "f" and C.npc.Whitney.dom gte 18)) and !$daily.whitney.shoppingCentre and !($weekly.whitneyShoppingCentre gte 2)>>
 			<<whitneyShoppingCentre>>
@@ -3849,7 +3907,7 @@
 <<widget "eventsstreetnight">>
 	<<set $dangerevent to random(1, 188)>>
 	<<rng>>
-	<<if $location is "alley" and !Time.schoolDay and $bullytimer gte $rng and C.npc.Whitney.init is 1 and !["dungeon", "pillory"].includes(C.npc.Whitney.state) and $daily.whitney.park is undefined and $xchangePill.clone isnot "Whitney">>
+	<<if $location is "alley" and !Time.schoolDay and $bullytimer gte $rng and C.npc.Whitney.init is 1 and !["dungeon", "pillory"].includes(C.npc.Whitney.state) and $daily.whitney.park is undefined and $xchange.pill.clone isnot "Whitney">>
 		<<set $bullytimer to 0>>
 		<<eventsWhitneyStreet>>
 	<<elseif $rng lte 10 and $worn.feet.type.includes("heels") and currentSkillValue("feetskill") lt $worn.feet.reveal>>

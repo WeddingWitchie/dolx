@@ -1,7 +1,11 @@
 :: Widgets X-Change Variable Updates [widget]
 
 <<widget "xchange-init">>
-	
+
+	<<if $monthly is undefined>>
+		<<set $monthly to { }>>
+	<</if>>
+
 	<<if $xchange is undefined>>
 		<<set $xchange to {
 			nonconEnabled: 1,
@@ -19,8 +23,8 @@
 			pubtimer: 0,
 		}>>
 	<</if>>
-	<<if $xchangePill is undefined>>
-		<<set $xchangePill to {
+	<<if $xchange.pill is undefined>>
+		<<set $xchange.pill to {
 			active: false,
 			duration: 0,
 			testPending: false,
@@ -96,6 +100,20 @@
 		<<set $penetratingOrgasmStat to 0>>
 	<</if>>
 
+	<<if $options.hideCombatImgWhileStanding is undefined>>
+		<<set $options.hideCombatImgWhileStanding to 0>>
+	<</if>>
+
+	<<if $xchange.randomiseHairColour is undefined>>
+		<<set $xchange.randomiseHairColour to 0>>
+		<<set $xchange.randomiseEyeColour to 0>>
+		<<set $xchange.randomiseSkinColour to 0>>
+	<</if>>
+
+	<<if $xchange.blackmailHalt is undefined>>
+		<<set $xchange.blackmailHalt to 14>>
+	<</if>>
+
 <</widget>>
 
 <<widget "xchange-init2">>
@@ -116,6 +134,11 @@
 <<widget "xchange-modupdate">>
 	<<xchange-init>>
 	<<xchange-init2>>
+
+	<<if $xchangePill isnot undefined>>
+		<<set $xchange.pill to $xchangePill>>
+		<<unset $xchangePill>>
+	<</if>>
 	
 	<<if $xchange.impuritySensitivityBonus is undefined>>
 		<<set $xchange.impuritySensitivityBonus to 1>>
@@ -140,6 +163,7 @@
 		"X-Change Pink Weekly",
 		"X-Change Pink Breeder",
 		"X-Change Antidote",
+		"X-Change Choice (F)",
 	]>>
 
 	<<for _pill range _pills>>
@@ -149,8 +173,8 @@
 		<</if>>
 	<</for>>
 
-	<<if Object.keys($xchangePill.changedBody).length gt 0 && $xchangePill.changedBody.fame is undefined>>
-		<<set $xchangePill.changedBody.fame to {
+	<<if Object.keys($xchange.pill.changedBody).length gt 0 && $xchange.pill.changedBody.fame is undefined>>
+		<<set $xchange.pill.changedBody.fame to {
 			bestiality: 0,
 			business: 0,
 			exhibitionism: 0,
@@ -167,8 +191,8 @@
 		}>>
 	<</if>>
 	
-	<<if Object.keys($xchangePill.originalBody).length gt 0 && $xchangePill.originalBody.fame is undefined>>
-		<<set $xchangePill.originalBody.fame to $fame>>
+	<<if Object.keys($xchange.pill.originalBody).length gt 0 && $xchange.pill.originalBody.fame is undefined>>
+		<<set $xchange.pill.originalBody.fame to $fame>>
 	<</if>>
 
 	<<if $xchange.known is undefined>>
@@ -184,37 +208,37 @@
 		<<set $xchange.expectedGenderBy[_npc] to $player.gender>>
 	<</for>>
 
-	<<if $xchangePill.clone is undefined>>
-		<<set $xchangePill.clone to "none">>
-		<<set $xchangePill.clonedBody to {}>>
+	<<if $xchange.pill.clone is undefined>>
+		<<set $xchange.pill.clone to "none">>
+		<<set $xchange.pill.clonedBody to {}>>
 	<</if>>
 
-	<<if $xchangePill.changedBody.length gt 0 and $xchangePill.changedBody.haircolour is undefined>>
-		<<set $xchangePill.changedBody.leftEyeColour = $leftEyeColour>>
-		<<set $xchangePill.changedBody.rightEyeColour = $rightEyeColour>>
-		<<set $xchangePill.changedBody.haircolour = $haircolour>>
-		<<set $xchangePill.changedBody.hairfringecolour = $hairfringecolour>>
-		<<set $xchangePill.changedBody.hairtype to $hairtype>>
-		<<set $xchangePill.changedBody.fringetype to $fringetype>>
-		<<set $xchangePill.changedBody.hairposition to $hairposition>>
-		<<set $xchangePill.changedBody.earposition to $earposition>>
-		<<set $xchangePill.changedBody.skinColor to $skinColor.natural>>
-		<<set $xchangePill.changedBody.hairtype to $hairtype>>
-		<<set $xchangePill.changedBody.fringetype to $fringetype>>
+	<<if Object.keys($xchange.pill.changedBody).length gt 0 and $xchange.pill.changedBody.haircolour is undefined>>
+		<<set $xchange.pill.changedBody.leftEyeColour = $leftEyeColour>>
+		<<set $xchange.pill.changedBody.rightEyeColour = $rightEyeColour>>
+		<<set $xchange.pill.changedBody.haircolour = $haircolour>>
+		<<set $xchange.pill.changedBody.hairfringecolour = $hairfringecolour>>
+		<<set $xchange.pill.changedBody.hairtype to $hairtype>>
+		<<set $xchange.pill.changedBody.fringetype to $fringetype>>
+		<<set $xchange.pill.changedBody.hairposition to $hairposition>>
+		<<set $xchange.pill.changedBody.earposition to $earposition>>
+		<<set $xchange.pill.changedBody.skinColor to $skinColor.natural>>
+		<<set $xchange.pill.changedBody.hairtype to $hairtype>>
+		<<set $xchange.pill.changedBody.fringetype to $fringetype>>
 	<</if>>
 
-	<<if $xchangePill.originalBody.length gt 0 and $xchangePill.originalBody.haircolour is undefined>>
-		<<set $xchangePill.originalBody.leftEyeColour = $leftEyeColour>>
-		<<set $xchangePill.originalBody.rightEyeColour = $rightEyeColour>>
-		<<set $xchangePill.originalBody.haircolour = $haircolour>>
-		<<set $xchangePill.originalBody.hairfringecolour = $hairfringecolour>>
-		<<set $xchangePill.originalBody.hairtype to $hairtype>>
-		<<set $xchangePill.originalBody.fringetype to $fringetype>>
-		<<set $xchangePill.originalBody.hairposition to $hairposition>>
-		<<set $xchangePill.originalBody.earposition to $earposition>>
-		<<set $xchangePill.originalBody.skinColor to $skinColor.natural>>
-		<<set $xchangePill.originalBody.hairtype to $hairtype>>
-		<<set $xchangePill.originalBody.fringetype to $fringetype>>
+	<<if Object.keys($xchange.pill.originalBody).length gt 0 and $xchange.pill.originalBody.haircolour is undefined>>
+		<<set $xchange.pill.originalBody.leftEyeColour = $leftEyeColour>>
+		<<set $xchange.pill.originalBody.rightEyeColour = $rightEyeColour>>
+		<<set $xchange.pill.originalBody.haircolour = $haircolour>>
+		<<set $xchange.pill.originalBody.hairfringecolour = $hairfringecolour>>
+		<<set $xchange.pill.originalBody.hairtype to $hairtype>>
+		<<set $xchange.pill.originalBody.fringetype to $fringetype>>
+		<<set $xchange.pill.originalBody.hairposition to $hairposition>>
+		<<set $xchange.pill.originalBody.earposition to $earposition>>
+		<<set $xchange.pill.originalBody.skinColor to $skinColor.natural>>
+		<<set $xchange.pill.originalBody.hairtype to $hairtype>>
+		<<set $xchange.pill.originalBody.fringetype to $fringetype>>
 	<</if>>
 
 	<<if $xchange.postPermanenceFertilityReset is undefined>>
@@ -249,10 +273,10 @@
 		<<unset $portalPanties.state.mouth>>
 	<</if>>
 
-	<<if Object.keys($xchangePill.changedBody).length gt 0 and $xchangePill.changedBody.facestyle is undefined>>
-		<<set $xchangePill.changedBody.facestyle to $player.gender is "m"? "fem" : "masc">>
-		<<if Object.keys($xchangePill.originalBody).length gt 0 and $xchangePill.originalBody.facestyle is undefined>>
-			<<set $xchangePill.originalBody.facestyle to "default">>
+	<<if Object.keys($xchange.pill.changedBody).length gt 0 and $xchange.pill.changedBody.facestyle is undefined>>
+		<<set $xchange.pill.changedBody.facestyle to $player.gender is "m"? "fem" : "masc">>
+		<<if Object.keys($xchange.pill.originalBody).length gt 0 and $xchange.pill.originalBody.facestyle is undefined>>
+			<<set $xchange.pill.originalBody.facestyle to "default">>
 		<</if>>
 	<</if>>
 
@@ -273,12 +297,28 @@
 
 	<<master-audio-update>>
 
-	<<if $xchangePill.genderflipEffect is undefined>>
-		<<if $xchangePill.active>>
-			<<set $xchangePill.genderflipEffect to true>>
+	<<if $xchange.pill.genderflipEffect is undefined>>
+		<<if $xchange.pill.active>>
+			<<set $xchange.pill.genderflipEffect to true>>
 		<<else>>
-			<<set $xchangePill.genderflipEffect to false>>
+			<<set $xchange.pill.genderflipEffect to false>>
 		<</if>>
+	<</if>>
+
+	<<if Object.keys($xchange.pill.changedBody).length gt 0 and $xchange.pill.changedBody.naturalhaircolour is undefined>>
+		<<set $xchange.pill.changedBody.naturalhaircolour to $naturalhaircolour>>
+		<<set $xchange.pill.changedBody.hairColourGradient to $hairColourGradient>>
+		<<set $xchange.pill.changedBody.hairColourStyle to $hairColourStyle>>
+		<<set $xchange.pill.changedBody.hairFringeColourGradient to $hairFringeColourGradient>>
+		<<set $xchange.pill.changedBody.hairFringeColourStyle to $hairFringeColourStyle>>
+	<</if>>
+
+	<<if Object.keys($xchange.pill.originalBody).length gt 0 and $xchange.pill.originalBody.naturalhaircolour is undefined>>
+		<<set $xchange.pill.originalBody.naturalhaircolour to $naturalhaircolour>>
+		<<set $xchange.pill.originalBody.hairColourGradient to $hairColourGradient>>
+		<<set $xchange.pill.originalBody.hairColourStyle to $hairColourStyle>>
+		<<set $xchange.pill.originalBody.hairFringeColourGradient to $hairFringeColourGradient>>
+		<<set $xchange.pill.originalBody.hairFringeColourStyle to $hairFringeColourStyle>>
 	<</if>>
 
 <</widget>>

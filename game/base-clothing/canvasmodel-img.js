@@ -129,7 +129,8 @@ DefineMacro("modelprepare-player-body", function () {
 			if (
 				(V.player.gender_appearance === "m" && V.player.perceived_breastsize <= 2) ||
 				V.worn.under_upper.type.includes("covered") ||
-				(["pool", "lake", "beach"].includes(V.location) && V.worn.under_upper.exposed < 1 && V.underupperwetstage < 3)
+				(["pool", "lake", "beach"].includes(V.location) && V.worn.under_upper.exposed < 1 && V.underupperwetstage < 3) || 
+				["home"].includes(V.location)
 			) {
 				T.coverBreasts = false;
 				T.modeloptions.arm_left = "idle";
@@ -156,7 +157,7 @@ DefineMacro("modelprepare-player-body", function () {
 		) {
 			if (
 				(["pool", "lake", "beach"].includes(V.location) && V.worn.under_lower.exposed < 1 && V.underlowerwetstage < 3) ||
-				V.worn.under_lower.type.includes("covered")
+				V.worn.under_lower.type.includes("covered") || ["home"].includes(V.location)
 			) {
 				T.coverCrotch = false;
 				T.modeloptions.arm_right = V.worn.handheld.name !== "naked" ? "hold" : "idle";
