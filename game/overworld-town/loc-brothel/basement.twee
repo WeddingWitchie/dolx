@@ -20,8 +20,6 @@
 		<<link [[Next|Brothel Basement]]>><<endevent>><</link>>
 		<br>
 	<<else>>
-		You are in the brothel basement. A row of small rooms lines one wall. Inside each is a single <<if $awareness gte 200>>gloryhole<<else>>hole<</if>>.
-		<br><br>
 		A sign by the stairs reads <<printmoney $brothel_basement_price>>.
 		<br><br>
 		<<if hasSexStat("promiscuity", 4)>>
@@ -34,7 +32,7 @@
 				<br>
 			<</if>>
 		<<else>>
-			<span class="lewd">You aren't promiscuous enough to work at the gloryholes.</span>
+			<<insufficientStat "promiscuity" "to work at the gloryholes">> 
 			<br><br>
 		<</if>>
 		<<getouticon>><<link [[Leave|Brothel]]>><</link>>
@@ -142,7 +140,7 @@
 <<if $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation>><<set $gloryholestat += 1>><<set $prostitutionstat += 1>>
 	<<tearful>> you count the money <<he>> pushes through the hole. You've gained <<printmoney $brothel_basement_price>>.
-	<<set $money += $brothel_basement_price>>
+	<<money $brothel_basement_price "brothelGloryhole">>
 	<br><br>
 
 	<<clotheson>>
@@ -151,10 +149,11 @@
 <<elseif $enemyhealth lte 0>>
 	You hear a shout of pain from behind the wall, and the
 	<<if $NPCList[0].penis isnot "none">>
-	$NPCList[0].penisdesc disappears.
+		$NPCList[0].penisdesc
 	<<else>>
-	pussy disappears.
+		pussy
 	<</if>>
+	disappears.
 	<br><br>
 	<<tearful>> you rise to your feet.
 	<br><br>
@@ -197,7 +196,7 @@
 	<</if>>
 	<<generate1>><<person1>>
 
-	<<set _totalFame to $fame.sex + $fame.prostitution + $fame.rape + $fame.bestiality + $fame.exhibitionism + $fame.pregnancy + $fame.impreg + $fame.scrap + $fame.good + $fame.business + $fame.social + $fame.model>>
+	<<set _totalFame to fameTotal()>>
 	<<set _demand to Math.round(100 * Math.exp(-Math.log(10)/10 * ($brothelExclusiveGloryholePrice - ($brothel_basement_price / 100) - 10 - 5 * Math.floor(_totalFame/2000)) * 20/100)) * 100>>
 
 	<<if random(10000) lte _demand and _demand gt 0>>
@@ -328,7 +327,7 @@
 <br>
 
 :: Brothel Exclusive Price
-<<set _totalFame to $fame.sex + $fame.prostitution + $fame.rape + $fame.bestiality + $fame.exhibitionism + $fame.pregnancy + $fame.impreg + $fame.scrap + $fame.good + $fame.business + $fame.social + $fame.model>>
+<<set _totalFame to fameTotal()>>
 
 <<if $dailyBrothelPriceCheck is undefined>>
 	<<set $dailyBrothelPriceCheck to 1>>

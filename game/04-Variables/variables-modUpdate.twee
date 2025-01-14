@@ -691,7 +691,7 @@
 	<</if>>
 
 	<<if $TFWolfBuffs is undefined>>
-		<<if $wolfgirl gte 6>>
+		<<if ($wolfgirl gte 6 or ($transformationParts.wolf.tail isnot "hidden" and $transformationParts.wolf.tail isnot "disabled"))>>
 			<<set $TFWolfBuffs to 1>>
 		<<else>>
 			<<set $TFWolfBuffs to 0>>
@@ -699,7 +699,7 @@
 	<</if>>
 
 	<<if $TFCatBuffs is undefined>>
-		<<if $cat gte 6>>
+		<<if ($cat gte 6 or ($transformationParts.cat.tail isnot "hidden" and $transformationParts.cat.tail isnot "disabled"))>>
 			<<set $TFCatBuffs to 1>>
 		<<else>>
 			<<set $TFCatBuffs to 0>>
@@ -707,7 +707,7 @@
 	<</if>>
 
 	<<if $TFCowBuffs is undefined>>
-		<<if $cow gte 6>>
+		<<if ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>>
 			<<set $TFCowBuffs to 1>>
 		<<else>>
 			<<set $TFCowBuffs to 0>>
@@ -723,7 +723,7 @@
 	<</if>>
 
 	<<if $TFBirdBuffs is undefined>>
-		<<if $harpy gte 6>>
+		<<if ($harpy gte 6 or ($transformationParts.bird.wings isnot "hidden" and $transformationParts.bird.wings isnot "disabled"))>>
 			<<set $TFBirdBuffs to 1>>
 		<<else>>
 			<<set $TFBirdBuffs to 0>>
@@ -731,7 +731,7 @@
 	<</if>>
 
 	<<if $TFFoxBuffs is undefined>>
-		<<if $fox gte 6>>
+		<<if ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled"))>>
 			<<set $TFFoxBuffs to 1>>
 		<<else>>
 			<<set $TFFoxBuffs to 0>>
@@ -949,6 +949,10 @@
 		<<set $bikeDestination to "">>
 	<</if>>
 
+	<<if $bikeBroken isnot undefined and $bikeDurability gte 1>>
+		<<unset $bikeBroken>>
+	<</if>>
+
 	<<if $combatTimePass is undefined>>
 		<<set $combatTimePass to 10>>
 	<</if>>
@@ -996,6 +1000,68 @@
 	<<if $loveInterest.senary is undefined>>
 		<<set $loveInterest.senary to "None">>
 	<</if>>
+
+	<<set _food_keys to Object.keys(setup.plants)>>
+	<<for _i to 0; _i lt _food_keys.length; _i++>>
+		<<set $_type to _food_keys[_i]>>
+		<<if $plants[$_type] is undefined>>
+			<<set $plants[$_type] to {"name": setup.plants[$_type].name, "plural": setup.plants[$_type].plural, "amount": 0}>>
+		<<elseif $plants[$_type].name is undefined>>
+			<<set $plants[$_type] to {"name": setup.plants[$_type].name, "plural": setup.plants[$_type].plural, "amount": $plants[$_type].amount}>>
+		<</if>>
+	<</for>>
+
+	<<if $baileyDeposit is undefined>>
+		<<set $baileyDeposit to 0>>
+	<</if>>
+
+	<<if $depositMax is undefined>>
+		<<set $depositMax to 0>>
+	<</if>>
+
+	<<if $depositWithdrawalFee is undefined>>
+		<<set $depositWithdrawalFee to 10>>
+	<</if>>
+
+	<<set _rentstage to $rentstage - 1>>
+	<<set _baileyDepositMax to 0>>
+	<<for _i to 1; _i <= $depositMax; _i++>>
+		<<set $rentmoney to [10000,30000,50000,70000,100000,150000,200000][Math.clamp(_rentstage,0,6)]>>
+		<<set _rentstage += 1>>
+		<<set _baileyDepositMax += $rentmoney + ($babyRent or 0)>>
+	<</for>>
+
+	<<if $factoryUpgrades is undefined>>
+		<<set $factoryUpgrades to {}>>
+	<</if>>
+
+	<<if $rightArmPosition is undefined>>
+		<<set $rightArmPosition to "below">>
+	<</if>>
+
+	<<if $parasiteCapMult is undefined>>
+		<<set $parasiteCapMult to 1>>
+	<</if>>
+
+	<<set setup.faceVariantOptions to {
+		"default": {
+			"Gentle": "default",
+			"Catty": "catty",
+			"Aloof": "aloof",
+			"Sweet": "sweet",
+			"Modded 1": "modded1",
+			"Modded 2": "modded2",
+			"Modded 3": "modded3",
+			"Modded 4": "modded4",
+			"Modded 5": "modded5",
+			"Modded 6": "modded6",
+			"Modded 7": "modded7",
+			"Modded 8": "modded8",
+			"Modded 9": "modded9",
+		},
+	}>>
+
+	<<modParasiteCapUpdate>>
 
 	<<modWardrobeUpdate>>
 
@@ -1196,6 +1262,12 @@
 	<<if $beastMultiOrgasmToggle is undefined>>
 		<<set $beastMultiOrgasmToggle to 0>>
 	<</if>>
+
+	<<if $furniture>>
+		<<if $furniture.bedroom.chair is undefined>>
+			<<set $furniture.bedroom.chair to {id: "chair"}>>
+		<</if>>
+	<</if>>
 <</widget>>
 
 <<widget "modWardrobeUpdate">>
@@ -1217,4 +1289,35 @@
 	<<set $wardrobes.pirate.space to 5 * $wardrobeMult>>
 	<<set $wardrobes.officeBuilding.space to 5 * $wardrobeMult>>
 	<<set $wardrobes.birdTower.space to 15 * $wardrobeMult>>
+<</widget>>
+
+<<widget "modParasiteCapUpdate">>
+	<<if $container>>
+		<<if $container.home.upgrades.capacity is 0>>
+			<<set $container.home.maxCount to 1 * $parasiteCapMult>>
+		<<elseif $container.home.upgrades.capacity is 1>>
+			<<set $container.home.maxCount to 2 * $parasiteCapMult>>
+		<<elseif $container.home.upgrades.capacity is 2>>
+			<<set $container.home.maxCount to 3 * $parasiteCapMult>>
+		<<elseif $container.home.upgrades.capacity is 3>>
+			<<set $container.home.maxCount to 4 * $parasiteCapMult>>
+		<<elseif $container.home.upgrades.capacity is 4>>
+			<<set $container.home.maxCount to 5 * $parasiteCapMult>>
+		<</if>>
+		<<if $container.farm.upgrades.capacity is 0>>
+			<<set $container.farm.maxCount to 5 * $parasiteCapMult>>
+		<<elseif $container.farm.upgrades.capacity is 1>>
+			<<set $container.farm.maxCount to 7 * $parasiteCapMult>>
+		<<elseif $container.farm.upgrades.capacity is 2>>
+			<<set $container.farm.maxCount to 9 * $parasiteCapMult>>
+		<<elseif $container.farm.upgrades.capacity is 3>>
+			<<set $container.farm.maxCount to 11 * $parasiteCapMult>>
+		<<elseif $container.farm.upgrades.capacity is 4>>
+			<<set $container.farm.maxCount to 14 * $parasiteCapMult>>
+		<<elseif $container.farm.upgrades.capacity is 5>>
+			<<set $container.farm.maxCount to 17 * $parasiteCapMult>>
+		<<elseif $container.farm.upgrades.capacity is 6>>
+			<<set $container.farm.maxCount to 20 * $parasiteCapMult>>
+		<</if>>
+	<</if>>
 <</widget>>

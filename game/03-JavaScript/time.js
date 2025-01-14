@@ -520,6 +520,8 @@ function weekPassed() {
 		if (V.brothelVending.weeksEmpty >= 4) V.brothelVending.status = "sold";
 	}
 
+	supermarketWeekly();
+
 	fragment.append(xchangeWeeklyCheck());
 
 	statChange.worldCorruption("soft", V.world_corruption_hard);
@@ -696,11 +698,27 @@ function dayPassed() {
 		fragment.append(wikifier("stray_happiness", -1));
 		V.pound.tasks = [];
 	}
+
+	V.rentmoney = [10000, 30000, 50000, 70000, 100000, 150000, 200000][
+		Math.min(Math.max(V.rentstage - 1, 0), 6)
+	];
+
+	if (V.robinpaid === 1) {
+		V.rentmoney *= 2;
+	}
+
 	V.renttime--;
-	// Not seen bailey for more than 2 weeks, tracks missed rent
-	if (V.renttime < 0 && V.renttime % 7 === 0) {
-		V.baileyRefusedToPayTotal += V.rentmoney + (V.babyRent || 0);
-		V.baileyRefusedToPayTotalStat += V.rentmoney + (V.babyRent || 0);
+	if (V.baileyDeposit >= V.rentmoney + (V.babyRent || 0)) {
+		if (V.renttime <= 0) {
+			V.renttime = 7;
+			V.baileyDeposit -= (V.rentmoney * V.rentmod) + (V.babyRent || 0);
+		}
+	} else {
+		// Not seen bailey for more than 2 weeks, tracks missed rent
+		if (V.renttime < 0 && V.renttime % 7 === 0) {
+			V.baileyRefusedToPayTotal += (V.rentmoney * V.rentmod) + (V.babyRent || 0);
+			V.baileyRefusedToPayTotalStat += (V.rentmoney * V.rentmod) + (V.babyRent || 0);
+		}
 	}
 
 	if (V.flashbacktown > 0) V.flashbacktown--;
@@ -715,17 +733,15 @@ function dayPassed() {
 	if (V.flashbackunderground === 1) V.flashbackundergroundready = 1;
 	if (V.flashbackschool === 1) V.flashbackschoolready = 1;
 
-	if (V.smuggle_timer) {
-		V.smuggle_timer--;
-		if (V.smuggle_timer < 0) {
-			V.smuggle_timer = random(4, 7);
-			const rng = random(1, 100);
-			if (rng >= 76) V.smuggle_location = "forest";
-			else if (rng >= 51) V.smuggle_location = "sewer";
-			else if (rng >= 26) V.smuggle_location = "beach";
-			else V.smuggle_location = "bus";
-			delete V.smuggler_known;
-		}
+	V.smuggler_timer--;
+	if (V.smuggler_timer < 0) {
+		V.smuggler_timer = random(4, 7);
+		const rng = random(1, 100);
+		if (rng >= 76) V.smuggle_location = "forest";
+		else if (rng >= 51) V.smuggle_location = "sewer";
+		else if (rng >= 26) V.smuggle_location = "beach";
+		else V.smuggle_location = "bus";
+		delete V.smuggler_known;
 	}
 
 	if (V.tailorMonthlyService > 0) V.tailorMonthlyService--;
@@ -744,8 +760,8 @@ function dayPassed() {
 
 	if (V.farm) {
 		if (V.farm.milking.catchChance > random(10, 1000) / 10) V.farm.milking.caught = true;
-		if (V.farm.milking.catchChance >= 4) V.farm.milking.catchChance = Math.clamp(V.farm.milking.catchChance * 0.9, 0, 100).toFixed(3);
-		else V.farm.milking.catchChance = Math.clamp(V.farm.milking.catchChance * 0.95, 0, 100).toFixed(3);
+		if (V.farm.milking.catchChance >= 25) V.farm.milking.catchChance = Math.clamp(V.farm.milking.catchChance * 0.95, 0, 100).toFixed(3);
+		else V.farm.milking.catchChance = Math.clamp(V.farm.milking.catchChance * 0.98, 0, 100).toFixed(3);
 	}
 
 	if (Weather.precipitation === "rain" && V.bird.upgrades?.firepit && !V.bird.upgrades.shelter) {
@@ -798,17 +814,6 @@ function dayPassed() {
 	else if (V.adultshopdegree < 15) V.adultshopdegree += 0.1;
 	delete V.adultshophelped;
 
-	V.smuggler_timer--;
-	if (V.smuggler_timer < 0) {
-		const rng = random(1, 100);
-		V.smuggler_timer = random(4, 7);
-		if (rng >= 76) V.smuggler_location = "forest";
-		else if (rng >= 51) V.smuggler_location = "sewer";
-		else if (rng >= 26) V.smuggler_location = "beach";
-		else V.smuggler_location = "bus";
-		delete V.smuggler_known;
-	}
-
 	if (V.location !== "tentworld") {
 		delete V.tentacle_forest_lurker;
 	}
@@ -857,7 +862,7 @@ function dayPassed() {
 
 	parasiteProgressDay();
 	parasiteProgressDay("vagina");
-	fragment.append(wikifier("tending_day"));
+	tendingDay();
 	fragment.append(wikifier("creatureContainersProgressDay"));
 
 	if (Number.isInteger(V.challengetimer)) {
@@ -1137,11 +1142,13 @@ function noonCheck() {
 	fragment.append(wikifier("dailySellProduce"));
 	if (V.lake_ice_broken >= 1) V.lake_ice_broken--;
 	if (V.lake_ice_broken <= 0) delete V.lake_ice_broken;
+	if (V.edenNightmareWake) delete V.edenNightmareWake;
 
 	fragment.append(wikifier("menstruationCycle"));
 	pregnancyProgress();
 	pregnancyProgress("anus");
 
+	if (V.weekly.schoolNightPoolParty && V.weekly.schoolNightPoolParty !== "intro") V.weekly.schoolNightPoolParty = false;
 	delete V.birdSleep;
 	delete V.edenbed;
 	delete V.glideScared;
@@ -1168,6 +1175,8 @@ function dawnCheck() {
 	delete V.alexSomnoAngry;
 	delete V.connudatus_stripped;
 	delete V.robin_kicked_out;
+
+	if (V.schoolBlocked) delete V.schoolBlocked;
 
 	delete V.foxCrimeProgress;
 	for (const crimeKeys of Object.keys(setup.crimeNames)) {
@@ -1486,19 +1495,30 @@ function dailyPlayerEffects() {
 		}
 	}
 
-	statChange.insecurity("penis_tiny", -1);
-	statChange.insecurity("penis_small", -1);
-	statChange.insecurity("penis_big", -1);
-	statChange.insecurity("breasts_tiny", -1);
-	statChange.insecurity("breasts_small", -1);
-	statChange.insecurity("breasts_big", -1);
+	// Lower insecurity, reduced faster as the sizes become more acceptable
+	statChange.insecurity("penis_small", -Math.clamp(V.player.penissize + 1, 1, 5)); // Increases by 1 for each size above small
+	statChange.insecurity("penis_big", Math.clamp(V.player.penissize - 4, -5, -1)); // Increases by 1 for each size below large
 
-	V.insecurity_penis_tiny = Math.clamp(V.insecurity_penis_tiny, 0, 1000);
-	V.insecurity_penis_small = Math.clamp(V.insecurity_penis_small, 0, 1000);
-	V.insecurity_penis_big = Math.clamp(V.insecurity_penis_big, 0, 1000);
-	V.insecurity_breasts_tiny = Math.clamp(V.insecurity_breasts_tiny, 0, 1000);
-	V.insecurity_breasts_small = Math.clamp(V.insecurity_breasts_small, 0, 1000);
-	V.insecurity_breasts_big = Math.clamp(V.insecurity_breasts_big, 0, 1000);
+	const reducedBreastsize = Math.floor(V.player.breastsize / 2);
+	if (V.player.gender !== "f") {
+		statChange.insecurity("breasts_big", Math.clamp(reducedBreastsize - 4, -5, -1)); // Increases by 1 for each other size below full
+	} else if (V.player.gender === "h") {
+		statChange.insecurity("breasts_big", Math.clamp(reducedBreastsize - 5, -5, -1)); // Increases by 1 for each other size below ample
+	} else {
+		statChange.insecurity("breasts_small", -Math.clamp(reducedBreastsize - 1, 1, 5)); // Increases by 1 for each other size above modest
+		statChange.insecurity("breasts_big", Math.clamp(reducedBreastsize - 5, -5, -1)); // Increases by 1 for each other size below ample
+	}
+
+	// Lower acceptance when it no longer applies, takes 200 days for it to drop to 0 from max
+	if (!(V.player.penisExist && V.player.penissize <= 1)) statChange.acceptance("penis_small", -5);
+	if (!(V.player.penisExist && V.player.penissize >= (V.player.gender === "m" ? 4 : 3))) statChange.acceptance("penis_big", -5);
+	if (V.player.gender === "f" && !between(V.player.breastsize, 0, 4)) statChange.acceptance("breasts_small", -5);
+	if (!(V.player.breastsize >= (V.player.gender === "m" ? 1 : 8))) statChange.acceptance("breasts_big", -5);
+
+	if (playerBellySize() < 8) {
+		statChange.insecurity("pregnancy", -5);
+		statChange.acceptance("pregnancy", -5);
+	}
 
 	for (const bodypart of setup.bodyparts) {
 		if (V.skin[bodypart].pen === "marker" && random(0, 1)) fragment.append(wikifier("bodywriting_clear", bodypart));
@@ -1558,7 +1578,13 @@ function dailyLiquidEffects() {
 	if (V.player.penisExist) {
 		let amount = V.player.penissize - 1;
 		if (V.semen_volume <= 24) amount++;
-		amount -= Math.floor(V.semen_volume / 250);
+		if (V.semen_volume >= 6000) {
+			amount -= Math.floor(V.semen_volume / 600);
+		} else if (V.semen_volume >= 3000) {
+			amount -= Math.floor(V.semen_volume / 450);
+		} else {
+			amount -= Math.floor(V.semen_volume / 300);
+		}
 		statChange.semenvolume(amount);
 	} else {
 		V.semen_volume = 0;
@@ -1777,7 +1803,12 @@ function dailySchoolEffects() {
 	if (Time.isSchoolDay(Time.yesterday) && V.location !== "prison") {
 		const attended = Object.keys(V.daily.school.attended).length;
 		V.schoolLessonsMissed.science += !Number(V.daily.school.attended.science);
-		V.schoolLessonsMissed.maths += !Number(V.daily.school.attended.maths);
+		if ([4, 6].includes(Time.weekDay)) {
+			// Housekeeping classes take over days 3 and 5, added one to both since this occurs on the next day
+			V.schoolLessonsMissed.housekeeping += !Number(V.daily.school.attended.housekeeping);
+		} else {
+			V.schoolLessonsMissed.maths += !Number(V.daily.school.attended.maths);
+		}
 		V.schoolLessonsMissed.english += !Number(V.daily.school.attended.english);
 		V.schoolLessonsMissed.history += !Number(V.daily.school.attended.history);
 		V.schoolLessonsMissed.swimming += !Number(V.daily.school.attended.swimming);
@@ -1886,6 +1917,8 @@ function dailySchoolEffects() {
 	if (V.temple_spar !== undefined) {
 		delete V.temple_spar;
 	}
+
+	if (V.weekly.schoolNightPoolParty === "intro") V.weekly.schoolNightPoolParty = false;
 
 	return fragment;
 }
@@ -2335,3 +2368,29 @@ function getTimeString(...args) {
 	return Math.trunc(minutes / 60) + ":" + ("0" + Math.trunc(minutes % 60)).slice(-2);
 }
 window.getTimeString = getTimeString;
+
+/* Determines and replenishes stock at supermarket */
+function supermarketWeekly() {
+	const foodKeys = Object.keys(setup.plants);
+	for (let i = 0; i < foodKeys.length; i++) {
+		const currentFood = foodKeys[i];
+		if (
+			setup.plants[currentFood].name === "cocoa_powder" ||
+			setup.plants[currentFood].name === "salt" ||
+			setup.plants[currentFood].name === "sugar" ||
+			setup.plants[currentFood].name === "vegetable_oil" ||
+			setup.plants[currentFood].type === "meat" ||
+			setup.plants[currentFood].type === "fish" ||
+			setup.plants[currentFood].name === "red_wine" ||
+			setup.plants[currentFood].name === "white_wine" ||
+			setup.plants[currentFood].name === "oats" ||
+			setup.plants[currentFood].name === "date" ||
+			setup.plants[currentFood].name === "cherry" ||
+			setup.plants[currentFood].name === "lime" ||
+			setup.plants[currentFood].name === "rice"
+		) {
+			V.plants[currentFood].supermarket = Math.trunc(3000 / setup.plants[currentFood].plant_cost);
+		}
+	}
+}
+DefineMacro("supermarketWeekly", supermarketWeekly);

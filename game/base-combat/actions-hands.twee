@@ -267,7 +267,7 @@
 				<<else>>
 					<<set _leftaction["Keep covering your ass"] to "leftcoveranusmeek">>
 				<</if>>
-			<<else>>
+			<<elseif $anususe is 0>>
 				<<set _leftaction["Cover your ass"] to "leftcoveranusmeek">>
 			<</if>>
 		<<elseif $lefttarget is "self" or $options.targetYourself is false or _targetnumber is 1 or $NPCList[0].state is "stalk">>
@@ -277,7 +277,7 @@
 				<<else>>
 					<<set _leftaction["Keep covering your ass"] to "leftcoveranus">>
 				<</if>>
-			<<else>>
+			<<elseif $anususe is 0>>
 				<<set _leftaction["Cover your ass"] to "leftcoveranus">>
 			<</if>>
 		<</if>>
@@ -344,6 +344,14 @@
 				<<set _leftaction["Pull " + $_target.pronouns.his + " hand off your neck"] to "stopchokenoncon">>
 			<</if>>
 		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "leftstoporal">>
+	<<if $lefttarget isnot "self" and $NPCList[$lefttarget].mouth and ($NPCList[$lefttarget].mouth.startsWith("penis") or $NPCList[$lefttarget].mouth.startsWith("vagina"))>>
+		<<set $_actionText to ($consensual == 1 ? "Take " : "Push ") + $NPCList[$lefttarget].pronouns.his + " face off your " + 
+			($NPCList[$lefttarget].mouth.startsWith("penis") ? "penis" : "pussy")>>
+		<<set _leftaction[$_actionText] to "stoporal">>
 	<</if>>
 <</widget>>
 
@@ -670,7 +678,7 @@
 				<<else>>
 					<<set _rightaction["Keep covering your ass"] to "rightcoveranusmeek">>
 				<</if>>
-			<<else>>
+			<<elseif $anususe is 0>>
 				<<set _rightaction["Cover your ass"] to "rightcoveranusmeek">>
 			<</if>>
 		<<elseif $righttarget is "self" or $options.targetYourself is false or _targetnumber is 1 or $NPCList[0].state is "stalk">>
@@ -680,7 +688,7 @@
 				<<else>>
 					<<set _rightaction["Keep covering your ass"] to "rightcoveranus">>
 				<</if>>
-			<<else>>
+			<<elseif $anususe is 0>>
 				<<set _rightaction["Cover your ass"] to "rightcoveranus">>
 			<</if>>
 		<</if>>
@@ -745,6 +753,14 @@
 				<<set _rightaction["Pull " + $_target.pronouns.his + " hand off your neck"] to "stopchokenoncon">>
 			<</if>>
 		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "rightstoporal">>
+	<<if $righttarget isnot "self" and $NPCList[$righttarget].mouth and ($NPCList[$righttarget].mouth.startsWith("penis") or $NPCList[$righttarget].mouth.startsWith("vagina"))>>
+		<<set $_actionText to ($consensual == 1 ? "Take " : "Push ") + $NPCList[$righttarget].pronouns.his + " face off your " + 
+			($NPCList[$righttarget].mouth.startsWith("penis") ? "penis" : "pussy")>>
+		<<set _rightaction[$_actionText] to "stoporal">>
 	<</if>>
 <</widget>>
 
@@ -865,6 +881,10 @@
 
 		<<if $anususe is 0 and $_anus_exposed>>
 			<<set _handGuideOptions["your ass"] to "ass">>
+		<</if>>
+		
+		<<if ($choketrait or ($chokeorgasm gte 1 and $submissive gt 850) or ($awarelevel gte 2 and $submissive gte 1150)) and !$neckuse>>
+			<<set _handGuideOptions["your neck"] to "neck">>
 		<</if>>
 
 		<<if Object.keys(_handGuideOptions).length gt 0>>
@@ -1181,6 +1201,7 @@
 			<<else>>
 				You pull down your $worn.over_upper.name, <span class="lewd">exposing your <<breasts>>.</span>
 			<</if>>
+			<<overupperstrip>>
 		<<else>>
 			<<set $worn.over_upper.exposed to 2>><<set $worn.over_upper.state to "chest">>
 			<<if $worn.upper.exposed lt 2>>
@@ -1190,6 +1211,7 @@
 			<<else>>
 				You pull up your $worn.over_upper.name, <span class="lewd">exposing your <<breasts>>.</span>
 			<</if>>
+			<<overupperstrip>>
 		<</if>>
 	<</if>>
 
@@ -1205,6 +1227,7 @@
 			<<else>>
 				You pull down your $worn.upper.name, <span class="lewd">exposing your <<breasts>>.</span>
 			<</if>>
+			<<upperstrip>>
 		<<else>>
 			<<set $worn.upper.exposed to 2>><<set $worn.upper.state to "chest">>
 			<<if $player.breastsize gte 3>>
@@ -1212,6 +1235,7 @@
 			<<else>>
 				You pull up your $worn.upper.name, <span class="lewd">exposing your <<breasts>>.</span>
 			<</if>>
+			<<upperstrip>>
 		<</if>>
 	<</if>>
 
@@ -1227,6 +1251,7 @@
 			<<else>>
 				You pull down your $worn.under_upper.name, <span class="lewd">exposing your <<breasts>>.</span>
 			<</if>>
+			<<underupperstrip>>
 		<<else>>
 			<<set $worn.under_upper.exposed to 2>><<set $worn.under_upper.state to "chest">>
 			<<if $player.breastsize gte 3>>
@@ -1234,6 +1259,7 @@
 			<<else>>
 				You pull up your $worn.under_upper.name, <span class="lewd">exposing your <<breasts>>.</span>
 			<</if>>
+			<<underupperstrip>>
 		<</if>>
 	<</if>>
 
@@ -1248,9 +1274,11 @@
 		<<elseif wornSetupClothes("lower").skirt is 1>>
 			<<set $worn.lower.skirt_down to 0>>
 			You lift up your $worn.lower.name, <span class="lewd">exposing your <<undies>>.</span>
+			<<lowerstrip>>
 		<<else>>
 			<<set $worn.lower.state to "ankles">>
 			You pull down your $worn.lower.name, <span class="lewd">exposing your <<undies>>.</span>
+			<<lowerstrip>>
 		<</if>>
 	<</if>>
 
@@ -1270,8 +1298,10 @@
 			You clutch the tattered remains of your clothing.
 		<<elseif $worn.lower.exposed gte 2>>
 			You pull down your $worn.under_lower.name, <span class="lewd">exposing your <<genitals>>.</span>
+			<<underlowerstrip>>
 		<<else>>
 			You pull down your $worn.under_lower.name under your $worn.lower.name.
+			<<underlowerstrip>>
 		<</if>>
 	<</if>>
 

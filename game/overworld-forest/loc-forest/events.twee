@@ -21,20 +21,20 @@ It's fragile and revealing, and you don't think you could take it off without br
 <br>
 
 :: Forest Mushrooms
-<<location "forest">><<effects>><<wearProp "mushroom">>
+<<location "forest">><<effects>><<wearProp "mushroom">><<canvas-model-override "mouth" "chew">>
 
 You eat one of the mushrooms. It tastes bitter, but somehow refreshing.
 <br><br>
 
-<<link [[Next|Forest]]>><<handheldon>><<set $eventskip to 1>><</link>>
+<<link [[Next|Forest]]>><<canvas-model-override "clear">><<handheldon>><<set $eventskip to 1>><</link>>
 
 :: Forest Mushrooms2
-<<location "forest">><<effects>><<wearProp "wolfshroom">>
+<<location "forest">><<effects>><<wearProp "wolfshroom">><<canvas-model-override "mouth" "chew">>
 
 You eat one of the mushrooms, it's quite sweet. You feel more relaxed, and strangely heated.
 <br><br>
 
-<<link [[Next|Forest]]>><<handheldon>><<set $eventskip to 1>><</link>>
+<<link [[Next|Forest]]>><<canvas-model-override "clear">><<handheldon>><<set $eventskip to 1>><</link>>
 <br>
 
 :: Forest Mushrooms Pick
@@ -200,7 +200,7 @@ You drop to your knees, and search the bushes.
 
 :: Forest Wolf Cave Intro
 <<set $outside to 0>><<set $location to "wolf_cave">><<effects>>
-
+<<badEndTracking "Wolf Cave" { reason: "wolfCaveCaptured" }>>
 <<if $passoutReason>>
 	<<npc "Black Wolf" 2>>
 	In the throes of <<= $passoutReason>>, you're helpless to resist as the <<beasttype 0>> drags you through the forest to a cave. <<bHe 0>> presents you to the alpha, a monstrous black <<beasttype 1>>.
@@ -263,20 +263,22 @@ Six pairs of eyes stare at you through the dim light. The pack advances on you.
 		Eden <<if $enemyanger gte ($enemyangermax / 5) * 2>>glares at you and growls,<<else>>smirks at you and says,<</if>> "I knew I'd be able to catch you again. Come on, I'm taking you home."
 	<<else>>
 		<<if $enemyanger gte 20>>
-			The hunter smirks. "You're a feisty one. I like that."
+			The <<person>> smirks. "You're a feisty one. I like that."
 		<<else>>
-			The hunter smiles. "You're a gentle creature, aren't you? I'd best take you with me, it wouldn't do to leave you alone out here."
+			The <<person>> smiles. "You're a gentle creature, aren't you? I'd best take you with me, it wouldn't do to leave you alone out here."
 		<</if>>
 	<</if>>
 	<<He>> produces a length of rope from <<his>> bag. You're going to be tied up!
 	<br><br>
 
-	<<link [[Don't struggle|Forest Hunter Intro]]>><<clotheson>><<endcombat>><</link>>
+	<<link [[Don't struggle|Forest Hunter Intro]]>>
+		<<if !$syndromeeden>><<badEndTracking "Eden" { reason: "edenHuntedSubmitted" }>><</if>><<clotheson>><<endcombat>>
+	<</link>>
 	<br>
 	<<link [[Resist|Forest Hunter Resist Molestation]]>><<set $enemyanger += 200>><<set $molestationstart to 1>><</link>>
 	<br>
 <<elseif $enemyhealth lte 0>><<set $foresthunt to 0>>
-	Despite <<his>> strength, you manage to send the hunter reeling, giving you the chance you need. <<tearful>> you escape into the forest.
+	Despite <<his>> strength, you manage to send the <<person>> reeling, giving you the chance you need. <<tearful>> you escape into the forest.
 	<br><br>
 
 	<<clotheson>>
@@ -292,7 +294,7 @@ Six pairs of eyes stare at you through the dim light. The pack advances on you.
 <<clothesruined>>
 <<npc Eden>><<initnpc Eden>><<person1>>
 
-<<if $hunterintro is 1>>Eden<<else>>The hunter<</if>> deftly ties your arms and legs together, then hoists you over <<his>> shoulder, before carrying you into the forest.
+<<if $hunterintro is 1>>Eden<<else>>The <<person>><</if>> deftly ties your arms and legs together, then hoists you over <<his>> shoulder, before carrying you into the forest.
 <br><br>
 
 <<if $hunterintro is 1>>
@@ -305,6 +307,8 @@ Six pairs of eyes stare at you through the dim light. The pack advances on you.
 
 <<if $hunterintro isnot 1>>
 	<<set $hunterintro to 1>>
+	<<set C.npc.Eden.name_known to 1>>
+	<<set $NPCList[0].name_known to 1>>
 	"You're lucky I found you," <<he>> says. "The woods are dangerous, you'd have gotten hurt. My name is Eden." <<He>> pauses, as if unsure about something. <<He>> seems different to when <<he>> captured you, softer, despite you now being bound and collared at <<his>> feet.
 	<br><br>
 
@@ -354,7 +358,7 @@ Six pairs of eyes stare at you through the dim light. The pack advances on you.
 <<location "forest">><<effects>>
 <<if $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation "short">>
-	The hunter gasps, clearly not expecting to cum again so soon. It seems to be more than <<he>> can handle, giving you the chance you need. <<tearful>> you escape into the forest.
+	The <<person>> gasps, clearly not expecting to cum again so soon. It seems to be more than <<he>> can handle, giving you the chance you need. <<tearful>> you escape into the forest.
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
@@ -362,13 +366,14 @@ Six pairs of eyes stare at you through the dim light. The pack advances on you.
 	<br>
 <<elseif $enemyhealth lte 0>>
 	<<set $foresthunt to 0>>
-	Despite <<his>> strength, you manage to send the hunter reeling, giving you the chance you need. <<tearful>> you escape into the forest.
+	Despite <<his>> strength, you manage to send the <<person>> reeling, giving you the chance you need. <<tearful>> you escape into the forest.
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
 	<<link [[Next|Forest]]>><<set $stress -= 1000>><<set $eventskip to 1>><<set $eventskip to 1>><</link>>
 	<br>
 <<else>>
+	<<if !$syndromeeden>><<badEndTracking "Eden" { reason: "edenHunted" }>><</if>>
 	Battered and bruised by <<his>> assault, you are helpless as <<he>> retrieves <<his>> rope from the ground.
 	<br><br>
 	<<link [[Next|Forest Hunter Intro]]>><<clotheson>><<endcombat>><</link>>
@@ -835,7 +840,7 @@ Six pairs of eyes stare at you through the dim light. The pack advances on you.
 		A large lizard rears out of the water and grabs you in its maw! You manage to struggle free, but not unscathed.<<beastescape>>
 		<br><br>
 
-		<<link [[Next|Forest Swim]]>><<set $eventskip to 1>><</link>>
+		<<link [[Next|Forest Swim]]>><<endevent>><<set $eventskip to 1>><</link>>
 		<br>
 	<</if>>
 <<else>>
@@ -1505,6 +1510,15 @@ They growl at each other. After a brief tussle, with many scratches and bites, t
 
 	<<link [[Next|Forest]]>><<set $eventskip to 1>><</link>>
 	<br>
+<<elseif $finish is 1>>
+	The <<beasttype>> turns away from you and slinks between the trees.
+	<br><br>
+
+	<<clotheson>>
+	<<endcombat>>
+
+	<<link [[Next|Forest]]>><<set $eventskip to 1>><</link>>
+	<br>
 <<elseif $rescue is 1 and $forest lte 20>>
 	<<gwylanForestRescue "beast">>
 
@@ -1536,15 +1550,6 @@ They growl at each other. After a brief tussle, with many scratches and bites, t
 
 		<<forestCabinReturnLinks>>
 	<</if>>
-<<else>>
-	The <<beasttype>> turns away from you and slinks between the trees.
-	<br><br>
-
-	<<clotheson>>
-	<<endcombat>>
-
-	<<link [[Next|Forest]]>><<set $eventskip to 1>><</link>>
-	<br>
 <</if>>
 
 :: Forest Wolf Sex2 Finish
@@ -1651,7 +1656,6 @@ They growl at each other. After a brief tussle, with many scratches and bites, t
 <<else>>
 	<<exhibitionism3>>
 <</if>>
-<br><br>
 
 <<link [[Flaunt|Forest Cutter Flaunt]]>><<arousal 600>><<trauma -6>><<stress -12>><</link>><<garousal>><<ltrauma>><<lstress>>
 <br>
@@ -2030,6 +2034,18 @@ The pair share a grin. "We'll be happy to oblige," <<he>> says, stepping closer.
 
 	<<link [[Next|Forest]]>><<set $eventskip to 1>><</link>>
 
+<<elseif $enemyhealth lte 0>>
+	The pair stagger back, swearing, and flee into the forest.
+	<br><br>
+
+	Your knees buckle as the slime's influence fades. <<tearful>> you steady yourself.
+	<br><br>
+
+	<<clotheson>>
+	<<endcombat>>
+	<<link [[Next|Forest]]>><<set $eventskip to 1>><</link>>
+	<br>
+
 <<elseif $rescue is 1 and $forest lte 20>>
 	<<gwylanForestRescue "man" "slime">>
 
@@ -2214,6 +2230,18 @@ A <<beasttype>> steps out from the forest, sniffs you, then mounts.
 	<<endcombat>>
 	<<link [[Next|Forest]]>><<set $eventskip to 1>><</link>>
 
+<<elseif $enemyhealth lte 0>>
+	The <<beasttype>> yelps and flees into the forest.
+	<br><br>
+
+	Your knees buckle as the slime's influence fades. <<tearful>> you steady yourself.
+	<br><br>
+
+	<<clotheson>>
+	<<endcombat>>
+	<<link [[Next|Forest]]>><<set $eventskip to 1>><</link>>
+	<br>
+
 <<elseif $rescue is 1 and $forest lte 20>>
 	<<gwylanForestRescue "beast" "slime">>
 
@@ -2283,11 +2311,12 @@ You search among the trees at the edge of the clearing, looking for seeding orch
 You search around the base of ancient trees, looking for <<icon "tending/orchid.png">> orchids in bloom.
 
 <<if $tendingSuccess>>
+	<<wearProp "orchid">>
 	<span class="green">You find some around the base of a great oak.</span>
 	<<tending_pick orchid>>
 	<br><br>
 
-	<<link [[Next|Forest]]>><<set $eventskip to 1>><</link>>
+	<<link [[Next|Forest]]>><<handheldon>><<set $eventskip to 1>><</link>>
 	<br>
 <<else>>
 	<span class="red">You find none that would sell at market.</span><<gtending>><<tending 2>>
@@ -2298,7 +2327,7 @@ You search around the base of ancient trees, looking for <<icon "tending/orchid.
 <</if>>
 
 :: Forest Red Rose
-<<effects>>
+<<effects>><<wearProp "rose" "red">>
 
 You reach into the rose bushes, searching for seeding flowers. You avoid the thorns as best you can, but a few tear at you regardless.
 <br><br>
@@ -2306,7 +2335,7 @@ You reach into the rose bushes, searching for seeding flowers. You avoid the tho
 <span class="gold">You can now grow <<icon "tending/red_rose.png">> red roses.</span>
 <br><br>
 
-<<link [[Next|Forest]]>><<set $eventskip to 1>><</link>>
+<<link [[Next|Forest]]>><<handheldon>><<set $eventskip to 1>><</link>>
 <br>
 
 :: Forest Red Rose Pick
@@ -2315,6 +2344,7 @@ You reach into the rose bushes, searching for seeding flowers. You avoid the tho
 You search the rose bushes for blooming flowers, careful to avoid the thorns.
 
 <<if $tendingSuccess>>
+	<<wearProp "rose" "red">>
 	<span class="green">One bush blooms with <<icon "tending/red_rose.png">> red roses.</span>
 	<<tending_pick red_rose>>
 <<else>>
@@ -2322,7 +2352,7 @@ You search the rose bushes for blooming flowers, careful to avoid the thorns.
 <</if>>
 <br><br>
 
-<<link [[Next|Forest]]>><<set $eventskip to 1>><</link>>
+<<link [[Next|Forest]]>><<handheldon>><<set $eventskip to 1>><</link>>
 
 :: Forest Lily
 <<effects>>
@@ -2340,13 +2370,14 @@ You drop to your knees and crawl through the grass, searching for seeding lilies
 <<effects>>
 You drop to your knees and crawl through the grass, searching for blooming <<icon "tending/lily.png">> lilies.
 <<if $tendingSuccess>>
+	<<wearProp "lily">>
 	<span class="green">You find some saleable specimens hiding beneath a fern.</span><<tending_pick lily>>
 <<else>>
 	<span class="red">You find none that would sell at market.</span><<gtending>><<tending 2>>
 <</if>>
 <br><br>
 
-<<link [[Next|Forest]]>><<set $eventskip to 1>><</link>>
+<<link [[Next|Forest]]>><<handheldon>><<set $eventskip to 1>><</link>>
 
 :: Forest Pitcher Wait
 <<effects>>
@@ -2732,7 +2763,7 @@ You stand on tiptoe, and test the <<icon "tending/pear.png">> pears.
 <</if>>
 <br><br>
 
-<<link [[Next|Forest]]>><<set $eventskip to 1>><</link>>
+<<link [[Next|Forest]]>><<handheldon>><<set $eventskip to 1>><</link>>
 
 :: Forest Lemon Pick
 <<effects>>
@@ -2747,7 +2778,7 @@ You search the short trees for saleable <<icon "tending/lemon.png">> lemons.
 <</if>>
 <br><br>
 
-<<link [[Next|Forest]]>><<set $eventskip to 1>><</link>>
+<<link [[Next|Forest]]>><<handheldon>><<set $eventskip to 1>><</link>>
 
 :: Forest Blood Lemon Pick
 <<effects>>
@@ -3188,7 +3219,9 @@ The slimes disappear into the river. <<tearful>> you look around frantically.
 <<if $backgroundTraits.includes("plantlover") and $nectar_timer lte 14>>
 	You practically lurch forward and capture the <<persons>> lips with your own. <<He>> gasps into your own, and you thrust your tongue into <<his>> mouth, abandoning all self-control.
 	<span class="green">Sweet nectar fills your mouth.</span>
-	<<nectarfed 10>><<takeKissVirginity $NPCList[0] "addiction">>
+	<<nectarfed 10>>
+	<br><br>
+	<<takeKissVirginity $NPCList[0] "addiction">>
 	<<promiscuity1>>
 
 	The <<person>> comes back to <<his>> senses, and wraps <<his>> vines around you. With a gentle, almost teasing push, <<he>> sends you to the forest floor and lowers <<himself>> to lie on top of you.
@@ -3503,7 +3536,7 @@ You start to climb the tree towards the nest. You make it up half way, before ne
 			<</if>>
 			<br><br>
 
-			<<if ($fox gte 6 or $transformationParts.fox.tail is "default")>>
+			<<if ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled"))>>
 				<<link [[Eat one|Forest Nest Share]]>><<transform fox 1>><<stress -4>><</link>><<lstress>>
 				<br>
 			<<else>>
@@ -3534,7 +3567,7 @@ You start to climb the tree towards the nest. You make it up half way, before ne
 :: Forest Nest Throw
 <<effects>>
 You grab a rock and toss it at the nest. It gets knocked loose, falling down in a messy heap. You see goo and yolk leaking through the twigs.
-<<if ($harpy gte 6 or $transformationParts.bird.wings is "default")>><<stress 6>><<ggstress>><</if>>
+<<if ($harpy gte 6 or ($transformationParts.bird.wings isnot "hidden" and $transformationParts.bird.wings isnot "disabled"))>><<stress 6>><<ggstress>><</if>>
 <br><br>
 
 <<if $forest_nest.fox isnot 3>>
@@ -3733,7 +3766,7 @@ That is, until you hear rapid footsteps behind you. You turn just in time to be
 	<</if>>
 	<br><br>
 
-	<<if ($fox gte 6 or $transformationParts.fox.tail is "default")>>
+	<<if ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled"))>>
 		<<link [[Eat one|Forest Nest Share]]>><<transform fox 1>><<stress -4>><</link>><<lstress>>
 		<br>
 	<<else>>
@@ -3745,11 +3778,11 @@ That is, until you hear rapid footsteps behind you. You turn just in time to be
 <</if>>
 
 :: Forest Nest Share
-<<effects>>
+<<effects>><<wearProp "egg" 0 "bird">>
 <<if $forest_nest.eggs lte 0>>
-	You pick up a broken egg and <<if ($fox gte 6 or $transformationParts.fox.tail is "default")>>eagerly lap up its yolk<<else>>hesitantly pour the white and yolk into your mouth. It's not as bad as you thought it'd be<</if>>.
+	You pick up a broken egg and <<if ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled"))>>eagerly lap up its yolk<<else>>hesitantly pour the white and yolk into your mouth. It's not as bad as you thought it'd be<</if>>.
 <<else>>
-	You pick up an egg and <<if ($fox gte 6 or $transformationParts.fox.tail is "default")>>eagerly break it open into your mouth<<else>>hesitantly break it open into your mouth. It's not as bad as you thought it'd be<</if>>.
+	You pick up an egg and <<if ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled"))>>eagerly break it open into your mouth<<else>>hesitantly break it open into your mouth. It's not as bad as you thought it'd be<</if>>.
 <</if>>
 <br><br>
 
@@ -3776,7 +3809,7 @@ You eventually say goodbye.
 <<effects>>
 You hide and wait, watching the nest intently.
 <<if $forest_nest.fox is 3>>
-	<<if ($fox gte 6 or $transformationParts.fox.tail is "default")>>
+	<<if ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled"))>>
 		The smell is getting closer. Before long, you hear rustling.
 	<<else>>
 		Before long, the rustling continues.
@@ -3833,7 +3866,7 @@ You hide and wait, watching the nest intently.
 
 	<<link [[Just watch (0:05)|Forest Fox Nest Watch]]>><<pass 5>><<stress -3>><</link>><<lstress>>
 	<br>
-	<<if ($harpy gte 6 or $transformationParts.bird.wings is "default")>>
+	<<if ($harpy gte 6 or ($transformationParts.bird.wings isnot "hidden" and $transformationParts.bird.wings isnot "disabled"))>>
 		<<link [[Challenge|Forest Fox Nest Challenge]]>><</link>><<harpy>>
 		<br>
 	<<else>>
@@ -3842,7 +3875,7 @@ You hide and wait, watching the nest intently.
 	<</if>>
 	<<link [[Sneak up|Forest Fox Nest Sneak]]>><</link>><<skulduggerydifficulty>>
 	<br>
-	<<if ($fox gte 6 or $transformationParts.fox.tail is "default")>>
+	<<if ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled"))>>
 		<<link [[Chase!|Forest Fox Nest Chase]]>><<set $phase2 to 1>><<stress -6>><<transform fox 1>><</link>><<llstress>><<fox>><<note "No eggs" "red">>
 		<br>
 	<<else>>
@@ -3960,9 +3993,9 @@ The <<beasttype>> dives behind a bush and starts to dig a hole. You slowly step 
 		<<if $monster is 1 or $bestialitydisable is "f">>
 			<<if $monster is 1>>
 				<<bHe>> holds both of your arms down.
-				<<if ($fox gte 6 or $transformationParts.fox.tail is "default")>>
+				<<if ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled"))>>
 					"What's this? Hoping to catch an easy mate, kit?"
-				<<elseif ($cat gte 6 or $transformationParts.cat.tail is "default")>>
+				<<elseif ($cat gte 6 or ($transformationParts.cat.tail isnot "hidden" and $transformationParts.cat.tail isnot "disabled"))>>
 					<<if $NPCList[0].pronoun is "f" and $NPCList[0].breastsize gte 4 and $NPCList[0].lactation is 1>>
 						"Hoping to get some milk, stray?" <<bHe>> presses <<bhis>> $NPCList[0].breastsdesc against you, <<bhis>> face only inches from yours.
 					<<else>>
@@ -4024,8 +4057,8 @@ The <<beasttype>> dives behind a bush and starts to dig a hole. You slowly step 
 
 		<<link [[Pet|Forest Fox Nest Pet]]>><<set $phase2 to 1>><</link>><<tendingdifficulty 1 200>><<llstress>>
 		<br>
-		<<if ($fox gte 6 or $transformationParts.fox.tail is "default") and $monster is 1>>
-			<<link [["Lick " + $NPCList[0].pronouns.him + " clean"|Forest Fox Nest Lick]]>><<set $phase2 to 1>><</link>><<deviant1>><<fox>>
+		<<if ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled")) and $monster is 1>>
+			<<link [[Lick <<bhim>> clean|Forest Fox Nest Lick]]>><<set $phase2 to 1>><</link>><<deviant1>><<fox>>
 			<br>
 		<</if>>
 		<<link [[Leave|Forest]]>><<endevent>><<set $eventskip to 1>><<unset $forest_nest>><</link>>
@@ -4050,7 +4083,7 @@ The <<beasttype>> dives behind a bush and starts to dig a hole. You take the cha
 <br><br>
 
 <<bHe>> doesn't notice you until you're close. <<bHe>> starts to run.
-<<if ($fox gte 6 or $transformationParts.fox.tail is "default") or $athleticsSuccess>>
+<<if ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled")) or $athleticsSuccess>>
 	<<if $athleticsSuccess>>
 		<span class="green">But you're too fast.</span> You dive, catching <<bhim>> and rolling until <<bhes>> pinned under you.
 	<<else>>
@@ -4078,7 +4111,7 @@ The <<beasttype>> dives behind a bush and starts to dig a hole. You take the cha
 		<<set _tendingMin to 1>>
 		<<set _tendingMax to 2>>
 		<<if $monster is 1>>
-			<<bHes>> laughing under you. "That was fun! Thanks for the excercise."
+			<<bHes>> laughing under you. "That was fun! Thanks for the exercise."
 		<<else>>
 			<<bHe>> lets out many high-pitched barks that almost sound like laughter.
 		<</if>>
@@ -4099,10 +4132,10 @@ The <<beasttype>> dives behind a bush and starts to dig a hole. You take the cha
 		<<link [[Adopt mating posture|Forest Fox Nest Mate]]>><<set $phase to 1>><</link>><<deviant2>>
 		<br>
 	<<else>>
-		<span class="blue">You aren't deviant enough to take things further.</span>
+		<<insufficientStat "deviancy" "to take things further">>
 		<br>
 	<</if>>
-	<<link [["Let "+ $NPCList[0].pronouns.him +" go"|Forest Fox Let Go]]>><</link>>
+	<<link [[Let <<bhim>> go|Forest Fox Let Go]]>><</link>>
 	<br>
 <<else>>
 	You manage to close the distance between you, <span class="red">but <<bhes>> too nimble.</span>
@@ -4116,9 +4149,9 @@ The <<beasttype>> dives behind a bush and starts to dig a hole. You take the cha
 		<<if $monster is 1 or $bestialitydisable is "f">>
 			<<if $monster is 1>>
 				<<bHe>> holds both of your arms down.
-				<<if ($fox gte 6 or $transformationParts.fox.tail is "default")>>
+				<<if ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled"))>>
 					"What's this? Hoping to catch an easy mate, kit?"
-				<<elseif ($cat gte 6 or $transformationParts.cat.tail is "default")>>
+				<<elseif ($cat gte 6 or ($transformationParts.cat.tail isnot "hidden" and $transformationParts.cat.tail isnot "disabled"))>>
 					<<if $NPCList[0].pronoun is "f" and $NPCList[0].breastsize gte 4 and $NPCList[0].lactation is 1>>
 						"Hoping to get some milk, stray?" <<bHe>> presses <<bhis>> $NPCList[0].breastsdesc against you, <<bhis>> face only inches from yours.
 					<<else>>
@@ -4151,7 +4184,7 @@ The <<beasttype>> dives behind a bush and starts to dig a hole. You take the cha
 		You keep walking forward, until you step on a branch. You're caught off guard as a rope snares around your right leg, hoisting you high into the air. It flips you upside down, leaving you dangling from a nearby tree.<<gstress>><<stress 6>>
 		<br><br>
 		<<if $monster is 1>>
-			The <<beasttype>> laughs at you, rolling around over <<bhimself>>. "Enjoy your time with the hunter!" <<bHe>> bounds away.
+			The <<beasttype>> laughs at you, rolling around over <<bhimself>>. "Enjoy your time with the <<nnpc_title "Eden">>!" <<bHe>> bounds away.
 		<<else>>
 			The <<beasttype>> makes some mocking barks at you. <<bHe>> bounds away.
 		<</if>>
@@ -4213,7 +4246,7 @@ Without warning, the rope releases, dropping you back on the ground. You shakily
 		<<link [[Resist|Eden Recaptured Resist Normal]]>><<set $molestationstart to 1>><</link>>
 	<</if>>
 	<br>
-	<<link [[Go to the cabin (0:30)|Eden Recaptured]]>><<pass 30>><</link>>
+	<<link [[Go to the cabin (0:30)|Eden Recaptured]]>><<set $edendays to 0>><<pass 30>><</link>>
 	<br>
 <<elseif $edenfreedom is 1 and $edendays gte 2>>
 	An arm wraps around your neck from behind, while a hand presses against the back of your head. You hear a <<personsimple>>'s voice. "I've been looking for you all over." It's Eden. "Come on, let's go home."
@@ -4221,7 +4254,7 @@ Without warning, the rope releases, dropping you back on the ground. You shakily
 
 	<<link [[Resist|Eden Recaptured Resist]]>><<set $fightstart to 1>><</link>>
 	<br>
-	<<link [[Go to the cabin (0:30)|Eden Recaptured]]>><<pass 30>><</link>>
+	<<link [[Go to the cabin (0:30)|Eden Recaptured]]>><<set $edendays to 0>><<pass 30>><</link>>
 	<br>
 <<elseif $edenfreedom gte 1>>
 	<<rng>>
@@ -4238,7 +4271,7 @@ Without warning, the rope releases, dropping you back on the ground. You shakily
 
 	<<forestCabinReturnLinks>>
 <<else>>
-	A bullet whizzes past and hits a tree in front of you. You shield your face with your arms and stagger backwards. You hear a <<personsimple>>'s voice. "I've got you now, you damned fox-" <<he>> pauses upon seeing you.
+	A bullet whizzes past and hits a tree in front of you. You shield your face with your arms and stagger backwards. You hear a <<personsimple>>'s voice. "I've got you now, you damned fox-" <<He>> pauses upon seeing you.
 	<br><br>
 
 	"Looks like I caught something better. Don't move." A cold hard object presses against your back.
@@ -4250,7 +4283,7 @@ Without warning, the rope releases, dropping you back on the ground. You shakily
 
 :: Forest Fox Nest Challenge
 <<effects>>
-<<if ($harpy gte 6 or $transformationParts.bird.wings is "default")>>
+<<if ($harpy gte 6 or ($transformationParts.bird.wings isnot "hidden" and $transformationParts.bird.wings isnot "disabled"))>>
 	You let out a piercing shriek, flaring out your wings.
 <<else>>
 	You make your presence known, yelling at the <<beasttype>> to get <<bhis>> attention.
@@ -4271,8 +4304,8 @@ Without warning, the rope releases, dropping you back on the ground. You shakily
 
 	<<link [[Pet|Forest Fox Nest Pet]]>><<set $phase2 to 1>><</link>><<tendingdifficulty 1 200>><<llstress>>
 	<br>
-	<<if ($fox gte 6 or $transformationParts.fox.tail is "default") and $monster is 1>>
-		<<link [["Lick " + $NPCList[0].pronouns.him + " clean"|Forest Fox Nest Lick]]>><<set $phase2 to 1>><</link>><<deviant1>><<fox>>
+	<<if ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled")) and $monster is 1>>
+		<<link [[Lick <<bhim>> clean|Forest Fox Nest Lick]]>><<set $phase2 to 1>><</link>><<deviant1>><<fox>>
 		<br>
 	<</if>>
 	<<link [[Leave|Forest]]>><<endevent>><<set $eventskip to 1>><<unset $forest_nest>><</link>>
@@ -4293,7 +4326,7 @@ Without warning, the rope releases, dropping you back on the ground. You shakily
 	<br>
 <<else>>
 	You make yourself appear as large as possible,
-	<<if $physiqueSuccess or ($harpy gte 6 or $transformationParts.bird.wings is "default")>>
+	<<if $physiqueSuccess or ($harpy gte 6 or ($transformationParts.bird.wings isnot "hidden" and $transformationParts.bird.wings isnot "disabled"))>>
 		<span class="green">and <<bhis>> tail puffs out.</span>
 		<<if $NPCList[0].traits.includes("territorial")>>
 			<<if $monster is 1>>
@@ -4376,7 +4409,7 @@ Without warning, the rope releases, dropping you back on the ground. You shakily
 			<</if>>
 			<br><br>
 
-			<<if ($fox gte 6 or $transformationParts.fox.tail is "default")>>
+			<<if ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled"))>>
 				<<link [[Eat one|Forest Nest Share]]>><<transform fox 1>><<stress -4>><</link>><<lstress>>
 				<br>
 			<<else>>
@@ -4453,10 +4486,10 @@ You gently touch the <<beasttypes>> tail. It is incredibly soft. You start to pe
 		<<link [[Adopt mating posture|Forest Fox Nest Mate]]>><<set $phase to 2>><</link>><<deviant2>>
 		<br>
 	<<else>>
-		<span class="blue">You aren't deviant enough to take things further.</span>
+		<<insufficientStat "deviancy" "to take things further">>
 		<br>
 	<</if>>
-	<<link [["Let "+ $NPCList[0].pronouns.him +" go"|Forest Fox Let Go]]>><</link>>
+	<<link [[Let <<bhim>> go|Forest Fox Let Go]]>><</link>>
 	<br>
 <<else>>
 	<<if $NPCList[0].traits.includes("territorial")>>
@@ -4467,9 +4500,9 @@ You gently touch the <<beasttypes>> tail. It is incredibly soft. You start to pe
 		<<if $monster is 1 or $bestialitydisable is "f">>
 			<<if $monster is 1>>
 				<<bHe>> smugly straddles you, arms crossed over <<bhis>> bare <<print $NPCList[0].breastsdesc>>.
-				<<if ($fox gte 6 or $transformationParts.fox.tail is "default")>>
+				<<if ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled"))>>
 					"This is my territory, kit. I will not share." <<bHe>> lowers <<bhimself>> down until your faces are nearly touching. "Of course... if you were my mate, things would be different."
-				<<elseif ($cat gte 6 or $transformationParts.cat.tail is "default")>>
+				<<elseif ($cat gte 6 or ($transformationParts.cat.tail isnot "hidden" and $transformationParts.cat.tail isnot "disabled"))>>
 					"Haughty little stray. I should teach you a lesson."
 				<<elseif $wolf gte 6>>
 					"This is my territory, insolent pup. Let this be a warning to your pack."
@@ -4598,10 +4631,10 @@ You gently touch the <<beasttypes>> <<if $monster is 1>>hair<<else>>fur<</if>>. 
 		<<link [[Adopt mating posture|Forest Fox Nest Mate]]>><<set $phase to 3>><</link>><<deviant2>>
 		<br>
 	<<else>>
-		<span class="blue">You aren't deviant enough to take things further.</span>
+		<<insufficientStat "deviancy" "to take things further">>
 		<br>
 	<</if>>
-	<<link [["Let "+ $NPCList[0].pronouns.him +" go"|Forest Fox Let Go]]>><</link>>
+	<<link [[Let <<bhim>> go|Forest Fox Let Go]]>><</link>>
 	<br>
 <<else>>
 	<<if $NPCList[0].traits.includes("territorial")>>
@@ -4640,10 +4673,10 @@ By the time you're done, <<bhes>> already panting.
 	<<link [[Adopt mating posture|Forest Fox Nest Mate]]>><<set $phase to 1>><</link>><<deviant2>>
 	<br>
 <<else>>
-	<span class="blue">You aren't deviant enough to take it further.</span> You leave <<bhim>> panting in the clearing.
+	<<insufficientStat "deviancy" "to take it further">> You leave <<bhim>> panting in the clearing.
 	<br>
 <</if>>
-<<link [["Let "+ $NPCList[0].pronouns.him +" go"|Forest Fox Let Go]]>><</link>>
+<<link [[Let <<bhim>> go|Forest Fox Let Go]]>><</link>>
 <br>
 
 :: Forest Fox Let Go
@@ -4728,15 +4761,15 @@ You let the <<beasttype>> go.
 You put your head right next to the <<beasttype>>.
 <br><br>
 
-<<if ($fox gte 6 or $transformationParts.fox.tail is "default")>>
+<<if ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled"))>>
 	You let out a high-pitched scream, and <<bhe>> jumps and lets a similar one out in response. You both stare each other down, screaming, before <<bhe>> scrambles away.
-<<elseif ($harpy gte 6 or $transformationParts.bird.wings is "default")>>
+<<elseif ($harpy gte 6 or ($transformationParts.bird.wings isnot "hidden" and $transformationParts.bird.wings isnot "disabled"))>>
 	You let out a piercing screech, and <<bhe>> jumps and screams in response. You both stare each other down, screaming, before <<bhe>> scrambles away.
 <<elseif $wolf gte 6>>
 	"Woof." <<bHe>> jumps, tail puffed out, and lets out a high-pitched scream before scrambling away.
-<<elseif ($cat gte 6 or $transformationParts.cat.tail is "default")>>
+<<elseif ($cat gte 6 or ($transformationParts.cat.tail isnot "hidden" and $transformationParts.cat.tail isnot "disabled"))>>
 	"Meow." <<bHe>> jumps, tail puffed out, and lets out a high-pitched scream before scrambling away.
-<<elseif ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black")>>
+<<elseif ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>>
 	"Moo." <<bHe>> jumps, tail puffed out, and lets out a high-pitched scream before scrambling away.
 <<else>>
 	"Caught you." <<bHe>> jumps, tail puffed out, and lets out a high-pitched scream before scrambling away.
@@ -5050,7 +5083,7 @@ You put your head right next to the <<beasttype>>.
 			<<link [[Show your appreciation|Forest Fox Nest Sex]]>><<set $sexstart to 1>><<set $phase2 to 1>><</link>><<deviant2>>
 			<br>
 		<<else>>
-			<span class="blue">You aren't deviant enough to show your appreciation.</span>
+			<<insufficientStat "deviancy" "to show your appreciation">>
 			<br>
 		<</if>>
 		<<link [[Thank and leave|Forest]]>><<endevent>><<unset $forest_nest>><<set $eventskip to 1>><<stress -3>><</link>><<lstress>>
@@ -5069,7 +5102,7 @@ You put your head right next to the <<beasttype>>.
 			<<link [[Show your appreciation|Forest Fox Nest Sex]]>><<set $sexstart to 1>><<set $phase2 to 1>><</link>><<deviant2>>
 			<br>
 		<<else>>
-			<span class="blue">You aren't deviant enough to show your appreciation.</span>
+			<<insufficientStat "deviancy" "to show your appreciation">>
 			<br>
 		<</if>>
 		<<link [[Leave|Forest]]>><<endevent>><<unset $forest_nest>><<set $eventskip to 1>><<stress -3>><</link>><<lstress>>
@@ -5101,8 +5134,7 @@ You put your head right next to the <<beasttype>>.
 <<effects>>
 You lay down in the nest, completely still. You don't have to wait long. You hear the slithering first, and soon feel breath on your legs.
 <<deviancy4>>
-
-<<link [[Next|Forest Nest Snake Vore 2]]>><<endevent>><<unset $forest_nest>><<set $molestationstart to 1>><</link>>
+<<link [[Next|Forest Nest Snake Vore 2]]>><<endevent>><<unset $forest_nest>><<set $molestationstart to 2>><</link>>
 <br>
 
 :: Forest Nest Snake Watch
@@ -5114,17 +5146,14 @@ You decide it's too dangerous to intervene.
 	<<if $monster is 1>>
 		<<if $NPCList[0].traits.includes("territorial")>>
 			The <<beasttype>> looks up in terror. <<bHe>> tries to hold the snake's jaws open, but it's no use. You watch as the snake lunges once more, and the <<beasttype>> is swallowed whole.
-			<br><br>
-
-			...and then immediately and violently regurgitated. The <<beasttype>> lays stunned for a moment, before standing and limping off into the forest, looking traumatised. The snake returns to its nest.
 		<<else>>
 			The <<beasttype>> looks up in terror. <<bHe>> covers <<bhis>> face with <<bhis>> arms and cowers. You watch as the snake lunges once more, and the <<beasttype>> is swallowed whole.
-			<br><br>
-
-			...and then immediately and violently regurgitated. The <<beasttype>> lays stunned for a moment, before standing and limping off into the forest, looking traumatised. The snake returns to its nest.
 		<</if>>
+		<br><br>
+
+		...and then immediately and violently regurgitated. The <<beasttype>> lays stunned for a moment, before standing and limping off into the forest, looking traumatised. The snake returns to its nest.
 	<<else>>
-		The <<beasttype>> flinches and curls up on itself. You watch as the snake lunges once more, and the <<beasttype>> is swallowed whole.
+		The <<beasttype>> flinches and curls up on <<bhimself>>. You watch as the snake lunges once more, and the <<beasttype>> is swallowed whole.
 		<br><br>
 
 		...and then immediately and violently regurgitated. The <<beasttype>> lays stunned for a moment, before limping off into the forest. The snake returns to its nest.
@@ -5136,7 +5165,7 @@ You decide it's too dangerous to intervene.
 	Instead, however, it slowly curls up around <<bhim>>. <<bHe>> doesn't dare move, but after some time, it almost seems like the snake... falls sleep?
 	<br><br>
 
-	The <<beasttype>> very slowly and carefully pulls itself out from the snake's grasp, and slinks away into the trees, looking quite confused all the while.
+	The <<beasttype>> very slowly and carefully pulls <<bhimself>> out from the snake's grasp, and slinks away into the trees, looking quite confused all the while.
 <</if>>
 <br><br>
 
@@ -5207,7 +5236,7 @@ You waste no time. You dash out from the brush. The snake turns to you, the much
 		<<link [[Next|Forest]]>><<endevent>><<unset $forest_nest>><<set $eventskip to 1>><</link>>
 		<br>
 	<<else>>
-		You see the <<beasttype>> darting off into the forest. You bought it enough time to escape, at least.
+		You see the <<beasttype>> darting off into the forest. You bought <<bhim>> enough time to escape, at least.
 		<<if $voredisable is "f">>
 			The snake seems irritated at losing its meal, and slithers up to you mouth agape once more.
 			<br><br>
@@ -5237,6 +5266,17 @@ You waste no time. You dash out from the brush. The snake turns to you, the much
 	<<set $vorestrength to 1>><<set $position to "doggy">>
 	<<resetLastOptions>>
 	<<getCombatDefaultsType>>
+<<elseif $molestationstart is 2>>
+	<<set $molestationstart to 0>>
+	<<set $combat to 1>>
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<set $enemytype to "vore">>
+	<<set $vorestage to 1>>
+	<<set $vorecreature to "snake">>
+	<<set $vorestrength to 1>><<set $position to "doggy">>
+	<<resetLastOptions>>
+	<<getCombatDefaultsType>>
 <</if>>
 <<voreeffects>>
 <<vore>>
@@ -5252,7 +5292,7 @@ You waste no time. You dash out from the brush. The snake turns to you, the much
 :: Forest Nest Snake Vore Finish
 <<effects>>
 <<if $vorestage gte 7>>
-	<<tearful>> you struggle as the snake starts to move. It journeys for several minutes until with a great heave the snake pushes you up and through its gullet once more, expelling you from its body.
+	<<tearful>> you struggle as the snake starts to move. It journeys for several minutes until with a great heave, the snake pushes you up and through its gullet once more, expelling you from its body.
 	<br><br>
 
 	<<endcombat>>
@@ -5469,16 +5509,16 @@ You waste no time. You dash out from the brush. The snake turns to you, the much
 	<<if $worn.under_lower.integrity gte 1>>
 		Several students move behind you and force you to the ground while the other teens grab your arms. You expect them to try stripping you, or worse, but instead you feel two pairs of hands <<if wornSetupClothes("lower").skirt is 1>>reach up your skirt <<else>>dive down your waistband<</if>> and clamp something metallic to the sides of your $worn.under_lower.name before letting go of you.
 		<br><br>
-		You stand back up, but before you have time to react, some of the students begin pulling on ropes that loop over branches above you and connect to your $worn.under_lower.name. They start to tear slightly as your classmates hoist you a metre off the ground, pulling the fabric tightly between your ass cheeks and against your <<genitals>>. It hurts but is slightly arousing as well. <<ggstress>><<stress 12>><<garousal>><<arousal 100>><<gpain>><<pain 10>>
+		You stand back up, but before you have time to react, some of the students begin pulling on ropes that loop over branches above you and connect to your $worn.under_lower.name. <<if $worn.under_lower.plural isnot 1>>It starts<<else>>They start<</if>> to tear slightly as your classmates hoist you a metre off the ground, pulling the fabric tightly between your ass cheeks and against your <<genitals>>. It hurts but is slightly arousing as well. <<ggstress>><<stress 12>><<garousal>><<arousal 100>><<gpain>><<pain 10>>
 		<br><br>
 		<<if $worn.lower.name isnot 'naked'>>
 			The teens gather in a circle around you to admire their handiwork. "I think something is missing," the <<person>> says and approaches you.
 			<br><br>
-			<<if $speech_attitude is "bratty">>
-				<<link [[Kick|Forest Bully Kick]]>><</link>><<physiquedifficulty 1 16650>>
-			<<elseif $submissive gte 1150>>
+			/* <<if $submissive lte 850>> */
+				<<link [[Kick|Forest Bully Kick]]>><</link>><<physiquedifficulty 1 16650>><br>
+			/* <<elseif $submissive gte 1150>> */
 				<<link [[Beg|Forest Bully Beg]]>><</link>><<englishdifficulty 1 1055>>
-			<</if>>
+			/* <</if>> */
 			<br>
 			<<link [[Stay still|Forest Bully Still]]>><</link>>
 		<<else>>
@@ -5498,7 +5538,7 @@ You waste no time. You dash out from the brush. The snake turns to you, the much
 <</if>>
 
 :: Forest Bully Skip Lower
-They step back and admire their handiwork triumphantly, while the other students giggle and take pictures.<<fameexhibitionism 50>>
+<<He>> steps back and admire <<his>> handiwork triumphantly, while the other students giggle and take pictures.<<fameexhibitionism 50>>
 <br><br>
 "Have fun up there, loser!" the <<person>> shouts as the group walks away. <<ggstress>><<stress 25>>
 <<forestBullyLeaves>>
@@ -5509,7 +5549,7 @@ They step back and admire their handiwork triumphantly, while the other students
 <<else>>
 	You wait for the opportune moment and kick out with all your strength. The <<person>> staggers back for a moment before scowling in rage. "Oh, that's how you want to play, bitch? You two, come here and hold <<phim>>. I'm going to have fun with you."
 	<br><br>
-	Held in place, you are powerless to resist as the <<person>> systematically tears and cuts off your clothing, leaving only the $worn.under_lower.name that suspend<<if $worn.under_lower.plural isnot 1>>s<</if>> you in the air. They step back and admire their handiwork triumphantly, while the other students giggle and take pictures.<<fameexhibitionism 50>>
+	Held in place, you are powerless to resist as the <<person>> systematically tears and cuts off your clothing, leaving only the $worn.under_lower.name that suspend<<if $worn.under_lower.plural isnot 1>>s<</if>> you in the air. <<He>> steps back and admires <<his>> handiwork triumphantly, while the other students giggle and take pictures.<<fameexhibitionism 50 "pic">>
 	<br><br>
 	"Have fun up there, loser!" the <<person>> shouts as the group walks away. <<overheadruined>> <<overupperruined>> <<overlowerruined>> <<upperruined>> <<lowerruined>> <<underupperruined>> <<headruined>> <<faceruined>> <<legsruined>> <<feetruined>> <<handsruined>><<handheldruined>><<ggstress>><<stress 50>>
 <</if>>
@@ -5521,7 +5561,7 @@ They step back and admire their handiwork triumphantly, while the other students
 <<if $englishSuccess>>
 	<<He>> continues towards you before being interrupted by another student, "C'mon, I think we had our fun, right?" Some of the more empathetic students nod in agreement and start walking away.
 	<br><br>
-	"Have fun up there, loser!" the <<person>> says, visibly frustrated as <<he>> jogs to catch up with the others.
+	"Have fun up there, loser!" the <<person>> grunts, visibly frustrated as <<he>> jogs to catch up with the others.
 <<else>>
 	<<He>> continues towards you with renewed dominance. "Aw, are we making your day hard? Are you not having fun up there?" <<he>> mocks, "Shut up, you dumb slut, I'm going to have my fun!"
 	<br><br>
@@ -5554,7 +5594,7 @@ You grip two of the ropes the best you can and start pulling yourself up towards
 	<br><br>
 	<<link [[Climb|Forest Bully Climb]]>><</link>>
 	<br>
-	<<link [[Call for Help|Forest Bully Help]]>><</link>>
+	<<link [[Call for help|Forest Bully Help]]>><</link>>
 
 <<else>>
 	You start climbing, but only make it about halfway up before your arms start to shake and your grip fails. You fall a short distance before being caught by your $worn.under_lower.name. The material from your $worn.under_lower.name pulls even tighter <<print ($player.ballsExist ? " against your testes" : "in between your labia")>> than before, causing a new wave of agony. <<gpain>><<ggstress>><<pain 25>><<stress 50>>
@@ -5568,7 +5608,9 @@ You grip two of the ropes the best you can and start pulling yourself up towards
 You shout for help out the top of your lungs, hoping for the best. Besides some startled birds, the forest seems still.<br><br>
 <<rng>>
 <<if $rng lte 20 >>
-	After a few minutes of waiting, you see one of the students from earlier quietly sneak back to you. They move over to where the ropes are secured and gently lower you back to the ground before running back into the woods to catch up with their friends. You breathe a sigh of relief when your feet finally reach the ground, taking the pressure off your crotch.
+	<<generatey2>><<person2>>
+	After a few minutes of waiting, you see one of the students from earlier quietly sneak back to you. <<person2>><<He>> moves over to where the ropes are secured and gently lowers you back to the ground before running back into the woods to catch up with <<person2>><<his>> friends. You breathe a sigh of relief when your feet finally reach the ground, taking the pressure off your crotch.
+
 	<br><br>
 	<<link [[Next|Forest]]>><<set $eventskip to 1>><<endevent>><</link>>
 <<elseif $rng lte 40 >>
@@ -5585,12 +5627,22 @@ You shout for help out the top of your lungs, hoping for the best. Besides some 
 	<br><br>
 	<<link [[Next|Forest]]>><<set $eventskip to 1>><<endevent>><</link>>
 
-<<elseif $rng lte 80 and $bestialitydisable is "f">>
-	After a few minutes of waiting, you see a lone wolf emerge from the trees, attracted by the noise. It snarls before biting onto your ankle! The extra weight pulls your $worn.under_lower.name painfully <<print ($player.ballsExist ? " against your testes" : "between your labia")>> until your underwear finally tears off your body. <<gpain>><<ggstress>><<pain 25>><<stress 50>><<set $worn.under_lower.integrity to 0>>.
+<<elseif $rng lte 80>>
+    <<beastNEWinit 1 wolf>>
+	After a few minutes of waiting, you see a lone <<beasttype>> emerge from the trees, attracted by the noise. <<bHe>> snarls before biting onto your ankle! The extra weight pulls your $worn.under_lower.name painfully <<print ($player.ballsExist ? " against your testes" : "between your labia")>> until your underwear finally tears off your body. <<gpain>><<ggstress>><<pain 25>><<stress 50>><<set $worn.under_lower.integrity to 0>>.
 	<br><br>
-	You fall to the ground, clutching your crotch in agony. The wolf, seeing your vulnerability, leaps on top of you!
-	<br><br><<beastNEWinit 1 wolf>>
-	<<link [[Next|Forest Wolf]]>><<set $molestationstart to 1>><</link>>
+
+	<<if $monster is 1 or $bestialitydisable is "f">>
+		You fall to the ground, clutching your crotch in agony. The <<beasttype>>, seeing your vulnerability, leaps on top of you!
+		<br><br>
+		<<link [[Next|Forest Wolf]]>><<set $molestationstart to 1>><</link>>
+		<br>
+	<<else>>
+		You fall to the ground, clutching your crotch in agony. You barely manage to stand as the wolf lunges at you and begins chasing you through the woods. You run until you can no longer hear it behind you. You're not sure if you outran it or it grew bored.<<beastescape>><<gtiredness>><<tiredness 4>><<gathletics>><<athletics 2>><<silently>><<physique 1>><</silently>>
+    	<br><br>
+		<<link [[Next (0:20)|Forest]]>><<endevent>><<pass 20>><<set $eventskip to 1>><</link>>
+		<br>
+	<</if>>
 <<else>>
 	You wait for a few minutes, but no one comes. You gently swing back and forth due to the breeze, which forces you to occasionally shift your weight, adding to your discomfort.
 	<br><br>
@@ -5601,7 +5653,7 @@ You shout for help out the top of your lungs, hoping for the best. Besides some 
 		<br><br>
 		<<link [[Climb|Forest Bully Climb]]>><</link>>
 		<br>
-		<<link [[Call for Help|Forest Bully Help]]>><</link>>
+		<<link [[Call for help|Forest Bully Help]]>><</link>>
 	<<else>>
 		The silence is only broken by the occasional tearing sounds coming from your $worn.under_lower.name. Finally, the material gives way, dropping you to the ground!
 		<br><br>

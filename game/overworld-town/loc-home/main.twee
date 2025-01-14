@@ -7,7 +7,7 @@ You are in your bedroom.
 <<if _furniture.wallpaper>>
 	<br>
 	<<set _premadeWall to ["vines", "tentacles", "plainwhite", "cowgirls", "cow_girls", "hearts", "trees", "crosses"].includes(_furniture.wallpaper.name)>>
-	<<set _wallpaper to _premadeWall ? "wallpaper_" + _furniture.wallpaper.name + ".png" : ['dol', 'degrees of lewdity'].some(e => _furniture.wallpaper.name.toLowerCase().includes(e)) ? "wallpaper_dol.png" : "wallpaper_custom.png">>
+	<<set _wallpaper to _premadeWall ? "wallpaper_" + _furniture.wallpaper.name : ['dol', 'degrees of lewdity'].some(e => _furniture.wallpaper.name.toLowerCase().includes(e)) ? "wallpaper_dol" : "wallpaper_custom">>
 
 	<<furnitureicon _wallpaper>>
 	<<switch _furniture.wallpaper.name>>
@@ -18,7 +18,7 @@ You are in your bedroom.
 			<</if>>
 		<<case "tentacles">>
 			Purple tentacles slither on the walls.
-			<<if ($demon gte 6 or $transformationParts.demon.wings is "default" or $transformationParts.demon.wings is "succubus")>>
+			<<if ($demon gte 6 or ($transformationParts.demon.wings isnot "hidden" and $transformationParts.demon.wings isnot "disabled"))>>
 				Thoughts of pleasure cross your mind.
 			<</if>>
 		<<case "plainwhite">>
@@ -35,7 +35,7 @@ You are in your bedroom.
 			Golden crosses cover the walls.
 		<<default>> /* Custom */
 			Images of _furniture.wallpaper.name cover the walls.
-			<<if _wallpaper is "wallpaper_dol.png">>
+			<<if _wallpaper is "wallpaper_dol">>
 				Somehow, they look familiar.
 			<<elseif _furniture.wallpaper.name.startsWith('&lt;&lt')>>
 				<span class="black">You feel like you got caught cheating.</span>
@@ -110,7 +110,7 @@ You are in your bedroom.
 
 <<if _furniture.poster>>
 	<<set _premadePoster to ["cowgirl", "cow_girl", "cat", "puppy"].includes(_furniture.poster.name)>>
-	<<set _poster to _premadePoster ? "poster_" + _furniture.poster.name + ".png" : ['dol', 'degrees of lewdity'].some(e => _furniture.poster.name.toLowerCase().includes(e)) ? "poster_dol.png" : "poster.png">>
+	<<set _poster to _premadePoster ? "poster_" + _furniture.poster.name : ['dol', 'degrees of lewdity'].some(e => _furniture.poster.name.toLowerCase().includes(e)) ? "poster_dol" : "poster">>
 	<br>
 
 	<<furnitureicon _poster>>
@@ -123,7 +123,7 @@ You are in your bedroom.
 			A puppy poster hangs on a wall.
 		<<default>> /* Custom */
 			A poster of _furniture.poster.name hangs on a wall.
-			<<if _poster is "poster_dol.png">>
+			<<if _poster is "poster_dol">>
 				You feel an odd sense of familiarity.
 			<<elseif _furniture.poster.name.startsWith('&lt;&lt;')>>
 				<span class="black">You feel like you got caught cheating.</span>
@@ -191,7 +191,7 @@ You are in your bedroom.
 <<if $robinpaid is 1 and $robinmissing is 0 and $robinnote isnot 1 and C.npc.Robin.lust gte 10 and C.npc.Robin.love gte 60 and C.npc.Robin.trauma lt 10>>
 	<span class="gold">There's a note by the window.</span>
 	<br>
-	<<askicon>><<link [[Read it|Robin Note]]>><<set $robinnote to 1>><</link>>
+	<<mysteryicon>><<link [[Read it|Robin Note]]>><<set $robinnote to 1>><</link>>
 	<br><br>
 <</if>>
 
@@ -416,6 +416,8 @@ The hallway outside connects to the rest of the orphanage.
 		<br>
 		<<bathroomLink>>
 		<br>
+		<<kitchenicon "stove">><<link [[Kitchen (0:01)|Kitchen]]>><<pass 1>><</link>>
+		<br>
 		<<robinroom_link>>
 		<br>
 		<<if Time.hour gte 18 and Time.hour lte 20 and C.npc.Robin.trauma gte 40 and $robinmissing is 0 and !$robinTraumaVisit>>
@@ -458,6 +460,8 @@ The hallway outside connects to the rest of the orphanage.
 	<<orphanageWard>>
 	<br>
 	<<bathroomLink>>
+	<br>
+	<<kitchenicon "stove">><<link [[Kitchen (0:01)|Kitchen]]>><<pass 1>><</link>>
 	<br>
 	<<robinroom_link>>
 	<br>
@@ -505,7 +509,7 @@ The hallway outside connects to the rest of the orphanage.
 <</if>>
 
 :: Bedroom Kylar Gift Open
-<<effects>>
+<<effects>><<wearProp "kylar owl">>
 
 You pull the bow, and open the lid. Inside is a grey owl plushie. It looks old. Tufts of fluff escape its worn hide.
 <br><br>
@@ -528,7 +532,7 @@ You find a space on top of the wardrobe, where its black eyes can watch the room
 	nameCap	: 'Owl plushie'
 })>>
 
-<<link [[Next|Bedroom]]>><</link>>
+<<link [[Next|Bedroom]]>><<handheldon>><</link>>
 <br>
 
 :: Bedroom Kylar Gift Orphan
@@ -668,11 +672,7 @@ You stare right at the lens. "I wonder who I'll invite over," you say. You stick
 	<<He>> freezes. The two of you stare at each other for a moment.
 	<br><br>
 
-	<<if $submissive gte 1150>>
-		<<He>> wordlessly jumps off your bed, scrambles to your door, throws it open, and sprints off down the hall.
-	<<else>>
-		<<He>> wordlessly scrambles to your door, throws it open, and sprints off down the hall.
-	<</if>>
+	<<He>> wordlessly <<if $speech_attitude is "meek">>jumps off your bed,<</if>> scrambles to your door, throws it open, and sprints off down the hall.
 	<br><br>
 
 	You get up and close the door behind <<him>>. For someone who broke into your room, Kylar is awfully shy. You're glad you stopped <<him>> before <<he>> could do anything.
@@ -856,45 +856,25 @@ When you wake up, you notice a note pushed under your door. You read it.
 
 <<link [[Next|Bedroom]]>><</link>>
 
-:: Home Leave Undies
+:: Home Leave
 <<set $outside to 1>><<set $location to "town">><<effects>>
-<<flaunting>> you sneak through the dark orphanage. You hear the occasional snore or movement from one of the rooms, and stop, moving again when the only sound is the thudding of your heart.
+
+<<if $exposed gte 1>>
+	<<flaunting>> you sneak through the <<if Time.dayState is "night">>dark<</if>> orphanage.
+	<<if Time.dayState is "night">>
+		You hear the occasional snore or movement from one of the rooms, and stop, moving again when the only sound is the thudding of your heart.
+	<<else>>
+		You move between hiding places, heading towards the front door. You stop and wait for people to pass when you hear footsteps, lest you be caught.
+	<</if>>
+	<br><br>
+	You open the back door, and peek out. You take one step, then another, then close the door behind you. You're outside. <<covered>>
+<<else>>
+	You step out of the room and close the door behind you. You're outside.
+<</if>>
 <br><br>
 
-You open the back door, and peek out. You take one step, then another, then close the door behind you. You're outside. <<covered>>
-<br><br>
-
-<<link [[Next|Garden Fence Undies Night]]>><<pass 5>><</link>>
-
-:: Home Leave Naked
-<<set $outside to 1>><<set $location to "town">><<effects>>
-<<flaunting>> you sneak through the dark orphanage. You hear the occasional snore or movement from one of the rooms, and stop, moving again when the only sound is the thudding of your heart.
-<br><br>
-
-You open the back door, and peek out. You take one step, then another, then close the door behind you. You're outside. <<covered>>
-<br><br>
-
-<<link [[Next|Garden Fence Naked Night]]>><<pass 5>><</link>>
-
-:: Home Leave Undies Day
-<<set $outside to 1>><<set $location to "town">><<effects>>
-<<flaunting>> you sneak through the orphanage. You move between hiding places, heading towards the front door. You stop and wait for people to pass when you hear footsteps, lest you be caught.
-<br><br>
-
-You open the back door, and peek out. You take one step, then another, then close the door behind you. You're outside. <<covered>>
-<br><br>
-
-<<link [[Next|Garden Fence Undies Day]]>><<pass 5>><</link>>
-
-:: Home Leave Naked Day
-<<set $outside to 1>><<set $location to "town">><<effects>>
-<<flaunting>> you sneak through the orphanage. You move between hiding places, heading towards the front door. You stop and wait for people to pass when you hear footsteps, lest you be caught.
-<br><br>
-
-You open the back door, and peek out. You take one step, then another, then close the door behind you. You're outside. <<covered>>
-<br><br>
-
-<<link [[Next|Garden Fence Naked Day]]>><<pass 5>><</link>>
+<<link [[Next|Garden Fence]]>><<pass 5>><</link>>
+<br>
 
 :: Bathroom
 <<set $outside to 0>><<set $location to "home">><<effects>><<set $bus to "orphanage_bathroom">>
@@ -912,6 +892,8 @@ You are in the bathroom.
 	<<bathroomicon "bath">><<link [[Have a bath (0:30)->Bath]]>><<strip>><<pass 30>><<stress -6>><<set $hygiene to 0>><</link>><<lstress>>
 	<br>
 	<<bathroomicon "bath">><<link [[Have a bath in cold water (0:35)->Bath]]>><<strip>><<water>><<pass 35>><<run Weather.BodyTemperature.update(10,30)>><<stress 75>><<arousal -5000>><<set $hygiene to 0>><</link>><<lllarousal>><<ggstress>>
+	<br>
+	<<bathroomicon "sink">><<link [[Brush teeth (0:05)|Bathroom Brush]]>><<pass 5>><</link>>
 <</if>>
 <br>
 <!-- Check if there's any hair-->
@@ -929,6 +911,22 @@ You are in the bathroom.
 <<main_hall_icon>><<link [[Main hall (0:01)->Orphanage]]>><<pass 1>><</link>>
 <br>
 <<home_outside>>
+
+:: Bathroom Brush
+<<effects>>
+<<set _gender to $NudeGenderDC is -1 ? $player.gender_posture : $player.gender>>
+<<switch _gender>>
+	<<case "m">><<wearProp "toothbrush" "blue">>
+	<<case "f">><<wearProp "toothbrush" "pink">>
+	<<default>><<wearProp "toothbrush" "purple">>
+<</switch>>
+<<canvas-model-override "mouth" "chew">>
+
+You squirt a dollop of toothpaste on your toothbrush and brush your teeth. When finished, you spit into the sink, then rinse out your mouth.
+<<wash_mouth>>
+<br><br>
+
+<<link [[Next|Bathroom]]>><<handheldon>><<canvas-model-override "clear">><</link>>
 
 :: Sleep
 <<set _autosavehere to true>>
@@ -980,7 +978,7 @@ You are in the bathroom.
 	<<else>>
 		You nod.
 	<</if>>
-	<<He>> tiptoes into the room and sits on the end of your bed. "I hope I didn't wake you," <<he>> says. "I'm frightened. Bailey makes me pay <<endevent>><<npc Bailey>><<him>>,<<endevent>><<npc Robin>><<person1>> but it's so much and it keeps getting higher." <<Hes>> on the verge of tears. You lean forward and hug <<him>>. "I don't know what to do."
+	<<He>> tiptoes into the room and sits on the end of your bed. "I hope I didn't wake you," <<he>> says. "I'm frightened. Bailey makes me pay <<nnpc_him "Bailey">>, but it's so much and it keeps getting higher." <<Hes>> on the verge of tears. You lean forward and hug <<him>>. "I don't know what to do."
 	<br><br>
 	You hold <<him>> for a few minutes until <<he>> pulls away from you. "Sorry. I just needed to tell someone." <<He>> wipes <<his>> eyes with <<his>> sleeve. "Thank you." <<He>> tiptoes from the room, closing the door with barely a sound.
 	<<gstress>><<stress 6>>
@@ -1217,7 +1215,7 @@ You are in the bathroom.
 			"Are you okay? Let me help," Robin says, easing you back up. <<He>> checks to see if you're fine before taking <<his>> leave.
 		<<elseif _orgasm is true>>
 			<<if $exposed gte 2>>
-				Robin cuddles you. "I'll leave you to get-" <<he>> pauses, noticing the moisture on <<his>> body and yours. Blushing, <<he>> gathers tissues for both of you.
+				Robin cuddles you. "I'll leave you to get-" <<He>> pauses, noticing the moisture on <<his>> body and yours. Blushing, <<he>> gathers tissues for both of you.
 				<<if $rng gte 71>>
 					"I-It's okay," <<he>> says.
 				<<elseif $rng gte 31>>
@@ -1226,7 +1224,7 @@ You are in the bathroom.
 					"I-I might need a bath," <<he>> says.
 				<</if>>
 			<<else>>
-				Robin cuddles you. "I'll leave you to get-" <<he>> pauses, noticing the moist patch around your crotch. Blushing, <<he>> passes you a tissue.
+				Robin cuddles you. "I'll leave you to get-" <<He>> pauses, noticing the moist patch around your crotch. Blushing, <<he>> passes you a tissue.
 				"I-It's okay," <<he>> says.
 			<</if>>
 		<<else>>
@@ -1253,8 +1251,12 @@ You are in the bathroom.
 
 			You watch as <<he>> climbs back out the way <<he>> came and wait until you no longer hear the rustling of <<him>> leaving before going back to bed, thinking about the nice night you both just had together.
 			<br><br>
-
+			<<endevent>>
 		<<elseif _wakingEffect is "dryheaving">>
+			Kylar rubs your back as you continue heaving into the bin. <<He>> fusses over you for a long time, but you're eventually able to convince <<him>> that you're feeling better.
+			<br><br>
+
+			<<link [[Next|Kylar Orphanage Cuddle]]>><<set $kylarbed to 0>><</link>>
 
 		<<elseif $rng gte 81 and $robinmissing is 0 and C.npc.Robin.init is 1>>
 			You awaken to the sound of your door creaking open. You hear somebody gasp, before they hurriedly shut the door.
@@ -1490,10 +1492,10 @@ You are in the bathroom.
 				<<elseif _orgasm is true and $rng gt _robinAwakeChance>>
 					<<set $phase to 1>>
 					<<if $exposed gte 2>>
-						Robin cuddles you. "You should go-" <<he>> pauses, noticing the moisture on <<his>> body and yours. Blushing, <<he>> gathers tissues for both of you.
+						Robin cuddles you. "You should go-" <<He>> pauses, noticing the moisture on <<his>> body and yours. Blushing, <<he>> gathers tissues for both of you.
 						"<<print ["I-It's okay", "This might be my fault", "I-I might need a bath"].random()>>," <<he>> says.
 					<<else>>
-						Robin cuddles you. "You should go ba-" <<he>> pauses, noticing the moist patch around your crotch. Blushing, <<he>> passes you a tissue.
+						Robin cuddles you. "You should go ba-" <<He>> pauses, noticing the moist patch around your crotch. Blushing, <<he>> passes you a tissue.
 						"I-It's okay," <<he>> says.
 					<</if>>
 				<<else>>
@@ -1559,7 +1561,7 @@ You scream. The trio recoil and scramble for the door handle. They flee into the
 <</if>>
 
 They hesitate, then the <<person3>><<person>> opens the door and leaves. The others follow, though the <<person1>><<person>> lingers a moment and leers at you.
-<<if $player.penisExist and ($player.penissize lte 1 or $player.penissize is 4) and random(0,9) gte 6>>
+<<if !playerChastity("hidden") and $player.penisExist and ($player.penissize lte 1 or $player.penissize is 4) and random(0,9) gte 6>>
 	<<telltalepenissize>>
 <</if>>
 <br><br>
@@ -1598,7 +1600,7 @@ They hesitate, then the <<person3>><<person>> opens the door and leaves. The oth
 <<effects>>
 <<if $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation>>
-	Someone shoves you face-first into the water. They scurry from the room.
+	One of them shoves you face-first into the water. They scurry from the room.
 	<br><br>
 	<<tearful>> you climb from the bath.
 	<br><br>
@@ -1705,7 +1707,7 @@ They hesitate, then the <<person3>><<person>> opens the door and leaves. The oth
 <</if>>
 
 :: Bath Watch
-<<effects>><<set $location to "home">><<set $outside to 0>>
+<<effects>><<set $location to "home">><<set $outside to 0>><<wearProp "sponge">>
 You're already clean, but you can't miss the opportunity to perform. <<flaunting>> you rise to your knees and pick up a sponge. Looking away from your audience, you run the sponge over your <<breasts>>, down your tummy and across your <<genitals>>. The trio watch, transfixed.
 <<exhibitionism5>>
 
@@ -1717,9 +1719,8 @@ The water's getting cold. "I'm squeaky clean," you say. "Thanks for the help." T
 
 <<tearful>> you climb from the bath.
 <br><br>
-<<endevent>>
 
-<<link [[Next|Bath Finish]]>><</link>>
+<<link [[Next|Bath Finish]]>><<endevent>><</link>>
 
 :: Bath
 <<effects>><<set $location to "home">><<set $outside to 0>><<wearProp "soap">>
@@ -1739,7 +1740,7 @@ The water's getting cold. "I'm squeaky clean," you say. "Thanks for the help." T
 			"Oh, I didn't think anyone would be in here," <<he>> says. "Would you mind if I joined you?" <<Hes>> already starting to undress.
 			<br><br>
 
-			<<link [[`Let ${$NPCList[0].pronouns.him} join`|Bath Robin Join 2]]>><<set $phase to 1>><</link>>
+			<<link [[Let <<him>> join|Bath Robin Join 2]]>><<set $phase to 1>><</link>>
 			<br>
 			<<link [[Refuse|Bath Robin Join 2]]>><<npcincr Robin dom -1>><<set $phase to 0>><</link>><<ldom>>
 		<<else>>
@@ -1821,14 +1822,13 @@ The water's getting cold. "I'm squeaky clean," you say. "Thanks for the help." T
 			<</if>>
 		<</if>>
 
-		<<if $player.penisExist and ($player.penissize lte 1 or $player.penissize is 4) and random(0,9) gte 6>>
+		<<if !playerChastity("hidden") and $player.penisExist and ($player.penissize lte 1 or $player.penissize is 4) and random(0,9) gte 6>>
 			<<telltalepenissize>>
-			<br><br>
 		<<else>>
 			<<stress 6>><<trauma 6>>
 			<<gtrauma>><<gstress>>
-			<br><br>
 		<</if>>
+		<br><br>
 
 		<<link [[Finish up->Bath Finish]]>><<endevent>><</link>>
 	<</if>>
@@ -1838,28 +1838,30 @@ The water's getting cold. "I'm squeaky clean," you say. "Thanks for the help." T
     <<set $weekly.kylarBathroom to 1>>
     <<npc Kylar>><<person1>>
 
-    You slide into the warm water and close your eyes.<br><br>
-    You hear the nearby window open. You turn to see Kylar. <<He>> struggles to fit through. <br><br>
+    You slide into the warm water and close your eyes.
+	<br><br>
+    You hear the nearby window open. You turn to see Kylar. <<He>> struggles to fit through.
+	<br><br>
     <<He>> rushes over, shushing you. "Shh! D-don't freak out! I just want to help," <<he>> says.
     <br><br>
     <<link [[Let Kylar help|Kylar Bath Help]]>><<npcincr Kylar love 1>><</link>><<glove>>
     <br>
     <<link [[Shove Kylar Away|Kylar Bath Shove]]>><<npcincr Kylar love -1>><<npcincr Kylar rage 3>><</link>><<llove>><<gksuspicion>>
 <<else>>
-You wash until you're squeaky clean.<<wash>>
-<br><br>
+	You wash until you're squeaky clean.<<wash>>
+	<br><br>
 
-<<silently>><<willpowerdifficulty 200 1000>><</silently>>
-<<if ($arousal lt $arousalmax*3/5) or $orgasmCount gte 1>>
-	<<getouticon>><<link [[Get out->Bath Finish]]>><</link>>
-<<elseif $willpowerSucccess>>
-	<<getouticon>><<link [[Will yourself to Get out->Bath Finish]]>><<willpowersuccess>><</link>>
-<<else>>
-	<<willpowerfailure>>
-	<span class="lewd">You're too horny. You have needs to take care of.</span>
-<</if>>
-<br>
-<<skinicon "masturbate">><<link [[Masturbate|Bath Masturbation]]>><<set $masturbationstart to 1>><</link>>
+	<<silently>><<willpowerdifficulty 200 1000>><</silently>>
+	<<if ($arousal lt $arousalmax*3/5) or $orgasmCount gte 1>>
+		<<getouticon>><<link [[Get out|Bath Finish]]>><</link>>
+	<<elseif $willpowerSucccess>>
+		<<getouticon>><<link [[Will yourself to Get out->Bath Finish]]>><<willpowersuccess>><</link>>
+	<<else>>
+		<<willpowerfailure>>
+		<span class="lewd">You're too horny. You have needs to take care of.</span>
+	<</if>>
+	<br>
+	<<skinicon "masturbate">><<link [[Masturbate|Bath Masturbation]]>><<set $masturbationstart to 1>><</link>>
 <</if>>
 
 :: Kylar Bath Help
@@ -1867,15 +1869,14 @@ You wash until you're squeaky clean.<<wash>>
 <<run statusCheck("Kylar")>><<effects>>
 
 You give a slow nod. <<He>> gives you a smile as <<he>> pulls <<his>> hand back.
-<<He>> undresses, climbing into the bath with you. <<His>> face is red as <<he>> begins to slide
-<<his>> hands across your skin.
+<<He>> undresses, climbing into the bath with you. <<His>> face is red as <<he>> begins to slide <<his>> hands across your skin.
 <br><br>
 
 "I'm gonna wash them off of you," <<he>> mutters, leaning into you slightly. You feel <<his>> hands groping your body as <<he>> washes you.
 <br><br>
 
- <<He>> seems satisfied once finished, you feel a slight tremble from <<him>>.
-"Wait," <<he>> says. "There's...more." You give <<him>> a confused glance. You feel <<his>> hands slide further down and grope you.
+<<He>> seems satisfied once finished, you feel a slight tremble from <<him>>.
+"Wait," <<he>> says. "There's... more." You give <<him>> a confused glance. You feel <<his>> hands slide further down and grope you.
 
 <br><br>
 <<link [[Next|Kylar Bath Sex]]>><<set $sexstart to 1>><</link>>
@@ -1883,37 +1884,31 @@ You give a slow nod. <<He>> gives you a smile as <<he>> pulls <<his>> hand back.
 :: Kylar Bath Shove
 <<run statusCheck("Kylar")>><<effects>>
 
-<<if _kylarStatus.includes("Calm") or _kylarStatus.includes("Sus")>>
-	You push your hands against <<him>> and shove <<him>> away.<<npcincr Kylar love -1>><<llove>>
-	<br><br>
-
-	Surprised by your sudden movement, <<he>> glances around nervously. "There's...It's still dirty! They're still all over you!"
-	<br><br>
-
-	You tell <<him>> to get out.
-	<br><br>
-
-	<<He>> stares down at the water and slowly starts to back away. "P-Please..clean them off," <<he>> whimpers, redressing with haste. <<He>> gives you one last glance, crawling through the window again.<br><br>
-
-	<<link [[Next|Bath Finish]]>><<endevent>><</link>>
-	<<exit>>
-<</if>>
-
 You push your hands against <<him>> and shove <<him>> away.<<npcincr Kylar love -1>><<llove>>
 <br><br>
 
-Surprised by your sudden movement, <<he>> glances around nervously. "There's...It's still dirty! They're still all over you!"
+Surprised by your sudden movement, <<he>> glances around nervously. "There's... It's still dirty! They're still all over you!"
 <br><br>
 
 You tell <<him>> to get out.
 <br><br>
 
-<<He>> stares down at the water and slowly starts to raise <<his>> hands again. "P-please..let me clean you off. You're dirty. At least let me be sure." <<He>> stares at you, as if waiting to see what you'll do.
-<br><br>
+<<if _kylarStatus.includes("Calm") or _kylarStatus.includes("Sus")>>
 
-<<link [[Let Kylar watch|Kylar Bath Watch]]>><<npcincr Kylar rage -3>><</link>><<lksuspicion>>
-<br>
-<<link [[Tell Kylar to leave|Kylar Bath End 2]]>><<npcincr Kylar rage 5>><</link>><<ggksuspicion>>
+	<<He>> stares down at the water and slowly starts to back away. "P-Please... clean them off," <<he>> whimpers, redressing with haste. <<He>> gives you one last glance, crawling through the window again.
+	<br><br>
+
+	<<link [[Next|Bath Finish]]>><<endevent>><</link>>
+	<<exit>>
+<<else>>
+
+	<<He>> stares down at the water and slowly starts to raise <<his>> hands again. "P-please... let me clean you off. You're dirty. At least let me be sure." <<He>> stares at you, as if waiting to see what you'll do.
+	<br><br>
+
+	<<link [[Let Kylar watch|Kylar Bath Watch]]>><<npcincr Kylar rage -3>><</link>><<lksuspicion>>
+	<br>
+	<<link [[Tell Kylar to leave|Kylar Bath End 2]]>><<npcincr Kylar rage 5>><</link>><<ggksuspicion>>
+<</if>>
 
 :: Kylar Bath Watch
 <<wash>>
@@ -1964,8 +1959,8 @@ Once finished, you look back up to Kylar. <<His>> eyes lock onto your body. A lo
 <<run statusCheck("Kylar")>><<effects>>
 
 <<if $enemyarousal gte $enemyarousalmax>>
+	<<ejaculation>>
 	<<if $consensual is 0>>
-		<<ejaculation>>
 
 		<<He>> leans back with heavy breathing, staring down at your body. <<He>> has a firm grip on your legs.<<npcincr Kylar lust -20>><<lllust>>
 		<br><br>
@@ -1973,12 +1968,10 @@ Once finished, you look back up to Kylar. <<His>> eyes lock onto your body. A lo
 		<<His>> eyes make contact with yours once again, giving you a warm smile before looking outside the nearby window.
 		<br><br>
 
-		"I...have to go. D-don't let them touch you again," <<he>> says, hands already reaching for <<his>> clothes. <<He>> leaves the same way <<he>> arrived
-		<br><br>
+		"I... have to go. D-don't let them touch you again," <<he>> says, hands already reaching for <<his>> clothes. <<He>> leaves the same way <<he>> arrived.
 	<<else>>
-		<<ejaculation>>
 
-		<<He>> leans back with heavy breaths, sliding <<his>> hands back into the water. "Y-you're mine," <<he>> mumbles, looking you over with loving eyes.
+		<<He>> leans back with heavy breaths, sliding <<his>> hands back into the water. "Y-you're mine," <<he>> mumbles, looking you over with loving eyes.<<npcincr Kylar lust -20>><<lllust>>
 		<br><br>
 
 		<<He>> jolts up and looks out the window. "I have to go," <<he>> says while crawling out of the tub. "Sorry- I'll see you soon!" <<He>> gives you one last glance as <<he>> dresses, then soon departs the same way <<he>> came.
@@ -1986,18 +1979,27 @@ Once finished, you look back up to Kylar. <<His>> eyes lock onto your body. A lo
 
 <<elseif $enemyhealth lte 0>>
 
-	<<He>> stammers back, staring up at you with wide eyes.
+	<<He>> staggers back, staring up at you with wide eyes.
 	<br><br>
 
-	"I...I'm helping. I'm helping!"
+	"I... I'm helping. I'm helping!"
 	<br><br>
 
 	With tears in <<his>> eyes, <<he>> scrambles out of the water, reaching for <<his>> clothes. You hear <<him>> sniffle as <<he>> dresses with haste, soon slipping out of the window.
+<<else>>
+	<<He>> disengages from you, staring at you with sad eyes.
+	<br><br>
+
+	"B-but you're still..." <<He>> shakes <<his>> head, droplets of water fly off <<his>> fringe. <<He>> whimpers, "Just don't let them touch you again, p-please."
+	<br><br>
+
+	<<He>> shambles out of the tub, hastily redressing <<himself>> before leaving the same way <<he>> entered.
 <</if>>
 <br><br>
 
 <<tearful>> you climb from the bath.
 <br><br>
+<<wash>>
 
 <<endcombat>>
 
@@ -2007,16 +2009,16 @@ Once finished, you look back up to Kylar. <<His>> eyes lock onto your body. A lo
 <<wash>>
 <<run statusCheck("Kylar")>><<effects>>
 
-	You shake your head, raising a hand to the window. You tell <<him>> to leave.
-	<br><br>
+You shake your head, raising a hand to the window. You tell <<him>> to leave.
+<br><br>
 
-	<<He>> stares at you for a few moments, bewildered. "Wash it off," <<he>> says, stepping out of the water. The look in <<his>> eye gives you a shiver up your spine. You watch <<him>> dress. <<He>> crawls out of the window afterward. You don't like the feeling left behind as <<he>> leaves.<<gstress>><<stress 2>>
-	<br><br>
+<<He>> stares at you for a few moments, bewildered. "Wash it off," <<he>> says, stepping out of the water. The look in <<his>> eye gives you a shiver up your spine. You watch <<him>> dress. <<He>> crawls out of the window afterward. You don't like the feeling left behind as <<he>> leaves.<<gstress>><<stress 2>>
+<br><br>
 
-	Once <<he>> is out of sight, you slip out of the water to redress.
-	<br><br>
+Once <<he>> is out of sight, you slip out of the water to redress.
+<br><br>
 
-	<<link [[Next|Bath Finish]]>><<endevent>><</link>>
+<<link [[Next|Bath Finish]]>><<endevent>><</link>>
 
 :: Bath Finish
 <<effects>><<set $location to "home">><<set $outside to 0>>
@@ -2107,24 +2109,24 @@ You've pushed yourself too much.
 <<actionsman>>
 <<if $alarm is 1 and _combatend is true>>
 	<<if $rescue is 1>>
-		<span id="next"><<link [[Next->Molestation Alarm]]>><</link>></span><<nexttext>>
+		<span id="next"><<link [[Next|Molestation Alarm]]>><</link>></span><<nexttext>>
 	<<else>>
 		<<set $alarm to 0>>
 		<br><br>
 		<<if $enemyarousal gte $enemyarousalmax>>
-			<span id="next"><<link [[Next->Molestation Ejaculation]]>><</link>></span><<nexttext>>
+			<span id="next"><<link [[Next|Molestation Ejaculation]]>><</link>></span><<nexttext>>
 		<<elseif $enemyhealth lte 0>>
-			<span id="next"><<link [[Next->Molestation Escape]]>><</link>></span><<nexttext>>
+			<span id="next"><<link [[Next|Molestation Escape]]>><</link>></span><<nexttext>>
 		<<else>>
-			<span id="next"><<link [[Next->Molestation]]>><</link>></span><<nexttext>>
+			<span id="next"><<link [[Next|Molestation]]>><</link>></span><<nexttext>>
 		<</if>>
 	<</if>>
 <<elseif $enemyarousal gte $enemyarousalmax and _combatend is true>>
-	<span id="next"><<link [[Next->Molestation Ejaculation]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[Next|Molestation Ejaculation]]>><</link>></span><<nexttext>>
 <<elseif $enemyhealth lte 0 and _combatend is true>>
-	<span id="next"><<link [[Next->Molestation Escape]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[Next|Molestation Escape]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link [[Next->Molestation]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[Next|Molestation]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Molestation Ejaculation
@@ -2232,7 +2234,7 @@ Kylar's face lights up in response.
 "Thank you," <<he>> says happily, pulling the covers over both of you. <<He>> kisses your cheek, before proceeding to bury <<his>> face in the crook of your neck.
 <br><br>
 
-You wait a bit to see if <<his>> breathing gets even, but it never does, as if <<he>>'s waiting for you to fall asleep before <<he>> does.
+You wait a bit to see if <<his>> breathing gets even, but it never does, as if <<hes>> waiting for you to fall asleep before <<he>> does.
 <br><br>
 
 You try to outlast <<him>>, but sleep sinks in, and before long you find yourself barely able to keep your eyelids open. The last thing you remember before falling asleep is the warmth you felt from how tightly <<his>> body was pressed against yours.
@@ -2262,7 +2264,7 @@ You try to outlast <<him>>, but sleep sinks in, and before long you find yoursel
 You sigh and climb back into bed with <<him>>.
 <br><br>
 
-Within seconds, <<he>>'s back on you, but this time without the incessant groping and rubbing. <<He>> seems to be satisfied with just being close to you.
+Within seconds, <<hes>> back on you, but this time without the incessant groping and rubbing. <<He>> seems to be satisfied with just being close to you.
 <br><br>
 
 "Goodnight," you hear <<him>> whisper to you. You close your eyes and feel something, which you assume to be a kiss, on your cheek not long after, making you feel a bit warm inside.
@@ -2310,10 +2312,10 @@ Kylar pleads with sad eyes. "A-are you sure? I could-" You shake your head in re
 "If that's what you want," <<he>> says, sadness coating <<his>> tone. You watch as <<he>> leaves the bed and walks towards your window, taking one last glance at you before climbing out the window.
 <br><br>
 
-As soon as <<he>>'s gone, you get off the bed and walk towards the window. You take a brief moment to look out the window and make sure <<he>>'s gone, only to have your eyes meet with Kylar, still standing there. <<He>>'s almost completely hidden by the night.
+As soon as <<hes>> gone, you get off the bed and walk towards the window. You take a brief moment to look out the window and make sure <<hes>> gone, only to have your eyes meet with Kylar, still standing there. <<He>>'s almost completely hidden by the night.
 <br><br>
 
-You pull your head back in, closing the window as you give Kylar one last glance.You make a mental note to yourself to see if there's a way to get a better lock for the window as you head to bed and snuggle into the covers.
+You pull your head back in, closing the window as you give Kylar one last glance. You make a mental note to yourself to see if there's a way to get a better lock for the window as you head to bed and snuggle into the covers.
 <br><br>
 
 <<link [[Next|Bedroom]]>><<endevent>><</link>>
@@ -2343,7 +2345,7 @@ You cut <<him>> off, asking <<him>> once again to leave. You make sure to be ext
 <<He>>'s about to speak up, but looks away in defeat and pulls the cover off <<himself>> <<He>> walks towards the window, slowly, with <<his>> head held low.
 <br><br>
 
-As soon as <<he>>'s gone, you get off the bed and walk towards the window. You take a brief moment to look out the window and make sure <<he>>'s gone, only to have your eyes meet with Kylar, still standing there. <<He>>'s almost completely hidden by the night.
+As soon as <<hes>> gone, you get off the bed and walk towards the window. You take a brief moment to look out the window and make sure <<hes>> gone, only to have your eyes meet with Kylar, still standing there. <<He>>'s almost completely hidden by the night.
 <br><br>
 
 You pull your head back in, closing the window as you give Kylar one last glance. You make a mental note to yourself to see if there's a way to get a better lock for the window as you head to bed and snuggle into the covers.
@@ -2537,7 +2539,7 @@ You are in the main hall of the orphanage.
 		<<He>> sighs with relief while taking down the poster.<<ghope>><<hope 1>>
 		<br><br>
 	<<else>>
-		A <<person>> on cleaning duty notices you and spills <<his>> mop bucket. Before you can react, <<he>> steps forward and squeezes you. "It's you. We didn't think you were coming back, we-" <<he>> falls silent. Something drips onto your shoulder.
+		A <<person>> on cleaning duty notices you and spills <<his>> mop bucket. Before you can react, <<he>> steps forward and squeezes you. "It's you. We didn't think you were coming back, we-" <<He>> falls silent. Something drips onto your shoulder.
 		<br><br>
 		<<set $home_gone to 0>>
 		<<He>> sighs with relief while letting you go. <<He>> wipes away <<his>> tears, and takes down the poster.<<gghope>><<hope 3>>
@@ -2676,10 +2678,10 @@ and !$fromRobinRoom and _robin.cdquest is 2 and _robin.trauma lte 20 and !$daily
 		<br><br>
 	<</if>>
 	<<if $police_hack is 2 and ($pub_hack_job is 1 or $pub_hack_job is 2)>>
-		<<ind>><<link [[Find hacker (0:10)|Orphanage Hacker]]>><<pass 10>><</link>>
+		<<investigateicon>><<link [[Find hacker (0:10)|Orphanage Hacker]]>><<pass 10>><</link>>
 		<br><br>
 	<<elseif $pubfame and $pubfame.intro lte 2 and $pub_hack_job lte 3>>
-		<<ind>><<link [[Find hacker (0:10)|Orphanage Hacker]]>><<pass 10>><</link>>
+		<<investigateicon>><<link [[Find hacker (0:10)|Orphanage Hacker]]>><<pass 10>><</link>>
 		<br><br>
 	<</if>>
 	<<if $kylar_camera is 5>>
@@ -2710,6 +2712,8 @@ and !$fromRobinRoom and _robin.cdquest is 2 and _robin.trauma lte 20 and !$daily
 		<br>
 	<</if>>
 	<<bathroomLink>>
+	<br>
+	<<kitchenicon "stove">><<link [[Kitchen (0:01)|Kitchen]]>><<pass 1>><</link>>
 	<br>
 	<<robinroom_link>>
 	<br>
@@ -2792,6 +2796,7 @@ You celebrate Christmas with the other residents.
 	They begin to take down decorations as the day comes to a close.
 <<else>>
 	<<if $rng gte 91>>
+		<<wearProp "cookie">>
 		Freshly baked cookies are passed around. You take one for yourself.<<lstress>><<stress -6>>
 	<<elseif $rng gte 81>>
 		Some chat about how cold it is outside. You can't help but agree.
@@ -2799,6 +2804,7 @@ You celebrate Christmas with the other residents.
 		A <<generatey1>><<person1>><<person>> passes a gift to a <<generatey2>><<person2>><<person>>. <<He>> looks delighted, but is patient enough to resist unwrapping it on the spot.
 	<<elseif $rng gte 61>>
 		<<if $robinmissing is 0>>
+			<<wearProp "packet of sweets">>
 			Robin passes out small bags of snacks. A <<generatey1>><<person1>><<person>> keeps watch for Bailey.
 		<<else>>
 			A <<generatey1>><<person1>><<person>> stares out the window. <<Hes>> worried about Robin.
@@ -2818,8 +2824,8 @@ You celebrate Christmas with the other residents.
 	<</if>>
 <</if>>
 <br><br>
-<<endevent>>
-<<link [[Next|Orphanage]]>><</link>>
+
+<<link [[Next|Orphanage]]>><<endevent>><</link>>
 
 :: Orphanage Hide
 <<set $outside to 0>><<set $location to "home">><<effects>>
@@ -3231,12 +3237,9 @@ You enter Bailey's office. "I know why you're here," <<he>> says, running a hand
 <br><br>
 
 You return to your tiny bedroom and wonder what to do.
-<br><br>
 
 <<endevent>>
 <hr>
-Attitudes
-<br><br>
 <<attitudes>>
 <br>
 
@@ -3324,7 +3327,7 @@ You're interrupted when you spot a pair of eyes watching you from a bush nearby.
 :: Nude Oral
 <<effects>>
 
-<<bHe>> walks between your legs and beholds your <<genitals>> with curiosity. <<bHe>> sniffs, then starts licking. <<bHe>>'s very gentle, as if aware of the roughness of <<bhis>> tongue. <<if playerChastity()>>Your $worn.genitals.name is no defence against <<bhis>> agile tongue.<</if>><<deviancy1>>
+<<bHe>> walks between your legs and beholds your <<genitals>> with curiosity. <<bHe>> sniffs, then starts licking. <<bHes>> very gentle, as if aware of the roughness of <<bhis>> tongue. <<if playerChastity()>>Your $worn.genitals.name is no defence against <<bhis>> agile tongue.<</if>><<deviancy1>>
 
 <<if $arousal gte ($arousalmax / 5) * 4>>
 	<<arousal 2000 "genitals">>
@@ -3610,17 +3613,17 @@ You grab your clothes and dress with haste.
 <<shavestrip>>
 <<wearProp "razor">>
 You take off your clothes and look at your <<genitals>>.
-<br>
-<<if $worn.genitals.name is "chastity belt" or $worn.genitals.name is "gold chastity belt">>
+<br><br>
+<<if playerChastity("hidden")>>
 	The belt fits snug against your body, and it seems that reaching pubes with a razor is almost impossible.
-	<br>
+	<br><br>
 	<<link [[Dress up->Bathroom]]>><<clotheson>><<dontHideRevert>><</link>>
 	<<exit>>
 <</if>>
 
-<<if $worn.genitals.name is "chastity cage">>
-Your penis is locked inside the cage. Shaving around it will be a bit more tricky, but that's not a big deal.
-<br>
+<<if playerChastity("cage")>>
+	Your penis is <<if $worn.genitals.name is "chastity parasite">>sealed inside the parasite<<else>>locked inside the cage<</if>>. Shaving around it will be a bit more tricky, but that's not a big deal.
+	<br><br>
 <</if>>
 <<if $pblevel gte 2 or $pbstrip gte 1 or $pblevelballs gte 2>>
 	<<shavestyleicon 'clean'>><<link [[Shave clean (0:15)->Shave clean]]>><<pass 15>><<arousal 100>><<set $pblevel to 0>><<set $pbgrowth to 0>><<set $pblevelballs to 0>><<set $pbgrowthballs to 0>><<set $pbstrip to 0>><<set $makeup.pbcolour to 0>><</link>>
@@ -3659,7 +3662,7 @@ Your penis is locked inside the cage. Shaving around it will be a bit more trick
 	<</link>>
 	<br>
 <</if>>
-<<if $worn.genitals.name isnot "chastity belt">>
+<<if !playerChastity("hidden")>>
 	<<cosmeticsicon "dyes">><<link [[Dye pubic hair->Dye pubic hair]]>><</link>>
 	<br>
 <</if>>
@@ -3718,7 +3721,7 @@ You sit down, spread your legs, and start carefully trimming your pubes. After a
 	You don't own any hair dyes. Maybe you should visit a cosmetics shop to buy some.
 	<br>
 <<else>>
-	<<handheldon>><<wearProp "hairdye">>
+	<<wearProp "hairdye">>
 	What colour will it be?
 	<br>
 	<<set _choice = _ownedColours[0].colour>>
@@ -3747,7 +3750,7 @@ After several minutes, you rinse your private area with water and behold your <<
 <<link [[Next|Bathroom]]>><<clotheson>><<dontHideRevert>><</link>>
 
 :: Mirror Bodywriting
-<<effects>>
+<<effects>><<wearProp "pen">>
 <<if $writeaction and $writebodyaction>>
 	<<add_bodywriting $writebodyaction $writeaction pen>>
 	You write <span class="lewd">"<<print $skin[$writebodyaction].writing>>"</span> on your <<bodypart $writebodyaction>>.
@@ -3788,14 +3791,14 @@ Text:
 <label><span class="lewd">Slut for hire <<radiobutton "$writeaction" "slut_for_hire">></span></label> |
 <label><span class="lewd">Body for sale <<radiobutton "$writeaction" "body_for_sale">></span></label> |
 <br><br>
-<<link [[Write|Mirror Bodywriting]]>><</link>>
+<<link [[Write|Mirror Bodywriting]]>><<handheldon>><</link>>
 <br>
-<<link [[Stop|$passage_mirror]]>><<unset $writeaction>><<unset $writebodyaction>><</link>>
+<<link [[Stop|$passage_mirror]]>><<handheldon>><<unset $writeaction>><<unset $writebodyaction>><</link>>
 <br>
 
 :: Mirror Bodywriting Unused
 
-<<effects>>
+<<effects>><<wearProp "pen">>
 <<set _skin_keys to Object.keys(setup.bodywriting)>>
 <<if $mirror_bodypart>>
 	$mirror_bodypart
@@ -3835,7 +3838,7 @@ Something non-explicit:
 	<</for>>
 	<br>
 <<else>>
-	Something lewd: <span class="pink">You're not lewd enough.</span>
+	Something lewd: <<insufficientStat "promiscuity" "to write anything">>
 	<br>
 <</if>>
 <br>
@@ -3849,11 +3852,11 @@ Something non-explicit:
 	<</for>>
 	<br>
 <<else>>
-	Something deviant: <span class="pink">You're not deviant enough.</span>
+	Something deviant: <<insufficientStat "deviancy" "to write anything">>
 	<br>
 <</if>>
 <br>
-<<link [[Stop|$passage_mirror]]>><</link>>
+<<link [[Stop|$passage_mirror]]>><<handheldon>><</link>>
 <br>
 
 :: Mirror Bodywriting Choice
@@ -3897,59 +3900,58 @@ What do you want to write or draw on your $mirror_bodypart?
 
 :: Mirror Locket
 <<effects>>
+<<set _colour to $carried.neck.colour>>
+<<neckstrip>><<wearProp "love locket" _colour>>
 You open the locket around your neck.
 <br><br>
 <div class="img-txt">
 	<div id="locket">
 		<span>
-			<img class="icon infront" @src="'img/ui/locket_'+$worn.neck.colour+'.png'">
-			<img class="icon" @src="'img/ui/locket_photo_'+$worn.neck.colour+'.png'">
+			<img class="icon infront" @src="'img/ui/locket_'+$carried.neck.colour.replace(' ', '_')+'.png'">
+			<img class="icon" @src="'img/ui/locket_photo_'+$carried.neck.colour.replace(' ', '_')+'.png'">
 		</span>
 	</div>
 	<div id="locket-txt">
-		<<if !$worn.neck.photo>>
-			It's empty, but there's space for a single photograph.
-			<br><br>
-		<<elseif $worn.neck.photo is "Robin">>
-			A photo of Robin smiles back.
-			<br><br>
-		<<elseif $worn.neck.photo is "Whitney">>
-			A photo of Whitney grins back.
-			<br><br>
-		<<elseif $worn.neck.photo is "Kylar">>
-			A photo of Kylar gazes back.
-			<br><br>
-		<<elseif $worn.neck.photo is "Eden">>
-			Eden's stern expression greets you.
-			<br><br>
-		<<elseif $worn.neck.photo is "Avery">>
-			In the photo, Avery looks to the side, head tilted up.
-			<br><br>
-		<<elseif $worn.neck.photo is "Alex">>
-			A photo of Alex on a steed greets you.
-			<br><br>
-		<<elseif $worn.neck.photo is "Sydney">>
-			A photo of Sydney deep in prayer greets you.
-			<br><br>
-		<<elseif $worn.neck.photo is "Black Wolf">>
-			There's a photo inside of the Black Wolf, sleeping peacefully.
-			<br><br>
-		<<elseif $worn.neck.photo is "Great Hawk">>
-			There's a photo inside of the Great Hawk, looking statuesque.
-			<br><br>
+		<<switch $carried.neck.photo>>
+			<<case "Robin">>
+				<<set _locket_text to "A photo of Robin smiles back.">>
+			<<case "Whitney">>
+				<<set _locket_text to "A photo of Whitney grins back.">>
+			<<case "Kylar">>
+				<<set _locket_text to "A photo of Kylar gazes back.">>
+			<<case "Eden">>
+				<<set _locket_text to "Eden's stern expression greets you.">>
+			<<case "Avery">>
+				<<set _locket_text to "In the photo, Avery looks to the side, head tilted up.">>
+			<<case "Alex">>
+				<<set _locket_text to "A photo of Alex on a steed greets you.">>
+			<<case "Sydney">>
+				<<set _locket_text to "A photo of Sydney deep in prayer greets you.">>
+			<<case "Black Wolf">>
+				<<set _locket_text to "There's a photo inside of the Black Wolf, sleeping peacefully.">>
+			<<case "Great Hawk">>
+				<<set _locket_text to "There's a photo inside of the Great Hawk, looking statuesque.">>
+			<<default>>
+				<<set _locket_text to "It's empty, but there's space for a single photograph.">>
+		<</switch>>
+		<<if C.npc["Ivory Wraith"].love gte 10 and (["haunt", "despair"].includes($wraith.state) or C.npc["Ivory Wraith"].lust gt 10) and $hallucinations gte 1 and ((random(1, 100) is 1) or ($controlled is 0 and random(1, 100) lte 5))>>
+			<<fadeText "<span class='wraith'>A pale figure's <<wraithEyes>> gaze pierces you.</span>" "<<print _locket_text>>">>
+		<<else>>
+			<<print _locket_text>>
 		<</if>>
+		<br><br>
 	</div>
 </div>
 
 <<for _npc range setup.NPCNameList>>
 	<<capture _npc>>
-		<<if $worn.neck.photo != _npc and ($loveInterest.primary is _npc or $loveInterest.secondary is _npc or $loveInterest.tertiary is _npc or $loveInterest.quarternary is _npc or $loveInterest.quinary is _npc or $loveInterest.senary is _npc)>>
-			<span @class="'clothes-'+$worn.neck.colour"><<icon "locket.png">></span>
-			<<if $worn.neck.photo>>
-				<<link [[`Replace the picture with a photo of ${_npc}`|Mirror Locket 2]]>><<set $worn.neck.photo to _npc>><</link>>
+		<<if $carried.neck.photo != _npc and ($loveInterest.primary is _npc or $loveInterest.secondary is _npc or $loveInterest.tertiary is _npc or $loveInterest.quarternary is _npc or $loveInterest.quinary is _npc or $loveInterest.senary is _npc)>>
+			<span @class="'clothes-'+$carried.neck.colour.replace(' ', '-')"><<icon "locket.png">></span>
+			<<if $carried.neck.photo>>
+				<<link [[`Replace the picture with a photo of ${_npc}`|Mirror Locket 2]]>><<set $carried.neck.photo to _npc>><</link>>
 				<br>
 			<<else>>
-				<<link [[`Add a photo of ${_npc}`|Mirror Locket 2]]>><<set $worn.neck.photo to _npc>><</link>>
+				<<link [[`Add a photo of ${_npc}`|Mirror Locket 2]]>><<set $carried.neck.photo to _npc>><</link>>
 				<br>
 			<</if>>
 		<</if>>
@@ -3957,12 +3959,12 @@ You open the locket around your neck.
 <</for>>
 <br>
 
-<<getouticon>><<link [[Back|$passage_mirror]]>><</link>>
+<<getouticon>><<link [[Back|$passage_mirror]]>><<handheldon>><<neckon>><</link>>
 
 :: Mirror Locket 2
 <<effects>>
 
-<<switch $worn.neck.photo>>
+<<switch $carried.neck.photo>>
 	<<case "Robin">>
 		You insert a small photograph of Robin, smiling happily.
 	<<case "Whitney">>
@@ -3984,7 +3986,7 @@ You open the locket around your neck.
 <</switch>>
 <br><br>
 
-<<link [[Next|$passage_mirror]]>><</link>>
+<<link [[Next|$passage_mirror]]>><<handheldon>><<neckon>><</link>>
 
 :: Sold
 <<set $location to "town">><<set $outside to 0>><<effects>>
@@ -4426,6 +4428,7 @@ Robin's mouth hangs similarly open. "Th-that..." <<He>> blinks and shakes <<his>
 You shake your head and <<if $transformationParts.bird.plumage isnot "hidden">>puff up your plumage as you <</if>><<if $eggLayNumber gte 2>>gather your eggs into your arms<<else>>pick up your egg<</if>>, mind blank save for an overwhelming sensation of maternal bliss.
 
 <<if playerIsPregnant() and _eggnant.type is "hawk">>
+	<<wearProp "egg" 0 "hawk">>
 	<<set _eggIcon to $eggLayNumber>>
 	<span class="lewd">You're certain the <<if $eggLayNumber gte 2>>eggs are<<else>>egg is<</if>> fertilised.</span> You should bring <<if $eggLayNumber gte 2>>them<<else>>it<</if>> back to your nest. You pick up <<number $eggLayNumber>> <<birdicon "eggs">> fertilised bird egg<<if $eggLayNumber gte 2>>s<</if>>.
 	<<if $eggLayNumber gte 2>>They're quite large, and you're left wondering how they all fit inside of you to begin with.<<else>>It's quite large, and you're left wondering why passing it didn't hurt more.<</if>>
@@ -4439,7 +4442,7 @@ You shake your head and <<if $transformationParts.bird.plumage isnot "hidden">>p
 <</if>>
 <br><br>
 
-<<link [[Next|Robin Bed Egg Laying End]]>><</link>>
+<<link [[Next|Robin Bed Egg Laying End]]>><<handheldon>><</link>>
 <br>
 
 :: Robin Bed Egg Laying End
@@ -4486,9 +4489,9 @@ With a discreet motion, you undo your towel. It falls to the ground, exposing yo
 <<exhibitionism5>>
 The <<person>>'s eyes widen, and <<he>> seems transfixed by your naked form.
 <br><br>
- <!-- Undress towel -->
- <<upperstrip>>
- <<lowerstrip>>
+<!-- Undress towel -->
+<<upperstrip>>
+<<lowerstrip>>
 <<if hasSexStat("exhibitionism", 5)>>
 	<<link [[Take things further|Hallway Flashing 2]]>><</link>><<exhibitionist5>>
 	<br>
@@ -4526,7 +4529,7 @@ You pick up the towel, but let it fall from your hands once more, pretending to 
 <<else>>
 	Deciding the <<person>> has seen enough, you finally pick the towel up from the floor. Before you can stand up straight, however, you feel <<his>> hands on your exposed ass.
 	<br><br>
-	"Wait!" You shout. "I didn't..."
+	"Wait!" you shout. "I didn't..."
 	<br>
 	"Don't think you can just tease me like that, you <<bitch>>!" the <<person>> shouts back. "You had your fun, so it's my turn now."
 	<br><br>
@@ -4576,24 +4579,71 @@ You nod in response, passing <<him>> by and continuing on your way.
 	"Next time you want to get fucked, you should just ask," the <<person>> says snarkily.
 	<br><br>
 	<<tearful>> you gather yourself. You don't respond. Instead, you walk away, not even bothering to pick your towel back up. You just want to leave <<him>> behind.
-	<br><br>
-	<<carriedClear "upper">>
-	<<carriedClear "lower">>
-	<<clotheson>>
-	<<endcombat>>
-	<<link [[Next|Orphanage]]>><</link>>
-	<br>
 <<else>>
 	You finally manage to push the <<person>> away and use the opportunity to dash down the corridor.
 	<br><br>
 	<<tearful>> you gather yourself. You don't even bother grabbing your towel from the floor, only wanting to leave <<him>> behind.
-	<br><br>
-	<<carriedClear "upper">>
-	<<carriedClear "lower">>
-	<<clotheson>>
-	<<endcombat>>
-	<<link [[Next|Orphanage]]>><</link>>
 <</if>>
+<br><br>
+<<carriedClear "upper">>
+<<carriedClear "lower">>
+<<clotheson>>
+<<endcombat>>
+<<link [[Next|Orphanage]]>><</link>>
+<br>
+
+:: Kitchen
+<<set $outside to 0>><<set $location to "home">><<effects>><<set $bus to "orphanage_kitchen">>
+
+You are in the orphanage kitchen. High cupboards line the walls, above spotless wooden counters. A couple of ovens sit beside each other, opposite a fridge, and a large freezer.
+<br><br>
+
+<<if Time.dayState is "night">>
+	A draft rattles hanging utensils.
+<<elseif Time.hour is 7>>
+	Orphans rush to-and-fro, preparing breakfast.
+<<elseif Time.hour is 18>>
+	Orphans rush to-and-fro, preparing dinner.
+<<else>>
+	<<if $hope gte 50>>
+		An orphan sweeps the floor, a spring in their step.
+	<<elseif $hope gte 10>>
+		An orphan sweeps the floor, smiling at some private joke.
+	<<else>>
+		An orphan sweeps the floor, eyes downcast.
+	<</if>>
+<</if>>
+<br><br>
+
+<<if Time.dayState is "night">>
+	<span class="purple">Bailey cuts the power at night.</span> You can't cook in the dark.
+	<br><br>
+<<else>>
+
+	<<ingredients_supplied "salt" "vegetable_oil" "bottle_of_milk" "flour" "pork" "chicken_egg" "turnip" "potato" "onion" "oats">>
+	<<ingredients_exceptions "butter" "bread" "cheese" "chips" "naan_bread" "pasta" "porridge" "potato_pancake" "yorkshire_pudding" "pastry">>
+	<br>
+	<span class="pink">Bailey disallows other ingredients,</span> except for those you make here. If you want to use others, you'll have to find another kitchen.
+	<br><br>
+
+	<<kitchen_display_all>>
+	<<if $cookbook is true>>
+		<<set _baseTime to Math.max(180 - (6 * Math.round($housekeeping / 50)), 10)>>
+		<<set _timeString to getTimeString(_baseTime)>>
+		<br><br>
+		<<housekeeping_exam_select>>
+		<<if $chosen_recipe isnot "none">>
+			<span class="gold">You can teach yourself a recipe from your cookbook here.</span> You flip open the book and land on a recipe for <<print $chosen_recipe.replace(/_/g," ")>>.<br><br>
+			<<link [["Learn something new (" + _timeString + ")"|Kitchen Self Teach]]>><<pass _baseTime>><<housekeeping 1 1000>><</link>><<ghousekeeping 1000>>
+		<<else>>
+			There's no more recipes you can learn.
+		<</if>>
+		<br><br>
+	<</if>>
+<</if>>
+
+<<link [[Main hall (0:01)|Orphanage]]>><<pass 1>><<handheldon>><</link>>
+<br>
 
 :: Orphanage Housekeeping
 <<effects>>

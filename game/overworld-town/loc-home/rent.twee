@@ -67,6 +67,8 @@
 <<widget "rentduerobin">>
 	<<set $_robinInRoom to _args[0]>>
 	<<npc Bailey>><<person1>>
+	<<set $baileyRefusedToPayTotal += $rentmoney + ($babyRent || 0)>>
+	<<set $baileyRefusedToPayTotalStat += $rentmoney + ($babyRent || 0)>>
 
 	"Time to pay up," <<he>> says.
 	<<if $baileydefeatedchain gte 3>>
@@ -228,8 +230,7 @@
 <</widget>>
 
 <<widget "rentpay">>
-	<<set $money -= $rentmoney + ($babyRent or 0)>>
-	<<set $baileyPaidStat += $rentmoney + ($babyRent or 0)>>
+	<<money `-$rentmoney + ($babyRent or 0)` "baileyRent">>
 	<<set $rentmoney to [10000,30000,50000,70000,100000,150000,200000][Math.clamp($rentstage,1,6)]>> <!-- note: clamping to 1 is intentional -->
 	<<rentmod>>
 
@@ -256,7 +257,7 @@
 
 	<<if !$robinPunishments.includes("docks") and $debug>>/* locked behind debug until further improvements */
 		<<generate2>><<generate3>>
-		"Oh, <<nnpc_he "Robin">>'s cute. A perfect little travel companion," an unfamiliar <<person2>><<personsimple>>'s voice says.
+		"Oh, <<nnpc_hes "Robin">> cute. A perfect little travel companion," an unfamiliar <<person2>><<personsimple>>'s voice says.
 		<<if C.npc.Robin.pronoun is $player.gender_appearance>>
 			You're not sure who they're referring to.
 		<</if>>
@@ -332,6 +333,7 @@
 		<<link [[Next (0:30)|Eden Cabin]]>><<pass 30>><</link>>
 		<br>
 	<<else>>
+		<<badEndTracking "Eden" { reason: "soldBailey" }>>
 		<<if $hunterintro is 1>>
 			"I knew I'd get you back."
 		<<else>>
@@ -470,7 +472,7 @@
 		<<link [[Next|Hospital Arrest]]>><<pass 10>><<endevent>><</link>>
 		<br>
 	<<else>>
-		<<link [[Next->Hospital front]]>><<pass 10>><<endevent>><</link>>
+		<<link [[Next|Hospital front]]>><<pass 10>><<endevent>><</link>>
 		<br>
 	<</if>>
 <<else>>
@@ -544,6 +546,8 @@ Robin hugs you softly after Bailey leaves. "I'm so sorry," <<he>> says.
 
 :: Rent Refuse Robin
 <<effects>><<set $baileypaychain to 0>>
+<<set $baileyRefusedToPayTotal += $rentmoney + ($babyRent || 0)>>
+<<set $baileyRefusedToPayTotalStat += $rentmoney + ($babyRent || 0)>>
 
 <<if $speech_attitude is "bratty">>
 	You stare at <<him>> in defiance. "I'm not paying you. I don't care what you do to me, but leave Robin out of this."
@@ -725,9 +729,11 @@ You trip a couple of times, prompting Bailey to drag you back to your feet and s
 		<</if>>
 	<<else>>
 		<<if _robinIsPresent>>
-			<<link [[Next|Underground Intro]]>><<set $baileySold to true>><<endevent "phaseless">><<set $phase to 1>><</link>>
+			<<badEndTracking "Underground Dungeon" { reason: "soldBaileyRobin" }>>
+		<<link [[Next|Underground Intro]]>><<set $baileySold to true>><<endevent "phaseless">><<set $phase to 1>><</link>>
 		<<else>>
-			<<link [[Next|Underground Intro]]>><<set $baileySold to true>><</link>>
+			<<badEndTracking "Underground Dungeon" { reason: "soldBailey" }>>
+		<<link [[Next|Underground Intro]]>><<set $baileySold to true>><</link>>
 		<</if>>
 	<</if>>
 	<br>

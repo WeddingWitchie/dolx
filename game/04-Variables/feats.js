@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /*
 	Key points
 	series: "seriesName", //Will only show the first locked feat in a series to the player
@@ -34,6 +35,30 @@ setup.feats = {
 		title: "Millionaire",
 		desc: "Have £1,000,000.",
 		difficulty: 3,
+		series: "money",
+		filter: ["All", "General"],
+		softLockable: true,
+	},
+	Decamillionaire: {
+		title: "Decamillionaire",
+		desc: "Have £10,000,000.",
+		difficulty: 4,
+		series: "money",
+		filter: ["All", "General"],
+		softLockable: true,
+	},
+	Hectomillionaire: {
+		title: "Hectomillionaire",
+		desc: "Have £100,000,000.",
+		difficulty: 4,
+		series: "money",
+		filter: ["All", "General"],
+		softLockable: true,
+	},
+	Billionaire: {
+		title: "Billionaire",
+		desc: "Have £1,000,000,000.",
+		difficulty: 5,
 		series: "money",
 		filter: ["All", "General"],
 		softLockable: true,
@@ -145,8 +170,22 @@ setup.feats = {
 	},
 	"The Rival Estate": {
 		title: "The Rival Estate",
-		desc: "Build all the farm expansions.",
+		desc: "Fully upgrade 8 farm expansions.",
 		difficulty: 3,
+		series: "farm",
+		filter: ["All", "General"],
+	},
+	"The Leading Farmlands": {
+		title: "The Leading Farmlands",
+		desc: "Fully upgrade 14 farm expansions.",
+		difficulty: 3,
+		series: "farm",
+		filter: ["All", "General"],
+	},
+	"The Verdant Empire": {
+		title: "The Verdant Empire",
+		desc: "Build all the farm expansions.",
+		difficulty: 4,
 		series: "farm",
 		filter: ["All", "General"],
 	},
@@ -161,6 +200,27 @@ setup.feats = {
 		title: "Five in a Row",
 		desc: "Win five games of blackjack in a row.",
 		difficulty: 1,
+		series: "",
+		filter: ["All", "General"],
+	},
+	"Ten in a Row": {
+		title: "Ten in a Row",
+		desc: "Win ten games of blackjack in a row.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "General"],
+	},
+	"Fifteen in a Row": {
+		title: "Fifteen in a Row",
+		desc: "Win fifteen games of blackjack in a row.",
+		difficulty: 3,
+		series: "",
+		filter: ["All", "General"],
+	},
+	"Twenty in a Row": {
+		title: "Twenty in a Row",
+		desc: "Win twenty games of blackjack in a row.",
+		difficulty: 4,
 		series: "",
 		filter: ["All", "General"],
 	},
@@ -183,6 +243,27 @@ setup.feats = {
 		desc: "Win 15 distinctions on school exams.",
 		difficulty: 3,
 		series: "distinction",
+		filter: ["All", "General"],
+	},
+	"Chef de Tournant": {
+		title: "Chef de Tournant",
+		desc: "Learn recipes.",
+		difficulty: 1,
+		series: "chef",
+		filter: ["All", "General"],
+	},
+	"Chef de Partie": {
+		title: "Chef de Partie",
+		desc: "Learn recipes.",
+		difficulty: 2,
+		series: "chef",
+		filter: ["All", "General"],
+	},
+	"Sous Chef": {
+		title: "Sous Chef",
+		desc: "Learn recipes.",
+		difficulty: 3,
+		series: "chef",
 		filter: ["All", "General"],
 	},
 	"Science Fair Winner": {
@@ -234,6 +315,20 @@ setup.feats = {
 	"No More Control": {
 		title: "No More Control",
 		desc: "You don't know how to get lewder!",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Stats"],
+	},
+	Powerful: {
+		title: "Powerful",
+		desc: "You've reached the peak fitness of humanity.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Stats"],
+	},
+	Disciplined: {
+		title: "Disciplined",
+		desc: "Your mind is solid.",
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Stats"],
@@ -344,6 +439,48 @@ setup.feats = {
 		series: "market",
 		filter: ["All", "Stats"],
 	},
+	Peddler: {
+		title: "Peddler",
+		desc: "Start small, sell local.",
+		difficulty: 1,
+		series: "factorySale",
+		filter: ["All", "Stats"],
+	},
+	Supplier: {
+		title: "Supplier",
+		desc: "Meet growing demand.",
+		difficulty: 2,
+		series: "factorySale",
+		filter: ["All", "Stats"],
+	},
+	Distributor: {
+		title: "Distributor",
+		desc: "Expand your reach.",
+		difficulty: 3,
+		series: "factorySale",
+		filter: ["All", "Stats"],
+	},
+	Wholesaler: {
+		title: "Wholesaler",
+		desc: "Control the bulk market.",
+		difficulty: 3,
+		series: "factorySale",
+		filter: ["All", "Stats"],
+	},
+	Agronomist: {
+		title: "Agronomist",
+		desc: "Master the art of farming.",
+		difficulty: 4,
+		series: "factorySale",
+		filter: ["All", "Stats"],
+	},
+	"Agricultural Tycoon": {
+		title: "Agricultural Tycoon",
+		desc: "Rule the farming empire.",
+		difficulty: 5,
+		series: "factorySale",
+		filter: ["All", "Stats"],
+	},
 	"Twisted Desire": {
 		title: "Twisted Desire",
 		desc: "Suffering is optional.",
@@ -407,6 +544,13 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Social"],
 	},
+	"Hungry Orphan": {
+		title: "Hungry Orphan",
+		desc: "You gifted Robin a favourite food.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
 	"Robin's Song": {
 		title: "Robin's Song",
 		desc: "Helped Robin feel comfortable crossdressing.",
@@ -417,6 +561,13 @@ setup.feats = {
 	"Whitney the Tsundere": {
 		title: "Whitney the Bully",
 		desc: "Forever owned.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
+	"The Bully's Tithe": {
+		title: "The Bully's Tithe",
+		desc: "You gifted Whitney a favourite food.",
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Social"],
@@ -442,6 +593,13 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Social"],
 	},
+	"Not for Rats": {
+		title: "Not for Rats",
+		desc: "You gifted Kylar a favourite food.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
 	"Eden the Lonely": {
 		title: "Eden the Lonely",
 		desc: "Not so lonely now.",
@@ -449,9 +607,23 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Social"],
 	},
+	"Sweet and Tender": {
+		title: "Sweet and Tender",
+		desc: "You gifted Eden a favourite food.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
 	"Avery the Moneybags": {
 		title: "Avery the Moneybags",
 		desc: "VIP treatment.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
+	"Haute Cuisine": {
+		title: "Haute Cuisine",
+		desc: "You gifted Avery a favourite food.",
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Social"],
@@ -477,6 +649,27 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Social"],
 	},
+	"Home Cooking": {
+		title: "Home Cooking",
+		desc: "You gifted Alex a favourite food.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
+	"Great Hawk the Terror": {
+		title: "Great Hawk the Terror",
+		desc: "You'll make an excellent spouse.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
+	"Return the Favour": {
+		title: "Return the Favour",
+		desc: "You gifted the Great Hawk a favourite food.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
 	"Feather Trick": {
 		title: "Feather Trick",
 		desc: "Catch three lurkers in a single dive while hunting with the Great Hawk.",
@@ -498,9 +691,23 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Social"],
 	},
+	"Encroaching Civilisation": {
+		title: "Encroaching Civilisation",
+		desc: "You gifted the Black Wolf a favourite food.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
 	"Sydney the Pure Hearted": {
 		title: "Sydney the Pure-Hearted",
 		desc: "Blessed by the church.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
+	Communion: {
+		title: "Communion",
+		desc: "You gifted Sydney a favourite food.",
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Social"],
@@ -2226,14 +2433,14 @@ function featsMerge() {
 		idb.getAllSaves()
 			.then(saves =>
 				saves.forEach((slot, index) => {
-					if (slot.data && Array.isArray(slot.data.history)) {
-						slot.data.history.forEach(saveData => {
-							if (saveData.variables && saveData.variables.feats) {
-								loadFeats(saveData.variables.feats.allSaves);
-								loadFeats(saveData.variables.feats.currentSave);
-							}
-						});
-					}
+					// auto-detect between uncompressed and compressed saves
+					const history = slot.data.history || State.deltaDecode(slot.data.delta);
+					history.forEach(saveData => {
+						if (saveData.variables.feats) {
+							loadFeats(saveData.variables.feats.allSaves);
+							loadFeats(saveData.variables.feats.currentSave);
+						}
+					});
 					loadingBar.css("width", `${((localSavesChecked + index + 1) / savesToLoad) * 100}%`);
 					loadingText.html(`${index + 1} out of ${savesToLoad} saves checked.`);
 				})
@@ -2366,7 +2573,7 @@ function earnHourlyFeats() {
 	if (V.produce_sold >= 100) earnFeat("Hawker");
 	if (V.produce_sold >= 1000) earnFeat("Vendor");
 	if (V.produce_sold >= 5000) earnFeat("Merchant");
-	if (V.plants_known.length >= 17) earnFeat("Seedy");
+	if (V.plants_known.length >= 18) earnFeat("Seedy");
 	if (V.daily.ex.road === 1 && V.daily.ex.cream === 1 && V.daily.ex.flyover === 1) earnFeat("A Lewd Adventure");
 	if (V.athletics >= 1000) earnFeat("Swift");
 
@@ -2409,6 +2616,9 @@ function earnHourlyFeats() {
 	if (V.money >= 1000000) earnFeat("Money Maker");
 	if (V.money >= 10000000) earnFeat("Tycoon");
 	if (V.money >= 100000000) earnFeat("Millionaire");
+	if (V.money >= 1000000000) earnFeat("Decamillionaire");
+	if (V.money >= 10000000000) earnFeat("Hectomillionaire");
+	if (V.money >= 100000000000) earnFeat("Billionaire");
 
 	if (
 		V.liquidoutsidecount >= 100 &&
@@ -2419,6 +2629,8 @@ function earnHourlyFeats() {
 		earnFeat("Fully Covered");
 	}
 
+	if (V.physique >= 16000) earnFeat("Powerful");
+	if (V.willpower >= 1000) earnFeat("Disciplined");
 	if (V.skulduggery >= 1000) earnFeat("Thief");
 	if (V.danceskill >= 1000) earnFeat("May I have this Dance?");
 	if (V.swimmingskill >= 1000) earnFeat("Aquanaut");
@@ -2469,6 +2681,15 @@ function earnHourlyFeats() {
 
 	if (V.whitneycollar == 1) earnFeat("Owned");
 
+	if (V.farmersProduce) {
+		if (V.farmersProduce.totalSold >= 5000) earnFeat("Peddler");
+		if (V.farmersProduce.totalSold >= 10000) earnFeat("Supplier");
+		if (V.farmersProduce.totalSold >= 50000) earnFeat("Distributor");
+		if (V.farmersProduce.totalSold >= 100000) earnFeat("Wholesaler");
+		if (V.farmersProduce.totalSold >= 500000) earnFeat("Agronomist");
+		if (V.farmersProduce.totalSold >= 1000000) earnFeat("Agricultural Tycoon");
+	}
+
 	// To earn the feat "Curious Attire"
 	fragment.append(wikifier("specialClothesUpdate"));
 
@@ -2486,6 +2707,9 @@ function earnHourlyFeats() {
 	}
 	if (V.feats.allSaves.points >= Math.floor(currentMax * 0.5)) earnFeat("My Collection of Feats");
 	if (V.feats.allSaves.points >= Math.floor(currentMax * 0.95)) earnFeat("My Timeless Collection of Feats");
+
+	// Bugged in saves that used the "Show them the stolen card" link in many older versions
+	if (V.compoundcard === 2) earnFeat("Illicit Science");
 
 	return fragment;
 }

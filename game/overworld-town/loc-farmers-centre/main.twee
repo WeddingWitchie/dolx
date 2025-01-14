@@ -54,7 +54,9 @@
 		<<ind>><<link [[Collect money|Farmers Centre Money Collection]]>><</link>>
 		<br>
 	<</if>>
-	<<askicon>><<link [[Enquire about selling produce|Farmers Centre Produce Sale]]>><</link>>
+	<<socialiseicon "ask">><<link [[Enquire about selling produce|Farmers Centre Produce Sale]]>><</link>>
+	<br>
+	<<socialiseicon "ask">><<link [[Enquire about improving rates|Farmers Centre Upgrades]]>><</link>>
 	<br><br>
 	<<harvesticon>><<link [[Leave|Harvest Street]]>><<endevent>><</link>>
 
@@ -62,7 +64,7 @@
 
 :: Farmers Centre Money Collection
 
-The <<person>> enters the factory proper, and emerges with a wad of notes. You've made <<moneyGain `(parseFloat($farmersProduce.money / 100).toFixed(2))`>>.
+The <<person>> enters the factory proper, and emerges with a wad of notes. You've made <<printmoney $farmersProduce.money>><<money $farmersProduce.money "factoryProduce">>.
 <<set $farmersProduce.money to 0>>
 <br><br>
 <<getouticon>><<link [[Leave|Farmers Centre]]>><</link>>
@@ -97,6 +99,43 @@ The gate shudders open, and a lorry rumbles out, on its way to collect your prod
 <br><br>
 <<getouticon>><<link [[Leave|Farmers Centre]]>><</link>>
 
+:: Farmers Centre Upgrades
+<<if $factoryUpgradesIntro isnot undefined and $factoryUpgradesIntro is 1>>
+	The <<person>> turns the laptop to you. "Back for more upgrades? Take your pick."
+	<br><br>
+
+	<<farmUpgradeOptions>>
+	<br><br>
+
+	<<getouticon>><<link [[Leave|Farmers Centre]]>><</link>>
+<<else>>
+	<<if $factoryUpgradesIntro is undefined>>
+		The <<person>> raises an eyebrow and sizes you up for a moment.
+	<<else>>
+		The <<person>> considers it for a moment.
+	<</if>>
+	<<if $factoryUpgradesIntro is undefined>>
+		<<if $fame.business gte 500>><<set $factoryUpgradesIntro to 1>>
+			"<span class="green">Alright.</span> You're a worthy supplier to make special accommodations for." <<he>> turns the laptop to you. "Take your pick."
+			<br><br>
+
+			<<farmUpgradeOptions>>
+		<<else>><<set $factoryUpgradesIntro to 0>>
+			"<span class="red">No.</span> We're not providing special accommodations for just anyone. Come back when you're more well-known in the business world."
+		<</if>>
+	<<else>>
+		<<if $fame.business gte 500>><<set $factoryUpgradesIntro to 1>>
+			"<span class="green">Alright.</span> You're worth the effort now." <<he>> turns the laptop to you. "Take your pick."
+			<br><br>
+
+			<<farmUpgradeOptions>>
+		<<else>><<set $factoryUpgradesIntro to 0>>
+			"<span class="red">Still no.</span> Come back when you're more well-known in the business world."
+		<</if>>
+	<</if>>
+	<br><br>
+	<<getouticon>><<link [[Leave|Farmers Centre]]>><</link>>
+<</if>>
 
 :: Farmers Centre Widgets [widget]
 <<widget "produceDisplay">>
@@ -263,5 +302,75 @@ The gate shudders open, and a lorry rumbles out, on its way to collect your prod
 			<<set $farmersProduce.sold -= _famebusinessSold>>
 			<<famebusiness `Math.floor(_famebusinessSold / 250)`>>
 		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "farmUpgradeOptions">>
+	<<if $factoryUpgrades.qualityControl is undefined>>
+		<<if $money gte 250000>>
+			<<link [[Basic Quality Assurance (£2500)|Farmers Centre Upgrades]]>><<money -250000>><<set $factoryUpgrades.qualityControl to 1>><</link>> <<note "+5% Price" "green">>
+		<<else>>
+			<span class="blue">You need <<printmoney 250000>> to purchase Basic Quality Assurance.</span>
+		<</if>>
+	<<elseif $factoryUpgrades.qualityControl is 1>>
+		<<if $money gte 600000>>
+			<<link [[Advanced Inspections (£6000)|Farmers Centre Upgrades]]>><<money -600000>><<set $factoryUpgrades.qualityControl to 2>><</link>> <<note "+10% Price" "green">>
+		<<else>>
+			<span class="blue">You need <<printmoney 600000>> to purchase Advanced Inspections.</span>
+		<</if>>
+	<<elseif $factoryUpgrades.qualityControl is 2>>
+		<<if $money gte 1200000>>
+			<<link [[Precision Sorting System (£12000)|Farmers Centre Upgrades]]>><<money -1200000>><<set $factoryUpgrades.qualityControl to 3>><</link>> <<note "+15% Price" "green">>
+		<<else>>
+			<span class="blue">You need <<printmoney 1200000>> to purchase Precision Sorting System.</span>
+		<</if>>
+	<<elseif $factoryUpgrades.qualityControl is 3>>
+		<<if $money gte 2000000>>
+			<<link [[Automated Grading Machines (£20000)|Farmers Centre Upgrades]]>><<money -2000000>><<set $factoryUpgrades.qualityControl to 4>><</link>> <<note "+20% Price" "green">>
+		<<else>>
+			<span class="blue">You need <<printmoney 2000000>> to purchase Automated Grading Machines.</span>
+		<</if>>
+	<<elseif $factoryUpgrades.qualityControl is 4>>
+		<<if $money gte 3500000>>
+			<<link [[Premium Certification (£35000)|Farmers Centre Upgrades]]>><<money -3500000>><<set $factoryUpgrades.qualityControl to 5>><</link>> <<note "+25% Price" "green">>
+		<<else>>
+			<span class="blue">You need <<printmoney 3500000>> to purchase Premium Certification.</span>
+		<</if>>
+	<<else>>
+		<span class="green">The Quality Control is as good as it can be.</span>
+	<</if>>
+	<br>
+	<<if $factoryUpgrades.packaging is undefined>>
+		<<if $money gte 300000>>
+			<<link [[Simple Packaging (£3000)|Farmers Centre Upgrades]]>><<money -300000>><<set $factoryUpgrades.packaging to 1>><</link>> <<note "+5% Price" "green">>
+		<<else>>
+			<span class="blue">You need <<printmoney 300000>> to purchase Simple Packaging.</span>
+		<</if>>
+	<<elseif $factoryUpgrades.packaging is 1>>
+		<<if $money gte 750000>>
+			<<link [[Enhanced Packaging Design (£7500)|Farmers Centre Upgrades]]>><<money -750000>><<set $factoryUpgrades.packaging to 2>><</link>> <<note "+10% Price" "green">>
+		<<else>>
+			<span class="blue">You need <<printmoney 750000>> to purchase Enhanced Packaging Design.</span>
+		<</if>>
+	<<elseif $factoryUpgrades.packaging is 2>>
+		<<if $money gte 1500000>>
+			<<link [[Reinforced Materials (£15000)|Farmers Centre Upgrades]]>><<money -1500000>><<set $factoryUpgrades.packaging to 3>><</link>> <<note "+15% Price" "green">>
+		<<else>>
+			<span class="blue">You need <<printmoney 1500000>> to purchase Reinforced Materials.</span>
+		<</if>>
+	<<elseif $factoryUpgrades.packaging is 3>>
+		<<if $money gte 2500000>>
+			<<link [[Eco-Friendly Packaging (£25000)|Farmers Centre Upgrades]]>><<money -2500000>><<set $factoryUpgrades.packaging to 4>><</link>> <<note "+20% Price" "green">>
+		<<else>>
+			<span class="blue">You need <<printmoney 2500000>> to purchase Eco-Friendly Packaging.</span>
+		<</if>>
+	<<elseif $factoryUpgrades.packaging is 4>>
+		<<if $money gte 4000000>>
+			<<link [[Luxury Presentation (£40000)|Farmers Centre Upgrades]]>><<money -4000000>><<set $factoryUpgrades.packaging to 5>><</link>> <<note "+25% Price" "green">>
+		<<else>>
+			<span class="blue">You need <<printmoney 4000000>> to purchase Luxury Presentation.</span>
+		<</if>>
+	<<else>>
+		<span class="green">The Packaging is as good as it can be.</span>
 	<</if>>
 <</widget>>

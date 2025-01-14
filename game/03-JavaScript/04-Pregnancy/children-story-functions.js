@@ -275,15 +275,21 @@ function hawkChildActivity(childId) {
 		} else {
 			activity = activity.concat(["sleeping", "sleeping", "sleeping", "crying", "reaching", "flap", "flap", "perch", "bathe"]);
 		}
-	} else if (between(T.childTotalDays, 100, 200)) {
+	} else if (between(T.childTotalDays, 100, 199)) {
 		if (Time.dayState === "night" && V.bird.state === "home" && ["sleep", "rest", "brood"].includes(V.bird.activity)) {
 			activity = activity.concat(["sleepingWithGreatHawk", "sleepingWithGreatHawk", "sleepingWithGreatHawk", "sleeping"]);
 		} else {
 			activity = activity.concat(["sleeping", "sleeping", "crying", "reaching", "flap", "perch", "batheSelf"]);
 		}
 	}
-	if (T.childTotalDays >= 14) {
+	if (T.childTotalDays >= 14 && T.childTotalDays <= 199) {
 		activity.push("preen");
+	}
+	if (T.childTotalDays >= 200) {
+		activity.push("flap");
+	}
+	if (child.localVariables.farewell != false) {
+        activity = ["dismissed"];
 	}
 
 	if (activity.length) {

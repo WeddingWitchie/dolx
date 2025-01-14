@@ -74,7 +74,7 @@
 				<br>
 			<</if>>
 			<<goocount>>
-			<<if ($cat gte 6 or $transformationParts.cat.tail is "default") and $liquidoutsidecount gte 1 and $leftarm isnot "bound" and $rightarm isnot "bound">>
+			<<if ($cat gte 6 or ($transformationParts.cat.tail isnot "hidden" and $transformationParts.cat.tail isnot "disabled")) and $liquidoutsidecount gte 1 and $leftarm isnot "bound" and $rightarm isnot "bound">>
 				<<if $danceactiondefault is "groom">>
 					<label><span class="sub">Groom</span> (0:01) <span class="blue">Cat</span> <<radiobutton "$danceaction" "groom" checked>></label> |
 				<<else>>
@@ -109,7 +109,7 @@
 			<br>
 		<</if>>
 	<<elseif $danceevent is "strippertrouble">>
-		<<link [[Help them|$passage]]>><<set $danceaction to "stripperhelp">><</link>>
+		<<link [[Intervene|$passage]]>><<set $danceaction to "stripperhelp">><</link>>
 		<br>
 		<<link [[Ignore|$passage]]>><<set $danceaction to "stripperignore">><</link>>
 		<br>
@@ -182,7 +182,7 @@
 			<<link [[Drink carefully|$passage]]>><<set $danceaction to "drink_careful">><</link>>
 			<br>
 		<</if>>
-		<<refuseicon>><<link [[Ignore|$passage]]>><<set $danceaction to "drink_ignore">><</link>>
+		<<link [[Ignore|$passage]]>><<set $danceaction to "drink_ignore">><</link>>
 		<br>
 	<<elseif $danceevent is "light">>
 		<<if hasSexStat("exhibitionism", 5)>>
@@ -349,7 +349,17 @@
 					They won't let you keep it.
 				<<else>>
 					You've gained <<printmoney $dancetip>>.
-					<<set $money += $dancetip>>
+					<<if $dancelocation>>
+						<<switch $dancelocation>>
+							<<case "stage">><<set _tipSource to "danube">>
+							<<case "club">><<set _tipSource to "stripClub">>
+							<<default>><<set _tipSource to $dancelocation>>
+						<</switch>>
+						<<set _tipSource += "DanceTips">>
+					<<else>>
+						<<set _tipSource to "danceTips">>
+					<</if>>
+					<<money $dancetip _tipSource>>
 				<</if>>
 			<</if>>
 			<br><br>
@@ -549,7 +559,7 @@
 					<<dancedrunktrip>>
 				<<else>>
 					<<if $audiencearousal gte 41>>
-						<<if $rng gte 51>>
+						<<if $rng gte 51 and $drinkskip isnot undefined>>
 							<<dancedrink>>
 						<<else>>
 							<<dancelonging>>
@@ -633,6 +643,11 @@
 
 <<widget "dancedrink">>
 	<<set $danceevent to "drink">>
+	<<if $drinkskip is undefined>>
+		<<set $drinkskip to 1>>
+	<<else>>
+		<<unset $drinkskip>>
+	<</if>>
 	The <<person>> offers you a glass of wine.
 	<<if $drunk gte currentSkillValue('danceskill') - 800>>
 		You feel unsteady already.
@@ -738,13 +753,13 @@
 <</widget>>
 
 <<widget "danceprivate">>
-	The <<person>> raises <<his>> <<if $pronoun is "m">>wallet,<<else>>purse,<</if>> indicating <<he>> wants to hire your services.
+	The <<person>> raises <<his>> <<if $pronoun is "m">>wallet<<else>>purse<</if>>, indicating <<he>> wants to hire your services.
 	<<set $danceevent to "private">>
-	<<if $promiscuity lte 34 and $uncomfortable.prostituting is true>>
+	<<if !hasSexStat("promiscuity", 3) and $uncomfortable.prostituting is true>>
 		However, you are not promiscuous enough to take up <<his>> offer.
 		<<set $privatedanceoffered to 1>>
 	<</if>>
-	<<if $promiscuity lte 34 and $uncomfortable.prostituting is false>>
+	<<if !hasSexStat("promiscuity", 3) and $uncomfortable.prostituting is false>>
 		<<His>> offer repulses you, but you need the money.
 	<</if>>
 <</widget>>
@@ -775,7 +790,7 @@
 
 <<widget "dancestrippertrouble">>
 	<<set $danceevent to "strippertrouble">>
-	The <<person>> tries to drag another employee off their stage.
+	The <<person>> tries to drag another employee off <<if maleChance() gte random(1,100)>>his<<else>>her<</if>> stage.
 <</widget>>
 
 <<widget "dancesalivate">>
@@ -783,7 +798,7 @@
 <</widget>>
 
 <<widget "dancesamfinish">>
-	<<endevent>><<npc Sam>>Sam appears beside your table-stage. "That's enough everyone, this <<girl>> has had enough." <<He>> takes you by the arm and leads you into a back room. "Good job today. Here's a little something extra." You earn <<moneyGain 10>>.
+	<<endevent>><<npc Sam>>Sam appears beside your table-stage. "That's enough everyone, this <<girl>> has had enough." <<He>> takes you by the arm and leads you into a back room. "Good job today. Here's a little something extra." You earn <<printmoney 1000>><<money 1000 "cafeWaiter">>.
 	<<npcincr Sam love 2>><<glove>><<set $danceevent to "finish">>
 <</widget>>
 
