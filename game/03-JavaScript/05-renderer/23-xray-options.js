@@ -219,7 +219,7 @@ class XrayCombatMapper {
 	static mapXrayPenetrators(options, penetrator, slot) {
 		/* Type of NPC penetrating the player */
 		penetrator.npcType =
-			V.enemytype === "machine" ? "machine" : ["tentacle", "tentacledeep"].includes(V[slot + "state"]) ? "tentacle" : V.NPCList[V[slot + "target"]].type;
+			V.enemytype === "machine" ? "machine" : ["tentacle", "tentacledeep"].includes(V[slot + "state"]) ? "tentacle" : V.portalPanties.state[slot] ? V.portalPanties.state[slot].type : V.NPCList[V[slot + "target"]].type;
 
 		/* slot is being doublepenetrated or not */
 		penetrator.doublePen =
@@ -292,6 +292,10 @@ class XrayCombatMapper {
 				}
 
 				this.mapXrayHumanPenis("npc", slot, options);
+				if (V.portalPanties.state[slot]) {
+					penetrator.size = V.portalPanties.state[slot].size;
+				}
+
 				if (penetrator.npc2 !== undefined) {
 					this.mapXrayHumanPenis("npc2", slot, options);
 
@@ -388,9 +392,9 @@ class XrayCombatMapper {
 		}
 
 		penetrator.isCumActive = false;
-		if (V.ejaculating === 1 || V[slot + "state"] === "tentacledeep") {
+		if (V.ejaculating === 1 || V[slot + "state"] === "tentacledeep" || V["portalejac"+slot]) {
 			const npc1HasSperm =
-				V[slot + "state"] === "tentacledeep" ||
+				V[slot + "state"] === "tentacledeep" || V["portalejac"+slot] ||
 				(combat.isNpcActive(penetrator.npc) && wearingCondom(penetrator.npc) !== "worn" && !npcHasStrapon(penetrator.npc));
 			const npc2HasSperm =
 				V[slot + "state"] === "tentacledeep" ||
@@ -438,12 +442,12 @@ class XrayCombatMapper {
 			}
 		} else {
 			penetrator["penetratorSprite" + index] = "penis";
-			penetrator["size" + index] = npcSource.penissize;
+			penetrator["size" + index] = npcSource?.penissize ?? V.portalPanties.state[slot].size ?? 0;
 			if (wearingCondom(penetrator[npc])) {
 				options.filters[slot + "Condom" + index] = CombatRenderer.getCondomOptions(npcSource.condom).colour;
 			}
 		}
-		options.filters[slot + "Penetrator" + index] = NpcCombatMapper.getNpcPenetratorFilter(npcSource);
+		options.filters[slot + "Penetrator" + index] = npcSource ? NpcCombatMapper.getNpcPenetratorFilter(npcSource) : setup.colours.getSkinFilter("light",0);
 
 		return penetrator;
 	}

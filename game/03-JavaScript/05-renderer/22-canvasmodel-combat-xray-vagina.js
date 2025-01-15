@@ -92,7 +92,7 @@ function xrayVaginaPenetrator(npc, overrideOptions = {}) {
 			return `${options.src}vaginal/${options.vagina.penetratorSprite}${penSize}${dp}.png`;
 		},
 		showfn(options) {
-			return !!options.showNpcPenis && !!options.vagina.show && options.vagina[npc] !== undefined;
+			return !!options.showNpcPenis && !!options.vagina.show && (options.vagina[npc] !== undefined || V.portalPanties.state.vagina);
 		},
 		animationfn(options) {
 			return options.animKeyVagina;

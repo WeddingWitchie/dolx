@@ -91,7 +91,7 @@ function xrayArsePenetrator(npc, overrideOptions = {}) {
 			return `${options.src}anal/${options.anus.penetratorSprite}${penSize}${dp}.png`;
 		},
 		showfn(options) {
-			return !!options.showNpcPenis && !!options.anus.show && options.anus[npc] !== undefined;
+			return !!options.showNpcPenis && !!options.anus.show && (options.anus[npc] !== undefined || V.portalPanties.state.anus);
 		},
 		animationfn(options) {
 			return options.animKeyArse;
