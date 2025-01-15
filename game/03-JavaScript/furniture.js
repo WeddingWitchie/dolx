@@ -20,6 +20,8 @@ const Furniture = (() => {
 		windowsill: "windowsill",
 		poster: "poster",
 		wallpaper: "wallpaper",
+		shelf: "shelf",
+		plush: "plush",
 		/* Special category for Kylar event */
 		owlplushie: "owlplushie",
 	});
@@ -373,6 +375,15 @@ const Furniture = (() => {
 			iconFile: "owlplushie",
 			showCheck: "disabled",
 		});
+		mapper.set("bunplushie", {
+			name: "large bunny plushie",
+			nameCap: "Large bunny plushie",
+			category: ["decoration"],
+			type: [],
+			cost: 1380,
+			description: "Soft and cuddly",
+			iconFile: "bunplushie",
+		});
 		/* ------------- WARDROBES ------------- */
 		/*	starter - 20 clothing slots for every type
 			spacious - 30 clothing slots for every type
@@ -451,6 +462,52 @@ const Furniture = (() => {
 			cost: 135,
 			description: "The wallpaper is currently empty.",
 			iconFile: "wallpaper",
+		});
+		/* ------------- BUNNY MOD -------------- */
+		mapper.set("shelf", {
+			name: "small shelf",
+			nameCap: "Small shelf",
+			category: ["shelf"],
+			type: ["shelf"],
+			cost: 3200,
+			description: "A 'rent' friendly shelf. Its the only one that would fit in your room.",
+			iconFile: "shelf",
+		});
+		mapper.set("moonplush", {
+			name: "moon plush",
+			nameCap: "Moon plush",
+			category: ["plush"],
+			type: [],
+			cost: 40,
+			description: "A small plush of the moon.",
+			iconFile: "",
+		});
+		mapper.set("frostplush", {
+			name: "snowman plush",
+			nameCap: "Snowman plush",
+			category: ["plush"],
+			type: [],
+			cost: 40,
+			description: "A small plush of a snowman.",
+			iconFile: "",
+		});
+		mapper.set("tfplushes", {
+			name: "collection of animal plushes",
+			nameCap: "Collection of Animal Plushes",
+			category: ["plush"],
+			type: [],
+			cost: 1480,
+			description: "A collection of small animal plushes. Includes a fox, bunny, cat, wolf, cow and bird.",
+			iconFile: "tfplushes",
+		});
+		mapper.set("axoplush", {
+			name: "yellow axolotl plush",
+			nameCap: "Yellow axolotl plush",
+			category: ["plush"],
+			type: [],
+			cost: 1,
+			description: "A small lemon coloured axolotl plush. You don't see a price tag on it, only the name 'Monsieur Citron' is written.",
+			iconFile: "",
 		});
 	}
 

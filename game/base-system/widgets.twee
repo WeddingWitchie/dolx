@@ -697,7 +697,7 @@
 
 				<<if ["thievery", "petty"].includes(_crimeType) and
 				$foxbuild gte 1 and
-				Math.max($wolfbuild, $catbuild, $cowbuild, $birdbuild, $foxbuild) is $foxbuild>>
+				Math.max($wolfbuild, $catbuild, $cowbuild, $birdbuild, $foxbuild, $bunnybuild) is $foxbuild>>
 					<!-- If the player steals enough, and fox is their highest beast TF (and above 0), apply fox TF pressure -->
 					<<if !$foxCrimeProgress>>
 						<!-- Resets daily at 6AM, in dawnCheck, time.js -->
@@ -3331,6 +3331,10 @@
 <</widget>>
 
 <<widget "roomoptions">>
+	<<if $lockpickTrainingSet gte 1 and $stress lt $stressmax and !$possessed>>
+		<<lockpickTrainingSet>>
+	<</if>>
+	<br>
 	<<if $sexStats.pills.boughtOnce is true or $sexStats.pills["pills"]["Dr Harper\'s prescription"].owned gte 1 or $sexStats.pills["pills"]["asylum\'s prescription"].owned gte 1>>
 		<<pillicon>><<link [[Check your medicine drawer|PillCollection]]>><<set $pillsExitPassage to $passage>><<endevent>><</link>>
 		<br>
@@ -4217,10 +4221,11 @@
 <</widget>>
 
 <<widget "breastfed">>
-	<<set $milk_drank_stat += _args[0] or random(1, 5)>>
 	<<if _args[0]>>
+		<<set $milk_drank_stat += _args[0]>>
 		<<set $hunger -= _args[0]>><<set $thirst -= _args[0]>>
 	<<else>>
+		<<set $milk_drank_stat += random(1, 5)>>
 		<<if random(1, 100) gte 70>>
 			<<if $NPCList[0].type and $NPCList[0].type is "wolfgirl">>
 				<<transform wolf 1>>
@@ -4263,7 +4268,7 @@
 <</widget>>
 
 <<widget "setup_pillory">>
-	<<set $pillory.tenant to {person : clone($baseNPC), exists : 0, duration : 0, served : 0, startTime: 0, endTime : 0,
+	<<set $pillory.tenant to {person : clone(setup.baseNPC), exists : 0, duration : 0, served : 0, startTime: 0, endTime : 0,
 		crowd : 0, wet : 0, upperexposed : 0 , lowerexposed : 0, fruit : 0, fruitstock: 0, face : 0, ass : 0, genital : 0, broken : 0,
 		lastviewed : 0, special : {name : "", desc : ""}}>>
 <</widget>>
@@ -5513,6 +5518,7 @@
 	<<set $transformationParts.bear.ears = "disabled">>
 	<<set $transformationParts.wolf.ears = "disabled">>
 	<<set $transformationParts.fox.ears = "disabled">>
+	<<set $transformationParts.bunny.ears = "disabled">>
 <</widget>>
 
 <<widget "cleareyes">>
@@ -5548,6 +5554,7 @@
 	<<set $transformationParts.wolf.tail = "disabled">>
 	<<set $transformationParts.bird.tail = "disabled">>
 	<<set $transformationParts.fox.tail = "disabled">>
+	<<set $transformationParts.bunny.tail = "disabled">>
 <</widget>>
 
 <<widget "clearwings">>

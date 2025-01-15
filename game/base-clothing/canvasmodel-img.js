@@ -402,6 +402,10 @@ DefineMacro("modelprepare-player-body", function () {
 	T.modeloptions.fox_ears_type = V.transformationParts.fox.ears;
 	T.modeloptions.fox_cheeks_type = V.transformationParts.fox.cheeks;
 
+	T.modeloptions.bunny_tail_type = V.transformationParts.bunny.tail;
+	T.modeloptions.bunny_tail_layer = V.taillayer;
+	T.modeloptions.bunny_ears_type = V.transformationParts.bunny.ears;
+	
 	T.modeloptions.bear_plumage_type = V.transformationParts.bear.plumage;
 	T.modeloptions.bear_pubes_type = V.transformationParts.bear.pubes;
 	T.modeloptions.bear_tail_type = V.transformationParts.bear.tail;

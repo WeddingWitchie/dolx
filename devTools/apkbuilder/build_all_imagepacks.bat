@@ -5,34 +5,34 @@ set /p version=Enter the version number:
 set target[0]=vanilla
 set target[1]=b3s
 set target[2]=b3s_hikfem
-set target[3]=b3s_hikmale
-set target[4]=b3s_paril
-set target[5]=b3s_wax
-set target[6]=b3s_lllysmasc
-set target[7]=susato
-set target[8]=mizz
-set target[9]=kitmint
-set target[10]=b3s_mys
-set target[11]=b3s_hikfem_mys
-set target[12]=goosefem
-set target[13]=goosefem_mys
+@REM set target[3]=b3s_hikmale
+@REM set target[4]=b3s_paril
+@REM set target[5]=b3s_wax
+@REM set target[6]=b3s_lllysmasc
+@REM set target[7]=susato
+set target[3]=mizz
+@REM set target[9]=kitmint
+set target[4]=b3s_mys
+set target[5]=b3s_hikfem_mys
+set target[6]=goosefem
+set target[7]=goosefem_mys
 
 set imagepack[0]=vanilla
 set imagepack[1]=beeesss
 set imagepack[2]=hikfem
-set imagepack[3]=hikmale
-set imagepack[4]=paril
-set imagepack[5]=wax
-set imagepack[6]=lllysmasc
-set imagepack[7]=susato
-set imagepack[8]=mizzfem
-set imagepack[9]=kitmint
-set imagepack[10]=b3s_mys
-set imagepack[11]=hikfem_mys
-set imagepack[12]=goosefem
-set imagepack[13]=goosefem_mys
+@REM set imagepack[3]=hikmale
+@REM set imagepack[4]=paril
+@REM set imagepack[5]=wax
+@REM set imagepack[6]=lllysmasc
+@REM set imagepack[7]=susato
+set imagepack[3]=mizzfem
+@REM set imagepack[9]=kitmint
+set imagepack[4]=b3s_mys
+set imagepack[5]=hikfem_mys
+set imagepack[6]=goosefem
+set imagepack[7]=goosefem_mys
 
-set array_length=13
+set array_length=7
 
 del ..\..\dist\*.apk
 
@@ -85,7 +85,7 @@ for /L %%i in (0,1,%array_length%) do (
 
 	cd .\dist\
 
-	ren "DoLP-v0.%version%-!imagepack[%%i]!-0.5.3.5 DoLP v0.%version% !imagepack[%%i]!-debug.apk" "0.5.3.5 DoLP v0.%version% !imagepack[%%i]!-debug.apk"
+	ren "DoLP-v0.%version%-!imagepack[%%i]!-0.5.3.6 DoLP v0.%version% !imagepack[%%i]!-debug.apk" "0.5.3.6 DoLP v0.%version% !imagepack[%%i]!-debug.apk"
 
 	cd ..\
 )

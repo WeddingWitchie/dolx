@@ -876,6 +876,13 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Transformation"],
 	},
+	Bunny: {
+		title: "Bnuuy Syndrome",
+		desc: "Instead of brain there is bnuuy",
+		difficulty: 1,
+		series: "",
+		filter: ["All", "Transformation"],
+	},
 	Bear: {
 		title: "Unadulterated Power",
 		desc: "The apex predator.",
