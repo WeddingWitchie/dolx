@@ -2438,6 +2438,9 @@ function initHead() {
 			name: "honey hair clip",
 			name_cap: "Honey hair clip",
 			variable: "honeyhairclip",
+			combat: {
+				reference: "naked",
+			},
 			state: 0,
 			state_base: 0,
 			integrity: 200,
@@ -2469,6 +2472,9 @@ function initHead() {
 			name: "carrot pin",
 			name_cap: "Carrot pin",
 			variable: "carrotpin",
+			combat: {
+				reference: "naked",
+			},
 			state: 0,
 			state_base: 0,
 			integrity: 200,

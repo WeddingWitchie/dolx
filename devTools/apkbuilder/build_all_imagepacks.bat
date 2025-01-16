@@ -7,30 +7,30 @@ set target[1]=b3s
 set target[2]=b3s_hikfem
 @REM set target[3]=b3s_hikmale
 @REM set target[4]=b3s_paril
-@REM set target[5]=b3s_wax
+set target[3]=b3s_wax
 @REM set target[6]=b3s_lllysmasc
 @REM set target[7]=susato
-set target[3]=mizz
-@REM set target[9]=kitmint
-set target[4]=b3s_mys
-set target[5]=b3s_hikfem_mys
-set target[6]=goosefem
-set target[7]=goosefem_mys
+set target[4]=mizz
+set target[5]=kitmint
+set target[6]=b3s_mys
+set target[7]=b3s_hikfem_mys
+set target[8]=goosefem
+set target[9]=goosefem_mys
 
 set imagepack[0]=vanilla
 set imagepack[1]=beeesss
 set imagepack[2]=hikfem
 @REM set imagepack[3]=hikmale
 @REM set imagepack[4]=paril
-@REM set imagepack[5]=wax
+set imagepack[3]=wax
 @REM set imagepack[6]=lllysmasc
 @REM set imagepack[7]=susato
-set imagepack[3]=mizzfem
-@REM set imagepack[9]=kitmint
-set imagepack[4]=b3s_mys
-set imagepack[5]=hikfem_mys
-set imagepack[6]=goosefem
-set imagepack[7]=goosefem_mys
+set imagepack[4]=mizzfem
+set imagepack[5]=kitmint
+set imagepack[6]=b3s_mys
+set imagepack[7]=hikfem_mys
+set imagepack[8]=goosefem
+set imagepack[9]=goosefem_mys
 
 set array_length=7
 
@@ -63,7 +63,7 @@ for /L %%i in (0,1,%array_length%) do (
 
 	cd ..\..\..\
 
-	if %%i==9 (
+	if %%i==5 (
 		move .\img\style.css ..\
 	)
 
