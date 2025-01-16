@@ -1,0 +1,397 @@
+:: Street Police Stalk Widgets [widget]
+
+	<<widget "stalkpolice1">>
+		<<generatePolice 1>><<person1>>
+		An officer in blue sees you walking by. <span class="blue">You feel followed.</span>
+		<br><br>
+		
+		<<link [[Next|Street Police Stalk]]>><<set $molestationstart to 1>><</link>>
+		<br>
+	<</widget>>
+
+	<<widget "stalkpolice2">>
+		<<generatePolice 1>><<generatePolice 2>><<person1>>An officer and <<his>> partner spot you walking by. <span class="blue">You feel followed.</span>
+		<br><br>
+
+		<<link [[Next|Street Police Stalk Group]]>><<set $molestationstart to 1>><</link>>
+		<br>
+	<</widget>>
+
+	<<widget "stalkpolicebound">>
+		<<generatePolice 1>><<person1>>
+		<<if Time.dayState is "night">>
+			You hear footsteps behind you, somewhere in the dark. Your bound arms make you feel so helpless. <span class="blue">You are being followed.</span>
+			<br><br>
+
+			<<link [[Next|Street Stalk]]>><<set $molestationstart to 1>><</link>>
+			<br>
+		<<else>>
+			An officer approaches you. "Who tied you up like that? Here." <<He>> walks behind you and frees your limbs from their bindings.<<unbind>>
+			<br><br>
+
+			<<endevent>>
+			<<destinationeventend>>
+		<</if>>
+	<</widget>>
+
+	<<widget "stalkpolicelowertowel">>
+		<<if Time.dayState is "night">>
+			<<generatePolice 1>><<generatePolice 2>><<generatePolice 3>><<person1>>
+			You hear footsteps behind you, somewhere in the dark. You feel self conscious about the towel around your waist. <span class="blue">You are being followed.</span>
+			<br><br>
+
+			<<link [[Next|Street Police Stalk Group]]>><<set $molestationstart to 1>><</link>>
+			<br>
+		<<else>>
+			<<generatePolice 1>><<person1>>You hear light footsteps behind you. You feel self conscious about the towel around your waist. <span class="blue">You are being followed.</span>
+			<br><br>
+
+			<<link [[Next|Street Police Stalk]]>><<set $molestationstart to 1>><</link>>
+			<br>
+		<</if>>
+	<</widget>>
+
+	<<widget "stalkpoliceuppertowel">>
+		<<if Time.dayState is "night">>
+			<<generatePolice 1>><<generatePolice 2>><<generatePolice 3>><<person1>>
+			You hear footsteps behind you, somewhere in the dark. You feel self conscious about the towel around your chest. <span class="blue">You are being followed.</span>
+			<br><br>
+
+			<<link [[Next|Street Police Stalk Group]]>><<set $molestationstart to 1>><</link>>
+			<br>
+		<<else>>
+			<<generatePolice 1>><<person1>>You hear light footsteps behind you. You feel self conscious about the towel around your chest. <span class="blue">You are being followed.</span>
+			<br><br>
+
+			<<link [[Next|Street Police Stalk]]>><<set $molestationstart to 1>><</link>>
+			<br>
+		<</if>>
+	<</widget>>
+
+:: Street Police Stalk
+	<<if $molestationstart is 1>>
+		<<set $molestationstart to 0>>
+		<<violence 1>>
+		<<neutral 1>>
+		<<maninit>>
+		<<stalk_init>>
+		<<if Time.dayState isnot "night">>
+			<<enable_rescue>>
+		<</if>>
+	<</if>>
+
+	<<effects>>
+	<<effectsman>>
+	<<alarmstate>>
+	<<man>>
+	<<if $audience_active>>
+		<<audience>>
+	<</if>>
+	<<stateman>>
+	<br><br>
+	<<actionsman>>
+
+	<<if _combatend or $stalk_end>>
+		<span id="next"><<link [[Next|Street Police Stalk Finish]]>><</link>></span><<nexttext>>
+	<<else>>
+		<span id="next"><<link [[Next|Street Police Stalk]]>><</link>></span><<nexttext>>
+	<</if>>
+
+:: Street Police Stalk Run
+	<<if $molestationstart is 1>>
+		<<set $molestationstart to 0>>
+		<<violence 1>>
+		<<neutral 1>>
+		<<maninit>>
+		<<stalk_init>>
+		<<stalk_run>>
+		<<if Time.dayState isnot "night">>
+			<<enable_rescue>>
+		<</if>>
+		You turn and run. <span class="pink">You are being pursued.</span>
+	<</if>>
+
+	<<effects>>
+	<<effectsman>>
+	<<alarmstate>>
+	<<man>>
+	<<if $audience_active>>
+		<<audience>>
+	<</if>>
+	<<stateman>>
+	<br><br>
+	<<actionsman>>
+
+	<<if _combatend or $stalk_end>>
+		<span id="next"><<link [[Next|Street Police Stalk Finish]]>><</link>></span><<nexttext>>
+	<<else>>
+		<span id="next"><<link [[Next|Street Police Stalk Run]]>><</link>></span><<nexttext>>
+	<</if>>
+
+:: Street Police Stalk Finish
+	<<effects>>
+	<<if $enemyarousal gte $enemyarousalmax>>
+		<<ejaculation>>
+		<<if $combat_end_text>>
+			<<print $combat_end_text>>
+		<<elseif $enemyanger gte ($enemyangermax / 5) * 3>>
+			<<He>> throws you against the pavement.
+			<<violence 3>>
+			<br><br>
+		<<elseif $enemyanger gte 1>>
+			<<He>> walks away without a word.
+			<br><br>
+		<<else>>
+			Smiling, <<he>> kisses you on the cheek. "This is for you." <<He>> gets up and leaves you lying on the ground.
+			<br>
+			You've gained <<moneyGain 5>>.
+			<br><br>
+		<</if>>
+		<<underlowersteal>>
+		<<tearful>> you rise to your feet.
+		<br><br>
+
+		<<clotheson>>
+		<<endcombat>>
+		<<destinationeventend>>
+
+	<<elseif $enemyhealth lte 0>>
+		<<if Time.dayState isnot "night">>
+			The <<person>> recoils in pain, giving you the chance you need. <<tearful>> you escape into the crowds.
+			<br><br>
+		<<else>>
+			The <<person>> recoils in pain, giving you the chance you need. <<tearful>> you escape into the darkness.
+			<br><br>
+		<</if>>
+		<<clotheson>>
+		<<endcombat>>
+		<<destinationeventend>>
+	<<elseif $stalk_end is "escaped">>
+		You slow to a walk. <<tearful>> you continue your journey.
+		<br><br>
+
+		<<clotheson>>
+		<<endcombat>>
+
+		<<destinationeventend>>
+
+	<<elseif $stalk_end is "passed">>
+		The <<person>> walks ahead. <<tearful>> you continue your journey.
+		<br><br>
+		<<clotheson>>
+		<<endcombat>>
+
+		<<destinationeventend>>
+
+	<<elseif $stalk_end is "hide">>
+		<<covered>> <<tearful>> you emerge from your hiding place. You continue your journey.
+		<br><br>
+
+		<<set $stealtextskip to 1>>
+		<<stealclothes>>
+		<<clotheson>>
+		<<endcombat>>
+
+		<<destinationeventend>>
+		<br>
+
+	<<elseif $stalk_end is "outpaced">>/*Unnecessary if the PC can't become the pursuer */
+		<<if $exposed gte 1>>
+			<<switch $location>>
+			<<case alley>>
+				<<tearful>> you slow to a stop. <<covered>> There's no one around, but this is still a public place.
+			<<case forest lake>>
+				<<tearful>> you slow to a stop. <<covered>> There's no one around right now, but there's no knowing who you could meet in the woods.
+			<<case moor>>
+				<<tearful>> you slow to a stop. <<covered>> There's no one around, but being exposed in such an open place is frightening regardless.
+			<<default>>
+				<<covered>> <<tearful>> you dive down an alley, hoping to shield your body from any prying eyes.
+			<</switch>>
+		<<else>>
+			<<tearful>> you slow to stop.
+		<</if>>
+		<br><br>
+		<<set $stealtextskip to 1>>
+		<<stealclothes>>
+		<<clotheson>>
+		<<endcombat>>
+
+		<<destinationeventend>>
+		<br>
+	<<else>>
+		<<set $rescued += 1>>
+		<<if $position is "stalk">>
+			Several heads turn your way. The pursuer keeps <<his>> distance.
+		<<else>>
+			The <<person>> notices several heads turning in response to your cry, and relents in <<his>> assault before making <<his>> escape.
+		<</if>>
+		<br><br>
+		<<tearful>> you continue your journey.
+		<br><br>
+		<<clotheson>>
+		<<endcombat>>
+		<<destinationeventend>>
+	<</if>>
+
+:: Street Police Stalk Group
+	<<if $molestationstart is 1>>
+		<<set $molestationstart to 0>>
+		<<violence 1>>
+		<<neutral 1>>
+
+		<<maninit>>
+		<<stalk_init>>
+		<<if Time.dayState isnot "night">>
+			<<enable_rescue>>
+		<</if>>
+	<</if>>
+
+	<<effects>>
+	<<effectsman>>
+	<<alarmstate>>
+	<<man>>
+	<<if $audience_active>>
+		<<audience>>
+	<</if>>
+	<<stateman>>
+	<br><br>
+	<<actionsman>>
+
+	<<if _combatend or $stalk_end>>
+		<span id="next"><<link [[Next|Street Police Stalk Group Finish]]>><</link>></span><<nexttext>>
+	<<else>>
+		<span id="next"><<link [[Next|Street Police Stalk Group]]>><</link>></span><<nexttext>>
+	<</if>>
+
+:: Street Police Stalk Group Run
+	<<if $molestationstart is 1>>
+		<<set $molestationstart to 0>>
+		<<violence 1>>
+		<<neutral 1>>
+		<<maninit>>
+		<<stalk_init>>
+		<<stalk_run>>
+		<<if Time.dayState isnot "night">>
+			<<enable_rescue>>
+		<</if>>
+	<</if>>
+
+	<<effects>>
+	<<effectsman>>
+	<<alarmstate>>
+	<<man>>
+	<<if $audience_active>>
+		<<audience>>
+	<</if>>
+	<<stateman>>
+	<br><br>
+	<<actionsman>>
+
+	<<if _combatend or $stalk_end>>
+		<span id="next"><<link [[Next|Street Police Stalk Group Finish]]>><</link>></span><<nexttext>>
+	<<else>>
+		<span id="next"><<link [[Next|Street Police Stalk Group Run]]>><</link>></span><<nexttext>>
+	<</if>>
+
+:: Street Police Stalk Group Finish
+	<<effects>>
+	<<if $enemyarousal gte $enemyarousalmax>>
+		<<ejaculation>>
+		<<if $combat_end_text>>
+			<<print $combat_end_text>>
+		<<elseif $enemyanger gte ($enemyangermax / 5) * 3>>
+			<<He>> throws you against the pavement. The <<group>> swagger away.
+			<<violence 3>>
+			<br><br>
+		<<elseif $enemyanger gte 1>>
+			The <<group>> walk away without a word.
+			<br><br>
+		<<else>>
+			The <<group>> leave you lying on the ground.
+			<br><br>
+		<</if>>
+		<<underlowersteal>>
+		<<tearful>> you rise to your feet.
+		<br><br>
+
+		<<clotheson>>
+		<<endcombat>>
+		<<destinationeventend>>
+
+	<<elseif $enemyhealth lte 0>>
+		<<if Time.dayState isnot "night">>
+			The <<group>> back away, giving you the chance you need. <<tearful>> you escape into the crowds.
+			<br><br>
+		<<else>>
+			The <<group>> back away, giving you the chance you need. <<tearful>> you escape into the darkness.
+			<br><br>
+		<</if>>
+		<<clotheson>>
+		<<endcombat>>
+		<<destinationeventend>>
+	<<elseif $stalk_end is "escaped">>
+		You slow to a walk. <<tearful>> you continue your journey.
+		<br><br>
+
+		<<clotheson>>
+		<<endcombat>>
+
+		<<destinationeventend>>
+
+	<<elseif $stalk_end is "passed">>
+		The group walks ahead. <<tearful>> you continue your journey.
+		<br><br>
+		<<clotheson>>
+		<<endcombat>>
+
+		<<destinationeventend>>
+
+	<<elseif $stalk_end is "hide">>
+		<<covered>> <<tearful>> you emerge from your hiding place. You continue your journey.
+		<br><br>
+
+		<<set $stealtextskip to 1>>
+		<<stealclothes>>
+		<<clotheson>>
+		<<endcombat>>
+
+		<<destinationeventend>>
+
+	<<elseif $stalk_end is "outpaced">>/*Unnecessary if the PC can't become the pursuer */
+		<<if $exposed gte 1>>
+			<<switch $location>>
+			<<case alley>>
+				<<tearful>> you slow to a stop. <<covered>> There's no one around, but this is still a public place.
+			<<case forest lake>>
+				<<tearful>> you slow to a stop. <<covered>> There's no one around right now, but there's no knowing who you could meet in the woods.
+			<<case moor>>
+				<<tearful>> you slow to a stop. <<covered>> There's no one around, but being exposed in such an open place is frightening regardless.
+			<<default>>
+				<<covered>> <<tearful>> you dive down an alley, hoping to shield your body from any prying eyes.
+			<</switch>>
+		<<else>>
+			<<tearful>> you slow to stop.
+		<</if>>
+		<br><br>
+		<<set $stealtextskip to 1>>
+		<<stealclothes>>
+		<<clotheson>>
+		<<endcombat>>
+
+		<<destinationeventend>>
+		<br>
+	<<else>>
+		<<set $rescued += 1>>
+		<<if $position is "stalk">>
+			Several heads turn your way. The <<group>> following you keep their distance.
+		<<else>>
+			The <<group>> notice several heads turning in response to your cry, and relents in their assault before leaving in different directions.
+		<</if>>
+		<br><br>
+		<<tearful>> you continue your journey.
+		<br><br>
+		<<clotheson>>
+		<<endcombat>>
+		<<destinationeventend>>
+
+	<</if>>

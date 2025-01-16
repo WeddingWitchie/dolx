@@ -3,15 +3,21 @@
 The arcade is closed. A glowing sign beside the door reads "Opens: <span class="gold"><<ampm 9 00>></span>"
 <br><br>
 <<if currentSkillValue('skulduggery') gte $lock>>
-	<span class="green">The lock looks easy to pick.</span>
-	<br><br>
-	<<lockpickicon>><<link [[Pick it (0:10)|Arcade]]>><<pass 10>><<crimeUp 20 "trespassing">><</link>><<crime "trespassing">>
-	<br>
+	<<if $leftarm is "bound" and $rightarm is "bound">>
+		You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
+		<br><br>
+	<<else>>
+		<<wearProp "lockpick">>
+		<span class="green">The lock looks easy to pick.</span>
+		<br><br>
+		<<lockicon "pick">><<link [[Pick it (0:10)|Arcade]]>><<handheldon>><<pass 10>><<crimeUp 20 "trespassing">><</link>><<crime "trespassing">>
+		<br>
+	<</if>>
 <<else>>
 	<span class="red">The lock looks beyond your ability to pick.</span><<skulduggeryrequired>>
 	<br><br>
 <</if>>
-<<starfishicon>><<link [[Leave|Starfish Street]]>><<set $eventskip to 1>><</link>>
+<<starfishicon>><<link [[Leave|Starfish Street]]>><<handheldon>><<set $eventskip to 1>><</link>>
 <br>
 
 :: Arcade
@@ -60,7 +66,7 @@ You are in the amusement arcade on Starfish Street.
 			<br>
 		<</if>>
 		<<if $money gte 500 and (Time.dayState is "day" or Time.dayState is "dusk") and $exposed lte 0>>
-			<<robinicon "controller">><<link [[Play (£5 0:20)|Arcade Play]]>><<set $money -= 500>><<pass 20>><<stress -2>><</link>><<lstress>>
+			<<robinicon "controller">><<link [[Play (£5 0:20)|Arcade Play]]>><<money -500 "arcade">><<pass 20>><<stress -2>><</link>><<lstress>>
 			<br>
 		<</if>>
 		<<set _kylarLocation to getKylarLocation()>>
@@ -108,7 +114,7 @@ You are in the amusement arcade on Starfish Street.
 	<</if>>
 	<br><br>
 	<<if $money gte 500 and Time.dayState isnot "night">>
-		<<link [[Persist (£5 0:03)|Arcade Play]]>><<set $money -= 500>><<pass 3>><<stress 2>><</link>><<gstress>>
+		<<link [[Persist (£5 0:03)|Arcade Play]]>><<money -500 "arcade">><<pass 3>><<stress 2>><</link>><<gstress>>
 		<br>
 	<</if>>
 	<<link [[Stop|Arcade]]>><</link>>
@@ -229,7 +235,7 @@ You are in the amusement arcade on Starfish Street.
 			<<generate1>><<person1>>
 			You choose a beat-em-up, whacking enemies away as they approach you. As you play, you hear a small crowd form behind you. They fixate on a <<person>> playing a classic game.
 			<br><br>
-			"Wow! <<Hes>> going to beat the high score at this rate!" One of the onlookers shout, "Everyone come look!"
+			"Wow! <<Hes>> going to beat the high score at this rate!" one of the onlookers shouts. "Everyone come look!"
 			<br><br>
 			<<link [[Go watch|Arcade Watch High Score]]>><<set $phase to 1>><</link>>
 			<br>
@@ -268,7 +274,7 @@ You move away from the <<person>>. Better safe than sorry.
 <br><br>
 <<endevent>>
 	<<if $money gte 500 and Time.dayState isnot "night">>
-		<<link [[Keep playing (£5 0:20)|Arcade Play]]>><<set $money -= 500>><<pass 20>><<stress -2>><</link>><<lstress>>
+		<<link [[Keep playing (£5 0:20)|Arcade Play]]>><<money -500 "arcade">><<pass 20>><<stress -2>><</link>><<lstress>>
 		<br>
 	<</if>>
 		<<link [[Stop|Arcade]]>><</link>>
@@ -288,7 +294,7 @@ You decide you're being paranoid, and keep playing. The <<person>> soon wanders 
 <br><br>
 <<endevent>>
 	<<if $money gte 500 and Time.dayState isnot "night">>
-		<<link [[Keep playing (£5 0:20)|Arcade Play]]>><<set $money -= 500>><<pass 20>><<stress -2>><</link>><<lstress>>
+		<<link [[Keep playing (£5 0:20)|Arcade Play]]>><<money -500 "arcade">><<pass 20>><<stress -2>><</link>><<lstress>>
 		<br>
 	<</if>>
 		<<link [[Stop|Arcade]]>><</link>>
@@ -323,45 +329,45 @@ You decide you're being paranoid, and keep playing. The <<person>> soon wanders 
 :: Arcade Watched Rape Finish
 <<effects>>
 <<if $enemyarousal gte $enemyarousalmax>>
-<<ejaculation>>
+	<<ejaculation>>
 
-The <<person1>><<person>> shoves you against the cabinet, before wandering off.
-<br><br>
+	The <<person1>><<person>> shoves you against the cabinet, before wandering off.
+	<br><br>
 
-<<tearful>> you gather yourself.
-<br><br>
+	<<tearful>> you gather yourself.
+	<br><br>
 
-<<clotheson>>
-<<endcombat>>
+	<<clotheson>>
+	<<endcombat>>
 
-<<link [[Next|Arcade]]>><</link>>
+	<<link [[Next|Arcade]]>><</link>>
 
 <<elseif $enemyhealth lte 0>>
 
-You shove the <<person>> to the ground.
-<br><br>
+	You shove the <<person>> to the ground.
+	<br><br>
 
-<<tearful>> you take cover beneath a pinball machine.
-<br><br>
+	<<tearful>> you take cover beneath a pinball machine.
+	<br><br>
 
-<<clotheson>>
-<<endcombat>>
+	<<clotheson>>
+	<<endcombat>>
 
-<<link [[Next|Arcade]]>><</link>>
+	<<link [[Next|Arcade]]>><</link>>
 
 <<else>>
-<<set $rescued += 1>>
+	<<set $rescued += 1>>
 
-Your cry attracts attention. People look over, including a member of staff. The <<person1>><<person>> steps away from you, claiming that <<he>> wasn't doing anything. <<He>> doesn't try anything else.
-<br><br>
+	Your cry attracts attention. People look over, including a member of staff. The <<person1>><<person>> steps away from you, claiming that <<he>> wasn't doing anything. <<He>> doesn't try anything else.
+	<br><br>
 
-<<tearful>> you gather yourself.
-<br><br>
+	<<tearful>> you gather yourself.
+	<br><br>
 
-<<clotheson>>
-<<endcombat>>
+	<<clotheson>>
+	<<endcombat>>
 
-<<link [[Next|Arcade]]>><</link>>
+	<<link [[Next|Arcade]]>><</link>>
 
 <</if>>
 
@@ -372,7 +378,7 @@ Having a second player does help, and you make it to the end of the game. <<He>>
 <br><br>
 <<endevent>>
 <<if $money gte 500 and Time.dayState isnot "night">>
-	<<link [[Keep playing (£5 0:20)|Arcade Play]]>><<set $money -= 500>><<pass 20>><<stress -2>><</link>><<lstress>>
+	<<link [[Keep playing (£5 0:20)|Arcade Play]]>><<money -500 "arcade">><<pass 20>><<stress -2>><</link>><<lstress>>
 	<br>
 <</if>>
 	<<link [[Stop|Arcade]]>><</link>>
@@ -388,7 +394,7 @@ The rest of the game is easier with the extra weapon, but you do need to manage 
 
 <<endevent>>
 <<if $money gte 500 and Time.dayState isnot "night">>
-	<<link [[Keep playing (£5 0:20)|Arcade Play]]>><<set $money -= 500>><<pass 20>><<stress -2>><</link>><<lstress>>
+	<<link [[Keep playing (£5 0:20)|Arcade Play]]>><<money -500 "arcade">><<pass 20>><<stress -2>><</link>><<lstress>>
 	<br>
 <</if>>
 	<<link [[Stop|Arcade]]>><</link>>
@@ -1208,7 +1214,7 @@ The fight goes back and forth, and finally both your health bars are under ten p
 	The crowd roars. You've come in and beaten this seasoned gamer in the closest game possible. You see your opponent storm off in a rage.
 
 	<<if $worn.under_lower.type.includes("chastity")>>
-		You're so elated, you don't care that everyone can see your belt.
+		You're so elated, you don't care that everyone can see your $worn.genitals.name.
 	<<else>>
 		You're so elated that for a few seconds, you forget that your <<undies>> is exposed to the arcade.
 	<</if>>
@@ -1441,7 +1447,7 @@ After you've been going like this for fifteen minutes <<he>> speaks up.
 	<<link [[Agree|Arcade Hockey Agree 2]]>><<exhibitionism2>><</link>><<exhibitionist2>>
 	<br>
 <<else>>
-	<span class="purple">You aren't lewd enough to willingly risk exposing yourself in a public place.</span>
+	<<insufficientStat "exhibitionism" "to willingly risk exposing yourself in a public place">>
 	<br><br>
 <</if>>
 
@@ -1576,11 +1582,11 @@ You agree to bet your <<print $worn[$arcadeHockey.player_bet].name>>.
 		<<link [[Accept|Arcade Hockey Accept]]>><<arousal 600>><<exhibitionism5>><</link>><<garousal>><<exhibitionist5>>
 		<br>
 	<<else>>
-		<span class="purple">You aren't lewd enough to willingly have sex with someone in public.</span>
+		<<insufficientStat "exhibitionism" "to willing have sex with someone in public">>
 		<br><br>
 	<</if>>
 
-	<<link [[Let them go naked|Arcade Hockey Let]]>><<set $phase to 1>><</link>>
+	<<link [[Let <<him>> go naked|Arcade Hockey Let]]>><<set $phase to 1>><</link>>
 	<br>
 
 <<elseif $exposed gte 2>>
@@ -1596,7 +1602,7 @@ You agree to bet your <<print $worn[$arcadeHockey.player_bet].name>>.
 		<<link [[Agree|Arcade Hockey Sex]]>><<set $sexstart to 1>><<fameexhibitionism 2>><<exhibitionism5>><</link>><<exhibitionist5>>
 		<br>
 	<<else>>
-		<span class="purple">You aren't lewd enough to willingly have sex with someone in public.</span>
+		<<insufficientStat "exhibitionism" "to willing have sex with someone in public">>
 		<br><br>
 
 	<</if>>
@@ -1627,7 +1633,7 @@ You agree to bet your <<print $worn[$arcadeHockey.player_bet].name>>.
 		<<link [[Decline|Arcade Hockey Decline 2]]>><<set $phase to 0>><</link>>
 		<br>
 	<<else>>
-		<span class="purple">You aren't lewd enough to willingly risk exposing that part of yourself in a public place.</span>
+		<<insufficientStat "exhibitionism" "to willingly risk exposing that part of yourself in a public place">>
 		<br><br>
 
 		<<link [[Decline|Arcade Hockey Decline 2]]>><<set $phase to 1>><</link>>

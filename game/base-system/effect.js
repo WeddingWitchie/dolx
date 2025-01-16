@@ -664,7 +664,7 @@ function effects() {
 			Object.entries(rebuyMessage).forEach(([location, items]) => {
 				element(
 					"span",
-					`Your ${formatList(items, "and", true)} signal${items.length > 1 ? "s" : ""} for a replacement${
+					`Your ${formatList(items, "and", true)} signal${items.length > 1 ? "" : "s"} for a replacement${
 						V.wardrobes[location]
 							? ` to the ${V.wardrobes[location].name}`
 							: `. (Likely One-off update error, no need to report unless seen multiple times in the same save) ${
@@ -682,7 +682,7 @@ function effects() {
 			element(
 				"span",
 				`Your ${formatList(V.rebuy_failure, "and", true)} signal${
-					V.rebuy_failure.length > 1 ? "s" : ""
+					V.rebuy_failure.length > 1 ? "" : "s"
 				} for a replacement, but you don't have enough money.`,
 				"purple"
 			);
@@ -911,7 +911,7 @@ function effects() {
 		}
 
 		if (V.fallenangelmessage) {
-			sWikifier('<span class="red">You feel dark presence clawing at your skin.</span> <<gstress>>');
+			sWikifier('<span class="red">You feel a dark presence clawing at your skin.</span> <<gstress>>');
 			V.stress += V.stressmax;
 			delete V.fallenangelmessage;
 		}
@@ -969,6 +969,8 @@ function effects() {
 						? ` and clit. It ${looks} like you have your own penis now`
 						: `A new parasite forms around the base of your clit, it ${looks} similar to a penis`;
 				}
+			}
+			if (parasiteMessage) {
 				sWikifier(`<span class="blue">A satisfied warmth fills you. ${parasiteMessage}.</span>`);
 				element("span", `You can tell that ${parasiteCount > 1 ? "they are" : "it's"} from the slimes in your ears.`);
 				if (V.earSlimePenisParasite && V.earSlimePenisParasite !== 1) {
@@ -977,10 +979,10 @@ function effects() {
 				if (V.earSlimeClitParasite && V.earSlimeClitParasite !== 1) {
 					element("span", `The previous ${V.earSlimeClitParasite} falls off shortly after it finishes growing.`, "red");
 				}
-				delete V.earSlimebreastsParasite;
-				delete V.earSlimePenisParasite;
-				delete V.earSlimeClitParasite;
 			}
+			delete V.earSlimebreastsParasite;
+			delete V.earSlimePenisParasite;
+			delete V.earSlimeClitParasite;
 		}
 
 		if (V.penisslimebrokenchastitymessage) {

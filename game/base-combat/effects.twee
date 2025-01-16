@@ -213,7 +213,7 @@
 					<<takeHandholdingVirginity $NPCList[$righttarget]>>
 				<</if>>
 			<<else>>
-				You reach for <<someones $righttarget>> but <<he>> moves away.
+				You reach for <<someones $righttarget>> right hand, but <<he>> moves away.
 			<</if>>
 		<</if>>
 
@@ -252,6 +252,9 @@
 					<<case "ass">>
 						You press <<someones $lefttarget>> hand against your <<bottom>>.
 						<<set $NPCList[$lefttarget].righthand to "anusentrance">><<set $anususe to "handentrance">><<set $anusstate to "handentrance">>
+					<<case "neck">>
+						You press <<someones $lefttarget>> hand against your neck.
+						<<set $NPCList[$lefttarget].righthand to "throat">><<set $neckuse to "hand">>
 					<<default>>
 				<</switch>>
 				<<set $leftactiondefault to "rest">><<set $leftarm to 0>><<submission 1>>
@@ -280,18 +283,21 @@
 			<<if $combatExtended.reverseRapeStart is 1 or combatSkillCheck("hand", $righttarget)>>
 				<<switch $handGuideRight>>
 					<<case "penis">>
-						You lower <<someones $lefttarget>> hand to your <<penis>>.
+						You lower <<someones $righttarget>> hand to your <<penis>>.
 						<<set $NPCList[$righttarget].lefthand to "penisentrance">><<set $penisuse to 1>><<set $penisstate to "otherhandentrance">>
 					<<case "pussy">>
-						Your lower <<someones $lefttarget>> hand to your <<pussy>>.
+						Your lower <<someones $righttarget>> hand to your <<pussy>>.
 						<<set $NPCList[$righttarget].lefthand to "vaginaentrance">><<set $vaginause to 1>><<set $vaginastate to "otherhandentrance">>
 					<<case "ass">>
-						You press <<someones $lefttarget>> hand against your <<bottom>>.
+						You press <<someones $righttarget>> hand against your <<bottom>>.
 						<<set $NPCList[$righttarget].lefthand to "anusentrance">><<set $anususe to "handentrance">><<set $anusstate to "handentrance">>
+					<<case "neck">>
+						You press <<someones $righttarget>> hand against your neck.
+						<<set $NPCList[$righttarget].lefthand to "throat">><<set $neckuse to "hand">>
 				<</switch>>
 				<<set $rightactiondefault to "rest">><<set $rightarm to 0>><<submission 1>>
 			<<else>>
-				You try to guide <<someones $lefttarget>> hand to
+				You try to guide <<someones $righttarget>> hand to
 				<<switch $handGuideRight>>
 					<<case "penis">>your <<penis>>,
 					<<case "pussy">>your <<pussy>>,
@@ -391,6 +397,62 @@
 		<<if $rightaction is "rightstoppenis" and $NPCList[$righttarget].penis is "rightarm">>
 			<<set $rightaction to 0>><<set $rightactiondefault to "rightstoppenis">><<submission 3>><<set $rightarm to 0>>
 			<<set $NPCList[$righttarget].penis to 0>>You let go of <<hisselect $righttarget>> penis.
+		<</if>>
+
+		<<if $leftaction is "handpenistomouth" or $rightaction is "handpenistomouth">>
+			<<if $leftaction is "handpenistomouth">>
+				<<set $leftaction to 0>><<set $leftactiondefault to "0">><<set $leftarm to 0>>
+				<<set $_target to $lefttarget>>
+			<<elseif $rightaction is "handpenistomouth">>
+				<<set $rightaction to 0>><<set $rightactiondefault to "0">><<set $rightarm to 0>>
+				<<set $_target to $righttarget>>
+			<</if>>
+			<<if $mouthuse is 0>>
+				<<set $mouthaction to 0>><<meek 1 $_target>><<set $mouthactiondefault to "mouth">><<combatpromiscuity4>>
+				<<if $penisbitten is 1>>
+					<<set $NPCList[$_target].penis to 0>><<violence 5>>
+					<<He>> smacks your head away from <<his>> penis.
+				<<elseif combatSkillCheck("hand", $_target)>>
+					<<set $NPCList[$_target].penis to "mouthentrance">> <<set $mouthactiondefault to "lick">> <<set $mouthuse to "penis">> <<set $mouthstate to "entrance">>
+					<<set $NPCList[$_target].location.genitals to "head">>
+					<span class="blue">You move <<hisselect $_target>> penis towards your mouth.</span>
+					<<handskilluse>>
+				<<else>>
+					<<set $NPCList[$_target].penis to 0>><<handskilluse>>
+					You try to move into a position where your mouth can take <<hisselect $_target>> penis, but <<he>> has other ideas.
+				<</if>>
+			<<else>>
+				<span class="blue">You try to move <<hisselect $_target>> penis towards your mouth, but the entrance is already occupied.</span>
+			<</if>>
+		<</if>>
+
+		<<if $leftaction is "handpenistochest" or $rightaction is "handpenistochest">>
+			<<if $leftaction is "handpenistochest">>
+				<<set $leftaction to 0>><<set $leftactiondefault to "0">><<set $leftarm to 0>>
+				<<set $_target to $lefttarget>>
+			<<elseif $rightaction is "handpenistochest">>
+				<<set $rightaction to 0>><<set $rightactiondefault to "0">><<set $rightarm to 0>>
+				<<set $_target to $righttarget>>
+			<</if>>
+			<<handskilluse>><<personselect $_target>>
+			<<if combatSkillCheck("hand", $NPCList[$_target])>>
+				<<chestskilluse>><<combatpromiscuity3>>
+				<<set $chestactiondefault to "rub">><<set $chestuse to "penis">><<cheststat>><<set $mouthactiondefault to "peniskiss">>
+				<<set $NPCList[$_target].penis to "chest">><<set $chesttarget to $_target>>
+				<<if $breastcup is "none">>
+					<span class="lblue">You <<handtext>> put <<his>> $NPCList[$_target].penisdesc between your <<breasts>> and squeeze them together as best as you can.
+					Your breasts are too small for it to be effective, but your cute attempt succeeds in charming <<him>>.</span> <<He>> rubs <<his>> penis against your chest.
+				<<else>>
+					<span class="lblue">You <<handtext>> put <<his>> $NPCList[$_target].penisdesc between your <<breasts>>.</span>
+				<</if>>
+			<<else>>
+				<<set $NPCList[$_target].penis to 0>>
+				<<if $player.breastsize is 0>>
+					You squeeze your <<breasts>> together as best you can and try to put <<his>> penis between them, to no avail.
+				<<else>>
+					You try to put <<his>> penis between your <<breasts>>, but fail.
+				<</if>>
+			<</if>>
 		<</if>>
 
 		<<if $leftaction is "leftstruggle" and $rightaction is "rightstruggle" and !$abomination and $lefttarget is $righttarget>>
@@ -1847,6 +1909,81 @@
 			<</if>>
 		<</if>>
 
+		<<if $leftaction is "stoporal">>
+			<<set $leftaction to 0>><<set $leftactiondefault to "stoporal">><<personselect $lefttarget>>
+			<<set _handsCount to 1>>
+			<<if $rightaction is "stoporal" and $lefttarget is $righttarget>>
+				<<set _handsCount to 2>><<set $rightaction to 0>><<set $rightactiondefault to "stoporal">>
+			<</if>>
+			
+			<<if ($penisuse is "othermouth" and $NPCList[$lefttarget].mouth.startsWith("penis")) or 
+				($vaginause is "othermouth" and $NPCList[$lefttarget].mouth.startsWith("vagina"))>>
+				<<set _success to 0>>
+				You grab <<combatpersons>> head with <<= _handsCount is 2 ? "both hands" : "your left hand">> and <<= ($consensual == 1 ? "gently push" : "try to shove")>> <<him>> away from your crotch.
+				<<if $consensual is 1>>
+					<<He>> doesn't resist.
+					<<set _success to 1>><<brat 1 $lefttarget>>
+				<<elseif currentSkillValue("physique") gte random(1, 150 * $NPCList[$lefttarget].healthmax)/_handsCount>>
+					<span class="teal">You manage to do so.</span>
+					<<set _success to 1>><<defiance _handsCount $lefttarget>>
+				<<else>>
+					<span class="purple"><<His>> face remains on your crotch.</span>
+					<<defiance _handsCount $lefttarget>>
+				<</if>>
+				<<if _success>>
+					<<if $NPCList[$lefttarget].mouth.startsWith("penis")>>
+						<<set $penisuse to 0>>
+						<<set $penisstate to 0>>
+					<<else>>
+						<<set $vaginause to 0>>
+						<<set $vaginastate to 0>>
+					<</if>>
+					<<set $NPCList[$lefttarget].mouth to 0>>
+					<<set $NPCList[$lefttarget].location.head to 0>>
+					<<if $NPCList[$lefttarget].vagina is "othermouth">><<set $NPCList[$lefttarget].vagina to 0>>
+					<<elseif $NPCList[$lefttarget].penis is "othermouth">><<set $NPCList[$lefttarget].penis to 0>><</if>>
+					<<set $leftactiondefault to "rest">><<if _handsCount is 2>><<set $rightactiondefault to "rest">><</if>>
+				<</if>>
+			<<else>>
+				<<set $leftactiondefault to "rest">><<if _handsCount is 2>><<set $rightactiondefault to "rest">><</if>>
+			<</if>>
+		<</if>>
+		
+		<<if $rightaction is "stoporal" and !($leftaction is "stoporal" and $lefttarget is $righttarget)>>
+			<<set $rightaction to 0>><<set $rightactiondefault to "stoporal">><<personselect $righttarget>>
+			<<if ($penisuse is "othermouth" and $NPCList[$righttarget].mouth.startsWith("penis")) or 
+				($vaginause is "othermouth" and $NPCList[$righttarget].mouth.startsWith("vagina"))>>
+				<<set _success to 0>>
+				You grab <<combatpersons>> head with your right hand and <<= ($consensual == 1 ? "gently push" : "try to shove")>> <<him>> away from your crotch.
+				<<if $consensual is 1>>
+					<<He>> doesn't resist.
+					<<set _success to 1>><<brat 1 $righttarget>>
+				<<elseif currentSkillValue("physique") gte random(1, 150 * $NPCList[$righttarget].healthmax)>>
+					<span class="teal">You manage to do so.</span>
+					<<set _success to 1>><<defiance 1 $righttarget>>
+				<<else>>
+					<span class="purple"><<His>> face remains on your crotch.</span>
+					<<defiance 1 $righttarget>>
+				<</if>>
+				<<if _success>>
+					<<if $NPCList[$righttarget].mouth.startsWith("penis")>>
+						<<set $penisuse to 0>>
+						<<set $penisstate to 0>>
+					<<else>>
+						<<set $vaginause to 0>>
+						<<set $vaginastate to 0>>
+					<</if>>
+					<<set $NPCList[$righttarget].mouth to 0>>
+					<<set $NPCList[$righttarget].location.head to 0>>
+					<<if $NPCList[$righttarget].vagina is "othermouth">><<set $NPCList[$righttarget].vagina to 0>>
+					<<elseif $NPCList[$righttarget].penis is "othermouth">><<set $NPCList[$righttarget].penis to 0>><</if>>
+					<<set $rightactiondefault to "rest">>
+				<</if>>
+			<<else>>
+				<<set $rightactiondefault to "rest">>
+			<</if>>
+		<</if>>
+
 		<<if $rightaction is "rightUndressOther" and $leftaction is "leftUndressOther" and $lefttarget is $righttarget and $undressLeftTarget is $undressRightTarget>>
 			<<if $undressLeftTarget is "rest">>
 				<<set $leftaction to 0>><<set $rightaction to 0>><<set $leftactiondefault to "rest">><<set $rightactiondefault to "rest">>
@@ -2574,7 +2711,7 @@
 			<<set _stroker to $currentSexToyLeft.name>>
 			<<if $player.virginity.penile is true>>
 				<<if $arousal gt ($arousalmax/5)*4>>
-					You gently fuck the glans of your <<penis>> with the _stroker and shiver in pleasure.a
+					You gently fuck the glans of your <<penis>> with the _stroker and shiver in pleasure.
 				<<else>>
 					You gently fuck the glans of your <<penis>> with the _stroker.
 				<</if>>
@@ -3077,7 +3214,7 @@
 						<span class="red">but the slime distracts you, so you miss.</span>
 						<<gwillpower>><<willpower 1>>
 					<<else>>
-						The slime tries to prevent you from kicking the <<if $enemytype is "beast">><<beasttype>><<else>><<personselect $lefttarget>><<person>><</if>>, <span class="green">but you make contact regardless.</span>
+						The slime tries to prevent you from kicking the <<if $enemytype is "beast">><<beasttype>><<else>><<personselect $feettarget>><<person>><</if>>, <span class="green">but you make contact regardless.</span>
 						<<actionskick $feettarget>>
 						<<if $combatExtended.enemyDodgeSuccess gte 1 or $combatExtended.enemyCounterSuccess gte 1>>
 							<<if $combatExtended.enemyCounterSuccess is 2>>
@@ -3093,7 +3230,10 @@
 									<<elseif $worn.feet.name.includes("combat boots") or $worn.feet.name.includes("work boots")>>
 										Your boots strengthen the blow!
 										<<defiance 2 $feettarget>>
-									<</if>>
+									<<elseif $transformationParts.traits.strongFeet isnot "disabled">>
+									Your rabbit feet strengthen the blow!
+									<<defiance 2 $feettarget>>
+								<</if>>
 								<<else>>
 									<<defiance 5 $feettarget>>
 									<<if $worn.feet.type.includes("heels")>>
@@ -3102,7 +3242,10 @@
 									<<elseif $worn.feet.name.includes("combat boots") or $worn.feet.name.includes("work boots")>>
 										Your boots strengthen the blow!
 										<<defiance 1 $feettarget>>
-									<</if>>
+									<<elseif $transformationParts.traits.strongFeet isnot "disabled">>
+									Your rabbit feet strengthen the blow!
+									<<defiance 1 $feettarget>>
+								<</if>>
 								<</if>>
 								<<set $speechhit to 1>><<set $attackstat += 1>>
 								<<violence 5>><<set $speechhit to 1>><<set $attackstat += 1>>
@@ -3115,7 +3258,10 @@
 									<<elseif $worn.feet.name.includes("combat boots") or $worn.feet.name.includes("work boots")>>
 										Your boots strengthen the blow!
 										<<defiance 1 $feettarget>>
-									<</if>>
+									<<elseif $transformationParts.traits.strongFeet isnot "disabled">>
+									Your rabbit feet strengthen the blow!
+									<<defiance 1 $feettarget>>
+								<</if>>
 								<<else>>
 									<<defiance 3 $feettarget>>
 									<<if $worn.feet.type.includes("heels")>>
@@ -3124,7 +3270,10 @@
 									<<elseif $worn.feet.name.includes("combat boots") or $worn.feet.name.includes("work boots")>>
 										Your boots strengthen the blow!
 										<<defiance 1 $feettarget>>
-									<</if>>
+									<<elseif $transformationParts.traits.strongFeet isnot "disabled">>
+									Your rabbit feet strengthen the blow!
+									<<defiance 1 $feettarget>>
+								<</if>>
 								<</if>>
 								<<set $speechhit to 1>><<set $attackstat += 1>>
 							<</if>>
@@ -3137,7 +3286,10 @@
 								<<elseif $worn.feet.name.includes("combat boots") or $worn.feet.name.includes("work boots")>>
 									Your boots strengthen the blow!
 									<<defiance 2 $feettarget>>
-								<</if>>
+								<<elseif $transformationParts.traits.strongFeet isnot "disabled">>
+								Your rabbit feet strengthen the blow!
+								<<defiance 2 $feettarget>>
+							<</if>>
 							<<else>>
 								<<defiance 5 $feettarget>>
 								<<if $worn.feet.type.includes("heels")>>
@@ -3146,7 +3298,10 @@
 								<<elseif $worn.feet.name.includes("combat boots") or $worn.feet.name.includes("work boots")>>
 									Your boots strengthen the blow!
 									<<defiance 1 $feettarget>>
-								<</if>>
+								<<elseif $transformationParts.traits.strongFeet isnot "disabled">>
+								Your rabbit feet strengthen the blow!
+								<<defiance 1 $feettarget>>
+							<</if>>
 							<</if>>
 							<<set $attackstat += 1>>
 						<</if>>
@@ -3167,7 +3322,10 @@
 								<<elseif $worn.feet.name.includes("combat boots") or $worn.feet.name.includes("work boots")>>
 									Your boots strengthen the blow!
 									<<defiance 2 $feettarget>>
-								<</if>>
+								<<elseif $transformationParts.traits.strongFeet isnot "disabled">>
+								Your rabbit feet strengthen the blow!
+								<<defiance 2 $feettarget>>
+							<</if>>
 							<<else>>
 								<<defiance 5 $feettarget>>
 								<<if $worn.feet.type.includes("heels")>>
@@ -3176,7 +3334,10 @@
 								<<elseif $worn.feet.name.includes("combat boots") or $worn.feet.name.includes("work boots")>>
 									Your boots strengthen the blow!
 									<<defiance 1 $feettarget>>
-								<</if>>
+								<<elseif $transformationParts.traits.strongFeet isnot "disabled">>
+								Your rabbit feet strengthen the blow!
+								<<defiance 1 $feettarget>>
+							<</if>>
 							<</if>>
 							<<set $speechhit to 1>><<set $attackstat += 1>><<violence 5>><<set $speechhit to 1>><<set $attackstat += 1>>
 						<<else>>
@@ -3188,7 +3349,10 @@
 								<<elseif $worn.feet.name.includes("combat boots") or $worn.feet.name.includes("work boots")>>
 									Your boots strengthen the blow!
 									<<defiance 1 $feettarget>>
-								<</if>>
+								<<elseif $transformationParts.traits.strongFeet isnot "disabled">>
+								Your rabbit feet strengthen the blow!
+								<<defiance 1 $feettarget>>
+							<</if>>
 							<<else>>
 								<<defiance 3 $feettarget>>
 								<<if $worn.feet.type.includes("heels")>>
@@ -3197,7 +3361,10 @@
 								<<elseif $worn.feet.name.includes("combat boots") or $worn.feet.name.includes("work boots")>>
 									Your boots strengthen the blow!
 									<<defiance 1 $feettarget>>
-								<</if>>
+								<<elseif $transformationParts.traits.strongFeet isnot "disabled">>
+								Your rabbit feet strengthen the blow!
+								<<defiance 1 $feettarget>>
+							<</if>>
 							<</if>>
 							<<set $speechhit to 1>><<set $attackstat += 1>>
 						<</if>>
@@ -3210,7 +3377,10 @@
 							<<elseif $worn.feet.name.includes("combat boots") or $worn.feet.name.includes("work boots")>>
 								Your boots strengthen the blow!
 								<<defiance 2 $feettarget>>
-							<</if>>
+							<<elseif $transformationParts.traits.strongFeet isnot "disabled">>
+							Your rabbit feet strengthen the blow!
+							<<defiance 2 $feettarget>>
+						<</if>>
 						<<else>>
 							<<defiance 5 $feettarget>>
 							<<if $worn.feet.type.includes("heels")>>
@@ -3219,7 +3389,10 @@
 							<<elseif $worn.feet.name.includes("combat boots") or $worn.feet.name.includes("work boots")>>
 								Your boots strengthen the blow!
 								<<defiance 1 $feettarget>>
-							<</if>>
+							<<elseif $transformationParts.traits.strongFeet isnot "disabled">>
+							Your rabbit feet strengthen the blow!
+							<<defiance 2 $feettarget>>
+						<</if>>
 						<</if>>
 						<<set $attackstat += 1>>
 					<</if>>
@@ -3722,6 +3895,7 @@
 						<span class="purple"><<He>> comes to a stop in front of you.</span>
 					<</if>>
 					<br><br>
+					<<set $NPCList[0].distance to 0>>
 					<<set $stalk_end to "confront">>
 				<<elseif $NPCList[0].fullDescription isnot "Ivory Wraith" and $NPCList[0].bold * 2 gte random(1, 1000)
 				or $NPCList[0].fullDescription is "Ivory Wraith" and C.npc["Ivory Wraith"].lust gte random(1,10)>>
@@ -3747,6 +3921,9 @@
 							"You're such a hot piece," <<he>> says. "You're gonna get jumped sooner or later. I might as well benefit."
 						<</if>>
 					<</if>>
+					<br><br>
+					<<set $NPCList[0].distance to 0>>
+					<<stalk_img>>
 					<br><br>
 					<<stalk_attack>>
 				<<else>>
@@ -3878,6 +4055,42 @@
 					<span class="red"><<if $enemyno gte 2>>They don't<<else>><<He>> doesn't<</if>> understand your words,</span> and <<if $enemyno gte 2>>ignore<<else>>ignores<</if>> them.
 				<</if>>
 				<<submission 1>><<set $enemyanger += (10 * $englishtrait)>><<set $speechaskrough to 1>>
+			<</if>>
+		<</if>>
+
+		<<if $mouthaction is "ask" and $askAction is "askoral">>
+			<<set $mouthaction to 0>><<unset $askAction>><<set _sound to 1>>
+			<<if $neckuse is "hand" and $oxygen lt $oxygenmax and $asphyxiaLvl gte 2>>
+				<<wheeze "ask for oral service" 1>>
+			<<else>>
+				<<set $mouthactiondefault to 0>><<brat 2>>
+				<<set $_target to $NPCList[$mouthtarget]>><<personselect $mouthtarget>>
+				<<if $penisuse is 0 and $vaginause is 0>>
+					<<set $_PorV to ($rng gt 50 ? "P" : "V")>>
+				<<elseif $penisuse is 0>>
+					<<set $_PorV to "P">>
+				<<elseif $vaginause is 0>>
+					<<set $_PorV to "V">>
+				<</if>>
+				<<if $_PorV is "P">><<askoralpenis>><<elseif $_PorV is "V">><<askoralvagina>><</if>>
+				<<if combatSkillCheck("seduction", $mouthtarget, $_target.fullDescription)>>
+					<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
+						<span class="red"><<if $enemyno gte 2>>They don't<<else>><<He>> doesn't<</if>> understand your words,</span> and <<if $enemyno gte 2>>ignore<<else>>ignores<</if>> them.
+					<<else>>
+						<<He>> complies.
+						<<set $_target.location.head to "genitals">>
+						<<if $_target.vagina is 0>><<set $_target.vagina to "othermouth">><<elseif $_target.penis is 0>><<set $_target.penis to "othermouth">><</if>>
+						<<if $_PorV is "P">>
+							<<set $_target.mouth to "penisentrance">>
+							<<set $penisuse to "othermouth">><<set $penisstate to "othermouthentrance">>
+						<<elseif $_PorV is "V">>
+							<<set $_target.mouth to "vaginaentrance">>
+							<<set $vaginause to "othermouth">><<set $vaginastate to "othermouthentrance">>
+						<</if>>
+					<</if>>
+				<<else>>
+					<span class="red"><<He>> refuses.</span>
+				<</if>>
 			<</if>>
 		<</if>>
 
@@ -5378,7 +5591,7 @@
 							<<case "Kylar">>
 								<<switch $_speech>>
 									<<case "accept">>
-										<<He_Short>> exciedly nods. "<span class="lewd">Good! No protection!</span>"
+										<<He_Short>> excitedly nods. "<span class="lewd">Good! No protection!</span>"
 									<<case "acceptNone">>
 										<<He_Short>> excitedly nods. "<span class="blue">Ah... all mine are broken anyways...</span>" <<He_Short>> quickly covers <<his>> mouth to shush <<himself>>.
 									<<case "acceptWont">>
@@ -6699,6 +6912,8 @@
 		<<effectspenistopenisfuck>>
 		<<rng>>
 		<<effectspenistopenis>>
+		<<rng>>
+		<<effectsmovehole>>
 
 
 		<<if $penisaction is "rest">>
@@ -6758,6 +6973,10 @@
 			<<set $penisaction to 0>><<set $penisactiondefault to "vaginaEdging">><<actionspussyedging $penistarget>><<submission 5>><<sexControl 5 `currentSkillValue("penileskill")` $penistarget>><<penileskilluse>>
 		<</if>>
 
+		<<if $penisaction is "mouthEdging">>
+			<<set $penisaction to 0>><<set $penisactiondefault to "mouthEdging">>/*<<actionsmouthedging $penistarget>>*/<<submission 5>><<sexControl 5 `currentSkillValue("penileskill")` $penistarget>><<penileskilluse>>
+		<</if>>
+
 		<<if $penisaction is "take">>
 			<<set $penisaction to 0>><<set $penisactiondefault to "take">><<actionspussytake $penistarget>>
 		<</if>>
@@ -6771,6 +6990,28 @@
 				<<set $NPCList[$penistarget].vagina to "penisentrance">><<set $NPCList[$penistarget].speechpenisescape to 1>>
 			<<else>>
 				You attempt to pull your <<penis>> away, <span class="lewd">but your flushed body doesn't obey.</span>
+			<</if>>
+		<</if>>
+
+		<<if $penisaction is "damageCondom">>
+			<<set $penisaction to 0>><<penileskilluse>>
+			<<sex 5 "genitals">><<brat 5 $penistarget>>
+			<<if $player.condom>>
+				<<if combatSkillCheck("penile", $penistarget)>>
+					<<if [$player.condom.state].includesAny("defective", "sabotaged")>>
+						<span class="blue">You try to wear out your condom, but realize it is already broken.</span>
+					<<else>>
+						<span class="lblue">You <<peniletext>> wear out the condom.</span>
+						<<if $rng lte currentSkillValue("penileskill")/10 - 10>>
+							<span class="lewd">You feel the tip rip open.</span>
+							<<set $player.condom.state to "defective">>
+						<</if>>
+					<</if>>
+				<<else>>
+					You try to wear out your condom, but <span class="red">you're unable to move your way.</span>
+				<</if>>
+			<<else>>
+				You try to wear out your condom, but have no condom on.
 			<</if>>
 		<</if>>
 

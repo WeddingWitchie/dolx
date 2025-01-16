@@ -86,6 +86,7 @@ args[3] - "both" to include unrelated children or "only" to exclude the player c
 		<<set $_calc to Math.abs(Date.parse(_date2) - Date.parse(_date1))>>
 		<<switch  $children[_args[0]].type>>
 			<<case "human" "wolf" "hawk">><<set _childTotalDaysCap to 200>>
+			<<case "hawk">><<set _childTotalDaysCap to 11000>>
 			<<default>><<set _childTotalDaysCap to 0>>
 		<</switch>>
 		<<set _childTotalDays to Math.clamp(Math.ceil($_calc / (1000 * 60 * 60 * 24)), 0, _childTotalDaysCap)>>
@@ -1242,9 +1243,16 @@ args[3] - "both" to include unrelated children or "only" to exclude the player c
 				<br>
 				<<link "Pick <<childhim>> up (0:15)" "Children Activity Events">><<pass 15>><<set $childActivityEvent to {event:"pickUpHawk", childid:_args[0]}>><</link>> |
 			<<case "flap">>
-				<<childHe>>'s flapping <<childhis>> little wings in short bursts.
-				<br>
-				<<link "Help <<childhim>> pretend to fly (0:15)" "Children Activity Events">><<pass 15>><<set $childActivityEvent to {event:"pretendFly", childid:_args[0]}>><</link>> |
+				<<childHe>>'s 
+				<<if _childDays lte 199>>
+					flapping <<childhis>> little wings in short bursts.
+					<br>
+					<<link "Help <<childhim>> pretend to fly (0:15)" "Children Activity Events">><<pass 15>><<set $childActivityEvent to {event:"pretendFly", childid:_args[0]}>><</link>> |
+				<<else>>
+					looks as if they are ready to take flight.
+					<br>
+					<<link "Say farewell to <<childhim>> (0:30)" "Children Activity Events">><<pass 30>><<set $childActivityEvent to {event:"dismissChildHawk", childid:_args[0]}>><</link>> |
+				<</if>>
 			<<case "preen">>
 				<<childHe>> seems agitated and pecks at <<childhis>> wings.
 				<br>
@@ -1276,6 +1284,8 @@ args[3] - "both" to include unrelated children or "only" to exclude the player c
 						pecking at a lurker.
 					<</if>>
 				<</if>>
+				<<case "dismissed">>
+					<<childHe>>'s out in the world.
 			<<default>>
 				<<childHe>>'s has figured out that they're in a video game (This is an error, please report).
 				<<print $children[_args[0]].localVariables.activity>>

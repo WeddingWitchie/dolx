@@ -2026,6 +2026,7 @@
 
 <<widget "checkforloveinterests">>
 	<<set _loveInterest to Object.values($loveInterest).filter(li => li isnot "None").random()>>
+	<<if _loveInterest>><<run statusCheck(_loveInterest)>><</if>>
 <</widget>>
 
 <<widget "askrough">>
@@ -2062,6 +2063,26 @@
 			<<case 5>> "Harder!"
 			<<default>> "Beat me. I'm tough enough."
 		<</switch>>
+	<</if>>
+<</widget>>
+
+<<widget "askoralpenis">>
+	<<if $speech_attitude is "meek">>
+		You <<voice "plead">> for fellatio.
+	<<elseif $speech_attitude is "bratty">>
+		You <<voice "demand">> for fellatio.
+	<<else>>
+		You <<voice "moan">> for fellatio.
+	<</if>>
+<</widget>>
+
+<<widget "askoralvagina">>
+	<<if $speech_attitude is "meek">>
+		You <<voice "plead">> for cunnilingus.
+	<<elseif $speech_attitude is "bratty">>
+		You <<voice "demand">> for cunnilingus.
+	<<else>>
+		You <<voice "moan">> for cunnilingus.
 	<</if>>
 <</widget>>
 
@@ -2935,7 +2956,7 @@
 						<<if $arousal lte $arousalmax / 5>>
 							"You may think you're a predator, but to Eden, you're nothing but prey!"
 						<<elseif $arousal lte ($arousalmax / 5) * 4>>
-							"Get out! I belong to the hunter!"
+							"Get out! I belong to the <<nnpc_title "Eden">>!"
 						<<else>>
 							"Y...you're trespassing on Eden's... AAH! Property!"
 						<</if>>
@@ -2943,7 +2964,7 @@
 						<<if $arousal lte $arousalmax / 5>>
 							"You may think you're a predator, but to Eden, you're nothing but prey!"
 						<<elseif $arousal lte ($arousalmax / 5) * 4>>
-							"Get off of me! I belong to the hunter!"
+							"Get off of me! I belong to the <<nnpc_title "Eden">>!"
 						<<else>>
 							"Y...you're trespassing on Eden's... AAH! Property!"
 						<</if>>
@@ -3098,7 +3119,7 @@
 					<<elseif $exposed gte 2>>
 						<<switch random(1,3)>>
 							<<case 1>> "Ugh, the Great Hawk doesn't even stare this much! You're creepy!"
-							<<case 2>> "My eyes are up here. Is your name the "Great Hawk"?"
+							<<case 2>> "My eyes are up here. Is your name the 'Great Hawk'?"
 							<<case 3>> "This body is preserved for the Great Hawk only."
 						<</switch>>
 					<<else>>
@@ -3772,12 +3793,13 @@
 			You <<oraltext>> suck the penis penetrating your mouth.
 		<</if>>
 	<<else>>
+		<<set _penis to npcHasStrapon($mouthtarget) ? "strap-on" : "penis">>
 		<<if $enemyarousal gte ($enemyarousalmax / 5) * 4>>
-			You <<oraltext>> suck the penis invading your mouth as <<theowner>> thrusts against you.
+			You <<oraltext>> suck the _penis invading your mouth as <<theowner>> thrusts against you.
 		<<elseif $enemyarousal gte ($enemyarousalmax / 5) * 2>>
-			You <<oraltext>> suck the penis invading your mouth as <<theowner>> grinds against you.
+			You <<oraltext>> suck the _penis invading your mouth as <<theowner>> grinds against you.
 		<<else>>
-			You <<oraltext>> suck the penis penetrating your mouth.
+			You <<oraltext>> suck the _penis penetrating your mouth.
 		<</if>>
 	<</if>>
 	<<if $NPCList[$mouthtarget].type is "plant">>
@@ -3940,12 +3962,13 @@
 			You <<bottomtext>> rub the penis between your cheeks.
 		<</if>>
 	<<else>>
+		<<set _penis to npcHasStrapon($anustarget) ? "strap-on" : "penis">>
 		<<if $enemyarousal gte ($enemyarousalmax / 5) * 4>>
-			You <<bottomtext>> rub the penis between your cheeks as <<theowner>> thrusts against you.
+			You <<bottomtext>> rub the _penis between your cheeks as <<theowner>> thrusts against you.
 		<<elseif $enemyarousal gte ($enemyarousalmax / 5) * 2>>
-			You <<bottomtext>> rub the penis between your cheeks as <<theowner>> thrusts against you.
+			You <<bottomtext>> rub the _penis between your cheeks as <<theowner>> thrusts against you.
 		<<else>>
-			You <<bottomtext>> rub the penis between your cheeks.
+			You <<bottomtext>> rub the _penis between your cheeks.
 		<</if>>
 	<</if>>
 <</widget>>
@@ -3960,12 +3983,13 @@
 			You <<thightext>> rub the penis between your thighs. You jerk in shock whenever it incidentally rubs against your <<genitals>>.
 		<</if>>
 	<<else>>
+		<<set _penis to npcHasStrapon($thightarget) ? "strap-on" : "penis">>
 		<<if $enemyarousal gte ($enemyarousalmax / 5) * 4>>
-			You <<thightext>> rub the penis between your thighs as <<theowner>> thrusts against you. You jerk in shock whenever it incidentally rubs against your <<genitals>>.
+			You <<thightext>> rub the _penis between your thighs as <<theowner>> thrusts against you. You jerk in shock whenever it incidentally rubs against your <<genitals>>.
 		<<elseif $enemyarousal gte ($enemyarousalmax / 5) * 2>>
-			You <<thightext>> rub the penis between your thighs as <<theowner>> thrusts against you. You jerk in shock whenever it incidentally rubs against your <<genitals>>.
+			You <<thightext>> rub the _penis between your thighs as <<theowner>> thrusts against you. You jerk in shock whenever it incidentally rubs against your <<genitals>>.
 		<<else>>
-			You <<thightext>> rub the penis between your thighs. You jerk in shock whenever it incidentally rubs against your <<genitals>>.
+			You <<thightext>> rub the _penis between your thighs. You jerk in shock whenever it incidentally rubs against your <<genitals>>.
 		<</if>>
 	<</if>>
 <</widget>>
@@ -3979,7 +4003,7 @@
 <</widget>>
 
 <<widget "actionspenisrub">>
-	You <<vaginaltext>> rub back against the penis probing your <<pussy>>.
+	You <<vaginaltext>> rub back against the <<= npcHasStrapon($vaginatarget) ? "strap-on" : "penis">> probing your <<pussy>>.
 <</widget>>
 
 <<widget "actionstribtease">>/*Unused*/
@@ -4531,29 +4555,30 @@
 <</widget>>
 
 <<widget "actionsfencingcooperate">>
+	<<set _penis to npcHasStrapon($penistarget) ? "strap-on" : "penis">>
 	<<if $enemyarousal gte ($enemyarousalmax / 5) * 4>>
 		<<if $arousal gte ($arousalmax / 5) * 4>>
-			Driven by instinct, you <<peniletext>> rub back against the penis as you approach your peak.
+			Driven by instinct, you <<peniletext>> rub back against the _penis as you approach your peak.
 		<<elseif $arousal gte ($arousalmax / 5) * 2>>
-			You <<peniletext>> thrust against the slick penis pressed against your <<penis>>.
+			You <<peniletext>> thrust against the slick _penis pressed against your <<penis>>.
 		<<else>>
-			You <<peniletext>> hump the slick penis pressed against your <<penis>>.
+			You <<peniletext>> hump the slick _penis pressed against your <<penis>>.
 		<</if>>
 	<<elseif $enemyarousal gte ($enemyarousalmax / 5) * 2>>
 		<<if $arousal gte ($arousalmax / 5) * 4>>
 			Driven by instinct, you <<peniletext>> rub your <<penises>> together as you approach your peak.
 		<<elseif $arousal gte ($arousalmax / 5) * 2>>
-			You <<peniletext>> thrust against the dripping penis pressed against your <<penis>>.
+			You <<peniletext>> thrust against the dripping _penis pressed against your <<penis>>.
 		<<else>>
-			You <<peniletext>> hump the dripping penis pressed against your <<penis>>.
+			You <<peniletext>> hump the dripping _penis pressed against your <<penis>>.
 		<</if>>
 	<<else>>
 		<<if $arousal gte ($arousalmax / 5) * 4>>
-			Your body shakes as you <<peniletext>> rub against the penis.
+			Your body shakes as you <<peniletext>> rub against the _penis.
 		<<elseif $arousal gte ($arousalmax / 5) * 2>>
-			You <<peniletext>> thrust against the penis.
+			You <<peniletext>> thrust against the _penis.
 		<<else>>
-			You <<peniletext>> press back against the penis.
+			You <<peniletext>> press back against the _penis.
 		<</if>>
 	<</if>>
 	<<set $penisstate to "otherpenis">>
@@ -5374,49 +5399,49 @@
 <</widget>>
 
 <<widget "actionsconfront">>
-	<<if ($angel gte 6 or $transformationParts.angel.wings is "default" or $transformationParts.angel.wings is "classic") and random(1, 2) is 2>>
+	<<if ($angel gte 6 or ($transformationParts.angel.wings isnot "hidden" and $transformationParts.angel.wings isnot "disabled")) and random(1, 2) is 2>>
 		<<switch random(1, 3)>>
 			<<case 1>> "Please don't debase yourself," you say. "The angels are watching."
 			<<case 2>> "I'll forgive you if you hurt me," you say. "But the demons won't."
 			<<case 3>> You mumble a quiet prayer.
 		<</switch>>
-	<<elseif ($fallenangel gte 2 or $transformationParts.fallenAngel.wings is "default" or $transformationParts.fallenAngel.wings is "classic") and random(1, 2) is 2>>
+	<<elseif ($fallenangel gte 2 or ($transformationParts.fallenAngel.wings isnot "hidden" and $transformationParts.fallenAngel.wings isnot "disabled")) and random(1, 2) is 2>>
 		<<switch random(1, 3)>>
 			<<case 1>> "You're going to hurt me too," you laugh. "Aren't you?"
 			<<case 2>> "D-don't touch me," you say. "Not now. Not again."
 			<<case 3>> "D-don't hurt me," you say. "Please don't."
 		<</switch>>
-	<<elseif ($demon gte 6 or $transformationParts.demon.wings is "default" or $transformationParts.demon.wings is "succubus") and random(1, 2) is 2>>
+	<<elseif ($demon gte 6 or ($transformationParts.demon.wings isnot "hidden" and $transformationParts.demon.wings isnot "disabled")) and random(1, 2) is 2>>
 		<<switch random(1, 3)>>
 			<<case 1>> "Are you going to 'prey' on me?" you ask with a smirk. "Delicious."
 			<<case 2>> "Couldn't keep your eyes off," you say. "Don't worry. I'm used to it."
 			<<case 3>> "Try it," you say. "I'm hungry."
 		<</switch>>
-	<<elseif ($wolfgirl gte 6 or $transformationParts.wolf.tail is "default" or $transformationParts.wolf.tail is "feral") and random(1, 2) is 2>>
+	<<elseif ($wolfgirl gte 6 or ($transformationParts.wolf.tail isnot "hidden" and $transformationParts.wolf.tail isnot "disabled")) and random(1, 2) is 2>>
 		<<switch random(1, 3)>>
 			<<case 1>> "Come closer," you say. "I dare you." You run your tongue over your exposed fangs.
 			<<case 2>> You growl.
 			<<case 3>> "I might be alone," you say. "But a lone wolf is still dangerous."
 		<</switch>>
-	<<elseif ($cat gte 6 or $transformationParts.cat.tail is "default") and random(1, 2) is 2>>
+	<<elseif ($cat gte 6 or ($transformationParts.cat.tail isnot "hidden" and $transformationParts.cat.tail isnot "disabled")) and random(1, 2) is 2>>
 		<<switch random(1, 3)>>
 			<<case 1>> "I'm not helpless," you say. "Try me." You run your tongue over your exposed fangs.
 			<<case 2>> You hiss.
 			<<case 3>> "Come closer," you say. "I'm itching to use these claws."
 		<</switch>>
-	<<elseif ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black") and random(1, 2) is 2>>
+	<<elseif ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled")) and random(1, 2) is 2>>
 		<<switch random(1, 3)>>
 			<<case 1>> "I'm not helpless," you say. "Keep away, or I'll charge you down."
 			<<case 2>> "I know I'm a prize," you say. "But you'll be sorry if you try anything."
 			<<case 3>> "Always after my milk," you tut. "But you haven't earned it."
 		<</switch>>
-	<<elseif ($harpy gte 6 or $transformationParts.bird.wings is "default") and random(1, 2) is 2>>
+	<<elseif ($harpy gte 6 or ($transformationParts.bird.wings isnot "hidden" and $transformationParts.bird.wings isnot "disabled")) and random(1, 2) is 2>>
 		<<switch random(1, 3)>>
 			<<case 1>> You screech.
 			<<case 2>> "Don't try anything," you say. "My mate won't be happy, and I'll remember you."
 			<<case 3>> "I'll peck you if you get too close," you say. "Don't think I won't."
 		<</switch>>
-	<<elseif ($fox gte 6 or $transformationParts.fox.tail is "default") and random(1, 2) is 2>>
+	<<elseif ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled")) and random(1, 2) is 2>>
 		<<switch random(1, 3)>>
 			<<case 1>> "Feeling lucky?" you ask. "Fuck around and find out." You run your tongue over your exposed fangs.
 			<<case 2>> You yipp threateningly.

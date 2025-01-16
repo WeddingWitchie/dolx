@@ -88,6 +88,11 @@ setup.colours = {
 	mascara_default: {
 		blendMode: "hard-light",
 	},
+	blusher: [],
+	blusher_map: {},
+	blusher_default: {
+		blendMode: "hard-light",
+	},
 	lipstick: [],
 	lipstick_map: {},
 	lipstick_default: {
@@ -101,6 +106,11 @@ setup.colours = {
 	condom: [],
 	condom_map: {},
 	condom_default: {
+		blendMode: "hard-light",
+	},
+	tentacle: [],
+	tentacle_map: {},
+	tentacle_default: {
 		blendMode: "hard-light",
 	},
 
@@ -145,17 +155,21 @@ setup.colours = {
 			blendMode: "multiply",
 			desaturate: false,
 		},
+		ghost: {
+			gradient: ["#ffffff", "#ffffff"],
+			blendMode: "multiply",
+			alpha: 0.6,
+			desaturate: true,
+		},
+		// Same as above but without transparency. Used for sidebar.
 		wraith: {
 			gradient: ["#ffffff", "#ffffff"],
 			blendMode: "multiply",
 			desaturate: true,
-		}
+		},
 	},
-	/**
+	/*
 	 * Get canvas filter for skin of given type and tan progression (0..1).
-	 *
-	 * @param {any} type
-	 * @param {any} tan
 	 */
 	getSkinFilter(type, tan) {
 		const options = setup.colours.skin_options[type];
@@ -163,10 +177,11 @@ setup.colours = {
 			blend: setup.colours.getSkinRgb(options, tan / 100),
 			blendMode: options.blendMode,
 			desaturate: options.desaturate,
+			...(options.alpha && { alpha: options.alpha }),
 		};
 	},
 	getSkinRgb(type, tan) {
-		tan = Math.clamp(0, tan, 1);
+		tan = Math.clamp(tan, 0, 1);
 		if (!type.gradient) {
 			Errors.report("Unknown skin gradient " + type);
 			return "#ffffff";
@@ -625,11 +640,47 @@ setup.colours.hairgradients_prototypes = {
 					[0.85, "rgba(0, 0, 0, 1)"],
 				],
 			},
+			combatDoggy: {
+				gradient: "linear",
+				values: [250, 440, 250, 0],
+				lengthFunctions: [(length, value) => value, (length, value) => value],
+				colors: [
+					[0.76, "rgba(0, 0, 0, 1)"],
+					[0.85, "rgba(0, 0, 0, 1)"],
+				],
+			},
+			combatMissionary: {
+				gradient: "linear",
+				values: [180, 245, 0, 250],
+				lengthFunctions: [(length, value) => value, (length, value) => value],
+				colors: [
+					[0.64, "rgba(0, 0, 0, 1)"],
+					[0.85, "rgba(0, 0, 0, 1)"],
+				],
+			},
 		},
 		"low-ombre": {
 			all: {
 				gradient: "linear",
 				values: [300, 200, 300, 0],
+				lengthFunctions: [(length, value) => value - length / 1000 / 2, (length, value) => value - length / 1000 / 2],
+				colors: [
+					[0.6, "rgba(0, 0, 0, 1)"],
+					[0.85, "rgba(0, 0, 0, 1)"],
+				],
+			},
+			combatDoggy: {
+				gradient: "linear",
+				values: [340, 180, 300, 0],
+				lengthFunctions: [(length, value) => value - length / 1000 / 2, (length, value) => value - length / 1000 / 2],
+				colors: [
+					[0.6, "rgba(0, 0, 0, 1)"],
+					[0.85, "rgba(0, 0, 0, 1)"],
+				],
+			},
+			combatMissionary: {
+				gradient: "linear",
+				values: [180, 350, 0, 350],
 				lengthFunctions: [(length, value) => value - length / 1000 / 2, (length, value) => value - length / 1000 / 2],
 				colors: [
 					[0.6, "rgba(0, 0, 0, 1)"],
@@ -650,6 +701,24 @@ setup.colours.hairgradients_prototypes = {
 			mohawk: {
 				gradient: "radial",
 				values: [93, 60, 0, 93, 100, 202],
+				lengthFunctions: [(length, value) => value, (length, value) => value],
+				colors: [
+					[0.155, "rgba(0, 0, 0, 1)"],
+					[0.16, "rgba(0, 0, 0, 1)"],
+				],
+			},
+			combatMohawkDoggy: {
+				gradient: "radial",
+				values: [69, 84, 0, 130, 115, 187],
+				lengthFunctions: [(length, value) => value, (length, value) => value],
+				colors: [
+					[0.155, "rgba(0, 0, 0, 1)"],
+					[0.16, "rgba(0, 0, 0, 1)"],
+				],
+			},
+			combatMohawk: {
+				gradient: "radial",
+				values: [30, 142, 0, 130, 115, 184],
 				lengthFunctions: [(length, value) => value, (length, value) => value],
 				colors: [
 					[0.155, "rgba(0, 0, 0, 1)"],
@@ -685,6 +754,24 @@ setup.colours.hairgradients_prototypes = {
 					[0.175, "rgba(0, 0, 0, 1)"],
 				],
 			},
+			combatDoggy: {
+				gradient: "radial",
+				values: [15, 183, 50, 150, 103, 350],
+				lengthFunctions: [(length, value) => value, (length, value) => value],
+				colors: [
+					[0.15, "rgba(0, 0, 0, 1)"],
+					[0.175, "rgba(0, 0, 0, 1)"],
+				],
+			},
+			combatMissionary: {
+				gradient: "radial",
+				values: [125, 103, 50, 150, 103, 350],
+				lengthFunctions: [(length, value) => value, (length, value) => value],
+				colors: [
+					[0.15, "rgba(0, 0, 0, 1)"],
+					[0.175, "rgba(0, 0, 0, 1)"],
+				],
+			},
 		},
 	},
 	sides: {
@@ -698,11 +785,47 @@ setup.colours.hairgradients_prototypes = {
 					[0.85, "rgba(0, 0, 0, 1)"],
 				],
 			},
+			combatDoggy: {
+				gradient: "linear",
+				values: [250, 440, 250, 0],
+				lengthFunctions: [(length, value) => value, (length, value) => value],
+				colors: [
+					[0.76, "rgba(0, 0, 0, 1)"],
+					[0.85, "rgba(0, 0, 0, 1)"],
+				],
+			},
+			combatMissionary: {
+				gradient: "linear",
+				values: [180, 245, 0, 250],
+				lengthFunctions: [(length, value) => value, (length, value) => value],
+				colors: [
+					[0.64, "rgba(0, 0, 0, 1)"],
+					[0.85, "rgba(0, 0, 0, 1)"],
+				],
+			},
 		},
 		"low-ombre": {
 			all: {
 				gradient: "linear",
 				values: [300, 200, 300, 0],
+				lengthFunctions: [(length, value) => value - length / 1000 / 2, (length, value) => value - length / 1000 / 2],
+				colors: [
+					[0.6, "rgba(0, 0, 0, 1)"],
+					[0.85, "rgba(0, 0, 0, 1)"],
+				],
+			},
+			combatDoggy: {
+				gradient: "linear",
+				values: [340, 180, 300, 0],
+				lengthFunctions: [(length, value) => value - length / 1000 / 2, (length, value) => value - length / 1000 / 2],
+				colors: [
+					[0.6, "rgba(0, 0, 0, 1)"],
+					[0.85, "rgba(0, 0, 0, 1)"],
+				],
+			},
+			combatMissionary: {
+				gradient: "linear",
+				values: [180, 350, 0, 350],
 				lengthFunctions: [(length, value) => value - length / 1000 / 2, (length, value) => value - length / 1000 / 2],
 				colors: [
 					[0.6, "rgba(0, 0, 0, 1)"],
@@ -729,6 +852,24 @@ setup.colours.hairgradients_prototypes = {
 				colors: [
 					[0.0, "rgba(0, 0, 0, 1)"],
 					[0.0, "rgba(0, 0, 0, 1)"],
+				],
+			},
+			combatDoggy: {
+				gradient: "radial",
+				values: [15, 183, 50, 150, 103, 350],
+				lengthFunctions: [(length, value) => value, (length, value) => value],
+				colors: [
+					[0.15, "rgba(0, 0, 0, 1)"],
+					[0.175, "rgba(0, 0, 0, 1)"],
+				],
+			},
+			combatMissionary: {
+				gradient: "radial",
+				values: [125, 103, 50, 150, 103, 350],
+				lengthFunctions: [(length, value) => value, (length, value) => value],
+				colors: [
+					[0.15, "rgba(0, 0, 0, 1)"],
+					[0.175, "rgba(0, 0, 0, 1)"],
 				],
 			},
 		},
@@ -1028,6 +1169,13 @@ setup.colours.clothes = [
 		canvasfilter: { blend: "#A1D683" },
 	},
 	{
+		variable: "lime",
+		name: "lime",
+		name_cap: "Lime",
+		csstext: "lime",
+		canvasfilter: { blend: "#38B20A" },
+	},
+	{
 		variable: "black",
 		name: "black",
 		name_cap: "Black",
@@ -1061,6 +1209,13 @@ setup.colours.clothes = [
 		name_cap: "Lilac",
 		csstext: "lilac",
 		canvasfilter: { blend: "#d692fc" },
+	},
+	{
+		variable: "violet",
+		name: "violet",
+		name_cap: "Violet",
+		csstext: "violet",
+		canvasfilter: { blend: "#c42eff" },
 	},
 	{
 		variable: "tangerine",
@@ -1215,6 +1370,13 @@ setup.colours.clothes = [
 		name_cap: "Bronze",
 		csstext: "bronze",
 		canvasfilter: { blend: "#cd9932" },
+	},
+	{
+		variable: "rose gold",
+		name: "rose gold",
+		name_cap: "Rose gold",
+		csstext: "rose-gold",
+		canvasfilter: { blend: "#dea193", brightness: 0.15 },
 	},
 	{
 		variable: "gold",
@@ -1385,6 +1547,15 @@ setup.colours.eyeshadow = [
 		},
 	},
 	{
+		variable: "lime",
+		name: "lime",
+		name_cap: "Lime",
+		csstext: "lime",
+		canvasfilter: {
+			blend: "#38B20A",
+		},
+	},
+	{
 		variable: "blue",
 		name: "blue",
 		name_cap: "Blue",
@@ -1504,6 +1675,17 @@ setup.colours.mascara = [
 		},
 	},
 ];
+setup.colours.blusher = [
+	{
+		variable: "rosy pink",
+		name: "rosy pink",
+		name_cap: "Rosy pink",
+		csstext: "light-pink",
+		canvasfilter: {
+			blend: "#4372FF",
+		},
+	},
+];
 setup.colours.condom = [
 	{
 		variable: "red",
@@ -1587,7 +1769,70 @@ setup.colours.condom = [
 		},
 	},
 ];
-
+setup.colours.tentacle = [
+	{
+		variable: "tentacles-blue",
+		canvasfilter: {
+			blend: "#1431dc",
+			brightness: 0.15,
+		},
+	},
+	{
+		variable: "tentacles-vines",
+		canvasfilter: {
+			blend: "#18a058",
+			brightness: 0.1,
+			contrast: 0.9,
+		},
+	},
+	{
+		variable: "tentacles-roots",
+		canvasfilter: {
+			blend: "#8d4d19",
+			brightness: 0.15,
+		},
+	},
+	{
+		variable: "tentacles-red",
+		canvasfilter: {
+			blend: "#d80e04",
+			brightness: 0.1,
+		},
+	},
+	{
+		variable: "tentacles-purple",
+		canvasfilter: {
+			blend: "#b509a8",
+			brightness: 0.15,
+		},
+	},
+	{
+		variable: "tentacles-peach",
+		canvasfilter: {
+			blend: "#ff9e75",
+			brightness: 0.3,
+			contrast: 1.6,
+			blendMode: "hard-light",
+			desaturate: false,
+		},
+	},
+	{
+		variable: "tentacles-wraith",
+		canvasfilter: {
+			blend: "#BBBBBB",
+			brightness: 0.25,
+			contrast: 0.9,
+		},
+	},
+	{
+		variable: "tentacles-wraith-penetrated",
+		canvasfilter: {
+			blend: "#BBBBBB",
+			brightness: -0.5,
+			contrast: 0.7,
+		},
+	},
+];
 /*
  * Maps to easily access colour record by its variable code, ex. setup.colours.hair_map[$haircolour]
  */
@@ -1606,7 +1851,6 @@ function buildColourMap(name, mode) {
 	}
 	return map;
 }
-
 window.buildColourMap = buildColourMap;
 
 buildColourMap("hair");
@@ -1616,6 +1860,7 @@ buildColourMap("lipstick");
 buildColourMap("mascara");
 buildColourMap("eyeshadow");
 buildColourMap("condom");
+buildColourMap("tentacle");
 
 /**
  * Tries to guess colour in the map by removing spaces or replacing them with '-' and checking against name.
@@ -1651,8 +1896,10 @@ setup.colourName = function (colour) {
 		setup.colours.clothes_map,
 		setup.colours.mascara_map,
 		setup.colours.lipstick_map,
+		setup.colours.blusher_map,
 		setup.colours.eyeshadow_map,
 		setup.colours.condom_map,
+		setup.colours.tentacle_map,
 	]) {
 		if (colour in map) return map[colour].name;
 	}

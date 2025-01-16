@@ -73,8 +73,8 @@
 	<<if $featsBoosts is undefined or _args[0] is true>>
 		<<set _keys to Object.keys($feats.allSaves)>>
 
-		<<set _moneyFeats to _keys.count("Pocket Change") + _keys.count("Money Maker") + _keys.count("Tycoon") + _keys.count("Millionaire")>>
-		<<set _moneyFeatsLimit to (_moneyFeats * 10)>>
+		<<set _moneyFeats to _keys.count("Pocket Change") + _keys.count("Money Maker") + _keys.count("Tycoon") + _keys.count("Millionaire") + _keys.count("Decamillionaire") + _keys.count("Hectomillionaire") + _keys.count("Billionaire")>>
+		<<set _moneyFeatsLimit to (_moneyFeats * 20)>>
 		<<set _purityFeats to _keys.count("Angel") + _keys.count("Fallen Angel")>>
 
 		<<set _newLife to _keys.count("Broodmother Host") + _keys.count("Top Broodmother Host")>>
@@ -116,6 +116,12 @@
 
 		<<set _sadomasochismFeats to _keys.count("Twisted Desire") + _keys.count("Served Hot")>>
 
+		<<set _physiqueFeats to _keys.count("Powerful") + _keys.count("Unstoppable Force")>>
+		<<set _physiqueFeatsLimit to (_physiqueFeats * 30)>>
+
+		<<set _willpowerFeats to _keys.count("Disciplined") + _keys.count("Immovable Object")>>
+		<<set _willpowerFeatsLimit to (_willpowerFeats * 30)>>
+
 		<<set $featsBoosts to {
 			upgrades:{
 				money:0,
@@ -141,6 +147,8 @@
 				animalTFs:0,
 				sadism:0,
 				masochism:0,
+				physique:0,
+				willpower:0,
 			},
 			upgradeDetails:{
 				money:{cost:5, limit: _moneyFeatsLimit, minCount: 1, count:_moneyFeats, exclusive:""},
@@ -164,8 +172,10 @@
 				sexToys:{cost:30, limit: 30 * _sexToysFeats, minCount: 1, count:_sexToysFeats, exclusive:""},
 				divineTFs:{cost:50, limit: 50, minCount: 1, count:_divineTFsFeats, exclusive:""},
 				animalTFs:{cost:30, limit: 30, minCount: 1, count:_animalTFsFeats, exclusive:""},
-				sadism:{cost:20, limit: 100, minCount: 1, count:_sadomasochismFeats, exclusive:""},
-				masochism:{cost:20, limit: 100, minCount: 1, count:_sadomasochismFeats, exclusive:""},
+				sadism:{cost:10, limit: 100, minCount: 1, count:_sadomasochismFeats, exclusive:""},
+				masochism:{cost:10, limit: 100, minCount: 1, count:_sadomasochismFeats, exclusive:""},
+				physique:{cost:10, limit: _physiqueFeatsLimit, minCount: 1, count:_physiqueFeats, exclusive:""},
+				willpower:{cost:10, limit: _willpowerFeatsLimit, minCount: 1, count:_willpowerFeats, exclusive:""},
 			},
 			missing:{
 				money:"Unlock this boost by obtaining the 'Pocket Change' feat",
@@ -190,24 +200,26 @@
 				animalTFs:"Unlock this boost by obtaining one of the animal transformations",
 				sadism:"Unlock this boost by obtaining one of the sadism or masochism feats",
 				masochism:"Unlock this boost by obtaining one of the sadism or masochism feats",
+				physique:"Unlock this boost by obtaining the 'Powerful' feat",
+				willpower:"Unlock this boost by obtaining the 'Disciplined' feat",
 			},
 			name:{
-				money:"Money",
+				money:"Starting Money",
 				grades:"School Grades",
 				skulduggery:"Skulduggery Grade",
 				dancing:"Dancing Grade",
 				swimming:"Swimming Grade",
 				athletics:"Athletics Grade",
 				tending:"Tending Grade",
-				greenThumb:"Green Thumb trait",
+				greenThumb:"Green Thumb Trait",
 				housekeeping:"Housekeeping Grade",
-				seduction:"Seduction grade",
-				purity:"Daily purity",
-				impurity:"Daily impurity",
-				newLife:"New Life",
+				seduction:"Seduction Grade",
+				purity:"Daily Purity Boost",
+				impurity:"Daily Impurity Boost",
+				newLife:"A New Life",
 				aNewBestFriend:"A New Best Friend",
-				tattoos:"Tattoos",
-				defaultMoves:"Default Moves",
+				tattoos:"Starting Tattoos",
+				defaultMoves:"Extra Default Moves",
 				randomClothing:"Random Clothing",
 				specialClothing:"Special Clothing",
 				sexToys:"Sex Toys",
@@ -215,6 +227,8 @@
 				animalTFs:"Animal Transformations",
 				sadism:"Sadism",
 				masochism:"Masochism",
+				physique:"Physique",
+				willpower:"Willpower",
 			},
 			pointsUsed: 0,
 			clothingGender:"Either",
@@ -257,7 +271,7 @@
 		<<earnFeat "A New Life">>
 	<</if>>
 	<<if _upgrades.money gt 0>>
-		<<set $money += _upgrades.money * _details.money.count / _details.money.cost * 5000>>
+		<<money `_upgrades.money * _details.money.count / _details.money.cost * 5000` "startingMoney">>
 	<</if>>
 	<<if _upgrades.grades gt 0>>
 		<<set $sciencetrait += _upgrades.grades / _details.grades.cost * 1>>
@@ -372,6 +386,8 @@
 				<<harpyTransform>>
 			<<case "fox">>
 				<<foxTransform>>
+			<<case "bunny">>
+				<<bunnyTransform>>
 			<<default>>
 		<</switch>>
 	<</if>>
@@ -380,6 +396,12 @@
 	<</if>>
 	<<if _upgrades.masochism gt 0>>
 		<<set $featsMasochismBoost to _upgrades.masochism / _details.masochism.cost>>
+	<</if>>
+	<<if _upgrades.physique gt 0>>
+		<<set $physique += _upgrades.physique / _details.physique.cost * 1500>>
+	<</if>>
+	<<if _upgrades.willpower gt 0>>
+		<<set $willpower += _upgrades.willpower / _details.willpower.cost * 200>>
 	<</if>>
 	<<if _upgrades.greenThumb gt 0>>
 		<<set $backgroundTraits.pushUnique("greenthumb")>>
@@ -629,31 +651,31 @@
 			<<if $robinromance gte 1 and $whitneyromance gte 1 and $kylarenglish gte 1 and $sydneyromance gte 1>>
 				<<earnFeat "Love Trapezoids">>
 			<</if>>
-			<<if ($cat gte 6 or $transformationParts.cat.tail is "default")>>
+			<<if ($cat gte 6 or ($transformationParts.cat.tail isnot "hidden" and $transformationParts.cat.tail isnot "disabled"))>>
 				<<earnFeat "Neko">>
 			<</if>>
-			<<if ($wolfgirl gte 6 or $transformationParts.wolf.tail is "default" or $transformationParts.wolf.tail is "feral")>>
+			<<if ($wolfgirl gte 6 or ($transformationParts.wolf.tail isnot "hidden" and $transformationParts.wolf.tail isnot "disabled"))>>
 				<<earnFeat "Wolf">>
 			<</if>>
-			<<if ($angel gte 6 or $transformationParts.angel.wings is "default" or $transformationParts.angel.wings is "classic")>>
+			<<if ($angel gte 6 or ($transformationParts.angel.wings isnot "hidden" and $transformationParts.angel.wings isnot "disabled"))>>
 				<<earnFeat "Angel">>
 			<</if>>
-			<<if ($fallenangel gte 2 or $transformationParts.fallenAngel.wings is "default" or $transformationParts.fallenAngel.wings is "classic")>>
+			<<if ($fallenangel gte 2 or ($transformationParts.fallenAngel.wings isnot "hidden" and $transformationParts.fallenAngel.wings isnot "disabled"))>>
 				<<earnFeat "Fallen Angel">>
 			<</if>>
-			<<if ($demon gte 6 or $transformationParts.demon.wings is "default" or $transformationParts.demon.wings is "succubus")>>
+			<<if ($demon gte 6 or ($transformationParts.demon.wings isnot "hidden" and $transformationParts.demon.wings isnot "disabled"))>>
 				<<earnFeat "Demon">>
 			<</if>>
-			<<if ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black")>>
+			<<if ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>>
 				<<earnFeat "Cattle">>
 			<</if>>
-			<<if $bear gte 6 or $transformationParts.bear.tail is "default">>
+			<<if ($bear gte 6 or ($transformationParts.bear.tail isnot "hidden" and $transformationParts.bear.tail isnot "disabled"))>>
 				<<earnFeat "Bear">>
 			<</if>>
-			<<if ($harpy gte 6 or $transformationParts.bird.wings is "default")>>
+			<<if ($harpy gte 6 or ($transformationParts.bird.wings isnot "hidden" and $transformationParts.bird.wings isnot "disabled"))>>
 				<<earnFeat "Harpy">>
 			<</if>>
-			<<if ($fox gte 6 or $transformationParts.fox.tail is "default")>>
+			<<if ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled"))>>
 				<<earnFeat "Fox">>
 			<</if>>
 			<<if $orgasmtrait gte 1 or $ejactrait gte 1 or $molesttrait gte 1 or $rapetrait gte 1 or $bestialitytrait gte 1
@@ -860,7 +882,7 @@
 		<<if $semen_volume gte 12000>>
 			<<earnFeat "Sticky Fountain">>
 		<</if>>
-		<<if (($demon gte 6 or $transformationParts.demon.wings is "default" or $transformationParts.demon.wings is "succubus") or $demontf is 1) and $player.virginity.vaginal is true and $player.virginity.penile is true>>
+		<<if (($demon gte 6 or ($transformationParts.demon.wings isnot "hidden" and $transformationParts.demon.wings isnot "disabled")) or $demontf is 1) and $player.virginity.vaginal is true and $player.virginity.penile is true>>
 			<<earnFeat "Demon of Purity">>
 		<</if>>
 		<<specialClothesUpdate>>

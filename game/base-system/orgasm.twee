@@ -17,6 +17,7 @@
 	<!-- Orgasm denial -->
 	<<if $earSlime.growth gte 100 and $earSlime.defyCooldown gte Math.clamp(30 - Math.floor($earSlime.growth / 9), 2, 20) and !$possessed and $ruinedorgasmdisable is "f">>
 		<span class="red">You are almost overcome by sensation, but it ends prematurely.</span><<pain 10>><<stress 10>><<gpain>><<gstress>>
+		<br>
 		<<set _deniedOrgasm to true>>
 		<<set $ruinedOrgasmStat++>>
 		<<set $ruinedOrgasmTimeStat to Time.date.timeStamp>>
@@ -83,7 +84,7 @@
 						<<set $earSlime.event to "">>
 						<<set $_earslimeEjaculateTask to true>>
 					<</if>>
-					<<purity -1>><<internalejac>><<creampie "npc" "vagina">>
+					<<purity -1>><<internalejac>><<creampie "npc" "vagina">><<fillOther>>
 					<<if $earSlime.focus is "pregnancy" and $earSlime.growth gte 75>>
 						<<set _orgasmSpermRng to 25>>
 					<<elseif $earSlime.focus is "impregnation" and $earSlime.growth gte 75>>
@@ -140,7 +141,7 @@
 						<<personselect $_i>>
 						<<penileejacstat>>
 						<span class="pink">You are overcome by sensation and ejaculate<<if _cumDesc isnot "cum">> _cumDesc<</if>> deep into <<his>> bowels.</span>
-						<<purity -1>><<internalejac>><<creampie "npc" "anus">>
+						<<purity -1>><<internalejac>><<creampie "npc" "anus">><<fillOther>>
 					<<elseif $NPCList[$_i].penis is "otheranusimminent" or $NPCList[$_i].penis is "otheranusentrance" or $NPCList[$_i].vagina is "otheranusimminent" or $NPCList[$_i].vagina is "otheranusentrance">>
 						<<personselect $_i>>
 						<span class="pink">You are overcome by sensation and ejaculate<<if _cumDesc isnot "cum">> _cumDesc<</if>> on <<his>> ass.</span>
@@ -152,7 +153,7 @@
 						<<personselect $_i>>
 						<<penileejacstat>>
 						<span class="pink">You are overcome by sensation and ejaculate<<if _cumDesc isnot "cum">> _cumDesc<</if>> into <<his>> mouth.</span>
-						<<purity -1>><<internalejac>><<creampie "npc" "mouth">>
+						<<purity -1>><<internalejac>><<creampie "npc" "mouth">><<fillOther>>
 					<<elseif $NPCList[$_i].mouth is "penisimminent" or $NPCList[$_i].mouth is "penisentrance">>
 						<<personselect $_i>>
 						<span class="pink">You are overcome by sensation and ejaculate<<if _cumDesc isnot "cum">> _cumDesc<</if>> on <<his>> face.</span>
@@ -164,7 +165,7 @@
 						<<personselect $_i>>
 						<<penileejacstat>>
 						<span class="pink">You are overcome by sensation and ejaculate<<if _cumDesc isnot "cum">> _cumDesc<</if>> over <<his>> penis.</span>
-						<<purity -1>><<internalejac>>
+						<<purity -1>><<internalejac>><<fillOther>>
 						<!-- <<creampie "npc" "penis">> -->
 					<<elseif $NPCList[$_i].penis is "penisimminent" or $NPCList[$_i].penis is "penisentrance">>
 						<<personselect $_i>>
@@ -175,7 +176,7 @@
 				<<if $penisstate isnot "tentacleentrance" and $penisstate isnot "tentacleimminent">>
 					<<penileejacstat>>
 					<span class="pink">You are overcome by sensation. The $tentaclePenis milks you of your semen.</span>
-					<<purity -1>><<internalejac>>
+					<<purity -1>><<internalejac>><<fillOther>>
 					<!-- <<creampie "npc" "tentacle">> -->
 				<<else>>
 					<span class="pink">You are overcome by sensation and ejaculate<<if _cumDesc isnot "cum">> _cumDesc<</if>> on the $tentaclePenis.</span>
@@ -241,7 +242,7 @@
 		<<orgasm-voice>>
 	<</if>>
 
-	<<if ["penis", "penisdouble", "tentacle", "tentacledeep", "machine"].includes($vaginause) or ["penis", "penisdouble", "tentacle", "tentacledeep", "machine"].includes($anususe) or $portalPanties.state.vagina or $portalPanties.state.anus or $portalEjacV or $portalEjacA>>
+	<<if ["penis", "penisdouble", "tentacle", "tentacledeep", "machine"].includes($vaginause) or ["penis", "penisdouble", "tentacle", "tentacledeep", "machine"].includes($anususe) or $portalPanties.state.vagina or $portalPanties.state.anus or $portalejacvagina or $portalejacanus>>
 		<<set $beingPenetratedOrgasmStat += 1>>
 	<</if>>
 
@@ -368,10 +369,24 @@
 					<</if>>
 				<</if>>
 			<</for>>
+		<<elseif $masturbating and $mouthaction is "mbreastsuck" or $mouthaction is "mbreastlick">>
+			<<if $milk_amount gte (($milk_volume / 3) * 2) and $milk_amount gte 2500>>
+				<<if $milk_amount gte 2500>>
+					<span class="pink">A surge of milk floods your mouth. You disengage temporarily to gasp and cough after managing to swallow it all.</span>
+				<<else>>
+					<span class="pink">Milk sprays into your mouth. You struggle to drink it all down in one gulp.</span>
+				<</if>>
+			<<else>>
+				<span class="pink">You quickly drink down the thin stream of milk flowing into your mouth.</span>
+			<</if>>
 		<<else>>
 			<<if $milk_amount gte (($milk_volume / 3) * 2) and $milk_amount gte 2500>>
-				<span class="pink">Milk sprays from your <<breasts>><<if $lactating and $bugsinside>>, launching some of the insects into the air<</if>>.</span>
-				<<set _milkEscaped to true>>
+				<<if $leftarm is "mbreastpump" and $rightarm is "mbreastpump">>
+					<span class="pink">Milk bursts from your <<breasts>>.</span>
+				<<else>>
+					<span class="pink"><<if $leftarm is "mbreastpump" or $rightarm is "mbreastpump">>Some milk<<else>>Milk<</if>> sprays from your <<breasts>><<if $lactating and $bugsinside>>, launching some of the insects into the air<</if>>.</span>
+					<<set _milkEscaped to true>>
+				<</if>>
 				<<breastfeed 4>>
 			<<else>>
 				<span class="pink">Milk leaks from your <<breasts>>.</span>
@@ -588,7 +603,7 @@
 		<<set $chokeorgasm += 1>>
 		<<if $chokeorgasm gte 35 and $choketrait isnot 1>>
 			<<set $choketrait = 1>>
-			<br><span class="green">You feel that your orgasms are more intense when you can't breathe and you like it.</span>
+			<br><span class="green">You feel that your orgasms are more intense when you can't breathe, and you like it.</span>
 		<</if>>
 	<</if>>
 	<<if ($halloween is 1 or $NPCList[0].fullDescription is "Ivory Wraith") and random(1, 10000) is 10000>>
@@ -754,7 +769,7 @@
 			<<set $audienceexcitement += 5>>
 			<<set $audiencemod += 2>>
 		<<else>>
-			You try to conceal your shaking <<body_size_text>> with your dance moves.
+			You try to conceal your spasming body with your dance moves.
 			<<if $dancelocation is "smuggler_forced" or $dancelocation is "underground">>
 				The humiliation is too much to bear, but you stay put for fear of your captors.
 				<<trauma 10>><<stress 12>><<gtrauma>><<ggstress>>
@@ -964,14 +979,10 @@
 			<</switch>>
 		<<case "meadow">>
 			<<if $rng gte 91>>
-				You grip the blades, steadying yourself as your spasms subside. You think there's no one around to listen, but you notice a
-				<<if ($monsterchance gte 1 and $hallucinations gte 1) or ($monsterchance gte 1 and $monsterhallucinations is "f") or ($bestialitydisable is "t")>>
-					<<if maleChance() lt random(1, 100)>> foxgirl <<else>> foxboy <</if>>
-				<<else>>
-					fox
-				<</if>>
-				staring at you, hiding in the grass. It runs off before you can flee.
+				<<beastNEWinit 1 fox>>
+				You grip the blades, steadying yourself as your spasms subside. You think there's no one around to listen, but you notice a <<beasttype>> staring at you, hiding in the grass. <<bHe>> runs off before you can flee.
 				<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
+				<<endevent>>
 			<<else>>
 				You grip the blades, steadying yourself as your spasms subside. The sounds of your climax get carried by the breeze, but fortunately there's no one around to listen.
 			<</if>>
@@ -1038,7 +1049,7 @@
 
 <<widget "breastfeed">>
 	<<set _milk_released to random(10, 50)>>
-	<<if ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black")>>
+	<<if ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>>
 		<<set _milk_released *= 2>>
 	<</if>>
 	<<set _milk_released /= 10>>
@@ -1069,7 +1080,7 @@
 		<</if>>
 		<<if $masturbation_bowl is 1>>
 			<<if $_milkEscaped>>
-				<span class="red">The force of your orgasm makes your milk spray out wildly, missing the bowl entirely.</span> <<gsuspicion>><<set $chef_sus += 5>><br>
+				<span class="red">The force of your orgasm makes<<if $leftarm is "mbreastpump" or $rightarm is "mbreastpump">> some of<</if>> your milk spray out wildly, missing the bowl entirely.</span> <<gsuspicion>><<set $chef_sus += 5>><br>
 			<<else>>
 				<span class="gold">You gather <<print (_milk_released).toFixed(1)>> mL of your breast milk.</span>
 			<</if>>
@@ -1089,7 +1100,7 @@
 		<<set _orgmod to Math.clamp(_orgmod, 2, 11)>>
 		<<orgasmcount `-_orgmod`>>
 	<</if>>
-	<<if ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black")>>
+	<<if ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>>
 		<<semenvolume 1>>
 		<<milkvolume 1>>
 	<</if>>
@@ -1101,7 +1112,7 @@
 		<<else>>
 			<<set $_semen_gain to Math.floor($semen_volume * (1/24))>>
 		<</if>>
-		<<if ($cow gte 6 or $transformationParts.cow.tail is "default" or $transformationParts.cow.tail is "black") or ($earSlime.growth gte 100 and $earSlime.focus is "impregnation")>>
+		<<if ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled")) or ($earSlime.growth gte 100 and $earSlime.focus is "impregnation")>>
 			<<set $_semen_gain *= 2>>
 		<</if>>
 		<<if $earSlime.growth gte 100 and $earSlime.focus is "pregnancy">>

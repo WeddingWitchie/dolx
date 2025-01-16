@@ -361,6 +361,7 @@ function masturbationEffectsArms(
 				V.worn.over_upper.state = "chest";
 				sWikifier(`You pull up your ${V.worn.over_upper.name}, <span class="lewd">exposing your <<breastsaside>>.</span>`);
 			}
+			wikifier("overupperstrip");
 			fragment.append(" ");
 			break;
 		case "mupper":
@@ -373,6 +374,7 @@ function masturbationEffectsArms(
 				V.worn.upper.state = "chest";
 				sWikifier(`You pull up your ${V.worn.upper.name}, <span class="lewd">exposing your <<breastsaside>>.</span>`);
 			}
+			wikifier("upperstrip");
 			fragment.append(" ");
 			break;
 		case "munder_upper":
@@ -393,6 +395,7 @@ function masturbationEffectsArms(
 					sWikifier(`You pull up your ${V.worn.under_upper.name}, <span class="lewd">exposing your <<breasts>>.</span>`);
 				}
 			}
+			wikifier("underupperstrip");
 			fragment.append(" ");
 			break;
 		case "moverlower":
@@ -407,6 +410,7 @@ function masturbationEffectsArms(
 				V.worn.over_lower.state = "thighs";
 				sWikifier(`You pull down your ${V.worn.over_lower.name}, <span class="lewd">exposing your <<exposedlower>>.</span>`);
 			}
+			wikifier("overlowerstrip");
 			fragment.append(" ");
 			break;
 		case "mlower":
@@ -421,6 +425,7 @@ function masturbationEffectsArms(
 				V.worn.lower.state = "thighs";
 				sWikifier(`You pull down your ${V.worn.lower.name}, <span class="lewd">exposing your <<undies>>.</span>`);
 			}
+			wikifier("lowerstrip");
 			fragment.append(" ");
 			break;
 		case "munder":
@@ -430,6 +435,7 @@ function masturbationEffectsArms(
 			V.worn.under_lower.state = "thighs";
 			V.worn.under_lower.exposed = 2;
 			sWikifier(`You pull down your ${V.worn.under_lower.name}, <span class="lewd">exposing your <<genitals>>.</span>`);
+			wikifier("underlowerstrip");
 			fragment.append(" ");
 			break;
 	}
@@ -1227,7 +1233,7 @@ function masturbationEffectsArms(
 					V.earSlime.vibration += handsOn * 2;
 					fragment.append(
 						span(
-							`You repeatly squeeze the parasite and your ${
+							`You repeatedly squeeze the parasite and your ${
 								V.player.virginity.penile === true ? "virgin penis" : "penis"
 							}, enjoying the limited attention you can give it.`
 						)
@@ -2106,7 +2112,7 @@ function masturbationEffectsArms(
 				wikifier("arousal", 200, "masturbationOral");
 				fragment.append(
 					span(
-						`You skilfully lick and tease the ${altText.toyDisplay} as you quickly bob your head back and forth along it, reveling in the lewd sensations it provides.`
+						`You skilfully lick and tease the ${altText.toyDisplay} as you quickly bob your head back and forth along it, revelling in the lewd sensations it provides.`
 					)
 				);
 			}
@@ -2318,7 +2324,10 @@ function masturbationEffectsArms(
 		case "mvaginastop":
 			clearAction("mrest");
 			V[arm + "arm"] = 0;
-			V.fingersInVagina = 0;
+			if (V[otherArm + "arm"] !== "mvagina") {
+				V.fingersInVagina = 0;
+				V.vaginause = 0;
+			}
 			if (doubleAction) {
 				V[otherArm + "arm"] = 0;
 				if (V.vaginause === "mfingers") V.vaginause = 0;
@@ -3415,7 +3424,7 @@ function masturbationEffectsMouth({
 					wikifier("arousal", 200, "masturbationOral");
 					fragment.append(
 						span(
-							`You skillfully wriggle your tongue along the ${altText.toyDisplay} in your mouth, occasionally adjusting your angle to reach as much of it as possible.`
+							`You skilfully wriggle your tongue along the ${altText.toyDisplay} in your mouth, occasionally adjusting your angle to reach as much of it as possible.`
 						)
 					);
 				}
@@ -3467,7 +3476,7 @@ function masturbationEffectsMouth({
 				} else {
 					altText.virginity = "pretending it's the real thing.";
 				}
-				fragment.append(span(`You skillfully suck on and tease the ${altText.toyDisplay}, ${altText.virginity}`));
+				fragment.append(span(`You skilfully suck on and tease the ${altText.toyDisplay}, ${altText.virginity}`));
 			}
 			break;
 		default:
@@ -3784,7 +3793,7 @@ function masturbationEffectsVaginaAnus({ span, otherElement, additionalEffect, s
 			wikifier("arousal", 500, "anal");
 			wikifier("drugs", 10);
 			if (V.arousal >= (V.arousalmax / 5) * 4) {
-				fragment.append(span("You roughly ride the plant, rubbing it as quickly as you can. It's unlike anything you've felt before.."));
+				fragment.append(span("You roughly ride the plant, rubbing it as quickly as you can. It's unlike anything you've felt before."));
 			} else if (V.arousal >= (V.arousalmax / 5) * 3) {
 				fragment.append(
 					span(`You ride the plant${V.player.penisExist ? ", trying to get it to hit your prostate" : ""}. It's unlike anything you've felt before.`)

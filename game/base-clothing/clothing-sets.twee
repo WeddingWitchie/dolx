@@ -93,7 +93,9 @@
 		<<for _index, $_outfit range $outfit>>
 			<<if $_outfit.type.includes("sleep")>>
 				<<if _passage is "Bed">>
-					<<set _bed to Furniture.get('bed')>>
+					<<if $furnitureLocation is "orphanage">>
+						<<set _bed to Furniture.get('bed')>>
+					<</if>>
 					<<if _bed is undefined or _bed is null>>
 						<<set _bed to Furniture.get('bed','bed')>>
 					<</if>>
@@ -102,6 +104,21 @@
 					<<prisonicon "bed">>
 				<<elseif _passage is "Asylum Bed">>
 					<<bedicon "hospital">>
+				<<elseif $location is "alex_cottage">>
+					<<set _farmbed to ($loveInterest.primary is "Alex" or $loveInterest.secondary is "Alex") ? "alex" : "farm">>
+					<<if $furnitureLocation is "farm cottage">>
+						<<if $passage is "Farm Bedroom">>
+							<<set _bed to Furniture.get('bed')>>
+							<<if _bed is undefined or _bed is null>>
+								<<set _bed to Furniture.get('bed','bed')>>
+							<</if>>
+							<<furnitureicon _bed.iconFile>>
+						<<else>>
+							<<farmicon "alexbed">>
+						<</if>>
+					<<else>>
+						<<bedicon _farmbed>>
+					<</if>>
 				<<else>>
 					<<bedicon>>
 				<</if>>
@@ -374,10 +391,6 @@
 						<</if>>
 						/*Check for slime corruption*/
 						<<if _corruptionEquipSkip.includes($_slot) and $earSlime.corruption gte 10>>
-							<<if $daily.corruptionSlimeClothes is undefined>>
-								<<set _baseCorruption to (($earSlime.corruption / 2) + ($earSlime.growth / 2))>>
-								<<set $daily.corruptionSlimeClothes to random(_baseCorruption * 5, _baseCorruption * 25) - currentSkillValue('willpower')>>
-							<</if>>
 							<<if $earSlime.forcedCommando isnot undefined and ($_slot is "under_lower" or ($_wardrobeItem.outfitPrimary and $_wardrobeItem.outfitPrimary.under_lower and !["broken","split"].includes($_wardrobeItem.outfitPrimary.under_lower)))>>
 								<<if $_wardrobeItem.type.includes("naked") or (_earSlimeEnableSwimwear and $_wardrobeItem.type.includes("swim")) or (_earSlimeEnableDancewear and $_wardrobeItem.type.includes("dance"))>>
 								<<elseif $earSlime.forcedCommando gt 0>>
@@ -386,7 +399,7 @@
 								<<else>>
 									<<run delete $earSlime.forcedCommando>>
 								<</if>>
-							<<elseif ((["prison", "asylum"].includes($location) and $_wardrobeItem.reveal lt Math.clamp($daily.corruptionSlimeClothes, 0, 1000)) or ($_wardrobeItem.reveal lt Math.clamp($daily.corruptionSlimeClothes, 0, 500)) and !($_wardrobeItem.type.includesAny("school") and Time.schoolDay)) and !$_wardrobeItem.type.includesAny("event")>>
+							<<elseif $_wardrobeItem.reveal lt earSlimeCorruptionClothes() and !(!["prison", "asylum"].includes($location) and $_wardrobeItem.type.includesAny("school") and Time.schoolDay) and !$_wardrobeItem.type.includesAny("event")>>
 								<<set _notEquipped[$_slot] to {"name": $_incomingItemName, "reason": "corruption_slime_deny"}>>
 								<<break>>
 							<<elseif $earSlime.forcedDressing and $_wardrobeItem.gender isnot $earSlime.forcedDressing.type and $_wardrobeItem.gender isnot "n" and !$_wardrobeItem.type.includesAny("event")>>

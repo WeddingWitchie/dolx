@@ -36,14 +36,30 @@
 		<hr>
 		<h1 class="header gold bold">Time-Sensitive</h1>
 		<ul class="journal">
-			<<if $rentday isnot undefined>>
-				<<if $renttime lte 0>>
-					<li>Bailey is looking for you, and wants <<printmoney $rentmoney>><<babyRentDisplay " plus " " for not looking after your children" "gold">>.</li>
-				<<else>>
-					<li>Bailey wants <<printmoney $rentmoney>> on <<rentday>><<babyRentDisplay " plus " " for not looking after your children" "gold">>.</li>
+			<<if $baileyDeposit gte ($rentmoney * $rentmod) + ($babyRent or 0)>>
+				<<set _rentstage to $rentstage>>
+				<<set _baileyDepositDays to 0>>
+				<<set _baileyDepositWorth to 0>>
+				<<for _baileyDeposit = $baileyDeposit; _baileyDeposit >= ($rentmoney * $rentmod) + ($babyRent or 0) && _baileyDepositDays lt 1000; _baileyDeposit -= ($rentmoney * $rentmod) + ($babyRent or 0)>>
+					<<set $rentmoney to [10000,30000,50000,70000,100000,150000,200000][Math.clamp(_rentstage - 1,0,6)]>>
+					<<if $robinpaid is 1>>
+						<<set $rentmoney *= 2>>
+					<</if>>
+					<<set _rentstage += 1>>
+					<<set _baileyDepositDays += 1>>
+					<<set _baileyDepositWorth += ($rentmoney * $rentmod) + ($babyRent or 0)>>
+				<</for>>
+				<li>You still have enough deposit for Bailey for <span class="gold">_baileyDepositDays</span><<if _baileyDepositDays gte 1000>>+<</if>> weeks which is worth <<printmoney _baileyDepositWorth>><<if _baileyDepositDays gte 1000>>+<</if>>.</li>
+			<<else>>
+				<<if $rentday isnot undefined>>
+					<<if $renttime lte 0>>
+						<li>Bailey is looking for you, and wants <<printmoney $rentmoney>><<babyRentDisplay " plus " " for not looking after your children" "gold">>.</li>
+					<<else>>
+						<li>Bailey wants <<printmoney $rentmoney>> on <<rentday>><<babyRentDisplay " plus " " for not looking after your children" "gold">>.</li>
+					<</if>>
+				<<elseif $rentmoney isnot undefined>>
+					<li>Bailey wants <<printmoney $rentmoney>><<babyRentDisplay " plus " " for not looking after your children" "gold">>.</li>
 				<</if>>
-			<<elseif $rentmoney isnot undefined>>
-				<li>Bailey wants <<printmoney $rentmoney>><<babyRentDisplay " plus " " for not looking after your children" "gold">>.</li>
 			<</if>>
 
 			<<if $xchange.pubGamblingEnabled and !$weekly.gamblingUpkeepPaid>>
@@ -56,8 +72,8 @@
 				<li>You have a date scheduled with Avery <span class="pink">tonight.</span> <<nnpc_He "Avery">>'ll wait for you on Domus Street between <span class="gold"><<ampm 20 00>></span> and <span class="gold"><<ampm 21 00>></span>.</li>
 			<</if>>
 
-			<<if $psych is 1>>
-				<li>You have an appointment with Doctor Harper
+			<<if $psych is 1 or $schoolPsych is 1>>
+				<li>You <<if $psych is 1>>have an<<else>>may get an<</if>> appointment with Doctor Harper
 				<<if Time.weekDay is 6>>
 					<<if $daily.harperVisit is 1>>
 						next <span class='yellow'>Friday</span>.
@@ -87,14 +103,15 @@
 					<<set _date to new DateTime($brothel_escortjob.date)>>
 					<li>You have an escort job scheduled. You're expected to be in front of the brothel
 					<<if Time.monthDay is _date.day>>
-						<span class="pink">today</span> at <span class="gold"><<ampm _date.hour>></span>.
+						<span class="pink">today</span>
 					<<elseif Time.date.dayDifference(_date) is 1>>
-						<span class="gold">tomorrow</span>.
+						<span class="gold">tomorrow</span>
 					<<elseif Time.date.dayDifference(_date) gte 7>>
-						next <span class="gold">_date.weekDayName</span> at <span class="gold"><<ampm _date.hour>></span>.
+						next <span class="gold">_date.weekDayName</span>
 					<<else>>
-						on <span class="gold">_date.weekDayName</span> at <span class="gold"><<ampm _date.hour>></span>.
-					<</if>></li>
+						on <span class="gold">_date.weekDayName</span>
+					<</if>>
+					at <span class="gold"><<ampm _date.hour>></span>.</li>
 				<</if>>
 			<</if>>
 
@@ -124,7 +141,7 @@
 					<<elseif $smuggler_timer is 1>>
 						<span class="gold">tomorrow</span>, before midnight.
 					<<else>>
-						in <span class="gold">$smuggler_timer</span> days.
+						<<nDays $smuggler_timer>>.
 					<</if>>
 					<<if $smuggler_location is "forest">>
 						They're bringing it through the forest.
@@ -142,10 +159,8 @@
 				<li>Remy will attack the farm
 					<<if $farm_attack_timer is 0>>
 						<span class="pink">tonight</span>.
-					<<elseif $farm_attack_timer is 1>>
-						<span class="gold">tomorrow</span>.
 					<<else>>
-						in <span class="gold">$farm_attack_timer</span> days.
+						<<nDays $farm_attack_timer>>.
 					<</if>>
 					<<nnpc_He Remy>>'ll arrive between <span class="gold"><<ampm 21 00>></span> and <span class="gold">midnight.</span>
 				</li>
@@ -158,7 +173,7 @@
 					<<elseif $temple_chastity_timer is 1>>
 						You have a chastity exam due <span class="purple">tomorrow.</span>
 					<<else>>
-						You have a chastity exam due in <span class="gold">$temple_chastity_timer</span> days.
+						You have a chastity exam due <<nDays $temple_chastity_timer>>.
 					<</if>>
 					You will receive an <span class="gold">allowance</span> when passing the exam.
 				</li>
@@ -233,7 +248,7 @@
 			<</if>>
 
 			<<if $daily.eden.distract gte 1 and $location is "asylum">>
-				<<if Time.hour lt 21>>>
+				<<if Time.hour lt 21>>
 					<li>Eden will create a distraction at <<ampm 21 00>> <span class="pink">tonight</span>.</li>
 				<</if>>
 			<</if>>
@@ -247,17 +262,17 @@
 			<</if>>
 
 			<<if $pubtask2 is 1>>
-					<li>Return the black box to Landry at the pub.</li>
+				<li>Return the black box to Landry at the pub.</li>
 			<<elseif $pubtask>>
-					<li>Landry wants you to retrieve a black box from the $pubtask.</li>
+				<li>Landry wants you to retrieve a black box from the $pubtask.</li>
 			<</if>>
 
 			<<if $police_hack is 1>>
-					<li>Landry might be able to help you with the locked police computer.</li>
+				<li>Landry might be able to help you with the locked police computer.</li>
 			<<elseif $pub_hack_job is 1>>
-					<li>Landry wants you to find a hacker supposedly named 'Mickey' living at the Domus street orphanage.</li>
+				<li>Landry wants you to find a hacker supposedly named 'Mickey' living at the Domus Street orphanage.</li>
 			<<elseif $pub_hack_job is 2>>
-					<li>Convince 'Mickey' to work with you.</li>
+				<li>Convince 'Mickey' to work with you.</li>
 			<<elseif $pub_hack_job is 3>>
 				<<if !$hacker_tasks.includes("bailey")>>
 					<li>'Mickey' wants you to implant a device on Bailey's computer while Bailey is logged in.</li>
@@ -365,9 +380,10 @@
 			<<elseif $chef_state is 7 and $chef_rework lte 0>>
 				<li>The renovations at the Ocean Breeze have finished.</li>
 			<<elseif $chef_state is 7 and $chef_rework lte 30>>
-				<li>The Ocean Breeze is closed for renovations. They will be done in <span class="gold">$chef_rework</span> days.</li>
+				<li>The Ocean Breeze is closed for renovations. They will be done <<nDays $chef_rework>>.</li>
 			<<elseif $chef_state is 7>>
-				<li>The Ocean Breeze will close for renovations in <span class="gold"><<print ($chef_rework - 30)>></span> days.</li>
+				<<set _timer to $chef_rework - 30>>
+				<li>The Ocean Breeze will close for renovations <<nDays _timer>>.</li>
 			<<elseif $chef_state is 8>>
 				<li>Sam wants you to attend the Ocean Breeze's grand reopening on any evening between <<ampm 18 00>> and <<ampm 21 00>>.</li>
 			<</if>>
@@ -390,7 +406,7 @@
 				<li>You have the pink gel Briar wants for the sex machine.</li>
 			<</if>>
 
-			<<if ($harpy gte 6 or $transformationParts.bird.wings is "default") and $birdFly isnot 1>>
+			<<if ($harpy gte 6 or ($transformationParts.bird.wings isnot "hidden" and $transformationParts.bird.wings isnot "disabled")) and $birdFly isnot 1>>
 				<li>Your wings are strong, but you don't know how to use them. The Great Hawk could teach you.</li>
 			<</if>>
 
@@ -419,9 +435,9 @@
 			<</if>>
 
 			<<if $jordan_ritual_dance is 1>>
-				<li>Jordan has asked you to investigate one of the manors on Danube street. One of the temple's flock went missing after finding work there. You can get access through Charlie, and your status as a dancer.</li>
+				<li>Jordan has asked you to investigate one of the manors on Danube Street. One of the temple's flock went missing after finding work there. You can get access through Charlie, and your status as a dancer.</li>
 			<<elseif $jordan_ritual_dance is 2>>
-				<li>You encountered a strange ritual in a manor on Danube Street. Inform Jordan, priest at the temple.</li>
+				<li>You encountered a strange ritual in a manor on Danube Street. Inform Jordan, head <<nnpc_title "Jordan">> at the temple.</li>
 			<</if>>
 
 			<<if $studyBooks isnot undefined and $studyBooks.rented.count gte 1>>
@@ -469,7 +485,7 @@
 				<li>
 				<<if $stallDeposit gte 3000>>
 					<<set _string to Math.floor($stallDeposit / 3000)>>
-					You are renting a stall and still have _string days worth of deposit.
+					You are renting a stall and still have <span class="gold">_string</span> days worth of deposit.
 				<<else>>
 					You are renting a stall and it will expire by today.
 				<</if>>
@@ -531,11 +547,7 @@
 						<<case "water field 4">>
 							The water source and water control structures are being installed on the water field.
 					<</switch>>
-					<<if $farm.build_timer is 1>>
-						It'll be finished <span class="gold">tomorrow.</span>
-					<<else>>
-						It'll be finished in <span class="gold"><<number $farm.build_timer>></span> days.
-					<</if>>
+					It'll be finished <<nDays $farm.build_timer>>.
 				</li>
 				<</if>>
 			<</if>>
@@ -682,10 +694,10 @@
 	<<if $scienceproject is "ongoing">>
 		<hr>
 		<<if $scienceprojectdays is 0>>
-			The science fair is being held at the town hall on Cliff street <span class="pink">today</span> from <<ampm 9 00>> until <<ampm 18 00>>.
+			The science fair is being held at the town hall on Cliff Street <span class="pink">today</span> from <<ampm 9 00>> until <<ampm 18 00>>.
 			<br>
 		<<else>>
-			The science fair will be held at the town hall on Cliff Street in <span class="gold">$scienceprojectdays</span> days.
+			The science fair will be held at the town hall on Cliff Street <<nDays $scienceprojectdays>>.
 			<br>
 		<</if>>
 		You have the following ongoing science projects. You'll choose one to present at the fair.
@@ -806,7 +818,7 @@
 		<hr>
 		<h1 class="header gold bold">Maths Competition</h1>
 		<<if $mathsprojectdays is 0>>
-			The maths competition is being held at the town hall on Cliff street <span class="pink">today</span> from <<ampm 9 00>> until <<ampm 18 00>>.
+			The maths competition is being held at the town hall on Cliff Street <span class="pink">today</span> from <<ampm 9 00>> until <<ampm 18 00>>.
 			<br>
 		<<else>>
 			The maths competition will be held at the town hall on Cliff Street in <span class="gold">$mathsprojectdays</span> <<if $mathsprojectdays is 1>>day<<else>>days<</if>>.
@@ -843,9 +855,9 @@
 		<hr>
 		<h1 class="header gold bold">English Play</h1>
 		<<if $englishPlayDays is 0>>
-			The school plays are being held at the town hall on Cliff street <span class="pink">tonight</span> from <span class="gold"><<ampm 17 00>></span> until <span class="gold"><<ampm 21 00>></span>.
+			The school plays are being held at the town hall on Cliff Street <span class="pink">tonight</span> from <span class="gold"><<ampm 17 00>></span> until <span class="gold"><<ampm 21 00>></span>.
 		<<else>>
-			The school plays will be performed at the town hall on Cliff street in <span class="gold">$englishPlayDays</span> <<if $englishPlayDays is 1>>day<<else>>days<</if>>.
+			The school plays will be performed at the town hall on Cliff Street in <span class="gold">$englishPlayDays</span> <<if $englishPlayDays is 1>>day<<else>>days<</if>>.
 		<</if>>
 		<<if $englishPlayRoles.Player isnot "none">>
 			<br>
@@ -881,22 +893,23 @@
 	<</if>>
 
 <<set _plant_keys to Object.keys($plants)>>
+<<set _hasProduce to Object.keys($plants).some(key => $plants[key].amount >= 1)>>
 <<set _carrying to [$antiquemoney, $blackmoney, $phials_held, $lurkers_held, $popcorn, $milkshake, $panties_held].some(i => i >= 1)>>
-<<if _carrying or _plant_keys.length gt 0>>
+<<if _carrying or _hasProduce>>
 	<hr>
 		<h1 class="header gold bold">Inventory</h1>
 	<</if>>
 	<<if $farm_key is true and $location is "farm" and !$bus.includes("farm")>>
 		You have stored:
 		<ul class="journal carry">
-			<li><<lakeicon "key">> <span class="green">A ring of keys</span> in your stall. You can use them to escape, but be careful not to get caught with them.</li>
+			<li><<lockicon "bronze key">> <span class="green">A ring of keys</span> in your stall. You can use them to escape, but be careful not to get caught with them.</li>
 		</ul>
 		<br>
 	<</if>>
 	You are carrying:
 	<ul class="journal carry">
-		<<if $location is "prison" and $prison.teeth gte 1>>
-			<li><<icon "sharks_teeth.png">> <span class="green"><<number $prison.teeth>></span> shark's teeth.
+		<<if ["prison", "prison_beach"].includes($location) and $prison.teeth gte 1>>
+			<li><<tendingicon "sharks_teeth">> <span class="green"><<number $prison.teeth>></span> shark's teeth.
 			<<if $prison_wren_intro isnot 1>>
 				You can find Wren in the yard on Fridays after lunch.
 			<</if>>
@@ -923,15 +936,15 @@
 		<<if $panties_held gt 0>>
 			<li><span class="clothes-white"><<icon "clothes/plain_panties.png">></span> <<print $panties_held is 1 ? "a pair" : "<span class='green'>$panties_held</span> pairs">> of stolen underwear. You can sell <<print $panties_held is 1 ? "it" : "them">> during lunchtime in the school rear courtyard.</li>
 		<</if>>
-		<<if _plant_keys.length gt 0>>
-			<li><<tendingicon>> <span class="green">Produce</span>. You can sell it by renting a stand on Connudatus Street at dawn.</li>
+		<<if _hasProduce>>
+			<li><<tendingicon "basket">> <span class="green">Produce</span>. You can sell it by renting a stand on Connudatus Street at dawn.</li>
 		<</if>>
 		<<if $DoLPSpools isnot undefined>>
 			<li><<shopicon "tailor">> <span class="green">$DoLPSpools</span> spools.</li>
 		<</if>>
 	</ul>
 
-	<<if _plant_keys.length gt 0>>
+	<<if _hasProduce>>
 		<br>
 		<details class="journal">
 			<summary class="journal">Produce</summary>
@@ -951,7 +964,8 @@
 						<<set _tooltip to `<span class="green">${_item.amount}</span> ${_itemName}`>>
 
 						<div class="item" @tooltip="_tooltip">
-							<<icon `"tending/" + setup.plants[_plant_keys[_t]].icon`>>
+							<<set _iconName to setup.plants[_plant_keys[_t]].icon.replace(/\.[^/.]+$/, "")>>
+							<<tendingicon _iconName>>
 							<hr>
 							<<= _amount>>
 						</div>
@@ -988,7 +1002,7 @@
 			<<elseif $_antiquesFound is $museumAntiques.maxCount>>
 				You've found <span class="green">every</span> item for the museum.
 			<<else>>
-				You've found <span class="gold"><<= $_antiquesFound>></span> items for the museum. You're missing <span class="gold"><<= $museumAntiques.maxCount - $_antiquesFound>></span> antiques.
+				You've found <span class="gold"><<= $_antiquesFound>></span> items for the museum. You're missing <span class="gold"><<= $museumAntiques.maxCount - $_antiquesFound>></span> <<= $museumAntiques.maxCount - $_antiquesFound is 1 ? "antique" : "antiques">>.
 			<</if>>
 			<br><br>
 			<details class="journal">
@@ -1004,7 +1018,7 @@
 							<<switch _valueM>>
 								<<case "notFound">>
 									<div class="item unknown" tooltip="Unknown antique.">
-										<<askicon>>
+										<<mysteryicon>>
 									</div>
 								<<default>>
 									<div class="item" @tooltip="_antique">
@@ -1047,7 +1061,7 @@
 				<summary class="journal">Seeds</summary>
 				<div class="itemCollectible">
 					<<for _i to 0; _i lt _plant_keys.length; _i++>>
-						<<set _tooltip to setup.plants[_plant_keys[_i]].plural[0].toUpperCase() + setup.plants[_plant_keys[_i]].plural.substring(1)>>
+						<<set _tooltip to setup.plants[_plant_keys[_i]].seed_name ? setup.plants[_plant_keys[_i]].seed_name.toUpperFirst() : (setup.plants[_plant_keys[_i]].plural[0].toUpperCase() + setup.plants[_plant_keys[_i]].plural.substring(1))>>
 						<<set _icon to setup.plants[_plant_keys[_i]].icon>>
 						<<if setup.plants[_plant_keys[_i]].type is "flower" or setup.plants[_plant_keys[_i]].type is "vegetable">>
 							<<if $plants_known.includes( setup.plants[_plant_keys[_i]].name)>>
@@ -1056,7 +1070,7 @@
 								</div>
 							<<else>>
 								<div class="item unknown" tooltip="Unknown seed.">
-									<<askicon>>
+									<<mysteryicon>>
 								</div>
 							<</if>>
 						<</if>>
@@ -1150,4 +1164,12 @@
 		<<set $journalNotes[_currentPage] to LZString.compress(_noteElement.value)>>
 		<<run updateMoment()>>
 	<</if>>
+<</widget>>
+
+<<widget "nDays">>
+	<<switch _args[0]>>
+		<<case 0>><span class="gold">today</span>
+		<<case 1>><span class="gold">tomorrow</span>
+		<<default>>in <span class="gold"><<= _args[0]>></span> days
+	<</switch>>
 <</widget>>
