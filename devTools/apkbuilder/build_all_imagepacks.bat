@@ -32,7 +32,7 @@ set imagepack[7]=hikfem_mys
 set imagepack[8]=goosefem
 set imagepack[9]=goosefem_mys
 
-set array_length=7
+set array_length=9
 
 del ..\..\dist\*.apk
 
@@ -85,7 +85,7 @@ for /L %%i in (0,1,%array_length%) do (
 
 	cd .\dist\
 
-	ren "DoLP-v0.%version%-!imagepack[%%i]!-0.5.3.6 DoLP v0.%version% !imagepack[%%i]!-debug.apk" "0.5.3.6 DoLP v0.%version% !imagepack[%%i]!-debug.apk"
+	ren "DoLP-v0.%version%-!imagepack[%%i]!-0.5.3.7 DoLP v0.%version% !imagepack[%%i]!-debug.apk" "0.5.3.7 DoLP v0.%version% !imagepack[%%i]!-debug.apk"
 
 	cd ..\
 )

@@ -707,17 +707,19 @@ function dayPassed() {
 		V.rentmoney *= 2;
 	}
 
+	V.rentmoney *= V.rentmod;
+
 	V.renttime--;
 	if (V.baileyDeposit >= V.rentmoney + (V.babyRent || 0)) {
 		if (V.renttime <= 0) {
 			V.renttime = 7;
-			V.baileyDeposit -= (V.rentmoney * V.rentmod) + (V.babyRent || 0);
+			V.baileyDeposit -= V.rentmoney + (V.babyRent || 0);
 		}
 	} else {
 		// Not seen bailey for more than 2 weeks, tracks missed rent
 		if (V.renttime < 0 && V.renttime % 7 === 0) {
-			V.baileyRefusedToPayTotal += (V.rentmoney * V.rentmod) + (V.babyRent || 0);
-			V.baileyRefusedToPayTotalStat += (V.rentmoney * V.rentmod) + (V.babyRent || 0);
+			V.baileyRefusedToPayTotal += V.rentmoney + (V.babyRent || 0);
+			V.baileyRefusedToPayTotalStat += V.rentmoney + (V.babyRent || 0);
 		}
 	}
 
@@ -1315,7 +1317,8 @@ function dailyNPCEffects() {
 			if (V.sydneyLibraryEvent === 2) {
 				V.sydneyLeightonConfront = 1;
 				V.sydneyLeightonWhitneyGuilty = 1;
-			} else if (V.libraryMoneyStolen >= 100 || V.sydneyStolenKnown) {
+			}
+			if (V.libraryMoneyStolen >= 100 || V.sydneyStolenKnown) {
 				V.sydneyLeightonConfront = 1;
 				V.sydneyLeightonPlayerGuilty = 1;
 			}
