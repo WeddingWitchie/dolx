@@ -1289,6 +1289,9 @@ function currentSkillValue(skill, disableModifiers = 0) {
 				if (V.TFFoxBuffs == 1) {
 					result = Math.round(result * 0.9);
 				}
+				if (V.TFBunnyBuffs == 1) {
+					result = Math.round(result * 0.7);
+				}
 			}
 			break;
 		case "danceskill":
@@ -1324,6 +1327,9 @@ function currentSkillValue(skill, disableModifiers = 0) {
 				}
 				if (V.TFFoxBuffs == 1) {
 					result = Math.round(result * 1.1);
+				}
+				if (V.TFBunnyBuffs == 1) {
+					result = Math.round(result * 1.4);
 				}
 			}
 			break;
@@ -1393,6 +1399,9 @@ function currentSkillValue(skill, disableModifiers = 0) {
 			if (V.TFFoxBuffs == 1) {
 				result = Math.round(result * 1.1);
 			}
+			if (V.TFBunnyBuffs == 1) {
+				result = Math.round(result * 1.5);
+			}
 			break;
 		case "willpower":
 			if (V.xchange.willpowerSystemEnabled === 1) {
@@ -1426,6 +1435,9 @@ function currentSkillValue(skill, disableModifiers = 0) {
 			}
 			if (V.TFBearBuffs == 1) {
 				result = Math.round(result * 1.2);
+			}
+			if (V.TFBunnyBuffs == 1) {
+				result = Math.round(result * 0.8);
 			}
 			break;
 		case "tending":
@@ -2535,6 +2547,10 @@ function earSlimeCorruptionClothes() {
 		V.daily.corruptionSlimeClothes = Math.clamp(random(baseCorruption, baseCorruption * 5) - currentSkillValue("willpower"), 0, 1000);
 	}
 	const cap = ["prison", "asylum"].includes(V.location) ? 1000 : 500;
+
+	T.allowSchoolClothes =
+		!!Time.schoolDay || (V.location === "brothel" && Time.weekDay === 6 && V.brothelshowdata?.type === "gangbang" && !V.brothelshowdata?.done);
+
 	return Math.clamp(V.daily.corruptionSlimeClothes + (V.earSlime.growth >= 100 && V.earSlime.defyCooldown ? V.earSlime.defyCooldown * 25 : 0), 0, cap);
 }
 window.earSlimeCorruptionClothes = earSlimeCorruptionClothes;

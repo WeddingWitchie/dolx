@@ -449,11 +449,15 @@ DefineMacro("modelprepare-player-body", function () {
 	}
 	// Demon-cow horns
 	if (isPartEnabled(T.modeloptions.cow_horns_type) && isPartEnabled(T.modeloptions.demon_horns_type) && isChimeraEnabled("demoncow", "horns")) {
-		if (!["default", "succubus"].includes(T.modeloptions.demon_horns_type)) {
+		if (["default"].includes(T.modeloptions.demon_horns_type)) {
 			// Force default horns if the PC has unsupported horn styles (e.g. Classic)
-			T.modeloptions.demon_horns_type = "default";
+			T.modeloptions.cow_horns_type = "default-demon";
+		} else if (["succubus"].includes(T.modeloptions.demon_horns_type)) {
+			// Force default horns if the PC has unsupported horn styles (e.g. Classic)
+			T.modeloptions.cow_horns_type = "succubus-demon";
+		} else {
+			T.modeloptions.cow_horns_type = "classic-demon";
 		}
-		T.modeloptions.cow_horns_type = "default-demon";
 	}
 
 	/*
