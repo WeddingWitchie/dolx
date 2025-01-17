@@ -17,7 +17,7 @@ function penaltyFameSum(...fameTypes) {
 	fameTypes.forEach(fameType => result += V.xchange.blackmail.penaltyThreat[fameType]);
 	return result;
 }
-window.historicFameMax = historicFameMax;
+window.penaltyFameSum = penaltyFameSum;
 
 function getStaticQuestData(quest) {
 	let match = blackmailQuests.low.find((template) => template.index === quest.index);
