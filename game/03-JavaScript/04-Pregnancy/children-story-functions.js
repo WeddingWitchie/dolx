@@ -288,8 +288,8 @@ function hawkChildActivity(childId) {
 	if (T.childTotalDays >= 200) {
 		activity.push("flap");
 	}
-	if (child.localVariables.farewell != false) {
-        activity = ["dismissed"];
+	if (child.localVariables.farewell !== false && typeof child.localVariables.farewell !== 'undefined') {
+		activity = ["dismissed"];
 	}
 
 	if (activity.length) {
