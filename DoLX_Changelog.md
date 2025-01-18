@@ -7,9 +7,9 @@
 
 ## Changelog
 ### Changes and additions:
-  * Updated to DoLP version v0.628
+  * Updated to DoLP version v0.633
 
 ### Rebalancing and Bug fixes:
-  * Fixed error ocurring on blackmail letters
+  * Fixed a gramatical error.
 
 
