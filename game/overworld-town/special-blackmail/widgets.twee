@@ -111,31 +111,33 @@
 <<widget "blackmail-daypassed">>
 	<<set _activeQuest to $xchange.blackmail.activeQuest>>
 
-	<<if _activeQuest?.cleared and !_activeQuest?.failed>>
-		<<set $xchange.blackmail.conclusionPending to true>>
-		<<run _activeQuest?.onDayCleared()>>
+	<<if !$xchange.blackmail.conclusionPending>>
+		<<if _activeQuest?.cleared and !_activeQuest?.failed>>
+			<<set $xchange.blackmail.conclusionPending to true>>
+			<<run _activeQuest?.onDayCleared()>>
 
-	<<elseif _activeQuest and (!_activeQuest?.cleared or _activeQuest?.failed)>>
-		<<set $xchange.blackmail.conclusionPending to true>>
-		<<set $xchange.blackmail.effectmessage to 1>>
-		<<set $xchange.blackmail.hasMaterial to false>>
-        <<run delete V.xchange.blackmail.paymentsRemoved>>
-		<<run _activeQuest?.onDayFailed()>>
+		<<elseif _activeQuest and (!_activeQuest?.cleared or _activeQuest?.failed)>>
+			<<set $xchange.blackmail.conclusionPending to true>>
+			<<set $xchange.blackmail.effectmessage to 1>>
+			<<set $xchange.blackmail.hasMaterial to false>>
+			<<run delete V.xchange.blackmail.paymentsRemoved>>
+			<<run _activeQuest?.onDayFailed()>>
 
-		<<set $_fameTypes to ["sex","prostitution","rape","exhibitionism","bestiality"]>>
-		<<for _fameType range $_fameTypes>>
-			<<fame $xchange.blackmail.penaltyThreat[_fameType] _fameType>>
-			<<fame-propagate $xchange.blackmail.penaltyThreat[_fameType] _fameType>>
-			<<set $xchange.blackmail.penaltyThreat[_fameType] to 0>>
-		<</for>>
+			<<set $_fameTypes to ["sex","prostitution","rape","exhibitionism","bestiality"]>>
+			<<for _fameType range $_fameTypes>>
+				<<fame $xchange.blackmail.penaltyThreat[_fameType] _fameType>>
+				<<fame-propagate $xchange.blackmail.penaltyThreat[_fameType] _fameType>>
+				<<set $xchange.blackmail.penaltyThreat[_fameType] to 0>>
+			<</for>>
 
-		<<if $xchange.blackmail.hasGenderswapped>>
-			<<xchange-seen 40>>
+			<<if $xchange.blackmail.hasGenderswapped>>
+				<<xchange-seen 40>>
+			<</if>>
+
+		<!-- TODO: expand the list of places where you can receive a blackmail letter -->
+		<!-- TODO: handle if you should apply the penalty hit even if PC didn't read the letter -->
+
 		<</if>>
-
-	<!-- TODO: expand the list of places where you can receive a blackmail letter -->
-	<!-- TODO: handle if you should apply the penalty hit even if PC didn't read the letter -->
-
 	<</if>>
 
 	<<if $xchange.blackmail.hasMaterial>>
@@ -143,6 +145,7 @@
 	<<else>>
 		<<set $xchange.blackmail.cooldown to Math.max($xchange.blackmail.cooldown-1, 1)>>
 	<</if>>
+	
 <</widget>>
 
 <<widget "blackmail-effects">>
