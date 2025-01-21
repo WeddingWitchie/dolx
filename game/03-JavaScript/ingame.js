@@ -1406,15 +1406,12 @@ function currentSkillValue(skill, disableModifiers = 0) {
 		case "willpower":
 			if (V.xchange.willpowerSystemEnabled === 1) {
 				result = V.xchange.willpowerPoints;
-	
-				if (V.player.sex === "m") {
-					result += 200;
-				} else if (V.player.sex === "f") {
-					result -= 100;
-				}
-				result = Math.max(result, 0);
-				result = Math.floor(result * (1000-V.drunk)/1000 * (1000-V.drugged)/1000);
 			}
+			else {
+				result = V.willpower;
+			}
+			result = Math.max(result, 0);
+			result = Math.floor(result * (1000-V.drunk)/1000 * (1000-V.drugged)/1000);
 
 			if (numberOfEarSlime() >= 2 && V.earSlime.growth > 50) {
 				result = Math.floor(result * (0.9 - Math.clamp((V.earSlime.growth - 50) / 1000, 0, 0.1)));
