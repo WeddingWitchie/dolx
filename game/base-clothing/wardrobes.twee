@@ -33,6 +33,27 @@
 	<<if $randomWear>>
 		<<randomWear>>
 	<</if>>
+	<<if $repairAll isnot undefined and $repairAll is true>>
+		<<unset $repairAll>>
+		<<set _repairCount to 0>>
+		<<for _key range Object.keys($wardrobe)>>
+			<<if !Array.isArray($wardrobe[_key]) or $wardrobe[_key].length is 0>>
+				<<continue>>
+			<</if>>
+			<<for _i to 0; _i lt $wardrobe[_key].length; _i++>>
+				<<if $wardrobe[_key][_i].integrity lt clothingData(_key, $wardrobe[_key][_i],'integrity_max')>>
+					<<set _repairCount += Math.ceil((clothingData(_key, $wardrobe[_key][_i],'integrity_max') - $wardrobe[_key][_i].integrity) / 25)>>
+					<<set $wardrobe[_key][_i].integrity = clothingData(_key, $wardrobe[_key][_i],'integrity_max')>>
+				<</if>>
+			<</for>>
+		<</for>>
+		<<set _timeNeeded to (10 - (1 * Math.round($housekeeping / 250))) * _repairCount>>
+		<<set _gain to Math.max((6 - (2 * Math.round($housekeeping / 200))) * _repairCount, 2 * _repairCount)>>
+		<<housekeeping _gain 1000>>
+		<<updatesidebarimg>>
+		<<set $DoLPSpools -= _repairCount>>
+		<<pass _timeNeeded>>
+	<</if>>
 	<<set _equip to ["over_upper", "over_lower", "upper", "lower", "under_upper", "under_lower", "over_head", "head", "face", "neck", "hands", "handheld", "legs", "feet", "genitals"]>>
 	<<set _slimePrevent to ["upper", "lower", "under_upper", "under_lower"]>>
 	<<set _towelCheck to ["upper", "lower"]>>
@@ -317,6 +338,31 @@
 			<<updatewardrobe>>
 		<</link>>
 	</div> |
+	<<set _repairCount to 0>>
+	<<for _key range Object.keys($wardrobe)>>
+		<<if !Array.isArray($wardrobe[_key]) or $wardrobe[_key].length is 0>>
+			<<continue>>
+		<</if>>
+		<<for _i to 0; _i lt $wardrobe[_key].length; _i++>>
+			<<if $wardrobe[_key][_i].integrity lt clothingData(_key, $wardrobe[_key][_i],'integrity_max')>>
+				<<set _repairCount += Math.ceil((clothingData(_key, $wardrobe[_key][_i], 'integrity_max') - $wardrobe[_key][_i].integrity) / 25)>>
+			<</if>>
+		<</for>>
+	<</for>>
+	<<set _timeNeeded to (10 - (1 * Math.round($housekeeping / 250))) * _repairCount>>
+	<<set _timeString to getTimeString(_timeNeeded)>>
+	<<if $DoLPSpools isnot undefined and _repairCount gt 0>>
+		<div class="wardrobe-action">
+			<<if $DoLPSpools gte _repairCount>>
+				<<link [["Repair all (_timeString)"|$passage]]>>
+					<<set $repairAll to true>>
+					<<updatewardrobe>>
+				<</link>><<ghousekeeping 1000>>
+			<<else>>
+				<span class="red">You only have $DoLPSpools spools, you need _repairCount to repair all.</span>
+			<</if>>
+		</div> |
+	<</if>>
 	<div class="wardrobe-action">
 		<<link "Wear random clothes">>
 			<<set $randomWear to true>>

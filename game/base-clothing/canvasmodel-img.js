@@ -412,7 +412,7 @@ DefineMacro("modelprepare-player-body", function () {
 	T.modeloptions.bear_tail_layer = V.taillayer;
 	T.modeloptions.bear_ears_type = V.transformationParts.bear.ears;
 
-		/*
+	/*
 
 		██████╗ ███████╗ ██████╗ ██████╗ ██████╗  █████╗ ████████╗██╗ ██████╗ ███╗   ██╗███████╗
 		██╔══██╗██╔════╝██╔════╝██╔═══██╗██╔══██╗██╔══██╗╚══██╔══╝██║██╔═══██╗████╗  ██║██╔════╝
@@ -424,8 +424,11 @@ DefineMacro("modelprepare-player-body", function () {
 
 	*/
 
-	T.modeloptions.background_image_type = V.background_image;
-	T.modeloptions.foreground_image_type = V.foreground_image;
+	T.modeloptions.background_image_type1 = V.background_image1;
+	T.modeloptions.foreground_image_type1 = V.foreground_image1;
+	T.modeloptions.background_image_type2 = V.background_image2;
+	T.modeloptions.foreground_image_type2 = V.foreground_image2;
+
 
 
 

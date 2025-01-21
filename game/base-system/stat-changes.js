@@ -458,7 +458,11 @@ const statChange = (() => {
 		if (isNaN(amount)) paramError("tiredness", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 		if (amount) {
-			V.tiredness += Math.round((amount * Weather.BodyTemperature.fatigueModifier * (amount > 0 ? 15 : 20)) * (1 - ((V.athletics * 5) / 40000)));
+			if (V.athleticsFitnessToggle == 1) {
+				V.tiredness += Math.round((amount * Weather.BodyTemperature.fatigueModifier * (amount > 0 ? 15 : 20)) * (1 - ((V.athletics * 5) / 40000)));
+			} else {
+				V.tiredness += Math.round(amount * Weather.BodyTemperature.fatigueModifier * (amount > 0 ? 15 : 20));
+			}
 		}
 	}
 	DefineMacro("tiredness", tiredness);

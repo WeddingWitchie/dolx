@@ -2596,7 +2596,15 @@ $(document).on(":onWeatherChange", () => {
 // Apparently the sugarcube <<script>> parser don't parse the following correctly - so made it a function instead
 function tendingDay() {
 	Object.entries(V.plots).forEach(([location, plots]) => {
-		let irrigation = location === "farm" ? V.farm.irrigation || 0 : 0;
+		let irrigation = 0;
+		switch (location) {
+			case "farm":
+				if (V.farm?.irrigation) irrigation = V.farm.irrigation;
+				break;
+			case "garden":
+				if (V.farm?.greenhouse) irrigation = plots.length;
+				break;
+		}
 
 		plots.forEach(plot => {
 			// Growth check
