@@ -7,9 +7,13 @@
 
 ## Changelog
 ### Changes and additions:
-  * Updated to DoLP version v0.633
+  * Updated to DoLP version v0.640
 
 ### Rebalancing and Bug fixes:
-  * Fixed a gramatical error.
+  * Fixed several instances that were bypassing willpower check computations (such as hypnosis checks).
+  * Fixed badly formed "if" at tentacle hypnosis checks.
+  * Fixed blackmail conclusion looping each day when not properly reading the conclusion letter at the next day.
+  * Removed redundant attractiveness display at mirror.
+  * Attempt to repair corrupted variables from "analsensitivity" bug.
 
 
