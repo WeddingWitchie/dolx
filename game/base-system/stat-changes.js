@@ -346,7 +346,6 @@ const statChange = (() => {
 						analWetnessPenalty = Math.min(V.anusWetness/60, 1);
 					}
 					sensitivity += Math.max((V.bottomsensitivity + purityMod) * analWetnessPenalty, 0.25);
-					console.warn("Bottom sensitivity", sensitivity, V.anusWetness, V.analsensitivity);
 					break;
 				case "genital":
 				case "genitals":
@@ -367,7 +366,6 @@ const statChange = (() => {
 					}
 					sensitivity += Math.max((V.genitalsensitivity + 2*purityMod) * wetnessPenalty, 0.25);
 					if (playerIsPregnant()) sensitivity += 0.5;
-					console.warn("Genital sensitivity", sensitivity);
 					break;
 				case "maso":
 					V.arousalmasochism += amount * mod;
@@ -384,8 +382,6 @@ const statChange = (() => {
 					paramError("arousal", "source", source, "Expected a string, see function for values");
 					break;
 			}
-
-			console.warn("Before sensitivity mods",V.arousal, amount, mod, sensitivity);
 
 			// Adjusts modifier for body part sensitivity, if applicable
 			if (amount > 0) {
@@ -404,8 +400,6 @@ const statChange = (() => {
 			else if (V.xchange.resistCombatArousal === -1 && amount > 0) {
 				mod += 0.50;
 			}
-
-			console.warn("Before heat/rut mods",V.arousal, amount, mod, sensitivity);
 
 			// Reduce the mod if masturbating while in heat and/or rut
 			if (source && source.includes("masturbation")) {
@@ -464,7 +458,11 @@ const statChange = (() => {
 		if (isNaN(amount)) paramError("tiredness", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 		if (amount) {
-			V.tiredness += Math.round((amount * Weather.BodyTemperature.fatigueModifier * (amount > 0 ? 15 : 20)) * (1 - ((V.athletics * 5) / 40000)));
+			if (V.athleticsFitnessToggle == 1) {
+				V.tiredness += Math.round((amount * Weather.BodyTemperature.fatigueModifier * (amount > 0 ? 15 : 20)) * (1 - ((V.athletics * 5) / 40000)));
+			} else {
+				V.tiredness += Math.round(amount * Weather.BodyTemperature.fatigueModifier * (amount > 0 ? 15 : 20));
+			}
 		}
 	}
 	DefineMacro("tiredness", tiredness);

@@ -1406,15 +1406,12 @@ function currentSkillValue(skill, disableModifiers = 0) {
 		case "willpower":
 			if (V.xchange.willpowerSystemEnabled === 1) {
 				result = V.xchange.willpowerPoints;
-	
-				if (V.player.sex === "m") {
-					result += 200;
-				} else if (V.player.sex === "f") {
-					result -= 100;
-				}
-				result = Math.max(result, 0);
-				result = Math.floor(result * (1000-V.drunk)/1000 * (1000-V.drugged)/1000);
 			}
+			else {
+				result = V.willpower;
+			}
+			result = Math.max(result, 0);
+			result = Math.floor(result * (1000-V.drunk)/1000 * (1000-V.drugged)/1000);
 
 			if (numberOfEarSlime() >= 2 && V.earSlime.growth > 50) {
 				result = Math.floor(result * (0.9 - Math.clamp((V.earSlime.growth - 50) / 1000, 0, 0.1)));
@@ -2599,7 +2596,15 @@ $(document).on(":onWeatherChange", () => {
 // Apparently the sugarcube <<script>> parser don't parse the following correctly - so made it a function instead
 function tendingDay() {
 	Object.entries(V.plots).forEach(([location, plots]) => {
-		let irrigation = location === "farm" ? V.farm.irrigation || 0 : 0;
+		let irrigation = 0;
+		switch (location) {
+			case "farm":
+				if (V.farm?.irrigation) irrigation = V.farm.irrigation;
+				break;
+			case "garden":
+				if (V.farm?.greenhouse) irrigation = plots.length;
+				break;
+		}
 
 		plots.forEach(plot => {
 			// Growth check

@@ -27,7 +27,7 @@
 					<<= setup.plants[_food].multiplier gte 2 ? setup.plants[_food].plural : setup.plants[_food].singular>>
 					<br>
 					Ingredients (available):
-					<<unset _ingredients_available>><<unset _ingredients_blocked>>
+					<<unset _ingredients_available>><<unset _ingredients_blocked>><<set _ingredientAmount = []>>
 					<<for _e to 0; _e lt setup.plants[_food].ingredients.length; _e++>>
 						<<set _ingredient to setup.plants[_food].ingredients[_e]>>
 						<<print _ingredient.toLocaleUpperFirst().replace(/_/g," ")>>
@@ -39,8 +39,10 @@
 						<<if Object.keys($plants).includes(_ingredient)>>
 							<<if _ingredients_supplied.includes(_ingredient)>>
 								<span class="gold">(∞)</span>
+                                <<set _ingredientAmount.push(100)>>
 							<<else>>
 								<span class="gold">(<<print $plants[_ingredient].amount>>)</span>
+                                <<set _ingredientAmount.push($plants[_ingredient].amount)>>
 							<</if>>
                             <<if $plants[_ingredient].amount gte 1 or _ingredients_supplied.includes(_ingredient)>>
                                 <<if $bus is "orphanage_kitchen" and !_ingredients_exceptions.includes(_ingredient) and !_ingredients_supplied.includes(_ingredient)>>
@@ -63,7 +65,32 @@
                         <span class="purple">Some required ingredients are banned by Bailey.</span>
                     <<else>>
                         <<capture _food>>
-                            <<link [[Make|$passage]]>><<make_recipe _food>><</link>>
+                            <<link [[Make|$passage]]>><<make_recipe _food>><</link>><br>
+                            <<set _timeNeeded to setup.plants[_food].days * 5>>
+                            <<if Math.min(...T.ingredientAmount) gte 5 and _timeNeeded lte 600>>
+                                <<set _timeString to getTimeString(_timeNeeded)>>
+                                <<link [["Make 5 (_timeString)"|$passage]]>><<make_recipe_bulk _food 5>><</link>><br>
+                            <</if>>
+                            <<set _timeNeeded to setup.plants[_food].days * 10>>
+                            <<if Math.min(...T.ingredientAmount) gte 10 and _timeNeeded lte 600>>
+                                <<set _timeString to getTimeString(_timeNeeded)>>
+                                <<link [["Make 10 (_timeString)"|$passage]]>><<make_recipe_bulk _food 10>><</link>><br>
+                            <</if>>
+                            <<set _timeNeeded to setup.plants[_food].days * 25>>
+                            <<if Math.min(...T.ingredientAmount) gte 25 and _timeNeeded lte 600>>
+                                <<set _timeString to getTimeString(_timeNeeded)>>
+                                <<link [["Make 25 (_timeString)"|$passage]]>><<make_recipe_bulk _food 25>><</link>><br>
+                            <</if>>
+                            <<set _timeNeeded to setup.plants[_food].days * 50>>
+                            <<if Math.min(...T.ingredientAmount) gte 50 and _timeNeeded lte 600>>
+                                <<set _timeString to getTimeString(_timeNeeded)>>
+                                <<link [["Make 50 (_timeString)"|$passage]]>><<make_recipe_bulk _food 50>><</link>><br>
+                            <</if>>
+                            <<set _timeNeeded to setup.plants[_food].days * 100>>
+                            <<if Math.min(...T.ingredientAmount) gte 100 and _timeNeeded lte 600>>
+                                <<set _timeString to getTimeString(_timeNeeded)>>
+                                <<link [["Make 100 (_timeString)"|$passage]]>><<make_recipe_bulk _food 100>><</link>><br>
+                            <</if>>
                         <</capture>>
 					<</if>>
 					<<set _recipe_known to true>>
@@ -123,6 +150,17 @@
     <</for>>
     <<wearProp setup.plants[_args[0]].handheld>>
     <<pass setup.plants[_args[0]].days>>
+<</widget>>
+
+<<widget "make_recipe_bulk">>
+    <<tending_give _args[0] `setup.plants[_args[0]].multiplier * _args[1]`>>
+    <<for _i to 0; _i lt setup.plants[_args[0]].ingredients.length; _i++>>
+        <<if !_ingredients_supplied.includes(setup.plants[_args[0]].ingredients[_i])>>
+            <<tending_give setup.plants[_args[0]].ingredients[_i] `-1 * _args[1]`>>
+        <</if>>
+    <</for>>
+    <<wearProp setup.plants[_args[0]].handheld>>
+    <<pass `setup.plants[_args[0]].days * _args[1]`>>
 <</widget>>
 
 <<widget "kitchen_display_all">>

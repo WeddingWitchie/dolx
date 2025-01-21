@@ -729,8 +729,6 @@ Macro.add("canvasModelEditor", {
 						booleanOption("show_writings"),
 						booleanOption("show_tf"),
 						booleanOption("show_clothes"),
-						booleanOption("show_background"),
-						booleanOption("show_foreground"),
 						optionCategory("Body"),
 						booleanOption("mannequin"),
 						selectOption("breasts", ["", "default", "cleavage"]),
@@ -860,6 +858,14 @@ Macro.add("canvasModelEditor", {
 						selectOption("mascara_colour", mascaraColourOptions),
 						selectOption("blusher_colour", blusherColourOptions),
 
+
+						// DecoMod //
+						booleanOption("show_background1"),
+						booleanOption("show_foreground1"),
+						booleanOption("show_background2"),
+						booleanOption("show_foreground2"),
+
+
 						optionCategory("Misc"),
 						booleanOption("upper_tucked"),
 						booleanOption("hood_down"),
@@ -940,9 +946,13 @@ Macro.add("canvasModelEditor", {
 						selectOption("drip_anal", ["", "Start", "VerySlow", "Slow", "Fast", "VeryFast"]),
 						selectOption("drip_mouth", ["", "Start", "VerySlow", "Slow", "Fast", "VeryFast"]),
 
+
 						optionCategory("Decorations"),
-						selectOption("foreground_image_type", ["", "none", "1", "2", "3", "4", "5", "6", "7", "8"]),
-						selectOption("background_image_type", ["", "none", "1", "2", "3", "4", "5", "6", "7", "8"]),
+						selectOption("foreground_image_type1", ["", "none", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30"]),
+						selectOption("background_image_type1", ["", "none", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30"]),
+						selectOption("foreground_image_type2", ["", "none", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30"]),
+						selectOption("background_image_type2", ["", "none", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30"]),
+
 					]),
 					element("div", { class: "editormodelgroup" }, [
 						setup.clothes_all_slots.map(slot => [

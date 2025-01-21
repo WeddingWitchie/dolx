@@ -841,6 +841,90 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Social"],
 	},
+	"Street King": {
+		title: "Street King",
+		desc: "Get 2000 combat fame.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
+	"Community Pillar": {
+		title: "Community Pillar",
+		desc: "Get 2000 kindness fame.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
+	"Entrepreneur": {
+		title: "Entrepreneur",
+		desc: "Get 2000 business fame.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
+	"Social Luminary": {
+		title: "Social Luminary",
+		desc: "Get 2000 socialite fame.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
+	"Studio Star": {
+		title: "Studio Star",
+		desc: "Get 2000 model fame.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
+	"Town Bicycle": {
+		title: "Town Bicycle",
+		desc: "Get 2000 sex fame.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
+	"Streetwalker": {
+		title: "Streetwalker",
+		desc: "Get 2000 prostitution fame.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
+	"Easy": {
+		title: "Easy",
+		desc: "Get 2000 rape fame.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
+	"Animal Lover": {
+		title: "Animal Lover",
+		desc: "Get 2000 bestiality fame.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
+	"Flaunter": {
+		title: "Flaunter",
+		desc: "Get 2000 exhibitionism fame.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
+	"Bearer": {
+		title: "Bearer",
+		desc: "Get 2000 pregnancy fame.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
+	"Stud": {
+		title: "Stud",
+		desc: "Get 2000 impregnation fame.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
 	Neko: {
 		title: "Purrfect",
 		desc: "Purring for attention.",
@@ -2177,6 +2261,90 @@ setup.feats = {
 		softLockable: true,
 		hint: "Hint: Max brawling with tempered brawling.",
 	},
+	"Urban Myth": {
+		title: "Urban Myth",
+		desc: "Get 4000 combat fame.",
+		difficulty: 3,
+		series: "",
+		filter: ["All", "AMC Traits"],
+	},
+	"Guardian Angel": {
+		title: "Guardian Angel",
+		desc: "Get 4000 kindness fame.",
+		difficulty: 3,
+		series: "",
+		filter: ["All", "AMC Traits"],
+	},
+	"Mogul": {
+		title: "Mogul",
+		desc: "Get 4000 business fame.",
+		difficulty: 3,
+		series: "",
+		filter: ["All", "AMC Traits"],
+	},
+	"The Unmissable": {
+		title: "The Unmissable",
+		desc: "Get 4000 socialite fame.",
+		difficulty: 3,
+		series: "",
+		filter: ["All", "AMC Traits"],
+	},
+	"Face of the Spotlight": {
+		title: "Face of the Spotlight",
+		desc: "Get 4000 model fame.",
+		difficulty: 3,
+		series: "",
+		filter: ["All", "AMC Traits"],
+	},
+	"Public Transit": {
+		title: "Public Transit",
+		desc: "Get 4000 sex fame.",
+		difficulty: 3,
+		series: "",
+		filter: ["All", "AMC Traits"],
+	},
+	"Lady of the Night": {
+		title: "Lady of the Night",
+		desc: "Get 4000 prostitution fame.",
+		difficulty: 3,
+		series: "",
+		filter: ["All", "AMC Traits"],
+	},
+	"Public Fucktoy": {
+		title: "Public Fucktoy",
+		desc: "Get 4000 rape fame.",
+		difficulty: 3,
+		series: "",
+		filter: ["All", "AMC Traits"],
+	},
+	"Absolute Deviant": {
+		title: "Absolute Deviant",
+		desc: "Get 4000 bestiality fame.",
+		difficulty: 3,
+		series: "",
+		filter: ["All", "AMC Traits"],
+	},
+	"Attention Addict": {
+		title: "Attention Addict",
+		desc: "Get 4000 exhibitionism fame.",
+		difficulty: 3,
+		series: "",
+		filter: ["All", "AMC Traits"],
+	},
+	"Broodmother": {
+		title: "Eve",
+		desc: "Get 4000 pregnancy fame.",
+		difficulty: 3,
+		series: "",
+		filter: ["All", "AMC Traits"],
+	},
+	"Progenitor": {
+		title: "Progenitor",
+		desc: "Get 4000 impregnation fame.",
+		difficulty: 3,
+		series: "",
+		filter: ["All", "AMC Traits"],
+	},
 	"Starting Point": {
 		title: "Starting Point",
 		desc: "You've beaten the peak of vanilla single combat, but that's it.",
@@ -2706,6 +2874,32 @@ function earnHourlyFeats() {
 		});
 		if (validLayers.length >= 5) earnFeat("50 Shades of Tan");
 	}
+
+	if (V.fame.scrap >= 2000) earnFeat("Street King");
+	if (V.fame.good >= 2000) earnFeat("Community Pillar");
+	if (V.fame.business >= 2000) earnFeat("Entrepreneur");
+	if (V.fame.social >= 2000) earnFeat("Social Luminary");
+	if (V.fame.model >= 2000) earnFeat("Studio Star");
+	if (V.fame.sex >= 2000) earnFeat("Town Bicycle");
+	if (V.fame.prostitution >= 2000) earnFeat("Streetwalker");
+	if (V.fame.rape >= 2000) earnFeat("Easy");
+	if (V.fame.bestiality >= 2000) earnFeat("Animal Lover");
+	if (V.fame.exhibitionism >= 2000) earnFeat("Flaunter");
+	if (V.fame.pregnancy >= 2000) earnFeat("Bearer");
+	if (V.fame.impreg >= 2000) earnFeat("Stud");
+
+	if (V.fame.scrap >= 4000) earnFeat("Urban Myth");
+	if (V.fame.good >= 4000) earnFeat("Guardian Angel");
+	if (V.fame.business >= 4000) earnFeat("Mogul");
+	if (V.fame.social >= 4000) earnFeat("The Unmissable");
+	if (V.fame.model >= 4000) earnFeat("Face of the Spotlight");
+	if (V.fame.sex >= 4000) earnFeat("Public Transit");
+	if (V.fame.prostitution >= 4000) earnFeat("Lady of the Night");
+	if (V.fame.rape >= 4000) earnFeat("Public Fucktoy");
+	if (V.fame.bestiality >= 4000) earnFeat("Absolute Deviant");
+	if (V.fame.exhibitionism >= 4000) earnFeat("Attention Addict");
+	if (V.fame.pregnancy >= 4000) earnFeat("Broodmother");
+	if (V.fame.impreg >= 4000) earnFeat("Progenitor");
 
 	// Should be last
 	let currentMax = 0;

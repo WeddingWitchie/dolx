@@ -1,5 +1,7 @@
 const ZIndices = {
-	deco_bg: -10,
+	deco_bg1: -15,
+	deco_bg2: -10,
+
 	
 	flatlight: -4,
 	gradientlight: -3,
@@ -112,7 +114,9 @@ const ZIndices = {
 
 	old_over_upper: 171,
 
-	deco_fg: 300,
+	deco_fg2: 295,
+	deco_fg1: 300,
+
 };
 window.ZIndices = ZIndices;
 
