@@ -15,7 +15,8 @@
 	// read version info from gameRoot/game/01-config/sugarcubeConfig.js
 	const versionData = fs.readFileSync(path.resolve(gameRoot, "game/01-config/sugarcubeConfig.js")).toString();
 	// extract 0.X.Y.Z from 'version: "0.X.Y.Z",'
-	const version = versionData.match(/(?<=version: ")\d.\d*.\d*.\d*/)[0];
+	const version = versionData.match(/(?<=version: "\d\.\d+\.\d+\.\d+ DoLP v0\.\d+ DoLX )\d\.\d+\.\d+[a-z]*/)[0];
+	console.log(version);
 	// adjust config.xml
 	const configFile = path.resolve("config.xml");
 	const configData = xml.parseElementtreeSync(configFile);
