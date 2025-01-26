@@ -492,6 +492,7 @@ function playerHeatMinArousal() {
 		if (V.cow >= 2) minArousal += Math.clamp(V.cowbuild, 0, 100) * 10 * (2 - risk);
 		if (V.fox >= 2) minArousal += Math.clamp(V.foxbuild, 0, 100) * 10 * (2 - risk);
 		if (V.bunny >= 2) minArousal += Math.clamp(V.bunnybuild, 0, 100) * 10 * (2 - risk);
+		if (V.xchange.pill?.breederEffect) minArousal += 100 * 10 * (2 - risk);
 	}
 	if (minArousal === 0) V.pregnancyStats.heatStillEnabled = !playerIsPregnant();
 
@@ -509,7 +510,7 @@ function playerRutMinArousal() {
 	const pills = V.sexStats.pills.pills;
 	let minArousal = 0;
 
-	if (pills.contraceptive.doseTaken === 0 && V.player.beastRut !== undefined && V.player.beastRut <= 1) {
+	if (pills.contraceptive.doseTaken === 0 && ((V.player.beastRut !== undefined && V.player.beastRut <= 1) || V.xchange.pill?.bullEffect)) {
 		if (V.earSlime.growth > 50 && V.earSlime.focus === "impregnation" && !V.earSlime.defyCooldown) {
 			minArousal += Math.clamp(V.earSlime.growth, 0, 200) * 5;
 		}
@@ -518,6 +519,7 @@ function playerRutMinArousal() {
 		if (V.cow >= 2) minArousal += Math.clamp(V.cowbuild, 0, 100) * 10;
 		if (V.fox >= 2) minArousal += Math.clamp(V.foxbuild, 0, 100) * 10;
 		if (V.bunny >= 2) minArousal += Math.clamp(V.bunnybuild, 0, 100) * 10;
+		if (V.xchange.pill?.bullEffect) minArousal += 100 * 10;
 	}
 	if (pills["fertility booster"].doseTaken > 2) {
 		minArousal += 500;
