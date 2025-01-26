@@ -36,7 +36,7 @@ function playerIsCreampied() {
 window.playerIsCreampied = playerIsCreampied;
 
 function playerMayBeSpiked() {
-	return V.xchange.nonconEnabled === 1 && !playerIsXChanged() && !playerIsPregnant();
+	return V.xchange.nonconEnabled === 1 && ((!playerIsXChanged() && !playerIsPregnant()) || playerIsXChanged());
 }
 window.playerMayBeSpiked = playerMayBeSpiked;
 

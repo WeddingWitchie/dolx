@@ -426,23 +426,29 @@
 	<<widget "xchange-addeffect">>
 		<<switch _args[0]>>
 		<<case "genderflip">>
-			<<set $xchange.pill.genderflipEffect to true>>
-			<<if $player.gender is "m">>
-				<<become-girl>>
-			<<else>>
-				<<become-boy>>
+			<<if !$xchange.pill.genderflipEffect>>
+				<<set $xchange.pill.genderflipEffect to true>>
+				<<if $player.gender is "m">>
+					<<become-girl>>
+				<<else>>
+					<<become-boy>>
+				<</if>>
 			<</if>>
 		<<case "crossdress">>
-			<<set $xchange.pill.genderificationEffect to true>>
-			<<if $player.gender is "m">>
-				<<sissify>>
-			<<else>>
-				<<butchify>>
+			<<if !$xchange.pill.genderificationEffect>>
+				<<set $xchange.pill.genderificationEffect to true>>
+				<<if $player.gender is "m">>
+					<<sissify>>
+				<<else>>
+					<<butchify>>
+				<</if>>
 			<</if>>
 		<<case "resistance">>
-			<<set $xchange.pill.resistanceEffect to true>>
-			<<set $xchange.pill.resistanceChance to 100>>
-			<<set $xchange.pill.resistanceOrgasmsStat to 0>>
+			<<if !$xchange.pill.resistanceEffect>>
+				<<set $xchange.pill.resistanceEffect to true>>
+				<<set $xchange.pill.resistanceChance to 100>>
+				<<set $xchange.pill.resistanceOrgasmsStat to 0>>
+			<</if>>
 		<<case "continue">>
 			<<set $xchange.pill.continueEffect to true>>
 		<<case "fertile">>
@@ -687,8 +693,11 @@
 
 	<<widget "xchange-random-spike">>
 		<<if playerMayBeSpiked()>>
+			<<if !playerIsXChanged()>>
+				<<set _duration to [1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,7].random()>><<take-xchange _duration>>
+			<</if>>
 			<<if $player.gender is "m">>
-				<<rng>><<take-xchange 1 "spike">>
+				<<rng>>
 				<<if $rng gt 33>>
 					<<xchange-addeffect "genderflip">>
 					<<set _effectPool to [
@@ -712,8 +721,9 @@
 				<</if>>
 				<<rng>><<if $rng gt 90>><<xchange-addeffect "passion">><</if>>
 				<<rng>><<if $rng gt 50>><<xchange-addeffect "portal" 1>><</if>>
+
 			<<elseif $player.gender is "f">>
-				<<rng>><<take-xchange 1 "spike">>
+				<<rng>>
 				<<if $rng gt 33>>
 					<<xchange-addeffect "genderflip">>
 					<<set _effectPool to [
@@ -736,7 +746,9 @@
 				<</if>>
 				<<rng>><<if $rng gt 90>><<xchange-addeffect "passion">><</if>>
 				<<rng>><<if $rng gt 50>><<xchange-addeffect "portal" 1>><</if>>
+			
 			<</if>>
+			<<xchange-addeffect "unknown">>
 			<<if _args[0] isnot "suppress">>
 				<span class="pink">You got spiked with an unknown pill.</span>
 				<br><br>

@@ -932,6 +932,43 @@ setup.pills = [
 		effects: [`<<xchange-restore>>`],
 	},
 	{
+		name: "Suspicious Pink Pill",
+		description:
+			"An unlabelled pink pill of unknown origin and manufacture. Unpredictable effects.",
+		onTakeMessage: 
+			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a woman's body.<br><br>Your new body feels smaller, lighter, and strangely sensitive to the touch.<br><br>Looking in the mirror, you also realise you look exceedingly beautiful as well.",
+		warning_label:
+			"Warning: You do not know where this pill came from, nor what it does.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "pink unknown",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillpenis.png",
+		display_condition() {
+			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
+		},
+		take_condition() {
+			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-random-spike "supress">>`],
+	},
+	{
 		name: "X-Change Blue NOW",
 		description:
 			"A significantly diluted version of X-Change Basic, intended for those on a tight schedule. Lasts about 6 hours.",
@@ -1228,6 +1265,43 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<xchange-restore>>`],
+	},
+	{
+		name: "Suspicious Blue Pill",
+		description:
+			"An unlabelled blue pill of unknown origin and manufacture. Unpredictable effects.",
+		onTakeMessage: 
+			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a man's body.<br><br>Your new body feels larger, stronger, and quite ready to dish out and receive punishment.<br><br>And upon looking in the mirror, you realise you're quite handsome as well!",
+		warning_label:
+			"Warning: You do not know where this pill came from, nor what it does.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "blue unknown",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillpenis.png",
+		display_condition() {
+			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
+		},
+		take_condition() {
+			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-random-spike "supress">>`],
 	},
 	{
 		name: "X-Change Clone: Whitney",
