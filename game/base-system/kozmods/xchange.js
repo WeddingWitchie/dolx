@@ -345,6 +345,13 @@ function xchangeEffectsMessages() {
 			break;
 	}
 
+	if (V.breederEdgingMessage) {
+		element("span", "Your body refuses to cum like this.", "purple"); 
+		element("span", "You crave some thick gooey semen in your pussy.", "red");
+
+		delete V.breederEdgingMessage;
+	}
+
 	return fragment;
 }
 window.xchangeEffectsMessages = xchangeEffectsMessages;
