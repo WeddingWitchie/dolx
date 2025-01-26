@@ -856,6 +856,43 @@ setup.pills = [
 		effects: [`<<xchange-pink 7 "breeder" "fertile">>`],
 	},
 	{
+		name: "X-Change Sissy",
+		description:
+			"A variant of the X-Change Basic. The transforming effects of the standard formula are halted mid-way before the transformation is over, resulting on a body that looks feminine while still technically being male.",
+		onTakeMessage: 
+			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. Part way through, as your balls and penis shrink to their tiniest size, the transformation suddenly halts. Leaving yourself sporting most of the kinks and perks of a woman's body, while still being male.<br><br>Your new body feels smaller, lighter, and strangely sensitive to the touch.<br><br>Looking in the mirror, you also realise you look exceedingly beautiful as well in a feminine way.",
+		warning_label:
+			"Warning: Side effect of the neutralising agent causes user to crave dressing up as the opposite sex, while also feeling stressed the longer they remain wearing clothes of their starting gender.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "pink basic",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillbreast.png",
+		display_condition() {
+			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
+		},
+		take_condition() {
+			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-pink 1 "crossdress">>`],
+	},
+	{
 		name: "X-Change Choice (F)",
 		description:
 			"Temporary genderswapping pill whose effects last indefinitely until its included reverse pill is ingested.",
@@ -1189,6 +1226,43 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<xchange-blue 1 "resistance">>`],
+	},
+	{
+		name: "X-Change Butch",
+		description:
+			"A variant of the X-Change Basic. The transforming effects of the standard formula are halted mid-way before the transformation is over, resulting on a body that looks masculine while still technically being female.",
+		onTakeMessage: 
+			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. Part way through, as your breasts finish shrinking until they're flat, the transformation suddenly halts. Leaving you sporting most of the kinks and perks of a man's body, while still remaining female.<br><br>Your new body feels larger, stronger, and quite ready to dish out and receive punishment.<br><br>And upon looking in the mirror, you realise you look rough and chiselled. Making you seem quite attractive in a masculine way.",
+		warning_label:
+			"Warning: Side effect of the neutralising agent causes user to crave dressing up as the opposite sex, while also feeling stressed the longer they remain wearing clothes of their starting gender.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "blue basic",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillpenis.png",
+		display_condition() {
+			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
+		},
+		take_condition() {
+			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-blue 1 "crossdress">>`],
 	},
 	{
 		name: "X-Change Choice (M)",
