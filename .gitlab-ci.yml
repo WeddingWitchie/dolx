@@ -1,9 +1,20 @@
 stages:
+    - setup
     - build
     - deploy
 
 variables:
     GIT_STRATEGY: fetch
+
+setup_apks_job:
+    stage: setup
+    script:
+        - cd devTools/apkbuilder
+        - cp -Recurse -Force "../../../../../../degrees-of-lewdity/devTools/apkbuilder/androidsdk/*" -Destination "./androidsdk"
+        - cp -Recurse -Force "../../../../../../degrees-of-lewdity/devTools/apkbuilder/node_modules/*" -Destination "./node_modules"
+        - cp -Recurse -Force "../../../../../../degrees-of-lewdity/devTools/apkbuilder/plugins/*" -Destination "./plugins"
+        - ./setup_deps.bat
+        - cd ../..
 
 build_vanilla_apk_job:
     stage: build
@@ -13,7 +24,6 @@ build_vanilla_apk_job:
         - cp -Recurse -Force "./imagepacks/vanilla/*" -Destination "./img"
         - ./compile.bat
         - cd devTools/apkbuilder
-        - ./setup_deps.bat
         - ./build_app_debug.bat
         - cd ../..
         - echo "Finished Building Vanilla APK Release $VERSION"
@@ -33,7 +43,6 @@ build_mysterious_apk_job:
         - cp -Recurse -Force "./imagepacks/mysterious/*" -Destination "./img"
         - ./compile.bat
         - cd devTools/apkbuilder
-        - ./setup_deps.bat
         - ./build_app_debug.bat
         - cd ../..
         - echo "Finished Building Mysterious APK Release $VERSION"
