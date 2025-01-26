@@ -5,6 +5,37 @@ stages:
 variables:
     GIT_STRATEGY: fetch
 
+build_vanilla_apk_job:
+    stage: build
+    script:
+        - $VERSION=$(cat version)
+        - echo "Building vanilla APK release $VERSION"
+        - cp -Recurse -Force ./imagepacks/vanilla/* ./img
+        - ./devTools/apkbuilder/build_app_debug.bat
+        - echo "Finished Building Vanilla APK Release $VERSION"
+        - echo "Uploading Vanilla APK $VERSION"
+        - 'Invoke-RestMethod -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" }  -InFile "./dist/Degrees-of-Lewdity-X-Change-$VERSION-debug.apk" -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/Degrees-of-Lewdity-X-Change-$VERSION-vanilla.apk" -Method PUT'
+        - rm -Recurse -Force "./dist/Degrees-of-Lewdity-X-Change-$VERSION-debug.apk"
+        - echo "Finished Uploading Vanilla APK $VERSION"
+    only:
+        - master
+
+build_mysterious_apk_job:
+    stage: build
+    script:
+        - $VERSION=$(cat version)
+        - echo "Building mysterious APK release $VERSION"
+        - cp -Recurse -Force ./imagepacks/vanilla/* ./img
+        - cp -Recurse -Force ./imagepacks/mysterious/* ./img
+        - ./devTools/apkbuilder/build_app_debug.bat
+        - echo "Finished Building Mysterious APK Release $VERSION"
+        - echo "Uploading Mysterious APK $VERSION"
+        - 'Invoke-RestMethod -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" }  -InFile "./dist/Degrees-of-Lewdity-X-Change-$VERSION-debug.apk" -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/Degrees-of-Lewdity-X-Change-$VERSION-mysterious.apk" -Method PUT'
+        - rm -Recurse -Force "./dist/Degrees-of-Lewdity-X-Change-$VERSION-debug.apk"
+        - echo "Finished Uploading Mysterious APK $VERSION"
+    only:
+        - master
+
 build_job:
     stage: build
     script:
@@ -45,10 +76,11 @@ release_job:
         - $htmlJSON = $html | ConvertTo-Json
         - $media = "{`"name`":`"DownloadMe_DoLX_Media_$VERSION`", `"url`":`"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX_Media_$VERSION.zip`"}"
         - $mediaJSON = $media | ConvertTo-Json
-        - release-cli create --name "DoL:X-Change Edition $VERSION" --description ./DoLX_Changelog.md --ref $CI_COMMIT_SHA --tag-name $VERSION --assets-link=$htmlJSON --assets-link=$mediaJSON
+        - $vanillaApk = "{`"name`":`"DoLX_Android_Vanilla_$VERSION.apk`", `"url`":`"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/Degrees-of-Lewdity-X-Change-$VERSION-vanilla.apk`"}"
+        - $vanillaApkJSON = $vanillaApk | ConvertTo-Json
+        - $mysteriousApk = "{`"name`":`"DoLX_Android_Mysterious_$VERSION.apk`", `"url`":`"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/Degrees-of-Lewdity-X-Change-$VERSION-mysterious.apk`"}"
+        - $mysteriousApkJSON = $mysteriousApk | ConvertTo-Json
+        - release-cli create --name "DoL:X-Change Edition $VERSION" --description ./DoLX_Changelog.md --ref $CI_COMMIT_SHA --tag-name $VERSION --assets-link=$htmlJSON --assets-link=$mediaJSON --assets-link=$vanillaApkJSON --assets-link=$mysteriousApkJSON
 
-        # - $payload=@{ "name"="DoL:X-Change Edition $VERSION"; "tag_name"="$VERSION"; "ref"=$CI_COMMIT_SHA; "assets"=@{"links"=@(@{"name"="DoLX_HTML_$VERSION"; "url"="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_HTML_$VERSION/$VERSION/DoLX_HTML_$VERSION.zip"}, @{"name"="DoLX_Media_$VERSION"; "url"="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_Media_$VERSION/$VERSION/DoLX_Media_$VERSION.zip"})} }
-        # - $payloadJSON=$payload | ConvertTo-Json -Depth 3
-        # - Invoke-RestMethod -Method Post -ContentType "application/json" -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" } -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases" -Body $payloadJSON 
     after_script:
         - echo "Finished creating release."
