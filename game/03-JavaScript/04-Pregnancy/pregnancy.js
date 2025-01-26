@@ -121,6 +121,10 @@ function fetishPregnancy({ genital = "vagina", target = null, spermOwner = null,
 	if (pregnancy && pregnancy.type === null) {
 		let chance = 100 / (target === "pc" ? 100 - V.basePlayerPregnancyChance : 20 - V.baseNpcPregnancyChance);
 
+		if ((playerIsXChanged() && V.xchange.pill.breederEffect && target ==="pc") || (playerIsXChanged() && V.xchange.pill.bullEffect && target !== "pc")) {
+			chance = 1;
+		}
+
 		if (V.earSlime.growth >= 100 && V.earSlime.focus === "pregnancy") chance *= 2;
 		if (V.earSlime.growth >= 100 && V.earSlime.focus === "impregnation") chance /= 2;
 
@@ -128,14 +132,6 @@ function fetishPregnancy({ genital = "vagina", target = null, spermOwner = null,
 		if (["hawk", "harpy"].includes(spermType)) chance /= 4;
 
 		if (!forcePregnancy && chance * quantity * (rngModifier / 100) * (1 + fertility + magicTattoo) * multi < random(1, 100)) return false;
-		// If under X-Change breeding effect, the chance of pregnancy of the pc will be 90%.
-		else if (playerIsXChanged() && V.xchange.pill.breederEffect && target ==="pc" && (random(0, 100) >= 10)) {
-			const result = playerPregnancy(spermOwner, spermType, true, genital, undefined, true);
-			if (result === true) {
-				T.playerIsNowPregnant = spermOwner;
-				return true;
-			}
-		}
 
 		if (target === "pc") {
 			const result = playerPregnancy(spermOwner, spermType, true, genital, undefined, true);
@@ -178,10 +174,9 @@ function playerPregnancyAttempt(baseMulti = 1, genital = "vagina") {
 	// Under X-Change, pregnancy is 4 times less likely to occur. 
 	// Unless under the effects of a breeder pill, which makes it 4 more likely instead.
 	let xchangePregnancyModifier = playerIsXChanged() && !(pillIsPermanent() && V.xchange.postPermanenceFertilityReset) && !V.xchange.pill.breederEffect ? 0.25 : 1;
-	xchangePregnancyModifier *= playerIsXChanged() && V.xchange.pill.breederEffect ? 4 : 1;
 
 	/* The lower basePenalty is, the easier it is for the player to get pregnant */
-	let basePenalty = Math.floor((100 - V.basePlayerPregnancyChance * xchangePregnancyModifier) * Math.clamp(fertilityBoost, 0.1, 1) * baseMulti);
+	let basePenalty = V.xchange.pill.breederEffect? 5 : Math.floor((100 - V.basePlayerPregnancyChance * xchangePregnancyModifier) * Math.clamp(fertilityBoost, 0.1, 1) * baseMulti);
 
 	if (V.earSlime.growth >= 100 && V.earSlime.focus === "pregnancy") basePenalty = Math.floor(basePenalty / 2);
 	if (V.earSlime.growth >= 100 && V.earSlime.focus === "impregnation") basePenalty = Math.floor(basePenalty * 2);
@@ -574,7 +569,7 @@ function namedNpcPregnancyAttempt(npcName, forcePregnancy = false) {
 	const contraceptive = pregnancy.pills === "contraceptive";
 
 	/* Works in a similar way to playerPregnancyAttempt */
-	const basePenalty = Math.floor((20 - V.baseNpcPregnancyChance) * fertility);
+	const basePenalty = V.xchange.pill?.bullEffect ? 2 : Math.floor((20 - V.baseNpcPregnancyChance) * fertility);
 	let rng = random(0, spermArray.length > basePenalty ? spermArray.length : basePenalty);
 	if (forcePregnancy && !spermArray[rng]) rng = 0;
 

@@ -18,7 +18,7 @@
 	<<widget "become-girl">>
 		<<wash>>
 		<<if $facestyle is "default">>
-			<<set $facevariant to ["sweet","catty"].random()>>
+			<<set $facevariant to ["sweet","catty","default"].random()>>
 		<</if>>
 		<<set $player.gender_body to "f">>
 		<<set $player.bodyshape to "curvy">>
@@ -404,6 +404,7 @@
 		<<set $xchange.pill.genderflipEffect to false>>
 		<<set $xchange.pill.genderificationEffect to false>>
 		<<set $xchange.pill.breederEffect to false>>
+		<<set $xchange.pill.bullEffect to false>>
 		<<set $xchange.pill.resistanceEffect to false>>
 		<<set $xchange.pill.continueEffect to false>>
 		<<set $xchange.pill.passionEffect to false>>
@@ -426,23 +427,31 @@
 	<<widget "xchange-addeffect">>
 		<<switch _args[0]>>
 		<<case "genderflip">>
-			<<set $xchange.pill.genderflipEffect to true>>
-			<<if $player.gender is "m">>
-				<<become-girl>>
-			<<else>>
-				<<become-boy>>
+			<<if !$xchange.pill.genderflipEffect>>
+				<<set $xchange.pill.genderflipEffect to true>>
+				<<if $player.gender is "m">>
+					<<become-girl>>
+				<<else>>
+					<<become-boy>>
+				<</if>>
+				<<if $player.sex isnot "f">><<set $xchange.pill.breederEffect to false>><</if>>
+				<<if $player.sex isnot "m">><<set $xchange.pill.bullEffect to false>><</if>>
 			<</if>>
 		<<case "crossdress">>
-			<<set $xchange.pill.genderificationEffect to true>>
-			<<if $player.gender is "m">>
-				<<sissify>>
-			<<else>>
-				<<butchify>>
+			<<if !$xchange.pill.genderificationEffect>>
+				<<set $xchange.pill.genderificationEffect to true>>
+				<<if $player.gender is "m">>
+					<<sissify>>
+				<<else>>
+					<<butchify>>
+				<</if>>
 			<</if>>
 		<<case "resistance">>
-			<<set $xchange.pill.resistanceEffect to true>>
-			<<set $xchange.pill.resistanceChance to 100>>
-			<<set $xchange.pill.resistanceOrgasmsStat to 0>>
+			<<if !$xchange.pill.resistanceEffect>>
+				<<set $xchange.pill.resistanceEffect to true>>
+				<<set $xchange.pill.resistanceChance to 100>>
+				<<set $xchange.pill.resistanceOrgasmsStat to 0>>
+			<</if>>
 		<<case "continue">>
 			<<set $xchange.pill.continueEffect to true>>
 		<<case "fertile">>
@@ -450,6 +459,9 @@
 			<<set $sexStats.vagina.menstruation.running = true>>
 		<<case "breeder">>
 			<<set $xchange.pill.breederEffect to true>>
+			<<set $xchange.pill.breederEdgingCount to 0>>
+		<<case "bull">>
+			<<set $xchange.pill.bullEffect to true>>
 		<<case "portal">>
 			<<if $portalPantiesEnabled>>
 				<<set $xchange.pill.portalEffect to true>>
@@ -687,8 +699,15 @@
 
 	<<widget "xchange-random-spike">>
 		<<if playerMayBeSpiked()>>
+			<<if !playerIsXChanged()>>
+				<<set _durations to []>>
+				<<for _i to 0; _i lt 10; _i++>><<run _durations.push(1)>><</for>>
+				<<for _i to 0; _i lt 5; _i++>><<run _durations.push(3)>><</for>>
+				<<for _i to 0; _i lt 1; _i++>><<run _durations.push(8)>><</for>>
+				<<set _duration to _durations.random()>><<take-xchange _duration>>
+			<</if>>
 			<<if $player.gender is "m">>
-				<<rng>><<take-xchange 1 "spike">>
+				<<rng>>
 				<<if $rng gt 33>>
 					<<xchange-addeffect "genderflip">>
 					<<set _effectPool to [
@@ -702,6 +721,7 @@
 					<<set _effectPool to [
 						"none","none","none","none","none","none","none",
 						"continue","continue","continue",
+						"bull","bull",
 						"resistance","resistance","resistance",
 					]>>
 				<</if>>
@@ -712,13 +732,15 @@
 				<</if>>
 				<<rng>><<if $rng gt 90>><<xchange-addeffect "passion">><</if>>
 				<<rng>><<if $rng gt 50>><<xchange-addeffect "portal" 1>><</if>>
+
 			<<elseif $player.gender is "f">>
-				<<rng>><<take-xchange 1 "spike">>
+				<<rng>>
 				<<if $rng gt 33>>
 					<<xchange-addeffect "genderflip">>
 					<<set _effectPool to [
 						"none","none","none","none","none","none","none",
 						"continue","continue","continue",
+						"bull","bull",
 						"resistance","resistance","resistance",
 					]>>
 				<<else>>
@@ -736,7 +758,9 @@
 				<</if>>
 				<<rng>><<if $rng gt 90>><<xchange-addeffect "passion">><</if>>
 				<<rng>><<if $rng gt 50>><<xchange-addeffect "portal" 1>><</if>>
+			
 			<</if>>
+			<<xchange-addeffect "unknown">>
 			<<if _args[0] isnot "suppress">>
 				<span class="pink">You got spiked with an unknown pill.</span>
 				<br><br>
@@ -788,6 +812,9 @@
 			<<if $xchange.pill.breederEffect>><li>Breeder Effect.
 				<mouse class="tooltip linkBlue">(?)<span>Enhances your fertility. Triggers orgasms upon insemination. And dimishes stress while sperm remains inside the vagina.</span></mouse>
 			</li><</if>>
+			<<if $xchange.pill.bullEffect>><li>Bull Effect.
+				<mouse class="tooltip linkBlue">(?)<span>Enhances your fertility. Almost guarantees successful impregnation of partners.</span></mouse>
+			</li><</if>>
 			<<if $xchange.pill.passionEffect>><li>Passion Effect.
 				<mouse class="tooltip linkBlue">(?)<span>Steadily dissolves aphrodisiacs into your bloodstream at an hourly rate.</span></mouse></li><</if>>
 			<<if $xchange.pill.portalEffect>><li>Portal Effect: <span class="teal"><<print-portalduration>></span> remaining.
@@ -829,7 +856,7 @@
 	<</widget>>
 
 	<<widget "currentSexSidebar">>
-		<<if !$options.hideCurrentSexIcon>>
+		<<if $options.showCurrentSexIcon>>
 			<div id="bodysex-sidebar" class="bodysex-sidebar">
 				<<if $player.sex is "f">>
 					<img src="img/misc/icon/female.png">

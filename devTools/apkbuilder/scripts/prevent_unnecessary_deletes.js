@@ -6,7 +6,7 @@ const path = require('path');
 
 const tmpDir = path.resolve('tmp');
 const www = path.resolve('platforms/android/app/src/main/assets/www');
-const backupDirs = ['img'];
+const backupDirs = ['img','audio'];
 
 /*
  * problem: cordova cleans the www dir and copies app files into it anew on every build

@@ -414,6 +414,18 @@ const statChange = (() => {
 				V.arousal = Math.clamp(V.arousal, 0, V.arousalmax * 4/5 - 1);
 			}
 
+			// Cannot orgasm under breeder unless there's semen in vagina
+			if (V.xchange.pill?.breederEffect && V.sexStats.vagina.sperm.length <= 0) {
+				V.arousal = Math.clamp(V.arousal, 0, V.arousalmax * 4/5 - 1);
+				V.xchange.pill.breederEdgingCount++;
+			}
+			if (V.xchange.pill.breederEdgingCount > 10) {
+				V.effectsmessage = 1;
+				V.breederEdgingMessage = 1;
+				V.xchange.pill.breederEdgingCount = 0;
+			}
+
+
 			fragment.append(wikifier("arousalclamp"));
 			// fragment.append(wikifier("arousal-wetness"));
 			fragment.append(wikifier("arousal-moan", amount * mod * (amount > 0? Weather.BodyTemperature.arousalModifier : 1), sensitivity));
