@@ -404,6 +404,7 @@
 		<<set $xchange.pill.genderflipEffect to false>>
 		<<set $xchange.pill.genderificationEffect to false>>
 		<<set $xchange.pill.breederEffect to false>>
+		<<set $xchange.pill.bullEffect to false>>
 		<<set $xchange.pill.resistanceEffect to false>>
 		<<set $xchange.pill.continueEffect to false>>
 		<<set $xchange.pill.passionEffect to false>>
@@ -433,6 +434,8 @@
 				<<else>>
 					<<become-boy>>
 				<</if>>
+				<<if $player.sex isnot "f">><<set $xchange.pill.breederEffect to false>><</if>>
+				<<if $player.sex isnot "m">><<set $xchange.pill.bullEffect to false>><</if>>
 			<</if>>
 		<<case "crossdress">>
 			<<if !$xchange.pill.genderificationEffect>>
@@ -457,6 +460,8 @@
 		<<case "breeder">>
 			<<set $xchange.pill.breederEffect to true>>
 			<<set $xchange.pill.breederEdgingCount to 0>>
+		<<case "bull">>
+			<<set $xchange.pill.bullEffect to true>>
 		<<case "portal">>
 			<<if $portalPantiesEnabled>>
 				<<set $xchange.pill.portalEffect to true>>
@@ -695,7 +700,11 @@
 	<<widget "xchange-random-spike">>
 		<<if playerMayBeSpiked()>>
 			<<if !playerIsXChanged()>>
-				<<set _duration to [1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,7].random()>><<take-xchange _duration>>
+				<<set _durations to []>>
+				<<for _i to 0; _i lt 10; _i++>><<run _durations.push(1)>><</for>>
+				<<for _i to 0; _i lt 5; _i++>><<run _durations.push(3)>><</for>>
+				<<for _i to 0; _i lt 1; _i++>><<run _durations.push(8)>><</for>>
+				<<set _duration to _durations.random()>><<take-xchange _duration>>
 			<</if>>
 			<<if $player.gender is "m">>
 				<<rng>>
@@ -712,6 +721,7 @@
 					<<set _effectPool to [
 						"none","none","none","none","none","none","none",
 						"continue","continue","continue",
+						"bull","bull",
 						"resistance","resistance","resistance",
 					]>>
 				<</if>>
@@ -730,6 +740,7 @@
 					<<set _effectPool to [
 						"none","none","none","none","none","none","none",
 						"continue","continue","continue",
+						"bull","bull",
 						"resistance","resistance","resistance",
 					]>>
 				<<else>>
@@ -800,6 +811,9 @@
 				<mouse class="tooltip linkBlue">(?)<span>Less likely to expire after its full lapse with each orgasm.</span></mouse></li><</if>>
 			<<if $xchange.pill.breederEffect>><li>Breeder Effect.
 				<mouse class="tooltip linkBlue">(?)<span>Enhances your fertility. Triggers orgasms upon insemination. And dimishes stress while sperm remains inside the vagina.</span></mouse>
+			</li><</if>>
+			<<if $xchange.pill.bullEffect>><li>Bull Effect.
+				<mouse class="tooltip linkBlue">(?)<span>Enhances your fertility. Almost guarantees successful impregnation of partners.</span></mouse>
 			</li><</if>>
 			<<if $xchange.pill.passionEffect>><li>Passion Effect.
 				<mouse class="tooltip linkBlue">(?)<span>Steadily dissolves aphrodisiacs into your bloodstream at an hourly rate.</span></mouse></li><</if>>
