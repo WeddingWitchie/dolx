@@ -40,6 +40,11 @@ function playerMayBeSpiked() {
 }
 window.playerMayBeSpiked = playerMayBeSpiked;
 
+function playerCaresForGender() {
+	return V.xchange.genderIdentityEnabled === 1;
+}
+window.playerCaresForGender = playerCaresForGender;
+
 function genderIsIgnored() {
 	return V.xchange.disregardGender === 1;
 }
@@ -212,7 +217,7 @@ function hourlyClothingFemininityCheck() {
 			wikifier("stress",800,1);
 			V.genderificationStressMessage = 1;
 		}
-		else if (V.player.gender === "m" && currentWornFemininity > 0) {
+		else if (V.player.gender === "m" && (V.genderidentity > 625 || !playerCaresForGender()) && currentWornFemininity > 0) {
 			wikifier("stress",-10);
 			V.tiredness -= 200;
 			V.genderificationStressMessage = 2;
@@ -221,10 +226,30 @@ function hourlyClothingFemininityCheck() {
 			wikifier("stress",800,1);
 			V.genderificationStressMessage = 3;
 		}
-		else if (V.player.gender === "f" && currentWornFemininity < 0) {
+		else if (V.player.gender === "f" && (V.genderidentity > 625 || !playerCaresForGender()) && currentWornFemininity < 0) {
 			wikifier("stress",-10);
 			V.tiredness -= 200;
 			V.genderificationStressMessage = 4;
+		}
+	}
+
+	if (playerCaresForGender() && (!V.xchange.pill.active || !V.xchange.pill.genderificationEffect)) {
+		V.effectsmessage = 1;
+		if (V.genderidentity >= 625 && V.player.gender === "m" && currentWornFemininity > 0) {
+			wikifier("stress",400,1);
+			V.genderStressMessage = 1;
+		}
+		else if (V.genderidentity >= 875 && V.player.gender === "m" && currentWornFemininity > 0) {
+			wikifier("stress",800,1);
+			V.genderStressMessage = 2;
+		}
+		else if (V.genderidentity <= 375 && V.player.gender === "f" && currentWornFemininity > 0) {
+			wikifier("stress",400,1);
+			V.genderStressMessage = 1;
+		}
+		else if (V.genderidentity <= 125 && V.player.gender === "f" && currentWornFemininity > 0) {
+			wikifier("stress",800,1);
+			V.genderStressMessage = 2;
 		}
 	}
 }
@@ -283,27 +308,38 @@ function xchangeEffectsMessages() {
 	switch (V.genderificationStressMessage) {
 		case 1:
 			element("span", "You have an urge to feel cute.", "purple");
-			// element("span", "This outfit is stressing you out.", "red"); 
-			fragment.append(wikifier("gstress")); br();
+			fragment.append(wikifier("ggstress")); br();
 			delete V.genderificationStressMessage;
 			break;
 		case 2:
 			element("span", "You are feeling cute and refreshed with your outfit.", "light-pink");
-			// element("span", "This outfit makes you happy.", "green"); br();
 			fragment.append(wikifier("llstress")); fragment.append(wikifier("ltiredness")); br();
 			delete V.genderificationStressMessage;
 			break;
 		case 3:
 			element("span", "You have an urge to feel manly.", "purple");
-			// element("span", "This outfit is stressing you out.", "red"); br();
-			fragment.append(wikifier("gstress")); br();
+			fragment.append(wikifier("ggstress")); br();
 			delete V.genderificationStressMessage;
 			break;
 		case 3:
 			element("span", "You are feeling manly and vigourous with your fit.", "blue");
-			// element("span", "This outfit makes you happy.", "red"); br();
 			fragment.append(wikifier("llstress")); fragment.append(wikifier("ltiredness")); br();
 			delete V.genderificationStressMessage;
+			break;
+		default:
+			break;
+	}
+
+	switch (V.genderStressMessage) {
+		case 1:
+			element("span", "You feel awkward dressed up girly like this.", "purple");
+			fragment.append(wikifier("gstress")); br();
+			delete V.genderStressMessage;
+			break;
+		case 2:
+			element("span", "You feel gross in these girly clothes.", "red");
+			fragment.append(wikifier("ggstress")); br();
+			delete V.genderStressMessage;
 			break;
 		default:
 			break;
