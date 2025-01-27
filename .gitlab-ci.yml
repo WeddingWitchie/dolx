@@ -1,12 +1,11 @@
-default:
-    cache:
-        key: $CI_COMMIT_REF_SLUG
-        paths:
-            - devTools/apkbuilder/node_modules/
-            - devTools/apkbuilder/androidsdk/
-            - devTools/apkbuilder/plugins/
-            - devTools/apkbuilder/platform/
-            - devTools/apkbuilder/tmp/
+cache:
+    key: $CI_COMMIT_REF_SLUG
+    untracked: true
+    paths:
+        - devTools/apkbuilder/node_modules/
+        - devTools/apkbuilder/androidsdk/
+        - devTools/apkbuilder/plugins/
+    policy: pull
     
 stages:
     - setup
@@ -18,6 +17,14 @@ variables:
 
 setup_apks_job:
     stage: setup
+    cache:
+        key: $CI_COMMIT_REF_SLUG
+        untracked: true
+        paths:
+            - devTools/apkbuilder/node_modules/
+            - devTools/apkbuilder/androidsdk/
+            - devTools/apkbuilder/plugins/
+        policy: pull-push
     script:
         - cd devTools/apkbuilder
         - IF (!(Test-Path -Path ./androidsdk/.knownPackages)) {cp -Recurse -Force "../../../../../../../degrees-of-lewdity/devTools/apkbuilder/androidsdk/*" -Destination "./androidsdk"}
@@ -25,7 +32,6 @@ setup_apks_job:
         - IF (!(Test-Path -Path ./node_modules/.package-lock.json)) {cp -Recurse -Force "../../../../../../../degrees-of-lewdity/devTools/apkbuilder/node_modules/*" -Destination "./node_modules"}
         - mkdir -p plugins/
         - IF (!(Test-Path -Path ./plugins/fetch.json)) {cp -Recurse -Force "../../../../../../../degrees-of-lewdity/devTools/apkbuilder/plugins/*" -Destination "./plugins"}
-        - ./setup_deps.bat
         - cd ../..
 
 build_vanilla_apk_job:
@@ -36,6 +42,7 @@ build_vanilla_apk_job:
         - cp -Recurse -Force "./imagepacks/vanilla/*" -Destination "./img"
         - ./compile.bat
         - cd devTools/apkbuilder
+        - ./setup_deps.bat
         - ./build_app_debug.bat
         - cd ../..
         - echo "Finished Building Vanilla APK Release $VERSION"
@@ -55,6 +62,7 @@ build_mysterious_apk_job:
         - cp -Recurse -Force "./imagepacks/mysterious/*" -Destination "./img"
         - ./compile.bat
         - cd devTools/apkbuilder
+        - ./setup_deps.bat
         - ./build_app_debug.bat
         - cd ../..
         - echo "Finished Building Mysterious APK Release $VERSION"
