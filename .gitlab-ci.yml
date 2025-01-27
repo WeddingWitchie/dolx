@@ -7,16 +7,26 @@ variables:
     GIT_STRATEGY: fetch
 
 cache:
-    - key: ${CI_COMMIT_REF_SLUG}
+    - key: cache-$CI_DEFAULT_BRANCH
       paths:
         - devTools/apkbuilder/node_modules/
         - devTools/apkbuilder/androidsdk/
         - devTools/apkbuilder/plugins/
         - devTools/apkbuilder/platform/
         - devTools/apkbuilder/tmp/
+      policy: pull-push
 
 setup_apks_job:
     stage: setup
+    cache:
+        - key: cache-$CI_DEFAULT_BRANCH
+          paths:
+            - devTools/apkbuilder/node_modules/
+            - devTools/apkbuilder/androidsdk/
+            - devTools/apkbuilder/plugins/
+            - devTools/apkbuilder/platform/
+            - devTools/apkbuilder/tmp/
+          policy: pull-push
     script:
         - cd devTools/apkbuilder
         - IF (!(Test-Path -Path ./androidsdk/.knownPackages)) {cp -Recurse -Force "../../../../../../../degrees-of-lewdity/devTools/apkbuilder/androidsdk/*" -Destination "./androidsdk"}
@@ -29,6 +39,15 @@ setup_apks_job:
 
 build_vanilla_apk_job:
     stage: build
+    cache:
+        - key: cache-$CI_DEFAULT_BRANCH
+          paths:
+            - devTools/apkbuilder/node_modules/
+            - devTools/apkbuilder/androidsdk/
+            - devTools/apkbuilder/plugins/
+            - devTools/apkbuilder/platform/
+            - devTools/apkbuilder/tmp/
+          policy: pull
     script:
         - $VERSION=$(cat version)
         - echo "Building vanilla APK release $VERSION"
@@ -47,6 +66,15 @@ build_vanilla_apk_job:
 
 build_mysterious_apk_job:
     stage: build
+    cache:
+        - key: cache-$CI_DEFAULT_BRANCH
+          paths:
+            - devTools/apkbuilder/node_modules/
+            - devTools/apkbuilder/androidsdk/
+            - devTools/apkbuilder/plugins/
+            - devTools/apkbuilder/platform/
+            - devTools/apkbuilder/tmp/
+          policy: pull
     script:
         - $VERSION=$(cat version)
         - echo "Building mysterious APK release $VERSION"
