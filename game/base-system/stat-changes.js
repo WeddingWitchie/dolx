@@ -415,7 +415,7 @@ const statChange = (() => {
 			}
 
 			// Cannot orgasm under breeder unless there's semen in vagina
-			if (V.xchange.pill?.breederEffect && V.sexStats.vagina.sperm.length <= 0) {
+			if (playerIsXChanged() && V.xchange.pill?.breederEffect && V.sexStats.vagina.sperm.length <= 0) {
 				V.arousal = Math.clamp(V.arousal, 0, V.arousalmax * 4/5 - 1);
 				V.xchange.pill.breederEdgingCount++;
 			}
