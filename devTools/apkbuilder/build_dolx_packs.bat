@@ -7,6 +7,10 @@ call ./compile.bat
 cd devTools/apkbuilder
 call ./setup_deps.bat
 call ./build_app_debug.bat
+cd ../..
+cd dist 
+Rename-Item -Path "Degrees-of-Lewdity-X-Change-$VERSION-debug.apk" -NewName "Degrees-of-Lewdity-X-Change-$VERSION-vanilla.apk"
+cd ../devTools/apkbuilder
 
 cd ../..
 $VERSION=$(cat version)
@@ -17,6 +21,10 @@ call ./compile.bat
 cd devTools/apkbuilder
 call ./setup_deps.bat
 call ./build_app_debug.bat
+cd ../..
+cd dist 
+Rename-Item -Path "Degrees-of-Lewdity-X-Change-$VERSION-debug.apk" -NewName "Degrees-of-Lewdity-X-Change-$VERSION-mysterious.apk"
+cd ../devTools/apkbuilder
 
 cd ../..
 $VERSION=$(cat version)
