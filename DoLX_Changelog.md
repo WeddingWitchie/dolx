@@ -10,6 +10,8 @@
 ### Rebalancing and Bug fixes:
   * Attempt to restore missing images and icons.
   * Blackmail letter icon now no longer animated (it was too distracting).
+  * Fixed conditional display of combat images.
+  * Other minor UI fixes.
 
 
 
