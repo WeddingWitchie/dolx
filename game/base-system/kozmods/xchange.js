@@ -212,46 +212,52 @@ function hourlyClothingFemininityCheck() {
 	V.hourlyFemininity += currentWornFemininity < 0 ? -1 : 0;
 
 	if (V.xchange.pill.active && V.xchange.pill.genderificationEffect) {
-		V.effectsmessage = 1;
 		if (V.player.gender === "m" && currentWornFemininity < 0) {
 			wikifier("stress",800,1);
 			V.genderificationStressMessage = 1;
+			V.effectsmessage = 1;
 		}
 		else if (V.player.gender === "m" && (V.genderidentity > 625 || !playerCaresForGender()) && currentWornFemininity > 0) {
 			wikifier("stress",-10);
 			V.tiredness -= 200;
 			V.genderificationStressMessage = 2;
+			V.effectsmessage = 1;
 		}
 		if (V.player.gender === "f" && currentWornFemininity > 0) {
 			wikifier("stress",800,1);
 			V.genderificationStressMessage = 3;
+			V.effectsmessage = 1;
 		}
 		else if (V.player.gender === "f" && (V.genderidentity > 625 || !playerCaresForGender()) && currentWornFemininity < 0) {
 			wikifier("stress",-10);
 			V.tiredness -= 200;
 			V.genderificationStressMessage = 4;
+			V.effectsmessage = 1;
 		}
 	}
-
-	if (playerCaresForGender() && (!V.xchange.pill.active || !V.xchange.pill.genderificationEffect)) {
-		V.effectsmessage = 1;
-		if (V.genderidentity >= 625 && V.player.gender === "m" && currentWornFemininity > 0) {
-			wikifier("stress",400,1);
-			V.genderStressMessage = 1;
-		}
-		else if (V.genderidentity >= 875 && V.player.gender === "m" && currentWornFemininity > 0) {
+	else if (playerCaresForGender()) {
+		if (V.genderidentity >= 875 && V.player.gender === "m" && V.player.sex === "m" && currentWornFemininity > 0) {
 			wikifier("stress",800,1);
 			V.genderStressMessage = 2;
+			V.effectsmessage = 1;
+		}
+		else if (V.genderidentity >= 625 && V.player.gender === "m" && currentWornFemininity > 0) {
+			wikifier("stress",400,1);
+			V.genderStressMessage = 1;
+			V.effectsmessage = 1;
+		}
+		else if (V.genderidentity <= 125 && V.player.gender === "f" && V.player.sex === "m" && currentWornFemininity > 0) {
+			wikifier("stress",800,1);
+			V.genderStressMessage = 2;
+			V.effectsmessage = 1;
 		}
 		else if (V.genderidentity <= 375 && V.player.gender === "f" && currentWornFemininity > 0) {
 			wikifier("stress",400,1);
 			V.genderStressMessage = 1;
-		}
-		else if (V.genderidentity <= 125 && V.player.gender === "f" && currentWornFemininity > 0) {
-			wikifier("stress",800,1);
-			V.genderStressMessage = 2;
+			V.effectsmessage = 1;
 		}
 	}
+	
 }
 window.hourlyClothingFemininityCheck = hourlyClothingFemininityCheck;
 
