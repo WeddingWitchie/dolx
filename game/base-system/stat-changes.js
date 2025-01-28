@@ -308,7 +308,7 @@ const statChange = (() => {
 				beingPenetrated.includes(V.vaginause) || beingPenetrated.includes(V.anususe) || [0,3].includes(V.portalPanties.state.vagina?.new) || [0,3].includes(V.portalPanties.state.anus?.new) || V.portalejacvagina || V.portalejacanus;
 
 			let penisAddictionFulfilled = playerIsBeingPenetrated || playerHasButtPlug() ;
-			let holeAdditionFulfilled = penetrating.includes(V.penisuse);
+			let holeAddictionFulfilled = penetrating.includes(V.penisuse);
 			
 			// Apply effect according to source
 			let sensitivity = 0;
@@ -400,7 +400,7 @@ const statChange = (() => {
 				mod += sensitivityMod;
 			}
 
-			if ((V.penis_addict_trait && !playerIsBeingPenetrated && playerHasButtPlug()) || (V.hole_addict_trait && holeAdditionFulfilled && playerHasStrapon())) {
+			if ((V.penis_addict_trait && (!playerIsBeingPenetrated || playerHasButtPlug())) || (V.hole_addict_trait && (!holeAddictionFulfilled || playerHasStrapon()))) {
 				mod *= 0.25;
 			}
 
@@ -422,7 +422,7 @@ const statChange = (() => {
 			
 			
 			// Prevent orgasming unless addictions are fulfilled (or you don't have them)
-			if ( ( !V.penis_addict_trait || penisAddictionFulfilled ) && ( !V.hole_addict_trait || holeAdditionFulfilled ) ) {
+			if ( ( !V.penis_addict_trait || penisAddictionFulfilled ) && ( !V.hole_addict_trait || holeAddictionFulfilled ) ) {
 				// Do Nothing
 			} else {
 				V.arousal = Math.clamp(V.arousal, 0, V.arousalmax * 4/5 - 1);
