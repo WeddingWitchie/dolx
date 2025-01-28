@@ -301,11 +301,18 @@ const statChange = (() => {
 				}
 			}
 
+			let beingPenetrated = ["penis", "penisdouble", "tentacle", "tentacledeep", "machine"];
+			let penetrating = ["penetrated", "othervagina", "otheranus", "othermouth"];
+			
+			let playerIsBeingPenetrated =
+				beingPenetrated.includes(V.vaginause) || beingPenetrated.includes(V.anususe) || [0,3].includes(V.portalPanties.state.vagina?.new) || [0,3].includes(V.portalPanties.state.anus?.new) || V.portalejacvagina || V.portalejacanus;
+
+			let penisAddictionFulfilled = playerIsBeingPenetrated || playerHasButtPlug() ;
+			let holeAdditionFulfilled = penetrating.includes(V.penisuse);
+			
 			// Apply effect according to source
 			let sensitivity = 0;
 			let arousal;
-			let beingPenetrated = ["penis", "penisdouble", "tentacle", "tentacledeep", "machine"];
-			let penetrating = ["penetrated", "othervagina", "otheranus", "othermouth"];
 			switch (source) {
 				case undefined:
 				case "masturbation":
@@ -330,7 +337,6 @@ const statChange = (() => {
 					sensitivity += V.breastsensitivity + purityMod;
 					fragment.append(wikifier("playWithBreasts"));
 					if (playerIsPregnant()) sensitivity += 0.5;
-					console.warn("Breast sensitivity", sensitivity);
 					break;
 				case "bottom":
 				case "anus":
@@ -344,6 +350,7 @@ const statChange = (() => {
 					if (beingPenetrated.includes(V.anusstate)) {
 						pain(V.analPain);
 						analWetnessPenalty = Math.min(V.anusWetness/60, 1);
+						if (V.penis_addict_trait) sensitivity += 0.5;
 					}
 					sensitivity += Math.max((V.bottomsensitivity + purityMod) * analWetnessPenalty, 0.25);
 					break;
@@ -363,6 +370,7 @@ const statChange = (() => {
 					if (V.player.vaginaExist === "t" && beingPenetrated.includes(V.vaginause)) {
 						pain(V.vaginalPain);
 						wetnessPenalty = Math.min(V.vaginaWetness/60, 1);
+						if (V.penis_addict_trait) sensitivity += 0.5;
 					}
 					sensitivity += Math.max((V.genitalsensitivity + 2*purityMod) * wetnessPenalty, 0.25);
 					if (playerIsPregnant()) sensitivity += 0.5;
@@ -392,6 +400,10 @@ const statChange = (() => {
 				mod += sensitivityMod;
 			}
 
+			if ((V.penis_addict_trait && !playerIsBeingPenetrated && playerHasButtPlug()) || (V.hole_addict_trait && holeAdditionFulfilled && playerHasStrapon())) {
+				mod *= 0.25;
+			}
+
 			// Concentration reduces incoming arousal by half
 			// Whilst failed concentration adds half a point of sensitivity to all incoming arousal
 			if (V.xchange.resistCombatArousal === 1 && amount > 0) {
@@ -408,7 +420,9 @@ const statChange = (() => {
 
 			V.arousal += amount * mod * (amount > 0? Weather.BodyTemperature.arousalModifier : 1);
 			
-			if ( ( V.penis_addict_trait !== 1 || ( beingPenetrated.includes(V.vaginause) || beingPenetrated.includes(V.anususe) || [0,3].includes(V.portalPanties.state.vagina?.new) || [0,3].includes(V.portalPanties.state.anus?.new) || V.portalejacvagina || V.portalejacanus ) ) && ( V.hole_addict_trait !== 1 || penetrating.includes(V.peniuse) ) ) {
+			
+			// Prevent orgasming unless addictions are fulfilled (or you don't have them)
+			if ( ( !V.penis_addict_trait || penisAddictionFulfilled ) && ( !V.hole_addict_trait || holeAdditionFulfilled ) ) {
 				// Do Nothing
 			} else {
 				V.arousal = Math.clamp(V.arousal, 0, V.arousalmax * 4/5 - 1);
