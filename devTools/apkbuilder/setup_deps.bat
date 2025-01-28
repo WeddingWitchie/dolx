@@ -21,4 +21,4 @@ echo Installing target android platform and build tools
 echo You might need to accept the licenses
 call sdkmanager "build-tools;32.0.0" "platforms;android-32"
 echo All Done!
-pause
+REM pause
