@@ -464,8 +464,9 @@
 			<<set $xchange.pill.bullEffect to true>>
 		<<case "portal">>
 			<<if $portalPantiesEnabled>>
+				<<set _duration to _args[1] ?? 1>>
 				<<set $xchange.pill.portalEffect to true>>
-				<<set $xchange.pill.portalEffectTimer to _args[1] * 24 - 1>>
+				<<set $xchange.pill.portalEffectTimer to _duration * 24 - 1>>
 			<</if>>
 		<<case "passion">>
 			<<set $xchange.pill.passionEffect to true>>
@@ -544,11 +545,11 @@
 	<</widget>>
 
 	<<widget "xchange-pink">>
-	/* 	args[0]: duration of the pill
-		args onwards: "fertile" to enable fertility cycle 
-					"resistance" enables resistance effect
-					"continue" enables continue effect 
-	*/	
+		/* 	args[0]: duration of the pill
+			args onwards: "fertile" to enable fertility cycle 
+						"resistance" enables resistance effect
+						"continue" enables continue effect 
+		*/	
 		<<set _duration to _args[0]>>
 		<<set _effects to _args.slice(1)>>
 		<<run _effects.push("genderflip")>>
@@ -565,11 +566,11 @@
 	<</widget>>
 
 	<<widget "xchange-blue">>
-	/* 	args[0]: duration of the pill
-		args[1]: "fertile" to enable fertility cycle 
-				"resistance" enables resistance effect
-				"continue" enables continue effect 
-	*/
+		/* 	args[0]: duration of the pill
+			args[1]: "fertile" to enable fertility cycle 
+					"resistance" enables resistance effect
+					"continue" enables continue effect 
+		*/
 		<<set _duration to _args[0]>>
 		<<set _effects to _args.slice(1)>>
 		<<run _effects.push("genderflip")>>
@@ -703,77 +704,93 @@
 				<<set _durations to []>>
 				<<for _i to 0; _i lt 10; _i++>><<run _durations.push(1)>><</for>>
 				<<for _i to 0; _i lt 5; _i++>><<run _durations.push(3)>><</for>>
-				<<for _i to 0; _i lt 1; _i++>><<run _durations.push(8)>><</for>>
+				<<for _i to 0; _i lt 1; _i++>><<run _durations.push(7)>><</for>>
 				<<set _duration to _durations.random()>><<take-xchange _duration>>
-			<</if>>
-			<<if $player.gender is "m">>
-				<<rng>>
-				<<if $rng gt 33>>
-					<<xchange-addeffect "genderflip">>
-					<<set _effectPool to [
-						"none","none","none","none","none","none","none",
-						"breeder","breeder",
-						"continue","continue","continue",
-						"resistance","resistance","resistance",
-					]>>
-				<<else>>
-					<<xchange-addeffect "crossdress">>
-					<<set _effectPool to [
-						"none","none","none","none","none","none","none",
-						"continue","continue","continue",
-						"bull","bull",
-						"resistance","resistance","resistance",
-					]>>
-				<</if>>
-				<<xchange-addeffect _effectPool.random()>>
-				<<if $xchange.pill.genderflipEffect>>
-					<<rng>><<if $rng gt 85>><<xchange-addeffect "fertile">><</if>>
-					<<rng>><<if $rng gt 66>><<xchange-addeffect "crossdress">><</if>>
-				<</if>>
-				<<rng>><<if $rng gt 90>><<xchange-addeffect "passion">><</if>>
-				<<rng>><<if $rng gt 50>><<xchange-addeffect "portal" 1>><</if>>
+				<<if $player.gender is "m">>
+					<<rng>>
+					<<if $rng gt 33>>
+						<<xchange-addeffect "genderflip">>
+						<<set _effectPool to [
+							"none","none","none","none","none","none","none",
+							"breeder","breeder",
+							"continue","continue","continue",
+							"resistance","resistance","resistance",
+						]>>
+					<<else>>
+						<<xchange-addeffect "crossdress">>
+						<<set _effectPool to [
+							"none","none","none","none","none","none","none",
+							"continue","continue","continue",
+							"bull","bull",
+							"resistance","resistance","resistance",
+						]>>
+					<</if>>
+					<<xchange-addeffect _effectPool.random()>>
+					<<if $xchange.pill.genderflipEffect>>
+						<<rng>><<if $rng gt 85>><<xchange-addeffect "fertile">><</if>>
+						<<rng>><<if $rng gt 66>><<xchange-addeffect "crossdress">><</if>>
+					<</if>>
+					<<rng>><<if $rng gt 90>><<xchange-addeffect "passion">><</if>>
+					<<rng>><<if $rng gt 50>><<xchange-addeffect "portal" 1>><</if>>
 
-			<<elseif $player.gender is "f">>
-				<<rng>>
-				<<if $rng gt 33>>
-					<<xchange-addeffect "genderflip">>
-					<<set _effectPool to [
-						"none","none","none","none","none","none","none",
-						"continue","continue","continue",
-						"bull","bull",
-						"resistance","resistance","resistance",
-					]>>
-				<<else>>
-					<<xchange-addeffect "crossdress">>
-					<<set _effectPool to [
-						"none","none","none","none","none","none","none",
-						"breeder","breeder",
-						"continue","continue","continue",
-						"resistance","resistance","resistance",
-					]>>
+				<<elseif $player.gender is "f">>
+					<<rng>>
+					<<if $rng gt 33>>
+						<<xchange-addeffect "genderflip">>
+						<<set _effectPool to [
+							"none","none","none","none","none","none","none",
+							"continue","continue","continue",
+							"bull","bull",
+							"resistance","resistance","resistance",
+						]>>
+					<<else>>
+						<<xchange-addeffect "crossdress">>
+						<<set _effectPool to [
+							"none","none","none","none","none","none","none",
+							"breeder","breeder",
+							"continue","continue","continue",
+							"resistance","resistance","resistance",
+						]>>
+					<</if>>
+					<<xchange-addeffect _effectPool.random()>>
+					<<if $xchange.pill.genderflipEffect>>
+						<<rng>><<if $rng gt 66>><<xchange-addeffect "crossdress">><</if>>
+					<</if>>
+					<<rng>><<if $rng gt 90>><<xchange-addeffect "passion">><</if>>
+					<<rng>><<if $rng gt 50>><<xchange-addeffect "portal" 1>><</if>>
+				
 				<</if>>
+				
+			<<else>>
+				<<set _effectPool to [
+					"genderflip","genderflip","genderflip","genderflip","genderflip","genderflip","genderflip",
+					"crossdress","crossdress","crossdress","crossdress","crossdress","crossdress","crossdress",
+					"breeder","breeder",
+					"bull","bull",
+					"continue","continue","continue",
+					"resistance","resistance","resistance",
+					"portal","portal",
+					"fertile","fertile",
+					"passion","passion",
+				]>>
+				<<if $player.sex is "m">><<run _effectPool.deleteAll("breeder")>><<run _effectPool.deleteAll("fertile")>><</if>>
+				<<if $player.sex is "f">><<run _effectPool.deleteAll("bull")>><</if>>
+				<<if $xchange.pill.genderflipEffect>><<run _effectPool.deleteAll("genderflip")>><</if>>
+				<<if $xchange.pill.genderificationEffect>><<run _effectPool.deleteAll("crossdress")>><</if>>
+				<<if $xchange.pill.breederEffect>><<run _effectPool.deleteAll("breeder")>><</if>>
+				<<if $xchange.pill.bullEffect>><<run _effectPool.deleteAll("bull")>><</if>>
+				<<if $xchange.pill.continueEffect>><<run _effectPool.deleteAll("continue")>><</if>>
+				<<if $xchange.pill.resistanceEffect>><<run _effectPool.deleteAll("resistance")>><</if>>
+				<<if $xchange.pill.passionEffect>><<run _effectPool.deleteAll("passion")>><</if>>
+				<<if $xchange.pill.portalEffect>><<run _effectPool.deleteAll("portal")>><</if>>
+
 				<<xchange-addeffect _effectPool.random()>>
-				<<if $xchange.pill.genderflipEffect>>
-					<<rng>><<if $rng gt 66>><<xchange-addeffect "crossdress">><</if>>
-				<</if>>
-				<<rng>><<if $rng gt 90>><<xchange-addeffect "passion">><</if>>
-				<<rng>><<if $rng gt 50>><<xchange-addeffect "portal" 1>><</if>>
-			
 			<</if>>
+
 			<<xchange-addeffect "unknown">>
 			<<if _args[0] isnot "suppress">>
 				<span class="pink">You got spiked with an unknown pill.</span>
 				<br><br>
-			<</if>>
-		<<elseif $portalPantiesEnabled>>
-			<<rng>>
-			<<if $rng gt 50>>
-				<<xchange-addeffect "portal" 1>>
-				<<xchange-addeffect "spike">>
-				<<if _args[0] isnot "suppress">>
-					<span class="pink">Your crotch is feeling oddly breezy.</span>
-					<br><br>
-				<</if>>
 			<</if>>
 		<</if>>
 	<</widget>>
