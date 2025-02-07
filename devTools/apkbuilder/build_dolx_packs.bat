@@ -14,7 +14,7 @@ for /f "delims=" %%a in (version) do (
     set version=%%a
 )
 echo "Building vanilla APK release %version%"
-xcopy /s /e /i /q /y ".\imagepacks\vanilla\*" ".\img"
+REM xcopy /s /e /i /q /y ".\imagepacks\vanilla\*" ".\img"
 call ./compile.bat
 cd devTools/apkbuilder
 call ./build_app_debug.bat
@@ -26,7 +26,7 @@ cd ../devTools/apkbuilder
 @echo off
 cd ../..
 echo "Building mysterious APK release %version%"
-xcopy /s /e /i /q /y ".\imagepacks\vanilla\*" ".\img"
+REM xcopy /s /e /i /q /y ".\imagepacks\vanilla\*" ".\img"
 xcopy /s /e /i /q /y ".\imagepacks\mysterious\*" ".\img"
 call ./compile.bat
 cd devTools/apkbuilder
