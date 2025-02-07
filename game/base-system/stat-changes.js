@@ -418,8 +418,9 @@ const statChange = (() => {
 				mod *= 1 - Math.clamp(playerHeatMinArousal() + playerRutMinArousal(), 0, 4000) / 5000;
 			}
 
-			V.arousal += amount * mod * (amount > 0? Weather.BodyTemperature.arousalModifier : 1);
-			
+			let oldArousal = V.arousal;
+			let arousalChange = amount * mod * (amount > 0? Weather.BodyTemperature.arousalModifier : 1);
+			V.arousal += arousalChange;
 			
 			// Prevent orgasming unless addictions are fulfilled (or you don't have them)
 			if ( ( !V.penis_addict_trait || penisAddictionFulfilled ) && ( !V.hole_addict_trait || holeAddictionFulfilled ) ) {
@@ -429,7 +430,7 @@ const statChange = (() => {
 			}
 
 			// Cannot orgasm under breeder unless there's semen in vagina
-			if (playerIsXChanged() && V.xchange.pill?.breederEffect && V.sexStats.vagina.sperm.length <= 0) {
+			if (playerIsXChanged() && V.xchange.pill?.breederEffect && V.sexStats.vagina.sperm.length <= 0 && oldArousal + arousalChange >= V.arousalmax * 4/5) {
 				V.arousal = Math.clamp(V.arousal, 0, V.arousalmax * 4/5 - 1);
 				V.xchange.pill.breederEdgingCount++;
 			}
