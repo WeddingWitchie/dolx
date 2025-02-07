@@ -1142,7 +1142,7 @@ function effects() {
 			fragment.append(wikifier("arousal", arousalDrop*2));
 		}
 
-		sWikifier(`<span class="pink">Your body continues to convulse as it releases the tension from your orgasm.</span> <<llarousal>>`);
+		sWikifier(`<span class="light-pink">Your body continues to convulse as it releases the tension from your orgasm.</span> <<llarousal>>`);
 	}
 
 	V.orgasmdown -= 1;
