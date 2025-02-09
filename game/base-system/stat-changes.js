@@ -438,6 +438,8 @@ const statChange = (() => {
 				V.effectsmessage = 1;
 				V.breederEdgingMessage = 1;
 				V.xchange.pill.breederEdgingCount = 0;
+				V.xchange.pill.breederEdgingStress = Math.min(V.xchange.pill.breederEdgingStress + 50, 800);
+				fragment.append(wikifier("stress", V.xchange.pill.breederEdgingStress, 1));
 			}
 
 

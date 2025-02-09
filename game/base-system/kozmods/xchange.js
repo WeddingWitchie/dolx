@@ -328,7 +328,7 @@ function xchangeEffectsMessages() {
 			delete V.genderificationStressMessage;
 			break;
 		case 3:
-			element("span", "You are feeling manly and vigourous with your fit.", "blue");
+			element("span", "You are feeling manly and vigourous in your fit.", "blue");
 			fragment.append(wikifier("llstress")); fragment.append(wikifier("ltiredness")); br();
 			delete V.genderificationStressMessage;
 			break;
@@ -353,7 +353,13 @@ function xchangeEffectsMessages() {
 
 	if (V.breederEdgingMessage) {
 		element("span", "Your body refuses to cum like this.", "purple"); 
-		element("span", "You crave some thick gooey semen in your pussy.", "red");
+		element("span", "You crave some thick gooey semen in your"+ either("pussy.","vagina."), "red");
+		if (V.xchange.pill.breederEdgingStress > 400)
+			fragment.append(wikifier("ggstress"));
+		else
+			fragment.append(wikifier("gstress")); 
+		
+		br();
 
 		delete V.breederEdgingMessage;
 	}

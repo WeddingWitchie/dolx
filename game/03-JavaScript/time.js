@@ -1104,11 +1104,11 @@ function minutePassed(minutes) {
 		fragment.append(wikifier("willpower-recovery", minutes * 0.5 * Math.ceil( (V.arousalmax*2/5 - V.arousal) / (V.arousalmax/10) )));
 	
 	if (V.drugged > 200 && V.arousal < V.arousalmax * 4/5) 
-		V.arousal += (V.drugged / 10) * 3 * minutes;
+		fragment.append(wikifier("arousal", (V.drugged / 10) * 3 * minutes));
 	else if (V.drugged > 100 && V.arousal < V.arousalmax * 3/5) 
-		V.arousal += (V.drugged / 10) * 2 * minutes;
+		fragment.append(wikifier("arousal", (V.drugged / 10) * 2 * minutes));
 	else if (V.drugged > 0 && V.arousal < V.arousalmax * 2/5)
-		V.arousal += (V.drugged / 10) * minutes;
+		fragment.append(wikifier("arousal", (V.drugged / 10) * minutes));
 
 	fragment.append(wikifier("blackmail-timepassed"));
 
