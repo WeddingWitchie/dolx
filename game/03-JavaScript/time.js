@@ -739,10 +739,10 @@ function dayPassed() {
 	if (V.smuggler_timer < 0) {
 		V.smuggler_timer = random(4, 7);
 		const rng = random(1, 100);
-		if (rng >= 76) V.smuggle_location = "forest";
-		else if (rng >= 51) V.smuggle_location = "sewer";
-		else if (rng >= 26) V.smuggle_location = "beach";
-		else V.smuggle_location = "bus";
+		if (rng >= 76) V.smuggler_location = "forest";
+		else if (rng >= 51) V.smuggler_location = "sewer";
+		else if (rng >= 26) V.smuggler_location = "beach";
+		else V.smuggler_location = "bus";
 		delete V.smuggler_known;
 	}
 
@@ -1104,11 +1104,11 @@ function minutePassed(minutes) {
 		fragment.append(wikifier("willpower-recovery", minutes * 0.5 * Math.ceil( (V.arousalmax*2/5 - V.arousal) / (V.arousalmax/10) )));
 	
 	if (V.drugged > 200 && V.arousal < V.arousalmax * 4/5) 
-		V.arousal += (V.drugged / 10) * 3 * minutes;
+		fragment.append(wikifier("arousal", (V.drugged / 10) * 3 * minutes));
 	else if (V.drugged > 100 && V.arousal < V.arousalmax * 3/5) 
-		V.arousal += (V.drugged / 10) * 2 * minutes;
+		fragment.append(wikifier("arousal", (V.drugged / 10) * 2 * minutes));
 	else if (V.drugged > 0 && V.arousal < V.arousalmax * 2/5)
-		V.arousal += (V.drugged / 10) * minutes;
+		fragment.append(wikifier("arousal", (V.drugged / 10) * minutes));
 
 	fragment.append(wikifier("blackmail-timepassed"));
 

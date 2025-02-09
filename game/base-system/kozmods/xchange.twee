@@ -460,12 +460,14 @@
 		<<case "breeder">>
 			<<set $xchange.pill.breederEffect to true>>
 			<<set $xchange.pill.breederEdgingCount to 0>>
+			<<set $xchange.pill.breederEdgingStress to 100>>
 		<<case "bull">>
 			<<set $xchange.pill.bullEffect to true>>
 		<<case "portal">>
 			<<if $portalPantiesEnabled>>
+				<<set _duration to _args[1] ?? 1>>
 				<<set $xchange.pill.portalEffect to true>>
-				<<set $xchange.pill.portalEffectTimer to _args[1] * 24 - 1>>
+				<<set $xchange.pill.portalEffectTimer to _duration * 24 - 1>>
 			<</if>>
 		<<case "passion">>
 			<<set $xchange.pill.passionEffect to true>>
@@ -544,11 +546,11 @@
 	<</widget>>
 
 	<<widget "xchange-pink">>
-	/* 	args[0]: duration of the pill
-		args onwards: "fertile" to enable fertility cycle 
-					"resistance" enables resistance effect
-					"continue" enables continue effect 
-	*/	
+		/* 	args[0]: duration of the pill
+			args onwards: "fertile" to enable fertility cycle 
+						"resistance" enables resistance effect
+						"continue" enables continue effect 
+		*/	
 		<<set _duration to _args[0]>>
 		<<set _effects to _args.slice(1)>>
 		<<run _effects.push("genderflip")>>
@@ -565,11 +567,11 @@
 	<</widget>>
 
 	<<widget "xchange-blue">>
-	/* 	args[0]: duration of the pill
-		args[1]: "fertile" to enable fertility cycle 
-				"resistance" enables resistance effect
-				"continue" enables continue effect 
-	*/
+		/* 	args[0]: duration of the pill
+			args[1]: "fertile" to enable fertility cycle 
+					"resistance" enables resistance effect
+					"continue" enables continue effect 
+		*/
 		<<set _duration to _args[0]>>
 		<<set _effects to _args.slice(1)>>
 		<<run _effects.push("genderflip")>>
@@ -703,77 +705,93 @@
 				<<set _durations to []>>
 				<<for _i to 0; _i lt 10; _i++>><<run _durations.push(1)>><</for>>
 				<<for _i to 0; _i lt 5; _i++>><<run _durations.push(3)>><</for>>
-				<<for _i to 0; _i lt 1; _i++>><<run _durations.push(8)>><</for>>
+				<<for _i to 0; _i lt 1; _i++>><<run _durations.push(7)>><</for>>
 				<<set _duration to _durations.random()>><<take-xchange _duration>>
-			<</if>>
-			<<if $player.gender is "m">>
-				<<rng>>
-				<<if $rng gt 33>>
-					<<xchange-addeffect "genderflip">>
-					<<set _effectPool to [
-						"none","none","none","none","none","none","none",
-						"breeder","breeder",
-						"continue","continue","continue",
-						"resistance","resistance","resistance",
-					]>>
-				<<else>>
-					<<xchange-addeffect "crossdress">>
-					<<set _effectPool to [
-						"none","none","none","none","none","none","none",
-						"continue","continue","continue",
-						"bull","bull",
-						"resistance","resistance","resistance",
-					]>>
-				<</if>>
-				<<xchange-addeffect _effectPool.random()>>
-				<<if $xchange.pill.genderflipEffect>>
-					<<rng>><<if $rng gt 85>><<xchange-addeffect "fertile">><</if>>
-					<<rng>><<if $rng gt 66>><<xchange-addeffect "crossdress">><</if>>
-				<</if>>
-				<<rng>><<if $rng gt 90>><<xchange-addeffect "passion">><</if>>
-				<<rng>><<if $rng gt 50>><<xchange-addeffect "portal" 1>><</if>>
+				<<if $player.gender is "m">>
+					<<rng>>
+					<<if $rng gt 33>>
+						<<xchange-addeffect "genderflip">>
+						<<set _effectPool to [
+							"none","none","none","none","none","none","none",
+							"breeder","breeder",
+							"continue","continue","continue",
+							"resistance","resistance","resistance",
+						]>>
+					<<else>>
+						<<xchange-addeffect "crossdress">>
+						<<set _effectPool to [
+							"none","none","none","none","none","none","none",
+							"continue","continue","continue",
+							"bull","bull",
+							"resistance","resistance","resistance",
+						]>>
+					<</if>>
+					<<xchange-addeffect _effectPool.random()>>
+					<<if $xchange.pill.genderflipEffect>>
+						<<rng>><<if $rng gt 85>><<xchange-addeffect "fertile">><</if>>
+						<<rng>><<if $rng gt 66>><<xchange-addeffect "crossdress">><</if>>
+					<</if>>
+					<<rng>><<if $rng gt 90>><<xchange-addeffect "passion">><</if>>
+					<<rng>><<if $rng gt 50>><<xchange-addeffect "portal" 1>><</if>>
 
-			<<elseif $player.gender is "f">>
-				<<rng>>
-				<<if $rng gt 33>>
-					<<xchange-addeffect "genderflip">>
-					<<set _effectPool to [
-						"none","none","none","none","none","none","none",
-						"continue","continue","continue",
-						"bull","bull",
-						"resistance","resistance","resistance",
-					]>>
-				<<else>>
-					<<xchange-addeffect "crossdress">>
-					<<set _effectPool to [
-						"none","none","none","none","none","none","none",
-						"breeder","breeder",
-						"continue","continue","continue",
-						"resistance","resistance","resistance",
-					]>>
+				<<elseif $player.gender is "f">>
+					<<rng>>
+					<<if $rng gt 33>>
+						<<xchange-addeffect "genderflip">>
+						<<set _effectPool to [
+							"none","none","none","none","none","none","none",
+							"continue","continue","continue",
+							"bull","bull",
+							"resistance","resistance","resistance",
+						]>>
+					<<else>>
+						<<xchange-addeffect "crossdress">>
+						<<set _effectPool to [
+							"none","none","none","none","none","none","none",
+							"breeder","breeder",
+							"continue","continue","continue",
+							"resistance","resistance","resistance",
+						]>>
+					<</if>>
+					<<xchange-addeffect _effectPool.random()>>
+					<<if $xchange.pill.genderflipEffect>>
+						<<rng>><<if $rng gt 66>><<xchange-addeffect "crossdress">><</if>>
+					<</if>>
+					<<rng>><<if $rng gt 90>><<xchange-addeffect "passion">><</if>>
+					<<rng>><<if $rng gt 50>><<xchange-addeffect "portal" 1>><</if>>
+				
 				<</if>>
+				
+			<<else>>
+				<<set _effectPool to [
+					"genderflip","genderflip","genderflip","genderflip","genderflip","genderflip","genderflip",
+					"crossdress","crossdress","crossdress","crossdress","crossdress","crossdress","crossdress",
+					"breeder","breeder",
+					"bull","bull",
+					"continue","continue","continue",
+					"resistance","resistance","resistance",
+					"portal","portal",
+					"fertile","fertile",
+					"passion","passion",
+				]>>
+				<<if $player.sex is "m">><<run _effectPool.deleteWith((val)=>val==="breeder")>><<run _effectPool.deleteWith((val)=>val==="fertile")>><</if>>
+				<<if $player.sex is "f">><<run _effectPool.deleteWith((val)=>val==="bull")>><</if>>
+				<<if $xchange.pill.genderflipEffect>><<run _effectPool.deleteWith((val)=>val==="genderflip")>><</if>>
+				<<if $xchange.pill.genderificationEffect>><<run _effectPool.deleteWith((val)=>val==="crossdress")>><</if>>
+				<<if $xchange.pill.breederEffect>><<run _effectPool.deleteWith((val)=>val==="breeder")>><</if>>
+				<<if $xchange.pill.bullEffect>><<run _effectPool.deleteWith((val)=>val==="bull")>><</if>>
+				<<if $xchange.pill.continueEffect>><<run _effectPool.deleteWith((val)=>val==="continue")>><</if>>
+				<<if $xchange.pill.resistanceEffect>><<run _effectPool.deleteWith((val)=>val==="resistance")>><</if>>
+				<<if $xchange.pill.passionEffect>><<run _effectPool.deleteWith((val)=>val==="passion")>><</if>>
+				<<if $xchange.pill.portalEffect>><<run _effectPool.deleteWith((val)=>val==="portal")>><</if>>
+
 				<<xchange-addeffect _effectPool.random()>>
-				<<if $xchange.pill.genderflipEffect>>
-					<<rng>><<if $rng gt 66>><<xchange-addeffect "crossdress">><</if>>
-				<</if>>
-				<<rng>><<if $rng gt 90>><<xchange-addeffect "passion">><</if>>
-				<<rng>><<if $rng gt 50>><<xchange-addeffect "portal" 1>><</if>>
-			
 			<</if>>
+
 			<<xchange-addeffect "unknown">>
 			<<if _args[0] isnot "suppress">>
 				<span class="pink">You got spiked with an unknown pill.</span>
 				<br><br>
-			<</if>>
-		<<elseif $portalPantiesEnabled>>
-			<<rng>>
-			<<if $rng gt 50>>
-				<<xchange-addeffect "portal" 1>>
-				<<xchange-addeffect "spike">>
-				<<if _args[0] isnot "suppress">>
-					<span class="pink">Your crotch is feeling oddly breezy.</span>
-					<br><br>
-				<</if>>
 			<</if>>
 		<</if>>
 	<</widget>>
@@ -990,7 +1008,7 @@
 
 	<<widget "genderidentity">>
 		<<if _args[0] and $statFreeze isnot true>>
-			<<set $genderidentity += _args[0] * 0.5>>
+			<<set $genderidentity += _args[0] * 2>>
 			<<set $genderidentity to Math.clamp($genderidentity,0, 1000)>>
 		<</if>>
 	<</widget>>
@@ -1122,8 +1140,9 @@
 		<<set _amount to _args[2]>>
 
 		<<if playerIsXChanged() and $xchange.pill.breederEffect and _bodyparts.includes("vagina") and _liquids.includesAny("cum", "semen") and _amount gte 1>>
-			<<arousal 10000 "vagina">>
+			<<set $arousal to 10000>>
 			<<set $breederOrgasm to 1>>
+			<<set $xchange.pill.breederEdgingStress to 100>>
 		<</if>>
 	<</widget>>
 
@@ -1183,4 +1202,45 @@
 			<<set _locationDanger to 1500>>
 
 		<</if>>
+	<</widget>>
+
+	<<widget "chitchat">>
+		<<= either(
+			`"...So I told <<him>>: 'Are you mad? There's no way I'm ever doing that!'," <<he>> recounts with outrage.`,
+			`"...Can you believe it? That police officer really did that. No joke," <<he>> recounts, baffled at the absurdity of the tale.`,
+			`"...And then a dog comes, sticks it in there, and begins to plow furiously. Utterly insane," <<he>> looks slightly flushed as <<he>> recounts the tale.`,
+			`"...So the psycho pulls a knife, and starts threatening everyone with it...," <<he>> recounts, allowing the terror of the tale to sink in.`,
+			`"...So I just open the door, and there's this man with a raging erection, just standing there...," <<his>> cheeks dye a little red as <<he>> remembers <<his>> tale.`,
+			`"...And then this librarian starts writing 'Book Criminal' on <<his>> bloody forehead. I swear we all bursted out laughing when we saw...," <<he>> laughs heartily.`,
+			`"...And then she pulls his pants. But the boy was going commando!," <<he>> exclaims as <<he>> recounts that part of the tale.`,
+			`"...And then Leighton took pictures of it all! The poor girl was about to cry...," <<he>> sighs, seemingly feeling empathetic.`,
+			`"...So then he takes the drink without a clue, and lo and behold, he turns into a bloody woman! And fuck, was she hot, I tell you...," <<he>> recounts with such enthusiasm <<he>> might explode.`,
+			`"...So we dared her to take the pill. And later all her friends were drooling all over her new body like hungry hyenas!...," <<he>> narrates with an air of superiority as if <<he>> was above that.`,
+			`"...And I heard he went to the lake, deep into the night as a test of courage, but was never ever seen again...," pale as a ghost, <<he>> insists this is a real story.`,
+			`"...So if you press all of the buttons at the same time, you can pull off a finisher that all but guarantees you the win...," <<he>> shares some of <<his>> leet strats and insights.`,
+			`"...And then he tasted the bun. His eyes instantly glazed, as if remembering the happiest time of his life, before eagerly gobling it all up...," <<he>> narrates with an expression as if <<he>> lived it <<himself>> as well.`,
+			`"...And we were chased by it all they way until we got out. We were ghastly from what happened...," <<he>> laughs proudly, as if boasting of <<his>> foolish courage.`,
+			`"...So we smelled this mossy stuff. And minutes later we could barely keep our sanity with how horny we were...," <<he>> seems bashful as <<he>> remembers how it felt.`,
+			`"...And then she tells me she jumped the bloke into a sweet tight embrace. The happiest she's ever been. Or so she claimed...," <<he>> comments offhandedly.`,
+			`"...And apparently, he liked the abuse. Like, he claimed that getting choked until almost blacking out made him orgasm explosively...," <<he>> recounts in disbelief.`
+		)>> 
+	<</widget>>
+
+	<<widget "cheesy-pickup-line">>
+		"<<print [
+			`${$player.gender_appearance is "f"? "Girl" : "Boy"}, you look hella cute. But I suspect that's the least interesting thing about you,`,
+			`Hey, cutie! What's your name?`,
+			`Hey, ${$NPCList[0].gender is "m"? "my cock just died. May I bury it in your ass?" : "my plumbing's a bit leaky. Would you care to check it for me?"}`,
+			`Excuse me, I couldn't help but notice you look an awful lot like my next ${$player.gender_appearance is "f"? "girl": "boy"},`,
+			"Hey, babe! Why don't you sit on my lap and we talk about the first thing that pops up.",
+			"Hey, my hands are cold. Should I warm them up in your pants?",
+			"Do you know what winks and fucks like a tiger?",
+			"If I said you have a nice body, would you hold it against me?",
+			"Wanna know how I know we are having sex tonight? I'm stronger than you,",
+			`You look killer in ${$worn.lower.plural? "those":"that"} ${$worn.lower.name}. Care to share some of that booty?`,
+			`I just can't look at you and breathe at the same time... Grace me with your beauty, please,`,
+			`${$player.gender_appearance is "f"? "Nice legs. What time do they open?": "Hey there, postman... Is that package for me?"}`,
+			"You know, if I were you, I’d have sex with me. Immediately,",
+		].random()>>".
+		<<if $NPCList[0].skills.security gte 800>><<arousal 500>><<ggarousal>><<elseif $NPCList[0].skills.security gte 400>><<arousal 200>><<garousal>><</if>>
 	<</widget>>

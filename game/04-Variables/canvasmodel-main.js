@@ -2867,7 +2867,7 @@ Renderer.CanvasModels.main = {
 				return 0;
 			},
 			zfn(options) {
-				if (V.rightArmPosition == "above") return ["cover", "hold"].includes(options.arm_right) ? ZIndices.under_upper_arm_right - 0.1 : ZIndices.hands + 0.1;
+				if (V.rightArmPosition == "above") return ["cover", "hold"].includes(options.arm_right) ? ZIndices.under_upper_arm_right - 0.1 : ZIndices.under_upper_arms - 0.1;
 				if (options.worn.over_upper) {
 					T.zarms = ZIndices.over_upper_arms;
 				} else if (options.worn.upper) {

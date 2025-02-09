@@ -1,0 +1,201 @@
+:: Street Approach Widgets [widget]
+
+<<widget "streetapproach">>
+	<<set $approach_resist to 1>><<set $street_passage to $passage>>
+	<<generate1>><<person1>><<set $NPCList[0].skills.security += (1000 - $submissive) / 4>>
+
+	<span class="purple">Suddenly, a <<person>> approaches.</span><br>
+	<<cheesy-pickup-line>>
+	<br><br>
+
+	<<willpowerdifficulty 1 1000 "silent">><<set _hasPromiscuity to 0>>
+    <<if hasSexStat("promiscuity",2)>>
+        <<set _hasPromiscuity to 1>>
+        <<link [[Smile (0:10)|Street Approach Flirt]]>><<pass 10>><<handheldon>><</link>><<promiscuous2>>
+    <<else>>
+        You're not promiscuous enough to reciprocate.
+    <</if>>
+    <br>
+	<<if ($arousal lt $arousalmax * 2/5 and $drunk lt 240) or !_hasPromiscuity>>
+		<<link [[Reject (0:01)|Street Approach Reject]]>><<set $phase to 1>><<pass 1>><</link>>
+	<<elseif $willpowerSuccess>>
+		<<link [[Reject (0:01)|Street Approach Reject]]>><<set $phase to 1>><<pass 1>><<willpowersuccess>><</link>>
+	<<else>>
+		<<set $approach_resist to 0>>
+		<span class="lewd">You're too <<= $arousal gte $arousalmax * 2/5? "horny" : "drunk">> to resist <<his>> advances.</span>
+	<</if>>
+	<br>
+<</widget>>
+
+:: Street Approach Flirt
+<<set $outside to 0>><<set $location to "pub">><<effects>><<set $bus to "harvest">>
+<<promiscuity2>>
+You smile to <<his>> approach, encouraging <<him>> to continue. 
+<br><br>
+
+<<chitchat>> You both chat along on the street for a few minutes, happily enjoying eachothers company. 
+<br><br>
+
+"You know, you really are quite a <<= $player.gender_appearance is "f" ? ["sexy chick", "hot girl", "hot babe", "sex bomb", "sweet piece of tail"].random() : ["handsome guy", "sexy hunk of ass", "hot stud", "stallion"].random()>>," <<he>> leans forward, lending a flirty touch on your <<=$player.sex is "f"?"waist":"chest">> "<<= $NPCList[0].skills.security gte 500? "" : "H-">>How about going somewhere more... private?," 
+<br><br>
+
+<<switch $speech_attitude>>
+<<case "meek">>
+	"S-Sure...," you meekly respond while contemplating in your mind the extent of the depravity about to befall your poor little self. Despite the countless lewd fantasies rapidly coursing through your head, or perhaps precisely because of them, you decide to follow <<him>> into the nearby alley.
+<<case "neutral">>
+	"I thought you'd never ask," you say while mockingly faking surprise. "Come on, let's go." There isn't much to think about, so you just follow <<him>> into the nearby alley.
+<<case "bratty">>
+	"We better get going, then," you respond, drawing a cheeky smile. "This <<= $player.sex is "f"? "girl":"boy">> isn't gonna service <<pherself>>." The <<person>> is stunned for a few moments before your sudden boldness. So after shaking off <<his>> very apparent shock, and quite against <<his>> better judgement, <<he>> follows you into the nearby alley.
+<</switch>>
+<br><br>
+
+<<link [[Next|Street Approach Flirt 2]]>><</link>>
+
+:: Street Approach Flirt 2
+
+<<if $NPCList[0].skills.security gte 500>>
+	With implicit confidence, <<he>> guides you deeper into the alley to a spot were you both feel you'd be out of sight.
+	No longer able to restrain <<himself>>, the <<person>> lunges at you, and begins to grope you all over.
+	<br><br>
+	<<link [[Next (0:10)|Street Approach Sex]]>><<set $phase to 1>><<set $sexstart to 1>><</link>>
+<<else>>
+	With clear awkwardness, <<he>> discreetly looks around the alley and the surrounding streets, caringly searching for a spot where you'll both be obfuscated. Once <<he>> manages to find a spot <<he>> feels is safe enough, <<he>> beckons you over.
+    <br><br>
+	No longer able to control <<himself>>, the <<person>> lunges at you, cornering you against a wall. And begins to grope you all over with panting lust.
+	<br><br>
+	<<link [[Next (0:10)|Street Approach Sex]]>><<set $phase to 2>><<set $sexstart to 1>><</link>>
+<</if>>
+
+:: Street Approach Sex
+
+<<if $sexstart is 1>>
+	<<set $sexstart to 0>>
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+	<<maninit>>
+	<<set $enemytrust += 100>>
+<<elseif $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<maninit>>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<if _combatend>>
+	<span id="next"><<link [[Next|Street Approach Sex Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Street Approach Sex]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Street Approach Sex Finish
+
+<<effects>>
+<<if $phase is 1>>
+	<<if $enemyhealth lte 0>>
+
+		<<tearful>> you knock <<him>> into a nearby garbage pile, which gives way under <<his>> weight. 
+        <br><br>
+        As <<he>> struggles to get back on <<his>> feet, you take chance and dash out into the street, paying no mind to anything you might have left behind.
+
+	<<elseif $enemyarousal gte $enemyarousalmax>>
+
+		<<ejaculation>>
+		<<clotheson>>
+
+		<<He>> collapses over you. "You trully are the best slut in town," <<he>> says, stroking your hair. "Let's keep this between just the two of us, though." <<He>> glances at <<his>> watch. "I gotta go. Pleasure meeting you." <<He>> hastily dresses back up before rushing back into the street, leaving you feeling a bit used. <<tearful>> you dress back up before heading out yourself.
+
+	<<else>>
+		<<clotheson>>
+
+		"Alright, alright. I knew I was out of practice," you stare at <<him>> as <<he>> starts gathering<<his>> stuff. "Fuck, just go!" <<tearful>> you gather your clothes in haste and dress back up before heading out.
+
+	<</if>>
+	<br><br>
+
+	<<endcombat>>
+
+    <<destinationeventend>>
+	/* <<link [[Next|$street_passage]]>><</link>> */
+<<else>>
+	<<if $enemyhealth lte 0>>
+
+		<<tearful>> you knock <<him>> into a nearby garbage pile, which gives way under <<his>> weight. 
+        <br><br>
+        As <<he>> struggles to get back on <<his>> feet, you take chance and dash out into the street, paying no mind to anything you might have left behind.
+
+	<<elseif $enemyarousal gte $enemyarousalmax>>
+
+		<<ejaculation>>
+		<<clotheson>>
+
+		<<He>> collapses over you. "That was amazing," <<he>> pants. "You really are an incredible <<= $player.sex is "m"? "guy":"girl">>." <<He>> lifts <<himself>> up, trying to get a good look at you even in this dark corner. "Honestly, I'd really love for you to come home with me. Can I perhaps tempt you with some coffee? Perhaps tea?" You tell <<him>> there's no need for it and that you really should be going.
+		<br><br>
+
+		"Name's <<personname>>," <<he>> suddenly introduces <<himself>> out of the blue as if hoping this was more than just some fling. "I really hope we can see each other again." Not sparing another word, you quickly dress back up, apologising for not being able to indulge. <<tearful>> you leave the alley. Yet <<he>> still stares after you in longing all the way until you're fully gone.
+		
+	<<else>>
+
+		<<clotheson>>
+		"Huh? What's wrong?" <<he>> asks. "Ugh, nevermind. This was a mistake. Please leave." <<tearful>> you leave <<him>> in peace.
+
+	<</if>>
+	<br><br>
+
+
+	<<endcombat>>
+
+    <<destinationeventend>>
+	/* <<link [[Next|$street_passage]]>><</link>> */
+<</if>>
+
+
+:: Street Approach Reject
+<<if $phase is 1>>
+	Unimpressed, you shoot down every single one of <<his>> poor attempts at a pick-up line. Mortified that <<he>> would think such cheesy lines would work on you. And somehow, <<he>> still looks shocked that <<his>> clever oneliners missed their mark.
+	<br><br>
+
+	<<if $NPCList[0].skills.security gte 500>>
+		"Come on! Don't be like that!" <<he>> protests. "Let's have some fun! I'll make you feel good."
+		<br><br>
+		
+        <<link [[Relent (0:20)|Street Approach Flirt]]>><<pass 20>><</link>>
+        <br>
+        <<willpowerdifficulty 1 1000 "silent">>
+        <<if $arousal lt $arousalmax * 0.4 and $drunk lt 240>>
+            <<link [[Refuse again|Street Approach Reject]]>><<set $phase++>><</link>>
+        <<elseif $willpowerSuccess and $approach_resist>>
+            <<link [[Refuse again|Street Approach Reject]]>><<willpowersuccess>><<set $phase++>><</link>>
+        <<else>>
+            <<set $approach_resist to 0>>
+            <span class="lewd"><<He>> has worn you down. You're now going along with <<his>> advances.</span>
+        <</if>>
+		
+		<br>
+	<<else>>
+		Having run out of ammunition, the <<person>> takes <<his>> leave feeling defeated.
+		<br><br>
+        <<destinationeventend>>
+		/* <<link [[Next|$street_passage]]>><<endevent>><</link>> */
+	<</if>>
+<<else>>
+	Despite <<his>> pushiness, you still refuse every attempt <<he>> does to get you to cave. 
+	<<if $NPCList[0].skills.security gte 750>>
+		For a moment it seems the <<person>> is about to lose <<his>> temper, but the disapproving looks of the onlookers appears to scare <<him>> off. With a scornful expression, <<he>> clicks <<his>> tongue one last time before leaving. 
+	<<else>>
+		Having knocked out the wind out of <<his>> sails, <<he>> makes one last scornful remark before going off.
+	<</if>>
+	<br><br>
+
+    <<destinationeventend>>
+	/* <<link [[Next|$street_passage]]>><<endevent>><</link>> */
+<</if>>
