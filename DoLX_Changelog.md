@@ -14,6 +14,7 @@
  * Restored the influence of submission/defiance on non-combat actions.
  * May now attempt to steal your Choice Reversal pill from the Prison's Spire.
  * Updated vanilla pj sprites.
+ * Added Bull pill to pharmacy.
 
 ### Rebalancing and Bug fixes:
   * Fixed enemy health and brawling skill going NaN.
@@ -25,7 +26,9 @@
   * Fixed breeder orgasm not triggering on the first creampie of an encounter.
   * Fixed vanilla typo that prevented smuggler locations from cycling.
   * Bus chikan molesters may now leave before making you orgasm (due to the bus reaching their stop).
-
+  * Fixed dice events being displayed along with the table by mistake.
+  * Reduced odds of being approached at the pub
+  * Fixed Sissy/Butch pill not being offered at pharmacy.
 
 
 
