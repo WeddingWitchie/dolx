@@ -890,7 +890,7 @@ setup.pills = [
 				? 1
 				: 0;
 		},
-		effects: [`<<xchange-pink 1 "crossdress">>`],
+		effects: [`<<take-xchange 1 "crossdress">>`],
 	},
 	{
 		name: "X-Change Choice (F)",
@@ -1299,7 +1299,7 @@ setup.pills = [
 				? 1
 				: 0;
 		},
-		effects: [`<<xchange-blue 1 "crossdress">>`],
+		effects: [`<<take-xchange 1 "crossdress">>`],
 	},
 	{
 		name: "X-Change Choice (M)",
