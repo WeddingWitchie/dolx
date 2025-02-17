@@ -6,6 +6,8 @@ function fameMax(...fameTypes) {
 window.fameMax = fameMax;
 
 function historicFameMax(...fameTypes) {
+	if (fameTypes.length <= 0) 
+		fameTypes = ["bestiality","sex","prostitution","impreg","exhibitionism","rape","pregnancy"];
 	let result = 0;
 	fameTypes.forEach(fameType => result = Math.max(V.xchange.blackmail.historicFame[fameType], result));
 	return result;
@@ -13,11 +15,22 @@ function historicFameMax(...fameTypes) {
 window.historicFameMax = historicFameMax;
 
 function penaltyFameSum(...fameTypes) {
+	if (fameTypes.length <= 0) 
+		fameTypes = ["bestiality","sex","prostitution","impreg","exhibitionism","rape","pregnancy"]; 
 	let result = 0;
 	fameTypes.forEach(fameType => result += V.xchange.blackmail.penaltyThreat[fameType]);
 	return result;
 }
 window.penaltyFameSum = penaltyFameSum;
+
+function penaltyFameMax(...fameTypes) {
+	if (fameTypes.length <= 0) 
+		fameTypes = ["bestiality","sex","prostitution","impreg","exhibitionism","rape","pregnancy"]; 
+	let result = 0;
+	fameTypes.forEach(fameType => result = Math.max(V.xchange.blackmail.penaltyThreat[fameType], result));
+	return result;
+}
+window.penaltyFameMax = penaltyFameMax;
 
 function getStaticQuestData(quest) {
 	let match = blackmailQuests.low.find((template) => template.index === quest.index);

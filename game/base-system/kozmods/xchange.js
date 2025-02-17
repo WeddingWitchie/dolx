@@ -353,7 +353,7 @@ function xchangeEffectsMessages() {
 
 	if (V.breederEdgingMessage) {
 		element("span", "Your body refuses to cum like this.", "purple"); 
-		element("span", "You crave some thick gooey semen in your"+ either("pussy.","vagina."), "red");
+		element("span", "You crave some thick gooey semen in your "+ either("pussy.","vagina."), "red");
 		if (V.xchange.pill.breederEdgingStress > 400)
 			fragment.append(wikifier("ggstress"));
 		else

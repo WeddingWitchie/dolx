@@ -1227,6 +1227,7 @@ function dailyNPCEffects() {
 	if (V.robindebtevent === 0) V.robinmissing = 0;
 	if (V.robinpaid >= 1) statChange.trauma(-25);
 	if ((V.robinromance === 1 || V.robinsexfriend === 1) && C.npc.Robin.dom >= 40) fragment.append(wikifier("npcincr", "Robin", "lust", 1));
+	if ((V.beauty >= V.beautymax && C.npc.Robin.trauma <= 0 && !V.robinmissing)) fragment.append(wikifier("npcincr", "Robin", "lust", 2));
 	if (V.robinPilloryFail) {
 		delete V.robinPilloryFail;
 		delete V.robinPillory;

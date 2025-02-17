@@ -2276,7 +2276,7 @@ function initUnderLower() {
 			},
 			integrity: 100,
 			integrity_max: 100,
-			fabric_strength: 30,
+			fabric_strength: 40,
 			reveal: 600,
 			rearresize: 0,
 			word: "n",
