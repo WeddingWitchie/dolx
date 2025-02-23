@@ -423,7 +423,7 @@ const statChange = (() => {
 			V.arousal += arousalChange;
 			
 			// Prevent orgasming unless addictions are fulfilled (or you don't have them)
-			if ( ( !V.penis_addict_trait || penisAddictionFulfilled ) && ( !V.hole_addict_trait || holeAddictionFulfilled ) ) {
+			if ( ( V.penis_addict_trait !== 1 || penisAddictionFulfilled ) && ( V.hole_addict_trait !== 1 || holeAddictionFulfilled ) ) {
 				// Do Nothing
 			} else {
 				V.arousal = Math.clamp(V.arousal, 0, V.arousalmax * 4/5 - 1);
