@@ -1142,11 +1142,16 @@ function effects() {
 			fragment.append(wikifier("arousal", arousalDrop*2));
 		}
 
+		if (V.orgasmCum === 1) {
+			V.refractoryPeriod = V.player.penisExist ? 5 : 0;
+		}
+
 		sWikifier(`<span class="light-pink">Your body continues to convulse as it releases the tension from your orgasm.</span> <<llarousal>>`);
 	}
 
 	V.orgasmdown -= 1;
 	V.orgasmCum -= 1;
+	V.refractoryPeriod -= 1;
 
 	if (V.exposed >= 1 && V.exposedcheck === 1) {
 		V.exposedcheck = 0;

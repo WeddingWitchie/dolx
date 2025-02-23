@@ -399,6 +399,11 @@ function xchangeEffectsMessages() {
 		delete V.breederEdgingMessage;
 	}
 
+	if (V.refractoryPeriodMessage) {
+		element("span", "Your body is still recovering from your last orgasm.", "blue"); br();
+		delete V.refractoryPeriodMessage;
+	}
+
 	return fragment;
 }
 window.xchangeEffectsMessages = xchangeEffectsMessages;

@@ -281,6 +281,20 @@ const statChange = (() => {
 			let mod = 1;
 			let purityMod = (1000 - V.purity) * V.xchange.impuritySensitivityBonus / 1000;
 
+			// If currently under the refractory period post-orgasm, prevent arousal from raising.
+			if (V.refractoryPeriod > 0 && amount > 0) {
+				if (V.drugged > 0) {
+					V.refractoryPeriod--;
+					V.refractoryPeriodMessage = 2;
+				}
+				else {
+					V.refractoryPeriodMessage = 1;
+				}
+				
+				amount = 0;
+				V.effectsmessage = 1;
+			}
+
 			// Trait checks & effects
 			if (amount > 0 && V.orgasmtrait) mod *= 0.6;
 
