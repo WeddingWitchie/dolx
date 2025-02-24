@@ -12,7 +12,7 @@ const StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.5.3.7 DoLP v0.641 DoLX 0.9.5",
+	version: "0.5.3.7 DoLP v0.641 DoLX 0.9.5b",
 	versionName: `"Houses Kept, Virginity Sold" edition`,
 	sneaky: false,
 	socialMediaEnabled: true,
