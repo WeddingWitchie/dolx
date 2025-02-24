@@ -399,6 +399,16 @@ function xchangeEffectsMessages() {
 		delete V.breederEdgingMessage;
 	}
 
+	if (V.dumbBitchOrgasmMessage) {
+		element("span", "Your orgasm is frying your brain.", "red"); 
+		fragment.append(wikifier("llstress"));
+		fragment.append(wikifier("lwillpower"));
+		element("span", "|",);
+		element("span", "- Intelligence", "red");
+		br();
+		delete V.dumbBitchOrgasmMessage;
+	}
+
 	if (V.refractoryPeriodMessage) {
 		element("span", "Your body is still recovering from your last orgasm.", "blue"); br();
 		delete V.refractoryPeriodMessage;
