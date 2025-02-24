@@ -15,3 +15,4 @@
   * Fixed F2M pilled PC displaying a parasite dick rather than a real one in combat.
   * May now pray/meditate on insecurities regardless of current gender and body part sizes, as long as such insecurities exist.
   * Fixed duplicate "demon demonic"-like descriptions in characteristics overlay.
+  * Fixed typo "xchamge".
