@@ -1,4 +1,39 @@
 
+function hasGenderIdentity(stage) {
+	switch (stage) {
+		case 8:
+			return V.genderidentity === 1000;
+		case 7:
+			return V.genderidentity >= 875;
+		case 6:
+			return V.genderidentity >= 750;
+		case 5:
+			return V.genderidentity >= 625;
+		case 4:
+			return V.genderidentity >= 375;
+		case 3:
+			return V.genderidentity >= 250;
+		case 2:
+			return V.genderidentity >= 125;
+		case 1:
+			return V.genderidentity >= 1;
+		case 0:
+			return V.genderidentity === 0;
+		default:
+			return false;
+	}
+}
+window.hasGenderIdentity = hasGenderIdentity;
+
+function playerFeelsManlike() {
+	return (V.player.gender === "m" && hasGenderIdentity(5)) || (V.player.gender === "f" && !hasGenderIdentity(4));
+}
+window.playerFeelsManlike = playerFeelsManlike;
+
+function playerFeelsGirllike() {
+	return (V.player.gender === "f" && hasGenderIdentity(5)) || (V.player.gender === "m" && !hasGenderIdentity(4));
+}
+window.playerFeelsGirllike = playerFeelsGirllike;
 
 function playerIsXChanged() {
 	return (
@@ -236,22 +271,22 @@ function hourlyClothingFemininityCheck() {
 		}
 	}
 	else if (playerCaresForGender()) {
-		if (V.genderidentity >= 875 && V.player.gender === "m" && V.player.sex === "m" && currentWornFemininity > 0) {
+		if (hasGenderIdentity(7) && V.player.gender === "m" && V.player.sex === "m" && currentWornFemininity > 0) {
 			wikifier("stress",800,1);
 			V.genderStressMessage = 2;
 			V.effectsmessage = 1;
 		}
-		else if (V.genderidentity >= 625 && V.player.gender === "m" && currentWornFemininity > 0) {
+		else if (hasGenderIdentity(5) && V.player.gender === "m" && currentWornFemininity > 0) {
 			wikifier("stress",400,1);
 			V.genderStressMessage = 1;
 			V.effectsmessage = 1;
 		}
-		else if (V.genderidentity <= 125 && V.player.gender === "f" && V.player.sex === "m" && currentWornFemininity > 0) {
+		else if (!hasGenderIdentity(2) && V.player.gender === "f" && V.player.sex === "m" && currentWornFemininity > 0) {
 			wikifier("stress",800,1);
 			V.genderStressMessage = 2;
 			V.effectsmessage = 1;
 		}
-		else if (V.genderidentity <= 375 && V.player.gender === "f" && currentWornFemininity > 0) {
+		else if (!hasGenderIdentity(4) && V.player.gender === "f" && currentWornFemininity > 0) {
 			wikifier("stress",400,1);
 			V.genderStressMessage = 1;
 			V.effectsmessage = 1;
@@ -362,6 +397,21 @@ function xchangeEffectsMessages() {
 		br();
 
 		delete V.breederEdgingMessage;
+	}
+
+	if (V.dumbBitchOrgasmMessage) {
+		element("span", "Your orgasm is frying your brain.", "red"); 
+		fragment.append(wikifier("llstress"));
+		fragment.append(wikifier("lwillpower"));
+		element("span", "|",);
+		element("span", "- Intelligence", "red");
+		br();
+		delete V.dumbBitchOrgasmMessage;
+	}
+
+	if (V.refractoryPeriodMessage) {
+		element("span", "Your body is still recovering from your last orgasm.", "blue"); br();
+		delete V.refractoryPeriodMessage;
 	}
 
 	return fragment;

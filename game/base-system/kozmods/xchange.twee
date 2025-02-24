@@ -408,6 +408,7 @@
 		<<set $xchange.pill.resistanceEffect to false>>
 		<<set $xchange.pill.continueEffect to false>>
 		<<set $xchange.pill.passionEffect to false>>
+		<<set $xchamge.pill.dumbBitchEffect to false>>
 		<<set $xchange.pill.portalEffect to false>>
 		<<set $xchange.pill.portalEffectTimer to 0>>
 
@@ -425,6 +426,7 @@
 	<</widget>>
 
 	<<widget "xchange-addeffect">>
+		/* IMPORTANT: For purple effect, PC's sex should be set to male, and balls should be removed */
 		<<switch _args[0]>>
 		<<case "genderflip">>
 			<<if !$xchange.pill.genderflipEffect>>
@@ -471,6 +473,8 @@
 			<</if>>
 		<<case "passion">>
 			<<set $xchange.pill.passionEffect to true>>
+		<<case "dumb-bitch">>
+			<<set $xchange.pill.dumbBitchEffect to true>>
 		<<case "choice">>
 			<<xchange-setpermanent>>
 			<<set $xchangePermanenceMessage to 0>>
@@ -509,6 +513,8 @@
 			<</if>>
 		<<case "passion">>
 			<<set $xchange.pill.passionEffect to false>>
+		<<case "dumb-bitch">>
+			<<set $xchange.pill.dumbBitchEffect to false>>
 		<<case "spike" "unknown">>
 			<<set $xchange.pill.effectsKnown to true>>
 		<<default>>
@@ -648,6 +654,15 @@
 		<<if _pill.continueEffect and !(pillIsPermanent() or pillTimerPaused())>>
 			<<set _pill.duration += 1 * 16>>
 		<</if>>
+		<<if _pill.dumbBitchEffect>>
+			<<stress -10>><<trauma -50>><<willpower -5>>
+			<<set $science_exam = Math.clamp($science_exam - 20, -120, 200)>>
+			<<set $maths_exam = Math.clamp($maths_exam - 20, -120, 200)>>
+			<<set $english_exam = Math.clamp($english_exam - 20, -120, 200)>>
+			<<set $history_exam = Math.clamp($history_exam - 20, -120, 200)>>
+			<<set $effectsMessage to 1>>
+			<<set $dumbBitchOrgasmMessage to 1>>
+		<</if>>
 	<</widget>>
 
 	<<widget "genderidentity-orgasm">>
@@ -731,7 +746,7 @@
 						<<rng>><<if $rng gt 85>><<xchange-addeffect "fertile">><</if>>
 						<<rng>><<if $rng gt 66>><<xchange-addeffect "crossdress">><</if>>
 					<</if>>
-					<<rng>><<if $rng gt 90>><<xchange-addeffect "passion">><</if>>
+					<<rng>><<if $rng gt 95>><<xchange-addeffect "passion">><</if>>
 					<<rng>><<if $rng gt 50>><<xchange-addeffect "portal" 1>><</if>>
 
 				<<elseif $player.gender is "f">>
@@ -757,7 +772,7 @@
 					<<if $xchange.pill.genderflipEffect>>
 						<<rng>><<if $rng gt 66>><<xchange-addeffect "crossdress">><</if>>
 					<</if>>
-					<<rng>><<if $rng gt 90>><<xchange-addeffect "passion">><</if>>
+					<<rng>><<if $rng gt 95>><<xchange-addeffect "passion">><</if>>
 					<<rng>><<if $rng gt 50>><<xchange-addeffect "portal" 1>><</if>>
 				
 				<</if>>
@@ -772,7 +787,8 @@
 					"resistance","resistance","resistance",
 					"portal","portal",
 					"fertile","fertile",
-					"passion","passion",
+					"passion",
+					"dumb-bitch",
 				]>>
 				<<if $player.sex is "m">><<run _effectPool.deleteWith((val)=>val==="breeder")>><<run _effectPool.deleteWith((val)=>val==="fertile")>><</if>>
 				<<if $player.sex is "f">><<run _effectPool.deleteWith((val)=>val==="bull")>><</if>>
@@ -784,6 +800,7 @@
 				<<if $xchange.pill.resistanceEffect>><<run _effectPool.deleteWith((val)=>val==="resistance")>><</if>>
 				<<if $xchange.pill.passionEffect>><<run _effectPool.deleteWith((val)=>val==="passion")>><</if>>
 				<<if $xchange.pill.portalEffect>><<run _effectPool.deleteWith((val)=>val==="portal")>><</if>>
+				<<if $xchange.pill.dumbBitchEffect>><<run _effectPool.deleteWith((val)=>val==="dumb-bitch")>><</if>>
 
 				<<xchange-addeffect _effectPool.random()>>
 			<</if>>
@@ -835,6 +852,8 @@
 			</li><</if>>
 			<<if $xchange.pill.passionEffect>><li>Passion Effect.
 				<mouse class="tooltip linkBlue">(?)<span>Steadily dissolves aphrodisiacs into your bloodstream at an hourly rate.</span></mouse></li><</if>>
+			<<if $xchange.pill.dumbBitchEffect>><li>Dumb Bitch Effect.
+				<mouse class="tooltip linkBlue">(?)<span>Each orgasm fries your brain a little bit each time, making you dumber and less able to resist pleasure.</span></mouse></li><</if>>
 			<<if $xchange.pill.portalEffect>><li>Portal Effect: <span class="teal"><<print-portalduration>></span> remaining.
 				<mouse class="tooltip linkBlue">(?)<span>Allows random NPCs to fuck you remotely, regardless of your consent.</span></mouse></li><</if>>
 			<<if $xchange.pill.clone isnot "none">><li>Clone '<<print $xchange.pill.clone>>' Effect.</li><</if>>
