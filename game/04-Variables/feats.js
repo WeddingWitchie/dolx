@@ -2479,6 +2479,13 @@ setup.feats = {
 		softLockable: true,
 		hunt: "Hint: A true paradox.",
 	},
+	"Dumb Bitch": {
+		title: "Dumb Bitch",
+		desc: "Totally fried your brain with orgasms.",
+		difficulty: 1,
+		series: "",
+		filter: ["All", "Stats"],
+	},
 };
 
 async function featsMergePre() {
