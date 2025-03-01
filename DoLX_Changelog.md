@@ -7,12 +7,7 @@
 
 ## Changelog
 ### Changes and Additions:
-  * Added new "dumb bitch" pill effect.
-  * Male PCs can no longer cum right after an orgasm. Now need to recover for a couple turns.
+  * Updated DoLP version to v0.649
 
 ### Rebalancing and Bug fixes:
-  * Fixed cheat menu option that disables penis/hole addict traits.
-  * Fixed F2M pilled PC displaying a parasite dick rather than a real one in combat.
-  * May now pray/meditate on insecurities regardless of current gender and body part sizes, as long as such insecurities exist.
-  * Fixed duplicate "demon demonic"-like descriptions in characteristics overlay.
-  * Fixed typo "xchamge".
+  * None
