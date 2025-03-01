@@ -1790,7 +1790,7 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 <</widget>>
 
 <<widget "combat-hand-on-throat">>
-	<<if $asphyxiaLvl gte 1 and ($consensual is 1 or $combatExtended.stabilityLost is 1 or $combatExtended.standingFightsType is "normal")>>
+	<<if $asphyxiaLvl gte 1 and ($consensual is 1 or $combatExtended.stabilityLost is 1)>>
 		<<rng>>
 		<<if $consensual is 1>>
 			<<mancombat_choke>>
@@ -1833,6 +1833,26 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 		<<set $askedtochoke to 0>>
 		<<combat-set-hand-target _args[0] "throat">>
 		<<neutral 1 _n>>
+	<<elseif $combatExtended.standingFightStart is 0 and $combatExtended.standingFightsType is "normal" and $combatExtended.stabilityLost is 0 and Math.random() * 100 lte 33 and ($enemyanger + $rng lt 160)>>
+		<<if ($combatExtended.passiveDodging is 1 or $combatExtended.activeDodgingActive is 1 or $combatExtended.countering is 1) and ($combatExtended.dodgeSuccess gte 1 or $combatExtended.counteringActive gte 1) and $consensual isnot 1>>
+			<span class="purple"><<He>> tries to grapple you onto the floor with <<his>> _args[0] hand</span> but
+			<<if $combatExtended.counterSuccess is 2>>
+				<span class="green">you avoid their grabby hands and jab their face.</span>
+				<<defiance 5>><<control 4>><<ggcontrol>><<counterStat>>
+			<<elseif $combatExtended.dodgeSuccess is 2>>
+				<span class="green">you dodge.</span>
+				<<control 2>><<gcontrol>><<dodgeStat>><<set $enemyanger += 10>>
+			<<elseif $combatExtended.counterSuccess is 1>>
+				<span class="blue">you manage to punch them in return.</span>
+				<<defiance 3>><<partialCounterStat>><<combatExtendedStability -10>>
+			<<else>>
+				<span class="blue">you partially dodge.</span>
+				<<partialDodgeStat>><<set $enemyanger += 5>><<combatExtendedStability -5>>
+			<</if>>
+		<<else>>
+			<span class="pur1ple"><<He>> tries to grapple you onto the floor with <<his>> _args[0] hand.</span>
+			<<set $speechgrapple to 1>><<combatExtendedStability -10>>
+		<</if>>
 	<<elseif $combatgoal is "strip" and ($consensual is 1 or $combatExtended.stabilityLost is 1 or $combatExtended.standingFightsType is "normal")>>
 		<<set _upperIsNaked to $worn.over_upper.name is "naked" and $worn.upper.name is "naked" and $worn.under_upper.name is "naked">>
 		<<set _lowerIsNaked to $worn.over_lower.name is "naked" and $worn.lower.name is "naked" and $worn.under_lower.name is "naked">>
@@ -3371,7 +3391,7 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 								<<sex 100 "genitals" _n>><<takeVirginity $NPCList[_n].fullDescription "vaginal">><<set $speechvaginavirgin to 1>>
 								<<if $enemyanger gte 100>><<set _pain *= 1.5>><</if>><<pain _pain>>
 							<</if>>
-							<<vaginalstat>><<set $NPCList[_n].penis to "vaginadouble">><<takeNPCVirginity _n "penile">><<bruise vagina>><<raped>><<vaginaraped>><<set $vaginastate to "doublepenetrated">>
+							<<vaginalstat>><<vaginaldoublestat>><<set $NPCList[_n].penis to "vaginadouble">><<takeNPCVirginity _n "penile">><<bruise vagina>><<raped>><<vaginaraped>><<set $vaginastate to "doublepenetrated">>
 						<<else>>
 							Respecting your wishes, <<he>> presses <<his>> $NPCList[_n].penisdesc against your <<pussy>> but does not penetrate.
 							<<sex 15 "genitals" _n>><<set $speechvaginawithhold to 1>>
@@ -5752,7 +5772,9 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 			<<rng>>
 			<<namedNpcComments $NPCList[_n].fullDescription>>
 			<<if ($NPCList[_n].mouth is 0 or $NPCList[_n].mouth is "speech_only" or ($NPCList[_n].type is "plant" and $speechkissvirgin is 1)) and $speechdisable isnot 1 and _noNameComment>>
-				<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
+				<<if $combatExtended.reverseRapeStart is 1>>
+					<<basespeech>>
+				<<elseif $role is "islander" and (!$islander_language or $islander_language lt 100)>>
 					<<He>> speaks and gesticulates in <<his>> incomprehensible language.
 				<<elseif $NPCList[_n].type is "plant">>
 					<<plantspeech>>

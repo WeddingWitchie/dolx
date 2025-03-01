@@ -874,8 +874,28 @@
 		<</if>>
 	<</if>>
 
-	<<if $combatExtended.enemyPassiveDodging is 1>>
-		<<set $NPCList[_n].dodgeChance to _i * 2>>
+	<<set $NPCList[_n].dodgeChance to 0>>
+	<<if $combatExtended.enemyBaseDodgeChance is 1>>
+		<<set $NPCList[_n].dodgeChance += _i * $combatExtended.enemyBaseDodgeChanceMult>>
+	<</if>>
+
+	<<if $combatExtended.enemyMartialArts is 1>>
+		<<set $NPCList[_n].martialArts to 0>>
+		<<if (_i * $enemyMartialArtsLevelScalingMult) lt 200>>
+			<<set _randomness to (_i * $combatExtended.enemyMartialArtsLevelScalingMult) / 2>>
+		<<else>>
+			<<set _randomness to 100>>
+		<</if>>
+		<<if $combatExtended.enemyMartialArtsScaling is "random" or $combatExtended.enemyMartialArtsScaling is "both">>
+			<<set $NPCList[_n].martialArts += random((_i * $combatExtended.enemyMartialArtsLevelScalingMult) - _randomness, (_i * $combatExtended.enemyMartialArtsLevelScalingMult) + _randomness)>>
+		<</if>>
+		<<if $combatExtended.enemyMartialArtsScaling is "level" or $combatExtended.enemyMartialArtsScaling is "both">>
+			<<set $NPCList[_n].martialArts += _i * $combatExtended.enemyMartialArtsLevelScalingMult>>
+		<</if>>
+
+		<<if $NPCList[_n].martialArts gt 0>>
+			<<set $NPCList[_n].dodgeChance += Math.round($NPCList[_n].martialArts / 10)>>
+		<</if>>
 	<</if>>
 
 	<<if $NPCList[_n].penis isnot "none">><!-- set pp size based on the upper and lower bounds for the selected description -->
@@ -924,7 +944,7 @@
 		<<elseif ["Avery","Whitney","Remy","Wren","Alex","Charlie"].includes(_nameCheck)>>
 			<<set $NPCList[_n].maxOrgasms to 4 + Math.floor($NPCName[$NPCNameList.indexOf(_nameCheck)].lust / 20)>>
 
-		<<elseif ["Bailey","Briar","Eden","Black Wolf","Great Hawk","Ivory Wraith","Zephyr"].includes(_nameCheck)>>
+		<<elseif ["Bailey","Briar","Eden","Black Wolf","Great Hawk","Ivory Wraith","Zephyr","Riley"].includes(_nameCheck)>>
 			<<set $NPCList[_n].maxOrgasms to 5 + Math.floor($NPCName[$NPCNameList.indexOf(_nameCheck)].lust / 20)>>
 
 		<<else>>

@@ -178,6 +178,18 @@ statDisplay.create("gtending", () => statDisplay.statChange("Tending", 1, "green
 statDisplay.create("ggtending", () => statDisplay.statChange("Tending", 2, "green"));
 statDisplay.create("gggtending", () => statDisplay.statChange("Tending", 3, "green"));
 
+statDisplay.create("gfootwork", () => statDisplay.statChange("Footwork", 1, "green"));
+statDisplay.create("ggfootwork", () => statDisplay.statChange("Footwork", 2, "green"));
+statDisplay.create("gggfootwork", () => statDisplay.statChange("Footwork", 3, "green"));
+
+statDisplay.create("gstriking", () => statDisplay.statChange("Striking", 1, "green"));
+statDisplay.create("ggstriking", () => statDisplay.statChange("Striking", 2, "green"));
+statDisplay.create("gggstriking", () => statDisplay.statChange("Striking", 3, "green"));
+
+statDisplay.create("gkicking", () => statDisplay.statChange("Kicking", 1, "green"));
+statDisplay.create("ggkicking", () => statDisplay.statChange("Kicking", 2, "green"));
+statDisplay.create("gggkicking", () => statDisplay.statChange("Kicking", 3, "green"));
+
 statDisplay.create("ltreasure", () => statDisplay.statChange("Decreases chance of finding treasure", 0, "purple"));
 statDisplay.create("gtreasure", () => statDisplay.statChange("Increases chance of finding treasure", 0, "green"));
 

@@ -2261,6 +2261,33 @@ setup.feats = {
 		softLockable: true,
 		hint: "Hint: Max brawling with tempered brawling.",
 	},
+	"Fleet-Footed": {
+		title: "Fleet-Footed",
+		desc: "Fast feet, sharp mind. You never lose your step.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "AMC Traits"],
+		softLockable: true,
+		hint: "Hint: Max footwork with tempered footwork.",
+	},
+	"Knockout Artist": {
+		title: "Knockout Artist",
+		desc: "One clean shot is all you need.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "AMC Traits"],
+		softLockable: true,
+		hint: "Hint: Max striking with tempered striking.",
+	},
+	"Bladed Legs": {
+		title: "Bladed Legs",
+		desc: "Kicks sharper than swords, stronger than steel.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "AMC Traits"],
+		softLockable: true,
+		hint: "Hint: Max kicking with tempered kicking.",
+	},
 	"Urban Myth": {
 		title: "Urban Myth",
 		desc: "Get 4000 combat fame.",
@@ -2455,7 +2482,33 @@ setup.feats = {
 	},
 	"Brawler": {
 		title: "Brawler",
-		desc: "Nobody sane dares to mess with you; your frightening blows speak loud enough.",
+		desc: "Numbers don't matter to you, it's almost like you have a sixth sense.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Combat Extended"],
+		softLockable: true,
+	},
+	"Balanced": {
+		title: "Balanced",
+		desc: "You stay on your feet no matter what, like the ground itself fears you falling.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Combat Extended"],
+		softLockable: true,
+	},
+
+	"Heavy Hands": {
+		title: "Heavy Hands",
+		desc: "Your fists land with the force of a sledgehammer.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Combat Extended"],
+		softLockable: true,
+	},
+
+	"Steel Legs": {
+		title: "Steel Legs",
+		desc: "You put your whole body into every kick, and it shows.",
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Combat Extended"],
@@ -2848,6 +2901,12 @@ function earnHourlyFeats() {
 	}
 	if (V.combatExtended.brawling >= 1000) earnFeat("Brawler");
 	if (V.combatExtended.brawling >= 2000) earnFeat("Many Punch Man");
+	if (V.combatExtended.footwork >= 1000) earnFeat("Balanced");
+	if (V.combatExtended.footwork >= 2000) earnFeat("Fleet-Footed");
+	if (V.combatExtended.striking >= 1000) earnFeat("Heavy Hands");
+	if (V.combatExtended.striking >= 2000) earnFeat("Knockout Artist");
+	if (V.combatExtended.kicking >= 1000) earnFeat("Steel Legs");
+	if (V.combatExtended.kicking >= 2000) earnFeat("Bladed Legs");
 	if (V.birdFly == 1) earnFeat("Catch the Wind");
 	if (V.beauty >= 20000) earnFeat("Aphrodite");
 	if (V.milk_volume >= 12000) earnFeat("Rivers of White");

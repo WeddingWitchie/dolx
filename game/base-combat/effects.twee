@@ -13,6 +13,17 @@
 		* Argument 3 (optional) is the extra multiplier for the arousal side. This is only used in undressing so far, but might as well add it as an option.
 		*/
 
+		/* Check if enemy should be submissive */
+		<<if $combatExtended.reverseRape is 1 and $promiscuity gte 75 and $enemyhealth lte 0 and $combatExtended.reverseRapeStart is 0 and $combatExtended.reverseRapeInit is 1>>
+			<<set $combatExtended.reverseRapeStart to 1>>
+			<<set $combatExtended.stability to -100>>
+			<<consensual>>
+			<<set $consensual to 1>>
+			<<reversenpcidlegenitals>>
+			<<npc_submissive_multiple>>
+			<<set $setupMidOrgasm to true>>
+		<</if>>
+
 		<<if $combatExtended.reverseRapeStart is 1>>
 			<span class="yellow">You may now stop the encounter by opening the Combat Menu. </span>
 			<br><br>
@@ -435,7 +446,7 @@
 				<<set $_target to $righttarget>>
 			<</if>>
 			<<handskilluse>><<personselect $_target>>
-			<<if combatSkillCheck("hand", $NPCList[$_target])>>
+			<<if $combatExtended.reverseRapeStart is 1 or combatSkillCheck("hand", $NPCList[$_target])>>
 				<<chestskilluse>><<combatpromiscuity3>>
 				<<set $chestactiondefault to "rub">><<set $chestuse to "penis">><<cheststat>><<set $mouthactiondefault to "peniskiss">>
 				<<set $NPCList[$_target].penis to "chest">><<set $chesttarget to $_target>>
@@ -598,14 +609,14 @@
 			<<set $leftaction to 0>><<set $rightaction to 0>><<set $leftactiondefault to "lefthit">><<set $rightactiondefault to "righthit">>
 			<<willpowercombatcheck>>
 			<<if $willpowerSuccess>>
-				<<combatExtendedEnemyCheck $lefttarget>><<actionshit both>>
+				<<set $striking to 1>><<combatExtendedEnemyCheck $lefttarget>><<actionshit both>>
 				<<if $combatExtended.enemyDodgeSuccess gte 1 or $combatExtended.enemyCounterSuccess gte 1>>
 					<<if $combatExtended.enemyCounterSuccess is 2>>
-						<<violence 10>>
+						<<violence 10>><<combatExtendedStability -10>>
 					<<elseif $combatExtended.enemyDodgeSuccess is 2>>
 						/* Attack dodged */
 					<<elseif $combatExtended.enemyCounterSuccess is 1>>
-						<<defiance 5 $lefttarget>><<violence 5>><<set $speechhit to 1>><<set $attackstat += 2>>
+						<<defiance 5 $lefttarget>><<violence 5>><<set $speechhit to 1>><<set $attackstat += 2>><<combatExtendedStability -5>>
 					<<else>>
 						<<defiance 3 $lefttarget>><<set $speechhit to 1>><<set $attackstat += 2>>
 					<</if>>
@@ -618,7 +629,7 @@
 		<</if>>
 
 		<<if $leftaction is "lefthit">>
-			<<set $leftaction to 0>><<set $leftactiondefault to "lefthit">><<combatExtendedEnemyCheck $lefttarget>>
+			<<set $leftaction to 0>><<set $leftactiondefault to "lefthit">><<set $striking to 1>><<combatExtendedEnemyCheck $lefttarget>>
 			<<willpowercombatcheck>>
 			<<if !$willpowerSuccess>>
 				You try to hit the <<if $enemytype is "beast">><<beasttype>><<else>><<personselect $lefttarget>><<person>><</if>> 
@@ -636,11 +647,11 @@
 					<<actionshit $lefttarget>>
 					<<if $combatExtended.enemyDodgeSuccess gte 1 or $combatExtended.enemyCounterSuccess gte 1>>
 						<<if $combatExtended.enemyCounterSuccess is 2>>
-							<<violence 10>>
+							<<violence 10>><<combatExtendedStability -10>>
 						<<elseif $combatExtended.enemyDodgeSuccess is 2>>
 							/* Attack dodged */
 						<<elseif $combatExtended.enemyCounterSuccess is 1>>
-							<<defiance 2 $lefttarget>><<violence 5>><<set $speechhit to 1>><<set $attackstat += 1>>
+							<<defiance 2 $lefttarget>><<violence 5>><<set $speechhit to 1>><<set $attackstat += 1>><<combatExtendedStability -5>>
 						<<else>>
 							<<defiance 1 $lefttarget>><<set $speechhit to 1>><<set $attackstat += 1>>
 						<</if>>
@@ -667,7 +678,7 @@
 		<</if>>
 
 		<<if $rightaction is "righthit">>
-			<<set $rightaction to 0>><<set $rightactiondefault to "righthit">><<personselect $righttarget>><<combatExtendedEnemyCheck $righttarget>>
+			<<set $rightaction to 0>><<set $rightactiondefault to "righthit">><<personselect $righttarget>><<set $striking to 1>><<combatExtendedEnemyCheck $righttarget>>
 			<<willpowercombatcheck>>
 			<<if !$willpowerSuccess>>
 				You try to hit the <<if $enemytype is "beast">><<beasttype>><<else>><<personselect $lefttarget>><<person>><</if>> 
@@ -687,11 +698,11 @@
 					<<actionshit $righttarget>>
 					<<if $combatExtended.enemyDodgeSuccess gte 1 or $combatExtended.enemyCounterSuccess gte 1>>
 						<<if $combatExtended.enemyCounterSuccess is 2>>
-							<<violence 10>>
+							<<violence 10>><<combatExtendedStability -10>>
 						<<elseif $combatExtended.enemyDodgeSuccess is 2>>
 							/* Attack dodged */
 						<<elseif $combatExtended.enemyCounterSuccess is 1>>
-							<<defiance 2 $righttarget>><<violence 5>><<set $speechhit to 1>><<set $attackstat += 1>>
+							<<defiance 2 $righttarget>><<violence 5>><<set $speechhit to 1>><<set $attackstat += 1>><<combatExtendedStability -5>>
 						<<else>>
 							<<defiance 1 $righttarget>><<set $speechhit to 1>><<set $attackstat += 1>>
 						<</if>>
@@ -722,11 +733,11 @@
 			<<set $rightactiondefault to "rightumbrella">><<combatExtendedEnemyCheck $lefttarget>><<actionsumbrella both>>
 			<<if $combatExtended.enemyDodgeSuccess gte 1 or $combatExtended.enemyCounterSuccess gte 1>>
 				<<if $combatExtended.enemyCounterSuccess is 2>>
-					<<violence 10>>
+					<<violence 10>><<combatExtendedStability -10>><<combatExtendedStability -10>>
 				<<elseif $combatExtended.enemyDodgeSuccess is 2>>
 					/* Attack dodged */
 				<<elseif $combatExtended.enemyCounterSuccess is 1>>
-					<<defiance 12 $lefttarget>><<violence 5>><<set $speechhit to 1>><<set $attackstat += 2>><<set $umbrellaHit to 2>><<umbrellaDurability>>
+					<<defiance 12 $lefttarget>><<violence 5>><<set $speechhit to 1>><<set $attackstat += 2>><<set $umbrellaHit to 2>><<umbrellaDurability>><<combatExtendedStability -5>><<combatExtendedStability -5>>
 				<<else>>
 					<<defiance 6 $lefttarget>><<set $speechhit to 1>><<set $attackstat += 2>><<set $umbrellaHit to 1>><<umbrellaDurability>>
 				<</if>>
@@ -789,11 +800,11 @@
 					<<actionsumbrella $righttarget>>
 					<<if $combatExtended.enemyDodgeSuccess gte 1 or $combatExtended.enemyCounterSuccess gte 1>>
 						<<if $combatExtended.enemyCounterSuccess is 2>>
-							<<violence 10>>
+							<<violence 10>><<combatExtendedStability -10>>
 						<<elseif $combatExtended.enemyDodgeSuccess is 2>>
 							/* Attack dodged */
 						<<elseif $combatExtended.enemyCounterSuccess is 1>>
-							<<defiance 5 $righttarget>><<violence 5>><<set $speechhit to 1>><<set $attackstat += 1>><<set $umbrellaHit to 1>><<umbrellaDurability>>
+							<<defiance 5 $righttarget>><<violence 5>><<set $speechhit to 1>><<set $attackstat += 1>><<set $umbrellaHit to 1>><<umbrellaDurability>><<combatExtendedStability -5>>
 						<<else>>
 							<<defiance 3 $righttarget>><<set $speechhit to 1>><<set $attackstat += 1>><<set $umbrellaHit to 1>><<umbrellaDurability>>
 						<</if>>
@@ -895,14 +906,14 @@
 			<<set $leftaction to 0>><<set $rightaction to 0>><<set $leftactiondefault to "leftfeint">><<set $rightactiondefault to "rightfeint">>
 			<<willpowercombatcheck>>
 			<<if $willpowerSuccess>>	
-				<<set $combatExtended.feintingActive to 2>><<combatExtendedEnemyCheck $lefttarget>><<actionshit both>>
+				<<set $combatExtended.feintingActive to 2>><<set $striking to 1>><<combatExtendedEnemyCheck $lefttarget>><<actionshit both>>
 				<<if $combatExtended.enemyDodgeSuccess gte 1 or $combatExtended.enemyCounterSuccess gte 1>>
 					<<if $combatExtended.enemyCounterSuccess is 2>>
-						<<violence 10>>
+						<<violence 10>><<combatExtendedStability -10>>
 					<<elseif $combatExtended.enemyDodgeSuccess is 2>>
 						/* Attack dodged */
 					<<elseif $combatExtended.enemyCounterSuccess is 1>>
-						<<defiance 2 $lefttarget>><<violence 5>><<set $speechhit to 1>><<set $attackstat += 2>>
+						<<defiance 2 $lefttarget>><<violence 5>><<set $speechhit to 1>><<set $attackstat += 2>><<combatExtendedStability -5>>
 					<<else>>
 						<<defiance 1 $lefttarget>><<set $speechhit to 1>><<set $attackstat += 2>>
 					<</if>>
@@ -918,7 +929,7 @@
 			<<set $leftaction to 0>><<set $leftactiondefault to "leftfeint">>
 			<<willpowercombatcheck>>
 			<<if $willpowerSuccess>>
-				<<set $combatExtended.feintingActive to 1>><<combatExtendedEnemyCheck $lefttarget>>
+				<<set $combatExtended.feintingActive to 1>><<set $striking to 1>><<combatExtendedEnemyCheck $lefttarget>>
 				<<if $parasite.left_ear.name is "slime" and random(1, 3) is 3 or $parasite.right_ear.name is "slime" and random(1, 3) is 3>>
 					<<if $earSlime.corruption gte (currentSkillValue('willpower') / 10)>>
 						You try to launch a feint at the <<if $enemytype is "beast">><<beasttype>><<else>><<personselect $lefttarget>><<person>><</if>>
@@ -929,11 +940,11 @@
 						<<actionsfeint $lefttarget>>
 						<<if $combatExtended.enemyDodgeSuccess gte 1 or $combatExtended.enemyCounterSuccess gte 1>>
 							<<if $combatExtended.enemyCounterSuccess is 2>>
-								<<violence 10>>
+								<<violence 10>><<combatExtendedStability -10>>
 							<<elseif $combatExtended.enemyDodgeSuccess is 2>>
 								/* Attack dodged */
 							<<elseif $combatExtended.enemyCounterSuccess is 1>>
-								<<defiance 1 $lefttarget>><<violence 5>><<set $speechhit to 1>><<set $attackstat += 1>>
+								<<defiance 1 $lefttarget>><<violence 5>><<set $speechhit to 1>><<set $attackstat += 1>><<combatExtendedStability -5>>
 							<<else>>
 								<<defiance 0.5 $lefttarget>><<set $speechhit to 1>><<set $attackstat += 1>>
 							<</if>>
@@ -966,7 +977,7 @@
 			<<set $rightaction to 0>><<set $leftactiondefault to "rightfeint">>
 			<<willpowercombatcheck>>
 			<<if $willpowerSuccess>>
-				<<set $combatExtended.feintingActive to 1>><<combatExtendedEnemyCheck $rightaction>>
+				<<set $combatExtended.feintingActive to 1>><<set $striking to 1>><<combatExtendedEnemyCheck $rightaction>>
 				<<if $parasite.left_ear.name is "slime" and random(1, 3) is 3 or $parasite.right_ear.name is "slime" and random(1, 3) is 3>>
 					<<if $earSlime.corruption gte (currentSkillValue('willpower') / 10)>>
 						You try to launch a feint a the <<if $enemytype is "beast">><<beasttype>><<else>><<personselect $rightaction>><<person>><</if>>
@@ -977,11 +988,11 @@
 						<<actionsfeint $rightaction>>
 						<<if $combatExtended.enemyDodgeSuccess gte 1 or $combatExtended.enemyCounterSuccess gte 1>>
 							<<if $combatExtended.enemyCounterSuccess is 2>>
-								<<violence 10>>
+								<<violence 10>><<combatExtendedStability -10>>
 							<<elseif $combatExtended.enemyDodgeSuccess is 2>>
 								/* Attack dodged */
 							<<elseif $combatExtended.enemyCounterSuccess is 1>>
-								<<defiance 1 $rightaction>><<violence 5>><<set $speechhit to 1>><<set $attackstat += 1>>
+								<<defiance 1 $rightaction>><<violence 5>><<set $speechhit to 1>><<set $attackstat += 1>><<combatExtendedStability -5>>
 							<<else>>
 								<<defiance 0.5 $rightaction>><<set $speechhit to 1>><<set $attackstat += 1>>
 							<</if>>
@@ -1014,14 +1025,14 @@
 			<<set $leftaction to 0>><<set $rightaction to 0>><<set $leftactiondefault to "lefthookpunch">><<set $rightactiondefault to "righthookpunch">>
 			<<willpowercombatcheck>>
 			<<if $willpowerSuccess>>
-				<<set $combatExtended.hookpunchingActive to 2>><<combatExtendedEnemyCheck $lefttarget>><<actionshookpunch both>>
+				<<set $combatExtended.hookpunchingActive to 2>><<set $striking to 1>><<combatExtendedEnemyCheck $lefttarget>><<actionshookpunch both>>
 				<<if $combatExtended.enemyDodgeSuccess gte 1 or $combatExtended.enemyCounterSuccess gte 1>>
 					<<if $combatExtended.enemyCounterSuccess is 2>>
-						<<violence 10>>
+						<<violence 10>><<combatExtendedStability -10>>
 					<<elseif $combatExtended.enemyDodgeSuccess is 2>>
 						/* Attack dodged */
 					<<elseif $combatExtended.enemyCounterSuccess is 1>>
-						<<defiance 10 $lefttarget>><<violence 5>><<set $speechhit to 1>><<set $attackstat += 2>>
+						<<defiance 10 $lefttarget>><<violence 5>><<set $speechhit to 1>><<set $attackstat += 2>><<combatExtendedStability -5>>
 					<<else>>
 						<<defiance 5 $lefttarget>><<set $speechhit to 1>><<set $attackstat += 2>>
 					<</if>>
@@ -1037,7 +1048,7 @@
 			<<set $leftaction to 0>><<set $leftactiondefault to "lefthookpunch">>
 			<<willpowercombatcheck>>
 			<<if $willpowerSuccess>>
-				<<set $combatExtended.hookpunchingActive to 1>><<combatExtendedEnemyCheck $lefttarget>>
+				<<set $combatExtended.hookpunchingActive to 1>><<set $striking to 1>><<combatExtendedEnemyCheck $lefttarget>>
 				<<if $parasite.left_ear.name is "slime" and random(1, 3) is 3 or $parasite.right_ear.name is "slime" and random(1, 3) is 3>>
 					<<if $earSlime.corruption gte (currentSkillValue('willpower') / 10)>>
 						You try to hit the <<if $enemytype is "beast">><<beasttype>><<else>><<personselect $lefttarget>><<person>><</if>>
@@ -1048,11 +1059,11 @@
 						<<actionshookpunch $lefttarget>>
 						<<if $combatExtended.enemyDodgeSuccess gte 1 or $combatExtended.enemyCounterSuccess gte 1>>
 							<<if $combatExtended.enemyCounterSuccess is 2>>
-								<<violence 10>>
+								<<violence 10>><<combatExtendedStability -10>>
 							<<elseif $combatExtended.enemyDodgeSuccess is 2>>
 								/* Attack dodged */
 							<<elseif $combatExtended.enemyCounterSuccess is 1>>
-								<<defiance 4 $lefttarget>><<violence 5>><<set $speechhit to 1>><<set $attackstat += 1>>
+								<<defiance 4 $lefttarget>><<violence 5>><<set $speechhit to 1>><<set $attackstat += 1>><<combatExtendedStability -5>>
 							<<else>>
 								<<defiance 2 $lefttarget>><<set $speechhit to 1>><<set $attackstat += 1>>
 							<</if>>
@@ -1085,7 +1096,7 @@
 			<<set $rightaction to 0>><<set $rightactiondefault to "righthookpunch">>
 			<<willpowercombatcheck>>
 			<<if $willpowerSuccess>>
-				<<personselect $righttarget>><<set $combatExtended.hookpunchingActive to 1>><<combatExtendedEnemyCheck $righttarget>>
+				<<personselect $righttarget>><<set $combatExtended.hookpunchingActive to 1>><<set $striking to 1>><<combatExtendedEnemyCheck $righttarget>>
 				<<if $parasite.left_ear.name is "slime" and random(1, 3) is 3 or $parasite.right_ear.name is "slime" and random(1, 3) is 3>>
 					<<if $earSlime.corruption gte (currentSkillValue('willpower') / 10)>>
 						You try to hit the <<if $enemytype is "beast">><<beasttype>><<else>><<person>><</if>>
@@ -1096,11 +1107,11 @@
 						<<actionshookpunch $righttarget>>
 						<<if $combatExtended.enemyDodgeSuccess gte 1 or $combatExtended.enemyCounterSuccess gte 1>>
 							<<if $combatExtended.enemyCounterSuccess is 2>>
-								<<violence 10>>
+								<<violence 10>><<combatExtendedStability -10>>
 							<<elseif $combatExtended.enemyDodgeSuccess is 2>>
 								/* Attack dodged */
 							<<elseif $combatExtended.enemyCounterSuccess is 1>>
-								<<defiance 4 $righttarget>><<violence 5>><<set $speechhit to 1>><<set $attackstat += 1>>
+								<<defiance 4 $righttarget>><<violence 5>><<set $speechhit to 1>><<set $attackstat += 1>><<combatExtendedStability -5>>
 							<<else>>
 								<<defiance 2 $righttarget>><<set $speechhit to 1>><<set $attackstat += 1>>
 							<</if>>
@@ -3203,7 +3214,7 @@
 			<<set $feetaction to 0>><<set $feetactiondefault to "kick">>
 			<<willpowercombatcheck>>
 			<<if $willpowerSuccess>>
-				<<combatExtendedEnemyCheck $feettarget>>
+				<<set $kicking to 1>><<combatExtendedEnemyCheck $feettarget>>
 				<<if ($parasite.left_ear.name is "slime" and random(1, 3) is 3) or ($parasite.right_ear.name is "slime" and random(1, 3) is 3) or ($earSlime.growth gte 50 and random(1, 3) is 3)>>
 					<<if $earSlime.growth gte (currentSkillValue('willpower') / 10) and random(0,100) gte $earSlime.growth / 3>>
 						You try to kick the <<if $enemytype is "beast">><<beasttype>>,<<else>><<personselect $feettarget>><<person>>,<</if>>
@@ -3218,7 +3229,7 @@
 						<<actionskick $feettarget>>
 						<<if $combatExtended.enemyDodgeSuccess gte 1 or $combatExtended.enemyCounterSuccess gte 1>>
 							<<if $combatExtended.enemyCounterSuccess is 2>>
-								<<violence 10>>
+								<<violence 10>><<combatExtendedStability -10>>
 							<<elseif $combatExtended.enemyDodgeSuccess is 2>>
 								/* Attack dodged */
 							<<elseif $combatExtended.enemyCounterSuccess is 1>>
@@ -3248,7 +3259,7 @@
 								<</if>>
 								<</if>>
 								<<set $speechhit to 1>><<set $attackstat += 1>>
-								<<violence 5>><<set $speechhit to 1>><<set $attackstat += 1>>
+								<<violence 5>><<set $speechhit to 1>><<set $attackstat += 1>><<combatExtendedStability -5>>
 							<<else>>
 								<<if $combatExtended.standingFights is 1 and $combatExtended.stabilityLost is 0>>
 									<<defiance 5 $feettarget>>
@@ -3427,10 +3438,10 @@
 					<<gwillpower>><<willpower 1>>
 				<<else>>
 					The slime tries to immobilise your legs, <span class="green">but you wrestle control away from it.</span>
-					You steady your footing.<<set $combatExtended.stability = Math.clamp($combatExtended.stability + 33, 0, 100)>>
+					You steady your footing.<<combatExtendedStability 15>><<set $enemyanger += 10>>
 				<</if>>
 			<<else>>
-				You steady your footing.<<set $combatExtended.stability = Math.clamp($combatExtended.stability + 33, 0, 100)>>
+				You steady your footing.<<combatExtendedStability 15>><<set $enemyanger += 10>>
 			<</if>>
 		<</if>>
 
@@ -4073,7 +4084,7 @@
 					<<set $_PorV to "V">>
 				<</if>>
 				<<if $_PorV is "P">><<askoralpenis>><<elseif $_PorV is "V">><<askoralvagina>><</if>>
-				<<if combatSkillCheck("seduction", $mouthtarget, $_target.fullDescription)>>
+				<<if $combatExtended.reverseRapeStart is 1 or combatSkillCheck("seduction", $mouthtarget, $_target.fullDescription)>>
 					<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
 						<span class="red"><<if $enemyno gte 2>>They don't<<else>><<He>> doesn't<</if>> understand your words,</span> and <<if $enemyno gte 2>>ignore<<else>>ignores<</if>> them.
 					<<else>>
@@ -5846,7 +5857,7 @@
 				<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
 					<span class="red"><<if $enemyno gte 2>>They don't<<else>><<He>> doesn't<</if>> understand your words,</span> and <<if $enemyno gte 2>>ignore<<else>>ignores<</if>> them.
 				<<elseif !$gloryhole and $gamemode isnot "soft">><<seductionskillusecombat>><</if>>
-				<<if combatSkillCheck("seduction", $mouthtarget, $NPCList[$mouthtarget].fullDescription) or $gamemode is "soft" or $gloryhole>>
+				<<if $combatExtended.reverseRapeStart is 1 or combatSkillCheck("seduction", $mouthtarget, $NPCList[$mouthtarget].fullDescription) or $gamemode is "soft" or $gloryhole>>
 					<<He>> nods and removes <<his>> $NPCList[$mouthtarget].penisdesc.
 
 					/* Remove their strap-on. If they have a penis, give them back their penis. */
@@ -6997,7 +7008,7 @@
 			<<set $penisaction to 0>><<penileskilluse>>
 			<<sex 5 "genitals">><<brat 5 $penistarget>>
 			<<if $player.condom>>
-				<<if combatSkillCheck("penile", $penistarget)>>
+				<<if $combatExtended.reverseRapeStart is 1 or combatSkillCheck("penile", $penistarget)>>
 					<<if [$player.condom.state].includesAny("defective", "sabotaged")>>
 						<span class="blue">You try to wear out your condom, but realize it is already broken.</span>
 					<<else>>
@@ -7396,16 +7407,6 @@
 		<<set $NPCList[5].intro to 0>>
 
 		<<combat_lewdity_text>>
-
-		/* Check if enemy should be submissive */
-		<<if $combatExtended.reverseRape is 1 and $combatExtended.reverseRapeInit is 1 and $promiscuity gte 75 and $enemyhealth lte 0 and $combatExtended.reverseRapeStart is 0>>
-			<<set $combatExtended.reverseRapeStart to 1>>
-			<<set $combatExtended.stability to -100>>
-			<<consensual>>
-			<<set $consensual to 1>>
-			<<reversenpcidlegenitals>>
-			<<npc_submissive_multiple>>
-		<</if>>
 
 	</div>
 <</widget>>

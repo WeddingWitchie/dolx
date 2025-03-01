@@ -373,9 +373,8 @@ function settingsGenericGenders(id) {
 					text = `<span class='gold inline-colour'>All</span> <span class='pink inline-colour'>${women}</span> and <span class='gold inline-colour'>no</span> <span class='blue inline-colour'>${men}</span> will be  ${attraction}.`;
 					break;
 				default:
-					text = `<span class='gold inline-colour'>${
-						100 - val
-					}%</span> of <span class='pink inline-colour'>${women}</span> and <span class='gold inline-colour'>${val}%</span> of <span class='blue inline-colour'>${men}</span> will be ${attraction}.`;
+					text = `<span class='gold inline-colour'>${100 - val
+						}%</span> of <span class='pink inline-colour'>${women}</span> and <span class='gold inline-colour'>${val}%</span> of <span class='blue inline-colour'>${men}</span> will be ${attraction}.`;
 					break;
 			}
 		} else {
@@ -960,15 +959,17 @@ function getLargestSexStatModifierCssClasses(input, requiredLevel = 0) {
 	}
 
 	const drunkSexStatModifierValue = drunkSexStatModifier(V[statName]);
+	const hallucinogenSexStatModifierValue = hallucinogenSexStatModifier(V[statName]);
 	const heatRutSexStatModifierValue = heatRutSexStatModifier(statName);
 
 	// If there is a modifier, and either requiredLevel is 0 or the modifiers put the player up a level of the sexStat.
 	if (
-		drunkSexStatModifierValue + heatRutSexStatModifierValue > 0 &&
+		drunkSexStatModifierValue + hallucinogenSexStatModifierValue + heatRutSexStatModifierValue > 0 &&
 		(requiredLevel === 0 || (!hasSexStat(statName, requiredLevel, false) && hasSexStat(statName, requiredLevel, true)))
 	) {
 		const modifiers = [
 			{ value: drunkSexStatModifierValue, class: "drunk" },
+			{ value: hallucinogenSexStatModifierValue, class: "drunk" },
 			{ value: heatRutSexStatModifierValue, class: "jitter" },
 		];
 

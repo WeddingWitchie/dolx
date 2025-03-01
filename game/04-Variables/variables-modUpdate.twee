@@ -513,11 +513,11 @@
 		<<set $multiOrgasmLustScaling to 0>>
 	<</if>>
 
-	<<if $NPCName[0].maxOrgasms is undefined>>
-		<<for _i to 0; _i lt $NPCName.length; _i++>>
+	<<for _i to 0; _i lt $NPCName.length; _i++>>
+		<<if $NPCName[_i].maxOrgasms is undefined>>
 			<<set $NPCName[_i].maxOrgasms to 1>>
-		<</for>>
-	<</if>>
+		<</if>>
+	<</for>>
 
 	<<if $farm>>
 		<<if $farm.tower>>
@@ -1109,6 +1109,82 @@
 		<<set $farmCottageLocked to 0>>
 	<</if>>
 
+	<<if $transformationParts.okami is undefined>>
+		<<set $transformationParts.okami to {ears:"disabled", tail:"disabled", wings:"disabled", misc:"disabled"}>>
+	<</if>>
+
+	<<if $transformationParts.seraphim is undefined>>
+		<<set $transformationParts.seraphim to {wings:"disabled", plumage:"disabled", eyes:"disabled"}>>
+	<</if>>
+
+	<<if $transformationParts.kitsune is undefined>>
+		<<set $transformationParts.kitsune to {ears:"disabled", tail:"disabled", cheeks:"disabled", misc:"disabled"}>>
+	<</if>>
+
+	<<if $produce_yield_factor is undefined>>
+		<<set $produce_yield_factor to 100>>
+	<</if>>
+
+	<<if $beastGroupFight is undefined>>
+		<<set $beastGroupFight to 0>>
+	<</if>>
+
+	<<if $beastMultiOrgasmToggle is undefined>>
+		<<set $beastMultiOrgasmToggle to 0>>
+	<</if>>
+
+	<<if $furniture>>
+		<<if $furniture.bedroom.chair is undefined>>
+			<<set $furniture.bedroom.chair to {id: "chair"}>>
+		<</if>>
+	<</if>>
+
+	<<if $combatExtended.footwork is undefined>>
+		<<set $combatExtended.footwork to 0>>
+	<</if>>
+
+	<<if $combatExtended.striking is undefined>>
+		<<set $combatExtended.striking to 0>>
+	<</if>>
+
+	<<if $combatExtended.kicking is undefined>>
+		<<set $combatExtended.kicking to 0>>
+	<</if>>
+
+	<<if $combatExtended.footworkToggle is undefined>>
+		<<set $combatExtended.footworkToggle to 0>>
+	<</if>>
+
+	<<if $combatExtended.strikingToggle is undefined>>
+		<<set $combatExtended.strikingToggle to 0>>
+	<</if>>
+
+	<<if $combatExtended.kickingToggle is undefined>>
+		<<set $combatExtended.kickingToggle to 0>>
+	<</if>>
+
+	<<if $combatExtended.enemyMartialArts is undefined>>
+		<<set $combatExtended.enemyMartialArts to 0>>
+	<</if>>
+
+	<<if $combatExtended.enemyMartialArtsRandom is undefined>>
+		<<set $combatExtended.enemyMartialArtsScaling to "random">>
+	<</if>>
+
+	<<if $combatExtended.enemyMartialArtsLevelScalingMult is undefined>>
+		<<set $combatExtended.enemyMartialArtsLevelScalingMult to 50>>
+	<</if>>
+
+	<<if $combatExtended.enemyBaseDodgeChance is undefined>>
+		<<set $combatExtended.enemyBaseDodgeChance to 1>>
+	<</if>>
+
+	<<if $combatExtended.enemyBaseDodgeChanceMult is undefined>>
+		<<set $combatExtended.enemyBaseDodgeChanceMult to 2>>
+	<</if>>
+
+	<<modNewNamedNPCs>>
+
 	<<modParasiteCapUpdate>>
 
 	<<modWardrobeUpdate>>
@@ -1299,22 +1375,16 @@
 		<<set $AMCTraits.modelFame to 1>>
 	<</if>>
 
-	<<if $produce_yield_factor is undefined>>
-		<<set $produce_yield_factor to 100>>
+	<<if $AMCTraits.footwork is undefined>>
+		<<set $AMCTraits.footwork to 1>>
 	<</if>>
 
-	<<if $beastGroupFight is undefined>>
-		<<set $beastGroupFight to 0>>
+	<<if $AMCTraits.striking is undefined>>
+		<<set $AMCTraits.striking to 1>>
 	<</if>>
 
-	<<if $beastMultiOrgasmToggle is undefined>>
-		<<set $beastMultiOrgasmToggle to 0>>
-	<</if>>
-
-	<<if $furniture>>
-		<<if $furniture.bedroom.chair is undefined>>
-			<<set $furniture.bedroom.chair to {id: "chair"}>>
-		<</if>>
+	<<if $AMCTraits.kicking is undefined>>
+		<<set $AMCTraits.kicking to 1>>
 	<</if>>
 <</widget>>
 
@@ -1386,4 +1456,27 @@
 		<<set $background_image2 to "none">>
 	<</if>>
 
+<</widget>>
+
+<<widget "modNewNamedNPCs">>
+	<<if $dolpNpcListVersion is undefined>>
+		<<set _newNNPCs to {
+			"riley": {nam : "Riley", title: "MMA coach", insecurity: "skill", adult: 1}
+		}>>
+		<<for _npc range Object.keys(_newNNPCs)>>
+			<<if !$NPCNameList.includes(_newNNPCs[_npc].nam)>>
+				<<newNamedNpc _newNNPCs[_npc]>>
+				<<set _npcsAdded to true>>
+			<</if>>
+		<</for>>
+		<<if _npcsAdded is true>>
+			<<generateNPCNameHairAndEyeColors>>
+		<</if>>
+		<<set $dolpNpcListVersion to 1>>
+	<</if>>
+
+	<<if $NPCName[31].description is "Riley" and $NPCName[31].title is undefined>>
+		<<set $NPCName[31].title to "MMA coach">>
+		<<set $NPCName[31].insecurity to "skill">>
+	<</if>>
 <</widget>>

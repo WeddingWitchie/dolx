@@ -66,28 +66,28 @@
                     <<else>>
                         <<capture _food>>
                             <<link [[Make|$passage]]>><<make_recipe _food>><</link>><br>
-                            <<set _timeNeeded to setup.plants[_food].days * 5>>
-                            <<if Math.min(...T.ingredientAmount) gte 5 and _timeNeeded lte 600>>
+                            <<set _timeNeeded to setup.plants[_food].days * 5>><<bulkCheck>>
+                            <<if Math.min(...T.ingredientAmount) gte 5 and _bulkAllowed is 1>>
                                 <<set _timeString to getTimeString(_timeNeeded)>>
                                 <<link [["Make 5 (_timeString)"|$passage]]>><<make_recipe_bulk _food 5>><</link>><br>
                             <</if>>
-                            <<set _timeNeeded to setup.plants[_food].days * 10>>
-                            <<if Math.min(...T.ingredientAmount) gte 10 and _timeNeeded lte 600>>
+                            <<set _timeNeeded to setup.plants[_food].days * 10>><<bulkCheck>>
+                            <<if Math.min(...T.ingredientAmount) gte 10 and _bulkAllowed is 1>>
                                 <<set _timeString to getTimeString(_timeNeeded)>>
                                 <<link [["Make 10 (_timeString)"|$passage]]>><<make_recipe_bulk _food 10>><</link>><br>
                             <</if>>
-                            <<set _timeNeeded to setup.plants[_food].days * 25>>
-                            <<if Math.min(...T.ingredientAmount) gte 25 and _timeNeeded lte 600>>
+                            <<set _timeNeeded to setup.plants[_food].days * 25>><<bulkCheck>>
+                            <<if Math.min(...T.ingredientAmount) gte 25 and _bulkAllowed is 1>>
                                 <<set _timeString to getTimeString(_timeNeeded)>>
                                 <<link [["Make 25 (_timeString)"|$passage]]>><<make_recipe_bulk _food 25>><</link>><br>
                             <</if>>
-                            <<set _timeNeeded to setup.plants[_food].days * 50>>
-                            <<if Math.min(...T.ingredientAmount) gte 50 and _timeNeeded lte 600>>
+                            <<set _timeNeeded to setup.plants[_food].days * 50>><<bulkCheck>>
+                            <<if Math.min(...T.ingredientAmount) gte 50 and _bulkAllowed is 1>>
                                 <<set _timeString to getTimeString(_timeNeeded)>>
                                 <<link [["Make 50 (_timeString)"|$passage]]>><<make_recipe_bulk _food 50>><</link>><br>
                             <</if>>
-                            <<set _timeNeeded to setup.plants[_food].days * 100>>
-                            <<if Math.min(...T.ingredientAmount) gte 100 and _timeNeeded lte 600>>
+                            <<set _timeNeeded to setup.plants[_food].days * 100>><<bulkCheck>>
+                            <<if Math.min(...T.ingredientAmount) gte 100 and _bulkAllowed is 1>>
                                 <<set _timeString to getTimeString(_timeNeeded)>>
                                 <<link [["Make 100 (_timeString)"|$passage]]>><<make_recipe_bulk _food 100>><</link>><br>
                             <</if>>
@@ -312,3 +312,11 @@
 		<<set $_recipeName to $_recipeName.toUpperFirst()>>
 	<</if>>
 <</silently>><span @class=$_difficultyColour><<print $_recipeName>></span><</widget>>
+
+<<widget "bulkCheck">>
+    <<if !(($bus is "orphanage_kitchen" or $location is "temple") and ((Time.hour + ((_timeNeeded + Time.minute) / 60)) < 21)) and _timeNeeded lte 1440>>
+        <<set _bulkAllowed to 1>>
+    <<else>>
+        <<set _bulkAllowed to 0>>
+    <</if>>
+<</widget>>

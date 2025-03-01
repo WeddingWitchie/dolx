@@ -54,21 +54,23 @@
 <<widget "npcoral">>
 	<!-- TODO: make this take an index as an argument so you can use npcoral with NPCs in other slots -->
 	<!-- TODO: make this take "m" or "f" as an argument so we can enforce consistency between use of this widget and scenes which set up context before using it -->
-	<<run npcMakeNaked($NPCList[0], "lower")>>
-	<<if $NPCList[0].penis isnot "none">>
-		<<set $NPCList[0].penis to "mouthentrance">><<set $mouthstate to "entrance">><<set $mouthuse to "penis">>
-		<<He>> presses <<his>> <<= npcHasStrapon(0) ? "strap-on cock" : "penis">> against your lips.
-	<<elseif $NPCList[0].vagina isnot "none">>
-		<<set $NPCList[0].vagina to "mouth">><<set $mouthstate to "othervagina">><<set $mouthuse to "othervagina">>
-		<<He>> presses <<his>> pussy against your lips.
-	<<else>>
-		<<He>> presses <<his>> featureless crotch against your lips. Everyone is confused. <span class="red">This is a bug, please inform Vrelnir.</span>
+	<<if $combatExtended.standingFights is 0>>
+		<<run npcMakeNaked($NPCList[0], "lower")>>
+		<<if $NPCList[0].penis isnot "none">>
+			<<set $NPCList[0].penis to "mouthentrance">><<set $mouthstate to "entrance">><<set $mouthuse to "penis">>
+			<<He>> presses <<his>> <<= npcHasStrapon(0) ? "strap-on cock" : "penis">> against your lips.
+		<<elseif $NPCList[0].vagina isnot "none">>
+			<<set $NPCList[0].vagina to "mouth">><<set $mouthstate to "othervagina">><<set $mouthuse to "othervagina">>
+			<<He>> presses <<his>> pussy against your lips.
+		<<else>>
+			<<He>> presses <<his>> featureless crotch against your lips. Everyone is confused. <span class="red">This is a bug, please inform Vrelnir.</span>
+		<</if>>
+		<<if $NPCList[0].type is "plant" and !["peniskiss","penislick"].includes($mouthactiondefault)>>
+			<span class="pink">Nectar glistens <<print ($NPCList[0].penis isnot "none" ? "on the tip" : "at the entrance")>>. It smells sweet.</span>
+		<</if>>
+		<br><br>
+		<<submission 5>><<set $mouthtarget to 0>><<set $NPCList[0].location.genitals to "head">>
 	<</if>>
-	<<if $NPCList[0].type is "plant" and !["peniskiss","penislick"].includes($mouthactiondefault)>>
-		<span class="pink">Nectar glistens <<print ($NPCList[0].penis isnot "none" ? "on the tip" : "at the entrance")>>. It smells sweet.</span>
-	<</if>>
-	<br><br>
-	<<submission 5>><<set $mouthtarget to 0>><<set $NPCList[0].location.genitals to "head">>
 <</widget>>
 
 <<widget "npchand">>
@@ -210,16 +212,18 @@
 <</widget>>
 
 <<widget "npc_attempt_sex">>
-	<<run npcMakeNaked($NPCList[0], "lower")>>
-	<<if $NPCList[0].penis isnot "none">>
-		<<if $player.vaginaExist>>
-			<<set $NPCList[0].penis to "vaginaentrance">><<set $vaginause to "penis">><<set $vaginastate to "entrance">><<set $vaginatarget to 0>>
-		<<elseif $analdisable is "f">>
-			<<set $NPCList[0].penis to "anusentrance">><<set $anususe to "penis">><<set $anusstate to "entrance">><<set $anustarget to 0>>
-		<</if>>
-	<<else>>
-		<<if $player.penisExist>>
-			<<set $NPCList[0].vagina to "penisentrance">><<set $penisuse to "othervagina">><<set $penisstate to "entrance">><<set $penistarget to 0>>
+	<<if $combatExtended.standingFights is 0>>
+		<<run npcMakeNaked($NPCList[0], "lower")>>
+		<<if $NPCList[0].penis isnot "none">>
+			<<if $player.vaginaExist>>
+				<<set $NPCList[0].penis to "vaginaentrance">><<set $vaginause to "penis">><<set $vaginastate to "entrance">><<set $vaginatarget to 0>>
+			<<elseif $analdisable is "f">>
+				<<set $NPCList[0].penis to "anusentrance">><<set $anususe to "penis">><<set $anusstate to "entrance">><<set $anustarget to 0>>
+			<</if>>
+		<<else>>
+			<<if $player.penisExist>>
+				<<set $NPCList[0].vagina to "penisentrance">><<set $penisuse to "othervagina">><<set $penisstate to "entrance">><<set $penistarget to 0>>
+			<</if>>
 		<</if>>
 	<</if>>
 <</widget>>
@@ -255,6 +259,9 @@
 		<<if $NPCList[_i].traits.includes("lecher") or random(0,9) gt 6>>
 			<<set $NPCList[_i].condomAsk to false>>
 		<</if>>
+		<<set $NPCList[_i].lefthand to 0>>
+		<<set $NPCList[_i].righthand to 0>>
+		<<set $NPCList[_i].mouth to 0>>
 	<</for>>
 <</widget>>
 
@@ -275,7 +282,8 @@
 			<</if>> */
 			<<set $NPCList[_i].lefthand to "idle">>
 			<<set $NPCList[_i].righthand to "idle">>
-			/* <<set $NPCList[_i].location.genitals to 0>> */
+			<<set $NPCList[_i].mouth to "speech_only">>
+		/* <<set $NPCList[_i].location.genitals to 0>> */
 			/* <<set $NPCList[_i].stance to 0>> */
 		<</if>>
 	<</for>>

@@ -166,6 +166,10 @@ Config.navigation.override = function (dest) {
 	const checkPassages = dest => {
 		const lastVersion = DoLSave.Utils.parseVer(V.saveVersions.last());
 		const currVersion = DoLSave.Utils.parseVer(StartConfig.version);
+		if (!V.saveVersion.includes("DoLP") && StartConfig.version.includes("DoLP")) {
+			V.bypassHeader = true;
+			return "Vanilla Waiting Room";
+		}
 		if (V.saveVersion.includes("DoLP") && !StartConfig.version.includes("DoLP")) {
 			V.bypassHeader = true;
 			return "Modded Waiting Room";

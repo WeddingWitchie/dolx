@@ -474,9 +474,12 @@
 	<<if $setupMidOrgasm isnot undefined and $enemyarousal gte $enemyarousalmax>>
 		<<set _midOrgasm to false>>
 		<<for _n to 0; _n lt $NPCList.length;_n++>>
-			<<if $NPCList[_n].orgasms lt $NPCList[_n].maxOrgasms or ($combatExtended.reverseRapeStart and !$combatExtended.reverseRapeEnd)>>
+			<<if $NPCList[_n].maxOrgasms gt $NPCList[_n].orgasms or $combatExtended.reverseRapeStart is 1>>
 				<<set $NPCList[_n].orgasms++>>
+			<</if>>
+			<<if $NPCList[_n].orgasms lt $NPCList[_n].maxOrgasms or $combatExtended.reverseRapeStart is 1>>
 				<<set _midOrgasm to true>>
+				<<set $test1 to _midOrgasm>>
 			<</if>>
 		<</for>>
 		<<if _midOrgasm is true>>
@@ -909,64 +912,89 @@
 <</widget>>
 
 <<widget "combatExtendedStability">>
-	<<set $combatExtended.stability += _args[0]>>
+	<<set _tmp to _args[0]>>
+	<<if $combatExtended.footworkToggle is 1 and _tmp lt 0>>
+		<<if _tmp lte 0>>
+			<<set _tmp to _tmp * (1 - (0.8 * ($combatExtended.footwork / 2000)))>>
+		<<else>>
+			<<set _tmp to _tmp * (1 + (0.8 * ($combatExtended.footwork / 2000)))>>
+		<</if>>
+	<</if>>
+	<<set $combatExtended.stability to Math.clamp($combatExtended.stability + _tmp, 0 , 100)>>
 <</widget>>
 
 <<widget "combatExtendedEnemyCheck">>
 	<<set _dodgeChance to $NPCList[_args[0]].dodgeChance>>
 	<<set _passiveEnemyDodge to 0>>
 	<<set _activeEnemyDodge to 0>>
+	<<set _enemyCounter to 0>>
 	<<set _check1 to 100>>
-	<<set _events to 0>>
-	<<cleareventpool>>
+	<<set $enemyCEActions to []>>
 	<<if $combatExtended.enemyActiveDodging is 1>>
-		<<addinlineevent "enemy_dodging" 1>>
-			<<set _dodgeChance to _dodgeChance * 2>>
-		<</addinlineevent>>
-		<<set _events += 1>>
+		<<run $enemyCEActions.push("dodge")>>
+		<<if $enemyanger lt 100>>
+			<<run $enemyCEActions.push("nothing")>>
+		<</if>>
 	<</if>>
 	<<if $combatExtended.enemyBlocking is 1>>
-		<<addinlineevent "enemy_blocking" 1>>
-			<<set $combatExtended.enemyBlockingActive to 1>>
-		<</addinlineevent>>
-		<<set _events += 1>>
+		<<run $enemyCEActions.push("block")>>
+		<<if $enemyanger lt 100>>
+			<<run $enemyCEActions.push("nothing")>>
+		<</if>>
 	<</if>>
 	<<if $combatExtended.enemyCountering is 1>>
-		<<addinlineevent "enemy_countering" 1>>
+		<<run $enemyCEActions.push("counter")>>
+		<<if $enemyanger lt 100>>
+			<<run $enemyCEActions.push("nothing")>>
+		<</if>>
+	<</if>>
+	<<if $combatExtended.enemyMartialArts is 1 and $combatExtended.enemyMartialArtsBadass is 1>>
+		<<set _j to Math.floor($NPCList[_args[0]].martialArts / 500) + 1>>
+	<<else>>
+		<<set _j to 1>>
+	<</if>>
+	<<for _i to 0; _i lt _j; _i++>>
+		<<if $enemyCEActions[Math.floor(Math.random() * $enemyCEActions.length)] is "dodge">>
+			<<set _dodgeChance *= 2>>
+			<<set $combatExtended.enemyActiveDodgingActive to 1>>
+			<<run $enemyCEActions.filter(item => item !== "dodge")>>
+		<</if>>
+		<<if $enemyCEActions[Math.floor(Math.random() * $enemyCEActions.length)] is "block">>
+			<<set $combatExtended.enemyBlockingActive to 1>>
+			<<run $enemyCEActions.filter(item => item !== "block")>>
+		<</if>>
+		<<if $enemyCEActions[Math.floor(Math.random() * $enemyCEActions.length)] is "counter">>
 			<<set $combatExtended.enemyCounteringActive to 1>>
-		<</addinlineevent>>
-		<<set _events += 1>>
-	<</if>>
-	<<if _events is 0>>
-		<<set _events to 1>>
-	<</if>>
-	<<addinlineevent "enemy_none" _events>>
-		/* Nothing */
-	<</addinlineevent>>
-	<<runeventpool>>
+			<<run $enemyCEActions.filter(item => item !== "counter")>>
+		<</if>>
+	<</for>>
+	<<set _test2 to _dodgeChance>>
 	<<set _check2 to _check1 * 0.8>>
-	<<if $combatExtended.feinting is 1>>
-		<<if $combatExtended.feintingActive gte 1>>
-			<<set _dodgeChanceReduction to Math.round($skulduggery / 100)>>
-			<<if $combatExtended.stabilityLost is 1>>
-				<<set _dodgeChanceReduction to _dodgeChanceReduction / 4>>
-			<</if>>
-			<<if $combatExtended.feintingActive is 2>>
-				<<set _dodgeChance -= _dodgeChanceReduction * 3>>
-			<<else>>
-				<<set _dodgeChance -= _dodgeChanceReduction>>
-			<</if>>
+	<<if $combatExtended.feinting is 1 and $combatExtended.feintingActive gte 1>>
+		<<set _dodgeChanceReduction to Math.round($skulduggery / 100)>>
+		<<if $combatExtended.stabilityLost is 1>>
+			<<set _dodgeChanceReduction to _dodgeChanceReduction / 4>>
+		<</if>>
+		<<if $combatExtended.feintingActive is 2>>
+			<<set _dodgeChance -= _dodgeChanceReduction * 3>>
+		<<else>>
+			<<set _dodgeChance -= _dodgeChanceReduction>>
 		<</if>>
 	<</if>>
-	<<if $combatExtended.hookpunching is 1>>
-		<<if $combatExtended.hookpunchingActive gte 1>>
-			<<if $combatExtended.hookpunchingActive is 2>>
-				<<set _dodgeChance += 30>>
-			<<else>>
-				<<set _dodgeChance += 10>>
-			<</if>>
+	<<if $combatExtended.hookpunching is 1 and $combatExtended.hookpunchingActive gte 1>>
+		<<if $combatExtended.hookpunchingActive is 2>>
+			<<set _dodgeChance += 30>>
+		<<else>>
+			<<set _dodgeChance += 10>>
 		<</if>>
 	<</if>>
+	<<if $combatExtended.strikingToggle is 1 and $striking is 1>>
+		<<set _dodgeChance -= Math.round($combatExtended.striking / 10)>>
+	<</if>>
+	<<if $combatExtended.kickingToggle is 1 and $kicking is 1>>
+		<<set _dodgeChance -= Math.round($combatExtended.kicking / 10)>>
+	<</if>>
+	<<set _test1 to _dodgeChance>>
 	<<if $combatExtended.enemyPassiveDodging is 1>>
 		<<if _dodgeChance gte random(_check1)>>
 			<<set _passiveEnemyDodge to 2>>
@@ -1001,6 +1029,11 @@
 		<<set $combatExtended.enemyDodgeSuccess to _passiveEnemyDodge>>
 	<<else>>
 		<<set $combatExtended.enemyDodgeSuccess to _activeEnemyDodge>>
+	<</if>>
+	<<if $combatExtended.enemyCounterSuccess is 2 or $combatExtended.enemyDodgeSuccess is 2>>
+		<<set $combatExtended.enemyBlockingActive to 0>>
+		<<set $striking to 0>>
+		<<set $kicking to 0>>
 	<</if>>
 <</widget>>
 
