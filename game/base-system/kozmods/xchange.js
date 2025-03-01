@@ -325,7 +325,7 @@ function xchangeEffectsMessages() {
 	}
 
 	if (V.xchangePermanenceMessage) {
-		element("span", "You didn't turn back. Your pill's effects have become permanent", "red"); br();
+		// element("span", "You didn't turn back. Your pill's effects have become permanent", "red"); br();
 		delete V.xchangePermanenceMessage;
 	}
 
