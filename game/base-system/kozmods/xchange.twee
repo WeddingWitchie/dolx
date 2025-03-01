@@ -656,32 +656,50 @@
 		<</if>>
 		<<if _pill.dumbBitchEffect>>
 			<<stress -10>><<trauma -50>><<willpower -5>>
-			<<set $effectsMessage to 1>>
+			<<set $effectsmessage to 1>>
 			<<set $dumbBitchOrgasmMessage to 1>>
-
 
 			<<set $science_exam = Math.clamp($science_exam - 20, -120, 200)>>
 			<<set $maths_exam = Math.clamp($maths_exam - 20, -120, 200)>>
 			<<set $english_exam = Math.clamp($english_exam - 20, -120, 200)>>
 			<<set $history_exam = Math.clamp($history_exam - 20, -120, 200)>>
 
-			<<set _isDumb = $sciencetrait is -1 and $mathstrait is -1 and $englishtrait is -1 and $historytrait is -1>>
-			<<set _isGettingDumber = $science_exam lte -119 and $maths_exam lte -119 and $english_exam lte -119 and $history_exam lte -119>>
-			<<if _isDumb and _isGettingDumber>>
-				<<set $dumbBitchOrgasmMessage to 2>>
-				<<set $skulduggery to Math.clamp($skulduggery - 20, 0, 1000 * $AMCTraits.skulduggery)>>
-				<<if $skulduggery is 0>>
-					<<set $tending to Math.clamp($tending - 20, 0, 1000 * $AMCTraits.tending)>>
-					<<if $tending is 0>>
-						<<set $willpower = Math.clamp($willpower - 20, 0, $willpowermax * $AMCTraits.willpower)>>
-						<<if $willpower is 0>>
-							<<set $exhibitionism to Math.clamp($exhibitionism + 1, 0, 100)>>
-							<<set $promiscuity to Math.clamp($promiscuity + 1, 0, 100)>>
-							<<set $deviancy to Math.clamp($deviancy + 1, 0, 100)>>
+			<<if $science_exam lte -100 and $sciencetrait gte 0>>
+				<<set $effectsmessage = 1>>
+				<<set $science_down_message = 1>>
+				<<school_skill_down "science">>
+			<</if>>
+			<<if ($maths_exam <= -100 && $mathstrait >= 0)>>
+				<<set $effectsmessage = 1>>
+				<<set $maths_down_message = 1>>
+				<<school_skill_down "maths">>
+			<</if>>
+			<<if ($english_exam <= -100 && $englishtrait >= 0)>>
+				<<set $effectsmessage = 1>>
+				<<set $english_down_message = 1>>
+				<<school_skill_down "english">>
+			<</if>>
+			<<if ($history_exam <= -100 && $historytrait >= 0)>>
+				<<set $effectsmessage = 1>>
+				<<set $history_down_message = 1>>
+				<<school_skill_down "history">>
+			<</if>>
 
-							<<if $exhibitionism is 100 and $promiscuity is 100 and $deviancy is 100>>
-								<<earnFeat "Dumb Bitch">>
-							<</if>>
+			<<set _isDumb = $sciencetrait is -1 and $mathstrait is -1 and $englishtrait is -1 and $historytrait is -1>>
+			/* <<set _isGettingDumber = $science_exam lte -119 and $maths_exam lte -119 and $english_exam lte -119 and $history_exam lte -119>> */
+			<<if _isDumb>>
+				<<set $dumbBitchOrgasmMessage to 2>>
+				<<set $skulduggery to Math.clamp($skulduggery * 0.9, 0, 1000 * $AMCTraits.skulduggery)>>
+				<<if $skulduggery lt 200>>
+					<<set $willpower = Math.clamp($willpower - 20, 0, $willpowermax * $AMCTraits.willpower)>>
+					<<if $willpower lt 100>>
+						<<set $dumbBitchOrgasmMessage to 3>>
+						<<set $exhibitionism to Math.clamp($exhibitionism + 2, 0, 100)>>
+						<<set $promiscuity to Math.clamp($promiscuity + 2, 0, 100)>>
+						<<set $deviancy to Math.clamp($deviancy + 2, 0, 100)>>
+
+						<<if $exhibitionism is 100 and $promiscuity is 100 and $deviancy is 100>>
+							<<earnFeat "Dumb Bitch">>
 						<</if>>
 					<</if>>
 				<</if>>

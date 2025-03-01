@@ -406,8 +406,24 @@ function xchangeEffectsMessages() {
 		element("span", "|",);
 		element("span", "- Intelligence", "red");
 		br();
-		if (V.dumbBitchOrgasmMessage == 2) {
-			element("span", "It's no longer just affecting your school grades.", "red");
+		if (V.dumbBitchOrgasmMessage === 2) {
+			element("span", 
+				either(
+					"Lockpicking is now like... just so hard or something.",
+					"Everyone seems like... so trustworthy now.",
+					"Malice?... Like... what's that?"
+				), 
+			"red");
+			br();
+		}
+		else if (V.dumbBitchOrgasmMessage === 3) {
+			element("span", 
+				either(
+					"Everyone's so nice... Like, you should totally fuck more.",
+					"Sex is like... so yummy right now. You want it all.",
+					"You want to, like... feel g- good-er? Better? Oh just fuck~"
+				), 
+			"lewd");
 			br();
 		}
 		br();
