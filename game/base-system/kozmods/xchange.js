@@ -406,6 +406,11 @@ function xchangeEffectsMessages() {
 		element("span", "|",);
 		element("span", "- Intelligence", "red");
 		br();
+		if (V.dumbBitchOrgasmMessage == 2) {
+			element("span", "It's no longer just affecting your school grades.", "red");
+			br();
+		}
+		br();
 		delete V.dumbBitchOrgasmMessage;
 	}
 
