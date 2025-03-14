@@ -42,6 +42,11 @@ function playerIsXChanged() {
 }
 window.playerIsXChanged = playerIsXChanged;
 
+function useAltImg() {
+	return V.options.useAltImg === 1 && V.player.sex === V.options.altImgGender;
+}
+window.useAltImg = useAltImg;
+
 function pillTimerPaused() {
 	let vaginalPregnancy = V.sexStats.vagina.pregnancy.type !== null;
 	let earSlimeHasGrown = V.earSlime.growth > 50;
