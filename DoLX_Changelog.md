@@ -7,12 +7,10 @@
 
 ## Changelog
 ### Changes and Additions:
-  * Updated DoLP version to v0.649
-  * Added bull and dumb bitch effects to the cheat menu.
+  * Added ability to use alternative spritepack for your xchanged gender.
+    * Simply create a copy of vanilla's img folder, and rename it to 'img2'.
+    * Then install into that new 'img2' folder whatever spritepack you desire, in the same manner you'd normally do for the regular 'img' folder.
+    * Lastly, in the game, go into Options > Performance, and enable 'Use alternate spriteset when gender is:', then choose which gender to apply the alternate pack to.
 
 ### Rebalancing and Bug fixes:
-  * Dumb bitch effect is now potentially more severe. Your grades get drained first, then your skulduggery, then your willpower, and lastly your sex stats get increased and you acquire hypnosis traits.
-  * Remy should no longer pill you if they know you're already pilled.
-  * Removed the message that lets you know that you didn't turn back.
-  * Fixed pharmacy giving you 14 Sissy/Butch/Bull pills when only paying for one.
-  * Fixed typo affecting Dumb Bitch orgasms and causing an error.
+  * None
