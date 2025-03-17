@@ -3,7 +3,7 @@
 
 /**
  * @typedef XrayOptions
- * @property {"img/sex"} root
+ * @property {(useAltImg() ? "img2/sex" : "img/sex")} root
  * @property {string} src Source directory for xray images.
  * @property {boolean} showPcPenis
  * @property {boolean} showPcVagina
@@ -61,7 +61,7 @@ class XrayCombatMapper {
 	static generateOptions() {
 		// @ts-ignore
 		return {
-			src: "img/sex/xray/",
+			src: (useAltImg() ? "img2/sex/xray/" : "img/sex/xray/"),
 			animKeyBase: "idle",
 			animKeyVagina: "sex-1f-idle",
 			animKeyPenis: "sex-1f-idle",
@@ -154,7 +154,7 @@ class XrayCombatMapper {
 	 */
 	static mapXrayOptions(options) {
 		// Set directory for images
-		options.root = "img/sex";
+		options.root = (useAltImg() ? "img2/sex" : "img/sex");
 		options.src = `${options.root}/xray/`;
 
 		options.filters = options.filters || {};

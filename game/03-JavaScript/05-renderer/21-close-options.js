@@ -34,7 +34,7 @@ class CloseCombatMapper {
 		// @ts-ignore
 		return {
 			position: "missionary",
-			src: "img/sex/close/",
+			src: (useAltImg() ? "img2/sex/close/" : "img/sex/close/"),
 			animKeyVagina: "sex-1f-idle",
 			animKeyPenis: "sex-1f-idle",
 			animKeyArse: "sex-1f-idle",
@@ -53,7 +53,7 @@ class CloseCombatMapper {
 		options.position = CombatRenderer.getPosition(V.position);
 
 		// Set directory for images
-		options.root = "img/sex";
+		options.root = (useAltImg() ? "img2/sex" : "img/sex");
 		options.src = `${options.root}/close/`;
 
 		options.filters = options.filters || {
