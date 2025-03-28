@@ -7,10 +7,8 @@
 
 ## Changelog
 ### Changes and Additions:
-  * Added ability to use alternative spritepack for your xchanged gender.
-    * Simply create a copy of vanilla's img folder, and rename it to 'img2'.
-    * Then install into that new 'img2' folder whatever spritepack you desire, in the same manner you'd normally do for the regular 'img' folder.
-    * Lastly, in the game, go into Options > Performance, and enable 'Use alternate spriteset when gender is:', then choose which gender to apply the alternate pack to.
+  * None.
 
 ### Rebalancing and Bug fixes:
-  * None
+  * Fixed prison sentence being obliterated upon genderswapping. Your crimes no longer get forgotten as soon as you take the prison's Choice pill.
+
