@@ -7,8 +7,8 @@
 
 ## Changelog
 ### Changes and Additions:
-  * None.
+  * Enabled all of the currently available imagepacks from DoLP, on Dolmods.
 
 ### Rebalancing and Bug fixes:
-  * Fixed prison sentence being obliterated upon genderswapping. Your crimes no longer get forgotten as soon as you take the prison's Choice pill.
+  * None.
 
