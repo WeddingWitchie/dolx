@@ -7,7 +7,7 @@
 
 ## Changelog
 ### Changes and Additions:
-  * Enabled all of the currently available imagepacks from DoLP, on Dolmods.
+  * Silly thematic vanilla graphics, just for today.
 
 ### Rebalancing and Bug fixes:
   * None.
