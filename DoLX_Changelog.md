@@ -7,7 +7,7 @@
 
 ## Changelog
 ### Changes and Additions:
-  * Silly thematic vanilla graphics, just for today.
+  * Restored vanilla graphics back to normal.
 
 ### Rebalancing and Bug fixes:
   * None.
