@@ -4,8 +4,8 @@
 /**
  * @typedef NpcOptions
  * @property {number} index
- * @property {(useAltImg() ? "img2/sex" : "img/sex")} root
- * @property {string} src Typically (useAltImg() ? "img2/sex/missionary" : "img/sex/missionary")
+ * @property {"img/sex"} root
+ * @property {string} src Typically "img/sex/missionary"
  * @property {Dict<Partial<CompositeLayerSpec>>} filters
  * @property {SpritePositions} position
  * @property {"shadow" | "beast"} category
@@ -59,8 +59,8 @@ class NpcCombatMapper {
 	static generateOptions() {
 		return {
 			position: "missionary",
-			root: (useAltImg() ? "img2/sex" : "img/sex"),
-			src: (useAltImg() ? "img2/sex/missionary" : "img/sex/missionary"),
+			root: "img/sex",
+			src: "img/sex/missionary",
 			animKey: "sex-2f-idle",
 			animKeyStill: "sex-2f-idle",
 			speed: "idle",
@@ -100,7 +100,7 @@ class NpcCombatMapper {
 		options.position = CombatRenderer.getPosition(V.position);
 
 		// Set directory for images
-		options.root = (useAltImg() ? "img2/sex" : "img/sex");
+		options.root = "img/sex";
 		options.src = `${options.root}/${options.position}`;
 
 		// Configure state

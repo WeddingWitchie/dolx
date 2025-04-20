@@ -282,6 +282,9 @@ class CanvasModel {
 			layer.model = this;
 			layer.show || propeval(layer, "show");
 			propeval(layer, "src");
+			if (!!layer.src) {
+				layer.src = getGenderedPath(layer.src); // redirect to alt img folder depending on gender
+			}
 			if (!layer.src) {
 				layer.src = ""; // force string value
 				layer.show = false;

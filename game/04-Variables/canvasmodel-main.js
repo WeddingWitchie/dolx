@@ -235,7 +235,7 @@ Renderer.CanvasModels.main = {
 	},
 	defaultOptions() {
 		return {
-			"clothesPath": (useAltImg() ? `img2/clothes/` : `img/clothes/`),
+			"clothesPath": "img/clothes/",
 			// group toggles
 			"show_face": true,
 			"show_hair": true,
@@ -735,12 +735,12 @@ Renderer.CanvasModels.main = {
 		const thickTails = ["scorpion tails", "thick pigtails", "thick twintails"];
 		const furCap = ["furcap f", "furcap m"];
 		if (options.worn.upper.setup.mask_img === 1 && options.worn.upper.setup.name === "cocoon") {
-			options.head_mask_src = (useAltImg() ? `img2/clothes/upper/cocoon/mask.png` : `img/clothes/upper/cocoon/mask.png`);
+			options.head_mask_src = "img/clothes/upper/cocoon/mask.png";
 		} else if (
 			options.worn.over_head.setup.mask_img === 1
 			&& !(options.hood_down && options.worn.over_head.setup.hood && options.worn.over_head.setup.outfitSecondary !== undefined) && V.tfearshatposition == "under"
 		) {
-			options.head_mask_src = (useAltImg() ? `img2/clothes/head/${options.worn.over_head.setup.variable}/mask.png` : `img/clothes/head/${options.worn.over_head.setup.variable}/mask.png`);
+			options.head_mask_src = `img/clothes/head/${options.worn.over_head.setup.variable}/mask.png`;
 		} else if (
 			options.worn.head.setup.mask_img === 1
 			&& !(options.hood_down && options.worn.head.setup.hood && options.worn.head.setup.outfitSecondary !== undefined) && V.tfearshatposition == "under"
@@ -751,16 +751,16 @@ Renderer.CanvasModels.main = {
 				|| thickTails.includes(options.hair_sides_type)
 				&& furCap.includes(options.worn.head.setup.variable)
 			) {
-				options.head_mask_src = (useAltImg() ? `img2/clothes/head/${options.worn.head.setup.variable}/mask_ponytail.png` : `img/clothes/head/${options.worn.head.setup.variable}/mask_ponytail.png`);
+				options.head_mask_src = `img/clothes/head/${options.worn.head.setup.variable}/mask_ponytail.png`;
 			} else {
-				options.head_mask_src = (useAltImg() ? `img2/clothes/head/${options.worn.head.setup.variable}/mask.png` : `img/clothes/head/${options.worn.head.setup.variable}/mask.png`);
+				options.head_mask_src = `img/clothes/head/${options.worn.head.setup.variable}/mask.png`;
 			}
 		} else {
 			options.head_mask_src = null;
 		}
 
 		if (["fro", "afro pouf", "afro puffs"].includes(options.hair_sides_type) && options.hair_fringe_type === "fro") {
-			options.fringe_mask_src = (useAltImg() ? `img2/hair/fringe/${options.hair_fringe_type}/mask.png` : `img/hair/fringe/${options.hair_fringe_type}/mask.png`);
+			options.fringe_mask_src = `img/hair/fringe/${options.hair_fringe_type}/mask.png`;
 		} else {
 			options.fringe_mask_src = null;
 		}
@@ -773,7 +773,7 @@ Renderer.CanvasModels.main = {
 			options.belly -= 3;
 		}
 
-		const bellyDir = (useAltImg() ? `img2/clothes/belly` : `img/clothes/belly`)
+		const bellyDir = "img/clothes/belly"
 		if (between(options.belly, 8, 24)) {
 			options.belly_mask_lower_shadow_src = `${bellyDir}/shadow_${options.belly}.png`;
 			options.lowerShadowMask.push(options.belly_mask_lower_shadow_src);
@@ -818,7 +818,7 @@ Renderer.CanvasModels.main = {
 		const soft = options.body_type === "soft" && !(between(options.belly, 8, 24));
 		if (notMasc && options.breasts === "cleavage") {
 			const suffix = between(options.breast_size, 3, 4) ? "-mid.png" : ".png";
-			options.breasts_mask_src = (useAltImg() ? `img2/body/breasts/breasts-${options.body_type}${suffix}` : `img/body/breasts/breasts-${options.body_type}${suffix}`)
+			options.breasts_mask_src = `img/body/breasts/breasts-${options.body_type}${suffix}`
 		} else {
 			options.breasts_mask_src = null;
 		}
@@ -835,23 +835,23 @@ Renderer.CanvasModels.main = {
 
 		if (notMasc) {
 			const check = (options.worn.upper.setup.formfitting || options.worn.under_upper.setup.formfitting);
-			options.shirt_fitted_clip_src = check ? (useAltImg() ? `img2/clothes/masks/formfitting_${options.body_type}.png` : `img/clothes/masks/formfitting_${options.body_type}.png`) : null;
-			options.shirt_fitted_right_move_src = check ? (useAltImg() ? `img2/clothes/masks/formfitting_right_move.png` : `img/clothes/masks/formfitting_right_move.png`) : null;
-			options.shirt_fitted_left_move_src = check ? (useAltImg() ? `img2/clothes/masks/formfitting_left_move.png` : `img/clothes/masks/formfitting_left_move.png`) : null;
+			options.shirt_fitted_clip_src = check ? `img/clothes/masks/formfitting_${options.body_type}.png` : null;
+			options.shirt_fitted_right_move_src = check ? "img/clothes/masks/formfitting_right_move.png" : null;
+			options.shirt_fitted_left_move_src = check ? "img/clothes/masks/formfitting_left_move.png" : null;
 		} else if (soft) {
 			const upperCheck = !(options.worn.lower.setup.outfitSecondary && options.worn.lower.setup.outfitSecondary[1] === options.worn.upper.setup.name) && !options.worn.lower.setup.type.includes("covered") && !options.high_waist_suspenders && !options.belly_mask_clip_src;
 			const underUpperCheck = !(options.worn.under_lower.setup.outfitSecondary && options.worn.under_lower.setup.outfitSecondary[1] === options.worn.under_upper.setup.name)  && !options.belly_mask_clip_src;
-			options.shirt_mask_clip_src = (useAltImg() ? `img2/clothes/masks/soft_clip.png` : `img/clothes/masks/soft_clip.png`);
-			options.shirt_fitted_right_move_src = (useAltImg() ? `img2/clothes/masks/soft_right_move.png` : `img/clothes/masks/soft_right_move.png`);
-			options.shirt_fitted_left_move_src = (useAltImg() ? `img2/clothes/masks/soft_left_move.png` : `img/clothes/masks/soft_left_move.png`);
-			options.lowerMask.push(upperCheck ? (useAltImg() ? `img2/clothes/masks/soft_lower_clip.png` : `img/clothes/masks/soft_lower_clip.png`) : null);
-			options.lowerShadowMask.push(upperCheck ? (useAltImg() ? `img2/clothes/masks/soft_shadow.png` : `img/clothes/masks/soft_shadow.png`) : null);
-			options.underLowerShadowMask.push(underUpperCheck ? (useAltImg() ? `img2/clothes/masks/soft_shadow.png` : `img/clothes/masks/soft_shadow.png`) : null);
-			options.underLowerMask.push(underUpperCheck? (useAltImg() ? `img2/clothes/masks/soft_lower_clip.png` : `img/clothes/masks/soft_lower_clip.png`) : null);
+			options.shirt_mask_clip_src = "img/clothes/masks/soft_clip.png";
+			options.shirt_fitted_right_move_src = "img/clothes/masks/soft_right_move.png";
+			options.shirt_fitted_left_move_src = "img/clothes/masks/soft_left_move.png";
+			options.lowerMask.push(upperCheck ? "img/clothes/masks/soft_lower_clip.png" : null);
+			options.lowerShadowMask.push(upperCheck ? "img/clothes/masks/soft_shadow.png" : null);
+			options.underLowerShadowMask.push(underUpperCheck ? "img/clothes/masks/soft_shadow.png" : null);
+			options.underLowerMask.push(underUpperCheck? "img/clothes/masks/soft_lower_clip.png" : null);
 		}
 
 		if (options.lower_tucked && !options.worn.lower.setup.notuck && !options.worn.feet.setup.notuck) {
-			options.feet_clip_src = (useAltImg() ? `img2/clothes/feet/${options.worn.feet.setup.variable}/mask.png` : `img/clothes/feet/${options.worn.feet.setup.variable}/mask.png`);
+			options.feet_clip_src = `img/clothes/feet/${options.worn.feet.setup.variable}/mask.png`;
 			options.lowerMask.push(options.feet_clip_src);
 			options.lowerBellyMask.push(options.feet_clip_src);
 		} else {
@@ -1018,7 +1018,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return options.mannequin ? (useAltImg() ? `img2/body/mannequin/basenoarms.png` : `img/body/mannequin/basenoarms.png`) : (useAltImg() ? `img2/body/basenoarms-${options.body_type}.png` : `img/body/basenoarms-${options.body_type}.png`);
+				return options.mannequin ? "img/body/mannequin/basenoarms.png" : `img/body/basenoarms-${options.body_type}.png`;
 			},
 		},
 		"basehead": {
@@ -1028,7 +1028,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return options.mannequin ? (useAltImg() ? `img2/body/mannequin/basehead.png` : `img/body/mannequin/basehead.png`) : (useAltImg() ? "img2/body/basehead.png" : "img/body/basehead.png");
+				return options.mannequin ? "img/body/mannequin/basehead.png" : "img/body/basehead.png";
 			},
 		},
 		"breasts": {
@@ -1036,12 +1036,13 @@ Renderer.CanvasModels.main = {
 			filters: ["tan"],
 			z: ZIndices.breasts,
 			animation: "idle",
+
 			masksrcfn(options) {
 				return options.breasts_mask_src;
 			},
 			srcfn(options) {
 				const mannequin = (options.mannequin) ? "mannequin/" : "";
-				const prefix = (useAltImg() ? `img2/body/${mannequin}` : `img/body/${mannequin}`);
+				const prefix = `img/body/${mannequin}`;
 				const suffix = options.breasts === "cleavage" && options.breast_size >= 3 ? "_clothed.png" : ".png";
 				return `${prefix}breasts/breasts${options.breast_size}${suffix}`;
 			},
@@ -1055,7 +1056,7 @@ Renderer.CanvasModels.main = {
 				return !!options.belly
 			},
 			srcfn(options) {
-				return between(options.belly, 1, 24) ? (useAltImg() ? `img2/body/preggyBelly/pregnancy_belly_${options.belly}.png` : `img/body/preggyBelly/pregnancy_belly_${options.belly}.png`) : "";
+				return between(options.belly, 1, 24) ? `img/body/preggyBelly/pregnancy_belly_${options.belly}.png` : "";
 			},
 		},
 		"bellyLeft": {
@@ -1067,7 +1068,7 @@ Renderer.CanvasModels.main = {
 				return !!options.belly
 			},
 			srcfn(options) {
-				return options.body_type === "soft" && between(options.belly, 11, 14) ? (useAltImg() ? `img2/body/preggyBelly/pregnancy_belly_${options.belly}.png` : `img/body/preggyBelly/pregnancy_belly_${options.belly}.png`) : "";
+				return options.body_type === "soft" && between(options.belly, 11, 14) ? `img/body/preggyBelly/pregnancy_belly_${options.belly}.png` : "";
 			},
 			masksrcfn(options) {
 				return options.shirt_fitted_left_move_src;
@@ -1085,7 +1086,7 @@ Renderer.CanvasModels.main = {
 				return !!options.belly
 			},
 			srcfn(options) {
-				return options.body_type === "soft" && between(options.belly, 11, 14) ? (useAltImg() ? `img2/body/preggyBelly/pregnancy_belly_${options.belly}.png` : `img/body/preggyBelly/pregnancy_belly_${options.belly}.png`) : "";
+				return options.body_type === "soft" && between(options.belly, 11, 14) ? `img/body/preggyBelly/pregnancy_belly_${options.belly}.png` : "";
 			},
 			masksrcfn(options) {
 				return options.shirt_fitted_right_move_src;
@@ -1105,9 +1106,9 @@ Renderer.CanvasModels.main = {
 				switch (options.nipples_parasite) {
 					case "urchin":
 						/* Swap to chestparasitegray for new sprites, make sure to include colour changes to the code */
-						return (useAltImg() ? `img2/body/breasts/chestparasite${options.breast_size}.png` : `img/body/breasts/chestparasite${options.breast_size}.png`);
+						return `img/body/breasts/chestparasite${options.breast_size}.png`;
 					case "slime":
-						return (useAltImg() ? `img2/body/breasts/chestslime${options.breast_size}.png` : `img/body/breasts/chestslime${options.breast_size}.png`);
+						return `img/body/breasts/chestslime${options.breast_size}.png`;
 					default:
 						return "";
 				}
@@ -1121,7 +1122,7 @@ Renderer.CanvasModels.main = {
 				return !!options.breasts_parasite;
 			},
 			srcfn(options) {
-				return options.breasts_parasite === 'parasite' ? (useAltImg() ? `img2/body/breasts/breastsparasite${options.breast_size}.png` : `img/body/breasts/breastsparasite${options.breast_size}.png`) : "";
+				return options.breasts_parasite === 'parasite' ? `img/body/breasts/breastsparasite${options.breast_size}.png` : "";
 			},
 		},
 		"leftarm": {
@@ -1134,9 +1135,9 @@ Renderer.CanvasModels.main = {
 				return options.arm_left !== "none";
 			},
 			srcfn(options) {
-				if (options.mannequin) return (useAltImg() ? `img2/body/mannequin/leftarmidle.png` : `img/body/mannequin/leftarmidle.png`);
-				if (options.arm_left === "cover") return (useAltImg() ? `img2/body/leftarmcover.png` : `img/body/leftarmcover.png`);
-				return (useAltImg() ? `img2/body/leftarmidle-${options.body_type}.png` : `img/body/leftarmidle-${options.body_type}.png`)
+				if (options.mannequin) return "img/body/mannequin/leftarmidle.png";
+				if (options.arm_left === "cover") return "img/body/leftarmcover.png";
+				return `img/body/leftarmidle-${options.body_type}.png`
 			},
 		},
 		"rightarm": {
@@ -1151,11 +1152,11 @@ Renderer.CanvasModels.main = {
 				return options.arm_right !== "none";
 			},
 			srcfn(options) {
-				if (options.mannequin && options.handheld_position) return (useAltImg() ? `img2/body/mannequin/rightarm${options.handheld_position === "right_cover" ? "cover" : options.handheld_position}.png` : `img/body/mannequin/rightarm${options.handheld_position === "right_cover" ? "cover" : options.handheld_position}.png`);
-				if (options.mannequin) return (useAltImg() ? `img2/body/mannequin/rightarmidle.png` : `img/body/mannequin/rightarmidle.png`);
-				if (options.arm_right === "cover" || options.handheld_position === "right_cover") return (useAltImg() ? `img2/body/rightarmcover.png` : `img/body/rightarmcover.png`);
-				if (options.handheld_position) return (useAltImg() ? `img2/body/rightarm${options.handheld_position}.png` : `img/body/rightarm${options.handheld_position}.png`);
-				return (useAltImg() ? `img2/body/rightarmidle-${options.body_type}.png` : `img/body/rightarmidle-${options.body_type}.png`)
+				if (options.mannequin && options.handheld_position) return `img/body/mannequin/rightarm${options.handheld_position === "right_cover" ? "cover" : options.handheld_position}.png`;
+				if (options.mannequin) return "img/body/mannequin/rightarmidle.png";
+				if (options.arm_right === "cover" || options.handheld_position === "right_cover") return "img/body/rightarmcover.png";
+				if (options.handheld_position) return `img/body/rightarm${options.handheld_position}.png`;
+				return `img/body/rightarmidle-${options.body_type}.png`
 			},
 		},
 		"tummy_parasite": {
@@ -1210,7 +1211,7 @@ Renderer.CanvasModels.main = {
 			z: ZIndices.freckles,
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/face/${options.facestyle}/freckles.png` : `img/face/${options.facestyle}/freckles.png`);
+				return `img/face/${options.facestyle}/freckles.png`;
 			},
 			showfn(options) {
 				return options.show_face && !!options.freckles;
@@ -1221,7 +1222,7 @@ Renderer.CanvasModels.main = {
 			z: ZIndices.ears,
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/face/${options.facestyle}/ears.png` : `img/face/${options.facestyle}/ears.png`);
+				return `img/face/${options.facestyle}/ears.png`;
 			},
 			showfn(options) {
 				return options.show_face && options.ears_position === "front";
@@ -1232,7 +1233,7 @@ Renderer.CanvasModels.main = {
 			z: ZIndices.eyes,
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/face/${options.facestyle}/${options.facevariant}/eyes.png` : `img/face/${options.facestyle}/${options.facevariant}/eyes.png`);
+				return `img/face/${options.facestyle}/${options.facevariant}/eyes.png`;
 			},
 			showfn(options) {
 				return options.show_face;
@@ -1242,7 +1243,7 @@ Renderer.CanvasModels.main = {
 			z: ZIndices.sclera,
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/face/${options.facestyle}/${options.facevariant}/${options.eyes_bloodshot ? "sclera-bloodshot" : "sclera"}.png` : `img/face/${options.facestyle}/${options.facevariant}/${options.eyes_bloodshot ? "sclera-bloodshot" : "sclera"}.png`);
+				return `img/face/${options.facestyle}/${options.facevariant}/${options.eyes_bloodshot ? "sclera-bloodshot" : "sclera"}.png`;
 			},
 			showfn(options) {
 				return options.show_face;
@@ -1256,13 +1257,13 @@ Renderer.CanvasModels.main = {
 			srcfn(options) {
 				const iris = options.trauma || V.traumaeyes ? "iris-empty" : "iris";
 				const half = options.eyes_half ? "-half-closed" : "";
-				return (useAltImg() ? `img2/face/${options.facestyle}/${options.facevariant}/${iris}${half}.png` : `img/face/${options.facestyle}/${options.facevariant}/${iris}${half}.png`);
+				return `img/face/${options.facestyle}/${options.facevariant}/${iris}${half}.png`;
 			},
 			showfn(options) {
 				return options.show_face;
 			},
 			masksrcfn(options) {
-				return (useAltImg() ? `img2/face/masks/left.png` : `img/face/masks/left.png`)
+				return "img/face/masks/left.png"
 			}
 		},
 		"right_iris": {
@@ -1273,13 +1274,13 @@ Renderer.CanvasModels.main = {
 			srcfn(options) {
 				const iris = options.trauma || V.traumaeyes ? "iris-empty" : "iris";
 				const half = options.eyes_half ? "-half-closed" : "";
-				return (useAltImg() ? `img2/face/${options.facestyle}/${options.facevariant}/${iris}${half}.png` : `img/face/${options.facestyle}/${options.facevariant}/${iris}${half}.png`);
+				return `img/face/${options.facestyle}/${options.facevariant}/${iris}${half}.png`;
 			},
 			showfn(options) {
 				return options.show_face;
 			},
 			masksrcfn(options) {
-				return (useAltImg() ? `img2/face/masks/right.png` : `img/face/masks/right.png`)
+				return "img/face/masks/right.png"
 			}
 		},
 		"eyelids": {
@@ -1289,7 +1290,7 @@ Renderer.CanvasModels.main = {
 
 			srcfn(options) {
 				const half = options.eyes_half ? "-half-closed" : "";
-				return (useAltImg() ? `img2/face/${options.facestyle}/${options.facevariant}/eyelids${half}.png` : `img/face/${options.facestyle}/${options.facevariant}/eyelids${half}.png`);
+				return `img/face/${options.facestyle}/${options.facevariant}/eyelids${half}.png`;
 			},
 			animationfn(options) {
 				return options.blink_animation;
@@ -1301,7 +1302,7 @@ Renderer.CanvasModels.main = {
 
 			srcfn(options) {
 				const half = options.eyes_half ? "-half-closed" : "";
-				return (useAltImg() ? `img2/face/${options.facestyle}/${options.facevariant}/lashes${half}.png` : `img/face/${options.facestyle}/${options.facevariant}/lashes${half}.png`);
+				return `img/face/${options.facestyle}/${options.facevariant}/lashes${half}.png`;
 			},
 			showfn(options) {
 				return options.show_face;
@@ -1316,7 +1317,7 @@ Renderer.CanvasModels.main = {
 
 			srcfn(options) {
 				const half = options.eyes_half ? "-half-closed" : "";
-				return (useAltImg() ? `img2/face/${options.facestyle}/${options.facevariant}/makeup/eyeshadow${half}.png` : `img/face/${options.facestyle}/${options.facevariant}/makeup/eyeshadow${half}.png`);
+				return `img/face/${options.facestyle}/${options.facevariant}/makeup/eyeshadow${half}.png`;
 			},
 			animationfn(options) {
 				return options.blink_animation;
@@ -1331,7 +1332,7 @@ Renderer.CanvasModels.main = {
 
 			srcfn(options) {
 				const half = options.eyes_half ? "-half-closed" : "";
-				return (useAltImg() ? `img2/face/${options.facestyle}/${options.facevariant}/makeup/mascara${half}.png` : `img/face/${options.facestyle}/${options.facevariant}/makeup/mascara${half}.png`);
+				return `img/face/${options.facestyle}/${options.facevariant}/makeup/mascara${half}.png`;
 			},
 			animationfn(options) {
 				return options.blink_animation;
@@ -1345,7 +1346,7 @@ Renderer.CanvasModels.main = {
 			z: ZIndices.blush + 1,
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/face/${options.facestyle}/blusher.png` : `img/face/${options.facestyle}/blusher.png`);
+				return `img/face/${options.facestyle}/blusher.png`;
 			},
 			showfn(options) {
 				return options.show_face && !!options.blusher_colour;
@@ -1356,7 +1357,7 @@ Renderer.CanvasModels.main = {
 			z: ZIndices.brow,
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/face/${options.facestyle}/${options.facevariant}/brow-${options.brows}.png` : `img/face/${options.facestyle}/${options.facevariant}/brow-${options.brows}.png`);
+				return `img/face/${options.facestyle}/${options.facevariant}/brow-${options.brows}.png`;
 			},
 			zfn(options) {
 				return options.brows_position === "back" ? ZIndices.backbrow : ZIndices.brow;
@@ -1370,7 +1371,7 @@ Renderer.CanvasModels.main = {
 			z: ZIndices.mouth,
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/face/${options.facestyle}/mouth-${options.mouth}.png` : `img/face/${options.facestyle}/mouth-${options.mouth}.png`);
+				return `img/face/${options.facestyle}/mouth-${options.mouth}.png`;
 			},
 			showfn(options) {
 				return options.show_face && options.mouth !== "none";
@@ -1381,7 +1382,7 @@ Renderer.CanvasModels.main = {
 			z: ZIndices.mouth,
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/face/${options.facestyle}/lipstick-${options.mouth}.png` : `img/face/${options.facestyle}/lipstick-${options.mouth}.png`);
+				return `img/face/${options.facestyle}/lipstick-${options.mouth}.png`;
 			},
 			showfn(options) {
 				return options.show_face && !!options.lipstick_colour;
@@ -1392,7 +1393,7 @@ Renderer.CanvasModels.main = {
 			z: ZIndices.blush,
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/face/${options.facestyle}/blush${options.blush}.png` : `img/face/${options.facestyle}/blush${options.blush}.png`);
+				return `img/face/${options.facestyle}/blush${options.blush}.png`;
 			},
 			showfn(options) {
 				return options.show_face && options.blush > 0;
@@ -1403,7 +1404,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/face/${options.facestyle}/tear${options.tears}.png` : `img/face/${options.facestyle}/tear${options.tears}.png`);
+				return `img/face/${options.facestyle}/tear${options.tears}.png`;
 			},
 			showfn(options) {
 				return options.show_face && options.tears > 0;
@@ -1414,7 +1415,7 @@ Renderer.CanvasModels.main = {
 			z: ZIndices.mascara_running,
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/face/${options.facestyle}/${options.facevariant}/makeup/mascara${options.mascara_running}.png` : `img/face/${options.facestyle}/${options.facevariant}/makeup/mascara${options.mascara_running}.png`);
+				return `img/face/${options.facestyle}/${options.facevariant}/makeup/mascara${options.mascara_running}.png`;
 			},
 			showfn(options) {
 				return options.show_face && options.mascara_running > 0 && !!options.mascara_colour;
@@ -1455,7 +1456,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/hair/sides/${options.hair_sides_type}/${options.hair_sides_length}.png` : `img/hair/sides/${options.hair_sides_type}/${options.hair_sides_length}.png`);
+				return `img/hair/sides/${options.hair_sides_type}/${options.hair_sides_length}.png`;
 			},
 			zfn(options) {
 				return options.hair_sides_position === "front" ? ZIndices.hairforwards : ZIndices.backhair;
@@ -1473,7 +1474,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/hair/fringe/${options.hair_fringe_type}/${options.hair_fringe_length}.png` : `img/hair/fringe/${options.hair_fringe_type}/${options.hair_fringe_length}.png`);
+				return `img/hair/fringe/${options.hair_fringe_type}/${options.hair_fringe_length}.png`;
 			},
 			showfn(options) {
 				return !!options.show_hair && !!options.hair_fringe_type;
@@ -1508,7 +1509,7 @@ Renderer.CanvasModels.main = {
 					"bedhead",
 				];
 
-				const path = (useAltImg() ? `img2/hair/back/${options.hair_sides_type}` : `img/hair/back/${options.hair_sides_type}`);
+				const path = `img/hair/back/${options.hair_sides_type}`;
 				if (options.hair_sides_length === "feet" && [...hairs, "straight"].includes(options.hair_sides_type))
 					return `${path}/feet.png`;
 				if (options.hair_sides_length === "thighs" && hairs.includes(options.hair_sides_type))
@@ -1539,7 +1540,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/hair/phair/pb${options.pbhair_level}.png` : `img/hair/phair/pb${options.pbhair_level}.png`);
+				return `img/hair/phair/pb${options.pbhair_level}.png`;
 			},
 			showfn(options) {
 				// $pblevel 4 does not exist
@@ -1549,7 +1550,7 @@ Renderer.CanvasModels.main = {
 					&& options.pbhair_level !== 4;
 			},
 			masksrcfn(options) {
-				return options.body_type === "soft" ? (useAltImg() ? `img2/clothes/masks/soft_lower_clip.png` : `img/clothes/masks/soft_lower_clip.png`) : null;
+				return options.body_type === "soft" ? "img/clothes/masks/soft_lower_clip.png" : null;
 			}
 		},
 		"pbhair_strip": {
@@ -1558,7 +1559,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/hair/phair/pbstrip${options.pbhair_strip}.png` : `img/hair/phair/pbstrip${options.pbhair_strip}.png`);
+				return `img/hair/phair/pbstrip${options.pbhair_strip}.png`;
 			},
 			showfn(options) {
 				return options.crotch_visible
@@ -1566,7 +1567,7 @@ Renderer.CanvasModels.main = {
 					&& !options.belly_hides_under_lower;
 			},
 			masksrcfn(options) {
-				return options.body_type === "soft" ? (useAltImg() ? `img2/clothes/masks/soft_lower_clip.png` : `img/clothes/masks/soft_lower_clip.png`) : null;
+				return options.body_type === "soft" ? "img/clothes/masks/soft_lower_clip.png" : null;
 			}
 		},
 		"pbhair_balls": {
@@ -1577,7 +1578,7 @@ Renderer.CanvasModels.main = {
 				return options.crotch_exposed ? ZIndices.pbhairballs : ZIndices.pbhairballsunderclothes;
 			},
 			srcfn(options) {
-				return (useAltImg() ? `img2/hair/phair/balls/${options.penis_size}_pb${options.pbhair_balls}.png` : `img/hair/phair/balls/${options.penis_size}_pb${options.pbhair_balls}.png`);
+				return `img/hair/phair/balls/${options.penis_size}_pb${options.pbhair_balls}.png`;
 			},
 			showfn(options) {
 				return options.crotch_visible
@@ -1595,14 +1596,14 @@ Renderer.CanvasModels.main = {
 				return (options.genitals_chastity) ? ZIndices.penis_chastity : ZIndices.penis
 			},
 			srcfn(options) {
-				if (options.mannequin) return (useAltImg() ? `img2/body/mannequin/penis.png` : `img/body/mannequin/penis.png`);
+				if (options.mannequin) return "img/body/mannequin/penis.png";
 				if (options.genitals_chastity) {
 					if (["chastity belt", "flat chastity cage", "chastity parasite"].includes(options.worn.genitals.setup.name)) return;
-					if (options.worn.genitals.setup.name === "small chastity cage") return (useAltImg() ? `img2/body/penis/penis_chastitysmall.png` : `img/body/penis/penis_chastitysmall.png`);
-					return (useAltImg() ? `img2/body/penis/penis_chastity.png` : `img/body/penis/penis_chastity.png`);
+					if (options.worn.genitals.setup.name === "small chastity cage") return "img/body/penis/penis_chastitysmall.png";
+					return "img/body/penis/penis_chastity.png";
 				}
 				if (!playerHasStrapon()) {
-					return (useAltImg() ? `img2/body/${options.balls ? 'penis' : 'penisnoballs'}/${options.penis === "virgin" ? "penis_virgin" : "penis"}${options.penis_size}.png` : `img/body/${options.balls ? 'penis' : 'penisnoballs'}/${options.penis === "virgin" ? "penis_virgin" : "penis"}${options.penis_size}.png`);
+					return `img/body/${options.balls ? 'penis' : 'penisnoballs'}/${options.penis === "virgin" ? "penis_virgin" : "penis"}${options.penis_size}.png`;
 				}
 
 				return; //if the player has a strapon, then we want to hide their penis
@@ -1620,9 +1621,9 @@ Renderer.CanvasModels.main = {
 					if (!options.worn.genitals.setup.name.includes("cage")) return "";
 					switch (options.penis_parasite) {
 						case "urchin":
-							return (useAltImg() ? `img2/clothes/genitals/${options.worn.genitals.setup.variable}/urchin.png` : `img/clothes/genitals/${options.worn.genitals.setup.variable}/urchin.png`);
+							return `img/clothes/genitals/${options.worn.genitals.setup.variable}/urchin.png`;
 						case "slime":
-							return (useAltImg() ? `img2/clothes/genitals/${options.worn.genitals.setup.variable}/slime.png` : `img/clothes/genitals/${options.worn.genitals.setup.variable}/slime.png`);
+							return `img/clothes/genitals/${options.worn.genitals.setup.variable}/slime.png`;
 						default:
 							break;
 					}
@@ -1631,11 +1632,11 @@ Renderer.CanvasModels.main = {
 				switch (options.penis_parasite) {
 					case "urchin":
 						/* Swap to penisurchingray for new sprites, make sure to include colour changes to the code */
-						return (useAltImg() ? `img2/body/penis/penisurchin${options.penis_size}.png` : `img/body/penis/penisurchin${options.penis_size}.png`);
+						return `img/body/penis/penisurchin${options.penis_size}.png`;
 					case "slime":
-						return (useAltImg() ? `img2/body/penis/penisslime${options.penis_size}.png` : `img/body/penis/penisslime${options.penis_size}.png`);
+						return `img/body/penis/penisslime${options.penis_size}.png`;
 					case "parasite":
-						return (useAltImg() ? `img2/body/penis/penisparasite${options.balls ? 'balls' : ''}${options.penis_size}.png` : `img/body/penis/penisparasite${options.balls ? 'balls' : ''}${options.penis_size}.png`);
+						return `img/body/penis/penisparasite${options.balls ? 'balls' : ''}${options.penis_size}.png`;
 					default:
 						return "";
 				}
@@ -1685,7 +1686,7 @@ Renderer.CanvasModels.main = {
 			filters: ["condom"],
 
 			srcfn(options) {
-				return options.penis_condom === 'plain' ? (useAltImg() ? `img2/body/penis/condom${options.penis_size}.png` : `img/body/penis/condom${options.penis_size}.png`) : '';
+				return options.penis_condom === 'plain' ? `img/body/penis/condom${options.penis_size}.png` : '';
 			},
 			showfn(options) {
 				return options.crotch_visible
@@ -1720,7 +1721,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/angel/rightwing/${options.angel_wings_type}.png` : `img/transformations/angel/rightwing/${options.angel_wings_type}.png`);
+				return `img/transformations/angel/rightwing/${options.angel_wings_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -1736,7 +1737,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/angel/rightwing/${options.angel_wings_type}.png` : `img/transformations/angel/rightwing/${options.angel_wings_type}.png`);
+				return `img/transformations/angel/rightwing/${options.angel_wings_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -1747,7 +1748,7 @@ Renderer.CanvasModels.main = {
 					&& !options.hideAll;
 			},
 			masksrcfn(options) {
-				return (useAltImg() ? `img2/transformations/angel/rightwing/${options.angel_wings_type}_mask.png` : `img/transformations/angel/rightwing/${options.angel_wings_type}_mask.png`);
+				return `img/transformations/angel/rightwing/${options.angel_wings_type}_mask.png`;
 			},
 			zfn() {
 				return ZIndices.over_head;
@@ -1758,7 +1759,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/angel/rightcover/${options.angel_wings_type}.png` : `img/transformations/angel/rightcover/${options.angel_wings_type}.png`);
+				return `img/transformations/angel/rightcover/${options.angel_wings_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -1771,7 +1772,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/angel/leftwing/${options.angel_wings_type}.png` : `img/transformations/angel/leftwing/${options.angel_wings_type}.png`);
+				return `img/transformations/angel/leftwing/${options.angel_wings_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -1787,7 +1788,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/angel/leftwing/${options.angel_wings_type}_back.png` : `img/transformations/angel/leftwing/${options.angel_wings_type}_back.png`);
+				return `img/transformations/angel/leftwing/${options.angel_wings_type}_back.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -1804,7 +1805,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/angel/leftwing/${options.angel_wings_type}_front.png` : `img/transformations/angel/leftwing/${options.angel_wings_type}_front.png`);
+				return `img/transformations/angel/leftwing/${options.angel_wings_type}_front.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -1815,7 +1816,7 @@ Renderer.CanvasModels.main = {
 					&& !options.hideAll;
 			},
 			masksrcfn(options) {
-				return (useAltImg() ? `img2/transformations/angel/leftwing/${options.angel_wings_type}_mask.png` : `img/transformations/angel/leftwing/${options.angel_wings_type}_mask.png`);
+				return `img/transformations/angel/leftwing/${options.angel_wings_type}_mask.png`;
 			},
 			zfn() {
 				return ZIndices.over_head
@@ -1826,7 +1827,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/angel/leftcover/${options.angel_wings_type}.png` : `img/transformations/angel/leftcover/${options.angel_wings_type}.png`);
+				return `img/transformations/angel/leftcover/${options.angel_wings_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -1839,7 +1840,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/angel/backhalo/${options.angel_halo_type}.png` : `img/transformations/angel/backhalo/${options.angel_halo_type}.png`);
+				return `img/transformations/angel/backhalo/${options.angel_halo_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.angel_halo_type) && !options.hideAll;
@@ -1855,7 +1856,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/angel/fronthalo/${options.angel_halo_type}.png` : `img/transformations/angel/fronthalo/${options.angel_halo_type}.png`);
+				return `img/transformations/angel/fronthalo/${options.angel_halo_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.angel_halo_type) && !options.hideAll;
@@ -1881,7 +1882,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/fallen/rightwing/${options.fallen_wings_type}.png` : `img/transformations/fallen/rightwing/${options.fallen_wings_type}.png`);
+				return `img/transformations/fallen/rightwing/${options.fallen_wings_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -1897,7 +1898,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/fallen/rightwing/${options.fallen_wings_type}.png` : `img/transformations/fallen/rightwing/${options.fallen_wings_type}.png`);
+				return `img/transformations/fallen/rightwing/${options.fallen_wings_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -1909,7 +1910,7 @@ Renderer.CanvasModels.main = {
 					&& !options.hideAll;
 			},
 			masksrcfn(options) {
-				return (useAltImg() ? `img2/transformations/fallen/rightwing/${options.fallen_wings_type}_mask.png` : `img/transformations/fallen/rightwing/${options.fallen_wings_type}_mask.png`);
+				return `img/transformations/fallen/rightwing/${options.fallen_wings_type}_mask.png`;
 			},
 			zfn() {
 				return ZIndices.over_head;
@@ -1920,7 +1921,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/fallen/rightcover/${options.fallen_wings_type}.png` : `img/transformations/fallen/rightcover/${options.fallen_wings_type}.png`);
+				return `img/transformations/fallen/rightcover/${options.fallen_wings_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -1933,7 +1934,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/fallen/leftwing/${options.fallen_wings_type}.png` : `img/transformations/fallen/leftwing/${options.fallen_wings_type}.png`);
+				return `img/transformations/fallen/leftwing/${options.fallen_wings_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -1949,7 +1950,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/fallen/leftwing/${options.fallen_wings_type}.png` : `img/transformations/fallen/leftwing/${options.fallen_wings_type}.png`);
+				return `img/transformations/fallen/leftwing/${options.fallen_wings_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -1961,7 +1962,7 @@ Renderer.CanvasModels.main = {
 					&& !options.hideAll;
 			},
 			masksrcfn(options) {
-				return (useAltImg() ? `img2/transformations/fallen/leftwing/${options.fallen_wings_type}_mask.png` : `img/transformations/fallen/leftwing/${options.fallen_wings_type}_mask.png`);
+				return `img/transformations/fallen/leftwing/${options.fallen_wings_type}_mask.png`;
 			},
 			zfn() {
 				return ZIndices.over_head;
@@ -1972,7 +1973,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/fallen/leftcover/${options.fallen_wings_type}.png` : `img/transformations/fallen/leftcover/${options.fallen_wings_type}.png`);
+				return `img/transformations/fallen/leftcover/${options.fallen_wings_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -1986,7 +1987,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/fallen/backbrokenhalo/${options.fallen_halo_type}.png` : `img/transformations/fallen/backbrokenhalo/${options.fallen_halo_type}.png`);
+				return `img/transformations/fallen/backbrokenhalo/${options.fallen_halo_type}.png`;
 			},
 			dyfn(options) {
 				return options.angel_halo_lower && isPartEnabled(options.fallen_halo_type) ? 20 : 0;
@@ -2000,7 +2001,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/fallen/frontbrokenhalo/${options.fallen_halo_type}.png` : `img/transformations/fallen/frontbrokenhalo/${options.fallen_halo_type}.png`);
+				return `img/transformations/fallen/frontbrokenhalo/${options.fallen_halo_type}.png`;
 			},
 			dyfn(options) {
 				return options.angel_halo_lower && isPartEnabled(options.fallen_halo_type) ? 20 : 0;
@@ -2025,7 +2026,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/demon/wings/${options.demon_wings_type}.png` : `img/transformations/demon/wings/${options.demon_wings_type}.png`);
+				return `img/transformations/demon/wings/${options.demon_wings_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -2046,7 +2047,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/demon/flauntwings/${options.demon_wings_type}.png` : `img/transformations/demon/flauntwings/${options.demon_wings_type}.png`);
+				return `img/transformations/demon/flauntwings/${options.demon_wings_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -2061,7 +2062,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/demon/leftcover/${options.demon_wings_type}.png` : `img/transformations/demon/leftcover/${options.demon_wings_type}.png`);
+				return `img/transformations/demon/leftcover/${options.demon_wings_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -2075,7 +2076,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/demon/tail/${options.demon_tail_type}.png` : `img/transformations/demon/tail/${options.demon_tail_type}.png`);
+				return `img/transformations/demon/tail/${options.demon_tail_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -2095,7 +2096,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/demon/flaunttail/${options.demon_tail_type}.png` : `img/transformations/demon/flaunttail/${options.demon_tail_type}.png`);
+				return `img/transformations/demon/flaunttail/${options.demon_tail_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -2110,7 +2111,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/demon/rightcover/${options.demon_tail_type}.png` : `img/transformations/demon/rightcover/${options.demon_tail_type}.png`);
+				return `img/transformations/demon/rightcover/${options.demon_tail_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -2125,7 +2126,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/demon/horns/${options.demon_horns_type}.png` : `img/transformations/demon/horns/${options.demon_horns_type}.png`);
+				return `img/transformations/demon/horns/${options.demon_horns_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.demon_horns_type) && !options.hideAll;
@@ -2151,7 +2152,7 @@ Renderer.CanvasModels.main = {
 			filters: ["hair"],
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/wolf/tail/${options.wolf_tail_type}.png` : `img/transformations/wolf/tail/${options.wolf_tail_type}.png`);
+				return `img/transformations/wolf/tail/${options.wolf_tail_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.wolf_tail_type) && !options.hideAll;
@@ -2172,7 +2173,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 			filters: ["hair"],
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/wolf/ears/${options.wolf_ears_type}.png` : `img/transformations/wolf/ears/${options.wolf_ears_type}.png`);
+				return `img/transformations/wolf/ears/${options.wolf_ears_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.wolf_ears_type) && !options.hideAll;
@@ -2187,7 +2188,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/hirsute/pits/${options.wolf_pits_type}.png` : `img/transformations/hirsute/pits/${options.wolf_pits_type}.png`);
+				return `img/transformations/hirsute/pits/${options.wolf_pits_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.wolf_pits_type) && !options.hideAll;
@@ -2199,7 +2200,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/hirsute/pubes/${options.wolf_pubes_type}.png` : `img/transformations/hirsute/pubes/${options.wolf_pubes_type}.png`);
+				return `img/transformations/hirsute/pubes/${options.wolf_pubes_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -2214,7 +2215,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/wolf/cheeks/${options.wolf_cheeks_type}.png` : `img/transformations/wolf/cheeks/${options.wolf_cheeks_type}.png`);
+				return `img/transformations/wolf/cheeks/${options.wolf_cheeks_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.wolf_cheeks_type) && !options.hideAll;
@@ -2235,7 +2236,7 @@ Renderer.CanvasModels.main = {
 			filters: ["hair"],
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/cat/tail/${options.cat_tail_type}.png` : `img/transformations/cat/tail/${options.cat_tail_type}.png`);
+				return `img/transformations/cat/tail/${options.cat_tail_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -2253,7 +2254,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/cat/flaunttail/${options.cat_tail_type}.png` : `img/transformations/cat/flaunttail/${options.cat_tail_type}.png`);
+				return `img/transformations/cat/flaunttail/${options.cat_tail_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -2268,7 +2269,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/cat/covertail/${options.cat_tail_type}.png` : `img/transformations/cat/covertail/${options.cat_tail_type}.png`);
+				return `img/transformations/cat/covertail/${options.cat_tail_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -2290,7 +2291,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/cat/ears/${options.cat_ears_type}.png` : `img/transformations/cat/ears/${options.cat_ears_type}.png`);
+				return `img/transformations/cat/ears/${options.cat_ears_type}.png`;
 			},
 			masksrcfn(options) {
 				return options.head_mask_src;
@@ -2312,7 +2313,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/cow/horns/${options.cow_horns_type}.png` : `img/transformations/cow/horns/${options.cow_horns_type}.png`);
+				return `img/transformations/cow/horns/${options.cow_horns_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.cow_horns_type) && !options.hideAll;
@@ -2336,7 +2337,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/cow/ears/${options.cow_ears_type}.png` : `img/transformations/cow/ears/${options.cow_ears_type}.png`);
+				return `img/transformations/cow/ears/${options.cow_ears_type}.png`;
 			},
 			masksrcfn(options) {
 				return options.head_mask_src;
@@ -2350,7 +2351,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn() {
-				return (useAltImg() ? `img2/transformations/cow/tag.png` : `img/transformations/cow/tag.png`);
+				return "img/transformations/cow/tag.png";
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.cow_ears_type) && !options.hideAll;
@@ -2360,7 +2361,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/cow/tail/${options.cow_tail_type}.png` : `img/transformations/cow/tail/${options.cow_tail_type}.png`);
+				return `img/transformations/cow/tail/${options.cow_tail_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.cow_tail_type) && !options.hideAll;
@@ -2384,7 +2385,7 @@ Renderer.CanvasModels.main = {
 			filters: ["hair"],
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/bird/rightwing/${options.bird_wings_type}.png` : `img/transformations/bird/rightwing/${options.bird_wings_type}.png`);
+				return `img/transformations/bird/rightwing/${options.bird_wings_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -2402,7 +2403,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/bird/rightcover/${options.bird_wings_type}.png` : `img/transformations/bird/rightcover/${options.bird_wings_type}.png`);
+				return `img/transformations/bird/rightcover/${options.bird_wings_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -2416,7 +2417,7 @@ Renderer.CanvasModels.main = {
 			filters: ["hair"],
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/bird/leftwing/${options.bird_wings_type}.png` : `img/transformations/bird/leftwing/${options.bird_wings_type}.png`);
+				return `img/transformations/bird/leftwing/${options.bird_wings_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -2434,7 +2435,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/bird/leftcover/${options.bird_wings_type}.png` : `img/transformations/bird/leftcover/${options.bird_wings_type}.png`);
+				return `img/transformations/bird/leftcover/${options.bird_wings_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -2448,7 +2449,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/bird/tail/${options.bird_tail_type}.png` : `img/transformations/bird/tail/${options.bird_tail_type}.png`);
+				return `img/transformations/bird/tail/${options.bird_tail_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.bird_tail_type) && !options.hideAll;
@@ -2462,7 +2463,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/bird/eyes/${options.bird_eyes_type}.png` : `img/transformations/bird/eyes/${options.bird_eyes_type}.png`);
+				return `img/transformations/bird/eyes/${options.bird_eyes_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -2472,7 +2473,7 @@ Renderer.CanvasModels.main = {
 			},
 			masksrcfn(options) {
 				return {
-					path: (useAltImg() ? `img2/face/${options.facestyle}/${options.facevariant}/iris.png` : `img/face/${options.facestyle}/${options.facevariant}/iris.png`),
+					path: `img/face/${options.facestyle}/${options.facevariant}/iris.png`,
 					convert: true,
 				};
 			}
@@ -2482,7 +2483,7 @@ Renderer.CanvasModels.main = {
 			z: ZIndices.lower,
 			animation: "idle",
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/bird/malar/${options.bird_malar_type}.png` : `img/transformations/bird/malar/${options.bird_malar_type}.png`);
+				return `img/transformations/bird/malar/${options.bird_malar_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.bird_malar_type) && !options.hideAll;
@@ -2494,7 +2495,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/bird/plumage/${options.bird_plumage_type}.png` : `img/transformations/bird/plumage/${options.bird_plumage_type}.png`);
+				return `img/transformations/bird/plumage/${options.bird_plumage_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.bird_plumage_type) && !options.hideAll;
@@ -2506,7 +2507,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/bird/pubes/${options.bird_pubes_type}.png` : `img/transformations/bird/pubes/${options.bird_pubes_type}.png`);
+				return `img/transformations/bird/pubes/${options.bird_pubes_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -2515,7 +2516,7 @@ Renderer.CanvasModels.main = {
 					&& !options.hideAll;
 			},
 			masksrcfn(options) {
-				return options.body_type === "soft" ? (useAltImg() ? `img2/clothes/masks/soft_lower_clip.png` : `img/clothes/masks/soft_lower_clip.png`) : null;
+				return options.body_type === "soft" ? "img/clothes/masks/soft_lower_clip.png" : null;
 			}
 		},
 		/***
@@ -2532,7 +2533,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/fox/tail/${options.fox_tail_type}.png` : `img/transformations/fox/tail/${options.fox_tail_type}.png`);
+				return `img/transformations/fox/tail/${options.fox_tail_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.fox_tail_type) && !options.hideAll;
@@ -2554,7 +2555,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/fox/ears/${options.fox_ears_type}.png` : `img/transformations/fox/ears/${options.fox_ears_type}.png`);
+				return `img/transformations/fox/ears/${options.fox_ears_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.fox_ears_type) && !options.hideAll;
@@ -2569,7 +2570,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/fox/cheeks/${options.fox_cheeks_type}.png` : `img/transformations/fox/cheeks/${options.fox_cheeks_type}.png`);
+				return `img/transformations/fox/cheeks/${options.fox_cheeks_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.fox_cheeks_type) && !options.hideAll;
@@ -2588,7 +2589,7 @@ Renderer.CanvasModels.main = {
 		*/
 		"bear_ears": {
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/bear/ears/${options.bear_ears_type}.png` : `img/transformations/bear/ears/${options.bear_ears_type}.png`);
+				return `img/transformations/bear/ears/${options.bear_ears_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.bear_ears_type) && !options.hideAll;
@@ -2608,7 +2609,7 @@ Renderer.CanvasModels.main = {
 		},
 		"bear_tail": {
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/bear/tail/${options.bear_tail_type}.png` : `img/transformations/bear/tail/${options.bear_tail_type}.png`);
+				return `img/transformations/bear/tail/${options.bear_tail_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.bear_tail_type) && !options.hideAll;
@@ -2625,7 +2626,7 @@ Renderer.CanvasModels.main = {
 		},
 		"bear_plumage": {
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/bear/plumage/${options.bear_plumage_type}.png` : `img/transformations/bear/plumage/${options.bear_plumage_type}.png`);
+				return `img/transformations/bear/plumage/${options.bear_plumage_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.bear_plumage_type) && !options.hideAll;
@@ -2636,7 +2637,7 @@ Renderer.CanvasModels.main = {
 		},
 		"bear_pubes": {
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/bear/pubes/${options.bear_pubes_type}.png` : `img/transformations/bear/pubes/${options.bear_pubes_type}.png`);
+				return `img/transformations/bear/pubes/${options.bear_pubes_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -2662,7 +2663,7 @@ Renderer.CanvasModels.main = {
 		"decoration_foreground1": {
 			srcfn(options) {
 				if (options.foreground_image_type1 == "" || options.foreground_image_type1 == "none") return;
-				return (useAltImg() ? `img2/decorations/foreground1/${options.foreground_image_type1}.png` : `img/decorations/foreground1/${options.foreground_image_type1}.png`);
+				return `img/decorations/foreground1/${options.foreground_image_type1}.png`;
 			},
 			showfn(options) {
 				return options.show_foreground1
@@ -2675,7 +2676,7 @@ Renderer.CanvasModels.main = {
 		"decoration_background1": {
 			srcfn(options) {
 				if (options.background_image_type1 == "" || options.background_image_type1 == "none") return;
-				return (useAltImg() ? `img2/decorations/background1/${options.background_image_type1}.png` : `img/decorations/background1/${options.background_image_type1}.png`);
+				return `img/decorations/background1/${options.background_image_type1}.png`;
 			},
 			showfn(options) {
 				return options.show_background1
@@ -2688,7 +2689,7 @@ Renderer.CanvasModels.main = {
 		"decoration_foreground2": {
 			srcfn(options) {
 				if (options.foreground_image_type2 == "" || options.foreground_image_type2 == "none") return;
-				return (useAltImg() ? `img2/decorations/foreground2/${options.foreground_image_type2}.png` : `img/decorations/foreground2/${options.foreground_image_type2}.png`);
+				return `img/decorations/foreground2/${options.foreground_image_type2}.png`;
 			},
 			showfn(options) {
 				return options.show_foreground2
@@ -2701,7 +2702,7 @@ Renderer.CanvasModels.main = {
 		"decoration_background2": {
 			srcfn(options) {
 				if (options.background_image_type2 == "" || options.background_image_type2 == "none") return;
-				return (useAltImg() ? `img2/decorations/background2/${options.background_image_type2}.png` : `img/decorations/background2/${options.background_image_type2}.png`);
+				return `img/decorations/background2/${options.background_image_type2}.png`;
 			},
 			showfn(options) {
 				return options.show_background2
@@ -2728,7 +2729,7 @@ Renderer.CanvasModels.main = {
 		 */
 		"bunny_tail": {
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/bunny/tail/${options.bunny_tail_type}.png` : `img/transformations/bunny/tail/${options.bunny_tail_type}.png`);
+				return `img/transformations/bunny/tail/${options.bunny_tail_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.bunny_tail_type);
@@ -2745,7 +2746,7 @@ Renderer.CanvasModels.main = {
 		},
 		"bunny_ear_front": {
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/bunny/earfront/${options.bunny_ears_type}.png` : `img/transformations/bunny/earfront/${options.bunny_ears_type}.png`);
+				return `img/transformations/bunny/earfront/${options.bunny_ears_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.bunny_ears_type);
@@ -2759,7 +2760,7 @@ Renderer.CanvasModels.main = {
 		},
 		"bunny_ear_back": {
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/bunny/earback/${options.bunny_ears_type}.png` : `img/transformations/bunny/earback/${options.bunny_ears_type}.png`);
+				return `img/transformations/bunny/earback/${options.bunny_ears_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.bunny_ears_type);
@@ -2782,7 +2783,7 @@ Renderer.CanvasModels.main = {
 		 */
 		"okami_ears": {
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/okami/ears/${options.okami_ears_type}.png` : `img/transformations/okami/ears/${options.okami_ears_type}.png`);
+				return `img/transformations/okami/ears/${options.okami_ears_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.okami_ears_type) && !options.hideAll;
@@ -2801,7 +2802,7 @@ Renderer.CanvasModels.main = {
 		},
 		"okami_tail": {
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/okami/tail/${options.okami_tail_type}.png` : `img/transformations/okami/tail/${options.okami_tail_type}.png`);
+				return `img/transformations/okami/tail/${options.okami_tail_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.okami_tail_type) && !options.hideAll;
@@ -2820,7 +2821,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/okami/wings/${options.okami_wings_type}.png` : `img/transformations/okami/wings/${options.okami_wings_type}.png`);
+				return `img/transformations/okami/wings/${options.okami_wings_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -2837,7 +2838,7 @@ Renderer.CanvasModels.main = {
 			z: ZIndices.lower,
 			animation: "idle",
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/okami/misc/${options.okami_misc_type}.png` : `img/transformations/okami/misc/${options.okami_misc_type}.png`);
+				return `img/transformations/okami/misc/${options.okami_misc_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.okami_misc_type) && !options.hideAll;
@@ -2857,7 +2858,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/seraphim/wings/${options.seraphim_wings_type}.png` : `img/transformations/seraphim/wings/${options.seraphim_wings_type}.png`);
+				return `img/transformations/seraphim/wings/${options.seraphim_wings_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -2872,7 +2873,7 @@ Renderer.CanvasModels.main = {
 		},
 		"seraphim_plumage": {
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/seraphim/plumage/${options.seraphim_plumage_type}.png` : `img/transformations/seraphim/plumage/${options.seraphim_plumage_type}.png`);
+				return `img/transformations/seraphim/plumage/${options.seraphim_plumage_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.seraphim_plumage_type) && !options.hideAll;
@@ -2885,7 +2886,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/seraphim/eyes/${options.seraphim_eyes_type}.png` : `img/transformations/seraphim/eyes/${options.seraphim_eyes_type}.png`);
+				return `img/transformations/seraphim/eyes/${options.seraphim_eyes_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf
@@ -2895,7 +2896,7 @@ Renderer.CanvasModels.main = {
 			},
 			masksrcfn(options) {
 				return {
-					path: (useAltImg() ? `img2/face/${options.facestyle}/${options.facevariant}/iris.png` : `img/face/${options.facestyle}/${options.facevariant}/iris.png`),
+					path: `img/face/${options.facestyle}/${options.facevariant}/iris.png`,
 					convert: true,
 				};
 			}
@@ -2914,7 +2915,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/kitsune/tail/${options.kitsune_tail_type}.png` : `img/transformations/kitsune/tail/${options.kitsune_tail_type}.png`);
+				return `img/transformations/kitsune/tail/${options.kitsune_tail_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.kitsune_tail_type) && !options.hideAll;
@@ -2936,7 +2937,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/kitsune/ears/${options.kitsune_ears_type}.png` : `img/transformations/kitsune/ears/${options.kitsune_ears_type}.png`);
+				return `img/transformations/kitsune/ears/${options.kitsune_ears_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.kitsune_ears_type) && !options.hideAll;
@@ -2951,7 +2952,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/kitsune/cheeks/${options.kitsune_cheeks_type}.png` : `img/transformations/kitsune/cheeks/${options.kitsune_cheeks_type}.png`);
+				return `img/transformations/kitsune/cheeks/${options.kitsune_cheeks_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.kitsune_cheeks_type) && !options.hideAll;
@@ -2964,7 +2965,7 @@ Renderer.CanvasModels.main = {
 			z: ZIndices.old_over_upper,
 			animation: "idle",
 			srcfn(options) {
-				return (useAltImg() ? `img2/transformations/kitsune/misc/${options.kitsune_misc_type}.png` : `img/transformations/kitsune/misc/${options.kitsune_misc_type}.png`);
+				return `img/transformations/kitsune/misc/${options.kitsune_misc_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.kitsune_misc_type) && !options.hideAll;
@@ -3011,13 +3012,13 @@ Renderer.CanvasModels.main = {
 				const writing = setup.bodywriting[options.writing_right_cheek];
 				if (writing.type === "text") {
 					if (writing.sprites && writing.sprites.length > 0 && writing.sprites.includes(area_name)) {
-						return (useAltImg() ? `img2/bodywriting/text/${writing.key}/${area_name}.png` : `img/bodywriting/text/${writing.key}/${area_name}.png`);
+						return `img/bodywriting/text/${writing.key}/${area_name}.png`;
 					}
-					return (useAltImg() ? `img2/bodywriting/text/default/${area_name}.png` : `img/bodywriting/text/default/${area_name}.png`);
+					return `img/bodywriting/text/default/${area_name}.png`;
 				}
 
 				const arrow = writing.arrow ? "_arrow" : "";
-				if (writing.type === "object") return (useAltImg() ? `img2/bodywriting/${writing.writing}/${area_name}${arrow}.png` : `img/bodywriting/${writing.writing}/${area_name}${arrow}.png`);
+				if (writing.type === "object") return `img/bodywriting/${writing.writing}/${area_name}${arrow}.png`;
 				return '';
 			},
 			showfn(options) {
@@ -3033,12 +3034,12 @@ Renderer.CanvasModels.main = {
 				const writing = setup.bodywriting[options.writing_breasts];
 				if (writing.type === "text") {
 					if (writing.sprites && writing.sprites.length > 0 && writing.sprites.includes(area_name)) {
-						return (useAltImg() ? `img2/bodywriting/text/${writing.key}/${area_name}.png` : `img/bodywriting/text/${writing.key}/${area_name}.png`);
+						return `img/bodywriting/text/${writing.key}/${area_name}.png`;
 					}
-					return (useAltImg() ? `img2/bodywriting/text/default/${area_name}1.png` : `img/bodywriting/text/default/${area_name}1.png`);
+					return `img/bodywriting/text/default/${area_name}1.png`;
 				}
 				if (writing.type === "object") {
-					return (useAltImg() ? `img2/bodywriting/${writing.writing}/${area_name}${options.breast_size}.png` : `img/bodywriting/${writing.writing}/${area_name}${options.breast_size}.png`);
+					return `img/bodywriting/${writing.writing}/${area_name}${options.breast_size}.png`;
 				}
 				return '';
 			},
@@ -3054,7 +3055,7 @@ Renderer.CanvasModels.main = {
 				const writing = setup.bodywriting[options.writing_breasts];
 				if ((!writing.sprites || writing.sprites.length == 0)
 					&& writing.type === "text" && options.breast_size >= 2) {
-					return (useAltImg() ? `img2/bodywriting/text/default/breasts${options.breast_size}.png` : `img/bodywriting/text/default/breasts${options.breast_size}.png`);
+					return `img/bodywriting/text/default/breasts${options.breast_size}.png`;
 				}
 				return '';
 			},
@@ -3169,7 +3170,7 @@ Renderer.CanvasModels.main = {
 		"drip_vaginal": {
 			z: ZIndices.tears,
 			srcfn(options) {
-				return (useAltImg() ? `img2/body/cum/VaginalCumDrip${options.drip_vaginal}.png` : `img/body/cum/VaginalCumDrip${options.drip_vaginal}.png`);
+				return `img/body/cum/VaginalCumDrip${options.drip_vaginal}.png`;
 			},
 			showfn(options) {
 				return !!options.drip_vaginal;
@@ -3181,7 +3182,7 @@ Renderer.CanvasModels.main = {
 		"drip_anal": {
 			z: ZIndices.tears,
 			srcfn(options) {
-				return (useAltImg() ? `img2/body/cum/AnalCumDrip${options.drip_anal}.png` : `img/body/cum/AnalCumDrip${options.drip_anal}.png`);
+				return `img/body/cum/AnalCumDrip${options.drip_anal}.png`;
 			},
 			showfn(options) {
 				return !!options.drip_anal;
@@ -3194,7 +3195,7 @@ Renderer.CanvasModels.main = {
 			z: ZIndices.semencough,
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/body/cum/MouthCumDrip${options.drip_mouth}.png` : `img/body/cum/MouthCumDrip${options.drip_mouth}.png`);
+				return `img/body/cum/MouthCumDrip${options.drip_mouth}.png`;
 			},
 			showfn(options) {
 				return options.show_face
@@ -3213,7 +3214,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/body/cum/Chest ${options.cum_chest}.png` : `img/body/cum/Chest ${options.cum_chest}.png`);
+				return `img/body/cum/Chest ${options.cum_chest}.png`;
 			},
 			showfn(options) {
 				return !!options.cum_chest;
@@ -3224,7 +3225,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/body/cum/Face ${options.cum_face}.png` : `img/body/cum/Face ${options.cum_face}.png`);
+				return `img/body/cum/Face ${options.cum_face}.png`;
 			},
 			showfn(options) {
 				return options.show_face && !!options.cum_face;
@@ -3235,7 +3236,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/body/cum/Feet ${options.cum_feet}.png` : `img/body/cum/Feet ${options.cum_feet}.png`);
+				return `img/body/cum/Feet ${options.cum_feet}.png`;
 			},
 			showfn(options) {
 				return !!options.cum_feet;
@@ -3245,7 +3246,7 @@ Renderer.CanvasModels.main = {
 			z: ZIndices.tears,
 			animation: "idle",
 			srcfn(options) {
-				return (useAltImg() ? `img2/body/cum/Left Arm ${options.cum_leftarm}.png` : `img/body/cum/Left Arm ${options.cum_leftarm}.png`);
+				return `img/body/cum/Left Arm ${options.cum_leftarm}.png`;
 			},
 			showfn(options) {
 				return options.arm_left !== "none" && options.arm_left != "cover" && !!options.cum_leftarm;
@@ -3256,7 +3257,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/body/cum/Right Arm ${options.cum_rightarm}.png` : `img/body/cum/Right Arm ${options.cum_rightarm}.png`);
+				return `img/body/cum/Right Arm ${options.cum_rightarm}.png`;
 			},
 			showfn(options) {
 				return options.arm_right !== "none"
@@ -3270,7 +3271,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/body/cum/Neck ${options.cum_neck}.png` : `img/body/cum/Neck ${options.cum_neck}.png`);
+				return `img/body/cum/Neck ${options.cum_neck}.png`;
 			},
 			showfn(options) {
 				return !!options.cum_neck;
@@ -3281,7 +3282,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/body/cum/Thighs ${options.cum_thigh}.png` : `img/body/cum/Thighs ${options.cum_thigh}.png`);
+				return `img/body/cum/Thighs ${options.cum_thigh}.png`;
 			},
 			showfn(options) {
 				return !!options.cum_thigh;
@@ -3292,7 +3293,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return (useAltImg() ? `img2/body/cum/Tummy ${options.cum_tummy}.png` : `img/body/cum/Tummy ${options.cum_tummy}.png`);
+				return `img/body/cum/Tummy ${options.cum_tummy}.png`;
 			},
 			showfn(options) {
 				return !!options.cum_tummy;
@@ -3722,7 +3723,7 @@ Renderer.CanvasModels.main = {
 
 				const setupVar = options.worn.genitals.setup.variable;
 				const integrity = options.worn.genitals.integrity;
-				return (useAltImg() ? `img2/clothes/genitals/${setupVar}/${integrity}${size}.png` : `img/clothes/genitals/${setupVar}/${integrity}${size}.png`);
+				return `img/clothes/genitals/${setupVar}/${integrity}${size}.png`;
 			},
 		}),
 		/***
@@ -3781,7 +3782,7 @@ Renderer.CanvasModels.main = {
 			srcfn(options) {
 				const secondary = options.worn.upper.setup.name === "school blouse" && options.worn.lower.setup.name.includes("pinafore") ? '_under' : '';
 				const suffix = options.worn.lower.setup.accessory_integrity_img ? `_${options.worn.lower.integrity}` : secondary;
-				return gray_suffix((useAltImg() ? `img2/clothes/lower/${options.worn.lower.setup.variable}/acc${suffix}.png` : `img/clothes/lower/${options.worn.lower.setup.variable}/acc${suffix}.png`), options.filters['worn_lower_acc']);
+				return gray_suffix(`img/clothes/lower/${options.worn.lower.setup.variable}/acc${suffix}.png`, options.filters['worn_lower_acc']);
 			},
 			zfn(options) {
 				if (options.worn.lower.setup.name.includes("ballgown") || options.worn.lower.setup.name.includes("pinafore"))
@@ -3807,7 +3808,7 @@ Renderer.CanvasModels.main = {
 			//ToDo: add images for lower penis bulges. check against pregnancy belly
 			srcfn(options) {
 				return gray_suffix(
-					(useAltImg() ? `img2/clothes/lower/${options.worn.lower.setup.variable}/penis.png` : `img/clothes/lower/${options.worn.lower.setup.variable}/penis.png`),
+					`img/clothes/lower/${options.worn.lower.setup.variable}/penis.png`,
 					options.filters['worn_lower']
 				);
 			},
@@ -3827,7 +3828,7 @@ Renderer.CanvasModels.main = {
 			//ToDo: add images for lower penis bulges. check against pregnancy belly
 			srcfn(options) {
 				return gray_suffix(
-					(useAltImg() ? `img2/clothes/lower/${options.worn.lower.setup.variable}/acc_penis.png` : `img/clothes/lower/${options.worn.lower.setup.variable}/acc_penis.png`),
+					`img/clothes/lower/${options.worn.lower.setup.variable}/acc_penis.png`,
 					options.filters['worn_lower_acc']
 				);
 			},
@@ -3946,7 +3947,7 @@ Renderer.CanvasModels.main = {
 			//ToDo: expand the existing bulk images by providing a small bulge when `calculatePenisBulge()` is less than 8 (max is 15). check against pregnancy belly
 			srcfn(options) {
 				return gray_suffix(
-					(useAltImg() ? `img2/clothes/under_lower/${options.worn.under_lower.setup.variable}/penis.png` : `img/clothes/under_lower/${options.worn.under_lower.setup.variable}/penis.png`),
+					`img/clothes/under_lower/${options.worn.under_lower.setup.variable}/penis.png`,
 					options.filters['worn_under_lower']
 				);
 			},
@@ -3969,7 +3970,7 @@ Renderer.CanvasModels.main = {
 			//ToDo: expand the existing bulk images by providing a small bulge when `calculatePenisBulge()` is less than 8 (max is 15). check against pregnancy belly
 			srcfn(options) {
 				return gray_suffix(
-					(useAltImg() ? `img2/clothes/under_lower/${options.worn.under_lower.setup.variable}/acc_penis.png` : `img/clothes/under_lower/${options.worn.under_lower.setup.variable}/acc_penis.png`),
+					`img/clothes/under_lower/${options.worn.under_lower.setup.variable}/acc_penis.png`,
 					options.filters['worn_under_lower_acc']
 				);
 			},
@@ -4098,7 +4099,7 @@ Renderer.CanvasModels.main = {
 
 			srcfn(options) {
 				const suffix = options.arm_left === "cover" ? "left_cover" : "left";
-				const path = (useAltImg() ? `img2/clothes/hands/${options.worn.hands.setup.variable}/${suffix}.png` : `img/clothes/hands/${options.worn.hands.setup.variable}/${suffix}.png`);
+				const path = `img/clothes/hands/${options.worn.hands.setup.variable}/${suffix}.png`;
 				return gray_suffix(path, options.filters['worn_hands']);
 			},
 			showfn(options) {
@@ -4117,7 +4118,7 @@ Renderer.CanvasModels.main = {
 
 			srcfn(options) {
 				const suffix = options.arm_left === "cover" ? "left_cover" : "left";
-				const path = (useAltImg() ? `img2/clothes/hands/${options.worn.hands.setup.variable}/${suffix}_acc.png` : `img/clothes/hands/${options.worn.hands.setup.variable}/${suffix}_acc.png`);
+				const path = `img/clothes/hands/${options.worn.hands.setup.variable}/${suffix}_acc.png`;
 				return gray_suffix(path, options.filters['worn_hands_acc']);
 			},
 			showfn(options) {
@@ -4138,7 +4139,7 @@ Renderer.CanvasModels.main = {
 			srcfn(options) {
 				const hold = options.handheld_position || "right";
 				const suffix = options.arm_right === "cover" ? "right_cover" : hold;
-				const path = (useAltImg() ? `img2/clothes/hands/${options.worn.hands.setup.variable}/${suffix}.png` : `img/clothes/hands/${options.worn.hands.setup.variable}/${suffix}.png`);
+				const path = `img/clothes/hands/${options.worn.hands.setup.variable}/${suffix}.png`;
 				return gray_suffix(path, options.filters['worn_hands']);
 			},
 			showfn(options) {
@@ -4159,7 +4160,7 @@ Renderer.CanvasModels.main = {
 			srcfn(options) {
 				const hold = options.handheld_position || "right";
 				const suffix = options.arm_right === "cover" ? "right_cover" : hold;
-				const path = (useAltImg() ? `img2/clothes/hands/${options.worn.hands.setup.variable}/${suffix}_acc.png` : `img/clothes/hands/${options.worn.hands.setup.variable}/${suffix}_acc.png`);
+				const path = `img/clothes/hands/${options.worn.hands.setup.variable}/${suffix}_acc.png`;
 				return gray_suffix(path, options.filters['worn_hands_acc']);
 			},
 			showfn(options) {
@@ -4202,7 +4203,7 @@ Renderer.CanvasModels.main = {
 				const extra = torch || cards || fabric || special || '';
 				const directory = options.worn.handheld.setup.type.includes("prop") ? "props" : "handheld";
 				const category = directory === "props" ? (options.worn.handheld.setup.type.find(type => ["food", "ingredient", "recipe", "tending", "antique", "sex toy", "child toy", "book"].includes(type)) || "general") + "/" : "";
-				const path = (useAltImg() ? `img2/clothes/${directory}/${category}${options.worn.handheld.setup.variable}/${cover}${extra}.png` : `img/clothes/${directory}/${category}${options.worn.handheld.setup.variable}/${cover}${extra}.png`);
+				const path = `img/clothes/${directory}/${category}${options.worn.handheld.setup.variable}/${cover}${extra}.png`;
 				return gray_suffix(path, options.filters['worn_handheld']);
 			},
 			showfn(options) {
@@ -4236,7 +4237,7 @@ Renderer.CanvasModels.main = {
 				const extra = cards || special || '';
 				const directory = options.worn.handheld.setup.type.includes("prop") ? "props" : "handheld";
 				const category = directory === "props" ? (options.worn.handheld.setup.type.find(type => ["food", "ingredient", "recipe", "tending", "antique", "sex toy", "child toy", "book"].includes(type)) || "general") + "/" : "";
-				const path = (useAltImg() ? `img2/clothes/${directory}/${category}${options.worn.handheld.setup.variable}/${cover}${extra}_acc.png` : `img/clothes/${directory}/${category}${options.worn.handheld.setup.variable}/${cover}${extra}_acc.png`);
+				const path = `img/clothes/${directory}/${category}${options.worn.handheld.setup.variable}/${cover}${extra}_acc.png`;
 				return gray_suffix(path, options.filters['worn_handheld_acc']);
 			},
 			showfn(options) {
@@ -4258,7 +4259,7 @@ Renderer.CanvasModels.main = {
 				const cover = options.arm_left === "cover" ? "left_cover" : "left";
 				const directory = options.worn.handheld.setup.type.includes("prop") ? "props" : "handheld";
 				const category = directory === "props" ? (options.worn.handheld.setup.type.find(type => ["food", "ingredient", "recipe", "tending", "antique", "sex toy", "child toy", "book"].includes(type)) || "general") + "/" : "";
-				const path = (useAltImg() ? `img2/clothes/${directory}/${category}${options.worn.handheld.setup.variable}/${cover}.png` : `img/clothes/${directory}/${category}${options.worn.handheld.setup.variable}/${cover}.png`);
+				const path = `img/clothes/${directory}/${category}${options.worn.handheld.setup.variable}/${cover}.png`;
 				return gray_suffix(path, options.filters['worn_handheld']);
 			},
 			showfn(options) {
@@ -4280,7 +4281,7 @@ Renderer.CanvasModels.main = {
 				const cover = options.arm_left === "cover" ? "left_cover" : "left";
 				const directory = options.worn.handheld.setup.type.includes("prop") ? "props" : "handheld";
 				const category = directory === "props" ? (options.worn.handheld.setup.type.find(type => ["food", "ingredient", "recipe", "tending", "antique", "sex toy", "child toy", "book"].includes(type)) || "general") + "/" : "";
-				const path = (useAltImg() ? `img2/clothes/${directory}/${category}${options.worn.handheld.setup.variable}/${cover}_acc.png` : `img/clothes/${directory}/${category}${options.worn.handheld.setup.variable}/${cover}_acc.png`);
+				const path = `img/clothes/${directory}/${category}${options.worn.handheld.setup.variable}/${cover}_acc.png`;
 				return gray_suffix(path, options.filters['worn_handheld_acc']);
 			},
 			showfn(options) {
@@ -4316,7 +4317,7 @@ Renderer.CanvasModels.main = {
 		"head": genlayer_clothing_main('head', {
 			srcfn(options) {
 				const dmg = options.hood_damage ? options.worn.upper.integrity : options.worn.head.integrity;
-				const path = (useAltImg() ? `img2/clothes/head/${options.worn.head.setup.variable}/${dmg}.png` : `img/clothes/head/${options.worn.head.setup.variable}/${dmg}.png`);
+				const path = `img/clothes/head/${options.worn.head.setup.variable}/${dmg}.png`;
 				return gray_suffix(path, options.filters['worn_head']);
 			},
 			showfn(options) {
@@ -4329,7 +4330,7 @@ Renderer.CanvasModels.main = {
 		"head_acc": genlayer_clothing_accessory('head', {
 			srcfn(options) {
 				const dmg = options.hood_damage ? `_${options.worn.upper.integrity}` : '';
-				const path = (useAltImg() ? `img2/clothes/head/${options.worn.head.setup.variable}/acc${dmg}.png` : `img/clothes/head/${options.worn.head.setup.variable}/acc${dmg}.png`);
+				const path = `img/clothes/head/${options.worn.head.setup.variable}/acc${dmg}.png`;
 				return gray_suffix(path, options.filters['worn_head_acc']);
 			},
 			showfn(options) {
@@ -4419,7 +4420,7 @@ Renderer.CanvasModels.main = {
 
 				const setupVar = options.worn.neck.setup.variable;
 				const integrity = options.worn.neck.integrity;
-				const path = (useAltImg() ? `img2/clothes/neck/${setupVar}/${integrity}${collar}${alt}.png` : `img/clothes/neck/${setupVar}/${integrity}${collar}${alt}.png`);
+				const path = `img/clothes/neck/${setupVar}/${integrity}${collar}${alt}.png`;
 				return gray_suffix(path, options.filters['worn_neck']);
 			},
 			showfn(options) {
@@ -4429,7 +4430,7 @@ Renderer.CanvasModels.main = {
 					&& !options.hideAll;
 			},
 			masksrcfn(options) {
-				return options.high_waist_suspenders ? (useAltImg() ? `img2/clothes/neck/suspenders/mask.png` : `img/clothes/neck/suspenders/mask.png`) : null;
+				return options.high_waist_suspenders ? "img/clothes/neck/suspenders/mask.png" : null;
 			},
 			zfn(options) {
 				return options.hood_mask ? ZIndices.collar : ZIndices.neck;
@@ -4444,7 +4445,7 @@ Renderer.CanvasModels.main = {
 				const alt = isAltPosition ? '_alt' : '';
 
 				const setupVar = options.worn.neck.setup.variable;
-				const path = (useAltImg() ? `img2/clothes/neck/${setupVar}/acc${integrity}${alt}.png` : `img/clothes/neck/${setupVar}/acc${integrity}${alt}.png`);
+				const path = `img/clothes/neck/${setupVar}/acc${integrity}${alt}.png`;
 				return gray_suffix(path, options.filters['worn_neck_acc']);
 			},
 			showfn(options) {
@@ -4666,22 +4667,22 @@ function gray_suffix(path, filter) {
 function getWritingImgPath(area_name, writing) {
 	if (writing.type === "text") {
 		if (writing.sprites && writing.sprites.length > 0 && writing.sprites.includes(area_name)) {
-			return (useAltImg() ? `img2/bodywriting/text/${writing.key}/${area_name}.png` : `img/bodywriting/text/${writing.key}/${area_name}.png`);
+			return `img/bodywriting/text/${writing.key}/${area_name}.png`;
 		}
-		return (useAltImg() ? `img2/bodywriting/text/default/${area_name}.png` : `img/bodywriting/text/default/${area_name}.png`);
+		return `img/bodywriting/text/default/${area_name}.png`;
 	}
-	if (writing.type === "object") return (useAltImg() ? `img2/bodywriting/${writing.writing}/${area_name}.png` : `img/bodywriting/${writing.writing}/${area_name}.png`);
+	if (writing.type === "object") return `img/bodywriting/${writing.writing}/${area_name}.png`;
 	return '';
 }
 
 function getWritingImgPathArrow(area_name, writing) {
 	if (writing.type === "text") {
 		if (writing.sprites && writing.sprites.length > 0 && writing.sprites.includes(area_name)) {
-			return (useAltImg() ? `img2/bodywriting/text/${writing.key}/${area_name}.png` : `img/bodywriting/text/${writing.key}/${area_name}.png`);
+			return `img/bodywriting/text/${writing.key}/${area_name}.png`;
 		}
-		return (useAltImg() ? `img2/bodywriting/text/default/${area_name}${writing.arrow ? "_arrow" : ""}.png` : `img/bodywriting/text/default/${area_name}${writing.arrow ? "_arrow" : ""}.png`);
+		return `img/bodywriting/text/default/${area_name}${writing.arrow ? "_arrow" : ""}.png`;
 	}
-	if (writing.type === "object") return (useAltImg() ? `img2/bodywriting/${writing.writing}/${area_name}.png` : `img/bodywriting/${writing.writing}/${area_name}.png`);
+	if (writing.type === "object") return `img/bodywriting/${writing.writing}/${area_name}.png`;
 	return '';
 }
 
@@ -4718,7 +4719,7 @@ function getClothingPathBreastsAcc(slot, options) {
 	const breastImg = options.worn[slot].setup.breast_img;
 	const breastAccImg = options.worn[slot].setup.breast_acc_img;
 	const breastSize = typeof breastAccImg === 'object' ? breastAccImg[options.breast_size] : typeof breastImg === 'object' ? breastImg[options.breast_size] : Math.min(options.breast_size, 6);
-	const path = (useAltImg() ? `img2/clothes/${slot}/${options.worn[slot].setup.variable}/${breastSize}_acc.png` : `img/clothes/${slot}/${options.worn[slot].setup.variable}/${breastSize}_acc.png`);
+	const path = `img/clothes/${slot}/${options.worn[slot].setup.variable}/${breastSize}_acc.png`;
 	return gray_suffix(path, options.filters[`worn_${slot}_acc`]);
 }
 
@@ -4774,7 +4775,7 @@ function genlayer_clothing_main(slot, overrideOptions) {
 				&& !setup?.altdisabled.includes("full");
 
 			const end = isHoodDown ? '_down' : isAltPosition ? '_alt' : '';
-			const path = (useAltImg() ? `img2/clothes/${slot}/${setup.variable}/${options.worn[slot].integrity}${end}.png` : `img/clothes/${slot}/${setup.variable}/${options.worn[slot].integrity}${end}.png`);
+			const path = `img/clothes/${slot}/${setup.variable}/${options.worn[slot].integrity}${end}.png`;
 			return gray_suffix(path, options.filters[`worn_${slot}`]);
 		},
 	}, overrideOptions));
@@ -4825,7 +4826,7 @@ function genlayer_clothing_fitted_left_acc(slot, overrideOptions) {
 
 			const special = setup.accessory_integrity_img ? `_${options.worn[slot].integrity}` : '';
 			const end = isHoodDown ? '_down' : isAltPosition ? '_alt' : '';
-			const path = (useAltImg() ? `img2/clothes/${slot}/${setup.variable}/acc${special}${end}.png` : `img/clothes/${slot}/${setup.variable}/acc${special}${end}.png`);
+			const path = `img/clothes/${slot}/${setup.variable}/acc${special}${end}.png`;
 			return gray_suffix(path, options.filters[`worn_${slot}_acc`]);
 		},
 	}, overrideOptions));
@@ -4854,7 +4855,7 @@ function genlayer_clothing_fitted_right_acc(slot, overrideOptions) {
 
 			const special = setup.accessory_integrity_img ? `_${options.worn[slot].integrity}` : '';
 			const end = isHoodDown ? '_down' : isAltPosition ? '_alt' : '';
-			const path = (useAltImg() ? `img2/clothes/${slot}/${setup.variable}/acc${special}${end}.png` : `img/clothes/${slot}/${setup.variable}/acc${special}${end}.png`);
+			const path = `img/clothes/${slot}/${setup.variable}/acc${special}${end}.png`;
 			return gray_suffix(path, options.filters[`worn_${slot}_acc`]);
 		},
 	}, overrideOptions));
@@ -4883,7 +4884,7 @@ function genlayer_clothing_accessory(slot, overrideOptions) {
 
 			const special = setup.accessory_integrity_img ? `_${options.worn[slot].integrity}` : '';
 			const end = isHoodDown ? '_down' : isAltPosition ? '_alt' : '';
-			const path = (useAltImg() ? `img2/clothes/${slot}/${setup.variable}/acc${special}${end}.png` : `img/clothes/${slot}/${setup.variable}/acc${special}${end}.png`);
+			const path = `img/clothes/${slot}/${setup.variable}/acc${special}${end}.png`;
 			return gray_suffix(path, options.filters[`worn_${slot}_acc`]);
 		},
 	}, overrideOptions));
@@ -4896,7 +4897,7 @@ function genlayer_clothing_breasts(slot, overrideOptions) {
 
 			const variable = options.worn[slot].setup.variable;
 			const integrity = options.worn[slot].integrity;
-			if (options.worn[slot].setup.mask_img === 1) return (useAltImg() ? `img2/clothes/${slot}/${variable}/mask_${integrity}.png` : `img/clothes/${slot}/${variable}/mask_${integrity}.png`);
+			if (options.worn[slot].setup.mask_img === 1) return `img/clothes/${slot}/${variable}/mask_${integrity}.png`;
 			return null;
 		},
 		showfn(options) {
@@ -4916,7 +4917,7 @@ function genlayer_clothing_breasts(slot, overrideOptions) {
 
 			const breastSize = typeof breastImg === 'object' ? breastImg[options.breast_size] : Math.min(options.breast_size, 6);
 			const end = isAltPosition ? '_alt' : '';
-			const path = (useAltImg() ? `img2/clothes/${slot}/${setup.variable}/${breastSize}${end}.png` : `img/clothes/${slot}/${setup.variable}/${breastSize}${end}.png`);
+			const path = `img/clothes/${slot}/${setup.variable}/${breastSize}${end}.png`;
 			return gray_suffix(path, options.filters[`worn_${slot}`]);
 		},
 	}, overrideOptions));
@@ -4954,7 +4955,7 @@ function genlayer_clothing_belly(slot, overrideOptions) {
 
 			const integrity = options.worn[slot].integrity;
 			const end = isAltPosition ? '_alt' : '';
-			const path = (useAltImg() ? `img2/clothes/${slot}/${setup.variable}/${integrity}${end}.png` : `img/clothes/${slot}/${setup.variable}/${integrity}${end}.png`);
+			const path = `img/clothes/${slot}/${setup.variable}/${integrity}${end}.png`;
 			return gray_suffix(path, options.filters[`worn_${slot}`]);
 		},
 	}, overrideOptions));
@@ -5016,7 +5017,7 @@ function genlayer_clothing_belly_split_acc(slot, overrideOptions) {
 			const end = isAltPosition ? '_alt' : '';
 			const hoodDown = isHoodDown ? '_down' : end;
 
-			const path = (useAltImg() ? `img2/clothes/${slot}/${setup.variable}/acc${integrity}${hoodDown}.png` : `img/clothes/${slot}/${setup.variable}/acc${integrity}${hoodDown}.png`);
+			const path = `img/clothes/${slot}/${setup.variable}/acc${integrity}${hoodDown}.png`;
 			return gray_suffix(path, options.filters[`worn_${slot}_acc`]);
 		},
 	}, overrideOptions));
@@ -5027,7 +5028,7 @@ function genlayer_clothing_belly_shadow(slot, overrideOptions) {
 		z: ZIndices.bellyClothesShadow,
 		srcfn(options) {
 			return gray_suffix(
-				(useAltImg() ? `img2/clothes/${slot}/${options.worn[slot].setup.variable}/${options.worn[slot].integrity}.png` : `img/clothes/${slot}/${options.worn[slot].setup.variable}/${options.worn[slot].integrity}.png`),
+				`img/clothes/${slot}/${options.worn[slot].setup.variable}/${options.worn[slot].integrity}.png`,
 				options.filters[`worn_${slot}`]
 			);
 		},
@@ -5079,7 +5080,7 @@ function genlayer_clothing_belly_acc(slot, overrideOptions) {
 			const end = isAltPosition ? '_alt' : '';
 			const hoodDown = isHoodDown ? '_down' : end;
 
-			const path = (useAltImg() ? `img2/clothes/${slot}/${setup.variable}/acc${integrity}${hoodDown}.png` : `img/clothes/${slot}/${setup.variable}/acc${integrity}${hoodDown}.png`);
+			const path = `img/clothes/${slot}/${setup.variable}/acc${integrity}${hoodDown}.png`;
 			return gray_suffix(path, options.filters[`worn_${slot}_acc`]);
 		},
 	}, overrideOptions));
@@ -5145,7 +5146,7 @@ function genlayer_clothing_back_img(slot, overrideOptions) {
 			const prefix = isAltPosition ? 'back_alt' : 'back';
 			const suffix = options.worn[slot].setup.back_integrity_img ? `_${options.worn[slot].integrity}` : '';
 
-			const path = (useAltImg() ? `img2/clothes/${slot}/${options.worn[slot].setup.variable}/${prefix}${suffix}.png` : `img/clothes/${slot}/${options.worn[slot].setup.variable}/${prefix}${suffix}.png`);
+			const path = `img/clothes/${slot}/${options.worn[slot].setup.variable}/${prefix}${suffix}.png`;
 			return gray_suffix(path, options.filters[this.filtersfn(options)[0]]);
 		},
 	}, overrideOptions));
@@ -5182,7 +5183,7 @@ function genlayer_clothing_back_img_acc(slot, overrideOptions) {
 				&& !options.worn[slot].setup?.altdisabled.includes("back");
 
 			const suffix = isAltPosition ? 'back_alt' : 'back';
-			const path = (useAltImg() ? `img2/clothes/${slot}/${options.worn[slot].setup.variable}/${suffix}_acc.png` : `img/clothes/${slot}/${options.worn[slot].setup.variable}/${suffix}_acc.png`);
+			const path = `img/clothes/${slot}/${options.worn[slot].setup.variable}/${suffix}_acc.png`;
 			return gray_suffix(path, options.filters[this.filtersfn(options)[0]]);
 		},
 	}, overrideOptions));
@@ -5221,7 +5222,7 @@ function genlayer_clothing_arm(arm, slot, overrideOptions) {
 			const cover = options[`arm_${arm}`] === 'cover' ? `${arm}_cover` : held;
 			const alt = isAltPosition ? "_alt" : '';
 			const sleeve = isAltSleeve ? '_rolled' : '';
-			const path = (useAltImg() ? `img2/clothes/${slot}/${setup.variable}/${cover}${alt}${sleeve}.png` : `img/clothes/${slot}/${setup.variable}/${cover}${alt}${sleeve}.png`);
+			const path = `img/clothes/${slot}/${setup.variable}/${cover}${alt}${sleeve}.png`;
 			return gray_suffix(path, options.filters[this.filtersfn(options)[0]]);
 		},
 	}, overrideOptions));
@@ -5264,7 +5265,7 @@ function genlayer_clothing_arm_fitted(arm, slot, overrideOptions) {
 			const alt = isAltPosition ? "_alt" : '';
 			const sleeve = isAltSleeve ? '_rolled' : '';
 
-			const path = (useAltImg() ? `img2/clothes/${slot}/${setup.variable}/${cover}${alt}${sleeve}.png` : `img/clothes/${slot}/${setup.variable}/${cover}${alt}${sleeve}.png`);
+			const path = `img/clothes/${slot}/${setup.variable}/${cover}${alt}${sleeve}.png`;
 			return gray_suffix(path, options.filters[this.filtersfn(options)[0]]);
 		},
 	}, overrideOptions));
@@ -5303,7 +5304,7 @@ function genlayer_clothing_arm_acc(arm, slot, overrideOptions) {
 				filename += (isAltPosition) ? '_alt_acc' : '_acc';
 			}
 
-			const path = (useAltImg() ? `img2/clothes/${slot}/${setup.variable}/${filename}.png` : `img/clothes/${slot}/${setup.variable}/${filename}.png`);
+			const path = `img/clothes/${slot}/${setup.variable}/${filename}.png`;
 			return gray_suffix(path, options.filters[this.filtersfn(options)[0]]);
 		},
 	}, overrideOptions));
@@ -5335,7 +5336,7 @@ function genlayer_clothing_arm_acc_fitted(arm, slot, overrideOptions) {
 			const hold = options.handheld_position && arm === "right" ? options.handheld_position : arm;
 			const cover = options[`arm_${arm}`] === "cover" ? `${arm}_cover` : hold;
 
-			const path = (useAltImg() ? `img2/clothes/${slot}/${options.worn[slot].setup.variable}/${cover}_acc.png` : `img/clothes/${slot}/${options.worn[slot].setup.variable}/${cover}_acc.png`);
+			const path = `img/clothes/${slot}/${options.worn[slot].setup.variable}/${cover}_acc.png`;
 			return gray_suffix(path, options.filters[this.filtersfn(options)[0]]);
 		},
 	}, overrideOptions))

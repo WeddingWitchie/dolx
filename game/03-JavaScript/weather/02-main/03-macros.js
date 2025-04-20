@@ -34,7 +34,7 @@ Macro.add("weatherIcon", {
 
 		const dayState = Weather.bloodMoon ? "blood" : Weather.dayState === "night" ? "night" : "day";
 		const weatherState = resolveValue(Weather.type.iconType, "clear");
-		const path = (useAltImg() ? `img2/misc/icon/weather/${dayState}_${weatherState}.png` : `img/misc/icon/weather/${dayState}_${weatherState}.png`);
+		const path = `img/misc/icon/weather/${dayState}_${weatherState}.png`;
 
 		iconImg.attr("src", path);
 		Weather.Tooltips.skybox(iconImg);

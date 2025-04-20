@@ -34,7 +34,7 @@ class CloseCombatMapper {
 		// @ts-ignore
 		return {
 			position: "missionary",
-			src: (useAltImg() ? "img2/sex/close/" : "img/sex/close/"),
+			src: "img/sex/close/",
 			animKeyVagina: "sex-1f-idle",
 			animKeyPenis: "sex-1f-idle",
 			animKeyArse: "sex-1f-idle",
@@ -53,7 +53,7 @@ class CloseCombatMapper {
 		options.position = CombatRenderer.getPosition(V.position);
 
 		// Set directory for images
-		options.root = (useAltImg() ? "img2/sex" : "img/sex");
+		options.root = "img/sex";
 		options.src = `${options.root}/close/`;
 
 		options.filters = options.filters || {
@@ -124,9 +124,9 @@ class CloseCombatMapper {
 	 */
 	static mapClosePenetrators(slot, options) {
 		const activeEnemy = V.NPCList[V.active_enemy].type;
-		const chastity = (playerChastity("hidden") || V.worn.genitals.name === "chastity parasite") && slot === "vagina";
-		const belt = V.worn.genitals.name === "gold chastity belt" ? "gold-belt" : "belt";
 		const npc = ["horse", "centaur"].includes(activeEnemy) ? "horse" : ["beast", "machine", "tentacles"].includes(V.enemytype) ? V.enemytype : "npc";
+		const chastity = (playerChastity("hidden") || V.worn.genitals.name === "chastity parasite") && slot === "vagina" && !["horse", "machine"].includes(npc);
+		const belt = V.worn.genitals.name === "gold chastity belt" ? "gold-belt" : "belt";
 		options[slot] = {};
 
 		/* check $anusstate or $vaginastate */

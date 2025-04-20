@@ -42,10 +42,17 @@ function playerIsXChanged() {
 }
 window.playerIsXChanged = playerIsXChanged;
 
-function useAltImg() {
-	return V.options?.useAltImg === 1 && V.player?.sex === V.options?.altImgGender;
+/* 
+	@args:
+	 - path: type string, representing the relative path to an 'img' asset.
+*/
+function getGenderedPath(path) {
+	if (typeof path === 'string' && V.options?.useAltImg === 1 && V.player?.sex === V.options?.altImgGender)
+		return 'img2/' + path.substring(4);
+	else 
+		return path;
 }
-window.useAltImg = useAltImg;
+window.getGenderedPath = getGenderedPath;
 
 function pillTimerPaused() {
 	let vaginalPregnancy = V.sexStats.vagina.pregnancy.type !== null;

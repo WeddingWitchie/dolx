@@ -165,23 +165,23 @@ Renderer.CanvasModels.sexdemo = {
 				const cum = options.vagina_cumming ? "cum" : "";
 				switch (options.vagina_penetrator) {
 					case "machine":
-						return (useAltImg() ? "img2/sex/machine/vaginal/xray_vaginal.png" : "img/sex/machine/vaginal/xray_vaginal.png");
+						return "img/sex/machine/vaginal/xray_vaginal.png";
 					case "beast":
 						switch (options.vagina_penetrator_subtype) {
 							case "horse":
-								return (useAltImg() ? "img2/sex/xrayvaginalhorse" + cum + ".png" : "img/sex/xrayvaginalhorse" + cum + ".png");
+								return "img/sex/xrayvaginalhorse" + cum + ".png";
 							default:
-								return (useAltImg() ? "img2/sex/xrayvaginalbeast" + cum + ".png" : "img/sex/xrayvaginalbeast" + cum + ".png");
+								return "img/sex/xrayvaginalbeast" + cum + ".png";
 						}
 					case "penis":
 						switch (options.vagina_penetrator_subtype) {
 							case "black":
-								return (useAltImg() ? "img2/sex/black/xrayvaginal" + cum + ".png" : "img/sex/black/xrayvaginal" + cum + ".png");
+								return "img/sex/black/xrayvaginal" + cum + ".png";
 							default:
-								return (useAltImg() ? "img2/sex/xrayvaginal" + cum + ".png" : "img/sex/xrayvaginal" + cum + ".png");
+								return "img/sex/xrayvaginal" + cum + ".png";
 						}
 					case "tentacle":
-						return (useAltImg() ? "img2/sex/xrayvaginaltentacle" + cum + ".png" : "img/sex/xrayvaginaltentacle" + cum + ".png");
+						return "img/sex/xrayvaginaltentacle" + cum + ".png";
 					default:
 						/**
 						 * Fallback value, nothing will be renderer.
@@ -216,12 +216,12 @@ Renderer.CanvasModels.sexdemo = {
 			srcfn(options) {
 				if (options.vagina_state === "penetrated") {
 					return options.vagina_penetrator === "beast" && options.vagina_penetrator_size >= 5
-						? (useAltImg() ? "img2/sex/close/" + options.position + "/vaginapenetratebig.png" : "img/sex/close/" + options.position + "/vaginapenetratebig.png")
-						: (useAltImg() ? "img2/sex/close/" + options.position + "/vaginapenetrate.png" : "img/sex/close/" + options.position + "/vaginapenetrate.png");
+						? "img/sex/close/" + options.position + "/vaginapenetratebig.png"
+						: "img/sex/close/" + options.position + "/vaginapenetrate.png";
 				} else {
 					return options.vagina_aroused
-						? (useAltImg() ? "img2/sex/close/" + options.position + "/vaginaaroused.png" : "img/sex/close/" + options.position + "/vaginaaroused.png")
-						: (useAltImg() ? "img2/sex/close/" + options.position + "/vagina.png" : "img/sex/close/" + options.position + "/vagina.png");
+						? "img/sex/close/" + options.position + "/vaginaaroused.png"
+						: "img/sex/close/" + options.position + "/vagina.png";
 				}
 			},
 			filters: ["close_vagina"],
@@ -235,7 +235,7 @@ Renderer.CanvasModels.sexdemo = {
 				return options.close_vagina_show && options.vagina_aroused;
 			},
 			srcfn(options) {
-				return (useAltImg() ? "img2/sex/close/" + options.position + "/vaginaaroused.png" : "img/sex/close/" + options.position + "/vaginaaroused.png");
+				return "img/sex/close/" + options.position + "/vaginaaroused.png";
 			},
 			animationfn(options) {
 				return "sex-6f-" + options.close_vagina_speed;
@@ -254,7 +254,7 @@ Renderer.CanvasModels.sexdemo = {
 				return options.close_vagina_show && !!options.penis;
 			},
 			srcfn(options) {
-				return (useAltImg() ? "img2/sex/close/" : "img/sex/close/") + options.position + "/" + (options.balls ? "futavagina.png" : "futavaginanoballs.png");
+				return "img/sex/close/" + options.position + "/" + (options.balls ? "futavagina.png" : "futavaginanoballs.png");
 			},
 			filters: ["close_vagina"],
 			animationfn(options) {
@@ -267,7 +267,7 @@ Renderer.CanvasModels.sexdemo = {
 				return options.close_vagina_show && !!options.worn.under_lower.index && options.worn.under_lower.state === "totheside";
 			},
 			srcfn(options) {
-				return (useAltImg() ? "img2/sex/close/" + options.position + "/vaginatotheside.png" : "img/sex/close/" + options.position + "/vaginatotheside.png");
+				return "img/sex/close/" + options.position + "/vaginatotheside.png";
 			},
 			/**
 			 * One for dx,dy,width, other for colours.
@@ -287,33 +287,33 @@ Renderer.CanvasModels.sexdemo = {
 					case "penetrated":
 						switch (options.vagina_penetrator) {
 							case "tentacle":
-								return (useAltImg() ? "img2/sex/close/" + options.position + "/vaginatentaclepenetrated.png" : "img/sex/close/" + options.position + "/vaginatentaclepenetrated.png");
+								return "img/sex/close/" + options.position + "/vaginatentaclepenetrated.png";
 							case "machine":
-								return (useAltImg() ? "img2/sex/close/machine/vaginal/" + options.position + "/penetrated_close.png" : "img/sex/close/machine/vaginal/" + options.position + "/penetrated_close.png");
+								return "img/sex/close/machine/vaginal/" + options.position + "/penetrated_close.png";
 							case "beast":
 								if (options.vagina_penetrator_subtype === "horse" || options.vagina_penetrator_subtype === "centaur") {
-									return (useAltImg() ? "img2/sex/close/horse/vaginapenetratedhorse.png" : "img/sex/close/horse/vaginapenetratedhorse.png");
+									return "img/sex/close/horse/vaginapenetratedhorse.png";
 								} else {
-									return (useAltImg() ? "img2/sex/close/" + options.position + "/vaginapenetratedbeast.png" : "img/sex/close/" + options.position + "/vaginapenetratedbeast.png");
+									return "img/sex/close/" + options.position + "/vaginapenetratedbeast.png";
 								}
 							default:
-								return (useAltImg() ? "img2/sex/close/" + options.position + "/vaginapenetrated.png" : "img/sex/close/" + options.position + "/vaginapenetrated.png");
+								return "img/sex/close/" + options.position + "/vaginapenetrated.png";
 						}
 					case "imminent":
 					case "entrance":
 						switch (options.vagina_penetrator) {
 							case "tentacle":
-								return (useAltImg() ? "img2/sex/close/" + options.position + "/vaginatentacleentrance.png" : "img/sex/close/" + options.position + "/vaginatentacleentrance.png");
+								return "img/sex/close/" + options.position + "/vaginatentacleentrance.png";
 							case "machine":
-								return (useAltImg() ? "img2/sex/machine/vaginal/" + options.position + "/entrance_close.png" : "img/sex/machine/vaginal/" + options.position + "/entrance_close.png");
+								return "img/sex/machine/vaginal/" + options.position + "/entrance_close.png";
 							case "beast":
 								if (options.vagina_penetrator_subtype === "horse" || options.vagina_penetrator_subtype === "centaur") {
-									return (useAltImg() ? "img2/sex/close/horse/vaginaentrancehorse.png" : "img/sex/close/horse/vaginaentrancehorse.png");
+									return "img/sex/close/horse/vaginaentrancehorse.png";
 								} else {
-									return (useAltImg() ? "img2/sex/close/" + options.position + "/vaginaentrancebeast.png" : "img/sex/close/" + options.position + "/vaginaentrancebeast.png");
+									return "img/sex/close/" + options.position + "/vaginaentrancebeast.png";
 								}
 							default:
-								return (useAltImg() ? "img2/sex/close/" + options.position + "/vaginaentrance.png" : "img/sex/close/" + options.position + "/vaginaentrance.png");
+								return "img/sex/close/" + options.position + "/vaginaentrance.png";
 						}
 				}
 			},
