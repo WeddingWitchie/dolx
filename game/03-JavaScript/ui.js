@@ -512,6 +512,44 @@ function settingsBeastGenders(singleUpdate) {
 }
 window.settingsBeastGenders = settingsBeastGenders;
 
+function settingsPlayerGender() {
+	const updateText = () => {
+		const val = V.genderidentity;
+		let text = "Despite appearances, you see yourself as a: ";
+
+		if (val === 1000)
+			text += "<span class='pink inline-colour'>Femme</span>";
+		else if (val >= 875)
+			text += "<span class='pink inline-colour'>Woman</span>";
+		else if (val >= 750)
+			text += "<span class='pink inline-colour'>Tomboy</span>";
+		else if (val >= 625)
+			text += "<span class='pink inline-colour'>Butch</span>";
+		else if (val >= 375)
+			text += "<span class='green inline-colour'>Non-binary</span>";
+		else if (val >= 250)
+			text += "<span class='blue inline-colour'>Sissy</span>";
+		else if (val >= 125)
+			text += "<span class='blue inline-colour'>Twink</span>";
+		else if (val >= 1)
+			text += "<span class='blue inline-colour'>Man</span>";
+		else
+			text += "<span class='blue inline-colour'>Macho</span>";
+
+		jQuery("#numberslider-value-genderidentity").text("").append(text)
+		.addClass("small-description");
+	};
+
+	$(() => {
+		updateText();
+		$("#numberslider-input-genderidentity").on("input change", function (e) {
+			updateText();
+		});
+	});
+}
+
+window.settingsPlayerGender = settingsPlayerGender;
+
 function settingsNpcGenders(singleUpdate) {
 	const updateText = () => {
 		const val = T.malechance;
