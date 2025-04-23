@@ -13,7 +13,7 @@ A large half-circle is gouged into the stone around the booth.
 <</if>>
 
 <<if $daily.confessed>>
-	<span class="purple">You've already confessed your sins today.</span>
+	<<refuseicon>><span class="purple">You've already confessed your sins today.</span>
 	<br>
 <<else>>
 	<<getinicon>><<link [[Enter as a penitent (0:30)|Temple Confess Self]]>><</link>>
@@ -23,7 +23,7 @@ A large half-circle is gouged into the stone around the booth.
 	<<getinicon>><<link [[Enter as a confessor|Temple Confess Start]]>><<set $phase to 1>><</link>> <<note "+ Grace?" "green">>
 	<br>
 <<elseif $temple_rank is "initiate">>
-	<span class="purple">You must achieve a higher rank at the temple before you can take confessions.</span>
+	<<refuseicon>><span class="purple">You must achieve a higher rank at the temple before you can take confessions.</span>
 	<br>
 <</if>>
 <br>
@@ -337,11 +337,9 @@ You share your sinful thoughts and temptations with <<him>>. <<He>> lends a pati
 		<<set $seductiondifficulty to (4000 - ($world_corruption_soft * 10))>>
 		<<seductioncheck>>
 		<br><br>
-		<<if $seductionskill lt 1000>>
-			<span class="gold">You feel more confident in your powers of seduction.</span>
-			<br><br>
-		<</if>>
+		<<seductionskilluptext>>
 		<<seductionskilluse>>
+		
 		<<if $seductionrating gte $seductionrequired>>
 			<<if $temple_rank is undefined or $temple_rank is "prospective">>
 				"I... I suppose there's no helping it, then. I will help you purge your temptations, and become free of sin. Prostrate yourself before me."
@@ -1334,15 +1332,17 @@ The right side is open for penitents to confess their sins, while the left side 
 A large half-circle is gouged into the stone around the booth.
 <br><br>
 
-"You look unsure of yourself, child." You feel a hand on your shoulder. It's Jordan. "You seek to act as a confessor, yes? I'll show you how."
+"You look unsure of yourself, child." You feel a hand on your shoulder. It's Jordan. "You seek to act as a confessor, yes? Let me show you how."
 <br><br>
 
-<<link [[Next|Temple Confess Tutorial 2]]>><</link>>
+<<templeicon "confession">><<link [[Accept (0:30)|Temple Confess Tutorial 2]]>><<pass 30>><</link>>
+<br>
+<<getouticon>><<link [[Decline|Temple]]>><<endevent>><</link>>
 <br>
 
 :: Temple Confess Tutorial 2
 <<temple_effects>><<effects>>
-You enter the confessional with Jordan.
+You nod and enter the confessional with Jordan.
 <br><br>
 
 The interior is more spacious than the outside lets on, enough for both of you to fit. A cushioned bench sits before you.
@@ -1355,18 +1355,29 @@ You take note of a small metal shutter under the seal, and a silver bowl attache
 <<He>> gestures to a rope next to the bench. "This operates the bell outside. Only pull this if you are faced with another member of the temple who has confessed to breaking their vows. It will call in the specialists to purify them."
 <br><br>
 
-<<He>> moves on to a case full of small sticks. "Each time a penitent enters, light this incense and speak the phrase 'Welcome. Lay your sins bare, so they may be forgiven.' In most cases you will aim to forgive and guide your penitent. The phrase you will speak for forgiveness is 'I name you forgiven by word. You must still forgive yourself by act.' In the more severe cases of sin or illegal activity, you should be firm and demand they repent."
+<<link [[Next|Temple Confess Tutorial 3]]>><</link>>
+<br>
+
+:: Temple Confess Tutorial 3
+<<temple_effects>><<effects>>
+Jordan moves on to a case full of small sticks. 
+<br><br>
+
+"Each time a penitent enters, light this incense and speak the phrase 'Welcome. Lay your sins bare, so they may be forgiven.' In most cases you will aim to forgive and guide your penitent. The phrase you will speak for forgiveness is 'I name you forgiven by word. You must still forgive yourself by act.' In the more severe cases of sin or illegal activity, you should be firm and demand they repent."
 <br><br>
 
 <<He>> continues. "If you believe your penitent to be full of a great amount of sin and corruption, you will tell them to write their name and address on one of these pieces of paper." <<He>> gestures to a stack of papers on a shelf, opposite to the seal.
 "This is known as contrition. In giving their sacred name, letting all the world know of their sins, they will be forgiven. The specialists will help them purify themselves at a later date."
 <br><br>
 
-Jordan places a hand on your head. "You must use your best judgement to properly attend to your penitents. I know you can do it. Good luck, child." Jordan leaves you alone in the booth.
+Jordan places a hand on your head. "You must use your best judgement to properly attend to your penitents. I know you can do it. Good luck, child." 
+<br><br>
+
+<<He>> leaves you alone in the booth.
 <<endevent>>
 <br><br>
 
-<<link [[Wait for a penitent (0:30)|Temple Confess]]>><<pass 30>><</link>>
+<<link [[Wait for a penitent|Temple Confess]]>><</link>>
 <br>
 
 :: Temple Confess Start
@@ -1424,7 +1435,7 @@ Jordan places a hand on your head. "You must use your best judgement to properly
 		You can almost feel what is on the other side of the booth. All that separates you are misunderstandings.
 	<</if>>
 	<br><br>
-		
+
 	"Welcome. Lay your sins bare, so they may be forgiven," you say. You do your best to keep your voice even. When you go to light the incense, the flame flickers out no matter how many times you try.
 <<else>>
 	You hear the other door open and greet your attendant.
@@ -1523,7 +1534,7 @@ Jordan places a hand on your head. "You must use your best judgement to properly
 	"I did something horrible. I... There was this
 	<<if maleChance($pronoun) gte random(1, 100)>>
 		boy. He needed money really bad, to pay someone off, I think. I... I made him do things.
-		<<if random(1,100) lte $npcvirginitychance>>
+		<<if random(1,100) lte $npcVirginityChance>>
 			I ended up taking his virginity.
 		<</if>>
 		He didn't seem to mind,
@@ -1640,7 +1651,7 @@ Jordan places a hand on your head. "You must use your best judgement to properly
 <<addinlineevent "confession_sinner_generic_forgive" 3>>
 	<<generate1>><<person1>><<set $attendant to "sinner_generic_forgive">>
 	They sit down. A <<personsimple>>'s voice greets you.
-	<<set _sinPoolForgive to [		
+	<<set _sinPoolForgive to [
 		`"Forgive me, <<sister>>, for I have sinned. I have coveted my <<print either("neighbour","neighbour's spouse","friend's spouse")>>."`,
 		`"Forgive me, <<sister>>, for I have sinned. I lost a bet, and went streaking across town naked."`,
 		`"Forgive me, <<sister>>, for I have sinned. I've been hitting up the strip club behind my spouse's back for a few weeks."`,
@@ -2368,7 +2379,7 @@ Jordan places a hand on your head. "You must use your best judgement to properly
 		"Propositioning a confessor in such a holy place... you should get yourself fitted with a chastity device to contain your lust."
 		<br><br>
 
-		"Oh piss off, I'm just looking for a little fun you damned prig." <<He>> exits the booth. <<grace 1>><<ggrace>>
+		"Oh piss off, I'm just looking for a little fun, you damned prig." <<He>> exits the booth. <<grace 1>><<ggrace>>
 	<<case "sinner_3">>
 		"Get yourself fitted with a chastity device if you must."
 		<br><br>
@@ -3070,9 +3081,8 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 		<<set $seductiondifficulty to 8000 - ((C.npc.Sydney.love + C.npc.Sydney.lust) * 15) - C.npc.Sydney.purity>>
 		<<seductioncheck>>
 		<br><br>
-
-		<<if $seductionskill lt 1000>><span class="gold">You feel more confident in your powers of seduction.</span><</if>><<seductionskilluse>>
-		<br><br>
+		<<seductionskilluptext>>
+		<<seductionskilluse>>
 
 		You place a hand on <<his>> chest, and ease <<him>> into a lying position.
 		<<if $seductionrating gte $seductionrequired>>
@@ -3651,7 +3661,7 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 :: Temple Confess Wraith
 <<temple_effects>><<effects>><<rainWraith>>
 
-A voice starts to speak. "My faith led me to suffer. I begged my brothers and sisters for aid as the water rose to my head. They turned their backs to me and became shadows. I know they heard me. Could they not feel my lungs burning for air, or the cold rush of water dousing my life? What of the binds around my limbs that yet entomb me in my own demise? Where were they?" 
+A voice starts to speak. "My faith led me to suffer. I begged my brothers and sisters for aid as the water rose to my head. They turned their backs to me and became shadows. I know they heard me. Could they not feel my lungs burning for air, or the cold rush of water dousing my life? What of the binds around my limbs that yet entomb me in my own demise? Where were they?"
 <br><br>
 
 You realise that your lips are forming the words as you listen. It's no longer clear who's speaking and who's listening.

@@ -55,7 +55,6 @@ You wait in line behind a <<person2>><<person>>.
     <br><br>
     <<He>> lets out a breath. "Appreciate it."
     <br><br>
-
 <<elseif $rng gte 61>>
     <<He>> approaches with a thick ledger tucked under <<his>> arm. When <<his>> turn arrives, <<he>> places it on the counter. "I need to confirm an account transfer."
     <br><br>
@@ -205,7 +204,7 @@ The teller takes out a brochure and slides it over to you. "We offer a comprehen
 <</if>>
 <br><br>
 
-The teller takes out a brochure and slides it over to you. "Ah, we offer a variety of term lengths as well as different interest rates at higher deposit amounts for 6 months and above though of course, early withdrawals incur an earned interest penalty fee."
+The teller takes out a brochure and slides it over to you. "Ah, we offer a variety of term lengths as well as different interest rates at higher deposit amounts for 6 months and above though, of course, early withdrawals incur an earned interest penalty fee."
 <br><br>
 
 **1 Month**
@@ -241,7 +240,7 @@ The teller takes out a brochure and slides it over to you. "Ah, we offer a varie
 :: HBSC Bank Account
 <<effects>>
 
-<<if hbscBank.account.level lte 0>>
+<<if $hbsc.account.level lte 0>>
     <<if $speech_attitude is "meek">>
         "I'd like to open an account please..." you say.
     <<elseif $speech_attitude is "bratty">>
@@ -260,21 +259,115 @@ The teller takes out a brochure and slides it over to you. "Ah, we offer a varie
 <</if>>
 <br><br>
 
-<<He>> gives you smile. "Of course! Let me just check your eligibility..." <<He>> then makes few clicks on their keyboard before turning their monitor towards you. "Here's the options you have."
+<<He>> gives you smile. "Of course! Just let me check your eligibility..." <<He>> then makes few clicks on their keyboard before turning their monitor towards you. "Here's the options you have."
 <br><br>
 
-<<if hbscBank.account.level lte 0>>
-    <<link [[Basic Tier|HBSC Bank Account Upgrade]]>><</link>>
+<<if $hbsc.account.level lte 0>>
+    <<link [[Basic Tier|HBSC Bank Account Upgrade]]>><<set $phase to 1>><</link>>
 <</if>>
-<<if hbscBank.account.level lte 1 and $money + $hbsc.account.deposit gte 1000000>>
-    <<link [[Silver Tier|HBSC Bank Account Upgrade]]>><</link>>
+<<if $hbsc.account.level lte 1 and $money + $hbsc.account.deposit gte 1000000>>
+    <<link [[Silver Tier|HBSC Bank Account Upgrade]]>><<set $phase to 2>><</link>>
 <</if>>
-<<if hbscBank.account.level lte 2 and $money + $hbsc.account.deposit gte 10000000>>
-    <<link [[Gold Tier|HBSC Bank Account Upgrade]]>><</link>>
+<<if $hbsc.account.level lte 2 and $money + $hbsc.account.deposit gte 10000000>>
+    <<link [[Gold Tier|HBSC Bank Account Upgrade]]>><<set $phase to 3>><</link>>
 <</if>>
-<<if hbscBank.account.level lte 3 and $money + $hbsc.account.deposit gte 50000000>>
-    <<link [[Platinum Tier|HBSC Bank Account Upgrade]]>><</link>>
+<<if $hbsc.account.level lte 3 and $money + $hbsc.account.deposit gte 50000000>>
+    <<link [[Platinum Tier|HBSC Bank Account Upgrade]]>><<set $phase to 4>><</link>>
 <</if>>
-<<if hbscBank.account.level lte 4 and $money + $hbsc.account.deposit gte 250000000>>
-    <<link [[Black Tier|HBSC Bank Account Upgrade]]>><</link>>
+<<if $hbsc.account.level lte 4 and $money + $hbsc.account.deposit gte 250000000>>
+    <<link [[Black Tier|HBSC Bank Account Upgrade]]>><<set $phase to 5>><</link>>
+<</if>>
+<<hbscOptions>>
+
+:: HBSC Bank Account Upgrade
+<<effects>>
+
+<<if $phase is 1>><<set $hbsc.account.level to 1>>
+    "Aha! I'd be happy to welcome you into the HBSC family, <<psir>>. This won't take long!" <<He>> gives you one last smile before making a few taps on their keyboard and leaving for the back room. After a few short minutes, <<he>> returns with a green card in hand and hands it to you. "Here you go sir, feel free to use the HBSC ATMs just outside of the branch or any around town to make deposits or withdrawals."
+    <br><br>
+
+    <<hbscOptions>>
+<<elseif $phase gte 2 and $phase lte 5>>
+    "Of course! Just give me a moment to check your account..." <<He>> makes a few taps on their keyboard and turns their monitor towards you.
+    <<if $phase is 2>>
+        <<if $hbsc.account.deposit gte 1000000>><<set $hbsc.account.level to 2>>
+            "Looks like you already have enough in the account for the upgrade! I'll get you sorted in a jiffy." <<He>> then leaves for the back room before shortly returning with a silver card. "Here you are, <<psir>>! Just as a reminder, your deposit limit has been increased to <<printmoney 25000000>> and your new interest rate is 2.00% AER."
+            <br><br>
+
+            <<hbscOptions>>
+        <<else>>
+            <<set _requiredAmount to 1000000 - $hbsc.account.deposit>>
+            "Looks like you'll need to deposit <<printmoney _requiredAmount>> to reach the minimum balance. Would you like to continue?"
+
+            <<link [[Continue|$passage]]>><<set $phase to 6>><</link>>
+            <br>
+            <<getouticon>><<link [[Leave|High Street]]>><<endevent>><</link>>
+        <</if>>
+    <<elseif $phase is 3>>
+        <<if $hbsc.account.deposit gte 10000000>><<set $hbsc.account.level to 3>>
+            "Looks like you already have enough in the account for the upgrade! I'll get you sorted in a jiffy." <<He>> then leaves for the back room before shortly returning with a gold card. "Here you are, <<psir>>! Just as a reminder, your deposit limit has been increased to <<printmoney 100000000>> and your new interest rate is 1.25% AER."
+            <br><br>
+
+            <<hbscOptions>>
+        <<else>>
+            <<set _requiredAmount to 10000000 - $hbsc.account.deposit>>
+            "Looks like you'll need to deposit <<printmoney _requiredAmount>> to reach the minimum balance. Would you like to continue?"
+
+            <<link [[Continue|$passage]]>><<set $phase to 7>><</link>>
+            <br>
+            <<getouticon>><<link [[Leave|High Street]]>><<endevent>><</link>>
+        <</if>>
+    <<elseif $phase is 4>>
+        <<if $hbsc.account.deposit gte 50000000>><<set $hbsc.account.level to 4>>
+            "Looks like you already have enough in the account for the upgrade! I'll get you sorted in a jiffy." <<He>> then leaves for the back room before shortly returning with a platinum card. "Here you are, <<psir>>! Just as a reminder, your deposit limit has been increased to <<printmoney 500000000>> and your new interest rate is 0.75% AER."
+            <br><br>
+
+            <<hbscOptions>>
+        <<else>>
+            <<set _requiredAmount to 50000000 - $hbsc.account.deposit>>
+            "Looks like you'll need to deposit <<printmoney _requiredAmount>> to reach the minimum balance. Would you like to continue?"
+
+            <<link [[Continue|$passage]]>><<set $phase to 8>><</link>>
+            <br>
+            <<getouticon>><<link [[Leave|High Street]]>><<endevent>><</link>>
+        <</if>>
+    <<else>>
+        <<if $hbsc.account.deposit gte 250000000>><<set $hbsc.account.level to 5>>
+            "Looks like you already have enough in the account for the upgrade! I'll get you sorted in a jiffy." <<He>> then leaves for the back room before shortly returning with a black card. "Here you are, <<psir>>! Just as a reminder, your deposit limit has been increased to <span class="gold">unlimited</span> and your new interest rate is 0.25% AER."
+            <br><br>
+
+            <<hbscOptions>>
+        <<else>>
+            <<set _requiredAmount to 250000000 - $hbsc.account.deposit>>
+            "Looks like you'll need to deposit <<printmoney _requiredAmount>> to reach the minimum balance. Would you like to continue?"
+
+            <<link [[Continue|$passage]]>><<set $phase to 9>><</link>>
+            <br>
+            <<getouticon>><<link [[Leave|High Street]]>><<endevent>><</link>>
+        <</if>>
+    <</if>>
+<<else>>
+    <<set $money -= _requiredAmount>><<set $hbsc.account.deposit += _requiredAmount>>
+    <<He>> puts the cash in the cash counter and confirms the amount before putting it away in the vault. <<He>> leaves for the back room before promptly returning with a 
+    <<if $phase is 6>>
+        silver card in hand. "Here you go, <<psir>>. As a reminder, your deposit limit has been increased to <<printmoney 25000000>> and your new interest rate is 2.00% AER."
+        <br><br>
+
+        <<hbscOptions>>
+    <<elseif $phase is 7>>
+        gold card in hand. "Here you go, <<psir>>. As a reminder, your deposit limit has been increased to <<printmoney 100000000>> and your new interest rate is 1.25% AER."
+        <br><br>
+
+        <<hbscOptions>>
+    <<elseif $phase is 8>>
+        platinum card in hand. "Here you go, <<psir>>. As a reminder, your deposit limit has been increased to <<printmoney 500000000>> and your new interest rate is 0.75% AER."
+        <br><br>
+
+        <<hbscOptions>>
+    <<else>>
+        black card in hand. "Here you go, <<psir>>. As a reminder, your deposit limit has been increased to <span class="gold">unlimited</span> and your new interest rate is 0.25% AER."
+        <br><br>
+
+        <<hbscOptions>>
+    <</if>>
 <</if>>

@@ -23,6 +23,22 @@ export class HtmlTagSrcHook {
         }
         this.hookReturnModeTable.set(hookKey, hook);
     }
+    /**
+     * covert HtmlElement to use image from mod
+     *
+     * @example:
+     * @code
+     * ```typescript
+     * const node = document.createElement('img');
+     * node.src = 'xxx/xxx/xxx.png';
+     * if (node.tagName.toLowerCase() === 'img' && !node.getAttribute('src')?.startsWith('data:')) {
+     *     // need check the src is not "data:" URI
+     *     node.setAttribute('ML-src', node.getAttribute('src')!);
+     *     node.removeAttribute('src');
+     *     window.modSC2DataManager.getHtmlTagSrcHook().doHook(node).catch(E => console.error(E));
+     * }
+     * ```
+     */
     async doHook(el, field = 'src') {
         // console.log('[HtmlTagSrcHook] doHook: handing the element', [el, el.outerHTML]);
         const mlSrc = el.getAttribute(`ML-${field}`);
@@ -46,6 +62,7 @@ export class HtmlTagSrcHook {
                 this.logger.error(`[HtmlTagSrcHook] doHookCallback: call hookKey[${hookKey}] error [${(e === null || e === void 0 ? void 0 : e.message) ? e.message : e}]`);
             }
         }
+        // console.log('[HtmlTagSrcHook] doHook: cannot handing on hookReturnModeTable of the element', [el, el.outerHTML]);
         for (const [hookKey, hook] of this.hookTable) {
             try {
                 if (await hook(el, mlSrc, field)) {
@@ -57,7 +74,9 @@ export class HtmlTagSrcHook {
                 this.logger.error(`[HtmlTagSrcHook] doHook: call hookKey[${hookKey}] error [${(e === null || e === void 0 ? void 0 : e.message) ? e.message : e}]`);
             }
         }
+        // console.log('[HtmlTagSrcHook] doHook: cannot handing on hookTable of the element', [el, el.outerHTML]);
         // console.log('[HtmlTagSrcHook] doHook: cannot handing the element', [el, el.outerHTML]);
+        el.setAttribute('ML-src_replace_failed', '1');
         // if no one can handle the element, do the default action
         // recover the [field]
         el.setAttribute(field, mlSrc);
@@ -88,6 +107,11 @@ export class HtmlTagSrcHook {
         // recover the [field]
         return [false, await callback(src)];
     }
+    /**
+     * get image from mod
+     * @param src  image path
+     * @return image base64 string
+     */
     async requestImageBySrc(src) {
         // console.log('[HtmlTagSrcHook] requestImageBySrc: handing src', [src]);
         if (!src) {

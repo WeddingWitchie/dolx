@@ -47,6 +47,15 @@
 				<</if>>
 			<</for>>
 		<</for>>
+		<<for _key range Object.keys($worn)>>
+			<<if not $worn[_key].integrity>>
+				<<continue>>
+			<</if>>
+			<<if $worn[_key].integrity lt clothingData(_key, $worn[_key],'integrity_max')>>
+				<<set _repairCount += Math.ceil((clothingData(_key, $worn[_key], 'integrity_max') - $worn[_key].integrity) / 25)>>
+				<<set $worn[_key].integrity = clothingData(_key, $worn[_key],'integrity_max')>>
+			<</if>>
+		<</for>>
 		<<set _timeNeeded to (10 - (1 * Math.round($housekeeping / 250))) * _repairCount>>
 		<<set _gain to Math.max((6 - (2 * Math.round($housekeeping / 200))) * _repairCount, 2 * _repairCount)>>
 		<<housekeeping _gain 1000>>
@@ -184,7 +193,7 @@
 					<<if $_wardrobeItem.name isnot $_outfitPieceName>>
 						<<continue>>
 					<</if>>
-					<<if _item.colour isnot $_wardrobeItem.colour or ($_wardrobeItem.accessory isnot 0 and _item.accessory_colour isnot $_wardrobeItem.accessory_colour)>>
+					<<if _item.colour isnot $_wardrobeItem.colour or ($_wardrobeItem.accessory isnot 0 and _item.accessory_colour isnot $_wardrobeItem.accessory_colour) or ($_wardrobeItem.pattern and _item.pattern and $_wardrobeItem.pattern isnot 0 and _item.pattern isnot $_wardrobeItem.pattern)>>
 						<<continue>>
 					<</if>>
 					<<if $_wardrobeItem.outfitSecondary[1] isnot _item.name>>
@@ -348,6 +357,14 @@
 				<<set _repairCount += Math.ceil((clothingData(_key, $wardrobe[_key][_i], 'integrity_max') - $wardrobe[_key][_i].integrity) / 25)>>
 			<</if>>
 		<</for>>
+	<</for>>
+	<<for _key range Object.keys($worn)>>
+		<<if not $worn[_key].integrity>>
+			<<continue>>
+		<</if>>
+		<<if $worn[_key].integrity lt clothingData(_key, $worn[_key],'integrity_max')>>
+			<<set _repairCount += Math.ceil((clothingData(_key, $worn[_key], 'integrity_max') - $worn[_key].integrity) / 25)>>
+		<</if>>
 	<</for>>
 	<<set _timeNeeded to (10 - (1 * Math.round($housekeeping / 250))) * _repairCount>>
 	<<set _timeString to getTimeString(_timeNeeded)>>
@@ -790,6 +807,7 @@
 		<<case "neck">>
 			<<switch $worn.neck.variable>>
 				<<case "suspenders">><<set _altLink to ["Lower suspenders", "Wear suspenders normally"]>>
+				<<case "tie">><<set _altLink to ["Loosen", "Tighten"]>>
 				<<default>><<exit>>
 			<</switch>>
 		<<case "face">>
@@ -825,38 +843,11 @@
 
 <<widget "toggleAltPosition">>
 	/*Changes sprite to an alternate image*/
-	<<switch _args[0]>>
-		<<case "upper">>
-			<<if $worn.upper.variable is "schoolcardigan">>
-				<<run [$worn.upper.colour, $worn.upper.accessory_colour] to [$worn.upper.accessory_colour, $worn.upper.colour]>>
-				<<if $worn.upper.colour is "custom" or $worn.upper.accessory_colour is "custom">>
-					<<run [$worn.upper.colourCustom, $worn.upper.accessory_colourCustom] to [$worn.upper.accessory_colourCustom, $worn.upper.colourCustom]>>
-				<</if>>
-				<<if $worn.upper.altposition is "none">>
-					<<set $worn.upper.name to "school blouse">><<set $worn.upper.name_cap to "School blouse">>
-					<<set $worn.upper.altposition to "alt">>
-				<<elseif $worn.upper.altposition is "alt">>
-					<<set $worn.upper.name to "school cardigan">><<set $worn.upper.name_cap to "School cardigan">>
-					<<set $worn.upper.altposition to "none">>
-				<<elseif $worn.upper.altposition is undefined and setup.clothes.upper[$worn.upper.index].altposition isnot undefined>>
-					<<set $worn.upper.name to "school cardigan">><<set $worn.upper.name_cap to "School cardigan">>
-					<<set $worn.upper.altposition to "none">>
-				<</if>>
-			<<else>>
-				<<if $worn.upper.altposition is undefined and setup.clothes.upper[$worn.upper.index].altposition isnot undefined>>
-					<<set $worn.upper.altposition to "none">>
-				<<else>>
-					<<set $worn.upper.altposition to ($worn.upper.altposition is "none" ? "alt" : "none")>>
-				<</if>>
-			<</if>>
-		<<case "neck" "face">>
-			<<if $worn[_args[0]].altposition is undefined and setup.clothes[_args[0]][$worn[_args[0]].index].altposition isnot undefined>>
-				<<set $worn[_args[0]].altposition to "none">>
-			<<else>>
-				<<set $worn[_args[0]].altposition to ($worn[_args[0]].altposition is "none" ? "alt" : "none")>>
-			<</if>>
-		<<default>>
-	<</switch>>
+	<<if $worn[_args[0]].altposition is undefined and setup.clothes[_args[0]][$worn[_args[0]].index].altposition isnot undefined>>
+		<<set $worn[_args[0]].altposition to "none">>
+	<<else>>
+		<<set $worn[_args[0]].altposition to ($worn[_args[0]].altposition is "none" ? "alt" : "none")>>
+	<</if>>
 <</widget>>
 
 <<widget "toggleAltSleeve">>
@@ -957,8 +948,16 @@
 			<<set _wornItemData to setup.clothes[_wardrobe_list][clothesIndex(_wardrobe_list,_wornItem)]>>
 			<<clothingicon _wornItem _wardrobe_list>>
 			<<print _wornItemData.name_cap>>
-			<<if _wornItem.colour isnot 0>>
-				<span @class="_wornItem.colour.replace(' ','-')">(_wornItem.colour)</span>
+			<<if _wornItem.colour and _wornItem.colour isnot 0>>
+				<span @class="_wornItem.colour?.replace(' ','-')">
+					<<if _wornItem.pattern and ![0, "plain"].includes(_wornItem.pattern) and _wornItemData.pattern_options?.length gt 1>>
+						(_wornItem.colour _wornItem.pattern)
+					<<else>>
+						(_wornItem.colour)
+					<</if>>
+				</span>
+			<<elseif _wornItem.pattern and _wornItem.pattern isnot 0 and _wornItemData.pattern_options?.length gt 1>>
+				<span @class="_wornItem.pattern?.replace(' ','-')">(_wornItem.pattern)</span>
 			<</if>>
 			<<if _wornItem.outfitPrimary isnot undefined>>
 				<<set _keys to Object.keys(_wornItem.outfitPrimary)>>
@@ -1066,8 +1065,16 @@
 				<<else>>
 
 				<</if>>
-				<<if _item.colour isnot 0>>
-					<span @class="_selectedWardrobe[_wardrobe_list][_i].colour.replace(' ','-')">(_item.colour)</span>
+				<<if _item.colour and _item.colour isnot 0>>
+					<span @class="_item.colour?.replace(' ','-')">
+						<<if _item.pattern and ![0, "plain"].includes(_item.pattern) and _itemData.pattern_options?.length gt 1>>
+							(_item.colour _item.pattern)
+						<<else>>
+							(_item.colour)
+						<</if>>
+					</span>
+				<<elseif _item.pattern and _item.pattern isnot 0 and _itemData.pattern_options?.length gt 1>>
+					<span @class="_item.pattern?.replace(' ','-')">(_item.pattern)</span>
 				<</if>>
 				<<if _item.outfitPrimary isnot undefined>>
 					<<set _keys to Object.keys(_item.outfitPrimary)>>
@@ -1256,8 +1263,8 @@
 				<<continue>>
 			<</if>>
 			<li class="no-numberify">/*<<clothingicon _item>>*/<<wearlink_norefresh setup.clothes[_wardrobe_list][clothesIndex(_wardrobe_list,_item)].name_cap _i _wear>>
-			<<if _selectedWardrobe[_wardrobe_list][_i].colour isnot 0>>
-				<span @class="_selectedWardrobe[_wardrobe_list][_i].colour.replace(' ','-')">(_item.colour)</span>
+			<<if _item.colour isnot 0>>
+				<span @class="_item.colour?.replace(' ','-')">(_item.colour)</span>
 			<</if>>
 			<<wardrobeintegrity _item _wardrobe_list>>
 			</li>
@@ -1454,7 +1461,7 @@
 	<</if>>
 
 	<<if $worn.handheld.type.includes("prop")>>
-		<<error { message: `Found a prop that should have been destroyed, please report it: '${$worn.handheld.name}'. It has been removed from your character for you.` }>>
+		<<error { message: `Removed a prop that should have been destroyed: '${$worn.handheld.name}'. Please report the location where this prop was equipped.` }>>
 		<<handheldruined true>>
 		<<handheldon>>
 	<</if>>
@@ -1954,6 +1961,9 @@ It will cost you
 	<<for _iIndex to 0; _iIndex lt $wardrobe[_equip[_eIndex]].length; _iIndex++>>
 		<<if isNaN(clothingData(_equip[_eIndex],$wardrobe[_equip[_eIndex]][_iIndex],'integrity_max'))>><<continue>><</if>>
 		<<if $wardrobe[_equip[_eIndex]][_iIndex].integrity is clothingData(_equip[_eIndex],$wardrobe[_equip[_eIndex]][_iIndex],'integrity_max') and $wardrobe[_equip[_eIndex]][_iIndex].one_piece isnot "broken" and $crateContents is "damaged">>
+			<<continue>>
+		<</if>>
+		<<if $crateContents is "damaged" and $wardrobe[_equip[_eIndex]][_iIndex].one_piece isnot "broken" and ($wardrobe[_equip[_eIndex]][_iIndex].outfitPrimary isnot undefined or $wardrobe[_equip[_eIndex]][_iIndex].outfitSecondary isnot undefined)>>
 			<<continue>>
 		<</if>>
 		<<if ($wardrobe[_equip[_eIndex]][_iIndex].outfitPrimary is undefined and $wardrobe[_equip[_eIndex]][_iIndex].outfitSecondary is undefined and $crateContents is "outfits") or ($wardrobe[_equip[_eIndex]][_iIndex].integrity gt clothingData(_equip[_eIndex],$wardrobe[_equip[_eIndex]][_iIndex],'integrity_max'))>>

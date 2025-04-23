@@ -268,7 +268,25 @@
 						<</if>>
 					<</if>>
 				<<else>>
-					<<if $fame.scrap gte 400>>
+					<<if $fame.scrap gte 4000>>
+						<<set _text_output to "The Undisputed">>
+					<<elseif $fame.scrap gte 3600>>
+						<<set _text_output to "The Champ">>
+					<<elseif $fame.scrap gte 3200>>
+						<<set _text_output to "Knockout King">>
+					<<elseif $fame.scrap gte 2800>>
+						<<set _text_output to "Iron Fist">>
+					<<elseif $fame.scrap gte 2400>>
+						<<set _text_output to "Bonebreaker">>
+					<<elseif $fame.scrap gte 2000>>
+						<<set _text_output to "Street King">>
+					<<elseif $fame.scrap gte 1600>>
+						<<set _text_output to "Heavy Hitter">>
+					<<elseif $fame.scrap gte 1200>>
+						<<set _text_output to "Brawler">>
+					<<elseif $fame.scrap gte 800>>
+						<<set _text_output to "Slugger">>
+					<<elseif $fame.scrap gte 400>>
 						<<if $fame.pimp gte 400>>
 							<<set _text_output to "The Rat">>
 						<<else>>
@@ -667,3 +685,98 @@
 		<<set _text_output to "meat">>
 	<</if>>
 <</silently>><<print _text_output>><</widget>>
+
+<<widget "overworld_nickname_dolp">><<silently>>
+	<<set $fameTitles = {
+		"good": [
+			{ "level": 400, "title": "Kind Soul" },
+			{ "level": 800, "title": "Compassionate" },
+			{ "level": 1600, "title": "Saintly Figure" },
+			{ "level": 2400, "title": "Beacon of Hope" },
+			{ "level": 3200, "title": "Paragon" },
+			{ "level": 4000, "title": "Saintly Icon" }
+		],
+		"business": [
+			{ "level": 400, "title": "Hustler" },
+			{ "level": 800, "title": "Entrepreneur" },
+			{ "level": 1600, "title": "Deal Maker" },
+			{ "level": 2400, "title": "Tycoon" },
+			{ "level": 3200, "title": "Kingpin" },
+			{ "level": 4000, "title": "The Empire Builder" }
+		],
+		"social": [
+			{ "level": 400, "title": "Social Butterfly" },
+			{ "level": 800, "title": "Trendsetter" },
+			{ "level": 1600, "title": "Influencer" },
+			{ "level": 2400, "title": "High Society" },
+			{ "level": 3200, "title": "The Charmer" },
+			{ "level": 4000, "title": "The Icon" }
+		],
+		"model": [
+			{ "level": 400, "title": "Pretty Face" },
+			{ "level": 800, "title": "Cover Star" },
+			{ "level": 1600, "title": "Runway Sensation" },
+			{ "level": 2400, "title": "Editorial Icon" },
+			{ "level": 3200, "title": "Supermodel Muse" },
+			{ "level": 4000, "title": "Photoshoot Legend" }
+		],
+		"combinations": [
+			{ "levels": [400, 400], "categories": ["good", "business"], "title": "Compassionate Capitalist" },
+			{ "levels": [400, 400], "categories": ["good", "social"], "title": "Beloved Figure" },
+			{ "levels": [400, 400], "categories": ["good", "model"], "title": "Graceful Icon" },
+			{ "levels": [400, 400], "categories": ["business", "social"], "title": "Networking Guru" },
+			{ "levels": [400, 400], "categories": ["business", "model"], "title": "Corporate Star" },
+			{ "levels": [400, 400], "categories": ["social", "model"], "title": "Photogenic Charmer" },
+
+			{ "levels": [1600, 1600], "categories": ["good", "business"], "title": "Altruistic Mogul" },
+			{ "levels": [1600, 1600], "categories": ["good", "social"], "title": "Saint of the People" },
+			{ "levels": [1600, 1600], "categories": ["good", "model"], "title": "Elegance Embodied" },
+			{ "levels": [1600, 1600], "categories": ["business", "social"], "title": "Social Mogul" },
+			{ "levels": [1600, 1600], "categories": ["business", "model"], "title": "Marketable Beauty" },
+			{ "levels": [1600, 1600], "categories": ["social", "model"], "title": "Celebrity" },
+
+			{ "levels": [3200, 3200], "categories": ["good", "business"], "title": "Philanthropist Tycoon" },
+			{ "levels": [3200, 3200], "categories": ["good", "social"], "title": "Guiding Light" },
+			{ "levels": [3200, 3200], "categories": ["good", "model"], "title": "Divine Beauty" },
+			{ "levels": [3200, 3200], "categories": ["business", "social"], "title": "Power Broker" },
+			{ "levels": [3200, 3200], "categories": ["business", "model"], "title": "Media Mogul" },
+			{ "levels": [3200, 3200], "categories": ["social", "model"], "title": "Fashion Royalty" },
+
+			{ "levels": [4000, 4000, 4000, 4000], "categories": ["good", "business", "social", "model"], "title": "The One and Only" }
+		]
+	} >>
+	<<set _fame_types = ["good", "business", "social", "model"]>>
+	<<set _best_title = "Some Orphan">>  <!-- Default title -->
+	<<set _highest_fame = {}>>  <!-- Track highest title per fame type -->
+
+	<!-- Get highest fame titles -->
+	<<for _type range _fame_types>>
+		<<set _fame_value = $fame[_type]>>
+		<<for _entry range $fameTitles[_type]>>
+			<<if _fame_value >= _entry.level>>
+				<<set _highest_fame[_type] to _entry.title>>
+			<</if>>
+		<</for>>
+	<</for>>
+
+	<!-- Check for best combination -->
+	<<for _combo range $fameTitles.combinations>>
+		<<set _match_count = 0>>
+		<<for _category range _combo.categories>>
+			<<if _highest_fame[_category] is not undefined>>
+				<<set _match_count += 1>>
+			<</if>>
+		<</for>>
+		
+		<!-- If all required categories match, use this combo title -->
+		<<if _match_count == _combo.categories.length>>
+			<<set _best_title = _combo.title>>
+		<</if>>
+	<</for>>
+
+	<!-- If no combination title matched, use the highest individual one -->
+	<<if _best_title is "Some Orphan" and _highest_fame[Object.keys(_highest_fame)[0]] isnot undefined>>
+		<<set _best_title = _highest_fame[Object.keys(_highest_fame)[0]]>>
+	<</if>>
+
+<</silently>><<print _best_title>><</widget>>

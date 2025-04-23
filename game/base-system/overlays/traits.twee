@@ -38,10 +38,10 @@
 					text: "The temple will know.",
 				},
 				{
-					name: "Temple Burden: $temple_burden %",
+					name: "Temple Burden: $temple_burden%",
 					colour: "blue",
 					has: $temple_burden gte 1,
-					text: "You are carrying part of the world's corruption within yourself. Physique, willpower, athletics, dancing, skulduggery, swimming, tending, housekeeping, and English skill checks have a 15% chance to automatically fail.",
+					text: "You are carrying part of the world's corruption within yourself. Physique, willpower, athletics, dancing, skulduggery, swimming, tending, housekeeping, and English skill checks have a $temple_burden% chance to automatically fail.",
 				},
 				{
 					name: "Purity Boost",
@@ -94,13 +94,13 @@
 				{
 					name: "Crossdresser",
 					colour: "pink",
-					has: $backgroundTraits.includes("crossdresser") and $player.gender is "m",
+					has: $backgroundTraits.includes("crossdresser") and $player.sex is "m",
 					text: "Stress decays faster while dressed as a girl, but slower when dressed as a boy.",
 				},
 				{
 					name: "Crossdresser",
 					colour: "lblue",
-					has: $backgroundTraits.includes("crossdresser") and $player.gender is "f",
+					has: $backgroundTraits.includes("crossdresser") and $player.sex is "f",
 					text: "Stress decays faster while dressed as a boy, but slower when dressed as a girl.",
 				},
 				{
@@ -411,12 +411,12 @@
 				{
 					name: () => {
 						if(V.player.gender_appearance is "m"){
-							if(V.player.sex is "f"){
+							if(V.player.sex is "f" and isCrossdressing()){
 								return "Incubus (female)";
 							}
 							return "Incubus";
 						}else{
-							if(V.player.sex is "m"){
+							if(V.player.sex is "m" and isCrossdressing()){
 								return "Succubus (male)";
 							}
 							return "Succubus";
@@ -551,6 +551,12 @@
 					colour: "",
 					has: $quicksand gte 5,
 					text: "You know how to react when stuck in the stuff.",
+				},
+				{
+					name: "Ancient Arts",
+					colour: "wraith",
+					has: $hc?.wraith,
+					text: "You've learned techniques lost to the past. An extension of your body, your arm and whip move as one.",
 				},
 			],
 		},
@@ -1282,16 +1288,19 @@
 					name: "Science Fair Winner",
 					colour: "green",
 					has: $scienceprojectwon is 1,
+					text: "You have been publicly recognized for your detailed and informative science project.",
 				},
 				{
 					name: "Maths Competition Winner",
 					colour: "green",
 					has: $mathsprojectwon is 1,
+					text: "You have been publicly recognized for your insightful solution to such a challenging mathematics problem.",
 				},
 				{
 					name: "Stage Play Performer",
 					colour: "green",
 					has: $englishPlayWell is 1,
+					text: "Your star performance during the student stage play elevated the production to great heights and much acclaim.",
 				},
 			],
 		},
@@ -1556,7 +1565,7 @@
 						return `Acceptance: ${$player.breastsize ? breastSize + " Breasts" : "Flat Chest"}`;
 					},
 					colour: "green",
-					has: $player.gender is "f" and $acceptance_breasts_small gte 1000 and between($player.breastsize, 0, 4),
+					has: $acceptance_breasts_small gte 1000 and between($player.breastsize, 0, 4),
 					text: "You're proud of your small breasts.",
 				},
 				{

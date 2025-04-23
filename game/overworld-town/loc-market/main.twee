@@ -3,7 +3,7 @@
 
 You enter the small office responsible for the Connudatus market. A <<generate1>><<person1>><<person>> greets you.
 <br><br>
-"<span class="gold">£15</span> for the day," <<he>> says. "We close at nine o'clock. We'll need to see a sample of what you intend to sell, too. We'll also need proof of citizenship, unless you're selling flowers or other produce."
+"<<printmoney 1500>> for the day," <<he>> says. "We close at <<ampm 21>>. We'll need to see a sample of what you intend to sell, too. We'll also need proof of citizenship, unless you're selling flowers or other produce."
 <br><br>
 
 <<set _plant_keys to Object.keys($plants)>>
@@ -12,24 +12,27 @@ You enter the small office responsible for the Connudatus market. A <<generate1>
 		<<set _plant_temp to clone($plants[_plant_keys[_t]].plural)>>
 	<</if>>
 <</for>>
-<<if _plant_temp is undefined>><<pass 5>>
+<<if _plant_temp is undefined>>
+	<<pass 5>>
 	<span class="purple">You don't have anything appropriate to sell.</span>
-
-	<br><br>
+	<br>
 	<<connudatusicon>><<link [[Leave|Connudatus Street]]>><<endstall>><<endevent>><<clotheson>><</link>>
 	<br>
 <<else>>
-	<<money -1500 "marketStall">><<set $daily.stallRented to 1>><<set $stall_money to 0>><<set $stall_stats to {}>>
+	<<money -1500 "marketStall">><<set $daily.stallRented to 1>><<set $stall_money to 0>><<if !$stall_stats>><<set $stall_stats to {}>><</if>>
 	You show <<him>> one of your _plant_temp. It seems to satisfy. You sign the paperwork, hand over the money, and leave to find your stall.
 	<br><br>
 	<<endevent>>
-	You lay your goods over the table, trying to arrange them in a pleasing way. There's a little roof to protect you from any rain, and a stool should your legs get tired. Other traders are setting up either side of you.
-	<br><br>
 
-	You finish just as the first customers trickle onto the street.
-	<br><br>
 
-	<<stall_actions>>
+	/*Would let PC choose which items to display initially, but it's not functional
+	What goods do you want to present for sale?
+
+	<br><br><<stall_setup>> */
+
+	<<link [[Open|Stall Rent 2]]>><</link>>
+	<br>
+	
 <</if>>
 
 :: Stall Deposit
@@ -92,6 +95,25 @@ How much are you going to deposit? (£)
 <<connudatusicon>><<link [[Leave|Connudatus Street]]>><<endstall>><<endevent>><<clotheson>><</link>>
 <br>
 
+:: Stall Rent 2
+<<set $outside to 0>><<set $location to "market">><<effects>>
+
+You lay your goods over the table, trying to arrange them in a pleasing way. There's a little roof to protect you from any rain, and a stool should your legs get tired. Other traders are setting up either side of you.
+<br><br>
+
+You finish just as the first customers trickle onto the street.
+<br><br>
+
+<<stall_actions>>
+
+:: Stall Rent Return
+<<set $outside to 0>><<set $location to "market">><<effects>>
+
+What goods do you want to present for sale?
+<br><br>
+
+<<stall_setup>>
+
 :: Stall
 <<set $outside to 0>><<set $location to "market">><<effects>>
 
@@ -115,6 +137,12 @@ How much are you going to deposit? (£)
 		<<set _stall_attention to 1>>
 	<</if>>
 <</for>>
+<<set _plant_keys to Object.keys($plants)>>
+<<for _t to 0; _t lt _plant_keys.length; _t++>>
+	<<if $plants[_plant_keys[_t]].amount gte 1>>
+		<<set _plant_temp to clone($plants[_plant_keys[_t]].plural)>>
+	<</if>>
+<</for>>
 
 <<if Time.dayState is "night">>
 	An official arrives to announce that the market's business hours are over.
@@ -128,7 +156,17 @@ How much are you going to deposit? (£)
 <<elseif _inventory_found isnot 1>>
 	With nothing to sell, there's little reason to attend your stall.
 	<br><br>
-
+	<<if _plant_temp isnot undefined>>
+		<<ind>><<link [[Display new produce|Stall Rent Return]]>><</link>>
+	<</if>>
+	<br>
+	<<connudatusicon>><<link [[Leave|Connudatus Street]]>><<endevent>><<endstall>><<clotheson>><</link>>
+	<br>
+<<elseif _inventory_in_stall isnot 1>>
+	With nothing on display, there's little reason to attend your stall.
+	<br><br>
+	<<icon "projectMaths.png">><<link [[Manage your stall|Stall Manage]]>><</link>>
+	<br>
 	<<connudatusicon>><<link [[Leave|Connudatus Street]]>><<endevent>><<endstall>><<clotheson>><</link>>
 	<br>
 <<elseif _stall_attention is 1>>
@@ -145,6 +183,39 @@ How much are you going to deposit? (£)
 	<<else>>
 		You fail to attract attention.
 	<</if>>
+	<br><br>
+	<<stall_actions>>
+<</if>>
+
+:: Stall Manage
+<<effects>>
+
+You review the products you're selling.
+<br><br>
+
+<<marketStockDisplay>>
+
+<<link [[Back|Stall Manage Exit]]>><</link>>
+
+:: Stall Manage Exit
+<<effects>>
+
+<<silently>><<stall_inventory>><</silently>>
+
+<<if _inventory_in_stall isnot 1>>
+	With nothing on display, there's little reason to attend your stall.
+	<br><br>
+	<<icon "projectMaths.png">><<link [[Manage your stall|Stall Manage]]>><</link>>
+	<br>
+	<<connudatusicon>><<link [[Leave|Connudatus Street]]>><<endevent>><<endstall>><<clotheson>><</link>>
+	<br>
+<<elseif _inventory_found isnot 1>>
+	With nothing to sell, there's little reason to attend your stall.
+	<br><br>
+	<<connudatusicon>><<link [[Leave|Connudatus Street]]>><<endevent>><<endstall>><<clotheson>><</link>>
+	<br>
+<<else>>
+	You finish looking over your stall and wait for potential customers.
 	<br><br>
 	<<stall_actions>>
 <</if>>
@@ -1040,10 +1111,7 @@ You decide <<he>> isn't worth leaving your stall unattended for.
 
 <<seductioncheck>>
 <br><br>
-<<if $seductionskill lt 1000>>
-<span class="gold">You feel more confident in your powers of seduction.</span>
-<br><br>
-<</if>>
+<<seductionskilluptext>>
 <<seductionskilluse>>
 
 <<if $seductionrating gte $seductionrequired>>
@@ -1637,3 +1705,10 @@ In the chaos that ensues, you both get away.
 <br><br>
 <<link [[Next|Connudatus Street]]>><<unset $urchin_debt>><<endevent>><</link>>
 <br>
+
+:: Stall Whitelist
+<<effects>>
+
+<<stall_inventory>>
+
+<<stall_actions>>

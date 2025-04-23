@@ -1468,9 +1468,17 @@
 		<<set $speechhit to 1 * _multi>><<set $attackstat += 1 * _multi>>
 		<<if $rng lte (currentSkillValue('physique') / 200)>>
 			<span class="green">It trembles before your strength.</span>
-			<<set _tentacle.tentaclehealth -= 1 * _multi>>
+			<<if $combatExtended.strikingToggle is 1>>
+				<<set _tentacle.tentaclehealth -= Math.round(1 + (1 + (currentSkillValue('physique') / 8000)) + (1 + ($combatExtended.striking / 1000))) * _multi>>
+			<<else>>
+				<<set _tentacle.tentaclehealth -= Math.round(1 + (1 + (currentSkillValue('physique') / 8000))) * _multi>>
+			<</if>>
 		<</if>>
-		<<set _tentacle.tentaclehealth -= 1 * _multi>>
+		<<if $combatExtended.strikingToggle is 1>>
+			<<set _tentacle.tentaclehealth -= Math.round(1 + (1 + (currentSkillValue('physique') / 8000)) + (1 + ($combatExtended.striking / 1000))) * _multi>>
+		<<else>>
+			<<set _tentacle.tentaclehealth -= Math.round(1 + (1 + (currentSkillValue('physique') / 8000))) * _multi>>
+		<</if>>
 		<<tentacleadvdisable _tentacle>>
 		<<if $abomination is 1>>
 			The <<person>> winces in pain.
@@ -1836,6 +1844,16 @@
 		<<tentacleadvdisable _tentacle>>
 	<</if>>
 
+	<<if $rightaction is "rest">>
+		<<set $rightaction to 0>>
+		<<set $rightactiondefault to "rest">>
+	<</if>>
+
+	<<if $leftaction is "rest">>
+		<<set $leftaction to 0>>
+		<<set $leftactiondefault to "rest">>
+	<</if>>
+
 	<<effectshandsclothes>>
 
 	<<if $feetaction is "feethit" and $feetactionTarget is _tentacle.id>>
@@ -1845,7 +1863,11 @@
 		<<set _tentacle.tentaclehealth -= 1>>
 		<<if $rng lte (currentSkillValue('physique') / 200)>>
 			<span class="green">It trembles before your strength.</span>
-			<<set _tentacle.tentaclehealth -= 1>>
+			<<if $combatExtended.kickingToggle is 1>>
+				<<set _tentacle.tentaclehealth -= Math.round(1 + (1 + (currentSkillValue('physique') / 8000)) + (1 + ($combatExtended.kicking / 1000))) * _multi>>
+			<<else>>
+				<<set _tentacle.tentaclehealth -= Math.round(1 + (1 + (currentSkillValue('physique') / 8000))) * _multi>>
+			<</if>>
 		<</if>>
 		<<if $abomination is 1>>
 			<<defiance 3>>
@@ -1954,7 +1976,7 @@
 		<</if>>
 	<</if>>
 
-		<<if $feetaction is "showpenis"+_tentacle.id>>
+	<<if $feetaction is "showpenis"+_tentacle.id>>
 		<<set $feetaction to 0>><<set $feetstate to 0>>
 		<<set $leftleg to 0>><<set $rightleg to 0>>
 
@@ -1992,6 +2014,11 @@
 		<<set $feetaction to 0>><<set $feetactiondefault to "feetstop"+_tentacle.id>>
 		You let go of the _tentacle.fullDesc between your feet.
 		<<tentacleadvdisable _tentacle>>
+	<</if>>
+
+	<<if $feetaction is "rest">>
+		<<set $feetaction to 0>>
+		<<set $feetactiondefault to "rest">>
 	<</if>>
 
 	<<if $mouthaction is "mouthlull"+_tentacle.id>>
@@ -2073,7 +2100,7 @@
 		<<tentacleadvdisable _tentacle>><<set $attackstat += 1>><<set _tentacle.tentaclehealth -= 1>>
 		<<if $rng lte (currentSkillValue('physique') / 200)>>
 			<span class="green">It trembles before your strength.</span>
-			<<set _tentacle.tentaclehealth -= 1>>
+			<<set _tentacle.tentaclehealth -= Math.round(1 + (1 + (currentSkillValue('physique') / 8000))) * _multi>>
 		<</if>>
 		<<if $abomination is 1>>
 			The <<person>> grunts in pain. <<defiance 10>>

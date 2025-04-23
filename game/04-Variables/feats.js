@@ -203,23 +203,23 @@ setup.feats = {
 		series: "",
 		filter: ["All", "General"],
 	},
-	"Ten in a Row": {
-		title: "Ten in a Row",
-		desc: "Win ten games of blackjack in a row.",
+	"Seven in a Row": {
+		title: "Seven in a Row",
+		desc: "Win seven games of blackjack in a row.",
 		difficulty: 2,
 		series: "",
 		filter: ["All", "General"],
 	},
-	"Fifteen in a Row": {
-		title: "Fifteen in a Row",
-		desc: "Win fifteen games of blackjack in a row.",
+	"Nine in a Row": {
+		title: "Nine in a Row",
+		desc: "Win nine games of blackjack in a row.",
 		difficulty: 3,
 		series: "",
 		filter: ["All", "General"],
 	},
-	"Twenty in a Row": {
-		title: "Twenty in a Row",
-		desc: "Win twenty games of blackjack in a row.",
+	"Ten in a Row": {
+		title: "Ten in a Row",
+		desc: "Win ten games of blackjack in a row.",
 		difficulty: 4,
 		series: "",
 		filter: ["All", "General"],
@@ -247,21 +247,21 @@ setup.feats = {
 	},
 	"Chef de Tournant": {
 		title: "Chef de Tournant",
-		desc: "Learn recipes.",
+		desc: "Learn 5 recipes.",
 		difficulty: 1,
 		series: "chef",
 		filter: ["All", "General"],
 	},
 	"Chef de Partie": {
 		title: "Chef de Partie",
-		desc: "Learn recipes.",
+		desc: "Learn 20 recipes.",
 		difficulty: 2,
 		series: "chef",
 		filter: ["All", "General"],
 	},
 	"Sous Chef": {
 		title: "Sous Chef",
-		desc: "Learn recipes.",
+		desc: "Learn 50 recipes.",
 		difficulty: 3,
 		series: "chef",
 		filter: ["All", "General"],
@@ -506,6 +506,27 @@ setup.feats = {
 		title: "Shining Reputation",
 		desc: "Famous, but only in the right ways.",
 		difficulty: 3,
+		series: "",
+		filter: ["All", "Stats"],
+	},
+	"Brilliant Reputation": {
+		title: "Brilliant Reputation",
+		desc: "Famous, but only in the right ways.",
+		difficulty: 3,
+		series: "",
+		filter: ["All", "Stats"],
+	},
+	"Radiant Reputation": {
+		title: "Radiant Reputation",
+		desc: "Famous, but only in the right ways.",
+		difficulty: 4,
+		series: "",
+		filter: ["All", "Stats"],
+	},
+	"Luminous Reputation": {
+		title: "Luminous Reputation",
+		desc: "Famous, but only in the right ways.",
+		difficulty: 5,
 		series: "",
 		filter: ["All", "Stats"],
 	},
@@ -923,6 +944,22 @@ setup.feats = {
 		desc: "Get 2000 impregnation fame.",
 		difficulty: 4,
 		series: "",
+		filter: ["All", "Social"],
+	},
+	"Warmest Winter": {
+		title: "Warmest Winter",
+		desc: "Heard Winter's most personal tale.",
+		difficulty: 2,
+		series: "",
+		hint: "Hint: Help an old fossil remember.",
+		filter: ["All", "Social"],
+	},
+	"Trials of Faith": {
+		title: "Trials of Faith",
+		desc: "Heard all endings of the 'Hopeless Cycle' story.",
+		difficulty: 4,
+		series: "",
+		hint: "Hint: A truth buried behind many lies.",
 		filter: ["All", "Social"],
 	},
 	Neko: {
@@ -2013,6 +2050,14 @@ setup.feats = {
 		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Convince Briar to do business.",
 	},
+	"Player of the Match": {
+		title: "Player of the Match",
+		desc: "Stole the cricket ball from Wren.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Discoveries-Town"],
+		hint: "Hint: Double-cross your partner in crime.",
+	},
 	"Ear Slime Lover": {
 		title: "Ear Slime Lover",
 		desc: "It is your best friend.",
@@ -2053,6 +2098,30 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Special"],
 		hint: "Hint: Rake it in.",
+	},
+	"Silver Tongue": {
+		title: "Silver Tongue",
+		desc: "Made over £1000 from a single tip.",
+		difficulty: 3,
+		series: "",
+		filter: ["All", "Special"],
+		hint: "Hint: Words are your greatest asset.",
+	},
+	"Smooth Talker": {
+		title: "Smooth Talker",
+		desc: "Made over £1500 from a single tip.",
+		difficulty: 3,
+		series: "",
+		filter: ["All", "Special"],
+		hint: "Hint: You always know just what to say.",
+	},
+	"Master of Persuasion": {
+		title: "Master of Persuasion",
+		desc: "Made over £2000 from a single tip.",
+		difficulty: 4,
+		series: "",
+		filter: ["All", "Special"],
+		hint: "Hint: No one can say no to you.",
 	},
 	"Curious Attire": {
 		title: "Curious Attire",
@@ -2173,7 +2242,7 @@ setup.feats = {
 	*/
 	"Smarter than Einstein": {
 		title: "Smarter than Einstein",
-		desc: "You can create E=MC Cubed in your sleep.",
+		desc: "You have ascended the 'erm ackchually' technique.",
 		difficulty: 3,
 		series: "",
 		filter: ["All", "AMC Traits"],
@@ -2530,7 +2599,77 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Transformation"],
 		softLockable: true,
-		hunt: "Hint: A true paradox.",
+		hint: "Hint: A true paradox.",
+	},
+	"Fabled Cap": {
+		title: "Fabled Cap",
+		desc: "You found and successfully picked a Fly Agaric.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Discoveries-Other"],
+	},
+	"Noble Harvest": {
+		title: "Noble Harvest",
+		desc: "You found and successfully picked a Lady Orchid.",
+		difficulty: 3,
+		series: "",
+		filter: ["All", "Discoveries-Other"],
+	},
+	"Crimson Veil": {
+		title: "Crimson Veil",
+		desc: "You found and successfully picked a Red Helleborine.",
+		difficulty: 4,
+		series: "",
+		filter: ["All", "Discoveries-Other"],
+	},
+	"Whispering Fungi": {
+		title: "Whispering Fungi",
+		desc: "You found and successfully picked a Hen of the Woods.",
+		difficulty: 3,
+		series: "",
+		filter: ["All", "Discoveries-Other"],
+	},
+	"Phantom Bloom": {
+		title: "Phantom Bloom",
+		desc: "You found and successfully picked a Ghost Orchid (Epipogium Aphyllum).",
+		difficulty: 5,
+		series: "",
+		filter: ["All", "Discoveries-Other"],
+	},
+	"Thorned Crown": {
+		title: "Thorned Crown",
+		desc: "You found and successfully picked a Spiked Rampion.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Discoveries-Other"],
+	},
+	"Amber Harvest": {
+		title: "Amber Harvest",
+		desc: "You found and successfully picked a Cloudberry",
+		difficulty: 4,
+		series: "",
+		filter: ["All", "Discoveries-Other"],
+	},
+	"Scent of the Highlands": {
+		title: "Scent of the Highlands",
+		desc: "You found and successfuly picked a Scottish Bog Myrtle.",
+		difficulty: 3,
+		series: "",
+		filter: ["All", "Discoveries-Other"],
+	},
+	"Bog Whisperer": {
+		title: "Bog Whisperer",
+		desc: "You found and successfully picked a Bog Orchid (Hammarbya Paludosa).",
+		difficulty: 3,
+		series: "",
+		filter: ["All", "Discoveries-Other"],
+	},
+	"Marshlight": {
+		title: "Marshlight",
+		desc: "You found and successfully picked a Marsh Saxifrage.",
+		difficulty: 4,
+		series: "",
+		filter: ["All", "Discoveries-Other"],
 	},
 	"Dumb Bitch": {
 		title: "Dumb Bitch",
@@ -2701,7 +2840,7 @@ function earnHourlyFeats() {
 
 	// Feats that can only be earned after 50 days
 	if (Time.days >= 50) {
-		switch (V.player.gender) {
+		switch (V.player.sex) {
 			case "m":
 				earnFeat("Being a Boy");
 				break;
@@ -2755,7 +2894,7 @@ function earnHourlyFeats() {
 	if (V.demon >= 6) earnFeat("Demon");
 	if (V.cow >= 6) earnFeat("Cattle");
 	if (V.bear >= 6) earnFeat("Bear");
-	if ((V.harpy >= 6  || V.transformationParts.bird.wings == "default")) earnFeat("Harpy");
+	if ((V.harpy >= 6 || V.transformationParts.bird.wings == "default")) earnFeat("Harpy");
 	if (V.fox >= 6) earnFeat("Fox");
 
 	const specialTraits =
@@ -2771,7 +2910,6 @@ function earnHourlyFeats() {
 	if (specialTraits >= 1) earnFeat("A Special Trait");
 	if (specialTraits >= 9) earnFeat("A Special Trait Collector");
 
-	if (V.sexStats.anus.pregnancy.motherStatus >= 2 || V.sexStats.vagina.pregnancy.motherStatus >= 2) earnFeat("Broodmother Host");
 	if (
 		V.pregnancyStats.parasiteTypesSeen &&
 		V.pregnancyStats.parasiteTypesSeen.length >= 14 &&
@@ -2837,6 +2975,57 @@ function earnHourlyFeats() {
 	) {
 		earnFeat("Shining Reputation");
 	}
+
+	if (
+		V.fame.sex <= 29 &&
+		V.fame.prostitution <= 29 &&
+		V.fame.rape <= 29 &&
+		V.fame.bestiality <= 29 &&
+		V.fame.exhibitionism <= 29 &&
+		V.fame.pregnancy <= 29 &&
+		V.fame.impreg <= 29 &&
+		V.fame.scrap >= 2000 &&
+		V.fame.good >= 2000 &&
+		V.fame.business >= 2000 &&
+		V.fame.social >= 2000 &&
+		V.fame.model >= 2000
+	) {
+		earnFeat("Brilliant Reputation");
+	}
+
+	if (
+		V.fame.sex <= 29 &&
+		V.fame.prostitution <= 29 &&
+		V.fame.rape <= 29 &&
+		V.fame.bestiality <= 29 &&
+		V.fame.exhibitionism <= 29 &&
+		V.fame.pregnancy <= 29 &&
+		V.fame.impreg <= 29 &&
+		V.fame.scrap >= 3000 &&
+		V.fame.good >= 3000 &&
+		V.fame.business >= 3000 &&
+		V.fame.social >= 3000 &&
+		V.fame.model >= 3000
+	) {
+		earnFeat("Radiant Reputation");
+	}
+
+	if (
+		V.fame.sex <= 29 &&
+		V.fame.prostitution <= 29 &&
+		V.fame.rape <= 29 &&
+		V.fame.bestiality <= 29 &&
+		V.fame.exhibitionism <= 29 &&
+		V.fame.pregnancy <= 29 &&
+		V.fame.impreg <= 29 &&
+		V.fame.scrap >= 4000 &&
+		V.fame.good >= 4000 &&
+		V.fame.business >= 4000 &&
+		V.fame.social >= 4000 &&
+		V.fame.model >= 4000
+	) {
+		earnFeat("Luminous Reputation");
+	}	
 
 	if (
 		Object.values(V.children).reduce((prev, curr) => {
@@ -2929,6 +3118,12 @@ function earnHourlyFeats() {
 		if (V.farmersProduce.totalSold >= 100000) earnFeat("Wholesaler");
 		if (V.farmersProduce.totalSold >= 500000) earnFeat("Agronomist");
 		if (V.farmersProduce.totalSold >= 1000000) earnFeat("Agricultural Tycoon");
+	}
+
+	if (V.unlockAllFeats) {
+		for (const key of Object.keys(setup.feats)){
+			if (!V.feats.currentSave[key]) fragment.append(wikifier("earnFeat", `"${key}"`));
+		}
 	}
 
 	// To earn the feat "Curious Attire"

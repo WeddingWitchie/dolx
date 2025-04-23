@@ -1,33 +1,40 @@
 import { SC2DataInfo } from "./SC2DataInfoCache";
 import { SimulateMergeResult } from "./SimulateMerge";
-import { IndexDBLoader, LazyLoader, LocalLoader, LocalStorageLoader, ModZipReader, RemoteLoader } from "./ModZipReader";
+import { IndexDBLoader, LazyLoader, LoaderKeyConfig, LocalLoader, LocalStorageLoader, ModZipReader, RemoteLoader } from "./ModZipReader";
 import { SC2DataManager } from "./SC2DataManager";
 import { LogWrapper, ModLoadControllerCallback } from "./ModLoadController";
 import { ReplacePatcher } from "./ReplacePatcher";
-import { ModOrderContainer, ModOrderContainer_One_ReadonlyMap, ModOrderItem } from "./ModOrderContainer";
+import { ModLoadFromSourceType, ModOrderContainer, ModOrderContainer_One_ReadonlyMap, ModOrderContainer_OneAlias_ReadonlyMap, ModOrderItem } from "./ModOrderContainer";
 import { LRUCache } from 'lru-cache';
 import JSZip from 'jszip';
 export interface IModImgGetter {
     /**
      * @return Promise<string>   base64 img string
      */
-    getBase64Image(lruCache?: IModImgGetterLRUCache): Promise<string>;
+    getBase64Image(): Promise<string | undefined>;
     imgCache?: string;
+    invalid: boolean;
     forceCache(): Promise<any>;
 }
-export declare const StaticModImgLruCache: LRUCache<string, string, unknown>;
+export interface ImgLruCacheItemType {
+    imageBase64: string;
+    invalid: boolean;
+}
+export declare const StaticModImgLruCache: LRUCache<string, ImgLruCacheItemType, unknown>;
 export interface IModImgGetterLRUCache {
-    get(path: string): string | undefined;
-    set(path: string, data: string): IModImgGetterLRUCache;
+    get(path: string): ImgLruCacheItemType | undefined;
+    set(path: string, data: ImgLruCacheItemType): IModImgGetterLRUCache;
 }
 export declare class ModImgGetterDefault implements IModImgGetter {
+    modName: string;
     zip: ModZipReader;
     imgPath: string;
     logger: LogWrapper;
-    constructor(zip: ModZipReader, imgPath: string, logger: LogWrapper);
+    constructor(modName: string, zip: ModZipReader, imgPath: string, logger: LogWrapper);
+    invalid: boolean;
     imgCache?: string;
     forceCache(): Promise<void>;
-    getBase64Image(lruCache?: IModImgGetterLRUCache): Promise<string>;
+    getBase64Image(): Promise<string | undefined>;
 }
 export interface ModImg {
     getter: IModImgGetter;
@@ -47,8 +54,16 @@ export interface DependenceInfo {
     version: string;
 }
 export declare function checkDependenceInfo(v: any): v is DependenceInfo;
+export type ModNickName = ({
+    [key in string]?: string;
+} & {
+    cn?: string;
+    en?: string;
+}) | string | undefined;
 export interface ModBootJson {
     name: string;
+    nickName?: ModNickName;
+    alias?: string[];
     version: string;
     styleFileList: string[];
     scriptFileList: string[];
@@ -65,6 +80,8 @@ export interface ModBootJson {
 }
 export interface ModInfo {
     name: string;
+    nickName?: ModNickName;
+    alias: string[];
     version: string;
     cache: SC2DataInfo;
     imgs: ModImg[];
@@ -131,10 +148,12 @@ export declare class ModLoader {
      O(n)
      */
     getModCacheArray(): ModOrderItem[];
+    getModAllName(): string[];
     /**
      O(1)
      */
     getModCacheMap(): ModOrderContainer_One_ReadonlyMap;
+    getModCacheMapWithAlias(): ModOrderContainer_OneAlias_ReadonlyMap;
     /**
      * O(n+2log(n))
      */
@@ -147,21 +166,25 @@ export declare class ModLoader {
      O(1)
      */
     getModCacheByNameOne(modName: string): ModOrderItem | undefined;
+    getModCacheByAliseOne(modName: string): ModOrderItem | undefined;
+    getModCacheByFromType(from: ModLoadFromSourceType): ModOrderItem[];
     getModReadCache(): ModOrderContainer;
     checkModConflictList(): {
         mod: SC2DataInfo;
         result: SimulateMergeResult;
     }[];
+    private modLoaderKeyConfig?;
     private modIndexDBLoader?;
     private modLocalStorageLoader?;
     private modLocalLoader?;
     private modRemoteLoader?;
     private modLazyLoader?;
-    getIndexDBLoader(): IndexDBLoader | undefined;
-    getLocalStorageLoader(): LocalStorageLoader | undefined;
-    getLocalLoader(): LocalLoader | undefined;
-    getRemoteLoader(): RemoteLoader | undefined;
-    getLazyLoader(): LazyLoader | undefined;
+    getLoaderKeyConfig(): LoaderKeyConfig;
+    getIndexDBLoader(): IndexDBLoader;
+    getLocalStorageLoader(): LocalStorageLoader;
+    getLocalLoader(): LocalLoader;
+    getRemoteLoader(): RemoteLoader;
+    getLazyLoader(): LazyLoader;
     loadOrder: ModDataLoadType[];
     private addModReadZip;
     loadMod(loadOrder: ModDataLoadType[]): Promise<boolean>;

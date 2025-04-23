@@ -1,5 +1,5 @@
 // @ts-check
-/* globals FilterMap, CompositeLayerSpec, SpritePositions, Condom, CondomOptions, Partial, ClothedSlots, ClothingState, PositionStates, TransformationKeys, TransformationParts, Transformations, CombatClothingTypes, CombatPlayerOptions, CharacterTypes */
+/* globals FilterMap, CompositeLayerSpec, Condom, CondomOptions, Partial, ClothedSlots, ClothingState, PositionStates, TransformationKeys, TransformationParts, Transformations, CombatClothingTypes, CombatPlayerOptions, CharacterTypes */
 
 /**
  * @typedef CombatZIndices
@@ -108,6 +108,7 @@ class CombatRenderer {
 			"harpy",
 			"cow",
 			"spider",
+			"snake",
 		];
 	}
 
@@ -140,6 +141,7 @@ class CombatRenderer {
 			name: "naked",
 			name_cap: "Naked",
 			variable: "naked",
+			slot: "upper",
 			state: 0,
 			state_base: 0,
 			integrity: 10,
@@ -467,7 +469,7 @@ class CombatRenderer {
 	}
 
 	/**
-	 * @param {SpritePositions} position
+	 * @param {CombatPositions} position
 	 * @param {string} frontPosition
 	 * @param {string} backPosition
 	 * @param {ClothedSlots} slot
@@ -556,6 +558,19 @@ class CombatRenderer {
 			return !!source.combat.accessory;
 		}
 		return source.accessory !== 0;
+	}
+
+	/**
+	 * @param {ClothedSlots} slot
+	 * @param {ClothesItem} defaults
+	 * @returns {boolean}
+	 */
+	static getPatternState(slot, defaults) {
+		const source = CombatRenderer.getSourceClothing(slot, defaults);
+		if (source.combat?.pattern !== undefined) {
+			return !!source.combat.pattern;
+		}
+		return source.pattern_layer === "tertiary";
 	}
 
 	/**

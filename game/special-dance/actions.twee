@@ -3,15 +3,15 @@
 <<widget "danceactions">>
 	<<exposure>>
 	<<if $danceevent is 0>>
-		<<if $exposed gte 2 and $exhibitionism lte 74 and $forceddance isnot 1 and ($corruptionDancing is undefined or $dancelocation isnot "brothel")>>
+		<<if $exposed gte 2 and $exhibitionism lte 74 and $forceddance isnot 1 and $dance_job_exposed isnot 1 and ($corruptionDancing is undefined or $dancelocation isnot "brothel")>>
 			<!--
 				No dancing if:
-				Under 75 exhib, fully exposed, not forced, (not at brothel or not corrupt dance)
+				Under 75 exhib, fully exposed, not forced, haven't chosen to dance despite exposure, (not at brothel or not corrupt dance)
 			-->
-		<<elseif $exposed gte 1 and $exhibitionism lte 34 and $forceddance isnot 1 and ($corruptionDancing is undefined or $dancelocation isnot "brothel") and !$worn.under_lower.type.includes("dance")>>
+		<<elseif $exposed gte 1 and $exhibitionism lte 34 and $forceddance isnot 1 and $dance_job_exposed isnot 1 and ($corruptionDancing is undefined or $dancelocation isnot "brothel") and !$worn.under_lower.type.includes("dance")>>
 			<!--
 				No dancing if:
-				Under 35 exhib, half exposed, not forced,
+				Under 35 exhib, half exposed, not forced, haven't chosen to dance despite exposure,
 				not wearing dance clothes, (not at brothel or not corrupt Dancing)
 			-->
 		<<else>>
@@ -177,9 +177,9 @@
 			<span class="blue">You can't bring yourself to drink while you know you're with child.</span>
 			<br>
 		<<else>>
-			<<link [[Drink|$passage]]>><<set $danceaction to "drink">><</link>><<dancedifficulty 1 `800 + $drunk`>>
+			<<link [[Drink|$passage]]>><<set $danceaction to "drink">><</link>><<dancedifficulty 1 `800 + $drunk`>><<galcohol>>
 			<br>
-			<<link [[Drink carefully|$passage]]>><<set $danceaction to "drink_careful">><</link>>
+			<<link [[Drink carefully|$passage]]>><<set $danceaction to "drink_careful">><</link>><<galcohol>>
 			<br>
 		<</if>>
 		<<link [[Ignore|$passage]]>><<set $danceaction to "drink_ignore">><</link>>
@@ -189,7 +189,7 @@
 			<<link [[Flaunt|$passage]]>><<set $danceaction to "light_flaunt">><</link>><<ginterest>>
 			<br>
 		<</if>>
-		<<if $forceddance is 1>>
+		<<if $forceddance is 1 or $dance_job_exposed is 1>>
 			<<link [[Cover yourself|$passage]]>><<set $danceaction to "light_cover">><</link>>
 			<br>
 		<</if>>
@@ -651,6 +651,8 @@
 						<<dancemolest>>
 					<</if>>
 				<</if>>
+			<<elseif $dancelocation is "wren_heist">>
+				/* No events */
 			<</if>>
 		<</if>>
 	<</if>>
@@ -697,16 +699,16 @@
 		<<set _top.integrity -= 10>>
 		You're caught, but your _top.name <<= _top.plural is 1 ? "snag" : "snags">>.
 		<<if _top.integrity lte 0>>
-			<span class="pink">You hear a tear,</span> and look down to find its tattered remains vanishing in the crowd.
+			<span class="pink">You hear a tear,</span> and look down to find <<= _top.plural is 1 ? "their" : "its">> tattered remains vanishing in the crowd.
 			<<arousal 100>><<if _top is $worn.over_upper>><<overupperruined>><<else>><<upperruined>><</if>><<set $audiencearousal += 5>><<set $audienceexcitement += 5>>
 		<<else>>
 			Someone cops a feel of your chest as you climb back up.
 		<</if>>
 	<<elseif !_bottomless>>
 		<<set _bottom.integrity -= 10>>
-		You're caught, but your _bottom.name snags.
+		You're caught, but your _bottom.name <<= _bottom.plural is 1 ? "snag" : "snags">>.
 		<<if _bottom.integrity lte 0>>
-			<span class="pink">You hear a tear,</span> and look down to find its tattered remains vanishing in the crowd.
+			<span class="pink">You hear a tear,</span> and look down to find <<= _bottom.plural is 1 ? "their" : "its">> tattered remains vanishing in the crowd.
 			<<arousal 100>><<if _bottom is $worn.over_lower>><<overlowerruined>><<else>><<lowerruined>><</if>><<set $audiencearousal += 5>><<set $audienceexcitement += 5>>
 		<<else>>
 			Someone cops a feel of your <<bottom>> as you climb back up.
@@ -841,7 +843,7 @@
 <</widget>>
 
 <<widget "dancesamtiredfinish">>
-	<<endevent>><<npc Sam>>Sam appears beside your table-stage. "That's enough everyone, this <<girl>> has had enough." <<He>> takes you by the arm and leads you into a back room. "Don't force yourself, anyone could tell you're exhausted." You earn <<printmoney500>><<money 500 "cafeWaiter">>.
+	<<endevent>><<npc Sam>>Sam appears beside your table-stage. "That's enough everyone, this <<girl>> has had enough." <<He>> takes you by the arm and leads you into a back room. "Don't force yourself, anyone could tell you're exhausted." You earn <<printmoney 500>><<money 500 "cafeWaiter">>.
 	<<npcincr Sam love 1>><<glove>><<set $danceevent to "finish">>
 <</widget>>
 
@@ -851,7 +853,7 @@
 		"I knew I'd find you here,"
 	<<elseif $delinquency gte 400>>
 		"So this is why you're missing classes,"
-	<<elseif $exposed gte 2 and hasSexStat("exhibitionism", 5)>>
+	<<elseif $exposed gte 2 and hasSexStat("exhibitionism", 4)>>
 		"I knew you were a slut,"
 	<<else>>
 		"You look cute up there,"

@@ -23,11 +23,11 @@
 
 <<set $outside to 0>><<set $location to "shopping_centre">><<effects>>
 You are in the hairdressers. Various hair products are available for sale. You can also have your hair cut or dyed.
-<<if Time.dayState is "night">>
+<<if Time.dayState is "night" and Time.hour isnot $closinghour>>
 	You are alone in the darkness.
 <<elseif $exposed gte 1>>
 	You hide in a cupboard to protect your dignity.
-<<else>>
+<<elseif Time.dayState isnot "night">>
 	There's a seat available.
 <</if>>
 <<if $hairgelBottles is undefined>>
@@ -51,9 +51,9 @@ You are in the hairdressers. Various hair products are available for sale. You c
 		<</if>>
 	<<else>>
 		<<if Time.dayState is "night" and Time.hour isnot $closinghour>>
-			<<hairdressericon "gel">><<link [[Steal a bottle of hair gel|$passage]]>><<crimeUp `8 / 100` "petty">><<set $hairgelBottles += 1>><</link>><<crime "petty">>
+			<<hairdressericon "gel">><<link [[Steal a bottle of hair gel|$passage]]>><<crimeUp 8 "petty">><<set $hairgelBottles += 1>><</link>><<crime "petty">>
 			<br>
-			<<hairdressericon "hairspray">><<link [[Steal a bottle of hair growth formula|$passage]]>><<crimeUp `50 / 100` "petty">><<set $sexStats.pills.pills["Hair Growth Formula"].owned++>><<set $sexStats.pills.boughtOnce to true>><</link>><<crime "petty">>
+			<<hairdressericon "hairspray">><<link [[Steal a bottle of hair growth formula|$passage]]>><<crimeUp 50 "petty">><<set $sexStats.pills.pills["Hair Growth Formula"].owned++>><<set $sexStats.pills.boughtOnce to true>><</link>><<crime "petty">>
 			<br>
 			<<if !$weekly.theft.hairDressers>>
 				<<shopicon "register">><<link [[Examine the cash register|Hairdressers Register]]>><</link>>
@@ -254,7 +254,7 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 				<</if>>
 				<<if $money gte _currentCost + 6000 or ($dyeOption isnot "noChange" and $dyeOption isnot "removeDye")>>
 					<<for _i to 0; _i lt _dyeNames.length; _i++>>
-						<<if ($haircolour is $hairdressersHairColour[_i] and $hairColourStyle is "simple")  or $naturalhaircolour is $hairdressersHairColour[_i]>>
+						<<if ($haircolour is $hairdressersHairColour[_i] and $hairColourStyle is "simple") or $naturalhaircolour is $hairdressersHairColour[_i]>>
 							<<continue>>
 						<</if>>
 						<<set _dyeOptions[_dyeNames[_i]] to $hairdressersHairColour[_i]>>
@@ -547,10 +547,16 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 			<<set _modeloptions.lights.flat.enabled = false>>
 			<<rendermodel "lighting">>
 			<<selectmodel "main" "hairdresser">>
-				<<set _modeloptions.mannequin to true>>
-				<<set _modeloptions.show_face to false>>
+				<<selectmodel "main">>
+				<<set _modeloptions.tanningEnabled to false>>
+				<<set _modeloptions.skin_type = Skin.color.natural>>
+				<<set _modeloptions.skin_tone = Skin.color.tan>>
+				<<set _modeloptions.freckles = $player.freckles == true and $makeup.concealer != 1>>
+				<<set _modeloptions.mouth to 'neutral'>>
+				<<set _modeloptions.facevariant = $facevariant>>
+				<<set _modeloptions.left_eye = $makeup.eyelenses.left != 0 ? $makeup.eyelenses.left : $leftEyeColour>>
+				<<set _modeloptions.right_eye = $makeup.eyelenses.right != 0 ? $makeup.eyelenses.right : $rightEyeColour>>
 				<<showlayer "brows">>
-				<<set _modeloptions.crotch_visible to true>>
 				<<set _modeloptions.brows to "top">>
 				<<set _modeloptions.brows_colour to ($makeup.browscolour != 0 ? $makeup.browscolour : $naturalhaircolour)>>
 				<<if $browsDyeOption isnot "noChange" and $browsDyeOption isnot "removeDye">>

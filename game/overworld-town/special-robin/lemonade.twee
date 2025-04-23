@@ -15,7 +15,7 @@ You see Robin <<if $robin.stayup isnot 2>>stood<<else>>nodding off<</if>> behind
 	<br><br>
 	"Hey," <<he>> says as you draw close. <<He>> sounds distant, and doesn't greet you further. The silence is made more awkward by the lack of customers.
 <<elseif $robinlemonadeintro isnot 1>><<set $robinlemonadeintro to 1>><<set $daily.robin.freeDrink to 1>>
-	<<wearProp "lemonade">>
+	<<wearProp "lemonade" 0 "default">>
 	<br><br>
 	"Hey," <<he>> says as you draw close. <<He>> <<= $robin.stayup is 2 ? "gives you a tired smile, stifling a yawn" : "beams">>. "It's nice to see you. I want you to try my lemonade." <<He>> mixes together water, lemon juice, and sugar and hands you the glass. "On the house." It's very sweet.
 <<elseif $robin.stayup is 2>>
@@ -40,13 +40,12 @@ You see Robin <<if $robin.stayup isnot 2>>stood<<else>>nodding off<</if>> behind
 		<</if>>
 	<</if>>
 <</if>>
-<<balloonRobinTalk>>
 <br><br>
 <<lemonade_stand_options>>
 
 :: Robin's Lemonade Purchase
 
-<<location "beach">><<effects>>
+<<location "beach">><<effects>><<wearProp "lemonade" 0 "default">>
 <<npc Robin>><<person1>>
 <<money -100 "robin">>
 
@@ -89,14 +88,12 @@ You down the glass almost in one go, listening to the waves as you watch the tid
 	"I need to start carrying my stuff home." Robin says. "Business drops off around now. Could you please help me pack this up?"
 	<<endevent>>
 	<br><br>
-	<<link [[Accept (0:30)|Orphanage]]>><<npcincr Robin love 1>><<pass 30>><</link>><<glove>>
+	<<link [[Accept (0:30)|Orphanage]]>><<handheldon>><<npcincr Robin love 1>><<pass 30>><</link>><<glove>>
 	<br>
-	<<link [[Refuse|Beach]]>><</link>>
+	<<link [[Refuse|Beach]]>><<handheldon>><</link>>
 	<br>
-
 <<else>>
 	<<lemonade_stand_options>>
-
 <</if>>
 
 
@@ -212,8 +209,10 @@ You down the glass almost in one go, listening to the waves as you watch the tid
 			"I'm out of water. I don't want to be alone but could you buy some more?" Robin says nervously. "There's some on High Street that's cheap, but there's some nearby and I don't want you to be away very long..."
 			<<He>> places <<his>> hand in yours, giving you £20. <<His>> hand lingers longer than necessary. "Please, hurry back."
 			<<set _extramoney to true>>
+			<<set $robinmoney -= 20>>
 		<<else>>
 			"I need more water. I go through it so quickly. I don't like asking because it's heavy, but could you buy some more? You'll need to go to the High Street to find it cheap. They charge too much nearby." <<He>> hands you £2. "That's enough for a large bottle."
+			<<set $robinmoney -= 2>>
 		<</if>>
 		<br><br>
 		<<if _robin.trauma gte 40>>
@@ -358,7 +357,8 @@ You walk to the other end of the populated part of the beach, and then back to R
 <<set $seductiondifficulty to 4000>>
 <<seductioncheck>>
 <br><br>
-<<if $seductionskill lt 1000>><span class="gold">You feel more confident in your powers of seduction.</span><</if>><<seductionskilluse>>
+<<seductionskilluptext>>
+<<seductionskilluse>>
 <<promiscuity2>>
 
 <<if $seductionrating gte $seductionrequired>>
@@ -410,6 +410,7 @@ You walk to the other end of the populated part of the beach, and then back to R
 
 <<location "beach">><<effects>>
 <<set _robin to statusCheck("Robin")>>
+<<wearProp "water bottle" 0 "capped">>
 
 You walk to the High Street and buy a large bottle of water. You return to the beach.
 <<if _robin.trauma gte 40>>
@@ -426,7 +427,7 @@ You walk to the High Street and buy a large bottle of water. You return to the b
 <</if>>
 <<if _robin.trauma gte 40>>
 	You quietly put Robin's change back on <<his>> table.
-	<<set $robinmoney += 2>>
+	<<set $robinmoney += 18>>
 	<br><br>
 <</if>>
 <<lemonade_stand_options>>
@@ -444,9 +445,7 @@ You buy four large bottles of water and haul them back to Robin. Their weight ma
 		<br><br>
 
 		You quietly leave the £20 <<he>> gave you on the stand.
-		<<set $robinmoney += 2>>
-	<<else>>
-		<<set $robinmoney -= 2>>
+		<<set $robinmoney += 20>>
 	<</if>>
 <<else>>
 	"How did you-" <<He>> pauses. "You can't have carried these all that way."
@@ -456,6 +455,7 @@ You buy four large bottles of water and haul them back to Robin. Their weight ma
 	<br><br>
 
 	"You're so good with money. Thank you." You quietly leave the £2 <<he>> gave you on the stand.
+	<<set $robinmoney += 2>>
 <</if>>
 <<npcincr Robin love 1>><<glove>>
 <br><br>
@@ -479,9 +479,10 @@ You buy four large bottles of water and haul them back to Robin. Their weight ma
 	<<if _robin.trauma gte 40>>
 		"Thank you so much! I'm glad you weren't gone that long, I was starting to get worried." Robin looks like a load has been taken off <<his>> back.
 		When you get back to <<his>> stand <<he>> hugs you tightly. You quietly leave the £20 <<he>> gave you on the counter.
-		<<set $robinmoney += 2>>
+		<<set $robinmoney += 20>>
 	<<else>>
 		"I've never thought of that," <<he>> says. "You're so clever." You quietly leave the £2 <<he>> gave you on the counter.
+		<<set $robinmoney += 2>>
 	<</if>>
 	<<npcincr Robin love 1>><<glove>>
 	<br><br>
@@ -504,8 +505,8 @@ You buy four large bottles of water and haul them back to Robin. Their weight ma
 <<set $seductiondifficulty to 6000>>
 <<seductioncheck>>
 <br><br>
-<<if $seductionskill lt 1000>><span class="gold">You feel more confident in your powers of seduction.</span><</if>><<seductionskilluse>>
-<br><br>
+<<seductionskilluptext>>
+<<seductionskilluse>>
 <<promiscuity2>>
 
 <<if $seductionrating gte $seductionrequired>>
@@ -524,7 +525,7 @@ You buy four large bottles of water and haul them back to Robin. Their weight ma
 	<<link [[Go to the High Street|Robin's Lemonade High]]>><</link>>
 	<br>
 	<<if $money gte 2000>>
-		<<link [[Buy water with your own money (£20)|Robin's Lemonade Buy]]>><<money -2000 "robin">><</link>>
+		<<link [[Buy water with your own money (£20)|Robin's Lemonade Buy]]>><<set $phase to 0>><<money -2000 "robin">><</link>>
 		<br>
 	<</if>>
 	<<if $phase is 1>>
@@ -604,10 +605,12 @@ You buy four large bottles of water and haul them back to Robin. Their weight ma
 <</if>>
 <<if _robin.trauma gte 40>>
 	You quietly leave the £20 <<he>> gave you on the stand.
+	<<set $robinmoney += 20>>
 <<else>>
 	"I found it discounted at a closer shop," you say.
 	<br><br>
 	"You're so good with money. Thank you." You quietly leave the £2 <<he>> gave you on the stand.
+	<<set $robinmoney += 2>>
 <</if>>
 <<npcincr Robin love 1>><<glove>>
 <br><br>
@@ -746,7 +749,6 @@ You help Robin carry <<his>> equipment to the beach.
 <<else>>
 	"Thank you for the help," <<he>> says. "It's hard carrying it all on my own." <<He>> starts juicing lemons.
 <</if>>
-<<balloonRobinTalk>>
 <br><br>
 <<lemonade_stand_options>>
 

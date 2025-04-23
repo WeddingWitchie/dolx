@@ -289,7 +289,7 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 	<<getouticon>><<link [[Leave|Farmland]]>><</link>>
 	<br>
 
-<<elseif !npcIsPregnant("Alex") and Time.hour gte 6 and Time.hour lte 7 and !$weekly.alexHungOver and $rng gte 76 and !$daily.farmAlexShowerSpy and $farm_work.alex isnot "shower">>
+<<elseif !npcIsPregnant("Alex") and Time.hour gte 6 and Time.hour lte 7 and !$weekly.alexHungOver and $rng gte 76 and !$daily.farmAlexShowerSpy and $farm_work.alex isnot "shower" and $alex_bed isnot "none" and $alex_breakfast isnot undefined and $alex_tea isnot undefined>>
 	<<set $weekly.alexHungOver to 1>>
 
 	You notice that Alex isn't in the shower shed. The animals are all in their holdings. Alex must still be in the farmhouse.
@@ -351,6 +351,7 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 		Alex wipes the sweat off <<his>> forehead as <<he>> approaches you. "Done for another day," <<he>> says, smiling.
 	<</if>>
 	<<if $farm_count gte 1 and $farm_stage lte 6>>
+		<<wearProp "cash">>
 		"Here's a little extra." <<He>> hands you <<moneyGain $farm.wage>>.
 	<</if>>
 	<br><br>
@@ -1123,7 +1124,16 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 		<<if $farm_stage gte 7>>
 			<<farmicon "cottage">><<link [[Cottage (0:01)|Farm Cottage]]>><<pass 1>><</link>>
 			<br>
-			<<gardenicon "plot">><<link [[Fields (0:05)|Farm Fields]]>><<pass 5>><<set $eventskip to 1>><</link>>
+			<<set _pickReady to 0>><<set _waterNeeded to 0>>
+			<<for _plantbed range $plots.farm>>
+				<<if _plantbed.stage gte 5>>
+					<<set _pickReady to 1>>
+				<</if>>
+				<<if _plantbed.stage gte 1 and _plantbed.stage lt 5 and _plantbed.water is 0 and _plantbed.bed isnot "water">>
+					<<set _waterNeeded to 1>>
+				<</if>>
+			<</for>>
+			<<gardenicon "plot">><<link [[Fields (0:05)|Farm Fields]]>><<pass 5>><<set $eventskip to 1>><</link>> <<if _pickReady is 1>><<note "Ready to Harvest" "green">><</if>> <<if _waterNeeded is 1>><<note "Watering needed" "yellow">><</if>>
 			<br>
 
 			<<if $farm_work.alex isnot "shower">>
@@ -2200,7 +2210,7 @@ You open the barn doors, and release the <<farm_text_many cattle>> from their pe
 <<if $danger gte (9900 - $allure) and _top>>
 	<<set _top.integrity -= 10>>
 	<<if _top.integrity lte 0>>
-		One snags your _top.name with <<farm_his cattle>> horn as <<farm_he cattle>> passes, <span class="pink">tearing it from your body.</span>
+		One snags your _top.name with <<farm_his cattle>> horn as <<farm_he cattle>> passes, <span class="pink">tearing <<it _top.slot>> from your body.</span>
 		<<integritycheck no_text>><<exposure>>
 		<<covered>> The <<farm_text cattle>> continues with the tattered remains dangling over <<farm_his cattle>> face.
 		<br><br>
@@ -2208,7 +2218,7 @@ You open the barn doors, and release the <<farm_text_many cattle>> from their pe
 		<<link [[Next|Farm Work]]>><</link>>
 		<br>
 	<<else>>
-		One snags your _top.name with <<farm_his cattle>> horn as <<farm_he cattle>> passes, leaving it worse for wear.
+		One snags your _top.name with <<farm_his cattle>> horn as <<farm_he cattle>> passes, leaving <<it _top.slot>> worse for wear.
 		<br><br>
 
 		<<link [[Next|Farm Work]]>><</link>>
@@ -2419,11 +2429,92 @@ You <<tendingtext>> squeeze and rub.
 <<endevent>>
 <<farm_milk_actions>>
 
+:: Farm Cattle Milk Hand Mass
+<<effects>>
+
+<<if $monster is 1>>
+	You lead the <<beastsplural>> into the barn and sit on a stool beside them. They kneel over the bucket and moos in anticipation.
+
+	<<if $NPCList[0].pronoun is "m">>
+		<<if $NPCList[0].vagina isnot "none">>
+			You pinch one of their nipples with both hands and squeeze.
+		<<else>>
+			You take one of their already-erect penis in both hands and get to work.<<for _i to 0; _i lt $massmilkamount; _i++>><<handstat>><<handejacstat>><</for>>
+		<</if>>
+	<<else>>
+		<<if $NPCList[0].penis isnot "none">>
+			You take one of their already-erect penis in one hand and a breast in the other, then get to work.<<for _i to 0; _i lt $massmilkamount; _i++>><<handstat>><<handejacstat>><</for>>
+		<<else>>
+			You grasp one of their breasts in both hands and squeeze.
+		<</if>>
+	<</if>>
+<<else>>
+	You lead the <<beastsplural>> into the barn and sit on a stool beside them. They moo in anticipation. You take one of their
+	<<if $NPCList[0].penis isnot "none">>already-erect penis<<else>>udders<</if>>
+	in both hands and get to work.
+<</if>>
+<br><br>
+<<if $cattle_milked lte 6 or $deviancy lt 15>>
+	It feels strange to get so hands-on. You remind yourself that there's nothing odd about this, but it's a hard feeling to shake.
+<<elseif $cattle_milked lte 1200 or $deviancy lt 35>>
+	You're used to milking cattle, and the <<beastsplural>> appreciates the attention.
+<<else>>
+	You daydream as you work, your practised hands moving on their own. The <<beastsplural>> appreciates the attention.
+<</if>>
+<<deviancy1>>
+
+You <<tendingtext>> squeeze and rub.
+<<switch $phase>>
+	<<case 1>><<farm_count 1>> One minute later,
+	<<case 2>><<farm_count 2>> Two minutes later,
+	<<case 3>><<farm_count 3>> Three minutes later,
+	<<case 4>><<farm_count 4>> Four minutes later,
+	<<case 5>><<farm_count 5>> Five minutes later,
+	<<case 10>><<farm_count 10>> Ten minutes later,
+	<<case 15>><<farm_count 15>> Fifteen minutes later,
+	<<case 20>><<farm_count 20>> Twenty minutes later,
+	<<case 25>><<farm_count 25>> Twenty-five minutes later,
+	<<case 30>><<farm_count 30>> Thirty minutes later,
+	<<default>><<farm_count $phase>> <<print $phase>> minutes later,
+<</switch>>
+<<rng>>
+<<if $watersportsdisable is "f" and $NPCList[0].penis isnot "none" and $rng gte 96>>
+	you notice the bucket is filling up with urine instead of milk. You throw it out.
+<<else>>
+	you have a bucket full of <<beasttype>> milk.
+<</if>>
+<br><br>
+
+<<if $farm_work.cattle_text is undefined>>
+	<<set $farm_work.cattle_text to 0>>
+<</if>>
+<<switch $farm_work.cattle_text>>
+<<case 0>>
+	<<set $farm_work.cattle_text += 1>>
+	The <<beastsplural>> trots away.
+<<case 1>>
+	<<set $farm_work.cattle_text += 1>>
+	The <<beastsplural>> licks your hand before trotting away.<<lstress>><<stress -1>>
+<<case 2>>
+	<<set $farm_work.cattle_text += 1>>
+	The <<beastsplural>> needs cajoling before they will return to the field.
+<<case 3>>
+	<<set $farm_work.cattle_text += 1>>
+	The <<beastsplural>> leaves in a hurry, eager to return to the field.
+<<case 4>>
+	<<set $farm_work.cattle_text to 0>>
+	The <<beastsplural>> has some trouble finding the exit but soon trots back to the field.
+<</switch>>
+
+<br><br>
+<<endevent>>
+<<farm_milk_actions>><<unset $massmilkamount>>
+
 
 :: Farm Cattle Milk Mouth
 <<effects>>
 <<pass 3>>
-<<set  $consensual to 1>>
+<<set $consensual to 1>>
 <<if $monster is 1>>
 	You lead a <<beasttype>> into the barn. <<bHe>> starts to kneel, but you interrupt. Instead, <<bhe>> watches with a puzzled expression as you
 
@@ -2474,7 +2565,58 @@ The <<beasttype>> trots away.
 <<endevent>>
 <<farm_milk_actions>>
 
+:: Farm Cattle Milk Mouth Mass
+<<effects>>
+<<set $consensual to 1>>
+<<if $monster is 1>>
+	You lead the <<beastsplural>> into the barn. One of them starts to kneel, but you interrupt. Instead, <<bhe>> watches with a puzzled expression as you
 
+	<!-- Milk Chest -->
+	<<if $pronoun is "f" or $NPCList[0].vagina isnot "none">>
+		lean down to <<bhis>> chest.
+		<br><br>
+
+		You take <<bhis>> nipple into your mouth and suck on it. <<bHe>> moos in pleasure as sweet milk flows. You spit most into the bucket, but you can't help but swallow some.<<transform cat $massmilkamount>>
+
+		<!-- DG cowgirls get both milked -->
+		<<if $NPCList[0].penis isnot "none">>
+			<br><br>
+			You drop to your knees next.
+		<</if>>
+	<<else>>
+		kneel in front of <<bhim>> instead.
+		<br><br>
+	<</if>>
+
+	<!-- Milk Penis -->
+	<<if $NPCList[0].penis isnot "none">>
+		<<bHis>> cock is already erect in anticipation. You take it into your mouth. <<if $player.virginity.oral is true>><span class="red">It tastes strange.</span><</if>>
+		<<takeVirginity $NPCList[0].fullDescription "oral">><<for _i to 0; _i lt $massmilkamount; _i++>><<oralstat>><<oralejacstat>><<ejacstat>><<animalsemenswallowedstat 15>><</for>>
+		<br><br>
+
+		You grasp <<bhis>> thighs for purchase as you bob your head back and forth. Thick <<beastsplural>> cream surges into your mouth. You pull away from <<bhis>> cock and spit into the bucket, directing the rest of the flow the same way. The <<beastsplural>> moos in pleasure, and you soon have the bucket filled.
+	<</if>>
+<<else>>
+	<<if $NPCList[0].penis isnot "none">>
+		You lead a bull into the barn and kneel beneath it. Its cock is already erect in anticipation. You take it into your mouth. <<if $player.virginity.oral is true>><span class="red">It tastes strange.</span><</if>>
+		<<takeVirginity $NPCList[0].fullDescription "oral">><<for _i to 0; _i lt $massmilkamount; _i++>><<oralstat>><<oralejacstat>><<ejacstat>><<animalsemenswallowedstat 15>><</for>>
+
+		You grasp its hind legs for purchase as you bob your head back and forth. Thick bull cream surges into your mouth. You pull away from its cock and spit into the bucket, directing the rest of the flow the same way. The bull moos in pleasure, and you soon have the bucket filled.
+		<<animalsemenswallowedstat 15>>
+	<<else>>
+		You lead a cow into the barn and kneel beneath it. You lean down and take one of its udders into your mouth. Thick, creamy milk flows into your mouth. You spit most into the bucket, but can't help but swallow some.<<transform cat $massmilkamount>>
+
+
+	<</if>>
+<</if>>
+
+<<deviancy4>>
+
+This repeats until you've finished with all of them. The <<beastsplural>> trot away.
+<br><br>
+
+<<endevent>>
+<<farm_milk_actions>><<unset $massmilkamount>>
 
 :: Farm Cattle In
 <<effects>>
@@ -2957,7 +3099,7 @@ You sneak up to the shed, and push the door open.
 	<<if playerIsPregnant() and playerAwareTheyArePregnant()>>
 		<span class="blue">You can't bring yourself to drink while you know you're with child.</span>
 	<<else>>
-		<<link [[Drink|Farm Rest Drink]]>><<alcohol 120>><<stress -6>><<npcincr Alex love 1>><<wearProp "beer bottle">><</link>><<glove>><<lstress>>
+		<<link [[Drink|Farm Rest Drink]]>><<alcohol 120>><<stress -6>><<npcincr Alex love 1>><<wearProp "beer bottle">><</link>><<glove>><<lstress>><<ggalcohol>>
 	<</if>>
 	<br>
 	<<link [[Refuse|Farm Rest Refuse]]>><</link>>
@@ -3127,7 +3269,7 @@ You carry the feed to the field. Some of the younger <<farm_text_many dog>> beg 
 	<br>
 	<<link [[Endure|Farm Dogs Endure]]>><<sub 1>><<farm_dogs -1>><<trauma 6>><<stress 6>><</link>><<lrespect>><<gtrauma>><<gstress>>
 	<br>
-	<<if $bestialitydisable is "f" or $monster is 1>>
+	<<if $bestialitydisable is "f" or $farm_work.dog.monster is true>>
 		<<if hasSexStat("deviancy", 2)>>
 			<<link [[Drop to your knees|Farm Dogs Drop]]>><</link>><<deviant2>>
 			<br>
@@ -3178,19 +3320,11 @@ You are in the barn. The <<farm_text_many cattle>> sleep sound.
 			<br>
 			<<if $breastfeedingdisable is "f" and $milk_amount gte 1>>
 				<br>
-				<<ind>><<link [[Milk yourself (0:30)|Farm Barn Breasts]]>>
-					<<if ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>>
-						<<transform cow 1>>
-					<</if>>
-				<</link>><<deviant2>>
+				<<ind>><<link [[Milk yourself (0:30)|Farm Barn Breasts]]>><<pass 30>><</link>><<deviant2>>
 			<</if>>
 			<<if $player.penisExist and $semen_amount gte 1 and !playerChastity("penis")>>
 				<br>
-				<<ind>><<link [[Milk your penis (0:30)|Farm Barn Penis]]>>
-					<<if ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>>
-						<<transform cow 1>>
-					<</if>>
-				<</link>><<deviant2>>
+				<<ind>><<link [[Milk your penis (0:30)|Farm Barn Penis]]>><<pass 30>><</link>><<deviant2>>
 			<</if>>
 			<br>
 		<</if>>
@@ -3220,7 +3354,7 @@ You take two of the suction tubes, and attach them to your <<breasts>>.
 	The machine comes alive, and sucks your chest. You <<if ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>>moo<<else>>gasp<</if>> at the sensation, almost waking one of the <<farm_text cattle>>s.<<gggarousal>><<arousal 2000 "breasts">>
 	<br><br>
 <<else>>
-	The machine comes alive, and sucks your chest. You <<if ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>>moo<<else>>gasp<</if>> at the sensation, causing one of the <<farm_text cattle>> to turn their head in your direction<<if ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>> and moo back<</if>>.<<gggarousal>><<arousal 2000 "breasts">>
+	The machine comes alive, and sucks your chest. You <<if ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>>moo<<else>>gasp<</if>> at the sensation, causing one of the <<farm_text cattle>>s to turn their head in your direction<<if ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>> and moo back<</if>>.<<gggarousal>><<arousal 2000 "breasts">>
 	<br><br>
 <</if>>
 
@@ -3298,20 +3432,20 @@ The machine continues its devilish work, sucking with more intensity. You feel a
 	You remove the suction tube with a shaking hand, and rise to your feet.
 	<<deviancy2>>
 
-	<<link [[Next (0:30)|Farm Cattle Milk]]>><<pass 30>><<clotheson>><<machine_end>><</link>>
+	<<link [[Next|Farm Cattle Milk]]>><<clotheson>><<machine_end>><</link>>
 	<br>
 <<elseif $farm.milking.caught is true and $farm.milking.alexNightEvent is false>>
 	<<set $farm.milking.alexNightEvent to true>>
 	<<set $farm.milking.dayMilking to true>>
 	As you remove the suction tubes with shaking hands.
 	<<deviancy2>>
-	<<link [[Next (0:30)|Farm Barn Caught]]>><<pass 30>><<machine_end>><<endevent>><</link>>
+	<<link [[Next|Farm Barn Caught]]>><<machine_end>><<endevent>><</link>>
 	<br>
 <<else>>
 	You remove the suction tubes with shaking hands, and rise to your feet.
 	<<deviancy2>>
 
-	<<link [[Next (0:30)|Farm Barn]]>><<pass 30>><<clotheson>><<machine_end>><</link>>
+	<<link [[Next|Farm Barn]]>><<clotheson>><<machine_end>><</link>>
 	<br>
 <</if>>
 
@@ -3334,7 +3468,7 @@ You take one of the suction tubes, and attach it to your <<penis>>.
 	The machine comes alive, and sucks at your penis. You <<if ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>>moo<<else>>gasp<</if>> at the sensation, almost waking one of the <<farm_text cattle>>s.<<gggarousal>><<arousal 2000 "genitals">>
 <br><br>
 <<else>>
-	The machine comes alive, and sucks at your penis. You <<if ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>>moo<<else>>gasp<</if>> at the sensation, causing one of the <<farm_text cattle>> to turn their head in your direction<<if ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>> and moo back<</if>>.<<gggarousal>><<arousal 2000 "genitals">>
+	The machine comes alive, and sucks at your penis. You <<if ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>>moo<<else>>gasp<</if>> at the sensation, causing one of the <<farm_text cattle>>s to turn their head in your direction<<if ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>> and moo back<</if>>.<<gggarousal>><<arousal 2000 "genitals">>
 	<br><br>
 <</if>>
 
@@ -3447,20 +3581,20 @@ The machine continues its devilish work, sucking with more intensity. You feel a
 	You remove the suction tube with a shaking hand, and rise to your feet.
 	<<deviancy2>>
 
-	<<link [[Next (0:30)|Farm Cattle Milk]]>><<pass 30>><<clotheson>><<machine_end>><</link>>
+	<<link [[Next|Farm Cattle Milk]]>><<clotheson>><<machine_end>><</link>>
 	<br>
 <<elseif $farm.milking.caught is true and $farm.milking.alexNightEvent is false>>
 	<<set $farm.milking.alexNightEvent to true>>
 	<<set $farm.milking.dayMilking to true>>
 	As you remove the suction tube with a shaking hand.
 	<<deviancy2>>
-	<<link [[Next (0:30)|Farm Barn Caught]]>><<pass 30>><<machine_end>><<endevent>><</link>>
+	<<link [[Next|Farm Barn Caught]]>><<machine_end>><<endevent>><</link>>
 	<br>
 <<else>>
 	You remove the suction tube with a shaking hand, and rise to your feet.
 	<<deviancy2>>
 
-	<<link [[Next (0:30)|Farm Barn]]>><<pass 30>><<clotheson>><<machine_end>><</link>>
+	<<link [[Next|Farm Barn]]>><<clotheson>><<machine_end>><</link>>
 	<br>
 <</if>>
 

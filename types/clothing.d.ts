@@ -94,6 +94,7 @@ declare global {
 
 	export interface ClothesItem {
 		index: number;
+		slot: ClothedSlots;
 		name: string;
 		name_cap: string;
 		name_simple?: string;
@@ -120,6 +121,7 @@ declare global {
 			sleeveAccColour?: string;
 			sleeveColour?: string;
 			boundable?: boolean;
+			pattern?: boolean;
 		};
 		integrity?: number;
 		integrity_max?: number;
@@ -181,7 +183,7 @@ declare global {
 		pattern?: 0 | string;
 		pattern_options?: string[];
 		pattern_caption?: boolean;
-		pattern_layer?: "secondary";
+		pattern_layer?: "primary" | "secondary" | "tertiary";
 		accessory: number;
 		accessory_colour?: 0 | string;
 		accessory_colour_options?: string[];
@@ -198,6 +200,7 @@ declare global {
 		accessory_layer_under?: 0 | 1;
 		high_img?: 0 | 1;
 		back_img?: 0 | 1 | "combat";
+		back_integrity_img?: 0 | 1;
 		back_img_acc?: 0 | 1 | "combat";
 		back_img_acc_colour?: string;
 		/**
@@ -225,11 +228,12 @@ declare global {
 		 * (For upper, over_upper, under_upper slots)
 		 * Recolouring of sleeves images:
 		 * * "" (default) - depending on colour_sidebar
-		 * * "no" - do not recolour image
+		 * * "pattern" - apply pattern to sleeves using pattern_layer colour (primary, secondary, or tertiary)
 		 * * "primary" - use primary/main colour
 		 * * "secondary" - use secondary/accessory colour
+		 * * "tertiary" - do not recolour image
 		 */
-		sleeve_colour?: "" | "none" | "no" | "primary" | "secondary";
+		sleeve_colour?: "" | "pattern" | "primary" | "secondary" | "tertiary";
 		/**
 		 * * 1 if has breast sprites and a unique image for every breast sprite
 		 * * 0 if no breast sprites
@@ -243,6 +247,7 @@ declare global {
 		location?: number;
 		iconFile?: 0 | string;
 		accIcon?: 0 | string;
+		detailIcon?: 0 | string;
 		outfitPrimary?: object;
 		outfitSecondary?: string[];
 		notuck?: number | "tie";

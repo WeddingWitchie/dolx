@@ -1,7 +1,7 @@
 import { ModBootJson, ModInfo } from "ModLoader";
 import { SC2DataManager } from "SC2DataManager";
 import JSZip from "jszip";
-import moment from "moment";
+import moment from "moment/moment";
 export interface LogWrapper {
     log: (s: string) => void;
     warn: (s: string) => void;
@@ -33,11 +33,29 @@ export interface ModLoadControllerCallback {
     Load_end(modName: string, fileName: string): Promise<any>;
     PatchModToGame_start(): Promise<any>;
     PatchModToGame_end(): Promise<any>;
+    /**
+     * @deprecated
+     */
     ReplacePatcher_start(modName: string, fileName: string): Promise<any>;
+    /**
+     * @deprecated
+     */
     ReplacePatcher_end(modName: string, fileName: string): Promise<any>;
+    /**
+     * Latest Hook On ModLoader When ALL Load End
+     */
     ModLoaderLoadEnd(): Promise<any>;
+    /**
+     * @useless useless for user
+     */
     logError(s: string): void;
+    /**
+     * @useless useless for user
+     */
     logInfo(s: string): void;
+    /**
+     * @useless useless for user
+     */
     logWarning(s: string): void;
     exportDataZip(zip: JSZip): Promise<JSZip>;
 }
@@ -89,7 +107,10 @@ export declare class ModLoadController implements ModLoadControllerCallback {
     addModLocalStorage(name: string, modBase64String: string): void;
     removeModLocalStorage(name: string): void;
     checkModZipFileLocalStorage(modBase64String: string): Promise<string | ModBootJson>;
-    listModIndexDB(): Promise<string[] | undefined>;
+    overwriteModIndexDBModList(modeList: string[]): Promise<void>;
+    overwriteModIndexDBHiddenModList(modeList: string[]): Promise<void>;
+    listModIndexDB(): Promise<string[]>;
+    loadHiddenModList(): Promise<string[]>;
     addModIndexDB(name: string, modBase64String: string): Promise<void>;
     removeModIndexDB(name: string): Promise<void>;
     checkModZipFileIndexDB(modBase64String: string): Promise<string | ModBootJson>;

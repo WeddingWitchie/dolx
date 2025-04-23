@@ -43,7 +43,7 @@ export class DependenceChecker {
                 }
                 const find = [];
                 for (const modCache of modCaches) {
-                    const fr = modCache.getByName(d.modName);
+                    const fr = modCache.getModOrderItemByNameWithAlias(d.modName);
                     fr === null || fr === void 0 ? void 0 : fr.forEach(T => find.push(T));
                 }
                 if (find.length === 0) {
@@ -73,7 +73,7 @@ export class DependenceChecker {
     check() {
         var _a;
         const modOrder = this.gSC2DataManager.getModLoader().getModCacheOneArray();
-        const modCache = this.gSC2DataManager.getModLoader().getModCacheMap();
+        const modCache = this.gSC2DataManager.getModLoader().getModCacheMapWithAlias();
         // // check data state valid
         // if (modCache.size !== modOrder.length) {
         //     // never go there
@@ -123,7 +123,7 @@ export class DependenceChecker {
                         continue;
                     }
                     // check by order
-                    const ii = findIndex(modOrder, T => T.name === mod2.bootJson.name);
+                    const ii = findIndex(modOrder, T => T.name === mod2.name || mod2.alias.includes(T.name));
                     if (!(ii >= 0)) {
                         // never go there
                         console.error('DependenceChecker.check() cannot find mod in modOrder. never go there.', [mod.bootJson.name, mod2.bootJson, modOrder, ii]);

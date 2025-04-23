@@ -101,7 +101,6 @@ function extendStats() {
 
 	$captionDiv.toggleClass("statsExtended", V.extendedStats);
 	Wikifier.wikifyEval("<<replace #stats>><<statsCaption>><</replace>>");
-	initializeTooltips();
 }
 window.extendStats = extendStats;
 
@@ -115,15 +114,24 @@ window.customColour = customColour;
 
 function zoom(value) {
 	const slider = $("[name$='" + Util.slugify("options.zoom") + "']");
-	value = Math.clamp(value || slider[0].value || 0, 50, 200);
-	$("body")
-		.css("zoom", value + "%")
-		.css("-ms-zoom", value + "%");
-	if (slider[0] !== undefined && slider[0].value != value) {
-		slider[0].value = value;
-		slider.trigger("change");
-	}
+	value = Math.clamp(value || slider?.val() || 0, 50, 200);
+
+	$("body").css("zoom", value + "%");
+	const zoomScale = value / 100;
+	// SVG map
+	$(".zoomable").each(function () {
+		const $image = $(this);
+		const originalWidth = $image.data("original-width") || this.width.baseVal.value;
+		const originalHeight = $image.data("original-height") || this.height.baseVal.value;
+
+		$image
+			.data({ "original-width": originalWidth, "original-height": originalHeight })
+			.attr({ width: originalWidth * zoomScale, height: originalHeight * zoomScale });
+	});
+
+	if (slider.length && slider.val() != value) slider.val(value).trigger("change");
 }
+
 window.zoom = zoom;
 
 function beastTogglesCheck() {
@@ -222,10 +230,6 @@ function settingsNudeGenderAppearance() {
 		let val = V.NudeGenderDC;
 		let text = null;
 		switch (val) {
-			case -1:
-				text =
-					"NPCs <span class='blue inline-colour'>ignore</span> genitals when perceiving gender. <span class='purple inline-colour'>Overrides some gender appearance modifiers, including the femininity factor of pregnant bellies. Player descriptions will match the behaviour chosen in the bedroom mirror.</span> <span class='red inline-colour'>Disables crossdressing warnings. NPCs will still judge gender based on your manner of dress.</span>";
-				break;
 			case 0:
 				text = "NPCs will <span class='blue inline-colour'>ignore</span> your genitals when perceiving your gender.";
 				break;
@@ -370,7 +374,7 @@ function settingsGenericGenders(id) {
 					text = `<span class='gold inline-colour'>No</span> <span class='pink inline-colour'>${women}</span> and <span class='gold inline-colour'>all</span> <span class='blue inline-colour'>${men}</span> will be ${attraction}.`;
 					break;
 				case 0:
-					text = `<span class='gold inline-colour'>All</span> <span class='pink inline-colour'>${women}</span> and <span class='gold inline-colour'>no</span> <span class='blue inline-colour'>${men}</span> will be  ${attraction}.`;
+					text = `<span class='gold inline-colour'>All</span> <span class='pink inline-colour'>${women}</span> and <span class='gold inline-colour'>no</span> <span class='blue inline-colour'>${men}</span> will be ${attraction}.`;
 					break;
 				default:
 					text = `<span class='gold inline-colour'>${100 - val
@@ -590,6 +594,7 @@ function settingsDisableElement() {
 						const style = cond ? "var(--500)" : "";
 						orig.css("color", style).children().css("color", style);
 						orig.find("input").prop("disabled", cond);
+						$(document).trigger("rangeslider::update");
 					} catch (e) {
 						console.log(e);
 					}
@@ -624,6 +629,7 @@ function closeOverlay() {
 	T.buttons.reset();
 	$("#customOverlay").addClass("hidden").parent().addClass("hidden");
 	$.event.trigger(":oncloseoverlay", [T.currentOverlay]);
+	document.getElementById("ui-bar-toggle").style.opacity = V.options.showUiBar ? "1" : "0";
 	delete T.currentOverlay;
 	delete V.tempDisable;
 }
@@ -748,6 +754,12 @@ function updateCaptionTooltip() {
 		if (!e || typeof e.clientX !== "number" || typeof e.clientY !== "number") {
 			return;
 		}
+
+		// Prevent recursion by ignoring events triggered by the tooltip itself
+		if ($(e.target).is("#characterTooltip")) {
+			return;
+		}
+
 		const isCurrentlyOverElement = $(document.elementsFromPoint(e.clientX, e.clientY)).is("#characterTooltip");
 
 		// Only trigger events if the status has changed
@@ -766,8 +778,8 @@ function updateCaptionTooltip() {
 		if (isCurrentlyOverElement) {
 			element.trigger({
 				type: "mousemove",
-				pageX: e.pageX,
-				pageY: e.pageY,
+				clientX: e.clientX,
+				clientY: e.clientY,
 			});
 		}
 	};
@@ -1015,6 +1027,6 @@ window.basicDrunkCss = basicDrunkCss;
  * @returns {string}
  */
 function basicJitterCss() {
-	return V.options.textAnimations ? "jitter-text drunk-1" : "jitter-text";
+	return V.options.textAnimations ? "jitter-text jitter-1" : "jitter-text";
 }
 window.basicJitterCss = basicJitterCss;

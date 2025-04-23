@@ -1612,8 +1612,12 @@ function onHomePillItemClick(itemName) {
 					${item.description}
 					<div class="hpi_warning_label">${item.warning_label}</div>
 					<div id="hpi_desc_action">
-						<a id="hpi_take_pills" class="hpi_take_pills" onclick="window.onTakeClick(${itemName}, ${itemType})">Take pill</a>
-						<a id="hpi_take_every_morning" onclick="window.onAutoTakeClick(${itemName}, ${itemType})">Take every morning</a>
+						<div>
+							<a id="hpi_take_pills" onclick="window.onTakeClick(${itemName}, ${itemType})">Take pill</a>
+						</div>
+						<div>
+							<a id="hpi_take_every_morning" onclick="window.onAutoTakeClick(${itemName}, ${itemType})">Take every morning</a>
+						</div>
 					</div>
 				</div>`;
 				window.initPillContextButtons(item);
@@ -1755,7 +1759,7 @@ function onTakeClick(itemName) {
 				Wikifier.wikifyEval(typeof widget === "function" ? widget() : widget);
 			V.sexStats.pills.lastTaken[item.type] = item.subtype; // keep track of the category of pill we last took
 			V.sexStats.pills.mostTaken[item.type] = window.redetermineMostTaken(item.type, item.subtype);
-			if (item.doseTaken() > 1 && item.name.contains("blocker") === false) {
+			if (item.doseTaken() > 1 && !item.name.includes("blocker")) {
 				switch (item.type) {
 					case "parasite":
 					case "hair":
@@ -1810,7 +1814,7 @@ function onSecondDoseTakenSetVars() {
 	T.pillAmountOfCategoriesUsed = 0;
 	for (const item of setup.pills) {
 		// determine how many pills of each have been taken.
-		if (["bottom", "penis", "breast"].contains(item.type)) doseTaken[item.type] += item.doseTaken();
+		if (["bottom", "penis", "breast"].includes(item.type)) doseTaken[item.type] += item.doseTaken();
 	}
 	const sumValues = obj => Object.values(obj).reduce((a, b) => a + b); // count every doses
 	let i = -1;
@@ -1908,7 +1912,7 @@ window.backCompPillsInventory = backCompPillsInventory;
 
 function pillsObjectRepair(oPills, pills) {
 	/* if the variable already exist, and is not of the new version(new version has "mostTaken" property that's why we check it),
-	then we try to  port the old one to the new one */
+	then we try to port the old one to the new one */
 	if (typeof oPills.bottom === "object") {
 		Object.assign(pills, {
 			"bottom reduction": { autoTake: oPills.bottom.autoTake === "reduction", owned: oPills.bottom.owned.reduction },

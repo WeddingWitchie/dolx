@@ -72,7 +72,7 @@
 	<</if>>
 
 	<<if $player.ballsExist is undefined>>
-		<<set $player.ballsExist to ($player.gender isnot "f")>>
+		<<set $player.ballsExist to ($player.sex isnot "f")>>
 	<</if>>
 
 	<<if $clothing_update is undefined>><<set $clothing_update to 1>>
@@ -184,6 +184,8 @@
 	<<if $lowerwet is undefined>>
 		<<set $lowerwet to 0>>
 		<<set $lowerwetstage to 0>>
+	<</if>>
+	<<if $underlowerwet is undefined>>
 		<<set $underlowerwet to 0>>
 		<<set $underlowerwetstage to 0>>
 		<<set $underupperwet to 0>>
@@ -285,7 +287,7 @@
 	<</if>>
 
 	<<if $upperoutfitcasual is undefined>>
-		<<if $player.gender is "m">>
+		<<if $player.sex is "m">>
 			<<set $upperoutfitcasual to "t-shirt">>
 			<<set $loweroutfitcasual to "shorts">>
 			<<set $underoutfitcasual to "Y fronts">>
@@ -1149,9 +1151,9 @@
 
 	<<if $player.gender_posture is undefined>>
 		<<if $background.crossdresser is true>>
-			<<if $player.gender is "f">>
+			<<if $player.sex is "f">>
 				<<set $player.gender_posture to "m">>
-			<<elseif $player.gender is "m">>
+			<<elseif $player.sex is "m">>
 				<<set $player.gender_posture to "f">>
 			<</if>>
 		<<else>>
@@ -1500,10 +1502,7 @@
 
 	<!-- updateMuseumAntiques was moved to <<backComp>> -->
 
-	<<if $objectVersion.specialClothesEffectsSetup lt 1 or $objectVersion.specialClothesEffectsSetup is undefined>>
-		<<specialClothesEffectsSetup>>
-		<<set $objectVersion.specialClothesEffectsSetup to 1>>
-	<</if>>
+	<!-- specialClothesEffectsSetup was moved to <<backComp>> -->
 
 	<<if $masturbationFix is undefined>>
 		<<set $mouthactiondefault to 0>>
@@ -2306,10 +2305,10 @@
 	<</if>>
 
 	<<if $penisexist isnot undefined and ($player.penisExist != $penisexist or $player.vaginaExist != $vaginaexist)>>
-		<<set $player.vaginaExist to ($player.gender isnot "m")>>
-		/* <<set $vaginaexist to ($player.gender isnot "m" ? 1 : 0)>> */
-		<<set $player.penisExist to ($player.gender isnot "f")>>
-		/* <<set $penisexist to ($player.gender isnot "f" ? 1 : 0)>> */
+		<<set $player.vaginaExist to ($player.sex isnot "m")>>
+		/* <<set $vaginaexist to ($player.sex isnot "m" ? 1 : 0)>> */
+		<<set $player.penisExist to ($player.sex isnot "f")>>
+		/* <<set $penisexist to ($player.sex isnot "f" ? 1 : 0)>> */
 	<</if>>
 
 	<<if $penisexist isnot undefined>>
@@ -3630,7 +3629,7 @@
 	/* Code that should not be moved into a check like above */
 	<<set $runWardrobeSanityChecker to true>>
 
-	<<if $objectVersion.updateClothes lt 63 or $objectVersion.updateClothes is undefined>>
+	<<if $objectVersion.updateClothes lt 68 or $objectVersion.updateClothes is undefined>>
 		<<updateClothes>>
 		<<if $objectVersion.updateClothes lt 38>>
 			<!-- V0.4.0.7 return items stuck in $store without proper .location -->
@@ -3653,13 +3652,47 @@
 		<<if $objectVersion.updateClothes lt 62>>
 			<<if $propEquipped is 1 and $worn.handheld.type !== "prop" and $worn.handheld.variable !== "featherduster">><<set $propEquipped to 0>><</if>>
 		<</if>>
-		<<set $objectVersion.updateClothes to 63>>
+
+		<!-- 0.5.4.3 console error fixes -->
+		<<if $objectVersion.updateClothes lt 68>>
+			<<script>>
+			for (const layer of Skin.tanningLayers) {
+				for (const [key, value] of Object.entries(layer.slots)) {
+					const patterns = setup.clothes[key].filter(item => item.index === value.index)[0].pattern_options;
+					if (patterns) {
+						value.pattern = patterns[0];
+					}
+				}
+			}
+			<</script>>
+		<</if>>
+
+		<!-- do NOT forget to bump this version in variables-start.twee, too -->
+		<<set $objectVersion.updateClothes to 68>>
 	<</if>>
 
-	<<if $objectVersion.specialClothes lt 16 or $objectVersion.specialClothes is undefined>>
+	<<if $objectVersion.specialClothesEffectsSetup lt 1 or $objectVersion.specialClothesEffectsSetup is undefined>>
+		<<specialClothesEffectsSetup>>
+		<<set $objectVersion.specialClothesEffectsSetup to 1>>
+	<</if>>
+
+	<<if $objectVersion.specialClothes lt 19 or $objectVersion.specialClothes is undefined>>
 		<<specialClothesSetup>>
 		<<specialClothesUpdate>>
-		<<set $objectVersion.specialClothes to 16>>
+		<<if !$specialClothesEffects.pimp>>
+			<<set $specialClothesEffects to {
+				bimbo: { progress: $specialClothesEffects.bimbo, total: $specialClothesEffects.bimboTotal, message: $specialClothesEffects.bimboMessage },
+				pimp: { progress: 0, total: 0, message: 0 }
+			}>>
+		<</if>>
+
+		<<if $specialClothesEffects.bimbo.total is undefined>>
+			<!-- Fix broken objects caused by running above code twice in old version -->
+			<<set $specialClothesEffects.bimbo to { progress: 0, total: 0, message: 0 }>>
+		<</if>>
+
+		<!-- do NOT forget to bump this version in variables-start.twee, too -->
+		<<set $objectVersion.specialClothes to 19>>
 	<</if>>
 
 	<<if $objectVersion.wardrobes lt 13 or $objectVersion.wardrobes is undefined>>
@@ -3670,10 +3703,10 @@
 	<<if $objectVersion.museumAntiques lte 14 and $museumAntiques.antiques.antiquewhitescrystal isnot undefined>>
 		<<run delete $museumAntiques.antiques.antiquewhitescrystal>>
 	<</if>>
-	<<if $objectVersion.museumAntiques lt 17 or $objectVersion.museumAntiques is undefined>>
+	<<if $objectVersion.museumAntiques lt 19 or $objectVersion.museumAntiques is undefined>>
 		/*Moved undefined checks for new antiques to the widget below*/
 		<<updateMuseumAntiques>>
-		<<set $objectVersion.museumAntiques to 16>>
+		<<set $objectVersion.museumAntiques to 19>>
 	<</if>>
 
 	<<pregnancyVar>>
@@ -3796,10 +3829,69 @@
 		<<set $objectVersion.hairFix to 1>>
 	<</if>>
 
+	<!-- Fix for child toy -->
+	<<if !$objectVersion.toyFix lt 1 or $objectVersion.toyFix is undefined>>
+		<<set _nameChanges to {
+			"Mrs Teddy": "Mrs. Teddy",
+			"Mr Teddy": "Mr. Teddy",
+			"See through dummy": "Clear dummy",
+			"Baby Doll": "Baby doll",
+			"Green race toy car": "Green toy racecar",
+			"Blue race toy car": "Blue toy racecar",
+			"Green Robot": "Green robot",
+			"Red Robot": "Red robot",
+			"Chew Bone": "Chew bone",
+			"Squeaky Sheep": "Squeaky sheep",
+			"Squeaky Chicken": "Squeaky chicken",
+			"Chew Ball": "Chew ball"
+		}>>
+
+		<<set _nameLowerChanges to {
+			"Mrs Teddy": "Mrs. Teddy",
+			"Mr Teddy": "Mr. Teddy",
+			"See through dummy": "clear dummy",
+			"Green race toy car": "green toy racecar",
+			"Blue race toy car": "blue toy racecar",
+		}>>
+
+		<<set _colourChanges to {
+			"See through dummy": "light-grey",
+			"White dummy": "light-grey",
+			"Teddy bear": "tan",
+			"Limousine toy car": "grey",
+			"Squeaky Sheep": "light-grey",
+			"Chew Ball": "light-green"
+		}>>
+
+		<<set _allToys = []>>
+		<<if V.storedChildrenToys and Object.keys(V.storedChildrenToys).length>>
+			<<for _nursery range Object.keys(V.storedChildrenToys)>>
+				<<set _allToys.push(...V.storedChildrenToys[_nursery])>>
+			<</for>>
+		<</if>>
+		<<if V.player.inventory.childrenToys?.length>>
+			<<set _allToys.push(...V.player.inventory.childrenToys)>>
+		<</if>>
+		<<if V.selectedToy?.options>>
+			<<set _allToys.push(...V.selectedToy.options)>>
+		<</if>>
+
+		<<for _toy range _allToys>>
+			<<if _colourChanges[_toy.name]>>
+				<<set _toy.colour to _colourChanges[_toy.name]>>
+			<</if>>
+			<<if _nameChanges[_toy.name]>>
+				<<set _toy.name_lower to _nameLowerChanges[_toy.name]>>
+				<<set _toy.name to _nameChanges[_toy.name]>>
+			<</if>>
+		<</for>>
+		<<set $objectVersion.toyFix to 1>>
+	<</if>>
+
 	/* End of Code that should not be moved */
 
 	<!-- v0.3.6.2: cow update - ToDo: Move to variables-static -->
-	<<set $BeastList to ["dog","cat","pig","wolf","dolphin","lizard","bear","boar","creature","horse","fox","hawk","cow","spider"]>>
+	<<set $BeastList to ["dog","cat","pig","wolf","dolphin","lizard","bear","boar","creature","horse","fox","hawk","cow","spider", "snake"]>>
 
 	<!-- Will navigate to V.makeup.eyelenses, and attempt to turn that into the proper object this time. Needs configing if it can be moved to `variablesVersionUpdate2`-->
 	<<run restructureEyeColourVariable()>>
@@ -4309,7 +4401,7 @@
 	v0.4.0.6 change (87f8e633085bb4be8f4f0d099012b1e0b077242a) that I've moved up here.
 	the reason is - this variable is used in the edge-case handled below
 	(the <<pass _passMinutes>> macro that the v0.4 Time refactor sometimes calls ends up reading schoolLessonsMissed.science,
-	which obviously breaks if this initialization doesn't happen at this point.
+	which obviously breaks if this initialisation doesn't happen at this point.
 
 	If you add any calls to <<pass>> before this line in backComp - it will also break
 	  for any players whose save doesn't have the schoolLessonsMissed paramm yet.
@@ -4425,9 +4517,9 @@
 	<!-- V0.4.0.2 SNEAKY posture undefined -->
 	<<if $player.gender_posture is undefined>>
 		<<if $background.crossdresser is true>>
-			<<if $player.gender is "f">>
+			<<if $player.sex is "f">>
 				<<set $player.gender_posture to "m">>
-			<<elseif $player.gender is "m">>
+			<<elseif $player.sex is "m">>
 				<<set $player.gender_posture to "f">>
 			<</if>>
 		<<else>>
@@ -4456,7 +4548,7 @@
 	<</if>>
 
 	<!-- Fixing broken transformation stuff -->
-	<<if $tfFIX is undefined or $tfFIX lte 4>>
+	<<if $tfFIX is undefined or $tfFIX lte 5>>
 		<<if $tfFIX is undefined>>
 			<!-- V0.4.0.5 repair transformationParts object after damage from mid-prayer room or nightmare saves -->
 			<<if $transformationParts.fox is undefined>>
@@ -4507,7 +4599,7 @@
 		<<if $tfFIX is undefined or $tfFIX is 1>>
 			<!-- v0.3.13.5 - v0.4.0.8 Fix for virgin fallen angels, moved and fixed from earlier part of versionupdate -->
 			<<if $fallenangel is 2>>
-				<<set $_isHerm to $player.gender is "h">>
+				<<set $_isHerm to $player.sex is "h">>
 				<<set $_hasVaginalVirginity to $player.vaginaExist and $player.virginity.vaginal is true>>
 				<<set $_hasPenileVirginity to $player.penisExist and $player.virginity.penile is true>>
 				<<if !$_isHerm and ($_hasVaginalVirginity or $_hasPenileVirginity)
@@ -4520,7 +4612,7 @@
 			<</if>>
 
 			<!-- V0.4.0.8 Fix for non-virgin herm angels from bad fix earlier that didn't take herms into account -->
-			<<if ($angel gte 6) and $player.gender is "h" and !$virginityProtected and ($player.virginity.vaginal isnot true or $player.virginity.penile isnot true)>>
+			<<if ($angel gte 6) and $player.sex is "h" and !$virginityProtected and ($player.virginity.vaginal isnot true or $player.virginity.penile isnot true)>>
 				<<fallenTransform>>
 			<</if>>
 		<</if>>
@@ -4529,7 +4621,13 @@
 		<<if $tfFIX is undefined or $tfFIX lte 4>>
 			<<validateTransformations>>
 		<</if>>
-		<<set $tfFIX to 5>>
+
+		<!-- 0.5.4.0 Update chimera parts -->
+		<<if $tfFIX is undefined or $tfFIX lte 5>>
+			<<setupTransformationPiecesObject>>
+		<</if>>
+
+		<<set $tfFIX to 6>>
 	<</if>>
 
 	<!-- V0.4.0.5 Old saves with untyped named NPCs -->
@@ -4611,7 +4709,7 @@
 		<<set $earSlime.event to $slimeEvent or "">>
 		<<set $earSlime.eventTimer to $slimeSleepEvent or 0>>
 		<<set $earSlime.eventLength to $slimeEventLength or 0>>
-		<<set $earSlime.defyCooldown to  $slimeDefyCooldown or 0>>
+		<<set $earSlime.defyCooldown to $slimeDefyCooldown or 0>>
 		<<set $masturbationRuinedOrgasm to 0>>
 		<<set $ruinedOrgasmStat to 0>>
 
@@ -4828,9 +4926,9 @@
 		<<set $wardrobe.handheld to []>>
 		<<set $store.handheld to []>>
 		<<set $wear_handheld to "none">>
-		<<if ($player.gender is "f" and $background.crossdresser is false) or
-		($player.gender is "m" and $background.crossdresser is true) or
-		($player.gender is "h" and
+		<<if ($player.sex is "f" and $background.crossdresser is false) or
+		($player.sex is "m" and $background.crossdresser is true) or
+		($player.sex is "h" and
 			(
 				(($player.gender_body is "m" or ($player.gender_body is "a" and $player.breastsize lte 3)) and $background.crossdresser is true) or
 				(($player.gender_body is "f" or ($player.gender_body is "a" and $player.breastsize gt 3)) and $background.crossdresser is false)
@@ -5136,7 +5234,7 @@
 		<<unset $livestockEscape>>
 	<</if>>
 
-	/* Fix to freezePlayerStats being used in the Corrupt Temple scene, modification of '$real_ variables cleanup' related to this even shouldnt be modified any longer */
+	/* Fix to freezePlayerStats being used in the Corrupt Temple scene, modification of '$real_ variables cleanup' related to this even shouldn't be modified any longer */
 	<<if !$replayScene and $statFreeze and $frozenValues and ($passage.match(/^Sydney Temple Corrupt (Sex( Finish)?|End( [^2F]|$))/)
 		|| ($passage === 'Sydney Temple Corrupt End 2' && !$sydneySeen.includes("corruptroom"))) and !$defileSacredGroundStore and !$objectVersion.defileSacredGroundStore>>
 		<<set $defileSacredGroundStore to {
@@ -5310,7 +5408,7 @@
 	<<if $skinColor isnot undefined>>
 		<<set $player.skin.color to $skinColor.natural>>
 		<<script>>
-			const colorValue = Math.max(...V.skinColor.tanValues);
+			const colorValue = V.skinColor.tanValues ? Math.max(...V.skinColor.tanValues) : 0;
 			V.player.skin.layers = [
 				{
 					layers: [],
@@ -5686,6 +5784,9 @@
 							break;
 						case "antiquecrystal":
 						case "antiquewatch":
+						case "antiquebucket":
+						case "antiquesnuffer":
+						case "antiquewhip":
 							T.museumAntiquesAmount += 20000;
 							break;
 						case "antiquesilverdagger":
@@ -5696,6 +5797,13 @@
 						case "antiquegoldbrooch":
 						case "antiqueobsidiandisc":
 							T.museumAntiquesAmount += 50000;
+							break;
+						case "antiquesilveramulet":
+							T.museumAntiquesAmount += 30000;
+							break;
+						case "antiquesilvermanacle":
+						case "antiquehorn2":
+							T.museumAntiquesAmount += 40000;
 							break;
 						case "antiquecoralring":
 							T.museumAntiquesAmount += 80000;
@@ -5834,7 +5942,7 @@
 	<<if $insecurity_breasts_tiny isnot undefined or $insecurity_penis_tiny isnot undefined>>
 		<<set $insecurity_breasts_small to Math.max($insecurity_breasts_small, $insecurity_breasts_tiny)>>
 		<<set $acceptance_breasts_small to Math.max($acceptance_breasts_small, $acceptance_breasts_tiny)>>
-		<<if $player.gender isnot "f">>
+		<<if $player.sex isnot "f">>
 			<<set $insecurity_breasts_big to Math.max($insecurity_breasts_big, $insecurity_breasts_small)>>
 			<<set $acceptance_breasts_big to Math.max($acceptance_breasts_big, $acceptance_breasts_small)>>
 			<<set $insecurity_breasts_small to 0>>
@@ -5916,13 +6024,115 @@
 		<<run delete $avery_cards.face>>
 	<</if>>
 
+	<!-- 0.5.4.0 -->
+	<!-- Fix for child toy typos -->
+	<<if !$objectVersion.toyFix lt 2 or $objectVersion.toyFix is undefined>>
+		<<set _nameChanges to {
+			"Mrs Teddy": "Mrs. Teddy",
+			"Mr Teddy": "Mr. Teddy",
+			"See through dummy": "Clear dummy",
+			"Baby Doll": "Baby doll",
+			"Green race toy car": "Green toy racecar",
+			"Blue race toy car": "Blue toy racecar",
+			"Green Robot": "Green robot",
+			"Red Robot": "Red robot",
+			"Chew Bone": "Chew bone",
+			"Squeaky Sheep": "Squeaky sheep",
+			"Squeaky Chicken": "Squeaky chicken",
+			"Chew Ball": "Chew ball"
+		}>>
+
+		<<set _nameLowerChanges to {
+			"Mrs Teddy": "Mrs. Teddy",
+			"Mr Teddy": "Mr. Teddy",
+			"See through dummy": "clear dummy",
+			"Green race toy car": "green toy racecar",
+			"Blue race toy car": "blue toy racecar",
+		}>>
+
+		<<set _colourChanges to {
+			"See through dummy": "light-grey",
+			"White dummy": "light-grey",
+			"Teddy bear": "tan",
+			"Limousine toy car": "grey",
+			"Squeaky Sheep": "light-grey",
+			"Chew Ball": "light-green"
+		}>>
+
+		<<set _allToys = []>>
+		<<if V.storedChildrenToys and Object.keys(V.storedChildrenToys).length>>
+			<<for _nursery range Object.keys(V.storedChildrenToys)>>
+				<<set _allToys.push(...V.storedChildrenToys[_nursery])>>
+			<</for>>
+		<</if>>
+		<<if V.player.inventory.childrenToys?.length>>
+			<<set _allToys.push(...V.player.inventory.childrenToys)>>
+		<</if>>
+		<<if V.selectedToy?.options>>
+			<<set _allToys.push(...V.selectedToy.options)>>
+		<</if>>
+
+		<<for _toy range _allToys>>
+			<<if _colourChanges[_toy.name]>>
+				<<set _toy.colour to _colourChanges[_toy.name]>>
+			<</if>>
+			<<if _nameChanges[_toy.name]>>
+				<<set _toy.name_lower to _nameLowerChanges[_toy.name]>>
+				<<set _toy.name to _nameChanges[_toy.name]>>
+			<</if>>
+			<<if !_toy.name_lower>><<set _toy.name_lower to _toy.name.toLowerCase()>><</if>>
+		<</for>>
+		<<set $objectVersion.toyFix to 2>>
+	<</if>>
+
+	<!-- Avery's seen and tracking the number of rejections of Avery -->
+	<<if C.npc.Avery.init is 1>>
+		<<if $averySeen is undefined>>
+			<<set $averySeen to []>>
+		<</if>>
+		<<if $averyRejected is undefined>>
+			<<set $averyRejected to {}>>
+			<<set $weekly.averyRejected to {}>>
+		<</if>>
+		<!-- Fix NaN values -->
+		<<if isNaN($averyRejected.dropOff)>>
+			<<set $averyRejected.dropOff to 0>>
+		<</if>>
+		<<if isNaN(C.npc.Avery.rage)>>
+			<<set C.npc.Avery.rage to 0>>
+		<</if>>
+	<</if>>
+
+	<!-- 0.5.3.7: $housekeepingTips not defined -->
+	<<if !$housekeepingTips>>
+		<<set $housekeepingTips to []>>
+	<</if>>
+
+	<!-- 0.5.4.0 Remove NudeGenderDC -1-->
+	<<if $NudeGenderDC is -1 || $player.gender is "h">>
+		<<set $player.gender to $player.gender_posture>>
+		<<if $NudeGenderDC is -1>><<set $NudeGenderDC to 0>><</if>>
+	<</if>>
+	<<if $farm>>
+		<<if $farm.stock>>
+			<<if $farm_stage gte 6 and $farm.stock.cream is undefined>>
+				<<set $farm.stock.cream to 0>>
+			<</if>>
+		<</if>>
+	<</if>>
+	<!-- 0.5.4.0 object for maze antiques -->
+	<<if $weekly.maze is undefined>>
+		<<set $weekly.maze to {}>>
+	<</if>>
+
+
 	
 	<<xchange-modupdate>>	
 	
-<</widget>>
-
 	<<if $tfearshatposition is undefined>>
 		<<set $tfearshatposition to "under">>
 	<</if>>
+<</widget>>
+
 
 

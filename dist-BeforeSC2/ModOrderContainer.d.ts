@@ -32,6 +32,14 @@ export declare class ModOrderContainer_One_ReadonlyMap extends CustomReadonlyMap
     get(key: string): ModOrderItem | undefined;
     has(key: string): boolean;
 }
+export declare class ModOrderContainer_OneAlias_ReadonlyMap extends CustomReadonlyMapHelper<string, ModOrderItem> {
+    parent: ModOrderContainer;
+    constructor(parent: ModOrderContainer);
+    get size(): number;
+    entries(): IterableIterator<[string, ModOrderItem]>;
+    get(key: string): ModOrderItem | undefined;
+    has(key: string): boolean;
+}
 export declare function isModOrderContainer(a: any): a is ModOrderContainer;
 /**
  * a multi-index container designed for mod load cache list. work like a C++ Boost.MultiIndexContainer
@@ -40,6 +48,7 @@ export declare function isModOrderContainer(a: any): a is ModOrderContainer;
 export declare class ModOrderContainer {
     container: Map<string, Map<ModLoadFromSourceType, ModOrderItem>>;
     order: ModOrderItem[];
+    nameRefWithAlias: Map<string, string>;
     constructor();
     /**
      * O(1)
@@ -47,6 +56,7 @@ export declare class ModOrderContainer {
      * add addition limit that keep mod name unique
      */
     get_One_Map(): ModOrderContainer_One_ReadonlyMap;
+    get_One_Map_WithAlias(): ModOrderContainer_OneAlias_ReadonlyMap;
     /**
      * O(2n)
      *
@@ -58,9 +68,17 @@ export declare class ModOrderContainer {
      */
     get_Array(): ModOrderItem[];
     /**
+     * O(n)
+     */
+    getAllName(): string[];
+    /**
      * O(1)
      */
     getHasByName(name: string): boolean;
+    /**
+     * O(1)
+     */
+    getHasByNameWithAlias(name: string): boolean;
     /**
      * O(1)
      */
@@ -72,7 +90,19 @@ export declare class ModOrderContainer {
     /**
      * O(1)
      */
+    getModOrderItemByNameWithAlias(name: string): Map<ModLoadFromSourceType, ModOrderItem> | undefined;
+    /**
+     * O(1)
+     */
     getByNameOne(name: string, noError?: boolean): ModOrderItem | undefined;
+    /**
+     * O(1)
+     */
+    getByNameOneWithAlias(name: string, noError?: boolean): ModOrderItem | undefined;
+    /**
+     * O(n)
+     */
+    getByFromTypeByOrder(from: ModLoadFromSourceType): ModOrderItem[];
     /**
      * O(n)
      */
@@ -81,6 +111,10 @@ export declare class ModOrderContainer {
      * O(n)
      */
     checkNameUniq(): boolean;
+    /**
+     * O(n)
+     */
+    checkAlias(): boolean;
     /**
      * O(n+2log(n))
      */
@@ -133,6 +167,9 @@ export declare class ModOrderContainer {
      * O(2n)
      */
     clone(): ModOrderContainer;
+    private rebuildNameRefWithAlias;
+    private addModNameRefWithAlias;
+    private removeModNameRefWithAlias;
     /**
      * O(n)
      */

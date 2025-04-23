@@ -15,13 +15,9 @@
 			The lesson has just ended. A few stragglers are still on their way to the changing rooms. Mason is gathering up towels that have been left behind.
 			<br><br>
 			<<if $exposed lte 0>>
-				<<maleicon>><<link [[Boys' changing room|School Boy Changing Room]]>><</link>>
-				<br>
-				<<femaleicon>><<link [[Girls' changing room|School Girl Changing Room]]>><</link>>
+				<<destinationpoolchangingroom>>
 			<<elseif $exposed gte 1>>
-				<<maleicon>><<link [[Grab some towels and enter the boys' changing room|School Boy Changing Room]]>><<towelupm>><</link>>
-				<br>
-				<<femaleicon>><<link [[Grab some towels and enter the girls' changing room|School Girl Changing Room]]>><<towelup>><</link>>
+				<<destinationpoolchangingroom "towels">>
 			<</if>>
 		<<else>>
 			<<include "School Swimming Late">>
@@ -40,7 +36,7 @@
 				<<link [[Next|Swimming Lesson]]>><<endevent>><</link>>
 			<</if>>
 			<br>
-		<<elseif Time.minute lte 5>>
+		<<elseif Time.minute lt 5>>
 			You enter the swimming pool room.
 			Mason stands by the pool, covering <<his>> body as <<he>> tries to encourage students to stretch while the rest of the class pours in.
 			<<schoolpoolmasoncheck>>
@@ -123,7 +119,7 @@
 				<<link [[Next|Swimming Lesson]]>><<endevent>><</link>>
 			<</if>>
 			<br>
-		<<elseif Time.minute lte 5>>
+		<<elseif Time.minute lt 5>>
 			You enter the swimming pool room.
 			Mason stands by the pool, encouraging students to stretch while waiting for the rest of the class.
 			<<schoolpoolmasoncheck>>
@@ -196,10 +192,7 @@
 			<<socialiseicon>><<link [[Say you don't have anything to change into|School Pool Spare]]>><</link>>
 			<br><br>
 
-			<<maleicon>><<link [[Boys' changing room|School Boy Changing Room]]>><<endevent>><</link>>
-			<br>
-			<<femaleicon>><<link [[Girls' changing room|School Girl Changing Room]]>><<endevent>><</link>>
-			<br><br>
+			<<destinationpoolchangingroom>>
 		<</if>>
 	<</if>>
 
@@ -216,10 +209,7 @@
 			<br><br>
 			<<detention 1>>
 
-			<<maleicon>><<link [[Boys' changing room|School Boy Changing Room]]>><<endevent>><</link>>
-			<br>
-			<<femaleicon>><<link [[Girls' changing room|School Girl Changing Room]]>><<endevent>><</link>>
-			<br>
+			<<destinationpoolchangingroom>>
 		<<else>>
 			<<npc Mason>><<person1>>
 			Mason ceases <<his>> activity and smiles at you. "Are you lost? Or is there something you need to tell me?"
@@ -240,7 +230,8 @@
 <<elseif ["changingRoom", "party"].includes($weekly.schoolNightPoolParty) and Time.dayState is "night">>
 	<<if $weekly.schoolNightPoolParty is "changingRoom">>
 		<<generates1>><<generates2>>
-		As you enter the pool room, you are met with a flood of naked bodies. All around you, the room is filled with the sounds of moans, kissing, and wet bodies gyrating together.
+		As you enter the pool room, you are met with a flood of naked bodies. <span class="lewd">All around you, the room is filled with the sounds of moans, kissing, and wet bodies gyrating together.</span>
+		<<ggarousal>><<arousal 1200>>
 		<br><br>
 		You recognise a couple faces in the orgy as <<= $delinquency gte 400 ? "fellow" : "known">> delinquents from your classes. A few others appear to be average students. There are, however, some faces you don't think you have seen before. Are they even from your school?
 		<br><br>
@@ -262,7 +253,7 @@
 		<<if hasSexStat("promiscuity", 5) or hasSexStat("exhibitionism", 5)>>
 			<<link [[Ask if you can stay|School Night Pool Party]]>><</link>>
 		<<else>>
-			<span class="blue">You're not promiscuous or exhibitionist enough to stay.</span>
+			<<insufficientStat "custom" "to stay" "blue" "promiscuous or exhibitionistic">>
 		<</if>>
 		<br>
 		<<if $changingRoomGender is "boys">>
@@ -288,7 +279,9 @@
 			<br><br>
 			<<if !_fullyNaked>>
 				<<generates1>><<person1>>
-				A <<person>> spots you and staggers over. "What are you doing 'ere dressed like an idiot?" <<He>> laughs, tugging at your clothes, though <<he>> doesn't seem to mean any harm. "No clothes allowed! Come back after you've taken everything o-off." <<He>> leaves you alone and drunkenly walks back to <<his>> group of friends by the poolside.
+				A <<person>> spots you and staggers over. "What are you doing 'ere dressed like an idiot?" <<He>> laughs, tugging at your clothes, though <<he>> doesn't seem to mean any harm. "No clothes allowed! Come back after you've taken everything o-off." 
+				<br><br>
+				<<He>> leaves you alone and drunkenly walks back to <<his>> group of friends by the poolside.
 			<<else>>
 
 				Some students are chatting among themselves.<br>
@@ -300,10 +293,11 @@
 			<</if>>
 			<br><br>
 
-			<<maleicon>><<link [[Boys' changing room|School Boy Changing Room]]>><<endevent>><</link>>
-			<br>
-			<<femaleicon>><<link [[Girls' changing room|School Girl Changing Room]]>><<endevent>><</link>>
-			<br>
+			<<if $exposed lte 0>>
+				<<destinationpoolchangingroom>>
+			<<elseif $exposed gte 1>>
+				<<destinationpoolchangingroom "towels">>
+			<</if>>
 		<</if>>
 	<</if>>
 <<else>><!-- $poolroomstate is "empty" -->
@@ -321,12 +315,7 @@
 
 	<<exhibitionclassroom>>
 
-	<<swimicon>><<link [[Practise swimming (0:30)|School Pool]]>><<pass 30>><<stress -6>><<tiredness 6>><<set $poolswim to 0>><<water>><<physique 3>><<swimmingskilluse>><<slimeEventEnd "swimming">><<if $xchange.blackmail.activeQuest?.id is 5 and $exposed gte 2>><<set $xchange.blackmail.activeQuest.swamNaked to true>><</if>><</link>><<gswimming>><<lstress>><<gtiredness>>
-	<br>
-	<<maleicon>><<link [[Boys' changing room|School Boy Changing Room]]>><<endevent>><</link>>
-	<br>
-	<<femaleicon>><<link [[Girls' changing room|School Girl Changing Room]]>><<endevent>><</link>>
-	<br>
+	<<destinationpoolchangingroom>>
 <</if>>
 
 :: School Pool Ask Naked
@@ -494,7 +483,7 @@ Once done, Leighton takes the swimwear and puts it in a hamper.
 		<<link [[Cheat|Swimming Exam]]>><<set $phase to 2>><</link>><<set $skulduggerydifficulty to 500>><<skulduggerydifficulty>>
 		<br>
 	<<else>>
-		<<if Time.minute lte 5>>
+		<<if Time.minute lt 5>>
 			<<if $swimall is 1 and $exposed gte 2>>
 				You don't bother worrying about your <<lewdness>>, everyone is naked at this point.
 				<br><br>
@@ -527,7 +516,7 @@ Once done, Leighton takes the swimwear and puts it in a hamper.
 		<br>
 		<<socialiseicon>><<link [[Socialise with classmates|Swimming Lesson Socialise]]>><</link>><<gcool>><<ltrauma>><<lstress>><<gharass>>
 		<br>
-		<<if $exposed gte 2 and hasSexStat("exhibitionism", 5)>>
+		<<if $exposed gte 2 and hasSexStat("exhibitionism", 4)>>
 			<<swimicon "back">><<link [[Practise your backstroke|Swimming Lesson Naked Backstroke]]>><</link>><<gswimming>><<gtiredness>><<exhibitionist5>>
 			<br>
 		<</if>>
@@ -589,10 +578,7 @@ You speak in a low voice, so only the teacher will hear you.
 <<if _alreadyWearing>>
 	<<link [[Next|Swimming Lesson]]>><<endevent>><</link>>
 <<else>>
-	<<maleicon>><<link [[Boys' changing room|School Boy Changing Room]]>><<endevent>><</link>>
-	<br>
-	<<femaleicon>><<link [[Girls' changing room|School Girl Changing Room]]>><<endevent>><</link>>
-	<br>
+	<<destinationpoolchangingroom>>
 <</if>>
 
 :: School Pool Spare
@@ -673,10 +659,7 @@ You speak in a low voice, so only the teacher will hear you.
 Embarrassed, you apologise and leave.
 <br><br>
 
-<<maleicon>><<link [[Boys' changing room|School Boy Changing Room]]>><<endevent>><</link>>
-<br>
-<<femaleicon>><<link [[Girls' changing room|School Girl Changing Room]]>><<endevent>><</link>>
-<br>
+<<destinationpoolchangingroom "towels">>
 
 :: Swimming Classroom Mock
 <<set $outside to 0>><<set $location to "pool">><<schooleffects>><<effects>>
@@ -689,10 +672,7 @@ Mason also blushes. "I-I'll pretend I didn't hear that." <<He>> points to the ch
 <<gdelinquency>>
 <br><br>
 <<detention 1>><<npcincr Mason love -1>>
-<<maleicon>><<link [[Boys' changing room|School Boy Changing Room]]>><<endevent>><</link>>
-<br>
-<<femaleicon>><<link [[Girls' changing room|School Girl Changing Room]]>><<endevent>><</link>>
-<br>
+<<destinationpoolchangingroom>>
 
 :: School Pool Nude
 <<set $outside to 0>><<set $location to "pool">><<schooleffects>><<effects>>
@@ -718,7 +698,7 @@ There's no way you're doing this. You leave the pool, clothes on and dignity int
 <!-- phase 0 is shorts, 1 is a swimsuit, 2 is internal looping -->
 
 <!-- Note that the gender_appearance may have changed with the ersatz swimwear and the player may have crossdressed before and isn't anymore -->
-<<if $player.gender_appearance isnot $player.sex and $NudeGenderDC gt 0>>
+<<if isCrossdressing()>>
 	<<if $phase is 2>>
 		<<set $phase to 0>>
 		You steel yourself and walk through the door, <<lewdness>> on display. You manage to get beneath the flimsy protection of the water,
@@ -811,15 +791,9 @@ You manage to get beneath the flimsy protection of the water, but not before the
 		<br><br>
 	<</if>>
 	<<if $exposed lte 0>>
-		<<maleicon>><<link [[Boys' changing room|School Boy Changing Room]]>><</link>>
-		<br>
-		<<femaleicon>><<link [[Girls' changing room|School Girl Changing Room]]>><</link>>
-		<br><br>
+		<<destinationpoolchangingroom>>
 	<<elseif $exposed gte 1>>
-		<<maleicon>><<link [[Grab some towels and enter the boys' changing room|School Boy Changing Room]]>><<towelupm>><</link>>
-		<br>
-		<<femaleicon>><<link [[Grab some towels and enter the girls' changing room|School Girl Changing Room]]>><<towelup>><</link>>
-		<br><br>
+		<<destinationpoolchangingroom "towels">>
 	<</if>>
 <<else>>
 	<<if $exposed gte 1>>
@@ -838,14 +812,14 @@ You manage to get beneath the flimsy protection of the water, but not before the
 		<</if>>
 	<</if>>
 <</if>>
-	<<if Time.minute gte 5 and Time.minute lte 57>>
-	<<else>>
+	<<if !between(Time.minute, 5, 57)>>
+		<<set _waitTime to (65 - Time.minute) % 60>>
 		<<if $player.gender_appearance is "m">>
-			<<loitericon>><<link [[Wait for the girls to leave (0:06)|School Pool]]>><<pass 6>><</link>>
+			<<loitericon>><<link [[`Wait for the girls to leave (0:0${_waitTime})`|School Pool]]>><<pass _waitTime>><</link>>
 			<br><br>
 		<</if>>
 		<<if $player.gender_appearance is "f">>
-			<<loitericon>><<link [[Wait for the boys to leave (0:06)|School Pool]]>><<pass 6>><</link>>
+			<<loitericon>><<link [[`Wait for the boys to leave (0:0${_waitTime})`|School Pool]]>><<pass _waitTime>><</link>>
 			<br><br>
 		<</if>>
 	<</if>>
@@ -905,15 +879,9 @@ Mason seems displeased by your choice of activity.
 		<br><br>
 	<</if>>
 	<<if $exposed lte 0>>
-		<<maleicon>><<link [[Boys' changing room|School Boy Changing Room]]>><</link>>
-		<br>
-		<<femaleicon>><<link [[Girls' changing room|School Girl Changing Room]]>><</link>>
-		<br><br>
+		<<destinationpoolchangingroom>>
 	<<elseif $exposed gte 1>>
-		<<maleicon>><<link [[Grab some towels and enter the boys' changing room|School Boy Changing Room]]>><<towelupm>><</link>>
-		<br>
-		<<femaleicon>><<link [[Grab some towels and enter the girls' changing room|School Girl Changing Room]]>><<towelup>><</link>>
-		<br><br>
+		<<destinationpoolchangingroom "towels">>
 	<</if>>
 <<else>>
 	<<if $exposed gte 1>>
@@ -967,15 +935,9 @@ Mason seems displeased by your choice of activity.
 		<br><br>
 	<</if>>
 	<<if $exposed lte 0>>
-		<<maleicon>><<link [[Boys' changing room|School Boy Changing Room]]>><</link>>
-		<br>
-		<<femaleicon>><<link [[Girls' changing room|School Girl Changing Room]]>><</link>>
-		<br><br>
+		<<destinationpoolchangingroom>>
 	<<elseif $exposed gte 1>>
-		<<maleicon>><<link [[Grab some towels and enter the boys' changing room|School Boy Changing Room]]>><<towelupm>><</link>>
-		<br>
-		<<femaleicon>><<link [[Grab some towels and enter the girls' changing room|School Girl Changing Room]]>><<towelup>><</link>>
-		<br><br>
+		<<destinationpoolchangingroom "towels">>
 	<</if>>
 <<else>>
 	<<if $exposed gte 1>>
@@ -1014,8 +976,7 @@ Mason seems displeased by your choice of activity.
 <</if>>
 <br><br>
 
-<<status 1>>
-
+<<advancelesson>>
 <<set _stress to _lesson_progress * -1>>
 <<stress _stress>>
 <<set _trauma to _lesson_progress * -0.5>>
@@ -1038,15 +999,9 @@ Mason seems displeased by your choice of activity.
 		<br><br>
 	<</if>>
 	<<if $exposed lte 0>>
-		<<maleicon>><<link [[Boys' changing room|School Boy Changing Room]]>><</link>>
-		<br>
-		<<femaleicon>><<link [[Girls' changing room|School Girl Changing Room]]>><</link>>
-		<br><br>
+		<<destinationpoolchangingroom>>
 	<<elseif $exposed gte 1>>
-		<<maleicon>><<link [[Grab some towels and enter the boys' changing room|School Boy Changing Room]]>><<towelupm>><</link>>
-		<br>
-		<<femaleicon>><<link [[Grab some towels and enter the girls' changing room|School Girl Changing Room]]>><<towelup>><</link>>
-		<br><br>
+		<<destinationpoolchangingroom "towels">>
 	<</if>>
 <<else>>
 	<<if $exposed gte 1>>

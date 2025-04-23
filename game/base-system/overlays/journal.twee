@@ -1,6 +1,5 @@
 :: Widgets Journal [widget]
 <<widget "journal">>
-	<<run initializeTooltips()>>
 	<br>
 	<<print "It is the " + ordinalSuffixOf(Time.monthDay) + " of " + Time.monthName + ", " + Time.year + "." >>
 	<ul class="journal">
@@ -64,6 +63,30 @@
 					<</if>>
 				<<elseif $rentmoney isnot undefined>>
 					<li>Bailey wants <<printmoney $rentmoney>><<babyRentDisplay " plus " " for not looking after your children" "gold">>.</li>
+				<</if>>
+			<</if>>
+
+			<<if $syndromeeden is 1 and $edenfreedom gte 1 and $location isnot "cabin">> /* Another parameter is planned, something like $edenpunishment. It is meant to only trigger the journal note after the player has been given a reason to be wary of breaking Eden's rules. */
+				<<if ($edenfreedom is 1 and $edendays lt 2) or ($edenfreedom is 2 and $edendays lt 8)>>
+					<li>You promised Eden you would return to the cabin
+					<<if $edenfreedom is 1>>
+						<<if $edendays is 1>>
+							<span class="pink">tonight, before midnight</span>.
+						<<else>> /* We can assume $edendays is 0 */
+							by <span class="yellow">tomorrow night</span>, at the latest.
+						<</if>>
+					<<else>> /* We can assume $edenfreedom is 2 */
+						<<if $edendays is 7>>
+							<span class="pink">tonight, before midnight</span>.
+						<<elseif $edendays is 6>>
+							by <span class="yellow">tomorrow night</span>, at the latest.
+						<<else>>
+							in <span class="yellow"><<print 7 - $edendays>></span> days, at the latest.
+						<</if>>
+					<</if>></li>
+				/* Warning lasts for one day on freedom 1, and three days on freedom 2 */
+				<<elseif ($edenfreedom is 1 and $edendays lt 3) or ($edenfreedom is 2 and $edendays lt 11)>>
+					<li>You have <span class="red">failed</span> to return to the cabin on time. Eden will have taken note.</li>
 				<</if>>
 			<</if>>
 
@@ -137,6 +160,10 @@
 				<<else>>
 					<li>You have <span class="pink">$community_service</span> days of community service remaining.</li>
 				<</if>>
+			<</if>>
+
+			<<if $wrenHeist is true and Time.hour lte 20 and $wrenHeistDance.attended isnot true>>
+				<li>You are supposed to meet Wren <span class="pink">tonight</span> between <span class="gold"><<ampm 19 00>></span> and <span class="gold"><<ampm 21 00>></span>. <<nnpc_He "Wren">> gave you directions to the mansion on Danube Street.</li>
 			<</if>>
 
 			<<if $smuggler_known is 1 and $smuggler_timer gte 0>>
@@ -270,6 +297,10 @@
 				<li>Return the black box to Landry at the pub.</li>
 			<<elseif $pubtask>>
 				<li>Landry wants you to retrieve a black box from the $pubtask.</li>
+			<</if>>
+
+			<<if $farm_manors_usb gte 1>>
+				<li>You have a USB containing sensitive information, found in a manor in the farmlands.</li>
 			<</if>>
 
 			<<if $police_hack is 1>>
@@ -802,9 +833,7 @@
 			<br><br>
 		<</if>>
 		<<if $sciencephallusknown is 1>>
-			<h1 class="header gold bold">Local phalli</h1>
-			<mouse class="tooltip gold">(?)<span>Look for participants on the beach during good weather.</span></mouse>
-			<br>
+			<h1 class="header gold bold">Local phalli <mouse class="tooltip gold">(?)<span>Look for participants on the beach during good weather.</span></mouse></h1>
 			<span @class="($sciencephallus is 10 ? 'fa-icon fa-selected' : 'fa-icon fa-unselected')"></span> $sciencephallus/10 phalli measured.
 			<br>
 			<span @class="($sciencephallusready is 10 ? 'fa-icon fa-selected' : 'fa-icon fa-unselected')"></span> $sciencephallusready/10 phalli added to project.
@@ -869,26 +898,22 @@
 			The school plays will be performed at the town hall on Cliff Street in <span class="gold">$englishPlayDays</span> <<if $englishPlayDays is 1>>day<<else>>days<</if>>.
 		<</if>>
 		<<if $englishPlayRoles.Player isnot "none">>
-			<br>
-			You have taken the role of $englishPlayRoles.Player. You can rehearse alone at the orphanage.
+			<ul class="journal">
+			<li>You have taken the role of $englishPlayRoles.Player. You can rehearse alone at the orphanage.</li>
 			<<if $englishPlayRoles.Kylar isnot "none" and $englishPlayRoles.KylarKnown>>
-				<br>
-				Kylar is playing as $englishPlayRoles.Kylar. You can rehearse with <<nnpc_him "Kylar">> in <<if Weather.precipitation !== "none">>the school library<<else>>the school's rear courtyard<</if>> after school.
+				<li>Kylar has taken the role of $englishPlayRoles.Kylar. You can rehearse with <<nnpc_him "Kylar">> in <<if Weather.precipitation !== "none">>the school library<<else>>the school's rear courtyard<</if>> after school.</li>
 			<<elseif $englishPlayKylarReplace>>
-				<br>
-				Kylar's part in the play will have to be taken over by another student.
+				<li>Kylar's part in the play will have to be taken over by another student.</li>
 			<</if>>
 			<<if $englishPlayRoles.SydneyKnown>>
-				<br>
-				Sydney is playing as $englishPlayRoles.Sydney. You can rehearse with <<nnpc_him "Sydney">> in the English classroom after school.
+				<li>Sydney has taken the role of $englishPlayRoles.Sydney. You can rehearse with <<nnpc_him "Sydney">> in the English classroom after school.</li>
 			<</if>>
 			<<if !$englishPlayRoles.SydneyKnown and !$englishPlayRoles.KylarKnown>>
-				<br>
-				You can meet your partners in the English classroom after school.
+				<li>You can meet your partners in the English classroom after school.</li>
 			<<elseif !$englishPlayRoles.SydneyKnown or (!$englishPlayRoles.KylarKnown and !$englishPlayKylarReplace)>>
-				<br>
-				You can meet your other partner in the English classroom after school.
+				<li>You can meet your other partner in the English classroom after school.</li>
 			<</if>>
+			</ul>
 			<br>
 			<<playReadiness>>
 			Performing well will spread social fame and give a large boost to school status.
@@ -901,11 +926,11 @@
 		<</if>>
 	<</if>>
 
-<<set _plant_keys to Object.keys($plants)>>
-<<set _hasProduce to Object.keys($plants).some(key => $plants[key].amount >= 1)>>
-<<set _carrying to [$antiquemoney, $blackmoney, $phials_held, $lurkers_held, $popcorn, $milkshake, $panties_held].some(i => i >= 1)>>
-<<if _carrying or _hasProduce>>
-	<hr>
+	<<set _plant_keys to Object.keys($plants)>>
+	<<set _hasProduce to Object.keys($plants).some(key => $plants[key].amount >= 1)>>
+	<<set _carrying to [$antiquemoney, $blackmoney, $phials_held, $lurkers_held, $popcorn, $milkshake, $panties_held].some(i => i >= 1)>>
+	<<if _carrying or _hasProduce>>
+		<hr>
 		<h1 class="header gold bold">Inventory</h1>
 	<</if>>
 	<<if $farm_key is true and $location is "farm" and !$bus.includes("farm")>>
@@ -915,114 +940,153 @@
 		</ul>
 		<br>
 	<</if>>
-	You are carrying:
-	<ul class="journal carry">
-		<<if ["prison", "prison_beach"].includes($location) and $prison.teeth gte 1>>
-			<li><<tendingicon "sharks_teeth">> <span class="green"><<number $prison.teeth>></span> shark's teeth.
-			<<if $prison_wren_intro isnot 1>>
-				You can find Wren in the yard on Fridays after lunch.
+	<<if _carrying or _hasProduce>>
+		You are carrying:
+		<ul class="journal carry">
+			<<if ["prison", "prison_beach"].includes($location) and $prison.teeth gte 1>>
+				<li><<tendingicon "sharks_teeth">> <span class="green"><<number $prison.teeth>></span> shark's teeth.
+				<<if $prison_wren_intro isnot 1>>
+					You can find Wren in the yard on Fridays after lunch.
+				<</if>>
+				</li>
 			<</if>>
-			</li>
-		<</if>>
-		<<if $antiquemoney gt 0>>
-			<li><<museumicon>><span class="green">£<<print $antiquemoney>></span> in antiques<<if $mathstrait gte 1 and $mathsTraitBuffs.antiques is 1>> but you'd wager you can haggle it up to <<printmoney `$antiquemoney * 100 * (1 + ($mathstrait/4))`>><</if>>. You can sell them to the museum.</li>
-		<</if>>
-		<<if $blackmoney gt 0>>
-			<li><<highicon>><span class="green">£<<print $blackmoney>></span> in stolen goods<<if $mathstrait gte 1 and $mathsTraitBuffs.stolen is 1>> but you'd wager you can haggle it up to <<printmoney `$blackmoney * 100 * (1 + ($mathstrait/4))`>><</if>>. You can sell them to someone on the black market.</li>
-		<</if>>
-		<<if $phials_held gt 0>>
-			<li><<icon "aphrodisiac.png">> <span class="green">$phials_held</span> <<= $phials_held is 1 ? "phial" : "phials">> of aphrodisiac. You can sell <<= $phials_held is 1 ? "it" : "them">> on Elk Street.</li>
-		<</if>>
-		<<if $lurkers_held gt 0>>
-			<li><<birdicon "lurkers">><span class="green">$lurkers_held</span> <<= $lurkers_held is 1 ? "lurker" : "lurkers">>.</li>
-		<</if>>
-		<<if $milkshake gt 0>>
-			<li><<foodicon "milkshake">> <span class="green">$milkshake</span> <<print $milkshake is 1 ? "milkshake" : "milkshakes">>.</li>
-		<</if>>
-		<<if $popcorn gt 0>>
-			<li><<foodicon "popcorn">> <span class="green">$popcorn</span> <<print $popcorn is 1 ? "bag" : "bags">> of popcorn.</li>
-		<</if>>
-		<<if $panties_held gt 0>>
-			<li><span class="clothes-white"><<icon "clothes/plain_panties.png">></span> <<print $panties_held is 1 ? "a pair" : "<span class='green'>$panties_held</span> pairs">> of stolen underwear. You can sell <<print $panties_held is 1 ? "it" : "them">> during lunchtime in the school rear courtyard.</li>
-		<</if>>
+			<<if $antiquemoney gt 0>>
+				<li><<museumicon>><span class="green">£<<print $antiquemoney>></span> in antiques<<if $mathstrait gte 1 and $mathsTraitBuffs.antiques is 1>> but you'd wager you can haggle it up to <<printmoney `$antiquemoney * 100 * (1 + ($mathstrait/4))`>><</if>>. You can sell them to the museum.</li>
+			<</if>>
+			<<if $blackmoney gt 0>>
+				<li><<highicon>><span class="green">£<<print $blackmoney>></span> in stolen goods<<if $mathstrait gte 1 and $mathsTraitBuffs.stolen is 1>> but you'd wager you can haggle it up to <<printmoney `$blackmoney * 100 * (1 + ($mathstrait/4))`>><</if>>. You can sell them to someone on the black market.</li>
+			<</if>>
+			<<if $phials_held gt 0>>
+				<li><<icon "aphrodisiac.png">> <span class="green">$phials_held</span> <<= $phials_held is 1 ? "phial" : "phials">> of aphrodisiac. You can sell <<= $phials_held is 1 ? "it" : "them">> for <<if $mathsTraitBuffs.aphrodisiacPhials is 1>><<printmoney `$phials_held * 100000 * (1 + ($mathstrait/4))`>><<else>><<printmoney `$phials_held * 100000`>><</if>> on Elk Street.</li>
+			<</if>>
+			<<if $lurkers_held gt 0>>
+				<li><<birdicon "lurkers">><span class="green">$lurkers_held</span> <<= $lurkers_held is 1 ? "lurker" : "lurkers">>. <<if _lurkerCapLeft gte 1>>You can carry <<print _lurkerCapLeft>> more.<<else>>You cannot carry more.<</if>></li>
+			<</if>>
+			<<if $milkshake gt 0>>
+				<li><<foodicon "milkshake">> <span class="green">$milkshake</span> <<print $milkshake is 1 ? "milkshake" : "milkshakes">>.</li>
+			<</if>>
+			<<if $popcorn gt 0>>
+				<li><<foodicon "popcorn">> <span class="green">$popcorn</span> <<print $popcorn is 1 ? "bag" : "bags">> of popcorn.</li>
+			<</if>>
+			<<if $panties_held gt 0>>
+				<li><span class="clothes-white"><<icon "clothes/plain_panties.png">></span> <<print $panties_held is 1 ? "a pair" : "<span class='green'>$panties_held</span> pairs">> of stolen underwear. You can sell <<print $panties_held is 1 ? "it" : "them">> during lunchtime in the school rear courtyard.</li>
+			<</if>>
+			<<if _hasProduce>>
+				<li><<tendingicon "basket">> <span class="green">Produce</span>. You can sell it by renting a stand on Connudatus Street at dawn.</li>
+			<</if>>
+			<<if $DoLPSpools isnot undefined>>
+				<li><<shopicon "tailor">> <span class="green">$DoLPSpools</span> spools.</li>
+			<</if>>
+		</ul>
+
 		<<if _hasProduce>>
-			<li><<tendingicon "basket">> <span class="green">Produce</span>. You can sell it by renting a stand on Connudatus Street at dawn.</li>
-		<</if>>
-		<<if $DoLPSpools isnot undefined>>
-			<li><<shopicon "tailor">> <span class="green">$DoLPSpools</span> spools.</li>
-		<</if>>
-	</ul>
+			<br>
+			<details class="journal">
+				<summary class="journal">Produce</summary>
+				<div class="itemInventory">
+					<<for _t to 0; _t lt _plant_keys.length; _t++>>
+						<<set _item to $plants[_plant_keys[_t]]>>
+						<<set _produce to setup.plants[$plants[_plant_keys[_t]].name]>>
+						<<if _item.amount gte 1>>
+							<<set _plant_temp to 1>>
+							<<set _formatter = new Intl.NumberFormat('en-gb', { roundingMode: 'trunc', notation: 'compact' })>>
+							<<set _amount = _formatter.format(_item.amount)>>
+							<<if _item.amount === 1>>
+								<<set _itemName to _produce.singular || _produce.name.replace(/_/g, ' ')>>
+							<<else>>
+								<<set _itemName to _produce.plural>>
+							<</if>>
+							<<set _tooltip to `<span class="green">${_item.amount}</span> ${_itemName}`>>
 
-	<<if _hasProduce>>
-		<br>
-		<details class="journal">
-			<summary class="journal">Produce</summary>
-			<div class="itemInventory">
-				<<for _t to 0; _t lt _plant_keys.length; _t++>>
-					<<set _item to $plants[_plant_keys[_t]]>>
-					<<set _produce to setup.plants[$plants[_plant_keys[_t]].name]>>
-					<<if _item.amount gte 1>>
-						<<set _plant_temp to 1>>
-						<<set _formatter = new Intl.NumberFormat('en-gb', { roundingMode: 'trunc', notation: 'compact' })>>
-						<<set _amount = _formatter.format(_item.amount)>>
-						<<if _item.amount === 1>>
-							<<set _itemName to _produce.singular || _produce.name.replace(/_/g, ' ')>>
-						<<else>>
-							<<set _itemName to _produce.plural>>
+							<div class="item" @tooltip="_tooltip">
+								<<set _iconName to setup.plants[_plant_keys[_t]].icon.replace(/\.[^/.]+$/, "")>>
+								<<tendingicon _iconName>>
+								<hr>
+								<<= _amount>>
+							</div>
 						<</if>>
-						<<set _tooltip to `<span class="green">${_item.amount}</span> ${_itemName}`>>
-
-						<div class="item" @tooltip="_tooltip">
-							<<set _iconName to setup.plants[_plant_keys[_t]].icon.replace(/\.[^/.]+$/, "")>>
-							<<tendingicon _iconName>>
-							<hr>
-							<<= _amount>>
-						</div>
-					<</if>>
-				<</for>>
-			</div>
-		</details>
+					<</for>>
+				</div>
+			</details>
+		<</if>>
 	<</if>>
 
 	<<if $museumintro is 1 or $plants_known.length gte 0>>
 		<hr>
 		<h1 class="header gold bold">Collectibles</h1>
 		<<if $museumintro is 1>>
-			<<museumAntiqueText>>
-			<<if $museumAntiqueJournalHints.length gte 1>>
-				Winter has mentioned some items that are missing from the museum.
-				<ul class="journal">
+			<<museumAntiqueText>><<museumPaintingText>>
+			<<if $museumAntiqueJournalHints.length gte 1 || Object.values(V.museumAntiques.paintings).includes("found")>>
 				<<set _hintslist to clone($museumAntiqueJournalHints).reverse()>>
-				<!-- most recent go on top -->
-				<<for _hint range _hintslist>>
-					<<if _museumAntiqueText[_hint]>>
-						<li><<print _museumAntiqueText[_hint].journal>></li>
-					<<else>>
-						<li><span class="red">warning: antique "_hint" doesn't have a hint. save exported from modded version?</span></li>
-						<<set $museumAntiqueJournalHints.delete(_hint)>>
-					<</if>>
-				<</for>>
+				<<if $museumAntiqueJournalHints.length gte 1>>
+					Winter has mentioned some items that are missing from the museum.
+				<</if>>
+				<ul class="journal">
+					<<for _hint range _hintslist>>
+						<<if _museumAntiqueText[_hint]>>
+							<<if ["found", "talk"].includes($museumAntiques.antiques[_hint])>>
+								<li>You should show the <<= _museumAntiqueText[_hint].name.toLowerCase()>> to Winter.</li>
+							<<else>>
+								<li><<print _museumAntiqueText[_hint].journal>></li>
+							<</if>>
+						<<else>>
+							<li><span class="red">Warning: Antique "_hint" doesn't have a hint. Did you export this save from a modded version?</span></li>
+							<<set $museumAntiqueJournalHints.delete(_hint)>>
+						<</if>>
+					<</for>>
+					<<for $_labelP, $_valueP range $museumAntiques.paintings>>
+						<<if $_valueP is "found">>
+							<li>You should show the <<= _museumPaintingText[$_labelP].journalName.toLowerCase()>> to Winter.</li>
+						<</if>>
+					<</for>>
 				</ul>
 				<br>
 			<</if>>
 			<<set $_antiquesFound to Object.values($museumAntiques.antiques).filter(status => status !== "notFound").length>>
-			<<if $_antiquesFound is 0>>
+			<<set $_paintingsFound to Object.values($museumAntiques.paintings).filter(status => status !== "notFound").length>>
+			<<set $_totalFound to $_antiquesFound + $_paintingsFound>>
+			<<if $_totalFound is 0>>
 				You haven't found any items for the museum yet. Explore the world more to discover antiques.
-			<<elseif $_antiquesFound is $museumAntiques.maxCount>>
+			<<elseif $_antiquesFound is $museumAntiques.maxCount and !$museum_paintings_intro>>
+				You've found <span class="green">every</span> antique for the museum.
+			<<elseif $_totalFound is $museumAntiques.maxCount + Object.values($museumAntiques.paintings).length>>
 				You've found <span class="green">every</span> item for the museum.
 			<<else>>
-				You've found <span class="gold"><<= $_antiquesFound>></span> items for the museum. You're missing <span class="gold"><<= $museumAntiques.maxCount - $_antiquesFound>></span> <<= $museumAntiques.maxCount - $_antiquesFound is 1 ? "antique" : "antiques">>.
+				You've found
+				<span class="gold"><<= $_antiquesFound>></span> antique<<= $_antiqueCount is 1 ? "" : "s">>
+				<<if $museum_paintings_intro>>and <span class="gold"><<= $_paintingsFound>></span> painting<<= $_paintingsFound is 1 ? "" : "s">><</if>>
+				for the museum.
+				<<if $_antiquesFound is $museumAntiques.maxCount>>
+					You've found <span class="green">every</span> antique for the museum, but are missing <span class="gold"><<= Object.values($museumAntiques.paintings).length - $_paintingsFound>></span> <<= Object.values($museumAntiques.paintings).length - $_paintingsFound is 1 ? "painting" : "paintings">>.
+				<<elseif Object.values($museumAntiques.paintings).length - $_paintingsFound is 0>>
+					You've found <span class="green">every</span> painting for the museum, but are missing
+						<span class="gold"><<= $museumAntiques.maxCount - $_antiquesFound>></span> <<= $museumAntiques.maxCount - $_antiquesFound is 1 ? "antique" : "antiques">>.
+				<<else>>
+				You're missing
+					<span class="gold"><<= $museumAntiques.maxCount - $_antiquesFound>></span> <<= $museumAntiques.maxCount - $_antiquesFound is 1 ? "antique" : "antiques">><<if $museum_paintings_intro>> and <span class="gold"><<= Object.values($museumAntiques.paintings).length - $_paintingsFound>></span> <<= Object.values($museumAntiques.paintings).length - $_paintingsFound is 1 ? "painting" : "paintings">><</if>>.
+				<</if>>
 			<</if>>
 			<br><br>
 			<details class="journal">
-				<summary class="journal">Antiques</summary>
+				<summary class="journal">Museum Items</summary>
+				<<if $museum_paintings_intro>>
+					<span class="gold bold m-2">Antiques</span>
+					<br>
+				<</if>>
 				<div class="itemCollectible">
 					<<for _labelM, _valueM range $museumAntiques.antiques>>
 						<<set _antique to $museumAntiqueJournalHints.includes(_labelM) ? _museumAntiqueText[_labelM]?.journalName || _museumAntiqueText[_labelM].name.toLowerCase().toUpperFirst() : _museumAntiqueText[_labelM].name.toLowerCase().toUpperFirst()>>
 						<<if $museumAntiqueJournalHints.includes(_labelM)>>
-							<div class="item unknown" @tooltip="_antique">
-								<<icon "museum_empty.png">>
-							</div>
+							<<switch _valueM>>
+								<<case "notFound">>
+									<div class="item unknown" @tooltip="_antique">
+										<<icon "museum_empty.png">>
+									</div>
+								<<default>>
+									<div class="item" @tooltip="_antique">
+										<<icon _museumAntiqueText[_labelM].icon>>
+									</div>
+							<</switch>>
 						<<else>>
 							<<switch _valueM>>
 								<<case "notFound">>
@@ -1037,6 +1101,69 @@
 						<</if>>
 					<</for>>
 				</div>
+				<<if $museum_paintings_intro>>
+					<hr>
+					<span class="gold bold m-2">Paintings</span>
+					<br>
+					<div class="itemPainting">
+						<<for _labelP, _valueP range $museumAntiques.paintings>>
+							<<set _painting to _valueP isnot "museum" ? _museumPaintingText[_labelP].journalName : _museumPaintingText[_labelP].name>>
+							
+							<<switch _valueP>>
+								<<case "museum" "recovered">>
+									<<if _labelP is "paintingward">>
+										<<if $bleedingWardCheckpoint>>
+											<<set _painting += ": 50% heard">>
+										<</if>>
+									<<elseif _labelP is "paintingsnake">>
+										<<set _painting to `<div style='text-align:center'>${_museumPaintingText[_labelP].name}`>>
+										<<if $hcEndings.length is 0>>
+											<<set _painting += "<br><span class='gold'>0/7 Endings:</span><br><span class='black'>S, A, B, C, D, E, F</span></div>">>
+										<<else>>
+											<<set _painting += `<br><span class='gold'>${$hcEndings.length}/7 Endings:</span><br>`>>
+											<<set _painting += `<span class=${$hcEndings.includes('S') ? 'gold' : 'black'}> ${$hcEndings.includes('S') ? 'S' : '?'}</span>,`>>
+											<<set _painting += `<span class=${$hcEndings.includes('A') ? 'green' : 'black'}> ${$hcEndings.includes('A') ? 'A' : '?'}</span>,`>>
+											<<set _painting += `<span class=${$hcEndings.includes('B') ? 'teal' : 'black'}> ${$hcEndings.includes('B') ? 'B' : '?'}</span>,`>>
+											<<set _painting += `<span class=${$hcEndings.includes('C') ? 'blue' : 'black'}> ${$hcEndings.includes('C') ? 'C' : '?'}</span>,`>>
+											<<set _painting += `<span class=${$hcEndings.includes('D') ? 'purple' : 'black'}> ${$hcEndings.includes('D') ? 'D' : '?'}</span>,`>>
+											<<set _painting += `<span class=${$hcEndings.includes('E') ? 'pink' : 'black'}> ${$hcEndings.includes('E') ? 'E' : '?'}</span>,`>>
+											<<set _painting += `<span class=${$hcEndings.includes('F') ? 'red' : 'black'}> ${$hcEndings.includes('F') ? 'F' : '?'}</span></div>`>>
+										<</if>>
+									<</if>>
+									<div class="item" @tooltip="_painting">
+										<img class="icon" @src="'img/misc/icon/' + _museumPaintingText[_labelP].iconFull" width="120" height="120">
+										<<switch _labelP>>
+											<<case "paintingsnake">><<set _percent to (Math.round($hcEndings.length) / 7 * 100)>>
+											<<case "paintingward">><<set _percent to $bleedingWardCheckpoint ? 50 : 100>>
+											<<default>><<set _percent to 100>>
+										<</switch>>
+										<div class="paintingProgress" @style="'--progress: ' + _percent + '%;'">
+											<<if $options.images>>
+												<div class="progress">
+													<span class="starBar">
+														<img class="active-icon-img" src="img/ui/gold_star.png">
+														<img class="inactive-icon-img" src="img/ui/empty_star.png">
+													</span>
+												</div>
+											<<else>>
+												<div class="meter">
+													<div class="goldbar" @style="'width:' + _percent + '%'"></div>
+												</div>
+											<</if>>
+										</div>
+									</div>
+								<<case "notFound">>
+									<div class="item" tooltip="Unknown Painting.">
+										<img class="icon" src="img/misc/icon/antiques/paintings/curtain.png" width="120" height="120">
+									</div>
+								<<default>>
+									<div class="item" @tooltip="_painting">
+										<img class="icon" @src="'img/misc/icon/' + _museumPaintingText[_labelP].iconFull" width="120" height="120">
+									</div>
+							<</switch>>
+						<</for>>
+					</div>
+				<</if>>
 			</details>
 			<br>
 		<</if>>
@@ -1051,7 +1178,7 @@
 			<</for>>
 			<<set _total to 0>>
 			<<for _i to 0; _i lt _plant_keys.length; _i++>>
-				<<if setup.plants[_plant_keys[_i]].type === "flower" || setup.plants[_plant_keys[_i]].type === "vegetable">>
+				<<if (setup.plants[_plant_keys[_i]].type === "flower" || setup.plants[_plant_keys[_i]].type === "vegetable") && setup.plants[_plant_keys[_i]].season.length gt 0>>
 					<<set _total += 1>>
 				<</if>>
 			<</for>>

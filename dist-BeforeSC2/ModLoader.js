@@ -1,6 +1,6 @@
 import { get, has, isArray, isObject, isString, isNil } from 'lodash';
 import { simulateMergeSC2DataInfoCache } from "./SimulateMerge";
-import { imgWrapBase64Url, IndexDBLoader, LazyLoader, LocalLoader, LocalStorageLoader, RemoteLoader } from "./ModZipReader";
+import { imgWrapBase64Url, IndexDBLoader, LazyLoader, LoaderKeyConfig, LocalLoader, LocalStorageLoader, RemoteLoader } from "./ModZipReader";
 import { ModLoadFromSourceType, ModOrderContainer } from "./ModOrderContainer";
 import { LRUCache } from 'lru-cache';
 export const StaticModImgLruCache = new LRUCache({
@@ -13,30 +13,46 @@ export const StaticModImgLruCache = new LRUCache({
     updateAgeOnHas: true,
 });
 export class ModImgGetterDefault {
-    constructor(zip, imgPath, logger) {
+    constructor(modName, zip, imgPath, logger) {
+        this.modName = modName;
         this.zip = zip;
         this.imgPath = imgPath;
         this.logger = logger;
+        this.invalid = false;
     }
     async forceCache() {
         this.imgCache = await this.getBase64Image();
     }
-    async getBase64Image(lruCache) {
+    async getBase64Image() {
         var _a, _b, _c;
+        // arguments.length > 0 && console.error('ModImgGetterDefault getBase64Image() cannot have arguments.', arguments);
+        if (this.invalid) {
+            return undefined;
+        }
+        // add mod prefix to cache path
+        const key = `[${this.modName}]_${this.imgPath}`;
         if (this.imgCache) {
             return this.imgCache;
         }
-        const cache = (lruCache !== null && lruCache !== void 0 ? lruCache : StaticModImgLruCache).get(this.imgPath);
+        const cache = StaticModImgLruCache.get(key);
         if (cache) {
-            return cache;
+            return cache.invalid ? undefined : cache.imageBase64;
         }
         const imgFile = this.zip.zip.file(this.imgPath);
         if (imgFile) {
             const data = await imgFile.async('base64');
             const imgCache = imgWrapBase64Url(this.imgPath, data);
-            (lruCache !== null && lruCache !== void 0 ? lruCache : StaticModImgLruCache).set(this.imgPath, imgCache);
+            StaticModImgLruCache.set(key, {
+                imageBase64: imgCache,
+                invalid: false,
+            });
             return imgCache;
         }
+        this.invalid = true;
+        StaticModImgLruCache.set(key, {
+            imageBase64: '',
+            invalid: true,
+        });
         console.error(`ModImgGetterDefault getBase64Image() imgFile not found: ${this.imgPath} in ${(_a = this.zip.modInfo) === null || _a === void 0 ? void 0 : _a.name}`);
         this.logger.error(`ModImgGetterDefault getBase64Image() imgFile not found: ${this.imgPath} in ${(_b = this.zip.modInfo) === null || _b === void 0 ? void 0 : _b.name}`);
         return Promise.reject(`ModImgGetterDefault getBase64Image() imgFile not found: ${this.imgPath} in ${(_c = this.zip.modInfo) === null || _c === void 0 ? void 0 : _c.name}`);
@@ -103,11 +119,17 @@ export class ModLoader {
     getModCacheArray() {
         return this.modCache.get_Array();
     }
+    getModAllName() {
+        return this.modCache.getAllName();
+    }
     /**
      O(1)
      */
     getModCacheMap() {
         return this.modCache.get_One_Map();
+    }
+    getModCacheMapWithAlias() {
+        return this.modCache.get_One_Map_WithAlias();
     }
     /**
      * O(n+2log(n))
@@ -127,6 +149,12 @@ export class ModLoader {
     getModCacheByNameOne(modName) {
         return this.modCache.getByNameOne(modName);
     }
+    getModCacheByAliseOne(modName) {
+        return this.modCache.getByNameOneWithAlias(modName);
+    }
+    getModCacheByFromType(from) {
+        return this.modCache.getByFromTypeByOrder(from);
+    }
     getModReadCache() {
         return this.modReadCache;
     }
@@ -141,19 +169,45 @@ export class ModLoader {
             };
         });
     }
+    getLoaderKeyConfig() {
+        if (!this.modLoaderKeyConfig) {
+            this.modLoaderKeyConfig = new LoaderKeyConfig(this.modLoadControllerCallback);
+        }
+        return this.modLoaderKeyConfig;
+    }
     getIndexDBLoader() {
+        if (!this.modIndexDBLoader) {
+            this.modIndexDBLoader = new IndexDBLoader(this.modLoadControllerCallback, this.getLoaderKeyConfig());
+            this.modIndexDBLoader.init();
+        }
         return this.modIndexDBLoader;
     }
     getLocalStorageLoader() {
+        if (!this.modLocalStorageLoader) {
+            this.modLocalStorageLoader = new LocalStorageLoader(this.modLoadControllerCallback, this.getLoaderKeyConfig());
+            this.modLocalStorageLoader.init();
+        }
         return this.modLocalStorageLoader;
     }
     getLocalLoader() {
+        if (!this.modLocalLoader) {
+            this.modLocalLoader = new LocalLoader(this.modLoadControllerCallback, this.getLoaderKeyConfig(), this.thisWin);
+            this.modLocalLoader.init();
+        }
         return this.modLocalLoader;
     }
     getRemoteLoader() {
+        if (!this.modRemoteLoader) {
+            this.modRemoteLoader = new RemoteLoader(this.modLoadControllerCallback, this.getLoaderKeyConfig());
+            this.modRemoteLoader.init();
+        }
         return this.modRemoteLoader;
     }
     getLazyLoader() {
+        if (!this.modLazyLoader) {
+            this.modLazyLoader = new LazyLoader(this.modLoadControllerCallback, this.getLoaderKeyConfig());
+            this.modLazyLoader.init();
+        }
         return this.modLazyLoader;
     }
     addModReadZip(T, from) {
@@ -180,12 +234,10 @@ export class ModLoader {
         for (const loadType of this.loadOrder) {
             switch (loadType) {
                 case ModDataLoadType.Remote:
-                    if (!this.modRemoteLoader) {
-                        this.modRemoteLoader = new RemoteLoader(this.modLoadControllerCallback);
-                    }
+                    const modRemoteLoader = this.getRemoteLoader();
                     try {
-                        ok = await this.modRemoteLoader.load() || ok;
-                        this.modRemoteLoader.modList.forEach(T => this.addModReadZip(T, ModLoadFromSourceType.Remote));
+                        ok = await modRemoteLoader.load() || ok;
+                        modRemoteLoader.modList.forEach(T => this.addModReadZip(T, ModLoadFromSourceType.Remote));
                     }
                     catch (e) {
                         console.error(e);
@@ -193,12 +245,10 @@ export class ModLoader {
                     }
                     break;
                 case ModDataLoadType.Local:
-                    if (!this.modLocalLoader) {
-                        this.modLocalLoader = new LocalLoader(this.modLoadControllerCallback, this.thisWin);
-                    }
+                    const modLocalLoader = this.getLocalLoader();
                     try {
-                        ok = await this.modLocalLoader.load() || ok;
-                        this.modLocalLoader.modList.forEach(T => this.addModReadZip(T, ModLoadFromSourceType.Local));
+                        ok = await modLocalLoader.load() || ok;
+                        modLocalLoader.modList.forEach(T => this.addModReadZip(T, ModLoadFromSourceType.Local));
                     }
                     catch (e) {
                         console.error(e);
@@ -206,12 +256,10 @@ export class ModLoader {
                     }
                     break;
                 case ModDataLoadType.LocalStorage:
-                    if (!this.modLocalStorageLoader) {
-                        this.modLocalStorageLoader = new LocalStorageLoader(this.modLoadControllerCallback);
-                    }
+                    const modLocalStorageLoader = this.getLocalStorageLoader();
                     try {
-                        ok = await this.modLocalStorageLoader.load() || ok;
-                        this.modLocalStorageLoader.modList.forEach(T => this.addModReadZip(T, ModLoadFromSourceType.LocalStorage));
+                        ok = await modLocalStorageLoader.load() || ok;
+                        modLocalStorageLoader.modList.forEach(T => this.addModReadZip(T, ModLoadFromSourceType.LocalStorage));
                     }
                     catch (e) {
                         console.error(e);
@@ -219,12 +267,10 @@ export class ModLoader {
                     }
                     break;
                 case ModDataLoadType.IndexDB:
-                    if (!this.modIndexDBLoader) {
-                        this.modIndexDBLoader = new IndexDBLoader(this.modLoadControllerCallback);
-                    }
+                    const modIndexDBLoader = this.getIndexDBLoader();
                     try {
-                        ok = await this.modIndexDBLoader.load() || ok;
-                        this.modIndexDBLoader.modList.forEach(T => this.addModReadZip(T, ModLoadFromSourceType.IndexDB));
+                        ok = await modIndexDBLoader.load() || ok;
+                        modIndexDBLoader.modList.forEach(T => this.addModReadZip(T, ModLoadFromSourceType.IndexDB));
                     }
                     catch (e) {
                         console.error(e);
@@ -285,12 +331,10 @@ export class ModLoader {
         return canLoadList;
     }
     async lazyRegisterNewMod(modeZip) {
-        if (!this.modLazyLoader) {
-            this.modLazyLoader = new LazyLoader(this.modLoadControllerCallback);
-        }
         console.log('ModLoader ====== lazyRegisterNewMod() LazyLoader load start: ', [modeZip]);
+        const modLazyLoader = this.getLazyLoader();
         try {
-            const m = await this.modLazyLoader.add(modeZip);
+            const m = await modLazyLoader.add(modeZip);
             if (m.modInfo) {
                 this.modLazyCache.pushBack(m, ModLoadFromSourceType.SideLazy);
                 console.log('ModLoader ====== lazyRegisterNewMod() LazyLoader load ok: ', [m, this.modLazyCache]);

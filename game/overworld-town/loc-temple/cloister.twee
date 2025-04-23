@@ -42,17 +42,17 @@ A six-armed, six-winged angel statue stands resolute in the centre. Its bottom t
 
 <<else>>
     <<if $temple_cloister_progress is undefined>>
-        <<link [[Explore (1:00)|Temple Cloister Explore]]>><<set $temple_cloister_progress to 1>><<pass 60>><</link>>
+        <<investigateicon>><<link [[Explore (1:00)|Temple Cloister Explore]]>><<set $temple_cloister_progress to 1>><<pass 60>><</link>>
         <br>
     <<else>>
-        <<ind>><<link [[Training room (0:01)|Temple Cloister Training]]>><<pass 1>><</link>>
+        <<templeicon $temple_weapon>><<link [[Training room (0:01)|Temple Cloister Training]]>><<pass 1>><</link>>
         <br>
-		<<antiqueicon "ivory_statuette">>
+
         <<if $temple_confessor_intro>>
-            <<link [[Examine the statue of Virgo|Temple Cloister Statue]]>><</link>>
+            <<templeicon "statue">><<link [[Examine the statue of Virgo|Temple Cloister Statue]]>><</link>>
             <br>
         <<else>>
-            <<link [[Examine the six-armed statue|Temple Cloister Statue]]>><</link>>
+            <<templeicon "statue">><<link [[Examine the six-armed statue|Temple Cloister Statue]]>><</link>>
             <br>
         <</if>>
         <<mirroricon>><<link [[Look into the mirror|Temple Cloister Mirror]]>><<preMirror>><</link>>
@@ -439,14 +439,19 @@ The hem of <<his>> habit flares as <<he>> turns and departs.
     <<if _bound.length>>
 		<span class="blue">You're unable to spar with your <<print formatList(_bound, "and")>> bound.</span>
 		<br>
+    <<elseif $temple_spar is 1>>
+        <<templeicon $temple_weapon>><<link [[Spar|Temple Cloister Spar Fail]]>><</link>>
+        <br>
     <<else>>
         <<if $temple_weapon is "baton">>
+			<<templeicon "baton">>
             <<if $prof.baton gte 1000>>
                 <<link [[Spar (1:00)|Temple Cloister Spar Baton]]>><<prof baton 3>><<set $temple_spar to 1>><<physique 6>><<tiredness 6>><<grace 3 bishop>><<pass 60>><</link>><<gtiredness>><<gbaton>><<gphysique>><<gggrace bishop>>
             <<else>>
                 <<link [[Spar (1:00)|Temple Cloister Spar Baton]]>><<prof baton 3>><<set $temple_spar to 1>><<physique 6>><<tiredness 6>><<grace 1 priest>><<pass 60>><</link>><<gtiredness>><<gbaton>><<gphysique>><<ggrace priest>>
             <</if>>
         <<elseif $temple_weapon is "whip">>
+			<<templeicon "whip">>
             <<if $prof.whip gte 1000>>
                 <<link [[Spar (1:00)|Temple Cloister Spar Whip]]>><<prof whip 3>><<set $temple_spar to 1>><<physique 6>><<tiredness 6>><<grace 3 bishop>><<pass 60>><</link>><<gtiredness>><<gwhip>><<gphysique>><<gggrace bishop>>
             <<else>>
@@ -457,19 +462,19 @@ The hem of <<his>> habit flares as <<he>> turns and departs.
     <</if>>
 <</if>>
 <<if $temple_weapon is "baton">>
-    <<link [[Swap your weapon for a whip|Temple Training Whip]]>><<set $temple_weapon to "whip">><</link>>
+    <<templeicon "whip">><<link [[Swap your weapon for a whip|Temple Training Whip]]>><<set $temple_weapon to "whip">><</link>>
     <br>
 <<elseif $temple_weapon is "whip">>
-    <<link [[Swap your weapon for a baton|Temple Training Baton]]>><<set $temple_weapon to "baton">><</link>>
+    <<templeicon "baton">><<link [[Swap your weapon for a baton|Temple Training Baton]]>><<set $temple_weapon to "baton">><</link>>
     <br>
 <</if>>
-<br><br>
-<<link [[Leave|Temple Cloister]]>><<endevent>><</link>>
+<br>
+<<getouticon>><<link [[Leave|Temple Cloister]]>><<endevent>><</link>>
 <br>
 
 
 :: Temple Training Whip
-<<effects>>
+<<effects>><<wearProp "whip" "khaki">>
 
 You approach the weapon rack. An assortment of savage whips and decisive batons greet you.
 <br><br>
@@ -498,7 +503,7 @@ You place your whip, and take a baton. The metal gleams, eager.
 "You've sparred enough for one day <<sister>>!" the <<person1>><<monk desc>> says. "Our bodies can only take so much. I don't want to have to inform Jordan that I injured you during a friendly bout."
 <br><br>
 
-<<link [[Next|Temple Cloister]]>><</link>>
+<<link [[Next|Temple Cloister]]>><<endevent>><</link>>
 <br>
 
 :: Temple Cloister Spar Baton
@@ -708,7 +713,7 @@ You leave the arena, aching all over.
 
 
 :: Temple Cloister Spar Whip
-<<effects>>
+<<effects>><<wearProp "whip" "khaki">>
 
 The <<person1>><<monk desc>> and <<person2>><<monk desc>> bow to each other, then the <<monk desc>> steps from the arena. <<He>> watches from the sidelines as you step onto the sand.
 <br><br>
@@ -913,13 +918,13 @@ You leave the arena, aching all over.
 You are in the showers within the temple cloister. Each has a separate cubicle, with an adjoining space for undressing.
 <br><br>
 
-<<bathroomicon "shower">><<link [[Shower (0:20)|Temple Cloister Shower Take]]>><<undress>><<pass 20>><</link>>
+<<bathroomicon "shower">><<link [[Shower (0:20)|Temple Cloister Shower Take]]>><<strip>><<pass 20>><</link>>
 <br>
 <<getouticon>><<link [[Leave|Temple Cloister]]>><</link>>
 <br>
 
 :: Temple Cloister Shower Take
-<<effects>>
+<<effects>><<wearProp "soap">>
 
 <<wash>>
 You enclose yourself within a cubicle, undress, and step into the shower proper. The warm water cleanses you of filth.
@@ -990,15 +995,15 @@ It appears to be made of marble. Its wings are spread out wide, and its middle a
 <br><br>
 
 <<if $temple_burden gte 1>>
-    <<link [[Surrender your burden|Temple Cloister Statue Surrender]]>><</link>>
+    <<templeicon "statue">><<link [[Surrender your burden|Temple Cloister Statue Surrender]]>><</link>>
     <br>
 <<elseif $temple_burden is undefined and $world_corruption_hard gte 1>>
-    <<link [[Share the Statue's burden|Temple Cloister Statue Burden]]>><</link>>
+    <<templeicon "statue">><<link [[Share the Statue's burden|Temple Cloister Statue Burden]]>><</link>>
     <br>
 <</if>>
-<br><br>
+<br>
 
-<<link [[Leave|Temple Cloister]]>><</link>>
+<<templeicon "cloister">><<link [[Leave|Temple Cloister]]>><</link>>
 <br>
 
 
@@ -1060,7 +1065,7 @@ You step closer to the statue, and a gentle, relieving breeze blows over you. It
 <</if>>
 The mirror it holds is almost wide enough to see the whole room.
 <br><br>
-<<templeicon>><<link [[Step away|Temple Cloister]]>><<handheldon>><<unset $mirrorMenu>><<unset $bodywritingSet>><<postMirror>><</link>>
+<<templeicon "cloister">><<link [[Step away|Temple Cloister]]>><<handheldon>><<unset $mirrorMenu>><<unset $bodywritingSet>><<postMirror>><</link>>
 <br>
 <<mirror>>
 <br><br>

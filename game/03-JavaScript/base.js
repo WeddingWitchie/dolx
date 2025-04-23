@@ -10,7 +10,7 @@ Mousetrap.prototype.stopCallback = function (e, element, combo) {
 
 // add binds for "next" link in combat
 // eslint-disable-next-line no-undef
-Mousetrap.bind(["z", "n", "enter", "space"], function () {
+Mousetrap.bind(["z", "n", "enter"], function () {
 	$("#passages #next a.macro-link").trigger("click");
 });
 
@@ -665,7 +665,6 @@ window.nullable = nullable;
 
 /**
  * This inputs an icon img tag, using the given filename.
- * Files are all in img/misc/icon/
  * Example: <<icon "bed.png">>
  * <<icon "bed.png" "nowhitespace">> does not add a trailing whitespace for formatting.
  * <<icon "bed.png" "infront">> will cause the icon to layer ontop of the next one
@@ -673,14 +672,26 @@ window.nullable = nullable;
 Macro.add("icon", {
 	handler() {
 		if (!V.options.images) return;
+		const basePath = this.name === "iconUi" ? "img/ui/" : "img/misc/icon/";
 		const name = typeof this.args[0] === "string" ? this.args[0] : "error";
 		const iconImg = document.createElement("img");
-		iconImg.className = "icon" + (this.args.includes("infront") ? " infront" : "") + (this.args.includes("flip") ? " flip" : "");
-		iconImg.src = "img/misc/icon/" + name;
+		iconImg.className = [
+			"icon",
+			this.name === "iconUi" && "icon-container",
+			this.args.includes("infront") && "infront",
+			this.args.includes("flip") && "flip",
+		]
+			.filter(Boolean)
+			.join(" ");
+		iconImg.src = basePath + name;
 		this.output.append(iconImg);
 		// append a whitespace for compatibility with old icon behavior
 		if (!this.args.includes("nowhitespace")) this.output.append(" ");
 	},
+});
+
+Macro.add("iconUi", {
+	handler: Macro.get("icon").handler,
 });
 
 /**

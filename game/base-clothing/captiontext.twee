@@ -42,7 +42,7 @@
 		<br>
 		<<clothingCaptionTextStrip>>
 	<</if>>
-	<<if $NudeGenderDC gte 0>>
+	<<if isHermOrCrossdresser() or ($player.gender_appearance isnot $player.gender and $player.gender isnot "n")>>
 		<br>
 		<<clothingCaptionTextGender>>
 	<</if>>
@@ -167,7 +167,7 @@
 <<widget "clothingCaptionTextGenitals">><<silently>>
 	<<if $worn.genitals.name isnot "naked">>
 		<<if _bottomless>>
-			<<set $_text_output to " <span class='red'>Your <<clothingCaptionChastityEffect>> <<genitalsintegrity>> $worn.genitals.name <<if playerChastity('anus')>>with an anal shield<</if>><<if playerHasButtPlug()>> and $worn.butt_plug.name<</if>> gives you no comfort.</span>">>
+			<<set $_text_output to " <span class='red'>Your <<clothingCaptionChastityEffect>> <<genitalsintegrity>> $worn.genitals.name <<if playerChastity('anus')>>with an anal shield<</if>><<if playerHasButtPlug()>> and $worn.butt_plug.name give<<else>> gives<</if>> you no comfort.</span>">>
 		<<else>>
 			<<set $_text_output to " You wear <<genitalsword>> <<clothingCaptionChastityEffect>> <<genitalsintegrity>> $worn.genitals.name<<if playerChastity('anus')>> with an anal shield<</if>><<if playerHasButtPlug()>> and $worn.butt_plug.name<</if>>.">>
 		<</if>>
@@ -303,19 +303,25 @@
 <</widget>>
 
 <<widget "clothingCaptionTextGender">><<silently>>
-	<<if ($player.gender isnot "f" and $player.gender_appearance is "f") 
-	  or ($player.gender is "f" and $genderidentity lt 375 and $player.gender_appearance is "f" and $xchange.genderIdentityEnabled)>>
-		<<if $breastindicator is 1 and $player.perceived_breastsize gt 1>>
-			<<set $_text_output to "Your exposed breasts will make people think you're a girl!">>
-		<<else>>
-			<<set $_text_output to "The way you look, people will think you're a girl!">>
+	<<if $player.gender_appearance is "f" and playerFeelsManlike()>>
+		<<if $exposed gte 2 and $player.gender is "m">>
+			<<set $_text_output to `The way you look, people will think you're a girl!`>>
+		<<elseif $breastindicator is 1 and $player.perceived_breastsize gt 1 and $player.gender is "m">>
+			<<set $_text_output to `Your exposed breasts will make people think you're a girl!`>>
+		<<elseif nudeGenderAppearance() is "m" and $player.gender is "f">>
+			<<set $_text_output to `If people see your genitals, they will think you're a boy!`>>
+		<<elseif $player.gender is "m">>
+			<<set $_text_output to `The way you're dressed, people will think you're a girl!`>>
 		<</if>>
-	<<elseif $player.gender isnot "m" and $player.gender_appearance is "m"
-	  or ($player.gender is "m" and $genderidentity lt 375 and $player.gender_appearance is "m" and $xchange.genderIdentityEnabled)>>
-		<<if $breastindicator is 0 and $worn.upper.exposed is 2 and $worn.under_upper.exposed gte 1 and $player.perceived_breastsize lte 1>>
-			<<set $_text_output to "Your exposed flat chest will make people think you're a boy!">>
-		<<else>>
-			<<set $_text_output to "The way you look, people will think you're a boy!">>
+	<<elseif $player.gender_appearance is "m" and playerFeelsGirllike()>>
+		<<if $exposed gte 2>>
+			<<set $_text_output to `The way you look, people will think you're a boy!`>>
+		<<elseif $breastindicator is 1 and $player.perceived_breastsize lte 1 and $player.gender is "f">>
+			<<set $_text_output to `Your exposed flat chest will make people think you're a boy!`>>
+		<<elseif nudeGenderAppearance() is "f" and $player.gender is "m">>
+			<<set $_text_output to `If people see your genitals, they will think you're a girl!`>>
+		<<elseif $player.gender is "f">>
+			<<set $_text_output to `The way you're dressed, people will think you're a boy!`>>
 		<</if>>
 	<</if>>
 <</silently>><<if $_text_output>><span class="pink"><<print $_text_output>></span><</if>><</widget>>

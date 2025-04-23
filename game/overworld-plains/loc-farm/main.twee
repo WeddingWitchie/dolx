@@ -51,27 +51,34 @@ You are in the farmlands.
 <</if>>
 <br><br>
 
-<<if $farm_stage is undefined>>
-	A sign stands beside a dirt track leading up to a farmhouse. It advertises fresh eggs, carrots, and other produce. One line is written in darker paint than the others. It reads: "Farmhands needed. Ask inside." <<if Time.dayState is "night">>You'd need to come back during the day.<</if>>
-	<br><br>
-<</if>>
+
 
 <<if $exposed gte 1 and Time.dayState is "night">>
 	You hide behind a hay bale to cover your indecency.
 	<br><br>
 <</if>>
 
+<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
 <<if $stress gte $stressmax>>
 	<<passoutfarmroad>>
-<<elseif $exposed gte 1 and Time.dayState isnot "night" and $eventskip isnot 1>>
+<<elseif (($exposed is 1 and $uncomfortable.underwearPublic) or ($exposed is 2 and $uncomfortable.nudePublic)) and Time.dayState isnot "night" and $eventskip isnot 1>>
 	<<events_farm_exhibitionism>>
+<<elseif $rng gte 81 and $eventskip is 0 or $skulduggery gte 600 and $farmland_manors isnot 1>>
+	<<farmland_road_events>>
 <<else>>
+	<<if $farm_stage is undefined>>
+		A sign stands beside a dirt track leading up to a farmhouse. It advertises fresh eggs, carrots, and other produce. One line is written in darker paint than the others. It reads: "Farmhands needed. Ask inside." <<if Time.dayState is "night">>You'd need to come back during the day.<</if>>
+		<br><br>
+	<</if>>
 	<<if Time.dayState isnot "night">>
 		<<if $farm_stage is undefined and $exposed lte 0>>
 			<<farmicon "barn">><<link [[Ask about farm work (0:30)|Farm Intro]]>><<pass 30>><<set $farm_stage to 1>><</link>>
 			<br>
 		<<elseif $farm_stage is 1 and $exposed lte 0>>
 			<<farmicon "barn">><<link [[Accept farm work (0:05)|Farm Intro Accept 2]]>><<pass 5>><<set $farm_stage to 2>><</link>>
+			<br>
+		<<elseif ($farm_stage is undefined or $farm_stage is 1) and $exposed gte 1>>
+			<<farmicon "barn">><span class="blue">You're too exposed to ask about farm work!</span>
 			<br>
 		<</if>>
 	<</if>>
@@ -95,9 +102,25 @@ You are in the farmlands.
 			<<steedicon>><<link [[Riding school (0:01)|Riding School]]>><<pass 1>><</link>>
 			<br>
 		<</if>>
+	<<else>>
+		<<steedicon>><span class="blue">You're too exposed to go to the riding school!</span>
+		<br>
 	<</if>>
 	<<farmicon "meadow">><<link [[Meadow (0:10)|Meadow]]>><<pass 10>><</link>>
-	<br><br>
+	<br>
+	<<if $farmland_manors is 1>>
+		<<ind>><<link [[Manors (0:10)|Farmland Manors]]>><<pass 10>><</link>>
+		<br>
+	<</if>>
+	<<if $farmland_maze_key is 1>>
+		<<ind>><<link [[Investigate the strange gate|Maze Intro Key]]>><<set $farmland_maze_key to 2>><</link>>
+		<br>
+	<</if>>
+	<<if $farmland_maze_found is true>>
+		<<ind>><<link [[Maze (0:03)|Maze Entrance]]>><<pass 3>><<maze_init>><</link>>
+		<br>
+	<</if>>
+	<br>
 	<<mooricon>><<link [[Enter the moor (0:05)|Moor]]>><<set $moor to 0>><<unset $moor_hunt>><<pass 5>><<set $eventskip to 1>><</link>>
 	<br>
 	<<roadicon>><<link [[Walk towards town (0:05)|Farm Road 6]]>><<pass 5>><<set $phase to 0>><</link>>
@@ -148,7 +171,7 @@ The <<nnpc_gendery "Alex">> stretches <<his>> back as <<he>> walks towards you,
 :: Farm Intro 2
 <<set $outside to 0>><<effects>>
 
-The interior is rustic and cosy. The <<nnpc_gendery "Alex">> insists on not discussing why you're here until your <<if $phase is 0>>tea<<else>>coffee<</if>> is ready. <<Hes>> about your age, but you've never seen <<him>> at school.
+The interior is rustic and cosy. The <<nnpc_gendery "Alex">> insists on not discussing why you're here until your <<if $phase is 0>>tea <<wearProp "tea">><<else>>coffee <<wearProp "coffee">><</if>> is ready. <<Hes>> about your age, but you've never seen <<him>> at school.
 <br><br>
 
 <<if $leftarm is "bound" and $rightarm is "bound">>
@@ -511,7 +534,7 @@ Alex beams. "Great! You can start whenever you like, and don't be afraid to ask 
 		<<if playerIsPregnant() and playerAwareTheyArePregnant()>>
 			<span class="blue">You can't bring yourself to drink while you know you're with child.</span>
 		<<else>>
-			<<link [[Drink|Farm Stage 4]]>><<set $phase to 0>><<stress -6>><<set $farm_stage to 4>><<set $farm.clearing to 100>><<wearProp "beer bottle">><</link>><<lstress>>
+			<<link [[Drink|Farm Stage 4]]>><<set $phase to 0>><<stress -6>><<set $farm_stage to 4>><<set $farm.clearing to 100>><<wearProp "beer bottle">><</link>><<lstress>><<galcohol>>
 		<</if>>
 		<br>
 		<<link [[Refuse|Farm Stage 4]]>><<set $phase to 1>><<set $farm_stage to 4>><<set $farm.clearing to 100>><</link>>
@@ -1761,7 +1784,7 @@ I need someone to handle the fields, at least. I don't-" <<He>> finishes <<his>>
 :: Farm Shed
 <<set $outside to 0>><<effects>>
 You are inside the shed with the shower.
-<br>
+<br><br>
 <<bathroomicon "shower">><<link [[Take shower (0:10)|Farm Shower]]>><<pass 10>><</link>>
 <br>
 <<bathroomicon "shower">><<link [[Take a cold shower (0:20)|Farm Shower]]>><<water>><<pass 20>><<run Weather.BodyTemperature.update(5,20)>><<stress 75>><<arousal -5000>><</link>><<lllarousal>><<ggstress>>
@@ -1871,7 +1894,7 @@ You spread your legs, and start carefully shaving your pubes. After a few minute
 <<link [[Next|Farm Shed]]>><<clotheson>><<dontHideRevert>><</link>>
 
 :: Farm shave trim
-<<effects>>
+<<effects>><<wearProp "scissors">>
 
 You pick up a comb with scissors, and lean against the wall.
 <br>
@@ -1958,7 +1981,7 @@ You remove your clothes, and wash until you're squeaky clean.<<wash>>
 	<</if>>
 <<else>>
 	<<silently>><<willpowerdifficulty 200 1000>><</silently>>
-	<<skinicon "masturbate">><<link [[Masturbate|Farm Shower Masturbation]]>><<set $masturbationstart to 1>><</link>>
+	<<skinicon "masturbate">><<link [[Masturbate|Farm Shower Masturbation]]>><<handheldruined true true>><<set $masturbationstart to 1>><</link>>
 	<br>
 	<<if ($arousal lt $arousalmax*3/5) or $orgasmCount gte 1>>
 		<<getouticon>><<link [[Leave|Farm Work]]>><<clotheson>><</link>>
@@ -2000,12 +2023,12 @@ You scream. Alex slams the door in a panic. "S-sorry," <<he>> shouts. Hurried fo
 	<br><br>
 
 	<<if hasSexStat("promiscuity", 2)>>
-		<<link [[Allow|Farm Shower Sex]]>><<handheldon>><<set $sexstart to 1>><<npcincr Alex dom 1>><<npcincr Alex love 1>><</link>><<gdom>><<glove>>
+		<<link [[Allow|Farm Shower Sex]]>><<handheldruined true true>><<set $sexstart to 1>><<npcincr Alex dom 1>><<npcincr Alex love 1>><</link>><<gdom>><<glove>>
 	<<else>>
 		<<insufficientStat "promiscuity" "to accept">>
 	<</if>>
 	<br>
-	<<link [[Shove|Farm Shower Shove]]>><<handheldon>><<npcincr Alex dom -1>><<npcincr Alex love -1>><</link>><<llove>><<ldom>>
+	<<link [[Shove|Farm Shower Shove]]>><<handheldruined true true>><<npcincr Alex dom -1>><<npcincr Alex love -1>><</link>><<llove>><<ldom>>
 	<br>
 <<else>>
 	Alex hesitates, then shuts the door. You cross the shed to dry yourself.
@@ -2152,9 +2175,9 @@ You continue to wash your body, taking your time. You turn to show Alex a differ
 <<He>> stares with an embarrassed longing.
 <br><br>
 
-<<link [[Invite to wash you|Farm Shower Invite]]>><<handheldon>><<npcincr Alex lust 5>><</link>><<exhibitionist4>><<gglust>>
+<<link [[Invite to wash you|Farm Shower Invite]]>><<handheldruined true true>><<npcincr Alex lust 5>><</link>><<exhibitionist4>><<gglust>>
 <br>
-<<link [[Finish|Farm Shower Finish]]>><<handheldon>><</link>>
+<<link [[Finish|Farm Shower Finish]]>><<handheldruined true true>><</link>>
 <br>
 
 
@@ -2181,10 +2204,10 @@ Alex tries to respond, but can't form the words. <<He>> closes the shed door beh
 	<br><br>
 
 	<<if hasSexStat("promiscuity", 2)>>
-		<<link [[Allow|Farm Shower Sex]]>><<handheldon>><<set $sexstart to 1>><<npcincr Alex dom 1>><<npcincr Alex love 1>><</link>><<promiscuous2>><<gdom>><<glove>>
+		<<link [[Allow|Farm Shower Sex]]>><<handheldruined true true>><<set $sexstart to 1>><<npcincr Alex dom 1>><<npcincr Alex love 1>><</link>><<promiscuous2>><<gdom>><<glove>>
 		<br>
 	<</if>>
-	<<link [[Shove|Farm Shower Shove]]>><<handheldon>><<npcincr Alex dom -1>><<npcincr Alex love -1>><</link>><<llove>><<ldom>>
+	<<link [[Shove|Farm Shower Shove]]>><<handheldruined true true>><<npcincr Alex dom -1>><<npcincr Alex love -1>><</link>><<llove>><<ldom>>
 	<br>
 <<else>>
 	You turn, and let <<him>> wash the front of your body as well. You're clean already, but it feels too good to pass up. <<He>> stops breathing as the sponge passes over your <<genitals>><<ggarousal>><<arousal 1200>>
@@ -2196,18 +2219,18 @@ Alex tries to respond, but can't form the words. <<He>> closes the shed door beh
 		<br><br>
 
 		<<if hasSexStat("promiscuity", 2)>>
-			<<link [[Allow|Farm Shower Sex]]>><<handheldon>><<set $sexstart to 1>><<npcincr Alex dom 1>><<npcincr Alex love 1>><</link>><<promiscuous2>><<gdom>><<glove>>
+			<<link [[Allow|Farm Shower Sex]]>><<handheldruined true true>><<set $sexstart to 1>><<npcincr Alex dom 1>><<npcincr Alex love 1>><</link>><<promiscuous2>><<gdom>><<glove>>
 			<br>
 		<</if>>
-		<<link [[Shove|Farm Shower Shove]]>><<handheldon>><<npcincr Alex dom -1>><<npcincr Alex love -1>><</link>><<llove>><<ldom>>
+		<<link [[Shove|Farm Shower Shove]]>><<handheldruined true true>><<npcincr Alex dom -1>><<npcincr Alex love -1>><</link>><<llove>><<ldom>>
 		<br>
 	<<else>>
 
 		<<if hasSexStat("promiscuity", 2)>>
-			<<link [[Seduce|Farm Shower Seduce]]>><<handheldon>><<npcincr Alex love 1>><</link>><<promiscuous2>><<glove>>
+			<<link [[Seduce|Farm Shower Seduce]]>><<handheldruined true true>><<npcincr Alex love 1>><</link>><<promiscuous2>><<glove>>
 			<br>
 		<</if>>
-		<<link [[Finish|Farm Shower Finish]]>><<handheldon>><</link>>
+		<<link [[Finish|Farm Shower Finish]]>><<handheldruined true true>><</link>>
 		<br>
 	<</if>>
 
@@ -2517,7 +2540,20 @@ You are inside Alex's lab.
 <br><br>
 
 <<if $farm.extract is 2 and $farm.player_still_timer gte 1>>
-	Your auto-extraction system is hard at work, extracting lurkers for their aphrodisiac and switching them out when it has run out.
+	Your auto-extraction system is hard at work, extracting lurkers for their aphrodisiac and switching them out when it has run out. It will be
+	<<if $farm.player_still_timer gte 2>>
+		<<print $farm.player_still_timer>> days
+	<<else>>
+		<<print $farm.player_still_timer>> day
+	<</if>>
+	until it extracts enough for a phial.
+	<br>
+	<<if $sciencetrait gte 4>>
+		<label>
+			Overdrive Mode: <<checkbox "$farm.extractOverdrive" 0 1 autocheck>> 
+			<mouse class="tooltip linkBlue">(?)<span>Takes 3 lurkers for 2 phials.</span></mouse>
+		</label>
+	<</if>>
 	<br><br>
 <<elseif $farm.extract is 1 and $farm.player_still_timer gte 1>>
 	Your extraction system is hard at work, extracting the aphrodisiac out of the captive lurker. It will be
@@ -2527,12 +2563,33 @@ You are inside Alex's lab.
 		<<print $farm.player_still_timer>> day
 	<</if>>
 	until it extracts enough for a phial.
+	<br>
+	<<if $sciencetrait gte 4>>
+		<label>
+			Overdrive Mode: <<checkbox "$farm.extractOverdrive" 0 1 autocheck>> 
+			<mouse class="tooltip linkBlue">(?)<span>Takes 3 lurkers for 2 phials.</span></mouse>
+		</label>
+	<</if>>
 	<br><br>
 <<elseif $farm.extract is 2>>
 	Your auto-extraction system is idle, waiting for more lurkers to extract.
+	<br>
+	<<if $sciencetrait gte 4>>
+		<label>
+			Overdrive Mode: <<checkbox "$farm.extractOverdrive" 0 1 autocheck>> 
+			<mouse class="tooltip linkBlue">(?)<span>Takes 3 lurkers for 2 phials.</span></mouse>
+		</label>
+	<</if>>
 	<br><br>
 <<elseif $farm.extract is 1>>
 	Your extraction system is idle, waiting for a lurker to be trapped in it.
+	<br>
+	<<if $sciencetrait gte 4>>
+		<label>
+			Overdrive Mode: <<checkbox "$farm.extractOverdrive" 0 1 autocheck>> 
+			<mouse class="tooltip linkBlue">(?)<span>Takes 3 lurkers for 2 phials.</span></mouse>
+		</label>
+	<</if>>
 	<br><br>
 <</if>>
 
@@ -2583,10 +2640,10 @@ You are inside Alex's lab.
 <</if>>
 
 <<if $phials_stored gte 2>>
-	<<symbol "lust">><<link [[Take them (0:01)|Farm Work]]>><<pass 1>><<set $phials_held += $phials_stored>><<set $phials_stored to 0>><</link>>
+	<<symbol "lust">><<link [[Take them (0:01)|Farm Still]]>><<pass 1>><<set $phials_held += $phials_stored>><<set $phials_stored to 0>><</link>>
 	<br>
 <<elseif $phials_stored is 1>>
-	<<symbol "lust">><<link [[Take it (0:01)|Farm Work]]>><<pass 1>><<set $phials_held += $phials_stored>><<set $phials_stored to 0>><</link>>
+	<<symbol "lust">><<link [[Take it (0:01)|Farm Still]]>><<pass 1>><<set $phials_held += $phials_stored>><<set $phials_stored to 0>><</link>>
 	<br>
 <<else>>
 	<br><br>
@@ -2918,6 +2975,14 @@ Bottles of milk: $farm.stock.milk
 	<br>
 <</if>>
 <br>
+Spoonfuls of cream: $farm.stock.cream
+<br>
+<<if $farm.stock.cream gte 1>>
+	<<set _farm_stocked to true>>
+	<<tendingicon "cream">><<link [[Take|Farm Stock]]>><<wearProp "cream" 0 "cream">><<tending_give cream $farm.stock.cream>><<set $farm.stock.cream to 0>><</link>>
+	<br>
+<</if>>
+<br>
 
 <<if _farm_stocked is true>>
 	<<tendingicon "basket">>
@@ -2931,7 +2996,10 @@ Bottles of milk: $farm.stock.milk
 		<<if $farm.stock.milk gte 1>>
 			<<tending_give bottle_of_milk $farm.stock.milk>><<set $farm.stock.milk to 0>>
 		<</if>>
-		<<wearProp "basket">>
+		<<if $farm.stock.cream gte 1>>
+			<<tending_give cream $farm.stock.cream>><<set $farm.stock.cream to 0>>
+		<</if>>
+		<<wearProp "basket" 0 "farm">>
 	<</link>>
 	<br>
 <</if>>

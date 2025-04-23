@@ -12,8 +12,8 @@ const StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.5.3.7 DoLP v0.649 DoLX 0.9.7f",
-	versionName: `"Houses Kept, Virginity Sold" edition`,
+	version: "0.5.4.6 DoLP v0.670 DoLX 0.10.0",
+	versionName: `"Hopeless Cycle" edition`,
 	sneaky: false,
 	socialMediaEnabled: true,
 	sourceLinkEnabled: false,
@@ -683,6 +683,12 @@ Config.navigation.override = function (dest) {
 			case "Prison Wren Trousers":
 			case "Prison Wren Jumpsuit":
 				return "Prison Wren Clothes";
+			case "Wolf Cave Hand":
+				return "Wolf Cave Accept";
+			case "Wolf Cave Hand Refuse":
+				return "Wolf Cave Refuse";
+			case "Wolf Cave Hand Finish":
+				return "Wolf Cave Accept Finish";
 
 			default:
 				return false;

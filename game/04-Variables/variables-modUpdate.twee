@@ -89,6 +89,9 @@
 		<<if $farm.extract is undefined>>
 			<<set $farm.extract to 0>>
 		<</if>>
+		<<if $farm.extractOverdrive is undefined>>
+			<<set $farm.extractOverdrive to 0>>
+		<</if>>
 		<<if $farm.net is undefined>>
 			<<set $farm.net to 0>>
 		<</if>>
@@ -253,12 +256,6 @@
 	<</if>>
 	<<if $bannerstyleintro.bronze is undefined>>
 		<<set $bannerstyleintro.bronze to false>>
-	<</if>>
-	<<if $furnitureLocation is undefined>>
-		<<set $furnitureLocation to "orphanage">>
-	<</if>>
-	<<if $furnitureMovePrice is undefined>>
-		<<set $furnitureMovePrice = []>>
 	<</if>>
 	<<if $multFix is undefined>>
 		<<if $npcHealthMult is 1>>
@@ -499,6 +496,46 @@
 	<<if $daisyCount gte 2>>
 		<<set $plants_known to []>>
 		<<run unlockAllSeeds()>>
+	<</if>>
+
+	<<if $plants_known.includes("ghost_orchid")>>
+		<<set $plants_known.delete("ghost_orchid")>>
+	<</if>>
+
+	<<if $plants_known.includes("hen_of_the_woods")>>
+		<<set $plants_known.delete("hen_of_the_woods")>>
+	<</if>>
+
+	<<if $plants_known.includes("red_helleborine")>>
+		<<set $plants_known.delete("red_helleborine")>>
+	<</if>>
+
+	<<if $plants_known.includes("lady_orchid")>>
+		<<set $plants_known.delete("lady_orchid")>>
+	<</if>>
+
+	<<if $plants_known.includes("fly_agaric")>>
+		<<set $plants_known.delete("fly_agaric")>>
+	<</if>>
+
+	<<if $plants_known.includes("spiked_rampion")>>
+		<<set $plants_known.delete("spiked_rampion")>>
+	<</if>>
+
+	<<if $plants_known.includes("cloudberry")>>
+		<<set $plants_known.delete("cloudberry")>>
+	<</if>>
+
+	<<if $plants_known.includes("scottish_bog_myrtle")>>
+		<<set $plants_known.delete("scottish_bog_myrtle")>>
+	<</if>>
+
+	<<if $plants_known.includes("bog_orchid")>>
+		<<set $plants_known.delete("bog_orchid")>>
+	<</if>>
+
+	<<if $plants_known.includes("marsh_saxifrage")>>
+		<<set $plants_known.delete("marsh_saxifrage")>>
 	<</if>>
 
 	<<if $multiOrgasmToggle is undefined>>
@@ -847,6 +884,10 @@
 		<<set $transformationParts.bear to {plumage:"disabled", pubes:"disabled", ears:"disabled", tail:"disabled"}>>
 	<</if>>
 
+	<<if $transformationParts.bear.ears is undefined>>
+		<<set $transformationParts.bear.ears to "disabled">>
+	<</if>>
+
 	<<if $reverseRapeOptOut is undefined>>
 		<<set $reverseRapeOptOut to 0>>
 	<</if>>
@@ -1057,6 +1098,7 @@
 			"Catty": "catty",
 			"Aloof": "aloof",
 			"Sweet": "sweet",
+			"Foxy": "foxy",
 			"Modded 1": "modded1",
 			"Modded 2": "modded2",
 			"Modded 3": "modded3",
@@ -1103,6 +1145,10 @@
 
 	<<if $orphanageLocked is undefined>>
 		<<set $orphanageLocked to 0>>
+	<</if>>
+
+	<<if $orphanageWindowLocked is undefined>>
+		<<set $orphanageWindowLocked to 0>>
 	<</if>>
 
 	<<if $farmCottageLocked is undefined>>
@@ -1181,6 +1227,147 @@
 
 	<<if $combatExtended.enemyBaseDodgeChanceMult is undefined>>
 		<<set $combatExtended.enemyBaseDodgeChanceMult to 2>>
+	<</if>>
+
+	<<if Object.keys($feats.allSaves).count("Ten in a Row") gte 1>>
+		<<set $feats.allSaves["Nine in a Row"] to $feats.allSaves["Ten in a Row"]>>
+		<<set $feats.allSaves["Seven in a Row"] to $feats.allSaves["Ten in a Row"]>>
+	<</if>>
+
+	<<if $mathsTraitBuffs.aphrodisiacPhials is undefined>>
+		<<set $mathsTraitBuffs.aphrodisiacPhials to 0>>
+	<</if>>
+
+	<<if $transformationParts.traits.tempTolerance is undefined>>
+		<<set $transformationParts.traits.tempTolerance to "disabled">>
+	<</if>>
+
+	<<if $DoLPTFTempTolerance is undefined>>
+		<<set $DoLPTFTempTolerance to 0>>
+	<</if>>
+
+	<<if $uncomfortable.underwearPublic is undefined>>
+		<<set $uncomfortable.underwearPublic to true>>
+	<</if>>
+
+	<<if $uncomfortable.nudePublic is undefined>>
+		<<set $uncomfortable.nudePublic to true>>
+	<</if>>
+
+	<<if $furniture isnot undefined>>
+		<<if $furniture.cottage is undefined>>
+			<<set $furniture.cottage = {}>>
+		<</if>>
+
+		<<if $furniture.cottage.bed is undefined>>
+			<<set $furniture.cottage.bed = { id: "singlebed"}>>
+		<</if>>
+
+		<<if $furniture.cottage.wardrobe is undefined>>
+			<<set $furniture.cottage.wardrobe = { id: "organiser"}>>
+		<</if>>
+
+		<<if $furniture.cottage.desk is undefined>>
+			<<set $furniture.cottage.desk = { id: "desk"}>>
+		<</if>>
+
+		<<if $furniture.cottage.chair is undefined>>
+			<<set $furniture.cottage.chair = { id: "chair"}>>
+		<</if>>
+	<</if>>
+
+	<<if $furnitureShopTarget is undefined>>
+		<<set $furnitureShopTarget = "bedroom">>
+	<</if>>
+
+	<<if $furnitureLocation isnot undefined>>
+		<<if $furnitureLocation is "farm cottage">>
+			<<money 4000>>
+		<</if>>
+		<<unset $furnitureLocation>>
+	<</if>>
+
+	<<if $furnitureMovePrice isnot undefined>>
+		<<unset $furnitureMovePrice>>
+	<</if>>
+
+	<<if $lastHome is undefined>>
+		<<set $lastHome to "bedroom">>
+	<</if>>
+
+	<<if $plants.ghost_orchid.amount gte 1 or ($stall_stats isnot undefined and $stall_stats.ghost_orchid isnot undefined and $stall_stats.ghost_orchid.sold.amount gte 1)>>
+		<<earnFeat "Phantom Bloom">>
+	<</if>>
+
+	<<if $plants.hen_of_the_woods.amount gte 1 or ($stall_stats isnot undefined and $stall_stats.hen_of_the_woods isnot undefined and $stall_stats.hen_of_the_woods.sold.amount gte 1)>>
+		<<earnFeat "Whispering Fungi">>
+	<</if>>
+
+	<<if $plants.red_helleborine.amount gte 1 or ($stall_stats isnot undefined and $stall_stats.red_helleborine isnot undefined and $stall_stats.red_helleborine.sold.amount gte 1)>>
+		<<earnFeat "Crimson Veil">>
+	<</if>>
+
+	<<if $plants.lady_orchid.amount gte 1 or ($stall_stats isnot undefined and $stall_stats.lady_orchid isnot undefined and $stall_stats.lady_orchid.sold.amount gte 1)>>
+		<<earnFeat "Noble Harvest">>
+	<</if>>
+
+	<<if $plants.fly_agaric.amount gte 1 or ($stall_stats isnot undefined and $stall_stats.fly_agaric isnot undefined and $stall_stats.fly_agaric.sold.amount gte 1)>>
+		<<earnFeat "Fabled Cap">>
+	<</if>>
+
+	<<if $plants.spiked_rampion.amount gte 1 or ($stall_stats isnot undefined and $stall_stats.spiked_rampion isnot undefined and $stall_stats.spiked_rampion.sold.amount gte 1)>>
+		<<earnFeat "Thorned Crown">>
+	<</if>>
+
+	<<if $plants.cloudberry.amount gte 1 or ($stall_stats isnot undefined and $stall_stats.cloudberry isnot undefined and $stall_stats.cloudberry.sold.amount gte 1)>>
+		<<earnFeat "Amber Harvest">>
+	<</if>>
+
+	<<if $plants.scottish_bog_myrtle.amount gte 1 or ($stall_stats isnot undefined and $stall_stats.scottish_bog_myrtle isnot undefined and $stall_stats.scottish_bog_myrtle.sold.amount gte 1)>>
+		<<earnFeat "Scent of the Highlands">>
+	<</if>>
+
+	<<if $plants.bog_orchid.amount gte 1 or ($stall_stats isnot undefined and $stall_stats.bog_orchid isnot undefined and $stall_stats.bog_orchid.sold.amount gte 1)>>
+		<<earnFeat "Bog Whisperer">>
+	<</if>>
+
+	<<if $plants.marsh_saxifrage.amount gte 1 or ($stall_stats isnot undefined and $stall_stats.marsh_saxifrage isnot undefined and $stall_stats.marsh_saxifrage.sold.amount gte 1)>>
+		<<earnFeat "Marshlight">>
+	<</if>>
+
+	<<if $plants.fly_agaric.plural is "fly agaric">>
+		<<set $plants.fly_agaric.plural to "fly agarics">>
+	<</if>>
+
+	<<if $hbsc is undefined>>
+		<<set $hbsc to {}>>
+	<</if>>
+
+	<<if $hbsc.account is undefined>>
+		<<set $hbsc.account to {}>>
+	<</if>>
+
+	<<if $hbsc.account.level is undefined or $hbsc.account.level is {}>>
+		<<set $hbsc.account.level to 0>>
+	<</if>>
+
+	<<if $hbsc.account.deposit is undefined or $hbsc.account.deposit is {}>>
+		<<set $hbsc.account.deposit to 0>>
+	<</if>>
+
+	<<if $specialTransform is 1 and ($angel is 0 and $fallenangel is 0 and $demon is 0)>>
+		<<set $specialTransform to 0>>
+	<</if>>
+	
+	<<if $specialClothesEffects isnot undefined and $specialClothesEffects.bimbo.progress is undefined>>
+		<<set $specialClothesEffects to {
+			bimbo: { progress: $specialClothesEffects.bimbo, total: $specialClothesEffects.bimboTotal, message: $specialClothesEffects.bimboMessage },
+			pimp: { progress: 0, total: 0, message: 0 }
+		}>>
+	<</if>>
+
+	<<if $options.showUiBar is undefined>>
+		<<set $options.showUiBar to true>>
 	<</if>>
 
 	<<modNewNamedNPCs>>
@@ -1390,7 +1577,7 @@
 
 <<widget "modWardrobeUpdate">>
 	<<if $passage isnot "Start">>
-		<<set _furniture to Furniture.get("wardrobe")>>
+		<<set _furniture to Furniture.get("wardrobe", "bedroom")>>
 		<<if _furniture.type.includes("organiser")>>
 			<<set $wardrobe.space to 40 * $wardrobeMult>>
 		<<elseif _furniture.type.includes("spacious")>>
@@ -1480,3 +1667,5 @@
 		<<set $NPCName[31].insecurity to "skill">>
 	<</if>>
 <</widget>>
+
+<<mirrorMood>>

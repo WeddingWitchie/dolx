@@ -94,6 +94,34 @@ function calculatePenisBulge() {
 }
 window.calculatePenisBulge = calculatePenisBulge;
 
+/* Calculate the player's gender appearance if their genitals and chest are exposed  */
+function nudeGenderAppearance() {
+	if (V.NudeGenderDC === 2 && !playerChastity("hidden")) return V.player.sex;
+
+	genderappearancecheck();
+	T.apparent_femininity_nude += (V.player.breastsize - 0.5) * 100;
+	T.apparent_femininity_nude += Math.trunc(V.player.bottomsize * 50);
+	if (playerChastity("hidden")) {
+		T.apparent_femininity_nude += setup.clothes.genitals[clothesIndex("genitals", V.worn.genitals)].femininity;
+	} else if (V.NudeGenderDC === 1) {
+		if (V.player.penisExist) T.apparent_femininity_nude += (-V.player.penissize - 2.5) * 150;
+		if (V.player.vaginaExist) T.apparent_femininity_nude += 450;
+	}
+	if (!(V.sexStats === undefined || !playerBellyVisible() || V.NudeGenderDC === 0)) {
+		if (V.NudeGenderDC === 1) T.apparent_femininity_nude += Math.clamp((playerBellySize() - 7) * (V.NudeGenderDC === 1 ? 90 : 70), 0, Infinity);
+		else if (playerBellySize() >= 18) T.apparent_femininity_nude += Math.clamp(10000, 0, Infinity);
+		else if (playerBellySize() >= 8) T.apparent_femininity_nude += Math.clamp((playerBellySize() - 7) * 250, 0, Infinity);
+	}
+	Object.keys(V.skin).forEach(label => {
+		if (["m", "f"].includes(V.skin[label].gender)) {
+			const multiplier = V.skin[label].gender === "m" ? -1 : 1;
+			T.apparent_femininity_nude += 50 * (V.skin[label].pen !== "pen" ? 2 : 1) * multiplier;
+		}
+	});
+	return T.apparent_femininity_nude > 0 ? "f" : "m";
+}
+window.nudeGenderAppearance = nudeGenderAppearance;
+
 /** Calculate the player's gender appearance */
 function genderappearancecheck() {
 	/* Calculate bulge size */
@@ -172,6 +200,9 @@ function genderappearancecheck() {
 	T.under_lower_protected = !V.worn.under_lower.exposed;
 	T.apparent_femininity_noow = T.apparent_femininity;
 	T.gender_appearance_factors_noow = clone(T.gender_appearance_factors);
+	/* Calculate gender appearance with no clothes on */
+	T.apparent_femininity_nude = T.apparent_femininity;
+
 	T.over_lower_femininity = wornSetupClothes("over_lower").femininity
 		? wornSetupClothes("over_lower").femininity
 		: 0;
@@ -268,9 +299,9 @@ function genderappearancecheck() {
 	/* Bottom */
 	addfemininityfromfactor(Math.trunc(V.player.bottomsize * T.bottom_visibility * 50), "Bottom size (" + Math.trunc(T.bottom_visibility * 100) + "% visible)");
 	/* Pregnant Belly */
-	if (V.sexStats === undefined || !playerBellyVisible() || V.NudeGenderDC === -1) {
+	if (V.sexStats === undefined || !playerBellyVisible() || V.NudeGenderDC === 0) {
 		// do glorious nothing
-	} else if (V.NudeGenderDC <= 1) {
+	} else if (V.NudeGenderDC === 1) {
 		addfemininityfromfactor(
 			Math.clamp((playerBellySize() - 7) * (V.NudeGenderDC === 1 ? 90 : 70), 0, Infinity),
 			playerAwareTheyArePregnant() ? "Pregnant Belly" : "Pregnant Looking Belly"
@@ -309,7 +340,7 @@ function genderappearancecheck() {
 		T.gender_appearance = "f";
 	} else if (T.apparent_femininity < 0) {
 		T.gender_appearance = "m";
-	} else if (V.player.gender === "h") {
+	} else if (V.player.sex === "h") {
 		// if herm pc and perfect 0 apparent_femininity
 		T.gender_appearance = genderAppearanceHermTiebreak();
 	} else {
@@ -319,7 +350,7 @@ function genderappearancecheck() {
 		T.gender_appearance_noow = "f";
 	} else if (T.apparent_femininity_noow < 0) {
 		T.gender_appearance_noow = "m";
-	} else if (V.player.gender === "h") {
+	} else if (V.player.sex === "h") {
 		T.gender_appearance_noow = genderAppearanceHermTiebreak();
 	} else {
 		T.gender_appearance_noow = V.player.gender;
@@ -487,3 +518,140 @@ function formatList(arr, conjunction = "and", useOxfordComma = false, separator 
 }
 window.formatList = formatList;
 DefineMacroS("formatList", formatList);
+
+function liquidcount(liquid, parts) {
+	if (!setup.bodyliquid.liquidtype.includes(liquid)) return Errors.report("liquidcount error: wrong type", liquid);
+	let count = 0;
+	for (const part of parts) {
+		count += V.player.bodyliquid[part][liquid];
+	}
+	return count;
+}
+
+function liquidclamp() {
+	for (const bodypart of setup.bodyliquid.bodyparts) {
+		for (const liquid of ["goo", "semen", "nectar"]) {
+			V.player.bodyliquid[bodypart][liquid] = Math.clamp(V.player.bodyliquid[bodypart][liquid], 0, 5);
+		}
+	}
+}
+
+function goocount() {
+	liquidclamp();
+	const outer = setup.bodyliquid.outerbodyparts;
+	const goooutsidecount = liquidcount("goo", outer);
+	const semenoutsidecount = liquidcount("semen", outer);
+	const nectaroutsidecount = liquidcount("nectar", outer);
+	const liquidoutsidecount = goooutsidecount + semenoutsidecount + nectaroutsidecount;
+
+	const inner = setup.bodyliquid.innerbodyparts;
+	const gooinsidecount = liquidcount("goo", inner) * 3;
+	const semeninsidecount = liquidcount("semen", inner) * 3;
+	const nectarinsidecount = liquidcount("nectar", inner) * 3;
+	const liquidinsidecount = gooinsidecount + semeninsidecount + nectarinsidecount;
+
+	V.goooutsidecount = goooutsidecount;
+	V.semenoutsidecount = semenoutsidecount;
+	V.nectaroutsidecount = nectaroutsidecount;
+	V.liquidoutsidecount = liquidoutsidecount;
+	V.goocount = gooinsidecount + goooutsidecount;
+	V.semencount = semeninsidecount + semenoutsidecount;
+	V.nectarcount = nectarinsidecount + nectaroutsidecount;
+	V.liquidcount = liquidinsidecount + liquidoutsidecount;
+}
+DefineMacro("goocount", goocount);
+
+/* set $allure to allure, set $attractiveness to attractiveness */
+function calculateallure() {
+	/* attractiveness calcs */
+	let attractiveness;
+	/* baseline, reused later for allure danger mods */
+	let baseattractiveness = V.beauty / 3 + V.hairlength / 4;
+	if (!V.worn.over_upper.type.includes("naked")) {
+		baseattractiveness += V.worn.over_upper.reveal;
+	} else {
+		baseattractiveness += V.worn.upper.reveal;
+		if (V.worn.upper.type.includes("naked")) baseattractiveness += V.worn.under_upper.reveal;
+	}
+	if (!V.worn.over_lower.type.includes("naked")) {
+		baseattractiveness += V.worn.over_lower.reveal;
+	} else {
+		baseattractiveness += V.worn.lower.reveal;
+		if (V.worn.lower.type.includes("naked")) baseattractiveness += V.worn.under_lower.reveal;
+	}
+	attractiveness = baseattractiveness;
+	/* extra attractiveness from accessories */
+	for (const slot of ["head", "face", "neck", "legs", "feet", "handheld", "hands"]) attractiveness += V.worn[slot].reveal || 0;
+	/* tf bonuses */
+	const partsDisabled = (tf, parts) => parts.filter(part => V.transformationParts[tf][part] === "disabled").length;
+	if (partsDisabled("demon", ["horns", "tail", "wings"]) < 3) attractiveness += 500 - 100 * partsDisabled("demon", ["horns", "tail", "wings"]);
+	if (partsDisabled("angel", ["halo", "wings"]) < 2) attractiveness += 500 - 150 * partsDisabled("angel", ["halo", "wings"]);
+	if (partsDisabled("fallenAngel", ["halo", "wings"]) < 2) attractiveness += 500 - 150 * partsDisabled("fallenAngel", ["halo", "wings"]);
+	if (partsDisabled("wolf", ["tail", "ears"]) < 2) attractiveness += 500 - 150 * partsDisabled("wolf", ["tail", "ears"]);
+	if (partsDisabled("cat", ["tail", "ears"]) < 2) attractiveness += 500 - 150 * partsDisabled("cat", ["tail", "ears"]);
+	if (partsDisabled("cow", ["ears", "horns", "tail"]) < 3) attractiveness += 500 - 100 * partsDisabled("cow", ["ears", "horns", "tail"]);
+	if (partsDisabled("bird", ["tail", "eyes", "wings", "malar", "plumage"]) < 5) attractiveness += 500 - 60 * partsDisabled("bird", ["tail", "eyes", "wings", "malar", "plumage"]);
+	if (partsDisabled("fox", ["ears", "tail"]) < 2) attractiveness += 750 - 225 * partsDisabled("fox", ["ears", "tail"]);
+	if (partsDisabled("bunny", ["ears","tail"]) < 2) attractiveness += 500 - 225 * partsDisabled("bunny", ["ears","tail"]);
+	if (partsDisabled("okami", ["ears", "tail", "wings"]) < 3) attractiveness += 1000 - 225 * partsDisabled("okami", ["ears", "tail", "wings"]);
+	if (partsDisabled("seraphim", ["wings", "plumage"]) < 2) attractiveness += 1000 - 400 * partsDisabled("seraphim", ["wings", "plumage"]);
+	if (partsDisabled("kitsune", ["ears", "tail", "cheeks"]) < 3) attractiveness += 1000 - 225 * partsDisabled("kitsune", ["ears", "tail", "cheeks"]);
+	/* makeup */
+	for (const makeup of ["lipstick", "mascara", "eyeshadow", "blusher"]) {
+		if (V.makeup[makeup]) attractiveness += 100;
+	}
+	V.attractiveness = Math.floor(attractiveness);
+
+	/* allure calcs */
+	let allure = attractiveness;
+	/* night and exposed mods to base attractiveness. minus one, because it's already included into attractiveness above */
+	const nightMod = Weather.dayState === "night" ? 1.5 : 1;
+	const exposedMod = 1 + V.exposed / 5;
+	allure += baseattractiveness * (nightMod * exposedMod - 1);
+	/* bodyliquid danger */
+	goocount();
+	allure += V.liquidcount * 50;
+	/* ear slime */
+	if (V.earSlime.growth > 50) allure += (V.earSlime.growth - 50) * 10;
+	/* fame mods */
+	let reputation_mod = 1;
+	if (!["island"].includes(V.location)) {
+		reputation_mod = 0;
+		reputation_mod = Math.max(reputation_mod, V.fame.sex * 1.5 / 1000);
+		reputation_mod = Math.max(reputation_mod, V.fame.prostitution * 3 / 1000);
+		reputation_mod = Math.max(reputation_mod, V.fame.rape * 2 / 1000);
+		reputation_mod = Math.max(reputation_mod, V.fame.bestiality * 2 / 1000);
+		reputation_mod = Math.max(reputation_mod, V.fame.exhibitionism / 1000);
+		reputation_mod = Math.max(reputation_mod, V.fame.pregnancy / 1000);
+		reputation_mod = Math.max(reputation_mod, V.fame.impreg / 1000);
+
+		let mitigator_mod = 1;
+		mitigator_mod *= 1 - (V.fame.scrap / 4000);
+		mitigator_mod *= 1 - (V.fame.good / 4000);
+		mitigator_mod *= 1 - (V.fame.business / 4000);
+		mitigator_mod *= 1 - (V.fame.social / 4000);
+		mitigator_mod *= 1 - (V.fame.model / 4000);
+		mitigator_mod *= 1 - (V.fame.pimp / 4000);
+		
+		reputation_mod *= mitigator_mod;
+		// for (const badfame of ["sex", "prostitution", "rape", "bestiality", "exhibitionism", "pregnancy", "impreg"]) allure += V.fame[badfame] / 10;
+		// for (const goodfame of ["good", "scrap", "business", "social", "model", "pimp"]) allure -= V.fame[goodfame] / 2;
+	}
+	/* bloodmoon */
+	if (Time.isBloodMoon()) allure += 2000;
+	allure = Math.clamp(allure, 0, 8000);
+	let baseAllure = allure;
+
+	/* weighted distribution */
+	allure = baseAllure * 0.05;
+	allure += baseAllure * reputation_mod * 0.95;
+	allure += V.arousal / 5;
+	
+	if (V.hallucinogen >= 1 && V.substanceRebalance == 1) allure *= 1 + (0.25 * (V.hallucinogen / 250))
+	/* extra modifiers */
+	allure *= V.alluremod;
+	if (V.moorLuck > 0) allure *= 1 - V.moorLuck / 100;
+
+	V.allure = Math.floor(allure);
+}
+DefineMacro("calculateallure", calculateallure);

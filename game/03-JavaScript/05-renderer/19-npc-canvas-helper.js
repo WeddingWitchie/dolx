@@ -13,14 +13,17 @@ class NpcCanvasHelper {
 		 */
 		const defaults = {
 			srcfn(options) {
+				if (options.isBlackWolf) {
+					if (options.category === "shadow") {
+						return `${options.src}/${options.category}/blackwolf/${options.state}.png`;
+					}
+					return `${options.src}/${options.category}/blackwolf/${layer}-${options.state}.png`;
+				}
 				if (layer === "front" && options.category === "shadow") {
 					return `${options.src}/${options.category}/${options.type}/${options.state}.png`;
 				}
 				if (layer === "outline" && options.category === "shadow" && ["human", "plant"].includes(options.type)) {
 					return `${options.src}/${options.category}/${options.type}/${options.state}-outline.png`;
-				}
-				if (options.isBlackWolf) {
-					return `${options.src}/${options.category}/blackwolf/${layer}-${options.state}.png`;
 				}
 				return `${options.src}/${options.category}/${options.type}/${layer}-${options.state}.png`;
 			},
@@ -31,11 +34,11 @@ class NpcCanvasHelper {
 				if (options.state == null) {
 					return false;
 				}
-				if (options.position === "doggy" && options.category === "shadow" && options.state === "penis") {
+				if (options.category === "shadow" && options.position === "doggy" && options.state === "penis") {
 					return false;
 				}
 				const penetrator = options.penetrators[0];
-				if (penetrator != null && penetrator.position === "mouth" && penetrator.state === "entrance") {
+				if (options.category === "shadow" && penetrator != null && penetrator.position === "mouth" && penetrator.state === "entrance") {
 					return false;
 				}
 				if (layer === "back" && options.category !== "beast") {
@@ -94,7 +97,7 @@ class NpcCanvasHelper {
 					return 0;
 				}
 				const penetrator = options.penetrators[0];
-				if (penetrator == null) {
+				if (penetrator == null || penetrator.show === false) {
 					return 0;
 				}
 				if (penetrator.position != null && ["vagina", "anus", "butt", "thighs"].includes(penetrator.position)) {
@@ -287,6 +290,13 @@ class NpcCanvasHelper {
 					return [];
 				}
 				return ["penetrator"];
+			},
+			masksrcfn(options) {
+				const penetrator = options.penetrators[0];
+				if (penetrator.position === "mouth" && penetrator.state === "penetrating") {
+					return `${options.src}/body/head/head-mask.png`;
+				}
+				return null;
 			},
 		};
 		return Object.assign(defaults, overrideOptions);

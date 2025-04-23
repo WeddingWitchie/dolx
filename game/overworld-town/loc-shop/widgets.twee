@@ -28,7 +28,6 @@
 		<</if>>
 	<</for>>
 	<br>
-	<<run initializeTooltips()>>
 <</widget>>
 
 <<widget "shopClothingFilterSettingsDefault">>
@@ -584,186 +583,331 @@
 	<br>
 <</widget>>
 
-<<widget "furnitureMovePrice">>
-	/*
-	Orphanage is $furnitureMovePrice[0]
-	Farm Cottage is $furnitureMovePrice[1]
-	Lake House is $furnitureMovePrice[2]
-	 */
-	<<if $furnitureLocation is "orphanage">>
-		/* Farm Cottage */
-		<<set $furnitureMovePrice[1] to 400000>>
-		/* Lake House */
-		<<set $furnitureMovePrice[2] to 200000>>
-	<<elseif $furnitureLocation is "farm cottage">>
-		/* Orphanage */
-		<<set $furnitureMovePrice[0] to 400000>>
-		/* Lake House */
-		<<set $furnitureMovePrice[2] to 500000>>
-	<<elseif $furnitureLocation is "lake house">>
-		/* Orphanage */
-		<<set $furnitureMovePrice[0] to 200000>>
-		/* Farm Cottage */
-		<<set $furnitureMovePrice[1] to 500000>>
+<<widget "supermarketDisplay">>
+	<div id="supermarketDisplay" class="food_ui no-numberify">
+		<<set _selectedShop to _args[0]>>
+		<<if !$shoppingBasket>><<set $shoppingBasket to {}>><</if>>
+		<div id="mobileHeader">
+			<div id="controls" class="mobileOnly">
+				<div class="gold bold">Basket:</div>
+				<div><<supermarketDisplayFillBasket>></div>
+			</div>
+			<div class="mobileOnly">
+				<<if $options.images>>
+					<<link "<<icon 'basket.png'>>">>
+						<<set _basketOpenAlt to _basketOpen>>
+						<<replace "#altSection">><<supermarketDisplayBasket>><</replace>>
+						<<if _basketOpenAlt>>
+							<<toggleclass "#altSection, #mobileCloser" "mobileHidden">>
+						<<else>>
+							<<removeclass "#altSection, #mobileCloser" "mobileHidden">>
+						<</if>>
+					<</link>>
+				<<else>>
+					<<link "Basket">>
+						<<set _basketOpenAlt to _basketOpen>>
+							<<toggleclass "#altSection, #mobileCloser" "mobileHidden">>
+						<<if _basketOpenAlt>>
+							<<replace "#altSection">><<supermarketDisplayBasket>><</replace>>
+						<<else>>
+							<<replace "#altSection">><<supermarketDisplayBasket>><</replace>>
+						<</if>>
+					<</link>>
+				<</if>>
+			</div>
+		</div>
+		<div id="body">
+			<div id="mainSection">
+				<div id="search">
+					Search: <<textbox "_foodSearch" "">>
+					<<run $(() => {
+						var foodTimer = null;
+						$('#textbox--foodsearch').on('input change keypress', e => {
+							_foodSearch = e.target.value;
+							clearTimeout(foodTimer);
+							foodTimer = setTimeout(updateUI, 300);
+						});
+						var updateUI = () => {
+							Wikifier.wikifyEval('<<replace "#itemList">><<supermarketDisplayItems>><</replace>>');
+						}
+					})>>
+				</div>
+				<div id="itemList">
+					<<supermarketDisplayItems>>
+				</div>
+			</div>
+			<div id="altSection" class="mobileHidden">
+				<<supermarketDisplayBasket>>
+			</div>
+			<div id="mobileCloser" class="mobileOnly mobileHidden" onclick="wikifier('addclass', '#altSection', 'mobileHidden'); wikifier('addclass', '#mobileCloser', 'mobileHidden');"></div>
+		</div>
+	</div>
+<</widget>>
+
+<<widget "supermarketDisplayItems">>
+	<<set _foodKeys to []>>
+	<<set _foodGroups to []>>
+	<<run Object.keys(setup.plants).forEach(key => {
+		const item = setup.plants[key];
+		if (!item.shop or !item.shop.includes(_selectedShop)) return;
+
+		const filter = _foodSearch ? _foodSearch.toLowerCase().split(/[_ ]/g) : false;
+		if (filter and !filter.find(term =>
+				item.name.includes(term) or
+				item.type.includes(term) or
+				item.plural?.includes(term) or
+				item.singular?.includes(term)
+			)) {
+			return;
+		}
+
+		_foodKeys.pushUnique(key);
+		if (V.plants[key].supermarket gt 0) {
+			_foodGroups.pushUnique(item.type);
+		} else {
+			_foundSoldOut to true;
+		}
+	})>>
+	<<if _foundSoldOut>><<run _foodGroups.pushUnique("Sold out")>><</if>>
+	<<for _category range _foodGroups>>
+		<<set _categoryVar to "_" + _category.replace(" ", "")>>
+		<<foldout false _categoryVar>>
+			<span class="gold"><<print _category.toLocaleUpperFirst()>></span>
+			<<set _keys to _foodKeys.filter(key =>
+				(_category isnot "Sold out" && setup.plants[key].type is _category && $plants[key].supermarket > 0) ||
+				(_category is "Sold out" && $plants[key].supermarket <= 0)
+			)>>
+			<<for $_i, $_key range _keys>>
+				<div @id="$_key" class="item"><<supermarketDisplayItem $_key>></div>
+				<<if $_i lt _keys.length - 1>><hr><</if>>
+			<</for>>
+		<</foldout>>
+	<</for>>
+<</widget>>
+
+<<widget "supermarketDisplayItem">>
+	<<set _key to _args[0]>>
+	<<set $_setupItem to setup.plants[_key]>>
+	<div class="details">
+		<div>
+			<<tendingicon $_setupItem.icon>> |
+
+			Owned: <span class="gold"><<print $plants[_key].amount>></span> |
+
+			<<if Time.dayState is "night">>
+				Value: <span class="gold"> £<<print ($_setupItem.plant_cost * ($_setupItem.boughtInBulk or 1) * 2 / 100).toFixed(2)>></span>
+			<<else>>
+				Price: <span class="gold"> £<<print ($_setupItem.plant_cost * ($_setupItem.boughtInBulk or 1) * 2 / 100).toFixed(2)>></span>
+			<</if>>
+			<<if $_setupItem.boughtInBulk>>
+				per <<print $_setupItem.boughtInBulk>>
+			<</if>>
+		</div>
+		<<if $plants[_key].supermarket gt 0>>
+			<<numberStepper "<<recipe_name _key 'cap'>>" $shoppingBasket[_key] {
+				callback: (value, arr) => {
+					V.shoppingBasket[arr[0]] = value;
+					Wikifier.wikifyEval('<<replace "#altSection">><<supermarketDisplayBasket>><</replace>>');
+				},
+				valueFormat: (value, percentage, values) => {
+					return `${value}/${values[1]}`;
+				},
+				values: [_key, $plants[_key].supermarket],
+				disableMinMax: false,
+				step: 1 * ($_setupItem.boughtInBulk or 1),
+				max: Math.floor($plants[_key].supermarket),
+				colorArr:["--yellow"],
+				percentage: false
+			}>>
+		<<else>>
+			<br>
+			<span class="red">
+				<<switch $plants[_key].name>>
+					<<case "prawn" "clam" "date" "lime">><<recipe_name _key 'cap'>>s are
+					<<case "cherry">>Cherries are
+					<<case "oats">>Oats are
+					<<default>><<recipe_name _key 'cap'>> is
+				<</switch>>
+				out of stock.
+			</span>
+			<br>
+		<</if>>
+	</div>
+	<div class="recipe">
+		<<capture _key>>
+			<<if $options.images is 1>>
+				<<set _file to `recipe_${$_setupItem.type}.png`>>
+				<<link "<<icon _file>>">>
+					<<replace "#altSection">><<supermarketDisplayDetails _key>><</replace>>
+					<<removeclass "#altSection, #mobileCloser" "mobileHidden">>
+				<</link>>
+			<<else>>
+				<<link "Details">>
+					<<replace "#altSection">><<supermarketDisplayDetails _key>><</replace>>
+					<<removeclass "#altSection, #mobileCloser" "mobileHidden">>
+				<</link>>
+			<</if>>
+		<</capture>>
+	</div>
+<</widget>>
+
+<<widget "supermarketDisplayBasket">>
+	<<set _basketOpen to true>>
+	<div id="basket">Basket:
+		<div class="mobileOnly">
+			<<link "Close">>
+				<<addclass "#altSection, #mobileCloser" "mobileHidden">>
+			<</link>>
+			<br><br>
+		</div>
+	</div>
+
+	<div id="basketItems">
+		<div class="mobileHidden">
+			<<supermarketDisplayFillBasket>>
+			<hr>
+		</div>
+		<<set $_typesInBasket to 0>>
+		<<set _totalCost to Object.entries($shoppingBasket).reduce((sum, [key, amount]) => {
+			if (amount > 0) {
+				$_typesInBasket++;
+			};
+			sum += setup.plants[key].plant_cost * amount * 2 or 0;
+			return sum;
+		}, 0)>>
+
+		<<if $_typesInBasket is 0>>
+			Your shopping basket is empty.
+			<<exit>>
+		<</if>>
+
+		<<if $_typesInBasket gt 5>>
+			<<foldout false "_basketFoldout">>
+				<span>Items:</span>
+				<div class="itemSummary">
+					<<supermarketDisplayBasketSummary>>
+				</div>
+			<</foldout>>
+		<<else>>
+			Items:
+			<div class="itemSummary">
+				<<supermarketDisplayBasketSummary>>
+			</div>
+		<</if>>
+		<hr>
+		<<if Time.dayState is "night" and Time.hour isnot 21>>
+			<<link [[Steal|$passage]]>>
+				<<for _itemInCart range Object.keys($shoppingBasket)>>
+					<<tending_give $plants[_itemInCart].name $shoppingBasket[_itemInCart]>>
+					<<crimeUp `setup.plants[_itemInCart].plant_cost * $shoppingBasket[_itemInCart] * 2` "thievery">>
+					<<set $plants[_itemInCart].supermarket -= $shoppingBasket[_itemInCart]>>
+				<</for>>
+				<<set $shoppingBasket to {}>>
+			<</link>>
+		<<else>>
+			Total: <span class="gold"> £<<print (_totalCost / 100).toFixed(2)>></span>
+			<br>
+			<<if $money gte _totalCost>>
+				<<link [["Purchase"|$passage]]>>
+					<<for _itemInCart range Object.keys($shoppingBasket)>>
+						<<tending_give $plants[_itemInCart].name $shoppingBasket[_itemInCart]>>
+						<<money `-(setup.plants[_itemInCart].plant_cost * $shoppingBasket[_itemInCart] * 2)` "supermarket">>
+						<<set $plants[_itemInCart].supermarket -= $shoppingBasket[_itemInCart]>>
+					<</for>>
+					<<set $shoppingBasket to {}>>
+				<</link>>
+			<<else>>
+				You can't afford your selection of goods.
+			<</if>>
+		<</if>>
+		|
+		<<link "Empty">>
+			<<set $shoppingBasket to {}>>
+			<<addclass "#altSection, #mobileCloser" "mobileHidden">>
+			<<replace "#itemList">><<supermarketDisplayItems>><</replace>>
+			<<replace "#altSection">><<supermarketDisplayBasket>><</replace>>
+		<</link>>
+	</div>
+	<br><br>
+<</widget>>
+
+<<widget "supermarketDisplayBasketSummary">>
+	<<for _itemInCart range Object.keys($shoppingBasket)>>
+		<<if $shoppingBasket[_itemInCart] lte 0>><<continue>><</if>>
+		<div class="basketItem">
+			<div>
+				<<tendingicon setup.plants[_itemInCart].icon>>
+				<<recipe_name _itemInCart "cap">> |
+				x<<print $shoppingBasket[_itemInCart]>>
+			</div>
+			<div class="price">
+				<span class="gold"> £<<print (setup.plants[_itemInCart].plant_cost * $shoppingBasket[_itemInCart] * 2 / 100).toFixed(2)>></span>
+				<span>
+					<<capture _itemInCart>>
+						<<link "Remove">>
+							<<run delete $shoppingBasket[_itemInCart]>>
+							<<replace "#itemList">><<supermarketDisplayItems>><</replace>>
+							<<replace "#altSection">><<supermarketDisplayBasket>><</replace>>
+						<</link>>
+					<</capture>>
+				</span>
+			</div>
+		</div>
+	<</for>>
+<</widget>>
+
+<<widget "supermarketDisplayFillBasket">>
+	<<if Object.keys(setup.plants).find(key => {
+		if (setup.plants[key]?.shop?.includes(_selectedShop) and $plants[key].supermarket) return key;
+	})>>
+		Fill
+		<<link "25%">><<supermarketDisplayFillBasketLink 0.25>><</link>> |
+		<<link "50%">><<supermarketDisplayFillBasketLink 0.5>><</link>> |
+		<<link "75%">><<supermarketDisplayFillBasketLink 0.75>><</link>> |
+		<<link "100%">><<supermarketDisplayFillBasketLink 1>><</link>>
+	<<else>>
+		The shop is currently out of stock.
 	<</if>>
 <</widget>>
 
-<<widget "supermarket_display">>
-<<set _food_keys to Object.keys(setup.plants)>>
+<<widget "supermarketDisplayFillBasketLink">>
+	<<set $shoppingBasket to {}>>
+	<<run Object.keys(setup.plants).forEach(key => {
+		if (setup.plants[key]?.shop?.includes(_selectedShop) and $plants[key].supermarket) {
+			$shoppingBasket[key] to Math.ceil($plants[key].supermarket * _args[0]);
+		}
+	})>>
+	<<replace "#itemList">><<supermarketDisplayItems>><</replace>>
+	<<replace "#altSection">><<supermarketDisplayBasket>><</replace>>
+	<<removeclass "#altSection, #mobileCloser" "mobileHidden">>
+<</widget>>
 
-<<for _i to 0; _i lt _food_keys.length; _i++>>
-	<<set _type to _food_keys[_i]>>
-	<<if ["cocoa_powder","salt","sugar","vegetable_oil","red_wine","white_wine","oats","date","cherry","lime","rice"].includes(setup.plants[_food_keys[_i]].name)>>
-		<<tendingicon setup.plants[_food_keys[_i]].icon>>
-		<<print setup.plants[_food_keys[_i]].plural.toLocaleUpperFirst()>>
-		<br>
-		Owned: <span class="gold"><<print $plants[_type].amount>></span>
-		|
-		Supermarket stock: <span class="gold"><<print $plants[_type].supermarket>></span>
-		|
-		Price: <span class="gold">£<<print (setup.plants[_food_keys[_i]].plant_cost * 2 / 100).toFixed(2)>></span>
-		<br>
-		<<set _plant_cost to setup.plants[_food_keys[_i]].plant_cost>>
-		<<capture _type _plant_cost>>
-			<span class="no-numberify">
-				<<if Time.dayState is "night">>
-					<<if $plants[_type].supermarket gte 1>>
-						<<link [[Steal one|$passage]]>><<tending_give $plants[_type].name 1>><<crimeUp 1 "thievery">><<set $plants[_type].supermarket -= 1>><</link>>
-					<</if>>
-					<<if $plants[_type].supermarket gte 5>>
-						| <<link [[Steal five|$passage]]>><<tending_give $plants[_type].name 5>><<crimeUp 5 "thievery">><<set $plants[_type].supermarket -= 5>><</link>>
-					<</if>>
-					<<if $plants[_type].supermarket gte 10>>
-						| <<link [[Steal ten|$passage]]>><<tending_give $plants[_type].name 10>><<crimeUp 10 "thievery">><<set $plants[_type].supermarket -= 10>><</link>>
-					<</if>>
-					<<if $plants[_type].supermarket gte 100>>
-						| <<link [[Steal one hundred|$passage]]>><<tending_give $plants[_type].name 100>><<crimeUp 100 "thievery">><<set $plants[_type].supermarket -= 100>><</link>>
-					<</if>>
-					<<if $plants[_type].supermarket gte 1>>
-						<<crime "thievery">>
-					<</if>>
-				<<else>>
-					<<if $money gte _plant_cost * 2 and $plants[_type].supermarket gte 1>>
-						<<link [[Buy one|$passage]]>><<tending_give $plants[_type].name 1>><<money `-(_plant_cost * 2)` "supermarket">><<set $plants[_type].supermarket -= 1>><</link>>
-					<</if>>
-					<<if $money gte _plant_cost * 10 and $plants[_type].supermarket gte 5>>
-						| <<link [[Buy five|$passage]]>><<tending_give $plants[_type].name 5>><<money `-(_plant_cost * 10)` "supermarket">><<set $plants[_type].supermarket -= 5>><</link>>
-					<</if>>
-					<<if $money gte _plant_cost * 20 and $plants[_type].supermarket gte 10>>
-						| <<link [[Buy ten|$passage]]>><<tending_give $plants[_type].name 10>><<money `-(_plant_cost * 20)` "supermarket">><<set $plants[_type].supermarket -= 10>><</link>>
-					<</if>>
-					<<if $money gte _plant_cost * 200 and $plants[_type].supermarket gte 100>>
-						| <<link [[Buy one hundred|$passage]]>><<tending_give $plants[_type].name 100>><<money `-(_plant_cost * 200)` "supermarket">><<set $plants[_type].supermarket -= 100>><</link>>
-					<</if>>
-				<</if>>
-			</span>
-		<</capture>>
-		<br><br>		
-	<</if>>
-<</for>>
-<hr>
-<<for _i to 0; _i lt _food_keys.length; _i++>>
-	<<set _type to _food_keys[_i]>>
-	<<if setup.plants[_food_keys[_i]].type.includes("fish")>>
-		<<tendingicon setup.plants[_food_keys[_i]].icon>>
-		<<print setup.plants[_food_keys[_i]].plural.toLocaleUpperFirst()>>
-		<br>
-		Owned: <span class="gold"><<print $plants[_type].amount>></span>
-		|
-		Supermarket stock: <span class="gold"><<print $plants[_type].supermarket>></span>
-		|
-		Price: <span class="gold">£<<print (setup.plants[_food_keys[_i]].plant_cost * 2 / 100).toFixed(2)>></span>
-		<br>
-		<<set _plant_cost to setup.plants[_food_keys[_i]].plant_cost>>
-		<<set _type to _type>>
-		<<capture $plants[_type].amount>><<capture _plant_cost>><<capture $plants[_type].supermarket>>
-			<span class="no-numberify">
-				<<if Time.dayState is "night">>
-					<<if $plants[_type].supermarket gte 1>>
-						<<link [[Steal one|$passage]]>><<tending_give $plants[_type].name 1>><<crimeUp 1 "thievery">><<set $plants[_type].supermarket -= 1>><</link>>
-					<</if>>
-					<<if $plants[_type].supermarket gte 5>>
-						| <<link [[Steal five|$passage]]>><<tending_give $plants[_type].name 5>><<crimeUp 5 "thievery">><<set $plants[_type].supermarket -= 5>><</link>>
-					<</if>>
-					<<if $plants[_type].supermarket gte 10>>
-						| <<link [[Steal ten|$passage]]>><<tending_give $plants[_type].name 10>><<crimeUp 10 "thievery">><<set $plants[_type].supermarket -= 10>><</link>>
-					<</if>>
-					<<if $plants[_type].supermarket gte 100>>
-						| <<link [[Steal one hundred|$passage]]>><<tending_give $plants[_type].name 100>><<crimeUp 100 "thievery">><<set $plants[_type].supermarket -= 100>><</link>>
-					<</if>>
-					<<if $plants[_type].supermarket gte 1>>
-						<<crime "thievery">>
-					<</if>>
-				<<else>>
-					<<if $money gte _plant_cost * 2 and $plants[_type].supermarket gte 1>>
-						<<link [[Buy one|$passage]]>><<tending_give $plants[_type].name 1>><<money `-(_plant_cost * 2)` "supermarket">><<set $plants[_type].supermarket -= 1>><</link>>
-					<</if>>
-					<<if $money gte _plant_cost * 10 and $plants[_type].supermarket gte 5>>
-						| <<link [[Buy five|$passage]]>><<tending_give $plants[_type].name 5>><<money `-(_plant_cost * 10)` "supermarket">><<set $plants[_type].supermarket -= 5>><</link>>
-					<</if>>
-					<<if $money gte _plant_cost * 20 and $plants[_type].supermarket gte 10>>
-						| <<link [[Buy ten|$passage]]>><<tending_give $plants[_type].name 10>><<money `-(_plant_cost * 20)` "supermarket">><<set $plants[_type].supermarket -= 10>><</link>>
-					<</if>>
-					<<if $money gte _plant_cost * 200 and $plants[_type].supermarket gte 100>>
-						| <<link [[Buy one hundred|$passage]]>><<tending_give $plants[_type].name 100>><<money `-(_plant_cost * 200)` "supermarket">><<set $plants[_type].supermarket -= 100>><</link>>
-					<</if>>
-				<</if>>
-			</span>
-		<</capture>><</capture>><</capture>>
-		<br><br>		
-	<</if>>
-<</for>>
-<hr>
-<<for _i to 0; _i lt _food_keys.length; _i++>>
-	<<set _type to _food_keys[_i]>>
-	<<if setup.plants[_food_keys[_i]].type.includes("meat")>>
-		<<tendingicon setup.plants[_food_keys[_i]].icon>>
-		<<print setup.plants[_food_keys[_i]].plural.toLocaleUpperFirst()>>
-		<br>
-		Owned: <span class="gold"><<print $plants[_type].amount>></span>
-		|
-		Supermarket stock: <span class="gold"><<print $plants[_type].supermarket>></span>
-		|
-		Price: <span class="gold">£<<print (setup.plants[_food_keys[_i]].plant_cost * 2 / 100).toFixed(2)>></span>
-		<br>
-		<<set _plant_cost to setup.plants[_food_keys[_i]].plant_cost>>
-		<<set _type to _type>>
-		<<capture $plants[_type].amount>><<capture _plant_cost>><<capture $plants[_type].supermarket>>
-			<span class="no-numberify">
-				<<if Time.dayState is "night">>
-					<<if $plants[_type].supermarket gte 1>>
-						<<link [[Steal one|$passage]]>><<tending_give $plants[_type].name 1>><<crimeUp 1 "thievery">><<set $plants[_type].supermarket -= 1>><</link>>
-					<</if>>
-					<<if $plants[_type].supermarket gte 5>>
-						| <<link [[Steal five|$passage]]>><<tending_give $plants[_type].name 5>><<crimeUp 5 "thievery">><<set $plants[_type].supermarket -= 5>><</link>>
-					<</if>>
-					<<if $plants[_type].supermarket gte 10>>
-						| <<link [[Steal ten|$passage]]>><<tending_give $plants[_type].name 10>><<crimeUp 10 "thievery">><<set $plants[_type].supermarket -= 10>><</link>>
-					<</if>>
-					<<if $plants[_type].supermarket gte 100>>
-						| <<link [[Steal one hundred|$passage]]>><<tending_give $plants[_type].name 100>><<crimeUp 100 "thievery">><<set $plants[_type].supermarket -= 100>><</link>>
-					<</if>>
-					<<if $plants[_type].supermarket gte 1>>
-						<<crime "thievery">>
-					<</if>>
-				<<else>>
-					<<if $money gte _plant_cost * 2 and $plants[_type].supermarket gte 1>>
-						<<link [[Buy one|$passage]]>><<tending_give $plants[_type].name 1>><<money `-(_plant_cost * 2)` "supermarket">><<set $plants[_type].supermarket -= 1>><</link>>
-					<</if>>
-					<<if $money gte _plant_cost * 10 and $plants[_type].supermarket gte 5>>
-						| <<link [[Buy five|$passage]]>><<tending_give $plants[_type].name 5>><<money `-(_plant_cost * 10)` "supermarket">><<set $plants[_type].supermarket -= 5>><</link>>
-					<</if>>
-					<<if $money gte _plant_cost * 20 and $plants[_type].supermarket gte 10>>
-						| <<link [[Buy ten|$passage]]>><<tending_give $plants[_type].name 10>><<money `-(_plant_cost * 20)` "supermarket">><<set $plants[_type].supermarket -= 10>><</link>>
-					<</if>>
-					<<if $money gte _plant_cost * 200 and $plants[_type].supermarket gte 100>>
-						| <<link [[Buy one hundred|$passage]]>><<tending_give $plants[_type].name 100>><<money `-(_plant_cost * 200)` "supermarket">><<set $plants[_type].supermarket -= 100>><</link>>
-					<</if>>
-				<</if>>
-			</span>
-		<</capture>><</capture>><</capture>>
-		<br><br>		
-	<</if>>
-<</for>>
-<br><br>
+<<widget "supermarketDisplayDetails">>
+	<<set $_setupItem to setup.plants[_args[0]]>>
+	<div id="basket">
+		<div>
+		<<tendingicon $_setupItem.icon>>
+			<div class="recipeTitle"><<recipe_name _args[0] "cap">>:</div>
+		</div>
+		<div class="mobileOnly">
+			<<link "Close">>
+				<<addclass "#altSection, #mobileCloser" "mobileHidden">>
+			<</link>>
+		</div>
+	</div>
+	<<set _basketOpen to false>>
+	<div id="basketItems">
+		<div class="mobileHidden">
+			<<link "Return to basket">>
+				<<replace "#altSection">><<supermarketDisplayBasket>><</replace>>
+				<<addclass "#altSection, #mobileCloser" "mobileHidden">>
+			<</link>>
+			<hr>
+		</div>
+		<<if $_setupItem.boughtInBulk>>
+			Bought in sets of <<print $_setupItem.boughtInBulk>>.
+			<hr>
+		<</if>>
+		<<knownFoodRecipes _args[0]>>
+	</div>
 <</widget>>

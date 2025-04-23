@@ -139,6 +139,20 @@
 			feet:["Range", "Range"],
 			genitals:["Range", "Range"],
 		}>>
+		<<set $characterViewer.patterns to {
+			head:["Range", "Range"],
+			face:["Range", "Range"],
+			neck:["Range", "Range"],
+			hands:["Range", "Range"],
+			handheld:["Range", "Range"],
+			upper:["Range", "Range"],
+			lower:["Range", "Range"],
+			under_upper:["Range", "Range"],
+			under_lower:["Range", "Range"],
+			legs:["Range", "Range"],
+			feet:["Range", "Range"],
+			genitals:["Range", "Range"],
+		}>>
 		<<set $characterViewer.skinColour to {
 			style:"",
 			type: "light",
@@ -369,11 +383,12 @@
 		<</if>>
 	<</link>>
 	<br><br>
-	<span class="gold">Body Type</span>
+	<span class="gold">Body Shape</span>
 	<br>
 	<label>Classic <<radiobutton "$characterViewer.bodyState.bodytype" 0 autocheck>></label> |
 	<label>Slender <<radiobutton "$characterViewer.bodyState.bodytype" 1 autocheck>></label> |
 	<label>Curvy <<radiobutton "$characterViewer.bodyState.bodytype" 2 autocheck>></label> |
+	<label>Soft <<radiobutton "$characterViewer.bodyState.bodytype" 3 autocheck>></label>
 	<br><br>
 	<span class="gold">Skin Colour</span>
 	<br>
@@ -638,7 +653,7 @@
 		<<set $characterViewer.colours.hair_colour_style to "simple">>
 
 		<<set $characterViewer.colours.dyedHairPart to "full">>
-		
+
 		<<set $characterViewer.bodyState.fringeStage to "none">>
 		<<set $characterViewer.bodyState.fringeType to "default">>
 		<<set $characterViewer.colours.fringe to Object.values(_hairTypeByName)[0]>>
@@ -776,7 +791,7 @@
 	<br><br>
 
 	<span class="gold">Fringe Type</span>
-	<br>	
+	<br>
 	<<listbox "$characterViewer.bodyState.fringeType" autoselect>>
 		<<optionsfrom _fringeTypeByName>>
 	<</listbox>>
@@ -897,7 +912,7 @@
 			angelWingsLeftType:["idle", "cover"].random(),
 			angelWingsRightType:["idle", "cover"].random(),
 			angelWingsLayer:["front", "back"].random(),
-			fallenAngelHalo:["hidden", "default", "traditional"].random(),
+			fallenAngelHalo:["hidden", "default", "traditional", "celestial-gold", "celestial-black", "celestial-fallenplus"].random(),
 			fallenAngelWings:["hidden", "default", "classic", "fallenplus", "classicfallenplus"].random(),
 			fallenAngelWingsLeftType:["idle", "cover"].random(),
 			fallenAngelWingsRightType:["idle", "cover"].random(),
@@ -907,7 +922,7 @@
 			demonTail:["hidden", "default", "classic", "succubus"].random(),
 			demonTailType:["idle", "cover"].random(),
 			demonTailLayer:["front", "back"].random(),
-			demonWings:["hidden", "default", "succubus"].random(),
+			demonWings:["hidden", "default", "succubus", "imp"].random(),
 			demonWingsType:["idle", "cover"].random(),
 			demonWingsLayer:["front", "back"].random(),
 			wolfEars:["hidden", "default", "feral"].random(),
@@ -1000,6 +1015,9 @@
 	<<listbox "$characterViewer.bodyState.fallenAngelHalo" autoselect>>
 		<<option "Hide" "hidden">>
 		<<option "Default" "default">>
+		<<option "Celestial" "celestial">>
+		<<option "Black Celestial" "celestial-black">>
+		<<option "Forgiven Celestial" "celestial-fallenplus">>
 		<<option "Traditional" "traditional">>
 	<</listbox>>
 	<br>
@@ -1044,6 +1062,7 @@
 	<<listbox "$characterViewer.bodyState.demonWings" autoselect>>
 		<<option "Hide" "hidden">>
 		<<option "Default" "default">>
+		<<option "Imp" "imp">>
 		<<option "Succubus" "succubus">>
 	<</listbox>>
 	<br>
@@ -1276,7 +1295,7 @@
 	<<set _modeloptions.show_face to $characterViewer.bodyState.show_face>>
 
 	/*body*/
-	<<set _modeloptions.body_type to ["classic","slender","curvy"][$characterViewer.bodyState.bodytype]>>
+	<<set _modeloptions.body_type to ["classic","slender","curvy", "soft"][$characterViewer.bodyState.bodytype]>>
 	<<set _modeloptions.breasts to $characterViewer.bodyState.cleavage ? "cleavage" : "default">>
 	/* <<set _modeloptions.breasts to $characterViewer.clothesEquipped.under_upper isnot 0 ? "cleavage" : "default">> */
 	<<set _modeloptions.arm_left to $characterViewer.bodyState.leftArmCovering ? "cover" : "idle">>
@@ -1491,7 +1510,7 @@
 		<div @id="'controls-clothes-colour-' + $_slot">
 			<<characterViewerModelClothesControlsColour $_slot>>
 		</div>
-		<<if ["over_upper","over_lower","upper","lower","under_upper","under_lower","genitals"].includes($_slot)>>
+		<<if ["over_upper","over_lower","upper","lower","under_upper","under_lower","genitals"].includes($_slot) and $characterViewer.clothesEquipped[$_slot] isnot 0>>
 			<br>
 			Integrity:
 			<<listbox `"$characterViewer.clothesIntegrity." + $_slot` autoselect>>
@@ -1511,7 +1530,7 @@
 				const index = e.target.value;
 
 				wikifier(`<<replace "#controls-clothes-colour-${slot}">><<characterViewerModelClothesControlsColour "${slot}">><</replace>>`);
-				
+
 				$(`#controls-clothes-colour-${slot} select`).on('input change', e => wikifier('<<clothesTestingImageUpdate>>'));
 			});
 		}
@@ -1524,16 +1543,31 @@
 		<<set $_item to setup.clothes[_args[0]][$characterViewer.clothesEquipped[_args[0]] or 0]>>
 		<<set $_options1 to ["Range", "Inversed Range"].concat($_item.colour_options or [])>>
 		<<set $_options2 to ["Range", "Inversed Range"].concat($_item.accessory_colour_options or [])>>
-		Primary:
-		<<set $_var to `$characterViewer.colours.${_args[0]}[0]`>>
-		<<listbox $_var autoselect>>
-			<<optionsfrom $_options1>>
-		<</listbox>>
-		| Secondary:
-		<<set $_var2 to `$characterViewer.colours.${_args[0]}[1]`>>
-		<<listbox $_var2 autoselect>>
-			<<optionsfrom $_options2>>
-		<</listbox>>
+		<<if $_item.colour_options.length gt 0>>
+			Primary:
+			<<set $_var to `$characterViewer.colours.${_args[0]}[0]`>>
+			<<run $_options1.delete("custom")>>
+			<<listbox $_var autoselect>>
+				<<optionsfrom $_options1>>
+			<</listbox>>
+		<</if>>
+		<<if $_item.accessory_colour_options.length gt 0>>
+			<<if $_item.colour_options>>|<</if>> Secondary:
+			<<set $_var2 to `$characterViewer.colours.${_args[0]}[1]`>>
+			<<run $_options2.delete("custom")>>
+			<<listbox $_var2 autoselect>>
+				<<optionsfrom $_options2>>
+			<</listbox>>
+		<</if>>
+		<<if $_item.pattern_options>>
+			<<if $_item.colour_options.length gt 0 || $_item.accessory_colour_options.length gt 0>><br><</if>>
+			<<set $_options3 to ["Range", "Inversed Range"].concat($_item.pattern_options or [])>>
+			Pattern:
+			<<set $_var3 to `$characterViewer.patterns.${_args[0]}[1]`>>
+			<<listbox $_var3 autoselect>>
+				<<optionsfrom $_options3>>
+			<</listbox>>
+		<</if>>
 	<</if>>
 <</widget>>
 
@@ -1552,6 +1586,7 @@
 		<<run $_colours.delete("custom")>>
 		<<set $_acc_colours to $_item.accessory_colour_options>>
 		<<run $_acc_colours.delete("custom")>>
+		<<set $_patterns to $_item.pattern_options || []>>
 
 		<<if !Array.isArray($_colours) or $_colours.length is 0>>
 			<<set _modeloptions.worn[$_slot].colour to "">>
@@ -1563,18 +1598,28 @@
 			<<set _modeloptions.worn[$_slot].colour to $characterViewer.colours[$_slot][0]>>
 		<</if>>
 		<<if !Array.isArray($_acc_colours) or $_acc_colours.length is 0>>
-			<<set _modeloptions.worn[$_slot].acc_colour to "">>
+			<<set _modeloptions.worn[$_slot].accColour to "">>
 		<<elseif $characterViewer.colours[$_slot][1] is "Range">>
-			<<set _modeloptions.worn[$_slot].acc_colour to $_acc_colours[Math.clamp($_instanceId,0,$_acc_colours.length - 1)]>>
+			<<set _modeloptions.worn[$_slot].accColour to $_acc_colours[Math.clamp($_instanceId,0,$_acc_colours.length - 1)]>>
 		<<elseif $characterViewer.colours[$_slot][1] is "Inversed Range">>
-			<<set _modeloptions.worn[$_slot].acc_colour to $_acc_colours[Math.clamp($_acc_colours.length - $_instanceId - 1,0,$_acc_colours.length - 1)]>>
+			<<set _modeloptions.worn[$_slot].accColour to $_acc_colours[Math.clamp($_acc_colours.length - $_instanceId - 1,0,$_acc_colours.length - 1)]>>
 		<<else>>
-			<<set _modeloptions.worn[$_slot].acc_colour to $characterViewer.colours[$_slot][1]>>
+			<<set _modeloptions.worn[$_slot].accColour to $characterViewer.colours[$_slot][1]>>
+		<</if>>
+		<<if !Array.isArray($_patterns) or $_patterns.length is 0>>
+			<<set _modeloptions.worn[$_slot].pattern to "">>
+		<<elseif $characterViewer.patterns[$_slot][1] is "Range">>
+			<<set _modeloptions.worn[$_slot].pattern to $_patterns[Math.clamp($_instanceId,0,$_patterns.length - 1)]>>
+		<<elseif $characterViewer.patterns[$_slot][1] is "Inversed Range">>
+			<<set _modeloptions.worn[$_slot].pattern to $_patterns[Math.clamp($_patterns.length - $_instanceId - 1,0,$_patterns.length - 1)]>>
+		<<else>>
+			<<set _modeloptions.worn[$_slot].pattern to $characterViewer.patterns[$_slot][1]>>
 		<</if>>
 	<<else>>
 		<<set _modeloptions.worn[$_slot].index to 0>>
 		<<set _modeloptions.worn[$_slot].colour to "">>
-		<<set _modeloptions.worn[$_slot].acc_colour to "">>
+		<<set _modeloptions.worn[$_slot].accColour to "">>
+		<<set _modeloptions.worn[$_slot].pattern to "">>
 	<</if>>
 <</widget>>
 

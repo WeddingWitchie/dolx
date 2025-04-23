@@ -16,6 +16,8 @@ set target[7]=b3s_mys
 set target[8]=b3s_hikfem_mys
 set target[9]=goosefem
 set target[10]=goosefem_mys
+set target[11]=gooseandro
+set target[12]=mikili
 
 set imagepack[0]=vanilla
 set imagepack[1]=beeesss
@@ -31,8 +33,10 @@ set imagepack[7]=b3s_mys
 set imagepack[8]=hikfem_mys
 set imagepack[9]=goosefem
 set imagepack[10]=goosefem_mys
+set imagepack[11]=gooseandro
+set imagepack[12]=mikili
 
-set array_length=10
+set array_length=12
 
 del ..\..\dist\*.apk
 
@@ -85,7 +89,7 @@ for /L %%i in (0,1,%array_length%) do (
 
 	cd .\dist\
 
-	ren "DoLP-v0.%version%-!imagepack[%%i]!-0.5.3.7 DoLP v0.%version% !imagepack[%%i]!-debug.apk" "0.5.3.7 DoLP v0.%version% !imagepack[%%i]!-debug.apk"
+	ren "DoLP-v0.%version%-!imagepack[%%i]!-0.5.4.5 DoLP v0.%version% !imagepack[%%i]!-debug.apk" "0.5.4.5 DoLP v0.%version% !imagepack[%%i]!-debug.apk"
 
 	cd ..\
 )

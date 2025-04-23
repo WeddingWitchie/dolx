@@ -10,11 +10,11 @@
 			One of the younger <<beastsplural>> approaches you. <<bHe>> wants to play fight.
 			<br><br>
 			<<link [[Play (0:20)|Wolf Cave Play Fight]]>><<pass 20>><<stress -4>><</link>><<lstress>>
-			<br>			
+			<br>
 			<<if hasSexStat("deviancy", 2) and ($bestialitydisable is "f" or $monster is 1)>>
 				<<link [[Lewd play|Wolf Cave Lewd Play]]>><<set $sexstart to 1>><</link>><<deviant2>>
 				<br>
-			<</if>>		
+			<</if>>
 			<<if $bus is "wolfcave">>
 				<<link [[Ignore|Wolf Cave]]>><<endevent>><</link>>
 				<br>
@@ -238,6 +238,7 @@
 						<<bHe>> sniffs at your pregnant belly before looking back into the forest. <<bHe>> seems disappointed with <<bhimself>>.
 						<br><br>
 					<</if>>
+					<<wearProp "pear">>
 				<</if>>
 			<</if>>
 		<<else>>
@@ -319,6 +320,28 @@
 			<<link [[Reason|Wolf Challenge Reason]]>><</link>><<wolfgirl>>
 			<br>
 		<</if>>
+	<<elseif !$daily.blackWolfCleanAway and $wolfstate is "cave" and Time.dayState isnot "night" and $passagePrev is "Forest" and ['face', 'chest', 'tummy'].every(part => Object.values($player.bodyliquid[part]).some(value => value >= 3)) and ['penis', 'vagina', 'vaginaoutside'].some(part => Object.values($player.bodyliquid[part]).some(value => value >= 3))>>
+		<<npc "Black Wolf">>
+		As you enter the clearing outside of the wolf cave, Black Wolf raises <<person1>><<bhis>> head, sniffing the air.
+		<br><br>
+		<<bHe>> gets up, following the scent to you until <<bhe>> locks eyes with you. <<bHe>> lowers <<bhis>> ears, letting out a low growl.
+		<<if $monster is 1>>
+			"<<pPackbrother>> smells different," <<bhe>> says. "Not like pack."
+		<<else>>
+			<<bHe>> doesn't seem to like your current scent.
+		<</if>>
+		<br><br>
+		<<bHe>> leans closer, looking at every inch of your face. <<bHe>> licks your forehead, cleaning the fluids off of it.
+		<br><br>
+
+		<<bodyliquid "face" "semen" -1>>
+		<<bodyliquid "face" "goo" -1>>
+		<<bodyliquid "face" "nectar" -1>>
+
+		<<link [[Let <<bhim>> continue|Wolf Liquid Clean]]>><</link>>
+		<br>
+		<<link [[Push <<bhim>> away|Wolf Liquid Clean Away]]>><<set $phase to 0>><</link>>
+		<br>
 	<<else>>
 		<<wolfcaveevent>>
 	<</if>>
@@ -437,10 +460,10 @@
 				<<link [[Follow the cliff (1:00)|Wolf Cliff]]>><<pass 1 hour>><<set $bus to "wolfpackcliff">><<tiredness 12>><</link>><<ggtiredness>>
 				<br>
 				<<if $rng gte 51>>
-					<<wolfcaveicon "bw">><<link [[Let the Black Wolf decide (1:00)|Wolf River]]>><<pass 1 hour>><<set $bus to "wolfpackriver">><<tiredness 12>><</link>><<ggtiredness>>
+					<<link [[Let the Black Wolf decide (1:00)|Wolf River]]>><<pass 1 hour>><<set $bus to "wolfpackriver">><<tiredness 12>><</link>><<ggtiredness>>
 					<br>
 				<<else>>
-					<<wolfcaveicon "bw">><<link [[Let the Black Wolf decide (1:00)|Wolf Cliff]]>><<pass 1 hour>><<set $bus to "wolfpackcliff">><<tiredness 12>><</link>><<ggtiredness>>
+					<<link [[Let the Black Wolf decide (1:00)|Wolf Cliff]]>><<pass 1 hour>><<set $bus to "wolfpackcliff">><<tiredness 12>><</link>><<ggtiredness>>
 					<br>
 				<</if>>
 			<<else>>
@@ -497,7 +520,9 @@
 <</widget>>
 
 <<widget "ppackbrother">><<silently>>
-	<<if $wolfpackleader gte 1>>
+	<<if $description is "alpha" and statusCheck("Black Wolf").love gte 100>>
+		<<set _text_output to "mate">>
+	<<elseif $wolfpackleader gte 1>>
 		<<set _text_output to "pack leader">>
 	<<elseif $player.gender_appearance is "m">>
 		<<set _text_output to "pack brother">>
@@ -511,7 +536,9 @@
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "ppackbrothers">><<silently>>
-	<<if $wolfpackleader gte 1>>
+	<<if $description is "alpha" and statusCheck("Black Wolf").love gte 100>>
+		<<set _text_output to "mate's">>
+	<<elseif $wolfpackleader gte 1>>
 		<<set _text_output to "pack leader's">>
 	<<elseif $player.gender_appearance is "m">>
 		<<set _text_output to "pack brother's">>
@@ -622,7 +649,7 @@
 
 	<<else>>
 
-        <<if between(_pregnancyProgress, 0.7, 1)>>
+		<<if between(_pregnancyProgress, 0.7, 1)>>
 			<<if $monster is 1>>
 				<<bHe>> shifts, looking down at <<bhis>> pregnant belly. You can see a little <<if _pregnancy.fetus[0].features.monster>>foot<<else>>paw<</if>> kicking against it.
 				<br><br>

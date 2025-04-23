@@ -32350,6 +32350,12 @@ function validateBootJson(bootJ) {
         && (0, lodash_1.isArray)((0, lodash_1.get)(bootJ, 'imgFileList'))
         && (0, lodash_1.every)((0, lodash_1.get)(bootJ, 'imgFileList'), lodash_1.isString);
     // optional
+    if (c && (0, lodash_1.has)(bootJ, 'nickName')) {
+        c = c && ((0, lodash_1.isString)((0, lodash_1.get)(bootJ, 'nickName')) || ((0, lodash_1.isPlainObject)((0, lodash_1.get)(bootJ, 'nickName'))));
+    }
+    if (c && (0, lodash_1.has)(bootJ, 'alias')) {
+        c = c && ((0, lodash_1.isArray)((0, lodash_1.get)(bootJ, 'alias')) && (0, lodash_1.every)((0, lodash_1.get)(bootJ, 'alias'), lodash_1.isString));
+    }
     if (c && (0, lodash_1.has)(bootJ, 'dependenceInfo')) {
         c = c && ((0, lodash_1.isArray)((0, lodash_1.get)(bootJ, 'dependenceInfo')) && (0, lodash_1.every)((0, lodash_1.get)(bootJ, 'dependenceInfo'), checkDependenceInfo));
     }
@@ -32382,6 +32388,11 @@ function validateBootJson(bootJ) {
             (0, lodash_1.every)((0, lodash_1.get)(bootJ, 'tweeFileList'), lodash_1.isString),
             (0, lodash_1.isArray)((0, lodash_1.get)(bootJ, 'imgFileList')),
             (0, lodash_1.every)((0, lodash_1.get)(bootJ, 'imgFileList'), lodash_1.isString),
+            'nickName',
+            (0, lodash_1.has)(bootJ, 'nickName') ? ((0, lodash_1.isString)((0, lodash_1.get)(bootJ, 'nickName')) || ((0, lodash_1.isPlainObject)((0, lodash_1.get)(bootJ, 'nickName')))) : true,
+            'alias',
+            (0, lodash_1.has)(bootJ, 'alias') &&
+                (0, lodash_1.isArray)((0, lodash_1.get)(bootJ, 'alias')) ? (0, lodash_1.every)((0, lodash_1.get)(bootJ, 'alias'), checkDependenceInfo) : true,
             'dependenceInfo',
             (0, lodash_1.has)(bootJ, 'dependenceInfo') &&
                 (0, lodash_1.isArray)((0, lodash_1.get)(bootJ, 'dependenceInfo')) ? (0, lodash_1.every)((0, lodash_1.get)(bootJ, 'dependenceInfo'), checkDependenceInfo) : true,

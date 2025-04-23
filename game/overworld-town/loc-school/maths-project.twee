@@ -20,10 +20,7 @@
 
 <<set _baseTime to 120>>
 
-<<set _chair to Furniture.get('chair')>>
-<<if _chair is undefined or _chair is null>>
-	<<set _chair to Furniture.get('chair','chair')>>
-<</if>>
+<<set _chair to Furniture.get('chair', $location)>>
 <<if _chair.name is "chair">>
 	<<set _timeMult1 to 1>>
 <<elseif _chair.name is "stools">>
@@ -40,10 +37,7 @@
 	<<set _timeMult1 to 0.5>>
 <</if>>
 
-<<set _desk to Furniture.get('desk')>>
-<<if _desk is undefined or _desk is null>>
-	<<set _desk to Furniture.get('desk','desk')>>
-<</if>>
+<<set _desk to Furniture.get('desk', $location)>>
 <<if _desk.name is "basic desk">>
 	<<set _timeMult2 to 1>>
 <<elseif _desk.name is "glass desk">>
@@ -95,10 +89,7 @@ You have <span class="gold">$mathsinfo</span> insights.
 <<wearProp "pencil">>
 <<effects>>
 You sit down and get to work.
-<<set _chair to Furniture.get('chair')>>
-<<if _chair is undefined or _chair is null>>
-	<<set _chair to Furniture.get('chair','chair')>>
-<</if>>
+<<set _chair to Furniture.get('chair', $location)>>
 <<if _chair.type.includes("comfy")>>
 	Your <span class="green">comfortable</span> chair makes it easier to concentrate on the project.
 <<else>>
@@ -232,12 +223,9 @@ You sit down and get to work.
 
 :: Maths Project Stim
 
-<<effects>><<wearProp "notebook">>
+<<effects>><<wearProp "write" 0 "notebook">>
 You take the stimulant, sit down, and get to work.
-<<set _chair to Furniture.get('chair')>>
-<<if _chair is undefined or _chair is null>>
-	<<set _chair to Furniture.get('chair','chair')>>
-<</if>>
+<<set _chair to Furniture.get('chair', $location)>>
 <<if ($location is "home" or $location is "alex_cottage") and _chair.type.includes("comfy")>>
 	Between the drugs and your <span class="green">comfortable</span> chair, it's easier than ever to concentrate on the project.
 <<else>>
@@ -1447,8 +1435,8 @@ You saunter up to the <<person>>, and lean over <<his>> desk. <<if _shirtless>><
 <<set $seductiondifficulty to 8000>>
 <<seductioncheck>>
 <br><br>
-<<if $seductionskill lt 1000>><span class="gold">You feel more confident in your powers of seduction.</span><</if>><<seductionskilluse>>
-<br><br>
+<<seductionskilluptext>>
+<<seductionskilluse>>
 
 <<if $seductionrating gte $seductionrequired>><<set $mathslibraryknown to 1>><<set $mathsinfo += 1>>
 	<<He>> nods as you put on your show. You read over <<his>> project, keeping your eyes on it even as you sway your <<bottom>> around. You lean in so close you're almost touching <<him>>.
@@ -1471,14 +1459,9 @@ You saunter up to the <<person>>, and lean over <<his>> desk. <<if _shirtless>><
 
 You rush to the staff room and knock on the door. Doren answers it. "Can I help you, <<lass>>?"
 <br><br>
-
-"There's a student lying in the hall," you say. "I think they're on something."
+"There's a <<personsimple>> lying in the hall," you say. "I think <<hes>> on something." You quickly lead Doren to the student in question.
 <br><br>
-
-You show Doren to the student. "You're right," the teacher says. "I'll take <<him>> to the nurse. Good on you for watching out for your fellows."
-<br><br>
-
-Doren picks up the pen and paper, lifts the <<person>> with ease, and carries <<him>> away.
+"You're right," <<nnpc_he "Doren">> says. "I'll take <<him>> to the nurse. Good on you for watching out for your fellows." Doren collects the fallen school supplies, easily lifts up the <<person>>, and carries <<him>> away.
 <br><br>
 
 <<endevent>>
@@ -1489,27 +1472,28 @@ Doren picks up the pen and paper, lifts the <<person>> with ease, and carries <<
 :: Maths Drugged Copy
 <<effects>>
 
-You read the <<persons>> work, and spot some useful calculations. You finish copying them for yourself just as a librarian rounds the corner. <<generate2>><<person2>><<He>> rushes to the <<person1>><<persons>> side.
+You step close and pick up the paper, reading through the <<persons>> work. You already know some of it, but you also spot some useful calculations. It seems <<he>> got some use out of that stimulant.
+<br><br>
+You've just finished copying them down when a librarian rounds the corner. <<generate2>><<person2>><<He>> rushes to the <<person1>><<persons>> side, checking <<his>> eyes and trying to get <<him>> to respond.
+<br><br>
+<<person2>><<He>> gives you a disappointed look as you leave, but is more concerned with the drugged <<person1>><<personsimple>>'s condition and getting <<him>> to the nurse.
 <br><br>
 
-<<person2>><<He>> eyes you with suspicion as you leave, but doesn't say anything.
-<br><br>
 <<endevent>>
-
 <<link [[Next|Hallways]]>><<set $eventskip to 1>><</link>>
 <br>
 
 :: Maths Drugged Rob
 <<effects>>
 
-You rifle through the <<person1>><<persons>> pockets. <<He>> mumbles something about tentacles and tries to squirm away, but <<hes>> in no state to stop you. You find a bag of bright-coloured pills just as a librarian rounds the corner. <<generate2>><<person2>><<He>> rushes to the <<person1>><<persons>> side.
+You step forward and rifle through the <<person1>><<persons>> pockets. <<He>> mumbles something about tentacles and tries to squirm away, but <<hes>> in no state to stop you.
 <br><br>
-
-<<person2>><<He>> eyes you with suspicion as you leave, but doesn't say anything.
+You find a bag of bright-coloured pills just as a librarian rounds the corner. <<generate2>><<person2>><<He>> rushes to the <<person1>><<persons>> side, checking <<his>> eyes and trying to get <<him>> to respond.
+<br><br>
+Satisfied with your findings, you back off and let the librarian attend to the student. <<person2>><<He>> eyes you with suspicion as you leave, but is more concerned with the drugged <<person1>><<personsimple>>'s condition and getting <<him>> to the nurse.
 <br><br>
 
 <<endevent>>
-
 <<link [[Next|Hallways]]>><<set $eventskip to 1>><</link>>
 <br>
 
@@ -1780,9 +1764,9 @@ You pick up the paper and return to the microphone.
 	<br><br>
 	Whitney's friends line up behind <<him>> and grasp at the air, trying to find the wire. They are preparing for a mighty pull.
 	<br><br>
-	<<link [[Protect your dignity|Maths Competition Protect Skirt]]>><<stress 6>><</link>><<gstress>>
+	<<link [[Protect your dignity|Maths Competition Protect Skirt]]>><<clotheson>><<stress 6>><</link>><<gstress>>
 	<br>
-	<<link [[Finish the presentation|Maths Competition Finish Skirt]]>><<stress 12>><<trauma 6>><<set $mathschance += 10>><</link>><<gtrauma>><<ggstress>><<note "+ Success Chance" "gold">>
+	<<link [[Finish the presentation|Maths Competition Finish Skirt]]>><<clotheson>><<stress 12>><<trauma 6>><<set $mathschance += 10>><</link>><<gtrauma>><<ggstress>><<note "+ Success Chance" "gold">>
 	<br>
 <<else>>
 	You feel a tug on your $worn.lower.name. You look down just in time to see it lurch down, pulled by some invisible force. You grab the front of the hem fast enough to prevent your <<undies>> being revealed, but you feel cool air on your <<bottom>>.
@@ -1805,11 +1789,12 @@ You pick up the paper and return to the microphone.
 	<br><br>
 	Whitney's friends line up behind <<him>> and grasp at the air, trying to find the wire. They are preparing for a mighty pull.
 	<br><br>
-	<<link [[Protect your dignity|Maths Competition Protect Shorts]]>><<stress 6>><</link>><<gstress>>
+	<<link [[Protect your dignity|Maths Competition Protect Shorts]]>><<clotheson>><<stress 6>><</link>><<gstress>>
 	<br>
-	<<link [[Finish the presentation|Maths Competition Finish Shorts]]>><<stress 12>><<trauma 6>><<set $mathschance += 10>><</link>><<gtrauma>><<ggstress>><<note "+ Success Chance" "gold">>
+	<<link [[Finish the presentation|Maths Competition Finish Shorts]]>><<clotheson>><<stress 12>><<trauma 6>><<set $mathschance += 10>><</link>><<gtrauma>><<ggstress>><<note "+ Success Chance" "gold">>
 	<br>
 <</if>>
+<<lowerstrip>>
 
 :: Maths Competition Protect Skirt
 
@@ -1928,8 +1913,8 @@ Gasps and laughter fill the hall. Some look away, but most stare in astonishment
 		<<famepregnancy 1>>
 	<</if>>
 	<<schoolrep herm 1>>
-<<elseif $player.gender isnot $player.gender_appearance and !playerIsXChanged() and !playerChastity("hidden") and $NudeGenderDC gt 0>>
-	<<if $player.gender is "m">>
+<<elseif isCrossdressing() and !playerChastity("hidden")>>
+	<<if $player.sex is "m">>
 		"He's a boy!" someone shouts.
 		<br>
 		"Is he some kind of pervert?"
@@ -1960,7 +1945,8 @@ Heart still thumping, you step down from the stage. You take your seat and wait 
 <br><br>
 
 <<endevent>>
-<<link [[Next|Maths Competition End]]>><</link>>
+<<lowerstrip>>
+<<link [[Next|Maths Competition End]]>><<clotheson>><</link>>
 <br>
 
 :: Maths Competition Finish Shorts
@@ -1998,8 +1984,8 @@ Gasps and laughter fill the hall. Some look away, but most stare in astonishment
 		<<famepregnancy 1>>
 	<</if>>
 	<<schoolrep herm 1>>
-<<elseif $player.gender isnot $player.gender_appearance and !playerIsXChanged() and !playerChastity("hidden") and $NudeGenderDC gt 0>>
-	<<if $player.gender is "m">>
+<<elseif isCrossdressing() and !playerChastity("hidden")>>
+	<<if $player.sex is "m">>
 		"He's a boy!" someone shouts.
 		<br>
 		"Is he some kind of pervert?"
@@ -2030,7 +2016,8 @@ Heart still thumping, you step down from the stage. You take your seat and wait 
 <br><br>
 
 <<endevent>>
-<<link [[Next|Maths Competition End]]>><</link>>
+<<lowerstrip>>
+<<link [[Next|Maths Competition End]]>><<clotheson>><</link>>
 <br>
 
 :: Maths Competition End
@@ -2051,7 +2038,7 @@ Leighton, River and the two guests confer on stage for a moment.
 "We've made a decision," <<he>> says.
 
 <<if $mathschance gte $rng>>
-	<span class="green">"The winner is the student with the <<haircolourtext>> hair." <<He>> points at you.</span> "Come on up."
+	"The winner is the student with the <<haircolourtext>> hair." <span class="green"><<He>> points at you.</span> "Come on up."
 	<br><br>
 
 	You climb the stage and shake Leighton's hand as <<he>> smiles for a waiting photographer. <<He>> hands you the trophy. There's <<printmoney 200000>><<money 200000 "schoolProject">> inside.

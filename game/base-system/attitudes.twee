@@ -29,7 +29,7 @@
 			</label>
 		</div>
 		<div class="settingsToggleItem">
-			<span class="gold bold">With what demeanor do you speak with others?</span>
+			<span class="gold bold">With what demeanour do you speak with others?</span>
 			<br>
 			<label><<radiobutton "$speech_attitude" "neutral" autocheck>> Neutral</label>
 			<br>
@@ -52,10 +52,26 @@
 				<span class="blue small-description"><i>Requires higher exhibitionism.</i></span>
 			<</if>>
 			<br>
+			<<if $attitudesControl.unlockExhibitionismUnderwearPublic or $uncomfortable.underwearPublic is false>>
+				<label><<checkbox "$uncomfortable.underwearPublic" false true autocheck>> Having your underwear seen by others in public</label> <<note "Experimental" "red">>
+			<<else>>
+				<input type="checkbox" checked disabled /> <span class="black">Having your underwear seen by others in public</span> <<note "Experimental" "red">>
+				<br>
+				<span class="blue small-description"><i>Requires higher exhibitionism.</i></span>
+			<</if>>
+			<br>
 			<<if $attitudesControl.unlockExhibitionismNude or $uncomfortable.nude is false>>
 				<label><<checkbox "$uncomfortable.nude" false true autocheck>> Being nude in front of others</label>
 			<<else>>
 				<input type="checkbox" checked disabled /> <span class="black">Being nude in front of others</span>
+				<br>
+				<span class="blue small-description"><i>Requires higher exhibitionism.</i></span>
+			<</if>>
+			<br>
+			<<if $attitudesControl.unlockExhibitionismNudePublic or $uncomfortable.nudePublic is false>>
+				<label><<checkbox "$uncomfortable.nudePublic" false true autocheck>> Being nude in front of others in public</label> <<note "Experimental" "red">>
+			<<else>>
+				<input type="checkbox" checked disabled /> <span class="black">Being nude in front of others in public</span> <<note "Experimental" "red">>
 				<br>
 				<span class="blue small-description"><i>Requires higher exhibitionism.</i></span>
 			<</if>>
@@ -185,7 +201,7 @@
 
 <<widget "othersFeelings">>
 	<<set _currentOptions to _args[0]>>
-	<<set _stringDefault to "_defaultActions.consensual."+_options[_currentOptions]>>
+	<<set _stringDefault to "_defaultActions.consensual['"+_options[_currentOptions]+"']">>
 
 	<<switch _options[_currentOptions]>>
 		<<case "Everyone">><span class="red small-description">"Everyone" will only apply defaults when the "Override related settings" link is used. This will override defaults for every NPC.</span>
@@ -215,9 +231,9 @@
 		<</if>>
 		<div class="gold featButton buttonDisable">
 			<<set _selectedActionSet to _currentActionSet + 1>>
-			<<button "_selectedActionSet / $maxDefaultActionSets">><</button>>
+			<<button "_selectedActionSet / 10">><</button>>
 		</div>
-		<<if _currentActionSet lt $maxDefaultActionSets - 1>>
+		<<if _currentActionSet lt 9>>
 			<div class="featButton">
 				<<button "<span class='fa-icon fa-right'></span>">>
 					<<set _currentActionSet++>>
@@ -264,7 +280,7 @@
 		<</if>>
 	</ul>
 
-	<<set _stringDefault to "_defaultActions.rape."+_options[_currentOptions]>>
+	<<set _stringDefault to "_defaultActions.rape['"+_options[_currentOptions]+"']">>
 
 	<<if _options[_currentOptions] isnot "Robin">>
 		<<if _options[_currentOptions] is "Tentacles">>
@@ -307,7 +323,7 @@
 			<<run DefaultActions.save(T.defaultActions)>>
 			<<switch _options[_currentOptions]>>
 				<<case "Everyone">>
-					<<set _options to ["Strangers","Animals","Acquaintances","Robin", "Bailey","Whitney","Kylar","Eden","Avery","Leighton","Sydney","Black Wolf","Great Hawk"]>>
+					<<set _options to ["Strangers","Animals","Acquaintances","Robin", "Bailey","Whitney","Kylar","Eden","Avery","Leighton","Sydney","Alex","Ivory Wraith","Black Wolf","Great Hawk"]>>
 					<<for _option range _options>>
 						<<if !$actionDefaults.consensual>>
 							<<set $actionDefaults.consensual to {}>>
@@ -323,7 +339,7 @@
 						<<set $actionDefaults.rape[_option] to clone($actionDefaults.rape.Everyone)>>
 					<</for>>
 				<<case "Acquaintances">>
-					<<set _options to ["Robin","Bailey","Whitney","Kylar","Eden","Avery","Leighton","Sydney","Black Wolf","Great Hawk"]>>
+					<<set _options to ["Robin","Bailey","Whitney","Kylar","Eden","Avery","Leighton","Sydney","Alex","Ivory Wraith","Black Wolf","Great Hawk"]>>
 					<<for _option range _options>>
 						<<if !$actionDefaults.consensual>>
 							<<set $actionDefaults.consensual to {}>>
@@ -335,8 +351,8 @@
 						<<if $NPCName[_index] && $NPCName[_index].init isnot 1>>
 							<<continue>>
 						<</if>>
-						<<set $actionDefaults.consensual[_option] to clone($actionDefaults.consensual.Everyone)>>
-						<<set $actionDefaults.rape[_option] to clone($actionDefaults.rape.Everyone)>>
+						<<set $actionDefaults.consensual[_option] to clone($actionDefaults.consensual.Acquaintances)>>
+						<<set $actionDefaults.rape[_option] to clone($actionDefaults.rape.Acquaintances)>>
 					<</for>>
 			<</switch>>
 		<</link>>
@@ -344,10 +360,6 @@
 <</widget>>
 
 <<widget "setupDefaults">>
-	<!-- Use default action sets to create array for each default action. -->
-	<<if $maxDefaultActionSets === undefined>>
-		<<set $maxDefaultActionSets = 2>>
-	<</if>>
 	<<set $actionDefaults = DefaultActions.check(DefaultActions.setup())>>
 <</widget>>
 
@@ -416,6 +428,9 @@
 	<</if>>
 	<<set _leftHand["Remove your buttplug"] to "removebuttplug">>
 
+	<<set _leftHand["Grip"] to "leftgrip">>
+	<<set _leftHand["Protect"] to "leftprotect">>
+
 	<<set _rightHand to {
 		"Rest":"rest",
 		"Stroke":"rightchest",
@@ -479,6 +494,9 @@
 	<</if>>
 	<<set _rightHand["Remove your buttplug"] to "removebuttplug">>
 
+	<<set _rightHand["Grip"] to "rightgrip">>
+	<<set _rightHand["Grip"] to "rightprotect">>
+
 	<<set _feet to {
 		"Rest":"rest",
 	}>>
@@ -499,10 +517,13 @@
 		<<set _feet["Leg lock them"] to "legLock">>
 	<</if>>
 
+	<<set _feet["Curl toes"] to "feetCurl">>
+
 	<<set _mouth to {
 		"Rest":"rest",
 		"Kiss":"kiss",
 		"Kiss Back":"kissback",
+		"Kiss skin": "kissskin",
 	}>>
 
 	<<if _args[0] is true>>
@@ -591,6 +612,9 @@
 	<<if _args[0] is true>>
 		<<set _mouth["Headbutt"] to "headbutt">>
 	<</if>>
+
+	<<set _mouth["Let it out (pain)"] to "letout">>
+	<<set _mouth["Let it out (orgasm)"] to "letoutorgasm">>
 
 	<<set _mouth["Ask them"] to "ask">>
 
@@ -1007,8 +1031,10 @@
 		/* back up the old variable for later comparison */
 		T.oldControl = clone(V.attitudesControl);
 		/* update available controls */
-		V.attitudesControl.unlockExhibitionismUnderwear = V.exhibitionism >= 55;
-		V.attitudesControl.unlockExhibitionismNude = V.exhibitionism >= 95;
+		V.attitudesControl.unlockExhibitionismUnderwear = V.exhibitionism >= 35;
+		V.attitudesControl.unlockExhibitionismNude = V.exhibitionism >= 75;
+		V.attitudesControl.unlockExhibitionismUnderwearPublic = V.exhibitionism >= 55;
+		V.attitudesControl.unlockExhibitionismNudePublic = V.exhibitionism >= 95;
 		V.attitudesControl.unlockTransformation = V.specialTransform === 1 || V.physicalTransform === 1;
 		V.attitudesControl.unlockDemonFlaunt = V.demon >= 6 && V.exhibitionism >= 95;
 		V.attitudesControl.unlockProstitution = V.soldCount >= 1;

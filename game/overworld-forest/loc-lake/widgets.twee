@@ -1,26 +1,6 @@
 :: Widgets Lake [widget]
 <<widget "lakeeffects">>
-	<<if Time.schoolDay>>
-		<<if Time.dayState is "day" or Time.dayState is "dusk">>
-			<<if Time.hour gte 15 and Weather.precipitation is "none">>
-				<<set $laketeenspresent to 1>>
-			<<else>>
-				<<set $laketeenspresent to 0>>
-			<</if>>
-		<<else>>
-			<<set $laketeenspresent to 0>>
-		<</if>>
-	<<else>>
-		<<if Time.dayState is "day" or Time.dayState is "dusk">>
-			<<if Weather.precipitation is "none">>
-				<<set $laketeenspresent to 1>>
-			<<else>>
-				<<set $laketeenspresent to 0>>
-			<</if>>
-		<<else>>
-			<<set $laketeenspresent to 0>>
-		<</if>>
-	<</if>>
+	<<set $laketeenspresent to teensPresentCheck("lake")>>
 
 	<<if Weather.precipitation is "none" and Time.hour gte 18>>
 		<<set $laketeensfire to 1>>
@@ -92,9 +72,11 @@
 
 <<widget "lakejourney">>
 	<<beastNEWinit 1 wolf>>
-	Someone screams. Everyone turns and backs away from the newcomer, a <<beasttype>>.
+	Someone screams. You turn with the others to see that a <<beasttype>> has emerged from the trees. There are a few more screams, and people start backing away.
+	<br><br>
 	<<if $monster is 1>>
-		<<bHis>> nude body leaves little to the imagination, <<bhis>> genitals on full display to the crowd. <<bHe>> makes no attempt to cover <<bhimself>> up. Some laugh nervously, while others shield their eyes.
+		<<bHis>> nude body leaves little to the imagination, <<bhis>> genitals on full display to the crowd. <<bHe>> makes no attempt to cover <<bhimself>>, several people shielding their eyes while others laugh nervously.
+		<br><br>
 	<</if>>
 	<<bHe>> stands some way apart and watches.
 	<br><br>
@@ -399,7 +381,7 @@
 		<</link>><<gstress>><<gwillpower>><<gacceptance>>
 		<br>
 	<</if>>
-	<<if $insecurity_breasts_big gte 1 and $acceptance_breasts_big lte 999 and $daily.lakeMeditate isnot 1>>
+	<<if $insecurity_breasts_big gte 1 and $player.breastsize gte (playerFeelsManlike() ? 1 : 8) and $acceptance_breasts_big lte 999 and $daily.lakeMeditate isnot 1>>
 		<<link [[Meditate on your big breasts (1:00)|Lake Meditate]]>><<pass 60>><<set $phase to 9>><<willpower 1>><<set $daily.lakeMeditate to 1>>
 			<<if $willpower gte (($willpowermax / 7) * 6)>>
 				<<stress 5>><<acceptance "breasts_big" 20>>
@@ -531,9 +513,8 @@
 <</widget>>
 
 <<widget "halloween_lake_invite">>
-	<<generates1>><<generates2>>
 	<<set $halloween_lake to 1>>
-	You pass a <<person1>><<person>>
+	<<generates1>><<generates2>>You pass a <<person1>><<person>>
 	<<if $location is "school">>
 		with a stack of flyers tucked under <<his>> arm.
 	<<else>>

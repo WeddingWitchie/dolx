@@ -213,39 +213,39 @@ blackmailQuests.high.push( // Masturbate in an empty classroom
 	}
 );
 
-blackmailQuests.mid.push( // Skinny dip into the school's pool
-	{
-		id: 5, // Implemented
-		prerequisites: function() { 
-			return Time.schoolDay || (V.historytrait >= 1 && V.parktunnelintro >= 1) || currentSkillValue('skulduggery') >= 200; 
-		},
-		reward: function() { return V.rentmoney; },
-		instructions: [
-			"Swim in the school's pool while naked.",
-			"Complete this task before midnight.",
-		],
-		clearCondition: function() { return this.swamNaked; },
-		failCondition: function() { return false; },
-		alertMessage: ``,
-		clearCheck: function() {
-			if (this.clearCondition()) {
-				this.cleared = true;
-			}
-		},
-		failCheck: function() { 
-			if (this.failCondition()) {
-				this.failed = true;
-			}
-		},
-		cleared: false,
-		failed: false,
-		failMessage: function() { },
-		includesItems: false,
-		receiveItems: function() { },
-		onDayCleared: function() { V.xchange.blackmail.cooldown = 3; },
-		onDayFailed: function() { },
-	}
-);
+// blackmailQuests.mid.push( // Skinny dip into the school's pool
+// 	{
+// 		id: 5, // Implemented
+// 		prerequisites: function() { 
+// 			return Time.schoolDay || (V.historytrait >= 1 && V.parktunnelintro >= 1) || currentSkillValue('skulduggery') >= 200; 
+// 		},
+// 		reward: function() { return V.rentmoney; },
+// 		instructions: [
+// 			"Swim in the school's pool while naked.",
+// 			"Complete this task before midnight.",
+// 		],
+// 		clearCondition: function() { return this.swamNaked; },
+// 		failCondition: function() { return false; },
+// 		alertMessage: ``,
+// 		clearCheck: function() {
+// 			if (this.clearCondition()) {
+// 				this.cleared = true;
+// 			}
+// 		},
+// 		failCheck: function() { 
+// 			if (this.failCondition()) {
+// 				this.failed = true;
+// 			}
+// 		},
+// 		cleared: false,
+// 		failed: false,
+// 		failMessage: function() { },
+// 		includesItems: false,
+// 		receiveItems: function() { },
+// 		onDayCleared: function() { V.xchange.blackmail.cooldown = 3; },
+// 		onDayFailed: function() { },
+// 	}
+// );
 
 blackmailQuests.low.push( // Go for a run in your underwear at park
 	{

@@ -71,7 +71,7 @@ End of '<<print $replayScene.name>>' scene.
 :: Scene Viewer Widgets [widget]
 
 <<widget "setupReplayScene">>
-	/*In case the object isnt setup correctly*/
+	/*In case the object isn't setup correctly*/
 	<<set _passages to ["Scene Viewer End"]>>
 	<<if Array.isArray(_args[2])>>
 		<<set _passages to _args[2]>>
@@ -86,7 +86,7 @@ End of '<<print $replayScene.name>>' scene.
 	}>>
 <</widget>>
 
-/*Scenes when player viewing cant be tracked*/
+/*Scenes when player viewing can't be tracked*/
 <<widget "seenPassage">>
 	<<if $scenePassages is undefined>>
 		<<set $scenePassages to []>>
@@ -593,7 +593,7 @@ End of '<<print $replayScene.name>>' scene.
 				passages:["Bully Fight","Bully Fight Finish","Bully Skirt"],
 				manualVariableChanges:"<<set $sceneViewSwitch to 'schoolBully'>><<set $bullyevent to 15>><<set $whitneyskirtcheck to 0>><<set $forcedcrossdressingdisable to 'f'>><<set C.npc.Whitney.dom to 18>><<unset $whitneyReunionScene>>",
 				unlocked: $scenePassages.includes("WhitneySchoolBullySkirt"),
-				lockedMessage: $player.gender isnot "m" ? "Male exclusive scene" : "Locked"
+				lockedMessage: $player.sex isnot "m" ? "Male exclusive scene" : "Locked"
 			},
 			"WhitneySchoolBullyChastity":{
 				name:"Whitney School Bully Chastity Rule",
@@ -601,7 +601,7 @@ End of '<<print $replayScene.name>>' scene.
 				passages:["Bully Chastity"],
 				manualVariableChanges:"<<set $sceneViewSwitch to 'schoolBully'>><<set $bullyevent to 15>><<set $whitneyskirtcheck to 1>><<set $forcedcrossdressingdisable to 'f'>><<set C.npc.Whitney.dom to 18>><<set $worn.genitals to setup.clothes.genitals[0]>><<unset $whitneychastity>><<unset $whitneyReunionScene>>",
 				unlocked: $scenePassages.includes("WhitneySchoolBullySkirt"),
-				lockedMessage: $player.gender isnot "m" ? "Male exclusive scene" : "Locked"
+				lockedMessage: $player.sex isnot "m" ? "Male exclusive scene" : "Locked"
 			},
 			"WhitneyShoppingCentreHairDressers":{
 				name:"Whitney Shopping Centre Hairdressers",
@@ -630,7 +630,7 @@ End of '<<print $replayScene.name>>' scene.
 				passages:["Bully Fight","Bully Fight Finish","Bully Changing Room"],
 				manualVariableChanges:"<<set $sceneViewSwitch to 'schoolBully'>><<set $bullyevent to 11>><<set $whitneyCrossdressSwimwear to 0>><<set $forcedcrossdressingdisable to 'f'>><<set C.npc.Whitney.dom to 18>><<unset $whitneyReunionScene>>",
 				unlocked: $scenePassages.includes("WhitneySchoolBullySkirt"),
-				lockedMessage: $player.gender isnot "m" ? "Male exclusive scene" : "Locked"
+				lockedMessage: $player.sex isnot "m" ? "Male exclusive scene" : "Locked"
 			},
 			"WhitneyOrphanageVisit":{
 				name:"Whitney Orphanage Visit",
@@ -1252,12 +1252,17 @@ End of '<<print $replayScene.name>>' scene.
 	<<if $replayScene>><<exit>><</if>> /* Should never be run when a scene is running */
 	<<script>>
 		const skipKeysOnFreeze = ["replayScene", "frozenValues", "statFreeze", "passage", "debug", "debugMenu", "options", "xchange"];
+		const objectsToHardRestore = ["skin", "worn", "prof", "player", "transformationParts", "sexStats", "hypnosis_traits", "parasite"];
 		delete V.statFreeze;
 		if (V.frozenValues) {
 			const retainedKeys = Object.fromEntries(
 				Object.entries(V).filter(([key]) => skipKeysOnFreeze.includes(key))
 			);
+			const cleanedObjects = Object.fromEntries(
+				Object.entries(V.frozenValues).filter(([key]) => objectsToHardRestore.includes(key))
+			);
 			V.deepMerge(V.frozenValues, "strict-replace");
+			Object.assign(V, cleanedObjects);
 			Object.assign(V, retainedKeys);
 			delete V.frozenValues;
 			Time.set();
@@ -1533,9 +1538,9 @@ You approach the guards, a <<person>> and <<person2>><<person>>.
 <br><br>
 "Halt," the <<person1>><<person>> says. "What gives you the right to enter here?" <span class="green">You should be able to respond in their language.</span>
 <br><br>
-<<ind>><<link [[Act dignified|Island Castle Dignified]]>><</link>>
+<<link [[Act dignified|Island Castle Dignified]]>><</link>>
 <br>
-<<ind>><<link [[Act cute|Island Castle Cute]]>><</link>>
+<<link [[Act cute|Island Castle Cute]]>><</link>>
 <br>
 
 :: SV Moor Flower
@@ -1684,7 +1689,7 @@ Time of day: <span id="timeOfDay">Current Save</span>
 
 :: SV Street Bully Orphanage Go 2
 <<npc Whitney>><<person1>>
-"Just the slut I was looking for," <<he>> says, "Come on. I'm visiting your home. The orphanage." <<He>> flicks a fresh cigarette butt into the gutter, and takes your arm in <<his>> own.
+"Just the slut I was looking for," <<he>> says. "Come on. I'm visiting your home. The orphanage." <<He>> flicks a fresh cigarette butt into the gutter, and takes your arm in <<his>> own.
 <br><br>
 
 <<link [[Make Whitney promise to be nice to the other residents (0:25)|Street Bully Orphanage Promise]]>><<pass 25>><</link>>

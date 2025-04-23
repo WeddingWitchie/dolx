@@ -27,7 +27,29 @@
 	<br><br>
 <<else>>
 
-	<<if $estate_cards_end is "naked">>
+	<<if $wrenHeistMissed is true or ($wrenHeist is true and $wrenHeistDance.attended isnot true and Time.hour gte 21)>>
+		"Look who it is," Wren says. "You stood me up," <<= C.npc.Wren.love gte 40 ? "You know Wren well enough by now to see" : "You can't tell">> <<hes>> hurt. "Luckily, I didn't need your help."<<npcincr Wren love -1>><<llove>><<set $wrenHeist to false>><<unset $wrenHeistMissed>><<unset $wrenHeistDance>>
+	<<elseif $wrenSeenLast is "letter">>
+		"Look who it is," Wren says. "Got another letter for me, or are you up for a game?"
+	<<elseif $wrenSeenLast is "winter">>
+		"Look who it is," Wren says. "Taking a break from helping the fossil dig up graves?"
+	<<elseif $wrenSeenLast is "catsuit">>
+		"Look who it is," Wren says. "It was fun to run into you during work."
+	<<elseif $estate_cards_end is "Dolp_Wren_Came" >>
+		"you better make sure you win so you don't end up like that too," Wren smirks.
+	<<elseif $estate_cards_end is "Dolp _Wren_voyeurism" >>
+		"Seems that I might have double the fun today," Wren says.
+	<<elseif $wrenSeenLast is "pregnancy">>
+		"Look who it is," Wren says. "I didn't expect to see you poking around that cave. Naughty <<girl>>." <<His>> eyes land on your belly.
+		<<if playerBellyVisible()>>
+			"You're already knocked up again?" <<He>> laughs. "Careful not to pass out this time.
+		<<else>>
+			"At least you're otherwise staying out of trouble. Mind where you pass out next time.
+		<</if>>
+		I won't always be around to save you."
+	<<elseif $wrenSeenLast is "heist">>
+		"Look who it is," Wren says. "Fancy seeing you here, partner. <<if $wrenHeistCricketBall is true>>You owe me. Big. <<set $wrenHeistCricketBall to false>><</if>>"
+	<<elseif $estate_cards_end is "naked">>
 		"Look who it is," Wren says, a smug smile on <<his>> face. "We left you with nothing last time. Hope the journey home wasn't too cold." <<His>> friends laugh.
 	<<elseif $estate_cards_end is "left_early">>
 		"Look who it is," Wren says. "Planning to stay around a bit longer this time, I hope."
@@ -56,24 +78,6 @@
 		<<else>>
 			"Look who it is," Wren says. "Not too surprised to meet you again. Hope you didn't cause them too much trouble."
 		<</if>>
-	<<elseif $wrenSeenLast is "letter">>
-		"Look who it is," Wren says. "Got another letter for me, or are you up for a game?"
-	<<elseif $wrenSeenLast is "winter">>
-		"Look who it is," Wren says. "Taking a break from helping the fossil dig up graves?"
-	<<elseif $wrenSeenLast is "catsuit">>
-		"Look who it is," Wren says. "It was fun to run into you during work."
-	<<elseif $estate_cards_end is "Dolp_Wren_Came" >>
-		"you better make sure you win so you don't end up like that too," Wren smirks.
-	<<elseif $estate_cards_end is "Dolp _Wren_voyeurism" >>
-		"Seems that I might have double the fun today," Wren says.
-	<<elseif $wrenSeenLast is "pregnancy">>
-		"Look who it is," Wren says. "I didn't expect to see you poking around that cave. Naughty <<girl>>." <<His>> eyes land on your belly.
-		<<if playerBellyVisible()>>
-			"You're already knocked up again?" <<He>> laughs. "Careful not to pass out this time.
-		<<else>>
-			"At least you're otherwise staying out of trouble. Mind where you pass out next time.
-		<</if>>
-		I won't always be around to save you."
 	<<else>>
 		"Look who it is," Wren says. "Fancy a game?"
 	<</if>>
@@ -433,7 +437,7 @@ You turn and run.
 
 :: Estate Cards Cheating Plead
 <<effects>>
-<!-- <<if $estate.cards.state is "ride">>  is omitted because in that state the apologise option isn't given -->
+<!-- <<if $estate.cards.state is "ride">> is omitted because in that state the apologise option isn't given -->
 
 
 <<if $speech_attitude is "meek">>
@@ -892,7 +896,7 @@ What do you ask?
 <!-- we could allow the player to announce victory earlier, too, but it makes sense to require ALL dares to be completed -->
 <!-- we could also ignore the ones where we get Wren to get more daring with no actual benefit for us
      since PC doesn't particularly care about Wren's state of undress
-	 however, I figured I'll count them too since Wren being undressed definitely plays a role in them feeling defeated when the PC leaves  -->
+	 however, I figured I'll count them too since Wren being undressed definitely plays a role in them feeling defeated when the PC leaves -->
 <<if _favoursRemaining is 0>>
 	<i>You realise there are no more favours you can think of. You could end the game by declaring yourself victorious.</i>
 	<<if $estate.cards.confiscatedClothes and $estate.cards.confiscatedClothes.length gt 0>>
@@ -1479,7 +1483,7 @@ Wren draws a wolfish grin at the sight. "Now the fun can really begin!," <<nnpc_
 				<<cards_underwear_cover>>
 			<</if>>
 		<<elseif $worn.upper.type.includes("naked") and !$worn.lower.type.includes("covered")>>
-			pull off your $worn.over_upper,
+			pull off your $worn.over_upper.name,
 			<<if $worn.under_upper.type.includes("naked") and ($player.sex is "f" or $player.gender_appearance is "f")>>
 				<<set $estate.cards.exposure to 4>>
 				<span class="purple">revealing your <<breasts>>.</span> "I knew it," a <<person2>><<person>> says. "The slut's half stripped already."
@@ -2796,7 +2800,7 @@ You walk outside. <<if $exposed gte 2>>A breeze makes you shiver.<</if>>
 <<cards_naked_end>>
 
 :: Estate Fame Letter
-<<effects>><<set $outside to 0>><<person1>><<set $wrenSeen.pushUnique("letter")>><<set $wrenSeenLast to "letter">>
+<<effects>><<set $outside to 0>><<person1>><<set $wrenSeen.pushUnique("letter")>><<set $wrenSeenLast to "letter">><<wearProp "envelope" 0 "manila">>
 
 <<if $wren_intro is undefined>>
 	<<set $wren_intro to true>>
@@ -2813,7 +2817,7 @@ You walk outside. <<if $exposed gte 2>>A breeze makes you shiver.<</if>>
 	<br><br>
 <</if>>
 
-You take out the Manila envelope Mickey gave you and hold it out to Wren.
+You take out the manila envelope Mickey gave you and hold it out to Wren.
 <<if $speech_attitude is "meek">>
 	"This is from the old man."
 <<elseif $speech_attitude is "bratty">>
@@ -2861,9 +2865,9 @@ Wren takes it, examines it from both sides and smirks. <<He>> tosses it onto a n
 <</if>>
 <br><br>
 
-<<link [[Kiss|Estate Fame Letter 2]]>><<set $phase to 0>><<arousal 1000 "mouth">><<npcincr Wren love 3>><</link>><<promiscuous1>><<ggarousal>><<glove>><<kissvirginitywarning>>
+<<link [[Kiss|Estate Fame Letter 2]]>><<handheldon>><<set $phase to 0>><<arousal 1000 "mouth">><<npcincr Wren love 3>><</link>><<promiscuous1>><<ggarousal>><<glove>><<kissvirginitywarning>>
 <br>
-<<link [[Pull away|Estate Fame Letter 2]]>><<set $phase to 1>><</link>>
+<<link [[Pull away|Estate Fame Letter 2]]>><<handheldon>><<set $phase to 1>><</link>>
 
 :: Estate Fame Letter 2
 <<effects>><<set $outside to 0>>

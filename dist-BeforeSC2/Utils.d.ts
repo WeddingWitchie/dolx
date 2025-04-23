@@ -4,10 +4,12 @@ import { ModZipReader, Twee2PassageR } from "./ModZipReader";
 import { PassageDataItem, SC2DataInfo, SC2DataInfoCache } from "./SC2DataInfoCache";
 import { SimulateMergeResult } from "./SimulateMerge";
 import JSZip from "jszip";
-import { ModInfo } from "./ModLoader";
+import { ModInfo, ModLoader } from "./ModLoader";
 import { LogWrapper, ModLoadController } from "./ModLoadController";
 import { AddonPluginManager } from "./AddonPlugin";
 import { SemVerToolsType } from "./SemVer/InfiniteSemVer";
+import { IdbKeyValRef, IdbRef } from "./IdbKeyValRef";
+import { ModLoadFromSourceType } from "./ModOrderContainer";
 export declare class ModUtils {
     pSC2DataManager: SC2DataManager;
     thisWin: Window;
@@ -19,12 +21,24 @@ export declare class ModUtils {
      * 以mod加载顺序为序
      */
     getModListName(): string[];
+    getModListNameNoAlias(): string[];
+    getAnyModByNameNoAlias(name: string): ModInfo | undefined;
     /**
      * 获取指定mod的信息
      * @param name ModName
      * @return ModInfo | undefined
      */
     getMod(name: string): ModInfo | undefined;
+    getModAndFromInfo(name: string): undefined | {
+        name: string;
+        mod: ModInfo;
+        from: ModLoadFromSourceType;
+    };
+    getAllModInfoByFromType(from: ModLoadFromSourceType): {
+        name: string;
+        mod: ModInfo;
+        from: ModLoadFromSourceType;
+    }[];
     /**
      * 获取指定mod的Zip
      * @param modName ModName
@@ -120,11 +134,23 @@ export declare class ModUtils {
     insertStringInPosition(content: string, insertString: string, position: number): string;
     getLodash(): _.LoDashStatic;
     getModLoadController(): ModLoadController;
+    getModLoader(): ModLoader;
     getAddonPluginManager(): AddonPluginManager;
     getLogger(): LogWrapper;
     lazyRegisterNewModZipData(data: ArgumentTypes<typeof JSZip.loadAsync>[0], options?: JSZip.JSZipLoadOptions): Promise<boolean>;
     getNowRunningModName(): string | undefined;
     getSemVerTools(): SemVerToolsType;
+    getModZipReaderStaticClassRef: () => {
+        LocalStorageLoader: typeof import("./ModZipReader").LocalStorageLoader;
+        IndexDBLoader: typeof import("./ModZipReader").IndexDBLoader;
+        LocalLoader: typeof import("./ModZipReader").LocalLoader;
+        RemoteLoader: typeof import("./ModZipReader").RemoteLoader;
+    };
+    getImage(imagePath: string): Promise<string | undefined>;
+    getLanguageManager(): import("./LanguageManager").LanguageManager;
+    getNowMainLanguage(): 'en' | 'zh' | string;
+    getIdbKeyValRef(): IdbKeyValRef;
+    getIdbRef(): IdbRef;
 }
 export type ArgumentTypes<F extends Function> = F extends (...args: infer A) => any ? A : never;
 //# sourceMappingURL=Utils.d.ts.map

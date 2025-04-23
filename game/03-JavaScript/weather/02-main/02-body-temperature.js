@@ -81,22 +81,26 @@ Weather.BodyTemperature = (() => {
 	 * @param {number} minutes The time elapsed in minutes.
 	 */
 	function update(temperature, minutes) {
-		if (T.bodyActivity === undefined) resetActivity();
+		if (V.timeSkip == undefined) {
+			adjustTemperatureThresholds();
 
-		if (T.inWater && V.outside) {
-			temperature = Weather.waterTemperature;
-		}
+			if (T.bodyActivity === undefined) resetActivity();
 
-		const scaledMinutes = Math.min(minutes, 60 + Math.sqrt(Math.max(minutes - 60, 0)));
-		this.set(calculateTemperatureChange(Weather.BodyTemperature.get(), temperature, scaledMinutes, getTotalWarmth()));
-		resetActivity();
+			if (T.inWater && V.outside) {
+				temperature = Weather.waterTemperature;
+			}
 
-		if (Weather.BodyTemperature.get() < Weather.tempSettings.minTemperature) {
-			V.passout = "cold";
-		} else if (Weather.BodyTemperature.get() > Weather.tempSettings.maxTemperature) {
-			V.passout = "heat";
-		} else {
-			delete V.passout;
+			const scaledMinutes = Math.min(minutes, 60 + Math.sqrt(Math.max(minutes - 60, 0)));
+			this.set(calculateTemperatureChange(Weather.BodyTemperature.get(), temperature, scaledMinutes, getTotalWarmth()));
+			resetActivity();
+
+			if (Weather.BodyTemperature.get() < Weather.tempSettings.minTemperature) {
+				V.passout = "cold";
+			} else if (Weather.BodyTemperature.get() > Weather.tempSettings.maxTemperature) {
+				V.passout = "heat";
+			} else {
+				delete V.passout;
+			}
 		}
 	}
 
@@ -185,6 +189,7 @@ Weather.BodyTemperature = (() => {
 	}
 
 	function temperatureFactor() {
+		adjustTemperatureThresholds();
 		if (Weather.BodyTemperature.get() <= settings.effects.lowerThresholdStart) {
 			return 1 - normalise(Weather.BodyTemperature.get(), settings.effects.lowerThresholdStart, settings.effects.lowerThresholdEnd);
 		}
@@ -212,6 +217,59 @@ Weather.BodyTemperature = (() => {
 	function getTotalWarmth() {
 		// Total warmth is warmth, but with added modifiers (like from traits)
 		return getWarmth();
+	}
+
+	function adjustTemperatureThresholds() {
+		if (V.transformationParts.traits.tempTolerance == "disabled" || V.DoLPTFTempTolerance == 0) {
+			settings.effects.lowerThresholdStart = 36;
+			settings.effects.lowerThresholdEnd = 33;
+			settings.minTemperature = 33;
+			settings.effects.upperThresholdStart = 38;
+			settings.effects.upperThresholdEnd = 41;
+			settings.maxTemperature = 41;
+			return;
+		}
+
+		const transformationAdjustments = {
+			wolf: {
+				coldTolerance: -20, coldToleranceEnd: -25,
+				heatTolerance: 0, heatToleranceEnd: 0
+			},
+			cat: {
+				coldTolerance: 0, coldToleranceEnd: 0,
+				heatTolerance: 5, heatToleranceEnd: 10
+			},
+			cow: {
+				coldTolerance: -5, coldToleranceEnd: -10,
+				heatTolerance: 8, heatToleranceEnd: 12
+			},
+			bear: {
+				coldTolerance: -30, coldToleranceEnd: -35,
+				heatTolerance: 5, heatToleranceEnd: 10
+			},
+			bird: {
+				coldTolerance: 0, coldToleranceEnd: 0,
+				heatTolerance: 15, heatToleranceEnd: 20
+			},
+			bunny: {
+				coldTolerance: 0, coldToleranceEnd: 0,
+				heatTolerance: 0, heatToleranceEnd: 0
+			},
+		};
+
+		const mod = transformationAdjustments[V.transformationParts.traits.tempTolerance] ?? {
+			coldTolerance: 0, coldToleranceEnd: 0,
+			heatTolerance: 0, heatToleranceEnd: 0
+		};
+
+		// Apply modifications
+		settings.effects.lowerThresholdStart = 36 + mod.coldTolerance;
+		settings.effects.lowerThresholdEnd = 33 + mod.coldToleranceEnd;
+		settings.minTemperature = 33 + mod.coldToleranceEnd;
+
+		settings.effects.upperThresholdStart = 38 + mod.heatTolerance;
+		settings.effects.upperThresholdEnd = 41 + mod.heatToleranceEnd;
+		settings.maxTemperature = 41 + mod.heatToleranceEnd;
 	}
 
 	return Object.create({
@@ -277,5 +335,6 @@ Weather.BodyTemperature = (() => {
 		getTotalWarmth,
 		getWarmth,
 		getRestingPoint,
+		adjustTemperatureThresholds,
 	});
 })();

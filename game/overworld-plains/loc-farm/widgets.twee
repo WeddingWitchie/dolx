@@ -69,7 +69,11 @@
 
 	<<if _args[0] is "midnight" and $farm_work>>
 		<<if $farm_work.recent_shift gte 660>>
-			<<earnFeat "Dawn to Dusk">>
+			<<if _disableFarmWorkFeat>>
+				<<run $timeMessages.pushUnique("dawnToDusk")>>
+			<<else>>
+				<<earnFeat "Dawn to Dusk">>
+			<</if>>
 		<</if>>
 	<</if>>
 
@@ -691,7 +695,7 @@
 	<</if>>
 
 	<<if $farm_work.alex is "relax" and ($exposed lt 2 or hasSexStat("exhibitionism", 5))>>
-		<<ind>><<link [[Join Alex (0:20)|Farm Rest]]>><<farm_count 20>><<trauma -2>><<stress -2>><<npcincr Alex love 1>><<set $phase to 1>><<pass 20>><</link>><<glove>><<ltrauma>><<lstress>>
+		<<farmicon "relax">><<link [[Join Alex (0:20)|Farm Rest]]>><<farm_count 20>><<trauma -2>><<stress -2>><<npcincr Alex love 1>><<set $phase to 1>><<pass 20>><</link>><<glove>><<ltrauma>><<lstress>>
 		<br>
 	<<if $farm_stage gte 4 and $milkshake gte 2>>
 		<<foodicon "milkshake">><<link [[Offer milkshake (0:20)|Alex Give Milkshake]]>><<farm_count 20>><<pass 20>><<set $milkshake -= 2>><<set $daily.alex.milkshake to true>><<npcincr Alex love 1>><<stress -5>><</link>><<glove>><<lstress>>
@@ -1005,6 +1009,7 @@
 			smiling.
 		<</if>>
 		<<if $farm_count gte 1 and $farm_stage lte 6>>
+			<<wearProp "cash" 0 "two">>
 			"Here's a little extra." <<He>> hands you <<moneyGain $farm.wage>>.
 		<</if>>
 		<br><br>
@@ -1053,18 +1058,27 @@
 		<<if hasSexStat("deviancy", 4) and ($bestialitydisable is "f" or $monster is 1)>>
 			<<ind>><<link [[Milk with your mouth (0:03)|Farm Cattle Milk Mouth]]>><<set $cattle_milked += 1>><<set $farm_work.cattle_milked += 1>><<tending 1>><<farm_count 3>><<oralskill 1>><</link>><<deviant4>><<gtending>><<goralskill>>
 			<<if $NPCList[0].penis isnot "none" and $player.virginity.oral is true>>
-				| <span class="red">This action will take your oral virginity.</span>
+				<<oralvirginitywarning>>
+			<</if>>
+			<br>
+		<</if>>
+		<<set _baseTime1 to _cattleMilkHand * $farm_work.cattle_need>>
+		<<set _timeString1 to getTimeString(_baseTime1)>>
+		<<ind>><<link [["Milk all by hand (" + _timeString1 + ")"|Farm Cattle Milk Hand Mass]]>><<farm_yield $farm_work.cattle_need>><<set $cattle_milked += $farm_work.cattle_need>><<set $farm_work.cattle_milked += $farm_work.cattle_need>><<tending $farm_work.cattle_need>><<farm_cattle $farm_work.cattle_need>><<set $phase to _baseTime1>><<pass _baseTime1>><<handskill $farm_work.cattle_need>><<set $massmilkamount to $farm_work.cattle_need>><</link>><<deviant1>><<gfarm>><<gtending>><<grespect>><<ghandskill>>
+		<br>
+		<<if hasSexStat("deviancy", 4) and ($bestialitydisable is "f" or $monster is 1)>>
+			<<set _baseTime2 to 3 * $farm_work.cattle_need>>
+			<<set _timeString2 to getTimeString(_baseTime2)>>
+			<<ind>><<link [["Milk all with your mouth (" + _timeString2 + ")"|Farm Cattle Milk Mouth Mass]]>><<set $cattle_milked += $farm_work.cattle_need>><<set $farm_work.cattle_milked += $farm_work.cattle_need>><<tending $farm_work.cattle_need>><<farm_count _baseTime2>><<oralskill $farm_work.cattle_need>><<pass _baseTime2>><</link>><<deviant4>><<gtending>><<goralskill>>
+			<<if $NPCList[0].penis isnot "none" and $player.virginity.oral is true>>
+				<<oralvirginitywarning>>
 			<</if>>
 			<br>
 		<</if>>
 
 	<<elseif hasSexStat("deviancy", 2) and $farm.milking.dayMilking is true>>
 		<<if $breastfeedingdisable is "f" and $milk_amount gte 1>>
-			<<ind>><<link [[Milk yourself (0:30)|Farm Barn Breasts]]>>
-				<<if ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>>
-					<<transform cow 1>>
-				<</if>>
-			<</link>><<deviant2>>
+			<<ind>><<link [[Milk yourself (0:30)|Farm Barn Breasts]]>><<pass 30>><</link>><<deviant2>>
 			<br>
 		<</if>>
 		<<if $player.penisExist and $semen_amount gte 1>>
@@ -1072,11 +1086,7 @@
 				<span class="blue">You could milk your penis, if the <<print $worn.genitals.name>> wasn't in the way.</span>
 				<br>
 			<<else>>
-				<<ind>><<link [[Milk your penis (0:30)|Farm Barn Penis]]>>
-					<<if ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>>
-						<<transform cow 1>>
-					<</if>>
-				<</link>><<deviant2>>
+				<<ind>><<link [[Milk your penis (0:30)|Farm Barn Penis]]>><<pass 30>><</link>><<deviant2>>
 				<br>
 			<</if>>
 		<</if>>
@@ -1886,7 +1896,7 @@
 					<<link [[Seize the initiative|Farm Tending Group Fight]]>><<def 1>>/*<<farm_aggro -5>>*/<</link>>/*<<laggro>>*/
 					<br>
 				<<else>>
-					<span class="red">You hear movement to the side.</span> You turn, and see a <<person2>><<person>> rush toward you. Before you can respond, a hand clamps over your mouth from behind.
+					<span class="red">You hear movement to the side.</span> You turn, and see a <<person2>><<person>> rush toward you. Before you can respond, <span class="red">a hand clamps over your mouth from behind.</span>
 					<br><br>
 
 					The <<person1>><<person>> climbs over the fence, and walks closer. "Not gonna lie," <<he>> says. "I enjoy my work."
@@ -2387,15 +2397,9 @@
 
 <<widget "farm_cottage_options">>
 	<<set _farmbed to ($loveInterest.primary is "Alex" or $loveInterest.secondary is "Alex") ? "alex" : "farm">>
-	<<if $furnitureLocation is "farm cottage">>
-		<<set _bed to Furniture.get('bed')>>
-		<<if _bed is undefined or _bed is null>>
-			<<set _bed to Furniture.get('bed','bed')>>
-		<</if>>
-		<<furnitureicon _bed.iconFile>>
-	<<else>>
-		<<bedicon _farmbed>>
-	<</if>><<link [[Your room (0:01)|Farm Bedroom]]>><<pass 1>><<endevent>><</link>>
+	<<set _bed to Furniture.get('bed', $location)>>
+	<<furnitureicon _bed.iconFile>>
+	<<link [[Your room (0:01)|Farm Bedroom]]>><<pass 1>><<endevent>><</link>>
 	<br>
 	<<farmicon "alexbed">><<link [[Alex's room (0:01)|Farm Alex Bedroom]]>><<pass 1>><<endevent>><</link>>
 	<br>
@@ -2702,6 +2706,7 @@
 	<<set $farm.stock.truffles to 0>>
 	<<set $farm.stock.eggs to 0>>
 	<<set $farm.stock.milk to 0>>
+	<<set $farm.stock.cream to 0>>
 <</widget>>
 
 <<widget "farm_stock">>
@@ -2863,7 +2868,7 @@
 			<<set _farm_damage to (4 - _farm_fight)>>
 	<</switch>><<set $farm_test to _farm_fight>>
 	<<if _farm_damage is 0 and $farm_stage gte 12>>
-		<<earnFeat "Heroic Victory">>
+		<<run $timeMessages.pushUnique("heroicVictory")>>
 	<</if>>
 	<<damage_farm "loop" _farm_damage>>
 	<<set $farm_attack_timer to random(17, 24)>>

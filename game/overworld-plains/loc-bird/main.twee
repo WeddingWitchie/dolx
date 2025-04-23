@@ -2128,7 +2128,7 @@ You tear and tie together fabric and other materials, adding to your rope.
 
 
 :: Bird Tower Rope Escape
-<<effects>>
+<<effects>><<wearProp "rope climb" 0 "fabric">>
 
 You tie one end of your rope around a chunk of upward-pointing stone, and throw the other off the edge. It almost reaches the bottom. It's enough.
 <br><br>
@@ -2154,14 +2154,11 @@ You tie one end of your rope around a chunk of upward-pointing stone, and throw 
 		<span class="red"> You hear a terrible shriek.</span> It didn't take long for the <<beasttype>> to notice your escape.
 	<</if>>
 	<br><br>
-
-	<<endevent>>
-
 <<else>>
 	You take the rope in both hands, turn around, and ease yourself down the tower wall. You drop the last few feet, landing in the castle courtyard.
 	<br><br>
 <</if>>
-<<link [[Next|Castle]]>><<set $moor to 100>><</link>>
+<<link [[Next|Castle]]>><<endevent>><<set $moor to 100>><</link>>
 <br>
 
 :: Bird Tower Glide Attempt
@@ -2330,13 +2327,7 @@ It fills you with a strange warmth. <<eatLurker>><<drugs 120>><<ggdrugged>>
 <<if $speech_attitude is "meek">>
 	"I-I'm sure it's very nice," you say. "But I can't eat this."
 <<elseif $speech_attitude is "bratty">>
-	"This food is unfit for a
-	<<if $player.gender_appearance is "m">>
-		gentleman
-	<<else>>
-		lady
-	<</if>>
-	like myself," you say, lifting the lurker and flinging it at a wall.
+	"This food is unfit for a <<= $player.gender is "f" ? "lady like myself" : $player.gender is "m" ? "gentleman like myself" : "person of my stature">>," you say, lifting the lurker and flinging it at a wall.
 <<else>>
 	"I can't eat this," you say, raising your voice. You kick the lurker away for good measure.
 <</if>>
@@ -2563,20 +2554,27 @@ You lift the necklace.
 :: Bird Tower Wallet
 <<setTowerTemp>><<effects>>
 
-<<if ["wallet", "purse"].includes($phase)>>
-	<<wearProp $phase>>
-	You turn the <<= $phase>> upside down.
+<<if $phase is "wallet">>
+	<<wearProp "wallet" 0 "empty">>
+	You turn the wallet upside down.
+<<elseif $phase is "purse">>
+	<<wearProp "stolen purse">>
+	You turn the purse upside down.
 <<else>>
 	You turn the container upside down.
 <</if>>
 
 <<if $rng gte 81>>
+	<<wearProp "cash" 0 "four">>
 	<<moneyGain 200 true false>> in cash falls out.
 <<elseif $rng gte 61>>
+	<<wearProp "keycard" "silver">>
 	A credit card falls out. It might be worth something to a fence.<<set $blackmoney += 120>>
 <<elseif $rng gte 41>>
+	<<wearProp "cash" 0 "three">>
 	<<moneyGain 80 true false>> in cash falls out.
 <<elseif $rng gte 21>>
+	<<wearProp "cash" 0 "two">>
 	<<moneyGain 40 true false>> in cash falls out.
 <<else>>
 	It's empty.
@@ -2969,6 +2967,7 @@ You sit by the rainwater pool.
 	<</if>>
 	<br>
 	<<storeactions "birdtower">>
+	<<if Object.keys(_stripOptions).length is 0 and _temp_clothes_present isnot 1 >><br><</if>>
 <<else>>
 	<br><br>
 <</if>>
@@ -3022,16 +3021,8 @@ You sit by the rainwater pool.
 	<<elseif $nightmares gte 1 and $controlled is 0>>
 		You <<if _wakingEffect>>dreamed of<<else>>dream you are<</if>> being hunted by something <<if ["haunt", "despair"].includes($wraith.state) and $rng lte 25>>pale<<else>>dark<</if>> and terrible.
 	<<else>>
-		<<if $specialClothesEffects.bimboTotal gte random(100,1000) or $arousal gte ($arousalmax / 10) * 9>>
-			Your sleep <<if _wakingEffect>>was<<else>>is<</if>> plagued by dirty dreams.
-			<<arousal `$specialClothesEffects.bimboTotal / 10 * $sleepHoursTotal`>>
-			<<arousal `100 * $sleepHoursTotal`>>
-			<<if $arousal gte $arousalmax>>
-				They push you over the edge.
-				<<orgasm>><<set _orgasm to true>>
-			<<else>>
-				<br><br>
-			<</if>>
+		<<if ($specialClothesEffects.bimbo.total gte random(100,1000) || $specialClothesEffects.pimp.total gte random(100,1000)) or $arousal gte ($arousalmax / 10) * 9>>
+			<<wetDream>>
 		<<elseif !_wakingEffect>>
 			You sleep soundly.
 			<br><br>
@@ -3196,6 +3187,8 @@ You sit by the rainwater pool.
 			<br>
 		<</if>>
 	<<else>>
+		<br><br>
+
 		<<link [[Climb from the nest|Bird Tower]]>><</link>>
 		<br>
 	<</if>>
@@ -3221,16 +3214,8 @@ You sit by the rainwater pool.
 	<<if $nightmares gte 1 and $controlled is 0>>
 		You dream you are being hunted by something <<if ["haunt", "despair"].includes($wraith.state) and $rng lte 25>>pale<<else>>dark<</if>> and terrible.
 	<<else>>
-		<<if $specialClothesEffects.bimboTotal gte random(100,1000) or $arousal gte ($arousalmax / 10) * 9>>
-			Your sleep is plagued by dirty dreams.
-			<<arousal `$specialClothesEffects.bimboTotal / 10 * $sleepHoursTotal`>>
-			<<arousal `100 * $sleepHoursTotal`>>
-			<<if $arousal gte $arousalmax>>
-				They push you over the edge.
-				<<orgasm>><<set _orgasm to true>>
-			<<else>>
-				<br><br>
-			<</if>>
+		<<if ($specialClothesEffects.bimbo.total gte random(100,1000) || $specialClothesEffects.pimp.total gte random(100,1000)) or $arousal gte ($arousalmax / 10) * 9>>
+			<<wetDream>>
 		<<else>>
 			You sleep as soundly as you can on a stone floor.
 		<</if>>
@@ -3845,12 +3830,12 @@ You bring your attentive touch down towards <<bhis>> groin.
 <<if $daily.birdSelfPreen is undefined>>
 	<<set $daily.birdSelfPreen to 1>>
 	You preen your wings. It's harder doing this alone.
-	<<set _featherNum to random(1,2)>>
-	<<switch _featherNum>>
+	<<set _selfFeatherNum to random(1,2)>>
+	<<switch _selfFeatherNum>>
 		<<case 1>>One of your loose feathers has fallen out. <span class="teal">You take it.</span>
 		<<case 2>>A couple of your loose feathers have fallen out. <span class="teal">You take them.</span>
 	<</switch>>
-	<<set $bird.materials.feathers += _featherNum>>
+	<<set $bird.materials.feathers += _selfFeatherNum>>
 	<<wearProp "feather" "grey">>
 <<else>>
 	You preen your wings. There's no more loose feathers to remove for now, but it makes you feel better regardless.
@@ -5382,7 +5367,7 @@ Shiny things:
 	<span class="pink">The tower is too filthy to be improved.</span>
 <<elseif $tiredness gte (C.tiredness.max / 5) * 4>>
 	<span class="red">You're too tired to build anything.</span>
-<<elseif $hunger gte 2000>>
+<<elseif $syndromebird isnot 1 and $hunger gte 2000>>
 	<span class="red">You're too hungry to focus on anything else.</span>
 <<else>>
 	<div id="towerUpgrades">

@@ -60,12 +60,23 @@ Some homes host extravagant Halloween displays.
 			<<map "danube">>
 			<br>
 		<</if>>
+
+		<<if $wrenHeist is true and (Time.hour gte 19 and Time.hour lte 20) and $wrenHeistDance.attended isnot true>>
+			In the distance, you see the mansion where you're supposed to meet Wren. <<nnpc_He "Wren">> will be waiting for you there.
+			<br>
+			<<dooricon "danube">><<link [[Head to the mansion (1:20)|Wren Heist Arrival]]>><<set $wrenHeistDance.attended to true>><</link>>
+			<br><br>
+		<</if>>
+
 		Places of interest
 		<br>
 		<<foresticon>><<link [[Forest (0:10)|Forest]]>><<pass 10>><<set $forest to 0>><<set $eventskip to 1>><</link>>
 		<br>
 		<<if $exposed lte 0 and $openinghours is 1>>
 			<<spaicon>><<link [[Spa (0:02)|Spa]]>><<pass 2>><</link>>
+			<br>
+		<<elseif Time.hour is $closinghour>>
+			<<spaicon>><span class="blue">People are leaving the spa.</span> It must be closing time.
 			<br>
 		<<elseif $openinghours is 0>>
 			<<spaicon>><<link [[Spa (0:02)|Spa Lock]]>><<pass 2>><</link>>
@@ -87,7 +98,7 @@ Some homes host extravagant Halloween displays.
 			<br>
 		<</if>>
 		<br>
-		<<if $exposed gte 1 and Time.dayState isnot "night">>
+		<<if (($exposed is 1 and $uncomfortable.underwearPublic) or ($exposed is 2 and $uncomfortable.nudePublic)) and Time.dayState isnot "night">>
 		<<else>>
 			<<add_link "Travel<br>">><<hideDisplay>>
 			<<domus>>

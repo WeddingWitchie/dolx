@@ -170,7 +170,8 @@ You are downstairs in Alex's cottage. It's tight, and cosy. There's a kitchen wi
 
 	<<link [[Prepare|Farm Assault Wardrobe]]>><<endevent>><<set $phase to 3>><</link>>
 	<br>
-<<elseif Time.hour is 5 and $alex_breakfast is undefined>>
+<<elseif Time.hour is 5 and ($alex_breakfast is undefined or $alex_breakfast is 0)>>
+	<<set $alex_breakfast to 0>>
 	<<if $alexSomnoAngry lte 1>>
 		<<foodicon "pancakes">><<link [[Help Alex make breakfast|Farm Breakfast Reject]]>><<set $alex_breakfast to 1>><<set $phase to 0>><</link>>
 		<br>
@@ -272,19 +273,18 @@ You are in your room at Alex's cottage. It's cramped, but larger than your room 
 	<br><br>
 <</if>>
 
-<<if $furnitureLocation is "farm cottage">>
-	<<set _desk to Furniture.get('desk')>>
-	<<set _chair to Furniture.get('chair')>>
-	<<set _deco to Furniture.get('decoration')>>
-	<<set _owlplush to Furniture.get('owlplushie')>>
-	<<set _windowsill to Furniture.get('windowsill')>>
-	<<set _bed to Furniture.get('bed')>>
-	<<set _wardrobe to Furniture.get('wardrobe')>>
-	<<if $machineVaginalBought isnot undefined or $machineAnalBought isnot undefined>>
-		<<set _sexMachine to 1>>
-	<</if>>
+<<set _desk to Furniture.get('desk', $location)>>
+<<set _chair to Furniture.get('chair', $location)>>
+<<set _deco to Furniture.get('decoration', $location)>>
+<<set _owlplush to Furniture.get('owlplushie', $location)>>
+<<set _windowsill to Furniture.get('windowsill', $location)>>
+<<set _bed to Furniture.get('bed', $location)>>
+<<set _wardrobe to Furniture.get('wardrobe', $location)>>
+<<set _poster to Furniture.get('poster', $location)>>
+<<if $machineVaginalBought isnot undefined or $machineAnalBought isnot undefined>>
+	<<set _sexMachine to 1>>
 <</if>>
-<<set _poster to Furniture.get('poster')>>
+<<set _poster to Furniture.get('poster', $location)>>
 
 There is a thermometer outside your window. It reads <span class="teal"><<print Weather.toSelectedString(Weather.temperature, 0)>></span>.
 <<print setup.WeatherDescriptions.extremeTemperature()>>
@@ -349,12 +349,6 @@ There is a thermometer outside your window. It reads <span class="teal"><<print 
 	<br>
 <<else>>
 	/* Misc Furniture */
-	<<if _desk is undefined or _desk is null>>
-		<<set _desk to Furniture.get('desk','desk')>>
-	<</if>>
-	<<if _chair is undefined or _chair is null>>
-		<<set _chair to Furniture.get('chair','chair')>>
-	<</if>>
 	<<deskText "icon">> /* If no desk options (read a book, work on project, etc.) are available, desk and icon appear here */
 	<<tableText "icon">> /* If no fish tank is available to be placed on an owned table or chairs, table and chairs appear here */
 	<br>
@@ -364,11 +358,7 @@ There is a thermometer outside your window. It reads <span class="teal"><<print 
 		You fiddle with your lockpick training set. <<skulduggerycheck>><<skulduggeryuse>><br>
 	<</if>>
 
-	/* <<if $farmCottageLocked is 0>>
-		<<link [[Lock your door|$passage]]>><<set $farmCottageLocked to 1>><</link>><br><br>
-	<<else>>
-		<<link [[Unlock your door|$passage]]>><<set $farmCottageLocked to 0>><</link>><br><br>
-	<</if>> */
+	Lock your door: <<checkbox "$farmCottageLocked" 0 1 autocheck>><mouse class="tooltip linkBlue">(?)<span>Will stop Alex from interrupting your sleep unless Remy is attacking.</span></mouse><br><br>
 
 	<<deskText "noicon">>
 
@@ -400,9 +390,9 @@ There is a thermometer outside your window. It reads <span class="teal"><<print 
 		<</switch>>
 	<</if>>
 
-	<<if _furniture.poster>>
+	<<if _poster>>
 		<br>
-		<<switch _furniture.poster.name>>
+		<<switch _poster.name>>
 			<<case "cowgirl">>
 				<<furnitureicon _poster.iconFile>>A cowgirl poster hangs on a wall.
 			<<case "cat">>
@@ -451,9 +441,6 @@ There is a thermometer outside your window. It reads <span class="teal"><<print 
 			<</if>>
 		<</if>>
 	<<if !($earSlime.event and $earSlime.noSleep)>>
-		<<if _bed is undefined or _bed is null>>
-			<<set _bed to Furniture.get("bed")>>
-		<</if>>
 		<<silently>><<willpowerdifficulty 200 1000>><</silently>>
 		<<if $arousal lt $arousalmax*3/5 or $willpowerSuccess or $orgasmCount gte 1>>
 			<<furnitureicon _bed.iconFile>><<link [[Strip and get in bed|Farm Bed]]>><<undressSleep "Farm Bed">><</link>>
@@ -588,18 +575,10 @@ You snuggle under the covers.
 	<<if $nightmares gte 1 and $controlled is 0>>
 		You dream you are being hunted by something <<if ["haunt", "despair"].includes($wraith.state) and $rng lte 25>>pale<<else>>dark<</if>> and terrible.
 	<<else>>
-		<<if $specialClothesEffects.bimboTotal gte random(100,1000) or $arousal gte 9000>>
-			Your sleep is plagued by dirty dreams.
-			<<arousal `$specialClothesEffects.bimboTotal / 10 * $sleepHoursTotal`>>
-			<<arousal `100 * $sleepHoursTotal`>>
-			<<if $arousal gte $arousalmax>>
-				They push you over the edge.
-				<<orgasm>><<set $daily.alex.bedOrgasm to true>>
-			<</if>>
+		<<if ($specialClothesEffects.bimbo.total gte random(100,1000) || $specialClothesEffects.pimp.total gte random(100,1000)) or $arousal gte ($arousalmax / 10) * 9>>
+			<<wetDream>>
 		<<elseif !_wakingEffect>>
-			<<if $furnitureLocation is "farm cottage">>
-				<<set _bed to Furniture.get('bed')>>
-			<</if>>
+			<<set _bed to Furniture.get('bed', $location)>>
 			<<if _bed and _bed.type.includes('comfy')>>
 				You sink into the soft, welcoming embrace of the bed, drifting off effortlessly.
 			<<elseif _bed and _bed.type.includes('starter')>>
@@ -839,7 +818,7 @@ Alex holds your body tighter and begins humping your rear faster.
 		You slip two fingers into Alex's quim, and <<he>> tightens around you. <<His>> arms lock around your shoulders, pressing you against <<his>> body. <<His>> hips begin to buck against your hand.
 		<br><br>
 		<<if $speech_attitude is "meek">>
-			You brush your thumb against <<his>> clit, focusing on thrusting your fingers in and out. Alex's pants and moans encourage your own arousal. Your free hand slips between your legs, rubbing against your crotch.  "Y-you are too cute..." you whisper.
+			You brush your thumb against <<his>> clit, focusing on thrusting your fingers in and out. Alex's pants and moans encourage your own arousal. Your free hand slips between your legs, rubbing against your crotch. "Y-you are too cute..." you whisper.
 		<<elseif $speech_attitude is "bratty">>
 			You thrust your fingers, pausing only to pinch <<his>> clit. <<He>> whimpers in <<his>> sleep but continues to needily hump your fingers. You smirk as an idea comes to mind. You slip two more fingers inside, keeping your pace steady. Alex's pants and moans quicken as <<he>> buries <<his>> face into your shoulder.
 		<<else>>
@@ -971,7 +950,7 @@ Alex still sounds sleepy, but also somewhat embarrassed. "What are you doing...?
 		<<elseif $speech_attitude is "bratty">>
 			You chuckle, removing your finger from Alex's quim to pinch <<his>> cheek. "Your little friend was being real needy. You clearly needed a hand," you say with a smirk.
 		<<else>>
-			You jump and quickly remove your fingers from Alex's quim. You were rubbing up against me while you slept. I wanted to help you out," you say with a small smile.
+			You jump and quickly remove your fingers from Alex's quim. "You were rubbing up against me while you slept. I wanted to help you out," you say with a small smile.
 		<</if>>
 	<</if>>
 <</if>>
@@ -1756,15 +1735,9 @@ You are in Alex's bedroom. It's similar to yours. Clothes tumble from the wardro
 		<span class="nextLink"><<link [[Your room (0:01)|Farm Bedroom]]>><<pass 1>><</link>></span>
 	<<else>>
 		<<set _farmbed to ($loveInterest.primary is "Alex" or $loveInterest.secondary is "Alex") ? "alex" : "farm">>
-		<<if $furnitureLocation is "farm cottage">>
-			<<set _bed to Furniture.get('bed')>>
-			<<if _bed is undefined or _bed is null>>
-				<<set _bed to Furniture.get('bed','bed')>>
-			<</if>>
-			<<furnitureicon _bed.iconFile>>
-		<<else>>
-			<<bedicon _farmbed>>
-		<</if>><<link [[Your room (0:01)|Farm Bedroom]]>><<pass 1>><</link>>
+		<<set _bed to Furniture.get('bed', $location)>>
+		<<furnitureicon _bed.iconFile>>
+		<<link [[Your room (0:01)|Farm Bedroom]]>><<pass 1>><</link>>
 	<</if>>
 	<br>
 	<<main_hall_icon>><<link [[Go downstairs (0:01)|Farm Cottage]]>><<pass 1>><</link>>
@@ -4258,7 +4231,7 @@ Both look at you as you enter the room. "Ah, I see you got everything I needed. 
 :: Farm Alex Birth 5
 <<effects>>
 
-<<if $phase is 1>>After a few intense minutes, you<<else>>You<</if>> hear a 
+<<if $phase is 1>>After a few intense minutes, you<<else>>You<</if>> hear a
 
 <<if $alexBabiesCount is 2>>
     cry, followed by another.
@@ -4292,7 +4265,7 @@ Alex hugs <<his>> <<print $alexBabiesCount > 1 ? "babies" : "baby">> close to <<
 "I'm too tired to think about names now and I'm not really good with this, you choose <<if getPregnancyObject("Alex").fetus.length gte 2>>them<<else>>it<</if>>," Alex says.
 <br>
 
-"Come on, give it a try, it's not fair that only I get to choose" you say.
+"Come on, give it a try, it's not fair that only I get to choose," you say.
 <br>
 
 Alex thinks for a moment. "Nope, nothing," <<he>> laughs.
@@ -4302,6 +4275,7 @@ Alex thinks for a moment. "Nope, nothing," <<he>> laughs.
 
 :: Farm Alex Birth 6
 <<effects>>
+<<getChildrenIds>><<childSelect _childrenIds.last()>>
 
 Having named your <<print $alexBabiesCount > 1 ? "children" : "child">>, you turn your attention to Alex again. <<He>> nods approvingly at your choice of <<print $alexBabiesCount > 1 ? "names" : "name">>.
 <br>
@@ -4342,7 +4316,7 @@ Harper smiles and leaves, pulling <<nnpc_his "Harper">> phone out of <<nnpc_his 
     There, you place your <<if $alexBabiesCount gte 2>>newborns in their cradles, where they quickly fall asleep<<else>>newborn in its cradle, where it quickly falls asleep<</if>>.
 	<br>
 
-    You stay at the nursery for a while, ensuring that your <<if $alexBabiesCount gte 2>>children<<else>>child<</if>> remain comfy and warm.
+    You stay at the nursery for a while, ensuring that your <<if $alexBabiesCount gte 2>>children remain<<else>>child remains<</if>> comfy and warm.
 	<br><br>
 
 <</if>>
@@ -5247,7 +5221,7 @@ You try to pull <<him>> closer but
 <<link [[Next|Farm Cottage]]>><<endevent>><<pass 20>><</link>>
 
 :: Farm Cottage Large Bear Plushie Cuddle
-<<effects>>
+<<effects>><<wearProp "large teddy bear">>
 <<if $trauma gte ($traumamax / 7) * 3 or $stress gte ($stressmax / 7) * 5>>
 	You desperately cling onto the large bear plushie with your entire body and almost wind up pulling it down onto the ground, whimpering and crying loudly into it.<<trauma -6>><<stress -6>>
 <<elseif $trauma gte ($traumamax / 7) * 2 or $stress gte ($stressmax / 7) * 3>>
@@ -5260,9 +5234,9 @@ You try to pull <<him>> closer but
 <br><br>
 
 
-<<link [[Cuddle with the large bear plushie (0:10)|$passage]]>><<pass 10>><</link>><<ltrauma>><<lstress>>
+<<link [[Cuddle with the large bear plushie (0:10)|$passage]]>><<pass 10>><<handheldon>><</link>><<ltrauma>><<lstress>>
 <br>
-<<link [[Next|Farm Bedroom]]>><</link>>
+<<link [[Next|Farm Bedroom]]>><<handheldon>><</link>>
 
 :: Farm PC Ultrasound Pics Show
 <<effects>><<npc "Alex">><<person1>>
@@ -5323,11 +5297,11 @@ Alex holds you for a while, and you both enjoy the moment together. <<He>> gives
 You are in the kitchen in Alex's cottage. There's a window above the sink, giving a view of the farm.
 <br><br>
 
-<<ingredients_supplied>>
-<<ingredients_exceptions>>
+<<ingredientsSupplied>>
+<<allowLewdIngredients>>
 <br><br>
 
-<<kitchen_display_all>>
+<<kitchenDisplay>>
 <<if $cookbook is true>>
 	<<set _baseTime to Math.max(180 - (6 * Math.round($housekeeping / 50)), 10)>>
 	<<set _timeString to getTimeString(_baseTime)>>

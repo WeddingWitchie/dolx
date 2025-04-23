@@ -190,19 +190,13 @@
 		<div class="settingsToggleItem">
 			<span class="gold">Body</span> <mouse class="tooltip linkBlue">(?)<span>Changing the player's genitalia will wash the player of lewd fluids, and remove genital parasites, to prevent them from lingering on nonexisting body parts.</span></mouse>
 			<br>
-			Sex:
+			Genitals:
 			<span id="statsGender">
-				<<cheatsGender>>
-			</span>
-			<br>
-			<<set _facestyle_words to {"masc": "Style 2", "fem": "Style 1", "default": "Default"}>>
-			Face style:
-			<span id="statsFacestyle">
-				<<cheatsFace>>
+				<<cheatsSex>>
 			</span>
 			<br>
 			<<set _gender_body_words to {"m": "Masculine", "f": "Feminine", "a": "Androgynous"}>>
-			Gender appearance:
+			Body type <mouse class="tooltip linkBlue">(?)<span>Contributes to how feminine or masculine you appear. In normal gameplay, the player's body type does not contribute to gender appearance, unless it has been feminised or masculinised via special clothing.</span></mouse>:
 			<span id="statsBodyType">
 				<<cheatsBody>>
 			</span>
@@ -744,7 +738,7 @@
 			<span class="gold">Traits</span>
 			<br>
 			<<set $_traits to {"choke": $choketrait, "milkdrank" : $milkdranktrait, "vore" : $voretrait, "tentacle" : $tentacletrait, "bestiality" : $bestialitytrait, "rape" : $rapetrait, "molest" : $molesttrait, "ejac" : $ejactrait, "orgasm" : $orgasmtrait, "penis_addict": $penis_addict_trait, "hole_addict": $hole_addict_trait}>>
-			<<set _traitValue to  {"1": "On", "-1": "Disabled", "0": "Off"}>>
+			<<set _traitValue to {"1": "On", "-1": "Disabled", "0": "Off"}>>
 
 			Orgasm Addict: <span id="statsorgasmtrait" @class="$orgasmtrait is 1 ? 'green' : 'red'"><<= _traitValue[$_traits["orgasm"].toString()]>></span> |
 			<<link "Change">>
@@ -889,9 +883,9 @@
 			Lustful: <span id="statslustful" @class="$backgroundTraits.includes('lustful') is true ? 'green' : 'red'"><<= $backgroundTraits.includes("lustful") is true ? "On" : "Off">></span> |
 			<<link "Change">>
 				<<if !$backgroundTraits.includes("lustful")>>
-					<<set $backgroundTraits.pushUnique("lustful")>><<set $specialClothesEffects.bimboTotal to 1200>>
+					<<set $backgroundTraits.pushUnique("lustful")>><<set $specialClothesEffects.bimbo.total to 1200>>
 				<<else>>
-					<<set $backgroundTraits.delete("lustful")>><<if $specialClothesEffects.bimboTotal gt 1000>><<set $specialClothesEffects.bimboTotal to 1000>><</if>>
+					<<set $backgroundTraits.delete("lustful")>><<if $specialClothesEffects.bimbo.total gt 1000>><<set $specialClothesEffects.bimbo.total to 1000>><</if>>
 				<</if>>
 				<<replace "#statslustful">>
 					<<set _lustful to $backgroundTraits.includes("lustful") is true ? "On" : "Off">>
@@ -1239,7 +1233,7 @@
 				<div id="left_arm"><<cheatParasiteToggle "left_arm">></div>
 				<div id="right_arm"><<cheatParasiteToggle "right_arm">></div>
 				<div id="tummy"><<cheatParasiteToggle "tummy">></div>
-				<<if playerIsPregnant() and $player.gender is "m" and numberOfEarSlime()>>
+				<<if playerIsPregnant() and $player.sex is "m" and numberOfEarSlime()>>
 					<div class="red">Unable to remove ear slimes while pregnant as a male.</div>
 				<<else>>
 					<div id="left_ear"><<cheatParasiteToggle "left_ear">></div>
@@ -1263,25 +1257,25 @@
 			<br>
 			<span class="description">You may only have one animal and one divine transformation at a time.</span>
 			<br>
-			<<tficon "angel">>Angel: <<link "Set">><<angelTransform>><<updatesidebarimg>><</link>> | <<link "Clear">><<angelTransform 99>><<updatesidebarimg>><</link>><br>
+			<<tficon "angel">>Angel: <<link "Set">><<clearDivineTransformations>><<angelTransform>><<updatesidebarimg>><</link>> | <<link "Clear">><<angelTransform 99>><<updatesidebarimg>><</link>><br>
 			<<tficon "fallenangel">>Fallen Angel: <<link "Set">><<clearDivineTransformations>><<set $specialTransform to 1>>
-			<<set $fallenangel to 2>><<set $fallenangeltf to 1>><<set $transformationParts.fallenAngel.halo to ($transformationParts.angel.halo is "traditional" ? "traditional" : "default")>><<set $transformationParts.fallenAngel.wings to ($transformationParts.angel.wings is "classic" ? "classic" : "default")>><<if $transformationParts.bird.wings is "default">><<set $transformationParts.fallenAngel.wings to "hidden">><</if>><<updatesidebarimg>><</link>> | <<link "Clear">><<fallenButNotOut 99>><<updatesidebarimg>><</link>><br>
-			<<tficon "demon">>Demon: <<link "Set">><<demonTransform>><<updatesidebarimg>><</link>> | <<link "Clear">><<demonTransform 99>><<updatesidebarimg>><</link>><br>
-			<<tficon "wolf">>Wolf: <<link "Set">><<wolfTransform>><<updatesidebarimg>><</link>> | <<link "Clear">><<wolfTransform 99>><<updatesidebarimg>><</link>><br>
-			<<tficon "cat">>Cat: <<link "Set">><<catTransform>><<updatesidebarimg>><</link>> | <<link "Clear">><<catTransform 99>><<updatesidebarimg>><</link>><br>
-			<<tficon "cow">>Cow: <<link "Set">><<cowTransform>><<updatesidebarimg>><</link>> | <<link "Clear">><<cowTransform 99>><<updatesidebarimg>><</link>><br>
-			<<tficon "harpy">>Bird: <<link "Set">><<harpyTransform>><<updatesidebarimg>><</link>> | <<link "Clear">><<harpyTransform 99>><<updatesidebarimg>><</link>><br>
-			<<tficon "fox">>Fox: <<link "Set">><<foxTransform>><<updatesidebarimg>><</link>> | <<link "Clear">><<foxTransform 99>><<updatesidebarimg>><</link>><br>
-			<<tficon "bear">>Bear: <<link "Set">><<bearTransform>><<updatesidebarimg>><</link>> / <<link "Clear">><<bearTransform 99>><<updatesidebarimg>><</link>><br>
-			<<tficon "bunny">>Bunny: <<link "Set">><<bunnyTransform>><<updatesidebarimg>><</link>> / <<link "Clear">><<bunnyTransform 99>><<updatesidebarimg>><</link>><br>
+			<<set $fallenangel to 2>><<set $fallenangeltf to 1>><<set $transformationParts.fallenAngel.halo to ($transformationParts.angel.halo is "traditional" ? "traditional" : "default")>><<set $transformationParts.fallenAngel.wings to ($transformationParts.angel.wings is "classic" ? "classic" : "default")>><<updatesidebarimg>><</link>> | <<link "Clear">><<fallenButNotOut 99>><<updatesidebarimg>><</link>><br>
+			<<tficon "demon">>Demon: <<link "Set">><<clearDivineTransformations>><<demonTransform>><<updatesidebarimg>><</link>> | <<link "Clear">><<demonTransform 99>><<updatesidebarimg>><</link>><br>
+			<<tficon "wolf">>Wolf: <<link "Set">><<clearAnimalTransformations>><<wolfTransform>><<updatesidebarimg>><</link>> | <<link "Clear">><<wolfTransform 99>><<updatesidebarimg>><</link>><br>
+			<<tficon "cat">>Cat: <<link "Set">><<clearAnimalTransformations>><<catTransform>><<updatesidebarimg>><</link>> | <<link "Clear">><<catTransform 99>><<updatesidebarimg>><</link>><br>
+			<<tficon "cow">>Cow: <<link "Set">><<clearAnimalTransformations>><<cowTransform>><<updatesidebarimg>><</link>> | <<link "Clear">><<cowTransform 99>><<updatesidebarimg>><</link>><br>
+			<<tficon "bird">>Bird: <<link "Set">><<clearAnimalTransformations>><<harpyTransform>><<updatesidebarimg>><</link>> | <<link "Clear">><<harpyTransform 99>><<updatesidebarimg>><</link>><br>
+			<<tficon "fox">>Fox: <<link "Set">><<clearAnimalTransformations>><<foxTransform>><<updatesidebarimg>><</link>> | <<link "Clear">><<foxTransform 99>><<updatesidebarimg>><</link>><br>
+			<<tficon "bear">>Bear: <<link "Set">><<clearAnimalTransformations>><<bearTransform>><<updatesidebarimg>><</link>> / <<link "Clear">><<bearTransform 99>><<updatesidebarimg>><</link>><br>
+			<<tficon "bunny">>Bunny: <<link "Set">><<clearAnimalTransformations>><<bunnyTransform>><<updatesidebarimg>><</link>> / <<link "Clear">><<bunnyTransform 99>><<updatesidebarimg>><</link>><br>
 		</div>
 	<div class="settingsToggleItem">
 		<span class="gold">Transformation Points</span>
 		<br>
 		<span class="description">Angel and Cat require 50 points to reach their full transformation, while all others require 30 points. Fallen Angel requires 30 points for Acceptance.</span>
-		<<for _tf range ["angel", "fallen", "demon", "wolf", "cat", "cow", "bird", "fox", "bear", "bunny"]>>
+		<<for _tf range ["angel", "fallenangel", "demon", "wolf", "cat", "cow", "bird", "fox", "bear", "bunny"]>>
 			<<capture _tf>>
-				<<set _name to (_tf is "fallen" ? "Fallen Angel" : _tf)>>
+				<<set _name to (_tf is "fallenangel" ? "Fallen Angel" : _tf)>>
 				<<set _title to `<<tficon _tf>> ${toTitleCase(_name)}`>>
 				<<set _varName to `${_tf}build`>>
 				<<numberStepper _title `V[T.varName]` {
@@ -1485,6 +1479,9 @@
 					<<policeicon>><span class="gold">Prison</span>
 					<<numberStepper "Guards" $prison.guards { callback: value => { V.prison.guards = value } }>>
 					<<numberStepper "Inmates" $prison.inmates { callback: value => { V.prison.inmates = value } }>>
+					<<numberStepper "Inmates Hope" $prison.hope { callback: value => { V.prison.hope = value } }>>
+					<<numberStepper "Inmates Rebellion" $prison.reb { callback: value => { V.prison.reb = value } }>>
+					<<numberStepper "Watchers Friendship" $prison.watchers_friend { callback: value => { V.prison.watchers_friend = value } }>>
 				<</if>>
 			</div>
 		<</if>>
@@ -1655,12 +1652,14 @@
 				<span class="green">Talk to Alex to advance farm progress.</span>
 			<</if>>
 		<<case "crossdress">>
+			<<set _crossdressing to $player.gender isnot $player.sex ? "presumed crossdressing" : "crossdressing">>
+			<<set _knows to $player.gender isnot $player.sex ? "believes it to be true" : "knows">>
 			<<switch $schoolrep.crossdress>>
-				<<case 5>><span class="red">Your crossdressing has become common knowledge at school. Everyone knows, including the teachers.</span>
-				<<case 4>><span class="pink">Rumours of your crossdressing are spreading throughout the school.</span>
-				<<case 3>><span class="purple">Rumours of your crossdressing are spreading, and have become a popular topic of conversation at school.</span>
-				<<case 2>><span class="blue">Whispers of your crossdressing are spreading through the school.</span>
-				<<case 1>><span class="lblue">A few cliques at school have begun whispering of your crossdressing.</span>
+				<<case 5>><span class="red">Your _crossdressing has become common knowledge at school. Everyone _knows, including the teachers.</span>
+				<<case 4>><span class="pink">Rumours of your _crossdressing are spreading throughout the school.</span>
+				<<case 3>><span class="purple">Rumours of your _crossdressing are spreading, and have become a popular topic of conversation at school.</span>
+				<<case 2>><span class="blue">Whispers of your _crossdressing are spreading through the school.</span>
+				<<case 1>><span class="lblue">A few cliques at school have begun whispering of your _crossdressing.</span>
 				<<default>><span class="green">No one is spreading rumours about you at school.</span>
 			<</switch>>
 		<<case "herm">>
@@ -1899,14 +1898,14 @@
 			<<for _i, _hr range [1, 2, 3, 6, 8, 12, 16, 24]>>
 				<<capture _hr>>
 					<<set _hours to _i is 0 ? "hour" : "hours">>
-					<<link [[_hr _hours|$passage]]>><<pass _hr hour>><</link>>
+					<<link [[_hr _hours|$passage]]>><<set $timeSkip to 1>><<pass _hr hour>><<unset $timeSkip>><</link>>
 					/* <<= _i lt 7 ? "<br>" : "">> */
 					<br>
 				<</capture>>
 			<</for>>
 			<<for _i, _dy range [2, 3, 4, 5, 6, 7, 14, 28]>>
 				<<capture _dy>>
-					<<link [[_dy + " days"|$passage]]>><<pass _dy days>><</link>>
+					<<link [[_dy + " days"|$passage]]>><<set $timeSkip to 1>><<pass _dy days>><<unset $timeSkip>><</link>>
 					<<= _i lt 7 ? "<br>" : "">>
 				<</capture>>
 			<</for>>
@@ -1936,16 +1935,6 @@
 		</div>
 	</div>
 
-	<<if $maxDefaultActionSets isnot undefined>>
-		<hr>
-		<div class="settingsGrid">
-			<div class="settingsHeader options">Default Action Sets</div>
-			<div class="settingsToggleItemWide">
-			Too many action sets may reduce combat performance. Without cheats, the max number of default action sets is 7.
-			<<numberStepper "Sets" $maxDefaultActionSets "maxDefaultActionSets" {min: 1, max: 10, step: 1, colorArr: ["--teal", "--teal"], percentage: false, activeButtons: ["single", "minMax"]}>>
-		</div>
-	<</if>>
-
 	<br><br>
 	<<link "Unlock All Seeds">><<run unlockAllSeeds()>><</link>>
 	<br>
@@ -1966,6 +1955,7 @@
 	| <<link ">>>">><<set $swimnudecounter += 100>><<set $swimnudecounter = Math.clamp($swimnudecounter, 0, 100)>><<replace "#statswimnudecounter">><<print Math.trunc($swimnudecounter)>><</replace>><</link>>
 	<br><br>
 	Note: Greater than 10 will trigger the Pool Leighton Nude Punishment event.
+
 	<hr>
 	<div class="settingsGrid">
 		<div class="settingsHeader options">Pregnancy</div>
@@ -2182,7 +2172,7 @@
 				<br>
 				<<if $playerPregnancyHumanDisable == "f">>
 					<<link [[A random person|$passage]]>> /* checks if males or females have penises, if there is no people with penises a foreigner impregnates PC */
-					<<set _impregnator to either("arbitrary", "aimless", "by-the-way", "casual", "driftless", "hit-or-miss", "fluky", "promiscuous", "slapdash",  "irresponsible", "careless", "negligent") + " cheater ">>
+					<<set _impregnator to either("arbitrary", "aimless", "by-the-way", "casual", "driftless", "hit-or-miss", "fluky", "promiscuous", "slapdash", "irresponsible", "careless", "negligent") + " cheater ">>
 					<<if $dgchance gt 0 and $cbchance lt 100>>
 						<<set _impregnator += either("man", "boy", "woman", "girl")>>
 					<<elseif $dgchance gt 0 and $cbchance gt 99>>
@@ -2263,7 +2253,7 @@
 							<<replace "#cheatSpermSources">><span class="gold">$sexStats[_womb].sperm.length</span> <<= $sexStats[_womb].sperm.length is 1 ? "sperm source" : "sperm sources">><</replace>>
 						<</link>>
 						| <<link "A random person">> /* checks if males or females have penises, if there is no people with penises a foreigner inseminates PC */
-							<<set _impregnator to either("arbitrary", "aimless", "by-the-way", "casual", "driftless", "hit-or-miss", "fluky", "promiscuous", "slapdash",  "irresponsible", "careless", "negligent") + " cheater ">>
+							<<set _impregnator to either("arbitrary", "aimless", "by-the-way", "casual", "driftless", "hit-or-miss", "fluky", "promiscuous", "slapdash", "irresponsible", "careless", "negligent") + " cheater ">>
 							<<if $dgchance gt 0 and $cbchance lt 100>>
 								<<set _impregnator += either("man", "boy", "woman", "girl")>>
 							<<elseif $dgchance gt 0 and $cbchance gt 99>>
@@ -2904,7 +2894,7 @@
 			<<set _weatherState to _weatherTypes[_i]>>
 			<<set _iconType = resolveValue(setup.WeatherGeneration.weatherTypes.find(w => w.name === _weatherState).iconType, "clear")>>
 
-			<<set _weatherIcon to `<<icon 'weather/${_dayState}_${_iconType}.png'>>`>>
+			<<set _weatherIcon to `<<iconUi 'weather/${_dayState}_${_iconType}.png'>>`>>
 
 			<<set _weatherName to _weatherState.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase().toUpperFirst()>>
 			<<= _weatherIcon.replace("none", "rain")>>
@@ -2919,19 +2909,19 @@
 	<</capture>>
 <</widget>>
 
-<<widget "cheatsGender">>
+<<widget "cheatsSex">>
 	<<set _reasons to []>>
 	<<if $sexStats.vagina.menstruation.currentState isnot "normal">><<set _reasons.push($sexStats.vagina.menstruation.currentState is "recovering" ? "you still being in recovery from your last pregnancy" : "your pregnancy")>><</if>>
 	<<if $earSlime.growth gt 50>><<set _reasons.push("your ear slime's current growth")>><</if>>
 	<<if _inWardrobe>>
 		<<if _reasons.length gte 1>>
-			<span class="gold"><<= $player.gender is "m" ? "Male" : $player.gender is "f" ? "Female" : "Hermaphrodite">></span>
+			<span class="gold"><<= $player.sex is "m" ? "Penis" : $player.sex is "f" ? "Vagina" : "Hermaphrodite">></span>
 			| This setting cannot be changed due to <<= _reasons.join(" and ")>>.
 		<<else>>
-			<<if $player.gender is "m">>
-				<span class="gold">Male</span> |
+			<<if $player.sex is "m">>
+				<span class="gold">Penis</span> |
 			<<else>>
-				<<link "Male">>
+				<<link "Penis">>
 					<<wash>>
 					<<removeparasite clit>>
 					<<removeparasite penis>>
@@ -2946,13 +2936,13 @@
 					<<set $player.vaginaExist to false>>
 					<<set $sexStats.vagina.menstruation.running = false>>
 					<<updatesidebarimg>>
-					<<replace "#statsGender">><<cheatsGender>><</replace>>
+					<<replace "#statsGender">><<cheatsSex>><</replace>>
 				<</link>> |
 			<</if>>
-			<<if $player.gender is "f">>
-				<span class="gold">Female</span> |
+			<<if $player.sex is "f">>
+				<span class="gold">Vagina</span> |
 			<<else>>
-				<<link "Female">>
+				<<link "Vagina">>
 					<<wash>>
 					<<removeparasite clit>>
 					<<removeparasite penis>>
@@ -2967,10 +2957,10 @@
 					<<set $player.vaginaExist to true>>
 					<<set $sexStats.vagina.menstruation.running = true>>
 					<<updatesidebarimg>>
-					<<replace "#statsGender">><<cheatsGender>><</replace>>
+					<<replace "#statsGender">><<cheatsSex>><</replace>>
 				<</link>> |
 			<</if>>
-			<<if $player.gender is "h">>
+			<<if $player.sex is "h">>
 				<span class="gold">Hermaphrodite</span>
 			<<else>>
 				<<link "Hermaphrodite">>
@@ -2987,21 +2977,21 @@
 					<<set $player.vaginaExist to true>>
 					<<set $sexStats.vagina.menstruation.running = true>>
 					<<updatesidebarimg>>
-					<<replace "#statsGender">><<cheatsGender>><</replace>>
+					<<replace "#statsGender">><<cheatsSex>><</replace>>
 				<</link>>
 			<</if>>
 		<</if>>
-		<<if $player.gender is "h">>
+		<<if $player.sex is "h">>
 			<br>
 			Hermaphrodite Balls: <span id="statsBallsExist"><<= $player.ballsExist ? "Present" : "Disabled">></span> |
 			<<link "Change">>
 				<<set $player.ballsExist to clone(!$player.ballsExist)>>
 				<<updatesidebarimg>>
-				<<replace "#statsGender">><<cheatsGender>><</replace>>
+				<<replace "#statsGender">><<cheatsSex>><</replace>>
 			<</link>>
 		<</if>>
 	<<else>>
-		<span class="gold"><<= $player.gender is "m" ? "Male" : $player.gender is "f" ? "Female" : "Hermaphrodite">></span> | <<if _reasons.length gte 1>>You cannot change your gender due to <<= _reasons.join(" and ")>>. Normally, this<<else>>This<</if>> setting can only be changed when accessing your wardrobe.
+		<span class="gold"><<= $player.sex is "m" ? "Penis" : $player.sex is "f" ? "Vagina" : "Hermaphrodite">></span> | <<if _reasons.length gte 1>>You cannot change your genitals due to <<= _reasons.join(" and ")>>. Normally, this<<else>>This<</if>> setting can only be changed when accessing your wardrobe.
 	<</if>>
 <</widget>>
 
@@ -3030,7 +3020,7 @@
 			<<numberStepper "Prostitution" $fame.prostitution { callback: value => { V.fame.prostitution = value }, max: 2000 * $AMCTraits.prostitutionFame, reverse: true, percentage: false}>>
 			<<numberStepper "Rape" $fame.rape { callback: value => { V.fame.rape = value }, max: 2000 * $AMCTraits.rapeFame, reverse: true, percentage: false}>>
 			<<numberStepper "Bestiality" $fame.bestiality { callback: value => { V.fame.bestiality = value }, max: 2000 * $AMCTraits.bestialityFame, reverse: true, percentage: false}>>
-			<<numberStepper "Pregnancy" $fame.pregnancy { callback: value => { V.fame.pregnancy = value }, max: Math.clamp(playerNormalPregnancyTotal() * $AMCTraits.pregnancyFame,1,8) * 250, step: 2000 / 100,  percentage: false, reverse: true}>>
+			<<numberStepper "Pregnancy" $fame.pregnancy { callback: value => { V.fame.pregnancy = value }, max: Math.clamp(playerNormalPregnancyTotal() * $AMCTraits.pregnancyFame,1,8) * 250, step: 2000 / 100, percentage: false, reverse: true}>>
 			<<numberStepper "Impregnation" $fame.impreg { callback: value => { V.fame.impreg = value }, max: 2000 * $AMCTraits.impregFame, reverse: true, percentage: false}>>
 			<<numberStepper "Exhibitionism" $fame.exhibitionism { callback: value => { V.fame.exhibitionism = value }, max: 2000 * $AMCTraits.exhibitionismFame, reverse: true, percentage: false}>>
 			<<if playerNormalPregnancyTotal() lt 8>>

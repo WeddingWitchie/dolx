@@ -1,5 +1,5 @@
 // @ts-check
-/* global CombatRenderer, CombatPlayerOptions, CanvasModelLayers, TransformationKeys, BodywritingOption, ClothingRendererStep, ClothedSlots */
+/* global CombatRenderer, CombatPlayerOptions, CanvasModelLayers, TransformationKeys, BodywritingOption, ClothingRendererStep, ClothedSlots, TransformationPartOptions, TransformationParts */
 
 class PlayerCanvasHelper {
 	/**
@@ -15,13 +15,13 @@ class PlayerCanvasHelper {
 			srcfn(options) {
 				/** @type {BodywritingOption} */
 				const bodywriting = options.bodywriting[id];
-				const path = `${options.src}bodywriting/${bodywriting.area}/${bodywriting.type}.png`;
+				const path = `${options.src}bodywriting/${bodywriting.type}/${bodywriting.area}.png`;
 				return path;
 			},
 			masksrcfn(options) {
 				/** @type {BodywritingOption} */
 				const bodywriting = options.bodywriting[id];
-				if (bodywriting.type === "left-shoulder") {
+				if (bodywriting.area === "left-shoulder") {
 					// Pull basic mask from arm
 					if (PlayerCanvasHelper.isBestialHandjob(options, "front")) {
 						return {
@@ -450,6 +450,41 @@ class PlayerCanvasHelper {
 	}
 
 	/**
+	 *
+	 * @param {string} slot
+	 * @param {CanvasModelLayers<CombatPlayerOptions>} overrideOptions
+	 * @returns {CanvasModelLayers<CombatPlayerOptions>}
+	 */
+	static genClothingPatternLayer(slot, overrideOptions = {}) {
+		/**
+		 * @type {CanvasModelLayers<CombatPlayerOptions>}
+		 */
+		const defaults = {
+			srcfn(options) {
+				const clothes = options.clothes[slot];
+				if (clothes == null || clothes.name == null) return "";
+				const path = `${options.src}clothing/${slot}/${clothes.name}/${clothes.pattern}.png`;
+				return path;
+			},
+			showfn(options) {
+				const clothes = options.clothes[slot];
+				const show = options.showClothing && clothes != null && clothes.show && clothes.hasTertiaryPattern;
+				return !!show;
+			},
+			alphafn(options) {
+				const clothes = options.clothes[slot];
+				const alpha = clothes.alpha;
+				return alpha;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: CombatRenderer.indices[slot],
+		};
+		return Object.assign(defaults, overrideOptions);
+	}
+
+	/**
 	 * @param {TransformationKeys} transformation
 	 * @param {"front" | "back"} layer
 	 * @param {CanvasModelLayers<CombatPlayerOptions>} overrideOptions
@@ -517,6 +552,9 @@ class PlayerCanvasHelper {
 				if (part === "wings" && options.props.pillory.show) {
 					// Behind the pilloryFront
 					return 79;
+				}
+				if (part === "halo" && options.position === "doggy" && layer === "front") {
+					return 85;
 				}
 				/** @type {TransformationPartOptions} */
 				const value = options.transformations[transformation][part];

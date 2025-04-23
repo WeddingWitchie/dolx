@@ -73,8 +73,8 @@
 			<<mirrorTransformation>>
 		<<case "genomedump">>
 			<<genomedump>>
-		<<case "mood">>
-			<<mirrorMood>>
+		/*<<case "mood">>
+			<<mirrorMood>> */
 		<<default>>
 			<<mirrorMenu _args[0]>>
 	<</switch>>
@@ -188,10 +188,14 @@
 		<br><br>
 	<</if>>
 
-		__Headspace__
+	/*
+	
+	__Headspace__
 	<br>
 	<<decoicon>><<link "Beautify your inner self">><<set $mirrorMenu to "mood">><<replace #mirror>><<mirrorDisplay>><</replace>><<numberify "#passages > .passage">><</link>>
 	<br><br>
+	
+	*/
 
 
 	<<if !$simpleMirror>>
@@ -204,7 +208,7 @@
 			<<elseif ($fallenangel gte 2 or ($transformationParts.fallenAngel.wings isnot "hidden" and $transformationParts.fallenAngel.wings isnot "disabled"))>><<tficon "fallenangel">>
 			<<elseif ($cat gte 6 or ($transformationParts.cat.tail isnot "hidden" and $transformationParts.cat.tail isnot "disabled"))>><<tficon "cat">>
 			<<elseif ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>><<tficon "cow">>
-			<<elseif ($harpy gte 6 or ($transformationParts.bird.wings isnot "hidden" and $transformationParts.bird.wings isnot "disabled"))>><<tficon "harpy">>
+			<<elseif ($harpy gte 6 or ($transformationParts.bird.wings isnot "hidden" and $transformationParts.bird.wings isnot "disabled"))>><<tficon "bird">>
 			<<elseif ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled"))>><<tficon "fox">>
 			<<elseif ($bunny gte 6 or ($transformationParts.bunny.tail isnot "hidden" and $transformationParts.bunny.tail isnot "disabled"))>><<tficon "bunny">>
 			<<else>><<tficon "angel">>
@@ -215,20 +219,26 @@
 		<</if>>
 	<</if>>
 	<br><br>
-
-	<<if $debug is 1>>
-		<<ind>><<link "Debug">><<set $mirrorMenu to "debug">><<replace #mirror>><<mirrorDisplay>><</replace>><</link>>
-	<</if>>
 <</widget>>
 
 <<widget "mirrorGender">>
 	<div class="settingsGrid">
 		<div class="settingsHeader">Gender Appearance</div>
+		<<settextcolorfromfemininity $player.femininity>>
 		<div class="settingsToggleItem">
-			<<settextcolorfromgender $player.gender_appearance>>
 			You look like a <span @class="_text_color"><<if playerBellyVisible(true)>>pregnant <</if>><<girl>>.</span>
+		</div>
+		<div class="settingsToggleItem">
+			<span class="gold bold">Gender:</span>
 			<br>
-			The following factors are contributing:
+			<label class="blue">Male <<radiobutton "$player.gender" "m" autocheck>></label> |
+			<label class="pink">Female <<radiobutton "$player.gender" "f" autocheck>></label> |
+			<label class="purple">Neither <<radiobutton "$player.gender" "n" autocheck>></label>
+			<br>
+			<span class="small-description">How you see yourself. Does not change your genitals or affect how other people perceive you.</span>
+		</div>
+		<div class="settingsToggleItem">
+			<span class="gold bold">Contributing Factors:</span>
 			<br>
 			<<for _x range $player.gender_appearance_factors>>
 				<<if _x.femininity is 0 or !_x.factor>>
@@ -303,36 +313,35 @@
 			_increaseAllure.push(name);
 			_increaseAttractive.push(name);
 		}>>
-		<<if $beauty gte ($beautymax / 7)>>
-			<<run _increaseBoth("Cute")>>
-		<</if>>
-		<<if $beauty gte ($beautymax / 7) * 2>>
-			<<run _increaseBoth("Pretty")>>
-		<</if>>
-		<<if $beauty gte ($beautymax / 7) * 3>>
-			<<run _increaseBoth("Charming")>>
-		<</if>>
-		<<if $beauty gte ($beautymax / 7) * 4>>
-			<<run _increaseBoth("Beautiful")>>
-		<</if>>
-		<<if $beauty gte ($beautymax / 7) * 5>>
-			<<run _increaseBoth("Ravishing")>>
-		<</if>>
 		<<if $beauty gte ($beautymax / 7) * 6>>
-			<<run _increaseBoth("Divine")>>
+			<<run _increaseBoth("Beauty: Divine +++++")>>
+		<<elseif $beauty gte ($beautymax / 7) * 5>>
+			<<run _increaseBoth("Beauty: Ravishing ++++")>>
+		<<elseif $beauty gte ($beautymax / 7) * 4>>
+			<<run _increaseBoth("Beauty: Beautiful +++")>>
+		<<elseif $beauty gte ($beautymax / 7) * 3>>
+			<<run _increaseBoth("Beauty: Charming ++")>>
+		<<elseif $beauty gte ($beautymax / 7) * 2>>
+			<<run _increaseBoth("Beauty: Pretty +")>>
+		<<elseif $beauty gte ($beautymax / 7)>>
+			<<run _increaseBoth("Beauty: Cute")>>
 		<</if>>
-			<<run _increaseBoth("Hair length")>>
+		<<run _increaseBoth(`Hair length ${$hairlength gte 333 ? "+".repeat($hairlength gte 666 ? 2 : 1) : ""}`)>>
 		<<if $arousal gte ($arousalmax / 7) * 4>>
 			Horny
+			<<run _increaseAllure.push("Arousal: Horny ++++++")>>
 			<br>
 		<<elseif $arousal gte ($arousalmax / 7) * 3>>
 			Lustful
+			<<run _increaseAllure.push("Arousal: Lustful ++++")>>
 			<br>
 		<<elseif $arousal gte ($arousalmax / 7) * 2>>
 			Aroused
+			<<run _increaseAllure.push("Arousal: Aroused ++")>>
 			<br>
 		<<elseif $arousal gte ($arousalmax / 7)>>
 			Sensual
+			<<run _increaseAllure.push("Arousal: Sensual +")>>
 			<br>
 		<</if>>
 		<<if $worn.upper.type.includes("naked")>>
@@ -350,63 +359,79 @@
 		<<elseif $worn.under_lower.reveal gte 500>>
 			<<run _increaseBoth("Sexy underwear")>>
 		<</if>>
-		<<if ($wolfgirl gte 6 or ($transformationParts.wolf.tail isnot "hidden" and $transformationParts.wolf.tail isnot "disabled"))>>
-			<<run _increaseBoth("Wolfy")>>
+		<<if ["ears", "tail"].filter(p => $transformationParts.wolf[p] is "disabled").length < 2>>
+			<<run _increaseBoth(`Wolfy ${"+".repeat(2 - ["ears", "tail"].filter(p => $transformationParts.wolf[p] is "disabled").length)}`)>>
 		<</if>>
-		<<if ($cat gte 6 or ($transformationParts.cat.tail isnot "hidden" and $transformationParts.cat.tail isnot "disabled"))>>
-			<<run _increaseBoth("Catlike")>>
+		<<if ["ears", "tail"].filter(p => $transformationParts.cat[p] is "disabled").length < 2>>
+			<<run _increaseBoth(`Catlike ${"+".repeat(2 - ["ears", "tail"].filter(p => $transformationParts.cat[p] is "disabled").length)}`)>>
 		<</if>>
-		<<if ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>>
-			<<run _increaseBoth("Bovine")>>
+		<<if ["ears", "tail", "horns"].filter(p => $transformationParts.cow[p] is "disabled").length < 3>>
+			<<run _increaseBoth(`Bovine ${"+".repeat(2 - Math.ceil(["ears", "tail", "horns"].filter(p => $transformationParts.cow[p] is "disabled").length / 2))}`)>>
 		<</if>>
-		<<if ($bear gte 6 or ($transformationParts.bear.tail isnot "hidden" and $transformationParts.bear.tail isnot "disabled"))>>
-			<<run _increaseBoth("Bearly")>>
+		<<if ["tail", "eyes", "malar", "plumage", "wings"].filter(p => $transformationParts.bird[p] is "disabled").length < 5>>
+			<<run _increaseBoth(`Harpy ${"+".repeat(2 - Math.ceil(["tail", "eyes", "malar", "plumage", "wings"].filter(p => $transformationParts.bird[p] is "disabled").length / 3))}`)>>
 		<</if>>
-		<<if ($harpy gte 6 or ($transformationParts.bird.wings isnot "hidden" and $transformationParts.bird.wings isnot "disabled"))>>
-			<<run _increaseBoth("Harpy")>>
+		<<if ["ears", "tail"].filter(p => $transformationParts.fox[p] is "disabled").length < 2>>
+			<<run _increaseAttractive.push(`Vulpine ${"+".repeat(3 - ["ears", "tail"].filter(p => $transformationParts.fox[p] is "disabled").length)}`)>>
 		<</if>>
-		<<if ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled"))>>
-			<<run _increaseAttractive.push("Vulpine")>>
-			<<run _increaseAllure.push("Foxy")>>
+		<<if ["ears", "tail"].filter(p => $transformationParts.fox[p] is "disabled").length < 2>>
+			<<run _increaseAllure.push(`Foxy ${"+".repeat(3 - ["ears", "tail"].filter(p => $transformationParts.fox[p] is "disabled").length)}`)>>
 		<</if>>
-		<<if ($bunny gte 6 or ($transformationParts.bunny.tail isnot "hidden" and $transformationParts.bunny.tail isnot "disabled"))>>
-			<<run _increaseBoth("Bunny")>>
+		<<if ["ears", "tail"].filter(p => $transformationParts.bear[p] is "disabled").length < 2>>
+			<<run _increaseBoth(`Bear ${"+".repeat(2 - Math.ceil(["ears","tail"].filter(p => $transformationParts.bear[p] is "disabled").length))}`)>>
 		<</if>>
-		<<if ($angel gte 6 or ($transformationParts.angel.wings isnot "hidden" and $transformationParts.angel.wings isnot "disabled"))>>
-			<<run _increaseBoth("Angel")>>
+		<<if ["ears", "tail"].filter(p => $transformationParts.bunny[p] is "disabled").length < 2>>
+			<<run _increaseBoth(`Bunny ${"+".repeat(2 - Math.ceil(["ears","tail"].filter(p => $transformationParts.bunny[p] is "disabled").length))}`)>>
 		<</if>>
-		<<if ($fallenangel gte 2 or ($transformationParts.fallenAngel.wings isnot "hidden" and $transformationParts.fallenAngel.wings isnot "disabled"))>>
-			<<run _increaseBoth("Fallen angel")>>
+		<<if ["ears", "tail", "wings"].filter(p => $transformationParts.okami[p] is "disabled").length < 3>>
+			<<run _increaseBoth(`Okami ${"+".repeat(4 - Math.ceil(["ears", "tail", "wings"].filter(p => $transformationParts.okami[p] is "disabled").length))}`)>>
 		<</if>>
-		<<if ($demon gte 6 or ($transformationParts.demon.wings isnot "hidden" and $transformationParts.demon.wings isnot "disabled"))>>
-			<<run _increaseBoth("Demon")>>
+		<<if ["wings", "plumage"].filter(p => $transformationParts.seraphim[p] is "disabled").length < 2>>
+			<<run _increaseBoth(`Seraphim ${"+".repeat(4 - Math.ceil(["wings", "plumage"].filter(p => $transformationParts.seraphim[p] is "disabled").length))}`)>>
+		<</if>>
+		<<if ["ears", "tail", "cheeks"].filter(p => $transformationParts.kitsune[p] is "disabled").length < 3>>
+			<<run _increaseBoth(`Kitsune ${"+".repeat(4 - Math.ceil(["ears", "tail", "cheeks"].filter(p => $transformationParts.kitsune[p] is "disabled").length))}`)>>
+		<</if>>
+		<<if ["halo", "wings"].filter(p => $transformationParts.angel[p] is "disabled").length < 2>>
+			<<run _increaseBoth(`Angel ${"+".repeat(2 - ["halo", "wings"].filter(p => $transformationParts.angel[p] is "disabled").length)}`)>>
+		<</if>>
+		<<if ["halo", "wings"].filter(p => $transformationParts.fallenAngel[p] is "disabled").length < 2>>
+			<<run _increaseBoth(`Fallen angel ${"+".repeat(2 - ["halo", "wings"].filter(p => $transformationParts.fallenAngel[p] is "disabled").length)}`)>>
+		<</if>>
+		<<if ["horns", "tail", "wings"].filter(p => $transformationParts.demon[p] is "disabled").length < 3>>
+			<<run _increaseBoth(`Demon ${"+".repeat(2 - Math.ceil(["horns", "tail", "wings"].filter(p => $transformationParts.demon[p] is "disabled").length / 2))}`)>>
 		<</if>>
 		<<if $earSlime.growth gt 50>>
-			<<run _increaseAllure.push("Ear slime pheromones")>>
+			<<run _increaseAllure.push(`Ear slime pheromones${$earSlime.growth gt 75 ? " " + "+".repeat(Math.ceil(($earSlime.growth - 75) / 25)): ""}`)>>
 		<</if>>
 		<<if $makeup.lipstick != 0 or $makeup.eyeshadow != 0 or $makeup.mascara != 0 or $makeup.blusher != 0>>
 			<<run _increaseAllure.push("Alluring makeup")>>
 			<<run _increaseAttractive.push("Attractive makeup")>>
 		<</if>>
+		<<if $worn.upper.reveal + $worn.lower.reveal gte 50>>
+			<<set $_outfit to $worn.lower.name is "naked" or ($worn.upper.name is "naked" and $player.perceived_breastsize gt 2) ? '"outfit"' : 'outfit'>>
+			<<run _increaseAllure.push(`Alluring ${$_outfit} ${"+".repeat(Math.floor(($worn.upper.reveal + $worn.lower.reveal) / 400))}`)>>
+			<<run _increaseAttractive.push(`Attractive ${$_outfit} ${"+".repeat(Math.floor(($worn.upper.reveal + $worn.lower.reveal) / 400))}`)>>
+		<</if>>
 		<<if $worn.head.reveal gte 50>>
-			<<run _increaseAllure.push("Alluring headwear")>>
-			<<run _increaseAttractive.push("Attractive headwear")>>
+			<<run _increaseAllure.push(`Alluring headwear ${"+".repeat(Math.floor($worn.head.reveal / 200))}`)>>
+			<<run _increaseAttractive.push(`Attractive headwear ${"+".repeat(Math.floor($worn.head.reveal / 200))}`)>>
 		<</if>>
 		<<if $worn.face.reveal gte 50>>
-			<<run _increaseAllure.push("Alluring face accessory")>>
-			<<run _increaseAttractive.push("Attractive face accessory")>>
+			<<run _increaseAllure.push(`Alluring face accessory ${"+".repeat(Math.floor($worn.face.reveal / 200))}`)>>
+			<<run _increaseAttractive.push(`Attractive face accessory ${"+".repeat(Math.floor($worn.face.reveal / 200))}`)>>
 		<</if>>
 		<<if $worn.neck.reveal gte 50>>
-			<<run _increaseAllure.push("Alluring neck accessory")>>
-			<<run _increaseAttractive.push("Attractive neck accessory")>>
+			<<run _increaseAllure.push(`Alluring neck accessory ${"+".repeat(Math.floor($worn.neck.reveal / 200))}`)>>
+			<<run _increaseAttractive.push(`Attractive neck accessory ${"+".repeat(Math.floor($worn.neck.reveal / 200))}`)>>
 		<</if>>
 		<<if $worn.legs.reveal gte 50>>
-			<<run _increaseAllure.push("Alluring legwear")>>
-			<<run _increaseAttractive.push("Attractive legwear")>>
+			<<run _increaseAllure.push(`Alluring legwear ${"+".repeat(Math.floor($worn.legs.reveal / 200))}`)>>
+			<<run _increaseAttractive.push(`Attractive legwear ${"+".repeat(Math.floor($worn.legs.reveal / 200))}`)>>
 		<</if>>
 		<<if $worn.feet.reveal gte 50>>
-			<<run _increaseAllure.push("Alluring shoes")>>
-			<<run _increaseAttractive.push("Attractive shoes")>>
+			<<run _increaseAllure.push(`Alluring shoes ${"+".repeat(Math.floor($worn.feet.reveal / 200))}`)>>
+			<<run _increaseAttractive.push(`Attractive shoes ${"+".repeat(Math.floor($worn.feet.reveal / 200))}`)>>
 		<</if>>
 		<<if Weather.dayState is "night">>
 			<<run _increaseAllure.push("Night")>>
@@ -427,6 +452,9 @@
 			<<run _increaseAllure.push("Full moon")>>
 		<</if>>
 		<<set _negLabels = [
+			{ threshold: 4000, class: "lustful", label: "Legendary" },
+			{ threshold: 3000, class: "lustful", label: "Renowned" },
+			{ threshold: 2000, class: "red", label: "Infamous" },
 			{ threshold: 1000, class: "red", label: "Notorious" },
 			{ threshold: 600, class: "pink", label: "Famous" },
 			{ threshold: 400, class: "purple", label: "Recognised" },
@@ -435,12 +463,20 @@
 			{ threshold: 30, class: "teal", label: "Obscure" }
 		]>>
 		<<set _posLabels = [
-			{ threshold: 1000, class: "green", label: "Notorious" },
-			{ threshold: 600, class: "teal", label: "Famous" },
-			{ threshold: 400, class: "lblue", label: "Recognised" },
-			{ threshold: 200, class: "blue", label: "Known" },
-			{ threshold: 100, class: "purple", label: "Low-key" },
-			{ threshold: 30, class: "pink", label: "Obscure" }
+			{ threshold: 4000, class: "lustful", label: "Legendary" },
+			{ threshold: 3500, class: "lustful", label: "Exalted" },
+			{ threshold: 3000, class: "gold", label: "Renowned" },
+			{ threshold: 2500, class: "gold", label: "Esteemed" },
+			{ threshold: 2000, class: "gold", label: "Notorious" },
+			{ threshold: 1500, class: "green", label: "Well-regarded" },
+			{ threshold: 1200, class: "green", label: "Distinguished" },
+			{ threshold: 1000, class: "green", label: "Famous" },
+			{ threshold: 800, class: "teal", label: "Honoured" },
+			{ threshold: 600, class: "teal", label: "Recognised" },
+			{ threshold: 400, class: "lblue", label: "Known" },
+			{ threshold: 200, class: "blue", label: "Low-key" },
+			{ threshold: 100, class: "purple", label: "Obscure" },
+			{ threshold: 30, class: "pink", label: "Unknown" }
 		]>>
 		<<set _neg = [
 			{ type: "sex", name: "slut" },
@@ -526,7 +562,7 @@
 				<<for _fame range _neg>>
 					<<set _famous = _negLabels.find(status => $fame[_fame.type] >= status.threshold)>>
 					<<if _famous>>
-						<span @class="_famous.class"><<= _famous.label>> <<= _fame.name>></span>
+						<span @class="_famous.class">Fame: <<= _famous.label>> <<= _fame.name>> <<= "+".repeat([30, 100, 200, 400, 600, 1000, 2000, 3000, 4000].indexOf(_famous.threshold))>></span>
 						<br>
 					<</if>>
 				<</for>>
@@ -540,7 +576,7 @@
 					<<for _fame range _pos>>
 						<<set _famous = _posLabels.find(status => $fame[_fame.type] >= status.threshold)>>
 						<<if _famous>>
-							<span @class="_famous.class"><<= _famous.label>> <<= _fame.name>></span>
+							<span @class="_famous.class">Fame: <<= _famous.label>> <<= _fame.name>> <<= "+".repeat([30, 100, 200, 400, 600, 800, 1000, 1200, 1500, 2000, 2500, 3000, 3500, 4000].indexOf(_famous.threshold))>></span>
 							<br>
 						<</if>>
 					<</for>>
@@ -588,8 +624,10 @@
 				<<set _colour to "purple">>
 			<</if>>
 			<<if $skin[_active_bodypart].type is "text">>
+				<<set _written to "written">>
 				<span @class="_colour">"<<= $skin[_active_bodypart].writing.toUpperFirst()>>"</span>
 			<<else>>
+				<<set _written to "drawn">>
 				A picture of a <span @class="_colour"><<= $skin[_active_bodypart].writing>></span>
 			<</if>>
 			<<if $skin[_active_bodypart].arrow is 1>>
@@ -603,13 +641,13 @@
 			<</if>>
 			<<switch $skin[_active_bodypart].pen>>
 				<<case "marker">>
-					(written in permanent marker)
+					(_written in permanent marker)
 				<<case "magic">>
 					(<span class="pink">seal</span>)
 				<<case "tattoo" "brand">>
 					(<span class="red"><<= $skin[_active_bodypart].pen>></span>)
 				<<default>>
-					(written in <<= $skin[_active_bodypart].pen>>)
+					(_written in <<= $skin[_active_bodypart].pen>>)
 			<</switch>>
 			<<= _index lt _array.length - 1 ? "<br>" : "">>
 		<</if>>
@@ -796,7 +834,7 @@
 				<span class="gold bold">Right arm position:</span>
 				<mouse class="tooltip-small linkBlue">(?)<span>This is a cosmetic change.</span></mouse>
 				<br>
-				Your chosen body shape is:
+				Your chosen right arm position is:
 				<<set _positionOptions to {
 					"Above": "above",
 					"Below": "Below"
@@ -815,12 +853,14 @@
 	<div class="settingsGrid">
 
 		<div class="settingsHeader">Facial Settings</div>
-		<div id="visualsFaceStyle" class="settingsToggleItem">
-			<span class="gold bold">Face style:</span><br>
-			<<faceStyleOptions>>
-		</div>
+		<<if setup.faceStyleOptions.length gt 1>>
+			<div id="visualsFaceStyle" class="settingsToggleItem">
+				<span class="gold bold">Face style:</span><br>
+				<<faceStyleOptions>>
+			</div>
+		<</if>>
 
-		<div id="visualsFaceVariants" class="settingsToggleItem">
+		<div id="visualsFaceVariants" @class="setup.faceStyleOptions.length gt 1 ? 'settingsToggleItem' : 'settingsToggleItemWide'">
 			<span class="gold bold">Demeanour:</span>
 			<br>
 			<div id="visualsFaceVariantRadios">
@@ -1541,7 +1581,7 @@
 	})>>
 
 	<div id="hairContainer">
-		<div id="hairContainerHeader" class="no-numberify">
+		<div class="containerHeader" class="no-numberify">
 			<<mirrorhairdisplayLinks "hair">>
 		</div>
 		<<mirrorhairdisplay "$hairtype" "sides">>
@@ -1602,7 +1642,7 @@
 
 <<widget "mirrorhairControls">>
 	<<if $showMannequins>>
-		<div id="hairContainerFooter">
+		<div class="containerFooter">
 			<div class="tab">
 			<<if _page gt 1>>
 				<<button '<span class="fa-icon fa-left"></span> Previous'>>
@@ -1611,6 +1651,8 @@
 					<<replace "#hairContainerElements">><<mirrorhairdisplayElements _hairOptions>><</replace>>
 					<<replace "#hairContainerPages">><<mirrorhairControls _args[0]>><</replace>>
 				<</button>>
+			<<else>>
+				<button class="link-internal macro-button no-numberify buttonDisabled" disabled>Previous</button>
 			<</if>>
 			</div>
 			<div class="tab">
@@ -1624,7 +1666,7 @@
 			<</if>>
 			</div>
 			<div class="tab">
-				<div id="buttonpage">
+				<div class="buttonPage">
 					<<button '_page/_pageMax'>>
 					<</button>>
 				</div>
@@ -1671,7 +1713,7 @@
 		<span @class="_args[0] is 'hair' ? 'tab-selected' : 'tab'">
 			<<button "Sides">>
 				<<replace "#hairContainer">>
-					<div id="hairContainerHeader" class="no-numberify">
+					<div class="containerHeader" class="no-numberify">
 						<<mirrorhairdisplayLinks "hair">>
 					</div>
 					<<mirrorhairdisplay "$hairtype" "sides">>
@@ -1683,7 +1725,7 @@
 		<span @class="_args[0] is 'fringe' ? 'tab-selected' : ''">
 			<<button "Fringe">>
 				<<replace "#hairContainer">>
-					<div id="hairContainerHeader" class="no-numberify">
+					<div class="containerHeader" class="no-numberify">
 						<<mirrorhairdisplayLinks "fringe">>
 					</div>
 					<<mirrorhairdisplay "$fringetype" "fringe">>
@@ -1695,7 +1737,7 @@
 		<span @class="_args[0] is 'style' ? 'tab-selected' : ''">
 			<<button "Save/Load">>
 				<<replace "#hairContainer">>
-					<div id="hairContainerHeader" class="no-numberify">
+					<div class="containerHeader" class="no-numberify">
 						<<mirrorhairdisplayLinks "style">>
 					</div>
 					<<mirrorhairdisplaySave>>
@@ -1709,7 +1751,7 @@
 		<span @class="_args[0] is 'filter' ? 'tab-selected' : ''">
 			<<button "Filters">>
 				<<replace "#hairContainer">>
-					<div id="hairContainerHeader" class="no-numberify">
+					<div class="containerHeader" class="no-numberify">
 						<<mirrorhairdisplayLinks "filter">>
 					</div>
 					<<mirrorhairdisplayFilter>>
@@ -1730,9 +1772,10 @@
 						<<set _modeloptions.skin_type = Skin.color.natural>>
 						<<set _modeloptions.skin_tone = Skin.color.tan>>
 						<<set _modeloptions.freckles = $player.freckles == true and $makeup.concealer != 1>>
+						<<set _modeloptions.mouth to 'neutral'>>
+						<<set _modeloptions.facevariant = $facevariant>>
 						<<set _modeloptions.left_eye = $makeup.eyelenses.left != 0 ? $makeup.eyelenses.left : $leftEyeColour>>
 						<<set _modeloptions.right_eye = $makeup.eyelenses.right != 0 ? $makeup.eyelenses.right : $rightEyeColour>>
-						<<set _modeloptions.mouth to 'neutral'>>
 						<<set _modeloptions.hair_colour = $haircolour>>
 						<<set _modeloptions.hair_fringe_colour = $hairfringecolour>>
 						<<set _modeloptions.hair_fringe_colour_gradient = $hairFringeColourGradient>>
@@ -2125,7 +2168,7 @@
 								<<makeupPresets _label>>
 							<</replace>>
 						<</link>>
-						<<if _value lt Object.keys($makeup.presets).length -1>>|<</if>>
+						<<if _label != Object.keys(V.makeup.presets).slice(-1)[0]>>|<</if>>
 					<</capture>>
 				<</for>>
 				<div id="makeupPresets"></div>
@@ -2180,12 +2223,12 @@
 						You are wearing
 						<<if $makeup.eyelenses.left is $makeup.eyelenses.right>>
 							<<= $makeup.eyelenses.left>> contacts.
-						<<elseif $makeup.eyelenses.left != 0 and  $makeup.eyelenses.right != 0>>
+						<<elseif $makeup.eyelenses.left != 0 and $makeup.eyelenses.right != 0>>
 							<<= $makeup.eyelenses.left>> contacts in your left eye and <<= $makeup.eyelenses.right>> contacts in your right eye.
 						<<else>>
 							<<set _lens to $makeup.eyelenses.left != 0 ? $makeup.eyelenses.left : $makeup.eyelenses.right>>
 							<<set _eye to $makeup.eyelenses.left != 0 ? "left" : "right">>
-							<<= _lens>> contacts in your <<= _eye>> eye. Your  <<= _eye is "left" ? "right" : "left">> eye is your natural <<= _eye is "left" ? $rightEyeColour : $leftEyeColour>> colour.
+							<<= _lens>> contacts in your <<= _eye>> eye. Your <<= _eye is "left" ? "right" : "left">> eye is your natural <<= _eye is "left" ? $rightEyeColour : $leftEyeColour>> colour.
 						<</if>>
 					<<else>>
 						<br>
@@ -2303,6 +2346,7 @@
 
 <<widget "makeupPresets">>
 	<<set _presetChosen to $makeup.presets[_args[0]]>>
+	<hr>
 	Preset: <<print _args[0]>>
 	<br>
 	<<for $_label, $_value range _presetChosen>>
@@ -2512,6 +2556,66 @@
 			<</if>>
 			<<if _bunnyFullCheck>>
 				Lapine Celerity: <<checkbox "$TFBunnyBuffs" 0 1 autocheck>><br>
+			<</if>>
+		<</if>>
+		<<if $DoLPTFTempTolerance is 1>>
+			/* Temp Tolerance */
+			<<set _options = {}>> 
+			<<set _options["None"] = "disabled">>
+			<<if _wolfFullCheck>>
+				<<set _options["Wolf"] = "wolf">>
+				<<if _traits.tempTolerance is "wolf">>
+					<<set _tempToleranceChoice to _options["Wolf"]>>
+				<</if>>
+			<</if>>
+			<<if _catFullCheck>>
+				<<set _options["Cat"] = "cat">>
+				<<if _traits.tempTolerance is "cat">>
+					<<set _tempToleranceChoice to _options["Cat"]>>
+				<</if>>
+			<</if>>
+			<<if _cowFullCheck>>
+				<<set _options["Cow"] = "cow">>
+				<<if _traits.tempTolerance is "cow">>
+					<<set _tempToleranceChoice to _options["Cow"]>>
+				<</if>>
+			<</if>>
+			<<if _bearFullCheck>>
+				<<set _options["Bear"] = "bear">>
+				<<if _traits.tempTolerance is "bear">>
+					<<set _tempToleranceChoice to _options["Bear"]>>
+				<</if>>
+			<</if>>
+			<<if _birdFullCheck>>
+				<<set _options["Bird"] = "bird">>
+				<<if _traits.tempTolerance is "bird">>
+					<<set _tempToleranceChoice to _options["Bird"]>>
+				<</if>>
+			<</if>>
+			<<if _foxFullCheck>>
+				<<set _options["Fox"] = "fox">>
+				<<if _traits.tempTolerance is "fox">>
+					<<set _tempToleranceChoice to _options["Fox"]>>
+				<</if>>
+			<</if>>
+			<<if _bunnyFullCheck>>
+				<<set _options["Bunny"] = "bunny">>
+				<<if _traits.tempTolerance is "bunny">>
+					<<set _tempToleranceChoice to _options["Bunny"]>>
+				<</if>>
+			<</if>>
+			<<if !_tempToleranceChoice>>
+				<<set _tempToleranceChoice to 0>>
+			<</if>>
+			<<if Object.keys(_options).length > 1>>
+				<label>Temperature Tolerance:
+					<div class="tf-tempTolerance">
+						<<listbox "_tempToleranceChoice" autoselect>>
+							<<optionsfrom _options>>
+						<</listbox>>
+					</div>
+				</label>
+				<br>
 			<</if>>
 		<</if>>
 		<br>
@@ -2819,17 +2923,29 @@
 	<<if _angelPartialCheck>>
 		<<set _options["Angel Default"] = ["angel", "default"]>>
 		<<set _options["Angel Traditional"] = ["angel", "traditional"]>>
+		<<set _options["Angel Celestial"] = ["angel", "celestial"]>>
 		<<if _angel.halo is "default">>
 			<<set _haloChoice to _options["Angel Default"]>>
 		<<elseif _angel.halo is "traditional">>
 			<<set _haloChoice to _options["Angel Traditional"]>>
+		<<elseif _angel.halo is "celestial">>
+			<<set _haloChoice to _options["Angel Celestial"]>>
 		<</if>>
 	<</if>>
 	<<if $fallenangel gte 1 or $fallenangeltf is 1>>
 		<<set _options["Fallen Angel Default"] = ["fallenAngel", "default"]>>
+		<<set _options["Fallen Angel Celestial"] = ["fallenAngel", "celestial"]>>
+		<<set _options["Fallen Angel Dark Celestial"] = ["fallenAngel", "celestial-black"]>>
+		<<set _options["Fallen Angel Forgiven Celestial"] = ["fallenAngel", "celestial-fallenplus"]>>
 		<<set _options["Fallen Angel Traditional"] = ["fallenAngel", "traditional"]>>
 		<<if _fallen.halo is "default">>
 			<<set _haloChoice to _options["Fallen Angel Default"]>>
+		<<elseif _fallen.halo is "celestial">>
+			<<set _haloChoice to _options["Fallen Angel Celestial"]>>
+		<<elseif _fallen.halo is "celestial-black">>
+			<<set _haloChoice to _options["Fallen Angel Dark Celestial"]>>
+		<<elseif _fallen.halo is "celestial-fallenplus">>
+			<<set _haloChoice to _options["Fallen Angel Forgiven Celestial"]>>
 		<<elseif _fallen.halo is "traditional">>
 			<<set _haloChoice to _options["Fallen Angel Traditional"]>>
 		<</if>>
@@ -2906,20 +3022,29 @@
 	<<set _options["None"] = 0>>
 	<<if _demonPartialCheck>>
 		<<set _options["Demon Default"] = ["demon", "default"]>>
-		<<set _options["Demon Succubus"] = ["demon", "succubus"]>>
+		<<set _options["Demon Imp"] = ["demon", "imp"]>>
 		<<set _options["Demon Classic"] = ["demon", "classic"]>>
+		<<set _options["Demon Succubus"] = ["demon", "succubus"]>>
 		<<if _demon.tail is "default">>
 			<<set _divineTailChoice to _options["Demon Default"]>>
-		<<elseif _demon.tail is "succubus">>
-			<<set _divineTailChoice to _options["Demon Succubus"]>>
+		<<elseif _demon.tail is "imp">>
+			<<set _divineTailChoice to _options["Demon Imp"]>>
 		<<elseif _demon.tail is "classic">>
 			<<set _divineTailChoice to _options["Demon Classic"]>>
+		<<elseif _demon.tail is "succubus">>
+			<<set _divineTailChoice to _options["Demon Succubus"]>>
 		<</if>>
 	<</if>>
 	<<if _wolfFullCheck and _angelFullCheck>>
 		<<set _options["Okami"] = ["okami", "default"]>>
 		<<if _okami.tail is "default">>
 			<<set _divineTailChoice to _options["Okami"]>>
+		<</if>>
+	<</if>>
+	<<if _angelFullCheck and _foxFullCheck>>
+		<<set _options["Kitsune"] = ["kitsune", "default"]>>
+		<<if _kitsune.tail is "default">>
+			<<set _divineTailChoice to _options["Kitsune"]>>
 		<</if>>
 	<</if>>
 	<<if !_divineTailChoice>>
@@ -2988,12 +3113,6 @@
 			<<set _tailChoice to _options["Wolf Feral"]>>
 		<</if>>
 	<</if>>
-	<<if _angelFullCheck and _foxFullCheck>>
-		<<set _options["Kitsune"] = ["kitsune", "default"]>>
-		<<if _kitsune.tail is "default">>
-			<<set _tailChoice to _options["Kitsune"]>>
-		<</if>>
-	<</if>>
 	<<if !_tailChoice>>
 		<<set _tailChoice to 0>>
 	<</if>>
@@ -3013,38 +3132,56 @@
 	<<set _options["None"] = 0>>
 	<<if _angelFullCheck>>
 		<<set _options["Angel Default"] = ["angel", "default"]>>
+		<<set _options["Angel Cherub"] = ["angel", "cherub"]>>
 		<<set _options["Angel Classic"] = ["angel", "classic"]>>
 		<<if _angel.wings is "default">>
 			<<set _divineWingsChoice to _options["Angel Default"]>>
+		<<elseif _angel.wings is "cherub">>
+			<<set _divineWingsChoice to _options["Angel Cherub"]>>
 		<<elseif _angel.wings is "classic">>
 			<<set _divineWingsChoice to _options["Angel Classic"]>>
 		<</if>>
 	<</if>>
 	<<if _demonFullCheck>>
 		<<set _options["Demon Default"] = ["demon", "default"]>>
+		<<set _options["Demon Imp"] = ["demon", "imp"]>>
 		<<set _options["Demon Succubus"] = ["demon", "succubus"]>>
 		<<if _demon.wings is "default">>
 			<<set _divineWingsChoice to _options["Demon Default"]>>
+		<<elseif _demon.wings is "imp">>
+			<<set _divineWingsChoice to _options["Demon Imp"]>>
 		<<elseif _demon.wings is "succubus">>
 			<<set _divineWingsChoice to _options["Demon Succubus"]>>
 		<</if>>
 	<</if>>
 	<<if _fallenFullCheck>>
 		<<set _options["Fallen Angel Default"] = ["fallenAngel", "default"]>>
+		<<set _options["Fallen Angel Torn"] = ["fallenAngel", "torn"]>>
+		<<set _options["Fallen Angel Cherub"] = ["fallenAngel", "cherub"]>>
+		<<set _options["Fallen Angel Dark Cherub"] = ["fallenAngel", "cherub-black"]>>
 		<<set _options["Fallen Angel Classic"] = ["fallenAngel", "classic"]>>
 		<<if _fallen.wings is "default">>
 			<<set _divineWingsChoice to _options["Fallen Angel Default"]>>
+		<<elseif _fallen.wings is "torn">>
+			<<set _divineWingsChoice to _options["Fallen Angel Torn"]>>
+		<<elseif _fallen.wings is "cherub">>
+			<<set _divineWingsChoice to _options["Fallen Angel Cherub"]>>
+		<<elseif _fallen.wings is "cherub-black">>
+			<<set _divineWingsChoice to _options["Fallen Angel Dark Cherub"]>>
 		<<elseif _fallen.wings is "classic">>
 			<<set _divineWingsChoice to _options["Fallen Angel Classic"]>>
 		<</if>>
 	<</if>>
 	<<if _fallenPlusFullCheck>>
-		<<set _options["Fallen Angel Default"] = ["fallenAngel", "fallenplus"]>>
-		<<set _options["Fallen Angel Classic"] = ["fallenAngel", "classicfallenplus"]>>
-		<<if _fallen.wings is "fallenplus">>
-			<<set _divineWingsChoice to _options["Fallen Angel Default"]>>
+		<<set _options["Fallen Angel Forgiven Cherub"] = ["fallenAngel", "cherub-fallenplus"]>>
+		<<set _options["Fallen Angel Feathered"] = ["fallenAngel", "fallenplus"]>>
+		<<set _options["Fallen Angel Classic Feathered"] = ["fallenAngel", "classicfallenplus"]>>
+		<<if _fallen.wings is "cherub-fallenplus">>
+			<<set _divineWingsChoice to _options["Fallen Angel Forgiven Cherub"]>>
+		<<elseif _fallen.wings is "fallenplus">>
+			<<set _divineWingsChoice to _options["Fallen Angel Feathered"]>>
 		<<elseif _fallen.wings is "classicfallenplus">>
-			<<set _divineWingsChoice to _options["Fallen Angel Classic"]>>
+			<<set _divineWingsChoice to _options["Fallen Angel Classic Feathered"]>>
 		<</if>>
 	<</if>>
 	<<if _wolfFullCheck and _angelFullCheck>>
@@ -3100,32 +3237,75 @@
 	/* Chimera */
 	<<set $_chimeraOptions to {
 		"demoncat_tail" : !["disabled", "hidden"].includesAny(_demon.tail, _cat.tail),
-		"demonharpy_wings" : !["disabled", "hidden"].includesAny(_demon.wings, _bird.wings)
+		"demoncow_tail" : !["disabled", "hidden"].includesAny(_demon.tail, _cow.tail),
+		"demonwolf_tail" : !["disabled", "hidden"].includesAny(_demon.tail, _wolf.tail),
+		"demonharpy_wings" : !["disabled", "hidden"].includesAny(_demon.wings, _bird.wings),
+		"angelharpy_wings" : !["disabled", "hidden"].includesAny(_angel.wings, _bird.wings),
+		"fallenharpy_wings" : !["disabled", "hidden"].includesAny(_fallen.wings, _bird.wings),
 	}>>
 	<<set $_chimeraEnabled to Object.values($_chimeraOptions).some(o => o) ? "" : " hide">>
 	<div @class="'chimera' + $_chimeraEnabled">
-		Chimera:
-		<div class="tf-chimera">
-			<<if $_chimeraOptions.demoncat_tail>>
-				/* Using demon cat chimera tail. */
-				<label>Demon cat tail:
-					<<listbox "$chimera.demoncat.tail" autoselect>>
-						<<option "Show" true>>
-						<<option "Hide" false>>
-					<</listbox>>
-				</label>
-				<br>
-			<</if>>
-			<<if $_chimeraOptions.demonharpy_wings>>
-				/* Using demon harpy chimera wings. */
-				<label>Demon harpy wings:
-					<<listbox "$chimera.demonharpy.wings" autoselect>>
-						<<option "Show" true>>
-						<<option "Hide" false>>
-					<</listbox>>
-				</label>
-			<</if>>
-		</div>
+		<<if _divine>><<tficon _divine>><</if>>
+		<span class="gold bold">Chimera</span>
+		<<if $_chimeraOptions.demoncat_tail>>
+			/* Using demon cat chimera tail. */
+			<label>Demon cat tail:
+				<<listbox "$chimera.demoncat.tail" autoselect>>
+					<<option "Show" true>>
+					<<option "Hide" false>>
+				<</listbox>>
+			</label>
+			<br>
+		<</if>>
+		<<if $_chimeraOptions.demoncow_tail>>
+			/* Using demon cow chimera tail. */
+			<div class='tf-part-item'>
+				Demon cow tail:
+				<<listbox "$chimera.demoncow.tail" autoselect>>
+					<<option "Show" true>>
+					<<option "Hide" false>>
+				<</listbox>>
+			</div>
+		<</if>>
+		<<if $_chimeraOptions.demonwolf_tail>>
+			/* Using demon wolf chimera tail. */
+			<div class='tf-part-item'>
+				Demon wolf tail:
+				<<listbox "$chimera.demonwolf.tail" autoselect>>
+					<<option "Show" true>>
+					<<option "Hide" false>>
+				<</listbox>>
+			</div>
+		<</if>>
+		<<if $_chimeraOptions.demonharpy_wings>>
+			/* Using demon harpy chimera wings. */
+			<label>Demon harpy wings:
+				<<listbox "$chimera.demonharpy.wings" autoselect>>
+					<<option "Show" true>>
+					<<option "Hide" false>>
+				<</listbox>>
+			</label>
+		<</if>>
+		<<if $_chimeraOptions.angelharpy_wings>>
+			/* Using angel harpy chimera wings. */
+			<div class='tf-part-item'>
+				Angel harpy wings:
+				<<listbox "$chimera.angelharpy.wings" autoselect>>
+					<<option "Show" true>>
+					<<option "Hide" false>>
+				<</listbox>>
+			</div>
+		<</if>>
+		<<if $_chimeraOptions.fallenharpy_wings>>
+			/* Using fallen angel harpy chimera wings. */
+			<div class='tf-part-item'>
+				Fallen harpy wings:
+				<<listbox "$chimera.fallenharpy.wings" autoselect>>
+					<<option "Show" true>>
+					<<option "Hide" false>>
+				<</listbox>>
+			</div>
+		<</if>>
 	</div>
 
 	<<if ($traumatized isnot undefined)>>
@@ -3231,7 +3411,10 @@
 	*/
 	<!-- Attach an event to every listbox item to update the PC on the sidebar. -->
 	<<script>>
-	jQuery('.passage').on('change', 'div.tf-misc select.macro-listbox', function (e) {
+		jQuery('.passage').on('change', 'div.tf-tempTolerance select.macro-listbox', function (e) {
+			Wikifier.wikifyEval('<<set _traits.tempTolerance = _tempToleranceChoice>>');
+		});
+		jQuery('.passage').on('change', 'div.tf-misc select.macro-listbox', function (e) {
 			Wikifier.wikifyEval('<<clearmisc>><<if _miscChoice isnot 0>><<set $transformationParts[_miscChoice[0]].misc = _miscChoice[1]>><</if>><<updatesidebarimg true>>');
 		});
 		jQuery('.passage').on('change', 'div.tf-cheeks select.macro-listbox', function (e) {
@@ -3289,6 +3472,9 @@
 	<<if $angelbuild gte 1>>
 	Angel Transform: <<link [[Reset|$passage]]>><<angelTransform 99>><<updatesidebarimg>><</link>><<if $angeltf is 1>><span class="green">Safe</span><<else>><span class="red">Unsafe</span><</if>><br>
 	<</if>>
+	<<if $fallenangel gte 1>>
+	Fallen Angel Transform: <<link [[Reset|$passage]]>><<fallenButNotOut 99>><<updatesidebarimg>><</link>><<if $fallenangelplustf is 1>><span class="green">Safe</span><<else>><span class="red">Unsafe</span><</if>><br>
+	<</if>>
 	<<if $demonbuild gte 1>>
 	Demon Transform: <<link [[Reset|$passage]]>><<demonTransform 99>><<updatesidebarimg>><</link>><<if $demontf is 1>><span class="green">Safe</span><<else>><span class="red">Unsafe</span><</if>><br>
 	<</if>>
@@ -3314,187 +3500,3 @@
 	Bunny Transform: <<link [[Reset|$passage]]>><<bunnyTransform 99>><<updatesidebarimg>><</link>><<if $bunnytf is 1>><span class="green">Safe</span><<else>><span class="red">Unsafe</span><</if>><br>
 	<</if>>
 <</widget>>
-
-<<widget "mirrorMood">>
-	<br>
-	<i>Select the background and foreground to use in the character sidebar.</i>
-	
-	<mouse class="tooltip linkBlue">(?)<span  style="font-size:16px;">You can add your own background images in \img\decorations\background(1/2) or \img\decorations\foreground(1/2). 
-	<br><br>Name the images either "1", "2", "3", et cetera, up to "30" without the quotes in order to select them in this menu. 
-	<br><br>If you select an option and get an image error on the sidebar, that just means there's currently no image assigned to that slot. Feel free to put one there, select an different occupied slot, or just clear the error.</span></mouse>
-	<br>
-	<br>
-	<i>Both the background and the foreground have two layers. 
-	<br><br>Foreground 1 controls the uppermost layer, Foreground 2 controls the layer below it.
-	<br>Background 1 controls the lowermost layer, Background 2 controls the layer above it.<br>
-	<br>Lastly, images can be swapped in and out of the decorations image folder without restarting the game. So, get creative and have fun!</i>
-	<br>
-	<br>
-	<div class="fg-bg">
-		<div class="settingsToggleItem">
-			<div class="settingsToggleItem">
-				<span class="gold">Foreground 1:</span><br>
-				<label>None <<radiobutton "$foreground_image1" "none" autocheck>></label>
-				<label>Option 1 <<radiobutton "$foreground_image1" "1" autocheck>></label>
-				<label>Option 2 <<radiobutton "$foreground_image1" "2" autocheck>></label>
-				<label>Option 3 <<radiobutton "$foreground_image1" "3" autocheck>></label>
-				<label>Option 4 <<radiobutton "$foreground_image1" "4" autocheck>></label>
-				<label>Option 5 <<radiobutton "$foreground_image1" "5" autocheck>></label>
-				<label>Option 6 <<radiobutton "$foreground_image1" "6" autocheck>></label>
-				<label>Option 7 <<radiobutton "$foreground_image1" "7" autocheck>></label>
-				<label>Option 8 <<radiobutton "$foreground_image1" "8" autocheck>></label>
-				<br>
-				<label>Option 9 <<radiobutton "$foreground_image1" "9" autocheck>></label>
-				<label>Option 10 <<radiobutton "$foreground_image1" "10" autocheck>></label>
-				<label>Option 11 <<radiobutton "$foreground_image1" "11" autocheck>></label>
-				<label>Option 12 <<radiobutton "$foreground_image1" "12" autocheck>></label>
-				<label>Option 13 <<radiobutton "$foreground_image1" "13" autocheck>></label>
-				<label>Option 14 <<radiobutton "$foreground_image1" "14" autocheck>></label>
-				<label>Option 15 <<radiobutton "$foreground_image1" "15" autocheck>></label>
-				<label>Option 16 <<radiobutton "$foreground_image1" "16" autocheck>></label>
-				<br>
-				<label>Option 17 <<radiobutton "$foreground_image1" "17" autocheck>></label>
-				<label>Option 18 <<radiobutton "$foreground_image1" "18" autocheck>></label>
-				<label>Option 19 <<radiobutton "$foreground_image1" "19" autocheck>></label>
-				<label>Option 20 <<radiobutton "$foreground_image1" "20" autocheck>></label>
-				<label>Option 21 <<radiobutton "$foreground_image1" "21" autocheck>></label>
-				<label>Option 22 <<radiobutton "$foreground_image1" "22" autocheck>></label>
-				<label>Option 23 <<radiobutton "$foreground_image1" "23" autocheck>></label>
-				<br>
-				<label>Option 24 <<radiobutton "$foreground_image1" "24" autocheck>></label>
-				<label>Option 25 <<radiobutton "$foreground_image1" "25" autocheck>></label>
-				<label>Option 26 <<radiobutton "$foreground_image1" "26" autocheck>></label>
-				<label>Option 27 <<radiobutton "$foreground_image1" "27" autocheck>></label>
-				<label>Option 28 <<radiobutton "$foreground_image1" "28" autocheck>></label>
-				<label>Option 29 <<radiobutton "$foreground_image1" "29" autocheck>></label>
-				<label>Option 30 <<radiobutton "$foreground_image1" "30" autocheck>></label>
-			</div>
-			<br>
-			<div class="settingsToggleItem">
-				<span class="gold">Background 1:</span><br>
-				<label>None <<radiobutton "$background_image1" "none" autocheck>></label>
-				<label>Option 1 <<radiobutton "$background_image1" "1" autocheck>></label>
-				<label>Option 2 <<radiobutton "$background_image1" "2" autocheck>></label>
-				<label>Option 3 <<radiobutton "$background_image1" "3" autocheck>></label>
-				<label>Option 4 <<radiobutton "$background_image1" "4" autocheck>></label>
-				<label>Option 5 <<radiobutton "$background_image1" "5" autocheck>></label>
-				<label>Option 6 <<radiobutton "$background_image1" "6" autocheck>></label>
-				<label>Option 7 <<radiobutton "$background_image1" "7" autocheck>></label>
-				<label>Option 8 <<radiobutton "$background_image1" "8" autocheck>></label>
-				<br>
-				<label>Option 9 <<radiobutton "$background_image1" "9" autocheck>></label>
-				<label>Option 10 <<radiobutton "$background_image1" "10" autocheck>></label>
-				<label>Option 11 <<radiobutton "$background_image1" "11" autocheck>></label>
-				<label>Option 12 <<radiobutton "$background_image1" "12" autocheck>></label>
-				<label>Option 13 <<radiobutton "$background_image1" "13" autocheck>></label>
-				<label>Option 14 <<radiobutton "$background_image1" "14" autocheck>></label>
-				<label>Option 15 <<radiobutton "$background_image1" "15" autocheck>></label>
-				<label>Option 16 <<radiobutton "$background_image1" "16" autocheck>></label>
-				<br>
-				<label>Option 17 <<radiobutton "$background_image1" "17" autocheck>></label>
-				<label>Option 18 <<radiobutton "$background_image1" "18" autocheck>></label>
-				<label>Option 19 <<radiobutton "$background_image1" "19" autocheck>></label>
-				<label>Option 20 <<radiobutton "$background_image1" "20" autocheck>></label>
-				<label>Option 21 <<radiobutton "$background_image1" "21" autocheck>></label>
-				<label>Option 22 <<radiobutton "$background_image1" "22" autocheck>></label>
-				<label>Option 23 <<radiobutton "$background_image1" "23" autocheck>></label>
-				<br>
-				<label>Option 24 <<radiobutton "$background_image1" "24" autocheck>></label>
-				<label>Option 25 <<radiobutton "$background_image1" "25" autocheck>></label>
-				<label>Option 26 <<radiobutton "$background_image1" "26" autocheck>></label>
-				<label>Option 27 <<radiobutton "$background_image1" "27" autocheck>></label>
-				<label>Option 28 <<radiobutton "$background_image1" "28" autocheck>></label>
-				<label>Option 29 <<radiobutton "$background_image1" "29" autocheck>></label>
-				<label>Option 30 <<radiobutton "$background_image1" "30" autocheck>></label>
-			</div>
-		</div>
-		<br>
-		<div class="settingsToggleItem">
-			<div class="settingsToggleItem">
-				<span class="gold">Foreground 2:</span><br>
-				<label>None <<radiobutton "$foreground_image2" "none" autocheck>></label>
-				<label>Option 1 <<radiobutton "$foreground_image2" "1" autocheck>></label>
-				<label>Option 2 <<radiobutton "$foreground_image2" "2" autocheck>></label>
-				<label>Option 3 <<radiobutton "$foreground_image2" "3" autocheck>></label>
-				<label>Option 4 <<radiobutton "$foreground_image2" "4" autocheck>></label>
-				<label>Option 5 <<radiobutton "$foreground_image2" "5" autocheck>></label>
-				<label>Option 6 <<radiobutton "$foreground_image2" "6" autocheck>></label>
-				<label>Option 7 <<radiobutton "$foreground_image2" "7" autocheck>></label>
-				<label>Option 8 <<radiobutton "$foreground_image2" "8" autocheck>></label>
-				<br>
-				<label>Option 9 <<radiobutton "$foreground_image2" "9" autocheck>></label>
-				<label>Option 10 <<radiobutton "$foreground_image2" "10" autocheck>></label>
-				<label>Option 11 <<radiobutton "$foreground_image2" "11" autocheck>></label>
-				<label>Option 12 <<radiobutton "$foreground_image2" "12" autocheck>></label>
-				<label>Option 13 <<radiobutton "$foreground_image2" "13" autocheck>></label>
-				<label>Option 14 <<radiobutton "$foreground_image2" "14" autocheck>></label>
-				<label>Option 15 <<radiobutton "$foreground_image2" "15" autocheck>></label>
-				<label>Option 16 <<radiobutton "$foreground_image2" "16" autocheck>></label>
-				<br>
-				<label>Option 17 <<radiobutton "$foreground_image2" "17" autocheck>></label>
-				<label>Option 18 <<radiobutton "$foreground_image2" "18" autocheck>></label>
-				<label>Option 19 <<radiobutton "$foreground_image2" "19" autocheck>></label>
-				<label>Option 20 <<radiobutton "$foreground_image2" "20" autocheck>></label>
-				<label>Option 21 <<radiobutton "$foreground_image2" "21" autocheck>></label>
-				<label>Option 22 <<radiobutton "$foreground_image2" "22" autocheck>></label>
-				<label>Option 23 <<radiobutton "$foreground_image2" "23" autocheck>></label>
-				<br>
-				<label>Option 24 <<radiobutton "$foreground_image2" "24" autocheck>></label>
-				<label>Option 25 <<radiobutton "$foreground_image2" "25" autocheck>></label>
-				<label>Option 26 <<radiobutton "$foreground_image2" "26" autocheck>></label>
-				<label>Option 27 <<radiobutton "$foreground_image2" "27" autocheck>></label>
-				<label>Option 28 <<radiobutton "$foreground_image2" "28" autocheck>></label>
-				<label>Option 29 <<radiobutton "$foreground_image2" "29" autocheck>></label>
-				<label>Option 30 <<radiobutton "$foreground_image2" "30" autocheck>></label>
-			</div>
-			<br>
-			<div class="settingsToggleItem">
-				<span class="gold">Background 2:</span><br>
-				<label>None <<radiobutton "$background_image2" "none" autocheck>></label>
-				<label>Option 1 <<radiobutton "$background_image2" "1" autocheck>></label>
-				<label>Option 2 <<radiobutton "$background_image2" "2" autocheck>></label>
-				<label>Option 3 <<radiobutton "$background_image2" "3" autocheck>></label>
-				<label>Option 4 <<radiobutton "$background_image2" "4" autocheck>></label>
-				<label>Option 5 <<radiobutton "$background_image2" "5" autocheck>></label>
-				<label>Option 6 <<radiobutton "$background_image2" "6" autocheck>></label>
-				<label>Option 7 <<radiobutton "$background_image2" "7" autocheck>></label>
-				<label>Option 8 <<radiobutton "$background_image2" "8" autocheck>></label>
-				<br>
-				<label>Option 9 <<radiobutton "$background_image2" "9" autocheck>></label>
-				<label>Option 10 <<radiobutton "$background_image2" "10" autocheck>></label>
-				<label>Option 11 <<radiobutton "$background_image2" "11" autocheck>></label>
-				<label>Option 12 <<radiobutton "$background_image2" "12" autocheck>></label>
-				<label>Option 13 <<radiobutton "$background_image2" "13" autocheck>></label>
-				<label>Option 14 <<radiobutton "$background_image2" "14" autocheck>></label>
-				<label>Option 15 <<radiobutton "$background_image2" "15" autocheck>></label>
-				<label>Option 16 <<radiobutton "$background_image2" "16" autocheck>></label>
-				<br>
-				<label>Option 17 <<radiobutton "$background_image2" "17" autocheck>></label>
-				<label>Option 18 <<radiobutton "$background_image2" "18" autocheck>></label>
-				<label>Option 19 <<radiobutton "$background_image2" "19" autocheck>></label>
-				<label>Option 20 <<radiobutton "$background_image2" "20" autocheck>></label>
-				<label>Option 21 <<radiobutton "$background_image2" "21" autocheck>></label>
-				<label>Option 22 <<radiobutton "$background_image2" "22" autocheck>></label>
-				<label>Option 23 <<radiobutton "$background_image2" "23" autocheck>></label>
-				<br>
-				<label>Option 24 <<radiobutton "$background_image2" "24" autocheck>></label>
-				<label>Option 25 <<radiobutton "$background_image2" "25" autocheck>></label>
-				<label>Option 26 <<radiobutton "$background_image2" "26" autocheck>></label>
-				<label>Option 27 <<radiobutton "$background_image2" "27" autocheck>></label>
-				<label>Option 28 <<radiobutton "$background_image2" "28" autocheck>></label>
-				<label>Option 29 <<radiobutton "$background_image2" "29" autocheck>></label>
-				<label>Option 30 <<radiobutton "$background_image2" "30" autocheck>></label>
-			</div>
-		</div>
-	</div>
-	<br>
-	<br>
-	<<link "Back">><<replace #mirror>><<mirrorMenu>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
-
-	<<script>>
-		jQuery('.passage').on('change', 'div.fg-bg .macro-radiobutton', function (e) {
-			Wikifier.wikifyEval('<<updatesidebarimg true>>');
-		});
-	<</script>>
-<</widget>>
-

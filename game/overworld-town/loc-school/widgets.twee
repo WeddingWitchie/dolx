@@ -1021,7 +1021,7 @@
 				<<He>> turns to face you, and grasps the hem of your $worn.upper.name. "Let me help you," <<he>> says, trying to pull it up.
 				<br><br>
 
-				<<if $player.gender isnot "m" or $player.gender_appearance isnot "m">>
+				<<if $player.sex isnot "m" or $player.gender_appearance isnot "m">>
 					You blush. <<if $worn.under_upper.type.includes("naked")>>You're not wearing anything underneath!<</if>>
 					<br><br>
 
@@ -1407,7 +1407,7 @@
 
 		<<link [[Next|Maths Lesson]]>><<endevent>><</link>>
 	<</addinlineevent>><<addinlineevent "mathsMessageDelivery">>
-		<<rng>>
+		<<rng>><<wearProp "envelope" 0 "plain">>
 		<<npc River>><<person1>>
 
 		River stands beside your table. "I need you to deliver a message for me. To the head." <<He>> hands you a sealed envelope.
@@ -1415,10 +1415,10 @@
 
 		You leave the classroom.
 		<br><br>
-		<<endevent>>
-		<<link [[Open the envelope|Maths Note]]>><<detention 6>><<set $phase to 1>><</link>><<ggdelinquency>>
+
+		<<link [[Open the envelope|Maths Note]]>><<endevent>><<detention 6>><<set $phase to 1>><</link>><<ggdelinquency>>
 		<br>
-		<<link [[Just deliver it|Maths Note]]>><</link>>
+		<<link [[Just deliver it|Maths Note]]>><<endevent>><</link>>
 		<br>
 	<</addinlineevent>>
 
@@ -1770,6 +1770,26 @@
 			<</if>>
 			<<link [[Refuse|Whitney Maths Oral]]>><<set $phase to 3>><<set $molestationstart to 1>><<def 1>><<stress 6>><<npcincr Whitney dom -1>><</link>><<gstress>><<ldom>>
 		<</addinlineevent>>
+
+		<<if $whitneymaths is "seat">>
+			<<if C.npc.Whitney.love gte 25 and C.npc.Whitney.dom lt 8>>
+				<<addinlineevent "mathsWhitneyStare">>
+					<<npc Whitney>><<person1>>
+					You wake up slowly. You turn and see Whitney is also resting <<his>> head on <<his>> desk. <<Hes>> staring at you. When <<he>> realises you've woken up, <<he>> smirks. "Ahem."<<ltiredness>>
+					<br><br>
+					You both look up to see River sliding two detention slips onto your desks. "I won't tolerate daydreaming in my class. Perhaps you two can get some rest in detention."<<detention 2>><<gdelinquency>>
+					<br><br>
+					Whitney scowls. <<He>> gives you a pointed stare. "Sorry, <<= C.npc.River.pronoun is "m" ? "sir" : "miss">>. Somebody kept me up all night."
+					<br><br>
+					The innuendo is not lost on River. <<nnpc_He "River">> flushes and sends Whitney out to the hall, who winks at you while <<he>> leaves.
+					<br><br>
+					<<set $whitneymaths to "sent">>
+
+					<<link [[Next|Maths Lesson]]>><<endevent>><</link>>
+					<br>
+				<</addinlineevent>>
+			<</if>>
+		<</if>>
 	<</if>>
 
 	<<if $drunk gte 1>>
@@ -1965,7 +1985,7 @@
 			<<if $_genitals_exposed>>
 				<<stress 12>><<trauma 12>><<ggstress>><<ggtrauma>>
 
-				<<if $player.gender isnot $player.gender_appearance and $NudeGenderDC gt 0>>
+				<<if isCrossdressing()>>
 					<br><br>
 					<<if $schoolrep.crossdress gte 3 or $schoolrep.herm gte 3>>
 						The other students <<print ($_seat_glued ? "look almost satisfied by" : "giggle at")>> your plight.
@@ -2270,7 +2290,8 @@
 				<<set _hilarity_ensues to either("Most of the class pay attention.","The class watch with interest.","Most students watch, but a few doodle in their books.")>>
 			<</if>>
 			Under Doren's direction, a <<person2>><<person>> and a <<person3>><<person>> are asked to act out an important scene from the text you are studying.
-			The <<person>> _has_feelings_towards the <<person2>><<person>>, _causing_a_consequence<br>
+			The <<person>> _has_feelings_towards the <<person2>><<person>>, _causing_a_consequence
+			<br><br>
 			_hilarity_ensues
 		<</if>>
 		<br><br>
@@ -2297,46 +2318,44 @@
 	<<addinlineevent "englishNature" 1>>
 		<<if Time.season is "summer" and Weather.precipitation is "none">>
 			<<npc Doren>><<generates2>><<person2>>
-			A student squeals as a wasp flies in a window and lands on <<his>> book. Doren holds up a calming hand.<br>
-			"Ignore it," <<person1>><<he>> says. "It'll be gone soon enough."<br>
-			It <<if $rng % 2 == 0>>stings someone<<else>>starts to fly around the room<</if>> and the class falls into chaos.
-			<<if $kylarenglishstate is "active">>One time, it comes toward you and Kylar leaps to your defence. <</if>>
+			A student squeals as a wasp flies in a window and lands on <<his>> book. Doren holds up a calming hand. "Ignore it," <<person1>><<he>> says. "It'll be gone soon enough."
 			<br><br>
-			Finally Doren chases it away, and the lesson can resume.
+			It <<if random(1,2) is 1>>stings someone<<else>>starts to fly around the room<</if>> and the class falls into chaos.
+			<<if $kylarenglishstate is "active">>One time, it comes toward you and Kylar leaps to your defence.<</if>>
+			<br><br>
+			Finally, Doren chases it away, and the lesson can resume.
 		<<elseif Time.season is "summer">>
 			<<npc Doren>><<person1>><<wearProp "pen">>
 			"Poetry," Doren says. "Finds inspiration in the natural world."
-			<br>
-			"Look at that storm outside," <<he>> says. "Those brooding clouds. The growling thunder. Take a moment to reflect on what you see. What you feel. See that?"<br>
-			A few seconds pass, then a rumble of thunder.<br>
-			"The raw, animal fury of nature," Doren grins widely. "Now capture it. Adjectives, obviously, but don't neglect verbs."<br>
+			<br><br>
+			"Look at that storm outside," <<he>> says. "Those brooding clouds. The growling thunder. Take a moment to reflect on what you see. What you feel. See that?" A few seconds pass, then a rumble of thunder. "The raw, animal fury of nature," Doren grins widely. 
+			<br><br>
+			"Now, capture it. Adjectives, obviously, but don't neglect verbs."
+			<br><br>
 			You write.
 		<<elseif Time.season is "winter">>
-			<<if $rng % 3 == 0>>
+			<<if random(1,3) is 1>>
 				<<generates1>><<person1>>
-				A window won't close and is letting in a cold wind from outside. One student's fingers have turned blue.<br>
-				Doren sends a <<person>> to find the caretaker.
+				A window won't close and is letting in a cold wind from outside. One student's fingers have turned blue. Doren sends <<him>> to find the nurse.
 				<br><br>
 				Students shiver as the lesson continues.
 			<<else>>
 				<<generates1>><<person1>>
-				The heating is set far too high and the room is incredibly hot. One student complains of feeling faint.<br>
-				Doren sends a <<person>> to find the caretaker.
+				The heating is set far too high and the room is incredibly hot. One student complains of feeling faint.	Doren sends <<him>> to find the nurse.
 				<br><br>
 				The class sweat and fan themselves with books as Doren's lesson continues.
 			<</if>>
 		<<else>>
 			<<npc Doren>><<person1>>
 			"Poetry," Doren says. "Finds inspiration in the natural world."
-			<br>
+			
 			<<if Time.season is "spring">>
 				<<He>> brings around some blossoms from the park. One student starts sneezing.
 			<<elseif Time.season is "autumn">>
 				<<He>> brings around some fallen leaves from the park in all different colours.
 			<</if>>
+			"Look at these," <<he>> says. "Take a moment to reflect on what you see. What you think. What you feel. And then write."
 			<br><br>
-
-			"Look at these," <<he>> says. "Take a moment to reflect on what you see. What you think. What you feel. And then write."<br>
 			You write.
 			<<wearProp "pen">>
 		<</if>>
@@ -2421,16 +2440,16 @@
 
 	<<addinlineevent "englishAct" 1>>
 		<<npc Doren>><<person1>>
-		Doren asks a couple of students to act out a scene from the play you are studying.<br>
-		<<if $rng gte 38>>
-			They mostly clown around, playing for laughs and making the characters sound funny. Doren rolls <<his>> eyes, but laughs along.<br>
-			It's pretty funny. <<lstress>>
-		<<elseif $rng gte 34>>
-			They act it out excellently, really bringing the scene to life.<br>
-			<<if currentSkillValue('english') lt 700>>You learned something from it.<<genglish>><<englishskill>><<else>>You enjoyed it a lot.<</if>>
+		Doren asks a couple of students to act out a scene from the play you are studying.
+		<br><br>
+		<<rng>>
+		<<if $rng gte 67>>
+			They mostly clown around, playing for laughs and making the characters sound funny. Doren rolls <<his>> eyes, but laughs along.	It's pretty funny. <<lstress>>
+		<<elseif $rng gte 33>>
+			They act it out excellently, really bringing the scene to life.
+			<<if currentSkillValue('english') lt 700>>You actually learn something from it.<<genglish>><<englishskill>><<else>>You enjoyed it a lot.<</if>>
 		<<else>>
-			They flatly read out lines from the book.<br>
-			Doren tactfully moves the lesson forward before things start to drag.
+			They flatly read out lines from the book. Doren tactfully moves the lesson forward before things start to drag.
 		<</if>>
 		<br><br>
 
@@ -2534,6 +2553,7 @@
 		<<else>>
 			You just manage to find your place as Doren calls on you next.
 		<</if>>
+		<<ltiredness>>
 		<br><br>
 		<<link [[Next|English Lesson]]>><<endevent>><</link>>
 	<</addinlineevent>>
@@ -2580,6 +2600,15 @@
 	<</if>>
 
 	<<if $kylarenglishstate is "active">>
+		<<if !$hairtype.includes("shaved", "short") and !$fringetype.includes("buzzcut")>>
+			<<addinlineevent "englishKylarHair">>
+				<<npc Kylar>><<person1>>
+				You're startled awake by the sound of scissors snipping. You turn and see Kylar humming happily to <<himself>>. <<Hes>> taping a lock of your hair into a notebook, next to a portrait of you.<<stress 6>><<gstress>><<ltiredness>>
+				<br><br>
+				<<link [[Next|English Lesson]]>><<endevent>><</link>>
+			<</addinlineevent>>
+		<</if>>
+
 		<<addinlineevent "englishKylarWake">>
 			<<npc Kylar>><<person1>>
 			<<if C.npc.Kylar.rage gte 80>>
@@ -2617,6 +2646,15 @@
 				<br><br>
 				You casually lift your head and stifle a yawn, pretending nothing happened. Kylar removes <<his>> hand when you sit up. Doren is still talking, none the wiser.
 			<</if>>
+			<br><br>
+			<<link [[Next|English Lesson]]>><<endevent>><</link>>
+		<</addinlineevent>>
+
+		<<addinlineevent "englishKylarDraw">>
+			<<npc Kylar>><<person1>>
+			The sound of a pencil scratching paper wakes you. You look over and see Kylar has drawn you asleep, surrounded by flowers. It's good.<<stress -6>><<lstress>><<ltiredness>>
+			<br><br>
+			<<He>> notices you staring and smiles sheepishly. "Sorry... you just looked straight out of a fairytale."
 			<br><br>
 			<<link [[Next|English Lesson]]>><<endevent>><</link>>
 		<</addinlineevent>>
@@ -2769,7 +2807,7 @@
 		<<if $player.penisExist and $player.vaginaExist>>
 			"<<pShes>> got a dick and a cunt? <<print $schoolrep.herm gte 3 ? "I guess the rumours are true." : "What a freak!">>" A <<person>> snickers. <<He>> nudges <<his>> friend and points at you.
 
-		<<elseif $player.gender isnot $player.gender_appearance and $NudeGenderDC gt 0>>
+		<<elseif isCrossdressing()>>
 			"Is that a <<genitals 2>>? <<pShes>> actually a
 			<<genderswapPlayer>>
 				<<girl>>!" a <<person>> says. "<<print $schoolrep.crossdress gte 3 ? "I guess the rumours were true after all." : "I had no idea <<pshe>> was a crossdresser!">>"
@@ -2816,12 +2854,12 @@
 	<<addinlineevent "historyCritique">>
 		<<npc Winter>><<person1>>
 		You sense Winter reading over your shoulder.
-		<br>
 		<<if currentSkillValue("history") gte 600>>
 			"Good," <<he>> says with a nod. "Good work."<<stress -2>><<lstress>>
 			<br><br>
 
 			<<link [[Next|History Lesson]]>><<endevent>><</link>>
+			<br>
 		<<else>>
 			<<He>> tuts loudly. "I guess we need to go over that part again."
 			<br><br>
@@ -2829,6 +2867,7 @@
 			<br><br>
 
 			<<link [[Next|History Lesson]]>><<endevent>><</link>>
+			<br>
 		<</if>>
 	<</addinlineevent>>
 
@@ -3074,7 +3113,7 @@
 		<<elseif $delinquency gte 200>>
 			<<if $player.gender_appearance is "m">>
 				Behind the screen you find a traditional girl's outfit.
-				<<if $player.gender isnot "m" and $NudeGenderDC gt 0>>
+				<<if $player.sex isnot "m" and isCrossdressing()>>
 					The class thinks you're a boy, so if you wear this in front of them, they'll think you're crossdressing.
 				<</if>>
 				It looks like it'll barely fit you, and the fabric is taut so you'll need to undress before putting it on.
@@ -3086,7 +3125,7 @@
 				<br>
 			<<elseif $player.gender_appearance is "f">>
 				Behind the screen you find a traditional boy's outfit.
-				<<if $player.gender isnot "f" and $NudeGenderDC gt 0>>
+				<<if $player.sex isnot "f" and isCrossdressing()>>
 					The class thinks you're a girl, so if you wear this in front of them, they'll think you're crossdressing.
 				<</if>>
 				It looks like it'll barely fit you, and the fabric is taut so you'll need to undress before putting it on.
@@ -3259,21 +3298,24 @@
 		<<generates1>><<person1>><<set _coinflip to random(0,1)>>
 		A <<person>> near you falls asleep in class.
 		<<if $rng % 2>>
-			<<He>> quietly dozes for a few minutes, waking up sharply when <<print either("Winter drops a pen.", "a girl's chair scrapes.","the class door opens.","a boy falls off his chair.","another student walks past.","the student behind gives a gentle nudge.")>>
-			<<He>> looks around in panic for a moment. You give <<him>> a subtle thumbs up, mouthing 'It's okay.'
-			<br>
-			<<He>> nods back in thanks.
+			<<He>> quietly dozes for a few minutes, waking up sharply when 
+			<<print either(
+				"Winter drops a pen.", 
+				"a girl's chair scrapes.",
+				"the class door opens.",
+				"a boy falls off his chair.",
+				"another student walks past.",
+				"the student behind gives a gentle nudge.")>>
+			<<He>> looks around in panic for a moment. 
+			<br><br>
+			You give <<him>> a subtle thumbs up, mouthing 'It's okay'. <<He>> nods back in thanks.
 			<<gcool>><<status 1>>
 		<<else>>
-			Everything is fine until <<his>> head rolls back and <<he>> starts loudly snoring. Winter stops talking, glaring at the <<person>>.
-			<br>
-			"Wake <<him>> up," Winter commands.
-			<br>
-			<<if _coinflip>>Another student wakes<<else>>You wake<</if>> the <<personsimple>> up.
+			Everything is fine until <<his>> head rolls back and <<he>> starts loudly snoring. Winter stops talking, glaring at <<him>>.
 			<br><br>
-			"Thank you for joining us," Winter smiles. "Perhaps you can tell the head what has you so tired in detention."
-			<br>
-			<<His>> cheeks flush.
+			"Wake <<him>> up," Winter commands. <<if _coinflip>>Another student nudges<<else>>You nudge<</if>> the <<personsimple>> awake.
+			<br><br>
+			"Thank you for joining us," Winter smiles frostily as your classmate blinks in confusion. "Perhaps you can tell the head what has you so tired in detention." The <<persons>> cheeks flush and <<he>> ducks <<his>> head.
 		<</if>>
 	<</addinlineevent>>
 
@@ -3723,10 +3765,7 @@
 		<br><br>
 	<</if>>
 	<<if !_masonCanUnlock or $schoolstate isnot "fifth">>
-		<<maleicon>><<link [[Boy's changing room|School Boy Changing Room]]>><<endevent>><</link>>
-		<br>
-		<<femaleicon>><<link [[Girl's changing room|School Girl Changing Room]]>><<endevent>><</link>>
-		<br>
+		<<destinationpoolchangingroom>>
 	<</if>>
 <</widget>>
 
@@ -3752,6 +3791,35 @@
 	<</if>>
 <</widget>>
 
+<<widget "destinationpoolchangingroom">>
+	<<changingRoomSetup "m">>
+	<<if _args[0] is "towels">>
+		<<maleicon>><<link [[Grab some towels and enter the boys' changing room|School Boy Changing Room]]>><<endevent>><<towelupm>><</link>>
+	<<else>>
+		<<maleicon>><<link [[Boys' changing room|School Boy Changing Room]]>><<endevent>><</link>>
+	<</if>>
+	<<if _uncomfortable>>
+		<<gstress>>
+	<</if>>
+	<<if !_allowedToChange and $changingroomstate isnot "empty">>
+		<<gdelinquency>>
+	<</if>>
+	<br>
+	<<changingRoomSetup "f">>
+	<<if _args[0] is "towels">>
+		<<femaleicon>><<link [[Grab some towels and enter the girls' changing room|School Girl Changing Room]]>><<endevent>><<towelup>><</link>>
+	<<else>>
+		<<femaleicon>><<link [[Girls' changing room|School Girl Changing Room]]>><<endevent>><</link>>
+	<</if>>
+	<<if _uncomfortable>>
+		<<gstress>>
+	<</if>>
+	<<if !_allowedToChange and $changingroomstate isnot "empty">>
+		<<gdelinquency>>
+	<</if>>
+	<br>
+<</widget>>
+
 :: Lesson Effects Widget [widget]
 
 <<widget "swimminglessoneffects">>
@@ -3772,18 +3840,12 @@
 		<</if>>
 
 		<<if $exposed lte 0 or $swimall is 1>>
-			<<maleicon>><<link [[Boys' changing room|School Boy Changing Room]]>><</link>>
-			<br>
-			<<femaleicon>><<link [[Girls' changing room|School Girl Changing Room]]>><</link>>
-			<br><br>
+			<<destinationpoolchangingroom>>
 
 		<</if>>
 
 		<<if $exposed gte 1>>
-			<<link [[Grab some towels and enter the boy's changing room|School Boy Changing Room]]>><<towelupm>><</link>>
-			<br>
-			<<link [[Grab some towels and enter the girl's changing room|School Girl Changing Room]]>><<towelup>><</link>>
-			<br><br>
+			<<destinationpoolchangingroom "towels">>
 
 		<</if>>
 	<<else>>
@@ -3950,15 +4012,15 @@
 				<br>
 			<</if>>
 			<<if $studyBooks.rented.maths is 0 and $studyBooks.stolen.maths is 0>>
-				<<mathicon>><<link [["Rent a maths textbook (£" + _rentPrice / 100 + ")"|Book Rental]]>><<handheldon>><<wearProp "textbook" "yellow" "history">><<money `-_rentPrice` "libraryBooks">><<set $studyBooks.rented.count += 1>><<set $bookRent to "rent">><<set $phase to 2>><<set $studyBooks.rented.maths to 1>><</link>><<note "+ Passive Maths" "green">>
+				<<mathicon>><<link [["Rent a maths textbook (£" + _rentPrice / 100 + ")"|Book Rental]]>><<handheldon>><<wearProp "textbook" "red" "history">><<money `-_rentPrice` "libraryBooks">><<set $studyBooks.rented.count += 1>><<set $bookRent to "rent">><<set $phase to 2>><<set $studyBooks.rented.maths to 1>><</link>><<note "+ Passive Maths" "green">>
 				<br>
 			<</if>>
 			<<if $studyBooks.rented.english is 0 and $studyBooks.stolen.english is 0>>
-				<<englishicon>><<link [["Rent an English textbook (£" + _rentPrice / 100 + ")"|Book Rental]]>><<handheldon>><<wearProp "textbook" "red" "maths">><<money `-_rentPrice` "libraryBooks">><<set $studyBooks.rented.count += 1>><<set $bookRent to "rent">><<set $phase to 3>><<set $studyBooks.rented.english to 1>><</link>><<note "+ Passive English" "green">>
+				<<englishicon>><<link [["Rent an English textbook (£" + _rentPrice / 100 + ")"|Book Rental]]>><<handheldon>><<wearProp "textbook" "green" "maths">><<money `-_rentPrice` "libraryBooks">><<set $studyBooks.rented.count += 1>><<set $bookRent to "rent">><<set $phase to 3>><<set $studyBooks.rented.english to 1>><</link>><<note "+ Passive English" "green">>
 				<br>
 			<</if>>
 			<<if $studyBooks.rented.history is 0 and $studyBooks.stolen.history is 0>>
-				<<historyicon>><<link [["Rent a history textbook (£" + _rentPrice / 100 + ")"|Book Rental]]>><<handheldon>><<wearProp "textbook" "green" "history">><<money `-_rentPrice` "libraryBooks">><<set $studyBooks.rented.count += 1>><<set $bookRent to "rent">><<set $phase to 4>><<set $studyBooks.rented.history to 1>><</link>><<note "+ Passive History" "green">>
+				<<historyicon>><<link [["Rent a history textbook (£" + _rentPrice / 100 + ")"|Book Rental]]>><<handheldon>><<wearProp "textbook" "yellow" "history">><<money `-_rentPrice` "libraryBooks">><<set $studyBooks.rented.count += 1>><<set $bookRent to "rent">><<set $phase to 4>><<set $studyBooks.rented.history to 1>><</link>><<note "+ Passive History" "green">>
 				<br>
 			<</if>>
 			<<if currentSkillValue('english') gte 300 and $studyBooks.rented.RaulAndJanet is 0 and $studyBooks.stolen.RaulAndJanet is 0>>
@@ -4110,10 +4172,7 @@
 				<br>
 			<<default>>
 		<</switch>> */
-		<<set _chair to Furniture.get('chair')>>
-		<<if _chair is undefined or _chair is null>>
-			<<set _chair to Furniture.get('chair','chair')>>
-		<</if>>
+		<<set _chair to Furniture.get('chair', $location)>>
 		<<if _chair.name is "chair">>
 			<<set _studyGain to 6>>
 		<<elseif _chair.name is "stools">>
@@ -4829,7 +4888,7 @@
 			<<npc River>><<person1>>
 			"<<Sir>>!" shouts a <<generates2>><<person2>><<person>>, jolting you awake. "<<pShes>> sleeping in class!"
 			<br><br>
-			You raise your head to find River staring right at you. "Detention," River says, "You're lucky I'm not allowed to discipline you myself."
+			You raise your head to find River staring right at you. "Detention," River says. "You're lucky I'm not allowed to discipline you myself."
 			<br><br>
 			<<if $submissive gte 1150>>
 				You bow your head in embarrassment while the <<person>> smiles, all too happy to get you in trouble.

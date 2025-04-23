@@ -1,5 +1,5 @@
 import JSZip from "jszip";
-import { every, get, has, isArray, isString } from "lodash";
+import { every, get, has, isArray, isPlainObject, isString, uniq, isEqual } from "lodash";
 import { get as keyval_get, set as keyval_set, del as keyval_del, createStore, setMany } from 'idb-keyval';
 import { SC2DataInfo } from "./SC2DataInfoCache";
 import { checkDependenceInfo, checkModBootJsonAddonPlugin, ModImgGetterDefault } from "./ModLoader";
@@ -39,6 +39,69 @@ export function imgWrapBase64Url(fileName, base64) {
     // console.log('imgWrapBase64Url', [fileName, ext, base64]);
     return `data:image/${ext};base64,${base64}`;
 }
+export async function blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            // reader.result包含了base64数据URL，格式如: data:image/jpeg;base64,/9j/4AAQ...
+            // 如果只需要base64字符串部分，可以用split(',')[1]获取
+            resolve(reader.result.split(',')[1]);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
+}
+export class ModZipReaderHash {
+    constructor(zipBase64String) {
+        // this.hash = fnv1a(zipBase64String, {size: 64});
+        this._zipBase64String = zipBase64String;
+    }
+    // https://developer.mozilla.org/zh-CN/docs/Web/API/SubtleCrypto/digest
+    async digestMessage(message) {
+        const msgUint8 = new TextEncoder().encode(message); // 编码为（utf-8）Uint8Array
+        const hashBuffer = await window.crypto.subtle.digest("SHA-256", msgUint8); // 计算消息的哈希值
+        const hashArray = Array.from(new Uint8Array(hashBuffer)); // 将缓冲区转换为字节数组
+        return hashArray;
+    }
+    async init() {
+        if (this._hash) {
+            this._zipBase64String = undefined;
+            return;
+        }
+        if (!this._zipBase64String) {
+            // never go there
+            console.error('ModZipReaderHash init() this._zipBase64String is undefined.');
+            throw new Error('ModZipReaderHash init() this._zipBase64String is undefined.');
+        }
+        this._hash = await this.digestMessage(this._zipBase64String);
+        this._zipBase64String = undefined;
+    }
+    compare(h) {
+        return isEqual(this._hash, h._hash);
+    }
+    compareWithString(h) {
+        try {
+            return isEqual(this._hash, this.fromString(h));
+        }
+        catch (e) {
+            return false;
+        }
+    }
+    toString() {
+        if (!this._hash) {
+            // never go there
+            console.error('ModZipReaderHash toString() this._hash is undefined.');
+            throw new Error('ModZipReaderHash toString() this._hash is undefined.');
+        }
+        const hashHex = this._hash
+            .map((b) => b.toString(16).padStart(2, "0"))
+            .join(""); // 将字节数组转换为十六进制字符串
+        return hashHex;
+    }
+    fromString(hash) {
+        return hash.match(/.{2}/g).map((byte) => parseInt(byte, 16));
+    }
+}
 export class ModZipReader {
     get zip() {
         var _a, _b;
@@ -49,9 +112,10 @@ export class ModZipReader {
         }
         return this._zip;
     }
-    constructor(zip, loaderBase, modLoadControllerCallback) {
+    constructor(zip, zipBase64String, loaderBase, modLoadControllerCallback) {
         this.loaderBase = loaderBase;
         this.modLoadControllerCallback = modLoadControllerCallback;
+        this.log = getLogFromModLoadControllerCallback(modLoadControllerCallback);
         if (typeof FinalizationRegistry === 'undefined') {
             this.gcFinalizationRegistry = new FinalizationRegistryMock(() => {
                 // never be call
@@ -69,8 +133,8 @@ export class ModZipReader {
         }
         // this._zipWeakRef = new WeakRef(zip);
         this._zip = zip;
+        this.modZipReaderHash = new ModZipReaderHash(zipBase64String);
         this.gcFinalizationRegistry.register(this._zip, undefined, this);
-        this.log = getLogFromModLoadControllerCallback(modLoadControllerCallback);
     }
     getModInfo() {
         return this.modInfo;
@@ -117,6 +181,12 @@ export class ModZipReader {
             && isArray(get(bootJ, 'imgFileList'))
             && every(get(bootJ, 'imgFileList'), isString);
         // optional
+        if (c && has(bootJ, 'nickName')) {
+            c = c && (isString(get(bootJ, 'nickName')) || (isPlainObject(get(bootJ, 'nickName'))));
+        }
+        if (c && has(bootJ, 'alias')) {
+            c = c && (isArray(get(bootJ, 'alias')) && every(get(bootJ, 'alias'), isString));
+        }
         if (c && has(bootJ, 'dependenceInfo')) {
             c = c && (isArray(get(bootJ, 'dependenceInfo')) && every(get(bootJ, 'dependenceInfo'), checkDependenceInfo));
         }
@@ -149,6 +219,11 @@ export class ModZipReader {
                 every(get(bootJ, 'tweeFileList'), isString),
                 isArray(get(bootJ, 'imgFileList')),
                 every(get(bootJ, 'imgFileList'), isString),
+                // 'nickName',
+                // has(bootJ, 'nickName') ? isString(get(bootJ, 'nickName')) : true,
+                'alias',
+                has(bootJ, 'alias') &&
+                    isArray(get(bootJ, 'alias')) ? every(get(bootJ, 'alias'), checkDependenceInfo) : true,
                 'dependenceInfo',
                 has(bootJ, 'dependenceInfo') &&
                     isArray(get(bootJ, 'dependenceInfo')) ? every(get(bootJ, 'dependenceInfo'), checkDependenceInfo) : true,
@@ -177,6 +252,8 @@ export class ModZipReader {
     //     });
     // }
     async init() {
+        var _a;
+        await this.modZipReaderHash.init();
         const bootJsonFile = this.zip.file(ModZipReader.modBootFilePath);
         if (!bootJsonFile) {
             console.log('ModLoader ====== ModZipReader init() cannot find :', ModZipReader.modBootFilePath);
@@ -206,6 +283,8 @@ export class ModZipReader {
         if (ModZipReader.validateBootJson(bootJ, this.log)) {
             this.modInfo = {
                 name: bootJ.name,
+                nickName: bootJ.nickName || undefined,
+                alias: (_a = bootJ.alias) !== null && _a !== void 0 ? _a : [],
                 version: bootJ.version,
                 cache: new SC2DataInfo(this.log, bootJ.name),
                 imgs: [],
@@ -261,7 +340,7 @@ export class ModZipReader {
                 if (imgFile) {
                     this.modInfo.imgs.push({
                         // data: imgWrapBase64Url(imgPath, data),
-                        getter: new ModImgGetterDefault(this, imgPath, this.log),
+                        getter: new ModImgGetterDefault(bootJ.name, this, imgPath, this.log),
                         path: imgPath,
                     });
                 }
@@ -311,7 +390,7 @@ export class ModZipReader {
                     }
                 }
             }
-            console.log('ModLoader ====== ModZipReader init() modInfo', this.modInfo);
+            console.log('ModLoader ====== ModZipReader init() modInfo', this.modInfo, this.modZipReaderHash._hash);
             this.log.log(`ModLoader ====== ModZipReader init() modInfo: [${this.modInfo.name}] [${this.modInfo.version}]`);
             return true;
         }
@@ -427,10 +506,25 @@ export class ModZipReader {
 }
 ModZipReader.modBootFilePath = 'boot.json';
 export class LoaderBase {
-    constructor(log) {
+    constructor(log, loaderKeyConfig) {
         this.log = log;
+        this.loaderKeyConfig = loaderKeyConfig;
         this.modList = [];
         this.modZipList = new Map();
+        this.logger = {
+            log: (s) => {
+                this.log.logInfo(s);
+            },
+            warn: (s) => {
+                this.log.logWarning(s);
+            },
+            error: (s) => {
+                this.log.logError(s);
+            },
+        };
+    }
+    init() {
+        // this is used for override
     }
     getZipFile(name) {
         return this.modZipList.get(name);
@@ -449,6 +543,11 @@ export class LoaderBase {
     }
 }
 export class LocalStorageLoader extends LoaderBase {
+    init() {
+        super.init();
+        LocalStorageLoader.modDataLocalStorageZipList = this.loaderKeyConfig.getLoaderKey(LocalStorageLoader.modDataLocalStorageZipList, LocalStorageLoader.modDataLocalStorageZipList);
+        LocalStorageLoader.modDataLocalStorageZipPrefix = this.loaderKeyConfig.getLoaderKey(LocalStorageLoader.modDataLocalStorageZipPrefix, LocalStorageLoader.modDataLocalStorageZipPrefix);
+    }
     async load() {
         const listFile = localStorage.getItem(LocalStorageLoader.modDataLocalStorageZipList);
         if (!listFile) {
@@ -466,16 +565,18 @@ export class LocalStorageLoader extends LoaderBase {
             return Promise.resolve(false);
         }
         console.log('ModLoader ====== LocalStorageLoader load() list', list);
+        // this.logger.log('ModLoader ====== LocalStorageLoader load() list');
         // modDataBase64ZipStringList: base64[]
         for (const zipPath of list) {
             const base64ZipString = localStorage.getItem(LocalStorageLoader.calcModNameKey(zipPath));
             if (!base64ZipString) {
                 console.error('ModLoader ====== LocalStorageLoader load() cannot get zipPath:', zipPath);
+                // this.logger.error(`ModLoader ====== LocalStorageLoader load() cannot get zipPath:[${zipPath}]`);
                 continue;
             }
             try {
                 const m = await JSZip.loadAsync(base64ZipString, { base64: true }).then(zip => {
-                    return new ModZipReader(zip, this, this.log);
+                    return new ModZipReader(zip, base64ZipString, this, this.log);
                 });
                 if (await m.init()) {
                     this.modList.push(m);
@@ -507,7 +608,7 @@ export class LocalStorageLoader extends LoaderBase {
         return undefined;
     }
     static calcModNameKey(name) {
-        return `modDataLocalStorageZip:${name}`;
+        return `${this.modDataLocalStorageZipPrefix}:${name}`;
     }
     static addMod(name, modBase64String) {
         let l = new Set(this.listMod() || []);
@@ -544,13 +645,27 @@ export class LocalStorageLoader extends LoaderBase {
             return Promise.reject(E);
         }
     }
+    setConfigKey(modDataLocalStorageZipListKey, modDataLocalStorageZipPrefix) {
+        LocalStorageLoader.modDataLocalStorageZipList = modDataLocalStorageZipListKey !== null && modDataLocalStorageZipListKey !== void 0 ? modDataLocalStorageZipListKey : LocalStorageLoader.modDataLocalStorageZipList;
+        LocalStorageLoader.modDataLocalStorageZipPrefix = modDataLocalStorageZipPrefix !== null && modDataLocalStorageZipPrefix !== void 0 ? modDataLocalStorageZipPrefix : LocalStorageLoader.modDataLocalStorageZipPrefix;
+    }
 }
 LocalStorageLoader.modDataLocalStorageZipList = 'modDataLocalStorageZipList';
+LocalStorageLoader.modDataLocalStorageZipPrefix = 'modDataLocalStorageZip';
 export class IndexDBLoader extends LoaderBase {
-    constructor(modLoadControllerCallback) {
-        super(modLoadControllerCallback);
-        this.modLoadControllerCallback = modLoadControllerCallback;
+    init() {
+        super.init();
+        IndexDBLoader.dbName = this.loaderKeyConfig.getLoaderKey(IndexDBLoader.dbName, IndexDBLoader.dbName);
+        IndexDBLoader.storeName = this.loaderKeyConfig.getLoaderKey(IndexDBLoader.storeName, IndexDBLoader.storeName);
+        IndexDBLoader.modDataIndexDBZipListHidden = this.loaderKeyConfig.getLoaderKey(IndexDBLoader.modDataIndexDBZipListHidden, IndexDBLoader.modDataIndexDBZipListHidden);
+        IndexDBLoader.modDataIndexDBZipList = this.loaderKeyConfig.getLoaderKey(IndexDBLoader.modDataIndexDBZipList, IndexDBLoader.modDataIndexDBZipList);
+        IndexDBLoader.modDataIndexDBZipPrefix = this.loaderKeyConfig.getLoaderKey(IndexDBLoader.modDataIndexDBZipPrefix, IndexDBLoader.modDataIndexDBZipPrefix);
         this.customStore = createStore(IndexDBLoader.dbName, IndexDBLoader.storeName);
+    }
+    constructor(modLoadControllerCallback, loaderKeyConfig) {
+        super(modLoadControllerCallback, loaderKeyConfig);
+        this.modLoadControllerCallback = modLoadControllerCallback;
+        this.loaderKeyConfig = loaderKeyConfig;
     }
     async load() {
         const listFile = await keyval_get(IndexDBLoader.modDataIndexDBZipList, this.customStore);
@@ -578,7 +693,7 @@ export class IndexDBLoader extends LoaderBase {
             }
             try {
                 const m = await JSZip.loadAsync(base64ZipString, { base64: true }).then(zip => {
-                    return new ModZipReader(zip, this, this.log);
+                    return new ModZipReader(zip, base64ZipString, this, this.log);
                 });
                 if (await m.init()) {
                     this.modList.push(m);
@@ -590,7 +705,86 @@ export class IndexDBLoader extends LoaderBase {
         }
         return Promise.resolve(true);
     }
+    /**
+     * @param modeList must have same items as the list in listMod()
+     */
+    static async reorderModList(modeList) {
+        const oldList = await IndexDBLoader.listMod();
+        if (!oldList) {
+            console.error('ModLoader ====== IndexDBLoader reorderModList() oldList Invalid');
+            return;
+        }
+        if (oldList.length !== modeList.length) {
+            console.error('ModLoader ====== IndexDBLoader reorderModList() oldList.length !== modeList.length');
+            return;
+        }
+        if (uniq(modeList).length !== modeList.length) {
+            console.error('ModLoader ====== IndexDBLoader reorderModList() modeList has duplicate items. invalid');
+            return;
+        }
+        if (!oldList.every((T, i) => modeList.includes(T))) {
+            console.error('ModLoader ====== IndexDBLoader reorderModList() oldList !includes() modeList');
+            return;
+        }
+        await keyval_set(IndexDBLoader.modDataIndexDBZipList, JSON.stringify(modeList), createStore(IndexDBLoader.dbName, IndexDBLoader.storeName));
+        console.log('ModLoader ====== IndexDBLoader reorderModList() done');
+    }
+    static async setModList(modeList) {
+        if (!isArray(modeList) || !every(modeList, isString)) {
+            console.error('ModLoader ====== IndexDBLoader setModList() modeList type invalid. invalid');
+            return;
+        }
+        if (uniq(modeList).length !== modeList.length) {
+            console.error('ModLoader ====== IndexDBLoader setModList() modeList has duplicate items. invalid');
+            return;
+        }
+        console.log('[ModLoader] IndexDBLoader setModList() modDataIndexDBZipList', IndexDBLoader.modDataIndexDBZipList);
+        console.log('[ModLoader] IndexDBLoader setModList() dbName', IndexDBLoader.dbName);
+        console.log('[ModLoader] IndexDBLoader setModList() storeName', IndexDBLoader.storeName);
+        await keyval_set(IndexDBLoader.modDataIndexDBZipList, JSON.stringify(modeList), createStore(IndexDBLoader.dbName, IndexDBLoader.storeName));
+        console.log('ModLoader ====== IndexDBLoader setModList() done');
+    }
+    static async setHiddenModList(modeList) {
+        if (!isArray(modeList) || !every(modeList, isString)) {
+            console.error('ModLoader ====== IndexDBLoader setHiddenModList() modeList type invalid. invalid');
+            return;
+        }
+        if (uniq(modeList).length !== modeList.length) {
+            console.error('ModLoader ====== IndexDBLoader setHiddenModList() modeList has duplicate items. invalid');
+            return;
+        }
+        console.log('[ModLoader] IndexDBLoader setHiddenModList() modDataIndexDBZipListHidden', IndexDBLoader.modDataIndexDBZipListHidden);
+        console.log('[ModLoader] IndexDBLoader setHiddenModList() dbName', IndexDBLoader.dbName);
+        console.log('[ModLoader] IndexDBLoader setHiddenModList() storeName', IndexDBLoader.storeName);
+        await keyval_set(IndexDBLoader.modDataIndexDBZipListHidden, JSON.stringify(modeList), createStore(IndexDBLoader.dbName, IndexDBLoader.storeName));
+        console.log('ModLoader ====== IndexDBLoader setHiddenModList() done');
+    }
+    static async loadHiddenModList() {
+        console.log('[ModLoader] IndexDBLoader loadHiddenModList() modDataIndexDBZipListHidden', IndexDBLoader.modDataIndexDBZipListHidden);
+        console.log('[ModLoader] IndexDBLoader loadHiddenModList() dbName', IndexDBLoader.dbName);
+        console.log('[ModLoader] IndexDBLoader loadHiddenModList() storeName', IndexDBLoader.storeName);
+        const ls = await keyval_get(IndexDBLoader.modDataIndexDBZipListHidden, createStore(IndexDBLoader.dbName, IndexDBLoader.storeName));
+        if (!ls) {
+            console.log('ModLoader ====== IndexDBLoader loadHiddenModList() cannot find modDataIndexDBZipListHidden');
+            return undefined;
+        }
+        try {
+            const l = JSON5.parse(ls);
+            console.log('ModLoader ====== IndexDBLoader loadHiddenModList() modDataIndexDBZipListHidden', l);
+            if (Array.isArray(l) && l.every(isString)) {
+                return l;
+            }
+        }
+        catch (e) {
+            console.error(e);
+        }
+        console.log('ModLoader ====== IndexDBLoader loadHiddenModList() modDataIndexDBZipListHidden Invalid');
+        return undefined;
+    }
     static async listMod() {
+        console.log('[ModLoader] IndexDBLoader listMod() modDataIndexDBZipList', IndexDBLoader.modDataIndexDBZipList);
+        console.log('[ModLoader] IndexDBLoader listMod() dbName', IndexDBLoader.dbName);
+        console.log('[ModLoader] IndexDBLoader listMod() storeName', IndexDBLoader.storeName);
         const ls = await keyval_get(IndexDBLoader.modDataIndexDBZipList, createStore(IndexDBLoader.dbName, IndexDBLoader.storeName));
         if (!ls) {
             console.log('ModLoader ====== IndexDBLoader listMod() cannot find modDataIndexDBZipList');
@@ -610,7 +804,7 @@ export class IndexDBLoader extends LoaderBase {
         return undefined;
     }
     static calcModNameKey(name) {
-        return `modDataIndexDBZip:${name}`;
+        return `${this.modDataIndexDBZipPrefix}:${name}`;
     }
     static async addMod(name, modBase64String) {
         let l = new Set(await this.listMod() || []);
@@ -627,9 +821,12 @@ export class IndexDBLoader extends LoaderBase {
     static async removeMod(name) {
         let l = await this.listMod() || [];
         l = l.filter(T => T !== name);
+        let lH = await this.loadHiddenModList() || [];
+        lH = lH.filter(T => T !== name);
         const db = createStore(IndexDBLoader.dbName, IndexDBLoader.storeName);
         const k = this.calcModNameKey(name);
         await keyval_set(this.modDataIndexDBZipList, JSON.stringify(l), db);
+        await keyval_set(this.modDataIndexDBZipListHidden, JSON.stringify(lH), db);
         await keyval_del(k, db);
     }
     // get bootJson from zip
@@ -653,16 +850,25 @@ export class IndexDBLoader extends LoaderBase {
             return Promise.reject(E);
         }
     }
+    setConfigKey(dbName, storeName, modDataIndexDBZipList, modDataIndexDBZipListHidden) {
+        IndexDBLoader.dbName = dbName !== null && dbName !== void 0 ? dbName : IndexDBLoader.dbName;
+        IndexDBLoader.storeName = storeName !== null && storeName !== void 0 ? storeName : IndexDBLoader.storeName;
+        IndexDBLoader.modDataIndexDBZipList = modDataIndexDBZipList !== null && modDataIndexDBZipList !== void 0 ? modDataIndexDBZipList : IndexDBLoader.modDataIndexDBZipList;
+        IndexDBLoader.modDataIndexDBZipListHidden = modDataIndexDBZipListHidden !== null && modDataIndexDBZipListHidden !== void 0 ? modDataIndexDBZipListHidden : IndexDBLoader.modDataIndexDBZipListHidden;
+    }
 }
 IndexDBLoader.dbName = 'ModLoader_IndexDBLoader';
 IndexDBLoader.storeName = 'ModLoader_IndexDBLoader';
+IndexDBLoader.modDataIndexDBZipListHidden = 'modDataIndexDBZipListHidden';
 IndexDBLoader.modDataIndexDBZipList = 'modDataIndexDBZipList';
+IndexDBLoader.modDataIndexDBZipPrefix = 'modDataIndexDBZip';
 export class Base64ZipStringLoader extends LoaderBase {
-    constructor(modLoadControllerCallback, 
+    constructor(modLoadControllerCallback, loaderKeyConfig, 
     // base64ZipStringList: base64[]
     base64ZipStringList) {
-        super(modLoadControllerCallback);
+        super(modLoadControllerCallback, loaderKeyConfig);
         this.modLoadControllerCallback = modLoadControllerCallback;
+        this.loaderKeyConfig = loaderKeyConfig;
         this.base64ZipStringList = base64ZipStringList;
     }
     async load() {
@@ -670,7 +876,7 @@ export class Base64ZipStringLoader extends LoaderBase {
         for (const base64ZipString of this.base64ZipStringList) {
             try {
                 const m = await JSZip.loadAsync(base64ZipString, { base64: true }).then(zip => {
-                    return new ModZipReader(zip, this, this.log);
+                    return new ModZipReader(zip, base64ZipString, this, this.log);
                 });
                 if (await m.init()) {
                     this.modList.push(m);
@@ -684,9 +890,14 @@ export class Base64ZipStringLoader extends LoaderBase {
     }
 }
 export class LocalLoader extends LoaderBase {
-    constructor(modLoadControllerCallback, thisWin) {
-        super(modLoadControllerCallback);
+    init() {
+        super.init();
+        this.modDataValueZipListPath = this.loaderKeyConfig.getLoaderKey(this.modDataValueZipListPath, this.modDataValueZipListPath);
+    }
+    constructor(modLoadControllerCallback, loaderKeyConfig, thisWin) {
+        super(modLoadControllerCallback, loaderKeyConfig);
         this.modLoadControllerCallback = modLoadControllerCallback;
+        this.loaderKeyConfig = loaderKeyConfig;
         this.thisWin = thisWin;
         this.modDataValueZipListPath = 'modDataValueZipList';
     }
@@ -699,7 +910,7 @@ export class LocalLoader extends LoaderBase {
                 for (const modDataValueZip of modDataValueZipList) {
                     try {
                         const m = await JSZip.loadAsync(modDataValueZip, { base64: true }).then(zip => {
-                            return new ModZipReader(zip, this, this.log);
+                            return new ModZipReader(zip, modDataValueZip, this, this.log);
                         });
                         if (await m.init()) {
                             this.modList.push(m);
@@ -714,11 +925,18 @@ export class LocalLoader extends LoaderBase {
         }
         return Promise.resolve(false);
     }
+    setConfigKey(modDataValueZipListPath) {
+        this.modDataValueZipListPath = modDataValueZipListPath !== null && modDataValueZipListPath !== void 0 ? modDataValueZipListPath : this.modDataValueZipListPath;
+    }
 }
 export class RemoteLoader extends LoaderBase {
     constructor() {
         super(...arguments);
         this.modDataRemoteListPath = 'modList.json';
+    }
+    init() {
+        super.init();
+        this.modDataRemoteListPath = this.loaderKeyConfig.getLoaderKey(this.modDataRemoteListPath, this.modDataRemoteListPath);
     }
     async load() {
         const modList = await fetch(this.modDataRemoteListPath).then(T => T.json()).catch(E => {
@@ -731,10 +949,11 @@ export class RemoteLoader extends LoaderBase {
             for (const modFileZipPath of modList) {
                 try {
                     const m = await fetch(modFileZipPath)
-                        .then(T => T.blob())
-                        .then(T => JSZip.loadAsync(T))
-                        .then(zip => {
-                        return new ModZipReader(zip, this, this.log);
+                        .then(async (T) => {
+                        const blob = await T.blob();
+                        const base64ZipString = await blobToBase64(blob);
+                        const zipFile = await JSZip.loadAsync(blob);
+                        return new ModZipReader(zipFile, base64ZipString, this, this.log);
                     });
                     if (await m.init()) {
                         this.modList.push(m);
@@ -748,11 +967,15 @@ export class RemoteLoader extends LoaderBase {
         }
         return Promise.resolve(false);
     }
+    setConfigKey(modDataRemoteListPath) {
+        this.modDataRemoteListPath = modDataRemoteListPath;
+    }
 }
 export class LazyLoader extends LoaderBase {
     async add(modeZip) {
         try {
-            const m = new ModZipReader(modeZip, this, this.log);
+            const base64ZipString = await modeZip.generateAsync({ type: "base64" });
+            const m = new ModZipReader(modeZip, base64ZipString, this, this.log);
             if (await m.init()) {
                 this.modList.push(m);
             }
@@ -766,6 +989,96 @@ export class LazyLoader extends LoaderBase {
     }
     async load() {
         return Promise.resolve(true);
+    }
+}
+export const getModZipReaderStaticClassRef = () => {
+    console.error('WARNING: the [[[getModZipReaderStaticClassRef]]] will delete later.');
+    return {
+        LocalStorageLoader: LocalStorageLoader,
+        IndexDBLoader: IndexDBLoader,
+        LocalLoader: LocalLoader,
+        RemoteLoader: RemoteLoader,
+    };
+};
+export class LoaderKeyConfig {
+    constructor(log) {
+        this.log = log;
+        this.modLoaderKeyConfigWinHookFunctionName = 'modLoaderKeyConfigWinHookFunction';
+        this.config = new Map();
+        this.isInit = false;
+        this.logger = {
+            log: (s) => {
+                this.log.logInfo(s);
+            },
+            warn: (s) => {
+                this.log.logWarning(s);
+            },
+            error: (s) => {
+                this.log.logError(s);
+            },
+        };
+    }
+    getLoaderKey(k, d) {
+        this.init();
+        const n = this.config.get(k);
+        console.log('LoaderKeyConfig getLoaderKey state:', k, d, n);
+        if (isString(n) && n.length > 1) {
+            console.log('LoaderKeyConfig getLoaderKey return:', k, n);
+            return n;
+        }
+        else {
+            console.log('LoaderKeyConfig getLoaderKey return:', k, d);
+            return d;
+        }
+    }
+    init() {
+        if (this.isInit) {
+            return;
+        }
+        this.isInit = true;
+        console.log('LoaderKeyConfig init.');
+        this.callWinHookFunction();
+        this.getConfigFromUrlHash();
+        if (this.config.size > 0) {
+            this.logger.log(`LoaderKeyConfig init() config:[${[...this.config.entries()]}]`);
+        }
+        console.log('LoaderKeyConfig init end', this.config);
+    }
+    /**
+     * @example
+     * @code
+     * ```
+     * window.modLoaderKeyConfigWinHookFunction = (loaderKeyConfig: LoaderKeyConfig) => {
+     *    loaderKeyConfig.config.set('modDataIndexDBZipList', 'modDataIndexDBZipList123456789');
+     * };
+     * ```
+     *
+     * @protected
+     */
+    callWinHookFunction() {
+        try {
+            if (window[this.modLoaderKeyConfigWinHookFunctionName]) {
+                window[this.modLoaderKeyConfigWinHookFunctionName](this);
+                console.log('LoaderKeyConfig callWinHookFunction called', this.config);
+            }
+        }
+        catch (e) {
+            console.error('LoaderKeyConfig callWinHookFunction Error', e);
+            this.logger.error('LoaderKeyConfig callWinHookFunction Error');
+        }
+    }
+    /**
+     * @example   URL:  ./Degrees of Lewdity VERSION.html.mod.html?modDataIndexDBZipList=modDataIndexDBZipList123456789
+     * @protected
+     */
+    getConfigFromUrlHash() {
+        const search = window.location.search;
+        if (search.length > 1) {
+            const a = search.slice(1).split('&').map(T => T.split('='));
+            for (const [k, v] of a) {
+                this.config.set(k, v);
+            }
+        }
     }
 }
 //# sourceMappingURL=ModZipReader.js.map

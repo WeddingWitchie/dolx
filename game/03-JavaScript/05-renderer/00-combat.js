@@ -370,34 +370,36 @@ class CombatSystem {
 	 * @returns {Partial<Penetrator>}
 	 */
 	getNpcPenetratorState(npc) {
+		// Used to check the gender (sex), was made redundant: if an NPC has a penis (or strap-on), it is rendered to avoid contradicting the scene description.
+		const penisExists = npc.penis !== "none";
 		switch (npc.penis) {
 			case "anusentrance":
 				return {
-					show: true,
+					show: penisExists,
 					position: "anus",
 					state: "entrance",
 				};
 			case "anusentrancedouble":
 				return {
-					show: true,
+					show: penisExists,
 					position: "anus",
 					state: "entrance",
 				};
 			case "anusimminent":
 				return {
-					show: true,
+					show: penisExists,
 					position: "anus",
 					state: "imminent",
 				};
 			case "anus":
 				return {
-					show: true,
+					show: penisExists,
 					position: "anus",
 					state: "penetrating",
 				};
 			case "anusdouble":
 				return {
-					show: true,
+					show: penisExists,
 					position: "anus",
 					state: "penetrating",
 				};
@@ -405,61 +407,61 @@ class CombatSystem {
 			case "penisimminent":
 			case "penis":
 				return {
-					show: true,
+					show: penisExists,
 					position: "penis",
 					state: "rubbing",
 				};
 			case "vaginaentrance":
 				return {
-					show: true,
+					show: penisExists,
 					position: "vagina",
 					state: "entrance",
 				};
 			case "vaginaentrancedouble":
 				return {
-					show: true,
+					show: penisExists,
 					position: "vagina",
 					state: "entrance",
 				};
 			case "vaginaimminent":
 				return {
-					show: true,
+					show: penisExists,
 					position: "vagina",
 					state: "imminent",
 				};
 			case "vaginaimminentdouble":
 				return {
-					show: true,
+					show: penisExists,
 					position: "vagina",
 					state: "imminent",
 				};
 			case "vagina":
 				return {
-					show: true,
+					show: penisExists,
 					position: "vagina",
 					state: "penetrating",
 				};
 			case "vaginadouble":
 				return {
-					show: true,
+					show: penisExists,
 					position: "vagina",
 					state: "penetrating",
 				};
 			case "mouthentrance":
 				return {
-					show: true,
+					show: penisExists,
 					position: "mouth",
 					state: "entrance",
 				};
 			case "mouthimminent":
 				return {
-					show: true,
+					show: penisExists,
 					position: "mouth",
 					state: "imminent",
 				};
 			case "mouth":
 				return {
-					show: true,
+					show: penisExists,
 					position: "mouth",
 					state: "penetrating",
 				};
@@ -469,13 +471,13 @@ class CombatSystem {
 				return {};
 			case "feet":
 				return {
-					show: true,
+					show: penisExists,
 					position: "feet",
 					state: "rubbing",
 				};
 			case "footjob": // Duplicate of feet
 				return {
-					show: true,
+					show: penisExists,
 					position: "feet",
 					state: "rubbing",
 				};
@@ -483,31 +485,31 @@ class CombatSystem {
 				return {};
 			case "leftarm":
 				return {
-					show: true,
+					show: penisExists,
 					position: "leftarm",
 					state: "rubbing",
 				};
 			case "rightarm":
 				return {
-					show: true,
+					show: penisExists,
 					position: "rightarm",
 					state: "rubbing",
 				};
 			case "thighs":
 				return {
-					show: true,
+					show: penisExists,
 					position: "thighs",
 					state: "rubbing",
 				};
 			case "cheeks":
 				return {
-					show: true,
+					show: penisExists,
 					position: "butt",
 					state: "rubbing",
 				};
 			case "chest":
 				return {
-					show: true,
+					show: penisExists,
 					position: "chest",
 					state: "rubbing",
 				};
@@ -519,6 +521,20 @@ class CombatSystem {
 			// case "mouthotheranus": (wtf is this?)
 			// case "idle": (Pointless to account for this)
 			// case "none": (No pp)
+		}
+		if (npc.stance === "topface") {
+			return {
+				show: penisExists,
+				position: "mouth",
+				state: "entrance",
+			};
+		}
+		if (npc.stance === "top") {
+			return {
+				show: penisExists,
+				position: "vagina",
+				state: "entrance",
+			};
 		}
 		return {};
 	}

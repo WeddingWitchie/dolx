@@ -1,5 +1,5 @@
 import { IndexDBLoader, LocalStorageLoader } from "./ModZipReader";
-import moment from "moment";
+import moment from "moment/moment";
 export function getLogFromModLoadControllerCallback(c) {
     return {
         log: (s) => {
@@ -247,8 +247,17 @@ export class ModLoadController {
     async checkModZipFileLocalStorage(modBase64String) {
         return LocalStorageLoader.checkModZipFile(modBase64String);
     }
+    async overwriteModIndexDBModList(modeList) {
+        await IndexDBLoader.setModList(modeList);
+    }
+    async overwriteModIndexDBHiddenModList(modeList) {
+        await IndexDBLoader.setHiddenModList(modeList);
+    }
     async listModIndexDB() {
-        return IndexDBLoader.listMod() || [];
+        return await IndexDBLoader.listMod() || [];
+    }
+    async loadHiddenModList() {
+        return await IndexDBLoader.loadHiddenModList() || [];
     }
     addModIndexDB(name, modBase64String) {
         return IndexDBLoader.addMod(name, modBase64String);

@@ -201,6 +201,8 @@
  * @property {boolean} isRaised Whether the clothing layer (skirt) is displaced/raised.
  * @property {boolean} isBoundable Whether the clothing layer has a bound state.
  * @property {boolean} hasAccessory Whether the clothing uses accessory layer.
+ * @property {boolean} hasTertiaryPattern Whether the clothing uses an optional third layer for non-recolourable details or patterns.
+ * @property {boolean|string} pattern Whether the clothing has a pattern.
  * @property {boolean} hasMainImg Whether the clothing has a main img layer, tape for example.
  * @property {boolean} hasBackImg Whether the clothing has a back img layer, typically for headwear or handhelds.
  * @property {boolean} hasBackAccessory Whether the clothing has a back acc layer, typically for headwear or handhelds.
@@ -529,6 +531,8 @@ class PlayerCombatMapper {
 			isExposed: false,
 			isBoundable: false,
 			hasAccessory: false,
+			hasTertiaryPattern: false,
+			pattern: false,
 			hasMainImg: false,
 			hasBackImg: false,
 			hasBackAccessory: false,
@@ -1034,7 +1038,7 @@ class PlayerCombatMapper {
 				show = false;
 			}
 			if (id === "tattoo") {
-				show = machine.state !== "inert";
+				show = !["destroyed", "inert"].includes(machine.state);
 			}
 			return {
 				show,
@@ -1396,7 +1400,7 @@ class PlayerCombatMapper {
 			if (V.feetuse === "penis" || V.feetstate === "tentacle") {
 				return "up";
 			}
-			if (V.NPCList.some((npc, index) => npc.type === "horse" && NpcCombatMapper.isUnderPositioned(index, npc))) {
+			if (V.NPCList.some((npc, index) => npc.type === "horse" && NpcCombatMapper.isBeastUnderPositioned(index, npc))) {
 				return "down";
 			}
 			if (V.NPCList.some(a => ["horse", "centaur", "dog", "pig", "boar"].includes(a.type))) {
@@ -1569,6 +1573,8 @@ class PlayerCombatMapper {
 
 		const name = source.variable;
 
+		const pattern = clothing.pattern || false;
+
 		/** @type {TotalClothingStates} */
 		const state = clothing.state;
 		let show = name != null;
@@ -1604,6 +1610,8 @@ class PlayerCombatMapper {
 			isExposed: !!clothing.exposed,
 			isBoundable: !!clothing.combat?.boundable,
 			hasAccessory: CombatRenderer.getAccessoryState(slot, defaults),
+			hasTertiaryPattern: CombatRenderer.getPatternState(slot, defaults),
+			pattern,
 			hasMainImg: clothing.combat?.hasMainImg !== false,
 			hasBackImg: !!defaults.back_img && [1, "combat"].includes(defaults.back_img),
 			hasBackAccessory: !!defaults.back_img_acc && [1, "combat"].includes(defaults.back_img_acc),
@@ -2059,7 +2067,7 @@ class PlayerCombatMapper {
 				inFront: false,
 			};
 		}
-		const style = ["default", "classic", "cat", "succubus"].includes(parts.tail) ? parts.tail : "default";
+		const style = ["default", "classic", "cat", "cow", "succubus"].includes(parts.tail) ? parts.tail : "default";
 		switch (type) {
 			case "demon":
 				if (PlayerCombatMapper.isChimeraPartEnabled("demon", "cat", "demoncat", "tail")) {
@@ -2071,7 +2079,26 @@ class PlayerCombatMapper {
 						inFront: false,
 					};
 				}
+				if (PlayerCombatMapper.isChimeraPartEnabled("demon", "cow", "demoncow", "tail")) {
+					return {
+						show: true,
+						type,
+						style: "cow",
+						state: "default",
+						inFront: false,
+					};
+				}
 				break;
+			case "cow":
+				if (PlayerCombatMapper.isChimeraPartEnabled("demon", "cow", "demoncow", "tail")) {
+					return {
+						show: true,
+						type,
+						style: parts.tail + "-demon",
+						state: "default",
+						inFront: false,
+					};
+				}
 		}
 		if (["demon"].includes(type) && V.enemytype === "man" && (V.anusstate === "penetrated" || V.vaginastate === "penetrated")) {
 			return {
@@ -2276,7 +2303,15 @@ class PlayerCombatMapper {
 			}
 
 			const options = mapper(id, bodywriting);
-			return options || defaultState;
+			if (options == null) {
+				return defaultState;
+			}
+
+			if (!setup.renderer.player.bodywriting.types.includes(options.type)) {
+				return defaultState;
+			}
+
+			return options;
 		}
 
 		/**
@@ -2290,8 +2325,8 @@ class PlayerCombatMapper {
 			}
 			return {
 				show: true,
-				area: "text",
-				type: sanitise(id),
+				type: "text",
+				area: sanitise(id),
 			};
 		}
 
@@ -2312,8 +2347,8 @@ class PlayerCombatMapper {
 			}
 			return {
 				show: true,
-				area: "text",
-				type: sanitise(id),
+				type: "text",
+				area: sanitise(id),
 			};
 		}
 
@@ -2325,8 +2360,8 @@ class PlayerCombatMapper {
 		function hidden(id, bodywriting) {
 			return {
 				show: false,
-				area: bodywriting.writing,
-				type: sanitise(id),
+				type: bodywriting.writing,
+				area: sanitise(id),
 			};
 		}
 
@@ -2334,7 +2369,7 @@ class PlayerCombatMapper {
 			isEnabled: V.options.bodywritingImages === true,
 			forehead: {
 				show: false,
-				type: "forehead",
+				area: "forehead",
 			},
 			breasts: getState("breasts", simpleText),
 			back: getState("back", simpleText),
@@ -2346,15 +2381,15 @@ class PlayerCombatMapper {
 					if (bodywriting.type === "text" || bodywriting.special === "islander") {
 						return {
 							show: true,
-							area: "text",
-							type: sanitise(id),
+							type: "text",
+							area: sanitise(id),
 						};
 					}
 					if (bodywriting.type === "object") {
 						return {
 							show: true,
-							area: bodywriting.writing,
-							type: sanitise(id),
+							type: bodywriting.writing,
+							area: sanitise(id),
 						};
 					}
 					return null;
@@ -2364,8 +2399,8 @@ class PlayerCombatMapper {
 					if (bodywriting.type === "text" || bodywriting.special === "islander") {
 						return {
 							show: true,
-							area: "text",
-							type: sanitise(id),
+							type: "text",
+							area: sanitise(id),
 						};
 					}
 					if (bodywriting.type !== "object") {
@@ -2376,8 +2411,8 @@ class PlayerCombatMapper {
 					}
 					return {
 						show: true,
-						area: bodywriting.writing,
-						type: sanitise(id),
+						type: bodywriting.writing,
+						area: sanitise(id),
 					};
 				});
 				options.bodywriting.backShoulder = getState("left_shoulder", hidden);
@@ -2387,15 +2422,15 @@ class PlayerCombatMapper {
 					if (bodywriting.type === "text") {
 						return {
 							show: true,
-							area: "text",
-							type: sanitise(id),
+							type: "text",
+							area: sanitise(id),
 						};
 					}
 					if (bodywriting.type === "object" && bodywriting.special !== "islander") {
 						return {
 							show: true,
-							area: bodywriting.writing,
-							type: sanitise(id),
+							type: bodywriting.writing,
+							area: sanitise(id),
 						};
 					}
 					return null;
@@ -2412,19 +2447,18 @@ class PlayerCombatMapper {
 						}
 						return {
 							show: true,
-							area: "text",
-							type: sanitise(type),
+							type: "text",
+							area: sanitise(type),
 						};
 					}
 					if (bodywriting.type === "object") {
 						if (["up", "footjob"].includes(options.legBackPosition)) {
-							type += "-raised";
+							return {
+								show: true,
+								type: bodywriting.writing,
+								area: sanitise(type) + "-raised",
+							};
 						}
-						return {
-							show: true,
-							area: bodywriting.writing,
-							type: sanitise(type),
-						};
 					}
 					return null;
 				});
@@ -2434,15 +2468,15 @@ class PlayerCombatMapper {
 					if (bodywriting.type === "text" || bodywriting.special === "islander") {
 						return {
 							show: true,
-							area: "text",
-							type: sanitise(id),
+							type: "text",
+							area: sanitise(id),
 						};
 					}
 					if (bodywriting.type === "object") {
 						return {
 							show: true,
-							area: bodywriting.writing,
-							type: sanitise(id),
+							type: bodywriting.writing,
+							area: sanitise(id),
 						};
 					}
 					return null;
@@ -2452,8 +2486,8 @@ class PlayerCombatMapper {
 					if (bodywriting.type === "text" || bodywriting.special === "islander") {
 						return {
 							show: true,
-							area: "text",
-							type: sanitise(id),
+							type: "text",
+							area: sanitise(id),
 						};
 					}
 					if (bodywriting.type !== "object") {
@@ -2462,14 +2496,14 @@ class PlayerCombatMapper {
 					if (V.leftarm === "bound" || V.rightarm === "grappled" || V.leftarm === "behind") {
 						return {
 							show: true,
-							area: bodywriting.writing,
-							type: "left-shoulder-bound",
+							type: bodywriting.writing,
+							area: "left-shoulder-bound",
 						};
 					}
 					return {
 						show: true,
-						area: bodywriting.writing,
-						type: sanitise(id),
+						type: bodywriting.writing,
+						area: sanitise(id),
 					};
 				});
 				options.bodywriting.backShoulder = getState("right_shoulder", hidden);
@@ -2479,15 +2513,15 @@ class PlayerCombatMapper {
 					if (bodywriting.type === "text") {
 						return {
 							show: true,
-							area: "text",
-							type: sanitise(id),
+							type: "text",
+							area: sanitise(id),
 						};
 					}
 					if (bodywriting.type === "object" && bodywriting.special !== "islander") {
 						return {
 							show: true,
-							area: bodywriting.writing,
-							type: sanitise(id),
+							type: bodywriting.writing,
+							area: sanitise(id),
 						};
 					}
 					return null;
@@ -2497,15 +2531,15 @@ class PlayerCombatMapper {
 					if (bodywriting.type === "text" || bodywriting.special === "islander") {
 						return {
 							show: true,
-							area: "text",
-							type: sanitise(bodywriting.arrow === 1 ? id + "-arrow" : id),
+							type: "text",
+							area: sanitise(bodywriting.arrow === 1 ? id + "-arrow" : id),
 						};
 					}
 					if (bodywriting.type === "object") {
 						return {
 							show: true,
-							area: bodywriting.writing,
-							type: sanitise(id),
+							type: bodywriting.writing,
+							area: sanitise(id),
 						};
 					}
 					return null;

@@ -98,8 +98,34 @@ Weather.Temperature = (() => {
 		switch (V.location) {
 			case "pool":
 				return 28;
-			case "cabin": // Eden's cabin pool
-				return 37;
+			// Eden's cabin
+			case "cabin": {
+				if (V.bus === "edencabin") {
+					// For indoor bath temperature
+					return 37;
+				}
+				// For outside spring temperature
+				const baseTemp = getBaseTemperature(new DateTime(Time.date));
+				if (V.edenHeater === undefined) {
+					return baseTemp;
+				}
+				// Interpolates between baseTemperature and 37, depending on the time elapsed
+				const edenHeaterBurnTime = Cooker.getBurnTime(V.edenHeater);
+				/* Checks burn time from when heater was first lit, 
+				to stop warm up time from resetting if more firewood is added */
+				const edenHeaterStartingBurnTime = Math.max((V.edenHeaterStartingLastsUntil ?? V.edenHeater.lastsUntil) - V.timeStamp, 0);
+				const burnTimeRatio = edenHeaterBurnTime / V.edenHeater.maxBurnTime;
+				const startingBurnTimeRatio = edenHeaterStartingBurnTime / V.edenHeater.maxBurnTime;
+				let factor = 1;
+				if (burnTimeRatio <= 0.2) {
+					// Water cooling as heater runs out of fuel
+					factor = burnTimeRatio / 0.2;
+				} else if (startingBurnTimeRatio >= 0.8) {
+					// Water warming as heater starts up
+					factor = (1 - startingBurnTimeRatio) / 0.2;
+				}
+				return interpolate(baseTemp, 37, factor); // Max value of 37
+			}
 			case "hotel": // Avery date
 				return 37;
 		}

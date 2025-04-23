@@ -423,13 +423,13 @@ class XrayCombatMapper {
 			if (npcSource.penisdesc.includes("horse") && !penetrator.doublePen) {
 				penetrator["penetratorSprite" + index] = "horseGray";
 				penetrator["size" + index] = 5;
-			} else if (npcSource.penisdesc.includes("knotted")) {
+			} else if (npcSource.penisdesc.includes("knotted") && !penetrator.doublePen) {
 				penetrator["penetratorSprite" + index] = "knotted";
 				penetrator["size" + index] = 3;
 			} else if (npcSource.penisdesc.includes("tentacle")) {
 				penetrator["penetratorSprite" + index] = "tentacle";
 				penetrator["size" + index] = npcSource.penissize;
-			} else if (npcSource.penisdesc.includes("dolphin")) {
+			} else if (npcSource.penisdesc.includes("dolphin") && !penetrator.doublePen) {
 				penetrator["penetratorSprite" + index] = "point";
 				penetrator["size" + index] = 2;
 			} else if (npcSource.strapon?.color === "fleshy") {
@@ -462,10 +462,10 @@ class XrayCombatMapper {
 			V.enemytype === "machine"
 				? "machine"
 				: V.penisstate !== 0 && ["tentacle", "tentacledeep"].includes(V.penisstate)
-					? "tentacle"
-					: V.NPCList[V.penistarget].type;
+				? "tentacle"
+				: V.NPCList[V.penistarget].type;
 
-		const playerPenisType = playerHasStrapon() ? "strapon" : V.player.gender === "f" ? "parasite" : "penis";
+		const playerPenisType = playerHasStrapon() ? "strapon" : V.player.sex === "f" ? "parasite" : "penis";
 		penetrator.type = playerPenisType;
 		penetrator.playerSprite = playerPenisType;
 		penetrator.size = playerHasStrapon() && V.worn.under_lower.size !== undefined ? V.worn.under_lower.size : V.player.penissize;

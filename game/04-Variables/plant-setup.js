@@ -253,7 +253,7 @@ function initPlants() {
 			type: "fruit",
 			days: 14,
 			multiplier: 1,
-			special: [],
+			special: ["small"],
 			season: ["spring", "summer", "autumn", "winter"],
 			ingredients: [],
 			icon: "strawberry.png",
@@ -738,6 +738,8 @@ function initPlants() {
 			season: [],
 			ingredients: [],
 			icon: "salt.png",
+			shop: ["supermarket"],
+			boughtInBulk: 25,
 		},
 
 		vegetable_oil: {
@@ -756,6 +758,8 @@ function initPlants() {
 			season: [],
 			ingredients: [],
 			icon: "vegetable_oil.png",
+			shop: ["supermarket"],
+			boughtInBulk: 25,
 		},
 
 		pizza: {
@@ -811,6 +815,7 @@ function initPlants() {
 			special: ["vegetarian"],
 			season: [],
 			ingredients: ["bottle_of_milk"],
+			ingredientIcon: "raw_cheese.png",
 			icon: "cheese.png",
 		},
 
@@ -927,9 +932,9 @@ function initPlants() {
 		chelsea_bun: {
 			index: 53,
 			name: "chelsea_bun",
-			recipe_name: "chelsea buns",
-			singular: "chelsea bun",
-			plural: "chelsea buns",
+			recipe_name: "Chelsea buns",
+			singular: "Chelsea bun",
+			plural: "Chelsea buns",
 			plant_cost: 200,
 			difficulty: 2,
 			handheld: "buns|0|chelsea",
@@ -1051,6 +1056,7 @@ function initPlants() {
 			season: [],
 			ingredients: [],
 			icon: "bacon.png",
+			shop: ["supermarket"],
 		},
 
 		mince_pie: {
@@ -1087,6 +1093,8 @@ function initPlants() {
 			season: [],
 			ingredients: [],
 			icon: "sugar.png",
+			shop: ["supermarket"],
+			boughtInBulk: 25,
 		},
 
 		sausage_roll: {
@@ -1124,6 +1132,7 @@ function initPlants() {
 			season: [],
 			ingredients: [],
 			icon: "sausage.png",
+			shop: ["supermarket"],
 		},
 
 		potato_pancake: {
@@ -1224,7 +1233,7 @@ function initPlants() {
 			name: "chicken",
 			singular: "serving of chicken",
 			plural: "servings of chicken",
-			plant_cost: 100,
+			plant_cost: 300,
 			difficulty: 1,
 			handheld: "meat|0|chicken",
 			bed: "kitchen",
@@ -1235,6 +1244,7 @@ function initPlants() {
 			season: [],
 			ingredients: [],
 			icon: "chicken.png",
+			shop: ["supermarket"],
 		},
 
 		pepper: {
@@ -1289,6 +1299,7 @@ function initPlants() {
 			season: ["spring", "summer", "autumn"],
 			ingredients: [],
 			icon: "rice.png",
+			shop: ["supermarket"],
 		},
 
 		haddock: {
@@ -1296,7 +1307,7 @@ function initPlants() {
 			name: "haddock",
 			singular: "haddock",
 			plural: "haddock",
-			plant_cost: 1200,
+			plant_cost: 600,
 			difficulty: 2,
 			handheld: "fish|0|haddock",
 			bed: "sea",
@@ -1394,7 +1405,7 @@ function initPlants() {
 			bed: "kitchen",
 			type: "food",
 			days: 15,
-			multiplier: 1,
+			multiplier: 2,
 			special: [],
 			season: [],
 			ingredients: ["beef", "bread", "onion", "tomato", "cheese"],
@@ -1442,7 +1453,7 @@ function initPlants() {
 			name: "salmon",
 			singular: "salmon",
 			plural: "salmon",
-			plant_cost: 1400,
+			plant_cost: 600,
 			difficulty: 2,
 			handheld: "fish|0|salmon",
 			bed: "river",
@@ -1453,6 +1464,7 @@ function initPlants() {
 			season: ["spring", "summer", "autumn"],
 			ingredients: [],
 			icon: "salmon.png",
+			shop: ["supermarket"],
 		},
 
 		trout: {
@@ -1471,6 +1483,7 @@ function initPlants() {
 			season: ["autumn", "winter"],
 			ingredients: [],
 			icon: "trout.png",
+			shop: ["supermarket"],
 		},
 
 		spaghetti_bolognese: {
@@ -1618,7 +1631,7 @@ function initPlants() {
 			multiplier: 5,
 			special: ["vegetarian", "sweet"],
 			season: [],
-			ingredients: ["butter", "flour", "sugar", "chicken_egg", "jam"],
+			ingredients: ["butter", "flour", "sugar", "jam"],
 			icon: "melting_moment.png",
 		},
 
@@ -1658,6 +1671,8 @@ function initPlants() {
 			season: [],
 			ingredients: [],
 			icon: "cocoa_powder.png",
+			shop: ["supermarket"],
+			boughtInBulk: 5,
 		},
 
 		chocolate: {
@@ -1750,7 +1765,7 @@ function initPlants() {
 			multiplier: 1,
 			special: ["vegetarian", "sweet"],
 			season: [],
-			ingredients: ["chicken_egg", "bird_egg", "cream", "sugar", "butter", "flour", "lemon"],
+			ingredients: ["chicken_egg", "cream", "sugar", "butter", "flour", "lemon"],
 			icon: "soufflé.png",
 		},
 
@@ -1813,9 +1828,9 @@ function initPlants() {
 		swiss_roll: {
 			index: 99,
 			name: "swiss_roll",
-			recipe_name: "swiss rolls",
-			singular: "swiss roll",
-			plural: "swiss rolls",
+			recipe_name: "Swiss rolls",
+			singular: "Swiss roll",
+			plural: "Swiss rolls",
 			plant_cost: 1500,
 			difficulty: 3,
 			handheld: "swiss roll",
@@ -1920,6 +1935,7 @@ function initPlants() {
 			season: ["spring", "summer", "autumn", "winter"],
 			ingredients: [],
 			icon: "date.png",
+			shop: ["supermarket"],
 		},
 
 		sticky_toffee_pudding: {
@@ -1994,14 +2010,15 @@ function initPlants() {
 			season: ["spring", "autumn", "winter"],
 			ingredients: [],
 			icon: "cherry.png",
+			shop: ["supermarket"],
 		},
 
 		belgian_bun: {
 			index: 109,
 			name: "belgian_bun",
-			recipe_name: "belgian buns",
-			singular: "belgian bun",
-			plural: "belgian buns",
+			recipe_name: "Belgian buns",
+			singular: "Belgian bun",
+			plural: "Belgian buns",
 			plant_cost: 1000,
 			difficulty: 2,
 			handheld: "buns|0|belgian",
@@ -2031,6 +2048,7 @@ function initPlants() {
 			season: ["spring", "summer", "autumn", "winter"],
 			ingredients: [],
 			icon: "lime.png",
+			shop: ["supermarket"],
 		},
 
 		linguine: {
@@ -2072,7 +2090,7 @@ function initPlants() {
 		full_english_breakfast: {
 			index: 113,
 			name: "full_english_breakfast",
-			recipe_name: "full English breakfast",
+			recipe_name: "a full English breakfast",
 			singular: "full English breakfast",
 			plural: "full English breakfasts",
 			plant_cost: 900,
@@ -2130,7 +2148,7 @@ function initPlants() {
 			name: "cod",
 			singular: "cod",
 			plural: "cod",
-			plant_cost: 800,
+			plant_cost: 600,
 			difficulty: 1,
 			handheld: "fish|0|cod",
 			bed: "sea",
@@ -2141,6 +2159,7 @@ function initPlants() {
 			season: ["winter"],
 			ingredients: [],
 			icon: "cod.png",
+			shop: ["supermarket"],
 		},
 
 		fish_and_chips: {
@@ -2177,6 +2196,7 @@ function initPlants() {
 			season: ["spring", "autumn", "winter"],
 			ingredients: [],
 			icon: "clam.png",
+			shop: ["supermarket"],
 		},
 
 		clam_chowder: {
@@ -2272,6 +2292,7 @@ function initPlants() {
 		roast_dinner: {
 			index: 124,
 			name: "roast_dinner",
+			recipe_name: "a roast dinner",
 			singular: "serving of roast dinner",
 			plural: "servings of roast dinner",
 			plant_cost: 2400,
@@ -2326,7 +2347,7 @@ function initPlants() {
 			plural: "glasses of orange juice",
 			plant_cost: 55,
 			difficulty: 1,
-			handheld: "juice",
+			handheld: "juice|tangerine",
 			bed: "kitchen",
 			type: "food",
 			days: 5,
@@ -2389,6 +2410,7 @@ function initPlants() {
 			season: [],
 			ingredients: [],
 			icon: "red_wine.png",
+			shop: ["supermarket"],
 		},
 
 		white_wine: {
@@ -2407,6 +2429,7 @@ function initPlants() {
 			season: [],
 			ingredients: [],
 			icon: "white_wine.png",
+			shop: ["supermarket"],
 		},
 
 		poached_pear: {
@@ -2561,7 +2584,7 @@ function initPlants() {
 			name: "beef",
 			singular: "serving of beef",
 			plural: "servings of beef",
-			plant_cost: 300,
+			plant_cost: 1000,
 			difficulty: 1,
 			handheld: "meat|0|beef",
 			bed: "kitchen",
@@ -2572,6 +2595,7 @@ function initPlants() {
 			season: [],
 			ingredients: [],
 			icon: "beef.png",
+			shop: ["supermarket"],
 		},
 
 		pork: {
@@ -2579,7 +2603,7 @@ function initPlants() {
 			name: "pork",
 			singular: "serving of pork",
 			plural: "servings of pork",
-			plant_cost: 200,
+			plant_cost: 700,
 			difficulty: 1,
 			handheld: "meat|0|pork",
 			bed: "kitchen",
@@ -2590,6 +2614,7 @@ function initPlants() {
 			season: [],
 			ingredients: [],
 			icon: "pork.png",
+			shop: ["supermarket"],
 		},
 
 		cauliflower: {
@@ -2626,6 +2651,8 @@ function initPlants() {
 			season: [],
 			ingredients: [],
 			icon: "oats.png",
+			shop: ["supermarket"],
+			boughtInBulk: 5,
 		},
 
 		prawn: {
@@ -2644,6 +2671,7 @@ function initPlants() {
 			season: ["summer", "autumn", "winter"],
 			ingredients: [],
 			icon: "prawn.png",
+			shop: ["supermarket"],
 		},
 
 		omelette: {
@@ -2699,7 +2727,8 @@ function initPlants() {
 			season: [],
 			ingredients: ["turnip", "potato", "onion", "vegetable_oil", "salt"],
 			icon: "turnip_soup.png"
-			},
+		},
+
 		green_manure: {
 			index: 147,
 			name: "green_manure",
@@ -2712,9 +2741,189 @@ function initPlants() {
 			days: 7,
 			multiplier: 4,
 			special: [],
-			season: ["spring","summer","autumn","winter"],
+			season: ["spring", "summer", "autumn", "winter"],
 			ingredients: [],
 			icon: "green_manure.png"
+		},
+
+		ghost_orchid: {
+			index: 148,
+			name: "ghost_orchid",
+			singular: "ghost orchid (epipogium aphyllum)",
+			plural: "ghost orchids (epipogium aphyllum)",
+			plant_cost: 5000000,
+			difficulty: 1,
+			handheld: "ghost orchid|0",
+			bed: "earth",
+			type: "flower",
+			days: 7,
+			multiplier: 1,
+			special: [],
+			season: [],
+			ingredients: [],
+			icon: "ghost_orchid.png"
+		},
+
+		hen_of_the_woods: {
+			index: 149,
+			name: "hen_of_the_woods",
+			singular: "hen of the woods",
+			plural: "hen of the woods",
+			plant_cost: 12500,
+			difficulty: 1,
+			handheld: "hen of the woods|0",
+			bed: "earth",
+			type: "shroom",
+			days: 7,
+			multiplier: 1,
+			special: [],
+			season: [],
+			ingredients: [],
+			icon: "hen_of_the_woods.png"
+		},
+
+		red_helleborine: {
+			index: 150,
+			name: "red_helleborine",
+			singular: "red helleborine (Cephalanthera rubra)",
+			plural: "red helleborines (Cephalanthera rubra)",
+			plant_cost: 300000,
+			difficulty: 1,
+			handheld: "red helleborine|0",
+			bed: "earth",
+			type: "flower",
+			days: 7,
+			multiplier: 1,
+			special: [],
+			season: [],
+			ingredients: [],
+			icon: "red_helleborine.png"
+		},
+
+		lady_orchid: {
+			index: 151,
+			name: "lady_orchid",
+			singular: "lady orchid",
+			plural: "lady orchids",
+			plant_cost: 150000,
+			difficulty: 1,
+			handheld: "lady orchid|0",
+			bed: "earth",
+			type: "flower",
+			days: 7,
+			multiplier: 1,
+			special: [],
+			season: [],
+			ingredients: [],
+			icon: "lady_orchid.png"
+		},
+
+		fly_agaric: {
+			index: 152,
+			name: "fly_agaric",
+			singular: "fly agaric",
+			plural: "fly agarics",
+			plant_cost: 20000,
+			difficulty: 1,
+			handheld: "fly agaric|0",
+			bed: "earth",
+			type: "shroom",
+			days: 7,
+			multiplier: 1,
+			special: [],
+			season: [],
+			ingredients: [],
+			icon: "fly_agaric.png"
+		},
+
+		spiked_rampion: {
+			index: 153,
+			name: "spiked_rampion",
+			singular: "spiked rampion",
+			plural: "spiked rampions",
+			plant_cost: 150000,
+			difficulty: 1,
+			handheld: "spiked rampion|0",
+			bed: "earth",
+			type: "flower",
+			days: 7,
+			multiplier: 1,
+			special: [],
+			season: [],
+			ingredients: [],
+			icon: "spiked_rampion.png"
+		},
+
+		cloudberry: {
+			index: 154,
+			name: "cloudberry",
+			singular: "cloudberry",
+			plural: "cloudberries",
+			plant_cost: 2000,
+			difficulty: 1,
+			handheld: "cloudberry|0",
+			bed: "earth",
+			type: "fruit",
+			days: 7,
+			multiplier: 1,
+			special: ["small"],
+			season: [],
+			ingredients: [],
+			icon: "cloudberry.png"
+		},
+
+		scottish_bog_myrtle: {
+			index: 155,
+			name: "scottish_bog_myrtle",
+			singular: "scottish bog myrtle",
+			plural: "scottish bog myrtles",
+			plant_cost: 10000,
+			difficulty: 1,
+			handheld: "scottish bog myrtle|0",
+			bed: "earth",
+			type: "shroom",
+			days: 7,
+			multiplier: 1,
+			special: [],
+			season: [],
+			ingredients: [],
+			icon: "scottish_bog_myrtle.png"
+		},
+
+		bog_orchid: {
+			index: 156,
+			name: "bog_orchid",
+			singular: "bog orchid (hammarbya paludosa)",
+			plural: "bog orchids (hammarbya paludosa)",
+			plant_cost: 120000,
+			difficulty: 1,
+			handheld: "bog orchid|0",
+			bed: "earth",
+			type: "flower",
+			days: 7,
+			multiplier: 1,
+			special: [],
+			season: [],
+			ingredients: [],
+			icon: "bog_orchid.png"
+		},
+
+		marsh_saxifrage: {
+			index: 157,
+			name: "marsh_saxifrage",
+			singular: "marsh saxifrage",
+			plural: "marsh saxifrages",
+			plant_cost: 250000,
+			difficulty: 1,
+			handheld: "marsh saxifrage|0",
+			bed: "earth",
+			type: "flower",
+			days: 7,
+			multiplier: 1,
+			special: [],
+			season: [],
+			ingredients: [],
+			icon: "marsh_saxifrage.png"
 		}
 	};
 

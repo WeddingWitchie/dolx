@@ -189,19 +189,19 @@
 
 <<widget "startOptions">>
 	<div class="containerStart">
-		<div id="startSelectionDefault">
+		<div id="startSelectionDefault" class="buttonSettings">
 			<<startOptionsComplexityButton "Basic" "default">>
 		</div>
 
-		<div id="startSelectionAdjusted">
+		<div id="startSelectionAdjusted" class="buttonSettings">
 			<<startOptionsComplexityButton "Moderate" "adjusted">>
 		</div>
 
-		<div id="startSelectionCustom">
+		<div id="startSelectionCustom" class="buttonSettings">
 			<<startOptionsComplexityButton "Advanced" "custom">>
 		</div>
 
-		<div id="startSelectionRandom">
+		<div id="startSelectionRandom" class="buttonSettings">
 			<<startOptionsComplexityButton "Random" "random">>
 		</div>
 	</div>
@@ -728,7 +728,7 @@
 	<<unset $importString>>
 
 	/* Updates the penis max size for females so its never below 1 */
-	<<if $player.gender is "f" && $penissizemax < 0>>
+	<<if $player.sex is "f" && $penissizemax < 0>>
 		<<set $penissizemax to 0>>
 	<</if>>
 <</widget>>
@@ -941,13 +941,19 @@
 		</div>
 
 		<div class="settingsToggleItem">
-			<div class="playergender">
-				<span class="gold">Gender:</span><br>
-				<label>Male <<radiobutton "$player.gender" "m" autocheck>></label> |
-				<label>Female <<radiobutton "$player.gender" "f" autocheck>></label> /*|*/
-				/* <label>Hermaphrodite <<radiobutton "$player.gender" "h" autocheck>></label> */
-				<mouse class="tooltip linkBlue">(?)<span>Your starting gender and sex.<br>Note: Hermaphrodite is currently disabled as a choice, as it is unsupported by the mod</span></mouse>
-			</div>
+			<span class="gold">Genitals:</span><br>
+			<label>Penis <<radiobutton "$player.sex" "m" autocheck>></label> |
+			<label>Vagina <<radiobutton "$player.sex" "f" autocheck>></label> 
+			/* <label>Hermaphrodite <<radiobutton "$player.sex" "h" autocheck>></label> */
+		</div>
+
+		<div class="settingsToggleItem">
+			<span class="gold">Gender:</span><br>
+			<label class="blue">Male <<radiobutton "$player.gender" "m" autocheck>></label> |
+			<label class="pink">Female <<radiobutton "$player.gender" "f" autocheck>></label> |
+			<label class="purple">Neither <<radiobutton "$player.gender" "n" autocheck>></label>
+			<br>
+			<span class="small-description">How you see yourself. Does not affect how other people perceive you. You may change this later in the mirror menu.</span>
 		</div>
 
 		<div class="settingsToggleItem">
@@ -960,33 +966,14 @@
 		</div>
 
 		<div class="settingsToggleItem">
-			<span class="gold">Gender appearance:</span><br>
-			<label class="blue">Masculine <<radiobutton "$player.gender_body" "m" autocheck>></label> |
-			<label class="pink">Feminine <<radiobutton "$player.gender_body" "f" autocheck>></label> |
-			<mouse class="tooltip purple">Androgynous<span>Has no effect on gender appearance.</span></mouse> <<radiobutton "$player.gender_body" "a" autocheck>>
-			<br>
-			<span class="small-description">Influences how others perceive you. Has no visual effect.
-			Clothing and other factors will also affect your perceived gender.</span>
-		</div>
-
-		<div class="settingsToggleItem">
 			<span class="gold">Body shape:</span><br>
 			<label>Classic <<radiobutton "$player.bodyshape" "classic" autocheck>></label> |
 			<label>Slender <<radiobutton "$player.bodyshape" "slender" autocheck>></label> |
 			<label>Curvy <<radiobutton "$player.bodyshape" "curvy" autocheck>></label> |
 			<label>Soft <<radiobutton "$player.bodyshape" "soft" autocheck>></label>
 			<br>
-			<span class="small-description">Purely cosmetic. Does not influence your perceived gender.
-			You may change this later in the mirror menu.</span> 
+			<span class="small-description">Purely cosmetic. You may change this later in the mirror menu.</span>
 		</div>
-
-		<<if $debug is 1>>
-			<div class="settingsToggleItem">
-				<span class="gold">Sex:</span><br>
-				<label>Penis <<radiobutton "$player.sex" "m" autocheck>></label> |
-				<label>Vagina <<radiobutton "$player.sex" "f" autocheck>></label>
-			</div>
-		<</if>>
 
 		<div class="settingsToggleItem">
 			<span class="gold">Breast size:</span><br>
@@ -1019,7 +1006,7 @@
 		</div>
 
 		<div class="settingsToggleItem">
-			<span data-target="player.gender" data-disabledif="V.player.gender==='f'">
+			<span data-target="player.sex" data-disabledif="V.player.sex==='f'">
 			<span class="gold">Penis size - if applicable:</span><br>
 			<label>Micro <<radiobutton "$player.penissize" -2 autocheck>></label> |
 			<label>Mini <<radiobutton "$player.penissize" -1 autocheck>></label> |
@@ -1032,8 +1019,8 @@
 		</div>
 
 		<div class="settingsToggleItem">
-			<span data-target="player.gender" data-disabledif="V.player.gender!=='h'">
-			<span class="gold">Testes - applicable only if hermaphrodite:</span><br>
+			<span data-target="player.sex" data-disabledif="V.player.sex!=='h'">
+			<span class="gold">Hermaphrodite testes - if applicable</span><br>
 			<label>Yes <<radiobutton "$player.ballsExist" true autocheck>></label> |
 			<label>No <<radiobutton "$player.ballsExist" false autocheck>></label>
 			</span>
@@ -1046,9 +1033,9 @@
 		<div class="settingsHeader">
 			Head
 		</div>
-		<div id="settingsFaceStyle" class="settingsToggleItem">
-			<span class="gold">Face style:</span><br>
-			<<if setup.faceStyleOptions.length gt 1>>
+		<<if setup.faceStyleOptions.length gt 1>>
+			<div id="settingsFaceStyle" class="settingsToggleItem">
+				<span class="gold">Face style:</span><br>
 				<<for _styleName, _styleValue range setup.faceStyleOptions>>
 				<<capture _styleName, _styleValue>>
 					<span @id="'link-'+_styleValue.replace(/ /g,'-')" @class="(_styleValue is $facestyle ? 'selected' : '')">
@@ -1064,14 +1051,12 @@
 					</span>
 				<</capture>>
 				<</for>>
-			<<else>>
-				There are no additional face styles on this version.
-			<</if>>
-		</div>
-		<div id="settingsFaceVariants" class="settingsToggleItem">
+			</div>
+		<</if>>
+		<div id="settingsFaceVariants" @class="setup.faceStyleOptions.length gt 1 ? 'settingsToggleItem' : 'settingsToggleItemWide'">
 			<span class="gold">Demeanour:</span>
 			<mouse class = "tooltip-small linkBlue">
-				(?)<span>You may change this setting later on from the Visual Settings menu.</span>
+				(?)<span>You may change this setting later in the mirror.</span>
 			</mouse>
 			<br>
 			<div id="settingsFaceVariantRadios">
@@ -1103,6 +1088,8 @@
 			<label><span class="softbrown">Soft Brown</span> <<radiobutton "$hairselect" "softbrown" autocheck>></label> |
 			<label><span class="lightbrown">Light Brown</span> <<radiobutton "$hairselect" "lightbrown" autocheck>></label> |
 			<label><span class="burntorange">Burnt Orange</span> <<radiobutton "$hairselect" "burntorange" autocheck>></label> |
+			<label><span class="strawberry">Strawberry blond</span> <<radiobutton "$hairselect" "strawberryblond" autocheck>></label> |
+			<label><span class="tangerine">Ginger</span> <<radiobutton "$hairselect" "ginger" autocheck>></label> |
 			<label><span class="gold">Blond</span> <<radiobutton "$hairselect" "blond" autocheck>></label> |
 			<label><span class="softblond">Soft Blond</span> <<radiobutton "$hairselect" "softblond" autocheck>></label> |
 			<label><span class="platinum">Platinum Blond</span> <<radiobutton "$hairselect" "platinumblond" autocheck>></label> |
@@ -1257,7 +1244,7 @@
 			<br>
 			<label><span class="lewd">Beautiful</span> <<checkbox "$background.beautiful" false true autocheck>> - You turn heads. <i>Not recommended for beginners.</i></label>
 			<br>
-			<label data-target="player.gender" data-disabledif="V.player.gender==='h'"><span class="lewd">Crossdresser</span> <<checkbox "$background.crossdresser" false true autocheck>> - You've taken a liking to the clothing of the opposite sex. Does nothing for hermaphrodites.</label>
+			<label data-target="player.sex" data-disabledif="V.player.sex==='h'"><span class="lewd">Crossdresser</span> <<checkbox "$background.crossdresser" false true autocheck>> - You've taken a liking to the clothing of the opposite sex. Does nothing for hermaphrodites.</label>
 			<br>
 			<label><span class="lewd">Lustful</span> <<checkbox "$background.lustful" false true autocheck>> - Arousal increases over time, and needs to be managed.</label>
 			/*<br>
@@ -1900,10 +1887,6 @@
 			<mouse class="tooltip linkBlue">(?)<span>You may have both one divine and one animal transformation at the same time.</span></mouse>
 		</div>
 
-		/*<label><div class="settingsToggleItem">
-		<<checkbox "$" "t" "f" autocheck>> Extra hirsute/hairy wolf transformation
-		</div></label>*/
-
 		<div class="settingsToggleItem">
 			<label>
 				<<checkbox "$breastfeedingdisable" "t" "f" autocheck>> Enable lactation
@@ -1981,8 +1964,9 @@
 		</div>
 
 		<div class="settingsToggleItem">
+			<<if !$femininityModifier>><<set $femininityModifier to {}>><</if>>
 			Nude Gender Appearance:
-			<<numberslider "$NudeGenderDC" $NudeGenderDC -1 2 1>>
+			<<numberslider "$NudeGenderDC" $NudeGenderDC 0 2 1>>
 			<<run settingsNudeGenderAppearance()>>
 		</div>
 		</div>
@@ -2265,140 +2249,67 @@
 <<widget "sizeLimitsSettings">>
 	<div class="settingsGrid">
 		<div class="settingsHeader">
-			Body Part Size Limits <mouse class="tooltip linkBlue">(?)<span style="font-size:16px;">As you partake in lewd acts and experiences, your body parts may grow or shrink. Surgery, pills, and parasites can influence growth, among other conditions.</span></mouse>
+			Body Part Size Limits <span class="tooltip-anchor linkBlue" tooltip="As you partake in lewd acts and experiences, your body parts may grow or shrink. Surgery, pills, and parasites can influence growth, among other conditions.">(?)</span>
 		</div>
 
-		<div class="settingsToggleItem">
-			<span class="gold">Minimum breast size:</span> <mouse class="tooltip linkBlue">(?)<span>Breasts already below this size won't automatically grow.</span></mouse>
+		<div class="settingsToggleItemWide">
+			<span class="gold">Breast size limits:</span> <span class="tooltip-anchor linkBlue" tooltip="Breasts already below the minimum size won't automatically grow.">(?)</span>
 			<br>
-			<<set _name to ["Flat", "Budding", "Tiny", "Small", "Pert"]>>
-			<<for _i to 0; _i lt _name.length; _i++>>
-				<span data-target="breastsizemax" @data-disabledif="_i + ' > V.breastsizemax'">
-					<label><<print _name[_i]>> <<radiobutton "$breastsizemin" _i autocheck>></label>
-					<<if _i lt _name.length - 1>>|<</if>>
-				</span>
-			<</for>>
+			<<rangeslider "$breastsizemin" "$breastsizemax" $breastsizemin $breastsizemax 0 12 1
+				{
+					minClamp: 5,
+					minClampMessage: `<span class="red">Cannot increase minimum size further.</span>`
+				}
+				{
+					value: (v1, v2) => {
+						const color1 = ColourUtils.interpolateMultiple(["--teal", "--pink"], normalise(v1, 12, 0));
+						const color2 = ColourUtils.interpolateMultiple(["--teal", "--pink"], normalise(v2, 12, 0));
+						var name = ["Flat", "Budding", "Tiny", "Small", "Pert", "Modest", "Full", "Large", "Ample", "Massive", "Huge", "Gigantic", "Enormous"];
+						return `<span style="color: ${color1}">${name[v1]}</span> - <span style="color: ${color2}">${name[v2]}</span>`;
+					},
+				}
+			}>>
 		</div>
 
-		<div class="settingsToggleItem">
-			<span class="gold">Maximum breast size:</span> <mouse class="tooltip linkBlue">(?)<span>Breasts already above this size won't automatically shrink.</span></mouse>
+		<div class="settingsToggleItemWide">
+			<span class="gold">Ass size limits:</span> <span class="tooltip-anchor linkBlue" tooltip="Bottoms already below the minimum size won't automatically grow.">(?)</span>
 			<br>
-			<<set _name to ["Flat", "Budding", "Tiny", "Small", "Pert", "Modest", "Full", "Large", "Ample", "Massive", "Huge", "Gigantic", "Enormous"]>>
-			<<for _i to 0; _i lt _name.length; _i++>>
-				<span data-target="breastsizemin" @data-disabledif="'V.breastsizemin > ' + _i">
-					<label><<print _name[_i]>> <<radiobutton "$breastsizemax" `_i` autocheck>></label>
-					<<if _i lt _name.length - 1>>|<</if>>
-				</span>
-			<</for>>
+			<<rangeslider "$bottomsizemin" "$bottomsizemax" $bottomsizemin $bottomsizemax 0 8 1
+				{
+					minClamp: 3,
+					minClampMessage: `<span class="red">Cannot increase minimum size further.</span>`
+				}
+				{
+					value: (v1, v2) => {
+						const color1 = ColourUtils.interpolateMultiple(["--teal", "--pink"], normalise(v1, 8, 0));
+						const color2 = ColourUtils.interpolateMultiple(["--teal", "--pink"], normalise(v2, 8, 0));
+						var name = ["Slender", "Slim", "Modest", "Cushioned", "Soft", "Round", "Plump", "Large", "Huge"];
+						return `<span style="color: ${color1}">${name[v1]}</span> - <span style="color: ${color2}">${name[v2]}</span>`;
+					},
+				}
+			}>>
 		</div>
 
-		<div class="settingsToggleItem">
-			<span class="gold">Minimum ass size:</span> <mouse class="tooltip linkBlue">(?)<span>Bottoms already below this size won't automatically grow.</span></mouse>
-			<br>
-			<<set _name to ["Slender", "Slim", "Modest", "Cushioned"]>>
-			<<for _i to 0; _i lt _name.length; _i++>>
-				<span data-target="bottomsizemax" @data-disabledif="_i + ' > V.bottomsizemax'">
-					<label><<print _name[_i]>> <<radiobutton "$bottomsizemin" _i autocheck>></label>
-					<<if _i lt _name.length - 1>>|<</if>>
-				</span>
-			<</for>>
-		</div>
-
-		<div class="settingsToggleItem">
-			<span class="gold">Maximum ass size:</span> <mouse class="tooltip linkBlue">(?)<span>Bottoms already above this size won't automatically shrink.</span></mouse>
-			<br>
-			<<set _name to ["Slender", "Slim", "Modest", "Cushioned", "Soft", "Round", "Plump", "Large", "Huge"]>>
-			<<for _i to 0; _i lt _name.length; _i++>>
-				<span data-target="bottomsizemin" @data-disabledif="'V.bottomsizemin > ' + _i">
-					<label><<print _name[_i]>> <<radiobutton "$bottomsizemax" _i autocheck>></label>
-					<<if _i lt _name.length - 1>>|<</if>>
-				</span>
-			<</for>>
-		</div>
 		<<if $passage is "Start" or $player.penisExist>>
-			<div class="settingsToggleItem">
-				<!-- Not applicable to the parasite penis -->
-				<span class="gold" data-target="player.gender" data-disabledif="V.player.gender==='f'">Minimum penis size - if applicable:</span> <mouse class="tooltip linkBlue">(?)<span>Penises already below this size won't automatically grow.</span></mouse>
-				<br>
-				<<set _name to ["Micro","Mini", "Tiny"]>>
-				<<for _i to 0; _i lt _name.length; _i++>>
-					<span data-target="penissizemax" @data-disabledif="_i - 2 + ` > V.penissizemax||V.player.gender==='f'`">
-						<label data-target="player.gender" data-disabledif="V.player.gender==='f'"><<print _name[_i]>> <<radiobutton "$penissizemin" `(_i - 2)` autocheck>></label>
-						<<if _i lt _name.length - 1>>|<</if>>
-					</span>
-				<</for>>
+			<div class="settingsToggleItemWide">
+			<span class="gold">Penis size limits:</span> <span class="tooltip-anchor linkBlue" tooltip="Penises already below the minimum size won't automatically grow.">(?)</span>
+			<<rangeslider "$penissizemin" "$penissizemax" $penissizemin $penissizemax -2 4 1
+				{
+					minClamp: 0,
+					minClampMessage: `<span class="red">Cannot increase minimum size further.</span>`
+				}
+				{
+					value: (v1, v2) => {
+						const color1 = ColourUtils.interpolateMultiple(["--teal", "--pink"], normalise(v1, 4, -2));
+						const color2 = ColourUtils.interpolateMultiple(["--teal", "--pink"], normalise(v2, 4, -2));
+						var name = ["Micro","Mini", "Tiny", "Small", "Normal", "Large", "Enormous"];
+						return `<span style="color: ${color1}">${name[v1+2]}</span> - <span style="color: ${color2}">${name[v2+2]}</span>`;
+					},
+				}
+
+			}>>
 			</div>
 		<</if>>
-
-		<div class="settingsToggleItem">
-			<!-- Not applicable to females without a parasite penis -->
-			<span class="gold" data-target="player.gender">Maximum penis size - if applicable:</span> <mouse class="tooltip linkBlue">(?)<span>Penises already above this size won't automatically shrink.</span></mouse>
-			<br>
-			<<set _name to ["Micro","Mini", "Tiny", "Small", "Normal", "Large", "Enormous"]>>
-			<<for _i to 0; _i lt _name.length; _i++>>
-				<span data-target='["penissizemin", "player.gender"]' @data-disabledif="_i - 2 + ` < V.penissizemin||(` + _i + `<2&&V.player.gender==='f')`">
-					<label data-target="player.gender" @data-disabledif="`(` + _i + `<2&&V.player.gender==='f')`"><<print _name[_i]>> <<radiobutton "$penissizemax" `(_i - 2)` autocheck>></label>
-					<<if _i lt _name.length - 1>>|<</if>>
-				</span>
-			<</for>>
-		</div>
-	</div>
-<</widget>>
-
-<<widget "sizeLimitsSettingsOld">>
-	<div class="solidBorderContainer settings-container">
-		<div class="settingsToggleWide">
-			<span class="gold">Maximum player character breast size</span> <mouse class="tooltip linkBlue">(?)<span>Breasts already above this size won't automatically shrink. Your breasts will grow regardless of gender. Males and those with high purity experience slower growth. Surgery, pills and parasites can influence growth in both directions. Having breasts played with and hosting internal parasites both increase growth.</span></mouse>
-			<br>
-			<<set _name to ["Flat", "Budding", "Tiny", "Small", "Pert", "Modest", "Full", "Large", "Ample", "Massive", "Huge", "Gigantic", "Enormous"]>>
-			<<for _i to 0; _i lt _name.length; _i++>>
-				<span data-target="breastsizemin" @data-disabledif="'V.breastsizemin > ' + _i">
-					<label><<print _name[_i]>> <<radiobutton "$breastsizemax" `_i` autocheck>></label>
-				</span> |
-			<</for>>
-		</div>
-
-		<div class="settingsToggleWide">
-			<span class="gold">Minimum player character breast size</span> <mouse class="tooltip linkBlue">(?)<span>Breasts already below this size won't automatically grow.</span></mouse>
-			<br>
-			<<for _i to 0; _i lt 5; _i++>>
-				<span data-target="breastsizemax" @data-disabledif="_i + ' > V.breastsizemax'">
-					<label><<print _name[_i]>> <<radiobutton "$breastsizemin" _i autocheck>></label> |
-				</span>
-			<</for>>
-		</div>
-
-		<div class="settingsToggleWide">
-			<span class="gold">Maximum player character ass size</span> <mouse class="tooltip linkBlue">(?)<span>Bottoms already above this size won't automatically shrink.</span></mouse>
-			<br>
-			<<set _name to ["Slender", "Slim", "Modest", "Cushioned", "Soft", "Round", "Plump", "Large", "Huge"]>>
-			<<for _i to 0; _i lt _name.length; _i++>>
-				<label><<print _name[_i]>> <<radiobutton "$bottomsizemax" _i autocheck>></label> |
-			<</for>>
-		</div>
-
-		<div class="settingsToggleWide">
-			<span class="gold">Maximum player character penis size</span> <mouse class="tooltip linkBlue">(?)<span>Penises already above this size won't automatically shrink. Surgery, pills and parasites can influence growth in both directions.</span></mouse>
-			<br>
-			<<set _name to ["Micro","Mini", "Tiny", "Small", "Normal", "Large", "Enormous"]>>
-			<<for _i to 0; _i lt _name.length; _i++>>
-				<span data-target="penissizemin" @data-disabledif="_i - 2 + ' < V.penissizemin'">
-					<label><<print _name[_i]>> <<radiobutton "$penissizemax" `(_i - 2)` autocheck>></label> |
-				</span>
-			<</for>>
-		</div>
-
-		<div class="settingsToggleWide">
-			<span class="gold">Minimum player character penis size</span> <mouse class="tooltip linkBlue">(?)<span>Penises already below this size won't automatically grow. The smaller sizes have additional requirements to shrink to/grow from.</span></mouse>
-			<br>
-			<<set _name to ["Micro","Mini", "Tiny"]>>
-			<<for _i to 0; _i lt _name.length; _i++>>
-				<span data-target="penissizemax" @data-disabledif="_i - 2 + ' > V.penissizemax'">
-					<label><<print _name[_i]>> <<radiobutton "$penissizemin" `(_i - 2)` autocheck>></label> |
-				</span>
-			<</for>>
-		</div>
-		<div style="clear:both;"></div>
 	</div>
 <</widget>>
 
@@ -2620,10 +2531,10 @@
 	<div class="solidBorderContainer settings-container">
 		<div class="settings-intro">
 			<<switch _args[0]>>
-				<<case "default">><span class="gold bold">Basic Start:</span> Fetish toggles and difficulty settings will be left at their <span class="teal">default</span> settings. NPCs will be <span class="teal">randomly</span> generated. <i class="teal">Recommended for beginners.</i>
-				<<case "adjusted">><span class="gold bold">Moderate Start:</span> You can make <span class="teal">broad changes</span> to difficulty settings, preset kinks, and NPC genders. NPCs will be <span class="teal">randomly</span> generated according to these settings.
+				<<case "default">><span class="gold bold">Basic Start:</span> Fetish toggles and difficulty settings will be left at their <span class="teal">default</span> settings. All NPCs will be <span class="teal">randomly</span> generated. <i class="teal">Recommended for beginners.</i>
+				<<case "adjusted">><span class="gold bold">Moderate Start:</span> You can make <span class="teal">broad changes</span> to difficulty settings, preset kinks, and NPC genders. All NPCs will be <span class="teal">randomly</span> generated according to these settings.
 				<<case "custom">><span class="gold bold">Advanced Start:</span> You can adjust <span class="teal">all settings</span>, including fetish toggles, difficulty settings, and NPC genders, to create a playthrough tailored to your desires.
-				<<case "random">><span class="gold bold">Randomised Start:</span> Starts the game with <span class="teal">all settings</span> randomised, including character appearance, character traits, and difficulty settings. Both your character and NPCs will be <span class="teal">randomly</span> generated for a completely blind playthrough. <i><span class="teal">To randomise specific settings prior to starting the game, select</span> <span class="gold">Advanced Start</span><span class="teal"> instead.</span></i>
+				<<case "random">><span class="gold bold">Randomised Start:</span> Starts the game with <span class="teal">all settings</span> randomised, including character appearance, character traits, and difficulty settings. Both your character and all NPCs will be <span class="teal">randomly</span> generated for a completely blind playthrough. <i><span class="teal">To randomise specific settings prior to starting the game, select</span> <span class="gold">Advanced Start</span><span class="teal"> instead.</span></i>
 			<</switch>>
 			<br>
 			<div class="small-description">Most settings can be changed later in your room. <span class="red">You will not be able to change your character's genitalia or feat boosts after starting the game.</span></div>
@@ -4034,6 +3945,10 @@
 				<label>
 					<<checkbox "$mathsTraitBuffs.market" 0 1 autocheck>> Enable Market Stall Price Buff  <mouse class = "tooltip linkBlue">(?)<span>Market stall prices will now be affected by the maths trait buff.</span></mouse>
 				</label>
+				<br>
+				<label>
+					<<checkbox "$mathsTraitBuffs.aphrodisiacPhials" 0 1 autocheck>> Enable Aphrodisiac Phial Price Buff  <mouse class = "tooltip linkBlue">(?)<span>Aphrodisiac Phial prices will now be affected by the maths trait buff.</span></mouse>
+				</label>
 			</div>
 
 			<div class="settingsToggleItem">
@@ -4049,6 +3964,9 @@
 				<br>
 				<label>
 					<<checkbox "$DoLPTFBuffs" 0 1 autocheck>> Enable Animal TF Buffs and Nerfs <mouse class = "tooltip linkBlue">(?)<span>Every animal TF will various buffs and nerfs to certain stats and skills. </span></mouse>
+				</label><br>
+				<label>
+					<<checkbox "$DoLPTFTempTolerance" 0 1 autocheck>> Enable Animal TF Temperature Tolerance <mouse class = "tooltip linkBlue">(?)<span>Every animal TF will have their own temperature tolerance. </span></mouse>
 				</label>
 			</div>
 
@@ -4098,7 +4016,7 @@
 			<div class="settingsToggleItem">
 				<span class="gold">Stat Gain Multiplier</span>
 				<br>
-				<div class="small-description">Stat gain multiplier. 100% means normal stat gains.
+				<div class="small-description"><mouse class="tooltip red">Stat gain<span>Leaving the settings with stat gain multiplier above 100 will prevent you from earning feats in a save.</span></mouse> multiplier. 100% means normal stat gains.
 					<<numberslider "$statGainMult" $statGainMult 10 1000 10>>
 				</div>
 			</div>

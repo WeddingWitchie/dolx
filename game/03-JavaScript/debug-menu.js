@@ -190,7 +190,7 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Wear swimsuit`, stayOnPassageFn],
-			widgets: [`<<underlowerwear 6>>`],
+			widgets: [`<<underupperwear 2>>`],
 		},
 		{
 			link: [`Testing Room`, `Testing Room`],
@@ -1714,7 +1714,7 @@ function researchEvents(defaultValue, event) {
 
 				if (haystack != null) {
 					haystack = haystack.toLowerCase();
-					if (haystack.contains(needle) === false) eventsList[i1][i2].style.display = "none";
+					if (!haystack.includes(needle)) eventsList[i1][i2].style.display = "none";
 					else eventsList[i1][i2].style.display = "";
 				}
 			}

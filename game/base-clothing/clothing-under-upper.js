@@ -19,6 +19,7 @@ function initUnderUpper() {
 	const clothing = [
 		{
 			index: 0,
+			slot: "under_upper",
 			name: "naked",
 			name_cap: "Naked",
 			variable: "naked",
@@ -61,6 +62,7 @@ function initUnderUpper() {
 
 		{
 			index: 1,
+			slot: "under_upper",
 			name: "bikini top",
 			name_cap: "Bikini top",
 			variable: "bikini",
@@ -108,6 +110,7 @@ function initUnderUpper() {
 		},
 		{
 			index: 2,
+			slot: "under_upper",
 			name: "school swimsuit",
 			name_cap: "School swimsuit",
 			variable: "schoolswimsuit",
@@ -157,6 +160,7 @@ function initUnderUpper() {
 
 		{
 			index: 3,
+			slot: "under_upper",
 			name: "leotard",
 			name_cap: "Leotard",
 			variable: "leotard",
@@ -202,6 +206,7 @@ function initUnderUpper() {
 
 		{
 			index: 4,
+			slot: "under_upper",
 			name: "unitard",
 			name_cap: "Unitard",
 			variable: "unitard",
@@ -253,6 +258,7 @@ function initUnderUpper() {
 
 		{
 			index: 5,
+			slot: "under_upper",
 			name: "skimpy leotard",
 			name_cap: "Skimpy leotard",
 			variable: "leotardskimpy",
@@ -301,6 +307,7 @@ function initUnderUpper() {
 
 		{
 			index: 6,
+			slot: "under_upper",
 			name: "foreign school swimsuit",
 			name_cap: "Foreign school swimsuit",
 			variable: "schoolswimsuitj",
@@ -351,6 +358,7 @@ function initUnderUpper() {
 
 		{
 			index: 7,
+			slot: "under_upper",
 			name: "swimsuit",
 			name_cap: "Swimsuit",
 			variable: "swimsuit",
@@ -396,6 +404,7 @@ function initUnderUpper() {
 
 		{
 			index: 8,
+			slot: "under_upper",
 			name: "bunny leotard",
 			name_cap: "Bunny leotard",
 			variable: "leotardbunny",
@@ -445,6 +454,7 @@ function initUnderUpper() {
 
 		{
 			index: 9,
+			slot: "under_upper",
 			name: "catgirl bra",
 			name_cap: "Catgirl bra",
 			variable: "catgirlbra",
@@ -492,6 +502,7 @@ function initUnderUpper() {
 
 		{
 			index: 10,
+			slot: "under_upper",
 			name: "lace bra",
 			name_cap: "Lace bra",
 			variable: "lacebra",
@@ -539,6 +550,7 @@ function initUnderUpper() {
 
 		{
 			index: 11,
+			slot: "under_upper",
 			name: "microkini top",
 			name_cap: "Microkini top",
 			variable: "microkini",
@@ -586,6 +598,7 @@ function initUnderUpper() {
 
 		{
 			index: 12,
+			slot: "under_upper",
 			name: "plain bra",
 			name_cap: "Plain bra",
 			variable: "plainbra",
@@ -633,6 +646,7 @@ function initUnderUpper() {
 
 		{
 			index: 13,
+			slot: "under_upper",
 			name: "sports bra",
 			name_cap: "Sports bra",
 			variable: "sportsbra",
@@ -681,6 +695,7 @@ function initUnderUpper() {
 
 		{
 			index: 14,
+			slot: "under_upper",
 			name: "mesh shirt",
 			name_cap: "Mesh shirt",
 			variable: "mesh",
@@ -725,6 +740,7 @@ function initUnderUpper() {
 
 		{
 			index: 15,
+			slot: "under_upper",
 			name: "corset",
 			name_cap: "Corset",
 			variable: "corset",
@@ -773,6 +789,7 @@ function initUnderUpper() {
 
 		{
 			index: 16,
+			slot: "under_upper",
 			name: "striped bra",
 			name_cap: "Striped bra",
 			variable: "stripedbra",
@@ -825,6 +842,7 @@ function initUnderUpper() {
 
 		{
 			index: 17,
+			slot: "under_upper",
 			name: "chest wrap",
 			name_cap: "Chest wrap",
 			variable: "chestwrap",
@@ -869,6 +887,7 @@ function initUnderUpper() {
 
 		{
 			index: 18,
+			slot: "under_upper",
 			name: "arm sleeves",
 			name_cap: "Arm sleeves",
 			variable: "armsleeves",
@@ -919,6 +938,7 @@ function initUnderUpper() {
 
 		{
 			index: 19,
+			slot: "under_upper",
 			name: "classic bikini top",
 			name_cap: "Classic bikini top",
 			variable: "classicbikini",
@@ -966,6 +986,7 @@ function initUnderUpper() {
 
 		{
 			index: 20,
+			slot: "under_upper",
 			name: "classic school swimsuit",
 			name_cap: "Classic school swimsuit",
 			variable: "classicschoolswimsuit",
@@ -1015,6 +1036,7 @@ function initUnderUpper() {
 
 		{
 			index: 21,
+			slot: "under_upper",
 			name: "swim shirt",
 			name_cap: "Swim shirt",
 			variable: "swimshirt",
@@ -1064,6 +1086,7 @@ function initUnderUpper() {
 
 		{
 			index: 22,
+			slot: "under_upper",
 			name: "vest",
 			name_cap: "Vest",
 			variable: "vest",
@@ -1112,6 +1135,7 @@ function initUnderUpper() {
 
 		{
 			index: 23,
+			slot: "under_upper",
 			name: "strapless bra",
 			name_cap: "Strapless bra",
 			variable: "straplessbra",
@@ -1159,6 +1183,7 @@ function initUnderUpper() {
 
 		{
 			index: 24,
+			slot: "under_upper",
 			name: "school swim top",
 			name_cap: "School swim top",
 			variable: "schoolswimtop",
@@ -1206,6 +1231,7 @@ function initUnderUpper() {
 
 		{
 			index: 25,
+			slot: "under_upper",
 			name: "tape",
 			name_cap: "Tape",
 			variable: "tape",
@@ -1255,6 +1281,7 @@ function initUnderUpper() {
 
 		{
 			index: 26,
+			slot: "under_upper",
 			name: "cow bra",
 			name_cap: "Cow bra",
 			variable: "cow",
@@ -1286,18 +1313,21 @@ function initUnderUpper() {
 			shop: ["forest"],
 			accessory: 0,
 			accessory_colour: 0,
-			accessory_colour_options: [],
+			accessory_colour_options: ["black", "brown", "light pink", "light blue", "light green", "custom"],
+			accessory_colour_sidebar: "secondary",
 			sleeve_img: 0,
 			breast_img: { 0: 1, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 5 },
+			breast_acc_img: 1,
 			mainImage: 0,
 			cursed: 0,
 			location: 0,
 			iconFile: "cow_bra.png",
-			accIcon: 0,
+			accIcon: "cow_bra_acc.png",
 		},
 
 		{
 			index: 27,
+			slot: "under_upper",
 			name: "chest binder",
 			name_cap: "Chest binder",
 			variable: "chestbinder",
@@ -1344,6 +1374,7 @@ function initUnderUpper() {
 
 		{
 			index: 28,
+			slot: "under_upper",
 			name: "undershirt",
 			name_cap: "Undershirt",
 			variable: "undershirt",
@@ -1397,6 +1428,7 @@ function initUnderUpper() {
 
 		{
 			index: 29,
+			slot: "under_upper",
 			name: "see-through swimsuit",
 			name_cap: "See-through swimsuit",
 			variable: "seethroughswimsuit",
@@ -1445,6 +1477,7 @@ function initUnderUpper() {
 
 		{
 			index: 30,
+			slot: "under_upper",
 			name: "push up bra",
 			name_cap: "Push up bra",
 			variable: "pushupbra",
@@ -1492,6 +1525,7 @@ function initUnderUpper() {
 
 		{
 			index: 31,
+			slot: "under_upper",
 			name: "shibari ropes",
 			name_cap: "Shibari ropes",
 			variable: "shibari",
@@ -1536,6 +1570,7 @@ function initUnderUpper() {
 
 		{
 			index: 32,
+			slot: "under_upper",
 			name: "turtleneck leotard",
 			name_cap: "Turtleneck leotard",
 			variable: "leotardturtleneck",
@@ -1583,6 +1618,7 @@ function initUnderUpper() {
 		},
 		{
 			index: 33,
+			slot: "under_upper",
 			name: "camisole",
 			name_cap: "Camisole",
 			variable: "camisole",
@@ -1645,6 +1681,7 @@ function initUnderUpper() {
 		},
 		{
 			index: 34,
+			slot: "under_upper",
 			name: "latex leotard",
 			name_cap: "Latex leotard",
 			variable: "latexleotard",
@@ -1692,6 +1729,7 @@ function initUnderUpper() {
 		},
 		{
 			index: 35,
+			slot: "under_upper",
 			name: "bunny-tie bikini top",
 			name_cap: "Bunny-tie bikini top",
 			variable: "buntiebikinitop",
@@ -1734,6 +1772,58 @@ function initUnderUpper() {
 			cursed: 0,
 			location: 0,
 			iconFile: "bunny_tie_bikini_top.png",
+			accIcon: 0,
+		},
+		{
+			index: 36,
+			slot: "under_upper",
+			name: "nipple pasties",
+			name_cap: "Nipple pasties",
+			variable: "pasties",
+			combat: {
+				reference: "tape",
+			},
+			integrity: 10,
+			integrity_max: 10,
+			fabric_strength: 30,
+			reveal: 990,
+			bustresize: 0,
+			word: "n",
+			one_piece: 0,
+			strap: 0,
+			open: 1,
+			state: "midriff",
+			state_base: "midriff",
+			state_top: "chest",
+			state_top_base: "chest",
+			plural: 1,
+			colour: 0,
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "yellow", "pale yellow", "pale white", "custom"],
+			colour_sidebar: 1,
+			exposed: 1,
+			exposed_base: 1,
+			type: ["costume", "sticky", "naked"],
+			set: "under_upper",
+			gender: "f",
+			femininity: 300,
+			warmth: 0,
+			cost: 2000,
+			description: "Barely there.",
+			shop: ["clothing", "adult"],
+			accessory: 0,
+			accessory_colour: 0,
+			accessory_colour_options: [],
+			pattern: 0,
+			pattern_options: ["heart", "star"],
+			pattern_layer: "primary",
+			pattern_caption: true,
+			sleeve_img: 0,
+			breast_img: { 0: 0, 1: 0, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6 },
+			breast_combat: 1,
+			mainImage: 0,
+			cursed: 0,
+			location: 0,
+			iconFile: "heart_pasties.png",
 			accIcon: 0,
 		},
 	];

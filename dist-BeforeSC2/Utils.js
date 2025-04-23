@@ -1,10 +1,11 @@
 import { isInteger, isString } from "lodash";
 import _ from "lodash";
-import { Twee2Passage } from "./ModZipReader";
+import { getModZipReaderStaticClassRef, Twee2Passage } from "./ModZipReader";
 import { SC2DataInfo } from "./SC2DataInfoCache";
 import { replaceMergeSC2DataInfoCache, replaceMergeSC2DataInfoCacheForce } from "./MergeSC2DataInfoCache";
 import JSZip from "jszip";
 import { SemVerToolsType } from "./SemVer/InfiniteSemVer";
+import { IdbKeyValRef, IdbRef } from "./IdbKeyValRef";
 // import {
 //     enumerable,
 //     sealed,
@@ -17,11 +18,12 @@ import { SemVerToolsType } from "./SemVer/InfiniteSemVer";
 // @ClassDecoratorUtil.finishClassDecorate({})
 export class ModUtils {
     get version() {
-        return '2.17.1';
+        return '2.28.1';
     }
     constructor(pSC2DataManager, thisWin) {
         this.pSC2DataManager = pSC2DataManager;
         this.thisWin = thisWin;
+        this.getModZipReaderStaticClassRef = getModZipReaderStaticClassRef;
     }
     getThisWindow() {
         return this.thisWin;
@@ -31,7 +33,14 @@ export class ModUtils {
      * 以mod加载顺序为序
      */
     getModListName() {
-        return this.pSC2DataManager.getModLoader().getModCacheArray().map(T => T.name);
+        return this.pSC2DataManager.getModLoader().getModAllName();
+    }
+    getModListNameNoAlias() {
+        return this.pSC2DataManager.getModLoader().getModCacheArray().map(T => T.mod.name);
+    }
+    getAnyModByNameNoAlias(name) {
+        var _a;
+        return (_a = this.pSC2DataManager.getModLoader().getModCacheByNameOne(name)) === null || _a === void 0 ? void 0 : _a.mod;
     }
     /**
      * 获取指定mod的信息
@@ -40,7 +49,28 @@ export class ModUtils {
      */
     getMod(name) {
         var _a;
-        return (_a = this.pSC2DataManager.getModLoader().getModCacheByNameOne(name)) === null || _a === void 0 ? void 0 : _a.mod;
+        return (_a = this.pSC2DataManager.getModLoader().getModCacheByAliseOne(name)) === null || _a === void 0 ? void 0 : _a.mod;
+    }
+    getModAndFromInfo(name) {
+        const m = this.pSC2DataManager.getModLoader().getModCacheByAliseOne(name);
+        if (!m) {
+            return undefined;
+        }
+        return {
+            name: m.name,
+            from: m.from,
+            mod: m.mod,
+        };
+    }
+    getAllModInfoByFromType(from) {
+        const ml = this.pSC2DataManager.getModLoader().getModCacheByFromType(from);
+        return ml.map(m => {
+            return {
+                name: m.name,
+                from: m.from,
+                mod: m.mod,
+            };
+        });
     }
     /**
      * 获取指定mod的Zip
@@ -49,7 +79,7 @@ export class ModUtils {
      */
     getModZip(modName) {
         var _a;
-        return (_a = this.pSC2DataManager.getModLoader().getModCacheByNameOne(modName)) === null || _a === void 0 ? void 0 : _a.zip;
+        return (_a = this.pSC2DataManager.getModLoader().getModCacheByAliseOne(modName)) === null || _a === void 0 ? void 0 : _a.zip;
     }
     /**
      * 获取指定Passage的信息
@@ -285,6 +315,9 @@ export class ModUtils {
     getModLoadController() {
         return this.pSC2DataManager.getModLoadController();
     }
+    getModLoader() {
+        return this.pSC2DataManager.getModLoader();
+    }
     getAddonPluginManager() {
         return this.pSC2DataManager.getAddonPluginManager();
     }
@@ -308,6 +341,22 @@ export class ModUtils {
     }
     getSemVerTools() {
         return new SemVerToolsType();
+    }
+    async getImage(imagePath) {
+        const imageBase64String = await this.pSC2DataManager.getHtmlTagSrcHook().requestImageBySrc(imagePath);
+        return imageBase64String;
+    }
+    getLanguageManager() {
+        return this.pSC2DataManager.getLanguageManager();
+    }
+    getNowMainLanguage() {
+        return this.getLanguageManager().mainLanguage;
+    }
+    getIdbKeyValRef() {
+        return new IdbKeyValRef();
+    }
+    getIdbRef() {
+        return new IdbRef();
     }
 }
 //# sourceMappingURL=Utils.js.map

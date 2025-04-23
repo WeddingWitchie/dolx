@@ -184,24 +184,31 @@ You are on Oxford Street. There's an eclectic mix of buildings, but most notable
 			You see Robin looking through shop windows.
 			<br>
 			<<if _robin.trauma gte 80>>
-				<<homeicon>><<link [[Walk home with Robin (0:40)|Robin Walk Home]]>><<run setRobinLocationOverride("orphanage", 15)>><<endevent>><<pass 40>><</link>><<glove>>
+				<<homeicon>><<link [[Walk home with Robin (0:40)|Robin Walk Home]]>><<run setRobinLocationOverride("orphanage", 15)>><<endevent>><<pass 40>><</link>><<glove>><<lrtrauma>>
 				<br><br>
 			<<else>>
-				<<if ($player.gender is "f" or $player.gender is "h") and $worn.upper.exposed gte 2 and $genderknown.includes("Robin")>>
+				<<if ($player.sex is "f" or $player.sex is "h") and $worn.upper.exposed gte 2 and $genderknown.includes("Robin")>>
 					<<homeicon>><<link [[Walk home with Robin (0:15)|Robin Walk Home Topless]]>><<run setRobinLocationOverride("orphanage", 15)>><<endevent>><<pass 15>><</link>><<glove>><<glust>>
 				<<else>>
-					<<homeicon>><<link [[Walk home with Robin (0:20)|Robin Walk Home]]>><<run setRobinLocationOverride("orphanage", 15)>><<endevent>><<pass 20>><</link>><<glove>>
+					<<homeicon>><<link [[Walk home with Robin (0:20)|Robin Walk Home]]>><<run setRobinLocationOverride("orphanage", 15)>><<endevent>><<pass 20>><</link>><<glove>><<if _robin.trauma gte 40>><<lrtrauma>><</if>>
 				<</if>>
 				<br><br>
 			<</if>>
 		<</if>>
-		<<if Time.schoolDay and Time.hour is 15 and $exposed lte 0 and Weather.precipitation is "none">>
-			A group of students chat nearby. They say they're going to the lake.
-			<br>
-			<<if $town_projects.road gte 4>>
-				<<lakeicon>><<link [[Join them (0:15)|Lake Journey Road]]>><<pass 15>><</link>>
-			<<else>>
-				<<lakeicon>><<link [[Join them (0:30)|Lake Journey]]>><<pass 30>><</link>>
+		<<if Time.schoolDay and Time.hour is 15 and $exposed lte 0 and ["arcade", "lake"].some(teensPresentCheck) and !$daily.teensJourney>>
+			A group of students chat nearby. They say they're going to the
+			<<if teensPresentCheck("arcade") and !$daily.teensArcadeJourney>>
+				arcade.
+				<br>
+				<<arcadeicon>><<link [[Join them (0:10)|Arcade Journey]]>><<set $daily.teensJourney to true>><</link>>
+			<<elseif teensPresentCheck("lake")>>
+				lake.
+				<br>
+				<<if $town_projects.road gte 4>>
+					<<lakeicon>><<link [[Join them (0:15)|Lake Journey Road]]>><<pass 15>><<set $daily.teensJourney to true>><</link>>
+				<<else>>
+					<<lakeicon>><<link [[Join them (0:30)|Lake Journey]]>><<pass 30>><<set $daily.teensJourney to true>><</link>>
+				<</if>>
 			<</if>>
 			<br><br>
 		<</if>>
@@ -233,7 +240,7 @@ You are on Oxford Street. There's an eclectic mix of buildings, but most notable
 			<br>
 		<</if>>
 		<br>
-		<<if $exposed gte 1 and Time.dayState isnot "night">>
+		<<if (($exposed is 1 and $uncomfortable.underwearPublic) or ($exposed is 2 and $uncomfortable.nudePublic)) and Time.dayState isnot "night">>
 		<<else>>
 		<<add_link "Travel<br>">><<hideDisplay>>
 			<<starfish>>
