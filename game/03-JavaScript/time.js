@@ -527,7 +527,7 @@ function weekPassed() {
 
 	supermarketWeekly();
 
-	fragment.append(xchangeWeeklyCheck());
+	xchangeWeeklyCheck();
 
 	statChange.worldCorruption("soft", V.world_corruption_hard);
 
@@ -956,7 +956,7 @@ function dayPassed(days) {
 		}
 	}
 
-	fragment.append(xchangeDailyCheck());
+	xchangeDailyCheck();
 
 	if (random(1, 8) === 1) V.daily.robin.orphanageKitchen = true;
 }
@@ -993,7 +993,7 @@ function hourPassed(hours) {
 		playerEndWaterProgress();
 	}
 
-	fragment.append(xchangeHourlyCheck()); // check for pill expiration and permanence conditions.
+	xchangeHourlyCheck(); // check for pill expiration and permanence conditions.
 	hourlyClothingFemininityCheck(); // take stock of clothing femininity on this hour for the purpose of gender identity shifts.
 
 	if (
@@ -1106,21 +1106,21 @@ function minutePassed(minutes) {
 	V.timeSinceArousal = V.arousal < V.arousalmax / 4 ? V.timeSinceArousal + minutes : 1;
 	if (V.player.vaginaExist) passArousalWetness(minutes);
 	if (V.arousal >= V.arousalmax * 2/5) 
-		fragment.append(wikifier("willpower-spending", minutes * 0.5 * Math.ceil( (V.arousal - V.arousalmax*2/5) / (V.arousalmax/10) )));
+		wikifier("willpower-spending", minutes * 0.5 * Math.ceil( (V.arousal - V.arousalmax*2/5) / (V.arousalmax/10) ));
 	else if (V.xchange.willpowerPoints < V.willpower * 0.5) 
-		fragment.append(wikifier("willpower-recovery", minutes * 0.5 * Math.ceil( (V.arousalmax*2/5 - V.arousal) / (V.arousalmax/10) )));
+		wikifier("willpower-recovery", minutes * 0.5 * Math.ceil( (V.arousalmax*2/5 - V.arousal) / (V.arousalmax/10) ));
 	
 	if (V.drugged > 200 && V.arousal < V.arousalmax * 4/5) 
-		fragment.append(wikifier("arousal", (V.drugged / 10) * 3 * minutes));
+		wikifier("arousal", (V.drugged / 10) * 3 * minutes);
 	else if (V.drugged > 100 && V.arousal < V.arousalmax * 3/5) 
-		fragment.append(wikifier("arousal", (V.drugged / 10) * 2 * minutes));
+		wikifier("arousal", (V.drugged / 10) * 2 * minutes);
 	else if (V.drugged > 0 && V.arousal < V.arousalmax * 2/5)
-		fragment.append(wikifier("arousal", (V.drugged / 10) * minutes));
+		wikifier("arousal", (V.drugged / 10) * minutes);
 
-	fragment.append(wikifier("blackmail-timepassed"));
+	wikifier("blackmail-timepassed");
 
 	// Portal Panties
-	fragment.append(wikifier("portalPantiesPass", minutes));
+	wikifier("portalPantiesPass", minutes);
 
 	// Pub
 	V.xchange.pubtimer = Math.max(V.xchange.pubtimer - 1, 0);
@@ -1226,7 +1226,7 @@ function dailyNPCEffects() {
 	if (V.robindebtevent === 0) V.robinmissing = 0;
 	if (V.robinpaid >= 1) statChange.trauma(-25);
 	if ((V.robinromance === 1 || V.robinsexfriend === 1) && C.npc.Robin.dom >= 40) wikifier("npcincr", "Robin", "lust", 1);
-	if ((V.beauty >= V.beautymax && C.npc.Robin.trauma <= 0 && !V.robinmissing)) fragment.append(wikifier("npcincr", "Robin", "lust", 2));
+	if ((V.beauty >= V.beautymax && C.npc.Robin.trauma <= 0 && !V.robinmissing)) wikifier("npcincr", "Robin", "lust", 2);
 	if (V.robinPilloryFail) {
 		delete V.robinPilloryFail;
 		delete V.robinPillory;

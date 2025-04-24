@@ -98,40 +98,36 @@ function genderIsIgnored() {
 window.genderIsIgnored = genderIsIgnored;
 
 function xchangeWeeklyCheck() {
-	const fragment = document.createDocumentFragment();
 
 	if (V.xchange.pubGamblingEnabled && !V.weekly.gamblingUpkeepPaid) {
 		V.xchange.gamblingUpkeepFailed = 1;
 		V.xchange.pubGamblingEnabled = 0;
 
 		if (V.location != "prison") {
-			fragment.append(wikifier("crimeUp", 3000, "obstruction"));
-			fragment.append(wikifier("crimeUpFlat", V.xchange.gamblingEarnings, "thievery"));
+			wikifier("crimeUp", 3000, "obstruction");
+			wikifier("crimeUpFlat", V.xchange.gamblingEarnings, "thievery");
 	
 			V.gamblingUpkeepFailedMessage = 1;
 			V.effectsmessage = 1;
 		}
 	}
-
-	return fragment;
 }
 window.xchangeWeeklyCheck = xchangeWeeklyCheck;
 
 function xchangeDailyCheck() {
-	const fragment = document.createDocumentFragment();
 
 	if ((V.hourlyFemininity > 0 && V.player.gender === "f") || (V.hourlyFemininity < 0 && V.player.gender === "m"))
-		fragment.append(wikifier("genderidentity", 1));
+		wikifier("genderidentity", 1);
 	else if ((V.hourlyFemininity > 0 && V.player.gender === "m") || (V.hourlyFemininity < 0 && V.player.gender === "f"))
-		fragment.append(wikifier("genderidentity", -1));
+		wikifier("genderidentity", -1);
 
 	if (playerIsXChanged())
-		fragment.append(wikifier("genderidentity", -2));
+		wikifier("genderidentity", -2);
 
-	fragment.append(wikifier("genderidentity-text", V.hourlyFemininity > 0? "f": (V.hourlyFemininity < 0? "m": 0)));
+	V.genderIdentityMessage = V.hourlyFemininity > 0? "f": (V.hourlyFemininity < 0? "m": 0);
 	V.hourlyFemininity = 0;
 
-	fragment.append(wikifier("blackmail-daypassed"));
+	wikifier("blackmail-daypassed");
 
 	V.recentmolest = Math.max(V.recentmolest - 1, 0);
 	V.recentrape = Math.max(V.recentrape - 1, 0);
@@ -141,13 +137,10 @@ function xchangeDailyCheck() {
 	}
 
 	V.xchange.blackmailHalt = Math.max(0, V.xchange.blackmailHalt - 1);
-
-	return fragment;
 }
 window.xchangeDailyCheck = xchangeDailyCheck;
 
 function xchangeHourlyCheck() {
-	const fragment = document.createDocumentFragment();
 
 	const pill = V.xchange.pill;
 	if (pill?.active)
@@ -155,12 +148,12 @@ function xchangeHourlyCheck() {
 		// If got impregnated in the vagina, or allowed an ear slime to grow to a certain point
 		// then, the change becomes permanent 
 		if (V.xchange.pillPermanence === 1 && !pillIsPermanent() && (V.sexStats.vagina.pregnancy.type !== null || V.earSlime.growth > 50))
-			fragment.append(wikifier("xchange-setpermanent"));
+			wikifier("xchange-setpermanent");
 	
 		// If the pill has the continue effect, and a remaining duration of 30 days is accumulated
 		// then, the change becomes permanent
 		if (V.xchange.pillPermanence === 1 && !pillIsPermanent() && pill.continueEffect && pill.duration > 30 * 24)
-			fragment.append(wikifier("xchange-setpermanent"));
+			wikifier("xchange-setpermanent");
 
 		// Clamp the pill duration to only ever save up to 30 days (in particular for Continue pills)
 		pill.duration = Math.min(pill.duration, 30*24);
@@ -171,7 +164,7 @@ function xchangeHourlyCheck() {
 			if (pill.duration == 0)
 			{
 				if (pill.resistanceEffect && random(0,100) > pill.resistanceChance) {
-					if (V.xchange.pillPermanence === 1) fragment.append(wikifier("xchange-setpermanent"));
+					if (V.xchange.pillPermanence === 1) wikifier("xchange-setpermanent");
 					else {
 						pill.duration += 30 * 24;
 						pill.resistanceEffect = false;
@@ -179,10 +172,10 @@ function xchangeHourlyCheck() {
 					}
 				}
 				else if (V.xchange.pill.clone === "none") {
-					fragment.append(wikifier("xchange-restore"));
+					wikifier("xchange-restore");
 				} 
 				else {
-					fragment.append(wikifier("xchange-restore", "nosave"));
+					wikifier("xchange-restore", "nosave");
 				}
 			} 
 		}
@@ -191,10 +184,10 @@ function xchangeHourlyCheck() {
 			pill.duration = 0;
 			if (!pillTimerPaused()) {
 				if (V.xchange.pill.clone === "none") {
-					fragment.append(wikifier("xchange-restore"));
+					wikifier("xchange-restore");
 				} 
 				else {
-					fragment.append(wikifier("xchange-restore", "nosave"));
+					wikifier("xchange-restore", "nosave");
 				}
 			}
 		}
@@ -202,7 +195,7 @@ function xchangeHourlyCheck() {
 
 	// Apply hour-random passion effect
 	if (pill?.passionEffect && random(0,8) == 0) {
-		fragment.append(wikifier("drugs", 300)); 
+		wikifier("drugs", 300); 
 		V.effectsmessage = 1;
 		V.xchange_passion_message = 1;
 	}
@@ -214,8 +207,6 @@ function xchangeHourlyCheck() {
 			pill.portalEffect = false;
 		}
 	}
-
-	return fragment;
 }
 window.xchangeHourlyCheck = xchangeHourlyCheck;
 
@@ -317,6 +308,11 @@ function xchangeEffectsMessages() {
 		fragment.append(result);
 	};
 	const br = () => fragment.append(document.createElement("br"));
+
+	if (V.genderIdentityMessage) {
+		fragment.append(wikifier("genderidentity-text", V.genderIdentityMessage));
+		delete V.genderIdentityMessage;
+	}
 
 	if (V.gamblingUpkeepFailedMessage) {
 		element("span", "The cops didn't receive their bribe this week. Your gambling ring has been raided.", "purple");
