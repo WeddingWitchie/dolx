@@ -5,7 +5,7 @@ del /s /q ".\dist"
 del /q ".\Degrees of Lewdity.html"
 mkdir "dist"
 cd devTools/apkbuilder
-call ./setup_deps.bat
+@REM call ./setup_deps.bat
 cd ../..
 
 @REM set VERSION
