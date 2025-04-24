@@ -124,6 +124,7 @@ function xchangeDailyCheck() {
 	if (playerIsXChanged())
 		wikifier("genderidentity", -2);
 
+	V.effectsmessage = 1;
 	V.genderIdentityMessage = V.hourlyFemininity > 0? "f": (V.hourlyFemininity < 0? "m": 0);
 	V.hourlyFemininity = 0;
 
