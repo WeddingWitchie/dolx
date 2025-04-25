@@ -12,6 +12,103 @@
 	<</if>>
 
 	<<switch _args[0]>>
+		/* BGM - background music meant to be player on loop */
+		<<case "arcade">>
+			<<cacheaudio "arcade1" "audio/bgm/arcade/HoliznaCC0 - Mutant Club.mp3">>
+				<<createplaylist "arcade">>
+					<<track "arcade1">>
+				<</createplaylist>>
+		<<case "asylum">>
+			<<cacheaudio "asylum1" "audio/bgm/asylum/Pulse Burst - The Organization of Society and the Conditions of Health & Safety.mp3">>
+				<<createplaylist "asylum">>
+					<<track "asylum1">>
+				<</createplaylist>>
+		<<case "beach">>
+			<<cacheaudio "beach1" "audio/bgm/beach/Anthem of Rain - Bad Nostalgia (Instrumental).mp3">>
+				<<createplaylist "beach">>
+					<<track "beach1">>
+				<</createplaylist>>
+		<<case "brothel">>
+			<<cacheaudio "brothel1" "audio/bgm/brothel/Beat Mekanik - Pink Soul.mp3">>
+				<<createplaylist "brothel">>
+					<<track "brothel1">>
+				<</createplaylist>>
+		<<case "cafe">>
+			<<cacheaudio "cafe1" "audio/bgm/cafe/Mr Smith - Constance Chill.mp3">>
+				<<createplaylist "cafe">>
+					<<track "cafe1">>
+				<</createplaylist>>
+		<<case "dance_studio">>
+			<<cacheaudio "dance_studio1" "audio/bgm/dance_studio/Anthem of Rain - So My Love - Instrumental.mp3">>
+				<<createplaylist "dance_studio">>
+					<<track "dance_studio1">>
+				<</createplaylist>>
+		<<case "encounter-consensual">>
+			<<cacheaudio "encounter-consensual1" "audio/bgm/encounter/consensual/Hotham - Love Me Back (Instrumental).mp3">>
+				<<createplaylist "encounter-consensual">>
+					<<track "encounter-consensual1">>
+				<</createplaylist>>
+		<<case "encounter-noncon">>
+			<<cacheaudio "encounter-noncon1" "audio/bgm/encounter/noncon/Audroid Mk1 - Dark Moon.mp3">>
+				<<createplaylist "encounter-noncon">>
+					<<track "encounter-noncon1">>
+				<</createplaylist>>
+		<<case "forest">>
+			<<cacheaudio "forest1" "audio/bgm/forest/HoliznaCC0 - Yesterday.mp3">>
+				<<createplaylist "forest">>
+					<<track "forest1">>
+				<</createplaylist>>
+		<<case "mma_gym">>
+			<<cacheaudio "mma_gym1" "audio/bgm/mma_gym/Anthem of Rain - Rock This House (Instrumental).mp3">>
+				<<createplaylist "mma_gym">>
+					<<track "mma_gym1">>
+				<</createplaylist>>
+		<<case "Gwylan">>
+			<<cacheaudio "Gwylan1" "audio/bgm/nnpc/Gwylan/LaFaena - Magic In The Magician's Library.mp3">>
+				<<createplaylist "Gwylan">>
+					<<track "Gwylan1">>
+				<</createplaylist>>
+		<<case "Ivory Wraith">>
+			<<cacheaudio "Ivory Wraith1" "audio/bgm/nnpc/Ivory Wraith/Pulse Burst - all hail the shine (in good health).mp3">>
+				<<createplaylist "Ivory Wraith">>
+					<<track "Ivory Wraith1">>
+				<</createplaylist>>
+		<<case "office">>
+			<<cacheaudio "office1" "audio/bgm/office/Lite Saturation - Calm Corporate - Medium2.mp3">>
+				<<createplaylist "office">>
+					<<track "office1">>
+				<</createplaylist>>
+		<<case "pub">>
+			<<cacheaudio "pub1" "audio/bgm/pub/Jahzzar - Boulevard St Germain.mp3">>
+				<<createplaylist "pub">>
+					<<track "pub1">>
+				<</createplaylist>>
+		<<case "school">>
+			<<cacheaudio "school1" "audio/bgm/school/Beat Mekanik - Flashy.mp3">>
+				<<createplaylist "school">>
+					<<track "school1">>
+				<</createplaylist>>
+		<<case "strip_club">>
+			<<cacheaudio "strip_club1" "audio/bgm/strip_club/Zight - Daisy (EDM _ Instrumental).mp3">>
+				<<createplaylist "strip_club">>
+					<<track "strip_club1">>
+				<</createplaylist>>
+		<<case "studio">>
+			<<cacheaudio "studio1" "audio/bgm/studio/Jahzzar - Jardins du Luxembourg.mp3">>
+				<<createplaylist "studio">>
+					<<track "studio1">>
+				<</createplaylist>>
+		<<case "town-day">>
+			<<cacheaudio "town-day1" "audio/bgm/town/day/Beat Mekanik - Flashback.mp3">>
+				<<createplaylist "town-day">>
+					<<track "town-day1">>
+				<</createplaylist>>
+		<<case "town-night">>
+			<<cacheaudio "town-night1" "audio/bgm/town/night/A. Cooper - Circumstances.mp3">>
+				<<createplaylist "town-night">>
+					<<track "town-night1">>
+				<</createplaylist>>
+
 		/* BGV - voice sounds meant to be played on loop */
 		<<case "breath_vvslow">>
 			<<cacheaudio "breath_vslow1" "audio/bgv/breath/breath-veryslow01.ogg">>
@@ -297,7 +394,6 @@
 	<</switch>>
 
 	<<run setup.initializedPlaylists.pushUnique(_args[0])>>
-	/* <<waitforaudio>> Hmm... do I wait for audio or not? */
 
 <</widget>>
 
@@ -338,6 +434,39 @@
 			<</if>>
 		<</for>>
 
+		/* Update BGM */
+		<<set _npcWithTheme to ["Gwylan", "Ivory Wraith"]>>
+		<<for _name range _npcWithTheme>>
+			<<if $NPCList.flatMap((n)=> n.fullDescription).includes(_name)>>
+				<<set _npcFound to 1>>
+				<<bgm _name>>
+			<</if>>
+		<</for>>
+		<<if _npcFound isnot 1>>
+			<<if $combat is 1>>
+				<<if $consensual is 1>>
+					<<bgm "encounter-consensual">>
+				<<else>>
+					<<bgm "encounter-noncon">>
+				<</if>>
+			<<else>>
+				<<switch $location>>
+					<<case "town" "flats" "home" "alley" "canals">>
+						<<if Time.daystate isnot "night" and Time.daystate isnot "dusk">>
+							<<bgm "town-day">>
+						<<else>>
+							<<bgm "town-night">>
+						<</if>>
+					<<case "school" "forest" "pub" "beach" "asylum" "office" "arcade" "brothel" "cafe" "dance_studio" "mma_gym" "studio" "strip_club">>
+						<<bgm $location>>
+					<<case "forest_shop">>
+						<<bgm "Gwylan">>
+					<<default>>
+						<<bgm "stop">>
+				<</switch>>
+			<</if>>
+		<</if>>
+
 		/* Consider adding a check for NPC genitals being rubbed/penetrated by checking $NPCList[_n].vagina is "penis" for example, but remember to check if $NPCList[_n].vagina isnot "none"	 */
 
 		/* Update BGS */
@@ -352,7 +481,7 @@
 		<</if>>
 
 		/* Update BGV */
-		<<if $options.voiceoverAudio and ($player.gender_posture is "f" or (($player.sex is "f" or $xchange.pill?.active) and $player.gender_posture is "n"))>>
+		<<if $options.voiceoverAudio and ($player.gender_posture is "f" or ($player.sex is "f" and $player.gender_posture is "n"))>>
 			<<if _penetration.includes($mouthstate) or $portalPanties.state.mouth isnot undefined>>
 				<<chupa-voice>>
 			<<elseif _beingPenetrated>>
@@ -362,7 +491,7 @@
 			<<else>>
 				<<bgv "stop">>
 			<</if>>
-		<<elseif $options.voiceoverAudio and ($player.gender_posture is "m" or (($player.sex is "m" or $xchange.pill?.active) and $player.gender_posture is "n"))>>
+		<<elseif $options.voiceoverAudio and ($player.gender_posture is "m" or ($player.sex is "m" and $player.gender_posture is "n"))>>
 			<<if $arousal gte $arousalmax * 0.1>>
 				<<arousal-voice>>
 			<<else>>
@@ -373,6 +502,7 @@
 		<</if>>
 	
 	<<else>>
+		<<bgm "stop">>
 		<<bgs "stop">>
 		<<bgv "stop">>
 	<</if>>
@@ -387,6 +517,32 @@
 	<</if>>
 	<<set _volume to $options.mastervolume ?? 0>>
 	<<masteraudio volume _volume>>
+<</widget>>
+
+<<widget "bgm">>
+	<<run console.log("Now playing: "+_args[0])>>
+	<<if setup.bgmCurrentPlaylist is undefined>>
+		<<set setup.bgmCurrentPlaylist to "none">>
+	<</if>>
+
+	<<if _args[0] is "stop" and setup.bgmCurrentPlaylist isnot "none">>
+		/* Stop the current BGM playlist */
+		<<playlist setup.bgmCurrentPlaylist stop>>
+		<<set setup.bgmCurrentPlaylist to "none">>
+	
+	<<elseif _args[0] isnot "stop" and _args[0] isnot setup.bgmCurrentPlaylist>>
+		/* Stop the previous BGM playlist */
+		<<if setup.bgmCurrentPlaylist isnot "none">>
+			<<playlist setup.bgmCurrentPlaylist stop>>
+		<</if>>
+
+		/* Start playing the current BGM playlist */
+		<<set setup.bgmCurrentPlaylist to _args[0]>>
+		<<init-playlist setup.bgmCurrentPlaylist>>
+		<<playlist setup.bgmCurrentPlaylist volume 0>>
+		<<playlist setup.bgmCurrentPlaylist fadein loop shuffle>>
+		
+	<</if>>	
 <</widget>>
 
 <<widget "bgs">>
