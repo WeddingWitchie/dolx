@@ -140,7 +140,7 @@ DefineMacro("modelprepare-player-body", function () {
 				(V.player.gender_appearance === "m" && V.player.perceived_breastsize <= 2) ||
 				V.worn.under_upper.type.includes("covered") ||
 				(["beach", "pool", "sea", "lake", "lake_ruin"].includes(V.location) && V.worn.under_upper.exposed < 1 && V.underupperwetstage < 3) || 
-				["home", "alex_cottage"].includes(V.location)
+				["home", "alex_cottage"].includes(V.location) || (V.combat === 1 && V.consensual === 1)
 			) {
 				T.coverBreasts = false;
 				T.modeloptions.arm_left = leftArm;
@@ -167,7 +167,7 @@ DefineMacro("modelprepare-player-body", function () {
 		) {
 			if (
 				(["beach", "pool", "sea", "lake", "lake_ruin"].includes(V.location) && V.worn.under_lower.exposed < 1 && V.underlowerwetstage < 3) ||
-				V.worn.under_lower.type.includes("covered") || ["home", "alex_cottage"].includes(V.location)
+				V.worn.under_lower.type.includes("covered") || ["home", "alex_cottage"].includes(V.location)  || (V.combat === 1 && V.consensual === 1)
 			) {
 				T.coverCrotch = false;
 				// "left_cover" checks included intentionally; parameter is meant to be used should there ever be a handheld item that should only use the left_cover hand position
