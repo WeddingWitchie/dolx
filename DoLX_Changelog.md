@@ -7,7 +7,7 @@
 
 ## Changelog
 ### Changes and Additions:
-  * None
+  * Updated DoLP to v0.678
 
 ### Rebalancing and Bug fixes:
   * Fixed randomiser generating invalid genders on character creation.
