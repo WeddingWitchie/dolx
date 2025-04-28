@@ -910,15 +910,15 @@ function settingsObjects(type) {
 				ironmanmode: { bool: false, displayName: "Ironman mode:" },
 				player: {
 					gender: {
-						strings: ["m", "f", "n"],
+						strings: ["m", "f"],
 						displayName: "Gender:",
-						textMap: { m: "Male", f: "Female", n: "Neither" },
+						textMap: { m: "Male", f: "Female" },
 						randomize: "characterAppearance",
 					},
 					sex: {
-						strings: ["m", "f", "h"],
+						strings: ["m", "f"],
 						displayName: "Genitals:",
-						textMap: { m: "Penis", f: "Vagina", h: "Hermaphrodite" },
+						textMap: { m: "Penis", f: "Vagina" },
 						randomize: "characterAppearance",
 					},
 					gender_body: {
