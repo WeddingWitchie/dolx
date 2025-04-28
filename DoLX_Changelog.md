@@ -7,11 +7,8 @@
 
 ## Changelog
 ### Changes and Additions:
-  * Updated vanilla to 0.5.4.6
-  * Updated DoLP to v0.670
-  * To accomodate vanilla changes to gender system, the gender identity system has been made mandatory.
-  * May now select your character's gender identity with full granularity on character creation.
+  * None
 
 ### Rebalancing and Bug fixes:
-  * None.
+  * Fixed randomiser generating invalid genders on character creation.
 
