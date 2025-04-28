@@ -2713,6 +2713,7 @@ function initHead() {
 	setup.moddedClothes.head = [
 		{
 			index: 65,
+			slot: "head",
 			name: "honey hair clip",
 			name_cap: "Honey hair clip",
 			variable: "honeyhairclip",
@@ -2747,6 +2748,7 @@ function initHead() {
 		},
 		{
 			index: 65,
+			slot: "head",
 			name: "carrot pin",
 			name_cap: "Carrot pin",
 			variable: "carrotpin",

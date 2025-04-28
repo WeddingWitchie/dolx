@@ -281,14 +281,46 @@ You are in your room at Alex's cottage. It's cramped, but larger than your room 
 <<set _bed to Furniture.get('bed', $location)>>
 <<set _wardrobe to Furniture.get('wardrobe', $location)>>
 <<set _poster to Furniture.get('poster', $location)>>
+<<set _radio to Furniture.get('radio', $location)>>
 <<if $machineVaginalBought isnot undefined or $machineAnalBought isnot undefined>>
 	<<set _sexMachine to 1>>
 <</if>>
 <<set _poster to Furniture.get('poster', $location)>>
 
 There is a thermometer outside your window. It reads <span class="teal"><<print Weather.toSelectedString(Weather.temperature, 0)>></span>.
-<<print setup.WeatherDescriptions.extremeTemperature()>>
 <br><br>
+
+<<if _radio and $bedroomUI.cottage.radio is true>>
+	<br><br>
+	<<run while (V.weatherObj.keypointsArr.length > 1 && V.weatherObj.keypointsArr[1].timestamp <= (new DateTime(Time.date)).timeStamp) {V.weatherObj.keypointsArr.shift();}>>
+	<<furnitureicon _radio.iconFile>>The radio buzzes. "There will be 
+	<<set _forecastDate to new DateTime(V.weatherObj.keypointsArr[1].timestamp)>>
+	<<switch Weather.WeatherGeneration.getWeather(_forecastDate).name>>
+		<<case "clear">>
+			<span class="green">clear skies</span> 
+		<<case "lightClouds">>
+			<span class="lblue">light clouds</span> 
+		<<case "lightPrecipitation">>
+			<span class="blue">light rain</span> 
+		<<case "heavyPrecipitation">>
+			<span class="blue">heavy rain</span> 
+		<<case "thunderStorm">>
+			<span class="yellow">thunderstorms</span>
+		<<case "heavyClouds">>
+			<span class="lblue">heavy clouds</span>
+		<<default>>
+			<span class="red">ERROR, please alert Frostberg.</span>
+	<</switch>>
+	on the <<print ordinalSuffixOf(_forecastDate.day) + " of " + _forecastDate.monthName + ", ">> <<ampm _forecastDate.hour _forecastDate.minute>>, which is in 
+	<<if Time.date.compareWith(_forecastDate).days gt 0>>
+		<<print Time.date.compareWith(_forecastDate).days>> days."
+	<<elseif Time.date.compareWith(_forecastDate).hours gt 0>>
+		<<print Time.date.compareWith(_forecastDate).hours>> hours and <<print Time.date.compareWith(_forecastDate).minutes>> minutes."
+	<<elseif Time.date.compareWith(_forecastDate).minutes gt 0>>
+		<<print Time.date.compareWith(_forecastDate).minutes>> minutes."
+	<</if>>
+	<br>
+<</if>>
 
 <<if $alex_bed is "player">>
 	Alex snores in your bed.
@@ -358,7 +390,9 @@ There is a thermometer outside your window. It reads <span class="teal"><<print 
 		You fiddle with your lockpick training set. <<skulduggerycheck>><<skulduggeryuse>><br>
 	<</if>>
 
-	Lock your door: <<checkbox "$farmCottageLocked" 0 1 autocheck>><mouse class="tooltip linkBlue">(?)<span>Will stop Alex from interrupting your sleep unless Remy is attacking.</span></mouse><br><br>
+	<<if $bedroomUI.cottage.lock is true>>
+		Lock your door: <<checkbox "$farmCottageLocked" 0 1 autocheck>><mouse class="tooltip linkBlue">(?)<span>Will stop Alex from interrupting your sleep unless Remy is attacking.</span></mouse><br><br>
+	<</if>>
 
 	<<deskText "noicon">>
 
@@ -435,7 +469,7 @@ There is a thermometer outside your window. It reads <span class="teal"><<print 
 		<br><br>
 		/* <<christmas_options>> */
 		<<if _deco>>
-			<<if _deco.name is "large bear plushie">>
+			<<if _deco.name is "large bear plushie" and $bedroomUI.cottage.largeBearPlushie is true>>
 				<<furnitureicon _deco.iconFile>><<link [[Cuddle with the large bear plushie (0:10)|Farm Cottage Large Bear Plushie Cuddle]]>><<pass 10>><</link>><<ltrauma>><<lstress>>
 				<br><br>
 			<</if>>
@@ -449,18 +483,20 @@ There is a thermometer outside your window. It reads <span class="teal"><<print 
 		<<else>>
 			<span class="lewd">You're too horny to sleep. You have needs to take care of.</span>
 		<</if>>
-		<<furnitureicon _bed.iconFile>><<link [[Masturbate in bed|Farm Masturbation]]>><<set $masturbationstart to 1>><</link>>
-		<br>
+		<<if $bedroomUI.cottage.masturbation is true>>
+			<<furnitureicon _bed.iconFile>><<link [[Masturbate in bed|Farm Masturbation]]>><<set $masturbationstart to 1>><</link>>
+			<br>
+		<</if>>
 		<<roomoptions>>
 		<br>
-		<<if $lockpickTrainingSet gte 1 and $stress lt $stressmax and !$possessed>>
+		<<if $lockpickTrainingSet gte 1 and $stress lt $stressmax and !$possessed and $bedroomUI.cottage.lts is true>>
 			<<lockpickTrainingSet>>
 		<</if>>
 		<br>
 		<<furnitureicon _wardrobe.iconFile>><<link [[Wardrobe|Farm Wardrobe]]>><</link>>
 		<br>
 		/* Fuck machines */
-		<<if _sexMachine>>
+		<<if _sexMachine and $bedroomUI.cottage.sexMachine is true>>
 			<br>
 			There's a <<= $machineVaginalBought and $machineAnalBought? "pair of discreet boxes": "discreet box">> hidden away within your _wardrobe.name.
 			<br>
@@ -501,6 +537,7 @@ There is a thermometer outside your window. It reads <span class="teal"><<print 
 		<<link [[Attitudes]]>><<set $attitudesExitPassage to $passage>><</link>>
 	<</if>>
 	<br>
+	<<link [[Bedroom UI Settings|Cottage Bedroom UI]]>><</link>>
 <</if>>
 
 :: Farm Mirror
@@ -5318,3 +5355,23 @@ You are in the kitchen in Alex's cottage. There's a window above the sink, givin
 
 <<link [[Leave|Farm Cottage]]>><<handheldon>><</link>>
 <br>
+
+:: Cottage Bedroom UI
+<label>Radio UI <<checkbox "$bedroomUI.cottage.radio" false true autocheck>></label>
+<br>
+<label>Lock UI <<checkbox "$bedroomUI.cottage.lock" false true autocheck>></label>
+<br>
+<label>Project UI <<checkbox "$bedroomUI.cottage.project" false true autocheck>></label>
+<br>
+<label>Home Study UI <<checkbox "$bedroomUI.cottage.homeStudy" false true autocheck>></label>
+<br>
+<label>Large Bear Plushie UI <<checkbox "$bedroomUI.cottage.largeBearPlushie" false true autocheck>></label>
+<br>
+<label>Masturbation UI <<checkbox "$bedroomUI.cottage.masturbation" false true autocheck>></label>
+<br>
+<label>Lockpick Training Set UI <<checkbox "$bedroomUI.cottage.lts" false true autocheck>></label>
+<br>
+<label>Sex Machine UI <<checkbox "$bedroomUI.cottage.sexMachine" false true autocheck>></label>
+<br>
+<br>
+<<link [[Back|Farm Cottage]]>><</link>>

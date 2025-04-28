@@ -22,6 +22,7 @@ const Furniture = (() => {
 		wallpaper: "wallpaper",
 		shelf: "shelf",
 		plush: "plush",
+		radio:"radio",
 		/* Special category for Kylar event */
 		owlplushie: "owlplushie",
 	});
@@ -536,6 +537,16 @@ const Furniture = (() => {
 			handheld: "catalogue",
 			iconFile: "wallpaper",
 		});
+		/* ---------------- DoLP ---------------- */
+		mapper.set("Radio", {
+			name: "radio",
+			nameCap: "Radio",
+			category: ["radio"],
+			type: ["radio"],
+			cost: 200,
+			description: "A space-friendly radio, includes weather forecasts!",
+			iconFile: "radio",
+		});
 		/* ------------- BUNNY MOD -------------- */
 		mapper.set("shelf", {
 			name: "small shelf",
@@ -553,7 +564,7 @@ const Furniture = (() => {
 			type: [],
 			cost: 40,
 			description: "A small plush of the moon.",
-			iconFile: "",
+			iconFile: "tfplushes",
 		});
 		mapper.set("frostplush", {
 			name: "snowman plush",
@@ -562,7 +573,7 @@ const Furniture = (() => {
 			type: [],
 			cost: 40,
 			description: "A small plush of a snowman.",
-			iconFile: "",
+			iconFile: "tfplushes",
 		});
 		mapper.set("tfplushes", {
 			name: "collection of animal plushes",
@@ -580,7 +591,7 @@ const Furniture = (() => {
 			type: [],
 			cost: 1,
 			description: "A small lemon coloured axolotl plush. You don't see a price tag on it, only the name 'Monsieur Citron' is written.",
-			iconFile: "",
+			iconFile: "tfplushes",
 		});
 	}
 

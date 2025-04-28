@@ -69,8 +69,41 @@ You are in your bedroom.
 <<set _poster to Furniture.get('poster', $location)>>
 <<set _bed to Furniture.get('bed', $location)>>
 <<set _wardrobe to Furniture.get('wardrobe', $location)>>
+<<set _radio to Furniture.get('radio', $location)>>
 <<if $machineVaginalBought isnot undefined or $machineAnalBought isnot undefined>>
 	<<set _sexMachine to 1>>
+<</if>>
+
+<<if _radio and $bedroomUI.orphanage.radio is true>>
+	<br><br>
+	<<run while (V.weatherObj.keypointsArr.length > 1 && V.weatherObj.keypointsArr[1].timestamp <= (new DateTime(Time.date)).timeStamp) {V.weatherObj.keypointsArr.shift();}>>
+	<<furnitureicon _radio.iconFile>>The radio buzzes. "There will be 
+	<<set _forecastDate to new DateTime(V.weatherObj.keypointsArr[1].timestamp)>>
+	<<switch Weather.WeatherGeneration.getWeather(_forecastDate).name>>
+		<<case "clear">>
+			<span class="green">clear skies</span> 
+		<<case "lightClouds">>
+			<span class="lblue">light clouds</span> 
+		<<case "lightPrecipitation">>
+			<span class="blue">light rain</span> 
+		<<case "heavyPrecipitation">>
+			<span class="blue">heavy rain</span> 
+		<<case "thunderStorm">>
+			<span class="yellow">thunderstorms</span>
+		<<case "heavyClouds">>
+			<span class="lblue">heavy clouds</span>
+		<<default>>
+			<span class="red">ERROR, please alert Frostberg.</span>
+	<</switch>>
+	on the <<print ordinalSuffixOf(_forecastDate.day) + " of " + _forecastDate.monthName + ", ">> <<ampm _forecastDate.hour _forecastDate.minute>>, which is in 
+	<<if Time.date.compareWith(_forecastDate).days gt 0>>
+		<<print Time.date.compareWith(_forecastDate).days>> days."
+	<<elseif Time.date.compareWith(_forecastDate).hours gt 0>>
+		<<print Time.date.compareWith(_forecastDate).hours>> hours and <<print Time.date.compareWith(_forecastDate).minutes>> minutes."
+	<<elseif Time.date.compareWith(_forecastDate).minutes gt 0>>
+		<<print Time.date.compareWith(_forecastDate).minutes>> minutes."
+	<</if>>
+	<br>
 <</if>>
 
 /* Misc Furniture */
@@ -161,7 +194,7 @@ You are in your bedroom.
 
 /* Events */
 <br><br>
-<<if $robinbed is "yours" and Time.hour gte 6 and !$possessed>>
+<<if $robinbed is "yours" and Time.dayState !== "night" and !$possessed>>
 	<<unset $robinbed>>
 	<<npc Robin>><<person1>>Robin yawns and heads to <<his>> own room.<<endevent>>
 	<<if Time.hour is 6 and Time.minute lte 20>><<run setRobinLocationOverride("orphanage", 6)>><</if>>
@@ -227,8 +260,10 @@ You are in your bedroom.
 	<br><br>
 <</if>>
 
-Lock your door: <<checkbox "$orphanageLocked" 0 1 autocheck>><mouse class="tooltip linkBlue">(?)<span>Will stop <<if C.npc.Robin.init is 0>>???<<else>>Robin<</if>> from interrupting your sleep.</span></mouse><br>
-Lock your window: <<checkbox "$orphanageWindowLocked" 0 1 autocheck>><mouse class="tooltip linkBlue">(?)<span>Will stop <<if C.npc.Robin.init is 0>>???<<else>>Kylar<</if>> from interrupting your sleep.</span></mouse><br><br>
+<<if $bedroomUI.orphanage.lock is true>>
+	Lock your door: <<checkbox "$orphanageLocked" 0 1 autocheck>><mouse class="tooltip linkBlue">(?)<span>Will stop <<if C.npc.Robin.init is 0>>???<<else>>Robin<</if>> from interrupting your sleep.</span></mouse><br>
+	Lock your window: <<checkbox "$orphanageWindowLocked" 0 1 autocheck>><mouse class="tooltip linkBlue">(?)<span>Will stop <<if C.npc.Robin.init is 0>>???<<else>>Kylar<</if>> from interrupting your sleep.</span></mouse><br><br>
+<</if>>
 
 /* Desk */
 <<deskText "noicon">> /* If project, study, or Christmas options are available, desk location appears here, in line with bed/wardrobe/etc locations */
@@ -263,7 +298,7 @@ There is a thermometer outside your window. It reads <span class="teal"><<print 
 
 <<if _deco>>
 	<br>
-	<<if _deco.name is "large bear plushie">>
+	<<if _deco.name is "large bear plushie" and $bedroomUI.orphanage.largeBearPlushie is true>>
 		<<furnitureicon _deco.iconFile>><<link [[Cuddle with the large bear plushie (0:10)|Home Large Bear Plushie Cuddle]]>><<pass 10>><</link>><<ltrauma>><<lstress>>
 		<br><br>
 	<</if>>
@@ -301,12 +336,14 @@ Your bed takes up most of the room.
 	<br>
 <</if>>
 
-<<furnitureicon _bed.iconFile>><<link [[Masturbate in bed|Home Masturbation]]>><<set $masturbationstart to 1>><</link>>
-<br>
+<<if $bedroomUI.orphanage.masturbation is true>>
+	<<furnitureicon _bed.iconFile>><<link [[Masturbate in bed|Home Masturbation]]>><<set $masturbationstart to 1>><</link>>
+	<br>
+<</if>>
 
 <<roomoptions>>
 <br>
-<<if $lockpickTrainingSet gte 1 and $stress lt $stressmax and !$possessed>>
+<<if $lockpickTrainingSet gte 1 and $stress lt $stressmax and !$possessed and $bedroomUI.orphanage.lts>>
 	<<lockpickTrainingSet>>
 <</if>>
 <br>
@@ -320,6 +357,13 @@ Your bed takes up most of the room.
 <br>
 <<furnitureicon _wardrobe.iconFile>><<link [[Wardrobe|Wardrobe]]>><</link>>
 <br>
+/* Fuck machines */
+<<if _sexMachine and $bedroomUI.orphanage.sexMachine is true>>
+    <br>
+    There's a <<= $machineVaginalBought and $machineAnalBought? "pair of discreet boxes": "discreet box">> hidden away within your _wardrobe.name.
+    <br>
+    <<bedroom_machine>>
+<</if>>
 <<if playerHasSexToys()>>
 	<<sextoysicon>><<link [[Sex toys|Sextoys Inventory]]>><<set $sextoyInvReturnLink to $passage>><</link>>
 	<br>
@@ -343,14 +387,6 @@ Your bed takes up most of the room.
 <<else>>
 	<<mirroricon "home">><<link [[Mirror|Mirror]]>><<preMirror>><</link>>
 	<br>
-<</if>>
-
-/* Fuck machines */
-<<if $machineVaginalBought or $machineAnalBought>>
-	<br>
-	There's a <<= $machineVaginalBought and $machineAnalBought? "pair of discreet boxes": "discreet box">> hidden away within your _wardrobe.name.
-	<br>
-	<<bedroom_machine>>
 <</if>>
 
 /*Table*/
@@ -543,6 +579,8 @@ The hallway outside connects to the rest of the orphanage.
 <<else>>
 	<<link [[Attitudes]]>><<set $attitudesExitPassage to $passage>><</link>>
 <</if>>
+<br>
+<<link [[Bedroom UI Settings|Orphanage Bedroom UI]]>><</link>>
 
 :: Bedroom Kylar Gift Open
 <<effects>><<wearProp "kylar owl">>
@@ -1015,13 +1053,13 @@ You squirt a dollop of toothpaste on your toothbrush and brush your teeth. When 
 		<<if $orphanageLocked is 0>>
 			You pull your covers up to keep your <<lewdness>> concealed as you nod.
 		<<else>>
-			You unlock the door before pulling your covers up to keep your <<lewdness>> concealed as you call out for <<her>> to come in.
+			You unlock the door before pulling your covers up to keep your <<lewdness>> concealed as you call out for <<him>> to come in.
 		<</if>>
 	<<else>>
 		<<if $orphanageLocked is 0>>
 			You nod.
 		<<else>>
-			You unlock the door before getting back in bed as you call out for <<her>> to come in.
+			You unlock the door before getting back in bed as you call out for <<him>> to come in.
 		<</if>>
 	<</if>>
 	<<He>> tiptoes into the room and sits on the end of your bed. "I hope I didn't wake you," <<he>> says. "I'm frightened. Bailey makes me pay <<nnpc_him "Bailey">>, but it's so much and it keeps getting higher." <<Hes>> on the verge of tears. You lean forward and hug <<him>>. "I don't know what to do."
@@ -1230,6 +1268,10 @@ You squirt a dollop of toothpaste on your toothbrush and brush your teeth. When 
 				<br><br>
 			<</if>>
 		<</if>>
+	<</if>>
+	<!-- writers please do something for when kylar goes to your bed and finds that it is already occupied by robin. this will be here until then -->
+	<<if $kylarbed is 1 and $robinbed is "yours">>
+		<<unset $robinbed>>
 	<</if>>
 	<<if $robinbed is "yours">>
 		<<unset $robinbed>>
@@ -4682,3 +4724,27 @@ You are in the orphanage kitchen. High cupboards line the walls, above spotless 
 	You're tasked with simple sweeping today, nothing special
 	<<set $enemyarousal += 50>>
 <</addinlineevent>>
+
+:: Orphanage Bedroom UI
+<label>Radio UI <<checkbox "$bedroomUI.orphanage.radio" false true autocheck>></label>
+<br>
+<label>Lock UI <<checkbox "$bedroomUI.orphanage.lock" false true autocheck>></label>
+<br>
+<label>Project UI <<checkbox "$bedroomUI.orphanage.project" false true autocheck>></label>
+<br>
+<label>Home Study UI <<checkbox "$bedroomUI.orphanage.homeStudy" false true autocheck>></label>
+<br>
+<label>Christmas UI <<checkbox "$bedroomUI.orphanage.christmas" false true autocheck>></label>
+<br>
+<label>Large Bear Plushie UI <<checkbox "$bedroomUI.orphanage.largeBearPlushie" false true autocheck>></label>
+<br>
+<label>Masturbation UI <<checkbox "$bedroomUI.orphanage.masturbation" false true autocheck>></label>
+<br>
+<label>Lockpick Training Set UI <<checkbox "$bedroomUI.orphanage.lts" false true autocheck>></label>
+<br>
+<label>Sex Machine UI <<checkbox "$bedroomUI.orphanage.sexMachine" false true autocheck>></label>
+<br>
+<label>Parasite Container UI <<checkbox "$bedroomUI.orphanage.parasiteContainer" false true autocheck>></label>
+<br>
+<br>
+<<link [[Back|Bedroom]]>><</link>>
