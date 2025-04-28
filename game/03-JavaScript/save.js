@@ -1035,6 +1035,8 @@ function settingsObjects(type) {
 					textMap: { 0: "Always a beast", 1: "Monster girl or boy when requirements met", 2: "Always a monster girl or boy" },
 					randomize: "encounter",
 				},
+				tentacleHealthMult: { min: 1, max: 1000000, decimals: 0, displayName: "Tentacle Health Max Multiplier:" },
+				struggleHealthMult: { min: 1, max: 1000000, decimals: 0, displayName: "Struggle Health Max Multiplier:" },
 				bestialitydisable: { boolLetter: true, bool: true, displayName: "Bestiality:" },
 				swarmdisable: { boolLetter: true, bool: true, displayName: "Swarms:" },
 				slimedisable: { boolLetter: true, bool: true, displayName: "Slimes:" },

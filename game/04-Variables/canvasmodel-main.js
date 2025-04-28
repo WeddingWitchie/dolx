@@ -899,7 +899,7 @@ Renderer.CanvasModels.main = {
 
 		if (options.worn.handheld.setup.type.includes("rainproof")) {
 			options.handheld_overhead = true;
-			if (options.angel_halo_type === "default" || options.fallen_halo_type === "default" ) options.angel_halo_lower = true;
+			if ((options.angel_halo_type === "default" || options.fallen_halo_type === "default") && V.options.lowerHalo == true) options.angel_halo_lower = true;
 		} else if (["right_cover", "over_head"].includes(options.worn.handheld.setup.holdPosition)) {
 			options.handheld_overhead = true;
 			options.angel_halo_lower = false;
@@ -1529,31 +1529,79 @@ Renderer.CanvasModels.main = {
 
 			srcfn(options) {
 				const hairs = [
-					"default",
-					"loose",
-					"curl",
-					"defined curl",
-					"neat",
-					"dreads",
 					"afro pouf",
-					"thick ponytail",
+					"afro puffs",
 					"all down",
-					"half-up",
-					"messy ponytail",
-					"ruffled",
-					"half up twintail",
-					"princess wave",
-					"space buns",
-					"sleek",
 					"bedhead",
-				];
+					"braid left",
+					"braid right",
+					"bubble tails",
+					"crescent tails",
+					"crude",
+					"curl",
+					"curly pigtails",
+					"curly side up",
+					"default",
+					"defined curl",
+					"dreads",
+					"drill ringlets",
+					"flat ponytail",
+					"fluffy half up twintail",
+					"fluffy ponytail",
+					"french bob",
+					"fro",
+					"half up twintail",
+					"half-up",
+					"heart braid",
+					"jellyfish ponytail",
+					"jellyfish twintails",
+					"layered bob",
+					"left fishtail",
+					"loop braid",
+					"loose",
+					"low tails",
+					"messy",
+					"messy bun",
+					"messy ponytail",
+					"neat",
+					"pigtails",
+					"ponytail",
+					"princess twintails",
+					"princess wave",
+					"ribbon tail",
+					"right fishtail",
+					"ruffled",
+					"sailor buns",
+					"scorpion tails",
+					"shaved",
+					"short",
+					"short spiky",
+					"sidecut",
+					"sidetail left",
+					"sidetail right",
+					"sleek",
+					"space buns",
+					"straight",
+					"straight bob",
+					"swept left",
+					"thick pigtails",
+					"thick ponytail",
+					"thick princess twintail",
+					"thick sidetail",
+					"thick twintails",
+					"twin braids",
+					"twin double braids",
+					"twin fishtails",
+					"twintails",
+					"wavy braid"
+				  ];
 
 				const path = `img/hair/back/${options.hair_sides_type}`;
-				if (options.hair_sides_length === "feet" && [...hairs, "straight"].includes(options.hair_sides_type))
+				if (options.hair_sides_length === "feet" && hairs.includes(options.hair_sides_type))
 					return `${path}/feet.png`;
 				if (options.hair_sides_length === "thighs" && hairs.includes(options.hair_sides_type))
 					return `${path}/thighs.png`;
-				if (options.hair_sides_length === "navel" && options.hair_sides_type === "messy ponytail")
+				if (options.hair_sides_length === "navel" && hairs.includes(options.hair_sides_type))
 					return `${path}/navel.png`;
 				return "";
 			},
@@ -1759,7 +1807,7 @@ Renderer.CanvasModels.main = {
 		"wolf_tail": genlayer_tail("wolf", true),
 		"wolf_ears": genlayer_ears("wolf", true),
 		"wolf_cheeks": genlayer_cheeks("wolf"),
-		"wolf_pits": genlayer_tf("wolf", "hirsute", "pits"),
+		"wolf_pits": genlayer_tf_pits("wolf", "hirsute"),
 		"wolf_pubes": genlayer_tf_pubes("wolf", "hirsute"),
 		/***
 		 *     ██████  █████  ████████
@@ -2056,11 +2104,23 @@ Renderer.CanvasModels.main = {
 			animation: "idle"
 		},
 
-
-
-
-
-
+		"nnpc": {
+			srcfn() {
+				if (V.options.nnpcDisplay == 0) return;
+				return `img/ui/nnpc/${V.options.nnpcDisplay}/${V.options.nnpcDisplaySlot}.png`;
+			},
+			showfn(options) {
+				return options.show_nnpc;
+			},
+			zfn() {
+				if (V.options.nnpcDisplayLayer === "front") {
+					return ZIndices.deco_fg1 + 1;
+				} else {
+					return ZIndices.deco_bg2 + 1;
+				}
+			},
+			animation: "idle"
+		},
 
 		/***
 		 *    ██████  ██   ██ ███    ██ ███    ██ ██ ██
@@ -2587,7 +2647,6 @@ Renderer.CanvasModels.main = {
 			},
 		},
 		"cum_leftarm": {
-			z: ZIndices.tears,
 			animation: "idle",
 			srcfn(options) {
 				return `img/body/cum/Left Arm ${options.cum_leftarm}.png`;
@@ -2595,9 +2654,11 @@ Renderer.CanvasModels.main = {
 			showfn(options) {
 				return options.arm_left !== "none" && options.arm_left != "cover" && !!options.cum_leftarm;
 			},
+			zfn(options) {
+				return (options.arm_right === "cover") ? ZIndices.arms_cover + 0.05 : options.zarms + 0.05;
+			},
 		},
 		"cum_rightarm": {
-			z: ZIndices.tears,
 			animation: "idle",
 
 			srcfn(options) {
@@ -2608,6 +2669,9 @@ Renderer.CanvasModels.main = {
 					&& options.arm_right != "cover"
 					&& options.arm_right != "hold"
 					&& !!options.cum_rightarm;
+			},
+			zfn(options) {
+				return (options.arm_right === "cover" || options.arm_right === "hold") ? ZIndices.arms_cover + 0.05 : options.zarms + 0.05;
 			},
 		},
 		"cum_neck": {
@@ -4050,7 +4114,7 @@ Renderer.CanvasModels.main = {
 			showfn(options) {
 				return !!options.follower && !!options.follower.clothes_left_arm;
 			},
-			z: ZIndices.head + 2,
+			z: ZIndices.head + 4,
 		},
 		"follower_hair": {
 			animation: "idle",
@@ -4060,7 +4124,7 @@ Renderer.CanvasModels.main = {
 			showfn(options) {
 				return !!options.follower && !!options.follower.hair;
 			},
-			z: ZIndices.head + 4,
+			z: ZIndices.head + 6,
 		},
 		"follower_under_clothes": {
 			animation: "idle",
@@ -4070,7 +4134,7 @@ Renderer.CanvasModels.main = {
 			showfn(options) {
 				return !!options.follower && !!options.follower.under_clothes;
 			},
-			z: ZIndices.head + 2,
+			z: ZIndices.head + 3,
 		},
 		"follower_clothes": {
 			animation: "idle",
@@ -4080,17 +4144,127 @@ Renderer.CanvasModels.main = {
 			showfn(options) {
 				return !!options.follower && !!options.follower.clothes;
 			},
-			z: ZIndices.head + 3,
+			z: ZIndices.head + 5,
 		},
-		"follower_skin": {
+		"follower_writing_right_cheek": {
 			animation: "idle",
 			srcfn(options) {
-				return `img/clothes/props/npc/${options.follower.name}/${options.follower.skin}.png`;
+				return `img/clothes/props/npc/${options.follower.name}/${options.follower.writing_right_cheek}.png`;
 			},
 			showfn(options) {
-				return !!options.follower && !!options.follower.skin;
+				return !!options.follower && !!options.follower.writing_right_cheek;
 			},
-			z: ZIndices.head + 1,
+			z: ZIndices.head + 2,
+		},
+		"follower_writing_chest": {
+			animation: "idle",
+			srcfn(options) {
+				return `img/clothes/props/npc/${options.follower.name}/${options.follower.writing_chest}.png`;
+			},
+			showfn(options) {
+				return !!options.follower && !!options.follower.writing_chest;
+			},
+			z: ZIndices.head + 2,
+		},
+		"follower_writing_left_arm": {
+			animation: "idle",
+			srcfn(options) {
+				return `img/clothes/props/npc/${options.follower.name}/${options.follower.writing_left_arm}.png`;
+			},
+			showfn(options) {
+				return !!options.follower && !!options.follower.writing_left_arm;
+			},
+			z: ZIndices.head + 2,
+		},
+		"follower_writing_right_arm": {
+			animation: "idle",
+			srcfn(options) {
+				return `img/clothes/props/npc/${options.follower.name}/${options.follower.writing_right_arm}.png`;
+			},
+			showfn(options) {
+				return !!options.follower && !!options.follower.writing_right_arm;
+			},
+			z: ZIndices.head + 2,
+		},
+		"follower_writing_left_shoulder": {
+			animation: "idle",
+			srcfn(options) {
+				return `img/clothes/props/npc/${options.follower.name}/${options.follower.writing_left_shoulder}.png`;
+			},
+			showfn(options) {
+				return !!options.follower && !!options.follower.writing_left_shoulder;
+			},
+			z: ZIndices.head + 2,
+		},
+		"follower_writing_right_shoulder": {
+			animation: "idle",
+			srcfn(options) {
+				return `img/clothes/props/npc/${options.follower.name}/${options.follower.writing_right_shoulder}.png`;
+			},
+			showfn(options) {
+				return !!options.follower && !!options.follower.writing_right_shoulder;
+			},
+			z: ZIndices.head + 2,
+		},
+		"follower_writing_left_thigh": {
+			animation: "idle",
+			srcfn(options) {
+				return `img/clothes/props/npc/${options.follower.name}/${options.follower.writing_left_thigh}.png`;
+			},
+			showfn(options) {
+				return !!options.follower && !!options.follower.writing_left_thigh;
+			},
+			z: ZIndices.head + 2,
+		},
+		"follower_writing_right_thigh": {
+			animation: "idle",
+			srcfn(options) {
+				return `img/clothes/props/npc/${options.follower.name}/${options.follower.writing_right_thigh}.png`;
+			},
+			showfn(options) {
+				return !!options.follower && !!options.follower.writing_right_thigh;
+			},
+			z: ZIndices.head + 2,
+		},
+		"follower_writing_left_leg": {
+			animation: "idle",
+			srcfn(options) {
+				return `img/clothes/props/npc/${options.follower.name}/${options.follower.writing_left_leg}.png`;
+			},
+			showfn(options) {
+				return !!options.follower && !!options.follower.writing_left_leg;
+			},
+			z: ZIndices.head + 2,
+		},
+		"follower_writing_right_leg": {
+			animation: "idle",
+			srcfn(options) {
+				return `img/clothes/props/npc/${options.follower.name}/${options.follower.writing_right_leg}.png`;
+			},
+			showfn(options) {
+				return !!options.follower && !!options.follower.writing_right_leg;
+			},
+			z: ZIndices.head + 2,
+		},
+		"follower_writing_left_foot": {
+			animation: "idle",
+			srcfn(options) {
+				return `img/clothes/props/npc/${options.follower.name}/${options.follower.writing_left_foot}.png`;
+			},
+			showfn(options) {
+				return !!options.follower && !!options.follower.writing_left_foot;
+			},
+			z: ZIndices.head + 2,
+		},
+		"follower_writing_right_foot": {
+			animation: "idle",
+			srcfn(options) {
+				return `img/clothes/props/npc/${options.follower.name}/${options.follower.writing_right_foot}.png`;
+			},
+			showfn(options) {
+				return !!options.follower && !!options.follower.writing_right_foot;
+			},
+			z: ZIndices.head + 2,
 		},
 
 		// new layer template
@@ -5097,6 +5271,17 @@ function genlayer_tf_pubes(tf, folder, overrideOptions) {
 		},
 		masksrcfn(options) {
 			return options.body_type === "soft" ? "img/clothes/masks/soft_lower_clip.png" : null;
+		},
+	}, overrideOptions))
+}
+
+function genlayer_tf_pits(tf, folder, overrideOptions) {
+	return genlayer_tf(tf, folder, "pits", Object.assign({
+		z: ZIndices.hirsute,
+		showfn(options) {
+			return options.show_tf
+			&& isPartEnabled(options[`${tf}_pits_type`])
+			&& !options.hideAll;
 		},
 	}, overrideOptions))
 }

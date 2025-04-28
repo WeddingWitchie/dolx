@@ -255,6 +255,10 @@ Weather.BodyTemperature = (() => {
 				coldTolerance: 0, coldToleranceEnd: 0,
 				heatTolerance: 0, heatToleranceEnd: 0
 			},
+			fox: {
+				coldTolerance: -10, coldToleranceEnd: -15,
+				heatTolerance: 5, heatToleranceEnd: 10
+			},
 		};
 
 		const mod = transformationAdjustments[V.transformationParts.traits.tempTolerance] ?? {

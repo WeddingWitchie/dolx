@@ -32,6 +32,14 @@ Weather.Thermometer = (() => {
 	let allImagesLoaded = false;
 
 	function load() {
+		if (V.options.thermometerDisplay.includes("modded")) {
+			images.baseImg.src = "img/ui/weather/thermometer/" + V.options.thermometerDisplay + ".png";
+			images.fillImg.src = "img/ui/weather/thermo_filled/" + V.options.thermometerDisplay + ".png";
+		} else {
+			images.baseImg.src = "img/ui/weather/thermometer.png";
+			images.fillImg.src = "img/ui/weather/thermo_filled.png";
+		}
+
 		Object.entries(images).map(([key, imageInfo]) => {
 			const promise = new Promise((resolve, reject) => {
 				const img = new Image();
@@ -47,6 +55,10 @@ Weather.Thermometer = (() => {
 		});
 
 		Promise.all(loadPromises).then(() => {
+			if (thermometerCanvas) {
+				thermometerCanvas.canvas.remove();
+				thermometerCanvas = null;
+			}
 			thermometerCanvas = new BaseCanvas(0, 0, 0.5);
 			const baseImg = images.baseImg.img;
 			size.width = baseImg.width * size.scaleFactor;
