@@ -597,6 +597,12 @@ const statChange = (() => {
 		if (isNaN(amount)) paramError("delinquency", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 		if (amount) {
+			if (V.backgroundTraits.includes("delinquent")) {
+				amount *= 1.25;
+			}
+			if (V.backgroundTraits.includes("nerd")) {
+				amount *= 0.75;
+			}
 			if (source === "bonus") {
 				// find how many visible, non-mandatory school clothes are equipped, and add 1
 				const multi = getVisibleClothesList().reduce(
@@ -616,6 +622,12 @@ const statChange = (() => {
 		if (V.statFreeze) return;
 		if (isNaN(amount)) paramError("status", "amount", amount, "Expected a number.");
 		amount = Number(amount);
+		if (V.backgroundTraits.includes("delinquent")) {
+			amount *= 1.25;
+		}
+		if (V.backgroundTraits.includes("nerd")) {
+			amount *= 0.75;
+		}
 		if (amount > 0) {
 			V.cool += amount;
 
@@ -651,6 +663,9 @@ const statChange = (() => {
 	function awareness(amount) {
 		if (isNaN(amount)) paramError("awareness", "amount", amount, "Expected a number.");
 		amount = Number(amount);
+		if (V.backgroundTraits.includesAny("promiscuous","exhibitionist","deviant")) {
+			amount *= amount > 0 ? 1.25 : 0.50;
+		}
 		if (amount) {
 			const mod = Object.values(V.worn).reduce((prev, item) => {
 				if (item.type.includes("dark")) return prev + 1;
@@ -928,6 +943,10 @@ const statChange = (() => {
 
 	function willpower(amount) {
 		if (isNaN(amount)) paramError("willpower", "amount", amount, "Expected a number.");
+		if (V.backgroundTraits.includes("nerd")) {
+			amount *= 2;
+		}
+		
 		if (V.willpower > 1000 || V.AMCTraits.halfGain === 1)
 			amount = Number(amount) / V.AMCTraits.willpower;
 		else
@@ -1047,6 +1066,29 @@ const statChange = (() => {
 		}
 		if (type === "penileskill" && !(V.player.penisExist || playerHasStrapon())) return;
 		amount = Number(amount);
+
+		/* Background trait bonuses */
+		if ([
+			"oralskill",
+			"vaginalskill",
+			"penileskill",
+			"handskill",
+			"analskill",
+			"feetskill",
+			"bottomskill",
+			"thighskill",
+			"chestskill",
+			"seductionskill"
+		].includes(type) && V.backgroundTraits.includes("promiscuous")) {
+			amount *= amount > 0 ? 1.25 : 0.25;
+		}
+		else if (type === "beauty" && V.backgroundTraits.includes("beautiful")) {
+			amount *= amount > 0 ? 1.25 : 0.25;
+		}
+		else if (type === "skulduggeryskill" && V.backgroundTraits.includes("delinquent")) {
+			amount *= amount > 0 ? 1.25 : 0.25;
+		}
+
 		if (amount) {
 			if (V[type] >= V[type + "max"] || V.AMCTraits.halfGain == 1) amount /= 2;
 			V[type] = Math.clamp(V[type] + amount * (V.statGainMult / 100), 0, V[type + "max"] * V.AMCTraits[type] || 1000);
