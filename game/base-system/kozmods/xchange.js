@@ -66,6 +66,11 @@ function pillIsPermanent() {
 }
 window.pillIsPermanent = pillIsPermanent;
 
+function pillShouldHaveEnded() {
+	return V.xchange.pill.duration - V.xchange.pill.countdown >= 24; 
+}
+window.pillShouldHaveEnded = pillShouldHaveEnded;
+
 function playerBodyIsMale() {
 	return (V.player.gender === "m" && !playerIsXChanged()) || (V.player.gender === "f" && playerIsXChanged());
 }
@@ -146,6 +151,8 @@ function xchangeHourlyCheck() {
 	const pill = V.xchange.pill;
 	if (pill?.active)
 	{
+		pill.countdown--;
+
 		// If got impregnated in the vagina, or allowed an ear slime to grow to a certain point
 		// then, the change becomes permanent 
 		if (V.xchange.pillPermanence === 1 && !pillIsPermanent() && (V.sexStats.vagina.pregnancy.type !== null || V.earSlime.growth > 50))
