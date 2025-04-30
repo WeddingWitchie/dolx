@@ -90,6 +90,8 @@ variables:
 build_job:
     stage: build
     script:
+        - echo $CI_API_V4_URL
+        - echo $CI_PROJECT_ID
         - $FULLVERSION=$(cat version)
         - if ($FULLVERSION -match "DoLX (\d+\.\d+\.\d+[a-z]*)") {$VERSION=$matches[1]}
         - echo "Building release $VERSION"
@@ -103,8 +105,6 @@ build_job:
         - Compress-Archive ./buildAudio/* "./DoLX_Audio_$VERSION.zip"
         - echo "Finished Building Release $VERSION"
         - echo "Uploading Release $VERSION"
-        - echo $CI_API_V4_URL
-        - echo $CI_PROJECT_ID
         - 'Invoke-RestMethod -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" }  -InFile "./DoLX_HTML_$VERSION.zip" -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX_HTML_$VERSION.zip" -Method PUT'
         - 'Invoke-RestMethod -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" }  -InFile "./DoLX_Images_$VERSION.zip" -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX_Images_$VERSION.zip" -Method PUT'
         - 'Invoke-RestMethod -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" }  -InFile "./DoLX_Audio_$VERSION.zip" -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX_Audio_$VERSION.zip" -Method PUT'
