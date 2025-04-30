@@ -82,10 +82,17 @@
 	<<schooleffects>>
 	<!-- an extra variable for use in adding learning points, stress, etc.
 		1 point per 5 minutes + 1 for being present at the end of the lesson -->
+
+	<<set _lesson_progress to (_time_left gte 20 ? 4 : Math.trunc(_time_left / 5)) + $phase>>
+
+	<!--
+		We want to gain up to 4 per 20 min segment, that's better than library study (3 / 20min)
+	-->
+	<<set _lesson_gain to _lesson_progress>>
+
+	<!-- School desks are expensive (10k), so we want to reward approperiately compared to home study, 16-20 points. -->
 	<<if $school_desk_dolp is 2>>
-		<<set _lesson_progress to (_time_left gte 20 ? 4 : Math.trunc(_time_left / 5)) + $phase + 2>>
-	<<else>>
-		<<set _lesson_progress to (_time_left gte 20 ? 4 : Math.trunc(_time_left / 5)) + $phase>>
+		<<set _lesson_gain to _lesson_gain * 4>>
 	<</if>>
 <</widget>>
 
@@ -2328,7 +2335,7 @@
 			<<npc Doren>><<person1>><<wearProp "pen">>
 			"Poetry," Doren says. "Finds inspiration in the natural world."
 			<br><br>
-			"Look at that storm outside," <<he>> says. "Those brooding clouds. The growling thunder. Take a moment to reflect on what you see. What you feel. See that?" A few seconds pass, then a rumble of thunder. "The raw, animal fury of nature," Doren grins widely. 
+			"Look at that storm outside," <<he>> says. "Those brooding clouds. The growling thunder. Take a moment to reflect on what you see. What you feel. See that?" A few seconds pass, then a rumble of thunder. "The raw, animal fury of nature," Doren grins widely.
 			<br><br>
 			"Now, capture it. Adjectives, obviously, but don't neglect verbs."
 			<br><br>
@@ -2348,7 +2355,7 @@
 		<<else>>
 			<<npc Doren>><<person1>>
 			"Poetry," Doren says. "Finds inspiration in the natural world."
-			
+
 			<<if Time.season is "spring">>
 				<<He>> brings around some blossoms from the park. One student starts sneezing.
 			<<elseif Time.season is "autumn">>
@@ -3298,15 +3305,15 @@
 		<<generates1>><<person1>><<set _coinflip to random(0,1)>>
 		A <<person>> near you falls asleep in class.
 		<<if $rng % 2>>
-			<<He>> quietly dozes for a few minutes, waking up sharply when 
+			<<He>> quietly dozes for a few minutes, waking up sharply when
 			<<print either(
-				"Winter drops a pen.", 
+				"Winter drops a pen.",
 				"a girl's chair scrapes.",
 				"the class door opens.",
 				"a boy falls off his chair.",
 				"another student walks past.",
 				"the student behind gives a gentle nudge.")>>
-			<<He>> looks around in panic for a moment. 
+			<<He>> looks around in panic for a moment.
 			<br><br>
 			You give <<him>> a subtle thumbs up, mouthing 'It's okay'. <<He>> nods back in thanks.
 			<<gcool>><<status 1>>
@@ -4130,72 +4137,30 @@
 
 <<widget "homeStudyOptions">>
 	<<if $studyBooks isnot undefined>>
-		/* <<switch $studyBooks.rented>>
-			<<case "science">>
-				<<link [[Study science (0:20)|$passage]]>><<set $study to 1>><<pass 20>><<set $phase to 1>><</link>><<gscience>>
-				<br>
-			<<case "maths">>
-				<<link [[Study maths (0:20)|$passage]]>><<set $study to 1>><<pass 20>><<set $phase to 2>><</link>><<gmaths>>
-				<br>
-			<<case "English">>
-				<<link [[Study English (0:20)|$passage]]>><<set $study to 1>><<pass 20>><<set $phase to 3>><</link>><<genglish>>
-				<br>
-			<<case "history">>
-				<<link [[Study history (0:20)|$passage]]>><<set $study to 1>><<pass 20>><<set $phase to 4>><</link>><<ghistory>>
-				<br>
-			<<case "Raul and Janet">>
-				<<scarleticon>><<link [[Read "Raul and Janet" (0:01)|ScarletBook1]]>><<pass 1>><<set $scarletExitPassage to $passage>><</link>>
-				<br>
-			<<case "Pinch">>
-				<<oliveicon>><<link [[Read the olive-coloured book (0:01)|Olive Book 1]]>><<pass 1>><<set $oliveExitPassage to $passage>><</link>>
-				<br>
-			<<default>>
-		<</switch>>
-		<<switch $studyBooks.stolen>>
-			<<case "science">>
-				<<link [[Study science (0:20)|$passage]]>><<set $study to 1>><<pass 20>><<set $phase to 1>><</link>><<gscience>>
-				<br>
-			<<case "maths">>
-				<<link [[Study maths (0:20)|$passage]]>><<set $study to 1>><<pass 20>><<set $phase to 2>><</link>><<gmaths>>
-				<br>
-			<<case "English">>
-				<<link [[Study English (0:20)|$passage]]>><<set $study to 1>><<pass 20>><<set $phase to 3>><</link>><<genglish>>
-				<br>
-			<<case "history">>
-				<<link [[Study history (0:20)|$passage]]>><<set $study to 1>><<pass 20>><<set $phase to 4>><</link>><<ghistory>>
-				<br>
-			<<case "Raul and Janet">>
-				<<scarleticon>><<link [[Read "Raul and Janet" (0:01)|ScarletBook1]]>><<pass 1>><<set $scarletExitPassage to $passage>><</link>>
-				<br>
-			<<case "Pinch">>
-				<<oliveicon>><<link [[Read the olive-coloured book (0:01)|Olive Book 1]]>><<pass 1>><<set $oliveExitPassage to $passage>><</link>>
-				<br>
-			<<default>>
-		<</switch>> */
 		<<set _chair to Furniture.get('chair', $location)>>
 		<<if _chair.name is "chair">>
-			<<set _studyGain to 6>>
+			<<set _studyGain to 2>>
 		<<elseif _chair.name is "stools">>
-			<<set _studyGain to 7>>
+			<<set _studyGain to 3>>
 		<<elseif _chair.name is "wooden chairs">>
-			<<set _studyGain to 8>>
+			<<set _studyGain to 4>>
 		<<elseif _chair.name is "swivel chairs">>
-			<<set _studyGain to 9>>
+			<<set _studyGain to 5>>
 		<<elseif _chair.name is "shell chairs">>
-			<<set _studyGain to 10>>
+			<<set _studyGain to 6>>
 		<<elseif _chair.name is "armchairs">>
-			<<set _studyGain to 11>>
+			<<set _studyGain to 7>>
 		<<elseif _chair.name is "egg armchairs">>
-			<<set _studyGain to 12>>
+			<<set _studyGain to 8>>
 		<</if>>
 		<<if _desk.name is "basic desk">>
 			<<set _studyGain += 0>>
 		<<elseif _desk.name is "glass desk">>
-			<<set _studyGain += 2>>
+			<<set _studyGain += 0.5>>
 		<<elseif _desk.name is "mid-century modern desk">>
-			<<set _studyGain += 4>>
+			<<set _studyGain += 1>>
 		<<elseif _desk.name is "antique desk">>
-			<<set _studyGain += 6>>
+			<<set _studyGain += 1.5>>
 		<</if>>
 		<<if $studyBooks.rented.science is 1>>
 			<<scienceicon>><<link [[Study science (0:20)|$passage]]>><<set $study to 1>><<scienceskill _studyGain>><<pass 20>><<set $phase to 1>><</link>><<gscience>>
@@ -4393,9 +4358,9 @@
 	/* Suggestion:
 		When broken, the machine can be completely inoperable for a week.
 		When stolen, the machine can still be operated normally, but held cash is set to 0:
-		  Each day the machine's stored wealth can be reset, and held cash could be randomly incremented.
-		  If you purchase condoms, you could sneakily regain the cash you spent.
-		  Optional: There could be more than 2 condoms in the machine.
+		Each day the machine's stored wealth can be reset, and held cash could be randomly incremented.
+		If you purchase condoms, you could sneakily regain the cash you spent.
+		Optional: There could be more than 2 condoms in the machine.
 	*/
 	<<if $weekly.theft.vendingMachine.broken or $weekly.theft.vendingMachine.stolen>>
 		<span class="red">The vending machine is broken.</span>

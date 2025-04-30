@@ -553,6 +553,8 @@ Renderer.CanvasModels.main = {
 			"show_background2": true,
 			"show_foreground2": true,
 
+			"show_nnpc": true,
+
 			// misc
 			"tanningEnabled": true,
 			"genitals_chastity": false, // generated option
@@ -2106,17 +2108,37 @@ Renderer.CanvasModels.main = {
 
 		"nnpc": {
 			srcfn() {
-				if (V.options.nnpcDisplay == 0) return;
-				return `img/ui/nnpc/${V.options.nnpcDisplay}/${V.options.nnpcDisplaySlot}.png`;
+				if (V.NPCList[0].fullDescription != undefined && setup.NPCNameList.includes(V.NPCList[0].fullDescription)) {	
+					T.activeNNPC = V.NPCList[0].fullDescription.toLowerCase();
+				} else T.activeNNPC = 0;
+				if (V.options.autoNNPCDisplay.enabled == true && !T.optionsEnabled) {
+					if (T.activeNNPC == 0 || V.options.autoNNPCDisplay[T.activeNNPC].slot == 0) return;
+				} else if (V.options.nnpcDisplay == 0 || V.options.nnpcDisplaySlot == 0) return;
+				if (V.options.autoNNPCDisplay.enabled == true && !T.optionsEnabled) {
+					if (V.options.autoNNPCDisplay[T.activeNNPC].slot != 0) {
+						return `img/ui/nnpc/${T.activeNNPC}/${V.options.autoNNPCDisplay[T.activeNNPC].slot}.png`;
+					} else return;
+				} else {
+					return `img/ui/nnpc/${V.options.nnpcDisplay}/${V.options.nnpcDisplaySlot}.png`;
+				}
 			},
 			showfn(options) {
 				return options.show_nnpc;
 			},
 			zfn() {
-				if (V.options.nnpcDisplayLayer === "front") {
-					return ZIndices.deco_fg1 + 1;
+				T.activeNNPC = V.NPCList[0].fullDescription.toLowerCase();
+				if (V.options.autoNNPCDisplay.enabled == true && !T.optionsEnabled) {
+					if (V.options.autoNNPCDisplay[T.activeNNPC].layer === "front") {
+						return ZIndices.deco_fg1 + 1;
+					} else {
+						return ZIndices.deco_bg2 + 1;
+					}
 				} else {
-					return ZIndices.deco_bg2 + 1;
+					if (V.options.nnpcDisplayLayer === "front") {
+						return ZIndices.deco_fg1 + 1;
+					} else {
+						return ZIndices.deco_bg2 + 1;
+					}
 				}
 			},
 			animation: "idle"
@@ -2536,6 +2558,20 @@ Renderer.CanvasModels.main = {
 			},
 			showfn(options) {
 				return options.show_writings && !!options.writing_pubic;
+			},
+			dxfn(options) {
+				if (options.belly >= 23) return 10;
+				if (options.belly >= 22) return 8;
+				if (options.belly >= 20) return 6;
+				if (options.belly >= 17) return 4;
+				if (options.belly >= 8) return 2;
+				return 0;
+			},
+			dyfn(options) {
+				if (options.belly >= 24) return 6;
+				if (options.belly >= 22) return 4;
+				if (options.belly >= 21) return 2;
+				return 0;
 			},
 		},
 		"writing_left_thigh": {
@@ -4080,11 +4116,11 @@ Renderer.CanvasModels.main = {
 		"feet_back_acc": genlayer_clothing_back_img_acc('feet'),
 		"feet_back": genlayer_clothing_back_img('feet'),
 		/***
-		 *    ███████  ██████  ██      ██       ██████  ██     ██ ███████ ██████  
-		 *    ██      ██    ██ ██      ██      ██    ██ ██     ██ ██      ██   ██ 
-		 *    █████   ██    ██ ██      ██      ██    ██ ██  █  ██ █████   ██████  
-		 *    ██      ██    ██ ██      ██      ██    ██ ██ ███ ██ ██      ██   ██ 
-		 *    ██       ██████  ███████ ███████  ██████   ███ ███  ███████ ██   ██                                                                 
+		 *    ███████  ██████  ██      ██       ██████  ██     ██ ███████ ██████
+		 *    ██      ██    ██ ██      ██      ██    ██ ██     ██ ██      ██   ██
+		 *    █████   ██    ██ ██      ██      ██    ██ ██  █  ██ █████   ██████
+		 *    ██      ██    ██ ██      ██      ██    ██ ██ ███ ██ ██      ██   ██
+		 *    ██       ██████  ███████ ███████  ██████   ███ ███  ███████ ██   ██
 		 */
 		"follower_base": {
 			animation: "idle",
