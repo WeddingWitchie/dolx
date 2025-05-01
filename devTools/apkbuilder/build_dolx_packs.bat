@@ -10,9 +10,10 @@ cd ../..
 
 @REM set VERSION
 setlocal enableextensions
-for /f "delims=" %%a in (version) do (
+for /f "tokens=3" %%a in (version) do (
     set version=%%a
 )
+
 echo "Building vanilla APK release %version%"
 REM xcopy /s /e /i /q /y ".\imagepacks\vanilla\*" ".\img"
 call ./compile.bat
@@ -25,6 +26,7 @@ cd ../devTools/apkbuilder
 
 @echo off
 cd ../..
+
 echo "Building mysterious APK release %version%"
 REM xcopy /s /e /i /q /y ".\imagepacks\vanilla\*" ".\img"
 xcopy /s /e /i /q /y ".\imagepacks\mysterious\*" ".\img"
