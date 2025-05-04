@@ -394,10 +394,13 @@
 	<</widget>>
 
 	<<widget "xchange-effects">>
+		<<set _days to _args[0]>>
+		<<set _effectsList to _args[1]>>
+
 		<<set $sexStats.vagina.menstruation.running = false>>
 		
 		<<set $xchange.pill.active to true>>
-		<<set $xchange.pill.duration to _args[0] * 24 - 1>> <!-- duration now in hours instead of days -->
+		<<set $xchange.pill.duration to _days * 24 - 1>> <!-- duration now in hours instead of days -->
 		<<set $xchange.pill.countdown to $xchange.pill.duration>>
 		<<set $xchange.pill.fertile to false>>
 		<<set $xchange.pill.effectsKnown to true>>
@@ -413,15 +416,15 @@
 		<<set $xchange.pill.portalEffect to false>>
 		<<set $xchange.pill.portalEffectTimer to 0>>
 
-		<<for _effect range _args[1]>>
+		<<for _effect range _effectsList>>
 
 			/* Skip adding continue or resistance effects if not also genderflipped */
-			<<if ["continue", "resistance"].includes(_effect) && !_args[1].includes("genderflip")>>
+			<<if ["continue", "resistance"].includes(_effect) && !_effectsList.includes("genderflip")>>
 				<<continue>>
 			<</if>>
 			
 			/* Add each effect */
-			<<xchange-addeffect _effect>>
+			<<xchange-addeffect _effect _days>>
 
 		<</for>>
 	<</widget>>
@@ -468,7 +471,9 @@
 			<<set $xchange.pill.bullEffect to true>>
 		<<case "portal">>
 			<<if $portalPantiesEnabled>>
+				<<run console.warn(_args[1])>>
 				<<set _duration to _args[1] ?? 1>>
+				<<run console.warn(_duration)>>
 				<<set $xchange.pill.portalEffect to true>>
 				<<set $xchange.pill.portalEffectTimer to _duration * 24 - 1>>
 			<</if>>
