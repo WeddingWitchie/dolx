@@ -134,62 +134,72 @@ You are in the tattoo parlour. The artists here can turn anything drawn on you i
 They have a board displaying a number of tattoo designs.
 <br><br>
 
-Location:<br>
-<<for _active_bodypart range setup.bodyparts>>
-	<<if !$skin[_active_bodypart].writing>>
-		<<set _bodypart_detected to 1>>
-		<label>Your <<bodypart _active_bodypart>> <<capture _active_bodypart>><<radiobutton "$tattoo_bodypart" _active_bodypart>><</capture>></label>
+<div id="tattooPreview">
+	Location:<br>
+	<<for _active_bodypart range setup.bodyparts>>
+		<<if !$skin[_active_bodypart].writing>>
+			<<set _bodypart_detected to 1>>
+			<label>Your <<bodypart _active_bodypart>> <<capture _active_bodypart>><<radiobutton "$tattoo_bodypart" _active_bodypart>><</capture>></label>
+			<br>
+		<</if>>
+	<</for>>
+	<<if _bodypart_detected isnot 1>>
+		<span class="red">There's no room on your skin.</span>
 		<br>
 	<</if>>
-<</for>>
-<<if _bodypart_detected isnot 1>>
-	<span class="red">There's no room on your skin.</span>
 	<br>
-<</if>>
-<br>
 
-<span class="pink">Girly</span> tattoos:
-<br>
-<label>Unicorn <span class="pink">♀</span> <<radiobutton "$tattoo_choice" "unicorn">></label> |
-<label>Heart <span class="pink">♀</span> <<radiobutton "$tattoo_choice" "heart">></label> |
-<label>Flower <span class="pink">♀</span> <<radiobutton "$tattoo_choice" "flower">></label> |
-<label>Butterfly <span class="pink">♀</span> <<radiobutton "$tattoo_choice" "butterfly">></label> |
-<label>Star <span class="pink">♀</span> <<radiobutton "$tattoo_choice" "star">></label> |
+	<span class="pink">Girly</span> tattoos:
+	<br>
+	<label>Unicorn <span class="pink">♀</span> <<radiobutton "$tattoo_choice" "unicorn">></label> |
+	<label>Heart <span class="pink">♀</span> <<radiobutton "$tattoo_choice" "heart">></label> |
+	<label>Flower <span class="pink">♀</span> <<radiobutton "$tattoo_choice" "flower">></label> |
+	<label>Butterfly <span class="pink">♀</span> <<radiobutton "$tattoo_choice" "butterfly">></label> |
+	<label>Star <span class="pink">♀</span> <<radiobutton "$tattoo_choice" "star">></label> |
 
-<br><br>
-<span class="blue">Boyish</span> tattoos:
-<br>
-<label>Skull <span class="blue">♂</span> <<radiobutton "$tattoo_choice" "skull">></label> |
-<label>Flame <span class="blue">♂</span> <<radiobutton "$tattoo_choice" "flame">></label> |
+	<br><br>
+	<span class="blue">Boyish</span> tattoos:
+	<br>
+	<label>Skull <span class="blue">♂</span> <<radiobutton "$tattoo_choice" "skull">></label> |
+	<label>Flame <span class="blue">♂</span> <<radiobutton "$tattoo_choice" "flame">></label> |
 
-<br><br>
+	<br><br>
 
-<span class="gold">Holy</span> tattoos:
-<br>
-<label>Cross <<radiobutton "$tattoo_choice" "cross">></label> |
+	<span class="gold">Holy</span> tattoos:
+	<br>
+	<label>Cross <<radiobutton "$tattoo_choice" "cross">></label> |
 
-<br><br>
+	<br><br>
 
-<span class="lewd">Deviant</span> tattoos:
-<br>
-<<if hasSexStat("deviancy", 3)>>
-	<label>Paw print <<radiobutton "$tattoo_choice" "paw_print">></label> |
-<<else>>
-	You're not deviant enough.
-<</if>>
-<br><br>
+	<span class="lewd">Deviant</span> tattoos:
+	<br>
+	<<if hasSexStat("deviancy", 3)>>
+		<label>Paw print <<radiobutton "$tattoo_choice" "paw_print">></label> |
+	<<else>>
+		You're not deviant enough.
+	<</if>>
+	<br><br>
 
-<span class="red">Tribal</span> tattoos:
-<br>
-<label>Triangle <<radiobutton "$tattoo_choice" "triangle">></label> |
-<label>Square <<radiobutton "$tattoo_choice" "square">></label> |
-<label>Circle <<radiobutton "$tattoo_choice" "circle">></label> |
-<br><br>
+	<span class="red">Tribal</span> tattoos:
+	<br>
+	<label>Triangle <<radiobutton "$tattoo_choice" "triangle">></label> |
+	<label>Square <<radiobutton "$tattoo_choice" "square">></label> |
+	<label>Circle <<radiobutton "$tattoo_choice" "circle">></label> |
+	<br><br>
+</div>
 
 <<link [[Get tattoo (£500 1:00)|Tattoo Get]]>><</link>><<gpain>>
 <br>
 <<link [[Back|Tattoo Parlour]]>><<unset $tattoo_bodypart>><<unset $writebodyaction>><</link>>
 <br>
+
+<<script>>
+	$(() =>
+		$("#tattooPreview").on("change", ".macro-radiobutton", function (e) {
+			Wikifier.wikifyEval("<<updatesidebarimg>>");
+		})
+	);
+<</script>>
 
 :: Tattoo Get
 
