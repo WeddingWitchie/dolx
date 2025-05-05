@@ -1,91 +1,9 @@
-cache:
-    key: $CI_COMMIT_REF_SLUG
-    untracked: true
-    paths:
-        - devTools/apkbuilder/node_modules/
-        - devTools/apkbuilder/androidsdk/
-        - devTools/apkbuilder/plugins/
-    policy: pull
-    
 stages:
-    - setup
     - build
     - deploy
 
 variables:
     GIT_STRATEGY: fetch
-
-# setup_apks_job:
-#     stage: setup
-#     cache:
-#         key: $CI_COMMIT_REF_SLUG
-#         untracked: true
-#         paths:
-#             - devTools/apkbuilder/node_modules/
-#             - devTools/apkbuilder/androidsdk/
-#             - devTools/apkbuilder/plugins/
-#         policy: push
-#     script:
-#         - cd devTools/apkbuilder
-#         - IF (!(Test-Path -Path ./androidsdk/.knownPackages)) {cp -Recurse -Force "../../../../../../../degrees-of-lewdity/devTools/apkbuilder/androidsdk/*" -Destination "./androidsdk"}
-#         - mkdir -p node_modules/
-#         - IF (!(Test-Path -Path ./node_modules/.package-lock.json)) {cp -Recurse -Force "../../../../../../../degrees-of-lewdity/devTools/apkbuilder/node_modules/*" -Destination "./node_modules"}
-#         - mkdir -p plugins/
-#         - IF (!(Test-Path -Path ./plugins/fetch.json)) {cp -Recurse -Force "../../../../../../../degrees-of-lewdity/devTools/apkbuilder/plugins/*" -Destination "./plugins"}
-#         - cd ../..
-
-# build_vanilla_apk_job:
-#     stage: build
-#     script:
-#         - cd devTools/apkbuilder
-#         - IF (!(Test-Path -Path ./androidsdk/.knownPackages)) {cp -Recurse -Force "../../../../../../../degrees-of-lewdity/devTools/apkbuilder/androidsdk/*" -Destination "./androidsdk"}
-#         - mkdir -p node_modules/
-#         - IF (!(Test-Path -Path ./node_modules/.package-lock.json)) {cp -Recurse -Force "../../../../../../../degrees-of-lewdity/devTools/apkbuilder/node_modules/*" -Destination "./node_modules"}
-#         - mkdir -p plugins/
-#         - IF (!(Test-Path -Path ./plugins/fetch.json)) {cp -Recurse -Force "../../../../../../../degrees-of-lewdity/devTools/apkbuilder/plugins/*" -Destination "./plugins"}
-#         - cd ../..
-#         - $VERSION=$(cat version)
-#         - echo "Building vanilla APK release $VERSION"
-#         - cp -Recurse -Force "./imagepacks/vanilla/*" -Destination "./img"
-#         - ./compile.bat
-#         - cd devTools/apkbuilder
-#         - ./setup_deps.bat
-#         - ./build_app_debug.bat
-#         - cd ../..
-#         - echo "Finished Building Vanilla APK Release $VERSION"
-#         - echo "Uploading Vanilla APK $VERSION"
-#         - 'Invoke-RestMethod -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" }  -InFile "./dist/Degrees-of-Lewdity-X-Change-$VERSION-debug.apk" -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/Degrees-of-Lewdity-X-Change-$VERSION-vanilla.apk" -Method PUT'
-#         - rm -Recurse -Force "./dist/Degrees-of-Lewdity-X-Change-$VERSION-debug.apk"
-#         - echo "Finished Uploading Vanilla APK $VERSION"
-#     only:
-#         - master
-
-# build_mysterious_apk_job:
-#     stage: build
-#     script:
-#         - cd devTools/apkbuilder
-#         - IF (!(Test-Path -Path ./androidsdk/.knownPackages)) {cp -Recurse -Force "../../../../../../../degrees-of-lewdity/devTools/apkbuilder/androidsdk/*" -Destination "./androidsdk"}
-#         - mkdir -p node_modules/
-#         - IF (!(Test-Path -Path ./node_modules/.package-lock.json)) {cp -Recurse -Force "../../../../../../../degrees-of-lewdity/devTools/apkbuilder/node_modules/*" -Destination "./node_modules"}
-#         - mkdir -p plugins/
-#         - IF (!(Test-Path -Path ./plugins/fetch.json)) {cp -Recurse -Force "../../../../../../../degrees-of-lewdity/devTools/apkbuilder/plugins/*" -Destination "./plugins"}
-#         - cd ../..
-#         - $VERSION=$(cat version)
-#         - echo "Building mysterious APK release $VERSION"
-#         - cp -Recurse -Force "./imagepacks/vanilla/*" -Destination "./img"
-#         - cp -Recurse -Force "./imagepacks/mysterious/*" -Destination "./img"
-#         - ./compile.bat
-#         - cd devTools/apkbuilder
-#         - ./setup_deps.bat
-#         - ./build_app_debug.bat
-#         - cd ../..
-#         - echo "Finished Building Mysterious APK Release $VERSION"
-#         - echo "Uploading Mysterious APK $VERSION"
-#         - 'Invoke-RestMethod -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" }  -InFile "./dist/Degrees-of-Lewdity-X-Change-$VERSION-debug.apk" -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/Degrees-of-Lewdity-X-Change-$VERSION-mysterious.apk" -Method PUT'
-#         - rm -Recurse -Force "./dist/Degrees-of-Lewdity-X-Change-$VERSION-debug.apk"
-#         - echo "Finished Uploading Mysterious APK $VERSION"
-#     only:
-#         - master
 
 build_job:
     stage: build
@@ -96,10 +14,12 @@ build_job:
         - if ($FULLVERSION -match "DoLX (\d+\.\d+\.\d+[a-z]*)") {$VERSION=$matches[1]}
         - echo "Building release $VERSION"
         - mkdir -p buildImg/
+        - mkdir -p buildImg/img/
         - mkdir -p buildAudio/
+        - mkdir -p buildAudio/audio/
         - ./compile.bat
-        - cp -Recurse -Force ./imagepacks/vanilla/* ./buildImg/
-        - cp -Recurse -Force ./audio/* ./buildAudio/
+        - cp -Recurse -Force ./imagepacks/vanilla/* ./buildImg/img/
+        - cp -Recurse -Force ./audio/* ./buildAudio/audio/
         - Compress-Archive "./Degrees of Lewdity VERSION.html" "./DoLX_HTML_$VERSION.zip"
         - Compress-Archive ./buildImg/* "./DoLX_Images_$VERSION.zip"
         - Compress-Archive ./buildAudio/* "./DoLX_Audio_$VERSION.zip"
