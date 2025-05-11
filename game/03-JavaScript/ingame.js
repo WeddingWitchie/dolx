@@ -2686,7 +2686,7 @@ window.formatMoney = formatMoney;
 DefineMacro("formatmoney", money => formatMoney(money));
 
 function lurkerCap() {
-	return Math.min(Math.max(V.farm.net * 2, 1), Math.floor(currentSkillValue("physique") / 4000));
+	return Math.min(Math.max(V.farm.net * 2, 1), Math.floor(currentSkillValue("physique") / 3000));
 }
 window.lurkerCap = lurkerCap;
 

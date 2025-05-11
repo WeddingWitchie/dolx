@@ -1084,7 +1084,7 @@ Renderer.CanvasModels.main = {
 			srcfn(options) {
 				const mannequin = (options.mannequin) ? "mannequin/" : "";
 				const prefix = `img/body/${mannequin}`;
-				const suffix = options.breasts === "cleavage" && options.breast_size >= 3 ? "_clothed.png" : ".png";
+				const suffix = options.breasts === "cleavage" && options.breast_size >= 3 ? "_clothed.png" : V.releaseBoobs === "release" && options.breast_size >= 3 && !options.mannequin ? "_released.png" : ".png";
 				return `${prefix}breasts/breasts${options.breast_size}${suffix}`;
 			},
 		},
@@ -3584,12 +3584,13 @@ Renderer.CanvasModels.main = {
 				return gray_suffix(path, options.filters['worn_hands']);
 			},
 			showfn(options) {
-				return options.show_clothes
-					&& options.worn.hands.index > 0
-					&& options.worn.hands.setup.leftImage === 1
-					&& ["curvy", "slender"].includes(options.body_type)
-					&& options.arm_left === "idle"
-					&& !(options.belly > 7)
+				// return options.show_clothes
+				// 	&& options.worn.hands.index > 0
+				// 	&& options.worn.hands.setup.leftImage === 1
+				// 	&& ["curvy", "slender"].includes(options.body_type)
+				// 	&& options.arm_left === "idle"
+				// 	&& !(options.belly > 7)
+				return false;
 			},
 			masksrcfn(options) {
 				return options.shirt_fitted_left_move_src;
