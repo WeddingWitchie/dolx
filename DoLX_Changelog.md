@@ -8,9 +8,9 @@
 
 ## Changelog
 ### Changes and Additions:
-  * Updated DoLP to version v0.688
+  * Updated DoLP to version v0.690
 
 ### Rebalancing and Bug fixes:
-  * None.
+  * Reverted the mess from the dolp combat backend rework.
 
 
