@@ -704,7 +704,6 @@ function dayPassed(days) {
 			if (V.renttime <= 0) {
 				V.renttime = 7;
 				V.baileyDeposit -= V.rentmoney + (V.babyRent || 0);
-				V.rentstage += 1;
 			}
 		} else {
 			// Not seen bailey for more than 2 weeks, tracks missed rent

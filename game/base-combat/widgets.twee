@@ -618,14 +618,11 @@
 	<</if>>
 	<<if $leftarm is "vagina" or $rightarm is "vagina">>
 		<<set $vaginause to 0>>
-	<</if>>
-	<<if $leftarm is "coverpenis" or $rightarm is "coverpenis">>
+	<<elseif $leftarm is "coverpenis" or $rightarm is "coverpenis">>
 		<<set $penisuse to 0>>
-	<</if>>
-	<<if $leftarm is "anus" or $rightarm is "anus">>
+	<<elseif $leftarm is "anus" or $rightarm is "anus">>
 		<<set $anususe to 0>>
-	<</if>>
-	<<if $leftarm is "face" or $rightarm is "face">>
+	<<elseif $leftarm is "face" or $rightarm is "face">>
 		<<set $face to 0>>
 	<</if>>
 <</widget>>
@@ -1054,12 +1051,6 @@
 <</widget>>
 
 <<widget "healthMultiplier">>
-	<<if Time.days lt 0>>
-		<<set _hopelessDate to new DateTime($frozenValues.timeStamp)>>
-		<<set _days to DateTime.getTotalDaysSinceStart(_hopelessDate.year) + DateTime.getDaysOfMonthFromYear(_hopelessDate.year).slice(0, _hopelessDate.month - 1).reduce((a, b) => a + b, 0) + _hopelessDate.day - 1>>
-	<<else>>
-		<<set _days to Time.days>>
-	<</if>>
 	<<if $NPCList[0].health isnot undefined and $NPCList[0].health gt $enemyhealth>>
 		<<set $enemyhealth to $NPCList[0].health>>
 	<</if>>
@@ -1071,12 +1062,12 @@
 	<<else>>
 		<<set $enemyhealth to Math.round($enemyhealth * ($npcHealthMult / 100))>>
 	<</if>>
-	<<set _buffAmount to Math.floor(_days / $combatExtended.enemyDayScaling)>>
+	<<set _buffAmount to Math.floor(Time.days / $combatExtended.enemyDayScaling)>>
 	<<if $combatExtended.enemyHealthDayScaling is 1>>
 		<<if _buffAmount lte $combatExtended.enemyDayScalingLimit or $combatExtended.enemyInfiniteDayScaling is 1>>
 			<<set _buff += _buffAmount * $combatExtended.enemyHealthDayScalingMult>>
 		<<else>>
-			<<set _buff += $combatExtended.enemyDayScalingLimit * $combatExtended.enemyHealthDayScalingMult>>
+			<<set _buff += _buffAmount * $combatExtended.enemyDayScalingLimit>>
 		<</if>>
 	<</if>>
 	<<set _buffAmount to Math.floor($enemiesDefeatedStat / $combatExtended.enemyDefeatScaling)>>
@@ -1084,10 +1075,10 @@
 		<<if _buffAmount lte $combatExtended.enemyDefeatScalingLimit or $combatExtended.enemyInfiniteDefeatScaling is 1>>
 			<<set _buff += _buffAmount * $combatExtended.enemyHealthDefeatScalingMult>>
 		<<else>>
-			<<set _buff += $combatExtended.enemyDefeatScalingLimit * $combatExtended.enemyHealthDefeatScalingMult>>
+			<<set _buff += _buffAmount * $combatExtended.enemyDefeatScalingLimit>>
 		<</if>>
 	<</if>>
-	<<set $enemyhealth to Math.round($enemyhealth * (1 + (_buff / 100)))>>
+	<<set $enemyhealth to  Math.round($enemyhealth * (1 + (_buff / 100)))>>
 	<<set $enemyhealthmax to $enemyhealth>>
 	<<set $permenemyhealthmax to $enemyhealthmax>>
 <</widget>>
