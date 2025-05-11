@@ -1084,7 +1084,7 @@ Renderer.CanvasModels.main = {
 			srcfn(options) {
 				const mannequin = (options.mannequin) ? "mannequin/" : "";
 				const prefix = `img/body/${mannequin}`;
-				const suffix = options.breasts === "cleavage" && options.breast_size >= 3 ? "_clothed.png" : V.releaseBoobs === "release" ? "_released.png" : ".png";
+				const suffix = options.breasts === "cleavage" && options.breast_size >= 3 ? "_clothed.png" : ".png";
 				return `${prefix}breasts/breasts${options.breast_size}${suffix}`;
 			},
 		},
@@ -2143,7 +2143,7 @@ Renderer.CanvasModels.main = {
 						if (V.options.autoNNPCDisplay[T.activeNNPC].genderOverride == true && V.options.autoNNPCDisplay[T.activeNNPC].gender != "") {
 							T.gender = V.options.autoNNPCDisplay[T.activeNNPC].gender;
 						} else {
-							if (V.NPCList[0].pronoun == "m") {
+							if (V.NPCList[0].gender == "m" || (V.NPCList[0].gender == "h" && V.NPCList[0].pronoun == "m")) {
 								T.gender = "male";
 							} else {
 								T.gender = "female";

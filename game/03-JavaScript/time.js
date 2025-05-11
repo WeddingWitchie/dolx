@@ -1881,10 +1881,8 @@ function dailySchoolEffects() {
 			if (V.book_rent_deposit >= Math.round(T.totalRentPrice / 14)) {
 				V.book_rent_deposit -= Math.round(T.totalRentPrice / 14);
 				V.book_rent_timer = 14;
-				if (V.bookOverdue) delete V.bookOverdue;
 			} else if (V.book_rent_timer >= 0) {
 				V.book_rent_timer--;
-				if (V.bookOverdue) delete V.bookOverdue;
 			} else if (V.book_rent_timer < 0) {
 				if (V.bookOverdue === undefined) V.bookOverdue = 0;
 				V.bookOverdue++;
@@ -2115,7 +2113,7 @@ function dailyFarmEvents() {
 				V.farm.player_still_timer--;
 			}
 			if (V.farm.player_still_timer == 0) {
-				if (V.lurkers_stored >= 3 && V.farm.extractOverdrive == 1) {
+				if (V.lurker_stored >= 3 && V.farm.extractOverdrive == 1) {
 					V.lurkers_stored -= 3;
 					V.phials_stored += 2;
 					if (V.farm.extract == 2 && V.lurkers_stored > 0) {
