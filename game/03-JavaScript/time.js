@@ -475,10 +475,10 @@ function weekPassed() {
 	// 	wikifier("school_skill_down", "history"));
 	// }
 	if (Time.schoolTerm) {
-		V.science_exam = Math.clamp(V.science_exam - 7, -107, 200);
-		V.maths_exam = Math.clamp(V.maths_exam - 7, -107, 200);
-		V.english_exam = Math.clamp(V.english_exam - 7, -107, 200);
-		V.history_exam = Math.clamp(V.history_exam - 7, -107, 200);
+		V.science_exam = Math.clamp(V.science_exam - (7 - Math.max(V.sciencetrait - 2, 0)), -107, 200);
+		V.maths_exam = Math.clamp(V.maths_exam - (7 - Math.max(V.mathstrait - 2, 0)), -107, 200);
+		V.english_exam = Math.clamp(V.english_exam - (7 - Math.max(V.englishtrait - 2, 0)), -107, 200);
+		V.history_exam = Math.clamp(V.history_exam - (7 - Math.max(V.historytrait - 2, 0)), -107, 200);
 		wikifier("exam_difficulty");
 	}
 	if (V.robinpaid === 1) V.robinPayout = 0;
@@ -704,7 +704,6 @@ function dayPassed(days) {
 			if (V.renttime <= 0) {
 				V.renttime = 7;
 				V.baileyDeposit -= V.rentmoney + (V.babyRent || 0);
-				V.rentstage += 1;
 			}
 		} else {
 			// Not seen bailey for more than 2 weeks, tracks missed rent
@@ -1881,10 +1880,8 @@ function dailySchoolEffects() {
 			if (V.book_rent_deposit >= Math.round(T.totalRentPrice / 14)) {
 				V.book_rent_deposit -= Math.round(T.totalRentPrice / 14);
 				V.book_rent_timer = 14;
-				if (V.bookOverdue) delete V.bookOverdue;
 			} else if (V.book_rent_timer >= 0) {
 				V.book_rent_timer--;
-				if (V.bookOverdue) delete V.bookOverdue;
 			} else if (V.book_rent_timer < 0) {
 				if (V.bookOverdue === undefined) V.bookOverdue = 0;
 				V.bookOverdue++;
@@ -2115,7 +2112,7 @@ function dailyFarmEvents() {
 				V.farm.player_still_timer--;
 			}
 			if (V.farm.player_still_timer == 0) {
-				if (V.lurkers_stored >= 3 && V.farm.extractOverdrive == 1) {
+				if (V.lurker_stored >= 3 && V.farm.extractOverdrive == 1) {
 					V.lurkers_stored -= 3;
 					V.phials_stored += 2;
 					if (V.farm.extract == 2 && V.lurkers_stored > 0) {

@@ -1622,13 +1622,13 @@ function effects() {
 	if (V.combat === 0 && V.ironmanmode === true) IronMan.scheduledSaves();
 
 	if (V.tirednessMaxScalingToggle) {
-		C.tiredness.max = 2000 + Math.floor(V.physique / 32);
+		C.tiredness.max = 2000 + Math.floor(currentSkillValue("physique") / 32);
 	} else {
 		C.tiredness.max = 2000;
 	}
 
 	if (V.stressMaxScalingToggle) {
-		V.stressmax = 10000 + Math.floor(V.willpower * 5);
+		V.stressmax = 10000 + Math.floor(currentSkillValue("willpower") * 5);
 	} else {
 		V.stressmax = 10000;
 	}
@@ -1653,5 +1653,50 @@ Macro.add("effects", {
 		const fragment = effects();
 		this.output.append(fragment);
 		DOL.Perflog.logWidgetEnd("effectsJs");
+		$(document).on(':passageend', function () {
+			if (V.options.bigCanvas == true) {
+				document.querySelector("body.has-images #story-caption #storyCaptionDiv").style.top = "267px";
+				document.querySelector("body.has-images #story-caption #storyCaptionDiv").style.height  = "calc(100% - 95px - 1.32em)";
+				document.querySelector("body.has-images #story-caption #storyCaptionDiv").style.width  = "392px";
+				document.querySelector("body.has-images #storyCaptionContent").style.width  = "392px";
+				document.querySelector("#stats").style.width  = "392px";
+				document.querySelector("#ui-bar").style.width = "24.5em";
+				document.querySelector("#img").style.height = "267px";
+				document.querySelector("#img").style.width = "328px";
+				document.querySelector("canvas.mainCanvas").style.height = "358px";
+				document.querySelector("canvas.mainCanvas").style.width = "358px";
+			} else {
+				document.querySelector("body.has-images #story-caption #storyCaptionDiv").style.top = "192px";
+				document.querySelector("body.has-images #story-caption #storyCaptionDiv").style.height  = "calc(100% - 20px - 1.32em)";
+				document.querySelector("body.has-images #story-caption #storyCaptionDiv").style.width  = "280px";
+				document.querySelector("body.has-images #storyCaptionContent").style.width  = "280px";
+				document.querySelector("#stats").style.width  = "280px";
+				document.querySelector("#ui-bar").style.width = "17.5em";
+				document.querySelector("#img").style.height = "192px";
+				document.querySelector("#img").style.width = "216px";
+				document.querySelector("canvas.mainCanvas").style.height = "256px";
+				document.querySelector("canvas.mainCanvas").style.width = "256px";
+			}
+		});
+		if (document.getElementById("ui-bar")) {
+			const observer = new MutationObserver((mutations) => {
+				for (const mutation of mutations) {
+					if (mutation.type === "attributes" && mutation.attributeName === "class") {
+						if (document.getElementById("ui-bar").classList.contains("stowed")) {
+							if (V.options.bigCanvas == true) {
+								document.querySelector("#ui-bar").style.left = "-22.5em";
+							} else {
+								document.querySelector("#ui-bar").style.left = "-15.5em";
+							}
+						} else {
+							document.querySelector("#ui-bar").style.left = "0";
+						}
+					}
+				}
+			});
+
+			observer.observe(document.getElementById("ui-bar"), { attributes: true });
+		}
+		Weather.Thermometer.load();
 	},
 });

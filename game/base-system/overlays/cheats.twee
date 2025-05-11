@@ -2998,11 +2998,21 @@
 <<widget "cheatSection">>
 	<<switch _args[0]>>
 		<<case "state">>
+			<<if $tirednessMaxScalingToggle>>
+				<<set C.tiredness.max to 2000 + Math.floor(currentSkillValue("physique") / 32)>>
+			<<else>>
+				<<set C.tiredness.max to 2000>>
+			<</if>>
+			<<if $stressMaxScalingToggle>>
+				<<set $stressmax to 10000 + Math.floor(currentSkillValue("willpower") * 5)>>
+			<<else>>
+				<<set $stressmax to 10000>>
+			<</if>>
 			<<numberStepper "Pain" $pain { callback: value => { V.pain = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: 200, reverse: true}>>
 			<<numberStepper "Arousal" $arousal { callback: value => { V.arousal = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: 10000, reverse: true}>>
 			<<numberStepper "Willpower" $xchange.willpowerPoints { callback: value => { V.xchange.willpowerPoints = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: $willpower}>>
-			<<numberStepper "Fatigue" $tiredness { callback: value => { V.tiredness = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: 2000, reverse: true}>>
-			<<numberStepper "Stress" $stress { callback: value => { V.stress = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: 10000, reverse: true}>>
+			<<numberStepper "Fatigue" $tiredness { callback: value => { V.tiredness = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: C.tiredness.max, reverse: true}>>
+			<<numberStepper "Stress" $stress { callback: value => { V.stress = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: $stressmax, reverse: true}>>
 			<<numberStepper "Trauma" $trauma { callback: value => { V.trauma = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: 5000, reverse: true}>>
 			<<numberStepper "Control" $control { callback: value => { V.control = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: 1000}>>
 			<<numberStepper "Alcohol" $drunk { callback: value => { V.drunk = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: 1000, reverse: true}>>

@@ -1084,7 +1084,7 @@ Renderer.CanvasModels.main = {
 			srcfn(options) {
 				const mannequin = (options.mannequin) ? "mannequin/" : "";
 				const prefix = `img/body/${mannequin}`;
-				const suffix = options.breasts === "cleavage" && options.breast_size >= 3 ? "_clothed.png" : V.releaseBoobs === "release" ? "_released.png" : ".png";
+				const suffix = options.breasts === "cleavage" && options.breast_size >= 3 ? "_clothed.png" : V.releaseBoobs === "release" && options.breast_size >= 3 && !options.mannequin ? "_released.png" : ".png";
 				return `${prefix}breasts/breasts${options.breast_size}${suffix}`;
 			},
 		},
@@ -2111,72 +2111,22 @@ Renderer.CanvasModels.main = {
 				if (V.NPCList[0].fullDescription != undefined && setup.NPCNameList.includes(V.NPCList[0].fullDescription)) {	
 					T.activeNNPC = V.NPCList[0].fullDescription.toLowerCase();
 				} else T.activeNNPC = 0;
-
-				if (T.activeNNPC == "black wolf") T.activeNNPC = "black_wolf";
-				if (T.activeNNPC == "great hawk") T.activeNNPC = "great_hawk";
-				if (T.activeNNPC == "ivory wraith") T.activeNNPC = "ivory_wraith";
-
 				if (V.options.autoNNPCDisplay.enabled == true && !T.optionsEnabled) {
 					if (T.activeNNPC == 0 || V.options.autoNNPCDisplay[T.activeNNPC].slot == 0) return;
 				} else if (V.options.nnpcDisplay == 0 || V.options.nnpcDisplaySlot == 0) return;
-
 				if (V.options.autoNNPCDisplay.enabled == true && !T.optionsEnabled) {
 					if (V.options.autoNNPCDisplay[T.activeNNPC].slot != 0) {
-						if ((T.activeNNPC == "black_wolf" || T.activeNNPC == "great_hawk") && V.monster != 0) {
-							T.skin = "/monster";
-						} else if (V.NPCList[0].skincolour == "white") {
-							T.skin = "/pale";
-						} else {
-							T.skin = "/dark";
-						}
-
-						if (T.activeNNPC == "sydney") {
-							if (C.npc.Sydney.purity >= 1) {
-								T.skin += "/pure";
-							} else {
-								T.skin += "/corrupt";
-							}
-						} else if (T.activeNNPC == "ivory_wraith") {
-							T.skin = "";
-						}
-						
-						if (V.options.autoNNPCDisplay[T.activeNNPC].genderOverride == true && V.options.autoNNPCDisplay[T.activeNNPC].gender != "") {
-							T.gender = V.options.autoNNPCDisplay[T.activeNNPC].gender;
-						} else {
-							if (V.NPCList[0].pronoun == "m") {
-								T.gender = "male";
-							} else {
-								T.gender = "female";
-							} 
-						}
-						return `img/ui/nnpc/${T.activeNNPC}/${T.gender}${T.skin}/${V.options.autoNNPCDisplay[T.activeNNPC].slot}.png`;
+						return `img/ui/nnpc/${T.activeNNPC}/${V.options.autoNNPCDisplay[T.activeNNPC].slot}.png`;
 					} else return;
 				} else {
-					T.skin = "/" + V.options.nnpcDisplaySkin;
-					if (V.options.nnpcDisplay == "sydney") {
-						if (C.npc.Sydney.purity >= 1) {
-							T.skin += "/pure";
-						} else {
-							T.skin += "/corrupt";
-						}
-					} else if (V.options.nnpcDisplay == "ivory_wraith") {
-						T.skin = "";
-					}
-					return `img/ui/nnpc/${V.options.nnpcDisplay}/${V.options.nnpcDisplayGender}${T.skin}/${V.options.nnpcDisplaySlot}.png`;
+					return `img/ui/nnpc/${V.options.nnpcDisplay}/${V.options.nnpcDisplaySlot}.png`;
 				}
 			},
 			showfn(options) {
 				return options.show_nnpc;
 			},
 			zfn() {
-				if (T.optionsEnabled) {
-					T.activeNNPC = V.options.nnpcDisplay;
-				} else if (V.NPCList[0].fullDescription != undefined && setup.NPCNameList.includes(V.NPCList[0].fullDescription)) {	
-					T.activeNNPC = V.NPCList[0].fullDescription.toLowerCase();
-				} else return;
-				if (T.activeNNPC == "black wolf") T.activeNNPC = "black_wolf";
-				if (T.activeNNPC == "great hawk") T.activeNNPC = "great_hawk";
-				if (T.activeNNPC == "ivory wraith") T.activeNNPC = "ivory_wraith";
+				T.activeNNPC = V.NPCList[0].fullDescription.toLowerCase();
 				if (V.options.autoNNPCDisplay.enabled == true && !T.optionsEnabled) {
 					if (V.options.autoNNPCDisplay[T.activeNNPC].layer === "front") {
 						return ZIndices.deco_fg1 + 1;
@@ -2462,11 +2412,10 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				if (V.tattoo_bodypart == "forehead" && V.passage == "Tattoo Choice") return getWritingImgPath('forehead', setup.bodywriting[V.tattoo_choice]);
 				return getWritingImgPath('forehead', setup.bodywriting[options.writing_forehead]);
 			},
 			showfn(options) {
-				return options.show_writings && !!options.writing_forehead || (V.tattoo_bodypart == "forehead" && V.passage == "Tattoo Choice");
+				return options.show_writings && !!options.writing_forehead;
 			},
 		},
 		"writing_left_cheek": {
@@ -2474,11 +2423,10 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				if (V.tattoo_bodypart == "left_cheek" && V.passage == "Tattoo Choice") return getWritingImgPath('left_cheek', setup.bodywriting[V.tattoo_choice]);
 				return getWritingImgPath('left_cheek', setup.bodywriting[options.writing_left_cheek]);
 			},
 			showfn(options) {
-				return options.show_writings && !!options.writing_left_cheek || (V.tattoo_bodypart == "left_cheek" && V.passage == "Tattoo Choice");
+				return options.show_writings && !!options.writing_left_cheek;
 			},
 		},
 		"writing_right_cheek": {
@@ -2488,7 +2436,6 @@ Renderer.CanvasModels.main = {
 			srcfn(options) {
 				const area_name = "right_cheek"
 				const writing = setup.bodywriting[options.writing_right_cheek];
-				if (V.tattoo_bodypart == "right_cheek" && V.passage == "Tattoo Choice") writing = setup.bodywriting[V.tattoo_choice];
 				if (writing.type === "text") {
 					if (writing.sprites && writing.sprites.length > 0 && writing.sprites.includes(area_name)) {
 						return `img/bodywriting/text/${writing.key}/${area_name}.png`;
@@ -2501,7 +2448,7 @@ Renderer.CanvasModels.main = {
 				return '';
 			},
 			showfn(options) {
-				return options.show_writings && !!options.writing_right_cheek || (V.tattoo_bodypart == "right_cheek" && V.passage == "Tattoo Choice");
+				return options.show_writings && !!options.writing_right_cheek;
 			},
 		},
 		"writing_breasts": {
@@ -2511,7 +2458,6 @@ Renderer.CanvasModels.main = {
 			srcfn(options) {
 				const area_name = "breasts"
 				const writing = setup.bodywriting[options.writing_breasts];
-				if (V.tattoo_bodypart == "breasts" && V.passage == "Tattoo Choice") writing = setup.bodywriting[V.tattoo_choice];
 				if (writing.type === "text") {
 					if (writing.sprites && writing.sprites.length > 0 && writing.sprites.includes(area_name)) {
 						return `img/bodywriting/text/${writing.key}/${area_name}.png`;
@@ -2524,7 +2470,7 @@ Renderer.CanvasModels.main = {
 				return '';
 			},
 			showfn(options) {
-				return options.show_writings && !!options.writing_breasts || (V.tattoo_bodypart == "breasts" && V.passage == "Tattoo Choice");
+				return options.show_writings && !!options.writing_breasts;
 			},
 		},
 		"writing_breasts_extra": {
@@ -2548,30 +2494,59 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				if (V.tattoo_bodypart == "left_shoulder" && V.passage == "Tattoo Choice") return getWritingImgPath('left_shoulder', setup.bodywriting[V.tattoo_choice]);
 				return getWritingImgPath('left_shoulder', setup.bodywriting[options.writing_left_shoulder]);
 			},
 			showfn(options) {
-				return options.show_writings && !!options.writing_left_shoulder || (V.tattoo_bodypart == "left_shoulder" && V.passage == "Tattoo Choice");
+				return options.show_writings && !!options.writing_left_shoulder;
 			},
 		},
 		"writing_right_shoulder": {
 			animation: "idle",
 
 			srcfn(options) {
-				if (V.tattoo_bodypart == "right_shoulder" && V.passage == "Tattoo Choice") return getWritingImgPath('right_shoulder', setup.bodywriting[V.tattoo_choice]);
 				return getWritingImgPath('right_shoulder', setup.bodywriting[options.writing_right_shoulder]);
 			},
 			showfn(options) {
-				return options.show_writings && !!options.writing_right_shoulder || (V.tattoo_bodypart == "right_shoulder" && V.passage == "Tattoo Choice");
+				return options.show_writings && !!options.writing_right_shoulder;
 			},
 			dxfn(options) {
 				if (options.arm_right === "cover" || options.handheld_position === "right_cover") return 4;
 				return 0;
 			},
 			zfn(options) {
-				if (V.rightArmPosition == "above") return ["cover", "hold"].includes(options.arm_right) ? ZIndices.arms_cover + 0.01 : ZIndices.under_upper_arm_right - 0.2;
-				return ["cover", "hold"].includes(options.arm_right) ? ZIndices.arms_cover + 0.01 : options.zarms + 0.01;
+				if (V.rightArmPosition == "above") return ["cover", "hold"].includes(options.arm_right) ? ZIndices.under_upper_arm_right - 0.1 : ZIndices.under_upper_arms - 0.1;
+				if (options.worn.over_upper) {
+					T.zarms = ZIndices.over_upper_arms;
+				} else if (options.worn.upper) {
+					if (options.arm_left === "cover") {
+						if (options.upper_tucked) {
+							T.zarms = ZIndices.upper_arms_tucked;
+						} else {
+							T.zarms = ZIndices.upper_arms;
+						}
+					} else {
+						T.zarms = ZIndices.under_upper_arms;
+					}
+				} else if (options.worn.under_upper) {
+					T.zarms = ZIndices.under_upper_arms;
+				} else {
+					T.zarms = ZIndices.armsidle
+				}
+				// Do not put skin above sleeves
+				if (options.worn.under_upper.setup.sleeve_img === 1) {
+					T.zarms = ZIndices.under_upper_arms;
+				} else if (options.worn.upper.setup.sleeve_img === 1) {
+					if (options.arm_left === "cover") {
+						if (options.upper_tucked) {
+							T.zarms = ZIndices.upper_arms_tucked;
+						} else {
+							T.zarms = ZIndices.upper_arms;
+						}
+					} else {
+						T.zarms = ZIndices.under_upper_arms;
+					}
+				}
+				return T.zarms - 0.09
 			},
 		},
 		"writing_pubic": {
@@ -2579,11 +2554,10 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				if (V.tattoo_bodypart == "pubic" && V.passage == "Tattoo Choice") return getWritingImgPath('pubic', setup.bodywriting[V.tattoo_choice]);
 				return getWritingImgPathArrow('pubic', setup.bodywriting[options.writing_pubic]);
 			},
 			showfn(options) {
-				return options.show_writings && !!options.writing_pubic || (V.tattoo_bodypart == "pubic" && V.passage == "Tattoo Choice");
+				return options.show_writings && !!options.writing_pubic;
 			},
 			dxfn(options) {
 				if (options.belly >= 23) return 10;
@@ -2605,11 +2579,10 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				if (V.tattoo_bodypart == "left_thigh" && V.passage == "Tattoo Choice") return getWritingImgPath('left_thigh', setup.bodywriting[V.tattoo_choice]);
 				return getWritingImgPathArrow('left_thigh', setup.bodywriting[options.writing_left_thigh]);
 			},
 			showfn(options) {
-				return options.show_writings && !!options.writing_left_thigh || (V.tattoo_bodypart == "left_thigh" && V.passage == "Tattoo Choice");
+				return options.show_writings && !!options.writing_left_thigh;
 			},
 		},
 		"writing_right_thigh": {
@@ -2617,11 +2590,10 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				if (V.tattoo_bodypart == "right_thigh" && V.passage == "Tattoo Choice") return getWritingImgPath('right_thigh', setup.bodywriting[V.tattoo_choice]);
 				return getWritingImgPathArrow('right_thigh', setup.bodywriting[options.writing_right_thigh]);
 			},
 			showfn(options) {
-				return !!options.writing_right_thigh || (V.tattoo_bodypart == "right_thigh" && V.passage == "Tattoo Choice");
+				return !!options.writing_right_thigh;
 			},
 		},
 
@@ -2735,7 +2707,6 @@ Renderer.CanvasModels.main = {
 					&& !!options.cum_rightarm;
 			},
 			zfn(options) {
-				if (V.rightArmPosition == "above") return ["cover", "hold"].includes(options.arm_right) ? ZIndices.arms_cover + 0.05 : ZIndices.under_upper_arm_right - 0.1;
 				return (options.arm_right === "cover" || options.arm_right === "hold") ? ZIndices.arms_cover + 0.05 : options.zarms + 0.05;
 			},
 		},
@@ -3613,12 +3584,13 @@ Renderer.CanvasModels.main = {
 				return gray_suffix(path, options.filters['worn_hands']);
 			},
 			showfn(options) {
-				return options.show_clothes
-					&& options.worn.hands.index > 0
-					&& options.worn.hands.setup.leftImage === 1
-					&& ["curvy", "slender"].includes(options.body_type)
-					&& options.arm_left === "idle"
-					&& !(options.belly > 7)
+				// return options.show_clothes
+				// 	&& options.worn.hands.index > 0
+				// 	&& options.worn.hands.setup.leftImage === 1
+				// 	&& ["curvy", "slender"].includes(options.body_type)
+				// 	&& options.arm_left === "idle"
+				// 	&& !(options.belly > 7)
+				return false;
 			},
 			masksrcfn(options) {
 				return options.shirt_fitted_left_move_src;
