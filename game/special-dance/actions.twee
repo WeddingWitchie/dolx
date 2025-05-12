@@ -46,39 +46,39 @@
 			<</if>>
 			<!-- Generate general dance actions -->
 			<<if $danceactiondefault is "cool">>
-				<label>Cool Dance (0:01) <<radiobutton "$danceaction" "cool" checked>></label> |
+				<label>Cool Dance <<if $dancingRebalance is 1>>(0:02)<<else>>(0:01)<</if>> <<radiobutton "$danceaction" "cool" checked>></label> |
 			<<elseif $danceactiondefault is 0>>
-				<label>Cool Dance (0:01) <<radiobutton "$danceaction" "cool" checked>></label> |
+				<label>Cool Dance <<if $dancingRebalance is 1>>(0:02)<<else>>(0:01)<</if>> <<radiobutton "$danceaction" "cool" checked>></label> |
 			<<else>>
-				<label>Cool Dance (0:01) <<radiobutton "$danceaction" "cool">></label> |
+				<label>Cool Dance <<if $dancingRebalance is 1>>(0:02)<<else>>(0:01)<</if>> <<radiobutton "$danceaction" "cool">></label> |
 			<</if>>
 			<br>
 			<<if $danceactiondefault is "sophisticated">>
-				<label>Sophisticated Dance (0:01) <<radiobutton "$danceaction" "sophisticated" checked>></label> |
+				<label>Sophisticated Dance <<if $dancingRebalance is 1>>(0:02)<<else>>(0:01)<</if>> <<radiobutton "$danceaction" "sophisticated" checked>></label> |
 			<<else>>
-				<label>Sophisticated Dance (0:01) <<radiobutton "$danceaction" "sophisticated">></label> |
+				<label>Sophisticated Dance <<if $dancingRebalance is 1>>(0:02)<<else>>(0:01)<</if>> <<radiobutton "$danceaction" "sophisticated">></label> |
 			<</if>>
 			<br>
 			<<if $danceactiondefault is "seductive">>
-				<label><span class="meek">Seductive Dance</span> (0:01) <<combatexhibitionist1>> <<radiobutton "$danceaction" "seductive" checked>></label> |
+				<label><span class="meek">Seductive Dance</span> <<if $dancingRebalance is 1>>(0:02)<<else>>(0:01)<</if>> <<combatexhibitionist1>> <<radiobutton "$danceaction" "seductive" checked>></label> |
 			<<else>>
-				<label><span class="meek">Seductive Dance</span> (0:01) <<combatexhibitionist1>> <<radiobutton "$danceaction" "seductive">></label> |
+				<label><span class="meek">Seductive Dance</span> <<if $dancingRebalance is 1>>(0:02)<<else>>(0:01)<</if>> <<combatexhibitionist1>> <<radiobutton "$danceaction" "seductive">></label> |
 			<</if>>
 			<br>
 			<<if hasSexStat("exhibitionism", 2)>>
 				<<if $danceactiondefault is "sexual">>
-					<label><span class="sub">Sexual Dance</span> (0:01) <<combatexhibitionist2>> <<radiobutton "$danceaction" "sexual" checked>></label> |
+					<label><span class="sub">Sexual Dance</span> <<if $dancingRebalance is 1>>(0:02)<<else>>(0:01)<</if>> <<combatexhibitionist2>> <<radiobutton "$danceaction" "sexual" checked>></label> |
 				<<else>>
-					<label><span class="sub">Sexual Dance</span> (0:01) <<combatexhibitionist2>> <<radiobutton "$danceaction" "sexual">></label> |
+					<label><span class="sub">Sexual Dance</span> <<if $dancingRebalance is 1>>(0:02)<<else>>(0:01)<</if>> <<combatexhibitionist2>> <<radiobutton "$danceaction" "sexual">></label> |
 				<</if>>
 				<br>
 			<</if>>
 			<<goocount>>
 			<<if ($cat gte 6 or ($transformationParts.cat.tail isnot "hidden" and $transformationParts.cat.tail isnot "disabled")) and $liquidoutsidecount gte 1 and $leftarm isnot "bound" and $rightarm isnot "bound">>
 				<<if $danceactiondefault is "groom">>
-					<label><span class="sub">Groom</span> (0:01) <span class="blue">Cat</span> <<radiobutton "$danceaction" "groom" checked>></label> |
+					<label><span class="sub">Groom</span> <<if $dancingRebalance is 1>>(0:02)<<else>>(0:01)<</if>> <span class="blue">Cat</span> <<radiobutton "$danceaction" "groom" checked>></label> |
 				<<else>>
-					<label><span class="sub">Groom</span> (0:01) <span class="blue">Cat</span> <<radiobutton "$danceaction" "groom">></label> |
+					<label><span class="sub">Groom</span> <<if $dancingRebalance is 1>>(0:02)<<else>>(0:01)<</if>> <span class="blue">Cat</span> <<radiobutton "$danceaction" "groom">></label> |
 				<</if>>
 			<</if>>
 			<!-- Generate stripping dance actions -->
@@ -225,14 +225,18 @@
 		<</if>>
 		<<rng>>
 		<<if ($allure / 100 + currentSkillValue('danceskill') / 20 + $audienceexcitement / 5 + $audiencearousal / 5 + _heelBonus) gte $rng>>
-			<<if $audience gte 0 and $audience lte 5>>
-				<<generatel>><<personselect $audience>>
-				A <<person>> starts watching you.
+			<<if $audience lt 50>>
+				<<if $audience gte 0 and $audience lte 5>>
+					<<generatel>><<personselect $audience>>
+					A <<person>> starts watching you.
+				<<else>>
+					Someone else joins the audience.
+				<</if>>
+				<<set $audience += 1>>
+				<<person_dance>>
 			<<else>>
-				Someone else joins the audience.
+				Someone else tries to join but there's too many people.
 			<</if>>
-			<<set $audience += 1>>
-			<<person_dance>>
 		<</if>>
 		<<if $audience is 0>>
 			Nobody is paying attention to you.
