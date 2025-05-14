@@ -364,7 +364,7 @@ function xchangeEffectsMessages() {
 
 	switch (V.genderificationStressMessage) {
 		case 1:
-			element("span", "You have an urge to feel cute.", "purple");
+			element("span", "You have an urge to dress cute.", "purple");
 			fragment.append(wikifier("ggstress")); br();
 			delete V.genderificationStressMessage;
 			break;
@@ -374,7 +374,7 @@ function xchangeEffectsMessages() {
 			delete V.genderificationStressMessage;
 			break;
 		case 3:
-			element("span", "You have an urge to feel manly.", "purple");
+			element("span", "You have an urge to dress more manly.", "purple");
 			fragment.append(wikifier("ggstress")); br();
 			delete V.genderificationStressMessage;
 			break;
