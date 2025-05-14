@@ -415,6 +415,22 @@ function xchangeEffectsMessages() {
 		delete V.breederEdgingMessage;
 	}
 
+	if (V.sexual_addiction_message) {
+		element("span", "Your body refuses to cum like this.", "purple"); 
+		if (V.penis_addict_trait === 1 && V.hole_addict_trait === 1) 
+			element("span", "You need real sex! Doesn't matter who does the fucking.", "red");
+		else if (V.penis_addict_trait === 1)
+			element("span", "You need dick, and you need it deep inside you. Now!", "red");
+		else if (V.hole_addict_trait === 1 && V.player.penisExist)
+			element("span", "Your dick craves some pussy, and it demands it now!", "red");
+		else if (V.hole_addict_trait === 1 && !V.player.penisExist)
+			element("span", "You miss the feeling of some pussy on your dick.", "red");
+		
+		br();
+
+		delete V.sexual_addiction_message;
+	}
+
 	if (V.dumbBitchOrgasmMessage) {
 		element("span", "Your orgasm is frying your brain.", "red"); 
 		fragment.append(wikifier("llstress"));
