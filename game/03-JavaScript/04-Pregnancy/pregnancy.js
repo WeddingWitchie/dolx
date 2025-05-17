@@ -122,7 +122,7 @@ function fetishPregnancy({ genital = "vagina", target = null, spermOwner = null,
 		let chance = 100 / (target === "pc" ? 100 - V.basePlayerPregnancyChance : 20 - V.baseNpcPregnancyChance);
 
 		if ((playerIsXChanged() && V.xchange.pill.breederEffect && target ==="pc") || (playerIsXChanged() && V.xchange.pill.bullEffect && target !== "pc")) {
-			chance = 1;
+			chance = 100 / (100 - 98);
 		}
 
 		if (V.earSlime.growth >= 100 && V.earSlime.focus === "pregnancy") chance *= 2;
