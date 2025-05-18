@@ -31,7 +31,13 @@
 			<<set $player.bottomsize to random($bottomsizemin,$bottomsizemax)>>
 			<<set $player.penissize to -2>>
 			<<set $ballsssize to -2>>
-			<<if $xchange.randomiseEyeColour>>
+			<<if $xchange.customisedSkinColour is "random">>
+				<<set _skinColour to Object.keys(setup.colours.skin_options).random()>>
+				<<set $player.skin.color to _skinColour>>
+			<<elseif $xchange.customisedSkinColour isnot "nochange">>
+				<<set $player.skin.color to $xchange.customisedSkinColour>>
+			<</if>>
+			<<if $xchange.customisedEyeColour is "random">>
 				<<set _colours to Object.keys(setup.colours.eyes_map)>>
 				<<run _colours.deleteWith(function (value) {
 					return value === "random" || value === "red possessed";
@@ -39,12 +45,19 @@
 				<<set _eyeColour to _colours.random()>>
 				<<set $leftEyeColour to _eyeColour>>
 				<<set $rightEyeColour to _eyeColour>>
+			<<elseif $xchange.customisedEyeColour isnot "nochange">>
+				<<set $leftEyeColour to $xchange.customisedEyeColour>>
+				<<set $rightEyeColour to $xchange.customisedEyeColour>>
 			<</if>>
-			<<if $xchange.randomiseHairColour>>
+			<<if $xchange.customisedHairColour is "random">>
 				<<set _hairColour to Object.keys(setup.colours.hair_map).random()>>
 				<<set $haircolour to _hairColour>>
 				<<set $hairfringecolour to _hairColour>>
 				<<set $naturalhaircolour to _hairColour>>
+			<<elseif $xchange.customisedHairColour isnot "nochange">>
+				<<set $haircolour to $xchange.customisedHairColour>>
+				<<set $hairfringecolour to $xchange.customisedHairColour>>
+				<<set $naturalhaircolour to $xchange.customisedHairColour>>
 			<</if>>
 			<<if $hairlength lt 400>>
 				<<set _hairLengthLevels to [400,400,400,600,600,800,1000]>>
@@ -53,10 +66,7 @@
 			<<if $fringelength lt 200>>
 				<<set $fringelength to Math.clamp($hairlength - 200, 200, 600)>>
 			<</if>>
-			<<if $xchange.randomiseSkinColour>>
-				<<set _skinColour to Object.keys(setup.colours.skin_options).random()>>
-				<<set $player.skin.color to _skinColour>>
-			<</if>>
+			
 			<<set $beauty += 5000 * $AMCTraits.beauty>>
 			<<set _physiquesizes to [6000, 10000, 12000, 16000]>>
 			<<set _physiquesize_old to $physiquesize>>
@@ -143,7 +153,13 @@
 			<<set $player.bottomsize to 0>>
 			<<set $player.penissize to random($penissizemin,$penissizemax)>>
 			<<set $ballsssize to random(-2,3)>>
-			<<if $xchange.randomiseEyeColour>>
+			<<if $xchange.customisedSkinColour is "random">>
+				<<set _skinColour to Object.keys(setup.colours.skin_options).random()>>
+				<<set $player.skin.color to _skinColour>>
+			<<elseif $xchange.customisedSkinColour isnot "nochange">>
+				<<set $player.skin.color to $xchange.customisedSkinColour>>
+			<</if>>
+			<<if $xchange.customisedEyeColour is "random">>
 				<<set _colours to Object.keys(setup.colours.eyes_map)>>
 				<<run _colours.deleteWith(function (value) {
 					return value === "random" || value === "red possessed";
@@ -151,22 +167,25 @@
 				<<set _eyeColour to _colours.random()>>
 				<<set $leftEyeColour to _eyeColour>>
 				<<set $rightEyeColour to _eyeColour>>
+			<<elseif $xchange.customisedEyeColour isnot "nochange">>
+				<<set $leftEyeColour to $xchange.customisedEyeColour>>
+				<<set $rightEyeColour to $xchange.customisedEyeColour>>
 			<</if>>
-			<<if $xchange.randomiseHairColour>>
+			<<if $xchange.customisedHairColour is "random">>
 				<<set _hairColour to Object.keys(setup.colours.hair_map).random()>>
 				<<set $haircolour to _hairColour>>
 				<<set $hairfringecolour to _hairColour>>
 				<<set $naturalhaircolour to _hairColour>>
+			<<elseif $xchange.customisedHairColour isnot "nochange">>
+				<<set $haircolour to $xchange.customisedHairColour>>
+				<<set $hairfringecolour to $xchange.customisedHairColour>>
+				<<set $naturalhaircolour to $xchange.customisedHairColour>>
 			<</if>>
 			<<if $hairlength gte 200>>
 				<<set $hairlength to 0>>
 			<</if>>
 			<<if $fringelength gte 200>>
 				<<set $fringelength to 0>>
-			<</if>>
-			<<if $xchange.randomiseSkinColour>>
-				<<set _skinColour to Object.keys(setup.colours.skin_options).random()>>
-				<<set $player.skin.color to _skinColour>>
 			<</if>>
 			<<set $beauty += 2000 * $AMCTraits.beauty>>
 			<<set _physiquesizes to [6000, 10000, 12000, 16000]>>
@@ -783,91 +802,49 @@
 	<<widget "xchange-random-spike">>
 		<<if playerMayBeSpiked()>>
 			<<if !playerIsXChanged()>>
+				/* Compute pill duration likelihoods */
 				<<set _durations to []>>
 				<<for _i to 0; _i lt 10; _i++>><<run _durations.push(1)>><</for>>
 				<<for _i to 0; _i lt 5; _i++>><<run _durations.push(3)>><</for>>
 				<<for _i to 0; _i lt 1; _i++>><<run _durations.push(7)>><</for>>
 				<<set _duration to _durations.random()>><<take-xchange _duration>>
+
 				<<if $player.gender is "m">>
 					<<rng>>
 					<<if $rng gt 33>>
 						<<xchange-addeffect "genderflip">>
-						<<set _effectPool to [
-							"none","none","none","none","none","none","none",
-							"breeder","breeder",
-							"continue","continue","continue",
-							"resistance","resistance","resistance",
-						]>>
 					<<else>>
 						<<xchange-addeffect "crossdress">>
-						<<set _effectPool to [
-							"none","none","none","none","none","none","none",
-							"continue","continue","continue",
-							"bull","bull",
-							"resistance","resistance","resistance",
-						]>>
 					<</if>>
+					<<xchange-get-spikepool>>
 					<<xchange-addeffect _effectPool.random()>>
 					<<if $xchange.pill.genderflipEffect>>
 						<<rng>><<if $rng gt 85>><<xchange-addeffect "fertile">><</if>>
-						<<rng>><<if $rng gt 66>><<xchange-addeffect "crossdress">><</if>>
+						<<rng>><<if $rng gt 66 and $xchange.spikepool.crossdresser>><<xchange-addeffect "crossdress">><</if>>
 					<</if>>
-					<<rng>><<if $rng gt 95>><<xchange-addeffect "passion">><</if>>
-					<<rng>><<if $rng gt 50>><<xchange-addeffect "portal" 1>><</if>>
+					<<rng>><<if $rng gt 95 and $xchange.spikepool.passion>><<xchange-addeffect "passion">><</if>>
+					<<rng>><<if $rng gt 50 and $portalPantiesEnabled>><<xchange-addeffect "portal" 1>><</if>>
 
 				<<elseif $player.gender is "f">>
 					<<rng>>
 					<<if $rng gt 33>>
 						<<xchange-addeffect "genderflip">>
-						<<set _effectPool to [
-							"none","none","none","none","none","none","none",
-							"continue","continue","continue",
-							"bull","bull",
-							"resistance","resistance","resistance",
-						]>>
+						<<xchange-get-spikepool>>
 					<<else>>
 						<<xchange-addeffect "crossdress">>
-						<<set _effectPool to [
-							"none","none","none","none","none","none","none",
-							"breeder","breeder",
-							"continue","continue","continue",
-							"resistance","resistance","resistance",
-						]>>
+						<<xchange-get-spikepool>>
 					<</if>>
 					<<xchange-addeffect _effectPool.random()>>
-					<<if $xchange.pill.genderflipEffect>>
+					<<if $xchange.pill.genderflipEffect and $xchange.spikepool.crossdresser>>
 						<<rng>><<if $rng gt 66>><<xchange-addeffect "crossdress">><</if>>
 					<</if>>
-					<<rng>><<if $rng gt 95>><<xchange-addeffect "passion">><</if>>
-					<<rng>><<if $rng gt 50>><<xchange-addeffect "portal" 1>><</if>>
+					<<rng>><<if $rng gt 95 and $xchange.spikepool.passion>><<xchange-addeffect "passion">><</if>>
+					<<rng>><<if $rng gt 50 and $portalPantiesEnabled>><<xchange-addeffect "portal" 1>><</if>>
 				
 				<</if>>
 				
 			<<else>>
-				<<set _effectPool to [
-					"genderflip","genderflip","genderflip","genderflip","genderflip","genderflip","genderflip",
-					"crossdress","crossdress","crossdress","crossdress","crossdress","crossdress","crossdress",
-					"breeder","breeder",
-					"bull","bull",
-					"continue","continue","continue",
-					"resistance","resistance","resistance",
-					"portal","portal",
-					"fertile","fertile",
-					"passion",
-					"dumb-bitch",
-				]>>
-				<<if $player.sex is "m">><<run _effectPool.deleteWith((val)=>val==="breeder")>><<run _effectPool.deleteWith((val)=>val==="fertile")>><</if>>
-				<<if $player.sex is "f">><<run _effectPool.deleteWith((val)=>val==="bull")>><</if>>
-				<<if $xchange.pill.genderflipEffect>><<run _effectPool.deleteWith((val)=>val==="genderflip")>><</if>>
-				<<if $xchange.pill.genderificationEffect>><<run _effectPool.deleteWith((val)=>val==="crossdress")>><</if>>
-				<<if $xchange.pill.breederEffect>><<run _effectPool.deleteWith((val)=>val==="breeder")>><</if>>
-				<<if $xchange.pill.bullEffect>><<run _effectPool.deleteWith((val)=>val==="bull")>><</if>>
-				<<if $xchange.pill.continueEffect>><<run _effectPool.deleteWith((val)=>val==="continue")>><</if>>
-				<<if $xchange.pill.resistanceEffect>><<run _effectPool.deleteWith((val)=>val==="resistance")>><</if>>
-				<<if $xchange.pill.passionEffect>><<run _effectPool.deleteWith((val)=>val==="passion")>><</if>>
-				<<if $xchange.pill.portalEffect>><<run _effectPool.deleteWith((val)=>val==="portal")>><</if>>
-				<<if $xchange.pill.dumbBitchEffect>><<run _effectPool.deleteWith((val)=>val==="dumb-bitch")>><</if>>
-
+				<<xchange-get-spikepool>>
 				<<xchange-addeffect _effectPool.random()>>
 			<</if>>
 
@@ -877,6 +854,33 @@
 				<br><br>
 			<</if>>
 		<</if>>
+	<</widget>>
+
+	<<widget "xchange-get-spikepool">>
+		<<set _effectPool to [
+			"genderflip","genderflip","genderflip","genderflip","genderflip","genderflip","genderflip",
+			"crossdress","crossdress","crossdress","crossdress","crossdress","crossdress","crossdress",
+			"breeder","breeder",
+			"bull","bull",
+			"continue","continue","continue",
+			"resistance","resistance","resistance",
+			"portal","portal",
+			"fertile","fertile",
+			"passion",
+			"dumb-bitch",
+		]>>
+		<<if $player.sex is "m">><<run _effectPool.deleteWith((val)=>val==="breeder")>><<run _effectPool.deleteWith((val)=>val==="fertile")>><</if>>
+		<<if $player.sex is "f">><<run _effectPool.deleteWith((val)=>val==="bull")>><</if>>
+		<<if $xchange.pill.genderflipEffect>><<run _effectPool.deleteWith((val)=>val==="genderflip")>><</if>>
+		<<if $xchange.pill.genderificationEffect or !$xchange.spikepook.crossdreser>><<run _effectPool.deleteWith((val)=>val==="crossdress")>><</if>>
+		<<if $xchange.pill.breederEffect or !$xchange.spikepook.breeder>><<run _effectPool.deleteWith((val)=>val==="breeder")>><</if>>
+		<<if $xchange.pill.bullEffect or !$xchange.spikepook.bull>><<run _effectPool.deleteWith((val)=>val==="bull")>><</if>>
+		<<if $xchange.pill.continueEffect or !$xchange.spikepook.continue>><<run _effectPool.deleteWith((val)=>val==="continue")>><</if>>
+		<<if $xchange.pill.resistanceEffect or !$xchange.spikepook.resistance>><<run _effectPool.deleteWith((val)=>val==="resistance")>><</if>>
+		<<if $xchange.pill.passionEffect or !$xchange.spikepook.passion>><<run _effectPool.deleteWith((val)=>val==="passion")>><</if>>
+		<<if $xchange.pill.portalEffect or !$portalPantiesEnabled>><<run _effectPool.deleteWith((val)=>val==="portal")>><</if>>
+		<<if $xchange.pill.dumbBitchEffect or !$xchange.spikepook.dumbbitch>><<run _effectPool.deleteWith((val)=>val==="dumb-bitch")>><</if>>
+
 	<</widget>>
 
 	<<widget "xchange-antidote">>
