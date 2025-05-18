@@ -175,13 +175,15 @@ function playerPregnancyAttempt(baseMulti = 1, genital = "vagina") {
 
 	// Under X-Change, pregnancy is 4 times less likely to occur. 
 	// Unless under the effects of a breeder pill, which makes it 4 more likely instead.
-	let xchangePregnancyModifier = playerIsXChanged() && !(pillIsPermanent() && V.xchange.postPermanenceFertilityReset) && !V.xchange.pill.breederEffect ? V.pregnancyMultPercent / 100 : 1;
+	let xchangePregnancyModifier = playerIsXChanged() && !(pillIsPermanent() && V.xchange.postPermanenceFertilityReset) && !V.xchange.pill.breederEffect ? V.xchange.pregnancyMultPercent / 100 : 1;
 
 	/* The lower basePenalty is, the easier it is for the player to get pregnant */
 	let basePenalty = V.xchange.pill.breederEffect? 5 : Math.floor((100 - V.basePlayerPregnancyChance * xchangePregnancyModifier) * Math.clamp(fertilityBoost, 0.1, 1) * baseMulti);
 
 	if (V.earSlime.growth >= 100 && V.earSlime.focus === "pregnancy") basePenalty = Math.floor(basePenalty / 2);
 	if (V.earSlime.growth >= 100 && V.earSlime.focus === "impregnation") basePenalty = Math.floor(basePenalty * 2);
+
+	console.warn(basePenalty);
 
 	/*
 		When spermArray.length - 1 is lower than basePenalty, it uses basePenalty to determin if the pregnancy should occur or not
@@ -572,7 +574,7 @@ function namedNpcPregnancyAttempt(npcName, forcePregnancy = false) {
 
 	// Under X-Change, pregnancy is 4 times less likely to occur. 
 	// Unless under the effects of a breeder pill, which makes it 4 more likely instead.
-	let xchangePregnancyModifier = playerIsXChanged() && !V.xchange.pill.bullEffect ? V.pregnancyMultPercent / 100 : 1;
+	let xchangePregnancyModifier = playerIsXChanged() && !V.xchange.pill.bullEffect ? V.xchange.pregnancyMultPercent / 100 : 1;
 
 	/* Works in a similar way to playerPregnancyAttempt */
 	const basePenalty = playerIsXChanged() && V.xchange.pill?.bullEffect ? 2 : Math.floor((20 - V.baseNpcPregnancyChance * xchangePregnancyModifier) * fertility);
