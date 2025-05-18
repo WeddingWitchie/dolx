@@ -442,6 +442,8 @@ const statChange = (() => {
 				// Do Nothing
 			} else {
 				V.arousal = Math.clamp(V.arousal, 0, V.arousalmax * 4/5 - 1);
+				V.effectsmessage = 1;
+				V.sexual_addiction_message = 1;
 			}
 
 			// Cannot orgasm under breeder unless there's semen in vagina

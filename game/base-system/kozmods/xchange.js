@@ -364,7 +364,7 @@ function xchangeEffectsMessages() {
 
 	switch (V.genderificationStressMessage) {
 		case 1:
-			element("span", "You have an urge to feel cute.", "purple");
+			element("span", "You have an urge to dress cute.", "purple");
 			fragment.append(wikifier("ggstress")); br();
 			delete V.genderificationStressMessage;
 			break;
@@ -374,7 +374,7 @@ function xchangeEffectsMessages() {
 			delete V.genderificationStressMessage;
 			break;
 		case 3:
-			element("span", "You have an urge to feel manly.", "purple");
+			element("span", "You have an urge to dress more manly.", "purple");
 			fragment.append(wikifier("ggstress")); br();
 			delete V.genderificationStressMessage;
 			break;
@@ -413,6 +413,22 @@ function xchangeEffectsMessages() {
 		br();
 
 		delete V.breederEdgingMessage;
+	}
+
+	if (V.sexual_addiction_message) {
+		element("span", "Your body refuses to cum like this.", "purple"); 
+		if (V.penis_addict_trait === 1 && V.hole_addict_trait === 1) 
+			element("span", "You need real sex! Doesn't matter who does the fucking.", "red");
+		else if (V.penis_addict_trait === 1)
+			element("span", "You need dick, and you need it deep inside you. Now!", "red");
+		else if (V.hole_addict_trait === 1 && V.player.penisExist)
+			element("span", "Your dick craves some pussy, and it demands it now!", "red");
+		else if (V.hole_addict_trait === 1 && !V.player.penisExist)
+			element("span", "You miss the feeling of some pussy on your dick.", "red");
+		
+		br();
+
+		delete V.sexual_addiction_message;
 	}
 
 	if (V.dumbBitchOrgasmMessage) {

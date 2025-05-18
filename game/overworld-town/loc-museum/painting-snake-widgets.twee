@@ -10,7 +10,8 @@
 	<<set $condomLvl to 0>>
 	<<unset $condoms>>
 
-	/* <<set $player.gender to "m">> */
+	<<set $player.gender to "m">>
+	<<set $genderidentity to 1000>>
 	<<set $player.sex to "m">>
 	<<set $player.breastsize to 0>>
 	<<set $penisstate to 0>>
@@ -1199,12 +1200,12 @@
 	/* Infinite items, mostly for debug, water or torch */
 	/* _itemsHere is set per-passage to designate a location that has infinite items to take */
 	<<if _itemsHere.length>>
-		<<for $_labelHere, $_valueHere range _itemsHere.filter(items => !["water", "fire"].includes(items))>>
+		<<for $_labelHere, _valueHere range _itemsHere.filter(items => !["water", "fire"].includes(items))>>
 			/* Protect the player from themselves */
-			<<if $hcItems.filter(tooMany => tooMany.type is $_valueHere).length gte 8>>
+			<<if $hcItems.filter(tooMany => tooMany.type is _valueHere).length gte 8>>
 				<<set $_outOfStock to true>>
-				<<hcicon $_valueHere>><<print $_valueHere.toUpperFirst()>> <span class="red">(you've taken too many!)</span>
-			<<elseif $_valueHere is "torch">>
+				<<hcicon _valueHere>><<print _valueHere.toUpperFirst()>> <span class="red">(you've taken too many!)</span>
+			<<elseif _valueHere is "torch">>
 				<<set $_outOfStock to false>>
 				<<if $hc.dungeonTorchState is "snuffed">>
 					<<hcicon "torch_unlit">>Torches <span class="blue">(snuffed)</span>
@@ -1215,45 +1216,45 @@
 				<</if>>
 			<<else>>
 				<<set $_outOfStock to false>>
-				<<hcicon $_valueHere>><<print $_valueHere.toUpperFirst()>> <span class="green">(plentiful)</span>
+				<<hcicon _valueHere>><<print _valueHere.toUpperFirst()>> <span class="green">(plentiful)</span>
 			<</if>>
 			/* If an absurd amount hasn't been taken and dropped, and has a free hand */
 			<<if !$_outOfStock>>
-				<<capture $_valueHere>>
+				<<capture _valueHere>>
 					<<if $_itemsHeld.length lt 2>>
-						<<if $_valueHere is "torch">>
+						<<if _valueHere is "torch">>
 							/* Infinite torches in the guardhouse. */
-							<<set $_torchTime to $hc.dungeonTorchTime || 2>>
-							<<set $_torchState to $hc.dungeonTorchState is "lit" ? "lit" : "snuffed">>
-							<<set $_torchAction to "dungeon" + $_torchState.toUpperFirst()>>
-							<<set $_torchText to $hc.dungeonTorchState is "lit" ? "Take and light an unused torch" : "Take an unlit torch">>
-							<<capture $_torchTime, $_torchState, $_torchAction>>
-								| <<link [[`$_torchText`|$passage]]>><<run hcItemAdd({ type: "torch", name: "torch", location: "held", origin: V.bus, time: $_torchTime, state: $_torchState, inSconce: false}, "held", $_torchAction)>><</link>>
+							<<set _torchTime to $hc.dungeonTorchTime || 2>>
+							<<set _torchState to $hc.dungeonTorchState is "lit" ? "lit" : "snuffed">>
+							<<set _torchAction to "dungeon" + _torchState.toUpperFirst()>>
+							<<set _torchText to $hc.dungeonTorchState is "lit" ? "Take and light an unused torch" : "Take an unlit torch">>
+							<<capture _torchTime, _torchState, _torchAction>>
+								| <<link [[`_torchText`|$passage]]>><<run hcItemAdd({ type: "torch", name: "torch", location: "held", origin: V.bus, time: _torchTime, state: _torchState, inSconce: false}, "held", _torchAction)>><</link>>
 							<</capture>>
 						<<else>>
 							/* Anything else pushed to _itemsHere in-passage. Use with care. */
 							| <<link [[Take|$passage]]>>
-								<<run hcItemAdd($_valueHere, "held", "pickUp")>>
+								<<run hcItemAdd(_valueHere, "held", "pickUp")>>
 							<</link>>
 						<</if>>
 					<</if>>
 					/* Place item in held or dropped container instead */
-					<<for $_labelGucket, $_valueGucket range _containers>>
-						<<set $_itemsInThisContainer to $hcItems.filter(item => item.location is $_valueGucket.containerID)>>
-						<<if $_itemsInThisContainer.length lt $_valueGucket.capacity and !$_itemsInThisContainer.some(water => water.type is "water") and !_hcBlacklist.includes($_valueHere) and !($_valueHere is "torch" and $hc.dungeonTorchState is "lit")>>
-							<<capture $_valueGucket>>
-								<<if $_valueHere is "torch" and $hc.dungeonTorchState isnot "lit">>
+					<<for _labelGucket, _valueGucket range _containers>>
+						<<set _itemsInThisContainer to $hcItems.filter(item => item.location is _valueGucket.containerID)>>
+						<<if _itemsInThisContainer.length lt _valueGucket.capacity and !_itemsInThisContainer.some(water => water.type is "water") and !_hcBlacklist.includes(_valueHere) and !(_valueHere is "torch" and $hc.dungeonTorchState is "lit")>>
+							<<capture _valueGucket>>
+								<<if _valueHere is "torch" and $hc.dungeonTorchState isnot "lit">>
 									/* Infinite torches in the guardhouse. */
-									<<set $_torchTime to $hc.dungeonTorchTime || 2>>
-									<<set $_torchState to "snuffed">>
-									<<set $_torchAction to "dungeon" + $_torchState.toUpperFirst()>>
-									<<set $_torchText to "Put an unlit torch in " + $_valueGucket.nameText>>
-									<<capture $_torchTime, $_torchState, $_torchAction>>
-										| <<link [[`$_torchText`|$passage]]>><<run hcItemAdd({ type: "torch", name: "torch", location: $_valueGucket.containerID, origin: V.bus, time: $_torchTime, state: $_torchState, inSconce: false}, $_valueGucket.containerID, $_torchAction)>><</link>>
+									<<set _torchTime to $hc.dungeonTorchTime || 2>>
+									<<set _torchState to "snuffed">>
+									<<set _torchAction to "dungeon" + _torchState.toUpperFirst()>>
+									<<set _torchText to "Put an unlit torch in " + _valueGucket.nameText>>
+									<<capture _torchTime, _torchState, _torchAction>>
+										| <<link [[`_torchText`|$passage]]>><<run hcItemAdd({ type: "torch", name: "torch", location: _valueGucket.containerID, origin: V.bus, time: _torchTime, state: _torchState, inSconce: false}, _valueGucket.containerID, _torchAction)>><</link>>
 									<</capture>>
 								<<else>>
-									| <<link [[`Place in $_valueGucket.nameText`|$passage]]>>
-										<<run hcItemAdd($_valueHere, $_valueGucket.containerID, ("putIn" + $_valueGucket.name.toUpperFirst()))>>
+									| <<link [[`Place in _valueGucket.nameText`|$passage]]>>
+										<<run hcItemAdd(_valueHere, _valueGucket.containerID, ("putIn" + _valueGucket.name.toUpperFirst()))>>
 									<</link>>
 								<</if>>
 							<</capture>>
@@ -1287,23 +1288,23 @@
 <</widget>>
 
 <<widget "hopelessCycleItemOptions">>
-	<<set $_item to _args[0]>>
+	<<set _item to _args[0]>>
 
 	/* Item icon and name */
-	<<set $_displayName to $_item.nameText ? $_item.nameText.toUpperFirst() : $_item.name.toUpperFirst()>>
-	<<if $_item.tooltip>>
-		<<set $_displayName += $_item.tooltip>>
+	<<set $_displayName to _item.nameText ? _item.nameText.toUpperFirst() : _item.name.toUpperFirst()>>
+	<<if _item.tooltip>>
+		<<set $_displayName += _item.tooltip>>
 	<</if>>
-	<<if $_item.type is "torch">>
-		<<if $_item.state is "snuffed">>
-			<<hcicon $_item>><<print $_displayName>> <span class="blue">(snuffed)</span>
-		<<elseif $_item.state is "burnt">>
-			<<hcicon $_item>><<print $_displayName>> <span class="red">(burnt out)</span>
+	<<if _item.type is "torch">>
+		<<if _item.state is "snuffed">>
+			<<hcicon _item>><<print $_displayName>> <span class="blue">(snuffed)</span>
+		<<elseif _item.state is "burnt">>
+			<<hcicon _item>><<print $_displayName>> <span class="red">(burnt out)</span>
 		<<else>>
-			<<hcicon $_item>><<print $_displayName>> <span class="orange">(<<number $_item.time>> hour<<if $_item.time gte 2>>s<</if>>)</span>
+			<<hcicon _item>><<print $_displayName>> <span class="orange">(<<number _item.time>> hour<<if _item.time gte 2>>s<</if>>)</span>
 		<</if>>
-		<<if $_item.location isnot "held">>
-			<<if $_item.inSconce>>
+		<<if _item.location isnot "held">>
+			<<if _item.inSconce>>
 				<span class="green">(in sconce)</span>
 			<<elseif $bus is "bed">>
 				<span class="green">(stashed)</span>
@@ -1312,9 +1313,9 @@
 			<</if>>
 		<</if>>
 	<<else>>
-		<<hcicon $_item>><<print $_displayName>>
-		<<if $_item.location isnot "held">>
-			<<if $_item.origin is $bus and $_item.persists>>
+		<<hcicon _item>><<print $_displayName>>
+		<<if _item.location isnot "held">>
+			<<if _item.origin is $bus and _item.persists>>
 				<span class="green">(stored)</span>
 			<<elseif $bus is "bed">>
 				<span class="green">(stashed)</span>
@@ -1324,127 +1325,127 @@
 		<</if>>
 	<</if>>
 
-	<<if $_item.containerID>>
-		<<set $_itemsInThisContainer to $hcItems.filter(items => items.location === $_item.containerID)>>
-		<<set $_waterInThisContainer to $_itemsInThisContainer.find(water => water.type is "water")>>
+	<<if _item.containerID>>
+		<<set _itemsInThisContainer to $hcItems.filter(items => items.location === _item.containerID)>>
+		<<set _waterInThisContainer to _itemsInThisContainer.find(water => water.type is "water")>>
 	<</if>>
 
 	<<set $_freeHand to hcItemHasFreeHand()>>
 
 	/* Item management */
-	<<capture $_item, $_itemsInThisContainer, $_waterInThisContainer>>
+	<<capture _item, _itemsInThisContainer, _waterInThisContainer>>
 		/* Any item */
 
-		<<if $_item.location isnot "held">>
+		<<if _item.location isnot "held">>
 			/* Actions specific to items NOT held */
 
 			/* Picking up, requires a free hand */
 			<<if $_freeHand>>
-				<<if $_item.type is "torch">>
+				<<if _item.type is "torch">>
 					/* Torches */
-					<<set $_toBeItemAction to "pickUp" + $_item.state.toUpperFirst()>>
-					<<if $_item.inSconce>><<set $_toBeItemAction += "Sconce">><</if>>
-					<<capture $_toBeItemAction>>
-						| <<link [[Take|$passage]]>><<set $_item.location to "held">><<set $_item.inSconce to false>><<set $itemAction to $_toBeItemAction>><</link>>
+					<<set _toBeItemAction to "pickUp" + _item.state.toUpperFirst()>>
+					<<if _item.inSconce>><<set _toBeItemAction += "Sconce">><</if>>
+					<<capture _toBeItemAction>>
+						| <<link [[Take|$passage]]>><<set _item.location to "held">><<set _item.inSconce to false>><<set $itemAction to _toBeItemAction>><</link>>
 					<</capture>>
 				<<else>>
 					/* Other items */
-					| <<link [[Pick up|$passage]]>><<set $_item.location to "held">><<run delete $_item.vanishesIn>><<set $itemAction to "pickUp">><<set $itemActionObject to $_item>><</link>>
+					| <<link [[Pick up|$passage]]>><<set _item.location to "held">><<run delete _item.vanishesIn>><<set $itemAction to "pickUp">><<set $itemActionObject to _item>><</link>>
 				<</if>>
 			<</if>>
 
 			/* Kicking over buckets full of water */
-			<<if $_item.containerID and $_waterInThisContainer>>
+			<<if _item.containerID and _waterInThisContainer>>
 				| <<link [[Kick it over|$passage]]>>
 					<<if !["disposal", "forest" ,"lake"].includes($bus)>><<set $hc.suspicion += 10>><</if>>
-					<<run hcItemRemove($_waterInThisContainer, "kick")>>
-					<<set $itemActionObject to $_item>>
+					<<run hcItemRemove(_waterInThisContainer, "kick")>>
+					<<set $itemActionObject to _item>>
 				<</link>><<if !["disposal", "forest", "lake"].includes($bus)>><<hopelessCycleSus 2>><</if>>
 			<</if>>
 
-		<<elseif $_item.location is "held">>
+		<<elseif _item.location is "held">>
 			/* Actions specific to HELD items */
 
 			/* Putting down or returning, skip torches */
-			<<if $_item.type is "torch">>
-				<<if $_item.state is "lit" and !hcItemCanReach("snuffer") and $bus isnot $_item.origin and !_hcSconces.includes($bus)>>
+			<<if _item.type is "torch">>
+				<<if _item.state is "lit" and !hcItemCanReach("snuffer") and $bus isnot _item.origin and !_hcSconces.includes($bus)>>
 					<span class="red"><i>Too dangerous to <<if $bus is "bed">>stash<<else>>drop<</if>>!</i></span>
 				<</if>>
 			<<else>>
 
 				/* Return */
-				<<if $_item.origin is $bus>>
+				<<if _item.origin is $bus>>
 
 					/* Return used dishes */
-					<<if $_item.type is "food" and $_item.used>>
+					<<if _item.type is "food" and _item.used>>
 						| <<link [[Return|$passage]]>>
-							<<if $_item.dirty and $_item.name is "stolen food">>
+							<<if _item.dirty and _item.name is "stolen food">>
 								<<set $hc.suspicion += 5>>
-							<<elseif $_item.dirty is 0>>
+							<<elseif _item.dirty is 0>>
 								<<set $hc.suspicion -= 5>>
 							<</if>>
-							<<run hcItemRemove($_item, "return")>>
-						<</link>><<if $_item.dirty and $_item.name is "stolen food">><<hopelessCycleSus 1>><<elseif $_item.dirty is 0>><<hopelessCycleSus -2>><</if>>
-					<<elseif $_item.containerID>>
-						<<if $_itemsInThisContainer.length is 0>>
-							| <<link [[Return|$passage]]>><<run hcItemRemove($_item, "return")>><</link>>
+							<<run hcItemRemove(_item, "return")>>
+						<</link>><<if _item.dirty and _item.name is "stolen food">><<hopelessCycleSus 1>><<elseif _item.dirty is 0>><<hopelessCycleSus -2>><</if>>
+					<<elseif _item.containerID>>
+						<<if _itemsInThisContainer.length is 0>>
+							| <<link [[Return|$passage]]>><<run hcItemRemove(_item, "return")>><</link>>
 						<<else>>
-							| <<link [[Put down|$passage]]>><<set $_item.location to $bus>><<set $itemAction to "down">><<set $itemActionObject to $_item>><</link>>
+							| <<link [[Put down|$passage]]>><<set _item.location to $bus>><<set $itemAction to "down">><<set $itemActionObject to _item>><</link>>
 						<</if>>
-					<<elseif !$_item.used and !$_item.dirty>>
-						| <<link [[Return|$passage]]>><<run hcItemRemove($_item, "return")>><</link>>
+					<<elseif !_item.used and !_item.dirty>>
+						| <<link [[Return|$passage]]>><<run hcItemRemove(_item, "return")>><</link>>
 					<</if>>
 
 				<<else>>
 
 					/* Drop */
 					<<if $bus is "bed">>
-						<<if $_item.dirty is 0 and $_item.dirtyOnDrop>>
-							| <<link "Stash <span class='red'>(will dirty!)</span>" $passage>><<set $_item.location to $bus>><<set $itemAction to "dropStash">><<set $itemActionObject to $_item>><<set $_item.dirty to 1>><</link>>
+						<<if _item.dirty is 0 and _item.dirtyOnDrop>>
+							| <<link "Stash <span class='red'>(will dirty!)</span>" $passage>><<set _item.location to $bus>><<set $itemAction to "dropStash">><<set $itemActionObject to _item>><<set _item.dirty to 1>><</link>>
 						<<else>>
-							| <<link [[Stash|$passage]]>><<set $_item.location to $bus>><<set $itemAction to "dropStash">><<set $itemActionObject to $_item>><</link>>
+							| <<link [[Stash|$passage]]>><<set _item.location to $bus>><<set $itemAction to "dropStash">><<set $itemActionObject to _item>><</link>>
 						<</if>>
-					<<elseif $_item.containerID>>
-						| <<link [[Put down|$passage]]>><<set $_item.location to $bus>><<set $itemAction to "down">><<set $itemActionObject to $_item>><</link>>
-					<<elseif $_item.dirty isnot undefined and $_item.dirtyOnDrop>>
+					<<elseif _item.containerID>>
+						| <<link [[Put down|$passage]]>><<set _item.location to $bus>><<set $itemAction to "down">><<set $itemActionObject to _item>><</link>>
+					<<elseif _item.dirty isnot undefined and _item.dirtyOnDrop>>
 						/* For items that can become dirty */
-						<<if $_item.dirty gte 1>>
-							| <<link [[Drop|$passage]]>><<set $_item.location to $bus>><<set $itemAction to "drop">><<set $itemActionObject to $_item>><</link>>
+						<<if _item.dirty gte 1>>
+							| <<link [[Drop|$passage]]>><<set _item.location to $bus>><<set $itemAction to "drop">><<set $itemActionObject to _item>><</link>>
 						<<else>>
-							| <<link "Drop <span class='red'>(will dirty!)</span>" $passage>><<set $_item.location to $bus>><<set $itemAction to "dropDirty">><<set $itemActionObject to $_item>><<set $_item.dirty to 1>><</link>>
+							| <<link "Drop <span class='red'>(will dirty!)</span>" $passage>><<set _item.location to $bus>><<set $itemAction to "dropDirty">><<set $itemActionObject to _item>><<set _item.dirty to 1>><</link>>
 						<</if>>
 					<<else>>
-						| <<link [[Drop|$passage]]>><<set $_item.location to $bus>><<set $itemAction to "drop">><<set $itemActionObject to $_item>><</link>>
+						| <<link [[Drop|$passage]]>><<set _item.location to $bus>><<set $itemAction to "drop">><<set $itemActionObject to _item>><</link>>
 					<</if>>
 				<</if>>
 			<</if>>
 
 			/* Held containers */
-			<<if $_item.containerID>>
+			<<if _item.containerID>>
 
 				/* Fill empty container with water from well or lake */
-				<<if _itemsHere.includes("water") and $_itemsInThisContainer.length is 0>>
-					| <<link [[Fill with water (0:02)|$passage]]>><<pass 2>><<tiredness 2>><<run hcItemAdd("water", $_item.containerID, "water")>><</link>><<gtiredness>>
+				<<if _itemsHere.includes("water") and _itemsInThisContainer.length is 0>>
+					| <<link [[Fill with water (0:02)|$passage]]>><<pass 2>><<tiredness 2>><<run console.warn(_item)>><<run hcItemAdd("water", _item.containerID, "water")>><</link>><<gtiredness>>
 				<</if>>
 
 				/* Emptying containers into disposal channel */
-				<<if $_itemsInThisContainer.length and $bus is "disposal">>
-					<<if $_waterInThisContainer>>
+				<<if _itemsInThisContainer.length and $bus is "disposal">>
+					<<if _waterInThisContainer>>
 						/* water */
 						| <<link [[Empty into channel (0:01)|$passage]]>>
 							<<pass 1>>
-							<<if $_waterInThisContainer.dirty gte 2>>
+							<<if _waterInThisContainer.dirty gte 2>>
 								<<set $hc.disposals += 2>>
 							<<else>>
 								<<set $hc.disposals++>>
 							<</if>>
-							<<run hcItemRemove($_waterInThisContainer, "emptyDisposal")>>
+							<<run hcItemRemove(_waterInThisContainer, "emptyDisposal")>>
 						<</link>>
 					<<else>>
 						/* items */
 						| <<link [[Empty into channel (0:01)|$passage]]>>
 							<<pass 1>>
-							<<for $_labelTrash, $_valueTrash range $_itemsInThisContainer>>
+							<<for $_labelTrash, $_valueTrash range _itemsInThisContainer>>
 								<<if $_valueTrash.dirty gte 2>>
 									<<set $hc.disposals += 2>>
 								<<elseif $_valueTrash.state isnot "snuffed" and $_valueTrash.state isnot "lit">>
@@ -1452,26 +1453,26 @@
 								<</if>>
 								<<run hcItemRemove($_valueTrash)>>
 							<</for>>
-							<<set $itemAction to "emptyDisposal">><<set $itemActionObject to $_item>>
+							<<set $itemAction to "emptyDisposal">><<set $itemActionObject to _item>>
 						<</link>>
 					<</if>>
 				<</if>>
 
 				/* Empty bucket back into well or lake */
-				<<if _itemsHere.includes("water") and $_waterInThisContainer and !($bus is "garden" and $_waterInThisContainer?.dirty gte 1 and !$hc.wellTainted)>>
+				<<if _itemsHere.includes("water") and _waterInThisContainer and !($bus is "garden" and _waterInThisContainer?.dirty gte 1 and !$hc.wellTainted)>>
 					<<set $_linkText to $bus is "lake" ? "Empty into lake" : "Empty back into well">>
 					| <<link [[`$_linkText (0:01)`|$passage]]>>
 						<<pass 1>>
-						<<run hcItemRemove($_waterInThisContainer)>>
+						<<run hcItemRemove(_waterInThisContainer)>>
 						<<set $itemAction to "emptyWell">>
-						<<set $itemActionObject to $_item>>
+						<<set $itemActionObject to _item>>
 					<</link>>
-				<<elseif $bus is "garden" and $_waterInThisContainer and $_waterInThisContainer.dirty lte 1>>
+				<<elseif $bus is "garden" and _waterInThisContainer and _waterInThisContainer.dirty lte 1>>
 					| <<link [[Dump out (0:01)|$passage]]>>
 						<<pass 1>>
-						<<run hcItemRemove($_waterInThisContainer)>>
+						<<run hcItemRemove(_waterInThisContainer)>>
 						<<set $itemAction to "emptyGarden">>
-						<<set $itemActionObject to $_item>>
+						<<set $itemActionObject to _item>>
 					<</link>>
 				<</if>>
 			<</if>>
@@ -1480,84 +1481,84 @@
 		/* Everything below is not specific to held or dropped items */
 
 		/* Torches */
-		<<if $_item.type is "torch">>
-			<<if $_item.state is "snuffed">>
+		<<if _item.type is "torch">>
+			<<if _item.state is "snuffed">>
 				<<if (hcItemCanReach("torch", t => t.state is "lit") or $bus is "guardhouse" and $hc.dungeonTorchState is "lit")>>
-					| <<link [[Re-ignite (0:01)|$passage]]>><<pass 1>><<set $_item.state to "lit">><<set $itemAction to "reignite">><</link>>
+					| <<link [[Re-ignite (0:01)|$passage]]>><<pass 1>><<set _item.state to "lit">><<set $itemAction to "reignite">><</link>>
 				<<elseif $bus is "pyre" and _canIgnite is true>>
-					| <<link [[Re-ignite (0:01)|$passage]]>><<pass 1>><<set $_item.state to "lit">><<set $itemAction to "reignitePyre">><</link>>
+					| <<link [[Re-ignite (0:01)|$passage]]>><<pass 1>><<set _item.state to "lit">><<set $itemAction to "reignitePyre">><</link>>
 				<</if>>
-				<<if $_item.time lt 6 and $bus is "guardhouse">>
-					| <<link [[Refresh burn time (0:05)|$passage]]>><<pass 5>><<set $_item.time += 4>><<set $itemAction to "refresh">><</link>>
+				<<if _item.time lt 6 and $bus is "guardhouse">>
+					| <<link [[Refresh burn time (0:05)|$passage]]>><<pass 5>><<set _item.time += 4>><<set $itemAction to "refresh">><</link>>
 				<</if>>
 			<</if>>
-			<<if $_item.state is "lit">>
+			<<if _item.state is "lit">>
 				<<if hcItemCanReach("snuffer")>>
-					| <<link [[Snuff (0:01)|$passage]]>><<pass 1>><<set $_item.state to "snuffed">><<set $itemAction to "snuff">><</link>>
-					<<if $_item.origin is $bus>>
-						| <<link [[Snuff and return (0:01)|$passage]]>><<pass 1>><<run hcItemRemove($_item, "dungeonBack")>><</link>>
+					| <<link [[Snuff (0:01)|$passage]]>><<pass 1>><<set _item.state to "snuffed">><<set $itemAction to "snuff">><</link>>
+					<<if _item.origin is $bus>>
+						| <<link [[Snuff and return (0:01)|$passage]]>><<pass 1>><<run hcItemRemove(_item, "dungeonBack")>><</link>>
 					<</if>>
 				<</if>>
-			<<elseif $_item.location is "held">>
-				<<if $_item.origin is $bus>>
-					| <<link [[Return|$passage]]>><<run hcItemRemove($_item, "dungeonBack")>><</link>>
+			<<elseif _item.location is "held">>
+				<<if _item.origin is $bus>>
+					| <<link [[Return|$passage]]>><<run hcItemRemove(_item, "dungeonBack")>><</link>>
 				<<elseif $bus is "bed">>
-					| <<link [[Stash|$passage]]>><<set $_item.location to $bus>><<set $itemAction to "dropStash">><<set $itemActionObject to $_item>><</link>>
+					| <<link [[Stash|$passage]]>><<set _item.location to $bus>><<set $itemAction to "dropStash">><<set $itemActionObject to _item>><</link>>
 				<<else>>
-					| <<link [[Drop|$passage]]>><<set $_item.location to $bus>><<set $itemAction to "drop">><<set $itemActionObject to $_item>><</link>>
+					| <<link [[Drop|$passage]]>><<set _item.location to $bus>><<set $itemAction to "drop">><<set $itemActionObject to _item>><</link>>
 				<</if>>
 			<</if>>
-			<<if _hcSconces.includes($bus) and !$_item.inSconce>>
-				<<set $_torchAlreadyHere to $hcItems.find(torch => torch.type is "torch" and torch.location is $bus and torch.inSconce is true)>>
-				<<if $_torchAlreadyHere>>
-					<<capture $_torchAlreadyHere>>
+			<<if _hcSconces.includes($bus) and !_item.inSconce>>
+				<<set _torchAlreadyHere to $hcItems.find(torch => torch.type is "torch" and torch.location is $bus and torch.inSconce is true)>>
+				<<if _torchAlreadyHere>>
+					<<capture _torchAlreadyHere>>
 						| <<link [[Replace in sconce|$passage]]>>
-							<<set $_torchAlreadyHere.location to $_item.location>><<set $_torchAlreadyHere.inSconce to false>>
-							<<set $_item.location to $bus>><<set $_item.inSconce to true>><<set $itemAction to "put" + $bus.toUpperFirst()>>
+							<<set _torchAlreadyHere.location to _item.location>><<set _torchAlreadyHere.inSconce to false>>
+							<<set _item.location to $bus>><<set _item.inSconce to true>><<set $itemAction to "put" + $bus.toUpperFirst()>>
 						<</link>>
 					<</capture>>
 				<<else>>
-					| <<link [[Place in sconce|$passage]]>><<set $_item.location to $bus>><<set $_item.inSconce to true>><<set $itemAction to "put" + $bus.toUpperFirst()>><</link>>
+					| <<link [[Place in sconce|$passage]]>><<set _item.location to $bus>><<set _item.inSconce to true>><<set $itemAction to "put" + $bus.toUpperFirst()>><</link>>
 				<</if>>
 			<</if>>
 			<<if $bus is "disposal">>
-				<<if !$hc.glassfingers and $_item.state is "lit">>
-					| <<link [[Dispose of|Hopeless Cycle Disposal Glassfingers]]>><<set $hc.glassfingers to true>><<run hcItemRemove($_item, ("disposal" + $_item.state.toUpperFirst()))>><</link>>
+				<<if !$hc.glassfingers and _item.state is "lit">>
+					| <<link [[Dispose of|Hopeless Cycle Disposal Glassfingers]]>><<set $hc.glassfingers to true>><<run hcItemRemove(_item, ("disposal" + _item.state.toUpperFirst()))>><</link>>
 				<<else>>
-					| <<link [[Dispose of|$passage]]>><<run hcItemRemove($_item, ("disposal" + $_item.state.toUpperFirst()))>><</link>>
+					| <<link [[Dispose of|$passage]]>><<run hcItemRemove(_item, ("disposal" + _item.state.toUpperFirst()))>><</link>>
 				<</if>>
 			<</if>>
 		<</if>>
 
 		/* Item interactions with containers held or here */
 		<<if _containers.length>>
-			<<for $_labelGucket, $_valueGucket range _containers>>
-				<<set $_itemsInThatContainer to $hcItems.filter(items => items.location === $_valueGucket.containerID)>>
-				<<set $_waterInThatContainer to $_itemsInThatContainer.find(water => water.type is "water")>>
-				<<capture $_valueGucket, $_waterInThatContainer>>
+			<<for _labelGucket, _valueGucket range _containers>>
+				<<set _itemsInThatContainer to $hcItems.filter(items => items.location === _valueGucket.containerID)>>
+				<<set _waterInThatContainer to _itemsInThatContainer.find(water => water.type is "water")>>
+				<<capture _valueGucket, _waterInThatContainer>>
 					/* Extinguish torch with water in container */
-					<<if $_item.type is "torch" and $_item.state is "lit" and $_waterInThatContainer>>
-						| <<link [[`Extinguish with $_waterInThatContainer.nameText (0:01)`|$passage]]>>
-							<<pass 1>><<set $_item.time to 0>>
-							<<set $_item.state to "burnt">>
+					<<if _item.type is "torch" and _item.state is "lit" and _waterInThatContainer>>
+						| <<link [[`Extinguish with _waterInThatContainer.nameText (0:01)`|$passage]]>>
+							<<pass 1>><<set _item.time to 0>>
+							<<set _item.state to "burnt">>
 							<<set $itemAction to "extinguish">>
-							<<set $_waterInThatContainer.dirty to 2>>
+							<<set _waterInThatContainer.dirty to 2>>
 						<</link>>
 					<</if>>
 					/* Wash item with water in container */
-					<<if $_item.dirty and $_waterInThatContainer?.dirty lt 2 and $_item.type isnot "clutter">>
-						| <<link [[`Clean in $_waterInThatContainer.nameText (0:05)`|$passage]]>>
-							<<pass 5>><<set $_item.dirty to 0>><<set $itemAction to "clean">><<set $itemActionObject to $_item>><<set $_waterInThatContainer.dirty++>>
-							<<if $_item.name is "bloodstained sack">><<set $_item.name to "torn vegetable sack">><</if>>
+					<<if _item.dirty and _waterInThatContainer?.dirty lt 2 and _item.type isnot "clutter">>
+						| <<link [[`Clean in _waterInThatContainer.nameText (0:05)`|$passage]]>>
+							<<pass 5>><<set _item.dirty to 0>><<set $itemAction to "clean">><<set $itemActionObject to _item>><<set _waterInThatContainer.dirty++>>
+							<<if _item.name is "bloodstained sack">><<set _item.name to "torn vegetable sack">><</if>>
 						<</link>>
 					<</if>>
 					/* Put item in container */
-					<<if $_itemsInThatContainer.length lt $_valueGucket.capacity and !$_waterInThatContainer and $_item.state isnot "lit" and !_hcBlacklist.includes($_item.type)>>
-						| <<link [[`Place in $_valueGucket.nameText`|$passage]]>>
-							<<set $_item.location to $_valueGucket.containerID>>
-							<<if $_item.inSconce>><<set $_item.inSconce to false>><</if>>
-							<<set $itemAction to "putIn" + $_valueGucket.name.toUpperFirst()>>
-							<<set $itemActionObject to $_item>>
+					<<if _itemsInThatContainer.length lt _valueGucket.capacity and !_waterInThatContainer and _item.state isnot "lit" and !_hcBlacklist.includes(_item.type)>>
+						| <<link [[`Place in _valueGucket.nameText`|$passage]]>>
+							<<set _item.location to _valueGucket.containerID>>
+							<<if _item.inSconce>><<set _item.inSconce to false>><</if>>
+							<<set $itemAction to "putIn" + _valueGucket.name.toUpperFirst()>>
+							<<set $itemActionObject to _item>>
 						<</link>>
 					<</if>>
 				<</capture>>
@@ -1565,46 +1566,46 @@
 		<</if>>
 
 		/* Taking items from containers, requires free hand */
-		<<if $_freeHand and $_item.containerID and $_itemsInThisContainer.length and !$_waterInThisContainer>>
-			<<for $_labelCont, $_valueCont range $_itemsInThisContainer>>
-				<<capture $_valueCont>>
-					<<set $_linkName to $_valueCont.nameText ? $_valueCont.nameText : $_valueCont.name>>
+		<<if $_freeHand and _item.containerID and _itemsInThisContainer.length and !_waterInThisContainer>>
+			<<for $_labelCont, _valueCont range _itemsInThisContainer>>
+				<<capture _valueCont>>
+					<<set $_linkName to _valueCont.nameText ? _valueCont.nameText : _valueCont.name>>
 					| <<link [[`Take $_linkName`|$passage]]>>
-						<<set $_valueCont.location to "held">><<run delete $_item.vanishesIn>><<run delete $_valueCont.vanishesIn>>
-						<<set $itemAction to "from" + $_item.name.toUpperFirst()>><<set $itemActionObject to $_valueCont>>
+						<<set _valueCont.location to "held">><<run delete _item.vanishesIn>><<run delete _valueCont.vanishesIn>>
+						<<set $itemAction to "from" + _item.name.toUpperFirst()>><<set $itemActionObject to _valueCont>>
 					<</link>>
 				<</capture>>
 			<</for>>
 		<</if>>
 
 		/* Disposal (excluding torches) */
-		<<if $bus is "disposal" and !$_item.persists and $_item.name isnot "torch">>
-			| <<link [[Dispose of|$passage]]>><<run hcItemRemove($_item, "disposal")>><</link>>
+		<<if $bus is "disposal" and !_item.persists and _item.name isnot "torch">>
+			| <<link [[Dispose of|$passage]]>><<run hcItemRemove(_item, "disposal")>><</link>>
 		<</if>>
 
 		/* Pyre */
-		<<if _itemsHere.includes("fire") and !$_item.persists>>
+		<<if _itemsHere.includes("fire") and !_item.persists>>
 			| <<link [[Burn|$passage]]>>
-				<<if ["food"].includes($_item.type) or ["sheets","clothes","bandages"].includes($_item.type) and $_item.dirty lte 1>>
+				<<if ["food"].includes(_item.type) or ["sheets","clothes","bandages"].includes(_item.type) and _item.dirty lte 1>>
 					<<set $hc.suspicion += 5>>
-				<<elseif $_item.dirty gte 2>>
+				<<elseif _item.dirty gte 2>>
 					<<set $hc.suspicion -= 5>>
 				<</if>>
-				<<run hcItemRemove($_item, "burn")>>
+				<<run hcItemRemove(_item, "burn")>>
 			<</link>>
-			<<if ["food"].includes($_item.type) or ["sheets","clothes","bandages"].includes($_item.type) and $_item.dirty lte 1>>
+			<<if ["food"].includes(_item.type) or ["sheets","clothes","bandages"].includes(_item.type) and _item.dirty lte 1>>
 				<<hopelessCycleSus 1>>
-			<<elseif $_item.dirty gte 2>>
+			<<elseif _item.dirty gte 2>>
 				<<hopelessCycleSus -2>>
 			<</if>>
 		<</if>>
 
 		/* Specific actions */
-		<<if $_item.type is "clothes" and $bus is "cell" and _canSee and !_clothesCurrent and $prisonerEvents.includes("wash")>>
-			<<if !$prisonerEvents.includes("newClothes") and !$_item.dirty>>
-				| <<link [[Dress her (0:05)|Hopeless Cycle Cell Clean Clothes]]>><<pass 5>><<stress 24>><<trauma 12>><<set $_item.location to "prisoner">><</link>><<ggstress>><<gtrauma>><<hopelessCycleLove 2>><<hopelessCycleSus 1>>
+		<<if _item.type is "clothes" and $bus is "cell" and _canSee and !_clothesCurrent and $prisonerEvents.includes("wash")>>
+			<<if !$prisonerEvents.includes("newClothes") and !_item.dirty>>
+				| <<link [[Dress her (0:05)|Hopeless Cycle Cell Clean Clothes]]>><<pass 5>><<stress 24>><<trauma 12>><<set _item.location to "prisoner">><</link>><<ggstress>><<gtrauma>><<hopelessCycleLove 2>><<hopelessCycleSus 1>>
 			<<else>>
-				| <<link [[Dress her (0:05)|$passage]]>><<pass 5>><<set $itemAction to "dressPrisoner">><<set $itemActionObject to $_item>><<set $_item.location to "prisoner">><</link>>
+				| <<link [[Dress her (0:05)|$passage]]>><<pass 5>><<set $itemAction to "dressPrisoner">><<set $itemActionObject to _item>><<set _item.location to "prisoner">><</link>>
 			<</if>>
 		<</if>>
 	<</capture>>

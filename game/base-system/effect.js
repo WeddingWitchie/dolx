@@ -1665,6 +1665,7 @@ Macro.add("effects", {
 				document.querySelector("#img").style.width = "328px";
 				document.querySelector("canvas.mainCanvas").style.height = "358px";
 				document.querySelector("canvas.mainCanvas").style.width = "358px";
+				if (!Browser.isMobile.any()) document.querySelector("#story").style.marginLeft = "27em";
 			} else {
 				document.querySelector("body.has-images #story-caption #storyCaptionDiv").style.top = "192px";
 				document.querySelector("body.has-images #story-caption #storyCaptionDiv").style.height  = "calc(100% - 20px - 1.32em)";
@@ -1676,6 +1677,7 @@ Macro.add("effects", {
 				document.querySelector("#img").style.width = "216px";
 				document.querySelector("canvas.mainCanvas").style.height = "256px";
 				document.querySelector("canvas.mainCanvas").style.width = "256px";
+				if (!Browser.isMobile.any()) document.querySelector("#story").style.marginLeft = "20em";
 			}
 		});
 		if (document.getElementById("ui-bar")) {
