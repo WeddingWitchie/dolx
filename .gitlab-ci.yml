@@ -15,24 +15,24 @@ build_job:
         - echo "Building release $VERSION"
         - mkdir -p buildImg/
         - mkdir -p buildImg/img/
-        # - mkdir -p buildAudio/
-        # - mkdir -p buildAudio/audio/
+        - mkdir -p buildAudio/
+        - mkdir -p buildAudio/audio/
         - ./compile.bat
         - cp -Recurse -Force ./img/* ./buildImg/img/
-        # - cp -Recurse -Force ./audio/* ./buildAudio/audio/
+        - cp -Recurse -Force ./audio/* ./buildAudio/audio/
         - Compress-Archive "./Degrees of Lewdity VERSION.html" "./DoLX_HTML_$VERSION.zip"
         - Compress-Archive ./buildImg/* "./DoLX_Images_$VERSION.zip"
-        # - Compress-Archive ./buildAudio/* "./DoLX_Audio_$VERSION.zip"
+        - Compress-Archive ./buildAudio/* "./DoLX_Audio_$VERSION.zip"
         - echo "Finished Building Release $VERSION"
         - echo "Uploading Release $VERSION"
         - 'Invoke-RestMethod -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" }  -InFile "./DoLX_HTML_$VERSION.zip" -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX_HTML_$VERSION.zip" -Method PUT'
         - 'Invoke-RestMethod -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" }  -InFile "./DoLX_Images_$VERSION.zip" -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX_Images_$VERSION.zip" -Method PUT'
-        # - 'Invoke-RestMethod -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" }  -InFile "./DoLX_Audio_$VERSION.zip" -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX_Audio_$VERSION.zip" -Method PUT'
+        - 'Invoke-RestMethod -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" }  -InFile "./DoLX_Audio_$VERSION.zip" -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX_Audio_$VERSION.zip" -Method PUT'
         - rm -Recurse -Force ./buildImg
-        # - rm -Recurse -Force ./buildAudio
+        - rm -Recurse -Force ./buildAudio
         - rm -Recurse -Force "./DoLX_HTML_$VERSION.zip"
         - rm -Recurse -Force "./DoLX_Images_$VERSION.zip"
-        # - rm -Recurse -Force "./DoLX_Audio_$VERSION.zip"
+        - rm -Recurse -Force "./DoLX_Audio_$VERSION.zip"
         - echo "Finished Uploading Release $VERSION"
     only:
         - master
@@ -53,7 +53,7 @@ release_job:
         - $htmlJSON = $html | ConvertTo-Json
         - $image = "{`"name`":`"DownloadMe_DoLX_Images`", `"url`":`"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX_Images_$VERSION.zip`"}"
         - $imageJSON = $image | ConvertTo-Json
-        - $audio = "{`"name`":`"DownloadMe_DoLX_Audio`", `"url`":`"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_0.11.1/0.11.1/DoLX_Audio_0.11.1.zip`"}"
+        - $audio = "{`"name`":`"DownloadMe_DoLX_Audio`", `"url`":`"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_$VERSION/$VERSION/DoLX_Audio_$VERSION.zip`"}"
         - $audioJSON = $audio | ConvertTo-Json
         - release-cli create --name "DoL:X-Change Edition $VERSION" --description ./DoLX_Changelog.md --ref $CI_COMMIT_SHA --tag-name $VERSION --assets-link=$htmlJSON --assets-link=$imageJSON  --assets-link=$audioJSON 
 
