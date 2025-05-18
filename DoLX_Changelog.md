@@ -19,7 +19,7 @@
 ### Rebalancing and Bug fixes:
   * Fixed street approach event always leaving you at the pub afterwards.
   * Fixed gender appearance caption text.
-  * Museum location now plays town playlist (no, you don't need to download audio again).
+  * Museum location now plays town playlist.
   * Clarified the sissy/butch dress urge messages.
   * Rearranged lockpicking training set to be closer to the top of the room.
   * Added feedback message for ruined orgasms due to cock/hole addict traits.
