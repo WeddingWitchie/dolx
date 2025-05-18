@@ -29,6 +29,8 @@
   * Hopeless Cycle sequence's bed no longer behaves like the worst bed.
   * Fixed "hims" typo.
   * Fixed fetish pregnancy/impregnation chance under breeder/bull pills.
+  * Fixed "crossdreser" typo.
+  * Fixed "spikepook" typo.
 
 
 
