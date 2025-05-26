@@ -8,29 +8,13 @@
 
 ## Changelog
 ### Changes and Additions:
-  * Updated DoLP to version v0.695
-  * Added vanilla-styled m!Whitney and f!Kylar sprites for the DoLP NNPC Display.
-  * Added music theme for the old temple at the Hopeless Cycle sequence.
-  * Added slider for pregnancy chance while pilled.
-  * Added spike pool selection options.
-  * Added pilled appearance customisation options.
-  * Added portal effect frequency setting.
+  * Converted all audio files from .ogg format to .mp3 (should fix audio for iOS users, and older devices in general).
+    * **WARNING:** Non-iOS users will also need to redownload the audio package, for audio to keep on working.
+  * Added vanilla-styled, male & female Sydney interpretations for DoLP's NNPC Display.
 
 ### Rebalancing and Bug fixes:
-  * Fixed street approach event always leaving you at the pub afterwards.
-  * Fixed gender appearance caption text.
-  * Museum location now plays town playlist.
-  * Clarified the sissy/butch dress urge messages.
-  * Rearranged lockpicking training set to be closer to the top of the room.
-  * Added feedback message for ruined orgasms due to cock/hole addict traits.
-  * Fixed getting hallway pantsed (plus resisting and failing) always resulting in complete destruction of bottom clothing.
-  * Added Hopeless Cycle side-story location tags to BGM selector.
-  * Fixed item bugs present during Hopeless Cycle side-story.
-  * Hopeless Cycle sequence's bed no longer behaves like the worst bed.
-  * Fixed "hims" typo.
-  * Fixed fetish pregnancy/impregnation chance under breeder/bull pills.
-  * Fixed "crossdreser" typo.
-  * Fixed "spikepook" typo.
+  * Fixed willpower stat on cheat menu (should no longer throw errors whenever willpower cap goes under current willpower points).
+  * Re-added "red possessed" eyes to the xchange random eyes pool.
 
 
 
