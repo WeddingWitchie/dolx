@@ -2139,6 +2139,10 @@ Renderer.CanvasModels.main = {
 						} else if (T.activeNNPC == "ivory_wraith") {
 							T.skin = "";
 						}
+
+						if (["sydney","kylar","whitney","robin"].includes(T.activeNNPC)) {
+							T.skin += "/school";
+						}
 						
 						if (V.options.autoNNPCDisplay[T.activeNNPC].genderOverride == true && V.options.autoNNPCDisplay[T.activeNNPC].gender != "") {
 							T.gender = V.options.autoNNPCDisplay[T.activeNNPC].gender;
