@@ -1,0 +1,28 @@
+:: Combat XChange Widgets [widget]
+
+    <<widget "combat-hand-on-xchange-pill">>
+        <<set _hand to _args[0]>>
+        <<set _rng to random(1, 100)>>
+
+        <<if _rng gte 96>>
+            <span class="blue"><<He>> changes <<his>> mind and pockets the pill once again.</span>
+            <<combat-reset-hand _args[0]>><<set $NPCList[_n][_hand + "tool"] to 0>>
+        <<elseif $rng gte 86>>
+            <<He>> taunts you while holding the pill in your face. "I wonder how's your pretty little ass gonna look."
+        <<elseif $mouthuse isnot 0>>
+            Seeing as your mouth is currently 'busy', <<he>> fiddles with the pill in <<his>> hand, looking for a change to feed it to you.
+        <<elseif $worn.face.type.includes("covered") or $worn.face.type.includes("gag")>>
+            <<He>> sees your $worn.face.name. "That thing is in the way. Take it off," <<he>> tugs at it with force. <<if $worn.face.integrity - 10 lte 0>><span class="purple">It gives way with a tear.</span><</if>>
+            <<set $worn.face.integrity -= 10>>
+        <<else>>
+            /* forced pilling */
+            <span class="pink"><<He>> forces <<his>> pill down your throat.</span>
+            <<combat-reset-hand _args[0]>><<set $NPCList[_n][_hand + "tool"] to 0>>
+            <<xchange-random-spike "suppress">><<set $playerWasSpikedInEncounter to 1>>
+        <</if>>
+    <</widget>>
+
+    <<widget "combat-pill-selection">>
+        <<set _hand to _args[0]>>
+        <<combat-set-hand-target _hand "xchange_pill">>
+    <</widget>>
