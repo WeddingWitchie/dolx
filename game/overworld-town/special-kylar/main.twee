@@ -180,11 +180,11 @@
 <</widget>>
 
 <<widget "kylaroptionsleave">>
-	<<run statusCheck("Kylar")>>
+	<<set _kylar to statusCheck("Kylar")>>
 
 	<<if $kylar_action is "stop">>
 		<<ind>><<link [[Shake off|Kylar Shake]]>><<npcincr Kylar rage 5>><</link>><<ggksuspicion>>
-	<<elseif _args[0] is "leave" and random(1, 100) lte 40 and _kylarStatus.includes("Love")>>
+	<<elseif _args[0] is "leave" and random(1, 100) lte 40 and _kylarStatus.includes("Love") and _kylar.love gte 80>>
 		<<getouticon>><<link [[Leave|Kylar Stop]]>><</link>>
 	<<else>>
 		<<switch $bus>>
@@ -237,7 +237,7 @@
 			<<set $kylarSeen.pushUnique("fountainWinter")>>
 			<<He>> seems spellbound. The constantly running water and the cold temperature has caused much of the fountain's structure to freeze over and form icicles thicker than your arm, and at least twice as long. Near the centre, some water remains unfrozen.
 			"It's so pretty. It's the most amazing thing I've ever seen!" <<He>> glances at you. "W-well, second most."
-		<<elseif $rng gte 91 and !$daily.kylar.fameConfronted and $fame.sex gte ($kylar.fameStage * 2) + 100>>
+		<<elseif $rng gte 91 and !$daily.kylar.fameConfronted and $fame.sex gte ($kylar.fameStage * 2) + 100 and _kylarStatus.includes("Love")>>
 			<<if $kylar.fameStage is 0>> /* $fame.sex is 100+ */
 				<<set $daily.kylar.fameConfronted to true>><<set $kylar.fameStage to 1>>
 				"I-I found a strange picture of you," <<he>> says. "Someone doctored it to make it look like you were doing lewd things." <<He>> laughs. "Some people have no shame."
@@ -1366,7 +1366,8 @@ You sneak from your bedroom and hide around a corner in the hall. You wait. <<He
 <<set $outside to 0>><<effects>>
 <<set $kylar_action to "stop">>
 
-You turn to leave. Kylar grasps your wrist. "Wh-where are you going?" <<he>> says. "Stay with me."<<gksuspicion>><<npcincr Kylar rage 1>>
+You turn to leave. Kylar grasps your wrist. "Wh-where are you going?" <<he>> says. "Please, stay!"
+/* <<gksuspicion>><<npcincr Kylar rage 1>> */
 <br><br>
 
 <<kylaroptions>>
@@ -3079,7 +3080,12 @@ The crowd cheers. Kylar struggles free and runs through the other students, one 
 :: Kylar Walk
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
 
-You turn and walk away. No doubt the audience was hoping you'd cause a bigger fuss.
+You turn and walk away. No doubt the audience was hoping you'd 
+<<if $phase is 1>>
+	cause a bigger fuss.
+<<else>>
+	join in piling onto the freak.
+<</if>>
 <br><br>
 
 <<link [[Next|Hallways]]>><<set $eventskip to 1>><<endevent>><</link>>
@@ -3092,11 +3098,11 @@ You walk towards Kylar's hiding place. <<He>> peeks out, to find you stood right
 <br><br>
 
 <<if $speech_attitude is "meek">>
-	"Hey," you say. "Are you okay?"
+	"Hey, Kylar," you say. "Are you okay?"
 <<elseif $speech_attitude is "bratty">>
-	"I saw you watching me," you say. "What do you want?"
+	"Kylar," you say. "What's up?"
 <<else>>
-	"I saw you watching," you say. "Don't be frightened."
+	"Oh, hi Kylar," you say. "What are you doing?"
 <</if>>
 
 <<He>> turns and runs.
