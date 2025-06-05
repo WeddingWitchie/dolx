@@ -2140,7 +2140,7 @@ Renderer.CanvasModels.main = {
 							T.skin = "";
 						}
 
-						if (["sydney","kylar","whitney","robin"].includes(T.activeNNPC)) {
+						if (["sydney","kylar","whitney","robin"].includes(T.activeNNPC) && Time.schoolDay) {
 							T.skin += "/school";
 						}
 						
