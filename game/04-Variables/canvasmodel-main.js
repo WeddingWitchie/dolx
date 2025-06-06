@@ -2140,7 +2140,11 @@ Renderer.CanvasModels.main = {
 							T.skin = "";
 						}
 
-						if (["sydney","kylar","whitney","robin"].includes(T.activeNNPC) && Time.schoolDay) {
+						// Alternate outfit selector
+						if (T.activeNNPC === "kylar" && V.halloween_kylar_proposed) {
+							T.skin += "/halloween";
+						}
+						else if (["sydney","kylar","whitney","robin"].includes(T.activeNNPC) && Time.schoolDay) {
 							T.skin += "/school";
 						}
 						
