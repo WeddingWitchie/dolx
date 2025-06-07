@@ -2141,7 +2141,7 @@ Renderer.CanvasModels.main = {
 						}
 
 						// Alternate outfit selector
-						if (T.activeNNPC === "kylar" && V.halloween_kylar_proposed) {
+						if (T.activeNNPC === "kylar" && V.kylar_clothes === "goth") {
 							T.skin += "/halloween";
 						}
 						else if (["sydney","kylar","whitney","robin"].includes(T.activeNNPC) && Time.schoolDay) {
