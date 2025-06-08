@@ -180,11 +180,11 @@
 <</widget>>
 
 <<widget "kylaroptionsleave">>
-	<<run statusCheck("Kylar")>>
+	<<set _kylar to statusCheck("Kylar")>>
 
 	<<if $kylar_action is "stop">>
 		<<ind>><<link [[Shake off|Kylar Shake]]>><<npcincr Kylar rage 5>><</link>><<ggksuspicion>>
-	<<elseif _args[0] is "leave" and random(1, 100) lte 40 and _kylarStatus.includes("Love")>>
+	<<elseif _args[0] is "leave" and random(1, 100) lte 40 and _kylarStatus.includes("Love") and _kylar.love gte 80>>
 		<<getouticon>><<link [[Leave|Kylar Stop]]>><</link>>
 	<<else>>
 		<<switch $bus>>
@@ -237,7 +237,7 @@
 			<<set $kylarSeen.pushUnique("fountainWinter")>>
 			<<He>> seems spellbound. The constantly running water and the cold temperature has caused much of the fountain's structure to freeze over and form icicles thicker than your arm, and at least twice as long. Near the centre, some water remains unfrozen.
 			"It's so pretty. It's the most amazing thing I've ever seen!" <<He>> glances at you. "W-well, second most."
-		<<elseif $rng gte 91 and !$daily.kylar.fameConfronted and $fame.sex gte ($kylar.fameStage * 2) + 100>>
+		<<elseif $rng gte 91 and !$daily.kylar.fameConfronted and $fame.sex gte ($kylar.fameStage * 2) + 100 and _kylarStatus.includes("Love")>>
 			<<if $kylar.fameStage is 0>> /* $fame.sex is 100+ */
 				<<set $daily.kylar.fameConfronted to true>><<set $kylar.fameStage to 1>>
 				"I-I found a strange picture of you," <<he>> says. "Someone doctored it to make it look like you were doing lewd things." <<He>> laughs. "Some people have no shame."
@@ -1366,7 +1366,8 @@ You sneak from your bedroom and hide around a corner in the hall. You wait. <<He
 <<set $outside to 0>><<effects>>
 <<set $kylar_action to "stop">>
 
-You turn to leave. Kylar grasps your wrist. "Wh-where are you going?" <<he>> says. "Stay with me."<<gksuspicion>><<npcincr Kylar rage 1>>
+You turn to leave. Kylar grasps your wrist. "Wh-where are you going?" <<he>> says. "Please, stay!"
+/* <<gksuspicion>><<npcincr Kylar rage 1>> */
 <br><br>
 
 <<kylaroptions>>
@@ -3079,7 +3080,12 @@ The crowd cheers. Kylar struggles free and runs through the other students, one 
 :: Kylar Walk
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
 
-You turn and walk away. No doubt the audience was hoping you'd cause a bigger fuss.
+You turn and walk away. No doubt the audience was hoping you'd 
+<<if $phase is 1>>
+	cause a bigger fuss.
+<<else>>
+	join in piling onto the freak.
+<</if>>
 <br><br>
 
 <<link [[Next|Hallways]]>><<set $eventskip to 1>><<endevent>><</link>>
@@ -3092,11 +3098,11 @@ You walk towards Kylar's hiding place. <<He>> peeks out, to find you stood right
 <br><br>
 
 <<if $speech_attitude is "meek">>
-	"Hey," you say. "Are you okay?"
+	"Hey, Kylar," you say. "Are you okay?"
 <<elseif $speech_attitude is "bratty">>
-	"I saw you watching me," you say. "What do you want?"
+	"Kylar," you say. "What's up?"
 <<else>>
-	"I saw you watching," you say. "Don't be frightened."
+	"Oh, hi Kylar," you say. "What are you doing?"
 <</if>>
 
 <<He>> turns and runs.
@@ -3477,17 +3483,17 @@ You sit beside Kylar and say hello.
 
 	You finish the food.
 	<br><br>
-	<<endevent>>
-	<<set $kylarexit to "rage">><<set $phase2 to "basement">>
+	
+	
 
-	<<historyicon>><<link [[Go to your history lesson (0:01)|Canteen Stay]]>><<unset $robinexit>><</link>><br>
+	<<historyicon>><<link [[Go to your history lesson (0:01)|Canteen Stay]]>><<endevent>><<set $kylarexit to "rage">><<set $phase2 to "basement">><<unset $robinexit>><</link>><br>
 	<<if _kylarlocation.area is "library">>
-		<<schoolicon "library">><<link [[Follow Kylar to the library (0:02)|Canteen Stay]]>><<unset $robinexit>><</link>><br>
+		<<schoolicon "library">><<link [[Follow Kylar to the library (0:02)|Canteen Stay]]>><<endevent>><<set $kylarexit to "rage">><<set $phase2 to "basement">><<unset $robinexit>><</link>><br>
 	<<else>>
-		<<schoolicon "courtyard">><<link [[Follow Kylar to the courtyard (0:02)|Canteen Stay]]>><<unset $robinexit>><</link>><br>
-		<<schoolicon "library">><<link [[Go to the library (0:02)|Canteen Stay]]>><<unset $robinexit>><</link>><br>
+		<<schoolicon "courtyard">><<link [[Follow Kylar to the courtyard (0:02)|Canteen Stay]]>><<endevent>><<set $kylarexit to "rage">><<set $phase2 to "basement">><<unset $robinexit>><</link>><br>
+		<<schoolicon "library">><<link [[Go to the library (0:02)|Canteen Stay]]>><<endevent>><<set $kylarexit to "rage">><<set $phase2 to "basement">><<unset $robinexit>><</link>><br>
 	<</if>>
-	<<foodicon "eat">><<link [[Stay in the canteen|Canteen Stay]]>><<unset $robinexit>><</link>>
+	<<foodicon "eat">><<link [[Stay in the canteen|Canteen Stay]]>><<endevent>><<set $kylarexit to "rage">><<set $phase2 to "basement">><<unset $robinexit>><</link>>
 	<br>
 
 <<elseif C.npc.Kylar.love gte 60 and C.npc.Whitney.dom gte 16 and C.npc.Whitney.state isnot "dungeon" and $rng gte 80>>
@@ -3531,13 +3537,12 @@ You sit beside Kylar and say hello.
 	You finish your food. Kylar carries your trays away, then walks in the direction of the <<if _kylarlocation.area is "library">>library<<else>>rear courtyard<</if>>.
 	<br><br>
 
-	<<endevent>>
-	<<historyicon>><<link [[Go to your history lesson (0:01)|History Classroom]]>><<set $justEntered to true>><<pass 1>><</link>><br>
+	<<historyicon>><<link [[Go to your history lesson (0:01)|History Classroom]]>><<endevent>><<set $justEntered to true>><<pass 1>><</link>><br>
 	<<if _kylarlocation.area is "library">>
-		<<schoolicon "library">><<link [[Follow Kylar to the library (0:02)|School Library]]>><<pass 2>><</link>><br>
+		<<schoolicon "library">><<link [[Follow Kylar to the library (0:02)|School Library]]>><<endevent>><<pass 2>><</link>><br>
 	<<else>>
-		<<schoolicon "courtyard">><<link [[Follow Kylar to the courtyard (0:03)|School Rear Courtyard]]>><<pass 3>><</link>><br>
-		<<schoolicon "library">><<link [[Go to the library (0:02)|School Library]]>><<pass 2>><</link>><br>
+		<<schoolicon "courtyard">><<link [[Follow Kylar to the courtyard (0:03)|School Rear Courtyard]]>><<endevent>><<pass 3>><</link>><br>
+		<<schoolicon "library">><<link [[Go to the library (0:02)|School Library]]>><<endevent>><<pass 2>><</link>><br>
 	<</if>>
 	<<foodicon "eat">><<link [[Stay in the canteen|Canteen]]>><</link>>
 	<br>
@@ -3549,15 +3554,14 @@ You sit beside Kylar and say hello.
 	You finish your food and depart. Kylar walks in the direction of the <<if Weather.precipitation isnot "none">>library<<else>>rear courtyard<</if>>.
 	<br><br>
 
-	<<endevent>>
-	<<historyicon>><<link [[Go to your history lesson (0:01)|History Classroom]]>><<set $justEntered to true>><<pass 1>><</link>><br>
+	<<historyicon>><<link [[Go to your history lesson (0:01)|History Classroom]]>><<endevent>><<set $justEntered to true>><<pass 1>><</link>><br>
 	<<if _kylarlocation.area is "library">>
-		<<schoolicon "library">><<link [[Follow Kylar to the library (0:02)|School Library]]>><<pass 2>><</link>><br>
+		<<schoolicon "library">><<link [[Follow Kylar to the library (0:02)|School Library]]>><<endevent>><<pass 2>><</link>><br>
 	<<else>>
-		<<schoolicon "courtyard">><<link [[Follow Kylar to the courtyard (0:03)|School Rear Courtyard]]>><<pass 3>><</link>><br>
-		<<schoolicon "library">><<link [[Go to the library (0:02)|School Library]]>><<pass 2>><</link>><br>
+		<<schoolicon "courtyard">><<link [[Follow Kylar to the courtyard (0:03)|School Rear Courtyard]]>><<endevent>><<pass 3>><</link>><br>
+		<<schoolicon "library">><<link [[Go to the library (0:02)|School Library]]>><<endevent>><<pass 2>><</link>><br>
 	<</if>>
-	<<foodicon "eat">><<link [[Stay in the canteen|Canteen]]>><</link>>
+	<<foodicon "eat">><<link [[Stay in the canteen|Canteen]]>><<endevent>><</link>>
 	<br>
 <</if>>
 
@@ -3611,15 +3615,14 @@ Heads turn around the canteen. You pull Kylar closer.
 
 The other students lose interest. You finish your food beside a relieved Kylar. <<person1>><<He>> carries your trays away once finished, then walks in the direction of the <<if Weather.precipitation isnot "none">>library<<else>>rear courtyard<</if>>.
 <br><br>
-<<endevent>>
-<<historyicon>><<link [[Go to your history lesson (0:01)|History Classroom]]>><<set $justEntered to true>><<pass 1>><</link>><br>
+<<historyicon>><<link [[Go to your history lesson (0:01)|History Classroom]]>><<endevent>><<set $justEntered to true>><<pass 1>><</link>><br>
 <<if _kylarlocation.area is "library">>
-	<<schoolicon "library">><<link [[Follow Kylar to the library (0:02)|School Library]]>><<pass 2>><</link>><br>
+	<<schoolicon "library">><<link [[Follow Kylar to the library (0:02)|School Library]]>><<endevent>><<pass 2>><</link>><br>
 <<else>>
-	<<schoolicon "courtyard">><<link [[Follow Kylar to the courtyard (0:03)|School Rear Courtyard]]>><<pass 3>><</link>><br>
-	<<schoolicon "library">><<link [[Go to the library (0:02)|School Library]]>><<pass 2>><</link>><br>
+	<<schoolicon "courtyard">><<link [[Follow Kylar to the courtyard (0:03)|School Rear Courtyard]]>><<endevent>><<pass 3>><</link>><br>
+	<<schoolicon "library">><<link [[Go to the library (0:02)|School Library]]>><<endevent>><<pass 2>><</link>><br>
 <</if>>
-<<foodicon "eat">><<link [[Stay in the canteen|Canteen]]>><</link>>
+<<foodicon "eat">><<link [[Stay in the canteen|Canteen]]>><<endevent>><</link>>
 <br>
 
 :: Canteen Kylar Whitney Confrontation
@@ -3935,15 +3938,14 @@ You smile and squeeze <<his>> other hand. <<He>> drops the knife with a horrifie
 You continue eating, sat beside a dazed Kylar. <<He>> carries your trays away when you're done, then walks in the direction of the <<if Weather.precipitation isnot "none">>library<<else>>rear courtyard<</if>>.
 <br><br>
 
-<<endevent>>
-<<historyicon>><<link [[Go to your history lesson (0:01)|History Classroom]]>><<set $justEntered to true>><<pass 1>><</link>><br>
+<<historyicon>><<link [[Go to your history lesson (0:01)|History Classroom]]>><<endevent>><<set $justEntered to true>><<pass 1>><</link>><br>
 <<if _kylarlocation.area is "library">>
-	<<schoolicon "library">><<link [[Follow Kylar to the library (0:02)|School Library]]>><<pass 2>><</link>><br>
+	<<schoolicon "library">><<link [[Follow Kylar to the library (0:02)|School Library]]>><<endevent>><<pass 2>><</link>><br>
 <<else>>
-	<<schoolicon "courtyard">><<link [[Follow Kylar to the courtyard (0:03)|School Rear Courtyard]]>><<pass 3>><</link>><br>
-	<<schoolicon "library">><<link [[Go to the library (0:02)|School Library]]>><<pass 2>><</link>><br>
+	<<schoolicon "courtyard">><<link [[Follow Kylar to the courtyard (0:03)|School Rear Courtyard]]>><<endevent>><<pass 3>><</link>><br>
+	<<schoolicon "library">><<link [[Go to the library (0:02)|School Library]]>><<endevent>><<pass 2>><</link>><br>
 <</if>>
-<<foodicon "eat">><<link [[Stay in the canteen|Canteen]]>><</link>>
+<<foodicon "eat">><<link [[Stay in the canteen|Canteen]]>><<endevent>><</link>>
 <br>
 
 :: Canteen Whitney Cheer
@@ -3979,10 +3981,9 @@ Kylar stirs on the ground.
 	"What a fucking nutcase," Whitney says. <<person2>><<He>> gives you a playful shove. "I expect a reward for winning later, slut." <<He>> leaves the canteen, <<his>> cronies in tow.
 	<br><br>
 
-	<<endevent>>
-	<<historyicon>><<link [[Go to your history lesson (0:01)|History Classroom]]>><<set $justEntered to true>><<pass 1>><</link>><br>
-	<<schoolicon "library">><<link [[Go to the library (0:02)|School Library]]>><<pass 2>><</link>><br>
-	<<foodicon "eat">><<link [[Stay in the canteen|Canteen]]>><</link>>
+	<<historyicon>><<link [[Go to your history lesson (0:01)|History Classroom]]>><<endevent>><<set $justEntered to true>><<pass 1>><</link>><br>
+	<<schoolicon "library">><<link [[Go to the library (0:02)|School Library]]>><<endevent>><<pass 2>><</link>><br>
+	<<foodicon "eat">><<link [[Stay in the canteen|Canteen]]>><<endevent>><</link>>
 	<br>
 
 <<else>>
@@ -4004,10 +4005,9 @@ Kylar stirs on the ground.
 	You look back to Kylar, but <<person1>><<hes>> already gone. The other students disperse.
 	<br><br>
 
-	<<endevent>>
-	<<historyicon>><<link [[Go to your history lesson (0:01)|History Classroom]]>><<set $justEntered to true>><<pass 1>><</link>><br>
-	<<schoolicon "library">><<link [[Go to the library (0:02)|School Library]]>><<pass 2>><</link>><br>
-	<<foodicon "eat">><<link [[Stay in the canteen|Canteen]]>><</link>>
+	<<historyicon>><<link [[Go to your history lesson (0:01)|History Classroom]]>><<endevent>><<set $justEntered to true>><<pass 1>><</link>><br>
+	<<schoolicon "library">><<link [[Go to the library (0:02)|School Library]]>><<endevent>><<pass 2>><</link>><br>
+	<<foodicon "eat">><<link [[Stay in the canteen|Canteen]]>><<endevent>><</link>>
 	<br>
 <</if>>
 

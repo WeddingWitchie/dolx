@@ -1,0 +1,91 @@
+:: Combat Actions XChange Widgets [widget]
+
+    <<widget "combat-hand-on-xchange-pill">>
+        <<set _hand to _args[0]>>
+        <<set _rng to random(1, 100)>>
+
+        <<if $playerWasSpikedInEncounter>>
+            <span class="blue">Seeing as you've already been transformed, <<he>> pockets <<his>> own pill since it's no longer necessary.</span>
+            <<combat-reset-hand _args[0]>><<set $NPCList[_n][_hand + "tool"] to 0>>
+        <<elseif _rng gte 96>>
+            <span class="blue"><<He>> changes <<his>> mind and pockets the pill once again.</span>
+            <<combat-reset-hand _args[0]>><<set $NPCList[_n][_hand + "tool"] to 0>>
+        <<elseif $rng gte 86>>
+            <<He>> taunts you while holding the pill in your face. "I wonder how's your pretty little ass gonna look."
+        <<elseif $mouthuse isnot 0>>
+            <<if $mouthuse is "righthand" or $mouthuse is "lefthand">>
+                <<if $mouthuse is "righthand">>
+                    <<selectNpcWithPartInPosition "hand" "mouth">>
+                <<else>>
+                    <<selectNpcWithPartInPosition "lefthand" "mouth">>
+                <</if>>
+                <<if $NPCList[_n] is _npc>>
+                    /* forced pilling */
+                    <span class="pink"><<He>> forces <<his>> pill down your throat.</span>
+                    <<combat-reset-hand _args[0]>><<set $NPCList[_n][_hand + "tool"] to 0>>
+                    <<xchange-random-spike "suppress">><<set $playerWasSpikedInEncounter to 1>>
+                <<else>>
+                    <<He>> fiddles with the pill in <<his>> hand, looking for a chance to feed it to you.
+                <</if>>
+            <<else>>
+                <<He>> fiddles with the pill in <<his>> hand, looking for a chance to feed it to you.
+            <</if>>
+        <<elseif $worn.face.type.includes("covered") or $worn.face.type.includes("gag")>>
+            <<He>> sees your $worn.face.name. "That thing is in the way. Take it off," <<he>> tugs at it with force. <<if $worn.face.integrity - 10 lte 0>><span class="purple">It gives way with a tear.</span><</if>>
+            <<set $worn.face.integrity -= 10>>
+        <<else>>
+            /* forced pilling */
+            <span class="pink"><<He>> forces <<his>> pill down your throat.</span>
+            <<combat-reset-hand _args[0]>><<set $NPCList[_n][_hand + "tool"] to 0>>
+            <<xchange-random-spike "suppress">><<set $playerWasSpikedInEncounter to 1>>
+        <</if>>
+    <</widget>>
+
+    <<widget "combat-pill-selection">>
+        <<set _hand to _args[0]>>
+        <<combat-set-hand-target _hand "xchange_pill">>
+    <</widget>>
+
+    <<widget "leftpillwhack">>
+        <<if $lefttarget isnot "self">>
+            <<if $NPCList[$lefttarget].lefthand is "xchange_pill" or $NPCList[$lefttarget].righthand is "xchange_pill">>
+                <<set _leftaction["Whack the pill away"] to "pillwhack">>
+            <</if>>
+        <</if>>
+    <</widget>>
+
+    <<widget "rightpillwhack">>
+        <<if $righttarget isnot "self">>
+            <<if $NPCList[$righttarget].lefthand is "xchange_pill" or $NPCList[$righttarget].righthand is "xchange_pill">>
+                <<set _rightaction["Whack the pill away"] to "pillwhack">>
+            <</if>>
+        <</if>>
+    <</widget>>
+
+    <<widget "effectspillwhack">>
+        <<if $leftaction is "pillwhack">>
+            <<set $leftaction to 0>>
+            <<personselect $lefttarget>>
+            <<set $_target to $NPCList[$lefttarget]>>
+            <<if $_target.lefthand is "xchange_pill">>
+                <<combat-reset-hand "left">>
+            <<elseif $_target.righthand is "xchange_pill">>
+                <<combat-reset-hand "right">>
+            <</if>>
+            You whack the pill away from the <<persons>> hands. <<He>> clenches <<his>> fist.
+            <<brat 10 $lefttarget>>
+        <</if>>
+
+        <<if $rightaction is "pillwhack">>
+            <<set $rightaction to 0>>
+            <<personselect $righttarget>>
+            <<set $_target to $NPCList[$righttarget]>>
+            <<if $_target.lefthand is "xchange_pill">>
+                <<combat-reset-hand "left">>
+            <<elseif $_target.righthand is "xchange_pill">>
+                <<combat-reset-hand "right">>
+            <</if>>
+            You whack the pill away from the <<persons>> hands. <<He>> clenches <<his>> fist.
+            <<brat 10 $righttarget>>
+        <</if>>
+    <</widget>>
