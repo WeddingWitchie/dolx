@@ -1653,7 +1653,9 @@ Macro.add("effects", {
 		const fragment = effects();
 		this.output.append(fragment);
 		DOL.Perflog.logWidgetEnd("effectsJs");
-		$(document).on(':passageend', function () {
+		$(document)
+		.off(':passageend.effects') 
+		.on(':passageend.effects', function () {
 			if (V.options.bigCanvas == true) {
 				document.querySelector("body.has-images #story-caption #storyCaptionDiv").style.top = "267px";
 				document.querySelector("body.has-images #story-caption #storyCaptionDiv").style.height  = "calc(100% - 95px - 1.32em)";
@@ -1665,7 +1667,7 @@ Macro.add("effects", {
 				document.querySelector("#img").style.width = "328px";
 				document.querySelector("canvas.mainCanvas").style.height = "358px";
 				document.querySelector("canvas.mainCanvas").style.width = "358px";
-				if (!Browser.isMobile.any()) document.querySelector("#story").style.marginLeft = "27em";
+				if (!Browser.isMobile.any() && !/Joiplay/i.test(navigator.userAgent)) document.querySelector("#story").style.marginLeft = "27em";
 			} else {
 				document.querySelector("body.has-images #story-caption #storyCaptionDiv").style.top = "192px";
 				document.querySelector("body.has-images #story-caption #storyCaptionDiv").style.height  = "calc(100% - 20px - 1.32em)";
@@ -1677,11 +1679,11 @@ Macro.add("effects", {
 				document.querySelector("#img").style.width = "216px";
 				document.querySelector("canvas.mainCanvas").style.height = "256px";
 				document.querySelector("canvas.mainCanvas").style.width = "256px";
-				if (!Browser.isMobile.any()) document.querySelector("#story").style.marginLeft = "20em";
+				if (!Browser.isMobile.any() && !/Joiplay/i.test(navigator.userAgent)) document.querySelector("#story").style.marginLeft = "20em";
 			}
 		});
-		if (document.getElementById("ui-bar")) {
-			const observer = new MutationObserver((mutations) => {
+		if (document.getElementById("ui-bar") && !window.uiBarObserver) {
+			window.uiBarObserver = new MutationObserver((mutations) => {
 				for (const mutation of mutations) {
 					if (mutation.type === "attributes" && mutation.attributeName === "class") {
 						if (document.getElementById("ui-bar").classList.contains("stowed")) {
@@ -1697,7 +1699,7 @@ Macro.add("effects", {
 				}
 			});
 
-			observer.observe(document.getElementById("ui-bar"), { attributes: true });
+			window.uiBarObserver.observe(document.getElementById("ui-bar"), { attributes: true });
 		}
 		Weather.Thermometer.load();
 	},

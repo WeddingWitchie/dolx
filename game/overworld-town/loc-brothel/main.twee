@@ -2583,14 +2583,16 @@ You ask Briar if <<he>> has already checked your vending machine's stock and col
 		<<if $brothelVending.lubeSold>>
 			<<run _productsSold.push(`$brothelVending.lubeSold bottle<<if $brothelVending.lubeSold gt 1>>s<</if>> of lube`)>>
 		<</if>>
-		You sold <<print _productsSold.join(" and ")>> over the past <<print $brothelVending.weeksRent is 1 ? "week" : $brothelVending.weeksRent + " weeks">>. I've already set aside the weekly rent deposit
+		You sold <<print _productsSold.join(" and ")>> over the past <<print $brothelVending.weeksRent is 1 ? "week" : $brothelVending.weeksRent + " weeks">>. I've already set aside the weekly rent 
 		<<set _productProfit to Math.max(0, _productProfit - $brothelVending.weeksRent * 5000)>>
 		<<if _productProfit>>
 			<<set _pcProfit to _productProfit * .4>>
 			<<set _pcProfit to _pcProfit + ((_productCost / 100) * C.npc.Briar.love)>>
-			<<set _briarCut to 60 * ((100 - C.npc.Briar.love) / 100)>>
+			<<set _briarCut to Math.round((60 * ((100 - C.npc.Briar.love) / 100)) * 100) / 100>>
 			<<if _briarCut gt 0>>
-				and my _briarCut% cut.
+				deposit and my _briarCut% cut.
+			<<else>>
+				deposit.
 			<</if>>
 			Here's your profit of <span class="green"><<formatmoney _pcProfit>>_printmoney</span>, plus the <span class="blue"><<formatmoney _productCost>>_printmoney</span> you spent stocking the machine." <<He>> hands you your earnings. You make <<printmoney `_productCost + _pcProfit`>>. "Pleasure doing business with you."
 			<<famebusiness 2>>
