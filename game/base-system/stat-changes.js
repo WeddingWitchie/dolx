@@ -630,6 +630,8 @@ const statChange = (() => {
 		if (V.backgroundTraits.includes("nerd")) {
 			amount *= 0.75;
 		}
+		amount *= 1 + 0.50 * (V.beauty / V.beautymax);
+		
 		if (amount > 0) {
 			V.cool += amount;
 
