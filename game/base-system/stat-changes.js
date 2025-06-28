@@ -442,8 +442,10 @@ const statChange = (() => {
 				// Do Nothing
 			} else {
 				V.arousal = Math.clamp(V.arousal, 0, V.arousalmax * 4/5 - 1);
-				V.effectsmessage = 1;
-				V.sexual_addiction_message = 1;
+				if (V.arousal === V.arousalmax * 4/5 - 1) {
+					V.effectsmessage = 1;
+					V.sexual_addiction_message = 1;
+				}
 			}
 
 			// Cannot orgasm under breeder unless there's semen in vagina
@@ -588,6 +590,12 @@ const statChange = (() => {
 		if (isNaN(amount)) paramError("detention", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 		if (amount) {
+			if (V.backgroundTraits.includes("delinquent")) {
+				amount *= 1.25;
+			}
+			if (V.backgroundTraits.includes("nerd")) {
+				amount *= 0.20;
+			}
 			if (amount > 0) V.detention += amount * 10;
 			V.delinquency = Math.clamp(V.delinquency + amount * 4, 0, 1000);
 		}

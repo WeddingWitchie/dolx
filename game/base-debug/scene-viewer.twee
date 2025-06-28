@@ -1239,11 +1239,16 @@ End of '<<print $replayScene.name>>' scene.
 <<widget "freezePlayerStats">>
 	<<if $frozenValues>><<exit>><</if>> /* Should never be run more than once */
 	<<script>>
-		const skipKeysOnFreeze = ["replayScene", "frozenValues", "statFreeze", "passage", "debug", "debugMenu", "options"];
+		const skipKeysOnFreeze = ["replayScene", "frozenValues", "statFreeze", "passage", "debug", "debugMenu", "options", "xchange"];
+		const xchangeKeysToSkip = ["blackmail"];
 		V.statFreeze = true;
 		V.frozenValues = {};
 		V.frozenValues.deepMerge(V, (key, value, depth) => {
 			return !(depth === 1 && skipKeysOnFreeze.includes(key)) && typeof value !== "function";
+		});
+		V.frozenXchangeValues = {};
+		V.frozenXchangeValues.deepMerge(V.xchange, (key, value, depth) => {
+			return !(depth === 1 && xchangeKeysToSkip.includes(key)) && typeof value !== "function";
 		});
 	<</script>>
 <</widget>>
@@ -1251,8 +1256,10 @@ End of '<<print $replayScene.name>>' scene.
 <<widget "unfreezePlayerStats">>
 	<<if $replayScene>><<exit>><</if>> /* Should never be run when a scene is running */
 	<<script>>
-		const skipKeysOnFreeze = ["replayScene", "frozenValues", "statFreeze", "passage", "debug", "debugMenu", "options"];
+		const skipKeysOnFreeze = ["replayScene", "frozenValues", "statFreeze", "passage", "debug", "debugMenu", "options", "xchange"];
 		const objectsToHardRestore = ["skin", "worn", "prof", "player", "transformationParts", "sexStats", "hypnosis_traits", "parasite"];
+		const xchangeKeysToSkip = ["blackmail"];
+		const xchangeObjectsToHardRestore = ["pill"];
 		delete V.statFreeze;
 		if (V.frozenValues) {
 			const retainedKeys = Object.fromEntries(
@@ -1265,6 +1272,19 @@ End of '<<print $replayScene.name>>' scene.
 			Object.assign(V, cleanedObjects);
 			Object.assign(V, retainedKeys);
 			delete V.frozenValues;
+			Time.set();
+		}
+		if (V.frozenXchangeValues) {
+			const retainedKeys = Object.fromEntries(
+				Object.entries(V.xchange).filter(([key]) => xchangeKeysToSkip.includes(key))
+			);
+			const cleanedObjects = Object.fromEntries(
+				Object.entries(V.frozenXchangeValues).filter(([key]) => xchangeObjectsToHardRestore.includes(key))
+			);
+			V.deepMerge(V.frozenXchangeValues, "strict-replace");
+			Object.assign(V.xchange, cleanedObjects);
+			Object.assign(V.xchange, retainedKeys);
+			delete V.frozenXchangeValues;
 			Time.set();
 		}
 	<</script>>

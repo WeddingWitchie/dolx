@@ -5,13 +5,11 @@
         <<set _rng to random(1, 100)>>
 
         <<if $playerWasSpikedInEncounter>>
-            <span class="blue">Seeing as you've already been transformed, <<he>> pockets <<his>> own pill since it's no longer necessary.</span>
+            <span class="blue">Seeing as you've already been pilled, <<he>> pockets <<his>> own pill since it's no longer necessary.</span>
             <<combat-reset-hand _args[0]>><<set $NPCList[_n][_hand + "tool"] to 0>>
         <<elseif _rng gte 96>>
             <span class="blue"><<He>> changes <<his>> mind and pockets the pill once again.</span>
             <<combat-reset-hand _args[0]>><<set $NPCList[_n][_hand + "tool"] to 0>>
-        <<elseif $rng gte 86>>
-            <<He>> taunts you while holding the pill in your face. "I wonder how's your pretty little ass gonna look."
         <<elseif $mouthuse isnot 0>>
             <<if $mouthuse is "righthand" or $mouthuse is "lefthand">>
                 <<if $mouthuse is "righthand">>
@@ -20,16 +18,38 @@
                     <<selectNpcWithPartInPosition "lefthand" "mouth">>
                 <</if>>
                 <<if $NPCList[_n] is _npc>>
-                    /* forced pilling */
-                    <span class="pink"><<He>> forces <<his>> pill down your throat.</span>
-                    <<combat-reset-hand _args[0]>><<set $NPCList[_n][_hand + "tool"] to 0>>
-                    <<xchange-random-spike "suppress">><<set $playerWasSpikedInEncounter to 1>>
+                    <<if $rng gte 33>>
+                        <span class="purple">
+                            <<= either(
+                                `<<He>> taunts you while holding the pill in your face. "I wonder how's your pretty little ass gonna look."`,
+                                `<<He>> tries to force the pill into your mounth, but your lips are sealed shut.`,
+                                `<<He>> forces the pill into your mouth. but you spit it out. "Stop making this difficult, you <<bitch>>!"`,
+                                `<<He>> fiddles around with the pill in <<his>> hand. "They say <<girl>>s like you turn into sluts after taking these."`,
+                                `<<He>> holds the pill against your lips, trying to coax them to open. "Come on... You'll feel real good. I promise.`
+                            )>>
+                        </span>
+                    <<else>>
+                        /* forced pilling */
+                        <span class="pink"><<He>> forces <<his>> pill down your throat.</span>
+                        <<combat-reset-hand _args[0]>><<set $NPCList[_n][_hand + "tool"] to 0>>
+                        <<xchange-random-spike "suppress">><<set $playerWasSpikedInEncounter to 1>>
+                    <</if>>
                 <<else>>
-                    <<He>> fiddles with the pill in <<his>> hand, looking for a chance to feed it to you.
+                    <span class="purple"><<He>> fiddles with the pill in <<his>> hand, looking for a chance to feed it to you.</span>
                 <</if>>
             <<else>>
-                <<He>> fiddles with the pill in <<his>> hand, looking for a chance to feed it to you.
+                <span class="purple"><<He>> fiddles with the pill in <<his>> hand, looking for a chance to feed it to you.</span>
             <</if>>
+        <<elseif $rng gte 33>>
+            <span class="purple">
+                <<= either(
+                    `<<He>> taunts you while holding the pill in your face. "I wonder how's your pretty little ass gonna look."`,
+                    `<<He>> tries to force the pill into your mounth, but your lips are sealed shut.`,
+                    `<<He>> forces the pill into your mouth. but you spit it out. "Stop making this difficult, you <<bitch>>!"`,
+                    `<<He>> fiddles around with the pill in <<his>> hand. "They say <<girl>>s like you turn into sluts after taking these."`,
+                    `<<He>> holds the pill against your lips, trying to coax them to open. "Come on... You'll feel real good. I promise.`
+                )>>
+            </span>
         <<elseif $worn.face.type.includes("covered") or $worn.face.type.includes("gag")>>
             <<He>> sees your $worn.face.name. "That thing is in the way. Take it off," <<he>> tugs at it with force. <<if $worn.face.integrity - 10 lte 0>><span class="purple">It gives way with a tear.</span><</if>>
             <<set $worn.face.integrity -= 10>>
