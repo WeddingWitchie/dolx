@@ -590,6 +590,12 @@ const statChange = (() => {
 		if (isNaN(amount)) paramError("detention", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 		if (amount) {
+			if (V.backgroundTraits.includes("delinquent")) {
+				amount *= 1.25;
+			}
+			if (V.backgroundTraits.includes("nerd")) {
+				amount *= 0.20;
+			}
 			if (amount > 0) V.detention += amount * 10;
 			V.delinquency = Math.clamp(V.delinquency + amount * 4, 0, 1000);
 		}
