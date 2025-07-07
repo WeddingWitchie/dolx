@@ -11,6 +11,5 @@
   * None.
 
 ### Rebalancing and Bug fixes:
-  * Fixed resistance whoring refusal money bug.
-  * Fixed endless transformation bug happening on Avery's dates when noncon pilling is disabled.
+  * Fixed Avery Date 'if' typo.
   
