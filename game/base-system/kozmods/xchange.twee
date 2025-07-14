@@ -1044,8 +1044,8 @@
 		<<set _gain to _args[0]>>
 		<<set _sensitivity to _args[1]>>
 		<<if $player.sex is "f" and _gain gte 400 and _sensitivity gt 1>>
-			<<if $arousal lt $arousalmax * 0.2 and $orgasmcurrent lt 1>>
-			<<elseif $arousal lt $arousalmax * 0.4 and $orgasmcurrent lt 1>>
+			<<if $pleasure lt $pleasuremax * 0.2 and $orgasmcurrent lt 1>>
+			<<elseif $pleasure lt $pleasuremax * 0.4 and $orgasmcurrent lt 1>>
 				<<switch $speechcycle>>
 					<<case 0>>
 						"M-mh!" 
@@ -1061,7 +1061,7 @@
 						"Mmph..." 
 				<</switch>>
 				<span class="pink">A muffled moan escapes your lips.</span>
-			<<elseif $arousal lt $arousalmax * 0.6 and $orgasmcurrent lt 1>>
+			<<elseif $pleasure lt $pleasuremax * 0.6 and $orgasmcurrent lt 1>>
 				<<switch $speechcycle>>
 					<<case 0>>
 						"A-Ah!<<hearticon>>" 
@@ -1077,7 +1077,7 @@
 						"Mmmh...<<hearticon>>" 
 				<</switch>>
 				<span class="pink">You moan softly.</span>
-			<<elseif $arousal lt $arousalmax * 0.8>>
+			<<elseif $pleasure lt $pleasuremax * 0.8>>
 				<<switch $speechcycle>>
 					<<case 0>>
 						"A-Ah!...<<hearticon>> Ah...<<hearticon>>" 
@@ -1093,7 +1093,7 @@
 						"Hah...<<hearticon>> Hah...<<hearticon>>" 
 				<</switch>>
 				<span class="pink">You're moaning rhythmically.</span>	
-			<<elseif $arousal lte $arousalmax>>
+			<<elseif $pleasure lte $pleasuremax>>
 				<<switch $speechcycle>>
 					<<case 0>>
 						"A-Ah!...<<hearticon>> Hah...<<hearticon>> Hah...<<hearticon>>" 
@@ -1108,7 +1108,7 @@
 					<<default>>
 						"Ah!...<<hearticon>> Hah...<<hearticon>> Hah...<<hearticon>>" 
 				<</switch>>
-				<<if $arousal is $arousalmax>>
+				<<if $pleasure is $pleasuremax>>
 					<span class="pink">Your climax approaches.</span>
 				<<else>>
 					<span class="pink">You are gasping uncontrollably.</span>	
@@ -1363,4 +1363,33 @@
 			"You know, if I were you, I’d have sex with me. Immediately,",
 		].random()>>".
 		<<if $NPCList[0].skills.security gte 800>><<arousal 500>><<ggarousal>><<elseif $NPCList[0].skills.security gte 400>><<arousal 200>><<garousal>><</if>>
+	<</widget>>
+
+	<<widget "pleasurecaption">>
+		<<if Number.isFinite($pleasure)>>
+			<div id="pleasurecaption" @title="'Pleasure: ' + $pleasure.toFixed(2)">
+				<div @class="($options.showCaptionText is true ? '' : 'rightMeterText')">
+					Pleasure:
+					<<if $options.showCaptionText is true>>
+						<<if $pleasure gte $pleasuremax>>
+							<span class="red">You're about to burst.</span>
+						<<elseif $pleasure gte ($pleasuremax / 5) * 4>>
+							<span class="pink">Your climax rises.</span>
+						<<elseif $pleasure gte ($pleasuremax / 5) * 3>>
+							<span class="purple">Your body's flushed.</span>
+						<<elseif $pleasure gte ($pleasuremax / 5) * 2>>
+							<span class="blue">Your body's stimulated.</span>
+						<<elseif $pleasure gte $pleasuremax / 5>>
+							<span class="lblue">Your body's tingly.</span>
+						<<elseif $pleasure gte 1>>
+							<span class="teal">Your body's itchy.</span>
+						<<else>>
+							<span class="green">You feel normal.</span>
+						<</if>>
+					<</if>>
+				</div>
+				<<set _showCaptionText to !$options.showCaptionText>>
+				<<statbar 0 $pleasure $pleasuremax _showCaptionText>>
+			</div>
+		<</if>>
 	<</widget>>
