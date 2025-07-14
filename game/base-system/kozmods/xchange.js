@@ -1,7 +1,8 @@
 function pleasure(amount, source) {
 	if (isNaN(amount)) paramError("pleasure", "amount", amount, "Expected a number.");
 		amount = Number(amount);
-	
+	const fragment = document.createDocumentFragment();
+
 	if (amount) {
 		let mod = 1;
 		let purityMod = (1000 - V.purity) * V.xchange.impuritySensitivityBonus / 1000;
@@ -193,6 +194,8 @@ function pleasure(amount, source) {
 			V.trackedArousal[V.trackedArousal.length - 1] += Math.round(amount * mod);
 			V.timeSinceArousal = 0;
 		}
+
+		return fragment;
 	}
 }
 DefineMacro("pleasure", pleasure);
