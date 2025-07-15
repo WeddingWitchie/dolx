@@ -17,11 +17,22 @@
 
 	<<widget "become-girl">>
 		<<wash>>
+		
 		<<if $facestyle is "default">>
-			<<set $facevariant to ["sweet","catty","default"].random()>>
+			<<set $facevariant to ["sweet","catty","default","foxy"].random()>>
 		<</if>>
 		<<set $player.gender_body to "f">>
 		<<set $player.bodyshape to "curvy">>
+
+		<<set _currentHairstyle to setup.hairstyles.sides.find(hs => hs.variable === V.hairtype)>>
+		<<set _hairstyles to setup.hairstyles.sides
+			.filter(x => x.type.includes("loose") && 
+				!x.type.includesAny("curly","textured","short","pigtails","braids","buns","ponytail") && 
+				!["swept left","bedhead"].includes(x.variable))
+			.flatMap(x => x.variable)>>
+		<<if _currentHairstyle.type.includes("short") && !["french bob","layered bob","straight bob"].includes(_currentHairstyle.variable)>>
+			<<set $hairtype to _hairstyles.random()>>
+		<</if>>
 
 		<<if $player.gender !== "f" && Object.keys($xchange.pill.changedBody).length gt 0>>
 			<<load-body "genderswapped">>
@@ -121,6 +132,7 @@
 		<<set $parasite.penis to {}>>
 		<<set $parasite.balls to {}>>
 
+		<<updatesidebarimg>>
 	<</widget>>
 
 	<<widget "butchify">>
@@ -144,6 +156,7 @@
 		<</if>>
 		<<set $player.gender_body to "m">>
 		<<set $player.bodyshape to "classic">>
+		<<set $hairtype to "short">>
 
 		<<if $player.gender !== "m" && Object.keys($xchange.pill.changedBody).length gt 0>>
 			<<load-body "genderswapped">>
@@ -242,6 +255,7 @@
 		<<set $parasite.penis to {}>>
 		<<set $parasite.balls to {}>>
 
+		<<updatesidebarimg>>
 	<</widget>>
 
 	<<widget "save-body">>
