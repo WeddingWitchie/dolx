@@ -282,10 +282,10 @@ const statChange = (() => {
 
 			switch (source){
 				case "maso":
-					V.arousalmasochism += amount * mod;
+					V.arousalmasochism += amount;
 					break;
 				case "time":
-					arousal = Math.clamp(V.arousal + amount * mod, 0, V.arousalmax);
+					arousal = Math.clamp(V.arousal + amount, 0, V.arousalmax);
 					if (V.trackedArousal.length > 4) {
 						V.trackedArousal.deleteAt(0);
 						V.trackedArousal[V.trackedArousal.length - 1] += (arousal * arousal) / (V.arousalmax * 0.8);
