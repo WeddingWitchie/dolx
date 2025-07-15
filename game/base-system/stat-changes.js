@@ -300,7 +300,7 @@ const statChange = (() => {
 			
 			fragment.append(wikifier("pleasure", amount, source));
 			fragment.append(wikifier("arousalclamp"));
-			// fragment.append(wikifier("arousal-wetness"));
+			fragment.append(wikifier("arousal-wetness"));
 			
 		}
 		
@@ -361,8 +361,10 @@ const statChange = (() => {
 				// Including masochism effect for all pain NG v2.7
 				if (V.masochism >= 100) {
 					pain *= 1 - V.masochism / 1200;
-					if (V.arousal < V.arousalmax * 3/5) arousal((amount * V.masochism) / 6, "maso");
 				}
+
+				// Pain reduces arousal until masoquism hits 100
+				arousal((amount * (-100 + V.masochism)) / 6, "maso");
 			}
 
 			if (V.drunk >= 1 && V.substanceRebalance == 1) pain *= 1 - (0.075 * (1 + Math.round(V.drunk / 120)));
@@ -378,7 +380,7 @@ const statChange = (() => {
 		amount = Number(amount);
 		if (amount) {
 			V.pain += amount * (1 - V.masochism / 1200) * 4;
-			if (V.arousal < V.arousalmax * 3/5) arousal(amount * (0 + V.masochism / 18) * 4);
+			arousal(amount * ((-100 + V.masochism) / 18) * 4);
 			painClamp();
 		}
 	}

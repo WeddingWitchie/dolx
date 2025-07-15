@@ -56,6 +56,8 @@ function pleasure(amount, source) {
 		switch (source) {
 			case undefined:
 			case "masturbation":
+			case "maso":
+			case "other":
 				// No modifier. The usual behaviour for this widget
 				break;
 			case "mouth":
@@ -115,7 +117,6 @@ function pleasure(amount, source) {
 				sensitivity += Math.max((V.genitalsensitivity + 2*purityMod) * wetnessPenalty, 0.25);
 				if (playerIsPregnant()) sensitivity += 0.5;
 				break;
-			case "maso":
 			case "time":
 				pleasure = Math.clamp(V.pleasure + amount * mod, 0, V.pleasuremax);
 				if (V.trackedArousal.length > 4) {
@@ -198,7 +199,12 @@ function pleasure(amount, source) {
 		return fragment;
 	}
 }
-DefineMacro("pleasure", pleasure);
+Macro.add("pleasure", {
+	handler() {
+		const fragment = pleasure(...this.args);
+		this.output.append(fragment);
+	},
+});
 window.pleasure = pleasure;
 
 function getPleasure(passMinutes) {

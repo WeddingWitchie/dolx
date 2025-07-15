@@ -1581,10 +1581,10 @@ function effects() {
 		}
 		
 		if (V.drugged > 0) {
-			fragment.append(wikifier("arousal", arousalDrop));
+			fragment.append(wikifier("pleasure", arousalDrop));
 		}
 		else {
-			fragment.append(wikifier("arousal", arousalDrop*2));
+			fragment.append(wikifier("pleasure", arousalDrop*2));
 		}
 
 		if (V.orgasmCum === 1) {

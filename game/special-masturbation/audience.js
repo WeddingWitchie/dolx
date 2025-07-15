@@ -51,7 +51,7 @@ function masturbationAudience() {
 function masturbationAudienceLines(npc) {
 	if (!V.masturbationAudienceReactions) V.masturbationAudienceReactions = [];
 	if (V.masturbationAudienceReactions.length >= 8) V.masturbationAudienceReactions.deleteAt(0);
-	if (V.arousal >= V.arousalmax) {
+	if (V.pleasure >= V.pleasuremax) {
 		V.masturbationAudienceReactions.push("orgasm");
 		V.audiencearousal += Math.clamp(2 * V.masturbationAudience, 2, 10);
 		return masturbationAudienceLineText(npc, "orgasm");
