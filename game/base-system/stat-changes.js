@@ -324,11 +324,11 @@ const statChange = (() => {
 		let result = playerHeatMinArousal() + playerRutMinArousal();
 
 		result += Object.values(V.worn).reduce((prev, curr) => {
-			if (curr.type.includes("fetish")) return prev + 150;
+			if (curr.type.includes("fetish")) return prev + 450;
 			return prev;
 		}, 0);
 
-		return Math.clamp(result, 0, 5000);
+		return Math.clamp(result, 0, V.arousalmax);
 	}
 
 	function tiredness(amount, source) {
