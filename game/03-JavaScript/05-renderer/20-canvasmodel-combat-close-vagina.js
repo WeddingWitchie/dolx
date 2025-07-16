@@ -160,7 +160,7 @@ const combatCloseVagina = {
 				if (options.vagina.npc === "beast-oral") {
 					return false;
 				}
-				if (V.enemyarousal < V.enemyarousalmax) {
+				if (V.enemypleasure < V.enemypleasuremax) {
 					return false;
 				}
 				if (options.vagina.npc === "tentacle") {

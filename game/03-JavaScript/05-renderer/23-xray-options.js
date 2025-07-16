@@ -198,9 +198,9 @@ class XrayCombatMapper {
 			}
 		} else {
 			if (T.knotted || T.knotted_short) options.animKeyBase = "mid";
-			else if (V.enemyarousal >= (V.enemyarousalmax / 5) * 4) options.animKeyBase = "vfast";
-			else if (V.enemyarousal >= (V.enemyarousalmax / 5) * 3) options.animKeyBase = "fast";
-			else if (V.enemyarousal >= (V.enemyarousalmax / 5) * 1) options.animKeyBase = "mid";
+			else if (V.enemypleasure >= (V.enemypleasuremax / 5) * 4) options.animKeyBase = "vfast";
+			else if (V.enemypleasure >= (V.enemypleasuremax / 5) * 3) options.animKeyBase = "fast";
+			else if (V.enemypleasure >= (V.enemypleasuremax / 5) * 1) options.animKeyBase = "mid";
 			else options.animKeyBase = "slow";
 		}
 

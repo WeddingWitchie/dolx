@@ -79,7 +79,7 @@ class CombatSystem {
 		if (V.orgasmdown > 0) {
 			return true;
 		}
-		return V.enemyarousal > V.enemyarousalmax;
+		return V.enemypleasure > V.enemypleasuremax;
 	}
 
 	isActive() {
@@ -551,8 +551,8 @@ class CombatSystem {
 		if (npcHasStrapon(index)) {
 			return false;
 		}
-		const arousalMaxed = V.enemyarousal >= V.enemyarousalmax;
-		return arousalMaxed;
+		const pleasureMaxed = V.enemypleasure >= V.enemypleasuremax;
+		return pleasureMaxed;
 	}
 
 	/**
