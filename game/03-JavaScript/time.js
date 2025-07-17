@@ -1433,8 +1433,8 @@ function dailyPlayerEffects() {
 	V.fringelength += 3 * genderFactor;
 	wikifier("calchairlengthstage");
 	
-	statChange.skill("beauty", (100 - (V.trauma / V.traumamax) * 100) * V.beautyMult);
-	if (V.stressBeauty == 1) statChange.skill("beauty", (100 - (V.stress / V.stressmax) * 100) * V.beautyMult);
+	// statChange.skill("beauty", (100 - (V.trauma / V.traumamax) * 100) * V.beautyMult);
+	// if (V.stressBeauty == 1) statChange.skill("beauty", (100 - (V.stress / V.stressmax) * 100) * V.beautyMult);
 	wikifier("lustfulUpdate");
 
 	if (V.orgasmstat >= 500 && V.orgasmtrait === 0) {
