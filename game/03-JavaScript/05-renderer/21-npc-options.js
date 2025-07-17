@@ -223,13 +223,13 @@ class NpcCombatMapper {
 			if (T.knotted || T.knotted_short) {
 				return "mid";
 			}
-			if (V.enemyarousal >= (V.enemyarousalmax / 5) * 4) {
+			if (V.enemypleasure >= (V.enemypleasuremax / 5) * 4) {
 				return "vfast";
 			}
-			if (V.enemyarousal >= (V.enemyarousalmax / 5) * 3) {
+			if (V.enemypleasure >= (V.enemypleasuremax / 5) * 3) {
 				return "fast";
 			}
-			if (V.enemyarousal >= (V.enemyarousalmax / 5) * 1) {
+			if (V.enemypleasure >= (V.enemypleasuremax / 5) * 1) {
 				return "mid";
 			}
 			return "slow";

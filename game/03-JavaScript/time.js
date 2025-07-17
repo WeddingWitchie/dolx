@@ -1109,9 +1109,13 @@ function minutePassed(minutes) {
 	statChange.pain(minutes, -1);
 
 	// Arousal
-	const arousalMultiplier = V.backgroundTraits.includes("lustful") ? 0.2 * (12 - Math.floor(V.purity / 80)) + 1 + (V.purity <= 50 ? 1 : 0) : -10;
+	const risk = playerPregnancyRisk();
+	const underBreedingEffect = playerIsXChanged() && V.xchange.pill?.breederEffect || V.xchange.pill?.bullEffect;
+	const arousalMultiplier = V.backgroundTraits.includes("lustful") || risk <= 1 || underBreedingEffect ? 
+		0.2 * (12 - Math.floor(V.purity / 80)) + 1 + (V.purity <= 50 ? 1 : 0) : -10;
 	statChange.arousal(minutes * arousalMultiplier + getArousal(minutes));
 	V.timeSinceArousal = V.arousal < V.arousalmax / 4 ? V.timeSinceArousal + minutes : 1;
+	pleasure(minutes * -25 + getPleasure(minutes));
 	if (V.player.vaginaExist) passArousalWetness(minutes);
 	if (V.arousal >= V.arousalmax * 2/5) 
 		wikifier("willpower-spending", minutes * 0.5 * Math.ceil( (V.arousal - V.arousalmax*2/5) / (V.arousalmax/10) ));
@@ -1417,8 +1421,8 @@ function dailyPlayerEffects() {
 	}
 
 	if (V.physique >= 1000) {
-		if (V.farm_stage >= 6) V.physique = V.physique - V.physique / 3000;
-		else V.physique = V.physique - V.physique / 2500;
+		if (V.farm_stage >= 6) V.physique = V.physique - V.physique * 4 / V.physiquesize;
+		else V.physique = V.physique - V.physique * 5 / V.physiquesize;
 	}
 
 	let genderFactor = !V.xchange.genderIdentityEnabled ?
@@ -1429,8 +1433,8 @@ function dailyPlayerEffects() {
 	V.fringelength += 3 * genderFactor;
 	wikifier("calchairlengthstage");
 	
-	statChange.skill("beauty", (100 - (V.trauma / V.traumamax) * 100) * V.beautyMult);
-	if (V.stressBeauty == 1) statChange.skill("beauty", (100 - (V.stress / V.stressmax) * 100) * V.beautyMult);
+	// statChange.skill("beauty", (100 - (V.trauma / V.traumamax) * 100) * V.beautyMult);
+	// if (V.stressBeauty == 1) statChange.skill("beauty", (100 - (V.stress / V.stressmax) * 100) * V.beautyMult);
 	wikifier("lustfulUpdate");
 
 	if (V.orgasmstat >= 500 && V.orgasmtrait === 0) {

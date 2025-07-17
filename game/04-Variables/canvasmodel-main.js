@@ -2136,6 +2136,19 @@ Renderer.CanvasModels.main = {
 							} else {
 								T.skin += "/corrupt";
 							}
+						} else if (T.activeNNPC == "bailey") {
+							if (V.bailey_clothing === "averydate") {
+								T.skin += "/averydate";
+								if (V.bailey_handheld === "alcohol") {
+									T.skin += "/alcohol";
+								}
+								else if (V.bailey_handheld === "cards") {
+									T.skin += "/cards";
+								}
+							}
+							else if (V.bailey_clothing === "cafe") {
+
+							}
 						} else if (T.activeNNPC == "ivory_wraith") {
 							T.skin = "";
 						}

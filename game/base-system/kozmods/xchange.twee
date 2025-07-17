@@ -17,11 +17,22 @@
 
 	<<widget "become-girl">>
 		<<wash>>
+		
 		<<if $facestyle is "default">>
-			<<set $facevariant to ["sweet","catty","default"].random()>>
+			<<set $facevariant to ["sweet","catty","default","foxy"].random()>>
 		<</if>>
 		<<set $player.gender_body to "f">>
 		<<set $player.bodyshape to "curvy">>
+
+		<<set _currentHairstyle to setup.hairstyles.sides.find(hs => hs.variable === V.hairtype)>>
+		<<set _hairstyles to setup.hairstyles.sides
+			.filter(x => x.type.includes("loose") && 
+				!x.type.includesAny("curly","textured","short","pigtails","braids","buns","ponytail") && 
+				!["swept left","bedhead"].includes(x.variable))
+			.flatMap(x => x.variable)>>
+		<<if _currentHairstyle.type.includes("short") && !["french bob","layered bob","straight bob"].includes(_currentHairstyle.variable)>>
+			<<set $hairtype to _hairstyles.random()>>
+		<</if>>
 
 		<<if $player.gender !== "f" && Object.keys($xchange.pill.changedBody).length gt 0>>
 			<<load-body "genderswapped">>
@@ -121,6 +132,7 @@
 		<<set $parasite.penis to {}>>
 		<<set $parasite.balls to {}>>
 
+		<<updatesidebarimg>>
 	<</widget>>
 
 	<<widget "butchify">>
@@ -144,6 +156,7 @@
 		<</if>>
 		<<set $player.gender_body to "m">>
 		<<set $player.bodyshape to "classic">>
+		<<set $hairtype to "short">>
 
 		<<if $player.gender !== "m" && Object.keys($xchange.pill.changedBody).length gt 0>>
 			<<load-body "genderswapped">>
@@ -187,7 +200,7 @@
 			<<if $fringelength gte 200>>
 				<<set $fringelength to 0>>
 			<</if>>
-			<<set $beauty += 2000 * $AMCTraits.beauty>>
+			<<set $beauty += 10000>>
 			<<set _physiquesizes to [6000, 10000, 12000, 16000]>>
 			<<set _physiquesize_old to $physiquesize>>
 			<<set $physiquesize to _physiquesizes[$bodysize]>>
@@ -242,6 +255,7 @@
 		<<set $parasite.penis to {}>>
 		<<set $parasite.balls to {}>>
 
+		<<updatesidebarimg>>
 	<</widget>>
 
 	<<widget "save-body">>
@@ -1044,8 +1058,8 @@
 		<<set _gain to _args[0]>>
 		<<set _sensitivity to _args[1]>>
 		<<if $player.sex is "f" and _gain gte 400 and _sensitivity gt 1>>
-			<<if $arousal lt $arousalmax * 0.2 and $orgasmcurrent lt 1>>
-			<<elseif $arousal lt $arousalmax * 0.4 and $orgasmcurrent lt 1>>
+			<<if $pleasure lt $pleasuremax * 0.2 and $orgasmcurrent lt 1>>
+			<<elseif $pleasure lt $pleasuremax * 0.4 and $orgasmcurrent lt 1>>
 				<<switch $speechcycle>>
 					<<case 0>>
 						"M-mh!" 
@@ -1061,7 +1075,7 @@
 						"Mmph..." 
 				<</switch>>
 				<span class="pink">A muffled moan escapes your lips.</span>
-			<<elseif $arousal lt $arousalmax * 0.6 and $orgasmcurrent lt 1>>
+			<<elseif $pleasure lt $pleasuremax * 0.6 and $orgasmcurrent lt 1>>
 				<<switch $speechcycle>>
 					<<case 0>>
 						"A-Ah!<<hearticon>>" 
@@ -1077,7 +1091,7 @@
 						"Mmmh...<<hearticon>>" 
 				<</switch>>
 				<span class="pink">You moan softly.</span>
-			<<elseif $arousal lt $arousalmax * 0.8>>
+			<<elseif $pleasure lt $pleasuremax * 0.8>>
 				<<switch $speechcycle>>
 					<<case 0>>
 						"A-Ah!...<<hearticon>> Ah...<<hearticon>>" 
@@ -1093,7 +1107,7 @@
 						"Hah...<<hearticon>> Hah...<<hearticon>>" 
 				<</switch>>
 				<span class="pink">You're moaning rhythmically.</span>	
-			<<elseif $arousal lte $arousalmax>>
+			<<elseif $pleasure lte $pleasuremax>>
 				<<switch $speechcycle>>
 					<<case 0>>
 						"A-Ah!...<<hearticon>> Hah...<<hearticon>> Hah...<<hearticon>>" 
@@ -1108,7 +1122,7 @@
 					<<default>>
 						"Ah!...<<hearticon>> Hah...<<hearticon>> Hah...<<hearticon>>" 
 				<</switch>>
-				<<if $arousal is $arousalmax>>
+				<<if $pleasure is $pleasuremax>>
 					<span class="pink">Your climax approaches.</span>
 				<<else>>
 					<span class="pink">You are gasping uncontrollably.</span>	
@@ -1164,7 +1178,7 @@
 						<<elseif $xchange.willpowerPoints gte 1>>
 							<span class="pink">You are wavering.</span>
 						<<else>>
-							<span class="red">You can no longer resist.</span>
+							<span class="red">You surrender.</span>
 						<</if>>
 					<</if>>
 				</div>
@@ -1177,7 +1191,7 @@
 
 	<<widget "willpowercombatcheck">>
 		<<if $xchange.willpowerSystemEnabled is 1>>
-			<<if $arousal gte ($arousalmax * 2 / 5) or $orgasmcount gt 0>>
+			<<if $arousal gte ($arousalmax * 3 / 5) or $orgasmcount gt 0>>
 				<<silently>><<willpowerdifficulty 1 800>><</silently>>
 				<<if $willpowerSuccess>>
 					<<willpowersuccess>>
@@ -1363,4 +1377,38 @@
 			"You know, if I were you, I’d have sex with me. Immediately,",
 		].random()>>".
 		<<if $NPCList[0].skills.security gte 800>><<arousal 500>><<ggarousal>><<elseif $NPCList[0].skills.security gte 400>><<arousal 200>><<garousal>><</if>>
+	<</widget>>
+
+	<<widget "pleasurecaption">>
+		<<if Number.isFinite($pleasure)>>
+			<div id="pleasurecaption" @title="'Pleasure: ' + $pleasure.toFixed(2)">
+				<div @class="($options.showCaptionText is true ? '' : 'rightMeterText')">
+					Pleasure:
+					<<if $options.showCaptionText is true>>
+						<<if $pleasure gte $pleasuremax>>
+							<span class="red">About to burst.</span>
+						<<elseif $pleasure gte ($pleasuremax / 5) * 4>>
+							<span class="pink">A climax rises.</span>
+						<<elseif $pleasure gte ($pleasuremax / 5) * 3>>
+							<span class="purple">You feel flushed.</span>
+						<<elseif $pleasure gte ($pleasuremax / 5) * 2>>
+							<span class="blue">You feel hot.</span>
+						<<elseif $pleasure gte $pleasuremax / 5>>
+							<span class="lblue">You feel tingly.</span>
+						<<elseif $pleasure gte 1>>
+							<span class="teal">You feel itchy.</span>
+						<<else>>
+							<span class="green">You feel normal.</span>
+						<</if>>
+					<</if>>
+				</div>
+				<<set _showCaptionText to !$options.showCaptionText>>
+				<<glowstatbar 0 $pleasure $pleasuremax _showCaptionText>>
+			</div>
+		<</if>>
+	<</widget>>
+
+	<<widget "enemypleasure">>
+		<<set _mod to $enemyarousal / $enemyarousalmax>>
+		<<set $enemypleasure += _args[0] * _mod>>
 	<</widget>>

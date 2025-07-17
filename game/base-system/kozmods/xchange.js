@@ -1,3 +1,251 @@
+function pleasure(amount, source) {
+	if (isNaN(amount)) paramError("pleasure", "amount", amount, "Expected a number.");
+		amount = Number(amount);
+	const fragment = document.createDocumentFragment();
+
+	if (amount) {
+		let mod = 1;
+		let purityMod = (1000 - V.purity) * V.xchange.impuritySensitivityBonus / 1000;
+
+		// If currently under the refractory period post-orgasm, prevent arousal from raising.
+		if (V.refractoryPeriod > 0 && amount > 0) {
+			if (V.drugged > 0) {
+				V.refractoryPeriod--;
+				V.refractoryPeriodMessage = 2;
+			}
+			else {
+				V.refractoryPeriodMessage = 1;
+			}
+			
+			amount = 0;
+			V.effectsmessage = 1;
+		}
+
+		// Trait checks & effects
+		if (amount > 0 && V.orgasmtrait) mod *= 0.6;
+
+		// adds up to +1 to the arousal modifier when suffocating
+		if (V.choketrait) mod += (V.oxygenmax - V.oxygen) / V.oxygenmax;
+
+		if (V.drugged > 0) {
+			/*
+				Multiplies the modifier by up to 2x at full bar
+				Comment Akoz: I chose to make it multiply, rather than add to the modifier
+				so that the aphrodisiacs become quite threatening during nonconsensual use,
+				and more thrilling when used intentionally
+			*/
+			if (V.substanceRebalance == 1) {
+				mod *= 1 + V.drugged / 250;
+			} else {
+				mod *= 1 + V.drugged / 1000;
+			}
+		}
+
+		let beingPenetrated = ["penis", "penisdouble", "tentacle", "tentacledeep", "machine"];
+		let penetrating = ["penetrated", "othervagina", "otheranus", "othermouth"];
+		
+		let playerIsBeingPenetrated =
+			beingPenetrated.includes(V.vaginause) || beingPenetrated.includes(V.anususe) || [0,3].includes(V.portalPanties.state.vagina?.new) || [0,3].includes(V.portalPanties.state.anus?.new) || V.portalejacvagina || V.portalejacanus;
+
+		let penisAddictionFulfilled = playerIsBeingPenetrated || playerHasButtPlug() ;
+		let holeAddictionFulfilled = penetrating.includes(V.penisuse);
+
+		// Apply effect according to source
+		let sensitivity = 0;
+		let pleasure;
+		switch (source) {
+			case undefined:
+			case "masturbation":
+			case "maso":
+			case "other":
+				// No modifier. The usual behaviour for this widget
+				break;
+			case "mouth":
+			case "oral":
+			case "lips":
+			case "masturbationMouth":
+			case "masturbationOral":
+			case "kiss":
+				sensitivity += V.mouthsensitivity;
+				break;
+			case "breast":
+			case "breasts":
+			case "chest":
+			case "nipple":
+			case "nipples":
+			case "masturbationBreasts":
+			case "masturbationNipples":
+			case "chest_grope":
+				sensitivity += V.breastsensitivity + purityMod;
+				fragment.append(wikifier("playWithBreasts"));
+				if (playerIsPregnant()) sensitivity += 0.5;
+				break;
+			case "bottom":
+			case "anus":
+			case "anal":
+			case "ass":
+			case "butt":
+			case "masturbationAnal":
+			case "masturbationAss":
+			case "bottom_grope":
+				let analWetnessPenalty = 1;
+				if (amount > 0 && beingPenetrated.includes(V.anusstate)) {
+					pain(V.analPain);
+					analWetnessPenalty = Math.min(V.anusWetness/60, 1);
+					if (V.penis_addict_trait) sensitivity += 0.5;
+				}
+				sensitivity += Math.max((V.bottomsensitivity + purityMod) * analWetnessPenalty, 0.25);
+				break;
+			case "genital":
+			case "genitals":
+			case "penis":
+			case "penile":
+			case "pussy":
+			case "vaginal":
+			case "vagina":
+			case "masturbationGenital":
+			case "masturbationPenis":
+			case "masturbationVagina":
+			case "pussy_grope":
+			case "penis_grope":
+				let wetnessPenalty = 1;
+				if (amount > 0 && V.player.vaginaExist === "t" && beingPenetrated.includes(V.vaginause)) {
+					pain(V.vaginalPain);
+					wetnessPenalty = Math.min(V.vaginaWetness/60, 1);
+					if (V.penis_addict_trait) sensitivity += 0.5;
+				}
+				sensitivity += Math.max((V.genitalsensitivity + 2*purityMod) * wetnessPenalty, 0.25);
+				if (playerIsPregnant()) sensitivity += 0.5;
+				break;
+			case "time":
+				pleasure = Math.clamp(V.pleasure + amount * (amount > 0? mod : 1), 0, V.pleasuremax);
+				if (V.trackedArousal.length > 4) {
+					V.trackedArousal.deleteAt(0);
+					V.trackedArousal[V.trackedArousal.length - 1] += (pleasure * pleasure) / (V.pleasuremax * 0.8);
+				}
+				V.trackedArousal.push(0);
+				break;
+			default:
+				paramError("arousal", "source", source, "Expected a string, see function for values");
+				break;
+		}
+
+		// Adjusts modifier for body part sensitivity, if applicable
+		if (amount > 0) {
+			let sensitivityMod = (sensitivity - 1) ** 2 / 4;
+			// Halve sensitivity boosts during chef job
+			// todo: rebalance chef job better
+			if (V.masturbation_bowl) sensitivityMod /= 2;
+			mod += sensitivityMod;
+		}
+
+		if (amount > 0 && ((V.penis_addict_trait && (!playerIsBeingPenetrated || playerHasButtPlug())) || (V.hole_addict_trait && (!holeAddictionFulfilled || playerHasStrapon())))) {
+			mod *= 0.6;
+		}
+
+		// Concentration reduces incoming arousal by half
+		// Whilst failed concentration adds half a point of sensitivity to all incoming arousal
+		if (V.xchange.resistCombatArousal === 1 && amount > 0) {
+			mod *= 0.50;
+		}
+		else if (V.xchange.resistCombatArousal === -1 && amount > 0) {
+			mod += 0.50;
+		}
+
+		// Reduce the mod if masturbating while in heat and/or rut
+		if (source && source.includes("masturbation")) {
+			mod *= 1 - Math.clamp(playerHeatMinArousal() + playerRutMinArousal(), 0, 4000) / 5000;
+		}
+
+		// Scale down stimulation according to current arousal
+		mod *= V.arousal / V.arousalmax;
+
+		let oldPleasure = V.pleasure;
+		let pleasureChange = amount * (amount > 0? mod : 1) * (amount > 0? Weather.BodyTemperature.arousalModifier : 1);
+		V.pleasure += pleasureChange;
+
+		// Prevent orgasming unless addictions are fulfilled (or you don't have them)
+		if ( ( V.penis_addict_trait !== 1 || penisAddictionFulfilled ) && ( V.hole_addict_trait !== 1 || holeAddictionFulfilled ) ) {
+			// Do Nothing
+		} else {
+			V.pleasure = Math.clamp(V.pleasure, 0, V.pleasuremax * 4/5 - 1);
+			if (V.pleasure === V.pleasuremax * 4/5 - 1) {
+				V.effectsmessage = 1;
+				V.sexual_addiction_message = 1;
+			}
+		}
+
+		// Cannot orgasm under breeder unless there's semen in vagina
+		if (playerIsXChanged() && V.xchange.pill?.breederEffect && V.sexStats.vagina.sperm.length <= 0 && oldPleasure + pleasureChange >= V.pleasuremax * 4/5) {
+			V.pleasure = Math.clamp(V.pleasure, 0, V.pleasuremax * 4/5 - 1);
+			V.xchange.pill.breederEdgingCount++;
+		}
+		if (V.xchange.pill.breederEdgingCount > 10) {
+			V.effectsmessage = 1;
+			V.breederEdgingMessage = 1;
+			V.xchange.pill.breederEdgingCount = 0;
+			V.xchange.pill.breederEdgingStress = Math.min(V.xchange.pill.breederEdgingStress + 50, 800);
+			fragment.append(wikifier("stress", V.xchange.pill.breederEdgingStress, 1));
+		}
+
+		fragment.append(wikifier("arousal-moan", amount * (amount > 0? mod : 1) * (amount > 0? Weather.BodyTemperature.arousalModifier : 1), sensitivity));
+
+		// Add to the tracker
+		if (amount > 0) {
+			V.trackedArousal[V.trackedArousal.length - 1] += Math.round(amount * (amount > 0? mod : 1));
+			V.timeSinceArousal = 0;
+		}
+
+		V.pleasure = Math.clamp(V.pleasure, 0, V.pleasuremax);
+
+		return fragment;
+	}
+}
+Macro.add("pleasure", {
+	handler() {
+		const fragment = pleasure(...this.args);
+		this.output.append(fragment);
+	},
+});
+window.pleasure = pleasure;
+
+function getPleasure(passMinutes) {
+	const minuteMultiplier = passMinutes * 10;
+	let addedPleasure = 0;
+
+	if (
+		V.worn.genitals.name === "chastity parasite" ||
+		(V.parasite.penis.name && V.parasite.penis.name === "parasite") ||
+		(V.parasite.clit.name && V.parasite.clit.name === "parasite")
+	) {
+		if (!V.masturbating) {
+			if (V.earSlime.corruption >= 100 && !V.earSlime.defyCooldown && !V.earSlime.vibration && !V.earSlime.event) {
+				V.earSlime.lastVibration += passMinutes;
+				if (V.earSlime.lastVibration > random(240, 720)) {
+					V.earSlime.vibration = random(60, 120);
+					V.earSlime.lastVibration = 0;
+				}
+			}
+			if (V.earSlime.defyCooldown) {
+				if (V.pain < 25) V.pain += Math.clamp(passMinutes, 0, 20 - Math.floor(V.pain));
+				if (V.worn.genitals.name === "chastity parasite") {
+					// Helps to reduce the penis size
+					V.penisgrowthtimer += Math.floor(Math.clamp(passMinutes / 8, 0, (passMinutes * 60) / V.earSlime.defyCooldown));
+				}
+			} else if (V.earSlime.vibration > 0) {
+				addedPleasure += Math.clamp(minuteMultiplier * 4, 0, V.earSlime.vibration * 40) * V.genitalsensitivity;
+				V.earSlime.vibration -= Math.clamp(passMinutes, 0, V.earSlime.vibration);
+				V.earSlime.lastVibration = Math.clamp(passMinutes - V.earSlime.vibration, 0, Infinity);
+			}
+		}
+	} else {
+		V.earSlime.vibration = 0;
+		V.earSlime.lastVibration = 0;
+	}
+
+	return addedPleasure;
+}
+
 function sumTalents() {
 	return V.AMCTraits.skulduggery + V.AMCTraits.dancing + V.AMCTraits.swimming + V.AMCTraits.athletics + V.AMCTraits.tending + V.AMCTraits.housekeeping + V.AMCTraits.brawling + V.AMCTraits.footwork + V.AMCTraits.striking + V.AMCTraits.kicking + V.AMCTraits.science + V.AMCTraits.maths + V.AMCTraits.english + V.AMCTraits.history;
 }

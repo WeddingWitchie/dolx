@@ -615,6 +615,40 @@ function settingsNpcGenders(singleUpdate) {
 }
 window.settingsNpcGenders = settingsNpcGenders;
 
+function settingsPlayerBeauty() {
+	const updateText = () => {
+		const val = V.beauty;
+		let text = "Anybody looking at you would agree that you're: ";
+
+		if (val >= (V.beautymax / 7) * 6)
+			text += "<span class='gold inline-colour'>Divine</span>";
+		else if (val >= (V.beautymax / 7) * 5)
+			text += "<span class='pink inline-colour'>Ravishing</span>";
+		else if (val >= (V.beautymax / 7) * 4)
+			text += "<span class='purple inline-colour'>Beautiful</span>";
+		else if (val >= (V.beautymax / 7) * 3)
+			text += "<span class='blue inline-colour'>Charming</span>";
+		else if (val >= (V.beautymax / 7) * 2)
+			text += "<span class='lblue inline-colour'>Pretty</span>";
+		else if (val >= (V.beautymax / 7) * 1)
+			text += "<span class='teal inline-colour'>Cute</span>";
+		else
+			text += "<span class='green inline-colour'>Plain</span>";
+
+		jQuery("#numberslider-value-beauty").text("").append(text)
+		.addClass("small-description");
+	};
+
+	$(() => {
+		updateText();
+		$("#numberslider-input-beauty").on("input change", function (e) {
+			updateText();
+		});
+	});
+}
+
+window.settingsPlayerBeauty = settingsPlayerBeauty;
+
 // Checks current settings page for data attributes
 // Run only when settings tab is changed (probably in "displaySettings" widget)
 // data-target is the target element that needs to be clicked for the value to be updated
