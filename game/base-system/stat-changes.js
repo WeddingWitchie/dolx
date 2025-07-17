@@ -105,7 +105,7 @@ const statChange = (() => {
 	DefineMacro("straighttrauma", straighttrauma);
 
 	function traumaClamp() {
-		if (V.trauma >= V.traumamax) V.beauty -= (V.trauma - V.traumamax) / 5;
+		// if (V.trauma >= V.traumamax) V.beauty -= (V.trauma - V.traumamax) / 5;
 		V.beauty = Math.clamp(V.beauty, 0, V.beauty * V.AMCTraits.beauty);
 		if (V.innocencestate === 1 && V.trauma > 0) {
 			V.innocencetrauma += V.trauma;
@@ -280,6 +280,8 @@ const statChange = (() => {
 		const fragment = document.createDocumentFragment();
 		if (amount) {
 
+			let sexModifier = V.player.sex is "m" && amount > 0? 2 : 1;
+
 			switch (source){
 				case "maso":
 					V.arousalmasochism += amount;
@@ -295,7 +297,7 @@ const statChange = (() => {
 			}
 
 			let oldArousal = V.arousal;
-			let arousalChange = amount * (amount > 0? Weather.BodyTemperature.arousalModifier : 1);
+			let arousalChange = amount * sexModifier * (amount > 0? Weather.BodyTemperature.arousalModifier : 1);
 			V.arousal += arousalChange;
 			
 			fragment.append(wikifier("pleasure", amount, source));

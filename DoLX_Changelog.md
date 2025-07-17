@@ -29,4 +29,9 @@
   * On account of the new pleasure mechanic, the influence of various sources on minimum arousal has been expanded.
   * Breeder and Bull pills now also make you hornier and hornier naturally on their own, without needing the influence of other effects (such as Passion).
     * This source of arousal also stacks on top of arousal caused by aphrodisiacs (such as featured on the Passion effect).
+  * Enemy arousal is now considered for lubrication purposes during encounters.
+  * Ejaculating now no longer smears you unless something is physically obstructing your penis (i.e. your clothes, or a condom).
+  * Now hides arousal bar and goo text when not context relevant for mobile usability reasons.
+  * Both male PCs and NPCs now receive twice the arousal amounts from all sources.
+  * Male NPCs now receive only half the pleasure from all sources.
   
