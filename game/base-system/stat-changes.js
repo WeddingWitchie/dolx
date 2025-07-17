@@ -280,7 +280,7 @@ const statChange = (() => {
 		const fragment = document.createDocumentFragment();
 		if (amount) {
 
-			let sexModifier = V.player.sex is "m" && amount > 0? 2 : 1;
+			let sexModifier = V.player.sex === "m" && amount > 0? 2 : 1;
 
 			switch (source){
 				case "maso":
