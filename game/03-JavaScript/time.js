@@ -1109,10 +1109,13 @@ function minutePassed(minutes) {
 	statChange.pain(minutes, -1);
 
 	// Arousal
-	const arousalMultiplier = V.backgroundTraits.includes("lustful") ? 0.2 * (12 - Math.floor(V.purity / 80)) + 1 + (V.purity <= 50 ? 1 : 0) : -10;
+	const risk = playerPregnancyRisk();
+	const underBreedingEffect = playerIsXChanged() && V.xchange.pill?.breederEffect || V.xchange.pill?.bullEffect;
+	const arousalMultiplier = V.backgroundTraits.includes("lustful") || risk <= 1 || underBreedingEffect ? 
+		0.2 * (12 - Math.floor(V.purity / 80)) + 1 + (V.purity <= 50 ? 1 : 0) : -10;
 	statChange.arousal(minutes * arousalMultiplier + getArousal(minutes));
 	V.timeSinceArousal = V.arousal < V.arousalmax / 4 ? V.timeSinceArousal + minutes : 1;
-	pleasure(minutes * -10 + getPleasure(minutes));
+	pleasure(minutes * -25 + getPleasure(minutes));
 	if (V.player.vaginaExist) passArousalWetness(minutes);
 	if (V.arousal >= V.arousalmax * 2/5) 
 		wikifier("willpower-spending", minutes * 0.5 * Math.ceil( (V.arousal - V.arousalmax*2/5) / (V.arousalmax/10) ));
