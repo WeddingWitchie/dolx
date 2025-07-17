@@ -280,6 +280,8 @@ const statChange = (() => {
 		const fragment = document.createDocumentFragment();
 		if (amount) {
 
+			let sexModifier = V.player.sex is "m" && amount > 0? 2 : 1;
+
 			switch (source){
 				case "maso":
 					V.arousalmasochism += amount;
@@ -295,7 +297,7 @@ const statChange = (() => {
 			}
 
 			let oldArousal = V.arousal;
-			let arousalChange = amount * (amount > 0? Weather.BodyTemperature.arousalModifier : 1);
+			let arousalChange = amount * sexModifier * (amount > 0? Weather.BodyTemperature.arousalModifier : 1);
 			V.arousal += arousalChange;
 			
 			fragment.append(wikifier("pleasure", amount, source));
