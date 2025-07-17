@@ -118,7 +118,7 @@ function pleasure(amount, source) {
 				if (playerIsPregnant()) sensitivity += 0.5;
 				break;
 			case "time":
-				pleasure = Math.clamp(V.pleasure + amount * mod, 0, V.pleasuremax);
+				pleasure = Math.clamp(V.pleasure + amount * (amount > 0? mod : 1), 0, V.pleasuremax);
 				if (V.trackedArousal.length > 4) {
 					V.trackedArousal.deleteAt(0);
 					V.trackedArousal[V.trackedArousal.length - 1] += (pleasure * pleasure) / (V.pleasuremax * 0.8);
@@ -161,7 +161,7 @@ function pleasure(amount, source) {
 		mod *= V.arousal / V.arousalmax;
 
 		let oldPleasure = V.pleasure;
-		let pleasureChange = amount * mod * (amount > 0? Weather.BodyTemperature.arousalModifier : 1);
+		let pleasureChange = amount * (amount > 0? mod : 1) * (amount > 0? Weather.BodyTemperature.arousalModifier : 1);
 		V.pleasure += pleasureChange;
 
 		// Prevent orgasming unless addictions are fulfilled (or you don't have them)
@@ -188,11 +188,11 @@ function pleasure(amount, source) {
 			fragment.append(wikifier("stress", V.xchange.pill.breederEdgingStress, 1));
 		}
 
-		fragment.append(wikifier("arousal-moan", amount * mod * (amount > 0? Weather.BodyTemperature.arousalModifier : 1), sensitivity));
+		fragment.append(wikifier("arousal-moan", amount * (amount > 0? mod : 1) * (amount > 0? Weather.BodyTemperature.arousalModifier : 1), sensitivity));
 
 		// Add to the tracker
 		if (amount > 0) {
-			V.trackedArousal[V.trackedArousal.length - 1] += Math.round(amount * mod);
+			V.trackedArousal[V.trackedArousal.length - 1] += Math.round(amount * (amount > 0? mod : 1));
 			V.timeSinceArousal = 0;
 		}
 
