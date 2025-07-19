@@ -772,14 +772,14 @@
 	<<widget "genderidentity-orgasm">>
 		<<set _manlyUse to ["othervagina", "otheranus", "othermouth", "tentacle"]>>
 		<<if $player.gender is "m" and $player.penisExist and _manlyUse.includes($penisuse)>>
-			<<genderidentity 1>>
+			<<genderidentity 1>><<g-genderidentity>>
 		<<elseif $player.gender isnot "m" and $player.penisExist and _manlyUse.includes($penisuse)>>
-			<<genderidentity -3>>
+			<<genderidentity -3>><<l-genderidentity>>
 		<</if>>
 		<<if $player.gender is "f" and $player.vaginaExist>>
-			<<genderidentity 1>>
+			<<genderidentity 1>><<g-genderidentity>>
 		<<elseif $player.gender isnot "f" and $player.vaginaExist>>
-			<<genderidentity -3>>
+			<<genderidentity -3>><<l-genderidentity>>
 		<</if>>
 	<</widget>>
 
@@ -1150,9 +1150,9 @@
 	<<widget "genderidentity-text">>
 		<<if $xchange.genderIdentityEnabled>>
 			<<if _args[0] is "f">>
-				<span class="pink">Yesterday, you dressed feminine.</span><br>
+				<span class="pink">Yesterday, you dressed feminine.</span><<if $player.gender is "f">><<g-genderidentity>><<else>><<l-genderidentity>><</if>><br>
 			<<elseif _args[0] is "m">>
-				<span class="blue">Yesterday, you dressed masculine.</span><br>
+				<span class="blue">Yesterday, you dressed masculine.</span><<if $player.gender is "m">><<g-genderidentity>><<else>><<l-genderidentity>><</if>><br>
 			<</if>>
 		<</if>>
 	<</widget>>
@@ -1409,7 +1409,16 @@
 	<</widget>>
 
 	<<widget "enemypleasure">>
+		<<set _change to _args[0]>>
 		<<set _arousalModifier to $enemyarousal / $enemyarousalmax>>
-		<<set _enemySexModifier to _enemies gt 1 or $NPCList[0].gender isnot "m" ? 1 : 0.5>>
-		<<set $enemypleasure += _args[0] * _arousalModifier * _enemySexModifier>>
+		<<set _enemySexModifier to _enemies gt 1 or $NPCList[0].gender isnot "m" or _change lt 0 or $timer? 1 : 0.5>>
+		<<set $enemypleasure += _change * _arousalModifier * _enemySexModifier>>
+	<</widget>>
+
+	<<widget "enemypleasure-edge">>
+		<<set _change to _args[0]>>
+		<<set _initialpleasure to $enemypleasure>>
+
+		<<enemypleasure _change>>
+		<<set $enemypleasure to Math.clamp($enemypleasure, Math.min(_initialpleasure, $enemypleasuremax / 5), $enemypleasuremax)>>
 	<</widget>>

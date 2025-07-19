@@ -314,12 +314,13 @@
 <</widget>>
 
 <<widget "enemyarousal">>
-	<<set _sexModifier to _enemies gt 1 or $NPCList[0].gender is "m"? 2 : 1>>
+	<<set _sexModifier to _enemies gt 1 or $NPCList[0].gender is "m" or $timer? 2 : 1>>
 	<<if $demonseduce is 1>>
 		<<set $enemyarousal += _args[0] * 2 * _sexModifier>>
 	<<else>>
 		<<set $enemyarousal += _args[0] * _sexModifier>>
 	<</if>>
+	<<set $enemyarousal to Math.clamp($enemyarousal, 0, $enemyarousalmax)>>
 	<<enemypleasure _args[0]>>
 <</widget>>
 
@@ -392,23 +393,26 @@
 
 <!--_args[0] is the base value, _args[1] is the skill-->
 <<widget "sexControl">>
-	<<if _args[0] and _args[1] gte 800>>
-		<<set _loss to _args[1] / 180 * _args[0]>>
-		<<if _args[1] gte 1200>>
+	<<set _baseValue to _args[0]>>
+	<<set _skilluse to _args[1]>>
+
+	<<if _baseValue and _skilluse gte 800>>
+		<<set _loss to _skilluse / 180 * _baseValue>>
+		<<if _skilluse gte 1200>>
 			<<set _loss += 1>>
 		<</if>>
 
-		<<if $enemyarousal gte $enemyarousalmax * 0.7>>
+		<<if $enemypleasure gte $enemypleasuremax * 0.7>>
 			<<set _loss *= 2>>
 		<</if>>
-		<<if $enemyarousal gte $enemyarousalmax * 0.9>>
+		<<if $enemypleasure gte $enemypleasuremax * 0.9>>
 			<<set _loss *= 2>>
 		<</if>>
 		<<set _loss *= $enemyArousalLossReduction>>
 		<<if $enemyArousalLossReduction gt 0.2>>
-			<<set $enemyArousalLossReduction -= (_args[1] gte 1200 ? 0.03 : 0.04)>>
+			<<set $enemyArousalLossReduction -= (_skilluse gte 1200 ? 0.03 : 0.04)>>
 		<</if>>
-		<<set $enemyarousal to Math.clamp($enemyarousal - Math.round(_loss), Math.min($enemyarousal, $enemyarousalmax / 5), $enemyarousalmax)>>
+		<<enemypleasure-edge `- Math.round(_loss)`>>
 	<</if>>
 <</widget>>
 
@@ -449,11 +453,11 @@
 			<<else>>
 				<<set _possessMod to 1>>
 			<</if>>
-			<<set $stress += (_violence * _drunkMod * _stressMod) * (1 - ($masochism / 1200))>>
+			<<stress `_violence * (1 - ($masochism / 1200))` _stressMod>>
 			<<combattrauma `_violence * _traumaMod`>>
-			<<set $pain += (_violence * _painMod * (1 - ($masochism / 1200)) * (1 - ($physique / 20000)) / _possessMod)>>
+			<<pain `(_violence * (1 - ($masochism / 1200)) * (1 - ($physique / 20000)) / _possessMod)` _painMod>>
 			<<set _arousal to (_violence * (0 + ($masochism / 18)))>>
-			<<arousal _arousal/_possessMod "maso">>
+			<<arousal `_arousal/_possessMod` "maso">>
 			<<if $orgasmdown gte 1>>
 				<<if $masochism gte 800>>
 					<<masochism `(_violence / 20)`>>
@@ -541,8 +545,10 @@
 		<<arousal _arousal>>
 		<<if $demonseduce is 1>>
 			<<set $enemyarousal += (3 * _args[0]) * 2>>
+			<<enemypleasure `(2 * _args[0])`>>
 		<<else>>
 			<<set $enemyarousal += 3 * _args[0]>>
+			<<enemypleasure `(_args[0])`>>
 		<</if>>
 		<<set $enemytrust += 2>>
 	<</if>>
@@ -937,75 +943,39 @@
 <</widget>>
 
 <<widget "oralskilluse">>
-	<<if $demonseduce is 1>>
-		<<set $enemyarousal += (currentSkillValue("oralskill") / 100) * 2>><<oralskill 5>><<set $oralskillup to 1>>
-	<<else>>
-		<<set $enemyarousal += (currentSkillValue("oralskill") / 100)>><<oralskill 5>><<set $oralskillup to 1>>
-	<</if>>
+	<<enemyarousal `(currentSkillValue("oralskill") / 50) * ($timer ? 2.5 : 1)`>><<oralskill 5>><<set $oralskillup to 1>>
 <</widget>>
 
 <<widget "vaginalskilluse">>
-	<<if $demonseduce is 1>>
-		<<set $enemyarousal += (currentSkillValue("vaginalskill") / 100) * 2>><<vaginalskill 5>><<set $vaginalskillup to 1>>
-	<<else>>
-		<<set $enemyarousal += (currentSkillValue("vaginalskill") / 100)>><<vaginalskill 5>><<set $vaginalskillup to 1>>
-	<</if>>
+	<<enemyarousal `(currentSkillValue("vaginalskill") / 50) * ($timer ? 2.5 : 1)`>><<vaginalskill 5>><<set $vaginalskillup to 1>>
 <</widget>>
 
 <<widget "analskilluse">>
-	<<if $demonseduce is 1>>
-		<<set $enemyarousal += (currentSkillValue("analskill") / 100) * 2>><<analskill 5>><<set $analskillup to 1>>
-	<<else>>
-		<<set $enemyarousal += (currentSkillValue("analskill") / 100)>><<analskill 5>><<set $analskillup to 1>>
-	<</if>>
+	<<enemyarousal `(currentSkillValue("analskill") / 50) * ($timer ? 2.5 : 1)`>><<analskill 5>><<set $analskillup to 1>>
 <</widget>>
 
 <<widget "handskilluse">>
-	<<if $demonseduce is 1>>
-		<<set $enemyarousal += (currentSkillValue("handskill") / 100) * 2>><<handskill 5>><<set $handskillup to 1>>
-	<<else>>
-		<<set $enemyarousal += (currentSkillValue("handskill") / 100)>><<handskill 5>><<set $handskillup to 1>>
-	<</if>>
+	<<enemyarousal `(currentSkillValue("handskill") / 50) * ($timer ? 2.5 : 1)`>><<handskill 5>><<set $handskillup to 1>>
 <</widget>>
 
 <<widget "feetskilluse">>
-	<<if $demonseduce is 1>>
-		<<set $enemyarousal += (currentSkillValue("feetskill") / 100) * 2>><<feetskill 5>><<set $feetskillup to 1>>
-	<<else>>
-		<<set $enemyarousal += (currentSkillValue("feetskill") / 100)>><<feetskill 5>><<set $feetskillup to 1>>
-	<</if>>
+	<<enemyarousal `(currentSkillValue("feetskill") / 50) * ($timer ? 2.5 : 1)`>><<feetskill 5>><<set $feetskillup to 1>>
 <</widget>>
 
 <<widget "bottomskilluse">>
-	<<if $demonseduce is 1>>
-		<<set $enemyarousal += (currentSkillValue("bottomskill") / 100) * 2>><<bottomskill 5>><<set $bottomskillup to 1>>
-	<<else>>
-		<<set $enemyarousal += (currentSkillValue("bottomskill") / 100)>><<bottomskill 5>><<set $bottomskillup to 1>>
-	<</if>>
+	<<enemyarousal `(currentSkillValue("bottomskill") / 50) * ($timer ? 2.5 : 1)`>><<bottomskill 5>><<set $bottomskillup to 1>>
 <</widget>>
 
 <<widget "thighskilluse">>
-	<<if $demonseduce is 1>>
-		<<set $enemyarousal += (currentSkillValue("thighskill") / 100) * 2>><<thighskill 5>><<set $thighskillup to 1>>
-	<<else>>
-		<<set $enemyarousal += (currentSkillValue("thighskill") / 100)>><<thighskill 5>><<set $thighskillup to 1>>
-	<</if>>
+	<<enemyarousal `(currentSkillValue("thighskill") / 50) * ($timer ? 2.5 : 1)`>><<thighskill 5>><<set $thighskillup to 1>>
 <</widget>>
 
 <<widget "chestskilluse">>
-	<<if $demonseduce is 1>>
-		<<set $enemyarousal += (currentSkillValue("chestskill") / 100) * 2>><<chestskill 5>><<set $chestskillup to 1>>
-	<<else>>
-		<<set $enemyarousal += (currentSkillValue("chestskill") / 100)>><<chestskill 5>><<set $chestskillup to 1>>
-	<</if>>
+	<<enemyarousal `(currentSkillValue("chestskill") / 50) * ($timer ? 2.5 : 1)`>><<chestskill 5>><<set $chestskillup to 1>>
 <</widget>>
 
 <<widget "penileskilluse">>
-	<<if $demonseduce is 1>>
-		<<set $enemyarousal += (currentSkillValue("penileskill") / 100) * 2>><<penileskill 5>><<set $penileskillup to 1>>
-	<<else>>
-		<<set $enemyarousal += (currentSkillValue("penileskill") / 100)>><<penileskill 5>><<set $penileskillup to 1>>
-	<</if>>
+	<<enemyarousal `(currentSkillValue("penileskill") / 50) * ($timer ? 2.5 : 1)`>><<penileskill 5>><<set $penileskillup to 1>>
 <</widget>>
 
 <<widget "skulduggeryskilluse">>
