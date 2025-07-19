@@ -196,7 +196,7 @@ function pleasure(amount, source) {
 			V.timeSinceArousal = 0;
 		}
 
-		V.pleasure = Math.clamp(V.pleasure, 0, V.pleasuremax);
+		V.pleasure = Math.max(V.pleasure, 0);
 
 		return fragment;
 	}
