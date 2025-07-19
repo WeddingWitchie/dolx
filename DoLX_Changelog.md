@@ -11,11 +11,8 @@
   * Added additional flavour and hand skill usage to the 'Stroke' action during combat.
 
 ### Rebalancing and Bug fixes:
-  * Removed '.' typo from enemy state.
-  * Addressed sexual skills only affecting enemy arousal, and not pleasure.
-  * Pub's premature ejaculator is once again premature ejaculator.
-  * NPC orgasm audio now also plays at end of the encounter.
-  * Added special handlers for timed challenge events, with regards to enemy pleasure. 
-  * Added gender identity gain and loss messages for instances that swift your identity.
-  * Fixed multi orgasm NPCs, I think.
-  * Maybe also addressed other nonhuman, nonbeast encounter issues.
+  * Fixed pain error from getting penetrated.
+  * Now pleasure bar glow only applies during last 3 stages.
+  * Rearranged orgasm's gender identity change indicator's position.
+  * Now allows finger insertion during masturbation with just one hand, if your hand skill is high enough (previously required both hands on vagina, or one hand on vagina and one free).
+  * Fixed bug preventing orgasm from violent actions.

@@ -302,7 +302,7 @@ const statChange = (() => {
 			
 			fragment.append(wikifier("pleasure", amount, source));
 			fragment.append(wikifier("arousalclamp"));
-			fragment.append(wikifier("arousal-wetness"));
+			// fragment.append(wikifier("arousal-wetness"));
 			
 		}
 		

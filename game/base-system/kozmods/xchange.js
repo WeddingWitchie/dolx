@@ -90,7 +90,7 @@ function pleasure(amount, source) {
 			case "bottom_grope":
 				let analWetnessPenalty = 1;
 				if (amount > 0 && beingPenetrated.includes(V.anusstate)) {
-					pain(V.analPain);
+					statChange.pain(V.analPain);
 					analWetnessPenalty = Math.min(V.anusWetness/60, 1);
 					if (V.penis_addict_trait) sensitivity += 0.5;
 				}
@@ -110,7 +110,7 @@ function pleasure(amount, source) {
 			case "penis_grope":
 				let wetnessPenalty = 1;
 				if (amount > 0 && V.player.vaginaExist === "t" && beingPenetrated.includes(V.vaginause)) {
-					pain(V.vaginalPain);
+					statChange.pain(V.vaginalPain);
 					wetnessPenalty = Math.min(V.vaginaWetness/60, 1);
 					if (V.penis_addict_trait) sensitivity += 0.5;
 				}
@@ -196,7 +196,7 @@ function pleasure(amount, source) {
 			V.timeSinceArousal = 0;
 		}
 
-		V.pleasure = Math.clamp(V.pleasure, 0, V.pleasuremax);
+		V.pleasure = Math.max(V.pleasure, 0);
 
 		return fragment;
 	}
