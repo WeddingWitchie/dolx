@@ -2617,7 +2617,11 @@ window.fixIntegrityUpdater = fixIntegrityUpdater;
 // Set plots to watered if it rains
 // Temporary solution until a rework
 $(document).on(":onWeatherChange", () => {
-	if (V.daily?.plotsRain || Weather.precipitation !== "rain") return;
+	let precipitation;
+	if (T.currentWeather.precipitationIntensity === 0) precipitation = "none";
+	else precipitation = Weather.isFreezing ? "snow" : "rain";
+
+	if (V.daily?.plotsRain || precipitation !== "rain") return;
 	V.daily.plotsRain = true;
 	Object.entries(V.plots).forEach(([location, plots]) => {
 		// Don't water greenhouse plants from rain - disabled for now
