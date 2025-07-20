@@ -8,11 +8,8 @@
 
 ## Changelog
 ### Changes and Additions:
-  * Added additional flavour and hand skill usage to the 'Stroke' action during combat.
+  * None.
 
 ### Rebalancing and Bug fixes:
-  * Fixed pain error from getting penetrated.
-  * Now pleasure bar glow only applies during last 3 stages.
-  * Rearranged orgasm's gender identity change indicator's position.
-  * Now allows finger insertion during masturbation with just one hand, if your hand skill is high enough (previously required both hands on vagina, or one hand on vagina and one free).
-  * Fixed bug preventing orgasm from violent actions.
+  * Added break-line to "too horny to sleep" message at Alex' cottage.
+  * Fixed funky weather infinite recursion loop.
