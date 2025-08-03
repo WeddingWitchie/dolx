@@ -631,9 +631,12 @@ DefineMacro("modelprepare-player-clothes", function () {
 	T.modeloptions.breasts =
 		!V.worn.upper.type.includes("naked") || !V.worn.under_upper.type.includes("naked") || T.coverBreastsWithArm ? "cleavage" : "default";
 
-	if (V.worn.under_upper.type.includes("chest_bind")) {
-		T.modeloptions.breast_size = 1;
-	}
+	apparentbreastsizecheck();
+	T.modeloptions.breast_size = Math.floor(V.player.perceived_breastsize / 2);
+
+	// if (V.worn.under_upper.type.includes("chest_bind")) {
+	// 	T.modeloptions.breast_size = 1;
+	// }
 
 	if (V.worn.lower.exposed >= 2 && V.worn.under_lower.exposed >= 1 && !V.worn.legs.name.includes("tights")) {
 		T.modeloptions.crotch_visible = true;
@@ -656,6 +659,7 @@ DefineMacro("modelprepare-player-clothes", function () {
 	}
 
 	T.modeloptions.facewear_layer = V.facelayer;
+	T.modeloptions.neck_tucked = V.neckTucked;
 	T.modeloptions.upper_tucked = V.upperTucked && !setup.clothes.upper[clothesIndex("upper", V.worn.upper)].notuck && V.worn.upper.outfitPrimary === undefined;
 	T.modeloptions.lower_tucked = !V.worn.feet.notuck && !V.worn.lower.notuck && V.lowerTucked;
 

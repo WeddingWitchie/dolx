@@ -750,6 +750,19 @@
 	<</if>>
 <</widget>>
 
+<<widget "toggleNeckTuck">>
+	<<set _linkOption1 to _args[0] || `Untuck from ${$worn.upper.name}`>>
+	<<set _linkOption2 to _args[1] || `Tuck into ${$worn.upper.name}`>>
+	<div class="toggleNeckTuck">
+		<<link `($neckTucked ? _linkOption1 : _linkOption2)`>>
+			<<set $neckTucked to +!$neckTucked>>
+			<<updatesidebarimg>>
+			<<run $(".toggleNeckTuck .link-internal").html($neckTucked ? _linkOption1 : _linkOption2)>>
+			<<run Links.generateLinkNumbers($(".passage"))>>
+		<</link>>
+	</div>
+<</widget>>
+
 <<widget "toggleUpperTuck">>
 	<<set _linkOption1 to _args[0] || `Untuck from ${$worn.lower.name}`>>
 	<<set _linkOption2 to _args[1] || `Tuck into ${$worn.lower.name}`>>
@@ -1020,6 +1033,9 @@
 				<!-- If selected item is a hood or selected item has a secondary hood piece -->
 				<div class="no-numberify"><<toggleHoodLink>></div>
 			<</if>>
+			<<if $worn.upper.name isnot "naked">>
+				<div class="no-numberify"><<toggleNeckTuck>></div>
+			<</if>>
 			<<if _wardrobe_list is "upper" and $worn.lower.name isnot "naked" and !_wornItemData.notuck and V.worn.upper.outfitPrimary is undefined>>
 				<div class="no-numberify"><<toggleUpperTuck>></div>
 			<<elseif _wardrobe_list is "lower" and $worn.feet.name isnot "naked" and !_wornItemData.notuck and !setup.clothes.feet[clothesIndex("feet",$worn.feet)].notuck>>
@@ -1178,6 +1194,7 @@
 
 <<widget "oldWardrobeMinorOptions">>
 	<div id="wardrobeMinorOptions">
+		
 		<<if $worn.lower.name isnot "naked" and $worn.upper.outfitPrimary is undefined and !wornSetupClothes("upper").notuck>>
 			<<set $_linkOption1 to `Untuck your ${$worn.upper.name}`>>
 			<<set $_linkOption2 to `Tuck your ${$worn.upper.name} into your ${$worn.lower.name}`>>
