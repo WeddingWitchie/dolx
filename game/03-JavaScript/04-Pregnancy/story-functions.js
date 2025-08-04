@@ -500,6 +500,8 @@ function playerHeatMinArousal() {
 		minArousal += 500;
 	}
 
+	minArousal = Math.clamp(minArousal, 0, V.arousalmax / 2);
+
 	return minArousal;
 }
 window.playerHeatMinArousal = playerHeatMinArousal;
@@ -524,6 +526,8 @@ function playerRutMinArousal() {
 	if (pills["fertility booster"].doseTaken > 2) {
 		minArousal += 500;
 	}
+
+	minArousal = Math.clamp(minArousal, 0, V.arousalmax / 2);
 
 	return minArousal;
 }
