@@ -346,7 +346,7 @@ function playerBodyIsFemale() {
 window.playerBodyIsMale = playerBodyIsMale;
 
 function playerIsCreampied() {
-	return V.sexStats.vagina.sperm.length > 0 || V.player.bodyliquid.vagina.semen > 0;
+	return V.sexStats.vagina.sperm.length > 0 || V.player.bodyliquid.vagina.semen > 0 || V.player.bodyliquid.vagina.nectar > 0;
 }
 window.playerIsCreampied = playerIsCreampied;
 
