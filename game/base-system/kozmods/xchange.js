@@ -176,7 +176,7 @@ function pleasure(amount, source) {
 		}
 
 		// Cannot orgasm under breeder unless there's semen in vagina
-		if (playerIsXChanged() && V.xchange.pill?.breederEffect && V.sexStats.vagina.sperm.length <= 0 && oldPleasure + pleasureChange >= V.pleasuremax * 4/5) {
+		if (playerIsXChanged() && V.xchange.pill?.breederEffect && !playerIsCreampied() && oldPleasure + pleasureChange >= V.pleasuremax * 4/5) {
 			V.pleasure = Math.clamp(V.pleasure, 0, V.pleasuremax * 4/5 - 1);
 			V.xchange.pill.breederEdgingCount++;
 		}
@@ -341,7 +341,7 @@ function playerBodyIsFemale() {
 window.playerBodyIsMale = playerBodyIsMale;
 
 function playerIsCreampied() {
-	return V.sexStats.vagina.sperm.length > 0;
+	return V.sexStats.vagina.sperm.length > 0 || V.player.bodyliquid.vagina.semen > 0;
 }
 window.playerIsCreampied = playerIsCreampied;
 

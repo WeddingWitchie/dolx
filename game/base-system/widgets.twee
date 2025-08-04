@@ -44,8 +44,9 @@
 		<<case 6 7>><<set _statColor to "purple">>
 		<<case 4 5>><<set _statColor to "blue">>
 		<<case 2 3>><<set _statColor to "lblue">>
-		<<case 0 1>><<set _statColor to "teal">>
-		<<default>><<set _statColor to "green">>
+		<<case 1>><<set _statColor to "teal">>
+		<<case 0>><<set _statColor to "green">>
+		<<default>><<set _statColor to "red">>
 	<</switch>>
 
 	<div @class="(_args[3] is true ? 'rightMeter' : 'meter') + (Math.floor(_percent/10) gte 6? ' ' + _statColor + 'glowstatbar' : '')">
@@ -111,7 +112,8 @@
 				<<case 6 7>><<set _statColor to "lbluebar">>
 				<<case 4 5>><<set _statColor to "bluebar">>
 				<<case 2 3>><<set _statColor to "purplebar">>
-				<<case 0 1>><<set _statColor to "pinkbar">>
+				<<case 1>><<set _statColor to "pinkbar">>
+				<<case 0>><<set _statColor to "redbar">>
 				<<default>><<set _statColor to "greenbar">>
 			<</switch>>
 			<div @class="_statColor" @style="'width:' + _percent + '%'"></div>
@@ -5544,83 +5546,83 @@
 	<!-- last argument is optional and if numeric - specifies the amount (default: 1) -->
 
 	<!-- process first argument and delete it so <<bodyliquid all all>> will work as expected -->
-	<<set $_bodypart to _args[0]>>
+	<<set _bodypart to _args[0]>>
 	<<run _args.deleteAt(0)>>
-	<<set $_clear to $_bodypart is "clear">>
-	<<switch $_bodypart>>
+	<<set _clear to _bodypart is "clear">>
+	<<switch _bodypart>>
 		<<case "all" "clear">>
 			<!-- use clone() to make sure we're not modifying setup -->
-			<<set $_bodypart to clone(setup.bodyliquid.bodyparts)>>
+			<<set _bodypart to clone(setup.bodyliquid.bodyparts)>>
 		<<case "outside">>
-			<<set $_bodypart to clone(setup.bodyliquid.bodyparts)>>
-			<<run $_bodypart.delete(setup.bodyliquid.innerbodyparts)>>
+			<<set _bodypart to clone(setup.bodyliquid.bodyparts)>>
+			<<run _bodypart.delete(setup.bodyliquid.innerbodyparts)>>
 		<<case "inside">>
-			<<set $_bodypart to clone(setup.bodyliquid.innerbodyparts)>>
+			<<set _bodypart to clone(setup.bodyliquid.innerbodyparts)>>
 		<<default>>
-			<<if setup.bodyliquid.bodyparts.includes($_bodypart)>>
-				<<set $_bodypart to [$_bodypart]>>
+			<<if setup.bodyliquid.bodyparts.includes(_bodypart)>>
+				<<set _bodypart to [_bodypart]>>
 			<<else>>
-				<<set $_fail to true>>
+				<<set _fail to true>>
 			<</if>>
 		<!--/case -->
 	<</switch>>
-	<<if !$_fail and (!$_clear or _args.last() lte -5)>>
+	<<if !_fail and (!_clear or _args.last() lte -5)>>
 		<<if !V.player.penisExist>>
-			<<run $_bodypart.delete("penis")>>
+			<<run _bodypart.delete("penis")>>
 		<</if>>
 		<<if !V.player.vaginaExist>>
-			<<run $_bodypart.delete("vagina", "vaginaoutside")>>
+			<<run _bodypart.delete("vagina", "vaginaoutside")>>
 		<</if>>
-		<<if $_bodypart.length is 0 and $options.debugdisable is "f">>
+		<<if _bodypart.length is 0 and $options.debugdisable is "f">>
 			<<run console.log(Utils.GetStack(), "- attempt to slap bodyliquid on nonexistent genitals failed successfully")>>
 		<</if>>
 	<</if>>
 
 	<!-- select which liquids to modify, fail if none -->
-	<<if $_clear or _args.includes("all")>>
-		<<set $_liquids to clone(setup.bodyliquid.liquidtype)>>
+	<<if _clear or _args.includes("all")>>
+		<<set _liquids to clone(setup.bodyliquid.liquidtype)>>
 	<<else>>
-		<<set $_liquids to []>>
+		<<set _liquids to []>>
 		<<if _args.includesAny("goo", "slime", "fluid")>>
 			<!-- "slime" alternative because slime is a common descriptor -->
 			<!-- "fluid" alternative for <<tentacleadv>> -->
-			<<set $_liquids.push("goo")>>
+			<<set _liquids.push("goo")>>
 		<</if>>
 		<<if _args.includes("nectar")>>
-			<<set $_liquids.push("nectar")>>
+			<<set _liquids.push("nectar")>>
 		<</if>>
 	<</if>>
 	<<if _args.includesAny("cum", "semen")>>
 		<!-- "cum" alternative because cum is a common descriptor -->
-		<<set $_liquids.push("semen")>>
+		<<set _liquids.push("semen")>>
 	<</if>>
-	<<if $_liquids.length is 0>>
-		<<set $_fail to true>>
+	<<if _liquids.length is 0>>
+		<<set _fail to true>>
 	<</if>>
 
 	<!-- process The Final Argument, if integer - assume amount, else default to 1 -->
-	<<if $_clear>>
-		<<set $_amount to -10>>
+	<<if _clear>>
+		<<set _amount to -10>>
 	<<elseif Number.isInteger(_args.last())>>
-		<<set $_amount to _args.last()>>
+		<<set _amount to _args.last()>>
 	<<else>>
-		<<set $_amount to 1>>
+		<<set _amount to 1>>
 	<</if>>
 
-	<<if $_fail is true>>
+	<<if _fail is true>>
 	<<else>>
-		<<breeder-orgasm $_bodypart $_liquids $_amount>>
-		<<for $_part range $_bodypart>>
-			<<for $_type range $_liquids>>
-				<<set $player.bodyliquid[$_part][$_type] to Math.clamp($player.bodyliquid[$_part][$_type] + $_amount, 0, 5)>>
+		<<breeder-orgasm _bodypart _liquids _amount>>
+		<<for _part range _bodypart>>
+			<<for _type range _liquids>>
+				<<set $player.bodyliquid[_part][_type] to Math.clamp($player.bodyliquid[_part][_type] + _amount, 0, 5)>>
 			<</for>>
 		<</for>>
 	<</if>>
 	<</silently>>
-	<<if $options.debugdisable is "f" and $_fail is true>>
+	<<if $options.debugdisable is "f" and _fail is true>>
 		<<error {
 			message	: `bodyliquid widget on ${Utils.GetStack()} failed, please report`,
-			source	: `Arguments: ${$_bodypart} | ${_args[0]} | ${_args[1]} | ${_args[2]} | ${_args[3]}.`
+			source	: `Arguments: ${_bodypart} | ${_args[0]} | ${_args[1]} | ${_args[2]} | ${_args[3]}.`
 		}>>
 	<</if>>
 <</widget>>
