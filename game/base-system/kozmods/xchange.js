@@ -92,7 +92,7 @@ function pleasure(amount, source) {
 				if (amount > 0 && beingPenetrated.includes(V.anusstate)) {
 					statChange.pain(V.analPain);
 					analWetnessPenalty = Math.min(V.anusWetness/60, 1);
-					if (V.penis_addict_trait) sensitivity += 0.5;
+					if (V.penis_addict_trait === 1) sensitivity += 0.5;
 				}
 				sensitivity += Math.max((V.bottomsensitivity + purityMod) * analWetnessPenalty, 0.25);
 				break;
@@ -112,7 +112,7 @@ function pleasure(amount, source) {
 				if (amount > 0 && V.player.vaginaExist === "t" && beingPenetrated.includes(V.vaginause)) {
 					statChange.pain(V.vaginalPain);
 					wetnessPenalty = Math.min(V.vaginaWetness/60, 1);
-					if (V.penis_addict_trait) sensitivity += 0.5;
+					if (V.penis_addict_trait === 1) sensitivity += 0.5;
 				}
 				sensitivity += Math.max((V.genitalsensitivity + 2*purityMod) * wetnessPenalty, 0.25);
 				if (playerIsPregnant()) sensitivity += 0.5;
@@ -139,7 +139,7 @@ function pleasure(amount, source) {
 			mod += sensitivityMod;
 		}
 
-		if (amount > 0 && ((V.penis_addict_trait && (!playerIsBeingPenetrated || playerHasButtPlug())) || (V.hole_addict_trait && (!holeAddictionFulfilled || playerHasStrapon())))) {
+		if (amount > 0 && ((V.penis_addict_trait === 1 && (!playerIsBeingPenetrated || playerHasButtPlug())) || (V.hole_addict_trait === 1 && (!holeAddictionFulfilled || playerHasStrapon())))) {
 			mod *= 0.6;
 		}
 
