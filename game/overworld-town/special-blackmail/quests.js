@@ -608,7 +608,7 @@ blackmailQuests.low.push( // Sell flowers on a market stall, without any lower c
 blackmailQuests.mid.push( // Sell flowers on a market stall, without any lower clothing (undies allowed), and masturbate at least once
 	{
 		id: 14,
-		prerequisites: function() { return Time.dayState == "dawn" && !V.penis_addict_trait && !V.hole_addict_trait; },
+		prerequisites: function() { return Time.dayState == "dawn" && V.penis_addict_trait !== 1 && V.hole_addict_trait !== 1; },
 		reward: function() { return V.rentmoney / 2; },
 		instructions: [
 			"Masturbate (and orgasm) at least once while selling flowers at a market stall.",

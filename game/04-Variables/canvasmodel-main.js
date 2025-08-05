@@ -559,6 +559,7 @@ Renderer.CanvasModels.main = {
 			"tanningEnabled": true,
 			"genitals_chastity": false, // generated option
 			"handheld_overhead": false, // generated option
+			"neck_tucked": false,
 			"upper_tucked": false,
 			"lower_tucked": false,
 			"hood_down": false,
@@ -731,6 +732,8 @@ Renderer.CanvasModels.main = {
 				options.zarms = ZIndices.under_upper_arms - 0.1;
 			}
 		}
+
+		options.zneck = (options.neck_tucked) ? ZIndices.neck_tucked : ZIndices.neck;
 
 		options.zupper = (options.upper_tucked) ? ZIndices.upper_tucked : ZIndices.upper;
 		options.zupperleft = (options.upper_tucked) ? ZIndices.upper_arms_tucked : ZIndices.upper_arms;
@@ -4066,7 +4069,7 @@ Renderer.CanvasModels.main = {
 				return options.high_waist_suspenders ? "img/clothes/neck/suspenders/mask.png" : null;
 			},
 			zfn(options) {
-				return options.hood_mask ? ZIndices.collar : ZIndices.neck;
+				return options.hood_mask ? ZIndices.collar : options.zneck;
 			},
 		}),
 		"neck_acc": genlayer_clothing_accessory('neck', {
@@ -4093,7 +4096,7 @@ Renderer.CanvasModels.main = {
 					&& !(options.hood_down
 						&& options.worn.head.setup.hood
 						&& options.worn.head.setup.outfitSecondary !== undefined);
-				return check ? ZIndices.collar : ZIndices.neck;
+				return check ? ZIndices.collar : options.zneck;
 			},
 			dyfn(options) {
 				return options.high_waist_suspenders ? -8 : 0;

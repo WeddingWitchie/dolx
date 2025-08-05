@@ -92,7 +92,7 @@ function pleasure(amount, source) {
 				if (amount > 0 && beingPenetrated.includes(V.anusstate)) {
 					statChange.pain(V.analPain);
 					analWetnessPenalty = Math.min(V.anusWetness/60, 1);
-					if (V.penis_addict_trait) sensitivity += 0.5;
+					if (V.penis_addict_trait === 1) sensitivity += 0.5;
 				}
 				sensitivity += Math.max((V.bottomsensitivity + purityMod) * analWetnessPenalty, 0.25);
 				break;
@@ -112,7 +112,7 @@ function pleasure(amount, source) {
 				if (amount > 0 && V.player.vaginaExist === "t" && beingPenetrated.includes(V.vaginause)) {
 					statChange.pain(V.vaginalPain);
 					wetnessPenalty = Math.min(V.vaginaWetness/60, 1);
-					if (V.penis_addict_trait) sensitivity += 0.5;
+					if (V.penis_addict_trait === 1) sensitivity += 0.5;
 				}
 				sensitivity += Math.max((V.genitalsensitivity + 2*purityMod) * wetnessPenalty, 0.25);
 				if (playerIsPregnant()) sensitivity += 0.5;
@@ -139,7 +139,7 @@ function pleasure(amount, source) {
 			mod += sensitivityMod;
 		}
 
-		if (amount > 0 && ((V.penis_addict_trait && (!playerIsBeingPenetrated || playerHasButtPlug())) || (V.hole_addict_trait && (!holeAddictionFulfilled || playerHasStrapon())))) {
+		if (amount > 0 && ((V.penis_addict_trait === 1 && (!playerIsBeingPenetrated || playerHasButtPlug())) || (V.hole_addict_trait === 1 && (!holeAddictionFulfilled || playerHasStrapon())))) {
 			mod *= 0.6;
 		}
 
@@ -176,7 +176,7 @@ function pleasure(amount, source) {
 		}
 
 		// Cannot orgasm under breeder unless there's semen in vagina
-		if (playerIsXChanged() && V.xchange.pill?.breederEffect && V.sexStats.vagina.sperm.length <= 0 && oldPleasure + pleasureChange >= V.pleasuremax * 4/5) {
+		if (playerIsXChanged() && V.xchange.pill?.breederEffect && !playerIsCreampied() && oldPleasure + pleasureChange >= V.pleasuremax * 4/5) {
 			V.pleasure = Math.clamp(V.pleasure, 0, V.pleasuremax * 4/5 - 1);
 			V.xchange.pill.breederEdgingCount++;
 		}
@@ -305,8 +305,13 @@ window.playerIsXChanged = playerIsXChanged;
 	 - path: type string, representing the relative path to an 'img' asset.
 */
 function getGenderedPath(path) {
-	if (typeof path === 'string' && V.options?.useAltImg === 1 && V.player?.sex === V.options?.altImgGender)
-		return 'img2/' + path.substring(4);
+	if (typeof path === 'string' && V.options?.useAltImg === 1 && V.player?.sex === V.options?.altImgGender) {
+		path = path.substring(4);
+		if (path[0] === '/') {
+			path = path.substring(1);
+		} 
+		return 'img2/' + path;
+	}
 	else 
 		return path;
 }
@@ -341,7 +346,7 @@ function playerBodyIsFemale() {
 window.playerBodyIsMale = playerBodyIsMale;
 
 function playerIsCreampied() {
-	return V.sexStats.vagina.sperm.length > 0;
+	return V.sexStats.vagina.sperm.length > 0 || V.player.bodyliquid.vagina.semen > 0 || V.player.bodyliquid.vagina.nectar > 0;
 }
 window.playerIsCreampied = playerIsCreampied;
 
