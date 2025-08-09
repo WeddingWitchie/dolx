@@ -5546,21 +5546,22 @@
 	<!-- last argument is optional and if numeric - specifies the amount (default: 1) -->
 
 	<!-- process first argument and delete it so <<bodyliquid all all>> will work as expected -->
-	<<set _bodypart to _args[0]>>
+	<<set _partsToActOn to _args[0]>>
 	<<run _args.deleteAt(0)>>
-	<<set _clear to _bodypart is "clear">>
-	<<switch _bodypart>>
+	<<set _clear to _partsToActOn is "clear">>
+	<<set _fail to false>>
+	<<switch _partsToActOn>>
 		<<case "all" "clear">>
 			<!-- use clone() to make sure we're not modifying setup -->
-			<<set _bodypart to clone(setup.bodyliquid.bodyparts)>>
+			<<set _partsToActOn to clone(setup.bodyliquid.bodyparts)>>
 		<<case "outside">>
-			<<set _bodypart to clone(setup.bodyliquid.bodyparts)>>
-			<<run _bodypart.delete(setup.bodyliquid.innerbodyparts)>>
+			<<set _partsToActOn to clone(setup.bodyliquid.bodyparts)>>
+			<<run _partsToActOn.delete(setup.bodyliquid.innerbodyparts)>>
 		<<case "inside">>
-			<<set _bodypart to clone(setup.bodyliquid.innerbodyparts)>>
+			<<set _partsToActOn to clone(setup.bodyliquid.innerbodyparts)>>
 		<<default>>
-			<<if setup.bodyliquid.bodyparts.includes(_bodypart)>>
-				<<set _bodypart to [_bodypart]>>
+			<<if setup.bodyliquid.bodyparts.includes(_partsToActOn)>>
+				<<set _partsToActOn to [_partsToActOn]>>
 			<<else>>
 				<<set _fail to true>>
 			<</if>>
@@ -5568,12 +5569,12 @@
 	<</switch>>
 	<<if !_fail and (!_clear or _args.last() lte -5)>>
 		<<if !V.player.penisExist>>
-			<<run _bodypart.delete("penis")>>
+			<<run _partsToActOn.delete("penis")>>
 		<</if>>
 		<<if !V.player.vaginaExist>>
-			<<run _bodypart.delete("vagina", "vaginaoutside")>>
+			<<run _partsToActOn.delete("vagina", "vaginaoutside")>>
 		<</if>>
-		<<if _bodypart.length is 0 and $options.debugdisable is "f">>
+		<<if _partsToActOn.length is 0 and $options.debugdisable is "f">>
 			<<run console.log(Utils.GetStack(), "- attempt to slap bodyliquid on nonexistent genitals failed successfully")>>
 		<</if>>
 	<</if>>
@@ -5611,8 +5612,8 @@
 
 	<<if _fail is true>>
 	<<else>>
-		<<breeder-orgasm _bodypart _liquids _amount>>
-		<<for _part range _bodypart>>
+		<<breeder-orgasm _partsToActOn _liquids _amount>>
+		<<for _part range _partsToActOn>>
 			<<for _type range _liquids>>
 				<<set $player.bodyliquid[_part][_type] to Math.clamp($player.bodyliquid[_part][_type] + _amount, 0, 5)>>
 			<</for>>
@@ -5622,7 +5623,7 @@
 	<<if $options.debugdisable is "f" and _fail is true>>
 		<<error {
 			message	: `bodyliquid widget on ${Utils.GetStack()} failed, please report`,
-			source	: `Arguments: ${_bodypart} | ${_args[0]} | ${_args[1]} | ${_args[2]} | ${_args[3]}.`
+			source	: `Arguments: ${_partsToActOn} | ${_args[0]} | ${_args[1]} | ${_args[2]} | ${_args[3]}.`
 		}>>
 	<</if>>
 <</widget>>
