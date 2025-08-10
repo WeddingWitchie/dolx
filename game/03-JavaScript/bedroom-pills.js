@@ -1003,7 +1003,7 @@ setup.pills = [
 				? 1
 				: 0;
 		},
-		effects: [`<<xchange-random-spike "supress">>`],
+		effects: [`<<take-xchange random(1,3) "random">>`],
 	},
 	{
 		name: "X-Change Blue NOW",
@@ -1378,6 +1378,43 @@ setup.pills = [
 		effects: [`<<xchange-restore>>`],
 	},
 	{
+		name: "X-Change Purple Basic",
+		description:
+			"X-Change's hallmark product. They're affordable and dosages typically last 24 hours or less, after which you turn back. It's impossible to get pregnant on Basic.",
+		onTakeMessage: 
+			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of both a man's and a woman's body.<br><br>Your new body feels distinctly different from your original, yet also strangely familiar. In many ways, alien. But still very much yours. Should you choose, you could probably pass as any gender you want as long as there's clothes on you.<br><br>Finally, you approach the mirror, and having a good look, you also realise you look exceedingly beautiful as well.",
+		warning_label:
+			"Warning: EXPERIMENTAL, may wreck your save. Mild discomfort might be incurred during transformation. Certain parasitic infections might result in permanence, in particular those affecting the genitals.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "purple basic",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillbottom.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
+				? 1
+				: 0;
+		},
+		effects: [`<<take-xchange 1 "herm">>`],
+	},
+	{
 		name: "Suspicious Blue Pill",
 		description:
 			"An unlabelled blue pill of unknown origin and manufacture. Unpredictable effects.",
@@ -1412,7 +1449,7 @@ setup.pills = [
 				? 1
 				: 0;
 		},
-		effects: [`<<xchange-random-spike "supress">>`],
+		effects: [`<<take-xchange random(1,3) "random">>`],
 	},
 	{
 		name: "X-Change Clone: Whitney",

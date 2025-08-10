@@ -292,6 +292,32 @@
 		<<updatesidebarimg>>
 	<</widget>>
 
+	<<widget "hermify">>
+		<<wash>>
+		<<set $gender_body to "a">>
+		<<set $bodyshape to "slender">>
+
+		<<set _body to $xchange.pill.originalBody>>
+		<<if $player.gender is "m">>
+			<<set $player.penissize to _body.penissize>>
+			<<set $ballsssize to _body.penissize>>
+
+		<<elseif $player.gender is "f">>
+			<<set $player.breastsize to _body.breastsize>>
+			<<set $player.bottomsize to _body.bottomsize>>
+		<</if>>
+
+		<<set $vaginause to 0>>
+		<<set $vaginastate to 0>>
+		<<set $penisuse to 0>>
+		<<set $penisstate to 0>>
+		<<set $player.sex to "m">>
+		<<set $player.ballsExist to $xchange.useHermBalls eq 1>>
+		<<set $player.penisExist to true>>
+		<<set $player.vaginaExist to true>>
+		<<set $sexStats.vagina.menstruation.running = false>>
+	<</widget>>
+
 	<<widget "save-body">>
 		/* 	args 0: chooses which slot to save the body into. 
 				"genderswapped" for your xchanged body
@@ -303,8 +329,8 @@
 			bodysize: $bodysize,
 			facestyle: $facestyle,
 			facevariant: $facevariant,
-			gender_body: $player.gender_body,
-			bodyshape: $player.bodyshape,
+			/* gender_body: $player.gender_body,
+			bodyshape: $player.bodyshape, */
 			breastsize: $player.breastsize,
 			bottomsize: $player.bottomsize,
 			penissize: $player.penissize,
@@ -339,13 +365,33 @@
 			crime: $crime,
 		}>>
 
-		<<if _args[0] is undefined>>
-			<<set $xchange.pill.originalBody to _savedbody>>
-		<<elseif _args[0] is "genderswapped">>
-			<<set $xchange.pill.changedBody to _savedbody>>
-		<<elseif _args[0] is "cloned" and _args[1] isnot undefined>>
-			<<set _npcName to _args[1]>>
-			<<set $xchange.pill.clonedBody[_npcName] to _savedbody>>
+		<<if _args[0] is "herm">>
+			<<if $player.gender is "m">>
+				<<set $xchange.pill.originalBody.penissize to _savedbody.penissize>>
+				<<set $xchange.pill.originalBody.ballssize to _savedbody.ballssize>>
+
+				<<set _savedbody.penissize to $xchange.pill.changedBody?.penissize ?? -2>>
+				<<set _savedbody.ballssize to $xchange.pill.changedBody?.ballssize ?? -2>>
+				<<set $xchange.pill.changedBody to _savedbody>>
+
+			<<elseif $player.gender is "f">>
+				<<set $xchange.pill.originalBody.breastsize to _savedbody.breastsize>>
+				<<set $xchange.pill.originalBody.bottomsize to _savedbody.bottomsize>>
+
+				<<set _savedbody.breastsize to $xchange.pill.changedBody?.breastsize ?? 0>>
+				<<set _savedbody.bottomsize to $xchange.pill.changedBody?.bottomsize ?? 0>>
+				<<set $xchange.pill.changedBody to _savedbody>>
+
+			<</if>>
+		<<else>>
+			<<if _args[0] is undefined>>
+				<<set $xchange.pill.originalBody to _savedbody>>
+			<<elseif _args[0] is "genderswapped">>
+				<<set $xchange.pill.changedBody to _savedbody>>
+			<<elseif _args[0] is "cloned" and _args[1] isnot undefined>>
+				<<set _npcName to _args[1]>>
+				<<set $xchange.pill.clonedBody[_npcName] to _savedbody>>
+			<</if>>
 		<</if>>
 	<</widget>>
 
@@ -362,8 +408,8 @@
 		<<set $bodysize to _body.bodysize>>
 		<<set $facestyle to _body.facestyle>>
 		<<set $facevariant to _body.facevariant>>
-		<<set $player.gender_body to _body.gender_body>>
-		<<set $player.bodyshape to _body.bodyshape>>
+		/* <<set $player.gender_body to _body.gender_body>>
+		<<set $player.bodyshape to _body.bodyshape>> */
 		<<set $player.breastsize to _body.breastsize>>
 		<<set $player.bottomsize to _body.bottomsize>>
 		<<set $player.penissize to _body.penissize>>
@@ -478,6 +524,7 @@
 
 		<<set $xchange.pill.genderflipEffect to false>>
 		<<set $xchange.pill.genderificationEffect to false>>
+		<<set $xchange.pill.hermEffect to false>>
 		<<set $xchange.pill.breederEffect to false>>
 		<<set $xchange.pill.bullEffect to false>>
 		<<set $xchange.pill.resistanceEffect to false>>
@@ -490,7 +537,7 @@
 		<<for _effect range _effectsList>>
 
 			/* Skip adding continue or resistance effects if not also genderflipped */
-			<<if ["continue", "resistance"].includes(_effect) && !_effectsList.includes("genderflip")>>
+			<<if ["continue", "resistance"].includes(_effect) && !(_effectsList.includes("genderflip") || $xchange.pill.genderflipEffect)>>
 				<<continue>>
 			<</if>>
 			
@@ -526,6 +573,19 @@
 				<<else>>
 					<<butchify>>
 				<</if>>
+			<</if>>
+		<<case "herm">>
+			<<if !$xchange.pill.genderflipEffect>>
+				<<set $xchange.pill.genderflipEffect to true>>
+				<<if $player.gender is "m">>
+					<<become-girl>>
+				<<else>>
+					<<become-boy>>
+				<</if>>
+			<</if>>
+			<<if !$xchange.pill.hermEffect>>
+				<<set $xchange.pill.hermEffect to true>>
+				<<hermify>>
 			<</if>>
 		<<case "resistance">>
 			<<if !$xchange.pill.resistanceEffect>>
@@ -679,7 +739,12 @@
 
 	<<widget "xchange-restore">>
 		<<if _args[0] isnot "nosave">>
-			<<if $xchange.pill.genderflipEffect>><<save-body "genderswapped">><</if>>
+			<<if $xchange.pill.hermEffect>>
+				<<save-body "herm">>
+			<<elseif $xchange.pill.genderflipEffect>>
+				<<save-body "genderswapped">>
+			<</if>>
+
 			<<if $player.gender is "m">>
 				<<become-boy>>
 			<<elseif $player.gender is "f">>
@@ -1039,12 +1104,12 @@
 	<<widget "currentSexSidebar">>
 		<<if $options.showCurrentSexIcon>>
 			<div id="bodysex-sidebar" class="bodysex-sidebar">
-				<<if $player.sex is "f">>
+				<<if $xchange.pill.hermEffect>>
+					<img src="img/misc/icon/unisex.png">
+				<<elseif $player.sex is "f">>
 					<img src="img/misc/icon/female.png">
 				<<elseif $player.sex is "m">>
 					<img src="img/misc/icon/male.png">
-				<<else>>
-					<img src="img/misc/icon/unisex.png">
 				<</if>>
 			</div>
 		<</if>>
