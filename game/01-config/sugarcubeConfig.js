@@ -12,7 +12,7 @@ const StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.5.4.9 DoLP v0.695 DoLX 0.13.4",
+	version: "0.5.4.9 DoLP v0.695 DoLX 0.13.5",
 	versionName: `"Hopeless Cycle" edition`,
 	sneaky: false,
 	socialMediaEnabled: true,
