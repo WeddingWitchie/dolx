@@ -31,6 +31,7 @@
 		<<set $player.gender_body to "f">>
 		<<set $player.bodyshape to "curvy">>
 
+		/* Generating a new sides hairstyle if player uses short hair */
 		<<set _currentHairstyle to setup.hairstyles.sides.find(hs => hs.variable === V.hairtype)>>
 		<<set _hairstyles to setup.hairstyles.sides
 			.filter(x => x.type.includes("loose") && 
@@ -41,22 +42,15 @@
 			<<set $hairtype to _hairstyles.random()>>
 		<</if>>
 
+		/* Physique computations - Part 1 */
 		<<if $xchange.sizeOverride is "default">>
 			<<set $bodysize to Math.clamp($bodysize-1, 0,3)>>
 		<<else>>
 			<<set _sizeMap to ["tiny","small","normal","large"]>>
 			<<set $bodysize to _sizeMap.indexOf($xchange.sizeOverride)>>
 		<</if>>
-		<<set _physiquesizes to [6000, 10000, 12000, 16000]>>
-		<<set _physiquesize_old to $physiquesize>>
-		<<set $physiquesize to _physiquesizes[$bodysize]>>
-		<<set $physique *= $physiquesize / _physiquesize_old>>
-		<<if $player.gender is $player.sex>>
-			<<set $physique to Math.clamp($physique * $xchange.physiqueChangePercent / 100, 0, $physiquesize * $xchange.physiqueChangePercent / 100)>>
-		<<else>>
-			<<set $physique to Math.clamp($physique / $xchange.physiqueChangePercent * 100, 0, $physiquesize / $xchange.physiqueChangePercent * 100)>>
-		<</if>>
 
+		/* Loading existing values, or generating new ones */
 		<<if $player.gender !== "f" && Object.keys($xchange.pill.changedBody).length gt 0>>
 			<<load-body "genderswapped">>
 		<<else>>
@@ -135,6 +129,18 @@
 			<<calchairlengthstage>>
 		<</if>>
 
+		/* Finalising physique adjustments - Part 2 */
+		<<set _physiquesizes to [6000, 10000, 12000, 16000]>>
+		<<set _physiquesize_old to $physiquesize>>
+		<<set $physiquesize to _physiquesizes[$bodysize]>>
+		<<set $physique *= $physiquesize / _physiquesize_old>>
+		<<if $player.gender is $player.sex>>
+			<<set $physique to Math.clamp($physique * $xchange.physiqueChangePercent / 100, 0, $physiquesize * $xchange.physiqueChangePercent / 100)>>
+		<<else>>
+			<<set $physique to Math.clamp($physique / $xchange.physiqueChangePercent * 100, 0, $physiquesize / $xchange.physiqueChangePercent * 100)>>
+		<</if>>
+
+		/* Genitalia */
 		<<set $vaginause to 0>>
 		<<set $vaginastate to 0>>
 		<<set $penisuse to "none">>
@@ -144,6 +150,7 @@
 		<<set $player.penisExist to false>>
 		<<set $player.vaginaExist to true>>
 
+		/* Parasites */
 		<<set $parasite.clit to $parasite.penis>>
 		<<set $parasite.labia to $parasite.balls>>
 		<<set $parasite.penis to {}>>
@@ -176,27 +183,21 @@
 	<<widget "become-boy">>
 		<<wash>>
 		<<if $facestyle is "default">>
-			<<set $facevariant to ["default","aloof"].random()>>
+			<<set $facevariant to ["default","aloof","foxy"].random()>>
 		<</if>>
 		<<set $player.gender_body to "m">>
 		<<set $player.bodyshape to "classic">>
 		<<set $hairtype to "short">>
+
+		/* Physique computations - Part 1 */
 		<<if $xchange.sizeOverride is "default">>
 			<<set $bodysize to Math.clamp($bodysize+1, 0,3)>>
 		<<else>>
 			<<set _sizeMap to ["tiny","small","normal","large"]>>
 			<<set $bodysize to _sizeMap.indexOf($xchange.sizeOverride)>>
 		<</if>>
-		<<set _physiquesizes to [6000, 10000, 12000, 16000]>>
-		<<set _physiquesize_old to $physiquesize>>
-		<<set $physiquesize to _physiquesizes[$bodysize]>>
-		<<set $physique *= $physiquesize / _physiquesize_old>>
-		<<if $player.gender is $player.sex>>
-			<<set $physique to Math.clamp($physique * $xchange.physiqueChangePercent / 100, 0, $physiquesize * $xchange.physiqueChangePercent / 100)>>
-		<<else>>
-			<<set $physique to Math.clamp($physique / $xchange.physiqueChangePercent * 100, 0, $physiquesize / $xchange.physiqueChangePercent * 100)>>
-		<</if>>
 
+		/* Loading existing values, or generating new ones */
 		<<if $player.gender !== "m" && Object.keys($xchange.pill.changedBody).length gt 0>>
 			<<load-body "genderswapped">>
 		<<else>>
@@ -274,6 +275,18 @@
 			<<calchairlengthstage>>
 		<</if>>
 
+		/* Finalising physique adjustments - Part 2 */
+		<<set _physiquesizes to [6000, 10000, 12000, 16000]>>
+		<<set _physiquesize_old to $physiquesize>>
+		<<set $physiquesize to _physiquesizes[$bodysize]>>
+		<<set $physique *= $physiquesize / _physiquesize_old>>
+		<<if $player.gender is $player.sex>>
+			<<set $physique to Math.clamp($physique * $xchange.physiqueChangePercent / 100, 0, $physiquesize * $xchange.physiqueChangePercent / 100)>>
+		<<else>>
+			<<set $physique to Math.clamp($physique / $xchange.physiqueChangePercent * 100, 0, $physiquesize / $xchange.physiqueChangePercent * 100)>>
+		<</if>>
+
+		/* Genitalia */
 		<<set $vaginause to "none">>
 		<<set $vaginastate to "none">>
 		<<set $penisuse to 0>>
@@ -284,6 +297,7 @@
 		<<set $player.vaginaExist to false>>
 		<<set $sexStats.vagina.menstruation.running = false>>
 
+		/* Parasites */
 		<<set $parasite.penis to $parasite.clit>>
 		<<set $parasite.balls to $parasite.labia isnot {} ? $parasite.labia : $parasite.vagina>>
 		<<set $parasite.penis to {}>>
@@ -295,7 +309,9 @@
 	<<widget "hermify">>
 		<<wash>>
 		<<set $gender_body to "a">>
-		<<set $bodyshape to "slender">>
+		<<if $xchange.pill.changedBody is undefined>>
+			<<set $bodyshape to "slender">>
+		<</if>>
 
 		<<set _body to $xchange.pill.originalBody>>
 		<<if $player.gender is "m">>
@@ -329,8 +345,8 @@
 			bodysize: $bodysize,
 			facestyle: $facestyle,
 			facevariant: $facevariant,
-			/* gender_body: $player.gender_body,
-			bodyshape: $player.bodyshape, */
+			gender_body: $player.gender_body,
+			bodyshape: $player.bodyshape,
 			breastsize: $player.breastsize,
 			bottomsize: $player.bottomsize,
 			penissize: $player.penissize,
@@ -352,8 +368,8 @@
 			semen_amount: $semen_amount,
 			milk_amount: $milk_amount,
 			beauty: $beauty,
-			/* physique: $physique,
-			physiquesize: $physiquesize, */
+			/* physique: $physique, */
+			/* physiquesize: $physiquesize, */
 			breastsensitivity: $breastsensitivity,
 			bottomsensitivity: $bottomsensitivity,
 			genitalsensitivity: $genitalsensitivity,
@@ -372,6 +388,7 @@
 
 				<<set _savedbody.penissize to $xchange.pill.changedBody?.penissize ?? -2>>
 				<<set _savedbody.ballssize to $xchange.pill.changedBody?.ballssize ?? -2>>
+				<<set _savedbody.bodyshape to $xchange.pill.changedBody?.bodyshape ?? "curvy">>
 				<<set $xchange.pill.changedBody to _savedbody>>
 
 			<<elseif $player.gender is "f">>
@@ -380,6 +397,7 @@
 
 				<<set _savedbody.breastsize to $xchange.pill.changedBody?.breastsize ?? 0>>
 				<<set _savedbody.bottomsize to $xchange.pill.changedBody?.bottomsize ?? 0>>
+				<<set _savedbody.bodyshape to $xchange.pill.changedBody?.bodyshape ?? "classic">>
 				<<set $xchange.pill.changedBody to _savedbody>>
 
 			<</if>>
@@ -408,8 +426,8 @@
 		<<set $bodysize to _body.bodysize>>
 		<<set $facestyle to _body.facestyle>>
 		<<set $facevariant to _body.facevariant>>
-		/* <<set $player.gender_body to _body.gender_body>>
-		<<set $player.bodyshape to _body.bodyshape>> */
+		<<set $player.gender_body to _body.gender_body>>
+		<<set $player.bodyshape to _body.bodyshape>>
 		<<set $player.breastsize to _body.breastsize>>
 		<<set $player.bottomsize to _body.bottomsize>>
 		<<set $player.penissize to _body.penissize>>
@@ -431,8 +449,8 @@
 		<<set $semen_amount to _body.semen_amount ?? 0>>
 		<<set $milk_amount to _body.milk_amount ?? 0>>
 		<<set $beauty to _body.beauty>>
-		/* <<set $physique to _body.physique>>
-		<<set $physiquesize to _body.physiquesize>> */
+		/* <<set $physique to _body.physique>> */
+		/* <<set $physiquesize to _body.physiquesize>> */
 		<<set $breastsensitivity to _body.breastsensitivity>>
 		<<set $bottomsensitivity to _body.bottomsensitivity>>
 		<<set $genitalsensitivity to _body.genitalsensitivity>>
@@ -978,6 +996,7 @@
 		<<set _effectPool to [
 			"genderflip","genderflip","genderflip","genderflip","genderflip","genderflip","genderflip",
 			"crossdress","crossdress","crossdress","crossdress","crossdress","crossdress","crossdress",
+			"herm","herm","herm","herm",
 			"breeder","breeder",
 			"bull","bull",
 			"continue","continue","continue",
@@ -991,6 +1010,7 @@
 		<<if $player.gender is "m">><<run _effectPool.deleteWith((val)=>val==="bull")>><</if>>
 		<<if $xchange.pill.genderflipEffect>><<run _effectPool.deleteWith((val)=>val==="genderflip")>><</if>>
 		<<if $xchange.pill.genderificationEffect or !$xchange.spikepool.crossdresser>><<run _effectPool.deleteWith((val)=>val==="crossdress")>><</if>>
+		<<if $xchange.pill.hermEffect or !$xchange.spikepool.herm>><<run _effectPool.deleteWith((val)=>val==="herm")>><</if>>
 		<<if $xchange.pill.breederEffect or !$xchange.spikepool.breeder>><<run _effectPool.deleteWith((val)=>val==="breeder")>><</if>>
 		<<if $xchange.pill.bullEffect or !$xchange.spikepool.bull>><<run _effectPool.deleteWith((val)=>val==="bull")>><</if>>
 		<<if $xchange.pill.continueEffect or $xchange.pill.resistanceEffect or !$xchange.spikepool.continue>><<run _effectPool.deleteWith((val)=>val==="continue")>><</if>>
@@ -1104,7 +1124,7 @@
 	<<widget "currentSexSidebar">>
 		<<if $options.showCurrentSexIcon>>
 			<div id="bodysex-sidebar" class="bodysex-sidebar">
-				<<if $xchange.pill.hermEffect>>
+				<<if playerIsXChanged() and $xchange.pill.hermEffect>>
 					<img src="img/misc/icon/unisex.png">
 				<<elseif $player.sex is "f">>
 					<img src="img/misc/icon/female.png">

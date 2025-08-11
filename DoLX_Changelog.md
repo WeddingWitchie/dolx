@@ -8,11 +8,12 @@
 
 ## Changelog
 ### Changes and Additions:
-  * Added experimental purple pill (makes you go herm). 
+  * Added herm effect to the spike pool (disabled by default). 
+    * Note: The rest of the purple pill line of products will be added in the future.
 
 
 ### Rebalancing and Bug fixes:
-  * Fixed liquid-washing bug.
-  * Subtly (not too subtly) changed UI to signal Beauty being a fixed value.
-  * Fixed starting glasses for nerd background.
-  * Max fatigue now only spends willpower instead of accrueing stress when the willpower system is enabled.
+  * Rectified mistake regarding Bailey's female sprites (was using male sprites by accident instead on vanilla graphics).
+  * Fixed herm symbol sticking around even after pill had expired.
+  * Fixed pills not remembering a player's chosen bodyshape.
+  * Hopefully improved physique-transition computations.
