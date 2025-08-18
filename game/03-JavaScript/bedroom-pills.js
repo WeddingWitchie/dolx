@@ -1006,6 +1006,43 @@ setup.pills = [
 		effects: [`<<take-xchange random(1,3) "random">>`],
 	},
 	{
+		name: "Suspicious Pink Pill",
+		description:
+			"An unlabelled pink pill of unknown origin and manufacture. Unpredictable effects.",
+		onTakeMessage: 
+			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of both a man's and a woman's body.<br><br>Your new body feels distinctly different from your original, yet also strangely familiar. In many ways, alien. But still very much yours. Should you choose, you could probably pass as any gender you want as long as there's clothes on you.<br><br>Finally, you approach the mirror, and having a good look, you also realise you look exceedingly beautiful as well.",
+		warning_label:
+			"Warning: You do not know where this pill came from, nor what it does.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "purple unknown",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillbottom.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
+				? 1
+				: 0;
+		},
+		effects: [`<<take-xchange random(1,3) "herm" "random">>`],
+	},
+	{
 		name: "X-Change Blue NOW",
 		description:
 			"A significantly diluted version of X-Change Basic, intended for those on a tight schedule. Lasts about 6 hours.",
@@ -1384,7 +1421,7 @@ setup.pills = [
 		onTakeMessage: 
 			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of both a man's and a woman's body.<br><br>Your new body feels distinctly different from your original, yet also strangely familiar. In many ways, alien. But still very much yours. Should you choose, you could probably pass as any gender you want as long as there's clothes on you.<br><br>Finally, you approach the mirror, and having a good look, you also realise you look exceedingly beautiful as well.",
 		warning_label:
-			"Warning: EXPERIMENTAL, may wreck your save. Mild discomfort might be incurred during transformation. Certain parasitic infections might result in permanence, in particular those affecting the genitals.",
+			"Warning: Mild discomfort might be incurred during transformation. Certain parasitic infections might result in permanence, in particular those affecting the genitals.",
 		autoTake() {
 			return false;
 		},
@@ -1398,7 +1435,7 @@ setup.pills = [
 			return "";
 		},
 		type: "xchange",
-		subtype: "purple basic",
+		subtype: "purple",
 		shape: "pill",
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
@@ -1413,6 +1450,265 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<take-xchange 1 "herm">>`],
+	},
+	{
+		name: "X-Change Purple Xtra Strength",
+		description:
+			"These are more expensive dosages that typically last 30 days. It is possible to become pregnant on Xtra Strength, but the chance of that happening is very low.",
+		onTakeMessage: 
+			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of both a man's and a woman's body.<br><br>Your new body feels distinctly different from your original, yet also strangely familiar. In many ways, alien. But still very much yours. Should you choose, you could probably pass as any gender you want as long as there's clothes on you.<br><br>Finally, you approach the mirror, and having a good look, you also realise you look exceedingly beautiful as well.",
+		warning_label:
+			"Warning: Mild discomfort might be incurred during transformation. Certain parasitic infections might result in permanence, in particular those affecting the genitals.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "purple",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillbottom.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
+				? 1
+				: 0;
+		},
+		effects: [`<<take-xchange 30 "herm">>`],
+	},
+	{
+		name: "X-Change Purple Continue",
+		description:
+			"Temporary pill where every time you climax, the duration gets extended. Initial duration is 72 hours or less. Each climax adds an additional day to the duration.",
+		onTakeMessage: 
+			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of both a man's and a woman's body.<br><br>Your new body feels distinctly different from your original, yet also strangely familiar. In many ways, alien. But still very much yours. Should you choose, you could probably pass as any gender you want as long as there's clothes on you.<br><br>Finally, you approach the mirror, and having a good look, you also realise you look exceedingly beautiful as well.",
+		warning_label:
+			"Warning: Mild discomfort might be incurred during transformation. Certain parasitic infections might result in permanence, in particular those affecting the genitals.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "purple",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillbottom.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
+				? 1
+				: 0;
+		},
+		effects: [`<<take-xchange 3 "herm" "continue">>`],
+	},
+	{
+		name: "X-Change Purple Resistance",
+		description:
+			"Temporary pill but if you climax, there's a chance it becomes permanent. Each climax increases the likelihood of permanence. Pill effects may last upto 24 hours or less.",
+		onTakeMessage: 
+			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of both a man's and a woman's body.<br><br>Your new body feels distinctly different from your original, yet also strangely familiar. In many ways, alien. But still very much yours. Should you choose, you could probably pass as any gender you want as long as there's clothes on you.<br><br>Finally, you approach the mirror, and having a good look, you also realise you look exceedingly beautiful as well.",
+		warning_label:
+			"Warning: Mild discomfort might be incurred during transformation. Certain parasitic infections might result in permanence, in particular those affecting the genitals.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "purple",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillbottom.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
+				? 1
+				: 0;
+		},
+		effects: [`<<take-xchange 1 "herm" "resistance">>`],
+	},
+	{
+		name: "X-Change Purple NOW",
+		description:
+			"A significantly diluted version of X-Change Basic, intended for those on a tight schedule. Lasts about 6 hours.",
+		onTakeMessage: 
+			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of both a man's and a woman's body.<br><br>Your new body feels distinctly different from your original, yet also strangely familiar. In many ways, alien. But still very much yours. Should you choose, you could probably pass as any gender you want as long as there's clothes on you.<br><br>Finally, you approach the mirror, and having a good look, you also realise you look exceedingly beautiful as well.",
+		warning_label:
+			"Warning: Mild discomfort might be incurred during transformation. Certain parasitic infections might result in permanence, in particular those affecting the genitals.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "purple",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillbottom.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
+				? 1
+				: 0;
+		},
+		effects: [`<<take-xchange 0.25 "herm">>`],
+	},
+	{
+		name: "X-Change Purple Weekly",
+		description:
+			"A significantly more concentrated version of X-Change Basic. Intended for those wanting longer duration pills, but still not quite ready for the commitment and risks of an Xtra Strength. Last for about 7 days.",
+		onTakeMessage: 
+			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of both a man's and a woman's body.<br><br>Your new body feels distinctly different from your original, yet also strangely familiar. In many ways, alien. But still very much yours. Should you choose, you could probably pass as any gender you want as long as there's clothes on you.<br><br>Finally, you approach the mirror, and having a good look, you also realise you look exceedingly beautiful as well.",
+		warning_label:
+			"Warning: Mild discomfort might be incurred during transformation. Certain parasitic infections might result in permanence, in particular those affecting the genitals.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "purple",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillbottom.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
+				? 1
+				: 0;
+		},
+		effects: [`<<take-xchange 7 "herm">>`],
+	},
+	{
+		name: "X-Change Purple Breeder",
+		description:
+			"Temporary pill causing increased fertility and heightened pleasure during vaginal insemination. Pill effects may last upto a whole week.",
+		onTakeMessage: 
+			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of both a man's and a woman's body.<br><br>Your new body feels distinctly different from your original, yet also strangely familiar. In many ways, alien. But still very much yours. Should you choose, you could probably pass as any gender you want as long as there's clothes on you.<br><br>Finally, you approach the mirror, and having a good look, you also realise you look exceedingly beautiful as well.",
+		warning_label:
+			"Warning: Mild discomfort might be incurred during transformation. Certain parasitic infections might result in permanence, in particular those affecting the genitals.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "purple",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillbottom.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
+				? 1
+				: 0;
+		},
+		effects: [`<<take-xchange 1 "herm" "breeder">>`],
+	},
+	{
+		name: "X-Change Purple Bull",
+		description:
+			"Temporary genderswap pill causing increased virility. Pill effects may last upto a whole week.",
+		onTakeMessage: 
+			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of both a man's and a woman's body.<br><br>Your new body feels distinctly different from your original, yet also strangely familiar. In many ways, alien. But still very much yours. Should you choose, you could probably pass as any gender you want as long as there's clothes on you.<br><br>Finally, you approach the mirror, and having a good look, you also realise you look exceedingly beautiful as well.",
+		warning_label:
+			"Warning: Mild discomfort might be incurred during transformation. Certain parasitic infections might result in permanence, in particular those affecting the genitals.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "purple",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillbottom.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
+				? 1
+				: 0;
+		},
+		effects: [`<<take-xchange 1 "herm" "bull">>`],
 	},
 	{
 		name: "Suspicious Blue Pill",
@@ -1929,6 +2225,15 @@ function backCompPillsInventory() {
 		"X-Change Blue Xtra Strength": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Blue Resistance": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Blue Continue": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+		"X-Change Blue Bull": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+		"X-Change Purple Bull": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+		"X-Change Purple Breeder": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+		"X-Change Purple Basic": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+		"X-Change Purple Weekly": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+		"X-Change Purple NOW": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+		"X-Change Purple Xtra Strength": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+		"X-Change Purple Resistance": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+		"X-Change Purple Continue": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Clone: Whitney": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Antidote": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Antidote Forte": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
