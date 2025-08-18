@@ -702,36 +702,24 @@
 		<div class="settingsToggleItem">
 			<span class="gold">X-Change Pill</span>
 			<br>
-			<<if $xchange.pill.active>>
-				<<linkreplace "Force pill to end">>Forced pill to end<<xchange-restore>><<updatesidebarimg>><</linkreplace>>
-				<br><br>
-				Resistance: <span id="xchange-resistance"><<= $xchange.pill.resistanceEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchange.pill.resistanceEffect to $xchange.pill.resistanceEffect? false : true>><<set $xchange.pill.resistanceChance to 100>><<replace "#xchange-resistance">><<= $xchange.pill.resistanceEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
-				<br>
-				Continue: <span id="xchange-continue"><<= $xchange.pill.continueEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchange.pill.continueEffect to $xchange.pill.continueEffect? false : true>><<replace "#xchange-continue">><<= $xchange.pill.continueEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
-				<br>
-				<<if $player.sex isnot "m">>
-					Breeder: <span id="xchange-breeder"><<= $xchange.pill.breederEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchange.pill.breederEffect to $xchange.pill.breederEffect? false : true>><<replace "#xchange-breeder">><<= $xchange.pill.breederEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
-					<br>
-					Fertile: <span id="xchange-fertile"><<= $xchange.pill.fertile? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchange.pill.fertile to $xchange.pill.fertile? false : true>><<replace "#xchange-fertile">><<= $xchange.pill.fertile? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
-					<br>
+			<div id="cheat-xchange-pills">
+				<<if !$statFreeze>>
+					<<if $xchange.pill.active>>
+						<<cheatXchange>>
+					<<else>>
+						You need to be under a pill before you can edit its effects.
+						<br><br>
+						<<link "Take Genderflip pill">><<take-xchange 3>><<updatesidebarimg>><<replace "#cheat-xchange-pills">><<cheatXchange>><</replace>><</link>>
+						<br>
+						<<link "Take Sissy/Butch pill">><<take-xchange 3 "crossdress">><<updatesidebarimg>><<replace "#cheat-xchange-pills">><<cheatXchange>><</replace>><</link>>
+						<br>
+						<<link "Take Hermifying pill">><<take-xchange 3 "herm">><<updatesidebarimg>><<replace "#cheat-xchange-pills">><<cheatXchange>><</replace>><</link>>
+						<br>
+					<</if>>
 				<<else>>
-					Bull: <span id="xchange-bull"><<= $xchange.pill.bullEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchange.pill.bullEffect to $xchange.pill.bullEffect? false : true>><<replace "#xchange-bull">><<= $xchange.pill.bullEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
-					<br>
+					You cannot apply X-Change pills while stats are frozen, or going through a sidestory.
 				<</if>>
-				Passion: <span id="xchange-passion"><<= $xchange.pill.passionEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchange.pill.passionEffect to $xchange.pill.passionEffect? false : true>><<replace "#xchange-passion">><<= $xchange.pill.passionEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
-				<br>
-				Dumb Bitch: <span id="xchange-bitch"><<= $xchange.pill.dumbBitchEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchange.pill.dumbBitchEffect to $xchange.pill.dumbBitchEffect? false : true>><<replace "#xchange-bitch">><<= $xchange.pill.dumbBitchEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
-				<br>
-				<<if $portalPantiesEnabled>>
-					Portal: <span id="xchange-portal"><<= $xchange.pill.portalEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchange.pill.portalEffect to $xchange.pill.portalEffect? false : true>><<set $xchange.pill.portalEffectTimer to $xchange.pill.duration>><<replace "#xchange-portal">><<= $xchange.pill.portalEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
-					<br>
-				<</if>>
-				Effects Known: <span id="xchange-spike"><<= $xchange.pill.effectsKnown? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchange.pill.effectsKnown to $xchange.pill.effectsKnown? false : true>><<replace "#xchange-spike">><<= $xchange.pill.effectsKnown? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
-				<br><br>
-			<<else>>
-				You need to be under a pill before you can edit its effects.
-				<br><br>
-			<</if>>
+			</div>
 		</div>
 
 		<div class="settingsToggleItem">
@@ -2993,6 +2981,37 @@
 	<<else>>
 		<span class="gold"><<= $player.sex is "m" ? "Penis" : $player.sex is "f" ? "Vagina" : "Hermaphrodite">></span> | <<if _reasons.length gte 1>>You cannot change your genitals due to <<= _reasons.join(" and ")>>. Normally, this<<else>>This<</if>> setting can only be changed when accessing your wardrobe.
 	<</if>>
+<</widget>>
+
+<<widget "cheatXchange">>
+	<<linkreplace "Force pill to end">>Forced pill to end<<xchange-restore>><<updatesidebarimg>><</linkreplace>>
+	<br><br>
+	Sissy/Butch: <span id="xchange-crossdress"><<= $xchange.pill.genderificationEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchange.pill.genderificationEffect to $xchange.pill.genderificationEffect? false : true>><<replace "#xchange-crossdress">><<= $xchange.pill.genderificationEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
+	<br>
+	Resistance: <span id="xchange-resistance"><<= $xchange.pill.resistanceEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchange.pill.resistanceEffect to $xchange.pill.resistanceEffect? false : true>><<set $xchange.pill.resistanceChance to 100>><<replace "#xchange-resistance">><<= $xchange.pill.resistanceEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
+	<br>
+	Continue: <span id="xchange-continue"><<= $xchange.pill.continueEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchange.pill.continueEffect to $xchange.pill.continueEffect? false : true>><<replace "#xchange-continue">><<= $xchange.pill.continueEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
+	<br>
+	<<if $player.sex isnot "m" or (playerIsXChanged() and $xchange.pill.hermEffect)>>
+		Breeder: <span id="xchange-breeder"><<= $xchange.pill.breederEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchange.pill.breederEffect to $xchange.pill.breederEffect? false : true>><<replace "#xchange-breeder">><<= $xchange.pill.breederEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
+		<br>
+		Fertile: <span id="xchange-fertile"><<= $xchange.pill.fertile? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchange.pill.fertile to $xchange.pill.fertile? false : true>><<replace "#xchange-fertile">><<= $xchange.pill.fertile? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
+		<br>
+	<</if>>
+	<<if $player.sex isnot "f" or (playerIsXChanged() and $xchange.pill.hermEffect)>>
+		Bull: <span id="xchange-bull"><<= $xchange.pill.bullEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchange.pill.bullEffect to $xchange.pill.bullEffect? false : true>><<replace "#xchange-bull">><<= $xchange.pill.bullEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
+		<br>
+	<</if>>
+	Passion: <span id="xchange-passion"><<= $xchange.pill.passionEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchange.pill.passionEffect to $xchange.pill.passionEffect? false : true>><<replace "#xchange-passion">><<= $xchange.pill.passionEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
+	<br>
+	Dumb Bitch: <span id="xchange-bitch"><<= $xchange.pill.dumbBitchEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchange.pill.dumbBitchEffect to $xchange.pill.dumbBitchEffect? false : true>><<replace "#xchange-bitch">><<= $xchange.pill.dumbBitchEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
+	<br>
+	<<if $portalPantiesEnabled>>
+		Portal: <span id="xchange-portal"><<= $xchange.pill.portalEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchange.pill.portalEffect to $xchange.pill.portalEffect? false : true>><<set $xchange.pill.portalEffectTimer to $xchange.pill.duration>><<replace "#xchange-portal">><<= $xchange.pill.portalEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
+		<br>
+	<</if>>
+	Effects Known: <span id="xchange-spike"><<= $xchange.pill.effectsKnown? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchange.pill.effectsKnown to $xchange.pill.effectsKnown? false : true>><<replace "#xchange-spike">><<= $xchange.pill.effectsKnown? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
+	<br><br>
 <</widget>>
 
 <<widget "cheatSection">>
