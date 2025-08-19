@@ -437,7 +437,7 @@ function xchangeHourlyCheck(hours = 1) {
 				if (V.xchange.pillPermanence === 1 && !pillIsPermanent() && pill.continueEffect && pill.duration > 30 * 24)
 					wikifier("xchange-setpermanent");
 
-				if (!pillIsPermanent() && pill.resistanceEffect && random(0,100) > pill.resistanceChance) {
+				if (!pillIsPermanent() && !pillTimerPaused() && pill.resistanceEffect && random(0,100) > pill.resistanceChance) {
 					if (V.xchange.pillPermanence === 1) wikifier("xchange-setpermanent");
 					else {
 						pill.duration += 30 * 24;
