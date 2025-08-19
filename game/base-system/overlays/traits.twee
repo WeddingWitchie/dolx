@@ -884,8 +884,22 @@
 					has: V.xchange.pill?.active && V.xchange.pill?.effectsKnown,
 					text: () => {
 						let duration = "";
-						if ((pillTimerPaused() || pillIsPermanent()) && (pillShouldHaveEnded() || V.xchange.pill.choiceEffect))
-							duration = `<span class="">Indefinite.</span>`;
+						if ((pillTimerPaused() || pillIsPermanent()) && (pillShouldHaveEnded() || V.xchange.pill.choiceEffect)) {
+							duration = `<mouse class="tooltip">Indefinite<span class="">`;
+
+							if (V.xchange.pillPermanence === 1) {
+								duration += `Your transformation is now permanent.`;
+							}
+							else {
+								if (playerIsPregnant())
+									duration += `Your transformation's timer has been halted while your pregnancy runs its course. `;
+								if (V.earSlime.growth > 50)
+									duration += `A slime is interfering with your genitals. The pill cannot revert itself until the parasite is removed. `;
+								if (V.xchange.pill.choiceEffect)
+									duration += `You're under a Choice pill. The effect will last until a Choice Reversal pill is taken.`;
+							}
+							duration += `</span></mouse>.`;
+						}
 						else
 							duration = `<span class=""><<print-pillduration>></span> remaining.`;
 						
@@ -895,7 +909,7 @@
 				{
 					name: "Fertile",
 					colour: "lewd",
-					has: V.xchange.pill?.active && V.xchange.pill?.effectsKnown && V.xchange.pill?.fertile,
+					has: V.xchange.pill?.active && V.xchange.pill?.effectsKnown && V.xchange.pill?.fertile && !V.xchange.pill?.resistanceFakeout,
 					text: `You can become pregnant if you aren't careful.`,
 				},
 				{
@@ -907,7 +921,7 @@
 				{
 					name: "Resistance effect",
 					colour: "lewd",
-					has: V.xchange.pill?.active && V.xchange.pill?.effectsKnown && V.xchange.pill?.resistanceEffect,
+					has: V.xchange.pill?.active && V.xchange.pill?.effectsKnown && (V.xchange.pill?.resistanceEffect || V.xchange.pill?.resistanceFakeout),
 					text: `Pill becomes less likely to expire after its expected duration with each orgasm.`,
 				},
 				{

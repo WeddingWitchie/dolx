@@ -956,7 +956,7 @@ function dayPassed(days) {
 		}
 	}
 
-	xchangeDailyCheck();
+	xchangeDailyCheck(days);
 
 	if (random(1, 8) === 1) V.daily.robin.orphanageKitchen = true;
 }
@@ -993,8 +993,8 @@ function hourPassed(hours) {
 		playerEndWaterProgress();
 	}
 
-	xchangeHourlyCheck(); // check for pill expiration and permanence conditions.
-	hourlyClothingFemininityCheck(); // take stock of clothing femininity on this hour for the purpose of gender identity shifts.
+	xchangeHourlyCheck(hours); // check for pill expiration and permanence conditions.
+	hourlyClothingFemininityCheck(hours); // take stock of clothing femininity on this hour for the purpose of gender identity shifts.
 
 	if (
 		V.sexStats.vagina.menstruation.running &&
