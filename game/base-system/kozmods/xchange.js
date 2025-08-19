@@ -329,10 +329,10 @@ function pillIsPermanent() {
 }
 window.pillIsPermanent = pillIsPermanent;
 
-function pillShouldHaveEnded() {
-	return V.xchange.pill.shouldHaveEnded === true && V.xchange.pill.duration - V.xchange.pill.countdown <= 24; 
+function wondersAboutPillEnd() {
+	return V.xchange.pill.shouldHaveEnded === true && V.xchange.pill.countdown < 24; 
 }
-window.pillShouldHaveEnded = pillShouldHaveEnded;
+window.wondersAboutPillEnd = wondersAboutPillEnd;
 
 function playerBodyIsMale() {
 	return (V.player.gender === "m" && !playerIsXChanged()) || (V.player.gender === "f" && playerIsXChanged());
@@ -418,16 +418,9 @@ function xchangeHourlyCheck(hours = 1) {
 		{
 			// Tick the pill's duration down
 			pill.duration = Math.max(pill.duration - 1 * hours, 0);
-			pill.countdown -= 1 * hours;
 	
 			// Clamp the pill duration to only ever save up to 30 days (in particular for Continue pills)
 			pill.duration = Math.min(pill.duration, 30*24);
-
-			// Drop the resistance facade when the uncertain period has expired
-			if (pill.resistanceFakeout === true && !pillShouldHaveEnded()) {
-				delete pill.resistanceFakeout;
-				delete pill.shouldHaveEnded;
-			}
 			
 			// Check if the pill should expire
 			if (pill.duration == 0)
@@ -476,9 +469,23 @@ function xchangeHourlyCheck(hours = 1) {
 				}
 			}
 
-			// Once the 'should have ended' flag gets cleared, the countdown should resync with pill duration
-			if (!pillShouldHaveEnded())
-				pill.countdown = pill.duration;
+			// Progress the fakeout timer for as long as the "should have ended" flag stands, else reset it.
+			if (pill.shouldHaveEnded) 
+				pill.countdown += 1 * hours;
+			else
+				pill.countdown = 0;
+
+			// Reveal that you didn't turn back
+			if (pill.shouldHaveEnded && !wondersAboutPillEnd()) {
+				V.xchangePermanenceMessage = 1;
+				delete pill.shouldHaveEnded; 
+			}
+
+			// Drop the resistance facade when the uncertain period has expired
+			if (pill.resistanceFakeout === true && !wondersAboutPillEnd()) {
+				delete pill.resistanceFakeout;
+				delete pill.shouldHaveEnded;
+			}
 		}
 	
 		// Apply hour-random passion effect
@@ -624,7 +631,12 @@ function xchangeEffectsMessages() {
 	}
 
 	if (V.xchangePermanenceMessage) {
-		// element("span", "You didn't turn back. Your pill's effects have become permanent", "red"); br();
+		if (V.xchange.pillPermanence === 1) {
+			element("span", "Seems you didn't turn back. Your pill's effects have become permanent", "red"); br();
+		}
+		else {
+			element("span", "Seems you didn't turn back...", "red"); br();
+		}
 		delete V.xchangePermanenceMessage;
 	}
 
