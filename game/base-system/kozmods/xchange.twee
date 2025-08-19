@@ -367,6 +367,8 @@
 			skinColor: $player.skin.color,
 			semen_amount: $semen_amount,
 			milk_amount: $milk_amount,
+			semen_volume: $semen_volume,
+			milk_volume: $milk_volume,
 			beauty: $beauty,
 			/* physique: $physique, */
 			/* physiquesize: $physiquesize, */
@@ -448,6 +450,8 @@
 		<<set $player.skin.color to _body.skinColor>>
 		<<set $semen_amount to _body.semen_amount ?? 0>>
 		<<set $milk_amount to _body.milk_amount ?? 0>>
+		<<set $semen_volume to _body.semen_volume ?? 0>>
+		<<set $milk_volume to _body.milk_volume ?? 0>>
 		<<set $beauty to _body.beauty>>
 		/* <<set $physique to _body.physique>> */
 		/* <<set $physiquesize to _body.physiquesize>> */
@@ -795,6 +799,7 @@
 		<<set $xchange.pill.portalEffectTimer to 0>>
 		<<set $xchange.pill.passionEffect to false>>
 		<<set $xchange.pill.choiceEffect to false>>
+		<<unset $xchange.pill.shouldHaveEnded>>
 
 	<</widget>>
 
@@ -807,7 +812,7 @@
 		<<set $xchange.pill.continueEffect to false>>
 		<<set $xchange.pill.resistanceEffect to false>>
 		<<set $effectsmessage to 1>>
-		<<set $xchangePermanenceMessage to 1>>
+		/* <<set $xchangePermanenceMessage to 1>> */
 	<</widget>>
 
 	<<widget "xchange-orgasm">>
@@ -1067,8 +1072,24 @@
 			<<if $xchange.pill.clone isnot "none">><li>Clone '<<print $xchange.pill.clone>>' Effect.</li><</if>>
 			<<if $xchange.pill.fertile>><li>You can become pregnant.</li><</if>>
 			<li>Duration: 
-				<<if pillTimerPaused() or pillIsPermanent()>>
-					<span class="teal">Indefinite.</span>
+				<<if pillTimerPaused() or pillIsPermanent() or V.xchange.pill.choiceEffect>>
+					<<set _duration = `<mouse class="tooltip">Indefinite<span class="lblue">`>>
+
+					<<if V.xchange.pillPermanence === 1 && !V.xchange.pill.choiceEffect>>
+						<<set _duration += `Your transformation is now permanent.`>>
+					<<else>>
+						<<if playerIsPregnant()>>
+							<<set _duration += `Your transformation's timer has been halted while your pregnancy runs its course. `>>
+						<</if>>
+						<<if (V.earSlime.growth > 50)>>
+							<<set _duration += `A slime is interfering with your genitals. The pill cannot revert itself until the parasite is removed. `>>
+						<</if>>
+						<<if (V.xchange.pill.choiceEffect)>>
+							<<set _duration += `You're under a Choice pill. The effect will last until a Choice Reversal pill is taken.`>>
+						<</if>>
+					<</if>>
+					<<set _duration += `</span></mouse>.`>>
+					<<print _duration>>
 				<<else>><span class="teal"><<print-pillduration>></span> remaining.
 				<</if>>
 			</li>
@@ -1077,7 +1098,9 @@
 
 	<<widget "print-pillduration">>
 		<<set _duration to $xchange.pill.duration>>
-		<<if _duration gte 31 * 24>>
+		<<if wondersAboutPillEnd()>>
+			A couple hours?
+		<<elseif _duration gte 31 * 24>>
 			Over a month <mouse class="tooltip">(?)<span>The measuring device does not have enough precision to determine how much over a month. It could be 3 months. It could be a year.</span></mouse>
 		<<elseif _duration gte 24 * 24>>
 			About a month
@@ -1095,6 +1118,8 @@
 			Several hours
 		<<elseif _duration gte 2>>
 			A couple hours
+		<<else>>
+			A couple hours?
 		<</if>>
 	<</widget>>
 
@@ -1116,7 +1141,7 @@
 			About a day
 		<<elseif _duration gte 5>>
 			Several hours
-		<<elseif _duration gte 2>>
+		<<else>>
 			A couple hours
 		<</if>>
 	<</widget>>

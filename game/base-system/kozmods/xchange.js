@@ -329,10 +329,10 @@ function pillIsPermanent() {
 }
 window.pillIsPermanent = pillIsPermanent;
 
-function pillShouldHaveEnded() {
-	return V.xchange.pill.duration - V.xchange.pill.countdown >= 24; 
+function wondersAboutPillEnd() {
+	return V.xchange.pill.shouldHaveEnded === true && V.xchange.pill.countdown < 24; 
 }
-window.pillShouldHaveEnded = pillShouldHaveEnded;
+window.wondersAboutPillEnd = wondersAboutPillEnd;
 
 function playerBodyIsMale() {
 	return (V.player.gender === "m" && !playerIsXChanged()) || (V.player.gender === "f" && playerIsXChanged());
@@ -365,7 +365,7 @@ function genderIsIgnored() {
 }
 window.genderIsIgnored = genderIsIgnored;
 
-function xchangeWeeklyCheck() {
+function xchangeWeeklyCheck(weeks = 1) {
 	if (!V.statFreeze) {
 		if (V.xchange.pubGamblingEnabled && !V.weekly.gamblingUpkeepPaid) {
 			V.xchange.gamblingUpkeepFailed = 1;
@@ -383,15 +383,15 @@ function xchangeWeeklyCheck() {
 }
 window.xchangeWeeklyCheck = xchangeWeeklyCheck;
 
-function xchangeDailyCheck() {
+function xchangeDailyCheck(days = 1) {
 	if (!V.statFreeze) {
 		if ((V.hourlyFemininity > 0 && V.player.gender === "f") || (V.hourlyFemininity < 0 && V.player.gender === "m"))
-			wikifier("genderidentity", 1);
+			wikifier("genderidentity", 1 * days);
 		else if ((V.hourlyFemininity > 0 && V.player.gender === "m") || (V.hourlyFemininity < 0 && V.player.gender === "f"))
-			wikifier("genderidentity", -1);
+			wikifier("genderidentity", -1 * days);
 	
 		if (playerIsXChanged())
-			wikifier("genderidentity", -2);
+			wikifier("genderidentity", -2 * days);
 	
 		V.effectsmessage = 1;
 		V.genderIdentityMessage = V.hourlyFemininity > 0? "f": (V.hourlyFemininity < 0? "m": 0);
@@ -399,59 +399,63 @@ function xchangeDailyCheck() {
 	
 		wikifier("blackmail-daypassed");
 	
-		V.recentmolest = Math.max(V.recentmolest - 1, 0);
-		V.recentrape = Math.max(V.recentrape - 1, 0);
+		V.recentmolest = Math.max(V.recentmolest - 1 * days, 0);
+		V.recentrape = Math.max(V.recentrape - 1 * days, 0);
 	
 		if (V.robinbreakupCooldown > 0) {
-			V.robinbreakupCooldown -= 1;
+			V.robinbreakupCooldown -= 1 * days;
 		}
 	
-		V.xchange.blackmailHalt = Math.max(0, V.xchange.blackmailHalt - 1);
+		V.xchange.blackmailHalt = Math.max(0, V.xchange.blackmailHalt - 1 * days);
 	}
 }
 window.xchangeDailyCheck = xchangeDailyCheck;
 
-function xchangeHourlyCheck() {
+function xchangeHourlyCheck(hours = 1) {
 	if (!V.statFreeze) {
 		const pill = V.xchange.pill;
 		if (pill?.active)
 		{
-			pill.countdown--;
-	
-			// If got impregnated in the vagina, or allowed an ear slime to grow to a certain point
-			// then, the change becomes permanent 
-			if (V.xchange.pillPermanence === 1 && !pillIsPermanent() && (V.sexStats.vagina.pregnancy.type !== null || V.earSlime.growth > 50))
-				wikifier("xchange-setpermanent");
-		
-			// If the pill has the continue effect, and a remaining duration of 30 days is accumulated
-			// then, the change becomes permanent
-			if (V.xchange.pillPermanence === 1 && !pillIsPermanent() && pill.continueEffect && pill.duration > 30 * 24)
-				wikifier("xchange-setpermanent");
+			// Tick the pill's duration down
+			pill.duration = Math.max(pill.duration - 1 * hours, 0);
 	
 			// Clamp the pill duration to only ever save up to 30 days (in particular for Continue pills)
 			pill.duration = Math.min(pill.duration, 30*24);
-	
-			// Stop the timer from ticking if PC is vaginally pregnant or the ear slime has grown past its point of no return
-			if (!pillTimerPaused() && pill.duration >= 0) {
-				pill.duration = Math.max(pill.duration-1, 0);
-				if (pill.duration == 0)
-				{
-					if (pill.resistanceEffect && random(0,100) > pill.resistanceChance) {
-						if (V.xchange.pillPermanence === 1) wikifier("xchange-setpermanent");
-						else {
-							pill.duration += 30 * 24;
-							pill.resistanceEffect = false;
-							pill.fertile = true;
-						}
+			
+			// Check if the pill should expire
+			if (pill.duration == 0)
+			{
+				pill.shouldHaveEnded = true;
+
+				// If got impregnated in the vagina, or allowed an ear slime to grow to a certain point
+				// then, the change becomes permanent 
+				if (V.xchange.pillPermanence === 1 && !pillIsPermanent() && (V.sexStats.vagina.pregnancy.type !== null || V.earSlime.growth > 50))
+					wikifier("xchange-setpermanent");
+			
+				// If the pill has the continue effect, and a remaining duration of 30 days is accumulated
+				// then, the change becomes permanent
+				if (V.xchange.pillPermanence === 1 && !pillIsPermanent() && pill.continueEffect && pill.duration > 30 * 24)
+					wikifier("xchange-setpermanent");
+
+				if (!pillIsPermanent() && !pillTimerPaused() && pill.resistanceEffect && random(0,100) > pill.resistanceChance) {
+					if (V.xchange.pillPermanence === 1) wikifier("xchange-setpermanent");
+					else {
+						pill.duration += 30 * 24;
+						pill.resistanceEffect = false;
+						pill.fertile = true;
+						pill.resistanceFakeout = true;
 					}
-					else if (V.xchange.pill.clone === "none") {
+				}
+				else if (!pillIsPermanent() && !pillTimerPaused()) {
+					if (V.xchange.pill.clone === "none") {
 						wikifier("xchange-restore");
 					} 
 					else {
 						wikifier("xchange-restore", "nosave");
 					}
-				} 
-			}
+				}
+			} 
+			
 			// Force the pill to expire if pill permanence is disabled, and no condition is preventing it from expiring
 			else if (V.xchange.pillPermanence !== 1 && pillIsPermanent() && !V.xchange.pill.choiceEffect) {
 				pill.duration = 0;
@@ -464,18 +468,38 @@ function xchangeHourlyCheck() {
 					}
 				}
 			}
+
+			// Progress the fakeout timer for as long as the "should have ended" flag stands, else reset it.
+			if (pill.shouldHaveEnded) 
+				pill.countdown += 1 * hours;
+			else
+				pill.countdown = 0;
+
+			// Reveal that you didn't turn back
+			if (pill.shouldHaveEnded && !wondersAboutPillEnd()) {
+				V.xchangePermanenceMessage = 1;
+				delete pill.shouldHaveEnded; 
+			}
+
+			// Drop the resistance facade when the uncertain period has expired
+			if (pill.resistanceFakeout === true && !wondersAboutPillEnd()) {
+				delete pill.resistanceFakeout;
+				delete pill.shouldHaveEnded;
+			}
 		}
 	
 		// Apply hour-random passion effect
-		if (pill?.passionEffect && random(0,8) == 0) {
-			wikifier("drugs", 300); 
-			V.effectsmessage = 1;
-			V.xchange_passion_message = 1;
+		for (let i = 0; i < hours; i++) {
+			if (pill?.passionEffect && random(0,8) == 0) {
+				wikifier("drugs", 300); 
+				V.effectsmessage = 1;
+				V.xchange_passion_message = 1;
+			}
 		}
 		
 		// Tick portal effect timer, and end the effect if timer lapses
 		if (pill?.portalEffect && pill?.portalEffectTimer >= 0) {
-			pill.portalEffectTimer = Math.max(pill.portalEffectTimer-1, 0);
+			pill.portalEffectTimer = Math.max(pill.portalEffectTimer - 1 * hours, 0);
 			if (pill.portalEffectTimer === 0) {
 				pill.portalEffect = false;
 			}
@@ -484,7 +508,7 @@ function xchangeHourlyCheck() {
 }
 window.xchangeHourlyCheck = xchangeHourlyCheck;
 
-function hourlyClothingFemininityCheck() {
+function hourlyClothingFemininityCheck(hours = 1) {
 	// Compute the sum of all clothing femininity
 	let currentWornFemininity = 0;
 	if (setup.clothes["over_head"][clothesIndex("over_head", V.worn.over_head)].femininity)
@@ -525,23 +549,23 @@ function hourlyClothingFemininityCheck() {
 
 	if (V.xchange.pill.active && V.xchange.pill.genderificationEffect) {
 		if (V.player.gender === "m" && currentWornFemininity < 0) {
-			wikifier("stress",800,1);
+			wikifier("stress",800 * hours,1);
 			V.genderificationStressMessage = 1;
 			V.effectsmessage = 1;
 		}
 		else if (V.player.gender === "m" && (V.genderidentity > 625 || !playerCaresForGender()) && currentWornFemininity > 0) {
-			wikifier("stress",-10);
-			V.tiredness -= 200;
+			wikifier("stress",-10 * hours);
+			V.tiredness -= 200 * hours;
 			V.genderificationStressMessage = 2;
 			V.effectsmessage = 1;
 		}
 		if (V.player.gender === "f" && currentWornFemininity > 0) {
-			wikifier("stress",800,1);
+			wikifier("stress",800 * hours,1);
 			V.genderificationStressMessage = 3;
 			V.effectsmessage = 1;
 		}
 		else if (V.player.gender === "f" && (V.genderidentity > 625 || !playerCaresForGender()) && currentWornFemininity < 0) {
-			wikifier("stress",-10);
+			wikifier("stress",-10 * hours);
 			V.tiredness -= 200;
 			V.genderificationStressMessage = 4;
 			V.effectsmessage = 1;
@@ -549,22 +573,22 @@ function hourlyClothingFemininityCheck() {
 	}
 	else if (playerCaresForGender()) {
 		if (hasGenderIdentity(7) && V.player.gender === "m" && V.player.sex === "m" && currentWornFemininity > 0) {
-			wikifier("stress",800,1);
+			wikifier("stress",800 * hours,1);
 			V.genderStressMessage = 2;
 			V.effectsmessage = 1;
 		}
 		else if (hasGenderIdentity(5) && V.player.gender === "m" && currentWornFemininity > 0) {
-			wikifier("stress",400,1);
+			wikifier("stress",400 * hours,1);
 			V.genderStressMessage = 1;
 			V.effectsmessage = 1;
 		}
 		else if (!hasGenderIdentity(2) && V.player.gender === "f" && V.player.sex === "m" && currentWornFemininity > 0) {
-			wikifier("stress",800,1);
+			wikifier("stress",800 * hours,1);
 			V.genderStressMessage = 2;
 			V.effectsmessage = 1;
 		}
 		else if (!hasGenderIdentity(4) && V.player.gender === "f" && currentWornFemininity > 0) {
-			wikifier("stress",400,1);
+			wikifier("stress",400 * hours,1);
 			V.genderStressMessage = 1;
 			V.effectsmessage = 1;
 		}
@@ -607,7 +631,12 @@ function xchangeEffectsMessages() {
 	}
 
 	if (V.xchangePermanenceMessage) {
-		// element("span", "You didn't turn back. Your pill's effects have become permanent", "red"); br();
+		if (V.xchange.pillPermanence === 1) {
+			element("span", "Seems you didn't turn back. Your pill's effects have become permanent", "red"); br();
+		}
+		else {
+			element("span", "Seems you didn't turn back...", "red"); br();
+		}
 		delete V.xchangePermanenceMessage;
 	}
 
