@@ -490,8 +490,8 @@ function xchangeHourlyCheck(hours = 1) {
 	
 		// Apply hour-random passion effect
 		for (let i = 0; i < hours; i++) {
-			if (pill?.passionEffect && random(0,8) == 0) {
-				wikifier("drugs", 300); 
+			if (pill?.passionEffect && ((V.substanceRebalance == 1 && random(0,10) == 0) || random(0,8) == 0)) {
+				wikifier("drugs", V.substanceRebalance == 1? 200 : 300); 
 				V.effectsmessage = 1;
 				V.xchange_passion_message = 1;
 			}
