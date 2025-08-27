@@ -416,8 +416,8 @@ function xchangeHourlyCheck(hours = 1) {
 		const pill = V.xchange.pill;
 		if (pill?.active)
 		{
-			// Tick the pill's duration down
-			pill.duration = Math.max(pill.duration - 1 * hours, 0);
+			// Tick the pill's duration down if the pill isn't permanent
+			if (!pillIsPermanent()) pill.duration = Math.max(pill.duration - 1 * hours, 0);
 	
 			// Clamp the pill duration to only ever save up to 30 days (in particular for Continue pills)
 			pill.duration = Math.min(pill.duration, 30*24);
