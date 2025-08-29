@@ -412,6 +412,45 @@ function genderIsIgnored() {
 }
 window.genderIsIgnored = genderIsIgnored;
 
+function updateRemoverPillCatalogue() {
+	wikifier("xchange-get-spikepool"); 
+	T.effectPool.deleteWith((val)=>val==="genderflip");
+	T.effectPool.deleteWith((val)=>val==="herm");
+
+	V.xchange.removerPillCatalogue = [];
+	for (let i = 0; i < 5; i++) {
+		const pillType = T.effectPool.pluck();
+		V.xchange.removerPillCatalogue.push(pillType);
+	}
+}
+window.updateRemoverPillCatalogue = updateRemoverPillCatalogue;
+
+function xchangeTimePassedCheck(minutes = 1) {
+	
+	if (V.arousal >= V.arousalmax * 2/5) 
+		wikifier("willpower-spending", minutes * 0.5 * Math.ceil( (V.arousal - V.arousalmax*2/5) / (V.arousalmax/10) ));
+	else if (V.xchange.willpowerPoints < V.willpower * 0.5) 
+		wikifier("willpower-recovery", minutes * 0.5 * Math.ceil( (V.arousalmax*2/5 - V.arousal) / (V.arousalmax/10) ));
+	
+	if (V.drugged > 200 && V.arousal < V.arousalmax * 4/5) 
+		wikifier("arousal", (V.drugged / 10) * 3 * minutes);
+	else if (V.drugged > 100 && V.arousal < V.arousalmax * 3/5) 
+		wikifier("arousal", (V.drugged / 10) * 2 * minutes);
+	else if (V.drugged > 0 && V.arousal < V.arousalmax * 2/5)
+		wikifier("arousal", (V.drugged / 10) * minutes);
+
+	wikifier("blackmail-timepassed");
+
+	// Portal Panties
+	wikifier("portalPantiesPass", minutes);
+
+	// Pub
+	V.xchange.pubtimer = Math.max(V.xchange.pubtimer - 1, 0);
+
+
+}
+window.xchangeTimePassedCheck = xchangeTimePassedCheck;
+
 function xchangeWeeklyCheck(weeks = 1) {
 	if (!V.statFreeze) {
 		if (V.xchange.pubGamblingEnabled && !V.weekly.gamblingUpkeepPaid) {
@@ -427,6 +466,14 @@ function xchangeWeeklyCheck(weeks = 1) {
 			}
 		}
 	}
+
+	// 1 - 0b001: Suspicious Pills Dealer
+	// 2 - 0b010: Portal Pill Dealer
+	// 4 - 0b100: Effect Remover Pill Dealer
+	const dealerOdds = [1,1,1,1,2,2,2,4,4,4];
+	V.xchange.weeklyShadyDealer = dealerOdds.random() | dealerOdds.random();
+	if (V.xchange.weeklyShadyDealer & 4) updateRemoverPillCatalogue();
+
 }
 window.xchangeWeeklyCheck = xchangeWeeklyCheck;
 
@@ -538,7 +585,7 @@ function xchangeHourlyCheck(hours = 1) {
 		// Apply hour-random passion effect
 		for (let i = 0; i < hours; i++) {
 			if (pill?.passionEffect && ((V.substanceRebalance == 1 && random(0,10) == 0) || random(0,8) == 0)) {
-				wikifier("drugs", V.substanceRebalance == 1? 200 : 300); 
+				wikifier("drugs", V.substanceRebalance == 1? 120 : 200); 
 				V.effectsmessage = 1;
 				V.xchange_passion_message = 1;
 			}
@@ -742,6 +789,24 @@ function xchangeEffectsMessages() {
 			break;
 		default:
 			break;
+	}
+
+	if (V.breastSensitiveRubMessage) {
+		if (V.worn.under_upper.type !== "naked" && V.worn.under_upper.exposed < 2)
+			element("span", `Your ${wikifier("breasts")} are rubbing against your ${V.worn.under_upper.name}.`);
+		else
+			element("span", `Your ${wikifier("breasts")} are rubbing against your ${V.worn.upper.name}.`);
+		br();
+		delete V.breastSensitiveRubMessage;
+	}
+
+	if (V.genitalSensitiveRubMessage) {
+		if (V.worn.under_lower.type !== "naked" && V.worn.under_lower.exposed < 2)
+			element("span", `Your ${V.player.penisExist? wikifier("penis") : wikifier("clit")} is rubbing against your ${V.worn.under_lower.name}.`);
+		else
+			element("span", `Your ${V.player.penisExist? wikifier("penis") : wikifier("clit")} is rubbing against your ${V.worn.lower.name}.`);
+		br();
+		delete V.genitalSensitiveRubMessage;
 	}
 
 	if (V.breederEdgingMessage) {

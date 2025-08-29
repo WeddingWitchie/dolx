@@ -1671,7 +1671,7 @@ setup.pills = [
 				? 1
 				: 0;
 		},
-		effects: [`<<take-xchange 1 "herm" "breeder">>`],
+		effects: [`<<take-xchange 1 "herm" "breeder" "fertile">>`],
 	},
 	{
 		name: "X-Change Purple Bull",
@@ -1783,6 +1783,339 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<xchange-clone 3 "Whitney">>`],
+	},
+	{
+		name: "SWP Anti-crossdress Pill",
+		description:
+			"A shady pill advertised to deal with sissifying / butchifying effects, 100% satisfaction guaranteed.",
+		onTakeMessage: 
+			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>And... quite surprisingly, you feel nothing? But not snake-oil nothing. Rather, you feel a nothingness that can only feel like relief not too distinct from a silence after being stuck in a noisy room. It seems the pill may have done what it advertised. But it's still too early to tell.<br><br>Even so, you take a deep breath in, safe in the belief you'll no longer have to deal with those awful mind-afflicting effects.",
+		warning_label:
+			"Warning: May cause some side-effects. Do not take unless you've tested positive for the respective effect.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "anti-pill",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillcure.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return playerIsXChanged() && V.xchange.pill.genderificationEffect && V.xchange.pill.effectsKnown
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-removeeffect "crossdress">>`, "<<xchange-addsideeffect>>"],
+	},
+	{
+		name: "SWP Anti-breeder Pill",
+		description:
+			"A shady pill advertised to deal with breeder effects, 100% satisfaction guaranteed.",
+		onTakeMessage: 
+			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>And... quite surprisingly, you feel nothing? But not snake-oil nothing. Rather, you feel a nothingness that can only feel like relief not too distinct from a silence after being stuck in a noisy room. It seems the pill may have done what it advertised. But it's still too early to tell.<br><br>Even so, you take a deep breath in, safe in the belief you'll no longer have to deal with those awful mind-afflicting and body-altering effects.",
+		warning_label:
+			"Warning: Does not completely remove fertility. May cause some side-effects. Do not take unless you've tested positive for the respective effect.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "anti-pill",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillcure.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return playerIsXChanged() && V.xchange.pill.breederEffect && V.xchange.pill.effectsKnown
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-removeeffect "breeder">>`, "<<xchange-addsideeffect>>"],
+	},
+	{
+		name: "SWP Anti-bull Pill",
+		description:
+			"A shady pill advertised to deal with bull effects, 100% satisfaction guaranteed.",
+		onTakeMessage: 
+			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>And... quite surprisingly, you feel nothing? But not snake-oil nothing. Rather, you feel a nothingness that can only feel like relief not too distinct from a silence after being stuck in a noisy room. It seems the pill may have done what it advertised. But it's still too early to tell.<br><br>Even so, you take a deep breath in, safe in the belief you'll no longer have to deal with those awful mind-afflicting and body-altering effects.",
+		warning_label:
+			"Warning: May cause some side-effects. Do not take unless you've tested positive for the respective effect.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "anti-pill",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillcure.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return playerIsXChanged() && V.xchange.pill.bullEffect && V.xchange.pill.effectsKnown
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-removeeffect "bull">>`, "<<xchange-addsideeffect>>"],
+	},
+	{
+		name: "SWP Anti-continue Pill",
+		description:
+			"A shady pill advertised to deal with continue effects, 100% satisfaction guaranteed.",
+		onTakeMessage: 
+			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>And... quite surprisingly, you feel nothing? But not snake-oil nothing. Rather, you feel a nothingness that can only feel like relief not too distinct from a silence after being stuck in a noisy room. It seems the pill may have done what it advertised. But it's still too early to tell.<br><br>Even so, you take a deep breath in, safe in the knowledge you'll no longer have to deal with those awfully risky effects.",
+		warning_label:
+			"Warning: May cause some side-effects. Do not take unless you've tested positive for the respective effect.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "anti-pill",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillcure.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return playerIsXChanged() && V.xchange.pill.continueEffect && V.xchange.pill.effectsKnown
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-removeeffect "continue">>`, "<<xchange-addsideeffect>>"],
+	},
+	{
+		name: "SWP Anti-resistance Pill",
+		description:
+			"A shady pill advertised to deal with resistance effects, 100% satisfaction guaranteed.",
+		onTakeMessage: 
+			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>And... quite surprisingly, you feel nothing? But not snake-oil nothing. Rather, you feel a nothingness that can only feel like relief not too distinct from a silence after being stuck in a noisy room. It seems the pill may have done what it advertised. But it's still too early to tell.<br><br>Even so, you take a deep breath in, safe in the knowledge you'll no longer have to deal with those awfully risky effects.",
+		warning_label:
+			"Warning: May cause some side-effects. Do not take unless you've tested positive for the respective effect.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "anti-pill",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillcure.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return playerIsXChanged() && V.xchange.pill.resistanceEffect && V.xchange.pill.effectsKnown
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-removeeffect "resistance">>`, "<<xchange-addsideeffect>>"],
+	},
+	{
+		name: "SWP Anti-portal Pill",
+		description:
+			"A shady pill advertised to deal with portal effects, 100% satisfaction guaranteed.",
+		onTakeMessage: 
+			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>And... quite surprisingly, you feel nothing? But not snake-oil nothing. Rather, you feel a nothingness that can only feel like relief not too distinct from a silence after being stuck in a noisy room. It seems the pill may have done what it advertised. But it's still too early to tell.<br><br>Even so, you take a deep breath in, safe in the knowledge you'll no longer have to deal with those awfully risky effects.",
+		warning_label:
+			"Warning: May cause some side-effects. Do not take unless you've tested positive for the respective effect.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "anti-pill",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillcure.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return playerIsXChanged() && V.xchange.pill.portalEffect && V.xchange.pill.effectsKnown
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-removeeffect "portal">>`, "<<xchange-addsideeffect>>"],
+	},
+	{
+		name: "SWP Anti-fertile Pill",
+		description:
+			"A shady pill advertised to deal with fertile effects, 100% satisfaction guaranteed.",
+		onTakeMessage: 
+			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>And... quite surprisingly, you feel nothing? But not snake-oil nothing. Rather, you feel a nothingness that can only feel like relief not too distinct from a silence after being stuck in a noisy room. It seems the pill may have done what it advertised. But it's still too early to tell.<br><br>Even so, you take a deep breath in, safe in the knowledge you'll no longer have to deal with pregnancy risks.",
+		warning_label:
+			"Warning: May cause some side-effects. Do not take unless you've tested positive for the respective effect.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "anti-pill",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillcure.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return playerIsXChanged() && V.xchange.pill.fertile && V.xchange.pill.effectsKnown
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-removeeffect "fertile">>`, "<<xchange-addsideeffect>>"],
+	},
+	{
+		name: "SWP Anti-passion Pill",
+		description:
+			"A shady pill advertised to deal with passion effects, 100% satisfaction guaranteed.",
+		onTakeMessage: 
+			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>And... quite surprisingly, you feel nothing? But not snake-oil nothing. Rather, you feel a nothingness that can only feel like relief not too distinct from a silence after being stuck in a noisy room. It seems the pill may have done what it advertised. But it's still too early to tell.<br><br>Even so, you take a deep breath in, safe in the knowledge you'll no longer have to deal with those awfully risky effects.",
+		warning_label:
+			"Warning: May cause some side-effects. Do not take unless you've tested positive for the respective effect.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "anti-pill",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillcure.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return playerIsXChanged() && V.xchange.pill.passionEffect && V.xchange.pill.effectsKnown
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-removeeffect "passion">>`, "<<xchange-addsideeffect>>"],
+	},
+	{
+		name: "SWP Anti-dumb-bitch Pill",
+		description:
+			"A shady pill advertised to deal with dumb-bitch effects, 100% satisfaction guaranteed.",
+		onTakeMessage: 
+			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>And... quite surprisingly, you feel nothing? But not snake-oil nothing. Rather, you feel a nothingness that can only feel like relief not too distinct from a silence after being stuck in a noisy room. It seems the pill may have done what it advertised. But it's still too early to tell.<br><br>Even so, you take a deep breath in, safe in the knowledge you'll no longer have to deal with those awfully risky effects.",
+		warning_label:
+			"Warning: May cause some side-effects. Do not take unless you've tested positive for the respective effect.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "anti-pill",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillcure.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return playerIsXChanged() && V.xchange.pill.dumbBitchEffect && V.xchange.pill.effectsKnown
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-removeeffect "dumb-bitch">>`, "<<xchange-addsideeffect>>"],
 	},
 	{
 		name: "X-Change Antidote",
