@@ -246,6 +246,16 @@ function getPleasure(passMinutes) {
 	return addedPleasure;
 }
 
+function updatePhysique() {
+	const physiquesizes = [6000, 10000, 12000, 16000];
+
+	V.physiquesize = physiquesizes[V.bodysize];
+	V.physique = 
+		V.xchange.baseStats.physique * (V.physiquesize / V.xchange.baseStats.physique) * 
+		(V.player.gender !== V.player.sex ? V.xchange.physiqueChangePercent / 100 : 1);
+}
+window.updatePhysique = updatePhysique;
+
 function sumTalents() {
 	return V.AMCTraits.skulduggery + V.AMCTraits.dancing + V.AMCTraits.swimming + V.AMCTraits.athletics + V.AMCTraits.tending + V.AMCTraits.housekeeping + V.AMCTraits.brawling + V.AMCTraits.footwork + V.AMCTraits.striking + V.AMCTraits.kicking + V.AMCTraits.science + V.AMCTraits.maths + V.AMCTraits.english + V.AMCTraits.history;
 }
