@@ -1,11 +1,48 @@
+function paramError(functionName = "", param = "", value, expectedValues = "") {
+	if (typeof value === "object") value = JSON.stringify(value);
+	/* Included both types of error reporting, since this often will only occur in a link */
+	Errors.report(
+		`Unexpected value for the function "${functionName}" in the passage "${V.passage}". Param "${param}" had unexpected value of "${value}".${
+			expectedValues ? ` ${expectedValues}` : ""
+		}`
+	);
+	throw new Error(
+		`Unexpected value for the function "${functionName}". Param "${param}" had unexpected value of "${value}".${
+			expectedValues ? ` ${expectedValues}` : ""
+		}`
+	);
+}
+
+function getSensitivity(part) {
+	let purityMod = (1000 - V.purity) * V.xchange.impuritySensitivityBonus / 1000;
+	const xchangeMod = playerIsXChanged() ? 
+		(V.player.sex === "f"? 1 : -1) * V.xchange.pillSensitivityChange : 0; 
+
+	switch(part) {
+		case "mouth":
+			return V.mouthsensitivity;
+		case "breast":
+		case "breasts":
+			return Math.clamp(V.breastsensitivity + purityMod + xchangeMod, 0.25, 6);
+		case "bottom":
+			return Math.clamp(V.bottomsensitivity + purityMod + xchangeMod, 0.25, 3);
+		case "genital":
+		case "genitals":
+			return Math.clamp(V.genitalsensitivity + 2 * purityMod + xchangeMod, 0.25, 10);
+		default:
+			paramError("getSensitivity", "part", part, "Expected a string, see function for accepted values");
+			break;
+	}
+}
+window.getSensitivity = getSensitivity;
+
 function pleasure(amount, source) {
 	if (isNaN(amount)) paramError("pleasure", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 	const fragment = document.createDocumentFragment();
 
 	if (amount) {
-		let mod = 1;
-		let purityMod = (1000 - V.purity) * V.xchange.impuritySensitivityBonus / 1000;
+		let mod = 1; 
 
 		// If currently under the refractory period post-orgasm, prevent arousal from raising.
 		if (V.refractoryPeriod > 0 && amount > 0) {
@@ -41,14 +78,14 @@ function pleasure(amount, source) {
 			}
 		}
 
-		let beingPenetrated = ["penis", "penisdouble", "tentacle", "tentacledeep", "machine"];
-		let penetrating = ["penetrated", "othervagina", "otheranus", "othermouth"];
+		const beingPenetrated = ["penis", "penisdouble", "tentacle", "tentacledeep", "machine"];
+		const penetrating = ["penetrated", "othervagina", "otheranus", "othermouth"];
 		
-		let playerIsBeingPenetrated =
+		const playerIsBeingPenetrated =
 			beingPenetrated.includes(V.vaginause) || beingPenetrated.includes(V.anususe) || [0,3].includes(V.portalPanties.state.vagina?.new) || [0,3].includes(V.portalPanties.state.anus?.new) || V.portalejacvagina || V.portalejacanus;
 
-		let penisAddictionFulfilled = playerIsBeingPenetrated || playerHasButtPlug() ;
-		let holeAddictionFulfilled = penetrating.includes(V.penisuse);
+		const penisAddictionFulfilled = playerIsBeingPenetrated || playerHasButtPlug() ;
+		const holeAddictionFulfilled = penetrating.includes(V.penisuse);
 
 		// Apply effect according to source
 		let sensitivity = 0;
@@ -66,7 +103,7 @@ function pleasure(amount, source) {
 			case "masturbationMouth":
 			case "masturbationOral":
 			case "kiss":
-				sensitivity += V.mouthsensitivity;
+				sensitivity += getSensitivity("mouth"); 
 				break;
 			case "breast":
 			case "breasts":
@@ -76,7 +113,7 @@ function pleasure(amount, source) {
 			case "masturbationBreasts":
 			case "masturbationNipples":
 			case "chest_grope":
-				sensitivity += V.breastsensitivity + purityMod;
+				sensitivity += getSensitivity("breast");
 				fragment.append(wikifier("playWithBreasts"));
 				if (playerIsPregnant()) sensitivity += 0.5;
 				break;
@@ -94,7 +131,7 @@ function pleasure(amount, source) {
 					analWetnessPenalty = Math.min(V.anusWetness/60, 1);
 					if (V.penis_addict_trait === 1) sensitivity += 0.5;
 				}
-				sensitivity += Math.max((V.bottomsensitivity + purityMod) * analWetnessPenalty, 0.25);
+				sensitivity += getSensitivity("bottom");
 				break;
 			case "genital":
 			case "genitals":
@@ -114,7 +151,7 @@ function pleasure(amount, source) {
 					wetnessPenalty = Math.min(V.vaginaWetness/60, 1);
 					if (V.penis_addict_trait === 1) sensitivity += 0.5;
 				}
-				sensitivity += Math.max((V.genitalsensitivity + 2*purityMod) * wetnessPenalty, 0.25);
+				sensitivity += getSensitivity("genital");
 				if (playerIsPregnant()) sensitivity += 0.5;
 				break;
 			case "time":
@@ -126,7 +163,7 @@ function pleasure(amount, source) {
 				V.trackedArousal.push(0);
 				break;
 			default:
-				paramError("arousal", "source", source, "Expected a string, see function for values");
+				paramError("pleasure", "source", source, "Expected a string, see function for values");
 				break;
 		}
 
