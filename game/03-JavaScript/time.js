@@ -1115,27 +1115,21 @@ function minutePassed(minutes) {
 		0.2 * (12 - Math.floor(V.purity / 80)) + 1 + (V.purity <= 50 ? 1 : 0) : -10;
 	statChange.arousal(minutes * arousalMultiplier + getArousal(minutes));
 	V.timeSinceArousal = V.arousal < V.arousalmax / 4 ? V.timeSinceArousal + minutes : 1;
+
+	if (getSensitivity("breasts") >= 4 && ((V.worn.upper.type !== "naked" && V.worn.upper.exposed < 2) || (V.worn.under_upper.type !== "naked" && V.worn.under_upper.exposed < 2))) {
+		arousal(2 * minutes, "nipples");
+		V.breastSensitiveRubMessage = (V.breastSensitiveRubMessage ?? 0) + 1;
+	}
+	if (getSensitivity("genitals") >= 5 && ((V.worn.lower.type !== "naked" && (wornSetupClothes("lower").skirt !== 1 || V.worn.lower.exposed < 2)) || V.worn.under_lower.type !== "naked")) {
+		arousal(2 * minutes, "genitals");
+		V.genitalSensitiveRubMessage = (V.genitalSensitiveRubMessage ?? 0) + 1;
+	}
+
 	pleasure(minutes * -25 + getPleasure(minutes));
+
 	if (V.player.vaginaExist) passArousalWetness(minutes);
-	if (V.arousal >= V.arousalmax * 2/5) 
-		wikifier("willpower-spending", minutes * 0.5 * Math.ceil( (V.arousal - V.arousalmax*2/5) / (V.arousalmax/10) ));
-	else if (V.xchange.willpowerPoints < V.willpower * 0.5) 
-		wikifier("willpower-recovery", minutes * 0.5 * Math.ceil( (V.arousalmax*2/5 - V.arousal) / (V.arousalmax/10) ));
 	
-	if (V.drugged > 200 && V.arousal < V.arousalmax * 4/5) 
-		wikifier("arousal", (V.drugged / 10) * 3 * minutes);
-	else if (V.drugged > 100 && V.arousal < V.arousalmax * 3/5) 
-		wikifier("arousal", (V.drugged / 10) * 2 * minutes);
-	else if (V.drugged > 0 && V.arousal < V.arousalmax * 2/5)
-		wikifier("arousal", (V.drugged / 10) * minutes);
-
-	wikifier("blackmail-timepassed");
-
-	// Portal Panties
-	wikifier("portalPantiesPass", minutes);
-
-	// Pub
-	V.xchange.pubtimer = Math.max(V.xchange.pubtimer - 1, 0);
+	xchangeTimePassedCheck(minutes);
 
 	passWater(minutes);
 
