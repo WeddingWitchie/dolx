@@ -1415,8 +1415,10 @@ function dailyPlayerEffects() {
 	}
 
 	if (V.physique >= 1000) {
-		if (V.farm_stage >= 6) V.physique = V.physique - V.physique * 4 / V.physiquesize;
-		else V.physique = V.physique - V.physique * 5 / V.physiquesize;
+		if (V.farm_stage >= 6) 
+			V.xchange.baseStats.physique = V.xchange.baseStats.physique - V.xchange.baseStats.physique * 4 / V.xchange.baseStats.physiquesize;
+		else 
+			V.xchange.baseStats.physique = V.xchange.baseStats.physique - V.xchange.baseStats.physique * 5 / V.xchange.baseStats.physiquesize;
 	}
 
 	let genderFactor = !V.xchange.genderIdentityEnabled ?
