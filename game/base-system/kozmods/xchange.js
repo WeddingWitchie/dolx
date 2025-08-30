@@ -288,7 +288,7 @@ function updatePhysique() {
 
 	V.physiquesize = physiquesizes[V.bodysize];
 	V.physique = 
-		V.xchange.baseStats.physique * (V.physiquesize / V.xchange.baseStats.physique) * 
+		V.xchange.baseStats.physique * (V.physiquesize / V.xchange.baseStats.physiquesize) * 
 		(V.player.gender !== V.player.sex ? V.xchange.physiqueChangePercent / 100 : 1);
 }
 window.updatePhysique = updatePhysique;
