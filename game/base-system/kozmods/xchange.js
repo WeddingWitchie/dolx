@@ -470,8 +470,8 @@ function xchangeWeeklyCheck(weeks = 1) {
 	// 1 - 0b001: Suspicious Pills Dealer
 	// 2 - 0b010: Portal Pill Dealer
 	// 4 - 0b100: Effect Remover Pill Dealer
-	const dealerOdds = [1,1,1,1,2,2,2,4,4,4];
-	V.xchange.weeklyShadyDealer = dealerOdds.random() | dealerOdds.random();
+	const dealerOdds = [1,2,4];
+	V.xchange.weeklyShadyDealer = dealerOdds.pluck() | dealerOdds.pluck();
 	if (V.xchange.weeklyShadyDealer & 4) updateRemoverPillCatalogue();
 
 }

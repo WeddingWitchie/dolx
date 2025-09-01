@@ -1660,11 +1660,25 @@ function heatRutSexStatModifier(input) {
 window.heatRutSexStatModifier = heatRutSexStatModifier;
 
 /**
+ * @returns {number}
+ */
+function innocenceSexStatModifier() {
+	if (V.innocencestate === 0) return 0;
+
+	const maxValue = 100; // max innoncence makes you oblivious to dangers of your actions
+	const obliviousness = -(V.awareness) / 200; // how oblivious PC is
+	const curveExponential = 2; // 2 makes the function start slow, but ramp up faster at higher innocence values
+
+	return Math.floor(maxValue * obliviousness ** curveExponential);
+}
+window.innocenceSexStatModifier = innocenceSexStatModifier;
+
+/**
  * @param {string} input
  * @param {number} required
- * @param {boolean} modifiers
+ * @param {number} modifiers
  */
-function hasSexStat(input, required, modifiers = true) {
+function hasSexStat(input, required, modifiers = 2) {
 	const statName = sexStatNameMapper(input);
 	// check if stat name is valid.
 	if (statName == null) {
@@ -1683,7 +1697,7 @@ function hasSexStat(input, required, modifiers = true) {
 		});
 		return false;
 	}
-	if (modifiers) {
+	if (modifiers == 1) {
 		// modify effective stat value based on inebriation.
 		statValue += drunkSexStatModifier(statValue);
 
@@ -1691,6 +1705,11 @@ function hasSexStat(input, required, modifiers = true) {
 
 		// modify effective stat value based on heat/rut/minArousal.
 		statValue += heatRutSexStatModifier(statName);
+		
+	}
+	if (modifiers >= 2) {
+		// use whichever value is highest: the effective stat value, or the obliviousness value
+		statValue = Math.max(statValue, innocenceSexStatModifier());
 	}
 	statValue = Math.clamp(statValue, 0, 100);
 
