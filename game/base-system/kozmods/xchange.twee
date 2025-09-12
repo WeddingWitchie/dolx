@@ -13,13 +13,6 @@
 			<<set $bodysize to _sizeMap.indexOf($xchange.sizeOverride)>>
 		<</if>>
 		<<run updatePhysique()>>
-		/* <<set _physiquesizes to [6000, 10000, 12000, 16000]>>
-		<<set _physiquesize_old to $physiquesize>>
-		<<set $physiquesize to _physiquesizes[$bodysize]>>
-		<<set $physique *= $physiquesize / _physiquesize_old>>
-		<<if $player.gender is $player.sex>>
-			<<set $physique to Math.clamp($physique * $xchange.physiqueChangePercent / 100, 0, $physiquesize * $xchange.physiqueChangePercent / 100)>>
-		<</if>> */
 		<<clamp>>
 	<</widget>>
 
@@ -127,17 +120,6 @@
 			<<calchairlengthstage>>
 		<</if>>
 
-		/* Finalising physique adjustments - Part 2 */
-		/* <<set _physiquesizes to [6000, 10000, 12000, 16000]>>
-		<<set _physiquesize_old to $physiquesize>>
-		<<set $physiquesize to _physiquesizes[$bodysize]>>
-		<<set $physique *= $physiquesize / _physiquesize_old>>
-		<<if $player.gender is $player.sex>>
-			<<set $physique to Math.clamp($physique * $xchange.physiqueChangePercent / 100, 0, $physiquesize * $xchange.physiqueChangePercent / 100)>>
-		<<else>>
-			<<set $physique to Math.clamp($physique / $xchange.physiqueChangePercent * 100, 0, $physiquesize / $xchange.physiqueChangePercent * 100)>>
-		<</if>> */
-
 		/* Genitalia */
 		<<set $vaginause to 0>>
 		<<set $vaginastate to 0>>
@@ -170,13 +152,6 @@
 		<</if>>
 		<<set $player.breastsize to 0>>
 		<<run updatePhysique()>>
-		/* <<set _physiquesizes to [6000, 10000, 12000, 16000]>>
-		<<set _physiquesize_old to $physiquesize>>
-		<<set $physiquesize to _physiquesizes[$bodysize]>>
-		<<set $physique *= $physiquesize / _physiquesize_old>>
-		<<if $player.gender is $player.sex>>
-			<<set $physique to Math.clamp($physique * $xchange.physiqueChangePercent / 100, 0, $physiquesize * $xchange.physiqueChangePercent / 100)>>
-		<</if>> */
 		<<clamp>>
 	<</widget>>
 
@@ -272,17 +247,6 @@
 			<<calchairlengthstage>>
 		<</if>>
 
-		/* Finalising physique adjustments - Part 2 */
-		/* <<set _physiquesizes to [6000, 10000, 12000, 16000]>>
-		<<set _physiquesize_old to $physiquesize>>
-		<<set $physiquesize to _physiquesizes[$bodysize]>>
-		<<set $physique *= $physiquesize / _physiquesize_old>>
-		<<if $player.gender is $player.sex>>
-			<<set $physique to Math.clamp($physique * $xchange.physiqueChangePercent / 100, 0, $physiquesize * $xchange.physiqueChangePercent / 100)>>
-		<<else>>
-			<<set $physique to Math.clamp($physique / $xchange.physiqueChangePercent * 100, 0, $physiquesize / $xchange.physiqueChangePercent * 100)>>
-		<</if>> */
-
 		/* Genitalia */
 		<<set $vaginause to "none">>
 		<<set $vaginastate to "none">>
@@ -311,14 +275,18 @@
 			<<set $bodyshape to "slender">>
 		<</if>>
 
-		<<set _body to $xchange.pill.originalBody>>
-		<<if $player.gender is "m">>
-			<<set $player.penissize to _body.penissize>>
-			<<set $ballsssize to _body.penissize>>
+		<<if Object.keys($xchange.pill.hermBody).length gt 0>>
+			<<load-body "herm">>
+		<<else>>
+			<<set _body to $xchange.pill.originalBody>>
+			<<if $player.gender is "m">>
+				<<set $player.penissize to _body.penissize>>
+				<<set $ballsssize to _body.penissize>>
 
-		<<elseif $player.gender is "f">>
-			<<set $player.breastsize to _body.breastsize>>
-			<<set $player.bottomsize to _body.bottomsize>>
+			<<elseif $player.gender is "f">>
+				<<set $player.breastsize to _body.breastsize>>
+				<<set $player.bottomsize to _body.bottomsize>>
+			<</if>>
 		<</if>>
 
 		<<set $vaginause to 0>>
@@ -336,6 +304,7 @@
 	<<widget "save-body">>
 		/* 	args 0: chooses which slot to save the body into. 
 				"genderswapped" for your xchanged body
+				"herm" for the purple pilled body
 				"cloned" for a cloned npc body
 			args 1: used to specify which npc by name
 		*/
@@ -369,8 +338,6 @@
 			semen_volume: $semen_volume,
 			milk_volume: $milk_volume,
 			beauty: $beauty,
-			/* physique: $physique, */
-			/* physiquesize: $physiquesize, */
 			penisgrowthtimer: $penisgrowthtimer,
 			bottomgrowthtimer: $bottomgrowthtimer,
 			breastgrowthtimer: $breastgrowthtimer,
@@ -378,37 +345,18 @@
 			cool: $cool,
 			crime: $crime,
 		}>>
-
-		<<if _args[0] is "herm">>
-			<<if $player.gender is "m">>
-				<<set $xchange.pill.originalBody.penissize to _savedbody.penissize>>
-				<<set $xchange.pill.originalBody.ballssize to _savedbody.ballssize>>
-
-				<<set _savedbody.penissize to $xchange.pill.changedBody?.penissize ?? -2>>
-				<<set _savedbody.ballssize to $xchange.pill.changedBody?.ballssize ?? -2>>
-				<<set _savedbody.bodyshape to $xchange.pill.changedBody?.bodyshape ?? "curvy">>
-				<<set $xchange.pill.changedBody to _savedbody>>
-
-			<<elseif $player.gender is "f">>
-				<<set $xchange.pill.originalBody.breastsize to _savedbody.breastsize>>
-				<<set $xchange.pill.originalBody.bottomsize to _savedbody.bottomsize>>
-
-				<<set _savedbody.breastsize to $xchange.pill.changedBody?.breastsize ?? 0>>
-				<<set _savedbody.bottomsize to $xchange.pill.changedBody?.bottomsize ?? 0>>
-				<<set _savedbody.bodyshape to $xchange.pill.changedBody?.bodyshape ?? "classic">>
-				<<set $xchange.pill.changedBody to _savedbody>>
-
-			<</if>>
-		<<else>>
-			<<if _args[0] is undefined>>
-				<<set $xchange.pill.originalBody to _savedbody>>
-			<<elseif _args[0] is "genderswapped">>
-				<<set $xchange.pill.changedBody to _savedbody>>
-			<<elseif _args[0] is "cloned" and _args[1] isnot undefined>>
-				<<set _npcName to _args[1]>>
-				<<set $xchange.pill.clonedBody[_npcName] to _savedbody>>
-			<</if>>
+	
+		<<if _args[0] is undefined>>
+			<<set $xchange.pill.originalBody to _savedbody>>
+		<<elseif _args[0] is "genderswapped">>
+			<<set $xchange.pill.changedBody to _savedbody>>
+		<<elseif _args[0] is "herm">>
+			<<set $xchange.pill.hermBody to _savedbody>>
+		<<elseif _args[0] is "cloned" and _args[1] isnot undefined>>
+			<<set _npcName to _args[1]>>
+			<<set $xchange.pill.clonedBody[_npcName] to _savedbody>>
 		<</if>>
+
 	<</widget>>
 
 	<<widget "load-body">>
@@ -416,6 +364,8 @@
 			<<set _body to $xchange.pill.originalBody>>
 		<<elseif _args[0] is "genderswapped">>
 			<<set _body to $xchange.pill.changedBody>>
+		<<elseif _args[0] is "herm">>
+			<<set _body to $xchange.pill.hermBody>>
 		<<elseif _args[0] is "cloned" and _args[1] isnot undefined>>
 			<<set _npcName to _args[1]>>
 			<<set _body to $xchange.pill.clonedBody[_npcName]>>
@@ -449,8 +399,6 @@
 		<<set $semen_volume to _body.semen_volume ?? 0>>
 		<<set $milk_volume to _body.milk_volume ?? 0>>
 		<<set $beauty to _body.beauty>>
-		/* <<set $physique to _body.physique>> */
-		/* <<set $physiquesize to _body.physiquesize>> */
 		<<set $penisgrowthtimer to _body.penisgrowthtimer>>
 		<<set $bottomgrowthtimer to _body.bottomgrowthtimer>>
 		<<set $breastgrowthtimer to _body.breastgrowthtimer>>
@@ -477,47 +425,64 @@
 			<<set $breastgrowthtimer to 500>>	
 		<</if>>
 
-		<<if $xchange_fame gte 1000 and !$xchangeFameMerged>>
+		<<if $xchange_fame gte 1000>>
 			<<set _ogFame to $xchange.pill.originalBody.fame>>
 			<<set _newFame to $xchange.pill.changedBody.fame>>
+			<<set _hermFame to $xchange.pill.hermBody.fame>>
 			<<set $fame to {
-				bestiality: 	Math.max(_ogFame.bestiality, _newFame.bestiality),
-				business: 		Math.max(_ogFame.business, _newFame.business),
-				exhibitionism: 	Math.max(_ogFame.exhibitionism, _newFame.exhibitionism),
-				good: 			Math.max(_ogFame.good, _newFame.good),
-				impreg: 		Math.max(_ogFame.impreg, _newFame.impreg),
-				model: 			Math.max(_ogFame.model, _newFame.model),
-				pimp: 			Math.max(_ogFame.pimp, _newFame.pimp),
-				pregnancy: 		Math.max(_ogFame.pregnancy, _newFame.pregnancy),
-				prostitution: 	Math.max(_ogFame.prostitution, _newFame.prostitution),
-				rape: 			Math.max(_ogFame.rape, _newFame.rape),
-				scrap: 			Math.max(_ogFame.scrap, _newFame.scrap),
-				sex: 			Math.max(_ogFame.sex, _newFame.sex),
-				social: 		Math.max(_ogFame.social, _newFame.social),
+				bestiality: 	Math.max(_ogFame.bestiality, _newFame.bestiality, _hermFame.bestiality),
+				business: 		Math.max(_ogFame.business, _newFame.business, _hermFame.business),
+				exhibitionism: 	Math.max(_ogFame.exhibitionism, _newFame.exhibitionism, _hermFame.exhibitionism),
+				good: 			Math.max(_ogFame.good, _newFame.good, _hermFame.good),
+				impreg: 		Math.max(_ogFame.impreg, _newFame.impreg, _hermFame.impreg),
+				model: 			Math.max(_ogFame.model, _newFame.model, _hermFame.model),
+				pimp: 			Math.max(_ogFame.pimp, _newFame.pimp, _hermFame.pimp),
+				pregnancy: 		Math.max(_ogFame.pregnancy, _newFame.pregnancy, _hermFame.pregnancy),
+				prostitution: 	Math.max(_ogFame.prostitution, _newFame.prostitution, _hermFame.prostitution),
+				rape: 			Math.max(_ogFame.rape, _newFame.rape, _hermFame.rape),
+				scrap: 			Math.max(_ogFame.scrap, _newFame.scrap, _hermFame.scrap),
+				sex: 			Math.max(_ogFame.sex, _newFame.sex, _hermFame.sex),
+				social: 		Math.max(_ogFame.social, _newFame.social, _hermFame.social),
 			}>>
 			<<set $xchange.pill.originalBody.fame to $fame>>
 			<<set $xchange.pill.changedBody.fame to $fame>>
+			<<set $xchange.pill.hermBody.fame to $fame>>
 
 			<<set _ogCool to $xchange.pill.originalBody.cool>>
 			<<set _newCool to $xchange.pill.changedBody.cool>>
-			<<set $cool to (_ogCool + _newCool) / 2>>
+			<<set _hermCool to $xchange.pill.hermBody?.cool ?? 120>>
+			<<set $cool to (_ogCool + _newCool + _hermCool) / 3>>
 			<<set $xchange.pill.originalBody.cool to $cool>>
 			<<set $xchange.pill.changedBody.cool to $cool>>
+			<<set $xchange.pill.hermBody.cool to $cool>>
 
 			<<set _ogCrime = $xchange.pill.originalBody.crime>>
 			<<set _newCrime = $xchange.pill.changedBody.crime>>
+			<<set _hermCrime = $xchange.pill.hermBody.crime>>
 			<<set $crime to {}>>
 			<<for _cr range Object.keys(setup.crimeNames)>>
-				<<set $crime[_cr] to {
-					current: 		_ogCrime[_cr].current + _newCrime[_cr].current, 
-					history: 		_ogCrime[_cr].history + _newCrime[_cr].history, 
-					daily: 			_ogCrime[_cr].daily + _newCrime[_cr].daily, 
-					count: 			_ogCrime[_cr].count + _newCrime[_cr].count, 
-					countHistory: 	_ogCrime[_cr].countHistory + _newCrime[_cr].countHistory}>>
+				<<if !$xchangeFameMerged>>
+					<<set $crime[_cr] to {
+						current: 		_ogCrime[_cr].current + _newCrime[_cr].current + _hermCrime[_cr].current, 
+						history: 		_ogCrime[_cr].history + _newCrime[_cr].history + _hermCrime[_cr].history, 
+						daily: 			_ogCrime[_cr].daily + _newCrime[_cr].daily + _hermCrime[_cr].daily, 
+						count: 			_ogCrime[_cr].count + _newCrime[_cr].count + _hermCrime[_cr].count, 
+						countHistory: 	_ogCrime[_cr].countHistory + _newCrime[_cr].countHistory + _hermCrime[_cr].countHistory}>>
+				<<else>>
+					<<set $crime[_cr] to {
+						current: 		Math.max(_ogCrime[_cr].current, _newCrime[_cr].current, _hermCrime[_cr].current), 
+						history: 		Math.max(_ogCrime[_cr].history, _newCrime[_cr].history, _hermCrime[_cr].history), 
+						daily: 			Math.max(_ogCrime[_cr].daily, _newCrime[_cr].daily, _hermCrime[_cr].daily), 
+						count: 			Math.max(_ogCrime[_cr].count, _newCrime[_cr].count, _hermCrime[_cr].count), 
+						countHistory: 	Math.max(_ogCrime[_cr].countHistory, _newCrime[_cr].countHistory, _hermCrime[_cr].countHistory)}>>
+				<</if>>
 			<</for>>
-			<<set $crime.events to {...(_ogCrime.events), ...(_newCrime.events)}>>
+			<<if !$xchangeFameMerged>>
+				<<set $crime.events to {...(_ogCrime.events), ...(_newCrime.events), ...(_hermCrime.events)}>>
+			<</if>>
 			<<set $xchange.pill.originalBody.crime to $crime>>
 			<<set $xchange.pill.changedBody.crime to $crime>>
+			<<set $xchange.pill.hermBody.crime to $crime>>
 
 			<<set $xchangeFameMerged to true>>
 		<</if>>
@@ -552,7 +517,7 @@
 		<<for _effect range _effectsList>>
 
 			/* Skip adding continue or resistance effects if not also genderflipped */
-			<<if ["continue", "resistance"].includes(_effect) && !(_effectsList.includes("genderflip") || $xchange.pill.genderflipEffect)>>
+			<<if ["continue", "resistance"].includes(_effect) && !(_effectsList.includes("genderflip") || $xchange.pill.genderflipEffect || $xchange.pill.hermEffect)>>
 				<<continue>>
 			<</if>>
 			
@@ -583,10 +548,12 @@
 		<<case "crossdress">>
 			<<if !$xchange.pill.genderificationEffect>>
 				<<set $xchange.pill.genderificationEffect to true>>
-				<<if $player.gender is "m">>
-					<<sissify>>
-				<<else>>
-					<<butchify>>
+				<<if !$xchange.pill.genderflipEffect && !$xchange.pill.hermEffect>>
+					<<if $player.gender is "m">>
+						<<sissify>>
+					<<else>>
+						<<butchify>>
+					<</if>>
 				<</if>>
 			<</if>>
 		<<case "herm">>
@@ -912,6 +879,9 @@
 			<<if Object.keys($xchange.pill.originalBody).length gt 0>>
 				<<run $_fameTypes.forEach(fameType => $xchange.pill.originalBody.fame[fameType] += $_gain)>> <!-- add the specified amount to each specified fame type -->
 			<</if>>
+			<<if Object.keys($xchange.pill.hermBody).length gt 0>>
+				<<run $_fameTypes.forEach(fameType => $xchange.pill.hermBody.fame[fameType] += $_gain)>> <!-- add the specified amount to each specified fame type -->
+			<</if>>
 			<<fameclamp>>
 		<</if>>
 	<</widget>>
@@ -1048,6 +1018,8 @@
 				<mouse class="tooltip linkBlue">(?)<span>The effect of this pill remains indefinitely until its companion pill is ingested.</span></mouse></li><</if>>
 			<<if $xchange.pill.genderflipEffect>><li>Genderflip.
 				<mouse class="tooltip linkBlue">(?)<span>Switches your body's sexual characteristics to those of the opposite gender.</span></mouse></li><</if>>
+			<<if $xchange.pill.genderflipEffect>><li>Herm.
+				<mouse class="tooltip linkBlue">(?)<span>Mixes up your body's sexual characteristics to those of your original gender and those of the opposite.</span></mouse></li><</if>>
 			<<if $xchange.pill.genderificationEffect>><li><<= $player.gender is "m"? "Sissification": "Butchification">>.
 				<mouse class="tooltip linkBlue">(?)<span>Partially changes your body's characteristics. Rewards crossdressing (relative to your original gender).</span></mouse></li><</if>>
 			<<if $xchange.pill.continueEffect>><li>Continue Effect.
@@ -1154,36 +1126,6 @@
 					<img src="img/misc/icon/male.png">
 				<</if>>
 			</div>
-		<</if>>
-	<</widget>>
-
-	<<widget "pill-characteristics">>
-		<<if $xchange.pill.effectsKnown>>
-			You're under a pill with the following effects:
-			<ul>
-				<<if $xchange.pill.continueEffect>><li>Continue Effect.
-					<mouse class="tooltip linkBlue">(?)<span>Extends its duration every time you climax.</span></mouse></li><</if>>
-				<<if $xchange.pill.resistanceEffect>><li>Resistance Effect.
-					<mouse class="tooltip linkBlue">(?)<span>Less likely to expire after its full lapse with each orgasm.</span></mouse></li><</if>>
-				<<if $xchange.pill.breederEffect>><li>Breeder Effect.
-					<mouse class="tooltip linkBlue">(?)<span>Enhances your fertility. Triggers orgasms upon insemination. And dimishes stress while sperm remains inside the vagina.</span></mouse>
-				</li><</if>>
-				<<if $xchange.pill.passionEffect>><li>Passion Effect.
-					<mouse class="tooltip linkBlue">(?)<span>Steadily dissolves aphrodisiacs into your bloodstream at an hourly rate.</span></mouse></li><</if>>
-				<<if $xchange.pill.portalEffect>><li>Portal Effect: <span class="teal"><<print-portalduration>></span> remaining.
-					<mouse class="tooltip linkBlue">(?)<span>Allows random NPCs to fuck you remotely, regardless of your consent.</span></mouse></li><</if>>
-				<<if $xchange.pill.clone isnot "none">><li>Clone '<<print $xchange.pill.clone>>' Effect.</li><</if>>
-				<<if $xchange.pill.fertile>><li>You can become pregnant.</li><</if>>
-				<li>Duration: 
-					<<if pillTimerPaused() or pillIsPermanent()>>
-						<span class="teal">Indefinite.</span>
-					<<else>><span class="teal"><<print-pillduration>></span> remaining.
-					<</if>>
-				</li>
-			</ul>
-		<<else>>
-			<span class="purple">You don't know what kind of pill you're currently on.</span>
-			<br><br>
 		<</if>>
 	<</widget>>
 
