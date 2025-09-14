@@ -518,7 +518,7 @@ blackmailQuests.low.push( // Wear no shirt if male
 // blackmailQuests.low.push( // Flash your underwear to at least 5 strangers
 // 	{
 // 		id: 12,
-// 		prerequisites: function() { return hasSexStat("exhibitionism", 2); },
+// 		prerequisites: function() { return hasSexStat("exhibitionism", 2, true); },
 // 		reward: function() { return V.rentmoney / 3; },
 // 		instructions: [
 // 			"Flash at least 5 strangers on the street.",

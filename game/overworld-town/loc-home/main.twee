@@ -57,8 +57,10 @@ You are in your bedroom.
 				<span class="black">You feel like you got caught cheating.</span>
 			<</if>>
 	<</switch>>
+	<br>
 <<else>>
 	Bleak walls protect you from the outside.
+	<br>
 <</if>>
 
 <<set _desk to Furniture.get('desk', $location)>>
@@ -75,7 +77,6 @@ You are in your bedroom.
 <</if>>
 
 <<if _radio and $bedroomUI.orphanage.radio is true>>
-	<br><br>
 	<<run while (V.weatherObj.keypointsArr.length > 1 && V.weatherObj.keypointsArr[1].timestamp <= (new DateTime(Time.date)).timeStamp) {V.weatherObj.keypointsArr.shift();}>>
 	<<furnitureicon _radio.iconFile>>The radio buzzes. "There will be 
 	<<set _forecastDate to new DateTime(V.weatherObj.keypointsArr[1].timestamp)>>
@@ -109,7 +110,6 @@ You are in your bedroom.
 /* Misc Furniture */
 <<deskText "icon">> /* If no desk options (read a book, work on project, etc.) are available, desk and icon appear here */
 <<tableText "icon">> /* If no fish tank is available to be placed on an owned table or chairs, table and chairs appear here */
-<br>
 
 <<if $ltsUsed isnot undefined>>
 	<<unset $ltsUsed>>
@@ -118,43 +118,43 @@ You are in your bedroom.
 
 /* Decorations */
 <<if _deco>>
-	<br>
 	<<switch _deco.name>>
 		<<case "large bear plushie" "large candy pillow">>
 			<<furnitureicon _deco.iconFile>>The _deco.name is sitting in a corner.
 		<<default>>
 			<<furnitureicon _deco.iconFile>>The _deco.name is hanging on a wall.
 	<</switch>>
+	<br>
 <</if>>
 
 <<if _owlplush>>
-	<br>
 	<<switch _owlplush.id>>
 		<<case "owlplushie">>
 			<<furnitureicon _owlplush.iconFile>>The _owlplush.name stares down from the wardrobe, blending into the gloom.
 	<</switch>>
+	<br>
 <</if>>
 
 <<if _windowsill>>
-	<br>
 	<<switch _windowsill.name>> /* can be expanded further */
 		<<case "ominous jar">> /* unused */
 			<<furnitureicon _windowsill.iconFile>>_windowsill.nameCap stands on the windowsill menacingly.
 		<<default>>
 			<<furnitureicon _windowsill.iconFile>> Your _windowsill.name sits on the windowsill.
 	<</switch>>
+	<br>
 <</if>>
 
 <<set _shelf to Furniture.get('shelf', $location)>>
 	<<if _shelf>>
-	<br>
 	<<switch _shelf.name>>
 		<<default>>
 			A small shelf sits on your wall.
 	<</switch>>
+	<br>
 	<<else>>
-		<br>
 		There's some space on the wall.
+		<br>
 	<</if>>
 <<set _plush to Furniture.get('plush', $location)>>
 	<<if _plush>>
@@ -166,13 +166,13 @@ You are in your bedroom.
 		<<default>>
 			The _plush.name is looking cute.
 	<</switch>>
+	<br>
 	<</if>>
 
 
 <<if _furniture.poster>>
 	<<set _premadePoster to ["cowgirl", "cow_girl", "cat", "puppy"].includes(_furniture.poster.name)>>
 	<<set _poster to _premadePoster ? "poster_" + _furniture.poster.name : ['dol', 'degrees of lewdity'].some(e => _furniture.poster.name.toLowerCase().includes(e)) ? "poster_dol" : "poster">>
-	<br>
 
 	<<furnitureicon _poster>>
 	<<switch _furniture.poster.name>>
@@ -190,10 +190,11 @@ You are in your bedroom.
 				<span class="black">You feel like you got caught cheating.</span>
 			<</if>>
 	<</switch>>
+	<br>
 <</if>>
 
 /* Events */
-<br><br>
+<br>
 <<if $robinbed is "yours" and Time.dayState !== "night" and !$possessed>>
 	<<unset $robinbed>>
 	<<npc Robin>><<person1>>Robin yawns and heads to <<his>> own room.<<endevent>>
@@ -306,9 +307,8 @@ There is a thermometer outside your window. It reads <span class="teal"><<print 
 <</if>>
 
 /* Bed */
-Your bed takes up most of the room.
+Your bed takes up most of the room.<br>
 <<if $nextPassageCheck is "Bed">>
-	<br>
 	<<if $robinbed is "yours" or $robinbed is "theirs">>
 		<span class="nextLink"><<furnitureicon _bed.iconFile>><<link [[Robin.|Bed]]>><</link>></span>
 	<<else>>
@@ -317,9 +317,8 @@ Your bed takes up most of the room.
 	<br>
 	<<listsleepoutfits>>
 <<elseif !($earSlime.event and $earSlime.noSleep)>>
-	<br>
 	<<silently>><<willpowerdifficulty 200 1000>><</silently>>
-	<<if ($arousal lt $arousalmax*3/5) or $willpowerSuccess or $orgasmCount gte 1>>
+	<<if ($arousal lt $arousalmax*3/5) or $willpowerSuccess or $orgasmCount gte 1 or $awareness lt 0>>
 		<<furnitureicon _bed.iconFile>><<link [[Strip and get in bed|Bed]]>><<undressSleep "bed">><</link>>
 		<br>
 		<<listsleepoutfits>>
@@ -328,7 +327,6 @@ Your bed takes up most of the room.
 		<br>
 	<</if>>
 <<else>>
-	<br>
 	<<if $possessed>>
 		<<ind>><span class="purple">The slime in your head is silent.</span>
 	<<else>>
@@ -337,7 +335,7 @@ Your bed takes up most of the room.
 	<br>
 <</if>>
 
-<<if $bedroomUI.orphanage.masturbation is true>>
+<<if $bedroomUI.orphanage.masturbation is true and $awareness gte 0>>
 	<<furnitureicon _bed.iconFile>><<link [[Masturbate in bed|Home Masturbation]]>><<set $masturbationstart to 1>><</link>>
 	<br>
 <</if>>
@@ -626,7 +624,7 @@ You take the plushie down from the wardrobe, and look into its black eyes. You c
 
 <<link [[Destroy it|Bedroom Kylar Camera Destroy]]>><<set $phase to 0>><</link>>
 <br>
-<<if hasSexStat("exhibitionism", 3)>>
+<<if hasSexStat("exhibitionism", 3, true)>>
 	<<link [[Leave it there, for revenge|Bedroom Kylar Camera Leave]]>><<set $phase to 0>><</link>><<exhibitionist3>>
 	<br>
 <</if>>
@@ -639,7 +637,7 @@ You find the plushie in the living room, sat beside the television with several 
 
 <<link [[Destroy it|Bedroom Kylar Camera Destroy]]>><<set $phase to 1>><</link>>
 <br>
-<<if hasSexStat("exhibitionism", 3)>>
+<<if hasSexStat("exhibitionism", 3, true)>>
 	<<link [[Position it in your room, for revenge|Bedroom Kylar Camera Leave]]>><<set $phase to 1>><</link>><<exhibitionist3>>
 	<br>
 <</if>>
@@ -1822,7 +1820,7 @@ The water's getting cold. "I'm squeaky clean," you say. "Thanks for the help." T
 		<br><br>
 
 		<<link [[Continue bathing|Bath]]>><<endevent>><</link>>
-		<<if hasSexStat("exhibitionism", 2)>>
+		<<if hasSexStat("exhibitionism", 2, true)>>
 			<br>
 			<<link [[Tease|Bath Robin Tease]]>><<npcincr Robin lust 1>><</link>><<exhibitionist2>><<glust>>
 		<</if>>
@@ -1869,7 +1867,7 @@ The water's getting cold. "I'm squeaky clean," you say. "Thanks for the help." T
 			<<link [[Let them watch (0:05)|Bath Watch]]>><<pass 5>><</link>><<exhibitionist5>>
 			<br>
 		<</if>>
-		<<if hasSexStat("promiscuity", 5)>>
+		<<if hasSexStat("promiscuity", 5, true)>>
 			<<link [[Goad|Bath Sex]]>><<set $sexstart to 1>><</link>><<promiscuous5>>
 			<br>
 		<</if>>
@@ -1913,10 +1911,12 @@ The water's getting cold. "I'm squeaky clean," you say. "Thanks for the help." T
 	You wash until you're squeaky clean.<<wash>>
 	<br><br>
 
-	<<skinicon "masturbate">><<link [[Masturbate|Bath Masturbation]]>><<set $masturbationstart to 1>><</link>>
-	<br>
+	<<if $awareness gte 0>>
+		<<skinicon "masturbate">><<link [[Masturbate|Bath Masturbation]]>><<set $masturbationstart to 1>><</link>>
+		<br>
+	<</if>>
 	<<silently>><<willpowerdifficulty 200 1000>><</silently>>
-	<<if ($arousal lt $arousalmax*3/5) or $orgasmCount gte 1>>
+	<<if ($arousal lt $arousalmax*3/5) or $orgasmCount gte 1 or $awareness lt 0>>
 		<<getouticon>><<link [[Get out|Bath Finish]]>><</link>>
 	<<elseif $willpowerSucccess>>
 		<<getouticon>><<link [[Will yourself to Get out->Bath Finish]]>><<willpowersuccess>><</link>>
@@ -2494,7 +2494,7 @@ You are in the main hall of the orphanage.
 	<br><br>
 	You nod in response, and can't help noticing how <<he>> seems to avoid looking at you.
 	<br><br>
-	<<if hasSexStat("exhibitionism", 5)>>
+	<<if hasSexStat("exhibitionism", 5, true)>>
 		<<link [[Tease|Hallway Flashing 1]]>><</link>><<exhibitionist5>>
 		<br>
 	<</if>>
@@ -2509,7 +2509,7 @@ You are in the main hall of the orphanage.
 		<br><br>
 		<<link [[Hide|Orphanage Hide]]>><<stress 6>><</link>><<gstress>>
 		<br>
-		<<if hasSexStat("exhibitionism", 4)>>
+		<<if hasSexStat("exhibitionism", 4, true)>>
 			<<link [[Flaunt|Orphanage Flaunt]]>><</link>><<exhibitionist4>>
 			<br>
 		<</if>>
@@ -2938,7 +2938,7 @@ Heart thumping, you make it back to your room and close the door.
 	<br><br>
 	"Hi," the <<person>> gulps. "I told my friends about what I saw. C-could you do that again for us?"
 	<br><br>
-	<<if hasSexStat("exhibitionism", 5)>>
+	<<if hasSexStat("exhibitionism", 5, true)>>
 		<<link [[Flaunt|Orphanage Flaunt 2]]>><</link>><<exhibitionist5>>
 		<br>
 	<</if>>
@@ -2992,7 +2992,7 @@ Face red and heart thumping, you dart past <<him>>, down the corridor and into y
 	<br><br>
 	"Hi," the <<person>> gulps. "I told my friends about what I saw. C-could you do that again for us?"
 	<br><br>
-	<<if hasSexStat("exhibitionism", 5)>>
+	<<if hasSexStat("exhibitionism", 5, true)>>
 		<<link [[Flaunt|Orphanage Flaunt 2]]>><</link>><<exhibitionist5>>
 		<br>
 	<</if>>
@@ -3040,7 +3040,7 @@ Face red and heart thumping, you dart past <<him>>, down the corridor and into y
 	<br><br>
 	"Hi," the <<person>> gulps. "I told my friends about what I saw. C-could you do that again for us?"
 	<br><br>
-	<<if hasSexStat("exhibitionism", 5)>>
+	<<if hasSexStat("exhibitionism", 5, true)>>
 		<<link [[Flaunt|Orphanage Flaunt 2]]>><</link>><<exhibitionist5>>
 		<br>
 	<</if>>
@@ -3140,8 +3140,10 @@ The warmth feels wonderful on your bare skin.
 <<if Time.dayState is "day">>
 	<<baskicon>><<link [[Continue (0:20)|Nude Bask]]>><<set $stress -= 10>><<pass 20>><</link>><<lstress>><<run Skin.tanningGainOutput(Skin.getTanningFactor().result, 10)>>
 	<br>
-	<<skinicon "masturbate">><<link [[Masturbate|Nude Masturbation]]>><<set $masturbationstart to 1>><</link>>
-	<br>
+	<<if $awareness gte 0>>
+		<<skinicon "masturbate">><<link [[Masturbate|Nude Masturbation]]>><<set $masturbationstart to 1>><</link>>
+		<br>
+	<</if>>
 	<<refuseicon>><<link [[Stop|Garden]]>><<clotheson>><</link>>
 <<else>>
 	The sun starts to disappear behind the rooftops.
@@ -3598,7 +3600,7 @@ You reach out and pet the <<beasttype>>. <<bHe>> stretches into your hand and ya
 <<set $outside to 0>><<set $location to "town">><<effects>>
 "And any jewellery."
 <br><br>
-You take off your clothes. <<if hasSexStat("exhibitionism", 4)>>Disappointingly, they<<elseif $exhibitionism lt 15>>Thankfully, they<<else>>They<</if>> pay you no attention as you strip, being more interested in your clothes. Once nude, all your clothes are shoved into a metal basket. The lid clips down.
+You take off your clothes. <<if hasSexStat("exhibitionism", 4, true)>>Disappointingly, they<<elseif $exhibitionism lt 15>>Thankfully, they<<else>>They<</if>> pay you no attention as you strip, being more interested in your clothes. Once nude, all your clothes are shoved into a metal basket. The lid clips down.
 <br><br>
 "Faraday cage." Their eyes fix on your face. "Stops all transmissions. All listening devices. All radio. All bugs. Nothing in or out."
 <br>
@@ -3893,7 +3895,7 @@ Something non-explicit:
 	<</if>>
 <</for>>
 <br><br>
-<<if hasSexStat("promiscuity", 3)>>
+<<if hasSexStat("promiscuity", 3, true)>>
 	<span class="lewd">Something lewd</span>:
 	<<for _s to 0; _s lt _skin_keys.length; _s++>>
 		<<if setup.bodywriting[_skin_keys[_s]].special isnot "bestiality" and setup.bodywriting[_skin_keys[_s]].lewd is 1>>
@@ -3907,7 +3909,7 @@ Something non-explicit:
 	<br>
 <</if>>
 <br>
-<<if hasSexStat("deviancy", 3)>>
+<<if hasSexStat("deviancy", 3, true)>>
 	<span class="lewd">Something deviant</span>:
 	<<for _s to 0; _s lt _skin_keys.length; _s++>>
 		<<if setup.bodywriting[_skin_keys[_s]].special is "bestiality">>
@@ -4557,7 +4559,7 @@ The <<person>>'s eyes widen, and <<he>> seems transfixed by your naked form.
 <!-- Undress towel -->
 <<upperstrip>>
 <<lowerstrip>>
-<<if hasSexStat("exhibitionism", 5)>>
+<<if hasSexStat("exhibitionism", 5, true)>>
 	<<link [[Take things further|Hallway Flashing 2]]>><</link>><<exhibitionist5>>
 	<br>
 <</if>>

@@ -1319,10 +1319,10 @@
 	<<if $backgroundTraits.includes("nerd")>>
 		<<set _temp *= 0.25>>
 	<</if>>
-	<<if $physique gt $physiquesize>>
-		<<set $physique += ($physiquesize / 1200) * _temp / $AMCTraits.physique>>
+	<<if $xchange.baseStats.physique gt $xchange.baseStats.physiquesize>>
+		<<set $xchange.baseStats.physique += ($xchange.baseStats.physiquesize / 1200) * _temp / $AMCTraits.physique>>
 	<<else>>
-		<<set $physique += ($physiquesize / 1200) * _temp>>
+		<<set $xchange.baseStats.physique += ($xchange.baseStats.physiquesize / 1200) * _temp>>
 	<</if>>
 	<<set $physiqueuse += _temp>>
 	<<if _args[1]>>
@@ -1338,8 +1338,9 @@
 	<<else>>
 		<span class="gold"> You get a good workout.</span>
 	<</if>>
-	<<set $physique = Math.clamp($physique, 0, $physiquesize * $AMCTraits.physique)>>
+	<<set $xchange.baseStats.physique = Math.clamp($xchange.baseStats.physique, 0, $xchange.baseStats.physiquesize * $AMCTraits.physique)>>
 	<<set Weather.BodyTemperature.addActivity("physique")>>
+	<<run updatePhysique()>>
 <</widget>>
 
 <<widget "footwork">>
@@ -1401,7 +1402,7 @@
 		<<if $backgroundTraits.includes("nerd")>>
 			<<set _args[0] *= 1.25>>
 		<</if>>
-		<<set $physique -= 10 * _args[0]>>
+		<<set $xchange.baseStats.physique -= 10 * _args[0]>>
 	<</if>>
 <</widget>>
 
@@ -5110,8 +5111,8 @@
 		<</if>>
 	<<else>>
 		<<if _args[0] is "icon">>
-			<br>
 			<<deskchairicon>>Your _desk.name and <<if _chair.name isnot "chair">>_chair.article <</if>>_chair.nameSolo are wedged next to your wardrobe.
+			<br>
 		<</if>>
 	<</if>>
 <</widget>>
@@ -5125,15 +5126,12 @@
 	<<if $pregnancyStats.parasiteDoctorEvents gte 2>>
 		<<if _args[0] is "noicon">>
 			<<if _table>>
-				<br>
 				Your _table.name <<if _chair and _chair.name isnot "chair">>and one of your _chair.name are <<else>>is <</if>> situated next to a wall.
 				<br>
 			<<elseif _chair and _chair.name isnot "chair">>
-				<br>
 				One of your _chair.name is situated next to a wall.
 				<br>
 			<<else>>
-				<br>
 				Your fish tank sits on the floor.
 				<br>
 			<</if>>
@@ -5143,11 +5141,11 @@
 		<<else>>
 			<<if _args[0] is "icon">>
 				<<if _table>>
-					<br>
 					<<bedroomtablechairicon>> Your _table.name <<if _chair and _chair.name isnot "chair">>and a _chair.nameSolo are <<else>>is <</if>> situated next to a wall.
-				<<elseif _chair and _chair.name isnot "chair">>
 					<br>
+				<<elseif _chair and _chair.name isnot "chair">>
 					<<bedroomtablechairicon>> A second _chair.nameSolo is situated next to a wall.
+					<br>
 				<</if>>
 			<</if>>
 		<</if>>

@@ -1046,16 +1046,18 @@ function getLargestSexStatModifierCssClasses(input, requiredLevel = 0) {
 	const drunkSexStatModifierValue = drunkSexStatModifier(V[statName]);
 	const hallucinogenSexStatModifierValue = hallucinogenSexStatModifier(V[statName]);
 	const heatRutSexStatModifierValue = heatRutSexStatModifier(statName);
+	const innocenceSexStatModifierValue = innocenceSexStatModifier();
 
 	// If there is a modifier, and either requiredLevel is 0 or the modifiers put the player up a level of the sexStat.
 	if (
-		drunkSexStatModifierValue + hallucinogenSexStatModifierValue + heatRutSexStatModifierValue > 0 &&
-		(requiredLevel === 0 || (!hasSexStat(statName, requiredLevel, false) && hasSexStat(statName, requiredLevel, true)))
+		(drunkSexStatModifierValue + hallucinogenSexStatModifierValue + heatRutSexStatModifierValue > 0 || innocenceSexStatModifierValue > 0) &&
+		(requiredLevel === 0 || (!hasSexStat(statName, requiredLevel, false) && hasSexStat(statName, requiredLevel, 2)))
 	) {
 		const modifiers = [
 			{ value: drunkSexStatModifierValue, class: "drunk" },
 			{ value: hallucinogenSexStatModifierValue, class: "drunk" },
 			{ value: heatRutSexStatModifierValue, class: "jitter" },
+			{ value: innocenceSexStatModifierValue, class: "innocence"},
 		];
 
 		// Gets the largest modifier.
@@ -1103,3 +1105,13 @@ function basicJitterCss() {
 	return V.options.textAnimations ? "jitter-text jitter-1" : "jitter-text";
 }
 window.basicJitterCss = basicJitterCss;
+
+/**
+ * Used to display the innocence text, with with animations if enabled, otherwise just the glow effect.
+ *
+ * @returns {string}
+ */
+function basicInnocenceCss() {
+	return V.options.textAnimations ? "innocence-text innocence-1" : "innocence-text";
+}
+window.basicInnocenceCss = basicInnocenceCss;

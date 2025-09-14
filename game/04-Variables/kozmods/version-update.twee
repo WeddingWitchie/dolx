@@ -103,8 +103,16 @@
 		<<set $penetratingOrgasmStat to 0>>
 	<</if>>
 
-	<<if $options.hideCombatImgWhileStanding is undefined>>
-		<<set $options.hideCombatImgWhileStanding to 0>>
+	<<if $options.showCombatImgWhileStanding is undefined>>
+		<<set $options.showCombatImgWhileStanding to 1>>
+	<</if>>
+	
+	<<if ndef $options.showCurrentSexIcon>>
+		<<set $options.showCurrentSexIcon to 1>>
+	<</if>>
+
+	<<if ndef $options.showPortalXray>>
+		<<set $options.showPortalXray to 1>>
 	<</if>>
 
 	<<if $xchange.randomiseHairColour is undefined>>
@@ -201,6 +209,19 @@
 		<<set $xchange.spikepool.herm to 0>>
 	<</if>>
 
+	<<if $xchange.backComp is undefined>>
+		<<set $xchange.backComp to {}>>
+	<</if>>
+
+	<<if ndef $xchange.resistanceDaysPenalty>>
+		<<set $xchange.resistanceDaysPenalty to 30>>
+		<<set $xchange.resistanceOrgasmPenalty to 0.7>>
+	<</if>>
+
+	<<if ndef $xchange.genitalAddictTraitsEnabled>>
+		<<set $xchange.genitalAddictTraitsEnabled to 1>>
+	<</if>>
+
 <</widget>>
 
 <<widget "xchange-init2">>
@@ -215,6 +236,19 @@
 				contrast: 1,
 			}>>
 		<</for>>
+	<</if>>
+
+	<<if ndef $xchange.baseStats>>
+		<<set $xchange.baseStats to {}>>
+		<<if playerIsXChanged()>>
+			<<set _ogbody to $xchange.pill.originalBody>>
+			<<set _physiquesizes to [6000, 10000, 12000, 16000]>>
+			<<set $xchange.baseStats.physique to $physique * _physiquesizes[_ogbody.bodysize] / $physiquesize>>
+			<<set $xchange.baseStats.physiquesize to _physiquesizes[_ogbody.bodysize]>>
+		<<else>>
+			<<set $xchange.baseStats.physique to $physique>>
+			<<set $xchange.baseStats.physiquesize to $physiquesize>>
+		<</if>>
 	<</if>>
 <</widget>>
 
@@ -254,7 +288,8 @@
 		"X-Change Sissy",
 		"X-Change Blue Bull",
 		"X-Change Purple Basic",
-		"X-Change Purple Breeder"
+		"X-Change Purple Breeder",
+		"SWP Anti-breeder Pill"
 	]>>
 
 	<<for _pill range _pills>>
@@ -487,5 +522,14 @@
 	<</if>>
 
 	<<unset $xchange.hermPhysiqueChangePercent>>
+
+	<<if $xchange.backComp["250824"] is undefined>>
+		<<set $xchange.backComp["250824"] to true>>
+		<<if playerIsXChanged()>>
+			<<set $breastsensitivity = Math.clamp($breastsensitivity+($player.sex is "f"? -1 : 1) * V.xchange.pillSensitivityChange, 0.25, 6)>>
+			<<set $bottomsensitivity = Math.clamp($bottomsensitivity+($player.sex is "f"? -1 : 1) * V.xchange.pillSensitivityChange, 0.25, 3)>>
+			<<set $genitalsensitivity = Math.clamp($genitalsensitivity+($player.sex is "f"? -1 : 1) * V.xchange.pillSensitivityChange, 0.25, 10)>>
+		<</if>>
+	<</if>>
 
 <</widget>>

@@ -1,11 +1,48 @@
+function paramError(functionName = "", param = "", value, expectedValues = "") {
+	if (typeof value === "object") value = JSON.stringify(value);
+	/* Included both types of error reporting, since this often will only occur in a link */
+	Errors.report(
+		`Unexpected value for the function "${functionName}" in the passage "${V.passage}". Param "${param}" had unexpected value of "${value}".${
+			expectedValues ? ` ${expectedValues}` : ""
+		}`
+	);
+	throw new Error(
+		`Unexpected value for the function "${functionName}". Param "${param}" had unexpected value of "${value}".${
+			expectedValues ? ` ${expectedValues}` : ""
+		}`
+	);
+}
+
+function getSensitivity(part) {
+	let purityMod = (1000 - V.purity) * V.xchange.impuritySensitivityBonus / 1000;
+	const xchangeMod = playerIsXChanged() ? 
+		(V.player.sex === "f"? 1 : -1) * V.xchange.pillSensitivityChange : 0; 
+
+	switch(part) {
+		case "mouth":
+			return V.mouthsensitivity;
+		case "breast":
+		case "breasts":
+			return Math.clamp(V.breastsensitivity + purityMod + xchangeMod, 0.25, 6);
+		case "bottom":
+			return Math.clamp(V.bottomsensitivity + purityMod + xchangeMod, 0.25, 3);
+		case "genital":
+		case "genitals":
+			return Math.clamp(V.genitalsensitivity + 2 * purityMod + xchangeMod, 0.25, 10);
+		default:
+			paramError("getSensitivity", "part", part, "Expected a string, see function for accepted values");
+			break;
+	}
+}
+window.getSensitivity = getSensitivity;
+
 function pleasure(amount, source) {
 	if (isNaN(amount)) paramError("pleasure", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 	const fragment = document.createDocumentFragment();
 
 	if (amount) {
-		let mod = 1;
-		let purityMod = (1000 - V.purity) * V.xchange.impuritySensitivityBonus / 1000;
+		let mod = 1; 
 
 		// If currently under the refractory period post-orgasm, prevent arousal from raising.
 		if (V.refractoryPeriod > 0 && amount > 0) {
@@ -41,14 +78,14 @@ function pleasure(amount, source) {
 			}
 		}
 
-		let beingPenetrated = ["penis", "penisdouble", "tentacle", "tentacledeep", "machine"];
-		let penetrating = ["penetrated", "othervagina", "otheranus", "othermouth"];
+		const beingPenetrated = ["penis", "penisdouble", "tentacle", "tentacledeep", "machine"];
+		const penetrating = ["penetrated", "othervagina", "otheranus", "othermouth"];
 		
-		let playerIsBeingPenetrated =
+		const playerIsBeingPenetrated =
 			beingPenetrated.includes(V.vaginause) || beingPenetrated.includes(V.anususe) || [0,3].includes(V.portalPanties.state.vagina?.new) || [0,3].includes(V.portalPanties.state.anus?.new) || V.portalejacvagina || V.portalejacanus;
 
-		let penisAddictionFulfilled = playerIsBeingPenetrated || playerHasButtPlug() ;
-		let holeAddictionFulfilled = penetrating.includes(V.penisuse);
+		const penisAddictionFulfilled = playerIsBeingPenetrated || playerHasButtPlug() ;
+		const holeAddictionFulfilled = penetrating.includes(V.penisuse);
 
 		// Apply effect according to source
 		let sensitivity = 0;
@@ -66,7 +103,7 @@ function pleasure(amount, source) {
 			case "masturbationMouth":
 			case "masturbationOral":
 			case "kiss":
-				sensitivity += V.mouthsensitivity;
+				sensitivity += getSensitivity("mouth"); 
 				break;
 			case "breast":
 			case "breasts":
@@ -76,7 +113,7 @@ function pleasure(amount, source) {
 			case "masturbationBreasts":
 			case "masturbationNipples":
 			case "chest_grope":
-				sensitivity += V.breastsensitivity + purityMod;
+				sensitivity += getSensitivity("breast");
 				fragment.append(wikifier("playWithBreasts"));
 				if (playerIsPregnant()) sensitivity += 0.5;
 				break;
@@ -94,7 +131,7 @@ function pleasure(amount, source) {
 					analWetnessPenalty = Math.min(V.anusWetness/60, 1);
 					if (V.penis_addict_trait === 1) sensitivity += 0.5;
 				}
-				sensitivity += Math.max((V.bottomsensitivity + purityMod) * analWetnessPenalty, 0.25);
+				sensitivity += getSensitivity("bottom");
 				break;
 			case "genital":
 			case "genitals":
@@ -114,7 +151,7 @@ function pleasure(amount, source) {
 					wetnessPenalty = Math.min(V.vaginaWetness/60, 1);
 					if (V.penis_addict_trait === 1) sensitivity += 0.5;
 				}
-				sensitivity += Math.max((V.genitalsensitivity + 2*purityMod) * wetnessPenalty, 0.25);
+				sensitivity += getSensitivity("genital");
 				if (playerIsPregnant()) sensitivity += 0.5;
 				break;
 			case "time":
@@ -126,7 +163,7 @@ function pleasure(amount, source) {
 				V.trackedArousal.push(0);
 				break;
 			default:
-				paramError("arousal", "source", source, "Expected a string, see function for values");
+				paramError("pleasure", "source", source, "Expected a string, see function for values");
 				break;
 		}
 
@@ -245,6 +282,16 @@ function getPleasure(passMinutes) {
 
 	return addedPleasure;
 }
+
+function updatePhysique() {
+	const physiquesizes = [6000, 10000, 12000, 16000];
+
+	V.physiquesize = physiquesizes[V.bodysize];
+	V.physique = 
+		V.xchange.baseStats.physique * (V.physiquesize / V.xchange.baseStats.physiquesize) * 
+		(V.player.gender !== V.player.sex ? V.xchange.physiqueChangePercent / 100 : 1);
+}
+window.updatePhysique = updatePhysique;
 
 function sumTalents() {
 	return V.AMCTraits.skulduggery + V.AMCTraits.dancing + V.AMCTraits.swimming + V.AMCTraits.athletics + V.AMCTraits.tending + V.AMCTraits.housekeeping + V.AMCTraits.brawling + V.AMCTraits.footwork + V.AMCTraits.striking + V.AMCTraits.kicking + V.AMCTraits.science + V.AMCTraits.maths + V.AMCTraits.english + V.AMCTraits.history;
@@ -365,6 +412,45 @@ function genderIsIgnored() {
 }
 window.genderIsIgnored = genderIsIgnored;
 
+function updateRemoverPillCatalogue() {
+	wikifier("xchange-get-spikepool"); 
+	T.effectPool.deleteWith((val)=>val==="genderflip");
+	T.effectPool.deleteWith((val)=>val==="herm");
+
+	V.xchange.removerPillCatalogue = [];
+	for (let i = 0; i < 5; i++) {
+		const pillType = T.effectPool.pluck();
+		V.xchange.removerPillCatalogue.push(pillType);
+	}
+}
+window.updateRemoverPillCatalogue = updateRemoverPillCatalogue;
+
+function xchangeTimePassedCheck(minutes = 1) {
+	
+	if (V.arousal >= V.arousalmax * 2/5) 
+		wikifier("willpower-spending", minutes * 0.5 * Math.ceil( (V.arousal - V.arousalmax*2/5) / (V.arousalmax/10) ));
+	else if (V.xchange.willpowerPoints < V.willpower * 0.5) 
+		wikifier("willpower-recovery", minutes * 0.5 * Math.ceil( (V.arousalmax*2/5 - V.arousal) / (V.arousalmax/10) ));
+	
+	if (V.drugged > 200 && V.arousal < V.arousalmax * 4/5) 
+		wikifier("arousal", (V.drugged / 10) * 3 * minutes);
+	else if (V.drugged > 100 && V.arousal < V.arousalmax * 3/5) 
+		wikifier("arousal", (V.drugged / 10) * 2 * minutes);
+	else if (V.drugged > 0 && V.arousal < V.arousalmax * 2/5)
+		wikifier("arousal", (V.drugged / 10) * minutes);
+
+	wikifier("blackmail-timepassed");
+
+	// Portal Panties
+	wikifier("portalPantiesPass", minutes);
+
+	// Pub
+	V.xchange.pubtimer = Math.max(V.xchange.pubtimer - 1, 0);
+
+
+}
+window.xchangeTimePassedCheck = xchangeTimePassedCheck;
+
 function xchangeWeeklyCheck(weeks = 1) {
 	if (!V.statFreeze) {
 		if (V.xchange.pubGamblingEnabled && !V.weekly.gamblingUpkeepPaid) {
@@ -380,6 +466,14 @@ function xchangeWeeklyCheck(weeks = 1) {
 			}
 		}
 	}
+
+	// 1 - 0b001: Suspicious Pills Dealer
+	// 2 - 0b010: Portal Pill Dealer
+	// 4 - 0b100: Effect Remover Pill Dealer
+	const dealerOdds = [1,2,4];
+	V.xchange.weeklyShadyDealer = dealerOdds.pluck() | dealerOdds.pluck();
+	if (V.xchange.weeklyShadyDealer & 4) updateRemoverPillCatalogue();
+
 }
 window.xchangeWeeklyCheck = xchangeWeeklyCheck;
 
@@ -416,8 +510,8 @@ function xchangeHourlyCheck(hours = 1) {
 		const pill = V.xchange.pill;
 		if (pill?.active)
 		{
-			// Tick the pill's duration down
-			pill.duration = Math.max(pill.duration - 1 * hours, 0);
+			// Tick the pill's duration down if the pill isn't permanent
+			if (!pillIsPermanent()) pill.duration = Math.max(pill.duration - 1 * hours, 0);
 	
 			// Clamp the pill duration to only ever save up to 30 days (in particular for Continue pills)
 			pill.duration = Math.min(pill.duration, 30*24);
@@ -440,7 +534,7 @@ function xchangeHourlyCheck(hours = 1) {
 				if (!pillIsPermanent() && !pillTimerPaused() && pill.resistanceEffect && random(0,100) > pill.resistanceChance) {
 					if (V.xchange.pillPermanence === 1) wikifier("xchange-setpermanent");
 					else {
-						pill.duration += 30 * 24;
+						pill.duration += Math.max(1, V.xchange.resistanceDaysPenalty) * 24;
 						pill.resistanceEffect = false;
 						pill.fertile = true;
 						pill.resistanceFakeout = true;
@@ -490,8 +584,8 @@ function xchangeHourlyCheck(hours = 1) {
 	
 		// Apply hour-random passion effect
 		for (let i = 0; i < hours; i++) {
-			if (pill?.passionEffect && random(0,8) == 0) {
-				wikifier("drugs", 300); 
+			if (pill?.passionEffect && ((V.substanceRebalance == 1 && random(0,10) == 0) || random(0,8) == 0)) {
+				wikifier("drugs", V.substanceRebalance == 1? 120 : 200); 
 				V.effectsmessage = 1;
 				V.xchange_passion_message = 1;
 			}
@@ -695,6 +789,24 @@ function xchangeEffectsMessages() {
 			break;
 		default:
 			break;
+	}
+
+	if (V.breastSensitiveRubMessage) {
+		if (V.worn.under_upper.type !== "naked" && V.worn.under_upper.exposed < 2)
+			element("span", `Your ${wikifier("breasts")} are rubbing against your ${V.worn.under_upper.name}.`);
+		else
+			element("span", `Your ${wikifier("breasts")} are rubbing against your ${V.worn.upper.name}.`);
+		br();
+		delete V.breastSensitiveRubMessage;
+	}
+
+	if (V.genitalSensitiveRubMessage) {
+		if (V.worn.under_lower.type !== "naked" && V.worn.under_lower.exposed < 2)
+			element("span", `Your ${V.player.penisExist? wikifier("penis") : wikifier("clit")} is rubbing against your ${V.worn.under_lower.name}.`);
+		else
+			element("span", `Your ${V.player.penisExist? wikifier("penis") : wikifier("clit")} is rubbing against your ${V.worn.lower.name}.`);
+		br();
+		delete V.genitalSensitiveRubMessage;
 	}
 
 	if (V.breederEdgingMessage) {
