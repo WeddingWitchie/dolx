@@ -1006,9 +1006,9 @@ setup.pills = [
 		effects: [`<<take-xchange random(1,3) "random">>`],
 	},
 	{
-		name: "Suspicious Pink Pill",
+		name: "Suspicious Purple Pill",
 		description:
-			"An unlabelled pink pill of unknown origin and manufacture. Unpredictable effects.",
+			"An unlabelled purple pill of unknown origin and manufacture. Unpredictable effects.",
 		onTakeMessage: 
 			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of both a man's and a woman's body.<br><br>Your new body feels distinctly different from your original, yet also strangely familiar. In many ways, alien. But still very much yours. Should you choose, you could probably pass as any gender you want as long as there's clothes on you.<br><br>Finally, you approach the mirror, and having a good look, you also realise you look exceedingly beautiful as well.",
 		warning_label:
