@@ -1117,11 +1117,11 @@ function minutePassed(minutes) {
 	V.timeSinceArousal = V.arousal < V.arousalmax / 4 ? V.timeSinceArousal + minutes : 1;
 
 	if (getSensitivity("breasts") >= 4 && ((V.worn.upper.type !== "naked" && V.worn.upper.exposed < 2) || (V.worn.under_upper.type !== "naked" && V.worn.under_upper.exposed < 2))) {
-		arousal(2 * minutes, "nipples");
+		statChange.arousal(2 * minutes, "nipples");
 		V.breastSensitiveRubMessage = (V.breastSensitiveRubMessage ?? 0) + 1;
 	}
 	if (getSensitivity("genitals") >= 5 && ((V.worn.lower.type !== "naked" && (wornSetupClothes("lower").skirt !== 1 || V.worn.lower.exposed < 2)) || V.worn.under_lower.type !== "naked")) {
-		arousal(2 * minutes, "genitals");
+		statChange.arousal(2 * minutes, "genitals");
 		V.genitalSensitiveRubMessage = (V.genitalSensitiveRubMessage ?? 0) + 1;
 	}
 
