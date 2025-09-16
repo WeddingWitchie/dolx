@@ -1663,7 +1663,7 @@ window.heatRutSexStatModifier = heatRutSexStatModifier;
  * @returns {number}
  */
 function innocenceSexStatModifier() {
-	if (V.innocencestate === 0) return 0;
+	if (!V.innocencestate) return 0;
 
 	const maxValue = 100; // max innoncence makes you oblivious to dangers of your actions
 	const obliviousness = -(V.awareness) / 200; // how oblivious PC is
