@@ -1116,13 +1116,28 @@ function minutePassed(minutes) {
 	statChange.arousal(minutes * arousalMultiplier + getArousal(minutes));
 	V.timeSinceArousal = V.arousal < V.arousalmax / 4 ? V.timeSinceArousal + minutes : 1;
 
-	if (getSensitivity("breasts") >= 4 && ((V.worn.upper.type !== "naked" && V.worn.upper.exposed < 2) || (V.worn.under_upper.type !== "naked" && V.worn.under_upper.exposed < 2))) {
-		statChange.arousal(2 * minutes, "nipples");
+	// Nipple Sensitive Rubbing
+	const nipplesAreSensitive = getSensitivity("breasts") >= 4;
+	const wearingLooseBra = !V.worn.under_upper.type.includes("naked");
+	const wearingLooseUpper = !V.worn.upper.type.includes("naked");
+	const thereIsFabricRubbing = 
+		(wearingLooseBra && V.worn.under_upper.exposed < 2) || (wearingLooseUpper && V.worn.upper.exposed < 2);
+	
+	if (nipplesAreSensitive && thereIsFabricRubbing) {
+		statChange.arousal(4 * minutes, "nipples");
 		V.breastSensitiveRubMessage = (V.breastSensitiveRubMessage ?? 0) + 1;
+		V.effectsmessage = 1;
 	}
-	if (getSensitivity("genitals") >= 5 && ((V.worn.lower.type !== "naked" && (wornSetupClothes("lower").skirt !== 1 || V.worn.lower.exposed < 2)) || V.worn.under_lower.type !== "naked")) {
-		statChange.arousal(2 * minutes, "genitals");
+
+	// Genital Sensitive Rubbing
+	const genitalsAreSensitive = getSensitivity("genitals") >= 4;
+	const wearingUnderwear = !V.worn.under_lower.type.includes("naked");
+	const wearingPants = !V.worn.lower.type.includes("naked") && wornSetupClothes("lower").skirt !== 1;
+
+	if (genitalsAreSensitive && (wearingPants || wearingUnderwear)) {
+		statChange.arousal(4 * minutes, "genitals");
 		V.genitalSensitiveRubMessage = (V.genitalSensitiveRubMessage ?? 0) + 1;
+		V.effectsmessage = 1;
 	}
 
 	pleasure(minutes * -25 + getPleasure(minutes));
