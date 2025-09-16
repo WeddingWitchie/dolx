@@ -128,14 +128,16 @@ You approach the shady-looking, coat-wearing, <<person1>><<person>>, and <<his>>
             <<set _catalogue = []>>
             <<run $xchange.removerPillCatalogue.forEach(pill => _catalogue.pushUnique(pill))>>
             <<for _type range _catalogue>>
-
-                <<link [[`Buy an anti-${_type} pill (£500)`|Park Shady Person Accept]]>>
-                    <<run $xchange.removerPillCatalogue.deleteAt($xchange.removerPillCatalogue.indexOf(_type))>>
-                    <<set $sexStats.pills.pills[`SWP Anti-${_type} Pill`].owned += 1>>
-                    <<set $sexStats.pills.boughtOnce to true>>
-                    <<set $money -= 50000>>
-                    <<set $daily.boughtRemoverPillToday to ($daily.boughtRemoverPillToday ?? 0) + 1>>
-                <</link>> 
+                <<run console.log(`SWP Anti-${_type} Pill`)>>
+                <<capture _type>>
+                    <<link [[`Buy an anti-${_type} pill (£500)`|Park Shady Person Accept]]>>
+                        <<run $xchange.removerPillCatalogue.deleteAt($xchange.removerPillCatalogue.indexOf(_type))>>
+                        <<set $sexStats.pills.pills[`SWP Anti-${_type} Pill`].owned += 1>>
+                        <<set $sexStats.pills.boughtOnce to true>>
+                        <<set $money -= 50000>>
+                        <<set $daily.boughtRemoverPillToday to ($daily.boughtRemoverPillToday ?? 0) + 1>>
+                    <</link>> 
+                <</capture>>
                 | In Stock: <span class="gold"><<= $xchange.removerPillCatalogue.countWith(pill => pill === _type)>></span>
                 <br>
             <</for>>
@@ -159,11 +161,17 @@ You approach the shady-looking, coat-wearing, <<person1>><<person>>, and <<his>>
 :: Park Shady Person Accept
 <<effects>>
 
-"There we go," the <<person>> takes the cash, and with single motion hands you over a tiny padded box containing a pill. "Pleasure doing business with you," and <<he>> storms off.
+You purchase the innocuous-looking pill.
 <br><br>
 
-<<endevent>>
-<<link [[Leave|Park]]>><</link>>
+"There we go," the <<person>> takes the cash, and with a single fluid motion, hands you over a tiny padded box containing the pill. 
+<br><br>
+
+/* "Pleasure doing business with you," and <<he>> storms off.
+<br><br> */
+
+/* <<endevent>> */
+<<link [[Next|Park Shady Person]]>><</link>>
 
 :: Park Shady Person Refuse
 <<effects>>

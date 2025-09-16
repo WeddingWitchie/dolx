@@ -807,11 +807,11 @@ function xchangeEffectsMessages() {
 	if (V.genitalSensitiveRubMessage) {
 		if (!V.worn.under_lower.type.includes("naked") && V.worn.under_lower.exposed < 2) {
 			wikifier("genitalsensitivity");
-			element("span", `Your ${T.text_output2}${V.player.penisExist? "penis" : "clit"} is rubbing against your ${V.worn.under_lower.name}.`, "pink");
+			element("span", `Your ${T.text_output2 ?? " "}${V.player.penisExist? "penis" : "clit"} is rubbing against your ${V.worn.under_lower.name}.`, "pink");
 		}
 		else {
 			wikifier("genitalsensitivity");
-			element("span", `Your ${T.text_output2}${V.player.penisExist? "penis" : "clit"} is rubbing against your ${V.worn.lower.name}.`, "pink");
+			element("span", `Your ${T.text_output2 ?? " "}${V.player.penisExist? "penis" : "clit"} is rubbing against your ${V.worn.lower.name}.`, "pink");
 		}
 		br();
 		delete V.genitalSensitiveRubMessage;
