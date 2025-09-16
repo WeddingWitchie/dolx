@@ -87,8 +87,8 @@ You tell you're not interested in the offer, and turn to leave.
 You approach the shady-looking, coat-wearing, <<person1>><<person>>, and <<his>> eyes meet yours.
 <br><br>
 
-<<if $daily.boughtRemoverPillToday>>
-    "Hey, I'm sorry," <<he>> stonewalls you before you even have a chance to say a word. "We've got other clients who have shown interest in our product. So in the interest of fairness, I can only sell you one anti-pill each day."
+<<if $daily.boughtRemoverPillToday gte 3>>
+    "Hey, I'm sorry," <<he>> stonewalls you before you even have a chance to say a word. "We've got other clients who have shown interest in our product. So in the interest of fairness, I can only sell you so many anti-pills each day."
     <br><br>
 
     "But please, <<sir>>. Do come back tomorrow if you want another fix," <<he>> smiles widely while rubbing <<his>> hands together.
@@ -104,37 +104,55 @@ You approach the shady-looking, coat-wearing, <<person1>><<person>>, and <<his>>
     From <<his>> pocket <<he>> takes out a bunch of <span class="green">green-looking pills</span>. "These are anti-pills. Authentic Somatic Warp Pharmaceutical (SWP) anti-pills," you reach out with curiosity but <<he>> retreats. "Ah ah ah, not so fast. These get produced in very limited batches, so they aren't that easy to obtain."
     <br><br>
 
-    "In case you're wondering what they do," a bit snotty-nosed, <<he>> goes into a practiced sales pitch. "SWP has been proudly researching into ways to decode the otherwordly magic that is X-Change Pharmaceutics' tech. And one such result of said research has been these little puppies," you see <<him>> stand proudly as if this was an direct achievement of <<his>>. "Anti-pills."
-    <br><br>
+    <<if !$weekly.shadyPitchDelivered>>
+        "In case you're wondering what they do," a bit snotty-nosed, <<he>> goes into a practiced sales pitch. "SWP has been proudly researching into ways to decode the otherwordly magic that is X-Change Pharmaceutics' tech. And one such result of said research has been these little puppies," you see <<him>> stand proudly as if this was an direct achievement of <<his>>. "Anti-pills."
+        <br><br>
 
-    "Pills that target the markers left on the body by the action of regular pills, in order to follow them to the source and neutralise the agents that cause any specified undesirable effect." Your ears perk up once you hear this last part. "You'll no longer have to fear the distressing effects of a Dumb Bitch pill anymore as long as you have its corresponding anti-Dumb Bitch pill at hand."
-    <br><br>
+        "Pills that target the markers left on the body by the action of regular pills, in order to follow them to the source and neutralise the agents that cause any specified undesirable effect." Your ears perk up once you hear this last part. "You'll no longer have to fear the distressing effects of a Dumb Bitch pill anymore as long as you have its corresponding anti-Dumb Bitch pill at hand."
+        <br><br>
 
-    "And all of this for the very low price of <<printmoney 50000>> each," you listen intently as <<he>> finalises <<his>> pitch. "But you gotta act now. My stock is limited, and me and my associates will only remain on this town until the end of the week. Decide a minute too late, and we'll already be well on our way onto another town."
-    <br><br>
+        "And all of this for the very low price of <<printmoney 50000>> each," you listen intently as <<he>> finalises <<his>> pitch. "But you gotta act now. My stock is limited, and me and my associates will only remain on this town until the end of the week. Decide a minute too late, and we'll already be well on our way onto another town."
+        <br><br>
+
+        <<set $weekly.shadyPitchDelivered to 1>>
+    <<else>>
+        Extending <<his>> hand once again to entice you. "Anyway, let's cut to the chase," <<he>> begins. "As my colleague probably explained the other day. These are <<printmoney 50000>> each."
+        <br><br>
+    <</if>>
 
     "So, what do say you?" <<he>> asks. "Interested?"
     <br><br>
 
     <<if $money gte 50000>>
         <<if $xchange.removerPillCatalogue.length gt 0>>
-            <<for _type range $xchange.removerPillCatalogue.toUnique()>>
+            <<set _catalogue = []>>
+            <<run $xchange.removerPillCatalogue.forEach(pill => _catalogue.pushUnique(pill))>>
+            <<for _type range _catalogue>>
+
                 <<link [[`Buy an anti-${_type} pill (£500)`|Park Shady Person Accept]]>>
-                    <<run $xchange.removerPillCatalogue.deleteFirst(_type)>>
+                    <<run $xchange.removerPillCatalogue.deleteAt($xchange.removerPillCatalogue.indexOf(_type))>>
                     <<set $sexStats.pills.pills[`SWP Anti-${_type} Pill`].owned += 1>>
                     <<set $sexStats.pills.boughtOnce to true>>
                     <<set $money -= 50000>>
-                    <<set $daily.boughtRemoverPillToday to true>>
-                <</link>>
+                    <<set $daily.boughtRemoverPillToday to ($daily.boughtRemoverPillToday ?? 0) + 1>>
+                <</link>> 
+                | In Stock: <span class="gold"><<= $xchange.removerPillCatalogue.countWith(pill => pill === _type)>></span>
+                <br>
             <</for>>
         <<else>>
             <<He>> has run out of stock.
+            <br>
         <</if>>
     <<else>>
         You don't have enough cash.
+        <br>
     <</if>>
     <br>
-    <<link [[Refuse|Park Shady Person Refuse]]>><</link>>
+    <<if $xchange.removerPillCatalogue.length gt 0>>
+        <<link [[Refuse|Park Shady Person Refuse]]>><</link>>
+    <<else>>
+        <<link [[Leave|Park]]>><<endevent>><</link>>
+    <</if>>
     <br>
 <</if>>
 
@@ -153,7 +171,10 @@ You approach the shady-looking, coat-wearing, <<person1>><<person>>, and <<his>>
 You tell you're not interested in the offer, and turn to leave.
 <br><br>
 
-"Suit yourself," <<he>> shrugs. "The risks of getting spiked in this town do seem pretty high. So you'll probably be back." You turn yourself to leave, and barely within earshot, you hear <<him>> mutter under <<his>> breath: "Guess we are not distributing enough pills into this town's streets after all..."
+"Suit yourself," <<he>> shrugs. 
+<br><br>
+
+"The risks of getting spiked in this town do seem pretty high. So you'll probably be back." Barely within earshot, you hear <<him>> mutter under <<his>> breath: <span class="red">"Guess we are not distributing enough pills into this town after all..."</span>
 <br><br>
 
 <<endevent>>

@@ -792,19 +792,27 @@ function xchangeEffectsMessages() {
 	}
 
 	if (V.breastSensitiveRubMessage) {
-		if (V.worn.under_upper.type !== "naked" && V.worn.under_upper.exposed < 2)
-			element("span", `Your ${wikifier("breasts")} are rubbing against your ${V.worn.under_upper.name}.`);
-		else
-			element("span", `Your ${wikifier("breasts")} are rubbing against your ${V.worn.upper.name}.`);
+		if (!V.worn.under_upper.type.includes("naked") && V.worn.under_upper.exposed < 2) {
+			wikifier("breastsensitivity");
+			element("span", `Your ${T.text_output2}nipples are rubbing against your ${V.worn.under_upper.name}.`, "pink");
+		}
+		else {
+			wikifier("breastsensitivity");
+			element("span", `Your ${T.text_output2}nipples are rubbing against your ${V.worn.upper.name}.`, "pink");
+		}
 		br();
 		delete V.breastSensitiveRubMessage;
 	}
 
 	if (V.genitalSensitiveRubMessage) {
-		if (V.worn.under_lower.type !== "naked" && V.worn.under_lower.exposed < 2)
-			element("span", `Your ${V.player.penisExist? wikifier("penis") : wikifier("clit")} is rubbing against your ${V.worn.under_lower.name}.`);
-		else
-			element("span", `Your ${V.player.penisExist? wikifier("penis") : wikifier("clit")} is rubbing against your ${V.worn.lower.name}.`);
+		if (!V.worn.under_lower.type.includes("naked") && V.worn.under_lower.exposed < 2) {
+			wikifier("genitalsensitivity");
+			element("span", `Your ${T.text_output2}${V.player.penisExist? "penis" : "clit"} is rubbing against your ${V.worn.under_lower.name}.`, "pink");
+		}
+		else {
+			wikifier("genitalsensitivity");
+			element("span", `Your ${T.text_output2}${V.player.penisExist? "penis" : "clit"} is rubbing against your ${V.worn.lower.name}.`, "pink");
+		}
 		br();
 		delete V.genitalSensitiveRubMessage;
 	}
