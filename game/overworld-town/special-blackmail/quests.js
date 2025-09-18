@@ -439,7 +439,7 @@ blackmailQuests.mid.push( // Avoid defiance for a day
 		],
 		clearCondition: function() { return true; },
 		failCondition: function() { return this.behavedDefiantly; },
-		alertMessage: ``,
+		alertMessage: `You just acted defiantly.`,
 		clearCheck: function() {
 			if (this.clearCondition()) {
 				this.cleared = true;
