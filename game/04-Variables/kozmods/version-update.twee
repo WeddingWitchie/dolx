@@ -231,6 +231,10 @@
 		<<set $xchange.NNPCcombatPillingEnabled to 1>>
 	<</if>>
 
+	<<if ndef $xchange.errorLog>>
+		<<set $xchange.errorLog = []>>
+	<</if>>
+
 <</widget>>
 
 <<widget "xchange-init2">>
@@ -540,5 +544,17 @@
 			<<set $genitalsensitivity = Math.clamp($genitalsensitivity+($player.sex is "f"? -1 : 1) * V.xchange.pillSensitivityChange, 0.25, 10)>>
 		<</if>>
 	<</if>>
+
+	<<for _cr range Object.keys(setup.crimeNames)>>
+		<<if ndef $crime[_cr]>>
+			<<set $crime[_cr] to {
+				current: 		0, 
+				history: 		0, 
+				daily: 			0, 
+				count: 			0, 
+				countHistory: 	0}>>
+			<<set $xchange.errorLog.push(`Crime "${_cr}" data was found wiped, so has been reset.`)>>
+		<</if>>
+	<</for>>
 
 <</widget>>

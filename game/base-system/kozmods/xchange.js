@@ -794,11 +794,11 @@ function xchangeEffectsMessages() {
 	if (V.breastSensitiveRubMessage) {
 		if (!V.worn.under_upper.type.includes("naked") && V.worn.under_upper.exposed < 2) {
 			wikifier("breastsensitivity");
-			element("span", `Your ${T.text_output2}nipples are rubbing against your ${V.worn.under_upper.name}.`, "pink");
+			element("span", `Your ${T.text_output2 ?? " "}nipples are rubbing against your ${V.worn.under_upper.name}.`, "pink");
 		}
 		else {
 			wikifier("breastsensitivity");
-			element("span", `Your ${T.text_output2}nipples are rubbing against your ${V.worn.upper.name}.`, "pink");
+			element("span", `Your ${T.text_output2 ?? " "}nipples are rubbing against your ${V.worn.upper.name}.`, "pink");
 		}
 		br();
 		delete V.breastSensitiveRubMessage;
