@@ -676,8 +676,15 @@
 			<<else>>
 				<<set $wardrobes.shopReturn to "wardrobe">>
 			<</if>>
+
+			<<set _handbagSlotsInUse to getWardrobeItemCount("inventory")>>
+			<<set _handbagSpaceLeft to $worn.handheld.type.includes("bookbag")? $wardrobes.inventory.space - _handbagSlotsInUse : 0>>
+			<span>Handbag inventory slots used: <<= _handbagSlotsInUse>> / <<= $wardrobes.inventory.space>></span>
+			<<if _handbagSpaceLeft lt 1>>- (<span class="gold">Full!</span>)<</if>>
+			<br>
 			<<shopBuyItemStatus _wardrobeSlots>>
-			<<if _spaceLeft < 1>>
+
+			<<if _spaceLeft + _handbagSpaceLeft < 1>>
 				<span class="red">Your wardrobe is full.</span>
 				<br>
 			<<elseif (Time.dayState is "night" and $passage isnot "Forest Shop") or _shopCloseOverride>>
@@ -765,7 +772,8 @@
 					<<if $buyMultiple is undefined>>
 						<<set $buyMultiple = 1>>
 					<</if>>
-					<div id="buy-send-home">
+					<div id="buy-send" class="d-flex">
+						<<printbuysendtohandbag>>
 						<<printbuysendhome>>
 					</div>
 				</div>
@@ -835,10 +843,53 @@
 	<</if>>
 <</widget>>
 
+<<widget "printbuysendtohandbag">>
+	<<set _clothingCost = getClothingCost(_temp_choice, $clothingShopSlot)>>
+	<<set _canAfford = ($money >= _clothingCost * $buyMultiple and $wardrobes.inventory.space - getWardrobeItemCount("inventory") >= $buyMultiple) ? "" : "disabled">>
+	<div id="send-to-handbag" class="buy-button">
+		<div @class="'buy-button-inner buy-multiple div-link ' + _canAfford">
+			<<link `'Buy and keep in handbag × ' + $buyMultiple`>>
+				<<if $money >= _clothingCost * $buyMultiple and $wardrobes.inventory.space - getWardrobeItemCount("inventory") >= $buyMultiple>>
+					<<clothingReset _realSlot>>
+					<<shopbuyv2 _realSlot "buy" "handbag" _realIndex $buyMultiple>>
+					<<money `-_clothingCost * $buyMultiple` "clothes">>
+					<<if $shopDefaults.disableReturn is false>>
+						<<unset $clothes_choice>>
+					<</if>>
+					<<updateclotheslist>>
+					<<updatesidebarimg>>
+					<<updatesidebarmoney>>
+					<<run updateMoment()>>
+				<</if>>
+			<</link>>
+			<span>(<span class="gold"><<printmoney `_clothingCost * $buyMultiple`>></span>)</span>
+		</div>
+
+		<div id="buy-multiple-handbag-slider" class="buy-multiple-slider">
+			<<numberslider "$buyMultiple" $buyMultiple 1 10 1>>
+		</div>
+		<!-- Update text of "Buy and send home" button -->
+		<!-- <<run $(() => { $('#buy-multiple-handbag-slider input').on('change', () => { new Wikifier (null, "<<updateclotheslist>>") }); })>> -->
+		<<run $(() => {
+			$('#buy-multiple-handbag-slider input').on('input change', () => {
+				let cost = getClothingCost(_temp_choice, $clothingShopSlot);
+				let el = $('#buy-send > #send-to-handbag.buy-button > .buy-button-inner > a');
+				let text = el.text().split(' ');
+				text.pop();
+				text.push($buyMultiple);
+				el.text(text.join(' '));
+
+				$('#buy-send > #send-to-handbag.buy-button > .buy-button-inner > span > span').text('£' + cost * $buyMultiple / 100);
+				$('#buy-send > #send-to-handbag.buy-button > .buy-button-inner').toggleClass('disabled', $money < cost * $buyMultiple || $wardrobes.inventory.space - getWardrobeItemCount("inventory") < $buyMultiple);
+			});
+		})>>
+	</div>
+<</widget>>
+
 <<widget "printbuysendhome">>
 	<<set _clothingCost = getClothingCost(_temp_choice, $clothingShopSlot)>>
 	<<set _canAfford = ($money >= _clothingCost * $buyMultiple and _spaceLeft >= $buyMultiple) ? "" : "disabled">>
-	<div class="buy-button">
+	<div id="send-home" class="buy-button">
 		<div @class="'buy-button-inner buy-multiple div-link ' + _canAfford">
 			<<link `'Buy and send home × ' + $buyMultiple`>>
 				<<if $money >= _clothingCost * $buyMultiple and _spaceLeft >= $buyMultiple>>
@@ -865,14 +916,14 @@
 		<<run $(() => {
 			$('#buy-multiple-slider input').on('input change', () => {
 				let cost = getClothingCost(_temp_choice, $clothingShopSlot);
-				let el = $('#buy-send-home > .buy-button > .buy-button-inner > a');
+				let el = $('#buy-send > #send-home.buy-button > .buy-button-inner > a');
 				let text = el.text().split(' ');
 				text.pop();
 				text.push($buyMultiple);
 				el.text(text.join(' '));
 
-				$('#buy-send-home > .buy-button > .buy-button-inner > span > span').text('£' + cost * $buyMultiple / 100);
-				$('#buy-send-home > .buy-button > .buy-button-inner').toggleClass('disabled', $money < cost * $buyMultiple || _spaceLeft < $buyMultiple);
+				$('#buy-send > #send-home.buy-button > .buy-button-inner > span > span').text('£' + cost * $buyMultiple / 100);
+				$('#buy-send > #send-home.buy-button > .buy-button-inner').toggleClass('disabled', $money < cost * $buyMultiple || _spaceLeft < $buyMultiple);
 			});
 		})>>
 	</div>
@@ -1143,6 +1194,11 @@
 		<<set _loop to _amount or 1>>
 		<<for _s = 0; _s lt _loop; _s++>>
 			<<generalSend $wardrobes.shopReturn _slot _choice_index $colouraction2 $accessorycolouraction2 $patternaction2>>
+		<</for>>
+	<<elseif _subaction is "handbag">>
+		<<set _loop to _amount or 1>>
+		<<for _s = 0; _s lt _loop; _s++>>
+			<<generalSend "inventory" _slot _choice_index $colouraction2 $accessorycolouraction2 $patternaction2>>
 		<</for>>
 	<</if>>
 <</widget>>

@@ -497,7 +497,7 @@ function wardrobesUpdate() {
 		unlocked: false,
 		shopSend: false,
 		transfer: true,
-		isolated: false,
+		isolated: true,
 		locationRequirement: [],
 		space: 5,
 	};
@@ -639,6 +639,19 @@ function wardrobesUpdate() {
 
 	if (!V.wardrobes.prison.locationRequirement?.length) {
 		V.wardrobes.prison.locationRequirement = ["prison"];
+	}
+
+	if (!V.wardrobes.inventory) {
+		/* Player inventory */
+		V.wardrobes.inventory = clone(defWardrobe);
+		V.wardrobes.inventory.name = "Player inventory";
+		V.wardrobes.inventory.unlocked = true;
+		V.wardrobes.inventory.transfer = true;
+		V.wardrobes.inventory.space = 10;
+		Object.keys(V.wardrobes).forEach(w => {
+			if (V.wardrobes[w].isolated !== undefined)
+				V.wardrobes[w].isolated = true;
+		});
 	}
 }
 DefineMacro("wardrobesUpdate", wardrobesUpdate);
