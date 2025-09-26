@@ -419,7 +419,8 @@ function updateRemoverPillCatalogue() {
 
 	V.xchange.removerPillCatalogue = [];
 	for (let i = 0; i < 5; i++) {
-		const pillType = T.effectPool.pluck();
+		// if (T.effectPool.length <= 0) break;
+		const pillType = T.effectPool.random();
 		V.xchange.removerPillCatalogue.push(pillType);
 	}
 }
