@@ -416,43 +416,45 @@
 			</span>
 		</div> |
 	<</if>>
-	<br><br>
-	<<set _targetWardrobe to "wardrobe">>
-	<<set _homeLocations to [
-		"wardrobe",
-		"edensCabin",
-		"alexFarm",
-		"temple",
-		"birdTower"
-	]>>
-	<<run _homeLocations.deleteWith(location => !$wardrobes[location]?.unlocked || $wardrobe_location === location)>>
-	<<if _homeLocations.length gt 0>>
-		<<set _locationMap = {}>>
-		<<run _homeLocations.forEach(key => _locationMap[$wardrobes[key].name] = key)>>
-		__Transfer All Clothes__<br>
-		Destination: 
-		<<listbox "_targetWardrobe" autoselect>>
-			<<optionsfrom _locationMap>>
-		<</listbox>>
-		<div class="wardrobe-action">
-			<<link "Transfer">>
-				<<set _currentWardrobeObj to selectWardrobe($wardrobe_location)>>
-				<<set _targetWardrobeObj to selectWardrobe(_targetWardrobe)>>
+	<<if $multipleWardrobes>>
+		<br><br>
+		<<set _targetWardrobe to "wardrobe">>
+		<<set _homeLocations to [
+			"wardrobe",
+			"edensCabin",
+			"alexFarm",
+			"temple",
+			"birdTower"
+		]>>
+		<<run _homeLocations.deleteWith(location => !$wardrobes[location]?.unlocked || $wardrobe_location === location)>>
+		<<if _homeLocations.length gt 0>>
+			<<set _locationMap = {}>>
+			<<run _homeLocations.forEach(key => _locationMap[$wardrobes[key].name] = key)>>
+			__Transfer All Clothes__<br>
+			Destination: 
+			<<listbox "_targetWardrobe" autoselect>>
+				<<optionsfrom _locationMap>>
+			<</listbox>>
+			<div class="wardrobe-action">
+				<<link "Transfer">>
+					<<set _currentWardrobeObj to selectWardrobe($wardrobe_location)>>
+					<<set _targetWardrobeObj to selectWardrobe(_targetWardrobe)>>
 
-				<<for _slot range setup.clothingLayer.all>>
-					<<capture _currentWardrobeObj, _slot>>
-						<<for _i, _item range _currentWardrobeObj[_slot]>>
-							<<if _targetWardrobeObj[_slot].length lt _targetWardrobeObj.space>>
-								<<run transferClothing(_slot, 0, $wardrobe_location, _targetWardrobe)>>
-							<<else>>
-								<<break>>
-							<</if>>
-						<</for>>
-					<</capture>>
-				<</for>>
-				<<updatewardrobe>>
-			<</link>>
-		</div>
+					<<for _slot range setup.clothingLayer.all>>
+						<<capture _currentWardrobeObj, _slot>>
+							<<for _i, _item range _currentWardrobeObj[_slot]>>
+								<<if _targetWardrobeObj[_slot].length lt _targetWardrobeObj.space>>
+									<<run transferClothing(_slot, 0, $wardrobe_location, _targetWardrobe)>>
+								<<else>>
+									<<break>>
+								<</if>>
+							<</for>>
+						<</capture>>
+					<</for>>
+					<<updatewardrobe>>
+				<</link>>
+			</div>
+		<</if>>
 	<</if>>
 	
 	<div id="randomClothingConfigure" class="hidden">
@@ -998,13 +1000,15 @@
 			<div class="wardrobe-action"><a onclick="wikifier('wardrobeListReorder', V.lastWardrobeSlot, 'outfit', true);">Outfit Status</a></div> |
 		<</if>>
 		<br><br>
-		Items in handbag:
-		<<if $worn.handheld.type.includes("bookbag")>>
-			<span class="gold"><<= getWardrobeItemCount("inventory")>>/<<= $wardrobes.inventory.space>> items</span>
-		<<else>>
-			no handbag equipped
+		<<if $multipleWardrobes>>
+			Items in handbag:
+			<<if $worn.handheld.type.includes("bookbag")>>
+				<span class="gold"><<= getWardrobeItemCount("inventory")>>/<<= $wardrobes.inventory.space>> items</span>
+			<<else>>
+				no handbag equipped
+			<</if>>
+			<br>
 		<</if>>
-		<br>
 		Currently equipped:
 		<<if $worn[_wardrobe_list].name is "naked">>
 			nothing
@@ -1126,7 +1130,7 @@
 		<</if>>
 
 		<<set _hasHandbag to $worn.handheld.type.includes("bookbag")>>
-		<<if _hasHandbag>>
+		<<if $multipleWardrobes and _hasHandbag>>
 			<<for _i to 0; _i lt $wardrobes.inventory[_wardrobe_list].length; _i++>>
 				<<set _item to $wardrobes.inventory[_wardrobe_list][_i]>>
 				<<set _itemData to setup.clothes[_wardrobe_list][clothesIndex(_wardrobe_list,_item)]>>
@@ -1241,19 +1245,21 @@
 							<</for>>
 						<</if>>
 
-						<<if !_slotsFull>>
-							<<capture _i, _outfitPieceIds>>
-								<span></span>
-								<<link "Move to Wardrobe">>
-									<<run transferClothing(_wardrobe_list,_i, "inventory",$wardrobe_location)>>
-									<<for $_outfitSlot, $_outfitId range _outfitPieceIds>>
-										<<run transferClothing($_outfitSlot,$_outfitId, "inventory",$wardrobe_location)>>
-									<</for>>
-									<<updatewardrobe>>
-								<</link>>
-							<</capture>>
-						<<else>>
-							<span class="gold">Wardrobe Full!</span>
+						<<if $multipleWardrobes>>
+							<<if !_slotsFull>>
+								<<capture _i, _outfitPieceIds>>
+									<span></span>
+									<<link "Move to Wardrobe">>
+										<<run transferClothing(_wardrobe_list,_i, "inventory",$wardrobe_location)>>
+										<<for $_outfitSlot, $_outfitId range _outfitPieceIds>>
+											<<run transferClothing($_outfitSlot,$_outfitId, "inventory",$wardrobe_location)>>
+										<</for>>
+										<<updatewardrobe>>
+									<</link>>
+								<</capture>>
+							<<else>>
+								<span class="gold">Wardrobe Full!</span>
+							<</if>>
 						<</if>>
 					</div>
 				</div>
@@ -1358,24 +1364,26 @@
 
 					| <span class="cold-resist-icon noDivider"><<print getTrueWarmth(_item)>></span>
 					
-					<<set _handbagIsFull to getWardrobeItemCount("inventory") gte $wardrobes.inventory.space>>
-					<<set _handsAreFull to getWardrobeItemCount("inventory") gte 2>>
+					<<if $multipleWardrobes>>
+						<<set _handbagIsFull to getWardrobeItemCount("inventory") gte $wardrobes.inventory.space>>
+						<<set _handsAreFull to getWardrobeItemCount("inventory") gte 2>>
 
-					<<if _hasHandbag and !_handbagIsFull>>
-						<<capture _i, _outfitPieceIds>>
-							<span></span>
-							<<link "Move to Handbag">>
-								<<run transferClothing(_wardrobe_list,_i,$wardrobe_location,"inventory")>>
-								<<for $_outfitSlot, $_outfitId range _outfitPieceIds>>
-									<<run transferClothing($_outfitSlot,$_outfitId, $wardrobe_location,"inventory")>>
-								<</for>>
-								<<updatewardrobe>>
-							<</link>>
-						<</capture>>
-					<<elseif _hasHandbag and _handbagIsFull>>
-						<span class="gold">Handbag Full!</span>
-					<<else>>
-						/* <span class="default-colour">No Handbag Available</span> */
+						<<if _hasHandbag and !_handbagIsFull>>
+							<<capture _i, _outfitPieceIds>>
+								<span></span>
+								<<link "Move to Handbag">>
+									<<run transferClothing(_wardrobe_list,_i,$wardrobe_location,"inventory")>>
+									<<for $_outfitSlot, $_outfitId range _outfitPieceIds>>
+										<<run transferClothing($_outfitSlot,$_outfitId, $wardrobe_location,"inventory")>>
+									<</for>>
+									<<updatewardrobe>>
+								<</link>>
+							<</capture>>
+						<<elseif _hasHandbag and _handbagIsFull>>
+							<span class="gold">Handbag Full!</span>
+						<<else>>
+							/* <span class="default-colour">No Handbag Available</span> */
+						<</if>>
 					<</if>>
 				</div>
 			</div>
