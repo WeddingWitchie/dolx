@@ -194,6 +194,14 @@ function genderappearancecheck() {
 	setfemininitymultiplierfromgender(V.player.gender_posture);
 	const actingMultiplier = V.englishtrait + 1;
 	addfemininityfromfactor(T.femininity_multiplier * 100 * actingMultiplier, "Posture (x" + actingMultiplier + " effectiveness due to English skill)");
+	/* Genderswap fame */
+	if (playerIsXChanged() && V.xchange_fame >= 2) {
+		if (V.player.gender === "m") {
+			addfemininityfromfactor(V.xchange_fame / 2, "Fame: Genderswap")
+		} else {
+			addfemininityfromfactor(0 - V.xchange_fame / 2, "Fame: Genderswap")
+		}
+	}
 	/* Special handling for calculating topless gender */
 	T.over_lower_protected = V.worn.over_lower.exposed < 2;
 	T.lower_protected = V.worn.lower.exposed < 2;
