@@ -792,6 +792,17 @@ function xchangeEffectsMessages() {
 			break;
 	}
 
+	if (V.identityCapMessage) {
+		if (V.player.gender === "m") {
+			element("span", "You reject these girly feelings from taking a hold of you!", "purple");
+		} else {
+			element("span", "You stubbornly cling to your feminine self despite your growing masculine tendencies.", "purple");
+		}	
+		fragment.append(wikifier("gstress"));
+		fragment.append(wikifier("gtrauma")); br();
+		delete V.identityCapMessage;
+	}
+
 	if (V.breastSensitiveRubMessage) {
 		if (!V.worn.under_upper.type.includes("naked") && V.worn.under_upper.exposed < 2) {
 			wikifier("breastsensitivity");
