@@ -1045,10 +1045,11 @@ function minutePassed(minutes) {
 	// Stress
 	// decay/rise and crossdresser trait
 	const isCrossdresser = V.backgroundTraits.includes("crossdresser");
+	const isGenderAnxious = V.backgroundTraits.includes("genderAnxious");
 	// Not using isCrossdressing() since the stress gains/penalties should not be based on NudeGenderDC
 	const isCrossdressing = V.player.sex !== V.player.gender_appearance && V.player.sex !== "h";
-	if (V.controlled === 0 && V.anxiety >= 2 && V.timeSkip == undefined) V.stress += minutes * ((isCrossdresser && !isCrossdressing) + 1);
-	else if (V.stress < V.stressmax && (V.controlled === 1 || V.anxiety === 0)) V.stress -= minutes * ((isCrossdresser && isCrossdressing) + 1);
+	if (V.controlled === 0 && V.anxiety >= 2 && V.timeSkip == undefined) V.stress += minutes * (((isCrossdresser && !isCrossdressing)||(isGenderAnxious && isCrossdressing)) + 1);
+	else if (V.stress < V.stressmax && (V.controlled === 1 || V.anxiety === 0)) V.stress -= minutes * (((isCrossdresser && isCrossdressing)||(isGenderAnxious && !isCrossdressing)) + 1);
 
 	parasiteProgressTime(minutes);
 	parasiteProgressTime(minutes, "vagina");
