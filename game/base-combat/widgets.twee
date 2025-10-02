@@ -1088,7 +1088,11 @@
 <<widget "npcStealMoney">>
 	<<if $npcStealMoneyToggle is 1 and $npcStolenMoney is undefined>>
 		<br>
-		<<set _stolenMoney to $money * ($npcStealMoneyPercentage/100)>>
+		<<if $npcStealMoneyRandomToggle is 1>>
+			<<set _stolenMoney to $money * (random(1, 100)/100)>>
+		<<else>>
+			<<set _stolenMoney to $money * ($npcStealMoneyPercentage/100)>>
+		<</if>>
 		<<He>> rifles through your pockets and take <<printmoney _stolenMoney>>.
 		<<if _stolenMoney gte 100000>>
 			"That's a lot of money, I'll take that thank you."
@@ -1101,7 +1105,8 @@
 		<<else>>
 			"This is peanuts..."
 		<</if>>
-		<<set $money to $money - _stolenMoney>>
+		<<set _stolenMoney to _stolenMoney * -1>>
+		<<money _stolenMoney "stolenMoney">>
 		<<set $npcStolenMoney to 1>>
 	<</if>>
 <</widget>>

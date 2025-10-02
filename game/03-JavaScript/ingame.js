@@ -568,7 +568,12 @@ function bulkProduceValue(plant, quantity = 250) {
 		const qualityControlBoost = V.factoryUpgrades.qualityControl ? V.factoryUpgrades.qualityControl * 0.05 : 0; // +5% per level
 		const packagingBoost = V.factoryUpgrades.packaging ? V.factoryUpgrades.packaging * 0.05 : 0; // +5% per level
 
-		const totalBoost = 1 + qualityControlBoost + packagingBoost;
+		const businessBoost = 0.3 * (1 * (V.fame.business / 4000));
+		const socialBoost = 0.1 * (1 * (V.fame.social / 4000));
+		const goodBoost = 0.05 * (1 * (V.fame.good / 4000));
+		const modelBoost = 0.05 * (1 * (V.fame.model / 4000));
+
+		const totalBoost = 1 + qualityControlBoost + packagingBoost + businessBoost + socialBoost + goodBoost + modelBoost;
 		return Math.floor(baseCost * seasonBoost * totalBoost);
 	}
 }
@@ -1203,7 +1208,7 @@ function clothesIndex(slot, itemToIndex) {
 window.clothesIndex = clothesIndex;
 
 function currentSkillValue(skill, disableModifiers = 0) {
-	let result = V[skill];
+	let result = V[skill] * (V.options.statNerf / 100);
 	if (!result && result !== 0) {
 		/* console.log(`currentSkillValue - skill '${skill}' unknown`); */
 		Errors.report(`[currentSkillValue]: skill '${skill}' unknown.`, {

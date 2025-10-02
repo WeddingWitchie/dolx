@@ -8,7 +8,7 @@
 	This second number is higher if fame is low and it's being raised, OR if fame is high and it's being lowered.
 	The number is negative if fame is being lowered.
 	Finally, the number is 20% higher if the change is temporary. -->
-	<<set $_fameChange to random(80,150)>>
+	<<set $_fameChange to random(80,150) * (1 + ($pubfameMoney * 0.5))>>
 	<<if $_goal.includes("Lower")>>
 		<<set $_fameChange += (Math.round(Math.sqrt($fame[$_fame])) + 5)>>
 		<<set $_fameChange *= -1>>
@@ -149,6 +149,19 @@
 	<label><<radiobutton "$pubfameLower" false autocheck>> Raise</label>
 	<br><br>
 
+	Boost:
+	<label><<radiobutton "$pubfameMoney" 0 autocheck>> £0</label>
+	<<if $money gte 50000>> |
+		<label><<radiobutton "$pubfameMoney" 1 autocheck>> £500 (x1.5)</label>
+	<</if>>
+	<<if $money gte 100000>> |
+		<label><<radiobutton "$pubfameMoney" 2 autocheck>> £1000 (x2)</label>
+	<</if>>
+	<<if $money gte 200000>> |
+		<label><<radiobutton "$pubfameMoney" 4 autocheck>> £2000 (x3)</label>
+	<</if>>
+	<br><br>
+
 	<<listbox "$pubfameTarget" autoselect>>
 		<<optionsfrom _pubfameOptions>>
 	<</listbox>>
@@ -158,6 +171,13 @@
 		<<set $pubfame.goal to $pubfameTemp is true ? "temp" : "perm">>
 		<<set $pubfame.goal += $pubfameLower is true ? "Lower" : "Raise">>
 		<<set $pubfame.target to $pubfameTarget>>
+		<<if $pubfameMoney is 1>>
+			<<money -50000 "pubFameBoost">>
+		<<elseif $pubfameMoney is 2>>
+			<<money -100000 "pubFameBoost">>
+		<<elseif $pubfameMoney is 4>>
+			<<money -200000 "pubFameBoost">>
+		<</if>>
 	<</link>>
 <</widget>>
 
@@ -848,7 +868,23 @@ You walk back to Landry's table. "The offer's out now," <<he>> says. "I did my p
 <<if $phase is 1>>
 	You tell Mickey you're dropping your current favour.
 <</if>>
-"Shame," Mickey says. "If that's all, I have things to do."
+"Shame," Mickey 
+<<if $pubfameMoney gte 1>>
+	says, handing you your
+	<<if $pubfameMoney is 1>>
+		<<printmoney 50000>><<money 50000 "pubFameBoost">>
+	<<elseif $pubfameMoney is 2>>
+		<<printmoney 100000>><<money 100000 "pubFameBoost">>
+	<<elseif $pubfameMoney is 4>>
+		<<printmoney 200000>><<money 200000 "pubFameBoost">>
+	<</if>>
+	back.
+<<else>>
+	says.
+<</if>>
+
+<<set $pubfameMoney to 0>>
+"If that's all, I have things to do."
 <br><br>
 
 <<if !$pubfame.declined and $phase is 0>>
@@ -861,7 +897,21 @@ You walk back to Landry's table. "The offer's out now," <<he>> says. "I did my p
 
 	<<link [[Next|Pub Fame]]>><<run delete $pubfame.timer>><<set $pubfame.status to "ready">><<set $phase to 1>><</link>>
 <<else>>
-	They close the door. You walk back to Landry's table. "What's your plan now?" <<he>> asks.
+	<<if $pubfameMoney gte 1>>
+		They hand you your
+		<<if $pubfameMoney is 1>>
+			<<printmoney 50000>><<money 50000 "pubFameBoost">>
+		<<elseif $pubfameMoney is 2>>
+			<<printmoney 100000>><<money 100000 "pubFameBoost">>
+		<<elseif $pubfameMoney is 4>>
+			<<printmoney 200000>><<money 200000 "pubFameBoost">>
+		<</if>>
+		<<set $pubfameMoney to 0>>
+		back before closing 
+	<<else>>
+		They close 
+	<</if>>
+	the door. You walk back to Landry's table. "What's your plan now?" <<he>> asks.
 	<br><br>
 
 	<<endevent>><<npc Landry>><<person1>>
@@ -1158,6 +1208,7 @@ your <<fameProse $pubfame.target>> fame?" You nod in confirmation, and they type
 <<set $pubfame.timer to $pubfame.goal.includes("temp") ? 1 : 3>>
 <<set $pubfame.tasksDone.pushUnique($pubfame.task)>>
 <<pubfameReset>>
+<<set $pubfameMoney to 0>>
 
 <<if $pub_task_stat % 3 is 0>>
 	<<set _qList to ["name","gender","hacker","good","leighton"]>><<set _qOptions to []>>

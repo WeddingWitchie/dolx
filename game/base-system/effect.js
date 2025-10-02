@@ -1657,29 +1657,33 @@ Macro.add("effects", {
 		.off(':passageend.effects') 
 		.on(':passageend.effects', function () {
 			if (V.options.bigCanvas == true) {
-				document.querySelector("body.has-images #story-caption #storyCaptionDiv").style.top = "267px";
-				document.querySelector("body.has-images #story-caption #storyCaptionDiv").style.height  = "calc(100% - 95px - 1.32em)";
-				document.querySelector("body.has-images #story-caption #storyCaptionDiv").style.width  = "392px";
-				document.querySelector("body.has-images #storyCaptionContent").style.width  = "392px";
-				document.querySelector("#stats").style.width  = "392px";
-				document.querySelector("#ui-bar").style.width = "24.5em";
-				document.querySelector("#img").style.height = "267px";
-				document.querySelector("#img").style.width = "328px";
-				document.querySelector("canvas.mainCanvas").style.height = "358px";
-				document.querySelector("canvas.mainCanvas").style.width = "358px";
-				if (!Browser.isMobile.any() && !/Joiplay/i.test(navigator.userAgent)) document.querySelector("#story").style.marginLeft = "27em";
+				if (V.options.images == 1) {
+					document.querySelector("body.has-images #story-caption #storyCaptionDiv").style.top = "267px";
+					document.querySelector("body.has-images #story-caption #storyCaptionDiv").style.height  = "calc(100% - 95px - 1.32em)";
+					document.querySelector("body.has-images #story-caption #storyCaptionDiv").style.width  = "392px";
+					document.querySelector("body.has-images #storyCaptionContent").style.width  = "392px";
+					document.querySelector("#img").style.height = "267px";
+					document.querySelector("#img").style.width = "328px";
+					document.querySelector("canvas.mainCanvas").style.height = "358px";
+					document.querySelector("canvas.mainCanvas").style.width = "358px";
+					document.querySelector("#ui-bar").style.width = "24.5em";
+					document.querySelector("#stats").style.width  = "392px";
+				}
+				if (!Browser.isMobile.any() && !/joiplay|cyou\.joiplay\.joiplay|wv/i.test(navigator.userAgent)) document.querySelector("#story").style.marginLeft = "27em";
 			} else {
-				document.querySelector("body.has-images #story-caption #storyCaptionDiv").style.top = "192px";
-				document.querySelector("body.has-images #story-caption #storyCaptionDiv").style.height  = "calc(100% - 20px - 1.32em)";
-				document.querySelector("body.has-images #story-caption #storyCaptionDiv").style.width  = "280px";
-				document.querySelector("body.has-images #storyCaptionContent").style.width  = "280px";
-				document.querySelector("#stats").style.width  = "280px";
-				document.querySelector("#ui-bar").style.width = "17.5em";
-				document.querySelector("#img").style.height = "192px";
-				document.querySelector("#img").style.width = "216px";
-				document.querySelector("canvas.mainCanvas").style.height = "256px";
-				document.querySelector("canvas.mainCanvas").style.width = "256px";
-				if (!Browser.isMobile.any() && !/Joiplay/i.test(navigator.userAgent)) document.querySelector("#story").style.marginLeft = "20em";
+				if (V.options.images == 1) {
+					document.querySelector("body.has-images #story-caption #storyCaptionDiv").style.top = "192px";
+					document.querySelector("body.has-images #story-caption #storyCaptionDiv").style.height  = "calc(100% - 20px - 1.32em)";
+					document.querySelector("body.has-images #story-caption #storyCaptionDiv").style.width  = "280px";
+					document.querySelector("body.has-images #storyCaptionContent").style.width  = "280px";
+					document.querySelector("#img").style.height = "192px";
+					document.querySelector("#img").style.width = "216px";
+					document.querySelector("canvas.mainCanvas").style.height = "256px";
+					document.querySelector("canvas.mainCanvas").style.width = "256px";
+					document.querySelector("#ui-bar").style.width = "17.5em";
+					document.querySelector("#stats").style.width  = "280px";
+				}
+				if (!Browser.isMobile.any() && !/joiplay|cyou\.joiplay\.joiplay|wv/i.test(navigator.userAgent)) document.querySelector("#story").style.marginLeft = "20em";
 			}
 		});
 		if (document.getElementById("ui-bar") && !window.uiBarObserver) {

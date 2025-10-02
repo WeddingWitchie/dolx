@@ -1317,7 +1317,7 @@
 			You prepare to cast your net at a <<print $struggle.creature>>, <span class="pink">but they're too close.</span> You'll have to drive one back first.
 		<</if>>
 		<<if _succ>>
-			<span class="green">The net lands true.</span> You pull the creature into your possession.
+			<span class="green">The net lands true.</span> You pull the creature into your possession. <<control 2>><<gcontrol>>
 			<<if $struggle.enemy[_capture_creature].name is "lurker">>
 				<<set $lurkers_held += 1>>
 				<<set $stat_lurkers_captured += 1>>
@@ -1812,11 +1812,11 @@
 				<<feetskilluse>><<danceskilluse>>
 			<</if>>
 			<<if $left_guard is 1>>
-				<<set _left_guard_chance to ((currentSkillValue("handskill") / 5) + (currentSkillValue("physique") / 160))>>
+				<<set _left_guard_chance to ((currentSkillValue("handskill") / 2.5) + (currentSkillValue("physique") / 80))>>
 				<<handskilluse>>
 			<</if>>
 			<<if $right_guard is 1>>
-				<<set _right_guard_chance to ((currentSkillValue("handskill") / 5) + (currentSkillValue("physique") / 160))>>
+				<<set _right_guard_chance to ((currentSkillValue("handskill") / 2.5) + (currentSkillValue("physique") / 80))>>
 				<<handskilluse>>
 			<</if>>
 			<<set _hit_chance to random(1, 1000)>>
@@ -1833,20 +1833,20 @@
 					<<struggle_defense_init "guard">>
 					<span class="green">smacking it against the ground.</span>
 					<<set $struggle.enemy[_i].health -= 1>>
-					<<set _struggleDefenseResult to "guard">><<control 2>>
+					<<set _struggleDefenseResult to "guard">><<control 2>><<gcontrol>>
 				<<elseif _doge_chance - _hit_chance gte 20>>
 					<<struggle_defense_init "dodge">>
 					<span class="green">dodging it.</span>
-					<<set _struggleDefenseResult to "dodge">><<control 1>>
+					<<set _struggleDefenseResult to "dodge">><<control 1>><<gcontrol>>
 				<<else>>
-					<<if _doge_chance gte _hit_chance>>
-						<<struggle_defense_init "dodge">>
-						<span class="teal">narrowly dodging it.</span>
-						<<set _struggleDefenseResult to "dodge">><<control 0.5>>
-					<<else>>
+					<<if _left_guard_chance - _hit_chance gte 100 or _right_guard_chance - _hit_chance gte 100>>
 						<<struggle_defense_init "guard">>
 						<span class="teal">deflecting it away.</span>
-						<<set _struggleDefenseResult to "dodge">><<control 1>>
+						<<set _struggleDefenseResult to "dodge">><<control 1>><<gcontrol>>
+					<<else>>
+						<<struggle_defense_init "dodge">>
+						<span class="teal">narrowly dodging it.</span>
+						<<set _struggleDefenseResult to "dodge">><<control 0.5>><<gcontrol>>
 					<</if>>
 					<<for $_slot range setup.clothingLayer.torso>>
 						<<if $worn[$_slot].name isnot "naked">>

@@ -5,10 +5,7 @@ set /p version=Enter the version number:
 set target[0]=vanilla
 set target[1]=b3s
 set target[2]=b3s_hikfem
-@REM set target[3]=b3s_hikmale
-@REM set target[4]=b3s_paril
 set target[3]=b3s_wax
-@REM set target[6]=b3s_lllysmasc
 set target[4]=susato
 set target[5]=mizz
 set target[6]=kitmint
@@ -19,14 +16,13 @@ set target[10]=goosefem_mys
 set target[11]=gooseandro
 set target[12]=goosemasc
 set target[13]=mikili
+set target[14]=au
+set target[15]=au_mys
 
 set imagepack[0]=vanilla
 set imagepack[1]=beeesss
 set imagepack[2]=hikfem
-@REM set imagepack[3]=hikmale
-@REM set imagepack[4]=paril
 set imagepack[3]=wax
-@REM set imagepack[6]=lllysmasc
 set imagepack[4]=susato
 set imagepack[5]=mizzfem
 set imagepack[6]=kitmint
@@ -37,8 +33,10 @@ set imagepack[10]=goosefem_mys
 set imagepack[11]=gooseandro
 set imagepack[12]=goosemasc
 set imagepack[13]=mikili
+set imagepack[14]=aokiutage
+set imagepack[15]=aokiutage_mys
 
-set array_length=13
+set array_length=15
 
 del ..\..\dist\*.apk
 
