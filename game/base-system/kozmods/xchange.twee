@@ -432,6 +432,13 @@
 			<<set $bottomgrowthtimer to 500>>
 			<<set $breastgrowthtimer to 500>>	
 		<</if>>
+		<<if _args[0] is undefined and $xchange.pill.innocenceEffect>>
+			<<set $awareness to $xchange.awareness>>
+			<<if $awareness gte 0>>
+				<<set $innocencestate to 0>>
+				<<set $innocencemessage to "end">>
+			<</if>>
+		<</if>>
 
 		<<if $xchange_fame gte 1000>>
 			<<set _ogFame to $xchange.pill.originalBody.fame>>
@@ -521,6 +528,7 @@
 		<<set $xchange.pill.dumbBitchEffect to false>>
 		<<set $xchange.pill.portalEffect to false>>
 		<<set $xchange.pill.portalEffectTimer to 0>>
+		<<set $xchange.pill.innocenceEffect to false>>
 
 		<<for _effect range _effectsList>>
 
@@ -604,6 +612,14 @@
 			<<set $xchange.pill.passionEffect to true>>
 		<<case "dumb-bitch">>
 			<<set $xchange.pill.dumbBitchEffect to true>>
+		<<case "innocence">>
+			<<set $xchange.pill.innocenceEffect to true>>
+			<<set $xchange.awareness to $awareness>>
+			<<set $awareness to -200>>
+			<<set $innocencestate to 1>>
+			<<if $xchange.awareness gte 0>>
+				<<set $innocencemessage to "start">>
+			<</if>>
 		<<case "choice">>
 			<<xchange-setpermanent>>
 			<<set $xchangePermanenceMessage to 0>>
@@ -646,7 +662,14 @@
 		<<case "passion">>
 			<<set $xchange.pill.passionEffect to false>>
 		<<case "dumb-bitch">>
-			<<set $xchange.pill.dumbBitchEffect to false>>
+			<<set $xchange.pill.dumbBitchEffect to false>>		
+		<<case "innocence">>
+			<<set $xchange.pill.innocenceEffect to false>>
+			<<set $awareness to $xchange.awareness>>
+			<<if $awareness gte 0>>
+				<<set $innocencestate to 0>>
+				<<set $innocencemessage to "end">>
+			<</if>>
 		<<case "spike" "unknown">>
 			<<set $xchange.pill.effectsKnown to true>>
 		<<default>>
@@ -771,6 +794,7 @@
 		<<set $xchange.pill.portalEffectTimer to 0>>
 		<<set $xchange.pill.passionEffect to false>>
 		<<set $xchange.pill.choiceEffect to false>>
+		<<set $xchange.pill.innocenceEffect to false>>
 		<<unset $xchange.pill.shouldHaveEnded>>
 
 	<</widget>>
@@ -1019,6 +1043,7 @@
 			"fertile","fertile",
 			"passion",
 			"dumb-bitch",
+			"innocence",
 		]>>
 		<<if $player.gender is "f">><<run _effectPool.deleteWith((val)=>val==="breeder")>><<run _effectPool.deleteWith((val)=>val==="fertile")>><</if>>
 		<<if $player.gender is "m">><<run _effectPool.deleteWith((val)=>val==="bull")>><</if>>
@@ -1032,6 +1057,7 @@
 		<<if $xchange.pill.passionEffect or !$xchange.spikepool.passion>><<run _effectPool.deleteWith((val)=>val==="passion")>><</if>>
 		<<if $xchange.pill.portalEffect or !$portalPantiesEnabled>><<run _effectPool.deleteWith((val)=>val==="portal")>><</if>>
 		<<if $xchange.pill.dumbBitchEffect or !$xchange.spikepool.dumbbitch>><<run _effectPool.deleteWith((val)=>val==="dumb-bitch")>><</if>>
+		<<if $xchange.pill.innocenceEffect or !$xchange.spikepool.innocence>><<run _effectPool.deleteWith((val)=>val==="innocence")>><</if>>
 
 	<</widget>>
 
@@ -1082,6 +1108,8 @@
 				<mouse class="tooltip linkBlue">(?)<span>Allows random NPCs to fuck you remotely, regardless of your consent.</span></mouse></li><</if>>
 			<<if $xchange.pill.clone isnot "none">><li>Clone '<<print $xchange.pill.clone>>' Effect.</li><</if>>
 			<<if $xchange.pill.fertile>><li>You can become pregnant.</li><</if>>
+			<<if $xchange.pill.innocenceEffect>><li>Innocence Effect.
+				<mouse class="tooltip linkBlue">(?)<span>While under this pill, all sexual knowledge is wiped from your mind.</span></mouse></li><</if>>
 			<li>Duration: 
 				<<if pillTimerPaused() or pillIsPermanent() or V.xchange.pill.choiceEffect>>
 					<<set _duration = `<mouse class="tooltip">Indefinite<span class="lblue">`>>
