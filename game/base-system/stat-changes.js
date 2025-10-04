@@ -511,6 +511,9 @@ const statChange = (() => {
 		if (V.backgroundTraits.includesAny("promiscuous","exhibitionist","deviant")) {
 			amount *= amount > 0 ? 1.25 : 0.50;
 		}
+		if (V.xchange.pill.innocenceEffect === true) {
+			amount = 0;
+		}
 		if (amount) {
 			const mod = Object.values(V.worn).reduce((prev, item) => {
 				if (item.type.includes("dark")) return prev + 1;
