@@ -279,18 +279,35 @@
 				<br>
 				<span class="lblue">Others will be more likely to think that you're a boy.</span>
 			<</if>>
-			<br><br>
+			<br>
+			<<if $hypnosis_traits.crossdressing is 5>>
+				<span class="red">Your compulsion forces you to adopt a <<print $player.gender is "m" ? "feminine" : "masculine">> posture.</span>
+			<<elseif $hypnosis_traits.crossdressing gte 3>>
+				<span class="red">Your compulsion stops you from adopting a <<print $player.gender is "f" ? "feminine" : "masculine">> posture.</span>
+			<</if>>
+			<br>
 			<<set _postures to ["masculine", "feminine", "natural"]>>
 			Posture:
 			<<capture _i>>
 				<<for _i = 0; _i < _postures.length; _i++>>
-					<span @class="$player.gender_posture is _postures[_i].charAt(0) ? 'goldLink no-numberify' : 'unselected no-numberify'">
-						<<link _postures[_i].toUpperFirst()>>
-							<<set $player.gender_posture to _postures[_i].charAt(0)>>
-							<<exposedcheck>>
-							<<replace "#mirrorGender">><<mirrorGender>><</replace>>
-						<</link>>
-					</span>	<<= _i lt _postures.length - 1 ? "|" : "">>
+					<<if $hypnosis_traits.crossdressing gte 3 and $player.gender is _postures[_i].charAt(0)>>
+						<span class="red"><<print _postures[_i].toUpperFirst()>></span>
+					<<elseif $hypnosis_traits.crossdressing is 5>>
+						<<if _postures[_i] is "natural">>
+							<span class="red"><<print _postures[_i].toUpperFirst()>></span>
+						<<else>>
+							<span class="gold"><<print _postures[_i].toUpperFirst()>></span>
+						<</if>>
+					<<else>>
+						<span @class="$player.gender_posture is _postures[_i].charAt(0) ? 'goldLink no-numberify' : 'unselected no-numberify'">
+							<<link _postures[_i].toUpperFirst()>>
+								<<set $player.gender_posture to _postures[_i].charAt(0)>>
+								<<exposedcheck>>
+								<<replace "#mirrorGender">><<mirrorGender>><</replace>>
+							<</link>>
+						</span>
+					<</if>>
+					<<= _i lt _postures.length - 1 ? "|" : "">>
 				<</for>>
 			<</capture>>
 		</div>

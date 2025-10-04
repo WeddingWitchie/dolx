@@ -943,14 +943,22 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 	<<rng>>
 	<<set _tool to (_args[0] is "left" ? $NPCList[_n].lefttool : $NPCList[_n].righttool)>>
 	<<set $_hand to _args[0] + "hand">>
-	<<if $rng gte 76 and ($hypnosis_traits.scream is undefined or $hypnosis_traits.scream lt 5)>>
+	<<if $rng gte 84 and ($hypnosis_traits.scream is undefined or $hypnosis_traits.scream lt 5)>>
 		<<He>> waves the _tool at you.
 		<<set $NPCList[_n][$_hand] to "hypnosis_scream">>
 		<<His>> voice echoes in your mind. <span class="purple"><i><span class="red">From when I click my fingers,</span> should you try to scream, you will beg for rougher treatment instead.</i></span>
-	<<elseif $rng gte 51 and ($hypnosis_traits.cover is undefined or $hypnosis_traits.cover lt 5)>>
+	<<elseif $rng gte 68 and ($hypnosis_traits.cover is undefined or $hypnosis_traits.cover lt 5)>>
 		<<He>> waves the _tool at you.
 		<<set $NPCList[_n][$_hand] to "hypnosis_cover">>
 		<<His>> voice echoes in your mind. <span class="purple"><i><span class="red">From when I click my fingers,</span> should you try to cover your body, you will display it for all to see instead.</i></span>
+		<<elseif $rng gte 52 and ($hypnosis_traits.deviancy is undefined or $hypnosis_traits.deviancy lt 5) and $deviantHypnotist>>
+		<<He>> waves the _tool at you.
+		<<set $NPCList[_n][$_hand] to "hypnosis_deviancy">>
+		<<His>> voice echoes in your mind. <span class="purple"><i><span class="red">From when I click my fingers,</span> you will lust for the flesh of beasts.</i></span>
+	<<elseif $rng gte 36 and ($hypnosis_traits.crossdressing is undefined or $hypnosis_traits.crossdressing lt 5) and not $backgroundTraits.includes("crossdresser") and $forcedcrossdressingdisable is "f">>
+		<<He>> waves the _tool at you.
+		<<set $NPCList[_n][$_hand] to "hypnosis_crossdressing">>
+		<<His>> voice echoes in your mind. <span class="purple"><i><span class="red">From when I click my fingers,</span> you will be consumed by a need to look <<print $player.gender is "m" ? "girlier" : "manlier">>.</i></span>
 	<<else>>
 		<<if random(1, 2) is 2>>
 			<<His>> voice echoes in your mind. <span class="purple"><i>When I click my fingers, you will be overcome by arousal, and climax at once.</i></span>
@@ -1029,6 +1037,49 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 	<<elseif $hypnosis_traits.cover lt 5>>
 		Your hypnotic flaunting has deepened.
 		<<set $hypnosis_traits.cover += 1>>
+	<</if>>
+	<<hypnotised 1>>
+	<<combat-reset-tool _args[0]>>
+	<<combat-reset-hand _args[0]>>
+<</widget>>
+
+<<widget "combat-hand-hypnosis-deviancy">>
+	<<set _tool to (_args[0] is "left" ? $NPCList[_n].lefttool : $NPCList[_n].righttool)>>
+	<<He>> clasps <<his>> palm around the _tool, and clicks <<his>> fingers.
+
+	<span class="pink">You feel something shift in your consciousness.</span>
+	<<if !$hypnosis_traits.deviancy or $hypnosis_traits.deviancy is 0>>
+		You've gained the <span class="pink">Hypnotic Deviancy</span> trait.
+		<<set $hypnosis_traits.deviancy to 1>>
+	<<elseif $hypnosis_traits.deviancy lt 5>>
+		Your hypnotic deviancy has deepened.
+		<<set $hypnosis_traits.deviancy += 1>>
+	<</if>>
+	<<hypnotised 1>>
+	<<combat-reset-tool _args[0]>>
+	<<combat-reset-hand _args[0]>>
+<</widget>>
+
+<<widget "combat-hand-hypnosis-crossdressing">>
+	<<set _tool to (_args[0] is "left" ? $NPCList[_n].lefttool : $NPCList[_n].righttool)>>
+	<<He>> clasps <<his>> palm around the _tool, and clicks <<his>> fingers.
+
+	<span class="pink">You feel something shift in your consciousness.</span>
+	<<if !$hypnosis_traits.crossdressing or $hypnosis_traits.crossdressing is 0>>
+		You've gained the <span class="pink">Hypnotic Crossdressing</span> trait.
+		<<set $hypnosis_traits.crossdressing to 1>>
+	<<elseif $hypnosis_traits.crossdressing lt 5>>
+		Your hypnotic crossdressing has deepened.
+		<<set $hypnosis_traits.crossdressing += 1>>
+		<<if $hypnosis_traits.crossdressing is 3 and $player.gender_posture is $player.gender>>
+			<<set $player.gender_posture to "n">>
+		<<elseif $hypnosis_traits.crossdressing is 5>>
+			<<if $player.gender is "m">>
+				<<set $player.gender_posture to "f">>>
+			<<else>>
+				<<set $player.gender_posture to "m">>
+			<</if>>
+		<</if>>
 	<</if>>
 	<<hypnotised 1>>
 	<<combat-reset-tool _args[0]>>
@@ -1932,7 +1983,7 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 			<<set $NPCList[_n].righthand to "pen">>
 		<</if>>
 		<<neutral 1 _n>>
-	<<elseif $enemyanger + $rng lte 15 and $NPCList[_n].traits.includes("hypnotist") and $hypnosisdisable is "f" and ($combatExtended.stabilityLost is 1 or $combatExtended.standingFights is 0)>>
+	<<elseif (($enemyanger + $rng lte 15) or ($rng lte 15 and $angryHypnotist)) and $NPCList[_n].traits.includes("hypnotist") and $hypnosisdisable is "f" and ($combatExtended.stabilityLost is 1 or $combatExtended.standingFights is 0)>>
 		<<set _tool to $role is "islander" ? "bundle of herbs" : "pendant">>
 		<<He>> produces a
 		<<if _args[0] is "left">>

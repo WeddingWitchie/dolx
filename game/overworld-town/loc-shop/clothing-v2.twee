@@ -61,7 +61,7 @@
 			<<shopCategoryReplace `clothingSlotToIconName($clothingShopSlot, _outfits)`>>
 		<</button>>
 	</span>
-	<<set _unavailableItems to !!earSlimeCorruptionClothes() or ($earSlime.forcedCommando and $earSlime.forcedCommando gt 0) or ($earSlime.forcedDressing and $earSlime.forcedDressing.days) or playerBellySize() gte 12>>
+	<<set _unavailableItems to !!earSlimeCorruptionClothes() or ($earSlime.forcedCommando and $earSlime.forcedCommando gt 0) or ($earSlime.forcedDressing and $earSlime.forcedDressing.days) or playerBellySize() gte 12 or $hypnosis_traits.crossdressing gte 4>>
 	<<if _unavailableItems>>
 		<label><<checkbox "$shopClothingFilter.availableOnly" false true autocheck>> Hide unavailable items</label>
 	<<else>>
@@ -94,7 +94,8 @@
 		and (!V.shopClothingFilter.availableOnly or !(
 			(setup.clothingLayer.torso.includes(V.clothingShopSlot) and x.reveal < earSlimeCorruptionClothes() and !x.type.includesAny("school", "event")) or
 			(V.earSlime.forcedDressing and V.earSlime.forcedDressing.days gt 0 and x.gender isnot V.earSlime.forcedDressing.type and x.gender isnot "n" and !x.type.includesAny("event")) or
-			(playerBellySize() >= 12 and x.type.includes("constricting"))
+			(playerBellySize() >= 12 and x.type.includes("constricting")) or
+			(V.hypnosis_traits.crossdressing gte 4 and x.gender is V.player.gender)
 		))
 	)>>
 	<<set _items = applyClothingShopFilters(_items)>>
@@ -536,11 +537,17 @@
 		<<if $earSlime.forcedCommando and $earSlime.forcedCommando gt 0 and ($clothingShopSlot is "under_lower" or (_temp_choice.outfitPrimary and _temp_choice.outfitPrimary.under_lower)) and !_temp_choice.type.includesAny("swim", "dance", "naked")>>
 			<span class="red">The slime in your ear refuses to allow you to try on or buy the _temp_choice.name as it is forcing you to go commando.</span>
 			<br>
+		<<elseif $hypnosis_traits.crossdressing gte 2 and (($clothingShopSlot is "under_lower" or (_temp_choice.outfitPrimary and _temp_choice.outfitPrimary.under_lower)) or ($clothingShopSlot is "under_upper" or (_temp_choice.outfitPrimary and _temp_choice.outfitPrimary.under_upper))) and _item.gender is $player.gender and !_temp_choice.type.includesAny("event")>>
+			<span class="red">Your compulsion stops you from trying on or buying the _temp_choice.name as you can only bring yourself to wear more <<print $player.gender is "m" ? "feminine" : "masculine">> clothing.</span>
+			<br>
 		<<elseif _slimeSlots.includes($clothingShopSlot) and _temp_choice.reveal lt earSlimeCorruptionClothes() and !_temp_choice.type.includesAny("school","event")>>
 			<span class="red">The slime in your ear refuses to allow you to try on or buy the _temp_choice.name.</span>
 			<br>
 		<<elseif $earSlime.forcedDressing and $earSlime.forcedDressing.days and _item.gender isnot $earSlime.forcedDressing.type and _item.gender isnot "n" and !_item.type.includesAny("event")>>
 			<span class="red">The slime in your ear refuses to allow you to try on or buy the _temp_choice.name as it is only permitting more <<print $earSlime.forcedDressing.type is "f" ? "feminine" : "masculine">> clothing.</span>
+		<<elseif $hypnosis_traits.crossdressing gte 4 and (_item.gender is $player.gender or _temp_choice.type.includesAny("chest_bind")) and !_item.type.includesAny("event")>>
+			<span class="red">Your compulsion stops you from trying on or buying the _temp_choice.name as you can only bring yourself to wear more <<print $player.gender is "m" ? "feminine" : "masculine">> clothing.</span>
+			<br>
 		<<else>>
 			<<if $earSlime.forcedCommando and $earSlime.forcedCommando gt 0 and !_temp_choice.type.includesAny("naked") and ($clothingShopSlot is "under_lower" or (_temp_choice.outfitPrimary and _temp_choice.outfitPrimary.under_lower))>>
 				<span class="red">The slime in your ear refuses to allow you to try on or wear the _temp_choice.name while not at an appropriate location.</span>

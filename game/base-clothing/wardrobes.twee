@@ -182,6 +182,21 @@
 				<</if>>
 			<</if>>
 		<</if>>
+		/*Prevent equip when Hypnosis doesn't allow it*/
+		<<if $wardrobeOption is "wear" and $hypnosis_traits.crossdressing gte 2>>
+			<<if $hypnosis_traits.crossdressing gte 2 and ((_slot is "under_lower" or (_item.outfitPrimary and _item.outfitPrimary.under_lower and !["broken","split"].includes(_item.outfitPrimary.under_lower))) or ($_slot is "under_upper" or (_item.outfitPrimary and _item.outfitPrimary.under_upper and !["broken","split"].includes(_item.outfitPrimary.under_upper)))) and _item.gender is $player.gender and !_item.type.includesAny("event")>>
+				<<if _item.type.includes("naked") or (_earSlimeEnableSwimwear and _item.type.includes("swim")) or (_earSlimeEnableDancewear and _item.type.includes("dance"))>>
+				<<else>>
+					<span class="red">You are unable to equip your _item.name, as your compulsion is only permitting more <<print $player.gender is "m" ? "feminine" : "masculine">> clothing.</span>
+					<br>
+					<<continue>>
+				<</if>>
+			<<elseif $hypnosis_traits.crossdressing gte 4 and (_item.gender is $player.gender or _item.type.includesAny("chest_bind")) and !_item.type.includesAny("event")>>
+				<span class="red">You are unable to equip your _item.name, as your compulsion is only permitting more <<print $player.gender is "m" ? "feminine" : "masculine">> clothing.</span>
+				<br>
+				<<continue>>
+			<</if>>
+		<</if>>
 		/*Finds any outfit pieces and records the Ids*/
 		<<set _outfitPieceIds to {}>>
 		<<if _item.outfitPrimary isnot undefined>>
