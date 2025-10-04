@@ -399,6 +399,7 @@
 				<<set V[_stripSlot.replace(/_/g,"")+'last'] to $worn[_stripSlot].name>>
 				<<set $carried[_stripSlot] to clone($worn[_stripSlot])>>
 				<<set $worn[_stripSlot] to clone(setup.clothes[_stripSlot][0])>>
+				<<run console.log("stripped to carry", $carried[_stripSlot])>>
 
 				<<if _outfitPrimaryStrip isnot undefined>>
 					<<for _labelStrip, _valueStrip range _outfitPrimaryStrip>>
@@ -505,12 +506,13 @@
 	<</if>>
 	<<run Object.keys($carried).forEach(slot => {
 		if (!setup.wardrobeSkip.includes($carried[slot].name)) {
-			let location = clothesReturnLocation($carried[slot]);
+			$_selectedWardrobe[slot].push($carried[slot])
+			/* let location = clothesReturnLocation($carried[slot]);
 			if(location === "wardrobe" || !$wardrobes[location].unlocked){
 				$wardrobe[slot].push(clone($carried[slot]));
 			} else {
 				$wardrobes[location][slot].push(clone($carried[slot]));
-			}
+			} */
 		}
 		$carried[slot] = clone(setup.clothes[slot][0]);
 	})>>
@@ -1434,6 +1436,7 @@
 	<<if $propEquipped is 1>><<handheldon>><</if>>
 	<<if _args[0] isnot undefined and $outfitTmp[_args[0]] isnot undefined and Object.keys($outfitTmp[_args[0]]).length gt 0>>
 		<<if _args[1] isnot undefined>>
+			<<run console.log("_args[1] is defined", _args[1])>>
 			<<set $_item to $outfitTmp[_args[0]][_args[1]]>>
 			<<storeloaditem $_item _args[1]>>
 			<<run delete V.outfitTmp[_args[0][_args[1]]]>>
@@ -1475,13 +1478,17 @@
 			<<for $_slot range setup.clothingLayer.all>>
 				<<set $_item to $outfitTmp[_args[0]][$_slot]>>
 				<<if $_item is undefined or $worn[$_slot].name isnot $_item.name>>
+					<<run console.log("stripping", $_slot)>>
 					<<generalStrip $_slot>>
-					<<returnCarried>>
+					<<returnCarried $wardrobe_location>>
 				<</if>>
 				<<if $_item isnot undefined>>
+					<<run console.log("$_item is defined", $_item)>>
 					<<set $_storedIndex to $store[$_slot].findIndex(item => item.name is $_item.name and item.location is _args[0])>>
 					<<if $_storedIndex isnot -1>>
+						<<run console.log("stored index", $_storedIndex)>>
 						<<if ($worn[$_slot].name is "naked" and !_cursedSlots.includes($_slot)) or (!_cursedSlots.includes($_slot) and _args[0] is "lockers")>>
+							<<run console.log("wearing stored item", $store[$_slot][$_storedIndex])>>
 							<<set $worn[$_slot] to clone($store[$_slot][$_storedIndex])>>
 							<<set $worn[$_slot].location to 0>>
 							<<set $store[$_slot].deleteAt($_storedIndex)>>
@@ -1490,16 +1497,17 @@
 							<<set V[$_slot.replace(/_/g, "") + "wetstage"] to 0>>
 						<<else>>
 							/* Send the item to the wardrobe, as the item was not unequipped by generalStrip */
-							<<if ["asylum", "prison"].includes($location)>>
-								<<set $_selectedWardrobe to $wardrobes[$location]>>
-							<<elseif $multipleWardrobes is "all" and $worn[$_slot].lastTaken isnot undefined>>
+							<<if $multipleWardrobes is "all" and $worn[$_slot].lastTaken isnot undefined>>
 								<<set $_selectedWardrobe to $wardrobes[$worn[$_slot].lastTaken]>>
+							<<else>>
+								<<set $_selectedWardrobe to selectWardrobe($wardrobe_location)>>
 							<</if>>
 							<<if $_selectedWardrobe isnot "wardrobe" and $wardrobes[$_selectedWardrobe]>>
 								<<set $_selectedWardrobe to $wardrobes[$_selectedWardrobe]>>
 							<<else>>
 								<<set $_wardrobe to $wardrobe>>
 							<</if>>
+							<<run console.log($store[$_slot][$_storedIndex])>>
 							<<run $_wardrobe[$_slot].push(clone($store[$_slot][$_storedIndex]))>>
 							<<run $store[$_slot].deleteAt($_storedIndex)>>
 						<</if>>
@@ -1509,6 +1517,7 @@
 		<<run delete V.outfitTmp[_args[0]]>>
 		<</if>>
 	<<elseif _args[0] isnot undefined and clothingInStorage(_args[0]).length gt 0>>
+		<<run console.log("storeon noreplace")>>
 		<<storeon _args[0] "noreplace">>
 	<</if>>
 <</widget>>

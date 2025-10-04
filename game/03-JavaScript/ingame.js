@@ -900,7 +900,10 @@ window.DefaultActions = {
 
 function selectWardrobe(targetLocation = V.wardrobe_location, type) {
 	let wardrobe = V.wardrobes[targetLocation];
-	if (type !== "return" && wardrobe?.locationRequirement && !wardrobe.locationRequirement.includes(V.location)) {
+	const wardrobeHasLocationRequirement = wardrobe?.locationRequirement?.length > 0;
+	const currentLocationMatchesRequirements = wardrobe?.locationRequirement?.includes(V.location);
+	
+	if (type !== "return" && wardrobeHasLocationRequirement && !currentLocationMatchesRequirements) {
 		V.wardrobe_location = "wardrobe";
 		wardrobe = V.wardrobe;
 	}
@@ -908,12 +911,21 @@ function selectWardrobe(targetLocation = V.wardrobe_location, type) {
 }
 window.selectWardrobe = selectWardrobe;
 
-function transferClothing(slot, index, newWardrobe) {
+function transferClothing(slot, index, oldWardrobe, newWardrobe) {
 	let oldWardrobeObject;
-	if (V.wardrobe_location === "wardrobe") {
-		oldWardrobeObject = V.wardrobe;
-	} else {
-		oldWardrobeObject = V.wardrobes[V.wardrobe_location];
+	if (oldWardrobe) {
+		if (oldWardrobe === "wardrobe") {
+			oldWardrobeObject = V.wardrobe;
+		} else {
+			oldWardrobeObject = V.wardrobes[oldWardrobe];
+		}
+	}
+	else {
+		if (V.wardrobe_location === "wardrobe") {
+			oldWardrobeObject = V.wardrobe;
+		} else {
+			oldWardrobeObject = V.wardrobes[V.wardrobe_location];
+		}
 	}
 	let newWardrobeObject;
 	if (newWardrobe === "wardrobe") {
@@ -1052,7 +1064,7 @@ function clothesReturnLocation(item, type) {
 	// prettier-ignore
 	if (
 		!lastTaken ||
-		(V.multipleWardrobes !== "all" && !isolated.includes(lastTaken)) ||
+		(V.multipleWardrobes !== "all" || V.multipleWardrobes !== "isolated") ||
 		!V.wardrobes[lastTaken] ||
 		!V.wardrobes[lastTaken].unlocked
 	) {

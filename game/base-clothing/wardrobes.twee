@@ -69,6 +69,13 @@
 	<<set _equipSkip to {"over_upper":false, "over_lower":false, "upper":false, "lower":false, "under_upper":false, "under_lower":false, "over_head":false, "head":false, "face":false, "neck":false, "hands":false, "handheld":false, "legs":false, "feet":false, "genitals":false}>>
 	<<set _eIndextemNames to []>>
 	<<for _slot range _equip>>
+		<<if $equipFromInventory is _slot>>
+			<<set _selectedWardrobe to selectWardrobe("inventory")>>
+			<<wardrobeSanityCheck>>
+			<<unset $equipFromInventory>>
+		<<elseif _selectedWardrobe is $wardrobes.inventory>>
+			<<set _selectedWardrobe to selectWardrobe()>>
+		<</if>>
 		<<unset _outfitPieceIds>>
 		<<unset _item>>
 		<<if _equipSkip[_slot] is true>>
@@ -275,9 +282,9 @@
 			<<if !_slotsFull>>
 				You transferred the <<print _item.name>> to the <<print $wardrobes[_wardrobeTransfer].name>> storage.
 				/*Transfer everything*/
-				<<run transferClothing(_slot,_wearId,_wardrobeTransfer)>>
+				<<run transferClothing(_slot,_wearId,$wardrobe_location,_wardrobeTransfer)>>
 				<<for $_outfitSlot, $_outfitId range _outfitPieceIds>>
-					<<run transferClothing($_outfitSlot,$_outfitId,_wardrobeTransfer)>>
+					<<run transferClothing($_outfitSlot,$_outfitId,$wardrobe_location,_wardrobeTransfer)>>
 				<</for>>
 			<<else>>
 				You were unable to transfer the <<print _item.name>> to the <<print $wardrobes[_wardrobeTransfer].name>> wardrobe due to lack of space there.
@@ -424,6 +431,47 @@
 			</span>
 		</div> |
 	<</if>>
+	<<if $multipleWardrobes>>
+		<br><br>
+		<<set _targetWardrobe to "wardrobe">>
+		<<set _homeLocations to [
+			"wardrobe",
+			"edensCabin",
+			"alexFarm",
+			"temple",
+			"birdTower"
+		]>>
+		<<run _homeLocations.deleteWith(location => !$wardrobes[location]?.unlocked || $wardrobe_location === location)>>
+		<<if _homeLocations.length gt 0>>
+			<<set _locationMap = {}>>
+			<<run _homeLocations.forEach(key => _locationMap[$wardrobes[key].name] = key)>>
+			__Transfer All Clothes__<br>
+			Destination: 
+			<<listbox "_targetWardrobe" autoselect>>
+				<<optionsfrom _locationMap>>
+			<</listbox>>
+			<div class="wardrobe-action">
+				<<link "Transfer">>
+					<<set _currentWardrobeObj to selectWardrobe($wardrobe_location)>>
+					<<set _targetWardrobeObj to selectWardrobe(_targetWardrobe)>>
+
+					<<for _slot range setup.clothingLayer.all>>
+						<<capture _currentWardrobeObj, _slot>>
+							<<for _i, _item range _currentWardrobeObj[_slot]>>
+								<<if _targetWardrobeObj[_slot].length lt _targetWardrobeObj.space>>
+									<<run transferClothing(_slot, 0, $wardrobe_location, _targetWardrobe)>>
+								<<else>>
+									<<break>>
+								<</if>>
+							<</for>>
+						<</capture>>
+					<</for>>
+					<<updatewardrobe>>
+				<</link>>
+			</div>
+		<</if>>
+	<</if>>
+	
 	<div id="randomClothingConfigure" class="hidden">
 		<<if $randomEquipConfigure is undefined>>
 			<<set $randomEquipConfigure to {face: true, feet: true, head: true, hands: true, legs: true, lower: true, neck: true, under_lower: true, under_upper: true, upper: true}>>
@@ -967,6 +1015,15 @@
 			<div class="wardrobe-action"><a onclick="wikifier('wardrobeListReorder', V.lastWardrobeSlot, 'outfit', true);">Outfit Status</a></div> |
 		<</if>>
 		<br><br>
+		<<if $multipleWardrobes>>
+			Items in handbag:
+			<<if $worn.handheld.type.includes("bookbag")>>
+				<span class="gold"><<= getWardrobeItemCount("inventory")>>/<<= $wardrobes.inventory.space>> items</span>
+			<<else>>
+				no handbag equipped
+			<</if>>
+			<br>
+		<</if>>
 		Currently equipped:
 		<<if $worn[_wardrobe_list].name is "naked">>
 			nothing
@@ -1069,73 +1126,281 @@
 		<</if>>
 		<br>
 		<<if $worn[_wardrobe_list].name isnot "naked">>
-			<div class="wardrobeItem wardrobe-action no-numberify"><<wearlink_norefresh "Strip" 'strip'>></div>
+			<div class="wardrobeItem wardrobe-action no-numberify">
+				<<wearlink_norefresh "Strip" 'strip'>>
+				<div class="small-description">~</div>
+			</div>
 		<</if>>
 		<<if _wardrobe_list is "upper">>
-			<div class="wardrobeItem wardrobe-action no-numberify"><<wearlink_norefresh "Large towel" 'large_towel'>></div>
+			<div class="wardrobeItem wardrobe-action no-numberify">
+				<<wearlink_norefresh "Large towel" 'large_towel'>>
+				<div class="small-description">~</div>
+			</div>
 		<</if>>
 		<<if _wardrobe_list is "upper" or _wardrobe_list is "lower">>
-			<div class="wardrobeItem wardrobe-action no-numberify"><<wearlink_norefresh "Towel" 'towel'>></div>
+			<div class="wardrobeItem wardrobe-action no-numberify">
+				<<wearlink_norefresh "Towel" 'towel'>>
+				<div class="small-description">~</div>
+			</div>
+		<</if>>
+
+		<<set _hasHandbag to $worn.handheld.type.includes("bookbag")>>
+		<<if $multipleWardrobes and _hasHandbag>>
+			<<for _i to 0; _i lt $wardrobes.inventory[_wardrobe_list].length; _i++>>
+				<<set _item to $wardrobes.inventory[_wardrobe_list][_i]>>
+				<<set _itemData to setup.clothes[_wardrobe_list][clothesIndex(_wardrobe_list,_item)]>>
+				<<set _itemOutfitData to _itemData.outfitPrimary>>
+				<<if _item.outfitSecondary isnot undefined>>
+					<<if _item.outfitSecondary[1] isnot "broken" and _item.outfitSecondary[1] isnot "split">>
+						<<continue>>
+					<</if>>
+				<</if>>
+
+				/*Finds any outfit pieces and records the Ids*/
+				<<set _outfitPieceIds to {}>>
+				<<if _item.outfitPrimary isnot undefined>>
+					<<for $_outfitPieceSlot, $_outfitPieceName range _item.outfitPrimary>>
+						<<if $_outfitPieceName is "broken" or $_outfitPieceName is "split">>
+							<<continue>>
+						<</if>>
+						<<for $_outfitPieceId, $_wardrobeItem range $wardrobes.inventory[$_outfitPieceSlot]>>
+							<<if $_wardrobeItem.name isnot $_outfitPieceName>>
+								<<continue>>
+							<</if>>
+							<<if _item.colour isnot $_wardrobeItem.colour or ($_wardrobeItem.accessory isnot 0 and _item.accessory_colour isnot $_wardrobeItem.accessory_colour) or ($_wardrobeItem.pattern and _item.pattern and $_wardrobeItem.pattern isnot 0 and _item.pattern isnot $_wardrobeItem.pattern)>>
+								<<continue>>
+							<</if>>
+							<<if $_wardrobeItem.outfitSecondary[1] isnot _item.name>>
+								<<continue>>
+							<</if>>
+							<<set _matched to 0>>
+							<<if $_wardrobeItem.colour isnot "custom" or (_item.colourCustom isnot undefined and _item.colourCustom is $_wardrobeItem.colourCustom)>>
+								<<set _matched++>>
+							<</if>>
+							<<if $_wardrobeItem.accessory is 0 or $_wardrobeItem.accessory_colour isnot "custom" or (_item.accessory_colourCustom isnot undefined and _item.accessory_colourCustom is $_wardrobeItem.accessory_colourCustom)>>
+								<<set _matched++>>
+							<</if>>
+							<<if _matched is 2>>
+								<<set _outfitPieceIds[$_outfitPieceSlot] to $_outfitPieceId>>
+								<<break>>
+							<</if>>
+						<</for>>
+					<</for>>
+				<</if>>
+
+				<div class="wardrobeItem wardrobe-action no-numberify">
+					<div>
+						<<clothingicon _item _wardrobe_list>>
+						<<wearlink_norefresh _itemData.name_cap _i undefined "inventory">>
+						<span class="gold">(In Handbag)</span>
+					</div>
+
+					<div class="small-description">
+						<<if _item.colour and _item.colour isnot 0>>
+							<span @class="_item.colour?.replace(' ','-') + ' noDivider'">
+								<<if _item.pattern and ![0, "plain"].includes(_item.pattern) and _itemData.pattern_options?.length gt 1>>
+									(_item.colour _item.pattern)
+								<<else>>
+									(_item.colour)
+								<</if>>
+							</span>
+						<<elseif _item.pattern and _item.pattern isnot 0 and _itemData.pattern_options?.length gt 1>>
+							<span @class="_item.pattern?.replace(' ','-') + ' noDivider'">(_item.pattern)</span>
+						<</if>>
+						<<if _item.outfitPrimary isnot undefined>>
+							<<set _keys to Object.keys(_item.outfitPrimary)>>
+							<<set _broken to 0>>
+							<<for _j to 0; _j lt _keys.length; _j++>>
+								<<if _item.outfitPrimary[_keys[_j]] is "broken">>
+									<<set _broken++>>
+								<</if>>
+							<</for>>
+							<<if _broken is 0>>
+								<span @class="(!_item.colour || _item.colour === 0? ' noDivider': '')">(Outfit)</span>
+							<<elseif _broken lt _keys.length>>
+								<span @class="'red' + (!_item.colour || _item.colour === 0? ' noDivider': '')">(Partly Broken)</span>
+							<<else>>
+								<span @class="'red' + (!_item.colour || _item.colour === 0? ' noDivider': '')">(Broken)</span>
+							<</if>>
+							<<if _item.one_piece is "split">>
+								<span @class="'separated-indicator' + (!_item.colour || _item.colour === 0? ' noDivider': '')">(Separated)</span>
+							<</if>>
+						<</if>>
+						<<if _item.outfitSecondary isnot undefined>>
+							<<if _item.one_piece is "split">>
+								<span @class="'separated-indicator' + (!_item.colour || _item.colour === 0? ' noDivider': '')">(Separated)</span>
+							<<else>>
+								<span @class="'red' + (!_item.colour || _item.colour === 0? ' noDivider': '')">(Broken)</span>
+							<</if>>
+						<</if>>
+						<<wardrobeintegrity _item _wardrobe_list>>
+						<<reveal _item.reveal>>
+
+						<<if _item.gender is "m">>
+							<span class="blue noDivider">♂</span>
+						<<elseif _item.gender is "f">>
+							<span class="pink noDivider">♀</span>
+						<<else>>
+						<</if>>
+
+						| <span class="cold-resist-icon noDivider"><<print getTrueWarmth(_item)>></span>
+						
+						<<unset _slotsFull>>
+						/*Set the target wardrobe*/
+						<<set _wardrobeTransferObject to selectWardrobe($wardrobe_location)>>
+						/*Make sure there is enough space*/
+						<<if _wardrobeTransferObject[_wardrobe_list].length gt _wardrobeTransferObject.space>>
+							<<set _slotsFull to true>>
+						<</if>>
+						<<if _itemOutfitData>>
+							<<for $_outfitSlot, $_outfitId range _itemOutfitData>>
+								<<if _wardrobeTransferObject[$_outfitSlot].length gt _wardrobeTransferObject.space>>
+									<<set _slotsFull to true>>
+								<</if>>
+							<</for>>
+						<</if>>
+
+						<<if $multipleWardrobes>>
+							<<if !_slotsFull>>
+								<<capture _i, _outfitPieceIds>>
+									<span></span>
+									<<link "Move to Wardrobe">>
+										<<run transferClothing(_wardrobe_list,_i, "inventory",$wardrobe_location)>>
+										<<for $_outfitSlot, $_outfitId range _outfitPieceIds>>
+											<<run transferClothing($_outfitSlot,$_outfitId, "inventory",$wardrobe_location)>>
+										<</for>>
+										<<updatewardrobe>>
+									<</link>>
+								<</capture>>
+							<<else>>
+								<span class="gold">Wardrobe Full!</span>
+							<</if>>
+						<</if>>
+					</div>
+				</div>
+			<</for>>
 		<</if>>
 
 		<<for _i to 0; _i lt _selectedWardrobe[_wardrobe_list].length; _i++>>
 			<<set _item to _selectedWardrobe[_wardrobe_list][_i]>>
 			<<set _itemData to setup.clothes[_wardrobe_list][clothesIndex(_wardrobe_list,_item)]>>
+			<<set _itemOutfitData to _itemData.outfitPrimary>>
 			<<if _item.outfitSecondary isnot undefined>>
 				<<if _item.outfitSecondary[1] isnot "broken" and _item.outfitSecondary[1] isnot "split">>
 					<<continue>>
 				<</if>>
 			<</if>>
-			<div class="wardrobeItem wardrobe-action no-numberify">
-				<<clothingicon _item _wardrobe_list>>
-				<<wearlink_norefresh _itemData.name_cap _i>>
-				<<if _item.gender is "m">>
-					<span class="blue">♂</span>
-				<<elseif _item.gender is "f">>
-					<span class="pink">♀</span>
-				<<else>>
 
-				<</if>>
-				<<if _item.colour and _item.colour isnot 0>>
-					<span @class="_item.colour?.replace(' ','-')">
-						<<if _item.pattern and ![0, "plain"].includes(_item.pattern) and _itemData.pattern_options?.length gt 1>>
-							(_item.colour _item.pattern)
-						<<else>>
-							(_item.colour)
+			/*Finds any outfit pieces and records the Ids*/
+			<<set _outfitPieceIds to {}>>
+			<<if _item.outfitPrimary isnot undefined>>
+				<<for $_outfitPieceSlot, $_outfitPieceName range _item.outfitPrimary>>
+					<<if $_outfitPieceName is "broken" or $_outfitPieceName is "split">>
+						<<continue>>
+					<</if>>
+					<<for $_outfitPieceId, $_wardrobeItem range _selectedWardrobe[$_outfitPieceSlot]>>
+						<<if $_wardrobeItem.name isnot $_outfitPieceName>>
+							<<continue>>
 						<</if>>
-					</span>
-				<<elseif _item.pattern and _item.pattern isnot 0 and _itemData.pattern_options?.length gt 1>>
-					<span @class="_item.pattern?.replace(' ','-')">(_item.pattern)</span>
-				<</if>>
-				<<if _item.outfitPrimary isnot undefined>>
-					<<set _keys to Object.keys(_item.outfitPrimary)>>
-					<<set _broken to 0>>
-					<<for _j to 0; _j lt _keys.length; _j++>>
-						<<if _item.outfitPrimary[_keys[_j]] is "broken">>
-							<<set _broken++>>
+						<<if _item.colour isnot $_wardrobeItem.colour or ($_wardrobeItem.accessory isnot 0 and _item.accessory_colour isnot $_wardrobeItem.accessory_colour) or ($_wardrobeItem.pattern and _item.pattern and $_wardrobeItem.pattern isnot 0 and _item.pattern isnot $_wardrobeItem.pattern)>>
+							<<continue>>
+						<</if>>
+						<<if $_wardrobeItem.outfitSecondary[1] isnot _item.name>>
+							<<continue>>
+						<</if>>
+						<<set _matched to 0>>
+						<<if $_wardrobeItem.colour isnot "custom" or (_item.colourCustom isnot undefined and _item.colourCustom is $_wardrobeItem.colourCustom)>>
+							<<set _matched++>>
+						<</if>>
+						<<if $_wardrobeItem.accessory is 0 or $_wardrobeItem.accessory_colour isnot "custom" or (_item.accessory_colourCustom isnot undefined and _item.accessory_colourCustom is $_wardrobeItem.accessory_colourCustom)>>
+							<<set _matched++>>
+						<</if>>
+						<<if _matched is 2>>
+							<<set _outfitPieceIds[$_outfitPieceSlot] to $_outfitPieceId>>
+							<<break>>
 						<</if>>
 					<</for>>
-					<<if _broken is 0>>
-						<span class="gold">(Outfit)</span>
-					<<elseif _broken lt _keys.length>>
-						<span class="red">(Partly Broken)</span>
+				<</for>>
+			<</if>>
+
+			<div class="wardrobeItem wardrobe-action no-numberify">
+				<div>
+					<<clothingicon _item _wardrobe_list>>
+					<<wearlink_norefresh _itemData.name_cap _i>>
+				</div>
+
+				<div class="small-description">
+					<<if _item.colour and _item.colour isnot 0>>
+						<span @class="_item.colour?.replace(' ','-') + ' noDivider'">
+							<<if _item.pattern and ![0, "plain"].includes(_item.pattern) and _itemData.pattern_options?.length gt 1>>
+								(_item.colour _item.pattern)
+							<<else>>
+								(_item.colour)
+							<</if>>
+						</span>
+					<<elseif _item.pattern and _item.pattern isnot 0 and _itemData.pattern_options?.length gt 1>>
+						<span @class="_item.pattern?.replace(' ','-') + ' noDivider'">(_item.pattern)</span>
+					<</if>>
+					<<if _item.outfitPrimary isnot undefined>>
+						<<set _keys to Object.keys(_item.outfitPrimary)>>
+						<<set _broken to 0>>
+						<<for _j to 0; _j lt _keys.length; _j++>>
+							<<if _item.outfitPrimary[_keys[_j]] is "broken">>
+								<<set _broken++>>
+							<</if>>
+						<</for>>
+						<<if _broken is 0>>
+							<span @class="(!_item.colour || _item.colour === 0? ' noDivider': '')">(Outfit)</span>
+						<<elseif _broken lt _keys.length>>
+							<span @class="'red' + (!_item.colour || _item.colour === 0? ' noDivider': '')">(Partly Broken)</span>
+						<<else>>
+							<span @class="'red' + (!_item.colour || _item.colour === 0? ' noDivider': '')">(Broken)</span>
+						<</if>>
+						<<if _item.one_piece is "split">>
+							<span @class="'separated-indicator' + (!_item.colour || _item.colour === 0? ' noDivider': '')">(Separated)</span>
+						<</if>>
+					<</if>>
+					<<if _item.outfitSecondary isnot undefined>>
+						<<if _item.one_piece is "split">>
+							<span @class="'separated-indicator' + (!_item.colour || _item.colour === 0? ' noDivider': '')">(Separated)</span>
+						<<else>>
+							<span @class="'red' + (!_item.colour || _item.colour === 0? ' noDivider': '')">(Broken)</span>
+						<</if>>
+					<</if>>
+					<<wardrobeintegrity _item _wardrobe_list>>
+					<<reveal _item.reveal>>
+
+					<<if _item.gender is "m">>
+						<span class="blue noDivider">♂</span>
+					<<elseif _item.gender is "f">>
+						<span class="pink noDivider">♀</span>
 					<<else>>
-						<span class="red">(Broken)</span>
 					<</if>>
-					<<if _item.one_piece is "split">>
-						<span class="separated-indicator">(Separated)</span>
+
+					| <span class="cold-resist-icon noDivider"><<print getTrueWarmth(_item)>></span>
+					
+					<<if $multipleWardrobes>>
+						<<set _handbagIsFull to getWardrobeItemCount("inventory") gte $wardrobes.inventory.space>>
+						<<set _handsAreFull to getWardrobeItemCount("inventory") gte 2>>
+
+						<<if _hasHandbag and !_handbagIsFull>>
+							<<capture _i, _outfitPieceIds>>
+								<span></span>
+								<<link "Move to Handbag">>
+									<<run transferClothing(_wardrobe_list,_i,$wardrobe_location,"inventory")>>
+									<<for $_outfitSlot, $_outfitId range _outfitPieceIds>>
+										<<run transferClothing($_outfitSlot,$_outfitId, $wardrobe_location,"inventory")>>
+									<</for>>
+									<<updatewardrobe>>
+								<</link>>
+							<</capture>>
+						<<elseif _hasHandbag and _handbagIsFull>>
+							<span class="gold">Handbag Full!</span>
+						<<else>>
+							/* <span class="default-colour">No Handbag Available</span> */
+						<</if>>
 					<</if>>
-				<</if>>
-				<<if _item.outfitSecondary isnot undefined>>
-					<<if _item.one_piece is "split">>
-						<span class="separated-indicator">(Separated)</span>
-					<<else>>
-						<span class="red">(Broken)</span>
-					<</if>>
-				<</if>>
-				<<wardrobeintegrity _item _wardrobe_list>>
-				<<reveal _item.reveal>>
-				| <span class="cold-resist-icon noDivider"><<print getTrueWarmth(_item)>></span>
+				</div>
 			</div>
 		<</for>>
 		<div style="clear:both;"></div>
@@ -1143,12 +1408,15 @@
 <</widget>>
 
 <<widget "wearlink_norefresh">>
-	<<capture _args[1] _args[2]>>
+	<<capture _args[1] _args[2] _args[3]>>
 		<<link _args[0]>>
 			<<if _args[2]>>
 				<<set V[_args[2]] = _args[1]>>
 			<<else>>
 				<<set V[_wear] = _args[1]>>
+			<</if>>
+			<<if _args[3] is "inventory">>
+				<<set $equipFromInventory to _wear.slice(5)>>
 			<</if>>
 			<<updatewardrobe undefined _args[2]>>
 		<</link>>
@@ -1821,6 +2089,7 @@ You look through the rustic wardrobe.
 :: School Pool Wardrobe [exitCheckBypass]
 
 <<effects>>
+<<set $wardrobe_location to $changingRoomGender is "boys"? "schoolBoys": "schoolGirls">>
 <<wardrobeSelection>>
 <<set _earSlimeEnableSwimwear to true>>
 You stand in front of your open locker.
