@@ -405,6 +405,19 @@
 								<</if>>
 							<</if>>
 						<</if>>
+						/*Check for Hypnotic Crossdressing*/
+						<<if _corruptionEquipSkip.includes($_slot) and $hypnosis_traits.crossdressing gte 2>>
+							<<if $hypnosis_traits.crossdressing gte 2 and (($_slot is "under_lower" or ($_wardrobeItem.outfitPrimary and $_wardrobeItem.outfitPrimary.under_lower and !["broken","split"].includes($_wardrobeItem.outfitPrimary.under_lower))) or ($_slot is "under_upper" or ($_wardrobeItem.outfitPrimary and $_wardrobeItem.outfitPrimary.under_upper and !["broken","split"].includes($_wardrobeItem.outfitPrimary.under_upper)))) and $_wardrobeItem.gender is $player.gender and !$_wardrobeItem.type.includesAny("event")>>
+								<<if $_wardrobeItem.type.includes("naked") or (_earSlimeEnableSwimwear and $_wardrobeItem.type.includes("swim")) or (_earSlimeEnableDancewear and $_wardrobeItem.type.includes("dance"))>>
+								<<else>>
+									<<set _notEquipped[$_slot] to {"name": $_incomingItemName, "reason": "hypnosis_forced_crossdressing"}>>
+									<<break>>
+								<</if>>
+							<<elseif $hypnosis_traits.crossdressing gte 4 and ($_wardrobeItem.gender is $player.gender or $_wardrobeItem.type.includesAny("chest_bind")) and !$_wardrobeItem.type.includesAny("event")>>
+								<<set _notEquipped[$_slot] to {"name": $_incomingItemName, "reason": "hypnosis_forced_crossdressing"}>>
+								<<break>>
+							<</if>>
+						<</if>>
 
 						/*Finds the least damaged outfit if the current clothing item is the main part and sets it as a last resort in case an undamaged one isn't found*/
 						<<set _damage to 0>>
@@ -648,6 +661,18 @@
 							}
 						}
 						_resultStrings.corruption_slime_deny_forcedDressing.names.push(notEquippedItem.name);
+						break;
+					case "hypnosis_forced_crossdressing":
+						if (_resultStrings.hypnosis_forced_crossdressing === undefined) {
+							_resultStrings.hypnosis_forced_crossdressing = {
+								"start": "You were unable to equip your ",
+								"joiner": "and",
+								"end": ` as your compulsion is only permitting more ${$player.gender is "m" ? "feminine" : "masculine"} clothing.`,
+								"names": [],
+								"color": "red"
+							}
+						}
+						_resultStrings.hypnosis_forced_crossdressing.names.push(notEquippedItem.name);
 						break;
 					case "cursed slot":
 						if (_resultStrings.cursed === undefined) {
