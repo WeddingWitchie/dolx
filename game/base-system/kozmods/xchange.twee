@@ -967,12 +967,15 @@
 				<<for _i to 0; _i lt 1; _i++>><<run _durations.push(7)>><</for>>
 				<<set _duration to _durations.random()>><<take-xchange _duration>>
 
+				<<xchange-get-spikepool>>
+				<<set _crossdressThreshold to 100 - $xchange.spikerates.crossdress * 100 / _effectPool.length>>
+
 				<<if $player.gender is "m">>
 					<<rng>>
-					<<if $rng gt 33>>
-						<<xchange-addeffect "genderflip">>
-					<<else>>
+					<<if $rng gt _crossdressThreshold and $xchange.spikepool.crossdresser>>
 						<<xchange-addeffect "crossdress">>
+					<<else>>
+						<<xchange-addeffect "genderflip">>
 					<</if>>
 					<<xchange-get-spikepool>>
 					<<xchange-addeffect _effectPool.random()>>
@@ -985,13 +988,12 @@
 
 				<<elseif $player.gender is "f">>
 					<<rng>>
-					<<if $rng gt 33>>
-						<<xchange-addeffect "genderflip">>
-						<<xchange-get-spikepool>>
-					<<else>>
+					<<if $rng gt _crossdressThreshold and $xchange.spikepool.crossdresser>>
 						<<xchange-addeffect "crossdress">>
-						<<xchange-get-spikepool>>
+					<<else>>
+						<<xchange-addeffect "genderflip">>
 					<</if>>
+					<<xchange-get-spikepool>>
 					<<xchange-addeffect _effectPool.random()>>
 					<<if $xchange.pill.genderflipEffect and $xchange.spikepool.crossdresser>>
 						<<rng>><<if $rng gt 66>><<xchange-addeffect "crossdress">><</if>>
@@ -1002,7 +1004,6 @@
 				<</if>>
 				
 			<<else>>
-				<<xchange-get-spikepool>>
 				<<xchange-addeffect _effectPool.random()>>
 			<</if>>
 
@@ -1015,20 +1016,12 @@
 	<</widget>>
 
 	<<widget "xchange-get-spikepool">>
-		<<set _effectPool to [
-			"genderflip","genderflip","genderflip","genderflip","genderflip","genderflip","genderflip",
-			"crossdress","crossdress","crossdress","crossdress","crossdress","crossdress","crossdress",
-			"herm","herm","herm","herm",
-			"breeder","breeder",
-			"bull","bull",
-			"continue","continue","continue",
-			"resistance","resistance","resistance",
-			"portal","portal",
-			"fertile","fertile",
-			"passion",
-			"dumb-bitch",
-			"innocence",
-		]>>
+		<<set _effectPool to []>>
+		<<for _pillType range Object.keys($xchange.spikerates)>>
+			<<for _i to 0; _i lt $xchange.spikerates[_pillType]; _i++>>
+				<<set _effectPool.push(_pillType)>>
+			<</for>>
+		<</for>>
 		<<if $player.gender is "f">><<run _effectPool.deleteWith((val)=>val==="breeder")>><<run _effectPool.deleteWith((val)=>val==="fertile")>><</if>>
 		<<if $player.gender is "m">><<run _effectPool.deleteWith((val)=>val==="bull")>><</if>>
 		<<if $xchange.pill.genderflipEffect>><<run _effectPool.deleteWith((val)=>val==="genderflip")>><</if>>
