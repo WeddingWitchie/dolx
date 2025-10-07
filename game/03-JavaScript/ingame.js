@@ -1730,6 +1730,10 @@ function hasSexStat(input, required, modifiers = 2) {
 	}
 	statValue = Math.clamp(statValue, 0, 100);
 
+	if (V.xchange.pill.bimboEffect) {
+		statValue = 100;
+	}
+
 	switch (required) {
 		case 6:
 			/* self-destructive, extreme actions, like leglocking a rapist unprotected or provoking a group for no sane benefit. */
