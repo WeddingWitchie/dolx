@@ -348,6 +348,22 @@ function playerIsXChanged() {
 }
 window.playerIsXChanged = playerIsXChanged;
 
+function npcIsXChanged(npc) {
+	if (typeof npc === "number") {
+		return !!V.NPCList[npc]?.xchanged;
+	}
+	else {
+		return !!V.NPCName[npc]?.xchanged;
+	}
+}
+window.npcIsXChanged = npcIsXChanged;
+
+function isNumber(value) {
+	return typeof value == 'number' ||
+	(isObjectLike(value) && baseGetTag(value) == numberTag);
+}
+window.isNumber = isNumber;
+
 /* 
 	@args:
 	 - path: type string, representing the relative path to an 'img' asset.
