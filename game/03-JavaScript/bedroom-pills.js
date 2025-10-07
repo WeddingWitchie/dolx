@@ -967,6 +967,43 @@ setup.pills = [
 		effects: [`<<xchange-pink 1 "bimbo" "swell">>`],
 	},
 	{
+		name: "X-Change Pink CumCure",
+		description:
+			"Reduces the duration of your transformation every time cum is deposited inside you.",
+		onTakeMessage: 
+			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a woman's body.<br><br>Your new body feels smaller, lighter, and strangely sensitive to the touch.<br><br>Looking in the mirror, you also realise you look exceedingly beautiful as well.",
+		warning_label:
+			"Warning: Mild discomfort might be incurred during transformation. Certain parasitic infections might result in permanence, in particular those affecting the vagina.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "pink cumcure",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillbreast.png",
+		display_condition() {
+			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
+		},
+		take_condition() {
+			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-pink 7 "cumcure">>`],
+	},
+	{
 		name: "X-Change Sissy",
 		description:
 			"A variant of the X-Change Basic. The transforming effects of the standard formula are halted mid-way before the transformation is over, resulting on a body that looks feminine while still technically being male.",
@@ -1522,6 +1559,43 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<xchange-blue 1 "bimbo" "swell">>`],
+	},
+	{
+		name: "X-Change Blue CumCure",
+		description:
+			"Reduces the duration of your transformation every time cum is deposited inside you.",
+		onTakeMessage: 
+			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as it slowly begins to twist and turn, rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a man's body.<br><br>Your new body feels larger, stronger, and quite ready to dish out and receive punishment.<br><br>And upon looking in the mirror, you realise you're quite handsome as well!",
+		warning_label:
+			"Warning: Mild discomfort might be incurred during transformation. Certain parasitic infections might result in permanence, in particular those affecting the genitalia.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "blue cumcure",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillpenis.png",
+		display_condition() {
+			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
+		},
+		take_condition() {
+			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-blue 7 "cumcure">>`],
 	},
 	{
 		name: "X-Change Butch",
@@ -2414,6 +2488,43 @@ setup.pills = [
 		effects: [`<<xchange-removeeffect "bimbo">>`, "<<xchange-addsideeffect>>"],
 	},
 	{
+		name: "SWP Anti-cumcure Pill",
+		description:
+			"A shady pill advertised to deal with cumcure effects, 100% satisfaction guaranteed.",
+		onTakeMessage: 
+			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>And... quite surprisingly, you feel nothing? But not snake-oil nothing. Rather, you feel a nothingness that can only feel like relief not too distinct from a silence after being stuck in a noisy room. It seems the pill may have done what it advertised. But it's still too early to tell.<br><br>Even so, you take a deep breath in, safe in the belief you'll no longer have to deal with those awful mind-afflicting and body-altering effects.",
+		warning_label:
+			"Warning: May cause some side-effects. Do not take unless you've tested positive for the respective effect.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "anti-pill",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillcure.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return playerIsXChanged() && V.xchange.pill.cumcureEffect && V.xchange.pill.effectsKnown
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-removeeffect "cumcure">>`, "<<xchange-addsideeffect>>"],
+	},
+	{
 		name: "X-Change Antidote",
 		description:
 			"An expensive solution for those who are willing and can afford it. A pill that reduces the remaining duration of your current pill by a single day, at the expense of some severe side-effects. If remaining duration reaches zero, your pill shall expire within the next hour.",
@@ -2851,6 +2962,7 @@ function backCompPillsInventory() {
 		"X-Change Pink Innocence": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Pink Swell": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Pink Bimbo": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+		"X-Change Pink CumCure": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Blue Basic": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Blue Weekly": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Blue NOW": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
@@ -2861,6 +2973,7 @@ function backCompPillsInventory() {
 		"X-Change Blue Innocence": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Blue Swell": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Blue Himbo": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+		"X-Change Blue CumCure": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Purple Bull": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Purple Breeder": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Purple Basic": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
