@@ -1757,41 +1757,43 @@ function moonState() {
 window.moonState = moonState;
 
 function dailySchoolEffects() {
-	if (V.science_exam >= 200 && V.sciencetrait < 4 * V.AMCTraits.science) {
-		V.effectsmessage = 1;
-		V.science_up_message = 1;
-		wikifier("school_skill_up", "science");
-	} else if (V.science_exam <= -100 && V.sciencetrait >= 0) {
-		V.effectsmessage = 1;
-		V.science_down_message = 1;
-		wikifier("school_skill_down", "science");
-	}
-	if (V.maths_exam >= 200 && V.mathstrait < 4 * V.AMCTraits.maths) {
-		V.effectsmessage = 1;
-		V.maths_up_message = 1;
-		wikifier("school_skill_up", "maths");
-	} else if (V.maths_exam <= -100 && V.mathstrait >= 0) {
-		V.effectsmessage = 1;
-		V.maths_down_message = 1;
-		wikifier("school_skill_down", "maths");
-	}
-	if (V.english_exam >= 200 && V.englishtrait < 4 * V.AMCTraits.english) {
-		V.effectsmessage = 1;
-		V.english_up_message = 1;
-		wikifier("school_skill_up", "english");
-	} else if (V.english_exam <= -100 && V.englishtrait >= 0) {
-		V.effectsmessage = 1;
-		V.english_down_message = 1;
-		wikifier("school_skill_down", "english");
-	}
-	if (V.history_exam >= 200 && V.historytrait < 4 * V.AMCTraits.history) {
-		V.effectsmessage = 1;
-		V.history_up_message = 1;
-		wikifier("school_skill_up", "history");
-	} else if (V.history_exam <= -100 && V.historytrait >= 0) {
-		V.effectsmessage = 1;
-		V.history_down_message = 1;
-		wikifier("school_skill_down", "history");
+	if(V.xchange.pill.bimboEffect === false) {
+		if (V.science_exam >= 200 && V.sciencetrait < 4 * V.AMCTraits.science) {
+			V.effectsmessage = 1;
+			V.science_up_message = 1;
+			wikifier("school_skill_up", "science");
+		} else if (V.science_exam <= -100 && V.sciencetrait >= 0) {
+			V.effectsmessage = 1;
+			V.science_down_message = 1;
+			wikifier("school_skill_down", "science");
+		}
+		if (V.maths_exam >= 200 && V.mathstrait < 4 * V.AMCTraits.maths) {
+			V.effectsmessage = 1;
+			V.maths_up_message = 1;
+			wikifier("school_skill_up", "maths");
+		} else if (V.maths_exam <= -100 && V.mathstrait >= 0) {
+			V.effectsmessage = 1;
+			V.maths_down_message = 1;
+			wikifier("school_skill_down", "maths");
+		}
+		if (V.english_exam >= 200 && V.englishtrait < 4 * V.AMCTraits.english) {
+			V.effectsmessage = 1;
+			V.english_up_message = 1;
+			wikifier("school_skill_up", "english");
+		} else if (V.english_exam <= -100 && V.englishtrait >= 0) {
+			V.effectsmessage = 1;
+			V.english_down_message = 1;
+			wikifier("school_skill_down", "english");
+		}
+		if (V.history_exam >= 200 && V.historytrait < 4 * V.AMCTraits.history) {
+			V.effectsmessage = 1;
+			V.history_up_message = 1;
+			wikifier("school_skill_up", "history");
+		} else if (V.history_exam <= -100 && V.historytrait >= 0) {
+			V.effectsmessage = 1;
+			V.history_down_message = 1;
+			wikifier("school_skill_down", "history");
+		}
 	}
 
 	V.schooleventtimer--;
