@@ -479,7 +479,7 @@ function playerHeatMinArousal() {
 	if (playerIsPregnant() && !V.pregnancyStats.heatStillEnabled) return 0;
 
 	const pills = V.sexStats.pills.pills;
-	const risk = playerPregnancyRisk();
+	const risk = Math.clamp(playerPregnancyRisk()-V.xchange.breederDenial, 0, 6);
 	let minArousal = 0;
 
 	// Should always be the first to modify minArousal
@@ -492,7 +492,7 @@ function playerHeatMinArousal() {
 		if (V.cow >= 2) minArousal += Math.clamp(V.cowbuild, 0, 100) * 20 * (2 - risk);
 		if (V.fox >= 2) minArousal += Math.clamp(V.foxbuild, 0, 100) * 20 * (2 - risk);
 		if (V.bunny >= 2) minArousal += Math.clamp(V.bunnybuild, 0, 100) * 20 * (2 - risk);
-		if (playerIsXChanged() && V.xchange.pill?.breederEffect) minArousal += 100 * 40;
+		if (playerIsXChanged() && V.xchange.pill?.breederEffect) minArousal += 100 * 4 * V.xchange.breederDenial;
 	}
 	if (minArousal === 0) V.pregnancyStats.heatStillEnabled = !playerIsPregnant();
 
