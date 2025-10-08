@@ -213,13 +213,14 @@ function pleasure(amount, source) {
 		}
 
 		// Cannot orgasm under breeder unless there's semen in vagina
-		if (playerIsXChanged() && V.xchange.pill?.breederEffect && !playerIsCreampied() && oldPleasure + pleasureChange >= V.pleasuremax * 4/5) {
+		if (playerIsXChanged() && V.xchange.pill?.breederEffect && (!playerIsCreampied() && !V.xchange.genitalAddictTraitsEnabled || !V.xchange.breederOrgasm) && oldPleasure + pleasureChange >= V.pleasuremax * 4/5) {
 			V.pleasure = Math.clamp(V.pleasure, 0, V.pleasuremax * 4/5 - 1);
 			V.xchange.pill.breederEdgingCount++;
 		}
 		if (V.xchange.pill.breederEdgingCount > 10) {
 			V.effectsmessage = 1;
 			V.breederEdgingMessage = 1;
+			V.xchange.breederDenial++;
 			V.xchange.pill.breederEdgingCount = 0;
 			V.xchange.pill.breederEdgingStress = Math.min(V.xchange.pill.breederEdgingStress + 50, 800);
 			fragment.append(wikifier("stress", V.xchange.pill.breederEdgingStress, 1));
