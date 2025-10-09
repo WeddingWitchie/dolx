@@ -59,7 +59,7 @@ function masturbationEffects() {
 		wikifier("vaginaWetnessCalculate");
 	}
 	if (V.corruptionMasturbation) {
-		if (V.leftarm === "bound" && V.rightarm === "bound") {
+		if (pcAreArmsBound("both")) {
 			sWikifier(
 				'The slime in your ear makes you fight against the binds around your arms. You make no progress, <span class="blue">and it gives up.</span><<arousal 600 "masturbation">><<stress 6>><<gstress>><<garousal>>'
 			);
@@ -176,7 +176,7 @@ function masturbationEffects() {
 	if (otherVariables.additionalEffect.hands === "ballplayeffects" && V.worn.genitals.name !== "chastity parasite") {
 		if (V.arousal >= V.arousalmax * (4 / 5) || (V.earSlime.focus === "impregnation" && V.earSlime.growth >= 100)) {
 			if (genitalsExposed()) {
-				sWikifier('Your <<penis>> bucks eagerly, and <span class="pink">precum leaps from the tip.</span>');
+				sWikifier('Your <<penis>> bucks eagerly, and <span class="pink">precum leaks from the tip</span>.');
 			} else {
 				sWikifier('Your <<penis>> bucks eagerly, and <span class="pink">precum seeps through your <<exposedlower>>.</span>');
 			}
@@ -205,7 +205,7 @@ function masturbationEffects() {
 		if (V.arousal >= V.arousalmax * (4 / 5) || (V.earSlime.focus === "impregnation" && V.earSlime.growth >= 100)) {
 			if (genitalsExposed()) {
 				sWikifier(
-					`Your <<penis "strap-on">> bucks eagerly, and <span class="pink">precum leaps from the tip${
+					`Your <<penis "strap-on">> bucks eagerly, and <span class="pink">precum leaks from the tip${
 						V.bugsinside && V.player.penissize >= 0 ? " covering some of the insects crawling over you" : ""
 					}.</span>`
 				);
@@ -277,7 +277,7 @@ function masturbationEffects() {
 			wikifier("underlowerwet", 1);
 		} else if (V.worn.lower.vagina_exposed === 0) {
 			sWikifier(
-				`<span class="pink">Juices leak from your <<pussy>><<if V.underlowerwet gte 60>>, soak through your ${V.worn.under_lower.name},<</if>> and dampen your ${V.worn.lower.name}.</span>`
+				`<span class="pink">Juices leak from your <<pussy>><<if V.underlowerwet gte 60 and V.worn.under_lower.name isnot "naked">>, soak through your ${V.worn.under_lower.name},<</if>> and dampen your ${V.worn.lower.name}.</span>`
 			);
 		} else {
 			sWikifier('<span class="pink">Juices leak from your <<pussy>> and dampen your clothing.</span>');
@@ -991,7 +991,7 @@ function masturbationEffectsArms(
 				wikifier("arousal", 100 * handsOn, "masturbationPenis");
 				wikifier("pain", 1);
 				additionalEffect.earSlimeDefy.pushUnique(V.player.virginity.penile === true ? "virgin penis" : "penis");
-				sWikifier(`Your forced to roughtly rub your foreskin to feel something.`);
+				sWikifier(`You're forced to roughly rub your foreskin to feel something.`);
 			} else if (V.earSlime.corruption >= 100 && V.earSlime.growth >= 100 && V.earSlime.focus === "impregnation") {
 				wikifier("arousal", 400 * handsOn, "masturbationPenis");
 				if (V.player.virginity.penile === true) {
@@ -1080,7 +1080,7 @@ function masturbationEffectsArms(
 				wikifier("arousal", 100 * handsOn, "masturbationPenis");
 				wikifier("pain", 1);
 				additionalEffect.earSlimeDefy.pushUnique(V.player.virginity.penile === true ? "virgin penis" : "penis");
-				sWikifier(`Your forced to roughtly run your fingers up and down to feel anything.`);
+				sWikifier(`You're forced to roughly run your fingers up and down to feel anything.`);
 			} else if (V.earSlime.corruption >= 100 && V.earSlime.growth >= 100 && V.earSlime.focus === "impregnation") {
 				wikifier("arousal", 400 * handsOn, "masturbationPenis");
 				if (V.player.virginity.penile === true) {
@@ -1287,7 +1287,7 @@ function masturbationEffectsArms(
 				wikifier("arousal", 50 * handsOn, "masturbationPenis");
 				wikifier("pain", 1);
 				additionalEffect.earSlimeDefy.pushUnique("balls");
-				sWikifier(`Your forced to roughtly grope your ${balls} to feel anything.`);
+				sWikifier(`You're forced to roughly grope your ${balls} to feel anything.`);
 			} else {
 				wikifier("arousal", 100 * handsOn, "masturbationPenis");
 				if (handsOn === 2) {
@@ -1327,7 +1327,7 @@ function masturbationEffectsArms(
 				wikifier("arousal", 100 * handsOn, "masturbationPenis");
 				wikifier("pain", 1);
 				additionalEffect.earSlimeDefy.pushUnique("balls");
-				sWikifier(`Your forced to roughtly squeeze your ${balls} to feel anything.`);
+				sWikifier(`You're forced to roughly squeeze your ${balls} to feel anything.`);
 			} else {
 				wikifier("arousal", 200 * handsOn, "masturbationPenis");
 				altText.gently = V.arousal >= V.arousalmax * (4 / 5) ? "urgently" : V.arousal >= V.arousalmax * (3 / 5) ? "" : "gently";
@@ -1386,7 +1386,7 @@ function masturbationEffectsArms(
 							fragment.append(span(`You take one of your ${balls} in each hand. You can barely get your hands around them`));
 							break;
 						default:
-							fragment.append(span("This text should be unreachable.", "red"));
+							fragment.append(span("This text should be unreachable", "red"));
 							break;
 					}
 				} else {
@@ -1394,7 +1394,7 @@ function masturbationEffectsArms(
 					switch (V.ballssize) {
 						case 1:
 						case 2:
-							fragment.append(span(`You take ${altText.oneOfYour} in your ${arm} hand.`));
+							fragment.append(span(`You take ${altText.oneOfYour} in your ${arm} hand`));
 							break;
 						case 3:
 							fragment.append(span(`You take ${altText.oneOfYour} in your ${arm} hand. It fills your palm nicely`));
@@ -1403,7 +1403,7 @@ function masturbationEffectsArms(
 							fragment.append(span(`You take ${altText.oneOfYour} in your ${arm} hand. You can barely get your hand around it`));
 							break;
 						default:
-							fragment.append(span(`You easily grab both of your ${balls} with your ${arm} hand.`));
+							fragment.append(span(`You easily grab both of your ${balls} with your ${arm} hand`));
 							break;
 					}
 				}
@@ -1782,10 +1782,10 @@ function masturbationEffectsArms(
 					wikifier("arousal", 25, "masturbationPenis");
 					altText.selectedOtherToy = selectedToy(otherArm);
 					sWikifier(
-						`Your forced to roughtly fuck your <<penis>> with the ${toyDisplay(altText.selectedToy, altText.selectedOtherToy)} to feel anything.`
+						`You're forced to roughly fuck your <<penis>> with the ${toyDisplay(altText.selectedToy, altText.selectedOtherToy)} to feel anything.`
 					);
 				} else {
-					sWikifier(`Your forced to roughtly fuck your <<penis>> with the ${toyDisplay(altText.selectedToy)} to feel anything.`);
+					sWikifier(`You're forced to roughly fuck your <<penis>> with the ${toyDisplay(altText.selectedToy)} to feel anything.`);
 				}
 			} else if (V.earSlime.corruption >= 100 && V.earSlime.growth >= 100 && V.earSlime.focus === "impregnation") {
 				wikifier("arousal", 600, "masturbationPenis");
@@ -1797,7 +1797,7 @@ function masturbationEffectsArms(
 						`<span class="purple">You roughly fuck your precum covered <<penis>> with the ${toyDisplay(
 							altText.selectedToy,
 							altText.selectedOtherToy
-						)},</span> <span class="lewd">gexcess precum flies from the tip.</span>`
+						)},</span> <span class="lewd">gexcess precum flies from the tip</span>.`
 					);
 				} else {
 					sWikifier(
@@ -3110,7 +3110,7 @@ function masturbationEffectsMouth({
 					wikifier("arousal", 100, "masturbationGenital");
 					wikifier("pain", 1);
 					additionalEffect.earSlimeDefy.pushUnique(V.player.virginity.penile === true ? "virgin penis" : "penis");
-					sWikifier(`Your forced to roughtly lick your <<penis>> to feel something.`);
+					sWikifier(`You're forced to roughly lick your <<penis>> to feel something.`);
 				} else if (V.earSlime.corruption >= 100 && V.earSlime.growth >= 100 && V.earSlime.focus === "impregnation") {
 					wikifier("arousal", 400, "masturbationGenital");
 					if (V.arousal >= V.arousalmax * (4 / 5)) {
@@ -3205,7 +3205,7 @@ function masturbationEffectsMouth({
 				wikifier("arousal", 100, "masturbationGenital");
 				wikifier("pain", 1);
 				additionalEffect.earSlimeDefy.pushUnique(V.player.virginity.penile === true ? "virgin penis" : "penis");
-				sWikifier(`Your forced to roughtly suck on your <<penis>> to feel something.`);
+				sWikifier(`You're forced to roughly suck on your <<penis>> to feel something.`);
 			} else if (V.earSlime.corruption >= 100 && V.earSlime.growth >= 100 && V.earSlime.focus === "impregnation") {
 				wikifier("arousal", 400 + 50 * V.selfsuckDepth, "masturbationGenital");
 				altText.eagerly = V.arousal >= V.arousalmax * (2 / 5) ? "eagerly" : "slowly";
@@ -3268,7 +3268,7 @@ function masturbationEffectsMouth({
 				wikifier("arousal", 100, "masturbationGenital");
 				wikifier("pain", 4);
 				sWikifier(
-					`You lick the parasite, for each one, the parasite sends alternating waves of <span class="lewd">pleasure</span> and <span class="red">pain</span>.<<gpain>>`
+					`You lick the parasite. With each lick, the parasite sends alternating waves of <span class="lewd">pleasure</span> and <span class="red">pain</span>.<<gpain>>`
 				);
 			} else if (V.earSlime.corruption < 100) {
 				wikifier("arousal", 200, "masturbationGenital");

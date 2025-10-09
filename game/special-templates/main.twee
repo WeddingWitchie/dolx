@@ -1,8 +1,7 @@
 :: Test
-<<set $location to "pirate_ship">><<set $outside to 0>><<effects>>
+<<set $location to "avery_mansion">><<set $outside to 0>><<effects>>
 <<endcombat>><<set $options.historyControls to true>><<set $options.maxStates to 20>>
 
-<<link [[Test]]>><</link>><br><br>
 
 
 
@@ -193,12 +192,7 @@ Possible text describing your attempt.
 	Text describing your success.
 	<br><br>
 
-	<<if $skulduggery lte ($skulduggerydifficulty + 100)>>
-		<<skulduggeryskilluse>>
-	<<else>>
-		<span class="blue">That was too easy. You didn't learn anything.</span>
-		<br><br>
-	<</if>>
+	<<skulduggeryuse>>
 
 	<<link [[Next|Skulduggery]]>><</link>>
 	<br>
@@ -208,12 +202,7 @@ Possible text describing your attempt.
 	Text describing your failure.
 	<br><br>
 
-	<<if $skulduggery lte ($skulduggerydifficulty + 100)>>
-		<<skulduggeryskilluse>>
-	<<else>>
-		<span class="blue">That was too easy. You didn't learn anything.</span>
-		<br><br>
-	<</if>>
+	<<skulduggeryuse>>
 
 	<<link [[Next|Skulduggery]]>><</link>>
 	<br>
@@ -459,7 +448,6 @@ Possible text describing your attempt.
 
 <<set $seductiondifficulty to 6000>>
 <<seductioncheck>>
-<br><br>
 <<seductionskilluptext>>
 <<seductionskilluse>>
 
@@ -486,7 +474,7 @@ The door is locked tight.
 <br><br>
 
 <<if currentSkillValue('skulduggery') gte $lock>>
-	<<if $leftarm is "bound" and $rightarm is "bound">>
+	<<if pcAreArmsBound("both")>>
 		You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
 		<br><br>
 	<<else>>
@@ -504,12 +492,7 @@ The door is locked tight.
 You successfully pick the lock and enter the building.
 <<set $compoundcentre to 1>><<set $compoundalarm += 1>>
 
-<<if $skulduggery lt 400>>
-	<<skulduggeryskilluse>>
-<<else>>
-	<span class="blue">There's nothing more you can learn from locks this simple.</span>
-	<br><br>
-<</if>>
+<<skulduggeryuse 400 "locks">>
 
 :: Template for a widget that outputs text based on character's state
 
@@ -678,8 +661,8 @@ You successfully pick the lock and enter the building.
 	<</if>>
 <</widget>>
 
-<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (9900 - $allure)>>
+
+	<<if dangerEvent()>>
 
 	<<else>>
 
@@ -1153,6 +1136,18 @@ $kylar_camera = 7: Camera left.
 
 <<elseif $stalk_end is "hide">>
 	<<covered>> <<tearful>> you emerge from your hiding place. You continue your journey.
+	<br><br>
+
+	<<set $stealtextskip to 1>>
+	<<stealclothes>>
+	<<clotheson>>
+	<<endcombat>>
+
+	<<link [[Next|Stalk]]>><<set $molestationstart to 1>><</link>>
+	<br>
+<<elseif $stalk_end is "ambush">>
+	<<stalk_ambush_text>>
+	<<covered>> <<tearful>> you leave <<him>> far behind.
 	<br><br>
 
 	<<set $stealtextskip to 1>>

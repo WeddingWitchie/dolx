@@ -615,7 +615,7 @@ function importSettingsData(data) {
 	if (overrides.general != null) {
 		const listObject = settingsObjects("general");
 		const listKey = Object.keys(listObject);
-		const namedObjects = ["map", "shopDefaults", "options", "combatExtended", "AMCTraits"];
+		const namedObjects = ["map", "shopDefaults", "options", "wardrobeDefaults", "combatExtended", "AMCTraits"];
 		// correct swapped min/max values
 		if (overrides.general.breastsizemin > overrides.general.breastsizemax) {
 			const temp = overrides.general.breastsizemin;
@@ -726,6 +726,7 @@ function exportSettings(data, type) {
 			map: {},
 			shopDefaults: {},
 			options: {},
+			wardrobeDefaults: {},			
 			combatExtended: {},
 			AMCTraits: {},
 		},
@@ -749,7 +750,7 @@ function exportSettings(data, type) {
 
 	listObject = settingsObjects("general");
 	listKey = Object.keys(listObject);
-	const namedObjects = ["map", "shopDefaults", "options", "combatExtended", "AMCTraits"];
+	const namedObjects = ["map", "shopDefaults", "options", "wardrobeDefaults", "combatExtended", "AMCTraits"];
 
 	for (let i = 0; i < listKey.length; i++) {
 		if (namedObjects.includes(listKey[i]) && V[listKey[i]] != null) {
@@ -817,9 +818,9 @@ function settingsObjects(type) {
 					randomize: "characterAppearance",
 				},
 				facevariant: {
-					strings: ["default", "catty", "aloof", "sweet", "foxy"],
+					strings: ["default", "catty", "aloof", "sweet", "foxy", "gloomy"],
 					displayName: "Demeanour:",
-					textMap: { default: "Default", catty: "Catty", aloof: "Aloof", sweet: "Sweet", foxy: "Foxy" },
+					textMap: { default: "Default", catty: "Catty", aloof: "Aloof", sweet: "Sweet", foxy: "Foxy", gloomy: "Gloomy" },
 					randomize: "characterAppearance",
 				},
 				breastsensitivity: {
@@ -1322,7 +1323,6 @@ function settingsObjects(type) {
 					combatImages: { min: 0, max: 1, decimals: 0, displayName: "Combat images:" },
 					bodywritingImages: { bool: true, displayName: "Bodywriting images:" },
 					silhouetteEnabled: { bool: true, displayName: "NPC silhouettes:" },
-					tanImgEnabled: { bool: true, displayName: "Visual representation of skin colours:" },
 					sidebarAnimations: { bool: true, displayName: "Sidebar images:" },
 					blinkingEnabled: { bool: true, displayName: "Animated blinking:" },
 					combatAnimations: { bool: true, displayName: "Combat animations:" },
@@ -1347,6 +1347,7 @@ function settingsObjects(type) {
 					condomsDisplay: { strings: ["none", "standard"], displayName: "Condom display:" },
 					closeButtonMobile: { bool: true, displayName: "Items per page:" },
 					showDebugRenderer: { bool: true, displayName: "Enable renderer debugger:" },
+					showCombatTools: { bool: true, displayName: "Enable combat tools:" },
 					numpad: { bool: true, displayName: "Enable numpad:" },
 					traitOverlayFormat: { strings: ["table", "reducedTable", "list"], displayName: "Display traits:" },
 					font: {
@@ -1379,6 +1380,10 @@ function settingsObjects(type) {
 					secColor: {
 						strings: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom", "random"],
 					},
+				},
+				wardrobeDefaults: {
+					showTraits: { bool: false },
+					extraInfo: { bool: false },
 				},
 			};
 			break;
@@ -1434,7 +1439,7 @@ function settingsConvert(exportType, type, settings) {
 	const keys = Object.keys(listObject);
 	for (let i = 0; i < keys.length; i++) {
 		if (result[keys[i]] === undefined) continue;
-		if (["map", "player", "shopDefaults", "options", "combatExtended", "AMCTraits"].includes(keys[i])) {
+		if (["map", "player", "shopDefaults", "options", "wardrobeDefaults", "combatExtended", "AMCTraits"].includes(keys[i])) {
 			const itemKey = Object.keys(listObject[keys[i]]);
 			for (let j = 0; j < itemKey.length; j++) {
 				if (result[keys[i]][itemKey[j]] === undefined) continue;
@@ -1555,22 +1560,14 @@ const randomizeSettingSet = function (setting) {
 	return result;
 };
 
-// !!Hack warning!! Don't use it maybe?
-window.updateMoment = function () {
-	// change current (and only) moment in local history
+/**
+ * instantly moves changes made in the passage into save data without changing the passage
+ * WARNING: the game __will__ re-apply passage effects after reload, be sure to account for that or avoid using it
+ */
+function updateMoment() {
 	State.history[State.activeIndex].variables = JSON.parse(JSON.stringify(V));
-	// prepare the moment object with modified history
-	const moment = State.marshalForSave();
-	// if sessionStorage compression is enabled again,
-	// replace moment.history with moment.delta, because that's what SugarCube expects to find
-	// delta-encode the state
-	// delete Object.assign(moment, { delta: State.deltaEncode(moment.history) }).history;
-
-	// replace saved moment in session with the new one
-	State.setSessionState(moment);
-
-	// Voilà! F5 will reload the current state now without going to another passage!
-};
+}
+window.updateMoment = updateMoment;
 
 window.isJsonString = function (s) {
 	try {

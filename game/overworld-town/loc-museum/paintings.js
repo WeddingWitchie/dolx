@@ -3,11 +3,22 @@ function hcItemSetup() {
 		V.hcItems = V.hcItems.filter(toKeep => toKeep.persists);
 	} else {
 		V.hcItems = [
-			{ type: "prisoner", name: V.prisoner.name, location: "cell", origin: "cell", persists: true, containerID: "prisoner", twoHanded: true, hidden: true },
-			{ type: "clothes", name: "bloodstained sack", location: "prisoner", origin: "prisoner", dirty: 2 },
-			{ type: "snuffer", name: "torch snuffer", location: "guardhouse", origin: "guardhouse", persists: true },
+			{
+				type: "prisoner",
+				name: V.prisoner.name,
+				location: "cell",
+				origin: "cell",
+				persists: true,
+				containerID: "prisoner",
+				twoHanded: true,
+				hidden: true,
+			},
+			{ type: "clothes", name: "bloodstained sack", location: "prisoner", origin: "prisoner", dirty: 2, dirtyOnDrop: V.hcChallenge.itemDirty },
 			{ type: "container", name: "bucket", location: "garden", origin: "garden", persists: true, containerID: "gardenBucket1", capacity: 3 },
 		];
+		if (!V.hcChallenge.torchSnuffer) {
+			V.hcItems.push({ type: "snuffer", name: "torch snuffer", location: "guardhouse", origin: "guardhouse", persists: true });
+		}
 	}
 }
 window.hcItemSetup = hcItemSetup;
@@ -58,13 +69,16 @@ function hcItemAdd(item, loc = "held", actionText = undefined) {
 				newItemProperties = { type: "container", name: "bucket", containerID: ID, capacity: 3 };
 				break;
 			case "herbs":
-				newItemProperties = { name: "medicinal herbs", used: true };
+				newItemProperties = { name: "medicinal herbs", dirtyOnDrop: V.hcChallenge.itemDirty };
 				break;
 			case "water":
 				if (V.bus === "garden" && V.hc.wellTainted) {
 					newItemProperties = { dirty: 2 };
 				} else {
 					newItemProperties = { dirty: 0 };
+				}
+				if (V.hcChallenge.waterLeaky) {
+					newItemProperties.time = 5;
 				}
 				break;
 			case "prisoner":
@@ -104,7 +118,7 @@ function hcItemRemove(item, actionText = undefined) {
 	const toRemove = V.hcItems.findIndex(thing => thing.isEqual(item));
 
 	if (toRemove < 0) {
-		V.itemAction = "Nonexistant item removed";
+		V.itemAction = "Nonexistent item removed";
 		V.hcItemError = item.type;
 		return;
 	}
@@ -176,6 +190,10 @@ function hcItemCanReach(id, filterfn) {
 	}
 
 	if (typeof filterfn !== "function") filterfn = () => true;
+
+	if (V.hcChallenge.torchSnuffer && id === "snuffer" && V.passage === "Hopeless Cycle Dungeon") {
+		return true;
+	}
 
 	const itemWithinReach = V.hcItems.find(item => (item.name === id || item.type === id) && [V.bus, "held"].includes(item.location) && filterfn(item));
 
@@ -263,16 +281,16 @@ function hcItemName(item, cap = false, vanished = false, decorations = false) {
 			switch (item.name) {
 				case "prison gruel":
 					if (item.used) {
-						itemText = "a bowl of prison gruel";
-					} else {
 						itemText = "a used bowl";
+					} else {
+						itemText = "a bowl of prison gruel";
 					}
 					break;
 				case "stolen food":
 					if (item.used) {
-						itemText = "a plate of stolen food";
+						itemText = "a stolen plate";
 					} else {
-						itemText = "a stolen plate"
+						itemText = "a plate of stolen food";
 					}
 					break;
 				default:
@@ -291,7 +309,7 @@ function hcItemName(item, cap = false, vanished = false, decorations = false) {
 					.filter(q => q.location === item.containerID)
 					.forEach(bye => {
 						containerItemArray.push(hcItemName(bye, false, vanished, decorations));
-				})
+					});
 			} else {
 				V.hcItems
 					.filter(q => q.location === item.containerID)
@@ -315,3 +333,12 @@ function hcItemName(item, cap = false, vanished = false, decorations = false) {
 	return itemText;
 }
 window.hcItemName = hcItemName;
+
+/* Accepts challenge name OR set name as argument. Automatically detects which based on content */
+function hcChallengeColor(challenge) {
+	const colors = ["red", "orange", "gold", "green", "lblue", "blue", "purple", "meek", "brat", "black"];
+	const sets = ["hand", "torch", "faith", "forest", "water", "item", "suspicion", "prisoner", "dogs", "time"];
+	const set = sets.includes(challenge) ? challenge : setup.hopelessCycleChallenges.filter(x => x.key === challenge)[0].key.split(/[A-Z]/)[0];
+	return colors[sets.indexOf(set)];
+}
+window.hcChallengeColor = hcChallengeColor;

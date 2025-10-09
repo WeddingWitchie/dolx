@@ -15,7 +15,7 @@
 							foodTimer = setTimeout(updateUI, 300);
 						});
 						var updateUI = () => {
-							Wikifier.wikifyEval('<<replace "#itemList">><<kitchenDisplayRecipes>><</replace>>');
+							Wikifier.wikifyEval('<<if elementExists(\'#itemList\')>><<replace "#itemList">><<kitchenDisplayRecipes>><</replace>><</if>>');
 						}
 					})>>
 					<<link "Options">>
@@ -30,7 +30,7 @@
 				</div>
 			</div>
 			<div id="altSection" class="mobileHidden">
-				<<if $lastRecipeViewed and setup.plants[$lastRecipeViewed]>>
+				<<if $lastRecipeViewed and setup.plants[$lastRecipeViewed] and _recipeKeys.some((x) => x)>>
 					<<kitchenDisplayRecipeDetail $lastRecipeViewed>>
 				<<else>>
 					<<kitchenDisplayOptions>>
@@ -98,7 +98,9 @@
 			<</foldout>>
 		<</for>>
 	<<else>>
-		<div class="info">You haven't learned how to cook yet! Attend housekeeping classes to unlock new recipes.</div>
+		<<if !Object.values(V.plants).some(item => item.recipe)>>
+			<div class="info">You haven't learned how to cook yet! Attend housekeeping classes to unlock new recipes.</div>
+		<</if>>
 		<<for _category range _recipesGroups>>
 			<<if !_recipeKeys.find(key => key.group is _category)>><<continue>><</if>>
 			<<set _categoryVar to "_" + _category.replace(" ", "")>>
@@ -144,7 +146,7 @@
 		<<capture _args[0]>>
 			<<if $options.images is 1>>
 				<<set _file to `recipe_${setup.plants[_args[0]].type}.png`>>
-				<<link "<<icon _file>>">>
+				<<link "<<iconUi _file>>">>
 					<<replace "#altSection">><<kitchenDisplayRecipeDetail _args[0]>><</replace>>
 					<<removeclass "#altSection, #mobileCloser" "mobileHidden">>
 				<</link>>
@@ -177,7 +179,7 @@
 		Owned: <span class="gold"><<print $plants[$lastRecipeViewed].amount>></span>
 		<<if $_setupItem?.ingredients.length>>
 			<br>
-			Time: <span class="gold"><<print $_setupItem.days>></span> minute<<if $_setupItem.days isnot 1>>s<</if>>
+			Time: <span class="gold"><<print $_setupItem.days>></span> <<pluralise $_setupItem.days "minute">>
 			<br>
 			Result: <span class="gold"><<print $_setupItem.multiplier>></span>
 			<hr>
@@ -193,57 +195,59 @@
 <<widget "kitchenDisplayRecipeMake">>
 	<<set $_setupItem to setup.plants[$lastRecipeViewed]>>
 	<<set $_group to _recipeKeys.find((obj) => obj.key is $lastRecipeViewed).group>>
-	<<if $_setupItem?.ingredients.length>>
-		<<switch $_group>>
-			<<case "Restricted Ingredients">>
-				<span class="purple">Some required ingredients are banned in this kitchen.</span>
-			<<case "Missing Ingredients">>
-				<span class="purple">You do not have all the required ingredients.</span>
-			<<default>>
-				<<if $tiredness gte C.tiredness.max>>
-					<span class="purple">You're too tired to cook!</span>
-				<<elseif $_setupItem.ingredients.every(ingredient => $plants[ingredientUsed(ingredient, $lastRecipeViewed)].amount gte 1 or _ingredientsSupplied?.includes(ingredientUsed(ingredient, $lastRecipeViewed)))>>
-					Make:
-					<<set _hours to Math.floor($_setupItem.days / 60)>>
-					<<set _minutes to $_setupItem.days % 60>>
-					<<set _timeString to " (" + (_hours lt 10 ? "0": "") +_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")">>
-					<<link [["1" + _timeString|$passage]]>><<make_recipe $lastRecipeViewed 1>><</link>>
-					<<if $_setupItem.ingredients.every(ingredient => $plants[ingredientUsed(ingredient, $lastRecipeViewed)].amount gte 3 or _ingredientsSupplied?.includes(ingredientUsed(ingredient, $lastRecipeViewed)))>>
-						<<set _hours to Math.floor($_setupItem.days * 3 / 60)>>
-						<<set _minutes to ($_setupItem.days * 3) % 60>>
+	<div style="margin-top: 16px">
+		<<if $_setupItem?.ingredients.length>>
+			<<switch $_group>>
+				<<case "Restricted Ingredients">>
+					<span class="purple">Some required ingredients are banned in this kitchen.</span>
+				<<case "Missing Ingredients">>
+					<span class="purple">You do not have all the required ingredients.</span>
+				<<default>>
+					<<if $tiredness gte C.tiredness.max>>
+						<span class="purple">You're too tired to cook!</span>
+					<<elseif $_setupItem.ingredients.every(ingredient => $plants[ingredientUsed(ingredient, $lastRecipeViewed)].amount gte 1 or _ingredientsSupplied?.includes(ingredientUsed(ingredient, $lastRecipeViewed)))>>
+						Make:
+						<<set _hours to Math.floor($_setupItem.days / 60)>>
+						<<set _minutes to $_setupItem.days % 60>>
 						<<set _timeString to " (" + (_hours lt 10 ? "0": "") +_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")">>
+						<<link [["1" + _timeString|$passage]]>><<make_recipe $lastRecipeViewed 1>><</link>>
+						<<if $_setupItem.ingredients.every(ingredient => $plants[ingredientUsed(ingredient, $lastRecipeViewed)].amount gte 3 or _ingredientsSupplied?.includes(ingredientUsed(ingredient, $lastRecipeViewed)))>>
+							<<set _hours to Math.floor($_setupItem.days * 3 / 60)>>
+							<<set _minutes to ($_setupItem.days * 3) % 60>>
+							<<set _timeString to " (" + (_hours lt 10 ? "0": "") +_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")">>
 
-						/* Prevent passing too much time */
-						<<set _futureTime to new DateTime(Time.date.timeStamp)>>
-						<<set _futureTime to _futureTime.addHours(_hours)>>
-						<<set _futureTime to _futureTime.addMinutes(_minutes)>>
+							/* Prevent passing too much time */
+							<<set _futureTime to new DateTime(Time.date.timeStamp)>>
+							<<set _futureTime to _futureTime.addHours(_hours)>>
+							<<set _futureTime to _futureTime.addMinutes(_minutes)>>
 
-						<<if !_hourRestriction or _futureTime.hour lt _hourRestriction or _futureTime.minute lte 15>>
-							| <<link [["3" + _timeString|$passage]]>><<make_recipe $lastRecipeViewed 3>><</link>>
+							<<if !_hourRestriction or _futureTime.hour lt _hourRestriction or _futureTime.minute lte 15>>
+								| <<link [["3" + _timeString|$passage]]>><<make_recipe $lastRecipeViewed 3>><</link>>
+							<</if>>
 						<</if>>
+						<br>
+						<<if $_group is "Provided Ingredients">><span class="purple">This kitchen gives you access to an infinite supply of this item.</span><</if>>
+					<<elseif $_group is "Provided Ingredients">>
+						<span class="purple">You do not have the ingredients to make this item, but you have access to an infinite supply of it in this kitchen.</span>
+					<<else>>
+						<span class="purple">You are missing an ingredient, but may be able to use a substitute.</span>
 					<</if>>
-					<br>
-					<<if $_group is "Provided Ingredients">><span class="purple">This kitchen gives you access to an infinite supply of this item.</span><</if>>
-				<<elseif $_group is "Provided Ingredients">>
-					<span class="purple">You do not have the ingredients to make this item, but you have access to an infinite supply of it in this kitchen.</span>
-				<<else>>
-					<span class="purple">You are missing an ingredient, but may be able to use a substitute.</span>
-				<</if>>
-		<</switch>>
-	<<else>>
-		<<switch $_group>>
-			<<case "Provided">>
-				<span class="purple">This kitchen provides you with an infinite supply of this ingredient.</span>
-			<<case "Restricted Ingredients">>
-				<span class="purple">This ingredient is banned in this kitchen.</span>
-			<<case "Missing Ingredients">>
-				<<if $_setupItem.shop>>
-					<span class="purple">You need to find a means to buy or access these.</span>
-				<<else>>
-					<span class="purple">You need to find a means to access these.</span>
-				<</if>>
-		<</switch>>
-	<</if>>
+			<</switch>>
+		<<else>>
+			<<switch $_group>>
+				<<case "Provided">>
+					<span class="purple">This kitchen provides you with an infinite supply of this ingredient.</span>
+				<<case "Restricted Ingredients">>
+					<span class="purple">This ingredient is banned in this kitchen.</span>
+				<<case "Missing Ingredients">>
+					<<if $_setupItem.shop>>
+						<span class="purple">You need to find a means to buy or access these.</span>
+					<<else>>
+						<span class="purple">You need to find a means to access these.</span>
+					<</if>>
+			<</switch>>
+		<</if>>
+	</div>
 <</widget>>
 
 <<widget "requiredForRecipe">>
@@ -276,13 +280,12 @@
 				</div>
 			<</for>>
 		</div>
-		<hr>
 	<</if>>
 <</widget>>
 
 <<widget "learn_recipe">>
 	<<if $plants[_args[0]].recipe isnot true>>
-		<span class="gold">You have learned how to make <<recipe_name _args[0]>>!</span>
+		<span class="gold">You have learned how to make <<recipe_name _args[0] "article">>!</span>
 		<<tendingicon setup.plants[_args[0]].icon>>
 	<</if>>
 	<<set $plants[_args[0]].recipe to true>>
@@ -317,29 +320,35 @@
 <</widget>>
 
 <<widget "make_recipe">>
-	<<tending_give _args[0] `setup.plants[_args[0]].multiplier * (_args[1] or 1)`>>
+	<<set $_amount to _args[1] or 1>>
+	<<tending_give _args[0] `setup.plants[_args[0]].multiplier * $_amount`>>
 	<<for $_ingredient range setup.plants[_args[0]].ingredients>>
 		<<if !_ingredientsSupplied?.includes($_ingredient) or !_ingredientsSupplied?.includes(ingredientUsed($_ingredient, _args[0]))>>
 			<<set $_ingredient to ingredientUsed($_ingredient, _args[0])>>
-			<<tending_give $_ingredient `-(_args[1] or 1)`>>
+			<<tending_give $_ingredient `-$_amount`>>
 		<</if>>
 	<</for>>
 	<<wearProp setup.plants[_args[0]].handheld>>
-	<<pass `setup.plants[_args[0]].days * (_args[1] or 1)`>>
+	<<pass `setup.plants[_args[0]].days * $_amount`>>
+	<<if $bus is "avery_kitchen" and $avery_mansion.jobs.includes("kitchen") and $_amount gte random(1,3)>>
+		<<set $avery_mansion.kitchen_made += $_amount>>
+	<</if>>
 <</widget>>
 
 <<widget "knownFoodRecipes">>
 	<<if _args[0]>>
 		<<set _knownRecipes to []>>
+		<<set _possibleRecipes to 0>>
 		<<run Object.keys(setup.plants).forEach(item => {
 			if (setup.plants[item]?.ingredients.includes(_args[0])) {
+				_possibleRecipes++;
 				if ($plants[item].recipe) _knownRecipes.pushUnique(item);
 			}
 		})>>
 
 		<<if _knownRecipes.length>>
 			<hr>
-			Known Recipes:
+			Known Recipes (_knownRecipes.length / _possibleRecipes):
 			<br>
 			<<for $_recipe range _knownRecipes>>
 				<div class="recipe">
@@ -366,23 +375,26 @@
 					</div>
 				</div>
 			<</for>>
-		<<elseif _foundRecipes>>
+		<<elseif _possibleRecipes isnot 0>>
+			<hr>
 			You don't know any recipes that use this item.
 		<</if>>
 		<<if setup.plants[_args[0]]?.type is "food" and Array.isArray($plants[_args[0]].knownFavorite) and $plants[_args[0]].knownFavorite.length>>
+			<hr>
 			Known Favourite:
-			<ul>
 				<<for $_npc range $plants[_args[0]].knownFavorite>>
-					<li><<print $_npc>></li>
+					<br>
+					<<iconUi "sym_love.png">><<print $_npc>>
 				<</for>>
-			</ul>
 		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "ingredientsSupplied">>
 	<<set _ingredientsSupplied to []>>
-	<<if _args[0]>>
+	<<if typeof _args[0] is "object">>
+		<<run _args[0].forEach(key => _ingredientsSupplied.pushUnique(key))>>
+	<<elseif _args[0]>>
 		<<run _args.forEach(key => _ingredientsSupplied.pushUnique(key))>>
 	<</if>>
 <</widget>>
@@ -455,11 +467,48 @@ Should probably be removed once said feature has been implemented
 			}
 		})>>
 		<<if _possible_recipes.length>>
+			<<if Object.keys($plants).filter(key => !$plants[key].recipe and setup.plants[key].ingredients.length and setup.plants[key].difficulty is $_difficulty).length
+				is Object.keys($plants).filter(key => setup.plants[key].ingredients.length and setup.plants[key].difficulty is $_difficulty).length>>
+				<<set _difficultyNotice to $_difficulty>>
+			<</if>>
 			<<set $chosen_recipe to _possible_recipes.pluck()>>
 			<<break>>
 		<</if>>
 	<</for>>
 	<<if !$chosen_recipe>><<set $chosen_recipe to "none">><</if>>
+<</widget>>
+
+<<widget "avery_food_select">>
+	<<set $avery_mansion.food_last to $gift.name>>
+	<<set $avery_requested_food to $avery_mansion.food.name>>
+	<<unset $chosen_recipe>>
+	<<set _food_keys to Object.keys(setup.plants)>>
+	<<set _possible_recipes to []>>
+	<<set $_foodOptions to Object.entries(clone(setup.plants)).filter(([key, item]) => item.ingredients?.length && item.type !== "ingredient" && !item.special.includes("drink"))>>
+
+	<<if C.npc.Avery.dom gte 75>>
+		<<set $_difficulty to 4>>
+	<<elseif C.npc.Avery.dom gte 50>>
+		<<set $_difficulty to 3>>
+	<<elseif C.npc.Avery.dom gte 25>>
+		<<set $_difficulty to 2>>
+	<<else>>
+		<<set $_difficulty to 1>>
+	<</if>>
+	<<run $_foodOptions.forEach(([key, item]) => {
+		if (item.difficulty is $_difficulty) {
+			_possible_recipes.pushUnique(setup.plants[key]);
+		}
+	})>>
+	<<if _possible_recipes.length>>
+		<<set $chosen_recipe to _possible_recipes.pluck()>>
+	<</if>>
+
+	<<if !$chosen_recipe>><<set $chosen_recipe to "none">><</if>>
+	<<set $avery_mansion.food to $chosen_recipe>>
+
+	/* once Avery has chosen a new meal, the player loses the chance to learn the recipes they'd asked to learn prior */
+	<<set $avery_mansion.recipe to []>>
 <</widget>>
 
 <<widget "food_gift_list">>
@@ -469,7 +518,8 @@ Should probably be removed once said feature has been implemented
 		<<if setup.plants[_food].type is "food">>
 			<<if $plants[_food].amount gte 1>>
 				<<set _food_gift_found to true>>
-				<label><<tendingicon setup.plants[_food].icon>><<recipe_name _food "cap">> (<<print $plants[_food].amount>>) <<radiobutton "$gift" setup.plants[_food] checked>></label> |
+				<<set _color to $bus is "avery_dining" and _food is $avery_mansion.food.name ? "gold" : "">>
+				<label><<tendingicon setup.plants[_food].icon>><span @class="_color"><<recipe_name _food "cap">> (<<print $plants[_food].amount>>)</span> <<radiobutton "$gift" setup.plants[_food] checked>></label> |
 			<</if>>
 		<</if>>
 	<</for>>
@@ -486,9 +536,12 @@ Should probably be removed once said feature has been implemented
 
 <<widget "recipe_name">><<silently>>
 	<<set $_difficultyColour to _args[1]?.includes("difficulty") ? ["","green","blue","purple","pink","red"][setup.plants[_args[0]].difficulty] : "white">>
-	<<set $_recipeName to setup.plants[_args[0]]?.recipe_name or setup.plants[_args[0]].name.replace(/_/g," ")>>
+	<<set $_recipeName to _args[1]?.includes("plural") ? setup.plants[_args[0]].plural : setup.plants[_args[0]]?.recipe_name or setup.plants[_args[0]].name.replace(/_/g," ")>>
 	<<if _args[1]?.includes("cap")>>
 		<<set $_recipeName to $_recipeName.toUpperFirst()>>
+	<</if>>
+	<<if !_args[1]>>
+		<<set $_recipeName to $_recipeName.replace(/^(a |an |the )/i, "")>>
 	<</if>>
 <</silently>><span @class=$_difficultyColour><<print $_recipeName>></span><</widget>>
 
@@ -654,7 +707,7 @@ Should probably be removed once said feature has been implemented
 			<<case "samosa">>
 				"You can experiment with different shapes in your own time. For now, we're learning how to make them in triangles."
 			<<case "sausage_roll">>
-				"You've already learned how to make sausages. Now it's time to put them to use."
+				"We've talked a bit about sausages. Now it's time to put them to use."
 			<<case "scone">>
 				"Unflavoured, but don't be afraid to experiment in your own time. You could put anything in a scone." <<He>> pauses. "Almost anything."
 			<<case "shortbread">>

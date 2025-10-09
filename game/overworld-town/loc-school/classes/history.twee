@@ -27,7 +27,7 @@
 		<br><br> good starting point for when you can go to class naked-->
 		<<link [[Next|Hallways]]>><<endevent>><</link>>
 		<br><br>
-	<<elseif $worn.upper.type.includes("school") and $worn.lower.type.includes("school") and $rightarm isnot "bound">>
+	<<elseif $worn.upper.type.includes("school") and $worn.lower.type.includes("school") and !pcAreArmsBound("right")>>
 		<<if $daily.school.attended.history>>
 			You rejoin the history lesson,
 			<<if $worn.over_upper.name isnot "naked" or $worn.over_lower.name isnot "naked" or $worn.over_head.name isnot "naked">>
@@ -126,7 +126,7 @@
 			<br>
 		<</if>>
 
-	<<elseif $rightarm is "bound" or $leftarm is "bound" or $feetuse is "bound">>
+	<<elseif pcAreArmsBound("any") or $feetuse is "bound">>
 		Winter looks at your bindings. "Whatever that's about you need to sort it out before you enter my class. <<print $withRobin ? "You, help your friend out" : "Go see the head">>."
 		<<if $withRobin>>
 			Robin hastens to undo your bindings for you.<<unbind>><<unset $withRobin>>
@@ -151,7 +151,7 @@
 	<<print $withRobin ? "You and Robin" : "You">> enter the history classroom.
 	<<if $withRobin is "hurt">>
 		<<npc Robin>><<person1>>
-		You find Robin sitting at <<his>> desk, <<his>> head buried in <<his>> hands. <<He>> raises <<his>> head to look at you. It looks like <<hes>> been crying. "I don't wanna talk about it," <<he>> whispers. "You can kiss who you like. I just- I thought we-" <<He>> shakes <<his>> head. "Never mind. I'm just going to study. You should too."
+		You find Robin sitting at <<his>> desk, <<his>> head buried in <<his>> hands. <<He>> raises <<his>> head to look at you. It looks like <<hes>> been crying. "I don't wanna talk about it," <<he>> whispers. "You can kiss who you like. I just- I thought we—" <<He>> shakes <<his>> head. "Never mind. I'm just going to study. You should too."
 		<br><br>
 		<<He>> opens <<his>> history textbook, refusing to engage further. You give up trying to talk to <<him>>.
 		<br><br>
@@ -194,8 +194,9 @@
 	<<elseif !$worn.handheld.type.includes("bookbag")>>
 		<span class="blue">You can't study without your bookbag.</span>
 		<br>
+		<<historyicon>><<link [[Relax before class|History Classroom Study]]>><<set $phase to 0>><</link>><<lstress>>
 	<<else>>
-		<<historyicon>><<link [[Study history|History Classroom Study]]>><</link>><<gstress>><<ghistory>>
+		<<historyicon>><<link [[Study history|History Classroom Study]]>><<set $phase to 1>><</link>><<gstress>><<ghistory>>
 	<</if>>
 	<br>
 	<<getouticon>><<link [[Leave|Hallways]]>><</link>>
@@ -446,30 +447,33 @@ You rest your head on the desk while Winter <<print either("elaborates on the si
 :: History Classroom Study
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
 <<run statusCheck("Robin")>>
-<<wearProp "open textbook" "yellow" "history">>
+<<if $phase is 1>>
+	<<wearProp "open textbook" "yellow" "history">>
+<</if>>
+<<npc Robin>><<person1>>
 <<if $robinhistory is "seat">>
-	You sit beside Robin and read a history textbook.
+	You sit beside Robin <<if $phase is 1>>and read<<else>>while <<he>> reads<</if>> a history textbook.
 <<else>>
-	You take a seat and read a history textbook.
+	You take a seat and <<if $phase is 1>>read a history textbook<<else>>wait for class to start<</if>>.
 	<<if _robin_location is "school" and $daily.school.lunchEaten isnot 1>>
-		Robin is the next to arrive, and takes the seat beside you.
+		Robin is the next to arrive and takes the seat beside you.
 		<<set $robinhistory to "seat">>
 	<</if>>
 <</if>>
 <br><br>
 
-<<npc Winter>><<person1>>The classroom soon fills and Winter arrives to begin the lesson.
+<<npc Winter 2>>The classroom soon fills and Winter arrives to begin the lesson.
 <br><br>
 
-<<if $worn.upper.type.includes("school") and $worn.lower.type.includes("school") and $rightarm isnot "bound" and $leftarm isnot "bound" and $feetuse isnot "bound">>
-	<<link [[Next|History Lesson]]>><<endevent>><</link>>
-	<br>
-<<elseif $rightarm is "bound" or $leftarm is "bound" or $feetuse is "bound">>
+<<if pcAreArmsBound("any") or $feetuse is "bound">>
 	Winter looks at your bound limbs. "You need to sort that out before attending my class. Go see the head."
 	<br><br>
 
 	<<link [[Next|Hallways]]>><<endevent>><</link>>
 	<br><br>
+<<elseif $worn.upper.type.includes("school") and $worn.lower.type.includes("school")>>
+	<<link [[Next|History Lesson]]>><<endevent>><</link>>
+	<br>
 <<else>>
 	Winter looks at your clothing. "You can't have believed I wouldn't notice. Go see the head."
 	<br><br>
@@ -484,10 +488,15 @@ You rest your head on the desk while Winter <<print either("elaborates on the si
 <<schooleffects>>
 <!-- add stress every 5 minutes -->
 <<set _stress to Math.trunc(_time_to_pass / 5)>>
-<<stress _stress>>
-<!-- gain history skill with same efficiency as studying in the library -->
-<<set _history to 3 * _time_to_pass / 20>>
-<<historyskill _history>>
+<<if $phase is 1>>
+	<<stress _stress>>
+	<!-- gain history skill with same efficiency as studying in the library -->
+	<<set _history to 3 * _time_to_pass / 20>>
+	<<historyskill _history>>
+<<else>>
+	<<set _stress to _stress * -1>>
+	<<stress _stress>>
+<</if>>
 
 :: History Robin Move
 <<effects>>

@@ -101,8 +101,10 @@ With your clothes bundled in <<his>> arms, the <<person>> gives you a mocking lo
 
 	<<socialiseicon>><<link [[Flirt (0:05)|Beach Day Encounter]]>><<pass 5>><<set $phase to 2>><</link>><<promiscuous1>>
 	<br>
-	<<cosmeticsicon "sunscreen">><<link [[Offer to apply sunscreen|Beach Day Encounter Sunscreen 1]]>><</link>><<promiscuous1>>
-	<br>
+	<<if Time.season isnot "winter">>
+		<<cosmeticsicon "sunscreen">><<link [[Offer to apply sunscreen (0:03)|Beach Day Encounter Sunscreen 1]]>><<pass 3>><</link>><<promiscuous1>>
+		<br>
+	<</if>>
 	<<if $arousal lt $arousalmax * 3/5>>
 		<<socialiseicon>><<link [[Friendly chat (0:10)|Beach Day Encounter]]>><<set $phase to 1>><<pass 10>><<stress -2>><<trauma -1>><</link>><<lstress>><<ltrauma>>
 		<br>
@@ -174,7 +176,7 @@ With your clothes bundled in <<his>> arms, the <<person>> gives you a mocking lo
 		Gazing into <<his>> eyes, you press your body against <<hers>> and make it absolutely clear what your intentions are. Stammering excuses, <<he>> recoils from your advance and leaves to check on <<his>> children.
 		<br><br>
 
-		<<link [[Nevermind|Beach]]>><<endevent>><<set $eventskip to 1>><</link>>
+		<<link [[Never mind|Beach]]>><<endevent>><<set $eventskip to 1>><</link>>
 	<</if>>
 <</if>>
 
@@ -199,7 +201,7 @@ You whirl your finger for <<him>>, and <<he>> obligingly turns around. You put a
 <<if hasSexStat('promiscuity', 2)>>
 	<<link [[Go lower|Beach Day Encounter Sunscreen 2]]>><<set $phase to 1>><</link>><<promiscuous2>>
 <<else>>
-	<span class="blue">You're not promiscuous enough to go further.</span>
+	<<insufficientStat "promiscuity" "to go further">>
 <</if>>
 <br>
 <<link [[Stop|Beach Day Encounter Sunscreen 2]]>><<set $phase to 0>><</link>>
@@ -222,7 +224,6 @@ You whirl your finger for <<him>>, and <<he>> obligingly turns around. You put a
 	/* if passed the handskill check before, requires lower seduction difficulty */
 	<<set $seductiondifficulty to currentSkillValue("handskill") gte 401 ? 4000 : 6000>>
 	<<seductioncheck>>
-	<br><br>
 	<<seductionskilluptext>>
 	<<seductionskilluse>>
 
@@ -470,7 +471,7 @@ The <<beasttype>> whimpers and flees into the darkness. <<tearful>> you rise to 
 <<location "beach">><<effects>>
 
 <<if $phase is 0>>
-	<<if $leftarm is "bound" and $rightarm is "bound">>
+	<<if pcAreArmsBound("both")>>
 		Unable to cover yourself, you bow your head in shame and march through the crowds to the safety of a changing room.
 		<<garousal>><<gstress>><<gtrauma>><<stress 6>><<trauma 6>><<arousal 600>><<fameexhibitionism 30>>
 		<br><br>
@@ -491,7 +492,7 @@ The <<beasttype>> whimpers and flees into the darkness. <<tearful>> you rise to 
 <<else>>
 	<<generate2>>Swallowing your pride, you ask if anyone could lend you something to cover up with. Smiling, a <<person2>><<person>> produces some towels for you.
 	<<fameexhibitionism 10>>
-	<<if $leftarm is "bound" and $rightarm is "bound">>
+	<<if pcAreArmsBound("both")>>
 		Seeing you restrained, <<he>> wraps them round you. <<He>> takes <<his>> time, as if savouring the situation, but eventually you find yourself properly covered.
 		<<garousal>><<arousal 600>>
 	<<else>>
@@ -712,12 +713,8 @@ The <<beasttype>> whimpers and flees into the darkness. <<tearful>> you rise to 
 	<br><br>
 	<<passout>>
 
-	<<set $danger to random(1, 10000)>>
-
-	<<if $danger gte (9900 - $allure)>>
-		<<if $rng gte 1>>
+	<<if dangerEvent()>>
 		<<link [[Wake up|Beach Abduction]]>><<strip>><</link>>
-		<</if>>
 	<<else>>
 		<<ambulance>>
 	<</if>>
@@ -738,7 +735,7 @@ The <<beasttype>> whimpers and flees into the darkness. <<tearful>> you rise to 
 "You must be a huge slut, to be wandering around like that. Though I do feel bad about leaving you in such a state. There are some nasty people around."
 <br><br>
 
-<<person2>>The <<person>> interjects, "I know! We'll lend you some towels-" <<He>> produces some thin cables from <<his>> coat pocket. "-if you let us dress you first."
+<<person2>>The <<person>> interjects, "I know! We'll lend you some towels—" <<He>> produces some thin cables from <<his>> coat pocket. "-if you let us dress you first."
 <br><br>
 
 <<person1>> The <<person>> seems taken with the idea, "It's your choice. If you don't want to play along, we'll leave you to be raped. You'd probably get off from it anyway."
@@ -749,7 +746,7 @@ The <<beasttype>> whimpers and flees into the darkness. <<tearful>> you rise to 
 You see your <<if $upperoff isnot 0>>$upperoff <<elseif $loweroff isnot 0>>$loweroff <<elseif $underupperoff isnot 0>>$underupperoff <<else>>$underloweroff <</if>>in <<his>> hand. <<He>> twirls it playfully, "Finders keepers. Though I do feel bad about leaving you in such a state. There are some nasty people around."
 <br><br>
 
-<<person2>>The <<person>> interjects, "I know! We'll give the clothes back-" <<He>> produces some thin cables from <<his>> coat pocket. "-if you let us dress you first."
+<<person2>>The <<person>> interjects, "I know! We'll give the clothes back—" <<He>> produces some thin cables from <<his>> coat pocket. "-if you let us dress you first."
 <br><br>
 
 <<person1>> The <<person>> seems taken with the idea, "It's your choice. If you don't want to play along, we'll be keeping your clothes to do with as we please." <<He>> slowly starts tearing the fabric.
@@ -904,7 +901,7 @@ Having come this far, you submit to the collar being placed round your neck. You
 			<<bHis>> nude body is on full display for all to see, but <<bhe>> doesn't seem all too phased by it. <<bHe>> seems oddly well-groomed for a <<beasttype>>, despite the state <<bhes>> in. <<bHe>> paws at the air in an attempt to reach you, and <<bhes>> almost successful.
 		<</if>>
 		<br><br>
-		<<person2>> The <<person>> speaks in a high-pitched voice, "Who's a good <<beasttype>>! You are! We brought you a bitch, because you're such a good <<beasttype>>!"
+		<<person2>> The <<person>> speaks in a high-pitched voice, "Who's a good <<beasttype>>! You are! We brought you a <<bitch>>, because you're such a good <<beasttype>>!"
 		<<if $monster is 1>>
 			The <<beasttype>> pants heavily in response, <<bhis>> face red from blushing. <<bHis>> intentions are clear. <<bHes>> craving a mate.
 		<</if>>
@@ -1002,7 +999,7 @@ Having come this far, you submit to the collar being placed round your neck. You
 	<br><br>
 <</if>>
 
-The <<person2>><<person>> and <<person3>><<person>> applaud. "<<silently>><<bred>><</silently>><<capitalise>> like the bitch you are," the <<person>> exclaims as <<he>> unties your bonds. The <<person2>><<person>> throws you the fabric they promised. "You can keep the collar. It suits you." Laughing, they leave you lying disgraced on the sand. <<tearful>> you struggle to your feet.
+The <<person2>><<person>> and <<person3>><<person>> applaud. "<<silently>><<bred>><</silently>><<capitalise>> like the <<bitch>> you are," the <<person>> exclaims as <<he>> unties your bonds. The <<person2>><<person>> throws you the fabric they promised. "You can keep the collar. It suits you." Laughing, they leave you lying disgraced on the sand. <<tearful>> you struggle to your feet.
 <br><br>
 
 <<unbind>>
@@ -1139,7 +1136,7 @@ You take a deep breath and charge out of the changing room. You feel the wind fl
 	<br><br>
 
 <<else>>
-	Finally you make it to the wet sand and the last few feet. You splash into the water and kneel down, hiding yourself under the waves.
+	Finally, you make it to the wet sand and the last few feet. You splash into the water and kneel down, hiding yourself under the waves.
 	<br><br>
 
 <</if>>

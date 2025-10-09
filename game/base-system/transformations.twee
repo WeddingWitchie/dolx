@@ -3,7 +3,7 @@
 <<widget "setupTransformationPiecesObject">>
 	<<if $transformationParts is undefined>>
 		<<set $transformationParts to {
-			traits: {fangs:"disabled", sharpEyes:"disabled", mateForLife:"disabled", flaunting:"disabled", preyAnimal:"disabled", strongFeet:"disabled", predatoryAnimal:"disabled", tempTolerance:"disabled"},
+			traits: {fangs:"disabled", sharpEyes:"disabled", mateForLife:"disabled", chase:"disabled", flaunting:"disabled", preyAnimal:"disabled", strongFeet:"disabled", predatoryAnimal:"disabled", tempTolerance:"disabled"},
 			angel: {halo:"disabled", wings:"disabled"},
 			fallenAngel: {halo:"disabled", wings:"disabled"},
 			demon: {horns:"disabled", wings:"disabled", tail: "disabled"},
@@ -135,7 +135,7 @@
 		<<set $transformationParts.bunny to {ears:"disabled", tail:"disabled"}>>
 	<</if>>
 	<<if $transformationParts.traits is undefined>>
-		<<set $transformationParts.traits to {fangs:"disabled", sharpEyes:"disabled", mateForLife:"disabled", flaunting:"disabled"}>>
+		<<set $transformationParts.traits to {fangs:"disabled", sharpEyes:"disabled", mateForLife:"disabled", chase:"disabled", flaunting:"disabled"}>>
 		<<if $wolfgirl gte 2 or $cat gte 2 or $fox gte 2>>
 			<<set $transformationParts.traits.fangs to "default">>
 		<</if>>
@@ -316,23 +316,40 @@
 		<</if>>
 	<</if>>
 
-
 	<<if $transformdisable is "f">>
-		<<if ($wolfbuild gte 5 and $physicalTransform isnot 1) or ($wolfgirl gte 1 and $physicalTransform is 1)>>
-			<<wolfTransform $wolfgirl>>
-		<<elseif ($catbuild gte 5 and $physicalTransform isnot 1) or ($cat gte 1 and $physicalTransform is 1)>>
-			<<catTransform $cat>>
-		<<elseif ($cowbuild gte 5 and $physicalTransform isnot 1) or ($cow gte 1 and $physicalTransform is 1)>>
-			<<cowTransform $cow>>
-		<<elseif ($bearbuild gte 5 and $physicalTransform isnot 1) or ($bear gte 1 and $physicalTransform is 1)>>
-			<<bearTransform $bear>>
-		<<elseif ($birdbuild gte 5 and $physicalTransform isnot 1) or ($harpy gte 1 and $physicalTransform is 1)>>
-			<<harpyTransform $harpy>>
-		<<elseif ($foxbuild gte 5 and $physicalTransform isnot 1) or ($fox gte 1 and $physicalTransform is 1)>>
-			<<foxTransform $fox>>
-		<<elseif ($bunnybuild gte 5 and $physicalTransform isnot 1) or ($bunny gte 1 and $physicalTransform is 1)>>
-		    <<bunnyTransform $bunny>>
-		<</if>>
+		<<script>>
+			let manifestArray = [V.wolfgirl, V.cat, V.cow, V.harpy, V.fox, V.bear, V.bunny];
+			var highestManifestIndex = manifestArray.indexOf(Math.max(...manifestArray));
+
+			if (manifestArray[highestManifestIndex] > 0) {
+				T.activeTransformIndex = highestManifestIndex;
+			} else {
+				let buildArray = [V.wolfbuild, V.catbuild, V.cowbuild, V.birdbuild, V.foxbuild, V.bearbuild, V.bunnybuild];
+				let buildMax = Math.max(...buildArray);
+				let highestBuildIndex = buildArray.indexOf(buildMax);
+
+				if (buildArray.count(buildMax) === 1 && buildArray[highestBuildIndex] >= 5) {
+					T.activeTransformIndex = highestBuildIndex;
+				}
+			}
+		<</script>>
+
+		<<switch _activeTransformIndex>>
+			<<case 0>>
+				<<wolfTransform $wolfgirl>>
+			<<case 1>>
+				<<catTransform $cat>>
+			<<case 2>>
+				<<cowTransform $cow>>
+			<<case 3>>
+				<<harpyTransform $harpy>>
+			<<case 4>>
+				<<foxTransform $fox>>
+			<<case 5>>
+				<<bearTransform $bear>>
+			<<case 6>>
+				<<bunnyTransform $bunny>>
+		<</switch>>
 	<</if>>
 <</widget>>
 
@@ -1204,6 +1221,7 @@
 				<<set $transformationParts.traits.sharpEyes to "disabled">>
 				<<set $transformationParts.traits.mateForLife to "disabled">>
 				<<set $transformationParts.traits.predatoryAnimal to "disabled">>
+				<<set $transformationParts.bird.wings to "disabled">>
 				<<if !["hidden", "disabled"].includes($transformationParts.bird.wings)>>
 					<<if ($angel gte 6 or ($transformationParts.angel.wings isnot "hidden" and $transformationParts.angel.wings isnot "disabled"))>>
 						<<set $transformationParts.angel.wings to "default">>
@@ -1214,7 +1232,6 @@
 					<<if ($fallenangel gte 2 or ($transformationParts.fallenAngel.wings isnot "hidden" and $transformationParts.fallenAngel.wings isnot "disabled"))>>
 						<<set $transformationParts.fallenAngel.wings to "default">>
 					<</if>>
-					<<set $transformationParts.bird.wings to "disabled">>
 				<</if>>
 		<</switch>>
 	<<else>>
@@ -1276,6 +1293,7 @@
 					<<set $fox to 4>>
 					<<run $timeMessages.pushUnique("foxUp4")>>
 					<<set $transformationParts.fox.ears to "default">>
+					<<set $transformationParts.traits.chase to "default">>
 				<<elseif $foxbuild lt 15>>
 					<<set $fox to 2>>
 					<<run $timeMessages.pushUnique("foxDown2")>>
@@ -1290,6 +1308,7 @@
 					<<set $fox to 3>>
 					<<run $timeMessages.pushUnique("foxDown3")>>
 					<<set $transformationParts.fox.ears to "disabled">>
+					<<set $transformationParts.traits.chase to "disabled">>
 				<</if>>
 			<<case 5>>
 				<<if $foxbuild gte 30>>
@@ -1323,6 +1342,7 @@
 				<<set $transformationParts.traits.sharpEyes to "disabled">>
 				<<set $transformationParts.traits.mateForLife to "disabled">>
 				<<set $transformationParts.traits.predatoryAnimal to "disabled">>
+				<<set $transformationParts.traits.chase to "disabled">>
 				<<set $transformationParts.fox.cheeks to "disabled">>
 				<<set $transformationParts.fox.ears to "disabled">>
 				<<set $transformationParts.fox.tail to "disabled">>
@@ -1338,6 +1358,7 @@
 		<<set $transformationParts.traits.sharpEyes to "default">>
 		<<set $transformationParts.traits.mateForLife to "default">>
 		<<set $transformationParts.traits.predatoryAnimal to "default">>
+		<<set $transformationParts.traits.chase to "default">>
 		<<set $transformationParts.fox.cheeks to "default">>
 		<<set $transformationParts.fox.ears to "default">>
 		<<set $transformationParts.fox.tail to "default">>

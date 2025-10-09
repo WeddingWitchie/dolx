@@ -524,6 +524,27 @@ function weekPassed() {
 		V.brothelVending.weeksRent++;
 		if (V.brothelVending.weeksEmpty >= 4) V.brothelVending.status = "sold";
 	}
+	if (V.averySpaBanWeeks > 0) V.averySpaBanWeeks--;
+
+	if (V.avery_mansion) {
+		V.avery_mansion.date_seen = false;
+		if (V.avery_tower.effects.includes("theft")) {
+			V.avery_tower.progress -= 4;
+		}
+		if (V.avery_tower.effects.includes("temple")) {
+			V.avery_tower.progress -= 4;
+		}
+		if (V.avery_tower.effects.includes("mayor")) {
+			V.avery_tower.progress += 4;
+		}
+		if (V.avery_tower.effects.includes("Remy")) {
+			V.avery_tower.progress += 4;
+		}
+		if (V.avery_tower.effects.includes("Harper")) {
+			V.avery_tower.progress += 4;
+		}
+		V.avery_tower.progress = Math.clamp(V.avery_tower.progress, 0, 100);
+	}
 
 	supermarketWeekly();
 
@@ -698,18 +719,43 @@ function dayPassed(days) {
 		}
 
 		V.rentmoney *= V.rentmod;
-
-		V.renttime--;
-		if (V.baileyDeposit >= V.rentmoney + (V.babyRent || 0)) {
-			if (V.renttime <= 0) {
-				V.renttime = 7;
-				V.baileyDeposit -= V.rentmoney + (V.babyRent || 0);
+		
+		if (V.avery_mansion && V.avery_fate !== "fallen" && V.avery_fate !== "kicked") {
+			// Avery takes on the PC's debt, but stops if unsatisfied
+			if (Time.weekDay !== 1) {
+				V.avery_mansion.days_absent++;
 			}
+			if (V.avery_mansion.rage.assess >= 9 || V.avery_mansion.days_absent >= 2) {
+				V.renttime--;
+				if (V.baileyDeposit >= V.rentmoney + (V.babyRent || 0)) {
+					if (V.renttime <= 0) {
+						V.renttime = 7;
+						V.baileyDeposit -= V.rentmoney + (V.babyRent || 0);
+						V.rentstage += 1;
+					}
+				} else {
+					// Not seen bailey for more than 2 weeks, tracks missed rent
+					if (V.renttime < 0 && V.renttime % 7 === 0) {
+						V.baileyRefusedToPayTotal += V.rentmoney + (V.babyRent || 0);
+						V.baileyRefusedToPayTotalStat += V.rentmoney + (V.babyRent || 0);
+					}
+				}
+			}
+			V.avery_mansion.study_unlocked = 0;
 		} else {
-			// Not seen bailey for more than 2 weeks, tracks missed rent
-			if (V.renttime < 0 && V.renttime % 7 === 0) {
-				V.baileyRefusedToPayTotal += V.rentmoney + (V.babyRent || 0);
-				V.baileyRefusedToPayTotalStat += V.rentmoney + (V.babyRent || 0);
+			V.renttime--;
+			if (V.baileyDeposit >= V.rentmoney + (V.babyRent || 0)) {
+				if (V.renttime <= 0) {
+					V.renttime = 7;
+					V.baileyDeposit -= V.rentmoney + (V.babyRent || 0);
+					V.rentstage += 1;
+				}
+			} else {
+				// Not seen bailey for more than 2 weeks, tracks missed rent
+				if (V.renttime < 0 && V.renttime % 7 === 0) {
+					V.baileyRefusedToPayTotal += V.rentmoney + (V.babyRent || 0);
+					V.baileyRefusedToPayTotalStat += V.rentmoney + (V.babyRent || 0);
+				}
 			}
 		}
 
@@ -950,19 +996,25 @@ function dayPassed(days) {
 				V.bikeSecurityGear = 0;
 			}
 		}
-
-		if (V.dailySunscreen == true) {
-			V.effectsmessage = 1;
-		}
 	}
 
 	xchangeDailyCheck(days);
 
 	if (random(1, 8) === 1) V.daily.robin.orphanageKitchen = true;
+
+	if (V.avery_skyscraper_fire_time >= 1) {
+		V.avery_skyscraper_fire_time--;
+	}
+	if (V.avery_mansion_fire_time >= 1) {
+		V.avery_mansion_fire_time--;
+	}
 }
 
 function hourPassed(hours) {
 	if (V.statFreeze) return;
+
+	// reset hourly vars
+	V.hourly = {};
 
 	for (let i = 0; i < hours; i++) {
 		if (V.innocencestate === 1 && V.control <= 0) statChange.awareness(1);
@@ -970,10 +1022,13 @@ function hourPassed(hours) {
 		wikifier("orgasmHourlyRecovery");
 		statChange.arousal(0, "time");
 		wikifier("wetnessCalculate");
-		wikifier("lustfulCheck", "upper");
-		wikifier("lustfulCheck", "lower");
-		wikifier("lustfulCheck", "feet");
-		wikifier("lustfulCheck", "head");
+		// special clothes effects
+		// currently, only these slots can have lustful traits, consider universalizing
+		["upper", "lower", "feet", "head"].forEach(slot => {
+			["bimbo", "pimp"].forEach(type => {
+				if (V.worn[slot].type.includes(type)) ++V.specialClothesEffects[type].progress;
+			});
+		});
 
 		if (V.ejactrait >= 1) V.stress -= (V.goocount + V.semencount) * 10;
 		if (V.kylarwatched) V.kylarwatchedtimer--;
@@ -983,7 +1038,6 @@ function hourPassed(hours) {
 			count += V.sexStats.pills.pills["Hair Growth Formula"].doseTaken ? 1 : 0;
 			V.hairlength += count;
 			V.fringelength += count;
-			wikifier("calchairlengthstage");
 		}
 		if (V.earSlime.defyCooldown) {
 			V.earSlime.defyCooldown--;
@@ -991,7 +1045,30 @@ function hourPassed(hours) {
 			if (V.earSlime.defyCooldown <= 0) V.earSlime.defyCooldown = 0;
 		}
 		playerEndWaterProgress();
+
+		if (V.wolfpatrolsent >= 1) V.wolfpatrolsent++;
+
+		if (C.npc.Sydney.init === 1) {
+			sydneySchedule();
+			if (T.sydney_location === "temple" && V.temple_rank !== undefined && V.temple_rank !== "prospective") {
+				if (V.sydney_templeWork === "garden") {
+					if (V.temple_garden >= 1) V.temple_garden++;
+				} else if (V.sydney_templeWork === "quarters") {
+					if (V.temple_quarters >= 1) V.temple_quarters++;
+				}
+			}
+		}
+
+		if (V.avery_mansion) {
+			if (V.avery_mansion.away_timer >= 1) {
+				V.avery_mansion.away_timer--;
+			}
+		}
+		if (!V.avery_mansion || ["fallen", "kicked"].includes(V.avery_fate)) {
+			V.home_gone++;
+		}
 	}
+	calchairlengthstage();
 
 	xchangeHourlyCheck(hours); // check for pill expiration and permanence conditions.
 	hourlyClothingFemininityCheck(hours); // take stock of clothing femininity on this hour for the purpose of gender identity shifts.
@@ -1009,36 +1086,17 @@ function hourPassed(hours) {
 
 	if (!V.wolfevent) V.wolfevent = 1;
 	if (V.wolfpatrolsent >= 24) delete V.wolfpatrolsent;
-	else if (V.wolfpatrolsent >= 1) V.wolfpatrolsent++;
 
 	if (V.robinPillory && V.robinPillory.danger !== undefined && V.robinPillory.active) wikifier("robinPilloryHour");
 	if (V.pillory.tenant.exists && V.pillory.tenant.endTime < V.timeStamp) wikifier("clear_pillory");
 
 	if (V.robinbed === "yours" && !["sleep", "orphanage"].includes(getRobinLocation())) delete V.robinbed;
 
-	if (C.npc.Sydney.init === 1) {
-		wikifier("sydneySchedule");
-		if (T.sydney_location === "temple" && V.temple_rank !== undefined && V.temple_rank !== "prospective") {
-			if (V.sydney_templeWork === "garden") {
-				if (V.temple_garden >= 1) V.temple_garden++;
-			} else if (V.sydney_templeWork === "quarters") {
-				if (V.temple_quarters >= 1) V.temple_quarters++;
-			}
-		}
-	}
 	if (V.per_npc.pubfame_receptionist) {
 		wikifier("clearNPC", "pubfame_receptionist");
 		V.pubfame.hospital = {};
 		if (V.per_npc.pubfame_nurse) wikifier("clearNPC", "pubfame_nurse");
 	}
-
-	if (V.avery_mansion) {
-		if (V.avery_mansion.away_timer >= 1) {
-			V.avery_mansion.away_timer--;
-		}
-	}
-
-	V.home_gone++;
 }
 
 function minutePassed(minutes) {
@@ -1184,6 +1242,13 @@ function noonCheck() {
 	delete V.edenbed;
 	delete V.glideScared;
 	if (V.pound) V.pound.sneak = 0;
+
+	if (V.avery_mansion) {
+		if (Time.weekDay !== 7 && Time.weekDay !== 1) {
+			V.avery_mansion.rage.work = true;
+		}
+		V.avery_mansion.sleep_interrupt = 0;
+	}
 }
 
 function dawnCheck() {
@@ -1276,6 +1341,7 @@ function dailyNPCEffects() {
 	}
 	if (V.edenshoutrescue !== 1) V.edenwhip = 0;
 	if (V.edendays !== undefined) V.edendays++;
+	if (V.edenragerespite >= 1) V.edenragerespite--;
 	if (V.edengarden >= 1) V.edengarden--;
 	if (V.edenshrooms >= 1) V.edenshrooms--;
 	if (V.edenspring >= 1) V.edenspring--;
@@ -1302,7 +1368,7 @@ function dailyNPCEffects() {
 	if (C.npc.Avery.state !== "dismissed") {
 		V.averyschoolpickup = 0;
 		V.averyseen = 0;
-		if (V.averydate) {
+		if (V.averydate && Time.weekDay === 1) {
 			V.averydate = 0;
 			if (V.averydateattended !== 1) V.averydatemissed = 1;
 			V.averydateattended = 0;
@@ -1313,6 +1379,96 @@ function dailyNPCEffects() {
 			wikifier("clearNPC", "avery_sidepiece");
 		}
 		if (V.weekly.averyRejected === undefined) V.weekly.averyRejected = {};
+
+		if (V.avery_fate === "saved") {
+			C.npc.Avery.rage -= 5;
+		}
+
+		if (V.avery_mansion) {
+			V.avery_mansion.days++;
+			V.avery_mansion.date_ready = false;
+			if (Time.weekDay === 2 && !V.avery_injury) {
+				if (["waiting", "skipped"].includes(V.avery_mansion.party_state)) {
+					V.avery_mansion.party_state = "missed";
+					V.avery_mansion.party_missed_guest = V.avery_mansion.guest;
+				}
+
+				// We skipped/missed, if the party is finished properly we handle the next guest SOMEWHERE ELSE
+				if (V.avery_mansion.party_state !== "finished") {
+					// If Bailey is the guest we repeat Bailey, otherwise we rotate, skipping Jordan as appropriate
+					const rotation = {
+						Bailey: "Bailey",
+						Quinn: "Remy",
+						Remy: "Briar",
+						Briar: "Harper",
+						Harper: V.avery_mansion.jordan_intro ? "Jordan" : "Quinn",
+						Jordan: "Quinn",
+					};
+
+					V.avery_mansion.guest = rotation[V.avery_mansion.guest];
+				}
+
+				// If the state is still "missed" we don't reset the state. We still need to trigger Avery being angry we missed a party
+				if (V.avery_mansion.party_state !== "missed") {
+					V.avery_mansion.party_state = "waiting";
+				}
+			}
+
+			if (V.avery_mansion.rage.dinner_done !== 1 && between(Time.weekDay, 3, 7)) {
+				V.avery_mansion.rage.dinner_missed++;
+			}
+
+			V.avery_mansion.outfit_warning = false;
+			V.avery_mansion.rage.dinner_done = 0;
+
+			V.avery_mansion.rage.assess = 0;
+
+			V.avery_mansion.rage.assess =
+				V.avery_mansion.pool +
+				V.avery_mansion.kitchen +
+				V.avery_mansion.lounge +
+				V.avery_mansion.display +
+				V.avery_mansion.bedroom +
+				V.avery_mansion.bathroom +
+				V.avery_mansion.dining +
+				V.avery_mansion.garden +
+				V.avery_mansion.rage.dinner_missed;
+
+			if (V.avery_mansion.injury_timer >= 1) {
+				V.avery_mansion.injury_timer--;
+			}
+			if (V.avery_mansion.rage.timer >= 1) {
+				V.avery_mansion.rage.timer--;
+			}
+			if (V.avery_mansion.jobs.includes("pool") && V.avery_mansion.pool < 4) {
+				V.avery_mansion.pool++;
+			}
+			if (V.avery_mansion.jobs.includes("kitchen") && V.avery_mansion.kitchen < 4) {
+				V.avery_mansion.kitchen++;
+			}
+			if (V.avery_mansion.jobs.includes("lounge") && V.avery_mansion.lounge < 4) {
+				V.avery_mansion.lounge++;
+			}
+			if (V.avery_mansion.jobs.includes("display") && V.avery_mansion.display < 4) {
+				V.avery_mansion.display++;
+			}
+			if (V.avery_mansion.jobs.includes("bedroom") && V.avery_mansion.bedroom < 4) {
+				V.avery_mansion.bedroom++;
+			}
+			if (V.avery_mansion.jobs.includes("bathroom") && V.avery_mansion.bathroom < 4) {
+				V.avery_mansion.bathroom++;
+			}
+			if (V.avery_mansion.jobs.includes("dining") && V.avery_mansion.dining < 4) {
+				V.avery_mansion.dining++;
+			}
+			if (V.avery_mansion.jobs.includes("garden") && V.avery_mansion.garden < 4) {
+				V.avery_mansion.garden++;
+			}
+
+			if (V.avery_mansion.bedroom_state === "locked") {
+				V.avery_mansion.bedroom_state = "off-limits";
+			}
+		}
 	} else {
 		delete V.averyDismissalSceneWait;
 	}
@@ -1443,11 +1599,11 @@ function dailyPlayerEffects() {
 		1 + V.genderidentity / 1000;
 	V.hairlength += 3 * genderFactor;
 	V.fringelength += 3 * genderFactor;
-	wikifier("calchairlengthstage");
+	calchairlengthstage();
 	
 	// statChange.skill("beauty", (100 - (V.trauma / V.traumamax) * 100) * V.beautyMult);
 	// if (V.stressBeauty == 1) statChange.skill("beauty", (100 - (V.stress / V.stressmax) * 100) * V.beautyMult);
-	wikifier("lustfulUpdate");
+	lustfulUpdate();
 
 	if (V.orgasmstat >= 500 && V.orgasmtrait === 0) {
 		V.effectsmessage = 1;
@@ -1555,12 +1711,13 @@ function dailyPlayerEffects() {
 		statChange.insecurity("breasts_big", Math.clamp(reducedBreastsize - 5, -5, -1)); // Increases by 1 for each other size below ample
 	}
 
+	/* Disabled due to bug, and I'm not sure it's necessary anyway - Vrel
 	// Lower acceptance when it no longer applies, takes 200 days for it to drop to 0 from max
 	if (!(V.player.penisExist && V.player.penissize <= 1)) statChange.acceptance("penis_small", -5);
-	if (!(V.player.penisExist && V.player.penissize >= (V.player.sex === "m" ? 4 : 3))) statChange.acceptance("penis_big", -5);
+	if (!(V.player.penisExist && V.player.penissize >= (V.player.sex === "m" ? 4 : 2))) statChange.acceptance("penis_big", -5);
 	if (V.player.sex === "f" && !between(V.player.breastsize, 0, 4)) statChange.acceptance("breasts_small", -5);
 	if (!(V.player.breastsize >= (V.player.sex === "m" ? 1 : 8))) statChange.acceptance("breasts_big", -5);
-
+	*/
 	if (playerBellySize() < 8) {
 		statChange.insecurity("pregnancy", -5);
 		statChange.acceptance("pregnancy", -5);
@@ -1711,6 +1868,7 @@ function yearlyEventChecks() {
 	if (Time.monthName === "November" && Time.monthDay >= 2) {
 		delete V.halloween_kylar;
 		delete V.halloween_kylar_proposed;
+		delete V.halloween_kylar_whitney;
 		delete V.halloween_lake;
 		delete V.halloweenWolves;
 	}
@@ -2160,9 +2318,9 @@ function dailyFarmEvents() {
 	}
 	if (V.alex_countdown >= 1) V.alex_countdown--;
 
-	delete V.farm_work;
 	delete V.farm_count;
 	if (V.farm_stage < 7) delete V.farm_naked;
+	delete V.farm_work;
 	delete V.farm_event;
 	delete V.farm_end;
 	delete V.alex_breakfast;
@@ -2416,6 +2574,38 @@ function getTimeString(...args) {
 	return Math.trunc(minutes / 60) + ":" + ("0" + Math.trunc(minutes % 60)).slice(-2);
 }
 window.getTimeString = getTimeString;
+
+/* Returns a date formatted for the user's dateFormat
+ * getFormattedDate() returns a long date with optional weekday (e.g. [Sunday ]the 4th of September)
+ * getShortFormattedDate() returns an abbreviated date (e.g. 4th Sep)
+ */
+window.getFormattedDate = function (date, includeWeekday = false) {
+	switch (V.options.dateFormat) {
+		case "en-US": {
+			const formattedDate = date.monthName + " " + ordinalSuffixOf(date.day);
+			return includeWeekday ? date.weekDayName + ", " + formattedDate : formattedDate;
+		}
+		case "zh-CN": // Fallthrough to en-GB
+		case "en-GB": {
+			const formattedDate = "the " + ordinalSuffixOf(date.day) + " of " + date.monthName;
+			return includeWeekday ? date.weekDayName + " " + formattedDate : formattedDate;
+		}
+		default:
+			throw new Error(`Invalid date format: ${V.options.dateFormat}`);
+	}
+};
+
+window.getShortFormattedDate = function (date) {
+	switch (V.options.dateFormat) {
+		case "en-US":
+			return date.monthName.slice(0, 3) + " " + ordinalSuffixOf(date.day);
+		case "zh-CN":
+		case "en-GB":
+			return ordinalSuffixOf(date.day) + " " + date.monthName.slice(0, 3);
+		default:
+			throw new Error(`Invalid date format: ${V.options.dateFormat}`);
+	}
+};
 
 /* Determines and replenishes stock at supermarket */
 function supermarketWeekly() {

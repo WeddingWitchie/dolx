@@ -1,8 +1,10 @@
 :: Adult Shop Lock
 <<set $outside to 0>><<effects>><<set $lock to 400>>
+The adult shop is closed. A sign reads: "Opening hours: <<ampm 16 00>> - <<ampm 21 00>> on weekdays. <<ampm 9 00>> - <<ampm 21 00>> on Saturdays."
+<br><br>
 
 <<if currentSkillValue('skulduggery') gte $lock>>
-	<<if $leftarm is "bound" and $rightarm is "bound">>
+	<<if pcAreArmsBound("both")>>
 		You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
 		<br><br>
 	<<else>>
@@ -53,7 +55,7 @@
 	]>>
 <<set _shopmusic to ["Smooth jazz","Salsa","Tango","Reggae","R&B","Romantic lounge","Classic rock","Classic pop"]>>
 
-<<set _binds to ($leftarm is "bound" or $rightarm is "bound" or $feetuse is "bound")>>
+<<set _binds to pcAreArmsBound("any") or $feetuse is "bound">>
 <<set _gag to ($worn.face.type.includes("gag") and $worn.face.cursed is 1)>>
 <<set _both to (_binds and _gag)>>
 <<set _gagname to $worn.face.name>>
@@ -253,7 +255,11 @@
 	/* Links */
 	<<if $adultshopclerk and $adultshopstate isnot "closed">>
 		/* work in this shop */
-		<<ind>><<link [[Work (1:00)|Adult Shop Clerk Job]]>><<endevent>><<pass 60>><<timeTrackingManual "adultShop" 1>><</link>>
+		<<if pcAreArmsBound("both")>>
+			<<ind>><span class="red">Both of your arms are bound</span>, so you are unable to work here.
+		<<else>>
+			<<ind>><<link [[Work (1:00)|Adult Shop Clerk Job]]>><<endevent>><<pass 60>><</link>>
+		<</if>>
 		<br>
 	<</if>>
 	<<if !$adultshopclerk and $debug is 1>>
@@ -261,11 +267,11 @@
 		<br>
 	<</if>>
 	<<if $adultshopstate isnot "closed">>
-		<<ind>><<link [[Approach Sirris (0:01)|Adult Shop Approach Sirris]]>><<pass 1>><<endevent>><</link>>
+		<<socialiseicon>><<link [[Approach Sirris (0:01)|Adult Shop Approach Sirris]]>><<pass 1>><<endevent>><</link>>
 		<br>
 	<</if>>
 	<<if $adultshopstate is "sydney" and $debug is 1>>
-		<<ind>><<link [[Approach Sydney (0:01)|Adult Shop Approach Sydney]]>><<pass 1>><<endevent>><</link>>
+		<<socialiseicon>><<link [[Approach Sydney (0:01)|Adult Shop Approach Sydney]]>><<pass 1>><<endevent>><</link>>
 		<br>
 	<</if>>
 	<<icon "adultclothing.png">><<link [[Browse clothing (0:01)|Adult Shop Store]]>><<pass 1>><</link>>
@@ -274,7 +280,7 @@
 		<<sextoysicon "strap-on">><<link [[Browse toys (0:01)|Adult Shop Menu]]>><<pass 1>><</link>>
 	<</if>>
 	<br><br>
-	<<exiticon>><<link [[Exit (0:01)|Elk Street]]>><<pass 1>><<adultShopClear>><</link>>
+	<<elkicon>><<link [[Elk Street (0:01)|Elk Street]]>><<pass 1>><<adultShopClear>><</link>>
 
 <</if>>
 
@@ -321,7 +327,7 @@ Sirris smiles as you approach.
 "We could use the help!" Sirris says. "Shelves need stocking, and customers need servicing." <<nnpc_He Sirris>> pauses. "At the counter, that is."
 <br><br>
 
-"You can work whenever we're open, and I'll pay you <span class="gold">£15</span> per hour," <<nnpc_he Sirris>> adds. "Sydney helps out a lot too."
+"You can work whenever we're open, and I'll pay you <<printmoney 1500>> per hour," <<nnpc_he Sirris>> adds. "Sydney helps out a lot too."
 <br><br>
 
 <<link [[Accept|Adult Shop Approach Sirris Accept]]>><<set $adultshopclerk to 1>><</link>>
@@ -362,7 +368,7 @@ You approach Sydney.
 <</if>>
 <br><br>
 
-"I'm paid <span class="gold">£15</span> per hour, and I expect you'd get the same."
+"I'm paid <<printmoney 1500>> per hour, and I expect you'd get the same."
 <br><br>
 
 <<link [[Accept|Adult Shop Approach Sydney Accept]]>><</link>>

@@ -1,6 +1,6 @@
 :: Widgets Clothing [widget]
 
-/*The "generalWear" widget works in the same way as the "...wear" widgets, however, the argument are as follows; slot, item index, colour, accessory_colour*/
+/*The "generalWear" widget works in the same way as the "...wear" widgets, however, the argument are as follows; slot, item index, colour, accessory_colour, pattern*/
 
 <<widget "generalWear">>
 	<<if $worn[_args[0]].cursed is 1>>
@@ -189,6 +189,10 @@
 <<widget "carriedSend">>
 	<<if _args[0] is "wardrobe" or Object.keys($wardrobes).includes(_args[0])>>
 		<<set $_undressSlot to _args[1]>>
+		/*Checks if the current slot is part of an outfit and switches to the main piece if that is the case*/
+		<<if $carried[$_undressSlot].outfitSecondary isnot undefined and $carried[$carried[$_undressSlot].outfitSecondary[0]].name is $carried[$_undressSlot].outfitSecondary[1]>>
+			<<set $_undressSlot to $carried[$_undressSlot].outfitSecondary[0]>>
+		<</if>>
 		<<set $_outfitPrimaryUndress to $carried[$_undressSlot].outfitPrimary>>
 
 		<<set _slots to []>>
@@ -397,6 +401,9 @@
 
 			<<if _cursedPrevent isnot true>>
 				<<set V[_stripSlot.replace(/_/g,"")+'last'] to $worn[_stripSlot].name>>
+				<<if $carried[_stripSlot].name isnot "naked">>
+					<<carriedSend "wardrobe" _stripSlot>>
+				<</if>>
 				<<set $carried[_stripSlot] to clone($worn[_stripSlot])>>
 				<<set $worn[_stripSlot] to clone(setup.clothes[_stripSlot][0])>>
 				<<run console.log("stripped to carry", $carried[_stripSlot])>>
@@ -405,6 +412,9 @@
 					<<for _labelStrip, _valueStrip range _outfitPrimaryStrip>>
 						<<if $worn[_labelStrip].name is _valueStrip>>
 							<<set V[_labelStrip.replace(/_/g,"")+'last'] to $worn[_labelStrip].name>>
+							<<if $carried[_labelStrip].name isnot "naked">>
+								<<carriedSend "wardrobe" _labelStrip>>
+							<</if>>
 							<<set $carried[_labelStrip] to clone($worn[_labelStrip])>>
 							<<set $worn[_labelStrip] to clone(setup.clothes[_labelStrip][0])>>
 						<</if>>
@@ -715,25 +725,7 @@
 	<<if _args[0] and _args[1]>>
 		<<set $_slot to _args[0]>>
 		<<set $_item to _args[1][$_slot]>>
-		<<if $_slot is "lower">>
-			<<switch clothesIndex($_slot,$_item)>>
-				<<case 107>>
-					<<set $_setupItem to setup.clothes[$_slot][106]>>
-					<<set $_item.pattern to "plaid">>
-				<<case 103>>
-					<<set $_setupItem to setup.clothes[$_slot][27]>>
-					<<set $_item.pattern to "plaid">>
-				<<case 104>>
-					<<set $_setupItem to setup.clothes[$_slot][28]>>
-					<<set $_item.pattern to "plaid">>
-				<<case 105>>
-					<<set $_setupItem to setup.clothes[$_slot][6]>>
-					<<set $_item.pattern to "plaid">>
-				<<default>><<set $_setupItem to setup.clothes[$_slot][clothesIndex($_slot,$_item)]>>
-			<</switch>>
-		<<else>>
-			<<set $_setupItem to setup.clothes[$_slot][clothesIndex($_slot,$_item)]>>
-		<</if>>
+		<<set $_setupItem to setup.clothes[$_slot][clothesIndex($_slot,$_item)]>>
 		<<set $_return to clothesReturnLocation($_item,"rebuy")>>
 
 		<<if $_setupItem.shop.length isnot 0 and $_item.one_piece isnot "broken" and $_setupItem.cursed isnot 1>> /* NO SPLIT ADDED */
@@ -896,9 +888,9 @@
 	<</for>>
 	<<buttplugon>>
 	<<outfitChecks>>
-	<<if !(_fullyNaked)>>
-		You fix your clothing<<if $rightarm isnot "bound" and $worn.handheld.name isnot "naked">> and <<= $worn.handheld.name.includes("balloon") ? "retrieve" : "pick up">> your $worn.handheld.name<</if>>.<br><br>
-	<<elseif $rightarm isnot "bound" and $worn.handheld.name isnot "naked">>
+	<<if !_fullyNaked>>
+		You fix your clothing<<if !pcAreArmsBound("right") and $worn.handheld.name isnot "naked">> and <<= $worn.handheld.name.includes("balloon") ? "retrieve" : "pick up">> your $worn.handheld.name<</if>>.<br><br>
+	<<elseif !pcAreArmsBound("right") and $worn.handheld.name isnot "naked">>
 		You <<= $worn.handheld.name.includes("balloon") ? "retrieve" : "pick up">> your $worn.handheld.name.<br><br>
 	<</if>>
 
@@ -933,12 +925,18 @@
 				<<carriedSend "wardrobe" $_slot>>
 			<<else>>
 				<<set _slots.pushUnique($_slot)>>
+				<<if $worn[$_slot].name isnot "naked">>
+					<<generalUndress "wardrobe" $_slot>>
+				<</if>>
 				<<set $worn[$_slot] to clone($carried[$_slot])>>
 				<<set $carried[$_slot] to clone(setup.clothes[$_slot][0])>> <!-- set this slot to "naked" -->
 
 				<<set _outfitPrimaryOn to $worn[$_slot].outfitPrimary or []>>
 				<<for $_outfitPieceSlot, $_outfitPieceName range _outfitPrimaryOn>>
 					<<if $carried[$_outfitPieceSlot].name is $_outfitPieceName>>
+						<<if $worn[$_outfitPieceSlot].name isnot "naked">>
+							<<generalUndress "wardrobe" $_outfitPieceSlot>>
+						<</if>>
 						<<set $worn[$_outfitPieceSlot] to clone($carried[$_outfitPieceSlot])>>
 						<<set $carried[$_outfitPieceSlot] to clone(setup.clothes[$_outfitPieceSlot][0])>> <!-- set this slot to "naked" -->
 						<<set _slots.pushUnique($_outfitPieceSlot)>>
@@ -1004,14 +1002,14 @@
 
 <!-- [0] - if truthy, only run if player has a prop -->
 <<widget "handheldon">>
-    <<if _args[0]>>
-        <<if $propEquipped is 1 and $worn.handheld.type.includes("prop")>>
-            <<generalOn "handheld">>
-            <<set $propEquipped to 0>>
-        <</if>>
-    <<else>>
-        <<generalOn "handheld">>
-    <</if>>
+	<<if _args[0]>>
+		<<if $propEquipped is 1 and $worn.handheld.type.includes("prop")>>
+			<<generalOn "handheld">>
+			<<set $propEquipped to 0>>
+		<</if>>
+	<<else>>
+		<<generalOn "handheld">>
+	<</if>>
 <</widget>>
 
 <<widget "legson">>
@@ -1245,8 +1243,8 @@
 					<<set $_selectedWardrobe to selectWardrobe()>>
 					<<if _outfitPrimaryUndress isnot undefined>>
 						<<for _labelUndress, _valueUndress range _outfitPrimaryUndress>>
-							<<if _valueUndress isnot "broken" and _valueUndress isnot "split">>
-								<<if !setup.wardrobeSkip.includes($worn[_labelUndress].name) and $worn[_labelUndress].name is _valueUndress>>
+							<<if _valueUndress isnot "broken" and _valueUndress isnot "split" and $worn[_labelUndress].name is _valueUndress>>
+								<<if !setup.wardrobeSkip.includes($worn[_labelUndress].name)>>
 									<<set $_selectedWardrobe[_labelUndress].push(clone($worn[_labelUndress]))>>
 									<<run _slots.push(_labelUndress)>>
 								<</if>>
@@ -1784,7 +1782,7 @@
 				<<for _labelWW, _valueWW range _outfitPrimary>>
 					<<if _valueWW isnot "broken" and _valueWW isnot "split">>
 						<<for _j to 0; _j lt $_selectedWardrobe[_labelWW].length; _j++>>
-							<<if $_selectedWardrobe[_labelWW][_j].name is _valueWW and _item.colour is $_selectedWardrobe[_labelWW][_j].colour and _item.accessory_colour is $_selectedWardrobe[_labelWW][_j].accessory_colour>>
+							<<if $_selectedWardrobe[_labelWW][_j].name is _valueWW and _item.colour is $_selectedWardrobe[_labelWW][_j].colour and _item.accessory_colour is $_selectedWardrobe[_labelWW][_j].accessory_colour and _item.pattern is $_selectedWardrobe[_labelWW][_j].pattern>>
 								<<if $_selectedWardrobe[_labelWW][_j].outfitSecondary[1] isnot _item.name>>
 									<<continue>>
 								<</if>>
@@ -1959,7 +1957,7 @@
 							<</if>>
 						<</for>>
 					</div>
-				<!-- "Sprays" style (up to 7 sprays, or 5 if renderer is "both") -->
+				<!-- "Sprays" style (up to 7 sprays) -->
 				<<elseif $options.pepperSprayDisplay.includes("modded")>>
 					<<for _i to 1; _i lte $spraymax; _i++>>
 						<<if $spray gte _i>>

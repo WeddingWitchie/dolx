@@ -1,4 +1,4 @@
-function effectsWater() {
+function effectsWater(waterType = "liquid") {
 	DOL.Perflog.logWidgetStart("effectsWaterJs");
 	const fragment = document.createDocumentFragment();
 
@@ -47,7 +47,7 @@ function effectsWater() {
 		if (V.upperwet >= 100 && V.upperwetstage < 3 && wornSetupClothes("upper").fabric_strength < 20) {
 			V.upperwetstage = 3;
 			wetIntro = 2;
-			sWikifier(`<span class="lewd">Water soaks through your ${V.worn.upper.name}, exposing your <<undertop>>.</span>`);
+			sWikifier(`<span class="lewd">${waterType.toUpperFirst()} soaks through your ${V.worn.upper.name}, exposing your <<undertop>>.</span>`);
 		} else if (V.upperwet < 90 && V.upperwetstage >= 3) {
 			V.upperwetstage = 2;
 			sWikifier(`<span class="green">Your ${V.worn.upper.name} <<upperhas>> dried, concealing your <<undertop>>.</span>`);
@@ -71,7 +71,7 @@ function effectsWater() {
 		if (V.lowerwet >= 100 && V.lowerwetstage < 3 && wornSetupClothes("lower").fabric_strength < 20) {
 			V.lowerwetstage = 3;
 			wetIntro = 2;
-			sWikifier(`<span class="lewd">Water soaks through your ${V.worn.lower.name}, exposing your <<undies>>.</span>`);
+			sWikifier(`<span class="lewd">${waterType.toUpperFirst()} soaks through your ${V.worn.lower.name}, exposing your <<undies>>.</span>`);
 		} else if (V.lowerwet < 90 && V.lowerwetstage >= 3) {
 			V.lowerwetstage = 2;
 			sWikifier(`<span class="green">Your ${V.worn.lower.name} <<lowerhas>> dried, concealing your <<undies>>.</span>`);
@@ -108,7 +108,7 @@ function effectsWater() {
 		} else if (V.underlowerwet >= 100 && V.underlowerwetstage < 3 && wornSetupClothes("under_lower").fabric_strength <= 20) {
 			V.underlowerwetstage = 3;
 			wetIntro = 2;
-			sWikifier(`<span class="lewd">Water soaks through your ${V.worn.under_lower.name}, exposing your <<genitals>> through its fabric.</span>`);
+			sWikifier(`<span class="lewd">${waterType.toUpperFirst()} soaks through your ${V.worn.under_lower.name}, exposing your <<genitals>> through its fabric.</span>`);
 		} else if (V.underlowerwet < 90 && V.underlowerwetstage >= 3) {
 			V.underlowerwetstage = 2;
 			sWikifier(`<span class="green">Your ${V.worn.under_lower.name} <<underlowerhas>> dried, concealing your <<genitals>> once again.</span>`);
@@ -132,7 +132,7 @@ function effectsWater() {
 		if (V.underupperwet >= 100 && V.underupperwetstage < 3 && wornSetupClothes("under_upper").fabric_strength <= 20) {
 			V.underupperwetstage = 3;
 			wetIntro = 2;
-			sWikifier(`<span class="lewd">Water soaks through your ${V.worn.under_upper.name}, exposing your <<breasts>> through its fabric.</span>`);
+			sWikifier(`<span class="lewd">${waterType.toUpperFirst()} soaks through your ${V.worn.under_upper.name}, exposing your <<breasts>> through its fabric.</span>`);
 		} else if (V.underupperwet < 90 && V.underupperwetstage >= 3) {
 			V.underupperwetstage = 2;
 			sWikifier(`<span class="green">Your ${V.worn.under_upper.name} <<underupperhas>> dried, concealing your <<breasts>>.</span>`);
@@ -196,7 +196,7 @@ function effectsWater() {
 
 Macro.add("effectswater", {
 	handler() {
-		const fragment = effectsWater();
+		const fragment = effectsWater(this.args[0]);
 		if (fragment) this.output.append(fragment);
 	},
 });
@@ -298,38 +298,42 @@ function effects() {
 	}
 
 	sWikifier("<<updateHallucinations>>");
-	switch (V.location) {
-		case "town":
-			if (V.flashbacktownready === 1 && V.controlled === 0) {
-				delete V.flashbacktownready;
-				sWikifier("<<flashbacktown>>");
-			}
-			break;
-		case "home":
-			if (V.flashbackhomeready === 1 && V.controlled === 0) {
-				delete V.flashbackhomeready;
-				sWikifier("<<flashbackhome>>");
-			}
-			break;
-		case "beach":
-			if (V.flashbackbeachready === 1 && V.controlled === 0) {
-				delete V.flashbackbeachready;
-				sWikifier("<<flashbackbeach>>");
-			}
-			break;
-		case "underground":
-			if (V.flashbackundergroundready === 1 && V.controlled === 0) {
-				delete V.flashbackundergroundready;
-				sWikifier("<<flashbackunderground>>");
-			}
-			break;
-		case "school":
-			if (V.flashbackschoolready === 1 && V.controlled === 0) {
-				delete V.flashbackschoolready;
-				sWikifier("<<flashbackschool>>");
-			}
-			break;
+
+	if (V.controlled === 0 && V.flashbacks >= 1) {
+		switch (V.location) {
+			case "town":
+				if (V.flashbacktownready === 1) {
+					delete V.flashbacktownready;
+					sWikifier("<<flashbacktown>>");
+				}
+				break;
+			case "home":
+				if (V.flashbackhomeready === 1) {
+					delete V.flashbackhomeready;
+					sWikifier("<<flashbackhome>>");
+				}
+				break;
+			case "beach":
+				if (V.flashbackbeachready === 1) {
+					delete V.flashbackbeachready;
+					sWikifier("<<flashbackbeach>>");
+				}
+				break;
+			case "underground":
+				if (V.flashbackundergroundready === 1) {
+					delete V.flashbackundergroundready;
+					sWikifier("<<flashbackunderground>>");
+				}
+				break;
+			case "school":
+				if (V.flashbackschoolready === 1) {
+					delete V.flashbackschoolready;
+					sWikifier("<<flashbackschool>>");
+				}
+				break;
+		}
 	}
+
 	// eslint-disable-next-line no-undef
 	if (isPregnancyEnding()) {
 		sWikifier(
@@ -340,7 +344,7 @@ function effects() {
 		br();
 	}
 
-	if (V.effectsmessage && !V.statFreeze) {
+	if (V.effectsmessage && !V.statFreeze && !V.silenceNotifications) {
 		delete V.effectsmessage;
 
 		if (V.recovered_from_pregnancy) {
@@ -617,12 +621,18 @@ function effects() {
 
 		if (V.speech_attitude_bratty_message) {
 			delete V.speech_attitude_bratty_message;
-			element("span", "You've become too submissive to adopt a bratty demeanor in conversation.", "purple");
+			element("span", "You've become too submissive to adopt a bratty demeanour in conversation.", "purple");
 		}
 
 		if (V.speech_attitude_meek_message) {
 			delete V.speech_attitude_meek_message;
-			element("span", "You've become too defiant to adopt a meek demeanor in conversation.", "purple");
+			element("span", "You've become too defiant to adopt a meek demeanour in conversation.", "purple");
+		}
+
+		if (V.sunscreenAutoApplied) {
+			element("span", `You apply sunscreen to your skin${Skin.Sunscreen.usesLeft <= 0 ? "," : "."}`, "purple");
+			if (Skin.Sunscreen.usesLeft <= 0) element("span", "using the last of it.", "red");
+			delete V.sunscreenAutoApplied;
 		}
 
 		if (V.pillsTaken) {
@@ -630,15 +640,6 @@ function effects() {
 			if (V.pillsTakenLast) element("span", "You have run out of some of them.", "red");
 			delete V.pillsTaken;
 			delete V.pillsTakenLast;
-		}
-
-		if (V.daily_sunscreen_message === 1) {
-			element("span", "You apply sunscreen for the day.", "purple");
-			delete V.daily_sunscreen_message;
-		}
-		else if (V.daily_sunscreen_message === 2) {
-			element("span", "You don't have any sunscreen to apply.", "red");
-			delete V.daily_sunscreen_message;
 		}
 
 		if (V.hairGrowthApplied) {
@@ -1611,7 +1612,9 @@ function effects() {
 
 	if (V.worn.genitals.cursed === 1 && V.worn.genitals.integrity <= 0) V.worn.genitals.type.push("broken");
 
-	sWikifier("<<heelsUpdate>>");
+	if (V.worn.feet.type.includes("heels") && currentSkillValue("feetskill") < V.worn.feet.reveal) {
+		V.tiredness += (V.worn.feet.reveal - currentSkillValue("feetskill")) / 150;
+	}
 
 	if (V.combat) sWikifier("<<pass $combatTimePass seconds>>");
 

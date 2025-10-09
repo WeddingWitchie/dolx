@@ -22,7 +22,7 @@
 		<br><br> good starting point for when you can go to class naked-->
 		<<link [[Next|Hallways]]>><<endevent>><</link>>
 		<br><br>
-	<<elseif $worn.upper.type.includes("school") and $worn.lower.type.includes("school") and $rightarm isnot "bound">>
+	<<elseif $worn.upper.type.includes("school") and $worn.lower.type.includes("school") and !pcAreArmsBound("right")>>
 		<<if $daily.school.attended.science>>
 			You rejoin the science lesson,
 			<<if $worn.over_upper.name isnot "naked" or $worn.over_lower.name isnot "naked" or $worn.over_head.name isnot "naked">>
@@ -92,8 +92,8 @@
 			<br>
 		<</if>>
 
-	<<elseif $rightarm is "bound" or $leftarm is "bound" or $feetuse is "bound">>
-		Sirris notices your bound <<if $rightarm is "bound" or $leftarm is "bound">>arms<</if>><<if ($rightarm is "bound" or $leftarm is "bound") and $feetuse is "bound">> and <</if>><<if $feetuse is "bound">>legs<</if>>. "Is this some kind of experiment? The results would be really hazardous. I can't let you do science like that. Go see the head."
+	<<elseif pcAreArmsBound("any") or $feetuse is "bound">>
+		Sirris notices your bound <<if pcAreArmsBound("any")>>arms<<if $feetuse is "bound">> and <</if>><</if>><<if $feetuse is "bound">>legs<</if>>. "Is this some kind of experiment? The results would be really hazardous. I can't let you do science like that. Go see the head."
 		<br><br>
 
 		<<link [[Next|Hallways]]>><<endevent>><</link>>
@@ -121,8 +121,9 @@
 	<<elseif !$worn.handheld.type.includes("bookbag")>>
 		<span class="blue">You can't study without your bookbag.</span>
 		<br>
+		<<scienceicon>><<link [[Relax before class|Science Classroom Study]]>><<set $phase to 0>><</link>><<lstress>>
 	<<else>>
-		<<scienceicon>><<link [[Study science|Science Classroom Study]]>><</link>><<gstress>><<gscience>>
+		<<scienceicon>><<link [[Study science|Science Classroom Study]]>><<set $phase to 1>><</link>><<gstress>><<gscience>>
 	<</if>>
 	<br>
 	<<getouticon>><<link [[Leave|Hallways]]>><</link>>
@@ -208,25 +209,24 @@ Sirris looks exasperated. "Right. I'll have to inform the head of your behaviour
 <<wearProp "open textbook" "blue" "science">>
 <<if $worn.over_upper.name isnot "naked" or $worn.over_lower.name isnot "naked" or $worn.over_head.name isnot "naked">>
 	<<undressOverClothes "scienceClassroom">>
-	You hang your coat at the back of the class, take your seat and read a science textbook.
+	You hang your coat at the back of the class<<if $phase is 1>>, take your seat and read a science textbook<<else>> and take your seat<</if>>.
 <<else>>
-	You take a seat and read a science textbook.
+	You take your seat<<if $phase is 1>> and read a science textbook<</if>>.
 <</if>>
 <br><br>
 
 <<npc Sirris>><<person1>>The classroom soon fills and Sirris arrives to begin the lesson.
 <br><br>
 
-<<if $worn.upper.type.includes("school") and $worn.lower.type.includes("school") and $rightarm isnot "bound" and $leftarm isnot "bound" and $feetuse isnot "bound">>
-
-	<<link [[Next|Science Lesson]]>><<endevent>><</link>>
-	<br>
-<<elseif $rightarm is "bound" or $leftarm is "bound" or $feetuse is "bound">>
-	Sirris notices your bound <<if $rightarm is "bound" or $leftarm is "bound">>arms<</if>><<if ($rightarm is "bound" or $leftarm is "bound") and $feetuse is "bound">> and <</if>><<if $feetuse is "bound">>legs<</if>>. "Is this some kind of experiment? The results would be really dangerous. I can't let you do science like that. Go see the head."
+<<if pcAreArmsBound("any") or $feetuse is "bound">>
+	Sirris notices your bound <<if pcAreArmsBound("any")>>arms<<if $feetuse is "bound">> and <</if>><</if>><<if $feetuse is "bound">>legs<</if>>. "Is this some kind of experiment? The results would be really dangerous. I can't let you do science like that. Go see the head."
 	<br><br>
 
 	<<link [[Next|Hallways]]>><<endevent>><</link>>
 	<br><br>
+<<elseif $worn.upper.type.includes("school") and $worn.lower.type.includes("school")>>
+	<<link [[Next|Science Lesson]]>><<endevent>><</link>>
+	<br>
 <<else>>
 	Sirris looks at your outfit as <<he>> enters. "Where's your uniform? I'm not allowed to teach you without one, you know. The head might have some spares."
 	<br><br>
@@ -245,10 +245,15 @@ Sirris looks exasperated. "Right. I'll have to inform the head of your behaviour
 <<schooleffects>>
 <!-- add stress every 5 minutes -->
 <<set _stress to Math.trunc(_time_to_pass / 5)>>
-<<stress _stress>>
-<!-- improve science grade with same efficiency as studying in the library -->
-<<set _science to 3 * _time_to_pass / 20>>
-<<scienceskill _science>>
+<<if $phase is 1>>
+	<<stress _stress>>
+	<!-- improve science grade with same efficiency as studying in the library -->
+	<<set _science to 3 * _time_to_pass / 20>>
+	<<scienceskill _science>>
+<<else>>
+	<<set _stress to _stress * -1>>
+	<<stress _stress>>
+<</if>>
 
 :: Science Lesson
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
@@ -297,7 +302,7 @@ Sirris looks exasperated. "Right. I'll have to inform the head of your behaviour
 	<<endevent>><<npc Leighton>><<person1>><<He>> strides to the front of the class. "Thank you Sirris," <<he>> says. "Why don't you take a break?"
 	<br><br>
 
-	Sirris looks perplexed. "I thought you'd want my help, I've prepared-"
+	Sirris looks perplexed. "I thought you'd want my help, I've prepared—"
 	<br><br>
 
 	"Don't you worry. I've prepared my own plan for the lesson. Now go relax in that cafe you like."
@@ -341,7 +346,7 @@ Sirris looks exasperated. "Right. I'll have to inform the head of your behaviour
 	"You're doing fine," Leighton says as <<he>> enters. "I'm just conducting government-mandated health checks."
 	<br><br>
 
-	"I can help with that, I have-"
+	"I can help with that, I have—"
 	<br><br>
 
 	Leighton raises <<his>> arm and Sirris fall quiet. "Go take a break. Your class will be in one piece when you return."
@@ -411,7 +416,7 @@ Sirris looks exasperated. "Right. I'll have to inform the head of your behaviour
 <<if $phase is 1>>
 	<<lessonEnd "scienceClassroom">>
 <<else>>
-	<<lessonEvents "science">>
+	<<lessonEvents "science" 2>>
 <</if>>
 
 :: Science Lesson Daydream
@@ -436,7 +441,7 @@ Sirris looks exasperated. "Right. I'll have to inform the head of your behaviour
 <<if $phase is 1>>
 	<<lessonEnd "scienceClassroom">>
 <<else>>
-	<<lessonEvents "science" 2>>
+	<<lessonEvents "science" 0.5>>
 <</if>>
 
 :: Science Lesson Focus
@@ -453,7 +458,7 @@ You focus on listening to the teacher and studying the material. It's hard going
 <<if $phase is 1>>
 	<<lessonEnd "scienceClassroom">>
 <<else>>
-	<<lessonEvents "science" 0.5>>
+	<<lessonEvents "science">>
 <</if>>
 
 :: Science Lesson Sleep

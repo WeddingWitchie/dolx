@@ -594,7 +594,7 @@
 			</div>
 			<div class="mobileOnly">
 				<<if $options.images>>
-					<<link "<<icon 'basket.png'>>">>
+					<<link "<<iconUi 'basket.png'>>">>
 						<<set _basketOpenAlt to _basketOpen>>
 						<<replace "#altSection">><<supermarketDisplayBasket>><</replace>>
 						<<if _basketOpenAlt>>
@@ -628,7 +628,7 @@
 							foodTimer = setTimeout(updateUI, 300);
 						});
 						var updateUI = () => {
-							Wikifier.wikifyEval('<<replace "#itemList">><<supermarketDisplayItems>><</replace>>');
+							Wikifier.wikifyEval('<<if elementExists(\'#itemList\')>><<replace "#itemList">><<supermarketDisplayItems>><</replace>><</if>>');
 						}
 					})>>
 				</div>
@@ -737,7 +737,7 @@
 		<<capture _key>>
 			<<if $options.images is 1>>
 				<<set _file to `recipe_${$_setupItem.type}.png`>>
-				<<link "<<icon _file>>">>
+				<<link "<<iconUi _file>>">>
 					<<replace "#altSection">><<supermarketDisplayDetails _key>><</replace>>
 					<<removeclass "#altSection, #mobileCloser" "mobileHidden">>
 				<</link>>
@@ -798,8 +798,10 @@
 		<<if Time.dayState is "night" and Time.hour isnot 21>>
 			<<link [[Steal|$passage]]>>
 				<<for _itemInCart range Object.keys($shoppingBasket)>>
+					<<for _i to 0; _i lt $shoppingBasket[_itemInCart]; _i++>>
+						<<crimeUp `setup.plants[_itemInCart].plant_cost * 2 / 100` "thievery">>
+					<</for>>
 					<<tending_give $plants[_itemInCart].name $shoppingBasket[_itemInCart]>>
-					<<crimeUp `setup.plants[_itemInCart].plant_cost * $shoppingBasket[_itemInCart] * 2` "thievery">>
 					<<set $plants[_itemInCart].supermarket -= $shoppingBasket[_itemInCart]>>
 				<</for>>
 				<<set $shoppingBasket to {}>>
@@ -906,7 +908,6 @@
 		</div>
 		<<if $_setupItem.boughtInBulk>>
 			Bought in sets of <<print $_setupItem.boughtInBulk>>.
-			<hr>
 		<</if>>
 		<<knownFoodRecipes _args[0]>>
 	</div>

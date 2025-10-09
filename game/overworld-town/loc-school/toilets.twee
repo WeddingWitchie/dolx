@@ -13,11 +13,11 @@ You are in the antechamber outside the school toilets.
 		<<link [[Everything fades to black...|School Passout]]>><</link>>
 	<</if>>
 <<else>>
-	<<maleicon>><<link [[Boys' toilets|School Boy's Toilets]]>>
+	<<icon "mentoilet.png">><<link [[Boys' toilets|School Boy's Toilets]]>>
 		<<if !$daily.bathroomIdentity>><<maleidentity 3>><<set $daily.bathroomIdentity to 1>><</if>>
 	<</link>><<if !$daily.bathroomIdentity>><<if $player.gender is "m">><<g-genderidentity>><<else>><<l-genderidentity>><</if>><</if>>
 	<br>
-	<<femaleicon>><<link [[Girls' toilets|School Girl's Toilets]]>>
+	<<icon "womentoilet.png">><<link [[Girls' toilets|School Girl's Toilets]]>>
 		<<if !$daily.bathroomIdentity>><<femaleidentity 3>><<set $daily.bathroomIdentity to 1>><</if>>
 	<</link>><<if !$daily.bathroomIdentity>><<if $player.gender is "f">><<g-genderidentity>><<else>><<l-genderidentity>><</if>><</if>>
 	<br><br>
@@ -144,7 +144,6 @@ You walk right up to the <<person>> and place your hand on <<his>> groin. "Silly
 
 <<set $seductiondifficulty to 4000>>
 <<seductioncheck>>
-<br><br>
 <<seductionskilluptext>>
 <<seductionskilluse>>
 
@@ -378,7 +377,7 @@ You walk right up to the <<person>> and place your hand on <<his>> groin. "Silly
 		<br>
 	<</if>>
 <<elseif $phase is 5>>
-	You try to plead with them, but it's no use. "If you won't play ball," the <<person1>><<person>> says. "Why should we?" They laugh as they leave the room. You peek out the stall, and see an empty space where your clothes once were.
+	You try to plead with them, but it's no use. "If you won't play ball," the <<person1>><<person>> says, "why should we?" They laugh as they leave the room. You peek out the stall, and see an empty space where your clothes once were.
 	<<if $changingRoomGender is "boys">>
 		<<storeon "schoolboys" "delete">>
 	<<else>>
@@ -423,8 +422,8 @@ You are in the boys' toilets.
 <<if $stress gte $stressmax>>
 	<<link [[Everything fades to black...|School Passout]]>><</link>>
 <<else>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (9900 - $allure) and $eventskip isnot 1>>
+
+	<<if dangerEvent() and $eventskip isnot 1>>
 		<<eventsschooltoilets>>
 	<<else>>
 		<<storeactions "schoolboys">>
@@ -499,8 +498,8 @@ You are in the girls' toilets.
 <<if $stress gte $stressmax>>
 	<<link [[Everything fades to black...|School Passout]]>><</link>>
 <<else>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (9900 - $allure) and $eventskip isnot 1>>
+
+	<<if dangerEvent() and $eventskip isnot 1>>
 		<<eventsschooltoilets>>
 	<<else>>
 		<<storeactions "schoolgirls">>
@@ -820,7 +819,7 @@ You insert the money into the machine and a 2-pack of condoms slides into a draw
 You examine the vending machine.
 <br><br>
 <<if currentSkillValue('skulduggery') gte $lock>>
-	<<if $leftarm is "bound" and $rightarm is "bound">>
+	<<if pcAreArmsBound("both")>>
 		You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
 		<br><br>
 	<<else>>
@@ -846,12 +845,8 @@ You examine the vending machine.
 You deftly open the vending machine and count out the money inside. There's <<printmoney $tip>>.
 <<if _condomsStolen>>There are also _condomsStolen condoms.<</if>>
 <br><br>
-<<if $skulduggery lt 500>>
-	<<skulduggeryskilluse>>
-<<else>>
-	<span class="blue">There's nothing more you can learn from locks this simple.</span>
-	<br><br>
-<</if>>
+
+<<skulduggeryuse 500 "locks">>
 
 <<link [[Take them|School Toilets]]>><<money $tip>><<gcondoms _condomsStolen>><<crimeUp `$tip / 100 + _condomsStolen * 10` "petty">><</link>><<crime "petty">>
 <br>
@@ -1064,7 +1059,6 @@ You deftly open the vending machine and count out the money inside. There's <<pr
 
 <<set $seductiondifficulty to 2000>>
 <<seductioncheck>>
-<br><br>
 
 <<if $seductionrating gte $seductionrequired>>
 	<!-- Passed check -->

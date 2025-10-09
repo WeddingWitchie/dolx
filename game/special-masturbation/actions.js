@@ -76,7 +76,7 @@ function masturbationActions() {
 				fragment.append(document.createElement("br"));
 			}
 
-			// Attempt to ensure an action is selected, set to "mrest" or the first available action if it doesnt exist
+			// Attempt to ensure an action is selected, set to "mrest" or the first available action if it doesn't exist
 			if (action.options.find(option => option.action === V[action.actionVariable + "default"])) {
 				V[action.actionVariable] = V[action.actionVariable + "default"];
 			} else if (!V.corruptionMasturbation && action.options.find(option => option.action === "mrest")) {
@@ -199,8 +199,7 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 				} else {
 					result.options.push({
 						action: "mpenischastity",
-						text:
-							V.player.sex === "f" && V.parasite.clit.name === "parasite" ? "Try to fondle your parasitic penis" : "Try to fondle your penis",
+						text: V.player.sex === "f" && V.parasite.clit.name === "parasite" ? "Try to fondle your parasitic penis" : "Try to fondle your penis",
 						colour: "sub",
 					});
 				}
@@ -498,7 +497,7 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 				text: "Tease",
 				colour: "sub",
 			});
-			if (V.player.penisExist) {
+			if (V.player.sex !== "f") {
 				result.options.push({
 					action: "manusprostate",
 					text: "Tease your prostate",
@@ -530,7 +529,7 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 				text: "Tease",
 				colour: "sub",
 			});
-			if (V.player.penisExist) {
+			if (V.player.sex !== "f") {
 				result.options.push({
 					action: "manusprostatedildo",
 					text: "Tease your prostate",
@@ -606,7 +605,7 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 				if (breastsExposed() && V.player.breastsize >= 1) {
 					result.options.push({
 						action: "mbreastpump",
-						text: "Move to your <<breasts>>",
+						text: "Move to your <<breasts true>>",
 						colour: "sub",
 					});
 				}

@@ -43,7 +43,13 @@ The garden looks <span class="red">wild,</span> barely a garden at all. The hedg
 		<<if Time.dayState is "night">>
 			It's too dark to work in the garden.
 			<br>
-		<<elseif $temple_garden lt 100>>
+		<<elseif $temple_garden gte 100>>
+			<span class="green">The garden is perfect, and there's nothing more you can do for today.</span>
+			<br>
+		<<elseif pcAreArmsBound("both")>>
+			<span class="red">Both of your arms are bound</span>, so you are unable to work in the garden.
+			<br>
+		<<else>>
 			<<templeicon "garden">>
 			<<link [[Work in the garden (1:00)|Temple Garden Work]]>>
 			<<if currentSkillValue('tending') gte 1500>>
@@ -62,10 +68,7 @@ The garden looks <span class="red">wild,</span> barely a garden at all. The hedg
 				<<set $temple_garden += 3>>
 			<</if>>
 			<<pass 60>><<grace 1 monk>><<tiredness 6>><<tending 1>><</link>><<gtending>><<ggrace monk>><<gtiredness>><<note "Tending skill affects efficiency" "blue">>
-			<br>
-		<<else>>
-			<span class="green">The garden is perfect, and there's nothing more you can do for today.</span>
-			<br>
+			<br>	
 		<</if>>
 	<</if>>
 
@@ -79,7 +82,7 @@ The garden looks <span class="red">wild,</span> barely a garden at all. The hedg
 :: Temple Garden Work
 <<set $outside to 1>><<set $location to "temple">><<temple_effects>><<effects>>
 
-<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
+
 <<generate1>><<person1>>
 You ask a <<priest>> what work needs doing around the garden.
 <<endevent>>
@@ -87,7 +90,7 @@ You ask a <<priest>> what work needs doing around the garden.
 	<<wearProp "hedge shears">>
 	You're asked to trim a row of hedges. You take a pair of shears and get to work.
 	<br><br>
-	<<if $danger gte (9900 - $allure) and $tentacledisable is "f" and ($hallucinations gte 2 or $backgroundTraits.includes("plantlover"))>>
+	<<if dangerEvent() and $tentacledisable is "f" and ($hallucinations gte 2 or $backgroundTraits.includes("plantlover"))>>
 		<<tending_text>> It's hard going, but you neaten things up a great deal. <<physique 6>>
 		<br><br>
 		You're reaching in to cut a rogue branch when your wrist gets stuck. You reach your other hand in to help free yourself, and that gets stuck too. You feel something wrap around both ankles. A force pulls you off your feet and into the hedge.
@@ -109,7 +112,7 @@ You ask a <<priest>> what work needs doing around the garden.
 	You're asked to deweed the flower beds. You drop to your knees and get to work.
 	<br><br>
 	<<beastNEWinit 1 wolf>>
-	<<if $danger gte (9900 - $allure) and ($monster is 1 or $bestialitydisable is "f")>><!-- Modified for Beast People -->
+	<<if dangerEvent() and ($monster is 1 or $bestialitydisable is "f")>>
 		<<tending_text>> Your hands get dirty, and beads of sweat slip down your cheek, but the flowers have lots more space when you're done. <<physique 6>>
 		<br><br>
 			<<if $syndromewolves is 1>>
@@ -125,7 +128,7 @@ You ask a <<priest>> what work needs doing around the garden.
 				<<link [[Next|Temple Garden]]>><<endevent>><</link>>
 				<br>
 			<<else>>
-				You hear footsteps behind you. Before you can turn, a <<beasttype>> leaps atop you.
+				You hear footsteps behind you. Before you can turn, <span class="red">a <<beasttype>> leaps atop you</span>.
 				<br><br>
 				<<link [[Next|Temple Garden Work Wolf]]>><<set $molestationstart to 1>><</link>>
 				<br>
@@ -144,7 +147,7 @@ You ask a <<priest>> what work needs doing around the garden.
 	<<set _prop to either("lemons", "limes", "apples", "oranges", "pears")>>
 	<<set _propCall to _prop.replace(/s$/, "")>>
 	<<wearProp _propCall>>
-	<<if $danger gte (9900 - $allure)>>
+	<<if dangerEvent()>>
 		Basket in hand, you climb a stepladder and start picking <<print _prop>>. <<tending_text>> It's pleasant, though you need to stretch pretty far to reach some of them. <<physique 6>><<lstress>><<stress -6>>
 		<br><br>
 
@@ -251,7 +254,7 @@ You ask a <<priest>> what work needs doing around the garden.
 		<<if playerIsPregnant() and playerAwareTheyArePregnant()>>
 			<<foodicon "beerbottle">><span class="blue">You can't bring yourself to drink while you know you're with child.</span>
 		<<else>>
-			<<if $danger gte (9900 - $allure) and $grace lt 0 or $danger gte (9900 - $allure) and random(1, 10) is 10>>
+			<<if dangerEvent() and $grace lt 0 or dangerEvent() and random(1, 10) is 10>>
 				<<foodicon "beerbottle">><<link [[Drink|Temple Drink Drugged]]>><<alcohol 180>><<drugs 180>><</link>><<ggalcohol>>
 			<<else>>
 				<<foodicon "beerbottle">><<link [[Drink|Temple Drink]]>><<alcohol 180>><</link>><<ggalcohol>>
@@ -447,7 +450,7 @@ You hear footsteps. The <<person1>><<monk>> from the hop vines appears at the to
 "You've been warned about this," <<he>> says. "The bishop's forgiveness is finite."
 <br><br>
 
-"It's not what it looks like," the <<person1>><<monk>> pleads. "We found <<phim>> like that. We-"
+"It's not what it looks like," the <<person1>><<monk>> pleads. "We found <<phim>> like that. We—"
 <br><br>
 
 The <<person3>><<person>> interrupts <<person1>><<him>>. "You should confess to the bishop. Before they find out from me."
@@ -481,7 +484,7 @@ They let you stay in the brewery until they're sure you're okay.
 <<pass 20>>
 Once confident they show you to the exit. You wave them goodbye, and emerge in the temple garden.
 <br><br>
-/* For older saves when combat wasnt ended at this point */
+/* For older saves when combat wasn't ended at this point */
 <<link [[Next|Temple Garden]]>><<if $combat>><<endcombat>><</if>><<endevent>><</link>>
 <br>
 
@@ -809,14 +812,14 @@ You put up with it. You continue picking fruit off the tree, now with the <<monk
 			<<He>> stops and stares at you. <<covered>> <<He>> tries to speak, but can't find the words. <<He>> leans against a sundial to steady <<himself>> as the <<beasttype 0>> finally pulls free and runs for the forest.
 			<br><br>
 			<<clotheson>>
-			"Ab-" <<he>> manages, stopping and steadying <<himself>> again. "Absolutely unacceptable. The bishop will hear of this." <<He>> pulls some towels from <<his>> habit, drops them on top of you, and marches away.<<lllgrace>><<gtrauma>><<gstress>><<grace -8>><<trauma 9>><<stress 9>>
+			"Ab—" <<he>> manages, stopping and steadying <<himself>> again. "Absolutely unacceptable. The bishop will hear of this." <<He>> pulls some towels from <<his>> habit, drops them on top of you, and marches away.<<lllgrace>><<gtrauma>><<gstress>><<grace -8>><<trauma 9>><<stress 9>>
 			<<towelup>>
 			<br><br>
 		<<else>>
 			<<He>> stops and stares at you. <<He>> tries to speak, but can't find the words. <<He>> leans against a sundial to steady <<himself>> as the <<beasttype 0>> finally pulls free and runs for the forest.
 			<br><br>
 			<<clotheson>>
-			"Ab-" <<he>> manages, stopping and steadying <<himself>> again. "Absolutely unacceptable. The bishop will hear of this." <<He>> turns and marches away.<<lllgrace>><<gtrauma>><<gstress>><<grace -8>><<trauma 9>><<stress 9>>
+			"Ab—" <<he>> manages, stopping and steadying <<himself>> again. "Absolutely unacceptable. The bishop will hear of this." <<He>> turns and marches away.<<lllgrace>><<gtrauma>><<gstress>><<grace -8>><<trauma 9>><<stress 9>>
 			<br><br>
 		<</if>>
 		<<tearful>> you hide behind a hedge.<<famebestiality 1>>
@@ -889,7 +892,7 @@ You keep low as you move between hedges, peeking around each corner before makin
 <br><br>
 <<rng>>
 <<beastNEWinit 1 wolf>>
-<<if $rng gte 51 and ($monster is 1 or $bestialitydisable is "f")>><!-- Modified for Beast People -->
+<<if $rng gte 51 and ($monster is 1 or $bestialitydisable is "f")>>
 	You hear something behind you.
 	<<if $syndromewolves is 1>>
 		A <<beasttype>> emerges from beneath a hedge, a bundle of cloth in <<bhis>> <<if $monster is 1>>arms. "Cover. Body not for nasty people."<<else>>maw.<</if>>
@@ -1026,7 +1029,7 @@ You lie prone and shuffle towards the line, conscious of your <<nudity>>.
 		<br><br>
 		<<He>> stops and stares at you. <<covered>> <<He>> tries to speak, but can't find the words. <<He>> leans against a sundial to steady <<himself>> as the <<beasttype 0>> finally pulls free and runs for the forest.
 		<br><br>
-		"Ab-" <<he>> manages, stopping and steadying <<himself>> again. "Absolutely unacceptable. The bishop will hear of this." <<He>> pulls some towels from <<his>> habit, drops them on top of you, and marches away.<<lllgrace>><<gtrauma>><<gstress>><<grace -8>><<trauma 9>><<stress 9>>
+		"Ab—" <<he>> manages, stopping and steadying <<himself>> again. "Absolutely unacceptable. The bishop will hear of this." <<He>> pulls some towels from <<his>> habit, drops them on top of you, and marches away.<<lllgrace>><<gtrauma>><<gstress>><<grace -8>><<trauma 9>><<stress 9>>
 		<br><br>
 		<<tearful>> you cover yourself.<<famebestiality 1>>
 		<br><br>

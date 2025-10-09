@@ -119,7 +119,7 @@
 	<<if $availableMapsVersion isnot 3>>
 		<<mapLocations>>
 	<</if>>
-	<<unset $avaliableMapsVersion>>
+	<<unset $availableMapsVersion>>
 
 	<<if $parasite_update is undefined>><<set $parasite_update to 1>>
 		<<parasiteinit>>
@@ -3638,7 +3638,7 @@
 	/* Code that should not be moved into a check like above */
 	<<set $runWardrobeSanityChecker to true>>
 
-	<<if $objectVersion.updateClothes lt 68 or $objectVersion.updateClothes is undefined>>
+	<<if $objectVersion.updateClothes lt 70 or $objectVersion.updateClothes is undefined>>
 		<<updateClothes>>
 		<<if $objectVersion.updateClothes lt 38>>
 			<!-- V0.4.0.7 return items stuck in $store without proper .location -->
@@ -3662,27 +3662,15 @@
 			<<if $propEquipped is 1 and $worn.handheld.type !== "prop" and $worn.handheld.variable !== "featherduster">><<set $propEquipped to 0>><</if>>
 		<</if>>
 
-		<!-- 0.5.4.3 console error fixes -->
-		<<if $objectVersion.updateClothes lt 68>>
-			<<script>>
-			for (const layer of Skin.tanningLayers) {
-				for (const [key, value] of Object.entries(layer.slots)) {
-					const patterns = setup.clothes[key].filter(item => item.index === value.index)[0].pattern_options;
-					if (patterns) {
-						value.pattern = patterns[0];
-					}
-				}
-			}
-			<</script>>
-		<</if>>
-
 		<!-- do NOT forget to bump this version in variables-start.twee, too -->
-		<<set $objectVersion.updateClothes to 68>>
+		<<set $objectVersion.updateClothes to 70>>
 	<</if>>
 
-	<<if $objectVersion.specialClothesEffectsSetup lt 1 or $objectVersion.specialClothesEffectsSetup is undefined>>
-		<<specialClothesEffectsSetup>>
-		<<set $objectVersion.specialClothesEffectsSetup to 1>>
+	<<if !$specialClothesEffects?.pimp>>
+		<<set $specialClothesEffects to {
+			bimbo: { progress: 0, total: 0, message: 0 },
+			pimp: { progress: 0, total: 0, message: 0 },
+		}>>
 	<</if>>
 
 	<<if $objectVersion.specialClothes lt 19 or $objectVersion.specialClothes is undefined>>
@@ -3712,10 +3700,10 @@
 	<<if $objectVersion.museumAntiques lte 14 and $museumAntiques.antiques.antiquewhitescrystal isnot undefined>>
 		<<run delete $museumAntiques.antiques.antiquewhitescrystal>>
 	<</if>>
-	<<if $objectVersion.museumAntiques lt 19 or $objectVersion.museumAntiques is undefined>>
+	<<if $objectVersion.museumAntiques lt 20 or $objectVersion.museumAntiques is undefined>>
 		/*Moved undefined checks for new antiques to the widget below*/
 		<<updateMuseumAntiques>>
-		<<set $objectVersion.museumAntiques to 19>>
+		<<set $objectVersion.museumAntiques to 20>>
 	<</if>>
 
 	<<pregnancyVar>>
@@ -5224,7 +5212,7 @@
 	<<unset $speechsextoydisappointed>>
 
 	/*Added npc generation and pronoun widgets to the livestock horse passages*/
-	<<if $livestock_horse_rescued is $pronoun >>
+	<<if $livestock_horse_rescued is $pronoun>>
 		<<set $livestock_horse_rescued to true>>
 	<</if>>
 
@@ -5434,6 +5422,21 @@
 		<</script>>
 		<<unset $skinColor>>
 	<</if>>
+
+	<!-- 0.5.4.3 console error fixes -->
+	<<if $objectVersion.updateClothes lt 68>>
+		<<script>>
+		for (const layer of Skin.tanningLayers) {
+			for (const [key, value] of Object.entries(layer.slots)) {
+				const patterns = setup.clothes[key].filter(item => item.index === value.index)[0].pattern_options;
+				if (patterns) {
+					value.pattern = patterns[0];
+				}
+			}
+		}
+		<</script>>
+	<</if>>
+
 	<<if $player.skin.sunscreen is undefined>>
 		<<set $player.skin.sunscreen to { usesLeft: 0 }>>
 	<</if>>
@@ -5455,7 +5458,7 @@
 	<</if>>
 
 	<!--Skin colours for nonhuman children and inconsistency npc skin colour fix -->
-    <<if !$objectVersion.missingChildSkinColors or $objectVersion.missingChildSkinColors lt 3>>
+	<<if !$objectVersion.missingChildSkinColors or $objectVersion.missingChildSkinColors lt 3>>
 		<<script>>
 			const fixChild = (child) => {
 				if (!child.features) return;
@@ -5477,7 +5480,7 @@
 			})
 		<</script>>
 		<<set $objectVersion.missingChildSkinColors to 3>>
-    <</if>>
+	<</if>>
 
 	<!-- 0.5 Weather update -->
 	<<if Time.year is 361 and $location is "temple">>
@@ -5693,11 +5696,6 @@
 		<<set $objectVersion.npcPregnancyGenderChange to 1>>
 	<</if>>
 
-	<!-- 0.5.2.5 Temporarily disabling the toggle to fix bleached PCs in combat -->
-	<<if typeof $options is "object" and $options>>
-		<<set $options.tanImgEnabled to true>>
-	<</if>>
-
 	<<if $moneyStats is undefined>>
 		<<set $moneyStats to {
 			cheats: { earned: 0, earnedCount: 1 },
@@ -5849,8 +5847,15 @@
 						case "antiquegoldcompass":
 							T.museumAntiquesAmount += 500000;
 							break;
+						case "antiquegoldamulet":
+						case "antiquegolddagger":
+							T.museumAntiquesAmount += 400000;
+							break;
 						case "antiquebell":
 							T.museumAntiquesAmount += 1000000;
+							break;
+						case "antiquegoldmask":
+							T.museumAntiquesAmount += 1200000;
 							break;
 					}
 				}
@@ -5957,7 +5962,7 @@
 	<<if $insecurity_breasts_tiny isnot undefined or $insecurity_penis_tiny isnot undefined>>
 		<<set $insecurity_breasts_small to Math.max($insecurity_breasts_small, $insecurity_breasts_tiny)>>
 		<<set $acceptance_breasts_small to Math.max($acceptance_breasts_small, $acceptance_breasts_tiny)>>
-		<<if $player.sex isnot "f">>
+		<<if $player.sex is "m">>
 			<<set $insecurity_breasts_big to Math.max($insecurity_breasts_big, $insecurity_breasts_small)>>
 			<<set $acceptance_breasts_big to Math.max($acceptance_breasts_big, $acceptance_breasts_small)>>
 			<<set $insecurity_breasts_small to 0>>
@@ -6015,16 +6020,16 @@
 	<<if $daily.giftedFood is undefined>>
 		<<set $daily.giftedFood to {}>>
 	<</if>>
-    <!-- 0.5.3.1 makes sure the related $plants names use _ rather than spaces as they get used as object keys -->
-    <<if $plants.cheese_and_crackers.name is "cheese and crackers">>
-        <<run ["cheese_and_crackers", "choc_chip_cookie", "spaghetti_bolognese", "porridge"].forEach(key => $plants[key].name to key)>>
-        <<set $plants.porridge.plural to "servings of porridge">>
-        <<set $plants.chips.plural to "packets of chips">>
-        <<set $plants.yorkshire_pudding.plural to "yorkshire puddings">>
-        <<set $plants.choc_chip_cookie.plural to "chocolate chip cookies">>
-    <</if>>
-    <<if $plants.chilli_con_carne.singular is "serving ">>
-        <<set $plants.chilli_con_carne.singular to "serving of chilli con carne">>
+	<!-- 0.5.3.1 makes sure the related $plants names use _ rather than spaces as they get used as object keys -->
+	<<if $plants.cheese_and_crackers.name is "cheese and crackers">>
+		<<run ["cheese_and_crackers", "choc_chip_cookie", "spaghetti_bolognese", "porridge"].forEach(key => $plants[key].name to key)>>
+		<<set $plants.porridge.plural to "servings of porridge">>
+		<<set $plants.chips.plural to "packets of chips">>
+		<<set $plants.yorkshire_pudding.plural to "yorkshire puddings">>
+		<<set $plants.choc_chip_cookie.plural to "chocolate chip cookies">>
+	<</if>>
+	<<if $plants.chilli_con_carne.singular is "serving ">>
+		<<set $plants.chilli_con_carne.singular to "serving of chilli con carne">>
 	<</if>>
 
 	<!-- $daily.prison not set in at least one save game -->
@@ -6145,10 +6150,259 @@
 		<<set $pbdisable to "t">>
 	<</if>>
 
+	<!-- 0.5.4.9 remove tanImgEnabled after being disabled and non-functional since September 2024-->
+	<<if $options.tanImgEnabled>>
+		<<run delete $options.tanImgEnabled>>
+	<</if>>
 
-	
-	<<xchange-modupdate>>	
-	
+	<!-- 0.5.4.9 precipitation in player canvas -->
+	/* showSidebarPrecipitation replaced by showSidebarEffects in 0.5.5.4
+	<<if $options.showSidebarPrecipitation is undefined>>
+		<<set $options.showSidebarPrecipitation to true>>
+	<</if>>
+	*/
+
+	<!-- 0.5.4.9 Fox additions -->
+	<<if $transformationParts.traits.chase is undefined>>
+		<<set $transformationParts.traits.chase to ($fox gte 4 ? "default" : "disabled")>>
+	<</if>>
+
+	<!-- 0.5.4.9 Hopeless Cycle challenges -->
+	<<if $hc and !$hcChallenge>>
+		<<set $hcChallenge to {
+			handLongPatrol: false, handStrict: false, handCruel: false,
+			torchFaster: false, torchSnuffer: false, torchDarker: false,
+			faithBanish: false, faithBurden: false, faithBlooms: false,
+			forestFurther: false, forestNoShortcut: false, forestItem: false,
+			waterLeaky: false, waterDirty: false, waterEarly: false,
+			itemDirty: false, itemFind: false, itemNoHide: false,
+			prisonerFood: false, prisonerHealth: false, prisonerClean: false,
+			suspicionIncrease: false, suspicionDecrease: false, suspicionSermon: false,
+			dogsTwice: false, dogsEarly: false, dogsDouble: false,
+			timeSleep: false, timeLonger: false, timePrayer: false
+		}>>
+		<<if typeof $hc.dogs is "string">>
+			<<set $_hcDog to $hc.dogs>>
+			<<set $hc.dogs to []>>
+			<<set $hc.dogs[0] to $_hcDog>>
+		<</if>>
+	<</if>>
+
+	<!-- 0.5.4.9 replace 'pale slimes' with 'pale slime' -->
+	<<if !$objectVersion.parasitePregnancy>>
+		<<if $sexStats>>
+			<<run ["vagina", "anus"].forEach((orfice) => {
+				const fetuses = V.sexStats[orfice]?.pregnancy?.fetus;
+				if (!fetuses) return;
+				fetuses.forEach((fetus) => {
+					if (fetus.creature && fetus.creature.match(/^pale slimes$/i)) fetus.creature = "Pale Slime";
+				});
+			})>>
+		<</if>>
+		<<if $container>>
+			<<run [...V.container.list, "portable"].forEach((location) => {
+				if (!V.container[location]?.creatures) return;
+				const specimenList = Object.values(V.container[location].creatures);
+				specimenList.forEach((specimen) => {
+					if (specimen?.creature && specimen.creature.match(/^pale slimes$/i)) specimen.creature = "Pale Slime";
+				});
+			})>>
+		<</if>>
+		<<if $pregnancyStats?.parasiteTypesSeen>>
+			<<run $pregnancyStats.parasiteTypesSeen.deleteWith(type => type.match(/^slimes$/i))>>
+			<<set $pregnancyStats.parasiteTypesSeen.pushUnique("Slime")>>
+		<</if>>
+
+		<<set $objectVersion.parasitePregnancy to 1>>
+	<</if>>
+
+	<!-- New wardrobe options -->
+	<<if $wardrobeDefaults is undefined>>
+		<<set $wardrobeDefaults to {
+			"showTraits": false,
+			"extraInfo": false
+		}>>
+	<</if>>
+
+	<<if $wardrobeDefaults.showTraits is undefined>>
+		<<set $wardrobeDefaults.showTraits to false>>
+	<</if>>
+	<<if $wardrobeDefaults.extraInfo is undefined>>
+		<<set $wardrobeDefaults.extraInfo to false>>
+	<</if>>
+
+	<!-- add $hourly -->
+	<<if !$hourly>>
+		<<set $hourly to {}>>
+	<</if>>
+
+	<!-- Move Harper specific variables to Harper object -->
+	<<if $harper_appointments is undefined>>
+		<<set $harper_appointments to {dog: 0}>>
+		<<if $psych is 1>>
+			<<set $harper_appointments.enabled to true>>
+		<</if>>
+		<<if $harperintro is 1>>
+			<<set $harper_appointments.hypnosis_intro to true>>
+		<</if>>
+		<<if $harperexam gte 0>>
+			<<set $harper_appointments.exam to $harperexam>>
+		<<else>>
+			<<set $harper_appointments.exam to 0>>
+		<</if>>
+
+		<<set $harper_appointments.hypnosis to $hypnosis>>
+		<<set $hypnosis_traits.suggestion to $hypnosis>>
+
+		<<unset $psych>>
+		<<unset $harperintro>>
+		<<unset $harperexam>>
+		<<unset $hypnosis>>
+	<</if>>
+
+	<<unset $danger>>
+
+	<!-- Change all of PCs children with "gray" hair to "grey" hair -->
+	<<for _child range $children>>
+		<<if $children[_child.childId].features.hairColour is "gray">>
+			<<set $children[_child.childId].features.hairColour to "grey">>
+		<</if>>
+	<</for>>
+
+	<<unset $topless>>
+
+	<!-- 0.5.5.1, repair Avery recipe request if it pulled a string instead of the setup object -->
+	<<if $avery_mansion?.food and typeof $avery_mansion.food is "string">>
+		<<set $_recipeToFix to $avery_mansion.food>>
+		<<set $avery_mansion.food to Object.entries(clone(setup.plants)).find(([key, item]) => key === $_recipeToFix)[1]>>
+	<</if>>
+
+	<!-- 0.5.5.1, add kitchen stock to Avery's mansion object -->
+	<<if $avery_mansion and !$avery_mansion.kitchen_stock>>
+		<<set $avery_mansion.kitchen_stock to {
+			normal: ["salt", "vegetable_oil", "bottle_of_milk", "flour", "chicken_egg", "beef", "pork", "truffle", "cream", "tomato", "red_wine", "white_wine", "rice", "chilli_pepper"],
+			requested: []
+		}>>
+		<<set $avery_mansion.kitchen_made to 0>>
+	<</if>>
+
+	<!-- 0.5.5.2, proper skyscraper init -->
+	<<if $avery_tower and $avery_tower.effects?.includes("bailey")>>
+		<<set $avery_tower.effects.delete("bailey")>>
+		<<set $avery_tower.effects.pushUnique("Bailey")>>
+		<<set $avery_tower.intro to 1>>
+	<</if>>
+
+	<!-- 0.5.5.2, fix Avery recipe object -->
+	<<if $avery_mansion and (!$avery_mansion.recipe or typeof $avery_mansion.recipe is "string")>>
+		<<set $avery_mansion.recipe to $avery_mansion.recipe ? [$avery_mansion.recipe] : []>>
+	<</if>>
+
+	<!-- 0.5.5.3, brown fox init -->
+	<<if $avery_mansion and !$avery_mansion.fox>>
+		<<set $avery_mansion.fox to {}>>
+		<<set $avery_mansion.fox.progress to 0>>
+		<<set $avery_mansion.fox.known to false>>
+		<<set $avery_mansion.fox.unlocked to false>>
+	<</if>>
+
+	<!-- 0.5.5.4, party states overhaul -->
+	<<if $avery_mansion and !$avery_mansion.version>>
+		<<set $avery_mansion.version to 1>>
+		<<if $avery_mansion.rage.party_missed>>
+			<<set $avery_mansion.party_state to "missed">>
+		<<elseif $avery_party_skipped and Time.weekDay is 1>>
+			<<set $avery_mansion.party_state to "skipped">>
+		<<elseif $avery_mansion.guest.includes("Bailey_skip") and Time.weekDay is 1>>
+			<<set $avery_mansion.party_state to "first sunday skip">>
+		<<else>>
+			<<set $avery_mansion.party_state to "waiting">>
+		<</if>>
+
+		<<run delete V.avery_mansion.rage.party_missed>>
+		<<run delete V.avery_party_skipped>>
+
+		<<if $avery_mansion.guest.includes("_")>>
+			<<if $avery_mansion.guest.includes("Bailey")>>
+				<<set $avery_mansion.guest to "Bailey">>
+			<<elseif $avery_mansion.guest.includes("Quinn")>>
+				<<set $avery_mansion.guest to "Quinn">>
+			<<elseif $avery_mansion.guest.includes("Remy")>>
+				<<set $avery_mansion.guest to "Remy">>
+			<<elseif $avery_mansion.guest.includes("Briar")>>
+				<<set $avery_mansion.guest to "Briar">>
+			<<elseif $avery_mansion.guest.includes("Harper")>>
+				<<set $avery_mansion.guest to "Harper">>
+			<<elseif $avery_mansion.guest.includes("Jordan")>>
+				<<set $avery_mansion.guest to "Jordan">>
+			<</if>>
+		<</if>>
+
+		<<if $avery_mansion.injury is true>>
+			<<set $avery_injury to true>>
+		<</if>>
+	<</if>>
+
+	<<if $daily.avery is undefined>>
+		<<set $daily.avery to {}>>
+	<</if>>
+
+	<!-- 0.5.5.5, housekeeping events only once a day -->
+	<<if $avery_mansion and $avery_mansion.version is 1>>
+		<<set $avery_mansion.version to 2>>
+		<<set $daily.avery.housekeeping_events to {}>>
+	<</if>>
+
+	<!-- 0.5.5.5 non-precipitation effects in player canvas -->
+	<<if $options.showSidebarEffects is undefined>>
+		<<set $options.showSidebarEffects to $options.showSidebarPrecipitation or true>>
+		<<unset $options.showSidebarPrecipitation>>
+	<</if>>
+
+	<!-- 0.5.5.5, farm assault fields_damaged -->
+	<<if $farm and $plots.farm and ($fields_damaged is undefined or typeof $fields_damaged is "number")>>
+		<<if $farm_assault>>
+			<span class="orange italic small-description">Due to changes to the way damaged fields are tracked in update 0.5.5.5, we could not accurately determine which fields were damaged during the assault and which were damaged before the assault or left empty.
+			Because of this, the message at the end of this scene will not accurately portray the outcome. This is purely a cosmetic discrepancy; the farm plots themselves have not changed in any way.</span>
+			<br><br>
+		<<elseif $farm_attacked>>
+			<span class="orange italic small-description">Due to changes to the way damaged fields are tracked in update 0.5.5.5, we could not accurately determine which fields of Alex's farm were damaged during missed assaults and which were damaged before the assault or left empty.
+			Because of this, the message the next time you visit the farm will not accurately portray the outcome. This is purely a cosmetic discrepancy; the farm plots themselves have not changed in any way.</span>
+			<br><br>
+		<</if>>
+		<<set $fields_damaged to []>>
+		<<if $farm_assault or $farm_attacked>>
+			<<for _i to 0; _i lt $plots.farm.length; _i++>>
+				<<if $plots.farm[_i].stage is 0>>
+					<<set $fields_damaged.pushUnique(_i)>>
+				<</if>>
+			<</for>>
+		<</if>>
+	<</if>>
+
+	<!-- 0.5.5.5, NPC title changes -->
+	<<if $avery_fate is "ascended" and C.npc.Avery.title isnot "crimson hound">>
+		<<set C.npc.Avery.title to "crimson hound">>
+	<</if>>
+	<<if $avery_fate and $avery_fate isnot "ascended" and C.npc.Remy.title isnot "scarred">>
+		<<set C.npc.Remy.title to "scarred">>
+	<</if>>
+	<<if $auriga_scar is undefined>>
+		<<set $auriga_scar to 0>>
+	<</if>>
+	<<if $avery_fate is "ascended" and $auriga_scar is 0>>
+		<<set $auriga_scar to 1>>
+	<</if>>
+
+	<!-- 0.5.5.8 fix being able to swap out the stones after skyscraper completion -->
+	<<if $avery_fate is "ascended" and $fake_artefact is "Avery">>
+		<<set $auriga_artefact to "Avery">>
+		<<if $fake_artefact>>
+			<<set $fake_artefact to "pc">>
+		<</if>>
+	<</if>>
+<</widget>>
+
 	<<if $tfearshatposition is undefined>>
 		<<set $tfearshatposition to "under">>
 	<</if>>

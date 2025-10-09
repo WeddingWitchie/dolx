@@ -113,21 +113,13 @@ function schoolTerm() {
 				return "School term finishes today.";
 			} else {
 				const nextDate = Time.getNextSchoolTermStartDate(date.addDays(1));
-				return (
-					"School term has finished. Next term starts on " +
-					nextDate.weekDayName +
-					" the " +
-					ordinalSuffixOf(nextDate.day) +
-					" of " +
-					nextDate.monthName +
-					"."
-				);
+				return "School term has finished. Next term starts on " + getFormattedDate(nextDate, true) + ".";
 			}
 		} else {
-			return "School term finishes on " + date.weekDayName + " the " + ordinalSuffixOf(date.day) + " of " + date.monthName + ".";
+			return "School term finishes on " + getFormattedDate(date, true) + ".";
 		}
 	}
 	const date = Time.nextSchoolTermStartDate;
-	return "School term starts on " + date.weekDayName + " the " + ordinalSuffixOf(date.day) + " of " + date.monthName + ".";
+	return "School term starts on " + getFormattedDate(date, true) + ".";
 }
 DefineMacroS("schoolterm", schoolTerm);

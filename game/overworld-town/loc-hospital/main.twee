@@ -50,7 +50,15 @@ You are in front of the hospital. It is open at all hours.
 :: Hospital Foyer
 <<set $outside to 0>><<set $location to "hospital">><<effects>>
 
-You are inside the hospital foyer. <<if $psych is 1>>You see a sign directing to Harper's office. <</if>><<if Time.weekDay is 6 and $daily.harperVisit isnot 1 and $psych is 1 and $trauma gte ($traumamax / 10) * 9>><span class="red">You can't remember when your appointment was.</span><<elseif Time.weekDay is 6 and $daily.harperVisit isnot 1 and $psych is 1>>You're in time for your appointment.<<else>>You don't have an appointment right now.<</if>>
+You are inside the hospital foyer. <<if $harper_appointments.enabled>>You see a sign directing to Harper's office. <</if>>
+
+<<if Time.weekDay is 6 and $daily.harperVisit isnot 1 and $harper_appointments.enabled and $trauma gte ($traumamax / 10) * 9>>
+	<span class="red">You can't remember when your appointment was.</span>
+<<elseif Time.weekDay is 6 and $daily.harperVisit isnot 1 and $harper_appointments.enabled>>
+	<span class="blue">You're in time for your appointment.</span>
+<<else>>
+	You don't have an appointment right now.
+<</if>>
 <br><br>
 
 <<if $stress gte $stressmax>>
@@ -81,7 +89,7 @@ You are inside the hospital foyer. <<if $psych is 1>>You see a sign directing to
 			<br><br>
 		<</if>>
 
-		<<if $psych is 1 and $daily.harperVisit isnot 1>>
+		<<if $harper_appointments.enabled and $daily.harperVisit isnot 1>>
 			<<if $trauma gte ($traumamax / 10) * 9>>
 				<<socialiseicon "ask">><<link [[Ask for an emergency appointment with Doctor Harper|Doctor Harper Emergency]]>><<set $daily.harperVisit to 1>><</link>><<note "If Doctor Harper sees you like this, you fear <<nnpc_he 'Harper'>> may intervene" "red">>
 				<br>
@@ -93,8 +101,12 @@ You are inside the hospital foyer. <<if $psych is 1>>You see a sign directing to
 			<<socialiseicon "ask">><<link [[Ask for Doctor Harper|Doctor Harper's Office School]]>><<set $daily.harperVisit to 1>><</link>>
 			<br>
 		<</if>>
+
+		<<pillicon>><<link [[Pharmacy (0:02)|Pharmacy]]>><<pass 2>><</link>>
+		<br><br>
+
 		<<if isPregnancyEnding()>>
-			<<ind>><<link [[Say that your waters have broken|Pregnancy Birth Hospital]]>><</link>>
+			<<pregnancyicon "player">><<link [[Say that your waters have broken|Pregnancy Birth Hospital]]>><</link>>
 			<br>
 		<</if>>
 		<<if $vaginalchastityparasite isnot 0>>
@@ -112,19 +124,19 @@ You are inside the hospital foyer. <<if $psych is 1>>You see a sign directing to
 			<<socialiseicon "ask">><<link [[Enquire about body parasite removal (0:10)|Hospital Parasite]]>><<pass 10>><</link>>
 			<br>
 		<</if>>
-		<<if $player.breastsize lte 11>>
+		<<if $player.breastsize lt 12>>
 			<<procedureicon "breast enlarge">><<link [[Enquire about breast enlargement (0:10)|Hospital Breast Enlargement]]>><<pass 10>><</link>>
 			<br>
 		<</if>>
-		<<if $player.breastsize gte 1>>
+		<<if $player.breastsize gt 0>>
 			<<procedureicon "breast reduce">><<link [[Enquire about breast reduction (0:10)|Hospital Breast Reduction]]>><<pass 10>><</link>>
 			<br>
 		<</if>>
-		<<if $player.penisExist and $player.penissize lt $penissizemax>>
+		<<if $player.penisExist and $player.penissize lt 4>>
 			<<procedureicon "penis enlarge">><<link [[Enquire about penis enlargement (0:10)|Hospital Penis Enlargement]]>><<pass 10>><</link>>
 			<br>
 		<</if>>
-		<<if $player.penisExist and $player.penissize gt $penissizemin>>
+		<<if $player.penisExist and $player.penissize gt -2>>
 			<<procedureicon "penis reduce">><<link [[Enquire about penis reduction (0:10)|Hospital Penis Reduction]]>><<pass 10>><</link>>
 			<br>
 		<</if>>
@@ -162,10 +174,6 @@ You are inside the hospital foyer. <<if $psych is 1>>You see a sign directing to
 			<<socialiseicon "ask">><<link [[Inquire about reverse hypnosis (0:10)|Hospital Reverse Hypnosis]]>><<pass 10>><</link>>
 		<</if>>
 		<br>
-
-		<<pillicon>><<link [[Pharmacy (0:02)|Pharmacy]]>><<pass 2>><</link>>
-
-		<br><br>
 
 		<<getouticon>><<link [[Go outside (0:01)|Hospital front]]>><<pass 1>><</link>>
 		<br>
@@ -239,25 +247,31 @@ Through the door and to the left there is a precipitous drop. You peer down and 
 <<set $hunger to 0>><<set $thirst to 0>><<set $tiredness to 0>><<set $hygiene to 0>>
 <<set $stress -= 2000>>
 
-<<if $hospitalintro is 0>><<set $hospitalintro to 1>>
-	You awaken in a bed at the civic hospital.
+You awaken in a bed at the civic hospital.
 
-	<<generate1>><<person1>>
-	The nurse explains that you have suffered <<= $passoutReason || "a severe stress response">>, but you are otherwise physically healthy. <<He>> asks you to wait a moment while <<he>> fetches the doctor.
-	<br><br>
-	<<endevent>>
+<<generate1>><<person1>>
+The nurse explains that you have suffered <<= $passoutReason || "a severe stress response">>, but you are otherwise physically healthy. <<He>> asks you to wait a moment while <<he>> fetches the doctor.
+<br><br>
+<<endevent>>
 
-	<<npc Harper>><<person1>>You don't have to wait long. A <<personsimple>> wearing a white medical coat and carrying a clipboard enters.
+You don't have to wait long.
+
+<<npc Harper>><<person1>>
+<<if $hospitalintro isnot 1>>
+	A <<personsimple>> wearing a white medical coat and carrying a clipboard enters.
 	<br><br>
 
-	<<He>> smiles at you. "Hello, I'm Doctor Harper." <<He>> takes a seat by your bedside and pulls <<his>> blond fringe away from <<his>> eyes. <<He>> looks young, can't be older than 25.
-	<br><br>
+	<<if $hospitalintro is 0>>
+		<<He>> smiles at you. "Hello, I'm Doctor Harper." <<He>> takes a seat by your bedside and pulls <<his>> blond fringe away from <<his>> eyes. <<He>> looks young for a doctor, can't be older than 25.
+	<<else>>
+		It's the doctor from the farm. The one who experimented on you. <<He>> smiles at you. "Hello, I'm Doctor Harper," <<he>> says. There's no recognition on <<his>> face. <<He>> takes a seat by your bedside.
+	<</if>>
+
+	<<set $hospitalintro to 1>>
 <<else>>
-	You awaken in a bed at the civic hospital.
-
-	<<npc Harper>><<person1>>Doctor Harper enters at that moment, carrying <<his>> usual clipboard. <<He>> assures you that there is no immediate concern, but <<he>> would like to examine you further.
-	<br><br>
+	Doctor Harper enters, carrying <<his>> usual clipboard. <<He>> assures you that there is no immediate concern, but <<he>> would like to examine you further.
 <</if>>
+<br><br>
 
 <<link [[Next|Hospital Bed Examination]]>><</link>>
 <br><br>
@@ -349,9 +363,9 @@ You've pushed yourself too much.
 <br><br>
 <<passout>>
 
-<<set $danger to random(1, 10000)>>
-<<if $danger gte (9900 - $allure)>>
-	<!-- Modified for Beast People -->
+
+<<if dangerEvent()>>
+
 	<<if $rng gte 81>>
 		<<link [[Wake up|Abduction Hospital]]>><<set $phase to 0>><</link>>
 	<<else>>
@@ -376,7 +390,7 @@ You've pushed yourself too much.
 
 :: Hospital Bed Examination
 <<set $outside to 0>><<set $location to "hospital">><<effects>>
-<<if $rightarm is "bound" and $leftarm is "bound">>
+<<if pcAreArmsBound("both")>>
 	<<unbind>>
 <</if>>
 <<if $worn.face.type.includes("gag") or $worn.face.type.includes("blindfold")>>
@@ -488,10 +502,10 @@ You've pushed yourself too much.
 	<<He>> gently interrogates you on a variety of subjects relating to your home life, how school is going and how your well-being has been faring. After a short while, <<he>> summons a nurse and they have a brief conversation in the corner of the room. They talk quietly, and after a short while the nurse nods and leave the room.
 	<br><br>
 
-	<<if $psych is 0>>
+	<<if !$harper_appointments.enabled>>
 		<span class="gold">The doctor tells you to visit <<him>> here at the hospital on <span class="gold">Fridays</span> for therapy.</span>
 		<br><br>
-		<<set $psych to 1>><<unset $schoolPsych>>
+		<<set $harper_appointments.enabled to true>><<unset $schoolPsych>>
 		<<wash>>
 		A nurse helps you to your feet, and you soon find yourself being discharged.
 		<br><br>
@@ -539,7 +553,7 @@ You've pushed yourself too much.
 		<</if>>
 	<</if>>
 <<else>>
-	<<set $asylum to 1>><<set $psych to 1>><<unset $schoolPsych>>
+	<<set $asylum to 1>><<set $harper_appointments.enabled to true>><<unset $schoolPsych>>
 	<<He>> gently interrogates you on a variety of subjects relating to your home life, how school is going and how your well-being has been faring. A look of concern grows on <<his>> face, but you've no idea why. After a short while, <<he>> summons a nurse into the room and they talk quietly for a short time. The nurse keeps glancing at you, looking concerned.
 	<br><br>
 
@@ -1001,13 +1015,12 @@ The receptionist taps something into <<his>> computer and instructs you to take 
 
 <<harper_intro>>
 
-"This is a very simple procedure." <<He>> pulls a chart of breast sizes from <<his>> desk. "You're about here." <<He>> points at a picture labelled <span class="lewd">
+"This is a very simple procedure." <<He>> pulls a chart of breast sizes from <<his>> desk. "You're about here." <<He>> points at a picture labelled
 	<<if $player.breastsize is 0>>
-		"flat".
+		"<span class="lewd">flat</span>".
 	<<else>>
-		"<<breastsizedesc>> breasts".
+		"<span class="lewd"><<breastsizedesc>> breasts</span>".
 	<</if>>
-</span>
 <br><br>
 
 "It costs £2000 to decrease your breasts by a single size, and a further £2000 for each size beyond that."
@@ -1173,13 +1186,12 @@ The receptionist taps something into <<his>> computer and instructs you to take 
 
 <<harper_intro>>
 
-"This is a simple procedure." <<He>> pulls a chart of breast sizes from <<his>> desk. "You're about here." <<He>> points at a picture labelled <span class="lewd">
+"This is a simple procedure." <<He>> pulls a chart of breast sizes from <<his>> desk. "You're about here." <<He>> points at a picture labelled
 <<if $player.breastsize is 0>>
-	"flat".
+	"<span class="lewd">flat</span>".
 <<else>>
-	"<<breastsizedesc>> breasts".
+	"<span class="lewd"><<breastsizedesc>> breasts</span>".
 <</if>>
-</span>
 <br><br>
 
 "It costs £5000 to increase your breasts by a single size, and a further £5000 for each size beyond that."
@@ -1314,7 +1326,7 @@ The receptionist taps something into <<his>> computer and instructs you to take 
 	<</if>>
 	<br>
 <<elseif $player.penissize is -1>>
-	"This would normally be a simple procedure..." <<He>> pulls a chart of penis sizes from <<his>> desk. "You're about here." <<He>> points at the bottom picture labelled <span class="lewd">"<<penissize>> penis."</span>
+	"This would normally be a simple procedure..." <<He>> pulls a chart of penis sizes from <<his>> desk. "You're about here." <<He>> points at the bottom picture labelled "<span class="lewd"><<penissize>> penis</span>".
 	<br><br>
 	While taking a closer look, <<he>> continues, "We are unable to adjust it further than this. You could head to our Pharmacy and buy some penis shrinking pills. I personally recommend taking two doses per day to start with, however, I'm not quite sure if that would have much of an effect on it."
 	<br>
@@ -1325,7 +1337,7 @@ The receptionist taps something into <<his>> computer and instructs you to take 
 		<<case -1>>the bottom
 		<<default>>a
 	<</switch>>
-	picture labelled <span class="lewd">"<<print ($player.penissize is 2 ? "average" : "<<penissize>>")>> penis."</span>
+	picture labelled "<span class="lewd"><<print ($player.penissize is 2 ? "average" : "<<penissize>>")>> penis</span>".
 	<br><br>
 
 	"It costs £2000 to decrease your penis by a single size, and a further £2000 for each size beyond that."
@@ -1467,7 +1479,7 @@ The receptionist taps something into <<his>> computer and instructs you to take 
 		<<case -1>>the bottom
 		<<default>>a
 	<</switch>>
-	picture labelled <span class="lewd">"<<print ($player.penissize is 2 ? "average" : "<<penissize>>")>> penis."</span>
+	picture labelled "<span class="lewd"><<print ($player.penissize is 2 ? "average" : "<<penissize>>")>> penis</span>".
 	<br><br>
 
 	"It costs £5000 to increase your penis by a single size, and a further £5000 for each size beyond that."
@@ -1499,7 +1511,7 @@ The receptionist taps something into <<his>> computer and instructs you to take 
 		<br>
 	<</if>>
 <<else>>
-	"This would normally be a simple procedure..." <<He>> pulls a chart of penis sizes from <<his>> desk. "However, you're not even at the smallest size." <<He>> points at a picture labelled <span class="lewd">"mini penis."</span>
+	"This would normally be a simple procedure..." <<He>> pulls a chart of penis sizes from <<his>> desk. "However, you're not even at the smallest size." <<He>> points at a picture labelled "<span class="lewd">mini penis</span>".
 	<br><br>
 	While taking a closer look, <<he>> continues, "You should head to our Pharmacy and buy some penis growth pills. I personally recommend taking two doses per day to start with, however, I'm not quite sure if that would be enough to revive it."
 	<br>
@@ -1626,9 +1638,9 @@ Harper enters the room.
 <<generate1>><<person1>>
 You approach the receptionist and ask for Harper. <<He>> looks at <<his>> screen.
 <<if Time.weekDay is 6>>
-	"You're already scheduled for today-"
+	"You're already scheduled for today—"
 <<else>>
-	"You don't seem to-"
+	"You don't seem to—"
 <</if>>
 <<he>> gives you a quick glance. Worry spreads across <<his>> face, and <<he>> taps something into the computer. "The doctor is currently seeing a patient. Please wait here."
 <br><br>
@@ -1641,7 +1653,7 @@ Eventually, the receptionist calls you and points you to Harper's office. The pr
 <br>
 
 :: Doctor Harper Emergency 2
-<<set $asylum to 1>><<set $psych to 1>><<unset $schoolPsych>><<npc Harper>><<person1>>
+<<set $asylum to 1>><<set $harper_appointments.enabled to true>><<unset $schoolPsych>><<npc Harper>><<person1>>
 You knock on the door to Harper's office and hear <<his>> voice on the other side. "Come in." You enter. <<He>> sits at <<his>> desk in front of a computer.
 <<if Time.weekDay is 6>>
 	"This isn't our scheduled time. This must be serious."
@@ -1700,15 +1712,25 @@ You awaken in a bed at the civic hospital. You see Sydney on the same bed, aslee
 The nurse explains that you have suffered a severe stress response, but you are both otherwise physically healthy. <<He>> asks you to wait a moment while <<he>> fetches the doctor.
 <br><br>
 <<endevent>>
-<<if $hospitalintro is 0>><<set $hospitalintro to 1>>
-	<<npc "Harper" 1>><<person1>><<npc "Sydney" 2>><<person2>> You don't have to wait long. A <<person1>><<personsimple>> wearing a white medical coat and carrying a clipboard enters.
+
+You don't have to wait long.
+
+<<npc "Harper" 1>><<person1>><<npc "Sydney" 2>><<person2>>
+<<if $hospitalintro isnot 1>>
+	A <<person1>><<personsimple>> wearing a white medical coat and carrying a clipboard enters.
 	<br><br>
-	<<He>> smiles at you. "Hello, I'm Doctor Harper." <<He>> takes a seat by your bedside and pulls <<his>> blond fringe away from <<his>> eyes. <<He>> looks young, can't be older than 25.
-	<br><br>
+
+	<<if $hospitalintro is 0>>
+		<<He>> smiles at you. "Hello, I'm Doctor Harper." <<He>> takes a seat by your bedside and pulls <<his>> blond fringe away from <<his>> eyes. <<He>> looks young for a doctor, can't be older than 25.
+	<<else>>
+		It's the doctor from the farm. The one who experimented on you. <<He>> smiles at you. "Hello, I'm Doctor Harper," <<he>> says. There's no recognition on <<his>> face. <<He>> takes a seat by your bedside.
+	<</if>>
+
+	<<set $hospitalintro to 1>>
 <<else>>
-	<<npc "Harper" 1>><<person1>><<npc "Sydney" 2>><<person2>>Doctor Harper enters at that moment, carrying <<person1>><<his>> usual clipboard. <<He>> assures you that there is no immediate concern, but <<he>> would like to examine you further.
-	<br><br>
+	Doctor Harper enters, carrying <<person1>><<his>> usual clipboard. <<He>> assures you that there is no immediate concern, but <<he>> would like to examine you further.
 <</if>>
+<br><br>
 
 <<link [[Next|Hospital Bed Examination Sydney]]>><</link>>
 <br>
@@ -1744,10 +1766,10 @@ Doctor Harper sighs. "Very well. But I must still evaluate <<phim>>."
 <<elseif $trauma lt ($traumamax / 10) * 9>>
 	<<He>> gently interrogates you on a variety of subjects relating to your home life, how school is going and how your well-being has been faring. After a short while, <<he>> summons a nurse and they have a brief conversation in the corner of the room. They talk quietly, and after a short while the nurse nods and leave the room.
 	<br><br>
-	<<if $psych is 0>>
+	<<if !$harper_appointments.enabled>>
 		<span class="gold">The doctor tells you to visit <<him>> here at the hospital on <span class="gold">Fridays</span> for therapy.</span>
 		<br><br>
-		<<set $psych to 1>><<unset $schoolPsych>>
+		<<set $harper_appointments.enabled to true>><<unset $schoolPsych>>
 		<<wash>>
 		Sydney helps you to your feet, and you soon find yourself being discharged.
 		<br><br>
@@ -1768,7 +1790,7 @@ Doctor Harper sighs. "Very well. But I must still evaluate <<phim>>."
 	Sydney looks uneasy. "We need to leave." You find yourself unable to respond. The nurse moves towards Sydney, who pulls you away. "No." The nurse freezes in place as Sydney glares.
 	<br><br>
 
-	"Sydney, I assure you that-"
+	"Sydney, I assure you that—"
 	<br>
 	"Everything will be fine? No it won't. We're leaving, and you can't stop us." The nurse grabs Sydney by the arms and holds <<person2>><<him>> back. <<He>> pushes back with surprising strength, but is too slow. The doctor presses a cloth to your face, and a haze falls on you. You hear a yell in Sydney's voice, and everything begins to spin. You feel yourself pulled along, and more yelling.
 	<br><br>

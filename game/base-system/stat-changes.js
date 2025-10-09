@@ -681,28 +681,33 @@ const statChange = (() => {
 		return "";
 	}
 
-	function insecurity(type, amount) {
-		if (V.statFreeze) return;
-		if (isNaN(amount)) paramError("insecurity", "amount", amount, "Expected a number.");
+	function insecurityPossible(type) {
 		if (!["penis_small", "penis_big", "breasts_small", "breasts_big", "pregnancy"].includes(type)) {
 			paramError("insecurity", "type", type, 'Expected values include "penis_small", "penis_big", "breasts_small", "breasts_big", "pregnancy"');
-			return;
 		}
-		amount = Number(amount);
-		if (amount) {
-			// Male players always gain insecurity when breast size is above 0
-			if (V.player.gender === "m" && type === "breasts_small") type = "breasts_big";
+		if (V.player.gender === "m" && type === "breasts_small") type = "breasts_big";
 
-			const insecurityPossible = {
+		return [
+			{
 				penis_small: V.player.penisExist && V.player.penissize <= 1,
 				penis_big: V.player.penisExist && V.player.penissize >= (V.player.gender === "m" ? 4 : 3),
 				breasts_small: V.player.gender === "f" && between(V.player.breastsize, 0, 4),
 				breasts_big: V.player.breastsize >= (V.player.gender === "m" ? 1 : 8),
 				pregnancy: playerBellySize() >= 8,
-			}[type];
-			const acceptance = V["acceptance_" + type];
+			}[type] && V["acceptance_" + type] < 1000,
+			type,
+		];
+	}
+
+	function insecurity(type, amount) {
+		if (V.statFreeze) return;
+		if (isNaN(amount)) paramError("insecurity", "amount", amount, "Expected a number.");
+		amount = Number(amount);
+		if (amount) {
+			let possible;
+			[possible, type] = insecurityPossible(type);
 			let insecurity = V["insecurity_" + type];
-			if ((acceptance < 1000 && insecurityPossible) || amount < 0) {
+			if (possible || amount < 0) {
 				insecurity = Math.clamp(insecurity + amount, 0, 1000);
 				V["insecurity_" + type] = insecurity;
 
@@ -733,7 +738,7 @@ const statChange = (() => {
 							break;
 					}
 					// reduce acceptance by matching amount
-					V["acceptance_" + type] = Math.clamp(acceptance - amount, 0, 1000);
+					V["acceptance_" + type] = Math.clamp(V["acceptance_" + type] - amount, 0, 1000);
 				}
 			}
 		}
@@ -1053,7 +1058,7 @@ const statChange = (() => {
 		if (isNaN(amount)) paramError("money", "amount", amount, "Expected a number.");
 		if (!(typeof source === "string" || source instanceof String || source === undefined))
 			paramError("money", "source", source, "Expected a string or undefined.");
-		if (!(typeof optional === "object" && optional !== null)) paramError("money", "optional", optional, "Expected a object.");
+		if (!(typeof optional === "object" && optional !== null)) paramError("money", "optional", optional, "Expected an object.");
 		amount = Number(amount);
 
 		if (!Number.isFinite(amount)) {
@@ -1139,6 +1144,7 @@ const statChange = (() => {
 				case "office":
 				case "office_building":
 				case "officeBuilding":
+				case "avery_skyscraper":
 					source = "office" + mod;
 					break;
 				case "canal":
@@ -1251,7 +1257,7 @@ const statChange = (() => {
 		if (V.replayScene) return false;
 		let lastBadEnd = V.badEndStats.last();
 
-		// Attempted to end tracking, but either tracking doesnt exist, the trackingEnd has already been set or the source doesn't match
+		// Attempted to end tracking, but either tracking doesn't exist, the trackingEnd has already been set or the source doesn't match
 		if (!lastBadEnd || lastBadEnd.source !== source || lastBadEnd.trackedEnd) {
 			badEndTracking(source, {
 				reason: "unknown",
@@ -1306,6 +1312,7 @@ const statChange = (() => {
 		subCheck,
 		gainPenisInsecurity,
 		gainBreastInsecurity,
+		insecurityPossible,
 		insecurity,
 		acceptance,
 		gainPenisAcceptance,

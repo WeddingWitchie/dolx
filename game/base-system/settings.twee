@@ -362,7 +362,7 @@
 	<<if $passage is "Start">>
 		<<switch _selectedStart>>
 			<<case "default">>
-				<div><span class="gold bold">Current Settings:</span> <i style="color:var(--000);">Default</i></div>
+				<div class="my-1"><span class="gold bold">Current Settings:</span> <i>Default</i></div>
 				<<button "Start Game!">>
 					/*If player changed any settings in Moderate/Advanced settings but then decided to just do Basic settings, resets settings back to default*/
 					<<set $gamemode to "normal">>
@@ -437,8 +437,11 @@
 					<<set $tending_yield_factor to 5>>
 					<<settingsExitFunction>>
 				<</button>>
+				<div class="small-description my-2" style>
+					Most settings, including NPC genders and beast appearance, be can be changed later by using the <span class="gold">Gameplay Settings</span> link in your bedroom. <span class="red">You will not be able to change your character's genitalia or feat boosts after starting the game.</span>
+				</div>
 			<<case "adjusted">>
-				<div><span class="gold bold">Current Settings:</span> <i style="color:var(--000);">Adjustable</i></div>
+				<div class="my-1"><span class="gold bold">Current Settings:</span> <i>Adjustable</i></div>
 				<<button "Start Game!">>
 					<<presets _kinkPreset "save">>
 					<<presets _namedNpcPreset "save">>
@@ -507,9 +510,13 @@
 						<<replace #settingsExit>><<settingsExitConfirm>><</replace>>
 					<</if>>
 				<</button>>
-				<div><span class="red small-description">If changes were made to fetish toggles while in <span class="gold">Advanced Start,</span> they will be overwritten by your current selected settings.</span></div>
+				<div class="small-description my-2">
+					Most settings, including NPC genders and beast appearance, be can be changed later by using the <span class="gold">Gameplay Settings</span> link in your bedroom. <span class="red">You will not be able to change your character's genitalia or feat boosts after starting the game.</span>
+					<hr>
+					<span class="red small-description">If changes were made to fetish toggles while in <span class="gold">Advanced Start,</span> they will be overwritten by your current selected settings.</span>
+				</div>
 			<<case "custom">>
-				<div><span class="gold bold">Current Settings:</span> <i style="color:var(--000);">Customisable</i></div>
+				<div class="my-1"><span class="gold bold">Current Settings:</span> <i>Customisable</i></div>
 				<<button "Start Game!">>
 					<<if ($feats.locked or ($cheatdisabletoggle is "t" and $rentmod gte 1 and $statGainMult lte 100 and $npcHealthMult gte 100 and $nnpcHealthMult gte 100 and $beastHealthMult gte 100 and $tentacleHealthMult gte 100 and $struggleHealthMult gte 100)) and ($feats.soft or ($gamemode isnot "soft" and $alluremod gte 1)) and ($feats.pregnancyLocked or ($humanPregnancyMonths gte 3 and $wolfPregnancyWeeks gte 4)) and ($feats.pregnancySillyLocked or $pregnancytype isnot "silly")>>
 						<<settingsExitFunction>>
@@ -517,8 +524,11 @@
 						<<replace #settingsExit>><<settingsExitConfirm>><</replace>>
 					<</if>>
 				<</button>>
+				<div class="small-description my-2">
+					Most settings, including NPC genders and beast appearance, be can be changed later by using the <span class="gold">Gameplay Settings</span> link in your bedroom. <span class="red">You will not be able to change your character's genitalia or feat boosts after starting the game.</span>
+				</div>
 			<<case "random">>
-				<div><span class="gold bold">Current Settings:</span> <i style="color:var(--000);">Randomised</i></div>
+				<div class="my-1"><span class="gold bold">Current Settings:</span> <i>Randomised</i></div>
 				<<button "Start Game!">>
 						/*Rerolls all settings*/
 					<<presets "randomize" "characterSettings" `randomizeSettings()`>>
@@ -529,6 +539,9 @@
 						<<replace #settingsExit>><<settingsExitConfirm>><</replace>>
 					<</if>>
 				<</button>>
+				<div class="small-description my-2">
+					Most settings, including NPC genders and beast appearance, be can be changed later by using the <span class="gold">Gameplay Settings</span> link in your bedroom. <span class="red">You will not be able to change your character's genitalia or feat boosts after starting the game.</span>
+				</div>
 		<</switch>>
 	<<else>>
 		<<button "Save changes">>
@@ -984,13 +997,13 @@
 	<div class="settingsGrid">
 		<div class="settingsToggleItem">
 		<span class="gold">Randomise:</span><br>
-			<<link "Character Appearance">><<presets "randomize" "characterSettings" `randomizeSettings('characterAppearance')`>><</link>>
+			<<link "Character appearance">><<presets "randomize" "characterSettings" `randomizeSettings('characterAppearance')`>><</link>>
 			<mouse class="tooltip linkBlue">(?)<span>Randomises the player character's appearance, including hair, eyes, skin colour, gender, and body part sizes. Body size, gender appearance, genitalia, and base skin colour cannot be changed after starting the game.</span></mouse>
 		<br>
 		</div>
 		<div class="settingsToggleItem">
 		<<if StartConfig.enableImages is true>>
-			<span class="gold">Character sidebar preview:</span><br> <label>Hide Clothes <<checkbox "_showClothes" true false autocheck>></label> | <label>Hide Underwear <<checkbox "_showUnderwear" true false autocheck>></label>
+			<span class="gold">Sidebar preview:</span><br> <label>Hide clothes <<checkbox "_showClothes" true false autocheck>></label> | <label>Hide underwear <<checkbox "_showUnderwear" true false autocheck>></label>
 			<br>
 		<</if>>
 		</div>
@@ -1015,6 +1028,15 @@
 			</label>
 			</div>
 		</div>
+		<<run
+		$(() => {
+			$('#genitals input[type="radio"]').on('change', () => {
+				if (V.player.sex === "h" && V.background === "crossdresser") V.background = "waif";
+				Wikifier.wikifyEval('<<replace #settingsDiv>><<characterSettings>><</replace>>');
+				Wikifier.wikifyEval('<<updatesidebarimg>>');
+			});
+		})
+		>>
 
 		<div class="settingsToggleItem">
 			<span class="gold">Genitals:</span><br>
@@ -1072,26 +1094,20 @@
 			<label>Huge <<radiobutton "$player.bottomsize" 8 autocheck>></label>
 		</div>
 
-		<div class="settingsToggleItem">
-			<span data-target="player.sex" data-disabledif="V.player.sex==='f'">
-			<span class="gold">Penis size - if applicable:</span><br>
-			<label>Micro <<radiobutton "$player.penissize" -2 autocheck>></label> |
-			<label>Mini <<radiobutton "$player.penissize" -1 autocheck>></label> |
-			<label>Tiny <<radiobutton "$player.penissize" 0 autocheck>></label> |
-			<label>Small <<radiobutton "$player.penissize" 1 autocheck>></label> |
-			<label>Normal <<radiobutton "$player.penissize" 2 autocheck>></label> |
-			<label>Large <<radiobutton "$player.penissize" 3 autocheck>></label> |
-			<label>Enormous <<radiobutton "$player.penissize" 4 autocheck>></label>
-			</span>
-		</div>
-
-		<div class="settingsToggleItem">
-			<span data-target="player.sex" data-disabledif="V.player.sex!=='h'">
-			<span class="gold">Hermaphrodite testes - if applicable</span><br>
-			<label>Yes <<radiobutton "$player.ballsExist" true autocheck>></label> |
-			<label>No <<radiobutton "$player.ballsExist" false autocheck>></label>
-			</span>
-		</div>
+		<<if $player.sex isnot "f">>
+			<div class="settingsToggleItem">
+				<span data-target="player.sex" data-disabledif="V.player.sex==='f'">
+				<span class="gold">Penis size - if applicable:</span><br>
+				<label>Micro <<radiobutton "$player.penissize" -2 autocheck>></label> |
+				<label>Mini <<radiobutton "$player.penissize" -1 autocheck>></label> |
+				<label>Tiny <<radiobutton "$player.penissize" 0 autocheck>></label> |
+				<label>Small <<radiobutton "$player.penissize" 1 autocheck>></label> |
+				<label>Normal <<radiobutton "$player.penissize" 2 autocheck>></label> |
+				<label>Large <<radiobutton "$player.penissize" 3 autocheck>></label> |
+				<label>Enormous <<radiobutton "$player.penissize" 4 autocheck>></label>
+				</span>
+			</div>
+		<</if>>
 	</div>
 
 	<hr>
@@ -1130,63 +1146,62 @@
 		<</if>>
 		<div id="settingsFaceVariants" @class="setup.faceStyleOptions.length gt 1 ? 'settingsToggleItem' : 'settingsToggleItemWide'">
 			<span class="gold">Demeanour:</span>
-			<mouse class = "tooltip-small linkBlue">
-				(?)<span>You may change this setting later in the mirror.</span>
-			</mouse>
 			<br>
 			<div id="settingsFaceVariantRadios">
 				<<faceVariantSettings>>
+				<br>
+				<span class="small-description">Purely cosmetic. You may change this later in the mirror menu.</span>
 			</div>
 		</div>
 		<div class="settingsToggleItemWide">
 			<span class="gold">Natural eye colour:</span><br>
 			<label><span class="black">Black</span> <<radiobutton "$eyeselect" "black" autocheck>></label> |
 			<label><span class="purple">Purple</span> <<radiobutton "$eyeselect" "purple" autocheck>></label> |
-			<label><span class="blue">Dark Blue</span> <<radiobutton "$eyeselect" "dark blue" autocheck>></label> |
-			<label><span class="lblue">Light Blue</span> <<radiobutton "$eyeselect" "light blue" autocheck>></label> |
+			<label><span class="blue">Dark blue</span> <<radiobutton "$eyeselect" "dark blue" autocheck>></label> |
+			<label><span class="lblue">Light blue</span> <<radiobutton "$eyeselect" "light blue" autocheck>></label> |
 			<label><span class="tangerine">Amber</span> <<radiobutton "$eyeselect" "amber" autocheck>></label> |
 			<label><span class="brown">Hazel</span> <<radiobutton "$eyeselect" "hazel" autocheck>></label> |
 			<label><span class="green">Green</span> <<radiobutton "$eyeselect" "green" autocheck>></label> |
-			<label><span class="lime-green">Lime Green</span> <<radiobutton "$eyeselect" "lime green" autocheck>></label> |
+			<label><span class="lime-green">Lime green</span> <<radiobutton "$eyeselect" "lime green" autocheck>></label> |
 			<label><span class="red">Red</span> <<radiobutton "$eyeselect" "red" autocheck>></label> |
 			<label><span class="pink">Pink</span> <<radiobutton "$eyeselect" "pink" autocheck>></label> |
 			<label><span class="grey">Grey</span> <<radiobutton "$eyeselect" "grey" autocheck>></label> |
-			<label><span class="light-grey">Light Grey</span> <<radiobutton "$eyeselect" "light grey" autocheck>></label> |
+			<label><span class="light-grey">Light grey</span> <<radiobutton "$eyeselect" "light grey" autocheck>></label> |
 			<label><span>Random</span> <<radiobutton "$eyeselect" "random" autocheck>></label>
 		</div>
 		<div class="settingsToggleItemWide">
 			<span class="gold">Natural hair colour:</span><br>
 			<label><span class="red">Red</span> <<radiobutton "$hairselect" "red" autocheck>></label> |
-			<label><span class="jetblack">Jet Black</span> <<radiobutton "$hairselect" "jetblack" autocheck>></label> |
+			<label><span class="jetblack">Jet black</span> <<radiobutton "$hairselect" "jetblack" autocheck>></label> |
 			<label><span class="black">Black</span> <<radiobutton "$hairselect" "black" autocheck>></label> |
 			<label><span class="brown">Brown</span> <<radiobutton "$hairselect" "brown" autocheck>></label> |
-			<label><span class="softbrown">Soft Brown</span> <<radiobutton "$hairselect" "softbrown" autocheck>></label> |
-			<label><span class="lightbrown">Light Brown</span> <<radiobutton "$hairselect" "lightbrown" autocheck>></label> |
-			<label><span class="burntorange">Burnt Orange</span> <<radiobutton "$hairselect" "burntorange" autocheck>></label> |
+			<label><span class="softbrown">Soft brown</span> <<radiobutton "$hairselect" "softbrown" autocheck>></label> |
+			<label><span class="lightbrown">Light brown</span> <<radiobutton "$hairselect" "lightbrown" autocheck>></label> |
+			<label><span class="burntorange">Burnt orange</span> <<radiobutton "$hairselect" "burntorange" autocheck>></label> |
 			<label><span class="strawberry">Strawberry blond</span> <<radiobutton "$hairselect" "strawberryblond" autocheck>></label> |
 			<label><span class="tangerine">Ginger</span> <<radiobutton "$hairselect" "ginger" autocheck>></label> |
 			<label><span class="gold">Blond</span> <<radiobutton "$hairselect" "blond" autocheck>></label> |
-			<label><span class="softblond">Soft Blond</span> <<radiobutton "$hairselect" "softblond" autocheck>></label> |
-			<label><span class="platinum">Platinum Blond</span> <<radiobutton "$hairselect" "platinumblond" autocheck>></label> |
-			<label><span class="ashy">Ashy Blond</span> <<radiobutton "$hairselect" "ashyblond" autocheck>></label> |
-			<label><span class="bloodorange">Blood Orange</span> <<radiobutton "$hairselect" "bloodorange" autocheck>></label> |
+			<label><span class="softblond">Soft blond</span> <<radiobutton "$hairselect" "softblond" autocheck>></label> |
+			<label><span class="platinum">Platinum blond</span> <<radiobutton "$hairselect" "platinumblond" autocheck>></label> |
+			<label><span class="ashy">Ashy blond</span> <<radiobutton "$hairselect" "ashyblond" autocheck>></label> |
+			<label><span class="bloodorange">Blood orange</span> <<radiobutton "$hairselect" "bloodorange" autocheck>></label> |
 			<label><span class="blue">Blue</span> <<radiobutton "$hairselect" "blue" autocheck>></label> |
-			<label><span class="deepblue">Deep Blue</span> <<radiobutton "$hairselect" "deepblue" autocheck>></label> |
-			<label><span class="neonblue">Neon Blue</span> <<radiobutton "$hairselect" "neonblue" autocheck>></label> |
+			<label><span class="deepblue">Deep blue</span> <<radiobutton "$hairselect" "deepblue" autocheck>></label> |
+			<label><span class="neonblue">Neon blue</span> <<radiobutton "$hairselect" "neonblue" autocheck>></label> |
 			<label><span class="green">Green</span> <<radiobutton "$hairselect" "green" autocheck>></label> |
-			<label><span class="darklime">Dark Lime</span> <<radiobutton "$hairselect" "darklime" autocheck>></label> |
-			<label><span class="toxicgreen">Toxic Green</span> <<radiobutton "$hairselect" "toxicgreen" autocheck>></label> |
+			<label><span class="darklime">Dark lime</span> <<radiobutton "$hairselect" "darklime" autocheck>></label> |
+			<label><span class="toxicgreen">Toxic green</span> <<radiobutton "$hairselect" "toxicgreen" autocheck>></label> |
 			<label><span class="teal">Teal</span> <<radiobutton "$hairselect" "teal" autocheck>></label> |
 			<label><span class="pink">Pink</span> <<radiobutton "$hairselect" "pink" autocheck>></label> |
-			<label><span class="brightpink">Bright Pink</span> <<radiobutton "$hairselect" "brightpink" autocheck>></label> |
-			<label><span class="hotpink">Hot Pink</span> <<radiobutton "$hairselect" "hotpink" autocheck>></label> |
-			<label><span class="softpink">Soft Pink</span> <<radiobutton "$hairselect" "softpink" autocheck>></label> |
+			<label><span class="brightpink">Bright pink</span> <<radiobutton "$hairselect" "brightpink" autocheck>></label> |
+			<label><span class="hotpink">Hot pink</span> <<radiobutton "$hairselect" "hotpink" autocheck>></label> |
+			<label><span class="softpink">Soft pink</span> <<radiobutton "$hairselect" "softpink" autocheck>></label> |
 			<label><span class="crimson">Crimson</span> <<radiobutton "$hairselect" "crimson" autocheck>></label> |
 			<label><span class="purple">Purple</span> <<radiobutton "$hairselect" "purple" autocheck>></label> |
-			<label><span class="mediumpurple">Medium Purple</span> <<radiobutton "$hairselect" "mediumpurple" autocheck>></label> |
-			<label><span class="brightpurple">Bright Purple</span> <<radiobutton "$hairselect" "brightpurple" autocheck>></label> |
+			<label><span class="mediumpurple">Medium purple</span> <<radiobutton "$hairselect" "mediumpurple" autocheck>></label> |
+			<label><span class="brightpurple">Bright purple</span> <<radiobutton "$hairselect" "brightpurple" autocheck>></label> |
 			<label><span class="white">White</span> <<radiobutton "$hairselect" "white" autocheck>></label> |
-			<label><span class="snowwhite">Snow White</span> <<radiobutton "$hairselect" "snowwhite" autocheck>></label> |
+			<label><span class="snowwhite">Snow white</span> <<radiobutton "$hairselect" "snowwhite" autocheck>></label> |
 			<label><span>Random</span> <<radiobutton "$hairselect" "random" autocheck>></label>
 		</div>
 		<div class="settingsToggleItem">
@@ -1228,7 +1243,7 @@
 		</div>
 		<div class="settingsToggleItemWide">
 			<div class="numberslider-inline">
-			<label><span class="gold">Initial Tan Value:</span>
+			<label><span class="gold">Initial tan:</span>
 			<<numberslider "_tan" _tan 0 100 1 {
 				onInputChange: value => {
 					 Skin.color.setTan(value);
@@ -1251,14 +1266,14 @@
 			Sensitivity
 		</div>
 		<div class="settingsToggleItem">
-			<span class="gold">Mouth sensitivity:</span><br>
+			<span class="gold">Mouth:</span><br>
 			<label>Normal <<radiobutton "$mouthsensitivity" 1 autocheck>></label> |
 			<label><span class="light-pink">Sensitive</span> <<radiobutton "$mouthsensitivity" 2 autocheck>></label> |
 			<label><span class="pink">Very sensitive</span> <<radiobutton "$mouthsensitivity" 3 autocheck>></label> |
 			<label><span class="red">Hyper sensitive</span> <<radiobutton "$mouthsensitivity" 4 autocheck>></label>
 		</div>
 		<div class="settingsToggleItem">
-			<span class="gold">Chest sensitivity:</span><br>
+			<span class="gold">Chest:</span><br>
 			<label>Normal <<radiobutton "$breastsensitivity" 1 autocheck>></label> |
 			<label><span class="light-pink">Sensitive</span> <<radiobutton "$breastsensitivity" 2 autocheck>></label> |
 			<label><span class="pink">Very sensitive</span> <<radiobutton "$breastsensitivity" 3 autocheck>></label> |
@@ -1266,7 +1281,7 @@
 		</div>
 
 		<div class="settingsToggleItem">
-			<span class="gold">Ass sensitivity:</span><br>
+			<span class="gold">Ass:</span><br>
 			<label>Normal <<radiobutton "$bottomsensitivity" 1 autocheck>></label> |
 			<label><span class="light-pink">Sensitive</span> <<radiobutton "$bottomsensitivity" 2 autocheck>></label> |
 			<label><span class="pink">Very sensitive</span> <<radiobutton "$bottomsensitivity" 3 autocheck>></label> |
@@ -1274,7 +1289,7 @@
 		</div>
 
 		<div class="settingsToggleItem">
-			<span class="gold">Genital sensitivity:</span><br>
+			<span class="gold">Genitals:</span><br>
 			<label>Normal <<radiobutton "$genitalsensitivity" 1 autocheck>></label> |
 			<label><span class="light-pink">Sensitive</span> <<radiobutton "$genitalsensitivity" 2 autocheck>></label> |
 			<label><span class="pink">Very sensitive</span> <<radiobutton "$genitalsensitivity" 3 autocheck>></label> |
@@ -1291,8 +1306,8 @@
 		<div class="settingsToggleItemWide">
 			<span class="gold">Randomise:</span>
 			<br>
-			<<link "Character Traits">><<presets "randomize" "characterSettings" `randomizeSettings('characterTrait')`>><</link>>
-			<mouse class="tooltip linkBlue">(?)<span>Randomises the player character's traits, including background, awareness, and general sensitivity. These traits cannot be changed after starting the game.</span></mouse>
+			<<link "Character traits">><<presets "randomize" "characterSettings" `randomizeSettings('characterTrait')`>><</link>>
+			<mouse class="tooltip linkBlue">(?)<span>Randomises the player character's traits, including background, awareness, and general sensitivity. <i class="red">These traits cannot be changed after starting the game.</i></span></mouse>
 			<br>
 		</div>
 		<div class="settingsToggleItemWide">
@@ -1433,7 +1448,7 @@
 			/*<br>
 			<label>Green Thumb <<checkbox "$background" "greenthumb" autocheck>> - More bountiful crops and no decay when using fertiliser. Start with ne unit of fertiliser.</label>*/
 			<br>
-			<label><mouse class="tooltip"><span class="lewd">Dendrophile</span> <<checkbox "$background.plantlover" false true autocheck>> - Plants are everything to you.<span class="green">You're addicted to nectar. You're more vulnerable to aphrodisiacs and alcohol. Plantpeople and plant-based tentacles no longer require hallucinations to encounter. You get a bonus to Tending, as your Trauma increases.</span></mouse>
+			<label><mouse class="tooltip"><span class="lewd">Dendrophile</span> <<checkbox "$background.plantlover" false true autocheck>> - Plants are everything to you.<span class="green">You're addicted to nectar. You're more vulnerable to aphrodisiacs and alcohol. Plantpeople and plant-based tentacles no longer require hallucinations to encounter. You get a bonus to Tending as your Trauma increases.</span></mouse>
 			</label>
 		</div>
 	</div>
@@ -1856,9 +1871,7 @@
 				<<doubleslider "mregularchance" "mhermchance" "cbchance" "var(--blue)" "var(--purple-secondary)" "var(--pink)">>
 			</div>
 			<div class="settingsToggleItemWide numberslider-inline">
-				<span class="gold">Percentage of women that have strap-on penises
-				<mouse class="tooltip linkBlue">(?)<span>'Visual representation of player's and NPC's skin colour' must be enabled in the Performance tab of the Options menu for strap-ons to be coloured.</span></mouse>
-				</span>
+				<span class="gold">Percentage of women that have strap-on penises</span>
 				<<numberslider "$straponchance" $straponchance 0 100 1>>
 			</div>
 		</div>
@@ -1880,9 +1893,7 @@
 				<<numberslider "$npcVirginityChanceAdult" $npcVirginityChanceAdult 0 100 1>>
 			</div>
 			<div class="settingsToggleItemWide numberslider-inline">
-				<span class="gold">Likelihood that NPCs have dark skin
-				<mouse class="tooltip linkBlue">(?)<span>'Visual representation of player's and NPC's skin colour' must be enabled in the Performance tab of the Options menu.</span></mouse>
-				</span>
+				<span class="gold">Likelihood that NPCs have dark skin</span>
 				<<numberslider "$blackchance" $blackchance 0 100 1>>
 			</div>
 		</div>
@@ -2257,7 +2268,7 @@
 <<widget "incompletePregnancy">>
 	<<checkbox "$incompletePregnancyDisable" "t" "f" autocheck>> Enable incomplete pregnancy content
 	<<if _foundPregnancy>>
-		<mouse class="tooltip linkBlue">(!!!)<span>Can not be disabled while a named NPC is pregnant.</span></mouse>
+		<mouse class="tooltip linkBlue">(!!!)<span>Cannot be disabled while a named NPC is pregnant.</span></mouse>
 	<<else>>
 		<mouse class="tooltip linkBlue">(?)<span>
 			<div>When enabled, the player will be able to impregnate and be impregnated by all fertile named NPCs. This includes NPCs that have no pregnancy interactions.</div>
@@ -2451,7 +2462,7 @@
 						return `<span style="color: ${color1}">${name[v1]}</span> - <span style="color: ${color2}">${name[v2]}</span>`;
 					},
 				}
-			}>>
+			>>
 		</div>
 
 		<div class="settingsToggleItemWide">
@@ -2470,10 +2481,10 @@
 						return `<span style="color: ${color1}">${name[v1]}</span> - <span style="color: ${color2}">${name[v2]}</span>`;
 					},
 				}
-			}>>
+			>>
 		</div>
 
-		<<if $passage is "Start" or $player.penisExist>>
+		<<if ($passage is "Start" and $player.sex isnot "f") or $player.penisExist>>
 			<div class="settingsToggleItemWide">
 			<span class="gold">Penis size limits:</span> <span class="tooltip-anchor linkBlue" tooltip="Penises already below the minimum size won't automatically grow.">(?)</span>
 			<<rangeslider "$penissizemin" "$penissizemax" $penissizemin $penissizemax -2 4 1
@@ -2490,7 +2501,7 @@
 					},
 				}
 
-			}>>
+			>>
 			</div>
 		<</if>>
 	</div>
@@ -2521,7 +2532,7 @@
 			- This will allow you to replay scenes that you have unlocked.
 			<br>
 		<<else>>
-			<span class=" red bold">Scene Viewer</span> - Not accessible on the Start page. As you play through the game, you will unlock special scenes. These scenes can replayed in the Gallery's Scene Viewer when accessed through the <span class="gold">Settings</span> page in your bedroom.
+			<span class=" red bold">Scene Viewer</span> - Not accessible on the Start page. As you play through the game, you will unlock special scenes. These scenes can replayed in the Gallery's Scene Viewer when accessed through the <span class="gold">Gameplay Settings</span> link in your bedroom.
 			<br>
 		<</if>>
 		/*<br>
@@ -2719,8 +2730,6 @@
 				<<case "custom">><span class="gold bold">Advanced Start:</span> You can adjust <span class="teal">all settings</span>, including fetish toggles, difficulty settings, and NPC genders, to create a playthrough tailored to your desires.
 				<<case "random">><span class="gold bold">Randomised Start:</span> Starts the game with <span class="teal">all settings</span> randomised, including character appearance, character traits, and difficulty settings. Both your character and all NPCs will be <span class="teal">randomly</span> generated for a completely blind playthrough. <i><span class="teal">To randomise specific settings prior to starting the game, select</span> <span class="gold">Advanced Start</span><span class="teal"> instead.</span></i>
 			<</switch>>
-			<br>
-			<div class="small-description">Most settings can be changed later in your room. <span class="red">You will not be able to change your character's genitalia or feat boosts after starting the game.</span></div>
 		</div>
 	</div>
 <</widget>>
@@ -2784,10 +2793,10 @@
 			</span>
 		</div>
 		<div class="settingsToggleItem">
-			<span class="gold">Penis size - if applicable:</span>
-			<br>
 			<<set _penisNames to ["", "Tiny", "Average", "Thick", "Huge"]>> /* the empty first element is necessary because _j starts at 1 */
 			<span data-target="npcname-npcidgender" data-disabledif="V.NPCName[T.npcId].gender==='f'">
+				<span class="gold">Penis size:</span>
+				<br>
 				<<for _j to 1; _j lt _penisNames.length; _j++>>
 					<label>
 						<<radiobutton "$NPCName[_npcId].penissize" _j autocheck>>
@@ -2799,7 +2808,7 @@
 		</div>
 		<div class="settingsToggleItem">
 			<span data-target="npcname-pregnancy" data-disabledif="setup.pregnancy.infertile.includes(V.NPCName[T.npcId].nam)||V.NPCName[T.npcId].pregnancy.enabled===undefined||V.NPCName[T.npcId].pregnancy.type||!setup.pregnancy.typesEnabled.includes(V.NPCName[T.npcId].type)">
-				<span class="gold">Enable pregnancy for NPC - if applicable:</span>
+				<span class="gold">Enable pregnancy for NPC:</span>
 				<mouse class="tooltip linkBlue">(?)<span>Requires 'NPC Pregnancy' toggle to be enabled. May also require the "incomplete pregnancy content" toggle to be enabled. Will not stop an existing pregnancy.</span></mouse>
 				<br>
 				<label><<radiobutton "$NPCName[_npcId].pregnancy.enabled" true autocheck>> True</label> |
@@ -2994,14 +3003,10 @@
 <</widget>>
 
 <<widget "saveNameSection">>
-	<span class="gold bold">Save Name:</span> <i>(optional)</i>
-	<br>
+	<div class="my-1">
+		<span class="gold bold">Save Name:</span> <i>(optional)</i>
+	</div>
 	<<textbox "$saveName" $saveName>>
-	/*
-	<div class="description">Shows in the save menu in place of the save id.</div>
-	<div class="description"><span class="red">Only 10 characters at most will show in the save menu, leave empty to show the save ID.</span></div>
-	*/
-	<br>
 <</widget>>
 
 <<widget "combatExtendedSettings">>

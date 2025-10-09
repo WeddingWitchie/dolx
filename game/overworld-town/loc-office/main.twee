@@ -1,6 +1,11 @@
 :: Office Lobby
-<<location "office">><<effects>>
-The large building houses the offices of various businesses. You are in the lobby.
+<<if $avery_fate is "ascended">><<location "avery_skyscraper">><<else>><<location "office">><</if>><<effects>>
+<<if $avery_fate is "ascended">>
+	You are in the lobby of Avery's skyscraper.
+<<else>>
+	You are in the lobby of the large office building on the high street.
+	<br>
+<</if>>
 <<if $stress gte $stressmax>>
 	<br><br>
 	<<if isPregnancyEnding()>>
@@ -30,8 +35,13 @@ The large building houses the offices of various businesses. You are in the lobb
 		<<officeafterhours>>
 	<</if>>
 	<br><br>
-	<<highicon>><<link [[Go outside|High Street]]>><</link>>
-	<br>
+	<<if $avery_fate is "ascended">>
+		<<elkicon>><<link [[Go outside|Elk Street]]>><</link>>
+		<br>
+	<<else>>
+		<<highicon>><<link [[Go outside|High Street]]>><</link>>
+		<br>
+	<</if>>
 <</if>>
 
 :: Office Security Passout
@@ -48,6 +58,7 @@ You come to in the security office in the back of the lobby.
 <br><br>
 <<He>> helps you to your feet and escorts you out into the lobby.
 <br><br>
+<<endevent>>
 <<link [[Next|Office Lobby]]>><</link>>
 
 :: Office Supply Molest
@@ -127,10 +138,10 @@ You grab a heavy stapler and bash it against the <<person1>><<persons>> head. <<
 	Everything goes dark...
 	<br>
 	<<passout>>
-	<<set $danger to random(1, 10000)>>
-	<<if $danger gte (9900 - $allure)>>
+
+	<<if dangerEvent()>>
 		<<rng>>
-		<<if $rng gte 80>>
+		<<if $rng gte 81>>
 			<<link [[Wake up|Office Supply Molest]]>><<set $molestationstart to 2>><</link>>
 		<<else>>
 			<<if $officecomplaints gte 10>>
@@ -154,16 +165,29 @@ You grab a heavy stapler and bash it against the <<person1>><<persons>> head. <<
 		<span class="red">If you hang around the building in this state, you're sure to get in trouble with security.</span>
 		<br><br>
 		<<if $officejobintro is 1>>
-			<<sneakicon>><<link [[Duck into Temp Agency Lounge|Office Agency Streak]]>><</link>>
+			<<sneakicon>><<link [[Duck into temp agency lounge|Office Agency Streak]]>><</link>>
 		<</if>>
 	<<else>>
 		<<if $officejobintro isnot 1>>
 			You notice several people gathered around a kiosk. There is a large "Help Wanted" sign on it.
 			<br><br>
 			<<mysteryicon>><<link [[Approach kiosk|Office Job Start]]>><</link>>
+		<<elseif !$averySeen?.includes("office") and !$avery_injury and $auriga_artefact and C.npc.Avery.state isnot "dismissed" and C.npc.Avery.rage lte 40 and $managerLove gte 10 and Time.hour gte 8 and Time.hour lt 15>>
+			<<generateManager>><<person1>>
+			As you enter the building, <<office_manager>> approaches you, an envelope in <<his>> hands. <<He>> looks slightly frazzled. "It's good to see you," <<he>> says, giving you a nervous smile. "I know you just arrived, but I need you to do a task for me."
+			<br><br>
+			You ask <<him>> what the task is. <<He>> holds up the envelope. "I need you to deliver this letter to the top floor for me. You'll need a keycard to access that floor, so you can borrow mine." <<He>> looks apologetic. "Ordinarily, I would handle this myself, as the person who it's addressed to can be... difficult. But something's come up, and you're the only one I trust to handle this."
+			<br><br>
+			<<He>> hands you the envelope and a keycard. "Here, the office number is on a sticky note. It shouldn't take you too long to do. Just swing by the office when you're done and let me know how it went. Thank you!" <<He>> hurries off before you can say anything else.
+			<br><br>
+			Since it seems as if you have no choice, you head to the elevator.
+			<br><br>
+
+			<<link [[Next|Avery Office Meeting]]>><<endevent>><<set $phase to 1>><</link>>
+			<<exitAll>>
 		<<else>>
 			<<officecheckcomplaints>>
-			<<ind>><<link [[Go to Temp Agency Lounge (0:01)|Office Agency]]>><<pass 1>><</link>>
+			<<assignmenticon>><<link [[Go to temp agency lounge (0:01)|Office Agency]]>><<pass 1>><</link>>
 		<</if>>
 	<</if>>
 <</widget>>

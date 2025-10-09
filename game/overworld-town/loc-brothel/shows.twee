@@ -158,7 +158,7 @@
 	<<startbrothelshow "bukkake">>
 	<<endevent>>
 	<<generate1>><<generate2>><<generate3>><<generate4>><<generate5>><<generate6>><<person1>>
-	Briar turns to you. "We're all set and ready. Just waiting on our cum bucket. Remember, <span class="gold">I'll pay you £50 per helping."</span>
+	Briar turns to you. "We're all set and ready. Just waiting on our cum bucket. Remember, <span class="gold">I'll pay you £50 per helping.</span>"
 	<<if ($demon gte 6 or ($transformationParts.demon.wings isnot "hidden" and $transformationParts.demon.wings isnot "disabled"))>>
 		<<nnpc_He "Briar">> looks at your flicking tail. "Perfect. You've an intuition for these things."
 	<</if>>
@@ -183,7 +183,7 @@
 	<<startbrothelshow "virginity">>
 	Briar turns to you. "We're all set and ready. Just waiting for the star. We've brought in a medical professional to check if you're still a virgin, then we'll be auctioning off your virginity to the highest bidder."
 
-	<<if ($leftarm is "bound" and $rightarm is "bound") or ($leftleg is "bound" and $rightleg is "bound")>>
+	<<if pcAreArmsBound("both") or ($leftleg is "bound" and $rightleg is "bound")>>
 		<<He>> looks at your bindings and smirks. "Good idea, I'm sure they'll enjoy that."
 	<</if>>
 	<br><br>
@@ -284,17 +284,25 @@
 <</if>>
 
 :: Brothel Show Gangbang Sex Finish
-	/* Check variables before combat is reset */
-	<<set _extremeshow to "f">>
-	<<if $anusstate is "doublepenetrated" and $vaginastate isnot "penetrated" and $NPCList[$anustarget].penis is "anusdouble" and $NPCList[$anusdoubletarget].penis is "anusdouble">>
-		<<set _extremeshow to "da">>
-	<<elseif $anusstate is "doublepenetrated" and $vaginastate is "penetrated" and $NPCList[$anustarget].penis is "anusdouble" and $NPCList[$anusdoubletarget].penis is "anusdouble">>
-		<<set _extremeshow to "t">>
-	<<elseif $vaginastate is "doublepenetrated" and $anusstate isnot "penetrated" and $NPCList[$vaginatarget].penis is "vaginadouble" and $NPCList[$vaginadoubletarget].penis is "vaginadouble">>
-		<<set _extremeshow to "dv">>
-	<<elseif $vaginastate is "doublepenetrated" and $anusstate is "penetrated" and $NPCList[$vaginatarget].penis is "vaginadouble" and $NPCList[$vaginadoubletarget].penis is "vaginadouble">>
-		<<set _extremeshow to "t">>
-	<</if>>
+/* Check variables before combat is reset */
+<<if $vaginastate is "doublepenetrated" and $anusstate is "doublepenetrated">>
+	<<set _money to 40000>>
+	<<set _holes to "fuck holes">>
+	<<set _penetration to "Quadruple">>
+<<elseif ($vaginastate is "doublepenetrated" and $anusstate is "penetrated") or ($vaginastate is "penetrated" and $anusstate is "doublepenetrated")>>
+	<<set _money to 30000>>
+	<<set _holes to "fuck holes">>
+	<<set _penetration to "Triple">>
+<<elseif $vaginastate is "doublepenetrated" and $anusstate isnot "penetrated">>
+	<<set _money to 20000>>
+	<<set _holes to "cunt">>
+	<<set _penetration to "pussy">>
+<<elseif $vaginastate isnot "penetrated" and $anusstate is "doublepenetrated">>
+	<<set _money to 20000>>
+	<<set _holes to "ass">>
+	<<set _penetration to "anal">>
+<</if>>
+
 <<effects>>
 <<if $finish is 1>>
 	The <<person1>><<person>> steadies you while the others give you space. <<endevent>><<npc Briar>><<person1>>"Why are you stopping?" Briar storms onto the stage. <<He>> glares at you, then seems to remember where <<he>> is. <<He>> smiles at the audience. "Apologies my friends, but that will be all for today." <<He>> ushers you and the others off the stage.
@@ -322,25 +330,16 @@
 	<<else>>
 		"I almost believed your performance myself."
 	<</if>>
-	/* Double anal/vaginal/oral */
-	<<if _extremeshow is "da">>
-		<br>
-		<<He>> pauses, licking <<his>> lips thoughtfully. "Double anal, now that's real talent. The audience loved it. Keep up the great work; your elastic ass will make us both a lot of money."
-		<<He>> hands you the <<printmoney 100000>><<money 100000 "brothelShow">> <<he>> promised, along with a bonus <<printmoney 20000>><<money 20000 "brothelShow">>.<<gglove>>
-		<<npcincr Briar love 2>>
-	<<elseif _extremeshow is "dv">>
-		<br>
-		<<He>> pauses, licking <<his>> lips thoughtfully. "Double pussy, now that's real talent. The audience loved it. Keep up the great work; your elastic cunt will make us both a lot of money."
-		<<He>> hands you the <<printmoney 100000>><<money 100000 "brothelShow">> <<he>> promised, along with a bonus <<printmoney 20000>><<money 20000 "brothelShow">>.<<gglove>>
-		<<npcincr Briar love 2>>
-	<<elseif _extremeshow is "t">>
-		<br>
-		<<He>> beams. "Triple penetration, that's super starlet material. You had the crowd begging for more. Keep up the great work; your elastic fuck holes will make us both a lot of money."
-		<<He>> hands you the <<printmoney 100000>><<money 100000 "brothelShow">> <<he>> promised, along with a bonus <<printmoney 30000>><<money 30000 "brothelShow">>.<<gglove>>
-		<<npcincr Briar love 2>>
+
+	<<if _money>>
+		<<if _money gte 30000>>
+			<<He>> beams. "_penetration penetration, that's super starlet material. You had the crowd begging for more.
+		<<else>>
+			<<He>> pauses, licking <<his>> lips thoughtfully. "Double _penetration, now that's real talent. The audience loved it.
+		<</if>>
+		Keep up the great work; your elastic _holes will make us both a lot of money." <<He>> hands you the <<printmoney 100000>><<money 100000 "brothelShow">> <<he>> promised, along with a bonus <<printmoney _money>><<money _money "brothelShow">>.<<gglove>><<npcincr Briar love 2>>
 	<<else>>
-		<<He>> hands you the <<printmoney 100000>><<money 100000 "brothelShow">> <<he>> promised.<<glove>>
-		<<npcincr Briar love 1>>
+		<<He>> hands you the <<printmoney 100000>><<money 100000 "brothelShow">> <<he>> promised.<<glove>><<npcincr Briar love 1>>
 	<</if>>
 	<br><br>
 <<elseif $enemyhealth lte 0>>
@@ -612,7 +611,7 @@ You return to the dressing room.
 <</if>>
 
 <<if $timer is 1 and $cumbucket is 1>>
-	The audience was very generous. <span class="red"> With a grinning smile, Briar empties a bucket over you.</span>
+	The audience was very generous. <span class="red">With a grinning smile, Briar empties a bucket over you.</span>
 	<br>
 	<<set _sexId to getSexesFromRandomGroup()>>
 	<span class="red">It's full of <<getfluidsfromgroup _sexId>>.</span> The audience cheers.
@@ -764,7 +763,7 @@ A red light glows from the front as it scans you. It moves its phallus in front 
 	You've earned <<printmoney 150000>><<money 150000 "brothelShow">>
 	<br><br>
 <<else>>
-	Sparks fly from the machine, and it falls inert. The audience break into discussion as Briar walks onto the stage. "There's been a technical fault-" The <<fullGroup>> usher you off the stage, and hand over your clothing.
+	Sparks fly from the machine, and it falls inert. The audience break into discussion as Briar walks onto the stage. "There's been a technical fault—" The <<fullGroup>> usher you off the stage, and hand over your clothing.
 	<br><br>
 
 	<<clotheson>>
@@ -870,7 +869,7 @@ A red light glows from the front as it scans you. The metal tentacles swarm arou
 	You've earned <<printmoney 150000>><<money 150000 "brothelShow">>
 	<br><br>
 <<else>>
-	Sparks fly from the machine, and the tentacles withdraw into the machine as it falls inert. The audience break into discussion as Briar walks onto the stage. "There's been a technical fault-" The <<fullGroup>> usher you off the stage, and hand over your clothing.
+	Sparks fly from the machine, and the tentacles withdraw into the machine as it falls inert. The audience break into discussion as Briar walks onto the stage. "There's been a technical fault—" The <<fullGroup>> usher you off the stage, and hand over your clothing.
 	<br><br>
 
 	<<clotheson>>
@@ -1128,11 +1127,11 @@ You've drained <<print $brothel_show_bukkake>> offerings so far.
 	<</if>>
 <<elseif $rng gte 33>>
 	<<if $speech_attitude is "meek">>
-		"I-if you treat me right," you say. "I'll return the favour."
+		"I-if you treat me right," you say, "I'll return the favour."
 	<<elseif $speech_attitude is "bratty">>
 		"Don't keep a hungry <<if $player.gender_appearance is "m">>incubus<<else>>succubus<</if>> waiting," you say. "Or you'll learn why we're feared."
 	<<else>>
-		"If you're good to me," you say. "I won't have to hurt you."
+		"If you're good to me," you say, "I won't have to hurt you."
 	<</if>>
 <<else>>
 	<<if $speech_attitude is "meek">>
@@ -1164,7 +1163,6 @@ The patrons speed up. They look almost pained.
 	<<set $seductiondifficulty to 8000>>
 <</if>>
 <<seductioncheck>>
-<br><br>
 <<seductionskilluptext>>
 <<seductionskilluse>>
 
@@ -1173,7 +1171,7 @@ The patrons speed up. They look almost pained.
 <<elseif $rng gte 33>>
 	You run your tongue over your hand, as if savouring a messy meal, and finish by licking your <<if $transformationParts.traits.fangs isnot "disabled">>fangs<<else>>teeth<</if>>. The <<people>> look scared, and even more aroused.
 <<else>>
-	You writhe on the ground, teasing the patrons with your eyes, testing their self control. You suspect they'd try to take you, if not for the stern member of security stood behind them. Instead, they redouble their masturbation, their hands ablur.
+	You writhe on the ground, teasing the patrons with your eyes, testing their self-control. You suspect they'd try to take you, if not for the stern member of security stood behind them. Instead, they redouble their masturbation, their hands ablur.
 <</if>>
 <<set $brothel_show_security += 1>>
 <br><br>
@@ -1214,7 +1212,6 @@ The patrons speed up. They look almost pained.
 <</if>>
 
 <<seductioncheck>>
-<br><br>
 <<seductionskilluptext>>
 <<seductionskilluse>>
 
@@ -1349,11 +1346,21 @@ You make <<printmoney `($brothel_show_bukkake * 5000) + 100000`>><<money `($brot
 <<npc Harper 2>><<person2>>
 
 In the middle of the room is what looks like a medical chair. Upon entering, you see
-<<if $hospitalintro is 0>><<set $hospitalintro to 1>>
-	a <<personsimple>>. <<He>> smiles at you. "Hello, I'm Doctor Harper," <<he>> says, brushing <<his>> blond fringe away from <<his>> eyes. <<He>> looks young, can't be older than 25.
+
+<<if $hospitalintro isnot 1>>
+	a <<personsimple>>.
+
+	<<if $hospitalintro is 0>>
+		<<He>> smiles at you. "Hello, I'm Doctor Harper," <<he>> says, brushing <<his>> blond fringe away from <<his>> eyes. <<He>> looks young for a doctor, can't be older than 25.
+	<<else>>
+		It's the doctor from the farm. The one who experimented on you. <<He>> smiles at you. "Hello, I'm Doctor Harper," <<he>> says. There's no recognition on <<his>> face.
+	<</if>>
+
+	<<set $hospitalintro to 1>>
 <<else>>
 	Doctor Harper.
 <</if>>
+
 <<He>> wears a white medical coat and white surgical gloves. <<He>> stands to greet you.
 <br><br>
 "Nothing to be nervous about. It is a simple procedure.<<if !_fullyNaked>> Please take off your clothes.<</if>>"
@@ -1387,7 +1394,7 @@ In the middle of the room is what looks like a medical chair. Upon entering, you
 	<br><br>
 	Your heart pounds as Harper spreads your legs. "I'm going to examine you, so just relax." <<He>> smiles. "I promise I'll be gentle."
 	<br><br>
-	You instinctively cover your <<genitals>> but as soon as you do, Harper asks, "Could you move your hands, please? I will need full access for this." <<= $player.virginity.penile is true and $player.virginity.vaginal is true ? "You comply, a tremor of excitement running through you.<<arousal 200 >><<garousal>>" : "You comply, with some trepidation.<<stress 6>><<gstress>>">>
+	You instinctively cover your <<genitals>> but as soon as you do, Harper asks, "Could you move your hands, please? I will need full access for this." <<= $player.virginity.penile is true and $player.virginity.vaginal is true ? "You comply, a tremor of excitement running through you.<<arousal 200>><<garousal>>" : "You comply, with some trepidation.<<stress 6>><<gstress>>">>
 	<br><br>
 
 	<<link [[Next|Brothel Show Virginity Examination]]>><</link>>
@@ -1558,7 +1565,7 @@ The pulses increase in intensity. It's certainly not the "tingle" that was adver
 <<if $player.virginity.penile is true and $player.virginity.vaginal is true>>
 	Finally, Doctor Harper lifts <<his>> head.
 	<br><br>
-	Harper stands and turns to Briar. "<span class="green"><<pShe>> is a virgin.</span>" Briar nods.
+	Harper stands and turns to Briar. <span class="green">"<<pShe>> is a virgin."</span> Briar nods.
 	<br><br>
 	<<outfitChecks>><<silently>><<clotheson>><</silently>>
 	<<= _fullyNaked ? "You stand" : "You get dressed">>, and a satisfied Briar leads you to the stage.
@@ -1570,7 +1577,7 @@ The pulses increase in intensity. It's certainly not the "tingle" that was adver
 	Finally, Doctor Harper lifts <<his>> head with a look of concern.
 	<br><br>
 	You know you are not a virgin, and now Harper does too. You look into the doctor's eyes, begging <<him>> not to tell. <<He>> ignores you.
-	Harper stands and turns to Briar. "<span class="red"><<pShe>> is not a virgin.</span>"
+	Harper stands and turns to Briar. <span class="red">"<<pShe>> is not a virgin."</span>
 	<br><br>
 	There is a moment of silence as Briar's eyes narrow. "I told you, for your own sake, not to lie about that." Briar advances on you with a glare. "You were here to sell your virginity. Now it looks like you'll need to sell something else."
 	<br><br>
@@ -1587,7 +1594,7 @@ The pulses increase in intensity. It's certainly not the "tingle" that was adver
 <<effects>>
 
 <<if $phase is 0>> /* Resist */
-	You struggle to pull your hand away from Briar, but <<his>> grip is too strong. <<= $leftarm is "bound" and $rightarm is "bound" ? "You gear up to kick <<person1>><<him>>" : "You wind up for a punch">> but are stopped by a sharp pain in your shoulder. Turning, you panic as you see Doctor Harper injecting you with a syringe. "It's for your own good," <<person2>><<he>> says.
+	You struggle to pull your hand away from Briar, but <<his>> grip is too strong. <<= pcAreArmsBound("both") ? "You gear up to kick <<person1>><<him>>" : "You wind up for a punch">> but are stopped by a sharp pain in your shoulder. Turning, you panic as you see Doctor Harper injecting you with a syringe. "It's for your own good," <<person2>><<he>> says.
 	<br><br>
 	Your body goes limp, and Briar drags you out onto the stage.<<pain 4>><<drugs 240>><<gpain>><<ggdrugged>>
 <<else>> /* Comply */
@@ -1611,7 +1618,7 @@ The pulses increase in intensity. It's certainly not the "tingle" that was adver
 	The audience clamours with excitement, as Briar continues. "One fresh virgin for the taking, and not just any virgin, but the <span class="pink"><<underworld_nickname>></span>, and today <<pher>> cherry could be yours!"
 	<br><br>
 	<<outfitChecks>>
-	<<if $leftarm is "bound" and $rightarm is "bound">>
+	<<if pcAreArmsBound("both")>>
 		<<if $exposed gte 1>>
 			<<set _exhibitionist to _fullyNaked ? 5 : 3>>
 			<<if hasSexStat("exhibitionism", _exhibitionist)>>
@@ -1746,7 +1753,7 @@ The pulses increase in intensity. It's certainly not the "tingle" that was adver
 			You give your admirers a wink as you finally reveal your <<genitals>>. The cheers grow louder. <<exhibitionism5>>
 		<</if>>
 	<<else>> /* Show off bindings */
-		<<if $leftarm is "bound" and $rightarm is "bound">>
+		<<if pcAreArmsBound("both")>>
 			You turn your back to the audience and strain against the bindings wrapped around your wrists. You struggle in vain for several seconds, making sure they all see how tightly bound you are.
 			<<if _fullyNaked or !_top>>
 				You turn back to face the audience <<if $player.breastsize gte 3>>and shake your <<breasts>> more obviously <</if>>as you continue a half hearted attempt to free your hands.
@@ -1824,7 +1831,6 @@ The pulses increase in intensity. It's certainly not the "tingle" that was adver
 			You are not sure what to do. You give the audience a little wave.
 		<<else>> /* Seduce */
 			<<seductioncheck>>
-			<br><br>
 			<<seductionskilluptext>>
 			<<seductionskilluse>>
 
@@ -1833,9 +1839,9 @@ The pulses increase in intensity. It's certainly not the "tingle" that was adver
 				<<if $worn.face.type.includes("gag")>>
 					You go into a coy crouch and give the audience a glance over your shoulder.
 				<<elseif $speech_attitude is "meek">>
-					"I-it's my first time. P-please be gentle," you say, shifting your feet<<if $leftarm isnot "bound" and $rightarm isnot "bound">> and holding your hands under your chin<</if>>.
+					"I-it's my first time. P-please be gentle," you say, shifting your feet<<if !pcAreArmsBound("any")>> and holding your hands under your chin<</if>>.
 				<<elseif $speech_attitude is "bratty">>
-					"It's my first time. Make it worth it," you say, <<= $leftarm is "bound" and $rightarm is "bound" ? "jutting out one hip" : "holding your hands on your hips">>.
+					"It's my first time. Make it worth it," you say, <<= pcAreArmsBound("both") ? "jutting out one hip" : "holding your hands on your hips">>.
 				<<else>>
 					"It's my first time. I'm ready," you say as you turn around for the audience.
 				<</if>>
@@ -1860,7 +1866,7 @@ The pulses increase in intensity. It's certainly not the "tingle" that was adver
 		<br><br>
 
 		<<if hasSexStat("promiscuity", 2)>>
-			<<if $leftarm isnot "bound" and $rightarm isnot "bound">>
+			<<if !pcAreArmsBound("any")>>
 				<<link [[Show off your hands|Brothel Show Virginity Auction]]>><<set $phase to 1>><<set $virginitytip += $handskill * 50>><</link>><<promiscuous2>><<skill_difficulty `currentSkillValue("handskill")` "Hand Skill" 1 800>>
 				<br>
 			<</if>>
@@ -2033,13 +2039,13 @@ The pulses increase in intensity. It's certainly not the "tingle" that was adver
 			<<if currentSkillValue("penileskill") gte random(1, 800)>>
 				<<set $virginitytip += 50000>>
 				<<if _bottomless>>
-					<<if $leftarm is "bound" and $rightarm is "bound">>
-						You lay on your back and thrust your hips high into the air, pointing your <<penis>> straight up.
+					<<if pcAreArmsBound("both")>>
+						You lie on your back and thrust your hips high into the air, pointing your <<penis>> straight up.
 					<<else>>
 						You stroke your <<penis>> leisurely, causing precum to bead at the tip.
 					<</if>>
 				<<else>>
-					<<if $leftarm is "bound" and $rightarm is "bound">>
+					<<if pcAreArmsBound("both")>>
 						Although tied behind your back, you manage to work your hand into your _bottom.name. With some finesse, you pull them aside enough for your <<penis>> to spring free.
 					<<else>>
 						You pull your _bottom.name aside, revealing your <<penis>>.
@@ -2052,7 +2058,7 @@ The pulses increase in intensity. It's certainly not the "tingle" that was adver
 				<<if _bottomless>>
 					You wiggle your hips back and forth, causing your <<penis>> to slap your thighs. The effect is more silly than seductive.
 				<<else>>
-					<<if $leftarm is "bound" and $rightarm is "bound">>
+					<<if pcAreArmsBound("both")>>
 						Try as you might, you cannot free your <<penis>> with your hands bound behind your back.
 					<<else>>
 						You attempt to pull your _bottom.name aside with one hand, but you fumble in your haste. The effect isn't as dramatic as you hoped.
@@ -2256,7 +2262,7 @@ Leaning against a wall, you catch your breath. You hear footsteps and look up to
 		You hold Briar's gaze for a moment before looking away awkwardly.
 	<</if>>
 	<br><br>
-	Finally Briar speaks. "The show was not a total flop though. There were certainly a lot of happy accidents among the crowd."
+	Finally, Briar speaks. "The show was not a total flop though. There were certainly a lot of happy accidents among the crowd."
 	<br><br>
 	<<He>> hands you <<= C.npc.Briar.love gte 40 ? "<<printmoney 100000>><<money 100000 'brothelShow'>>" : "<<printmoney 50000>><<money 50000 'brothelShow'>>">>. "Would have been more if you had given your cherry as promised. I expect better next time."
 <<else>>

@@ -83,6 +83,10 @@
 			<<set _passage to "Pirate Bed Lie">>
 			<<set $wardrobe_location to "pirate">>
 			<<set $storeLocation to "Pirate Bed Lie">>
+		<<case "Mansion Bed">>
+			<<set _passage to "Mansion Bed">>
+			<<set $wardrobe_location to "avery_mansion">>
+			<<set $storeLocation to "Mansion Bed">>
 		<<default>>
 			<<set _passage to "Bed">>
 			<<set $wardrobe_location to "wardrobe">>
@@ -107,6 +111,8 @@
 					<<else>>
 						<<farmicon "alexbed">>
 					<</if>>
+				<<elseif $location is "avery_mansion">>
+					<<icon "avery_bedroom.png">>
 				<<else>>
 					<<bedicon>>
 				<</if>>
@@ -301,8 +307,8 @@
 					<</if>>
 				<<else>>
 					<<set _foundEquip to null>><<set _lastResort to null>>
-					<<unset _randomColour>>
-					<<unset _randomColourAcc>>
+					<<unset _randomColourData>>
+					<<unset _randomColourAccData>>
 					<<for $_equipIndex, $_wardrobeItem range _selectedWardrobe[$_slot]>>
 						<<if $_incomingItemName isnot $_wardrobeItem.name or ($_wardrobeItem.outfitSecondary and !["broken", "split"].includes($_wardrobeItem.outfitSecondary[1]))>>
 							<<continue>>
@@ -316,6 +322,9 @@
 							<<if $_outfitColors[$_slot][1] is 0 and setup.clothes[$_slot].find(item => item.name === $_wardrobeItem.name).accessory_colour_options.length>>
 								<<set $_outfitColors[$_slot][1] to setup.clothes[$_slot].find(item => item.name === $_wardrobeItem.name).accessory_colour_options[0]>>
 							<</if>>
+							<<if $_outfitColors[$_slot][2] is 0 and setup.clothes[$_slot].find(item => item.name === $_wardrobeItem.name).pattern_options?.length>>
+								<<set $_outfitColors[$_slot][2] to setup.clothes[$_slot].find(item => item.name === $_wardrobeItem.name).pattern_options[0]>>
+							<</if>>
 							/* Start of checking for random colours */
 							<<set _randomColourListItem to $_wardrobeItem.name>>
 							<<if $_outfitColors[$_slot][0] is "random" or $_outfitColors[$_slot][1] is "random">>
@@ -325,42 +334,109 @@
 								<<if $_outfitColors[$_slot][0] and $_outfitColors[$_slot][0] isnot "random">>
 									<<set _tempColour to $_outfitColors[$_slot][0]>>
 									<<set $_randomColourItems to $_randomColourItems.filter(item => item.colour === T.tempColour)>>
+									/* Keep only the specific custom colour in the random pool */
+									<<if $_outfitColors[$_slot][0] is "custom">>
+										<<set _tempColourCustom to $_outfitColors[$_slot+"custom"][0]>>
+										<<set $_randomColourItems to $_randomColourItems.filter(item => item.colourCustom === _tempColourCustom)>>
+									<</if>>
 									<<unset _tempColour>>
 								<</if>>
 								<<if $_outfitColors[$_slot][1] and $_outfitColors[$_slot][1] isnot "random">>
 									<<set _tempColour to $_outfitColors[$_slot][1]>>
 									<<set $_randomColourItems to $_randomColourItems.filter(item => item.accessory_colour === T.tempColour)>>
+									/* Keep only the specific custom accessory colour in the random pool */
+									<<if $_outfitColors[$_slot][1] is "custom">>
+										<<set _tempColourCustom to $_outfitColors[$_slot+"custom"][1]>>
+										<<set $_randomColourItems to $_randomColourItems.filter(item => item.accessory_colourCustom === _tempColourCustom)>>
+									<</if>>
+									<<unset _tempColour>>
+								<</if>>
+								<<if $_outfitColors[$_slot][2] and $_outfitColors[$_slot][2] isnot "random">>
+									<<set _tempColour to $_outfitColors[$_slot][2]>>
+									<<set $_randomColourItems to $_randomColourItems.filter(item => item.pattern === T.tempColour)>>
 									<<unset _tempColour>>
 								<</if>>
 							<</if>>
 
 							/* Picks the random colours*/
-							<<if $_outfitColors[$_slot][0] is "random" and !_randomColour>>
+							<<if $_outfitColors[$_slot][0] is "random" and !_randomColourData>>
 								<<set _randomColourList to []>>
-								<<if $_randomColourItems and $_randomColourItems.length>>
-									<<run $_randomColourItems.forEach(item => T.randomColourList.pushUnique(item.colour))>>
+								<<if $_randomColourItems?.length>>
+									/* This used to be "T.randomColourList.pushUnique", but we need to account for custom colours */
+									<<run $_randomColourItems.forEach(item => {
+										var colourData = {colour: item.colour};
+										if (item.colour === "custom") {
+											colourData.colourCustom = item.colourCustom;
+										}
+										if (!T.randomColourList.some((item) =>
+													item.colour === colourData.colour &&
+													item.colourCustom === colourData.colourCustom)) {
+											T.randomColourList.push(colourData);
+										}
+									})>>
 								<</if>>
 								<<if _randomColourList.length>>
-									<<set _randomColour to _randomColourList[random(0, _randomColourList.length - 1)]>>
-									<<set $_randomColourItems to $_randomColourItems.filter(item => item.colour === T.randomColour)>>
+									/* _randomColourData might look like this:
+										{colour:"red"} or {colour:"custom",colourCustom:"filter..."} */
+									<<set _randomColourData to _randomColourList[random(0, _randomColourList.length - 1)]>>
+									<<set $_randomColourItems to $_randomColourItems.filter(item =>
+											item.colour === T.randomColourData.colour &&
+											item.colourCustom === T.randomColourData.colourCustom)>>
 								<</if>>
 							<</if>>
-							<<if $_outfitColors[$_slot][1] is "random" and !_randomColourAcc>>
+							<<if $_outfitColors[$_slot][1] is "random" and !_randomColourAccData>>
 								<<set _randomColourAccList to []>>
-								<<if $_randomColourItems and $_randomColourItems.length>>
-									<<run $_randomColourItems.forEach(item => T.randomColourAccList.pushUnique(item.accessory_colour))>>
+								<<if $_randomColourItems?.length>>
+									<<run $_randomColourItems.forEach(item => {
+										var colourData = {accessory_colour: item.accessory_colour};
+										if (item.accessory_colour === "custom") {
+											colourData.accessory_colourCustom = item.accessory_colourCustom;
+										}
+										if (!T.randomColourAccList.some((item) =>
+													item.accessory_colour === colourData.accessory_colour &&
+													item.accessory_colourCustom === colourData.accessory_colourCustom)) {
+											T.randomColourAccList.push(colourData);
+										}
+									})>>
 								<</if>>
 								<<if _randomColourAccList.length>>
-									<<set _randomColourAcc to _randomColourAccList[random(0, _randomColourAccList.length - 1)]>>
+									/* _randomColourAccData might look like this:
+										{accessory_colour:"red"} or {accessory_colour:"custom",accessory_colourCustom:"filter..."} */
+									<<set _randomColourAccData to _randomColourAccList[random(0, _randomColourAccList.length - 1)]>>
+								<</if>>
+							<</if>>
+							<<unset _randomColourListItem>>
+							<<if $_outfitColors[$_slot][2] is "random" and !_randomColourPatternData>>
+								<<set _randomColourPatternList to []>>
+								<<if $_randomColourItems?.length>>
+									<<run $_randomColourItems.forEach(item => {
+										var colourData = {pattern: item.pattern};
+										if (!T._randomColourPatternList.some((item) =>
+													item.pattern === colourData.pattern)) {
+											T.randomColourPatternList.push(colourData);
+										}
+									})>>
+								<</if>>
+								<<if _randomColourPatternList.length>>
+									<<set _randomColourPatternData to _randomColourPatternList[random(0, _randomColourPatternList.length - 1)]>>
 								<</if>>
 							<</if>>
 							<<unset _randomColourListItem>>
 
 							/* Skips over items that do not match the random colours */
-							<<if (!_randomColour or _randomColour isnot $_wardrobeItem.colour) and $_outfitColors[$_slot][0] isnot 0 and $_outfitColors[$_slot][0] isnot $_wardrobeItem.colour>>
+							<<if _randomColourData?.colour isnot $_wardrobeItem.colour and
+									$_outfitColors[$_slot][0] isnot 0 and
+									$_outfitColors[$_slot][0] isnot $_wardrobeItem.colour>>
 								<<continue>>
 							<</if>>
-							<<if (!_randomColourAcc or _randomColourAcc isnot $_wardrobeItem.accessory_colour) and $_outfitColors[$_slot][1] isnot 0 and $_outfitColors[$_slot][1] isnot $_wardrobeItem.accessory_colour>>
+							<<if _randomColourAccData?.accessory_colour isnot $_wardrobeItem.accessory_colour and
+									$_outfitColors[$_slot][1] isnot 0 and
+									$_outfitColors[$_slot][1] isnot $_wardrobeItem.accessory_colour>>
+								<<continue>>
+							<</if>>
+							<<if _randomColourPatternData?.pattern isnot $_wardrobeItem.pattern and
+									$_outfitColors[$_slot][2] isnot 0 and
+									$_outfitColors[$_slot][2] isnot $_wardrobeItem.pattern>>
 								<<continue>>
 							<</if>>
 							/* End of checking for random colours */
@@ -488,14 +564,14 @@
 										<<continue>>
 									<</if>>
 									/*Skip items that don't have matching colours*/
-									<<if $_foundPrimary.colour isnot $_possiblePiece.colour or ($_possiblePiece.accessory isnot 0 and $_foundPrimary.accessory_colour isnot $_possiblePiece.accessory_colour)>>
+									<<if $_foundPrimary.colour isnot $_possiblePiece.colour or ($_foundPrimary.accessory isnot 0 and ($_possiblePiece.accessory isnot 0 and $_foundPrimary.accessory_colour isnot $_possiblePiece.accessory_colour))>>
 										<<continue>>
 									<</if>>
 									/*Skip items that don't have matching custom colours*/
 									<<if $_primaryColourIsCustom and ($_foundPrimary.colourCustom is undefined or $_foundPrimary.colourCustom isnot $_possiblePiece.colourCustom)>>
 										<<continue>>
 									<</if>>
-									<<if $_primaryAccColourIsCustom and ($_foundPrimary.accessory isnot 0 and $_foundPrimary.accessory_colourCustom is undefined or $_foundPrimary.accessory_colourCustom isnot $_possiblePiece.accessory_colourCustom)>>
+									<<if $_primaryAccColourIsCustom and ($_foundPrimary.accessory isnot 0 and ($_possiblePiece.accessory isnot 0 and ($_foundPrimary.accessory_colourCustom is undefined or $_foundPrimary.accessory_colourCustom isnot $_possiblePiece.accessory_colourCustom)))>>
 										<<continue>>
 									<</if>>
 									/*Skip items that don't have matching patterns*/
@@ -503,6 +579,7 @@
 										<<continue>>
 									<</if>>
 									/*Found the correct item*/
+
 									<<set _foundEquip[clone($_outfitSlot)] to clone(_index)>>
 									<<set _equipSkip[$_outfitSlot] to true>>
 									<<set $_itemFound to true>>
@@ -724,7 +801,16 @@
 			<</for>>
 		<</if>>
 	<</if>>
-
+	<<if $wear_outfit isnot "none" and $outfit[$wear_outfit]?.positions>>
+		<<for $_slot range setup.clothingLayer.all>>
+			<<if $worn[$_slot].altposition and $outfit[$wear_outfit].positions[$_slot]>>
+				<<set $worn[$_slot].altposition to $outfit[$wear_outfit].positions[$_slot]>>
+			<</if>>
+			<<if $worn[$_slot].altsleeve and $outfit[$wear_outfit].positions.sleeves>>
+				<<set $worn[$_slot].altsleeve to $outfit[$wear_outfit].positions.sleeves>>
+			<</if>>
+		<</for>>
+	<</if>>
 	<<set $wear_outfit to "none">>
 	<<unset $storeLocation>>
 <</widget>>
@@ -733,15 +819,28 @@
 	<<if $delete_outfit is 2 and $wear_outfit isnot "none">>
 		<<set _equip to setup.clothingLayer.all>>
 		<<set _outfit to $outfit[$wear_outfit]>>
+		<<set _positions to {}>>
 		<<for $_slot range _equip>>
 			<<set _outfit[$_slot] to $worn[$_slot].name>>
 			<<if _outfit.colors>>
 				<<set _outfit.colors[$_slot] to [clone($worn[$_slot].colour),clone($worn[$_slot].accessory_colour)]>>
+				<<if $worn[$_slot].pattern>>
+					<<run _outfit.colors[$_slot].push(clone($worn[$_slot].pattern))>>
+				<</if>>
 				<<if $worn[$_slot].colour is "custom" or $worn[$_slot].accessory_colour is "custom">>
 					<<run _outfit.colors[$_slot+"custom"] to [clone($worn[$_slot].colourCustom),clone($worn[$_slot].accessory_colourCustom)]>>
 				<</if>>
 			<</if>>
+			<<if $worn[$_slot].altposition>>
+				<<set _positions[$_slot] to $worn[$_slot].altposition>>
+			<</if>>
+			<<if $worn[$_slot].altsleeve>>
+				<<set _positions.sleeves to $worn[$_slot].altsleeve>>
+			<</if>>
 		<</for>>
+		<<if Object.keys(_positions).length > 0>>
+			<<set _outfit.positions to _positions>>
+		<</if>>
 		<<set $wear_outfit to "none">>
 	<</if>>
 <</widget>>
@@ -993,6 +1092,9 @@
 							<<if _item.accessory_colour_options.length gt 0>>
 								<<set _colors[1] to _item.accessory_colour_options[0]>>
 							<</if>>
+							<<if _item.pattern_options?.length gt 0>>
+								<<set _colors[2] to _item.pattern_options[0]>>
+							<</if>>
 						<</if>>
 						<<set $outfit[_args[0]].colors[_label] to clone(_colors)>>
 					<</for>>
@@ -1054,6 +1156,11 @@
 							} else if(item.accessory_colour_options.length === 0 && V.outfit[outfitIndex].colors[slot][1] !== 0) {
 								V.outfit[outfitIndex].colors[slot][1] = 0;
 							}
+							if(item.pattern_options?.length > 0 && V.outfit[outfitIndex].colors[slot][2] === 0){
+								V.outfit[outfitIndex].colors[slot][2] = item.pattern_options[0];
+							} else if(item.pattern_options?.length === 0 && V.outfit[outfitIndex].colors[slot][2] !== 0) {
+								V.outfit[outfitIndex].colors[slot][2] = 0;
+							}
 						}
 					}).trigger('input change') })>>
 				</label>
@@ -1070,7 +1177,7 @@
 			<<set _colourOutfit to _args[0]>>
 			<<set $_item to setup.clothes[$_label].filter((item) => item.name === $outfit[_colourOutfit][_colourLabel])[0]>>
 			<<if $_item>>
-				<<if $_item.colour_options.length gt 0 or $_item.accessory_colour_options.length gt 0>>
+				<<if $_item.colour_options.length gt 0 or $_item.accessory_colour_options.length gt 0 or $_item.pattern_options?.length gt 0>>
 					<<print $_label>> - <<print $_item.name>>:
 					<<if $_item.colour_options.length gt 0>>
 						<<set $_colour_options to "$outfit["+_args[0]+"].colors['"+$_label+"'][0]">>
@@ -1083,6 +1190,13 @@
 						<<set $_accessory_colour_options to "$outfit["+_args[0]+"].colors['"+$_label+"'][1]">>
 						<<listbox `$_accessory_colour_options` autoselect>>
 							<<optionsfrom $_item.accessory_colour_options>>
+							<<option "random">>
+						<</listbox>>
+					<</if>>
+					<<if $_item.pattern_options?.length gt 1>>
+						<<set $_pattern_options to "$outfit["+_args[0]+"].colors['"+$_label+"'][2]">>
+						<<listbox `$_pattern_options` autoselect>>
+							<<optionsfrom $_item.pattern_options>>
 							<<option "random">>
 						<</listbox>>
 					<</if>>

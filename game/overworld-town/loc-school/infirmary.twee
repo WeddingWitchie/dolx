@@ -286,7 +286,11 @@ You approach the cabinets. They're locked up tight. Behind the glass, you see se
 <br><br>
 
 <<set $skulduggerydifficulty to 400>>
-<<schoolicon "infirmary">><<link [[Break in (0:01)|School Infirmary Steal Drugs]]>><<pass 1>><</link>><<skulduggerydifficulty>><<crime "trespassing">>
+<<if pcAreArmsBound("both")>>
+	You could try to pick the lock, <span class="blue">if your arms weren't bound.</span>
+<<else>>
+	<<schoolicon "infirmary">><<link [[Break in (0:01)|School Infirmary Steal Drugs]]>><<pass 1>><</link>><<skulduggerydifficulty>><<crime "trespassing">>
+<</if>>
 <br>
 <<getouticon>><<link [[Leave it alone|School Infirmary]]>><</link>>
 <br>
@@ -326,12 +330,7 @@ You approach the cabinets. They're locked up tight. Behind the glass, you see se
 <</if>>
 <br><br>
 
-<<if $skulduggery lte ($skulduggerydifficulty + 100)>>
-	<<skulduggeryskilluse>>
-<<else>>
-	<span class="blue">That was too easy. You didn't learn anything.</span>
-	<br><br>
-<</if>>
+<<skulduggeryuse>>
 
 <<link [[Next|School Infirmary]]>><<handheldon>><</link>>
 <br>
@@ -376,7 +375,7 @@ You wake up in an unfamiliar bed. Thin curtains surround you, hiding the rest of
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
 
 /* overrides random outcome if it's too late for anyone else to be at school, or if the pc meets conditions for unlocking Harper's therapy but hasn't yet done so */
-<<if Time.hour gte 17 or ($trauma gt ($traumamax / 10) * 2 and $psych is 0 and !$schoolPsych)>>
+<<if Time.hour gte 17 or ($trauma gt ($traumamax / 10) * 2 and !$harper_appointments.enabled and !$schoolPsych)>>
 	<<set _infirmaryVisitor to "nurse">>
 <<else>>
 	<<set _possibleVisitors to []>>
@@ -434,12 +433,12 @@ You don't know how much time has passed by the time you wake up, but your head f
 			<br><br>
 			The nurse jots something down in <<his>> journal, brow furrowed. "Sounds like you've been having a rough time, sweetheart."
 
-			<<if $psych is 0 and !$schoolPsych>><<set $schoolPsych to 1>>
+			<<if !$harper_appointments.enabled and !$schoolPsych>><<set $schoolPsych to 1>>
 				<br><br>
 				<<He>> rummages through <<his>> desk drawer, then hands you a small card. "Doctor Harper - Psychiatric Specialist" is emblazoned across the top in crisp letters. Underneath is an address to the civic hospital on Nightingale Street.
 				<br><br>
 
-				"<span class="gold"><<nnpc_He "Harper">> holds private therapy sessions every Friday</span>," the nurse explains. "Do yourself a favour and give <<nnpc_him "Harper">> a visit <<if Time.weekDay is 6>>later<<else>>sometime<</if>>, okay?"
+				<span class="gold">"<<nnpc_He "Harper">> holds private therapy sessions every Friday,"</span> the nurse explains. "Do yourself a favour and give <<nnpc_him "Harper">> a visit <<if Time.weekDay is 6>>later<<else>>sometime<</if>>, okay?"
 			<<else>>
 				<<He>> sighs. "Can't be helped, I guess. Just try not to push yourself, okay?"
 			<</if>>
@@ -558,7 +557,7 @@ You don't know how much time has passed by the time you wake up, but your head f
 		<br><br>
 
 		<<if C.npc.Robin.dom gte 20>>
-			"You got me scared, you know." <<He>> takes your hand in <<his>> own and gives it a gentle squeeze. <<takeHandholdingVirginity "Robin" `($robinromance is 1 ?'romantic':'consensual')`>>
+			"You got me scared, you know." <<He>> takes your hand in <<his>> own and gives it a gentle squeeze. <<takeHandholdingVirginity "Robin" `($robinromance is 1 ?'romantic':'consensual')` null true>>
 		<<else>>
 			"Thank goodness you're okay," <<he>> sighs, resting <<if $robinromance is 1 or $robinbreakup>><<his>> head<<else>>a hand<</if>> on your shoulder.
 		<</if>>
@@ -931,11 +930,11 @@ Once you're home, Robin leads you straight to your room.
 <<run statusCheck("Kylar")>>
 
 <<if $speech_attitude is "meek">>
-	You smile. "I'd love to-"
+	You smile. "I'd love to—"
 <<elseif $speech_attitude is "bratty">>
-	You shrug. "I guess I could-"
+	You shrug. "I guess I could—"
 <<else>>
-	You nod. "Yeah, let's-"
+	You nod. "Yeah, let's—"
 <</if>>
 <br><br>
 
@@ -943,11 +942,11 @@ Before you can finish, Kylar takes your arm and starts down the hallway. You're 
 <br><br>
 
 <<if _kylarStatus.includes("MaxRage")>>
-	<<His>> grip on your arm is almost painful as <<he>> leads you through the town. <<He>> looks ready to lash out at any moment. Passersby give the two of you a wide berth, shooting concerned glances your way.<<stress 6>><<gstress>>
+	<<His>> grip on your arm is almost painful as <<he>> leads you through the town. <<He>> looks ready to lash out at any moment. Passers-by give the two of you a wide berth, shooting concerned glances your way.<<stress 6>><<gstress>>
 <<elseif _kylarStatus.includes("Rage")>>
 	<<His>> grip on your arm is almost painful as <<he>> leads you through the town. <<His>> eyes dart about the streets nervously. "Too many people," <<he>> mutters. <<He>> drags you between alleys, away from their gazes.<<stress 4>><<gstress>>
 <<elseif _kylarStatus.includes("Sus")>>
-	<<Hes>> happy to walk with you, but <<he>> tenses up at any passersby. <<He>> mutters something under <<his>> breath, but you can't make it out.<<stress 2>><<gstress>>
+	<<Hes>> happy to walk with you, but <<he>> tenses up at any passers-by. <<He>> mutters something under <<his>> breath, but you can't make it out.<<stress 2>><<gstress>>
 <<else>>
 	<<Hes>> happy to walk with you, rubbing up against your arm as you walk.
 	<br><br>
@@ -974,7 +973,7 @@ Before you can finish, Kylar takes your arm and starts down the hallway. You're 
 
 <<if $phase is 1>>
 	You entwine your arm around Kylar's and grasp <<his>> hand. It clenches tight around yours.
-	<<takeHandholdingVirginity "Kylar" "romantic">>
+	<<takeHandholdingVirginity "Kylar" "romantic" null true>>
 	You glance at <<him>>. <<Hes>> looking away from you, but <<hes>> smiling.
 	<br><br>
 <</if>>
@@ -1220,7 +1219,7 @@ You refuse to comply with Whitney's whims. A cruel spark lights up in <<his>> ey
 	You heave Whitney away, <<his>> head clanging against the metal bedframe. <<He>> curses loudly.<<npcincr Whitney dom -1>><<ldom>>
 	<br><br>
 
-	Whitney rises to <<his>> feet, sporting a cocky smirk. "This bitch is rabid," <<he>> says to <<his>> friends. "Bet <<pshes>> here to get <<pher>> shots. Let's get out of here before we catch something." They leave the room, laughing.
+	Whitney rises to <<his>> feet, sporting a cocky smirk. "This <<bitch>> is rabid," <<he>> says to <<his>> friends. "Bet <<pshes>> here to get <<pher>> shots. Let's get out of here before we catch something." They leave the room, laughing.
 	<br><br>
 
 	<<clotheson>>
@@ -1314,7 +1313,7 @@ You refuse to comply with Whitney's whims. A cruel spark lights up in <<his>> ey
 	You heave Whitney away, sending <<him>> stumbling through the curtain. <<His>> friends watch in bemusement.<<npcincr Whitney dom -1>><<ldom>>
 	<br><br>
 
-	Whitney rises to <<his>> feet, sporting a cocky smirk. "This bitch is rabid," <<he>> says to <<his>> friends. "Bet <<pshes>> here to get <<pher>> shots. Let's get out of here before we catch something." They leave the room, laughing.
+	Whitney rises to <<his>> feet, sporting a cocky smirk. "This <<bitch>> is rabid," <<he>> says to <<his>> friends. "Bet <<pshes>> here to get <<pher>> shots. Let's get out of here before we catch something." They leave the room, laughing.
 	<br><br>
 
 	<<clotheson>>
@@ -1424,7 +1423,7 @@ You refuse to comply with Whitney's whims. A cruel spark lights up in <<his>> ey
 	You heave Whitney away, <<his>> head clanging against the metal bedframe. <<He>> curses loudly.<<npcincr Whitney dom -1>><<ldom>>
 	<br><br>
 
-	Whitney rises to <<his>> feet, sporting a cocky smirk. "This bitch is rabid," <<he>> says to <<his>> friends. "Bet <<pshes>> here to get <<pher>> shots. Let's get out of here before we catch something." They leave the room, laughing.
+	Whitney rises to <<his>> feet, sporting a cocky smirk. "This <<bitch>> is rabid," <<he>> says to <<his>> friends. "Bet <<pshes>> here to get <<pher>> shots. Let's get out of here before we catch something." They leave the room, laughing.
 	<br><br>
 
 	<<clotheson>>
@@ -1441,7 +1440,7 @@ You refuse to comply with Whitney's whims. A cruel spark lights up in <<his>> ey
 	<<clotheson>>
 	<<endcombat>>
 
-	<<tearful>> leave before the nurse gets back.
+	<<tearful>> you leave before the nurse gets back.
 <</if>>
 <br><br>
 
@@ -1493,15 +1492,28 @@ Beside the bed stands a person in a white coat, speaking with another blurry fig
 
 The two of them talk for some time, until one leaves, and the other turns around. Your vision starts to clear, giving you a good look at the <<personsimple>>.
 
-<<if $hospitalintro is 0>><<set $hospitalintro to 1>>
+<<if $hospitalintro isnot 1>>
 	<br><br>
-	<<He>> smiles at you. "Hello, I'm Doctor Harper." <<He>> takes a seat by your bedside and pulls <<his>> blond fringe away from <<his>> eyes. <<He>> looks young, can't be older than 25. <<He>> holds a clipboard in <<his>> hands.
+
+	<<if $hospitalintro isnot 0>>
+		It's the doctor from the farm. The one who experimented on you.
+	<</if>>
+
+	<<He>> smiles at you. "Hello, I'm Doctor Harper," <<he>> says.
+	
+	<<if $hospitalintro is 0>>
+		<<He>> takes a seat by your bedside and pulls <<his>> blond fringe away from <<his>> eyes. <<He>> looks young for a doctor, can't be older than 25. <<He>> holds a clipboard in <<his>> hands.
+	<<else>>
+		There's no recognition on <<his>> face. <<He>> takes a seat by your bedside, holding a clipboard in <<his>> hands.
+	<</if>>
+
+	<<set $hospitalintro to 1>>
 <<else>>
 	It's Doctor Harper. <<He>> smiles as <<he>> pulls out <<his>> clipboard.
 <</if>>
 <br><br>
 
-"You blacked out at school, I'm told," <<he>> starts. "I'm sure it's nothing to worry about, but I'd like to ask you a few questions."
+"You blacked out at school, I'm told," <<he>> says. "I'm sure it's nothing to worry about, but I'd like to ask you a few questions."
 <br><br>
 
 <<link [[Next|Hospital Bed Examination]]>><</link>>

@@ -1,9 +1,5 @@
 :: Moor Widgets [widget]
 <<widget "eventsmoorlow">>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $moorLessDangerAll>>
-		<<set $danger -= $moorLessDangerAll>>
-	<</if>>
 	<<if random(1, 8) is 8 or ($moormove is "quick_search" or $moormove is "normal_search" or $moormove is "careful_search" or $moormove is "fly_search") and random(1, 4) is 4>>
 		<<rng 3>>
 		<<if $rng is 3>>
@@ -43,39 +39,48 @@
 			<<elseif _moor_item is 2>>
 				Tufts of small white flowers grow among the heather.
 
-
-				<<if currentSkillValue('tending') gte 300>>
-					Wild carrots.
+				<<if pcAreArmsBound("both")>>
+					<span class="red">Both of your arms are bound</span>, so you are unable to pick wild carrots.
 					<br><br>
-
-					<<icon "tending/carrot.png">> <<link [[Pick wild carrots (0:30)|Moor Carrots]]>><<pass 30>><</link>><<tendingdifficulty 300 600>>
-					<br>
 				<<else>>
+					<<if currentSkillValue('tending') gte 300>>
+						Wild carrots.
+						<br><br>
 
-					<span class="blue">You need a higher tending skill to identify them.</span>
-					<br><br>
-				<</if>>
+						<<icon "tending/carrot.png">> <<link [[Pick wild carrots (0:30)|Moor Carrots]]>><<pass 30>><</link>><<tendingdifficulty 300 600>>
+						<br>
+					<<else>>
+
+						<span class="blue">You need a higher tending skill to identify them.</span>
+						<br><br>
+					<</if>>
+				</if>
 				<<mooricon>><<link [[Continue|Moor]]>><<set $eventskip to 1>><</link>>
 				<br>
 			<<else>>
 				<span class="pulse-glow pulse-fiery-orange">Bright orange berries gleam among the low-lying shrubs, their tart scent drifting through the moorland air.</span>
 
-				<<if currentSkillValue('tending') gte 200>>
-					<span class="pulse-glow pulse-fiery-orange">Cloudberries.</span>
+				<<if pcAreArmsBound("both")>>
+					<span class="red">Both of your arms are bound</span>, so you are unable to pick cloudberries.
 					<br><br>
-
-					<<icon "tending/cloudberry.png">> <<link [[Pick Cloudberries (0:30)|Moor Cloudberry]]>><<pass 30>><</link>><<tendingdifficulty 200 500>>
-					<br>
 				<<else>>
-					<span class="blue">You need a higher tending skill to identify them.</span>
-					<br><br>
+					<<if currentSkillValue('tending') gte 200>>
+						<span class="pulse-glow pulse-fiery-orange">Cloudberries.</span>
+						<br><br>
+
+						<<icon "tending/cloudberry.png">> <<link [[Pick Cloudberries (0:30)|Moor Cloudberry]]>><<pass 30>><</link>><<tendingdifficulty 200 500>>
+						<br>
+					<<else>>
+						<span class="blue">You need a higher tending skill to identify them.</span>
+						<br><br>
+					<</if>>
 				<</if>>
 
 				<<mooricon>><<link [[Continue|Moor]]>><<set $eventskip to 1>><</link>>
 				<br>
 			<</if>>
 		<</if>>
-	<<elseif $danger gte (9900 - ($allure * $forestmod))>>
+	<<elseif dangerEvent($forestmod, 9900 + ($moorLessDangerAll ?? 0))>>
 		<<rng 9>>
 		<<switch $rng>>
 		<<case 1>>
@@ -109,7 +114,7 @@
 				as you pass.
 				<<if $anxiety gte 1 and $controlled is 0>>
 					<br><br>
-					You don't feel comfortable until <<hes>> far behind you.<<gstress>><<stress 6>>
+					You don't feel comfortable until <<hes>> far behind you.<<anxiety_disorder_text>><<gstress>><<stress 6>>
 					<br><br>
 				<<else>>
 					You smile back.<<ltrauma>><<trauma -6>>
@@ -302,10 +307,6 @@
 <</widget>>
 
 <<widget "eventsmoormid">>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $moorLessDangerAll>>
-		<<set $danger -= $moorLessDangerAll>>
-	<</if>>
 	<<if random(1, 8) is 8 or ($moormove is "quick_search" or $moormove is "normal_search" or $moormove is "careful_search" or $moormove is "fly_search") and random(1, 4) is 4>>
 		<<rng 2>>
 		<<if $rng is 2>>
@@ -343,28 +344,39 @@
 				Green shoots erupt from the earth in clusters.
 				<br><br>
 
-				<<if currentSkillValue('tending') gte 400>>
-					<<icon "tending/onion.png">> <<link [[Pick onions (0:30)|Moor Onions]]>><<pass 30>><</link>><<tendingdifficulty 400 700>>
-					<br>
-				<<else>>
-
-					<span class="blue">You need a higher tending skill to identify them.</span>
+				<<if pcAreArmsBound("both")>>
+					<span class="red">Both of your arms are bound</span>, so you are unable to pick onions.
 					<br><br>
+				<<else>>
+					<<if currentSkillValue('tending') gte 400>>
+						<<icon "tending/onion.png">> <<link [[Pick onions (0:30)|Moor Onions]]>><<pass 30>><</link>><<tendingdifficulty 400 700>>
+						<br>
+					<<else>>
+
+						<span class="blue">You need a higher tending skill to identify them.</span>
+						<br><br>
+					<</if>>
 				<</if>>
+
 				<<mooricon>><<link [[Continue|Moor]]>><<set $eventskip to 1>><</link>>
 				<br>
 			<<elseif _moor_item is 2>>
 				<span class="pulse-glow pulse-fiery-orange">Bright orange berries gleam among the low-lying shrubs, their tart scent drifting through the moorland air.</span>
 
-				<<if currentSkillValue('tending') gte 200>>
-					<span class="pulse-glow pulse-fiery-orange">Cloudberries.</span>
+				<<if pcAreArmsBound("both")>>
+					<span class="red">Both of your arms are bound</span>, so you are unable to pick cloudberries.
 					<br><br>
-
-					<<icon "tending/cloudberry.png">> <<link [[Pick Cloudberries (0:30)|Moor Cloudberry]]>><<pass 30>><</link>><<tendingdifficulty 200 500>>
-					<br>
 				<<else>>
-					<span class="blue">You need a higher tending skill to identify them.</span>
-					<br><br>
+					<<if currentSkillValue('tending') gte 200>>
+						<span class="pulse-glow pulse-fiery-orange">Cloudberries.</span>
+						<br><br>
+
+						<<icon "tending/cloudberry.png">> <<link [[Pick Cloudberries (0:30)|Moor Cloudberry]]>><<pass 30>><</link>><<tendingdifficulty 200 500>>
+						<br>
+					<<else>>
+						<span class="blue">You need a higher tending skill to identify them.</span>
+						<br><br>
+					<</if>>
 				<</if>>
 
 				<<mooricon>><<link [[Continue|Moor]]>><<set $eventskip to 1>><</link>>
@@ -372,15 +384,20 @@
 			<<elseif _moor_item is 3>>
 				<span class="pulse-glow pulse-soft-violet">A strange, spiky flower emerges between the cracks of the rocky ground, its pale green and purple hues standing out against the dark soil.</span>
 
-				<<if currentSkillValue('tending') gte 500>>
-					<span class="pulse-glow pulse-soft-violet">Spiked Rampions.</span>
+				<<if pcAreArmsBound("both")>>
+					<span class="red">Both of your arms are bound</span>, so you are unable to pick spiked rampions.
 					<br><br>
-
-					<<icon "tending/spiked_rampion.png">> <<link [[Pick Spiked Rampion (0:30)|Moor Spiked Rampion]]>><<pass 30>><</link>><<tendingdifficulty 500 800>>
-					<br>
 				<<else>>
-					<span class="blue">You need a higher tending skill to identify them.</span>
-					<br><br>
+					<<if currentSkillValue('tending') gte 500>>
+						<span class="pulse-glow pulse-soft-violet">Spiked Rampions.</span>
+						<br><br>
+
+						<<icon "tending/spiked_rampion.png">> <<link [[Pick Spiked Rampion (0:30)|Moor Spiked Rampion]]>><<pass 30>><</link>><<tendingdifficulty 500 800>>
+						<br>
+					<<else>>
+						<span class="blue">You need a higher tending skill to identify them.</span>
+						<br><br>
+					<</if>>
 				<</if>>
 
 				<<mooricon>><<link [[Continue|Moor]]>><<set $eventskip to 1>><</link>>
@@ -403,7 +420,7 @@
 				<br>
 			<</if>>
 		<</if>>
-	<<elseif $danger gte (9900 - ($allure * $forestmod))>>
+	<<elseif dangerEvent($forestmod, 9900 + ($moorLessDangerAll ?? 0))>>
 		<<rng 11>>
 		<<switch $rng>>
 		<<case 1>>
@@ -652,10 +669,6 @@
 <</widget>>
 
 <<widget "eventsmoorhigh">>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $moorLessDangerAll>>
-		<<set $danger -= $moorLessDangerAll>>
-	<</if>>
 	<<if random(1, 8) is 8 or ($moormove is "quick_search" or $moormove is "normal_search" or $moormove is "careful_search" or $moormove is "fly_search") and random(1, 4) is 4>>
 		<<rng 2>>
 		<<if $rng is 2>>
@@ -688,28 +701,39 @@
 				Green shoots sprout from a bank.
 				<br><br>
 
-				<<if currentSkillValue('tending') gte 500>>
-					<<icon "tending/garlic.png">> <<link [[Pick garlic (0:30)|Moor Garlic]]>><<pass 30>><</link>><<tendingdifficulty 500 800>>
-					<br>
-				<<else>>
-
-					<span class="blue">You need a higher tending skill to identify them.</span>
+				<<if pcAreArmsBound("both")>>
+					<span class="red">Both of your arms are bound</span>, so you are unable to pick garlics.
 					<br><br>
+				<<else>>
+					<<if currentSkillValue('tending') gte 500>>
+						<<icon "tending/garlic.png">> <<link [[Pick garlic (0:30)|Moor Garlic]]>><<pass 30>><</link>><<tendingdifficulty 500 800>>
+						<br>
+					<<else>>
+
+						<span class="blue">You need a higher tending skill to identify them.</span>
+						<br><br>
+					<</if>>
 				<</if>>
+
 				<<mooricon>><<link [[Continue|Moor]]>><<set $eventskip to 1>><</link>>
 				<br>
 			<<elseif _moor_item is 2>>
 				<span class="pulse-glow pulse-soft-violet">A strange, spiky flower emerges between the cracks of the rocky ground, its pale green and purple hues standing out against the dark soil.</span>
 
-				<<if currentSkillValue('tending') gte 500>>
-					<span class="pulse-glow pulse-soft-violet">Spiked Rampions.</span>
+				<<if pcAreArmsBound("both")>>
+					<span class="red">Both of your arms are bound</span>, so you are unable to pick spiked rampions.
 					<br><br>
-
-					<<icon "tending/spiked_rampion.png">> <<link [[Pick Spiked Rampion (0:30)|Moor Spiked Rampion]]>><<pass 30>><</link>><<tendingdifficulty 500 800>>
-					<br>
 				<<else>>
-					<span class="blue">You need a higher tending skill to identify them.</span>
-					<br><br>
+					<<if currentSkillValue('tending') gte 500>>
+						<span class="pulse-glow pulse-soft-violet">Spiked Rampions.</span>
+						<br><br>
+
+						<<icon "tending/spiked_rampion.png">> <<link [[Pick Spiked Rampion (0:30)|Moor Spiked Rampion]]>><<pass 30>><</link>><<tendingdifficulty 500 800>>
+						<br>
+					<<else>>
+						<span class="blue">You need a higher tending skill to identify them.</span>
+						<br><br>
+					<</if>>
 				<</if>>
 
 				<<mooricon>><<link [[Continue|Moor]]>><<set $eventskip to 1>><</link>>
@@ -717,15 +741,20 @@
 			<<elseif _moor_item is 3>>
 				<span class="pulse-glow pulse-warm-amber">Low-lying, aromatic shrubs grow in thick clusters, their small green leaves releasing a rich scent when disturbed.</span>
 
-				<<if currentSkillValue('tending') gte 400>>
-					<span class="pulse-glow pulse-warm-amber">Scottish Bog Myrtles.</span>
+				<<if pcAreArmsBound("both")>>
+					<span class="red">Both of your arms are bound</span>, so you are unable to pick scottish bog myrtles.
 					<br><br>
-
-					<<icon "tending/scottish_bog_myrtle.png">> <<link [[Pick Scottish Bog Myrtle (0:30)|Moor Scottish Bog Myrtle]]>><<pass 30>><</link>><<tendingdifficulty 400 700>>
-					<br>
 				<<else>>
-					<span class="blue">You need a higher tending skill to identify them.</span>
-					<br><br>
+					<<if currentSkillValue('tending') gte 400>>
+						<span class="pulse-glow pulse-warm-amber">Scottish Bog Myrtles.</span>
+						<br><br>
+
+						<<icon "tending/scottish_bog_myrtle.png">> <<link [[Pick Scottish Bog Myrtle (0:30)|Moor Scottish Bog Myrtle]]>><<pass 30>><</link>><<tendingdifficulty 400 700>>
+						<br>
+					<<else>>
+						<span class="blue">You need a higher tending skill to identify them.</span>
+						<br><br>
+					<</if>>
 				<</if>>
 
 				<<mooricon>><<link [[Continue|Moor]]>><<set $eventskip to 1>><</link>>
@@ -733,15 +762,20 @@
 			<<elseif _moor_item is 4>>
 				<span class="pulse-glow pulse-soft-green">A cluster of tiny, pale-green orchids rises from the peat, nearly blending into the surrounding moss.</span>
 
-				<<if currentSkillValue('tending') gte 600>>
-					<span class="pulse-glow pulse-soft-green">Bog Orchids (Hammarbya Paludosa).</span>
+				<<if pcAreArmsBound("both")>>
+					<span class="red">Both of your arms are bound</span>, so you are unable to pick bog orchids.
 					<br><br>
-
-					<<icon "tending/bog_orchid.png">> <<link [[Pick Bog Orchid (Hammarbya Paludosa) (0:30)|Moor Bog Orchid]]>><<pass 30>><</link>><<tendingdifficulty 600 900>>
-					<br>
 				<<else>>
-					<span class="blue">You need a higher tending skill to identify them.</span>
-					<br><br>
+					<<if currentSkillValue('tending') gte 600>>
+						<span class="pulse-glow pulse-soft-green">Bog Orchids (Hammarbya Paludosa).</span>
+						<br><br>
+
+						<<icon "tending/bog_orchid.png">> <<link [[Pick Bog Orchid (Hammarbya Paludosa) (0:30)|Moor Bog Orchid]]>><<pass 30>><</link>><<tendingdifficulty 600 900>>
+						<br>
+					<<else>>
+						<span class="blue">You need a higher tending skill to identify them.</span>
+						<br><br>
+					<</if>>
 				<</if>>
 
 				<<mooricon>><<link [[Continue|Moor]]>><<set $eventskip to 1>><</link>>
@@ -764,7 +798,7 @@
 				<br>
 			<</if>>
 		<</if>>
-	<<elseif $danger gte (9900 - ($allure * $forestmod))>>
+	<<elseif dangerEvent($forestmod, 9900 + ($moorLessDangerAll ?? 0))>>
 		<<rng 10>>
 		<<switch $rng>>
 		<<case 1>>
@@ -876,9 +910,9 @@
 					You look closer at the coins. They're lying in dirt, but you can barely make out a hand buried under the dirt, loosely holding the money. There are vines and <<plant_details>> poking out of the dirt further away.
 					<br><br>
 				<</if>>
-				<<ind>><<link [[Take the money|Moor Plant Money]]>><<set $phase to 1>><</link>>
+				<<link [[Take the money|Moor Plant Money]]>><<set $phase to 1>><</link>>
 				<br>
-				<<getouticon>><<link [[Leave|Moor Plant Money]]>><<set $phase to 0>><</link>>
+				<<link [[Leave|Moor Plant Money]]>><<set $phase to 0>><</link>>
 			<<else>>
 				You step off the path and pocket the money. As you stand back up, the ground lurches, opening a fissure right where you used to be standing a few seconds ago.
 				<<ggstress>><<stress 12>>
@@ -1100,15 +1134,15 @@
 		<<pregnancyPassout "moor">>
 	<<else>>
 		<<passout>>
-		<<set $danger to random(1, 10000)>>
-		<<if $danger gte (9900 - $allure)>>
-			<<if random(1, 2) is 2>>
-				<<link [[Next|Moor Abduction Wake]]>><<if $moor lte 15>><<set $moor to 20>><</if>><</link>>
-				<br>
-			<<else>>
-				<<link [[Next|Moor Bird Wake]]>><</link>>
-				<br>
-			<</if>>
+		
+		<<if dangerEvent()>>
+			<<switch random(1, 2)>>
+				<<case 1>>
+					<<link [[Next|Moor Abduction Wake]]>><<if $moor lte 15>><<set $moor to 20>><</if>><</link>>
+				<<case 2>>
+					<<link [[Next|Moor Bird Wake]]>><</link>>
+			<</switch>>
+			<br>
 		<<else>>
 			<<ambulance>>
 		<</if>>
@@ -1189,7 +1223,7 @@
 		<<endevent>>
 
 		<<if ($harpy gte 6 or ($transformationParts.bird.wings isnot "hidden" and $transformationParts.bird.wings isnot "disabled"))>>
-			<<tficon "harpy">><<link [[Screech back|Moor Bird Screech]]>><</link>><<harpy>>
+			<<tficon "bird">><<link [[Screech back|Moor Bird Screech]]>><</link>><<harpy>>
 			<br>
 		<</if>>
 		<<mooricon>><<link [[Continue|Moor]]>><<set $eventskip to 1>><</link>>
@@ -1245,7 +1279,7 @@
 
 <<widget "moor_fox">>
 	<<beastNEWinit 1 fox>>
-	Your hear rustling from somewhere behind you. It sounds like it's getting closer.
+	You hear rustling from somewhere behind you. It sounds like it's getting closer.
 	<br><br>
 
 	<<link [[Dodge|Moor Fox Dodge]]>><</link>><<dancedifficulty 1 $NPCList[0].skills.athletics>>

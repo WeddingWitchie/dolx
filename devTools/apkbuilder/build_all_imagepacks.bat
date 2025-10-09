@@ -18,6 +18,7 @@ set target[12]=goosemasc
 set target[13]=mikili
 set target[14]=au
 set target[15]=au_mys
+set target[16]=aumasc
 
 set imagepack[0]=vanilla
 set imagepack[1]=beeesss
@@ -35,8 +36,9 @@ set imagepack[12]=goosemasc
 set imagepack[13]=mikili
 set imagepack[14]=aokiutage
 set imagepack[15]=aokiutage_mys
+set imagepack[16]=aokiutagemasc
 
-set array_length=15
+set array_length=16
 
 del ..\..\dist\*.apk
 
@@ -44,8 +46,6 @@ cd ..\..\
 
 for /L %%i in (0,1,%array_length%) do (
 	powershell -Command "(Get-Content -Path '.\version') -replace 'DoLP version', 'DoLP v0.%version% !imagepack[%%i]!' | Set-Content -Path '.\version'"
-
-	powershell -Command "(Get-Content -Path '.\devTools\androidsdk\image\cordova\config.xml') -replace 'DoLP version', 'DoLP v0.%version% !imagepack[%%i]!' | Set-Content -Path '.\devTools\androidsdk\image\cordova\config.xml'"
 
 	powershell -Command "(Get-Content -Path '.\devTools\apkbuilder\config.xml') -replace 'DoLP version', 'DoLP v0.%version% !imagepack[%%i]!' | Set-Content -Path '.\devTools\apkbuilder\config.xml'"
 
@@ -89,7 +89,7 @@ for /L %%i in (0,1,%array_length%) do (
 
 	cd .\dist\
 
-	ren "DoLP-v0.%version%-!imagepack[%%i]!-0.5.4.9 DoLP v0.%version% !imagepack[%%i]!-debug.apk" "0.5.4.9 DoLP v0.%version% !imagepack[%%i]!-debug.apk"
+	ren "DoLP-v0.%version%-!imagepack[%%i]!-0.5.5.9 DoLP v0.%version% !imagepack[%%i]!-debug.apk" "0.5.5.9 DoLP v0.%version% !imagepack[%%i]!-debug.apk"
 
 	cd ..\
 )

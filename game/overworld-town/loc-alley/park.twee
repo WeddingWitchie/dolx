@@ -43,10 +43,10 @@ Tulips grow in great patches near the riverbank.
 <<else>>
 	<<run statusCheck("Robin")>>
 	<<location-danger>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
+
 	<<if ($halloween_kylar is 1 or C.npc.Kylar.love gte 80) and $halloween_kylar_proposed isnot 1 and Time.dayState is "night" and C.npc.Kylar.init is 1 and C.npc.Kylar.state is "active" and (($halloween is 1 and Time.monthDay is 31 and Time.hour gte 21) or (Time.monthName is "November" and Time.monthDay is 1 and Time.hour lte 6)) and !$possessed>>
 		<<halloweenkylar>>
-	<<elseif ($danger gte (9900 - $allure - _locationDanger) or $eventforced) and $eventskip is 0>>
+	<<elseif (dangerEvent( - _locationDanger) or $eventforced) and $eventskip is 0>>
 		<<eventsstreet>>
 	<<elseif ($danger gte (12000 - _crime)) and !$daily.streetPolice and $eventskip is 0>>
 		<<streetpolice>>
@@ -173,7 +173,11 @@ Tulips grow in great patches near the riverbank.
 					<br>
 				<</if>>
 			<</if>>
-			<<icon "tending/tulip.png">> <<link [[Pick tulips (0:20)|Park Tulip Pick]]>><<pass 20>><<crimeUp 20 "petty">><</link>><<tendingdifficulty 1 200>><<crime "petty">>
+			<<if pcAreArmsBound("both")>>
+				<span class="red">Both of your arms are bound</span>, so you are unable to pick tulips.
+			<<else>>
+				<<icon "tending/tulip.png">> <<link [[Pick tulips (0:20)|Park Tulip Pick]]>><<pass 20>><<crimeUp 20 "petty">><</link>><<tendingdifficulty 1 200>><<crime "petty">>
+			<</if>>
 			<br>
 			<<if _robin_location is "park">>
 				<!-- if robin met, is not missing, trauma < 80%, on winter sundays 09:00 - 16:59 -->
@@ -203,9 +207,9 @@ Tulips grow in great patches near the riverbank.
 				<br><br>
 			<</if>>
 		<</if>>
-		<<maleicon>><<link [[Men's toilets (0:01)|Men's Toilets]]>><<if !$daily.bathroomIdentity>><<maleidentity 3>><<set $daily.bathroomIdentity to 1>><</if>><<pass 1>><<endevent>><</link>><<if !$daily.bathroomIdentity>><<if $player.gender is "m">><<g-genderidentity>><<else>><<l-genderidentity>><</if>><</if>>
+		<<icon "mentoilet.png">><<link [[Men's toilets (0:01)|Men's Toilets]]>><<if !$daily.bathroomIdentity>><<maleidentity 3>><<set $daily.bathroomIdentity to 1>><</if>><<pass 1>><<endevent>><</link>><<if !$daily.bathroomIdentity>><<if $player.gender is "m">><<g-genderidentity>><<else>><<l-genderidentity>><</if>><</if>>
 		<br>
-		<<femaleicon>><<link [[Women's toilets (0:01)|Women's Toilets]]>><<if !$daily.bathroomIdentity>><<femaleidentity 3>><<set $daily.bathroomIdentity to 1>><</if>><<pass 1>><<endevent>><</link>><<if !$daily.bathroomIdentity>><<if $player.gender is "f">><<g-genderidentity>><<else>><<l-genderidentity>><</if>><</if>>
+		<<icon "womentoilet.png">><<link [[Women's toilets (0:01)|Women's Toilets]]>><<if !$daily.bathroomIdentity>><<femaleidentity 3>><<set $daily.bathroomIdentity to 1>><</if>><<pass 1>><<endevent>><</link>><<if !$daily.bathroomIdentity>><<if $player.gender is "f">><<g-genderidentity>><<else>><<l-genderidentity>><</if>><</if>>
 		<<if $leftleg is "bound" or $rightleg is "bound">>
 			<br>
 			<<set $_boundType to ($leftleg is "bound" ? ($rightleg is "bound" ? "both legs" : "your left leg") : "your right leg")>>
@@ -273,7 +277,7 @@ Tulips grow in great patches near the riverbank.
 			<<if $schoolBlocked>>
 				/* none */
 			<<else>>
-				<<add_link "<<schoolicon 'courtyard'>><<link [[Secret tunnel to rear school courtyard (0:05)|School Rear Courtyard]]>><<pass 5>><</link>>">>
+				<<add_link "<<schoolicon 'courtyard'>><<link [[Secret tunnel to rear school courtyard (0:05)|School Rear Courtyard]]>><<pass 5>><</link>><br>">>
 				<br>
 			<</if>>
 		<</if>>

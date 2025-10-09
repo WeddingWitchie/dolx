@@ -60,7 +60,7 @@
 
 <<if $farm_destroyed is true>>
 	<<farm_assault_unbind>>
-	<<if $fields_damaged is 0>>
+	<<if $fields_damaged.length is 0>>
 		<span class="purple">With no fields to burn, the thugs flee the field.</span><<lcontrol>><<gtrauma>><<control -10>><<trauma 6>>
 		<br><br>
 		<<npc Remy>><<person1>>
@@ -84,9 +84,9 @@
 <<elseif _farm_assault_active isnot true>>
 	<<farm_assault_unbind>>
 	<span class="green">Driven back, the thugs flee the farm.</span>
-	<<if $fields_damaged gte 2>>
-		<span class="pink">They managed to torch <<number $fields_damaged>> fields.</span><<llcontrol>><<ggtrauma>><<control -25>><<trauma 12>>
-	<<elseif $fields_damaged gte 1>>
+	<<if $fields_damaged.length gte 2>>
+		<span class="pink">They managed to torch the <<ordinalList $fields_damaged.map(x=>x+1).toSorted()>> fields.</span><<llcontrol>><<ggtrauma>><<control -25>><<trauma 12>>
+	<<elseif $fields_damaged.length gte 1>>
 		<span class="blue">They managed to torch a field.</span><<lcontrol>><<gtrauma>><<control -10>><<trauma 6>>
 	<<else>>
 		<span class="green">They failed to torch a single field.</span><<ggcontrol>><<lltrauma>><<control 25>><<trauma -25>>
@@ -168,8 +168,6 @@ You find Alex lying on <<his>> face, an empty bottle beside <<him>>. <<Hes>> unc
 	<br><br>
 <</if>>
 
-<<unset $fields_damaged>>
-<<unset $farm_destroyed>>
 <<farm_assault_end>>
 
 <<link [[Next|Farm Bedroom]]>><<endevent>><</link>>
@@ -183,7 +181,7 @@ You find Alex lying on <<his>> face, an empty bottle beside <<him>>. <<Hes>> unc
 <<if $farm_destroyed is true>>
 	"You better stay the fuck away," Alex shouts after them. <<He>> turns to you. "I'm glad they wasted their time, but we shouldn't let them run rampant through the farm."
 	<br><br>
-<<elseif $fields_damaged gte 1>>
+<<elseif $fields_damaged.length gte 1>>
 	"You better stay the fuck away," Alex shouts after them. <<He>> turns to you, then to the smouldering field behind <<him>>. "We limited the damage," <<he>> says. "We'll be more prepared next time."
 	<br><br>
 <<else>>
@@ -229,7 +227,7 @@ You find Alex lying on <<his>> face, an empty bottle beside <<him>>. <<Hes>> unc
 	<<elseif $NPCList[0].traits.includes("brooding")>>
 		"Good job," <<he>> says. "Hope I helped."
 	<<else>>
-		"You should've seen me up there," <<he>> says. "Three-" <<He>> pauses. "I mean, five, burly monsters came climbing the side of the tower, but I sent them packing."
+		"You should've seen me up there," <<he>> says. "Three—" <<He>> pauses. "I mean, five, burly monsters came climbing the side of the tower, but I sent them packing."
 	<</if>>
 	<br><br>
 <<else>>
@@ -249,8 +247,6 @@ You walk back to the cottage.
 <span class="red">Remy will attack again in <<number $farm_attack_timer>> days.</span>
 <br><br>
 
-<<unset $fields_damaged>>
-<<unset $farm_destroyed>>
 <<farm_assault_end>>
 
 <<link [[Next|Farm Cottage]]>><<endevent>><</link>>
@@ -277,7 +273,7 @@ You rush outside, and find Alex stood in the yard.
 <</if>>
 <br><br>
 
-<<if $leftarm is "bound" or $rightarm is "bound">>
+<<if pcAreArmsBound("any")>>
 	Alex slices through your bindings. You're not defending the farm like that.
 	<<unbind>>
 	<br><br>
@@ -381,7 +377,6 @@ You hear shouting outside.
 			<<set $farm_assault.teams[_assault_keys[_s]].type to "remy">>
 		<</if>>
 	<</for>>
-	<<set $fields_damaged to 0>>
 	<<if $farm.kennel gte 1>>
 		<<set $farm_assault.dogs to 2>>
 	<<else>>
@@ -394,12 +389,13 @@ You hear shouting outside.
 		<<set $farm_assault.tower to "empty">>
 	<</if>>
 	<<set $farm_assault.alex to "patrol">>
+	<<set $fields_damaged to []>>
 <</widget>>
 
 <<widget "farm_assault_end">>
 	<<unset $farm_assault>>
-	<<unset $fields_damaged>>
 	<<unset $farm_destroyed>>
+	<<set $fields_damaged to []>>
 <</widget>>
 
 <<widget "farm_assault_progress">>
@@ -605,9 +601,9 @@ You hear shouting outside.
 	<<if _fighting is true or _guard_won is true or _guard_lost is true>>
 		Your walkie talkie picks up another signal. <span class="red">You hear a struggle, punctuated by static.</span>
 		<<if _guard_won is true>>
-			You peer at the watchtower. A body falls from the top. <span class="green">It's not $farm.tower_guard.</span> Seems they got the better of one of their attackers.
+			You peer at the watchtower. A body falls from the top. <span class="green">It's not $farm.tower_guard.</span> Seems $per_npc.farm_tower_guard.pronouns.he got the better of one of $per_npc.farm_tower_guard.pronouns.his attackers.
 		<<elseif _guard_lost is true>>
-			You peer at the watchtower. A body falls from the top. <span class="red">It's $farm.tower_guard.</span> They won't be helping for the rest of the assault.
+			You peer at the watchtower. A body falls from the top. <span class="red">It's $farm.tower_guard.</span> <<print toTitleCase($per_npc.farm_tower_guard.pronouns.he)>> won't be helping for the rest of the assault.
 		<</if>>
 		<br><br>
 	<<else>>
@@ -710,7 +706,12 @@ You hear shouting outside.
 		<<set _assault_keys to Object.keys($farm_assault.teams)>>
 		<<for _s to 0; _s lt _assault_keys.length; _s++>>
 			<<if $bus is $farm_assault.teams[_assault_keys[_s]].location and $farm_assault.alex is _assault_keys[_s]>>
-				<span class="teal">Alex crouches beside you.</span> "What's the plan?"
+				<span class="teal">Alex crouches beside you.</span>
+				<<if $farm_assault.bindings gte 1>>
+					<span class="green">Your bindings come loose.</span>
+					<<farm_assault_unbind>>
+				<</if>>
+				"What's the plan?"
 			<<elseif $farm_assault.alex is _assault_keys[_s]>>
 				Your walkie talkie picks up a signal. "I'm <<print either("pursuing","stalking","following","hunting","harrying")>> <<farm_assault_thugs>> at <<farm_assault_location>>," Alex says in a hushed voice.
 				<<if _alex_success>>
@@ -870,6 +871,9 @@ You hear shouting outside.
 		<<case 8>>
 			You are near the ninth field.
 	<</switch>>
+	<<if $fields_damaged.includes($bus)>>
+		<span class="red">It's engulfed in flames.</span>
+	<</if>>
 	<br>
 	<<if $farm_assault.bindings gte 1>>
 		You lie in the dirt, unable to move much.
@@ -1194,7 +1198,7 @@ You march into the open.
 <<elseif $speech_attitude is "bratty">>
 	"Get the fuck off my property," you say. "Before I feed you to the pigs."
 <<else>>
-	"If you leave now," you say. "I won't follow."
+	"If you leave now," you say, "I won't follow."
 <</if>>
 <br><br>
 <<set _assault_keys to Object.keys($farm_assault.teams)>>
@@ -1205,7 +1209,7 @@ You march into the open.
 				<<generate1>><<person1>>
 				<span class="red">The intruders laugh.</span>
 				<<if $fame.scrap gte 400>>
-					"<span class="pink"><<underworld_nickname>></span>," a <<person>> says. "Very scary. But there's scarier behind us."
+					<span class="pink">"<<underworld_nickname>>,"</span> a <<person>> says. "Very scary. But there's scarier behind us."
 				<<else>>
 					"Very scary," a <<person>> says. "But there's scarier behind us."
 				<</if>>
@@ -1214,7 +1218,7 @@ You march into the open.
 				<<generate1>><<person1>>
 				<span class="red">The <<person>> laughs.</span>
 				<<if $fame.scrap gte 400>>
-					"<span class="pink"><<underworld_nickname>></span>," <<he>> says. "Very scary. But there's scarier behind me."
+					<span class="pink">"<<underworld_nickname>>,"</span> <<he>> says. "Very scary. But there's scarier behind me."
 				<<else>>
 					"Very scary," <<he>> says. "But there's scarier behind me."
 				<</if>>
@@ -1503,12 +1507,10 @@ You march into the open.
 
 			<<if $farm_assault.teams[_assault_keys[_s]].number gte 2>>
 				<span class="green">You find one.</span> A <<generate1>><<person1>><<person>> strays too far from <<his>> fellows. You lunge from the dark, and smack <<him>> over the head. <<His>> body slumps to the earth, unconscious.
-				<br><br>
 				<<endevent>>
 				<<set $farm_assault.teams[_assault_keys[_s]].number -= 1>>
 			<<else>>
 				<span class="green">You find one.</span> The <<generate1>><<person1>><<person>> stands too close to a hedge, letting you sneak right behind <<him>>. You lunge from the dark, and smack <<him>> over the head. <<His>> body slumps to the earth, unconscious.
-				<br><br>
 				<<endevent>>
 				<<set $farm_assault.teams[_assault_keys[_s]].number -= 1>>
 			<</if>>
@@ -1529,11 +1531,12 @@ You march into the open.
 				A <<person1>><<person>> strays apart from the others, and you make your move, sneaking closer. You lunge from the dark, <span class="red">but the <<person>> spins and catches your arm.</span>
 				<br><br>
 				"Found the <<girl>>," <<he>> says as <<he>> shunts you away. You hear footsteps from behind.
-				<br><br>
 			<<else>>
 				You keep to the shadows as you stalk the intruder, waiting for an opening.
 			<</if>>
 			<br><br>
+
+			<<skulduggeryuse>>
 
 			<<link [[Next|Farm Assault Fight Bailey]]>><<set $fightstart to 1>><</link>>
 			<br>
@@ -1590,6 +1593,8 @@ You march into the open.
 				<span class="red">You can't find one.</span> The thugs stay too close together. Attacking one would alert the others.
 				<br><br>
 
+				<<skulduggeryuse>>
+
 				<<link [[Next|Farm Assault]]>><<endevent>><</link>>
 				<br>
 			<<else>>
@@ -1599,6 +1604,8 @@ You march into the open.
 
 				<<He>> turns and plants <<his>> feet, though you're not sure <<he>> knows quite where you are.
 				<br><br>
+
+				<<skulduggeryuse>>
 
 				<<link [[Fight|Farm Assault Fight]]>><<set $fightstart to 1>><</link>>
 				<br>

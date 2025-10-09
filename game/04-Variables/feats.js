@@ -642,6 +642,30 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Social"],
 	},
+	Kept: {
+		title: "Kept",
+		desc: "Accessed Avery's mansion.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+		hint: "Hint: Find a wealthy patron.",
+	},
+	"What Goes Around": {
+		title: "What Goes Around",
+		desc: "Bound Avery in their dungeon.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+		hint: "Hint: Turn the tables on a wealthy patron.",
+	},
+	"Pride Cometh": {
+		title: "Pride Cometh",
+		desc: "Finished Avery's tower.",
+		difficulty: 3,
+		series: "",
+		filter: ["All", "Social"],
+		hint: "Hint: Help a wealthy patron.",
+	},
 	"Haute Cuisine": {
 		title: "Haute Cuisine",
 		desc: "You gifted Avery a favourite food.",
@@ -2768,12 +2792,8 @@ function featsMerge() {
 			localStorageSaves.autosave.state.history = State.deltaDecode(localStorageSaves.autosave.state.delta);
 			DoLSave.decompressIfNeeded(localStorageSaves.autosave);
 
-			if (
-				localStorageSaves.autosave.state.history &&
-				localStorageSaves.autosave.state.history[0] &&
-				localStorageSaves.autosave.state.history[0].variables
-			) {
-				const variables = localStorageSaves.autosave.state.history[0].variables;
+			if (localStorageSaves.autosave.state?.history?.[localStorageSaves.autosave.state.index]?.variables) {
+				const variables = localStorageSaves.autosave.state.history[localStorageSaves.autosave.state.index].variables;
 				if (variables.feats) {
 					loadFeats(variables.feats.allSaves);
 					loadFeats(variables.feats.currentSave);
@@ -2787,8 +2807,8 @@ function featsMerge() {
 				if (slot) {
 					slot.state.history = State.deltaDecode(slot.state.delta);
 					DoLSave.decompressIfNeeded(slot);
-					if (slot.state.history && slot.state.history[0] && slot.state.history[0].variables) {
-						const variables = slot.state.history[0].variables;
+					if (slot.state.history?.[slot.state.index]?.variables) {
+						const variables = slot.state.history[slot.state.index].variables;
 						if (variables.feats) {
 							loadFeats(variables.feats.allSaves);
 							loadFeats(variables.feats.currentSave);
@@ -2809,12 +2829,11 @@ function featsMerge() {
 				saves.forEach((slot, index) => {
 					// auto-detect between uncompressed and compressed saves
 					const history = slot.data.history || State.deltaDecode(slot.data.delta);
-					history.forEach(saveData => {
-						if (saveData.variables.feats) {
-							loadFeats(saveData.variables.feats.allSaves);
-							loadFeats(saveData.variables.feats.currentSave);
-						}
-					});
+					const saveData = history[slot.data.index].variables;
+					if (saveData.feats) {
+						loadFeats(saveData.feats.allSaves);
+						loadFeats(saveData.feats.currentSave);
+					}
 					loadingBar.css("width", `${((localSavesChecked + index + 1) / savesToLoad) * 100}%`);
 					loadingText.html(`${index + 1} out of ${savesToLoad} saves checked.`);
 				})
@@ -2827,6 +2846,76 @@ function featsMerge() {
 	}
 }
 DefineMacro("featsMerge", featsMerge);
+
+function earnFeat(featName) {
+	if (!featName || V.feats.locked || V.cheatdisable !== "t" || V.debug || V.gamemode === "soft" || V.alluremod < 1 || V.statFreeze) return;
+
+	if (
+		V.feats.currentSave[featName] !== undefined ||
+		(V.feats.soft && setup.feats[featName].softLockable) ||
+		(V.feats.pregnancyLocked && setup.feats[featName].pregnancyLockable) ||
+		(V.feats.pregnancySillyLocked && setup.feats[featName].pregnancySillyLockable)
+	)
+		return;
+
+	V.feats.currentSave[featName] = new Date();
+	displayFeat(featName);
+}
+DefineMacro("earnFeat", earnFeat);
+
+function displayFeat(featName) {
+	const feat = setup.feats[featName];
+	if (!feat) return;
+
+	$(() => {
+		const passages = $("#passages");
+
+		const featsCount = passages.find(".feat").length;
+		const hidden = featsCount >= 3 ? " hiddenFeat" : "";
+
+		const wrapper = $("<div>", {
+			id: `feat-${featsCount}`,
+			class: `feat feat${featsCount}${hidden} feat-overlay`,
+		});
+
+		const coin = $("<img>", { class: "featCoin" });
+		switch (feat.difficulty) {
+			case 1:
+				coin.attr("src", "img/ui/CopperCoin.gif");
+				break;
+			case 2:
+				coin.attr("src", "img/ui/SilverCoin.gif");
+				break;
+			case 3:
+				coin.attr("src", "img/ui/GoldCoin.gif");
+				break;
+			case 4:
+				coin.attr("src", "img/ui/PlatinumCoin.gif");
+				break;
+			case 5:
+				coin.attr("src", "img/ui/JeweledCoin.gif");
+				break;
+		}
+
+		const featImage = $("<div>", { class: "featImage" }).append(coin);
+
+		const featText = $("<div>", { class: "featText" })
+			.append($("<span>", { class: "title" }).text(feat.title))
+			.append($("<span>", { class: "text" }).text(feat.desc));
+
+		const close = $("<div>", {
+			id: `closeFeat-${featsCount}`,
+			class: "closeFeat",
+			on: {
+				click: () => closeFeats(featsCount),
+			},
+		});
+
+		wrapper.append(featImage, featText, close);
+		passages.append(wrapper);
+	});
+}
+DefineMacro("displayFeat", displayFeat);
 
 // eslint-disable-next-line no-unused-vars
 function earnHourlyFeats() {

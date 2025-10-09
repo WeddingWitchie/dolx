@@ -44,7 +44,7 @@ You are in your cell. There's a bed in one corner, and a cupboard in another. A 
 		<</if>>
 	<</if>>
 
-	<<if $leftarm is "bound" or $rightarm is "bound">>
+	<<if pcAreArmsBound("any")>>
 		<<undobindingsicon>><<link [[Undo your bindings (0:10)|Prison Cell]]>><<set $unbind to 1>><<pass 10>><<arm_unbind>><</link>>
 		<br><br>
 	<</if>>
@@ -345,12 +345,7 @@ You lie on your mattress. It's hard to get comfortable<<if ($worn.neck.name is "
 
 <<wakingEffects $sleepHoursTotal>>
 <<if $nightmares gte 1 and $controlled is 0>>
-	<<if _wakingEffect isnot undefined>>
-		You dreamt of
-	<<else>>
-		You dream you are
-	<</if>>
-	being hunted by something <<if ["haunt", "despair"].includes($wraith.state) and $rng lte 25>>pale<<else>>dark<</if>> and terrible.
+	<<nightmareWake>>
 <<else>>
 	<<if ["dryheaving","nausea"].includes(_wakingEffect)>>
 		<br><br>
@@ -469,7 +464,7 @@ Schedule:
 <<ampm 20 00>>: Lights out
 <br><br>
 
-You have <span class="red">$prison.time</span> days left until release.
+You have <span class="red">$prison.time</span> <<pluralise $prison.time "day">> left until release.
 <br><br>
 
 <<link [[Step away|Prison Cell]]>><</link>>
@@ -545,7 +540,7 @@ You stand outside your cell, and wait as <<methodical_guard 0>> reads out each n
 	"Where's your gag?" <<he>> asks. "Come with me."
 	<br><br>
 	<<prison_repunishment_options>>
-<<elseif $prison.active_punishments.includes("bindings") and ($leftarm isnot "bound" or $rightarm isnot "bound")>>
+<<elseif $prison.active_punishments.includes("bindings") and !pcAreArmsBound("both")>>
 	"Your arms aren't supposed to be free," <<he>> says. "Come with me."
 	<br><br>
 	<<prison_repunishment_options>>
@@ -586,11 +581,11 @@ You stand outside your cell, and wait as <<methodical_guard 0>> reads out each n
 			<<set $prison.active_punishments.delete("nude")>>
 			<<if random(1, 2) is 2>>
 				<<set $prison.active_punishments.delete("topless")>>
-				"You can wear clothes again. <span class="pink">Underwear only however, and you must remain bottomless, for now."</span>
+				"You can wear clothes again. <span class="pink">Underwear only however, and you must remain bottomless, for now.</span>"
 				<br><br>
 			<<else>>
 				<<set $prison.active_punishments.delete("bottomless")>>
-				"You can wear clothes again. <span class="pink">Underwear only however, and you must remain topless, for now."</span>
+				"You can wear clothes again. <span class="pink">Underwear only however, and you must remain topless, for now.</span>"
 				<br><br>
 			<</if>>
 			<<link [[Next|Prison Walkway]]>><<endevent>><</link>>
@@ -607,15 +602,15 @@ You stand outside your cell, and wait as <<methodical_guard 0>> reads out each n
 			<<if $prison.active_punishments.includes("nude")>>
 				<<set $prison.active_punishments.delete("nude")>>
 				<<if $prison.active_punishments.includes("underwear")>>
-					"You can wear a bra or vest, but nothing more. <span class="pink">Remain naked from the waist down."</span>
+					"You can wear a bra or vest, but nothing more. <span class="pink">Remain naked from the waist down.</span>"
 					<br><br>
 				<<else>>
-					"You can wear a shirt again, <span class="pink">but must remain naked from the waist down.</span>
+					"You can wear a shirt again, <span class="pink">but must remain naked from the waist down.</span>""
 					<br><br>
 				<</if>>
 			<<else>>
 				<<if $prison.active_punishments.includes("underwear")>>
-					"You can cover your chest with a bra or vest, <span class="pink">but no shirts or such, for now."</span>
+					"You can cover your chest with a bra or vest, <span class="pink">but no shirts or such, for now.</span>"
 				<<else>>
 					<span class="green">"You can clothe yourself properly again."</span> This prompts the other inmates to take another gawk at you.
 				<</if>>
@@ -634,20 +629,20 @@ You stand outside your cell, and wait as <<methodical_guard 0>> reads out each n
 				<<set $prison.active_punishments.delete("nude")>>
 				<<if random(1, 2) is 2>>
 					<<set $prison.active_punishments.delete("topless")>>
-					"You can wear clothes again. <span class="pink">Underwear only however, and you must remain bottomless, for now."</span>
+					"You can wear clothes again. <span class="pink">Underwear only however, and you must remain bottomless, for now.</span>"
 					<br><br>
 				<<else>>
 					<<set $prison.active_punishments.delete("bottomless")>>
-					"You can wear clothes again. <span class="pink">Underwear only however, and you must remain topless, for now."</span>
+					"You can wear clothes again. <span class="pink">Underwear only however, and you must remain topless, for now.</span>"
 					<br><br>
 				<</if>>
 			<<else>>
 				<<set $prison.active_punishments.delete("underwear")>>
 				<<if $prison.active_punishments.includes("topless")>>
-					"You can wear trousers again. <span class="pink">But keep your chest bare, for now."</span>
+					"You can wear trousers again. <span class="pink">But keep your chest bare, for now.</span>"
 					<br><br>
 				<<elseif $prison.active_punishments.includes("bottomless")>>
-					"You can wear a shirt again. <span class="pink">You must remain naked from the waist down however, for now."</span>
+					"You can wear a shirt again. <span class="pink">You must remain naked from the waist down however, for now.</span>"
 					<br><br>
 				<<else>>
 					<span class="green">"You can clothe yourself properly again."</span> This prompts the other inmates to take another gawk at you.
@@ -668,14 +663,14 @@ You stand outside your cell, and wait as <<methodical_guard 0>> reads out each n
 			<<if $prison.active_punishments.includes("nude")>>
 				<<set $prison.active_punishments.delete("nude")>>
 				<<if $prison.active_punishments.includes("underwear")>>
-					"You can wear underwear again, <span class="pink">but must remain topless."</span>
+					"You can wear underwear again, <span class="pink">but must remain topless.</span>"
 				<<else>>
-					"You can wear trousers again, <span class="pink">but must remain topless."</span>
+					"You can wear trousers again, <span class="pink">but must remain topless.</span>"
 				<</if>>
 				<br><br>
 			<<else>>
 				<<if $prison.active_punishments.includes("underwear")>>
-					"You can wear underwear again, <span class="pink">but no shirts or such, for now."</span>
+					"You can wear underwear again, <span class="pink">but no shirts or such, for now.</span>"
 				<<else>>
 					<span class="green">"You can clothe yourself properly again."</span> This prompts the other inmates to take another gawk at you.
 				<</if>>
@@ -1230,7 +1225,7 @@ The interior is dark, even compared to the rest of the prison. There's a rack of
 This machine doesn't look or sound stable. You could probably inflict irreparable damage with one of the tools lying around, but you wouldn't get away with it.
 <br><br>
 
-<<edenicon "fix">><<link [[Sabotage|Prison Medical Sabotage]]>><<prison_hope 20>><<prison_reb 20>><<set $prison.shock to 0>><<prison_guards -20>><<prison_inmates 20>><</link>><<gggsuspicion>><<gggreb>><<ggghope>><<gggrespect>>
+<<choreicon "fix">><<link [[Sabotage|Prison Medical Sabotage]]>><<prison_hope 20>><<prison_reb 20>><<set $prison.shock to 0>><<prison_guards -20>><<prison_inmates 20>><</link>><<gggsuspicion>><<gggreb>><<ggghope>><<gggrespect>>
 <br>
 <<getouticon>><<link [[Leave|Prison Medical]]>><</link>>
 <br>
@@ -1391,7 +1386,7 @@ You are in the prison yard. It's spacious, but the surrounding walls are unreaso
 						<<prisonicon "run">><<link [[Run (0:30)|Prison Yard Run]]>><<endevent>><<tiredness 4>><</link>><<gathletics>><<gphysique>>
 						<br>
 					<</if>>
-					<<if $leftarm is "bound" or $rightarm is "bound">>
+					<<if pcAreArmsBound("any")>>
 						<span class="blue">You can't lift with your arms bound.</span>
 						<br>
 					<<else>>
@@ -1537,7 +1532,7 @@ You approach the large door. It's locked.
 	<br><br>
 
 	<<if currentSkillValue('skulduggery') gte $lock>>
-		<<if $leftarm is "bound" and $rightarm is "bound">>
+		<<if pcAreArmsBound("both")>>
 			You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
 			<br><br>
 		<<else>>
@@ -1600,7 +1595,7 @@ You close the door behind you, and walk towards the light, emerging on a beach.
 	<<generate3>>
 	You approach <<veteran_guard 0>>.
 
-	<<He>> seems happy to chat, despite <<his>> gruff demeanor.
+	<<He>> seems happy to chat, despite <<his>> gruff demeanour.
 	<br><br>
 
 	<<if $rng gte 81>>
@@ -2064,7 +2059,7 @@ You feel a light prick on your arm, and you start to feel fuzzy. "You'll be feel
 <br><br>
 
 <<person3>>
-Another voice cuts through the haze. It sounds like <<anxious_guard 2>>. "I-I can't believe this. Are you sure you know what you're doing? Maybe we should take <<phim>> to the mainland-"
+Another voice cuts through the haze. It sounds like <<anxious_guard 2>>. "I-I can't believe this. Are you sure you know what you're doing? Maybe we should take <<phim>> to the mainland—"
 <br>
 "Shut it. <<pShe>>'ll never make that trip. Look at <<phim>>, <<pshes>> ready to pop!" That sounded like <<veteran_guard 3>>.
 <br>

@@ -22,7 +22,7 @@ The school lockers are notoriously easy to break into, though thankfully, you've
 
 <<if !["early", "late", "earlynoschool", "latenoschool", "daynoschool"].includes($schoolstate)>>
 	<<if currentSkillValue('skulduggery') gte $lock>>
-		<<if $leftarm is "bound" and $rightarm is "bound">>
+		<<if pcAreArmsBound("both")>>
 			You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
 			<br><br>
 		<<else>>
@@ -38,13 +38,10 @@ The school lockers are notoriously easy to break into, though thankfully, you've
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
 <<wearProp "lockpick">>
 You successfully pick the locks.
+<br><br>
 
-<<if $skulduggery lt 100>>
-	<<skulduggeryskilluse>><<skulduggery 5>>
-<<else>>
-	<span class="blue">There's nothing more you can learn from locks this simple.</span>
-	<br><br>
-<</if>>
+<<skulduggeryuse 100 "locks" 5>>
+
 <<cleareventpool>>
 <<if $condomLvl gt 1>>
 	<<addinlineevent "Condom...will you poke" 0.25>>
@@ -60,6 +57,17 @@ You successfully pick the locks.
 		<<link [[Leave|School Lockers]]>><<handheldon>><</link>>
 		<br>
 	<</addinlineevent>>
+
+	<<if $studentCondomPrank and !$studentCondomPrank.test.seen and Time.date.timeStamp gte $studentCondomPrank.test.start and Time.date.timeStamp lt $studentCondomPrank.test.end>>
+		<<addinlineevent "condom prank result" 15>>
+			<<set $studentCondomPrank.test.seen to true>>
+			You rummage through the belongings, uncovering a positive pregnancy test beneath strewn aside books. A passing thought sends a shiver down your spine. <span class="lewd">With the condom pranks you've pulled, this could be evidence of your work backfiring.</span>
+			<br><br>
+
+			<<link [[Next|School Lockers]]>><<handheldon>><</link>>
+			<br>
+		<</addinlineevent>>
+	<</if>>
 <</if>>
 <<addinlineevent "Bus Fare" 0.3>>
 	<<wearProp "silver coin">>
@@ -105,7 +113,7 @@ You successfully pick the locks.
 	<<link [[Fight|School Lockers Fight]]>><<set $fightstart to 1>><<handheldon>><</link>>
 	<br>
 <</addinlineevent>>
-<<if C.npc.Kylar.init is 1 >>
+<<if C.npc.Kylar.init is 1>>
 	<<addinlineevent "KylarLocker" 0.015>>
 		<<if C.npc.Kylar.state is "prison">>
 			You open the locker. The inside is nearly completely bare and a thin layer of dust coats the bottom. Checking the adjacent locker numbers, you realise this is probably Kylar's locker. It seems the police cleaned it out for evidence.
@@ -125,7 +133,7 @@ You successfully pick the locks.
 		<<link [[Next|School Lockers]]>><<handheldon>><</link>>
 	<</addinlineevent>>
 <</if>>
-<<if C.npc.Whitney.init is 1 >>
+<<if C.npc.Whitney.init is 1>>
 	<<addinlineevent "WhitneyLocker" 0.015>>
 		<<if C.npc.Whitney.state is "dungeon">>
 			You open the locker. Dust motes puff out from the inside and you barely stop yourself from sneezing at the onslaught. Once the urge to sneeze abates, you begin picking through the dusty mess of discarded exam papers and cigarette cartons only to find a lost persons poster. Whitney's face is stamped on it; this was Whitney's locker.
@@ -144,7 +152,7 @@ You successfully pick the locks.
 		<<link [[Next|School Lockers]]>><<handheldon>><</link>>
 	<</addinlineevent>>
 <</if>>
-<<if C.npc.Robin.init is 1 >>
+<<if C.npc.Robin.init is 1>>
 	<<addinlineevent "RobinLocker" 0.015>>
 		The interior of the locker is surprisingly bare. There's little in the way of decoration and the only items inside are a few short pencils and a binder you instantly recognise as Robin's. The sheer bareness of the locker heavily reminds you of Robin's own room back at the orphanage.
 		<br><br>
@@ -157,7 +165,7 @@ You successfully pick the locks.
 		<<link [[Leave|School Lockers]]>><<handheldon>><</link>>
 	<</addinlineevent>>
 <</if>>
-<<if C.npc.Sydney.init is 1 >>
+<<if C.npc.Sydney.init is 1>>
 	<<addinlineevent "SydneyLocker" 0.015>>
 		<<wearProp "pen">>
 		As soon as you open the door, something clatters to the floor. You crouch down to pick it up; it's a red pen with the cap still firmly attached. A quick scan of the locker reveals dozens more neatly stacked into boxes against the walls of the lockers, alongside textbooks and a small umbrella. A cross hangs at the back and you realise the locker likely belongs to Sydney.
@@ -272,6 +280,35 @@ You quickly pocket the condom. You need it more than they do. <<gcondoms 1>>
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
 <<wearProp "condom">>
 You find a small pin in the locker, and use the tip to poke a tiny hole in the condom. <<promiscuity5>>
+
+<<script>>
+	if (V.studentCondomPrank && Time.date.timeStamp > V.studentCondomPrank.npc.end) {
+		delete V.studentCondomPrank;
+	}
+
+	if (100 / (20 -V.baseNpcPregnancyChance) >= random(1, 2) && !V.studentCondomPrank) {
+		const date = new DateTime(Time.date);
+		const days = random(7, 7 + V.humanPregnancyMonths*3);
+		const start = date.addDays(days).timeStamp;
+		const end = date.addDays(7).timeStamp;
+		const pregnancyStartDate = new DateTime(Time.date);
+		const pregnancyStart = pregnancyStartDate.addDays(V.humanPregnancyMonths*18).timeStamp;
+		const pregnancyEndDate = new DateTime(Time.date);
+		const pregnancyEnd = pregnancyEndDate.addMonths(V.humanPregnancyMonths).timeStamp;
+		V.studentCondomPrank = {
+			test: {
+				start: start,
+				end: end,
+				seen: false
+			},
+			npc: {
+				start: pregnancyStart,
+				end: pregnancyEnd,
+				seen: false
+			}
+		}
+	}
+<</script>>
 
 <<link [[Next|School Lockers]]>><<handheldon>><</link>>
 <br>

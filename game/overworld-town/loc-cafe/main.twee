@@ -33,7 +33,7 @@ You are in the Ocean Breeze Cafe.
 	<br><br>
 
 	"World-class!" Sam beams.
-	"I've decided to increase the price to <span class="gold">£100</span>. We have a limited supply after all, and can't keep up with demand as it is."
+	"I've decided to increase the price to <<printmoney 10000>>. We have a limited supply after all, and can't keep up with demand as it is."
 	<br><br>
 
 	<<He>> returns to work, humming some tune.
@@ -169,17 +169,22 @@ You are in the Ocean Breeze Cafe.
 			<<ind>><<link [[Accept job offer|Chef Work Accept]]>><</link>>
 			<br>
 		<<elseif $chef_state gte 1>>
-			<<skinicon "chef">><<link [[Work as a chef (1:00)|Chef Work]]>><</link>>
+			<<if pcAreArmsBound("both")>>
+				<span class="red">Both of your arms are bound</span>, so you are unable to work as a chef.
+			<<else>>
+				<<skinicon "chef">><<link [[Work as a chef (1:00)|Chef Work]]>><</link>>
+			<</if>>
 			<br>
 		<</if>>
 		<<if $chef_state is 3>>
 			<<ind>><<link [["Accept Sam's offer"|Chef Photographer]]>><</link>>
 			<br>
 		<</if>>
-		<<skinicon "waiter">><<link [[`Work as a ${$player.gender_appearance is "m" ? "waiter" : "waitress"} (1:00)`|Ocean Breeze Work]]>>
-			<<set $tablesservedstat += random(10,30)>>
-			<<timeTrackingStart "cafe">><<timeTrackingStart "cafeWaiter">>
-		<</link>>
+		<<if pcAreArmsBound("both")>>
+			<span class="red">Both of your arms are bound</span>, so you are unable to work as a <<print $player.gender_appearance is "m" ? "waiter" : "waitress">>.
+		<<else>>
+			<<skinicon "waiter">><<link [[`Work as a ${$player.gender_appearance is "m" ? "waiter" : "waitress"} (1:00)`|Ocean Breeze Work]]>><<set $tablesservedstat += random(10,30)>><</link>>
+		<</if>>
 		<br>
 	<</if>>
 
@@ -193,7 +198,7 @@ You are in the Ocean Breeze Cafe.
 	<</if>>
 	<<if $money gte 700>>
 		<<if Time.season is "winter">>
-			<<foodicon "winter_ale">>
+			<<foodicon "winterale">>
 			<<if playerIsPregnant() and playerAwareTheyArePregnant()>>
 				<span class="blue">You can't bring yourself to drink winter ale while you know you're with child.</span>
 			<<else>>
@@ -201,7 +206,7 @@ You are in the Ocean Breeze Cafe.
 			<</if>>
 			<br>
 		<<elseif Time.season is "spring">>
-			<<foodicon "fruity_ale">>
+			<<foodicon "fruityale">>
 			<<if playerIsPregnant() and playerAwareTheyArePregnant()>>
 				<span class="blue">You can't bring yourself to drink fruity ale while you know you're with child.</span>
 			<<else>>
@@ -217,7 +222,7 @@ You are in the Ocean Breeze Cafe.
 			<</if>>
 			<br>
 		<<else>>
-			<<foodicon "autumn_ale">>
+			<<foodicon "autumnale">>
 			<<if playerIsPregnant() and playerAwareTheyArePregnant()>>
 				<span class="blue">You can't bring yourself to drink autumn ale while you know you're with child.</span>
 			<<else>>
@@ -266,7 +271,7 @@ You are in the Ocean Breeze Cafe.
 <</if>>
 
 <br>
-<<clifficon>><<link [[Leave|Cliff Street]]>><</link>>
+<<clifficon>><<link [[Leave|Cliff Street]]>><<handheldon>><</link>>
 <br><br>
 
 <</if>>
@@ -274,9 +279,10 @@ You are in the Ocean Breeze Cafe.
 :: Ocean Breeze Lock
 <<set $outside to 1>><<effects>><<set $lock to 200>>
 The cafe is closed. <<openinghours>>
-<br>
+<br><br>
+
 <<if currentSkillValue('skulduggery') gte $lock>>
-	<<if $leftarm is "bound" and $rightarm is "bound">>
+	<<if pcAreArmsBound("both")>>
 		You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
 		<br><br>
 	<<else>>
@@ -382,7 +388,7 @@ Please be patient with them; they don't mean nothing by it! We're always underst
 		<</if>>
 		<br><br>
 
-		You gleefully chat with Robin for a few minutes before taking <<his>> order. <<He>> orders a _beverage. You prepare <<his>> beverage and bring it to <<his>> table. <<He>> sips the _beverage and smiles. "It's really good!"
+		You gleefully chat with Robin for a few minutes before taking <<his>> order. <<He>> orders <<if _beverage is "eggnog">>an<<else>>a<</if>> _beverage. You prepare <<his>> beverage and bring it to <<his>> table. <<He>> sips the _beverage and smiles. "It's really good!"
 		<br><br>
 
 		<<He>> finishes <<his>> drink, and then stands up. <<He>> <<if $robinromance gte 1>>kisses<<else>>hugs<</if>> you before leaving.
@@ -455,7 +461,7 @@ Please be patient with them; they don't mean nothing by it! We're always underst
 	<</if>>
 
 <<elseif $rng gte 81>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
+
 	<<if playerBellyVisible() and $lactating is 1 and $breastfeedingdisable is "f">>
 		<<generate1>><<generate2>><<person1>>
 		A voice calls out to you. "Oi, <<if $player.gender_appearance is "m">>waiter<<else>>waitress<</if>>!" you hear from a corner of the cafe. You approach the table, and find the voice belonging to a <<person>> who regards you with rage once you arrive. A <<person2>><<person>> sits in front of <<him>>.
@@ -468,7 +474,7 @@ Please be patient with them; they don't mean nothing by it! We're always underst
 		<br><br>
 
 		<<if $milk_amount gte 1>>
-			<<link [[Agree|Ocean Breeze Pregnant Milk Accept]]>><<npcincr Sam love 2>><</link>><<glove>><<promiscuous1>>
+			<<link [[Agree|Ocean Breeze Pregnant Milk Accept]]>><<npcincr Sam love 2>><</link>><<glove Sam>><<promiscuous1>>
 			<br>
 		<<else>>
 			<span class = "pink">You don't have enough milk left.</span>
@@ -477,7 +483,7 @@ Please be patient with them; they don't mean nothing by it! We're always underst
 		<<link [[Refuse|Ocean Breeze Pregnant Milk Refuse]]>><</link>>
 		<br>
 
-	<<elseif $danger gte (9900 - $allure)>>
+	<<elseif dangerEvent()>>
 		<<generate1>><<person1>>You serve a <<person>> who orders a bun. <<He>> licks the cream. "That's so good," <<he>> gasps.
 		<<He>> pulls back a chair and slides the plate in front of it. "Please, sit and try some. My treat." The cafe isn't very busy.
 		<br><br>
@@ -534,8 +540,8 @@ Please be patient with them; they don't mean nothing by it! We're always underst
 	<<link [[Next|Ocean Breeze]]>><<endevent>><</link>>
 
 <<elseif $rng gte 61>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (9900 - $allure)>>
+
+	<<if dangerEvent()>>
 		<<generate1>><<generate2>>You serve a young pair, a <<fullGroup>>.
 		<<if wornSetupClothes("lower").skirt is 1>>
 			<<if $worn.under_lower.type.includes("naked")>>
@@ -595,19 +601,19 @@ Please be patient with them; they don't mean nothing by it! We're always underst
 	<</if>>
 
 <<elseif $rng gte 51>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
+
 	A couple of tourists are sat at one of your tables.
-	<<if $danger gte (9900 - $allure)>>
+	<<if dangerEvent()>>
 		<<generate1>><<generate2>>
 		<<person1>>You overhear the <<person>> telling the <<person2>><<person>> about the town in a hushed voice.
 		<br>
 		<<person1>>"I swear," <<he>> says. "This town is a dream for people like us. You can do whatever you like here. No one stops you."
 		<br>
-		"Is it true that even the police won't-"
+		"Is it true that even the police won't—"
 		<br>
 		"The police? They're worse than the rest! Slip 'em a few quid, and they'll probably cuff a <<girl>> down for you."
 		<br>
-		"Wow. Like, anyone? It doesn't matter how-"
+		"Wow. Like, anyone? It doesn't matter how—"
 		<br>
 		"Anyone. Hey." <<He>> looks at you. "You. <<if playerBellyVisible()>>You're pregnant.<<elseif $beauty gte($beautymax / 7) * 2>>You're cute.<</if>> You've been raped, right?"
 		<br><br>
@@ -642,10 +648,10 @@ Please be patient with them; they don't mean nothing by it! We're always underst
 	<</if>>
 
 <<elseif $rng gte 41>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
+
 
 	<<generate1>><<person1>> A <<person>> enters the cafe and sits alone in the corner.
-	<<if $danger gte (9900 - $allure)>>
+	<<if dangerEvent()>>
 		<<He>> keeps stealing glances at you, and when you go to take <<his>> order <<he>> asks only for a glass of water.
 		As you turn to leave <<he>> grabs your wrist.
 		"You don't happen to be on the menu, do you?" <<He>> smiles.
@@ -676,24 +682,24 @@ Please be patient with them; they don't mean nothing by it! We're always underst
 	<</if>>
 
 <<elseif $rng gte 31>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (9900 - $allure)>>
+
+	<<if dangerEvent()>>
 		<<generateRole 0 0 "waiter/waitress">><<person1>>
 		A <<person>> collides with you as you exit the kitchen, spilling warm soup over your
 		<<if $worn.upper.type.includes("naked")>>chest<<else>>$worn.upper.name.<</if>>
 		"I am so sorry," <<he>> says, reaching for a towel. Customers turn to watch.
 		<br><br>
 
-		<<link [[Ignore|Ocean Breeze Soup Ignore]]>><<npcincr Sam love 2>><<stress 6>><<pain 20>><</link>><<glove>><<gpain>><<gstress>>
+		<<link [[Ignore|Ocean Breeze Soup Ignore]]>><<npcincr Sam love 2>><<stress 6>><<pain 20>><</link>><<glove Sam>><<gpain>><<gstress>>
 		<br>
-		<<link [[Confront|Ocean Breeze Soup Confront]]>><<npcincr Sam love -1>><<stress -6>><<trauma -6>><</link>><<llove>><<ltrauma>><<lstress>>
+		<<link [[Confront|Ocean Breeze Soup Confront]]>><<npcincr Sam love -1>><<stress -6>><<trauma -6>><</link>><<llove Sam>><<ltrauma>><<lstress>>
 		<br>
 		<<if !$worn.upper.type.includes("naked")>>
 			<<if $player.gender_appearance is "m" and $player.breastsize lte 2>>
-				<<link [[Remove top|Ocean Breeze Remove]]>><<npcincr Sam love 2>><</link>><<glove>>
+				<<link [[Remove top|Ocean Breeze Remove]]>><<npcincr Sam love 2>><</link>><<glove Sam>>
 				<br>
 			<<elseif hasSexStat("exhibitionism", 4)>>
-				<<link [[Remove top|Ocean Breeze Remove Lewd]]>><<npcincr Sam love 2>><</link>><<glove>><<exhibitionist4>>
+				<<link [[Remove top|Ocean Breeze Remove Lewd]]>><<npcincr Sam love 2>><</link>><<glove Sam>><<exhibitionist4>>
 				<br>
 			<</if>>
 		<</if>>
@@ -711,8 +717,8 @@ Please be patient with them; they don't mean nothing by it! We're always underst
 	<</if>>
 
 <<elseif $rng gte 21>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (9900 - $allure)>>
+
+	<<if dangerEvent()>>
 		<<generate1>><<generate2>><<generate3>><<generate4>>
 		A large group enters the cafe, taking up several tables by themselves.
 		You try to ask for their order, but a <<person1>><<person>> sitting at the head interrupts you.
@@ -744,9 +750,9 @@ Please be patient with them; they don't mean nothing by it! We're always underst
 		"Our chef's stormed off again. I need someone to fill in. Don't worry, it's not hard, and I'll pay you double. Will you help me out?"
 		<br><br>
 
-		<<link [[Accept|Chef Help]]>><<npcincr Sam love 2>><</link>><<glove>>
+		<<link [[Accept|Chef Help]]>><<npcincr Sam love 2>><</link>><<glove Sam>>
 		<br>
-		<<link [[Refuse|Ocean Breeze Chef Refuse]]>><<npcincr Sam love -1>><</link>><<llove>>
+		<<link [[Refuse|Ocean Breeze Chef Refuse]]>><<npcincr Sam love -1>><</link>><<llove Sam>>
 		<br>
 
 	<<else>>
@@ -803,11 +809,11 @@ Please be patient with them; they don't mean nothing by it! We're always underst
 
 		You load the plates onto serving trays and <<dancetext>> balance them on your shoulders, careful not to let anything spill. <span class="green">You manage to get everything to the table in one piece.</span>
 		<br><br>
-		<<npc Sam>><<person1>>Sam gives you a thumbs-up as <<he>> walks by.<<npcincr Sam love 1>><<glove>>
+		<<npc Sam>><<person1>>Sam gives you a thumbs-up as <<he>> walks by.<<npcincr Sam love 1>><<glove Sam>>
 		<br><br>
 		The rest of the shift passes uneventfully. Someone left you a tip.<<tipreceive "cafeWaiter">>
 	<<else>>
-		You load the plates onto serving trays and <<dancetext>> balance them on your shoulders, careful not to let anything spill. You lose your balance on your way out of the kitchen, however, <span class="red">and accidentally dump several plates' worth of food onto the floor.</span> Sam gives you a disapproving look.<<npcincr Sam love -1>><<llove>><<stress 6>><<gstress>>
+		You load the plates onto serving trays and <<dancetext>> balance them on your shoulders, careful not to let anything spill. You lose your balance on your way out of the kitchen, however, <span class="red">and accidentally dump several plates' worth of food onto the floor.</span> Sam gives you a disapproving look.<<npcincr Sam love -1>><<llove Sam>><<stress 6>><<gstress>>
 		<br><br>
 		You sigh as you begin cleaning up your mess.
 		<br><br>
@@ -901,11 +907,9 @@ The rest of the shift passes uneventfully. Someone left you a tip.
 
 :: Ocean Breeze Angry
 <<set $outside to 0>><<set $location to "cafe">><<effects>>
-<<npcincr Sam love -1>>
 
 You turn on the spot and glare at the <<person1>><<person>>.
-The grin falls off <<his>> face. "Just having a laugh. No need to pout." Sam looks over at you disapprovingly.
-<<llove>>
+The grin falls off <<his>> face. "Just having a laugh. No need to pout." Sam looks over at you disapprovingly.<<npcincr Sam love -1>><<llove Sam>>
 <br><br>
 
 The rest of the shift passes uneventfully. You earn <<money 500 "cafeWaiter">><<printmoney 500>>.
@@ -1099,8 +1103,8 @@ You earn <<money 500 "cafeWaiter">><<printmoney 500>>.
 :: Ocean Breeze Dumpster
 <<set $outside to 0>><<set $location to "cafe">><<effects>>
 
-<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-<<if $danger gte (9900 - $allure)>>
+
+<<if dangerEvent()>>
 	<<set $outside to 1>>
 	You decide you're being paranoid, and walk over to the dumpster. As you turn to leave however, you find the pair blocking your path.
 	The <<person1>><<person>> grabs your arms and covers your mouth, while the <<person2>><<person>> grins at you. "Such a pretty little thing."
@@ -1122,8 +1126,8 @@ You earn <<money 500 "cafeWaiter">><<printmoney 500>>.
 :: Ocean Breeze Dumpster Refuse
 <<set $outside to 0>><<set $location to "cafe">><<effects>>
 <<endevent>>
-<<npc Sam>><<person1>>You decide not to risk it and go back inside. Sam says <<he>> understands, but doesn't look happy.
-<<npcincr Sam love -1>><<llove>>
+<<npc Sam>><<person1>>
+You decide not to risk it and go back inside. Sam says <<he>> understands, but doesn't look happy.<<npcincr Sam love -1>><<llove Sam>>
 <br><br>
 
 The rest of the shift passes uneventfully. You earn <<money 500 "cafeWaiter">><<printmoney 500>>.
@@ -1190,8 +1194,8 @@ The rest of the shift passes uneventfully. You earn <<money 500 "cafeWaiter">><<
 :: Ocean Breeze Dumpster Dog
 <<set $outside to 0>><<set $location to "cafe">><<effects>>
 
-<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-<<if $danger gte (9900 - $allure)>>
+
+<<if dangerEvent()>>
 	<<set $outside to 1>>
 	You decide you're being paranoid, and walk over to the dumpster. As you turn to leave however, the <<beasttype>> blocks your path.
 	<br><br>
@@ -2154,8 +2158,8 @@ You don't succeed, but you don't mind. It's tasty, and leaves you feeling warm a
 
 You lift the plate and lap the cream off it directly.
 
-<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-<<if $danger gte (9900 - $allure)>>
+
+<<if dangerEvent()>>
 	You catch a <<generate1>><<person1>><<person>> staring at you, <<his>> spoon suspended halfway to <<his>> mouth.
 	<br><br>
 
@@ -2331,7 +2335,7 @@ You stare out the window <<print Weather.precipitation is "rain" ? "at the rain-
 	<</if>>
 <</if>>
 <<if $phase is 3>>
-	You refuse to answer their questions. Finally they place an order.
+	You refuse to answer their questions. Finally, they place an order.
 <</if>>
 <br><br>
 The rest of the shift passes uneventfully.
@@ -2369,9 +2373,9 @@ Sam stands in the middle, talking to another member of staff. <<Hes>> wearing a 
 <<He>> turns to you and beams. "It's the chef!" <<he>> says, rushing over and grasping your hands. "How do you like the new look?" <<he>> asks. "The building. Not me."
 <br><br>
 
-<<link [[Say it looks pretentious|Ocean Breeze Pretentious]]>><<npcincr Sam love -1>><</link>><<llove>>
+<<link [[Say it looks pretentious|Ocean Breeze Pretentious]]>><<npcincr Sam love -1>><</link>><<llove Sam>>
 <br>
-<<link [[Say it looks wonderful|Ocean Breeze Wonderful]]>><<npcincr Sam love 1>><</link>><<glove>>
+<<link [[Say it looks wonderful|Ocean Breeze Wonderful]]>><<npcincr Sam love 1>><</link>><<glove Sam>>
 <br>
 <<link [[Say it looks okay|Ocean Breeze Okay]]>><</link>>
 

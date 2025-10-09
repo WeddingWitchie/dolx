@@ -15,7 +15,7 @@
 <<farm_trust dogs>>
 <</if>>
 
-<<if wornSetupClothes("upper").sleeve_img isnot 1 and ($leftarm is "bound" or $rightarm is "bound") and $phase is 1>>
+<<if wornSetupClothes("upper").sleeve_img isnot 1 and pcAreArmsBound("any") and $phase is 1>>
 	The chickens tear the ruined remains of your sleeves away from you, <span class="lblue">freeing your arms.</span>
 	<<unbindtemp>>
 	<br><br>
@@ -358,7 +358,7 @@ You finish feeding the chickens, but are careful to keep them at a distance. The
 <<loweron>>
 <<outfitChecks>>
 <<if $rng gte 51>>
-	You reach down and grasp your _bottom.name, before pulling it up your legs. A few chickens latch onto the bottom of the sack with their beaks, <span class="green"> but the fabric remains strong</span> as you shake them free.
+	You reach down and grasp your _bottom.name, before pulling it up your legs. A few chickens latch onto the bottom of the sack with their beaks, <span class="green">but the fabric remains strong</span> as you shake them free.
 	<br><br>
 
 	You finish feeding the chickens without further incident, and return the sack to the shed.
@@ -802,21 +802,17 @@ You're sure it'll be fine. You shut and lock the door.
 	<<link [[Next|Farm Work]]>><</link>>
 	<br>
 
-
 <</if>>
-
-
 
 :: Farm Pigs Alex Scold
 <<effects>>
-
 
 <<if currentSkillValue('tending') gte (1, 600)>>
 
 	"Down!" you repeat. <span class="green">The <<farm_text pig>> listens this time,</span> dropping Alex's <<if $pronoun is "f">>skirt<<else>>shorts<</if>> and trotting back to the others.
 	<br><br>
 
-	"Thanks," Alex laughs. "As if we don't feed them enough already."<<glove>><<ldom>><<npcincr Alex love 1>><<npcincr Alex dom -1>>
+	"Thanks," Alex laughs. "As if we don't feed them enough already."<<glove>><<ldom>><<grespect>><<npcincr Alex love 1>><<npcincr Alex dom -1>><<farm_pigs 1>>
 	<br><br>
 
 	<<link [[Next|Farm Work]]>><<endevent>><</link>>
@@ -840,8 +836,6 @@ You're sure it'll be fine. You shut and lock the door.
 	<<link [[Next|Farm Work]]>><<endevent>><</link>>
 	<br>
 <</if>>
-
-
 
 :: Farm Pigs Alex Watch
 <<effects>>
@@ -1386,7 +1380,6 @@ Alex arrives at the stable, and runs along the lane. "You okay?" <<he>> asks. "Y
 
 <<set $seductiondifficulty to 4000>>
 <<seductioncheck>>
-<br><br>
 <<seductionskilluptext>>
 <<seductionskilluse>>
 
@@ -1701,7 +1694,7 @@ You wait for the <<farm_text horse>>. It comes to a stop in front of you.
 <<else>>
 	You try to encourage the <<farm_text horse>> inside, <span class="red">but <<farm_he horse>> remains obstinate.</span> You try pulling <<farm_him horse>>, pushing <<farm_him horse>> from behind, luring <<farm_him horse>> with a carrot, but nothing works.<<lrespect>><<farm_horses -1>><<pass 20>><<farm_count 20>>
 	<br><br>
-	<<if $farm.beasts.horses lte -5 and $rng gte 51 and $horsedisable is "f" and ($bestialitydisable is "f" or ($farm_work.horse.monster_roll is true and ($hallucinations gte 1 or $monsterhallucinations is "f")))>><!-- Modified for Beast People -->
+	<<if $farm.beasts.horses lte -5 and $rng gte 51 and $horsedisable is "f" and ($bestialitydisable is "f" or ($farm_work.horse.monster_roll is true and ($hallucinations gte 1 or $monsterhallucinations is "f")))>>
 		You're stood inside the stall, trying to coax <<farm_him horse>> in, when <<farm_he horse>> strikes. <<farm_He horse>> runs at you, forcing you to leap aside to get out of <<farm_his horse>> way. You're left slung over the fence between stalls.
 		<br><br>
 
@@ -1805,7 +1798,6 @@ You hump against <<farm_him horse>>, pumping <<farm_his horse>> penis between yo
 
 <<set $seductiondifficulty to 4000>>
 <<seductioncheck>>
-<br><br>
 <<seductionskilluptext>>
 <<seductionskilluse>>
 
@@ -1817,8 +1809,8 @@ You enter the far end of the stall, and lean against the wall in a mating postur
 	<span class="green">This does the trick.</span> The <<farm_text horse>> trots over, letting you grasp its bridle and hold it in place.
 	<br><br>
 
-	<<set $danger to random(1, 10000)>>
-	<<if $danger gte (9900 - $allure)>>
+	
+	<<if dangerEvent()>>
 		You're walking back to the entrance when <<farm_he horse>> strikes. <<farm_He horse>> runs at you, forcing you to leap aside to get out of <<farm_his horse>> way. You're left slung over the fence between stalls.
 		<br><br>
 
@@ -2302,7 +2294,7 @@ You grasp and pull down Alex's shorts in one movement. <<He>> grasps the hem and
 as Alex turns to face you.
 <<exhibitionism2>>
 
-"You shouldn't sneak up on me like that," <<he>> says, holding <<his>> chest. "Besides, I was-"
+"You shouldn't sneak up on me like that," <<he>> says, holding <<his>> chest. "Besides, I was—"
 <br><br>
 
 <<He>> cuts off as you step closer and show off your <<lewdness>>.
@@ -2934,9 +2926,6 @@ Your response is polite, but cool. The <<person>> leaves when <<he>> realises <<
 The <<person>> glances over <<his>> shoulder. "Why don't you take a break?" <<he>> says. "I'll keep you company."
 <br><br>
 
-<<link [[Refuse|Farm Tending Ignore]]>><<set $phase to 1>><</link>>
-<br>
-
 <<if hasSexStat("promiscuity", 2)>>
 	<<link [[Accept|Farm Tending Accept]]>><</link>><<promiscuous2>>
 	<br>
@@ -2957,6 +2946,9 @@ The <<person>> glances over <<his>> shoulder. "Why don't you take a break?" <<he
 	<<link [[Demand £100 first|Farm Tending Demand]]>><<set $phase to 3>><<def 1>><<set $desperateaction to 1>><</link>><<promiscuous3>>
 	<br>
 <</if>>
+
+<<link [[Refuse|Farm Tending Ignore]]>><<set $phase to 1>><</link>>
+<br>
 
 
 :: Farm Tending Accept
@@ -3106,7 +3098,6 @@ The <<person>> glances over <<his>> shoulder. "Why don't you take a break?" <<he
 
 
 <<seductioncheck>>
-<br><br>
 <<seductionskilluptext>>
 <<seductionskilluse>>
 
@@ -3334,7 +3325,7 @@ Their plan ruined, the sneaking pair end their attempt at concealment, and run. 
 	<<destination_farm>>
 
 <<elseif $enemyhealth lte 0>>
-	The <<group>> back away from you, surprised by your aggression. "There wasn't meant to be resistance," the <<person2>><<person>> says, looking at the <<person1>><<person>> "What now?"<<earnFeat "Farm Protector">>
+	The <<group>> back away from you, surprised by your aggression. "There wasn't meant to be resistance," the <<person2>><<person>> says, looking at the <<person1>><<person>>. "What now?"<<earnFeat "Farm Protector">>
 	<br><br>
 	"Fuck," <<he>> replies. "Remy won't be happy." <<He>> turns and runs. The others follow.
 	<br><br>
@@ -3995,8 +3986,8 @@ You follow Alex's instructions, and walk down the road.
 
 <</if>>
 
-<<set $danger to random(1, 10000)>>
-<<if $danger gte (9900 - $allure)>>
+
+<<if dangerEvent()>>
 	A car honks at you as it passes.<<gstress>><<stress 6>>
 <</if>>
 <br><br>
@@ -4050,8 +4041,8 @@ You crest a hill, and arrive at a small shop beside an old train station. You en
 <<He>> runs everything through the register<<if $alexBooze is "noBooze" or $alexBooze is "noID">> minus the alcohol<</if>>. "That'll be <<printmoney $farm_work.shopping_money>>," <<he>> says.
 <br><br>
 
-<<set $danger to random(1, 10000)>>
-<<if $danger gte (9900 - $allure)>>
+
+<<if dangerEvent()>>
 	<<He>> runs <<his>> eyes over your body. "Unless you want to pay a different way?"
 	<br><br>
 
@@ -4081,7 +4072,6 @@ You crest a hill, and arrive at a small shop beside an old train station. You en
 
 <<set $seductiondifficulty to 2000>>
 <<seductioncheck>>
-<br><br>
 <<seductionskilluptext>>
 <<seductionskilluse>>
 
@@ -4163,7 +4153,7 @@ You walk behind the counter. The <<person>> grasps your shoulders, and pushes yo
 
 	<<if $exposed gte 1>>
 		<<if $speech_attitude is "meek">>
-			"M-My clothes-" you say.
+			"M-My clothes—" you say.
 		<<elseif $speech_attitude is "bratty">>
 			"You ruined my clothes," you say. "Give me a replacement."
 		<<else>>
@@ -4199,7 +4189,7 @@ You walk behind the counter. The <<person>> grasps your shoulders, and pushes yo
 	<<endcombat>>
 	<<if $exposed gte 1>>
 		<<if $speech_attitude is "meek">>
-			"M-My clothes-" you say.
+			"M-My clothes—" you say.
 		<<elseif $speech_attitude is "bratty">>
 			"You ruined my clothes," you say. "Give me a replacement."
 		<<else>>
@@ -4337,7 +4327,7 @@ You arrive at the farm. Alex meets you in the yard.
 <br><br>
 
 <<if $exposed gte 1>>
-	<<He>> blushes and looks away. "Wh-what happened to your-" <<he>> gulps. "Never mind." <<He>> takes the basket.<<if $farm_naked isnot 1>><<towelup>><</if>>
+	<<He>> blushes and looks away. "Wh-what happened to your—" <<he>> gulps. "Never mind." <<He>> takes the basket.<<if $farm_naked isnot 1>><<towelup>><</if>>
 	<br><br>
 	<<if $farm_naked isnot 1>>
 		<<He>> disappears into the farmhouse, and emerges with some towels. <<He>> throws them at you without looking, before turning back to the building.
@@ -4513,7 +4503,7 @@ You pocket the money as Alex enters the farmhouse.
 	With the victor unclear, you both keep running, deeper into the forest. Until Alex lags behind just a little, then a little more. <<He>> comes to a stop.<<npcincr Alex dom -1>><<ldom>>
 	<br><br>
 
-	"Fuck," <<he>> says, leaning against a tree and panting. "I'm faster than all my siblings. Good jo-" <<Hes>> interrupted by <span class="red">a growl</span> from a nearby bush, and pushes <<himself>> away from the tree.
+	"Fuck," <<he>> says, leaning against a tree and panting. "I'm faster than all my siblings. Good jo—" <<Hes>> interrupted by <span class="red">a growl</span> from a nearby bush, and pushes <<himself>> away from the tree.
 
 
 
@@ -4523,7 +4513,7 @@ You pocket the money as Alex enters the farmhouse.
 
 	You find <<him>> resting against a tree with the brim of <<his>> hat pulled over <<his>> face.
 	<br><br>
-	<<He>> pushes it up. "What took you?" <<he>> asks. "Almost thought you weren't-" <<Hes>> interrupted by <span class="red">a growl</span> from a nearby bush, and leaps to <<his>> feet.
+	<<He>> pushes it up. "What took you?" <<he>> asks. "Almost thought you weren't—" <<Hes>> interrupted by <span class="red">a growl</span> from a nearby bush, and leaps to <<his>> feet.
 <</if>>
 
 <<farm_forest_event>>
@@ -4534,7 +4524,7 @@ You pocket the money as Alex enters the farmhouse.
 You walk to the woods instead, passing through the fields on the way. You find Alex resting against a tree with the brim of <<his>> hat pulled over <<his>> face.
 <br><br>
 
-<<He>> pushes it up. "What took you?" <<he>> asks. "Almost thought you weren't-" <<Hes>> interrupted by <span class="red">a growl</span> from a nearby bush, and leaps to <<his>> feet.
+<<He>> pushes it up. "What took you?" <<he>> asks. "Almost thought you weren't—" <<Hes>> interrupted by <span class="red">a growl</span> from a nearby bush, and leaps to <<his>> feet.
 
 <<farm_forest_event>>
 
@@ -4869,7 +4859,7 @@ You refuse to race, and leave Alex to run into the woods alone.
 <</if>>
 <br><br>
 <<if $englishSuccess>>
-	The pair look at each other. The <<person2>><<person>> speaks first. "Remy did say-"
+	The pair look at each other. The <<person2>><<person>> speaks first. "Remy did say—"
 	<br>
 	"Don't say their name," the <<person1>><<person>> warns, throwing a glance in your direction.
 	<br>
@@ -5165,7 +5155,7 @@ You hear Alex fighting nearby, but you can't spare a glance.
 
 	<<endcombat>>
 	<<npc Alex>><<person1>>
-	"You fu-" Alex begins, but is cut off by an arm wrapping around <<his>> neck from behind. <<He>> tries to break free, but a swift punch to <<his>> <<if npcIsPregnant("Alex")>>face<<else>>stomach<</if>> has <<him>> keel over instead.
+	"You fu—" Alex begins, but is cut off by an arm wrapping around <<his>> neck from behind. <<He>> tries to break free, but a swift punch to <<his>> <<if npcIsPregnant("Alex")>>face<<else>>stomach<</if>> has <<him>> keel over instead.
 	<br><br>
 	The goons surround you and Alex, and barrage you with a flurry of kicks. <<tearful>> you curl up in a defensive posture. Alex does the same, and endures with a quiet dignity.<<ggpain>><<ggtrauma>><<ggstress>><<pain 8>><<trauma 12>><<stress 12>>
 	<br><br>
@@ -5611,7 +5601,7 @@ You struggle to stand upright as the
 
 	<<beastejaculation knot>>
 
-	<<if _knotted is true>>
+	<<if _knotted>>
 		<<endcombat>>
 		You remain knotted together in the middle of the field.
 		<br><br>
@@ -5781,7 +5771,7 @@ You look over your shoulder, and see Alex up ahead. There's a <<person2>><<perso
 Alex spots you first. <<person1>><<His>> face pales. The <<person2>><<person>> beside <<person1>><<him>> has a different reaction. "I didn't know you ran this sort of farm," <<person2>><<he>> says, pulling a phone from <<his>> pocket. <<He>> points the camera at you.
 <br><br>
 
-Alex breaks free from <<person1>><<his>> stupor, and looks away. "W-We aren't-"
+Alex breaks free from <<person1>><<his>> stupor, and looks away. "W-We aren't—"
 <br>
 "You've got my business," the <<person2>><<person>> interrupts as you and the <<farm_text dog>> arrive. <<He>> crouches beside you, and moves the camera close to the knot. "I've a few friends who'd love to hear about this."
 <br><br>
@@ -5825,7 +5815,7 @@ You look over your shoulder, and see Alex up ahead. There's a <<person2>><<perso
 Alex spots you first. <<person1>><<His>> face pales. The <<person2>><<person>> beside <<person1>><<him>> has a different reaction. "I didn't know you ran this sort of farm," <<person2>><<he>> says, pulling a phone from <<his>> pocket. <<He>> points the camera at you.
 <br><br>
 
-Alex breaks free from <<person1>><<his>> stupor, and looks away. "W-We aren't-"
+Alex breaks free from <<person1>><<his>> stupor, and looks away. "W-We aren't—"
 <br>
 <<if $speech_attitude is "meek">>
 	"Animals need special care,"
@@ -5918,7 +5908,6 @@ You sit with them, and chat. You share a little about the troubles on the farm, 
 
 <<set $seductiondifficulty to 6000>>
 <<seductioncheck>>
-<br><br>
 <<seductionskilluptext>>
 <<seductionskilluse>>
 
@@ -6454,7 +6443,7 @@ You ignore Alex's antics. <<He>> whistles, and continues with <<his>> work.
 		<<case "breakfast">>
 			Alex sighs, then crosses <<his>> arms. "In the end, you're still mine, so I guess it doesn't matter that much. You should get it fixed though, set the record straight," <<he>> says. <<He>> smiles at you and pecks your cheek before returning to work on breakfast.
 		<<case "chores">>
-			Alex sighs, then folds <<his>> hands across <<his>> chest. "You're still my <<girl>> in the end. Maybe we should show 'em all who you really belong to." <<He>> smiles at you, and pats your shoulder before returning to work.<<arousal 200 >><<garousal>>
+			Alex sighs, then folds <<his>> hands across <<his>> chest. "You're still my <<girl>> in the end. Maybe we should show 'em all who you really belong to." <<He>> smiles at you, and pats your shoulder before returning to work.<<arousal 200>><<garousal>>
 		<<case "cuddle" "cuddleDesk">>
 			Alex sighs, then wraps an arm around your waist. "I'll get Remy back for this. Knock <<nnpc_him "Remy">> off that high horse of <<nnpc_his "Remy">>." You smile at the thought, and <<he>> pulls you tighter to <<his>> chest.
 		<<case "rest">>

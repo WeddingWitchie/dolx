@@ -153,7 +153,7 @@ A river runs through one corner. The cattle stay almost as far away from the chu
 
 		<<link [[Next|Livestock Field Gang]]>><<set $molestationstart to 1>><</link>>
 		<br>
-	<!-- <<elseif undefined and !(Time.days % 6) and $daily.eden.farmRescue isnot 1 and C.npc.Eden.love gte 120 and ($edenfreedom is 1 and $edendays gte 4 or $edenfreedom gte 2 and $edendays gte 9)>>
+	<!-- <<elseif undefined and !(Time.days % 6) and $daily.eden.farmRescue isnot 1 and C.npc.Eden.love gte 120 and edenFreedomStatus() gte 1>>
 		Made unreachable until it's either massively reworked or removed. Eden has no business this far in the moor.
 		You see a figure in the distance, lurking on the moor.
 		<br><br>
@@ -212,10 +212,10 @@ A river runs through one corner. The cattle stay almost as far away from the chu
 			<br>
 		<</if>>
 		<<if $livestock_river is 1>>
-			<<wolfcaveicon "stream">><<link [[Examine the river|Livestock Field River Examine]]>><<unset $livestock_river>><</link>>
+			<<watericon "stream">><<link [[Examine the river|Livestock Field River Examine]]>><<unset $livestock_river>><</link>>
 			<br>
 		<<else>>
-			<<wolfcaveicon "stream">><<link [[Approach the river|Livestock Field River]]>><</link>>
+			<<watericon "stream">><<link [[Approach the river|Livestock Field River]]>><</link>>
 			<br>
 		<</if>>
 		<<if Time.hour gte 12>>
@@ -537,7 +537,7 @@ The river glimmers with your reflection,
 You wash your body in the shallows. The water is clean, at least. You're careful not to step out too far, lest you be swept away.
 <br><br>
 
-<<link [[Next|Livestock Field]]>><</link>>
+<<link [[Next|Livestock Field River]]>><</link>>
 <br>
 
 :: Livestock Field River Upstream
@@ -670,7 +670,7 @@ Something grasps your collar from above. You are pulled into a dry but gloomy in
 <<effects>>
 <<if $enemypleasure gte $enemypleasuremax>>
 	<<ejaculation>>
-	<<if $farmCellUnlk is true >>
+	<<if $farmCellUnlk is true>>
 		<<if $farmGateCD is 1>>
 			<<set $farmGateCD to 0>>
 			<<unset $farmCellUnlk>>
@@ -739,7 +739,7 @@ Something grasps your collar from above. You are pulled into a dry but gloomy in
 	You examine the fence but find no breaches in it. You wonder if you could dig a tunnel underneath it.
 	<br><br>
 
-	You should probably give it a try <span class="teal"> once the sun rises.</span>
+	You should probably give it a try <span class="teal">once the sun rises.</span>
 	<br><br>
 	<<link [[Next|Livestock Field Night]]>><</link>>
 	<br>
@@ -769,12 +769,12 @@ Something grasps your collar from above. You are pulled into a dry but gloomy in
 	<<elseif $livestock_dig gte 0 and $livestock_dig lte 24 or ($livestock_dig is undefined)>>
 		You examine the fence but find no breaches in it. You already started digging a tunnel, but there is still work to be done before you can reach the other side.
 		<br><br>
-		You should probably continue digging <span class="teal"> once the sun rises.</span>
+		You should probably continue digging <span class="teal">once the sun rises.</span>
 		<br><br>
 		<<link [[Step back|Livestock Field Night]]>><</link>>
 	<</if>>
 <<else>>
-	<<if $leftarm is "bound" and $rightarm is "bound">>
+	<<if pcAreArmsBound("both")>>
 		<span class="red">Can't dig when your arms are bound.</span>
 		<br><br>
 		<<link [[Next|Livestock Field]]>><</link>>
@@ -1116,8 +1116,7 @@ You approach Remy's steeds.
 <</if>>
 <br><br>
 
-<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-<<if $danger gte (9900 - ($allure / 2))>> /* Reduced allure effect since PC is always nude */
+<<if dangerEvent(0.5)>> /* Reduced allure effect since PC is always nude */
 	<<rng>>
 	<<if $rng gte 51>>
 		<<clearnpc>>
@@ -1383,7 +1382,11 @@ You approach Remy's steeds.
 	<</if>>
 	<<deviancy1>>
 	<<if hasSexStat("deviancy", 2)>>
-		<<link [[Touch it|Livestock Field Deviancy]]>><<set $phase += 1>><</link>><<deviant2>>
+		<<if pcAreArmsBound("both")>>
+			You would be able to take things further, <span class="blue">if your arms weren't bound.</span>
+		<<else>>
+			<<link [[Touch it|Livestock Field Deviancy]]>><<set $phase += 1>><</link>><<deviant2>>
+		<</if>>
 		<br>
 	<</if>>
 	<<link [[Stop|Livestock Field Deviancy]]>><<set $phase += 2>><</link>>
@@ -1423,7 +1426,11 @@ You approach Remy's steeds.
 	<</if>>
 
 	<<if hasSexStat("deviancy", 3, true)>>
-		<<link [[Use your hands (0:05)|Livestock Field Deviancy Hand]]>><<handstat>><<pass 5>><<set $phase to 1>><</link>><<deviant3>>
+		<<if pcAreArmsBound("both")>>
+			<span class="red">Both of your arms are bound</span>, so you are unable to use your hands.
+		<<else>>
+			<<link [[Use your hands (0:05)|Livestock Field Deviancy Hand]]>><<handstat>><<pass 5>><<set $phase to 1>><</link>><<deviant3>>
+		<</if>>
 		<br>
 	<</if>>
 	<<if hasSexStat("deviancy", 5, true)>>
@@ -1562,7 +1569,7 @@ You approach Remy's steeds.
 		and wielding cattle prods. They surround the agitated <<beasttype>>.
 
 		<<if $monster is 1>>
-			"No!" <<bhe>> shouts, rearing and kicking at the closest. "I need it-" <<bHe>> cuts off as one of the surrounding farmhands sticks a needle in <<bhis>> rear.
+			"No!" <<bhe>> shouts, rearing and kicking at the closest. "I need it—" <<bHe>> cuts off as one of the surrounding farmhands sticks a needle in <<bhis>> rear.
 		<<else>>
 			<<bHe>> rears on <<bhis>> hind legs and kicks at the closest. Another farmhand sneaks up behind <<bhe>>, and sticks a needle in <<bhis>> rear.
 		<</if>>
@@ -1613,7 +1620,7 @@ You approach Remy's steeds.
 
 		You can't see anything, but already hear the other <<beastsplural>> crowding around.
 	<<else>>
-		<<oralstat>><<oralejacstat>>
+		<<oralstat>>
 		<<bodyliquid "mouth" "goo" 5>>
 		<<bodyliquid "face" "goo" 5>>
 
@@ -1670,7 +1677,7 @@ You approach Remy's steeds.
 	and wielding cattle prods. They surround the agitated <<beasttype>>.
 
 	<<if $monster is 1>>
-		"No!" <<bhe>> shouts, rearing and kicking at the closest. "I need it-" <<bHe>> cuts off as one of the surrounding farmhands sticks a needle in <<bhis>> rear.
+		"No!" <<bhe>> shouts, rearing and kicking at the closest. "I need it—" <<bHe>> cuts off as one of the surrounding farmhands sticks a needle in <<bhis>> rear.
 	<<else>>
 		<<bHe>> rears on <<bhis>> hind legs and kicks at the closest. Another farmhand sneaks up behind <<bhe>>, and sticks a needle in <<bhis>> rear.
 	<</if>>
@@ -1856,7 +1863,7 @@ Remy steps forward, holding a leash. You can't move anywhere without getting sho
 	Remy clips it to your collar. <<He>> tries to pull you along behind <<him>>.
 <</if>>
 <br><br>
-<<if $leftarm isnot "bound" or $rightarm isnot "bound">>
+<<if !pcAreArmsBound("both")>>
 	<<link [[Slap|Livestock Job Slap]]>><<npcincr Remy dom -1>><<npcincr Remy love -1>><<livestock_obey -5>><<trauma -6>><<stress -6>><</link>><<llobey>><<ltrauma>><<lstress>>
 	<br>
 <</if>>
@@ -1906,7 +1913,7 @@ One of the farmhands steps forward,
 <</if>>
 <br><br>
 
-<<if $leftarm isnot "bound" or $rightarm isnot "bound">>
+<<if !pcAreArmsBound("both")>>
 	<<link [[Slap|Livestock Job Disobedient Slap]]>><<npcincr Remy love -1>><<npcincr Remy dom -1>><<pain 6>><<trauma -6>><<stress -6>><</link>><<gpain>><<ltrauma>><<lstress>>
 	<br>
 <</if>>
@@ -2189,9 +2196,9 @@ A river runs through one corner. You are not sure if the field is under surveill
 <</if>>
 <br>
 <<if $livestock_river is 1>>
-	<<wolfcaveicon "stream">><<link [[Examine the river|Livestock Field River Examine]]>><<unset $livestock_river>><</link>>
+	<<watericon "stream">><<link [[Examine the river|Livestock Field River Examine]]>><<unset $livestock_river>><</link>>
 <<else>>
-	<<wolfcaveicon "stream">><<link [[Approach the river|Livestock Field River]]>><</link>>
+	<<watericon "stream">><<link [[Approach the river|Livestock Field River]]>><</link>>
 <</if>>
 
 <br>

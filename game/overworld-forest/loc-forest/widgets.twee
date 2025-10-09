@@ -483,12 +483,16 @@
 	<<else>>
 		<<addevent "forestgem" _antiqueChance>>
 		<<addinlineevent "eventforestitem_bees" 4>>
-			<<if $beedisable is "f">>
+			<<if $bestialitydisable is "f" and $beedisable is "f">>
 				You hear a gentle buzz up ahead. A large beehive hangs from a tree. Workers fly in and out in a quest for pollen. The honey would be valuable.
 				<br><br>
 
 				<<if currentSkillValue('tending') gte 800>>
-					<<tendingicon "wild_honeycomb">><<link [[Harvest honeycomb (0:20)|Forest Honey Pick]]>><<pass 20>><</link>><<tendingdifficulty 800 1100>>
+					<<if pcAreArmsBound("both")>>
+						<span class="red">Both of your arms are bound</span>, so you are unable to harvest honeycomb.
+					<<else>>
+						<<tendingicon "wild_honeycomb">><<link [[Harvest honeycomb (0:20)|Forest Honey Pick]]>><<pass 20>><</link>><<tendingdifficulty 800 1100>>
+					<</if>>
 					<br>
 				<<else>>
 					<span class="blue">You need a higher tending skill to harvest wild honeycomb.</span>
@@ -500,7 +504,7 @@
 					/* This event must exist whether or not $beedisable, so changing toggles won't affect drop rates. */
 					You take a moment to scramble over a fallen tree, and continue uneventfully.
 					<br><br>
-					<<getouticon>><<link [[Leave|Forest]]>><<set $eventskip to 1>><</link>>
+					<<link [[Next|Forest]]>><<set $eventskip to 1>><</link>>
 			<</if>>
 			<</addinlineevent>>
 	<</if>>
@@ -952,7 +956,7 @@
 			<br>
 			<<link [[Submit (0:30)|Eden Caged Caught]]>><<set $phase to 1>><<pass 30>><<npcincr Eden dom 1>><</link>><<gdom>>
 			<br>
-		<<elseif $syndromeeden is 1 and (($edenfreedom isnot 2 and $edendays gte 7) or ($edenfreedom gte 2 and $edendays gte 21))>>
+		<<elseif edenFreedomStatus() gte 2>>
 			<<npc Eden>><<person1>>
 			A hand grabs you by the back of the neck as you look off into the forest. "Where the fuck have you been?" snarls a <<personsimple>>. It's Eden. "I've been worried sick!"
 			<br><br>
@@ -966,31 +970,20 @@
 			<br>
 			<<link [[Submit (0:30)|Eden Caged Caught]]>><<set $phase to 1>><<pass 30>><<sub 1>><<npcincr Eden dom 1>><</link>><<gdom>>
 			<br>
-		<<elseif $edenfreedom gte 2 and $edendays gte 8>>
+		<<elseif edenFreedomStatus() is 1>>
 			<<npc Eden>><<person1>>
 			An arm wraps around your neck from behind, while a hand presses against the back of your head. You hear a <<personsimple>>'s voice. "I've been looking for you all over." It's Eden. "Come on, let's go home."
 			<br><br>
 
-			<<if $asphyxiaLvl gte 3>>
+			<<if $edenfreedom is 1 or ($edenfreedom gte 2 and $asphyxiaLvl gte 3)>>
 				<<link [[Resist|Eden Recaptured Resist]]>><<set $fightstart to 1>><</link>>
 			<<else>>
 				<<link [[Resist|Eden Recaptured Resist Normal]]>><<set $molestationstart to 1>><</link>>
 			<</if>>
 			<br>
-			<<link [[Go to the cabin (0:30)|Eden Recaptured]]>><<pass 30>><</link>>
+			<<link [[Go to the cabin (0:30)|Eden Recaptured]]>><<edenTrackers>><<pass 30>><</link>>
 			<br>
-
-		<<elseif $edenfreedom is 1 and $edendays gte 2>>
-			<<npc Eden>><<person1>>
-			An arm wraps around your neck from behind, while a hand presses against the back of your head. You hear a <<personsimple>>'s voice. "I've been looking for you all over." It's Eden. "Come on, let's go home."
-			<br><br>
-
-			<<link [[Resist|Eden Recaptured Resist]]>><<set $fightstart to 1>><</link>>
-			<br>
-			<<link [[Go to the cabin (0:30)|Eden Recaptured]]>><<pass 30>><</link>>
-			<br>
-
-		<<elseif $edenfreedom gte 1>>
+		<<elseif edenFreedomStatus() is 0>>
 			<<rng>>
 			<<if Time.dayState isnot "night">>
 				<<if $rng gte 51>>
@@ -1129,15 +1122,13 @@
 		<br><br>
 
 		<<passout>>
-		<<set $danger to random(1, 10000)>>
-		<<if $danger gte (9900 - $allure)>>
-
+		
+		<<if dangerEvent()>>
 			<<if $rng gte 71 and $forest gte 21 and $plantdisable is "f" and $tentacledisable is "f" and ($hallucinations gte 2 or $backgroundTraits.includes("plantlover"))>>
 				<<link [[Everything fades to black...|Forest Plant Passout]]>><</link>>
 			<<else>>
 				<<foresthunt>>
 			<</if>>
-
 		<<else>>
 			<<set $foresthunt to 0>>
 			<<ambulance>>
@@ -1568,23 +1559,23 @@
 		<i><span class="blue">If you could raid a nest like that, you might be able to sell any unfertilised <<icon "tending/bird_egg.png">> bird eggs you find.</span></i>
 		<br><br>
 
-		<<ind>><<link [[Just watch (0:05)|Forest Fox Nest Watch]]>><<pass 5>><<stress -3>><</link>><<lstress>>
+		<<link [[Just watch (0:05)|Forest Fox Nest Watch]]>><<pass 5>><<stress -3>><</link>><<lstress>>
 		<br>
 		<<if ($harpy gte 6 or ($transformationParts.bird.wings isnot "hidden" and $transformationParts.bird.wings isnot "disabled"))>>
-			<<ind>><<link [[Challenge|Forest Fox Nest Challenge]]>><</link>><<harpy>>
+			<<link [[Challenge|Forest Fox Nest Challenge]]>><</link>><<harpy>>
 			<br>
 		<<else>>
-			<<ind>><<link [[Challenge|Forest Fox Nest Challenge]]>><</link>><<physiquedifficulty 1 $physiquemax>>
+			<<link [[Challenge|Forest Fox Nest Challenge]]>><</link>><<physiquedifficulty 1 $physiquemax>>
 			<br>
 		<</if>>
 		<<set $skulduggerydifficulty to 300>>
-		<<ind>><<link [[Sneak up|Forest Fox Nest Sneak]]>><</link>><<skulduggerydifficulty>>
+		<<link [[Sneak up|Forest Fox Nest Sneak]]>><</link>><<skulduggerydifficulty>>
 		<br>
 		<<if ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled"))>>
-			<<ind>><<link [[Chase!|Forest Fox Nest Chase]]>><<set $phase2 to 1>><<stress -6>><<transform fox 1>><</link>><<llstress>><<fox>><<note "No eggs" "red">>
+			<<link [[Chase!|Forest Fox Nest Chase]]>><<set $phase2 to 1>><<stress -6>><<transform fox 1>><</link>><<llstress>><<fox>><<note "No eggs" "red">>
 			<br>
 		<<else>>
-			<<ind>><<link [[Chase|Forest Fox Nest Chase]]>><<set $phase2 to 1>><<tiredness 6>><</link>><<gtiredness>><<athleticsdifficulty 1 300>><<note "No eggs" "red">>
+			<<link [[Chase|Forest Fox Nest Chase]]>><<set $phase2 to 1>><<tiredness 6>><</link>><<gtiredness>><<athleticsdifficulty 1 300>><<note "No eggs" "red">>
 			<br>
 		<</if>>
 	<<else>>
@@ -1616,7 +1607,7 @@
 					However, thanks to your tending skill, you spot nearby tracks and holes in the ground. You realise <span class="red">it's a snake's nest</span>.
 				<</if>>
 		<</switch>>
-		<br>
+		<br><br>
 		<<if $forest_nest.fox is 2>>
 			<<beastNEWinit 1 fox>>
 			<<if ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled"))>>
@@ -1628,36 +1619,39 @@
 				<<elseif $NPCList[0].traits.includes("friendly")>><span class="green">friendly</span>.
 				<<elseif $NPCList[0].traits.includes("clumsy")>><span class="blue">clumsy</span>.
 				<</if>>
-				<br>
+				<br><br>
 			<<elseif currentSkillValue('skulduggery') gte $NPCList[0].skills.security>>
 				<<set $forest_nest.fox to 3>>
 				<span class="blue">You hear a rustle nearby.</span> Something else is eyeing up the nest, too.
-				<br>
+				<br><br>
 			<</if>>
-		<</if>>
-		<br>
+		<</if>>		
 
 		<<if $forest_nest.type lte 2>>
-			<<ind>><<link [[Climb up to the nest|Forest Nest Climb]]>><</link>><<athleticsdifficulty 0 800>>
-			<br>
-			<<ind>><<link [[Knock the nest down|Forest Nest Throw]]>><<set $forest_nest.eggs -= 4>><<set $forest_nest.type to 3>><</link>><<note "Fewer eggs" "red">>
+			<<if pcAreArmsBound("both")>>
+				<span class="red">Both of your arms are bound</span>, so you are unable to climb the tree or knock the nest down.
+			<<else>>
+				<<link [[Climb up to the nest|Forest Nest Climb]]>><</link>><<athleticsdifficulty 0 800>>
+				<br>
+				<<link [[Knock the nest down|Forest Nest Throw]]>><<set $forest_nest.eggs -= 4>><<set $forest_nest.type to 3>><</link>><<note "Less eggs" "red">>
+			<</if>>
 			<br>
 		<<elseif $forest_nest.type is 3>>
-			<<ind>><<link [[Search the nest|Forest Nest Search]]>><</link>>
+			<<link [[Search the nest|Forest Nest Search]]>><</link>>
 			<br>
 		<<elseif !_snakeKnown>>
-			<<ind>><<link [[Search the nest|Forest Nest Snake]]>><</link>>
+			<<link [[Search the nest|Forest Nest Snake]]>><</link>>
 			<br>
 		<<elseif _snakeKnown and hasSexStat("deviancy", 4, true) and $voredisable is "f">>
-			<<ind>><<link [[Present yourself as food|Forest Nest Snake Vore 1]]>><</link>><<deviant4>>
+			<<link [[Present yourself as food|Forest Nest Snake Vore 1]]>><</link>><<deviant4>>
 			<br>
 		<</if>>
 		<<if $forest_nest.fox is 3>>
-			<<ind>><<link [[Hide and wait (0:05)|Forest Nest Hide]]>><<unset $athleticsSuccess>><<set $forest_nest.eggs -= 2>><<pass 5>><</link>><<note "Fewer eggs" "red">>
+			<<link [[Hide and wait (0:05)|Forest Nest Hide]]>><<unset $athleticsSuccess>><<set $forest_nest.eggs -= 2>><<pass 5>><</link>><<note "Fewer eggs" "red">>
 			<br>
 		<</if>>
 	<</if>>
-	<<getouticon>><<link [[Leave|Forest]]>><<endevent>><<unset $forest_nest>><<set $eventskip to 1>><</link>>
+	<<link [[Leave|Forest]]>><<endevent>><<unset $forest_nest>><<set $eventskip to 1>><</link>>
 	<br>
 <</widget>>
 
@@ -1789,24 +1783,36 @@
 				<</if>>
 			<</if>>
 			<<if currentSkillValue('tending') gte 100>>
-				<<icon "tending/lily.png">> <<link [[Pick lilies (0:20)|Forest Lily Pick]]>><<pass 20>><</link>><<tendingdifficulty 100 400>>
+				<<if pcAreArmsBound("both")>>
+					<span class="red">Both of your arms are bound</span>, so you are unable to pick lilies.
+				<<else>>
+					<<icon "tending/lily.png">> <<link [[Pick lilies (0:20)|Forest Lily Pick]]>><<pass 20>><</link>><<tendingdifficulty 100 400>>
+				<</if>>
 				<br>
 			<<else>>
 				<span class="blue">You need a higher tending skill to pick saleable specimens.</span>
 				<br>
 			<</if>>
 		<<elseif _forest_item is 2>>
-	        <<icon "tending/clover.png">> <<link [[Pick clovers (0:10)|Forest Clover]]>><<pass 10>><</link>>
-			<br>
-			<<icon "tending/apple.png">> <<link [[Pick apples (0:20)|Forest Apple Pick]]>><<pass 20>><</link>><<tendingdifficulty 1 300>>
+			<<if pcAreArmsBound("both")>>
+				<span class="red">Both of your arms are bound</span>, so you are unable to pick apples.
+			<<else>>
+				<<icon "tending/clover.png">> <<link [[Pick clovers (0:10)|Forest Clover]]>><<pass 10>><</link>>
+				<br>
+				<<icon "tending/apple.png">> <<link [[Pick apples (0:20)|Forest Apple Pick]]>><<pass 20>><</link>><<tendingdifficulty 1 300>>
+			<</if>>
 			<br>
 		<<else>>
-			<<if currentSkillValue('tending') gte 100>>
-				<<icon "tending/fly_agaric.png">> <<link [[Pick Fly Agarics (0:20)|Forest Fly Agaric Pick]]>><<pass 20>><</link>><<tendingdifficulty 100 300>>
-				<br>
+			<<if pcAreArmsBound("both")>>
+				<span class="red">Both of your arms are bound</span>, so you are unable to pick fly agarics.
 			<<else>>
-				<span class="blue">You need a higher tending skill to pick saleable specimens.</span>
-				<br>
+				<<if currentSkillValue('tending') gte 100>>
+					<<icon "tending/fly_agaric.png">> <<link [[Pick Fly Agarics (0:20)|Forest Fly Agaric Pick]]>><<pass 20>><</link>><<tendingdifficulty 100 300>>
+					<br>
+				<<else>>
+					<span class="blue">You need a higher tending skill to pick saleable specimens.</span>
+					<br>
+				<</if>>
 			<</if>>
 		<</if>>
 	<<elseif $forest lte 50>>
@@ -1821,7 +1827,11 @@
 				<</if>>
 			<</if>>
 			<<if currentSkillValue('tending') gte 200>>
-				<<icon "tending/red_rose.png">> <<link [[Pick red roses (0:20)|Forest Red Rose Pick]]>><<pass 20>><</link>><<tendingdifficulty 200 500>>
+				<<if pcAreArmsBound("both")>>
+					<span class="red">Both of your arms are bound</span>, so you are unable to pick roses.
+				<<else>>
+					<<icon "tending/red_rose.png">> <<link [[Pick red roses (0:20)|Forest Red Rose Pick]]>><<pass 20>><</link>><<tendingdifficulty 200 500>>
+				<</if>>
 				<br>
 			<<else>>
 				<span class="blue">You need a higher tending skill to pick saleable specimens.</span>
@@ -1830,27 +1840,39 @@
 			<br>
 		<<elseif _forest_item is 2>>
 			<<if currentSkillValue('tending') gte 100>>
-				<<icon "tending/pear.png">> <<link [[Pick pears (0:20)|Forest Pear Pick]]>><<pass 20>><</link>><<tendingdifficulty 100 400>>
+				<<if pcAreArmsBound("both")>>
+					<span class="red">Both of your arms are bound</span>, so you are unable to pick pears.
+				<<else>>
+					<<icon "tending/pear.png">> <<link [[Pick pears (0:20)|Forest Pear Pick]]>><<pass 20>><</link>><<tendingdifficulty 100 400>>
+				<</if>>
 				<br>
 			<<else>>
 				<span class="blue">You need a higher tending skill to pick saleable specimens.</span>
 				<br>
 			<</if>>
 		<<elseif _forest_item is 3>>
-			<<if currentSkillValue('tending') gte 100>>
-				<<icon "tending/fly_agaric.png">> <<link [[Pick Fly Agarics (0:20)|Forest Fly Agaric Pick]]>><<pass 20>><</link>><<tendingdifficulty 100 300>>
-				<br>
+			<<if pcAreArmsBound("both")>>
+				<span class="red">Both of your arms are bound</span>, so you are unable to pick fly agarics.
 			<<else>>
-				<span class="blue">You need a higher tending skill to pick saleable specimens.</span>
-				<br>
+				<<if currentSkillValue('tending') gte 100>>
+					<<icon "tending/fly_agaric.png">> <<link [[Pick Fly Agarics (0:20)|Forest Fly Agaric Pick]]>><<pass 20>><</link>><<tendingdifficulty 100 300>>
+					<br>
+				<<else>>
+					<span class="blue">You need a higher tending skill to pick saleable specimens.</span>
+					<br>
+				<</if>>
 			<</if>>
 		<<else>>
-			<<if currentSkillValue('tending') gte 500>>
-				<<icon "tending/lady_orchid.png">> <<link [[Pick Lady Orchids (0:20)|Forest Lady Orchid Pick]]>><<pass 20>><</link>><<tendingdifficulty 500 800>>
-				<br>
+			<<if pcAreArmsBound("both")>>
+				<span class="red">Both of your arms are bound</span>, so you are unable to pick lady orchids.
 			<<else>>
-				<span class="blue">You need a higher tending skill to pick saleable specimens.</span>
-				<br>
+				<<if currentSkillValue('tending') gte 500>>
+					<<icon "tending/lady_orchid.png">> <<link [[Pick Lady Orchids (0:20)|Forest Lady Orchid Pick]]>><<pass 20>><</link>><<tendingdifficulty 500 800>>
+					<br>
+				<<else>>
+					<span class="blue">You need a higher tending skill to pick saleable specimens.</span>
+					<br>
+				<</if>>
 			<</if>>
 		<</if>>
 	<<else>>
@@ -1865,7 +1887,11 @@
 				<</if>>
 			<</if>>
 			<<if currentSkillValue('tending') gte 300>>
-				<<icon "tending/orchid.png">> <<link [[Pick orchids (0:20)|Forest Orchid Pick]]>><<pass 20>><</link>><<tendingdifficulty 300 600>>
+				<<if pcAreArmsBound("both")>>
+					<span class="red">Both of your arms are bound</span>, so you are unable to pick orchids.
+				<<else>>
+					<<icon "tending/orchid.png">> <<link [[Pick orchids (0:20)|Forest Orchid Pick]]>><<pass 20>><</link>><<tendingdifficulty 300 600>>
+				<</if>>
 				<br>
 			<<else>>
 				<span class="blue">You need a higher tending skill to pick saleable specimens.</span>
@@ -1873,60 +1899,83 @@
 			<</if>>
 		<<elseif _forest_item is 2>>
 			<<if currentSkillValue('tending') gte 200>>
-				<<if Time.isBloodMoon()>>
-					<<icon "tending/lemon.png">> <<link [[Pick lemons (0:20)|Forest Blood Lemon Pick]]>><<pass 20>><</link>><<tendingdifficulty 200 500>>
-					<br>
+				<<if pcAreArmsBound("both")>>
+					<span class="red">Both of your arms are bound</span>, so you are unable to pick lemons.
 				<<else>>
-					<<icon "tending/lemon.png">> <<link [[Pick lemons (0:20)|Forest Lemon Pick]]>><<pass 20>><</link>><<tendingdifficulty 200 500>>
-					<br>
+					<<if Time.isBloodMoon()>>
+						<<icon "tending/lemon.png">> <<link [[Pick lemons (0:20)|Forest Blood Lemon Pick]]>><<pass 20>><</link>><<tendingdifficulty 200 500>>
+					<<else>>
+						<<icon "tending/lemon.png">> <<link [[Pick lemons (0:20)|Forest Lemon Pick]]>><<pass 20>><</link>><<tendingdifficulty 200 500>>
+					<</if>>
 				<</if>>
+				<br>
 			<<else>>
 				<span class="blue">You need a higher tending skill to pick saleable specimens.</span>
 				<br>
 			<</if>>
 		<<elseif _forest_item is 3>>
-			<<if currentSkillValue('tending') gte 100>>
-				<<icon "tending/fly_agaric.png">> <<link [[Pick Fly Agarics (0:20)|Forest Fly Agaric Pick]]>><<pass 20>><</link>><<tendingdifficulty 100 300>>
-				<br>
+			<<if pcAreArmsBound("both")>>
+				<span class="red">Both of your arms are bound</span>, so you are unable to pick fly agarics.
 			<<else>>
-				<span class="blue">You need a higher tending skill to pick saleable specimens.</span>
-				<br>
+				<<if currentSkillValue('tending') gte 100>>
+					<<icon "tending/fly_agaric.png">> <<link [[Pick Fly Agarics (0:20)|Forest Fly Agaric Pick]]>><<pass 20>><</link>><<tendingdifficulty 100 300>>
+					<br>
+				<<else>>
+					<span class="blue">You need a higher tending skill to pick saleable specimens.</span>
+					<br>
+				<</if>>
 			<</if>>
 		<<elseif _forest_item is 4>>
-			<<if currentSkillValue('tending') gte 500>>
-				<<icon "tending/lady_orchid.png">> <<link [[Pick Lady Orchids (0:20)|Forest Lady Orchid Pick]]>><<pass 20>><</link>><<tendingdifficulty 500 800>>
-				<br>
+			<<if pcAreArmsBound("both")>>
+				<span class="red">Both of your arms are bound</span>, so you are unable to pick lady orchids.
 			<<else>>
-				<span class="blue">You need a higher tending skill to pick saleable specimens.</span>
-				<br>
-			<</if>>
+				<<if currentSkillValue('tending') gte 500>>
+					<<icon "tending/lady_orchid.png">> <<link [[Pick Lady Orchids (0:20)|Forest Lady Orchid Pick]]>><<pass 20>><</link>><<tendingdifficulty 500 800>>
+					<br>
+				<<else>>
+					<span class="blue">You need a higher tending skill to pick saleable specimens.</span>
+					<br>
+				<</if>>
+			<</if >>
 		<<elseif _forest_item is 5>>
-			<<if currentSkillValue('tending') gte 600>>
-				<<icon "tending/red_helleborine.png">> <<link [[Pick Red Helleborine (0:20)|Forest Red Helleborine Pick]]>><<pass 20>><</link>><<tendingdifficulty 600 900>>
-				<br>
+			<<if pcAreArmsBound("both")>>
+				<span class="red">Both of your arms are bound</span>, so you are unable to pick red helleborines.
 			<<else>>
-				<span class="blue">You need a higher tending skill to pick saleable specimens.</span>
-				<br>
+				<<if currentSkillValue('tending') gte 600>>
+					<<icon "tending/red_helleborine.png">> <<link [[Pick Red Helleborine (0:20)|Forest Red Helleborine Pick]]>><<pass 20>><</link>><<tendingdifficulty 600 900>>
+					<br>
+				<<else>>
+					<span class="blue">You need a higher tending skill to pick saleable specimens.</span>
+					<br>
+				<</if>>
 			<</if>>
 		<<elseif _forest_item is 6>>
-			<<if currentSkillValue('tending') gte 300>>
-				<<icon "tending/hen_of_the_woods.png">> <<link [[Pick Hen of the Woods (0:20)|Forest Hen of the Woods Pick]]>><<pass 20>><</link>><<tendingdifficulty 300 600>>
-				<br>
+			<<if pcAreArmsBound("both")>>
+				<span class="red">Both of your arms are bound</span>, so you are unable to pick hen of the woods.
 			<<else>>
-				<span class="blue">You need a higher tending skill to pick saleable specimens.</span>
-				<br>
+				<<if currentSkillValue('tending') gte 300>>
+					<<icon "tending/hen_of_the_woods.png">> <<link [[Pick Hen of the Woods (0:20)|Forest Hen of the Woods Pick]]>><<pass 20>><</link>><<tendingdifficulty 300 600>>
+					<br>
+				<<else>>
+					<span class="blue">You need a higher tending skill to pick saleable specimens.</span>
+					<br>
+				<</if>>
 			<</if>>
 		<<else>>
-			<<if currentSkillValue('tending') gte 900>>
-				<<icon "tending/ghost_orchid.png">> <<link [[Pick Ghost Orchid (Epipogium Aphyllum) (0:20)|Forest Ghost Orchid Pick]]>><<pass 20>><</link>><<tendingdifficulty 900 1000>>
-				<br>
+			<<if pcAreArmsBound("both")>>
+				<span class="red">Both of your arms are bound</span>, so you are unable to pick ghost orchids.
 			<<else>>
-				<span class="blue">You need a higher tending skill to pick saleable specimens.</span>
-				<br>
+				<<if currentSkillValue('tending') gte 900>>
+					<<icon "tending/ghost_orchid.png">> <<link [[Pick Ghost Orchid (Epipogium Aphyllum) (0:20)|Forest Ghost Orchid Pick]]>><<pass 20>><</link>><<tendingdifficulty 900 1000>>
+					<br>
+				<<else>>
+					<span class="blue">You need a higher tending skill to pick saleable specimens.</span>
+					<br>
+				<</if>>
 			<</if>>
 		<</if>>
 	<</if>>
-
+	<br>
 	<<foresticon>><<link [[Continue|Forest]]>><<set $eventskip to 1>><</link>>
 	<br>
 <</widget>>
@@ -2063,7 +2112,7 @@
 		<<He>> looks about your age, with mousy hair and freckles. "I'm older than I look," <<he>> says, as if reading your mind. "I'm Gwylan. Nice to meet you."
 		<br><br>
 
-		"I have a shop right by the outskirts of the forest," <<he>> says. "You can't miss it. I sell-" <<He>> pauses. "My grand<<father>> sells-" Another pause. "I sell knick-knacks there. Things you won't find in normal shops. Even I don't know what I have in stock!" <<He>> sounds proud.
+		"I have a shop right by the outskirts of the forest," <<he>> says. "You can't miss it. I sell—" <<He>> pauses. "My grand<<father>> sells—" Another pause. "I sell knick-knacks there. Things you won't find in normal shops. Even I don't know what I have in stock!" <<He>> sounds proud.
 	<<elseif $gwylan_aborted gte 1>>
 		<<gwylanRescueApology>>
 	<</if>>

@@ -48,16 +48,16 @@ Your home is nearby.
 	<<passoutalley>>
 <<else>>
 	<<location-danger>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
+	
 	<<set _crime to Math.clamp(crimeSumCurrent() / 10, 0, 12000)>>
-	<<if ($danger gte (9900 - $allure - _locationDanger) or $eventforced) and $eventskip is 0>>
+	<<if (dangerEvent( - _locationDanger) or $eventforced) and $eventskip is 0>>
 		<<eventsstreet>>
 	<<elseif ($danger gte (12000 - _crime)) and !$daily.streetPolice and $eventskip is 0>>
 		<<streetpolice>>
 	<<elseif $town_projects.thicket is 1 || ($historytrait gte 3 && ($town_projects.thicket lt 2 || $town_projects.thicket is undefined))>>
 		You walk by a small but dense cluster of trees. It used to be a recreational area, but has long been neglected, left to wild brambles. People pass it every day without sparing it a thought.
 		<br><br>
-		You keep your distance. The brambles sway in the wind, and the large thorns look sharp. Juicy-looking raspberries crown their tops, far out of reach.
+		You keep your distance. The brambles sway in the wind, and the large thorns look sharp. Juicy-looking blackberries crown their tops, far out of reach.
 		<<if $town_projects.thicket is 1>>
 			They remind you of the eyes beneath the pool in the hookah parlour.
 		<</if>>
@@ -103,6 +103,13 @@ Your home is nearby.
 		<</if>>
 		/*<<link [[Scavenge (1:00)|Residential Scavenge]]>><<pass 60>><<housekeeping 100>><</link>><<ghousekeeping 100>>
 		<br>*/
+		<<if $wardrobe_residential_alleys gte 2>>
+			<<ind>><<link [[Storage unit|Mansion Wardrobe]]>><</link>>
+			<br>
+		<<elseif $wardrobe_residential_alleys is 1>>
+			<<ind>><<link [[Search for your storage unit|Residential Mansion Wardrobe Intro]]>><<set $wardrobe_residential_alleys to 2>><</link>>
+			<br>
+		<</if>>
 		<<if $town_projects.thicket gte 4>>
 			<<foresticon "bush">><<link [[Thicket (0:01)|Residential Thicket]]>><<pass 1>><</link>>
 			<br>
@@ -272,7 +279,7 @@ You drop to the ground and assume a mating posture. The <<beasttype>> steps towa
 	The <<beasttype>> growls, annoyed but amused.
 <</if>>
 <br><br>
-<!-- Modified for Beast People -->
+
 <<if hasSexStat("deviancy", 2, true)>>
 	<<link [[Seduce|Residential Beast]]>><<set $sexstart to 1>><</link>><<deviant2>>
 	<br>
@@ -444,7 +451,11 @@ You are in the thicket in the residential district.
 <br><br>
 
 <<if $daily.thicketBlackberries isnot 1>>
-	<<icon "tending/blackberry.png">> <<link [[Pick blackberries (0:20)|Residential Thicket Blackberries]]>><<pass 20>><<set $daily.thicketBlackberries to 1>><</link>><<tendingdifficulty 1 300>>
+	<<if pcAreArmsBound("both")>>
+		<span class="red">Both of your arms are bound</span>, so you are unable to pick blackberries.
+	<<else>>
+		<<icon "tending/blackberry.png">> <<link [[Pick blackberries (0:20)|Residential Thicket Blackberries]]>><<pass 20>><<set $daily.thicketBlackberries to 1>><</link>><<tendingdifficulty 1 300>>
+	<</if>>
 	<br>
 <</if>>
 <<if $historytrait gte 2>>
@@ -496,3 +507,37 @@ The lower <<icon "tending/blackberry.png">> blackberries have all been picked. Y
 	<<link [[Next|Residential Thicket]]>><<set $eventskip to 1>><</link>>
 	<br>
 <</if>>
+
+:: Residential Mansion Wardrobe Intro
+<<effects>>
+
+There's a collection of storage units near the orphanage, thirty or so in two rows, with a small lane running between them. You find number 22. The key fits.
+<br><br>
+
+You open the doors. The interior is too dark to make out, but there's a battery powered lamp. You turn it on, revealing a pretty interior. All your clothes from Avery's mansion are here, as well as some jewellery Bailey must have misattributed to you. They'll be worth something on the black market.
+<br><br>
+
+<<set $blackmoney += 500>>
+
+<<link [[Next|Mansion Wardrobe]]>><</link>>
+<br>
+
+
+:: Residential Mansion Undies
+<<effects>>
+
+You exit your storage unit, and shiver in the breeze. You're exposed in a public place. The orphanage is close, but this is still dangerous.
+<<exhibitionism4>>
+
+<<link [[Next|Residential alleyways]]>><</link>>
+<br>
+
+
+:: Residential Mansion Naked
+<<effects>>
+
+You exit your storage unit, and shiver in the breeze. You're exposed in a public place. The orphanage is close, but this is still dangerous.
+<<exhibitionism5>>
+
+<<link [[Next|Residential alleyways]]>><</link>>
+<br>

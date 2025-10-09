@@ -647,7 +647,7 @@ class PlayerCombatMapper {
 			options = PlayerCombatMapper.generateOptions();
 		}
 
-		options.isDebugging = !!V.debug;
+		options.isDebugging = !!V.debug && V.options.showCombatTools;
 
 		// Set position
 		options.position = CombatRenderer.getPosition(V.position);
@@ -1594,6 +1594,9 @@ class PlayerCombatMapper {
 			show = false;
 		}
 
+		const isRaised = defaults.skirt === 1 && clothing.skirt_down === 0 && state === "waist";
+		const isPenetratorVisible = !!options.penetrator?.show && options.legFrontPosition === "down";
+
 		/**
 		 * @type {ClothingState}
 		 */
@@ -1606,7 +1609,7 @@ class PlayerCombatMapper {
 			show,
 			alpha: CombatRenderer.getAlpha(slot),
 			isSkirt: defaults.skirt === 1,
-			isRaised: defaults.skirt === 1 && clothing.skirt_down === 0 && state === "waist",
+			isRaised: isRaised && (options.position === "doggy" || isPenetratorVisible),
 			isExposed: !!clothing.exposed,
 			isBoundable: !!clothing.combat?.boundable,
 			hasAccessory: CombatRenderer.getAccessoryState(slot, defaults),
@@ -2493,7 +2496,7 @@ class PlayerCombatMapper {
 					if (bodywriting.type !== "object") {
 						return null;
 					}
-					if (V.leftarm === "bound" || V.rightarm === "grappled" || V.leftarm === "behind") {
+					if (V.leftarm === "bound" || V.leftarm === "grappled" || V.leftarm === "behind") {
 						return {
 							show: true,
 							type: bodywriting.writing,

@@ -64,13 +64,15 @@ Some homes host extravagant Halloween displays.
 		<<if $wrenHeist is true and (Time.hour gte 19 and Time.hour lte 20) and $wrenHeistDance.attended isnot true>>
 			In the distance, you see the mansion where you're supposed to meet Wren. <<nnpc_He "Wren">> will be waiting for you there.
 			<br>
-			<<dooricon "danube">><<link [[Head to the mansion (1:20)|Wren Heist Arrival]]>><<set $wrenHeistDance.attended to true>><</link>>
+			<<if $exposed lte 0>>
+				<<dooricon "danube">><<link [[Head to the mansion (1:20)|Wren Heist Arrival]]>><<set $wrenHeistDance.attended to true>><</link>>
+			<<else>>
+				<span class="red">You can't go in your current state of exposure.</span>
+			<</if>>
 			<br><br>
 		<</if>>
 
 		Places of interest
-		<br>
-		<<foresticon>><<link [[Forest (0:10)|Forest]]>><<pass 10>><<set $forest to 0>><<set $eventskip to 1>><</link>>
 		<br>
 		<<if $exposed lte 0 and $openinghours is 1>>
 			<<spaicon>><<link [[Spa (0:02)|Spa]]>><<pass 2>><</link>>
@@ -82,12 +84,26 @@ Some homes host extravagant Halloween displays.
 			<<spaicon>><<link [[Spa (0:02)|Spa Lock]]>><<pass 2>><</link>>
 			<br>
 		<</if>>
-		<<if $syndromekylar gte 1>>
-			<<kylarmanoricon>><<link [[Kylar's Manor (0:02)|Manor Garden]]>><<pass 2>><</link>>
-			<br>
+		<<if $avery_mansion>>
+			<<if $avery_fate is "fallen" or $avery_fate is "kicked">>
+				<<if $avery_mansion_fire_time gte 1>>
+					<<icon "front_gate.png">><<link [[Avery's mansion (0:05)|Mansion Fire]]>><<pass 5>><</link>>
+					<br>
+				<<else>>
+					<<icon "front_gate.png">><<link [[Avery's mansion (0:05)|Mansion Ruin]]>><<pass 5>><</link>>
+					<br>
+				<</if>>
+			<<else>>
+				<<icon "front_gate.png">><<link [[Avery's mansion (0:05)|Mansion Enter]]>><<pass 5>><</link>>
+				<br>
+			<</if>>
 		<</if>>
 		<<if $exhibitionismrun is "danube" and $exposed lte 1>>
 			<<oakicon>><<link [[Oak behind spa (0:02)|Danube Challenge]]>><<pass 2>><</link>>
+			<br>
+		<</if>>
+		<<if $syndromekylar gte 1>>
+			<<kylarmanoricon>><<link [[Kylar's manor (0:02)|Manor Garden]]>><<pass 2>><</link>>
 			<br>
 		<</if>>
 		<<if Time.dayState is "night">>
@@ -97,7 +113,8 @@ Some homes host extravagant Halloween displays.
 			<<dooricon "danube">><<link [[Knock on one of the houses (0:02)|Danube House Knock]]>><<pass 2>><</link>>
 			<br>
 		<</if>>
-		<br>
+		<<foresticon>><<link [[Forest (0:10)|Forest]]>><<pass 10>><<set $forest to 0>><<set $eventskip to 1>><</link>>
+		<br><br>
 		<<if (($exposed is 1 and $uncomfortable.underwearPublic) or ($exposed is 2 and $uncomfortable.nudePublic)) and Time.dayState isnot "night">>
 		<<else>>
 			<<add_link "Travel<br>">><<hideDisplay>>

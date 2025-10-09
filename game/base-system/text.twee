@@ -1280,7 +1280,7 @@
 	<<elseif $options.debugdisable is "f">>
 		<<set _text_output to "ERROR - $$player.breastsize is not a number: $player.breastsize">>
 	<</if>>
-<</silently>><<if !_breastSensitivityDescribed>><<breastsensitivity>><</if>><<print _text_output>><</widget>>
+<</silently>><<if !_breastSensitivityDescribed or _args[0]>><<breastsensitivity>><</if>><<print _text_output>><</widget>>
 
 <<widget "breastssimple">><<silently>>
 	<<if Number.isInteger($player.breastsize)>>
@@ -1883,6 +1883,17 @@
 	<</if>>
 <</silently>><<print _text_output>><</widget>>
 
+<<widget "pcGenderher">><<silently>>
+	<<switch $player.gender>>
+		<<case "f">>
+			<<set _text_output to "her">>
+		<<case "m">>
+			<<set _text_output to "his">>
+		<<default>>
+			<<set _text_output to "their">>
+	<</switch>>
+<</silently>><<print _text_output>><</widget>>
+
 <<widget "genitals_are">><<silently>>
 	<<if _args[0] is undefined>>
 		<<genitals>>
@@ -2337,7 +2348,7 @@
 	<<if $condoms eq undefined>><<set $condoms to 0>><</if>>
 	<<set $condoms += $_condomGain>>
 	<<if $statdisable is "f">> |
-		<span class="pink">+ $_condomGain Condom<<if $_condomGain gt 1>>s<</if>></span>
+		<span class="pink">+ $_condomGain <<pluralise $_condomGain "Condom">></span>
 	<</if>>
 <</widget>>
 
@@ -2398,8 +2409,9 @@
 <</widget>>
 
 <<widget "openinghours">>
-	A sign reads: "Opening hours: <<ampm 8 00>> - <<ampm 21 00>>"
-	<br>
+	A sign reads: "Opening hours:
+		<<ampm `_args[0] ? _args[0] : 8` 00>> -
+		<<ampm `_args[1] ? _args[1] : 21` 00>>"
 <</widget>>
 
 <<widget "exposedupper">><<silently>>
@@ -2429,7 +2441,7 @@
 <<widget "groin">><<silently>>
 	<<genitals>>
 	<<outfitChecks>>
-	<<if !_botomIsSkirt and _bottom>>
+	<<if !_bottomIsSkirt and _bottom>>
 		<<set _text_output to _text_output + " through your " + _bottom.name>>
 	<<else>>
 		<<set _text_output to _text_output>>
@@ -2619,7 +2631,7 @@
 		<<elseif !$worn.under_upper.type.includes("naked")>>
 			<<undertop>>
 			<<set _undertop to _text_output>>
-			<<set _text_output to `<span class=\"lewd\">exposed ${_genitals}${!$worn.under_upper.type.includes("covered") ? " and "  + _undertop : ""}</span>. Your somewhat covered chest makes your bare lower half feel more conspicuous`>>
+			<<set _text_output to `<span class=\"lewd\">exposed ${_genitals}${!$worn.under_upper.type.includes("covered") ? " and " + _undertop : ""}</span>. Your somewhat covered chest makes your bare lower half feel more conspicuous`>>
 		<<else>>
 			<<set _text_output to "<span class=\"lewd\">exposed</span> ">>
 			<<if $player.breastsize gte 3>>
@@ -2640,8 +2652,8 @@
 				<</if>>
 			<</if>>
 		<</if>>
-	<<elseif _shirtless and $player.gender_appearance is "f">>
-		<<if $worn.under_upper.type.includes("naked")>>
+	<<elseif _shirtless>>
+		<<if $worn.under_upper.type.includes("naked") and $player.gender_appearance is "f">>
 			<<set _text_output to "<span class=\"lewd\">exposed " + _breasts + "</span>">>
 				<<if $worn.lower.type.includes("naked") and _underOutfit is false>>
 					<<set $_give to ($worn.under_lower.plural is 0 ? "gives" : "give")>>
@@ -2667,14 +2679,14 @@
 			<<set _text_output to _text_output + ". Only your " + $worn.under_lower.name + " " + $_give + " you a shred of decency">>
 		<</if>>
 	<</if>>
-	<<if $leftarm is "bound" and $rightarm is "bound" and $position isnot "wall">>
+	<<if pcAreArmsBound("both") and $position isnot "wall">>
 		<<set _text_output to _text_output + ". With your arms bound, you can't even cover yourself, leaving you feeling utterly helpless">>
 	<</if>>
 <</silently>>_text_output<</widget>>
 
 <<widget "boundBodyParts">><<silently>>
-	<<set _boundparts to ($rightarm is "bound" or $leftarm is "bound" ? "arm" : "")>>
-	<<set _boundparts += ($rightarm is "bound" and $leftarm is "bound" ? "s" : "")>>
+	<<set _boundparts to (pcAreArmsBound("any") ? "arm" : "")>>
+	<<set _boundparts += (pcAreArmsBound("both") ? "s" : "")>>
 	<<set _boundparts += ($feetuse is "bound" ? (_boundparts isnot "" ? " and legs" : "legs") : "")>>
 	<<set _text_output to _boundparts>>
 <</silently>>_text_output<</widget>>
@@ -2920,37 +2932,68 @@
 	<</if>>
 <</silently>>_text_output<</widget>>
 
-<<widget "lewdness">><<silently>>
-	/* consider refactoring */
-	<<exposure>>
-	<<genitals>>
-	<<set _genitals to _text_output>>
-	<<undertop>>
-	<<set _undertop to _text_output>>
-	<<if $worn.under_lower.exposed gte 1 and $worn.lower.exposed gte 2 and $worn.over_lower.exposed gte 1 and $worn.upper.exposed lte 1>>
-		<<set _text_output to '<span class="lewd">exposed _genitals</span>'>>
-	<<elseif $worn.under_lower.exposed lte 0 and $worn.lower.exposed gte 2 and $worn.over_lower.exposed gte 1 and $worn.upper.exposed lte 1 and !$worn.under_lower.type.includes("covered")>>
-		<<set _text_output to '<span class="lewd">exposed $worn.under_lower.name</span>'>>
-	<<elseif $worn.over_upper.exposed gte 1 and $worn.upper.exposed gte 2 and $worn.over_lower.exposed gte 1 and $worn.lower.exposed lte 1 and $player.gender_appearance is "m" and $player.sex is "m">>
-		<<set _text_output to '<span class="lewd">lewdness</span>'>>
-	<<elseif $worn.over_upper.exposed gte 1 and $worn.upper.exposed gte 2 and $worn.lower.exposed lte 1 and !$worn.under_upper.type.includes("covered")>>
-		<<set _text_output to '<span class="lewd">exposed _undertop</span>'>>
-	<<elseif $worn.over_upper.exposed gte 1 and $worn.upper.exposed gte 2 and $worn.lower.exposed gte 2 and $worn.under_lower.exposed lte 0 and !$worn.under_lower.type.includes("covered") and $player.gender_appearance is "m" and $player.sex is "m">>
-		<<set _text_output to '<span class="lewd">exposed $worn.under_lower.name</span>'>>
-	<<elseif $worn.over_upper.exposed gte 1 and $worn.upper.exposed gte 2 and $worn.over_lower.exposed gte 1 and $worn.lower.exposed gte 2 and $worn.under_lower.exposed lte 0 and !$worn.under_lower.type.includes("covered") and !$worn.under_upper.type.includes("covered")>>
-		<<set _text_output to '<span class="lewd">exposed _undertop and $worn.under_lower.name</span>'>>
-	<<elseif $worn.under_lower.exposed gte 1 and $worn.lower.exposed gte 2 and $worn.over_lower.exposed gte 1 and $player.gender_appearance is "m" and $player.sex is "m">>
-		<<set _text_output to '<span class="lewd">exposed _genitals</span>'>>
-	<<elseif $worn.over_upper.exposed gte 1 and $worn.upper.exposed gte 2 and $worn.lower.exposed gte 2 and $worn.under_lower.exposed gte 1 and !$worn.under_upper.type.includes("covered")>>
-		<<if $player.penisExist and $player.vaginaExist and !playerChastity()>>
-			<<set _text_output to '<span class="lewd">exposed _undertop, _genitals</span>'>>
+<<widget "lewdness">>
+	<<silently>>
+		<<exposure>>
+
+		<<if $exposedRaw gt 0>>
+			<<genitals>><<set _genitals_text to _text_output>>
+			<<breasts>><<set _breasts_text to _text_output>>
+
+			<<set _text_output to "">>
+			<<set _exposed to false>>
+			<<set _wet to false>>
+
+			<<if ($worn.upper.exposed gte 1 or $upperwetstage gte 3) and (!$worn.under_upper.type.includes("covered") or ($worn.under_upper.exposed gte 1 or $underupperwetstage gte 3)) and (!$worn.lower.type.includes("covered") or ($worn.lower.exposed gte 1 or $lowerwetstage gte 3))>>
+				<<if $upperwetstage gte 3 or $underupperwetstage gte 3>>
+					<<set _text_output += "visible ">>
+					<<set _wet to true>>
+				<<else>>
+					<<set _text_output += "exposed ">>
+					<<set _exposed to true>>
+				<</if>>
+
+				<<if $player.gender_appearance is "m" and $player.sex is "m" and $worn.lower.exposed lte 0 and $lowerwetstage lt 3>>
+					<<set _text_output += "chest">>
+				<<elseif $worn.under_upper.exposed gte 1 or $underupperwetstage gte 3>>
+					<<set _text_output += _breasts_text>>
+				<<else>>
+					<<set _text_output += $worn.under_upper.name>>
+				<</if>>
+			<</if>>
+
+			<<if ($worn.lower.exposed gte 1 or $lowerwetstage gte 3) and (!$worn.under_lower.type.includes("covered") or ($worn.under_lower.exposed gte 1 or $underlowerwetstage gte 3))>>
+				<<if _text_output isnot "">>
+					<<set _text_output += " and ">>
+				<</if>>
+
+				<<if _wet is false and ($lowerwetstage gte 3 or $underlowerwetstage gte 3)>>
+					<<if _text_output isnot "">>
+						<<set _text_output += "your ">>
+					<</if>>
+
+					<<set _text_output += "visible ">>
+				<<elseif !_exposed and $lowerwetstage lt 3 and $underlowerwetstage lt 3>>
+					<<if _text_output isnot "">>
+						<<set _text_output += "your ">>
+					<</if>>
+
+					<<set _text_output += "exposed ">>
+				<</if>>
+
+				<<if $worn.under_lower.exposed gte 1 or $underlowerwetstage gte 3>>
+					<<set _text_output += _genitals_text>>
+				<<else>>
+					<<set _text_output += $worn.under_lower.name>>
+				<</if>>
+			<</if>>
 		<<else>>
-			<<set _text_output to '<span class="lewd">exposed _undertop and _genitals</span>'>>
+			<<set _text_output to "lewdness">>
 		<</if>>
-	<<else>>
-		<<set _text_output to '<span class="lewd">lewdness</span>'>>
-	<</if>>
-<</silently>>_text_output<</widget>>
+	<</silently>>
+
+	<span class="lewd">_text_output</span>
+<</widget>>
 
 <<widget "flaunting">>
 	<<exposure>>/*Makes sure your clothing state is up to date*/
@@ -3145,31 +3188,7 @@
 	<<exposure>>
 
 	<<if $exposed gt 0>>
-
-		/* calculating section */
-		<<silently>>
-			<<genitals>><<set _genitals_text to _text_output>>
-			<<breasts>><<set _breasts_text to _text_output>>
-		<</silently>>
-
-		<<set _parts to "">>
-		<<if $worn.upper.exposed gte 2>>
-			<<if $player.gender_appearance is "m" and $player.sex is "m" and $worn.lower.exposed lte 0>>
-				<<set _parts += "chest">>
-			<<else>>
-				<<set _parts += ($worn.under_upper.exposed gte 1 ? _breasts_text : $worn.under_upper.name)>>
-			<</if>>
-		<</if>>
-		<<if $worn.lower.exposed gte 2>>
-			<<if _parts isnot "">>
-				<<set _parts += " and ">>
-			<</if>>
-			<<set _parts += ($worn.under_lower.exposed gte 1 ? _genitals_text : $worn.under_lower.name)>>
-		<</if>>
-
-		/* text output section */
-
-		<<if $leftarm is "bound" and $rightarm is "bound" and $exposed gte 1>>
+		<<if pcAreArmsBound("both") and $exposed gte 1>>
 			With your arms bound, there's little you can do to shield your <<lewdness>> from prying eyes.
 			<<if !$uncomfortable.nude and $exposed gte 2 and hasSexStat("exhibitionism", 6, true)>>
 				You quiver with excitement.
@@ -3177,18 +3196,10 @@
 				You quiver with excitement.
 			<</if>>
 		<<elseif ($exposed gte 2 and ($exhibitionism lt 75 or $uncomfortable.nude))
-			or ($exposed is 1 and ($exhibitionism lt 35 or $uncomfortable.nude))>>
-			<<if _parts isnot "">>
-				You cover your <span class="lewd">exposed _parts</span> with your hands.
-			<<else>>
-				You cover the <span class="lewd">lewder</span> parts of your outfit with your hands.
-			<</if>>
+			or ($exposed is 1 and ($exhibitionism lt 35 or $uncomfortable.underwear))>>
+			You cover your <<lewdness>> with your hands.
 		<<else>>
-			<<if _parts isnot "">>
-				You quiver with excitement from your <span class="lewd">exposed _parts</span>.
-			<<else>>
-				The <span class="lewd">lewder</span> parts of your outfit make you quiver with excitement.
-			<</if>>
+			You quiver with excitement from your <<lewdness>>.
 		<</if>>
 		<<embarrassment>>
 	<</if>>
@@ -3627,6 +3638,10 @@
 	<</if>>
 <</silently>>_text_output<</widget>>
 
+<<widget "teaful">>
+	You pour yourself a cup of tea as
+<</widget>>
+
 <<widget "tearful">>
 	<<if $trauma gte $traumamax>>
 		Eyes glazed and empty,
@@ -3879,90 +3894,90 @@
 
 <<widget "slithers">>
 	<<rng>>
-	<<if $rng gte 95>>
+	<<if $rng gte 96>>
 		slithers
-	<<elseif $rng gte 90>>
+	<<elseif $rng gte 91>>
 		writhes
-	<<elseif $rng gte 85>>
+	<<elseif $rng gte 86>>
 		wriggles
-	<<elseif $rng gte 80>>
+	<<elseif $rng gte 81>>
 		wiggles
-	<<elseif $rng gte 75>>
+	<<elseif $rng gte 76>>
 		crawls
-	<<elseif $rng gte 70>>
+	<<elseif $rng gte 71>>
 		slides
-	<<elseif $rng gte 65>>
+	<<elseif $rng gte 66>>
 		slinks
-	<<elseif $rng gte 60>>
+	<<elseif $rng gte 61>>
 		glides
-	<<elseif $rng gte 55>>
+	<<elseif $rng gte 56>>
 		slips
-	<<elseif $rng gte 50>>
+	<<elseif $rng gte 51>>
 		squirms
-	<<elseif $rng gte 45>>
+	<<elseif $rng gte 46>>
 		worms
-	<<elseif $rng gte 40>>
+	<<elseif $rng gte 41>>
 		twists
-	<<elseif $rng gte 35>>
+	<<elseif $rng gte 36>>
 		twitches
-	<<elseif $rng gte 30>>
+	<<elseif $rng gte 31>>
 		shivers
-	<<elseif $rng gte 25>>
+	<<elseif $rng gte 26>>
 		trembles
-	<<elseif $rng gte 20>>
+	<<elseif $rng gte 21>>
 		jerks
-	<<elseif $rng gte 15>>
+	<<elseif $rng gte 16>>
 		crawls
-	<<elseif $rng gte 10>>
+	<<elseif $rng gte 11>>
 		flutters
-	<<elseif $rng gte 5>>
+	<<elseif $rng gte 6>>
 		meanders
-	<<elseif $rng gte 0>>
+	<<elseif $rng gte 1>>
 		slips
 	<</if>>
 <</widget>>
 
 <<widget "slithering">>
 	<<rng>>
-	<<if $rng gte 95>>
+	<<if $rng gte 96>>
 		slithering
-	<<elseif $rng gte 90>>
+	<<elseif $rng gte 91>>
 		writhing
-	<<elseif $rng gte 85>>
+	<<elseif $rng gte 86>>
 		wriggling
-	<<elseif $rng gte 80>>
+	<<elseif $rng gte 81>>
 		wiggling
-	<<elseif $rng gte 75>>
+	<<elseif $rng gte 76>>
 		crawling
-	<<elseif $rng gte 70>>
+	<<elseif $rng gte 71>>
 		sliding
-	<<elseif $rng gte 65>>
+	<<elseif $rng gte 66>>
 		slinking
-	<<elseif $rng gte 60>>
+	<<elseif $rng gte 61>>
 		gliding
-	<<elseif $rng gte 55>>
+	<<elseif $rng gte 56>>
 		slipping
-	<<elseif $rng gte 50>>
+	<<elseif $rng gte 51>>
 		squirming
-	<<elseif $rng gte 45>>
+	<<elseif $rng gte 46>>
 		worming
-	<<elseif $rng gte 40>>
+	<<elseif $rng gte 41>>
 		twisting
-	<<elseif $rng gte 35>>
+	<<elseif $rng gte 36>>
 		twitching
-	<<elseif $rng gte 30>>
+	<<elseif $rng gte 31>>
 		shivering
-	<<elseif $rng gte 25>>
+	<<elseif $rng gte 26>>
 		trembling
-	<<elseif $rng gte 20>>
+	<<elseif $rng gte 21>>
 		jerking
-	<<elseif $rng gte 15>>
+	<<elseif $rng gte 16>>
 		crawling
-	<<elseif $rng gte 10>>
+	<<elseif $rng gte 11>>
 		fluttering
-	<<elseif $rng gte 5>>
+	<<elseif $rng gte 6>>
 		meandering
-	<<elseif $rng gte 0>>
+	<<elseif $rng gte 1>>
 		slipping
 	<</if>>
 <</widget>>
@@ -4285,7 +4300,10 @@
 <<widget "vaginalvirginitywarning">>
 	<<if $player.virginity.vaginal is true and $statdisable is "f">>
 		<<if !$combat>> | <</if>>
-		<span class="red">This action will deflower you</span>
+		<span class="red"><<if $combat>>(<</if>>This action will deflower you<<if $combat>>)<</if>></span>
+	<<elseif $player.virginity.temple is true and $templePromised isnot _args[0]>>
+		<<if !$combat>> | <</if>>
+		<span class="red"><<if $combat>>(<</if>>This action will break your chastity vow<<if $combat>>)<</if>></span>
 	<</if>>
 <</widget>>
 
@@ -4294,35 +4312,38 @@
 		<!-- do nothing -->
 	<<elseif $player.virginity.penile is true and $statdisable is "f">>
 		<<if !$combat>> | <</if>>
-		<span class="red">This action will deflower you</span>
+		<span class="red"><<if $combat>>(<</if>>This action will deflower you<<if $combat>>)<</if>></span>
+	<<elseif $player.virginity.temple is true and $templePromised isnot _args[0]>>
+		<<if !$combat>> | <</if>>
+		<span class="red"><<if $combat>>(<</if>>This action will break your chastity vow<<if $combat>>)<</if>></span>
 	<</if>>
 <</widget>>
 
 <<widget "analvirginitywarning">>
 	<<if $player.virginity.anal is true and $statdisable is "f">>
 		<<if !$combat>> | <</if>>
-		<span class="red">This action will take your anal virginity</span>
+		<span class="red"><<if $combat>>(<</if>>This action will take your anal virginity<<if $combat>>)<</if>></span>
 	<</if>>
 <</widget>>
 
 <<widget "oralvirginitywarning">>
 	<<if $player.virginity.oral is true and $statdisable is "f">>
 		<<if !$combat>> | <</if>>
-		<span class="red">This action will take your oral virginity</span>
+		<span class="red"><<if $combat>>(<</if>>This action will take your oral virginity<<if $combat>>)<</if>></span>
 	<</if>>
 <</widget>>
 
 <<widget "handholdingvirginitywarning">>
 	<<if $player.virginity.handholding is true and $statdisable is "f">>
 		<<if !$combat>> | <</if>>
-		<span class="red">This action will take your handholding virginity</span>
+		<span class="red"><<if $combat>>(<</if>>This action will take your handholding virginity<<if $combat>>)<</if>></span>
 	<</if>>
 <</widget>>
 
 <<widget "kissvirginitywarning">>
 	<<if $player.virginity.kiss is true and $statdisable is "f">>
 		<<if !$combat>> | <</if>>
-		<span class="red">This action will take your first kiss</span>
+		<span class="red"><<if $combat>>(<</if>>This action will take your first kiss<<if $combat>>)<</if>></span>
 	<</if>>
 <</widget>>
 
@@ -4332,21 +4353,22 @@
 		<<if $options.combatControls.includes("ists")>>
 			<br>
 		<</if>>
+		<<if !$combat>> | <</if>>
 		<<switch _args[1]>>
 			<<case "vaginal">>
-				<span class="red"> This action will deflower <<him>>.</span>
+				<span class="red"><<if $combat>>(<</if>>This action will deflower <<him>><<if $combat>>)<</if>></span>
 			<<case "penile">>
 				<<if !npcHasStrapon(V.NPCList.findIndex(npc => npc.fullDescription === _args[0]))>>
-					<span class="red"> This action will deflower <<him>>.</span>
+					<span class="red"><<if $combat>>(<</if>>This action will deflower <<him>></span>
 				<</if>>
 			<<case "anal">>
-				<span class="red"> This action will take <<his>> anal virginity.</span>
+				<span class="red"><<if $combat>>(<</if>>This action will take <<his>> anal virginity<<if $combat>>)<</if>></span>
 			<<case "oral">>
-				<span class="red"> This action will take <<his>> oral virginity.</span>
+				<span class="red"><<if $combat>>(<</if>>This action will take <<his>> oral virginity<<if $combat>>)<</if>></span>
 			<<case "kiss">>
-				<span class="red"> This action will take <<his>> first kiss.</span>
+				<span class="red"><<if $combat>>(<</if>>This action will take <<his>> first kiss<<if $combat>>)<</if>></span>
 			<<case "handholding">>
-				<span class="red"> This action will take <<his>> handholding virginity.</span>
+				<span class="red"><<if $combat>>(<</if>>This action will take <<his>> handholding virginity<<if $combat>>)<</if>></span>
 			<<default>>
 		<</switch>>
 	<</if>>
@@ -4404,6 +4426,12 @@
 	<</if>>
 <</widget>>
 
+<<widget "angelBanishNote">>
+	<<if $statdisable is "f">> |
+		<span class="def">Banish ($angelBanish / $angelBanishMax)</span>
+	<</if>>
+<</widget>>
+
 <<widget "fallenangel">>
 	<<if $statdisable is "f">> |
 		<span class="black">Fallen Angel</span>
@@ -4441,11 +4469,41 @@
 	<</if>>
 <</widget>>
 
-/* Note: Someone who understands how this works should make it so you can't
-output a teacher's name when that teacher is supposed to be in class. */
-<<widget "randomteacher">><<silently>>
-	<<set $_teacherNames to ["Sirris","River","Doren","Winter","Mason"].filter(name => C.npc[name].init is 1)>>
-	<<set _text_output to ($_teacherNames.length gte 1 ? $_teacherNames.random() : "a teacher")>>
+<<widget "generateRandomTeacher">><<silently>>
+	<<set _position to _args[0] ? _args[0] : 1>>
+
+	<<set _teacherNames to []>>
+	<<if C.npc.Sirris.init is 1 and $schoolstate isnot "first">>
+		<<run _teacherNames.push("Sirris")>>
+	<</if>>
+	<<if C.npc.River.init is 1 and $schoolstate isnot "second">>
+		<<run _teacherNames.push("River")>>
+	<</if>>
+	<<if C.npc.Doren.init is 1 and $schoolstate isnot "third">>
+		<<run _teacherNames.push("Doren")>>
+	<</if>>
+	<<if C.npc.Winter.init is 1 and $schoolstate isnot "fourth">>
+		<<run _teacherNames.push("Winter")>>
+	<</if>>
+	<<if C.npc.Mason.init is 1 and $schoolstate isnot "fifth">>
+		<<run _teacherNames.push("Mason")>>
+	<</if>>
+
+	<<if _teacherNames.length gte 1>>
+		<<set _teacher to _teacherNames.random()>>
+		<<set _text_output to _teacher>>
+		<<switch _teacher>>
+			<<case "Sirris">><<npc Sirris _position>>
+			<<case "River">><<npc River _position>>
+			<<case "Doren">><<npc Doren _position>>
+			<<case "Winter">><<npc Winter _position>>
+			<<case "Mason">><<npc Mason _position>>
+		<</switch>>
+	<<else>>
+		<<set _teacher to "The teacher">>
+		<<set _text_output to "a teacher">>
+		<<generateNPC _position>>
+	<</if>>
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "skincolourtext">>
@@ -4534,6 +4592,17 @@ output a teacher's name when that teacher is supposed to be in class. */
 	<</if>>
 <</silently>><<print _text_output>><</widget>>
 
+<<widget "beastgender">><<silently>>
+	<<if typeof _args[0] is "number">>
+		<<set _na to _args[0]>>
+	<<elseif $enemyno gte 0>>
+		<<set _na to $enemyno-1>>
+	<<else>>
+		<<set _na to 0>>
+	<</if>>
+	<<set _text_output to ($NPCList[_na].pronoun is "m" ? "boy" : "girl")>>
+<</silently>>_text_output<</widget>>
+
 <<widget "slut">><<silently>>
 	<<set _text_output to ($player.gender_appearance is "m" ? "pervert" : "slut")>>
 <</silently>><<print _text_output>><</widget>>
@@ -4613,7 +4682,7 @@ output a teacher's name when that teacher is supposed to be in class. */
 				<<if $rng gte 81>>
 					"I'm gonna fuck your ass until you squeal."
 				<<elseif $rng gte 61>>
-					"I'm gonna make you my bitch."
+					"I'm gonna make you my <<bitch>>."
 				<<elseif $rng gte 41>>
 					"You'll be worshipping my cock when I'm done with you."
 				<<elseif $rng gte 21>>
@@ -4625,7 +4694,7 @@ output a teacher's name when that teacher is supposed to be in class. */
 				<<if $rng gte 81>>
 					"I'm gonna fuck your pussy until you squeal."
 				<<elseif $rng gte 61>>
-					"I'm gonna make you my bitch."
+					"I'm gonna make you my <<bitch>>."
 				<<elseif $rng gte 41>>
 					"You'll be worshipping my cock when I'm done with you."
 				<<elseif $rng gte 21>>
@@ -4667,7 +4736,7 @@ output a teacher's name when that teacher is supposed to be in class. */
 				<<if $rng gte 81>>
 					"I'm gonna fuck your ass until you squeal."
 				<<elseif $rng gte 61>>
-					"I'm gonna make you my bitch."
+					"I'm gonna make you my <<bitch>>."
 				<<elseif $rng gte 41>>
 					"You'll be worshipping my cock when I'm done with you."
 				<<elseif $rng gte 21>>
@@ -4679,7 +4748,7 @@ output a teacher's name when that teacher is supposed to be in class. */
 				<<if $rng gte 81>>
 					"I'm gonna fuck your pussy until you squeal."
 				<<elseif $rng gte 61>>
-					"I'm gonna make you my bitch."
+					"I'm gonna make you my <<bitch>>."
 				<<elseif $rng gte 41>>
 					"You'll be worshipping my cock when I'm done with you."
 				<<elseif $rng gte 21>>
@@ -4805,7 +4874,7 @@ output a teacher's name when that teacher is supposed to be in class. */
 				<<set _text_output to "growl">>
 			<</if>>
 		<<default>>
-			<<set _text_output to "try to speak, but hiccup instead. This is a bug, Please report to Vrelnir" + (_args[0] isnot undefined ? _args[0] : "undefined")>>
+			<<set _text_output to "try to speak, but hiccup instead. This is a bug, please report to Vrelnir" + (_args[0] isnot undefined ? _args[0] : "undefined")>>
 	<</switch>>
 	<<print _text_output>>
 <</widget>>
@@ -5384,7 +5453,7 @@ output a teacher's name when that teacher is supposed to be in class. */
 <</widget>>
 
 <<widget "npcPenis">><<silently>>
-	<<set $_npcGen to (_args[0] ? _args[0] : $index)>>
+	<<set $_npcGen to (_args[0] ?? $index)>>
 	<<if !$NPCList[$_npcGen]>>
 		<<set _text_output to `<span class="red">error-npcPenis-${$_npcGen}</span>`>>
 	<<elseif $NPCList[$_npcGen].chastity.penis is "chastity cage">>
@@ -5400,7 +5469,7 @@ output a teacher's name when that teacher is supposed to be in class. */
 	<<if $enemynomax is 1>>
 		<<set _args[0] to 0>>
 	<</if>>
-	<<set $_npcGen to (_args[0] ? _args[0] : $index)>>
+	<<set $_npcGen to (_args[0] ?? $index)>>
 	<<if !$NPCList[$_npcGen]>>
 		<<set _text_output to `<span class="red">error-npcPenisSimple-${$_npcGen}</span>`>>
 	<<elseif $NPCList[$_npcGen].chastity.penis is "chastity cage">>
@@ -5415,12 +5484,12 @@ output a teacher's name when that teacher is supposed to be in class. */
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "npcPenisColored">>
-	<<set $_npcGen to (_args[0] ? _args[0] : $index)>>
+	<<set $_npcGen to (_args[0] ?? $index)>>
 	<<set $_ppcolor to "tan">>
 	<<if !$NPCList[$_npcGen]>>
 		<<set _text_output to `<span class="red">error-npcPenisColored-${$_npcGen}</span>`>>
 	<<elseif $NPCList[$_npcGen].chastity.penis.includes("chastity")>>
-		<<set $_ppcolor to "gray">>
+		<<set $_ppcolor to "grey">>
 		<<set _text_output to $NPCList[$_npcGen].chastity.penis>>
 	<<elseif npcHasStrapon($_npcGen)>>
 		/*<<set $_straponcolor to $NPCList[$_npcGen].penisdesc.split(" ")>>
@@ -5435,30 +5504,22 @@ output a teacher's name when that teacher is supposed to be in class. */
 <</widget>>
 
 <<widget "npcVagina">><<silently>>
-	<<if !_args[0]>>
-		<<set _npcGen to $index>>
-	<<else>>
-		<<set _npcGen to _args[0]>>
-	<</if>>
-	<<if !$NPCList[_npcGen]>>
-		<<set _text_output to `<span class="red">error-npcVagina-${_npcGen}</span>`>>
-	<<elseif $NPCList[_npcGen].chastity.vagina.includes("chastity")>>
-		<<set _text_output to $NPCList[_npcGen].chastity.vagina>>
+	<<set $_npcGen to (_args[0] ?? $index)>>
+	<<if !$NPCList[$_npcGen]>>
+		<<set _text_output to `<span class="red">error-npcVagina-${$_npcGen}</span>`>>
+	<<elseif $NPCList[$_npcGen].chastity.vagina.includes("chastity")>>
+		<<set _text_output to $NPCList[$_npcGen].chastity.vagina>>
 	<<else>>
 		<<set _text_output to either("vagina","vagina","quim","pussy")>>
 	<</if>>
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "npcAnus">>
-	<<if !_args[0]>>
-		<<set _npcGen to $index>>
-	<<else>>
-		<<set _npcGen to _args[0]>>
-	<</if>>
-	<<if !$NPCList[_npcGen]>>
-		<<set _text_output to `<span class="red">error-npcAnus-${_npcGen}</span>`>>
-	<<elseif $NPCList[_npcGen].chastity.anus.includes("shield")>>
-		<<set _text_output to $NPCList[_npcGen].chastity.anus>>
+	<<set $_npcGen to (_args[0] ?? $index)>>
+	<<if !$NPCList[$_npcGen]>>
+		<<set _text_output to `<span class="red">error-npcAnus-${$_npcGen}</span>`>>
+	<<elseif $NPCList[$_npcGen].chastity.anus.includes("shield")>>
+		<<set _text_output to $NPCList[$_npcGen].chastity.anus>>
 	<<else>>
 		<<set _text_output to "ass">>
 	<</if>>
@@ -5466,43 +5527,35 @@ output a teacher's name when that teacher is supposed to be in class. */
 <</widget>>
 
 <<widget "npcGenitals">><<silently>>
-	<<if !_args[0]>>
-		<<set _npcGen to $index>>
-	<<else>>
-		<<set _npcGen to _args[0]>>
-	<</if>>
-	<<if !$NPCList[_npcGen]>>
-		<<set _text_output to `<span class="red">error-npcGenitals-${_npcGen}</span>`>>
-	<<elseif $NPCList[_npcGen].penis isnot "none" and $NPCList[_npcGen].vagina isnot "none">>
+	<<set $_npcGen to (_args[0] ?? $index)>>
+	<<if !$NPCList[$_npcGen]>>
+		<<set _text_output to `<span class="red">error-npcGenitals-${$_npcGen}</span>`>>
+	<<elseif $NPCList[$_npcGen].penis isnot "none" and $NPCList[$_npcGen].vagina isnot "none">>
 		<<if _args[1] is "simple">>
-			<<set $_text_output to "<<npcPenisSimple _npcGen>> and <<npcVagina _npcGen>>">>
+			<<set $_text_output to "<<npcPenisSimple $_npcGen>> and <<npcVagina $_npcGen>>">>
 		<<else>>
-			<<set $_text_output to "<<npcPenis _npcGen>> and <<npcVagina _npcGen>>">>
+			<<set $_text_output to "<<npcPenis $_npcGen>> and <<npcVagina $_npcGen>>">>
 		<</if>>
-	<<elseif $NPCList[_npcGen].penis isnot "none">>
+	<<elseif $NPCList[$_npcGen].penis isnot "none">>
 		<<if _args[1] is "simple">>
-			<<set $_text_output to "<<npcPenisSimple _npcGen>>">>
+			<<set $_text_output to "<<npcPenisSimple $_npcGen>>">>
 		<<else>>
-			<<set $_text_output to "<<npcPenis _npcGen>>">>
+			<<set $_text_output to "<<npcPenis $_npcGen>>">>
 		<</if>>
 	<<else>>
-		<<set $_text_output to "<<npcVagina _npcGen>>">>
+		<<set $_text_output to "<<npcVagina $_npcGen>>">>
 	<</if>>
 <</silently>><<print $_text_output>><</widget>>
 
 <<widget "npcChest">><<silently>>
-	<<if !_args[0]>>
-		<<set _npcGen to $index>>
-	<<else>>
-		<<set _npcGen to _args[0]>>
-	<</if>>
+	<<set $_npcGen to (_args[0] ?? $index)>>
 
-	<<if !$NPCList[_npcGen]>>
-		<<set _text_output to `<span class="red">error-npcChest-${_npcGen}</span>`>>
-	<<elseif $NPCList[_npcGen].pronoun is "m" or $NPCList[_npcGen].breastsize is 0>>
+	<<if !$NPCList[$_npcGen]>>
+		<<set _text_output to `<span class="red">error-npcChest-${$_npcGen}</span>`>>
+	<<elseif $NPCList[$_npcGen].pronoun is "m" or $NPCList[$_npcGen].breastsize is 0>>
 		<<set _text_output to "chest">>
 	<<else>>
-		<<set _text_output to $NPCList[_npcGen].breastsdesc>>
+		<<set _text_output to $NPCList[$_npcGen].breastsdesc>>
 	<</if>>
 <</silently>><<print _text_output>><</widget>>
 
@@ -6166,7 +6219,7 @@ Argument 2, where appropriate, determines whether it's the player undressing the
 			<<set $_text_output += "strong willed enough">>
 		<<case "awareness">>
 			<<set $_text_output += "knowledgeable enough">>
-		<<case "skullduggery">>
+		<<case "skulduggery">>
 			<<set $_text_output += "a skilled enough thief">>
 		<<case "dancing">>
 			<<set $_text_output += "a skilled enough dancer">>
@@ -6198,11 +6251,41 @@ Argument 2, where appropriate, determines whether it's the player undressing the
 	<<set $_text_output += " _args[1].">>
 
 	/* Throws an error if 'custom' stat input is being used incorrectly */
-	<<if _args[3] and _args[0] is not "custom">>
+	<<if _args[3] and _args[0] isnot "custom">>
 		<<set $_color to "red">>
 		<<set $_text_output to "Syntax Error: Inputted custom stat '_args[3]' without using the 'custom' stat argument in the \"insufficientStat\" widget. Please report this.">>
 	<<elseif _args[0] is "custom" and !_args[3]>>
 		<<set $_color to "red">>
-		<<set $_text_output to "Syntax Error: Used 'custom' stat argument without inputing a custom stat in the \"insufficientStat\" widget. Please report this.">>
+		<<set $_text_output to "Syntax Error: Used 'custom' stat argument without inputting a custom stat in the \"insufficientStat\" widget. Please report this.">>
 	<</if>>
 <</silently>><<if $_text_output>><span @class="$_color"><<print $_text_output>></span><</if>><</widget>>
+
+<<widget "anxiety_disorder_text">><<if $statdisable is "f">>
+	| <span class="red">Anxiety Disorder</span>
+<</if>><</widget>>
+
+<<widget "severe_anxiety_disorder_text">><<if $statdisable is "f">>
+	| <span class="red">Severe Anxiety Disorder</span>
+<</if>><</widget>>
+
+<<widget "ordinalList">><<silently>>
+	<<if _args[1] is "cap">>
+		<<set $_and to _args[2] or "and">>
+		<<set $_comma to _args[3] isnot undefined ? _args[3] : true>>
+	<<else>>
+		<<set $_and to _args[1] or "and">>
+		<<set $_comma to _args[2] isnot undefined ? _args[2] : true>>
+	<</if>>
+	<<if typeof _args[0] isnot "object">>
+		<<set _text_output to '<span class="red">Syntax Error: args0 "' + _args[0] + '" is not array.</span>'>>
+	<<elseif !_args[0].length>>
+		<<set _text_output to '<span class="red">Syntax Error: args0 "' + _args[0] + '" is either an object or an empty array.</span>'>>
+	<<else>>
+		<<set $_list to []>>
+		<<for _i range _args[0]>>
+			<<set $_list.push(ordinalWritten(_i))>>
+		<</for>>
+		<<set _text_output to formatList($_list, $_and, $_comma)>>
+		<<if _args[1] is "cap">><<capitalise>><</if>>
+	<</if>>
+<</silently>><<print _text_output>><</widget>>

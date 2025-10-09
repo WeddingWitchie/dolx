@@ -316,7 +316,7 @@ DefineMacro("modelprepare-player-body", function () {
 	T.modeloptions.brows_position = V.browsposition;
 
 	// Mouth
-	if (V.worn.handheld.type.includes("food") && !T.gift) {
+	if ((V.worn.handheld.type.includes("food") && !T.gift) || V.underwater === 1 || (T.tempEffects?.underwater && T.tempEffects.underwater !== "noMouth")) {
 		T.modeloptions.mouth = "chew";
 	} else if (V.trauma >= V.traumamax) {
 		T.modeloptions.mouth = "neutral";
@@ -483,7 +483,7 @@ DefineMacro("modelprepare-player-body", function () {
 	}
 	// Fallen angel-harpy wings
 	if (isPartEnabled(T.modeloptions.fallen_wings_type) && isPartEnabled(T.modeloptions.bird_wings_type) && isChimeraEnabled("fallenharpy", "wings")) {
-		T.modeloptions.bird_wings_type = "default-fallen";
+		T.modeloptions.bird_wings_type = V.transformationParts.fallenAngel.wings.includes("fallenplus") ? "default-angel" : "default-fallen";
 		T.modeloptions.fallen_wings_type = T.modeloptions.fallen_wings_type.includes("fallenplus") ? "harpy-fallenplus" : "harpy-default";
 	}
 	// Demon-cow horns
@@ -625,6 +625,28 @@ DefineMacro("modelprepare-player-body", function () {
 	if (V.follower) {
 		T.modeloptions.follower = V.follower;
 	}
+
+	/**
+	 *     ██████  █████  ███    ██ ██    ██  █████  ███████
+	 *    ██      ██   ██ ████   ██ ██    ██ ██   ██ ██
+	 *    ██      ███████ ██ ██  ██ ██    ██ ███████ ███████
+	 *    ██      ██   ██ ██  ██ ██  ██  ██  ██   ██      ██
+	 *     ██████ ██   ██ ██   ████   ████   ██   ██ ███████
+	 *
+	 *    ███████ ███████ ███████ ███████  ██████ ████████ ███████
+	 *    ██      ██      ██      ██      ██         ██    ██
+	 *    █████   █████   █████   █████   ██         ██    ███████
+	 *    ██      ██      ██      ██      ██         ██         ██
+	 *    ███████ ██      ██      ███████  ██████    ██    ███████
+	 */
+
+	T.modeloptions.precipitation =
+		V.options.showSidebarEffects && Weather.precipitation !== "none" && Weather.overcast > 0.25 && V.outside === 1 && !V.underwater;
+	T.modeloptions.water = V.options.showSidebarEffects && (V.underwater === 1 || T.tempEffects?.underwater);
+	T.modeloptions.waterBreath = V.options.showSidebarEffects && T.modeloptions.water && T.tempEffects?.underwater !== "noMouth";
+	T.modeloptions.fire = V.options.showSidebarEffects && (V.fire || T.tempEffects?.fire || (V.farm_assault && V.fields_damaged.includes(V.bus)));
+	T.modeloptions.fireFront = V.options.showSidebarEffects && (T.tempEffects?.fireFront || (V.farm_assault && V.fields_damaged.length >= 1));
+	T.modeloptions.temperature = V.options.showSidebarEffects && !T.modeloptions.fire && !T.modeloptions.water && V.outside === 1 && Weather.temperature <= 5;
 });
 
 DefineMacro("modelprepare-player-clothes", function () {
@@ -662,6 +684,12 @@ DefineMacro("modelprepare-player-clothes", function () {
 	T.modeloptions.neck_tucked = V.neckTucked;
 	T.modeloptions.upper_tucked = V.upperTucked && !setup.clothes.upper[clothesIndex("upper", V.worn.upper)].notuck && V.worn.upper.outfitPrimary === undefined;
 	T.modeloptions.lower_tucked = !V.worn.feet.notuck && !V.worn.lower.notuck && V.lowerTucked;
+	T.modeloptions.belly_tucked =
+		V.bellyTucked === 1 &&
+		V.player.bodyshape === "soft" &&
+		V.worn.lower.name !== "naked" &&
+		(!setup.clothes.lower[clothesIndex("lower", V.worn.lower)].outfitSecondary ||
+			setup.clothes.lower[clothesIndex("lower", V.worn.lower)]?.outfitSecondary[1] !== V.worn.upper.name);
 
 	Object.assign(T.modeloptions, getClothingOptions());
 	const overrides = V.modeloptionsOverride;

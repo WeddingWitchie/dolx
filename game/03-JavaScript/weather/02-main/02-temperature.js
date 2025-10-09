@@ -128,6 +128,13 @@ Weather.Temperature = (() => {
 			}
 			case "hotel": // Avery date
 				return 37;
+			case "avery_mansion":
+				switch (V.bus) {
+					case "avery_pool":
+						return 27;
+					case "avery_garden":
+						return 37;
+				}
 		}
 
 		const date = new DateTime(Time.date);
@@ -238,6 +245,7 @@ Weather.Temperature = (() => {
 			"market",
 			"museum",
 			"office",
+			"avery_skyscraper",
 			"park",
 			"police_station",
 			"pool",

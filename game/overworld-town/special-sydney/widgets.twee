@@ -94,12 +94,13 @@
 	<<else>>
 		<<switch random(1, 3)>>
 			<<case 1>>
-				Sydney stands with a crowd of <<monks>>, heads bowed. <<nnpc_He "Sydney">> spots you and smiles. <<npcincr Sydney love 1>><<glove>>
+				Sydney stands with a crowd of <<monks>>, heads bowed. <<nnpc_He "Sydney">> spots you and smiles.
 			<<case 2>>
-				Sydney takes a seat next to you. <<npcincr Sydney love 1>><<glove>>
+				Sydney takes a seat next to you.
 			<<case 3>>
-				You spot Sydney on the other side of the temple. <<nnpc_He "Sydney">> sees you too, and waves. <<npcincr Sydney love 1>><<glove>>
+				You spot Sydney on the other side of the temple. <<nnpc_He "Sydney">> sees you too, and waves.
 		<</switch>>
+		<<npcincr Sydney love 1>><<glove "Sydney">>
 		<br><br>
 	<</if>>
 <</widget>>
@@ -129,7 +130,7 @@
 			Sydney looks eager to talk to you about something.
 			<br><br>
 			<<sydneyOptions>>
-		<<elseif $leftarm is "bound" or $rightarm is "bound">>
+		<<elseif pcAreArmsBound("any")>>
 			Sydney notices your bound arms. "That isn't dress code." <<He>> walks behind you, and cuts your bindings with a pair of scissors. <<unbind>>
 			<br><br>
 			<<sydneyOptions>>
@@ -622,7 +623,7 @@
 
 <<widget "sydneyOptionsTalk">>
 	<<if $bus is "schoollibrary" and $daily.sydney.peek and !$daily.sydney.peekConfront>>
-		<<ind>><<link [[Confront about changing room|Sydney Peek Confront]]>><<set $daily.sydney.peekConfront to true>><<handheldon 1>><</link>>
+		<<socialiseicon "angry">><<link [[Confront about changing room|Sydney Peek Confront]]>><<set $daily.sydney.peekConfront to true>><<handheldon 1>><</link>>
 		<br>
 	<</if>>
 	<<if $location is "school" and $sydneySeen.includes("science") and Time.hour is 8 and Time.minute gte 45>>
@@ -799,7 +800,7 @@
 			<<if $sydneyAnalShieldComment>>
 				<<unset $sydneyAnalShieldComment>>
 				<<if _sydneyStatus.includes("corrupt")>>
-					"<span class="gold">I was able to convince them to remove my anal shield, at least.</span>"
+					<span class="gold">"I was able to convince them to remove my anal shield, at least."</span>
 				<<else>>
 					"I... <span class="gold">I got my anal shield removed for you...</span>"
 				<</if>>
@@ -827,113 +828,6 @@
 		<<set _text_output += "pussy">>
 	<</if>>
 <<print _text_output>><</widget>>
-
-<<widget "sydneySchedule">>
-	<<if $sydney_location_override and $replayScene>>
-		<<set _sydney_location to $sydney_location_override>>
-	<<elseif $daily.sydney.punish is 1>>
-		<<set _sydney_location to "home">>
-		<<set _sydney_location_message to "home">>
-	<<elseif $englishPlay is "ongoing" and $englishPlayDays is 0 and Time.hour gte 17 and Time.hour lt 21>>
-		<<set _sydney_location to "englishPlay">>
-	<<elseif Time.weekDay is 1>>
-		<<set _sydney_location to "temple">>
-	<<elseif Time.weekDay is 7>>
-		<<if $adultshopopeningsydney is true and Time.hour lt 21>>
-			<<set _sydney_location to "shop">>
-		<<elseif Time.hour gte 6>>
-			<<set _sydney_location to "temple">>
-		<<else>>
-			<<set _sydney_location to "home">>
-		<</if>>
-	<<elseif Time.weekDay is 6 and Time.hour gte 16 and Time.hour lt 20>>
-		<<if $adultshophelped is 1>>
-			<<set _sydney_location to "temple">>
-		<<else>>
-			<<set _sydney_location to "shop">>
-		<</if>>
-	<<elseif $sydneySeen isnot undefined and $adultshopunlocked and C.npc.Sydney.corruption gt 10 and Time.hour gte 16 and Time.hour lt 20>>
-		<<set $_corruption to C.npc.Sydney.corruption>>
-		<<if $adultshophelped is 1>>
-			<<set _sydney_location to "temple">>
-		<<elseif $_corruption gt 10 and Time.weekDay is 4>>
-			<<set _sydney_location to "shop">>
-			<<set _sydney_location_message to "shop">>
-		<<elseif $_corruption gt 20 and Time.weekDay is 5>>
-			<<set _sydney_location to "shop">>
-			<<set _sydney_location_message to "shop">>
-		<<elseif $_corruption gt 30 and Time.weekDay is 3 and $sydney.rank is "initiate">>
-			<<set _sydney_location to "shop">>
-			<<set _sydney_location_message to "shop">>
-		<<elseif $_corruption gt 40 and Time.weekDay is 2 and $sydney.rank is "initiate">>
-			<<set _sydney_location to "shop">>
-			<<set _sydney_location_message to "shop">>
-		<<else>>
-			<<set _sydney_location to "temple">>
-			<<set _sydney_location_message to "temple">>
-		<</if>>
-	<<elseif !Time.schoolTerm>>
-		<<if Time.hour gte 6 and Time.hour lte 22>>
-			<<set _sydney_location to "temple">>
-		<<else>>
-			<<set _sydney_location to "home">>
-		<</if>>
-	<<elseif Time.schoolDay>>
-		<<silently>><<schooleffects>><</silently>>
-		<<if Time.hour lte 5>>
-			<<set _sydney_location to "home">>
-		<<elseif Time.hour gte 6 and Time.hour lte 9 and $sydneyLate is 1>>
-			<<set _sydney_location to "late">>
-		<<elseif Time.hour is 6>>
-			<<set _sydney_location to "temple">>
-		<<elseif Time.hour is 7 or Time.hour is 8 or (Time.hour is 9 and $sydneyScience isnot 1)>>
-			<<set _sydney_location to "library">>
-		<<elseif Time.hour is 9>>
-			<<set _sydney_location to "science">>
-		<<elseif ["second", "third"].includes($schoolstate)>>
-			<<set _sydney_location to "class">>
-		<<elseif $schoolstate is "lunch" and $daily.school.lunchEaten isnot 1 and Time.minute lte 15>>
-			<<set _sydney_location to "canteen">>
-		<<elseif $englishPlay is "ongoing" and $schoolstate is "afternoon">>
-			<<set _sydney_location_message to "rehearsal">>
-			<<set _sydney_location to "rehearsal">>
-		<<elseif Time.hour lte 15 or (Time.hour is 16 and Time.minute lte 40)>>
-			<<if $daily.sydney.templeSkip>>
-				<<set _sydney_location to "temple">>
-			<<else>>
-				<<set _sydney_location to "library">>
-			<</if>>
-		<<elseif Time.hour gte 16 and Time.hour lte 22>>
-			<<set _sydney_location to "temple">>
-		<<else>>
-			<<set _sydney_location to "home">>
-		<</if>>
-	<<else>>
-		<<set _sydney_location to "home">>
-	<</if>>
-	<<if _sydney_location is "temple">>
-		<<switch Time.hour>>
-			<<case 1 2 3 4 5>>
-				<<set $sydney_templeWork to (Time.weekDay is 1? "sleep" : "pray")>>
-			<<case 6>>
-				<<set $sydney_templeWork to "pray">>
-			<<case 7 8 9 10>>
-				<<set $sydney_templeWork to "garden">>
-			<<case 11 12>>
-				<<set $sydney_templeWork to (Time.weekDay is 1 && $daily.massAttended isnot 1? "mass" : "pray")>>
-			<<case 13 14 15 16>>
-				<<set $sydney_templeWork to "pray">>
-			<<case 17 18 19 20>>
-				<<set $sydney_templeWork to (Time.weekDay is 1 && V.sydney && V.sydney.rank === "initiate" ? "anguish" : "quarters")>>
-			<<case 21 22>>
-				<<set $sydney_templeWork to (Time.weekDay is 1 && V.sydney && V.sydney.rank === "initiate" ? "anguish" : "pray")>>
-			<<case 23 0>>
-				<<set $sydney_templeWork to (Time.weekDay is 7? "sleep" : "pray")>>
-			<<default>>
-				<<set $sydney_templeWork to "pray">>
-		<</switch>>
-	<</if>>
-<</widget>>
 
 <<widget "sydneyGreeting">>
 	<<if !$daily.sydney.greeting>>
@@ -983,6 +877,7 @@
 			<<if $bookCriminal is undefined>>
 				<<set $bookCriminal to 1>>
 				<<He>> sighs. "I don't have the authority to punish you, so <<nnpc_Title "Leighton">> Leighton lets me do this instead."
+				<br><br>
 				Sydney brandishes a red permanent marker, and pulls you close with surprising strength.
 			<<else>>
 				<<if C.npc.Sydney.love lt 10>>

@@ -118,6 +118,7 @@ const ZIndices = {
 	deco_fg2: 295,
 	deco_fg1: 300,
 
+	precipitationFront: 170,
 };
 window.ZIndices = ZIndices;
 

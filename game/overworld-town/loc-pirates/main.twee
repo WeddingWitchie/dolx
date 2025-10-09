@@ -263,6 +263,7 @@ You remain motionless. <span class="green">The <<person>> misses you by a wide m
 The crew almost fall over themselves with laughter. "Right then," says Captain Zephyr, stepping forward. The crew hush at once, eager to watch this showdown.
 <br><br>
 
+<<endevent>>
 <<npc Zephyr>><<person1>>Zephyr stands still, staring right in your eyes, motionless. You won't have much time to react once <<he>> starts moving.
 <<if $skulduggery gte 1000>>
 	<<He>> gives nothing away, <span class="green">but you notice a pistol-shaped bulge beneath <<his>> jacket.</span>
@@ -569,13 +570,11 @@ You are on the deck aboard the pirate ship.
 	<<link [[Next|Pirate End]]>><<towelup>><<unset $pirate_journey>><</link>>
 	<br>
 <<else>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
+	<<set _mod to 1>>
 	<<if $pirate_rank gte 1>>
-		<<set _allure to ($allure / 2)>>
-	<<else>>
-		<<set _allure to $allure>>
+		<<set _mod to 0.5>>
 	<</if>>
-	<<if ($danger gte (9900 - _allure) or $eventforced) and $eventskip is 0>>
+	<<if (dangerEvent(_mod) or $eventforced) and $eventskip is 0>>
 		<<events_pirate_deck>>
 	<<elseif $pirate_rank is 0 and $pirate_status gte 90>>
 		<<generateRole 0 0 "pirate">><<person1>>
@@ -761,7 +760,7 @@ The <<person1>><<person>> and <<person2>><<person>> don't need to be told twice.
 <<elseif $enemyhealth lte 0>>
 	You shove the <<person1>><<person>> overboard, and the <<person2>><<person>> looks afraid <<he>>'ll follow.
 	<br><br>
-	Zephyr laughs. "Good show. Now all of ye get back to work."<<ggrespect><<pirate_status 3>>
+	Zephyr laughs. "Good show. Now all of ye get back to work."<<ggrespect>><<pirate_status 3>>
 	<br><br>
 	<<tearful>> you get your bearings.
 	<br><br>
@@ -816,13 +815,11 @@ You are in the cabin aboard the pirate ship.
 <<if $stress gte $stressmax and !$possessed>>
 	<<passoutpirates>>
 <<else>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
+	<<set _mod to 1>>
 	<<if $pirate_rank gte 1>>
-		<<set _allure to ($allure / 2)>>
-	<<else>>
-		<<set _allure to $allure>>
+		<<set _mod to 0.5>>
 	<</if>>
-	<<if ($danger gte (9900 - _allure) or $eventforced) and $eventskip is 0>>
+	<<if (dangerEvent(_mod) or $eventforced) and $eventskip is 0>>
 		<<events_pirate_cabin>>
 	<<elseif Time.hour gte 12 and Time.hour lte 18 and $pirate_attack is undefined>>
 		"Everyone!" bellows Zephyr from above. "To battle stations!"
@@ -896,13 +893,11 @@ You are in the bilge, deep within the pirate ship. The walls creak and groan.
 <<if $stress gte $stressmax and !$possessed>>
 	<<passoutpirates>>
 <<else>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
+	<<set _mod to 1>>
 	<<if $pirate_rank gte 1>>
-		<<set _allure to ($allure / 2)>>
-	<<else>>
-		<<set _allure to $allure>>
+		<<set _mod to 0.5>>
 	<</if>>
-	<<if ($danger gte (9900 - _allure) or $eventforced) and $eventskip is 0>>
+	<<if (dangerEvent(_mod) or $eventforced) and $eventskip is 0>>
 		<<events_pirate_bilge>>
 	<<elseif Time.hour gte 12 and Time.hour lte 18 and $pirate_attack is undefined>>
 		"Everyone!" bellows Zephyr from above. "To battle stations!"
@@ -1278,7 +1273,7 @@ You are greeted by sweaty <<people>> at the top of the ladder, traipsing the dec
 <<else>>
 	Some throw curious glances your way, but most look concerned with other matters.
 <</if>>
-A tall mast stands, erect, in front of you, almost reaching the high ceiling. It looks like an old fashioned sailing ship, but you hear the rumble of an engine somewhere.
+A tall mast stands, erect, in front of you, almost reaching the high ceiling. It looks like an old-fashioned sailing ship, but you hear the rumble of an engine somewhere.
 <br><br>
 
 "We set sail in five minutes!" shouts Zephyr, emerging behind you. <<He>> strides by, barking orders.
@@ -1493,14 +1488,15 @@ You are beside your bed, if it could be called that, in the bilge of the pirate 
 <<getouticon>><<link [[Leave|Pirate Bilge]]>><<set $eventskip to 1>><</link>>
 
 <br><br>
+<<ind>><<link [[Gameplay Settings|Pirate Settings]]>><</link>>
+<br>
 <<if $attitudesControl.showGoldLink is true>>
 	<span class="goldLink"><<link [[Attitudes]]>><<set $attitudesExitPassage to $passage>><</link>> </span><span class="red">!!</span>
 <<else>>
 	<<ind>><<link [[Attitudes]]>><<set $attitudesExitPassage to $passage>><</link>>
 <</if>>
 <br>
-<<ind>><<link [[Gameplay Settings|Pirate Settings]]>><</link>>
-<br>
+
 
 
 :: Pirate Settings [exitCheckBypass]
@@ -1552,7 +1548,7 @@ You are beside your bed, if it could be called that, in the bilge of the pirate 
 	<<effects>>
 	<<wakingEffects $sleepHoursTotal>>
 	<<if $nightmares gte 1 and $controlled is 0>>
-		You dream you are being hunted by something <<if ["haunt", "despair"].includes($wraith.state) and $rng lte 25>>pale<<else>>dark<</if>> and terrible.
+		<<nightmareWake>>
 	<<else>>
 		<<if ($specialClothesEffects.bimbo.total gte random(100,1000) || $specialClothesEffects.pimp.total gte random(100,1000)) or $arousal gte ($arousalmax / 10) * 9>>
 			<<wetDream>>
@@ -1596,7 +1592,7 @@ You are beside your bed, if it could be called that, in the bilge of the pirate 
 	<<link [[Next|Pirate Deck]]>><<endevent>><<set $eventskip to 1>><</link>>
 	<br>
 <<else>>
-	"Walking around the deck dressed like that?" Zephyr muses. <span class="red">"I think ye be wanting a lesson.</span>" <<He>> grasps your arm. "Let's go for a walk."
+	"Walking around the deck dressed like that?" Zephyr muses. <span class="red">"I think ye be wanting a lesson."</span> <<He>> grasps your arm. "Let's go for a walk."
 	<br><br>
 
 	<<link [[Refuse|Pirate Clothes Refuse]]>><<def 1>><<pirate_status 1>><</link>><<grespect>>

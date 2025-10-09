@@ -3,26 +3,20 @@ You've pushed yourself too much.
 <br><br>
 <<passout>>
 <<set $bus to "park">>
-<<set $dangerpark to 0>>
-<<set $safepark to 0>>
-<<set $danger to random(1, 10000)>>
 
-<<if $danger gte (9900 - $allure)>>
-	<<set $dangerpark to random(1, 100)>>
-<<elseif $danger lt (9900 - $allure)>>
-	<<set $safepark to random(1, 100)>>
-<</if>>
-
-<<if $dangerpark gte 81>>
-	<<link [[Wake up|Abduction]]>><<set $molestationstart to 1>><</link>>
-<<elseif $dangerpark gte 1>>
-	<<link [[Wake up|Dog Park]]>><<set $molestationstart to 1>><</link>>
-	<!--
+<<if dangerEvent()>>
+	<<if random(1, 100) gte 81>>
 		<<link [[Wake up|Abduction]]>><<set $molestationstart to 1>><</link>>
-	-->
+	<<else>>
+		<<if $monster is 1 or $bestialitydisable is "f">>
+			<<link [[Wake up|Dog Park]]>><<set $molestationstart to 1>><</link>>
+		<<else>>
+			<<link [[Wake up|Dog Park 2]]>><</link>>
+		<</if>>
+	<</if>>
+<<else>>
+	<<ambulance>>
 <</if>>
-
-<<if $safepark gte 1>><<ambulance>><</if>>
 
 <<pass 1 hour>>
 
@@ -68,6 +62,20 @@ You've pushed yourself too much.
 <<else>>
 	<span id="next"><<link [[Next|Dog Park]]>><</link>></span><<nexttext>>
 <</if>>
+
+:: Dog Park 2
+<<set $outside to 1>><<effects>>
+<<beastNEWinit 1 dog>>
+
+You awaken to find yourself being dragged behind a bush by a strange <<beasttype>>.
+<br><br>
+
+You manage to struggle yourself free and escape, but not unscathed. <<beastescape>>
+<br><br>
+
+<<endevent>>
+<<set $stress -= 1000>><<set $eventskip to 1>>
+<<destination>>
 
 :: Park Woman
 <<if $molestationstart is 1>>
@@ -217,8 +225,8 @@ You are in the men's toilets in the park.
 	<<passoutpark>>
 <<else>>
 
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-		<<if $danger gte (9900 - $allure) and $player.gender_appearance is "f" and $eventskip is 0>>
+	
+		<<if dangerEvent() and $player.gender_appearance is "f" and $eventskip is 0>>
 			<<eventstoilets>>
 		<<else>>
 			<<storeactions "parkmens">>
@@ -351,8 +359,8 @@ You are in the women's toilets in the park.
 <<if $stress gte $stressmax>>
 	<<passoutpark>>
 <<else>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-		<<if $danger gte (9900 - $allure) and $player.gender_appearance is "m" and $eventskip isnot 1>>
+	
+		<<if dangerEvent() and $player.gender_appearance is "m" and $eventskip isnot 1>>
 			<<eventstoilets>>
 		<<else>>
 			<<storeactions "parkwomens">>
@@ -1064,7 +1072,7 @@ You run back to the toilets without incident. You take deep breaths as you try t
 	<</switch>>
 	You decide to do what <<he>> says. Slowly, without making any sudden moves, you put on the clothes Kylar has given you.
 	<br><br>
-	As soon as you're covered Kylar's demeanor changes. <<He>> wipes a tear from <<his>> eye and lowers the knife, before pulling you into a hug.
+	As soon as you're covered Kylar's demeanour changes. <<He>> wipes a tear from <<his>> eye and lowers the knife, before pulling you into a hug.
 	<br><br>
 	"You're all mine, remember that," <<he>> says as <<he>> squeezes you tight. "You can't let anyone see you like that. You're all mine."
 	<<npcincr Kylar love 5>><<gglove>>
@@ -1194,7 +1202,6 @@ You run back to the toilets without incident. You take deep breaths as you try t
 
 <<set $seductiondifficulty to 6000>>
 <<seductioncheck>>
-<br><br>
 <<seductionskilluptext>>
 <<seductionskilluse>>
 
@@ -1294,8 +1301,8 @@ You run back to the toilets. You take deep breaths as you try to slow your pulse
 <<eventParkStreakEnd>>
 
 :: Toilets Stall
-<<effects>><<set $danger to random(1, 10000)>><<set $phase to 0>>
-<<if $danger gte (8900 - ($allure / 3))>>
+<<effects>><<set $phase to 0>>
+<<if dangerEvent(1/3, 8900)>>
 	<<set $toiletsrape to 1>>
 <</if>>
 <<if $exposed gte 2>>
@@ -1320,7 +1327,7 @@ You sit on the toilet, and wait.
 		<br>
 	<</if>>
 <<else>>
-	<<if $rng gte 65>>
+	<<if $rng gte 66>>
 		<<set $phase2 to 1>>
 		<<fameexhibitionism 10>>
 		<<if $bus is "parkmens">>
@@ -1362,7 +1369,7 @@ You sit on the toilet, and wait.
 			<<set $toiletswrong to 1>>
 			"This is, uh... the wrong restroom." <<He>> tries to avert <<his>> gaze, but you can see <<his>> eyes sticking to your <<genitals>>.
 			<<if $phase2 is 1>>
-				"Hey, what's going on-" a <<person2>><<person>> steps in, and has a similar reaction.
+				"Hey, what's going on—" a <<person2>><<person>> steps in, and has a similar reaction.
 			<</if>>
 			<br><br>
 			<<link [[Tease|Toilets Stall 2]]>><<set $phase to 1>><</link>>
@@ -1560,7 +1567,7 @@ You sit on the toilet, and wait.
 		<<violence 3>>
 		<br><br>
 	<<elseif $enemyanger gte 1>>
-		"Thanks slut," <<he>> says. <<if $phase2 is 1>>They get up and leave<<else>><<He>> gets up and leaves<</if>> you lying on the cold tiles.
+		"Thanks, slut," <<he>> says. <<if $phase2 is 1>>They get up and leave<<else>><<He>> gets up and leaves<</if>> you lying on the cold tiles.
 		<br><br>
 	<<else>>
 		Smiling, the <<person1>><<person>> kisses you on the cheek. "This is for you,"<<if $phase2 is 1>> the <<person2>><<person>> says<<else>> <<he>> says<</if>>, thumbing through <<his>> wallet. <<if $phase2 is 1>>They get up, and each extend <<else>><<He>> gets up, and extends <</if>>you a hand, helping you to your feet.

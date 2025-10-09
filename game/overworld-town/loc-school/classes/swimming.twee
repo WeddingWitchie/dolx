@@ -169,16 +169,20 @@
 			<br><br>
 
 			<<if hasSexStat("exhibitionism", 5) and $swimall isnot 1>>
+				<<set _hasAskLink to true>>
 				<<socialiseicon "ask">><<link [[Ask to swim naked|School Pool Ask Naked]]>><<fameexhibitionism 15>><<endevent>><<set $swimnudecounter += 1>><</link>><<exhibitionist5>>
 				<br>
 			<</if>>
+		
 			<<if $player.sex is "f" or ($player.sex is "h" and $player.gender_appearance is "f")>>
 				<<if !$daily.swimCrossdressPermission>>
+					<<set _hasAskLink to true>>
 					<<socialiseicon>><<link [[Say you only have a boy's swimming costume|School Pool Wrong]]>><</link>>
 					<br>
 				<</if>>
 			<<else>>
 				<<if !$daily.swimCrossdressPermission>>
+					<<set _hasAskLink to true>>
 					<<socialiseicon>>
 					<<if ($worn.upper.type.includes("naked") and $worn.under_upper.type.includes("naked")) and
 					($worn.lower.type.includes("swim") or ($worn.lower.type.includes("naked") and $worn.under_lower.type.includes("swim")))>>
@@ -189,9 +193,14 @@
 					<br>
 				<</if>>
 			<</if>>
-			<<socialiseicon>><<link [[Say you don't have anything to change into|School Pool Spare]]>><</link>>
-			<br><br>
-
+			<<if !$daily.swimSpareClothes>>
+				<<set _hasAskLink to true>>
+				<<socialiseicon>><<link [[Say you don't have anything to change into|School Pool Spare]]>><</link>>
+			<br>
+			<</if>>
+			<<if _hasAskLink>>
+				<br>
+			<</if>>
 			<<destinationpoolchangingroom>>
 		<</if>>
 	<</if>>
@@ -584,7 +593,7 @@ You speak in a low voice, so only the teacher will hear you.
 <</if>>
 
 :: School Pool Spare
-<<set $outside to 0>><<set $location to "pool">><<schooleffects>><<effects>>
+<<set $outside to 0>><<set $location to "pool">><<set $daily.swimSpareClothes to true>><<schooleffects>><<effects>>
 "I don't have a swimming costume, <<sir>>."
 <br><br>
 
@@ -600,7 +609,7 @@ You speak in a low voice, so only the teacher will hear you.
 	No one will be able to see anything once you're in."
 	<br><br>
 
-	<<link [[Accept|School Pool Nude]]>><<schoolpoolundress>><<endevent>><<exposure>><</link>>
+	<<link [[Accept|School Pool Nude]]>><<endevent>><</link>>
 	<br>
 	<<link [[Refuse (0:05)|School Pool Refuse]]>><<pass 5>><<detention 6>><<endevent>><</link>><<ggdelinquency>>
 <<elseif $rng gte 41 or $forcedcrossdressingdisable is "t">>
@@ -677,15 +686,16 @@ Mason also blushes. "I-I'll pretend I didn't hear that." <<He>> points to the ch
 <<destinationpoolchangingroom>>
 
 :: School Pool Nude
-<<set $outside to 0>><<set $location to "pool">><<schooleffects>><<effects>>
+<<set $outside to 0>><<set $location to "pool">><<schoolpoolundress>><<exposure>><<schooleffects>><<effects>>
 
 You <<nervously>> undress and tuck your clothes away inside the cupboard. You open the door slightly and peek through the gap.
 Thirty or so students, plus the teacher. You'll get in trouble if you don't join them, but can you really expose yourself in front of so many people?
 <br><br>
 
-<<link [[This was a mistake!|School Pool Refuse]]>><</link>>
+<<link [[Enter the pool|School Pool Nude Entry]]>><</link>>
 <br>
-<<link [[I have no choice|School Pool Nude Entry]]>><</link>>
+<<link [[Skip the lesson (0:05)|School Pool Refuse]]>><<pass 5>><<storeload _store_location>><<detention 6>><<endevent>><</link>><<ggdelinquency>>
+
 
 :: School Pool Refuse
 <<set $outside to 0>><<set $location to "pool">><<schooleffects>><<effects>>
@@ -798,34 +808,17 @@ You manage to get beneath the flimsy protection of the water, but not before the
 		<<destinationpoolchangingroom "towels">>
 	<</if>>
 <<else>>
+	<<set _mod to 0.2>>
 	<<if $exposed gte 1>>
-		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-		<<if $danger gte (8900 - $allure)>>
-			<<eventsswimming>>
-		<<else>>
-			<<eventsswimmingsafe>>
-		<</if>>
-	<<elseif $exposed lte 0>>
-		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-		<<if $danger gte (8900 - ($allure / 5))>>
-			<<eventsswimming>>
-		<<else>>
-			<<eventsswimmingsafe>>
-		<</if>>
-	<</if>>
-<</if>>
-	<<if !between(Time.minute, 5, 57)>>
-		<<set _waitTime to (65 - Time.minute) % 60>>
-		<<if $player.gender_appearance is "m">>
-			<<loitericon>><<link [[`Wait for the girls to leave (0:0${_waitTime})`|School Pool]]>><<pass _waitTime>><</link>>
-			<br><br>
-		<</if>>
-		<<if $player.gender_appearance is "f">>
-			<<loitericon>><<link [[`Wait for the boys to leave (0:0${_waitTime})`|School Pool]]>><<pass _waitTime>><</link>>
-			<br><br>
-		<</if>>
+		<<set _mod to 1>>
 	<</if>>
 
+	<<if dangerEvent(_mod, 8900)>>
+		<<eventsswimming>>
+	<<else>>
+		<<eventsswimmingsafe>>
+	<</if>>
+<</if>>
 
 :: Swimming Lesson Naked Backstroke
 <<set $outside to 0>><<set $location to "pool">><<schooleffects>><<water>><<advancelesson>><<effects>>
@@ -886,20 +879,15 @@ Mason seems displeased by your choice of activity.
 		<<destinationpoolchangingroom "towels">>
 	<</if>>
 <<else>>
+	<<set _mod to 0.1>>
 	<<if $exposed gte 1>>
-		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-		<<if $danger gte (8900 - ($allure / 2))>>
-			<<eventsswimming>>
-		<<else>>
-			<<eventsswimmingsafe>>
-		<</if>>
-	<<elseif $exposed lte 0>>
-		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-		<<if $danger gte (8900 - ($allure / 10))>>
-			<<eventsswimming>>
-		<<else>>
-			<<eventsswimmingsafe>>
-		<</if>>
+		<<set _mod to 0.5>>
+	<</if>>
+
+	<<if dangerEvent(_mod, 8900)>>
+		<<eventsswimming>>
+	<<else>>
+		<<eventsswimmingsafe>>
 	<</if>>
 <</if>>
 
@@ -942,21 +930,15 @@ Mason seems displeased by your choice of activity.
 		<<destinationpoolchangingroom "towels">>
 	<</if>>
 <<else>>
+	<<set _mod to 0.5>>
 	<<if $exposed gte 1>>
-		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-		<<if $danger gte (8900 - ($allure * 2))>>
-			<<eventsswimming>>
-		<<else>>
-			<<eventsswimmingsafe>>
-		<</if>>
-	<<elseif $exposed lte 0>>
+		<<set _mod to 2>>
+	<</if>>
 
-		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-		<<if $danger gte (8900 - ($allure / 2))>>
-			<<eventsswimming>>
-		<<else>>
-			<<eventsswimmingsafe>>
-		<</if>>
+	<<if dangerEvent(_mod, 8900)>>
+		<<eventsswimming>>
+	<<else>>
+		<<eventsswimmingsafe>>
 	<</if>>
 <</if>>
 
@@ -1006,19 +988,14 @@ Mason seems displeased by your choice of activity.
 		<<destinationpoolchangingroom "towels">>
 	<</if>>
 <<else>>
-	<<if $exposed gte 1>>
-		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-		<<if $danger gte (8900 - ($allure / 2))>>
+		<<set _mod to 0.1>>
+		<<if $exposed gte 1>>
+			<<set _mod to 0.5>>
+		<</if>>
+
+		<<if dangerEvent(_mod, 8900)>>
 			<<eventsswimming>>
 		<<else>>
 			<<eventsswimmingsafe>>
 		<</if>>
-	<<elseif $exposed lte 0>>
-		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-		<<if $danger gte (8900 - ($allure / 10))>>
-			<<eventsswimming>>
-		<<else>>
-			<<eventsswimmingsafe>>
-		<</if>>
-	<</if>>
 <</if>>

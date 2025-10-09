@@ -35,7 +35,7 @@ function shopClothingFilterToggleTrait(trait) {
 window.shopClothingFilterToggleTrait = shopClothingFilterToggleTrait;
 
 function toggleAllHairTraitsFilter() {
-	const chboxes = $("#hairContainerTraits  input:not(:checked)");
+	const chboxes = $("#hairContainerTraits input:not(:checked)");
 	if (chboxes.length > 0) chboxes.click();
 	else $("#hairContainerTraits input:checked").click();
 }
@@ -75,7 +75,7 @@ const combatActionColours = {
 			/* leftaction or rightaction */
 			"steal", "penwhack", "freeface", "leftcovervagina", "leftcoverpenis", "leftcoveranus", "rightcovervagina", "rightcoverpenis", "rightcoveranus", "leftunderpull", "leftskirtpull", "leftlowerpull", "leftupperpull", "rightunderpull", "rightskirtpull", "rightlowerpull", "rightupperpull", "rightUndressOther", "leftUndressOther", "stopchoke", "clench", "shacklewhack", "pillwhack", "leftfold", "rightfold", "dildowhack", "hypnosiswhack", "leftstruggleweak", "rightstruggleweak", "handpullpenis", "handpullvagina", "handpullanus", "leftresistW", "rightresistW", "leftstillW", "rightstillW", "penisremovecondom", "npcremovecondom", "leftblock", "rightblock", "stoporal",
 			/* feetaction */
-			"run", "hide", "confront", "feetresistW", "legLock", "legLocked", "feetHold", "dodge", "plant", "feetHold",
+			"run", "taunt", "hide", "feetresistW", "legLock", "legLocked", "feetHold", "dodge", "plant", "feetHold",
 			/* mouthaction */
 			"pullaway", "ejacspit", "pullawayvagina", "finish", "novaginal", "nopenile", "noanal", "scream", "mock", "breastclosed", "breastpull", "pullawaykiss", "noupper", "analpull", "up", "stifleorgasm", "stifle", "mouthresistW", "handcloseW", "growl", "askPullOut", "disparage", "askoral",
 			/* penisaction */
@@ -89,9 +89,9 @@ const combatActionColours = {
 			/* leftaction or rightaction */
 			"spray", "lefthit", "righthit", "leftstruggle", "rightstruggle", "stopchokenoncon", "pursuit_grab", "leftumbrella", "rightumbrella", "leftcounter", "rightcounter", "leftfeint", "rightfeint", "lefthookpunch", "righthookpunch",
 			/* feetaction */
-			"kick",
+			"kick", "ambush",
 			/* mouthaction */
-			"bite", "demand", "breastbite", "handbite", "headbutt", "bitepussy", "retribution",
+			"confront", "bite", "demand", "breastbite", "handbite", "headbutt", "bitepussy", "retribution",
 		],
 		meek: [
 			/* leftaction or rightaction */
@@ -1297,6 +1297,9 @@ function currentSkillValue(skill, disableModifiers = 0) {
 				if (V.worn.feet.type.includes("rugged")) {
 					result = Math.floor(result * (1 + currentSkillValue("feetskill", disableModifiers + 1) / 10000));
 				}
+				if (V.auriga_artefact === "pc") {
+					result = Math.floor(result * 1.1);
+				}
 			}
 			if (V.hallucinogen >= 1 && V.substanceRebalance == 1) {
 				result = Math.round(result * (1 - (0.125 * Math.round(V.hallucinogen / 250))));
@@ -1769,6 +1772,37 @@ function playerIsPenetrated() {
 }
 window.playerIsPenetrated = playerIsPenetrated;
 
+/**
+ * @param {"left" | "right" | "any" | "both"} arm
+ */
+function pcAreArmsBound(arm = "any") {
+	if (!["left", "right", "any", "both"].includes(arm)) {
+		Errors.report(`[pcAreArmsBound]: invalid argument received: '${arm}'.`, {
+			Stacktrace: Utils.GetStack(),
+			arm,
+		});
+		return false;
+	}
+	switch (arm) {
+		case "any":
+			return V.leftarm === "bound" || V.rightarm === "bound";
+		case "both":
+			return V.leftarm === "bound" && V.rightarm === "bound";
+		default:
+			return V[arm + "arm"] === "bound";
+	}
+}
+window.pcAreArmsBound = pcAreArmsBound;
+
+/**
+ * @returns {"none" | "left" | "right" | "both"}
+ */
+function pcGetArmsBound() {
+	const outcome = (V.leftarm === "bound") + (V.rightarm === "bound") * 2;
+	return ["none", "left", "right", "both"][outcome];
+}
+window.pcGetArmsBound = pcGetArmsBound;
+
 function npcAssignClothesToSet(upper, lower) {
 	return { upper: T.npcClothesItems.upper[upper], lower: T.npcClothesItems.lower[lower] };
 }
@@ -1991,6 +2025,7 @@ function validateTransformations() {
 				{ name: "fangs", tfRequired: 2 },
 				{ name: "sharpEyes", tfRequired: 2 },
 				{ name: "mateForLife", tfRequired: 3 },
+				{ name: "chase", tfRequired: 4 },
 			],
 		},
 		{
@@ -2185,7 +2220,7 @@ function getHalloweenCostume() {
 		return "karate";
 	} else if (upper.name === "monk's habit" && lower.name === "monk's habit skirt") {
 		return "monk";
-	} else if (upper.name === "padded football shirt" && lower.name === "football shorts") {
+	} else if (["football shirt", "foreign football shirt"].includes(upper.name) && ["football shorts", "foreign football shorts"].includes(lower.name)) {
 		return "football";
 	} else if (
 		(upper.name === "belly dancer's top" && lower.name === "belly dancer's bottoms") ||
@@ -2473,8 +2508,19 @@ function convertHairLengthToStage(hair, length) {
 		else return "short";
 	}
 }
-
 window.convertHairLengthToStage = convertHairLengthToStage;
+
+function calchairlengthstage() {
+	const stages = ["short", "shoulder", "chest", "navel", "thighs", "feet"];
+
+	V.hairlength = Math.clamp(V.hairlength, 0, 1000);
+	V.hairlengthstage = stages[Math.trunc(V.hairlength / 200)];
+
+	V.fringelength = Math.clamp(V.fringelength, 0, 1000);
+	V.fringelengthstage = stages[Math.trunc(V.fringelength / 200)];
+}
+window.calchairlengthstage = calchairlengthstage;
+DefineMacro("calchairlengthstage", calchairlengthstage);
 
 function calculateSemenReleased() {
 	if (T.deniedOrgasm) return 0;
@@ -3004,3 +3050,30 @@ function teensPresentCheck(location) {
 	return present;
 }
 window.teensPresentCheck = teensPresentCheck;
+
+function insecurityExists(type) {
+	const [possible, returnedType] = statChange.insecurityPossible(type);
+	return possible && returnedType === type && V["insecurity_" + type] > 0;
+}
+window.insecurityExists = insecurityExists;
+
+function isBeastSceneAllowed() {
+	return V.bestialitydisable === "f" || ((V.monsterhallucinations === "f" || V.hallucinations > 0) && V.monsterchance >= random(1, 100));
+}
+window.isBeastSceneAllowed = isBeastSceneAllowed;
+
+/**
+ * check if event is going to be dangerous based on rng and player allure
+ * for consistency, danger rng is rolled once per passage, unless specified otherwise
+ *
+ * @param {number} mod allure multiplier
+ * @param {number} floor how high of a bar rng(1,10000) needs to pass to qualify as dangerous with 0 allure. default is 9900 (1% chance of danger event)
+ * @param {number} allure target allure, usually that of pc, which by default is capped at 8000, resulting in 81% chance of danger with default parameters and max allure
+ * @param {boolean} reroll re-roll _danger if called more than once per passage
+ * @returns {boolean} whether the roll is dangerous
+ */
+function dangerEvent(mod = 1, floor = 9900, allure = V.allure, reroll = false) {
+	if (!T.danger || reroll) T.danger = random(1, 10000);
+	return T.danger >= floor - allure * mod;
+}
+window.dangerEvent = dangerEvent;

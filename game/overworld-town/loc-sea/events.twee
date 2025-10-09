@@ -237,8 +237,7 @@ The lead <<beasttype>> swims up to you and mounts you.
 		<<enable_rescue>>
 	<</if>>
 	<<if $phase isnot 1>>
-		You try to pull away, but <<he>> won't let you!
-		<br><br>
+		<span class="red">You try to pull away, but <<he>> won't let you!</span>
 	<<else>>
 		<<set $NPCList[0].lefthand to "arms">>
 		<<set $leftarm to "grappled">>
@@ -247,7 +246,7 @@ The lead <<beasttype>> swims up to you and mounts you.
 	<</if>>
 <<elseif $sexstart is 1>>
 	<<set $sexstart to 0>>
-	<<promiscuity1>>
+	<<promiscuity4>>
 	<<set $consensual to 1>>
 	<<neutral 1>>
 	<<maninit>>
@@ -273,7 +272,7 @@ The lead <<beasttype>> swims up to you and mounts you.
 
 <<water>><<effects>>
 <<if $finish is 1>>
-	The <<person>> looks around for someone else to hassle.
+	The <<person>> grumbles and looks around for someone else to hassle.
 <<elseif $enemyhealth lte 0>>
 	<<effects>>
 	<<He>> falls backwards into the water. By the time <<he>> recovers, you've disappeared into the crowds. <<tearful>> you gather yourself.
@@ -937,23 +936,21 @@ You ignore the flotsam.
 You've pushed yourself too much.
 <br><br>
 <<passout>>
-<<set $danger to random(1, 10000)>>
-<<if $danger gte (9900 - $allure)>>
-	<<if $rng gte 51>>
-		<<link [[Wake up|Pirate Intro]]>><</link>>
-		<br>
-	<<else>>
-		<<link [[Wake up|Beach Abduction]]>><<strip>><</link>>
-		<</if>>
+
+<<if dangerEvent()>>
+	<<switch random(1,2)>>
+		<<case 1>>
+			<<link [[Wake up|Pirate Intro]]>><</link>>
+		<<case 2>>
+			<<link [[Wake up|Beach Abduction]]>><<strip>><</link>>
+	<</switch>>
+	<br>
 <<else>>
 	<<ambulance>>
 <</if>>
 
 <<pass 1 hour>>
-
 <<trauma 6>><<set $stress -= 2000>>
-
-
 
 :: Sea Struggle
 <<effects>>
@@ -1099,12 +1096,8 @@ You open the lock, laying bare the treasure inside. A variety of stolen jeweller
 	<br><br>
 <</if>>
 
-<<if $skulduggery lt 700>>
-	<<skulduggeryskilluse>>
-<<else>>
-	<span class="blue">There's nothing more you can learn from locks this simple.</span>
-	<br><br>
-<</if>>
+<<skulduggeryuse 700 "locks">>
+
 <<pirate_watch 1>>
 A breeze from the sea whips through your hair. <span class="blue">You shiver.</span>
 <br><br>
@@ -1218,7 +1211,7 @@ The pair disappear beyond the waves.
 <<effects>>
 
 <<if $speech_attitude is "meek">>
-	"I-I'm looking for people w-who-" you say. "Who need help getting back to shore."
+	"I-I'm looking for people w-who—" you say. "Who need help getting back to shore."
 	<br><br>
 	"A good samaritan!" the <<person2>><<person>> laughs. "We won't interfere."
 <<elseif $speech_attitude is "bratty">>

@@ -131,7 +131,7 @@ function pregPrep({ motherObject, fatherObject, parasiteType = null, genital = n
 		}
 
 		// Prevent Non-parasitic pregnancy in the anus unless the player is male with a magic tattoo
-		if (genital === "anus" && !canBeMPregnant() && !parasiteType) return ["MPreg is not currently avaliable to the player"];
+		if (genital === "anus" && !canBeMPregnant() && !parasiteType) return ["MPreg is not currently available to the player"];
 
 		pregnancy = V.sexStats[genital].pregnancy;
 
@@ -450,9 +450,9 @@ window.pregnancyGenerator = {
 
 		if (pregnancy) {
 			const result = { fetus: [], type: "wolf", timer: 0 };
-			const furColour = ["gray", "brown", "tan", "white"];
+			let furColour = ["grey", "brown", "tan", "white"];
 			if (motherObject.name === "Black Wolf" || fatherObject.name === "Black Wolf") {
-				furColour.concat(["black", "black", "black"]);
+				furColour = furColour.concat(["black", "black", "black"]);
 			}
 			for (let i = 0; i < 8; i++) {
 				const childId =

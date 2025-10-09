@@ -1523,7 +1523,9 @@ const combatMainPc = {
 		handsFront: PlayerCanvasHelper.genClothingLayer("hands", {
 			srcfn(options) {
 				const clothes = options.clothes.hands;
-				if (clothes?.name == null) return "";
+				if (clothes?.name == null) {
+					return "";
+				}
 				if (options.position === "doggy" && PlayerCanvasHelper.isBestialHandjob(options, "front")) {
 					return `${options.src}clothing/hands/${clothes.name}/front-handjob-bestial.png`;
 				}
@@ -1551,7 +1553,9 @@ const combatMainPc = {
 		handsFrontAcc: PlayerCanvasHelper.genClothingAccLayer("hands", {
 			srcfn(options) {
 				const clothes = options.clothes.hands;
-				if (clothes?.name == null) return "";
+				if (clothes?.name == null) {
+					return "";
+				}
 				if (options.position === "doggy" && PlayerCanvasHelper.isBestialHandjob(options, "front")) {
 					return `${options.src}clothing/hands/${clothes.name}/front-handjob-bestial-acc.png`;
 				}
@@ -1581,7 +1585,9 @@ const combatMainPc = {
 		handsFrontPattern: PlayerCanvasHelper.genClothingPatternLayer("hands", {
 			srcfn(options) {
 				const clothes = options.clothes.hands;
-				if (clothes?.name == null) return "";
+				if (clothes?.name == null) {
+					return "";
+				}
 				if (options.position === "doggy" && PlayerCanvasHelper.isBestialHandjob(options, "front")) {
 					return `${options.src}clothing/hands/${clothes.name}/front-handjob-bestial-${clothes.pattern}.png`;
 				}
@@ -1624,7 +1630,7 @@ const combatMainPc = {
 				if (!CombatRenderer.isClothingShown(clothes, options.showClothing)) return false;
 				return !!clothes.hasBackAccessory;
 			},
-			z: CombatRenderer.indices.head - 1,
+			z: CombatRenderer.indices.head - 0.5,
 		}),
 		headwearBack: PlayerCanvasHelper.genClothingLayer("head", {
 			srcfn(options) {
@@ -1801,7 +1807,7 @@ const combatMainPc = {
 				const show = CombatRenderer.isClothingShown(clothes, options.showClothing) && clothes.sleeves.show;
 				// If missionary: Sleeves on the side behind are never shown, except for handjobs.
 				if (options.position === "doggy" && options.armBackPosition === "bound") return false;
-				if (options.position === "missionary" && !["handjob"].includes(clothes.sleeves.state)) return false;
+				if (options.position === "missionary" && !["handjob"].includes(options.armBackPosition)) return false;
 				return !!show;
 			},
 			z: CombatRenderer.indices.backArm + 2,
@@ -1816,7 +1822,7 @@ const combatMainPc = {
 				const show = CombatRenderer.isClothingShown(clothes, options.showClothing) && clothes.sleeves.hasAccessory;
 				// If missionary: Sleeves on the side behind are never shown, except for handjobs.
 				if (options.position === "doggy" && options.armBackPosition === "bound") return false;
-				if (options.position === "missionary" && !["handjob"].includes(clothes.sleeves.state)) return false;
+				if (options.position === "missionary" && !["handjob"].includes(options.armBackPosition)) return false;
 				return !!show;
 			},
 			z: CombatRenderer.indices.backArm + 2,
@@ -1871,7 +1877,7 @@ const combatMainPc = {
 				const show = CombatRenderer.isClothingShown(clothes, options.showClothing) && clothes.sleeves.show;
 				// If missionary: Sleeves on the side behind are never shown, except for handjobs.
 				if (options.position === "doggy" && options.armBackPosition === "bound") return false;
-				if (options.position === "missionary" && !["handjob"].includes(clothes.sleeves.state)) return false;
+				if (options.position === "missionary" && !["handjob"].includes(options.armBackPosition)) return false;
 				return !!show;
 			},
 			z: CombatRenderer.indices.backArm + 1,
@@ -1886,7 +1892,7 @@ const combatMainPc = {
 				const show = CombatRenderer.isClothingShown(clothes, options.showClothing) && clothes.sleeves.hasAccessory;
 				// If missionary: Sleeves on the side behind are never shown, except for handjobs.
 				if (options.position === "doggy" && options.armBackPosition === "bound") return false;
-				if (options.position === "missionary" && !["handjob"].includes(clothes.sleeves.state)) return false;
+				if (options.position === "missionary" && !["handjob"].includes(options.armBackPosition)) return false;
 				return !!show;
 			},
 			z: CombatRenderer.indices.backArm + 1,

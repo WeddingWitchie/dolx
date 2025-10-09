@@ -1,36 +1,4 @@
 :: Widgets Mirror [widget]
-<<widget "calchairlengthstage">>
-	<<if $hairlength gte 1000>>
-		<<set $hairlengthstage to "feet">>
-	<<elseif $hairlength gte 800>>
-		<<set $hairlengthstage to "thighs">>
-	<<elseif $hairlength gte 600>>
-		<<set $hairlengthstage to "navel">>
-	<<elseif $hairlength gte 400>>
-		<<set $hairlengthstage to "chest">>
-	<<elseif $hairlength gte 200>>
-		<<set $hairlengthstage to "shoulder">>
-	<<else>>
-		<<set $hairlengthstage to "short">>
-	<</if>>
-
-	<<if $fringelength gte 1000>>
-		<<set $fringelengthstage to "feet">>
-	<<elseif $fringelength gte 800>>
-		<<set $fringelengthstage to "thighs">>
-	<<elseif $fringelength gte 600>>
-		<<set $fringelengthstage to "navel">>
-	<<elseif $fringelength gte 400>>
-		<<set $fringelengthstage to "chest">>
-	<<elseif $fringelength gte 200>>
-		<<set $fringelengthstage to "shoulder">>
-	<<else>>
-		<<set $fringelengthstage to "short">>
-	<</if>>
-	<<set $hairlength = Math.clamp($hairlength, 0, 1000)>>
-	<<set $fringelength = Math.clamp($fringelength, 0, 1000)>>
-<</widget>>
-
 <<widget "mirror">>
 	<div id="mirror">
 		<<if _args[0] isnot undefined>>
@@ -611,9 +579,11 @@
 <</widget>>
 
 <<widget "mirrorAppearancePregnancy">>
-	<<run updateMoment()>>
-	You look like a <span class="lewd">pregnant <<girl>>...</span><<garousal>><<gstress>>
-	<<arousal 300>><<stress 10>>
+	You look like a <span class="lewd">pregnant <<girl>>...</span>
+	<<if !$hourly.mirrorPregArousal>>
+		<<set $hourly.mirrorPregArousal to true>>
+		<<garousal>><<gstress>><<arousal 300>><<stress 10>>
+	<</if>>
 	<br><br>
 
 	<<if getPregnancyObject().potentialFathers.length is 1>>
@@ -642,7 +612,7 @@
 			<</if>>
 			<<if $skin[_active_bodypart].type is "text">>
 				<<set _written to "written">>
-				<span @class="_colour">"<<= $skin[_active_bodypart].writing.toUpperFirst()>>"</span>
+				"<span @class="_colour"><<= $skin[_active_bodypart].writing.toUpperFirst()>></span>"
 			<<else>>
 				<<set _written to "drawn">>
 				A picture of a <span @class="_colour"><<= $skin[_active_bodypart].writing>></span>
@@ -767,20 +737,16 @@
 		<div class="settingsHeader">Body</div>
 		<<if _bodywriting_exposed is 1 and _bodywriting_hidden is 1>>
 			<div class="settingsToggleItem">
-				<div class="skinMenu">
-					<span class="gold bold">Visible Bodywriting:</span>
-					<br>
-					<<mirrorBodywriting "visible">>
-					<br>
-				</div>
+				<span class="gold bold">Visible Bodywriting:</span>
+				<br>
+				<<mirrorBodywriting "visible">>
+				<br>
 			</div>
 			<div class="settingsToggleItem">
-				<div class="skinMenu">
-					<span class="gold bold">Hidden Bodywriting:</span>
-					<br>
-					<<mirrorBodywriting "hidden">>
-					<br>
-				</div>
+				<span class="gold bold">Hidden Bodywriting:</span>
+				<br>
+				<<mirrorBodywriting "hidden">>
+				<br>
 			</div>
 		<<elseif _bodywriting_exposed is 1 || _bodywriting_hidden is 1>>
 			<div class="settingsToggleItemWide">
@@ -793,6 +759,7 @@
 					<span class="gold bold">Hidden Bodywriting:</span>
 					<br>
 					<<mirrorBodywriting "hidden">>
+					<br>
 				<</if>>
 			</div>
 		<</if>>
@@ -826,25 +793,25 @@
 			</div>
 		</div>
 		<div class="settingsToggleItemWide">
-			<div class="skinMenu">
-				<span class="gold bold">Body shape:</span>
-				<mouse class="tooltip-small linkBlue">(?)<span>This is a cosmetic change that does not contribute towards gender appearance.</span></mouse>
-				<br>
-				Your chosen body shape is:
-				<<set _bodyOptions to {
-					"Classic": "classic",
-					"Slender": "slender",
-					"Curvy": "curvy",
-					"Soft": "soft"
-				}>>
-				<<listbox "$player.bodyshape" autoselect>>
-					<<optionsfrom _bodyOptions>>
-				<</listbox>>
-				<br>
-				<<link "Apply">>
-					<<updatesidebarimg true>>
-				<</link>>
-			</div>
+			<span class="gold bold">Body shape:</span>
+			<mouse class="tooltip-small linkBlue">(?)<span>This is a cosmetic change that does not contribute towards gender appearance.</span></mouse>
+			<br>
+			Your chosen body shape is:
+			<<set _bodyOptions to {
+				"Classic": "classic",
+				"Slender": "slender",
+				"Curvy": "curvy",
+				"Soft": "soft"
+			}>>
+			<<listbox "$player.bodyshape" autoselect>>
+				<<optionsfrom _bodyOptions>>
+			<</listbox>>
+			<br>
+			<<run $(() => {
+				$("#listbox-playerbodyshape").on("change", () => {
+					Wikifier.wikifyEval('<<updatesidebarimg true>>');
+				});
+			})>>
 		</div>
 		<div class="settingsToggleItemWide">
 			<div class="armMenu">
@@ -892,6 +859,7 @@
 		<br>
 		<<cosmeticsicon "sunscreen">><<link "Remove sunscreen">>
 			<<handheldon>>
+			<<set Skin.Sunscreen.autoApply to false>>
 			<<replace #sunscreenDescription>><<sunscreenApply "remove">><</replace>>
 			<<replace #sunscreenLinks>><<sunscreenLinks>><</replace>>
 		<</link>> <<note `Skin.Sunscreen.usesLeft + ' use'+(Skin.Sunscreen.usesLeft > 1 ? 's' : '') + ' left'`>>
@@ -906,7 +874,12 @@
 		<</if>>
 	<</if>>
 	<br>
-	Automatically apply sunscreen everyday <<checkbox "$dailySunscreen" false true autocheck>>
+	<<if Skin.Sunscreen.usesLeft gt 0>>
+		<<ind>><<link `Skin.Sunscreen.autoApply ? "Stop applying" : "Apply when required"`>>
+			<<set Skin.Sunscreen.autoApply to !Skin.Sunscreen.autoApply>>
+			<<replace #sunscreenLinks>><<sunscreenLinks>><</replace>>
+		<</link>>
+	<</if>>
 <</widget>>
 
 <<widget "sunscreenDesc">>
@@ -939,14 +912,14 @@
 <</widget>>
 
 <<widget "sunscreenApply">>
-	<<if $leftarm isnot "bound" and $rightarm isnot "bound">>
+	<<if !pcAreArmsBound("any")>>
 		<<if _args[0] is "remove">>
 			<<run Skin.Sunscreen.remove()>>
 		<<else>>
 			<<run Skin.Sunscreen.apply()>>
 		<</if>>
 	<</if>>
-	<<if $leftarm is "bound" and $rightarm is "bound">>
+	<<if pcAreArmsBound("both")>>
 		<span class="red">Both of your arms are bound</span>, and you find it difficult to do anything about your skin this way.
 		<hr>
 	<<elseif _args[0] is "remove">>
@@ -1141,7 +1114,7 @@
 		<<set _bodyWritingOptions["Love Interests"]["It's Lonely in the Woods"] to "its_lonely_in_the_woods">>
 		<<set _bodyWritingOptions["Love Interests"]["Something is Hunting you"] to "something_is_hunting_you">>
 	<</if>>
-	<<if $dateCount.Avery gte 3 and C.npc.Avery.state isnot "dismissed">>
+	<<if $auriga_artefact and C.npc.Avery.state isnot "dismissed">>
 		<<set _bodyWritingOptions["Love Interests"]["Avery's Trophy"] to "averys_trophy">>
 		<<set _bodyWritingOptions["Love Interests"]["Endearing"] to "endearing">>
 		<<if ($player.penisExist or $player.gender_appearance is "m" or $backgroundTraits.includes("crossdresser"))>>
@@ -1204,6 +1177,8 @@
 <</widget>>
 
 <<widget "bodywritingMenuLinks">>
+	<span class="gold bold">Add Bodywriting:</span>
+	<br>
 	<div id="bodywritingMenuLinks">
 		<<set _keys to Object.keys(_bodyWritingOptions)>>
 		<<if $bodywritingSet is undefined>>
@@ -1237,8 +1212,6 @@
 
 <<widget "bodywritingMenu">>
 	<<if Object.keys(_bodyWritingOptions[$bodywritingSet]).length gt 0>>
-		<span class="gold bold">Add Bodywriting:</span>
-		<br>
 		<<set _bodyPartOptions to {}>>
 		<<if _args[0] isnot undefined>>
 			<<set _bodyPartOptionsSkip to _args[0]>>
@@ -1302,10 +1275,10 @@
 				<<add_bodywriting _bodyPartSelected _bodyWritingSelected "pen">>
 			<</link>>
 		<<else>>
-			You're not sure where else you can write an advertisement.
+			<span class="blue">You're not sure where else you can write an advertisement.</span>
 		<</if>>
 	<<else>>
-		You have not unlocked any bodywriting options for this category yet.
+		<span class="blue">You have not unlocked any bodywriting options for this category yet.</span>
 	<</if>>
 <</widget>>
 
@@ -1622,12 +1595,12 @@
 <</widget>>
 
 <<widget "hairgelApply">>
-	<<if $leftarm isnot "bound" and $rightarm isnot "bound">>
+	<<if !pcAreArmsBound("any")>>
 		<<set $ruffledisable to "t">>
 		<<set $hairgelBottles += -1>>
 	<</if>>
 	<<hairDescription>>
-	<<if $leftarm is "bound" and $rightarm is "bound">>
+	<<if pcAreArmsBound("both")>>
 		<span class="red">Both of your arms are bound</span>, and you find it difficult to do anything about your hair this way.
 		<hr>
 	<<else>>
@@ -1638,7 +1611,7 @@
 <</widget>>
 
 <<widget "hairgelDesc">>
-	You have <span class="gold">$hairgelBottles</span> <<print ($hairgelBottles is 1) ? "bottle" : "bottles">> of hair gel remaining.
+	You have <span class="gold">$hairgelBottles</span> <<pluralise $hairgelBottles "bottle">> of hair gel remaining.
 <</widget>>
 
 <<widget "mirrorhairdisplay">>
@@ -2369,7 +2342,7 @@
 								<<continue>>
 							<</if>>
 							<<set _displayName = (_dyes[_i].colour in setup.colours.hair_map ? setup.colours.hair_map[_dyes[_i].colour].name : _dyes[_i].colour.charAt(0).toUpperCase() + _dyes[_i].colour.slice(1)) + " ×" + _dyes[_i].count + " ">>
-							<<set _dyeName to _displayName + `<span @class="'hair-' + _dyes[_i].colour.replace(/ /g, '-')"><span class="colour-sample bgcolour-hair colour-hair"></span>`>>
+							<<set _dyeName to _displayName + `<span @class="'hair-' + _dyes[_i].colour.replace(/ /g, '-')"><span class="colour-sample bgcolour-hair colour-hair"></span></span>`>>
 							<<capture _dyes, _i>>
 								<<button _dyeName>>
 									<<set $mirror_eyebrow_dye to true>><<pass 15>>
@@ -2489,9 +2462,6 @@
 <<widget "mirrorTransformation">>
 	<<mirroricon>><<link "Back">><<replace #mirror>><<mirrorMenu>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
 	<br><br>
-	/* Hiding parts of your Inner Self will slowly increase your Trauma over time (excludes pubes and pits).
-	If your Trauma gets too high, you will be unable to hide.
-	<br><br> */
 
 	__Genome Dump__
 	<br>
@@ -3220,11 +3190,11 @@
 		<</if>>
 	<</if>>
 	<<if _fallenPlusFullCheck>>
-		<<set _options["Fallen Angel Forgiven Cherub"] = ["fallenAngel", "cherub-fallenplus"]>>
+		<<set _options["Fallen Angel Feathered Cherub"] = ["fallenAngel", "cherub-fallenplus"]>>
 		<<set _options["Fallen Angel Feathered"] = ["fallenAngel", "fallenplus"]>>
 		<<set _options["Fallen Angel Classic Feathered"] = ["fallenAngel", "classicfallenplus"]>>
 		<<if _fallen.wings is "cherub-fallenplus">>
-			<<set _divineWingsChoice to _options["Fallen Angel Forgiven Cherub"]>>
+			<<set _divineWingsChoice to _options["Fallen Angel Feathered Cherub"]>>
 		<<elseif _fallen.wings is "fallenplus">>
 			<<set _divineWingsChoice to _options["Fallen Angel Feathered"]>>
 		<<elseif _fallen.wings is "classicfallenplus">>
@@ -3462,51 +3432,56 @@
 			Wikifier.wikifyEval('<<set _traits.tempTolerance = _tempToleranceChoice>>');
 		});
 		jQuery('.passage').on('change', 'div.tf-misc select.macro-listbox', function (e) {
-			Wikifier.wikifyEval('<<clearmisc>><<if _miscChoice isnot 0>><<set $transformationParts[_miscChoice[0]].misc = _miscChoice[1]>><</if>><<updatesidebarimg true>>');
+			Wikifier.wikifyEval('<<clearmisc>><<if _miscChoice isnot 0>><<set $transformationParts[_miscChoice[0]].misc = _miscChoice[1]>><</if>>');
 		});
 		jQuery('.passage').on('change', 'div.tf-cheeks select.macro-listbox', function (e) {
-			Wikifier.wikifyEval('<<clearcheeks>><<if _cheeksChoice isnot 0>><<set $transformationParts[_cheeksChoice[0]].cheeks = _cheeksChoice[1]>><</if>><<updatesidebarimg true>>');
+			Wikifier.wikifyEval('<<clearcheeks>><<if _cheeksChoice isnot 0>><<set $transformationParts[_cheeksChoice[0]].cheeks = _cheeksChoice[1]>><</if>>');
 		});
 		jQuery('.passage').on('change', 'div.tf-malar select.macro-listbox', function (e) {
-			Wikifier.wikifyEval('<<clearmalar>><<if _malarChoice isnot 0>><<set $transformationParts[_malarChoice[0]].malar = _malarChoice[1]>><</if>><<updatesidebarimg true>>');
+			Wikifier.wikifyEval('<<clearmalar>><<if _malarChoice isnot 0>><<set $transformationParts[_malarChoice[0]].malar = _malarChoice[1]>><</if>>');
 		});
 		jQuery('.passage').on('change', 'div.tf-pits select.macro-listbox', function (e) {
-			Wikifier.wikifyEval('<<clearpits>><<if _pitsChoice isnot 0>><<set $transformationParts[_pitsChoice[0]].pits = _pitsChoice[1]>><</if>><<updatesidebarimg true>>');
+			Wikifier.wikifyEval('<<clearpits>><<if _pitsChoice isnot 0>><<set $transformationParts[_pitsChoice[0]].pits = _pitsChoice[1]>><</if>>');
 		});
 		jQuery('.passage').on('change', 'div.tf-plumage select.macro-listbox', function (e) {
-			Wikifier.wikifyEval('<<clearplumage>><<if _plumageChoice isnot 0>><<set $transformationParts[_plumageChoice[0]].plumage = _plumageChoice[1]>><</if>><<updatesidebarimg true>>');
+			Wikifier.wikifyEval('<<clearplumage>><<if _plumageChoice isnot 0>><<set $transformationParts[_plumageChoice[0]].plumage = _plumageChoice[1]>><</if>>');
 		});
 		jQuery('.passage').on('change', 'div.tf-pubes select.macro-listbox', function (e) {
-			Wikifier.wikifyEval('<<clearpubes>><<if _pubesChoice isnot 0>><<set $transformationParts[_pubesChoice[0]].pubes = _pubesChoice[1]>><</if>><<updatesidebarimg true>>');
+			Wikifier.wikifyEval('<<clearpubes>><<if _pubesChoice isnot 0>><<set $transformationParts[_pubesChoice[0]].pubes = _pubesChoice[1]>><</if>>');
 		});
 		jQuery('.passage').on('change', 'div.tf-ears select.macro-listbox', function (e) {
-			Wikifier.wikifyEval('<<clearears>><<if _earsChoice isnot 0>><<set $transformationParts[_earsChoice[0]].ears = _earsChoice[1]>><</if>><<updatesidebarimg true>>');
+			Wikifier.wikifyEval('<<clearears>><<if _earsChoice isnot 0>><<set $transformationParts[_earsChoice[0]].ears = _earsChoice[1]>><</if>>');
 		});
 		jQuery('.passage').on('change', 'div.tf-eyes select.macro-listbox', function (e) {
-			Wikifier.wikifyEval('<<cleareyes>><<if _eyesChoice isnot 0>><<set $transformationParts[_eyesChoice[0]].eyes = _eyesChoice[1]>><</if>><<updatesidebarimg true>>');
+			Wikifier.wikifyEval('<<cleareyes>><<if _eyesChoice isnot 0>><<set $transformationParts[_eyesChoice[0]].eyes = _eyesChoice[1]>><</if>>');
 		});
 		jQuery('.passage').on('change', 'div.tf-halo select.macro-listbox', function (e) {
-			Wikifier.wikifyEval('<<clearhalo>><<if _haloChoice isnot 0>><<set $transformationParts[_haloChoice[0]].halo = _haloChoice[1]>><</if>><<updatesidebarimg true>>');
+			Wikifier.wikifyEval('<<clearhalo>><<if _haloChoice isnot 0>><<set $transformationParts[_haloChoice[0]].halo = _haloChoice[1]>><</if>>');
 		});
 		jQuery('.passage').on('change', 'div.tf-divine-horns select.macro-listbox', function (e) {
-			Wikifier.wikifyEval('<<cleardivinehorns>><<if _divineHornsChoice isnot 0>><<set $transformationParts[_divineHornsChoice[0]].horns = _divineHornsChoice[1]>><</if>><<updatesidebarimg true>>');
+			Wikifier.wikifyEval('<<cleardivinehorns>><<if _divineHornsChoice isnot 0>><<set $transformationParts[_divineHornsChoice[0]].horns = _divineHornsChoice[1]>><</if>>');
 		});
 		jQuery('.passage').on('change', 'div.tf-horns select.macro-listbox', function (e) {
-			Wikifier.wikifyEval('<<clearhorns>><<if _hornsChoice isnot 0>><<set $transformationParts[_hornsChoice[0]].horns = _hornsChoice[1]>><</if>><<updatesidebarimg true>>');
+			Wikifier.wikifyEval('<<clearhorns>><<if _hornsChoice isnot 0>><<set $transformationParts[_hornsChoice[0]].horns = _hornsChoice[1]>><</if>>');
 		});
 		jQuery('.passage').on('change', 'div.tf-divine-tail select.macro-listbox', function (e) {
-			Wikifier.wikifyEval('<<cleardivinetail>><<if _divineTailChoice isnot 0>><<set $transformationParts[_divineTailChoice[0]].tail = _divineTailChoice[1]>><</if>><<updatesidebarimg true>>');
+			Wikifier.wikifyEval('<<cleardivinetail>><<if _divineTailChoice isnot 0>><<set $transformationParts[_divineTailChoice[0]].tail = _divineTailChoice[1]>><</if>>');
 		});
 		jQuery('.passage').on('change', 'div.tf-tail select.macro-listbox', function (e) {
-			Wikifier.wikifyEval('<<cleartail>><<if _tailChoice isnot 0>><<set $transformationParts[_tailChoice[0]].tail = _tailChoice[1]>><</if>><<updatesidebarimg true>>');
+			Wikifier.wikifyEval('<<cleartail>><<if _tailChoice isnot 0>><<set $transformationParts[_tailChoice[0]].tail = _tailChoice[1]>><</if>>');
 		});
 		jQuery('.passage').on('change', 'div.tf-divine-wings select.macro-listbox', function (e) {
-			Wikifier.wikifyEval('<<cleardivinewings>><<if _divineWingsChoice isnot 0>><<set $transformationParts[_divineWingsChoice[0]].wings = _divineWingsChoice[1]>><</if>><<updatesidebarimg true>>');
+			Wikifier.wikifyEval('<<cleardivinewings>><<if _divineWingsChoice isnot 0>><<set $transformationParts[_divineWingsChoice[0]].wings = _divineWingsChoice[1]>><</if>>');
 		});
 		jQuery('.passage').on('change', 'div.tf-wings select.macro-listbox', function (e) {
-			Wikifier.wikifyEval('<<clearwings>><<if _wingsChoice isnot 0>><<set $transformationParts[_wingsChoice[0]].wings = _wingsChoice[1]>><</if>><<updatesidebarimg true>>');
+			Wikifier.wikifyEval('<<clearwings>><<if _wingsChoice isnot 0>><<set $transformationParts[_wingsChoice[0]].wings = _wingsChoice[1]>><</if>>');
 		});
-		jQuery('.passage').on('change', 'div.tf-chimera select.macro-listbox', function (e) {
+		jQuery('.passage').on('change', 'select.macro-listbox', function (e) {
+			if (V.transformationParts.cat.heterochromia === "hidden") {
+				Wikifier.wikifyEval('<<catHeterochromiaTF "hide">>');
+			} else if (V.cat >= 7 && V.cat <= 10) {
+				Wikifier.wikifyEval('<<catHeterochromiaTF `$cat - 7`>>')
+			};
 			Wikifier.wikifyEval('<<updatesidebarimg true>>');
 		});
 	<</script>>

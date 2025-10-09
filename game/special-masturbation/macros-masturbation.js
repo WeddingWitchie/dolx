@@ -73,11 +73,14 @@ function masturbationRobinWatching() {
 }
 
 function masturbationEdenPush() {
-	if (!V.edenpush && V.danger >= 9900 - V.allure && (between(Time.hour, 6, 11) || Time.hour > 14)) {
+	if ((!V.edenpush && dangerEvent() && (between(Time.hour, 6, 11) || Time.hour > 14)) || V.edenpush === 2) {
 		V.edenpush = 2;
 		return true;
 	}
+
+	return false;
 }
+window.masturbationEdenPush = masturbationEdenPush;
 
 function masturbationDetentionPaddle() {
 	if (V.orgasmdown >= 1) {

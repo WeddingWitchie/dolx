@@ -26,7 +26,7 @@
 		<</link>>
 		<<lawareness>><<lstress>><<larousal>>
 		<br>
-		<<if $insecurity_penis_small gte 1 and $acceptance_penis_small lte 999 and $daily.templePray isnot 1>>
+		<<if insecurityExists("penis_small") and $daily.templePray isnot 1>>
 			<<templeicon "pray">><<link [[Pray for a bigger penis (1:00)|_prayPassage]]>>
 				<<pass 60>><<set $phase to $player.penisSize lt 0 ? 4 : 5>><<set $daily.templePray to 1>>
 				<<if $purity gte ((1000 / 7) * 7)>>
@@ -48,7 +48,7 @@
 			<<gstress>><<gacceptance>>
 			<br>
 		<</if>>
-		<<if $insecurity_penis_big gte 1 and $acceptance_penis_big lte 999 and $daily.templePray isnot 1>>
+		<<if insecurityExists("penis_big") and $daily.templePray isnot 1>>
 			<<templeicon "pray">><<link [[Pray for a smaller penis (1:00)|_prayPassage]]>>
 				<<pass 60>><<set $phase to 6>><<set $daily.templePray to 1>>
 				<<if $purity gte ((1000 / 7) * 7)>>
@@ -70,7 +70,7 @@
 			<<gstress>><<gacceptance>>
 			<br>
 		<</if>>
-		<<if $insecurity_breasts_small gte 1 and $acceptance_breasts_small lte 999 and $daily.templePray isnot 1>>
+		<<if insecurityExists("breasts_small") and $daily.templePray isnot 1>>
 			<<templeicon "pray">><<link [[Pray for bigger breasts (1:00)|_prayPassage]]>>
 				<<pass 60>><<set $phase to !$player.breastsize ? 7 : 8>><<set $daily.templePray to 1>>
 				<<if $purity gte ((1000 / 7) * 7)>>
@@ -92,7 +92,7 @@
 			<<gstress>><<gacceptance>>
 			<br>
 		<</if>>
-		<<if $insecurity_breasts_big gte 1 and $player.breastsize gte (playerFeelsManlike() ? 1 : 8) and $acceptance_breasts_big lte 999 and $daily.templePray isnot 1>>
+		<<if insecurityExists("breasts_big") and $daily.templePray isnot 1>>
 			<<templeicon "pray">><<link [[Pray for smaller breasts (1:00)|_prayPassage]]>>
 				<<pass 60>><<set $phase to 9>><<set $daily.templePray to 1>>
 				<<if $purity gte ((1000 / 7) * 7)>>
@@ -114,7 +114,7 @@
 			<<gstress>><<gacceptance>>
 			<br>
 		<</if>>
-		<<if $insecurity_pregnancy gte 1 and $acceptance_pregnancy lte 999 and $daily.templePray isnot 1>>
+		<<if insecurityExists("pregnancy") and $daily.templePray isnot 1>>
 			<<set _pregnancyLink to (playerAwareTheyArePregnant() ? "Pray about your pregnant belly (1:00)" : "Pray about your pregnant looking belly (1:00)")>>
 			<<templeicon "pray">><<link [[_pregnancyLink|_prayPassage]]>>
 				<<pass 60>><<set $phase to 10>><<set $daily.templePray to 1>>
@@ -170,13 +170,14 @@
 		You've pushed yourself too much.
 		<br><br>
 		<<passout>>
-		<<set $danger to random(1, 10000)>>
-		<<if $danger gte (9900 - $allure)>>
+		
+		<<if dangerEvent()>>
 			<<link [[Next|Lake Ritual]]>><</link>>
 			<br>
 		<<else>>
 			<<ambulance>>
 		<</if>>
+
 		<<pass 1 hour>>
 		<<trauma 6>><<set $stress -= 2000>>
 	<</if>>
@@ -244,7 +245,7 @@
 			<br>
 			<<link [[Refuse|Temple Blessing Refuse]]>><<grace -1>><</link>><<lgrace>>
 			<br>
-		<<elseif ($demon gte 6 or ($transformationParts.demon.wings isnot "hidden" and $transformationParts.demon.wings isnot "disabled"))>>
+		<<elseif ($demon gte 6 and ($transformationParts.demon.horns isnot "hidden" or $transformationParts.demon.wings isnot "hidden" or $transformationParts.demon.tail isnot "hidden"))>>
 			<<generate1>><<person1>><<generate2>>Someone shrieks to your right. It's an old <<monk>>. <<He>> holds out a holy symbol, staring at you with crazed eyes.
 			<br><br>
 
@@ -254,16 +255,16 @@
 
 			<<person2>>A <<priest>> rushes over to calm the <<person1>><<monk>> down. <<person2>><<He>> manages to guide <<person1>><<him>> away from you, and into another room.
 			<br><br>
-			<<person2>>The <<priest>> turns to you. "I'm very sorry," <<he>> says. "Some of our number are a little sheltered." <<He>> frowns, and looks at your horns. "You should be careful about dressing that way here. It's disrespectful if nothing else."
+			<<person2>>The <<priest>> turns to you. "I'm very sorry," <<he>> says. "Some of our number are a little sheltered." <<He>> frowns, and looks at your <<if $transformationParts.demon.horns isnot "hidden">>horns<<elseif $transformationParts.demon.wings isnot "hidden">>wings<<elseif $transformationParts.demon.tail isnot "hidden">>tail<</if>>. "You should be careful about dressing that way here. It's disrespectful if nothing else."
 			<br><br>
 
 			<<endevent>>
 
 			<<link [[Next|Temple]]>><</link>>
 			<br>
-		<<elseif ($fallenangel gte 2 or ($transformationParts.fallenAngel.wings isnot "hidden" and $transformationParts.fallenAngel.wings isnot "disabled"))>>
+		<<elseif ($fallenangel gte 2 and ($transformationParts.fallenAngel.halo isnot "hidden" or $transformationParts.fallenAngel.wings isnot "hidden"))>>
 			<<generatey1>><<generate2>><<person1>>
-			You realise everyone avoids looking at you. Except a <<person>>, who stares at your broken halo in wonder. <<His>> <<person2>><<father>> covers <<person1>><<his>> eyes and drags <<him>> away.
+			You realise everyone avoids looking at you. Except a <<person>>, who stares at your broken <<if $transformationParts.fallenAngel.halo isnot "hidden">>halo<<elseif $transformationParts.fallenAngel.wings isnot "hidden">>wings<</if>> in wonder. <<His>> <<person2>><<father>> covers <<person1>><<his>> eyes and drags <<him>> away.
 			<<gtrauma>><<trauma 6>>
 			<br><br>
 			<<endevent>>
@@ -525,7 +526,6 @@
 		<</if>>
 	<<else>>
 		An overworked initiate rushes by, carrying a bundle of scrolls.
-		<br><br>
 		<<if random(1, 5) is 5>>
 			<<generateTemple 1>><<person1>>
 			<<He>> trips over a pew, sending the scrolls rolling across the floor.
@@ -553,6 +553,7 @@
 			<br>
 		<<else>>
 			<<endevent>>
+			<br><br>
 			<<link [[Next|Temple]]>><</link>>
 			<br>
 		<</if>>

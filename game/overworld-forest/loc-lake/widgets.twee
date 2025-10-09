@@ -47,13 +47,11 @@
 		<br><br>
 		<<passout>>
 
-		<<set $danger to random(1, 10000)>>
-
 		<<if $exposed gte 1 and $syndromeeden is 1 and random(1,2) is 2>>
 			<<link [[Next|Eden Passout Lake Rescue]]>><</link>>
 		<<elseif C.npc.Mason.init is 1 and !Time.schoolDay and Weather.precipitation is "rain" and Time.dayState is "day" and random(1,2) is 1>>
 			<<link [[Everything fades to black...|Mason CPR]]>><</link>>
-		<<elseif $danger gte (9900 - $allure)>>
+		<<elseif dangerEvent()>>
 			<<if $laketeenspresent is 1 and !Weather.isSnow>>
 				<<link [[Next|Lake Mermaid]]>><</link>>
 				<br>
@@ -97,7 +95,7 @@
 
 		<<if $earSlime.forcedCommando isnot undefined and $worn.under_lower.name isnot "naked">>
 		<<elseif $exposed lte 0>>
-			<<ind>><<link [[Go with them (0:30)|Lake Return Journey]]>><<set $foresthunt to 0>><<pass 30>><</link>>
+			<<entertownicon>><<link [[Go with them (0:30)|Lake Return Journey]]>><<set $foresthunt to 0>><<pass 30>><</link>>
 			<br><br>
 		<</if>>
 	<</if>>
@@ -177,7 +175,7 @@
 		<<else>>
 			The wind picks up, <span class="red">and you lose your footing,</span> slipping on the ice.
 			<<if playerIsPregnant() and playerAwareTheyArePregnant()>>
-				Your hands and knees hurt from the hard landing, but at least you were able to protect your <<pregnancyBabyText "pc">>.<<gstress>><<gpain>><<stress 6>><<pain 4>>
+				Your hands and knees hurt from the hard landing, but at least you were able to protect your <<pregnancyBabyText "pc">>.
 			<</if>>
 			<<gstress>><<gpain>><<stress 6>><<pain 4>>
 		<</if>>
@@ -320,7 +318,7 @@
 	<</link>><<lawareness>><<gwillpower>><<lstress>><<larousal>>
 	<br>
 
-	<<if $insecurity_penis_small gte 1 and $acceptance_penis_small lte 999 and $daily.lakeMeditate isnot 1>>
+	<<if insecurityExists("penis_small") and $daily.lakeMeditate isnot 1>>
 		<<link [[Meditate on your small penis (1:00)|Lake Meditate]]>><<pass 60>><<set $phase to $player.penissize lt 0 ? 4 : 5>><<willpower 1>><<set $daily.lakeMeditate to 1>>
 			<<if $willpower gte (($willpowermax / 7) * 6)>>
 				<<stress 5>><<acceptance "penis_small" 20>>
@@ -340,7 +338,7 @@
 		<</link>><<gstress>><<gwillpower>><<gacceptance>>
 		<br>
 	<</if>>
-	<<if $insecurity_penis_big gte 1 and $acceptance_penis_big lte 999 and $daily.lakeMeditate isnot 1>>
+	<<if insecurityExists("penis_big") and $daily.lakeMeditate isnot 1>>
 		<<link [[Meditate on your big penis (1:00)|Lake Meditate]]>><<pass 60>><<set $phase to 6>><<willpower 1>><<set $daily.lakeMeditate to 1>>
 			<<if $willpower gte (($willpowermax / 7) * 6)>>
 				<<stress 5>><<acceptance "penis_big" 20>>
@@ -361,7 +359,7 @@
 		<br>
 	<</if>>
 
-	<<if $insecurity_breasts_small gte 1 and $acceptance_breasts_small lte 999 and $daily.lakeMeditate isnot 1>>
+	<<if insecurityExists("breasts_small") and $daily.lakeMeditate isnot 1>>
 		<<link [[Meditate on your small breasts (1:00)|Lake Meditate]]>><<pass 60>><<set $phase to $player.breastsize ? 7 : 8>><<willpower 1>><<set $daily.lakeMeditate to 1>>
 			<<if $willpower gte (($willpowermax / 7) * 6)>>
 				<<stress 5>><<acceptance "breasts_small" 20>>
@@ -381,7 +379,7 @@
 		<</link>><<gstress>><<gwillpower>><<gacceptance>>
 		<br>
 	<</if>>
-	<<if $insecurity_breasts_big gte 1 and $player.breastsize gte (playerFeelsManlike() ? 1 : 8) and $acceptance_breasts_big lte 999 and $daily.lakeMeditate isnot 1>>
+	<<if insecurityExists("breasts_big") and $daily.lakeMeditate isnot 1>>
 		<<link [[Meditate on your big breasts (1:00)|Lake Meditate]]>><<pass 60>><<set $phase to 9>><<willpower 1>><<set $daily.lakeMeditate to 1>>
 			<<if $willpower gte (($willpowermax / 7) * 6)>>
 				<<stress 5>><<acceptance "breasts_big" 20>>
@@ -401,7 +399,7 @@
 		<</link>><<gstress>><<gwillpower>><<gacceptance>>
 		<br>
 	<</if>>
-	<<if $insecurity_pregnancy gte 1 and $acceptance_pregnancy lte 999 and $daily.lakeMeditate isnot 1>>
+	<<if insecurityExists("pregnancy") and $daily.lakeMeditate isnot 1>>
 		<<set _pregnancyLink to (playerAwareTheyArePregnant() ? "Meditate on your pregnant belly (1:00)" : "Meditate on your pregnant looking belly (1:00)")>>
 		<<link [[_pregnancyLink|Lake Meditate]]>><<pass 60>><<set $phase to 10>><<willpower 1>><<set $daily.lakeMeditate to 1>>
 			<<if $willpower gte (($willpowermax / 7) * 6)>>
@@ -527,4 +525,22 @@
 	<br>
 	<<link [[Ignore|Lake Halloween Invite Ignore]]>><</link>>
 	<br>
+<</widget>>
+
+<<widget "plinthroom">>
+	There's an ancient door opposite the entrance.
+	<<if $lakeruinkey isnot 2>>
+		It's closed.
+	<<else>>
+		It's open.
+	<</if>>
+	<br>
+	<<if $lakeruinkey is 1>>
+		<<lockicon "bronze key">><<link [[Use bronze key|Lake Ruin Door]]>><<wateraction>><</link>><<loxygen>>
+		<br>
+	<</if>>
+	<<if $lakeruinkey is 2>>
+		<<lakeicon "plinth">><<link [[Swim inside plinth room|Lake Ruin Plinth]]>><<wateraction>><</link>><<loxygen>>
+		<br>
+	<</if>>
 <</widget>>

@@ -44,8 +44,8 @@ There is a thermometer outside the window. It reads <span class="teal"><<print W
 
 	<<link [[Next|Eden Caged Intro]]>><<set $phase to 2>><</link>>
 	<br>
-<<elseif ($edenfreedom is 2 and $edendays gte 8 and Time.hour gte 0 and Time.hour lte 6) or ($edenfreedom is 1 and $edendays gte 2 and Time.hour gte 0 and Time.hour lte 6) and !$possessed>>
-	<<set $edendays to 0>>
+<<elseif edenFreedomStatus() gte 1 and Time.hour gte 0 and Time.hour lte 6 and !$possessed>>
+	<<edenTrackers>>
 	<<npcincr Eden love -2>>
 	You enter to find Eden sleeping. Woken by the sound of the door opening, <<he>> quickly rises from the bed, but relaxes slightly when <<he>> sees you.
 	Throwing off the covers, <<he>> rushes over to you.
@@ -129,12 +129,12 @@ There is a thermometer outside the window. It reads <span class="teal"><<print W
 		<</if>>
 		<br><br>
 	<<elseif Weather.precipitation is "snow">>
-		Snow settles on the window sills.
+		Snow settles on the windowsills.
 		<br><br>
 	<</if>>
 
-	<<if ($edenfreedom is 2 and $edendays lt 8) or ($edenfreedom is 1 and $edendays lt 2)>>
-		<<set $edendays to 0>>
+	<<if edenFreedomStatus() is 0>>
+		<<edenTrackers>>
 	<</if>>
 
 	<<if $possessed>>
@@ -153,7 +153,7 @@ There is a thermometer outside the window. It reads <span class="teal"><<print W
 		<br><br>
 
 		<<if Time.monthName is "November" and $edenprepare is 1>>
-			<<edenicon "fix">><<link [[Fix the cabin|Cabin Eden Prepare]]>><</link>>
+			<<choreicon "fix">><<link [[Fix the cabin|Cabin Eden Prepare]]>><</link>>
 			<br><br>
 		<</if>>
 		<<investigateicon>><<link [[Look around the cabin|Cabin House Actions]]>><</link>>
@@ -184,7 +184,7 @@ There is a thermometer outside the window. It reads <span class="teal"><<print W
 			<br><br>
 
 			<<if Time.monthName is "November" and $edenprepare is 1>>
-				<<edenicon "fix">><<link [[Fix the cabin|Cabin Eden Prepare]]>><</link>>
+				<<choreicon "fix">><<link [[Fix the cabin|Cabin Eden Prepare]]>><</link>>
 				<br><br>
 			<</if>>
 			<<investigateicon>><<link [[Look around the cabin|Cabin House Actions]]>><</link>>
@@ -214,7 +214,7 @@ There is a thermometer outside the window. It reads <span class="teal"><<print W
 			"It's Valentine's day," <<he>> explains, "so I thought I'd help out."
 			<br><br>
 
-			You shift your gaze to the food. It's odd not to be making breakfast for <<him>> and it's even stranger to not be sharing, but you find the gesture sweet nonetheless. You smile at <<him>> in gratitude and join <<him>> at the table.
+			You shift your gaze to the food. It's odd not to be making breakfast for <<him>>, and it's even stranger to not be sharing, but you find the gesture sweet nonetheless. You smile at <<him>> in gratitude and join <<him>> at the table.
 			As the two of you eat, you attempt to chat with <<him>>. <<Hes>> quiet for the most part, but tries to respond when <<he>> can.
 			<br><br>
 
@@ -233,7 +233,7 @@ There is a thermometer outside the window. It reads <span class="teal"><<print W
 			<</if>>
 			Eden lies on the bed. "Make me breakfast," <<he>> says.
 			<br><br>
-			<<if $rightarm is "bound" or $leftarm is "bound" or $feetuse is "bound">>
+			<<if pcAreArmsBound("any") or $feetuse is "bound">>
 				<<He>> beckons you over. Once you're close enough, Eden grabs your shoulder and spins you around. With your back to <<him>>, Eden begins to fiddle with your bindings. You tense up, anxious that you're unable to see what <<hes>> up to.
 				<br><br>
 				Suddenly, your arms and legs are free of all restraints. You breathe a sigh of relief.
@@ -275,7 +275,7 @@ There is a thermometer outside the window. It reads <span class="teal"><<print W
 
 			<<edenlust>>
 			<<if Time.monthName is "November" and $edenprepare is 1>>
-				<<edenicon "fix">><<link [[Fix the cabin|Cabin Eden Prepare]]>><</link>>
+				<<choreicon "fix">><<link [[Fix the cabin|Cabin Eden Prepare]]>><</link>>
 				<br><br>
 			<</if>>
 			<<getinicon>><<link [[Approach Eden|Cabin Eden Actions]]>><</link>>
@@ -305,7 +305,7 @@ There is a thermometer outside the window. It reads <span class="teal"><<print W
 			<br><br>
 		<</if>>
 		<<if Time.monthName is "November" and $edenprepare is 1>>
-			<<edenicon "fix">><<link [[Fix the cabin|Cabin Eden Prepare]]>><</link>>
+			<<choreicon "fix">><<link [[Fix the cabin|Cabin Eden Prepare]]>><</link>>
 			<br><br>
 		<</if>>
 		<<investigateicon>><<link [[Look around the cabin|Cabin House Actions]]>><</link>>
@@ -349,7 +349,7 @@ There is a thermometer outside the window. It reads <span class="teal"><<print W
 
 			<<edenlust>>
 			<<if Time.monthName is "November" and $edenprepare is 1>>
-				<<edenicon "fix">><<link [[Fix the cabin|Cabin Eden Prepare]]>><</link>>
+				<<choreicon "fix">><<link [[Fix the cabin|Cabin Eden Prepare]]>><</link>>
 				<br><br>
 			<</if>>
 			<<getinicon>><<link [[Approach Eden|Cabin Eden Actions]]>><</link>>
@@ -391,12 +391,12 @@ There is a thermometer outside the window. It reads <span class="teal"><<print W
 			<<link [[Next|Eden Story]]>><</link>>
 
 		<<elseif Time.days % 2 is 0>>
-			Eden is cleaning <<his>> gun beside the fire. <span class="blue"> <<He>> looks a bit lonely.</span>
+			Eden is cleaning <<his>> gun beside the fire. <span class="blue"><<He>> looks a bit lonely.</span>
 			<br><br>
 
 			<<edenlust>>
 			<<if Time.monthName is "November" and $edenprepare is 1>>
-				<<edenicon "fix">><<link [[Fix the cabin|Cabin Eden Prepare]]>><</link>>
+				<<choreicon "fix">><<link [[Fix the cabin|Cabin Eden Prepare]]>><</link>>
 				<br><br>
 			<</if>>
 			<<getinicon>><<link [[Approach Eden|Cabin Eden Actions]]>><</link>>
@@ -414,12 +414,12 @@ There is a thermometer outside the window. It reads <span class="teal"><<print W
 			<<cabinothers>>
 
 		<<else>>
-			Eden is reading beside the fire. <span class="blue"> <<He>> looks a bit lonely.</span>
+			Eden is reading beside the fire. <span class="blue"><<He>> looks a bit lonely.</span>
 			<br><br>
 
 			<<edenlust>>
 			<<if Time.monthName is "November" and $edenprepare is 1>>
-				<<edenicon "fix">><<link [[Fix the cabin|Cabin Eden Prepare]]>><</link>>
+				<<choreicon "fix">><<link [[Fix the cabin|Cabin Eden Prepare]]>><</link>>
 				<br><br>
 			<</if>>
 			<<getinicon>><<link [[Approach Eden|Cabin Eden Actions]]>><</link>>
@@ -443,21 +443,21 @@ There is a thermometer outside the window. It reads <span class="teal"><<print W
 <<effects>>
 <<if Time.hour lte 20>>/* if hour >= 21 and it's the last day of october, passing 3h will make it november, which unsets the variables, making nans */
 	<<if $edenwall lt 5>>
-		<<edenicon "fix">><<link [[Fix the cracks in the walls (3:00)|Eden Wall]]>><<npcincr Eden love 1>><<npcincr Eden dom 1>><<housekeeping 1 1000>><</link>><<glove>><<gdom "Eden">><<ghousekeeping 1000>>
+		<<choreicon "fix">><<link [[Fix the cracks in the walls (3:00)|Eden Wall]]>><<npcincr Eden love 1>><<npcincr Eden dom 1>><<housekeeping 1 1000>><</link>><<glove>><<gdom "Eden">><<ghousekeeping 1000>>
 	<<else>>
 		<span class="green">The walls are fully repaired.</span>
 	<</if>>
 	<br>
 
 	<<if $edenchimney lt 5>>
-		<<edenicon "broom">><<link [[Clean the chimney (3:00)|Eden Chimney]]>><<npcincr Eden love 1>><<npcincr Eden dom 1>><<housekeeping 1 1000>><</link>><<glove>><<gdom "Eden">><<ghousekeeping 1000>>
+		<<choreicon "sweep">><<link [[Clean the chimney (3:00)|Eden Chimney]]>><<npcincr Eden love 1>><<npcincr Eden dom 1>><<housekeeping 1 1000>><</link>><<glove>><<gdom "Eden">><<ghousekeeping 1000>>
 	<<else>>
 		<span class="green">The chimney is clean.</span>
 	<</if>>
 	<br>
 
 	<<if $edenroof lt 5>>
-		<<edenicon "fix">><<link [[Fix the roof (3:00)|Eden Roof]]>><<npcincr Eden love 1>><<npcincr Eden dom 1>><<housekeeping 1 1000>><</link>><<glove>><<gdom "Eden">><<ghousekeeping 1000>>
+		<<choreicon "fix">><<link [[Fix the roof (3:00)|Eden Roof]]>><<npcincr Eden love 1>><<npcincr Eden dom 1>><<housekeeping 1 1000>><</link>><<glove>><<gdom "Eden">><<ghousekeeping 1000>>
 	<<else>>
 		<span class="green">The roof is fixed.</span>
 	<</if>>
@@ -500,7 +500,7 @@ Eden glances at you.
 		<br>
 	<</if>>
 	<<if $edenradiointro is 2>>
-		<<edenicon "radio">><<link [[Ask Eden to dance (0:30)|Eden Dance]]>><<trauma -3>><<stress -3>><<danceskill 5>><<pass 30>><<npcincr Eden love 1>><<npcincr Eden lust 1>><<set $phase to 0>><</link>><<glove>><<glust>><<ltrauma>><<lstress>><<gdanceskill>>
+		<<techicon "radio">><<link [[Ask Eden to dance (0:30)|Eden Dance]]>><<trauma -3>><<stress -3>><<danceskill 5>><<pass 30>><<npcincr Eden love 1>><<npcincr Eden lust 1>><<set $phase to 0>><</link>><<glove>><<glust>><<ltrauma>><<lstress>><<gdanceskill>>
 		<br>
 	<</if>>
 	<<if $edenpillow is 2 and !$daily.eden.massage>>
@@ -569,7 +569,7 @@ Eden glances at you.
 	<br>
 <</if>>
 
-<<if $leftarm is "bound" or $rightarm is "bound" or $feetuse is "bound" or $worn.feet.name is "ankle cuffs">>
+<<if pcAreArmsBound("any") or $feetuse is "bound" or $worn.feet.name is "ankle cuffs">>
 	<<undobindingsicon>><<link [[Ask Eden to undo your bindings (0:01)|Eden Bindings]]>><<pass 1>><<unbind>><</link>>
 	<br>
 <</if>>
@@ -587,7 +587,7 @@ Eden glances at you.
 	<br>
 <</if>>
 <<if $edenradiointro is 1>>
-	<<edenicon "radio">><<link [[Give Eden the radio|Eden Radio Intro]]>><</link>>
+	<<techicon "radio">><<link [[Give Eden the radio|Eden Radio Intro]]>><</link>>
 	<br>
 <</if>>
 <<if canGiftFood("Eden")>>
@@ -632,7 +632,7 @@ You take a moment to look around the cabin.
 	<<shopicon "tailor">><<link [[Make the cushions (3:00)|Eden Loveseat Work]]>><<pass 3 hours>><<set $edencushions to 2>><<housekeeping 1 100>><</link>><<ghousekeeping 100>>
 	<br>
 <<elseif $edenloveseat is 7>>
-	<i>You could visit the shopping centre to buy cushion materials for your loveseat</i>
+	<i>You could visit the shopping centre to buy cushion materials for your loveseat.</i>
 	<br>
 <</if>>
 <<if $edencushions is 2 and $edenloveseat is 9 and !$edenblanket>>
@@ -667,7 +667,7 @@ You take a moment to look around the cabin.
 	<br>
 	A broom and dustpan lie in the corner.
 	<br>
-	<<edenicon "broom">><<link [[Sweep the floor (0:30)|Eden Sweep]]>><<pass 30>><<npcincr Eden love 1>><<set $daily.eden.sweep to 1>><<housekeeping 1 100>><</link>><<glove>><<ghousekeeping 100>>
+	<<choreicon "sweep">><<link [[Sweep the floor (0:30)|Eden Sweep]]>><<pass 30>><<npcincr Eden love 1>><<set $daily.eden.sweep to 1>><<housekeeping 1 100>><</link>><<glove>><<ghousekeeping 100>>
 	<br>
 <</if>>
 <<if $daily.eden.salve isnot 1 or $daily.eden.soap isnot 1>>
@@ -707,6 +707,8 @@ There's a large mattress with animal skin covers.
 <</if>>
 <br>
 <<roomoptions>>
+<<bathroomicon "toothbrush">><<link [[Brush teeth (0:05)|Bathroom Brush]]>><<pass 5>><<set $bathroomExit to "Cabin Actions">><</link>>
+<br>
 <<pregnancyTest "Eden Cabin">>
 <br>
 Your clothes are kept in the corner.
@@ -829,7 +831,7 @@ Your clothes are kept in the corner.
 		You slept soundly, but now feel a little rough.
 		<br><br>
 	<<elseif $nightmares gte 1 and $controlled is 0>>
-		You <<if _wakingEffect>>dreamed of<<else>>dream you are<</if>> being hunted by something <<if ["haunt", "despair"].includes($wraith.state) and $rng lte 25>>pale<<else>>dark<</if>> and terrible.
+		<<nightmareWake>>
 	<<else>>
 		<<if ($specialClothesEffects.bimbo.total gte random(100,1000) || $specialClothesEffects.pimp.total gte random(100,1000)) or $arousal gte ($arousalmax / 10) * 9>>
 			<<wetDream>>
@@ -1206,8 +1208,8 @@ You are in the clearing outside Eden's cabin. The surrounding trees are so huge 
 	<<link [[Next|Eden Caged Intro]]>><<set $phase to 2>><</link>>
 	<br>
 
-<<elseif ($edenfreedom is 2 and $edendays gte 8 and Time.hour gte 6) or ($edenfreedom is 1 and $edendays gte 2 and Time.hour gte 6)>>
-	<<set $edendays to 0>>
+<<elseif edenFreedomStatus() gte 1 and Time.hour gte 6>>
+	<<edenTrackers>>
 	<<npcincr Eden love -1>>
 	Eden looks up as you approach the cabin. <<He>> stops what <<hes>> doing and rushes over to you.
 	<<if $edenPreyEscaped>><<unset $edenPreyEscaped>>
@@ -1309,8 +1311,8 @@ You are in the clearing outside Eden's cabin. The surrounding trees are so huge 
 		<br><br>
 	<</if>>
 
-	<<if ($edenfreedom is 2 and $edendays lt 8) or ($edenfreedom is 1 and $edendays lt 2)>>
-		<<set $edendays to 0>>
+	<<if edenFreedomStatus() is 0>>
+		<<edenTrackers>>
 	<</if>>
 
 	<<if Time.hour gte 9 and Time.hour lte 10>>
@@ -1319,7 +1321,7 @@ You are in the clearing outside Eden's cabin. The surrounding trees are so huge 
 
 		<<edenlust>>
 		<<if Time.monthName is "November" and $edenprepare is 1>>
-			<<edenicon "fix">><<link [[Fix the cabin|Cabin Eden Prepare]]>><</link>>
+			<<choreicon "fix">><<link [[Fix the cabin|Cabin Eden Prepare]]>><</link>>
 			<br><br>
 		<</if>>
 		<<getinicon>><<link [[Approach Eden|Clearing Eden Actions]]>><</link>>
@@ -1369,7 +1371,7 @@ You are in the clearing outside Eden's cabin. The surrounding trees are so huge 
 			<br><br>
 
 			<<if Time.monthName is "November" and $edenprepare is 1>>
-				<<edenicon "fix">><<link [[Fix the cabin|Cabin Eden Prepare]]>><</link>>
+				<<choreicon "fix">><<link [[Fix the cabin|Cabin Eden Prepare]]>><</link>>
 				<br><br>
 			<</if>>
 			<<clearingactions>>
@@ -1418,7 +1420,7 @@ You are in the clearing outside Eden's cabin. The surrounding trees are so huge 
 				<</if>>
 			<</if>>
 			<<if Time.monthName is "November" and $edenprepare is 1>>
-				<<edenicon "fix">><<link [[Fix the cabin|Cabin Eden Prepare]]>><</link>>
+				<<choreicon "fix">><<link [[Fix the cabin|Cabin Eden Prepare]]>><</link>>
 				<br><br>
 			<</if>>
 			<<getinicon>><<link [[Approach Eden|Clearing Eden Actions]]>><</link>>
@@ -1446,7 +1448,7 @@ You are in the clearing outside Eden's cabin. The surrounding trees are so huge 
 
 			<<edenlust>>
 			<<if Time.monthName is "November" and $edenprepare is 1>>
-				<<edenicon "fix">><<link [[Fix the cabin|Cabin Eden Prepare]]>><</link>>
+				<<choreicon "fix">><<link [[Fix the cabin|Cabin Eden Prepare]]>><</link>>
 				<br><br>
 			<</if>>
 			<<getinicon>><<link [[Approach Eden|Clearing Eden Actions]]>><</link>>
@@ -1457,7 +1459,7 @@ You are in the clearing outside Eden's cabin. The surrounding trees are so huge 
 		Eden is indoors.
 		<br><br>
 		<<if Time.monthName is "November" and $edenprepare is 1>>
-			<<edenicon "fix">><<link [[Fix the cabin|Cabin Eden Prepare]]>><</link>>
+			<<choreicon "fix">><<link [[Fix the cabin|Cabin Eden Prepare]]>><</link>>
 			<br><br>
 		<</if>>
 		<<clearingactions>>
@@ -1483,7 +1485,7 @@ You are in the clearing outside Eden's cabin. The surrounding trees are so huge 
 	<<if $speech_attitude is "meek">>
 		"I-I was a little busy," you say.
 	<<elseif $speech_attitude is "bratty">>
-		"Stop freaking out," you say. "I was just a little busy,"
+		"Stop freaking out," you say. "I was just a little busy."
 	<<else>>
 		"I was busy," you say.
 	<</if>>
@@ -1509,15 +1511,16 @@ You nod, and <<he>> gives you one last look before walking off.
 <br><br>
 
 <<if $speech_attitude is "meek">>
-	"B-but if I'm gone from town too long," you say. "People will come looking for me here."
+	"B-but if I'm gone from town too long," you say, "people will come looking for me here."
 <<elseif $speech_attitude is "bratty">>
 	"Do you think my absence isn't noticed?" you say. "They'll come looking for me here."
 <<else>>
-	"If I keep missing school," you say. "People will start looking for me."
+	"If I keep missing school," you say, "people will start looking for me."
 <</if>>
 <br><br>
 
-<<if C.npc.Eden.love gte 20>><<set $edenfreedom to 1>><<set $edenshopping to 0>><<set $edendays to 0>>
+<<if C.npc.Eden.love gte 20>>
+	<<set $edenfreedom to 1>><<set $edenshopping to 0>><<edenTrackers>>
 	<<He>> seems conflicted. "I suppose it was too much to hope you'd be content stuck here. Fine, you can go back to town. Make sure you get your little bottom back here though. <span class="gold">If you're gone longer than a day you'll worry me sick.</span> I'd have to come find you."
 	<br><br>
 
@@ -1609,7 +1612,8 @@ You walk to the edge of the clearing and gaze into the darkness of the forest. A
 <</if>>
 <br><br>
 
-<<if C.npc.Eden.love gte 100>><<set $edenfreedom to 2>><<set $edendays to 0>>
+<<if C.npc.Eden.love gte 100>>
+	<<set $edenfreedom to 2>><<edenTrackers>>
 	<<He>> looks about to argue, but sighs in resignation. "Fine. I'm used to being alone. <span class="gold">You can leave for up to a week.</span> If you're gone longer, I'll hunt you down."
 	<br><br>
 
@@ -1903,7 +1907,7 @@ Once you're finished, you hang the scarf on the coat stand, where you know Eden 
 
 :: Eden Recaptured
 <<set $outside to 0>><<set $location to "cabin">><<effects>>
-<<set $edendays to 0>>
+<<edenTrackers>>
 
 Eden grabs your arm and pushes you in front of <<him>>. <<He>> pushes you through the forest and back to <<his>> cabin. Once inside, <<he>> shoves you to the floor.
 <br><br>
@@ -1923,7 +1927,6 @@ Eden grabs your arm and pushes you in front of <<him>>. <<He>> pushes you throug
 
 <<set $seductiondifficulty to (10000 - (C.npc.Eden.lust * 50))>>
 <<seductioncheck>>
-<br><br>
 <<seductionskilluptext>>
 <<seductionskilluse>>
 
@@ -2077,7 +2080,7 @@ You climb to your knees and look up at <<him>>.
 
 :: Eden Asylum Rescue
 <<set $outside to 0>><<set $location to "cabin">><<effects>>
-<<set $edendays to 0>><<asylumescape>>
+<<edenTrackers>><<asylumescape>>
 <<badEndTrackingEnd "Asylum" { reason: "asylumEden" }>>
 After you enter the cabin, Eden shuts the door behind you and wraps you up in a big hug. Is <<he>> trembling?
 <br><br>
@@ -2097,7 +2100,7 @@ After you enter the cabin, Eden shuts the door behind you and wraps you up in a 
 	<br><br>
 <</if>>
 
-"What happened?" <<he>> asks. Moreso demands. You tell <<him>> about the trauma that you suffered, and how you had been forced into the asylum for "treatment," and weren't allowed to leave. You also detail what Harper, the asylum staff and other patients subjected you to while you were there.
+"What happened?" <<he>> asks. More so demands. You tell <<him>> about the trauma that you suffered, and how you had been forced into the asylum for "treatment," and weren't allowed to leave. You also detail what Harper, the asylum staff and other patients subjected you to while you were there.
 <br><br>
 
 Eden's face twists in rage, guilt and horror through your story. When you're done, <<he>> slams <<his>> fist onto the table.
@@ -2120,7 +2123,7 @@ You tell <<him>> that you can't promise anything, but that you'll try to be safe
 
 :: Eden Farm Rescue
 <<set $outside to 0>><<set $location to "cabin">><<effects>>
-<<set $edendays to 0>>
+<<edenTrackers>>
 You feel safe once beneath the canopy, but don't stop until you reach the cabin. Eden hugs you as soon as you're inside.
 <br><br>
 
@@ -2213,7 +2216,7 @@ You shop for the things Eden can't make or do without. Tools and medical supplie
 	As you're shopping, your eyes land on a simple tabletop radio. It makes you think of Eden. There's not a lot to do at the cabin, so maybe <<nnpc_he "Eden">>'d appreciate it.
 	<br><br>
 
-	<<edenicon "radio">><<link [[Buy it (£25)|Eden Radio Buy]]>><<handheldon>><<money -2500>><</link>>
+	<<techicon "radio">><<link [[Buy it (£25)|Eden Radio Buy]]>><<handheldon>><<money -2500>><</link>>
 	<br>
 	<<refuseicon>><<link [[Don't buy it|Eden Radio Don't Buy]]>><</link>>
 <<elseif $edenradio isnot 0 and !$edenraft and $money gte 4000>>
@@ -2456,11 +2459,7 @@ Using the broom and dustpan, you sweep the cabin floor until it's clean.
 You gather the ingredients for your salve and melt the mixture on the stove. When you're done, you leave your salve on the table to cool and dry.
 <br><br>
 
-<<if $salve is 1>>
-	You have 1 jar of salve.
-<<elseif $salve gte 2>>
-	You have $salve jars of salve.
-<</if>>
+You have $salve <<pluralise $salve "jar">> of salve.
 <br><br>
 
 <<link [[Next|Cabin House Actions]]>><<endevent>><</link>>
@@ -2471,11 +2470,7 @@ You gather the ingredients for your salve and melt the mixture on the stove. Whe
 You gather the ingredients for your soap and melt the mixture on the stove. When you're done, you leave your soap on the table to cool and set.
 <br><br>
 
-<<if $soap is 1>>
-	You have 1 bar of soap.
-<<elseif $soap gte 2>>
-	You have $soap bars of soap.
-<</if>>
+You have $soap <<pluralise $soap "bar">> of soap.
 <br><br>
 
 <<link [[Next|Cabin House Actions]]>><<endevent>><</link>>
@@ -2515,8 +2510,6 @@ You take stock of Eden's supplies, noting what needs to be replenished and how m
 
 <<getouticon>><<link [[Leave|Eden Clearing]]>><<endevent>><</link>>
 <br>
-
-<<unset $event_trigger>>
 
 :: Eden Plots Seeds
 <<effects>>
@@ -2654,7 +2647,7 @@ You search the clearing for wild flowers, and find a number of poppies growing a
 :: Eden Recaptured 2
 <<effects>>
 <<npc Eden>><<person1>>
-<<set $edendays to 0>>
+<<edenTrackers>>
 
 <<if $rng gte 51>>
 	You awaken, and find yourself slumped over Eden's shoulder. You're in the clearing outside <<his>> cabin. <<He>> tosses you to the floor once inside.
@@ -2681,7 +2674,7 @@ You search the clearing for wild flowers, and find a number of poppies growing a
 :: Eden Cabin Rescued
 <<set $outside to 0>><<set $location to "cabin">><<effects>>
 /* eden is not actually generated on passages that lead here */
-<<set $edendays to 0>>
+<<edenTrackers>>
 <<npc Eden>><<person1>>
 
 You slip in and out of consciousness. You feel something carry you, and hear the sounds of the forest.
@@ -2736,7 +2729,6 @@ You awaken on the cabin bed. Turning your head to the side, you see Eden sitting
 
 :: Eden Passout Lake Rescue
 <<effects>>
-<<set $edendays to 0>>
 You feel yourself being lifted into the air and someone wrapping an arm around your waist.
 <br><br>
 
@@ -2864,7 +2856,7 @@ You pass out again.
 <<link [[Next|Eden Collar Ask 2]]>><</link>>
 
 :: Eden Collar Ask 2
-<<leash 21>>
+<<leash 21>><<attach_leash>>
 <<set $outside to 1>><<set $location to "cabin">><<effects>>
 
 <<He>> guides you to a nearby drawer. Pulling it open, <<he>> reaches for a collar. A long metal chain dangles, gleaming in the light.

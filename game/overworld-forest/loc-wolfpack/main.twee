@@ -35,42 +35,42 @@ You are in the wolf cave. The ceiling hangs low. There's a breeze blowing from t
 	<<if !$possessed>>
 		<<storeactions "wolfcave">>
 	<<else>>
-		<<if $leftarm is "bound" or $rightarm is "bound" or $feetuse is "bound">>
+		<<if pcAreArmsBound("any") or $feetuse is "bound">>
 			You stare down at your bindings. You pull, and they fall apart, unable to hold against you.
 			<br><br>
 			<<unbind>>
 		<</if>>
 	<</if>>
-	<<if $wolfcavedig gte 13>>
-		<<getouticon "hole">><<link [[Go down the hole|Forest Wolf Cave Hole]]>><</link>>
-	<<elseif $wolfcavedig gte 12 and $physiquesize lte 12000>>
-		<<getouticon "hole">><<link [[Go down the hole|Forest Wolf Cave Hole]]>><</link>><<small_text>>
-	<<elseif $wolfcavedig gte 11 and $physiquesize lte 10000>>
-		<<getouticon "hole">><<link [[Go down the hole|Forest Wolf Cave Hole]]>><</link>><<small_text>>
-	<<elseif $wolfcavedig gte 10 and $physiquesize lte 6000>>
-		<<getouticon "hole">><<link [[Go down the hole|Forest Wolf Cave Hole]]>><</link>><<small_text>>
-	<<elseif $wolfcavedig gte 1>>
-		<<getouticon "dig">><<link [[Dig at the back of the cave (1:00)|Forest Wolf Cave Dig]]>><<pass 1 hour>><<set $wolfcavedig += 1>><</link>>
-	<<else>>
-		<<investigateicon>><<link [[Examine the back of the cave|Forest Wolf Cave Examine]]>><<set $wolfcavedig to 1>><</link>>
-	<</if>>
-	<br>
-	<<if $leftarm is "bound" or $rightarm is "bound" or $feetuse is "bound">>
+	<<if pcAreArmsBound("any") or $feetuse is "bound">>
 		<<undobindingsicon>><<link [[Cut your binds|Wolf Cave Unbind]]>><</link>>
 		<br>
 	<</if>>
 	<!-- Modified for monster people -->
 	<<getChildrenIds `{location: $location}`>>
 	<<if _childrenIds.length gt 0 or $knowsAboutDen is 1>>
-		<<wolfcaveicon "pup">><<link [[Pups' den|Pups Den]]>><</link>>
+		<<wolfcaveicon "pupsden">><<link [[Pups' den|Pups Den]]>><</link>>
 		<br>
 	<</if>>
 	<<wolfcaveicon "sleep">><<link [[Sleep|Wolf Cave Bed]]>><</link>>
 	<br>
 	<<if $nextPassageCheck is "Wolf Cave Clearing">>
-		<<getouticon>><span class="nextLink"><<link [[Go outside|Wolf Cave Clearing]]>><</link>></span>
+		<<wolfcaveicon "outside">><span class="nextLink"><<link [[Go outside|Wolf Cave Clearing]]>><</link>></span>
 	<<else>>
-		<<getouticon>><<link [[Go outside|Wolf Cave Clearing]]>><</link>>
+		<<wolfcaveicon "outside">><<link [[Go outside|Wolf Cave Clearing]]>><</link>>
+	<</if>>
+	<br><br>
+	<<if $wolfcavedig gte 13>>
+		<<wolfcaveicon "hole">><<link [[Go down the hole|Forest Wolf Cave Hole]]>><</link>>
+	<<elseif $wolfcavedig gte 12 and $physiquesize lte 12000>>
+		<<wolfcaveicon "hole">><<link [[Go down the hole|Forest Wolf Cave Hole]]>><</link>><<small_text>>
+	<<elseif $wolfcavedig gte 11 and $physiquesize lte 10000>>
+		<<wolfcaveicon "hole">><<link [[Go down the hole|Forest Wolf Cave Hole]]>><</link>><<small_text>>
+	<<elseif $wolfcavedig gte 10 and $physiquesize lte 6000>>
+		<<wolfcaveicon "hole">><<link [[Go down the hole|Forest Wolf Cave Hole]]>><</link>><<small_text>>
+	<<elseif $wolfcavedig gte 1>>
+		<<getouticon "dig">><<link [[Dig at the back of the cave (1:00)|Forest Wolf Cave Dig]]>><<pass 1 hour>><<set $wolfcavedig += 1>><</link>>
+	<<else>>
+		<<investigateicon>><<link [[Examine the back of the cave|Forest Wolf Cave Examine]]>><<set $wolfcavedig to 1>><</link>>
 	<</if>>
 	<br><br>
 	<<link [[Gameplay Settings|Wolf Cave Settings]]>><</link>>
@@ -145,7 +145,7 @@ You are in the clearing outside the wolf cave. A stream runs by.
 		<<investigateicon>><<link [[Investigate|Wolf Halloween]]>><</link>>
 		<br><br>
 	<</if>>
-	<<wolfcaveicon "harmony">><<link [[Play (1:00)|Wolf Cave Play]]>><<stress -12>><<pass 1 hour>><</link>><<lstress>>
+	<<wolfcaveicon "wolf play">><<link [[Play (1:00)|Wolf Cave Play]]>><<stress -12>><<pass 1 hour>><</link>><<lstress>>
 	<br>
 	<<if $pound and $pound.progress is 5>>
 		<<wolfcaveicon "black dog">><<link [[Approach the dark shape|Wolf Cave Dog Intro]]>><<set $pound.progress to 6>><<stress 6>><<trauma -6>><<control 25>><</link>><<gstress>><<ggcontrol>><<ltrauma>>
@@ -155,9 +155,9 @@ You are in the clearing outside the wolf cave. A stream runs by.
 		<br>
 	<</if>>
 	<<if $nextPassageCheck is "Wolf Cave Wash">>
-		<<wolfcaveicon "stream">><span class="nextLink"><<link [[Water.|Wolf Cave Wash]]>><</link>></span>
+		<<watericon "waterfall_wolfcave">><span class="nextLink"><<link [[Water.|Wolf Cave Wash]]>><</link>></span>
 	<<else>>
-		<<wolfcaveicon "stream">><<link [[Wash in the stream (0:20)|Wolf Cave Wash]]>><<pass 20>><</link>>
+		<<watericon "waterfall_wolfcave">><<link [[Wash in the stream (0:20)|Wolf Cave Wash]]>><<pass 20>><</link>>
 	<</if>>
 	<br>
 	<<if $worn.upper.exposed gte 2 and $worn.under_upper.exposed gte 1
@@ -188,12 +188,12 @@ You are in the clearing outside the wolf cave. A stream runs by.
 		the moonlight illuminating the surface.
 	<</if>>
 	<br>
-	<<mirroricon>><<link [[Check your reflection|Wolf Cave Mirror]]>><<preMirror>><</link>>
+	<<watericon "stream_wolfcave">><<link [[Check your reflection|Wolf Cave Mirror]]>><<preMirror>><</link>>
 	<br>
 	<br>
 	The soil near the stream looks good, yet is almost free of wild plants.
 	<br>
-	<<gardenicon "plot">><<link [[Examine|Wolf Cave Plots]]>><</link>>
+	<<watericon "waterside_wolfcave">><<link [[Examine|Wolf Cave Plots]]>><</link>>
 	<br>
 	<<pregnancyTest "Wolf Cave Clearing">>
 	<br>
@@ -219,10 +219,10 @@ You are in the clearing outside the wolf cave. A stream runs by.
 	<<if $wolfstate is "cave" and Time.dayState isnot "night" and Weather.precipitation is "none">>
 		Some of the stronger <<wolf_cave_plural>> lie around the clearing, waiting for a hunt. They look bored.
 		<br>
-		<<wolfcaveicon "bw">><<link [[Challenge the hunters (0:20)|Wolf Cave Spar]]>><</link>><<gtiredness>><<gphysique>><<lstress>>
+		<<wolfcaveicon "wolf">><<link [[Challenge the hunters (0:20)|Wolf Cave Spar]]>><</link>><<gtiredness>><<gphysique>><<lstress>>
 		<br><br>
 	<</if>>
-	<<getinicon>><<link [[Go inside|Wolf Cave]]>><</link>>
+	<<wolfcaveicon "inside">><<link [[Go inside|Wolf Cave]]>><</link>>
 	<br><br>
 	<<if $nextPassageCheck is "Forest">>
 		<span class="nextLink"><<foresticon>><<link [[Leave (0:10)|Forest]]>><<pass 10>><<set $eventskip to 1>><<set $forest to 60>><</link>></span>
@@ -240,9 +240,9 @@ The dark shape slinks away before you arrive. You turn to leave, and come face-t
 <br><br>
 
 <<if $monster is 1>>
-	"Sorry," <<bhe>> says, climbing off you. <<bHe>> adopts <<bhis>> usual gruff demeanor, but there's a light in <<bhis>> eyes that wasn't present before. <<bHe>> looks healthier. "Happy to see you."
+	"Sorry," <<bhe>> says, climbing off you. <<bHe>> adopts <<bhis>> usual gruff demeanour, but there's a light in <<bhis>> eyes that wasn't present before. <<bHe>> looks healthier. "Happy to see you."
 <<else>>
-	<<bHe>> climbs off you, and resumes <<bhis>> usual gruff demeanor as if remembering <<bhimself>>, but there's a light in <<bhis>> eyes that wasn't present before. <<bHe>> looks healthier. <<bHe>> gives you a playful bark.
+	<<bHe>> climbs off you, and resumes <<bhis>> usual gruff demeanour as if remembering <<bhimself>>, but there's a light in <<bhis>> eyes that wasn't present before. <<bHe>> looks healthier. <<bHe>> gives you a playful bark.
 <</if>>
 <br><br>
 
@@ -330,8 +330,6 @@ The <<beasttype>> huffs, and prowls from <<bhis>> hiding place, towards the play
 
 <<getouticon>><<link [[Leave|Wolf Cave Clearing]]>><<handheldon>><</link>>
 <br>
-
-<<unset $event_trigger>>
 
 :: Wolf Cave Returned
 
@@ -434,7 +432,7 @@ You sit on the edge and try to lower yourself down, but the rock gives way and y
 		You slept soundly, but now feel a little rough.
 		<br><br>
 	<<elseif $nightmares gte 1 and $controlled is 0>>
-		You <<if _wakingEffect>>dreamed of<<else>>dream you are<</if>> being hunted by something <<if ["haunt", "despair"].includes($wraith.state) and $rng lte 25>>pale<<else>>dark<</if>> and terrible.
+		<<nightmareWake>>
 	<<else>>
 		<<if ($specialClothesEffects.bimbo.total gte random(100,1000) || $specialClothesEffects.pimp.total gte random(100,1000)) or $arousal gte ($arousalmax / 10) * 9>>
 			<<wetDream>>
@@ -447,6 +445,7 @@ You sit on the edge and try to lower yourself down, but the rock gives way and y
 	<</if>>
 	<<sleepeffects>>
 	<<if $blackWolfSleep>>
+		<<npc "Black Wolf">>
 		You open your eyes to see the Black Wolf still beside you, already awake. If <<bhe>> even slept, that is. <<bHe>> regards you, but otherwise does not stir while you wake.
 		<br><br>
 		<<link [[Get up|Wolf Cave]]>><<endevent>><<unset $blackWolfSleep>><</link>>
@@ -578,7 +577,7 @@ You shove the <<beasttype>> away from you.
 :: Wolf Cave Play
 <<set $outside to 0>><<set $location to "wolf_cave">><<effects>>
 
-<<if !$weekly.watchingForest and $wolfpackharmony gte 20 and Time.dayState is "day" and Weather.precipitation is "none" and $rng gte 80 and $wolfstate is "cave">>
+<<if !$weekly.watchingForest and $wolfpackharmony gte 20 and Time.dayState is "day" and Weather.precipitation is "none" and $rng gte 81 and $wolfstate is "cave">>
 	<<set $weekly.watchingForest to true>>
 	<<npc "Black Wolf">>
 
@@ -703,7 +702,7 @@ You wash in the stream. The water is cold but clean.
 	<<endcombat>>
 <<elseif $rescue is 1 and $alarm is 1>>
 	<<set $rescued += 1>>
-	The other <<beastsplural>> growl at the <<beasttype>> assaulting you. <<bhe>> growls back at first, but then backs down and leaves you alone.
+	The other <<beastsplural>> growl at the <<beasttype>> assaulting you. <<bHe>> growls back at first, but then backs down and leaves you alone.
 	<<lharmony>>
 	<br><br>
 	<<tearful>> you climb to your feet.

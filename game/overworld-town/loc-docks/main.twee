@@ -44,7 +44,11 @@ You are on the docks.
 	<<docksicon>><<link [[Take job (0:30)|Docks Take Job]]>><<pass 30>><<set $dockwork to 2>><</link>>
 	<br>
 <<elseif $dockwork is 2 and Time.hour is 7 and $exposed lte 0 and (!Time.schoolDay or $idDocksReveal is 2)>>
-	<<docksicon>><<link [[Work as a docker (12:00)|Docks Start]]>><</link>><<gtiredness>>
+	<<if pcAreArmsBound("both")>>
+		<span class="red">Both of your arms are bound</span>, so you are unable to work as a docker.
+	<<else>>
+		<<docksicon>><<link [[Work as a docker (12:00)|Docks Start]]>><</link>><<gtiredness>>
+	<</if>>
 	<br>
 <<elseif $dockwork is undefined and Time.dayState isnot "night" and $exposed lte 0>>
 	<<socialiseicon "ask">><<link [[Ask for work (0:05)|Docks Ask]]>><<pass 5>><<set $dockwork to 1>><</link>>
@@ -128,7 +132,7 @@ The door is open. A <<generate2>><<person2>><<person>> looks up from <<his>> des
 :: Docks Ask 2
 <<set $outside to 0>><<set $location to "docks">><<dockeffects>><<effects>>
 
-"We're looking for more hands," the <<person>> says. "So many ships come and go nowadays. You'll want details." <<He>> sits back behind <<his>> desk. "<span class="gold">£10</span> an hour is the starting wage. Perform well and you might get a raise. Work begins at <span class="gold"><<ampm 7 00>></span>."
+"We're looking for more hands," the <<person>> says. "So many ships come and go nowadays. You'll want details." <<He>> sits back behind <<his>> desk. "<<printmoney 1000>> an hour is the starting wage. Perform well and you might get a raise. Work begins at <span class="gold"><<ampm 7 00>></span>."
 <br><br>
 
 "Oh, and don't be late," <<he>> adds. "We can't just have workers show up throughout the day. Security reasons. You need to be here between seven and eight or we can't sign you in. No work for you on school days either, or I'll get in trouble. Work day is twelve hours, and you need to stay the whole shift if you want to get paid."
@@ -242,7 +246,7 @@ You pass security and report to a manager for work. <<dockstatustext>>
 
 <<set $outside to 0>><<set $location to "docks">><<dockeffects>><<effects>>
 
-The <<person1>><<person>> gets closer. You press one leg into the side of the boat, making the vessel rock. They stumble forwards. "Don't you da-" <<he>> manages before you give the boat another shove, this time turning it over and sending all three of you overboard.
+The <<person1>><<person>> gets closer. You press one leg into the side of the boat, making the vessel rock. They stumble forwards. "Don't you da—" <<he>> manages before you give the boat another shove, this time turning it over and sending all three of you overboard.
 <br><br>
 
 You swim back to shore. "<<pShe>> capsized it on purpose!" the <<person>> says to the amused dockers who help you from the water. Most think it was an accident, but some believe the pair.
@@ -357,11 +361,10 @@ You turn your back to the <<person>>. <<He>> fiddles with the knots, and sets yo
 
 <<set $seductiondifficulty to 6000>>
 <<seductioncheck>>
-<br><br>
 <<seductionskilluptext>>
 <<seductionskilluse>>
 
-You slip beneath the table. "What are you-" <<He>> cuts off when you unzip <<his>> trousers.
+You slip beneath the table. "What are you—" <<He>> cuts off when you unzip <<his>> trousers.
 <<promiscuity4>>
 
 <<if $seductionrating gte $seductionrequired>>
@@ -700,12 +703,7 @@ The <<person>> seems relieved.
 You successfully pick the lock and open the container. The <<person>> glances around. "I didn't see anything," <<he>> says. "I need this job." <<He>> walks away.
 <br><br>
 
-<<if $skulduggery lt 500>>
-	<<skulduggeryskilluse>>
-<<else>>
-	<span class="blue">There's nothing more you can learn from locks this simple.</span>
-	<br><br>
-<</if>>
+<<skulduggeryuse 500 "locks">>
 
 <<person1>>There are sacks full of potatoes inside. You hear the voice again, from the back. One of the sacks moves. You find a <<person>> beneath, gagged and bound. Bruising surrounds <<his>> right eye. <<He>> starts crying.
 <<gstress>><<stress 6>>
@@ -1005,8 +1003,8 @@ The pair cheer their colleague on.
 	Accompanying your colleagues, you <<if $drunk gte 360>>stagger<<else>>walk<</if>> into a pub on Harvest Street. Some rough looking patrons eye you up as you enter.
 	<br><br>
 
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (9900 - $allure)>>
+	
+	<<if dangerEvent()>>
 		<<generate1>><<person1>>A <<person>> sits beside you and places <<his>> hand on your thigh. "Fancy disappearing together for a few minutes?" <<he>> says.
 		<br><br>
 
@@ -1026,8 +1024,8 @@ The pair cheer their colleague on.
 	Accompanying your colleagues, you <<if $drunk gte 360>>stagger<<else>>walk<</if>> into a pub on Barb Street.
 	<br><br>
 
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (9900 - $allure)>>
+	
+	<<if dangerEvent()>>
 		You overhear one of the other dockers talking about you. <<generate1>><<person1>>"You sure the <<girl>> can handle it," <<he>> says. "The drinking, I mean. I don't want to get in trouble with <<pher>> parents or nothing."
 		<br><br>
 
@@ -1061,8 +1059,8 @@ The pair cheer their colleague on.
 	Accompanying your colleagues, you <<if $drunk gte 360>>stagger<<else>>walk<</if>> into a pub on the High Street.
 	<br><br>
 
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (9900 - $allure)>>
+	
+	<<if dangerEvent()>>
 		You attract attention. Other patrons keep trying to flirt with you.
 		<br><br>
 
@@ -1185,7 +1183,7 @@ You ignore the flirters, finish your drink and leave with your colleagues.
 		<br><br>
 	<</if>>
 
-	<<foodicon "beer">><<link [[Drink|Docks Pub Crawl Contest]]>><<wearProp "alcohol" 0 "shot" >><<alcohol 180>><</link>><<ggalcohol>>
+	<<foodicon "beer">><<link [[Drink|Docks Pub Crawl Contest]]>><<wearProp "alcohol" 0 "shot">><<alcohol 180>><</link>><<ggalcohol>>
 	<br>
 	<<getouticon>><<link [[Stop|Docks Pub Crawl Contest Stop]]>><<dockstatus -1>><</link>><<lcool>>
 	<br>
@@ -1243,7 +1241,7 @@ You ignore the flirters, finish your drink and leave with your colleagues.
 	You drink the colourful liquid. It's sweet, and makes you feel warm.
 	<br><br>
 
-	The <<person1>><<person>> lifts <<his>> drink. "I prom-" <<He>> hiccups. "I promised myself. Never again." <<He>> places the glass on the table. "You win." The audience cheers with more vigour than before. Someone raises your arm and several others pat your back. "Now," the <<person>> continues. "I need a piss."
+	The <<person1>><<person>> lifts <<his>> drink. "I prom—" <<He>> hiccups. "I promised myself. Never again." <<He>> places the glass on the table. "You win." The audience cheers with more vigour than before. Someone raises your arm and several others pat your back. "Now," the <<person>> continues. "I need a piss."
 	<<gcool>><<dockstatus 1>>
 	<br><br>
 	<<earnFeat "Under the Table">>
@@ -1275,7 +1273,7 @@ You ignore the flirters, finish your drink and leave with your colleagues.
 <<set $outside to 0>><<set $location to "pub">><<dockeffects>><<effects>><<silently>><<handheldon>><</silently>>
 
 <<if $phase is 4>>
-	You shake your head and push the glass away from you. All eyes turn to the <<person>>, who lifts <<his>> and smells it. <<He>> places it back on the table. "I prom-" <<He>> hiccups. "I promised myself. Never again." It's a draw. The dockers are disappointed.
+	You shake your head and push the glass away from you. All eyes turn to the <<person>>, who lifts <<his>> and smells it. <<He>> places it back on the table. "I prom—" <<He>> hiccups. "I promised myself. Never again." It's a draw. The dockers are disappointed.
 	<<lcool>><<dockstatus -1>>
 <<else>>
 	You shake your head and push the glass away from you. All eyes turn to the <<person>>, who lifts <<his>> and smells it. <<He>> downs it in one motion, and the dockers cheer. One raises <<his>> arm and several others pat <<his>> back.
@@ -1365,7 +1363,7 @@ The <<person>> grasps your neck and leans in. "I tried asking nicely," <<he>> wh
 	The pub owner rushes over. <<generate2>><<person2>> "Last thing I need is a brawl," <<he>> says. "You dockers always bring trouble. Get out."
 	<br><br>
 
-	"That was self defence," you argue, but <<he>> won't hear it. Your colleagues down the last of their drink and together you leave the pub. They don't seem to mind.
+	"That was self-defence," you argue, but <<he>> won't hear it. Your colleagues down the last of their drink and together you leave the pub. They don't seem to mind.
 	<<gcool>><<dockstatus 1>>
 <<else>>
 	One of your colleagues notices, and smashes a glass over the <<persons>> head. <<He>> tries to dodge the blow, but loses balance and falls off <<his>> chair.
@@ -1388,7 +1386,6 @@ The <<person>> grasps your neck and leans in. "I tried asking nicely," <<he>> wh
 
 <<set $seductiondifficulty to 4000>>
 <<seductioncheck>>
-<br><br>
 <<seductionskilluptext>>
 <<seductionskilluse>>
 
@@ -1598,7 +1595,7 @@ You leave the pub with your colleagues.
 <br>
 
 :: Docks Pub Crawl Join
-<<set $outside to 0>><<set $location to "pub">><<dockeffects>><<effects>><<wearProp "alcohol" 0 "shot" >>
+<<set $outside to 0>><<set $location to "pub">><<dockeffects>><<effects>><<wearProp "alcohol" 0 "shot">>
 
 You pick up a bystander's drink and drench the <<persons>> hair. <<He>> sneers and lunges, clutching your throat and dragging you to the ground. One swift kick to the <<if $NPCList[0].penis isnot "none">>cock<<else>>pussy<</if>> and <<he>> releases you, and clutches <<his>> groin in agony.
 <br><br>

@@ -861,7 +861,6 @@ You approach the shelves of folded up swimwear. You can't help but think that so
 <<set $daily.sydney.convince to true>>
 <<set $seductiondifficulty to 6000>>
 <<seductioncheck>>
-<br><br>
 <<seductionskilluptext>>
 <<seductionskilluse>>
 
@@ -977,9 +976,14 @@ After a few minutes,
 		<br><br>
 		<<set $lock to 400>>
 		<<if currentSkillValue('skulduggery') gte $lock>>
-			<span class="green">The lock looks easy to pick.</span>
-			<br><br>
-			<<link [[Pick it (0:01)|Sydney Shopping Swim Enter]]>><<set $open to true>><</link>>
+			<<if pcAreArmsBound("both")>>
+				You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
+				<br>
+			<<else>>
+				<span class="green">The lock looks easy to pick.</span>
+				<br><br>
+				<<link [[Pick it (0:01)|Sydney Shopping Swim Enter]]>><<set $open to true>><</link>>
+			<</if>>
 			<br>
 		<<else>>
 			<span class="red">The lock looks beyond your ability to pick.</span> <<skulduggeryrequired>>
@@ -1038,7 +1042,6 @@ You lock the door behind you, and approach Sydney.
 	<br><br>
 	<<set $seductiondifficulty to 8000 - ((C.npc.Sydney.love + C.npc.Sydney.lust) * 15) - C.npc.Sydney.purity>>
 	<<seductioncheck>>
-	<br><br>
 	<<seductionskilluptext>>
 	<<seductionskilluse>>
 
@@ -1086,6 +1089,11 @@ You lock the door behind you, and approach Sydney.
 	<<neutral 1>>
 
 	<<maninit>>
+	<<if _sydneyStatus.includes("corrupt")>>
+		<<npcexpose>>
+	<<else>>
+		<<npcClothesType $NPCList[0] "undies">>
+	<</if>>
 	<<set $enemytrust += 500>>
 	<<set $enemyarousalmax to 600>>
 	<<if _sydneyStatus.includes("corrupt")>>
@@ -1120,7 +1128,7 @@ You lock the door behind you, and approach Sydney.
 	<<ejaculation>>
 	<<if $corruptionRollover is 1>>
 		<<unset $corruptionRollover>>
-		"Th-that was incredible," <<he>> murmurs. "I want... I want to do it again. And... again." <<He>> gazes into your eyes. "<span class="lewd">I feel like a whole world just opened up.</span>"
+		"Th-that was incredible," <<he>> murmurs. "I want... I want to do it again. And... again." <<He>> gazes into your eyes. <span class="lewd">"I feel like a whole world just opened up."</span>
 	<<else>>
 		<<switch _sydneyStatus>>
 			<<case "pure" "pureLust">>
@@ -1194,7 +1202,7 @@ You lock the door behind you, and approach Sydney.
 <br>
 
 :: Sydney Shopping Lock End
-<<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>><<run statusCheck("Sydney")>>
+<<set $outside to 0>><<effects>><<run statusCheck("Sydney")>>
 <<if $phase2 is 2>>
 	<<switch _sydneyStatus>>
 		<<case "pure">>
@@ -1450,7 +1458,7 @@ You brace yourself for the wave's impact. Sydney looks over to you, and you're b
 <<if _bottom and !waterproofCheck(_bottom)>>
 	<<lowerwet 200>>
 <</if>>
-<<effectswater>> <<exhibitionism3>>
+<<effectswater "water">> <<exhibitionism3>>
 <<if _sydneyStatus.includes("corrupt")>>
 	You can see <<his>> <<sydneyGenitals "short">> pressed against the wet fabric, <<if _sydneyChastity and !$sydneyChastityKnown>>along with something else,<<elseif _sydneyChastity>>along with <<his>> chastity belt,<</if>> revealing that <<hes>> wearing no underwear. <<He>> looks down in annoyance, but doesn't attempt to cover <<himself>>. <<He>> uses the umbrella to shield you from view. <<arousal 400>><<garousal>>
 	<br><br>
@@ -1501,7 +1509,7 @@ You and Sydney walk over to the changing rooms,<<if $exposed gte 1>> using <<pri
 <<if $exposed gte 1>>
 	One of them, a <<person>>, makes a grab for you.
 	<<if $sydneyromance is 1>>
-		"Hey, <<girl>>, why don't you take those soaked clothes off and-"
+		"Hey, <<girl>>, why don't you take those soaked clothes off and—"
 		<br><br>
 		<<if _sydneyStatus.includes("corrupt")>>
 			<<Hes>> cut off as Sydney grabs <<his>> arm. <<Hes>> pulled in, coming face to face inches from Sydney. "Mine. No filthy sinner touches <<phim>> except me." Sydney stares at <<him>> for what feels like minutes, before releasing <<him>>. The crowd backs away.
@@ -1546,7 +1554,7 @@ You enter the changing rooms without further incident.
 <<if $exposed gte 1>>
 	<<set $upperwet to 0>><<set $lowerwet to 0>><<set $underlowerwet to 0>><<set $underupperwet to 0>>
 	You squeeze the water from your clothes.
-	<<effectswater>>
+	<<effectswater "water">>
 	<br><br>
 <</if>>
 You stick close to Sydney as you leave the changing rooms. The crowd has since dispersed. "I think we should stick to shelter, I really don't want that to happen again."
@@ -1660,7 +1668,11 @@ You are on the beach with Sydney.
 	<<link [[Take a walk on the beach (0:30)|Sydney Beach Walk]]>><<athletics 1>><<pass 30>><<stress -6>><<npcincr Sydney love 1>><</link>><<gtiredness>><<gathletics>><<lstress>><<glove>>
 	<br>
 	<<if !Weather.isOvercast and Time.dayState isnot "night" and $exposed lte 0>>
-		<<link [[Volleyball|Sydney Beach Volleyball]]>><</link>>
+		<<if pcAreArmsBound("both")>>
+			You could join in the game of volleyball together, <span class="blue">if your arms weren't bound.</span>
+		<<else>>
+			<<link [[Volleyball|Sydney Beach Volleyball]]>><</link>>
+		<</if>>
 		<br>
 	<</if>>
 	<br>
@@ -1982,9 +1994,9 @@ You approach a group of four playing volleyball. Sydney watches them. One, a <<p
 The students are happy to have two more players, particularly the <<person2>><<person>>.
 <br><br>
 <<physique 3>>
-<<set $eventcheck to random(1, 10000)>>
 <<outfitChecks>>
-<<if $eventcheck gte (9900 - ($allure))>>
+
+<<if dangerEvent()>>
 	<<if $rng gte 51>>
 		You are so focused on the opposing team you do not notice one of your own sneak up on you. A pair of hands grasp the rim of your _bottom.name.
 		<<if $sydneyromance is 1 and ((($worn.under_lower.name is "naked" or $worn.lower.name is "naked") and $uncomfortable.nude is true) or $uncomfortable.underwear is true)>>
@@ -2031,7 +2043,7 @@ The students are happy to have two more players, particularly the <<person2>><<p
 		<</if>>
 		<br><br>
 	<<else>>
-		<<if $topless is 1 and $rng gte 15>>
+		<<if _topless is true and $rng gte 16>>
 			Part-way through the match the ball collides with your bare chest, sending you sprawling.
 			<<if $player.breastsize gte 2>>
 				<br>

@@ -2,7 +2,7 @@
 
 <<set $outside to 0>><<effects>><<set $lock to 0>>
 <<if currentSkillValue('skulduggery') gte $lock>>
-	<<if $leftarm is "bound" and $rightarm is "bound">>
+	<<if pcAreArmsBound("both")>>
 		You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
 		<br><br>
 	<<else>>
@@ -51,9 +51,9 @@ You are in the hairdressers. Various hair products are available for sale. You c
 		<</if>>
 	<<else>>
 		<<if Time.dayState is "night" and Time.hour isnot $closinghour>>
-			<<hairdressericon "gel">><<link [[Steal a bottle of hair gel|$passage]]>><<crimeUp 8 "petty">><<set $hairgelBottles += 1>><</link>><<crime "petty">>
+			<<hairdressericon "gel">><<link [[Steal a bottle of hair gel|$passage]]>><<crimeUp 8 "petty">><<set $hairgelBottles += 1>><</link>><<crime "petty">> | Owned: <span class="gold"><<= $hairgelBottles || 0>></span>
 			<br>
-			<<hairdressericon "hairspray">><<link [[Steal a bottle of hair growth formula|$passage]]>><<crimeUp 50 "petty">><<set $sexStats.pills.pills["Hair Growth Formula"].owned++>><<set $sexStats.pills.boughtOnce to true>><</link>><<crime "petty">>
+			<<hairdressericon "hairspray">><<link [[Steal a bottle of hair growth formula|$passage]]>><<crimeUp 50 "petty">><<set $sexStats.pills.pills["Hair Growth Formula"].owned++>><<set $sexStats.pills.boughtOnce to true>><</link>><<crime "petty">> | Owned: <span class="gold"><<=  $sexStats.pills.pills["Hair Growth Formula"].owned>></span>
 			<br>
 			<<if !$weekly.theft.hairDressers>>
 				<<shopicon "register">><<link [[Examine the cash register|Hairdressers Register]]>><</link>>
@@ -61,21 +61,19 @@ You are in the hairdressers. Various hair products are available for sale. You c
 			<</if>>
 		<</if>>
 		<<if $exposed lte 1 and Time.dayState isnot "night" and Time.hour isnot 21>>
+			<<hairdressericon "chair">><<link [[Take a seat|Hairdressers Seat]]>><</link>>
+			<br>
 			<<if $money gte 800>>
-				<<hairdressericon "gel">> <<link [[Purchase hair gel (£8)|Hairdressers Gel]]>><<money -800 "hairdressers">><<set $hairgelBottles += 1>><</link>> Owned: <span class="gold"><<= $hairgelBottles || 0>></span>
-				<br>
+				<<hairdressericon "gel">> <<link [[Purchase hair gel (£8)|Hairdressers Gel]]>><<money -800 "hairdressers">><<set $hairgelBottles += 1>><</link>> | Owned: <span class="gold"><<= $hairgelBottles || 0>></span>
 			<<else>>
 				<<hairdressericon "gel">> <span class="blue">You can't afford any hair gel or growth formula.</span>
-				<br>
 			<</if>>
+			<br>
 			<<if $money gte 5000>>
 				<<hairdressericon "hairspray">> <<link [[Purchase hair growth formula (£50)|Hairdressers Gel]]>><<money -5000 "hairdressers">><<set $sexStats.pills.pills["Hair Growth Formula"].owned += 3>><<set $sexStats.pills.boughtOnce to true>><<set $phase to 1>><</link>> | Owned: <span class="gold"><<=  $sexStats.pills.pills["Hair Growth Formula"].owned>></span>
-				<br>
 			<<elseif $money gte 800>>
 				<<hairdressericon "hairspray">> <span class="blue">You can't afford any hair growth formula.</span>
-				<br>
 			<</if>>
-			<<hairdressericon "chair">><<link [[Take a seat|Hairdressers Seat]]>><</link>>
 			<br><br>
 		<</if>>
 		<<getouticon>><<link [[Leave|Shopping Centre]]>><</link>>
@@ -99,7 +97,7 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 <<if $phase is 1>>
 	You have <span class="gold"><<print $sexStats.pills.pills["Hair Growth Formula"].owned>></span> applications of hair growth formula left.
 <<else>>
-	You have <span class="gold">$hairgelBottles</span> <<print ($hairgelBottles is 1) ? "bottle" : "bottles">> of hair gel.
+	You have <span class="gold">$hairgelBottles</span> <<pluralise $hairgelBottles "bottle">> of hair gel.
 <</if>>
 <br><br>
 
@@ -126,7 +124,7 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 
 :: Hairdressers Session
 <<hairdressersSession>>
-<<link [[Leave|Hairdressers]]>><<endevent>><</link>>
+<<getouticon>><<link [[Leave|Hairdressers]]>><<endevent>><</link>>
 
 :: Hairdressers Widgets [widget]
 /*args[0]: dye name in colours.js */
@@ -187,7 +185,7 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 				<<set _hairOptions to {"Don't cut":$hairlength}>>
 				<<for _i to 9; _i gte 0; _i-->>
 					<<set $_length to (_i * 100) + 100>>
-					<<if $_length + 50 lt $hairlength>> /* + 50 to ensure its not cut too early */
+					<<if $_length + 50 lt $hairlength>> /* + 50 to ensure it's not cut too early */
 						<<set _hairOptions[_hairNames[_i]] to $_length>>
 					<</if>>
 				<</for>>
@@ -210,7 +208,7 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 				<<set _fringeOptions to {"Don't cut":$fringelength}>>
 				<<for _i to 3; _i gte 0; _i-->>
 					<<set $_length to (_i * 200) + 100>>
-					<<if $_length + 50 lt $fringelength>> /* + 50 to ensure its not cut too early */
+					<<if $_length + 50 lt $fringelength>> /* + 50 to ensure it's not cut too early */
 						<<set _fringeOptions[_fringeNames[_i]] to $_length>>
 					<</if>>
 				<</for>>
@@ -238,7 +236,7 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 				<<elseif $twoToneHairDye>>
 					<<set _currentCost += 25000>>
 				<</if>>
-				Have your hair dyed<<if $haircolour isnot $naturalhaircolour or $hairfringecolour is not $naturalhaircolour>> or cleared of hair dye<</if>>:
+				Have your hair dyed<<if $haircolour isnot $naturalhaircolour or $hairfringecolour isnot $naturalhaircolour>> or cleared of hair dye<</if>>:
 				<br>
 				<label><<radiobutton "$dyedHairPart" "hair" autocheck>> Full head</label> |
 				<label><<radiobutton "$dyedHairPart" "fringe" autocheck>> Fringe</label> |
@@ -337,32 +335,32 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 
 	<<if _sydneyPresent>>
 		<<if (!_cancel or _currentCost gt 0) and $money gte _currentCost>>
-			<<link [[Continue|Sydney Hairdressers Session]]>>
+			<<hairdressericon "chair">><<link [[Continue|Sydney Hairdressers Session]]>>
 				<<money `-_currentCost` "hairdressers">>
 			<</link>>
 		<<elseif $money lt _currentCost>>
-			You don't have enough money to pay the hairdresser.
+			<span class="red">You don't have enough money to pay the hairdresser.</span>
 			<br><br>
-			<<link [[Continue|Sydney Hairdressers Session]]>><</link>>
+			<<hairdressericon "chair">><<link [[Continue|Sydney Hairdressers Session]]>><</link>>
 			<br>
 		<</if>>
 		<<if _cancel>>
 			<br><br>
-			<<link [[Leave|Sydney Hairdressers Cancel]]>><<endevent>><</link>>
+			<<getouticon>><<link [[Leave|Sydney Hairdressers Cancel]]>><<endevent>><</link>>
 		<</if>>
 	<<else>>
 
 		<<if $money lt _currentCost>>
-			You don't have enough money to pay the hairdresser.
+			<<hairdressericon "chair">><span class="red">You don't have enough money to pay the hairdresser.</span>
 		<<elseif $twoToneHairDye and ($twoToneDyeOption1 eq $twoToneDyeOption2)>>
-			You need to select two different colours for two-tone hair colouring.
+			<<hairdressericon "chair">><span class="red">You need to select two different colours for two-tone hair colouring.</span>
 		<<elseif _currentCost gt 0>>
-			<<link [[Pay hairdresser|Hairdressers Session]]>>
+			<<hairdressericon "chair">><<link [[Pay hairdresser|Hairdressers Session]]>>
 				<<money `-_currentCost` "hairdressers">>
 			<</link>>
 		<</if>>
 		<br><br>
-		<<link [[Leave|Hairdressers]]>><<endevent>><</link>>
+		<<getouticon>><<link [[Leave|Hairdressers]]>><<endevent>><</link>>
 	<</if>>
 <</widget>>
 

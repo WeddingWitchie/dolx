@@ -1094,7 +1094,7 @@ function playerCanBreedWith(npc) {
 window.playerCanBreedWith = playerCanBreedWith;
 
 function pregnancyCompatible(NPC) {
-	if (playerPregnancyPossibleWith(NPC) === false || NPCPregnancyPossibleWithPlayer(NPC) === false) return false;
+	if (playerPregnancyPossibleWith(NPC) === false && NPCPregnancyPossibleWithPlayer(NPC) === false) return false;
 	return true;
 }
 window.pregnancyCompatible = pregnancyCompatible;
@@ -1154,7 +1154,7 @@ function playerPregnancyPossibleWith(NPC) {
 			T.pregFalseReason = "pregnantTypeUnsupported";
 			return false;
 	}
-	if (!((V.player.vaginaExist || canBeMPregnant()) && NPCObject.gender === "m")) {
+	if (!((V.player.vaginaExist || canBeMPregnant()) && NPCObject.gender === "m") || "strapon" in NPCObject) {
 		T.pregFalseReason = "genitals";
 		return false; // Check for genital compatibility for player pregnancy
 	}

@@ -245,7 +245,7 @@ function masturbationSlimeControl() {
 					}
 					break;
 				case "manus":
-					if (V.player.penisExist && random(0, 100) > 20) {
+					if (V.player.sex !== "f" && random(0, 100) > 20) {
 						V[armAction] = "manusprostate";
 					} else {
 						V[armAction] = "manustease";
@@ -255,7 +255,7 @@ function masturbationSlimeControl() {
 					if (currentToyType && (["home", "brothel", "cafe"].includes(V.location) || T.enableSexToys)) {
 						if (currentToyType.includes("stroker")) {
 							if (V.penisuse !== 0) {
-								// When no action is avaliable
+								// When no action is available
 								V[armAction] = "mdildostop";
 							} else if (V.player.penisExist && random(0, 100) >= 50) {
 								// ToDo: check that this is the correct action
@@ -333,7 +333,7 @@ function masturbationSlimeControl() {
 					}
 					break;
 				case "manusdildo":
-					if (V.player.penisExist && random(0, 100) >= 50) {
+					if (V.player.sex !== "f" && random(0, 100) >= 50) {
 						V[armAction] = "manusprostatedildo";
 					} else {
 						V[armAction] = "manusteasedildo";

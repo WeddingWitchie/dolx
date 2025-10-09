@@ -13,6 +13,11 @@ You are in the temple quarters on the second floor of the temple, where the monk
 	Some of the monks and nuns are preparing for bed.
 <</if>>
 <br><br>
+
+There is a thermometer on the wall, next to the window. It reads the outside temperature: <span class="teal"><<print Weather.toSelectedString(Weather.temperature, 0)>></span>.
+<<print setup.WeatherDescriptions.extremeTemperature()>>
+<br><br>
+
 <<if $temple_quarters gte 100>>
 	The rooms are <span class="green">spotless,</span> free of dust and with all in order.
 <<elseif $temple_quarters gte 80>>
@@ -30,35 +35,26 @@ You are in the temple quarters on the second floor of the temple, where the monk
 <</if>>
 <br><br>
 
-There is a thermometer on the wall, next to the window. It reads the outside temperature: <span class="teal"><<print Weather.toSelectedString(Weather.temperature, 0)>></span>.
-<<print setup.WeatherDescriptions.extremeTemperature()>>
-<br><br>
-
 <<if $stress gte $stressmax>>
 	<<passouttemple>>
 <<else>>
 	<<if $exposed gte 1>>
 		<<if $temple_rank is "monk">>
 			You hide beneath your bunk to protect your dignity.
-			<br><br>
-
-			<<templeicon "quarters">><<link [[Your bunk|Temple Bunk]]>><</link>>
 			<br>
+			<<templeicon "quarters">><<link [[Your bunk|Temple Bunk]]>><</link>>
+			<br><br>
 		<<else>>
 			You hide beneath a bunk to protect your dignity.
 			<br><br>
 		<</if>>
 	<<else>>
-		<<if $temple_rank is "monk">>
-			<<templeicon "quarters">><<link [[Your bunk|Temple Bunk]]>><</link>>
-			<br>
-		<</if>>
 		<<if Time.dayState is "night">>
-			You'll wake people up if you clean now.
-			<br><br>
+			<span class="blue">You'll wake people up if you clean now.</span>
 		<<elseif $temple_quarters gte 100>>
 			<span class="green">The rooms are perfectly clean. There's nothing more you can do today.</span>
-			<br><br>
+		<<elseif pcAreArmsBound("both")>>
+			<span class="red">Both of your arms are bound</span>, so you are unable to clean the rooms.
 		<<else>>
 			<<choreicon "sweep">>
 			<<link [[Clean rooms (1:00)|Temple Quarters Clean]]>>
@@ -78,10 +74,17 @@ There is a thermometer on the wall, next to the window. It reads the outside tem
 					<<set $temple_quarters += 3>>
 				<</if>>
 			<<pass 60>><<grace 1 monk>><<housekeeping 1 1000>><</link>><<ghousekeeping>><<ggrace monk>><<note "Housekeeping skill affects efficiency" "blue">>
-			<br>
 		<</if>>
-		<<if isPubfameTaskAccepted("temple")>>
-			<<schoolicon "library">><<link [[Look for the book (0:05)|Temple Quarters Book]]>><<set $pubfame.temple.chance to 0>><<pass 5>><</link>>
+		<br><br>
+		<<if $temple_rank is "monk" || isPubfameTaskAccepted("temple")>>
+			<<if $temple_rank is "monk">>
+				<<templeicon "quarters">><<link [[Your bunk|Temple Bunk]]>><</link>>
+				<br>
+			<</if>>
+			<<if isPubfameTaskAccepted("temple")>>
+				<<schoolicon "library">><<link [[Look for the book (0:05)|Temple Quarters Book]]>><<set $pubfame.temple.chance to 0>><<pass 5>><</link>>
+				<br>
+			<</if>>
 			<br>
 		<</if>>
 	<</if>>
@@ -96,12 +99,12 @@ There is a thermometer on the wall, next to the window. It reads the outside tem
 :: Temple Quarters Clean
 
 <<set $outside to 0>><<set $location to "temple">><<temple_effects>><<effects>>
-<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
+
 <<if $rng gte 81>>
 	<<wearProp "featherduster">>
 	You grab a feather duster and get to work. <<generateTemple 1>><<person1>>You kneel to dust beneath bunks and stand on tiptoe to reach the tops of wardrobes.
 	<br><br>
-	<<if $danger gte (9900 - $allure)>>
+	<<if dangerEvent()>>
 		You're leaning over to dust a shelf when you feel eyes on your <<bottom>>. You look behind you, and see a <<monk>> staring from a bunk. <<He>> keeps staring.
 		<<gstress>><<stress 6>>
 		<br><br>
@@ -122,7 +125,7 @@ There is a thermometer on the wall, next to the window. It reads the outside tem
 <<elseif $rng gte 61>>
 	You get to work making people's bunks, something you're sure they're meant to do themselves.
 	<br><br>
-	<<if $danger gte (9900 - $allure)>>
+	<<if dangerEvent()>>
 		<<generateyTemple 1>><<person1>>
 		You see <<if $temple_rank is "initiate">>another<<else>>an<</if>> initiate checking you out. <<He>> looks away and blushes.
 		<br><br>
@@ -138,9 +141,13 @@ There is a thermometer on the wall, next to the window. It reads the outside tem
 	<</if>>
 <<elseif $rng gte 41>>
 	<<generateTemple 1>><<person1>>
-	You gather dirty clothes into a basket. You're on your way to the laundry room when a passing <<monk>> grasps you. <<He>> carries a bundle of scrolls under one arm. "Be a dear," <<he>> says. "I dropped one of my papers, and it rolled into that fireplace. My old knees are in a terrible state. Could you retrieve it for me?" <<He>> points through a nearby door. You see the fireplace <<he>> means. It'll be a tight fit, and you can't see the back.
+	You gather dirty clothes into a basket. You're on your way to the laundry room when a passing <<monk>> grasps you. <<He>> carries a bundle of scrolls under one arm.
 	<br><br>
-	<<if $danger gte (9900 - $allure)>>
+	"Be a dear," <<he>> says. "I dropped one of my papers, and it rolled into that fireplace. My old knees are in a terrible state. Could you retrieve it for me?" <<He>> points through a nearby door.
+	<br><br>
+	You see the fireplace <<he>> means. It'll be a tight fit, and you can't see the back.
+	<br><br>
+	<<if dangerEvent()>>
 		<<link [[Retrieve scroll|Temple Quarters Deception]]>><<grace 3 monk>><</link>><<gggrace monk>>
 		<br>
 	<<else>>
@@ -152,7 +159,7 @@ There is a thermometer on the wall, next to the window. It reads the outside tem
 	<<generateTemple 1>><<person1>>
 	<<wearProp "broom">>
 	You grab a broom and get to work sweeping.
-	<<if $danger gte (9900 - $allure)>>
+	<<if dangerEvent()>>
 		A <<monk>> brushes by as you work. <<He>> runs <<his>> fingers over your <<bottom>> as <<he>> does.
 		<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
 		<<garousal>><<arousal 5 "bottom">>
@@ -630,6 +637,8 @@ Jordan continues singing and rubbing <<nnpc_his "Jordan">> body, oblivious to yo
 
 <<set $outside to 0>><<set $location to "temple">><<temple_effects>><<effects>>
 You tiptoe toward the door.
+<br><br>
+
 <<skulduggerycheck>>
 <<if $skulduggerysuccess is 1>>
 	<span class="green"><<nnpc_He "Jordan">> can't hear you over the sound of the water, and <<nnpc_his "Jordan">> own voice.</span> You creak open the door, and step into a dark stone corridor.
@@ -690,7 +699,7 @@ You turn and run.
 <<set $outside to 0>><<set $location to "temple">><<temple_effects>><<effects>>
 <<npcincr Jordan love 1>>
 <<if $speech_attitude is "meek">>
-	"I-I'm s-sorry," you stammer. "I was stuck in a f-fireplace, and it was dark, and I couldn't find the way out, and-"
+	"I-I'm s-sorry," you stammer. "I was stuck in a f-fireplace, and it was dark, and I couldn't find the way out, and—"
 <<elseif $speech_attitude is "bratty">>
 	"I know this looks bad," you say. "But I'm just lost."
 <<else>>
@@ -747,7 +756,6 @@ The <<person>> focuses on dusting a single, already clean, spot.
 <<effects>>
 <<set $seductiondifficulty to 6000>>
 <<seductioncheck>>
-<br><br>
 <<seductionskilluptext>>
 <<seductionskilluse>>
 

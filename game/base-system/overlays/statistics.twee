@@ -480,7 +480,7 @@
 		Pregnancy tests taken: <<print $pregnancyStats.pregnancyTestsTaken>>
 		<br>
 		<<if $player.vaginaExist>>
-			Vaginal parasites Born: <<print $sexStats.vagina.pregnancy.parasiteBirthEvents>>
+			Vaginal parasites born: <<print $sexStats.vagina.pregnancy.parasiteBirthEvents>>
 			<br>
 		<</if>>
 		Anal parasites born: <<print $sexStats.anus.pregnancy.parasiteBirthEvents>>
@@ -1163,7 +1163,7 @@
 					<br>
 					Last day in cycle: <<print $_menstruation.currentDaysMax>>
 					<br>
-					Most risky days: <<print $_menstruation.stages[2]>>
+					Most risky day: <<print $_menstruation.stages[2]>>
 					<br>
 				<</if>>
 				<br>
@@ -1177,8 +1177,9 @@
 			Total days knowingly being pregnant: <<print Math.floor($pregnancyStats.totalDaysPregnancyKnown)>>
 			<br>
 			<<if canBeMPregnant()>>
+				
 			<<elseif !$player.vaginaExist or !$_menstruation.running>>
-				Can not currently get pregnant.
+				Cannot currently get pregnant.
 			<<elseif $_vPregnancy.type is "parasite">>
 				Parasites in the womb are preventing normal pregnancy from occurring.
 			<<elseif $_menstruation.currentState is "recovering">>
@@ -1191,7 +1192,7 @@
 				<<if $_days lt 1>>
 					ETA: Anytime.
 				<<elseif $_days>>
-					ETA: <<print $_days>> day<<if $_days isnot 1>>s<</if>>.
+					ETA: <<print $_days>> <<pluralise $_days "day">>.
 				<</if>>
 				<br>
 			<<else>>
@@ -1199,9 +1200,9 @@
 				<br>
 				<<if $pregnancytype is "realistic">>
 					<<set [_trackedNPCs, _spermArray] to spermObjectToArray($sexStats.vagina.sperm, true, true)>>
-					Number of sources of sperm that can get you pregnant: <<print _spermArray.length>>.
+					Number of sources of sperm that can get you pregnant: <<print _spermArray.length>>
+					<br>
 					<<if _trackedNPCs.length>>
-						<br>
 						Those whose sperm you have inside you currently:
 						<ul>
 							<<for _name range _trackedNPCs>>
@@ -1214,14 +1215,18 @@
 								</li>
 							<</for>>
 						</ul>
+					<<else>>
+						<br> /* For formating the break after the foldout if realistic but no list*/
 					<</if>>
+				<<else>>
+					<br> /* For formating the break after the foldout if not realistic */
 				<</if>>
 			<</if>>
 			<<if canBeMPregnant()>>
 				<<if $_aPregnancy.type is "parasite">>
 					Parasites in the womb are preventing normal pregnancy from occurring.
 				<<elseif !$_menstruation.running>>
-					You can not current get pregnant.
+					You cannot currently get pregnant.
 				<<elseif $_menstruation.currentState is "recovering">>
 					You are not quite ready to get pregnant so soon after your last one.
 				<<elseif $_aPregnancy.type isnot null>>
@@ -1232,7 +1237,7 @@
 					<<if $_days lt 1>>
 						ETA: Anytime.
 					<<elseif $_days>>
-						ETA: <<print $_days>> day<<if $_days isnot 1>>s<</if>>.
+						ETA: <<print $_days>> <<pluralise $_days "day">>.
 					<</if>>
 					<br>
 				<<else>>
@@ -1240,9 +1245,9 @@
 					<br>
 					<<if $pregnancytype is "realistic">>
 						<<set [_trackedNPCs, _spermArray] to spermObjectToArray($sexStats.anus.sperm, true, true)>>
-						Number of sources of sperm that can get you pregnant: <<print _spermArray.length>>.
+						Number of sources of sperm that can get you pregnant: <<print _spermArray.length>>
+						<br>
 						<<if _trackedNPCs.length>>
-							<br>
 							Those whose sperm you have inside you currently:
 							<ul>
 								<<for _name range _trackedNPCs>>
@@ -1255,7 +1260,11 @@
 									</li>
 								<</for>>
 							</ul>
+						<<else>>
+							<br> /* For formating the break after the foldout if realistic but no list*/
 						<</if>>
+					<<else>>
+						<br> /* For formating the break after the foldout if not realistic */
 					<</if>>
 				<</if>>
 			<</if>>
@@ -1277,7 +1286,7 @@
 							<<if $_days lt 1>>
 								ETA: Anytime.
 							<<elseif $_days>>
-								ETA: <<print $_days>> day<<if $_days isnot 1>>s<</if>>.
+								ETA: <<print $_days>> <<pluralise $_days "day">>.
 							<</if>>
 						<</if>>
 					</div>
@@ -1304,9 +1313,9 @@
 
 <<widget "statisticsTimeCompare">><<silently>>
 	<<if $statFreeze is true>>
-		<<set $_text_output to "Not avaliable when stats are being frozen">>
-	<<elseif $args[0]>>
-		<<set _difference to new DateTime($args[0]).compareWith($args[1] or Time.date)>>
+		<<set $_text_output to "Not available when stats are being frozen">>
+	<<elseif _args[0]>>
+		<<set _difference to new DateTime(_args[0]).compareWith(_args[1] or Time.date)>>
 		<<set $_text_output to "">>
 		<<if _difference.years>>
 			<<set $_text_output += `${_difference.years} year${_difference.years gt 1 ? "s" : ""}`>>
@@ -1327,11 +1336,11 @@
 			<<if $_text_output>><<set $_text_output += ", ">><</if>>
 			<<set $_text_output += `${_difference.minutes} minute${_difference.minutes gt 1 ? "s" : ""}`>>
 		<</if>>
-		<<if $args[1] and !$_text_output>>
+		<<if _args[1] and !$_text_output>>
 			<<set $_text_output += "no difference">>
 		<<elseif !$_text_output>>
 			<<set $_text_output += "recently">>
-		<<else>>
+		<<elseif !_args[1]>>
 			<<set $_text_output += " ago">>
 		<</if>>
 	<<else>>
@@ -1781,7 +1790,7 @@
 						<<set $_otherVirginity to C.npc.Robin?.virginityDetails?.vaginal?.passage is "Underground Robin Kiss Molestation" ? "vaginal" : (C.npc.Robin?.virginityDetails?.anal?.passage is "Underground Robin Kiss Molestation" ? "anal" : undefined)>>
 					<</if>>
 					<<if $_otherVirginity>>
-						<<if Math.abs(_args[0]?.timestamp - C.npc.Robin.virginityDetails[$_other].timestamp) lte 1000>>
+						<<if Math.abs(_args[0]?.timestamp - C.npc.Robin.virginityDetails[$_otherVirginity].timestamp) lte 1000>>
 							<<set $_sameTime to "at the same time ">>
 						<<else>>
 							<<set $_sameTime to "in a similar situation ">>

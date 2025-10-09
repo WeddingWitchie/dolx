@@ -13,6 +13,21 @@
 		<<case "bw">><<icon "blackwolf.png">>
 		<<case "ferocity">><span class="icon-container"><img class="icon" src="img/ui/wolfferocity.png"></span>
 		<<case "harmony">><span class="icon-container"><img class="icon" src="img/ui/wolfharmony.png"></span>
+		<<case "inside">><<icon "wolfcave_inside.png">>
+		<<case "outside">><<icon "wolfcave_outside.png">>
+		<<case "entrance">><<icon "wolfcave_entrance.png">>
+		<<case "hole">><<icon "wolfcave_hole.png">>
+		<<case "pupsden">><<icon "wolfcave_pupsden.png">>
+		<<case "wolf">>
+			<<set _wolfcolor = ["brown", "caramel", "gray", "white"]>>
+			<<set _selectedColor = _wolfcolor.random()>>
+			<<set _wolf = "wolf_" + _selectedColor + ".png">>
+			<<icon _wolf>>
+		<<case "wolf play">>
+			<<set _wolfcolor = ["brown", "caramel", "gray", "white"]>>
+			<<set _selectedColor = _wolfcolor.random()>>
+			<<set _wolfplay = "wolf_" + _selectedColor + "_play" + ".png">>
+			<<icon _wolfplay>>
 		<<case "children">>
 			<<run Object.values($children).forEach(child => {
 				if (child.type is "wolf" and child.location is "wolf_cave") {
@@ -81,7 +96,7 @@
 					</span>
 				<</if>>
 			<</if>>
-		<<default>><<icon "wolves.png">>
+		<<default>><<icon "wolf_gray.png">>
 	<</switch>>
 <</widget>>
 
@@ -314,6 +329,7 @@
 <<widget "lockicon">>
 	<<switch _args[0]>>
 		<<case "key">><<icon "key_cabinet.png">>
+		<<case "gate">><<icon "gate.png">>
 		<<case "bronze key">><<icon "key_bronze.png">>
 		<<case "old key">><<icon "key_old.png">>
 		<<case "iron key">><<icon "key_iron.png">>
@@ -353,11 +369,8 @@
 
 <<widget "edenicon">>
 	<<switch _args[0]>>
-		<<case "broom">><<icon "broom_dustpan.png">>
 		<<case "coat stand">><<icon "coatstand.png">>
 		<<case "curtains">><<icon "curtains.png">>
-		<<case "fix">><<icon "hammer_nails.png">>
-		<<case "radio">><<icon "radio.png">>
 		<<case "rug">><<icon "rug.png">>
 		<<case "scarf">><<icon "clothes/scarf.png">>
 		<<case "salve">><<icon "salve.png">>
@@ -428,6 +441,8 @@
 		<<case "grass">><<icon "grass.png">>
 		<<case "kennel">><<icon "kennel.png">>
 		<<case "meadow">><<icon "meadow.png">>
+		<<case "milk">><<icon "milk_machine.png">>
+		<<case "bucket">><<icon "milk_bucket.png">>
 		<<case "tv">><<icon "TV.gif">>
 		<<case "lab">><<icon "farm_lab.gif">>
 		<<case "parasitebarn">><<icon "farm_parasitebarn.png">>
@@ -443,25 +458,15 @@
 <</widget>>
 
 <<widget "tendingicon">>
-	<<switch _args[0]>>
-		<<case "basket">>
-			<<set _tending = `tending/${_args[0] || "basket"}.png`>>
-			<<icon _tending>>
-		<<case "aphrodisiac shrooms">><<icon "tending/mushroom_aphrodisiac.png">>
-		<<case "carrots">><<icon "tending/carrot.png">>
-		<<case "eggs">><<icon "tending/egg.png">>
-		<<case "ghostshrooms">><<icon "tending/ghostshroom.png">>
-		<<case "milk">><<icon "tending/milk.png">>
-		<<case "mushrooms">><<icon "tending/mushroom.png">>
-		<<case "truffles">><<icon "tending/truffle.png">>
-		<<case "wolfshrooms">><<icon "tending/wolfshroom.png">>
-		<<default>>
-			<<set _string to "tending/" + _args[0]>>
-			<<if !_string.includes(".png") and !_string.includes(".gif")>>
-				<<set _string += ".png">>
-			<</if>>
-			<<icon _string>>
-	<</switch>>
+	<<set _string to "tending/" + _args[0]>>
+	<<if !_string.includes(".png") and !_string.includes(".gif")>>
+		<<if setup.plants[_args[0]]?.icon.includes(".gif")>>
+			<<set _string += ".gif">>
+		<<else>>
+			<<set _string += ".png">>
+		<</if>>
+	<</if>>
+	<<icon _string>>
 <</widget>>
 
 <<widget "crimeicon">>
@@ -653,7 +658,6 @@
 				<<default>><<icon "birdTower/hawk_egg_three.png">>
 			<</switch>>
 		<<case "kiss">><<if $monster is 1>><<icon "actions/kiss_greathawk_monster.png">><<else>><<icon "actions/kiss_greathawk_beast.png">><</if>>
-		<<case "ask">><<icon "birdTower/socialise_question.png">>
 		<<case "fly_down">><<icon "actions/flight_land.png">>
 		<<case "bracelet">><<icon "birdTower/bracelet.png">>
 		<<case "wallet">><<icon "birdTower/wallet.png">>
@@ -740,7 +744,7 @@
 			<<set $_hairIcon =  'tf_fox.png'>>
 			<<set $_frontIcon = 'tf_fox_acc.png'>>
 		<<case "bird" "harpy">>
-			<<set $_hairIcon =  'tf_harpy.png'>>
+			<<set $_hairIcon =  'tf_bird.png'>>
 		<<case "bunny">>
 		    <<set $_hairIcon = 'tf_bunny.png'>>
 			<<set $_frontIcon = 'tf_bun_acc.png'>>
@@ -835,7 +839,14 @@
 <</widget>>
 
 <<widget "museumicon">>
-	<<icon "museum.png">>
+	<<switch _args[0]>>
+		<<case "duck">>
+			<<icon "museum_duck.png">>
+		<<case "horse">>
+			<<icon "museum_horse.png">>
+		<<default>>
+			<<icon "museum.png">>
+	<</switch>>
 <</widget>>
 
 <<widget "homeicon">>
@@ -868,8 +879,8 @@
 <<widget "schoolicon">>
 	<<switch _args[0]>>
 		<<case "building">><span style="position:relative;bottom:5px"><<icon "schoolnew.png">></span>
-		<<case "computer">><<icon "computer.png">>
 		<<case "courtyard">><<icon "actions/school_courtyard.png">>
+		<<case "hallways">><<icon "hallways.png">>
 		<<case "headdesk">><<icon "headdesk.png">>
 		<<case "infirmary">><<icon "infirmary.png">>
 		<<case "library">>	<<icon "library.png">>
@@ -987,6 +998,7 @@
 		<<case "fishing">><<icon "fishing.png">>
 		<<case "key">><<icon "bronze_key.png">>
 		<<case "meditate">><<icon "actions/meditate.png">>
+		<<case "plinth">><<icon "plinth.png">>
 		<<case "pond">>
 			<<if Weather.waterTemperature gte 36>>
 				<<icon "pond_steam.gif">>
@@ -1096,6 +1108,7 @@
 		<<case "bath">><<icon "bath.png">>
 		<<case "robe">><<icon "clothes/bathrobe.png">>
 		<<case "shave">><<icon "shave.png">>
+		<<case "toothbrush">><<icon "toothbrush.png">>
 		<<case "toilet">><<icon "toilet.png">>
 		<<default>><<icon "bathroom.png">>
 	<</switch>>
@@ -1121,6 +1134,9 @@
 			<<case "give">>
 				<<set $_skinIcon = 'give_hand.png'>>
 				<<set $_frontIcon = 'give_tray.png'>>
+			<<case "wade">>
+				<<set $_skinIcon = 'wade_body.png'>>
+				<<set $_frontIcon = 'wade.png'>>
 			<<case "waiter">>
 				<<set $_skinIcon = 'waiter_arm.png'>>
 				<<set $_frontIcon = 'waiter_platter.png'>>
@@ -1154,6 +1170,12 @@
 			<<case "manacles">>
 				<<set $_skinIcon = 'manacles_skin.png'>>
 				<<set $_frontIcon = 'manacles.gif'>>
+			<<case "banish">>
+				<<set $_skinIcon = 'banish_skin.png'>>
+				<<set $_frontIcon = 'banish_front.png'>>
+			<<case "wraith">>
+				<<set $_skinIcon = 'wraith_skin.png'>>
+				<<set $_frontIcon = 'wraith_front.png'>>
 		<</switch>>
 		<span class="icon-container">
 			<span @style="_iconFilter">
@@ -1259,7 +1281,9 @@
 			<<switch $location>>
 				<<case "home">><<icon "mirrorhome.png">>
 				<<case "prison">><<prisonicon "mirror">>
-				<<case "temple">><<icon "mirrortemple.png">>
+				<<case "temple">>
+					<<set _mirror to $passage is "Temple Mirror" ? "mirror.png" : "mirrortemple.png">>
+					<<icon _mirror>>
 				<<case "school">><<icon "mirrorschool.png">>
 				<<default>><<icon "mirror.png">>
 			<</switch>>
@@ -1287,7 +1311,7 @@
 		<<case "forest">><<icon "forestshop.png">>
 		<<case "tailor">><<icon "tailorThread.png">>
 		<<case "tattoo">><<icon "tattoo.png">>
-		<<case "toy">><<icon "toyshop2.png">>
+		<<case "toy">><<icon "toyshop.png">>
 		<<case "register">><<icon "cash_register.png">>
 		<<default>><<icon "shopping_centre.png">>
 	<</switch>>
@@ -1425,7 +1449,7 @@
 		<<case "party">><<icon "solocup.png">>
 		<<case "volleyball">><<icon "volleyball.png">>
 		<<case "cinema">><<icon "ticket.png">>
-		<<case "ask">><<icon "birdTower/socialise_question.png">>
+		<<case "ask">><<icon "socialise_question.png">>
 		<<case "dance">><<icon "dance.gif">>
 		<<default>><<icon "socialise.png">>
 	<</switch>>
@@ -1508,6 +1532,10 @@
 		<<case "smalldildo">><span class="clothes-fleshy"><<icon "sexToys/dildo_small.png">></span>
 		<<case "strap-on">><<icon "sexToys/strap-on.png">>
 		<<case "stroker">><<icon "sexToys/onahole.png">>
+		<<case "tickler">><<icon "sexToys/tickler.png">>
+		<<case "candle">><<icon "sexToys/candle.png">>
+		<<case "paddle">><<icon "sexToys/paddle.png">>
+		<<case "flogger">><<icon "sexToys/flogger.png">>
 		<<default>><<icon "sexToys/bulletvibe.png">>
 	<</switch>>
 <</widget>>
@@ -1694,7 +1722,8 @@
 		<<if $_item.accIcon isnot 0 and ($_item.accessory isnot 0 || $_item.breast_acc_img)>>
 			<<if typeof($_item.accIcon) === 'string'>>
 				<<if $_item.accIcon is "pattern" and $_item.pattern_layer === "secondary">>
-					<<set $clothesiconFile = "img/misc/icon/clothes/" + $_item.name.replace(/ /g, '_') + "_" + (_args[0].pattern || $_item.pattern_options[0]).replace(/ /g, '_') + ".png" >>
+					<<set $_patternName to $_item.outfitSecondary ? $_item.outfitSecondary[1] : $_item.name>>
+					<<set $clothesiconFile = "img/misc/icon/clothes/" + $_patternName.replace(/ /g, '_') + "_" + (_args[0].pattern || $_item.pattern_options[0]).replace(/ /g, '_') + ".png" >>
 				<<else>>
 					<<set $clothesiconFile = "img/misc/icon/clothes/" + $_item.accIcon>>
 				<</if>>
@@ -1724,6 +1753,26 @@
 			</span>
 		<</if>>
 	<</if>>
+<</widget>>
+
+<<widget "skyscrapericon">>
+	<<switch _args[0]>>
+		<<case "bloodmoon">>
+			<<icon "skyscraper_bloodmoon.gif">>
+		<<case "fire">>
+			<<icon "skyscraper_fire.gif">>
+		<<case "ruined">>
+			<<icon "skyscraper_ruins.gif">>
+		<<default>>
+			<<if $avery_tower?.progress is 100>>
+				<<switch Weather.dayState>>
+					<<case "night">><<icon "skyscraper_night.gif">>
+					<<default>><<icon "skyscraper_day.gif">>
+				<</switch>>
+			<<else>>
+				<<icon "skyscraper_construction.gif">>
+			<</if>>
+	<</switch>>
 <</widget>>
 
 <<widget "steedicon">>
@@ -1780,4 +1829,27 @@
 
 <<widget "mmagymicon">>
 	<<icon "mmagym.png">>
+<</widget>>
+
+<<widget "watericon">>
+	<<set _daytime to Time.isBloodMoon() ? "-bloodmoon" :
+	Time.dayState is "dawn" or Time.dayState is "dusk" ? "-dawn" :
+	Time.dayState is "day" ? "-day" : "-night">>
+
+	<<set _water to {
+	"waterfall": { decoclass: "", decotype: "waterfall_rockgreen.png", waterclass: "water-outdoor", watertype: "waterfall_base.gif" },
+	"stream": { decoclass: "", decotype: "stream_grass.png", waterclass: "water-outdoor", watertype: "stream_base.gif" },
+	"pond": { decoclass: "", decotype: "pond_grass.png", waterclass: "water-outdoor", watertype: "pond_base.gif" },
+	"waterfall_wolfcave": { decoclass: "static-rock", decotype: "waterfall_rock.png", waterclass: "water-wolfcave", watertype: "waterfall_base.gif" },
+	"stream_wolfcave": { decoclass: "static-rock", decotype: "stream_rock.png", waterclass: "water-wolfcave", watertype: "stream_base.gif" },
+	"waterside_wolfcave": { decoclass: "", decotype: "waterside_soil.png", waterclass: "water-wolfcave", watertype: "waterside_base.gif" },
+	"waterfall_sewer": { decoclass: "", decotype: "waterfall_sewer.png", waterclass: "static-sewer", watertype: "waterfall_base.gif" },
+	}>>
+
+	<<set _key to _args[0]>>
+	<<set _decoclass to _water[_key].decoclass.includes("static") ? _water[_key].decoclass.replace("static-", "water-") : (_water[_key].decoclass ? _water[_key].decoclass + _daytime : "")>>
+	<<set _waterclass to _water[_key].waterclass.includes("static") ? _water[_key].waterclass.replace("static-", "water-") : (_water[_key].waterclass ? _water[_key].waterclass + _daytime : "")>>
+
+	<span @class="'icon-container icon infront'"><span @class=_decoclass><<icon _water[_key].decotype>></span></span>
+	<span @class=_waterclass><<icon _water[_key].watertype>></span>
 <</widget>>

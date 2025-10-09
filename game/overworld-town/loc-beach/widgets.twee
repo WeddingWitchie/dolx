@@ -42,32 +42,21 @@
 	A gust of wind blows in from the ocean, pleasantly caressing your skin.
 	<<lstress>><<stress -2>>
 	<br><br>
-	<<if wornSetupClothes("lower").skirt is 1>>
+
+	<<if setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1 and $worn.under_lower?.type.includes("covered")>>
+		It flares up your skirt, but your $worn.under_lower.name preserves your dignity.
+		<br><br>
+		
+		<<link [[Next|Beach]]>><<set $eventskip to 1>><</link>>
+	<<elseif setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1>>
 		/* variables */
-		<<set _helpless to 0>>
-		<<if $leftarm is "bound" and $rightarm is "bound">>
-			<<set _helpless to 1>>
-		<</if>>
-		<<set _nopan to 0>>
-		<<if $worn.under_lower.type.includes("naked")>>
-			<<set _nopan to 1>>
-		<</if>>
+		<<set _helpless to pcAreArmsBound("both")>>
 		<<set _trauma_gain to 0>>
 		<<set _arousal_gain to 0>>
 
-		<<set _seen to 0>>
-		<<if random(0, 10) gte 5>>
-			<<set _seen to 1>>
-		<</if>>
-
-		<<set _caught_on_camera to 0>>
-		<<if _seen and random(0, 10) gte 7>>
-			<<set _caught_on_camera to 1>>
-		<</if>>
-
 		/* event */
 		It flares up your skirt, exposing your
-		<<if _nopan>>
+		<<if $worn.under_lower.type.includes("naked")>>
 			<<set _arousal_gain += 200>>
 			<<set _trauma_gain += .5>>
 			<<genitals>>
@@ -81,7 +70,7 @@
 			<<set _trauma_gain += 1>>
 			Bound and helpless you can do nothing but endure the wind as it toys with your exposure, until finally it abates and your skirt hem settles back where it should be.
 		<</if>>
-		<<if _seen>>
+		<<if random(0, 10) gte 5>>
 			<<print [
 			"A sudden giggle causes you to turn, facing the onlooker.",
 			"A sudden giggle grabs your attention.",
@@ -92,7 +81,7 @@
 			].pluck()>>
 			<<fameexhibitionism 1>>
 
-			<<if _caught_on_camera>>
+			<<if random(0, 10) gte 7>>
 				<<endevent>>
 				<span class="pink">
 					You notice a phone pointing at you, and realise they were probably recording.
@@ -140,11 +129,8 @@
 
 		/* cleanup */
 		<<unset _helpless>>
-		<<unset _nopan>>
 		<<unset _arousal_gain>>
 		<<unset _trauma_gain>>
-		<<unset _seen>>
-		<<unset _caught_on_camera>>
 	<<else>>
 		<<link [[Next|Beach]]>><<set $eventskip to 1>><</link>>
 	<</if>>
@@ -176,7 +162,7 @@
 <<widget "beachnight1">>
 	<<beastNEWinit 1 dog>>
 	<<if $monster is 1>>
-		A <<beasttype>> emerges from the darkness. <<bHis>> shaggy body gives <<bhim>> a savage look. <<bHe>> bares <<bhis>> fangs, eyes alight with hunger as <<bhe>> stares at you.
+		A <<beasttype>> emerges from the darkness. <<bHis>> shaggy body gives <<bhim>> a savage look. <<bHe>> bares <<bhis>> fangs, <span class="red">eyes alight with hunger</span> as <<bhe>> stares at you.
 	<<else>>
 		A wild-looking <<beasttype>> emerges from the darkness, teeth bared and eyes alight with hunger.
 	<</if>>
@@ -327,6 +313,7 @@
 <</widget>>
 
 :: Widgets Events Beach [widget]
+/* TODO: replace with eventpool */
 <<widget "eventsbeach">>
 	<<set $dangerevent to random(1, 100)>>
 	<<if Time.dayState is "night">>
@@ -598,7 +585,7 @@
 			You are completely naked at the beach, baring it all to everyone there. You have gotten dozens of cheers, whistles, and even a few angry shouts. Most are content to openly stare at your naked body.
 			<br><br>
 
-			You see that one <<generatey1>><<person1>><<person>> is talking to <<his>> friends and pointing at you. They are all gathered sharing beer and snacks. Finally the <<person1>><<person>> gets up and walks towards you.
+			You see that one <<generatey1>><<person1>><<person>> is talking to <<his>> friends and pointing at you. They are all gathered sharing beer and snacks. Finally, the <<person1>><<person>> gets up and walks towards you.
 			<br><br>
 
 			"Hey," <<he>> says when <<hes>> a few feet away.

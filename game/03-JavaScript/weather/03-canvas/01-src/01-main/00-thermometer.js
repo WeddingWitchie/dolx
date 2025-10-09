@@ -136,6 +136,26 @@ Weather.Thermometer = (() => {
 		thermometerCanvas.ctx.fillRect(13, 2, img.width, img.height);
 
 		Weather.Tooltips.thermometer();
+
+		if (V.options.showSidebarEffects === false) return;
+		tooltipElement.on("click", () => {
+			if (!T.hideSidebarEffects) {
+				T.hideSidebarEffects = true;
+			} else {
+				T.hideSidebarEffects = false;
+			}
+			const canvasModel = Renderer.locateModel("main", "sidebar");
+			if (canvasModel.canvas) {
+				Renderer.refreshLayer(canvasModel, "precipitation_back");
+				Renderer.refreshLayer(canvasModel, "precipitation_front");
+				Renderer.refreshLayer(canvasModel, "cold_breath");
+				Renderer.refreshLayer(canvasModel, "water_back");
+				Renderer.refreshLayer(canvasModel, "water_front");
+				Renderer.refreshLayer(canvasModel, "water_breath");
+				Renderer.refreshLayer(canvasModel, "fire_back");
+				Renderer.refreshLayer(canvasModel, "fire_front");
+			}
+		});
 	}
 
 	return Object.create({

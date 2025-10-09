@@ -285,7 +285,7 @@
 	<div @class="'clothing-shop-page page-' + _page + _hidden">
 		<<for _itemTemp range _itemsOnPage>>
 			<<set _item = clone(_itemTemp)>>
-			<<set $_realSlot to ($clothingShopSlot is "all" ? _item.realSlot : $clothingShopSlot)>>
+			<<set $_realSlot to ($clothingShopSlot is "all" ? _item.slot : $clothingShopSlot)>>
 			<<set _itemData = setup.clothes[$_realSlot][clothesIndex($_realSlot,_item)]>>
 			<<set _locked = $specialClothes[_item.name.replace(/[- ]/g,"")] is "locked">>
 			<<set _unlocked = $specialClothes[_item.name.replace(/[- ]/g,"")] is "unlocked">>
@@ -483,11 +483,11 @@
 	<</if>>
 	<<if $options.images is 1 and (_args[1] or _args[0] isnot "normal") and _shopLocation isnot "mirrorhair">>
 		<<set _traitObj to setup.shopDetails[_args[0]]>>
-		<<set _traitName to _traitObj.name>>
-		<<set _traitDesc to `<span class="black">` + _traitObj.desc + `</span>`>>
-		<<set _traitDetails to `<i class="green normal">` + (_traitObj.details isnot "none" ? " " + _traitObj.details : "") + `</i>`>>
+		<<set _traitName to _traitObj?.name>>
+		<<set _traitDesc to `<span class="black">` + _traitObj?.desc + `</span>`>>
+		<<set _traitDetails to `<i class="green normal">` + (_traitObj?.details isnot "none" ? " " + _traitObj?.details : "") + `</i>`>>
 		<<set $_tooltip to _traitDesc + "<br>" + _traitDetails>>
-		<span @tooltip-title="_traitName" @tooltip="$_tooltip" tooltip-settings="{delay: 0}">
+		<span class="noDivider" @tooltip-title="_traitName" @tooltip="$_tooltip" tooltip-settings="{delay: 0}">
 			<img @src="'img/ui/clothes/traits/' + _args[0] + '.png'" class="clothing-trait">
 		</span>
 	<<elseif _shopLocation is "mirrorhair">>
@@ -504,7 +504,7 @@
 
 	<<elseif $clothes_choice>>
 		<<set _temp_choice to clone(setup.clothes[$clothingShopSlot][$clothes_choice])>>
-		<<set _realSlot to ($clothingShopSlot is "all" ? _item.realSlot : $clothingShopSlot)>>
+		<<set _realSlot to ($clothingShopSlot is "all" ? _item.slot : $clothingShopSlot)>>
 		<<set _realIndex to _temp_choice.index>>
 
 		<!-- Unlocked text -->
@@ -809,9 +809,9 @@
 						<div class="try-button div-link">
 							<<link "Return">>
 								<<shopbuyv2 _realSlot "return" null _realIndex>>
+								<<updatesidebarimg>>
 								<<updateclotheslist>>
 								<<exposedcheck>>
-								<<updatesidebarimg>>
 								<<updatesidebardescription>>
 								<<updateallure>>
 								<<updatewarmthscale>>
@@ -839,6 +839,9 @@
 					<</if>>
 					<<if ["lower"].includes($clothingShopSlot) and $worn.feet.name isnot "naked" and $worn.lower.name isnot "naked" and !setup.clothes.feet[clothesIndex("feet",$worn.feet)].notuck and !setup.clothes.lower[clothesIndex("lower",$worn.lower)].notuck>>
 						<div class="try-button div-link"><<toggleLowerTuck>></div>
+					<</if>>
+					<<if ["lower"].includes($clothingShopSlot) and $player.bodyshape is "soft" and $worn.lower.name isnot "naked" and (!setup.clothes.lower[clothesIndex("lower",$worn.lower)].outfitSecondary or setup.clothes.lower[clothesIndex("lower",$worn.lower)]?.outfitSecondary[1] isnot $worn.upper.name)>>
+						<div class="try-button div-link"><<toggleBellyTuck>></div>
 					<</if>>
 					<<if _temp_choice.variable is $worn[$clothingShopSlot].variable and _temp_choice.altsleeve and !($worn.upper.variable is "schoolcardigan" and $worn.upper.altposition isnot "alt")>>
 						<div class="try-button div-link"><<toggleAltSleeve>></div>
@@ -1497,7 +1500,7 @@
 				<<if $shopClothingFilter.outfit is undefined>>
 					<<set $shopClothingFilter.outfit = { index: "none" }>>
 				<</if>>
-				<<if $shopClothingFilter.outfit.index isnot "none" and $shopClothingFilter.outfit.index gte $outfit.length >>
+				<<if $shopClothingFilter.outfit.index isnot "none" and $shopClothingFilter.outfit.index gte $outfit.length>>
 					<!-- shouldn't be possible since this ideally gets reset whenever we leave the shop, but I'll futureproof here - better safe than sorry -->
 					<<set $shopClothingFilter.outfit.index = "none">>
 				<</if>>
@@ -1697,7 +1700,7 @@
 			</div>
 			<div>
 				<img src="img/ui/clothes/warmth.png">
-				Warmth rating. How good clothing protects you from cold.
+				Warmth rating. How well clothing protects you from cold.
 			</div>
 			<br>
 
@@ -1715,7 +1718,7 @@
 			<br>
 			R - Reveal rating. How alluring clothing makes you.
 			<br>
-			W - Warmth rating. How good clothing protects you from cold.
+			W - Warmth rating. How well clothing protects you from cold.
 		<</if>>
 
 		<div class="legend-warmth">

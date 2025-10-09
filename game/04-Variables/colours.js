@@ -1138,7 +1138,7 @@ setup.colours.clothes = [
 		name: "pale white",
 		name_cap: "Pale White",
 		csstext: "white",
-		canvasfilter: { blend: "#949494" },
+		canvasfilter: { blend: "#eeeeee", contrast: 1.1 },
 	},
 	{
 		variable: "red",
@@ -1202,6 +1202,15 @@ setup.colours.clothes = [
 		name_cap: "Light Pink",
 		csstext: "light-pink",
 		canvasfilter: { blend: "#FFB0DD" },
+	},
+	{
+		variable: "hospital pink",
+		name: "hospital pink",
+		name_cap: "Hospital Pink",
+		csstext: "hospital-pink",
+		canvasfilter: {
+			blend: "#fe8b90",
+		},
 	},
 	{
 		variable: "purple",

@@ -943,7 +943,7 @@ function initPlants() {
 			type: "food",
 			days: 60,
 			multiplier: 4,
-			special: ["vegetarian"],
+			special: ["vegetarian", "sweet"],
 			season: [],
 			ingredients: ["flour", "salt", "butter", "sugar", "bottle_of_milk", "honey"],
 			icon: "chelsea_bun.png",
@@ -1299,7 +1299,6 @@ function initPlants() {
 			season: ["spring", "summer", "autumn"],
 			ingredients: [],
 			icon: "rice.png",
-			shop: ["supermarket"],
 		},
 
 		haddock: {
@@ -1318,6 +1317,7 @@ function initPlants() {
 			season: ["summer", "autumn"],
 			ingredients: [],
 			icon: "haddock.png",
+			shop: ["supermarket"],
 		},
 
 		honeyed_pork: {
@@ -1766,7 +1766,7 @@ function initPlants() {
 			special: ["vegetarian", "sweet"],
 			season: [],
 			ingredients: ["chicken_egg", "cream", "sugar", "butter", "flour", "lemon"],
-			icon: "soufflé.png",
+			icon: "souffle.png",
 		},
 
 		tart: {
@@ -1916,7 +1916,7 @@ function initPlants() {
 			special: ["vegetarian", "sweet"],
 			season: [],
 			ingredients: ["bottle_of_milk", "cream", "sugar", "chicken_egg"],
-			icon: "crème_brulee.png",
+			icon: "creme_brulee.png",
 		},
 
 		date: {
