@@ -528,7 +528,7 @@ function initNpcClothes() {
 			"vampire trousers":			{ name: "vampire trousers",			integrity_max: 100, word: "n", action: "pull" },
 			"witch dress skirt":		{ name: "witch dress skirt",		integrity_max: 100, word: "a", action: "lift" },
 			"flowing robe":				{ name: "flowing robe",				integrity_max: 100, word: "a", action: "lift" },
-			"sleeveless hoodie":		{ name:"sleeveless hoodie",			integrity_max:100, 	word: "a", action: "pull"},
+			"fight shorts":				{ name:"fight shorts",				integrity_max:100, 	word: "a", action: "pull"},
 		},
 	};
 

@@ -497,7 +497,7 @@ function weekPassed() {
 	// if (V.robinmoney > 4000) V.robinmoney = 4000;
 	V.compoundcentre = 0;
 	if (V.edenfreedom >= 1 && V.edenshopping === 2) V.edenshopping = 0;
-	if (V.loft_kylar) V.loft_spray = 0;
+	if (V.loft_kylar || V.loft_independentLab) V.loft_spray = 0;
 	if (V.farm) {
 		if (V.farm.tower_guard) {
 			V.farm.tower_guard_unpaid++;
