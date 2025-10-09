@@ -516,22 +516,24 @@ function xchangeHourlyCheck(hours = 1) {
 			if (!pillIsPermanent()) pill.duration = Math.max(pill.duration - 1 * hours, 0);
 	
 			// Clamp the pill duration to only ever save up to 30 days (in particular for Continue pills)
-			pill.duration = Math.min(pill.duration, 30*24);
+			if (pill.continueEffect)
+				pill.duration = Math.min(pill.duration, 30*24);
 			
+			// If the pill has the continue effect, and a remaining duration of 30 days is accumulated
+			// then, the change becomes permanent
+			if (V.xchange.pillPermanence === 1 && !pillIsPermanent() && pill.continueEffect && pill.duration >= 30 * 24)
+				wikifier("xchange-setpermanent");
+
+			// If got impregnated in the vagina, or allowed an ear slime to grow to a certain point
+			// then, the change becomes permanent 
+			if (V.xchange.pillPermanence === 1 && !pillIsPermanent() && (V.sexStats.vagina.pregnancy.type !== null || V.earSlime.growth > 50))
+				wikifier("xchange-setpermanent");
+
 			// Check if the pill should expire
 			if (pill.duration == 0)
 			{
 				pill.shouldHaveEnded = true;
 
-				// If got impregnated in the vagina, or allowed an ear slime to grow to a certain point
-				// then, the change becomes permanent 
-				if (V.xchange.pillPermanence === 1 && !pillIsPermanent() && (V.sexStats.vagina.pregnancy.type !== null || V.earSlime.growth > 50))
-					wikifier("xchange-setpermanent");
-			
-				// If the pill has the continue effect, and a remaining duration of 30 days is accumulated
-				// then, the change becomes permanent
-				if (V.xchange.pillPermanence === 1 && !pillIsPermanent() && pill.continueEffect && pill.duration > 30 * 24)
-					wikifier("xchange-setpermanent");
 
 				if (!pillIsPermanent() && !pillTimerPaused() && pill.resistanceEffect && random(0,100) > pill.resistanceChance) {
 					if (V.xchange.pillPermanence === 1) wikifier("xchange-setpermanent");
