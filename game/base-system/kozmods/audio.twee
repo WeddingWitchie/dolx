@@ -14,6 +14,8 @@
 		<<set _machineVibe to ["entrance","imminent","penetrated"]>>
 
 		/* Condition shorthands */
+		<<set _voicePostureIsFemale to $player.gender_posture is "f" or ($player.sex is "f" and $player.gender_posture is "n")>>
+		<<set _voicePostureIsMale to $player.gender_posture is "m" or ($player.sex is "m" and $player.gender_posture is "n")>>
 		<<set _beingPenetrated to 
 			_penetration.includes($vaginastate) or _penetration.includes($anusstate) or 
 			($portalPanties.state.vagina and !$portalPanties.state.vagina.new and !$portalPanties.state.vagina.tempRemoval) or 
@@ -124,7 +126,7 @@
 		<</if>>
 
 		/* Update BGV */
-		<<if $options.voiceoverAudio and (($options.postureAffectsVoice and $player.gender_posture is "f") or ($player.sex is "f" and ($player.gender_posture is "n" || !$options.postureAffectsVoice)))>>
+		<<if $options.voiceoverAudio and (($options.postureAffectsVoice and _voicePostureIsFemale) or (!$options.postureAffectsVoice and $player.sex is "f"))>>
 			<<if _penetration.includes($mouthstate) or $mouthstate is "kiss" or $portalPanties.state.mouth isnot undefined>>
 				<<chupa-voice>>
 			<<elseif _beingPenetrated>>
@@ -134,7 +136,7 @@
 			<<else>>
 				<<bgv "stop">>
 			<</if>>
-		<<elseif $options.voiceoverAudio and (($options.postureAffectsVoice and $player.gender_posture is "m") or ($player.sex is "m" and ($player.gender_posture is "n" || !$options.postureAffectsVoice)))>>
+		<<elseif $options.voiceoverAudio and (($options.postureAffectsVoice and _voicePostureIsMale) or (!$options.postureAffectsVoice and $player.sex is "m"))>>
 			<<if $pleasure gte $pleasuremax * 0.1>>
 				<<arousal-voice>>
 			<<else>>
@@ -264,7 +266,7 @@
 		<</if>>
 
 		<<set _prefix to "">>
-		<<if ($options.postureAffectsVoice && $player.gender_posture is "f") or ($player.sex is "f" and ($player.gender_posture is "n" || !$options.postureAffectsVoice))>>
+		<<if ($options.postureAffectsVoice and _voicePostureIsFemale) or (!$options.postureAffectsVoice and $player.sex is "f")>>
 			<<set _prefix += $options.f_voice + "_">>
 			<<if $options.f_voice is "v2">>
 				<<if $mouthuse is "gagged">>
@@ -308,7 +310,7 @@
 			<<next 6s>>
 				/* <<playlist setup.bgvCurrentPlaylist volume 0 >> */
 				/* <<arousal-voice "override">> */
-				<<if (($options.postureAffectsVoice and $player.gender_posture is "f") or ($player.sex is "f" and ($player.gender_posture is "n" || !$options.postureAffectsVoice)))>>
+				<<if ($options.postureAffectsVoice and _voicePostureIsFemale) or (!$options.postureAffectsVoice and $player.sex is "f")>>
 					<<if _penetration.includes($mouthstate)>>
 						<<chupa-voice "override">>
 					<<elseif _penetration.includes($vaginastate) or _penetration.includes($anusstate)>>
@@ -316,7 +318,7 @@
 					<<else>>
 						<<arousal-voice "override">>
 					<</if>>
-				<<elseif (($options.postureAffectsVoice and $player.gender_posture is "m") or ($player.sex is "m" and ($player.gender_posture is "n" || !$options.postureAffectsVoice)))>>
+				<<elseif ($options.postureAffectsVoice and _voicePostureIsMale) or (!$options.postureAffectsVoice and $player.sex is "m")>>
 					<<arousal-voice "override">>
 				<</if>>
 
@@ -419,7 +421,10 @@
 <</widget>>
 
 <<widget "arousal-voice">>
-	<<if (($options.postureAffectsVoice and $player.gender_posture is "f") or ($player.sex is "f" and ($player.gender_posture is "n" || !$options.postureAffectsVoice)))>>
+	<<set _voicePostureIsFemale to $player.gender_posture is "f" or ($player.sex is "f" and $player.gender_posture is "n")>>
+	<<set _voicePostureIsMale to $player.gender_posture is "m" or ($player.sex is "m" and $player.gender_posture is "n")>>
+
+	<<if ($options.postureAffectsVoice and _voicePostureIsFemale) or (!$options.postureAffectsVoice and $player.sex is "f")>>
 		<<if $pleasure gte $pleasuremax * 0.8 and _beingRubbed>>
 			<<bgv "breath_fast" _args[0]>>
 		<<elseif $pleasure gte $pleasuremax * 0.6 or $orgasmcurrent gte 1>>
@@ -431,7 +436,7 @@
 		<<else>>
 			<<bgv "stop">>
 		<</if>>	
-	<<elseif (($options.postureAffectsVoice and $player.gender_posture is "m") or ($player.sex is "m" and ($player.gender_posture is "n" || !$options.postureAffectsVoice)))>>
+	<<elseif ($options.postureAffectsVoice and _voicePostureIsMale) or (!$options.postureAffectsVoice and $player.sex is "m")>>
 		<<if $pleasure gte $pleasuremax * 0.8>>
 			<<bgv "m_breath_fast" _args[0]>>
 		<<elseif $pleasure gte $pleasuremax * 0.6 or $orgasmcurrent gte 1>>
@@ -449,7 +454,7 @@
 <<widget "orgasm-voice">>
 	<<set _penetration to ["penetrated", "doublepenetrated", "tentacle", "tentacledeep"]>>
 	<<if _args[0] is undefined>>
-		<<if (($options.postureAffectsVoice and $player.gender_posture is "f") or ($player.sex is "f" and ($player.gender_posture is "n" || !$options.postureAffectsVoice)))>>
+		<<if ($options.postureAffectsVoice and _voicePostureIsFemale) or (!$options.postureAffectsVoice and $player.sex is "f")>>
 			<<set _prefix to "">>
 			<<set _prefix += $options.f_voice + "_">>
 			<<if $options.f_voice is "v2">>
@@ -468,7 +473,7 @@
 			<</if>>
 			<<init-playlist _playlist>>
 			<<voiceover setup.playlists[_playlist]>>
-		<<elseif (($options.postureAffectsVoice and $player.gender_posture is "m") or ($player.sex is "m" and ($player.gender_posture is "n" || !$options.postureAffectsVoice)))>>
+		<<elseif ($options.postureAffectsVoice and _voicePostureIsMale) or (!$options.postureAffectsVoice and $player.sex is "m")>>
 			<<init-playlist "m_orgasm">>
 			<<voiceover setup.playlists.m_orgasm>>
 			<<ejaculation-sound>>
