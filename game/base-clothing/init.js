@@ -139,9 +139,9 @@ function givestartclothing() {
 	setup.clothes_all_slots.forEach(slot => (V.worn[slot] = clone(setup.clothes[slot][0])));
 
 	let clothesType;
-	if (V.player.gender === "m") {
+	if (playerFeelsManlike()) {
 		clothesType = "male";
-	} else if (V.player.gender === "f") {
+	} else if (playerFeelsGirllike()) {
 		clothesType = "female";
 	} else {
 		if (V.player.gender_body === "m" || (V.player.gender_body === "a" && V.player.breastsize <= 3)) {
