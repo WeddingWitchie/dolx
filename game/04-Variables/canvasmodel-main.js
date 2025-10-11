@@ -911,16 +911,11 @@ Renderer.CanvasModels.main = {
 			options.lowerMask.push(options.feet_clip_src);
 			options.legsMask.push(options.feet_clip_src);
 			options.lowerBellyMask.push(options.feet_clip_src);
-			console.log("Test1");
 		} else if (!options.worn.feet.setup.notuck && options.worn.feet.setup.variable) {
-			options.legsMask.push(`img/clothes/feet/${options.worn.feet.setup.variable}/mask.png`)
-			console.log("Test2");
+			options.legsMask.push(`img/clothes/feet/${options.worn.feet.setup.variable}/mask.png`);
 		} else {
 			options.feet_clip_src = null;
-			console.log("Test3");
 		}
-		console.log(options.worn.feet.setup);
-		console.log(options.feet_clip_src);
 
 		options.genitals_chastity = options.worn.genitals.setup.type.includes("chastity");
 
