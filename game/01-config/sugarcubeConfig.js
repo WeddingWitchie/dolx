@@ -12,7 +12,7 @@ const StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.5.5.9 DoLP v0.704 DoLX 0.13.8",
+	version: "0.5.5.9 DoLP v0.705 DoLX 0.13.8b",
 	versionName: `"Pride Cometh" edition`,
 	sneaky: false,
 	socialMediaEnabled: true,
