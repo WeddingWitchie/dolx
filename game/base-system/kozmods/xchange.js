@@ -865,9 +865,11 @@ function xchangeEffectsMessages() {
 		element("span", "Your orgasm is frying your brain.", "red"); 
 		fragment.append(wikifier("llstress"));
 		fragment.append(wikifier("lwillpower"));
-		element("span", "|",);
-		element("span", "- Intelligence", "red");
-		br();
+		if (V.dumbBitchOrgasmMessage === 1) {
+			element("span", "|",);
+			element("span", "- School Grades", "red");
+			br();
+		}
 		if (V.dumbBitchOrgasmMessage === 2) {
 			element("span", 
 				either(
@@ -876,6 +878,7 @@ function xchangeEffectsMessages() {
 					"Malice?... Like... what's that?"
 				), 
 			"red");
+			fragment.append(wikifier("lskulduggery"));
 			br();
 		}
 		else if (V.dumbBitchOrgasmMessage === 3) {
@@ -886,6 +889,8 @@ function xchangeEffectsMessages() {
 					"You want to, like... feel g- good-er? Better? Oh just fuck~"
 				), 
 			"lewd");
+			element("span", "|",);
+			element("span", "+ Lewdness", "lewd");
 			br();
 		}
 		br();
