@@ -4174,7 +4174,6 @@ Renderer.CanvasModels.main = {
 				return ZIndices.legs_high;
 			},
 			masksrcfn(options) {
-				console.log(options.legsMask);
 				return options.legsMask;
 			},
 		}),

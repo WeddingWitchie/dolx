@@ -238,6 +238,13 @@ function givestartclothing() {
 			V.outfit[2].under_upper = "plain bra";
 		}
 
+		if (V.background.nerd) {
+			V.worn.face = clone(setup.clothes.face[1]);
+			V.worn.face.colour = "black";
+			V.outfit[1].face = "glasses";
+			V.outfit[2].face = "glasses";
+		} 
+
 		V.wardrobe.upper.push(clone(setup.clothes.upper[5]));
 		V.wardrobe.upper.last().colour = "white";
 		V.wardrobe.upper.last().accessory_colour = "light blue";
@@ -325,6 +332,12 @@ function givestartclothing() {
 		V.worn.under_lower.colour = "black";
 		V.worn.legs = clone(setup.clothes.legs[2]);
 		V.worn.feet = clone(setup.clothes.feet[1]);
+		if (V.background.nerd) {
+			V.worn.face = clone(setup.clothes.face[1]);
+			V.worn.face.colour = "black";
+			V.outfit[1].face = "glasses";
+			V.outfit[2].face = "glasses";
+		} 
 
 		V.wardrobe.upper.push(clone(setup.clothes.upper[5]));
 		V.wardrobe.upper.last().colour = "white";
@@ -342,6 +355,9 @@ function givestartclothing() {
 		V.wardrobe.handheld.push(clone(setup.clothes.handheld[8]));
 		V.wardrobe.handheld.last().colour = "blue";
 	}
+
+
+
 	// strip the unneeded vars from starting clothes
 	clothesDataTrimmerLoop();
 }

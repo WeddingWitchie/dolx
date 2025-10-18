@@ -705,6 +705,12 @@ function xchangeEffectsMessages() {
 	};
 	const br = () => fragment.append(document.createElement("br"));
 
+	if (V.hermSaveWarningMessage) {
+		element("span", "WARNING:", "yellow");
+		element("span", "You've just loaded a save file featuring a character of unsupported sex or gender (quite likely a Vanilla herm). You've been forcefully turned into a male to attempt to keep the mod's systems working, but proceeding from here onward is entirely ill-adviced.", "red"); br(); br();
+		delete V.hermSaveWarningMessage;
+	}
+
 	if (V.genderIdentityMessage) {
 		fragment.append(wikifier("genderidentity-text", V.genderIdentityMessage));
 		delete V.genderIdentityMessage;

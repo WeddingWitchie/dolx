@@ -1089,6 +1089,13 @@ function effects() {
 		fragment.append(xchangeEffectsMessages());
 	}
 
+	console.log("List of crime event types"); 
+	console.log("Crime event types:", Object.keys(V.crime.events));
+	// for (let i = 0; i < Object.keys(V.crime.events).length; i++) {
+	// 	// This will intentionally trigger an error when crime events gets wiped, 
+	// 	// and will let me get save files closer to the source when somebody reports it again.
+	// } 
+
 	if (numberOfEarSlime() && V.earSlime.event && !V.statFreeze) {
 		if (V.earSlime.event.includes("get sperm into your") && V.earSlime.event.includes("completed") && V.earSlime.eventTimer <= 2) {
 			element(

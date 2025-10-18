@@ -8,10 +8,8 @@
 
 ## Changelog
 ### Changes and Additions:
-  * None.
+  * Made it more obvious for crime events bug to trigger, so that bug reports are closer to the source.
+  * Added a warning when attempting to load save files featuring herm PCs from vanilla or other mods.
 
 ### Rebalancing and Bug fixes:
-  * Fixed lack of condition guard for hypnosis treatment
-  * Fixed spike pool not being built when player is pilled
-  * Temporary fix for dance studio changing room error 
-  * Clarified the dumb bitch orgasm effect message
+  * None
