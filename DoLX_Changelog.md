@@ -8,7 +8,8 @@
 
 ## Changelog
 ### Changes and Additions:
-  * Fixed dumbass Akoz mistake, added the missing '!' on the condition checking for nonDoLX herm PCs.
+  * Removed fame merging mechanic.
+    * Genderswap fame no longer causes you to 'average' the fame of both of your bodies.
 
 ### Rebalancing and Bug fixes:
-  * None
+  * The removal of the fame merging mechanic prevents the crime events corruption bug from happening, and therefore can be considered "fixed".
