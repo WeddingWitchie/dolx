@@ -619,6 +619,7 @@
 		<<set $xchange.pill.genderificationEffect to false>>
 		<<set $xchange.pill.hermEffect to false>>
 		<<set $xchange.pill.breederEffect to false>>
+		<<set $xchange.breederDenial to 0>>
 		<<set $xchange.pill.bullEffect to false>>
 		<<set $xchange.pill.resistanceEffect to false>>
 		<<set $xchange.pill.continueEffect to false>>
@@ -800,6 +801,7 @@
 			<<set $sexStats.vagina.menstruation.running = false>>
 		<<case "breeder">>
 			<<set $xchange.pill.breederEffect to false>>
+			<<set $xchange.breederDenial to 0>>
 		<<case "portal">>
 			<<if $portalPantiesEnabled>>
 				<<set $xchange.pill.portalEffect to false>>
@@ -980,6 +982,8 @@
 		<<set $xchange.pill.swellEffect to false>>
 		<<set $xchange.pill.bimboEffect to false>>
 		<<set $xchange.pill.cumcureEffect to false>>
+		/*Is $xchange.breederEffect not getting cleared here? */
+		<<set $xchange.breederDenial to 0>>
 		<<unset $xchange.pill.shouldHaveEnded>>
 
 	<</widget>>
@@ -1634,6 +1638,7 @@
 		<</if>>
 	<</widget>>
 
+	/*
 	<<widget "breeder-heat">>
 		<<willpowercombatcheck>>
 		<<if !$willpowerSuccess and !playerChastity("vagina") and playerHeatMinArousal() and $vaginastate isnot "othervaginaimminent" and $vaginastate isnot "othervagina" and $vaginastate isnot "othervaginaentrance" and $vaginastate isnot "othermouth">>
@@ -1769,6 +1774,135 @@
 						<<set $xchange.heat.message to true>>
 						<<set $rightaction to "rightstoppenis">>
 					<</if>>
+				<</if>>
+			<</if>>
+		<</if>>
+	<</widget>>
+	*/
+
+	<<widget "breeder-heat">>
+		<<willpowercombatcheck>>
+		<<if !$willpowerSuccess>>
+			<<if $anusstate is "entrance" and $vaginastate isnot "doublepenetrated">>
+				<<set $xchange.heat.message to true>>
+				<<set $anusaction to "penispussy">>
+			<</if>>
+			<<if $anusstate is "imminent" and $vaginastate isnot "penetrated">>
+				<<set $xchange.heat.message to true>>
+				<<set $anusaction to "escape">>
+			<</if>>
+			<<if $cheekaction is "rub" and $vaginastate isnot "penetrated">>
+				<<set $xchange.heat.message to true>>
+				<<set $cheekaction to "stop">>					
+			<</if>>
+			<<if ($mouthstate is "entrance" or $mouthstate is "imminent" or ($mouthstate is "penetrated" and $head isnot "grappled" and $head isnot "bound")) and $vaginastate isnot "penetrated">>
+				<<set $xchange.heat.message to true>>
+				<<set $mouthaction to "pullaway">>
+			<</if>>
+			<<if $chestuse is "penis" and $vaginastate isnot "penetrated">>
+				<<set $xchange.heat.message to true>>
+				<<set $chestaction to "stop">>
+			<</if>>
+			<<if !wearingCondom($vaginatarget) and $vaginastate is "penetrated" and $NPCList[$feettarget].penis is "vagina" and $leglocktarget is undefined and $leftleg isnot "bound" and $rightleg isnot "bound">>
+				<<set $xchange.heat.message to true>>
+				<<set $feetaction to "legLock">>
+			<</if>>
+			<<if !wearingCondom($vaginatarget) and $feetaction is "legRelease">>
+				<<set $xchange.heat.message to true>>
+				<<set $feetaction to "legLocked">>
+			<</if>>
+			<<if $vaginaaction is "penisanus" or $vaginaaction is "penisthighs">>
+				<<set $xchange.heat.message to true>>
+				<<set $vaginaaction to "penistease">>
+			<</if>>
+			<<if !wearingCondom($vaginatarget) and $worn.under_lower.vagina_exposed is 1 and $worn.lower.vagina_exposed is 1 and ($NPCList[$vaginatarget].penis is "vaginaentrance" or $NPCList[$vaginatarget].penis is "vaginaimminent")>>			
+				<<set $xchange.heat.message to true>>
+				<<set $vaginaaction to "vaginapenisfuck">>
+			<</if>>
+			<<if !wearingCondom($vaginatarget) and $NPCList[$vaginatarget].penis is 0 and $NPCList[$vaginatarget].stance isnot "topface" and ($enemytype isnot "man" or ($NPCList[$vaginatarget].location.genitals is 0 and $NPCList[$vaginatarget].location.head isnot "genitals")) and !npcHasStrapon($vaginatarget)>>			
+				<<set $xchange.heat.message to true>>
+				<<set $vaginaaction to "vaginatopenis">>
+			<</if>>
+			<<if $askAction is "condoms">>
+				<<set $xchange.heat.message to true>>
+				<<set $askAction to "noCondoms">>
+			<</if>>
+			<<if $askAction is "novaginal" or $askAction is "askPullOut" or $askAction is "finish">>
+				<<set $xchange.heat.bypassAsk to true>>
+			<</if>>
+			<<if ($vaginastate is "penetrated" or $vaginastate is "doublepenetrated") and wearingCondom($vaginatarget) and $mouthstate is 0>>
+				<<set $xchange.heat.message to true>>
+				<<set $mouthtarget to $vaginatarget>>
+				<<set $mouthaction to "ask">>
+				<<set $askAction to "noCondoms">> 
+			<</if>>
+			<<if $thighuse is "penis">>
+				<<set $xchange.heat.message to true>>
+				<<set $thighaction to "stop">>
+			<</if>>
+			<<if $vaginastate is "othermouthimminent">>
+				<<set $xchange.heat.message to true>>
+				<<set $vaginaaction to "othermouthescape">>
+			<</if>>
+			<<if $vaginastate is "othermouthentrance">>
+				<<set $xchange.heat.message to true>>
+				<<set $vaginaaction to "thighbay">>
+			<</if>>
+			/*Arm Actions */
+			<<if $leftarm isnot "bound" and $rightarm isnot "bound" and $vaginastate isnot "penetrated">>
+				<<set $lefttarget to $vaginatarget>><<set $righttarget to $vaginatarget>>
+				<<if $leftaction is "leftcovervaginameek" or $leftaction is "leftcovervaginalewd" or $leftaction is "leftcovervagina" or $leftaction is "leftgrab">>
+				<<set $xchange.heat.message to true>>
+					<<set $leftaction to "rest">>
+				<</if>>
+				<<if $rightaction is "rightcovervaginameek" or $leftaction is "rightcovervaginalewd" or $rightaction is "rightcovervagina" or $righaction is "rightgrab">>
+				<<set $xchange.heat.message to true>>
+					<<set $rightaction to "rest">>
+				<</if>>
+				<<if $NPCList[$vaginatarget].penis is "clothed">>
+				<<set $xchange.heat.message to true>>
+					<<set $rightaction to "rightUndressOther">>
+					<<set $undressRightTarget to "lower">>		
+				<</if>>
+				<<if $worn.lower.state is wornSetupClothes("lower").state_base and (wornSetupClothes("lower").skirt isnot 1 or (wornSetupClothes("lower").skirt is 1 and $worn.lower.skirt_down is 1)) and !$worn.lower.type.includes("naked")>>			
+				<<set $xchange.heat.message to true>>
+					<<set $leftaction to "lower">><<set $rightaction to "lower">>
+					<<if $worn.under_lower.state is wornSetupClothes("under_lower").state_base and !$worn.under_lower.type.includes("naked") and !($penisstate isnot 0 and playerHasStrapon())>>
+						<<set $xchange.heat.message to true>>
+						<<set $rightaction to "under_lower">>	
+					<</if>>
+				<</if>>
+				<<if $worn.under_lower.state is wornSetupClothes("under_lower").state_base and !$worn.under_lower.type.includes("naked") and !($penisstate isnot 0 and playerHasStrapon()) and ($worn.lower.state isnot wornSetupClothes("lower").state_base or wornSetupClothes("lower").skirt is 1 or $worn.lower.type.includes("naked"))>>
+					<<set $xchange.heat.message to true>>
+					<<set $rightaction to "under_lower">>			
+				<</if>>
+				<<if wearingCondom($vaginatarget)>>
+					<<set $xchange.heat.message to true>>
+					<<set $rightaction to "npcremovecondom">>		
+				<</if>>
+				<<if (($NPCList[$lefttarget].lefthand and $NPCList[$lefttarget].lefthand.startsWith("vagina")) or ($NPCList[$lefttarget].righthand and $NPCList[$lefttarget].righthand.startsWith("vagina")))>>
+					<<set $xchange.heat.message to true>>
+					<<set $leftaction to "handpullvagina">>
+				<</if>>
+				<<if $NPCList[$lefttarget].mouth and $NPCList[$lefttarget].mouth.startsWith("vagina")>>
+					<<set $xchange.heat.message to true>>
+					<<set $leftaction to "stoporal">>
+				<</if>>
+				<<if $leftarm is "vagina">>
+					<<set $xchange.heat.message to true>>
+					<<set $leftaction to "leftstopvagina">>
+				<</if>>
+				<<if $rightarm is "vagina">>
+					<<set $xchange.heat.message to true>>
+					<<set $rightaction to "rightstopvagina">>
+				<</if>>
+				<<if $leftaction is "leftwork">>
+					<<set $xchange.heat.message to true>>
+					<<set $leftaction to "leftstoppenis">>
+				<</if>>
+				<<if $righaction is "rightwork">>
+					<<set $xchange.heat.message to true>>
+					<<set $rightaction to "rightstoppenis">>
 				<</if>>
 			<</if>>
 		<</if>>
@@ -1920,8 +2054,10 @@
 	<<widget "effectsman-xchange">>
 		/*Heat Message */
 
-		<<if $vaginatarget isnot undefined and $xchange.heat.systemOn>>
-			<<breeder-heat>>
+		<<if $vaginatarget isnot undefined and $xchange.heat.systemOn and !playerChastity("vagina") and playerHeatMinArousal()>>	
+			<<if $position isnot "stalk" and $NPCList[$vaginatarget].penis isnot "none" and $vaginastate isnot "othermouth" and !$NPCList[$vaginatarget].chastity.penis.includes("chastity")>>
+				<<breeder-heat>>
+			<</if>>
 		<</if>>
 
 		<<if $xchange.heat.message>>
