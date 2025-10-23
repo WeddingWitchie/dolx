@@ -20,7 +20,6 @@
         <<set $xchange.npcTargetNo to _npcno>>
         <<set $xchange.npcTargetName to _npcname>>
         <<set $xchange.npcTargetNameIndex to _npcnameindex>>
-
     <</widget>>
 
     <<widget "npc-take-xchange">>
@@ -48,13 +47,48 @@
 
     <<widget "npc-xchange-save">>
         <<set _targetName to _args[0]>>
-        <<set $xchange.savedNpcBodies[_targetName] to $NPCName[_targetName]>> /* TODO: NO. Save selectively instead. */
+		<<set _npc to C.npc[_targetName]>>
+
+        <<set _data to {
+			gender: _npc.gender,
+			pronoun: _npc.pronoun,
+			breastsize: _npc.breastsize,
+			breastdesc: _npc.breastdesc,
+			breastsdesc: _npc.breastsdesc,
+			penissize: _npc.penissize,
+			penisdesc: _npc.penisdesc,
+		}>>
+
+		<<if _args[1] is undefined>>
+			<<set $xchange.savedNpcBodies[_targetName].original to _data>> 		
+		<<elseif _args[1] is "genderswapped">>
+			<<set $xchange.savedNpcBodies[_targetName].genderswap to _data>>
+		<<elseif _args[1] is "herm">>
+			<<set $xchange.savedNpcBodies[_targetName].herm to _data>>
+		<</if>>
     <</widget>>
 
     <<widget "npc-xchange-load">>
         <<set _targetName to _args[0]>>
-        <<set $NPCName[_targetName] to $xchange.savedNpcBodies[_targetName]>> /* TODO: NO. Load selectively instead. */
-        <<unset $xchange.savedNpcBodies[_targetName]>>
+		<<set _npc to C.npc[_targetName]>>
+		<<if _args[1] is undefined>>
+			<<set _data to $xchange.savedNpcBodies[_targetName].original>>
+		<<elseif _args[1] is "genderswapped">>
+			<<set _data to $xchange.savedNpcBodies[_targetName].genderswap>>
+		<<elseif _args[1] is "herm">>
+			<<set _data to $xchange.savedNpcBodies[_targetName].herm>>
+		<</if>>
+
+		<<set _npc.gender to _data.gender>>
+		<<set _npc.pronoun to _data.pronoun>>
+		<<set _npc.breastsize to _data.breastsize>>
+		<<set _npc.breastdesc to _data.breastdesc>>
+		<<set _npc.breastsdesc to _data.breastsdesc>>
+		<<set _npc.penissize to _data.penissize>>
+		<<set _npc.penisdesc to _data.penisdesc>>
+
+        <<set $NPCName[_targetName] to _npc>> 
+        /* <<unset $xchange.savedNpcBodies[_targetName]>> */
     <</widget>>
 
     <<widget "npc-xchange-effects">>
@@ -92,39 +126,43 @@
 		<</for>>
 
         /* Attach the effects to the NPC */
-        <<if _targetNo>>
+        <<if _targetNo isnot undefined>>
             <<set $NPCList[_targetNo].xchange to _pill>>
         <</if>>
         <<if _targetName>>
-            <<set $NPCName[_targetName].xchange to _pill>> /* TODO: Revise that doing this is correct */
+            <<set $NPCName[_targetNameIndex].xchange to _pill>> /* TODO: Revise that doing this is correct */
         <</if>>
 
     <</widget>>
 
     <<widget "npc-xchange-addeffect">>
+
         <<switch _args[0]>>
 		<<case "genderflip">>
 			<<if !_pill.genderflipEffect>>
 				<<set _pill.genderflipEffect to true>>
-				<<if $player.gender is "m">>
+
+				<<if (_targetName isnot undefined and C.npc[_targetName]?.startingSex is "m") or (_targetNo isnot undefined and $NPCList[_targetNo].startingSex is "m")>>
 					<<npc-become-girl>>
-				<<else>>
+				<<elseif (_targetName isnot undefined and C.npc[_targetName]?.startingSex is "f") or (_targetNo isnot undefined and $NPCList[_targetNo].startingSex is "f")>>
 					<<npc-become-boy>>
 				<</if>>
-				<<if $player.sex isnot "f">>
+				<<if (_targetName isnot undefined and C.npc[_targetName]?.startingSex isnot "f") or (_targetNo isnot undefined and $NPCList[_targetNo].startingSex isnot "f")>>
 					<<set _pill.breederEffect to false>>
 					<<set _pill.fertile to false>>
-					<<set $sexStats.vagina.menstruation.running = false>>
+					/* <<set $sexStats.vagina.menstruation.running = false>> */
 				<</if>>
-				<<if $player.sex isnot "m">><<set _pill.bullEffect to false>><</if>>
+				<<if (_targetName isnot undefined and C.npc[_targetName]?.startingSex isnot "m") or (_targetNo isnot undefined and $NPCList[_targetNo].startingSex isnot "m")>>
+					<<set _pill.bullEffect to false>>
+				<</if>>
 			<</if>>
 		<<case "crossdress">>
 			<<if !_pill.genderificationEffect>>
 				<<set _pill.genderificationEffect to true>>
 				<<if !_pill.genderflipEffect && !_pill.hermEffect>>
-					<<if $player.gender is "m">>
+					<<if (_targetName isnot undefined and C.npc[_targetName]?.startingSex is "m") or (_targetNo isnot undefined and $NPCList[_targetNo].startingSex is "m")>>
 						<<npc-sissify>>
-					<<else>>
+					<<elseif (_targetName isnot undefined and C.npc[_targetName]?.startingSex is "f") or (_targetNo isnot undefined and $NPCList[_targetNo].startingSex is "f")>>
 						<<npc-butchify>>
 					<</if>>
 				<</if>>
@@ -132,9 +170,9 @@
 		<<case "herm">>
 			<<if !_pill.genderflipEffect>>
 				<<set _pill.genderflipEffect to true>>
-				<<if $player.gender is "m">>
+				<<if (_targetName isnot undefined and C.npc[_targetName]?.startingSex is "m") or (_targetNo isnot undefined and $NPCList[_targetNo].startingSex is "m")>>
 					<<npc-become-girl>>
-				<<else>>
+				<<elseif (_targetName isnot undefined and C.npc[_targetName]?.startingSex is "f") or (_targetNo isnot undefined and $NPCList[_targetNo].startingSex is "f")>>
 					<<npc-become-boy>>
 				<</if>>
 			<</if>>
@@ -160,26 +198,24 @@
 		<<case "bull">>
 			<<set _pill.bullEffect to true>>
 		<<case "portal">>
-			<<if $portalPantiesEnabled>>
-				<<set _duration to _args[1] ?? 1>>
-				<<set _pill.portalEffect to true>>
-				<<set _pill.portalEffectTimer to _duration * 24 - 1>>
-			<</if>>
+			<<set _duration to _args[1] ?? 1>>
+			<<set _pill.portalEffect to true>>
+			<<set _pill.portalEffectTimer to _duration * 24 - 1>>
 		<<case "passion">>
 			<<set _pill.passionEffect to true>>
 		<<case "dumb-bitch">>
 			<<set _pill.dumbBitchEffect to true>>
 		<<case "innocence">>
 			<<set _pill.innocenceEffect to true>>
-			<<set $xchange.awareness to $awareness>>
+			/* <<set $xchange.awareness to $awareness>>
 			<<set $awareness to -200>>
 			<<set $innocencestate to 1>>
 			<<if $xchange.awareness gte 0>>
 				<<set $innocencemessage to "start">>
-			<</if>>
+			<</if>> */
 		<<case "choice">>
 			<<npc-xchange-setpermanent>>
-			<<set $xchangePermanenceMessage to 0>>
+			/* <<set $xchangePermanenceMessage to 0>> */
 			<<set _pill.choiceEffect to true>>
 		<<case "spike" "unknown">>
 			<<set _pill.effectsKnown to false>>
@@ -190,13 +226,13 @@
 		<</switch>>
     <</widget>>
     
-    <<widget "xchange-removeeffect">>
+    <<widget "npc-xchange-removeeffect">>
 		<<switch _args[0]>>
 		<<case "genderflip">>
 			<<set _pill.genderflipEffect to false>>
-			<<if $player.gender is "m">>
+			<<if (_targetName isnot undefined and C.npc[_targetName]?.startingSex is "m") or (_targetNo isnot undefined and $NPCList[_targetNo].startingSex is "m")>>
 				<<npc-become-boy>>
-			<<else>>
+			<<elseif (_targetName isnot undefined and C.npc[_targetName]?.startingSex is "f") or (_targetNo isnot undefined and $NPCList[_targetNo].startingSex is "f")>>
 				<<npc-become-girl>>
 			<</if>>
 			<<load-body>>
@@ -208,29 +244,95 @@
 			<<set _pill.continueEffect to false>>
 		<<case "fertile">>
 			<<set _pill.fertile to false>>
-			<<set $sexStats.vagina.menstruation.running = false>>
+			/* <<set $sexStats.vagina.menstruation.running = false>> */
 		<<case "breeder">>
 			<<set _pill.breederEffect to false>>
 		<<case "portal">>
-			<<if $portalPantiesEnabled>>
-				<<set _pill.portalEffect to false>>
-				<<set _pill.portalEffectTimer to 0>>
-			<</if>>
+			<<set _pill.portalEffect to false>>
+			<<set _pill.portalEffectTimer to 0>>
 		<<case "passion">>
 			<<set _pill.passionEffect to false>>
 		<<case "dumb-bitch">>
 			<<set _pill.dumbBitchEffect to false>>		
 		<<case "innocence">>
 			<<set _pill.innocenceEffect to false>>
-			<<set $awareness to $xchange.awareness>>
+			/* <<set $awareness to $xchange.awareness>>
 			<<if $awareness gte 0>>
 				<<set $innocencestate to 0>>
 				<<set $innocencemessage to "end">>
-			<</if>>
+			<</if>> */
 		<<case "spike" "unknown">>
 			<<set _pill.effectsKnown to true>>
 		<<default>>
 		<</switch>>
+	<</widget>>
+
+	<<widget "npc-xchange-restore">>
+		<<set _targetName to _args[0]>>
+		<<set _pill to C.npc[_targetName]?.xchange>>
+
+		<<run console.log("NPC Restore: ", _targetName, _pill)>>
+
+		<<if _args[1] isnot "nosave">>
+			<<if _pill.hermEffect>>
+				<<npc-xchange-save _targetName "herm">>
+			<<elseif _pill.genderflipEffect>>
+				<<npc-xchange-save _targetName "genderswapped">>
+			<</if>>
+
+			<<if C.npc[_targetName].startingSex is "m">>
+				<<npc-become-boy>>
+			<<elseif C.npc[_targetName].startingSex is "f">>
+				<<npc-become-girl>>
+				/* <<set $sexStats.vagina.menstruation.running = true>> */
+			<</if>>
+		<</if>>
+
+		<<npc-xchange-load _targetName>>
+
+		/* Queue up pill messages */
+		/* <<set $effectsmessage to 1>> */
+		/* <<if $xchange_fame gte 1000 && !$xchangeFameMerged>>
+			<<set $xchangeFameMessage to 1>>
+		<</if>> */
+
+		/* <<if _pill.resistanceEffect && _pill.resistanceChance lt 100>>
+			<<set $xchangeRestoreMessage to 2>>
+		<<elseif _pill.genderflipEffect>>
+			<<set $xchangeRestoreMessage to 1>>
+		<<elseif _pill.effectsKnown>>
+			<<set $xchangeRestoreMessage to 3>>
+		<</if>> */
+
+		/* Clear pill effects */
+		/* <<if _pill.passionEffect>><<set $drugged to 0>><</if>> */
+		/* <<set _pill.genderflipEffect to false>>
+		<<set _pill.portalEffect to false>>
+		<<set _pill.portalEffectTimer to 0>>
+		<<set _pill.passionEffect to false>>
+		<<set _pill.choiceEffect to false>>
+		<<set _pill.innocenceEffect to false>>
+		<<set _pill.swellEffect to false>>
+		<<set _pill.bimboEffect to false>>
+		<<set _pill.cumcureEffect to false>>
+		<<unset _pill.shouldHaveEnded>> */
+		<<run delete C.npc[_targetName].xchange>>
+	<</widget>>
+
+	<<widget "npc-xchange-setpermanent">>
+		<<set _targetName to _args[0]>>
+		<<set _pill to C.npc[_targetName]?.xchange>>
+
+		<<set _pill.duration to -1>>
+		<<if C.npc[_targetName]?.startingSex is "f">>
+			/* <<set $sexStats.vagina.menstruation.running = true>> */
+			<<set _pill.fertile to true>>
+		<</if>>
+		<<set _pill.continueEffect to false>>
+		<<set _pill.resistanceEffect to false>>
+
+		/* <<set $effectsmessage to 1>> */
+		/* <<set $xchangePermanenceMessage to 1>> */
 	<</widget>>
 
     <<widget "npc-deselect-xchange-target">>
@@ -240,75 +342,188 @@
     <</widget>>
 
     <<widget "npc-become-girl">>
-        <<set _npc to $NPCList[_targetNo] ?? $NPCName[_targetNameIndex]>>
+		<<set _npcTemp to $NPCList[_targetNo]>>
+        <<set _npc to $NPCName[_targetNameIndex]>>
 
         <<set _brdes to ["nipple","budding","tiny","small","pert","modest","full","large","ample","massive","huge","gigantic","enormous"]>>
 
-        <<set _npc.gender to "f">>
-        <<set _npc.pronoun to "f">>
+		<<if _npc and _npc.startingSex isnot "f" && Object.keys($xchange.savedNpcBodies[_targetName].genderswap).length gt 0>>
+			<<npc-xchange-load "genderswapped">>
 
-        <<set _npc.breastsize to random(1,_brdes.length-1)>>
-        <<set _npc.breastdesc to _brdes[_npc.breastsize] + " breast">>
-        <<set _npc.breastsdesc to _brdes[_npc.breastsize] + " breasts">>
-        /* <<set _npc.ballssize to 1>> */
-        <<set _npc.vagina to _npc.penis is "clothed"? "clothed" : 0>>
-        <<set _npc.penis to "none">>
-        <<set _npc.penisdesc to "none">>
-        <<set _npc.penissize to 0>>
+			<<for _key range Object.keys(_npc)>>
+				<<if !_npcTemp>><<break>><</if>>
+				<<if _npcTemp[_key] isnot undefined>>
+					<<set _npcTemp[_key] to _npc[_key]>>
+				<</if>>
+			<</for>>
+		<<elseif _npc>>
+			<<set _npc.gender to "f">>
+			<<set _npc.pronoun to "f">>
+
+			<<set _npc.breastsize to random(1,_brdes.length-1)>>
+			<<set _npc.breastdesc to _brdes[_npc.breastsize] + " breast">>
+			<<set _npc.breastsdesc to _brdes[_npc.breastsize] + " breasts">>
+			/* <<set _npc.ballssize to 1>> */
+			<<set _npc.vagina to _npc.penis is "clothed"? "clothed" : 0>>
+			<<set _npc.penis to "none">>
+			<<set _npc.penisdesc to "none">>
+			<<set _npc.penissize to 0>>
+
+			<<for _key range Object.keys(_npc)>>
+				<<if !_npcTemp>><<break>><</if>>
+				<<if _npcTemp[_key] isnot undefined>>
+					<<set _npcTemp[_key] to _npc[_key]>>
+				<</if>>
+			<</for>>
+
+		<<elseif _npcTemp>>
+			<<set _npcTemp.gender to "f">>
+			<<set _npcTemp.pronoun to "f">>
+
+			<<set _npcTemp.breastsize to random(1,_brdes.length-1)>>
+			<<set _npcTemp.breastdesc to _brdes[_npcTemp.breastsize] + " breast">>
+			<<set _npcTemp.breastsdesc to _brdes[_npcTemp.breastsize] + " breasts">>
+			/* <<set _npcTemp.ballssize to 1>> */
+			<<set _npcTemp.vagina to _npcTemp.penis is "clothed"? "clothed" : 0>>
+			<<set _npcTemp.penis to "none">>
+			<<set _npcTemp.penisdesc to "none">>
+			<<set _npcTemp.penissize to 0>>
+		<</if>>
     <</widget>>
 
     <<widget "npc-become-boy">>
-        <<set _npc to $NPCList[_targetNo] ?? $NPCName[_targetNameIndex]>>
+		<<set _npcTemp to $NPCList[_targetNo]>>
+        <<set _npc to $NPCName[_targetNameIndex]>>
 
         <<set _penissizes to [1, 2,2,2,2, 3,3,3, 4] >>
         <<set _penisdescs to [
             "tiny penis", 
-            "penis"
+            "penis",
             either("thick cock", "hefty cock", "big cock", "veiny cock", "large cock"),
-            either("massive cock","huge cock","humongous cock","immense cock","gigantic cock","enormous cock")
+            either("massive cock","huge cock","humongous cock","immense cock","gigantic cock","enormous cock"),
         ]>>
 
-        <<set _npc.gender to "m">>
-        <<set _npc.pronoun to "m">>
+		<<if _npc and _npc.startingSex isnot "m" && Object.keys($xchange.savedNpcBodies[_targetName].genderswap).length gt 0>>
+			<<npc-xchange-load "genderswapped">>
 
-        <<set _npc.breastsize to 0>>
-        <<set _npc.breastdesc to "nipple">>
-        <<set _npc.breastsdesc to "nipples">>
-        /* <<set _npc.ballssize to 1>> */
-        <<set _npc.penis to _npc.vagina is "clothed"? "clothed" : 0>>
-        <<set _npc.penissize to _penissizes.random()>>
-        <<set _npc.penisdesc to _penisdescs[_npc.penissize-1]>>
-        <<set _npc.vagina to "none">>
+			<<for _key range Object.keys(_npc)>>
+				<<if !_npcTemp>><<break>><</if>>
+				<<if _npcTemp[_key] isnot undefined>>
+					<<set _npcTemp[_key] to _npc[_key]>>
+				<</if>>
+			<</for>>
+
+		<<elseif _npc>>
+			<<set _npc.gender to "m">>
+			<<set _npc.pronoun to "m">>
+
+			<<set _npc.breastsize to 0>>
+			<<set _npc.breastdesc to "nipple">>
+			<<set _npc.breastsdesc to "nipples">>
+			/* <<set _npc.ballssize to 1>> */
+			<<set _npc.penis to _npc.vagina is "clothed"? "clothed" : 0>>
+			<<set _npc.penissize to _penissizes.random()>>
+			<<set _npc.penisdesc to _penisdescs[_npc.penissize-1]>>
+			<<set _npc.vagina to "none">>
+
+			<<for _key range Object.keys(_npc)>>
+				<<if !_npcTemp>><<break>><</if>>
+				<<if _npcTemp[_key] isnot undefined>>
+					<<set _npcTemp[_key] to _npc[_key]>>
+				<</if>>
+			<</for>>
+
+		<<elseif _npcTemp>>
+			<<set _npcTemp.gender to "m">>
+			<<set _npcTemp.pronoun to "m">>
+
+			<<set _npcTemp.breastsize to 0>>
+			<<set _npcTemp.breastdesc to "nipple">>
+			<<set _npcTemp.breastsdesc to "nipples">>
+			/* <<set _npcTemp.ballssize to 1>> */
+			<<set _npcTemp.penis to _npcTemp.vagina is "clothed"? "clothed" : 0>>
+			<<set _npcTemp.penissize to _penissizes.random()>>
+			<<set _npcTemp.penisdesc to _penisdescs[_npcTemp.penissize-1]>>
+			<<set _npcTemp.vagina to "none">>
+		<</if>>
     <</widget>>
 
     <<widget "npc-sissify">>
-        <<set _npc to $NPCList[_targetNo] ?? $NPCName[_targetNameIndex]>>
+		<<set _npcTemp to $NPCList[_targetNo]>>
+        <<set _npc to $NPCName[_targetNameIndex]>>
 
-        <<set _npc.gender to "m">>
-        <<set _npc.pronoun to "m">>
+		<<if _npc>>
+			<<set _npc.gender to "m">>
+			<<set _npc.pronoun to "m">>
 
-        <<set _npc.breastsize to 0>>
-        <<set _npc.breastdesc to "nipple">>
-        <<set _npc.breastsdesc to "nipples">>
-        /* <<set _npc.ballssize to 1>> */
-        <<set _npc.penis to _npc.vagina is "clothed"? "clothed" : 0>>
-        <<set _npc.penissize to 1>>
-        <<set _npc.penisdesc to "tiny penis">>
-        <<set _npc.vagina to "none">>
+			<<set _npc.breastsize to 0>>
+			<<set _npc.breastdesc to "nipple">>
+			<<set _npc.breastsdesc to "nipples">>
+			/* <<set _npc.ballssize to 1>> */
+			<<set _npc.penis to _npc.vagina is "clothed"? "clothed" : 0>>
+			<<set _npc.penissize to 1>>
+			<<set _npc.penisdesc to "tiny penis">>
+			<<set _npc.vagina to "none">>
+		
+			<<for _key range Object.keys(_npc)>>
+				<<if !_npcTemp>><<break>><</if>>
+				<<if _npcTemp[_key] isnot undefined>>
+					<<set _npcTemp[_key] to _npc[_key]>>
+				<</if>>
+			<</for>>
+
+		<<elseif _npcTemp>>
+			<<set _npcTemp.gender to "m">>
+			<<set _npcTemp.pronoun to "m">>
+
+			<<set _npcTemp.breastsize to 0>>
+			<<set _npcTemp.breastdesc to "nipple">>
+			<<set _npcTemp.breastsdesc to "nipples">>
+			/* <<set _npcTemp.ballssize to 1>> */
+			<<set _npcTemp.penis to _npcTemp.vagina is "clothed"? "clothed" : 0>>
+			<<set _npcTemp.penissize to 1>>
+			<<set _npcTemp.penisdesc to "tiny penis">>
+			<<set _npcTemp.vagina to "none">>
+		<</if>>
+
     <</widget>>
 
     <<widget "npc-butchify">>
-        <<set _npc to $NPCList[_targetNo] ?? $NPCName[_targetNameIndex]>>
+		<<set _npcTemp to $NPCList[_targetNo]>>
+        <<set _npc to $NPCName[_targetNameIndex]>>
 
-        <<set _npc.gender to "f">>
-        <<set _npc.pronoun to "f">>
+		<<if _npc>>
+			<<set _npc.gender to "f">>
+			<<set _npc.pronoun to "f">>
 
-        <<set _npc.breastsize to 0>>
-        <<set _npc.breastdesc to "nipple">>
-        <<set _npc.breastsdesc to "nipples">>
-        /* <<set _npc.ballssize to 1>> */
-        <<set _npc.vagina to _npc.penis is "clothed"? "clothed" : 0>>
-        <<set _npc.penis to "none">>
-        <<set _npc.penisdesc to "none">>
-        <<set _npc.penissize to 0>>
+			<<set _npc.breastsize to 0>>
+			<<set _npc.breastdesc to "nipple">>
+			<<set _npc.breastsdesc to "nipples">>
+			/* <<set _npc.ballssize to 1>> */
+			<<set _npc.vagina to _npc.penis is "clothed"? "clothed" : 0>>
+			<<set _npc.penis to "none">>
+			<<set _npc.penisdesc to "none">>
+			<<set _npc.penissize to 0>>
+		
+			<<for _key range Object.keys(_npc)>>
+				<<if !_npcTemp>><<break>><</if>>
+				<<if _npcTemp[_key] isnot undefined>>
+					<<set _npcTemp[_key] to _npc[_key]>>
+				<</if>>
+			<</for>>
+
+		<<elseif _npcTemp>>
+			<<set _npcTemp.gender to "f">>
+			<<set _npcTemp.pronoun to "f">>
+
+			<<set _npcTemp.breastsize to 0>>
+			<<set _npcTemp.breastdesc to "nipple">>
+			<<set _npcTemp.breastsdesc to "nipples">>
+			/* <<set _npcTemp.ballssize to 1>> */
+			<<set _npcTemp.vagina to _npcTemp.penis is "clothed"? "clothed" : 0>>
+			<<set _npcTemp.penis to "none">>
+			<<set _npcTemp.penisdesc to "none">>
+			<<set _npcTemp.penissize to 0>>
+		<</if>>
+
     <</widget>>

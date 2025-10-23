@@ -348,16 +348,6 @@ function playerIsXChanged() {
 }
 window.playerIsXChanged = playerIsXChanged;
 
-function npcIsXChanged(npc) {
-	if (typeof npc === "number") {
-		return !!V.NPCList[npc]?.xchanged;
-	}
-	else {
-		return !!V.NPCName[npc]?.xchanged;
-	}
-}
-window.npcIsXChanged = npcIsXChanged;
-
 function isNumber(value) {
 	return typeof value == 'number' ||
 	(isObjectLike(value) && baseGetTag(value) == numberTag);
@@ -619,6 +609,8 @@ function xchangeHourlyCheck(hours = 1) {
 			}
 		}
 	}
+
+	npcXChangeHourlyCheck(hours);
 }
 window.xchangeHourlyCheck = xchangeHourlyCheck;
 
