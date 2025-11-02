@@ -38,6 +38,16 @@ function npcPillIsPermanent(id) {
 }
 window.npcPillIsPermanent = npcPillIsPermanent;
 
+/**
+ * @param {number} npcno
+ * @param {string} npcname
+ * @param {string} sex - "f" or "m"
+ */
+function npcStartingSexIs(npcno, npcname, sex) {
+    return (npcname !== undefined && C.npc[npcname]?.startingSex === sex) || (npcno !== undefined and V.NPCList[npcno].startingSex === sex);
+}
+window.npcSexIs = npcSexIs;
+
 function npcIsXChanged(id) {
 	if ((typeof id) === "number") {
 		return !!V.NPCList[id]?.xchange;
