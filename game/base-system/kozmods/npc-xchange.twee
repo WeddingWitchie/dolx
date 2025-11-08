@@ -20,6 +20,8 @@
         <<set $xchange.npcTargetNo to _npcno>>
         <<set $xchange.npcTargetName to _npcname>>
         <<set $xchange.npcTargetNameIndex to _npcnameindex>>
+
+		<<run console.log("NPC selection: ", _npcno, _npcname,_npcnameindex)>>
     <</widget>>
 
     <<widget "npc-take-xchange">>
@@ -30,13 +32,13 @@
         <<set _effects to _args.slice(1)>>
 
         /* Check if target is invalid */
-        <<if (!_targetNo and !_targetName) or _targetNo gte 6 or _targetNo lt 0>>
+        <<if (_targetNo is undefined and !_targetName) or _targetNo gte 6 or _targetNo lt 0>>
             <<run console.error("Tried to pill an NPC without first selecting a target.")>>
             <<npc-deselect-xchange-target>>
             <<exit>>
         <</if>>
 
-        <<if !npcIsXChanged(_targetNo ?? _targetName)>>
+        <<if !npcIsXChanged(_targetNo is undefined ?? _targetName)>>
             <<if _targetName>><<npc-xchange-save _targetName>><</if>>
             <<npc-xchange-effects _duration _effects>>
         <</if>>
@@ -359,12 +361,13 @@
 		<<elseif _npc>>
 			<<set _npc.gender to "f">>
 			<<set _npc.pronoun to "f">>
+			<<generatePronouns _npc>>
 
 			<<set _npc.breastsize to random(1,_brdes.length-1)>>
 			<<set _npc.breastdesc to _brdes[_npc.breastsize] + " breast">>
 			<<set _npc.breastsdesc to _brdes[_npc.breastsize] + " breasts">>
 			/* <<set _npc.ballssize to 1>> */
-			<<set _npc.vagina to _npc.penis is "clothed"? "clothed" : 0>>
+			<<set _npc.vagina to _npc.penis is "clothed"? "clothed" : _npcTemp.penis is "idle"? "idle" : 0>>
 			<<set _npc.penis to "none">>
 			<<set _npc.penisdesc to "none">>
 			<<set _npc.penissize to 0>>
@@ -379,12 +382,22 @@
 		<<elseif _npcTemp>>
 			<<set _npcTemp.gender to "f">>
 			<<set _npcTemp.pronoun to "f">>
+			<<generatePronouns _npcTemp>>
+
+			<<set _npcTemp.fullDescription to _npcTemp.description + " ">>
+			<<if _npcTemp.role isnot "normal">>
+				<<set _npcTemp.fullDescription += _npcTemp.role>>
+			<<elseif _npcTemp.pronoun is "m">>
+				<<set _npcTemp.fullDescription += (_npcTemp.teen is 1 ? "boy" : "man")>>
+			<<elseif _npcTemp.pronoun is "f">>
+				<<set _npcTemp.fullDescription += (_npcTemp.teen is 1 ? "girl" : "woman")>>
+			<</if>>
 
 			<<set _npcTemp.breastsize to random(1,_brdes.length-1)>>
 			<<set _npcTemp.breastdesc to _brdes[_npcTemp.breastsize] + " breast">>
 			<<set _npcTemp.breastsdesc to _brdes[_npcTemp.breastsize] + " breasts">>
 			/* <<set _npcTemp.ballssize to 1>> */
-			<<set _npcTemp.vagina to _npcTemp.penis is "clothed"? "clothed" : 0>>
+			<<set _npcTemp.vagina to _npcTemp.penis is "clothed"? "clothed" : _npcTemp.penis is "idle"? "idle" : 0>>
 			<<set _npcTemp.penis to "none">>
 			<<set _npcTemp.penisdesc to "none">>
 			<<set _npcTemp.penissize to 0>>
@@ -416,12 +429,13 @@
 		<<elseif _npc>>
 			<<set _npc.gender to "m">>
 			<<set _npc.pronoun to "m">>
+			<<generatePronouns _npc>>
 
 			<<set _npc.breastsize to 0>>
 			<<set _npc.breastdesc to "nipple">>
 			<<set _npc.breastsdesc to "nipples">>
 			/* <<set _npc.ballssize to 1>> */
-			<<set _npc.penis to _npc.vagina is "clothed"? "clothed" : 0>>
+			<<set _npc.penis to _npc.vagina is "clothed"? "clothed" : _npcTemp.vagina is "idle"? "idle" : 0>>
 			<<set _npc.penissize to _penissizes.random()>>
 			<<set _npc.penisdesc to _penisdescs[_npc.penissize-1]>>
 			<<set _npc.vagina to "none">>
@@ -436,12 +450,22 @@
 		<<elseif _npcTemp>>
 			<<set _npcTemp.gender to "m">>
 			<<set _npcTemp.pronoun to "m">>
+			<<generatePronouns _npcTemp>>
+
+			<<set _npcTemp.fullDescription to _npcTemp.description + " ">>
+			<<if _npcTemp.role isnot "normal">>
+				<<set _npcTemp.fullDescription += _npcTemp.role>>
+			<<elseif _npcTemp.pronoun is "m">>
+				<<set _npcTemp.fullDescription += (_npcTemp.teen is 1 ? "boy" : "man")>>
+			<<elseif _npcTemp.pronoun is "f">>
+				<<set _npcTemp.fullDescription += (_npcTemp.teen is 1 ? "girl" : "woman")>>
+			<</if>>
 
 			<<set _npcTemp.breastsize to 0>>
 			<<set _npcTemp.breastdesc to "nipple">>
 			<<set _npcTemp.breastsdesc to "nipples">>
 			/* <<set _npcTemp.ballssize to 1>> */
-			<<set _npcTemp.penis to _npcTemp.vagina is "clothed"? "clothed" : 0>>
+			<<set _npcTemp.penis to _npcTemp.vagina is "clothed"? "clothed" : _npcTemp.vagina is "idle"? "idle" : 0>>
 			<<set _npcTemp.penissize to _penissizes.random()>>
 			<<set _npcTemp.penisdesc to _penisdescs[_npcTemp.penissize-1]>>
 			<<set _npcTemp.vagina to "none">>
@@ -460,7 +484,7 @@
 			<<set _npc.breastdesc to "nipple">>
 			<<set _npc.breastsdesc to "nipples">>
 			/* <<set _npc.ballssize to 1>> */
-			<<set _npc.penis to _npc.vagina is "clothed"? "clothed" : 0>>
+			/* <<set _npc.penis to _npc.vagina is "clothed"? "clothed" : _npcTemp.penis is "idle"? "idle" : 0>> */
 			<<set _npc.penissize to 1>>
 			<<set _npc.penisdesc to "tiny penis">>
 			<<set _npc.vagina to "none">>
@@ -480,7 +504,7 @@
 			<<set _npcTemp.breastdesc to "nipple">>
 			<<set _npcTemp.breastsdesc to "nipples">>
 			/* <<set _npcTemp.ballssize to 1>> */
-			<<set _npcTemp.penis to _npcTemp.vagina is "clothed"? "clothed" : 0>>
+			/* <<set _npcTemp.penis to _npcTemp.vagina is "clothed"? "clothed" : 0>> */
 			<<set _npcTemp.penissize to 1>>
 			<<set _npcTemp.penisdesc to "tiny penis">>
 			<<set _npcTemp.vagina to "none">>
@@ -500,7 +524,7 @@
 			<<set _npc.breastdesc to "nipple">>
 			<<set _npc.breastsdesc to "nipples">>
 			/* <<set _npc.ballssize to 1>> */
-			<<set _npc.vagina to _npc.penis is "clothed"? "clothed" : 0>>
+			/* <<set _npc.vagina to _npc.penis is "clothed"? "clothed" : _npcTemp.penis is "idle"? "idle" : 0>> */
 			<<set _npc.penis to "none">>
 			<<set _npc.penisdesc to "none">>
 			<<set _npc.penissize to 0>>
@@ -520,7 +544,7 @@
 			<<set _npcTemp.breastdesc to "nipple">>
 			<<set _npcTemp.breastsdesc to "nipples">>
 			/* <<set _npcTemp.ballssize to 1>> */
-			<<set _npcTemp.vagina to _npcTemp.penis is "clothed"? "clothed" : 0>>
+			/* <<set _npcTemp.vagina to _npcTemp.penis is "clothed"? "clothed" : _npcTemp.penis is "idle"? "idle" : 0>> */
 			<<set _npcTemp.penis to "none">>
 			<<set _npcTemp.penisdesc to "none">>
 			<<set _npcTemp.penissize to 0>>

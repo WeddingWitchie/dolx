@@ -617,7 +617,7 @@ setup.pills = [
 			return "";
 		},
 		type: "xchange",
-		subtype: "pink now",
+		subtype: "pink basic",
 		shape: "pill",
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
@@ -740,7 +740,7 @@ setup.pills = [
 			return "";
 		},
 		type: "xchange",
-		subtype: "pink xtra strength",
+		subtype: "pink xtra",
 		shape: "pill",
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
@@ -758,7 +758,7 @@ setup.pills = [
 		npc_display_condition() {
 			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "m") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
 		},
-		npcEffects: [`<<npc-take-xchange 30 "genderflip">>`],
+		npcEffects: [`<<npc-take-xchange 30 "genderflip" "fertile">>`],
 	},
 	{
 		name: "X-Change Pink Continue",
@@ -1068,7 +1068,7 @@ setup.pills = [
 			return "";
 		},
 		type: "xchange",
-		subtype: "pink basic",
+		subtype: "pink crossdress",
 		shape: "pill",
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
@@ -1272,7 +1272,7 @@ setup.pills = [
 			return "";
 		},
 		type: "xchange",
-		subtype: "blue now",
+		subtype: "blue basic",
 		shape: "pill",
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
@@ -1395,7 +1395,7 @@ setup.pills = [
 			return "";
 		},
 		type: "xchange",
-		subtype: "blue xtra strength",
+		subtype: "blue xtra",
 		shape: "pill",
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
@@ -1723,7 +1723,7 @@ setup.pills = [
 			return "";
 		},
 		type: "xchange",
-		subtype: "blue basic",
+		subtype: "blue crossdress",
 		shape: "pill",
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
@@ -1845,7 +1845,7 @@ setup.pills = [
 			return "";
 		},
 		type: "xchange",
-		subtype: "purple",
+		subtype: "purple basic",
 		shape: "pill",
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
@@ -1886,7 +1886,7 @@ setup.pills = [
 			return "";
 		},
 		type: "xchange",
-		subtype: "purple",
+		subtype: "purple xtra",
 		shape: "pill",
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
@@ -1927,7 +1927,7 @@ setup.pills = [
 			return "";
 		},
 		type: "xchange",
-		subtype: "purple",
+		subtype: "purple continue",
 		shape: "pill",
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
@@ -1968,7 +1968,7 @@ setup.pills = [
 			return "";
 		},
 		type: "xchange",
-		subtype: "purple",
+		subtype: "purple resistance",
 		shape: "pill",
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
@@ -2009,7 +2009,7 @@ setup.pills = [
 			return "";
 		},
 		type: "xchange",
-		subtype: "purple",
+		subtype: "purple basic",
 		shape: "pill",
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
@@ -2050,7 +2050,7 @@ setup.pills = [
 			return "";
 		},
 		type: "xchange",
-		subtype: "purple",
+		subtype: "purple basic",
 		shape: "pill",
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
@@ -2091,7 +2091,7 @@ setup.pills = [
 			return "";
 		},
 		type: "xchange",
-		subtype: "purple",
+		subtype: "purple breeder",
 		shape: "pill",
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
@@ -2132,7 +2132,7 @@ setup.pills = [
 			return "";
 		},
 		type: "xchange",
-		subtype: "purple",
+		subtype: "purple bull",
 		shape: "pill",
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;

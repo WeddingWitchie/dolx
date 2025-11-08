@@ -44,9 +44,9 @@ window.npcPillIsPermanent = npcPillIsPermanent;
  * @param {string} sex - "f" or "m"
  */
 function npcStartingSexIs(npcno, npcname, sex) {
-    return (npcname !== undefined && C.npc[npcname]?.startingSex === sex) || (npcno !== undefined and V.NPCList[npcno].startingSex === sex);
+    return (npcname !== undefined && C.npc[npcname]?.startingSex === sex) || (npcno !== undefined && V.NPCList[npcno].startingSex === sex);
 }
-window.npcSexIs = npcSexIs;
+window.npcStartingSexIs = npcStartingSexIs;
 
 function npcIsXChanged(id) {
 	if ((typeof id) === "number") {
