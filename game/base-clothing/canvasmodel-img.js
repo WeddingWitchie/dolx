@@ -508,6 +508,15 @@ DefineMacro("modelprepare-player-body", function () {
 		T.modeloptions.demon_tail_type = T.modeloptions.wolf_tail_type === "feral" ? "default-feral" : "default-wolf";
 		T.modeloptions.wolf_tail_type = T.modeloptions.wolf_tail_type === "feral" ? "demon-feral" : "demon-default";
 	}
+	// Demon-fox tail
+	if (isPartEnabled(T.modeloptions.fox_tail_type) && isPartEnabled(T.modeloptions.demon_tail_type) && isChimeraEnabled("demonfox", "tail")) {
+		T.modeloptions.fox_tail_type = "default-demon";
+		T.modeloptions.demon_tail_type = "hidden";
+	}
+	// Demon-fox ears
+	if (isPartEnabled(T.modeloptions.fox_ears_type) && V.demon >= 6 && isChimeraEnabled("demonfox", "ears")) {
+		T.modeloptions.fox_ears_type = "default-demon";
+	}
 
 	/*
 			██████ ██████   ██████  ████████  ██████ ██   ██
@@ -519,7 +528,7 @@ DefineMacro("modelprepare-player-body", function () {
 
 	T.modeloptions.crotch_visible = true;
 
-	if (V.pbdisable === "f") {
+	if (V.settings.pubicHairEnabled === true) {
 		T.modeloptions.pbhair_level = V.pblevel;
 		T.modeloptions.pbhair_strip = V.pbstrip;
 		T.modeloptions.pbhair_balls = V.pblevelballs;
@@ -647,6 +656,10 @@ DefineMacro("modelprepare-player-body", function () {
 	T.modeloptions.fire = V.options.showSidebarEffects && (V.fire || T.tempEffects?.fire || (V.farm_assault && V.fields_damaged.includes(V.bus)));
 	T.modeloptions.fireFront = V.options.showSidebarEffects && (T.tempEffects?.fireFront || (V.farm_assault && V.fields_damaged.length >= 1));
 	T.modeloptions.temperature = V.options.showSidebarEffects && !T.modeloptions.fire && !T.modeloptions.water && V.outside === 1 && Weather.temperature <= 5;
+	T.modeloptions.temperature = V.options.showSidebarEffects && !T.modeloptions.fire && !T.modeloptions.water && V.outside === 1 && Weather.temperature <= 5;
+	T.modeloptions.petals = V.options.showSidebarEffects && T.tempEffects?.petals;
+	if (T.modeloptions.petals) T.modeloptions.petalColour = V.sexRitual && V.gwylanSeen?.includes("romance") ? "pink" : "redWhite";
+	T.modeloptions.vines = T.tempEffects?.vines;
 });
 
 DefineMacro("modelprepare-player-clothes", function () {

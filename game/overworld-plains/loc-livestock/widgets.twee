@@ -13,12 +13,15 @@
 	<<for _l to 0; _l lt _livestock_sleep; _l++>>
 		<<pass 60>>
 		<<set $sleepStat++>>
-		<<if $sleeptrouble is 1 and $controlled is 0>>
-			<<set $tiredness -= 200>>
+		<<set $tiredness -= 200>>
 			<<willpower-recovery `$willpower / 10`>>
-		<<else>>
-			<<set $tiredness -= 250>>
+		<<if !($sleeptrouble is 1 and $controlled is 0 and !$hypnosis_traits.slumber)>>
+			<<set $tiredness -= 50>>
 			<<willpower-recovery `$willpower * 11 / 40`>>
+		<</if>>
+		<<if $hypnosis_traits.slumber>>
+			<<set _traumaToSleep to Math.floor($trauma / 100)>>
+			<<set $tiredness -= _traumaToSleep>>
 		<</if>>
 	<</for>>
 <</widget>>
@@ -36,10 +39,10 @@
 
 <!-- Modified for Monster People -->
 <<widget "livestock_cows">>
-	<<if ($monsterchance gte 1 and $hallucinations gte 1) or ($monsterchance gte 1 and $monsterhallucinations is "f")>>
-		<<if $malevictimchance is 0>>
+	<<if ($settings.monsterChance gte 1 and $hallucinations gte 1) or ($settings.monsterChance gte 1 and !$settings.monsterHallucinationsOnly)>>
+		<<if $settings.maleVictimChance is 0>>
 			<<set _text_output to "cowgirls">>
-		<<elseif $malevictimchance is 100>>
+		<<elseif $settings.maleVictimChance is 100>>
 			<<set _text_output to "bullboys">>
 		<<else>>
 			<<set _text_output to "cowgirls and bullboys">>
@@ -56,7 +59,7 @@
 <</widget>>
 
 <<widget "livestock_horse">>
-	<<if ($monsterchance gte 1 and $hallucinations gte 1) or ($monsterchance gte 1 and $monsterhallucinations is "f") or ($bestialitydisable is "t")>>
+	<<if ($settings.monsterChance gte 1 and $hallucinations gte 1) or ($settings.monsterChance gte 1 and !$settings.monsterHallucinationsOnly) or (!$settings.bestialityEnabled)>>
 		<<set _text_output to "centaur">>
 	<<else>>
 		<<if beastMaleChance() gte random(1, 100)>>
@@ -69,7 +72,7 @@
 <</widget>>
 
 <<widget "livestock_horses">>
-	<<if ($monsterchance gte 1 and $hallucinations gte 1) or ($monsterchance gte 1 and $monsterhallucinations is "f") or ($bestialitydisable is "t")>>
+	<<if ($settings.monsterChance gte 1 and $hallucinations gte 1) or ($settings.monsterChance gte 1 and !$settings.monsterHallucinationsOnly) or (!$settings.bestialityEnabled)>>
 		<<set _text_output to "centaurs">>
 	<<else>>
 		<<set _text_output to "horses">>
@@ -128,7 +131,7 @@
 		<br>
 		"Where'd you think?" a <<person2>><<person>> responds. "In a supermarket. Where else?"
 		<br>
-		"No, I mean the" — <<person1>><<he>> looks over <<his>> shoulder — "the milk from the special cattle. I'm not drinking it with my tea am I?"
+		"No, I mean the"—<<person1>><<he>> looks over <<his>> shoulder—"the milk from the special cattle. I'm not drinking it with my tea am I?"
 		<br>
 		"I know some gets processed elsewhere. Don't know more than that."
 		<br><br>
@@ -212,7 +215,7 @@
 		<br><br>
 	<</addinlineevent>>
 
-	<<if playerBellyVisible() and $pregnancyspeechdisable is "f">>
+	<<if playerBellyVisible() and $settings.pregnancySpeechEnabled>>
 		<<addinlineevent "livestock_overhear 10">>
 			"That pregnant <<girl>> is cute," a <<person>> says.
 			<br>
@@ -297,7 +300,7 @@
 <<widget "livestockFieldGrassEvents">>
 	<<if $rng gte 81>>
 		<!-- Modified for Monster People -->
-		<<if ($monsterchance gte 1 and ($hallucinations gte 1 or $monsterhallucinations is "f"))>>
+		<<if ($settings.monsterChance gte 1 and ($hallucinations gte 1 or !$settings.monsterHallucinationsOnly))>>
 			<<if maleChance() lt random(1, 100)>>
 				A cowgirl sniffs you, and moos. You pet her head.
 				<<lstress>><<stress -6>>

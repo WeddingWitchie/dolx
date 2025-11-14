@@ -43,12 +43,20 @@
 	<<if _recalledFeats.specialClothes isnot undefined>>
 		<<set $feats.allSaves.specialClothes to _recalledFeats.specialClothes>>
 	<<elseif $feats.allSaves.specialClothes is undefined>>
-		<<set $feats.allSaves.specialClothes to {}>>
+		<<set $feats.allSaves.specialClothes to []>>
 	<</if>>
-	<<if $specialClothes and $feats.locked is false and $cheatdisable is "t">>
-		<<for $_label, $_value range $specialClothes>>
-			<<if $_value is "unlocked">>
-				<<set $feats.allSaves.specialClothes[$_label] to $_value>>
+
+	<<if !Array.isArray(V.feats.allSaves.specialClothes)>>
+		<!-- Update old special clothes system to new system -->
+		<<set V.feats.allSaves.specialClothes to getUnlockedSpecialSets(updateSpecialClothesNames(V.feats.allSaves.specialClothes)).filter(set => setup.specialClothesSets[set].feat)>>
+	<</if>>
+
+	<<if $specialClothes and $feats.locked is false and $cheatsEnabled is false>>
+		<<set $_unlockedSets to getUnlockedSpecialSets().filter(set => setup.specialClothesSets[set].feat)>>
+		<<for $_label, $_value range $_unlockedSets>>
+			<!-- value.unlocked being 3 or greater means the requirements to unlock the clothing was actually met -->
+			<<if $_value>>
+				<<set $feats.allSaves.specialClothes.pushUnique($_value)>>
 			<</if>>
 		<</for>>
 	<</if>>
@@ -61,260 +69,307 @@
 
 <<widget "setupFeats">>
 	<<if $featsBoosts is undefined or _args[0] is true>>
-		<<set _keys to Object.keys($feats.allSaves)>>
-
-		<<set _moneyFeats to _keys.count("Pocket Change") + _keys.count("Money Maker") + _keys.count("Tycoon") + _keys.count("Millionaire") + _keys.count("Decamillionaire") + _keys.count("Hectomillionaire") + _keys.count("Billionaire")>>
-		<<set _moneyFeatsLimit to (_moneyFeats * 20)>>
-		<<set _purityFeats to _keys.count("Angel") + _keys.count("Fallen Angel")>>
-
-		<<set _newLife to _keys.count("Broodmother Host") + _keys.count("Top Broodmother Host")>>
-		<<set _newLifeLimit to (_newLife * 20)>>
-
-		<<set _earSlimeFeats to _keys.count("Ear Slime Lover") + _keys.count("Ear Slime Amalgam")>>
-
-		<<set _tattoosFeats to _keys.count("A Living Canvas") + _keys.count("Billboard")>>
-
-		<<set _sexToysFeats to _keys.count("Opened Pandoras Box") + _keys.count("Opened Pandoras Cocks")>>
-
-		<<set _gradesFeats to _keys.count("Perfect Record") + _keys.count("Return to Monke")>>
-		<<set _gradesFeatsLimit to (_gradesFeats * 30)>>
-
-		<<set _skulduggeryFeats to _keys.count("Thief") + _keys.count("Agent 47")>>
-		<<set _skulduggeryFeatsLimit to (_skulduggeryFeats * 25)>>
-
-		<<set _dancingFeats to _keys.count("May I have this Dance?") + _keys.count("Can't Touch This")>>
-		<<set _dancingFeatsLimit to (_dancingFeats * 25)>>
-
-		<<set _swimmingFeats to _keys.count("Aquanaut") + _keys.count("Atlantean")>>
-		<<set _swimmingFeatsLimit to (_swimmingFeats * 25)>>
-
-		<<set _athleticsFeats to _keys.count("Swift") + _keys.count("Ludicrous Speed")>>
-		<<set _athleticsFeatsLimit to (_athleticsFeats * 25)>>
-
-		<<set _tendingFeats to _keys.count("Green Fingered") + _keys.count("Grass Toucher")>>
-		<<set _tendingFeatsLimit to (_tendingFeats * 25)>>
-
-		<<set _housekeepingFeats to _keys.count("Majordomo") + _keys.count("Demolisher of Filth")>>
-		<<set _housekeepingFeatsLimit to (_housekeepingFeats * 25)>>
-
-		<<set _seductionFeats to _keys.count("Seductress") + _keys.count("Irresistible")>>
-		<<set _seductionFeatsLimit to (_seductionFeats * 25)>>
-
-		<<set _divineTFsFeats to _keys.count("Angel") + _keys.count("Fallen Angel") + _keys.count("Demon") + _keys.count("Demon of Purity")>>
-
-		<<set _animalTFsFeats to _keys.count("Neko") + _keys.count("Wolf") + _keys.count("Cattle") + _keys.count("Harpy") + _keys.count("Fox")>>
-
-		<<set _sadomasochismFeats to _keys.count("Twisted Desire") + _keys.count("Served Hot")>>
-
-		<<set _physiqueFeats to _keys.count("Powerful") + _keys.count("Unstoppable Force")>>
-		<<set _physiqueFeatsLimit to (_physiqueFeats * 30)>>
-
-		<<set _willpowerFeats to _keys.count("Disciplined") + _keys.count("Immovable Object")>>
-		<<set _willpowerFeatsLimit to (_willpowerFeats * 30)>>
-
-		<<set _sexSkillFeats to _keys.count("Sex Specialist") + _keys.count("God of Lust")>>
-		<<if _sexSkillFeats is 2>>
-			<<set _sexSkillFeatsLimit to 25>>
-		<<elseif _sexSkillFeats gte 1>>
-			<<set _sexSkillFeatsLimit to 10>>
-		<</if>>
-
-		<<set _sexCharacteristicFeats to _keys.count("No More Control")>>
-		<<set _sexCharacteristicFeatsLimit to (_sexCharacteristicFeats * 60)>>
-
-		<<set _transcendFeats to _keys.count("Unstoppable Force") + _keys.count("Immovable Object") + _keys.count("Agent 47") + _keys.count("Can't Touch This") + _keys.count("Atlantean") + _keys.count("Ludicrous Speed") + _keys.count("Grass Toucher") + _keys.count("Demolisher of Filth") + _keys.count("Smarter than Einstein") + _keys.count("Human Calculator") + _keys.count("Voice of All Things") + _keys.count("Errm, ackshually") + _keys.count("Irresistible") + _keys.count("God of Lust") + _keys.count("Rivers of White") + _keys.count("Sticky Fountain") + _keys.count("Many Punch Man") + _keys.count("Fleet-Footed") + _keys.count("Knockout Artist") + _keys.count("Bladed Legs")>>
-		<<if _transcendFeats gte 20>>
-			<<set _transcendFeatsLimit to 200>>
-		<<elseif _transcendFeats gte 10>>
-			<<set _transcendFeatsLimit to 100>>
-		<<else>>
-			<<set _transcendFeatsLimit to 0>>
-		<</if>>
-
-		<<set _adaptiveGenesFeats to _keys.count("Angel") + _keys.count("Fallen Angel") + _keys.count("Demon") + _keys.count("Demon of Purity") + _keys.count("Neko") + _keys.count("Wolf") + _keys.count("Cattle") + _keys.count("Harpy") + _keys.count("Fox") + _keys.count("Bear") + _keys.count("Bunny")>>
-		<<if _adaptiveGenesFeats gte 10>>
-			<<set _adaptiveGenesFeatsLimit to 100>>
-		<<elseif _adaptiveGenesFeats gte 5>>
-			<<set _adaptiveGenesFeatsLimit to 50>>
-		<<else>>
-			<<set _adaptiveGenesFeatsLimit to 0>>
-		<</if>>
-
-		<<set $featsBoosts to {
-			upgrades:{
-				money:0,
-				grades:0,
-				skulduggery:0,
-				dancing:0,
-				swimming:0,
-				athletics:0,
-				tending:0,
-				greenThumb:0,
-				housekeeping:0,
-				seduction:0,
-				purity:0,
-				impurity:0,
-				newLife:0,
-				aNewBestFriend:0,
-				tattoos:0,
-				randomClothing:0,
-				specialClothing:0,
-				sexToys:0,
-				divineTFs:0,
-				animalTFs:0,
-				sadism:0,
-				masochism:0,
-				physique:0,
-				willpower:0,
-				oral:0,
-				chest:0,
-				hands:0,
-				buttocks:0,
-				penile:0,
-				anal:0,
-				vaginal:0,
-				feet:0,
-				thighs:0,
-				promiscuity:0,
-				exhibitionism:0,
-				deviancy:0,
-				transcend:0,
-				adaptiveGenes:0,
-			},
-			upgradeDetails:{
-				money:{cost:5, limit: _moneyFeatsLimit, minCount: 1, count:_moneyFeats, exclusive:""},
-				grades:{cost:15, limit: _gradesFeatsLimit, minCount: 1, count:_gradesFeats, exclusive:""},
-				skulduggery:{cost:5, limit: _skulduggeryFeatsLimit, minCount: 1, count:_skulduggeryFeats, exclusive:""},
-				dancing:{cost:5, limit: _dancingFeatsLimit, minCount: 1, count:_dancingFeats, exclusive:""},
-				swimming:{cost:5, limit: _swimmingFeatsLimit, minCount: 1, count:_swimmingFeats, exclusive:""},
-				athletics:{cost:5, limit: _athleticsFeatsLimit, minCount: 1, count:_athleticsFeats, exclusive:""},
-				tending:{cost:5, limit: _tendingFeatsLimit, minCount: 1, count:_tendingFeats, exclusive:""},
-				greenThumb:{cost:40, limit: 40, minCount: 1, count:_keys.count("Green Fingered"), exclusive:""},
-				housekeeping:{cost:5, limit: _housekeepingFeatsLimit, minCount: 1, count:_housekeepingFeats, exclusive:""},
-				seduction:{cost:5, limit: _seductionFeatsLimit, minCount: 1, count:_seductionFeats, exclusive:""},
-				purity:{cost:20, limit: 100, minCount: 2, count:_purityFeats, exclusive:"impurity"},
-				impurity:{cost:20, limit: 100, minCount: 1, count:_keys.count("Demon"), exclusive:"purity"},
-				newLife:{cost:20, limit: _newLifeLimit, minCount: 1, count:_newLife, exclusive:""},
-				aNewBestFriend:{cost:10, limit: 10 * _earSlimeFeats, minCount: 1, count:_earSlimeFeats, exclusive:""},
-				tattoos:{cost:5, limit: 25, minCount: 2, count:_tattoosFeats, exclusive:""},
-				randomClothing:{cost:1, limit: 20, minCount: 0, count:0, exclusive:""},
-				specialClothing:{cost:40, limit: 40, minCount: 1, count:_keys.count("Curious Attire"), exclusive:""},
-				sexToys:{cost:30, limit: 30 * _sexToysFeats, minCount: 1, count:_sexToysFeats, exclusive:""},
-				divineTFs:{cost:50, limit: 50, minCount: 1, count:_divineTFsFeats, exclusive:""},
-				animalTFs:{cost:30, limit: 30, minCount: 1, count:_animalTFsFeats, exclusive:""},
-				sadism:{cost:10, limit: 100, minCount: 1, count:_sadomasochismFeats, exclusive:""},
-				masochism:{cost:10, limit: 100, minCount: 1, count:_sadomasochismFeats, exclusive:""},
-				physique:{cost:10, limit: _physiqueFeatsLimit, minCount: 1, count:_physiqueFeats, exclusive:""},
-				willpower:{cost:10, limit: _willpowerFeatsLimit, minCount: 1, count:_willpowerFeats, exclusive:""},
-				oral:{cost:5, limit: _sexSkillFeatsLimit, minCount: 1, count:_sexSkillFeats, exclusive:""},
-				chest:{cost:5, limit: _sexSkillFeatsLimit, minCount: 1, count:_sexSkillFeats, exclusive:""},
-				hands:{cost:5, limit: _sexSkillFeatsLimit, minCount: 1, count:_sexSkillFeats, exclusive:""},
-				buttocks:{cost:5, limit: _sexSkillFeatsLimit, minCount: 1, count:_sexSkillFeats, exclusive:""},
-				penile:{cost:5, limit: _sexSkillFeatsLimit, minCount: 1, count:_sexSkillFeats, exclusive:""},
-				anal:{cost:5, limit: _sexSkillFeatsLimit, minCount: 1, count:_sexSkillFeats, exclusive:""},
-				vaginal:{cost:5, limit: _sexSkillFeatsLimit, minCount: 1, count:_sexSkillFeats, exclusive:""},
-				feet:{cost:5, limit: _sexSkillFeatsLimit, minCount: 1, count:_sexSkillFeats, exclusive:""},
-				thighs:{cost:5, limit: _sexSkillFeatsLimit, minCount: 1, count:_sexSkillFeats, exclusive:""},
-				promiscuity:{cost:15, limit: _sexCharacteristicFeatsLimit, minCount: 1, count:_sexCharacteristicFeats, exclusive:""},
-				exhibitionism:{cost:15, limit: _sexCharacteristicFeatsLimit, minCount: 1, count:_sexCharacteristicFeats, exclusive:""},
-				deviancy:{cost:15, limit: _sexCharacteristicFeatsLimit, minCount: 1, count:_sexCharacteristicFeats, exclusive:""},
-				transcend:{cost:100, limit: _transcendFeatsLimit, minCount: 10, count:_transcendFeats, exclusive:""},
-				adaptiveGenes:{cost:50, limit: _adaptiveGenesFeatsLimit, minCount: 5, count:_adaptiveGenesFeats, exclusive:""},
-			},
-			missing:{
-				money:"Unlock this boost by obtaining the 'Pocket Change' feat",
-				grades:"Unlock this boost by obtaining the 'Perfect Record' feat",
-				skulduggery:"Unlock this boost by obtaining the 'Thief' feat",
-				dancing:"Unlock this boost by obtaining the 'May I have this Dance?' feat",
-				swimming:"Unlock this boost by obtaining the 'Aquanaut' feat",
-				athletics:"Unlock this boost by obtaining the 'Swift' feat",
-				tending:"Unlock this boost by obtaining the 'Green Fingered' feat",
-				housekeeping:"Unlock this boost by obtaining the 'Majordomo' feat",
-				seduction:"Unlock this boost by obtaining the 'Seductress' feat",
-				purity:"Unlock this boost by obtaining the 'Walk Like an Angel' and 'Falling, Falling, Falling...' feats",
-				impurity:"Unlock this boost by obtaining the 'Devilish Looks' feat",
-				newLife:"Unlock this boost by obtaining a hidden feat (" + setup.feats["Broodmother Host"].hint + ")",
-				aNewBestFriend:"Unlock this boost by obtaining a hidden feat (" + setup.feats["Ear Slime Lover"].hint + ")",
-				tattoos:"Unlock this boost by obtaining the 'Billboard' and 'A Living Canvas' feats",
-				randomClothing:"",
-				specialClothing:"Unlock this boost by obtaining a hidden feat (" + setup.feats["Curious Attire"].hint + ")",
-				sexToys:"Unlock this boost by obtaining a hidden feat (" + setup.feats["Opened Pandoras Box"].hint + ")",
-				divineTFs:"Unlock this boost by obtaining one of the divine transformations",
-				animalTFs:"Unlock this boost by obtaining one of the animal transformations",
-				sadism:"Unlock this boost by obtaining one of the sadism or masochism feats",
-				masochism:"Unlock this boost by obtaining one of the sadism or masochism feats",
-				physique:"Unlock this boost by obtaining the 'Powerful' feat",
-				willpower:"Unlock this boost by obtaining the 'Disciplined' feat",
-				oral:"Unlock this boost by obtaining the 'Sex Specialist' feat",
-				chest:"Unlock this boost by obtaining the 'Sex Specialist' feat",
-				hands:"Unlock this boost by obtaining the 'Sex Specialist' feat",
-				buttocks:"Unlock this boost by obtaining the 'Sex Specialist' feat",
-				penile:"Unlock this boost by obtaining the 'Sex Specialist' feat",
-				anal:"Unlock this boost by obtaining the 'Sex Specialist' feat",
-				vaginal:"Unlock this boost by obtaining the 'Sex Specialist' feat",
-				feet:"Unlock this boost by obtaining the 'Sex Specialist' feat",
-				thighs:"Unlock this boost by obtaining the 'Sex Specialist' feat",
-				promiscuity:"Unlock this boost by obtaining the 'No More Control' feat",
-				exhibitionism:"Unlock this boost by obtaining the 'No More Control' feat",
-				deviancy:"Unlock this boost by obtaining the 'No More Control' feat",
-				transcend:"Unlock this boost by obtaining all skill-related AMC feats",
-				adaptiveGenes:"Unlock this boost by obtaining at least 5 transformation feats",
-			},
-			name:{
-				money:"Starting Money",
-				grades:"School Grades",
-				skulduggery:"Skulduggery Grade",
-				dancing:"Dancing Grade",
-				swimming:"Swimming Grade",
-				athletics:"Athletics Grade",
-				tending:"Tending Grade",
-				greenThumb:"Green Thumb Trait",
-				housekeeping:"Housekeeping Grade",
-				seduction:"Seduction Grade",
-				purity:"Daily Purity Boost",
-				impurity:"Daily Impurity Boost",
-				newLife:"A New Life",
-				aNewBestFriend:"A New Best Friend",
-				tattoos:"Starting Tattoos",
-				randomClothing:"Random Clothing",
-				specialClothing:"Special Clothing",
-				sexToys:"Sex Toys",
-				divineTFs:"Divine Transformations",
-				animalTFs:"Animal Transformations",
-				sadism:"Sadism",
-				masochism:"Masochism",
-				physique:"Physique",
-				willpower:"Willpower",
-				oral:"Oral",
-				chest:"Chest",
-				hands:"Hands",
-				buttocks:"Buttocks",
-				penile:"Penile",
-				anal:"Anal",
-				vaginal:"Vaginal",
-				feet:"Feet",
-				thighs:"Thighs",
-				promiscuity:"Promiscuity",
-				exhibitionism:"Exhibitionism",
-				deviancy:"Deviancy",
-				transcend:"Transcendence",
-				adaptiveGenes:"Adaptive Genes",
-			},
-			pointsUsed: 0,
+		<<set _earnedFeats = new Set(Object.keys($feats.allSaves))>>
+		<<set $featsBoosts = {
+			upgrades: {}, /* coins spent on upgrades */
+			upgradeDetails: {}, /* junk data */
+			purchased: {}, /* amount of upgrades purchased */
+			missing: {}, /* ugh */
+			name: {}, /* why */
+			pointsUsed:0, /* hatred and also suffering */
 			clothingGender:"Either",
 			clothingCustomColors:false,
+			hidden: { greenThumb: true },
 			tattoos:{
 				1:{bodypart:"Random",tattoo:"Random",pen:"Tattoo"},
 				2:{bodypart:"Random",tattoo:"Random",pen:"Tattoo"},
 				3:{bodypart:"Random",tattoo:"Random",pen:"Tattoo"},
 				4:{bodypart:"Random",tattoo:"Random",pen:"Tattoo"},
-				5:{bodypart:"Random",tattoo:"Random",pen:"Tattoo"},
+				5:{bodypart:"Random",tattoo:"Random",pen:"Tattoo"}
 			},
 			sexToys:[{},{},{},{},{},{}],
+			specialClothesSets:{},
 			earSlimeType: "immaturePassive",
 			divineTFs: "",
 			animalTFs: "",
 		}>>
+
+		<<set _featData = {
+			money: {
+				name: "Starting Money",
+				required: ["Pocket Change", "Money Maker", "Tycoon", "Millionaire", "Decamillionaire", "Hectomillionaire", "Billionaire"],
+				cost: 5,
+				maxMultiplier: 2,
+				missing: "Unlock this boost by obtaining the 'Pocket Change' feat"
+			},
+			grades: {
+				name: "School Grades",
+				required: ["Perfect Record", "Return to Monke"],
+				cost: 15,
+				maxMultiplier: 2,
+				missing: "Unlock this boost by obtaining the 'Perfect Record' feat"
+			},
+			skulduggery: {
+				name: "Skulduggery Grade",
+				required: ["Thief", "Agent 47"],
+				cost: 5,
+				maxMultiplier: 5,
+				missing: "Unlock this boost by obtaining the 'Thief' feat"
+			},
+			dancing: {
+				name: "Dancing Grade",
+				required: ["May I have this Dance?", "Can't Touch This"],
+				cost: 5,
+				maxMultiplier: 5,
+				missing: "Unlock this boost by obtaining the 'May I have this Dance?' feat"
+			},
+			swimming: {
+				name: "Swimming Grade",
+				required: ["Aquanaut", "Atlantean"],
+				cost: 5,
+				maxMultiplier: 5,
+				missing: "Unlock this boost by obtaining the 'Aquanaut' feat"
+			},
+			athletics: {
+				name: "Athletics Grade",
+				required: ["Swift", "Ludicrous Speed"],
+				cost: 5,
+				maxMultiplier: 5,
+				missing: "Unlock this boost by obtaining the 'Swift' feat"
+			},
+			tending: {
+				name: "Tending Grade",
+				required: ["Green Fingered", "Grass Toucher"],
+				cost: 5,
+				maxMultiplier: 5,
+				missing: "Unlock this boost by obtaining the 'Green Fingered' feat"
+			},
+			greenThumb: {
+				name: "Green Thumb Trait",
+				required: ["Green Fingered", "Grass Toucher"],
+				cost: 40,
+				max: 1,
+				missing: "Unlock this boost by obtaining the 'Green Fingered' feat"
+			},
+			housekeeping: {
+				name: "Housekeeping Grade",
+				required: ["Majordomo", "Demolisher of Filth"],
+				cost: 5,
+				maxMultiplier: 5,
+				missing: "Unlock this boost by obtaining the 'Majordomo' feat"
+			},
+			seduction: {
+				name: "Seduction Grade",
+				required: ["Seductress", "Irresistible"],
+				cost: 5,
+				maxMultiplier: 5,
+				missing: "Unlock this boost by obtaining the 'Seductress' feat"
+			},
+			purity: {
+				name: "Daily Purity Boost",
+				required: ["Angel", "Fallen Angel"],
+				cost: 20,
+				max: 5,
+				exclusive: "impurity",
+				missing: "Unlock this boost by obtaining the 'Walk Like an Angel' and 'Falling, Falling, Falling...' feats"
+			},
+			impurity: {
+				name: "Daily Impurity Boost",
+				required: ["Demon"],
+				cost: 20,
+				max: 5,
+				exclusive: "purity",
+				missing: "Unlock this boost by obtaining the 'Devilish Looks' feat"
+			},
+			newLife: {
+				name: "A New Life",
+				required: ["Broodmother Host", "Top Broodmother Host"],
+				cost: 20,
+				missing: "Unlock this boost by obtaining a hidden feat (" + setup.feats["Broodmother Host"].hint + ")"
+			},
+			aNewBestFriend: {
+				name: "A New Best Friend",
+				required: ["Ear Slime Lover", "Ear Slime Amalgam"],
+				cost: 10,
+				missing: "Unlock this boost by obtaining a hidden feat (" + setup.feats["Ear Slime Lover"].hint + ")"
+			},
+			tattoos: {
+				name: "Starting Tattoos",
+				required: ["A Living Canvas", "Billboard"],
+				cost: 5,
+				max: 5,
+				missing: "Unlock this boost by obtaining the 'Billboard' and 'A Living Canvas' feats"
+			},
+			randomClothing: {
+				name: "Random Clothing",
+				required: [],
+				cost: 1,
+				max: 20,
+				missing: ""
+			},
+			specialClothing: {
+				name: "Special Clothing",
+				required: ["Curious Attire", "Wicked Wardrobe"],
+				cost: 0,
+				missing: "Unlock this boost by obtaining a hidden feat (" + setup.feats["Curious Attire"].hint + ")"
+			},
+			sexToys: {
+				name: "Sex Toys",
+				required: ["Opened Pandoras Box", "Opened Pandoras Cocks"],
+				cost: 30,
+				missing: "Unlock this boost by obtaining a hidden feat (" + setup.feats["Opened Pandoras Box"].hint + ")"
+			},
+			divineTFs: {
+				name: "Divine Transformations",
+				required: ["Angel", "Fallen Angel", "Demon", "Demon of Purity"],
+				cost: 50,
+				max: 1,
+				missing: "Unlock this boost by obtaining one of the divine transformations"
+			},
+			animalTFs: {
+				name: "Animal Transformations",
+				required: ["Neko", "Wolf", "Cattle", "Harpy", "Fox"],
+				cost: 30,
+				max: 1,
+				missing: "Unlock this boost by obtaining one of the animal transformations"
+			},
+			sadism: {
+				name: "Sadism",
+				required: ["Twisted Desire", "Served Hot"],
+				cost: 10,
+				maxMultiplier: 1,
+				missing: "Unlock this boost by obtaining one of the sadism or masochism feats"
+			},
+			masochism: {
+				name: "Masochism",
+				required: ["Twisted Desire", "Served Hot"],
+				cost: 10,
+				maxMultiplier: 1,
+				missing: "Unlock this boost by obtaining one of the sadism or masochism feats"
+			},
+			physique: {
+				name: "Physique",
+				required: ["Powerful", "Unstoppable Force"],
+				cost: 10,
+				maxMultiplier: 2.5,
+				missing: "Unlock this boost by obtaining the 'Powerful' feat"
+			},
+			willpower: {
+				name: "Willpower",
+				required: ["Disciplined", "Immovable Object"],
+				cost: 10,
+				maxMultiplier: 2.5,
+				missing: "Unlock this boost by obtaining the 'Disciplined' feat"
+			},
+			oral: {
+				name: "Oral",
+				required: ["Sex Specialist", "God of Lust"],
+				cost: 5,
+				maxMultiplier: 2.5,
+				missing: "Unlock this boost by obtaining the 'Sex Specialist' feat"
+			},
+			chest: {
+				name: "Chest",
+				required: ["Sex Specialist", "God of Lust"],
+				cost: 5,
+				maxMultiplier: 2.5,
+				missing: "Unlock this boost by obtaining the 'Sex Specialist' feat"
+			},
+			hands: {
+				name: "Hands",
+				required: ["Sex Specialist", "God of Lust"],
+				cost: 5,
+				maxMultiplier: 2.5,
+				missing: "Unlock this boost by obtaining the 'Sex Specialist' feat"
+			},
+			buttocks: {
+				name: "Buttocks",
+				required: ["Sex Specialist", "God of Lust"],
+				cost: 5,
+				maxMultiplier: 2.5,
+				missing: "Unlock this boost by obtaining the 'Sex Specialist' feat"
+			},
+			penile: {
+				name: "Penile",
+				required: ["Sex Specialist", "God of Lust"],
+				cost: 5,
+				maxMultiplier: 2.5,
+				missing: "Unlock this boost by obtaining the 'Sex Specialist' feat"
+			},
+			anal: {
+				name: "Anal",
+				required: ["Sex Specialist", "God of Lust"],
+				cost: 5,
+				maxMultiplier: 2.5,
+				missing: "Unlock this boost by obtaining the 'Sex Specialist' feat"
+			},
+			vaginal: {
+				name: "Vaginal",
+				required: ["Sex Specialist", "God of Lust"],
+				cost: 5,
+				maxMultiplier: 2.5,
+				missing: "Unlock this boost by obtaining the 'Sex Specialist' feat"
+			},
+			feet: {
+				name: "Feet",
+				required: ["Sex Specialist", "God of Lust"],
+				cost: 5,
+				maxMultiplier: 2.5,
+				missing: "Unlock this boost by obtaining the 'Sex Specialist' feat"
+			},
+			thighs: {
+				name: "Thighs",
+				required: ["Sex Specialist", "God of Lust"],
+				cost: 5,
+				maxMultiplier: 2.5,
+				missing: "Unlock this boost by obtaining the 'Sex Specialist' feat"
+			},
+			promiscuity: {
+				name: "Promiscuity",
+				required: ["No More Control"],
+				cost: 15,
+				max: 4,
+				missing: "Unlock this boost by obtaining the 'No More Control' feat"
+			},
+			exhibitionism: {
+				name: "Exhibitionism",
+				required: ["No More Control"],
+				cost: 15,
+				max: 4,
+				missing: "Unlock this boost by obtaining the 'No More Control' feat"
+			},
+			deviancy: {
+				name: "Deviancy",
+				required: ["No More Control"],
+				cost: 15,
+				max: 4,
+				missing: "Unlock this boost by obtaining the 'No More Control' feat"
+			},
+			transcend: {
+				name: "Transcendence",
+				required: ["Unstoppable Force", "Immovable Object", "Agent 47", "Can't Touch This", "Atlantean", "Ludicrous Speed", "Grass Toucher", "Demolisher of Filth", "Smarter than Einstein", "Human Calculator", "Voice of All Things", "Errm, ackshually", "Irresistible", "God of Lust", "Rivers of White", "Sticky Fountain", "Many Punch Man", "Fleet-Footed", "Knockout Artist", "Bladed Legs"],
+				cost: 100,
+				max: Math.floor((_earnedFeats.has("Unstoppable Force") + _earnedFeats.has("Immovable Object") + _earnedFeats.has("Agent 47") + _earnedFeats.has("Can't Touch This") + _earnedFeats.has("Atlantean") + _earnedFeats.has("Ludicrous Speed") + _earnedFeats.has("Grass Toucher") + _earnedFeats.has("Demolisher of Filth") + _earnedFeats.has("Smarter than Einstein") + _earnedFeats.has("Human Calculator") + _earnedFeats.has("Voice of All Things") + _earnedFeats.has("Errm, ackshually") + _earnedFeats.has("Irresistible") + _earnedFeats.has("God of Lust") + _earnedFeats.has("Rivers of White") + _earnedFeats.has("Sticky Fountain") + _earnedFeats.has("Many Punch Man") + _earnedFeats.has("Fleet-Footed") + _earnedFeats.has("Knockout Artist") + _earnedFeats.has("Bladed Legs")) / 10),
+				missing: "Unlock this boost by obtaining at least 10 skill-related and fluid production AMC feats"
+			},
+			adaptiveGenes: {
+				name: "Adaptive Genes",
+				required: ["Angel", "Fallen Angel", "Demon", "Demon of Purity", "Neko", "Wolf", "Cattle", "Harpy", "Fox"],
+				cost: 50,
+				max: Math.floor((_earnedFeats.has("Angel") + _earnedFeats.has("Fallen Angel") + _earnedFeats.has("Demon") + _earnedFeats.has("Demon of Purity") + _earnedFeats.has("Neko") + _earnedFeats.has("Wolf") + _earnedFeats.has("Cattle") + _earnedFeats.has("Harpy") + _earnedFeats.has("Fox") + _earnedFeats.has("Bear") + _earnedFeats.has("Bunny")) / 5),
+				missing: "Unlock this boost by obtaining at least 5 transformation feats"
+			},
+		}>>
+
+		<<run Object.entries(_featData).forEach(([k,f])=>{
+			const maxEarned = !f.required.length ? 1 : f.required.filter(x => _earnedFeats.has(x)).length;
+			const max = !maxEarned ? 0 : (f.max ?? (f.maxMultiplier * maxEarned || maxEarned));
+
+			$featsBoosts.upgrades[k] = 0;
+			$featsBoosts.upgradeDetails[k] = {cost:f.cost, max:max, purchased:0, ...(f.exclusive?{exclusive:f.exclusive}:{})};
+			$featsBoosts.missing[k] = f.missing;
+			$featsBoosts.name[k] = max > 0 ? f.name : "?????";
+		})>>
 	<</if>>
 <</widget>>
 
@@ -341,7 +396,7 @@
 		<<earnFeat "A New Life">>
 	<</if>>
 	<<if _upgrades.money gt 0>>
-		<<money `_upgrades.money * _details.money.count / _details.money.cost * 5000` "startingMoney">>
+		<<money `_details.money.purchased * _details.money.max * 2500` "startingMoney">>
 	<</if>>
 	<<if _upgrades.grades gt 0>>
 		<<set $sciencetrait += _upgrades.grades / _details.grades.cost * 1>>
@@ -378,7 +433,7 @@
 	<<if _upgrades.impurity gt 0>>
 		<<set $featsPurityBoost to _upgrades.impurity / _details.impurity.cost * -1>>
 	<</if>>
-	<<if _upgrades.newLife gt 0 and $parasitepregdisable is "f">>
+	<<if _upgrades.newLife gt 0 and $settings.parasitePregnancyEnabled>>
 		<<impregnateParasite "tentacle" 400>>
 		<<fertiliseParasites>>
 		<<set _pregnancy to $sexStats.anus.pregnancy>>
@@ -411,6 +466,8 @@
 			<<default>>
 				<<set $earSlime.corruption to 0>>
 		<</switch>>
+	<<else>>
+		<<run delete $featsBoosts.earSlimeType>>
 	<</if>>
 	<<if _upgrades.aNewBestFriend gt 10>>
 		<<parasite right_ear slime>>
@@ -538,22 +595,22 @@
 				<<set _item.pattern to clone(_item.pattern_options).random()>>
 			<</if>>
 
-			<<set $_.outfitPrimary to _item.outfitPrimary>>
-			<<set $_.items to {}>>
-			<<run $_.items[_slot] to clone(_item)>>
-			<<if $_.outfitPrimary isnot undefined>>
-				<<for _labelf, _valuef range $_.outfitPrimary>>
+			<<set $_outfitPrimary to _item.outfitPrimary>>
+			<<set $_items to {}>>
+			<<run $_items[_slot] to clone(_item)>>
+			<<if $_outfitPrimary isnot undefined>>
+				<<for _labelf, _valuef range $_outfitPrimary>>
 					<<for _j to 0; _j lt setup.clothes[_labelf].length; _j++>>
 						<<if _valuef is setup.clothes[_labelf][_j].name>>
-							<<set $_.items[_labelf] to clone(setup.clothes[_labelf][_j])>>
-							<<set $_.items[_labelf].colour to clone($_.items[_slot].colour)>>
-							<<set $_.items[_labelf].accessory_colour to clone($_.items[_slot].accessory_colour)>>
-							<<if $_.items[_labelf].pattern_options and $_.items[_labelf].pattern_options.length gt 0>><<set $_.items[_labelf].pattern to clone($_.items[_slot].pattern)>><</if>>
+							<<set $_items[_labelf] to clone(setup.clothes[_labelf][_j])>>
+							<<set $_items[_labelf].colour to clone($_items[_slot].colour)>>
+							<<set $_items[_labelf].accessory_colour to clone($_items[_slot].accessory_colour)>>
+							<<if $_items[_labelf].pattern_options and $_items[_labelf].pattern_options.length gt 0>><<set $_items[_labelf].pattern to clone($_items[_slot].pattern)>><</if>>
 							<<if $featsBoosts.clothingCustomColors is true and _item.colour is "custom">>
-								<<set $_.items[_labelf].colourCustom to clone($_.items[_slot].colourCustom)>>
+								<<set $_items[_labelf].colourCustom to clone($_items[_slot].colourCustom)>>
 							<</if>>
 							<<if $featsBoosts.clothingCustomColors is true and _item.accessory_colour is "custom">>
-								<<set $_.items[_labelf].accessory_ColourCustom to clone($_.items[_slot].accessory_colourCustom)>>
+								<<set $_items[_labelf].accessory_ColourCustom to clone($_items[_slot].accessory_colourCustom)>>
 							<</if>>
 							<<break>>
 						<</if>>
@@ -561,8 +618,8 @@
 				<</for>>
 			<</if>>
 
-			<<if $_.items[_slot] isnot undefined and $wardrobe[_slot].length lt $wardrobe.space>>
-				<<for _labelf, _valuef range $_.items>>
+			<<if $_items[_slot] isnot undefined and $wardrobe[_slot].length lt $wardrobe.space>>
+				<<for _labelf, _valuef range $_items>>
 					<<run $wardrobe[_labelf].push(_valuef)>>
 				<</for>>
 			<<else>>
@@ -634,15 +691,34 @@
 	<</if>>
 	<<if _upgrades.specialClothing gt 0>>
 		<<set _unlocked to $feats.allSaves.specialClothes>>
-		<<specialClothesSetup>>
-		<<for $_label, $_value range _unlocked>>
-			<<set $specialClothes[$_label] to $_value>>
-		<</for>>
+		<<specialClothesUpdate>>
+		<<if (_upgrades.specialClothing / _details.specialClothing.cost) is 3>>
+			/* Level 3 upgrade - everything is remembered. */
+			<<for $_labelC, $_valueC range _unlocked>>
+				<<if $featsBoosts.specialClothesSets[$_labelC] is true>>
+					<<run specialClothesUnlock("set", $_labelC, 3)>>
+				<</if>>
+			<</for>>
+		<<elseif (_upgrades.specialClothing / _details.specialClothing.cost) is 2>>
+			/* Level 2 upgrade - unlock all special clothes unlocked in any other save. */
+			<<for $_labelC, $_valueC range _unlocked>>
+				<<if $featsBoosts.specialClothesSets[$_labelC] is true>>
+					<<run specialClothesUnlock("set", $_labelC, 2)>>
+				<</if>>
+			<</for>>
+		<<else>>
+			/* Level 1 upgrade - unlock previosuly unlocked special clothing sets by selection. */
+			<<for $_labelC, $_valueC range $featsBoosts.specialClothesSets>>
+				<<if $featsBoosts.specialClothesSets[$_labelC] is true>>
+					<<run specialClothesUnlock("set", $_labelC, 2)>>
+				<</if>>
+			<</for>>
+		<</if>>
 	<</if>>
 	<<if _upgrades.sexToys gt 0>>
 		<<set _totalToys to _upgrades.sexToys / 10>>
 		<<set _indexList to []>>
-		<<run Object.values(setup.sextoys).forEach(toy => T.indexList.push(toy.index))>>
+		<<run Object.values(setup.sextoys.filter(item => !item.shop.includes("forest"))).forEach(toy => T.indexList.push(toy.index))>>
 		<<for _i to 0; _i lt _totalToys; _i++>>
 			<<if $featsBoosts.sexToys[_i].index isnot undefined and $featsBoosts.sexToys[_i].index isnot -1>>
 				<<set _sexToyIndex to $featsBoosts.sexToys[_i].index>>
@@ -651,7 +727,6 @@
 			<<else>>
 				<<set _sexToyIndex to _indexList.pluck()>>
 			<</if>>
-			<<run console.log(_sexToyColour)>>
 			<<if !_sexToyColour or _sexToyColour is -1>>
 				<<set _sexToyColourOptions to Object.values(setup.sextoys).find(toy => toy.index is _sexToyIndex).colour_options>>
 				<<set _sexToyColour to _sexToyColourOptions[random(0, _sexToyColourOptions.length - 1)]>>
@@ -704,11 +779,14 @@
 	<<run delete $featsBoosts.upgradeDetails>>
 	<<run delete $featsBoosts.tattoos>>
 	<<run delete $featsBoosts.sexToys>>
+	<<run delete $featsBoosts.hidden>>
+	<<run delete $featsBoosts.purchased>>
+	<<run delete $featsBoosts.specialClothesSets>>
 <</widget>>
 
 <<widget "earnAllFeats">>
 	<<specialClothesUpdate>>
-	<<if $feats.locked is false and $cheatdisable is "t" and $debug is 0 and $gamemode isnot "soft" and $alluremod gte 1 and $replayScene is undefined>>
+	<<if $feats.locked is false and $cheatdisable is "t" and $debug is 0 and $gamemode isnot "soft" and $settings.allureModifier gte 1 and $replayScene is undefined>>
 		<<if _args[0] is true>>
 			/*Rarely occurring feats*/
 			<<if Time.days gte 50>>

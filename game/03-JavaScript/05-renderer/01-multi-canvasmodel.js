@@ -99,7 +99,7 @@ class MultiCanvasModel {
 	}
 
 	/**
-	 * Recompiles the canvas models' layers, and schedules them on the renderer system.
+	 * Recompiles the canvas models' layers and schedules them on the renderer system.
 	 */
 	redraw() {
 		if (!this.canvas) {
@@ -227,5 +227,13 @@ Macro.add("refresh-multi-canvas", {
 			return;
 		}
 		model.refresh();
+	},
+});
+
+Macro.add("clear-multi-canvas", {
+	handler() {
+		const key = this.args[0];
+		MultiCanvasModel.ensureStorage();
+		delete T.multiCombatModels[key];
 	},
 });

@@ -207,7 +207,7 @@ All eyes are on you as you are led up to the central platform. There's music pla
 		<</if>>
 	<<elseif $phase is 2>>
 		<<if $undergroundbrothel.robin>>
-			<<if $tentacledisable is "t">>
+			<<if !$settings.tentaclesEnabled>>
 				<<link [[Go quietly|Underground Robin Stage Intro]]>><</link>>
 			<<else>>
 				<<link [[Go quietly|Underground Robin Tentacles Intro]]>><</link>>
@@ -275,7 +275,7 @@ All eyes are on you as you are led up to the central platform. There's music pla
 
 The crowd starts booing. A <<generate1>><<person1>><<person>> runs on stage. "Please accept our apologies," <<he>> says, picking up your leash.
 
-<<if $rng gte 51 and ($monster is 1 or $bestialitydisable is "f")>>
+<<if $rng gte 51 and ($monster is 1 or $settings.bestialityEnabled)>>
 	<<endevent>>
 	<<beastNEWinit 1 pig>>
 	"Instead of our scheduled show, we have a special treat for you." A metal shutter opens behind you, revealing a gigantic <<beasttype>>.
@@ -485,7 +485,7 @@ The crowd starts booing. A <<generate1>><<person1>><<person>> runs on stage. "Pl
 <<beastNEWinit 1 pig>>
 You are led once more to the stage, where the crowd awaits. <<covered>>
 
-<<if $rng gte 51 and ($monster is 1 or $bestialitydisable is "f")>>
+<<if $rng gte 51 and ($monster is 1 or $settings.bestialityEnabled)>>
 	Once there, a metal shutter rattles open behind you, and a gigantic <<beasttype>> steps out. The audience cheers <<bhim>> on.
 	<br><br>
 
@@ -606,6 +606,7 @@ As you walk close to <<person1>><<him>>, <<he>> grabs you and bends you over <<h
 	<<endcombat>>
 	<<badEndTrackingEnd "Underground Dungeon" { reason: "uDungeonPresented" }>>
 	<<dungeonescape>>
+	<<specialClothesUnlock "set" "underground_brothel">>
 
 	<<link [[Next|Forest]]>><<set $forest to 40>><</link>>
 <<elseif $timer lte 0>>
@@ -634,7 +635,7 @@ You are led past the empty stage and up the flight of stairs. The air becomes co
 It looks like you're in a forest clearing.
 <br><br>
 
-<<if $rng gte 51 and $plantdisable is "f" and $tentacledisable is "f" and ($hallucinations gte 2 or $backgroundTraits.includes("plantlover"))>>
+<<if $rng gte 51 and $settings.plantsEnabled and $settings.tentaclesEnabled and ($hallucinations gte 2 or $backgroundTraits.includes("plantlover"))>>
 	<<generatePlant1>><<generate2>><<generate3>>
 	<<saveNPC 0 underground_plant>><<saveNPC 1 underground_guard_1>><<saveNPC 2 underground_guard_2>>
 
@@ -696,10 +697,11 @@ You've barely reached the trees when the second shot rings out. You run as fast 
 	<<endevent>>
 	<<badEndTrackingEnd "Underground Dungeon" { reason: "uDungeonOutran" }>>
 	<<dungeonescape>>
+	<<specialClothesUnlock "set" "underground_brothel">>
 
 	<<link [[Next|Forest]]>><<set $forest to 1>><</link>>
 <<else>>
-	<<if $rng gte 51 and ($monster is 1 or $bestialitydisable is "f")>><!-- Modified for BeastPeople -->
+	<<if $rng gte 51 and ($monster is 1 or $settings.bestialityEnabled)>><!-- Modified for BeastPeople -->
 		You hear something running through the grass behind you, and <span class="red">feel <<print ($monster is 1 ? "hands" : "paws")>> on your back as you are forced to your knees</span>.
 		The <<beasttype 0>> starts humping<<if $NPCList[0].penis isnot "none">>, you feel <<bhis 0>> penis prodding your <<bottom>><</if>>.
 		<br><br>
@@ -851,10 +853,10 @@ You've barely reached the trees when the second shot rings out. You run as fast 
 <<generate1>><<generate2>>
 You are led to another part of the dungeon, and into a well-lit room. A <<person2>><<person>> is already here, holding a camera.
 Stood beside <<him>> is a <<person1>><<person>>.
-<<if $rng gte 51 and $swarmdisable is "f">>
+<<if $rng gte 51 and $settings.swarmsEnabled>>
 	There's a bath sitting in the middle of the room. The <<person1>><<person>> pulls you over to it and pushes you inside.
 	Before you get your bearings, <<he>> attaches a clip on the bottom of the bath to your collar, locking you in place.
-	You look up at the <<person>>, now holding a bucket, and <<person2>><<person>> and wonder what they intend.
+	You look up at the <<person>>, now holding a bucket, and the <<person2>><<person>>, wondering what they intend.
 	<br><br>
 
 	The <<person1>><<person>> tips the bucket over you, covering you in thick, long worms. They wriggle all over you, inciting shameful feelings.
@@ -924,7 +926,7 @@ Stood beside <<him>> is a <<person1>><<person>>.
 
 <<set $outside to 0>><<set $location to "underground">><<effects>>
 "That should do it," says the <<person2>><<person>> as <<he>> stops filming.
-The <<person1>><<person>> unplugs your collar from the bath and you scramble to you feet.
+The <<person1>><<person>> unplugs your collar from the bath and you scramble to your feet.
 The worms tumble off you, but you still shiver in horror and disgust.
 <br><br>
 
@@ -1114,7 +1116,7 @@ It flares back up when the <<person1>><<person>> pulls away, wearing an evil smi
 You look down.
 
 <<if !["brand", "magic", "tattoo"].includes($skin.left_shoulder.pen)>>
-	They've tattooed <span class="pink">"Slave"</span> onto your pelvis, and <span class="pink">"163"</span> onto your shoulder.
+	They've tattooed <span class="pink">"Slave"</span> onto your pelvis and <span class="pink">"163"</span> onto your shoulder.
 	<<add_bodywriting left_shoulder one_six_three tattoo>>
 <<else>>
 	They've tattooed <span class="pink">"Slave"</span> onto your pelvis.
@@ -1353,6 +1355,8 @@ A bush nearby rustles and you tense up. Somebody pops their head out the top. <s
 :: Underground Plant Escape 4
 <<location "forest">><<effects>>
 
+<<specialClothesUnlock "set" "underground_brothel">>
+
 <<if $phase is 2>>
 	You step forward and open your mouth. Before you can say anything, the <<person>> grins and tugs you to the forest floor, flipping on top of you.
 	<<He>> caresses your face with one of <<his>> vines.
@@ -1502,7 +1506,7 @@ You try to back away once you realise what is about to happen, but a <<personsim
 <br><br>
 
 <<if $player.virginity.penile isnot true or $player.virginity.vaginal isnot true or $virginityShowPhase gte 4>>
-	"What a show. I hope everyone enjoyed it. We'll be seeing more of <<pher>>, mark my words."
+	"What a show. I hope everyone enjoyed it. We'll be seeing more of <<phim>>, mark my words."
 	<br><br>
 
 	<<clotheson>>
@@ -1526,7 +1530,7 @@ You try to back away once you realise what is about to happen, but a <<personsim
 		<<case 1>>
 			A <<person>> takes <<his>> place. Despair sets in as you look out into the crowd. This is far from over.
 		<<case 2>>
-			It is a short lived victory, as a <<person>> climbs up to the stage. You brace yourself for more abuse.
+			It is a short-lived victory, as a <<person>> climbs up to the stage. You brace yourself for more abuse.
 		<<case 3>>
 			The <<person>> gives you a predatory look before pouncing.
 	<</switch>>

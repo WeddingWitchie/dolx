@@ -121,9 +121,11 @@
 	<<elseif !$worn.handheld.type.includes("bookbag")>>
 		<span class="blue">You can't study without your bookbag.</span>
 		<br>
-		<<scienceicon>><<link [[Relax before class|Science Classroom Study]]>><<set $phase to 0>><</link>><<lstress>>
+		<<daydreamicon>><<link [[Daydream before class|Science Classroom Study]]>><<set $phase to 0>><</link>><<lstress>>
 	<<else>>
 		<<scienceicon>><<link [[Study science|Science Classroom Study]]>><<set $phase to 1>><</link>><<gstress>><<gscience>>
+		<br>
+		<<daydreamicon>><<link [[Daydream before class|Science Classroom Study]]>><<set $phase to 0>><</link>><<lstress>>
 	<</if>>
 	<br>
 	<<getouticon>><<link [[Leave|Hallways]]>><</link>>
@@ -206,7 +208,9 @@ Sirris looks exasperated. "Right. I'll have to inform the head of your behaviour
 
 :: Science Classroom Study
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
-<<wearProp "open textbook" "blue" "science">>
+<<if $phase is 1>>
+	<<wearProp "open textbook" "blue" "science">>
+<</if>>
 <<if $worn.over_upper.name isnot "naked" or $worn.over_lower.name isnot "naked" or $worn.over_head.name isnot "naked">>
 	<<undressOverClothes "scienceClassroom">>
 	You hang your coat at the back of the class<<if $phase is 1>>, take your seat and read a science textbook<<else>> and take your seat<</if>>.
@@ -253,6 +257,8 @@ Sirris looks exasperated. "Right. I'll have to inform the head of your behaviour
 <<else>>
 	<<set _stress to _stress * -1>>
 	<<stress _stress>>
+	<<set _tiredness to _stress * -0.5>>
+	<<tiredness _tiredness>>
 <</if>>
 
 :: Science Lesson
@@ -277,7 +283,7 @@ Sirris looks exasperated. "Right. I'll have to inform the head of your behaviour
 
 	<<if !$daily.earSlimeCheatExam and numberOfEarSlime() and earSlimeMakingMundaneRequests() and random(0,200) gte 150 - $earSlime.corruption>>
 		<<set $daily.earSlimeCheatExam to true>>
-		<span @class="$earSlime.startedThreats ? 'lewd' : 'lblue'">You feel the slime in your head command you to cheat in the exam.</span> It promises rewards if you comply<<if $earSlime.startedThreats>>, and threatens consequences if you do not<</if>>.
+		<span @class="$earSlime.startedThreats ? 'lewd' : 'lblue'">You feel the slime in your head command you to cheat in the exam.</span> It promises rewards if you comply<<if $earSlime.startedThreats>> and threatens consequences if you do not<</if>>.
 		<br><br>
 		<<link [[Obey|Science Exam]]>><<set $phase to 3>><<corruption 1>><<pain -4>><<stress -6>><<trauma -12>><<sub 2>><</link>><<gcorruption>><<lpain>><<lltrauma>><<lstress>>
 		<br>
@@ -320,7 +326,7 @@ Sirris looks exasperated. "Right. I'll have to inform the head of your behaviour
 	<<npc Sirris>><<person1>>"The headteacher has once again asked to take charge of the lesson," Sirris says.<<endevent>><<npc Leighton>><<person1>> "I don't know why <<hes>> taken an interest, but <<he>> seemed satisfied last time."
 	<br><br>
 
-	The door swings open and Leighton steps in, a smile on <<his>> face. "Thank you Sirris," <<he>> says. "I'll take it from here."
+	The door swings open and Leighton steps in, a smile on <<his>> face. "Thank you, Sirris," <<he>> says. "I'll take it from here."
 	<br><br>
 
 	"Are you sure I can't assist?" Sirris asks.
@@ -380,10 +386,10 @@ Sirris looks exasperated. "Right. I'll have to inform the head of your behaviour
 	<br>
 	<<socialiseicon>><<link [[Socialise with classmates|Science Lesson Socialise]]>><</link>><<gcool>><<ltrauma>><<lstress>><<gharass>>
 	<br>
-	<<daydreamicon>><<link [[Daydream|Science Lesson Daydream]]>><</link>><<lstress>> <<lharass>>
+	<<daydreamicon>><<link [[Daydream|Science Lesson Daydream]]>><</link>><<lstress>><<ltiredness>><<lharass>>
 	<br>
 	<<if $tiredness gte (C.tiredness.max / 5) * 3>>
-		<<bedicon "zzz">><<link [[Sleep at your desk|Science Lesson Sleep]]>><</link>><<ltiredness>>
+		<<bedicon "zzz">><<link [[Sleep at your desk|Science Lesson Sleep]]>><</link>><<lltiredness>>
 		<br>
 	<</if>>
 	<<if hasSexStat("exhibitionism", 4, true)>>

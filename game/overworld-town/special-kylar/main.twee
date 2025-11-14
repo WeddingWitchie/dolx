@@ -282,7 +282,7 @@
 			<<wearProp "pepperspray">>
 		<<elseif $kylar.riddle is 2>>
 			<<set $kylar.riddle to 0>>
-			"<<print either("A sphinx", "Shadow", "Plumbers", "A jester", "Blue", "The letter E", "French fries", "Leighton", "An eraser", "A snake",
+			"<<print either("A sphinx", "Shadow", "Plumbers", "A jester", "Blue", "The letter E", "Chips", "Leighton", "An eraser", "A snake",
 				"Eggs", "Pepper spray", "Forty-two", "Me", "Autumn", "A video game", "A horror movie", "Insight", "Raul and Janet", "The sewers", "Footsteps",
 				"Starting", "Yesterday, today and tomorrow", "Fire", "Because they were on the left side of the street")>>,"
 			<<he>> says<<if $bus is "starfish" and _kylarStatus.includes("Love")>>, not taking <<his>> attention off the game<</if>>.
@@ -298,53 +298,21 @@
 <</widget>>
 
 <<widget "dismissKylar">>
-	<<npcset Kylar state "prison">>
-	<<if $loveInterest.primary is "Kylar">>
-		<<if $loveInterest.secondary isnot "None">>
-			<<set $loveInterest.primary to $loveInterest.secondary>>
-			<<set $loveInterest.secondary to "None">>
-		<<elseif $loveInterest.tertiary isnot "None">>
-			<<set $loveInterest.secondary to $loveInterest.tertiary>>
-			<<set $loveInterest.tertiary to "None">>
-		<<elseif $loveInterest.quarternary isnot "None">>
-			<<set $loveInterest.tertiary to $loveInterest.quarternary>>
-			<<set $loveInterest.quarternary to "None">>
-		<<elseif $loveInterest.quinary isnot "None">>
-			<<set $loveInterest.quarternary to $loveInterest.quinary>>
-			<<set $loveInterest.quinary to "None">>
-		<<elseif $loveInterest.senary isnot "None">>
-			<<set $loveInterest.quinary to $loveInterest.senary>>
-			<<set $loveInterest.senary to "None">>
-		<<else>>
-			<<set $loveInterest.primary to "None">>
-		<</if>>
+	<<if isLoveInterest("Kylar")>>
 		<span class="red">Kylar has been imprisoned. <<nnpc_He "Kylar">> is no longer your love interest.</span>
-	<<elseif $loveInterest.secondary is "Kylar">>
-		<<set $loveInterest.secondary to "None">>
-		<span class="red">Kylar has been imprisoned. <<nnpc_He "Kylar">> is no longer your love interest.</span>
-	<<elseif $loveInterest.tertiary is "Kylar">>
-		<<set $loveInterest.tertiary to "None">>
-		<span class = "red">Kylar has been imprisoned. <<nnpc_He "Kylar">> is no longer your love interest.</span>
-	<<elseif $loveInterest.quarternary is "Kylar">>
-		<<set $loveInterest.quarternary to "None">>
-		<span class = "red">Kylar has been imprisoned. <<nnpc_He "Kylar">> is no longer your love interest.</span>
-	<<elseif $loveInterest.quinary is "Kylar">>
-		<<set $loveInterest.quinary to "None">>
-		<span class = "red">Kylar has been imprisoned. <<nnpc_He "Kylar">> is no longer your love interest.</span>
-	<<elseif $loveInterest.senary is "Kylar">>
-		<<set $loveInterest.senary to "None">>
-		<span class = "red">Kylar has been imprisoned. <<nnpc_He "Kylar">> is no longer your love interest.</span>
-	<<elseif $kylarenglish gte 1>>
-		<span class="red">Kylar has been imprisoned. <<nnpc_He "Kylar">> can no longer be claimed as your love interest.</span>
+	<<elseif isPossibleLoveInterest("Kylar")>>
+		<span class="red">Kylar has been imprisoned. <<nnpc_He "Kylar">> is no longer a possible love interest.</span>
 	<<else>>
 		<span class="red">Kylar has been imprisoned.</span>
 	<</if>>
+	<<npcset Kylar state "prison">>
 	<<if $englishPlay is "ongoing">>
 		<<if $englishPlayRoles.Kylar isnot "none">>
 			<<set $englishPlayKylarReplace to true>>
 			<<set $englishPlayRoles.Kylar to "none">>
 		<</if>>
 	<</if>>
+	<<loveInterestRemove "Kylar">>
 	<br><br>
 <</widget>>
 
@@ -663,7 +631,7 @@
 		<br>
 		<<link [[Refuse|Kylar Abduction Draw Refuse]]>><</link>>
 		<br>
-	<<elseif $rng gte 11 and $pregnancyspeechdisable is "f">>
+	<<elseif $rng gte 11 and $settings.pregnancySpeechEnabled>>
 		"I've thought up names for our children," Kylar says with a smile. <<He>> rattles off several names for boys and girls. You recognise some as anime characters. You suspect the ones you don't recognise are as well.
 		<br><br>
 
@@ -821,7 +789,7 @@
 		<<He>> spreads your legs, pulling <<his>> body against yours.
 	<</if>>
 	<br><br>
-	<<if $pregnancyspeechdisable is "f" and (
+	<<if $settings.pregnancySpeechEnabled and (
 		(_kylar.vagina isnot "none" and ($genderknown.includes("Kylar") ? $player.penisExist : $player.gender_appearance is "m") )
 		or
 		(_kylar.penis isnot "none" and ($genderknown.includes("Kylar") ? $player.vaginaExist : $player.gender_appearance is "f") )
@@ -1070,7 +1038,7 @@ They place it on a table, then step around it into view. It's Kylar. <<His>> hai
 	"We're going to do this every day," <<he>> says. "Forever."
 
 	<<if !$worn.face.type.includes("gag")>>
-		<<He>> kisses your mouth. <<takeKissVirginity "Kylar" `($loveInterest.primary is "Kylar" or $loveInterest.secondary is "Kylar"?"loveRape":"rape")`>>
+		<<He>> kisses your mouth. <<takeKissVirginity "Kylar" `(isLoveInterest("Kylar")?"loveRape":"rape")`>>
 		<<if _npcKissVirginTemp>>
 			"That was my first kiss," <<he>> whispers. "After so long. We have so many other firsts ahead of us, my love."
 		<</if>>
@@ -1225,6 +1193,7 @@ They arrest Kylar. They untie you too, after you make a bit of noise. They decid
 
 <<endcombat>>
 <<dismissKylar>>
+<<specialClothesUnlock "set" "rose_wedding">>
 
 <<link [[Next|Oxford Street]]>><<set $eventskip to 1>><</link>>
 <br>
@@ -1248,6 +1217,7 @@ Kylar watches as you are led away. <<person1>><<He>> weeps harder.
 <<lllksuspicion>><<npcincr Kylar rage -50>>
 <br><br>
 <<endcombat>>
+<<specialClothesUnlock "set" "rose_wedding">>
 
 <<link [[Next (0:30)|Kylar Basement Car]]>><<pass 30>><<clothesontowel>><</link>>
 <br>
@@ -1493,7 +1463,7 @@ You shake off Kylar's grip and leave. <<He>> watches you with <<his>> fists clen
 			<<gksuspicion>><<npcincr Kylar rage 1>>
 			<br>
 		<<elseif _kinkType is 5 and $bestialitytrait gte 1>>
-			You whisper to Kylar that you find <<if $bestialitydisable is "f">>beasts<<else>>monsters<</if>> almost as good as people, sometimes better. Their instinct-driven, animalistic mating makes you shiver. Kylar doesn't seem to know what to say.
+			You whisper to Kylar that you find <<if $settings.bestialityEnabled>>beasts<<else>>monsters<</if>> almost as good as people, sometimes better. Their instinct-driven, animalistic mating makes you shiver. Kylar doesn't seem to know what to say.
 			<<gksuspicion>><<npcincr Kylar rage 1>>
 			<br>
 		<<elseif _kinkType is 4 and $tentacletrait gte 1>>
@@ -1575,7 +1545,7 @@ You shake off Kylar's grip and leave. <<He>> watches you with <<his>> fists clen
 			You whisper to Kylar that even though you hate all the rapists in town, part of you is still excited by them. Somehow, the feeling of being taken against your will isn't as scary as it used to be. <<He>> looks away, frowning.
 			<br><br>
 		<<elseif _kinkType is 5 and $bestialitytrait gte 1>>
-			You whisper to Kylar that you find <<print ($bestialitydisable is "f" ? "beasts" : "monsters")>> almost as good as people, sometimes better. Their instinct-driven, animalistic mating makes you shiver. <<He>> looks away, wide-eyed.
+			You whisper to Kylar that you find <<print ($settings.bestialityEnabled ? "beasts" : "monsters")>> almost as good as people, sometimes better. Their instinct-driven, animalistic mating makes you shiver. <<He>> looks away, wide-eyed.
 			<br><br>
 		<<elseif _kinkType is 4 and $tentacletrait gte 1>>
 			You whisper to Kylar that you've fantasised about being accosted by a hoard of tentacles to have their way with you. Writhing, thrusting, wrapping around you and using your every hole to obey their primal urges. <<He>> looks away, blushing.
@@ -1999,14 +1969,7 @@ Kylar's grip on your hand tightens, before <<he>> lunges forward and kisses you 
 <<ggglove>><<gglust>><<llksuspicion>>
 <br><br>
 
-<<if $loveInterest.primary is "None">>
-	<<set $loveInterest.primary to "Kylar">>
-	<span class="gold">Kylar is now your love interest! You know <<he>>'ll always be watching your back. Always.</span>
-<<else>>
-	<span class="gold">Kylar can now be claimed as your love interest! You know <<he>>'ll always be watching your back. Always.
-	<br>
-	You can change your love interest in the "Attitudes" menu.</span>
-<</if>>
+<<loveInterestAdd "Kylar" "consensual">>
 <br><br>
 <<link [[Next|Kylar Orphanage Cuddle 2]]>><<set $phase to 1>><</link>>
 
@@ -2658,7 +2621,7 @@ You nod, and <<he>> blushes. You think <<hes>> going to turn you down, but <<he>
 		<<else>>
 			<<gstress>><<stress 1>>
 		<</if>>
-	<<elseif $rng gte 91 and $pregnancyspeechdisable is "f">>
+	<<elseif $rng gte 91 and $settings.pregnancySpeechEnabled>>
 		You chat with Kylar. "I've been thinking up names for our children," <<he>> says.
 		<<gstress>><<stress 1>>
 	<<elseif $rng gte 81>>
@@ -2921,7 +2884,7 @@ You turn and face the pair.
 <<if $speech_attitude is "meek">>
 	"Leave <<person1>><<him>> alone," you say.
 <<elseif $speech_attitude is "bratty">>
-	"Fuck off losers," you say.
+	"Fuck off, losers," you say.
 <<else>>
 	"Go away," you say. "Be a nuisance somewhere else."
 <</if>>
@@ -3580,7 +3543,7 @@ You sit beside Kylar and say hello.
 :: Canteen Kylar Whitney Kiss
 <<effects>>
 
-You close your eyes and kiss back. <<npcincr Whitney love 1>><<glove>>
+You close your eyes and kiss back. <<npcincr Whitney love 1>><<glove "Whitney">>
 <br><br>
 
 Kylar is still frozen in place when your eyes open, <<person1>><<his>> lips moving in a feeble attempt to speak.
@@ -3914,7 +3877,7 @@ Kylar seizes the opportunity, and delivers a kick from <<person1>><<his>> positi
 Something clatters to the ground beside Kylar as <<he>> gets <<his>> footing. <<His>> knife. <<He>> hurries to retrieve it, but it's too late. The circle of onlookers widens, but you hear someone push through the crowd behind you.
 <br><br>
 
-"I saw that," Whitney sneers between grunts of pain. "Go on. Show everyone what a psycho you are—" A pair of arms grasp <<person2>><<his>>, and hoist <<him>> to <<his>> feet. "Get the fuck away from—" Whitney begins, but cuts off as <<he>> comes face to face with Leighton.
+"I saw that," Whitney sneers between grunts of pain. "Go on. Show everyone what a psycho you are—" A pair of arms grasp <<person2>><<hers>>, and hoist <<him>> to <<his>> feet. "Get the fuck away from—" Whitney begins, but cuts off as <<he>> comes face to face with Leighton.
 <br><br>
 
 "My office. Now."
@@ -4094,7 +4057,7 @@ You approach Kylar's stump.
 <<kylaroptions>>
 
 :: Kylar Arcade
-<<set $outside to 1>><<set $location to "arcade">><<effects>><<run statusCheck("Kylar")>>
+<<set $outside to 0>><<set $location to "arcade">><<effects>><<run statusCheck("Kylar")>>
 
 <<npc Kylar>><<person1>>
 You approach Kylar. <<Hes>> racking up quite a score.
@@ -4191,7 +4154,7 @@ You ignore the <<person>> and continue walking.
 <<set $outside to 1>><<set $location to "town">><<effects>>
 
 <<if $athleticsSuccess>>
-	You chase the fabric, and <span class="green">succeed in snatching it from the air.</span> A force still pulls on it. There's a hook embedded in the garment, with a thin wire attached. You free the hook, and the wire drags it into an open window on the second storey of a building.
+	You chase the fabric and <span class="green">succeed in snatching it from the air.</span> A force still pulls on it. There's a hook embedded in the garment, with a thin wire attached. You free the hook, and the wire drags it into an open window on the second storey of a building.
 	<br><br>
 
 	The fabric is ruined, but you wrap it around your loins like a towel. Better than nothing.
@@ -4275,7 +4238,7 @@ You run for the cover of a <<if $bus is "park">>bush<<else>>parked car<</if>> an
 <<link [[Punish|Street Kylar Punish]]>><<npcincr Kylar love -5>><</link>><<lllove>>
 <br>
 <<if hasSexStat("promiscuity", 2, true) and $submissive lte 500>>
-	<<if $footdisable is "f">>
+	<<if $settings.footFetishEnabled>>
 		<<link [[Punish with your foot|Street Kylar Foot]]>><<def 1>><</link>><<promiscuous2>><<defianttext>>
 		<br>
 		<<link [[Punish with your hand|Street Kylar Hand]]>><<def 1>><</link>><<promiscuous2>><<defianttext>>
@@ -5042,7 +5005,7 @@ The two of you continue walking.
 <<else>>
 	<<npcincr Kylar love 1>><<npcincr Kylar lust 1>><<npcincr Kylar rage -5>>
 	<<if $speech_attitude is "meek">>
-		You slowly bring your face closer to <<his>>, and plant a kiss on <<his>> lips.
+		You slowly bring your face closer to <<hers>>, and plant a kiss on <<his>> lips.
 	<<elseif $speech_attitude is "bratty">>
 		You grab <<him>> and pull <<him>> close, before kissing <<him>>.
 	<<else>>
@@ -5231,7 +5194,7 @@ You push Kylar away from you.
 
 <<if $phase is "pry">>
 	<<if $physiqueSuccess>>
-		With enough muscle, you manage to peel <<him>> away, but <<he>> still grips at your clothes, refusing to let you go. <<His>> face is wet with mucus and tears. "W-what happened? Where did you go? I looked everywhere for you!" <<He>> takes your hands in <<his>>. "P-please don't leave me like that again!"
+		With enough muscle, you manage to peel <<him>> away, but <<he>> still grips at your clothes, refusing to let you go. <<His>> face is wet with mucus and tears. "W-what happened? Where did you go? I looked everywhere for you!" <<He>> takes your hands in <<hers>>. "P-please don't leave me like that again!"
 	<<else>>
 		You attempt to pull <<him>> off, but <<he>> only latches on tighter. Mucus and tears run down <<his>> face as <<he>> bawls, soaking your shirt. "W-what happened? Where did you go? I looked everywhere for you!" <<He>> clutches you painfully tight<<if !$worn.upper.type.includes("naked") and !$worn.under_upper.type.includes("naked")>>, and in doing so rips your clothes<</if>>.<<pain 6>><<gpain>>
 		<br><br>

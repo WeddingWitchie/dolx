@@ -220,7 +220,7 @@ const DoLSave = ((Story, Save) => {
 					dolSaveDetails.autosave.metadata.saveName = "";
 				}
 			}
-			/* Check whether SugarCube's save slots exist, and populate save details with them. */
+			/* Check whether SugarCube's save slots exist and populate save details with them. */
 			for (let i = 0; i < scSaveDetails.slots.length; i++) {
 				if (scSaveDetails.slots[i] !== null) {
 					dolSaveDetails.slots[i] = {
@@ -337,7 +337,6 @@ const DoLSave = ((Story, Save) => {
 	 * @param {object} state
 	 */
 	function compressState(state) {
-		DOL.Perflog.logWidgetStart("__DoLSave.compressState");
 		try {
 			const dictionary = COMPRESSOR_DICTIONARIES[COMPRESSOR_CURRENT_DICTIONARY_ID];
 			const compressor = new JsonCompressor(dictionary);
@@ -354,8 +353,8 @@ const DoLSave = ((Story, Save) => {
 				}
 			}
 			return zstate;
-		} finally {
-			DOL.Perflog.logWidgetEnd("__DoLSave.compressState");
+		} catch (e) {
+			console.warn("Something went wrong", e);
 		}
 	}
 
@@ -366,7 +365,6 @@ const DoLSave = ((Story, Save) => {
 	 * @param {object} zstate
 	 */
 	function decompressState(zstate) {
-		DOL.Perflog.logWidgetStart("__DoLSave.decompressState");
 		try {
 			if (!("dictionary" in zstate)) throw new Error("Unable to load - compressed save has no dictionary");
 			const dicid = zstate.dictionary;
@@ -379,8 +377,8 @@ const DoLSave = ((Story, Save) => {
 			const dictionary = COMPRESSOR_DICTIONARIES[dicid];
 			const decompressor = new JsonDecompressor(dictionary);
 			return decompressor.decompress(zstate);
-		} finally {
-			DOL.Perflog.logWidgetEnd("__DoLSave.decompressState");
+		} catch (e) {
+			console.warn("Something went wrong", e);
 		}
 	}
 	function enableCompression() {
@@ -545,13 +543,14 @@ window.importSettings = function (data, type) {
 	let reader;
 	switch (type) {
 		case "text":
-			V.importString = document.getElementById("settingsDataInput")?.value;
+			V.importString = compatibilityConversion(document.getElementById("settingsDataInput")?.value);
 			Wikifier.wikifyEval('<<displaySettings "importConfirmDetails">>');
 			break;
 		case "file":
 			reader = new FileReader();
 			reader.addEventListener("load", function (e) {
-				V.importString = e.target?.result;
+				// eslint-disable-next-line no-undef
+				V.importString = compatibilityConversion(e.target?.result);
 				Wikifier.wikifyEval('<<displaySettings "importConfirmDetails">>');
 			});
 			reader.readAsBinaryString(data[0]);
@@ -562,6 +561,118 @@ window.importSettings = function (data, type) {
 	}
 };
 
+function compatibilityConversion(rawData) {
+	let processed;
+
+	try {
+		processed = JSON.parse(rawData);
+	} catch {
+		return rawData;
+	}
+	if (!processed || typeof processed !== "object") return rawData;
+
+	const map = {
+		alluremod: { key: "allureModifier", invert: false },
+		analdisable: { key: "analEnabled", invert: true },
+		analdoubledisable: { key: "analDoubleEnabled", invert: true },
+		analingusdisablegiving: { key: "analingusGivingEnabled", invert: true },
+		analingusdisablereceiving: { key: "analingusReceivingEnabled", invert: true },
+		asphyxiaLvl: { key: "asphyxiaLevel", invert: false },
+		baseNpcPregnancyChance: { key: "baseNpcPregnancyChance", invert: false },
+		basePlayerPregnancyChance: { key: "basePlayerPregnancyChance", invert: false },
+		beastmalechance: { key: "beastMaleChance", invert: false },
+		beastMaleChanceFemale: { key: "beastMaleChanceFemale", invert: false },
+		beastMaleChanceMale: { key: "beastMaleChanceMale", invert: false },
+		beastMaleChanceSplit: { key: "beastMaleChanceSplit", invert: false },
+		beedisable: { key: "beesEnabled", invert: true },
+		bestialitydisable: { key: "bestialityEnabled", invert: true },
+		blackchance: { key: "darkSkinChance", invert: false },
+		bodywritingLvl: { key: "bodyWritingLevel", invert: false },
+		breast_mod: { key: "breastModifier", invert: false },
+		breastfeedingdisable: { key: "breastFeedingEnabled", invert: true },
+		cbchance: { key: "maleNPCVaginaChance", invert: false },
+		cheatdisabletoggle: { key: "cheatsEnabledToggle", invert: true },
+		checkstyle: { key: "skillCheckStyle", invert: false },
+		clothesPrice: { key: "clothingCostModifier", invert: false },
+		clothesPriceLewd: { key: "lewdClothingCostModifier", invert: false },
+		clothesPriceSchool: { key: "schoolClothingCostModifier", invert: false },
+		clothesPriceUnderwear: { key: "underwearCostModifier", invert: false },
+		condomChance: { key: "condomChance", invert: false },
+		condomLvl: { key: "condomLevel", invert: false },
+		condomUseChanceCon: { key: "condomUseChanceConsensual", invert: false },
+		condomUseChanceRape: { key: "condomUseChanceRape", invert: false },
+		cycledisable: { key: "fertilityCycleEnabled", invert: true },
+		dgchance: { key: "femaleNPCPenisChance", invert: false },
+		facesitdisable: { key: "facesitEnabled", invert: true },
+		footdisable: { key: "footFetishEnabled", invert: true },
+		forcedcrossdressingdisable: { key: "forcedCrossdressingEnabled", invert: true },
+		furniturePriceFactor: { key: "furnitureCostModifier", invert: false },
+		horsedisable: { key: "horsesEnabled", invert: true },
+		humanPregnancyMonths: { key: "humanPregnancyMonths", invert: false },
+		hypnosisdisable: { key: "hypnosisEnabled", invert: true },
+		incompletePregnancyDisable: { key: "incompletePregnancyEnabled", invert: true },
+		lurkerdisable: { key: "lurkersEnabled", invert: true },
+		malechance: { key: "maleChance", invert: false },
+		maleChanceFemale: { key: "maleChanceFemale", invert: false },
+		maleChanceMale: { key: "maleChanceMale", invert: false },
+		maleChanceSplit: { key: "maleChanceSplit", invert: false },
+		malevictimchance: { key: "maleVictimChance", invert: false },
+		monsterchance: { key: "monsterChance", invert: false },
+		monsterhallucinations: { key: "monsterHallucinationsOnly", invert: false },
+		multipleWardrobes: { key: "multipleWardrobes", invert: false },
+		npcPregnancyDisable: { key: "npcPregnancyEnabled", invert: true },
+		npcVirginityChance: { key: "npcVirginChanceStudent", invert: false },
+		npcVirginityChanceAdult: { key: "npcVirginChanceAdult", invert: false },
+		NudeGenderDC: { key: "nudeGenderPerception", invert: false },
+		parasitedisable: { key: "parasitesEnabled", invert: true },
+		parasitepregdisable: { key: "parasitePregnancyEnabled", invert: true },
+		pbdisable: { key: "pubicHairEnabled", invert: true },
+		penis_mod: { key: "penisModifier", invert: false },
+		plantdisable: { key: "plantsEnabled", invert: true },
+		playerPregnancyBeastDisable: { key: "playerPregnancyBeastEnabled", invert: true },
+		playerPregnancyEggLayingDisable: { key: "playerPregnancyEggLayingEnabled", invert: true },
+		playerPregnancyHumanDisable: { key: "playerPregnancyHumanEnabled", invert: true },
+		pregnancyspeechdisable: { key: "pregnancySpeechEnabled", invert: true },
+		pregnancytype: { key: "pregnancyType", invert: false },
+		rentmod: { key: "rentCostModifier", invert: false },
+		ruinedorgasmdisable: { key: "ruinedOrgasmEnabled", invert: true },
+		slimedisable: { key: "slimesEnabled", invert: true },
+		slugdisable: { key: "slugsEnabled", invert: true },
+		spiderdisable: { key: "spidersEnabled", invert: true },
+		statdisable: { key: "blindStatsEnabled", invert: false },
+		straponchance: { key: "straponChance", invert: false },
+		swarmdisable: { key: "swarmsEnabled", invert: true },
+		tending_yield_factor: { key: "tendingYieldModifier", invert: false },
+		tentacledisable: { key: "tentaclesEnabled", invert: true },
+		toydildodisable: { key: "toyDildoEnabled", invert: true },
+		toymultiplepenetration: { key: "toyMultiplePenetrationEnabled", invert: true },
+		toywhipdisable: { key: "toyWhipEnabled", invert: true },
+		transformdisable: { key: "transformAnimalEnabled", invert: true },
+		transformdisabledivine: { key: "transformDivineEnabled", invert: true },
+		vaginaldoubledisable: { key: "vaginalDoubleEnabled", invert: true },
+		voredisable: { key: "voreEnabled", invert: true },
+		waspdisable: { key: "waspsEnabled", invert: true },
+		watersportsdisable: { key: "watersportsEnabled", invert: true },
+		wolfPregnancyWeeks: { key: "wolfPregnancyWeeks", invert: false },
+	};
+
+	processed.general.settings ??= {};
+
+	for (const legacyKey in map) {
+		if (!(legacyKey in processed.general)) continue;
+		const { key, invert } = map[legacyKey];
+		const legacyValue = processed.general[legacyKey];
+
+		if (typeof legacyValue === "boolean" && invert) {
+			processed.general.settings[key] ??= !legacyValue;
+		} else {
+			processed.general.settings[key] ??= legacyValue;
+		}
+		delete processed.general[legacyKey];
+	}
+	return JSON.stringify(processed);
+}
+
 /**
  * Using the incoming configuration object, replace all active variables (V | $ | State.variables)
  *
@@ -571,8 +682,14 @@ function importSettingsData(data) {
 	if (data == null) {
 		return;
 	}
+	let overrides;
 	// console.log("json",JSON.parse(result));
-	const overrides = JSON.parse(data);
+	if (V.importString) {
+		overrides = JSON.parse(V.importString);
+		delete V.importString;
+	} else {
+		overrides = JSON.parse(data);
+	}
 	if (V.passage === "Start" && overrides.starting != null) {
 		overrides.starting = settingsConvert(false, "starting", overrides.starting);
 	}
@@ -615,7 +732,7 @@ function importSettingsData(data) {
 	if (overrides.general != null) {
 		const listObject = settingsObjects("general");
 		const listKey = Object.keys(listObject);
-		const namedObjects = ["map", "shopDefaults", "options", "wardrobeDefaults", "combatExtended", "AMCTraits"];
+		const namedObjects = ["map", "shopDefaults", "settings", "options", "wardrobeDefaults", "combatExtended", "AMCTraits"];
 		// correct swapped min/max values
 		if (overrides.general.breastsizemin > overrides.general.breastsizemax) {
 			const temp = overrides.general.breastsizemin;
@@ -627,7 +744,6 @@ function importSettingsData(data) {
 			overrides.general.penissizemin = overrides.general.penissizemax;
 			overrides.general.penissizemax = temp;
 		}
-
 		for (let i = 0; i < listKey.length; i++) {
 			if (namedObjects.includes(listKey[i]) && overrides.general[listKey[i]] != null) {
 				const itemKey = Object.keys(listObject[listKey[i]]);
@@ -726,6 +842,7 @@ function exportSettings(data, type) {
 			map: {},
 			shopDefaults: {},
 			options: {},
+			settings: {},
 			wardrobeDefaults: {},			
 			combatExtended: {},
 			AMCTraits: {},
@@ -750,7 +867,7 @@ function exportSettings(data, type) {
 
 	listObject = settingsObjects("general");
 	listKey = Object.keys(listObject);
-	const namedObjects = ["map", "shopDefaults", "options", "wardrobeDefaults", "combatExtended", "AMCTraits"];
+	const namedObjects = ["map", "shopDefaults", "settings", "options", "wardrobeDefaults", "combatExtended", "AMCTraits"];
 
 	for (let i = 0; i < listKey.length; i++) {
 		if (namedObjects.includes(listKey[i]) && V[listKey[i]] != null) {
@@ -801,7 +918,7 @@ function exportSettings(data, type) {
 }
 window.exportSettings = exportSettings;
 
-const settingContainers = ["player", "skin"];
+const settingContainers = ["player", "skin", "settings"];
 
 function settingsObjects(type) {
 	let result;
@@ -935,7 +1052,28 @@ function settingsObjects(type) {
 					},
 					skin: {
 						color: {
-							strings: ["light", "medium", "dark", "gyaru", "ylight", "ymedium", "ydark", "ygyaru"],
+							strings: [
+								"light",
+								"medium",
+								"dark",
+								"gyaru",
+								"rlight",
+								"rmedium",
+								"rdark",
+								"rgyaru",
+								"ylight",
+								"ymedium",
+								"ydark",
+								"ygyaru",
+								"glight",
+								"gmedium",
+								"gdark",
+								"ggyaru",
+								"blight",
+								"bmedium",
+								"bdark",
+								"bgyaru",
+							],
 							randomize: "characterAppearance",
 							displayName: "Natural Skintone:",
 						},
@@ -977,212 +1115,12 @@ function settingsObjects(type) {
 			break;
 		case "general":
 			result = {
-				malechance: { min: 0, max: 100, decimals: 0, displayName: "Percentage of people attracted to you that are male:", randomize: "encounter" },
-				maleChanceSplit: { boolLetter: true, bool: true, displayName: "NPC attraction split by gender appearance:" },
-				maleChanceMale: { min: 0, max: 100, decimals: 0, displayName: "NPCs who are attracted to men:", randomize: "encounter" },
-				maleChanceFemale: { min: 0, max: 100, decimals: 0, displayName: "NPCs who are attracted to women:", randomize: "encounter" },
-				dgchance: { min: 0, max: 100, decimals: 0, displayName: "Percentage of women that have penises:", randomize: "encounter" },
-				cbchance: { min: 0, max: 100, decimals: 0, displayName: "Percentage of men that have vaginas:", randomize: "encounter" },
-				malevictimchance: { min: 0, max: 100, decimals: 0, displayName: "Percentage of other victims that are male:", randomize: "encounter" },
 				npcHealthMult: { min: 1, max: 1000000, decimals: 0, displayName: "NPC Health Max Multiplier:" },
 				npcArousalMult: { min: 1, max: 1000000, decimals: 0, displayName: "NPC Arousal Max Multiplier:" },
-				npcVirginityChance: { min: 0, max: 100, decimals: 0, displayName: "Likelihood of students being virgins:", randomize: "encounter" },
-				npcVirginityChanceAdult: { min: 0, max: 100, decimals: 0, displayName: "Likelihood of adults being virgins:", randomize: "encounter" },
-				breast_mod: { min: -12, max: 12, decimals: 0, displayName: "Average size of women's breasts:", randomize: "encounter" },
-				penis_mod: { min: -8, max: 8, decimals: 0, displayName: "Average size of NPC penises:", randomize: "encounter" },
-				whitechance: { min: 0, max: 100, decimals: 0, displayName: "Likelihood that NPCs have light skin:", randomize: "encounter" },
-				blackchance: { min: 0, max: 100, decimals: 0, displayName: "Likelihood that NPCs have dark skin:", randomize: "encounter" },
-				straponchance: { min: 0, max: 100, decimals: 0, displayName: "Percentage of women that have strap-on penises:", randomize: "encounter" },
-				alluremod: { min: 0.2, max: 2, decimals: 1, displayName: "Encounter rate:", randomize: "gameplay" },
-				clothesPrice: { min: 1, max: 10, decimals: 1, displayName: "Cost of clothing:", randomize: "gameplay" },
-				clothesPriceUnderwear: { min: 1, max: 2, decimals: 1, displayName: "Cost of underwear:", randomize: "gameplay" },
-				clothesPriceSchool: { min: 1, max: 2, decimals: 1, displayName: "Cost of school clothes:", randomize: "gameplay" },
-				clothesPriceLewd: { min: 0.1, max: 2, decimals: 1, displayName: "Cost of lewd clothes:", randomize: "gameplay" },
-				furniturePriceFactor: { min: 0.6, max: 2, decimals: 1, displayName: "Cost of furniture:", randomize: "gameplay" },
-				tending_yield_factor: { min: 1, max: 10, decimals: 1, displayName: "Crop yield:", randomize: "gameplay" },
-				rentmod: { min: 0.1, max: 3, decimals: 1, displayName: "Bailey's rent:", randomize: "gameplay" },
 				beastHealthMult: { min: 1, max: 1000000, decimals: 0, displayName: "Beast Health Max Multiplier:" },
 				beastArousalMult: { min: 1, max: 1000000, decimals: 0, displayName: "Beast Arousal Max Multiplier:" },
-				beastmalechance: { min: 0, max: 100, decimals: 0, displayName: "Percentage of beasts attracted to you that are male:", randomize: "encounter" },
-				beastMaleChanceSplit: { boolLetter: true, bool: true, displayName: "Beast attraction split by gender appearance:" },
-				beastMaleChanceMale: { min: 0, max: 100, decimals: 0, displayName: "Beasts who are attracted to men:", randomize: "encounter" },
-				beastMaleChanceFemale: { min: 0, max: 100, decimals: 0, displayName: "Beasts who are attracted to women:", randomize: "encounter" },
-				monsterchance: {
-					min: 0,
-					max: 100,
-					decimals: 0,
-					displayName: "Percentage of beasts that are replaced with monster girls or boys:",
-					randomize: "encounter",
-				},
-				monsterhallucinations: {
-					boolLetter: true,
-					bool: true,
-					displayName: "Only replace beasts with monsters while hallucinating:",
-					randomize: "encounter",
-				},
-				blackwolfmonster: {
-					min: 0,
-					max: 2,
-					decimals: 0,
-					displayName: "Black Wolf beast type:",
-					textMap: { 0: "Always a beast", 1: "Monster girl or boy when requirements met", 2: "Always a monster girl or boy" },
-					randomize: "encounter",
-				},
-				greathawkmonster: {
-					min: 0,
-					max: 2,
-					decimals: 0,
-					displayName: "Great Hawk beast type:",
-					textMap: { 0: "Always a beast", 1: "Monster girl or boy when requirements met", 2: "Always a monster girl or boy" },
-					randomize: "encounter",
-				},
 				tentacleHealthMult: { min: 1, max: 1000000, decimals: 0, displayName: "Tentacle Health Max Multiplier:" },
 				struggleHealthMult: { min: 1, max: 1000000, decimals: 0, displayName: "Struggle Health Max Multiplier:" },
-				bestialitydisable: { boolLetter: true, bool: true, displayName: "Bestiality:" },
-				swarmdisable: { boolLetter: true, bool: true, displayName: "Swarms:" },
-				slimedisable: { boolLetter: true, bool: true, displayName: "Slimes:" },
-				voredisable: { boolLetter: true, bool: true, displayName: "Vore:" },
-				tentacledisable: { boolLetter: true, bool: true, displayName: "Tentacles:" },
-				analdisable: { boolLetter: true, bool: true, displayName: "Anal:" },
-				analdoubledisable: { boolLetter: true, bool: true, displayName: "Double Anal:" },
-				analingusdisablegiving: { boolLetter: true, bool: true, displayName: "Analingus (Giving):" },
-				analingusdisablereceiving: { boolLetter: true, bool: true, displayName: "Analingus (Receiving):" },
-				vaginaldoubledisable: { boolLetter: true, bool: true, displayName: "Double Vaginal:" },
-				transformdisable: { boolLetter: true, bool: true, displayName: "Animal Transformations:" },
-				transformdisabledivine: { boolLetter: true, bool: true, displayName: "Divine Transformations:" },
-				hirsutedisable: { boolLetter: true, bool: true },
-				pbdisable: { boolLetter: true, bool: true, displayName: "Pubic hair:" },
-				breastfeedingdisable: { boolLetter: true, bool: true, displayName: "Breastfeeding:" },
-				parasitepregdisable: { boolLetter: true, bool: true, displayName: "Parasite pregnancy:" },
-				watersportsdisable: { boolLetter: true, bool: true, displayName: "Watersports:" },
-				facesitdisable: { boolLetter: true, bool: true, displayName: "Facesitting:" },
-				spiderdisable: { boolLetter: true, bool: true, displayName: "Spiders:" },
-				bodywritingLvl: {
-					min: 0,
-					max: 3,
-					decimals: 0,
-					displayName: "Bodywriting:",
-					textMap: {
-						0: "NPCs will not write on you",
-						1: "NPCs may ask to write on you",
-						2: "NPCs may forcibly write on you",
-						3: "NPCs may forcibly write on and tattoo you",
-					},
-				},
-				parasitedisable: { boolLetter: true, bool: true, displayName: "Parasites:" },
-				ruinedorgasmdisable: { boolLetter: true, bool: true, displayName: "Ruined orgasms:" },
-				slugdisable: { boolLetter: true, bool: true, displayName: "Slugs:" },
-				waspdisable: { boolLetter: true, bool: true, displayName: "Wasps:" },
-				beedisable: { boolLetter: true, bool: true, displayName: "Bees:" },
-				lurkerdisable: { boolLetter: true, bool: true, displayName: "Lurkers:" },
-				horsedisable: { boolLetter: true, bool: true, displayName: "Horses:" },
-				pregnancyspeechdisable: { boolLetter: true, bool: true, displayName: "Fertility references:" },
-				plantdisable: { boolLetter: true, bool: true, displayName: "Plantpeople:" },
-				footdisable: { boolLetter: true, bool: true, displayName: "Foot fetish:" },
-				toydildodisable: { boolLetter: true, bool: true, displayName: "Dildos:" },
-				toywhipdisable: { boolLetter: true, bool: true, displayName: "Whips:" },
-				toymultiplepenetration: { boolLetter: true, bool: true, displayName: "Multiple penetration with sex toys:" },
-				hypnosisdisable: { boolLetter: true, bool: true, displayName: "Hypnosis:" },
-				ruffledisable: { boolLetter: true, bool: true, displayName: "Ruffled hair:" },
-				forcedcrossdressingdisable: { boolLetter: true, bool: true, displayName: "Forced crossdressing:" },
-				asphyxiaLvl: {
-					min: 0,
-					max: 4,
-					decimals: 0,
-					displayName: "Asphyxiation:",
-					textMap: {
-						0: "NPCs will not touch your neck",
-						1: "NPCs may grab you by the neck without impeding breathing",
-						2: "NPCs may try to choke you during consensual encounters",
-						3: "NPCs may try to strangle you during non-consensual encounters",
-					},
-				},
-				NudeGenderDC: {
-					min: 0,
-					max: 2,
-					decimals: 0,
-					displayName: "Nude gender appearance:",
-					textMap: {
-						"-1": "NPCs will ignore genitals when perceiving gender, and crossdressing warnings will not be displayed",
-						0: "NPCs will ignore genitals when perceiving gender",
-						1: "NPCs will consider your genitals when perceiving your gender",
-						2: "NPCs will judge your gender based on your genitals",
-					},
-				},
-				breastsizemin: {
-					min: 0,
-					max: 4,
-					decimals: 0,
-					displayName: "Minimum breast size:",
-					textMap: { 0: "Flat", 1: "Budding", 2: "Tiny", 3: "Small", 4: "Pert" },
-				},
-				breastsizemax: {
-					min: 0,
-					max: 12,
-					decimals: 0,
-					displayName: "Maximum breast size:",
-					textMap: {
-						0: "Flat",
-						1: "Budding",
-						2: "Tiny",
-						3: "Small",
-						4: "Pert",
-						5: "Modest",
-						6: "Full",
-						7: "Large",
-						8: "Ample",
-						9: "Massive",
-						10: "Huge",
-						11: "Gigantic",
-						12: "Enormous",
-					},
-				},
-				bottomsizemin: {
-					min: 0,
-					max: 2,
-					decimals: 0,
-					displayName: "Minimum bottom size:",
-					textMap: { 0: "Slender", 1: "Slim", 2: "Modest", 3: "Cushioned" },
-				},
-				bottomsizemax: {
-					min: 0,
-					max: 8,
-					decimals: 0,
-					displayName: "Maximum bottom size:",
-					textMap: { 0: "Slender", 1: "Slim", 2: "Modest", 3: "Cushioned", 4: "Soft", 5: "Round", 6: "Plump", 7: "Large", 8: "Huge" },
-				},
-				penissizemin: { min: -2, max: 0, decimals: 0, displayName: "Minimum penis size:", textMap: { "-2": "Micro", "-1": "Mini", 0: "Tiny" } },
-				penissizemax: {
-					min: -2,
-					max: 4,
-					decimals: 0,
-					displayName: "Maximum penis size:",
-					textMap: { "-2": "Micro", "-1": "Mini", 0: "Tiny", 1: "Small", 2: "Normal", 3: "Large", 4: "Enormous" },
-				},
-				basePlayerPregnancyChance: { min: 0, max: 96, decimals: 0, displayName: "Base player pregnancy chance:", randomize: "gameplay" },
-				baseNpcPregnancyChance: { min: 0, max: 16, decimals: 0, displayName: "Base NPC pregnancy chance:", randomize: "gameplay" },
-				humanPregnancyMonths: { min: 1, max: 9, decimals: 0, displayName: "Human pregnancy length:" },
-				wolfPregnancyWeeks: { min: 2, max: 12, decimals: 0, displayName: "Wolf pregnancy length:" },
-				playerPregnancyHumanDisable: { boolLetter: true, bool: true, displayName: "Player pregnancy with humans:" },
-				playerPregnancyBeastDisable: { boolLetter: true, bool: true, displayName: "Player pregnancy with beasts:" },
-				npcPregnancyDisable: { boolLetter: true, bool: true, displayName: "NPC pregnancy:" },
-				cycledisable: { boolLetter: true, bool: true, displayName: "Menstrual cycle:" },
-				pregnancytype: { strings: ["realistic", "fetish", "silly"], displayName: "Pregnancy mode:" },
-				condomLvl: {
-					min: 0,
-					max: 3,
-					decimals: 0,
-					displayName: "Condoms:",
-					textMap: {
-						0: "Everyone is allergic to latex and safe sex",
-						1: "Only you may use condoms, but you may give NPCs condoms",
-						2: "NPCs will only have condoms if pregnancy between them and the player is possible",
-						3: "NPCs may have and use condoms whenever they please",
-					},
-					randomize: "gameplay",
-				},
-
-				checkstyle: { strings: ["percentage", "words", "skillname"], randomize: "gameplay", displayName: "Skill check display:" },
 				enemystatstyle: { strings: ["full", "default"], randomize: "gameplay", displayName: "Enemy stat display:" },
 				dpctext: { min: 0, max: 1, decimals: 0, displayName: "Meme Text Expanded:" },
 				realisticTransparency: { min: 0, max: 1, decimals: 0, displayName: "Realistic Clothing Transparency:" },
@@ -1300,14 +1238,217 @@ function settingsObjects(type) {
 				},
 				multiOrgasmToggle: { min: 0, max: 1, decimals: 0, displayName: "Multi-Orgasm:" },
 				multiOrgasmLustScaling: { min: 0, max: 1, decimals: 0, displayName: "Multi-Orgasm Lust Scaling:" },
-				debugdisable: { boolLetter: true, bool: true, displayName: "Debug mode:" },
-				statdisable: { boolLetter: true, bool: true, displayName: "Blind stats mode:" },
-				cheatdisabletoggle: { boolLetter: true, bool: true, displayName: "Cheat mode:" },
+				settings: {
+					analEnabled: { bool: true, displayName: "Anal:" },
+					analingusGivingEnabled: { bool: true, displayName: "Analingus (Giving):" },
+					analingusReceivingEnabled: { bool: true, displayName: "Analingus (Receiving):" },
+					transformAnimalEnabled: { bool: true, displayName: "Animal Transformations:" },
+					asphyxiaLevel: {
+						min: 0,
+						max: 4,
+						decimals: 0,
+						displayName: "Asphyxiation:",
+						textMap: {
+							0: "NPCs will not touch your neck",
+							1: "NPCs may grab you by the neck without impeding breathing",
+							2: "NPCs may try to choke you during consensual encounters",
+							3: "NPCs may try to strangle you during non-consensual encounters",
+						},
+					},
+					penisModifier: { min: -8, max: 8, decimals: 0, displayName: "Average size of NPC penises:", randomize: "encounter" },
+					breastModifier: { min: -12, max: 12, decimals: 0, displayName: "Average size of women's breasts:", randomize: "encounter" },
+					rentCostModifier: { min: 0.1, max: 10, decimals: 1, displayName: "Bailey's rent:", randomize: "gameplay" },
+					baseNpcPregnancyChance: { min: 0, max: 16, decimals: 0, displayName: "Base NPC pregnancy chance:", randomize: "gameplay" },
+					basePlayerPregnancyChance: { min: 0, max: 96, decimals: 0, displayName: "Base player pregnancy chance:", randomize: "gameplay" },
+					beastMaleChanceSplit: { bool: true, displayName: "Beast attraction split by gender appearance:" },
+					beastMaleChanceMale: { min: 0, max: 100, decimals: 0, displayName: "Beasts who are attracted to men:", randomize: "encounter" },
+					beastMaleChanceFemale: { min: 0, max: 100, decimals: 0, displayName: "Beasts who are attracted to women:", randomize: "encounter" },
+					beesEnabled: { bool: true, displayName: "Bees:" },
+					bestialityEnabled: { bool: true, displayName: "Bestiality:" },
+					blindStatsEnabled: { bool: true, displayName: "Blind stats mode:" },
+					bodyWritingLevel: {
+						min: 0,
+						max: 3,
+						decimals: 0,
+						displayName: "Bodywriting:",
+						textMap: {
+							0: "NPCs will not write on you",
+							1: "NPCs may ask to write on you",
+							2: "NPCs may forcibly write on you",
+							3: "NPCs may forcibly write on and tattoo you",
+						},
+					},
+					breastFeedingEnabled: { bool: true, displayName: "Breastfeeding:" },
+					cheatsEnabledToggle: { bool: true, displayName: "Cheat mode:" },
+					condomLevel: {
+						min: 0,
+						max: 3,
+						decimals: 0,
+						displayName: "Condoms:",
+						textMap: {
+							0: "Everyone is allergic to latex and safe sex",
+							1: "Only you may use condoms, but you may give NPCs condoms",
+							2: "NPCs will only have condoms if pregnancy between them and the player is possible",
+							3: "NPCs may have and use condoms whenever they please",
+						},
+						randomize: "gameplay",
+					},
+					clothingCostModifier: { min: 1, max: 10, decimals: 1, displayName: "Cost of clothing:", randomize: "gameplay" },
+					furnitureCostModifier: { min: 0.6, max: 5, decimals: 1, displayName: "Cost of furniture:", randomize: "gameplay" },
+					lewdClothingCostModifier: { min: 0.1, max: 2, decimals: 1, displayName: "Cost of lewd clothes:", randomize: "gameplay" },
+					schoolClothingCostModifier: { min: 1, max: 2, decimals: 1, displayName: "Cost of school clothes:", randomize: "gameplay" },
+					underwearCostModifier: { min: 1, max: 2, decimals: 1, displayName: "Cost of underwear:", randomize: "gameplay" },
+					tendingYieldModifier: { min: 1, max: 10, decimals: 1, displayName: "Crop yield:", randomize: "gameplay" },
+					toyDildoEnabled: { bool: true, displayName: "Dildos:" },
+					transformDivineEnabled: { bool: true, displayName: "Divine Transformations:" },
+					analDoubleEnabled: { bool: true, displayName: "Double Anal:" },
+					vaginalDoubleEnabled: { bool: true, displayName: "Double Vaginal:" },
+					allureModifier: { min: 0.2, max: 2, decimals: 1, displayName: "Encounter rate:", randomize: "gameplay" },
+					facesitEnabled: { bool: true, displayName: "Facesitting:" },
+					pregnancySpeechEnabled: { bool: true, displayName: "Fertility references:" },
+					footFetishEnabled: { bool: true, displayName: "Foot fetish:" },
+					forcedCrossdressingEnabled: { bool: true, displayName: "Forced crossdressing:" },
+					horsesEnabled: { bool: true, displayName: "Horses:" },
+					humanPregnancyMonths: { min: 1, max: 9, decimals: 0, displayName: "Human pregnancy length:" },
+					hypnosisEnabled: { bool: true, displayName: "Hypnosis:" },
+					npcVirginChanceAdult: { min: 0, max: 100, decimals: 0, displayName: "Likelihood of adults being virgins:", randomize: "encounter" },
+					npcVirginChanceStudent: { min: 0, max: 100, decimals: 0, displayName: "Likelihood of students being virgins:", randomize: "encounter" },
+					darkSkinChance: { min: 0, max: 100, decimals: 0, displayName: "Likelihood that NPCs have dark skin:", randomize: "encounter" },
+					lurkersEnabled: { bool: true, displayName: "Lurkers:" },
+					fertilityCycleEnabled: { bool: true, displayName: "Menstrual cycle:" },
+					toyMultiplePenetrationEnabled: { bool: true, displayName: "Multiple penetration with sex toys:" },
+					multipleWardrobes: { strings: [false, "isolated"], displayName: "Multiple wardrobes:" }, //, "all"
+					maleChanceSplit: { bool: true, displayName: "NPC attraction split by gender appearance:" },
+					npcPregnancyEnabled: { bool: true, displayName: "NPC pregnancy:" },
+					maleChanceMale: { min: 0, max: 100, decimals: 0, displayName: "NPCs who are attracted to men:", randomize: "encounter" },
+					maleChanceFemale: { min: 0, max: 100, decimals: 0, displayName: "NPCs who are attracted to women:", randomize: "encounter" },
+					nudeGenderPerception: {
+						min: 0,
+						max: 2,
+						decimals: 0,
+						displayName: "Nude gender appearance:",
+						textMap: {
+							"-1": "NPCs will ignore genitals when perceiving gender, and crossdressing warnings will not be displayed",
+							0: "NPCs will ignore genitals when perceiving gender",
+							1: "NPCs will consider your genitals when perceiving your gender",
+							2: "NPCs will judge your gender based on your genitals",
+						},
+					},
+					monsterHallucinationsOnly: {
+						bool: true,
+						displayName: "Only replace beasts with monsters while hallucinating:",
+						randomize: "encounter",
+					},
+					parasitePregnancyEnabled: { bool: true, displayName: "Parasite pregnancy:" },
+					parasitesEnabled: { bool: true, displayName: "Parasites:" },
+					beastMaleChance: {
+						min: 0,
+						max: 100,
+						decimals: 0,
+						displayName: "Percentage of beasts attracted to you that are male:",
+						randomize: "encounter",
+					},
+					monsterChance: {
+						min: 0,
+						max: 100,
+						decimals: 0,
+						displayName: "Percentage of beasts that are replaced with monster girls or boys:",
+						randomize: "encounter",
+					},
+					maleNPCVaginaChance: { min: 0, max: 100, decimals: 0, displayName: "Percentage of men that have vaginas:", randomize: "encounter" },
+					maleVictimChance: { min: 0, max: 100, decimals: 0, displayName: "Percentage of other victims that are male:", randomize: "encounter" },
+					maleChance: { min: 0, max: 100, decimals: 0, displayName: "Percentage of people attracted to you that are male:", randomize: "encounter" },
+					femaleNPCPenisChance: { min: 0, max: 100, decimals: 0, displayName: "Percentage of women that have penises:", randomize: "encounter" },
+					straponChance: { min: 0, max: 100, decimals: 0, displayName: "Percentage of women that have strap-on penises:", randomize: "encounter" },
+					plantsEnabled: { bool: true, displayName: "Plantpeople:" },
+					playerPregnancyEggLayingEnabled: { bool: true, displayName: "Player egg laying:" },
+					playerPregnancyBeastEnabled: { bool: true, displayName: "Player pregnancy with beasts:" },
+					playerPregnancyHumanEnabled: { bool: true, displayName: "Player pregnancy with humans:" },
+					pregnancyType: { strings: ["realistic", "fetish", "silly"], displayName: "Pregnancy mode:" },
+					pubicHairEnabled: { bool: true, displayName: "Pubic hair:" },
+					ruinedOrgasmEnabled: { bool: true, displayName: "Ruined orgasms:" },
+					skillCheckStyle: { strings: ["percentage", "words", "skillname"], randomize: "gameplay", displayName: "Skill check display:" },
+					slimesEnabled: { bool: true, displayName: "Slimes:" },
+					slugsEnabled: { bool: true, displayName: "Slugs:" },
+					spidersEnabled: { bool: true, displayName: "Spiders:" },
+					swarmsEnabled: { bool: true, displayName: "Swarms:" },
+					tentaclesEnabled: { bool: true, displayName: "Tentacles:" },
+					voreEnabled: { bool: true, displayName: "Vore:" },
+					waspsEnabled: { bool: true, displayName: "Wasps:" },
+					watersportsEnabled: { bool: true, displayName: "Watersports:" },
+					toyWhipEnabled: { bool: true, displayName: "Whips:" },
+					wolfPregnancyWeeks: { min: 2, max: 12, decimals: 0, displayName: "Wolf pregnancy length:" },
+				},
+				blackwolfmonster: {
+					min: 0,
+					max: 2,
+					decimals: 0,
+					displayName: "Black Wolf beast type:",
+					textMap: { 0: "Always a beast", 1: "Monster girl or boy when requirements met", 2: "Always a monster girl or boy" },
+					randomize: "encounter",
+				},
+				greathawkmonster: {
+					min: 0,
+					max: 2,
+					decimals: 0,
+					displayName: "Great Hawk beast type:",
+					textMap: { 0: "Always a beast", 1: "Monster girl or boy when requirements met", 2: "Always a monster girl or boy" },
+					randomize: "encounter",
+				},
+				breastsizemin: {
+					min: 0,
+					max: 4,
+					decimals: 0,
+					displayName: "Minimum breast size:",
+					textMap: { 0: "Flat", 1: "Budding", 2: "Tiny", 3: "Small", 4: "Pert" },
+				},
+				breastsizemax: {
+					min: 0,
+					max: 12,
+					decimals: 0,
+					displayName: "Maximum breast size:",
+					textMap: {
+						0: "Flat",
+						1: "Budding",
+						2: "Tiny",
+						3: "Small",
+						4: "Pert",
+						5: "Modest",
+						6: "Full",
+						7: "Large",
+						8: "Ample",
+						9: "Massive",
+						10: "Huge",
+						11: "Gigantic",
+						12: "Enormous",
+					},
+				},
+				bottomsizemin: {
+					min: 0,
+					max: 2,
+					decimals: 0,
+					displayName: "Minimum bottom size:",
+					textMap: { 0: "Slender", 1: "Slim", 2: "Modest", 3: "Cushioned" },
+				},
+				bottomsizemax: {
+					min: 0,
+					max: 8,
+					decimals: 0,
+					displayName: "Maximum bottom size:",
+					textMap: { 0: "Slender", 1: "Slim", 2: "Modest", 3: "Cushioned", 4: "Soft", 5: "Round", 6: "Plump", 7: "Large", 8: "Huge" },
+				},
+				penissizemin: { min: -2, max: 0, decimals: 0, displayName: "Minimum penis size:", textMap: { "-2": "Micro", "-1": "Mini", 0: "Tiny" } },
+				penissizemax: {
+					min: -2,
+					max: 4,
+					decimals: 0,
+					displayName: "Maximum penis size:",
+					textMap: { "-2": "Micro", "-1": "Mini", 0: "Tiny", 1: "Small", 2: "Normal", 3: "Large", 4: "Enormous" },
+				},
 				confirmSave: { bool: true, displayName: "Require confirmation on save:" },
 				confirmLoad: { bool: true, displayName: "Require confirmation on load:" },
 				confirmDelete: { bool: true, displayName: "Require confirmation on delete:" },
 				reducedLineHeight: { bool: true, displayName: "Reduced line height:" },
-				multipleWardrobes: { strings: [false, "isolated"], displayName: "Multiple wardrobes:" }, //, "all"
 				outfitEditorPerPage: { min: 5, max: 20, decimals: 0, displayName: "Items per page:" }, //, "all"
 				options: {
 					neverNudeMenus: { bool: true, displayName: "Hide player nudity in menus:" },
@@ -1332,8 +1473,16 @@ function settingsObjects(type) {
 					lightGradient: { min: 0, max: 1, decimals: 2, displayName: "Gradient:" },
 					lightGlow: { min: 0, max: 1, decimals: 2, displayName: "Glow:" },
 					lightFlat: { min: 0, max: 1, decimals: 2, displayName: "Flat light:" },
-					lightCombat: { min: 0, max: 1, decimals: 2, displayName: "Combat light:" },
 					lightTFColor: { min: 0, max: 1, decimals: 2, displayName: "Angel/Devil TF colour components:" },
+					combatLightEnabled: { bool: true, displayName: "Character lighting:" },
+					combatLightOffsetY: { min: 0, max: 128, decimals: 0, displayName: "Y offset:" },
+					combatLightSpotlight: { min: 0, max: 1, decimals: 2, displayName: "Spotlight:" },
+					combatLightSpotlightX: { min: 0, max: 128, decimals: 0, displayName: "Spotlight width:" },
+					combatLightSpotlightY: { min: 0, max: 48, decimals: 0, displayName: "Spotlight height:" },
+					combatLightGradient: { min: 0, max: 1, decimals: 2, displayName: "Gradient:" },
+					combatLightGlow: { min: 0, max: 1, decimals: 2, displayName: "Glow:" },
+					combatLightFlat: { min: 0, max: 1, decimals: 2, displayName: "Flat light:" },
+					combatLightTFColor: { min: 0, max: 1, decimals: 2, displayName: "Angel/Devil TF colour components:" },
 					maxStates: { min: 1, max: 20, decimals: 0, displayName: "History depth:" },
 					historyControls: { bool: true, displayName: "Show history controls:" },
 					useNarrowMarket: { bool: true, displayName: "Use 'narrow screen' version of market inventory:" },

@@ -1,5 +1,4 @@
 function effectsWater(waterType = "liquid") {
-	DOL.Perflog.logWidgetStart("effectsWaterJs");
 	const fragment = document.createDocumentFragment();
 
 	const sWikifier = text => {
@@ -189,8 +188,6 @@ function effectsWater(waterType = "liquid") {
 			br();
 		}
 	}
-
-	DOL.Perflog.logWidgetEnd("effectsWaterJs");
 	return fragment;
 }
 
@@ -202,7 +199,6 @@ Macro.add("effectswater", {
 });
 
 function effectsMakeup() {
-	DOL.Perflog.logWidgetStart("effectsMakeupJs");
 	const fragment = document.createDocumentFragment();
 
 	const span = (text, colour) => {
@@ -214,7 +210,7 @@ function effectsMakeup() {
 
 	if (V.makeupWashed) {
 		delete V.makeupWashed;
-		span(`Your makeup is washed away${V.beauty >= (V.beautymax / 7) * 4 ? " revealing your natural beauty" : ""}.`, "teal");
+		span(`Your makeup is washed away${V.beauty >= (V.beautymax / 7) * 4 ? ", revealing your natural beauty" : ""}.`, "teal");
 		fragment.append(document.createElement("br"));
 	}
 
@@ -222,7 +218,6 @@ function effectsMakeup() {
 		V.makeup.mascara_running = painToTearsLvl(V.pain);
 	}
 
-	DOL.Perflog.logWidgetEnd("effectsMakeupJs");
 	return fragment;
 }
 
@@ -251,10 +246,10 @@ function effects() {
 	if (V.speechcycle >= 7) V.speechcycle = 0;
 
 	if (Weather.bodyTemperature < setup.WeatherTemperature.minTemperature + 1 && !Weather.BodyTemperature.isIncreasing()) {
-		element("span", `You're very cold, and about to get hypothermia!`, "red");
+		element("span", `You're very cold and about to get hypothermia!`, "red");
 		br();
 	} else if (Weather.bodyTemperature > setup.WeatherTemperature.maxTemperature - 1 && !Weather.BodyTemperature.isDecreasing()) {
-		element("span", `You're extremely hot, and about to get heatstroke!`, "red");
+		element("span", `You're extremely hot and about to get heatstroke!`, "red");
 		br();
 	}
 
@@ -281,7 +276,7 @@ function effects() {
 	if (V.innocencemessage === "start") {
 		delete V.innocencemessage;
 		element("span", "A profound sense of peace falls on your mind. You were upset a moment ago, but you can't remember why.", "red");
-		element("i", "Your trauma has been replaced with innocence. Trauma will continue to accumulate, and will return should you run out of innocence.");
+		element("i", "Your trauma has been replaced with innocence. Trauma will continue to accumulate and will return should you run out of innocence.");
 	} else if (V.innocencemessage === "end") {
 		delete V.innocencemessage;
 		element("span", "You have a terrible epiphany. The abuse you've endured can be ignored no longer.", "red");
@@ -294,7 +289,18 @@ function effects() {
 		V.underwatercheck--;
 	} else if (V.underwater === 1) {
 		V.underwater = 0;
-		sWikifier("<<oxygenrefresh>>");
+		V.oxygen = Math.clamp(V.oxygen, 0, V.oxygenmax);
+		if (V.oxygen < V.oxygenmax) {
+			V.oxygenRecovery = true;
+		}
+	}
+	if (V.oxygenRecovery && V.underwater === 0 && V.combat === 0) {
+		sWikifier(
+			`<span class="lblue">Air (recovering):</span>
+			<<dynamicblock id=oxygen-caption>>
+				<<oxygencaption>>
+			<</dynamicblock>>`
+		);
 	}
 
 	sWikifier("<<updateHallucinations>>");
@@ -364,7 +370,7 @@ function effects() {
 		if (V.hypnosis_deviancy_message) {
 			delete V.hypnosis_deviancy_message;
 			sWikifier(
-				`<<hypnosisicon>> You weren't very deviant yesterday. ${
+				`<<hypnosisText "You weren't very deviant yesterday.">> ${
 					V.hypnosis_traits.deviancy < 5 ? "The thought fills you with " : "The thought sends your mind "
 				}`
 			);
@@ -385,7 +391,99 @@ function effects() {
 					element("span", "whirring with guilt and anxiety.", "red");
 					break;
 			}
-			sWikifier("<<gggtrauma>><<hypnosisicon>>");
+			sWikifier("<<gggtrauma>>");
+		}
+
+		if (V.hypnosis_devotion_message) {
+			switch (V.hypnosis_devotion_message) {
+				case "ritual":
+					sWikifier(`<<hypnosisText "You didn't meet with Gwylan to help with <<nnpc_his 'Gwylan'>> ritual this week.">> `);
+					break;
+				case "request":
+					if (V.gwylan.request.missed) {
+						sWikifier(`<<hypnosisText "You still haven't completed Gwylan's request.">> `);
+					} else {
+						sWikifier(`<<hypnosisText "You didnt't complete Gwylan's request yesterday.">> `);
+					}
+					break;
+				case "meetAtShop":
+					if (V.gwylan.request.missed) {
+						sWikifier(`<<hypnosisText "You still haven't met with Gwylan at the shop.">> `);
+					} else {
+						sWikifier(`<<hypnosisText "You didn't meet with Gwylan at the shop yesterday.">> `);
+					}
+					break;
+				case "meetAtCafe":
+					if (V.gwylan.request.missed) {
+						sWikifier(`<<hypnosisText "You still haven't met with Gwylan at the cafe.">> `);
+					} else {
+						sWikifier(`<<hypnosisText "You didn't meet with Gwylan at the cafe yesterday.">> `);
+					}
+					break;
+				default:
+					if (V.gwylan.request.missed) {
+						sWikifier(`<<hypnosisText "You still haven't fulfilled Gwylan's request.">> `);
+					} else {
+						sWikifier(`<<hypnosisText "You didn't fulfil Gwylan's request yesterday.">> `);
+					}
+					break;
+			}
+			sWikifier(`${V.hypnosis_traits.devotion < 5 ? "The thought fills you with " : "The thought sends your mind "}`);
+			switch (V.hypnosis_traits.devotion) {
+				case 1:
+					element("span", "shame.", "lblue");
+					sWikifier(`<<gtrauma>><<ghallucinogens>>`);
+					break;
+				case 2:
+					element("span", "regret.", "blue");
+					sWikifier(`<<ggtrauma>><<ghallucinogens>>`);
+					break;
+				case 3:
+					element("span", "guilt.", "purple");
+					sWikifier(`<<ggtrauma>><<gghallucinogens>>`);
+					break;
+				case 4:
+					element("span", "intense guilt.", "pink");
+					sWikifier(`<<gggtrauma>><<gghallucinogens>>`);
+					break;
+				case 5:
+					element("span", "whirring with guilt and anxiety.", "red");
+					sWikifier(`<<gggtrauma>><<ggghallucinogens>>`);
+					break;
+			}
+			delete V.hypnosis_devotion_message;
+		}
+
+		if (V.hypnosis_timer_messages?.length) {
+			V.hypnosis_timer_messages.forEach(trait => {
+				switch (trait) {
+					case "devotion":
+						sWikifier("<<gwylanHypnosis 'devotion' -1>>");
+						break;
+					case "peace":
+						sWikifier('<span class="purple">A familiar uncertainty fills your being. Your Hypnotic Peace has faded.</span>');
+						delete V.hypnosis_traits[trait];
+						delete V.hypnosisTimers[trait];
+						break;
+					case "silence":
+						sWikifier(
+							`${
+								numberOfEarSlime()
+									? "<span class='purple'>Familiar whispers fill your ears. Your Hypnotic Silence has faded.</span>"
+									: "<span class='purple'>Your Hypnotic Silence has faded.</span>"
+							}`
+						);
+						delete V.hypnosis_traits[trait];
+						delete V.hypnosisTimers[trait];
+						break;
+					default:
+						sWikifier(`<span class="purple">Your Hypnotic ${trait.toUpperFirst()} has faded.</span>`);
+						delete V.hypnosis_traits[trait];
+						delete V.hypnosisTimers[trait];
+						break;
+				}
+			});
+			delete V.hypnosis_timer_messages;
 		}
 
 		// expects the use of $science_up_message, $maths_up_message, $english_up_message, $history_up_message, $science_down_message, $maths_down_message, $english_down_message, $history_down_message
@@ -536,7 +634,7 @@ function effects() {
 					break;
 				case 10:
 				case 9:
-					element("span", "Your breasts feel light, and are looking less impressive.", "purple");
+					element("span", "Your breasts feel light and are looking less impressive.", "purple");
 					break;
 				case 8:
 				case 7:
@@ -651,7 +749,7 @@ function effects() {
 
 		if (V.exhibitionism_message) {
 			sWikifier(
-				`<span class="lblue">You've spent time in public with no underwear on. You wonder if people can tell, and shiver at the thought.</span> <<exhibitionism1>>`
+				`<span class="lblue">You've spent time in public with no underwear on. You wonder if people can tell and shiver at the thought.</span> <<exhibitionism1>>`
 			);
 			delete V.exhibitionism_message;
 		}
@@ -712,15 +810,15 @@ function effects() {
 					element("i", "You are no longer a masochist.", "lblue");
 					break;
 				case "down 1":
-					element("span", "You are no longer so masochistic, and can only be considered a", "blue");
+					element("span", "You are no longer so masochistic and can only be considered a", "blue");
 					element("i", "guilty masochist.", "blue");
 					break;
 				case "down 2":
-					element("span", "You are no longer so masochistic, and can only be considered a", "purple");
+					element("span", "You are no longer so masochistic and can only be considered a", "purple");
 					element("i", "normal masochist.", "purple");
 					break;
 				case "down 3":
-					element("span", "You are no longer so masochistic, and can only be considered a", "pink");
+					element("span", "You are no longer so masochistic and can only be considered a", "pink");
 					element("i", "hardened masochist.", "pink");
 					break;
 			}
@@ -749,15 +847,15 @@ function effects() {
 					element("i", "You are no longer a sadist.", "lblue");
 					break;
 				case "down 1":
-					element("span", "You are no longer so sadistic, and can only be considered a", "blue");
+					element("span", "You are no longer so sadistic and can only be considered a", "blue");
 					element("i", "guilty sadist.", "blue");
 					break;
 				case "down 2":
-					element("span", "You are no longer so sadistic, and can only be considered a", "purple");
+					element("span", "You are no longer so sadistic and can only be considered a", "purple");
 					element("i", "normal sadist.", "purple");
 					break;
 				case "down 3":
-					element("span", "You are no longer so sadistic, and can only be considered a", "pink");
+					element("span", "You are no longer so sadistic and can only be considered a", "pink");
 					element("i", "hardened sadist.", "pink");
 					break;
 			}
@@ -775,7 +873,7 @@ function effects() {
 					element("span", `Rumours of your ${crossdressing} are spreading throughout the school.`, "pink");
 					break;
 				case 3:
-					element("span", `Rumours of your ${crossdressing} are spreading, and have become a popular topic of conversation at school.`, "purple");
+					element("span", `Rumours of your ${crossdressing} are spreading and have become a popular topic of conversation at school.`, "purple");
 					break;
 				case 2:
 					element("span", `Whispers of your ${crossdressing} are spreading through the school.`, "blue");
@@ -853,7 +951,7 @@ function effects() {
 					break;
 				case "withdrawals":
 					sWikifier(
-						'<span class="red">Your body craves nectar, and has begun to suffer from withdrawals.</span> <<stress 12>><<ggstress>><<trauma 12>><<ggtrauma>><<physique_loss 4>><<lphysique>>'
+						'<span class="red">Your body craves nectar and has begun to suffer from withdrawals.</span> <<stress 12>><<ggstress>><<trauma 12>><<ggtrauma>><<physique_loss 4>><<lphysique>>'
 					);
 					br();
 					break;
@@ -892,7 +990,7 @@ function effects() {
 			delete V.loveInterest_message;
 			delete V.loveInterestAwareMessage;
 		} else if (V.loveInterest_message === 2 && !V.loveInterestAwareMessage) {
-			element("i", "Your mind is open to the possibility of multiple lovers. You may now choose a second love interest.", "pink");
+			element("i", "Your mind is open to the possibility of another lover. You may now choose a second love interest.", "pink");
 			delete V.loveInterest_message;
 			V.loveInterestAwareMessage = 1;
 		} else if (V.loveInterest_message === 3 && V.loveInterestAwareMessage == 1) {
@@ -944,7 +1042,7 @@ function effects() {
 				element("span", "You have a book severely overdue, and the police have been informed.", "red");
 			} else {
 				sWikifier(`<<delinquency ${3 / 4}>>`);
-				element("span", "You have a book overdue, and have incurred delinquency.", "red");
+				element("span", "You have a book overdue and have incurred delinquency.", "red");
 			}
 			delete V.bookoverduemessage;
 		}
@@ -952,6 +1050,21 @@ function effects() {
 		if (V.wraithcompoundmessage) {
 			element("span", "A fell mist hangs over Elk Street.", "red");
 			delete V.wraithcompoundmessage;
+		}
+
+		if (V.halloweenClothesMessage) {
+			sWikifier(`<<specialClothesUnlock "set" "halloween">>`);
+			delete V.halloweenClothesMessage;
+		}
+
+		if (V.christmasClothesMessage) {
+			sWikifier(`<<specialClothesUnlock "set" "christmas">>`);
+			delete V.christmasClothesMessage;
+		}
+
+		if (V.valentinesClothesMessage) {
+			sWikifier(`<<specialClothesUnlock "set" "valentines">>`);
+			delete V.valentinesClothesMessage;
 		}
 
 		if (V.earSlimebreastsParasite || V.earSlimePenisParasite || V.earSlimeClitParasite) {
@@ -1160,6 +1273,7 @@ function effects() {
 						"gold"
 					);
 					fragment.append(wikifier("garousal"));
+					fragment.append(wikifier("specialClothesUnlock", "'set'", "'succubus'"));
 					fragment.append(wikifier("earnFeat", "'Demon'"));
 					break;
 				case "angelUp1":
@@ -1215,7 +1329,9 @@ function effects() {
 					sWikifier('<span class="gold">You feel a burning sensation in your back.</span><<garousal>>');
 					break;
 				case "demonUp6":
-					sWikifier('<span class="gold">You feel lighter. Your new wings caress your face.</span><<garousal>><<earnFeat "Demon">>');
+					sWikifier(
+						'<span class="gold">You feel lighter. Your new wings caress your face.</span><<garousal>><<earnFeat "Demon">><<specialClothesUnlock "set" "succubus">>'
+					);
 					break;
 				case "demonDown0":
 					element("span", "You feel an invisible light burn away your impurity.", "gold");
@@ -1246,11 +1362,11 @@ function effects() {
 					element("span", "Your mouth feels different. You explore your mouth and wince as your tongue presses against your new fangs.", "gold");
 					break;
 				case "wolfUp3":
-					element("span", `Your scalp ${V.pbdisable === "f" ? "and pubic area itch" : "itches"}.`, "gold");
+					element("span", `Your scalp ${V.settings.pubicHairEnabled === true ? "and pubic area itch" : "itches"}.`, "gold");
 					break;
 				case "wolfUp4":
 					element("span", "You feel something on your head. You reach up and tug, but it hurts. You have a new pair of wolf ears.", "gold");
-					if (V.pbdisable === "f") element("span", "You also notice long and fluffy hair has grown in your pubic area.");
+					if (V.settings.pubicHairEnabled === true) element("span", "You also notice long and fluffy hair has grown in your pubic area.");
 					break;
 				case "wolfUp5":
 					element("span", "Your lower back itches.", "gold");
@@ -1266,10 +1382,10 @@ function effects() {
 					element("span", "Your fangs have turned into regular teeth.", "gold");
 					break;
 				case "wolfDown2":
-					element("span", `Your scalp ${V.pbdisable === "f" ? "and pubic area no longer itch" : "no longer itches"}.`, "gold");
+					element("span", `Your scalp ${V.settings.pubicHairEnabled === true ? "and pubic area no longer itch" : "no longer itches"}.`, "gold");
 					break;
 				case "wolfDown3":
-					element("span", `Your wolf ears ${V.pbdisable === "f" ? "and extra body hair " : ""}have disappeared.`, "gold");
+					element("span", `Your wolf ears ${V.settings.pubicHairEnabled === true ? "and extra body hair " : ""}have disappeared.`, "gold");
 					break;
 				case "wolfDown4":
 					element("span", "Your lower back has stopped itching.", "gold");
@@ -1303,12 +1419,12 @@ function effects() {
 					element("span", "Your eyes water from a burning sensation around the pupil.", "gold");
 					break;
 				case "catUp9":
-					element("span", "Your eyes burn, likely due to some sort of allergy, you can barely keep them open.", "gold");
+					element("span", "Your eyes burn, likely due to some sort of allergy. You can barely keep them open.", "gold");
 					break;
 				case "catUp10":
 					element(
 						"span",
-						"Your eyes no longer burn, and despite the darkness of the early morning, you are able to pick up every detail of the scenery around you.",
+						"Your eyes no longer burn. Despite the darkness of the early morning, you are able to pick up every detail of the scenery around you.",
 						"gold"
 					);
 					break;
@@ -1343,7 +1459,7 @@ function effects() {
 					element("span", "You have a strange urge to munch grass.", "gold");
 					break;
 				case "cowUp2":
-					element("span", "Your scalp itches. You reach up, and find that a pair of small horns have sprouted.", "gold");
+					element("span", "Your scalp itches. You reach up and find that a pair of small horns have sprouted.", "gold");
 					break;
 				case "cowUp3":
 					element("span", "Your ears tingle.", "gold");
@@ -1351,7 +1467,7 @@ function effects() {
 				case "cowUp4":
 					element(
 						"span",
-						"Your ears itch. You reach up to scratch them, and find them much bigger than you expected. You've grown a pair of cow ears.",
+						"Your ears itch. You reach up to scratch them and find them much bigger than you expected. You've grown a pair of cow ears.",
 						"gold"
 					);
 					break;
@@ -1406,16 +1522,16 @@ function effects() {
 					);
 					break;
 				case "harpyUp4":
-					element("span", "Your bottom feels lighter. You reach behind you, and grasp a feathered tail. Small feathers cover your neck.", "gold");
+					element("span", "Your bottom feels lighter. You reach behind you and grasp a feathered tail. Small feathers cover your neck.", "gold");
 					break;
 				case "harpyUp5":
-					element("span", `Your back ${V.pbdisable === "f" ? "and pubic area itch" : "itches"}.`, "gold");
+					element("span", `Your back ${V.settings.pubicHairEnabled === true ? "and pubic area itch" : "itches"}.`, "gold");
 					break;
 				case "harpyUp6":
 					element(
 						"span",
 						`You feel light as a feather. Wings caress your face.${
-							V.pbdisable === "f" ? " You also notice that short, feathery hair has grown in your pubic area." : ""
+							V.settings.pubicHairEnabled === true ? " You also notice that short, feathery hair has grown in your pubic area." : ""
 						}`,
 						"gold"
 					);
@@ -1434,10 +1550,14 @@ function effects() {
 					element("span", "Your feathered tail has disappeared, along with the feathers on your neck.", "gold");
 					break;
 				case "harpyDown4":
-					element("span", `You feel heavier${V.pbdisable === "f" ? ", and your pubic area no longer itches" : ""}.`, "gold");
+					element("span", `You feel heavier${V.settings.pubicHairEnabled === true ? ", and your pubic area no longer itches" : ""}.`, "gold");
 					break;
 				case "harpyDown5":
-					element("span", `You feel heavier. Your feathered wings${V.pbdisable === "f" ? " and feathery pubes" : ""} have disappeared.`, "gold");
+					element(
+						"span",
+						`You feel heavier. Your feathered wings${V.settings.pubicHairEnabled === true ? " and feathery pubes" : ""} have disappeared.`,
+						"gold"
+					);
 					break;
 				case "foxUp1":
 					element("span", "You have a strange toothache, and your eyes feel a little sharper. You have the urge to steal something.", "gold");
@@ -1480,6 +1600,7 @@ function effects() {
 						"Your bottom feels heavier than usual. You give it a wiggle and feel your new fox tail. It's extremely comforting to touch.",
 						"gold"
 					);
+					fragment.append(wikifier("specialClothesUnlock", "'set'", "'shrine'"));
 					fragment.append(wikifier("earnFeat", "'Fox'"));
 					break;
 				case "foxDown0":
@@ -1659,10 +1780,8 @@ function effects() {
 
 Macro.add("effects", {
 	handler() {
-		DOL.Perflog.logWidgetStart("effectsJs");
 		const fragment = effects();
 		this.output.append(fragment);
-		DOL.Perflog.logWidgetEnd("effectsJs");
 		$(document)
 		.off(':passageend.effects') 
 		.on(':passageend.effects', function () {

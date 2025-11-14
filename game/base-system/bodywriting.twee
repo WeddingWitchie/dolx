@@ -237,8 +237,12 @@
 		<<bodywriting_npc_kylar _args[0] _args[1]>>
 	<<elseif $npc[$npcrow.indexOf(_n)] is "Sydney">>
 		<<bodywriting_npc_sydney _args[0] _args[1]>>
-	<<elseif $NPCList[_n].type is "plant" or $role is "islander">>
+	<<elseif $npc[$npcrow.indexOf(_n)] is "Gwylan">>
+		<<bodywriting_npc_gwylan _args[0] _args[1]>>
+	<<elseif $NPCList[_n].type is "plant">>
 		<<bodywriting_npc_picture _args[0] _args[1]>>
+	<<elseif $role is "islander">>
+		<<bodywriting_npc_shape _args[0] _args[1]>>
 	<<elseif $rng gte 51>>
 		<<bodywriting_npc_special _args[0] _args[1]>>
 	<<else>>
@@ -366,6 +370,38 @@
 	<<bodywriting_finalisation _args[0]>>
 <</widget>>
 
+<<widget "bodywriting_npc_gwylan">>
+	<<run statusCheck("Gwylan")>>
+	<<rng 6>>
+	<<switch $rng>>
+		<<case 1>>
+			<<bodywriting_npc_shape _args[0] _args[1]>>
+		<<case 2>>
+			<<if $gwylanSeen?.includes("romance")>>
+				<<add_bodywriting _args[0] heart _args[1]>>
+			<<else>>
+				<<bodywriting_npc_shape _args[0] _args[1]>>
+			<</if>>
+		<<case 3>>
+			<<add_bodywriting _args[0] paw_print _args[1]>>
+		<<case 4>>
+			<<add_bodywriting _args[0] flower _args[1]>>
+		<<case 5>>
+			<<if _gwylanStatus?.includes("dom")>>
+				<<add_bodywriting _args[0] pet _args[1]>>
+			<<else>>
+				<<bodywriting_npc_shape _args[0] _args[1]>>
+			<</if>>
+		<<case 6>>
+			<<if $worn.neck.name is "familiar collar" and $worn.neck.cursed is 1>>
+				<<add_bodywriting _args[0] witchs_familiar _args[1]>>
+			<<else>>
+				<<bodywriting_npc_shape _args[0] _args[1]>>
+			<</if>>
+	<</switch>>
+	<<bodywriting_finalisation _args[0]>>
+<</widget>>
+
 <<widget "bodywriting_npc_picture">>
 	<<if $NPCList[0].type is "plant">>
 		<<rng 7>>
@@ -395,6 +431,20 @@
 		<<add_bodywriting _args[0] cattle_brand _args[1]>>
 	<</switch>>
 	<<bodywriting_finalisation _args[0]>>
+<</widget>>
+
+<<widget "bodywriting_npc_shape">>
+	<<rng 4>>
+	<<switch $rng>>
+		<<case 1>>
+			<<add_bodywriting _bodypart square _args[1]>>
+		<<case 2>>
+			<<add_bodywriting _bodypart triangle _args[1]>>
+		<<case 3>>
+			<<add_bodywriting _bodypart circle _args[1]>>
+		<<case 4>>
+			<<add_bodywriting _bodypart triquetra _args[1]>>
+	<</switch>>
 <</widget>>
 
 <<widget "bodywriting_normal_select">>
@@ -528,7 +578,7 @@
 			<<case "pubic" "left_thigh" "right_thigh">>
 				$_He draws an arrow beside it, <span class="red">pointing at your <<genitals 1>>.</span>
 			<<case "back" "left_bottom" "right_bottom">>
-				<<if $analdisable is "f">>
+				<<if $settings.analEnabled>>
 					$_He draws an arrow beside it, <span class="red">pointing at your <<bottom>>.</span>
 				<</if>>
 		<</switch>>
@@ -956,7 +1006,7 @@
 		<<bodypart_admire_prostitution _args[0]>>
 	<</if>>
 	<<if (_args[0] is "left_cheek" or _args[0] is "right_cheek") and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "head" and ($position isnot "wall" or $walltype is "front") and $mouthuse is 0>>
-		<<if $analingusdisablegiving is "f" and random(1, 10) is 1 and ($NPCList[_n].penis is 0 or $NPCList[_n].vagina is 0)>>
+		<<if $settings.analingusGivingEnabled and random(1, 10) is 1 and ($NPCList[_n].penis is 0 or $NPCList[_n].vagina is 0)>>
 			<<He>> follows the arrow's instruction, <span class="blue">and swings <<his>> ass in front of your face.</span>
 			<<neutral 5>><<set $mouthuse to "otheranus">><<set $mouthstate to "otheranus">>
 			<<if $NPCList[_n].penis is 0>>
@@ -972,7 +1022,7 @@
 			<<set $NPCList[_n].location.genitals to "head">>
 		<<elseif $NPCList[_n].vagina is 0>>
 			<<He>> follows the arrow's instruction.
-			<<if random(4) is 0 and $facesitdisable is "f">>
+			<<if random(4) is 0 and $settings.facesitEnabled>>
 				<<if $position is "doggy">>
 					<<He>> gently rolls you onto your back.
 					<<set $position to "missionary">>
@@ -1003,7 +1053,7 @@
 		<</if>>
 	<<elseif (_args[0] is "back" or _args[0] is "right_bottom" or _args[0] is "left_bottom") and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals">>
 		<<if $worn.lower.anus_exposed gte 1 and $worn.under_lower.anus_exposed gte 1 and $anususe is 0>>
-			<<if $analingusdisablereceiving is "f" and $NPCList[_n].mouth is 0 and ($NPCList[_n].penis is "none" or random(1, 10) is 1)>>
+			<<if $settings.analingusReceivingEnabled and $NPCList[_n].mouth is 0 and ($NPCList[_n].penis is "none" or random(1, 10) is 1)>>
 				<<He>> follows the arrow's instruction and lowers <<his>> head, <span class="blue">until <<hes>> level with your <<bottom>>.</span>
 				<<neutral 5>><<set $NPCList[_n].mouth to "anusentrance">><<set $anususe to "othermouth">><<set $anusstate to "othermouthentrance">>
 				<<set $NPCList[_n].location.head to "genitals">><<set $anustarget to _n>>
@@ -1154,7 +1204,7 @@
 	<<if playerBellyVisible()>>
 		<<famepregnancy 1>>
 		<<if !$speechadmired>><<set $speechadmired to 1>>
-			<<if $pregnancyspeechdisable is "f">>
+			<<if $settings.pregnancySpeechEnabled>>
 				<<switch random(1, 10)>>
 					<<case 1>><<He>> speaks. "Doesn't look like it's something I can help with right now."
 					<<case 2>><<He>> speaks. "So how many kids have you given birth to?"
@@ -1171,7 +1221,7 @@
 		<</if>>
 	<<else>>
 		<<if !$speechadmired>><<set $speechadmired to 1>>
-			<<if $pregnancyspeechdisable is "f">>
+			<<if $settings.pregnancySpeechEnabled>>
 				<<switch random(1, 10)>>
 					<<case 1>><<He>> speaks. "You want a kid that much, slut?"
 					<<case 2>><<He>> speaks. "So how many kids have you given birth to?"
@@ -1192,7 +1242,7 @@
 <<widget "bodypart_admire_impreg">>
 	<<fameimpreg 1>>
 	<<if !$speechadmired>><<set $speechadmired to 1>>
-		<<if $pregnancyspeechdisable is "f">>
+		<<if $settings.pregnancySpeechEnabled>>
 			<<switch random(1, 10)>>
 				<<case 1>><<He>> speaks. "You want a kid that much, slut?"
 				<<case 2>><<He>> speaks. "So how many kids have you sired?"
@@ -1449,7 +1499,7 @@
 					<<case 4>>"You nasty cumdump!"
 					<<case 5>>"Does walking around covered in cum excite you?"
 					<<case 6>>"Do you ever clean yourself?"
-					<<case 7>>"Fucking sluts won't even take a bath anymore."
+					<<case 7>>"Fucking sluts won't even have a bath anymore."
 					<<case 8>>"Were you whoring yourself?"
 					<<case 9>>"Fuck, are you addicted to cum or what?"
 					<<case 10>>"Someone knows how to have fun."
@@ -1499,7 +1549,7 @@
 					<<case 6>>"At least clean yourself after slutting out."
 					<<case 7>>"I see someone had fun already."
 					<<case 8>>"Do you like being creampied?"
-					<<case 9>><<if $pregnancyspeechdisable is "f">>"Are you trying to get pregnant?"<<else>>"Do you like being filled?"<</if>>
+					<<case 9>><<if $settings.pregnancySpeechEnabled>>"Are you trying to get pregnant?"<<else>>"Do you like being filled?"<</if>>
 				<</switch>>
 			<<elseif _args[0] is "anus">>
 				<<if $player.sex is "m" and $player.penissize lte 1 and random(1, 5) is 1>>
@@ -1613,7 +1663,7 @@
 						<span class="blue">positions <<his>> $NPCList[_n].penisdesc in front of your mouth</span>.
 						<<neutral 5>><<set $mouthuse to "penis">><<set $NPCList[_n].penis to "mouthentrance">><<set $mouthstate to "entrance">><<set $NPCList[_n].location.genitals to "head">><<set $mouthtarget to _n>>
 					<<elseif (_args[0] is "left_cheek" or _args[0] is "right_cheek") and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "head" and $NPCList[_n].vagina is 0 and $mouthuse is 0>>
-						<<if random(4) is 0 and $facesitdisable is "f">>
+						<<if random(4) is 0 and $settings.facesitEnabled>>
 							gently rolls you onto your back and <span class="purple">straddles your face, lowering <<his>> pussy down onto your mouth</span>.
 							<<submission 5>><<set $NPCList[_n].vagina to "facesit">><<set $mouthuse to "facesit">><<set $mouthstate to "vagina">><<set $position to "missionary">><<set $mouthtarget to _n>>
 						<<else>>
@@ -1679,7 +1729,7 @@
 		<<case "Black Wolf" "Great Hawk">>
 			<<His>> eyes narrow. "I can be an animal, too. Watch!"
 			<<set $enemyanger += 30>><<set $enemytrust -= 30>><<npcincr Kylar rage 3>>
-		<<case "Eden" "Avery" "Alex">>
+		<<case "Eden" "Avery" "Alex" "Gwylan">>
 			<<if _kylarStatus.includes("Rage")>>
 				<<He>> snarls. "Whoever they are, they're worthless!"
 			<<else>>
@@ -1794,6 +1844,14 @@
 						<<set _text_output to "Whose pet do you think you are?">>
 					<<else>>
 						<<set _text_output to "Maybe I'll start treating you like an animal, then.">>
+					<</if>>
+					<<set $enemyanger += 20>><<set $enemytrust -= 20>>
+				<<case "Gwylan">>
+					<<He>> scowls.
+					<<if random(1)>>
+						<<set _text_output to "That witch has gotten in your head.">>
+					<<else>>
+						<<set _text_output to "<<nnpc_He 'Gwylan'>> doesn't own you. I do.">>
 					<</if>>
 					<<set $enemyanger += 20>><<set $enemytrust -= 20>>
 				<<default>>
@@ -1930,6 +1988,18 @@
 							<</if>>
 							<<set _text_output to "Don't worry, I'll be paying <<nnpc_him 'Robin'>> a visit soon.">>
 					<</switch>>
+				<<case "Gwylan">>
+					<<switch $skin[_args[0]].writing>>
+						<<case "Witch's Ward" "Witch's Familiar">>
+							<<He>> sneers.
+							<<set _text_output to "What's this nonsense?">>
+						<<case "Gwylan's Treasure" "Gwylan's Apprentice">>
+							<<He>> sneers.
+							<<set _text_output to "A foolish name to mark yourself with.">>
+						<<default>>
+							<<He>> scoffs.
+							<<set _text_output to "You're in over your head.">>
+					<</switch>>
 				<<case "prostitution">>
 					<<if $skin[_args[0]].degree gte 10000>>
 						<<He>> nods.
@@ -2023,6 +2093,52 @@
 					<<set _text_output to "You're more valuable than you know.">>
 				<<default>>
 					<<bodypart_admire_generic _args[0]>>
+			<</switch>>
+		<<case "Gwylan">>
+			<<switch $skin[_args[0]].special>>
+				<<case "Gwylan">>
+					<<switch $skin[_args[0]].writing>>
+						<<case "Witch's Familiar">>
+							<<He>> giggles. <<set _text_output to "You're my perfect little companion.">>
+							<<npcincr Gwylan lust 1>>
+						<<case "Gwylan's Apprentice">>
+							<<He>> giggles.
+							<<if $worn.head.name is "sage witch hat">>
+								<<set _text_output to "You even have the hat to match!">>
+							<<else>>
+								<<set _text_output to "I couldn't ask for a better one.">>
+							<</if>>
+						<<default>>
+							<<He>> giggles. <<set _text_output to "Oh, <<pcpetname 'Gwylan' 'simple'>>, you're adorable.">>
+					<</switch>>
+					<<set $enemyanger -= 10>><<set $enemytrust += 10>>
+				<<case "Robin">>
+					<<if $gwylan.robin gte 50>>
+						<<He>> giggles. <<set _text_output to "Oh, that's precious. We should invite <<nnpc_him 'Robin'>> to join us.">>
+					<<else>>
+						/*Do nothing.*/
+						<<set _admireNothing to true>>
+					<</if>>
+				<<case "Eden">>
+					<<He>> frowns.
+					<<if random(1)>>
+						<<set _text_output to "I'll just have to be the better master.">>
+					<<else>>
+						<<set _text_output to "Nature versus nurture, I suppose.">>
+					<</if>>
+				<<case "Black Wolf">>
+					<<He>> giggles.
+					<<if random(1)>>
+						<<set _text_output to "Should we call some wolves to join us, <<pcpetname 'Gwylan' 'simple'>>?">>
+					<<else>>
+						<<set _text_output to "Are you having exotic cravings?">>
+					<</if>>
+				<<case "islander" "esoteric">>
+					<<He>> hums in satisfaction.
+					<<set _admireNothing to true>>
+				<<default>>
+					/*Do nothing.*/
+					<<set _admireNothing to true>>
 			<</switch>>
 		<<case "Mason" "Sydney">>
 			/*Do nothing.*/
@@ -2396,6 +2512,7 @@
 		<<if $_embarassingType>>
 			Blushing, you tell the tattoo artist you want $_request tattooed on your <<bodypart $tattoo_bodypart>>.
 			<<control 50>><<gggcontrol>>
+			<br><br>
 		<<else>>
 			You tell the tattoo artist you want $_request tattooed on your <<bodypart $tattoo_bodypart>>.
 			<<control 25>><<ggcontrol>>
@@ -2442,9 +2559,9 @@
 			<</if>>
 			"Those need to go," <<he>> says. "Or they'll get in the way."
 			<<if $worn.under_lower.set is $worn.under_upper.set>>
-				You follow <<his>> instruction, and shuffle out of your $worn.under_upper.name while <<his>> back is turned.
+				You follow <<his>> instruction and shuffle out of your $worn.under_upper.name while <<his>> back is turned.
 			<<else>>
-				You follow <<his>> instruction, and pull down your $worn.under_lower.name while <<his>> back is turned.
+				You follow <<his>> instruction and pull down your $worn.under_lower.name while <<his>> back is turned.
 			<</if>>
 		<</if>>
 		<br><br>
@@ -2455,9 +2572,9 @@
 			<<if $tattoo_bodypart is "pubic" and !$worn.under_lower.type.includes("naked")>>
 				"Those need to go," <<he>> says. "Or they'll get in the way."
 				<<if $worn.under_lower.set is $worn.under_upper.set>>
-					You <<nervously>> follow <<his>> instruction, and shuffle out of your $worn.under_upper.name while <<his>> back is turned.
+					You <<nervously>> follow <<his>> instruction and shuffle out of your $worn.under_upper.name while <<his>> back is turned.
 				<<else>>
-					You <<nervously>> follow <<his>> instruction, and pull down your $worn.under_lower.name while <<his>> back is turned.
+					You <<nervously>> follow <<his>> instruction and pull down your $worn.under_lower.name while <<his>> back is turned.
 				<</if>>
 			<</if>>
 		<<else>>
@@ -2475,9 +2592,9 @@
 			<<if $tattoo_bodypart is "pubic" and !$worn.under_lower.type.includes("naked")>>
 				"Those need to go too," <<he>> says.
 				<<if $worn.under_lower.set is $worn.under_upper.set>>
-					You follow <<his>> instruction, and shuffle out of your $worn.under_upper.name while <<his>> back is turned.
+					You follow <<his>> instruction and shuffle out of your $worn.under_upper.name while <<his>> back is turned.
 				<<else>>
-					You follow <<his>> instruction, and pull down your $worn.under_lower.name while <<his>> back is turned.
+					You follow <<his>> instruction and pull down your $worn.under_lower.name while <<his>> back is turned.
 				<</if>>
 			<</if>>
 		<</if>>

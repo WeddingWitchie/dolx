@@ -131,7 +131,7 @@
 					<<playerPregnancyHawkAttempt $_pregLocation>>
 					<<if $_pregnancy.type is "hawk">><<exit>><</if>>
 				<</if>>
-				<<if $cycledisable is "t">>
+				<<if !$settings.fertilityCycleEnabled>>
 					<<if _menstruation.nonCycleRng[0] is 0>><<giveHarpyEggs>><</if>>
 					<<playerPregnancyAttempt `Math.pow(4,_menstruation.nonCycleRng[0])` $_pregLocation>>
 				<<elseif _menstruation.currentDay lt _menstruation.currentDaysMax>>
@@ -396,12 +396,12 @@
 <<widget "birthChildElement">>
 	<<if _args[0]?.childId>>
 		<<capture _args>>
-			<div class="settingsToggleItem m-0 childName">
+			<div class="childItem m-0 childName">
 				<div>
 					<label><div>Name:</div><div><<print '<<textbox "_args[0].name" `_args[0].name or ""`>>'>></div></label>
 				</div>
 			</div>
-			<div class="settingsToggleItem m-0 childDetails">
+			<div class="childItem m-0 childDetails">
 				<<if _args[0].type isnot "human">>
 					<<childTypeDisplay _args[0]>>
 				<<else>>
@@ -483,7 +483,7 @@
 
 <<widget "wakingEffects">><<silently>>
 	<<if !$sexStats.vagina.menstruation.running>>
-	<<elseif _args[0] and $sexStats.vagina.menstruation.currentState is "pregnant" or ($sexStats.vagina.menstruation.currentState is "normal" and ($playerPregnancyHumanDisable is "f" or $playerPregnancyBeastDisable is "f"))>>
+	<<elseif _args[0] and $sexStats.vagina.menstruation.currentState is "pregnant" or ($sexStats.vagina.menstruation.currentState is "normal" and ($settings.playerPregnancyHumanEnabled or $settings.playerPregnancyBeastEnabled))>>
 		<<set $_pregnancy to getPregnancyObject()>>
 		<<set _wakingEffect to wakingPregnancyEvent()>>
 		<<if Array.isArray(_wakingEffect)>>
@@ -585,6 +585,18 @@
 					<<set $_text_output += `Loosened by your growing belly, your gold chastity belt clatters to the ground once you apply some pressure. <span class="blue">A collector might be interested by it.</span> `>>
 				<</if>>
 				<<set $_text_output += `<br><span class="red">Your pregnant body no longer supports such clothing.</span> <<pain 2>><<gpain>>`>>
+				<<if $vaginalchastityparasite isnot 0>>
+					<<set $_text_output += `<br><span class="pink">With the chastity belt gone, the ${$vaginalchastityparasite} fall out of your vagina.</span> `>>
+					<<set $vaginalchastityparasite to 0>>
+				<</if>>
+				<<if $penilechastityparasite isnot 0>>
+					<<set $_text_output += `<br><span class="pink">With the chastity belt gone, the ${$penilechastityparasite} fall off of your penis.</span> `>>
+					<<set $penilechastityparasite to 0>>
+				<</if>>
+				<<if $analchastityparasite isnot 0>>
+					<<set $_text_output += `<br><span class="pink">With the chastity belt gone, the ${$analchastityparasite} fall out of your anus.</span> `>>
+					<<set $analchastityparasite to 0>>
+				<</if>>
 			<<case "eggLaying">>
 				<<set $_text_output to `<<playerEggLayEvent>>`>>
 			<<case "nothing">>
@@ -684,7 +696,7 @@
 					You waddle over to the door, stumbling as you exit. A nurse quickly rushes to your side. "Easy there, hon. I've got you. We're going to go down slowly, okay?"
 					<br><br>
 
-					The nurse helps you sit, and calls out for assistance. Your consciousness fades.
+					The nurse helps you sit and calls out for assistance. Your consciousness fades.
 				<</if>>
 			<<case "asylumOutside">>
 				<<endevent>>
@@ -800,9 +812,9 @@
 			<<case "remy">>
 				<<if $outside is 1>>
 					A
-					<<if ($monsterchance gte 1 and ($hallucinations gte 1 or $monsterhallucinations is "f"))>>
+					<<if ($settings.monsterChance gte 1 and ($hallucinations gte 1 or !$settings.monsterHallucinationsOnly))>>
 						<<set $monster to 1>>
-						<<if $malevictimchance lt random(1, 100)>>cowgirl<<else>>bullboy<</if>>
+						<<if $settings.maleVictimChance lt random(1, 100)>>cowgirl<<else>>bullboy<</if>>
 					<<else>>
 						cow
 					<</if>>
@@ -875,7 +887,7 @@
 				You feel hands lift you from the ground as the world fades to black.
 			<<case "castle">>
 				<<npc "Great Hawk">>
-				You double over in pain, and see a clear liquid dripping down your leg. You're going into labour. You look around in desperation and let out a pained yell, before stumbling to your side.
+				You double over in pain and see a clear liquid dripping down your leg. You're going into labour. You look around in desperation and let out a pained yell, before stumbling to your side.
 				<br><br>
 
 				Your eyes close. When they open again, you're met with the face of the <<beasttype>>.
@@ -887,19 +899,19 @@
 				<<bHis>> wings start to beat. You feel yourself being lifted onto something feathery. The next time you open your eyes, you're high in the air. You immediately black out from the shock.
 				<br><br>
 
-				You feel a rise in your stomach. You open your eyes again to see the hospital below you, and feathers in the corner of your vision.
+				You feel a rise in your stomach. You open your eyes again to see the hospital below you and feathers in the corner of your vision.
 				You blink, and you're suddenly being lowered. Your feet meet the sidewalk. A rush of air follows, and the <<beasttype>> is gone.
 			<<case "wraith">>
-				You double over in pain, and see a clear liquid dripping down your leg. You're going into labour. You look around in desperation and let out a pained yell, before stumbling to your side. You feel hopelessly trapped. Your heart pounds in your ears.
+				You double over in pain and see a clear liquid dripping down your leg. You're going into labour. You look around in desperation and let out a pained yell, before stumbling to your side. You feel hopelessly trapped. Your heart pounds in your ears.
 				<br><br>
 
 				Your eyes close. When they open again, a pair of <<wraithEyes>> eyes stare into yours. "<span class="wraith">Suffering. Life. Beautiful.</span>"
 				<br><br>
 
-				You're unable to resist as it enters your body. Your pain ceases at once. You let out a long sigh of relief, and stand up. Your consciousness slowly fades as your body trudges forwards.
+				You're unable to resist as it enters your body. Your pain ceases at once. You let out a long sigh of relief and stand up. Your consciousness slowly fades as your body trudges forwards.
 				<br><br>
 
-				You feel cold. Then warm again. Then there's nothing. Until you open your eyes, and see the hospital before you. The pain returns. A pale face meets yours. "<span class="wraith">Beautiful. Keep them safe.</span>"
+				You feel cold. Then warm again. Then there's nothing. Until you open your eyes and see the hospital before you. The pain returns. A pale face meets yours. "<span class="wraith">Beautiful. Keep them safe.</span>"
 			<<case "dungeon">>
 				<<endevent>>
 				<<generate1>><<npc Robin 2>>
@@ -944,6 +956,7 @@
 				<</if>>
 				<br><br>
 				Your vision fades as the door screeches open <<= $undergroundbrothel.robin ? "at last" : "once more">>.
+				<<specialClothesUnlock "set" "underground_brothel">>
 			<<case "alley">>
 				<<generate1>><<person1>>
 				<<if $bus is "residential" and $town_projects.thicket gte 4 and random(1,2) is 1>>
@@ -1113,7 +1126,7 @@
 
 					"I told you I heard someone over here!" a <<person1>><<person>> says. "Hey, <<girl>>! Are you alright!?"
 					<br>
-					<<if $watersportsdisable is "f">>
+					<<if $settings.watersportsEnabled>>
 						One of <<his>> friends, a <<person2>><<person>>, laughs. "Did <<pshe>> fuckin' piss <<pherself>>?"
 					<<else>>
 						"Why's <<pshe>> all wet?" a <<person2>><<person>> asks.
@@ -1194,7 +1207,6 @@
 				<br><br>
 
 				You watch as <<he>> takes out a phone and starts calling someone. You feel some relief as everything fades to black.
-
 			<<case "monsterTower">>
 			<<case "street">>
 			<<case "compound">>
@@ -1273,10 +1285,10 @@
 						Your cries for help soon turn into moans of pain. You hear footsteps approaching, then laughter. "Sounds like someone's having fun!" a <<person1>><<person>> says.
 						<br><br>
 
-						"<<pShes>> got a good set of pipes on <<pher>>," a <<person2>><<person>> adds. "I reckon we can make <<pher>> moan even more." <<He>> stops short when <<he>> sees your pregnant belly. "Oh, shit! Is <<pshe>> in labour?"
+						"<<pShes>> got a good set of pipes on <<phim>>," a <<person2>><<person>> adds. "I reckon we can make <<phim>> moan even more." <<He>> stops short when <<he>> sees your pregnant belly. "Oh, shit! Is <<pshe>> in labour?"
 						<br><br>
 
-						"There's no doctor down here!" The <<person1>><<person>> sounds panicked. "Here, help me carry <<pher>>."
+						"There's no doctor down here!" The <<person1>><<person>> sounds panicked. "Here, help me carry <<phim>>."
 						<br><br>
 
 						You feel yourself being lifted, then darkness engulfs you.
@@ -1294,7 +1306,26 @@
 				<br><br>
 
 				The last thing you can make out is Niki asking for an ambulance before everything fades to black.
-
+			<<case "park">>
+				You exhale heavily and <<= either ("collapse onto a bench", "sag against a nearby tree", "stumble to the ground")>>. Something wet drips down your thighs. You're going into labour.
+				<br><br>
+				"Somebody! Help!" you try to shout. Your voice weakens as the pain overtakes you. "Anyone? Please..."
+				<br><br>
+				<<if between(Time.hour, 18, 24) and C.npc.Doren.init is 1>>
+					<<npc Doren>><<person1>>
+					A <<= either ("jogger", "runner")>> immediately runs to you. It's Doren. <<He>> helps you stand upright, letting you lean against <<him>>.
+					<br><br>
+					<<He>> wraps an arm around you. "<<Lass>>, I'm calling"—your hearing cuts out, and you can only catch snatches of <<his>> words—"will be here soon."
+					<br><br>
+					The last thing you hear before your vision goes black is "I'll be here with you."
+				<<else>>
+					<<generate1>><<person1>>
+					A <<personsimple>> rushes over to you. "Hello, there's someone in labour"—you can only hear bits of what they're saying as the pain threatens to overwhelm you—"yes, we're at the park."
+					<br><br>
+					<<He>> wraps an arm around you. "Don't worry, <<girl>>, an ambulance is on the way. Hang in there."
+					<br><br>
+					As your vision goes black, you hear <<him>> muttering to <<himself>>. "Poor <<girl>>. You'll be alright."
+				<</if>>
 			<<case "prison">>
 				You stumble to your knees. There's no mistaking it; you're going into labour. You scream as the first contraction hits.
 				<br><br>
@@ -1464,7 +1495,7 @@
 			<<case "prisonYard">>
 				<<if $prison.schedule is "yard">>
 					<<generate_veteran_guard 0>><<person1>>
-					You collapse in the middle of the yard, clutching your stomach. Laughter echoes all around you as prisoners point and jeer.	Liquid runs down your legs and onto the ground. You're going into labour.
+					You collapse in the middle of the yard, clutching your stomach. Laughter echoes all around you as prisoners point and jeer. Liquid runs down your legs and onto the ground. You're going into labour.
 					<br><br>
 
 					"Quit causing a scene," <<veteran_guard 0>> yells, approaching you. <<He>> halts in <<his>> tracks when you scream out in pain. A few prisoners try to get closer to the two of you.
@@ -1510,7 +1541,7 @@
 
 					You feel yourself being lifted up before everything goes dark.
 				<<else>>
-					You wonder if anyone will find you out here, and if it will be too late. Pain wracks your body as you bite back a scream.
+					You wonder if anyone will find you out here and if it will be too late. Pain wracks your body as you bite back a scream.
 					<br><br>
 
 					The pain soon becomes unbearable, and you begin screaming loudly. Tears roll down your eyes and sink into the sand.
@@ -1542,7 +1573,7 @@
 					You stumble and collapse onto the tiled floor. Warm fluid runs down your thighs. You're going into labour. You scream loudly as your contractions begin, clutching your stomach in pain.
 					<br><br>
 
-					"Showers are over," <<veteran_guard 0>> says, stepping into the room "Go do something productive before—" Heavy footsteps march over to your crumpled body, and you look up to see <<veteran_guard 0>> looking down at you.	<<His>> mouth moves, but you're in too much pain to make out the words.
+					"Showers are over," <<veteran_guard 0>> says, stepping into the room "Go do something productive before—" Heavy footsteps march over to your crumpled body, and you look up to see <<veteran_guard 0>> looking down at you. <<His>> mouth moves, but you're in too much pain to make out the words.
 					<br><br>
 
 					A firm hand grabs your shoulder as your vision begins to blur, and you fade into unconsciousness.
@@ -1843,6 +1874,43 @@
 						<br><br>
 
 						<<link [[Next|Pregnancy Birth Wolf Rescue]]>><<set $stress -= 5000>><<endevent>><</link>>
+					<<elseif $hallucinations gte 2 and $forest_shop_intro>>
+						You hear faint singing.
+						<br><br>
+
+						A brown blur crests along your peripheral vision. By the time you muster the strength to turn and look where it went, it's gone.
+						<br><br>
+
+						You turn back, and see three glowing green eyes staring at you from within the treeline. The head they belong to tilts, and some branches in the treeline tilt with it.
+						It steps out from the shadows cautiously, revealing that those branches are actually a rack of antlers. You expect a deer or elk, but instead you see a colossal brown fox with long legs, and an even longer body.
+						You take a step back, unnerved by its three-eyed gaze. A strangely shaped tail drags along the ground behind it. It vaguely reminds you of a whale's fluke, if it were split into three instead of two.
+						<br><br>
+
+						This creature is extremely hard to look at. The air around it blurs as it moves.
+						Its silhouette is certainly much more like an elk, especially with the antlers that seem to briefly grow every time you blink. <<awareness 12>><<ggawareness>>
+						<br><br>
+
+						Your mind screams for your body to move, to run, to do anything, but you're rooted to the spot.
+						It trots over, slowing just before reaching you. It slowly lowers its head, and presses it against your <<bellyDescription>>. <span class="blue">Your weakness fades, but the pain doesn't.</span>
+						It looks up at you, all three of its eyes blinking before rotating in position around its face. It stands up straight.
+						<<switch $bodysize>>
+							<<case 0>>Even on all fours, it completely dwarfs you in height.
+							<<case 1 2 3>>Even on all fours, it's taller than you are.
+						<</switch>>
+						<br><br>
+
+						It opens its mouth and grabs you by the nape of your neck, swinging you over its back.
+						You instinctively hold on to its brown fur. There's two streaks of bare skin along its back, which you thought were stripes at first. It sticks its head up, alert, as if searching for something.
+						A moment later, it starts to bound through the forest with you.
+						<br><br>
+
+						It gets faster the longer it runs. The wind rushes by. It's oddly peaceful. You bury your face in giant fox's fur. It smells of fresh rain.
+						<br><br>
+
+						Your journey leaves no tracks in the forest. You find your eyes closing by themselves, despite your pain. The singing stops.
+						<br><br>
+
+						<<link [[Next|Pregnancy Birth Forest Shop Rescue]]>><<endevent>><</link>>
 					<<else>>
 						<<endevent>>
 						<<generate1>><<person1>>
@@ -1866,6 +1934,72 @@
 						<<link [[Next|Pregnancy Birth Hospital Passout]]>><<set $stress -= 5000>><<endevent>><</link>>
 					<</if>>
 					-->
+				<<case "forestShop" "forestShopGarden">>
+					<<endevent>><<npc Gwylan>><<person1>>
+					<<if isGwylanAbsent()>>
+						You hear rapid footsteps. Nobody is here.
+						<br><br>
+
+						You scream in pain and fear. Nobody tells you everything will be okay.
+						<br><br>
+
+						Nobody can help you.
+						<br><br>
+
+						Nobody helps you stand.
+						<br><br>
+
+						Nobody apologises for not being able to be here with you.
+						<br><br>
+
+						Nobody leads you out of the forest shop.
+						<br><br>
+
+						Nobody holds you up as your consciousness slips.
+						<br><br>
+
+						<<link [[Next|Pregnancy Birth Hospital Rescue]]>><<set $stress -= 5000>><<endevent>><</link>>
+					<<else>>
+						<<if $location is "forest_shop">>
+							You hear rapid footsteps. "Oh. Oh!" Gwylan stares at you. "I knew I smelled something strange. Here, come here, quickly! You'll need fresh air, come on!"
+							<br><br>
+
+							<<if $gwylanSeen.includes("garden_seen")>>
+								<<if C.npc.Gwylan.dom gte 20>>
+									<<He>> takes your hand and leads you to the garden, towards the quilted room. <<takeHandholdingVirginity "Gwylan" "consensual">>
+								<<else>>
+									<<He>> leads you to the garden, towards the quilted room.
+								<</if>>
+							<<else>>
+								<<He>> places a black blindfold over your eyes. "Sorry, but my garden is usually off-limits. I can't have anyone knowing how to get in, even in extreme circumstances like this."
+								<br><br>
+
+								<<if $gwylanSeen.includes("garden")>>
+									<<He>> steadily walks you to the garden before removing it, and leads you to the quilted room.
+								<<else>>
+									<<set $gwylanSeen.pushUnique("garden")>>
+									<<He>> steadily walks you somewhere. You hear doors open and shut. Eventually, you smell roses and feel the fresh air on your skin. <<He>> removes your blindfold.
+									A large expanse of square stone tiles stretch along the ground, connecting patches of grass and raised sections filled with dirt, flowers and herbs.
+									Surrounding it all is an impressive weaving of crossed wooden stakes well over two metres high, with gaps just large enough to allow vines to grab and climb through, shielding the whole area from prying outside eyes.
+									<br><br>
+
+									There's another raised section, but this one is different. It's covered by a wooden roof,
+									<<if Weather.precipitation is "rain" or Weather.precipitation is "snow">>
+										untouched by the <<print Weather.precipitation>>,
+									<</if>>
+									and the inside is padded with various cushions and quilts. <<He>> leads you over to it.
+								<</if>>
+							<</if>>
+						<<else>>
+							You hear rapid footsteps. "Oh. Oh!" Gwylan stares at you. "I knew I smelled something strange. Here, come here, quickly!"
+						<</if>>
+						<br><br>
+
+						<<He>> guides you into sitting down with your legs spread. "Stay here, don't forget to breathe. You're going to be alright. I promise." <<He>> takes your hand and squeezes it before running off again. <<takeHandholdingVirginity "Gwylan" "consensual">>
+						<br><br>
+
+						<<link [[Next|Pregnancy Birth Forest Shop]]>><<endevent>><</link>>
+					<</if>>
 				<<case "remy" "remyAbduction" "remyHarperExam" "remyNiki">>
 					<<link [[Next|Pregnancy Birth Livestock]]>><<set $stress -= 5000>><<endevent>><</link>>
 				<<case "farmroad">>
@@ -1897,9 +2031,9 @@
 	<<set _morningAfterPillResult to "no pregnant">> /* This variable returns the result of taking the pill */
 	<<if $_menstruation.currentState is "pregnant">>
 		<<if $_pregnancy.type is "human">>
-			<<set _currentDay to $_pregnancy.timer / (1 / ((1 / 9) * $humanPregnancyMonths))>>
+			<<set _currentDay to $_pregnancy.timer / (1 / ((1 / 9) * $settings.humanPregnancyMonths))>>
 		<<elseif $_pregnancy.type is "wolf">>
-			<<set _currentDay to $_pregnancy.timer / (1 / ((1 / 12) * $wolfPregnancyWeeks))>>
+			<<set _currentDay to $_pregnancy.timer / (1 / ((1 / 12) * $settings.wolfPregnancyWeeks))>>
 		<<else>>
 			<<set _currentDay to 1000>>
 			<<set _morningAfterPillResult to "unknown type">>
@@ -1949,7 +2083,7 @@
 			<<set $sexStats[($player.vaginaExist ? "vagina" : "anus")].sperm to []>>
 			<<set $_menstruation.currentDay to .5>>
 			<<set $_menstruation.currentState to "recovering">>
-			<<set $_menstruation.recoveryTime to ($_pregnancy.type === "human" ? random(2, 3) * $humanPregnancyMonths : random(1, 2) * $wolfPregnancyWeeks)>>
+			<<set $_menstruation.recoveryTime to ($_pregnancy.type === "human" ? random(2, 3) * $settings.humanPregnancyMonths : random(1, 2) * $settings.wolfPregnancyWeeks)>>
 			<<set $_menstruation.recoveryTimeStart to $_menstruation.recoveryTime>>
 			<<set $_menstruation.recoveryStage to 0>>
 			<<set $_menstruation.periodEnabled to false>>
@@ -2088,7 +2222,7 @@
 		<</if>>
 		<<set $_pregnancy to C.npc[$_name].pregnancy>>
 		<<if !setup.pregnancy.infertile.includes($_name) and setup.pregnancy.typesEnabled.includes(C.npc[$_name].type) and
-		(($incompletePregnancyDisable is "f" and C.npc[$_name].pregnancy.enabled is undefined and !setup.pregnancy.ignoresIncompleteCheck.includes($_name)) or
+		(($settings.incompletePregnancyEnabled and C.npc[$_name].pregnancy.enabled is undefined and !setup.pregnancy.ignoresIncompleteCheck.includes($_name)) or
 		(setup.pregnancy.canBePregnant.includes($_name) and C.npc[$_name].pregnancy.enabled is undefined))>>
 			<<set $_pregnancy.fetus to []>>
 			<<set $_pregnancy.givenBirth to 0>>
@@ -2117,7 +2251,7 @@
 					<<set $_pregnancy.pills to null>>
 				<<default>><<set $_pregnancy.pills to null>>
 			<</switch>>
-		<<elseif setup.pregnancy.infertile.includes($_name) or (!setup.pregnancy.canBePregnant.includes($_name) and $incompletePregnancyDisable isnot "f")>>
+		<<elseif setup.pregnancy.infertile.includes($_name) or (!setup.pregnancy.canBePregnant.includes($_name) and !$settings.incompletePregnancyEnabled)>>
 			/*For saves that have the variables set, but have no need to be there*/
 			<<set C.npc[$_name].pregnancy to {}>>
 		<</if>>
@@ -2127,7 +2261,7 @@
 			*/
 		<<if !C.npc[$_name].pregnancyAvoidance or $objectVersion.pregnancyAvoidance is undefined>>
 			<<switch $_name>>
-				<<case "Kylar" "Black Wolf" "Great Hawk" "Eden" "Ivory Wraith">><<set C.npc[$_name].pregnancyAvoidance to 0>>
+				<<case "Kylar" "Black Wolf" "Great Hawk" "Eden" "Ivory Wraith" "Gwylan">><<set C.npc[$_name].pregnancyAvoidance to 0>>
 				<<case "Robin" "Whitney" "Alex" "Wren" "Avery">><<set C.npc[$_name].pregnancyAvoidance to 50>>
 				<<default>><<set C.npc[$_name].pregnancyAvoidance to 100>>
 			<</switch>>

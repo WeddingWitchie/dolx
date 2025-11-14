@@ -192,7 +192,7 @@ The interior is rustic and cosy. The <<nnpc_gendery "Alex">> insists on not disc
 <br><br>
 
 <<if $speech_attitude is "meek">>
-	"I-I'm here," you say. "The sign said you needed help."
+	"The sign said you needed help," you say. "I-I'm here."
 <<elseif $speech_attitude is "bratty">>
 	"I'm here for work," you say.
 <<else>>
@@ -233,7 +233,7 @@ You arrive at the chicken coop. "These girls are easy enough. They just need to 
 
 Alex leads you around the coop, toward a long stone building. You hear oinking. "The pigs are harder to keep fed. They're hungry buggers. It's a job to carry it all." You enter the sty.
 <!-- Modified for monster people -->
-<<if ($monsterchance gte random(1, 100) and ($hallucinations gte 1 or $monsterhallucinations is "f")) or ($bestialitydisable is "t")>>
+<<if ($settings.monsterChance gte random(1, 100) and ($hallucinations gte 1 or !$settings.monsterHallucinationsOnly)) or (!$settings.bestialityEnabled)>>
 	<<if beastMaleChance() gte 100>>
 		Several pigboys sit in pens.
 	<<elseif beastMaleChance() gte 1>>
@@ -258,7 +258,7 @@ Some look quizzical, others lie on their sides.
 
 <<He>> leads you away from the sty, through an old wooden gate and onto a paved road. You see a stable up ahead.
 <!-- Modified for monster people -->
-<<if ($monsterchance gte random(1, 100) and ($hallucinations gte 1 or $monsterhallucinations is "f")) or ($bestialitydisable is "t")>>
+<<if ($settings.monsterChance gte random(1, 100) and ($hallucinations gte 1 or !$settings.monsterHallucinationsOnly)) or (!$settings.bestialityEnabled)>>
 	<<if beastMaleChance() lte $rng>>
 		<<set _horse_gender to "f">>
 	<<else>>
@@ -298,7 +298,7 @@ Some look quizzical, others lie on their sides.
 You follow Alex through the field, toward a barn. A dog sits outside, its mouth open and tongue lolling.
 <br><br>
 <!-- Modified for monster people -->
-<<if ($monsterchance gte random(1, 100) and ($hallucinations gte 1 or $monsterhallucinations is "f")) or ($bestialitydisable is "t")>>
+<<if ($settings.monsterChance gte random(1, 100) and ($hallucinations gte 1 or !$settings.monsterHallucinationsOnly)) or (!$settings.bestialityEnabled)>>
 	<<if beastMaleChance() gte 100>>
 		Inside, a number of bullboys stand on all fours, each with a tube attached to his penis. They moo in pleasure.
 	<<elseif beastMaleChance() lte 0>>
@@ -378,6 +378,10 @@ Alex hauls <<himself>> over a fence with one arm, onto a field beyond. It's line
 	<<link [[Say you live in Avery's mansion|Farm Intro 9]]>><<set $phase to 7>><</link>>
 	<br>
 <</if>>
+<<if $gwylanSeen?.includes("doggy_bed")>>
+	<<link [[Say you live with a witch in the forest|Farm Intro 9]]>><<set $phase to 8>><</link>>
+	<br>
+<</if>>
 <<link [[Refuse to say|Farm Intro 9]]>><<set $phase to 2>><</link>>
 
 
@@ -400,6 +404,8 @@ Alex hauls <<himself>> over a fence with one arm, onto a field beyond. It's line
 	"Didn't think a clergy member would be willing to get <<pher>> hands dirty." Alex smiles. "Guessing you are from town then."
 <<elseif $phase is 7>>
 	"A mansion?" Alex laughs. "I know my house is small, but no need to rub it in. From town, then."
+<<elseif $phase is 8>>
+	Alex laughs. "Fan of the old tales around here? Get your heart stolen, too?" <<he>> smirks. "I can imagine you're still near town."
 <<else>>
 	"That's okay," Alex smiles. "I can tell you're from town though."
 <</if>>
@@ -1760,7 +1766,7 @@ Alex nods. "You're right," <<he>> says. "I'm much stronger with you around. <spa
 
 "You've earned it," Alex says. "It's not a big cottage, <span class="gold">but there should be room for you to stay here as well.</span>"
 <br><br>
-Alex hesitates. "Could you handle the fields from now on? I don't" — <<he>> finishes <<his>> tea — "I don't want to look at them. I can't."
+Alex hesitates. "Could you handle the fields from now on? I don't"—<<he>> finishes <<his>> tea—"I don't want to look at them. I can't."
 <br><br>
 
 
@@ -1790,7 +1796,7 @@ Alex hesitates. "Could you handle the fields from now on? I don't" — <<he>> fi
 <br><br>
 
 "I understand," Alex says. "The offer's open. It's not a big cottage, <span class="gold">but there should be room for you to stay here as well.</span> Would make your commute less of a hassle.
-I need someone to handle the fields, at least. I don't" — <<he>> finishes <<his>> tea — "I don't want to look at them. I can't."
+I need someone to handle the fields, at least. I don't"—<<he>> finishes <<his>> tea—"I don't want to look at them. I can't."
 <br><br>
 
 <span class="red">Remy will attack in force 30 days from now, and attempt to burn the fields again.</span>
@@ -1809,24 +1815,39 @@ I need someone to handle the fields, at least. I don't" — <<he>> finishes <<hi
 <<set $outside to 0>><<effects>>
 You are inside the shed with the shower.
 <br><br>
-<<bathroomicon "shower">><<link [[Take shower (0:10)|Farm Shower]]>><<pass 10>><</link>>
+
+<<if pcAreArmsBound("both")>>
+	<<set _clothed = ![V.worn.upper.name, V.worn.lower.name, V.worn.under_upper.name, V.worn.under_lower.name, V.worn.over_upper.name, V.worn.over_lower.name].every(x => x == 'naked')>>
+	<<bathroomicon "shower">><<link [["Have a shower " + (_clothed ? " in clothes " : "") + "(0:30)"->Farm Shower]]>><<water>><<pass 30>><<stress -6>><<set $hygiene to 0>><</link>><<lstress>>
+<<else>>
+	<<bathroomicon "shower">><<link [[Have a shower (0:30)->Farm Shower]]>><<strip>><<pass 30>><<stress -6>><<set $hygiene to 0>><</link>><<lstress>>
+	<br>
+	<<bathroomicon "shower">><<link [[Take a cold shower (0:20)|Farm Shower]]>><<water>><<pass 20>><<run Weather.BodyTemperature.update(5,20)>><<stress 75>><<arousal -5000>><</link>><<lllarousal>><<ggstress>>
+	<br>
+	<<bathroomicon "toothbrush">><<link [[Brush teeth (0:05)|Bathroom Brush]]>><<pass 5>><<set $bathroomExit to "Farm Shed">><</link>>
+<</if>>
 <br>
-<<bathroomicon "shower">><<link [[Take a cold shower (0:20)|Farm Shower]]>><<water>><<pass 20>><<run Weather.BodyTemperature.update(5,20)>><<stress 75>><<arousal -5000>><</link>><<lllarousal>><<ggstress>>
-<br>
-<<if $pbdisable is "f" and ($pblevel gte 2 or $pbstrip gte 1 or $pblevelballs gte 2)>>
-	<<bathroomicon "shave">><<link [[Groom pubic hair|Farm Shave]]>><</link>>
+<!-- Check if there's any hair-->
+<<if $settings.pubicHairEnabled and ($pblevel gte 2 or $pbstrip gte 1 or $pblevelballs gte 2)>>
+	<<bathroomicon "shave">><<link [[Groom pubic hair->Farm Shave]]>><</link>>
 	<br>
 <</if>>
-<<bathroomicon "toothbrush">><<link [[Brush teeth (0:05)|Bathroom Brush]]>><<pass 5>><<set $bathroomExit to "Farm Shed">><</link>>
-<br>
 <<pregnancyTest "Farm Shed">>
-
+<br>
 <<getouticon>><<link [[Leave (0:01)|Farm Work]]>><<endevent>><<pass 1>><</link>>
 <br>
 
 :: Farm Shave
 <<effects>>
-<<dontHideForNow>><<shavestrip>>
+<<dontHideForNow>>
+<<if pcAreArmsBound("both")>>
+	<span class="red">Both of your arms are bound</span>, and you find it difficult to do anything about your pubes this way.
+	<br>
+	<<link [[Back->Bathroom]]>><<dontHideRevert>><</link>>
+	<<exit>>
+<</if>>
+
+<<shavestrip>>
 <<wearProp "razor">>
 You take off your clothes and look at your <<genitals>>.
 <br><br>
@@ -1966,6 +1987,12 @@ After several minutes, you rinse your private area with water and behold your <<
 You remove your clothes, and wash until you're squeaky clean.<<wash>>
 <br><br>
 
+<<if Weather.wetness > 0.5>>
+	Your clothes are drenched. Water drips from you onto the floor.
+<<else>>
+	Your skin is still damp.
+<</if>>
+<br><br>
 
 <<if dangerEvent(0.5) and Time.dayState isnot "night">>
 	<<npc Alex>><<person1>>
@@ -2242,7 +2269,7 @@ Alex tries to respond, but can't form the words. <<He>> closes the shed door beh
 
 	<<if $pleasure gte $pleasuremax>>
 		Your body shakes. <<orgasm>>
-		Rather than surprised, Alex is emboldened by your orgasm. "You're such a pervert," <<he>> says, pulling your body against <<his>>.
+		Rather than surprised, Alex is emboldened by your orgasm. "You're such a pervert," <<he>> says, pulling your body against <<hers>>.
 		<br><br>
 
 		<<if hasSexStat("promiscuity", 2)>>
@@ -2315,7 +2342,7 @@ Alex takes a swig from an unmarked bottle. "We'd need help manning it too," <<he
 <<effects>>
 
 <<if $danceSuccess>>
-	You dive for the creature, and <span class="green">manage to pin it with your forearm long enough for Alex to catch up.</span> <<He>> slams the cage over it, then throws over a sheet.<<glove>><<npcincr Alex love 1>>
+	You dive for the creature and <span class="green">manage to pin it with your forearm long enough for Alex to catch up.</span> <<He>> slams the cage over it, then throws over a sheet.<<glove>><<npcincr Alex love 1>>
 	<br><br>
 	"Thanks," <<he>> says. "Had an accident."
 	<br><br>
@@ -2888,14 +2915,8 @@ Your lips meet. Alex's body is tense and <<his>> pulse races, but <<he>> relaxes
 You return to work together.
 <br><br>
 
-<<if $loveInterest.primary is "None">>
-	<<set $loveInterest.primary to "Alex">>
-	<span class = "gold">Alex is now your love interest! You can live together, after all.</span>
-	<br><br>
-<<else>>
-	<span class = "gold">Alex can now be claimed as your love interest! You can live with <<him>>, after all. <br>You can change your love interest in the "Attitudes" menu.</span>
-	<br><br>
-<</if>>
+<<loveInterestAdd "Alex">>
+<br><br>
 
 <<link [[Next|Farm Work]]>><<endevent>><</link>>
 <br>
@@ -3085,7 +3106,7 @@ Alex shrugs, and holds out the seeds. "The farm needs the money," <<he>> says. "
 You feel for Alex's hand, and take it in your own. <<He>> squeezes back, then rests <<his>> head on your shoulder.<<takeHandholdingVirginity "Alex" "romantic">>
 <br><br>
 
-"It was a wonder to restore the old fields. I'm not sure when the whole thing was last cultivated. I" — <<he>> pauses — "I'm sorry I haven't been much help." You look at <<him>>, and <<he>> averts <<his>> gaze.
+"It was a wonder to restore the old fields. I'm not sure when the whole thing was last cultivated. I"—<<he>> pauses—"I'm sorry I haven't been much help." You look at <<him>>, and <<he>> averts <<his>> gaze.
 <br><br>
 
 <<link [[Reassure|Farm Stage 12 Reassure]]>><<npcincr Alex love 1>><</link>><<glove>>
@@ -3096,7 +3117,7 @@ You feel for Alex's hand, and take it in your own. <<He>> squeezes back, then re
 :: Farm Stage 12 Pat
 <<effects>>
 
-You pat Alex on the back. "It was a wonder to restore the old fields," <<he>> says. "I'm not sure when the whole thing was last cultivated. I" — <<he>> pauses — "I'm sorry I haven't been much help." You look at <<him>>, and <<he>> averts <<his>> gaze.
+You pat Alex on the back. "It was a wonder to restore the old fields," <<he>> says. "I'm not sure when the whole thing was last cultivated. I"—<<he>> pauses—"I'm sorry I haven't been much help." You look at <<him>>, and <<he>> averts <<his>> gaze.
 <br><br>
 
 

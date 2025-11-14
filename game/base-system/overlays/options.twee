@@ -86,11 +86,18 @@ IMPORTANT:
 			<br>
 			<label><<checkbox "$options.fahrenheit" false true autocheck>> Use Fahrenheit for temperatures</label>
 		</div>
-		<div class="settingsToggleItemWide">
+		<div class="settingsToggleItem">
 			<label data-disabledif="!StartConfig.enableLinkNumberify">
 				<<checkbox "$options.numberify_enabled" 0 1 autocheck>> Enable numbered link navigation
 			</label>
 			<mouse class="tooltip-small linkBlue">(?)<span>Allows navigation with keyboard.</span></mouse>
+		</div>
+		<div class="settingsToggleItem">
+			Wakeup outfit menu style:
+			<<listbox "$options.listboxOutfitsEnabled" autoselect>>
+				<<option "Radio buttons" false>>
+				<<option "List box" true>>
+			<</listbox>>
 		</div>
 	</div>
 	<hr>
@@ -220,12 +227,13 @@ IMPORTANT:
 					</span>
 				</div>
 				<span id="manualNNPC">
-					<<if $options.autoNNPCDisplay.enabled is true and $options.nnpcDisplay isnot 0 and $options.autoNNPCDisplay[$options.nnpcDisplay].genderOverride is true>>
-						Skin: 
-						<label><<radiovar "$options.nnpcDisplaySkin" "pale">><<updatesidebarimg>><</radiovar>> Pale</label> |
-						<label><<radiovar "$options.nnpcDisplaySkin" "dark">><<updatesidebarimg>><</radiovar>> Dark</label>
-						<<if $options.nnpcDisplay is "black_wolf" || $options.nnpcDisplay is "great_hawk">> | <label><<radiovar "$options.nnpcDisplaySkin" "monster">><<updatesidebarimg>><</radiovar>> Monster</label><</if>>
-						<br>
+					<<if $options.autoNNPCDisplay.enabled is true and $options.nnpcDisplay isnot 0>>
+						<<if $options.autoNNPCDisplay[$options.nnpcDisplay].genderOverride is true>>
+							Gender: 
+							<label><<radiovar "$options.nnpcDisplayGender" "male">><<updatesidebarimg>><</radiovar>> Male</label> |
+							<label><<radiovar "$options.nnpcDisplayGender" "female">><<updatesidebarimg>><</radiovar>> Female</label>
+							<br>
+						<</if>>
 					<<else>>
 						Gender: 
 						<label><<radiovar "$options.nnpcDisplayGender" "male">><<updatesidebarimg>><</radiovar>> Male</label> |
@@ -280,21 +288,9 @@ IMPORTANT:
 									<label><<radiovar "$options.nnpcDisplayGender" "male">><<updatesidebarimg>><</radiovar>> Male</label> |
 									<label><<radiovar "$options.nnpcDisplayGender" "female">><<updatesidebarimg>><</radiovar>> Female</label>
 									<br>
-									Skin: 
-									<label><<radiovar "$options.nnpcDisplaySkin" "pale">><<updatesidebarimg>><</radiovar>> Pale</label> |
-									<label><<radiovar "$options.nnpcDisplaySkin" "dark">><<updatesidebarimg>><</radiovar>> Dark</label>
-									<<if $options.nnpcDisplay is "black_wolf" || $options.nnpcDisplay is "great_hawk">> | <label><<radiovar "$options.nnpcDisplaySkin" "monster">><<updatesidebarimg>><</radiovar>> Monster</label><</if>>
-									<br>
-									<br>
 								<</replace>>
 							<<else>>
-								<<replace #manualNNPC>>
-									Skin: 
-									<label><<radiovar "$options.nnpcDisplaySkin" "pale">><<updatesidebarimg>><</radiovar>> Pale</label> |
-									<label><<radiovar "$options.nnpcDisplaySkin" "dark">><<updatesidebarimg>><</radiovar>> Dark</label>
-									<<if $options.nnpcDisplay is "black_wolf" || $options.nnpcDisplay is "great_hawk">> | <label><<radiovar "$options.nnpcDisplaySkin" "monster">><<updatesidebarimg>><</radiovar>> Monster</label><</if>>
-									<br>
-								<</replace>>
+								<<replace #manualNNPC>><</replace>>
 							<</if>>
 							<<replace #autoNNPCSave>>
 								<<link "Save">>
@@ -616,6 +612,36 @@ IMPORTANT:
 			<label class="ComicSans"><<radiobutton "$options.font" "ComicSans" autocheck>> Comic Sans</label>
 		</div>
 	</div>
+	<hr>
+
+	<div class="settingsGrid">
+		<div class="settingsHeader options">Text Animations</div>
+		<div class="settingsToggleItemWide">
+			<label data-target="options.textAnimsAll">
+				<<checkbox "$options.textAnimsAll" false true autocheck { onToggle: t => {
+					$("#prevDrunk").replaceWith(Wikifier.wikifyEval('<span id="prevDrunk" @class="basicDrunkCss()">Drunk sway</span>'));
+					$("#prevHeat").replaceWith(Wikifier.wikifyEval('<span id="prevHeat" @class="basicJitterCss()">Heat/rut jitter</span>'));
+					$("#prevHypno").replaceWith(Wikifier.wikifyEval('<span id="prevHypno"><<hypnosisText "Hypnosis spiral">></span>'));
+				}}>>
+				Uncheck to disable all text animations
+			</label>
+			<br>
+			<<checkbox "$options.textAnimsDrunk" false true autocheck { onToggle: t => {
+				$("#prevDrunk").replaceWith(Wikifier.wikifyEval('<span id="prevDrunk" @class="basicDrunkCss()">Drunk sway</span>'));
+			}}>>
+			<span id="prevDrunk" @class="basicDrunkCss()">Drunk sway</span>
+			<br>
+			<<checkbox "$options.textAnimsHeat" false true autocheck { onToggle: t => {
+				$("#prevHeat").replaceWith(Wikifier.wikifyEval('<span id="prevHeat" @class="basicJitterCss()">Heat/rut jitter</span>'));
+			}}>>
+			<span id="prevHeat" @class="basicJitterCss()">Heat/rut jitter</span>
+			<br>
+			<<checkbox "$options.textAnimsHypno" false true autocheck { onToggle: t => {
+				$("#prevHypno").replaceWith(Wikifier.wikifyEval('<span id="prevHypno"><<hypnosisText "Hypnosis spiral">></span>'));
+			}}>>
+			<span id="prevHypno"><<hypnosisText "Hypnosis spiral">></span>
+		</div>
+	</div>
 <</widget>>
 
 <<widget "optionsThemeDefault">>
@@ -783,9 +809,6 @@ IMPORTANT:
 				</label>
 				<span class="tooltip-anchor linkBlue" tooltip="Disabling may help improve performance during combat.">(?)</span>
 			</div>
-			<div class="settingsToggleItem">
-				<label data-target="options.textAnimations"><<checkbox "$options.textAnimations" false true autocheck>> Text animations</label>
-			</div>
 			<<if $eyelidTEST is true>>
 				<div class="settingsToggleItem">
 					<label data-target='["options.images", "sidebaranimations"]' data-disabledif="V.options.images===0||V.options.sidebarAnimations===false">
@@ -826,12 +849,6 @@ IMPORTANT:
 					</label>
 				</div>
 				<div class="settingsToggleItem">
-					<label data-target="images" data-disabledif="V.options.images===0||V.options.combatImages===0">
-						Combat Light<br>
-						<<numberslider "$options.lightCombat" $options.lightCombat 0 1 0.05>>
-					</label>
-				</div>
-				<div class="settingsToggleItem">
 					<label>
 						Colour Component<br>
 						<<numberslider "$options.lightTFColor" $options.lightTFColor 0 1 0.05>>
@@ -842,6 +859,69 @@ IMPORTANT:
 			<div style="margin-left: 10px" onchange="new Wikifier(null, '<<replace #condomsSidebar>><<condomsSidebar>><</replace>>')">
 				<label data-target="options.images" data-disabledif="V.options.images===0">
 					<<checkbox "$options.characterLightEnabled" false true autocheck>> Enable character lighting
+				</label>
+			</div>
+		</div>
+		<hr>
+		<div>
+			<div class="settingsGrid" data-target='["images", "combatImages", "combatLightEnabled"]' data-disabledif="V.options.images===0||!V.options.combatImages||V.options.characterLightEnabled===false" oninput='Renderer.refresh(Renderer.locateModel("lighting", "combat-lighting"));Renderer.refresh(Renderer.locateModel("lighting", "combat-lighting-demo"));'>
+				<div class="settingsHeader options">Combat Lighting</div>
+				<div class="settingsToggleItemWide d-flex justify-content-center lighting-demo-container">
+					<<setupCombatLightingDemo>>
+				</div>
+				<div class="settingsToggleItem">
+					<label>
+						Y Offset<br>
+						<<numberslider "$options.combatLightOffsetY" $options.combatLightOffsetY 0 128 1>>
+					</label>
+				</div>
+				<div class="settingsToggleItem">
+					<label>
+						Spotlight intensity<br>
+						<<numberslider "$options.combatLightSpotlight" $options.combatLightSpotlight 0 1 0.05>>
+					</label>
+				</div>
+				<div class="settingsToggleItem">
+					<label>
+						Spotlight width<br>
+						<<numberslider "$options.combatLightSpotlightX" $options.combatLightSpotlightX 0 128 1>>
+					</label>
+				</div>
+				<div class="settingsToggleItem">
+					<label>
+						Spotlight height<br>
+						<<numberslider "$options.combatLightSpotlightY" $options.combatLightSpotlightY 0 48 1>>
+					</label>
+				</div>
+				<div class="settingsToggleItem">
+					<label>
+						Gradient<br>
+						<<numberslider "$options.combatLightGradient" $options.combatLightGradient 0 1 0.05>>
+					</label>
+				</div>
+				<div class="settingsToggleItem">
+					<label>
+						Glow<br>
+						<<numberslider "$options.combatLightGlow" $options.combatLightGlow 0 1 0.05>>
+					</label>
+				</div>
+				<div class="settingsToggleItem">
+					<label>
+						Flat<br>
+						<<numberslider "$options.combatLightFlat" $options.combatLightFlat 0 1 0.05>>
+					</label>
+				</div>
+				<div class="settingsToggleItem">
+					<label>
+						Colour Component<br>
+						<<numberslider "$options.combatLightTFColor" $options.combatLightTFColor 0 1 0.05>>
+						<span class="description">Requires Angel/Demon transformation</span>
+					</label>
+				</div>
+			</div>
+			<div style="margin-left: 10px" onchange="new Wikifier(null, '<<updateCombatLightingDemo .lighting-demo-container>>')">
+				<label data-target='["images", "combatImages"]' data-disabledif="V.options.images===0||!V.options.combatImages">
+					<<checkbox "$options.combatLightEnabled" false true autocheck>> Enable combat lighting
 				</label>
 			</div>
 		</div>
@@ -865,6 +945,25 @@ IMPORTANT:
 			<br><br>
 		</div>
 	</div>
+<</widget>>
+
+<<widget "setupCombatLightingDemo">>
+	<<run Renderer.refresh(Renderer.locateModel("lighting", "combat-lighting-demo"))>>
+	<<selectmodel "lighting" "combat-lighting-demo">>
+	<<configureCombatLighting>>
+	<<if $passage isnot "Start">>
+		<<rendermodel "lighting position-absolute z-hidden">>
+		<<selectmodel "combatMainPc" "combatMainDemo">>
+		<<rendermodel "combatMainPc">>
+	<<else>>
+		<<rendermodel "lighting z-hidden">>
+	<</if>>
+<</widget>>
+
+<<widget "updateCombatLightingDemo">>
+	<<if elementExists(_args[0])>>
+		<<replace _args[0]>><<setupCombatLightingDemo>><</replace>>
+	<</if>>
 <</widget>>
 
 <<widget "optionsadvanced">>
@@ -908,18 +1007,18 @@ IMPORTANT:
 	<div class="settingsGrid">
 		<div class="settingsHeader options">Game Zoom</div>
 		<div class="settingsToggleItemWide">
-				<span class="gold">Zoom Size:</span>
-				<span class="tooltip-anchor linkBlue" tooltip-width="460" tooltip="Will allow you to adjust the size of game elements and text.<br><br><span class='red'>
-							Please be careful with this setting! Only save if you are happy with the changes made, as reloading the game will reset it to the last value used in that save.
-							Depending on the device and browser, the setting may break entirely, and may cause unexpected effects.
-						</span>">(?)</span>
-				<br>
-				<span class="description red">Not supported in all browsers</span>
-				<br>
-				<<numberslider "$options.zoom" $options.zoom 50 200 1>>
-				<br><br>
-				<input type="button" value="Set" onclick='zoom()'/>
-				<input type="button" value="Reset" onclick='zoom(100)'/>
+			<span class="gold">Zoom Size:</span>
+			<span class="tooltip-anchor linkBlue" tooltip-width="460" tooltip="Will allow you to adjust the size of game elements and text.<br><br><span class='red'>
+						Please be careful with this setting! Only save if you are happy with the changes made, as reloading the game will reset it to the last value used in that save.
+						Depending on the device and browser, the setting may break entirely and may cause unexpected effects.
+					</span>">(?)</span>
+			<br>
+			<span class="description red">Not supported in all browsers</span>
+			<br>
+			<<numberslider "$options.zoom" $options.zoom 50 200 1>>
+			<br><br>
+			<input type="button" value="Set" onclick='zoom()'/>
+			<input type="button" value="Reset" onclick='zoom(100)'/>
 		</div>
 	</div>
 <</widget>>

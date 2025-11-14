@@ -93,7 +93,7 @@
 			<<set $storeLocation to "bed">>
 	<</switch>>
 	<<wardrobeSelection true>>
-	<<if $earSlime.alwaysSleepNaked is false>>
+	<<if $earSlime.alwaysSleepNaked is false or $hypnosis_traits.silence>>
 		<<for _index, $_outfit range $outfit>>
 			<<if $_outfit.type.includes("sleep")>>
 				<<if _passage is "Bed">>
@@ -109,7 +109,7 @@
 						<<set _bed to Furniture.get('bed', $location)>>
 						<<furnitureicon _bed.iconFile>>
 					<<else>>
-						<<farmicon "alexbed">>
+						<<bedicon _farmbed>>
 					<</if>>
 				<<elseif $location is "avery_mansion">>
 					<<icon "avery_bedroom.png">>
@@ -118,7 +118,7 @@
 				<</if>>
 				<<capture _index>>
 					<<set _outfitname to $_outfit.name + ($_outfit.colors is false ? "" : " [C]")>>
-					<<link [["Wear "+_outfitname+" and climb in bed"|_passage]]>><<set $wear_outfit to _index>><<saveTempHairStyle>><</link>>
+					<<link [["Wear "+_outfitname+" and climb in bed"|_passage]]>><<if _args[0] is "Robin Bed">><<storeon "Robin's Room">><</if>><<set $wear_outfit to _index>><<saveTempHairStyle>><</link>>
 				<</capture>>
 				<br>
 			<</if>>
@@ -204,15 +204,35 @@
 <</widget>>
 
 <<widget "radiooutfits">>
-	<<for _index, $_outfit range $outfit>>
-		<<if $_outfit.location and $_outfit.location isnot $wardrobe_location>>
-			<<continue>>
-		<</if>>
-		<<capture _index>>
-			<label>Wear $_outfit.name <<radiobutton "$wear_outfit" _index>></label> |
-		<</capture>>
-	<</for>>
-	<label>Dress like you were <<radiobutton "$wear_outfit" "clotheson" checked>></label>
+	<<if $options.listboxOutfitsEnabled>>
+		<<set _dropdownOptions to {}>>
+
+		<<for _index, $_outfit range $outfit>>
+			<<if $_outfit.location and $_outfit.location isnot $wardrobe_location>>
+				<<continue>>
+			<</if>>
+			<<set _displayName to $_outfit.name>>
+			<<if _displayName in _dropdownOptions>>
+				<<set _displayName to $_outfit.name + " (" + _index + ")" >>
+			<</if>>
+			<<set _dropdownOptions[_displayName] to _index>>
+		<</for>>
+		Get dressed:
+		<<listbox "$wear_outfit">>
+			<<option "Dress like you were" "clotheson" selected>>
+			<<optionsfrom _dropdownOptions>>
+		<</listbox>>
+	<<else>>
+		<<for _index, $_outfit range $outfit>>
+			<<if $_outfit.location and $_outfit.location isnot $wardrobe_location>>
+				<<continue>>
+			<</if>>
+			<<capture _index>>
+				<label>Wear $_outfit.name <<radiobutton "$wear_outfit" _index>></label> |
+			<</capture>>
+		<</for>>
+		<label>Dress like you were <<radiobutton "$wear_outfit" "clotheson" checked>></label>
+	<</if>>
 <</widget>>
 
 <<widget "deleteoutfit">>
@@ -273,6 +293,41 @@
 				<<set _preventItemEquip to Object.entries($worn[$_slot].outfitPrimary).some(([slot, name]) => {
 					if (!["broken", "split"].includes(name) and $worn[slot].cursed is 1) _preventItemEquip = true;
 				})>>
+			<</if>>
+
+			/* Strip worn strap-on */
+			<<if $worn[$_slot].type.includes("strap-on")>>
+				<<set _strap to $player.inventory.sextoys[$worn[$_slot].name].find(toy => toy.worn)>>
+				<<set _strap.worn to false>>
+				<<set $worn[$_slot] to clone(setup.clothes[$_slot][0])>>
+			<</if>>
+
+			/* Equip saved outfit's strap-on */
+			<<if $_slot is "under_lower" and $_incomingItemName.includes("strap-on")>>
+				<<set _toy to $player.inventory.sextoys[$_incomingItemName]>>
+				<<set _toySetup to setup.sextoys.find(t => t.name === $_incomingItemName)>>
+				<<if !_toy or _toy?.length is 0>>
+					<<set _notEquipped[$_slot] to {"name": $_incomingItemName, "reason": "strapon"}>>
+				<<elseif _toySetup>>
+					<<set _index to _toySetup.clothes_index>>
+					<<if $outfit[$wear_outfit].colors>>
+						<<set _strap to _toy.find(toy => toy.colour === $outfit[$wear_outfit].colors.under_lower[0])>>
+						<<if _strap>>
+							<<set $worn[$_slot] to clone(setup.clothes[$_slot][_index])>>
+							<<set $worn[$_slot].colour to $outfit[$wear_outfit].colors.under_lower[0]>>
+							<<set _strap.worn to true>>
+						<<else>>
+							<<set _notEquipped[$_slot] to {"name": $_incomingItemName, "reason": "strapon"}>>
+						<</if>>
+					<<else>>
+						<<set $worn[$_slot] to clone(setup.clothes[$_slot][_index])>>
+						<<set $worn[$_slot].colour to _toy[0].colour>>
+						<<set _toy[0].worn to true>>
+					<</if>>
+				<<else>>
+					<<exit '<span class="red">ERROR: Equipped $_incomingItemName does not exist. Please report.</span>'>>
+				<</if>>
+				<<continue>>
 			<</if>>
 
 			<<set $_storeLocation to ($storeLocation ? $storeLocation : $wardrobe_location)>>
@@ -788,6 +843,19 @@
 						}
 						_resultStrings.notFoundPiece.names.push(notEquippedItem.name);
 						break;
+					case "strapon":
+						if (V.worn[slot].name === notEquippedItem.name) break;
+						if (_resultStrings.strapon === undefined) {
+							_resultStrings.strapon = {
+								"start": "You were unable to find a matching ",
+								"joiner": "or",
+								"end": " in your sex toy inventory.",
+								"names": [],
+								"color": "lewd"
+							}
+						}
+						_resultStrings.strapon.names.push(notEquippedItem.name);
+						break;
 				}
 			})>>
 			<<for $_clothingStrings range _resultStrings>>
@@ -889,7 +957,7 @@
 		<<capture $_var>>
 			<label>
 				<<checkbox $_var false true autocheck>> <<print $_name>>
-				<<if (!$multipleWardrobes or ($multipleWardrobes is "isolated" and !$_value.isolated)) and $_label isnot "wardrobe">>
+				<<if (!$settings.multipleWardrobes or ($settings.multipleWardrobes is "isolated" and !$_value.isolated)) and $_label isnot "wardrobe">>
 					(No access)
 				<</if>>
 			</label> |
@@ -1032,7 +1100,7 @@
 			<<for $_label, $_value range $wardrobes>>
 				<<if $_value.unlocked>>
 					<<set _warning to "">>
-					<<if (!$multipleWardrobes or ($multipleWardrobes is "isolated" and !$_value.isolated)) and $_label isnot "wardrobe">>
+					<<if (!$settings.multipleWardrobes or ($settings.multipleWardrobes is "isolated" and !$_value.isolated)) and $_label isnot "wardrobe">>
 						<<set _warning to " (No access)">>
 					<</if>>
 					<<set $_locations[$_value.name + _warning] to $_label>>

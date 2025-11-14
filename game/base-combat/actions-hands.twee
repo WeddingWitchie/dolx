@@ -384,7 +384,7 @@
 			<</if>>
 		<<elseif $prayerRoom or $NPCList[$lefttarget].fullDescription is "Ivory Wraith">>
 			<!-- Do Nothing -->
-		<<elseif !$_target.condom and $condoms gte 1 and ($_target.condomCanGive or $condomlvl is 1)>>
+		<<elseif !$_target.condom and $condoms gte 1 and ($_target.condomCanGive or $settings.condomLevel is 1)>>
 			<<set _leftaction["Give " + $_target.pronouns.him + " a condom (" + $condoms + " left)"] to "npcgivecondom">>
 		<</if>>
 	<</if>>
@@ -798,7 +798,7 @@
 			<</if>>
 		<<elseif $prayerRoom or $NPCList[$righttarget].fullDescription is "Ivory Wraith">>
 			<!-- Do Nothing -->
-		<<elseif !$_target.condom and $condoms gte 1 and ($_target.condomCanGive or $condomlvl lte 1)>>
+		<<elseif !$_target.condom and $condoms gte 1 and ($_target.condomCanGive or $settings.condomLevel is 1)>>
 			<<set _rightaction["Give " + $_target.pronouns.him + " a condom (" + $condoms + " left)"] to "npcgivecondom">>
 		<</if>>
 	<</if>>
@@ -1032,11 +1032,11 @@
 					<<set _leftaction["Move your " + $currentSexToyLeft.name + " to " + $NPCList[$lefttarget].pronouns.his + " penis"] to "strokerOtherPenisTease">>
 				<</if>>
 
-				<<if $analdisable is "f" and $NPCList[$lefttarget].vagina isnot "none" and $NPCList[$lefttarget].vagina is 0 and $currentSexToyLeft.type.includes("dildo")>>
+				<<if $settings.analEnabled and $NPCList[$lefttarget].vagina isnot "none" and $NPCList[$lefttarget].vagina is 0 and $currentSexToyLeft.type.includes("dildo")>>
 					<<set _leftaction["Move your "+$currentSexToyLeft.name+" to "+$NPCList[$lefttarget].pronouns.his+" anus"] to "dildoOtherAnusTease">>
 				<</if>>
 
-				<<if $analdisable is "f" and $NPCList[$lefttarget].penis isnot "none" and $NPCList[$lefttarget].penis is 0 and $currentSexToyLeft.type.includes("dildo")>>
+				<<if $settings.analEnabled and $NPCList[$lefttarget].penis isnot "none" and $NPCList[$lefttarget].penis is 0 and $currentSexToyLeft.type.includes("dildo")>>
 					<<set _leftaction["Move your "+$currentSexToyLeft.name+" to "+$NPCList[$lefttarget].pronouns.his+" anus"] to "dildoOtherAnusTease">>
 				<</if>>
 			<</if>>
@@ -1047,7 +1047,7 @@
 					<<if $player.vaginaExist and $currentSexToyLeft.type.includes("dildo")>>
 						<<set _leftaction["Move your "+$currentSexToyLeft.name+" to your pussy"] to "dildoSelfPussyEntrance">>
 					<</if>>
-					<<if $analdisable is "f" and $currentSexToyLeft.type.includes("dildo")>>
+					<<if $settings.analEnabled and $currentSexToyLeft.type.includes("dildo")>>
 						<<set _leftaction["Move your "+$currentSexToyLeft.name+" to your anus"] to "dildoSelfAnusEntrance">>
 					<</if>>
 					<<if $player.penisExist and $currentSexToyLeft.type.includes("stroker")>>
@@ -1072,10 +1072,10 @@
 				<<if $NPCList[$righttarget].penis isnot "none" and $NPCList[$righttarget].penis is 0 and !npcHasStrapon($righttarget) and $currentSexToyRight.type.includes("stroker")>>
 					<<set _rightaction["Move your " + $currentSexToyRight.name + " to " + $NPCList[$righttarget].pronouns.his + " penis"] to "strokerOtherPenisTease">>
 				<</if>>
-				<<if $analdisable is "f" and $NPCList[$righttarget].vagina isnot "none" and $NPCList[$righttarget].vagina is 0 and $currentSexToyRight.type.includes("dildo")>>
+				<<if $settings.analEnabled and $NPCList[$righttarget].vagina isnot "none" and $NPCList[$righttarget].vagina is 0 and $currentSexToyRight.type.includes("dildo")>>
 					<<set _rightaction["Move your "+$currentSexToyRight.name+" to "+$NPCList[$righttarget].pronouns.his+" anus"] to "dildoOtherAnusTease">>
 				<</if>>
-				<<if $analdisable is "f" and $NPCList[$righttarget].penis isnot "none" and $NPCList[$righttarget].penis is 0 and $currentSexToyRight.type.includes("dildo")>>
+				<<if $settings.analEnabled and $NPCList[$righttarget].penis isnot "none" and $NPCList[$righttarget].penis is 0 and $currentSexToyRight.type.includes("dildo")>>
 					<<set _rightaction["Move your "+$currentSexToyRight.name+" to "+$NPCList[$righttarget].pronouns.his+" anus"] to "dildoOtherAnusTease">>
 				<</if>>
 			<</if>>
@@ -1086,7 +1086,7 @@
 					<<if $player.vaginaExist and $currentSexToyRight.type.includes("dildo")>>
 						<<set _rightaction["Move your "+$currentSexToyRight.name+" to your pussy"] to "dildoSelfPussyEntrance">>
 					<</if>>
-					<<if $analdisable is "f" and $currentSexToyRight.type.includes("dildo")>>
+					<<if $settings.analEnabled and $currentSexToyRight.type.includes("dildo")>>
 						<<set _rightaction["Move your "+$currentSexToyRight.name+" to your anus"] to "dildoSelfAnusEntrance">>
 					<</if>>
 					<<if $player.penisExist and $currentSexToyRight.type.includes("stroker")>>
@@ -1350,17 +1350,22 @@
 			<<set _baseDamage to 400>>
 			<<set $spraystat += 2>><<spray -2>><<set $speechspray to 1>>
 			<<if $enemytype is "beast">>
-				You hold the spray in both hands, and unload a full blast in the <<beasttypes>> face. It whimpers.
+				You hold the spray in both hands and unload a full blast in the <<beasttypes>> face. It whimpers.
 			<<elseif $NPCList[0].fullDescription is "Ivory Wraith">>
-				You hold the spray in both hands, and unload a full blast in the figure's face. <span class="red">It doesn't even blink.</span>
+				You hold the spray in both hands and unload a full blast in the figure's face. <span class="red">It doesn't even blink.</span>
 			<<elseif $enemyno gte 2>>
 				You hold the spray in both hands, and unload a full blast at the <<group>>. They clutch their faces.
-				<<if !$npc.includes("Eden") and !$npc.includes("Morgan") and !$npc.includes("Kylar") and !$abomination and !["island"].includes($location)>>
+				<<if !$npc.includesAny("Eden", "Morgan", "Kylar", "Gwylan") and !$abomination and !["island"].includes($location)>>
 					<<ggcrime "assault">><<crimeUp 500 "assault">>
 				<</if>>
 			<<else>>
-				You hold the spray in both hands, and unload a full blast at the assailant. <<He>> clutches <<his>> face.
-				<<if !$npc.includes("Eden") and !$npc.includes("Morgan") and !$npc.includes("Kylar") and !$abomination and !["island"].includes($location)>>
+				You hold the spray in both hands, and unload a full blast at the assailant.
+				<<if $NPCList[0].traits.includes("drug resistant")>>
+					<span class="blue"><<He>> recoils, but seems to have a resistance.</span>
+				<<else>>
+					<<He>> clutches <<his>> face.
+				<</if>>
+				<<if !$npc.includesAny("Eden", "Morgan", "Kylar", "Gwylan") and !$abomination and !["island"].includes($location)>>
 					<<ggcrime "assault">><<crimeUp 500 "assault">>
 				<</if>>
 			<</if>>
@@ -1374,12 +1379,17 @@
 				You spray the figure in the face. <span class="red">It doesn't even blink.</span>
 			<<elseif $enemyno gte 2>>
 				You spray the <<group>>. They clutch their faces.
-				<<if !$npc.includes("Eden") and !$npc.includes("Morgan") and !$npc.includes("Kylar") and !$abomination and !["island"].includes($location)>>
+				<<if !$npc.includesAny("Eden", "Morgan", "Kylar", "Gwylan") and !$abomination and !["island"].includes($location)>>
 					<<ggcrime "assault">><<crimeUp 500 "assault">>
 				<</if>>
 			<<else>>
-				You spray the assailant. <<He>> clutches <<his>> face.
-				<<if !$npc.includes("Eden") and !$npc.includes("Morgan") and !$npc.includes("Kylar") and !$abomination and !["island"].includes($location)>>
+				You spray the assailant.
+				<<if $NPCList[0].traits.includes("drug resistant")>>
+					<span class="blue"><<He>> recoils, but seems to have a resistance.</span>
+				<<else>>
+					<<He>> clutches <<his>> face.
+				<</if>>
+				<<if !$npc.includesAny("Eden", "Morgan", "Kylar", "Gwylan") and !$abomination and !["island"].includes($location)>>
 					<<ggcrime "assault">><<crimeUp 500 "assault">>
 				<</if>>
 			<</if>>
@@ -1404,12 +1414,17 @@
 				You spray the figure in the face. <span class="red">It doesn't even blink.</span>
 			<<elseif $enemyno gte 2>>
 				You spray the <<group>>. They clutch their faces.
-				<<if !$npc.includes("Eden") and !$npc.includes("Morgan") and !$npc.includes("Kylar") and !$abomination and !["island"].includes($location)>>
+				<<if !$npc.includesAny("Eden", "Morgan", "Kylar", "Gwylan") and !$abomination and !["island"].includes($location)>>
 					<<ggcrime "assault">><<crimeUp 500 "assault">>
 				<</if>>
 			<<else>>
-				You spray the assailant. <<He>> clutches <<his>> face.
-				<<if !$npc.includes("Eden") and !$npc.includes("Morgan") and !$npc.includes("Kylar") and !$abomination and !["island"].includes($location)>>
+				You spray the assailant.
+				<<if $NPCList[0].traits.includes("drug resistant")>>
+					<span class="blue"><<He>> recoils, but seems to have a resistance.</span>
+				<<else>>
+					<<He>> clutches <<his>> face.
+				<</if>>
+				<<if !$npc.includesAny("Eden", "Morgan", "Kylar", "Gwylan") and !$abomination and !["island"].includes($location)>>
 					<<ggcrime "assault">><<crimeUp 500 "assault">>
 				<</if>>
 			<</if>>
@@ -1434,12 +1449,17 @@
 				You spray the figure in the face. <span class="red">It doesn't even blink.</span>
 			<<elseif $enemyno gte 2>>
 				You spray the <<group>>. They clutch their faces.
-				<<if !$npc.includes("Eden") and !$npc.includes("Morgan") and !$npc.includes("Kylar") and !$abomination and !["island"].includes($location)>>
+				<<if !$npc.includesAny("Eden", "Morgan", "Kylar", "Gwylan") and !$abomination and !["island"].includes($location)>>
 					<<ggcrime "assault">><<crimeUp 500 "assault">>
 				<</if>>
 			<<else>>
-				You spray the assailant. <<He>> clutches <<his>> face.
-				<<if !$npc.includes("Eden") and !$npc.includes("Morgan") and !$npc.includes("Kylar") and !$abomination and !["island"].includes($location)>>
+				You spray the assailant.
+				<<if $NPCList[0].traits.includes("drug resistant")>>
+					<span class="blue"><<He>> recoils, but seems to have a resistance.</span>
+				<<else>>
+					<<He>> clutches <<his>> face.
+				<</if>>
+				<<if !$npc.includesAny("Eden", "Morgan", "Kylar", "Gwylan") and !$abomination and !["island"].includes($location)>>
 					<<ggcrime "assault">><<crimeUp 500 "assault">>
 				<</if>>
 			<</if>>
@@ -1464,6 +1484,8 @@
 				<<set _thedamage to _baseDamage/_enemydivide>>
 				<<if $NPCList[_npctodamage].fullDescription is "Ivory Wraith">>
 					<<set _thedamage to (_thedamage / 4)>>
+				<<elseif $NPCList[_npctodamage].traits.includes("drug resistant")>>
+					<<set _thedamage to (_thedamage / 3)>>
 				<</if>>
 				<<set $NPCList[_npctodamage].health -= _thedamage>>
 				<<set _totalDamage += _thedamage>>
@@ -1660,7 +1682,7 @@
 			<<elseif $_target.righthand is "shackle_entrance" or $_target.righthand is "shackle_imminent">>
 				<<combat-reset-hand "right">>
 			<</if>>
-			You whack the shackles from the <<persons>> hands. <<He>> clenches <<his>> fist.
+			You whack the shackles from <<combatpersons>> hands. <<He>> clenches <<his>> fist.
 			<<brat 10 $lefttarget>>
 		<</if>>
 	<</if>>
@@ -1678,7 +1700,7 @@
 			<<elseif $_target.righthand is "shackle_entrance" or $_target.righthand is "shackle_imminent">>
 				<<combat-reset-hand "right">>
 			<</if>>
-			You whack the shackles from the <<persons>> hands. <<He>> clenches <<his>> fist.
+			You whack the shackles from <<combatpersons>> hands. <<He>> clenches <<his>> fist.
 			<<brat 10 $righttarget>>
 		<</if>>
 	<</if>>
@@ -1689,21 +1711,21 @@
 		<<set $leftaction to 0>>
 		<<personselect $lefttarget>>
 		<<set $_target to $NPCList[$lefttarget]>>
-		<<if $_target.lefthand is "hypnosis" or $_target.lefthand is "hypnosis_scream" or $_target.lefthand is "hypnosis_cover" or $_target.lefthand is "hypnosis_orgasm" or $_target.lefthand is "hypnosis_masochism" or $_target.lefthand is "hypnosis_deviancy">>
+		<<if $_target.lefthand and ($_target.lefthand is "hypnosis" or $_target.lefthand.startsWith("hypnosis_")) or $_target.lefthand is "hypnosis_deviancy">>
 			<<if $whackRandom and random(1,5) lte 2>>
 				<span class="brat">You fail to whack the <<print $_target.lefttool>> from the <<personselect $lefttarget>><<persons>> hand.</span>
 				<<brat 5 $lefttarget>>
 			<<else>>
-				You whack the <<print $_target.lefttool>> from the <<personselect $lefttarget>><<persons>> hand.
+				You whack the <<print $_target.lefttool>> from <<personselect $lefttarget>><<combatpersons>> hand.
 				<<combat-reset-hand "left">><<set $_target.lefttool to 0>>
 				<<brat 10 $lefttarget>>
 			<</if>>
-		<<elseif $_target.righthand is "hypnosis" or $_target.righthand is "hypnosis_scream" or $_target.righthand is "hypnosis_cover" or $_target.righthand is "hypnosis_orgasm" or $_target.righthand is "hypnosis_masochism" or $_target.righthand is "hypnosis_deviancy">>
+		<<elseif $_target.righthand and ($_target.righthand is "hypnosis" or $_target.righthand.startsWith("hypnosis_")) or $_target.righthand is "hypnosis_deviancy">>
 			<<if $whackRandom and random(1,5) lte 2>>
 				<span class="brat">You fail to whack the <<print $_target.righttool>> from the <<personselect $lefttarget>><<persons>> hand.</span>
 				<<brat 5 $lefttarget>>
 			<<else>>
-				You whack the <<print $_target.righttool>> from the <<personselect $lefttarget>><<persons>> hand.
+				You whack the <<print $_target.righttool>> from <<personselect $lefttarget>><<combatpersons>> hand.
 				<<combat-reset-hand "right">><<set $_target.righttool to 0>>
 				<<brat 10 $lefttarget>>
 			<</if>>
@@ -1715,21 +1737,22 @@
 		<<set $rightaction to 0>>
 		<<personselect $righttarget>>
 		<<set $_target to $NPCList[$righttarget]>>
-		<<if $_target.lefthand is "hypnosis" or $_target.lefthand is "hypnosis_scream" or $_target.lefthand is "hypnosis_cover" or $_target.lefthand is "hypnosis_orgasm" or $_target.lefthand is "hypnosis_masochism" or $_target.lefthand is "hypnosis_deviancy">>
+		<<run console.log($_target.lefthand)>>
+		<<if $_target.lefthand is "hypnosis" or $_target.lefthand  and $_target.lefthand.startsWith("hypnosis_") or $_target.lefthand is "hypnosis_deviancy">>
 			<<if $whackRandom and random(1,5) lte 2>>
 				<span class="brat">You fail to whack the <<print $_target.lefttool>> from the <<personselect $righttarget>><<persons>> hand.</span>
 				<<brat 5 $righttarget>>
 			<<else>>
-				You whack the <<print $_target.lefttool>> from the <<personselect $righttarget>><<persons>> hand.
+				You whack the <<print $_target.lefttool>> from <<personselect $righttarget>><<combatpersons>> hand.
 				<<combat-reset-hand "left">><<set $_target.lefttool to 0>>
 				<<brat 10 $righttarget>>
 			<</if>>
-		<<elseif $_target.righthand is "hypnosis" or $_target.righthand is "hypnosis_scream" or $_target.righthand is "hypnosis_cover" or $_target.righthand is "hypnosis_orgasm" or $_target.righthand is "hypnosis_masochism" or $_target.righthand is "hypnosis_deviancy">>
+		<<elseif $_target.righthand is "hypnosis" or $_target.righthand  and $_target.righthand.startsWith("hypnosis_") or $_target.righthand is "hypnosis_deviancy">>
 			<<if $whackRandom and random(1,5) lte 2>>
 				<span class="brat">You fail to whack the <<print $_target.righttool>> from the <<personselect $righttarget>><<persons>> hand.</span>
 				<<brat 5 $righttarget>>
 			<<else>>
-				You whack the <<print $_target.righttool>> from the <<personselect $righttarget>><<persons>> hand.
+				You whack the <<print $_target.righttool>> from <<personselect $righttarget>><<combatpersons>> hand.
 				<<combat-reset-hand "right">><<set $_target.righttool to 0>>
 				<<brat 10 $righttarget>>
 			<</if>>
@@ -2166,7 +2189,7 @@
 	<<set $_hand to _args[0]>>
 	<<set $_npcHand to $NPCList[_n][$_hand + "hand"]>>
 
-	<!-- Note for future coders: this is an EXCEPTION, because there are a LOT of pen_x states, and this is the best way to handle it. -->
+	<!-- Note for future coders: this is an EXCEPTION because there are a LOT of pen_x states, and this is the best way to handle it. -->
 	<!-- If you are adding new states, add them to the switch. Do your BEST to NOT ADD EXTRA CODE TO THIS WIDGET outside of the switch. -->
 	<<if $_npcHand isnot 0 and $_npcHand.startsWith("pen_")>>
 		<<set $_penbodypart to $_npcHand.slice(4)>>
@@ -2220,6 +2243,7 @@
 		<<case "hypnosis_cover">> <<combat-hand-hypnosis-cover $_hand>>
 		<<case "hypnosis_orgasm">> <<combat-hand-hypnosis-orgasm $_hand>>
 		<<case "hypnosis_masochism">> <<combat-hand-hypnosis-masochism $_hand>>
+		<<case "hypnosis_devotion">> <<combat-hand-hypnosis-devotion $_hand>>
 		<<case "hypnosis_deviancy">> <<combat-hand-hypnosis-deviancy $_hand>>
 		<<case "hypnosis_crossdressing">> <<combat-hand-hypnosis-crossdressing $_hand>>
 		<<case "xchange_pill">> <<combat-hand-on-xchange-pill $_hand>>
@@ -2500,18 +2524,17 @@
 		<<elseif playerChastity("vagina")>>
 			You caress your inner thighs.
 		<<elseif _args[0] is "both">>
-			You tease your pussy, spreading it open with <<print $_hands>>.
+			You tease your pussy, spreading it open with your <<print $_hands>>.
 		<<else>>
 			You tease your pussy with your <<print $_hands>>, pointing at it.
 		<</if>>
 		<<submission 1>><<set $speechcamerapose to 1>>
 	<<elseif $_hypnosis>>
-		<<hypnosisicon>>
 		You intend to cover your vagina,
 		<<if $_hypnosis is "accepted">>
-			but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span>
+			<<hypnosisText 'but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span>'>>
 		<<else>>
-			<span class="pink">but the thought is snatched from your mind, and replaced with another.</span>
+			<<hypnosisText '<span class="pink">but the thought is snatched from your mind and replaced with another.</span>'>>
 		<</if>>
 		<<if $worn.genitals.name is "chastity parasite">>
 			You gently squeeze your chastity parasite, it sends a wave of pleasure through your body.
@@ -2526,7 +2549,7 @@
 		<<elseif playerChastity("vagina")>>
 			You gently caress your inner thighs.
 		<<elseif _args[0] is "both">>
-			You gently tease your pussy, spreading it open with <<print $_hands>>.
+			You gently tease your pussy, spreading it open with your <<print $_hands>>.
 		<<else>>
 			You gently tease your pussy with your <<print $_hands>>, pointing at it.
 		<</if>>
@@ -2535,11 +2558,10 @@
 			<<gwillpower>><<willpower 1>>
 			<<set $daily.stalkWillpower to ($daily.stalkWillpower or 0) + 1>>
 		<</if>>
-		<<hypnosisicon>>
 	<<else>>
 		You
 		<<if $hypnosis_traits.cover gte 1>>
-			<span class="green">resist intrusive thoughts</span> and
+			<span class="green">resist the intrusive thoughts</span> and
 		<</if>>
 		<<if ($worn.lower.name is "towel skirt" or $worn.lower.name is "large towel bottom") and $worn.lower.state is "waist">>
 			cover your <<print $_genital>> with your <<print $_hands>>, tugging the towel further over it.
@@ -2631,12 +2653,11 @@
 		<</if>>
 		<<submission 1>><<set $speechcamerapose to 1>>
 	<<elseif $_hypnosis>>
-		<<hypnosisicon>>
 		You intend to cover your penis,
 		<<if $_hypnosis is "accepted">>
-			but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span>
+			<<hypnosisText 'but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span>'>>
 		<<else>>
-			<span class="pink">but the thought is snatched from your mind, and replaced with another.</span>
+			<<hypnosisText '<span class="pink">but the thought is snatched from your mind and replaced with another.</span>'>>
 		<</if>>
 		<<if $worn.genitals.name is "chastity parasite">>
 			You gently squeeze your chastity parasite, it sends a wave of pleasure through your body.
@@ -2660,7 +2681,6 @@
 			<<gwillpower>><<willpower 1>>
 			<<set $daily.stalkWillpower to ($daily.stalkWillpower or 0) + 1>>
 		<</if>>
-		<<hypnosisicon>>
 	<<else>>
 		You
 		<<if $hypnosis_traits.cover gte 1>>
@@ -2737,12 +2757,11 @@
 		<</if>>
 		<<submission 1>><<set $speechcamerapose to 1>>
 	<<elseif $_hypnosis>>
-		<<hypnosisicon>>
 		You intend to cover your ass
 		<<if $_hypnosis is "accepted">>
-			but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span>
+			<<hypnosisText 'but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span>'>>
 		<<else>>
-			<span class="pink">but the thought is snatched from your mind, and replaced with another.</span>
+			<<hypnosisText '<span class="pink">but the thought is snatched from your mind and replaced with another.</span>'>>
 		<</if>>
 		<<if _args[0] is "both">>
 			You grope your <<bottom>>, spreading your cheeks apart with both hands.
@@ -2754,7 +2773,6 @@
 			<<gwillpower>><<willpower 1>>
 			<<set $daily.stalkWillpower to ($daily.stalkWillpower or 0) + 1>>
 		<</if>>
-		<<hypnosisicon>>
 	<<else>>
 		You
 		<<if $hypnosis_traits.cover gte 1>>

@@ -436,6 +436,9 @@
 		<<if Time.isBloodMoon()>>
 			<<run _increaseAllure.push("Full moon")>>
 		<</if>>
+		<<if $auriga_scar gte 1>>
+			<<run _increaseAllure.push(`Elk-scarred ${"+".repeat($auriga_scar)}`)>>
+		<</if>>
 		<<set _negLabels = [
 			{ threshold: 4000, class: "lustful", label: "Legendary" },
 			{ threshold: 3000, class: "lustful", label: "Renowned" },
@@ -467,7 +470,7 @@
 			{ type: "sex", name: "slut" },
 			{ type: "prostitution", name: "whore" },
 			{ type: "rape", name: "fucktoy" },
-			{ type: "bestiality", name: $bestialitydisable is "f" ? "bitch" : "monster fucker" },
+			{ type: "bestiality", name: $settings.bestialityEnabled ? "bitch" : "monster fucker" },
 			{ type: "exhibitionism", name: "flaunter" },
 			{ type: "pregnancy", name: $fame.pregnancy gte 1000 ? "broodmother" : ($fame.pregnancy gte 400 ? "breeder" : "mother") },
 			{ type: "impreg", name: $fame.impreg gte 1000 ? "allfather" : ($fame.impreg gte 400 ? "sire" : "inseminator") },
@@ -515,20 +518,20 @@
 	<div class="settingsGrid">
 		<div class="settingsHeader">Allure</div>
 		<div class="settingsToggleItemWide">
-			<i>Allure</i> is the dark side of attractiveness, and measures how much people will want to molest you.
+			<i>Allure</i> is the dark side of attractiveness and measures how much people will want to molest you.
 			<br>
 			Currently:
-			<<if $allure gte 6000 * $alluremod>>
+			<<if $allure gte 6000 * $settings.allureModifier>>
 				<span class="red">You look like you need to be ravaged.</span>
-			<<elseif $allure gte 4000 * $alluremod>>
+			<<elseif $allure gte 4000 * $settings.allureModifier>>
 				<span class="pink">You look perverted.</span>
-			<<elseif $allure gte 3000 * $alluremod>>
+			<<elseif $allure gte 3000 * $settings.allureModifier>>
 				<span class="purple">You look lewd.</span>
-			<<elseif $allure gte 2000 * $alluremod>>
+			<<elseif $allure gte 2000 * $settings.allureModifier>>
 				<span class="blue">You stand out.</span>
-			<<elseif $allure gte 1500 * $alluremod>>
+			<<elseif $allure gte 1500 * $settings.allureModifier>>
 				<span class="lblue">You attract attention.</span>
-			<<elseif $allure gte 1000 * $alluremod>>
+			<<elseif $allure gte 1000 * $settings.allureModifier>>
 				<span class="teal">You attract glances.</span>
 			<<else>>
 				<span class="green">You look unremarkable.</span>
@@ -646,7 +649,7 @@
 <</widget>>
 
 <<widget "faceStyleOptions">>
-	Your currently selected style is:
+	Your current face style is:
 	<<listbox "_facestyle" autoselect>>
 		<<optionsfrom setup.faceStyleOptions>>
 	<</listbox>>
@@ -663,7 +666,7 @@
 
 <<widget "faceVariantOptions">>
 	<<if Object.keys(setup.faceVariantOptions[$facestyle]).length gt 1>>
-		Your current demeanour is set to:
+		Your current demeanour is:
 		<<listbox "$facevariant" autoselect>>
 			<<optionsfrom setup.faceVariantOptions[$facestyle]>>
 		<</listbox>>
@@ -797,15 +800,11 @@
 			<mouse class="tooltip-small linkBlue">(?)<span>This is a cosmetic change that does not contribute towards gender appearance.</span></mouse>
 			<br>
 			Your chosen body shape is:
-			<<set _bodyOptions to {
-				"Classic": "classic",
-				"Slender": "slender",
-				"Curvy": "curvy",
-				"Soft": "soft"
-			}>>
-			<<listbox "$player.bodyshape" autoselect>>
-				<<optionsfrom _bodyOptions>>
-			<</listbox>>
+			<span class="capitalize">
+				<<listbox "$player.bodyshape" autoselect>>
+					<<optionsfrom setup.bodyShapes>>
+				<</listbox>>
+			</span>
 			<br>
 			<<run $(() => {
 				$("#listbox-playerbodyshape").on("change", () => {
@@ -957,7 +956,7 @@
 
 	<<if $trauma gte (($traumamax / 5) * 2)>>
 		<<set _bodyWritingOptions.General["Daddy issues"] to "daddy_issues">>
-		<<set _bodyWritingOptions.General["Mommy issues"] to "mommy_issues">>
+		<<set _bodyWritingOptions.General["Mummy issues"] to "mummy_issues">>
 		<<set _bodyWritingOptions.General["Trashy"] to "trashy">>
 	<</if>>
 	<<if $trauma gte (($traumamax / 5) * 3)>>
@@ -1080,7 +1079,7 @@
 	<</if>>
 
 	<<set _bodyWritingOptions["Love Interests"] to {}>>
-	<<if $robinromance is 1>>
+	<<if isPossibleLoveInterest("Robin")>>
 		<<set _bodyWritingOptions["Love Interests"]["Robin's Protector"] to "robins_protector">>
 		<<set _bodyWritingOptions["Love Interests"]["Robin & I"] to "robin_and_i">>
 		<<set _bodyWritingOptions["Love Interests"]["The Orphan Lover"] to "the_orphan_lover">>
@@ -1091,7 +1090,7 @@
 			<<set _bodyWritingOptions["Love Interests"]["Robin's Girlfriend"] to "robins_girlfriend">>
 		<</if>>
 	<</if>>
-	<<if $whitneyromance is 1>>
+	<<if isPossibleLoveInterest("Whitney")>>
 		<<set _bodyWritingOptions["Love Interests"]["Whitney's Pet"] to "whitneys_pet">>
 		<<set _bodyWritingOptions["Love Interests"]["Property of Whitney"] to "property_of_whitney">>
 		<<set _bodyWritingOptions["Love Interests"]["Whitney's Toy"] to "whitneys_toy">>
@@ -1102,19 +1101,19 @@
 			<<set _bodyWritingOptions["Love Interests"]["Whitney's Slut"] to "whitneys_slut">>
 		<</if>>
 	<</if>>
-	<<if $kylarenglish gte 1 and C.npc.Kylar.state isnot "prison">>
+	<<if isPossibleLoveInterest("Kylar")>>
 		<<set _bodyWritingOptions["Love Interests"]["Kylar's Obsession"] to "kylars_obsession">>
 		<<set _bodyWritingOptions["Love Interests"]["Love Kylar Forever"] to "love_kylar_forever">>
 		<<set _bodyWritingOptions["Love Interests"]["Reserved for Kylar"] to "reserved_for_kylar">>
 		<<set _bodyWritingOptions["Love Interests"]["Just Kylar"] to "just_kylar">>
 	<</if>>
-	<<if $syndromeeden is 1>>
+	<<if isPossibleLoveInterest("Eden")>>
 		<<set _bodyWritingOptions["Love Interests"]["Eden's Companion"] to "edens_companion">>
 		<<set _bodyWritingOptions["Love Interests"]["Hunter and Prey"] to "hunter_and_prey">>
 		<<set _bodyWritingOptions["Love Interests"]["It's Lonely in the Woods"] to "its_lonely_in_the_woods">>
 		<<set _bodyWritingOptions["Love Interests"]["Something is Hunting you"] to "something_is_hunting_you">>
 	<</if>>
-	<<if $auriga_artefact and C.npc.Avery.state isnot "dismissed">>
+	<<if isPossibleLoveInterest("Avery")>>
 		<<set _bodyWritingOptions["Love Interests"]["Avery's Trophy"] to "averys_trophy">>
 		<<set _bodyWritingOptions["Love Interests"]["Endearing"] to "endearing">>
 		<<if ($player.penisExist or $player.gender_appearance is "m" or $backgroundTraits.includes("crossdresser"))>>
@@ -1125,7 +1124,7 @@
 		<</if>>
 		<<set _bodyWritingOptions["Love Interests"]["Avery's Monopoly"] to "averys_monopoly">>
 	<</if>>
-	<<if $farm_stage gte 7 and $alex_countdown is undefined>>
+	<<if isPossibleLoveInterest("Alex")>>
 		<<set _bodyWritingOptions["Love Interests"]["Alex's Partner"] to "alexs_partner">>
 		<<set _bodyWritingOptions["Love Interests"]["Sunrise to Sunset"] to "sunrise_to_sunset">>
 		<<set _bodyWritingOptions["Love Interests"]["Hay Baler"] to "hay_baler">>
@@ -1136,7 +1135,7 @@
 			<<set _bodyWritingOptions["Love Interests"]["Cowgirl"] to "cowgirl">>
 		<</if>>
 	<</if>>
-	<<if $sydneyromance is 1>>
+	<<if isPossibleLoveInterest("Sydney")>>
 		<<set _bodyWritingOptions["Love Interests"]["Sydney's Saviour"] to "sydneys_savior">>
 		<<set _bodyWritingOptions["Love Interests"]["Bound to Sydney"] to "bound_to_sydney">>
 		<<set _bodyWritingOptions["Love Interests"]["Sydney Makes Me :)"] to "sydney_makes_me_smile">>
@@ -1146,7 +1145,7 @@
 			<<set _bodyWritingOptions["Love Interests"]["Lusty Sinners"] to "lusty_sinners">>
 		<</if>>
 	<</if>>
-	<<if $syndromewolves is 1 and hasSexStat("deviancy", 3, true)>>
+	<<if isPossibleLoveInterest("Black Wolf")>>
 		<<set _bodyWritingOptions["Love Interests"]["Black Wolf's Bitch"] to "black_wolfs_bitch">>
 		<<set _bodyWritingOptions["Love Interests"]["All for my Alpha"] to "all_for_my_alpha">>
 		<<if $wolfpackleader is 1>>
@@ -1154,11 +1153,18 @@
 		<</if>>
 		<<set _bodyWritingOptions["Love Interests"]["Runs With Wolves"] to "runs_with_wolves">>
 	<</if>>
-	<<if $syndromebird is 1>>
+	<<if isPossibleLoveInterest("Great Hawk")>>
 		<<set _bodyWritingOptions["Love Interests"]["Great Hawk's Spouse"] to "great_hawks_spouse">>
 		<<set _bodyWritingOptions["Love Interests"]["Soaring With Love"] to "soaring_with_love">>
 		<<set _bodyWritingOptions["Love Interests"]["Terror's Mate"] to "terrors_mate">>
 		<<set _bodyWritingOptions["Love Interests"]["Free Bird"] to "free_bird">>
+	<</if>>
+	<<if isPossibleLoveInterest("Gwylan")>>
+		<<set _bodyWritingOptions["Love Interests"]["Witch's Ward"] to "witchs_ward">>
+		<<set _bodyWritingOptions["Love Interests"]["Witch's Familiar"] to "witchs_familiar">>
+		<<set _bodyWritingOptions["Love Interests"]["Gwylan's Treasure"] to "gwylans_treasure">>
+		<<set _bodyWritingOptions["Love Interests"]["Gwylan's Apprentice"] to "gwylans_apprentice">>
+		<<set _bodyWritingOptions["Love Interests"]["Forever Yearning"] to "forever_yearning">>
 	<</if>>
 	<<if $debug is 1>>
 		<<set _bodyWritingOptions["Debug"] to setup.bodywriting>>
@@ -2382,9 +2388,9 @@
 	<</for>>
 	<br>
 	<<link [[Apply preset makeup|$passage]]>>
-		<<for $_makeupName range _makeupNames>>
-			<<set _preset to _presetChosen[$_makeupName]>>
-			<<if $_makeupName is "eyelenses">>
+		<<for _makeupName range _makeupNames>>
+			<<set _preset to _presetChosen[_makeupName]>>
+			<<if _makeupName is "eyelenses">>
 				<<if _preset.left is 0 and _preset.right is 0>>
 					<<set $makeup.eyelenses to { left:0, right:0 }>>
 				<<elseif $makeup.owned.eyelenses.includes(_preset.left) and $makeup.owned.eyelenses.includes(_preset.right)>>
@@ -2392,16 +2398,16 @@
 				<<elseif $makeup.owned.custom_eyelenses.includes(_preset.left) and $makeup.owned.custom_eyelenses.includes(_preset.right)>>
 					<<set $makeup.eyelenses to _preset>>
 				<</if>>
-			<<elseif _preset is 0 and $_makeupName is "hairdye">>
+			<<elseif _preset is 0 and _makeupName is "hairdye">>
 				/*Do Nothing*/
 			<<elseif _preset is 0>>
-				<<set $makeup[$_makeupName] to 0>>
+				<<set $makeup[_makeupName] to 0>>
 			<<else>>
-				<<set $_makeupName2 to ($_makeupName is "browscolour" ? "hairdye" : $_makeupName)>>
-				<<set $_target to $makeup.owned[$_makeupName2].find(invMakeup => invMakeup.colour is _preset and invMakeup.colour isnot $makeup[$_makeupName] and invMakeup.count gt 0)>>
-				<<if $_target>>
-					<<set $makeup[$_makeupName] to clone($_target.colour)>>
-					<<set $_target.count-->>
+				<<set _makeupName2 to (_makeupName is "browscolour" ? "hairdye" : _makeupName)>>
+				<<set _target to $makeup.owned[_makeupName2].find(invMakeup => invMakeup.colour is _preset and invMakeup.colour isnot $makeup[_makeupName] and invMakeup.count gt 0)>>
+				<<if _target>>
+					<<set $makeup[_makeupName] to clone(_target.colour)>>
+					<<set _target.count-->>
 				<</if>>
 			<</if>>
 		<</for>>
@@ -2728,7 +2734,7 @@
 	/* Pits */
 	<<set _options = {}>>
 	<<set _options["None"] = 0>>
-	<<if $pbdisable is "f">>
+	<<if $settings.pubicHairEnabled>>
 		<<if _wolfPartialCheck>>
 			<<set _options["Wolf"] = ["wolf", "default"]>>
 			<<if _wolf.pits is "default">>
@@ -2788,7 +2794,7 @@
 	/* Pubes */
 	<<set _options = {}>>
 	<<set _options["None"] = 0>>
-	<<if $pbdisable is "f">>
+	<<if $settings.pubicHairEnabled>>
 		<<if _bearFullCheck>>
 			<<set _options["Bear"] = ["bear", "default"]>>
 			<<if _bear.pubes is "default">>
@@ -3252,78 +3258,103 @@
 	<</if>>
 
 	/* Chimera */
-	<<set $_chimeraOptions to {
-		"demoncat_tail" : !["disabled", "hidden"].includesAny(_demon.tail, _cat.tail),
-		"demoncow_tail" : !["disabled", "hidden"].includesAny(_demon.tail, _cow.tail),
-		"demonwolf_tail" : !["disabled", "hidden"].includesAny(_demon.tail, _wolf.tail),
-		"demonharpy_wings" : !["disabled", "hidden"].includesAny(_demon.wings, _bird.wings),
-		"angelharpy_wings" : !["disabled", "hidden"].includesAny(_angel.wings, _bird.wings),
-		"fallenharpy_wings" : !["disabled", "hidden"].includesAny(_fallen.wings, _bird.wings),
-	}>>
-	<<set $_chimeraEnabled to Object.values($_chimeraOptions).some(o => o) ? "" : " hide">>
-	<div @class="'chimera' + $_chimeraEnabled">
-		<<if _divine>><<tficon _divine>><</if>>
-		<span class="gold bold">Chimera</span>
-		<<if $_chimeraOptions.demoncat_tail>>
-			/* Using demon cat chimera tail. */
-			<label>Demon cat tail:
-				<<listbox "$chimera.demoncat.tail" autoselect>>
-					<<option "Show" true>>
-					<<option "Hide" false>>
-				<</listbox>>
-			</label>
-			<br>
-		<</if>>
-		<<if $_chimeraOptions.demoncow_tail>>
-			/* Using demon cow chimera tail. */
-			<div class='tf-part-item'>
-				Demon cow tail:
-				<<listbox "$chimera.demoncow.tail" autoselect>>
-					<<option "Show" true>>
-					<<option "Hide" false>>
-				<</listbox>>
-			</div>
-		<</if>>
-		<<if $_chimeraOptions.demonwolf_tail>>
-			/* Using demon wolf chimera tail. */
-			<div class='tf-part-item'>
-				Demon wolf tail:
-				<<listbox "$chimera.demonwolf.tail" autoselect>>
-					<<option "Show" true>>
-					<<option "Hide" false>>
-				<</listbox>>
-			</div>
-		<</if>>
-		<<if $_chimeraOptions.demonharpy_wings>>
-			/* Using demon harpy chimera wings. */
-			<label>Demon harpy wings:
-				<<listbox "$chimera.demonharpy.wings" autoselect>>
-					<<option "Show" true>>
-					<<option "Hide" false>>
-				<</listbox>>
-			</label>
-		<</if>>
-		<<if $_chimeraOptions.angelharpy_wings>>
-			/* Using angel harpy chimera wings. */
-			<div class='tf-part-item'>
-				Angel harpy wings:
-				<<listbox "$chimera.angelharpy.wings" autoselect>>
-					<<option "Show" true>>
-					<<option "Hide" false>>
-				<</listbox>>
-			</div>
-		<</if>>
-		<<if $_chimeraOptions.fallenharpy_wings>>
-			/* Using fallen angel harpy chimera wings. */
-			<div class='tf-part-item'>
-				Fallen harpy wings:
-				<<listbox "$chimera.fallenharpy.wings" autoselect>>
-					<<option "Show" true>>
-					<<option "Hide" false>>
-				<</listbox>>
-			</div>
-		<</if>>
-	</div>
+	
+	<span id="tf-chimera">
+		<<set _chimeraOptions to {
+			"demoncat_tail" : !["disabled", "hidden"].includesAny(_demon.tail, _cat.tail),
+			"demoncow_tail" : !["disabled", "hidden"].includesAny(_demon.tail, _cow.tail),
+			"demonwolf_tail" : !["disabled", "hidden"].includesAny(_demon.tail, _wolf.tail),
+			"demonfox_tail" : !["disabled", "hidden"].includesAny(_demon.tail, _fox.tail),
+			"demonfox_ears" : !["disabled", "hidden"].includesAny(_fox.ears) && V.demontf == 1,
+			"demonharpy_wings" : !["disabled", "hidden"].includesAny(_demon.wings, _bird.wings),
+			"angelharpy_wings" : !["disabled", "hidden"].includesAny(_angel.wings, _bird.wings),
+			"fallenharpy_wings" : !["disabled", "hidden"].includesAny(_fallen.wings, _bird.wings),
+		}>>
+		<<set _chimeraEnabled to Object.values(_chimeraOptions).some(o => o) ? "" : " hide">>
+		<div class="chimera<<=_chimeraEnabled>>">
+			<<if _divine>><<tficon _divine>><</if>>
+			<span class="gold bold">Chimera</span><br>
+			<<if _chimeraOptions.demoncat_tail>>
+				/* Using demon cat chimera tail. */
+				<label>Demon cat tail:
+					<<listbox "$chimera.demoncat.tail" autoselect>>
+						<<option "Show" true>>
+						<<option "Hide" false>>
+					<</listbox>>
+				</label>
+				<br>
+			<</if>>
+			<<if _chimeraOptions.demoncow_tail>>
+				/* Using demon cow chimera tail. */
+				<label>Demon cow tail:
+					<<listbox "$chimera.demoncow.tail" autoselect>>
+						<<option "Show" true>>
+						<<option "Hide" false>>
+					<</listbox>>
+				</label>
+			<</if>>
+			<<if _chimeraOptions.demonwolf_tail>>
+				/* Using demon wolf chimera tail. */
+				<label>Demon wolf tail:
+					<<listbox "$chimera.demonwolf.tail" autoselect>>
+						<<option "Show" true>>
+						<<option "Hide" false>>
+					<</listbox>>
+				</label>
+				<br>
+			<</if>>
+			<<if _chimeraOptions.demonfox_tail>>
+				/* Using demon fox chimera tail. */
+				<label>Demon fox tail:
+					<<listbox "$chimera.demonfox.tail" autoselect>>
+						<<option "Show" true>>
+						<<option "Hide" false>>
+					<</listbox>>
+				</label>
+				<br>
+			<</if>>
+			<<if _chimeraOptions.demonfox_ears>>
+				/* Using demon fox chimera ears. */
+				<label>Demon fox ears:
+					<<listbox "$chimera.demonfox.ears" autoselect>>
+						<<option "Show" true>>
+						<<option "Hide" false>>
+					<</listbox>>
+				</label>
+				<br>
+			<</if>>
+			<<if _chimeraOptions.demonharpy_wings>>
+				/* Using demon harpy chimera wings. */
+				<label>Demon harpy wings:
+					<<listbox "$chimera.demonharpy.wings" autoselect>>
+						<<option "Show" true>>
+						<<option "Hide" false>>
+					<</listbox>>
+				</label>
+				<br>
+			<</if>>
+			<<if _chimeraOptions.angelharpy_wings>>
+				/* Using angel harpy chimera wings. */
+				<label>Angel harpy wings:
+					<<listbox "$chimera.angelharpy.wings" autoselect>>
+						<<option "Show" true>>
+						<<option "Hide" false>>
+					<</listbox>>
+				</label>
+				<br>
+			<</if>>
+			<<if _chimeraOptions.fallenharpy_wings>>
+				/* Using fallen angel harpy chimera wings. */
+				<label>Fallen harpy wings:
+					<<listbox "$chimera.fallenharpy.wings" autoselect>>
+						<<option "Show" true>>
+						<<option "Hide" false>>
+					<</listbox>>
+				</label>
+				<br>
+			<</if>>
+		</div>
+	</span>
 
 	<<if ($traumatized isnot undefined)>>
 		__Trauma__<br>
@@ -3331,7 +3362,9 @@
 		<br>
 	<</if>>
 
-	<div class="no-numberify">
+	<div class="settingsToggleItemWide no-numberify">
+		<span class="gold bold">Layer Adjustments:</span>
+		<br>
 		<<if !["demon", "cow"].every(transform => T[transform].horns is "disabled")>>
 			<<switch $hornslayer>>
 				<<case "front">>
@@ -3483,6 +3516,107 @@
 				Wikifier.wikifyEval('<<catHeterochromiaTF `$cat - 7`>>')
 			};
 			Wikifier.wikifyEval('<<updatesidebarimg true>>');
+			if (V.mirrorMenu == "transformation") {
+				Wikifier.wikifyEval('
+					<<replace #tf-chimera>>
+						<<set _chimeraOptions to {
+							"demoncat_tail" : !["disabled", "hidden"].includesAny(_demon.tail, _cat.tail),
+							"demoncow_tail" : !["disabled", "hidden"].includesAny(_demon.tail, _cow.tail),
+							"demonwolf_tail" : !["disabled", "hidden"].includesAny(_demon.tail, _wolf.tail),
+							"demonfox_tail" : !["disabled", "hidden"].includesAny(_demon.tail, _fox.tail),
+							"demonfox_ears" : !["disabled", "hidden"].includesAny(_fox.ears) && V.demontf == 1,
+							"demonharpy_wings" : !["disabled", "hidden"].includesAny(_demon.wings, _bird.wings),
+							"angelharpy_wings" : !["disabled", "hidden"].includesAny(_angel.wings, _bird.wings),
+							"fallenharpy_wings" : !["disabled", "hidden"].includesAny(_fallen.wings, _bird.wings),
+						}>>
+						<<set _chimeraEnabled to Object.values(_chimeraOptions).some(o => o) ? "" : " hide">>
+						<div class="chimera<<=_chimeraEnabled>>">
+							<<if _divine>><<tficon _divine>><</if>>
+							<span class="gold bold">Chimera</span><br>
+							<<if _chimeraOptions.demoncat_tail>>
+								/* Using demon cat chimera tail. */
+								<label>Demon cat tail:
+									<<listbox "$chimera.demoncat.tail" autoselect>>
+										<<option "Show" true>>
+										<<option "Hide" false>>
+									<</listbox>>
+								</label>
+								<br>
+							<</if>>
+							<<if _chimeraOptions.demoncow_tail>>
+								/* Using demon cow chimera tail. */
+								<label>				Demon cow tail:
+									<<listbox "$chimera.demoncow.tail" autoselect>>
+										<<option "Show" true>>
+										<<option "Hide" false>>
+									<</listbox>>
+								</label>
+								<br>
+							<</if>>
+							<<if _chimeraOptions.demonwolf_tail>>
+								/* Using demon wolf chimera tail. */
+								<label>				Demon wolf tail:
+									<<listbox "$chimera.demonwolf.tail" autoselect>>
+										<<option "Show" true>>
+										<<option "Hide" false>>
+									<</listbox>>
+								</label>
+								<br>
+							<</if>>
+							<<if _chimeraOptions.demonfox_tail>>
+								/* Using demon fox chimera tail. */
+								<label>				Demon fox tail:
+									<<listbox "$chimera.demonfox.tail" autoselect>>
+										<<option "Show" true>>
+										<<option "Hide" false>>
+									<</listbox>>
+								</label>
+								<br>
+							<</if>>
+							<<if _chimeraOptions.demonfox_ears>>
+								/* Using demon fox chimera ears. */
+								<label>				Demon fox ears:
+									<<listbox "$chimera.demonfox.ears" autoselect>>
+										<<option "Show" true>>
+										<<option "Hide" false>>
+									<</listbox>>
+								</label>
+								<br>
+							<</if>>
+							<<if _chimeraOptions.demonharpy_wings>>
+								/* Using demon harpy chimera wings. */
+								<label>Demon harpy wings:
+									<<listbox "$chimera.demonharpy.wings" autoselect>>
+										<<option "Show" true>>
+										<<option "Hide" false>>
+									<</listbox>>
+								</label>
+								<br>
+							<</if>>
+							<<if _chimeraOptions.angelharpy_wings>>
+								/* Using angel harpy chimera wings. */
+								<label>				Angel harpy wings:
+									<<listbox "$chimera.angelharpy.wings" autoselect>>
+										<<option "Show" true>>
+										<<option "Hide" false>>
+									<</listbox>>
+								</label>
+								<br>
+							<</if>>
+							<<if _chimeraOptions.fallenharpy_wings>>
+								/* Using fallen angel harpy chimera wings. */
+								<label>				Fallen harpy wings:
+									<<listbox "$chimera.fallenharpy.wings" autoselect>>
+										<<option "Show" true>>
+										<<option "Hide" false>>
+									<</listbox>>
+								</label>
+								<br>
+							<</if>>
+						</div>
+					<</replace>>
+				');
+			}
 		});
 	<</script>>
 <</widget>>

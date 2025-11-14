@@ -70,7 +70,7 @@
 		<</if>>
 		<<if $endeventerror isnot undefined>>
 			<<if $options.debugdisable is "f">>
-				<<if $options.images is 1>><img class="layer-sexmouth" src="img/ui/sym_awareness.png"><</if>><span class="red"><<print StartConfig.version>> Error: An NPC generated on the "$endeventerror" passage broke free. Please inform Vrelnir. <<if $cheatdisable is "f">>Disregard this if you've just used a cheat.<</if>></span>
+				<<if $options.images is 1>><img class="layer-sexmouth" src="img/ui/sym_awareness.png"><</if>><span class="red"><<print StartConfig.version>> Error: An NPC generated on the "$endeventerror" passage broke free. Please inform Vrelnir. <<if $cheatsEnabled is true>>Disregard this if you've just used a cheat.<</if>></span>
 				<br><br>
 			<</if>>
 			<<unset $endeventerror>>
@@ -128,13 +128,15 @@
 		<<calculateallure>>
 		<<rng>>
 
-		<<if $worn.neck.collared gte 1>>
+		<<if $worn.neck.collared gte 1 and $worn.neck.cursed is 1>>
 			<<if $worn.neck.name is "Whitney's collar with leash" or $worn.neck.name is "Whitney's collar" >>
-			<span class="pink">A collar encases <<possessedWord 'your' 'pink'>> neck with bold letters saying "Whitney's pet"</span>
-			<br>
+				<span class="pink">A collar encases <<possessedWord 'your' 'pink'>> neck with bold letters saying "Whitney's pet"</span>
+				<br>
+			<<elseif $worn.neck.name is "familiar collar" and $hypnosis_traits.devotion gte 4>>
+				<span class="pink"><<possessedWord 'Your' 'pink'>> <<if $worn.neck.type.includes("leash")>>leashed<</if>> familiar collar protects <<possessedWord 'your' 'pink'>> neck.</span>
 			<<else>>
-			<span class="pink">A collar encases <<possessedWord 'your' 'pink'>> neck.</span>
-			<br>
+				<span class="pink">A collar encases <<possessedWord 'your' 'pink'>> neck.</span>
+				<br>
 			<</if>>
 		<</if>>
 
@@ -201,16 +203,16 @@
 		<</if>>
 
 		<<if $parasite.left_ear.name and $parasite.left_ear.name eq $parasite.right_ear.name>>
-			<<if $parasite.left_ear.name is "slime">>
+			<<if $parasite.left_ear.name is "slime" and !$hypnosis_traits.silence>>
 				<span class="lewd">The $parasite.left_ear.name in each ear influences <<possessedWord 'your' 'lewd'>> thoughts<<if $earSlime.growth gte 100>> and actions<</if>>.</span>
 				<br>
 			<</if>>
 		<<else>>
-			<<if $parasite.left_ear.name is "slime">>
+			<<if $parasite.left_ear.name is "slime" and !$hypnosis_traits.silence>>
 				<span class="lewd">The $parasite.left_ear.name in <<possessedWord 'your' 'lewd'>> left ear influences <<possessedWord 'your' 'lewd'>> thoughts.</span>
 				<br>
 			<</if>>
-			<<if $parasite.right_ear.name is "slime">>
+			<<if $parasite.right_ear.name is "slime" and !$hypnosis_traits.silence>>
 				<span class="lewd">The $parasite.right_ear.name in <<possessedWord 'your' 'lewd'>> right ear influences <<possessedWord 'your' 'lewd'>> thoughts.</span>
 				<br>
 			<</if>>
@@ -307,7 +309,7 @@
 			</div>
 			<br>
 			<div class="sidebarButtonSplit">
-				<<if $dancing is 0 and $combat is 0 and $passage isnot "Start2" and $cheatdisable is "f" or $debug is 1>>
+				<<if $dancing is 0 and $combat is 0 and $passage isnot "Start2" and $cheatsEnabled is true or $debug is 1>>
 					<<button CHEATS>>
 						<<overlayReplace "cheats">>
 					<</button>>

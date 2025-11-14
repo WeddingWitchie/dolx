@@ -3,42 +3,34 @@ setlocal enabledelayedexpansion
 set /p version=Enter the version number:
 
 set target[0]=vanilla
-set target[1]=b3s
-set target[2]=b3s_hikfem
-set target[3]=b3s_wax
-set target[4]=susato
-set target[5]=mizz
-set target[6]=kitmint
-set target[7]=b3s_mys
-set target[8]=b3s_hikfem_mys
-set target[9]=goosefem
-set target[10]=goosefem_mys
-set target[11]=gooseandro
-set target[12]=goosemasc
-set target[13]=mikili
-set target[14]=au
-set target[15]=au_mys
-set target[16]=aumasc
+set target[1]=b3s_hikfem
+set target[2]=kitmint
+set target[3]=b3s_mys
+set target[4]=b3s_hikfem_mys
+set target[5]=goosefem
+set target[6]=goosefem_mys
+set target[7]=gooseandro
+set target[8]=goosemasc
+set target[9]=mikili
+set target[10]=au
+set target[11]=au_mys
+set target[12]=aumasc
 
 set imagepack[0]=vanilla
-set imagepack[1]=beeesss
-set imagepack[2]=hikfem
-set imagepack[3]=wax
-set imagepack[4]=susato
-set imagepack[5]=mizzfem
-set imagepack[6]=kitmint
-set imagepack[7]=b3s_mys
-set imagepack[8]=hikfem_mys
-set imagepack[9]=goosefem
-set imagepack[10]=goosefem_mys
-set imagepack[11]=gooseandro
-set imagepack[12]=goosemasc
-set imagepack[13]=mikili
-set imagepack[14]=aokiutage
-set imagepack[15]=aokiutage_mys
-set imagepack[16]=aokiutagemasc
+set imagepack[1]=hikfem
+set imagepack[2]=kitmint
+set imagepack[3]=b3s_mys
+set imagepack[4]=hikfem_mys
+set imagepack[5]=goosefem
+set imagepack[6]=goosefem_mys
+set imagepack[7]=gooseandro
+set imagepack[8]=goosemasc
+set imagepack[9]=mikili
+set imagepack[10]=aokiutage
+set imagepack[11]=aokiutage_mys
+set imagepack[12]=aokiutagemasc
 
-set array_length=16
+set array_length=12
 
 del ..\..\dist\*.apk
 
@@ -89,7 +81,7 @@ for /L %%i in (0,1,%array_length%) do (
 
 	cd .\dist\
 
-	ren "DoLP-v0.%version%-!imagepack[%%i]!-0.5.5.9 DoLP v0.%version% !imagepack[%%i]!-debug.apk" "0.5.5.9 DoLP v0.%version% !imagepack[%%i]!-debug.apk"
+	ren "DoLP-v0.%version%-!imagepack[%%i]!-0.5.6.8 DoLP v0.%version% !imagepack[%%i]!-debug.apk" "DoLP v0.%version% !imagepack[%%i]! 0.5.6.8 .apk"
 
 	cd ..\
 )
