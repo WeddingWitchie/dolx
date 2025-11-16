@@ -503,6 +503,12 @@ function playerIsXChanged() {
 }
 window.playerIsXChanged = playerIsXChanged;
 
+function isNumber(value) {
+	return typeof value == 'number' ||
+	(isObjectLike(value) && baseGetTag(value) == numberTag);
+}
+window.isNumber = isNumber;
+
 /* 
 	@args:
 	 - path: type string, representing the relative path to an 'img' asset.
@@ -762,6 +768,8 @@ function xchangeHourlyCheck(hours = 1) {
 		
 		wikifier("hourlyIdentityEffects");
 	}
+
+	npcXChangeHourlyCheck(hours);
 }
 window.xchangeHourlyCheck = xchangeHourlyCheck;
 

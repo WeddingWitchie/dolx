@@ -617,7 +617,7 @@ setup.pills = [
 			return "";
 		},
 		type: "xchange",
-		subtype: "pink now",
+		subtype: "pink basic",
 		shape: "pill",
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
@@ -632,6 +632,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<xchange-pink 0.25>>`],
+		npc_display_condition() {
+			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "m") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 0.25 "genderflip">>`],
 	},
 	{
 		name: "X-Change Pink Basic",
@@ -669,6 +673,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<xchange-pink 1>>`],
+		npc_display_condition() {
+			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "m") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 1 "genderflip">>`],
 	},
 	{
 		name: "X-Change Pink Weekly",
@@ -706,6 +714,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<xchange-pink 7>>`],
+		npc_display_condition() {
+			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "m") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 7 "genderflip">>`],
 	},
 	{
 		name: "X-Change Pink Xtra Strength",
@@ -728,7 +740,7 @@ setup.pills = [
 			return "";
 		},
 		type: "xchange",
-		subtype: "pink xtra strength",
+		subtype: "pink xtra",
 		shape: "pill",
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
@@ -743,6 +755,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<xchange-pink 30 "fertile">>`],
+		npc_display_condition() {
+			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "m") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 30 "genderflip" "fertile">>`],
 	},
 	{
 		name: "X-Change Pink Continue",
@@ -780,6 +796,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<xchange-pink 3 "continue">>`],
+		npc_display_condition() {
+			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "m") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 3 "genderflip" "continue">>`],
 	},
 	{
 		name: "X-Change Pink Resistance",
@@ -817,6 +837,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<xchange-pink 1 "resistance">>`],
+		npc_display_condition() {
+			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "m") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 1 "genderflip" "resistance">>`],
 	},
 	{
 		name: "X-Change Pink Breeder",
@@ -854,6 +878,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<xchange-pink 7 "breeder" "fertile">>`],
+		npc_display_condition() {
+			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "m") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 7 "genderflip" "breeder" "fertile">>`],
 	},
 	{
 		name: "X-Change Pink Innocence",
@@ -891,6 +919,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<xchange-pink 1 "innocence">>`],
+		npc_display_condition() {
+			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "m") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 1 "genderflip" "innocence">>`],
 	},
 	{
 		name: "X-Change Pink Swell",
@@ -928,6 +960,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<xchange-pink 1 "swell">>`],
+		npc_display_condition() {
+			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "m") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 1 "genderflip" "swell">>`],
 	},
 	{
 		name: "X-Change Pink Bimbo",
@@ -965,6 +1001,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<xchange-pink 1 "bimbo" "swell">>`],
+		npc_display_condition() {
+			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "m") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 1 "genderflip" "bimbo" "swell">>`],
 	},
 	{
 		name: "X-Change Pink CumCure",
@@ -1002,6 +1042,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<xchange-pink 7 "cumcure">>`],
+		npc_display_condition() {
+			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "m") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 7 "genderflip" "cumcure">>`],
 	},
 	{
 		name: "X-Change Sissy",
@@ -1024,7 +1068,7 @@ setup.pills = [
 			return "";
 		},
 		type: "xchange",
-		subtype: "pink basic",
+		subtype: "pink crossdress",
 		shape: "pill",
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
@@ -1039,6 +1083,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<take-xchange 1 "crossdress">>`],
+		npc_display_condition() {
+			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "m") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 1 "crossdress">>`],
 	},
 	{
 		name: "X-Change Choice (F)",
@@ -1076,6 +1124,11 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<xchange-choice>>`, `<<set V.sexStats.pills["pills"]["X-Change Choice Reversal (F)"].owned++>>`],
+		npc_display_condition() {
+			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "m") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		// TODO: Revise how Choice pills work on NPCs
+		npcEffects: [`<<npc-take-xchange 1 "genderflip" "choice">>`, `<<set V.sexStats.pills["pills"]["X-Change Choice Reversal (NPC)"].owned++>>`],
 	},
 	{
 		name: "X-Change Choice Reversal (F)",
@@ -1152,6 +1205,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<take-xchange random(1,3) "random">>`],
+		npc_display_condition() {
+			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "m") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange random(1,3) "random">>`],
 	},
 	{
 		name: "Suspicious Purple Pill",
@@ -1189,6 +1246,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<take-xchange random(1,3) "herm" "random">>`],
+		npc_display_condition() {
+			return this.owned() > 0 && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange random(1,3) "herm" "random">>`],
 	},
 	{
 		name: "X-Change Blue NOW",
@@ -1211,7 +1272,7 @@ setup.pills = [
 			return "";
 		},
 		type: "xchange",
-		subtype: "blue now",
+		subtype: "blue basic",
 		shape: "pill",
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
@@ -1226,6 +1287,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<xchange-blue 0.25>>`],
+		npc_display_condition() {
+			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "f") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 0.25 "genderflip">>`],
 	},
 	{
 		name: "X-Change Blue Basic",
@@ -1263,6 +1328,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<xchange-blue 1>>`],
+		npc_display_condition() {
+			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "f") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 1 "genderflip">>`],
 	},
 	{
 		name: "X-Change Blue Weekly",
@@ -1300,6 +1369,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<xchange-blue 7>>`],
+		npc_display_condition() {
+			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "f") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 7 "genderflip">>`],
 	},
 	{
 		name: "X-Change Blue Xtra Strength",
@@ -1322,7 +1395,7 @@ setup.pills = [
 			return "";
 		},
 		type: "xchange",
-		subtype: "blue xtra strength",
+		subtype: "blue xtra",
 		shape: "pill",
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
@@ -1337,6 +1410,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<xchange-blue 30>>`],
+		npc_display_condition() {
+			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "f") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 30 "genderflip">>`],
 	},
 	{
 		name: "X-Change Blue Continue",
@@ -1374,6 +1451,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<xchange-blue 3 "continue">>`],
+		npc_display_condition() {
+			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "f") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 3 "genderflip" "continue">>`],
 	},
 	{
 		name: "X-Change Blue Resistance",
@@ -1411,6 +1492,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<xchange-blue 1 "resistance">>`],
+		npc_display_condition() {
+			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "f") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 1 "genderflip" "resistance">>`],
 	},
 	{
 		name: "X-Change Blue Bull",
@@ -1448,6 +1533,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<xchange-blue 7 "bull">>`],
+		npc_display_condition() {
+			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "f") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 7 "genderflip" "bull">>`],
 	},
 	{
 		name: "X-Change Blue Innocence",
@@ -1485,6 +1574,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<xchange-blue 1 "innocence">>`],
+		npc_display_condition() {
+			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "f") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 1 "genderflip" "innocence">>`],
 	},
 	{
 		name: "X-Change Blue Swell",
@@ -1522,6 +1615,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<xchange-blue 1 "swell">>`],
+		npc_display_condition() {
+			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "f") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 1 "genderflip" "swell">>`],
 	},
 	{
 		name: "X-Change Blue Himbo",
@@ -1559,6 +1656,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<xchange-blue 1 "bimbo" "swell">>`],
+		npc_display_condition() {
+			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "f") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 1 "genderflip" "bimbo" "swell">>`],
 	},
 	{
 		name: "X-Change Blue CumCure",
@@ -1596,6 +1697,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<xchange-blue 7 "cumcure">>`],
+		npc_display_condition() {
+			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "f") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 7 "cumcure">>`],
 	},
 	{
 		name: "X-Change Butch",
@@ -1618,7 +1723,7 @@ setup.pills = [
 			return "";
 		},
 		type: "xchange",
-		subtype: "blue basic",
+		subtype: "blue crossdress",
 		shape: "pill",
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
@@ -1633,6 +1738,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<take-xchange 1 "crossdress">>`],
+		npc_display_condition() {
+			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "f") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 1 "crossdress">>`],
 	},
 	{
 		name: "X-Change Choice (M)",
@@ -1670,6 +1779,11 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<xchange-choice>>`, `<<set V.sexStats.pills["pills"]["X-Change Choice Reversal (M)"].owned++>>`],
+		npc_display_condition() {
+			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "f") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		// TODO: Revise how choice works on NPCs
+		npcEffects: [`<<npc-take-xchange 1 "genderflip" "choice">>`, `<<set V.sexStats.pills["pills"]["X-Change Choice Reversal (NPC)"].owned++>>`],
 	},
 	{
 		name: "X-Change Choice Reversal (M)",
@@ -1731,7 +1845,7 @@ setup.pills = [
 			return "";
 		},
 		type: "xchange",
-		subtype: "purple",
+		subtype: "purple basic",
 		shape: "pill",
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
@@ -1746,6 +1860,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<take-xchange 1 "herm">>`],
+		npc_display_condition() {
+			return this.owned() > 0 && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 1 "herm">>`],
 	},
 	{
 		name: "X-Change Purple Xtra Strength",
@@ -1768,7 +1886,7 @@ setup.pills = [
 			return "";
 		},
 		type: "xchange",
-		subtype: "purple",
+		subtype: "purple xtra",
 		shape: "pill",
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
@@ -1783,6 +1901,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<take-xchange 30 "herm">>`],
+		npc_display_condition() {
+			return this.owned() > 0 && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 30 "herm">>`],
 	},
 	{
 		name: "X-Change Purple Continue",
@@ -1805,7 +1927,7 @@ setup.pills = [
 			return "";
 		},
 		type: "xchange",
-		subtype: "purple",
+		subtype: "purple continue",
 		shape: "pill",
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
@@ -1820,6 +1942,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<take-xchange 3 "herm" "continue">>`],
+		npc_display_condition() {
+			return this.owned() > 0 && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 3 "herm" "continue">>`],
 	},
 	{
 		name: "X-Change Purple Resistance",
@@ -1842,7 +1968,7 @@ setup.pills = [
 			return "";
 		},
 		type: "xchange",
-		subtype: "purple",
+		subtype: "purple resistance",
 		shape: "pill",
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
@@ -1857,6 +1983,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<take-xchange 1 "herm" "resistance">>`],
+		npc_display_condition() {
+			return this.owned() > 0 && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 1 "herm" "resistance">>`],
 	},
 	{
 		name: "X-Change Purple NOW",
@@ -1879,7 +2009,7 @@ setup.pills = [
 			return "";
 		},
 		type: "xchange",
-		subtype: "purple",
+		subtype: "purple basic",
 		shape: "pill",
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
@@ -1894,6 +2024,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<take-xchange 0.25 "herm">>`],
+		npc_display_condition() {
+			return this.owned() > 0 && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 0.25 "herm">>`],
 	},
 	{
 		name: "X-Change Purple Weekly",
@@ -1916,7 +2050,7 @@ setup.pills = [
 			return "";
 		},
 		type: "xchange",
-		subtype: "purple",
+		subtype: "purple basic",
 		shape: "pill",
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
@@ -1931,6 +2065,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<take-xchange 7 "herm">>`],
+		npc_display_condition() {
+			return this.owned() > 0 && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 7 "herm">>`],
 	},
 	{
 		name: "X-Change Purple Breeder",
@@ -1953,7 +2091,7 @@ setup.pills = [
 			return "";
 		},
 		type: "xchange",
-		subtype: "purple",
+		subtype: "purple breeder",
 		shape: "pill",
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
@@ -1967,7 +2105,11 @@ setup.pills = [
 				? 1
 				: 0;
 		},
-		effects: [`<<take-xchange 1 "herm" "breeder" "fertile">>`],
+		effects: [`<<take-xchange 7 "herm" "breeder" "fertile">>`],
+		npc_display_condition() {
+			return this.owned() > 0 && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 7 "herm" "breeder" "fertile">>`],
 	},
 	{
 		name: "X-Change Purple Bull",
@@ -1990,7 +2132,7 @@ setup.pills = [
 			return "";
 		},
 		type: "xchange",
-		subtype: "purple",
+		subtype: "purple bull",
 		shape: "pill",
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
@@ -2004,7 +2146,11 @@ setup.pills = [
 				? 1
 				: 0;
 		},
-		effects: [`<<take-xchange 1 "herm" "bull">>`],
+		effects: [`<<take-xchange 7 "herm" "bull">>`],
+		npc_display_condition() {
+			return this.owned() > 0 && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 7 "herm" "bull">>`],
 	},
 	{
 		name: "Suspicious Blue Pill",
@@ -2042,6 +2188,10 @@ setup.pills = [
 				: 0;
 		},
 		effects: [`<<take-xchange random(1,3) "random">>`],
+		npc_display_condition() {
+			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "f") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange random(1,3) "random">>`],
 	},
 	{
 		name: "X-Change Clone: Whitney",
@@ -2111,7 +2261,7 @@ setup.pills = [
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return playerIsXChanged() && V.xchange.pill.genderificationEffect && V.xchange.pill.effectsKnown
+			return playerIsXChanged() && V.xchange.pill.genderflipEffect && V.xchange.pill.genderificationEffect && V.xchange.pill.effectsKnown
 				? 1
 				: 0;
 		},
