@@ -2646,15 +2646,6 @@
 		<<earnFeat "Zephyr the captain">>
 	<</if>>
 
-<<if $godClothes is undefined>>
-     <<set $godClothes to 0>>
-	<</if>>
-	<<if $godClothes is 0>>
-	<<set $godClothes to 0>>
-    <<elseif $godClothes is 1>>
-	<<set $godClothes to 1>>
-	<</if>>
-
 	<!-- Jimmy: DefaultActions JS routine for error correction. -->
 	<<run
 		/* Perform check for broken default action structures. */
@@ -3638,7 +3629,7 @@
 	/* Code that should not be moved into a check like above */
 	<<set $runWardrobeSanityChecker to true>>
 
-	<<if $objectVersion.updateClothes lt 72 or $objectVersion.updateClothes is undefined>>
+	<<if $objectVersion.updateClothes lt 73 or $objectVersion.updateClothes is undefined>>
 		<<updateClothes>>
 		<<if $objectVersion.updateClothes lt 38>>
 			<!-- V0.4.0.7 return items stuck in $store without proper .location -->
@@ -3662,9 +3653,20 @@
 			<<if $propEquipped is 1 and $worn.handheld.type !== "prop" and $worn.handheld.variable !== "featherduster">><<set $propEquipped to 0>><</if>>
 		<</if>>
 
+		<!-- 0.5.6.9 Rename Nurse Hat -->
+		<<if $objectVersion.updateClothes lt 73>>
+			<<if $gwylan?.request?.items?.length>>
+				<<for _i to 0; _i lt $gwylan.request.items.length; _i++>>
+					<<if $gwylan.request.items[_i].name is "pink nurse hat">>
+						<<set $gwylan.request.items[_i].name to "nurse hat">>
+					<</if>>
+				<</for>>
+			<</if>>
+		<</if>>
+
 		<!-- do NOT forget to bump this version in variables-start.twee, too -->
 
-		<<set $objectVersion.updateClothes to 72>>
+		<<set $objectVersion.updateClothes to 73>>
 	<</if>>
 
 	<<if !$specialClothesEffects?.pimp>>
@@ -3715,9 +3717,9 @@
 		<<set $objectVersion.specialClothes to 20>>
 	<</if>>
 
-	<<if $objectVersion.wardrobes lt 13 or $objectVersion.wardrobes is undefined>>
+	<<if $objectVersion.wardrobes lt 14 or $objectVersion.wardrobes is undefined>>
 		<<wardrobesUpdate>>
-		<<set $objectVersion.wardrobes to 13>>
+		<<set $objectVersion.wardrobes to 14>>
 	<</if>>
 
 	<<if $objectVersion.museumAntiques lte 14 and $museumAntiques.antiques.antiquewhitescrystal isnot undefined>>
@@ -6754,10 +6756,11 @@
 	<<if !$objectVersion.badEnd or $objectVersion.badEnd lt 1>>
 		<<set $objectVersion.badEnd to 1>>
 		<<for _i to 0; _i lt $badEndStats.length; _i++>>
-			<<set $badEndStats[_i].reasonEnd to $badEndStats[_i].reasonEnd.replace("Escapted", "Escaped")>>
+			<<set $badEndStats[_i].reasonEnd to $badEndStats[_i].reasonEnd?.replace("Escapted", "Escaped")>>
 		<</for>>
 	<</if>>
 
+	<!-- 0.5.6.7 restore combat lighting -->
 	<<set $options.combatLightEnabled ??= true>>
 	<<set $options.combatLightSpotlight ??= 0.2>>
 	<<set $options.combatLightSpotlightX ??= 118>>
@@ -6768,7 +6771,25 @@
 	<<set $options.combatLightFlat ??= 0>>
 	<<set $options.combatLightTFColor ??= 0.2>>
 	<<unset $options.lightCombat>>
-	
+
+	<!-- 0.5.6.8  Fix for very old saves with beastMaleChance never defined -->
+	<<if $settings.maleChanceMale is undefined>>
+		<<set $settings.maleChanceMale to 50>>
+		<<set $settings.maleChanceFemale to 50>>
+		<<set $settings.maleChanceSplit to false>>
+		<<set $settings.beastMaleChanceMale to 80>>
+		<<set $settings.beastMaleChanceFemale to 20>>
+		<<set $settings.beastMaleChanceSplit to false>>
+	<</if>>
+
+	<<if $skin.undefined>>
+		<<run delete $skin.undefined>>
+	<</if>>
+
+	<!-- 0.5.6.10 Gwylan NaN lust fix -->
+	<<if isNaN(C.npc.Gwylan.lust)>>
+		<<set C.npc.Gwylan.lust to 25>>
+	<</if>>
 <</widget>>
 
 

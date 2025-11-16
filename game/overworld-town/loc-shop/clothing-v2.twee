@@ -675,9 +675,9 @@
 			<div id="warmth-description">
 				<<warmth_description>>
 			</div>
-			<br>
 
 			<<if !$options.images and _temp_choice.shopGroup>>
+				<br>
 				<<link "Previous Style">>
 					<<set _groupIndex to _itemGroups[_temp_choice.shopGroup].indexOf($clothes_choice)>>
 					<<set _groupIndexMax to _itemGroups[_temp_choice.shopGroup].length - 1>>
@@ -694,8 +694,7 @@
 				<br>
 			<</if>>
 
-			<<if $settings.multipleWardrobes is "all">>
-				<span>Send items to:</span>
+			<<if $settings.multipleWardrobes && Object.values($wardrobes).filter(w=>w.unlocked&&w.shopSend && w.isolated).length > 1>>
 				<div id="sendItemsTo">
 					<<sendItemsTo>>
 				</div>
@@ -1810,8 +1809,9 @@
 
 <<widget "sendItemsTo">>
 	<div class="returnOptions no-numberify">
+		Send items to: <<ind>>
 		<<for _label, _value range $wardrobes>>
-			<<if _value.unlocked and _value.shopSend>>
+			<<if _value.unlocked and _value.shopSend && _value.isolated>>
 				<<if $wardrobes.shopReturn is _label>>
 					<div class="try-button div-link">
 						<span class="gold"><<print _value.name>></span>

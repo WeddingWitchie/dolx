@@ -544,6 +544,7 @@ function weekPassed() {
 	if (V.robinpaid !== 1 && V.robindebt >= V.robindebtlimit && V.robindebtevent <= 0) {
 		wikifier("robinPunishment", "docks");
 		V.robineventnote = 1;
+		V.robindebt = 0;
 	}
 	V.robinmoney += (V.robin.stayup >= 1 ? 250 : 300) + V.robin.moneyModifier;
 	// if (V.robinmoney > 4000) V.robinmoney = 4000;
@@ -1006,14 +1007,12 @@ function dayPassed(days) {
 		if (V.daily.winterStoryTime && V.hcEndings)
 			localStorage.setItem("hopelessCycle", localStorage.getItem("hopelessCycle").split(",").concatUnique(V.hcEndings));
 
-
+		V.daily.clearProperties();
 
 		if (V.stallDeposit >= 3000) {
 			V.stallDeposit -= 3000;
 			V.daily.stallRented = 1;
 		}
-
-		V.daily.clearProperties();
 
 		/* Set flag to determine Kylar's position at lunch */
 		V.daily.kylar.libraryStalk = rollKylarLibraryStalkFlag();

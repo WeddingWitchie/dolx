@@ -8809,7 +8809,7 @@ function initLower() {
 			slot: "lower",
 			name: "vintage skirt",
 			name_cap: "Vintage skirt",
-			variable: "vintageskirt",
+			variable: "vintageskirtsuit",
 			combat: {
 				reference: "longskirt",
 			},
@@ -8861,7 +8861,7 @@ function initLower() {
 			slot: "lower",
 			name: "vintage pants",
 			name_cap: "Vintage pants",
-			variable: "vintagepants",
+			variable: "vintagepantsuit",
 			combat: {
 				reference: "trousers",
 			},
@@ -8912,7 +8912,7 @@ function initLower() {
 			slot: "lower",
 			name: "chain tunic skirt",
 			name_cap: "Chain tunic skirt",
-			variable: "chain tunic skirt",
+			variable: "chain tunic",
 			combat: {
 				reference: "longskirt",
 				renderType: "skirt",

@@ -4623,14 +4623,28 @@
 		<<if $mouthaction is "apologise">>
 			<<personselect $mouthtarget>>
 			<<set $mouthaction to 0>><<set _sound to 1>>
+			<<set _unforgiver to $NPCList.find(npc => npc.traits.includes("unforgiving"))>>
 			<<if $neckuse is "hand" and $oxygen lt $oxygenmax and $settings.asphyxiaLevel gte 2>>
 				<<wheeze "apologise">>
 			<<elseif $enemytype is "beast">>
 				You tell <<him>> you're sorry for being bad.
 				<<set $mouthactiondefault to "plead">>
-				<<if $NPCList[$mouthtarget].traits.includes("unforgiving")>>
+				<<if $NPCList[$mouthtarget] is _unforgiver>>
 					<<bHe>> ignores you.
 					<<set $apologised to 1>><<set $speechapologiseunforgiving to 1>>
+					<<set $enemyanger += Math.clamp(25 - $englishtrait * 20, $enemyangermax / -2, $enemyangermax / 2)>>
+				<<elseif !!_unforgiver>>
+					<<bHe>> looks towards
+					<<= /^[A-Z]/.test(_unforgiver.fullDescription) ? "" : "the ">>
+					<<= _unforgiver.fullDescription>>,
+					<<if _unforgiver.monster is 0>>
+						who <<beast_growls_text _unforgiver.type>> dismissively.
+					<<else>>
+						who simply scoffs.
+					<</if>>
+					<span class="red"><<bHe>> <<beast_growls_text>> in response, and ignores your apology.</span>
+					<<set $apologised to 1>><<set $speechapologiseunforgiving to 1>>
+					<<set $enemyanger += Math.clamp(25 - $englishtrait * 20, $enemyangermax / -2, $enemyangermax / 2)>>
 				<<elseif $apologised is 0>>
 					<<if $monster is 1>>
 						<<bHe>> growls. "Good. Now stay still."
@@ -4667,9 +4681,22 @@
 				<<else>>
 					You tell <<him>> you're sorry for being bad.
 					<<set $mouthactiondefault to "plead">>
-					<<if $NPCList[$mouthtarget].traits.includes("unforgiving")>>
+					<<if $NPCList[$mouthtarget] is _unforgiver>>
 						<span class="red"><<He>> scoffs.</span>
 						<<set $apologised to 1>><<set $speechapologiseunforgiving to 1>>
+						<<set $enemyanger += Math.clamp(25 - $englishtrait * 20, $enemyangermax / -2, $enemyangermax / 2)>>
+					<<elseif !!_unforgiver>>
+						<<He>> looks over at
+						<<= /^[A-Z]/.test(_unforgiver.fullDescription) ? "" : "the ">>
+						<<= _unforgiver.fullDescription>>,
+						<<if _unforgiver.monster is 0>>
+							who <<beast_growls_text _unforgiver.type>> dismissively.
+						<<else>>
+							who simply scoffs and says "Don't listen to <<phim>>."
+						<</if>>
+						<span class="red"><<He>> nods, and ignores your apology.</span>
+						<<set $apologised to 1>><<set $speechapologiseunforgiving to 1>>
+						<<set $enemyanger += Math.clamp(25 - $englishtrait * 20, $enemyangermax / -2, $enemyangermax / 2)>>
 					<<elseif $apologised is 0>>
 						<<His>> face softens.
 						<<if $NPCList[$mouthtarget].fullDescription is "Avery">>
@@ -5194,21 +5221,21 @@
 							<<set $penisstate to "entrance">>
 							<<if $NPCList[$penistarget].vagina is "penis">>
 								<<personselect $penistarget>>
-								<<set $NPCList[$penistarget].vagina to "penisentrance">>The <<person>> frees your penis from <<his>> vagina.
+								<<set $NPCList[$penistarget].vagina to "penisentrance">><<combatPerson>> frees your penis from <<his>> vagina.
 							<</if>>
 						<</if>>
 						<<if $penisstate is "otheranus">>
 							<<set $penisstate to "otheranusentrance">>
 							<<if $NPCList[$penistarget].penis is "otheranus">>
 								<<personselect $penistarget>>
-								<<set $NPCList[$penistarget].penis to "otheranusentrance">>The <<person>> frees your penis from <<his>> anus.
+								<<set $NPCList[$penistarget].penis to "otheranusentrance">><<combatPerson>> frees your penis from <<his>> anus.
 							<</if>>
 						<</if>>
 						<<if $penisstate is "othermouth">>
 							<<set $penisstate to "othermouthentrance">>
 							<<if $NPCList[$penistarget].mouth is "penis">>
 								<<personselect $penistarget>>
-								<<set $NPCList[$penistarget].mouth to "penisentrance">>The <<person>> slips your penis out of <<his>> mouth.
+								<<set $NPCList[$penistarget].mouth to "penisentrance">><<combatPerson>> slips your penis out of <<his>> mouth.
 							<</if>>
 						<</if>>
 					<<else>>
@@ -5241,23 +5268,23 @@
 						<<for _j = 0; _j lt $enemynomax; _j++>>
 							<<if $NPCList[_j].lefthand is "overupperclothes">>
 								<<personselect _j>>
-								<<set $NPCList[_j].lefthand to 0>>The <<person>> releases your $worn.over_upper.name.
+								<<set $NPCList[_j].lefthand to 0>><<combatPerson>> releases your $worn.over_upper.name.
 							<<elseif $NPCList[_j].lefthand is "upperclothes">>
 								<<personselect _j>>
-								<<set $NPCList[_j].lefthand to 0>>The <<person>> releases your $worn.upper.name.
+								<<set $NPCList[_j].lefthand to 0>><<combatPerson>> releases your $worn.upper.name.
 							<<elseif $NPCList[_j].lefthand is "underupperclothes">>
 								<<personselect _j>>
-								<<set $NPCList[_j].lefthand to 0>>The <<person>> releases your $worn.under_upper.name.
+								<<set $NPCList[_j].lefthand to 0>><<combatPerson>> releases your $worn.under_upper.name.
 							<</if>>
 							<<if $NPCList[_j].righthand is "overupperclothes">>
 								<<personselect _j>>
-								<<set $NPCList[_j].righthand to 0>>The <<person>> releases your $worn.over_upper.name.
+								<<set $NPCList[_j].righthand to 0>><<combatPerson>> releases your $worn.over_upper.name.
 							<<elseif $NPCList[_j].righthand is "upperclothes">>
 								<<personselect _j>>
-								<<set $NPCList[_j].righthand to 0>>The <<person>> releases your $worn.upper.name.
+								<<set $NPCList[_j].righthand to 0>><<combatPerson>> releases your $worn.upper.name.
 							<<elseif $NPCList[_j].righthand is "underupperclothes">>
 								<<personselect _j>>
-								<<set $NPCList[_j].righthand to 0>>The <<person>> releases your $worn.under_upper.name.
+								<<set $NPCList[_j].righthand to 0>><<combatPerson>> releases your $worn.under_upper.name.
 							<</if>>
 						<</for>>
 					<<else>>
@@ -5290,11 +5317,11 @@
 					<<for _j = 0; _j lt $enemynomax; _j++>>
 						<<if $NPCList[_j].lefthand is "mask">>
 							<<personselect _j>>
-							<<set $NPCList[_j].lefthand to 0>>The <<person>> releases your $worn.face.name.
+							<<set $NPCList[_j].lefthand to 0>><<combatPerson>> releases your $worn.face.name.
 						<</if>>
 						<<if $NPCList[_j].righthand is "mask">>
 							<<personselect _j>>
-							<<set $NPCList[_j].righthand to 0>>The <<person>> releases your $worn.face.name.
+							<<set $NPCList[_j].righthand to 0>><<combatPerson>> releases your $worn.face.name.
 						<</if>>
 					<</for>>
 				<<else>>
@@ -5326,7 +5353,7 @@
 									<<personselect _j>>
 									<<if $NPCList[_j].lefthand is "throat">><<set $NPCList[_j].lefthand to 0>><</if>>
 									<<if $NPCList[_j].righthand is "throat">><<set $NPCList[_j].righthand to 0>><</if>>
-									The <<person>> releases your neck.
+									<<combatPerson>> releases your neck.
 								<</if>>
 							<</for>>
 						<</if>>
@@ -5337,13 +5364,13 @@
 								<<personselect _j>>
 								<<set $NPCList[_j].lefthand to "throat">>
 								<<set $neckuse to "hand">>
-								<span class="red">The <<person>> immediately grabs your neck with <<his>> free hand.</span>
+								<span class="red"><<combatPerson>> immediately grabs your neck with <<his>> free hand.</span>
 								<<break>>
 							<<elseif $NPCList[_j].righthand is 0>>
 								<<personselect _j>>
 								<<set $NPCList[_j].lefthand to "throat">>
 								<<set $neckuse to "hand">>
-								<span class="red">The <<person>> immediately grabs your neck with <<his>> free hand.</span>
+								<span class="red"><<combatPerson>> immediately grabs your neck with <<his>> free hand.</span>
 								<<break>>
 							<</if>>
 						<</for>>
