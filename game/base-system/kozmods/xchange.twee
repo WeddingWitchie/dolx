@@ -451,12 +451,12 @@
 			<<set $deviancy to _body.deviancy>>
 		<</if>>
 
-		<<if $genderidentity is 0 and !$xchangeStatsMerged and $xchangeStatSplit>>
+		/* <<if $genderidentity is 0 and !$xchangeStatsMerged and $xchangeStatSplit>>
 			<<set $promiscuity to Math.max($xchange.pill.originalBody.promiscuity, $xchange.pill.changedBody.promiscuity ?? 0)>>
 			<<set $exhibitionism to Math.max($xchange.pill.originalBody.exhibitionism, $xchange.pill.changedBody.exhibitionism ?? 0)>>
 			<<set $deviancy to Math.max($xchange.pill.originalBody.deviancy, $xchange.pill.changedBody.deviancy ?? 0)>>
 			<<set $xchangeStatsMerged to true>>
-		<</if>>
+		<</if>> */
 		
 		<<if _args[0] is undefined and $xchange.pill.innocenceEffect>>
 			<<set $awareness to $xchange.awareness>>
@@ -2257,6 +2257,7 @@
 		<div class="relation-box" @style="(_boxConfig.style || '')">
 			<<if _boxConfig.name>>
 				<div class="relation-top-line">
+					_boxConfig.icon
 					<span class="relation-name">_boxConfig.name: _boxConfig.status</span>		
 				</div>
 			<</if>>
@@ -2297,12 +2298,19 @@
 
 	<<widget "identityScreen">>	
 		<div class="identity-box-list">
-			<<for _char range $identityIndex>>
+			<<for _char, _icon range $identityIndex>>
 				<<identitySelector _char>>
 				<<if $identityOption>>
 					<<silently>>
 						<<set _active to (playerHasCharacteristic(_char) and (!$identityOption.acceptance or $identityOption.reject))>>
-						<<set _identityConfig = { name : _char, status: "<<identityStatus $identityOption $identityPreference>>", tolerance: "<<statbar 0 $identityOption.tolerance 100>>", dysphoria: "<<statbar 0 $identityOption.dysphoria 100>>", active: _active}>>
+						<<set _identityConfig = { 
+							name: _char, 
+							icon: _icon,
+							status: "<<identityStatus $identityOption $identityPreference>>", 
+							tolerance: "<<statbar 0 $identityOption.tolerance 100>>", 
+							dysphoria: "<<statbar 0 $identityOption.dysphoria 100>>", 
+							active: _active
+						}>>
 					<</silently>>
 					<<identity-box-simple _identityConfig>>
 				<</if>>
