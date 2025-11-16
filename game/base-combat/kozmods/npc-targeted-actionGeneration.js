@@ -9,7 +9,7 @@ function listUniqueCarriedXchangePills() {
     let xchangePills = setup.pills.filter(med => med.type === "xchange");
 
     xchangePills.forEach(pill => { // Temporarily limiting the list to only basic pill variants
-        if (V.sexStats.pills.pills[pill.name].owned > 0 && ["pink basic", "blue basic"].includes(pill.subtype)) 
+        if (V.sexStats.pills.pills[pill.name].owned > 0 && ["pink basic", "blue basic", "pink continue", "pink resistance", "blue continue", "blue resistance",].includes(pill.subtype)) 
             carriedPills.push(pill);
     });
 
