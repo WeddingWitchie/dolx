@@ -6,7 +6,7 @@ setup.shopDetails = {
 	},
 	formal: {
 		name: "Formal",
-		desc: "Suitable for important occasions, and for good etiquette among certain company.",
+		desc: "Suitable for important occasions and for good etiquette among certain company.",
 		details: "Required attire for specific events and fancy dates.",
 	},
 	school: {
@@ -86,7 +86,7 @@ setup.shopDetails = {
 	},
 	sticky_fingers: {
 		name: "Sticky fingers",
-		desc: "More likely to get your way, and keep that which isn't yours.",
+		desc: "More likely to get your way and keep that which isn't yours.",
 		details: "Helps you succeed at skulduggery skill checks.",
 	},
 	rainproof: {
@@ -118,17 +118,19 @@ setup.shopDetails = {
 	chest_bind: {
 		name: "Chest binding",
 		desc: "Fits tight around your chest, concealing your breasts.",
-		details: `Reduces your apparent breast size. Breast sizes above "modest" won't appear perfectly flat, and will instead appear to be five sizes smaller.`,
+		details: `Reduces your apparent breast size. Breast sizes above "modest" won't appear perfectly flat and will instead appear to be five sizes smaller.`,
 	},
 	eerie: {
 		name: "Eerie",
 		get desc() {
-			return V.transformdisable === "f"
+			return V.settings.transformAnimalEnabled === true
 				? "Protects a specific transformation. Transformations progress and decay at midnight."
 				: "There's something peculiar about this object.";
 		},
 		get details() {
-			return V.transformdisable === "f" ? "Prevents its associated transformation from decaying." : "Enable transformations to make use of this trait.";
+			return V.settings.transformAnimalEnabled === true
+				? "Prevents its associated transformation from decaying."
+				: "Enable transformations to make use of this trait.";
 		},
 	},
 	shade: {
@@ -256,7 +258,40 @@ setup.shopDetails = {
 		name: "Anti-Transparent",
 		desc: "Opaque",
 		details: "Still gets wet but doesn't go transparent."
-	}
+	},
+	heavy: {
+		name: "Heavy",
+		desc: "Cumbersome and tiring.",
+		details:
+			"Durable and reduces damage from incoming attacks, but slows you down and increases fatigue gains. These penalties are reduced with high physique, relative to your body size's limits. Too heavy to steal.",
+	},
+	curious: {
+		name: "Curious",
+		get desc() {
+			return V.gwylanSeen?.includes("hypnosis_first")
+				? V.worn.neck.name === "familiar collar" && V.worn.neck.cursed === 1
+					? "Nurtures your bottomless <span class='red'>Devotion</span>."
+					: "Feeds your hungry <span class='blue'>Curiosity</span>."
+				: "<span class='blue'>???</span>";
+		},
+		get details() {
+			return V.gwylanSeen?.includes("hypnosis_first")
+				? V.worn.neck.name === "familiar collar" && V.worn.neck.cursed === 1
+					? "Prevents <span class='red'>Hypnotic Devotion</span> from decaying over time."
+					: "Prevents <span class='blue'>Hypnotic Curiosity</span> from decaying over time."
+				: "<span class='blue'>???</span>";
+		},
+	},
+	enchanting: {
+		name: "Enchanting",
+		desc: "Must be bound to you before its other effects can become active.",
+		details: "This item's other traits are only active when it can't be removed easily.",
+	},
+	hat: {
+		name: "Hat",
+		desc: "Something to wear atop your head.",
+		details: "none",
+	},
 };
 
 setup.hairDetails = {

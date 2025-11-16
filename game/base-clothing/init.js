@@ -1,4 +1,4 @@
-/* global initOverUpper, initOverLower, initUpper, initLower, initUnderUpper, initUnderLower, initGenitals, initOverHead, initHead, initFace, initNeck, initHands, initHandheld, initLegs, initFeet, wardrobesUpdate, clothesDataTrimmerLoop, npcAssignClothesToSet */
+/* global initOverUpper, initOverLower, initUpper, initLower, initUnderUpper, initUnderLower, initGenitals, initOverHead, initHead, initFace, initNeck, initHands, initHandheld, initLegs, initFeet, initSpecialClothes, wardrobesUpdate, clothesDataTrimmerLoop, npcAssignClothesToSet */
 
 function clothingDataInit() {
 	setup.clothes = {};
@@ -18,6 +18,7 @@ function clothingDataInit() {
 	initHandheld();
 	initLegs();
 	initFeet();
+	initSpecialClothes();
 
 	setup.clothes_all_slots = [
 		"over_upper",
@@ -460,6 +461,11 @@ function initNpcClothes() {
 			"witch dress":				{ name: "witch dress",				integrity_max: 100, word: "a", action: "pull" },
 			"flowing robe":				{ name: "flowing robe",				integrity_max: 100, word: "a", action: "lift" },
 			"sleeveless hoodie":		{ name:"sleeveless hoodie",			integrity_max:100, 	word: "a", action: "pull"},
+			"belted tunic":				{ name: "belted tunic",				integrity_max: 100, word: "a", action:"pull"},
+			"ritual robes":				{ name: "ritual robes",				integrity_max: 100, word: "a", action:"lift"},
+			"vintage pantsuit":			{ name: "vintage pantsuit",			integrity_max: 100, word: "a", action:"pull"},
+			"vintage skirtsuit":		{ name: "vintage skirtsuit",		integrity_max: 100, word: "a", action:"lift"},
+			"winter jacket":			{ name: "winter jacket",			integrity_max: 100, word: "a", action:"pull"}
 		},
 		"lower": {
 			"naked":					{ name: "naked",					integrity_max: 100, word: "n", action: "none" },
@@ -545,6 +551,11 @@ function initNpcClothes() {
 			"witch dress skirt":		{ name: "witch dress skirt",		integrity_max: 100, word: "a", action: "lift" },
 			"flowing robe":				{ name: "flowing robe",				integrity_max: 100, word: "a", action: "lift" },
 			"fight shorts":				{ name:"fight shorts",				integrity_max:100, 	word: "a", action: "pull"},
+			"belted tunic skirt":		{ name: "belted tunic skirt",		integrity_max: 100, word: "a", action: "pull"},
+			"ritual skirt":				{ name: "ritual skirt",				integrity_max: 100, word: "a", action: "lift"},
+			"vintage pants":			{ name: "vintage pants",			integrity_max: 100, word: "a", action: "pull"},
+			"vintage skirt":			{ name: "vintage skirt",			integrity_max: 100, word: "a", action: "lift"},
+			"black trousers":			{ name: "black trousers",			integrity_max: 100, word: "a", action: "pull"},
 		},
 	};
 
@@ -686,6 +697,13 @@ function initNpcClothes() {
 		{ name: "moonRobe",				type: "Wraith", gender: "n", outfit: 1, clothes: npcAssignClothesToSet("flowing robe", "flowing robe"), desc: "flowing robe" },
 		/* -------------------------------------------------------------------------------------------------------------------------------------------------- */
 		{ name: "sweater",				type: "sweater", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("sweater", "jeans"), desc: "sweater and jeans" },
+		/* -------------------------------------------------------------------------------------------------------------------------------------------------- */
+		{ name: "gloomyTunic",			type: "Gwylan", gender: "n", outfit: 1, clothes: npcAssignClothesToSet("belted tunic", "belted tunic skirt"), desc: "tunic"},
+		{ name: "gwylanTown",			type: "town", gender: "n", outfit: 1, clothes: npcAssignClothesToSet("turtleneck", "slacks"), desc: "turtleneck and slacks"},
+		{ name: "gwylanCold",			type: "cold", gender: "n", outfit: 1, clothes: npcAssignClothesToSet("winter jacket", "black trousers"), desc: "winter coat and trousers"},
+		{ name: "vintageMale",			type: "formal", gender: "m", outfit: 1, clothes: npcAssignClothesToSet("vintage pantsuit", "vintage pants"), desc: "vintage pantsuit"},
+		{ name: "vintageFemale",		type: "formal", gender: "f", outfit: 1, clothes: npcAssignClothesToSet("vintage skirtsuit", "vintage skirt"), desc: "vintage skirtsuit"},
+		{ name: "ritualRobes",			type: "Gwylan", gender: "n", outfit: 1, clothes: npcAssignClothesToSet("ritual robes", "ritual skirt"), desc: "robes"},
 		/* -------------------------------------------------------------------------------------------------------------------------------------------------- */
 		{ name: "maleDefault",			type: "default", gender: "m", outfit: 0, clothes: npcAssignClothesToSet("shirt", "trousers"), desc: "shirt and trousers" },
 		{ name: "femaleDefault",		type: "default", gender: "f", outfit: 0, clothes: npcAssignClothesToSet("shirt", "skirt"), desc: "shirt and skirt" },

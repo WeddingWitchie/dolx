@@ -104,7 +104,6 @@ function DefineMacro(macroName, macroFunction, tags, skipArgs) {
 		tags,
 		skipArgs,
 		handler() {
-			DOL.Perflog.logWidgetStart(macroName);
 			try {
 				const oldArgs = State.temporary.args;
 				State.temporary.args = this.args.slice();
@@ -114,8 +113,8 @@ function DefineMacro(macroName, macroFunction, tags, skipArgs) {
 				} else {
 					State.temporary.args = oldArgs;
 				}
-			} finally {
-				DOL.Perflog.logWidgetEnd(macroName);
+			} catch (e) {
+				console.warn("Something went wrong", e);
 			}
 		},
 	});
@@ -185,7 +184,7 @@ window.wetnessKeyword = wetnessKeyword;
 
 /**
  * Returns an optional wetness prefix for the article of clothing.
-
+ 
  * @param {string} slot clothing article slot used
  * @returns {string} printable integrity prefix
  */
@@ -583,7 +582,7 @@ window.mobBtnShow = mobBtnShow;
 
 /**
  * Selects a random item from an array of weighted options. Each option is an array with
- * two elements: the item, and its weight.
+ * two elements: the item and its weight.
  * Works similar to eventpool, but more generic and lightweight, and works with any data types.
  *
  * Options with a higher weight have a higher chance of being chosen.
@@ -696,7 +695,7 @@ Macro.add("icon", {
 		const iconImg = document.createElement("img");
 		iconImg.className = [
 			"icon",
-			this.name === "iconUi" && "icon-container",
+			this.name === "iconUi" && (this.args?.[1] === "with-text" ? "icon-container-with-text" : "icon-container"),
 			this.args.includes("infront") && "infront",
 			this.args.includes("flip") && "flip",
 		]
@@ -715,7 +714,7 @@ Macro.add("iconUi", {
 
 /**
  * Adds a foldout, which can be expanded and collapsed
- * It uses the first element in the content as a header (which can be clicked on), and all other elements as the body (which gets expanded/collapsed)
+ * It uses the first element in the content as a header (which can be clicked on) and all other elements as the body (which gets expanded/collapsed)
  * First argument defines whether it starts expanded or not.
  * Second argument defines the variable where the foldout state is saved (if no variable is defined, the foldout will reset to default if you leave the page)
  * Example: <<foldout true "_tempVar">><div>header here</div>body here<</foldout>>

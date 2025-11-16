@@ -51,6 +51,7 @@ declare module "twine-sugarcube" {
 		lefttarget: number;
 		leftuse: number;
 		leftstate: string | 0;
+		leftaction: string | 0;
 		mouthtarget: number;
 		mouthuse: number;
 		mouthstate: string | 0;
@@ -60,6 +61,7 @@ declare module "twine-sugarcube" {
 		righttarget: number;
 		rightuse: number;
 		rightstate: string | 0;
+		rightaction: string | 0;
 		stealtarget: number;
 		stealuse: number;
 		stealstate: string | 0;
@@ -168,7 +170,7 @@ declare global {
 		| "finished";
 
 	// There is a lot more, look at tentacle-action.twee
-	export type HeadTarget = 0 | "leftarm" | "rightarm" | "feet" | "leftnipplesuck" | "rightnipplesuck" | "leftnipple" | "rightnipple" | "finished";
+	export type HeadTarget = 0 | "leftarm" | "rightarm" | "feet" | "leftnipplesuck" | "rightnipplesuck" | "leftnipple" | "rightnipple" | "penisrub" | "finished";
 
 	export interface CombatRendererOverrides {
 		legBackPosition?: LegPositions;

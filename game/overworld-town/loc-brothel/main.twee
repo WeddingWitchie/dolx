@@ -14,6 +14,7 @@
 
 You are in the brothel. Several stages dot the crowded room. The staff look flustered and overworked.
 <br><br>
+
 <<if $stress gte $stressmax>>
 	<<passoutshop>>
 <<elseif $briarPunishment gte 1>>
@@ -188,7 +189,7 @@ You are in the brothel's dressing room. There are a few mirrors, currently occup
 			<<set _buyMore to []>>
 			<<set _productsAvailable to []>>
 			<<set _productsToPurchase to []>>
-			<<if $brothelVending.condoms lt 200 and $condomLvl gte 1>>
+			<<if $brothelVending.condoms lt 200 and $settings.condomLevel gte 1>>
 				<<run _buyMore.push(`condoms at the <span class="gold">pharmacy</span>`)>>
 			<</if>>
 			<<if $brothelVending.lube lt 200>><<run _buyMore.push(`lube at the <span class="gold">adult shop</span>`)>><</if>>
@@ -215,7 +216,7 @@ You are in the brothel's dressing room. There are a few mirrors, currently occup
 				The <<print _full.join(" and ")>> <<print _full.length gte 2 ? " are " : " is ">><span class="green">full</span>.
 			<</if>>
 			<<if _outOfStock.length gte 1>>
-				The <<print _outOfStock.join(" and ")>><<print _outOfStock.length gte 2 ? " are " : " is ">><span class="red">empty</span>. <<if _outOfStock.includes("condom dispenser") and $condomLvl lt 1>><mouse class="tooltip linkBlue">(?)<span>Your current settings are preventing you from purchasing condoms. Change your Pregnancy Settings so that you, or others, can use condoms.</span></mouse><</if>>
+				The <<print _outOfStock.join(" and ")>><<print _outOfStock.length gte 2 ? " are " : " is ">><span class="red">empty</span>. <<if _outOfStock.includes("condom dispenser") and $settings.condomLevel lt 1>><mouse class="tooltip linkBlue">(?)<span>Your current settings are preventing you from purchasing condoms. Change your Pregnancy Settings so that you, or others, can use condoms.</span></mouse><</if>>
 			<</if>>
 			<<if _productsAvailable.length gte 1>>
 				There <<print $brothelVending.condoms is 1 or ($brothelVending.condoms is 0 and $brothelVending.lube is 1) or ($brothelVending.condoms is 200 and $brothelVending.lube is 1) ? "is" : "are">> <<print _productsAvailable.join(" and ")>> inside the machine. There is room for <<print _productsToPurchase.join(" and ")>>.
@@ -236,7 +237,7 @@ You are in the brothel's dressing room. There are a few mirrors, currently occup
 			<br>
 		<<else>>
 			Your vending machine is installed.
-			<<if $brothelVending and $brothelVending.status is "set" and $condomLvl gte 1 and !($brothelVending.products % 2)>>
+			<<if $brothelVending and $brothelVending.status is "set" and $settings.condomLevel gte 1 and !($brothelVending.products % 2)>>
 				You should talk to the <span class="gold">pharmacy</span> about buying condoms in bulk.
 			<</if>>
 			<<if $brothelVending.products lt 2>>
@@ -354,7 +355,7 @@ Briar's goon keeps a close eye on you as you peek out the front exit. The street
 	<br><br>
 	"I was told to come here," you reply sheepishly. <<His>> smile broadens.
 	<br><br>
-	"Good. Wait just a moment." <<He>> presses a finger against <<his>> ear before speaking to the air. "We have a... That's right. Yes boss."
+	"Good. Wait just a moment." <<He>> presses a finger against <<his>> ear before speaking to the air. "We have a... That's right. Yes, boss."
 	<br><br>
 	<<He>> lowers <<his>> hand. "The boss'll be down shortly to meet you. You won't need to wait long."
 	<br><br>
@@ -523,6 +524,8 @@ Briar's goon keeps a close eye on you as you peek out the front exit. The street
 		<<He>> doesn't wait for a response. "Not your usual work I know, and I'll need time to prepare. Think about it, then come visit me and we'll talk specifics. And money."
 		<br><br>
 
+		<<specialClothesUnlock "set" "brothel">>
+
 		<<getouticon>><<link [[Leave|Brothel]]>><<endevent>><<set $brothelshowdata.intro to 1>><<set $brothelshowdata.type to "none">><</link>>
 		<br>
 	<<else>> /* The PC qualifies for both the shows and the escort at the same time. This is a bastardisation of the two scenes */
@@ -536,6 +539,8 @@ Briar's goon keeps a close eye on you as you peek out the front exit. The street
 		<br><br>
 		<<He>> taps on the sofa, inviting you to sit next to <<him>>.
 		<br><br>
+
+		<<specialClothesUnlock "set" "brothel">>
 
 		<<link [[Sit|Brothel Escort Job Intro]]>><<set $phase to 1>><<set $brothelshowdata.intro to 2>><</link>><<glove>><<npcincr Briar love 1>>
 		<br>
@@ -622,7 +627,7 @@ Briar's goon keeps a close eye on you as you peek out the front exit. The street
 			<</if>>
 		<</if>>
 		<br><br>
-		<<link [[Distract Briar|Briar Hack]]>><</link>>
+		<<distracticon "blue">><<link [[Distract Briar|Briar Hack]]>><</link>>
 		<br><br>
 	<</if>>
 	<<if $brothelVending>>
@@ -1499,7 +1504,7 @@ Briar continues, "But, if you pass a virginity test, I am willing to pay for you
 <br>
 <<link [[Refuse to do such a thing|Briar's Office Virginity Show]]>><<set $phase to 1>><</link>>
 <br>
-<<link [[Say you're not a virgin (Lie)|Briar's Office Virginity Show]]>><<set $phase to 2>><</link>>
+<<link [[Say you're not a virgin (lie)|Briar's Office Virginity Show]]>><<set $phase to 2>><</link>>
 <br>
 
 :: Briar's Office Virginity Show
@@ -1537,7 +1542,7 @@ Briar continues, "But, if you pass a virginity test, I am willing to pay for you
 	<</if>>
 	<br><br>
 	Briar gives a noncommittal hum, but it's clear <<hes>> displeased. "A shame. It would be a very good money maker."
-<<else>> /* Say you're not a virgin (Lie) */
+<<else>> /* Say you're not a virgin (lie) */
 	<<set $brothelVirginityState to "lie">>
 
 	<<if $awarelevel gte 1>>
@@ -1596,7 +1601,7 @@ You are behind the largest stage in the brothel. This is where the more involved
 
 	<<if $brothelshowdata.type is "horse">>
 		<<if $farm.steed>>
-			<<if $bestialitydisable is "f" or $per_npc.saddled_steed.monster is "monster">>
+			<<if $settings.bestialityEnabled or $per_npc.saddled_steed.monster is "monster">>
 				Your $farm.steed steed awaits you.
 				<br><br>
 				<img class="icon" src="img/ui/gold_star.png"><<link [[Star in show|Brothel Show]]>><</link>>
@@ -2573,7 +2578,7 @@ You ask Briar if <<he>> has already checked your vending machine's stock and col
 	<<set $brothelVending.weeksEmpty to 0>>
 	<<if $brothelVending.condomsSold + $brothelVending.lubeSold>>
 		<br><br>
-		Briar pauses. "You never collected on your last sales before it was emptied.
+		Briar pauses. "You never collected on your last sales before it was emptied."
 	<</if>>
 <<else>>
 	"Yes, I did.
@@ -2621,7 +2626,7 @@ You ask Briar if <<he>> has already checked your vending machine's stock and col
 <<effects>>
 You tell Briar about your idea for a vending machine in the brothel restrooms, explaining that it would be a convenient method for the workers to get what they need for their jobs.
 
-Briar's grin is somewhere between disgusted and amused. "I've already told you, I'm not anybody's <<mummy>>. If any of my whores need <<if $condomLvl gte 1>>condoms<</if>><<if $condomLvl gte 1 and $adultshopunlocked>> or <</if>><<if $adultshopunlocked>>lube<</if>>, they know where they can find some. It's not my job to supply them, it's their obligation. So, no, I will not be funding your little venture."
+Briar's grin is somewhere between disgusted and amused. "I've already told you, I'm not anybody's <<mummy>>. If any of my whores need <<if $settings.condomLevel gte 1>>condoms<</if>><<if $settings.condomLevel gte 1 and $adultshopunlocked>> or <</if>><<if $adultshopunlocked>>lube<</if>>, they know where they can find some. It's not my job to supply them, it's their obligation. So, no, I will not be funding your little venture."
 <br><br>
 <<link [[Insist (0:10)|Brothel VM insist]]>><<pass 10>><</link>>
 <br>
@@ -2750,7 +2755,7 @@ You go to the front entrance and ring the doorbell.
 <<link [[Next|Brothel Escort Job Ride 2]]>><</link>>
 
 :: Brothel Escort Job Ride 2
-<<effects>>
+<<effects>><<set $outside to 0>>
 <<generate1>><<generate2>>
 
 You can make out loud music and ruckus partying. It sounds like a lot of fun.
@@ -2948,7 +2953,7 @@ A <<person1>><<person>> steps forward and runs <<his>> hands over your exposed s
 		The <<person1>><<person>> staggers back, wincing.
 		<br><br>
 
-		"We'll see how long you can keep that up," <<he>> whispers before turning to the guests. "<<pShes>> a feisty one. Let's make this a game. Who here thinks they can break <<pher>>?"
+		"We'll see how long you can keep that up," <<he>> whispers before turning to the guests. "<<pShes>> a feisty one. Let's make this a game. Who here thinks they can break <<phim>>?"
 		<br><br>
 
 	<</if>>
@@ -2960,13 +2965,17 @@ A <<person1>><<person>> steps forward and runs <<his>> hands over your exposed s
 
 <<else>>
 	<<ejaculation>>
-
+	<<saveNPC 0 "escortjob1">><<saveNPC 1 "escortjob2">><<saveNPC 2 "escortjob3">>
+	<<endcombat>>
 	<<link [[Next|Brothel Escort Job End]]>><</link>>
 
 <</if>>
 
 :: Brothel Escort Job End
 <<effects>>
+
+<<loadNPC 0 "escortjob1">><<loadNPC 1 "escortjob2">><<loadNPC 2 "escortjob3">>
+<<clearNPC "escortjob1">><<clearNPC "escortjob2">><<clearNPC "escortjob3">>
 
 You are at the end of your strength. Luckily the guests seem to be pretty satisfied.
 Some leave the room and the crowd slowly disperses.
@@ -2978,7 +2987,7 @@ The <<person1>><<person>> grabs you by the chin and lifts your head to get a goo
 <<if $submissive gte 1150>>
     <<link [[Be submissive|Brothel Escort Job End 2]]>><<set $phase to 1>><<set $brothel_escortjob.sub += 1>><</link>><<submissivetext>><br>
 <<elseif $submissive lte 850>>
-    <<link [[Look into their eyes|Brothel Escort Job End 2]]>><<set $phase to 2>><</link>><<defianttext>>
+    <<link [[Look into <<his>> eyes|Brothel Escort Job End 2]]>><<set $phase to 2>><</link>><<defianttext>>
 <</if>>
 <br>
 
@@ -3107,7 +3116,7 @@ With a smile <<he>> hands you another <<moneyGain 200>>.
 
 <</if>>
 
-<<link [[Next|Danube Street]]>><<endevent>><<set $weekly.escortjob to 1>><<endcombat>><<unset $brothel_escortjob>><<pass 60>><</link>>
+<<link [[Next|Danube Street]]>><<endevent>><<set $weekly.escortjob to 1>><<unset $brothel_escortjob>><<pass 60>><</link>>
 
 :: Brothel Escort Job Escape
 <<effects>>

@@ -130,6 +130,19 @@
 	<br><br>
 
 	<<kitchenDisplay>>
+	<<if $cookbook is true>>
+		<<set _baseTime to Math.max(180 - (6 * Math.round($housekeeping / 50)), 10)>>
+		<<set _timeString to getTimeString(_baseTime)>>
+		<br><br>
+		<<housekeeping_exam_select>>
+		<<if $chosen_recipe isnot "none">>
+			<span class="gold">You can teach yourself a recipe from your cookbook here.</span> You flip open the book and land on a recipe for <<print $chosen_recipe.replace(/_/g," ")>>.<br><br>
+			<<link [["Learn something new (" + _timeString + ")"|Kitchen Self Teach]]>><<pass _baseTime>><<housekeeping 1 1000>><</link>><<ghousekeeping 1000>>
+		<<else>>
+			There's no more recipes you can learn.
+		<</if>>
+		<br><br>
+	<</if>>
 
 	<<getouticon>><<link [[Leave the room (0:01)|Hallways]]>><<handheldon>><<pass 1>><</link>>
 	<br>
@@ -142,7 +155,7 @@
 <<if Time.weekDay is 5 and Time.minute gte 37>>
 	"Everyone to the kitchen," River says. "It's time for an exam."<<gstress>><<stress 6>>
 	<br><br>
-	
+
 	<<npc River>><<person1>>
 	<<housekeeping_exam_select>>
 	<<if $chosen_recipe isnot "none">>

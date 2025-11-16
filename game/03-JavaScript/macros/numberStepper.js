@@ -25,8 +25,6 @@
  */
 Macro.add("numberStepper", {
 	handler() {
-		DOL.Perflog.logWidgetStart("numberStepper");
-
 		// Determine arguments and options
 		let [title, initialValue, setter, options] = this.args;
 
@@ -322,6 +320,5 @@ Macro.add("numberStepper", {
 
 		updateDisplay();
 		updateButtonStates();
-		DOL.Perflog.logWidgetEnd("numberStepper");
 	},
 });

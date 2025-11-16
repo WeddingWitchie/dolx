@@ -1286,6 +1286,7 @@ function initPlants() {
 		rice: {
 			index: 72,
 			name: "rice",
+			seed_name: "rice",
 			singular: "cup of rice",
 			plural: "cups of rice",
 			plant_cost: 50,
@@ -2729,8 +2730,25 @@ function initPlants() {
 			icon: "turnip_soup.png"
 		},
 
-		green_manure: {
+		pink_rose: {
 			index: 147,
+			name: "pink_rose",
+			plural: "pink roses",
+			handheld: "rose|pink",
+			plant_cost: 1200,
+			difficulty: 3,
+			bed: "earth",
+			type: "flower",
+			days: 14,
+			multiplier: 1,
+			special: [],
+			season: ["spring", "autumn"],
+			ingredients: [],
+			icon: "pink_rose.png",
+		},
+
+		green_manure: {
+			index: 148,
 			name: "green_manure",
 			plural: "green manure",
 			plant_cost: 1,
@@ -2747,7 +2765,7 @@ function initPlants() {
 		},
 
 		ghost_orchid: {
-			index: 148,
+			index: 149,
 			name: "ghost_orchid",
 			singular: "ghost orchid (epipogium aphyllum)",
 			plural: "ghost orchids (epipogium aphyllum)",
@@ -2765,7 +2783,7 @@ function initPlants() {
 		},
 
 		hen_of_the_woods: {
-			index: 149,
+			index: 150,
 			name: "hen_of_the_woods",
 			singular: "hen of the woods",
 			plural: "hen of the woods",
@@ -2783,7 +2801,7 @@ function initPlants() {
 		},
 
 		red_helleborine: {
-			index: 150,
+			index: 151,
 			name: "red_helleborine",
 			singular: "red helleborine (Cephalanthera rubra)",
 			plural: "red helleborines (Cephalanthera rubra)",
@@ -2801,7 +2819,7 @@ function initPlants() {
 		},
 
 		lady_orchid: {
-			index: 151,
+			index: 152,
 			name: "lady_orchid",
 			singular: "lady orchid",
 			plural: "lady orchids",
@@ -2819,7 +2837,7 @@ function initPlants() {
 		},
 
 		fly_agaric: {
-			index: 152,
+			index: 153,
 			name: "fly_agaric",
 			singular: "fly agaric",
 			plural: "fly agarics",
@@ -2837,7 +2855,7 @@ function initPlants() {
 		},
 
 		spiked_rampion: {
-			index: 153,
+			index: 154,
 			name: "spiked_rampion",
 			singular: "spiked rampion",
 			plural: "spiked rampions",
@@ -2855,7 +2873,7 @@ function initPlants() {
 		},
 
 		cloudberry: {
-			index: 154,
+			index: 155,
 			name: "cloudberry",
 			singular: "cloudberry",
 			plural: "cloudberries",
@@ -2873,7 +2891,7 @@ function initPlants() {
 		},
 
 		scottish_bog_myrtle: {
-			index: 155,
+			index: 156,
 			name: "scottish_bog_myrtle",
 			singular: "scottish bog myrtle",
 			plural: "scottish bog myrtles",
@@ -2891,7 +2909,7 @@ function initPlants() {
 		},
 
 		bog_orchid: {
-			index: 156,
+			index: 157,
 			name: "bog_orchid",
 			singular: "bog orchid (hammarbya paludosa)",
 			plural: "bog orchids (hammarbya paludosa)",
@@ -2909,7 +2927,7 @@ function initPlants() {
 		},
 
 		marsh_saxifrage: {
-			index: 157,
+			index: 158,
 			name: "marsh_saxifrage",
 			singular: "marsh saxifrage",
 			plural: "marsh saxifrages",

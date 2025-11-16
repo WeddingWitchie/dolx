@@ -203,6 +203,10 @@
 /*These again use the "actionValue"*/
 
 <<widget "leftActionInit">>
+	<<if ($NPCList[0].state is "pursuit" or $NPCList[0].state is "chased") and $NPCList[0].distance lte 0>>
+		<<set _leftGold to true>>
+		<<set _rightGold to true>>
+	<</if>>
 	<<switch $leftarm>>
 		<<case 0>>
 			<<if $orgasmdown gte 1>>
@@ -548,7 +552,7 @@
 				<<set _leftaction["Fuck your pussy with your "+$currentSexToyLeft.name] to "dildoSelfPussy">>
 				<<set _leftaction["Drop your " + $currentSexToyLeft.name] to "dildoDrop">>
 			<<case "dildoSelfAnusEntrance">>
-				<<if $analdisable is "f">>
+				<<if $settings.analEnabled>>
 					<<dildoSelfAnusEntrance "left">>
 				<</if>>
 			<<case "dildoSelfAnus">>
@@ -940,7 +944,7 @@
 				<<set _rightaction["Fuck your pussy with your "+$currentSexToyRight.name] to "dildoSelfPussy">>
 				<<set _rightaction["Drop your " + $currentSexToyRight.name] to "dildoDrop">>
 			<<case "dildoSelfAnusEntrance">>
-				<<if $analdisable is "f">>
+				<<if $settings.analEnabled>>
 					<<dildoSelfAnusEntrance "right">>
 				<</if>>
 			<<case "dildoSelfAnus">>
@@ -1225,6 +1229,9 @@
 				<</if>>
 				<<set _mouthOptions to "free">>
 				<span @class="($lastOptions.mouth isnot _mouthOptions or _mouthGold is true ?'gold':'')">Your mouth is free.</span>
+				<<if $combat_silenced>>
+					<span class="blue">Your voice is gone.</span>
+				<</if>>
 				<<if $options.combatControls.includes("adio") and _targetnumber gt 1>>
 					<<targetListBox "mouth" _targetlist>>
 				<</if>>
@@ -1679,7 +1686,7 @@
 			<<case "entrance">>
 				<<set _vaginaOptions to "penisEntrance">>
 				<span @class="($lastOptions.vagina isnot _vaginaOptions or _vaginaGold is true ?'gold':'')"><<selectNpcWithPartInPosition "penis" "vaginaentrance">><<set $vaginatarget to $index>><<combatPersons>> <<npcPenis $vaginatarget>> hovers near your <<pussy>>.</span>
-				<<if $vaginaldoubledisable is "f">>
+				<<if $settings.vaginalDoubleEnabled>>
 					<<getDoubleTargetList>>
 				<</if>>
 				<<if _secondtarget is true>>
@@ -1692,7 +1699,7 @@
 			<<case "imminent">>
 				<<set _vaginaOptions to "penisImminent">>
 				<span @class="($lastOptions.vagina isnot _vaginaOptions or _vaginaGold is true ?'gold':'')"><<selectNpcWithPartInPosition "penis" "vaginaimminent">><<set $vaginatarget to $index>><<combatPersons>> <<npcPenis $vaginatarget>> presses against your <<pussy>>.</span>
-				<<if $vaginaldoubledisable is "f">>
+				<<if $settings.vaginalDoubleEnabled>>
 					<<getDoubleTargetList>>
 				<</if>>
 				<<if _secondtarget is true>>
@@ -1705,7 +1712,7 @@
 			<<case "penetrated">>
 				<<set _vaginaOptions to "penisPenetrated">>
 				<span @class="($lastOptions.vagina isnot _vaginaOptions or _vaginaGold is true ?'gold':'')"><<selectNpcWithPartInPosition "penis" "vagina">><<set $vaginatarget to $index>><<combatPersons>> <<npcPenis $vaginatarget>> penetrates your <<pussy>>.</span>
-				<<if $vaginaldoubledisable is "f">>
+				<<if $settings.vaginalDoubleEnabled>>
 					<<getDoubleTargetList>>
 				<</if>>
 				<<if _secondtarget is true>>
@@ -1925,7 +1932,7 @@
 				<<case "entrance">>
 					<<set _anusOptions to "penisEntrance">><<selectNpcWithPartInPosition "penis" "anusentrance">><<set $anustarget to $index>>
 					<span @class="($lastOptions.anus isnot _anusOptions or _anusGold ?'gold':'')"><<combatPersons>> <<npcPenis $anustarget>> hovers near your <<bottom>><<andButtPlug>>.</span>
-					<<if $analdoubledisable is "f">>
+					<<if $settings.analDoubleEnabled>>
 						<<getDoubleTargetList>>
 					<</if>>
 					<<if _secondtarget is true>>
@@ -1941,7 +1948,7 @@
 				<<case "penetrated">>
 					<<set _anusOptions to "penisPenetration">><<selectNpcWithPartInPosition "penis" "anus">><<set $anustarget to $index>>
 					<span @class="($lastOptions.anus isnot _anusOptions or _anusGold ?'gold':'')"><<combatPersons>> <<npcPenisSimple $anustarget>> penetrates your anus.</span>
-					<<if $analdoubledisable is "f">>
+					<<if $settings.analDoubleEnabled>>
 						<<getDoubleTargetList>>
 					<</if>>
 					<<if _secondtarget is true>>

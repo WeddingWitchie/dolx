@@ -135,7 +135,7 @@
 
 <<widget "lessonEvents">>
 	<<set $_mod to _args[1] or 1>> <!-- $_mod multiplies the effect that allure has on your odds of getting an unsafe event -->
-	
+
 	<<if dangerEvent($_mod, 8900)>>
 		<<switch _args[0]>>
 			<<case "maths">><<eventsmaths>>
@@ -439,7 +439,9 @@
 
 		<<link [[Ask the teacher for help|Science Pick]]>><<status -10>><</link>><<lcool>>
 		<br>
-		<<link [[Endure it|Science Pick]]>><<set $phase to 1>><<stress 2>><<trauma 2>><</link>><<gtrauma>><<gstress>>
+		<<link [[Endure it|Science Pick]]>><<set $phase to 1>><</link>><<gtrauma>><<gstress>>
+		<br>
+		<<link [[Confront|Science Pick]]>><<set $phase to 2>><<detention 2>><</link>><<gdelinquency>>
 		<br>
 	<</addinlineevent>>
 
@@ -504,7 +506,7 @@
 <</widget>>
 
 <<widget "eventssciencesafe">>
-	<<if $condomLvl isnot 0 and !$scienceCondomIntro>>
+	<<if $settings.condomLevel isnot 0 and !$scienceCondomIntro>>
 		<<scienceCondomIntro>>
 		<<exit>>
 	<</if>>
@@ -565,12 +567,12 @@
 			"I know that was quite explicit," Sirris says. "But good scientists aren't squeamish. Humans are animals. And this is simply observing animal behaviour. And as well as knowing the facts and terminology, it's important that you understand what real sex is and what it looks like."
 			<<awarenessup 200 1>>
 		<<else>>
-			It has a strong educational focus, talking extensively about sexual health, STIs, <<if $pregnancyspeechdisable is "f">>pregnancy, <</if>>contraception and consent.
+			It has a strong educational focus, talking extensively about sexual health, STIs, <<if $settings.pregnancySpeechEnabled>>pregnancy, <</if>>contraception and consent.
 			It goes into the basic mechanics of sex with some simple diagrams labelling the body parts and cell types involved.
 			<<awarenessup 100 1>>
 			<br><br>
 			The classroom has a laid-back atmosphere. Some students watch, but few with any real interest and many carry on chatting throughout.
-			<<if playerBellyVisible() and $pregnancyspeechdisable is "f">>You're constantly reminded of the situation you're currently in, and the precious life inside of you.<<lstress>><<stress -10>><</if>>
+			<<if playerBellyVisible() and $settings.pregnancySpeechEnabled>>You're constantly reminded of the situation you're currently in, and the precious life inside of you.<<lstress>><<stress -10>><</if>>
 		<</if>>
 	<</addinlineevent>>
 
@@ -598,7 +600,7 @@
 				<<set $_studentLeaves to true>>
 			<<else>>
 				The <<personsimple>> <<print either("excitedly agrees", "cheerfully agrees", "casually agrees", "reluctantly agrees", "looks like <<he>> wants to cry, but nods meekly", "tearfully agrees")>>.
-				<<He>> strips, which immediately gets the entire class's full attention. The <<person>> stands naked at the front as the teacher points out numerous parts of <<his>> anatomy.
+				<<He>> strips, which immediately gets the entire class' full attention. The <<person>> stands naked at the front as the teacher points out numerous parts of <<his>> anatomy.
 				<<if $scienceprogression gte 3>>
 					Sirris then instructs <<him>> to climb on the desk and spread <<his>> legs. Sirris <<if $NPCList[0].penis isnot "none">>holds up the <<personsimple>>'s penis<<else>>uses a speculum<</if>> to give the excited class a clearer view.
 					<<if $scienceprogression gte 4>>
@@ -620,7 +622,7 @@
 				<<set $_studentNotWearingUnderwear to true>>
 			<<else>>
 				The <<personsimple>> <<print either("excitedly agrees", "cheerfully agrees", "casually agrees", "reluctantly agrees", "looks like <<he>> wants to cry, but nods meekly", "tearfully agrees")>>.
-				<<He>> strips to <<his>> underwear, which immediately grabs the class's attention.
+				<<He>> strips to <<his>> underwear, which immediately grabs the class' attention.
 				Sirris continues with the lesson, pointing to parts of the <<persons>> body and explaining various functions.
 				Sirris soon finishes the demonstration, inviting the <<person>> to dress, sit down and rejoin the class.
 				<br><br>
@@ -736,9 +738,9 @@
 		Sirris begins a lesson about bovine habits and reproduction.
 		<<if ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>>
 			You barely manage to suppress a 'moo' when a field of soft, green grass appears in the presentation.
-		<<elseif $lactating gte 1 and $breastfeedingdisable is "f" and $milk_volume gte 1000>>
+		<<elseif $lactating gte 1 and $settings.breastFeedingEnabled and $milk_volume gte 1000>>
 			You feel that you have more in common with the cows than your fellow students. <<stress 3>><<gstress>>
-		<<elseif $lactating gte 1 and $breastfeedingdisable is "f">>
+		<<elseif $lactating gte 1 and $settings.breastFeedingEnabled>>
 			You begin to think that you and the cows have something in common.
 		<<elseif hasSexStat("deviancy", 4, true)>>
 			You begin to see a certain appeal in this lecture. <<arousal 200>><<garousal>>
@@ -852,7 +854,7 @@
 		<</addinlineevent>>
 	<</if>>
 
-	<<if $watersportsdisable is "f">>
+	<<if $settings.watersportsEnabled>>
 		<<addinlineevent "sciencePiss">>
 			You feel a warmth spread from your crotch and down your leg. Your head bolts upright. The sudden movement and distinct dripping sound are more than enough to get the attention of the whole class.<<underlowerwet 200>><<lowerwet 200>>
 			<br><br>
@@ -876,7 +878,7 @@
 				<br><br>
 
 				Sydney smiles and waves to you, a pen in <<his>> hand.
-				<<if $bodywritingLvl gte 2>>
+				<<if $settings.bodyWritingLevel gte 2>>
 					<<sydneyBodywritingLocation>>
 					<<if _writingFail isnot 1>>
 						"Good to see you're awake."
@@ -1448,9 +1450,9 @@
 			<br>
 		<<else>>
 			<<generates1>>
-			As you are doing well in this class, River has you sit with a <<person1>><<person>> who isn't doing so well, and instructs you to help them.
+			As you are doing well in this class, River has you sit with a <<person1>><<person>> who isn't doing so well, and instructs you to help <<him>>.
 			<<if $rng gte 41>>
-				The <<person>> is not at all happy with the arrangement. After a few minutes of trying to explain the material to them, you feel a hand grope your butt.
+				The <<person>> is not at all happy with the arrangement. After a few minutes of trying to explain the material to <<him>>, you feel a hand grope your butt.
 				<br><br>
 
 				<<if $eventsmaths4 is 1 and $rng gte 71>>
@@ -1467,7 +1469,7 @@
 					<br>
 				<</if>>
 			<<else>>
-				The <<person>> is not at all happy with the arrangement, but they listen to you without incident.
+				The <<person>> is not at all happy with the arrangement, but <<he>> listens to you without incident.
 				<br><br>
 
 				<<link [[Next|Maths Lesson]]>><<endevent>><</link>>
@@ -1600,7 +1602,7 @@
 			The question is quite difficult and beyond you, so you tell <<him>> you don't know.
 			<br><br>
 
-			"Of course you don't." Fortunately <<he>> doesn't belabour the point, and continues lecturing.
+			"Of course you don't." Fortunately, <<he>> doesn't belabour the point and continues lecturing.
 			<<stress 20>><<ggstress>>
 		<</if>>
 	<</addinlineevent>>
@@ -1822,8 +1824,8 @@
 			<<set _maleClothes to Object.keys($worn).filter((slot) => {
 				return $worn[slot].gender is "m" and !["genitals", "under_upper", "under_lower"].includes(slot);
 			})>>
-			<<set _whitneyMadAtSkirt to $forcedcrossdressingdisable is "f" and $whitneyskirtcheck gte 1 and (!_wearingSkirt or $worn.lower.reveal lte 200)>>
-			<<set _whitneyMadAtClothes to $forcedcrossdressingdisable is "f" and $whitneyCrossdressSchool gte 1 and _maleClothes.length>>
+			<<set _whitneyMadAtSkirt to $settings.forcedCrossdressingEnabled and $whitneyskirtcheck gte 1 and (!_wearingSkirt or $worn.lower.reveal lte 200)>>
+			<<set _whitneyMadAtClothes to $settings.forcedCrossdressingEnabled and $whitneyCrossdressSchool gte 1 and _maleClothes.length>>
 
 			<<if !$whitneymaths>>
 				<!-- Whitney attending Maths class for the first time during the game -->
@@ -2070,7 +2072,7 @@
 				You head to the outbuilding behind the school and slip the note beneath the door as instructed. As you turn however, you find a <<beasttype>> baring its teeth and advancing on you.
 				<br><br>
 
-				<<if $monster is 1 or $bestialitydisable is "f">>
+				<<if $monster is 1 or $settings.bestialityEnabled>>
 					<<link [[Next|English Outbuilding Molestation]]>><<set $molestationstart to 1>><</link>>
 					<br>
 				<<else>>
@@ -2080,7 +2082,7 @@
 
 					<<link [[Next|English Lesson]]>><<endevent>><</link>>
 				<</if>>
-				
+
 			<</if>>
 
 		<<else>>
@@ -2267,7 +2269,7 @@
 
 	<<addinlineevent "englishTopic" 1>>
 		<<npc Doren>><<person1>>
-		Doren gets the class's attention.<br><br>
+		Doren gets the class' attention.<br><br>
 		<<if Time.days % 42 gte 39>> /* every 6 weeks: day 39-41, 80-83, ... */
 			"We're almost done with this <<print either("topic","text","book","play")>> now," <<he>> says. "Time to finish it off. It will be on the exam."
 			<br><br>
@@ -2312,7 +2314,7 @@
 	<<addinlineevent "englishRecite" 1>>
 		<<npc Doren>><<person1>>
 		<<if $rng % 3 == 0>>
-			The students take turns reciting verses of a poem. Doren sometimes recites a verse personally, <<his>> resounding voice commanding the class's attention.
+			The students take turns reciting verses of a poem. Doren sometimes recites a verse personally, <<his>> resounding voice commanding the class' attention.
 		<<elseif $rng % 3 == 1>>
 			The students take turns acting out scenes of a play. Doren encourages students to really commit to the role, occasionally giving <<his>> own booming rendition of an important line.
 		<<else>>
@@ -2350,7 +2352,7 @@
 				Students shiver as the lesson continues.
 			<<else>>
 				<<generates1>><<person1>>
-				The heating is set far too high and the room is incredibly hot. One student complains of feeling faint.	Doren sends <<him>> to find the nurse.
+				The heating is set far too high and the room is incredibly hot. One student complains of feeling faint. Doren sends <<him>> to find the nurse.
 				<br><br>
 				The class sweat and fan themselves with books as Doren's lesson continues.
 			<</if>>
@@ -2453,7 +2455,7 @@
 		<br><br>
 		<<rng>>
 		<<if $rng gte 67>>
-			They mostly clown around, playing for laughs and making the characters sound funny. Doren rolls <<his>> eyes, but laughs along.	It's pretty funny. <<lstress>>
+			They mostly clown around, playing for laughs and making the characters sound funny. Doren rolls <<his>> eyes, but laughs along. It's pretty funny. <<lstress>>
 		<<elseif $rng gte 33>>
 			They act it out excellently, really bringing the scene to life.
 			<<if currentSkillValue('english') lt 700>>
@@ -2772,14 +2774,8 @@
 
 					The class breaks into nervous laughter as the door shuts. Doren soon returns, without Kylar. Students pester <<person3>><<him>> for information, but <<he>> won't say a word.
 					<br><br>
-					<<if $loveInterest.primary is "None">>
-						<<set $loveInterest.primary to "Kylar">>
-						<span class="gold">Kylar is now your love interest! Though, you aren't sure if you agreed to this.</span>
-						<br><br>
-					<<else>>
-						<span class="gold">Kylar can now be claimed as your love interest! You aren't sure if you agreed to this. <br>You can change your love interest in the "Attitudes" menu.</span>
-						<br><br>
-					<</if>>
+					<<loveInterestAdd "Kylar">>
+					<br><br>
 
 					<<set $kylarenglish to 1>>
 					<<set $kylarenglishstate to "absent">>
@@ -2880,7 +2876,7 @@
 				"Is that cum leaking out of <<pher>> cunt?" a <<person2>><<person>> adds, looking <<print either("revolted", "queasy", "aroused in spite of <<himself>>", "intrigued")>>.
 				<<if playerBellyVisible()>>
 					"No wonder she got pregnant."
-				<<elseif $pregnancyspeechdisable is "f">>
+				<<elseif $settings.pregnancySpeechEnabled>>
 					"That <<bitch>> is gonna get knocked up, if <<pshes>> not already."
 				<<else>>
 					"What a slut."
@@ -3138,7 +3134,7 @@
 			<<gstress>><<stress 2>>
 			<br><br>
 		<<else>>
-			<br><br>
+			<br>
 			However, things are worse than you first assumed. You look down to find your <<undies>> completely exposed, much to the amusement of your classmates. You hasten to find a towel to cover yourself with, before your humiliation becomes too much to bear.
 			<<trauma 2>><<gtrauma>><<stress 2>><<gstress>>
 			<br><br>
@@ -3710,21 +3706,26 @@
 		<</if>>
 	<</addinlineevent>>
 
-	<<if _tf.foxTail or _tf.wolfTail or _tf.catTail or _tf.cowTail or _tf.birdTail or _tf.demonTail>>
+	<<if $worn.butt_plug?.name.includes("tail") or _tf.foxTail or _tf.wolfTail or _tf.catTail or _tf.cowTail or _tf.birdTail or _tf.demonTail>>
 		<<addinlineevent "swimTF" 1>>
 			<<set _linkText to _tf.catTail ? "Hiss" : _tf.cowTail ? "Whack" : _tf.birdTail ? "Splash" : "Growl">>
 			<<set _tftail to _tf.foxTail ? "<<fox>>" : _tf.catTail ? "<<cat>>" : _tf.cowTail ? "<<cow>>" : _tf.birdTail ? "<<harpy>>" : _tf.wolfTail ? "<<wolfgirl>>" : "<<demon>>">>
 
-			As you're swimming laps, a <<generates1>><<person1>><<person>> grabs your tail and pulls, causing you to let out an involuntary <<= _tf.foxTail ? "moan" : "yelp">>. <<gstress>><<stress 6>>
+			As you're swimming laps, a <<generates1>><<person1>><<person>> grabs your tail and pulls, causing you to let out an involuntary <<= $worn.butt_plug?.name.includes("tail") or  _tf.foxTail ? "moan" : "yelp">>. <<gstress>><<stress 6>>
 
 			<br><br>
 			"What's this thing on your butt?" <<he>> says with a snicker. <<He>> gives it another tug as <<he>> tries to get a better look at it.
 
-			<<if _tf.foxTail>>
+			<<if $worn.butt_plug?.name.includes("tail") or _tf.foxTail>>
 				<<gggarousal>><<arousal 10000>>
 				<br><br>
 
-				Your thighs tremble with arousal as another jolt of pleasure shoots up your tailbone. The overstimulation is too much to bear. <<orgasm>> You clutch the side of the pool, yipping helplessly through the orgasm. The <<personsimple>> stares at you, as does the rest of the class.
+				<<if $worn.butt_plug?.name.includes("tail")>>
+					The $worn.butt_plug.name nearly slips out of you with each yank. Your thighs tremble with arousal as <<he>> inadvertently fucks your ass with your sex toy.
+				<<else>>
+					Your thighs tremble with arousal as another jolt of pleasure shoots up your tailbone.
+				<</if>>
+				The overstimulation is too much to bear. <<orgasm>> You clutch the side of the pool, <<= _tf.foxTail ? "yipping" : "moaning">> helplessly through the orgasm. The <<personsimple>> stares at you, as does the rest of the class.
 				<br><br>
 
 				"What's going on over there?" Mason calls out.
@@ -3788,9 +3789,6 @@
 	<<if $schoolstate is "fifth" and $swimnudecounter gte 1>>
 		You step into the pool room. <<covered>>
 		<<schoolpoolmasoncheck>>
-		<<if _masonCanUnlock>>
-			<<include "Mason Chastity Prompt">>
-		<</if>>
 		<br><br>
 	<<else>>
 		<<generatey2>><<generatey3>>You take a deep breath, and walk into the pool room with your <<lewdness>> on display.
@@ -4441,7 +4439,7 @@
 	<<elseif _args[0] and !$daily.earSlimeSkipLesson and _args[0] isnot $weekly.earSlimeSkipLesson and numberOfEarSlime() and earSlimeMakingMundaneRequests() and $justEntered and random(0,200) gte 175 - $earSlime.corruption>>
 		<<set $daily.earSlimeSkipLesson to _args[0]>>
 		<<set $weekly.earSlimeSkipLesson to _args[0]>>
-		<span @class="$earSlime.startedThreats ? 'lewd' : 'lblue'">You feel the slime in your head command you to skip the _args[0] lesson.</span> It promises rewards if you comply<<if $earSlime.startedThreats>>, and threatens consequences if you do not<</if>>.
+		<span @class="$earSlime.startedThreats ? 'lewd' : 'lblue'">You feel the slime in your head command you to skip the _args[0] lesson.</span> It promises rewards if you comply<<if $earSlime.startedThreats>> and threatens consequences if you do not<</if>>.
 		<br><br>
 		<<link [[Obey|School Lesson Slime]]>><<set $phase to 0>><<set $lessonPassage to $passage>><<corruption 1>><<pain -4>><<stress -6>><<trauma -12>><<sub 2>><</link>><<gcorruption>><<lpain>><<lltrauma>><<lstress>>
 		<br>
@@ -4457,7 +4455,7 @@
 		<<if $earSlime.growth gte 200 and $earSlime.promiscuity gte 4>>
 			<span class="lewd">You feel the slime in your head command you to skip class, masturbate in the hallway, and ask to be raped if a crowd gathers.</span> <span class="red">It expects to be obeyed.</span>
 		<<else>>
-			<span class="lewd">You feel the slime in your head command you to skip class and masturbate in the hallway.</span> It promises rewards if you comply, and threatens consequences if you do not.
+			<span class="lewd">You feel the slime in your head command you to skip class and masturbate in the hallway.</span> It promises rewards if you comply and threatens consequences if you do not.
 		<</if>>
 		<br><br>
 		<<link [[Obey|School Lesson 2 Slime]]>><<set $phase to 0>><<set $lessonPassage to $passage>><<corruption 1>><<pain -4>><<stress -6>><<trauma -12>><<sub 2>><</link>><<gcorruption>><<lpain>><<lltrauma>><<lstress>>
@@ -4666,7 +4664,7 @@
 			<br>
 		<<elseif _event_selection is 2>>
 			<<generatey1>><<generatey2>><<generatey3>><<person1>>
-			Three delinquents, a <<person>>, <<person2>><<person>>, and <<person3>><<person>> surround you. "Show us your
+			Three delinquents, a <<person>>, <<person2>><<person>>, and <<person3>><<person>>, surround you. "Show us your
 			<<if $player.gender_appearance is "m">>
 				cock,"
 			<<else>>

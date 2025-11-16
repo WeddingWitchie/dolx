@@ -5,7 +5,7 @@
 	<<passoutlake>>
 <<elseif $foresthunt gte 10>>
 	<<foresthunt>>
-<<elseif wraithCanHunt() and $wraith.state and $wraith.hunt is 0 and $wraith.timer gte random(0, 10) and !$possessed>>
+<<elseif npcCanHunt("Ivory Wraith") and $wraith.state and $wraith.hunt is 0 and $wraith.timer gte random(0, 10) and !$possessed>>
 	<<wHunt "lake">>
 <<else>>
 	<<if Weather.isFrozen("lake")>>
@@ -205,7 +205,7 @@ You are in the submerged ruin beneath the lake. Glowing purple lichen covers anc
 	<<passoutlake>>
 <<elseif $foresthunt gte 10>>
 	<<foresthunt>>
-<<elseif wraithCanHunt() and $wraith.state and $wraith.hunt is 0 and $wraith.timer gte random(0, 10) and !$possessed>>
+<<elseif npcCanHunt("Ivory Wraith") and $wraith.state and $wraith.hunt is 0 and $wraith.timer gte random(0, 10) and !$possessed>>
 	<<wHunt "lake">>
 <<else>>
 	<<if $pleasure gte $pleasuremax>>
@@ -250,14 +250,14 @@ You are deep in the submerged ruin beneath the lake. Pots of different sizes fil
 	<<passoutlake>>
 <<elseif $foresthunt gte 10>>
 	<<foresthunt>>
-<<elseif wraithCanHunt() and $wraith.state and $wraith.hunt is 0 and $wraith.timer gte random(0, 10) and !$possessed>>
+<<elseif npcCanHunt("Ivory Wraith") and $wraith.state and $wraith.hunt is 0 and $wraith.timer gte random(0, 10) and !$possessed>>
 	<<wHunt "lake">>
 <<else>>
 	<<if $pleasure gte $pleasuremax>>
 		<<orgasmLocation "underwater">>
 	<</if>>
 
-	<<lakeicon "pots">><<link [[Search pots (0:01)|Lake Pots]]>><<pass 1>><<wateraction>><</link>><<loxygen>>
+	<<lakeicon "pots">><<link [[Search pots|Lake Pots]]>><<wateraction>><</link>><<loxygen>>
 	<br>
 	<<if $nextPassageCheck is "Lake Ruin">>
 		<<swimicon "up">><span class="nextLink"><<link [[Swim towards exit|Lake Ruin]]>><<wateraction>><</link>><<loxygen>></span>
@@ -272,7 +272,7 @@ You are deep in the submerged ruin beneath the lake. Pots of different sizes fil
 
 <<set $outside to 0>><<set $location to "lake_ruin">><<underwater>><<effects>><<lakeeffects>>
 <<set $lakeruinkey to 2>><<wearProp "key" "bronze">>
-You hear the ancient mechanism creak and the door groans open. Beyond is a plinth, stood alone in a rubble-strewn room. 
+You hear the ancient mechanism creak and the door groans open. Beyond is a plinth, stood alone in a rubble-strewn room.
 <<if $museumAntiques.antiques.antiqueivorynecklace isnot "notFound">>
 	You look around the barren room. You don't see anything besides the plinth.
 <<else>>
@@ -289,7 +289,7 @@ You grip the plinth, and pull your <<bottom>> against it. The instant you do, a 
 <br><br>
 <<if !(!$player.vaginaExist and playerIsPregnant())>>
 	You jerk back, and convulse. The room shakes and trembles. A crack appears in the floor. It widens, letting in more of the red light.
-	<<if numberOfEarSlime() gte 2>>
+	<<if numberOfEarSlime(true) gte 2>>
 		You feel the slimes squirm from your ears. They vanish into the crevice.
 		<<world_corruption "soft" 20>>
 	<<else>>
@@ -316,7 +316,7 @@ You grip the plinth, and pull your <<bottom>> against it. The instant you do, a 
 	<</if>>
 	<<set $noEarSlime to true>>
 
-	<<if $tentacledisable is "f">>
+	<<if $settings.tentaclesEnabled>>
 		The light fades, and all falls quiet. Yet you feel a presence. Something stayed behind.
 		<br><br>
 
@@ -376,7 +376,7 @@ You are deep in the lake ruin, in a small room with a plinth.
 <</if>>
 <<set _leave to 1>>
 <<set _bmoon to Time.isBloodMoon()>>
-<<set _parasite to !!numberOfEarSlime()>>
+<<set _parasite to !!numberOfEarSlime(true)>>
 <<if _bmoon>>
 	/* Display these on every blood moon entry */
 	<<if $wraith.hunt>>
@@ -401,13 +401,13 @@ You are deep in the lake ruin, in a small room with a plinth.
 
 	<<lakeicon "plinth">><<link [[Sit on the plinth|Lake Ruin Sit]]>><</link>>
 	<br>
-<<elseif $tentacledisable is "f" and $hallucinations gte 2 and !_bmoon>>
+<<elseif $settings.tentaclesEnabled and $hallucinations gte 2 and !_bmoon>>
 	You look around the barren room. You don't see anything besides the plinth<<if $museumAntiques.antiques.antiqueivorynecklace is "notFound">> and necklace<</if>>, but you hear a faint slithering sound. <span class="blue">Something's watching you.</span>
 	<br><br>
 
 	<<investigateicon>><<link [[Search|Lake Ruin Deep Offer]]>><<loxygen>><</link>>
 	<br>
-<<elseif $tentacledisable is "f" and _bmoon and $phase isnot 1 and $museumAntiques.antiques.antiqueivorynecklace isnot "notFound">>
+<<elseif $settings.tentaclesEnabled and _bmoon and $phase isnot 1 and $museumAntiques.antiques.antiqueivorynecklace isnot "notFound">>
 	<<set _leave to 0>>
 	You feel the water stirring around you, growing more agitated as you look around. From the darkness, thinly illuminated by the red moonlight, tentacles lash out. <span class="red">Two of them wrap around your ankles, beginning to pull you further into the room!</span>
 	<br><br>
@@ -610,7 +610,7 @@ Once through, the tentacles give up the pursuit.
 <<elseif $pleasure gte $pleasuremax>>
 	<<orgasmLocation "underwater">>
 
-	<<lakeicon "pots">><<link [[Search pots (0:01)|Lake Pots]]>><<pass 1>><<wateraction>><<handheldon>><</link>><<loxygen>>
+	<<lakeicon "pots">><<link [[Search pots|Lake Pots]]>><<wateraction>><<handheldon>><</link>><<loxygen>>
 	<br>
 	<<swimicon "back">><<link [[Swim towards exit|Lake Ruin]]>><<wateraction>><<handheldon>><</link>><<loxygen>>
 	<br><br>
@@ -628,19 +628,19 @@ Once through, the tentacles give up the pursuit.
 		You reach inside one of the pots, and find a small ivory box. It's sealed by a bronze lock.
 		<br><br>
 		<<set $skulduggerydifficulty to 300>>
-		<<lockicon "unlock">><<link [[Open it (0:02)|Lake Ruin Box]]>><<pass 2>><<wateraction>><<handheldon>><</link>><<skulduggerydifficulty>><<loxygen>>
+		<<lockicon "unlock">><<link [[Open it|Lake Ruin Box]]>><<wateraction>><<handheldon>><</link>><<skulduggerydifficulty>><<loxygen>>
 		<br>
 		<<if $historytrait gte 4>>
 			<<antiqueicon "ivory_box">><<link [[Just take the box|Lake Ruin Deep]]>><<set $antiquemoney += 20>><<museumAntiqueStatus "antiquebox" "found">><<handheldon>><</link>>
 			<br>
 		<</if>>
-		<<lakeicon "pots">><<link [[Search pots (0:01)|Lake Pots]]>><<pass 1>><<wateraction>><<handheldon>><</link>><<loxygen>>
+		<<lakeicon "pots">><<link [[Search pots|Lake Pots]]>><<wateraction>><<handheldon>><</link>><<loxygen>>
 		<br>
 		<<swimicon "up">><<link [[Swim towards exit|Lake Ruin]]>><<wateraction>><<handheldon>><</link>><<loxygen>>
 		<br><br>
 		<<plinthroom>>
 	<</addinlineevent>>
-	<<if $swarmdisable is "f">>
+	<<if $settings.swarmsEnabled>>
 		<<addinlineevent "swarm" 3>>
 			You reach inside one of the pots. Swarms of small fish surge out, surrounding you.
 			<br><br>
@@ -648,20 +648,20 @@ Once through, the tentacles give up the pursuit.
 			<br>
 		<</addinlineevent>>
 	<</if>>
-	<<addinlineevent "dust" `27 + ($swarmdisable is "t" ? 3 : 0)`>>
+	<<addinlineevent "dust" `27 + (!$settings.swarmsEnabled ? 3 : 0)`>>
 		You reach inside one of the pots. There's purple dust at the bottom. Your probing disturbs it, and it swirls around your arm. You feel heated.
-		<<gstress>><<stress `$swarmdisable is "t" and random(30) gte 27 ? 6 : 3`>><<garousal>><<arousal 600>>
+		<<gstress>><<stress `!$settings.swarmsEnabled and random(30) gte 27 ? 6 : 3`>><<garousal>><<arousal 600>>
 		<br><br>
 		<<if $pleasure gte $pleasuremax>>
 			<<orgasmLocation "underwater">>
 
-			<<lakeicon "pots">><<link [[Search pots (0:01)|Lake Pots]]>><<pass 1>><<wateraction>><<handheldon>><</link>><<loxygen>>
+			<<lakeicon "pots">><<link [[Search pots|Lake Pots]]>><<wateraction>><<handheldon>><</link>><<loxygen>>
 			<br>
 			<<swimicon "up">><<link [[Swim towards exit|Lake Ruin]]>><<wateraction>><<handheldon>><</link>><<loxygen>>
 			<br><br>
 			<<plinthroom>>
 		<<else>>
-			<<lakeicon "pots">><<link [[Search pots (0:01)|Lake Pots]]>><<pass 1>><<wateraction>><</link>><<loxygen>>
+			<<lakeicon "pots">><<link [[Search pots|Lake Pots]]>><<wateraction>><</link>><<loxygen>>
 			<br>
 			<<swimicon "up">><<link [[Swim towards exit|Lake Ruin]]>><<wateraction>><</link>><<loxygen>>
 			<br><br>
@@ -674,7 +674,7 @@ Once through, the tentacles give up the pursuit.
 			You reach inside one of the pots. You find a decaying bronze key.
 			<<set $lakeruinkey to 1>>
 			<br><br>
-			<<lakeicon "pots">><<link [[Search pots (0:01)|Lake Pots]]>><<pass 1>><<handheldon>><<wateraction>><</link>><<loxygen>>
+			<<lakeicon "pots">><<link [[Search pots|Lake Pots]]>><<handheldon>><<wateraction>><</link>><<loxygen>>
 			<br>
 			<<swimicon "up">><<link [[Swim towards exit|Lake Ruin]]>><<wateraction>><<handheldon>><</link>><<loxygen>>
 			<br><br>
@@ -696,7 +696,7 @@ Once through, the tentacles give up the pursuit.
 			You reach inside one of the pots. It's empty.
 		<</if>>
 		<br><br>
-		<<lakeicon "pots">><<link [[Search pots (0:01)|Lake Pots]]>><<pass 1>><<wateraction>><</link>><<loxygen>>
+		<<lakeicon "pots">><<link [[Search pots|Lake Pots]]>><<wateraction>><</link>><<loxygen>>
 		<br>
 		<<swimicon "up">><<link [[Swim towards exit|Lake Ruin]]>><<wateraction>><</link>><<loxygen>>
 		<br><br>
@@ -761,7 +761,7 @@ Once through, the tentacles give up the pursuit.
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
-	<<lakeicon "pots">><<link [[Search pots (0:01)|Lake Pots]]>><<pass 1>><<wateraction>><</link>><<loxygen>>
+	<<lakeicon "pots">><<link [[Search pots|Lake Pots]]>><<wateraction>><</link>><<loxygen>>
 	<br>
 	<<swimicon "up">><<link [[Swim towards exit|Lake Ruin]]>><<wateraction>><</link>><<loxygen>>
 	<br>
@@ -819,13 +819,13 @@ Once through, the tentacles give up the pursuit.
 	<<wearProp "ivory box">>
 	You fail to pick the lock.
 	<br><br>
-	<<lockicon "unlock">><<link [[Try again (0:02)|Lake Ruin Box]]>><<pass 2>><<handheldon>><<wateraction>><</link>><<skulduggerydifficulty>><<loxygen>>
+	<<lockicon "unlock">><<link [[Try again|Lake Ruin Box]]>><<handheldon>><<wateraction>><</link>><<skulduggerydifficulty>><<loxygen>>
 	<br>
 	<<if $historytrait gte 4>>
 		<<antiqueicon "ivory_box">><<link [[Just take the box|Lake Ruin Deep]]>><<handheldon>><<set $antiquemoney += 20>><<museumAntiqueStatus "antiquebox" "found">><</link>>
 		<br>
 	<</if>>
-	<<lakeicon "pots">><<handheldon>><<link [[Search pots (0:01)|Lake Pots]]>><<pass 1>><<wateraction>><</link>><<loxygen>>
+	<<lakeicon "pots">><<handheldon>><<link [[Search pots|Lake Pots]]>><<wateraction>><</link>><<loxygen>>
 	<br>
 	<<swimicon "up">><<link [[Swim towards exit|Lake Ruin]]>><<handheldon>><<wateraction>><</link>><<loxygen>>
 	<br>
@@ -845,7 +845,7 @@ You feel an urge to try it on. You wrap it around your waist. As it clicks shut 
 <<earnFeat "Locked In Gold">>
 <<set $worn.genitals.origin to "Underwater Temple">>
 
-<<lakeicon "pots">><<link [[Search pots (0:01)|Lake Pots]]>><<pass 1>><<handheldon>><<wateraction>><<clotheson>><</link>><<loxygen>>
+<<lakeicon "pots">><<link [[Search pots|Lake Pots]]>><<handheldon>><<wateraction>><<clotheson>><</link>><<loxygen>>
 <br>
 <<swimicon "up">><<link [[Swim towards exit|Lake Ruin]]>><<handheldon>><<wateraction>><<clotheson>><</link>><<loxygen>>
 <br>
@@ -895,7 +895,7 @@ A warmth spreads through your fingers, up your arm and into the rest of your bod
 	<<else>>
 		<<Hes>> naked, save a necklace of ivory around <<his>> neck.
 	<</if>>
-	<<if $tentacledisable is "f">>
+	<<if $settings.tentaclesEnabled>>
 		<<He>> raises <<his>> hand, and a mass of tendrils rise from the dark. They dart towards you.
 		<br><br>
 		<<link [[Next|Lake Underwater Tentacles]]>><<handheldon>><<set $molestationstart to 1>><</link>>
@@ -1005,7 +1005,7 @@ The creature recoils from you and disappears into darkness. <<tearful>> you turn
 	<<set $combat to 1>>
 
 	<<set $enemytype to "swarm">>
-	<<if $slimedisable is "f" and Time.isBloodMoon()>>
+	<<if $settings.slimesEnabled and Time.isBloodMoon()>>
 		<<swarminit "pale slimes" "slime mass" "moving towards you" "encircle you" "fend off" 8 0>>
 	<<else>>
 		<<swarminit "fish" "swarm" "moving towards you" "encircle you" "fend off" 1 7>>
@@ -1052,7 +1052,7 @@ The creature recoils from you and disappears into darkness. <<tearful>> you turn
 	<<endcombat>>
 	<<passoutlake>>
 <<else>>
-	<<tearful>> you escape the swarms of <<if $slimedisable is "f" and Time.isBloodMoon()>>pale slimes<<else>>fish<</if>>. They don't pursue.
+	<<tearful>> you escape the swarms of <<if $settings.slimesEnabled and Time.isBloodMoon()>>pale slimes<<else>>fish<</if>>. They don't pursue.
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
