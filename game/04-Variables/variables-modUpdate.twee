@@ -1079,6 +1079,7 @@
 	<<set _baileyDepositMax to 0>>
 	<<for _i to 1; _i <= $depositMax; _i++>>
 		<<set $rentmoney to [10000,30000,50000,70000,100000,150000,200000][Math.clamp(_rentstage,0,6)]>>
+		<<rentmod>>
 		<<set _rentstage += 1>>
 		<<set _baileyDepositMax += $rentmoney + ($babyRent or 0)>>
 	<</for>>
@@ -1102,6 +1103,7 @@
 			"Aloof": "aloof",
 			"Sweet": "sweet",
 			"Foxy": "foxy",
+			"Gloomy": "gloomy",
 			"Modded 1": "modded1",
 			"Modded 2": "modded2",
 			"Modded 3": "modded3",
@@ -1598,6 +1600,32 @@
 	}>>
 
 	<<set $robinmoney to Math.round($robinmoney)>>
+
+	<<set _remove to ["Salem", "Casey", "Tracey", "Taylor"]>>
+
+	<<for _i to 0; _i lt $NPCName.length; _i++>>
+		<<if _remove.includes($NPCName[_i].nam)>>
+			<<run $NPCName.splice(_i, 1)>>
+			<<set _i -= 1>>
+		<</if>>
+	<</for>>
+
+	<<if $gwylan isnot undefined && $gwylan.request isnot undefined && $gwylan.request.items isnot undefined>>
+		<<for _i to 0; _i lt $gwylan.request.items.length; _i++>>
+			<<if ["ghost_orchid", "hen_of_the_woods", "red_helleborine", "lady_orchid", "fly_agaric", "spiked_rampion", "cloudberry", "scottish_bog_myrtle", "bog_orchid", "marsh_saxifrage"].includes($gwylan.request.items[_i].name)>>
+				<<set $gwylan.request.items[_i].name to "mushroom">>
+				<<set $gwylan.request.items[_i].type to "shroom">>
+			<</if>>
+		<</for>>
+	<</if>>
+
+	<<if $player.virginity.penile is "Frostberg">>
+		<<set $player.virginity.penile to "unknown">>
+	<</if>>
+
+	<<if $godClothes is undefined>>
+    	<<set $godClothes to 0>>
+	<</if>>
 
 	<<modNewNamedNPCs>>
 

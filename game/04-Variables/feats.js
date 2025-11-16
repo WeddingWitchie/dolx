@@ -128,7 +128,7 @@ setup.feats = {
 	},
 	Billboard: {
 		title: "Billboard",
-		desc: "Wear an advert, and have it pay off.",
+		desc: "Wear an advert and have it pay off.",
 		difficulty: 1,
 		series: "",
 		filter: ["All", "General"],
@@ -785,6 +785,23 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Social"],
 	},
+	"Gwylan the Bewitching": {
+		title: "Gwylan the Bewitching",
+		desc: "You gave your virginity to them.",
+		difficulty: 2,
+		series: "gwylanVirginity",
+		hint: "Hint: Curiosity killed the virgin.",
+		filter: ["All", "Social"],
+	},
+	"Coven Comforts": {
+		title: "Coven Comforts",
+		desc: "You gifted Gwylan a favourite food.",
+		difficulty: 2,
+		series: "",
+		hint: "Hint: Food for the wicked.",
+		filter: ["All", "Social"],
+		hidden: true,
+	},
 	"Love Triangles": {
 		title: "Love Triangles",
 		desc: "You don't know who to choose.",
@@ -984,6 +1001,30 @@ setup.feats = {
 		difficulty: 4,
 		series: "",
 		hint: "Hint: A truth buried behind many lies.",
+		filter: ["All", "Social"],
+	},
+	"First Verse": {
+		title: "First Verse",
+		desc: "Helped Gwylan purge a denizen of the forest.",
+		difficulty: 1,
+		series: "gwylanPurge",
+		hint: "Hint: Learn a shopkeeper's secrets, and join in.",
+		filter: ["All", "Social"],
+	},
+	Wildsong: {
+		title: "Wildsong",
+		desc: "Helped Gwylan purge the forest through intimate union.",
+		difficulty: 2,
+		series: "gwylanPurge",
+		hint: "Hint: Delve deeper into Gwylan's secrets.",
+		filter: ["All", "Social"],
+	},
+	Foxbane: {
+		title: "Foxbane",
+		desc: "Witnessed Eden's worst nightmare.",
+		difficulty: 2,
+		series: "",
+		hint: "Hint: Have a friend help you escape a hunter.",
 		filter: ["All", "Social"],
 	},
 	Neko: {
@@ -1334,11 +1375,20 @@ setup.feats = {
 	},
 	Seedy: {
 		title: "Seedy",
-		desc: "Seeds are little things, but they can't hide from you.",
+		desc: "Found half of the seeds.",
 		difficulty: 1,
-		series: "",
+		series: "seeds",
 		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Harvest nature's secrets.",
+		softLockable: true,
+	},
+	Breedy: {
+		title: "Breedy",
+		desc: "Seeds are little things, but they can't hide from you.",
+		difficulty: 2,
+		series: "seeds",
+		filter: ["All", "Discoveries-Town"],
+		hint: "Hint: Harvest all of nature's secrets.",
 		softLockable: true,
 	},
 	"Pride of the Farm": {
@@ -1376,7 +1426,7 @@ setup.feats = {
 	},
 	"A Thunderous Response": {
 		title: "A Thunderous Response",
-		desc: "Caused a brawl on the High Street.",
+		desc: "Caused a brawl on High Street.",
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Discoveries-Town"],
@@ -1497,7 +1547,7 @@ setup.feats = {
 	},
 	"Buried Treasure": {
 		title: "Buried Treasure",
-		desc: "Followed the treasure map, and made a discovery.",
+		desc: "Followed the treasure map and made a discovery.",
 		difficulty: 3,
 		series: "beach cave",
 		filter: ["All", "Discoveries-Town"] /* unsure if this should be in both town and other */,
@@ -1567,7 +1617,7 @@ setup.feats = {
 	},
 	"Employee Benefits": {
 		title: "Employee Benefits",
-		desc: "Discovered a shipment of gold by day, and took it by night.",
+		desc: "Discovered a shipment of gold by day and took it by night.",
 		difficulty: 3,
 		series: "",
 		filter: ["All", "Discoveries-Town"],
@@ -2149,11 +2199,20 @@ setup.feats = {
 	},
 	"Curious Attire": {
 		title: "Curious Attire",
-		desc: "Unlocked all the special clothing items.",
+		desc: "Unlocked half of the forest shop's clothing sets.",
 		difficulty: 2,
-		series: "",
+		series: "specialClothes",
 		filter: ["All", "Special"],
-		hint: "Hint: Able to wear them all.",
+		hint: "Hint: Half of the rewards for triumph and trouble alike.",
+		softLockable: true,
+	},
+	"Wicked Wardrobe": {
+		title: "Wicked Wardrobe",
+		desc: "Unlocked all of the forest shop's clothing sets.",
+		difficulty: 3,
+		series: "specialClothes",
+		filter: ["All", "Special"],
+		hint: "Hint: All rewards for triumph and trouble alike.",
 		softLockable: true,
 	},
 	"My Collection of Feats": {
@@ -2759,8 +2818,18 @@ function featsMerge() {
 		featData = {};
 	}
 
+	if (!featData.specialClothes) featData.specialClothes = [];
+	// eslint-disable-next-line prettier/prettier
+	if (!Array.isArray(featData.specialClothes)) featData.specialClothes = getUnlockedSpecialSets(updateSpecialClothesNames(featData.specialClothes)).filter(set => setup.specialClothesSets[set].feat);
 	const loadFeats = (data = {}) => {
 		Object.entries(data).forEach(([key, date]) => {
+			if (key === "specialClothes") {
+				const clothes = Array.isArray(date)
+					? date
+					: getUnlockedSpecialSets(updateSpecialClothesNames(date)).filter(set => setup.specialClothesSets[set].feat);
+				clothes.forEach(a => featData.specialClothes.pushUnique(a));
+				return;
+			}
 			if (!featData[key] || new Date(date).getTime() < new Date(featData[key]).getTime()) {
 				featData[key] = date;
 			}
@@ -2848,7 +2917,7 @@ function featsMerge() {
 DefineMacro("featsMerge", featsMerge);
 
 function earnFeat(featName) {
-	if (!featName || V.feats.locked || V.cheatdisable !== "t" || V.debug || V.gamemode === "soft" || V.alluremod < 1 || V.statFreeze) return;
+	if (!featName || V.feats.locked || V.cheatsEnabled === true || V.debug || V.gamemode === "soft" || V.settings?.allureModifier < 1 || V.statFreeze) return;
 
 	if (
 		V.feats.currentSave[featName] !== undefined ||
@@ -2919,7 +2988,7 @@ DefineMacro("displayFeat", displayFeat);
 
 // eslint-disable-next-line no-unused-vars
 function earnHourlyFeats() {
-	if (V.feats.locked || V.cheatdisable === "f" || V.debug || V.gamemode === "soft" || V.alluremod < 1 || V.replayScene) return false;
+	if (V.feats.locked || V.cheatsEnabled === true || V.debug || V.gamemode === "soft" || V.settings.allureModifier < 1 || V.replayScene) return false;
 
 	const fragment = document.createDocumentFragment();
 
@@ -2957,7 +3026,7 @@ function earnHourlyFeats() {
 		(!V.player.vaginaExist || V.vaginalskill >= 1000) &&
 		(!V.player.penisExist || V.penileskill >= 1000) &&
 		V.oralskill >= 1000 &&
-		(V.analskill >= 1000 || V.analdisable === "t") &&
+		(V.analskill >= 1000 || V.settings.analEnabled === false) &&
 		V.handskill >= 1000 &&
 		V.feetskill >= 1000 &&
 		V.bottomskill >= 1000 &&
@@ -3035,7 +3104,8 @@ function earnHourlyFeats() {
 	if (V.produce_sold >= 100) earnFeat("Hawker");
 	if (V.produce_sold >= 1000) earnFeat("Vendor");
 	if (V.produce_sold >= 5000) earnFeat("Merchant");
-	if (V.plants_known.length >= 18) earnFeat("Seedy");
+	if (V.plants_known.length >= 13) earnFeat("Seedy");
+	if (V.plants_known.length >= 26) earnFeat("Breedy");
 	if (V.daily.ex.road === 1 && V.daily.ex.cream === 1 && V.daily.ex.flyover === 1) earnFeat("A Lewd Adventure");
 	if (V.athletics >= 1000) earnFeat("Swift");
 
@@ -3135,7 +3205,7 @@ function earnHourlyFeats() {
 
 	if (
 		V.liquidoutsidecount >= 100 &&
-		(V.analdisable === "t" || setup.bodyliquid.combined("anus") >= 5) &&
+		(V.settings.analEnabled === false || setup.bodyliquid.combined("anus") >= 5) &&
 		(!V.player.vaginaExist || setup.bodyliquid.combined("vagina") >= 5) &&
 		setup.bodyliquid.combined("mouth") >= 5
 	) {
@@ -3215,9 +3285,6 @@ function earnHourlyFeats() {
 		}
 	}
 
-	// To earn the feat "Curious Attire"
-	fragment.append(wikifier("specialClothesUpdate"));
-
 	if (V.options.tanLines) {
 		const validLayers = Skin.tanningLayers.filter(layer => {
 			return layer.layers.length && layer.value >= 10;
@@ -3260,7 +3327,7 @@ function earnHourlyFeats() {
 	if (V.feats.allSaves.points >= Math.floor(currentMax * 0.95)) earnFeat("My Timeless Collection of Feats");
 
 	// Bugged in saves that used the "Show them the stolen card" link in many older versions
-	if (V.compoundcard === 2) earnFeat("Illicit Science");
+	if (V.compound.card === 2) earnFeat("Illicit Science");
 
 	return fragment;
 }

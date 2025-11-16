@@ -203,6 +203,10 @@
 /*These again use the "actionValue"*/
 
 <<widget "leftActionInit">>
+	<<if ($NPCList[0].state is "pursuit" or $NPCList[0].state is "chased") and $NPCList[0].distance lte 0>>
+		<<set _leftGold to true>>
+		<<set _rightGold to true>>
+	<</if>>
 	<<switch $leftarm>>
 		<<case 0>>
 			<<if $orgasmdown gte 1>>
@@ -284,6 +288,21 @@
 		<<case "handheld">>
 			<<set _leftOptions to "handheld">>
 			<span @class="($lastOptions.left isnot _leftOptions or _leftGold is true ?'gold':'')">Your left hand is being held.</span>
+		<<case "heldXchangePill">>
+			<<if _targetYourself is true and _targetnumber gt 1>>
+				<<set _targetlistarms["Yourself"] to "self">>
+			<</if>>
+			<<if not $options.combatControls.includes("adio") and _targetnumber gt 1>>
+				<<targetListBox "left" _targetlistarms>>
+			<</if>>
+			<<set _leftOptions to "heldXchangePill">>
+			<span @class="($lastOptions.left isnot _leftOptions or _leftGold is true ?'gold':'')">Your left hand is holding a $currentXchangePillLeft.name pill.</span>
+			<<if $options.combatControls.includes("adio") and _targetnumber gt 1>>
+				<<targetListBox "left" _targetlistarms>>
+			<</if>>
+			<<if _targetnumber is 1>>
+				<<set $lefttarget to _firsttarget>>
+			<</if>>
 		<<case "heldSexToy">>
 			<<if _targetYourself is true and _targetnumber gt 1>>
 				<<set _targetlistarms["Yourself"] to "self">>
@@ -389,6 +408,16 @@
 		<<case "leftmasturbatepussy">> <<combatpromiscuous2>>
 		<<case "leftmasturbatepenis">> <<combatpromiscuous2>>
 		<<case "leftmasturbateanus">> <<combatpromiscuous3>>
+		<<case "pickupXchangePill">>
+			<<if Object.keys(_pillsLeft).length gte 1>>
+				<<listbox "$selectedXchangePillLeft" autoselect>>
+					<<optionsfrom _pillsLeft>>
+				<</listbox>>
+			<</if>>
+		<<case "xchangePillOther">> 
+			<<set _physiquemin to ($NPCList[$lefttarget].skills.athletics - ($enemyhealthmax - $enemyhealth) * ($NPCList[$lefttarget].skills.athletics/$enemyhealthmax)) * 16>>
+			<<set _physiquemax to 16000 - ($enemyhealthmax - $enemyhealth) * ($NPCList[$lefttarget].skills.athletics/$enemyhealthmax) * 16>>
+			<<physiquedifficulty _physiquemin _physiquemax>>
 		<<case "pickupSexToy">>
 			<<if Object.keys(_itemsLeft).length gte 1>>
 				<<listbox "$selectedItemLeft" autoselect>>
@@ -445,6 +474,7 @@
 				<<handsstrugglefreebodypart "left">>
 				<<leftUndressOther>>
 				<<leftdildowhack>>
+				<<pickupXchangePill "left">>
 				<<pickupSexToy "left">>
 				<<leftcamerapose>>
 				<<lefthandpull>>
@@ -512,6 +542,8 @@
 			<<case "possessedBound">>
 				<<set _leftaction["Struggle"] to "leftstruggleW">>
 				<<set _leftaction["Hold it still"] to "leftstillW">>
+			<<case "heldXchangePill">>
+				<<heldXchangePill "left">>
 			<<case "heldSexToy">>
 				<<heldSexToy "left">>
 			<<case "dildoSelfPussyEntrance">>
@@ -520,7 +552,7 @@
 				<<set _leftaction["Fuck your pussy with your "+$currentSexToyLeft.name] to "dildoSelfPussy">>
 				<<set _leftaction["Drop your " + $currentSexToyLeft.name] to "dildoDrop">>
 			<<case "dildoSelfAnusEntrance">>
-				<<if $analdisable is "f">>
+				<<if $settings.analEnabled>>
 					<<dildoSelfAnusEntrance "left">>
 				<</if>>
 			<<case "dildoSelfAnus">>
@@ -648,6 +680,21 @@
 		<<case "handheld">>
 			<<set _rightOptions to "handheld">>
 			<span @class="($lastOptions.right isnot _rightOptions or _rightGold is true ?'gold':'')">Your right hand is being held.</span>
+		<<case "heldXchangePill">>
+			<<if _targetYourself is true and _targetnumber gt 1>>
+				<<set _targetlistarms["Yourself"] to "self">>
+			<</if>>
+			<<if not $options.combatControls.includes("adio") and _targetnumber gt 1>>
+				<<targetListBox "right" _targetlistarms>>
+			<</if>>
+			<<set _rightOptions to "heldXchangePill">>
+			<span @class="($lastOptions.right isnot _rightOptions or _rightGold is true ?'gold':'')">Your right hand is holding a $currentXchangePillRight.name pill.</span>
+			<<if $options.combatControls.includes("adio") and _targetnumber gt 1>>
+				<<targetListBox "right" _targetlistarms>>
+			<</if>>
+			<<if _targetnumber is 1>>
+				<<set $righttarget to _firsttarget>>
+			<</if>>
 		<<case "heldSexToy">>
 			<<if _targetYourself is true and _targetnumber gt 1>>
 				<<set _targetlistarms["Yourself"] to "self">>
@@ -753,6 +800,16 @@
 		<<case "rightmasturbatepussy">> <<combatpromiscuous2>>
 		<<case "rightmasturbatepenis">> <<combatpromiscuous2>>
 		<<case "rightmasturbateanus">> <<combatpromiscuous3>>
+		<<case "pickupXchangePill">>
+			<<if Object.keys(_pillsRight).length gte 1>>
+				<<listbox "$selectedXchangePillRight" autoselect>>
+					<<optionsfrom _pillsRight>>
+				<</listbox>>
+			<</if>>
+		<<case "xchangePillOther">> 
+			<<set _physiquemin to ($NPCList[$righttarget].skills.athletics - ($enemyhealthmax - $enemyhealth) * ($NPCList[$righttarget].skills.athletics/$enemyhealthmax)) * 16>>
+			<<set _physiquemax to 16000 - ($enemyhealthmax - $enemyhealth) * ($NPCList[$righttarget].skills.athletics/$enemyhealthmax) * 16>>
+			<<physiquedifficulty _physiquemin _physiquemax>>
 		<<case "pickupSexToy">>
 			<<if Object.keys(_itemsRight).length gte 1>>
 				<<listbox "$selectedItemRight" autoselect>>
@@ -809,6 +866,7 @@
 				<<handsstrugglefreebodypart "right">>
 				<<rightUndressOther>>
 				<<rightdildowhack>>
+				<<pickupXchangePill "right">>
 				<<pickupSexToy "right">>
 				<<rightcamerapose>>
 				<<righthandpull>>
@@ -876,6 +934,8 @@
 			<<case "possessedBound">>
 				<<set _rightaction["Struggle"] to "rightstruggleW">>
 				<<set _rightaction["Hold it still"] to "rightstillW">>
+			<<case "heldXchangePill">>
+				<<heldXchangePill "right">>
 			<<case "heldSexToy">>
 				<<heldSexToy "right">>
 			<<case "dildoSelfPussyEntrance">>
@@ -884,7 +944,7 @@
 				<<set _rightaction["Fuck your pussy with your "+$currentSexToyRight.name] to "dildoSelfPussy">>
 				<<set _rightaction["Drop your " + $currentSexToyRight.name] to "dildoDrop">>
 			<<case "dildoSelfAnusEntrance">>
-				<<if $analdisable is "f">>
+				<<if $settings.analEnabled>>
 					<<dildoSelfAnusEntrance "right">>
 				<</if>>
 			<<case "dildoSelfAnus">>
@@ -1169,6 +1229,9 @@
 				<</if>>
 				<<set _mouthOptions to "free">>
 				<span @class="($lastOptions.mouth isnot _mouthOptions or _mouthGold is true ?'gold':'')">Your mouth is free.</span>
+				<<if $combat_silenced>>
+					<span class="blue">Your voice is gone.</span>
+				<</if>>
 				<<if $options.combatControls.includes("adio") and _targetnumber gt 1>>
 					<<targetListBox "mouth" _targetlist>>
 				<</if>>
@@ -1623,7 +1686,7 @@
 			<<case "entrance">>
 				<<set _vaginaOptions to "penisEntrance">>
 				<span @class="($lastOptions.vagina isnot _vaginaOptions or _vaginaGold is true ?'gold':'')"><<selectNpcWithPartInPosition "penis" "vaginaentrance">><<set $vaginatarget to $index>><<combatPersons>> <<npcPenis $vaginatarget>> hovers near your <<pussy>>.</span>
-				<<if $vaginaldoubledisable is "f">>
+				<<if $settings.vaginalDoubleEnabled>>
 					<<getDoubleTargetList>>
 				<</if>>
 				<<if _secondtarget is true>>
@@ -1636,7 +1699,7 @@
 			<<case "imminent">>
 				<<set _vaginaOptions to "penisImminent">>
 				<span @class="($lastOptions.vagina isnot _vaginaOptions or _vaginaGold is true ?'gold':'')"><<selectNpcWithPartInPosition "penis" "vaginaimminent">><<set $vaginatarget to $index>><<combatPersons>> <<npcPenis $vaginatarget>> presses against your <<pussy>>.</span>
-				<<if $vaginaldoubledisable is "f">>
+				<<if $settings.vaginalDoubleEnabled>>
 					<<getDoubleTargetList>>
 				<</if>>
 				<<if _secondtarget is true>>
@@ -1649,7 +1712,7 @@
 			<<case "penetrated">>
 				<<set _vaginaOptions to "penisPenetrated">>
 				<span @class="($lastOptions.vagina isnot _vaginaOptions or _vaginaGold is true ?'gold':'')"><<selectNpcWithPartInPosition "penis" "vagina">><<set $vaginatarget to $index>><<combatPersons>> <<npcPenis $vaginatarget>> penetrates your <<pussy>>.</span>
-				<<if $vaginaldoubledisable is "f">>
+				<<if $settings.vaginalDoubleEnabled>>
 					<<getDoubleTargetList>>
 				<</if>>
 				<<if _secondtarget is true>>
@@ -1869,7 +1932,7 @@
 				<<case "entrance">>
 					<<set _anusOptions to "penisEntrance">><<selectNpcWithPartInPosition "penis" "anusentrance">><<set $anustarget to $index>>
 					<span @class="($lastOptions.anus isnot _anusOptions or _anusGold ?'gold':'')"><<combatPersons>> <<npcPenis $anustarget>> hovers near your <<bottom>><<andButtPlug>>.</span>
-					<<if $analdoubledisable is "f">>
+					<<if $settings.analDoubleEnabled>>
 						<<getDoubleTargetList>>
 					<</if>>
 					<<if _secondtarget is true>>
@@ -1885,7 +1948,7 @@
 				<<case "penetrated">>
 					<<set _anusOptions to "penisPenetration">><<selectNpcWithPartInPosition "penis" "anus">><<set $anustarget to $index>>
 					<span @class="($lastOptions.anus isnot _anusOptions or _anusGold ?'gold':'')"><<combatPersons>> <<npcPenisSimple $anustarget>> penetrates your anus.</span>
-					<<if $analdoubledisable is "f">>
+					<<if $settings.analDoubleEnabled>>
 						<<getDoubleTargetList>>
 					<</if>>
 					<<if _secondtarget is true>>
@@ -2336,6 +2399,21 @@
 		<<case "behind">>
 			<<set _leftOptions to "behind">>
 			<span @class="($lastOptions.left isnot _leftOptions or _leftGold is true ?'gold':'')">Your left hand is behind your back.</span>
+		<<case "heldXchangePill">>
+			<<if _targetYourself is true and _targetnumber gt 1>>
+				<<set _targetlistarms["Yourself"] to "self">>
+			<</if>>
+			<<if not $options.combatControls.includes("adio") and _targetnumber gt 1>>
+				<<targetListBox "left" _targetlistarms>>
+			<</if>>
+			<<set _leftOptions to "heldXchangePill">>
+			<span @class="($lastOptions.left isnot _leftOptions or _leftGold is true ?'gold':'')">Your left hand is holding a $currentXchangePillLeft.name pill.</span>
+			<<if $options.combatControls.includes("adio") and _targetnumber gt 1>>
+				<<targetListBox "left" _targetlistarms>>
+			<</if>>
+			<<if _targetnumber is 1>>
+				<<set $lefttarget to _firsttarget>>
+			<</if>>
 		<<case "heldSexToy">>
 			<<if _targetYourself is true and _targetnumber gt 1>>
 				<<set _targetlistarms["Yourself"] to "self">>
@@ -2383,6 +2461,12 @@
 		<<case "leftmasturbatepussy">> <<combatpromiscuous2>>
 		<<case "leftmasturbatepenis">> <<combatpromiscuous2>>
 		<<case "leftmasturbateanus">> <<combatpromiscuous3>>
+		<<case "pickupXchangePill">>
+			<<if Object.keys(_pillsLeft).length gte 1>>
+				<<listbox "$selectedXchangePillLeft" autoselect>>
+					<<optionsfrom _pillsLeft>>
+				<</listbox>>
+			<</if>>
 		<<case "pickupSexToy">>
 			<<if Object.keys(_itemsLeft).length gte 1>>
 				<<listbox "$selectedItemLeft" autoselect>>
@@ -2447,6 +2531,8 @@
 		<<case "unreal">>
 			<<set _leftaction["Poke yourself"] to "leftpoke">>
 			<<set _leftaction["Keep your arms out of the way"] to "leftcurl">>
+		<<case "heldXchangePill">>
+			<<heldXchangePill "left">>
 		<<case "heldSexToy">>
 			<<heldSexToy "left">>
 	<</switch>>
@@ -2492,6 +2578,21 @@
 		<<case "behind">>
 			<<set _rightOptions to "behind">>
 			<span @class="($lastOptions.right isnot _rightOptions or _rightGold is true ?'gold':'')">Your right hand is behind your back.</span>
+		<<case "heldXchangePill">>
+			<<if _targetYourself is true and _targetnumber gt 1>>
+				<<set _targetlistarms["Yourself"] to "self">>
+			<</if>>
+			<<if not $options.combatControls.includes("adio") and _targetnumber gt 1>>
+				<<targetListBox "right" _targetlistarms>>
+			<</if>>
+			<<set _rightOptions to "heldXchangePill">>
+			<span @class="($lastOptions.right isnot _rightOptions or _rightGold is true ?'gold':'')">Your right hand is holding a $currentXchangePillRight.name pill.</span>
+			<<if $options.combatControls.includes("adio") and _targetnumber gt 1>><br>
+				<<targetListBox "right" _targetlistarms>>
+			<</if>>
+			<<if _targetnumber is 1>>
+				<<set $righttarget to _firsttarget>>
+			<</if>>
 		<<case "heldSexToy">>
 			<<if _targetYourself is true and _targetnumber gt 1>>
 				<<set _targetlistarms["Yourself"] to "self">>
@@ -2538,6 +2639,12 @@
 		<<case "rightmasturbatepussy">> <<combatpromiscuous2>>
 		<<case "rightmasturbatepenis">> <<combatpromiscuous2>>
 		<<case "rightmasturbateanus">> <<combatpromiscuous3>>
+		<<case "pickupXchangePill">>
+			<<if Object.keys(_pillsRight).length gte 1>>
+				<<listbox "$selectedXchangePillRight" autoselect>>
+					<<optionsfrom _pillsRight>>
+				<</listbox>>
+			<</if>>
 		<<case "pickupSexToy">>
 			<<if Object.keys(_itemsRight).length gte 1>>
 				<<listbox "$selectedItemRight" autoselect>>
@@ -2602,6 +2709,8 @@
 		<<case "unreal">>
 			<<set _rightaction["Poke yourself"] to "rightpoke">>
 			<<set _rightaction["Keep your arms out of the way"] to "rightcurl">>
+		<<case "heldXchangePill">>
+			<<heldXchangePill "right">>
 		<<case "heldSexToy">>
 			<<heldSexToy "right">>
 	<</switch>>

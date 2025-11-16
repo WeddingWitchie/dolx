@@ -118,7 +118,55 @@
 		<span class="lewd">You absorb the sexual essence. You feel soothed and reinvigorated.</span>
 		<<set $demonabsorb to 0>>
 		<<traumaclamp>>
-		<<set $_br to true>>
+		<<set _br to true>>
+		<br>
+	<</if>>
+
+	<<if ($enemyarousal gte $enemyarousalmax || $enemyejaculated gte 1) and canCollectSamples() and !($enemytype is "plant" and $abomination is 1)>>
+		<<set $_samplesCollected to 0>>
+		<<set $_sampleMod to $location is "forest_shop_garden" and $beastRitual ? 2 : 1>>
+		<<for $_sample to 0; $_sample lt $enemyno; $_sample++>>
+			<<if canCollectSampleSingle(V.NPCList[$_sample]?.type)>>
+				<<if canCollectSamples() is "bound">>
+					/* Ensures the bound message only shows if the player could have collected samples otherwise */
+					<<set $_samplesCollected to "bound">>
+					<<break>>
+				<<else>>
+					<<set $_samplesToCollect to collectSample(V.NPCList[$_sample]?.type, $_sampleMod)>>
+					<<if $_samplesToCollect>>
+						<<set $_samplesCollected += $_samplesToCollect>>
+					<</if>>
+				<</if>>
+			<</if>>
+		<</for>>
+		<<if $_samplesCollected is "bound">>
+			<span class="red">With your arms bound, you're unable to take a sample of lewd fluid.</span>
+		<<elseif $_samplesCollected>>
+			<<if $location is "forest_shop_garden" and $beastRitual>>
+				<span class="green">Gwylan helps you collect the fluids in vials.</span> <<npcincr Gwylan lust 1>><<glust>><br>
+			<<else>>
+				<span class="lewd">You collect as much lewd fluid as you can in the vials Gwylan gave you.</span>
+			<</if>>
+			You obtain <span class="gold"><<number $_samplesCollected>></span> <<pluralise $_samplesCollected "sample" "samples">> of fluid.
+			<<set _br to true>>
+			<br>
+		<</if>>
+	<<elseif ($enemytype is "plant" and $abomination is 1 or $enemytype is "tentacles" and ["vine","root","shoot"].includes($tentacles[0]?.type)) and canCollectSamples() and canCollectSampleSingle("plant")>>
+		<<if canCollectSamples() is "bound">>
+			<span class="red">With your arms bound, you're unable to take a sample of nectar.</span>
+		<<else>>
+			<<set $_sampleMod to $location is "forest_shop_garden" and $beastRitual ? 1.3 : 1>>
+			<<set $_fromTentacles to $combat_tentacle_record.fluid || 1>>
+			<<set $_nectarCollected to Math.ceil((1 + $_fromTentacles / 9) * $_sampleMod)>>
+			<<set $_samplesToCollect to collectSample("plant", $_nectarCollected)>>
+			<<if $location is "forest_shop_garden" and $beastRitual>>
+				<span class="green">Gwylan helps you collect the nectar in vials.</span> <<npcincr Gwylan lust 1>><<glust>><br>
+			<<else>>
+				<span class="lewd">You collect as much nectar as you can in the vials Gwylan gave you.</span>
+			<</if>>
+			You obtain <span class="gold"><<number $_nectarCollected>></span> <<pluralise $_nectarCollected "sample" "samples">> of nectar.
+		<</if>>
+		<<set _br to true>>
 		<br>
 	<</if>>
 
@@ -129,9 +177,15 @@
 			<</if>>
 			<<stress -10>><<trauma -5>>
 			<span class="lewd">Copulating with your chosen partner fulfils an instinctual desire.</span><<llstress>><<ltrauma>>
-			<<set $_br to true>>
+			<<set _br to true>>
 			<br>
 		<</if>>
+	<</if>>
+
+	<<if $whitneyLovedBeingRapedByPC>>
+		<span class="gold">Whitney won't admit it, but you know <<nnpc_he "Whitney">> felt really good.</span><<npcincr Whitney love 3>><<gglove "Whitney">>
+		<<unset $whitneyLovedBeingRapedByPC>>
+		<br><br>
 	<</if>>
 
 	<<if $assertive gte 1>>
@@ -190,7 +244,7 @@
 				<br>
 			<</if>>
 			<<set $assertive to 0>>
-			<<set $_br to true>>
+			<<set _br to true>>
 		<</if>>
 
 	<</if>>
@@ -210,7 +264,7 @@
 			<<else>>
 				<<lstress>><<garousal>>
 				<br>
-				<<set $_br to true>>
+				<<set _br to true>>
 			<</if>>
 			<<stress -8>><<arousal 200>><<transform fox 1>>
 		<<elseif $stalk_taunted is "success">>
@@ -337,6 +391,7 @@
 	<<unset $noupperasked>>
 	<<unset $nomask>>
 	<<unset $nomaskasked>>
+	<<unset $npcpillingasked>>
 	<<set $askedtochoke to 0>>
 	<<unset $speechwheeze>>
 	<<set $speechorgasmweakcumcount to 0>>
@@ -345,7 +400,9 @@
 	<<set $speechorgasmrepeat to 0>>
 	<<set $underwatertime to 0>>
 	<<if $underwater isnot 1>>
-		<<oxygenrefresh>>
+		<<if !$oxygenRecovery>>
+			<<oxygenrefresh>>
+		<</if>>
 		<<set $suffocating to 0>>
 	<</if>>
 	<<set $walltype to "wall">>
@@ -364,6 +421,7 @@
 	<<unset $handGuideLeft>>
 	<<unset $handGuideRight>>
 	<<unset $easySteal>>
+	<<unset $canRescue>>
 
 
 	<<set $leftactiondefault to $leftaction>>
@@ -518,7 +576,7 @@
 		<<set $seductionskillup to 0>>
 		<<if $seductionskill lt 1000>>
 			<span class="gold">You feel more confident in your seduction skills.</span>
-			<<set $_br to true>>
+			<<set _br to true>>
 			<br>
 		<</if>>
 	<</if>>
@@ -526,7 +584,7 @@
 		<<set $oralskillup to 0>>
 		<<if $oralskill lt 1000>>
 			<span class="gold">You feel more confident in your ability to give pleasure with your mouth.</span>
-			<<set $_br to true>>
+			<<set _br to true>>
 			<br>
 		<</if>>
 	<</if>>
@@ -534,7 +592,7 @@
 		<<set $vaginalskillup to 0>>
 		<<if $vaginalskill lt 1000>>
 			<span class="gold">You feel more confident in your ability to give pleasure with your vagina.</span>
-			<<set $_br to true>>
+			<<set _br to true>>
 			<br>
 		<</if>>
 	<</if>>
@@ -542,7 +600,7 @@
 		<<set $analskillup to 0>>
 		<<if $analskill lt 1000>>
 			<span class="gold">You feel more confident in your ability to give pleasure with your anus.</span>
-			<<set $_br to true>>
+			<<set _br to true>>
 			<br>
 		<</if>>
 	<</if>>
@@ -550,7 +608,7 @@
 		<<set $handskillup to 0>>
 		<<if $handskill lt 1000>>
 			<span class="gold">You feel more confident in your ability to give pleasure with your hands.</span>
-			<<set $_br to true>>
+			<<set _br to true>>
 			<br>
 		<</if>>
 	<</if>>
@@ -558,7 +616,7 @@
 		<<set $feetskillup to 0>>
 		<<if $feetskill lt 1000>>
 			<span class="gold">You feel more confident in your ability to give pleasure with your feet.</span>
-			<<set $_br to true>>
+			<<set _br to true>>
 			<br>
 		<</if>>
 	<</if>>
@@ -566,7 +624,7 @@
 		<<set $bottomskillup to 0>>
 		<<if $bottomskill lt 1000>>
 			<span class="gold">You feel more confident in your ability to give pleasure with your buttocks.</span>
-			<<set $_br to true>>
+			<<set _br to true>>
 			<br>
 		<</if>>
 	<</if>>
@@ -574,7 +632,7 @@
 		<<set $thighskillup to 0>>
 		<<if $thighskill lt 1000>>
 			<span class="gold">You feel more confident in your ability to give pleasure with your thighs.</span>
-			<<set $_br to true>>
+			<<set _br to true>>
 			<br>
 		<</if>>
 	<</if>>
@@ -582,7 +640,7 @@
 		<<set $chestskillup to 0>>
 		<<if $chestskill lt 1000>>
 			<span class="gold">You feel more confident in your ability to use your <<breasts>> to pleasure others.</span>
-			<<set $_br to true>>
+			<<set _br to true>>
 			<br>
 		<</if>>
 	<</if>>
@@ -590,11 +648,16 @@
 		<<set $penileskillup to 0>>
 		<<if $penileskill lt 1000>>
 			<span class="gold">You feel more confident in your ability to pleasure others with <<= $player.penisExist ? "your penis" : "a strap-on">>.</span>
-			<<set $_br to true>>
+			<<set _br to true>>
 			<br>
 		<</if>>
 	<</if>>
 	<<set $enemyArousalLossReduction to 1>>
+	<<if $combat_silenced>>
+		<span class="green">Your voice returns.</span>
+		<<set _br to true>>
+		<br>
+	<</if>>
 
 	<<unset $phalluscolorA>>
 	<<unset $phalluscolorB>>
@@ -602,6 +665,10 @@
 	<<unset $currentSexToyRight>>
 	<<unset $selectedItemLeft>>
 	<<unset $selectedItemRight>>
+	<<unset $currentXchangePillLeft>>
+	<<unset $currentXchangePillRight>>
+	<<unset $selectedXchangePillLeft>>
+	<<unset $selectedXchangePillRight>>
 
 	<<manend>>
 	<<turnend>>
@@ -609,7 +676,12 @@
 
 	<<unset $disableNormalImpregnation>>
 	<<unset $disableImpregnation>>
-	<<if $_br>>
+
+	<<unset $combat_hypnosis>>
+	<<unset $combat_silenced>>
+	<<unset $combat_player_orgasm_target>>
+	<<unset $combat_tentacle_record>>
+	<<if _br>>
 		<br>
 	<</if>>
 
@@ -740,12 +812,16 @@
 	<<unset $speechNPCHandholdingVirgin>>
 	<<unset $sydneyComments>>
 	<<unset $sydneyUniqueComments>>
+	<<unset $gwylanComments>>
+	<<unset $gwylanUniqueComments>>
 	<<unset $noBodyWriting>>
 	<<unset $noAdmire>>
 	<<unset $breakIgnore>>
 	<<unset $eventforced>>
 	<<unset $pearlChance>>
 	<<unset $internalejac>>
+	<<unset $noHypnosis>>
+	<<unset $noIntroName>>
 
 	<<if $orgasmcurrent gt 0>>
 		<<set $pleasure to 0>>
@@ -783,6 +859,19 @@
 	<<if $propEquipped is 1>>
 		<<handheldon>>
 		<<set $propEquipped to 0>>
+	<</if>>
+
+	<<if $worn.neck.name is "familiar collar">>
+		/* ToDo: Gwylan - the "leash" type could be used to determine whether the player is allowed to stray from the forest shop. If that is done, remove this whole block. */
+		<<if $worn.neck.type.includes("leash") and !["forest_shop", "forest_shop_garden"].includes($location) and !$beastRitual and !$sexRitual>>
+			<<run $worn.neck.type.delete("leash")>>
+			<<if $familiarLeash>>
+				<<run Errors.report("Magic leash spell misfired! Leash granted on passage: " + $familiarLeash + " and destroyed on passage: " + $passage + " from passage: " + $passagePrev + ". Please report this.")>>
+			<<else>>
+				<<run Errors.report("Magic leash spell misfired! An origin passage could not be determined. The leash has been removed on passage: " + $passage + " from passage: " + $passagePrev + ". Please report this.")>>
+			<</if>>
+		<</if>>
+		<<unset $familiarLeash>>
 	<</if>>
 <</widget>>
 
@@ -903,6 +992,7 @@
 	<<unset $speechcoverpenis>>
 	<<unset $speechcovervagina>>
 	<<unset $speechapologiseno>>
+	<<unset $speechapologiseunforgiving>>
 	<<unset $speechforgive>>
 	<<unset $speechspray>>
 	<<unset $speechvaginavirgin>>
@@ -915,6 +1005,7 @@
 	<<unset $speechgrowlrut>>
 	<<unset $speechpregnant>>
 	<<unset $speechleglock>>
+	<<unset $speechbanish>>
 
 	<<if $speechcrossdressangry is 2>>
 		<<set $speechcrossdressangry to 1>>

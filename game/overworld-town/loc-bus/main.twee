@@ -91,9 +91,11 @@ You climb aboard the bus. Tickets cost £1.
 <<if $stress gte $stressmax>>
 	<<passoutbus>>
 <<elseif $tiredness gte (C.tiredness.max / 5) * 4 and $stress gte (($stressmax / 5) * 4) and !isPregnancyEnding()>>
-	After a while, you find yourself struggling to keep your eyes open. Your exhausted and tense body slowly relaxes, and your head slumps as you fall into a restless doze.
+	After a while, you find yourself struggling to keep your eyes open. Your exhausted and tense body slowly relaxes, and your head slumps as you begin to fall into a restless doze.
 	<br><br>
 	<<link [[Sleep|Passout bus]]>><<tiredness -20>><<set $phase to 1>><</link>><<ltiredness>>
+	<br>
+	<<link [[Try to stay awake|Passout bus]]>><<set $phase2 to 1>><</link>><<willpowerdifficulty 1 $willpowermax>>
 	<br>
 <<elseif playerBellyVisible() and $rng gte 76 and getPregnancyObject().awareOf>>
 	/* event is only possible if the player knows they are pregnant, and their belly is visible */
@@ -500,7 +502,7 @@ After several minutes the bus stop and the <<person2>><<person>> pokes the <<per
 	The bus pulls to a stop. "We need to get off here," says the <<person2>><<person>>.
 	<<if $upperoff is 0 and $loweroff is 0 and $underloweroff is 0 and $underupperoff is 0>>
 	<<else>>
-		They leave the bus, taking your clothes with them.
+		They leave the bus, <span class="red">taking your clothes with them.</span>
 		<<set $stealtextskip to 1>>
 		<<stealclothes>>
 	<</if>>
@@ -678,7 +680,7 @@ There's not much to do but cover up and leave the bus.
 	The bus stops and the group push you towards the door. They shove you out and ride away, jeering at you through the windows.
 	<<if $upperoff is 0 and $loweroff is 0 and $underloweroff is 0 and $underupperoff is 0>>
 	<<else>>
-		They kept your clothes.
+		<span class="red">They take your clothes with them.</span>
 	<</if>>
 	<<if $exposed gte 1>>
 		<<tearful>> you hide behind a car before you're seen.
@@ -937,24 +939,40 @@ The bus slows to round a corner. You take the opportunity to slip out unnoticed.
 <<effects>>
 <<He>> recoils in pain. <<if $phase is 1>>The bus soon reaches the next stop.<<else>>You arrive at your destination not long after.<</if>> <<tearful>> you seize the opportunity and dart out the vehicle.
 <br><br>
-<<clotheson>>
-<<endcombat>>
 <<set $stress -= 1000>><<set $eventskip to 1>>
+<<clotheson>>
 <<if $phase is 1>>
 	<<unset $phase>><<destinationbusrandom>>
 <<else>>
 	<<destination>>
 <</if>>
+<<endcombat>>
 
 :: Passout bus
-
+<<if $phase2 is 1>>
+	You do your best to stay awake, 
+	<<if $willpowerSuccess>>
+		<span class="green">and you manage.</span>
+		<br><br>
+		Soon the bus arrives at your destination.
+		<br><br>
+		<<destination>>
+		<<endevent>>
+		<<exit>>
+	<<else>>
+		<span class="red">but you can't keep your eyes open and doze off.</span><<ltiredness>>
+		<br><br>
+		<<set $phase to 1>>
+		<<tiredness -10>>
+	<</if>>
+<</if>>
 <<if $phase is 1>>
-	The bus rumbles to a sudden halt. And you wake with a start.
+	The bus rumbles to a sudden halt. You wake with a start.
 <<else>>
 	You've pushed yourself too much.
+	<<passout>>
 <</if>>
 <br><br>
-<<passout>>
 
 <<if dangerEvent()>>
 	<<switch random(1, 2)>>
@@ -969,7 +987,7 @@ The bus slows to round a corner. You take the opportunity to slip out unnoticed.
 	<<ambulance>>
 <</if>>
 
-<<pass 1 hour>>
+<<pass random(20,60)>>
 <<trauma 6>><<if $phase is 1>><<set $stress -= 1000>><<else>><<set $stress -= 2000>><</if>>
 
 :: Bus Pregnancy Wait
@@ -1003,7 +1021,7 @@ You give the <<person>> a patient smile and pat your baby bump.
 	<<trauma -3>><<ltrauma>>
 	<br><br>
 	You spend some time engaging in small talk.
-	<<if (($Pronoun is "m" and maleChance($Pronoun) is 100) or ($Pronoun is "f" and maleChance($Pronoun) is 0)) isnot 100 and $npcPregnancyDisable is "f" and $rng gte 66>>
+	<<if (($Pronoun is "m" and maleChance($Pronoun) is 100) or ($Pronoun is "f" and maleChance($Pronoun) is 0)) isnot 100 and $settings.npcPregnancyEnabled and $rng gte 66>>
 		"My <<if $NPCList[0].pronoun is "f">>husband<<else>>wife<</if>> and I are trying for a baby, too. You've given me a little hope today."
 	<<else>>
 		<<switch random(1,5)>>
@@ -1056,7 +1074,7 @@ You decide to wait.
 
 You rub the <<persons>> leg sensually.
 <<if $speech_attitude is "meek">>
-	"I'm… also… D-don't make me say it." You blush.
+	"I'm... also... D-don't make me say it." You blush.
 <<elseif $speech_attitude is "bratty">>
 	"You are hopeless, aren't you?" You snicker.
 <<else>>
@@ -1073,8 +1091,8 @@ The other passengers grow more excited. The <<person>> swallows and starts gropi
 <</if>>
 <<link [[Tease|Bus Engine Breakdown Sex]]>><<set $sexstart to 1>><</link>>
 <br>
-<<if $wolfgirl gte 6 or $cat gte 6>>
-	<<link [[Rub your head against <<his>> crotch|Bus Engine Breakdown Sex]]>><<set $sexstart to 1>><<set $phase to 0>><<stress -6>><</link>><<= $wolfgirl gte 6 ? "<<wolfgirl>>" : "<<cat>>">><<lstress>>
+<<if ($wolfgirl gte 6 or ($transformationParts.wolf.tail isnot "hidden" and $transformationParts.wolf.tail isnot "disabled")) or ($cat gte 6 or ($transformationParts.cat.tail isnot "hidden" and $transformationParts.cat.tail isnot "disabled"))>>
+	<<link [[Rub your head against <<his>> crotch|Bus Engine Breakdown Sex]]>><<set $sexstart to 1>><<set $phase to 0>><<stress -6>><</link>><<= ($wolfgirl gte 6 or ($transformationParts.wolf.tail isnot "hidden" and $transformationParts.wolf.tail isnot "disabled")) ? "<<wolfgirl>>" : "<<cat>>">><<lstress>>
 	<br>
 <</if>>
 
@@ -1152,7 +1170,7 @@ The other passengers grow more excited. The <<person>> swallows and starts gropi
 	<</if>>
 
 	<<if $speech_attitude is "meek">>
-		"L-let go of me, please… I don't want this…" you whimper.
+		"L-let go of me, please... I don't want this..." you whimper.
 	<<elseif $speech_attitude is "bratty">>
 		"You won't get away with this, arseholes! Someone will notice!" You scowl.
 	<<else>>
@@ -1174,10 +1192,10 @@ The other passengers grow more excited. The <<person>> swallows and starts gropi
 
 	<<maninit>>
 	<<if $phase is 0>> /* Rub head against crotch */
-		You <<= $wolfgirl gte 6 ? "growl softly" : "purr">> and nuzzle your head into the <<person1>><<persons>> crotch.
+		You <<= ($wolfgirl gte 6 or ($transformationParts.wolf.tail isnot "hidden" and $transformationParts.wolf.tail isnot "disabled")) ? "growl softly" : "purr">> and nuzzle your head into the <<person1>><<persons>> crotch.
 		<<npcoral>>
 	<<elseif $speech_attitude is "meek">>
-		"Please… be gentle?" you whisper.
+		"Please... be gentle?" you whisper.
 	<<elseif $speech_attitude is "bratty">>
 		"Get it over with. I have places to be," you say with a roll of your eyes.
 	<<else>>

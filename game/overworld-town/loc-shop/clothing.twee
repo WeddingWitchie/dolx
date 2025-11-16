@@ -128,7 +128,9 @@
 			<br>
 
 			<<if Time.dayState is "night" or $tryOn.value is 0>>
-				<<if Time.dayState is "night" and $clothingShop.spotted is true and $clothingShop.stolenClothes gt 0>>
+				<<if $tryOn.value gt 0 and Object.values(V.tryOn?.tryingOn).some(slot => slot?.type.includes("heavy"))>>
+					<span class="red">The clothes you're trying on are too heavy to steal!</span>
+				<<elseif Time.dayState is "night" and $clothingShop.spotted is true and $clothingShop.stolenClothes gt 0>>
 					<<getouticon>>
 					<<link [[Leave|Clothing Shop Night Guard Found]]>>
 						<<shopClothingFilterReset>>
@@ -140,6 +142,9 @@
 						<<shopHoodCheck>>
 						<<shopCommandoCheck>>
 					<</link>>
+					<<if $tryOn.value gt 0>>
+						<<crime "thievery">>
+					<</if>>
 				<<else>>
 					<<getouticon>>
 					<<link [[Leave|Shopping Centre Top]]>>
@@ -152,9 +157,9 @@
 						<<shopHoodCheck>>
 						<<shopCommandoCheck>>
 					<</link>>
-				<</if>>
-				<<if $tryOn.value gt 0>>
-					<<crime "thievery">>
+					<<if $tryOn.value gt 0>>
+						<<crime "thievery">>
+					<</if>>
 				<</if>>
 				<br><br>
 			<<elseif $tryOn.value isnot 0>>
@@ -170,7 +175,7 @@
 				<br>
 				<<if $tryOn.value gt 0 and $tryOn.value lte $money>>
 					<<sendItemsToDropdown>>
-					<<highicon>><<link "Buy clothes">><<buyTryOnClothes "wear">><<updateclothingshop>><</link>>
+					<<highicon>><<link "Buy clothes">><<buyTryOnClothes "wear">><<updatesidebarmoney>><<updateclothingshop>><</link>>
 					<br>
 					<<wardrobeicon>><<link "Buy clothes and send to wardrobe">>
 						<<buyTryOnClothes "wardrobe">>
@@ -186,7 +191,11 @@
 					<br>
 				<</if>>
 				<<if $tryOn.value gt 0>>
-					<<getouticon>><<link [[Leave with stolen clothes|Stolen Clothing Shop Result]]>><<shopClothingFilterReset>><<shopHoodCheck>><<shopCommandoCheck>><</link>><<crime "thievery">>
+					<<if Object.values(V.tryOn.tryingOn).some(slot => slot?.type.includes("heavy"))>>
+						<span class="red">The clothes you're trying on are too heavy to steal!</span>
+					<<else>>
+						<<getouticon>><<link [[Leave with stolen clothes|Stolen Clothing Shop Result]]>><<shopClothingFilterReset>><<shopHoodCheck>><<shopCommandoCheck>><</link>><<crime "thievery">>
+					<</if>>
 					<br>
 				<</if>>
 			<</if>>

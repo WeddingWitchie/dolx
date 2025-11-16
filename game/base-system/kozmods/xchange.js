@@ -305,8 +305,144 @@ function sumSexTalents() {
 window.sumSexTalents = sumSexTalents;
 
 
+function playerHasCharacteristic(characteristic) {
+	const categories = [
+				"over_upper", "over_lower", "upper", "lower",
+				"under_upper", "under_lower", "over_head", "head",
+				"face", "neck", "hands", "handheld", "legs",
+				"feet", "genitals"
+			];
+
+	let count = 0;
+
+	switch (characteristic) {
+		case "Masculine Appearance":
+			return V.player.gender_appearance === "m" ? 2 : 0;
+		case "Feminine Appearance":
+			return V.player.gender_appearance === "f" ? 2 : 0;
+		case "Masculine Clothing":
+			categories.forEach(cat => {
+				if (V.worn[cat]?.gender === "m") count++;	
+			});
+			return count; 
+		case "Feminine Clothing":
+			categories.forEach(cat => {
+				if (V.worn[cat]?.gender === "f") count++;	
+			});
+			return count;
+		case "Masculine Pronouns":
+			return V.identity.presentation.pronouns.masculine.misgendered;
+		case "Feminine Pronouns":
+			return V.identity.presentation.pronouns.masculine.misgendered;
+		case "Neutral Pronouns":
+			return V.identity.presentation.pronouns.neutral.misgendered;
+		case "Flat Chest":
+			return V.player.breastsize === 0 ? 2 : 0;
+		case "Small Breasts":
+			return between(V.player.breastsize, 1, 4) ? 2 : 0;
+		case "Medium Breasts":
+			return between(V.player.breastsize, 5, 7) ? 2 : 0;
+		case "Big Breasts":
+			return V.player.breastsize > 7 ? 2 : 0;
+		case "Small Ass":
+			return V.player.bottomsize <= 2 ? 2 : 0;
+		case "Medium Ass":
+			return between(V.player.bottomsize, 3, 6) ? 2 : 0;
+		case "Big Ass":
+			return V.player.bottomsize > 6 ? 2 : 0;
+		case "Vagina":
+			return V.player.vaginaExist ? 2 : 0;
+		case "Small Penis":
+			return (V.player.penisExist && V.player.penissize <= 1) ? 2 : 0;
+		case "Medium Penis":
+			return (V.player.penisExist && V.player.penissize === 2) ? 2 : 0;
+		case "Big Penis":
+			return (V.player.penisExist && V.player.penissize >= 3) ? 2 : 0;
+		case "Short Hair":
+			return V.hairlength <= 100 ? 2 : 0;
+		case "Medium Hair":
+			return between(V.hairlength, 100, 600) ? 2 : 0;
+		case "Long Hair":
+			return V.hairlength > 600 ? 2 : 0;
+		case "Tiny Body":
+			return V.bodysize === 0 ? 2 : 0;
+		case "Small Body":
+			return V.bodysize === 1 ? 2 : 0;
+		case "Normal Body":
+			return V.bodysize === 2 ? 2 : 0;
+		case "Large Body":
+			return V.bodysize === 3 ? 2 : 0;
+		case "Lactation":
+			return (V.lactating >= 1 && V.breastfeedingdisable === "f") ? 2 : 0;
+		case "Pregnancy":
+			return (playerAwareTheyArePregnant() || playerAwareTheyCanBePregnant() && playerIsCreampied()) ? 2 : 0;
+		default:
+			return 0;
+	}
+}
+window.playerHasCharacteristic = playerHasCharacteristic;
+
+function identityCharacteristicCategory(category) {
+	switch(category) {
+		case "Appearance":
+			return playerHasCharacteristic("Masculine Appearance") ? "Masculine Appearance" : "Feminine Appearance";
+		case "Breasts":
+			if (playerHasCharacteristic("Flat Chest")) return "Flat Chest";
+			else if (playerHasCharacteristic("Small Breasts")) return "Small Breasts";
+			else if (playerHasCharacteristic("Medium Breasts")) return "Medium Breasts";
+			else return "Big Breasts";
+		case "Ass":
+			if (playerHasCharacteristic("Small Ass")) return "Small Ass";
+			else if (playerHasCharacteristic("Medium Ass")) return "Medium Ass";
+			else return "Big Ass";
+		case "Penis":
+			if (playerHasCharacteristic("Small Penis")) return "Small Penis";
+			else if (playerHasCharacteristic("Medium Penis")) return "Medium Penis";
+			else if (playerHasCharacteristic("Big Penis")) return "Big Penis";
+			else return false;
+		case "Hair":
+			if (playerHasCharacteristic("Short Hair")) return "Short Hair";
+			else if (playerHasCharacteristic("Medium Hair")) return "Medium Hair";
+			else return "Long Hair";
+		case "Size":
+			if (playerHasCharacteristic("Tiny Body")) return "Tiny Body";
+			else if (playerHasCharacteristic("Small Body")) return "Small Body";
+			else if (playerHasCharacteristic("Normal Body")) return "Normal Body";
+			else return "Large Body";
+		default:
+			return false;
+	}
+}
+window.identityCharacteristicCategory = identityCharacteristicCategory;
+
+function preferredPronouns(gender) {
+	switch(gender) {
+		case "m":
+			if (V.identity.presentation.pronouns.preferred === "m") return true;
+			else if (V.identity.presentation.pronouns.preferred === "body") return V.player.vaginaExist;
+			else if (V.identity.presentation.pronouns.preferred === "clothing") {
+				if (playerHasCharacteristic("Masculine Clothing")) return true;
+				else return false;
+			}
+			else if (V.identity.presentation.pronouns.preferred === "appearance") return V.player.gender_appearance === "m";
+			else if (V.identity.presentation.pronouns.preferred === "posture") return V.player.gender_posture === "m";
+		case "f":
+			if (V.identity.presentation.pronouns.preferred === "f") return true;
+			else if (V.identity.presentation.pronouns.preferred === "body") return V.player.penisExist;
+			else if (V.identity.presentation.pronouns.preferred === "clothing") {
+				if (playerHasCharacteristic("Feminine Clothing")) return true;
+				else return false;
+			}
+			else if (V.identity.presentation.pronouns.preferred === "appearance") return V.player.gender_appearance === "f";
+			else if (V.identity.presentation.pronouns.preferred === "posture") return V.player.gender_posture === "f";
+		default:
+			return false;
+	}
+}
+window.preferredPronouns = preferredPronouns;
+
 function hasGenderIdentity(stage) {
-	switch (stage) {
+	/*switch (stage) {
 		case 8:
 			return V.genderidentity === 1000;
 		case 7:
@@ -327,17 +463,36 @@ function hasGenderIdentity(stage) {
 			return V.genderidentity === 0;
 		default:
 			return false;
+	}*/
+	switch (stage) {
+		case 8:
+		case 7:
+			return V.identity.presentation.pronouns.preferred === V.player.gender;
+		case 6:
+		case 5:
+		case 4:
+			if (V.player.gender === "m") return V.identity.presentation.pronouns.masculine.acceptance;
+			else if (V.player.gender === "f") return V.identity.presentation.pronouns.feminine.acceptance;
+		case 3:
+		case 2:
+		case 1:
+			if (V.player.gender === "f") return V.identity.presentation.pronouns.masculine.acceptance;
+			else if (V.player.gender === "m") return V.identity.presentation.pronouns.feminine.acceptance;
+		case 0:
+			return V.identity.presentation.pronouns.preferred != V.player.gender;
+		default:
+			return false;
 	}
 }
 window.hasGenderIdentity = hasGenderIdentity;
 
 function playerFeelsManlike() {
-	return (V.player.gender === "m" && hasGenderIdentity(5)) || (V.player.gender === "f" && !hasGenderIdentity(4));
+	return preferredPronouns("m");
 }
 window.playerFeelsManlike = playerFeelsManlike;
 
 function playerFeelsGirllike() {
-	return (V.player.gender === "f" && hasGenderIdentity(5)) || (V.player.gender === "m" && !hasGenderIdentity(4));
+	return preferredPronouns("f");
 }
 window.playerFeelsGirllike = playerFeelsGirllike;
 
@@ -347,6 +502,12 @@ function playerIsXChanged() {
 	);
 }
 window.playerIsXChanged = playerIsXChanged;
+
+function isNumber(value) {
+	return typeof value == 'number' ||
+	(isObjectLike(value) && baseGetTag(value) == numberTag);
+}
+window.isNumber = isNumber;
 
 /* 
 	@args:
@@ -503,6 +664,8 @@ function xchangeDailyCheck(days = 1) {
 		}
 	
 		V.xchange.blackmailHalt = Math.max(0, V.xchange.blackmailHalt - 1 * days);
+				
+		wikifier("dailyIdentityEffects");
 	}
 }
 window.xchangeDailyCheck = xchangeDailyCheck;
@@ -602,7 +765,11 @@ function xchangeHourlyCheck(hours = 1) {
 				pill.portalEffect = false;
 			}
 		}
+		
+		wikifier("hourlyIdentityEffects");
 	}
+
+	npcXChangeHourlyCheck(hours);
 }
 window.xchangeHourlyCheck = xchangeHourlyCheck;
 
@@ -651,7 +818,7 @@ function hourlyClothingFemininityCheck(hours = 1) {
 			V.genderificationStressMessage = 1;
 			V.effectsmessage = 1;
 		}
-		else if ((V.player.gender === "m" && (V.genderidentity > 625 || !playerCaresForGender()) && currentWornFemininity > 0) && (V.xchange.pill.genderificationEffect || V.hypnosis_traits.crossdressing < 4)) {
+		else if ((V.player.gender === "m" && (hasGenderIdentity(5) || !playerCaresForGender()) && currentWornFemininity > 0) && (V.xchange.pill.genderificationEffect || V.hypnosis_traits.crossdressing < 4)) {
 			wikifier("stress",-10 * hours);
 			V.tiredness -= 200 * hours;
 			V.genderificationStressMessage = 2;
@@ -662,7 +829,7 @@ function hourlyClothingFemininityCheck(hours = 1) {
 			V.genderificationStressMessage = 3;
 			V.effectsmessage = 1;
 		}
-		else if ((V.player.gender === "f" && (V.genderidentity > 625 || !playerCaresForGender()) && currentWornFemininity < 0) && (V.xchange.pill.genderificationEffect || V.hypnosis_traits.crossdressing < 4)) {
+		else if ((V.player.gender === "f" && (hasGenderIdentity(5) || !playerCaresForGender()) && currentWornFemininity < 0) && (V.xchange.pill.genderificationEffect || V.hypnosis_traits.crossdressing < 4)) {
 			wikifier("stress",-10 * hours);
 			V.tiredness -= 200;
 			V.genderificationStressMessage = 4;
@@ -906,6 +1073,26 @@ function xchangeEffectsMessages() {
 	if (V.refractoryPeriodMessage) {
 		element("span", "Your body is still recovering from your last orgasm.", "blue"); br();
 		delete V.refractoryPeriodMessage;
+	}
+
+	if (V.dysphoriaMessage) {
+		element("span", "You suffer from dysphoria.", "red"); br();
+		delete V.dysphoriaMessage;
+	}
+
+	if (V.identityAcceptanceMessage) {
+		element("span", "You have learned to embrace a new aspect of yourself.", "green"); br();
+		delete V.identityAcceptanceMessage;
+	}
+
+	if (V.breakdownMessage) {
+		element("span", "Your dysphoria has become too much to handle!.", "red"); br();
+		delete V.breakdownMessage;
+	}
+
+	if (V.breakdownEndMessage) {
+		element("span", "You recover from your false acceptance.", "green"); br();
+		delete V.breakdownEndMessage;
 	}
 
 	return fragment;

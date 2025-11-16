@@ -126,9 +126,6 @@ function updateClothingColours(item, itemRef) {
 			if (!item.colour || item.colour === 0) item.colour = item.name === "nurse socks" ? "red" : "hospital pink";
 			if ((!item.pattern || item.pattern === 0) && ["upper", "lower"].includes(itemRef.slot)) item.pattern = "zipper";
 			break;
-		case "necktie":
-			if (!item.altposition) item.altposition = "none";
-			break;
 		case "witch hat":
 			if (!item.pattern || item.pattern === 0) item.pattern = "buckle";
 			break;
@@ -234,6 +231,12 @@ const remapColours = {
 	"light-pink": "light pink",
 	"blue-steel": "blue steel",
 };
+// .variable must be the same across all outfit pieces, correct wrongly assigned props here
+const remapVariables = {
+	"vintageskirt": "vintageskirtsuit",
+	"vintagepants": "vintagepantsuit",
+	"chain tunic skirt": "chain tunic",
+}
 
 /**
  * Updates a single clothes object
@@ -245,12 +248,15 @@ const remapColours = {
 function updateClothesItem(slot, item, debug) {
 	if (!item) return; // might be old save that didn't have a new slot
 	if (item.temp) return; // temp items are not meant to be proper clothes
+	if (Object.keys(remapVariables).includes(item.variable)) item.variable = remapVariables[item.variable];
 	const itemOld = clone(item);
 	// transfer new properties from itemRef to the item
 	const itemRef = setup.clothes[slot][clothesIndex(slot, item)];
 	for (const key in itemRef) {
+		// don't clone skipped keys onto the item
 		if (skip.includes(key)) continue;
-		if (key === "hoodposition" && V.objectVersion.updateClothes >= 31) continue;
+		// migrate some properties only if they are not already on the item
+		if (["hoodposition", "altposition"].includes(key) && item[key]) continue;
 		if (key === "outfitPrimary") {
 			if (itemRef.outfitPrimary !== undefined) {
 				if (item.outfitPrimary === undefined) item.outfitPrimary = clone(itemRef.outfitPrimary);
@@ -455,67 +461,30 @@ function updateClothesItem(slot, item, debug) {
 			item.name = "nurse hat";
 			item.name_cap = "Nurse hat";
 			break;
-		case "sexy priest's vestments":
-			item.exposed = 1;
-			item.exposed_base = 1;
-			break;
 		case "leather miniskirt":
 			item.one_piece = 0;
 			item.type.pushUnique("waterproof");
 			break;
 		case "catsuit":
-			item.type.pushUnique("waterproof");
-			break;
 		case "catsuit bottoms":
-			item.type.pushUnique("waterproof");
-			break;
 		case "cropped leather jacket":
-			item.type.pushUnique("waterproof");
-			break;
 		case "leather crop top":
-			item.type.pushUnique("waterproof");
-			break;
 		case "leather dress":
-			item.type.pushUnique("waterproof");
-			break;
 		case "leather jacket":
-			item.type.pushUnique("waterproof");
-			break;
 		case "leather leggings":
-			item.type.pushUnique("waterproof");
-			break;
 		case "leather pants":
-			item.type.pushUnique("waterproof");
-			break;
 		case "leather shorts":
-			item.type.pushUnique("waterproof");
-			break;
 		case "leather skirt":
-			item.type.pushUnique("waterproof");
-			break;
 		case "leather top":
-			item.type.pushUnique("waterproof");
-			break;
 		case "lederhosen bottoms":
-			item.type.pushUnique("waterproof");
-			break;
 		case "plastic nurse dress":
-			item.type.pushUnique("waterproof");
-			break;
 		case "plastic nurse skirt":
-			item.type.pushUnique("waterproof");
-			break;
 		case "puffer jacket":
-			item.type.pushUnique("waterproof");
-			break;
 		case "punk leather jacket":
-			item.type.pushUnique("waterproof");
-			break;
 		case "zipped leather crop top":
-			item.type.pushUnique("waterproof");
-			break;
 		case "zipped leather top":
 			item.type.pushUnique("waterproof");
+			break;
 	}
 
 	if (debug) console.log("updateClothesItem:", slot, itemOld, clone(item));
@@ -566,6 +535,9 @@ function updateClothes() {
 					break;
 				case "sleeveless jingle-bell dress":
 					if (slot === "lower") outfit[slot] = "sleeveless jingle-bell skirt";
+					break;
+				case "pink nurse hat":
+					outfit[slot] = "nurse hat";
 					break;
 			}
 		}
@@ -759,5 +731,16 @@ function wardrobesUpdate() {
 				V.wardrobes[w].isolated = true;
 		});
 	}
+
+	if (!V.wardrobes.avery_mansion) {
+		V.wardrobes.avery_mansion = clone(defWardrobe);
+		V.wardrobes.avery_mansion.name = "Mansion Wardrobe";
+		V.wardrobes.avery_mansion.transfer = true;
+		V.wardrobes.avery_mansion.isolated = true;
+		V.wardrobes.avery_mansion.shopSend = true;
+		V.wardrobes.avery_mansion.space = 80;
+		V.wardrobes.avery_mansion.locationRequirement.push("avery_mansion");
+	}
+	if (V.avery_mansion) V.wardrobes.avery_mansion.unlocked = true;
 }
 DefineMacro("wardrobesUpdate", wardrobesUpdate);

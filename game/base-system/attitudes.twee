@@ -44,31 +44,32 @@
 					<label><<checkbox "$speech_attitude_avery" false true autocheck>> Make a meek exception for Avery.</label>
 					<br>
 				<</if>>
-				<<if $attitudesControl.unlockAveryKneel>>
+				<<if $attitudesControl.unlockAveryKneel or $attitudesControl.unlockAveryBow>>
 					<span class="gold bold">How do you present yourself to Avery?</span>
 					<br>
-					<label><<radiobutton "$avery_mansion.kneel" "refuse" autocheck>> <span class="brat">Refuse to degrade yourself</span></label>
-					<br>
-					<label><<radiobutton "$avery_mansion.kneel" "kneel" autocheck>> <span class="meek">Kneel</span></label>
-					<br>
-					<label><<radiobutton "$avery_mansion.kneel" "prostrate" autocheck>> <span class="sub">Prostrate</span></label>
-					<br>
-				<<elseif $attitudesControl.unlockAveryBow>>
-					<span class="gold bold">How do you present yourself to Avery?</span>
-					<br>
-					<label><<checkbox "$avery_mansion.bow" false true autocheck>> 
-					<<if $player.gender_appearance is "m">>
-						Bow 
-					<<else>>
-						Curtsy 
+					<<if $attitudesControl.unlockAveryKneel>>
+						<label><<radiobutton "$avery_mansion.kneel" "refuse" autocheck>> <span class="brat">Refuse to degrade yourself</span></label>
+						<br>
+						<label><<radiobutton "$avery_mansion.kneel" "kneel" autocheck>> <span class="meek">Kneel</span></label>
+						<br>
+						<label><<radiobutton "$avery_mansion.kneel" "prostrate" autocheck>> <span class="sub">Prostrate</span></label>
+						<br>
 					<</if>>
-					when greeting Avery after work.
-					</label>
-					<br>
+					<<if $attitudesControl.unlockAveryBow>>
+						<label><<checkbox "$avery_mansion.bow" false true autocheck>>
+						<<if $player.gender_appearance is "m">>
+							Bow
+						<<else>>
+							Curtsy
+						<</if>>
+						when greeting Avery after work.
+						</label>
+						<br>
+					<</if>>
 				<</if>>
 			<</if>>
 		</div>
-		
+
 		<div class="settingsToggleItem">
 			<span class="gold bold">What makes you feel uncomfortable?</span>
 			<br>
@@ -193,7 +194,7 @@
 
 	<hr>
 	<div class="settingsGrid">
-		<div class="settingsHeader">DoLP Attitudes Settings</div>
+		<div class="settingsHeader">Modded Attitudes Settings</div>
 		<div class="settingsToggleItemWide">
 			<<if $attitudesControl.unlockSadoMaso>>
 				<label><<checkbox "$uncomfortable.sadoMaso" false true autocheck>> You're uncomfortable reflecting on your depravity. <i>If unchecked, sadism and masochism will not decay.</i></label>
@@ -214,7 +215,7 @@
 			<br>
 
 			<<if $combatExtended.reverseRape is 1>>
-				<<if hasSexStat("promiscuity", 5, true)>>
+				<<if hasSexStat("promiscuity", 5, true) or $backgroundTraits.includes("delinquent")>>
 					<label><<checkbox "$reverseRapeOptOut" 0 1 autocheck>> You seek to turn the tables on everyone. <i>If unchecked, reverse rape will not initiate by default.</i></label>
 				<<else>>
 					<input type="checkbox" checked disabled /> <span class="black"> You can't fathom trying to turn the tables on your attackers.</span>
@@ -666,7 +667,7 @@
 			<<set _askActions["to not put your penis in anything"] to "nopenile">>
 		<</if>>
 		<<set _askActions["to not put anything in your anus"] to "noanal">>
-		<<if $asphyxiaLvl gte 1>>
+		<<if $settings.asphyxiaLevel gte 1>>
 			<<set _askActions["to not choke you"] to "nochoke">>
 		<</if>>
 	<</if>>
@@ -676,13 +677,13 @@
 	<<if (_args[0] is false and $masochism_level gte 1) or $masochism_level gte 3>>
 		<<set _askActions["to be more rough"] to "askrough">>
 	<</if>>
-	<<if $condomLvl gte 2>>
+	<<if $settings.condomLevel gte 2>>
 		<<set _askActions["to use a condom"] to "condoms">>
 		<<set _askActions["to not use a condom"] to "noCondoms">>
 	<</if>>
 	<<set _askActions["to leave your top on"] to "noupper">>
 
-	<<if $asphyxiaLvl gte 1 and _args[0] is false and
+	<<if $settings.asphyxiaLevel gte 1 and _args[0] is false and
 	($choketrait or ($chokeorgasm gte 1) or ($awarelevel gte 2))>>
 		<<set _askActions["to choke you"] to "askchoke">>
 	<</if>>
@@ -914,34 +915,8 @@
 	Primary Love Interest:
 	<br>
 	<<set _npc = ["None"].concat(setup.loveInterestNpc)>>
-	<<set _potentialLoveInterests = ["None"]>>
-	<<if $robinromance is 1>>
-		<<run _potentialLoveInterests.push("Robin")>>
-	<</if>>
-	<<if $whitneyromance is 1 and C.npc.Whitney.state isnot "dungeon">>
-		<<run _potentialLoveInterests.push("Whitney")>>
-	<</if>>
-	<<if $kylarenglish gte 1 and C.npc.Kylar.state isnot "prison">>
-		<<run _potentialLoveInterests.push("Kylar")>>
-	<</if>>
-	<<if $sydneyromance is 1>>
-		<<run _potentialLoveInterests.push("Sydney")>>
-	<</if>>
-	<<if $syndromeeden is 1>>
-		<<run _potentialLoveInterests.push("Eden")>>
-	<</if>>
-	<<if $auriga_artefact and C.npc.Avery.state isnot "dismissed">>
-		<<run _potentialLoveInterests.push("Avery")>>
-	<</if>>
-	<<if $syndromewolves is 1 and hasSexStat("deviancy", 3, true)>>
-		<<run _potentialLoveInterests.push("Black Wolf")>>
-	<</if>>
-	<<if $syndromebird is 1>>
-		<<run _potentialLoveInterests.push("Great Hawk")>>
-	<</if>>
-	<<if $farm_stage gte 7 and $alex_countdown is undefined>>
-		<<run _potentialLoveInterests.push("Alex")>>
-	<</if>>
+	/* Love interest requirements defined in function isPossibleLoveInterest() */
+	<<set _potentialLoveInterests = ["None"].concat(setup.loveInterestNpc.filter(LI => isPossibleLoveInterest(LI)))>>
 	<<if _potentialLoveInterests.length lte 1>>
 		<span class="black"><i>You haven't developed feelings for anyone yet.</i></span>
 	<<else>>
@@ -959,12 +934,12 @@
 				<<set $loveInterest.secondary to "None">>
 				<span class="black">You need to choose a primary love interest before you can choose a secondary.</span>
 			<<else>>
-			<<listbox "$loveInterest.secondary" autoselect>>
-				<<optionsfrom _potentialLoveInterests>>
-			<</listbox>>
-			<<if $loveInterest.secondary isnot "None">>
-				<<run _potentialLoveInterests.delete($loveInterest.secondary)>>
-			<</if>>
+				<<listbox "$loveInterest.secondary" autoselect>>
+					<<optionsfrom _potentialLoveInterests>>
+				<</listbox>>
+				<<if $loveInterest.secondary isnot "None">>
+					<<run _potentialLoveInterests.delete($loveInterest.secondary)>>
+				<</if>>
 			<</if>>
 			<br>
 		<<else>>
@@ -1053,6 +1028,7 @@
 			<<set $loveInterest.senary to "None">><<set _awareChecked to 1>>
 			<br>
 		<</if>>
+		<br><br>
 	<</if>>
 	<<if $transformationParts.traits.mateForLife isnot "disabled" and (!isLoveInterest(_loveIntStart1) or (_loveIntStart2 isnot "None" and !isLoveInterest(_loveIntStart2)) or (_loveIntStart3 isnot "None" and !isLoveInterest(_loveIntStart3)) or (_loveIntStart4 isnot "None" and !isLoveInterest(_loveIntStart4)) or (_loveIntStart5 isnot "None" and !isLoveInterest(_loveIntStart5)) or (_loveIntStart6 isnot "None" and !isLoveInterest(_loveIntStart6)))>>
 		<<set $LIChanged to true>>
@@ -1060,6 +1036,93 @@
 		<span class="red">Changing your partners goes against your instincts to mate for life. It will take a toll on your mental state.</span>
 	<<else>>
 		<<unset $LIChanged>>
+	<</if>>
+<</widget>>
+
+<<widget "loveInterestAdd">>
+	<<set $_LI to _args[0]>>
+	<<if setup.loveInterestNpc.includes($_LI)>>
+		<span class="gold">
+		<<if $loveInterest.primary is "None">>
+			<<set $loveInterest.primary to $_LI>><<set $_assigned to true>>
+		<<elseif $loveInterest.secondary is "None" and $awarelevel gte 2>>
+			<<set $loveInterest.secondary to $_LI>><<set $_assigned to true>>
+		<<elseif $loveInterest.tertiary is "None" and $awarelevel gte 3>>
+			<<set $loveInterest.tertiary to $_LI>><<set $_assigned to true>>
+		<</if>>
+		<<if $_assigned>>
+			<<= $_LI>> is now your love interest!
+		<<else>>
+			<<= $_LI>> can now be claimed as your love interest!
+		<</if>>
+		<<switch $_LI>>
+			<<case "Robin">>The thought makes you feel warm.
+			<<case "Whitney">>It seems you don't have a choice in the matter.
+			<<case "Kylar">>
+				<<if _args[1] is "consensual">>
+					You know <<nnpc_he "Kylar">>'ll always be watching your back. Always.
+				<<else>>
+					You aren't sure if you agreed to this.
+				<</if>>
+			<<case "Sydney">>Will you keep <<nnpc_him "Sydney">> pure, or fall from grace together?
+			<<case "Eden">>The feeling of danger has passed, and you feel safer here.
+			<<case "Avery">>You feel yourselves moving up in the world.
+			<<case "Black Wolf">><<nnpc_He "Black Wolf">> seems happy to have found a mate.
+			<<case "Great Hawk">>This isn't how you expected to find a <<if $monster is 1>><<nnpc_wife "Great Hawk">><<else>>partner<</if>>, but you feel uplifted all the same.
+			<<case "Alex">>You can live together, after all.
+			<<case "Gwylan">>
+				<<if $gwylanSeen?.includes("romance")>>
+					You feel ready for forever, and so does <<nnpc_he "Gwylan">>.
+				<<else>>
+					Not forever, but for right now. Right now is all that matters.
+				<</if>>
+		<</switch>>
+		<br>
+		You can change your love interest<<if $awarelevel gte 2>>s<</if>> in the "Attitudes" menu.
+		</span>
+	<</if>>
+<</widget>>
+
+<<widget "loveInterestRemove">>
+	<<set $_LI to _args[0]>>
+	<<if setup.loveInterestNpc.includes($_LI) and isLoveInterest($_LI)>>
+		<<if $loveInterest.primary is $_LI>>
+			<<set $loveInterest.primary to "None">>
+		<<elseif $loveInterest.secondary is $_LI>>
+			<<set $loveInterest.secondary to "None">>
+		<<elseif $loveInterest.tertiary is $_LI>>
+			<<set $loveInterest.tertiary to "None">>
+		<<elseif $loveInterest.quarternary is $_LI>>
+			<<set $loveInterest.quarternary to "None">>
+		<<elseif $loveInterest.quinary is $_LI>>
+			<<set $loveInterest.quinary to "None">>
+		<<elseif $loveInterest.senary is $_LI>>
+			<<set $loveInterest.senary to "None">>
+		<</if>>
+		<<if $loveInterest.primary is "None" and $loveInterest.secondary isnot "None">>
+			<<set $loveInterest.primary to $loveInterest.secondary>>
+			<<set $loveInterest.secondary to "None">>
+		<</if>>
+		<<if $loveInterest.secondary is "None" and $loveInterest.tertiary isnot "None">>
+			<<set $loveInterest.secondary to $loveInterest.tertiary>>
+			<<set $loveInterest.tertiary to "None">>
+		<</if>>
+		<<if $loveInterest.tertiary isnot "None">>
+			<<set $loveInterest.secondary to $loveInterest.tertiary>>
+			<<set $loveInterest.tertiary to "None">>
+		<</if>>
+		<<if $loveInterest.quarternary isnot "None">>
+			<<set $loveInterest.tertiary to $loveInterest.quarternary>>
+			<<set $loveInterest.quarternary to "None">>
+		<</if>>
+		<<if $loveInterest.quinary isnot "None">>
+			<<set $loveInterest.quarternary to $loveInterest.quinary>>
+			<<set $loveInterest.quinary to "None">>
+		<</if>>
+		<<if $loveInterest.senary isnot "None">>
+			<<set $loveInterest.quinary to $loveInterest.senary>>
+			<<set $loveInterest.senary to "None">>
+		<</if>>
 	<</if>>
 <</widget>>
 

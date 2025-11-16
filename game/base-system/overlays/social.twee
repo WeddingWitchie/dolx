@@ -45,14 +45,22 @@
 						purity : { requirements : V.NPCName[28].purity > 0, maxValue : 100, minValue : 0 },
 						corruption : { requirements : V.NPCName[28].corruption > 0, maxValue : 50, minValue : 0 }
 					},
-					"Mason" : {
-						love : { maxValue : 50 }
-					},
 					"Alex" : {
 						important : true,
 						love : { maxValue : 100 },
 						lust : { maxValue : 100 },
 						dom : { maxValue : 100 }
+					},
+					"Gwylan" : {
+						important: V.gwylanSeen?.includes("yearning"),
+						love : { maxValue : (getSpecialSets(sets => sets.shop.includes("forest")).length * 2),
+								activeIcon: V.gwylanSeen?.includes("yearning") ? "img/ui/sym_love_green.png" : "img/ui/sym_love.png",
+								color: 'green' },
+						dom : { name : "Yearning", activeIcon : "img/ui/sym_yearning.png", requirements : V.gwylanSeen?.includes("yearning"), maxValue : 150, color: 'forest-green' }
+					},
+
+					"Mason" : {
+						love : { maxValue : 50 }
 					},
 					"Darryl" : {
 						love : { maxValue : 50 }
@@ -83,6 +91,7 @@
 
 				/* This list dictates the order that the important NPCs will show up in on the social menu screen */
 				T.importantNpcOrder = ["Robin", "Whitney", "Eden", "Kylar", "Sydney", "Avery", "Great Hawk", "Black Wolf", "Alex"];
+				if (V.gwylanSeen?.includes("yearning")) T.importantNpcOrder.pushUnique("Gwylan");
 				T.specialNPCs = ["Ivory Wraith"];
 
 				/* this list is sorted */
@@ -309,7 +318,7 @@
 				/*Docks */
 				<<if $dockwork gte 2>>
 					<<set _dockRepConfig = { currentValue: $dockstatus, preText: 'The other workers ', states : [
-						{ requiredValue: 0,	    color: 'purple',	description: 'view you with contempt.'},
+						{ requiredValue: 0,		color: 'purple',	description: 'view you with contempt.'},
 						{ requiredValue: 10,	color: 'blue',		description: 'view you with suspicion.'},
 						{ requiredValue: 30,	color: 'lblue',		description: 'tolerate you.'},
 						{ requiredValue: 80,	color: 'teal',		description: 'accept you.'},
@@ -366,7 +375,7 @@
 			<<silently>>
 				/* Farm Animals */
 				/*Horses*/
-				<<switch $beastMaleChance>>
+				<<switch $settings.beastMaleChance>>
 					<<case 100>>
 						<<set _people to "boys">>
 						<<set _cowpeople to "bullboys">>
@@ -377,7 +386,7 @@
 						<<set _people to "people">>
 						<<set _cowpeople to "cowgirls and bullboys">>
 				<</switch>>
-				<<set _farmHorseRepConfig = { currentValue: $farm.beasts.horses, preText: `The ${$monsterchance is 100 ? 'centaurs ' : 'steeds '}`, postText: ' you.', states: [
+				<<set _farmHorseRepConfig = { currentValue: $farm.beasts.horses, preText: `The ${$settings.monsterChance is 100 ? 'centaurs ' : 'steeds '}`, postText: ' you.', states: [
 					{ requiredValue: -100,	color: 'pink',		description: 'see you as a fucktoy.', postText: ' '},
 					{ requiredValue: -20,	color: 'purple',	description: 'have little respect', postText: ' for you.'},
 					{ requiredValue: -5,	color: '',			description: 'are wary of'},
@@ -385,7 +394,7 @@
 					{ requiredValue: 20,	color: 'green',		description: 'respect'}
 				]}>>
 				/*Pigs*/
-				<<set _farmPigRepConfig = { currentValue: $farm.beasts.pigs, preText: `The ${$monsterchance is 100 ? 'pig' + _people : 'pigs '}`, postText: ' you.', states: [
+				<<set _farmPigRepConfig = { currentValue: $farm.beasts.pigs, preText: `The ${$settings.monsterChance is 100 ? 'pig' + _people : 'pigs '}`, postText: ' you.', states: [
 					{ requiredValue: -100,	color: 'pink',		description: 'see you as a fucktoy.', postText: ' '},
 					{ requiredValue: -20,	color: 'purple',	description: 'have little respect', postText: ' for you.'},
 					{ requiredValue: -5,	color: '',			description: 'are wary of'},
@@ -393,7 +402,7 @@
 					{ requiredValue: 20,	color: 'green',		description: 'respect'}
 				]}>>
 				/*Cattle*/
-				<<set _farmCattleRepConfig = { currentValue: $farm.beasts.cattle, preText: `The ${$monsterchance is 100 ? _cowpeople : 'cattle '}`, postText: ' you.', states: [
+				<<set _farmCattleRepConfig = { currentValue: $farm.beasts.cattle, preText: `The ${$settings.monsterChance is 100 ? _cowpeople : 'cattle '}`, postText: ' you.', states: [
 					{ requiredValue: -100,	color: 'pink',		description: 'see you as an annoyance.', postText: ' '},
 					{ requiredValue: -20,	color: 'purple',	description: 'have little respect', postText: ' for you.'},
 					{ requiredValue: -5,	color: '',			description: 'are wary of'},
@@ -401,7 +410,7 @@
 					{ requiredValue: 20,	color: 'green',		description: 'respect'}
 				]}>>
 				/*Dogs*/
-				<<set _farmDogRepConfig = { currentValue: $farm.beasts.dogs, preText: `The ${$monsterchance is 100 ? 'dog' + _people : 'dogs '}`, postText: ' you.', states: [
+				<<set _farmDogRepConfig = { currentValue: $farm.beasts.dogs, preText: `The ${$settings.monsterChance is 100 ? 'dog' + _people : 'dogs '}`, postText: ' you.', states: [
 					{ requiredValue: -100,	color: 'pink',		description: 'see you as a fucktoy.', postText: ' '},
 					{ requiredValue: -20,	color: 'purple',	description: 'have little respect', postText: ' for you.'},
 					{ requiredValue: -5,	color: '',			description: 'are wary of'},
@@ -478,7 +487,7 @@
 				<<set _sexFameConfig =				{ currentValue: $fame.sex,				preText: 'Sex:',			flavorText: 'slut',				states: _fameStates }>>
 				<<set _prostitutionFameConfig =		{ currentValue: $fame.prostitution,		preText: 'Prostitution:',	flavorText: 'whore',			states: _fameStates }>>
 				<<set _rapeFameConfig =				{ currentValue: $fame.rape,				preText: 'Rape:',			flavorText: 'fucktoy',			states: _fameStates }>>
-				<<if $bestialitydisable is "f">>
+				<<if $settings.bestialityEnabled>>
 					<<set $_pre to "Bestiality:">>
 					<<set $_flavor to "bitch">>
 				<<else>>

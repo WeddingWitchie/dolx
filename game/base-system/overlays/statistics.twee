@@ -5,7 +5,7 @@
 		<<run ["vaginal", "penile", "anal", "oral", "handholding", "kiss"].forEach(type => {
 			if ($player.virginity[type] is true) {
 				T[type + "VirginityColour"] = "gold";
-			} else if (setup.loveInterestNpc.includes($player.virginity[type])) {
+			} else if (isPossibleLoveInterest($player.virginity[type])) {
 				T[type + "VirginityColour"] = "lewd";
 				if ($player.virginityDetails and $player.virginityDetails?.[type]?.consensual is false) T[type + "VirginityColour"] = "red";
 			} else if ($player.virginityDetails and $player.virginityDetails?.[type]?.consensual isnot undefined) {
@@ -46,10 +46,7 @@
 
 	<<foldout false "_virginitiesTakenFoldout">>
 		<span class="gold">Virginities taken</span>
-		<!-- For the total virginities taken, iterate over every virginity type and sum up the number of entries belonging to each. -->
-		<<set _total to 0>>
-		<<run Object.values($virginTaken).forEach(type => _total += type.length)>>
-		Total: _total
+		Total: <<print Object.values(V.virginTaken).flat().length>>
 		<br>
 
 		<!-- For each individual virginity type, the number is named and unnamed combined, but the list of names has unnamed npcs filtered out. -->
@@ -170,7 +167,7 @@
 			Number of orgasms you've experienced under this Resistance pill: $xchange.pill.resistanceOrgasmsStat
 			<br>
 		<</if>>
-		<<if $asphyxiaLvl gte 2>>
+		<<if $settings.asphyxiaLevel gte 2>>
 			Orgasms while being choked: $chokeorgasm
 			<br>
 		<</if>>
@@ -200,7 +197,7 @@
 			Last ejaculated in vaginally: <<statisticsTimeCompare $vaginalEjacTimeStat>>
 			<br>
 		<</if>>
-		<<if $analdisable is "f">>
+		<<if $settings.analEnabled>>
 			Anally penetrated: $analstat
 			<br>
 			Last anally penetrated: <<statisticsTimeCompare $analTimeStat>>
@@ -223,7 +220,7 @@
 			<br>
 		<</if>>
 		Semen swallowed: <<print Math.floor($semenswallowedstat)>> mL
-		<<if $bestialitydisable is "f">>
+		<<if $settings.bestialityEnabled>>
 			<br>
 			Animal semen swallowed: <<print Math.floor($animalsemenswallowedstat)>> mL
 		<</if>>
@@ -232,7 +229,7 @@
 		<br>
 		Handjob ejaculations: $handejacstat
 		<br>
-		<<if $footdisable is "f">>
+		<<if $settings.footFetishEnabled>>
 			Footjobs given: $feetstat
 			<br>
 			Footjob ejaculations: $feetejacstat
@@ -276,13 +273,13 @@
 		<br>
 		Minutes spent masturbating: <<print Math.trunc($secondsSpentMasturbating / 60)>>
 		<br>
-		<<if $breastfeedingdisable is "f">>
+		<<if $settings.breastFeedingEnabled>>
 			Breast milk drank: <<print Math.floor($milk_drank_stat)>> mL
 			<br>
 			Breast milk produced: <<print Math.floor($milk_produced_stat)>> mL
 			<br>
 		<</if>>
-		<<if $plantdisable is "f">>
+		<<if $settings.plantsEnabled>>
 			Nectar drank: <<print Math.floor($nectar_drank_stat)>> mL
 			<br>
 		<</if>>
@@ -294,7 +291,7 @@
 			Lewd fluid produced: <<print Math.floor($lube_produced_stat)>> mL
 			<br>
 		<</if>>
-		<<if $player.penisExist or $breastfeedingdisable is "f" or $fluid_forced_stat>>
+		<<if $player.penisExist or $settings.breastFeedingEnabled or $fluid_forced_stat>>
 			Fluid forcibly milked: <<print Math.floor($fluid_forced_stat)>> mL
 			<br>
 		<</if>>
@@ -306,15 +303,15 @@
 			Sex toys used on others: $sextoystat
 		<</if>>
 		<br>
-		<<if $analdoubledisable is "f" and $analdoublestat isnot undefined>>
+		<<if $settings.analDoubleEnabled and $analdoublestat isnot undefined>>
 			Double anally penetrated: $analdoublestat
 			<br>
 		<</if>>
-		<<if $vaginaldoubledisable is "f" and $vaginaldoublestat isnot undefined>>
+		<<if $settings.vaginalDoubleEnabled and $vaginaldoublestat isnot undefined>>
 			Double vaginally penetrated: $vaginaldoublestat
 			<br>
 		<</if>>
-		<<if $watersportsdisable is "f">>
+		<<if $settings.watersportsEnabled>>
 			Urinated on: $urinestat
 			<br>
 		<</if>>
@@ -338,22 +335,22 @@
 			<br>
 			Last raped: <<statisticsTimeCompare $rapeTimeStat>>
 			<br>
-			<<if $bestialitydisable is "f">>
+			<<if $settings.bestialityEnabled>>
 				Raped by animals: $beastrapestat
 				<br>
 			<<else>>
 				Raped by monster people: $beastrapestat
 				<br>
 			<</if>>
-			<<if $tentacledisable is "f">>
+			<<if $settings.tentaclesEnabled>>
 				Raped by tentacle monsters: $tentaclerapestat
 				<br>
 			<</if>>
-			<<if $voredisable is "f">>
+			<<if $settings.voreEnabled>>
 				Swallowed: $swallowedstat
 				<br>
 			<</if>>
-			<<if $parasitedisable is "f">>
+			<<if $settings.parasitesEnabled>>
 				Parasites hosted: $parasitestat
 				<br>
 			<</if>>
@@ -373,7 +370,7 @@
 			<</if>>
 			Machines disabled: $machine_stat
 			<br>
-			<<if $lurkerdisable is "f">>
+			<<if $settings.lurkersEnabled>>
 				Lurkers captured: $stat_lurkers_captured
 				<br><br>
 			<</if>>
@@ -437,6 +434,14 @@
 			<</if>>
 			<<if $dateCount.Sydney gte 1>>
 				Dates with Sydney: $dateCount.Sydney
+				<br>
+			<</if>>
+			<<if $dateCount.Gwylan gte 1>>
+				Dates with Gwylan: $dateCount.Gwylan
+				<br>
+			<</if>>
+			<<if $dateCount.GwylanSex gte 1>>
+				Intimate rituals with Gwylan: $dateCount.GwylanSex
 				<br>
 			<</if>>
 		<</if>>
@@ -621,6 +626,14 @@
 		<</if>>
 		<<if $bird and $bird.lurkersEaten>>
 			Lurkers eaten: $bird.lurkersEaten
+			<br>
+		<</if>>
+		<<if $gwylan?.requestCount>>
+			Gwylan's requests fulfilled: $gwylan.requestCount
+			<br>
+		<</if>>
+		<<if $world_corruption_reduced and ($temple_confessor_intro or $gwylanSeen?.includes("ritual_beast"))>>
+			Total world corruption purged: $world_corruption_reduced
 			<br>
 		<</if>>
 		Total paid to Bailey: <<printmoney `$moneyStats.baileyRent?.spent or 0`>>
@@ -1043,9 +1056,9 @@
 			<br>
 			Bear manifestation: <<print Math.trunc($bear)>>
 			<br>
-			<<if $hallucinations gte 2 or $bestialitydisable is "t">>Harpyness<<else>>Birdieness<</if>>: <<print Math.trunc($birdbuild)>> (30+ for full transformation)
+			<<if $hallucinations gte 2 or !$settings.bestialityEnabled>>Harpyness<<else>>Birdieness<</if>>: <<print Math.trunc($birdbuild)>> (30+ for full transformation)
 			<br>
-			<<if $hallucinations gte 2 or $bestialitydisable is "t">>Harpy<<else>>Bird<</if>> manifestation: <<print Math.trunc($harpy)>>
+			<<if $hallucinations gte 2 or !$settings.bestialityEnabled>>Harpy<<else>>Bird<</if>> manifestation: <<print Math.trunc($harpy)>>
 			<br>
 			Foxiness: <<print Math.trunc($foxbuild)>> (30+ for full transformation)
 			<br>
@@ -1153,7 +1166,7 @@
 			<br>
 		<</foldout>>
 		<<set $_menstruation to $sexStats.vagina.menstruation>>
-		<<if $cycledisable is "f">>
+		<<if $settings.fertilityCycleEnabled>>
 			<<foldout false "_menstruationFoldout">>
 				<span class="gold">Menstruation cycle</span>
 				Running: <<print $_menstruation.running ? "true" : "false">>
@@ -1176,59 +1189,54 @@
 			<br>
 			Total days knowingly being pregnant: <<print Math.floor($pregnancyStats.totalDaysPregnancyKnown)>>
 			<br>
-			<<if canBeMPregnant()>>
-				
-			<<elseif !$player.vaginaExist or !$_menstruation.running>>
-				Cannot currently get pregnant.
-			<<elseif $_vPregnancy.type is "parasite">>
-				Parasites in the womb are preventing normal pregnancy from occurring.
-			<<elseif $_menstruation.currentState is "recovering">>
-				You are not quite ready to get pregnant so soon after your last one.
-			<<elseif $_vPregnancy.type isnot null>>
-				Currently pregnant with: <<print $_vPregnancy.fetus.length>>
-					<<extraStatisticsPregnancyType $_vPregnancy.type>>
-				<br>
-				<<set $_days to pregnancyDaysEta($_vPregnancy)>>
-				<<if $_days lt 1>>
-					ETA: Anytime.
-				<<elseif $_days>>
-					ETA: <<print $_days>> <<pluralise $_days "day">>.
-				<</if>>
-				<br>
-			<<else>>
-				Not currently pregnant.
-				<br>
-				<<if $pregnancytype is "realistic">>
-					<<set [_trackedNPCs, _spermArray] to spermObjectToArray($sexStats.vagina.sperm, true, true)>>
-					Number of sources of sperm that can get you pregnant: <<print _spermArray.length>>
-					<br>
-					<<if _trackedNPCs.length>>
-						Those whose sperm you have inside you currently:
-						<ul>
-							<<for _name range _trackedNPCs>>
-								<<set $_count to _spermArray.filter(s => s.source === T.name.source).length>>
-								<li>
-									<<print pregnancyNameCorrection(_name.source)>>
-									<<if $_count gt 1>>
-										(x<<print $_count>>)
-									<</if>>
-								</li>
-							<</for>>
-						</ul>
-					<<else>>
-						<br> /* For formating the break after the foldout if realistic but no list*/
-					<</if>>
-				<<else>>
-					<br> /* For formating the break after the foldout if not realistic */
-				<</if>>
-			<</if>>
-			<<if canBeMPregnant()>>
-				<<if $_aPregnancy.type is "parasite">>
+			<<if !canBeMPregnant() and ($_aPregnancy.type is null or $_aPregnancy.type is "parasite")>>
+				<<if $_vPregnancy.type is "parasite">>
 					Parasites in the womb are preventing normal pregnancy from occurring.
-				<<elseif !$_menstruation.running>>
+				<<elseif $_vPregnancy.type isnot null>>
+					Currently pregnant with: <<print $_vPregnancy.fetus.length>>
+						<<extraStatisticsPregnancyType $_vPregnancy.type>>
+					<br>
+					<<set $_days to pregnancyDaysEta($_vPregnancy)>>
+					<<if $_days lt 1>>
+						ETA: Anytime.
+					<<elseif $_days>>
+						ETA: <<print $_days>> <<pluralise $_days "day">>.
+					<</if>>
+					<br>
+				<<elseif !$player.vaginaExist or !$_menstruation.running>>
 					You cannot currently get pregnant.
 				<<elseif $_menstruation.currentState is "recovering">>
 					You are not quite ready to get pregnant so soon after your last one.
+				<<else>>
+					Not currently pregnant.
+					<br>
+					<<if $settings.pregnancyType is "realistic">>
+						<<set [_trackedNPCs, _spermArray] to spermObjectToArray($sexStats.vagina.sperm, true, true)>>
+						Number of sources of sperm that can get you pregnant: <<print _spermArray.length>>
+						<br>
+						<<if _trackedNPCs.length>>
+							Those whose sperm you have inside you currently:
+							<ul>
+								<<for _name range _trackedNPCs>>
+									<<set $_count to _spermArray.filter(s => s.source === T.name.source).length>>
+									<li>
+										<<print pregnancyNameCorrection(_name.source)>>
+										<<if $_count gt 1>>
+											(x<<print $_count>>)
+										<</if>>
+									</li>
+								<</for>>
+							</ul>
+						<<else>>
+							<br> /* For formating the break after the foldout if realistic but no list*/
+						<</if>>
+					<<else>>
+						<br> /* For formating the break after the foldout if not realistic */
+					<</if>>
+				<</if>>
+			<<else>>
+				<<if $_aPregnancy.type is "parasite">>
+					Parasites in the womb are preventing normal pregnancy from occurring.
 				<<elseif $_aPregnancy.type isnot null>>
 					Currently pregnant with: <<print $_aPregnancy.fetus.length>>
 					<<extraStatisticsPregnancyType $_aPregnancy.type>>
@@ -1240,10 +1248,14 @@
 						ETA: <<print $_days>> <<pluralise $_days "day">>.
 					<</if>>
 					<br>
+				<<elseif !$_menstruation.running>>
+					You cannot currently get pregnant.
+				<<elseif $_menstruation.currentState is "recovering">>
+					You are not quite ready to get pregnant so soon after your last one.
 				<<else>>
 					Not currently pregnant.
 					<br>
-					<<if $pregnancytype is "realistic">>
+					<<if $settings.pregnancyType is "realistic">>
 						<<set [_trackedNPCs, _spermArray] to spermObjectToArray($sexStats.anus.sperm, true, true)>>
 						Number of sources of sperm that can get you pregnant: <<print _spermArray.length>>
 						<br>
@@ -1802,15 +1814,25 @@
 				<</if>>
 			<<case "Moor Phallus Plant Masturbation">>
 				<<set $_special to "Driven mad with pleasure">>
+			<<case "Forest Shop Caught Distract">>
+				<<set $_special to "Helped Gwylan get out of a mouthful">>
 			<<default>>
-				<<if _args[0].npcPenisSize gte 5>>
+				<<if _args[0].passage.includes("Gwylan Ritual Sex")>>
+					<<if ["vaginal", "penile"].includes(_args[3]) and $gwylanSeen?.includes("fallen_angel")>>
+						<<set $_special to "Fell to a witch to cleanse the forest">>
+					<<elseif _args[3] is "kiss">>
+						<<set $_special to "Broke Gwylan's first rule in the heat of passion">>
+					<<else>>
+						<<set $_special to "Given away willingly to cleanse the forest">>
+					<</if>>
+				<<elseif _args[0].npcPenisSize gte 5>>
 					<<set $_special to `${_args[3] is "vaginal" ? "Broken" : "Taken"} in the most brutal of ways`>>
 				<<elseif _args[0].npcPenisSize2 isnot undefined>>
 					<<set $_special to "Two for the price of one">>
 				<</if>>
 		<</switch>>
 		<<if $_special>><<set $_text_output += `<div class="lewd">Special: ${$_special}</div>`>><</if>>
-		<<if setup.loveInterestNpc.includes(_args[1]) and $_linkColour isnot "red">>
+		<<if isPossibleLoveInterest(_args[1]) and $_linkColour isnot "red">>
 			<<set $_linkColour to "lewd">>
 		<</if>>
 	<</if>>

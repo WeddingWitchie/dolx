@@ -116,9 +116,20 @@ const statChange = (() => {
 	DefineMacro("traumaclamp", traumaClamp);
 
 	function updateHallucinations() {
-		if (V.trauma >= (V.traumamax / 10) * 5 || V.awareness >= 400 || V.hallucinogen > 0 || Time.isBloodMoon() || V.worn.face.type.includes("esoteric")) {
+		if (
+			V.trauma >= (V.traumamax / 10) * 5 ||
+			(V.awareness >= 400 && !(V.hypnosis_traits.insight && V.settings.hypnosisEnabled)) ||
+			(V.awareness < 200 && V.hypnosis_traits.insight && V.settings.hypnosisEnabled) ||
+			V.hallucinogen > 0 ||
+			Time.isBloodMoon() ||
+			Object.values(V.worn).find(c => c.type.includes("esoteric"))
+		) {
 			V.hallucinations = 2;
-		} else if (V.trauma >= (V.traumamax / 10) * 3 || V.awareness >= 300) {
+		} else if (
+			V.trauma >= (V.traumamax / 10) * 3 ||
+			(V.awareness >= 300 && !(V.hypnosis_traits.insight && V.settings.hypnosisEnabled)) ||
+			(V.awareness < 300 && V.hypnosis_traits.insight && V.settings.hypnosisEnabled)
+		) {
 			V.hallucinations = 1;
 		} else {
 			V.hallucinations = 0;
@@ -336,6 +347,9 @@ const statChange = (() => {
 	function tiredness(amount, source) {
 		if (isNaN(amount)) paramError("tiredness", "amount", amount, "Expected a number.");
 		amount = Number(amount);
+		if (amount > 0 && (V.worn.upper.type.includes("heavy") || V.worn.lower.type.includes("heavy")) && !V.statFreeze) {
+			amount *= 1.5;
+		}
 		if (amount) {
 			if (V.athleticsFitnessToggle == 1) {
 				V.tiredness += Math.round((amount * Weather.BodyTemperature.fatigueModifier * (amount > 0 ? 15 : 20)) * (1 - ((V.athletics * 5) / 40000)));
@@ -400,7 +414,7 @@ const statChange = (() => {
 	function minPain() {
 		let result = 0;
 
-		if (V.lactating && V.breastfeedingdisable === "f" && V.milkFullPain > 200) {
+		if (V.lactating && V.settings.breastFeedingEnabled === true && V.milkFullPain > 200) {
 			result += Math.ceil((V.milkFullPain - 200) / 5);
 			if (!V.daily.milkFullPainMessage) {
 				V.milkFullPainMessage = 1;
@@ -410,6 +424,7 @@ const statChange = (() => {
 
 		if (
 			V.earSlime.defyCooldown &&
+			!V.hypnosis_traits.silence &&
 			(V.worn.genitals.name === "chastity parasite" || V.parasite.penis.name === "parasite" || V.parasite.clit.name === "parasite")
 		) {
 			result += 25;
@@ -447,7 +462,7 @@ const statChange = (() => {
 				amount *= 0.75;
 			}
 			if (source === "bonus") {
-				// find how many visible, non-mandatory school clothes are equipped, and add 1
+				// find how many visible, non-mandatory school clothes are equipped and add 1
 				const multi = getVisibleClothesList().reduce(
 					(mult, slot) => mult + (slot.type && slot.type.includes("school") && !["upper", "lower"].includes(slot.name)),
 					1
@@ -476,7 +491,7 @@ const statChange = (() => {
 		if (amount > 0) {
 			V.cool += amount;
 
-			// ind how many visible clothes have "cool" in their type (if they have type), and add 1
+			// ind how many visible clothes have "cool" in their type (if they have type) and add 1
 			const multi = getVisibleClothesList().reduce((mult, slot) => mult + (slot.type && slot.type.includes("cool")), 1);
 			V.cool += amount * multi;
 		} else if (amount < 0) {
@@ -1013,19 +1028,21 @@ const statChange = (() => {
 	function wet(type, amount) {
 		if (isNaN(amount)) paramError("wet", "amount", amount, "Expected a number.");
 		amount = Number(amount);
-		if (!["upper", "lower", "under_upper", "under_lower", "underupper", "underlower"].includes(type)) {
-			paramError("wet", "type", type, 'Expected values include "upper", "lower", "under_upper", "under_lower", "underupper" and "underlower"');
+		if (!["upper", "lower", "under_upper", "under_lower"].includes(type)) {
+			paramError("wet", "type", type, 'Expected values include "upper", "lower", "under_upper" and "under_lower"');
 			return;
 		}
-		type = type.replace(/_/g, "");
-		if (amount) {
-			V[type + "wet"] = Math.clamp(V[type + "wet"] + amount, 0, 200);
+		if (!waterproofCheck(V.worn[type])) {
+			type = type.replace(/_/g, "");
+			if (amount) {
+				V[type + "wet"] = Math.clamp(V[type + "wet"] + amount, 0, 200);
+			}
 		}
 	}
 	DefineMacro("upperwet", amount => wet("upper", amount));
 	DefineMacro("lowerwet", amount => wet("lower", amount));
-	DefineMacro("underupperwet", amount => wet("underupper", amount));
-	DefineMacro("underlowerwet", amount => wet("underlower", amount));
+	DefineMacro("underupperwet", amount => wet("under_upper", amount));
+	DefineMacro("underlowerwet", amount => wet("under_lower", amount));
 
 	function worldCorruption(type, amount) {
 		if (isNaN(amount)) paramError("worldCorruption", "amount", amount, "Expected a number.");

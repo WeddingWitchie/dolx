@@ -43,7 +43,7 @@
 <</if>>
 <<schoolperiodtext>>
 
-<<if $forcedcrossdressingdisable is "t">><<unset $whitneyskirtmaths>><</if>>
+<<if !$settings.forcedCrossdressingEnabled>><<unset $whitneyskirtmaths>><</if>>
 <<if $whitneypantiesmaths or $whitneyskirtmaths>>
 	<<if $whitneypantiesmaths is "seen" and ($worn.under_lower.type.includes("naked") or ($whitneypantiescheck is 2 and $worn.under_lower.gender is "f"))>>
 		<<unset $whitneypantiesmaths>>
@@ -60,7 +60,7 @@
 		<<set _maleClothes to Object.keys($worn).filter((slot) => {
 			return $worn[slot].gender is "m" and !["genitals", "under_upper"].includes(slot);
 		})>>
-		<<if $forcedcrossdressingdisable is "t" or !$whitneyskirtcheck>>
+		<<if !$settings.forcedCrossdressingEnabled or !$whitneyskirtcheck>>
 		<<elseif $whitneyCrossdressSchool and _maleClothes.length>>
 			"You're clearly wearing boy's clothes<<if clothingData('lower', $worn.lower, "skirt") isnot 1>> and not bothering with a skirt<</if>>," <<he>> sneers.
 		<<elseif clothingData('lower', $worn.lower, "skirt") isnot 1>>
@@ -322,7 +322,7 @@
 		The <<person1>><<person>> laughs. "Oh no! We'd better do what <<pshe>> says!" <<He>> throws your clothing at a ceiling light, where it catches and remains suspended. "There you go!"
 		<br><br>
 
-		The students enjoy watching you jump and reach above you, whilst trying to keep yourself covered. You manage to knock the light askew, and your clothes come tumbling on top of you. <<tearful>> you clutch your clothing and find a quiet space to dress.
+		The students enjoy watching you jump and reach above you while trying to keep yourself covered. You manage to knock the light askew, and your clothes come tumbling on top of you. <<tearful>> you clutch your clothing and find a quiet space to dress.
 
 		<br><br>
 		<<clotheson>>
@@ -594,7 +594,7 @@ You start checking the lockers, and soon find one that has been left unlocked. Y
 	<br><br>
 	<<endevent>>
 
-	<<if $tentacledisable is "f" and $hallucinations gte 2>>
+	<<if $settings.tentaclesEnabled and $hallucinations gte 2>>
 		<<link [[Kick through|Hallways Exposed Tentacles]]>><<set $molestationstart to 1>><</link>>
 		<br>
 	<<else>>
@@ -618,7 +618,7 @@ You start checking the lockers, and soon find one that has been left unlocked. Y
 You run to the window and throw it open. You don't have enough time to be sure, but it looks safe. You climb out and drop to the pavement below.
 <br><br>
 
-<<link [[Next|Industrial alleyways]]>><<endevent>><</link>>
+<<link [[Next|Industrial Alleyways]]>><<endevent>><</link>>
 <br>
 
 :: Hallways Exposed Classroom Molestation
@@ -1991,16 +1991,17 @@ You slap the grin off the <<person2>><<persons>> face, and shove by. "I'm tellin
 
 :: Hallways Pick Locker Attempt
 <<effects>>
-<<set _unlockChance to random($lock, 500)>>
-<<if currentSkillValue('skulduggery') gte _unlockChance>>
+<<if $skulduggerysuccess>>
 	You successfully pick the lock <<if !$worn.under_lower.type.includes("naked") or !$worn.lower.type.includes("naked")>>and fix your clothing<</if>>.
 	<<stress -5>><<lstress>>
 	<br><br>
+	<<skulduggeryuse $skulduggerydifficulty "locks" 5>>
 	<<lockereventnext>>
 	<br>
 <<else>>
 	You nervously try to open the locker but it remains closed tight.<<stress 2>><<gstress>>
 	<br><br>
+	<<set $lockattempt++>>
 	<<set $lock to $lock + 50>>
 	<<lockereventpassages>>
 <</if>>
@@ -2220,7 +2221,7 @@ The <<person>> grasps your collar tightly. "My parents took me to see a doc beca
 <<if $speech_attitude is "meek">>
 	"B-But... It's your baby!" you argue. "You should take care of it!"
 <<elseif $speech_attitude is "bratty">>
-	"Tough shit," you tell <<him>>. "Guess it's time for you to learn to be a mommy, good luck."
+	"Tough shit," you tell <<him>>. "Guess it's time for you to learn to be a mummy, good luck."
 <<else>>
 	"Look, I'm very sorry for you," you explain. "It was my mistake, but I can't help you right now."
 <</if>>
@@ -2238,7 +2239,7 @@ The <<person1>><<person>> looks at you with incredulity. "Are you fucking kiddin
 "Please no!" you beg. "I... I'm an orphan! Our caretaker makes us pay a lot. <<nnpc_Hes "Bailey">> very scary and I can't afford to spend a single penny if I want to make it through the day. Please understand!" your voice begins to sound shaky and fearful.
 <br><br>
 
-The <<person1>><<person>> looks at you with concern, <<his>> anger begins to turn into sadness. "Just... just go" <<he>> mutters. "You make me sick..." <<he>> says as tears begin to well in <<his>> eyes. <<He>> shoves you back and leaves without saying anything else.
+The <<person1>><<person>> looks at you with concern, <<his>> anger begins to turn into sadness. "Just... just go," <<he>> mutters. "You make me sick..." <<he>> says as tears begin to well in <<his>> eyes. <<He>> shoves you back and leaves without saying anything else.
 <br><br>
 
 <<link [[Next|Hallways]]>><<endevent>><<set $eventskip to 1>><</link>>
@@ -2247,23 +2248,35 @@ The <<person1>><<person>> looks at you with concern, <<his>> anger begins to tur
 :: Hallways Locker Victim
 <<effects>>
 <<if $phase is 0>> /* Help */
-	<<generateyv1>><<person1>>
-	It takes you some time to pick the lock, but you eventually manage.
-	<br><br>
+	You step towards the locker and start inspecting the lock. 
+	<<if $skulduggerysuccess>>
+		<<generateyv1>><<person1>>
+		After a bit of probing, it proves to be no match for you and <span class="green">the lock clicks open.</span>
+		<br><br>
 
-	<<skulduggeryuse 100 "locks" 5>>
+		<<skulduggeryuse 100 "locks" 5>>
 
-	When the door finally opens, a grateful <<person>> emerges. "Thank you so much.
-	<<print either(
-		"It was so dark in there!",
-		"It was so cramped in there!",
-		"I'm bursting for a wee!",
-		"That was kind of scary!",
-		"Bullies are the worst.")>>"
-	The <<person>> gives you a broad smile and dashes away. <<lstress>><<stress -2>>
-	<br><br>
-	<<link [[Next|Hallways]]>><<famegood 3>><<endevent>><<set $eventskip to 1>><</link>>
-	<br>
+		When the door finally opens, a grateful <<person>> emerges. "Thank you so much.
+		<<print either(
+			"It was so dark in there!",
+			"It was so cramped in there!",
+			"I'm bursting for a wee!",
+			"That was kind of scary!",
+			"Bullies are the worst.")>>"
+		The <<person>> gives you a broad smile and dashes away. <<lstress>><<stress -2>>
+		<br><br>
+		<<link [[Next|Hallways]]>><<famegood 3>><<endevent>><<set $eventskip to 1>><</link>>
+		<br>
+	<<else>>
+		<<pass 8>>
+		After several minutes of fiddling with the it to no avail, you decide to give up. <span class="red">You cannot unlock it.</span>
+		<br><br>
+		<<skulduggeryuse 100 "locks" 5>>
+
+		<<link [[Find a teacher to help them (0:03)|Hallways Locker Victim]]>><<pass 3>><<set $phase to 1>><</link>>
+		<br>
+		<<link [[Ignore them|Hallways Locker Victim]]>><<set $phase to 3>><</link>>
+	<</if>>
 <<elseif $phase is 1>> /* Teacher */
 	You go to the staff room and get the attention of a teacher.
 	<<if $delinquency gte 400>>
@@ -2616,11 +2629,13 @@ The <<person1>><<person>> looks at you with concern, <<his>> anger begins to tur
 	<br>
 <<else>>
 	<<outfitChecks>>
-	You grab for your $worn.lower.name, but the <<person1>><<person>> behind you is faster. Your $worn.lower.name <<print _plural ? "are" : "is">> torn from your grasp as <<he>> yanks downwards,
+	You grab for your $worn.lower.name, but the <<person1>><<person>> behind you is faster. You fail to reach your $worn.lower.name before it gets pulled down,
 	<<if _underwear>>
 		taking your <<underbottoms>> with <<print _plural ? "them" : "it">> and
 	<</if>>
 	<span class="lewd">exposing your <<genitals>> to everyone!</span>
+	<br><br>
+	You try to turn around to confront <<him>>, causing you to trip on your clothes. As you fall to the ground, the <<person>> takes advantage of the situation and <span class="red">pulls them off entirely!</span>
 	<br><br>
 	<<He>> grins and steps backwards, melting back into the crowd before you have a chance to do anything. There's a moment where you think no one will notice, but then someone screams and people start to gawk and point at your nakedness.
 	<br><br>
@@ -2656,11 +2671,6 @@ Fighting would only make it worse. You keep your hand still and brace yourself. 
 
 :: Hallways Pantsed Reveal
 <<effects>>
-/* Makes it so clothing will actually be damaged. I'm pretty sure these could just be called at the end of the passage
-and totally invalidate the need for $pantsed, but I don't care enough to test that and see if it's true */
-<<set $worn.lower.integrity -=20>><<set $worn.under_lower.integrity -= 20>>
-<<integritycheck no_text>><<underlowerstrip>><<lowerstrip>>
-
 
 <<if $pantsed.lowerintegrity lte 0 and $pantsed.underlowerintegrity lte 0>>
 	/* both bottoms and underwear (if any) get destroyed */

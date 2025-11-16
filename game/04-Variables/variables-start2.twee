@@ -56,7 +56,7 @@
 	<<set $hairFringeColourStyle to "simple">>
 	<<set $hairFringeColourGradient to { style: "split", colours: ["red", "black"]}>>
 
-	<<if $cheatdisable is "f" and !$debug or $rentmod lt 1 and !$debug>>
+	<<if $cheatsEnabled is true and !$debug or $settings.rentCostModifier lt 1 and !$debug>>
 		<<set $feats.locked to true>>
 	<</if>>
 
@@ -123,6 +123,7 @@
 		<<set $player.penisExist to true>>
 		<<set $player.vaginaExist to true>>
 	<</if>>
+	<<set $identity.init to false>>
 	<<physicalAdjustmentsInit>>
 	<<set $player.perceived_breastsize = $player.breastsize>>
 	<<set $player.perceived_bottomsize = $player.bottomsize>>
@@ -286,7 +287,10 @@
 			GreatHawkHunts: 0,
 			GreatHawkCasual: 0,
 			Alex: 0,
-			Sydney: 0
+			Sydney: 0,
+			Gwylan: 0,
+			GwylanBeast: 0,
+			GwylanSex: 0
 		}>>
 	<</if>>
 
@@ -390,7 +394,7 @@
 	<<set $kylarSeen to []>>
 	<<set $museumAntiqueJournalHints to []>>
 
-	<<specialClothesSetup>>
+	<<specialClothesUpdate>>
 	<<pregnancyVar>>
 	<<set $specialClothesEffects to {
 		bimbo: { progress: 0, total: 0, message: 0 },
@@ -432,6 +436,7 @@
 		eden: {},
 		alex: {},
 		sydney: {},
+		gwylan: {},
 		ex: {},
 		pharm: {},
 		prison: {},
@@ -440,15 +445,7 @@
 		avery: {}
 	}>>
 
-	<<set _food_keys to Object.keys(setup.plants)>>
-	<<for _i to 0; _i lt _food_keys.length; _i++>>
-		<<set $_type to _food_keys[_i]>>
-		<<if $plants[$_type] is undefined>>
-			<<set $plants[$_type] to {"name": setup.plants[$_type].name, "plural": setup.plants[$_type].plural, "amount": 0}>>
-		<<elseif $plants[$_type].name is undefined>>
-			<<set $plants[$_type] to {"name": setup.plants[$_type].name, "plural": setup.plants[$_type].plural, "amount": $plants[$_type].amount}>>
-		<</if>>
-	<</for>>
+	<<updatePlants>>
 	<<supermarketWeekly>>
 
 	<<set $weekly to {
@@ -478,6 +475,21 @@
 
 	<<set $auriga_scar to 0>>
 	
+	<<set $compound to {
+		alarm: 0,
+		bluff: false,
+		card: 0,
+		interrogation: {},
+		theft: {
+			centre: false,
+			smoke: false,
+			pipes: false,
+		},
+		symbol: [],
+	}>>
+
+	<<set $transformationHistory to []>>
+
 	<<generateTipsList>>
 
 	<<modupdate>>

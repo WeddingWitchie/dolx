@@ -1,0 +1,390 @@
+:: XChange NPC Targeted Actions Widgets [widget]
+
+    <<widget "pickupXchangePill">>
+        <<if $enemytype is "man">>
+            <<set $_hand to _args[0]>>
+            <<set $_pills to window.listUniqueCarriedXchangePills()>>
+
+            <<if $_hand is "left" and ($lefttarget isnot "self" or $options.targetYourself is false or _targetnumber is 1)>>
+                <<if $_pills.length gt 0>>
+                    <<set _pillsLeft to {}>>
+
+                    <<run $_pills.forEach(pill => {
+                        if ($currentXchangePillRight is undefined or pill.name isnot $currentXchangePillRight.name){
+                            _pillsLeft[pill.name] = pill;
+                        }
+                    })>>
+                    <<if Object.keys(_pillsLeft).length gte 1>>
+                        <<set _leftaction["Pick up pill:"] to "pickupXchangePill">>
+                    <</if>>
+                <</if>>
+            <</if>>
+
+            <<if $_hand is "right" and ($righttarget isnot "self" or $options.targetYourself is false or _targetnumber is 1)>>
+                <<if $_pills>>
+                    <<set _pillsRight to {}>>
+
+                    <<run $_pills.forEach(pill => {
+                        if ($currentXchangePillLeft is undefined or pill.name isnot $currentXchangePillLeft.name){
+                            _pillsRight[pill.name] = pill;
+                        }
+                    })>>
+                    <<if Object.keys(_pillsRight).length gte 1>>
+                        <<set _rightaction["Pick up pill:"] to "pickupXchangePill">>
+                    <</if>>
+                <</if>>
+            <</if>>
+        <</if>>
+    <</widget>>
+
+    <<widget "heldXchangePill">>
+        <<if _args[0] isnot undefined>>
+            <<if _args[0] is "left">>
+                /* rest */
+                <<set _leftaction["Rest"] to "heldXchangePill">>
+
+                /* Drop pill */
+                <<set _leftaction["Pocket your pill"] to "dropXchangePill">>
+
+                /* Pill the targeted NPC */
+                <<if $lefttarget isnot undefined and $lefttarget isnot "self">>
+                    <<set _actiontext to ($npcpillingasked is $lefttarget ? "Pill ": "Attempt to pill ")+$NPCList[$lefttarget].pronouns.him>>
+                    <<set _leftaction[_actiontext] to "xchangePillOther">>
+                <</if>>
+
+                /* Pill yourself */
+                <<if !playerIsXChanged() and ($lefttarget is "self" or $options.targetYourself is false or _targetnumber is 1)>>
+                    <<set _leftaction["Pill yourself"] to "xchangePillSelf">>
+                <</if>>
+            <</if>>
+
+            <<if _args[0] is "right">>
+                /* rest */
+                <<set _rightaction["Rest"] to "heldXchangePill">>
+
+                /* Drop pill */
+                <<set _rightaction["Pocket your pill"] to "dropXchangePill">>
+
+                /* Pill the targeted NPC */
+                <<if $righttarget isnot undefined and $righttarget isnot "self">>
+                    <<set _actiontext to ($npcpillingasked is $righttarget ? "Pill ": "Attempt to pill ")+$NPCList[$righttarget].pronouns.him>>
+                    <<set _rightaction[_actiontext] to "xchangePillOther">>
+                <</if>>
+
+                /* Pill yourself */
+                <<if !playerIsXChanged() and ($righttarget is "self" or $options.targetYourself is false or _targetnumber is 1)>>
+                    <<set _rightaction["Pill yourself"] to "xchangePillSelf">>
+                <</if>>
+            <</if>>
+        <</if>>
+    <</widget>>
+
+    <<widget "effectsPickupXchangePill">>
+        /* Start with a pill on hand: Before combat do this: <<set $leftarm to "heldXchangePill">><<set $currentXchangePillLeft to clone(setup.pills[0])>> */
+        /* That will effectively mimic this widget so that a player starts combat holding a pill */
+        <<if $leftaction is "pickupXchangePill" and $rightaction is "pickupXchangePill" and $selectedXchangePillRight.name is $selectedXchangePillLeft.name>>
+                <<set $leftaction to 0>><<set $leftactiondefault to "rest">><<set $rightaction to 0>><<set $rightactiondefault to "rest">><<set $rightarm to "heldXchangePill">>
+                <<set $currentXchangePillRight to $selectedXchangePillRight>><<set $xchangePillReveal to 1>>
+                You pull out a $currentXchangePillRight.name pill and hold it with your right hand.
+        <<else>>
+            <<if $leftaction is "pickupXchangePill" and $selectedXchangePillLeft>>
+                <<set $leftaction to 0>><<set $leftactiondefault to "rest">><<set $leftarm to "heldXchangePill">>
+                <<set $currentXchangePillLeft to $selectedXchangePillLeft>><<set $xchangePillReveal to 1>>
+                You pull out a $currentXchangePillLeft.name pill with your left hand.
+            <</if>>
+            <<if $rightaction is "pickupXchangePill" and $selectedXchangePillRight>>
+                <<set $rightaction to 0>><<set $rightactiondefault to "rest">><<set $rightarm to "heldXchangePill">>
+                <<set $currentXchangePillRight to $selectedXchangePillRight>><<set $xchangePillReveal to 1>>
+                You pull out a $currentXchangePillRight.name pill with your right hand.
+            <</if>>
+        <</if>>
+    <</widget>>
+
+    <<widget "effectsDropXchangePill">>
+        <<if $leftaction is "dropXchangePill" and $rightaction is "dropXchangePill">>
+            <<set $leftaction to 0>><<set $leftactiondefault to "rest">><<set $leftarm to 0>><<set $rightaction to 0>><<set $rightactiondefault to "rest">><<set $rightarm to 0>>
+            You pocket your pills.
+            <<unset $currentXchangePillLeft>><<unset $currentXchangePillRight>>
+        <<else>>
+            <<if $leftaction is "dropXchangePill">>
+                <<set $leftaction to 0>><<set $leftactiondefault to "rest">><<set $leftarm to 0>>
+                You pocket the $currentXchangePillLeft.name in your left hand.
+                <<unset $currentXchangePillLeft>>
+            <</if>>
+            <<if $rightaction is "dropXchangePill">>
+                <<set $rightaction to 0>><<set $rightactiondefault to "rest">><<set $rightarm to 0>>
+                You pocket the $currentXchangePillRight.name in your right hand.
+                <<unset $currentXchangePillRight>>
+            <</if>>
+        <</if>>
+    <</widget>>
+
+    <<widget "effectsUseXchangePill">>
+        <<if $leftaction is "xchangePillSelf" and $rightaction is "xchangePillSelf">>
+            <<set $leftaction to 0>><<set $leftactiondefault to "rest">><<set $leftarm to 0>><<set $rightaction to 0>><<set $rightactiondefault to "rest">><<set $rightarm to 0>>
+            You swallow the pills, <span class="purple">surrendering yourself to the change.</span>
+            <<run $currentXchangePillLeft.effects.forEach(effect => {
+                Wikifier.wikifyEval(effect);
+            })>>
+            <<run $currentXchangePillRight.effects.forEach(effect => {
+                Wikifier.wikifyEval(effect);
+            })>>
+            <<set $sexStats.pills.pills[$currentXchangePillLeft.name].owned-->>
+            <<set $sexStats.pills.pills[$currentXchangePillRight.name].owned-->>
+            <<unset $currentXchangePillLeft>><<unset $currentXchangePillRight>>
+        <<else>>
+            <<if $leftaction is "xchangePillSelf">>
+                <<set $leftaction to 0>><<set $leftactiondefault to "rest">><<set $leftarm to 0>>
+                You swallow the $currentXchangePillLeft.name in your left hand, <span class="purple">surrendering to the change.</span>
+                <<run $currentXchangePillLeft.effects.forEach(effect => {
+                    Wikifier.wikifyEval(effect);
+                })>>
+                <<set $sexStats.pills.pills[$currentXchangePillLeft.name].owned-->>
+                <<unset $currentXchangePillLeft>>
+            <</if>>
+            <<if $rightaction is "xchangePillSelf">>
+                <<set $rightaction to 0>><<set $rightactiondefault to "rest">><<set $rightarm to 0>>
+                You swallow the $currentXchangePillRight.name in your right hand, <span class="purple">surrendering to the change.</span>
+                <<run $currentXchangePillRight.effects.forEach(effect => {
+                    Wikifier.wikifyEval(effect);
+                })>>
+                <<set $sexStats.pills.pills[$currentXchangePillRight.name].owned-->>
+                <<unset $currentXchangePillRight>>
+            <</if>>
+        <</if>>
+
+        <<if $leftaction is "xchangePillOther">>
+            <<set $sexStats.pills.pills[$currentXchangePillLeft.name].owned-->>
+            <<if $npcpillingasked is $lefttarget>>
+                <<set $leftaction to 0>><<set $leftactiondefault to "rest">><<set $leftarm to 0>>
+                You present $NPCList[$lefttarget].pronouns.him the pill, <span class="lewd">and $NPCList[$lefttarget].pronouns.he opens $NPCList[$lefttarget].pronouns.his mouth allowing you to feed it to $NPCList[$lefttarget].pronouns.him.</span>
+                The change is instantaneous, the previously <<= $NPCNameList.includes($NPCList[$lefttarget].description)? "reluctant "+$NPCList[$lefttarget].description : $NPCList[$lefttarget].fullDescription>> is now nothing more than a
+                <<npc-select-xchange-target $lefttarget>>
+                <<run $currentXchangePillLeft.npcEffects.forEach(npcEffect => {
+                    Wikifier.wikifyEval(npcEffect);
+                })>>
+                <<= $NPCList[$lefttarget].teen? $NPCList[$lefttarget].pronouns.boy : $NPCList[$lefttarget].pronouns.man>>.
+                <<unset $currentXchangePillLeft>>
+                
+            <<else>>
+                You throw yourself onto<<= !$NPCNameList.includes($NPCList[$lefttarget].fullDescription) ? " the":"">> $NPCList[$lefttarget].fullDescription, and after some struggle
+
+                <<set _physiquemin to ($NPCList[$lefttarget].skills.athletics - ($enemyhealthmax - $enemyhealth) * ($NPCList[$lefttarget].skills.athletics/$enemyhealthmax)) * 16>>
+                <<set _physiquemax to 16000 - ($enemyhealthmax - $enemyhealth) * ($NPCList[$lefttarget].skills.athletics/$enemyhealthmax) * 16>>
+                <<silently>><<physiquedifficulty _physiquemin _physiquemax>><</silently>>
+
+                <<if $physiqueSuccess>>
+                    <<set $leftaction to 0>><<set $leftactiondefault to "rest">><<set $leftarm to 0>>
+                    <span class="green">you manage to outmaneuver $NPCList[$lefttarget].pronouns.him, shoving your pill into $NPCList[$lefttarget].pronouns.his mouth and forcing $NPCList[$lefttarget].pronouns.him to swallow.</span>
+                    The change is instantaneous, the previously <<= $NPCNameList.includes($NPCList[$lefttarget].description)? "reluctant "+$NPCList[$lefttarget].description : $NPCList[$lefttarget].fullDescription>> is now nothing more than a
+                    <<npc-select-xchange-target $lefttarget>>
+                    <<run $currentXchangePillLeft.npcEffects.forEach(npcEffect => {
+                        Wikifier.wikifyEval(npcEffect);
+                    })>>
+                    <<= $NPCList[$lefttarget].teen? $NPCList[$lefttarget].pronouns.boy : $NPCList[$lefttarget].pronouns.man>>.
+                    <<unset $currentXchangePillLeft>>
+
+                <<elseif !playerIsXChanged() and playerMayBeSpiked()>>
+                    <<set $leftaction to 0>><<set $leftactiondefault to "rest">><<set $leftarm to 0>>
+                    <span class="red">$NPCList[$lefttarget].pronouns.he overpowers you, taking the pill away from you and forcing it down your throat.</span>
+                    <<run $currentXchangePillLeft.effects.forEach(effect => {
+                        Wikifier.wikifyEval(effect);
+                    })>>
+                    <<unset $currentXchangePillLeft>>
+
+                <<else>>
+                    <<set $leftaction to 0>><<set $leftactiondefault to "rest">><<set $leftarm to 0>>
+                    <span class="brat">$NPCList[$lefttarget].pronouns.he whacks the pill away from your hand.</span>
+                    <<unset $currentXchangePillLeft>>
+
+                <</if>>
+            <</if>>
+            
+        <</if>>
+        <<if $rightaction is "xchangePillOther">>
+            <<set $sexStats.pills.pills[$currentXchangePillRight.name].owned-->>
+            <<if $npcpillingasked is $righttarget>>
+                <<set $rightaction to 0>><<set $rightactiondefault to "rest">><<set $rightarm to 0>>
+                You present $NPCList[$righttarget].pronouns.him the pill,<span class="lewd"> and $NPCList[$righttarget].pronouns.he opens $NPCList[$righttarget].pronouns.his mouth allowing you to feed it to $NPCList[$righttarget].pronouns.him.</span>
+                The change is instantaneous, the previously <<= $NPCNameList.includes($NPCList[$righttarget].description)? "reluctant "+$NPCList[$righttarget].description : $NPCList[$righttarget].fullDescription>> is now nothing more than a
+                <<npc-select-xchange-target $righttarget>>
+                <<run $currentXchangePillRight.npcEffects.forEach(npcEffect => {
+                    Wikifier.wikifyEval(npcEffect);
+                })>>
+                <<= $NPCList[$righttarget].teen? $NPCList[$righttarget].pronouns.boy : $NPCList[$righttarget].pronouns.man>>.
+                <<unset $currentXchangePillRight>>
+
+            <<else>>
+                You throw yourself onto<<= !$NPCNameList.includes($NPCList[$righttarget].fullDescription) ? " the":"">> $NPCList[$righttarget].fullDescription, and after some struggle
+
+                <<set _physiquemin to ($NPCList[$righttarget].skills.athletics - ($enemyhealthmax - $enemyhealth) * ($NPCList[$righttarget].skills.athletics/$enemyhealthmax)) * 16>>
+                <<set _physiquemax to 16000 - ($enemyhealthmax - $enemyhealth) * ($NPCList[$righttarget].skills.athletics/$enemyhealthmax) * 16>>
+                <<silently>><<physiquedifficulty _physiquemin _physiquemax>><</silently>>
+
+                <<if $physiqueSuccess>>
+                    <<set $rightaction to 0>><<set $rightactiondefault to "rest">><<set $rightarm to 0>>
+                    <span class="green">you manage to outmaneuver $NPCList[$righttarget].pronouns.him, shoving your pill into $NPCList[$righttarget].pronouns.his mouth and forcing $NPCList[$righttarget].pronouns.him to swallow.</span>
+                    The change is instantaneous, the previously <<= $NPCNameList.includes($NPCList[$righttarget].description)? "reluctant "+$NPCList[$righttarget].description : $NPCList[$righttarget].fullDescription>> is now nothing more than a
+                    <<npc-select-xchange-target $righttarget>>
+                    <<run $currentXchangePillRight.npcEffects.forEach(npcEffect => {
+                        Wikifier.wikifyEval(npcEffect);
+                    })>>
+                    <<= $NPCList[$righttarget].teen? $NPCList[$righttarget].pronouns.boy : $NPCList[$righttarget].pronouns.man>>.
+                    <<unset $currentXchangePillRight>>
+
+                <<elseif !playerIsXChanged() and playerMayBeSpiked()>>
+                    <<set $rightaction to 0>><<set $rightactiondefault to "rest">><<set $rightarm to 0>>
+                    <span class="red">$NPCList[$righttarget].pronouns.he overpowers you, taking the pill away from you and forcing it down your throat.</span>
+                    <<run $currentXchangePillRight.effects.forEach(effect => {
+                        Wikifier.wikifyEval(effect);
+                    })>>
+                    <<unset $currentXchangePillRight>>
+
+                <<else>>
+                    <<set $rightaction to 0>><<set $rightactiondefault to "rest">><<set $rightarm to 0>>
+                    <span class="brat">$NPCList[$righttarget].pronouns.he whacks the pill away from your hand.</span>
+                    <<unset $currentXchangePillRight>>
+
+                <</if>>
+            <</if>>
+        <</if>>
+    <</widget>>
+
+    <<widget "effectsAskNpcXchangePill">>
+        <<if $mouthaction is "ask" and $askAction is "askXchangePill">>
+			<<set $mouthaction to 0>><<set _sound to 1>>
+			<<if $neckuse is "hand" and $oxygen lt $oxygenmax and $asphyxiaLvl gte 2>>
+				<<wheeze "ask <<him>> to let you pill <<him>">>
+			<<else>>
+				<<set $mouthactiondefault to "rest">>
+                <<brat 5 demanding>><<if !$gloryhole and $gamemode isnot "soft">><<seductionskillusecombat>><</if>><<unset $askAction>>
+                You ask <<him>> to let you pill <<him>>.
+
+                <<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
+                    <span class="red"><<if $enemyno gte 2>>They don't<<else>><<He>> doesn't<</if>> understand your words,</span> and <<if $enemyno gte 2>>ignore<<else>>ignores<</if>> them.
+
+                <<elseif $combatgoal is "strip">>
+                    <span class="pink">"No," <<if $enemyno gte 2>>they laugh<<else>><<he>> laughs<</if>>. <<if !playerIsXChanged()>>"If anything, I should be pilling you."<<else>>"Don't even think about it."<</if>></span>
+                    
+                <<elseif combatSkillCheck("seduction", $mouthtarget, $NPCList[$mouthtarget].fullDescription)>>
+                    <<set $npcpillingasked to $mouthtarget>><span class="green"><<He_Short>> nods in acknowledgement.</span>
+
+                <<elseif $enemyanger gte $enemyangermax * (2/5)>>
+                    <<His>> answer arrives within a single breath, <span class="red">"Stupid slut, you think you are in any position to be asking for anything?"</span>
+
+                <<else>> 
+                    <<He>> pauses for a moment to ponder, <span class="red">"No, I don't think I'd want that."</span>
+                
+                <</if>>
+			<</if>>
+		<</if>>
+    <</widget>>
+
+    <<widget "npc-reaction-pill">> /* Using sextoy's code as a template */
+        /* <<set $_sexToy to ($rightarm is "heldSexToy" and $leftarm is "heldSexToy" ? "sex toys" : "sex toy")>>
+		<<set $_was to ($rightarm is "heldSexToy" and $leftarm is "heldSexToy" ? "were" : "was")>>
+
+		<<if $enemyno gte 2>>
+			<<set $speechSextoyState to $speechSextoyState || either("aroused", "neutral", "disappointed", "shocked", "angry")>>
+			<<cleareventpool>>
+			<<switch $speechSextoyState>>
+				<<case "aroused">>
+					<<addinlineevent>>
+						Their breath quickens at the sight of your $_sexToy.
+						<<set $enemyarousal += 50>>
+					<</addinlineevent>>
+					<<addinlineevent>>
+						They seem pleased to see your $_sexToy.
+					<</addinlineevent>>
+					<<addinlineevent>>
+						They're taken aback by your $_sexToy, but seem excited by it.
+					<</addinlineevent>>
+				<<case "neutral">>
+					<<addinlineevent>>
+						Your $_sexToy $_was clearly unexpected, but they don't seem to mind.
+					<</addinlineevent>>
+				<<case "disappointed">>
+					<<addinlineevent 0.5>>
+						They look disappointed by your $_sexToy. It wasn't what they was expecting.
+						<<set $enemyarousal -= 100>><<set $enemytrust -= 50>>
+					<</addinlineevent>>
+				<<case "shocked">>
+					<<addinlineevent 0.5>>
+						Their eyes widen in shock at the reveal of your $_sexToy.
+						<<set $enemyanger -= 50>><<set $enemytrust -= 50>>
+					<</addinlineevent>>
+				<<case "angry">>
+					<<addinlineevent 0.5>>
+						They recoil in disgust at the sight of your $_sexToy.
+						<<set $enemyanger += 75>><<set $enemytrust -= 75>>
+					<</addinlineevent>>
+				<<default>>
+					<<addinlineevent>>
+						They appear confused. Not sure what to think of your $_sexToy.
+						<span class="blue">You should inform Vrelnir.</span>
+					<</addinlineevent>>
+			<</switch>>
+			<<runeventpool>>
+		<<else>>
+			<<switch $NPCList[0].fullDescription>>
+				<<case "Robin">>
+					<<set $speechsextoy to 1>>
+				<<case "Kylar">>
+					<<set $speechsextoy to 1>>
+				<<case "Whitney">>
+					<<set $speechsextoy to 1>>
+				<<case "Sydney">>
+					<<set $speechsextoy to 1>>
+				<<case "Alex">>
+					<<set $speechsextoy to 1>>
+				<<case "Eden">>
+					<<set $speechsextoy to 1>>
+					<<set $enemytrust -=25>>
+				<<case "Avery">>
+					<<set $speechsextoy to 1>>
+				<<case "Leighton">>
+					<<set $speechsextoy to 1>>
+				<<default>>
+					<<set $speechSextoyState to $speechSextoyState || either("aroused", "neutral", "disappointed", "shocked", "angry")>>
+					<<cleareventpool>>
+					<<switch $speechSextoyState>>
+						<<case "aroused">>
+							<<addinlineevent>>
+								<<His>> breath quickens at the sight of your $_sexToy.
+								<<set $enemyarousal += 50>>
+							<</addinlineevent>>
+							<<addinlineevent>>
+								<<He>> seems pleased to see your $_sexToy.
+							<</addinlineevent>>
+							<<addinlineevent>>
+								<<Hes>> taken aback by your $_sexToy, but seems excited by it.
+							<</addinlineevent>>
+						<<case "neutral">>
+							<<addinlineevent>>
+								Your $_sexToy $_was clearly unexpected, but <<he>> doesn't seem to mind.
+							<</addinlineevent>>
+						<<case "disappointed">>
+							<<addinlineevent 0.5>>
+								<<He>> looks disappointed by your $_sexToy. It wasn't what <<he>> was expecting.
+								<<set $enemyarousal -= 100>><<set $enemytrust -= 50>>
+							<</addinlineevent>>
+						<<case "shocked">>
+							<<addinlineevent 0.5>>
+								<<His>> eyes widen in shock at the reveal of your $_sexToy.
+								<<set $enemyanger -= 50>><<set $enemytrust -= 50>>
+							<</addinlineevent>>
+						<<case "angry">>
+							<<addinlineevent 0.5>>
+								<<He>> recoils in disgust at the sight of your $_sexToy.
+								<<set $enemyanger += 75>><<set $enemytrust -= 75>>
+							<</addinlineevent>>
+						<<default>>
+							<<addinlineevent>>
+								<<He>> appears confused. Not sure what to think of your $_sexToy.
+								<span class="blue">You should inform Vrelnir.</span>
+							<</addinlineevent>>
+					<</switch>>
+					<<runeventpool>>
+			<</switch>>
+		<</if>> */
+    <</widget>>

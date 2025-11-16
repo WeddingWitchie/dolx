@@ -53,7 +53,8 @@ declare global {
 		| "hawk"
 		| "harpy"
 		| "cow"
-		| "spider";
+		| "spider"
+		| "snake";
 
 	export type PlantTypes = "plant";
 
@@ -133,6 +134,7 @@ declare global {
 			| "mouthimminent"
 			| "mouth"
 			| "othermouth"
+			| "otheranus"
 			| "feet"
 			| "footjob"
 			| "leftarm"

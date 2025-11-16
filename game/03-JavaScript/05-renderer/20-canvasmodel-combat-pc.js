@@ -551,7 +551,12 @@ const combatMainPc = {
 				return options.animKey;
 			},
 			filters: ["tentacles"],
-			z: CombatRenderer.indices.frontArm + 5,
+			zfn(options) {
+				if (options.tentacles.frontArm.isBound) {
+					return CombatRenderer.indices.frontArm + 20;
+				}
+				return CombatRenderer.indices.frontArm + 5;
+			},
 		},
 		tentacleBackLeg: {
 			srcfn(options) {
@@ -641,6 +646,18 @@ const combatMainPc = {
 				return options.animKey;
 			},
 			z: 50,
+		},
+		buttplug: {
+			z: 41,
+			animationfn(options) {
+				return options.animKey;
+			},
+			showfn() {
+				return playerHasButtPlug() && V.worn.butt_plug?.name.includes("tail");
+			},
+			srcfn(options) {
+				return `${options.src}toys/${V.worn.butt_plug?.name.replace(/ /g, "-")}.png`;
+			},
 		},
 		/*
 		 *	██████   █████  ███████ ███████
@@ -1309,6 +1326,9 @@ const combatMainPc = {
 		 */
 		facewear: PlayerCanvasHelper.genClothingLayer("face", {
 			zfn(options) {
+				if (options.clothes.face?.name === "islandermask") {
+					return CombatRenderer.indices.hair + 1;
+				}
 				if (V.facelayer === "back") {
 					return CombatRenderer.indices.hair + 1;
 				}
@@ -1627,6 +1647,9 @@ const combatMainPc = {
 					Errors.report("Clothing object was undefined");
 					return false;
 				}
+				if (options.clothes.head?.name === "witchsage") {
+					return !["fox", "cat", "wolf"].some(t => options.transformations[t].ears.show);
+				}
 				if (!CombatRenderer.isClothingShown(clothes, options.showClothing)) return false;
 				return !!clothes.hasBackAccessory;
 			},
@@ -1654,6 +1677,18 @@ const combatMainPc = {
 			z: CombatRenderer.indices.hair + 1,
 		}),
 		headwearAcc: PlayerCanvasHelper.genClothingAccLayer("head", {
+			showfn(options) {
+				const clothes = options.clothes.head;
+				if (clothes == null) {
+					Errors.report("Clothing object was undefined");
+					return false;
+				}
+				if (options.clothes.head?.name === "witchsage") {
+					return !["fox", "cat", "wolf"].some(t => options.transformations[t].ears.show);
+				}
+				if (!CombatRenderer.isClothingShown(clothes, options.showClothing)) return false;
+				return !!clothes.hasAccessory;
+			},
 			z: CombatRenderer.indices.hair + 1,
 		}),
 		headwearPattern: PlayerCanvasHelper.genClothingPatternLayer("head", {

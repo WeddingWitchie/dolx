@@ -284,13 +284,46 @@ You open your booklet and prepare to practise. You read through the lines, tryin
 <<set _chair to Furniture.get('chair', $location)>>
 <<if $location is "home" and _chair.type.includes("comfy")>>
 	You settle back in your <span class="green">comfortable</span> chair as you recite your lines.<<set $englishPlayReadiness += 6>>
+<<elseif $location is "avery_mansion">>
+	You settle back in the <span class="green">comfortable</span> chair as you recite your lines.<<set $englishPlayReadiness += 6>>
 <<else>>
 	You shift around on your chair, <span class="red">unable to get comfortable.</span> <<if $location is "home">>If you purchase a comfier desk chair, it may be easier to focus on your lines.<<else>>A comfortable desk chair might help.<</if>> <<set $englishPlayReadiness += 3>>
 <</if>>
 <<playReadiness>>
 <br><br>
 
-<<link [[Next|Bedroom]]>><</link>>
+<<if $location is "avery_mansion">>
+	<<avery_mansion>>
+	<<if $avery_mansion.schedule is "study">>
+		Avery watches you occasionally as you immerse yourself in the role.
+		<<if C.npc.Avery.rage lte 20>>
+			<<He>> smiles and applauds your performance.
+		<<elseif C.npc.Avery.rage lte 40>>
+			<<He>> offers some critique here and there.
+		<<elseif C.npc.Avery.rage lte 60>>
+			<<He>> critiques the performance here and there, though much of it seems rather harsh.
+		<<else>>
+			<<He>> frowns and tells you to keep it down. You try your best to do so.
+		<</if>>
+		<br><br>
+	<<elseif ($avery_mansion.schedule is "lounge" or $avery_mansion.schedule is "breakfast" or $avery_mansion.schedule is "garden") and $rng gte 90>>
+		<<if C.npc.Avery.rage lte 20>>
+			You hear a knock on the door. Avery enters. "Aha, so that was you! What a soulful preformance that was, <<pcpetname "Avery">>. Bravo." <<He>> claps politely, then smiles and closes the door.
+		<<elseif C.npc.Avery.rage gte random(40, 80)>>
+			<<set $daily.avery.noRehearse to true>>
+			The door swings open, and an Avery stands glaring at you. "Do you mind?! I'm trying to relax and you're over here making a big ruckus." <<He>> turns and slams the door shut behind <<him>>.
+		<</if>>
+	<</if>>
+<</if>>
+
+<<if $location is "home">>
+	<<link [[Next|Bedroom]]>><</link>>
+<<elseif $location is "avery_mansion">>
+	<<link [[Next|Mansion Study]]>><</link>>
+<<else>>
+	<span class="red">Error: Invalid location: $location. Please report.</span>
+	<<link [[Next|Bedroom]]>><</link>>
+<</if>>
 <br>
 
 :: English Play Rehearse Kylar
@@ -325,7 +358,7 @@ You open your booklet and prepare to practise. You read through the lines, tryin
 
 				"The other role should be mine," <<he>> hisses, but quickly calms down. "I-I would do it better than <<nnpc_him "Sydney">>. I'm sure of it."
 			<<case "Sterling">>
-				You and Kylar start the rehearsal. About half way through, Kylar suddenly stops. You ask <<him>> what the problem is and <<he>> sighs.
+				You and Kylar start the rehearsal. About halfway through, Kylar suddenly stops. You ask <<him>> what the problem is and <<he>> sighs.
 				<br><br>
 
 				"I j-just don't want to have to say that kind of thing to <<nnpc_him "Sydney">>," <<he>> says, raising <<his>> palm to <<his>> face. "I-I know it's just a play, but it's still awkward, you know?" <<He>> sighs again. "I wish I could say it to you instead."
@@ -710,7 +743,7 @@ You start to rehearse with Kylar and Sydney. Kylar seems placid for the most par
 
 			Sydney starts to respond. "Don't call them losers—"
 			<br>
-			"-don't call <<phim>> a loser." Kylar's own retort overlaps with Sydney's as the two speak in unison. They blink and glance at each other, before returning to stare the <<person>> down.
+			"—don't call <<phim>> a loser." Kylar's own retort overlaps with Sydney's as the two speak in unison. They blink and glance at each other, before returning to stare the <<person>> down.
 			<br><br>
 			<<He>> laughs nervously, taking a step back. "I guess it's a full group of freaks, then. Come on, let's go." <<He>> leaves, getting playful shoves from the other students.
 			<br><br>
@@ -1146,7 +1179,7 @@ The emotion on Sydney's face is hard to read.
 "Kylar and I, when we were younger, we..." <<nnpc_He "Sydney">> pauses for a moment. "Our parents knew each other. We... saw each other a lot. I used to come over, it was... nice."
 <br><br>
 
-<<He>> examines the temple symbol on the pillar again. "Eventually, I just wasn't allowed to come over anymore. My <<sydneyOtherParent>> said... no, never mind. That's not important."
+<<nnpc_He "Sydney">> examines the temple symbol on the pillar again. "Eventually, I just wasn't allowed to come over anymore. My <<sydneyOtherParent>> said... no, never mind. That's not important."
 <<set $sydneySeen.pushUnique("Kylar manor")>>
 <br><br>
 
@@ -1297,7 +1330,7 @@ You are in the backstage area. Countless props and accessories line the counters
 	<<if $speech_attitude is "meek">>
 		"Don't mess it up, please," you say. "If you get nervous you're going to ruin the show."
 	<<elseif $speech_attitude is "bratty">>
-		"Don't go on stage then," you tell <<him>>. "Tell Doren you're sick, maybe <<he>> can find a last minute replacement for you."
+		"Don't go on stage then," you tell <<him>>. "Tell Doren you're sick, maybe <<nnpc_he "Doren">> can find a last minute replacement for you."
 	<<else>>
 		"I don't know what to tell you," you say. "You can't back down now, so you better make sure you don't screw this up."
 	<</if>>
@@ -1502,7 +1535,7 @@ Sydney and <<if $englishPlayKylarReplace>>the <<person2>><<person>><<else>>Kylar
 		<<else>>
 			<<insufficientStat "promiscuity" "to break script">>
 		<</if>>
-		<br>
+		<br><br>
 		<<link [[Stick to the script|English Play Act One Script]]>><</link>>
 		<br>
 		<<if hasSexStat("promiscuity", 2, true)>>
@@ -1765,7 +1798,7 @@ The play resumes after a brief change in props. The curtain opens once more, to 
 <br><br>
 
 As the play reaches its climax, a daring idea strikes you.
-<br>
+<br><br>
 <<link [[Follow the script|English Play Act Two Script]]>><</link>>
 <br>
 <<link [[Break character|English Play Act Two Break]]>><</link>><<if $englishPlayRoles.Player isnot "Sterling">><<promiscuous1>><</if>>
@@ -1959,7 +1992,7 @@ As the play reaches its climax, a daring idea strikes you.
 <<switch $englishPlayRoles.Player>>
 	<<case "Cass">>
 		"I'm afraid it's too late for that, <<sterlingTitle>> Sterling. You see, Taylor and I have already fucked!" You stick your tongue out.
-		<<if $pregnancyspeechdisable is "f">>
+		<<if $settings.pregnancySpeechEnabled>>
 			"That's right, we've fucked so much, we're expecting a baby!" you declare.
 			<<if playerBellyVisible()>>
 				You pat your <<bellyDescription "pc">> for emphasis.
@@ -1972,7 +2005,7 @@ As the play reaches its climax, a daring idea strikes you.
 		<<if $englishPlayKylarReplace>>
 			"What the fuck are you talking about?" the <<person2>><<person>> spits. "Stick to the script, you idiot."
 		<<else>>
-			Kylar is taken by surprise, but decides to go along. "T-That's right!" <<he>> stammers. <<if $pregnancyspeechdisable is "f">>"We're having so many babies, we'll have to buy a mansion to house them all!"<</if>>
+			Kylar is taken by surprise, but decides to go along. "T-That's right!" <<he>> stammers. <<if $settings.pregnancySpeechEnabled>>"We're having so many babies, we'll have to buy a mansion to house them all!"<</if>>
 		<</if>>
 		<br><br>
 
@@ -1984,7 +2017,7 @@ As the play reaches its climax, a daring idea strikes you.
 		<<npcincr Sydney purity -2>><<lspurity>>
 	<<case "Taylor">>
 		"There is nothing you can do now, <<sterlingFather>>," you declare. "For Cass and I have already been engaged. We are to be married by early next year!" You stick your tongue out.
-		<<if $pregnancyspeechdisable is "f">>
+		<<if $settings.pregnancySpeechEnabled>>
 			"In fact, we're expecting a baby!" you declare.
 			<<if playerBellyVisible()>>
 				You pat your <<bellyDescription "pc">> for emphasis.
@@ -2368,17 +2401,18 @@ The two continue to converse until Sirris starts to lead Sydney out. Sydney hesi
 
 <<if $englishPlayKylarReplace>>
 	You expected the <<person2>><<person>> to give <<his>> final thoughts on the play, but <<hes>> nowhere to be found. <<He>> must have left right away.
+	<br><br>
 <<elseif !$englishPlayKylarLeave>>
 	Kylar glances at Sydney, before turning to you. "I really need to get going," <<person2>><<he>> says. "I had a lot of fun today... but I'm also glad it's finally over. Talk to you soon, okay?" <<He>> hugs you, before heading for the exit and leaving in a hurry.
+	<br><br>
 <</if>>
 <<storeon "play_upper">>
 <<storeon "play_lower">>
 <<endevent>>
 <<clearNPC actor_replacement>>
-<br><br>
 
 You could leave now, but staying to support your fellow students will endear you to them.
-<br>
+<br><br>
 <<link [[Stay and watch a performance (0:20)|English Play Watch]]>><<trauma -2>><<tiredness 2>><<status 1>><<pass 20>><</link>><<ltrauma>><<gtiredness>><<gcool>>
 <br>
 <<link [[Leave the town hall (0:01)|Cliff Street]]>><<englishplayfinish>><<pass 1>><<endevent>><<set $eventskip to 1>><</link>>
@@ -2440,7 +2474,7 @@ Doren releases you, and Kylar bolts without a word. A few moments later, you hea
 			<<He>> plays the part of the beggar, and
 			<<if _sydneyStatus.includes("corrupt")>>
 				catches the other actors off guard as <<he>> goes off script.
-				<<if $pregnancyspeechdisable is "f">>
+				<<if $settings.pregnancySpeechEnabled>>
 					<<if C.npc.Sydney.gender is "m">>
 						<<He>> boldly proclaims that <<he>> got <<his>> lover pregnant, right to the parent's face.
 					<<else>>
@@ -2507,12 +2541,12 @@ Doren releases you, and Kylar bolts without a word. A few moments later, you hea
 		<br>
 	<</if>>
 	<<link [[Leave with other students (0:10)|English Play Leave Students]]>><<englishplayfinish>><<status 5>><<pass 10>><</link>><<ggcool>>
-	<br><br>
+	<br>
 	<<link [[Leave alone (0:01)|Cliff Street]]>><<englishplayfinish>><<pass 1>><<endevent>><<set $eventskip to 1>><</link>>
 	<br>
 <<else>>
 	<<link [[Watch more (0:20)|English Play Watch]]>><<trauma -2>><<tiredness 2>><<status 1>><<pass 20>><</link>><<ltrauma>><<gtiredness>><<gcool>>
-	<br><br>
+	<br>
 	<<link [[Leave the town hall (0:01)|Cliff Street]]>><<englishplayfinish>><<pass 1>><<endevent>><<set $eventskip to 1>><</link>>
 	<br>
 <</if>>

@@ -155,6 +155,67 @@ setup.colours = {
 			blendMode: "multiply",
 			desaturate: false,
 		},
+		glight: {
+			gradient: ["#fdf4d7", "#ffc482"],
+			blendMode: "multiply",
+			desaturate: false,
+		},
+		gmedium: {
+			gradient: ["#ffc482", "#9a6b36"],
+			blendMode: "multiply",
+			desaturate: false,
+		},
+		gdark: {
+			gradient: ["#9a6b36", "#513400"],
+			blendMode: "multiply",
+			desaturate: false,
+		},
+		ggyaru: {
+			gradient: ["#fdf4d7", "#ffc482", "#9a6b36", "#513400"],
+			blendMode: "multiply",
+			desaturate: false,
+		},
+		rlight: {
+			gradient: ["#f7e4e0", "#ebae8a"],
+			blendMode: "multiply",
+			desaturate: false,
+		},
+		rmedium: {
+			gradient: ["#ebae8a", "#8d5244"],
+			blendMode: "multiply",
+			desaturate: false,
+		},
+		rdark: {
+			gradient: ["#8d5244", "#482616"],
+			blendMode: "multiply",
+			desaturate: false,
+		},
+		rgyaru: {
+			gradient: ["#f7e4e0", "#ebae8a", "#8d5244", "#482616"],
+			blendMode: "multiply",
+			desaturate: false,
+		},
+		blight: {
+			gradient: ["#ecf1f9", "#dcc6c6"],
+			blendMode: "multiply",
+			desaturate: false,
+		},
+		bmedium: {
+			gradient: ["#dcc6c6", "#917376"],
+			blendMode: "multiply",
+			brightness: 0.1,
+			desaturate: false,
+		},
+		bdark: {
+			gradient: ["#917376", "#402f31"],
+			blendMode: "multiply",
+			desaturate: false,
+		},
+		bgyaru: {
+			gradient: ["#ecf1f9", "#dcc6c6", "#917376", "#402f31"],
+			blendMode: "multiply",
+			desaturate: false,
+		},
 		ghost: {
 			gradient: ["#ffffff", "#ffffff"],
 			blendMode: "multiply",
@@ -191,7 +252,7 @@ setup.colours = {
 	/**
 	 * Get CSS style filter that, when applied, transforms #FF0000 colour to a skin colour.
 	 *
-	 * @param {string} type One of [ light, medium, dark, gyaru, ylight, ymedium, ydark, ygyaru ].
+	 * @param {string} type One of [ light, medium, dark, gyaru, rlight, rmedium, rdark, ylight, ymedium, ydark, ygyaru, glight, gmedium, gdark, ggyaru, blight, bmedium, bdark, bgyaru ].
 	 * @param {number} tan How tanned the skin is, where 0 = the lightest, 100 = full tan.
 	 * @returns {string} - CSS filter value. Note: return string doesn't start with 'filter:', you have to prepend it yourself
 	 * Return example: 'hue-rotate(50deg) saturate(0.40) brightness(0.60)'.
@@ -598,7 +659,7 @@ setup.colours.hair = [
 		name: "white",
 		name_cap: "White",
 		csstext: "whitehair",
-		natural: false,
+		natural: true,
 		dye: true,
 		canvasfilter: {
 			blend: "#BBBBBB",
@@ -610,7 +671,7 @@ setup.colours.hair = [
 		name: "snow white",
 		name_cap: "Snow White",
 		csstext: "snowwhitehair",
-		natural: false,
+		natural: true,
 		dye: true,
 		canvasfilter: {
 			blend: "#FFFFFF",
@@ -1113,6 +1174,13 @@ setup.colours.clothes = [
 		canvasfilter: { blend: "#475CB3" },
 	},
 	{
+		variable: "lake blue",
+		name: "lake blue",
+		name_cap: "Lake Blue",
+		csstext: "navy blue",
+		canvasfilter: { blend: "#223d8f" },
+	},
+	{
 		variable: "light blue",
 		name: "light blue",
 		name_cap: "Light Blue",
@@ -1130,6 +1198,13 @@ setup.colours.clothes = [
 		variable: "white",
 		name: "white",
 		name_cap: "White",
+		csstext: "white",
+		canvasfilter: { blend: "#ffffff" },
+	},
+	{
+		variable: "purest white",
+		name: "purest white",
+		name_cap: "Purest White",
 		csstext: "white",
 		canvasfilter: { blend: "#ffffff" },
 	},
@@ -1190,6 +1265,13 @@ setup.colours.clothes = [
 		canvasfilter: { blend: "#4B4B4B" },
 	},
 	{
+		variable: "confessor black",
+		name: "confessor black",
+		name_cap: "Confessor Black",
+		csstext: "black",
+		canvasfilter: { blend: "#353535" },
+	},
+	{
 		variable: "pink",
 		name: "pink",
 		name_cap: "Pink",
@@ -1225,6 +1307,15 @@ setup.colours.clothes = [
 		name_cap: "Lilac",
 		csstext: "lilac",
 		canvasfilter: { blend: "#d692fc" },
+	},
+	{
+		variable: "witchbloom",
+		name: "witchbloom",
+		name_cap: "witchbloom",
+		csstext: "witchbloom",
+		canvasfilter: {
+			blend: "#743499",
+		},
 	},
 	{
 		variable: "violet",
@@ -1274,6 +1365,13 @@ setup.colours.clothes = [
 		name_cap: "Brown",
 		csstext: "brown",
 		canvasfilter: { blend: "#704A2D" },
+	},
+	{
+		variable: "bucket brown",
+		name: "bucket brown",
+		name_cap: "Bucket Brown",
+		csstext: "brownish",
+		canvasfilter: { blend: "#87634a" },
 	},
 	{
 		variable: "soft brown",
@@ -1367,6 +1465,20 @@ setup.colours.clothes = [
 		canvasfilter: { blend: "#65252d" },
 	},
 	{
+		variable: "blood moon red",
+		name: "blood moon red",
+		name_cap: "Blood Moon Red",
+		csstext: "wine",
+		canvasfilter: { blend: "#5c0707" },
+	},
+	{
+		variable: "branded red",
+		name: "branded red",
+		name_cap: "Branded Red",
+		csstext: "wine",
+		canvasfilter: { blend: "#d4273b" },
+	},
+	{
 		variable: "russet",
 		name: "russet",
 		name_cap: "Russet",
@@ -1416,6 +1528,13 @@ setup.colours.clothes = [
 		canvasfilter: { blend: "#ffbf00", brightness: 0.1 },
 	},
 	{
+		variable: "virgo gold",
+		name: "virgo gold",
+		name_cap: "Virgo Gold",
+		csstext: "virgo gold",
+		canvasfilter: { blend: "#ffbf00", brightness: 0.1 },
+	},
+	{
 		variable: "silver",
 		name: "silver",
 		name_cap: "Silver",
@@ -1426,6 +1545,13 @@ setup.colours.clothes = [
 		variable: "sterling silver",
 		name: "sterling silver",
 		name_cap: "Sterling silver",
+		csstext: "sterling-silver",
+		canvasfilter: { blend: "#8b9fc4" },
+	},
+	{
+		variable: "shackle silver",
+		name: "shackle silver",
+		name_cap: "Shackle silver",
 		csstext: "sterling-silver",
 		canvasfilter: { blend: "#8b9fc4" },
 	},
@@ -1894,7 +2020,7 @@ buildColourMap("tentacle");
 
 /**
  * Tries to guess colour in the map by removing spaces or replacing them with '-' and checking against name.
- * Return colour record if found, and null if no.
+ * Return colour record if found and null if no.
  *
  * @param {any} map
  * @param {any} colour

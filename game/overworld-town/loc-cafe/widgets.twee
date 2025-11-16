@@ -1,7 +1,7 @@
 :: Widgets Cafe [widget]
 <<widget "eventschef">>
 <<cleareventpool>>
-<<if $chef_state gte 9 and $breastfeedingdisable is "f" and $lactating is 1>>
+<<if $chef_state gte 9 and $settings.breastFeedingEnabled and $lactating is 1>>
 	<<addinlineevent "chef_coffee" 0.7>>
 	As you get ready to put the dough in the oven, <<npc Sam>><<person1>>Sam bursts in. "You didn't start yet, right?" You tell <<him>> that you haven't started making the cream yet. "Good. I need you to make some coffee. I know you don't usually handle that, but we have a couple of foreign aristocrats visiting us."
 	<br><br>
@@ -286,6 +286,10 @@
 
 :: Chef Speech Options [widget]
 <<widget "chefspeechoptions">>
+	<<if $chef_gwylan and !$gwylanSeen?.includes("chef_chat")>>
+		<<link [[Chat with Gwylan (0:15)|Chef Opening Gwylan]]>><<pass 15>><<stress -6>><</link>><<lstress>>
+		<br>
+	<</if>>
 	<<link [[Socialise with local elites (4:00)|Chef Opening Local]]>><<pass 240>><<if $chef_speech is "refuse">><<famesocial 100>><</if>><<famebusiness 50>><</link>>
 	<br>
 	<<link [[Socialise with foreign visitors (4:00)|Chef Opening Foreign]]>><<pass 240>><<if $chef_speech is "refuse">><<famebusiness 50>><<famesocial 50>><</if>><<famebusiness 50>><</link>>
@@ -336,7 +340,7 @@
 			<</link>><<if _linkName is "Obey">><<gcorruption>><<lpain>><<lltrauma>><<lstress>><</if>>
 		<<case "pancake">>
 			<<link [[_linkName|Cafe Pancakes]]>>
-				<<set $daily.cafeEaten += 1>><<money -1000 "cafe">><<tiredness -6>><<pass 20>>
+				<<set $daily.cafeEaten += 1>><<set $phase to "pancakes">><<money -1000 "cafe">><<tiredness -6>><<pass 20>>
 				<<if _linkName is "Obey">><<corruption 1>><<pain -4>><<stress -6>><<trauma -12>><<sub 2>><</if>>
 			<</link>><<if _linkName is "Obey">><<gcorruption>><<lpain>><<lltrauma>><<lstress>><</if>><<ltiredness>>
 		<<case "deluxe cream bun">>

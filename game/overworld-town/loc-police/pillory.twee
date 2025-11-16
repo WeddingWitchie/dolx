@@ -47,7 +47,11 @@ You have an opportunity to escape, but the <<person>> is aware of that, and keep
 }>>
 <<crimeDown 5000>>
 
-The <<person>> moves your arms and head into position before lifting the top into place, restraining you. <<He>> locks it shut and attaches the key to a chain on <<his>> belt. "Someone will be over to release you in _hours hours." <<if $worn.handheld.name isnot "naked">><<He>> looks at your $worn.handheld.name. "You'll get that back when you're released.<</if>><<bindtemp>><<He>> leaves without looking back.
+The <<person>> moves your arms and head into position before lifting the top into place, restraining you. <<He>> locks it shut and attaches the key to a chain on <<his>> belt.
+<<seize_stolen_goods>>
+<br><br>
+
+<<He>> steps back. "Someone will be over to release you in <span class="gold">_hours hours</span>." <<if $worn.handheld.name isnot "naked">><<He>> looks at your $worn.handheld.name. "You'll get that back when you're released.<</if>><<bindtemp>><<He>> leaves without looking back.
 <br><br>
 
 With <<him>> gone, some onlookers lose interest and return to their routines. Others still gawk however. If any tried to abuse you there'd be little you could do to stop them, but people seem hesitant to make the first move. You hope it stays that way.
@@ -58,7 +62,7 @@ With <<him>> gone, some onlookers lose interest and return to their routines. Ot
 <br>
 
 :: Police Pillory Fight Finish
-<<set $outside to 0>><<set $location to "town">><<effects>>
+<<set $location to "town">><<effects>>
 
 <<if $enemypleasure gte $enemypleasuremax>>
 	<<ejaculation "short">>
@@ -184,10 +188,16 @@ You can do nothing about your <<lewdness>> displayed for everyone to see, humili
 <br><br>
 
 <<if _endTime.timeStamp lte Time.date.timeStamp>>
-	A <<generatePolice 1>><<person1>><<person>> in a police uniform arrives. <<He>> removes your collar and unlocks the pillory, freeing you. The crowd boos its disappointment as the officer disperses them.
+	A <<generatePolice 1>><<person1>><<person>> in a police uniform arrives.
+	<<if $worn.neck.collaredpolice>>
+		<<set $worn.neck.cursed to 0>><<neckruined>>
+		<<set $worn.neck.collaredpolice to 0>>
+		<<He>> removes your collar and unlocks the pillory, freeing you.
+	<<else>>
+		<<He>> unlocks the pillory, freeing you.
+	<</if>>
+	The crowd boos its disappointment as the officer disperses them.
 	<br><br>
-	<<set $worn.neck.cursed to 0>><<neckruined>>
-	<<set $worn.neck.collaredpolice to 0>>
 	<<set $pillory.audience to 0>>
 	<<unbindtemp>>
 	<<clotheson>>
@@ -200,7 +210,7 @@ You can do nothing about your <<lewdness>> displayed for everyone to see, humili
 	<<if $pillory.audience + $exposed + $rng gte 10>>
 	<<rng>>
 		<<beastNEWinit 1 dog>>
-		<<if $rng gte 51 and ($monster is 1 or $bestialitydisable is "f")>><!-- Modified for Monster People -->
+		<<if $rng gte 51 and ($monster is 1 or $settings.bestialityEnabled)>><!-- Modified for Monster People -->
 			You feel something prod your <<bottom>>. A <<beasttype>> is sniffing you curiously.
 			<br><br>
 
@@ -286,7 +296,7 @@ You can do nothing about your <<lewdness>> displayed for everyone to see, humili
 			<</if>>
 		<<elseif $rng gte 61>>
 			<<rng>>
-			<<if $rng gte 96 and $toywhipdisable isnot 't' and $adultshopunlocked and $adultshopdegree >= 5 and
+			<<if $rng gte 96 and $settings.toyWhipEnabled and $adultshopunlocked and $adultshopdegree >= 5 and
 				($worn.lower.name isnot "naked" and $worn.lower.state is "waist") or ($worn.under_lower.name isnot "naked" and $worn.lower.state is "waist")>>
 				A <<generate1>><<person1>><<person>> emerges from the crowd, dressed in a flamboyant ringmaster's costume.
 				<<He>> takes off <<his>> hat and lays it in front of the onlookers, before unfurling a whip and striding behind you. Everyone watches for a moment in fascination.
@@ -296,7 +306,7 @@ You can do nothing about your <<lewdness>> displayed for everyone to see, humili
 				<br>
 				<<link [[Brace|Pillory Whip Master]]>><<stress 6>><<trauma 6>><</link>><<gstress>><<gtrauma>>
 				<br>
-			<<elseif $rng gte 91 and $analdisable isnot 't' and $toydildodisable isnot 't' and $adultshopunlocked and $worn.lower.exposed gte 2 and $worn.under_lower.exposed gte 1 and
+			<<elseif $rng gte 91 and $settings.analEnabled and $settings.toyDildoEnabled and $adultshopunlocked and $worn.lower.exposed gte 2 and $worn.under_lower.exposed gte 1 and
 				!playerHasButtPlug() and countCarriedSextoys() lt 5 and $worn.genitals.anal_shield !== 1>>
 				<<run sexShopOnBuyClick(4, false, clone(setup.sextoys[4].colour_options).pluck(), false)>>
 				<<generate1>><<person1>>
@@ -343,7 +353,7 @@ You can do nothing about your <<lewdness>> displayed for everyone to see, humili
 				<br>
 
 			<</if>>
-		<<elseif $rng gte 51 and $analingusdisablegiving is "f">>
+		<<elseif $rng gte 51 and $settings.analingusGivingEnabled>>
 			<<generate1>><<person1>>A <<person>> approaches you and pulls down <<his>> <<npcClothesText $NPCList[0] "lower">>. <<He>> turns around and backs up against your face.
 			<br>
 			"<<print ["Eat up!", "Kiss my ass!"].pluck()>>" <<he>> says with a snicker.
@@ -370,15 +380,15 @@ You can do nothing about your <<lewdness>> displayed for everyone to see, humili
 			<<link [[Next (1:00)|Pillory]]>><<pass 1 hour>><</link>>
 			<br>
 		<</if>>
-	<<elseif $pillory.audience + $exposed + $rng gte 3 and $bodywritingLvl gte 2>>
+	<<elseif $pillory.audience + $exposed + $rng gte 3 and $settings.bodyWritingLevel gte 2>>
 		<<generate1>><<person1>>
 		<<if $rng gte 81>>
 			<<set $phase to 1>>
-			A <<person>> approaches you, and <span class="pink">pulls the lid off a permanent marker.</span>
+			A <<person>> approaches you and <span class="pink">pulls the lid off a permanent marker.</span>
 			<br><br>
 		<<else>>
 			<<set $phase to 0>>
-			A <<person>> approaches you, and <span class="purple">pulls the lid off a pen.</span>
+			A <<person>> approaches you and <span class="purple">pulls the lid off a pen.</span>
 			<br><br>
 		<</if>>
 		<<link [[Warn them off|Pillory Pen Warn]]>><<set $pillory.audience += 1>><</link>><<gattention>>
@@ -387,7 +397,7 @@ You can do nothing about your <<lewdness>> displayed for everyone to see, humili
 		<br>
 	<<else>>
 		<<rng>>
-		<<if $rng gte 96 and $watersportsdisable is "f">>
+		<<if $rng gte 96 and $settings.watersportsEnabled>>
 		<<generate1>><<person1>>A <<person>> approaches you and <<npcUndressText $NPCList[0] "lower" "self">>,
 		<span class="purple"><<npcRevealText $NPCList[0] "lower">>.</span>
 		<br><br>

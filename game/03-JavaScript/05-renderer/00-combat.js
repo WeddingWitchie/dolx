@@ -1,7 +1,7 @@
 // @ts-check
 /* globals Partial, PenetratorPositions */
 
-setup.clothingStates = [0, "chest", "midriff", "waist", "thighs", "knees", "ankles"];
+setup.clothingStates = [0, "chest", "midriff", "waist", "thighs", "knees", "ankles", "worn"];
 setup.positions = [0, "doggy", "missionary", "wall", "stalk", "wall"];
 setup.legPositions = ["up", "down", "footjob"];
 
@@ -481,6 +481,8 @@ class CombatSystem {
 					position: "feet",
 					state: "rubbing",
 				};
+			case "otheranus":
+				return {};
 			case "clothed": // Huh? Asking Puri - For when you need to undress NPCs before using the part.
 				return {};
 			case "leftarm":

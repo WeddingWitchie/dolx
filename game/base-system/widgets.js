@@ -96,19 +96,20 @@ window.calculatePenisBulge = calculatePenisBulge;
 
 /* Calculate the player's gender appearance if their genitals and chest are exposed  */
 function nudeGenderAppearance() {
-	if (V.NudeGenderDC === 2 && !playerChastity("hidden")) return V.player.sex;
+	if (V.settings.nudeGenderPerception === 2 && !playerChastity("hidden")) return V.player.sex;
 
 	genderappearancecheck();
 	T.apparent_femininity_nude += (V.player.breastsize - 0.5) * 100;
 	T.apparent_femininity_nude += Math.trunc(V.player.bottomsize * 50);
 	if (playerChastity("hidden")) {
 		T.apparent_femininity_nude += setup.clothes.genitals[clothesIndex("genitals", V.worn.genitals)].femininity;
-	} else if (V.NudeGenderDC === 1) {
+	} else if (V.settings.nudeGenderPerception === 1) {
 		if (V.player.penisExist) T.apparent_femininity_nude += (-V.player.penissize - 2.5) * 150;
 		if (V.player.vaginaExist) T.apparent_femininity_nude += 450;
 	}
-	if (!(V.sexStats === undefined || !playerBellyVisible() || V.NudeGenderDC === 0)) {
-		if (V.NudeGenderDC === 1) T.apparent_femininity_nude += Math.clamp((playerBellySize() - 7) * (V.NudeGenderDC === 1 ? 90 : 70), 0, Infinity);
+	if (!(V.sexStats === undefined || !playerBellyVisible() || V.settings.nudeGenderPerception === 0)) {
+		if (V.settings.nudeGenderPerception === 1)
+			T.apparent_femininity_nude += Math.clamp((playerBellySize() - 7) * (V.settings.nudeGenderPerception === 1 ? 90 : 70), 0, Infinity);
 		else if (playerBellySize() >= 18) T.apparent_femininity_nude += Math.clamp(10000, 0, Infinity);
 		else if (playerBellySize() >= 8) T.apparent_femininity_nude += Math.clamp((playerBellySize() - 7) * 250, 0, Infinity);
 	}
@@ -223,18 +224,18 @@ function genderappearancecheck() {
 	/* find maximum possible femininity of the last lower piece you can strip down to, and add it to the counter */
 	addfemininityfromfactor(Math.max(T.over_lower_femininity, T.lower_femininity, T.under_lower_femininity), "Lower clothes", "noow");
 	/* bulge and genitals checks for topless gender */
-	if (T.under_lower_protected && V.NudeGenderDC > 0) {
+	if (T.under_lower_protected && V.settings.nudeGenderPerception > 0) {
 		addfemininityfromfactor(T.bulge_size * -60, "Bulge visible through underwear", "noow");
-	} else if ((T.over_lower_protected || T.lower_protected) && V.NudeGenderDC > 0) {
+	} else if ((T.over_lower_protected || T.lower_protected) && V.settings.nudeGenderPerception > 0) {
 		addfemininityfromfactor(Math.clamp((T.bulge_size - 6) * -60, 0, Infinity), "Bulge visible through clothing", "noow");
-	} else if (V.worn.genitals.exposed && V.NudeGenderDC === 1) {
+	} else if (V.worn.genitals.exposed && V.settings.nudeGenderPerception === 1) {
 		if (V.player.penisExist) {
 			addfemininityfromfactor((V.player.penissize + 2.5) * -150, "Penis exposed", "noow");
 		}
 		if (V.player.vaginaExist) {
 			addfemininityfromfactor(450, "Vagina exposed", "noow");
 		}
-	} else if (V.worn.genitals.exposed && V.NudeGenderDC === 2) {
+	} else if (V.worn.genitals.exposed && V.settings.nudeGenderPerception === 2) {
 		addfemininityfromfactor(V.player.vaginaExist * 100000 - V.player.penisExist * 100000, "Genitals exposed", "noow");
 	}
 	/* plain breasts factor */
@@ -252,14 +253,14 @@ function genderappearancecheck() {
 			addfemininityofclothingarticle("genitals", V.worn.genitals);
 			if (V.worn.genitals.exposed) {
 				/* Bare genitals are visible */
-				if (V.NudeGenderDC === 1) {
+				if (V.settings.nudeGenderPerception === 1) {
 					if (V.player.penisExist) {
 						addfemininityfromfactor((-V.player.penissize - 2.5) * 150, "Penis visible");
 					}
 					if (V.player.vaginaExist) {
 						addfemininityfromfactor(450, "Vagina visible");
 					}
-				} else if (V.NudeGenderDC === 2) {
+				} else if (V.settings.nudeGenderPerception === 2) {
 					if (V.player.penisExist) {
 						addfemininityfromfactor(-100000, "Penis visible");
 					}
@@ -272,7 +273,7 @@ function genderappearancecheck() {
 			/* Bottom visible through underwear */
 			T.bottom_visibility *= 0.75;
 			/* Bulge visible through underwear */
-			if (V.NudeGenderDC > 0) {
+			if (V.settings.nudeGenderPerception > 0) {
 				addfemininityfromfactor(T.bulge_size * -60, "Bulge visible through underwear");
 			}
 		}
@@ -280,7 +281,7 @@ function genderappearancecheck() {
 		/* Bottom covered by lower clothes */
 		T.bottom_visibility *= 0.75;
 		/* Bulge covered by lower clothes */
-		if (V.NudeGenderDC > 0) {
+		if (V.settings.nudeGenderPerception > 0) {
 			addfemininityfromfactor(-Math.clamp((T.bulge_size - 6) * 60, 0, Infinity), "Bulge visible through clothing");
 		}
 	}
@@ -307,11 +308,11 @@ function genderappearancecheck() {
 	/* Bottom */
 	addfemininityfromfactor(Math.trunc(V.player.bottomsize * T.bottom_visibility * 50), "Bottom size (" + Math.trunc(T.bottom_visibility * 100) + "% visible)");
 	/* Pregnant Belly */
-	if (V.sexStats === undefined || !playerBellyVisible() || V.NudeGenderDC === 0) {
+	if (V.sexStats === undefined || !playerBellyVisible() || V.settings.nudeGenderPerception === 0) {
 		// do glorious nothing
-	} else if (V.NudeGenderDC === 1) {
+	} else if (V.settings.nudeGenderPerception === 1) {
 		addfemininityfromfactor(
-			Math.clamp((playerBellySize() - 7) * (V.NudeGenderDC === 1 ? 90 : 70), 0, Infinity),
+			Math.clamp((playerBellySize() - 7) * (V.settings.nudeGenderPerception === 1 ? 90 : 70), 0, Infinity),
 			playerAwareTheyArePregnant() ? "Pregnant Belly" : "Pregnant Looking Belly"
 		);
 	} else if (playerBellySize() >= 18) {
@@ -647,6 +648,8 @@ function calculateallure() {
 	}
 	/* bloodmoon */
 	if (Time.isBloodMoon()) allure += 2000;
+	/* Elk-scarred trait */
+	if (V.auriga_scar) allure += V.auriga_scar * 500;
 	allure = Math.clamp(allure, 0, 8000);
 	let baseAllure = allure;
 
@@ -657,7 +660,7 @@ function calculateallure() {
 	
 	if (V.hallucinogen >= 1 && V.substanceRebalance == 1) allure *= 1 + (0.25 * (V.hallucinogen / 250))
 	/* extra modifiers */
-	allure *= V.alluremod;
+	allure *= V.settings.allureModifier;
 	if (V.moorLuck > 0) allure *= 1 - V.moorLuck / 100;
 
 	V.allure = Math.floor(allure);
@@ -740,3 +743,84 @@ function exposure() {
 	if (V.libertine >= V.exposed) V.exposed = 0;
 }
 DefineMacro("exposure", exposure);
+
+/**
+ * Primarily for checks in events involving children
+ *
+ * @param {Array <"clothes" | "bodywriting" | "fluids" | "drugs" | "all">} check / Which types to check, defaults to "all"
+ * @returns {true | false} / If player's current state is inappropriate
+ */
+function inappropriatePlayerState(check = ["all"]) {
+	if (["all", "clothes"].includesAny(check)) {
+		if (V.exposed > 0 || V.exposedRaw > 0) return true;
+		if (!V.worn.lower.type.includes("covered")) {
+			if (["slut shirt", "prison shirt", "prison jumpsuit", "unbound straightjacket"].includes(V.worn.upper.name)) {
+				return true;
+			} else if (
+				!V.worn.under_upper.type.includes("covered") ||
+				V.worn.under_upper.reveal >= 700 ||
+				integrityKeyword(V.worn.under_upper, "under_upper") === "tattered" ||
+				["leotard", "unitard", "skimpy leotard", "turtleneck leotard"].includes(V.worn.under_upper.name)
+			) {
+				if (
+					["naked", "fetish"].includes(V.worn.upper.type) ||
+					V.worn.upper.reveal >= 700 ||
+					integrityKeyword(V.worn.upper, "upper") === "tattered" ||
+					["large towel", "towel top", "catsuit"].includes(V.worn.upper.name)
+				)
+					return true;
+			}
+		}
+		if (["prison trousers", "prison jumpsuit trousers", "unbound straightjacket bottom"].includes(V.worn.lower.name)) return true;
+		if (
+			!V.worn.under_lower.type.includes("covered") ||
+			V.worn.under_lower.reveal >= 700 ||
+			integrityKeyword(V.worn.under_lower, "under_lower") === "tattered" ||
+			["leotard bottom", "unitard bottom", "skimpy leotard bottom", "turtleneck leotard bottom"].includes(V.worn.under_lower.name)
+		) {
+			if (
+				["naked", "fetish"].includes(V.worn.lower.type) ||
+				V.worn.lower.reveal >= 700 ||
+				integrityKeyword(V.worn.lower, "lower") === "tattered" ||
+				[
+					"large towel bottom",
+					"towel skirt",
+					"bathrobe bottom",
+					"catsuit bottoms",
+					"oversized button-down bottom",
+					"oversized sweater bottom",
+				].includes(V.worn.lower.name)
+			)
+				return true;
+		}
+		if (V.worn.face.type.includes("gag")) return true;
+	}
+	if (["all", "bodywriting"].includesAny(check)) {
+		// May not catch every single instance of inappropriate writing, but it should catch most
+		T.lewd_bodywriting_visible = false;
+		bodywritingExposureCheck(true);
+		Object.keys(V.skin).forEach(label => {
+			if (T.skin_array.includes(label)) {
+				if (
+					(!["none", "Robin", "Whitney", "Kylar", "Sydney", "Avery", "Eden", "Gwylan", "Black Wolf", "Alex", "Great Hawk"].includes(
+						V.skin[label].special
+					) &&
+						V.skin[label].lewd === 1) ||
+					["slut", "bitch", "whore", "sex", "fuck", "rape", "cock", "cum", "size queen"].some(text =>
+						V.skin[label].writing.toLowerCase().includes(text)
+					)
+				)
+					T.lewd_bodywriting_visible = true;
+			}
+		});
+		return T.lewd_bodywriting_visible;
+	}
+	if (["all", "fluids"].includesAny(check)) {
+		if (V.liquidcount >= 1) return true;
+	}
+	if (["all", "drugs"].includesAny(check)) {
+		if (V.drunk >= 240 || V.drugged >= 200) return true;
+	}
+	return false;
+}
+window.inappropriatePlayerState = inappropriatePlayerState;

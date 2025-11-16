@@ -73,7 +73,7 @@ const combatActionColours = {
 	Default: {
 		brat: [
 			/* leftaction or rightaction */
-			"steal", "penwhack", "freeface", "leftcovervagina", "leftcoverpenis", "leftcoveranus", "rightcovervagina", "rightcoverpenis", "rightcoveranus", "leftunderpull", "leftskirtpull", "leftlowerpull", "leftupperpull", "rightunderpull", "rightskirtpull", "rightlowerpull", "rightupperpull", "rightUndressOther", "leftUndressOther", "stopchoke", "clench", "shacklewhack", "pillwhack", "leftfold", "rightfold", "dildowhack", "hypnosiswhack", "leftstruggleweak", "rightstruggleweak", "handpullpenis", "handpullvagina", "handpullanus", "leftresistW", "rightresistW", "leftstillW", "rightstillW", "penisremovecondom", "npcremovecondom", "leftblock", "rightblock", "stoporal",
+			"steal", "penwhack", "freeface", "leftcovervagina", "leftcoverpenis", "leftcoveranus", "rightcovervagina", "rightcoverpenis", "rightcoveranus", "leftunderpull", "leftskirtpull", "leftlowerpull", "leftupperpull", "rightunderpull", "rightskirtpull", "rightlowerpull", "rightupperpull", "rightUndressOther", "leftUndressOther", "stopchoke", "clench", "shacklewhack", "pillwhack", "leftfold", "rightfold", "dildowhack", "hypnosiswhack", "leftstruggleweak", "rightstruggleweak", "handpullpenis", "handpullvagina", "handpullanus", "leftresistW", "rightresistW", "leftstillW", "rightstillW", "penisremovecondom", "npcremovecondom", "leftblock", "rightblock", "stoporal", "pickupXchangePill", "xchangePillOther",
 			/* feetaction */
 			"run", "taunt", "hide", "feetresistW", "legLock", "legLocked", "feetHold", "dodge", "plant", "feetHold",
 			/* mouthaction */
@@ -109,7 +109,7 @@ const combatActionColours = {
 		],
 		sub: [
 			/* leftaction or rightaction */
-			"leftplay", "leftgrab", "leftstroke", "leftchest", "rightplay", "rightgrab", "rightstroke", "rightchest", "leftchest", "rightchest", "leftwork", "rightwork", "leftclit", "rightclit", "handedge", "keepchoke", "leftmasturbatepussy", "rightmasturbatepussy", "leftmasturbateanus", "rightmasturbateanus", "leftmasturbatepenis", "rightmasturbatepenis", "lefthandholdkeep", "righthandholdkeep", "lefthandholdnew", "righthandholdnew", "handguide", "lubeanus", "lubepussy", "lubepenis", "removebuttplug", "dildoOtherPussyTease", "dildoOtherPussyFuck", "dildoOtherAnusTease", "dildoOtherAnusFuck", "strokerOtherPenisTease", "strokerOtherPenisFuck", "dildoSelfPussyEntrance", "dildoSelfAnusEntrance", "dildoSelfPussy", "dildoSelfAnus", "strokerSelfPenisEntrance", "strokerSelfPenis", "leftcovervaginalewd", "rightcovervaginalewd", "leftcoverpenislewd", "rightcoverpenislewd", "leftcoveranuslewd", "rightcoveranuslewd", "handpenistomouth",
+			"leftplay", "leftgrab", "leftstroke", "leftchest", "rightplay", "rightgrab", "rightstroke", "rightchest", "leftchest", "rightchest", "leftwork", "rightwork", "leftclit", "rightclit", "handedge", "keepchoke", "leftmasturbatepussy", "rightmasturbatepussy", "leftmasturbateanus", "rightmasturbateanus", "leftmasturbatepenis", "rightmasturbatepenis", "lefthandholdkeep", "righthandholdkeep", "lefthandholdnew", "righthandholdnew", "handguide", "lubeanus", "lubepussy", "lubepenis", "removebuttplug", "dildoOtherPussyTease", "dildoOtherPussyFuck", "dildoOtherAnusTease", "dildoOtherAnusFuck", "strokerOtherPenisTease", "strokerOtherPenisFuck", "dildoSelfPussyEntrance", "dildoSelfAnusEntrance", "dildoSelfPussy", "dildoSelfAnus", "strokerSelfPenisEntrance", "strokerSelfPenis", "leftcovervaginalewd", "rightcovervaginalewd", "leftcoverpenislewd", "rightcoverpenislewd", "leftcoveranuslewd", "rightcoveranuslewd", "handpenistomouth", "xchangePillSelf",
 			/* feetaction */
 			"grab", "vaginagrab", "grabrub", "vaginagrabrub", "rub", "submit",
 			/* mouthaction */
@@ -293,7 +293,7 @@ DefineMacroS("combatDefaults", combatDefaults);
  * ($enemytrust * 10) is simply how much the NPC trust the player. Since $enemytrust can be negative, a bad trust can result in an increase in difficulty.
  * (($enemyarousalmax / ($enemyarousal + 1)) * 100) is the relative NPC arousal. This value can never be 100, except on the last turn.
  * The current arousal being divided by the max arousal means the higher the arousal (and by consequence the arousal percentage) the more difficult the action becomes (since the value will be lower).
- * This also means actions are more likely to succeed during the start of the combat, and get harder as the combat goes on.
+ * This also means actions are more likely to succeed during the start of the combat and get harder as the combat goes on.
  * ($rng * 10) is simply the random part of the equation, so the chance is not always locked into one result. This value varies between 0 and 1000, at a base 10 (so it can't be anything that's not a multiple of 10).
  * 1000 is the base difficulty. This rules how high the skill needs to be if all other values are 0. The higher the base difficulty, the harder the action. This is usually the main factor determining the success of the action.
  * $enemyanger is just like the trust part, but not multiplied. This means anger has 10x less impact in the action than trust, however $enemyanger cannot be negative and could be much higher than trust.
@@ -316,7 +316,7 @@ DefineMacroS("combatDefaults", combatDefaults);
  * So skillname is a string, and skill is an integer. Why not simply pass the skill value as the argument? Because of possible future variants, such as moor luck, affecting some variable and not the other.
  * targetid is an optional value, that doesn't see use currently but can possibly be required in the future in case any of the "enemy" variables (such as $enemyarousal or $enemytrust) become individual values ("per NPC", as health currently is).
  *
- * The output is simply: true if the action is a success, and false if the action fails.
+ * The output is simply: true if the action is a success, false if the action fails.
  */
 /**
  * Checks skill value against combat math to determine success of an action.
@@ -404,6 +404,9 @@ function loveInterestFunction() {
 	});
 	jQuery(document).on("change", "#listbox-loveinterestsenary", function (e) {
 		delete T.awareChecked;
+		Wikifier.wikifyEval("<<replace #loveInterest>><<loveInterest>><</replace>>");
+	});
+	jQuery(document).on("change", "#listbox-loveinteresttertiary", function (e) {
 		Wikifier.wikifyEval("<<replace #loveInterest>><<loveInterest>><</replace>>");
 	});
 }
@@ -618,6 +621,17 @@ function getRobinLocation() {
 	} else if (!between(Time.hour, 7, 20)) {
 		// if hour is 6 or lower, or 21 or higher.
 		T.robin_location = "sleep";
+	} else if (
+		V.gwylanSeen?.includes("cafe_walk_robin") &&
+		V.robin.timer.hurt === 0 &&
+		V.daily.robin_in_cafe &&
+		!between(V.chef_state, 7, 8) &&
+		Time.schoolDay &&
+		Time.hour === 8 &&
+		Time.minute < 50
+	) {
+		// Disabled for the time being.
+		// T.robin_location = "cafe";
 	} else if (V.robinbreakupCooldown > 0) {
 		T.robin_location = "orphanage";
 	} else if (Time.schoolDay && between(Time.hour, 8, 15)) {
@@ -687,7 +701,7 @@ window.getRobinCrossdressingStatus = getRobinCrossdressingStatus;
 
 /*
 	TEMPORARY - remove once obsolete
-	Temporary function until location framework is in place - to detect if a NPC is in the park
+	Temporary function until location framework is in place - to detect if an NPC is in the park
 	Uses same checks as other Park NPC checks
  */
 function isInPark(name) {
@@ -1058,13 +1072,13 @@ function clothesDataTrimmer(item) {
 window.clothesDataTrimmer = clothesDataTrimmer;
 
 function clothesReturnLocation(item, type) {
-	if (!V.multipleWardrobes) return "wardrobe";
+	if (!V.settings.multipleWardrobes) return "wardrobe";
 	const isolated = ["asylum", "prison"];
 	let lastTaken = item.lastTaken;
 	// prettier-ignore
 	if (
 		!lastTaken ||
-		(V.multipleWardrobes !== "all" || V.multipleWardrobes !== "isolated") ||
+		(V.settings.multipleWardrobes !== "all" || V.settings.multipleWardrobes !== "isolated") ||
 		!V.wardrobes[lastTaken] ||
 		!V.wardrobes[lastTaken].unlocked
 	) {
@@ -1290,16 +1304,16 @@ function currentSkillValue(skill, disableModifiers = 0) {
 			}
 			break;
 		case "physique":
-			if (["forest", "moor", "farm"].includes(V.location)) {
+			if (["forest", "moor", "farm", "alex_farm"].includes(V.location)) {
 				if (V.worn.feet.type.includes("heels")) {
 					result = Math.floor(result * (1 - V.worn.feet.reveal / 5000));
 				}
 				if (V.worn.feet.type.includes("rugged")) {
 					result = Math.floor(result * (1 + currentSkillValue("feetskill", disableModifiers + 1) / 10000));
 				}
-				if (V.auriga_artefact === "pc") {
-					result = Math.floor(result * 1.1);
-				}
+			}
+			if (V.auriga_artefact === "pc") {
+				result = Math.floor(result * 1.1);
 			}
 			if (V.hallucinogen >= 1 && V.substanceRebalance == 1) {
 				result = Math.round(result * (1 - (0.125 * Math.round(V.hallucinogen / 250))));
@@ -1366,6 +1380,9 @@ function currentSkillValue(skill, disableModifiers = 0) {
 					result = Math.round(result * 1.4);
 				}
 			}
+			if (V.worn.upper.type.includes("heavy") || V.worn.lower.type.includes("heavy")) {
+				result *= V.physique / V.physiquesize / 3;
+			}
 			break;
 		case "swimmingskill":
 			if (
@@ -1401,9 +1418,12 @@ function currentSkillValue(skill, disableModifiers = 0) {
 			if (V.TFFoxBuffs == 1) {
 				result = Math.round(result * 0.9);
 			}
+			if (V.worn.upper.type.includes("heavy") || V.worn.lower.type.includes("heavy")) {
+				result *= V.physique / V.physiquesize / 3;
+			}
 			break;
 		case "athletics":
-			if (["forest", "moor", "farm"].includes(V.location)) {
+			if (["forest", "moor", "farm", "alex_farm"].includes(V.location)) {
 				if (V.worn.feet.type.includes("heels")) {
 					result = Math.floor(result * (1 - V.worn.feet.reveal / 5000));
 				}
@@ -1411,6 +1431,7 @@ function currentSkillValue(skill, disableModifiers = 0) {
 					result = Math.floor(result * (1 + currentSkillValue("feetskill", disableModifiers + 1) / 10000));
 				}
 			}
+			if (V.transformationParts.traits.chase !== "disabled") result = Math.floor(result * 1.1);
 			if (V.worn.feet.type.includes("shackle")) result /= 10;
 			if (V.hallucinogen >= 1 && V.substanceRebalance == 1) {
 				result = Math.round(result * (1 - (0.125 * Math.round(V.hallucinogen / 250))));
@@ -1435,6 +1456,9 @@ function currentSkillValue(skill, disableModifiers = 0) {
 			}
 			if (V.TFBunnyBuffs == 1) {
 				result = Math.round(result * 1.5);
+			}
+			if (V.worn.upper.type.includes("heavy") || V.worn.lower.type.includes("heavy")) {
+				result *= V.physique / V.physiquesize / 1.5;
 			}
 			break;
 		case "willpower":
@@ -1896,15 +1920,33 @@ function isLoveInterest(name) {
 }
 window.isLoveInterest = isLoveInterest;
 
-function wraithCanHunt() {
-	return Time.isBloodMoon() && Time.hour !== 5; // wraith events can't start at 5 AM.
+function isPossibleLoveInterest(name) {
+	switch (name) {
+		case "Robin":
+			return V.robinromance === 1;
+		case "Whitney":
+			return V.whitneyromance === 1 && C.npc.Whitney.state !== "dungeon";
+		case "Kylar":
+			return V.kylarenglish >= 1 && C.npc.Kylar.state !== "prison";
+		case "Sydney":
+			return V.sydneyromance === 1;
+		case "Eden":
+			return V.syndromeeden === 1;
+		case "Avery":
+			return V.auriga_artefact && C.npc.Avery.state !== "dismissed";
+		case "Black Wolf":
+			return V.syndromewolves === 1 && hasSexStat("deviancy", 3);
+		case "Great Hawk":
+			return V.syndromebird === 1;
+		case "Alex":
+			return V.farm_stage >= 7 && V.alex_countdown === undefined;
+		case "Gwylan":
+			return V.gwylanSeen?.includes("partners") || V.gwylanSeen?.includes("romance");
+		default:
+			return false;
+	}
 }
-window.wraithCanHunt = wraithCanHunt;
-
-function wraithSleepEventCheck() {
-	return V.wraith.state !== "" && V.wraith.nightmare === 1 && wraithCanHunt();
-}
-window.wraithSleepEventCheck = wraithSleepEventCheck;
+window.isPossibleLoveInterest = isPossibleLoveInterest;
 
 function fameTotal() {
 	let result = 0;
@@ -1961,10 +2003,10 @@ function validateTransformations() {
 			build: "wolfbuild",
 			type: "physicalTransform",
 			parts: [
-				{ name: "cheeks", tfRequired: 2, default: "hidden" },
 				{ name: "ears", tfRequired: 4 },
-				{ name: "pubes", tfRequired: 4, default: V.pbdisable === "f" ? "default" : "hidden" },
-				{ name: "pits", tfRequired: 4, default: V.pbdisable === "f" ? "default" : "hidden" },
+				{ name: "pubes", tfRequired: 4, default: V.settings.pubicHairEnabled === true ? "default" : "hidden" },
+				{ name: "pits", tfRequired: 4, default: V.settings.pubicHairEnabled === true ? "default" : "hidden" },
+				{ name: "cheeks", tfRequired: 5, default: "feral" },
 				{ name: "tail", tfRequired: 6 },
 			],
 			traits: [{ name: "fangs", tfRequired: 2 }],
@@ -2005,7 +2047,7 @@ function validateTransformations() {
 				{ name: "tail", tfRequired: 4 },
 				{ name: "plumage", tfRequired: 4 },
 				{ name: "wings", tfRequired: 6 },
-				{ name: "pubes", tfRequired: 6, default: V.pbdisable === "f" ? "default" : "hidden" },
+				{ name: "pubes", tfRequired: 6, default: V.settings.pubicHairEnabled === true ? "default" : "hidden" },
 			],
 			traits: [
 				{ name: "sharpEyes", tfRequired: 2 },
@@ -2193,6 +2235,7 @@ function getHalloweenCostume() {
 	const upper = V.worn.upper;
 	const lower = V.worn.lower;
 	const face = V.worn.face;
+	const head = V.worn.head;
 
 	T.tf = checkTFparts();
 
@@ -2204,22 +2247,43 @@ function getHalloweenCostume() {
 		return "witch";
 	} else if (upper.name === "scarecrow shirt" && lower.name === "scarecrow skirt") {
 		return "scarecrow";
+	} else if (upper.name === "mummy top" && lower.name === "mummy skirt") {
+		return "mummy";
+	} else if (upper.name === "skeleton outfit" && lower.name === "skeleton bottoms") {
+		return "skeleton";
+	} else if (upper.name === "futuristic bodysuit" && lower.name === "futuristic bodysuit pants") {
+		return "futuresuit";
+	} else if (upper.name === "pumpkin dress" && lower.name === "pumpkin skirt") {
+		return "pumpkin";
 	} else if (upper.name.includes("gothic") && lower.name.includes("gothic")) {
 		return "gothic";
-	} else if (upper.name === "nun's habit" && lower.name === "nun's habit skirt") {
+	} else if (upper.name.includes("nun's habit") && lower.name.includes("nun's habit skirt")) {
 		return "nun";
-	} else if (upper.type.includes("maid") && lower.type.includes("maid")) {
-		return "maid";
-	} else if (upper.name.includes("christmas") && lower.name.includes("christmas")) {
-		return "christmas";
-	} else if (upper.name === "cheerleading top" && lower.name === "cheerleading skirt") {
-		return "cheerleader";
-	} else if (upper.name.includes("prison") && lower.name.includes("prison")) {
-		return "prison";
-	} else if (upper.name === "karate jacket" && lower.name === "karate trousers") {
-		return "karate";
 	} else if (upper.name === "monk's habit" && lower.name === "monk's habit skirt") {
 		return "monk";
+	} else if (upper.name === "initiate's robe" && lower.name === "initiate's robe skirt") {
+		return "initiate";
+	} else if (upper.name === "evangelist's uniform" && lower.name === "evangelist's bloomers") {
+		return "evangelist";
+	} else if (upper.name.includes("confessor's") && lower.name.includes("confessor's")) {
+		return "confessor";
+	} else if (upper.name.includes("exorcist's") && lower.name.includes("exorcist's")) {
+		return "exorcist";
+	} else if (
+		(upper.name === "monk's sparring habit" && lower.name === "monk's sparring loincloth") ||
+		(upper.name === "nun's sparring habit" && lower.name === "nun's sparring skirt")
+	) {
+		return "sparring";
+	} else if (upper.type.includes("maid") && lower.type.includes("maid")) {
+		return "maid";
+	} else if (upper.name === "karate jacket" && lower.name === "karate trousers") {
+		return "karate";
+	} else if (upper.name.includes("christmas") && lower.name.includes("christmas")) {
+		return "christmas";
+	} else if (upper.name === "gift wrap top" && lower.name === "gift wrap bottom") {
+		return "gift wrap";
+	} else if (upper.name === "cheerleading top" && lower.name === "cheerleading skirt") {
+		return "cheerleader";
 	} else if (["football shirt", "foreign football shirt"].includes(upper.name) && ["football shorts", "foreign football shorts"].includes(lower.name)) {
 		return "football";
 	} else if (
@@ -2233,24 +2297,46 @@ function getHalloweenCostume() {
 		return "riding";
 	} else if (upper.name === "cow onesie" && lower.name === "cow onesie bottoms") {
 		return "cow onesie";
-	} else if (upper.name === "mummy top" && lower.name === "mummy skirt") {
-		return "mummy";
+	} else if (upper.name.includes("prison") && lower.name.includes("prison")) {
+		return "prison";
+	} else if (upper.name === "unbound straightjacket" && lower.name === "unbound straightjacket bottom") {
+		return "straightjacket";
 	} else if (upper.name.includes("sailor") && lower.name.includes("sailor")) {
 		return "sailor";
-	} else if (upper.name === "skeleton outfit" && lower.name === "skeleton bottoms") {
-		return "skeleton";
-	} else if (upper.name === "futuristic bodysuit" && lower.name === "futuristic bodysuit pants") {
-		return "futuresuit";
 	} else if (upper.name.includes("nurse") && lower.name.includes("nurse")) {
 		return "nurse";
+	} else if (upper.name === "rag top" && lower.name === "rag skirt") {
+		return "rags";
+	} else if (
+		(upper.name.includes("ballgown") || upper.name === "janet dress" || upper.name.includes("rose wedding dress")) &&
+		(head.name.includes("rose wedding veil") || head.name === "gothic crown")
+	) {
+		return "bride";
+	} else if (upper.name.includes("rose wedding suit") && lower.name.includes("rose wedding suit")) {
+		return "groom";
+	} else if (upper.name === "chef jacket" && head.name === "chef hat") {
+		return "chef";
+	} else if (upper.name === "swan lake dress" && lower.name === "swan lake skirt") {
+		return "swan";
+	} else if (upper.name === "butterfly dress" && lower.name === "butterfly dress skirt") {
+		return "butterfly";
+	} else if (upper.name === "succubus top" && lower.name === "succubus lower back wings") {
+		return "succubus";
+	} else if (
+		(upper.name === "vintage pantsuit" && lower.name === "vintage pants") ||
+		(upper.name === "vintage skirtsuit" && lower.name === "vintage skirt")
+	) {
+		return "vintage";
+	} else if (upper.name === "chain tunic" && lower.name === "chain tunic skirt") {
+		return "chain tunic";
 	} else if (face.name === "eyepatch") {
 		return "eyepatch";
 	} else if (face.name === "medical eyepatch") {
 		return "medical eyepatch";
 	} else if (face.name === "gas mask") {
 		return "gasmask";
-	} else if (upper.name === "rag top" && lower.name === "rag skirt") {
-		return "rags";
+	} else if (head.name === "military beret") {
+		return "beret";
 
 		/* Transformations */
 	} else if (T.tf.angelHalo && T.tf.angelWings) {
@@ -2457,7 +2543,7 @@ function dailyConvert() {
 		if (V.sewersfeeding === 1) V.daily.morgan.feeding = 1;
 		if (V.sewersDaily) V.sewersDaily.forEach(n => (V.daily.morgan[n] = 1));
 		/* `$compoundstate != undefined` is no longer used as an indicator of the access to compound,
-		as it migrated to $daily.compoundState. $compoundcard === 2 is used for that instead. */
+		as it migrated to $daily.compoundState. $compound.card === 2 is used for that instead. */
 		if (V.compoundstate !== undefined) V.compoundcard = 2;
 		V.daily.pharm.impatient = V.left_before_nurse_returned;
 
@@ -2540,6 +2626,66 @@ function calculateSemenReleased() {
 }
 window.calculateSemenReleased = calculateSemenReleased;
 
+function lustfulUpdate() {
+	// if no progress is made - nothing to update
+	if (!V.specialClothesEffects.bimbo.progress && !V.specialClothesEffects.pimp.progress) return;
+
+	let type;
+	if (V.specialClothesEffects.bimbo.progress > 0 && V.specialClothesEffects.pimp.progress > 0) {
+		// if there's progress in both, resolve it through gender appearance
+		type = V.player.gender_appearance === "f" ? "bimbo" : "pimp";
+	} else {
+		type = V.specialClothesEffects.bimbo.progress > 0 ? "bimbo" : "pimp";
+	}
+	const effectsRef = V.specialClothesEffects[type];
+	if (!effectsRef) return; // this check might not be needed
+
+	// speed up or slow down growth timers
+	const mult = type === "bimbo" ? 1 : -1;
+	const progress = effectsRef.progress;
+	V.breastgrowthtimer -= progress * 5 * mult;
+	V.bottomgrowthtimer -= progress * 5 * mult;
+	if (V.player.penisExist) V.penisgrowthtimer += progress * 5 * mult;
+
+	effectsRef.total += progress;
+	V.specialClothesEffects.bimbo.progress = 0;
+	V.specialClothesEffects.pimp.progress = 0;
+
+	if (effectsRef.total >= 400 && effectsRef.message === 0) {
+		// stage 1, move body type to androgynous
+		effectsRef.message = 1;
+		T.skipEvent = true;
+		if ((type === "bimbo" && V.player.gender_body === "m") || (type === "pimp" && V.player.gender_body === "f")) {
+			V.player.gender_body = "a";
+		}
+		V.timeMessages.pushUnique(type === "bimbo" ? "bimboMessage1" : "pimpMessage1");
+	} else if (effectsRef.total < 400 && effectsRef.message === 1) {
+		effectsRef.message = 0;
+	}
+
+	if (effectsRef.total >= 800 && effectsRef.message === 1 && T.skipEvent !== true) {
+		// stage 2, further change body type
+		effectsRef.message = 2;
+		T.skipEvent = true;
+		if (type === "bimbo" && V.player.gender_body !== "f") V.player.gender_body = "f";
+		else if (type === "pimp" && V.player.gender_body !== "m") V.player.gender_body = "m";
+		V.timeMessages.pushUnique(type === "bimbo" ? "bimboMessage2" : "pimpMessage2");
+	} else if (effectsRef.total < 800 && effectsRef.message === 2) {
+		effectsRef.message = 1;
+	}
+
+	if (effectsRef.total >= 1200 && effectsRef.message === 2 && T.skipEvent !== true) {
+		// stage 3, add lustful trait
+		effectsRef.message = 3;
+		V.backgroundTraits.pushUnique("lustful");
+		V.arousal = V.arousalmax;
+		V.timeMessages.pushUnique("bimboMessage3");
+	} else if (effectsRef.total < 1200 && effectsRef.message === 3) {
+		effectsRef.message = 2;
+	}
+}
+window.lustfulUpdate = lustfulUpdate;
+
 function npcSemenMod(penisSize) {
 	switch (penisSize) {
 		case 4:
@@ -2553,10 +2699,10 @@ function npcSemenMod(penisSize) {
 window.npcSemenMod = npcSemenMod;
 
 function maleChance(override) {
-	if (V.maleChanceSplit === "f") return V.malechance;
+	if (V.settings.maleChanceSplit === false) return V.settings.maleChance;
 	const appearence = override || V.player.gender_appearance;
-	if (appearence === "m") return V.maleChanceMale;
-	if (appearence === "f") return V.maleChanceFemale;
+	if (appearence === "m") return V.settings.maleChanceMale;
+	if (appearence === "f") return V.settings.maleChanceFemale;
 	return 50;
 }
 window.maleChance = maleChance;
@@ -2569,10 +2715,10 @@ function attractedToBothChance(gender, rng) {
 window.attractedToBothChance = attractedToBothChance;
 
 function beastMaleChance(override) {
-	if (V.beastMaleChanceSplit === "f") return V.beastmalechance;
+	if (V.settings.beastMaleChanceSplit === false) return V.settings.beastMaleChance;
 	const appearence = override || V.player.gender_appearance;
-	if (appearence === "m") return V.beastMaleChanceMale;
-	if (appearence === "f") return V.beastMaleChanceFemale;
+	if (appearence === "m") return V.settings.beastMaleChanceMale;
+	if (appearence === "f") return V.settings.beastMaleChanceFemale;
 	return 50;
 }
 window.beastMaleChance = beastMaleChance;
@@ -2640,8 +2786,9 @@ function toggleConfirmDialogUponTabClose() {
 
 window.toggleConfirmDialogUponTabClose = toggleConfirmDialogUponTabClose;
 
-function numberOfEarSlime() {
+function numberOfEarSlime(ignoreHypnoticSilence = false) {
 	let result = 0;
+	if (!ignoreHypnoticSilence && V.hypnosis_traits.silence) return 0;
 	if (V.parasite.left_ear.name === "slime") result++;
 	if (V.parasite.right_ear.name === "slime") result++;
 	return result;
@@ -2794,17 +2941,19 @@ function unableTakeVirginity(virginity) {
 	switch (virginity) {
 		case "penile":
 			return (
-				V.analdisable !== "f" &&
+				V.settings.analEnabled === false &&
 				((V.cbchance === 0 && V.dgchance === 100) ||
 					(maleChance() === 100 && V.cbchance === 0) ||
 					(maleChance() === 0 && V.dgchance === 100) ||
-					(maleChance() === 100 && V.cbchance === 100 && V.straponchance === 100) ||
-					(maleChance() === 0 && V.dgchance === 0 && V.straponchance === 100))
+					(maleChance() === 100 && V.cbchance === 100 && V.settings.straponChance === 100) ||
+					(maleChance() === 0 && V.dgchance === 0 && V.settings.straponChance === 100))
 			);
 		case "vaginal":
 			return (
-				V.straponchance === 0 &&
-				((V.cbchance === 100 && V.dgchance === 0) || (maleChance() === 100 && V.cbchance === 100) || (maleChance() === 0 && V.dgchance === 0))
+				V.settings.straponChance === 0 &&
+				((V.cbchance === 100 && V.dgchance === 0) ||
+					(maleChance() === 100 && V.cbchance === 100) ||
+					(maleChance() === 0 && V.dgchance === 0))
 			);
 		default:
 			return false;
@@ -3058,7 +3207,7 @@ function insecurityExists(type) {
 window.insecurityExists = insecurityExists;
 
 function isBeastSceneAllowed() {
-	return V.bestialitydisable === "f" || ((V.monsterhallucinations === "f" || V.hallucinations > 0) && V.monsterchance >= random(1, 100));
+	return V.settings.bestialityEnabled || ((!V.settings.monsterHallucinationsOnly || V.hallucinations > 0) && V.settings.monsterChance >= random(1, 100));
 }
 window.isBeastSceneAllowed = isBeastSceneAllowed;
 
@@ -3077,3 +3226,28 @@ function dangerEvent(mod = 1, floor = 9900, allure = V.allure, reroll = false) {
 	return T.danger >= floor - allure * mod;
 }
 window.dangerEvent = dangerEvent;
+
+/**
+ * @param {"sight" | "hearing" | "instincts" | "any"} sense which sense is being checked
+ * @returns {string | false} part as string
+ */
+function hasSharpSenses(sense = "any") {
+	if (["any", "sight"].includes(sense)) {
+		if (V.transformationParts.traits.sharpEyes !== "disabled") return "sharp eyes";
+		if (currentSkillValue("skulduggery") >= 600) return "experienced eyes";
+	}
+	if (["any", "hearing"].includes(sense)) {
+		if (V.transformationParts.wolf.ears !== "disabled" && V.transformationParts.wolf.ears !== "hidden") return "wolf ears";
+		if (V.transformationParts.cat.ears !== "disabled" && V.transformationParts.cat.ears !== "hidden") return "cat ears";
+		if (V.transformationParts.fox.ears !== "disabled" && V.transformationParts.fox.ears !== "hidden") return "fox ears";
+		if (currentSkillValue("skulduggery") >= 600) return "experienced ears";
+	}
+	if (["instincts"].includes(sense)) {
+		if (V.wolfgirl >= 6 || V.transformationParts.wolf.tail !== "disabled" && V.transformationParts.wolf.tail !== "hidden") return "wolf instincts";
+		if (V.cat >= 6 || V.transformationParts.cat.tail !== "disabled" && V.transformationParts.cat.tail !== "hidden") return "cat instincts";
+		if (V.fox >= 6 || V.transformationParts.fox.tail !== "disabled" && V.transformationParts.fox.tail !== "hidden") return "fox instincts";
+		if (V.dryad >= 6 || currentSkillValue("tending") >= 900) return "nature-trained instincts";
+	}
+	return false;
+}
+window.hasSharpSenses = hasSharpSenses;
