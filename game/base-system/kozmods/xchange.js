@@ -818,7 +818,7 @@ function hourlyClothingFemininityCheck(hours = 1) {
 			V.genderificationStressMessage = 1;
 			V.effectsmessage = 1;
 		}
-		else if ((V.player.gender === "m" && (V.genderidentity > 625 || !playerCaresForGender()) && currentWornFemininity > 0) && (V.xchange.pill.genderificationEffect || V.hypnosis_traits.crossdressing < 4)) {
+		else if ((V.player.gender === "m" && (hasGenderIdentity(5) || !playerCaresForGender()) && currentWornFemininity > 0) && (V.xchange.pill.genderificationEffect || V.hypnosis_traits.crossdressing < 4)) {
 			wikifier("stress",-10 * hours);
 			V.tiredness -= 200 * hours;
 			V.genderificationStressMessage = 2;
@@ -829,7 +829,7 @@ function hourlyClothingFemininityCheck(hours = 1) {
 			V.genderificationStressMessage = 3;
 			V.effectsmessage = 1;
 		}
-		else if ((V.player.gender === "f" && (V.genderidentity > 625 || !playerCaresForGender()) && currentWornFemininity < 0) && (V.xchange.pill.genderificationEffect || V.hypnosis_traits.crossdressing < 4)) {
+		else if ((V.player.gender === "f" && (hasGenderIdentity(5) || !playerCaresForGender()) && currentWornFemininity < 0) && (V.xchange.pill.genderificationEffect || V.hypnosis_traits.crossdressing < 4)) {
 			wikifier("stress",-10 * hours);
 			V.tiredness -= 200;
 			V.genderificationStressMessage = 4;
