@@ -403,14 +403,14 @@ statDisplay.create("lllwillpower", () => statDisplay.statChange("Willpower", -3,
 statDisplay.create("gwillpower", () => statDisplay.statChange("Willpower", 1, "green"));
 statDisplay.create("ggwillpower", () => statDisplay.statChange("Willpower", 2, "green"));
 statDisplay.create("gggwillpower", () => statDisplay.statChange("Willpower", 3, "green"));
-
+/*
 statDisplay.create("l-genderidentity", () => statDisplay.statChange("Gender Identity", -1, "red"));
 statDisplay.create("ll-genderidentity", () => statDisplay.statChange("Gender Identity", -2, "red"));
 statDisplay.create("lll-genderidentity", () => statDisplay.statChange("Gender Identity", -3, "red"));
 statDisplay.create("g-genderidentity", () => statDisplay.statChange("Gender Identity", 1, "green"));
 statDisplay.create("gg-genderidentity", () => statDisplay.statChange("Gender Identity", 2, "green"));
 statDisplay.create("ggg-genderidentity", () => statDisplay.statChange("Gender Identity", 3, "green"));
-
+*/
 statDisplay.create("lphysique", () => statDisplay.statChange("Physique", -1, "red"));
 statDisplay.create("llphysique", () => statDisplay.statChange("Physique", -2, "red"));
 statDisplay.create("lllphysique", () => statDisplay.statChange("Physique", -3, "red"));
