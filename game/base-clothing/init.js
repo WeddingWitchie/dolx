@@ -140,20 +140,20 @@ function givestartclothing() {
 	setup.clothes_all_slots.forEach(slot => (V.worn[slot] = clone(setup.clothes[slot][0])));
 
 	let clothesType;
-	if (playerFeelsManlike()) {
+	if (V.identity.presentation.clothing.preferred === "m") {
 		clothesType = "male";
-	} else if (playerFeelsGirllike()) {
-		clothesType = "female";
 	} else {
-		if (V.player.gender_body === "m" || (V.player.gender_body === "a" && V.player.breastsize <= 3)) {
-			clothesType = "male";
-		} else {
-			// if $player.gender_body is "f" or ($player.gender_body is "a" and $player.breastsize gt 3))
-			clothesType = "female";
-		}
-	}
+		clothesType = "female"; }
+	// } else {
+	// 	if (V.player.gender_body === "m" || (V.player.gender_body === "a" && V.player.breastsize <= 3)) {
+	// 		clothesType = "male";
+	// 	} else {
+	// 		// if $player.gender_body is "f" or ($player.gender_body is "a" and $player.breastsize gt 3))
+	// 		clothesType = "female";
+	// 	}
+	// }
 
-	if (V.background.crossdresser === true) clothesType = V.player.sex === "m" ? "female" : "male";
+	// if (V.background.crossdresser === true) clothesType = V.player.sex === "m" ? "female" : "male";
 
 	if (clothesType === "female") {
 		V.outfit.push(
