@@ -236,7 +236,7 @@
 	/* V.statFreeze prevents everything in the time system from running except for minutes so this sequence uses its own time tracking */
 
 	<<if ["cell", "guardhouse"].includes($bus)>>
-		<<set $_holdChangesUntilPlayerLeaves to true>>
+		<<set _holdChangesUntilPlayerLeaves to true>>
 	<</if>>
 
 	<<if $prisoner.punishmentsMissed gte 2>>
@@ -247,7 +247,7 @@
 	/* Daily */
 	<<if $hc.day isnot Time.monthDay>>
 		<<set $hc.day to Time.monthDay>>
-		<<set $_dayPassed to true>>
+		<<set _dayPassed to true>>
 
 		<<purity 30>>
 		<<if $angel gte 4>>
@@ -259,15 +259,15 @@
 			<<set $angelBanish = 0>>
 		<</if>>
 
-		<<set $_daysUntilBloodMoon to Time.lastDayOfMonth - Time.monthDay>>
+		<<set _daysUntilBloodMoon to Time.lastDayOfMonth - Time.monthDay>>
 		<<set $hc.daysPassed++>>
 		<b>Day <<number $hc.daysPassed>> - <span class="red">
-			<<if $_daysUntilBloodMoon is 0>>
+			<<if _daysUntilBloodMoon is 0>>
 				Night of the blood moon
-			<<elseif $_daysUntilBloodMoon is 1>>
+			<<elseif _daysUntilBloodMoon is 1>>
 				One day until the blood moon
 			<<else>>
-				<<Number $_daysUntilBloodMoon>> days until the blood moon
+				<<Number _daysUntilBloodMoon>> days until the blood moon
 			<</if>>
 		</span></b>
 		<br><br>
@@ -365,11 +365,11 @@
 	<</if>>
 
 	/* Daily, but skip this part if player is in dungeon, will run when they exit */
-	<<if $hc.doPrisonerDaily and !$_holdChangesUntilPlayerLeaves>>
+	<<if $hc.doPrisonerDaily and !_holdChangesUntilPlayerLeaves>>
 		<<run delete $hc.doPrisonerDaily>>
 
-		<<set $_prisonerClothes to $hcItems.find(clothes => clothes.type is "clothes" and clothes.location is "prisoner")>>
-		<<set $_prisonerSheet to $hcItems.find(sheet => sheet.type is "sheets" and sheet.location is "prisoner")>>
+		<<set _prisonerClothes to $hcItems.find(clothes => clothes.type is "clothes" and clothes.location is "prisoner")>>
+		<<set _prisonerSheet to $hcItems.find(sheet => sheet.type is "sheets" and sheet.location is "prisoner")>>
 
 		/* HEALTH AND CLEANLINESS */
 
@@ -379,37 +379,37 @@
 		<</if>>
 
 		/* Decay from tainted items in cell*/
-		<<set $_taintedDecay to hcItemsFilter(items => items.location is "cell" and items.dirty gte 2).length>>
-		<<if $_taintedDecay>>
-			<<hcPrisonerHealth $_taintedDecay*-1>>
+		<<set _taintedDecay to hcItemsFilter(items => items.location is "cell" and items.dirty gte 2).length>>
+		<<if _taintedDecay>>
+			<<hcPrisonerHealth _taintedDecay*-1>>
 		<</if>>
 
 		/* Decay from wearing dirty/tainted clothes or no clothes */
-		<<if $_prisonerClothes?.dirty gte 1>>
-			<<hcPrisonerHealth `Math.clamp($_prisonerClothes.dirty,0,2)*-1`>>
-		<<elseif $_prisonerSheet?.dirty gte 1>>
-			<<hcPrisonerHealth `Math.clamp($_prisonerSheet.dirty,0,2)*-1`>>
-		<<elseif !$_prisonerClothes and !$_prisonerSheet>>
+		<<if _prisonerClothes?.dirty gte 1>>
+			<<hcPrisonerHealth `Math.clamp(_prisonerClothes.dirty,0,2)*-1`>>
+		<<elseif _prisonerSheet?.dirty gte 1>>
+			<<hcPrisonerHealth `Math.clamp(_prisonerSheet.dirty,0,2)*-1`>>
+		<<elseif !_prisonerClothes and !_prisonerSheet>>
 			<<hcPrisonerHealth -1>>
 		<</if>>
 
 		<<if $prisoner.bandagesOn and $prisoner.cleanBandages lte 2>>
 			/* Big health decay and dirtiness if ends day with dirty bandages */
 			<<hcPrisonerHealth -8>><<set $prisoner.cleanBody -= 3>>
-			<<if $_prisonerClothes>>
-				<<set $_prisonerClothes.dirty++>>
+			<<if _prisonerClothes>>
+				<<set _prisonerClothes.dirty++>>
 			<</if>>
-			<<if !$_prisonerClothes and $_prisonerSheet>>
-				<<set $_prisonerSheet.dirty++>>
+			<<if !_prisonerClothes and _prisonerSheet>>
+				<<set _prisonerSheet.dirty++>>
 			<</if>>
 		<<elseif !$prisoner.bandagesOn>>
 			/* Health decay and dirtiness if ends day without bandages */
 			<<hcPrisonerHealth -4>><<set $prisoner.cleanBody -= 1>>
-			<<if $_prisonerClothes>>
-				<<set $_prisonerClothes.dirty++>>
+			<<if _prisonerClothes>>
+				<<set _prisonerClothes.dirty++>>
 			<</if>>
-			<<if !$_prisonerClothes and $_prisonerSheet>>
-				<<set $_prisonerSheet.dirty++>>
+			<<if !_prisonerClothes and _prisonerSheet>>
+				<<set _prisonerSheet.dirty++>>
 			<</if>>
 		<<else>>
 			<<hcPrisonerHealth 1>>
@@ -418,8 +418,8 @@
 		/* Cleanliness decay if not washed that day */
 		<<if !$hc.prisonerDaily.washed>>
 			<<set $prisoner.cleanBody -= 1>><<set $prisoner.cleanBandages -= 1>>
-			<<if $_prisonerClothes>>
-				<<set $_prisonerClothes.dirty++>>
+			<<if _prisonerClothes>>
+				<<set _prisonerClothes.dirty++>>
 			<</if>>
 			/* Additionally, more health decay if branding event has happened */
 			<<if $prisonerEvents.includes("brand")>>
@@ -520,11 +520,11 @@
 
 	/* Hourly */
 	<<if $hc.hour isnot Time.hour>>
-		<<set $_hoursPassed to Time.hour - $hc.hour>>
-		<<if $_hoursPassed lt 0>><<set $_hoursPassed += 24>><</if>>
-		<<set $_containersToCheck to $hcItems.filter(cont => cont.containerID)>>
-		<<set $_witchblooms to hcItemHolding("clutter", w => w.name is "witchblooms")>>
-		<<for $_t = 0; $_t lt $_hoursPassed; $_t++>>
+		<<set _hoursPassed to Time.hour - $hc.hour>>
+		<<if _hoursPassed lt 0>><<set _hoursPassed += 24>><</if>>
+		<<set _containersToCheck to $hcItems.filter(cont => cont.containerID)>>
+		<<set _witchblooms to hcItemHolding("clutter", w => w.name is "witchblooms")>>
+		<<for _t = 0; _t lt _hoursPassed; _t++>>
 			<<run $hcItems.filter(item => item.time !== undefined && item.state is "lit").forEach(item => {
 				item.time--;
 				if (V.hcChallenge.torchFaster && item.time / 2 !== 0) item.time--;
@@ -537,7 +537,7 @@
 			<<run hcItemsFilter((item => item.dirty === 0 &&
 			item.location !== "held" &&
 			item.type !== "clutter" &&
-			!$_containersToCheck.some(c => c.containerID === item.location))).forEach(toDirty => {
+			!_containersToCheck.some(c => c.containerID === item.location))).forEach(toDirty => {
 				if (toDirty.location is "disposal") {
 					toDirty.dirty++;
 				} else if ($rng gte 91) {
@@ -678,9 +678,9 @@
 				<</if>>
 			<</if>>
 
-			<<if $_witchblooms and $bus is "bed">>
-				<<set $_witchblooms.progress to $_witchblooms.progress || 0>>
-				<<set $_witchblooms.progress++>><<purity -5>>
+			<<if _witchblooms and $bus is "bed">>
+				<<set _witchblooms.progress to _witchblooms.progress || 0>>
+				<<set _witchblooms.progress++>><<purity -5>>
 			<</if>>
 
 			<<set $prisoner.harmedRecently-->>
@@ -802,16 +802,16 @@
 		<<if !["cell", "forest", "lake", "disposal", "guardhouse"].includes($bus) and Time.dayState isnot "night">>
 			<span class="narration">Whispers spread through the temple's flock. They reach the gaoler's ears.</span>
 			<span class="red">
-				<<for $_labelVanished, $_valueVanished range $hc.vanishedItems>>
-					<<if !$_valueVanished.fromCont>>
+				<<for _labelVanished, _valueVanished range $hc.vanishedItems>>
+					<<if !_valueVanished.fromCont>>
 						<br>
-						<<if $_valueVanished.type is "water">>
+						<<if _valueVanished.type is "water">>
 							Water from a bucket had leaked
 						<<else>>
-							<<print hcItemName($_valueVanished, "cap", "vanished")>>
-							<<if ["clutter", "sheets", "herbs", "bones"].includes($_valueVanished.type)>>were<<else>>was<</if>> found
+							<<print hcItemName(_valueVanished, "cap", "vanished")>>
+							<<if ["clutter", "sheets", "herbs", "bones"].includes(_valueVanished.type)>>were<<else>>was<</if>> found
 						<</if>>
-						<<switch $_valueVanished.location>>
+						<<switch _valueVanished.location>>
 							<<case "bed">>
 								under your bunk.
 							<<case "cell">>
@@ -829,15 +829,15 @@
 							<<case "training">>
 								in the training room.
 							<<default>>
-								in the $_valueVanished.location.
+								in the _valueVanished.location.
 						<</switch>>
-						<<if ["clutter", "sheets", "herbs", "bones"].includes($_valueVanished.type)>>They were<<else>>It was<</if>>
-						<<if $_valueVanished.type is "water">>
+						<<if ["clutter", "sheets", "herbs", "bones"].includes(_valueVanished.type)>>They were<<else>>It was<</if>>
+						<<if _valueVanished.type is "water">>
 							cleaned up.
-						<<elseif $_valueVanished.dirty gte 2 or $_valueVanished.state is "burnt">>
+						<<elseif _valueVanished.dirty gte 2 or _valueVanished.state is "burnt">>
 							promptly burned.
-						<<elseif $_valueVanished.persists>>
-							returned to the $_valueVanished.origin.
+						<<elseif _valueVanished.persists>>
+							returned to the _valueVanished.origin.
 						<<else>>
 							returned.
 						<</if>>
@@ -847,13 +847,13 @@
 					You notice many of them stealing glances at you.
 				<</if>>
 				<<if $hc.suspicionGained gte 20>>
-					<<set $_susPlus to 3>>
+					<<set _susPlus to 3>>
 				<<elseif $hc.suspicionGained gte 10>>
-					<<set $_susPlus to 2>>
+					<<set _susPlus to 2>>
 				<<else>>
-					<<set $_susPlus to 1>>
+					<<set _susPlus to 1>>
 				<</if>>
-				<<hcSuspicion $hc.suspicionGained>><<hopelessCycleSus $_susPlus>>
+				<<hcSuspicion $hc.suspicionGained>><<hopelessCycleSus _susPlus>>
 			</span>
 			<<run delete $hc.suspicionGained>><<set $hc.vanishedItems to []>>
 			<br>
@@ -923,8 +923,8 @@
 
 <<widget "hopelessCycleStatus">>
 	<<if $prisonerEvents.includes("health")>>
-		<<set $_prisonerClothesItem to $hcItems.find(clothes => clothes.type is "clothes" and clothes.location is "prisoner")>>
-		<<set $_prisonerSheet to $hcItems.find(sheet => sheet.type is "sheets" and sheet.location is "prisoner")>>
+		<<set _prisonerClothesItem to $hcItems.find(clothes => clothes.type is "clothes" and clothes.location is "prisoner")>>
+		<<set _prisonerSheet to $hcItems.find(sheet => sheet.type is "sheets" and sheet.location is "prisoner")>>
 		<br>
 		<<switch $prisoner.health>>
 			<<case 30 29 28 27 26>>
@@ -941,9 +941,9 @@
 			<<case 3 2 1 0>><span class="red"><<print $prisoner.name.toUpperFirst()>> is unresponsive.</span>
 		<</switch>>
 		<br>
-		<<if $_prisonerClothesItem>>
-			She wears a $_prisonerClothesItem.nameText.
-			<<if $_prisonerSheet>>
+		<<if _prisonerClothesItem>>
+			She wears a _prisonerClothesItem.nameText.
+			<<if _prisonerSheet>>
 				<span class="blue">A bedsheet covers her lower body.</span>
 			<</if>>
 		<<else>>
@@ -952,7 +952,7 @@
 			<<else>>
 				<span class="lewd">She is naked, save for her bandages.</span>
 			<</if>>
-			<<if $_prisonerSheet>>
+			<<if _prisonerSheet>>
 				<span class="blue">A bedsheet covers her lower body.</span>
 			<<elseif Time.dayState is "night">>
 				<span class="red">She shivers.</span>
@@ -966,7 +966,7 @@
 			<<case 1>><span class="pink">Dirt and grime stick to her body.</span>
 			<<case 0>><span class="red">Black, ichorous fluid trails down her body.</span>
 		<</switch>>
-		<<if !$prisonerEvents.includes("wash") and ($prisoner.bandagesOn or $_prisonerClothesItem)>>
+		<<if !$prisonerEvents.includes("wash") and ($prisoner.bandagesOn or _prisonerClothesItem)>>
 			<span class="pink"><i>She must be fully naked to be washed.</i></span>
 		<</if>>
 		<br>
@@ -995,7 +995,7 @@
 		<<if $hc.daily.washed>>
 			<<if $hcChallenge.prisonerClean and $prisoner.cleanBody lt 4>>
 				<span class="blue">She's been washed today,</span> <span class="purple">but her wounds are too foul to clean in a single session.</span>
-				<<if $prisoner.bandagesOn or $_prisonerClothesItem>>
+				<<if $prisoner.bandagesOn or _prisonerClothesItem>>
 					<span class="purple italic">She must be fully naked to be washed.</span>
 				<</if>>
 			<<else>>
@@ -1003,7 +1003,7 @@
 			<</if>>
 		<<else>>
 			<span class="pink">She hasn't been washed today.
-			<<if $prisoner.bandagesOn or $_prisonerClothesItem>>
+			<<if $prisoner.bandagesOn or _prisonerClothesItem>>
 				<i>She must be fully naked to be washed.</i>
 			<</if>>
 			</span>
@@ -1015,7 +1015,7 @@
 			<span class="green">Her burns have been treated.</span>
 		<<else>>
 			<span class="red">Her burns haven't been treated.
-			<<if $prisoner.bandagesOn or $_prisonerClothesItem>>
+			<<if $prisoner.bandagesOn or _prisonerClothesItem>>
 				<i>She must be fully naked to treat them.</i>
 			<</if>>
 			</span>
@@ -1092,7 +1092,7 @@
 
 	<<if $itemAction>>
 		<<if $itemActionObject>>
-			<<set $_itemText to hcItemName($itemActionObject, false, false, true)>>
+			<<set _itemText to hcItemName($itemActionObject, false, false, true)>>
 		<</if>>
 		<span class="gold">
 		<<switch $itemAction>>
@@ -1106,21 +1106,21 @@
 						You lower the bucket into the well by its rope and winch. You pull it back up, now full of water.
 					<</if>>
 				<</if>>
-			<<case "pickUp">>You pick up $_itemText.
+			<<case "pickUp">>You pick up _itemText.
 			<<case "return">>
 				<<if ["bucket", "snuffer"].includes($itemActionObject.type)>>
-					You hang $_itemText back up.
+					You hang _itemText back up.
 				<<else>>
-					You put $_itemText back where you found <<= $itemActionObject.type is "herbs" ? "them" : "it">>.
+					You put _itemText back where you found <<= $itemActionObject.type is "herbs" ? "them" : "it">>.
 				<</if>>
-			<<case "down">>You put down $_itemText.
-			<<case "drop">>You drop $_itemText.
-			<<case "dropStash">>You stash $_itemText under your bed.
-			<<case "dropDirty">>You drop $_itemText, and it becomes dirty.
-			<<case "dropStashDirty">>You stash $_itemText under your bed, and it becomes dirty.
+			<<case "down">>You put down _itemText.
+			<<case "drop">>You drop _itemText.
+			<<case "dropStash">>You stash _itemText under your bed.
+			<<case "dropDirty">>You drop _itemText, and it becomes dirty.
+			<<case "dropStashDirty">>You stash _itemText under your bed, and it becomes dirty.
 			<<case "disposal">>
-				You throw $_itemText into the disposal channel.
-				<<if $_itemText is "clothes">>
+				You throw _itemText into the disposal channel.
+				<<if _itemText is "clothes">>
 					The wicked have no second skin to hide behind, now.
 				<</if>>
 				<<if $itemActionObject and $itemActionObject.dirty gte 2>>
@@ -1133,10 +1133,10 @@
 					You feel that <span class="blue">$itemActionObject.state torches are not accepted as offerings</span>.
 				<</if>>
 
-			<<case "putInBucket">>You put $_itemText in a bucket. <<if ["snuffer"].includes($itemActionObject.type)>>It rattles around noisily.<</if>>
-			<<case "fromBucket">>You take $_itemText from the bucket.
+			<<case "putInBucket">>You put _itemText in a bucket. <<if ["snuffer"].includes($itemActionObject.type)>>It rattles around noisily.<</if>>
+			<<case "fromBucket">>You take _itemText from the bucket.
 			<<case "emptyDisposal">>
-				You dump $_itemText into the disposal channel.
+				You dump _itemText into the disposal channel.
 				<<if $torchOffering>>
 					/* it should not be possible to put lit torches in a bucket, so no need to account for them */
 					<<unset $torchOffering>>
@@ -1144,17 +1144,17 @@
 				<</if>>
 			<<case "emptyWell">>
 				<<if $bus is "lake">>
-					You empty $_itemText into the lake.
+					You empty _itemText into the lake.
 				<<else>>
-					You empty $_itemText back into the well.
+					You empty _itemText back into the well.
 				<</if>>
 			<<case "emptyGarden">>
-				You dump out $_itemText at the edge of the forest.
+				You dump out _itemText at the edge of the forest.
 			<<case "kick">>
 				<<if !["disposal", "forest", "lake"].includes($bus)>>
-					<span class="red">You kick over $_itemText. The water makes a horrible mess everywhere. <<hopelessCycleSus 2>></span>
+					<span class="red">You kick over _itemText. The water makes a horrible mess everywhere. <<hopelessCycleSus 2>></span>
 				<<else>>
-					You kick over $_itemText.
+					You kick over _itemText.
 				<</if>>
 			<<case "pickUpLit">>You quickly pick up the burning torch.
 			<<case "pickUpSnuffed">>You pick up the unlit torch.
@@ -1181,8 +1181,8 @@
 			<<case "disposalBurnt" "disposalSnuffed">>You toss the unlit torch into the disposal channel.
 			<<case "disposalLit">>You toss your still-burning torch into the disposal channel, where it is immediately snuffed out.
 
-			<<case "clean">>You diligently scrub $_itemText clean.
-			<<case "burn">>You commit $_itemText to the pyre.
+			<<case "clean">>You diligently scrub _itemText clean.
+			<<case "burn">>You commit _itemText to the pyre.
 				<<if $itemActionObject.dirty gte 2>>
 					Your siblings look pleased with your offering. <<stress -6>><<purity 5>><<lstress>><<gpurity>><<hopelessCycleSus -2>>
 				<</if>>
@@ -1225,10 +1225,10 @@
 <</widget>>
 
 <<widget "hopelessCycleItemLinks">>
-	<<set $_items to $hcItems.filter(item => !item.hidden)>>
-	<<set $_itemsHeld to $_items.filter(item => item.location is "held")>>
-	<<set $_itemsDropped to $_items.filter(item => item.location is $bus)>>
-	<<set _containers to $_items.filter(item => item.containerID and ["held", $bus].includes(item.location))>>
+	<<set _items to $hcItems.filter(item => !item.hidden)>>
+	<<set _itemsHeld to _items.filter(item => item.location is "held")>>
+	<<set _itemsDropped to _items.filter(item => item.location is $bus)>>
+	<<set _containers to _items.filter(item => item.containerID and ["held", $bus].includes(item.location))>>
 
 	<<run $hcItems.filter(item => item.dirty isnot undefined).forEach(item => {
 		item.nameText = item.name;
@@ -1270,14 +1270,14 @@
 			if (gucket.location is V.bus) {
 				if (_containersHere gte 2) {
 					_containersHereIndex++;
-					$_int = _containersHereIndex;
-					gucket.nameText = ordinalSuffixOf($_int) + " " + gucket.name;
+					_int = _containersHereIndex;
+					gucket.nameText = ordinalSuffixOf(_int) + " " + gucket.name;
 				}
 			} else {
 				if (_containersHeld gte 2) {
 					_containersHeldIndex++;
-					$_int = _containersHeldIndex;
-					gucket.nameText = ordinalSuffixOf($_int) + " held " + gucket.name;
+					_int = _containersHeldIndex;
+					gucket.nameText = ordinalSuffixOf(_int) + " held " + gucket.name;
 				} else {
 					gucket.nameText = "held " + gucket.name;
 				}
@@ -1334,7 +1334,7 @@
 	/* Places torches can be put */
 	<<set _hcSconces to ["cell", "disposal"]>>
 
-	<<if $_itemsDropped.length or _itemsHere.filter(items => !["water", "fire"].includes(items)).length>>
+	<<if _itemsDropped.length or _itemsHere.filter(items => !["water", "fire"].includes(items)).length>>
 		<b><u>Items here:</u></b><br>
 	<</if>>
 
@@ -1343,29 +1343,29 @@
 	/* Infinite items, mostly for debug, water or torch */
 	/* _itemsHere is set per-passage to designate a location that has infinite items to take */
 	<<if _itemsHere.length>>
-		<<for $_labelHere, _valueHere range _itemsHere.filter(items => !["water", "fire"].includes(items))>>
+		<<for _labelHere, _valueHere range _itemsHere.filter(items => !["water", "fire"].includes(items))>>
 			/* Protect the player from themselves */
 			<<if $hcItems.filter(tooMany => tooMany.type is _valueHere).length gte 8>>
-				<<set $_outOfStock to true>>
+				<<set _outOfStock to true>>
 				<<hcicon _valueHere>><<print _valueHere.toUpperFirst()>> <span class="red">(you've taken too many!)</span>
 			<<elseif _valueHere is "torch">>
-				<<set $_outOfStock to false>>
+				<<set _outOfStock to false>>
 				<<if $hc.dungeonTorchState is "snuffed">>
 					<<hcicon "torch_unlit">>Torches <span class="blue">(snuffed)</span>
 				<<elseif $hc.dungeonTorchState is "burnt">>
 					<<hcicon "torch_burnt">>Torches <span class="red">(burnt out)</span>
 				<<else>>
-					<<set $_torchTimeDisplay to $hcChallenge.torchFaster ? Math.clamp(Math.floor($hc.dungeonTorchTime/2),1,12) : $hc.dungeonTorchTime>>
-					<<hcicon "torch">>Torches <span class="orange">(<<number $_torchTimeDisplay>> <<pluralise $_torchTimeDisplay "hour">>)</span>
+					<<set _torchTimeDisplay to $hcChallenge.torchFaster ? Math.clamp(Math.floor($hc.dungeonTorchTime/2),1,12) : $hc.dungeonTorchTime>>
+					<<hcicon "torch">>Torches <span class="orange">(<<number _torchTimeDisplay>> <<pluralise _torchTimeDisplay "hour">>)</span>
 				<</if>>
 			<<else>>
-				<<set $_outOfStock to false>>
+				<<set _outOfStock to false>>
 				<<hcicon _valueHere>><<print _valueHere.toUpperFirst()>> <span class="green">(plentiful)</span>
 			<</if>>
 			/* If an absurd amount hasn't been taken and dropped, and has a free hand */
-			<<if !$_outOfStock>>
+			<<if !_outOfStock>>
 				<<capture _valueHere>>
-					<<if $_itemsHeld.length lt 2>>
+					<<if _itemsHeld.length lt 2>>
 						<<if _valueHere is "torch">>
 							/* Infinite torches in the guardhouse. */
 							<<set _torchTime to $hc.dungeonTorchTime || 2>>
@@ -1421,21 +1421,21 @@
 	<</if>>
 
 	/* Items dropped, i.e., items with a V.hcItems entry with location set to current bus */
-	<<if $_itemsDropped.length>>
-		<<for $_labelDropped, $_valueDropped range $_itemsDropped>>
-			<<hopelessCycleItemOptions $_valueDropped>>
+	<<if _itemsDropped.length>>
+		<<for _labelDropped, _valueDropped range _itemsDropped>>
+			<<hopelessCycleItemOptions _valueDropped>>
 		<</for>>
 	<</if>>
 
-	<<if $_itemsDropped.length or _itemsHere.filter(items => !["water","fire"].includes(items)).length>>
+	<<if _itemsDropped.length or _itemsHere.filter(items => !["water","fire"].includes(items)).length>>
 		<br>
 	<</if>>
 
 	/* Held items */
-	<<if $_itemsHeld.length>>
-		<b><u>Items held:</u><<if $_itemsHeld.length gte 2>> <span class="red">(hands full!)</span><</if>></b><br>
-		<<for $_labelHeld, $_valueHeld range $_itemsHeld>>
-			<<hopelessCycleItemOptions $_valueHeld>>
+	<<if _itemsHeld.length>>
+		<b><u>Items held:</u><<if _itemsHeld.length gte 2>> <span class="red">(hands full!)</span><</if>></b><br>
+		<<for _labelHeld, _valueHeld range _itemsHeld>>
+			<<hopelessCycleItemOptions _valueHeld>>
 		<</for>>
 		<br>
 	<</if>>
@@ -1445,18 +1445,18 @@
 	<<set _item to _args[0]>>
 
 	/* Item icon and name */
-	<<set $_displayName to _item.nameText ? _item.nameText.toUpperFirst() : _item.name.toUpperFirst()>>
+	<<set _displayName to _item.nameText ? _item.nameText.toUpperFirst() : _item.name.toUpperFirst()>>
 	<<if _item.tooltip>>
-		<<set $_displayName += _item.tooltip>>
+		<<set _displayName += _item.tooltip>>
 	<</if>>
 	<<if _item.type is "torch">>
 		<<if _item.state is "snuffed">>
-			<<hcicon _item>><<print $_displayName>> <span class="blue">(snuffed)</span>
+			<<hcicon _item>><<print _displayName>> <span class="blue">(snuffed)</span>
 		<<elseif _item.state is "burnt">>
-			<<hcicon _item>><<print $_displayName>> <span class="red">(burnt out)</span>
+			<<hcicon _item>><<print _displayName>> <span class="red">(burnt out)</span>
 		<<else>>
 			<<set _torchTimeDisplay to $hcChallenge.torchFaster ? _item.time/2 : _item.time>>
-			<<hcicon _item>><<print $_displayName>> <span class="orange">(<<number _torchTimeDisplay>> <<pluralise _torchTimeDisplay "hour">>)</span>
+			<<hcicon _item>><<print _displayName>> <span class="orange">(<<number _torchTimeDisplay>> <<pluralise _torchTimeDisplay "hour">>)</span>
 		<</if>>
 		<<if _item.location isnot "held">>
 			<<if _item.inSconce>>
@@ -1468,7 +1468,7 @@
 			<</if>>
 		<</if>>
 	<<else>>
-		<<hcicon _item>><<print $_displayName>>
+		<<hcicon _item>><<print _displayName>>
 		<<if _item.location isnot "held">>
 			<<if _item.origin is $bus and _item.persists>>
 				<span class="green">(stored)</span>
@@ -1486,7 +1486,7 @@
 		<<set _persistentInThisContainer to _itemsInThisContainer.filter(per => per.persists === true)>>
 	<</if>>
 
-	<<set $_freeHand to hcItemHasFreeHand()>>
+	<<set _freeHand to hcItemHasFreeHand()>>
 
 	/* Item management */
 	<<capture _item, _itemsInThisContainer, _waterInThisContainer>>
@@ -1496,7 +1496,7 @@
 			/* Actions specific to items NOT held */
 
 			/* Picking up, requires a free hand */
-			<<if $_freeHand>>
+			<<if _freeHand>>
 				<<if _item.type is "torch">>
 					/* Torches */
 					<<set _toBeItemAction to "pickUp" + _item.state.toUpperFirst()>>
@@ -1535,7 +1535,7 @@
 					/* Return used dishes */
 					<<if _item.type is "food" and _item.used>>
 						| <<link [[Return|$passage]]>>
-							<<run hcItemRemove($_item, "return")>>
+							<<run hcItemRemove(_item, "return")>>
 							<<if _item.dirty and _item.name is "stolen food">>
 								<<hcSuspicion 5>>
 							<<elseif _item.dirty is 0>>
@@ -1544,7 +1544,7 @@
 						<</link>><<if _item.dirty and _item.name is "stolen food">><<hopelessCycleSus 1>><<elseif _item.dirty is 0>><<hopelessCycleSus -2>><</if>>
 					<<elseif _item.containerID>>
 						<<if _itemsInThisContainer.length is 0>>
-							| <<link [[Return|$passage]]>><<run hcItemRemove($_item, "return")>><</link>>
+							| <<link [[Return|$passage]]>><<run hcItemRemove(_item, "return")>><</link>>
 						<<else>>
 							| <<link [[Put down|$passage]]>><<set _item.location to $bus>><<set $itemAction to "down">><<set $itemActionObject to _item>><</link>>
 						<</if>>
@@ -1602,16 +1602,16 @@
 						/* items */
 						| <<link [[Empty into channel (0:01)|$passage]]>>
 							<<pass 1>>
-							<<for $_labelTrash, $_valueTrash range _itemsInThisContainer>>
-								<<if $_valueTrash.dirty gte 2>>
+							<<for _labelTrash, _valueTrash range _itemsInThisContainer>>
+								<<if _valueTrash.dirty gte 2>>
 									<<set $hc.disposals += 2>>
-								<<elseif $_valueTrash.state isnot "snuffed" and $_valueTrash.state isnot "lit">>
+								<<elseif _valueTrash.state isnot "snuffed" and _valueTrash.state isnot "lit">>
 									<<set $hc.disposals++>>
 								<<elseif $hcChallenge.forestNoShortcut>>
 									<<set $torchOffering to true>>
 								<</if>>
-								<<if $hc.shortcutCount isnot undefined>><<if $_valueTrash.dirty gte 2>><<set $hc.shortcutCount += 2>><<else>><<set $hc.shortcutCount++>><</if>><</if>>
-								<<run hcItemRemove($_valueTrash)>>
+								<<if $hc.shortcutCount isnot undefined>><<if _valueTrash.dirty gte 2>><<set $hc.shortcutCount += 2>><<else>><<set $hc.shortcutCount++>><</if>><</if>>
+								<<run hcItemRemove(_arousalModifiervalueTrash)>>
 							<</for>>
 							<<set $itemAction to "emptyDisposal">><<set $itemActionObject to _item>>
 						<</link>>
@@ -1620,8 +1620,8 @@
 
 				/* Empty bucket back into well or lake */
 				<<if _itemsHere.includes("water") and _waterInThisContainer and !($bus is "garden" and _waterInThisContainer?.dirty gte 1 and !$hc.wellTainted)>>
-					<<set $_linkText to $bus is "lake" ? "Empty into lake" : "Empty back into well">>
-					| <<link [[`$_linkText (0:01)`|$passage]]>>
+					<<set _linkText to $bus is "lake" ? "Empty into lake" : "Empty back into well">>
+					| <<link [[`_linkText (0:01)`|$passage]]>>
 						<<pass 1>>
 						<<run hcItemRemove(_waterInThisContainer)>>
 						<<set $itemAction to "emptyWell">>
@@ -1726,11 +1726,11 @@
 		<</if>>
 
 		/* Taking items from containers, requires free hand */
-		<<if $_freeHand and _item.containerID and _itemsInThisContainer.length and !_waterInThisContainer>>
-			<<for $_labelCont, _valueCont range _itemsInThisContainer>>
+		<<if _freeHand and _item.containerID and _itemsInThisContainer.length and !_waterInThisContainer>>
+			<<for _labelCont, _valueCont range _itemsInThisContainer>>
 				<<capture _valueCont>>
-					<<set $_linkName to _valueCont.nameText ? _valueCont.nameText : _valueCont.name>>
-					| <<link [[`Take $_linkName`|$passage]]>>
+					<<set _linkName to _valueCont.nameText ? _valueCont.nameText : _valueCont.name>>
+					| <<link [[`Take _linkName`|$passage]]>>
 						<<set _valueCont.location to "held">><<run delete _item.vanishesIn>><<run delete _valueCont.vanishesIn>>
 						<<set $itemAction to "from" + _item.name.toUpperFirst()>><<set $itemActionObject to _valueCont>>
 					<</link>>
@@ -1818,49 +1818,49 @@
 
 <<widget "hopelessCycleLove">><<silently>>
 	<<if $prisoner.loveRevealed>>
-		<<set $_plus to _args[0]>>
-		<<switch $_plus>>
-			<<case 3>><<set $_text_output to " | <span class='green'>+ + + Love</span>">>
-			<<case 2>><<set $_text_output to " | <span class='green'>+ + Love</span>">>
-			<<case 1>><<set $_text_output to " | <span class='green'>+ Love</span>">>
-			<<case -1>><<set $_text_output to " | <span class='red'>- Love</span>">>
-			<<case -2>><<set $_text_output to " | <span class='red'>- - Love</span>">>
-			<<case -3>><<set $_text_output to " | <span class='red'>- - - Love</span>">>
-			<<default>><<set $_text_output to " | <span class='green'>+ Love</span>">>
+		<<set _plus to _args[0]>>
+		<<switch _plus>>
+			<<case 3>><<set _text_output to " | <span class='green'>+ + + Love</span>">>
+			<<case 2>><<set _text_output to " | <span class='green'>+ + Love</span>">>
+			<<case 1>><<set _text_output to " | <span class='green'>+ Love</span>">>
+			<<case -1>><<set _text_output to " | <span class='red'>- Love</span>">>
+			<<case -2>><<set _text_output to " | <span class='red'>- - Love</span>">>
+			<<case -3>><<set _text_output to " | <span class='red'>- - - Love</span>">>
+			<<default>><<set _text_output to " | <span class='green'>+ Love</span>">>
 		<</switch>>
 	<</if>>
-<</silently>><<if $_text_output>><<print $_text_output>><</if>><</widget>>
+<</silently>><<if _text_output>><<print _text_output>><</if>><</widget>>
 
 <<widget "hopelessCycleSus">><<silently>>
 	<<if $hc.suspicionRevealed>>
-		<<set $_plus to _args[0]>>
-		<<switch $_plus>>
-			<<case 3>><<set $_text_output to " | <span class='red'>+ + + Suspicion</span>">>
-			<<case 2>><<set $_text_output to " | <span class='red'>+ + Suspicion</span>">>
-			<<case 1>><<set $_text_output to " | <span class='red'>+ Suspicion</span>">>
-			<<case -1>><<set $_text_output to " | <span class='teal'>- Suspicion</span>">>
-			<<case -2>><<set $_text_output to " | <span class='teal'>- - Suspicion</span>">>
-			<<case -3>><<set $_text_output to " | <span class='teal'>- - - Suspicion</span>">>
-			<<default>><<set $_text_output to " | <span class='red'>+ Suspicion</span>">>
+		<<set _plus to _args[0]>>
+		<<switch _plus>>
+			<<case 3>><<set _text_output to " | <span class='red'>+ + + Suspicion</span>">>
+			<<case 2>><<set _text_output to " | <span class='red'>+ + Suspicion</span>">>
+			<<case 1>><<set _text_output to " | <span class='red'>+ Suspicion</span>">>
+			<<case -1>><<set _text_output to " | <span class='teal'>- Suspicion</span>">>
+			<<case -2>><<set _text_output to " | <span class='teal'>- - Suspicion</span>">>
+			<<case -3>><<set _text_output to " | <span class='teal'>- - - Suspicion</span>">>
+			<<default>><<set _text_output to " | <span class='red'>+ Suspicion</span>">>
 		<</switch>>
 	<</if>>
-<</silently>><<if $_text_output>><<print $_text_output>><</if>><</widget>>
+<</silently>><<if _text_output>><<print _text_output>><</if>><</widget>>
 
 <<widget "hcicon">>
-	<<set $_thing to _args[0]>>
-	<<if typeof $_thing is "object">>
-		<<set $_type to _args[0].type>>
+	<<set _thing to _args[0]>>
+	<<if typeof _thing is "object">>
+		<<set _type to _args[0].type>>
 	<<else>>
-		<<set $_type to _args[0]>>
+		<<set _type to _args[0]>>
 	<</if>>
-	<<switch $_type>>
+	<<switch _type>>
 		<<case "bandages">><<icon "bandages.png">>
 		<<case "bones">><<icon "bones.png">>
 		<<case "bucket">><<icon "bucket.png">>
 		<<case "container">><<icon "bucket.png">>
 		<<case "clothes">>
-			<<if typeof $_thing is "object">>
-				<<if $_thing.name is "robe">>
+			<<if typeof _thing is "object">>
+				<<if _thing.name is "robe">>
 					<<icon "clothes/monks_habit.png">>
 				<<else>>
 					<<icon "clothes/rag_top.png">>
@@ -1869,10 +1869,10 @@
 				<<icon "clothes/rag_top.png">>
 			<</if>>
 		<<case "clutter">>
-			<<if typeof $_thing is "object">>
-				<<if $_thing.name is "witchblooms" or $_thing.name is "purified witchblooms">>
+			<<if typeof _thing is "object">>
+				<<if _thing.name is "witchblooms" or _thing.name is "purified witchblooms">>
 					<<tendingicon "witchbloom">>
-				<<elseif $_thing.name is "leather gloves">>
+				<<elseif _thing.name is "leather gloves">>
 					<<icon "clothes/work_gloves.png">>
 				<<else>>
 					<<icon "clothes/rag_top.png">>
@@ -1881,12 +1881,12 @@
 				<<icon "clothes/rag_top.png">>
 			<</if>>
 		<<case "food">>
-			<<if typeof $_thing is "object">>
-				<<if $_thing.used>>
+			<<if typeof _thing is "object">>
+				<<if _thing.used>>
 					<<foodicon "eat">>
-				<<elseif $_thing.name is "stolen fruit">>
+				<<elseif _thing.name is "stolen fruit">>
 					<<tendingicon "plum">>
-				<<elseif $_thing.name is "stolen food">>
+				<<elseif _thing.name is "stolen food">>
 					<<icon "tending/salmon_wellington.png">>
 				<<else>>
 					<<icon "tending/porridge.png">>
@@ -1897,10 +1897,10 @@
 		<<case "herbs">><<tendingicon "saints_crown">>
 		<<case "prisoner">><<skinicon "manacles">>
 		<<case "torch">>
-			<<if typeof $_thing is "object">>
-				<<if $_thing.state is "burnt">>
+			<<if typeof _thing is "object">>
+				<<if _thing.state is "burnt">>
 					<<icon "torch_burnt.png">>
-				<<elseif $_thing.state is "snuffed">>
+				<<elseif _thing.state is "snuffed">>
 					<<icon "torch_unlit.png">>
 				<<else>>
 					<<icon "torch.gif">>
@@ -1917,7 +1917,7 @@
 <</widget>>
 
 <<widget "hopelessCycleEndings">>
-	<<set $_endings to {
+	<<set _endings to {
 		S: {name: "Faith", hint: "See every other ending first.", revealed: "Forever, As One.", colour: "gold"},
 		A: {name: "Love", hint: "Become bewitched.", revealed: "By love, coerced.", colour: "green"},
 		B: {name: "Desperation", hint: "Try to make things right.", revealed: "The road to hell gains a new flagstone.", colour: "teal"},
@@ -1928,11 +1928,11 @@
 	}>>
 	<span class="gold">Endings:</span>
 	<br>
-	<<for $_label, $_value range $_endings>>
-		<<if $hcEndings.includes($_label)>>
-			<span class="narration">Ending $_label: <span @class="$_value.colour">$_value.name</span> | $_value.revealed</span>
+	<<for _label, _value range _endings>>
+		<<if $hcEndings.includes(_label)>>
+			<span class="narration">Ending _label: <span @class="_value.colour">_value.name</span> | _value.revealed</span>
 		<<else>>
-			<span class="narration">Ending ? | Hint: $_value.hint</span>
+			<span class="narration">Ending ? | Hint: _value.hint</span>
 		<</if>>
 		<br>
 	<</for>>
@@ -2146,62 +2146,62 @@
 <</widget>>
 
 <<widget "hcForest">>
-	<<set $_travel to $hcChallenge.forestFurther ? 4 : 5>>
+	<<set _travel to $hcChallenge.forestFurther ? 4 : 5>>
 	<<if _args[0] is "back">>
-		<<set $_travel *= -1>>
+		<<set _travel *= -1>>
 	<</if>>
-	<<set $hcForest += $_travel>>
+	<<set $hcForest += _travel>>
 <</widget>>
 
 <<widget "hcTimeTaskDisplay">><<silently>>
-	<<set $_time to _args[0] ? _args[0] : 60>>
+	<<set _time to _args[0] ? _args[0] : 60>>
 	<<if $hcChallenge.timeLonger>>
-		<<set $_time *= 1.5>>
+		<<set _time *= 1.5>>
 	<</if>>
-	<<set $_hour to Math.floor($_time / 60).toString()>>
-	<<set $_minute to ($_time % 60).toString()>>
-	<<if $_minute.length is 1>>
-		<<set $_minute to "0" + $_minute>>
+	<<set _hour to Math.floor(_time / 60).toString()>>
+	<<set _minute to (_time % 60).toString()>>
+	<<if _minute.length is 1>>
+		<<set _minute to "0" + _minute>>
 	<</if>>
-<</silently>>($_hour:$_minute)<</widget>>
+<</silently>>(_hour:_minute)<</widget>>
 
 <<widget "hcTimeTaskPass">>
-	<<set $_time to _args[0] ? _args[0] : 60>>
+	<<set _time to _args[0] ? _args[0] : 60>>
 	<<if $hcChallenge.timeLonger>>
-		<<set $_time *= 1.5>>
+		<<set _time *= 1.5>>
 	<</if>>
-	<<pass $_time>>
+	<<pass _time>>
 <</widget>>
 
 <<widget "hcTimeDungeonDisplay">><<silently>>
-	<<set $_time to _args[0] ? _args[0] : 30>>
+	<<set _time to _args[0] ? _args[0] : 30>>
 	<<if $hcChallenge.timeLonger>>
-		<<set $_time += 15>>
+		<<set _time += 15>>
 	<</if>>
-<</silently>>(0:$_time)<</widget>>
+<</silently>>(0:_time)<</widget>>
 
 <<widget "hcTimeDungeonPass">>
-	<<set $_time to _args[0] ? _args[0] : 30>>
+	<<set _time to _args[0] ? _args[0] : 30>>
 	<<if $hcChallenge.timePrayer>>
-		<<set $_time += 15>>
+		<<set _time += 15>>
 	<</if>>
-	<<pass $_time>>
+	<<pass _time>>
 <</widget>>
 
 <<widget "hcChallengeTierUpdate">>
-	<<set $_end to _args[0]>><<set $_list to []>>
-	<<for $_challenge range Object.keys($hcChallenge).filter(x => $hcChallenge[x] == true)>>
-		<<set $_tiers to ["","F","E","D","C","B","A","S"]>>
-		<<if $_tiers.indexOf($_end) gt $_tiers.indexOf($hcChallengesCompleted[$_challenge])>>
-			<<set $hcChallengesCompleted[$_challenge] to $_end>>
+	<<set _end to _args[0]>><<set _list to []>>
+	<<for _challenge range Object.keys($hcChallenge).filter(x => $hcChallenge[x] == true)>>
+		<<set _tiers to ["","F","E","D","C","B","A","S"]>>
+		<<if _tiers.indexOf(_end) gt _tiers.indexOf($hcChallengesCompleted[_challenge])>>
+			<<set $hcChallengesCompleted[_challenge] to _end>>
 		<</if>>
-		<<if $_end is "S">>
-			<<set $_list.pushUnique($_challenge)>>
+		<<if _end is "S">>
+			<<set _list.pushUnique(_challenge)>>
 		<</if>>
 	<</for>>
-	<<if $_list.length gt $hcChallengesRun.length>>
-		<span class="green bold">New record: <<print $_list.length>>/<<print setup.hopelessCycleChallenges.length>>!</span> Previous record: <<print $hcChallengesRun.length>>/<<print setup.hopelessCycleChallenges.length>>
-		<<set $hcChallengesRun to $_list>>
+	<<if _list.length gt $hcChallengesRun.length>>
+		<span class="green bold">New record: <<print _list.length>>/<<print setup.hopelessCycleChallenges.length>>!</span> Previous record: <<print $hcChallengesRun.length>>/<<print setup.hopelessCycleChallenges.length>>
+		<<set $hcChallengesRun to _list>>
 		<br><br>
 	<</if>>
 <</widget>>
@@ -2222,10 +2222,10 @@
 
 <<widget "hcChallengeRandomSelect">>
 	<<run Object.keys($hcChallenge).forEach(c => $hcChallenge[c] = false)>>
-	<<set $_keys to setup.hopelessCycleChallenges.map(s => s.key)>>
-	<<set $_num to random($hcChallengeRandom.min, $hcChallengeRandom.max)>>
-	<<for _i to 0; _i lt $_num; _i++>>
-		<<set $_chal to $_keys.pluck()>>
-		<<set $hcChallenge[$_chal] to true>>
+	<<set _keys to setup.hopelessCycleChallenges.map(s => s.key)>>
+	<<set _num to random($hcChallengeRandom.min, $hcChallengeRandom.max)>>
+	<<for _i to 0; _i lt _num; _i++>>
+		<<set _chal to _keys.pluck()>>
+		<<set $hcChallenge[_chal] to true>>
 	<</for>>
 <</widget>>
