@@ -419,7 +419,7 @@ function preferredPronouns(gender) {
 	switch(gender) {
 		case "m":
 			if (V.identity.presentation.pronouns.preferred === "m") return true;
-			else if (V.identity.presentation.pronouns.preferred === "body") return V.player.vaginaExist;
+			else if (V.identity.presentation.pronouns.preferred === "body") return V.player.penisExist;
 			else if (V.identity.presentation.pronouns.preferred === "clothing") {
 				if (playerHasCharacteristic("Masculine Clothing")) return true;
 				else return false;
@@ -428,7 +428,7 @@ function preferredPronouns(gender) {
 			else if (V.identity.presentation.pronouns.preferred === "posture") return V.player.gender_posture === "m";
 		case "f":
 			if (V.identity.presentation.pronouns.preferred === "f") return true;
-			else if (V.identity.presentation.pronouns.preferred === "body") return V.player.penisExist;
+			else if (V.identity.presentation.pronouns.preferred === "body") return V.player.vaginaExist;
 			else if (V.identity.presentation.pronouns.preferred === "clothing") {
 				if (playerHasCharacteristic("Feminine Clothing")) return true;
 				else return false;
@@ -464,20 +464,28 @@ function hasGenderIdentity(stage) {
 		default:
 			return false;
 	}*/
+	const preferenceMatchesStartingSex = V.identity.presentation.pronouns.preferred === V.player.gender;
+	const manNonAcceptingFemininity = V.identity.presentation.pronouns.masculine.acceptance && !V.identity.presentation.pronouns.feminine.acceptance;
+	const womanNonAcceptingMasculinity = V.identity.presentation.pronouns.feminine.acceptance && !V.identity.presentation.pronouns.masculine.acceptance;
+	const acceptsEitherGender = V.identity.presentation.pronouns.feminine.acceptance && V.identity.presentation.pronouns.masculine.acceptance;
+	const manNonAcceptingMasculinity = !V.identity.presentation.pronouns.masculine.acceptance && V.identity.presentation.pronouns.feminine.acceptance;
+	const womanNonAcceptingFemininity = !V.identity.presentation.pronouns.feminine.acceptance && V.identity.presentation.pronouns.masculine.acceptance;
+
 	switch (stage) {
 		case 8:
 		case 7:
-			return V.identity.presentation.pronouns.preferred === V.player.gender;
+			return preferenceMatchesStartingSex;
 		case 6:
 		case 5:
+			if (V.player.gender === "m") return manNonAcceptingFemininity;
+			else if (V.player.gender === "f") return womanNonAcceptingMasculinity;
 		case 4:
-			if (V.player.gender === "m") return V.identity.presentation.pronouns.masculine.acceptance;
-			else if (V.player.gender === "f") return V.identity.presentation.pronouns.feminine.acceptance;
+			return acceptsEitherGender;
 		case 3:
 		case 2:
+			if (V.player.gender === "m") return manNonAcceptingMasculinity;
+			else if (V.player.gender === "f") return womanNonAcceptingFemininity;
 		case 1:
-			if (V.player.gender === "f") return V.identity.presentation.pronouns.masculine.acceptance;
-			else if (V.player.gender === "m") return V.identity.presentation.pronouns.feminine.acceptance;
 		case 0:
 			return V.identity.presentation.pronouns.preferred != V.player.gender;
 		default:
@@ -487,12 +495,12 @@ function hasGenderIdentity(stage) {
 window.hasGenderIdentity = hasGenderIdentity;
 
 function playerFeelsManlike() {
-	return preferredPronouns("m");
+	return (V.player.gender === "m" && hasGenderIdentity(5)) || (V.player.gender === "f" && !hasGenderIdentity(4));
 }
 window.playerFeelsManlike = playerFeelsManlike;
 
 function playerFeelsGirllike() {
-	return preferredPronouns("f");
+	return (V.player.gender === "f" && hasGenderIdentity(5)) || (V.player.gender === "m" && !hasGenderIdentity(4));
 }
 window.playerFeelsGirllike = playerFeelsGirllike;
 
@@ -876,6 +884,14 @@ function xchangeEffectsMessages() {
 		element("span", "WARNING:", "yellow");
 		element("span", "You've just loaded a save file featuring a character of unsupported sex or gender (quite likely a Vanilla herm). You've been forcefully turned into a male to attempt to keep the mod's systems working, but proceeding from here onward is entirely ill-adviced.", "red"); br(); br();
 		delete V.hermSaveWarningMessage;
+	}
+
+	if (V.identityWarningMessage) {
+		if (V.identity.init < 2) {
+			element("span", "WARNING:", "yellow");
+			element("span", "You haven't locked in your identity preferences yet. Please, head to your room and into Gameplay Settings > Modded Settings > Identity Settings, and check the box at the bottom that says 'Lock Choices'. Make sure to review your character's identity preferences before saving your settings.", "red"); br(); br();
+		}
+		delete V.identityWarningMessage;
 	}
 
 	if (V.genderIdentityMessage) {
