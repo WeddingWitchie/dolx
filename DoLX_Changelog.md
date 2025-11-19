@@ -8,10 +8,7 @@
 
 ## Changelog
 ### Changes and Additions:
-  * Polished UI presentation of the Identity System.
+  * None.
 
 ### Rebalancing and Bug fixes:
-  * Fixed Hopeless Cycle AGAIN.
-  * Fixed missing 'if' closing tag at effectsman.
-  * Fixed formatting of actions on approach event at pub.
-  * Starting clothing now properly depends on your Identity's Clothing Preference.
+  * Restored handbag functionality.
