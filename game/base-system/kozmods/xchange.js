@@ -1092,8 +1092,15 @@ function xchangeEffectsMessages() {
 	}
 
 	if (V.dysphoriaMessage) {
-		element("span", "You suffer from dysphoria.", "red"); br();
+		element("span", "You suffer from dysphoria.", "purple"); br();
 		delete V.dysphoriaMessage;
+	}
+
+	if (V.dysphoriaProcessingMessage) {
+		element("span", "You're slowly processing how you feel about your current self.", "blue"); 
+		fragment.append(wikifier("lwillpower"));
+		br();
+		delete V.dysphoriaProcessingMessage;
 	}
 
 	if (V.identityAcceptanceMessage) {
@@ -1102,12 +1109,15 @@ function xchangeEffectsMessages() {
 	}
 
 	if (V.breakdownMessage) {
-		element("span", "Your dysphoria has become too much to handle!.", "red"); br();
+		element("span", "The dysphoria has become too much.", "purple"); 
+		element("span", "You begrudgingly surrender yourself to being this way.", "red"); 
+		fragment.append(wikifier("lllwillpower"));
+		br();
 		delete V.breakdownMessage;
 	}
 
 	if (V.breakdownEndMessage) {
-		element("span", "You recover from your false acceptance.", "green"); br();
+		element("span", "You recover from your begrudging acceptance.", "green"); br();
 		delete V.breakdownEndMessage;
 	}
 
