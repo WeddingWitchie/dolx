@@ -551,7 +551,8 @@ function playerRutMinArousal() {
 window.playerRutMinArousal = playerRutMinArousal;
 
 function playerAwareTheyCanBePregnant() {
-	return V.player.vaginaExist || (canBeMPregnant() && V.sexStats.anus.pregnancy.totalBirthEvents >= 1) || playerAwareTheyArePregnant();
+	const playerIsXChangedAndAwareTheyCanBePregnant = playerIsXChanged() && V.xchange.pill.fertile && V.xchange.pill.effectsKnown;
+	return (V.player.vaginaExist && ( playerIsXChangedAndAwareTheyCanBePregnant || !playerIsXChanged() )) || (canBeMPregnant() && V.sexStats.anus.pregnancy.totalBirthEvents >= 1) || playerAwareTheyArePregnant();
 }
 window.playerAwareTheyCanBePregnant = playerAwareTheyCanBePregnant;
 
