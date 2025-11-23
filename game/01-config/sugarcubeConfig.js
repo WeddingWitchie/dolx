@@ -12,7 +12,7 @@ const StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.5.6.10 DoLP v0.720 DoLX 0.13.10b",
+	version: "0.5.6.10 DoLP v0.720 DoLX 0.13.10c",
 	versionName: `"Love Bites" edition`,
 	sneaky: false,
 	socialMediaEnabled: true,
