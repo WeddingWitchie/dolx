@@ -375,7 +375,7 @@ function playerHasCharacteristic(characteristic) {
 		case "Lactation":
 			return (V.lactating >= 1 && V.breastfeedingdisable === "f") ? 2 : 0;
 		case "Pregnancy":
-			return (playerAwareTheyArePregnant() || playerAwareTheyCanBePregnant() && playerIsCreampied()) ? 2 : 0;
+			return (playerAwareTheyArePregnant() || (playerAwareTheyCanBePregnant() && playerIsCreampied())) ? 2 : 0;
 		default:
 			return 0;
 	}
