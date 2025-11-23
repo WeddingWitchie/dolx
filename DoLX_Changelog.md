@@ -17,3 +17,4 @@
   * Identity Tolerance no longer decays for preferred attributes.
   * Rebalanced willpower losses and submissiveness gains from being dysphoric.
   * Having a breakdown due to dysphoria, now harshly impacts willpower capacity.
+  * Fixed bug affecting anti-dumb-bitch pill purchases.
