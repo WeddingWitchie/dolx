@@ -833,15 +833,13 @@ function hourlyClothingFemininityCheck(hours = 1) {
 	V.hourlyFemininity += currentWornFemininity > 0 ? 1 : 0;
 	V.hourlyFemininity += currentWornFemininity < 0 ? -1 : 0;
 
-	wikifier("identitySelector", "Feminine Clothing");
-	const hasFemClothesPreference = V.identityPreference;
-	const hasFemClothesAcceptance = V.identityOption.acceptance;
-	const hasFemClothesRejection = V.identityOption.reject;
+	const hasFemClothesPreference = V.identity.presentation.clothing.preferred === 'f';
+	const hasFemClothesAcceptance = V.identity.presentation.clothing.feminine.acceptance;
+	const hasFemClothesRejection = V.identity.presentation.clothing.feminine.reject;
 	
-	wikifier("identitySelector", "Masculine Clothing");
-	const hasMascClothesPreference = V.identityPreference;
-	const hasMascClothesAcceptance = V.identityOption.acceptance;
-	const hasMascClothesRejection = V.identityOption.reject;
+	const hasMascClothesPreference = V.identity.presentation.clothing.preferred === 'm';
+	const hasMascClothesAcceptance = V.identity.presentation.clothing.masculine.acceptance;
+	const hasMascClothesRejection = V.identity.presentation.clothing.masculine.reject;
 
 	if ((V.xchange.pill.active && V.xchange.pill.genderificationEffect) || V.hypnosis_traits.crossdressing >= 1) {
 		if (V.player.gender === "m" && currentWornFemininity < 0) {
@@ -878,7 +876,7 @@ function hourlyClothingFemininityCheck(hours = 1) {
 			V.genderStressMessage = 1;
 			V.effectsmessage = 1;
 		}
-		if (hasMascClothesRejection && !hasMascClothesAcceptance && currentWornFemininity < 0) {
+		else if (hasMascClothesRejection && !hasMascClothesAcceptance && currentWornFemininity < 0) {
 			wikifier("stress",800 * hours,1);
 			V.genderStressMessage = 4;
 			V.effectsmessage = 1;
