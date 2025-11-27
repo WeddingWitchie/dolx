@@ -17,18 +17,19 @@ function getSensitivity(part) {
 	let purityMod = (1000 - V.purity) * V.xchange.impuritySensitivityBonus / 1000;
 	const xchangeMod = playerIsXChanged() ? 
 		(V.player.sex === "f"? 1 : -1) * V.xchange.pillSensitivityChange : 0; 
+	const orgasmingMod = V.orgasmCum > 0 ? 1 : 0;
 
 	switch(part) {
 		case "mouth":
 			return V.mouthsensitivity;
 		case "breast":
 		case "breasts":
-			return Math.clamp(V.breastsensitivity + purityMod + xchangeMod, 0.25, 6);
+			return Math.clamp(V.breastsensitivity + purityMod + xchangeMod + orgasmingMod, 0.25, 6);
 		case "bottom":
-			return Math.clamp(V.bottomsensitivity + purityMod + xchangeMod, 0.25, 3);
+			return Math.clamp(V.bottomsensitivity + purityMod + xchangeMod + orgasmingMod, 0.25, 3);
 		case "genital":
 		case "genitals":
-			return Math.clamp(V.genitalsensitivity + 2 * purityMod + xchangeMod, 0.25, 10);
+			return Math.clamp(V.genitalsensitivity + 2 * purityMod + xchangeMod + orgasmingMod, 0.25, 10);
 		default:
 			paramError("getSensitivity", "part", part, "Expected a string, see function for accepted values");
 			break;
