@@ -341,7 +341,7 @@ const statChange = (() => {
 			return prev;
 		}, 0);
 
-		return Math.clamp(result, 0, V.arousalmax);
+		return Math.clamp(result, 0, V.arousalmax/2);
 	}
 
 	function tiredness(amount, source) {
