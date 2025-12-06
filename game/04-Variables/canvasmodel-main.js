@@ -2245,7 +2245,7 @@ Renderer.CanvasModels.main = {
 				}
 			},
 			showfn(options) {
-				return options.show_nnpc;
+				return options.show_nnpc && V.selectedNnpcDisplay === "dolp";
 			},
 			zfn() {
 				if (T.optionsEnabled) {
