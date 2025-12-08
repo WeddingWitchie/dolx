@@ -874,6 +874,54 @@
 	<</if>>
 <</widget>>
 
+<<widget "ripClothing">>
+	<<set _slot to _args[0]>>
+	<<set _ripAmount to _args[1] || 10>>
+	<<if $worn[_slot] isnot undefined and clothingData(_slot, $worn[_slot], 'integrity') isnot undefined>>
+		<<set $worn[_slot].integrity to Math.max(0, $worn[_slot].integrity - _ripAmount)>>
+		<<if $worn[_slot].integrity is 0>>
+			<<clothingBreak _slot>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+/*
+  ripToNextState: compute how many integrity points to remove to move the
+  worn item into the next lower visual state (full -> frayed -> torn -> tattered -> destroyed).
+  Usage: <<ripToNextState _slot>>
+*/
+<<widget "ripToNextState">>
+	<<set _slot to _args[0]>>
+	<<if $worn[_slot] isnot undefined and clothingData(_slot, $worn[_slot], 'integrity') isnot undefined>>
+		<<set _max to clothingData(_slot, $worn[_slot], 'integrity_max')>>
+		<<set _curr to Number($worn[_slot].integrity) || 0>>
+		<<set _t90 to (_max / 10) * 9>>
+		<<set _t50 to (_max / 10) * 5>>
+		<<set _t20 to (_max / 10) * 2>>
+
+		<<if _curr gt _t90>>
+			/* currently Full -> go to Frayed (<= 90%) */
+			<<set _deduct to Math.ceil(_curr - _t90)>>
+		<<elseif _curr gt _t50>>
+			/* currently Frayed -> go to Torn (<= 50%) */
+			<<set _deduct to Math.ceil(_curr - _t50)>>
+		<<elseif _curr gt _t20>>
+			/* currently Torn -> go to Tattered (<= 20%) */
+			<<set _deduct to Math.ceil(_curr - _t20)>>
+		<<elseif _curr gt 0>>
+			/* currently Tattered -> destroy (to 0) */
+			<<set _deduct to Math.ceil(_curr)>>
+		<<else>>
+			<<set _deduct to 0>>
+		<</if>>
+
+		/* Ensure at least 1 point is removed when _deduct would be 0 but item >0 */
+		<<if _deduct lt 1 and _curr gt 0>><<set _deduct to 1>><</if>>
+
+		<<ripClothing _slot _deduct>>
+	<</if>>
+<</widget>>
+
 <<widget "toggleNeckTuck">>
 	<<set _linkOption1 to _args[0] || `Untuck from ${$worn.upper.name}`>>
 	<<set _linkOption2 to _args[1] || `Tuck into ${$worn.upper.name}`>>
@@ -1174,6 +1222,10 @@
 			<<if $DoLPSpools isnot undefined>>
 				<<shopicon "tailor">> You have <span class="green">$DoLPSpools</span> spools.
 				<div class="no-numberify"><<repairClothing>></div>
+			<</if>>
+
+			<<if $worn[_wardrobe_list].integrity gt 10 and clothingData(_wardrobe_list, $worn[_wardrobe_list], 'integrity_max') isnot undefined>>
+				<div class="no-numberify"><<link `Tear $worn[_wardrobe_list].name`>><<ripToNextState _wardrobe_list>><</link>></div>
 			<</if>>
 
 			<<if isConnectedToHood(_wardrobe_list)>>
