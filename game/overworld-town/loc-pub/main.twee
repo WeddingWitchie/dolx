@@ -86,6 +86,14 @@
 		<<icon "die.png">><<link [[Ask about funding a gambling ring|Pub Gambling Ring Intro]]>><</link>>
 		<br>
 	<</if>>
+	<<if $xchange.remyChoicePill and !$landryReversalJob>>
+		<<pillicon "pillcure">><<link [[Ask about stealing Remy's Reversal Pill|Pub Reversal]]>><</link>>
+		<br>
+	<</if>>
+	<<if $landryReversalJob>>
+		<<pillicon "pillcure">><<link [[Ask about the Reversal Pill|Pub Reversal]]>><</link>>
+		<br>
+	<</if>>
 	<br>
 	<<if $farm_manors_usb gte 1>>
 		<<techicon "usb">><<link [[Offer USB from the farmland manor|Pub Farm USB]]>><<unset $farm_manors_usb>><</link>>
@@ -2273,3 +2281,31 @@ Landry leans forward. "You're already involved, and you're dangerously close to 
 <<landryoptions>>
 <<getouticon>><<link [[Leave|Pub]]>><<endevent>><</link>>
 <br>
+
+
+:: Pub Reversal
+<<effects>>
+
+<<if $weekly.landryReversalTimer and $landryReversalJob>>
+	"I'm on it," <<he>> says. "Patience."
+<<elseif $landryReversalJob>>
+	<<set _variant to $player.gender is "m"?"(F)":"(M)">>
+	"Here you go," <<he>> hands you a <<= $player.gender is "m" ? "blue" : "pink">> pill.
+	| <span class="blue">+1 Choice Reversal pill</span>
+	<<set $sexStats.pills["pills"]["X-Change Choice Reversal "+_variant].owned++>>
+	<<set $sexStats.pills.boughtOnce to true>>
+	<<unset $xchange.remyChoicePill>>
+	<<unset $landryReversalJob>>
+	<<unset $wrenStealReversal>>
+<<else>>
+	"That'll cost you <span class="pink">£2000,</span>" <<he>> says. "It'll take a week, give or take."
+	<br><br> 
+	<<if $money gte 200000>>
+		<<highicon>><<link [[Pay (£2000)|Pub Landry]]>><<money -200000 "pub">><<set $weekly.landryReversalTimer to 1>><<set $landryReversalJob to true>><<unset $xchange.remyChoicePill>><</link>>
+	<<else>>
+		You can't afford the expense.
+	<</if>>	
+<</if>>
+<br><br>
+
+<<link [[Back|Pub Landry]]>><</link>>

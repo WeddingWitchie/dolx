@@ -81,6 +81,26 @@
 		"Look who it is," Wren says. "Fancy a game?"
 	<</if>>
 	<<unset $estate_cards_end>>
+	<<if $wrenStealReversal>>
+		<br><br>
+		<<He>> puts a <<= $player.gender is "m" ? "blue" : "pink">> pill on the table. "Look what I've got."
+		<br><br>
+		<<if C.npc.Wren.love gte 20>>
+			<<set _variant to $player.gender is "m"?"(F)":"(M)">>
+			"All yours," <<he>> says.
+			<br><br>
+
+			You grab the pill. | <span class="blue">+1 Choice Reversal pill</span>
+			<<set $sexStats.pills["pills"]["X-Change Choice Reversal "+_variant].owned++>>
+			<<set $sexStats.pills.boughtOnce to true>>
+			<<unset $xchange.remyChoicePill>>
+			<<unset $wrenStealReversal>>
+			<<unset $wrenBetReversal>>
+		<<else>>
+			<<He>> pockets it before you have a chance to grab it. "Not so fast," <<he>> shakes his head. "I took quite the risk getting my hands on this. If you want it, you'll have to earn it."
+			<<set $wrenBetReversal to true>>
+		<</if>>
+	<</if>>
 <</if>>
 <<set $wrenSeen.pushUnique("cards")>>
 <<set $wrenSeenLast to "cards">>
@@ -893,6 +913,31 @@ What do you ask?
 	<</if>>
 <</if>>
 
+<<if $xchange.remyChoicePill and !$wrenStealReversal>>
+	<<set _favoursRemaining += 1>>
+	<<if $estate.cards.daring gte 11>>
+		<<link [[Steal Remy's Reversal Pill|Estate Cards Reversal]]>><<set $wrenStealReversal to true>><<set $estate.cards.daring -= 1>><<unset $xchange.remyChoicePill>><</link>><<ldaring>>
+		<br>
+	<<else>>
+		<!-- always show the player this is an option they can build up to
+		 -->
+		<span class="blue">Steal Remy's Reversal Pill: More daring required.</span>
+		<br>
+	<</if>>
+<</if>>
+
+<<if $wrenBetReversal>>
+	<<set _favoursRemaining += 1>>
+	<<if $estate.cards.daring gte 11>>
+		<<link [[Demand Reversal Pill|Estate Cards Reversal]]>><<set $estate.cards.daring -= 1>><</link>><<ldaring>>
+		<br>
+	<<else>>
+		<!-- always show the player this is an option they can build up to
+		 -->
+		<span class="blue">Demand Reversal Pill: More daring required.</span>
+		<br>
+	<</if>>
+<</if>>
 
 <!-- we could allow the player to announce victory earlier, too, but it makes sense to require ALL dares to be completed -->
 <!-- we could also ignore the ones where we get Wren to get more daring with no actual benefit for us
