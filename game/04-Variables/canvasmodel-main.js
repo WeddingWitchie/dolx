@@ -2173,29 +2173,8 @@ Renderer.CanvasModels.main = {
 							} else {
 								T.skin += "/corrupt";
 							}
-						} else if (T.activeNNPC == "bailey") {
-							if (V.bailey_clothing === "averydate") {
-								T.skin += "/averydate";
-								if (V.bailey_handheld === "alcohol") {
-									T.skin += "/alcohol";
-								}
-								else if (V.bailey_handheld === "cards") {
-									T.skin += "/cards";
-								}
-							}
-							else if (V.bailey_clothing === "cafe") {
-								T.skin += "/cafe";
-							}
 						} else if (T.activeNNPC == "ivory_wraith") {
 							T.skin = "";
-						}
-
-						// Alternate outfit selector
-						if (T.activeNNPC === "kylar" && V.kylar_clothes === "goth") {
-							T.skin += "/halloween";
-						}
-						else if (["sydney","kylar","whitney","robin"].includes(T.activeNNPC) && Time.schoolDay) {
-							T.skin += "/school";
 						}
 						
 						if (V.options.autoNNPCDisplay[T.activeNNPC].genderOverride == true && V.options.autoNNPCDisplay[T.activeNNPC].gender != "") {
@@ -2211,35 +2190,14 @@ Renderer.CanvasModels.main = {
 					} else return;
 				} else {
 					T.skin = "/" + V.options.nnpcDisplaySkin;
-					if (T.activeNNPC == "sydney") {
+					if (V.options.nnpcDisplay == "sydney") {
 						if (C.npc.Sydney.purity >= 1) {
 							T.skin += "/pure";
 						} else {
 							T.skin += "/corrupt";
 						}
-					} else if (T.activeNNPC == "bailey") {
-						if (V.bailey_clothing === "averydate") {
-							T.skin += "/averydate";
-							if (V.bailey_handheld === "alcohol") {
-								T.skin += "/alcohol";
-							}
-							else if (V.bailey_handheld === "cards") {
-								T.skin += "/cards";
-							}
-						}
-						else if (V.bailey_clothing === "cafe") {
-							T.skin += "/cafe";
-						}
-					} else if (T.activeNNPC == "ivory_wraith") {
+					} else if (V.options.nnpcDisplay == "ivory_wraith") {
 						T.skin = "";
-					}
-
-					// Alternate outfit selector
-					if (T.activeNNPC === "kylar" && V.kylar_clothes === "goth") {
-						T.skin += "/halloween";
-					}
-					else if (["sydney","kylar","whitney","robin"].includes(T.activeNNPC) && Time.schoolDay) {
-						T.skin += "/school";
 					}
 					return `img/ui/nnpc/${V.options.nnpcDisplay}/${V.options.nnpcDisplayGender}${T.skin}/${V.options.nnpcDisplaySlot}.png`;
 				}
