@@ -443,15 +443,15 @@ function preferredPronouns(gender) {
 window.preferredPronouns = preferredPronouns;
 
 function mapToLegacyGenderIdentity() {
-	if (hasGenderIdentity(8)) V.genderidentity = 1000;
-	else if (hasGenderIdentity(7)) V.genderidentity = 875;
-	else if (hasGenderIdentity(6)) V.genderidentity = 750;
-	else if (hasGenderIdentity(5)) V.genderidentity = 625;
-	else if (hasGenderIdentity(4)) V.genderidentity = 375;
-	else if (hasGenderIdentity(3)) V.genderidentity = 250;
-	else if (hasGenderIdentity(2)) V.genderidentity = 125;
+	if (hasGenderIdentity(0)) V.genderidentity = 0;
 	else if (hasGenderIdentity(1)) V.genderidentity = 1;
-	else if (hasGenderIdentity(0)) V.genderidentity = 0;
+	else if (hasGenderIdentity(2)) V.genderidentity = 125;
+	else if (hasGenderIdentity(3)) V.genderidentity = 250;
+	else if (hasGenderIdentity(4)) V.genderidentity = 375;
+	else if (hasGenderIdentity(5)) V.genderidentity = 625;
+	else if (hasGenderIdentity(6)) V.genderidentity = 750;
+	else if (hasGenderIdentity(7)) V.genderidentity = 875;
+	else if (hasGenderIdentity(8)) V.genderidentity = 1000;
 }
 window.mapToLegacyGenderIdentity = mapToLegacyGenderIdentity;
 
