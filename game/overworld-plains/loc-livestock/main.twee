@@ -290,7 +290,7 @@ It isn't long before the door to the barn opens, and the lights flicker on. Remy
 
 :: Livestock Milking Obey
 <<effects>>
-<<set _isGettingPilled to !playerIsXChanged() or !$xchange.known.includes("Remy")>>
+<<set _isGettingPilled to !playerIsXChanged() or !$xchange.known.includes("Remy") or ($livestock_obey lt 10 and !$xchange.remyChoicePill)>>
 <<set _isXchanged to playerIsXChanged()>>
 
 <<milkvolume 20>><<lactation_pressure 10>><<set $breastgrowthtimer -= 150>>
@@ -302,13 +302,23 @@ It isn't long before the door to the barn opens, and the lights flicker on. Remy
 <</if>>
 
 <<if _isGettingPilled>>
-	<<xchange-random-spike "suppress">>
+	<<if (!playerIsXChanged() or !pillIsPermanent()) and $xchange.known.includes("Remy") and $livestock_obey lt 10>>
+		<<set $xchange.remyChoicePill to 1>>
+		<<set _remyChoiceFlag to 1>>
+		<<xchange-choice>>
+	<<else>>
+		<<xchange-random-spike "suppress">>
+	<</if>>
 	"Here. Swallow this," <<he>> instructs.
 	<<if _isXChanged>>
 		<br><br>
 		<<He>> then awaits a couple moments and after no change ensues <<he>> concludes: "No change? Nevermind."
 	<<else>>
 		You feel the characteristic warmth of an X-Change pill spreading throughout your body, as your figure molds and changes itself into the <<if $player.gender is "f">>handsome form of a man<<elseif $player.gender is "m">>beautiful shape of a woman<</if>>.
+	<</if>>
+	<<if _remyChoiceFlag>>
+		<br><br>
+		<span class="red">"That was a Choice Pill,"</span> <<he>> says. "And you won't be getting the Reversal until you learn to behave."
 	<</if>>
 	<<run $xchange.known.pushUnique("Remy")>>
 <</if>>
@@ -1026,7 +1036,7 @@ You try to focus on something, anything other than the feeling on your <<genital
 	<<orgasm>>
 	You remember the gel Remy rubbed into you, and how unnatural that warmth felt. You feel it again now, as the gel works its devilry on your body, spreading its yearning into your core.
 	<br><br>
-	<<link [[Next|Livestock None Give 2]]>><<set $_resist to true>><</link>>
+	<<link [[Next|Livestock None Give 2]]>><<set $_resist to true>><<transform cow 2>><</link>>
 	<br>
 <</if>>
 
@@ -1218,7 +1228,7 @@ You try to focus on something, anything other than the sucking on your penis. Yo
 
 		<<barn_img penis no_livestock>>
 
-		<<link [[Next|Livestock Penis Give 2]]>><<set $_resist to true>><</link>>
+		<<link [[Next|Livestock Penis Give 2]]>><<set $_resist to true>><<transform cow 2>><</link>>
 		<br>
 	<</if>>
 <</if>>
@@ -1340,7 +1350,7 @@ You try to focus on something, anything other than the sucking on your breasts. 
 
 	<<barn_img breasts no_livestock>>
 
-	<<link [[Next|Livestock Breasts Give 2]]>><<set $_resist to true>><</link>>
+	<<link [[Next|Livestock Breasts Give 2]]>><<set $_resist to true>><<transform cow 2>><</link>>
 	<br>
 <</if>>
 
@@ -1491,7 +1501,7 @@ You try to focus on something, anything other than the sucking on your penis and
 
 	<<barn_img both no_livestock>>
 
-	<<link [[Next|Livestock Both Give 2]]>><<set $_resist to true>><</link>>
+	<<link [[Next|Livestock Both Give 2]]>><<set $_resist to true>><<transform cow 2>><</link>>
 	<br>
 <</if>>
 
@@ -2520,6 +2530,7 @@ The farmhands form a circle around you. They struggle to hold back the dogs. Rem
 
 	<<clotheson>>
 	<<endcombat>>
+	<<set $remyHorseRape to 100>>
 	<<if Time.dayState is "night">>
 		<<link [[Next|Livestock Cell]]>><<set $farmGateCD to 0>><</link>>
 		<br>
@@ -2544,7 +2555,7 @@ The farmhands form a circle around you. They struggle to hold back the dogs. Rem
 
 	<<clotheson>>
 	<<endcombat>>
-
+	<<set $remyHorseRape to 50>>
 	<<if Time.dayState is "night">>
 		<<link [[Next|Livestock Cell]]>><<set $farmGateCD to 0>><</link>>
 		<br>

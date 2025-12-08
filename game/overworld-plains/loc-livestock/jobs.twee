@@ -68,7 +68,12 @@
 
 		<<link [[This feels nice|Livestock Job Hypnosis]]>><<control 15>><<livestock_obey 5>><<transform cow 2>><<trauma -6>><<stress -6>><<awareness -10>><</link>><<ggobey>><<ggcontrol>><<llawareness>><<ltrauma>><<lstress>>
 		<br>
-		<<link [[Resist|Livestock Job Hypnosis Resist]]>><<livestock_obey -5>><<stress 6>><</link>><<llobey>><<gstress>>
+		<<willpowercheck>>
+		<<if $willpowerSuccess>>
+			<<link [[Resist|Livestock Job Hypnosis Resist]]>><<livestock_obey -5>><<stress 6>><</link>><<llobey>><<gstress>>
+		<<else>>
+			<span class="red">You cannot summon the willpower to resist.</span>
+		<</if>>
 		<br>
 
 	<<elseif $livestock_harper is 2>>
@@ -148,8 +153,12 @@
 
 		<<link [[This feels nice|Livestock Job Hypnosis 2]]>><<control 15>><<livestock_obey 5>><<transform cow 4>><<trauma -12>><<stress -12>><<awareness -20>><</link>><<ggobey>><<ggcontrol>><<llawareness>><<ltrauma>><<lstress>>
 		<br>
-		<<link [[Resist|Livestock Job Hypnosis Resist]]>><<livestock_obey -5>><<stress 6>><</link>><<llobey>><<gstress>>
-		<br>
+		<<willpowercheck>>
+		<<if $willpowerSuccess>>
+			<<link [[Resist|Livestock Job Hypnosis Resist]]>><<livestock_obey -5>><<stress 6>><</link>><<llobey>><<gstress>>
+		<<else>>
+			<span class="red">You cannot summon the willpower to resist.</span>
+		<</if>><br>
 	<</if>>
 <<else>>
 	<<if !playerChastity("hidden")>>
@@ -197,9 +206,16 @@
 
 		<<link [[Obey|Livestock Job Pig Obey]]>><<set $farm_phase to 0>><<livestock_obey 5>><<sub 1>><<transform cow 1>><</link>><<ggobey>>
 		<br>
-		<<link [[Struggle|Livestock Job Pig Struggle]]>><<set $farm_phase to 0>><<livestock_obey -5>><<def 1>><</link>><<physiquedifficulty 1 $physiquemax>><<llobey>>
-		<br>
-		<<link [[Plead with Niki|Livestock Job Pig Plead]]>><<set $farm_phase to 0>><<livestock_obey -1>><</link>><<lobey>>
+		<<if $hypnosis_traits.deviancy gte 1>>
+			<<willpowercheck>>
+		<</if>>
+		<<if $hypnosis_traits.deviancy gte random(1, 5) and !$willpowerSuccess>>
+			<<hypnosisText 'The sight of the beast leaves you entranced. <span class="purple">You cannot even think about resisting.</span>'>>
+		<<else>>
+			<<link [[Struggle|Livestock Job Pig Struggle]]>><<set $farm_phase to 0>><<livestock_obey -5>><<def 1>><</link>><<physiquedifficulty 1 $physiquemax>><<llobey>>
+			<br>
+			<<link [[Plead with Niki|Livestock Job Pig Plead]]>><<set $farm_phase to 0>><<livestock_obey -1>><</link>><<lobey>>
+		<</if>>
 		<br>
 
 	<<elseif $livestock_pig is 2>>
@@ -216,9 +232,16 @@
 
 		<<link [[Obey|Livestock Job Pig Obey]]>><<set $farm_phase to 1>><<livestock_obey 5>><<sub 1>><<transform cow 1>><</link>><<ggobey>>
 		<br>
-		<<link [[Struggle|Livestock Job Pig Struggle]]>><<set $farm_phase to 1>><<livestock_obey -5>><<def 1>><</link>><<physiquedifficulty 1 $physiquemax>><<llobey>>
-		<br>
-		<<link [[Plead with Niki|Livestock Job Pig Plead]]>><<set $farm_phase to 1>><<livestock_obey -1>><</link>><<lobey>>
+		<<if $hypnosis_traits.deviancy gte 1>>
+			<<willpowercheck>>
+		<</if>>
+		<<if $hypnosis_traits.deviancy gte random(1, 5) and !$willpowerSuccess>>
+			<<hypnosisText 'The sight of the beast leaves you entranced. <span class="purple">You cannot even think about resisting.</span>'>>
+		<<else>>
+			<<link [[Struggle|Livestock Job Pig Struggle]]>><<set $farm_phase to 1>><<livestock_obey -5>><<def 1>><</link>><<physiquedifficulty 1 $physiquemax>><<llobey>>
+			<br>
+			<<link [[Plead with Niki|Livestock Job Pig Plead]]>><<set $farm_phase to 1>><<livestock_obey -1>><</link>><<lobey>>
+		<</if>>
 		<br>
 
 	<</if>>
@@ -239,7 +262,34 @@ Remy leads you back to the field. <<He>> stops outside while the farmhands open 
 	<br><br>
 <</if>>
 
-<<if $livestock_obey gte 95>>
+<<if $livestock_obey gte 100 and $xchange.remyChoicePill and !playerIsPregnant()>>
+	"You've been a good <<girl>>," Remy says. <<He>> pulls a <<= $player.gender is "m" ? "blue" : "pink">> pill from <<his>> pocket. "This is for you."
+	<br><br>
+
+	<<He>> puts the pill in your mouth, and you swallow it down.
+	<br><br>
+	
+	<<if ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled")) and $worn.neck.name isnot "cow bell">>
+		<<if $worn.neck.name isnot "naked">>
+			Just as you're about to crawl away, Remy holds you by your shoulders and removes the $worn.neck.name,
+			"One other thing before I go. I got you a new bell, for being such a good <<girl>>," <<he>> says while securing it around your neck.
+			<<set $worn.neck.type.push("broken")>>
+			<<neckruined>>
+		<<else>>
+			Just as you're about to crawl away, Remy holds you by your shoulders and secures something around your neck.
+			"One other thing before I go. I got you a new bell, for being such a good <<girl>>," <<he>> says before walking away.
+		<</if>>
+		You give your head a small shake, and it rings. The sound is oddly soothing.
+		<<neckwear 8>>
+		<br><br>
+	<</if>>
+
+	The gate shuts behind you.
+	<br><br>
+
+	<<link [[Next|Livestock Field]]>><<endevent>><<xchange-restore>><<unset $xchange.remyChoicePill>><</link>>
+	<br>
+<<elseif $livestock_obey gte 95>>
 	"You've been such a good <<girl>>," Remy says. <<He>> holds out <<his>> hand, and a farmhand hands <<him>> a sheet-covered basket. Remy removes the sheet, revealing a number of large, juicy apples.
 
 	<<if $hunger gte 1600>>
@@ -269,10 +319,19 @@ Remy leads you back to the field. <<He>> stops outside while the farmhands open 
 
 	The gate shuts behind you.
 	<br><br>
-
+	<<if $hunger gte 1000>>
+		<<set _check to $hunger - 1000>>
+		<<willpowercheck _check>>
+	<<else>>
+		<<set $willpowerSuccess to true>>
+	<</if>>
 	<<link [[Eat the apples|Livestock Job Eat]]>><<stress -6>><<trauma -6>><<hunger -2000>><</link>><<lllhunger>><<ltrauma>><<lstress>>
 	<br>
-	<<link [[Save them for someone else|Livestock Job Save]]>><</link>>
+	<<if $willpowerSuccess>>
+		<<link [[Save them for someone else|Livestock Job Save]]>><</link>>
+	<<else>>
+		<span class="red">You are too hungry to consider doing anything else.</span>
+	<</if>>
 	<br>
 <<elseif $livestock_obey gte 51>>
 	<<if ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>>
@@ -311,17 +370,36 @@ Remy leads you back to the field. <<He>> stops outside while the farmhands open 
 	<<elseif pcAreArmsBound("both")>>
 		"You've been a good <<girl>>," Remy says. <<He>> pulls a shiny red apple from <<his>> pocket. "This is for you." <<He>> holds it towards you. Your arms are bound, so you can't reach for it. "I'll hold it while you eat," Remy says, as if reading your mind. "<<if $player.gender_appearance is "m">>Bulls<<else>>Cows<</if>> don't have hands."
 		<br><br>
+		<<if $hunger gte 1000>>
+			<<set _check to $hunger - 1000>>
+			<<willpowercheck _check>>
+		<<else>>
+			<<set $willpowerSuccess to true>>
+		<</if>>
 		<<link [[Eat|Livestock Job Eat One]]>><<npcincr Remy love 1>><<hunger -400>><<livestock_obey 1>><<transform cow 1>><</link>><<gobey>><<lhunger>>
-		<br>
-		<<link [[Refuse|Livestock Job Eat Refuse]]>><<livestock_obey -1>><</link>><<lobey>>
+		<br>	
+		<<if $willpowerSuccess>>
+			<<link [[Refuse|Livestock Job Eat Refuse]]>><<livestock_obey -1>><</link>><<lobey>>
+		<<else>>
+			<span class="red">You are too hungry to consider refusing.</span>
+		<</if>>
 		<br>
 	<<else>>
 		"You've been a good <<girl>>," Remy says. <<He>> pulls a shiny red apple from <<his>> pocket. "This is for you." <<He>> holds it toward you, but when you reach out <<he>> pulls it back. "No no," <<he>> says. "<<if $player.gender_appearance is "m">>Bulls<<else>>Cows<</if>> don't have hands. I'll hold it for you as you eat."
 		<br><br>
-
+		<<if $hunger gte 1000>>
+			<<set _check to $hunger - 1000>>
+			<<willpowercheck _check>>
+		<<else>>
+			<<set $willpowerSuccess to true>>
+		<</if>>
 		<<link [[Eat|Livestock Job Eat One]]>><<npcincr Remy love 1>><<hunger -400>><<livestock_obey 1>><<transform cow 1>><</link>><<gobey>><<lhunger>>
 		<br>
-		<<link [[Refuse|Livestock Job Eat Refuse]]>><<livestock_obey -1>><</link>><<lobey>>
+		<<if $willpowerSuccess>>
+			<<link [[Refuse|Livestock Job Eat Refuse]]>><<livestock_obey -1>><</link>><<lobey>>
+		<<else>>
+			<span class="red">You are too hungry to consider refusing.</span>
+		<</if>>
 		<br>
 	<</if>>
 <<elseif $livestock_obey gte 21>>
@@ -623,10 +701,19 @@ You arrive in front of the gates. "It's not over for this poor thing," <<person3
 <br><br>
 The <<person2>><<persons>> face pales, and <<he>> drops the topic. The gate shuts behind you.
 <br><br>
-
+<<if $hunger gte 1000>>
+	<<set _check to $hunger - 1000>>
+	<<willpowercheck _check>>
+<<else>>
+	<<set $willpowerSuccess to true>>
+<</if>>
 <<link [[Eat the apples|Livestock Job Eat]]>><<stress -6>><<trauma -6>><<hunger -2000>><</link>><<lllhunger>><<ltrauma>><<lstress>>
 <br>
-<<link [[Save them for someone else|Livestock Job Save]]>><</link>>
+<<if $willpowerSuccess>>
+	<<link [[Save them for someone else|Livestock Job Save]]>><</link>>
+<<else>>
+	<span class="red">You are too hungry to consider doing anything else.</span>
+<</if>>
 <br>
 
 :: Livestock Job Harper Obey
@@ -1217,7 +1304,14 @@ Niki hesitates. "Yes."
 
 <<link [[Cooperate|Livestock Job Niki Cooperate]]>><<transform cow 1>><<livestock_obey 5>><<sub 1>><</link>><<ggobey>>
 <br>
-<<link [[Defy|Livestock Job Niki Defy]]>><<livestock_obey -5>><<def 1>><</link>><<llobey>>
+<<if $hypnosis_traits.deviancy gte 1>>
+	<<willpowercheck>>
+<</if>>
+<<if $hypnosis_traits.deviancy gte random(1, 5) and !$willpowerSuccess>>
+	<<hypnosisText 'The sight of the beast leaves you entranced. <span class="purple">You cannot even think about resisting.</span>'>>
+<<else>>
+	<<link [[Defy|Livestock Job Niki Defy]]>><<livestock_obey -5>><<def 1>><</link>><<llobey>>
+<</if>>
 <br>
 
 :: Livestock Job Niki Cooperate
@@ -1336,6 +1430,24 @@ Niki interrupts. "It's alright. I got what I needed. We're ready for the proper 
 <<effects>>
 <span class="red">Niki films you.</span>
 <br>
+<<if $settings.hypnosisEnabled and random(-100,100) gt $livestock_obey and (!$hypnosis_traits.deviancy or random(1,5) gt $hypnosis_traits.deviancy)>>
+	<<willpowercheck>>
+	A pink flash from the camera light makes you feel dizzy,
+	<<if $willpowerSuccess>>
+		but you shake it off.
+	<<else>>
+		and <span class="pink">you feel something shift in your consciousness.</span>
+		<<if !$hypnosis_traits.deviancy or $hypnosis_traits.deviancy is 0>>
+			You've gained the <span class="pink">Hypnotic Deviancy</span> trait.
+			<<set $hypnosis_traits.deviancy to 1>>
+		<<elseif $hypnosis_traits.deviancy lt 5>>
+			Your hypnotic deviancy has deepened.
+			<<set $hypnosis_traits.deviancy += 1>>
+		<</if>>
+		<<hypnotised 1>>
+	<</if>>
+	<br><br>
+<</if>>
 <<effectsman>>
 <br><br>
 <<beast $enemyno>>
@@ -1401,6 +1513,24 @@ Niki interrupts. "It's alright. I got what I needed. We're ready for the proper 
 <<effects>>
 <span class="red">Niki films you.</span>
 <br>
+<<if $settings.hypnosisEnabled and random(-100,100) gt $livestock_obey and (!$hypnosis_traits.deviancy or random(1,5) gt $hypnosis_traits.deviancy)>>
+	<<willpowercheck>>
+	A pink flash from the camera light makes you feel dizzy,
+	<<if $willpowerSuccess>>
+		but you shake it off.
+	<<else>>
+		and <span class="pink">you feel something shift in your consciousness.</span>
+		<<if !$hypnosis_traits.deviancy or $hypnosis_traits.deviancy is 0>>
+			You've gained the <span class="pink">Hypnotic Deviancy</span> trait.
+			<<set $hypnosis_traits.deviancy to 1>>
+		<<elseif $hypnosis_traits.deviancy lt 5>>
+			Your hypnotic deviancy has deepened.
+			<<set $hypnosis_traits.deviancy += 1>>
+		<</if>>
+		<<hypnotised 1>>
+	<</if>>
+	<br><br>
+<</if>>
 <<effectsman>>
 <br><br>
 <<beast $enemyno>>
@@ -1641,6 +1771,10 @@ Tranquillity invades your mind. You wonder at how lucky you are, a simple <<if $
 	You start munching on the grass, and while you feel what feels like a small tube enter your vagina, followed by some cold liquid entering, it doesn't bother you.
 	<<recordSperm `{genital: "vagina", target: "pc", spermOwner: "Harper's serum", spermType: "human", daysTillRemovalOverride: 12, quantity: 6}`>>
 	<<purity -3>><<internalejac>><<creampie "self" "vagina">><<set $hygiene += 1000>><<bodyliquid "vagina" "semen" 3>><<bodyliquid "vagina" "goo">>
+	<<if $xchange.pill.breederEffect and $pleasure gte $pleasuremax>>
+		<<orgasm>>
+		<br><br>
+	<</if>>
 <<else>>
 	You start munching on the grass, and while you feel what feels like a small tube enter your anus, followed by some cold liquid entering, it doesn't bother you.
 	<<recordSperm `{genital: "anus", target: "pc", spermOwner: "Harper's serum", spermType: "human", daysTillRemovalOverride: 12, quantity: 6}`>>
