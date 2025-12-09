@@ -1,0 +1,74 @@
+:: NNPC Follower Widgets [widget]
+
+<<widget "update-nnpc-follower">>
+    <<if $statFreeze>>
+        <<if $nnpcFollowerDisplayEnabled>>
+            <<unset $nnpcFollowerDisplayEnabled>>
+            <<unset $follower>>
+        <</if>>
+        <<exit>>
+    <</if>>
+    
+    <<if $selectedNnpcDisplay is "vanilla" && $NPCNameList.includes($NPCList[0].fullDescription)>>
+        <<set _followerName to $NPCList[0].fullDescription.toLowerCase()>>
+        <<set _followerName to _followerName.replace(" ","_")>>
+
+        <<run statusCheck("Sydney")>>
+
+        <<set $follower to {
+            name: _followerName,
+            base: "base_" + $NPCList[0].skincolour + "_" + $NPCList[0].gender,
+            clothes: "upper_default",
+            under_clothes: "lower_default",
+        }>>
+
+        <!-- Special Cases -->
+        <<if _followerName is "sydney" && ["glasses", "playerbought"].includes($sydney.glasses)>>
+            <<set $follower.base to $follower.base + "_glasses">>
+        <<elseif _followerName is "robin" && C.npc.Robin.trauma gt 0>>
+            <<set $follower.base to $follower.base + "_trauma">>
+        <</if>>
+
+        <!-- Clothing Selection -->
+        <<if _followerName is "bailey">>
+            <<if $bailey_clothing is "averydate">>
+                <<set $follower.clothes to "upper_averydate">>
+                <<set $follower.under_clothes to "lower_averydate">>
+            <<elseif $bailey_clothing is "cafe">>
+                <<set $follower.clothes to "upper_cafe">>
+                <<set $follower.under_clothes to "lower_cafe">>
+			<</if>>
+
+        <<elseif _followerName is "kylar" and $kylar_clothes is "goth">>
+            <<set $follower.clothes to "upper_goth">>
+            <<set $follower.under_clothes to "lower_goth">>
+
+        <<elseif ["sydney","kylar","whitney","robin"].includes(_followerName) && Time.schoolDay>>
+            <<set $follower.clothes to "upper_school">>
+            <<set $follower.under_clothes to "lower_school">>
+
+        <</if>>
+
+        <!-- Clothing Gender Selection -->
+        <<set $follower.clothes += "_" + $NPCList[0].pronoun>>
+        <<set $follower.under_clothes += "_" + $NPCList[0].pronoun>>
+
+        <!-- Remove clothing if naked -->
+        <<if $NPCList[0].clothes.upper.name is "naked" or $NPCList[0].chest is 0>><<unset $follower.clothes>><</if>>
+        <<if $NPCList[0].clothes.lower.name is "naked" or $NPCList[0].penis is 0 or $NPCList[0].vagina is 0>><<unset $follower.under_clothes>><</if>>
+
+        <!-- Hair Selection -->
+        <<if _followerName is "sydney">>
+            <<set $follower.hair to "hair_" + C.npc.Sydney.hairColour + "_" + $sydney.hair>>
+        <<elseif _followerName is "kylar">>
+            <<set $follower.hair to "hair_" + $NPCList[0].gender>>
+        <</if>>
+
+        <<set $nnpcFollowerDisplayEnabled to 1>>
+
+    <<else>>
+        <<unset $nnpcFollowerDisplayEnabled>>
+        <<unset $follower>>
+    <</if>>
+
+<</widget>>

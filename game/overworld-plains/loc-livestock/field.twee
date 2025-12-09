@@ -144,14 +144,24 @@ A river runs through one corner. The cattle stay almost as far away from the chu
 			<</if>>
 		<<else>>
 		<</if>>
+		<<rng>>
 		<br><br>
-		<<generate1>><<generate2>><<generate3>><<generate4>><<person1>>
-		You lie in the field, and soon hear footsteps approach. "What have we here?" says a <<personsimple>>'s voice beside you. "Is it unwell?"
-		<br><br>
-		"I think it needs a seeing to," says a <<person2>><<person>> as <<he>> crouches beside you, pinning your shoulders to the ground. You hear more farmhands approach.
-		<br><br>
+		<<if $rng gt $livestock_obey>>
+			<<generate1>><<generate2>><<generate3>><<generate4>><<person1>>
+			You lie in the field, and soon hear footsteps approach. "What have we here?" says a <<personsimple>>'s voice beside you. "Is it unwell?"
+			<br><br>
+			"I think it needs a seeing to," says a <<person2>><<person>> as <<he>> crouches beside you, pinning your shoulders to the ground. You hear more farmhands approach.
+			<br><br>
 
-		<<link [[Next|Livestock Field Gang]]>><<set $molestationstart to 1>><</link>>
+			<<link [[Next|Livestock Field Gang]]>><<set $molestationstart to 1>><</link>>
+		<<else>>
+			<<set _time to Math.ceil($rng/10)>>
+			<<pass _time>>
+			You lie in the field, and manage to recover before being noticed.
+			<br><br>
+			
+			<<link [[Next|Livestock Field]]>><</link>>
+		<</if>>
 		<br>
 	<!-- <<elseif undefined and !(Time.days % 6) and $daily.eden.farmRescue isnot 1 and C.npc.Eden.love gte 120 and edenFreedomStatus() gte 1>>
 		Made unreachable until it's either massively reworked or removed. Eden has no business this far in the moor.
@@ -189,40 +199,51 @@ A river runs through one corner. The cattle stay almost as far away from the chu
 	<<else>>
 		<<set $daily.earSlimeGrassEating to true>>
 		<<farmicon "grass">><<link [[Eat grass (1:00)|Livestock Field Grass]]>><<pass 60>><<livestock_obey 1>><<transform cow 1>><<hunger -400>><</link>><<gobey>><<lhunger>>
-		<br>
-		<<exerciseicon>><<link [[Exercise (1:00)|Livestock Field Exercise]]>><<tiredness 6>><</link>><<gtiredness>><<gathletics>>
-		<br>
-		<<if $livestock_fence is 1>>
-			<<investigateicon>><<link [[Examine the fence|Livestock Field Fence]]>><<unset $livestock_fence>><</link>>
-			<br>
-		<<elseif $livestock_dig gte 25>>
-			<<getouticon "dig">><<link [[Approach the tunnel under the fence|Livestock Tunnel]]>><</link>>
-			<br>
-		<<elseif $livestock_dig gte 24 and $physiquesize lte 12000>>
-			<<getouticon "dig">><<link [[Approach the tunnel under the fence|Livestock Tunnel]]>><</link>><<small_text>>
-			<br>
-		<<elseif $livestock_dig gte 23 and $physiquesize lte 10000>>
-			<<getouticon "dig">><<link [[Approach the tunnel under the fence|Livestock Tunnel]]>><</link>><<small_text>>
-			<br>
-		<<elseif $livestock_dig gte 22 and $physiquesize lte 6000>>
-			<<getouticon "dig">><<link [[Approach the tunnel under the fence|Livestock Tunnel]]>><</link>><<small_text>>
-			<br>
+		<<if $hunger gte 1000>>
+			<<set _check to $hunger - 1000>>
+			<<willpowercheck _check>>
 		<<else>>
-			<<getouticon "dig">><<link [[Dig beneath the fence (1:00)|Livestock Field Dig]]>><<tiredness 6>><</link>><<gtiredness>>
-			<br>
+			<<set $willpowerSuccess to true>>
 		<</if>>
-		<<if $livestock_river is 1>>
-			<<watericon "stream">><<link [[Examine the river|Livestock Field River Examine]]>><<unset $livestock_river>><</link>>
+		<br>
+		<<if $willpowerSuccess>>
+			<<relaxicon>><<link [[Rest (1:00)|Livestock Field Rest]]>><<tiredness -6>><<stress -10>><</link>><<ltiredness>><<lstress>>
 			<br>
+			<<exerciseicon>><<link [[Exercise (1:00)|Livestock Field Exercise]]>><<tiredness 6>><</link>><<gtiredness>><<gathletics>>
+			<br>
+			<<if $livestock_fence is 1>>
+				<<investigateicon>><<link [[Examine the fence|Livestock Field Fence]]>><<unset $livestock_fence>><</link>>
+				<br>
+			<<elseif $livestock_dig gte 25>>
+				<<getouticon "dig">><<link [[Approach the tunnel under the fence|Livestock Tunnel]]>><</link>>
+				<br>
+			<<elseif $livestock_dig gte 24 and $physiquesize lte 12000>>
+				<<getouticon "dig">><<link [[Approach the tunnel under the fence|Livestock Tunnel]]>><</link>><<small_text>>
+				<br>
+			<<elseif $livestock_dig gte 23 and $physiquesize lte 10000>>
+				<<getouticon "dig">><<link [[Approach the tunnel under the fence|Livestock Tunnel]]>><</link>><<small_text>>
+				<br>
+			<<elseif $livestock_dig gte 22 and $physiquesize lte 6000>>
+				<<getouticon "dig">><<link [[Approach the tunnel under the fence|Livestock Tunnel]]>><</link>><<small_text>>
+				<br>
+			<<else>>
+				<<getouticon "dig">><<link [[Dig beneath the fence (1:00)|Livestock Field Dig]]>><<tiredness 6>><</link>><<gtiredness>>
+				<br>
+			<</if>>
+			<<if $livestock_river is 1>>
+				<<watericon "stream">><<link [[Examine the river|Livestock Field River Examine]]>><<unset $livestock_river>><</link>>
+				<br>
+			<<else>>
+				<<watericon "stream">><<link [[Approach the river|Livestock Field River]]>><</link>>
+				<br>
+			<</if>>
+			<<if Time.hour gte 12>>
+				<<animalicon "horse_pick">><<link [[Approach Remy's horses (0:01)|Livestock Field Horse]]>><<pass 1>><</link>>
+				<br>
+			<</if>>
 		<<else>>
-			<<watericon "stream">><<link [[Approach the river|Livestock Field River]]>><</link>>
-			<br>
+			<span class="red">You are too hungry to consider doing anything else.</span>
 		<</if>>
-		<<if Time.hour gte 12>>
-			<<animalicon "horse_pick">><<link [[Approach Remy's horses (0:01)|Livestock Field Horse]]>><<pass 1>><</link>>
-			<br>
-		<</if>>
-
 	<</if>>
 <</if>>
 
@@ -999,11 +1020,21 @@ You approach Remy's steeds.
 	<</if>>
 <</if>>
 <br><br>
-
+<<if $remyHorseRape gt 0>>
+	<<set _check to ($remyHorseRape - $deviancy)*10>>
+	<<willpowercheck _check>>
+	<<set $remyHorseRape to $remyHorseRape - 1>>
+<<else>>
+	<<set $willpowerSuccess to true>>
+<</if>>
 <<if $livestock_horse lt 1 or $livestock_horse is undefined>>
-	<<link [[Be friendly|Livestock Field Horse Intro]]>><<set $livestock_horse to 1>><<set $phase to 1>><</link>>
-	<br>
-	<<link [[Be firm|Livestock Field Horse Intro]]>><<set $livestock_horse to 1>><<set $phase to 2>><</link>>
+	<<if !$willpowerSuccess>>
+		<span class="red">After your experience, you cannot bring yourself to approach the horses.</span>
+	<<else>>
+		<<link [[Be friendly|Livestock Field Horse Intro]]>><<set $livestock_horse to 1>><<set $phase to 1>><</link>>
+		<br>
+		<<link [[Be firm|Livestock Field Horse Intro]]>><<set $livestock_horse to 1>><<set $phase to 2>><</link>>
+	<</if>>
 	<br>
 	<<link [[Walk away|Livestock Field]]>><<endevent>><</link>>
 	<br>
@@ -1028,20 +1059,22 @@ You approach Remy's steeds.
 		<<set _agitated to 1>>
 		<br><br>
 	<</if>>
-
-	<<ind>><<link [[Brush their hair (1:00)|Livestock Field Horse Brush]]>><<pass 60>><<tending 6>><<stress -6>><</link>><<gtending>><<lstress>>
-	<br>
-
-	<<if _agitated is 1>>
-		<<animalicon "horse">><<link [[Look beneath the agitated <<beasttype>> (0:01)|Livestock Field Deviancy]]>><<set $phase to 1>><<pass 1>><<set $daily.livestock.horses_satisfied += 1>><</link>><<deviant1>>
+	<<if $willpowerSuccess>>
+		<<ind>><<link [[Brush their hair (1:00)|Livestock Field Horse Brush]]>><<pass 60>><<tending 6>><<stress -6>><</link>><<gtending>><<lstress>>
 		<br>
-	<</if>>
 
-	<<if $livestock_food gte 1>>
-		<<ind>><<link [[Offer the basket of apples|Livestock Field Horse Apples]]>><<trauma -18>><<unset $livestock_food>><<endevent>><</link>><<lltrauma>>
-		<br>
-	<</if>>
+		<<if _agitated is 1>>
+			<<animalicon "horse">><<link [[Look beneath the agitated <<beasttype>> (0:01)|Livestock Field Deviancy]]>><<set $phase to 1>><<pass 1>><<set $daily.livestock.horses_satisfied += 1>><</link>><<deviant1>>
+			<br>
+		<</if>>
 
+		<<if $livestock_food gte 1>>
+			<<ind>><<link [[Offer the basket of apples|Livestock Field Horse Apples]]>><<trauma -18>><<unset $livestock_food>><<endevent>><</link>><<lltrauma>>
+			<br>
+		<</if>>
+	<<else>>
+		<span class="red">After your experience, you cannot bring yourself to approach the horses.</span><br>
+	<</if>>
 	<<getouticon>><<link [[Leave|Livestock Field]]>><<endevent>><</link>>
 	<br>
 <</if>>
@@ -2203,3 +2236,18 @@ A river runs through one corner. You are not sure if the field is under surveill
 
 <br>
 <<getouticon>><<link [[Return to your cell|Livestock Lock Key]]>><<set $phase to 2>><</link>>
+
+
+:: Livestock Field Rest
+<<effects>>
+
+You lie down on the grass and relax. It would almost be idyllic, were you not imprisoned and treated as cattle.
+<<trauma -5>><<pass 60>>
+<br><br>
+
+<<if $rng gte 51>>
+	<<livestock_overhear>>
+<</if>>
+
+<<link [[Next|Livestock Field]]>><</link>>
+<br>

@@ -726,6 +726,8 @@
 	<</if>>
 
 	<<generateNPCClothes $NPCList[_n]>>
+	<<generate_npc_traits>>
+	<<generate_npc_skills>>
 
 	/* Sex toy init rework */
 	/* Sex toys become more popular over time after the adult shop opens */
@@ -985,7 +987,7 @@
 
 	<</if>> */
 
-	<<if $multiOrgasmToggle is 1>>
+	<<if $NPCList[_n].traits.includes("multi-orgasmic")>>
 		<<if !$NPCList[_n].maxOrgasms or $NPCList[_n].maxOrgasms lte 0>>
 			<<set $NPCList[_n].maxOrgasms = 1 + Math.floor(_i / 5) + [0,0,0,0,0,0,1,1,1,2].random()>>
 
@@ -1100,9 +1102,6 @@
 	<<else>>
 		<<set $NPCList[_n].size to "tiny">>
 	<</if>>
-
-	<<generate_npc_traits>>
-	<<generate_npc_skills>>
 
 	<<if _npcPlant is 1>>
 		<<set $NPCList[_n].type to "plant">>
@@ -1277,6 +1276,11 @@
 	<</if>>
 	<<if random(1, 100) lte $_drugResistChance>>
 		<<set $NPCList[_n].traits.push("drug resistant")>>
+	<</if>>
+
+	<<rng 1 10>>
+	<<if $rng is 10 or ($NPCList[_n].pronoun is "f" and $rng gte 8)>>
+		<<set $NPCList[_n].traits.push("multi-orgasmic")>>
 	<</if>>
 
 	/*

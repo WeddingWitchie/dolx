@@ -1719,8 +1719,10 @@ function effects() {
 		if (V.orgasmCum === 1) {
 			V.refractoryPeriod = V.player.penisExist ? 5 : 0;
 		}
-
+		
 		sWikifier(`<span class="light-pink">Your body continues to convulse as it releases the tension from your orgasm.</span> <<llarousal>>`);
+		br();
+		sWikifier(`<span class="pink">Your body is extra sensitive due to the current orgasm.</span>`);
 	}
 
 	V.orgasmdown -= 1;

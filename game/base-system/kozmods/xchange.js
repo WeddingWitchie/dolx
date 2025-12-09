@@ -17,18 +17,19 @@ function getSensitivity(part) {
 	let purityMod = (1000 - V.purity) * V.xchange.impuritySensitivityBonus / 1000;
 	const xchangeMod = playerIsXChanged() ? 
 		(V.player.sex === "f"? 1 : -1) * V.xchange.pillSensitivityChange : 0; 
+	const orgasmingMod = V.orgasmCum > 0 ? 1 : 0;
 
 	switch(part) {
 		case "mouth":
 			return V.mouthsensitivity;
 		case "breast":
 		case "breasts":
-			return Math.clamp(V.breastsensitivity + purityMod + xchangeMod, 0.25, 6);
+			return Math.clamp(V.breastsensitivity + purityMod + xchangeMod + orgasmingMod, 0.25, 6);
 		case "bottom":
-			return Math.clamp(V.bottomsensitivity + purityMod + xchangeMod, 0.25, 3);
+			return Math.clamp(V.bottomsensitivity + purityMod + xchangeMod + orgasmingMod, 0.25, 3);
 		case "genital":
 		case "genitals":
-			return Math.clamp(V.genitalsensitivity + 2 * purityMod + xchangeMod, 0.25, 10);
+			return Math.clamp(V.genitalsensitivity + 2 * purityMod + xchangeMod + orgasmingMod, 0.25, 10);
 		default:
 			paramError("getSensitivity", "part", part, "Expected a string, see function for accepted values");
 			break;
@@ -441,6 +442,19 @@ function preferredPronouns(gender) {
 }
 window.preferredPronouns = preferredPronouns;
 
+function mapToLegacyGenderIdentity() {
+	if (hasGenderIdentity(0)) V.genderidentity = 0;
+	else if (hasGenderIdentity(1)) V.genderidentity = 1;
+	else if (hasGenderIdentity(2)) V.genderidentity = 125;
+	else if (hasGenderIdentity(3)) V.genderidentity = 250;
+	else if (hasGenderIdentity(4)) V.genderidentity = 375;
+	else if (hasGenderIdentity(5)) V.genderidentity = 625;
+	else if (hasGenderIdentity(6)) V.genderidentity = 750;
+	else if (hasGenderIdentity(7)) V.genderidentity = 875;
+	else if (hasGenderIdentity(8)) V.genderidentity = 1000;
+}
+window.mapToLegacyGenderIdentity = mapToLegacyGenderIdentity;
+
 function hasGenderIdentity(stage) {
 	/*switch (stage) {
 		case 8:
@@ -820,13 +834,21 @@ function hourlyClothingFemininityCheck(hours = 1) {
 	V.hourlyFemininity += currentWornFemininity > 0 ? 1 : 0;
 	V.hourlyFemininity += currentWornFemininity < 0 ? -1 : 0;
 
+	const hasFemClothesPreference = V.identity.presentation.clothing.preferred === 'f';
+	const hasFemClothesAcceptance = V.identity.presentation.clothing.feminine.acceptance;
+	const hasFemClothesRejection = V.identity.presentation.clothing.feminine.reject;
+	
+	const hasMascClothesPreference = V.identity.presentation.clothing.preferred === 'm';
+	const hasMascClothesAcceptance = V.identity.presentation.clothing.masculine.acceptance;
+	const hasMascClothesRejection = V.identity.presentation.clothing.masculine.reject;
+
 	if ((V.xchange.pill.active && V.xchange.pill.genderificationEffect) || V.hypnosis_traits.crossdressing >= 1) {
 		if (V.player.gender === "m" && currentWornFemininity < 0) {
 			wikifier("stress",800 * hours,1);
 			V.genderificationStressMessage = 1;
 			V.effectsmessage = 1;
 		}
-		else if ((V.player.gender === "m" && (hasGenderIdentity(5) || !playerCaresForGender()) && currentWornFemininity > 0) && (V.xchange.pill.genderificationEffect || V.hypnosis_traits.crossdressing < 4)) {
+		else if ((V.player.gender === "m" && ( !hasFemClothesAcceptance || !playerCaresForGender()) && currentWornFemininity > 0) && (V.xchange.pill.genderificationEffect || V.hypnosis_traits.crossdressing < 4)) {
 			wikifier("stress",-10 * hours);
 			V.tiredness -= 200 * hours;
 			V.genderificationStressMessage = 2;
@@ -837,7 +859,7 @@ function hourlyClothingFemininityCheck(hours = 1) {
 			V.genderificationStressMessage = 3;
 			V.effectsmessage = 1;
 		}
-		else if ((V.player.gender === "f" && (hasGenderIdentity(5) || !playerCaresForGender()) && currentWornFemininity < 0) && (V.xchange.pill.genderificationEffect || V.hypnosis_traits.crossdressing < 4)) {
+		else if ((V.player.gender === "f" && ( !hasMascClothesAcceptance || !playerCaresForGender()) && currentWornFemininity < 0) && (V.xchange.pill.genderificationEffect || V.hypnosis_traits.crossdressing < 4)) {
 			wikifier("stress",-10 * hours);
 			V.tiredness -= 200;
 			V.genderificationStressMessage = 4;
@@ -845,24 +867,24 @@ function hourlyClothingFemininityCheck(hours = 1) {
 		}
 	}
 	else if (playerCaresForGender()) {
-		if (hasGenderIdentity(7) && V.player.gender === "m" && V.player.sex === "m" && currentWornFemininity > 0) {
+		if (hasFemClothesRejection && !hasFemClothesAcceptance && currentWornFemininity > 0) {
 			wikifier("stress",800 * hours,1);
 			V.genderStressMessage = 2;
 			V.effectsmessage = 1;
 		}
-		else if (hasGenderIdentity(5) && V.player.gender === "m" && currentWornFemininity > 0) {
+		else if (!hasFemClothesRejection && !hasFemClothesAcceptance && currentWornFemininity > 0) {
 			wikifier("stress",400 * hours,1);
 			V.genderStressMessage = 1;
 			V.effectsmessage = 1;
 		}
-		else if (!hasGenderIdentity(2) && V.player.gender === "f" && V.player.sex === "m" && currentWornFemininity > 0) {
+		else if (hasMascClothesRejection && !hasMascClothesAcceptance && currentWornFemininity < 0) {
 			wikifier("stress",800 * hours,1);
-			V.genderStressMessage = 2;
+			V.genderStressMessage = 4;
 			V.effectsmessage = 1;
 		}
-		else if (!hasGenderIdentity(4) && V.player.gender === "f" && currentWornFemininity > 0) {
+		else if (!hasMascClothesRejection && !hasMascClothesAcceptance && currentWornFemininity < 0) {
 			wikifier("stress",400 * hours,1);
-			V.genderStressMessage = 1;
+			V.genderStressMessage = 3;
 			V.effectsmessage = 1;
 		}
 	}
@@ -977,6 +999,16 @@ function xchangeEffectsMessages() {
 			break;
 		case 2:
 			element("span", "You feel gross in these girly clothes.", "red");
+			fragment.append(wikifier("ggstress")); br();
+			delete V.genderStressMessage;
+			break;
+		case 3:
+			element("span", "You feel awkward dressed up boyish like this.", "purple");
+			fragment.append(wikifier("gstress")); br();
+			delete V.genderStressMessage;
+			break;
+		case 4:
+			element("span", "You feel gross in these boyish clothes.", "red");
 			fragment.append(wikifier("ggstress")); br();
 			delete V.genderStressMessage;
 			break;

@@ -882,6 +882,10 @@
 			<<set $avery_antiques.stolen.delete("mask")>>
 			<<set $avery_antiques.noticed.pushUnique("mask")>>
 		<</if>>
+		<<if $avery_antiques.stolen.includes("box") and !$avery_antiques.noticed.includes("box")>>
+			<<set $avery_antiques.stolen.delete("box")>>
+			<<set $avery_antiques.noticed.pushUnique("box")>>
+		<</if>>
 	<</if>>
 <</widget>>
 
@@ -916,7 +920,24 @@
 	<</if>>
 	<br><br>
 
-	<<if $avery_mansion.rage.apologetic is true>>
+	<<if !playerIsXChanged() and C.npc.Avery.gender is $player.gender>>
+
+		<<He>> notices you're back in your original form, and <<he>> snaps. "Who told you could do that?" <<He>> demands, <<his>> voice rising. "Do you think you can just go around changing yourself whenever you like? You're mine, and you will stay the way I want you to be!" <span class="red"><<He>> grasps your arm.</span> <<npcincr Avery rage 10>>
+		<br><br>
+		
+		<<avery_mansion_rage_housework>>
+		<<avery_mansion_chase_init>>
+
+		<span class="red"><<He>> wants to hurt you.</span>
+		<br><br>
+
+		<<link [[Apologise|Mansion Chase Apologise]]>><<trauma 6>><<npcincr Avery dom 5>><</link>><<gtrauma>><<ggdom>>
+		<br>
+		<<link [[Brace yourself|Mansion Chase Brace]]>><</link>>
+		<br>
+		<<link [[Run|Mansion Chase Run]]>><</link>>
+
+	<<elseif $avery_mansion.rage.apologetic is true>>
 		<<set $avery_mansion.rage.apologetic to false>>
 		<<He>> holds one hand behind <<his>> back, and flashes a nervous smile, before revealing a bundle of roses. "I'm sorry," <<he>> says, holding out the flowers. "I'm so fucking sorry. I just get so angry, but it's not your fault." <<He>> opens <<his>> mouth to continue, but looks away instead.<<lllarage>><<npcincr Avery rage -9>>
 		<br><br>
@@ -3817,7 +3838,7 @@
 		<br><br>
 
 		Avery enters the display room, and inspects the antiques for dust.
-		<<set _items to ["dagger", "amulet", "mask"].filter(item => $avery_antiques.stolen.includes(item))>>
+		<<set _items to ["dagger", "amulet", "mask", "box"].filter(item => $avery_antiques.stolen.includes(item))>>
 		<<set $_pronoun to pluralise(_items.length, "it", "them")>>
 
 		<<run _items.forEach(item => {

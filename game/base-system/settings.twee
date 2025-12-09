@@ -157,7 +157,7 @@
 		<<case "combatExtendedSettings">><<set _dolp to "combatExtended">><<replace #subsectionDiv>><<combatExtendedSettings>><</replace>>
 		<<case "amcTraitsSettings">><<set _dolp to "amcTraits">><<replace #subsectionDiv>><<amcTraitsSettings>><</replace>>
 		<<case "xchangeSettings">><<set _subsection to "xchange">><<replace #subsectionDiv>><<xchangeSettings>><</replace>>
-		<<case "identitySettings">><<set _subsection to "identity">><<replace #subsectionDiv>><<identitySettings>><</replace>>	
+		<<case "identitySettings">><<set _subsection to "identity">><<replace #subsectionDiv>><<identitySettings>><<lockInIdentitySetting>><</replace>>	
 		<<default>><<set _dolp to "rebalance">><<replace #subsectionDiv>><<rebalanceSettings>><</replace>>
 	<</switch>>
 	<<run settingsDisableElement()>>
@@ -428,7 +428,7 @@
 					<<set $settings.condomUseChanceConsensual to 83>>
 					<<set $settings.multipleWardrobes to "isolated">>
 					<<set $settings.tendingYieldModifier to 5>>
-					<<if $identity.init is 1>><<lockInIdentity>><</if>>
+					<<lockInIdentity>>
 					<<settingsExitFunction>>
 				<</button>>
 				<div class="small-description my-2" style>
@@ -465,7 +465,7 @@
 						<<set $settings.incompletePregnancyEnabled to _incompletePregnancyDisable>>
 						<<npcPregnancyUpdater>>
 					<</if>>
-					<<if $identity.init is 1>><<lockInIdentity>><</if>>
+					<<lockInIdentity>>
 					<<if ($feats.locked or ($settings.cheatsEnabledToggle is false and $settings.rentCostModifier gte 1 and $statGainMult lte 100 and $npcHealthMult gte 100 and $nnpcHealthMult gte 100 and $beastHealthMult gte 100 and $tentacleHealthMult gte 100 and $struggleHealthMult gte 100)) and ($feats.soft or ($gamemode isnot "soft" and $settings.allureModifier gte 1)) and ($feats.pregnancyLocked or ($settings.humanPregnancyMonths gte 3 and $settings.wolfPregnancyWeeks gte 4)) and ($feats.pregnancySillyLocked or $settings.pregnancyType isnot "silly")>>
 						<<settingsExitFunction>>
 					<<else>><!-- confirm cheats -->
@@ -480,7 +480,7 @@
 			<<case "custom">>
 				<div class="my-1"><span class="gold bold">Current Settings:</span> <i>Customisable</i></div>
 				<<button "Start Game!">>
-					<<if $identity.init is 1>><<lockInIdentity>><</if>>
+					<<lockInIdentity>>
 					<<if ($feats.locked or ($settings.cheatsEnabledToggle is false and $settings.rentCostModifier gte 1 and $statGainMult lte 100 and $npcHealthMult gte 100 and $nnpcHealthMult gte 100 and $beastHealthMult gte 100 and $tentacleHealthMult gte 100 and $struggleHealthMult gte 100)) and ($feats.soft or ($gamemode isnot "soft" and $settings.allureModifier gte 1)) and ($feats.pregnancyLocked or ($settings.humanPregnancyMonths gte 3 and $settings.wolfPregnancyWeeks gte 4)) and ($feats.pregnancySillyLocked or $settings.pregnancyType isnot "silly")>>
 						<<settingsExitFunction>>
 					<<else>><!-- confirm cheats -->
@@ -495,7 +495,7 @@
 				<<button "Start Game!">>
 						/*Rerolls all settings*/
 					<<presets "randomize" "characterSettings" `randomizeSettings()`>>
-					<<if $identity.init is 1>><<lockInIdentity>><</if>>
+					<<lockInIdentity>>
 					<<if ($feats.locked or ($settings.cheatsEnabledToggle is false and $settings.rentCostModifier gte 1 and $statGainMult lte 100 and $npcHealthMult gte 100 and $nnpcHealthMult gte 100 and $beastHealthMult gte 100 and $tentacleHealthMult gte 100 and $struggleHealthMult gte 100)) and ($feats.soft or ($gamemode isnot "soft" and $settings.allureModifier gte 1)) and ($feats.pregnancyLocked or ($settings.humanPregnancyMonths gte 3 and $settings.wolfPregnancyWeeks gte 4)) and ($feats.pregnancySillyLocked or $settings.pregnancyType isnot "silly")>>
 						<<settingsExitFunction>>
 					<<else>><!-- confirm cheats -->
@@ -1064,8 +1064,12 @@
 		</div>
 	</div>
 	<hr>
-
+	
 	<div class="settingsGrid">
+		<div class="settingsHeader">
+			<h2>PHYSICAL ATTRIBUTES</h2>
+		</div>
+
 		<div class="settingsHeader">
 			Body
 		</div>
@@ -1372,6 +1376,9 @@
 
 	<div class="settingsGrid">
 		<div class="settingsHeader">
+			<h2>MENTAL ATTRIBUTES</h2>
+		</div>
+		<div class="settingsHeader">
 			Personality
 		</div>
 		<div class="settingsToggleItemWide">
@@ -1523,12 +1530,22 @@
 			</label>
 		</div>
 	</div>
-
 	<hr>
 
 	<div class="settingsGrid">
 		<div class="settingsHeader">
-			Starting Season <mouse class="tooltip linkBlue">(?)<span style="font-size:16px;">The game will start on the first Sunday of the chosen season.</span></mouse>
+			<h2>IDENTITY</h2>
+		</div>
+	</div>
+	<<identitySettings>>
+	<hr>
+
+	<div class="settingsGrid">
+		<div class="settingsHeader">
+			<h2>STARTING CONDITIONS</h2>
+		</div>
+		<div class="settingsHeader">
+			Season <mouse class="tooltip linkBlue">(?)<span style="font-size:16px;">The game will start on the first Sunday of the chosen season.</span></mouse>
 		</div>
 		<div class="settingsToggleItemWide">
 			<label><mouse class="tooltip tangerine">Autumn <<radiobutton "$startingseason" "autumn" autocheck>><span class="green"><i>Recommended for beginners.</i></span></mouse></label> |
@@ -1819,9 +1836,11 @@
 		<div id="settingsXChange">
 			<<dolpSettingsTabButton "X-Change Settings" "xchange">>
 		</div>
-		<div id="settingsIdentity">
-			<<dolpSettingsTabButton "Identity Settings" "identity">>
-		</div>
+		<<if $passage isnot "Start">>
+			<div id="settingsIdentity">
+				<<dolpSettingsTabButton "Identity Settings" "identity">>
+			</div>
+		<</if>>
 	</div>
 <</widget>>
 
@@ -4243,7 +4262,7 @@
 
 			<div class="settingsToggleItem">
 				<label>
-					<<checkbox "$multiOrgasmToggle" 0 1 autocheck>> Enable NPC multi-orgasm <mouse class = "tooltip linkBlue">(?)<span>Generic NPCs will be able to orgasm multiple times.</span></mouse>
+					<<checkbox "$multiOrgasmToggle" 0 1 autocheck>> Enable NPC multi-orgasm <mouse class = "tooltip linkBlue">(?)<span>Generic NPCs will be able to orgasm multiple times if they have the multi-orgasmic trait.</span></mouse>
 				</label>
 			</div>
 			<div class="settingsToggleItem">
@@ -4621,21 +4640,26 @@
 				<label><span>Random</span> <<radiobutton "$xchange.customisedHairColour" "random" autocheck>></label>
 			</div>
 			<div class="settingsToggleItem">
-				<span class="gold bold">Genderflipped Skin Colour:</span><br>
+				/* <span class="gold bold">Genderflipped Skin:</span><br>
 				<label>Same as before <<radiobutton "$xchange.customisedSkinColour" "nochange" autocheck>></label> |
+
 				<label>Random <<radiobutton "$xchange.customisedSkinColour" "random" autocheck>></label>
+				<br><br> */
+				<<set _xchangeSkinTone to "no">>
+				<<set _xchangeSkinShade to "change">>
+				<span class="gold bold">Genderflipped Skin Tone:</span><br>
+				<label>Same as before <<radiovar "_xchangeSkinTone" "no">><<xchangeSkinColourVariableCombine>><</radiovar>></label> |<br>
+				<label>Neutral <<radiovar "_xchangeSkinTone" "">><<xchangeSkinColourVariableCombine>><</radiovar>></label> |
+				<label>Warm <<radiovar "_xchangeSkinTone" "r">><<xchangeSkinColourVariableCombine>><</radiovar>></label> |
+				<label>Golden <<radiovar "_xchangeSkinTone" "g">><<xchangeSkinColourVariableCombine>><</radiovar>></label> |
+				<label>Olive <<radiovar "_xchangeSkinTone" "y">><<xchangeSkinColourVariableCombine>><</radiovar>></label> |
+				<label>Cool <<radiovar "_xchangeSkinTone" "b">><<xchangeSkinColourVariableCombine>><</radiovar>></label>
 				<br><br>
-				<span class="gold">Reddish:</span><br>
-				<label>Light <<radiobutton "$xchange.customisedSkinColour" "light" autocheck>></label> |
-				<label>Medium <<radiobutton "$xchange.customisedSkinColour" "medium" autocheck>></label> |
-				<label>Dark <<radiobutton "$xchange.customisedSkinColour" "dark" autocheck>></label> |
-				<label>Gyaru <<radiobutton "$xchange.customisedSkinColour" "gyaru" autocheck>></label>
-				<br><br>
-				<span class="gold">Yellowish:</span><br>
-				<label>Light <<radiobutton "$xchange.customisedSkinColour" "ylight" autocheck>></label> |
-				<label>Medium <<radiobutton "$xchange.customisedSkinColour" "ymedium" autocheck>></label> |
-				<label>Dark <<radiobutton "$xchange.customisedSkinColour" "ydark" autocheck>></label> |
-				<label>Gyaru <<radiobutton "$xchange.customisedSkinColour" "ygyaru" autocheck>></label>
+				<span class="gold bold">Genderflipped Skin Shade:</span><br>
+				<label data-target='["xchangeSkinTone"]' data-disabledif="T.xchangeSkinTone === 'no'">Light <<radiovar "_xchangeSkinShade" "light">><<xchangeSkinColourVariableCombine>><</radiovar>></label> |
+				<label data-target='["xchangeSkinTone"]' data-disabledif="T.xchangeSkinTone === 'no'">Medium <<radiovar "_xchangeSkinShade" "medium">><<xchangeSkinColourVariableCombine>><</radiovar>></label> |
+				<label data-target='["xchangeSkinTone"]' data-disabledif="T.xchangeSkinTone === 'no'">Dark <<radiovar "_xchangeSkinShade" "dark">><<xchangeSkinColourVariableCombine>><</radiovar>></label> |
+				<label data-target='["xchangeSkinTone"]' data-disabledif="T.xchangeSkinTone === 'no'">Gyaru <<radiovar "_xchangeSkinShade" "gyaru">><<xchangeSkinColourVariableCombine>><</radiovar>></label>
 			</div>
 			<div class="settingsToggleItem">
 				<span class="gold bold">Physique Changes: <mouse class="tooltip linkBlue">(?)<span>An override to the default X-Change behaviour. Normally, M2F shrinks you one size, and F2M grows you one size, but this setting overrides that behaviour.</span></mouse></span><br>
@@ -4696,9 +4720,9 @@
 				<<numberslider "$xchange.cumcureTime" $xchange.cumcureTime 1 24 1>>
 				<br>
 			</div>
-			<div clas="settingsToggleItem">
-				<span class="gold bold">Breeder Settings:</span>
-				<label><<checkbox "$xchange.breederOrgasmLock" false true autocheck>> Creampie-only orgasms</label> <mouse class="tooltip linkBlue">(?)<span>You can only orgasm from getting creampied while on breeder.</span></mouse><br>
+			<div class="settingsToggleItem">
+				<span class="gold bold">Breeder Settings:</span><br>
+				<label><<checkbox "$xchange.breederOrgasmLock" false true autocheck>> Creampie-only orgasms</label> <mouse class="tooltip linkBlue">(?)<span>You can only orgasm from getting creampied while on breeder (As opposed to the default behaviour, which allows you to orgasm freely as long as there's cum in your vagina, while on breeder).</span></mouse><br>
 			</div>
 		</div>
 		<div class="settingsGrid">
