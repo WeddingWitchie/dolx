@@ -11,5 +11,5 @@
   * None.
 
 ### Rebalancing and Bug fixes:
-  * Fixed NNPC display system selector.
+  * Fixed Vanilla NNPC display reverting to clothed when NPC genitals are occupied.
   
