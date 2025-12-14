@@ -1718,7 +1718,7 @@ function dailyPlayerEffects() {
 		else 
 			V.xchange.baseStats.physique = V.xchange.baseStats.physique - V.xchange.baseStats.physique * 5 / V.xchange.baseStats.physiquesize;
 	}
-
+	
 	let genderFactor = !V.xchange.genderIdentityEnabled ?
 		1 : V.player.gender === "m"? 
 		1 + (1000 - V.genderidentity) / 1000 :
