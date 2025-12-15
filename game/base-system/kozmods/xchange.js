@@ -383,6 +383,154 @@ function playerHasCharacteristic(characteristic) {
 }
 window.playerHasCharacteristic = playerHasCharacteristic;
 
+function getFemininityContribution(characteristic) {
+	let femininity = 0;
+
+	switch (characteristic) {
+		case "Masculine Appearance":
+			femininity += Number(V.identity.presentation.appearance.masculine.acceptance) * -100;
+			femininity += Number(V.identity.presentation.appearance.masculine.reject) * 100;
+			femininity += (V.identity.presentation.appearance.preferred === "m") * -100;
+			break;
+		case "Feminine Appearance":
+			femininity += Number(V.identity.presentation.appearance.feminine.acceptance) * 100;
+			femininity += Number(V.identity.presentation.appearance.feminine.reject) * -100;
+			femininity += (V.identity.presentation.appearance.preferred === "f") * 100;
+			break;
+		case "Masculine Clothing":
+			femininity += Number(V.identity.presentation.clothing.masculine.acceptance) * -100;
+			femininity += Number(V.identity.presentation.clothing.masculine.reject) * 100;
+			femininity += (V.identity.presentation.clothing.preferred === "m") * -100;
+			break;
+		case "Feminine Clothing":
+			femininity += Number(V.identity.presentation.clothing.feminine.acceptance) * 100;
+			femininity += Number(V.identity.presentation.clothing.feminine.reject) * -100;
+			femininity += (V.identity.presentation.clothing.preferred === "f") * 100;
+			break;
+		case "Masculine Pronouns":
+			femininity += Number(V.identity.presentation.pronouns.masculine.acceptance) * -100;
+			femininity += Number(V.identity.presentation.pronouns.masculine.reject) * 100;
+			femininity += (V.identity.presentation.pronouns.preferred === "m") * -100;
+			break;
+		case "Feminine Pronouns":
+			femininity += Number(V.identity.presentation.pronouns.feminine.acceptance) * 100;
+			femininity += Number(V.identity.presentation.pronouns.feminine.reject) * -100;
+			femininity += (V.identity.presentation.pronouns.preferred === "f") * 100;
+			console.log(femininity);
+			break;
+		case "Neutral Pronouns":
+			femininity += Number(V.identity.presentation.pronouns.neutral.acceptance) * 0;
+			femininity += Number(V.identity.presentation.pronouns.neutral.reject) * -0;
+			femininity += (V.identity.presentation.pronouns.preferred === "n") * 0;
+			break;
+		case "Flat Chest":
+			femininity += Number(V.identity.body.chest.flat.acceptance) * -50;
+			femininity += Number(V.identity.body.chest.flat.reject) * 50;
+			femininity += (V.identity.body.chest.preferred === "flat") * -50;
+			break;
+		case "Small Breasts":
+			femininity += Number(V.identity.body.chest.small.acceptance) * 25;
+			femininity += Number(V.identity.body.chest.small.reject) * -25;
+			femininity += (V.identity.body.chest.preferred === "small") * 25;
+			break;
+		case "Medium Breasts":
+			femininity += Number(V.identity.body.chest.medium.acceptance) * 50;
+			femininity += Number(V.identity.body.chest.medium.reject) * -50;
+			femininity += (V.identity.body.chest.preferred === "medium") * 50;
+			break;
+		case "Big Breasts":
+			femininity += Number(V.identity.body.chest.big.acceptance) * 50;
+			femininity += Number(V.identity.body.chest.big.reject) * -50;
+			femininity += (V.identity.body.chest.preferred === "big") * 50;
+			break;
+		case "Small Ass":
+			femininity += Number(V.identity.body.bottom.small.acceptance) * 50;
+			femininity += Number(V.identity.body.bottom.small.reject) * -50;
+			femininity += (V.identity.body.bottom.preferred === "small") * 50;
+			break;
+		case "Medium Ass":
+			femininity += Number(V.identity.body.bottom.medium.acceptance) * 50;
+			femininity += Number(V.identity.body.bottom.medium.reject) * -50;
+			femininity += (V.identity.body.bottom.preferred === "medium") * 50;
+			break;
+		case "Big Ass":
+			femininity += Number(V.identity.body.bottom.big.acceptance) * 50;
+			femininity += Number(V.identity.body.bottom.big.reject) * -50;
+			femininity += (V.identity.body.bottom.preferred === "big") * 50;
+			break;
+		case "Vagina":
+			femininity += Number(V.identity.body.genitals.vagina.acceptance) * 50;
+			femininity += Number(V.identity.body.genitals.vagina.reject) * -50;
+			femininity += (V.identity.body.genitals.preferred === "vagina") * 50;
+			break;
+		case "Small Penis":
+			femininity += Number(V.identity.body.genitals.smallpenis.acceptance) * -25;
+			femininity += Number(V.identity.body.genitals.smallpenis.reject) * 25;
+			femininity += (V.identity.body.genitals.preferred === "small") * -25;
+			break;
+		case "Medium Penis":
+			femininity += Number(V.identity.body.genitals.mediumpenis.acceptance) * -50;
+			femininity += Number(V.identity.body.genitals.mediumpenis.reject) * 50;
+			femininity += (V.identity.body.genitals.preferred === "medium") * -50;
+			break;
+		case "Big Penis":
+			femininity += Number(V.identity.body.genitals.bigpenis.acceptance) * -50;
+			femininity += Number(V.identity.body.genitals.bigpenis.reject) * 50;
+			femininity += (V.identity.body.genitals.preferred === "big") * -50;
+			break;
+		case "Short Hair":
+			femininity += Number(V.identity.body.hairlength.short.acceptance) * -50;
+			femininity += Number(V.identity.body.hairlength.short.reject) * 50;
+			femininity += (V.identity.body.hairlength.preferred === "short") * -50;
+			break;
+		case "Medium Hair":
+			femininity += Number(V.identity.body.hairlength.medium.acceptance) * 25;
+			femininity += Number(V.identity.body.hairlength.medium.reject) * -25;
+			femininity += (V.identity.body.hairlength.preferred === "medium") * 25;
+			break;
+		case "Long Hair":
+			femininity += Number(V.identity.body.hairlength.long.acceptance) * 50;
+			femininity += Number(V.identity.body.hairlength.long.reject) * -50;
+			femininity += (V.identity.body.hairlength.preferred === "long") * 50;
+			break;
+		case "Tiny Body":
+			femininity += Number(V.identity.body.bodysize.tiny.acceptance) * 50;
+			femininity += Number(V.identity.body.bodysize.tiny.reject) * -50;
+			femininity += (V.identity.body.bodysize.preferred === "tiny") * 50;
+			break;
+		case "Small Body":
+			femininity += Number(V.identity.body.bodysize.small.acceptance) * 0;
+			femininity += Number(V.identity.body.bodysize.small.reject) * -0;
+			femininity += (V.identity.body.bodysize.preferred === "small") * 0;
+			break;
+		case "Normal Body":
+			femininity += Number(V.identity.body.bodysize.normal.acceptance) * 0;
+			femininity += Number(V.identity.body.bodysize.normal.reject) * -0;
+			femininity += (V.identity.body.bodysize.preferred === "normal") * 0;
+			break;
+		case "Large Body":
+			femininity += Number(V.identity.body.bodysize.large.acceptance) * -50;
+			femininity += Number(V.identity.body.bodysize.large.reject) * 50;
+			femininity += (V.identity.body.bodysize.preferred === "large") * -50;
+			break;
+		case "Lactation":
+			femininity += Number(V.identity.body.lactation.acceptance) * 50;
+			femininity += Number(V.identity.body.lactation.reject) * -50;
+			femininity += (V.identity.body.lactation.preferred === "lactation") * 50;
+			break;
+		case "Pregnancy":
+			femininity += Number(V.identity.body.pregnancy.acceptance) * 50;
+			femininity += Number(V.identity.body.pregnancy.reject) * -50;
+			femininity += (V.identity.body.pregnancy.preferred === "pregnancy") * 50;
+			break;
+		default:
+			break;
+	}
+
+	return femininity;
+}
+window.getFemininityContribution = getFemininityContribution;
+
 function identityCharacteristicCategory(category) {
 	switch(category) {
 		case "Appearance":
@@ -443,68 +591,71 @@ function preferredPronouns(gender) {
 window.preferredPronouns = preferredPronouns;
 
 function mapToLegacyGenderIdentity() {
-	if (hasGenderIdentity(0)) V.genderidentity = 0;
-	else if (hasGenderIdentity(1)) V.genderidentity = 1;
-	else if (hasGenderIdentity(2)) V.genderidentity = 125;
-	else if (hasGenderIdentity(3)) V.genderidentity = 250;
-	else if (hasGenderIdentity(4)) V.genderidentity = 375;
-	else if (hasGenderIdentity(5)) V.genderidentity = 625;
-	else if (hasGenderIdentity(6)) V.genderidentity = 750;
-	else if (hasGenderIdentity(7)) V.genderidentity = 875;
-	else if (hasGenderIdentity(8)) V.genderidentity = 1000;
+	let identityValue = 750;
+	for (const category in setup.identityIndex) {
+		for (const characteristic in setup.identityIndex[category]) {
+			const contribution = getFemininityContribution(characteristic);
+			identityValue += contribution * (V.player.gender === "f" ? 1 : -1);
+		}
+	}
+
+	V.genderidentity = Math.clamp(identityValue, 0, 1500);
+	return identityValue;
 }
 window.mapToLegacyGenderIdentity = mapToLegacyGenderIdentity;
 
 function hasGenderIdentity(stage) {
-	/*switch (stage) {
+	mapToLegacyGenderIdentity();
+
+	switch (stage) {
 		case 8:
-			return V.genderidentity === 1000;
+			return V.genderidentity === 1500;
 		case 7:
-			return V.genderidentity >= 875;
+			return V.genderidentity >= 1300;
 		case 6:
-			return V.genderidentity >= 750;
+			return V.genderidentity >= 1100;
 		case 5:
-			return V.genderidentity >= 625;
+			return V.genderidentity >= 900;
 		case 4:
-			return V.genderidentity >= 375;
+			return V.genderidentity >= 600;
 		case 3:
-			return V.genderidentity >= 250;
+			return V.genderidentity >= 400;
 		case 2:
-			return V.genderidentity >= 125;
+			return V.genderidentity >= 200;
 		case 1:
 			return V.genderidentity >= 1;
 		case 0:
 			return V.genderidentity === 0;
 		default:
 			return false;
-	}*/
-	const preferenceMatchesStartingSex = V.identity.presentation.pronouns.preferred === V.player.gender;
-	const manNonAcceptingFemininity = V.identity.presentation.pronouns.masculine.acceptance && !V.identity.presentation.pronouns.feminine.acceptance;
-	const womanNonAcceptingMasculinity = V.identity.presentation.pronouns.feminine.acceptance && !V.identity.presentation.pronouns.masculine.acceptance;
-	const acceptsEitherGender = V.identity.presentation.pronouns.feminine.acceptance && V.identity.presentation.pronouns.masculine.acceptance;
-	const manNonAcceptingMasculinity = !V.identity.presentation.pronouns.masculine.acceptance && V.identity.presentation.pronouns.feminine.acceptance;
-	const womanNonAcceptingFemininity = !V.identity.presentation.pronouns.feminine.acceptance && V.identity.presentation.pronouns.masculine.acceptance;
-
-	switch (stage) {
-		case 8:
-		case 7:
-			return preferenceMatchesStartingSex;
-		case 6:
-		case 5:
-			if (V.player.gender === "m") return manNonAcceptingFemininity;
-			else if (V.player.gender === "f") return womanNonAcceptingMasculinity;
-		case 4:
-			return acceptsEitherGender;
-		case 3:
-		case 2:
-			if (V.player.gender === "m") return manNonAcceptingMasculinity;
-			else if (V.player.gender === "f") return womanNonAcceptingFemininity;
-		case 1:
-		case 0:
-			return V.identity.presentation.pronouns.preferred != V.player.gender;
-		default:
-			return false;
 	}
+	// const preferenceMatchesStartingSex = V.identity.presentation.pronouns.preferred === V.player.gender;
+	// const manNonAcceptingFemininity = V.identity.presentation.pronouns.masculine.acceptance && !V.identity.presentation.pronouns.feminine.acceptance;
+	// const womanNonAcceptingMasculinity = V.identity.presentation.pronouns.feminine.acceptance && !V.identity.presentation.pronouns.masculine.acceptance;
+	// const acceptsEitherGender = V.identity.presentation.pronouns.feminine.acceptance && V.identity.presentation.pronouns.masculine.acceptance;
+	// const manNonAcceptingMasculinity = !V.identity.presentation.pronouns.masculine.acceptance && V.identity.presentation.pronouns.feminine.acceptance;
+	// const womanNonAcceptingFemininity = !V.identity.presentation.pronouns.feminine.acceptance && V.identity.presentation.pronouns.masculine.acceptance;
+
+	// switch (stage) {
+	// 	case 8:
+	// 	case 7:
+	// 		return preferenceMatchesStartingSex;
+	// 	case 6:
+	// 	case 5:
+	// 		if (V.player.gender === "m") return manNonAcceptingFemininity;
+	// 		else if (V.player.gender === "f") return womanNonAcceptingMasculinity;
+	// 	case 4:
+	// 		return acceptsEitherGender;
+	// 	case 3:
+	// 	case 2:
+	// 		if (V.player.gender === "m") return manNonAcceptingMasculinity;
+	// 		else if (V.player.gender === "f") return womanNonAcceptingFemininity;
+	// 	case 1:
+	// 	case 0:
+	// 		return V.identity.presentation.pronouns.preferred != V.player.gender;
+	// 	default:
+	// 		return false;
+	// }
 }
 window.hasGenderIdentity = hasGenderIdentity;
 

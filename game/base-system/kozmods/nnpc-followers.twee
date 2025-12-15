@@ -25,43 +25,22 @@
         <!-- Special Cases -->
         <<if _followerName is "sydney" && ["glasses", "playerbought"].includes($sydney.glasses)>>
             <<set $follower.base to $follower.base + "_glasses">>
-        <<elseif _followerName is "robin" && C.npc.Robin.trauma gt 0>>
+        <<elseif _followerName is "robin" && C.npc.Robin.trauma gt 40>>
             <<set $follower.base to $follower.base + "_trauma">>
         <</if>>
 
-        <!-- Clothing Selection -->
-        <<if _followerName is "bailey">>
-            <<if $bailey_clothing is "averydate">>
-                <<set $follower.clothes to "upper_averydate">>
-                <<set $follower.under_clothes to "lower_averydate">>
-            <<elseif $bailey_clothing is "cafe">>
-                <<set $follower.clothes to "upper_cafe">>
-                <<set $follower.under_clothes to "lower_cafe">>
-			<</if>>
-
-        <<elseif _followerName is "kylar" and $kylar_clothes is "goth">>
-            <<set $follower.clothes to "upper_goth">>
-            <<set $follower.under_clothes to "lower_goth">>
-
-        <<elseif ["sydney","kylar","whitney","robin"].includes(_followerName) && Time.schoolDay>>
-            <<set $follower.clothes to "upper_school">>
-            <<set $follower.under_clothes to "lower_school">>
-
-        <</if>>
-
-        <!-- Clothing Gender Selection -->
-        <<set $follower.clothes += "_" + $NPCList[0].pronoun>>
-        <<set $follower.under_clothes += "_" + $NPCList[0].pronoun>>
-
-        <!-- Remove clothing if naked -->
-        <<if $NPCList[0].clothes.upper.name is "naked" or $NPCList[0].chest isnot "clothed">><<unset $follower.clothes>><</if>>
-        <<if $NPCList[0].clothes.lower.name is "naked" or ($NPCList[0].penis isnot "clothed" and $NPCList[0].vagina isnot "clothed")>><<unset $follower.under_clothes>><</if>>
+        <<select-nnpc-follower-outfit _followerName>>
 
         <!-- Hair Selection -->
         <<if _followerName is "sydney">>
             <<set $follower.hair to "hair_" + C.npc.Sydney.hairColour + "_" + $sydney.hair>>
+            
         <<elseif _followerName is "kylar">>
-            <<set $follower.hair to "hair_" + $NPCList[0].gender>>
+            <<set $follower.hair to 
+                "hair_" + 
+                (["goth","formal"].includes($kylar_clothes)? $kylar_clothes+"_": "") + 
+                $NPCList[0].gender
+            >>
         <</if>>
 
         <<set $nnpcFollowerDisplayEnabled to 1>>
@@ -71,4 +50,37 @@
         <<unset $follower>>
     <</if>>
 
+<</widget>>
+
+<<widget "select-nnpc-follower-outfit">>
+    <<set _followerName to _args[0]>>
+
+    <!-- Clothing Selection -->
+    <<if _followerName is "bailey">>
+        <<if $bailey_clothing is "averydate">>
+            <<set $follower.clothes to "upper_averydate">>
+            <<set $follower.under_clothes to "lower_averydate">>
+        <<elseif $bailey_clothing is "cafe">>
+            <<set $follower.clothes to "upper_cafe">>
+            <<set $follower.under_clothes to "lower_cafe">>
+        <</if>>
+
+    <<elseif _followerName is "kylar" and $kylar_clothes>>
+        <<set $follower.clothes to "upper_" + $kylar_clothes>>
+        <<set $follower.under_clothes to "lower_" + $kylar_clothes>>
+
+    <<elseif ["sydney","kylar","whitney","robin"].includes(_followerName) && Time.schoolDay>>
+        <<set $follower.clothes to "upper_school">>
+        <<set $follower.under_clothes to "lower_school">>
+
+    <</if>>
+
+    <!-- Clothing Gender Selection -->
+    <<set $follower.clothes += "_" + $NPCList[0].pronoun>>
+    <<set $follower.under_clothes += "_" + $NPCList[0].pronoun>>
+
+    <!-- Remove clothing if naked -->
+    <<if $NPCList[0].clothes.upper.name is "naked" or $NPCList[0].chest isnot "clothed">><<unset $follower.clothes>><</if>>
+    <<if $NPCList[0].clothes.lower.name is "naked" or ($NPCList[0].penis isnot "clothed" and $NPCList[0].vagina isnot "clothed")>><<unset $follower.under_clothes>><</if>>
+    
 <</widget>>

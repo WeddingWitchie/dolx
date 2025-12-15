@@ -634,6 +634,7 @@ DefineMacro("modelprepare-player-body", function () {
 	if (V.follower) {
 		T.modeloptions.follower = V.follower;
 	}
+	T.modeloptions.show_nnpc = V.options.NnpcDisplaySystem === "dolp";
 
 	/**
 	 *     ██████  █████  ███    ██ ██    ██  █████  ███████
