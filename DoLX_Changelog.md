@@ -8,15 +8,19 @@
 
 ## Changelog
 ### Changes and Additions:
-  * Kylar now takes pills of their own volition during their abduction event, and sometimes when horny. As long you're currently a different sex than them.
-  * Added goth, formal, and swimsuit outfits for Kylar in the Vanilla NNPC display.
-  * Added form-fitting versions of many formal suits, and now allows them to be used as school uniform.
+  * Updated to match Vanilla 0.5.7.6 and DoLP 0.726.
+  * Restored the old NNPC display UI, allowing free selection of NNPC appearances again.
+  * Reverted the start menu to the old UI to avoid confusion.
+  * Hallway spike events now only trigger once per week.
 
 ### Rebalancing and Bug fixes:
-  * Fixed DoLP's NNPC Display, for real this time.
-  * Fixed the tendency to end up with either a large or a tiny body when taking pills.
-  * Painstakingly remapped all of the identity preferences to the legacy gender identity system. (Your PC should now more accurately consider themselves a boy or girl, according to their identity preferences)
-  * Kylar's manor now plays the sewer's BGM.
-  * Maybe fixed weird bug that made beasts have obnoxious tolerance to pleasure.
-  * Fixed Kylar's nighly creep only ocurring under very unlikely circumstances.
+  * Fixed NNPC display issues to be more stable.
+    * If NNPC graphics do not appear in some passages, turning on "Gender Override" will now always force the display.
+    * If the NNPC still does not appear after enabling it, the issue is likely a missing string and should be reported.
+  * Fixed Bear TF and Bunny TF not showing notices when they manifest.
+  * Fixed the "beingPenetratedOrgasmStat" variable and added a safeguard to prevent save corruption.
+  * Fixed willpower checks when vaginal penetration occurs.
+  * Fixed the steal choice reversal only appearing when the antique mask exists in the display case.
+  * Removed crime gain when stealing the reversal pill.
+  * Fixed persistent "can't execute macro" errors in old saves.
   

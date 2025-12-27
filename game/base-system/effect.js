@@ -1505,6 +1505,56 @@ function effects() {
 				case "cowDown5":
 					element("span", "Your balance feels different. Your cow tail has disappeared.", "gold");
 					break;
+				case "bearUp1":
+					element("span", "You have a strange toothache and a strange craving for honey.", "gold");
+					break;
+				case "bearUp2":
+					element(
+						"span",
+						"Your mouth feels different. You explore your mouth and wince as your tongue presses against your new fangs.",
+						"gold"
+					);
+					break;
+				case "bearUp3":
+					element("span", "Your scalp and neck itch.", "gold");
+					break;
+				case "bearUp4":
+					element(
+						"span",
+						"Your scalp twitches. You reach up and feel your new pair of bear ears and a patch of fur covering your neck.",
+						"gold"
+					);
+					break;
+				case "bearUp5":
+					element("span", "Your lower back tingles.", "gold");
+					break;
+				case "bearUp6":
+					element(
+						"span",
+						"Your bottom feels fluffier than usual. You reach behind you and feel your new bear tail. You suppress the urge to growl.",
+						"gold"
+					);
+					fragment.append(wikifier("earnFeat", "'Bear'"));
+					break;
+
+				case "bearDown0":
+					element("span", "Your toothache has stopped.", "gold");
+					break;
+				case "bearDown1":
+					element("span", "Your fangs have turned into regular teeth.", "gold");
+					break;
+				case "bearDown2":
+					element("span", "Your scalp and neck no longer itch.", "gold");
+					break;
+				case "bearDown3":
+					element("span", "Your bear ears have disappeared. There appears to be no more fur covering your neck.", "gold");
+					break;
+				case "bearDown4":
+					element("span", "Your lower back has stopped tingling.", "gold");
+					break;
+				case "bearDown5":
+					element("span", "Your balance feels different. Your bear tail has disappeared.", "gold");
+					break;
 				case "harpyUp1":
 					element("span", "Your vision feels sharper.", "gold");
 					break;
@@ -1625,6 +1675,56 @@ function effects() {
 					break;
 				case "foxDown5":
 					element("span", "Your balance feels different. Your fox tail has disappeared.", "gold");
+					break;
+				case "bunnyUp1":
+					element("span", "Your legs begin to ache.", "gold");
+					break;
+				case "bunnyUp2":
+					element("span", "The ache in your legs is gone and you feel more agile.", "gold");
+					break;
+				case "bunnyUp3":
+					element("span", "Your scalp begins to itch.", "gold");
+					break;
+				case "bunnyUp4":
+					element(
+						"span",
+						"You feel the urge to scratch at your head and when you do, you discover a pair of bunny ears. You tug at them.",
+						"gold"
+					);
+					break;
+				case "bunnyUp5":
+					element(
+						"span",
+						"Your lower back begins to itch. You can barely scratch at it without being obvious.",
+						"gold"
+					);
+					break;
+				case "bunnyUp6":
+					element(
+						"span",
+						"You feel a bump on your lower back and as you go to check, you discover a soft bunny tail. You continue to pet it, enjoying the sensation.",
+						"gold"
+					);
+					fragment.append(wikifier("earnFeat", "'Bunny'"));
+					break;
+
+				case "bunnyDown0":
+					element("span", "The pain you were feeling has disappeared.", "gold");
+					break;
+				case "bunnyDown1":
+					element("span", "Walking suddenly feels heavier.", "gold");
+					break;
+				case "bunnyDown2":
+					element("span", "Your scalp no longer itches.", "gold");
+					break;
+				case "bunnyDown3":
+					element("span", "Your bunny ears have disappeared.", "gold");
+					break;
+				case "bunnyDown4":
+					element("span", "Your lower back no longer itches.", "gold");
+					break;
+				case "bunnyDown5":
+					element("span", "Your bunny tail has disappeared.", "gold");
 					break;
 				// Clothes
 				case "bimboMessage1":
@@ -1787,11 +1887,46 @@ function effects() {
 
 Macro.add("effects", {
 	handler() {
-		const fragment = effects();
-		this.output.append(fragment);
+		try {
+			const fragment = effects();
+			this.output.append(fragment);
+		} catch (e) {
+			console.error("<<effects>> crashed:", e);
+			console.error(e?.stack || "(no stack)");
+			// Keeps the game playable while you debug:
+			this.output.append(document.createDocumentFragment());
+			// Optional: drop into debugger at the exact throw site (Chrome/Firefox)
+			debugger;
+			return;
+		}
+
 		$(document)
-		.off(':passageend.effects') 
-		.on(':passageend.effects', function () {
+			.off(":passageend.effects")
+			.on(":passageend.effects", function () {
+				try {
+					if (V?.options?.bigCanvas === true && V?.options?.images === 1) {
+						// Only set style if the element exists (prevents null.style crashes)
+						const setStyle = (sel, styles) => {
+							const el = document.querySelector(sel);
+							if (!el) return;
+							Object.assign(el.style, styles);
+						};
+
+						setStyle("body.has-images #story-caption #storyCaptionDiv", {
+							top: "267px",
+							height: "calc(100% - 95px - 1.32em)",
+							width: "392px",
+						});
+						setStyle("body.has-images #storyCaptionContent", { width: "392px" });
+						setStyle("#img", { height: "267px", width: "328px" });
+						setStyle("canvas.mainCanvas", { height: "358px", width: "358px" });
+						setStyle("#ui-bar", { width: "24.5em" });
+						setStyle("#stats", { width: "392px" });
+					}
+				} catch (e) {
+					console.error("effects :passageend handler crashed:", e);
+					console.error(e?.stack || "(no stack)");
+				}
 			if (V.options.bigCanvas == true) {
 				if (V.options.images == 1) {
 					document.querySelector("body.has-images #story-caption #storyCaptionDiv").style.top = "267px";
