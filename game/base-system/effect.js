@@ -273,6 +273,11 @@ function effects() {
 		element("span", `The school plays are being held on Cliff Street tonight from ${ampm(17, 0)} until ${ampm(21, 0)}.`, "gold");
 	}
 
+	if (V.studyBooks?.rented !== "none" && V.book_rent_timer === 0 && !V.studyBookDueWarning && Time.schoolTerm) {
+		V.studyBookDueWarning = 1;
+		element("span", `You have a library book due today.`, "gold");
+	}
+
 	if (V.innocencemessage === "start") {
 		delete V.innocencemessage;
 		element("span", "A profound sense of peace falls on your mind. You were upset a moment ago, but you can't remember why.", "red");
@@ -403,7 +408,7 @@ function effects() {
 					if (V.gwylan.request.missed) {
 						sWikifier(`<<hypnosisText "You still haven't completed Gwylan's request.">> `);
 					} else {
-						sWikifier(`<<hypnosisText "You didnt't complete Gwylan's request yesterday.">> `);
+						sWikifier(`<<hypnosisText "You didn't complete Gwylan's request yesterday.">> `);
 					}
 					break;
 				case "meetAtShop":

@@ -779,9 +779,9 @@
 			<br>
 		<</if>>
 	<</if>>
-	<<if !(between($chef_state, 7, 8) and $chef_rework lte 30) and $cafe_study and ($studyBooks.rented isnot "none" or $studyBooks.stolen isnot "none") and Time.schoolDay>>
+	<<if !(between($chef_state, 7, 8) and $chef_rework lte 30) and $cafe_study and ($studyBooks.rented.count gt 0 or $studyBooks.stolen.count gt 0) and Time.schoolDay>>
 		<br>
-		<<switch $studyBooks.rented>>
+		/* <<switch $studyBooks.rented>>
 			<<case "science">><<scienceicon>><<link [[Study science (_passTimeDisplay)|Gwylan Ocean Breeze Watch]]>><<set $phase to "science">><<set $phase2 to 2>><<scienceskill>><<willpower 1>>_passTime<</link>><<gscience>><<gwillpower>><br>
 			<<case "maths">><<mathicon>><<link [[Study maths (_passTimeDisplay)|Gwylan Ocean Breeze Watch]]>><<set $phase to "maths">><<set $phase2 to 2>><<mathsskill>><<willpower 1>>_passTime<</link>><<gmaths>><<gwillpower>><br>
 			<<case "english">><<englishicon>><<link [[Study English (_passTimeDisplay)|Gwylan Ocean Breeze Watch]]>><<set $phase to "English">><<set $phase2 to 2>><<englishskill>><<willpower 1>>_passTime<</link>><<genglish>><<gwillpower>><br>
@@ -792,7 +792,19 @@
 			<<case "maths">><<mathicon>><<link [[Study maths (_passTimeDisplay)|Gwylan Ocean Breeze Watch]]>><<set $phase to "maths">><<set $phase2 to 2>><<mathsskill>><<willpower 1>>_passTime<</link>><<gmaths>><<gwillpower>><br>
 			<<case "english">><<englishicon>><<link [[Study English (_passTimeDisplay)|Gwylan Ocean Breeze Watch]]>><<set $phase to "English">><<set $phase2 to 2>><<englishskill>><<willpower 1>>_passTime<</link>><<genglish>><<gwillpower>><br>
 			<<case "history">><<historyicon>><<link [[Study history (_passTimeDisplay)|Gwylan Ocean Breeze Watch]]>><<set $phase to "history">><<set $phase2 to 2>><<historyskill>><<willpower 1>>_passTime<</link>><<ghistory>><<gwillpower>><br>
-		<</switch>>
+		<</switch>> */
+		<<if $studyBooks.rented.science is 1 or $studyBooks.stolen.science is 1>>
+			<<scienceicon>><<scienceicon>><<link [[Study science (_passTimeDisplay)|Gwylan Ocean Breeze Watch]]>><<set $phase to "science">><<set $phase2 to 2>><<scienceskill>><<willpower 1>>_passTime<</link>><<gscience>><<gwillpower>><br>
+		<</if>>
+		<<if $studyBooks.rented.maths is 1 or $studyBooks.stolen.maths is 1>>
+			<<mathicon>><<link [[Study maths (_passTimeDisplay)|Gwylan Ocean Breeze Watch]]>><<set $phase to "maths">><<set $phase2 to 2>><<mathsskill>><<willpower 1>>_passTime<</link>><<gmaths>><<gwillpower>><br>
+		<</if>>
+		<<if $studyBooks.rented.english is 1 or $studyBooks.stolen.english is 1>>
+			<<englishicon>><<link [[Study English (_passTimeDisplay)|Gwylan Ocean Breeze Watch]]>><<set $phase to "English">><<set $phase2 to 2>><<englishskill>><<willpower 1>>_passTime<</link>><<genglish>><<gwillpower>><br>
+		<</if>>
+		<<if $studyBooks.rented.history is 1 or $studyBooks.stolen.history is 1>>
+			<<historyicon>><<link [[Study history (_passTimeDisplay)|Gwylan Ocean Breeze Watch]]>><<set $phase to "history">><<set $phase2 to 2>><<historyskill>><<willpower 1>>_passTime<</link>><<ghistory>><<gwillpower>><br>
+		<</if>>
 	<</if>>
 	<br>
 <</widget>>
@@ -1154,7 +1166,7 @@
 
 			<<if $ejactrait gte 1 or ($demon gte 6 or ($transformationParts.demon.wings isnot "hidden" and $transformationParts.demon.wings isnot "disabled"))>>
 				You brace yourself and excitedly work <<his>> shaft while continuing to circle your tongue on the head. You don't want to take <<his>> whole length; You want to savour the taste.
-				You close you eyes as load after load of <<his>> precious <<if $_fluid is "cream">>cream<<else>>cum<</if>> fills your mouth.
+				You close your eyes as load after load of <<his>> precious <<if $_fluid is "cream">>cream<<else>>cum<</if>> fills your mouth.
 			<<else>>
 				<<if $_fluid is "cream">>
 					You close your eyes and gently continue working <<his>> shaft as load after load of a different kind of cream fills your mouth.
@@ -1234,6 +1246,7 @@
 <<widget "gwylanWorshipActions">>
 	<<set $_fluid to $worship.fluid>>
 	<<if $worship.body gte 1 and $worship.control is "player">>
+		<<set $_action to true>>
 		<<if $worship.actionLast is "body">>
 			<<link [[Continue licking the $_fluid off of Gwylan's body|$passage]]>><<set $worship.action to "body">><</link>>
 		<<else>>
@@ -1242,6 +1255,7 @@
 		<br>
 	<</if>>
 	<<if $worship.tummy gte 1 and $worship.control is "player">>
+		<<set $_action to true>>
 		<<if $worship.actionLast is "tummy">>
 			<<link [[Continue licking the $_fluid off of Gwylan's <<bellyDescription "Gwylan">>|$passage]]>><<set $worship.action to "tummy">><</link>>
 		<<else>>
@@ -1250,6 +1264,7 @@
 		<br>
 	<</if>>
 	<<if !$worship.noBreasts and $worship.control is "player">>
+		<<set $_action to true>>
 		<<if $worship.actionLast is "breasts">>
 			<<link [[Continue licking Gwylan's <<npcChest 0>>|$passage]]>><<set $worship.action to "breasts">><</link>>
 			<br>
@@ -1271,6 +1286,7 @@
 		<</if>>
 	<</if>>
 	<<if $worship.actionLast is "genitals">>
+		<<set $_action to true>>
 		<<if $worship.genitals gte 1>>
 			<<link [[Continue licking the $_fluid off of Gwylan's <<npcGenitals 0>>|$passage]]>><<set $worship.action to "genitals">><</link>>
 			<br>
@@ -1289,6 +1305,7 @@
 	<<else>>
 		<<if $worship.genitals gte 1>>
 			<<if hasSexStat("promiscuity", 2) or $worship.control is "Gwylan">>
+				<<set $_action to true>>
 				<<link [[Lick the $_fluid off of Gwylan's <<npcGenitals 0>>|$passage]]>><<set $worship.action to "genitals">><</link>><<if !$worship.promGenitals and $worship.control is "player">><<promiscuous2>><</if>>
 			<<else>>
 				<<insufficientStat "promiscuity" "to lick the $_fluid directly off of Gwylan's <<npcGenitals 0>>">>
@@ -1296,6 +1313,7 @@
 			<br>
 		<<else>>
 			<<if hasSexStat("promiscuity", 2) or $worship.control is "Gwylan">>
+				<<set $_action to true>>
 				<<link [[Lick Gwylan's <<npcGenitals 0>>|$passage]]>><<set $worship.action to "genitals">><</link>><<if !$worship.promGenitals and $worship.control is "player">><<promiscuous2>><</if>>
 			<<else>>
 				<<insufficientStat "promiscuity" "to service Gwylan's <<npcGenitals 0>>">>
@@ -1304,23 +1322,31 @@
 		<</if>>
 	<</if>>
 	<<if $worship.actionLast is "oral">>
+		<<set $_action to true>>
 		<<link [[Continue servicing Gwylan's <<npcGenitals 0>>|$passage]]>><<set $worship.action to "oral">><</link>>
 		<br>
 	<</if>>
 	<<if $worship.residue gte 1 and $worship.control is "player">>
+		<<set $_action to true>>
 		<<link [[Lick the purple residue on the corner of Gwylan's mouth|$passage]]>><<set $worship.action to "residue">><</link>>
 		<br>
 	<</if>>
 	<<if ($worship.residue is 0 or $drugged) and $arousal gte 9000 and $player.penisExist is true and $worship.control is "player">>
+		<<set $_action to true>>
 		<<link [[Cum on <<him>>|$passage]]>><<set $worship.action to "splurt">><</link>>
 		<br>
 	<<elseif $worship.semen and $worship.control is "player">>
+		<<set $_action to true>>
 		<<link [[Lick your cum off of <<him>>|$passage]]>><<set $worship.action to "splurtLick">><</link>>
 		<br>
 	<</if>>
 	<<if $hypnosis_traits.devotion isnot 5 and $worship.control is "player">>
+		<<set $_action to true>>
 		<<link [[Do nothing|$passage]]>><<sub 1>><<set $worship.action to "none">><</link>>
 		<br>
+	<</if>>
+	<<if !$_action>>
+		<<link [[Next|Gwylan Cream Lick End]]>><<set $worship.end to "clean">><<set $phase to "clean">><</link>>
 	<</if>>
 <</widget>>
 
@@ -2039,7 +2065,7 @@
 						Gwylan leans in and hugs you<<if $gwylanSeen.includes("partners")>>, planting a kiss on your cheek. <<stress -10>><<llstress>><<else>>. <<stress -5>><<lstress>><</if>>
 						<br><br>
 
-						"I'm sorry to hear that. The school system can be very heartless when it comes to students' mental health. Don't let them wittle you down, you deserve a break."
+						"I'm sorry to hear that. The school system can be very heartless when it comes to students' mental health. Don't let them whittle you down, you deserve a break."
 					<<else>>
 						and continuing to improve.
 						<br><br>
@@ -2138,7 +2164,7 @@
 			Gwylan gets your attention and points at
 			<<print either(
 				"a pretty rock.",
-				"a piece of grafitti on the wall.",
+				"a piece of graffiti on the wall.",
 				"a seagull swallowing a cigarette.",
 				"a weird-looking house.",
 				"a strangely shaped cloud.",
@@ -2179,7 +2205,7 @@
 			<br><br>
 
 			You spend some time chatting about it.
-			<<if $rng gte 95>>
+			<<if $rng gte 96>>
 				You get really into the discussion, creating an elaborate but silly story from it. Gwylan laughs. <<stress -8>><<trauma -2>><<npcincr Gwylan dom 1>><<llstress>><<ltrauma>><<gyearning>>
 			<<else>>
 				<<stress -4>><<lstress>>

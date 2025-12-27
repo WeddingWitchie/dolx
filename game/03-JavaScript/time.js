@@ -402,13 +402,11 @@ const Time = (() => {
 		},
 		get dayState() {
 			const hour = currentDate.hour;
-			if (hour < 6 || hour >= 21) {
-				return "night";
-			}
-			if (hour >= 18) {
-				return "dusk";
-			}
-			return hour >= 9 ? "day" : "dawn";
+			if (hour < 6) return "night";
+			if (hour < 9) return "dawn";
+			if (hour < 18) return "day";
+			if (hour < 21) return "dusk";
+			return "night";
 		},
 		get nextSchoolTermStartDate() {
 			return getNextSchoolTermStartDate(currentDate);
@@ -1501,8 +1499,15 @@ function dailyNPCEffects() {
 				V.avery_mansion.rage.assess--;
 			}
 
-			if (V.avery_mansion.injury_timer >= 1) {
+			if (V.avery_mansion.injury_timer !== undefined) {
 				V.avery_mansion.injury_timer--;
+				if (V.avery_mansion.injury_timer <= 30 && V.avery_mansion.injury_stage == "fresh_done") {
+					V.avery_mansion.injury_stage = "sling";
+				} else if (V.avery_mansion.injury_timer <= 15 && V.avery_mansion.injury_stage == "sling_done") {
+					V.avery_mansion.injury_stage = "cast";
+				} else if (V.avery_mansion.injury_stage == "cast_done") {
+					V.avery_mansion.injury_stage = "healing";
+				}
 			}
 			if (V.avery_mansion.rage.timer >= 1) {
 				V.avery_mansion.rage.timer--;

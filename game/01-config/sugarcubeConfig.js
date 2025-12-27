@@ -12,8 +12,8 @@ const StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.5.6.10 DoLP v0.720 DoLX 0.13.12",
-	versionName: `"Love Bites" edition`,
+	version: "0.5.7.6 DoLP 0.726 DoLX 0.14.0",
+	versionName: `"Lockers and Lockets" edition`,
 	sneaky: false,
 	socialMediaEnabled: true,
 	sourceLinkEnabled: false,
@@ -33,7 +33,7 @@ Config.saves.isAllowed = () => {
 };
 
 if (idb.updateSettings) idb.updateSettings("useDelta", true);
-idb.footerHTML = `Support the developers! <a target="_blank" class="link-external" href="https://vrelnir.fanbox.cc/" tabindex="0">Vrelnir</a> <a target="_blank" class="link-external" href="https://purity.fanbox.cc/" tabindex="0">PurityGuy</a>`;
+idb.footerHTML = `Support development: <a target="_blank" class="link-external" href="https://vrelnir.fanbox.cc/" tabindex="0">Fanbox</a>`;
 
 function onLoad(save) {
 	// some flags for version update. ideally, all updating should be done here in onLoad, but we don't live in an ideal world

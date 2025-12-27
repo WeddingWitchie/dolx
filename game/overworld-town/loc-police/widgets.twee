@@ -165,45 +165,65 @@
 
 	A few more minutes pass, until <<hes>> satisfied with the search.
 
-	<<if ($studyBooks and $studyBooks?.rented isnot "none" and (_args[0] is "all" or $bookOverdue gte 7)) or $studyBooks?.stolen isnot "none">>
+	<<if ($studyBooks and $studyBooks.rented.count gt 0 and (_args[0] is "all" or $bookOverdue gte 7)) or $studyBooks.stolen.count gt 0>>
 		<br><br>
-		<<if $studyBooks.rented isnot "none" and (_args[0] is "all" or $bookOverdue gte 7)>>
-			<<if $studyBooks.rented is "Pinch">>
+		<<if $studyBooks.rented.count gt 0 and (_args[0] is "all" or $bookOverdue gte 7)>>
+			<<if $studyBooks.rented.pinch is 1>>
 				<<if $per_npc.pinch isnot undefined>>
 					<<set _book to "copy of How <<= $per_npc.pinch.pronoun is 'm' ? 'Mr' : 'Ms'>> Pinch Groped Christmas">>
 				<<else>>
 					<<set _book to "olive-coloured book">>
 				<</if>>
-			<<elseif $studyBooks.rented is "Raul and Janet">>
+			<<elseif $studyBooks.rented.RaulAndJanet is 1>>
 				<<set _book to "copy of 'Raul and Janet'">>
 			<<else>>
-				<<set _book to $studyBooks.rented + " textbook">>
+				<<if $studyBooks.rented.count gt 1>>
+					<<set _book to "books">>
+				<<elseif $studyBooks.rented.science is 1>>
+					<<set _book to "science textbook">>
+				<<elseif $studyBooks.rented.maths is 1>>
+					<<set _book to "maths textbook">>
+				<<elseif $studyBooks.rented.english is 1>>
+					<<set _book to "english textbook">>
+				<<elseif $studyBooks.rented.history is 1>>
+					<<set _book to "history textbook">>
+				<</if>>
 			<</if>>
 			<<if _blackmoneySeized>>"Ah, and the<<else>>"The<</if>>
 			local school will want this back<<if $book_rent_timer gte 0>> soon<</if>>," <<he>> says, <span class="purple">seizing your _book</span>, "so we'll just return it for you." <<He>> smirks.
 			<<set $studyBooks.rented to "none">><<unset $bookOverdue>><<set $book_rent_timer to 0>><<set _bookSeized to true>>
 		<</if>>
-		<<if $studyBooks.stolen isnot "none">>
+		<<if $studyBooks.stolen.count gt 0>>
 			<<set $skulduggerydifficulty to _bookSeized ? 600 : 300>>
 			<<skulduggerycheck>>
 			<<if $skulduggerysuccess>>
 				Seems <<he>> didn't find your stolen book<<if _bookSeized>>, at least. <<stress -2>><<lstress>><<else>>. <<stress -5>><<lstress>><</if>>
 			<<else>>
-				<<if $studyBooks.stolen is "Pinch">>
+				<<if $studyBooks.stolen.pinch is 1>>
 					<<if $per_npc.pinch isnot undefined>>
 						<<set _book to "copy of 'How <<= $per_npc.pinch.pronoun is 'm' ? 'Mr' : 'Ms'>> Pinch Groped Christmas'">>
 					<<else>>
 						<<set _book to "olive-coloured book">>
 					<</if>>
-				<<elseif $studyBooks.stolen is "Raul and Janet">>
+				<<elseif $studyBooks.stolen.RaulAndJanet is 1>>
 					<<set _book to "copy of Raul and Janet">>
 				<<else>>
-					<<set _book to $studyBooks.stolen + " textbook">>
+					<<if $studyBooks.stolen.count gt 1>>
+						<<set _book to "books">>
+					<<elseif $studyBooks.stolen.science is 1>>
+						<<set _book to "science textbook">>
+					<<elseif $studyBooks.stolen.maths is 1>>
+						<<set _book to "maths textbook">>
+					<<elseif $studyBooks.stolen.english is 1>>
+						<<set _book to "english textbook">>
+					<<elseif $studyBooks.stolen.history is 1>>
+						<<set _book to "history textbook">>
+					<</if>>
 				<</if>>
 				<<if _bookSeized>>"I also believe this was reported as stolen," <<he>> continues,<<else>>"I believe this was reported as stolen," <<he>> says,<</if>>
-				<span class="purple">holding up <<a _book>></span>. <<He>> leans in. "<<if $studyBooks.stolen is "Pinch" and $per_npc.pinch isnot undefined>><<= $per_npc.pinch.pronoun is 'm' ? 'Mr' : 'Ms'>> Pinch, eh? Makes sense you'd like that story. Criminal<<else>>Thank you for sooo kindly for turning it in<</if>>."
+				<span class="purple">holding up <<if $studyBooks.stolen.count gt 1>>your books<<else>><<a _book>><</if>></span>. <<He>> leans in. "<<if $studyBooks.stolen.pinch is 1 and $per_npc.pinch isnot undefined>><<= $per_npc.pinch.pronoun is 'm' ? 'Mr' : 'Ms'>> Pinch, eh? Makes sense you'd like that story. Criminal<<else>>Thank you for sooo kindly for turning it in<</if>>."
 				<<if _bookSeized>><<stress 10>><<ggstress>><<else>><<stress 5>><<gstress>><</if>>
-				<<set $studyBooks.stolen to "none">><<set $bookStolenPolice to true>><<set _bookSeized to true>>
+				<<set $studyBooks.stolen.count to 0>><<set $studyBooks.stolen.science to 0>><<set $studyBooks.stolen.maths to 0>><<set $studyBooks.stolen.english to 0>><<set $studyBooks.stolen.history to 0>><<set $studyBooks.stolen.RaulAndJanet to 0>><<set $studyBooks.stolen.pinch to 0>><<set $bookStolenPolice to true>><<set _bookSeized to true>>
 			<</if>>
 		<</if>>
 	<</if>>

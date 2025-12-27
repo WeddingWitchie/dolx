@@ -233,10 +233,10 @@ const remapColours = {
 };
 // .variable must be the same across all outfit pieces, correct wrongly assigned props here
 const remapVariables = {
-	"vintageskirt": "vintageskirtsuit",
-	"vintagepants": "vintagepantsuit",
+	vintageskirt: "vintageskirtsuit",
+	vintagepants: "vintagepantsuit",
 	"chain tunic skirt": "chain tunic",
-}
+};
 
 /**
  * Updates a single clothes object
@@ -485,6 +485,8 @@ function updateClothesItem(slot, item, debug) {
 		case "zipped leather top":
 			item.type.pushUnique("waterproof");
 			break;
+		case "starry witch hat":
+			item.accessory = 0;
 	}
 
 	if (debug) console.log("updateClothesItem:", slot, itemOld, clone(item));
@@ -564,9 +566,9 @@ function wardrobesUpdate() {
 		under_upper: [],
 		upper: [],
 		unlocked: false,
-		shopSend: false,
-		transfer: true,
-		isolated: true,
+		shopSend: false, // whether to allow sending or transferring clothes to location. the wardrobe MUST be isolated!!
+		transfer: true, // whether to allow transfering clothes from location
+		isolated: false, // whether the wardrobe has separate inventory from the default wardrobe
 		locationRequirement: [],
 		space: 5,
 	};
@@ -606,6 +608,7 @@ function wardrobesUpdate() {
 		/* alex's */
 		V.wardrobes.alexFarm.name = "Alex's Farm";
 		V.wardrobes.alexFarm.shopSend = true;
+		V.wardrobes.alexFarm.isolated = true;		
 		V.wardrobes.alexFarm.space = 40 * V.wardrobeMult;
 		if (V.farm_stage >= 7) V.wardrobes.alexFarm.unlocked = true;
 		/* strip club */
@@ -742,5 +745,6 @@ function wardrobesUpdate() {
 		V.wardrobes.avery_mansion.locationRequirement.push("avery_mansion");
 	}
 	if (V.avery_mansion) V.wardrobes.avery_mansion.unlocked = true;
+	V.wardrobes.alexFarm.isolated = true;
 }
 DefineMacro("wardrobesUpdate", wardrobesUpdate);

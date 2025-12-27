@@ -10,7 +10,7 @@
 	/* FROSTBITE */
 	<<if _passout is "cold">>
 		<<set Weather.bodyTemperature to Weather.tempSettings.minTemperature + 1.5>>
-		<<if !["beach", "estate", "forest", "lake", "moor", "park", "sea", "tower"].includes($location)>>
+		<<if !["beach", "estate", "forest", "lake", "moor", "park", "sea", "tower", "wolf_cave"].includes($location)>>
 			You pass out from the cold.
 			<br><br>
 		<</if>>
@@ -112,6 +112,13 @@
 
 				<<addinlineevent "rescue" 1>>
 					<<link [[Everything fades to black...|Passout Hypothermia Rescue]]>><</link>>
+				<</addinlineevent>>
+			<<case "wolf_cave">>
+				You try your best to stay warm, but the cold is too much. The ground rushes up to meet you as your consciousness slips away.
+				<br><br>
+
+				<<addinlineevent "rescue" 1>>
+					<<link [[Everything fades to black...|Passout Wolf Cave Hypothermia]]>><</link>>
 				<</addinlineevent>>
 			<<case "cabin">>
 				<<addinlineevent "Eden" 2>>
@@ -251,7 +258,7 @@
 	/* HEATSTROKE */
 	<<elseif _passout is "heat">>
 		<<set Weather.bodyTemperature to Weather.tempSettings.maxTemperature - 1>>
-		<<if !["beach", "estate", "forest", "lake", "moor", "sea"].includes($location)>>
+		<<if !["beach", "estate", "forest", "lake", "moor", "sea", "wolf_cave"].includes($location)>>
 			You pass out from the heat.
 			<br><br>
 		<</if>>
@@ -386,6 +393,13 @@
 
 				<<addinlineevent "rescue" 1>>
 					<<link [[Everything fades to black...|Passout Heatstroke Rescue]]>><</link>>
+				<</addinlineevent>>
+			<<case "wolf_cave">>
+				Sweat pours down your forehead. It stings your eyes, but you're too fatigued to wipe it away. The heat is too much. You stagger to a patch of shade near the cave and collapse in a heap.
+				<br><br>
+
+				<<addinlineevent "rescue" 1>>
+					<<link [[Everything fades to black...|Passout Wolf Cave Heatstroke]]>><</link>>
 				<</addinlineevent>>
 			<<case "lake">>
 				Waves of heat engulf you. Your head spins and your vision blurs.
@@ -1572,7 +1586,7 @@ You spread your <<= ($harpy gte 6 or ($transformationParts.bird.wings isnot "hid
 <<outfitChecks>>
 <<if _bottom>><<set _bottom.integrity -=5>><<set _damagedClothes to _bottom.name>><</if>>
 <<if _top>><<set _top.integrity -= 5>><<set _damagedClothes to _top.name>><</if>>
-<<integritycheck "no_text">><<strip>><<exposure>>
+<<integritycheck "no_text">><<ruined>><<exposure>>
 <<if ($harpy gte 6 or ($transformationParts.bird.wings isnot "hidden" and $transformationParts.bird.wings isnot "disabled")) and (($transformationParts.bird.wings isnot "hidden") or ($transformationParts.bird.plumage isnot "hidden"))>><<set _feathered to true>><</if>>
 <<set Weather.Temperature.override.increase.outside(5, "Feathers and fabric warm your body.")>>
 
@@ -1954,7 +1968,7 @@ You realise you're sitting in the fountain, soaked, although the cool water make
 <<set $outside to 0>><<set $location to "forest_shop">><<effects>><<outfitChecks>>
 <<npc Gwylan>><<person1>><<run statusCheck("Gwylan")>>
 
-As you slowly come to, you realise that you're in <<= $forest_shop_intro ? "the forest shop." : "a strange shop you've seen on the outskirts of the forest.">>
+As you slowly come to, you realise that you're in <<= $forest_shop_intro ? "the forest shop." : "a strange shop you've seen on the outskirts of the forest.">> <<if $leftarm is "bound" and $rightarm is "bound">>Your arms are no longer bound. <<unbind>><</if>>
 
 <<if _gwylanLovePercent gte 50 and _gwylanStatus.includes("met")>>
 	<<if $passoutReason is "hypothermia">>
@@ -3637,7 +3651,7 @@ The <<person>> approaches you, coming to a stop a touch closer than is polite. "
 		<<link [[Next|Passout Danube Street End]]>><<set $phase to 1>><</link>>
 		<br>
 	<<else>>
-		The <<person>> moans in satisfaction, then <<= $enemyhealth lt $enemyhealthmax ? "kick" : "shove">> you towards the door. "Get out of here," <<he>> says with an unpleasant smirk. "You'd best think twice before <<= $enemyhealth lt $enemyhealthmax ? "acting out against" : "refusing">> your betters in the future<<if $orgasmcount gte 1>>, you little slut<</if>>."
+		The <<person>> moans in satisfaction, then <<= $enemyhealth lt $enemyhealthmax ? "kicks" : "shoves">> you towards the door. "Get out of here," <<he>> says with an unpleasant smirk. "You'd best think twice before <<= $enemyhealth lt $enemyhealthmax ? "acting out against" : "refusing">> your betters in the future<<if $orgasmcount gte 1>>, you little slut<</if>>."
 		<br><br>
 		<<tearful>> you head for the door and make your exit.
 		<br><br>
@@ -3874,3 +3888,38 @@ You tell the <<person>> you're finished, and <<he>> follows you back to the room
 
 <<link [[Next|Danube Street]]>><<clearNPC passout_danube_master>><<endevent>><<set $eventskip to 1>><</link>>
 <br>
+
+:: Passout Wolf Cave Hypothermia
+<<effects>>
+<<beastNEWinit 1 wolf>>
+
+You wake up inside the cave with two <<beasttypes>> huddled close to you. One of them perks up when <<bhe>> notices you're awake.
+<br><br>
+
+<<if $monster is 1>>
+	"<<pPackbrother>> awake! Feel well?" <<bHe>> nuzzles you as the sensation returns to your stiff fingers. They seem to have dragged you to the back of the cave and watched over you. "Cold out. Careful." You reassure them that you're okay, patting them on their heads.
+<<else>>
+	<<bHe>> nuzzles you as you feel your senses come back to your fingers. They seem to have dragged you to the back of the cave and watched over you. You pat the <<beasttypes>> on their heads and thank them.
+<</if>>
+They stay close to you, keeping you warm.
+<br><br>
+
+<<link [[Next|Wolf Cave]]>><<endevent>><<set $eventskip to 1>><</link>>
+
+:: Passout Wolf Cave Heatstroke
+<<effects>>
+<<beastNEWinit 1 wolf>>
+
+<<clothesstrip>>
+You wake up inside the cave<<if Object.keys(V.carried).filter(s => V.carried[s].name !== "naked").length gte 1>><<clothesruined>> with your clothes tossed to the side. They're torn to shreds<</if>>. A <<beasttype>> perks up when <<bhe>> notices you're awake.
+<br><br>
+
+<<if $monster is 1>>
+	"<<pPackbrother>> awake! Feel well?" <<bHe>> touches your forehead with <<bhis>> hand, checking your temperature. <<bHe>> must have watched over you while you were unconscious. "Hot out. Careful." You reassure <<bhim>> that you're okay, patting <<bhim>> on the head.
+<<else>>
+	<<bHe>> bounds toward you, then licks your face all over. You laugh, and <<bhe>> backs off of you. <<bHis>> tongue lolls out of <<bhis>> mouth happily as <<bhe>> looks at you. <<bHe>> must have watched over you while you were unconscious. You pat the <<beasttype>> on <<bhis>> head and thank <<bhim>>.
+<</if>>
+<<bHe>> leaves the cave, allowing you to rest.
+<br><br>
+
+<<link [[Next|Wolf Cave]]>><<endevent>><<set $eventskip to 1>><</link>>

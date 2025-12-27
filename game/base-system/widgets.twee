@@ -1050,7 +1050,7 @@
 	<<else>>
 		<<set _args[0] to _args[0] * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100))>>
 	<</if>>
-	<<schoolskillgeneral "maths" `_args[0] * 1.2` _args[1]>>
+	<<schoolskillgeneral "maths" `_args[0] * (V.location === "school" ? 1.2 : 1)` _args[1]>>
 <</widget>>
 
 <<widget "englishskill">>
@@ -1073,31 +1073,36 @@
 
 <<widget "passiveStudy">>
 	<<if $statFreeze isnot true>>
-		<<set _chair to Furniture.get('chair', $lastHome)>>
-		<<if _chair.name is "chair">>
-			<<set _studyGain to 6>>
-		<<elseif _chair.name is "stools">>
-			<<set _studyGain to 7>>
-		<<elseif _chair.name is "wooden chairs">>
-			<<set _studyGain to 8>>
-		<<elseif _chair.name is "swivel chairs">>
-			<<set _studyGain to 9>>
-		<<elseif _chair.name is "shell chairs">>
-			<<set _studyGain to 10>>
-		<<elseif _chair.name is "armchairs">>
-			<<set _studyGain to 11>>
+		<<set _chair to Furniture.get('chair', $location)>>
+		<<if $location is "avery_mansion">>
+			<<set _studyGain to 2>>
 		<<elseif _chair.name is "egg armchairs">>
-			<<set _studyGain to 12>>
+			<<set _studyGain to 1.75>>
+		<<elseif _chair.name is "armchairs">>
+			<<set _studyGain to 1.5>>
+		<<elseif _chair.name is "shell chairs">>
+			<<set _studyGain to 1.25>>
+		<<elseif _chair.name is "swivel chairs">>
+			<<set _studyGain to 1>>
+		<<elseif _chair.name is "wooden chairs" or $location is "cabin">>
+			<<set _studyGain to 0.75>>
+		<<elseif _chair.name is "stools">>
+			<<set _studyGain to 0.5>>
+		<<elseif _chair.name is "chair">>
+			<<set _studyGain to 0.25>>
 		<</if>>
-		<<set _desk to Furniture.get('desk', $lastHome)>>
-		<<if _desk.name is "basic desk">>
-			<<set _studyGain += 0>>
-		<<elseif _desk.name is "glass desk">>
+
+		<<set _desk to Furniture.get('desk', $location)>>
+		<<if $location is "avery_mansion">>
 			<<set _studyGain += 2>>
-		<<elseif _desk.name is "mid-century modern desk">>
-			<<set _studyGain += 4>>
 		<<elseif _desk.name is "antique desk">>
-			<<set _studyGain += 6>>
+			<<set _studyGain += 1.5>>
+		<<elseif _desk.name is "mid-century modern desk">>
+			<<set _studyGain += 1>>
+		<<elseif _desk.name is "glass desk">>
+			<<set _studyGain += 0.5>>
+		<<elseif _desk.name is "basic desk">>
+			<<set _studyGain += 0>>
 		<</if>>
 		<<if $studyBooks.rented.science is 1>>
 			<<scienceskill _studyGain "no_star">>
@@ -1435,15 +1440,15 @@
 
 <<widget "vaginalstat">><<if $statFreeze isnot true>><<set $vaginalstat += 1>><<set $vaginalTimeStat to Time.date.timeStamp>><</if>><</widget>>
 
-<<widget "vaginalejacstat">><<if $statFreeze isnot true>><<set $vaginalejacstat += 1>><<purity -2>><<internalejac>><<fertiliseParasites "vagina">><<creampie "self" "vagina">><<set $vaginalEjacTimeStat to Time.date.timeStamp>><</if>><</widget>>
+<<widget "vaginalejacstat">><<if $statFreeze isnot true>><<set $vaginalejacstat += 1>><<purity -2>><<fertiliseParasites "vagina">><<creampie "self" "vagina">><<set $vaginalEjacTimeStat to Time.date.timeStamp>><</if>><</widget>>
 
 <<widget "analstat">><<if $statFreeze isnot true>><<set $analstat += 1>><<set $analTimeStat to Time.date.timeStamp>><</if>><</widget>>
 
-<<widget "analejacstat">><<if $statFreeze isnot true>><<set $analejacstat += 1>><<purity -2>><<internalejac>><<fertiliseParasites>><<creampie "self" "anus">><<set $analEjacTimeStat to Time.date.timeStamp>><</if>><</widget>>
+<<widget "analejacstat">><<if $statFreeze isnot true>><<set $analejacstat += 1>><<purity -2>><<fertiliseParasites>><<creampie "self" "anus">><<set $analEjacTimeStat to Time.date.timeStamp>><</if>><</widget>>
 
 <<widget "oralstat">><<if $statFreeze isnot true>><<set $oralstat += 1>><</if>><</widget>>
 
-<<widget "oralejacstat">><<if $statFreeze isnot true>><<set $oralejacstat += 1>><<purity -1>><<internalejac>><<creampie "self" "mouth">><</if>><</widget>>
+<<widget "oralejacstat">><<if $statFreeze isnot true>><<set $oralejacstat += 1>><<purity -1>><<creampie "self" "mouth">><</if>><</widget>>
 
 <<widget "cunnilingusstat">><<if $statFreeze isnot true>><<set $cunnilingusstat += 1>><</if>><</widget>>
 
@@ -2045,10 +2050,10 @@
 					<<set _statColor to "greenbar">>
 				<</if>>
 				<div @class="_statColor" @style="'width:' + _percent + '%'"></div>
-				<<if statChange.minPain()>>
-					<<if _minPercent>>
-						<div @class="_statColor + ' meterMin'" @style="'width:' + _minPercent + '%'"></div>
-					<</if>>
+				<<if $pain gt 100>>
+					<div @class="$willpowerpain === 0 ? 'dangerbar' : 'redbar'" @style="'width:' + ($pain - 100) + '%'"></div>
+				<<elseif _minPercent>>
+					<div @class="_statColor + ' meterMin'" @style="'width:' + _minPercent + '%'"></div>
 				<</if>>
 			</div>
 		</div>
@@ -3295,6 +3300,14 @@
 <<widget "internalejac">>
 	<<if ($demon gte 6 or ($transformationParts.demon.wings isnot "hidden" and $transformationParts.demon.wings isnot "disabled"))>>
 		<<set $demonabsorb += 1>>
+	<</if>>
+	<<if $combat isnot 1>>
+		<<if $demonabsorb gte 1>>
+			<<set $trauma -= (150 * $demonabsorb)>>
+			<span class="lewd">You absorb the sexual essence. You feel soothed.</span>
+			<<set $demonabsorb to 0>>
+			<<traumaclamp>>
+		<</if>>
 	<</if>>
 <</widget>>
 
@@ -5061,7 +5074,7 @@
 	<<if $studyBooks is undefined>>
 		<<set $studyBooks to {}>>
 		/* <<set $studyBooks.rented to "none">>
-		<<set $studyBooks.stolen to "none">> */
+		<<set $studyBooks.stolen.count to 0>><<set $studyBooks.stolen.science to 0>><<set $studyBooks.stolen.maths to 0>><<set $studyBooks.stolen.english to 0>><<set $studyBooks.stolen.history to 0>><<set $studyBooks.stolen.RaulAndJanet to 0>><<set $studyBooks.stolen.pinch to 0>> */
 		<<set $studyBooks.rented.science to 0>>
 		<<set $studyBooks.rented.maths to 0>>
 		<<set $studyBooks.rented.english to 0>>
@@ -5290,49 +5303,33 @@
 <</widget>>
 
 <<widget "schoolrep">>
-	<<if _args[0] and _args[1] and (!$worn.face.type.includes("mask") or _args[1] lt 0)>>
-		<<if $schoolrep[_args[0]] lt 5 or _args[1] lt 0>>
-			<<if _args[0] is "crossdress" and ($daily.school.crossdress is undefined or _args[1] lt 0)>>
-				<<set $daily.school.crossdress to 1>>
-				<<set $schoolrep[_args[0]] += _args[1]>>
-				<<if $schoolrep.crossdress gte 5>>
-					<<set $genderknown.pushUnique("Kylar")>>
-					<<set $genderknown.pushUnique("Whitney")>>
-					<<set $genderknown.pushUnique("Sydney")>>
-					<<set $genderknown.pushUnique("Sirris")>>
-					<<set $genderknown.pushUnique("River")>>
-					<<set $genderknown.pushUnique("Doren")>>
-					<<set $genderknown.pushUnique("Winter")>>
-					<<set $genderknown.pushUnique("Mason")>>
-					<<set $genderknown.pushUnique("Leighton")>>
-					<<set $school_crossdress_message to 5>>
-				<<elseif $schoolrep.crossdress gte 1 and _args[1] gte 1>>
-					<<set $school_crossdress_message to $schoolrep.crossdress>>
-				<</if>>
-				<<set $schoolrep.crossdress to Math.clamp($schoolrep.crossdress, 0, 5)>>
-				<<if _args[1] gt 0>><<set $weekly.crossdressingFameReduction to true>><</if>>
-				<<set $schoolrep.herm to 0>> /* Reset for females that lose a "penis" */
-			<<elseif _args[0] is "herm" and ($daily.school.herm is undefined or _args[1] lt 0)>>
-				<<set $daily.school.herm to 1>>
-				<<set $schoolrep[_args[0]] += _args[1]>>
-				<<if $schoolrep.herm gte 5>>
-					<<set $genderknown.pushUnique("Kylar")>>
-					<<set $genderknown.pushUnique("Whitney")>>
-					<<set $genderknown.pushUnique("Sydney")>>
-					<<set $genderknown.pushUnique("Sirris")>>
-					<<set $genderknown.pushUnique("River")>>
-					<<set $genderknown.pushUnique("Doren")>>
-					<<set $genderknown.pushUnique("Winter")>>
-					<<set $genderknown.pushUnique("Mason")>>
-					<<set $genderknown.pushUnique("Leighton")>>
-					<<set $school_herm_message to 5>>
-				<<elseif $schoolrep.herm gte 1 and _args[1] gte 1>>
-					<<set $school_herm_message to $schoolrep.herm>>
-				<</if>>
-				<<set $schoolrep.herm to Math.clamp($schoolrep.herm, 0, 5)>>
-				<<set $schoolrep.crossdress to 0>> /* Reset for females that gain a "penis" */
-			<</if>>
+	<<set $_rep to _args[0]>>
+	<<set $_val to _args[1]>>
+	<<if !["crossdress", "herm"].includes($_rep) or isNaN($_val)>>
+		<<run Errors.report("schoolrep called with bad parameters", _args)>>
+	<<elseif ["crossdress", "herm"].some(rep => $schoolrep[rep] gte 5)>>
+		<!-- too famous, now engage in glorious nothing -->
+		<!-- TODO: what happens when pc sex-swaps/grows slime parts/magic? -->
+	<<elseif $_val lt 0 and !$daily.crossdressingFameReduction>>
+		<<set $schoolrep[$_rep] to Math.max(0, $schoolrep[$_rep] + $_val)>>
+	<<elseif $_val gt 0 and !$daily.school[$_rep] and !$worn.face.type.includes("mask")>>
+		<!-- can only get rep once a day, and can't reduce it later that day -->
+		<<set $daily.school[$_rep] to 1>>
+		<<set $daily.crossdressingFameReduction to true>>
+
+		<!-- cap max rep at 5 -->
+		<<set $schoolrep[$_rep] to Math.min($schoolrep[$_rep] + $_val, 5)>>
+
+		<!-- for herm pcs, some students can still assume you're crossdressing if they don't know any better. ensure they know better -->
+		<<set $schoolrep.crossdress to Math.min(5 - $schoolrep.herm, $schoolrep.crossdress)>>
+
+		<<if $schoolrep[$_rep] is 5>>
+			<!-- now all of china knows you're $_rep -->
+			<<run ["Kylar", "Whitney", "Sydney", "Sirris", "River", "Doren", "Winter", "Mason", "Leighton"].forEach(n => $genderknown.pushUnique(n))>>
 		<</if>>
+
+		<!-- finally, send the message. expands to $school_crossdress_message or $school_herm_message -->
+		<<set V["school_" + $_rep + "_message"] to $schoolrep[$_rep]>>
 	<</if>>
 <</widget>>
 
@@ -5350,7 +5347,7 @@
 			<<schoolrep herm 1>>
 		<<elseif isCrossdressing()>>
 			<<schoolrep crossdress 1>>
-		<<elseif $player.sex is $player.gender_appearance and $schoolrep.crossdress gt 0 and !$daily.crossdressingFameReduction and !$weekly.crossdressingFameReduction and random(0,100) gte 100 - ($schoolrep.crossdress * 3)>>
+		<<elseif $player.sex is $player.gender_appearance and $schoolrep.crossdress gt 0 and !$daily.crossdressingFameReduction and random(0,100) lt $schoolrep.crossdress * 3>>
 			<<schoolrep crossdress -1>>
 			<<set $daily.crossdressingFameReduction to true>>
 		<</if>>

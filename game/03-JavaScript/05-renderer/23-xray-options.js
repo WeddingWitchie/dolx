@@ -197,11 +197,16 @@ class XrayCombatMapper {
 					break;
 			}
 		} else {
-			if (T.knotted || T.knotted_short) options.animKeyBase = "mid";
-			else if (V.enemypleasure >= (V.enemypleasuremax / 5) * 4) options.animKeyBase = "vfast";
-			else if (V.enemypleasure >= (V.enemypleasuremax / 5) * 3) options.animKeyBase = "fast";
-			else if (V.enemypleasure >= (V.enemypleasuremax / 5) * 1) options.animKeyBase = "mid";
-			else options.animKeyBase = "slow";
+			if (T.knotted || T.knotted_short) {
+				options.animKeyBase = "mid";
+			} else {
+				const step = V.enemyarousalmax > 0 ? (V.enemyarousalmax / 5) : 0;
+
+				if (V.orgasmdown > 0 || (step && V.enemyarousal >= step * 4)) options.animKeyBase = "vfast";
+				else if (step && V.enemyarousal >= step * 3) options.animKeyBase = "fast";
+				else if (step && V.enemyarousal >= step * 1) options.animKeyBase = "mid";
+				else options.animKeyBase = "slow";
+			}
 		}
 
 		options.animKeyVagina = `sex-${combat.isVaginaActive("xray") ? "8f-" + options.animKeyBase : "1f-idle"}`;
@@ -461,7 +466,7 @@ class XrayCombatMapper {
 		penetrator.penetratedType =
 			V.enemytype === "machine"
 				? "machine"
-				: V.penisstate !== 0 && ["tentacle", "tentacledeep"].includes(V.penisstate)
+				: V.penisstate !== 0 && (["tentacle", "tentacledeep"].includes(V.penisstate) || V.penistarget === "tentacles")
 				? "tentacle"
 				: V.NPCList[V.penistarget].type;
 

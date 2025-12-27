@@ -167,20 +167,17 @@
 
 
 	<<if !$simpleMirror>>
-		<<if $specialTransform is 1 or $physicalTransform is 1 or $angeltf is 1 or $fallenangeltf is 1 or $fallenangelplustf is 1 or $demontf is 1 or $wolftf is 1 or $cattf is 1 or $cowtf is 1 or $beartf is 1 or $harpytf is 1 or $foxtf is 1 or $bunnytf is 1>>
+		/* only display the tf menu if there's actually some options that can be changed */
+		<<set $_tfs to setup.transformations.filter(tf => tf.parts?.some(part => tf.level >= part.tfRequired))>>
+		<<set _permtfs to ["angeltf","fallenangeltf","fallenangelplustf","demontf","wolftf","cattf","cowtf","beartf","harpytf","foxtf","bunnytf"]>>
+		<<if $_tfs.length >= 1 or _permtfs.some(tf => V[tf] === 1)>>
 			__Transformation__
 			<br>
-			<<if ($demon gte 6 or ($transformationParts.demon.wings isnot "hidden" and $transformationParts.demon.wings isnot "disabled"))>><<tficon "demon">>
-			<<elseif ($wolfgirl gte 6 or ($transformationParts.wolf.tail isnot "hidden" and $transformationParts.wolf.tail isnot "disabled"))>><<tficon "wolf">>
-			<<elseif ($angel gte 6 or ($transformationParts.angel.wings isnot "hidden" and $transformationParts.angel.wings isnot "disabled"))>><<tficon "angel">>
-			<<elseif ($fallenangel gte 2 or ($transformationParts.fallenAngel.wings isnot "hidden" and $transformationParts.fallenAngel.wings isnot "disabled"))>><<tficon "fallenangel">>
-			<<elseif ($cat gte 6 or ($transformationParts.cat.tail isnot "hidden" and $transformationParts.cat.tail isnot "disabled"))>><<tficon "cat">>
-			<<elseif ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>><<tficon "cow">>
-			<<elseif ($harpy gte 6 or ($transformationParts.bird.wings isnot "hidden" and $transformationParts.bird.wings isnot "disabled"))>><<tficon "bird">>
-			<<elseif ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled"))>><<tficon "fox">>
-			<<elseif ($bunny gte 6 or ($transformationParts.bunny.tail isnot "hidden" and $transformationParts.bunny.tail isnot "disabled"))>><<tficon "bunny">>
-			<<else>><<tficon "angel">>
-			<</if>>
+			/* show the icon of the highest leveled transform with parts unlocked */
+			/* assumes maximum of 2 simultaneous transformations */
+			<<if $_tfs.length gt 1>><<set $_icon to ($_tfs[1]?.level gt $_tfs[0].level) ? $_tfs[1].name : $_tfs[0].name>><</if>>
+			<<if !$_icon>><<set $_icon to "angel">><</if>>
+			<<tficon $_icon>>
 			<<link "Examine your inner self">><<set $mirrorMenu to "transformation">><<replace #mirror>><<mirrorDisplay>><</replace>><<numberify "#passages > .passage">><</link>>
 		<<else>>
 			Obtain otherworldly powers to examine further.

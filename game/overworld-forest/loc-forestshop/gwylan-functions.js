@@ -769,6 +769,7 @@ function canCollectSampleSingle(species, modifier = null) {
 	// Check individual type to see if they have a matching sample type needed for event
 	if (!V.gwylan?.request?.event) return false;
 	if (!V.gwylan.request.items?.some(item => item.category === "sample")) return false;
+	if (!species) return false;
 
 	// IMPORTANT: For any non-standard beast type monsterperson names, like "harpy", special case needed.
 	// 'wolfboy', 'foxgirl', etc work fine as-is

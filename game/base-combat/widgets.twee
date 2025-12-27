@@ -74,12 +74,12 @@
 					taker: $_taker,
 					passage: $passage,
 				}>>
-				<<if $combat>>
-					<<set $player.virginityDetails[_args[1]].consensual to !!$consensual>>
-					<<set $player.virginityDetails[_args[1]].position to $position>>
-				<<elseif _consensualOverride isnot undefined>>
+				<<if _consensualOverride isnot undefined>>
 					<<set $player.virginityDetails[_args[1]].consensual to _consensualOverride>>
 					<<unset _consensualOverride>>
+				<<elseif $combat>>
+					<<set $player.virginityDetails[_args[1]].consensual to !!$consensual>>
+					<<set $player.virginityDetails[_args[1]].position to $position>>
 				<</if>>
 				<<if _args[1] is "penile">>
 					<<set $player.virginityDetails[_args[1]].playerPenisSize to $player.penissize>>
@@ -236,8 +236,19 @@
 			<<case "romantic">>
 				<span class="lewd">You're happy your first kiss was taken in such a romantic way.</span><<arousal 1500>><<stress -6>><<trauma -6>><<garousal>><<lstress>>
 				<<set _consensualOverride to true>>
-			<<case "erotic">>
-				<span class="lewd">You're excited your first kiss was taken in such a erotic way.</span><<arousal 1500>><<stress -6>><<trauma -6>><<garousal>><<lstress>>
+<<set _consensualOverride to false>>
+
+			<<switch _kisstype>>
+				<<case "consensual">>
+					<span class="green">You feel warm, having your first kiss like this.</span>
+					<<arousal 500>><<stress -3>><<garousal>><<lstress>>
+					<<set _consensualOverride to true>>
+
+				<<case "erotic">>
+					<span class="lewd">You're excited your first kiss was taken in such an erotic way.</span>
+					<<arousal 1500>><<stress -6>><<trauma -6>><<garousal>><<lstress>>
+			<</switch>>
+
 			<<case "rape">>
 				<span class="red">Your first kiss was stolen. You feel horrible.</span><<stress 40>><<gggstress>>
 				<<set _consensualOverride to false>>
@@ -252,6 +263,7 @@
 				<span class="blue">You feel conflicted about giving away your first kiss like this.</span><<stress 20>><<ggstress>>
 		<</switch>>
 		<<takeVirginity $_fullDescription "kiss">>
+		<br><br>
 	<</if>>
 	<<recordSperm `{target: "pc", spermOwner: _args[0], spermType: $_type, genital: "kiss"}`>>
 	<<recordSperm `{target: _args[0], spermOwner: "pc", spermType: "human", genital: "kiss"}`>>
@@ -351,7 +363,12 @@
 					<<displayFeatFake "Sydney the Pure Hearted">>
 				<</if>>
 			<<else>>
-				<<run $virginTaken[$_vType].pushUnique($_npc.fullDescription)>>
+				<<if $NPCNameList.includes($_npc.fullDescription)>>
+					<<run $virginTaken[$_vType].pushUnique($_npc.fullDescription)>>
+				<<else>>
+					/* non-named npcs' descriptions are not unique. ~15kb of uncompressed save bloat per 1000 virginities taken. acceptable until npc rework */
+					<<run $virginTaken[$_vType].push($_npc.fullDescription)>>
+				<</if>>
 				<<set $_i to $NPCNameList.indexOf($_npc.fullDescription)>>
 				<<if $_i isnot -1>>
 					<<if $_npc.fullDescription is "Sydney" and ($_vType is "vaginal" or $_vType is "penile")>>

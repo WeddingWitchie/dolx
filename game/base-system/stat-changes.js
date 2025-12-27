@@ -1200,7 +1200,7 @@ const statChange = (() => {
 		if (startTracking) {
 			V.timeStats[source].trackedStart = Time.date.timeStamp;
 		} else if (V.timeStats[source].trackedStart) {
-			// Clamped to 24 hours to prevent crazy values from occuring
+			// Clamped to 24 hours to prevent crazy values from occurring
 			V.timeStats[source].total += Math.clamp(Time.date.timeStamp - V.timeStats[source].trackedStart, 0, 3600 * 24);
 			V.timeStats[source].trackedStart = 0;
 		}
@@ -1222,7 +1222,7 @@ const statChange = (() => {
 			if (timeType === "hour") amount *= 3600;
 			if (timeType === "minute") amount *= 60;
 
-			// Clamped to 24 hours to prevent crazy values from occuring
+			// Clamped to 24 hours to prevent crazy values from occurring
 			V.timeStats[source].total += Math.clamp(amount, 0, 3600 * 24);
 		}
 	}

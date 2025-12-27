@@ -174,7 +174,7 @@
 			<</if>>
 
 			<<if $brothelshowdata.type isnot "none" and $brothelshowdata.intro>>
-				<li>You're expected to perform at the brothel
+				<li>You're expected to perform a $brothelshowdata.type show at the brothel
 				<<if Time.weekDay is 6>>
 					<<if $brothelshowdata.done>>
 						next <span class="gold">Friday</span>.
@@ -718,7 +718,7 @@
 				<</for>>
 			<</if>>
 			
-			<<if $avery_mansion?.landry is 1>>
+			<<if $avery_mansion?.landry is 1 and !$avery_fate>>
 				<li><<harvesticon>> Someone dropped a note for you outside Avery's mansion, asking you to visit them in the pub on Harvest Street.</li>
 			<</if>>
 
@@ -887,7 +887,7 @@
 					<li>Eden's invited you for a Christmas dinner at <<ampm 18 00>>.</li>
 				<</if>>
 			<</if>>
-			<<if $fake_artefact is "pc">>
+			<<if $fake_artefact is "pc" and $avery_fate isnot "ascended">>
 				<li>Landry wants you to find the wishing stones in the vault in Avery's mansion and replace them with the fakes <<nnpc_he Landry>> provided. <<nnpc_He Landry>> said that would save Avery from <<nnpc_himself "Avery">>.</li>
 			<</if>>
 		</ul>
@@ -969,7 +969,7 @@
 					<<icon "avery_garage.png">> Additionally, Avery expects to see proper presentation from you when <<nnpc_he "Avery">> returns from work.
 					<<if $avery_mansion.jobs.includes("maid")>>
 						<br>
-						<<if $worn.upper.type.includes("maid") and $worn.lower.type.includes("maid") and $worn.head.type.includes("maid")>>
+						<<if $worn.upper.type.includes("maid") and $worn.lower.type.includes("maid")>>
 							<span class='fa-icon fa-selected'></span>
 						<<else>>
 							<span class='fa-icon fa-unselected'></span>
@@ -1030,7 +1030,8 @@
 					<</if>>
 					<<if ["lounge", "dining", "bedroom", "pool", "garden", "display", "kitchen", "bathroom"].includesAny($avery_mansion.jobs)>>
 						<br>
-						<<set $_averyCleanColor to ["","purple","pink","red"][Math.clamp(Math.floor(($avery_mansion.rage.assess - $avery_mansion.rage.dinner_missed) / 3),0,3)]>>
+						<<avery_mansion_housework_total>>
+						<<set $_averyCleanColor to ["","purple","pink","red"][Math.clamp(Math.floor((_avery_mansion_housework_total) / 3),0,3)]>>
 						<<if $_averyCleanColor is "">>
 							<span class='fa-icon fa-selected'></span>
 						<<else>>
@@ -1057,6 +1058,10 @@
 			<br>
 		<<else>>
 			The science fair will be held at the town hall on Cliff Street <<nDays $scienceprojectdays>>.
+			<br>
+		<</if>>
+		<<if $avery_mansion and $scienceproject is "ongoing" and ($sciencephalluschance gte 1 or $sciencelichenchance gte 1 or $scienceshroomchance gte 1) and !$avery_mansion.attend.science and $avery_fate isnot "fallen" and $avery_fate isnot "kicked">>
+			<span class="blue">Consider asking Avery to attend.</span>
 			<br>
 		<</if>>
 		You have the following ongoing science projects. You'll choose one to present at the fair.
@@ -1173,6 +1178,7 @@
 		<</if>>
 	<</if>>
 
+
 	<<if $mathsproject is "ongoing">>
 		<<set $mathschance = Math.clamp($mathschance, 0, 100)>>
 		<hr>
@@ -1184,6 +1190,10 @@
 			The maths competition will be held at the town hall on Cliff Street in <span class="gold">$mathsprojectdays</span> <<pluralise $mathsprojectdays "day">>.
 			<br>
 			Your solution must be ready before then. You can work on your project at the orphanage or the school library.
+			<br>
+		<</if>>
+		<<if $avery_mansion and $mathsproject is "ongoing" and $mathschance gte 1 and !$avery_mansion.attend.maths and $avery_fate isnot "fallen" and $avery_fate isnot "kicked">>
+			<span class="blue">Consider asking Avery to attend.</span>
 			<br>
 		<</if>>
 		<<if $mathschance is 0>>
@@ -1219,6 +1229,12 @@
 		<<else>>
 			The school plays will be performed at the town hall on Cliff Street in <span class="gold">$englishPlayDays</span> <<pluralise $englishPlayDays "day">>.
 		<</if>>
+		/*
+		<<if $avery_mansion and $englishPlay is "ongoing" and $englishPlayReadiness gte 1 and !$avery_mansion.attend.english_play and $avery_fate isnot "fallen" and $avery_fate isnot "kicked">>
+			<span class="blue">Consider asking Avery to attend.</span>
+			<br>
+		<</if>>
+		 */
 		<<if $englishPlayRoles.Player isnot "none">>
 			<ul class="journal">
 			<li>You have taken the role of $englishPlayRoles.Player. You can rehearse alone at the orphanage.</li>

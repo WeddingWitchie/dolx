@@ -259,7 +259,7 @@
 				<<foresthuntstart "Gwylan">>
 			<</addinlineevent>>
 		<</if>>
-		<<if $foresthunt lte 0 and ($hypnosis_traits.devotion gte 2 or ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled")) or $wolf gte 6 or $dryad gte 6) and $gwylan?.ritualMissed and !$weekly.gwylanNoLure>>
+		<<if $foresthunt lte 0 and ($hypnosis_traits.devotion gte 2 or ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled")) or $wolfgirl gte 6 or $dryad gte 6) and $gwylan?.ritualMissed and !$weekly.gwylanNoLure>>
 			<<if npcCanHunt("Gwylan") and ["garden", "shop"].includes(gwylanSchedule()) and !Time.isBloodMoon()>>
 				<<set _lureChance to ($hypnosis_traits.devotion / 2) || 0.5>>
 				<<addevent "forestgwylanlure" _lureChance>>
@@ -366,7 +366,7 @@
 		<<if Weather.isSnow>>
 			<<addevent "forestsnow" 0.33>>
 		<</if>>
-		<<if $foresthunt lte 0 and ($hypnosis_traits.devotion gte 2 or ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled")) or $wolf gte 6 or $dryad gte 6) and $gwylan?.ritualMissed and !$weekly.gwylanNoLure>>
+		<<if $foresthunt lte 0 and ($hypnosis_traits.devotion gte 2 or ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled")) or $wolfgirl gte 6 or $dryad gte 6) and $gwylan?.ritualMissed and !$weekly.gwylanNoLure>>
 			<<if npcCanHunt("Gwylan") and ["garden", "shop"].includes(gwylanSchedule()) and !Time.isBloodMoon()>>
 				<<set _lureChance to ($hypnosis_traits.devotion / 3) || 0.3>>
 				<<addevent "forestgwylanlure" _lureChance>>
@@ -1106,7 +1106,7 @@
 			<<Hes>> wearing a green <<if $pronoun is "m">>robe<<else>>dress<</if>>, and a matching pointy hat that reminds you of a <<witch>>'s.
 			<br><br>
 
-			<<He>> looks about your age, with mousy hair and freckles. "I'm older than I look," <<he>> says, as if reading your mind. <<He>> crouches down, offering <<his>> hand. "<span class="green">I'm Gwylan.</span> Nice to meet you." As <<he>> helps you stand, <<he>> takes your hand in both of <<hers>> and shakes it.
+			<<He>> looks about your age, with mousy hair and freckles. "I'm older than I look," <<he>> says, as if reading your mind. <<He>> crouches down, offering <<his>> hand. "<span class="green">I'm Gwylan.</span> Nice to meet you." As <<he>> helps you stand, <<he>> takes your hand in both of <<hers>> and shakes it.<<takeHandholdingVirginity "Gwylan">>
 			<br><br>
 
 			<<if ($worn.upper.exposed gte 2 or $upperwetstage gte 3) and ($worn.under_upper.exposed gte 1 or $underupperwetstage gte 3)>>
@@ -1303,6 +1303,13 @@
 			<br><br>
 
 			<<forestCabinReturnLinks>>
+		<<elseif $worn.neck.name is "familiar collar" and $worn.neck.cursed is 1>>
+			A mist billows around you all of a sudden, concealing the forest from view. It thickens, until even the closest trees are hidden, yet you feel safe in its embrace. You hear a distant thunder, almost like a gunshot. It sounds dull, and distant, as if reverberating through the earth.
+			<br><br>
+			A wind blows the mist away as quick as it arrived. Your surroundings are unfamiliar. <span class="green">You no longer feel hunted.</span>
+			<br><br>
+			<<link [[Next|Forest]]>><<endevent>><</link>>
+			<br>
 		<<else>>
 			<<npc Eden>><<person1>>
 			A bullet whizzes past and hits a tree in front of you. You shield your face with your arms and stagger backwards. A cold hard object presses against your back, and you hear a <<personsimple>>'s voice. "I've got you now. Don't resist."
@@ -1501,9 +1508,8 @@
 				<<tendingicon "wolfshroom">><<link [[Take for science project (0:02)|Forest Science Shroom]]>><<pass 2>><<set $phase to 1>><</link>>
 				<br>
 			<</if>>
-			<<if currentSkillValue('tending') lt 300 and $gwylan?.request.event is "tutorial" and $gwylanTutorialShrooms lt 3>>
-				<<tendingicon "wolfshroom">><<link [[Pick for Gwylan (0:20)|Forest Mushrooms Gwylan Pick]]>><<pass 2>><</link>>
-				<br>
+			<<if currentSkillValue('tending') lt 300 and $gwylan?.request.special is "tutorial" and $gwylanTutorialShrooms lt 3>>
+				<<tendingicon "wolfshroom">><<link [[Pick for Gwylan (0:20)|Forest Mushrooms Gwylan Pick]]>><<pass 20>><</link>>
 			<</if>>
 			<<if currentSkillValue('tending') gte 300>>
 				<<tendingicon "wolfshroom">><<link [[Search for saleable specimens (0:20)|Forest Mushrooms2 Pick]]>><<pass 20>><</link>><<tendingdifficulty 300 600>>
@@ -2233,7 +2239,7 @@
 					<span class="red">Both of your arms are bound</span>, so you are unable to pick lemons.
 				<<else>>
 					<<if Time.isBloodMoon()>>
-						<<icon "tending/lemon.png">> <<link [[Pick lemons (0:20)|Forest Blood Lemon Pick]]>><<pass 20>><</link>><<tendingdifficulty 200 500>>
+						<<icon "tending/blood_lemon.gif">> <<link [[Pick lemons (0:20)|Forest Blood Lemon Pick]]>><<pass 20>><</link>><<tendingdifficulty 200 500>>
 					<<else>>
 						<<icon "tending/lemon.png">> <<link [[Pick lemons (0:20)|Forest Lemon Pick]]>><<pass 20>><</link>><<tendingdifficulty 200 500>>
 					<</if>>
@@ -2346,7 +2352,7 @@
 		<<if $rescue is 1>>
 			<<if $canRescue.length gt 1>>
 				<<set $_noText to true>>
-			<<elseif $canRescue.includes("Gwylan") and ["Eden","Black Wolf","bear"].includes(_args[0])>>
+			<<elseif $canRescue.includes("Gwylan") and ["Eden","Black Wolf","bear"].includes(_args[0]) and !(isGwylanAbsent() is "nobody")>>
 				<<if $gwylanSeen?.includes("ritual_sex")>>
 					<span class="forest-green">You hear rustling in the trees nearby.</span>
 				<<else>>
@@ -2369,9 +2375,9 @@
 			<</if>>
 		<<else>>
 			<<if $gwylan_rescue is 1>>
-				<span class="red">Gwylan does not come to help you<<if _args[0] isnot "Eden" and isLoveInterest("Eden")>>, and Eden must not be in the area<</if>>.</span>
+				<span class="red">Gwylan does not come to help you<<if _args[0] isnot "Eden" and $syndromeeden is 1>>, and Eden must not be in the area<</if>>.</span>
 			<<else>>
-				<span class="red">You're too far from town for anyone to hear you<<if _args[0] isnot "hunter" and isLoveInterest("Eden")>>, and Eden must not be in the area<</if>>.</span>
+				<span class="red">You're too far from town for anyone to hear you<<if _args[0] isnot "hunter" and $syndromeeden is 1>>, and Eden must not be in the area<</if>>.</span>
 			<</if>>
 		<</if>>
 	<<else>>
@@ -2490,7 +2496,7 @@
 
 					...clears up. You blink. The trees no longer stand quite so tall. The creatures are gone too. In their places are a mousy <<nnpc_gendery "Gwylan">> wearing a witch hat and an amused smile, and a muscular <<nnpc_gender "Eden">> with a rifle in <<nnpc_his "Eden">> arms. <span class="green">It's Gwylan and Eden.</span>
 				<<else>>
-					Gwylan steps towards you, what you now recognize as <<nnpc_his "Gwylan">> arms pulling <<nnpc_his "Gwylan">> hat back down. <<He>> dabs something from a small bottle into a cloth and presses it to your nose. Everything returns to normal size.
+					Gwylan steps towards you, what you now recognize as <<nnpc_his "Gwylan">> arms pulling <<nnpc_his "Gwylan">> hat back down. <<nnpc_He "Gwylan">> dabs something from a small bottle into a cloth and presses it to your nose. Everything returns to normal size.
 				<</if>>
 				"Breathe. It's always a trip, I know."
 				<<if _gwylanFirstRescue is "bear">>
@@ -2509,27 +2515,30 @@
 			"You should go, <<pcpetname "Gwylan" "name">>. I'll handle..." <<nnpc_His "Gwylan">> eyes widen.
 			<br><br>
 
-			"Down!" <<nnpc_he "Gwylan">> yells. The Black Wolf gets low to the ground, <span class="red">just as a bullet whizzes by,</span> making a shower of splinters as it hits a tree. The sound of the gunshot snaps <<bhim>> out of <<bhis>> shallow trance.
-			<<bHe>> looks between you, Gwylan, and the culprit emerging from the treeline. It's Eden.
+			The black wolf sniffs the air, then drops low, <span class="red">just as a bullet whizzes by.</span> The impact showers the wolf with splinters of bark, and the sound snaps <<bhim>> out of <<bhis>> shallow trance.
+			<<bHe>> looks between you, Gwylan, and the culprit emerging from the treeline. <span class="green">It's Eden.</span>
 			<br><br>
 
-			Eden quickly shoulders <<nnpc_his "Eden">> rifle again, taking aim. The Black Wolf darts off into the forest, being narrowly missed by another shot. "Damn it! I almost had <<bhim>>!"
-			<span class="red">Eden takes aim at Gwylan next,</span> rage painted on <<nnpc_his "Eden">> face. "You're done getting in my way, witch."
+			Eden quickly shoulders <<nnpc_his "Eden">> rifle again, taking aim. The Black Wolf darts off into the forest. The shot impacts another tree. "Almost."
+			<br><br>
+			Eden takes aim at Gwylan next, rage painted on <<nnpc_his "Eden">> face. "Get away from <<phim>>. Now."
 			<br><br>
 
-			Gwylan stands in front of you, staring down the barrel of Eden's rifle. "<<gwylanCommand "Run, <<pcPetname 'Gwylan' 'simple'>>">>." <<nnpc_His "Gwylan">> eyes flick to the treeline briefly. "Now."
+			Gwylan doesn't move. "And leave <<phim>> with you?" <<nnpc_He "Gwylan">> stares down the barrel of Eden's rifle.
 			<br><br>
-
-			<<link [[Run|Forest Trio Confrontation]]>><<set $phase to "run">><<stress 25>><</link>><<ggstress>>
+			
+			<<link [[Run|Forest Trio Confrontation]]>><<set $phase to "run">><<stress 12>><</link>><<ggstress>>
 			<br>
-			<<link [[Stand beside Gwylan|Forest Trio Confrontation]]>><<set $phase to "stand">><</link>><<gwylanWillpowerDifficulty>>
+			<<link [[Try to calm them down|Forest Trio Confrontation]]>><<stress 12>><<set $phase to "stand">><</link>><<ggstress>>
 			<br>
-			<<link [[Stand in front of Gwylan|Forest Trio Confrontation]]>><<set $phase to "front">><<stress 50>><<trauma 25>><<npcincr Gwylan dom 3>><<npcincr Eden love -5>><</link>><<if $hypnosis_traits.devotion lt 5>><<gwylanWillpowerDifficulty>><</if>><<gggstress>><<gggtrauma>><<ggyearning>><<llove "Eden">>
+			<<if $hypnosis_traits.devotion gte 5>>
+				<<link [[Step in front of the gun|Forest Trio Confrontation]]>><<set $phase to "front">><<stress 50>><<trauma 25>><<npcincr Gwylan dom 5>><</link>><<gggstress>><<gggtrauma>><<ggyearning>>
+			<</if>>
 			<br>
 			<<exit>>
 		<<else>>
 			<<set $_gwylanThrow to "capsule">>
-			A small capsule lands nearby, and starts to let out a series of sparks and loud pops. At the same time, you hear a gun fire close by, and a bullet $_lands near the <<beasttype>>. Overwhelmed, <<bhe>> $_backsOffAnd flees into the $_forest.
+			A small capsule lands nearby, and starts to let out a series of sparks and loud pops. At the same time, you hear gunfire close by, and a bullet $_lands near the <<beasttype>>. Overwhelmed, <<bhe>> $_backsOffAnd flees into the $_forest.
 			<<if $combatTrain.total_length isnot undefined>>
 				The <<= $combatTrain.total_length is 1 ? "others follow" : "other follows">> after <<bhim>>.
 			<</if>>
@@ -2605,7 +2614,7 @@
 			<<else>>
 				<<person2>><<He>> smiles at you now. "Come along, <<pcpetname "Gwylan">>." You stand up next to <<him>>.
 			<</if>>
-			Eden's eyes remain trained on Gwylan. <<person1>><<His>> grip is unsteady, and <<his>> pupil is a pinprick in between the rifle's sights. <<He>> lowers his gun.
+			Eden's eyes remain trained on Gwylan. <<person1>><<His>> grip is unsteady, and <<his>> pupil is a pinprick in between the rifle's sights. <<He>> lowers <<his>> gun.
 			<br><br>
 
 			"Is that what you want, <<girl>>? To go with <<person2>><<him>>?"
@@ -2725,9 +2734,9 @@
 			<!-- Not done through the normal apology widget, as Eden's presence changes things too much -->
 			<<gwylanRescueApologyEden>>
 
-			Gwylan<<if !_args.includes("river") and $_gwylanThrow isnot "capsule">> gathers <<nnpc_his "Gwylan">> items and<</if>> fusses over you for a moment. Eden also stays, checking to make sure you're alright.
-			<<nnpc_He "Eden">> thinks for a moment. "If you're not coming home," <<nnpc_he "Eden">> starts, "I'd rather you walk with <<nnpc_him "Gwylan">> out of the forest. So I don't have to come saving your sorry ass again."
-			<<nnpc_He "Eden">> glares at Gwylan sharply, who only smiles in return. "Don't get any ideas."
+			Gwylan<<if !_args.includes("river") and $_gwylanThrow isnot "capsule">> gathers <<nnpc_his "Gwylan">> items and<</if>> fusses over you.
+			Eden considers for a moment. "If you're not coming home," <<nnpc_he "Eden">> says, "You're safer with <<nnpc_him "Gwylan">> than alone."
+			<<nnpc_He "Eden">> shoots Gwylan a sharp glare. "Don't get any ideas." Gwylan dons an innocent smile.
 
 			<<if _args.includes("slime")>>
 				<br>
@@ -2916,7 +2925,7 @@
 			<<else>>
 				"You should go, <<pcpetname "Gwylan" "name">>. I'll sort the alpha out."
 			<</if>>
-			<<nnpc_He "Gwylan">> takes a deep breath. "Alright, big <<if C.npc["Black Wolf"].ponoun is "m">>boy<<else>>girl<</if>>, come here."
+			<<nnpc_He "Gwylan">> takes a deep breath. "Alright, big <<if C.npc["Black Wolf"].pronoun is "m">>boy<<else>>girl<</if>>, come here."
 			<br><br>
 
 			The Black Wolf growls and tries to shake off the trance. You decide not to stick around.
@@ -3001,7 +3010,7 @@
 				<<exit>>
 			<</if>>
 		<<else>> /* beast */
-			<<if $gwylanSeen?.includes("ritual_beast") and $rng gte 50>>
+			<<if $gwylanSeen?.includes("ritual_beast") and $rng gte 51>>
 				The <<beasttype>> <<beast_growls_text $_type>>, but it quiets down as you hear something else. Singing.
 				<<if $_type.includes("boar")>>
 					<<bHe>> grunts, looking around, before slowly bowing <<bhis>> head.
@@ -3398,9 +3407,9 @@
 		<<if $gwylanRescue.failed is "WraithFight">>
 			I'm glad you were able to get away from the Ivory one." <<He>> steps away and rubs <<his>> neck. "It sure knows how to hold a grudge."
 		<<elseif $gwylanRescue.failed is "EdenAttack">>
-			for not being able to save you from <<= $gwylanRescue.eden gte 1 ? "Eden" : "the <<nnpc_title 'Eden'">>. I wasn't expecting <<nnpc_him "Eden">> to be such a brute."
+			for not being able to save you from <<= $gwylanRescue.eden gte 1 ? "Eden" : "the <<nnpc_title 'Eden'>>">>. I wasn't expecting <<nnpc_him "Eden">> to be such a brute."
 		<<elseif $gwylanRescue.failed is "EdenShop">>
-			for not being able to keep <<= $gwylanRescue.eden gte 1 ? "Eden" : "the <<nnpc_title 'Eden'">> from taking you. I had a plan... but I suppose <<nnpc_he "Eden">> made <<nnpc_his "Eden">> move too quickly for it to take effect."
+			for not being able to keep <<= $gwylanRescue.eden gte 1 ? "Eden" : "the <<nnpc_title 'Eden'>>">> from taking you. I had a plan... but I suppose <<nnpc_he "Eden">> made <<nnpc_his "Eden">> move too quickly for it to take effect."
 		<<else>>
 			for not saving you before, but I can't contest
 			<<if $gwylanRescue.failed is "Eden" and $gwylanRescue.eden gte 1>>
