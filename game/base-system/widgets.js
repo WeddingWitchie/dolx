@@ -167,6 +167,8 @@ function genderappearancecheck() {
 	addfemininityofclothingarticle("neck", V.worn.neck);
 	addfemininityofclothingarticle("legs", V.worn.legs);
 	addfemininityofclothingarticle("handheld", V.worn.handheld);
+	addfemininityofclothingarticle("earrings", V.worn.earrings);
+	addfemininityofclothingarticle("rings", V.worn.rings);
 	addfemininityofclothingarticle("feet", V.worn.feet);
 	/* Hair length */
 	if (V.worn.over_head.hood !== 1 && V.worn.head.hood !== 1) {
@@ -590,7 +592,7 @@ function calculateallure() {
 	}
 	attractiveness = baseattractiveness;
 	/* extra attractiveness from accessories */
-	for (const slot of ["head", "face", "neck", "legs", "feet", "handheld", "hands"]) attractiveness += V.worn[slot].reveal || 0;
+	for (const slot of ["head", "face", "neck", "legs", "feet", "handheld", "earrings", "rings", "hands"]) attractiveness += V.worn[slot].reveal || 0;
 	/* tf bonuses */
 	const partsDisabled = (tf, parts) => parts.filter(part => V.transformationParts[tf][part] === "disabled").length;
 	if (partsDisabled("demon", ["horns", "tail", "wings"]) < 3) attractiveness += 500 - 100 * partsDisabled("demon", ["horns", "tail", "wings"]);

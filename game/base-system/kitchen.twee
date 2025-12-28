@@ -764,3 +764,56 @@ Should probably be removed once said feature has been implemented
 		You doubt you could get away with it in more controlled kitchens, but this kitchen seems quite free. If you're running short on milk or cream, <span class="gold">you may be able substitute with lewder ingredients</span>.
 	<</if>>
 <</widget>>
+
+<<widget "ingredientsSuppliesSteal">>
+    <<set _ingredientsSupplied to []>>
+    <<if typeof _args[0] is "object">>
+        <<run _args[0].forEach(key => _ingredientsSupplied.pushUnique(key))>>
+    <<elseif _args[0]>>
+        <<run _args.forEach(key => _ingredientsSupplied.pushUnique(key))>>
+    <</if>>
+	
+	<<set $weekly.theft = $weekly.theft || {}>>
+	<<set $weekly.theft[$location] = $weekly.theft[$location] || {}>>
+	<<set $weekly.theft[$location]["Ban"] = $weekly.theft[$location]["Ban"] || false>>
+
+    <<if !$weekly.theft[$location]["Ban"]>>
+        <<for _i, _keyObject range _ingredientsSupplied>>
+            <<capture _phase _keyObject _plant>>
+                <<set _plant = setup.plants[_keyObject]>>
+                <<if !$weekly.theft[$location][_keyObject]>>
+                    <<tendingicon _plant.icon>>
+                    <<set _resultPassage = $location + " Kitchen Steal Result">>
+                    <<link "Steal <<recipe_name _keyObject 'plural'>>" _resultPassage>>
+                        <<set $phase = _keyObject.toString()>>
+                        <<set $weekly.theft[$location][_keyObject] = true>>
+                    <</link>><br>
+                <<else>>
+                    <span class="blue">If you steal any more <<recipe_name _keyObject 'plural'>>, 
+					<<switch $location>>
+					<<case "home">>
+						Bailey will surely notice.
+					<<case "temple">>
+						River will surely notice.
+					<<case "school">>
+						the teachers will know it was you.
+					<<default>>
+						you will surely be noticed.
+					<</switch>>
+					</span>
+					<br>
+                <</if>>
+            <</capture>>
+        <</for>>
+    <<else>>
+		<<switch $location>>
+		<<case "home">>
+			<span class="purple">Bailey is keeping a close eye on you. Stealing anything would be a suicide.</span><br>
+		<<case "temple">>
+			<span class="purple">Bailey is keeping a close eye on you. Stealing anything would be a suicide.</span><br>
+		<<default>>
+			<span class="purple">Stealing anything would be a suicide.</span><br>
+		<</switch>>
+    <</if>>
+    <br>
+<</widget>>

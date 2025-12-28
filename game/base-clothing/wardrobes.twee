@@ -67,10 +67,10 @@
 		<<set $DoLPSpools -= _repairCount>>
 		<<pass _timeNeeded>>
 	<</if>>
-	<<set _equip to ["over_upper", "over_lower", "upper", "lower", "under_upper", "under_lower", "over_head", "head", "face", "neck", "hands", "handheld", "legs", "feet", "genitals"]>>
+	<<set _equip to ["over_upper", "over_lower", "upper", "lower", "under_upper", "under_lower", "over_head", "head", "face", "neck", "hands", "handheld", "earrings", "rings", "legs", "feet", "genitals"]>>
 	<<set _slimePrevent to ["upper", "lower", "under_upper", "under_lower"]>>
 	<<set _towelCheck to ["upper", "lower"]>>
-	<<set _equipSkip to {"over_upper":false, "over_lower":false, "upper":false, "lower":false, "under_upper":false, "under_lower":false, "over_head":false, "head":false, "face":false, "neck":false, "hands":false, "handheld":false, "legs":false, "feet":false, "genitals":false}>>
+	<<set _equipSkip to {"over_upper":false, "over_lower":false, "upper":false, "lower":false, "under_upper":false, "under_lower":false, "over_head":false, "head":false, "face":false, "neck":false, "hands":false, "handheld":false, "earrings":false, "rings":false, "legs":false, "feet":false, "genitals":false}>>
 	<<set _eIndextemNames to []>>
 	<<for _slot range _equip>>
 		<<if $equipFromInventory is _slot>>
@@ -342,6 +342,8 @@
 	<<set $wear_neck to "none">>
 	<<set $wear_hands to "none">>
 	<<set $wear_handheld to "none">>
+	<<set $wear_earrings to "none">>
+	<<set $wear_rings to "none">>
 	<<set $wear_legs to "none">>
 	<<set $wear_feet to "none">>
 	<<set $wear_genitals to "none">>
@@ -632,6 +634,8 @@
 		{ id: 'under_lower', label: 'Under Lower' },
 		{ id: 'hands', label: 'Hands' },
 		{ id: 'handheld', label: 'Handheld' },
+		{ id: 'earrings', label: 'Earrings', disabled: !$ears_pierced },
+		{ id: 'rings', label: 'Rings' },
 		{ id: 'legs', label: 'Legs' },
 		{ id: 'feet', label: 'Feet' },
 	]>>
@@ -741,6 +745,8 @@
 				neck: clone($worn.neck.name),
 				hands: clone($worn.hands.name),
 				handheld: clone($worn.handheld.name),
+				earrings: clone($worn.earrings.name),
+				rings: clone($worn.rings.name),
 				legs: clone($worn.legs.name),
 				feet: clone($worn.feet.name),
 				genitals: clone($worn.genitals.name),
@@ -754,7 +760,7 @@
 			<</if>>
 
 			<<if _saveColor>>
-				<<set _equip to ["over_upper", "over_lower", "upper", "lower", "under_upper", "under_lower", "over_head", "head", "face", "neck", "hands", "handheld", "legs", "feet"]>>
+				<<set _equip to ["over_upper", "over_lower", "upper", "lower", "under_upper", "under_lower", "over_head", "head", "face", "neck", "hands", "handheld", "earrings", "rings", "legs", "feet"]>>
 				<<set _colors to {}>>
 				<<for _slot range _equip>>
 					<<set _colors[_slot] to [$worn[_slot].colour, $worn[_slot].accessory_colour]>>
@@ -1025,6 +1031,12 @@
 					<<default>><<exit>>
 				<</switch>>
 			<</if>>
+		<<case "rings">>
+			<<set _altLink to ["Put on right hand", "Put on left hand"]>>
+		<<case "hands">>
+			<<switch $worn.hands.variable>>
+				<<default>><<set _altLink to ["Put on right wrist", "Put on left wrist"]>>
+			<</switch>>
 		<<default>><<exit>>
 	<</switch>>
 	<</silently>>
@@ -1657,6 +1669,10 @@
 	<div id="clothingBox-neck"><<oldWardrobeList "neck">></div>
 	<div id="clothingBox-hands"><<oldWardrobeList "hands">></div>
 	<div id="clothingBox-handheld"><<oldWardrobeList "handheld">></div>
+	<<if $ears_pierced is 1>>
+		<div id="clothingBox-earrings"><<oldWardrobeList "earrings">></div>
+	<</if>>
+	<div id="clothingBox-rings"><<oldWardrobeList "rings">></div>
 	<div id="clothingBox-legs"><<oldWardrobeList "legs">></div>
 	<div id="clothingBox-feet"><<oldWardrobeList "feet">></div>
 	<div style="clear:both;"></div>
@@ -2155,6 +2171,8 @@
 			<<if $avery_party>>
 				<<link [[Exit|Mansion Party Quinn Change 2]]>><<cleanupOnWardrobeExit>><</link>>
 				<br>
+			<<elseif $phase is 446>>
+				<<link [[Exit|Mansion Clothing Wardrobe Exit]]>><<cleanupOnWardrobeExit>><</link>>
 			<<elseif $avery_mansion_skyscraper_wardrobe>>
 				<<link [[Exit|Mansion Skyscraper Wardrobe Exit]]>><<cleanupOnWardrobeExit>><</link>>
 				<br>

@@ -2563,8 +2563,8 @@
 				<span class="red">You cannot currently change pregnancy length settings, as you are close to the end of your current pregnancy.</span>
 			<</if>>
 				<div class="settingsToggleItem numberslider-inline humanPregnancyMonths-container" data-target="humanPregnancyMonths" @data-disabledif="playerPregnancyProgress() gte 0.9">
-					<span class="gold">Human Pregnancy Length</span>
-					<<numberslider "$settings.humanPregnancyMonths" $settings.humanPregnancyMonths 1 9 1>>
+					<span class="gold">Human Pregnancy Length:</span>
+					<<numberslider "$settings.humanPregnancyMonths" $settings.humanPregnancyMonths 1 9 1 { value: (v) => v + pluralise(v, " month") }>>
 				</div>
 				<div class="settingsToggleItem numberslider-inline wolfPregnancyWeeks-container" data-target="wolfPregnancyWeeks" @data-disabledif="playerPregnancyProgress() gte 0.9">
 					<span class="gold">Wolf Pregnancy Length</span>
@@ -4360,7 +4360,7 @@
 				<label>Randomized <<radiobutton "$npcDescGenType" "randomized" autocheck>></label>
 				<br>
 				<<checkbox "$npcDescDemonDisable" 0 1 autocheck>> Disable Demon descriptions.
-				<mouse class="tooltip linkBlue">(?)<span>Prevents Demon and Minor Demon descriptions.</span></mouse>
+				<mouse class="tooltip linkBlue">(?)<span>Prevents Demon and lesser demon descriptions.</span></mouse>
 				<br>
 			</div>
 
@@ -4827,6 +4827,13 @@
 <<set $attitudesControl.showGoldLink to "false">>
 <div class="settingsGrid">
 	<<button [[Confirm|$attitudesExitPassage]]>>
+	
+		<<switch $speech_attitude_special>>
+			<<case "meek" "docile">><<set $speech_attitude to "meek">>
+			<<case "bratty" "cruel">><<set $speech_attitude to "bratty">>
+			<<default>><<set $speech_attitude to $speech_attitude_special>>
+		<</switch>>
+		
 		<<unset $attitudesExitPassage>>
 		<<run DefaultActions.save(T.defaultActions)>>
 		<<if $LIChanged>>

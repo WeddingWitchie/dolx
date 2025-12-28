@@ -1859,7 +1859,7 @@ function initUnderUpper() {
 			colour_sidebar: 1,
 			exposed: 1,
 			exposed_base: 1,
-			type: ["costume", "fetish", "naked", "sticky"],
+			type: ["costume", "fetish", "naked", "sticky", "antitransparent"],
 			set: "giftwrap",
 			gender: "n",
 			warmth: 0,

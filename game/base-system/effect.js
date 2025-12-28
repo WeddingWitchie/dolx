@@ -1554,7 +1554,7 @@ function effects() {
 					break;
 				case "bearDown5":
 					element("span", "Your balance feels different. Your bear tail has disappeared.", "gold");
-					break;
+					break;					
 				case "harpyUp1":
 					element("span", "Your vision feels sharper.", "gold");
 					break;
@@ -1725,7 +1725,7 @@ function effects() {
 					break;
 				case "bunnyDown5":
 					element("span", "Your bunny tail has disappeared.", "gold");
-					break;
+					break;					
 				// Clothes
 				case "bimboMessage1":
 					element(
@@ -1860,13 +1860,13 @@ function effects() {
 	if (V.combat === 0 && V.ironmanmode === true) IronMan.scheduledSaves();
 
 	if (V.tirednessMaxScalingToggle) {
-		C.tiredness.max = 2000 + Math.floor(currentSkillValue("physique") / 32);
+		C.tiredness.max = 2000 + Math.floor(currentSkillValue("physique", 0, 1) / 32);
 	} else {
 		C.tiredness.max = 2000;
 	}
 
 	if (V.stressMaxScalingToggle) {
-		V.stressmax = 10000 + Math.floor(currentSkillValue("willpower") * 5);
+		V.stressmax = 10000 + Math.floor(currentSkillValue("willpower", 0, 1) * 5);
 	} else {
 		V.stressmax = 10000;
 	}

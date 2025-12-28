@@ -127,6 +127,8 @@ class CombatRenderer {
 			"neck",
 			"hands",
 			"handheld",
+			"earrings",
+			"rings",
 			"legs",
 			"feet",
 			"genitals",

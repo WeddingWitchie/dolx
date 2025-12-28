@@ -142,9 +142,11 @@
 		<<else>>
 			There's no more recipes you can learn.
 		<</if>>
-		<br><br>
+		<br>
 	<</if>>
 
+	<<crimeicon "mark">><<link [[Steal|Housekeeping Kitchen Steal]]>><<handheldon>><</link>>
+	<br><br>
 	<<getouticon>><<link [[Leave the room (0:01)|Hallways]]>><<handheldon>><<pass 1>><</link>>
 	<br>
 <</if>>
@@ -326,4 +328,170 @@ You rest your head on the desk while River <<print either("demonstrates a sewing
 	<<lessonEnd "housekeepingClassroom" "sleep">>
 <<else>>
 	<<eventshousekeepingsleep>>
+<</if>>
+
+:: Housekeeping Kitchen Steal
+<<set $outside to 0>><<set $location to "school">><<effects>>
+<<effects>>
+<br>
+You look through the cabinets. Most of the ingredients you use during classes are here. 
+<<if Time.schoolDay>>
+	<<if $schoolstate is "early" or $schoolstate is "lunch">>
+		Nobody usually comes here at this hour, so it should be easy.
+		<<set $skulduggerydifficulty to 400>>
+	<<elseif $schoolstate is "late">>
+		You don't think anybody will come in, but there is always the possibility.
+		<<set $skulduggerydifficulty to 500>>
+	<<else>>
+		You must be quick. Somebody may come in at any point.
+		<<set $skulduggerydifficulty to 800>>
+	<</if>>
+<<else>>
+	Nobody is around.
+	<<set $skulduggerydifficulty to 300>>
+<</if>>
+<br><br>
+
+<<ingredientsSuppliesSteal "salt" "vegetable_oil" "bottle_of_milk" "white_wine" "flour" "oats" "sugar">>
+
+<<icon "housekeeping.png">><<link [[Back|Housekeeping Classroom]]>><</link>>
+
+:: school Kitchen Steal Result
+<<effects>>
+
+<<set $skulduggerydifficulty to 300>><<skulduggerycheck>>
+<br><br>
+
+<<if $skulduggerysuccess is 1>>
+	The <<recipe_name $phase "plural">> are behind some jars, so you move them off your way as quietly as possible. <<tending_pick $phase 3 6>>
+	You probably shouldn't take more or River will notice too much is missing.<br><br>
+	
+	<<icon "housekeeping.png">><<link [[Walk away|Housekeeping Classroom]]>><</link>>
+	<<ingredientsSuppliesSteal "salt" "vegetable_oil" "bottle_of_milk" "white_wine" "flour" "oats" "sugar">>
+<<else>>
+	<<if Time.schoolDay>>
+		<<if $schoolstate is "early" or $schoolstate is "lunch" or $schoolstate is "late">>
+			<<generatey1>><<person1>>
+			The <<recipe_name $phase "plural">> are behind some jars, so you move them off your way as quietly as possible. You are in the middle of your crime, when you hear a gasp behind you. You turn around.<br>
+			"Are you stealing the ingredients!?" The <<person>> exclaims." It's not okay! I'm going to tell <<print either("the head", "the <<nnpc_title "Leighton">>", "Leighton", "the teacher", "River", "River")>>" <<He>> runs out before you can say anything.<br><<detention 1>><<gdelinquency>>
+			You look at the <<recipe_name $phase>> in your hand. You'll still be in trouble even if you leave it here, but it will be wore if you take it will you.<br><br><<set $weekly.theft.school.Ban = true>>
+			<<link [[Leave the <<recipe_name $phase "plural">>|Housekeeping Leave]]>><</link>><br>
+			<<link [[Take the <<recipe_name $phase "plural">>|Housekeeping Take]]>><<detention 4>><</link>><br><<ggdelinquency>>
+		<<else>>
+			<<npc River>><<person1>>
+			The <<recipe_name $phase "plural">> are behind some jars, so you move them off your way as quietly as possible. You don't manage to take two, before you hear somebody coming in.<br>
+			"Are you trying to steal the ingredients?" You turn around and see face to face with River. <<His>> eyes scrutinizing you. "Put the <<recipe_name $phase>> back. Perhaps a detention will teach you not to steal."<<npcincr River love -1>><<love>><<detention 6>><<ggdelinquency>><<set $weekly.theft.school.Ban = true>><br><br>
+			<<link [[Leave the room (0:01)|Hallways]]>><<handheldon>><<pass 1>><</link>>
+		<</if>>
+	<<else>>
+		<<beastNEWinit 1 cat>>
+		You move some jars out of the way to reach for <<recipe_name $phase "plural">>, but accidentally hit them on each other causing some noise. You freeze for a moment, and then you hear 
+		<<beastNEWinit 1 cat>>
+		<<if $monster is 1 or $settings.bestialityEnabled>>
+			a low growl behind you. A large <<beasttype>> pounces on you from the shadows, forcing you to your knees. The jar drops, shattering on the floor.
+			<br><br>
+			<<if ($cat gte 6 or ($transformationParts.cat.tail isnot "hidden" and $transformationParts.cat.tail isnot "disabled"))>>
+				<<link [[Hiss|School Housekeeping Hiss]]>><</link>><<cat>>
+				<br>
+			<</if>>
+			<<link [[Fight|School Housekeeping Cat]]>><<set $molestationstart to 1>><</link>>
+			<br>
+		<<else>>
+			a low growl behind you. A large cat pounces on you from the shadows causing you to drop the jar, which shatters on the floor. You manage to escape, but not without injury. You left quite a destruction behind you.<<crimeUp 5 "destruction">><<crime "destruction">>
+			<<beastescape>>
+			<br><br>
+			<<link [[Next|Housekeeping Classroom]]>><<endevent>><</link>>
+			<br>
+		<</if>>
+	<</if>>
+<</if>>
+
+:: Housekeeping Leave
+<<effects>>
+<br>
+You put down the <<recipe_name $phase "plural">>. At least now they have little evidence it was you. Still - you should probably leave and not try it again for some time. <<set $weekly.theft.school[$phase] = false>>
+<br><br>
+
+<<getouticon>><<link [[Leave the room (0:01)|Hallways]]>><<handheldon>><<pass 1>><</link>>
+
+:: Housekeeping Take
+<<effects>>
+<br>
+You pick the <<recipe_name $phase>> anyways. <<tending_pick $phase 3 6>> You should still leave quickly before you get in more trouble. And probably not return any time soon.<br><br>
+
+<<getouticon>><<link [[Leave the room (0:01)|Hallways]]>><<handheldon>><<pass 1>><</link>>
+
+:: School Housekeeping Hiss
+
+<<set $outside to 0>><<set $location to "school">><<effects>>
+You hiss at the <<beasttype>>. <<bHe>> backs away from you, <<bhis>> ears turned back. You stare at <<bhim>> and unleash your deepest meow. <<bHe>> growls back, but <<bhis>> face relaxes. <<bHe>> leaps onto the windowsill and disappears behind it.<br>
+You look around at the shattered jar on the ground. The <<recipe_name $phase "plural">> you wanted to steal lie on the ground mixed with glass. Picking any of it would be too dangerous, but it's enough to be passed as a simple accident. If you clean it up, nobody should bat an eye on the destruction you caused.
+<br><br>
+
+<<link [[Clean it up|Housekeeping Classroom Sweep]]>><<endevent>><</link>><br>
+<<link [[Leave it|Housekeeping Classroom Leave]]>><<detention 2>><</link>><<endevent>><</link>><<gdelinquency>>
+
+:: Housekeeping Classroom Sweep
+<<set $outside to 0>><<set $location to "school">><<effects>>
+You pick up the broom and sweep the glass and remains of <<recipe_name $phase "plural">> off the floor. It doesn't take you long to take care of it.<br><br>
+
+<<crimeicon "mark">><<link [[Steal more|Housekeeping Kitchen Steal]]>><<handheldon>><</link>><br>
+<<icon "housekeeping.png">><<link [[Walk away|Housekeeping Classroom]]>><</link>>
+
+:: Housekeeping Classroom Leave
+<<set $outside to 0>><<set $location to "school">><<effects>>
+You decide it's better to leave the mess behind. It's not your problem anymore.<br><br>
+
+<<crimeicon "mark">><<link [[Steal more|Housekeeping Kitchen Steal]]>><<handheldon>><</link>><br>
+<<icon "housekeeping.png">><<link [[Walk away|Housekeeping Classroom]]>>
+
+
+:: School Housekeeping Cat
+
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<beastCombatInit>>
+	<<set $enemytrust -= 40>>
+	<<set $NPCList[0].stance to "top">><<set $head to "grappled">>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<br>
+<<beast $enemyno>>
+<br><br>
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<if _combatend>>
+	<span id="next"><<link [[Next|School Housekeeping Cat Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|School Housekeeping Cat]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: School Housekeeping Cat Finish
+
+<<set $outside to 0>><<set $location to "school">><<effects>>
+<<if $enemyarousal gte $enemyarousalmax>>
+	<<beastejaculation>>
+	The <<beasttype>> grunts in satisfaction, and leaps out the window, leaving you lying on the floor.
+	<br><br>
+	<<tearful>> you rise to your feet. You look around and see quite a destruction behind you.<<crimeUp 7 "destruction">><<crime "destruction">>
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
+	<<link [[Next|Housekeeping Classroom]]>><<endevent>><</link>>
+<<elseif $enemyhealth lte 0>>
+	The <<beasttype>> yelps and flees through the window.
+	<br><br>
+	<<tearful>> you rise to your feet. You look around and see quite a destruction behind you.<<crimeUp 10 "destruction">><<crime "destruction">>
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
+	<<link [[Next|Housekeeping Classroom]]>><<endevent>><</link>>
 <</if>>

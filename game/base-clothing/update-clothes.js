@@ -554,6 +554,8 @@ function wardrobesUpdate() {
 		feet: [],
 		hands: [],
 		handheld: [],
+		earrings: [],
+		rings: [],
 		head: [],
 		legs: [],
 		lower: [],
@@ -696,6 +698,14 @@ function wardrobesUpdate() {
 	if (V.objectVersion.wardrobes < 7) {
 		Object.values(V.wardrobes).forEach(wardrobe => {
 			if (wardrobe && Array.isArray(wardrobe.upper) && !wardrobe.handheld) wardrobe.handheld = [];
+		});
+	}
+	if (V.wear_rings === undefined) {
+		Object.values(V.wardrobes).forEach(wardrobe => {
+			if (wardrobe && Array.isArray(wardrobe.upper) && !wardrobe.earrings) wardrobe.earrings = [];
+		});
+		Object.values(V.wardrobes).forEach(wardrobe => {
+			if (wardrobe && Array.isArray(wardrobe.upper) && !wardrobe.rings) wardrobe.rings = [];
 		});
 	}
 

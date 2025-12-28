@@ -1,0 +1,163 @@
+:: Boutique
+<<set $bus to "boutiqueshop">>
+<div id="clothingShop-div" class="main-shop-div">
+	<<luxury_jewelleryShop-main>>
+</div>
+
+:: Boutique Widgets [widget]
+
+<<widget "luxury_jewelleryShop-main">>
+	<<set $outside to 0>><<set $location to "boutique">><<effects>>
+	<<set $shopName = "luxury_jewellery">>
+
+	You are in the boutique on Danube Street. 
+	<<set $skulduggerydifficulty to 400>><<skulduggerycheck "silent">>
+	<<if $skulduggerysuccess is 1 or $transformationParts.traits.sharpEyes isnot "disabled">>
+		<<if $fame.social gte 1000 + $fame.business gte 1000 gte 2000>>
+			The security doesn't pay you much mind.
+		<<elseif $fame.social gte 1000 + $fame.business gte 1000 gte 1000>>
+			You catch the bodyguard's gaze following you from time to time.
+		<<else>>
+			Watchful eyes of the security follow your every step. You aren't the usual customer.
+		<</if>>
+	<<else>>
+		<<if $fame.social gte 1000 + $fame.business gte 1000 gte 2000>>
+			You don't catch any security around you.
+		<<elseif $fame.social gte 1000 + $fame.business gte 1000 gte 1000>>
+			You don't catch any security around you, but some customer's gaze follows you from time to time.
+		<<else>>
+			You feel watched, but you aren't sure by whom.
+		<</if>>
+	<</if>>
+	<br><br>
+
+
+	<<if $stress gte $stressmax>>
+
+		<<passoutshop>>
+	<<else>>
+		<<if Time.hour is $closinghour>>
+			It's closing time. Security is herding everyone outside. <<if $exposed gte 1>>Panic swells within you as you realise how exposed you'll be should security find you in this state of dress.<</if>>
+			<br><br>
+		<<else>>
+			<<if $openinghours is 0>>
+				You are alone in the darkness.
+				<br><br>
+			<</if>>
+				<div id="tryonstats-div"><<tryOnStats>></div>
+				<<unset $shopListStartCount>>
+				<<unset $clothes_choice>>
+				<<set $shopPage = 0>>
+
+				<<if Time.dayState is "night">>
+					You are alone in the darkness.
+				<</if>>
+				
+				<br>
+
+				<span>Warmth:</span>
+				<<warmthscale>>
+				<div id="warmth-description">
+					<<warmth_description>>
+				</div>
+				<br><br>
+				<<clothingcategoryicon "all">>
+				<<link "View All">><<replace "#clothingShop-div">><<AllShop>><</replace>><</link>>
+				<br><br>
+				<<clothingcategoryicon "neck">>
+				<<link "View Neck Accessories">><<replace "#clothingShop-div">><<NeckShop>><</replace>><</link>>
+				<br>
+				<<clothingcategoryicon "earrings">>
+				<<link "View Earrings">><<replace "#clothingShop-div">><<EarringsShop>><</replace>><</link>>
+				<br>
+				<<clothingcategoryicon "rings">>
+				<<link "View Rings">><<replace "#clothingShop-div">><<RingsShop>><</replace>><</link>>
+				<br>
+				<<clothingcategoryicon "hand">>
+				<<link "View Hand Accessories">><<replace "#clothingShop-div">><<HandsShop>><</replace>><</link>>
+				<br>
+				<br><br>
+				<<run linkifyDivs('.button-back-to-shop')>>
+
+				<<if Time.dayState is "night" and Time.hour isnot $closinghour and !$weekly.theft.boutique>>
+					<<shopicon "register">><<link [[Examine the cash register|Boutique Register]]>><</link>>
+					<br>
+				<</if>>
+		<</if>>
+			<<if Time.dayState is "night" or $tryOn.value is 0>>
+				<<if $tryOn.value gt 0 and Object.values(V.tryOn?.tryingOn).some(slot => slot?.type.includes("heavy"))>>
+					<span class="red">The jewellery you're trying on is too heavy to steal!</span>
+				<<elseif ["earrings"].includes($clothingShopSlot) and !$ears_pierced>>
+					<span class="purple">You're still holding earrings to your ears. You have to put them down if you want to take anything.</span>
+				<<elseif Time.dayState is "night" and $clothingShop.stolenClothes gt 0>>
+					You see the security outside the door. <span class="red">There is no chance to slip by them.</span>
+				<<else>>
+					<<getouticon>>
+					<<link [[Leave|Danube Street]]>>
+						<<shopClothingFilterReset>>
+						<<ShowUnderEquip "normal">>
+						<<ShowUnderEquip "over">>
+						<<buyTryOnClothes "wear" "steal">>
+						<<set $tryOn.autoReset to true>>
+						<<shopHoodCheck>>
+						<<shopCommandoCheck>>
+					<</link>>
+				<</if>>
+				<br><br>
+			<<elseif $tryOn.value isnot 0>>
+				<<icon "hanger.png">><<link "Return jewellery">><<clothingReset>>
+					<<updatesidebarimg>>
+					<<updatesidebardescription>>
+					<<updateallure>>
+					<<updateclothingshop>>
+					<<run updateMoment()>>
+				<</link>>
+				<br>
+				<<if $tryOn.value gt 0 and $tryOn.value lte $money>>
+					<<sendItemsToDropdown>>
+					<<highicon>><<link "Buy jewellery">><<buyTryOnClothes "wear">><<updatesidebarmoney>><<updateclothingshop>><</link>>
+					<br>
+					<<wardrobeicon>><<link "Buy jewellery and send to wardrobe">>
+						<<buyTryOnClothes "wardrobe">>
+						<<updatesidebarmoney>>
+						<<updatesidebarimg>>
+						<<updatesidebardescription>>
+						<<updateallure>>
+						<<updateclothingshop>>
+						<<run updateMoment()>>
+					<</link>>
+					<br>
+				<</if>>
+				<<if $tryOn.value gt 0>>
+					<<if Object.values(V.tryOn.tryingOn).some(slot => slot?.type.includes("heavy"))>>
+						<span class="red">The jewellery you're trying on is too heavy to steal!</span>
+					<<elseif ["earrings"].includes($clothingShopSlot) and !$ears_pierced>>
+						<span class="purple">You're still holding earrings to your ears. You have to put them down if you want to take anything.</span>
+					<<else>>
+						<<getouticon>><<link [[Leave with stolen jewellery|Stolen Jewellery Boutique Result]]>><<shopClothingFilterReset>><<shopHoodCheck>><<shopCommandoCheck>><</link>><<crime "thievery">>
+					<</if>>
+					<br>
+				<</if>>
+			<</if>>
+		<br>
+	<</if>>
+<</widget>>
+
+:: Stolen Jewellery Boutique Result
+<<effects>>
+<<ShowUnderEquip "over">>
+<<ShowUnderEquip "normal">>
+
+A few security guard watch you entrance closely as you approach the door. Realizing there is no way to slip past them, you leave the stollen jewellery behind.
+<<clothingReset>>
+
+<br><br>
+<<link [[Next|Danube Street]]>><<set $tryOn.autoReset to true>><<endevent>><</link>>
+
+:: Boutique Guard
+
+<<set $outside to 1>><<effects>>
+The boutique is closed. <<openinghours>> Two security guards stand in from of the entrance, watching it closely. There is no chance for you to sneak in.
+<br><br>
+
+<<getouticon>><<link [[Leave|Danube Street]]>><<handheldon>><</link>>

@@ -165,9 +165,26 @@ class CloseCombatMapper {
 	 * @param {CloseOptions} options
 	 */
 	static mapClosePenetrators(slot, options) {
-		const activeEnemy = V.NPCList[V.active_enemy].type;
-		const npc = ["horse", "centaur"].includes(activeEnemy) ? "horse" : ["beast", "machine", "tentacles"].includes(V.enemytype) ? V.enemytype : "npc";
-		const chastity = (playerChastity("hidden") || V.worn.genitals.name === "chastity parasite") && slot === "vagina" && !["horse", "machine"].includes(npc);
+		// Defensive: V.active_enemy / V.NPCList entry can be missing when penetrator state is inconsistent
+		const enemyIndex = V.active_enemy;
+		const enemyObj =
+			Array.isArray(V.NPCList) && enemyIndex != null
+				? V.NPCList[enemyIndex]
+				: null;
+
+		const activeEnemy = (enemyObj && enemyObj.type) ? enemyObj.type : (V.enemytype || "npc");
+
+		const npc = ["horse", "centaur"].includes(activeEnemy)
+			? "horse"
+			: ["beast", "machine", "tentacles"].includes(V.enemytype)
+				? V.enemytype
+				: "npc";
+
+		const chastity =
+			(playerChastity("hidden") || V.worn.genitals.name === "chastity parasite") &&
+			slot === "vagina" &&
+			!["horse", "machine"].includes(npc);
+
 		options[slot] = {};
 
 		/* check $anusstate or $vaginastate */
@@ -241,12 +258,25 @@ class CloseCombatMapper {
 					options.filters[`${slot}Condom`] = CombatRenderer.getCondomOptions(targetNpc.condom).colour;
 				}
 			}
+			// Ensure filters object exists before writing into it
+			options.filters = options.filters || {};
 			if (options[slot].npc2) {
-				const targetNpc2 = V.NPCList[V[`${slot}doubletarget`]];
+				const idx2 = V[`${slot}doubletarget`];
+				const targetNpc2 = Array.isArray(V.NPCList) ? V.NPCList[idx2] : null;
 
-				/* filters for npc double-penetrating vagina/anus */
-				options.filters[`${slot}Npc2`] = NpcCombatMapper.getNpcPenetratorFilter(targetNpc2);
-				options.filters[`${slot}Condom2`] = CombatRenderer.getCondomOptions(targetNpc2.condom).colour;
+				// If the "double target" doesn't exist, the DP state is invalid -> treat as single
+				if (!targetNpc2) {
+					delete options[slot].npc2;
+
+					// Prevent downstream logic from thinking this is DP
+					if (V[`${slot}state`] === "doublepenetrated") {
+						V[`${slot}state`] = "penetrated";
+					}
+				} else {
+					/* filters for npc double-penetrating vagina/anus */
+					options.filters[`${slot}Npc2`] = NpcCombatMapper.getNpcPenetratorFilter(targetNpc2);
+					options.filters[`${slot}Condom2`] = CombatRenderer.getCondomOptions(targetNpc2?.condom).colour;
+				}
 			}
 		}
 	}

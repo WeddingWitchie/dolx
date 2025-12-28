@@ -40,14 +40,45 @@ The garden looks <span class="red">wild,</span> barely a garden at all. The hedg
 	<<investigateicon>><<link [[Search for something to cover with|Temple Garden Exposed]]>><</link>>
 	<br>
 	<<else>>
-		<<if Time.dayState is "night">>
-			It's too dark to work in the garden.
+		<<if Time.dayState is "night" and $transformationParts.traits.sharpEyes is "disabled">>
+			It's too dark to work in the garden
+			<<if $skulduggery gte 600>>
+				, but you could try to steal some fruits if you were careful enough.
+				<br>
+				<<crimeicon  "mark">><<link [[Steal fruits (1:00)|Temple Garden Steal Night]]>><<pass 60>><<set $skulduggerydifficulty to 750>><<set $phase to 0>><</link>><<crime "petty">>
+			<<else>>
+				.
+			<</if>>
+			<br>
 			<br>
 		<<elseif $temple_garden gte 100>>
 			<span class="green">The garden is perfect, and there's nothing more you can do for today.</span>
 			<br>
 		<<elseif pcAreArmsBound("both")>>
 			<span class="red">Both of your arms are bound</span>, so you are unable to work in the garden.
+			<br>
+		<<elseif Time.dayState is "night" and $transformationParts.traits.sharpEyes isnot "disabled">>
+			It's dark, but your sharp eyes let you see a bit. <span class="blue">Working now will take more time, but it's still possible</span>, but nobody will know it was you.<br><br>
+			<<templeicon "garden">>
+			<<link [[Work in the garden (1:00)|Temple Garden Work Night]]>>
+			<<if currentSkillValue('tending') gte 1800>>
+				<<set $temple_garden += 7>>
+			<<elseif currentSkillValue('tending') gte 1500>>
+				<<set $temple_garden += 6>>
+			<<elseif currentSkillValue('tending') gte 1000>>
+				<<set $temple_garden += 5>>
+			<<elseif currentSkillValue('tending') gte 800>>
+				<<set $temple_garden += 4>>
+			<<elseif currentSkillValue('tending') gte 500>>
+				<<set $temple_garden += 3>>
+			<<elseif currentSkillValue('tending') gte 300>>
+				<<set $temple_garden += 2>>
+			<<else>>
+				<<set $temple_garden += 1>>
+			<</if>>
+			<<pass 60>><<tiredness 6>><<tending 1>><</link>><<gtending>><<gtiredness>><<note "Tending skill affects efficiency" "blue">>
+			<br>
+			<<crimeicon  "mark">><<link [[Steal fruits (0:30)|Temple Garden Steal Night]]>><<pass 30>><<set $skulduggerydifficulty to 400>><<set $phase to 0>><</link>><<crime "petty">>
 			<br>
 		<<else>>
 			<<templeicon "garden">>
@@ -68,6 +99,8 @@ The garden looks <span class="red">wild,</span> barely a garden at all. The hedg
 				<<set $temple_garden += 3>>
 			<</if>>
 			<<pass 60>><<grace 1 monk>><<tiredness 6>><<tending 1>><</link>><<gtending>><<ggrace monk>><<gtiredness>><<note "Tending skill affects efficiency" "blue">>
+			<br>
+			<<crimeicon  "mark">><<link [[Steal fruits (1:00)|Temple Garden Steal]]>><<pass 60>><<set $skulduggerydifficulty to 400>><<set $phase to 0>><</link>><<crime "petty">>
 			<br>
 		<</if>>
 	<</if>>
@@ -162,7 +195,11 @@ You ask a <<priest>> what work needs doing around the garden.
 	<<else>>
 		Basket in hand, you climb a stepladder and start picking <<print _prop>>. <<tending_text>> It's pleasant, though you need to stretch pretty far to reach some of them. <<physique 6>><<lstress>><<stress -6>>
 		<br><br>
-
+		<<if $skulduggery gte 100>>
+			<span class="blue">You think you could steal some if you were careful enough.</span><br>
+			<<link [[Steal some|Temple Garden Steal]]>><<set $skulduggerydifficulty to 400>><<set $phase to _prop>><</link>><<crime "petty">>
+			<br>
+		<</if>>
 		<<link [[Next|Temple Garden]]>><<handheldon>><</link>>
 		<br>
 	<</if>>
@@ -913,10 +950,10 @@ You keep low as you move between hedges, peeking around each corner before makin
 	You see a nun's habit hanging on a line <<if Weather.precipitation is "rain">>that's been shifted out of the rain in haste<<elseif Weather.precipitation is "snow">>that's been shifted out of the snow in haste<<else>>above a bed of flowers<</if>>. There are some towels on the same line. The towels are closer. A <<fullGroup>>, each wearing a habit, are tending to a flower bed nearby. Their backs are turned.
 	<br><br>
 	<<set $skulduggerydifficulty to 700>>
-	<<link [[Steal habit|Temple Garden Habit]]>><<set $skulduggerydifficulty to 700>><<crimeUp 50 "thievery">><</link>><<skulduggerydifficulty>><<crime "thievery">>
+	<<link [[Steal habit|Temple Garden Habit]]>><<set $skulduggerydifficulty to 700>><<crimeUp 50 "thievery">><</link>><<skulduggerycheck "silent">><<crime "thievery">>
 	<br>
 	<<set $skulduggerydifficulty to 300>>
-	<<link [[Take towels|Temple Garden Towels]]>><<set $skulduggerydifficulty to 300>><</link>><<skulduggerydifficulty>>
+	<<link [[Take towels|Temple Garden Towels]]>><<set $skulduggerydifficulty to 300>><</link>><<skulduggerycheck "silent">>
 	<br>
 <</if>>
 
@@ -1047,3 +1084,311 @@ You lie prone and shuffle towards the line, conscious of your <<nudity>>.
 		<<link [[Next|Temple Garden]]>><</link>>
 	<</if>>
 <</if>>
+
+
+:: Temple Garden Work Night
+<<set $outside to 1>><<set $location to "temple">><<temple_effects>><<effects>>
+
+You look around the garden.
+<<endevent>>
+<<if $rng gte 81>>
+	<<wearProp "hedge shears">>
+	You decide to trim a row of hedges. You take a pair of shears and get to work.
+	<br><br>
+	<<if dangerEvent() and $settings.tentaclesEnabled and ($hallucinations gte 2 or $backgroundTraits.includes("plantlover"))>>
+		<<tending_text>> It's hard going, but you neaten things up a great deal. <<physique 6>>
+		<br><br>
+		You're reaching in to cut a rogue branch when your wrist gets stuck. You reach your other hand in to help free yourself, and that gets stuck too. You feel something wrap around both ankles. A force pulls you off your feet and into the hedge.
+		<br><br>
+		You find yourself suspended within its branches, held aloft by tendrils wrapped around your body. More tendrils emerge from every direction.
+		<br><br>
+
+		<<link [[Struggle|Temple Garden Tentacles]]>><<handheldon>><<set $molestationstart to 1>><</link>>
+		<br>
+		<<link [[Soothe|Temple Garden Soothe]]>><<handheldon>><</link>><<tendingdifficulty 1 1200>>
+		<br>
+	<<else>>
+		<<tending_text>> It's hard going, but you neaten things up a great deal. <<physique 6>>
+		<br><br>
+		<<link [[Next|Temple Garden]]>><<handheldon>><</link>>
+		<br>
+	<</if>>
+<<elseif $rng gte 61>>
+	You' decide to deweed the flower beds. You drop to your knees and get to work.
+	<br><br>
+	<<beastNEWinit 1 wolf>>
+	<<if dangerEvent() and ($monster is 1 or $settings.bestialityEnabled)>>
+		<<tending_text>> Your hands get dirty, and beads of sweat slip down your cheek, but the flowers have lots more space when you're done. <<physique 6>>
+		<br><br>
+			<<if $syndromewolves is 1>>
+				You hear footsteps behind you. You turn just as a <<beasttype>> jumps on top of you. <<bHe>> licks your face. You can't help but laugh.
+				<<if $monster is 1>>
+					"Smelled <<ppackbrother>>. Had to see. Come home soon? Pack misses you."
+				<</if>>
+				<<ltrauma>><<lstress>><<trauma -6>><<stress -6>>
+				<br><br>
+				You watch as <<bhe>> returns to the forest.
+				<br><br>
+
+				<<link [[Next|Temple Garden]]>><<endevent>><</link>>
+				<br>
+			<<else>>
+				You hear footsteps behind you. Before you can turn, <span class="red">a <<beasttype>> leaps atop you</span>.
+				<br><br>
+				<<link [[Next|Temple Garden Work Wolf]]>><<set $molestationstart to 1>><</link>>
+				<br>
+			<</if>>
+	<<else>>
+		<<tending_text>> Your hands get dirty, and beads of sweat slip down your cheek, but the flowers have lots more space when you're done. <<physique 6>>
+		<br><br>
+
+		<<link [[Next|Temple Garden]]>><<endevent>><</link>>
+		<br>
+	<</if>>
+<<elseif $rng gte 41>>
+	You decide to gather fruit from the trees growing near the temple proper.
+	<br><br>
+
+	<<set _prop to either("lemons", "limes", "apples", "oranges", "pears")>>
+	<<set _propCall to _prop.replace(/s$/, "")>>
+	<<wearProp _propCall>>
+	Basket in hand, you climb a stepladder and start picking <<print _prop>>. <<tending_text>> It's pleasant, though you need to stretch pretty far to reach some of them. <<physique 6>><<lstress>><<stress -6>>
+	<br><br>
+
+	<<link [[Steal some|Temple Garden Steal Night]]>><<set $skulduggerydifficulty to 400>><<set $phase to _prop>><</link>><<crime "petty">>
+	<br>
+	<<link [[Next|Temple Garden]]>><<handheldon>><</link>>
+	<br>
+<<elseif $rng gte 21>>
+	<<wearProp "shovel">>
+	You decide to tend the fire in the hedge maze.
+	<br><br>
+
+	You shovel coal onto the fire.
+	<br><br>
+	<<tending_text>> It takes you only a second.
+	<br><br>
+
+	<<link [[Next|Temple Garden]]>><<endevent>><</link>>
+	<br>
+<<else>>
+	<<generateTemple 1>><<person1>>
+	You decide to tend to the crops at the forest's edge.
+	<br><br>
+	You find <<him>> tending to a row of trellises, each bearing a vibrant vine of hops.
+	<<rng>>
+	<<if $rng gte 81>>
+		You search the plants for mites. <<tending_text>><br>
+	<<elseif $rng gte 61>>
+		You search the plants for mildew. <<tending_text>><br>
+	<<elseif $rng gte 41>>
+		You remove weeds from the soil. <<tending_text>><br>
+	<<elseif $rng gte 21>>
+		You remove weeds from the soil. <<tending_text>><br>
+	<<else>>
+		You harvest the riper plants. <<tending_text>><br><br>
+	<</if>>
+	<<physique 6>>
+	<br>
+	<<link [[Next|Temple Garden]]>><<endevent>><</link>>
+<</if>>
+
+:: Temple Garden Steal
+<<set $outside to 1>><<set $location to "temple">><<temple_effects>><<effects>>
+<<if $phase is 0>>
+	<<set _prop to either("lemons", "limes", "apples", "oranges", "pears")>>
+	<<set _propCall to _prop.replace(/s$/, "")>>
+	<<wearProp _propCall>>
+	<<set $phase to _prop>>
+<</if>>
+You look around and manage to sneak some into your pocket.<br><br>
+
+<<skulduggerycheck>>
+<<if $skulduggerysuccess is 1>>
+	<<switch $phase>>
+		<<case "lemons">>
+			<<tending_pick lemon 2 6>>
+		<<case "limes">>
+			<<tending_pick lime 2 6>>
+		<<case "apples">>
+			<<tending_pick apple 2 6>>
+		<<case "oranges">>
+			<<tending_pick orange 2 6>>
+		<<case "pears">>
+			<<tending_pick pear 2 6>>
+	<</switch>>
+<<else>>
+	Before you can finish, <span class="red">someone's hand grasps your hand.</span>.<br><br>
+	<<generateTemple 1>><<person1>>
+	"Just what are you doing?" a <<monk>> asks you, a frown on <<his>> face. "Put it back this instant."<<grace -10 monk>><<lllgrace monk>><<crimeUp 5 "petty">><<gcrime>>
+	<br><br>
+	You put back the fruits under <<his>> gaze. The <<monk>> checks all your pockets carefully to make sure you didn't take anything with you.<br>
+	"Don't do it again," <<He>> says before walking away with the fruits you attempted to steal.
+<</if>>
+<br><br>
+<<link [[Next|Temple Garden]]>><<handheldon>><</link>>
+<br>
+
+:: Temple Garden Steal Night
+<<set $outside to 1>><<set $location to "temple">><<temple_effects>><<effects>>
+<<if $phase is 0>>
+	<<set _prop to either("lemons", "limes", "apples", "oranges", "pears")>>
+	<<set _propCall to _prop.replace(/s$/, "")>>
+	<<wearProp _propCall>>
+	<<set $phase to _prop>>
+<</if>>
+You start picking the fruits and hiding it in your bag.
+<<if $skulduggerysuccess is 1>>
+	<<switch $phase>>
+		<<case "lemons">>
+			<<tending_pick lemon 4 14>>
+		<<case "limes">>
+			<<tending_pick lime 4 14>>
+		<<case "apples">>
+			<<tending_pick apple 4 14>>
+		<<case "oranges">>
+			<<tending_pick orange 4 14>>
+		<<case "pears">>
+			<<tending_pick pear 4 14>>
+	<</switch>>
+	<br><br>
+
+	<<link [[Next|Temple Garden]]>><<handheldon>><<endevent>><</link>>
+<<else>>
+	<<beastNEWinit 1 wolf>>
+	The noise you were making attracted somethig.
+	<<if $syndromewolves is 1>>
+		You hear footsteps behind you. You turn just as <span class="green">a <<beasttype>> jumps on top of you.</span>. <<bHe>> licks your face. You can't help but laugh.
+		<<if $monster is 1>>
+			"Heard <<ppackbrother>>. Had to see. Come home soon? Pack misses you."
+		<</if>>
+		<<ltrauma>><<lstress>><<trauma -6>><<stress -6>>
+		<br><br>
+		You watch as <<bhe>> returns to the forest, then glance at the fruits you just picked. Some of themlie squished on the ground, but most are untouched. Still, you should tidy up after yourself.<<crimeUp 2 "petty">><<set $temple_garden -= 3>><br>
+		<<switch $phase>>
+			<<case "lemons">>
+				<<tending_pick lemon 2 8>>
+			<<case "limes">>
+				<<tending_pick lime 2 8>>
+			<<case "apples">>
+				<<tending_pick apple 2 8>>
+			<<case "oranges">>
+				<<tending_pick orange 2 8>>
+			<<case "pears">>
+				<<tending_pick pear 2 8>>
+		<</switch>>
+		<br><br>
+
+		<<link [[Next|Temple Garden]]>><<handheldon>><<endevent>><</link>>
+		<br>
+	<<else>>
+		You hear footsteps behind you. Before you can turn, <span class="red">a <<beasttype>> leaps atop you</span>.
+		<br><br>
+		<<link [[Next|Temple Garden Work Wolf Steal]]>><<set $molestationstart to 1>><</link>>
+		<br>
+	<</if>>
+<</if>>
+
+:: Temple Garden Work Wolf Steal
+
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<beastCombatInit>>
+	<<if Time.dayState isnot "night">>
+		<<enable_rescue>>
+	<</if>>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<<alarmstate>>
+<<beast $enemyno>>
+<br><br>
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<if _combatend>>
+	<span id="next"><<link [[Next|Temple Garden Work Wolf Steal Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Temple Garden Work Wolf Steal]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Temple Garden Work Wolf Steal Finish
+
+<<effects>>
+<<if $enemyarousal gte $enemyarousalmax>>
+	<<beastejaculation>>
+	The <<beasttype 0>> returns to the forest. <<tearful>> you climb to your feet
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
+	<br>
+<<elseif $enemyhealth lte 0>>
+	The <<beasttype 0>> whimpers and limps back to the forest. <<tearful>> you climb to your feet.
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
+	<br>
+<<else>>
+	<<generate2>><<person2>>
+	The <<beasttype 0>>'s ears prick. A moment later you hear it yourself. Footsteps.<<silently>><<clotheson>><</silently>>
+	<br><br>
+	<<if $current_sex is 1>>
+		The <<beasttype 0>> tries to flee, but can't pull away from you. The footsteps get closer. You struggle to pull away, but it's no use. A <<monk>> rounds a corner while you're still stuck together.
+		<br><br>
+		<<if $exposed gte 1>>
+			<<He>> stops and stares at you. <<covered>> <<He>> tries to speak, but can't find the words. <<He>> leans against a sundial to steady <<himself>> as the <<beasttype 0>> finally pulls free and runs for the forest.
+			<br><br>
+			<<clotheson>>
+			"Ab—" <<he>> manages, stopping and steadying <<himself>> again. "Absolutely unacceptable. The bishop will hear of this." <<He>> pulls some towels from <<his>> habit, drops them on top of you, and marches away.<<lllgrace>><<gtrauma>><<gstress>><<grace -8>><<trauma 9>><<stress 9>>
+			<<towelup>>
+			<br><br>
+		<<else>>
+			<<He>> stops and stares at you. <<He>> tries to speak, but can't find the words. <<He>> leans against a sundial to steady <<himself>> as the <<beasttype 0>> finally pulls free and runs for the forest.
+			<br><br>
+			<<clotheson>>
+			"Ab—" <<he>> manages, stopping and steadying <<himself>> again. "Absolutely unacceptable. The bishop will hear of this." <<He>> turns and marches away.<<lllgrace>><<gtrauma>><<gstress>><<grace -8>><<trauma 9>><<stress 9>>
+			<br><br>
+		<</if>>
+		<<tearful>> you hide behind a hedge.<<famebestiality 1>>
+		<br>
+		<<endcombat>>
+	<<else>>
+		<<if $exposed gte 1>>
+			The <<beasttype 0>> runs towards the forest, just before a <<monk>> rounds a hedge.
+			<br><br>
+			"Well I never," <<he>> says, regarding you. <<covered>> <<clotheson>>
+			<<He>> averts <<his>> eyes and rummages beneath <<his>> habit. <<He>> pulls out some towels and throws them atop you. <<He>> walks away, tutting.
+			<<llgrace>><<gtrauma>><<gstress>><<grace -5>><<trauma 6>><<stress 6>>
+			<<towelup>>
+			<br><br>
+		<<else>>
+			The <<beasttype 0>> runs towards the forest, just before a <<monk>> rounds a hedge. <<He>> glances at you, but doesn't realise anything is wrong.
+			<br><br>
+			<<clotheson>>
+		<</if>>
+		<<tearful>> you climb to your feet.
+		<br>
+		<<endcombat>>
+	<</if>>
+	You look around for your fruits, just to realize they were turned into goo. You manage to 
+	<<switch $phase>>
+		<<case "lemons">>
+			<<tending_pick lemon 1 3>>
+		<<case "limes">>
+			<<tending_pick lime 1 3>>
+		<<case "apples">>
+			<<tending_pick apple 1 3>>
+		<<case "oranges">>
+			<<tending_pick orange 1 3>>
+		<<case "pears">>
+			<<tending_pick pear 1 3>>
+	<</switch>> The rest is unfortunately irrescuable. You also did a big mess. The <<monks>> will know.<<crimeUp 5 "petty">><<grace -5>><<llgrace>><<gcrime>><<set $temple_garden -= 10>>
+	<br><br>
+<</if>>
+<<link [[Next|Temple Garden]]>><<handheldon>><</link>>

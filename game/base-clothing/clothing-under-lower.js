@@ -2393,7 +2393,7 @@ function initUnderLower() {
 			vagina_exposed_base: 1,
 			anus_exposed: 1,
 			anus_exposed_base: 1,
-			type: ["costume", "fetish", "naked", "sticky"],
+			type: ["costume", "fetish", "naked", "sticky", "antitransparent"],
 			set: "giftwrap",
 			anal_shield: 0,
 			gender: "n",

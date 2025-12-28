@@ -875,3 +875,45 @@ There's <<printmoney $tip>>.
 	<<link [[Leave it|MMA Gym]]>><</link>>
 	<br>
 <</if>>
+
+:: Jewellery Store Register
+
+<<set $outside to 0>><<effects>><<set $lock to 200>>
+A standard cash register sits on a counter. It's locked tight.
+<br><br>
+<<if currentSkillValue('skulduggery') gte $lock>>
+	<<if pcAreArmsBound("both")>>
+		You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
+		<br><br>
+	<<else>>
+		<<wearProp "lockpick">>
+		<span class="green">The lock looks easy to pick.</span>
+		<br><br>
+		<<lockicon "pick">><<link [[Pick it (0:10)|Jewellery Store Register Sneak]]>><<handheldon>><<pass 10>><<crimeUp 10 "thievery">><</link>><<crime "thievery">>
+		<br>
+	<</if>>
+<<else>>
+	<span class="red">The lock looks beyond your ability to pick.</span><<skulduggeryrequired>>
+	<br><br>
+<</if>>
+<<getouticon>><<link [[Leave|Jewellery Store]]>><<handheldon>><</link>>
+<br>
+
+:: Jewellery Store Register Sneak
+
+<<set $outside to 0>><<effects>><<set $lock to 200>>
+<<set $weekly.theft.jewelleryStore to true>>
+<<set $tip to random(3000, 9000)>>
+You deftly open the cash register and count out the money inside.
+There's <<printmoney $tip>>.
+<br><br>
+
+<<skulduggeryuse 300 "locks">>
+
+<<if $rng gte 86>>
+	<<skulshopevents>>
+<<else>>
+	<<link [[Take it|Jewellery Store]]>><<money $tip "thievery">><<crimeUp `$tip / 100` "thievery">><</link>><<crime "thievery">>
+	<br>
+	<<link [[Leave it|Jewellery Store]]>><</link>>
+<</if>>

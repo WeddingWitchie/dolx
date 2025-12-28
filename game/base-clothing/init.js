@@ -16,6 +16,8 @@ function clothingDataInit() {
 	initNeck();
 	initHands();
 	initHandheld();
+	initEarrings();
+	initRings();
 	initLegs();
 	initFeet();
 	initSpecialClothes();
@@ -33,6 +35,8 @@ function clothingDataInit() {
 		"neck",
 		"hands",
 		"handheld",
+		"earrings",
+		"rings",
 		"legs",
 		"feet",
 		"genitals",
@@ -85,6 +89,8 @@ function clothingArrays() {
 			neck: "naked",
 			hands: "naked",
 			handheld: "naked",
+			earrings: "naked",
+			rings: "naked",
 			legs: "naked",
 			feet: "naked",
 			type: ["sleep"],
@@ -129,6 +135,8 @@ function clothingInit() {
 	V.wear_neck = "none";
 	V.wear_hands = "none";
 	V.wear_handheld = "none";
+	V.wear_earrings = "none";
+	V.wear_rings = "none";
 	V.wear_legs = "none";
 	V.wear_feet = "none";
 	V.wear_genitals = "none";
@@ -171,6 +179,8 @@ function givestartclothing() {
 				face: "naked",
 				neck: "naked",
 				handheld: "naked",
+				earrings: "naked",
+				rings: "naked",
 				hands: "naked",
 				legs: "girl's gym socks",
 				feet: "school shoes",
@@ -191,6 +201,8 @@ function givestartclothing() {
 				face: "naked",
 				neck: "naked",
 				handheld: "backpack",
+				earrings: "naked",
+				rings: "naked",
 				hands: "naked",
 				legs: "girl's gym socks",
 				feet: "school shoes",
@@ -211,6 +223,8 @@ function givestartclothing() {
 				face: "naked",
 				neck: "naked",
 				handheld: "naked",
+				earrings: "naked",
+				rings: "naked",
 				hands: "naked",
 				legs: "naked",
 				feet: "naked",
@@ -277,6 +291,8 @@ function givestartclothing() {
 				face: "naked",
 				neck: "naked",
 				handheld: "naked",
+				earrings: "naked",
+				rings: "naked",
 				hands: "naked",
 				legs: "boy's gym socks",
 				feet: "school shoes",
@@ -297,6 +313,8 @@ function givestartclothing() {
 				face: "naked",
 				neck: "naked",
 				handheld: "backpack",
+				earrings: "naked",
+				rings: "naked",
 				hands: "naked",
 				legs: "boy's gym socks",
 				feet: "school shoes",
@@ -317,6 +335,8 @@ function givestartclothing() {
 				face: "naked",
 				neck: "naked",
 				handheld: "naked",
+				earrings: "naked",
+				rings: "naked",
 				hands: "naked",
 				legs: "naked",
 				feet: "naked",
@@ -673,7 +693,7 @@ function initNpcClothes() {
 		{ name: "AlexSkirt",			type: "Alex", gender: "f", outfit: 0, clothes: npcAssignClothesToSet("flannel", "skirt"), desc: "flannel and skirt" },
 		{ name: "maleAlexSleep",		type: "Alex", gender: "m", outfit: 0, clothes: npcAssignClothesToSet("t-shirt", "boxers"), desc: "t-shirt and boxers" },
 		{ name: "femaleAlexSleep",		type: "Alex", gender: "f", outfit: 0, clothes: npcAssignClothesToSet("t-shirt", "boyshorts"), desc: "t-shirt and boyshorts" },
-		{name: "riley",					type: "Riley", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("sleeveless hoodie", "fight shorts"), desc: "sleeveless hoodie"},
+		{ name: "riley",				type: "Riley", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("sleeveless hoodie", "fight shorts"), desc: "sleeveless hoodie"},
 		/* -------------------------------------------------------------------------------------------------------------------------------------------------- */
 		{ name: "malePlantSpring",		type: "plantSpring", gender: "m", outfit: 1, clothes: npcAssignClothesToSet("jacaranda vest", "bloomers"), desc: "mass of leafy coverings" },
 		{ name: "femalePlantSpring",	type: "plantSpring", gender: "f", outfit: 1, clothes: npcAssignClothesToSet("blossoming growths", "bell flower dress"), desc: "mass of leafy coverings" },

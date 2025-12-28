@@ -112,6 +112,9 @@ function initSpecialClothes() {
 		{ name: "chain tunic", 					sets: ["historic", "chain_tunic"] },
 		{ name: "chain leggings", 				sets: ["historic", "chain_tunic"] },
 		{ name: "chain boots", 					sets: ["historic", "chain_tunic"] },
+		
+		{ name: "ancient coral ring", 			sets: ["antiques"] },
+		{ name: "antique gold amulet", 			sets: ["antiques"] },
 
 		{ name: "serafuku", 					sets: ["foreign_school"] },
 		{ name: "classic serafuku", 			sets: ["foreign_school"] },
@@ -164,6 +167,13 @@ function initSpecialClothes() {
 
 		{ name: "sage witch hat", 				sets: ["sage_witch_hat"] },
 		{ name: "familiar collar",				sets: ["familiar_collar"] },
+		
+		{ name: "ancient coral ring", 			sets: ["antiques"] },
+		{ name: "antique gold amulet", 			sets: ["antiques"] },
+		{ name: "antique gold necklace", 		sets: ["antiques"] },
+		{ name: "ancient gold ring", 			sets: ["antiques"] },
+		{ name: "antique copper ring", 			sets: ["antiques"] },
+		{ name: "antique silver band", 			sets: ["antiques"] },
 	];
 
 	/* must match set names above.
@@ -785,6 +795,16 @@ function initSpecialClothes() {
 			feat: false,
 			icon: "clothes/foxmask.png",
 		},
+		//Modded
+		antiques: {
+			text: "antique jewellery",
+			hint: "find them all",
+			shop: [],
+			featCost: 50,
+			requirements: () => (V.museumAntiques.museumCount === V.museumAntiques.maxCount),
+			feat: true,
+			icon: "clothes/antique_coral_ring.png",
+		},
 	};
 }
 window.initSpecialClothes = initSpecialClothes;
@@ -812,6 +832,12 @@ function specialClothesUpdate() {
 	if (!V.specialClothes.some(item => item.name === "sage witch hat")) V.specialClothes.push({ name: "sage witch hat", unlocked: 0 });
 	if (!V.specialClothes.some(item => item.name === "jasper pendant")) V.specialClothes.push({ name: "jasper pendant", unlocked: 0 });
 	if (!V.specialClothes.some(item => item.name === "familiar collar")) V.specialClothes.push({ name: "familiar collar", unlocked: 0 });
+	if (!V.specialClothes.some(item => item.name === "ancient coral ring")) V.specialClothes.push({ name: "ancient coral ring", unlocked: 0 });
+	if (!V.specialClothes.some(item => item.name === "antique gold amulet")) V.specialClothes.push({ name: "antique gold amulet", unlocked: 0 });
+	if (!V.specialClothes.some(item => item.name === "antique gold necklace")) V.specialClothes.push({ name: "antique gold necklace", unlocked: 0 });
+	if (!V.specialClothes.some(item => item.name === "antique copper ring")) V.specialClothes.push({ name: "antique copper ring", unlocked: 0 });
+	if (!V.specialClothes.some(item => item.name === "antique silver band")) V.specialClothes.push({ name: "antique silver band", unlocked: 0 });
+	if (!V.specialClothes.some(item => item.name === "ancient gold ring")) V.specialClothes.push({ name: "ancient gold ring", unlocked: 0 });
 
 	// Delete any entries that do not have a matching setup object.
 	V.specialClothes.forEach((clothing, index) => {

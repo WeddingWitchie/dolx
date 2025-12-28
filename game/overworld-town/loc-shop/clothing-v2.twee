@@ -708,8 +708,10 @@
 			<<if _handbagSpaceLeft lt 1>>- (<span class="gold">Full!</span>)<</if>>
 			<br>
 			<<shopBuyItemStatus _wardrobeSlots>>
-
-			<<if _spaceLeft + _handbagSpaceLeft < 1>>
+			<<set _totalSpaceLeft to _spaceLeft + (typeof _handbagSpaceLeft === "number" ? _handbagSpaceLeft : 0)>>
+			<<if ["earrings"].includes($clothingShopSlot) and !$ears_pierced>>
+				<span class="purple">You can't wear earrings without your ears pierced.</span>
+			<<elseif _totalSpaceLeft < 1>>
 				<span class="red">Your wardrobe is full.</span>
 				<br>
 			<<elseif (Time.dayState is "night" and $shopName isnot "forest") or _shopCloseOverride>>
@@ -874,6 +876,10 @@
 					<</if>>
 					<<if ["lower"].includes($clothingShopSlot) and $player.bodyshape is "soft" and $worn.lower.name isnot "naked" and (!setup.clothes.lower[clothesIndex("lower",$worn.lower)].outfitSecondary or setup.clothes.lower[clothesIndex("lower",$worn.lower)]?.outfitSecondary[1] isnot $worn.upper.name)>>
 						<div class="try-button div-link"><<toggleBellyTuck>></div>
+					<</if>>
+					<<if ["rings"].includes($clothingShopSlot) and $worn[$clothingShopSlot].name is _temp_choice.name>>
+						<div class="try-button div-link"></div>
+						<br>
 					<</if>>
 					<<if _temp_choice.variable is $worn[$clothingShopSlot].variable and _temp_choice.altsleeve and !($worn.upper.variable is "schoolcardigan" and $worn.upper.altposition isnot "alt")>>
 						<div class="try-button div-link"><<toggleAltSleeve>></div>

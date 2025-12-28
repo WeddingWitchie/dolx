@@ -1,0 +1,177 @@
+:: Jewellery Store [exitCheckBypass]
+<<set $bus to "jewellerystore">>
+<div id="clothingShop-div" class="main-shop-div">
+	<<jewelleryShop-main>>
+</div>
+
+:: Jewellery Store Widgets [widget]
+
+<<widget "jewelleryShop-main">>
+	<<if $tryOn.autoReset isnot false>><<tryOnReset>><</if>><<unset $tempDisable>>
+	<<set $outside to 0>><<set $location to "shopping_centre">><<effects>>
+	<<set $shopName = "jewellery">>
+
+	You are in the jewellery store. Many trinkets and bijouterie sits on the displays. Most look expensive.
+	<br><br>
+
+	<<if $stress gte $stressmax>>
+	<<passoutshop>>
+	<<else>>
+		<<if Time.hour is 21>>
+			It's closing time. Security is herding everyone outside. <<if $exposed gte 1>>Panic swells within you as you realise how exposed you'll be should security find you in this state of dress.<</if>>
+			<br><br>
+
+			<<if $exposed lte 0>>
+				<<highicon>><<link [[Go outside|High Street]]>><</link>>
+				<br>
+			<<else>>
+				<<ind>><<link [["Hide until it's over (1:00)"|Jewellery Store]]>><<pass 1 hour>><</link>>
+			<</if>>
+		<<else>>
+			<div id="tryonstats-div"><<tryOnStats>></div>
+			<<unset $shopListStartCount>>
+			<<unset $clothes_choice>>
+			<<set $shopPage = 0>>
+
+			<<if Time.dayState is "night">>
+				You are alone in the darkness.
+			<</if>>
+			
+			<br>
+
+			<span>Warmth:</span>
+			<<warmthscale>>
+			<div id="warmth-description">
+				<<warmth_description>>
+			</div>
+			<br><br>
+			<<clothingcategoryicon "all">>
+			<<link "View All">><<replace "#clothingShop-div">><<AllShop>><</replace>><</link>>
+			<br><br>
+			<<clothingcategoryicon "neck">>
+			<<link "View Neck Accessories">><<replace "#clothingShop-div">><<NeckShop>><</replace>><</link>>
+			<br>
+			<<clothingcategoryicon "earrings">>
+			<<link "View Earrings">><<replace "#clothingShop-div">><<EarringsShop>><</replace>><</link>>
+			<br>
+			<<clothingcategoryicon "rings">>
+			<<link "View Rings">><<replace "#clothingShop-div">><<RingsShop>><</replace>><</link>>
+			<br>
+			<<clothingcategoryicon "hand">>
+			<<link "View Hand Accessories">><<replace "#clothingShop-div">><<HandsShop>><</replace>><</link>>
+			<br>
+			<br><br>
+			<<run linkifyDivs('.button-back-to-shop')>>
+
+			<<if Time.dayState is "night" and Time.hour isnot $closinghour and !$weekly.theft.jewellerystore>>
+				<<shopicon "register">><<link [[Examine the cash register|Jewellery Store Register]]>><</link>>
+				<br>
+			<</if>>
+
+			<br>
+
+			<<if Time.dayState is "night" or $tryOn.value is 0>>
+				<<if $tryOn.value gt 0 and Object.values(V.tryOn?.tryingOn).some(slot => slot?.type.includes("heavy"))>>
+					<span class="red">The jewellery you're trying on is too heavy to steal!</span>
+				<<elseif ["earrings"].includes($clothingShopSlot) and !$ears_pierced>>
+					<span class="purple">You're still holding earrings to your ears. You have to put them down if you want to take anything.</span>
+				<<elseif Time.dayState is "night" and $clothingShop.spotted is true and $clothingShop.stolenClothes gt 0>>
+					<<getouticon>>
+					<<link [[Leave|Jewellery Store Night Guard Found]]>>
+						<<shopClothingFilterReset>>
+						<<ShowUnderEquip "normal">>
+						<<ShowUnderEquip "over">>
+						<<buyTryOnClothes "wear" "steal">>
+						<<set $tryOn.autoReset to true>>
+						<<crimeUp `$tryOn.value / 100` "thievery">>
+						<<shopHoodCheck>>
+						<<shopCommandoCheck>>
+					<</link>>
+					<<if $tryOn.value gt 0>>
+						<<crime "thievery">>
+					<</if>>
+				<<else>>
+					<<getouticon>>
+					<<link [[Leave|Shopping Centre Top]]>>
+						<<shopClothingFilterReset>>
+						<<ShowUnderEquip "normal">>
+						<<ShowUnderEquip "over">>
+						<<buyTryOnClothes "wear" "steal">>
+						<<set $tryOn.autoReset to true>>
+						<<crimeUp `$tryOn.value / 100` "thievery">>
+						<<shopHoodCheck>>
+						<<shopCommandoCheck>>
+					<</link>>
+					<<if $tryOn.value gt 0>>
+						<<crime "thievery">>
+					<</if>>
+				<</if>>
+				<br><br>
+			<<elseif $tryOn.value isnot 0>>
+				<<icon "hanger.png">><<link "Return jewellery">><<clothingReset>>
+					<<updatesidebarimg>>
+					<<updatesidebardescription>>
+					<<updateallure>>
+					<<updateclothingshop>>
+					<<run updateMoment()>>
+				<</link>>
+				<br>
+				<<if $tryOn.value gt 0 and $tryOn.value lte $money>>
+					<<sendItemsToDropdown>>
+					<<highicon>><<link "Buy jewellery">><<buyTryOnClothes "wear">><<updatesidebarmoney>><<updateclothingshop>><</link>>
+					<br>
+					<<wardrobeicon>><<link "Buy jewellery and send to wardrobe">>
+						<<buyTryOnClothes "wardrobe">>
+						<<updatesidebarmoney>>
+						<<updatesidebarimg>>
+						<<updatesidebardescription>>
+						<<updateallure>>
+						<<updateclothingshop>>
+						<<run updateMoment()>>
+					<</link>>
+					<br>
+				<</if>>
+				<<if $tryOn.value gt 0>>
+					<<if Object.values(V.tryOn.tryingOn).some(slot => slot?.type.includes("heavy"))>>
+						<span class="red">The jewellery you're trying on is too heavy to steal!</span>
+					<<elseif ["earrings"].includes($clothingShopSlot) and !$ears_pierced>>
+						<span class="purple">You're still holding earrings to your ears. You have to put them down if you want to take anything.</span>
+					<<else>>
+						<<getouticon>><<link [[Leave with stolen jewellery|Stolen Clothing Shop Result]]>><<shopClothingFilterReset>><<shopHoodCheck>><<shopCommandoCheck>><</link>><<crime "thievery">>
+					<</if>>
+					<br>
+				<</if>>
+			<</if>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+:: Jewellery Store Sneak
+<<set $outside to 0>><<effects>><<set $lock to 0>>
+
+<<if currentSkillValue('skulduggery') gte $lock>>
+	<<if pcAreArmsBound("both")>>
+		You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
+		<br><br>
+	<<else>>
+		<<wearProp "lockpick">>
+		<span class="green">The lock looks easy to pick.</span>
+		<br><br>
+		<<lockicon "pick">>
+		<<link [[Pick it (0:10)|Jewellery Store]]>>
+			<<handheldon>><<pass 10>><<crimeUp 5 "trespassing">>
+			<<if $clothingShop.ban gt 0 or crimeSumCurrent() gte 50000 or $clothingShop.rng gte $skulduggery>>
+				<<set $clothingShop.spotted to true>>
+			<</if>>
+			<<set $clothingShop.rng to random(0,1000)>>
+		<</link>><<crime "trespassing">>
+		<br>
+	<</if>>
+<<else>>
+	<span class="red">The lock looks beyond your ability to pick.</span>
+	<<skulduggeryrequired>>
+	<br><br>
+<</if>>
+
+<<getouticon>><<link [[Leave|Shopping Centre Top]]>><<handheldon>><</link>>
+<br>

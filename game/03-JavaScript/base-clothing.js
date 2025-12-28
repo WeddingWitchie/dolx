@@ -263,6 +263,8 @@ function getVisibleClothesList() {
 		V.worn.neck,
 		V.worn.hands,
 		V.worn.handheld,
+		V.worn.earrings,
+		V.worn.rings,
 		V.worn.legs,
 		V.worn.feet,
 	];
@@ -494,6 +496,8 @@ function getClothingOptions() {
 		["under_upper", V.underupperwetstage],
 		["hands"],
 		["handheld"],
+		["earrings"],
+		["rings"],
 		["head"],
 		["over_head"],
 		["face"],

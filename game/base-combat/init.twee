@@ -1114,15 +1114,17 @@
 		<div @class="($debugLines ? 'debugLines-combat' : '')">
 			<br>
 			<<for _mancombatcontrol = 0; _mancombatcontrol lt $enemynomax; _mancombatcontrol++>>
-				<<if $NPCList[_mancombatcontrol].active is "active" and $NPCList[_mancombatcontrol].stance isnot "defeated">>
+				<<set _npc = setup.getNPC(_mancombatcontrol)>>
+
+				<<if _npc and _npc.active is "active" and _npc.stance isnot "defeated">>
 					<<man-combat _mancombatcontrol>>
 					<<if $position isnot "stalk" and !$breakIgnore>>
 						<br><br>
 					<</if>>
-				<<elseif $debug is 1 and $NPCList[_mancombatcontrol].active isnot "active">>
-					<br>Debug Message:<br>NPC _mancombatcontrol, $NPCList[_mancombatcontrol].fullDescription is not active.<br>
-				<<elseif $debug is 1 and $NPCList[_mancombatcontrol].stance is "defeated">>
-					<br>Debug Message:<br>NPC _mancombatcontrol, $NPCList[_mancombatcontrol].fullDescription is defeated.<br>
+				<<elseif $debug is 1 and (!_npc or _npc.active isnot "active")>>
+					<br>Debug Message:<br>NPC _mancombatcontrol, <<if _npc>><<print _npc.fullDescription>><<else>>[missing NPC slot]<</if>> is not active.<br>
+				<<elseif $debug is 1 and _npc and _npc.stance is "defeated">>
+					<br>Debug Message:<br>NPC _mancombatcontrol, <<print _npc.fullDescription>> is defeated.<br>
 				<</if>>
 			<</for>>
 

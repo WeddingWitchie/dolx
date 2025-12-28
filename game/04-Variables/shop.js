@@ -292,6 +292,27 @@ setup.shopDetails = {
 		desc: "Something to wear atop your head.",
 		details: "none",
 	},
+	jewelled: {
+		name: "Jewelled",
+		desc: "Eyecatching with sharp edges.",
+		details:
+			"Improves punching power during combat slightly. Increases allure.",
+	},
+	expensive: {
+		name: "Expensive",
+		desc: "Better not to lose it.",
+		details: "none",
+	},
+	luxurious: {
+		name: "Luxurious",
+		desc: "No regular person can afford it.",
+		details: "none",
+	},
+	extravagant: {
+		name: "Extravagant",
+		desc: "More of a collector's item than a regular accessory.",
+		details: "none",
+	},
 };
 
 setup.hairDetails = {

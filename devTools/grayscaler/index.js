@@ -126,7 +126,8 @@ function processSlot(setupfile,imgdir,varname,hasIntegrity) {
 			let v = json.variable;
 			console.log("Found item " + v);
 			let files = [];
-			if (varname === "setup.clothes.hands"){ // hack but what can I do...
+			//Edit
+			if (varname === "setup.clothes.hands" or varname === "setup.clothes.rings"){ // hack but what can I do...
 				if (json.colour_sidebar) {
 					files.push("left","right","left_cover","right_cover");
 				}
@@ -212,7 +213,7 @@ function processSlot(setupfile,imgdir,varname,hasIntegrity) {
 }
 
 function convertAllClothes() {
-	let slots = ["hands", "face", "feet", "genitals", "hands", "head", "legs", "lower", "neck", "over_head", "over_lower", "over_upper", "upper", "handheld"];
+	let slots = ["hands", "face", "feet", "genitals", "hands", "head", "legs", "lower", "neck", "over_head", "over_lower", "over_upper", "upper", "handheld", "earrings", "rings"];
 	for (let slot of slots) {
 		processSlot(`game/base-clothing/clothing-${slot}.twee`, `img/clothes/${slot}/`, `setup.clothes.${slot}`, true);
 	}
