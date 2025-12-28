@@ -34,7 +34,10 @@
 		/* Check if standing fights toggle is on and if the fight is non-consensual */
 		<<if $combatExtended.standingFights is 1 and $consensual is 0 and $position isnot "wall" and $punishmentposition isnot "gloryhole">>
 			/* Start Standing Fights if not stuck in a wall or gloryhole */
-			<<if $combatExtended.standingFightStart is 1 and $position isnot "wall" and $punishmentposition isnot "gloryhole"and $NPCList[0].location.genitals isnot "head">>
+			<<if $combatExtended.standingFightStart is 1
+				and $position isnot "wall"
+				and $punishmentposition isnot "gloryhole"
+				and $NPCList[0].location.genitals isnot "head">>
 				<<set $combatExtended.standingFightStart to 0>>
 				<<set $combatExtended.stability to 100>>
 				<<unset $encounterHit>>
@@ -440,7 +443,7 @@
 				<<set $_target to $righttarget>>
 			<</if>>
 			<<handskilluse>><<personselect $_target>>
-			<<if $combatExtended.reverseRapeStart is 1 or combatSkillCheck("hand", $NPCList[$_target])>>
+			<<if $combatExtended.reverseRapeStart is 1 or combatSkillCheck("hand", $_target)>>
 				<<chestskilluse>><<combatpromiscuity3>>
 				<<set $chestactiondefault to "rub">><<set $chestuse to "penis">><<cheststat>><<set $mouthactiondefault to "peniskiss">>
 				<<set $NPCList[$_target].penis to "chest">><<set $chesttarget to $_target>>
@@ -602,9 +605,9 @@
 		<<if $leftaction is "lefthit" and $rightaction is "righthit" and $lefttarget is $righttarget>>
 			<<set $leftaction to 0>><<set $rightaction to 0>><<set $leftactiondefault to "lefthit">><<set $rightactiondefault to "righthit">>
 			<<willpowercombatcheck>>
-			<<if $willpowerSuccess>>
 
-				<<set $striking to 1>><<combatExtendedEnemyCheck $lefttarget>><<actionshit both>>
+			<<if $willpowerSuccess>>
+				<<set $striking to 1>><<combatExtendedEnemyCheck $lefttarget>><<actionshit "both">>
 
 				/* Null-safe ring helpers (prevents crashes if worn.rings is missing/malformed) */
 				<<set _ringsName to (($worn.rings && typeof $worn.rings.name === "string") ? $worn.rings.name : "")>>
@@ -618,7 +621,7 @@
 					<<elseif $combatExtended.enemyCounterSuccess is 1>>
 						<<defiance 5 $lefttarget>><<violence 5>><<set $speechhit to 1>><<set $attackstat += 2>><<combatExtendedStability -5>>
 
-						<<if _ringsName !== "" and _ringsName !== "naked">>
+						<<if _ringsName isnot "" and _ringsName isnot "naked">>
 							<<if _ringsType.includes("jewelled")>>
 								<<if _ringsName.includes("rings")>>
 									rings strengthen the blow! The jewels leave
@@ -640,11 +643,10 @@
 								the blow!
 							<</if>>
 						<</if>>
-
 					<<else>>
 						<<defiance 3 $lefttarget>><<set $speechhit to 1>><<set $attackstat += 2>>
 
-						<<if _ringsName !== "" and _ringsName !== "naked">>
+						<<if _ringsName isnot "" and _ringsName isnot "naked">>
 							<<if _ringsType.includes("jewelled")>>
 								<<if _ringsName.includes("rings")>>
 									rings strengthen the blow! The jewels leave
@@ -666,12 +668,11 @@
 								the blow!
 							<</if>>
 						<</if>>
-
 					<</if>>
 				<<else>>
 					<<defiance 5 $lefttarget>><<set $speechhit to 1>><<set $attackstat += 2>>
 
-					<<if _ringsName !== "" and _ringsName !== "naked">>
+					<<if _ringsName isnot "" and _ringsName isnot "naked">>
 						<<if _ringsType.includes("jewelled")>>
 							<<if _ringsName.includes("rings")>>
 								rings strengthen the blow! The jewels leave
@@ -694,10 +695,8 @@
 						<</if>>
 					<</if>>
 				<</if>>
-
 			<<else>>
 				You throw a couple weak punches, <span class="lewd">but your flushed and sluggish body is unable to land any effective hits.</span>
-			<</if>>
 			<</if>>
 		<</if>>
 
@@ -1083,107 +1082,103 @@
 			<</if>>
 		<</if>>
 
-		<<if $leftaction is "leftfeint" and $rightaction is "rightfeint" and $lefttarget is $righttarget>>
-			<<set $leftaction to 0>><<set $rightaction to 0>><<set $leftactiondefault to "leftfeint">><<set $rightactiondefault to "rightfeint">>
-			<<willpowercombatcheck>>
-			<<if $willpowerSuccess>>
+<<if $leftaction is "leftfeint" and $rightaction is "rightfeint" and $lefttarget is $righttarget>>
+	<<set $leftaction to 0>><<set $rightaction to 0>><<set $leftactiondefault to "leftfeint">><<set $rightactiondefault to "rightfeint">>
+	<<willpowercombatcheck>>
 
-				<<set $combatExtended.feintingActive to 2>><<set $striking to 1>><<combatExtendedEnemyCheck $lefttarget>><<actionshit both>>
+	<<if $willpowerSuccess>>
+		<<set $combatExtended.feintingActive to 2>><<set $striking to 1>><<combatExtendedEnemyCheck $lefttarget>><<actionshit "both">>
 
-				/* Null-safe ring helpers (prevents crashes if worn.rings is missing/malformed) */
-				<<set _ringsName to (($worn.rings && typeof $worn.rings.name === "string") ? $worn.rings.name : "")>>
-				<<set _ringsType to (($worn.rings && typeof $worn.rings.type === "string") ? $worn.rings.type : "")>>
+		/* Null-safe ring helpers (prevents crashes if worn.rings is missing/malformed) */
+		<<set _ringsName to (($worn.rings && typeof $worn.rings.name === "string") ? $worn.rings.name : "")>>
+		<<set _ringsType to (($worn.rings && typeof $worn.rings.type === "string") ? $worn.rings.type : "")>>
 
-				<<if $combatExtended.enemyDodgeSuccess gte 1 or $combatExtended.enemyCounterSuccess gte 1>>
-					<<if $combatExtended.enemyCounterSuccess is 2>>
-						<<violence 10>><<combatExtendedStability -10>>
-					<<elseif $combatExtended.enemyDodgeSuccess is 2>>
-						/* Attack dodged */
-					<<elseif $combatExtended.enemyCounterSuccess is 1>>
-						<<defiance 2 $lefttarget>><<violence 5>><<set $speechhit to 1>><<set $attackstat += 2>><<combatExtendedStability -5>>
+		<<if $combatExtended.enemyDodgeSuccess gte 1 or $combatExtended.enemyCounterSuccess gte 1>>
+			<<if $combatExtended.enemyCounterSuccess is 2>>
+				<<violence 10>><<combatExtendedStability -10>>
+			<<elseif $combatExtended.enemyDodgeSuccess is 2>>
+				/* Attack dodged */
+			<<elseif $combatExtended.enemyCounterSuccess is 1>>
+				<<defiance 2 $lefttarget>><<violence 5>><<set $speechhit to 1>><<set $attackstat += 2>><<combatExtendedStability -5>>
 
-						<<if _ringsName !== "" and _ringsName !== "naked">>
-							<<if _ringsType.includes("jewelled")>>
-								<<if _ringsName.includes("rings")>>
-									rings strengthen the blow! The jewels leave
-									<<defiance 0.3 $lefttarget>>
-								<<else>>
-									ring strengthens the blow! The jewel leaves
-									<<defiance 0.15 $lefttarget>>
-								<</if>>
-								small cuts on <<hisselect $lefttarget>> body.
-							<<else>>
-								Your
-								<<if _ringsName.includes("rings")>>
-									rings strengthen
-									<<defiance 0.1 $lefttarget>>
-								<<else>>
-									ring strengthens
-									<<defiance 0.05 $lefttarget>>
-								<</if>>
-								the blow!
-							<</if>>
-						<</if>>
-
-					<<else>>
-						<<defiance 1 $lefttarget>><<set $speechhit to 1>><<set $attackstat += 2>>
-
-						<<if _ringsName !== "" and _ringsName !== "naked">>
-							<<if _ringsType.includes("jewelled")>>
-								<<if _ringsName.includes("rings")>>
-									rings strengthen the blow! The jewels leave
-									<<defiance 0.15 $lefttarget>>
-								<<else>>
-									ring strengthens the blow! The jewel leaves
-									<<defiance 0.075 $lefttarget>>
-								<</if>>
-								small cuts on <<hisselect $lefttarget>> body.
-							<<else>>
-								Your
-								<<if _ringsName.includes("rings")>>
-									rings strengthen
-									<<defiance 0.05 $lefttarget>>
-								<<else>>
-									ring strengthens
-									<<defiance 0.025 $lefttarget>>
-								<</if>>
-								the blow!
-							<</if>>
-						<</if>>
-
-					<</if>>
-				<<else>>
-					<<defiance 2 $lefttarget>><<set $speechhit to 1>><<set $attackstat += 2>>
-
-					<<if _ringsName !== "" and _ringsName !== "naked">>
-						<<if _ringsType.includes("jewelled")>>
-							<<if _ringsName.includes("rings")>>
-								rings strengthen the blow! The jewels leave
-								<<defiance 0.3 $lefttarget>>
-							<<else>>
-								ring strengthens the blow! The jewel leaves
-								<<defiance 0.15 $lefttarget>>
-							<</if>>
-							small cuts on <<hisselect $lefttarget>> body.
+				<<if _ringsName isnot "" and _ringsName isnot "naked">>
+					<<if _ringsType.includes("jewelled")>>
+						<<if _ringsName.includes("rings")>>
+							rings strengthen the blow! The jewels leave
+							<<defiance 0.3 $lefttarget>>
 						<<else>>
-							Your
-							<<if _ringsName.includes("rings")>>
-								rings strengthen
-								<<defiance 0.1 $lefttarget>>
-							<<else>>
-								ring strengthens
-								<<defiance 0.05 $lefttarget>>
-							<</if>>
-							the blow!
+							ring strengthens the blow! The jewel leaves
+							<<defiance 0.15 $lefttarget>>
 						<</if>>
+						small cuts on <<hisselect $lefttarget>> body.
+					<<else>>
+						Your
+						<<if _ringsName.includes("rings")>>
+							rings strengthen
+							<<defiance 0.1 $lefttarget>>
+						<<else>>
+							ring strengthens
+							<<defiance 0.05 $lefttarget>>
+						<</if>>
+						the blow!
 					<</if>>
 				<</if>>
-
 			<<else>>
-				You attempt a feint and hit, <span class="lewd">but your flushed and sluggish body fails to connect.</span>
+				<<defiance 1 $lefttarget>><<set $speechhit to 1>><<set $attackstat += 2>>
+
+				<<if _ringsName isnot "" and _ringsName isnot "naked">>
+					<<if _ringsType.includes("jewelled")>>
+						<<if _ringsName.includes("rings")>>
+							rings strengthen the blow! The jewels leave
+							<<defiance 0.15 $lefttarget>>
+						<<else>>
+							ring strengthens the blow! The jewel leaves
+							<<defiance 0.075 $lefttarget>>
+						<</if>>
+						small cuts on <<hisselect $lefttarget>> body.
+					<<else>>
+						Your
+						<<if _ringsName.includes("rings")>>
+							rings strengthen
+							<<defiance 0.05 $lefttarget>>
+						<<else>>
+							ring strengthens
+							<<defiance 0.025 $lefttarget>>
+						<</if>>
+						the blow!
+					<</if>>
+				<</if>>
 			<</if>>
+		<<else>>
+			<<defiance 2 $lefttarget>><<set $speechhit to 1>><<set $attackstat += 2>>
+
+			<<if _ringsName isnot "" and _ringsName isnot "naked">>
+				<<if _ringsType.includes("jewelled")>>
+					<<if _ringsName.includes("rings")>>
+						rings strengthen the blow! The jewels leave
+						<<defiance 0.3 $lefttarget>>
+					<<else>>
+						ring strengthens the blow! The jewel leaves
+						<<defiance 0.15 $lefttarget>>
+					<</if>>
+					small cuts on <<hisselect $lefttarget>> body.
+				<<else>>
+					Your
+					<<if _ringsName.includes("rings")>>
+						rings strengthen
+						<<defiance 0.1 $lefttarget>>
+					<<else>>
+						ring strengthens
+						<<defiance 0.05 $lefttarget>>
+					<</if>>
+					the blow!
+				<</if>>
 			<</if>>
 		<</if>>
+	<<else>>
+		You attempt a feint and hit, <span class="lewd">but your flushed and sluggish body fails to connect.</span>
+	<</if>>
+<</if>>
 
 		<<if $leftaction is "leftfeint">>
 			<<set $leftaction to 0>><<set $leftactiondefault to "leftfeint">>
@@ -1317,47 +1312,53 @@
 		<</if>>
 
 		<<if $rightaction is "rightfeint">>
-			<<set $rightaction to 0>><<set $leftactiondefault to "rightfeint">>
+			<<set $rightaction to 0>><<set $rightactiondefault to "rightfeint">>
 			<<willpowercombatcheck>>
+
 			<<if $willpowerSuccess>>
-				<<set $combatExtended.feintingActive to 1>><<set $striking to 1>><<combatExtendedEnemyCheck $rightaction>>
-				<<if $parasite.left_ear.name is "slime" and random(1, 3) is 3 or $parasite.right_ear.name is "slime" and random(1, 3) is 3>>
+				<<set $combatExtended.feintingActive to 1>><<set $striking to 1>>
+				<<set _rt to ($righttarget != null ? $righttarget : $rightaction)>>
+
+				<<combatExtendedEnemyCheck _rt>>
+
+				<!-- Null-safe ring helpers (used in multiple branches) -->
+				<<set _ringsName to (($worn.rings && typeof $worn.rings.name === "string") ? $worn.rings.name : "")>>
+				<<set _ringsType to (($worn.rings && typeof $worn.rings.type === "string") ? $worn.rings.type : "")>>
+				<<set _ringsAltPos to (($worn.rings && typeof $worn.rings.altposition === "string") ? $worn.rings.altposition : "")>>
+
+				<<if ($parasite.left_ear.name is "slime" and random(1, 3) is 3) or ($parasite.right_ear.name is "slime" and random(1, 3) is 3)>>
 					<<if $earSlime.corruption gte (currentSkillValue('willpower') / 10)>>
-						You try to launch a feint a the <<if $enemytype is "beast">><<beasttype>><<else>><<personselect $rightaction>><<person>><</if>>
+						You try to launch a feint at the <<if $enemytype is "beast">><<beasttype>><<else>><<personselect _rt>><<person>><</if>>
 						with your right hand, <span class="red">but the slime immobilises your limb.</span>
 						<<gwillpower>><<willpower 1>>
 					<<else>>
 						The slime tries to immobilise your right arm, <span class="green">but you wrestle control away from it.</span>
-						<<actionsfeint $rightaction>>
+
+						<<actionsfeint _rt>>
 						<<if $combatExtended.enemyDodgeSuccess gte 1 or $combatExtended.enemyCounterSuccess gte 1>>
 							<<if $combatExtended.enemyCounterSuccess is 2>>
 								<<violence 10>><<combatExtendedStability -10>>
 							<<elseif $combatExtended.enemyDodgeSuccess is 2>>
 								/* Attack dodged */
 							<<elseif $combatExtended.enemyCounterSuccess is 1>>
-								<<defiance 1 $rightaction>><<violence 5>><<set $speechhit to 1>><<set $attackstat += 1>><<combatExtendedStability -5>>
+								<<defiance 1 _rt>><<violence 5>><<set $speechhit to 1>><<set $attackstat += 1>><<combatExtendedStability -5>>
 							<<else>>
-								<<defiance 0.5 $rightaction>><<set $speechhit to 1>><<set $attackstat += 1>>
+								<<defiance 0.5 _rt>><<set $speechhit to 1>><<set $attackstat += 1>>
 							<</if>>
 						<<else>>
-							<<defiance 1 $rightaction>><<set $speechhit to 1>><<set $attackstat += 1>>
+							<<defiance 1 _rt>><<set $speechhit to 1>><<set $attackstat += 1>>
 						<</if>>
 					<</if>>
 				<<else>>
-					<<actionsfeint $rightaction>>
+					<<actionsfeint _rt>>
+
 					<<if $combatExtended.enemyDodgeSuccess gte 1 or $combatExtended.enemyCounterSuccess gte 1>>
 						<<if $combatExtended.enemyCounterSuccess is 2>>
 							<<violence 10>>
 						<<elseif $combatExtended.enemyDodgeSuccess is 2>>
 							/* Attack dodged */
 						<<elseif $combatExtended.enemyCounterSuccess is 1>>
-							<<set _rt to ($righttarget != null ? $righttarget : $rightaction)>>
 							<<defiance 1 _rt>><<violence 5>><<set $speechhit to 1>><<set $attackstat += 1>><<combatExtendedStability -5>>
-
-							/* Null-safe ring helpers */
-							<<set _ringsName to (($worn.rings && typeof $worn.rings.name === "string") ? $worn.rings.name : "")>>
-							<<set _ringsType to (($worn.rings && typeof $worn.rings.type === "string") ? $worn.rings.type : "")>>
-							<<set _ringsAltPos to (($worn.rings && typeof $worn.rings.altposition === "string") ? $worn.rings.altposition : "")>>
 
 							<<if _ringsAltPos isnot "alt" or _ringsName.includes("rings")>>
 								<<if _ringsType.includes("jewelled")>>
@@ -1369,13 +1370,7 @@
 								<</if>>
 							<</if>>
 						<<else>>
-							<<set _rt to ($righttarget != null ? $righttarget : $rightaction)>>
 							<<defiance 0.5 _rt>><<set $speechhit to 1>><<set $attackstat += 1>>
-
-							/* Null-safe ring helpers */
-							<<set _ringsName to (($worn.rings && typeof $worn.rings.name === "string") ? $worn.rings.name : "")>>
-							<<set _ringsType to (($worn.rings && typeof $worn.rings.type === "string") ? $worn.rings.type : "")>>
-							<<set _ringsAltPos to (($worn.rings && typeof $worn.rings.altposition === "string") ? $worn.rings.altposition : "")>>
 
 							<<if _ringsAltPos isnot "alt" or _ringsName.includes("rings")>>
 								<<if _ringsType.includes("jewelled")>>
@@ -1387,38 +1382,32 @@
 								<</if>>
 							<</if>>
 						<</if>>
-						<<else>>
-							<<set _rt to ($righttarget != null ? $righttarget : $rightaction)>>
-							<<defiance 1 _rt>><<set $speechhit to 1>><<set $attackstat += 1>>
+					<<else>>
+						<<defiance 1 _rt>><<set $speechhit to 1>><<set $attackstat += 1>>
 
-							/* Null-safe ring helpers */
-							<<set _ringsName to (($worn.rings && typeof $worn.rings.name === "string") ? $worn.rings.name : "")>>
-							<<set _ringsType to (($worn.rings && typeof $worn.rings.type === "string") ? $worn.rings.type : "")>>
-							<<set _ringsAltPos to (($worn.rings && typeof $worn.rings.altposition === "string") ? $worn.rings.altposition : "")>>
-
-							<<if _ringsAltPos isnot "alt" or _ringsName.includes("rings")>>
-								<<if _ringsType.includes("jewelled")>>
-									Your rings strengthen the blow! The jewel leaves small cuts on their body.
-									<<defiance 0.15 _rt>>
-								<<elseif _ringsName isnot "" and _ringsName isnot "naked">>
-									Your rings strengthen the blow!
-									<<defiance 0.05 _rt>>
-								<</if>>
+						<<if _ringsAltPos isnot "alt" or _ringsName.includes("rings")>>
+							<<if _ringsType.includes("jewelled")>>
+								Your rings strengthen the blow! The jewel leaves small cuts on their body.
+								<<defiance 0.15 _rt>>
+							<<elseif _ringsName isnot "" and _ringsName isnot "naked">>
+								Your rings strengthen the blow!
+								<<defiance 0.05 _rt>>
 							<</if>>
 						<</if>>
-						<</if>>
-						<</if>>
-						<<else>>
-							You attempt a feint and hit, <span class="lewd">but your flushed and sluggish body fails to connect.</span>
+					<</if>>
+				<</if>>
+
+			<<else>>
+				You attempt a feint and hit, <span class="lewd">but your flushed and sluggish body fails to connect.</span>
 			<</if>>
 		<</if>>
 
 		<<if $leftaction is "lefthookpunch" and $rightaction is "righthookpunch" and $lefttarget is $righttarget>>
 			<<set $leftaction to 0>><<set $rightaction to 0>><<set $leftactiondefault to "lefthookpunch">><<set $rightactiondefault to "righthookpunch">>
 			<<willpowercombatcheck>>
-			<<if $willpowerSuccess>>
 
-				<<set $combatExtended.hookpunchingActive to 2>><<set $striking to 1>><<combatExtendedEnemyCheck $lefttarget>><<actionshookpunch both>>
+			<<if $willpowerSuccess>>
+				<<set $combatExtended.hookpunchingActive to 2>><<set $striking to 1>><<combatExtendedEnemyCheck $lefttarget>><<actionshookpunch "both">>
 
 				/* Null-safe ring helpers (prevents crashes if worn.rings is missing/malformed) */
 				<<set _ringsName to (($worn.rings && typeof $worn.rings.name === "string") ? $worn.rings.name : "")>>
@@ -1432,7 +1421,7 @@
 					<<elseif $combatExtended.enemyCounterSuccess is 1>>
 						<<defiance 10 $lefttarget>><<violence 5>><<set $speechhit to 1>><<set $attackstat += 2>><<combatExtendedStability -5>>
 
-						<<if _ringsName !== "" and _ringsName !== "naked">>
+						<<if _ringsName isnot "" and _ringsName isnot "naked">>
 							<<if _ringsType.includes("jewelled")>>
 								<<if _ringsName.includes("rings")>>
 									rings strengthen the blow! The jewels leave
@@ -1454,11 +1443,10 @@
 								the blow!
 							<</if>>
 						<</if>>
-
 					<<else>>
 						<<defiance 5 $lefttarget>><<set $speechhit to 1>><<set $attackstat += 2>>
 
-						<<if _ringsName !== "" and _ringsName !== "naked">>
+						<<if _ringsName isnot "" and _ringsName isnot "naked">>
 							<<if _ringsType.includes("jewelled")>>
 								<<if _ringsName.includes("rings")>>
 									rings strengthen the blow! The jewels leave
@@ -1480,12 +1468,11 @@
 								the blow!
 							<</if>>
 						<</if>>
-
 					<</if>>
 				<<else>>
 					<<defiance 10 $lefttarget>><<set $speechhit to 1>><<set $hookpunchStat += 2>>
 
-					<<if _ringsName !== "" and _ringsName !== "naked">>
+					<<if _ringsName isnot "" and _ringsName isnot "naked">>
 						<<if _ringsType.includes("jewelled")>>
 							<<if _ringsName.includes("rings")>>
 								rings strengthen the blow! The jewels leave
@@ -1508,10 +1495,8 @@
 						<</if>>
 					<</if>>
 				<</if>>
-
 			<<else>>
 				You throw a double hook, <span class="lewd">but your flushed and sluggish body fails to land an effective hit.</span>
-			<</if>>
 			<</if>>
 		<</if>>
 
@@ -3934,7 +3919,6 @@
 									<<defiance 1 $feettarget>>
 								<</if>>
 								<</if>>
-								<<set $speechhit to 1>><<set $attackstat += 1>>
 								<<violence 5>><<set $speechhit to 1>><<set $attackstat += 1>><<combatExtendedStability -5>>
 							<<else>>
 								<<if $combatExtended.standingFights is 1 and $combatExtended.stabilityLost is 0>>
