@@ -993,48 +993,59 @@ function hourlyClothingFemininityCheck(hours = 1) {
 	const hasMascClothesAcceptance = V.identity.presentation.clothing.masculine.acceptance;
 	const hasMascClothesRejection = V.identity.presentation.clothing.masculine.reject;
 
-	if ((V.xchange.pill.active && V.xchange.pill.genderificationEffect) || V.hypnosis_traits.crossdressing >= 1) {
+// --- Hypno crossdress cheat gate (keeps X-Change working) ---
+V.cheats = V.cheats || {};
+const genderifyActive = !!(V.xchange?.pill?.active && V.xchange.pill.genderificationEffect);
+const hypnoCrossdressLevel = V.cheats.disableHypnoCrossdress ? 0 : (V.hypnosis_traits?.crossdressing || 0);
+
+	if (genderifyActive || hypnoCrossdressLevel >= 1) {
 		if (V.player.gender === "m" && currentWornFemininity < 0) {
-			wikifier("stress",800 * hours,1);
+			wikifier("stress", 800 * hours, 1);
 			V.genderificationStressMessage = 1;
 			V.effectsmessage = 1;
 		}
-		else if ((V.player.gender === "m" && ( !hasFemClothesAcceptance || !playerCaresForGender()) && currentWornFemininity > 0) && (V.xchange.pill.genderificationEffect || V.hypnosis_traits.crossdressing < 4)) {
-			wikifier("stress",-10 * hours);
+		else if (
+			(V.player.gender === "m" && (!hasFemClothesAcceptance || !playerCaresForGender()) && currentWornFemininity > 0) &&
+			(genderifyActive || hypnoCrossdressLevel < 4)
+		) {
+			wikifier("stress", -10 * hours);
 			V.tiredness -= 200 * hours;
 			V.genderificationStressMessage = 2;
 			V.effectsmessage = 1;
 		}
 		if (V.player.gender === "f" && currentWornFemininity > 0) {
-			wikifier("stress",800 * hours,1);
+			wikifier("stress", 800 * hours, 1);
 			V.genderificationStressMessage = 3;
 			V.effectsmessage = 1;
 		}
-		else if ((V.player.gender === "f" && ( !hasMascClothesAcceptance || !playerCaresForGender()) && currentWornFemininity < 0) && (V.xchange.pill.genderificationEffect || V.hypnosis_traits.crossdressing < 4)) {
-			wikifier("stress",-10 * hours);
-			V.tiredness -= 200;
+		else if (
+			(V.player.gender === "f" && (!hasMascClothesAcceptance || !playerCaresForGender()) && currentWornFemininity < 0) &&
+			(genderifyActive || hypnoCrossdressLevel < 4)
+		) {
+			wikifier("stress", -10 * hours);
+			V.tiredness -= 200 * hours; // <-- fixed: your original was missing "* hours"
 			V.genderificationStressMessage = 4;
 			V.effectsmessage = 1;
 		}
 	}
 	else if (playerCaresForGender()) {
 		if (hasFemClothesRejection && !hasFemClothesAcceptance && currentWornFemininity > 0) {
-			wikifier("stress",800 * hours,1);
+			wikifier("stress", 800 * hours, 1);
 			V.genderStressMessage = 2;
 			V.effectsmessage = 1;
 		}
 		else if (!hasFemClothesRejection && !hasFemClothesAcceptance && currentWornFemininity > 0) {
-			wikifier("stress",400 * hours,1);
+			wikifier("stress", 400 * hours, 1);
 			V.genderStressMessage = 1;
 			V.effectsmessage = 1;
 		}
 		else if (hasMascClothesRejection && !hasMascClothesAcceptance && currentWornFemininity < 0) {
-			wikifier("stress",800 * hours,1);
+			wikifier("stress", 800 * hours, 1);
 			V.genderStressMessage = 4;
 			V.effectsmessage = 1;
 		}
 		else if (!hasMascClothesRejection && !hasMascClothesAcceptance && currentWornFemininity < 0) {
-			wikifier("stress",400 * hours,1);
+			wikifier("stress", 400 * hours, 1);
 			V.genderStressMessage = 3;
 			V.effectsmessage = 1;
 		}
