@@ -278,6 +278,8 @@ IMPORTANT:
 							<<set $options.autoNNPCDisplay[$options.nnpcDisplay].slot to $options.nnpcDisplaySlot>>
 							<<set $options.autoNNPCDisplay[$options.nnpcDisplay].layer to $options.nnpcDisplayLayer>>
 							<<set $options.autoNNPCDisplay[$options.nnpcDisplay].gender to $options.nnpcDisplayGender>>
+							<<set $options.autoNNPCDisplay[$options.nnpcDisplay].skin to $options.nnpcDisplaySkin>>
+
 						<</link>>
 					<</if>>
 				</span>
@@ -285,126 +287,121 @@ IMPORTANT:
 		</div>
 		<<script>>
 		$(() =>
-			$("#nnpcDisplay").on("change", "select.macro-listbox, .macro-checkbox, .macro-radiovar", function () {
-				Wikifier.wikifyEval(`
-					/* Ensure object exists for selected NPC */
-					<<if $options.nnpcDisplay isnot 0 and $options.autoNNPCDisplay[$options.nnpcDisplay] is undefined>>
-						<<set $options.autoNNPCDisplay[$options.nnpcDisplay] to {}>>
-					<</if>>
+			$("#nnpcDisplay").on(
+				"change",
+				"select.macro-listbox, .macro-checkbox, .macro-radiovar",
+				function () {
 
-					/* -------------------------------------------------
-					IMPORTANT FIX:
-					Only sync UI vars from saved auto settings when
-					the selected NPC changes (prevents snap-back).
-					------------------------------------------------- */
-					<<if $options._lastNNPCSelected is undefined>>
-						<<set $options._lastNNPCSelected to 0>>
-					<</if>>
-
-					<<if $options.autoNNPCDisplay.enabled is true and $options.nnpcDisplay isnot 0 and $options._lastNNPCSelected isnot $options.nnpcDisplay>>
-						<<if $options.autoNNPCDisplay[$options.nnpcDisplay].gender isnot undefined>>
-							<<set $options.nnpcDisplayGender to $options.autoNNPCDisplay[$options.nnpcDisplay].gender>>
+					Wikifier.wikifyEval(`
+						/* Build a stable key */
+						<<set _nnpcKey to $options.nnpcDisplay>>
+						<<if _nnpcKey isnot 0>>
+							<<set _nnpcKey to _nnpcKey.toLowerCase()>>
 						<</if>>
-						<<if $options.autoNNPCDisplay[$options.nnpcDisplay].skin isnot undefined>>
-							<<set $options.nnpcDisplaySkin to $options.autoNNPCDisplay[$options.nnpcDisplay].skin>>
+
+						/* Ensure per-NPC settings object exists */
+						<<if _nnpcKey isnot 0 and $options.autoNNPCDisplay[_nnpcKey] is undefined>>
+							<<set $options.autoNNPCDisplay[_nnpcKey] to {}>>
 						<</if>>
-						<<set $options._lastNNPCSelected to $options.nnpcDisplay>>
-					<</if>>
 
-					/* Guards for skin validity */
-					<<if $options.nnpcDisplaySkin is "monster" and !($options.nnpcDisplay is "black_wolf" || $options.nnpcDisplay is "great_hawk")>>
-						<<set $options.nnpcDisplaySkin to "pale">>
-					<</if>>
-					<<if ($options.nnpcDisplaySkin isnot "pale") and ($options.nnpcDisplaySkin isnot "dark") and ($options.nnpcDisplaySkin isnot "monster")>>
-						<<set $options.nnpcDisplaySkin to "pale">>
-					<</if>>
+						/* Only sync from saved settings when NNPC dropdown changes */
+						<<if $options._lastNNPCSelected is undefined>>
+							<<set $options._lastNNPCSelected to 0>>
+						<</if>>
 
-					<<updatesidebarimg>>
-
-					<<if $options.autoNNPCDisplay.enabled is true and $options.nnpcDisplay isnot 0>>
-
-						<<replace #manualNNPC>>
-							<<if $options.autoNNPCDisplay[$options.nnpcDisplay].genderOverride is true>>
-								Gender:
-								<label>
-									<<radiovar "$options.nnpcDisplayGender" "male">><<updatesidebarimg>><</radiovar>> Male
-								</label> |
-								<label>
-									<<radiovar "$options.nnpcDisplayGender" "female">><<updatesidebarimg>><</radiovar>> Female
-								</label>
-								<br>
+						<<if $options.autoNNPCDisplay.enabled is true and _nnpcKey isnot 0 and $options._lastNNPCSelected isnot _nnpcKey>>
+							<<if $options.autoNNPCDisplay[_nnpcKey].gender isnot undefined>>
+								<<set $options.nnpcDisplayGender to $options.autoNNPCDisplay[_nnpcKey].gender>>
+							<</if>>
+							<<if $options.autoNNPCDisplay[_nnpcKey].skin isnot undefined>>
+								<<set $options.nnpcDisplaySkin to $options.autoNNPCDisplay[_nnpcKey].skin>>
+							<</if>>
+							<<if $options.autoNNPCDisplay[_nnpcKey].slot isnot undefined>>
+								<<set $options.nnpcDisplaySlot to $options.autoNNPCDisplay[_nnpcKey].slot>>
+							<</if>>
+							<<if $options.autoNNPCDisplay[_nnpcKey].layer isnot undefined>>
+								<<set $options.nnpcDisplayLayer to $options.autoNNPCDisplay[_nnpcKey].layer>>
 							<</if>>
 
-							Skin:
-							<label>
-								<<radiovar "$options.nnpcDisplaySkin" "pale">><<updatesidebarimg>><</radiovar>> Pale
-							</label> |
-							<label>
-								<<radiovar "$options.nnpcDisplaySkin" "dark">><<updatesidebarimg>><</radiovar>> Dark
-							</label>
-							<<if $options.nnpcDisplay is "black_wolf" || $options.nnpcDisplay is "great_hawk">>
-								| <label>
-									<<radiovar "$options.nnpcDisplaySkin" "monster">><<updatesidebarimg>><</radiovar>> Monster
-								</label>
-							<</if>>
-							<br>
-						<</replace>>
+							<<set $options._lastNNPCSelected to _nnpcKey>>
+						<</if>>
 
-						<<replace #autoNNPCSave>>
-							<<link "Save">>
-								<<if $options.autoNNPCDisplay[$options.nnpcDisplay] is undefined>>
-									<<set $options.autoNNPCDisplay[$options.nnpcDisplay] to {}>>
+						/* Skin guards */
+						<<if $options.nnpcDisplaySkin is "monster" and !(_nnpcKey is "black_wolf" || _nnpcKey is "great_hawk")>>
+							<<set $options.nnpcDisplaySkin to "pale">>
+						<</if>>
+						<<if ($options.nnpcDisplaySkin isnot "pale") and ($options.nnpcDisplaySkin isnot "dark") and ($options.nnpcDisplaySkin isnot "monster")>>
+							<<set $options.nnpcDisplaySkin to "pale">>
+						<</if>>
+
+						<<updatesidebarimg>>
+
+						<<if _nnpcKey isnot 0>>
+
+							<<replace #manualNNPC>>
+								<<if $options.autoNNPCDisplay.enabled is true and $options.nnpcDisplay isnot 0>>
+									<<if $options.autoNNPCDisplay[$options.nnpcDisplay].genderOverride is true>>
+										Gender: 
+										<label><<radiovar "$options.nnpcDisplayGender" "male">><<updatesidebarimg>><</radiovar>> Male</label> |
+										<label><<radiovar "$options.nnpcDisplayGender" "female">><<updatesidebarimg>><</radiovar>> Female</label>
+										<br>
+									<</if>>
+								<<else>>
+									Gender: 
+									<label><<radiovar "$options.nnpcDisplayGender" "male">><<updatesidebarimg>><</radiovar>> Male</label> |
+									<label><<radiovar "$options.nnpcDisplayGender" "female">><<updatesidebarimg>><</radiovar>> Female</label>
+									<br>
+									Skin: 
+									<label><<radiovar "$options.nnpcDisplaySkin" "pale">><<updatesidebarimg>><</radiovar>> Pale</label> |
+									<label><<radiovar "$options.nnpcDisplaySkin" "dark">><<updatesidebarimg>><</radiovar>> Dark</label>
+									<<if $options.nnpcDisplay is "black_wolf" || $options.nnpcDisplay is "great_hawk">> | <label><<radiovar "$options.nnpcDisplaySkin" "monster">><<updatesidebarimg>><</radiovar>> Monster</label><</if>>
+									<br>
 								<</if>>
-								<<set $options.autoNNPCDisplay[$options.nnpcDisplay].slot to $options.nnpcDisplaySlot>>
-								<<set $options.autoNNPCDisplay[$options.nnpcDisplay].layer to $options.nnpcDisplayLayer>>
-								<<set $options.autoNNPCDisplay[$options.nnpcDisplay].skin to $options.nnpcDisplaySkin>>
-								<<set $options.autoNNPCDisplay[$options.nnpcDisplay].gender to $options.nnpcDisplayGender>>
-							<</link>>
-						<</replace>>
+							<</replace>>
 
-						<<replace #autoNNPCGenderOverrideToggle>>
-							Gender Override:
-							<label>
-								<<checkbox "$options.autoNNPCDisplay[$options.nnpcDisplay].genderOverride" false true autocheck>>
-								<mouse class="tooltip linkBlue">(?)<span>Enable Gender Override. Allows you to pick the NNPC gender sprite instead of their physical gender.</span></mouse>
-							</label>
-						<</replace>>
+							<<replace #autoNNPCSave>>
+								<<link "Save">>
+									<<if $options.autoNNPCDisplay[_nnpcKey] is undefined>>
+										<<set $options.autoNNPCDisplay[_nnpcKey] to {}>>
+									<</if>>
+									<<set $options.autoNNPCDisplay[_nnpcKey].slot to $options.nnpcDisplaySlot>>
+									<<set $options.autoNNPCDisplay[_nnpcKey].layer to $options.nnpcDisplayLayer>>
+									<<set $options.autoNNPCDisplay[_nnpcKey].skin to $options.nnpcDisplaySkin>>
+									<<set $options.autoNNPCDisplay[_nnpcKey].gender to $options.nnpcDisplayGender>>
+								<</link>>
+							<</replace>>
 
-					<<else>>
+							<<replace #autoNNPCGenderOverrideToggle>>
+								<<if $options.autoNNPCDisplay.enabled is true and $options.nnpcDisplay isnot 0>>
+									Gender Override: <label><<checkbox "$options.autoNNPCDisplay[$options.nnpcDisplay].genderOverride" false true autocheck>> <mouse class="tooltip linkBlue">(?)<span>Enable Gender Override. Allows you to pick the NNPC gender sprite instead of their physical gender.</span></mouse></label>
+								<</if>>
+							<</replace>>
 
-						<<replace #manualNNPC>>
-							Gender:
-							<label>
-								<<radiovar "$options.nnpcDisplayGender" "male">><<updatesidebarimg>><</radiovar>> Male
-							</label> |
-							<label>
-								<<radiovar "$options.nnpcDisplayGender" "female">><<updatesidebarimg>><</radiovar>> Female
-							</label>
-							<br>
+						<</if>>
+					`);
 
-							Skin:
-							<label>
-								<<radiovar "$options.nnpcDisplaySkin" "pale">><<updatesidebarimg>><</radiovar>> Pale
-							</label> |
-							<label>
-								<<radiovar "$options.nnpcDisplaySkin" "dark">><<updatesidebarimg>><</radiovar>> Dark
-							</label>
-							<<if $options.nnpcDisplay is "black_wolf" || $options.nnpcDisplay is "great_hawk">>
-								| <label>
-									<<radiovar "$options.nnpcDisplaySkin" "monster">><<updatesidebarimg>><</radiovar>> Monster
-								</label>
-							<</if>>
-							<br>
-						<</replace>>
+					/* --------- FORCE RADIO DOTS TO MATCH THE LOADED VALUES --------- */
+					setTimeout(() => {
+						const root = $("#nnpcDisplay");
+						if (!root.length) return;
 
-						<<replace #autoNNPCSave>><</replace>>
-						<<replace #autoNNPCGenderOverrideToggle>><</replace>>
+						const slot = V.options.nnpcDisplaySlot;
+						root.find("input[type=radio][name$='nnpcDisplaySlot'][value='" + slot + "']").prop("checked", true);
 
-					<</if>>
-				`);
-			})
+						const layer = V.options.nnpcDisplayLayer;
+						root.find("input[type=radio][name$='nnpcDisplayLayer'][value='" + layer + "']").prop("checked", true);
+
+						const gender = V.options.nnpcDisplayGender;
+						root.find("input[type=radio][name$='nnpcDisplayGender'][value='" + gender + "']").prop("checked", true);
+
+						const skin = V.options.nnpcDisplaySkin;
+						root.find("input[type=radio][name$='nnpcDisplaySkin'][value='" + skin + "']").prop("checked", true);
+					}, 0);
+				}
+			)
 		);
 		<</script>>
+
 
 		<div class="settingsToggleItem">
 			<label><<checkbox "$options.lowerHalo" false true autocheck>> Enable halos lowering when holding an umbrella.</label>

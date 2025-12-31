@@ -1020,6 +1020,7 @@ const statChange = (() => {
 		if (isNaN(amount)) paramError("hallucinogen", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 		if (amount) {
+			if (V.substanceRebalance == 1 && V.passage.includes("Gwylan")) amount /= 2;
 			V.hallucinogen = Math.clamp(V.hallucinogen + amount, 0, 1000);
 		}
 	}

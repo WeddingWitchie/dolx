@@ -1842,24 +1842,62 @@
 <</widget>>
 
 <<widget "modWardrobeUpdate">>
+	<<if $wardrobeMult is undefined>><<set $wardrobeMult to 1>><</if>>
+	<<if $wardrobes is undefined>><<set $wardrobes to {}>><</if>>
+
 	<<if $passage isnot "Start">>
 		<<set _furniture to Furniture.get("wardrobe", "bedroom")>>
-		<<if _furniture.type.includes("organiser")>>
+		<<if _furniture and _furniture.type and _furniture.type.includes("organiser")>>
 			<<set $wardrobe.space to 40 * $wardrobeMult>>
-		<<elseif _furniture.type.includes("spacious")>>
+		<<elseif _furniture and _furniture.type and _furniture.type.includes("spacious")>>
 			<<set $wardrobe.space to 30 * $wardrobeMult>>
 		<<else>>
 			<<set $wardrobe.space to 20 * $wardrobeMult>>
 		<</if>>
 	<</if>>
-	<<set $wardrobes.edensCabin.space to 10 * $wardrobeMult>>
+
+	<<if $wardrobes.alexFarm is undefined>><<set $wardrobes.alexFarm to {}>><</if>>
+	<<if $wardrobes.asylum is undefined>><<set $wardrobes.asylum to {}>><</if>>
+	<<if $wardrobes.avery_mansion is undefined>><<set $wardrobes.avery_mansion to {}>><</if>>
+	<<if $wardrobes.birdTower is undefined>><<set $wardrobes.birdTower to {}>><</if>>
+	<<if $wardrobes.brothel is undefined>><<set $wardrobes.brothel to {}>><</if>>
+	<<if $wardrobes.changingRoom is undefined>><<set $wardrobes.changingRoom to {}>><</if>>
+	<<if $wardrobes.edensCabin is undefined>><<set $wardrobes.edensCabin to {}>><</if>>
+	<<if $wardrobes.officeBuilding is undefined>><<set $wardrobes.officeBuilding to {}>><</if>>
+	<<if $wardrobes.pirate is undefined>><<set $wardrobes.pirate to {}>><</if>>
+	<<if $wardrobes.prison is undefined>><<set $wardrobes.prison to {}>><</if>>
+	<<if $wardrobes.schoolBoys is undefined>><<set $wardrobes.schoolBoys to {}>><</if>>
+	<<if $wardrobes.schoolGirls is undefined>><<set $wardrobes.schoolGirls to {}>><</if>>
+	<<if $wardrobes.stripClub is undefined>><<set $wardrobes.stripClub to {}>><</if>>
+	<<if $wardrobes.temple is undefined>><<set $wardrobes.temple to {}>><</if>>
+
 	<<set $wardrobes.alexFarm.space to 40 * $wardrobeMult>>
-	<<set $wardrobes.stripClub.space to 10 * $wardrobeMult>>
-	<<set $wardrobes.brothel.space to 10 * $wardrobeMult>>
-	<<set $wardrobes.temple.space to 20 * $wardrobeMult>>
-	<<set $wardrobes.pirate.space to 5 * $wardrobeMult>>
-	<<set $wardrobes.officeBuilding.space to 5 * $wardrobeMult>>
+	<<set $wardrobes.asylum.space to 5 * $wardrobeMult>>
+	<<set $wardrobes.avery_mansion.space to 80 * $wardrobeMult>>
 	<<set $wardrobes.birdTower.space to 15 * $wardrobeMult>>
+	<<set $wardrobes.brothel.space to 10 * $wardrobeMult>>
+	<<set $wardrobes.changingRoom.space to 5 * $wardrobeMult>>
+	<<set $wardrobes.edensCabin.space to 10 * $wardrobeMult>>
+	<<set $wardrobes.officeBuilding.space to 5 * $wardrobeMult>>
+	<<set $wardrobes.pirate.space to 5 * $wardrobeMult>>
+	<<set $wardrobes.prison.space to 5 * $wardrobeMult>>
+	<<set $wardrobes.schoolBoys.space to 5 * $wardrobeMult>>
+	<<set $wardrobes.schoolGirls.space to 5 * $wardrobeMult>>
+	<<set $wardrobes.stripClub.space to 10 * $wardrobeMult>>
+	<<set $wardrobes.temple.space to 20 * $wardrobeMult>>
+
+	<<if $tryOn is undefined>>
+		<<set $tryOn to {}>>
+	<</if>>
+
+	<<if $tryOn.tryingOn is undefined>>
+		<<set $tryOn.tryingOn to {}>>
+	<</if>>
+
+	<<if $tryOn.tryingOn.rings is undefined>>
+		<<set $tryOn.tryingOn.rings to null>>
+		<<set $tryOn.tryingOn.earrings to null>>
+	<</if>>
 <</widget>>
 
 <<widget "modParasiteCapUpdate">>
@@ -1937,6 +1975,12 @@
 <<mirrorMood>>
 
 <<widget "modRingsEarrings">>
+	/* Fixing what I broke in the 14 version and changing to 7.5 in case of future compatibility. */
+	<<if $objectVersion.wardrobes lt 7 or $objectVersion.wardrobes is 14 or $objectVersion.wardrobes is 15 or $objectVersion.wardrobes is undefined>>
+		<<set $objectVersion.wardrobes to 7>>
+		<<wardrobesUpdate>>
+		<<set $objectVersion.wardrobes to 7.5>>
+	<</if>>
 	<<if $wear_rings is undefined>>		
 		<<set $worn.earrings to clone(setup.clothes.earrings[0])>>
 		<<set $carried.earrings to clone(setup.clothes.earrings[0])>>
@@ -1966,4 +2010,15 @@
 		<</for>>
 		<<set $ears_pierced to 0>>
 	<</if>>
+	<<script>>
+		for (const i of Object.keys(V.wardrobes)) {
+			if (i == "shopReturn" || i == "wardrobe") continue;
+			if (V.wardrobes[i].earrings == undefined) {
+				V.wardrobes[i].earrings = [];
+			}
+			if (V.wardrobes[i].rings == undefined) {
+				V.wardrobes[i].rings = [];
+			}
+		}
+	<</script>>
 <</widget>>

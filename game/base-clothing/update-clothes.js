@@ -755,6 +755,12 @@ function wardrobesUpdate() {
 		V.wardrobes.avery_mansion.locationRequirement.push("avery_mansion");
 	}
 	if (V.avery_mansion) V.wardrobes.avery_mansion.unlocked = true;
+	if (V.objectVersion.wardrobes < 7.5) {
+		Object.values(V.wardrobes).forEach(wardrobe => {
+			if (wardrobe && Array.isArray(wardrobe.upper) && !wardrobe.rings) wardrobe.rings = [];
+			if (wardrobe && Array.isArray(wardrobe.upper) && !wardrobe.earrings) wardrobe.earrings = [];
+		});
+	}
 	V.wardrobes.alexFarm.isolated = true;
 }
 DefineMacro("wardrobesUpdate", wardrobesUpdate);

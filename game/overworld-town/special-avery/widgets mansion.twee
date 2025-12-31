@@ -1497,7 +1497,7 @@
 		<</if>>
 		<br><br>
 		<<if $bus is "avery_bathroom">>
-			<<link [[Give Avery a massage (0:30)|Mansion Return Massage Accept]]>><<pass 30>><<npcincr Avery dom -1>><</link>><<gdom>>
+			<<link [[Give Avery a massage (0:30)|Mansion Return Massage Accept]]>><<pass 30>><<npcincr Avery dom 1>><</link>><<gdom>>
 			<br>
 		<<else>>
 			<<link [[Go with Avery to the bathroom (0:30)|Mansion Return Massage Accept]]>><<pass 30>><<npcincr Avery dom 1>><</link>><<gdom>>
@@ -3281,8 +3281,8 @@
 						<br>
 					<</if>>
 				<</if>>
-				/* <<link [[Steal|Avery Kitchen Steal]]>><<handheldon>><</link>>
-				<br><br> */
+				<<link [[Steal|Avery Kitchen Steal]]>><<handheldon>><</link>>
+				<br><br>
 			<</if>>
 
 			<<if $bus is "avery_lounge">>
@@ -3407,11 +3407,11 @@
 
 				<<if $avery_mansion.folder gte 12 and !$daily.mansion_folder and $avery_mansion.schedule isnot "away" and $avery_mansion.schedule isnot "sleep" and $avery_mansion.schedule isnot "work">>
 					<<set _extralinebreak to true>>
-					<<icon "manilaenvelope.png">><<link [[Read the folder from the orphanage (1:00)|Mansion Folder Avery]]>><<trauma 6>><<stress 6>><</link>><<gstress>><<ltrauma>>
+					<<icon "manilaenvelope.png">><<link [[Read the folder from the orphanage (1:00)|Mansion Folder Avery]]>><<stress 6>><<trauma -6>><</link>><<gstress>><<ltrauma>>
 					<br>
 				<<elseif $avery_mansion.folder gte 1 and !$daily.mansion_folder>>
 					<<set _extralinebreak to true>>
-					<<icon "manilaenvelope.png">><<link [[Read the folder from the orphanage (1:00)|Mansion Folder]]>><<set $avery_mansion.folder++>><<set $daily.mansion_folder to true>><<pass 60>><<trauma -6>><<stress 6>><</link>><<gstress>><<ltrauma>>
+					<<icon "manilaenvelope.png">><<link [[Read the folder from the orphanage (1:00)|Mansion Folder]]>><<set $avery_mansion.folder++>><<set $daily.mansion_folder to true>><<pass 60>><<stress 6>><<trauma -6>><</link>><<gstress>><<ltrauma>>
 					<br>
 				<</if>>
 				<<if $avery_mansion.schedule is "sleep">>
@@ -4288,6 +4288,38 @@
 		<<avery_mansion_tower_negative_effects $avery_mansion.party_missed_guest>><<ggarage>><<lllove>><<npcincr Avery love -3>><<npcincr Avery rage 3>>
 		<br><br>
 	<</if>>
+<</widget>>
+
+<<widget "IngredientCheck">>
+    <<set _knownRecipes = []>>
+    <<set _validRecipes = []>>
+    <<set _unvalidRecipes = []>>
+	<<run Object.keys(setup.plants).forEach(item => {
+		if (setup.plants[item]?.ingredients.includes($phase)) {
+			_possibleRecipes++;
+			if ($plants[item].recipe) _knownRecipes.pushUnique(item);
+		}
+	})>>
+		
+    <<run Object.keys(setup.plants).forEach(item => {
+        const plant = setup.plants[item];
+        if (plant && Array.isArray(plant.ingredients) && plant.ingredients.length > 0) {
+			if (plant?.ingredients?.includes($phase)) {
+				if (!_validRecipes.includes(item)) _validRecipes.push(item);
+				if (plant.recipe && !_knownRecipes.includes(item)) _knownRecipes.push(item);
+			} else {
+				if (!_unvalidRecipes.includes(item)) _unvalidRecipes.push(item);
+			}
+		}
+    })>>
+    
+    <<set _unvalid = _unvalidRecipes[Math.floor(Math.random() * _unvalidRecipes.length)]>>
+    
+    <<if _knownRecipes.length>>
+        <<set _valid = _knownRecipes[Math.floor(Math.random() * _knownRecipes.length)]>>
+    <<else>>
+        <<set _valid = _validRecipes[Math.floor(Math.random() * _validRecipes.length)]>>
+    <</if>>
 <</widget>>
 
 <<widget "avery_mansion_skyscraper_calc">>

@@ -789,6 +789,7 @@ Renderer.CanvasModels.main = {
 		options.lowerShadowMask = [];
 		options.underLowerMask = [];
 		options.underLowerShadowMask = [];
+		options.underUpperMask = [];
 		options.upperMask = [];
 		options.legsMask = [];
 		if (options.worn.lower.setup.mask_img === 1) {
@@ -974,8 +975,10 @@ Renderer.CanvasModels.main = {
 		}
 
 		if (options.shirt_mask_clip_src) {
+			options.underUpperMask.push(options.shirt_mask_clip_src)
 			options.upperMask.push(options.shirt_mask_clip_src)
 		} else {
+			options.underUpperMask.push(options.upper_fitted_clip_src)
 			options.upperMask.push(options.upper_fitted_clip_src)
 		};
 
@@ -2163,20 +2166,84 @@ Renderer.CanvasModels.main = {
 
 		"nnpc": {
 			srcfn() {
-				let active = null;
+				// Helpers
+				const norm = (name) => {
+					if (!name || name === 0) return null;
+					let key = String(name).trim().toLowerCase().replace(/\s+/g, "_");
+					// Normalize folder names
+					if (key === "black_wolf") key = "black_wolf";
+					if (key === "great_hawk") key = "great_hawk";
+					if (key === "ivory_wraith") key = "ivory_wraith";
+					return key;
+				};
 
-				// Scene NPC (gameplay)
-				if (!T.optionsEnabled && V.NPCList && V.NPCList[0] && V.NPCList[0].fullDescription) {
-					if (setup.NPCNameList && setup.NPCNameList.includes(V.NPCList[0].fullDescription)) {
-						active = V.NPCList[0].fullDescription.toLowerCase();
+				const autoEnabled = V.options?.autoNNPCDisplay?.enabled === true;
+				const inOptions = !!T.optionsEnabled;
+
+				// =============================
+				// OPTIONS MENU PREVIEW ONLY
+				// =============================
+				if (inOptions) {
+					if (!V.options.nnpcDisplay || V.options.nnpcDisplaySlot === 0) return;
+
+					const active = norm(V.options.nnpcDisplay);
+					if (!active) return;
+
+					T.activeNNPC = active;
+
+					const isBeast = (active === "black_wolf" || active === "great_hawk");
+
+					let gender = V.options.nnpcDisplayGender || "male";
+					let skinChoice = V.options.nnpcDisplaySkin || "pale";
+
+					// Guard: monster only for beasts (in preview too)
+					if (skinChoice === "monster" && !isBeast) skinChoice = "pale";
+
+					let skin = "/" + skinChoice;
+
+					if (active === "sydney") {
+						skin += (C.npc.Sydney.purity >= 1) ? "/pure" : "/corrupt";
 					}
+					if (active === "ivory_wraith" || active === "others") skin = "";
+
+					return `img/ui/nnpc/${active}/${gender}${skin}/${V.options.nnpcDisplaySlot}.png`;
 				}
-				// ----------------------------
+
+				// =============================
+				// GAMEPLAY: AUTO OFF = PERSISTENT MANUAL
+				// =============================
+				if (!autoEnabled) {
+					if (!V.options.nnpcDisplay || V.options.nnpcDisplaySlot === 0) return;
+
+					const active = norm(V.options.nnpcDisplay);
+					if (!active) return;
+
+					T.activeNNPC = active;
+
+					const isBeast = (active === "black_wolf" || active === "great_hawk");
+
+					let gender = V.options.nnpcDisplayGender || "male";
+					let skinChoice = V.options.nnpcDisplaySkin || (isBeast ? "monster" : "pale");
+
+					// Guard: monster only for beasts
+					if (skinChoice === "monster" && !isBeast) skinChoice = "pale";
+
+					let skin = "/" + skinChoice;
+
+					if (active === "sydney") {
+						skin += (C.npc.Sydney.purity >= 1) ? "/pure" : "/corrupt";
+					}
+					if (active === "ivory_wraith" || active === "others") skin = "";
+
+					return `img/ui/nnpc/${active}/${gender}${skin}/${V.options.nnpcDisplaySlot}.png`;
+				}
+
+				// =============================
+				// GAMEPLAY: AUTO ON = CONTEXT DETECTION
+				// =============================
 				// Detect active NPC (robust)
-				// ----------------------------
 				let rawName = null;
 
-				// Try all known sources
 				if (V.NPCList?.[0]?.fullDescription) {
 					rawName = V.NPCList[0].fullDescription;
 				} else if (V.npc?.name) {
@@ -2187,93 +2254,56 @@ Renderer.CanvasModels.main = {
 					rawName = V.NPCName;
 				}
 
-				// Cache when found
-				if (rawName) {
-					T.lastNNPC = rawName;
-				}
-
-				// Reuse cached NPC if current frame has none
-				if (!rawName && T.lastNNPC) {
-					rawName = T.lastNNPC;
-				}
-
-				// If still nothing, do not break rendering
+				// No NPC detected -> show nothing in auto mode
 				if (!rawName) return;
 
-				T.activeNNPC = String(rawName)
-					.trim()
-					.toLowerCase()
-					.replace(/\s+/g, "_");
-
-				// Options preview only
-				if (!active && T.optionsEnabled && V.options.nnpcDisplay) {
-					active = V.options.nnpcDisplay.toLowerCase();
-				}
-
+				let active = norm(rawName);
 				if (!active) return;
 
-				// Normalize folder names
-				if (active === "black wolf") active = "black_wolf";
-				if (active === "great hawk") active = "great_hawk";
-				if (active === "ivory wraith") active = "ivory_wraith";
+				// Special casing if the rawName comes in with spaces
+				if (active === "black_wolf") active = "black_wolf";
+				if (active === "great_hawk") active = "great_hawk";
+				if (active === "ivory_wraith") active = "ivory_wraith";
 
 				T.activeNNPC = active;
 
 				const isBeast = (active === "black_wolf" || active === "great_hawk");
 
-				// =============================
-				// GAMEPLAY MODE (per NPC config)
-				// =============================
-				if (!T.optionsEnabled) {
-					const cfg = V.options.autoNNPCDisplay?.[active];
-					if (!cfg || cfg.slot === 0) return;
+				// Per-NPC config required in auto mode
+				const cfg = V.options.autoNNPCDisplay?.[active];
+				if (!cfg || cfg.slot === 0) return;
 
-					// Gender
-					const gender =
-						(cfg.genderOverride === true && cfg.gender)
-							? cfg.gender
-							: (V.NPCList[0]?.pronoun === "m" ? "male" : "female");
+				// Gender (respect override if enabled)
+				const pronoun =
+					V.NPCList?.[0]?.pronoun ??
+					C?.npc?.[active]?.pronoun;
 
-					// Skin: RESPECT saved choice first
-					// cfg.skin should be "pale" | "dark" | "monster"
-					let skinChoice = cfg.skin;
-					if (!skinChoice) skinChoice = isBeast ? "monster" : (V.NPCList[0]?.skincolour === "white" ? "pale" : "dark");
+				let gender =
+					(cfg.genderOverride === true && cfg.gender)
+						? cfg.gender
+						: (pronoun === "m" ? "male" : "female");
 
-					// Guard: monster only for beasts
-					if (skinChoice === "monster" && !isBeast) skinChoice = "pale";
-
-					let skin = skinChoice ? ("/" + skinChoice) : "";
-
-					// Special cases
-					if (active === "sydney") {
-						skin += (C.npc.Sydney.purity >= 1) ? "/pure" : "/corrupt";
-					}
-					if (active === "ivory_wraith") skin = "";
-
-					return `img/ui/nnpc/${active}/${gender}${skin}/${cfg.slot}.png`;
+				// Skin: respect saved choice first
+				let skinChoice = cfg.skin;
+				if (!skinChoice) {
+					const skincolour =
+						V.NPCList?.[0]?.skincolour ??
+						C?.npc?.[active]?.skincolour;
+					skinChoice = isBeast ? "monster" : (skincolour === "white" ? "pale" : "dark");
 				}
 
-				// =============================
-				// OPTIONS MENU PREVIEW ONLY
-				// =============================
-				if (V.options.nnpcDisplaySlot === 0) return;
+				// Guard: monster only for beasts
+				if (skinChoice === "monster" && !isBeast) skinChoice = "pale";
 
-				const gender = V.options.nnpcDisplayGender;
-				let skinChoice = V.options.nnpcDisplaySkin;
+				let skin = skinChoice ? ("/" + skinChoice) : "";
 
-				// Guard: monster only for beasts (in preview too)
-				if (skinChoice === "monster" && !(V.options.nnpcDisplay === "black_wolf" || V.options.nnpcDisplay === "great_hawk")) {
-					skinChoice = "pale";
-				}
-
-				let skin = "/" + skinChoice;
-
-				if (V.options.nnpcDisplay === "sydney") {
+				// Special cases
+				if (active === "sydney") {
 					skin += (C.npc.Sydney.purity >= 1) ? "/pure" : "/corrupt";
 				}
-				if (V.options.nnpcDisplay === "ivory_wraith") skin = "";
+				if (active === "ivory_wraith" || active === "others") skin = "";
 
-				return `img/ui/nnpc/${V.options.nnpcDisplay}/${gender}${skin}/${V.options.nnpcDisplaySlot}.png`;
+				return `img/ui/nnpc/${active}/${gender}${skin}/${cfg.slot}.png`;
 			},
 
 			showfn(options) {
@@ -3650,7 +3680,7 @@ Renderer.CanvasModels.main = {
 					return options.worn.under_upper.setup.pregType === "split"
 						&& options.shirt_mask_clip_src;
 
-				return options.upperMask;
+				return options.underUpperMask;
 			}
 		}),
 		"under_upper_fitted_left": genlayer_clothing_fitted_left("under_upper", {
@@ -3717,7 +3747,7 @@ Renderer.CanvasModels.main = {
 					return options.worn.under_upper.setup.pregType === "split"
 						&& options.shirt_mask_clip_src;
 
-				return options.upperMask;
+				return options.underUpperMask;
 			}
 		}),
 		"under_upper_breasts_acc": genlayer_clothing_breasts_acc('under_upper'),

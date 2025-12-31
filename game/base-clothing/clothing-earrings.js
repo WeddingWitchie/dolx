@@ -1640,7 +1640,7 @@ function initEarrings() {
 			type: ["luxurious"],
 			gender: "n",
 			warmth: 0,
-			cost: 32500000,
+			cost: 3250000,
 			description: "2ct diamond halo earrings. Big and classy.",
 			shop: ["luxury_jewellery"],
 			accessory: 1,
