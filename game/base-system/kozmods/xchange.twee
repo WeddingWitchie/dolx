@@ -1,5 +1,20 @@
 :: X-Change Pill Widgets [widget]
 
+<<set $xchange to $xchange || {}>>
+<<set $xchange.spikepool to $xchange.spikepool || {}>>
+<<if $xchange._didSpikepoolKeyFix is not true>>
+	<<set $xchange._didSpikepoolKeyFix to true>>
+
+	/* Migrate dumb-bitch setting key variants -> canonical $xchange.spikepool.dumbbitch */
+	<<if $xchange.spikepool.dumbbitch is undefined>>
+		<<if $xchange.spikepool["dumb-bitch"] is not undefined>>
+			<<set $xchange.spikepool.dumbbitch to $xchange.spikepool["dumb-bitch"]>>
+		<<elseif $xchange.spikepool.dumbBitch is not undefined>>
+			<<set $xchange.spikepool.dumbbitch to $xchange.spikepool.dumbBitch>>
+		<</if>>
+	<</if>>
+<</if>>
+
 	<<widget "sissify">>
 		<<wash>>
 		<<set $player.gender_body to "f">>
@@ -1181,20 +1196,37 @@
 				<<for _i to 0; _i lt 10; _i++>><<run _durations.push(1)>><</for>>
 				<<for _i to 0; _i lt 5; _i++>><<run _durations.push(3)>><</for>>
 				<<for _i to 0; _i lt 1; _i++>><<run _durations.push(7)>><</for>>
-				<<set _duration to _durations.random()>><<take-xchange _duration>>
-
+				<<set _duration to _durations.random()>>
+				<<take-xchange _duration>>
+				/* Build spike pool */
 				<<xchange-get-spikepool>>
-				<<set _crossdressThreshold to 100 - $xchange.spikerates.crossdress * 100 / _effectPool.length>>
+
+				/* Extra safety: if dumb bitch is disabled, purge all possible ids */
+				<<if !($xchange.spikepool.dumbbitch or $xchange.spikepool["dumb-bitch"] or $xchange.spikepool.dumbBitch)>>
+					<<run _effectPool.deleteWith((val)=>val==="dumb-bitch" || val==="dumbbitch" || val==="dumbBitch")>>
+				<</if>>
+				/* Safe threshold calc (avoid divide-by-zero) */
+				<<set _poolLen to _effectPool.length>>
+				<<if _poolLen lte 0>><<set _poolLen to 1>><</if>>
+				<<set _crossdressThreshold to 100 - $xchange.spikerates.crossdress * 100 / _poolLen>>
 
 				<<if $player.gender is "m">>
+
 					<<rng>>
 					<<if $rng gt _crossdressThreshold and $xchange.spikepool.crossdresser>>
 						<<xchange-addeffect "crossdress">>
 					<<else>>
 						<<xchange-addeffect "genderflip">>
 					<</if>>
+
 					<<xchange-get-spikepool>>
-					<<xchange-addeffect _effectPool.random()>>
+					<<if !($xchange.spikepool.dumbbitch or $xchange.spikepool["dumb-bitch"] or $xchange.spikepool.dumbBitch)>>
+						<<run _effectPool.deleteWith((val)=>val==="dumb-bitch" || val==="dumbbitch" || val==="dumbBitch")>>
+					<</if>>
+					<<if _effectPool.length gt 0>>
+						<<xchange-addeffect _effectPool.random()>>
+					<</if>>
+
 					<<if $xchange.pill.genderflipEffect>>
 						<<rng>><<if ($rng gt 85) or ($xchange.pill.breederEffect and $rng gt 33)>><<xchange-addeffect "fertile">><</if>>
 						<<rng>><<if $rng gt 66 and $xchange.spikepool.crossdresser>><<xchange-addeffect "crossdress">><</if>>
@@ -1203,27 +1235,37 @@
 					<<rng>><<if $rng gt 50 and $portalPantiesEnabled>><<xchange-addeffect "portal" 1>><</if>>
 
 				<<elseif $player.gender is "f">>
+
 					<<rng>>
 					<<if $rng gt _crossdressThreshold and $xchange.spikepool.crossdresser>>
 						<<xchange-addeffect "crossdress">>
 					<<else>>
 						<<xchange-addeffect "genderflip">>
 					<</if>>
+
 					<<xchange-get-spikepool>>
-					<<xchange-addeffect _effectPool.random()>>
+					<<if !($xchange.spikepool.dumbbitch or $xchange.spikepool["dumb-bitch"] or $xchange.spikepool.dumbBitch)>>
+						<<run _effectPool.deleteWith((val)=>val==="dumb-bitch" || val==="dumbbitch" || val==="dumbBitch")>>
+					<</if>>
+					<<if _effectPool.length gt 0>>
+						<<xchange-addeffect _effectPool.random()>>
+					<</if>>
+
 					<<if $xchange.pill.genderflipEffect and $xchange.spikepool.crossdresser>>
 						<<rng>><<if $rng gt 66>><<xchange-addeffect "crossdress">><</if>>
 					<</if>>
 					<<rng>><<if $rng gt 95 and $xchange.spikepool.passion>><<xchange-addeffect "passion">><</if>>
 					<<rng>><<if $rng gt 50 and $portalPantiesEnabled>><<xchange-addeffect "portal" 1>><</if>>
-				
 				<</if>>
-				
 			<<else>>
 				<<xchange-get-spikepool>>
-				<<xchange-addeffect _effectPool.random()>>
+				<<if !($xchange.spikepool.dumbbitch or $xchange.spikepool["dumb-bitch"] or $xchange.spikepool.dumbBitch)>>
+					<<run _effectPool.deleteWith((val)=>val==="dumb-bitch" || val==="dumbbitch" || val==="dumbBitch")>>
+				<</if>>
+				<<if _effectPool.length gt 0>>
+					<<xchange-addeffect _effectPool.random()>>
+				<</if>>
 			<</if>>
-
 			<<xchange-addeffect "unknown">>
 			<<if _args[0] isnot "suppress">>
 				<span class="pink">You got spiked with an unknown pill.</span>
@@ -1239,23 +1281,74 @@
 				<<set _effectPool.push(_pillType)>>
 			<</for>>
 		<</for>>
-		<<if $player.gender is "f" and !$xchange.pill.hermEffect>><<run _effectPool.deleteWith((val)=>val==="breeder")>><<run _effectPool.deleteWith((val)=>val==="fertile")>><</if>>
-		<<if $player.gender is "m" and !$xchange.pill.hermEffect>><<run _effectPool.deleteWith((val)=>val==="bull")>><</if>>
-		<<if $xchange.pill.genderflipEffect>><<run _effectPool.deleteWith((val)=>val==="genderflip")>><</if>>
-		<<if $xchange.pill.genderificationEffect or !$xchange.spikepool.crossdresser>><<run _effectPool.deleteWith((val)=>val==="crossdress")>><</if>>
-		<<if $xchange.pill.hermEffect or !$xchange.spikepool.herm>><<run _effectPool.deleteWith((val)=>val==="herm")>><</if>>
-		<<if $xchange.pill.breederEffect or !$xchange.spikepool.breeder>><<run _effectPool.deleteWith((val)=>val==="breeder")>><</if>>
-		<<if $xchange.pill.bullEffect or !$xchange.spikepool.bull>><<run _effectPool.deleteWith((val)=>val==="bull")>><</if>>
-		<<if $xchange.pill.continueEffect or $xchange.pill.resistanceEffect or !$xchange.spikepool.continue or pillIsPermanent()>><<run _effectPool.deleteWith((val)=>val==="continue")>><</if>>
-		<<if $xchange.pill.resistanceEffect or $xchange.pill.continueEffect or !$xchange.spikepool.resistance or pillIsPermanent()>><<run _effectPool.deleteWith((val)=>val==="resistance")>><</if>>
-		<<if $xchange.pill.passionEffect or !$xchange.spikepool.passion>><<run _effectPool.deleteWith((val)=>val==="passion")>><</if>>
-		<<if $xchange.pill.portalEffect or !$portalPantiesEnabled>><<run _effectPool.deleteWith((val)=>val==="portal")>><</if>>
-		<<if $xchange.pill.dumbBitchEffect or $xchange.pill.bimboEffect or !$xchange.spikepool.dumbbitch>><<run _effectPool.deleteWith((val)=>val==="dumb-bitch")>><</if>>
-		<<if $xchange.pill.innocenceEffect or !$xchange.spikepool.innocence>><<run _effectPool.deleteWith((val)=>val==="innocence")>><</if>>
-		<<if $xchange.pill.swellEffect or !$xchange.spikepool.swell>><<run _effectPool.deleteWith((val)=>val==="swell")>><</if>>
-		<<if $xchange.pill.bimboEffect or $xchange.pill.dumbBitchEffect or !$xchange.spikepool.bimbo>><<run _effectPool.deleteWith((val)=>val==="bimbo")>><</if>>
-		<<if $xchange.pill.cumcureEffect or !$xchange.spikepool.cumcure>><<run _effectPool.deleteWith((val)=>val==="cumcure")>><</if>>
 
+		<<if $player.gender is "f" and !$xchange.pill.hermEffect>>
+			<<run _effectPool.deleteWith((val)=>val==="breeder")>>
+			<<run _effectPool.deleteWith((val)=>val==="fertile")>>
+		<</if>>
+
+		<<if $player.gender is "m" and !$xchange.pill.hermEffect>>
+			<<run _effectPool.deleteWith((val)=>val==="bull")>>
+		<</if>>
+
+		<<if $xchange.pill.genderflipEffect>>
+			<<run _effectPool.deleteWith((val)=>val==="genderflip")>>
+		<</if>>
+
+		<<if $xchange.pill.genderificationEffect or !$xchange.spikepool.crossdresser>>
+			<<run _effectPool.deleteWith((val)=>val==="crossdress")>>
+		<</if>>
+
+		<<if $xchange.pill.hermEffect or !$xchange.spikepool.herm>>
+			<<run _effectPool.deleteWith((val)=>val==="herm")>>
+		<</if>>
+
+		<<if $xchange.pill.breederEffect or !$xchange.spikepool.breeder>>
+			<<run _effectPool.deleteWith((val)=>val==="breeder")>>
+		<</if>>
+
+		<<if $xchange.pill.bullEffect or !$xchange.spikepool.bull>>
+			<<run _effectPool.deleteWith((val)=>val==="bull")>>
+		<</if>>
+
+		<<if $xchange.pill.continueEffect or $xchange.pill.resistanceEffect or !$xchange.spikepool.continue or pillIsPermanent()>>
+			<<run _effectPool.deleteWith((val)=>val==="continue")>>
+		<</if>>
+
+		<<if $xchange.pill.resistanceEffect or $xchange.pill.continueEffect or !$xchange.spikepool.resistance or pillIsPermanent()>>
+			<<run _effectPool.deleteWith((val)=>val==="resistance")>>
+		<</if>>
+
+		<<if $xchange.pill.passionEffect or !$xchange.spikepool.passion>>
+			<<run _effectPool.deleteWith((val)=>val==="passion")>>
+		<</if>>
+
+		<<if $xchange.pill.portalEffect or !$portalPantiesEnabled>>
+			<<run _effectPool.deleteWith((val)=>val==="portal")>>
+		<</if>>
+
+		/* FIX: respect "dumb bitch" being disabled even if ids/keys differ */
+		<<if $xchange.pill.dumbBitchEffect
+			or $xchange.pill.bimboEffect
+			or !($xchange.spikepool.dumbbitch or $xchange.spikepool["dumb-bitch"] or $xchange.spikepool.dumbBitch)>>
+			<<run _effectPool.deleteWith((val)=>val==="dumb-bitch" || val==="dumbbitch" || val==="dumbBitch")>>
+		<</if>>
+
+		<<if $xchange.pill.innocenceEffect or !$xchange.spikepool.innocence>>
+			<<run _effectPool.deleteWith((val)=>val==="innocence")>>
+		<</if>>
+
+		<<if $xchange.pill.swellEffect or !$xchange.spikepool.swell>>
+			<<run _effectPool.deleteWith((val)=>val==="swell")>>
+		<</if>>
+
+		<<if $xchange.pill.bimboEffect or $xchange.pill.dumbBitchEffect or !$xchange.spikepool.bimbo>>
+			<<run _effectPool.deleteWith((val)=>val==="bimbo")>>
+		<</if>>
+
+		<<if $xchange.pill.cumcureEffect or !$xchange.spikepool.cumcure>>
+			<<run _effectPool.deleteWith((val)=>val==="cumcure")>>
+		<</if>>
 	<</widget>>
 
 	<<widget "xchange-antidote">>
