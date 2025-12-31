@@ -346,7 +346,7 @@ function initEarrings() {
 			index: 10,
 			slot: "earrings",
 			name: "silver stud earrings",
-			name_cap: "silver stud earrings",
+			name_cap: "Silver stud earrings",
 			variable: "silver",
 			state: 0,
 			state_base: 0,
