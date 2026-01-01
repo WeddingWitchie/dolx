@@ -1,5 +1,85 @@
 :: X-Change Pill Widgets [widget]
 
+<<widget "xchange-sanitize-state">>
+	<<run (function () {
+		const V = State.variables;
+		const seen = new WeakSet();
+		let fixed = 0;
+
+		function walk(obj) {
+			if (!obj || typeof obj !== "object") return;
+			if (seen.has(obj)) return;
+			seen.add(obj);
+
+			for (const k of Object.keys(obj)) {
+				const v = obj[k];
+
+				// Fix NaN / Infinity
+				if (typeof v === "number" && !Number.isFinite(v)) {
+					obj[k] = 0;
+					fixed++;
+					continue;
+				}
+
+				if (v && typeof v === "object") walk(v);
+			}
+		}
+
+		walk(V);
+
+		// Optional: enforce known minimums if they exist (prevents weird 0 sensitivity)
+		const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
+		const num = (x, fb) => {
+			x = Number(x);
+			return Number.isFinite(x) ? x : fb;
+		};
+
+		if ("breastsensitivity" in V) V.breastsensitivity = clamp(num(V.breastsensitivity, 0.25), 0.25, 999);
+		if ("bottomsensitivity" in V) V.bottomsensitivity = clamp(num(V.bottomsensitivity, 0.25), 0.25, 999);
+		if ("genitalsensitivity" in V) V.genitalsensitivity = clamp(num(V.genitalsensitivity, 0.25), 0.25, 999);
+
+		// Store how many were fixed so you can show it in UI if you want
+		State.temporary._xchangeNanFixed = fixed;
+	})();>>
+<</widget>>
+
+<<widget "xchange-fix-appearance-nan">>
+	/* Breast-related numbers */
+	<<set _v to Number($breasts)>>
+	<<if !isFinite(_v)>><<set _v to 0>><</if>>
+	<<set $breasts to Math.clamp(_v, 0, 50)>>
+
+	<<set _v to Number($breastsize)>>
+	<<if !isFinite(_v)>><<set _v to 0>><</if>>
+	<<set $breastsize to Math.clamp(_v, 0, 50)>>
+
+	<<set _v to Number($breastsimplants)>>
+	<<if !isFinite(_v)>><<set _v to 0>><</if>>
+	<<set $breastsimplants to Math.clamp(_v, 0, 50)>>
+
+	/* Sensitivities (common NaN source, and Mirror/body code touches them a lot) */
+	<<set _v to Number($breastsensitivity)>>
+	<<if !isFinite(_v)>><<set _v to 0.25>><</if>>
+	<<set $breastsensitivity to Math.clamp(_v, 0.25, 999)>>
+
+	<<set _v to Number($bottomsensitivity)>>
+	<<if !isFinite(_v)>><<set _v to 0.25>><</if>>
+	<<set $bottomsensitivity to Math.clamp(_v, 0.25, 999)>>
+
+	<<set _v to Number($genitalsensitivity)>>
+	<<if !isFinite(_v)>><<set _v to 0.25>><</if>>
+	<<set $genitalsensitivity to Math.clamp(_v, 0.25, 999)>>
+
+	/* Hair numbers (prevents “bald and hair UI broken”) */
+	<<set _v to Number($hairlength)>>
+	<<if !isFinite(_v)>><<set _v to 0>><</if>>
+	<<set $hairlength to Math.clamp(_v, 0, 1000)>>
+
+	<<set _v to Number($hairgrowth)>>
+	<<if !isFinite(_v)>><<set _v to 0>><</if>>
+	<<set $hairgrowth to Math.clamp(_v, 0, 1000)>>
+<</widget>>
+
 <<set $xchange to $xchange || {}>>
 <<set $xchange.spikepool to $xchange.spikepool || {}>>
 <<if $xchange._didSpikepoolKeyFix is not true>>
@@ -793,6 +873,7 @@
 			<<xchange-addeffect _effectPool.random()>>
 		<<default>>
 		<</switch>>
+	<<xchange-fix-appearance-nan>>
 	<</widget>>
 
 	<<widget "xchange-removeeffect">>
@@ -1267,6 +1348,7 @@
 				<</if>>
 			<</if>>
 			<<xchange-addeffect "unknown">>
+			<<xchange-sanitize-state>>
 			<<if _args[0] isnot "suppress">>
 				<span class="pink">You got spiked with an unknown pill.</span>
 				<br><br>
@@ -2864,3 +2946,11 @@
 		<<if _xchangeSkinTone is "no">><<set _xchangeSkinShade to "change">><</if>>
 		<<set $xchange.customisedSkinColour to _xchangeSkinTone + _xchangeSkinShade>>
 	<</widget>>
+
+<<link "Repair broken stats (fix NaN/Infinity)">>
+	<<xchange-sanitize-state>>
+	<<replace "#cheatmsg">>
+		Fixed: <<= _xchangeNanFixed>> bad number(s).
+	<</replace>>
+<</link>>
+<span id="cheatmsg"></span>

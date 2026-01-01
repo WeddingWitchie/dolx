@@ -662,25 +662,42 @@
 <</widget>>
 
 <<widget "faceVariantOptions">>
-	<<if Object.keys(setup.faceVariantOptions[$facestyle]).length gt 1>>
-		Your current demeanour is:
-		<<listbox "$facevariant" autoselect>>
-			<<optionsfrom setup.faceVariantOptions[$facestyle]>>
-		<</listbox>>
-		<br>
-		<<run $(() => {
-			$("#listbox-facevariant").on("change", () => {
-				Wikifier.wikifyEval('<<updatesidebarimg true>>');
-			});
-		})>>
+	<<if !setup.faceVariantOptions>>
+		<span class="red">Face variant options are unavailable.</span>
 	<<else>>
-		There are
-		<mouse class = "gold tooltip-small" style="border-bottom-color:white">
-			no alternative demeanours available.
-			<span class="blue">
-				Selecting a different face style may make additional demeanours available to you.
-			</span>
-		</mouse>
+
+		/* If facestyle is missing/invalid, fall back to the first available key */
+		<<if setup.faceVariantOptions[$facestyle] is undefined or setup.faceVariantOptions[$facestyle] is null>>
+			<<set $facestyle to Object.keys(setup.faceVariantOptions)[0]>>
+		<</if>>
+
+		<<set _faceOpts to (setup.faceVariantOptions[$facestyle] || {})>>
+
+		/* If facevariant is missing/invalid, set to first available option (if any) */
+		<<if Object.keys(_faceOpts).length gt 0 and (_faceOpts[$facevariant] is undefined)>>
+			<<set $facevariant to Object.keys(_faceOpts)[0]>>
+		<</if>>
+
+		<<if Object.keys(_faceOpts).length gt 1>>
+			Your current demeanour is:
+			<<listbox "$facevariant" autoselect>>
+				<<optionsfrom _faceOpts>>
+			<</listbox>>
+			<br>
+			<<run $(() => {
+				$("#listbox-facevariant").on("change", () => {
+					Wikifier.wikifyEval('<<updatesidebarimg true>>');
+				});
+			})>>
+		<<else>>
+			There are
+			<mouse class="gold tooltip-small" style="border-bottom-color:white">
+				no alternative demeanours available.
+				<span class="blue">
+					Selecting a different face style may make additional demeanours available to you.
+				</span>
+			</mouse>
+		<</if>>
 	<</if>>
 <</widget>>
 

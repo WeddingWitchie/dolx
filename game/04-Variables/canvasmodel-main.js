@@ -218,6 +218,46 @@ replace (?<!["'\w])_(?=\w) with T.
  * - "worn_SLOT" - generated from sprite prefilter and custom or predefined colour
  * - "worn_SLOT_acc" - generated from sprite prefilter and custom or predefined colour
  */
+
+window.DolXFix = window.DolXFix || {};
+
+window.DolXFix.safeStr = window.DolXFix.safeStr || function (v, fallback) {
+  fallback = (fallback === undefined) ? "" : fallback;
+  return (typeof v === "string" && v.length > 0 && v !== "undefined" && v !== "NaN") ? v : fallback;
+};
+
+window.DolXFix.safeInt = window.DolXFix.safeInt || function (v, fallback, min, max) {
+  fallback = (fallback === undefined) ? 0 : fallback;
+  min = (min === undefined) ? 0 : min;
+  max = (max === undefined) ? 50 : max;
+  var n = Math.floor(Number(v));
+  if (!Number.isFinite(n)) return fallback;
+  return Math.min(max, Math.max(min, n));
+};
+
+// normalises options in-place so ANY later code using options.* is safe
+window.DolXFix.sanitizeOptions = window.DolXFix.sanitizeOptions || function (options) {
+  if (!options) return options;
+
+  // numeric indexes
+  options.breast_size = window.DolXFix.safeInt(options.breast_size, 0, 0, 50);
+
+  // hair fringe (string filenames)
+  options.hair_fringe_type = window.DolXFix.safeStr(options.hair_fringe_type, "");
+  options.hair_fringe_length = window.DolXFix.safeStr(options.hair_fringe_length, "short"); // change if your files use different names
+
+  // common clothing color/variant segments used in filenames
+  options.upper_colour = window.DolXFix.safeStr(options.upper_colour, "gray");
+  options.under_upper_colour = window.DolXFix.safeStr(options.under_upper_colour, "gray");
+
+  // these two names match the layer names you showed; if your code uses different keys,
+  // still keep sanitizeOptions, and apply safeStr where the filename is built.
+  options.upper_breasts = window.DolXFix.safeStr(options.upper_breasts, "");
+  options.under_upper_breasts = window.DolXFix.safeStr(options.under_upper_breasts, "");
+
+  return options;
+};
+
 Renderer.CanvasModels.main = {
 	name: "main",
 	width: 256,
@@ -1129,10 +1169,12 @@ Renderer.CanvasModels.main = {
 				return options.breasts_mask_src;
 			},
 			srcfn(options) {
+				window.DolXFix.sanitizeOptions(options);
 				const mannequin = (options.mannequin) ? "mannequin/" : "";
 				const prefix = `img/body/${mannequin}`;
 				const suffix = options.breasts === "cleavage" && options.breast_size >= 3 ? "_clothed.png" : V.releaseBoobs === "release" && options.breast_size >= 3 && !options.mannequin ? "_released.png" : ".png";
-				return `${prefix}breasts/breasts${options.breast_size}${suffix}`;
+				const bs = window.DolXFix.breastSize(options);
+				return `${prefix}breasts/breasts${bs}${suffix}`;
 			},
 		},
 		"belly": {
@@ -1567,19 +1609,28 @@ Renderer.CanvasModels.main = {
 			},
 		},
 		"hair_fringe": {
-			filters: ["hair_fringe"],
-			z: ZIndices.fronthair,
-			animation: "idle",
+		filters: ["hair_fringe"],
+		z: ZIndices.fronthair,
+		animation: "idle",
 
-			srcfn(options) {
-				return `img/hair/fringe/${options.hair_fringe_type}/${options.hair_fringe_length}.png`;
-			},
-			showfn(options) {
-				return !!options.show_hair && !!options.hair_fringe_type;
-			},
-			masksrcfn(options) {
-				return options.head_mask_src ? options.head_mask_src : options.fringe_mask_src;
-			},
+		srcfn(options) {
+			window.DolXFix.sanitizeOptions(options);
+
+			const type = window.DolXFix.safeStr(options.hair_fringe_type, "");
+			const len  = window.DolXFix.safeStr(options.hair_fringe_length, "short"); // adjust if needed
+			if (!type) return null;
+
+			return `img/hair/fringe/${type}/${len}.png`;
+		},
+
+		showfn(options) {
+			// NOTE: only require type; length is defaulted in srcfn
+			return !!options.show_hair && !!options.hair_fringe_type;
+		},
+
+		masksrcfn(options) {
+			return options.head_mask_src ? options.head_mask_src : options.fringe_mask_src;
+		},
 		},
 		"hair_extra": { // Extra layer for thighs+ long hair for certain styles
 			filters: ["hair"],
@@ -2642,6 +2693,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
+				window.DolXFix.sanitizeOptions(options);
 				const area_name = "breasts"
 				const writing = setup.bodywriting[options.writing_breasts];
 				if (V.tattoo_bodypart == "breasts" && V.passage == "Tattoo Choice") writing = setup.bodywriting[V.tattoo_choice];
@@ -5428,6 +5480,7 @@ function genlayer_clothing_breasts(slot, overrideOptions) {
 		},
 
 		srcfn(options) {
+			window.DolXFix.sanitizeOptions(options);
 			const setup = options.worn[slot].setup;
 			const breastImg = setup.breast_img;
 
@@ -5628,6 +5681,7 @@ function genlayer_clothing_breasts_acc(slot, overrideOptions) {
 			return getClothingPathBreastsAcc(slot, options);
 		},
 		showfn(options) {
+			window.DolXFix.sanitizeOptions(options);
 			const breastAccImg = options.worn[slot].setup.breast_acc_img;
 			const breastImg = options.worn[slot].setup.breast_img;
 			let breastAcc = 0;
