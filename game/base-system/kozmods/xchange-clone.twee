@@ -28,16 +28,6 @@
 	<<set-xchange-clone-hairstyle _npcName>>
 	<<set-xchange-clone-social _npcName>>
 	<<set-xchange-clone-misc _npcName>>
-	
-	<!-- repair facial style/variant after clone -->
-	<<set _fvo to setup.faceVariantOptions>>
-	<<if _fvo and !_fvo[$facestyle]>>
-		<<set $facestyle to Object.keys(_fvo)[0]>>
-	<</if>>
-	<<set _opts to _fvo ? _fvo[$facestyle] : null>>
-	<<if _opts and !_opts[$facevariant]>>
-		<<set $facevariant to Object.keys(_opts)[0]>>
-	<</if>>
 
 	<<set $xchange.pill.clone to _npcName>>
 	<<save-body "cloned" _npcName>>
@@ -61,9 +51,7 @@
 		<<set $player.ballssize to C.npc[_npcName].ballssize>>
 	<</if>>
 
-	<<set $player.breastsize to Number(C.npc[_npcName].breastsize) || 0>>
-	<<set $player.breastsize to Math.clamp(Math.floor($player.breastsize), 0, setup.breastsizes.length - 1)>>
-
+	<<set $player.breastsize to C.npc[_npcName].breastsize>>
 	<<set $player.bottomsize to C.npc[_npcName].bottomsize>>
 
 	<<set $haircolour to C.npc[_npcName].hairColour>>
@@ -79,8 +67,8 @@
 	<<else>>
 		<<set $skinColor.natural to C.npc[_npcName].skincolour>>
 	<</if>>
-<</widget>>
 
+<</widget>>
 
 <<widget "set-xchange-clone-hairstyle">>
 	<<set _npcName to _args[0]>>
@@ -97,27 +85,8 @@
 		<<set $earposition to "back">>
 	<</switch>>
 
-	<!-- Defaults for everyone else (prevents bald / broken hair UI) -->
-	<<if $hairtype is undefined or $hairtype is "">>
-		<<set $hairtype to "neat">>
-	<</if>>
-	<<if $fringetype is undefined or $fringetype is "">>
-		<<set $fringetype to "emo left">>
-	<</if>>
-	<<if $hairposition is undefined or $hairposition is "">>
-		<<set $hairposition to "back">>
-	<</if>>
-	<<if $earposition is undefined or $earposition is "">>
-		<<set $earposition to "back">>
-	<</if>>
-
-	<!-- ensure we don't end up bald / hair UI disappearing -->
-	<<set $hairlength to Math.floor(Number($hairlength) || 200)>>
-	<<if $hairlength lte 0>>
-		<<set $hairlength to 200>>
-	<</if>>
-
 	<<set $ruffledisable to "t">>
+
 <</widget>>
 
 <<widget "set-xchange-clone-social">>

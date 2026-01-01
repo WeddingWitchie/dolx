@@ -52,43 +52,6 @@
 	})();>>
 <</widget>>
 
-<<widget "xchange-fix-appearance-nan">>
-	/* Breast-related numbers */
-	<<set _v to Number($breasts)>>
-	<<if !isFinite(_v)>><<set _v to 0>><</if>>
-	<<set $breasts to Math.clamp(_v, 0, 50)>>
-
-	<<set _v to Number($breastsize)>>
-	<<if !isFinite(_v)>><<set _v to 0>><</if>>
-	<<set $breastsize to Math.clamp(_v, 0, 50)>>
-
-	<<set _v to Number($breastsimplants)>>
-	<<if !isFinite(_v)>><<set _v to 0>><</if>>
-	<<set $breastsimplants to Math.clamp(_v, 0, 50)>>
-
-	/* Sensitivities (common NaN source, and Mirror/body code touches them a lot) */
-	<<set _v to Number($breastsensitivity)>>
-	<<if !isFinite(_v)>><<set _v to 0.25>><</if>>
-	<<set $breastsensitivity to Math.clamp(_v, 0.25, 999)>>
-
-	<<set _v to Number($bottomsensitivity)>>
-	<<if !isFinite(_v)>><<set _v to 0.25>><</if>>
-	<<set $bottomsensitivity to Math.clamp(_v, 0.25, 999)>>
-
-	<<set _v to Number($genitalsensitivity)>>
-	<<if !isFinite(_v)>><<set _v to 0.25>><</if>>
-	<<set $genitalsensitivity to Math.clamp(_v, 0.25, 999)>>
-
-	/* Hair numbers (prevents “bald and hair UI broken”) */
-	<<set _v to Number($hairlength)>>
-	<<if !isFinite(_v)>><<set _v to 0>><</if>>
-	<<set $hairlength to Math.clamp(_v, 0, 1000)>>
-
-	<<set _v to Number($hairgrowth)>>
-	<<if !isFinite(_v)>><<set _v to 0>><</if>>
-	<<set $hairgrowth to Math.clamp(_v, 0, 1000)>>
-<</widget>>
-
 <<set $xchange to $xchange || {}>>
 <<set $xchange.spikepool to $xchange.spikepool || {}>>
 <<if $xchange._didSpikepoolKeyFix is not true>>
@@ -882,7 +845,6 @@
 			<<xchange-addeffect _effectPool.random()>>
 		<<default>>
 		<</switch>>
-	<<xchange-fix-appearance-nan>>
 	<</widget>>
 
 	<<widget "xchange-removeeffect">>
@@ -1357,7 +1319,6 @@
 				<</if>>
 			<</if>>
 			<<xchange-addeffect "unknown">>
-			<<xchange-sanitize-state>>
 			<<if _args[0] isnot "suppress">>
 				<span class="pink">You got spiked with an unknown pill.</span>
 				<br><br>
@@ -2955,11 +2916,3 @@
 		<<if _xchangeSkinTone is "no">><<set _xchangeSkinShade to "change">><</if>>
 		<<set $xchange.customisedSkinColour to _xchangeSkinTone + _xchangeSkinShade>>
 	<</widget>>
-
-<<link "Repair broken stats (fix NaN/Infinity)">>
-	<<xchange-sanitize-state>>
-	<<replace "#cheatmsg">>
-		Fixed: <<= _xchangeNanFixed>> bad number(s).
-	<</replace>>
-<</link>>
-<span id="cheatmsg"></span>
