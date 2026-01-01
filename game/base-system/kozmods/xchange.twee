@@ -2,43 +2,52 @@
 
 <<widget "xchange-sanitize-state">>
 	<<run (function () {
-		const V = State.variables;
-		const seen = new WeakSet();
-		let fixed = 0;
+		var V = State.variables;
+		var fixed = 0;
 
-		function walk(obj) {
-			if (!obj || typeof obj !== "object") return;
-			if (seen.has(obj)) return;
-			seen.add(obj);
+		function isObj(x) { return x && typeof x === "object"; }
 
-			for (const k of Object.keys(obj)) {
-				const v = obj[k];
+		function walk(obj, seen) {
+			if (!isObj(obj)) return;
+			if (seen && seen.has(obj)) return;
+			if (seen) seen.add(obj);
 
-				// Fix NaN / Infinity
-				if (typeof v === "number" && !Number.isFinite(v)) {
+			var keys = Object.keys(obj);
+			for (var i = 0; i < keys.length; i++) {
+				var k = keys[i];
+				var v = obj[k];
+
+				if (typeof v === "number" && !isFinite(v)) {
 					obj[k] = 0;
 					fixed++;
 					continue;
 				}
 
-				if (v && typeof v === "object") walk(v);
+				if (isObj(v)) walk(v, seen);
 			}
 		}
 
-		walk(V);
+		var seen = (typeof WeakSet !== "undefined") ? new WeakSet() : null;
+		walk(V, seen);
 
-		// Optional: enforce known minimums if they exist (prevents weird 0 sensitivity)
-		const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
-		const num = (x, fb) => {
-			x = Number(x);
-			return Number.isFinite(x) ? x : fb;
-		};
+		function clamp(n, min, max) {
+			n = Number(n);
+			if (!isFinite(n)) n = min;
+			if (n < min) n = min;
+			if (n > max) n = max;
+			return n;
+		}
 
-		if ("breastsensitivity" in V) V.breastsensitivity = clamp(num(V.breastsensitivity, 0.25), 0.25, 999);
-		if ("bottomsensitivity" in V) V.bottomsensitivity = clamp(num(V.bottomsensitivity, 0.25), 0.25, 999);
-		if ("genitalsensitivity" in V) V.genitalsensitivity = clamp(num(V.genitalsensitivity, 0.25), 0.25, 999);
+		if (Object.prototype.hasOwnProperty.call(V, "breastsensitivity")) {
+			V.breastsensitivity = clamp(V.breastsensitivity, 0.25, 999);
+		}
+		if (Object.prototype.hasOwnProperty.call(V, "bottomsensitivity")) {
+			V.bottomsensitivity = clamp(V.bottomsensitivity, 0.25, 999);
+		}
+		if (Object.prototype.hasOwnProperty.call(V, "genitalsensitivity")) {
+			V.genitalsensitivity = clamp(V.genitalsensitivity, 0.25, 999);
+		}
 
-		// Store how many were fixed so you can show it in UI if you want
 		State.temporary._xchangeNanFixed = fixed;
 	})();>>
 <</widget>>
