@@ -3038,7 +3038,10 @@ function earnHourlyFeats() {
 
 	if (V.submissive >= 2000) earnFeat("Perfect Sub");
 	if (V.submissive <= 0) earnFeat("Defying the Odds");
-	if (V.museumAntiques.museumCount === V.museumAntiques.maxCount) earnFeat("It Belongs in a Museum");
+	if (V.museumAntiques.museumCount === V.museumAntiques.maxCount) {
+		earnFeat("It Belongs in a Museum");
+		specialClothesUnlock("set", "antiques");
+	}
 
 	// LI Romance
 	const loveCount = (V.robinromance ? 1 : 0) + (V.whitneyromance ? 1 : 0) + (V.kylarenglish ? 1 : 0) + (V.sydneyromance ? 1 : 0);
