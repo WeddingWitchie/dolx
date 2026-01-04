@@ -288,12 +288,33 @@ function getPleasure(passMinutes) {
 function updatePhysique() {
 	const physiquesizes = [6000, 10000, 12000, 16000];
 
-	V.physiquesize = physiquesizes[V.bodysize];
-	V.physique = 
-		V.xchange.baseStats.physique * (V.physiquesize / V.xchange.baseStats.physiquesize) * 
-		(V.player.gender !== V.player.sex ? V.xchange.physiqueChangePercent / 100 : 1);
+	// --- Safety guards (prevents undefined / NaN issues) ---
+	if (!V.player) V.player = {};
+	if (!V.xchange) V.xchange = {};
+	if (!V.xchange.baseStats) V.xchange.baseStats = {};
+
+	if (V.bodysize == null) V.bodysize = 0;
+	if (V.xchange.baseStats.physiquesize == null) {
+		V.xchange.baseStats.physiquesize = physiquesizes[V.bodysize] || 6000;
+	}
+	if (V.xchange.baseStats.physique == null) V.xchange.baseStats.physique = 0;
+	if (V.xchange.physiqueChangePercent == null) V.xchange.physiqueChangePercent = 100;
+
+	if (V.player.sex == null) V.player.sex = "male";
+	if (V.player.gender == null) V.player.gender = V.player.sex;
+
+	// --- Core calculation ---
+	V.physiquesize = physiquesizes[V.bodysize] || 6000;
+
+	V.physique =
+		V.xchange.baseStats.physique *
+		(V.physiquesize / V.xchange.baseStats.physiquesize) *
+		(V.player.gender !== V.player.sex
+			? V.xchange.physiqueChangePercent / 100
+			: 1);
 }
 window.updatePhysique = updatePhysique;
+if (typeof updatePhysique === "function") updatePhysique();
 
 function sumTalents() {
 	return V.AMCTraits.skulduggery + V.AMCTraits.dancing + V.AMCTraits.swimming + V.AMCTraits.athletics + V.AMCTraits.tending + V.AMCTraits.housekeeping + V.AMCTraits.brawling + V.AMCTraits.footwork + V.AMCTraits.striking + V.AMCTraits.kicking + V.AMCTraits.science + V.AMCTraits.maths + V.AMCTraits.english + V.AMCTraits.history;

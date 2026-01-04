@@ -1,3 +1,12 @@
+(function () {
+	// Run after story init / load
+	$(document).on(":passageend", function () {
+		if (typeof window.updatePhysique === "function") {
+			try { window.updatePhysique(); } catch (e) {}
+		}
+	});
+})();
+
 /* global ClothesItem, ClothedSlots */
 
 function mapMove(moveTo) {
@@ -1235,6 +1244,12 @@ function clothesIndex(slot, itemToIndex) {
 window.clothesIndex = clothesIndex;
 
 function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
+	if (skill === "physique") {
+		if (V.physique == null && typeof window.updatePhysique === "function") {
+			try { window.updatePhysique(); } catch (e) {}
+		}
+		return (V.physique ?? 0);
+	}
 	let result = V[skill];
 	if (disableStatNerf == 0) {
 		result *= (V.options.statNerf / 100);
