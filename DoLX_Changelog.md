@@ -8,19 +8,11 @@
 
 ## Changelog
 ### Changes and Additions:
-* Updated to be in par with **Vanilla 0.5.7.8** and **DoLP v0.737**.
-* Cleaned up Vanilla NNPC display.
-* Added Crossdress hypno to the cheat menu.
-* Updated hallway spike scenes so they appear with proper narration and a clear skill check.
-* Tweaked X-Change `<<numberbox>>` handling to be more stable.
+* Updated to be in par with **Vanilla 0.5.7.9** and **DoLP v0.740**.
+* Updated hallway spike skill check giving false outcome.
 
 ### Rebalancing and Bug fixes:
-* Fixed missing links and assorted typos in code/narration (too many to be lissted).
-* Fixed stress and fatigue scaling fluctuation/inconsistency.
-* Fixed kitchen search now okay with lowercase/uppercase.
-* Fixed Bunny TF decaying when wear familiar collar.
-* Putting a guard in Dumb-Bitch pill to respect the setting (if it turned off, you wouldn't get it)
-
-### Dev note (D.N.A.):
-I still can’t hunt down every error in the X-Change numerical counting.
-Recommendation: **avoid taking/spiking with Dumb Bitch pill, Passion, and Portal** for now.
+* Fixed stress and fatigue scaling fluctuation/inconsistency (again).
+* Making a fallback for `<<widget "faceVariantOptions">>`
+* Patched `updatePhysique()` with guards to prevent undefined/NaN values.
+* Ensured `updatePhysique()` runs on startup (and after passage render/load) to avoid `[currentSkillValue]: skill 'physique' unknown` when other modules call physique early (e.g., Combat Expanded / height changes).
