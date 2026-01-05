@@ -90,9 +90,9 @@
 		<<set $player.gender_body to "f">>
 		<<set $player.bodyshape to "curvy">>
 		<<set $player.penissize to -2>>
-		<<set $ballsssize to -2>>
+		<<set $ballssize to -2>>
 		<<if $xchange.sizeOverride is "default">>
-			<<set $bodysize to Math.clamp($bodysize-1, 0,3)>>
+			<<set $bodysize to setup.stepBodySize($bodysize, -1)>>
 		<<else>>
 			<<set _sizeMap to ["tiny","small","normal","large"]>>
 			<<set $bodysize to _sizeMap.indexOf($xchange.sizeOverride)>>
@@ -103,7 +103,7 @@
 
 	<<widget "become-girl">>
 		<<wash>>
-		
+
 		<<if $facestyle is "default">>
 			<<set $facevariant to ["sweet","catty","default","foxy"].random()>>
 		<</if>>
@@ -127,16 +127,16 @@
 		<</if>>
 
 		/* Normal Physique reduction */
-		<<set $bodysize to Math.clamp($bodysize-1, 0,3)>>
+		<<set $bodysize to setup.stepBodySize($bodysize, -1)>>
 
 		/* Loading existing values, or generating new ones */
-		<<if $player.gender !== "f" && Object.keys($xchange.pill.changedBody).length gt 0>>
+		<<if $player.sex !== "f" && Object.keys($xchange.pill.changedBody).length gt 0>>
 			<<load-body "genderswapped">>
 		<<else>>
 			<<set $player.breastsize to random($breastsizemin,$breastsizemax)>>
 			<<set $player.bottomsize to random($bottomsizemin,$bottomsizemax)>>
 			<<set $player.penissize to -2>>
-			<<set $ballsssize to -2>>
+			<<set $ballssize to -2>>
 			<<if $xchange.customisedSkinColour is "random">>
 				<<set _skinColour to Object.keys(setup.colours.skin_options).random()>>
 				<<set $player.skin.color to _skinColour>>
@@ -172,13 +172,12 @@
 			<<if $fringelength lt 200>>
 				<<set $fringelength to Math.clamp($hairlength - 200, 200, 600)>>
 			<</if>>
-			
 			<<set $beauty += 10000>>
 			<<set $penisgrowthtimer to 500>>
 			<<set $bottomgrowthtimer to 500>>
 			<<set $breastgrowthtimer to 500>>
 			/* <<if !$xchangeFameMerged>> */
-				<<set $fame to  {
+				<<set $fame to {
 					bestiality: 0,
 					business: 0,
 					exhibitionism: 0,
@@ -205,15 +204,24 @@
 				<<set $exhibitionism to 0>>
 				<<set $deviancy to 0>>
 			<</if>>
-
 			<<clamp>>
 			<<calchairlengthstage>>
 		<</if>>
 
 		/* Physique override */
 		<<if $xchange.sizeOverride isnot "default">>
-			<<set _sizeMap to ["tiny","small","normal","large"]>>
-			<<set $bodysize to _sizeMap.indexOf($xchange.sizeOverride)>>
+			<<set _sizeMap to {
+				miniature: -1,
+				tiny: 0,
+				small: 1,
+				normal: 2,
+				tall: 2.5,
+				large: 3,
+				giant: 4
+			}>>
+			<<if _sizeMap[$xchange.sizeOverride] isnot undefined>>
+				<<set $bodysize to _sizeMap[$xchange.sizeOverride]>>
+			<</if>>
 		<</if>>
 
 		/* Genitalia */
@@ -241,7 +249,7 @@
 		<<set $player.gender_body to "m">>
 		<<set $player.bodyshape to "classic">>
 		<<if $xchange.sizeOverride is "default">>
-			<<set $bodysize to Math.clamp($bodysize+1, 0,3)>>
+			<<set $bodysize to setup.stepBodySize($bodysize, 1)>>
 		<<else>>
 			<<set _sizeMap to ["tiny","small","normal","large"]>>
 			<<set $bodysize to _sizeMap.indexOf($xchange.sizeOverride)>>
@@ -264,16 +272,16 @@
 		<<if !_shortStyles.includes($hairtype)>>
 			<<set $hairtype to _shortStyles.random()>>
 		<</if>>
-		<<set $bodysize to Math.clamp($bodysize+1, 0,3)>>
+		<<set $bodysize to setup.stepBodySize($bodysize, 1)>>
 
 		/* Loading existing values, or generating new ones */
-		<<if $player.gender !== "m" && Object.keys($xchange.pill.changedBody).length gt 0>>
+		<<if $player.sex !== "m" && Object.keys($xchange.pill.changedBody).length gt 0>>
 			<<load-body "genderswapped">>
 		<<else>>
 			<<set $player.breastsize to 0>>
 			<<set $player.bottomsize to 0>>
 			<<set $player.penissize to random($penissizemin,$penissizemax)>>
-			<<set $ballsssize to random(-2,3)>>
+			<<set $ballssize to random(-2,3)>>
 			<<if $xchange.customisedSkinColour is "random">>
 				<<set _skinColour to Object.keys(setup.colours.skin_options).random()>>
 				<<set $player.skin.color to _skinColour>>
@@ -309,7 +317,6 @@
 				<<set $fringelength to 0>>
 			<</if>>
 			<<set $beauty += 10000>>
-			
 			<<set $penisgrowthtimer to 500>>
 			<<set $bottomgrowthtimer to 500>>
 			<<set $breastgrowthtimer to 500>>
@@ -341,15 +348,24 @@
 				<<set $exhibitionism to 0>>
 				<<set $deviancy to 0>>
 			<</if>>
-
 			<<clamp>>
 			<<calchairlengthstage>>
 		<</if>>
 
 		/* Physique override */
 		<<if $xchange.sizeOverride isnot "default">>
-			<<set _sizeMap to ["tiny","small","normal","large"]>>
-			<<set $bodysize to _sizeMap.indexOf($xchange.sizeOverride)>>
+			<<set _sizeMap to {
+				miniature: -1,
+				tiny: 0,
+				small: 1,
+				normal: 2,
+				tall: 2.5,
+				large: 3,
+				giant: 4
+			}>>
+			<<if _sizeMap[$xchange.sizeOverride] isnot undefined>>
+				<<set $bodysize to _sizeMap[$xchange.sizeOverride]>>
+			<</if>>
 		<</if>>
 
 		/* Genitalia */
@@ -361,13 +377,13 @@
 		<<set $player.ballsExist to true>>
 		<<set $player.penisExist to true>>
 		<<set $player.vaginaExist to false>>
-		<<set $sexStats.vagina.menstruation.running = false>>
+		<<set $sexStats.vagina.menstruation.running to false>>
 
-		/* Parasites */
+		/* Parasites (reverse of become-girl: move clit/labia back into penis/balls, then clear clit/labia) */
 		<<set $parasite.penis to $parasite.clit>>
-		<<set $parasite.balls to $parasite.labia isnot {} ? $parasite.labia : $parasite.vagina>>
-		<<set $parasite.penis to {}>>
-		<<set $parasite.balls to {}>>
+		<<set $parasite.balls to ($parasite.labia isnot {} ? $parasite.labia : $parasite.vagina)>>
+		<<set $parasite.clit to {}>>
+		<<set $parasite.labia to {}>>
 
 		<<run updatePhysique()>>
 		<<updatesidebarimg>>
@@ -386,8 +402,7 @@
 			<<set _body to $xchange.pill.originalBody>>
 			<<if $player.gender is "m">>
 				<<set $player.penissize to _body.penissize>>
-				<<set $ballsssize to _body.penissize>>
-
+				<<set $ballssize to _body.penissize>>
 			<<elseif $player.gender is "f">>
 				<<set $player.breastsize to _body.breastsize>>
 				<<set $player.bottomsize to _body.bottomsize>>
@@ -396,7 +411,7 @@
 
 		/* Physique computations */
 		<<if $xchange.sizeOverride is "default">>
-			<<set $bodysize to Math.clamp($bodysize+($player.gender is "m"? -1: 1), 0,3)>>
+			<<set $bodysize to setup.stepBodySize($bodysize, ($player.gender is "m" ? -1 : 1))>>
 		<<else>>
 			<<set _sizeMap to ["tiny","small","normal","large"]>>
 			<<set $bodysize to _sizeMap.indexOf($xchange.sizeOverride)>>
@@ -416,6 +431,7 @@
 
 	<<widget "save-body">>
 		/* 	args 0: chooses which slot to save the body into. 
+				undefined => originalBody
 				"genderswapped" for your xchanged body
 				"herm" for the purple pilled body
 				"cloned" for a cloned npc body
@@ -423,6 +439,7 @@
 		*/
 
 		<<set _savedbody to {
+			/* Core appearance */
 			bodysize: $bodysize,
 			facestyle: $facestyle,
 			facevariant: $facevariant,
@@ -432,6 +449,18 @@
 			bottomsize: $player.bottomsize,
 			penissize: $player.penissize,
 			ballssize: $ballssize,
+
+			/* Sex / genital state (IMPORTANT for proper revert) */
+			sex: $player.sex,
+			penisExist: $player.penisExist,
+			ballsExist: $player.ballsExist,
+			vaginaExist: $player.vaginaExist,
+			penisuse: $penisuse,
+			penisstate: $penisstate,
+			vaginause: $vaginause,
+			vaginastate: $vaginastate,
+
+			/* Colours / hair */
 			leftEyeColour: $leftEyeColour,
 			rightEyeColour: $rightEyeColour,
 			haircolour: $haircolour,
@@ -445,15 +474,23 @@
 			hairFringeColourStyle: $hairFringeColourStyle,
 			fringetype: $fringetype,
 			fringelength: $fringelength,
+
+			/* Skin */
 			skinColor: $player.skin.color,
+
+			/* Fluids */
 			semen_amount: $semen_amount,
 			milk_amount: $milk_amount,
 			semen_volume: $semen_volume,
 			milk_volume: $milk_volume,
+
+			/* Misc */
 			beauty: $beauty,
 			penisgrowthtimer: $penisgrowthtimer,
 			bottomgrowthtimer: $bottomgrowthtimer,
 			breastgrowthtimer: $breastgrowthtimer,
+
+			/* Fame/stat split */
 			fame: $fame,
 			cool: $cool,
 			crime: $crime,
@@ -461,7 +498,10 @@
 			exhibitionism: $exhibitionism,
 			deviancy: $deviancy,
 		}>>
-	
+
+		/* Parasites (deep clone to avoid reference mutation) */
+		<<run _savedbody.parasite = (typeof clone === "function") ? clone(V.parasite) : JSON.parse(JSON.stringify(V.parasite)) >>
+
 		<<if _args[0] is undefined>>
 			<<set $xchange.pill.originalBody to _savedbody>>
 		<<elseif _args[0] is "genderswapped">>
@@ -472,7 +512,6 @@
 			<<set _npcName to _args[1]>>
 			<<set $xchange.pill.clonedBody[_npcName] to _savedbody>>
 		<</if>>
-
 	<</widget>>
 
 	<<widget "load-body">>
@@ -487,6 +526,11 @@
 			<<set _body to $xchange.pill.clonedBody[_npcName]>>
 		<</if>>
 
+		<<if _body is undefined>>
+			<<break>>
+		<</if>>
+
+		/* Core appearance */
 		<<set $bodysize to _body.bodysize>>
 		<<set $facestyle to _body.facestyle>>
 		<<set $facevariant to _body.facevariant>>
@@ -495,7 +539,19 @@
 		<<set $player.breastsize to _body.breastsize>>
 		<<set $player.bottomsize to _body.bottomsize>>
 		<<set $player.penissize to _body.penissize>>
-		<<set $ballsize to _body.ballsize>>
+		<<set $ballssize to _body.ballssize>>
+
+		/* Sex / genital state (IMPORTANT for proper revert) */
+		<<if _body.sex isnot undefined>><<set $player.sex to _body.sex>><</if>>
+		<<if _body.penisExist isnot undefined>><<set $player.penisExist to _body.penisExist>><</if>>
+		<<if _body.ballsExist isnot undefined>><<set $player.ballsExist to _body.ballsExist>><</if>>
+		<<if _body.vaginaExist isnot undefined>><<set $player.vaginaExist to _body.vaginaExist>><</if>>
+		<<if _body.penisuse isnot undefined>><<set $penisuse to _body.penisuse>><</if>>
+		<<if _body.penisstate isnot undefined>><<set $penisstate to _body.penisstate>><</if>>
+		<<if _body.vaginause isnot undefined>><<set $vaginause to _body.vaginause>><</if>>
+		<<if _body.vaginastate isnot undefined>><<set $vaginastate to _body.vaginastate>><</if>>
+
+		/* Colours / hair */
 		<<set $leftEyeColour to _body.leftEyeColour>>
 		<<set $rightEyeColour to _body.rightEyeColour>>
 		<<set $haircolour to _body.haircolour>>
@@ -510,14 +566,34 @@
 		<<set $hairlength to _body.hairlength>>
 		<<set $fringelength to _body.fringelength>>
 		<<set $player.skin.color to _body.skinColor>>
-		<<set $semen_amount to _body.semen_amount ?? 0>>
-		<<set $milk_amount to _body.milk_amount ?? 0>>
-		<<set $semen_volume to _body.semen_volume ?? 0>>
-		<<set $milk_volume to _body.milk_volume ?? 0>>
+
+		/* Fluids */
+		<<set $semen_amount to (_body.semen_amount ?? 0)>>
+		<<set $milk_amount to (_body.milk_amount ?? 0)>>
+		<<set $semen_volume to (_body.semen_volume ?? 0)>>
+		<<set $milk_volume to (_body.milk_volume ?? 0)>>
+
+		/* Misc */
 		<<set $beauty to _body.beauty>>
 		<<set $penisgrowthtimer to _body.penisgrowthtimer>>
 		<<set $bottomgrowthtimer to _body.bottomgrowthtimer>>
 		<<set $breastgrowthtimer to _body.breastgrowthtimer>>
+
+		<<if _body.sex isnot undefined>><<set $player.sex to _body.sex>><</if>>
+		<<if _body.penisExist isnot undefined>>
+			<<set $player.penisExist to _body.penisExist>>
+		<</if>>
+		<<if _body.ballsExist isnot undefined>>
+			<<set $player.ballsExist to _body.ballsExist>>
+		<</if>>
+		<<if _body.vaginaExist isnot undefined>>
+			<<set $player.vaginaExist to _body.vaginaExist>>
+		<</if>>
+		<<if _body.penisuse isnot undefined>><<set $penisuse to _body.penisuse>><</if>>
+		<<if _body.penisstate isnot undefined>><<set $penisstate to _body.penisstate>><</if>>
+		<<if _body.vaginause isnot undefined>><<set $vaginause to _body.vaginause>><</if>>
+		<<if _body.vaginastate isnot undefined>><<set $vaginastate to _body.vaginastate>><</if>>
+
 		/* <<if !$xchangeFameMerged>> */
 			<<set $fame to _body.fame>>
 			<<if _body.cool isnot undefined>>
@@ -538,7 +614,7 @@
 		<<if $penisgrowthtimer is undefined or $bottomgrowthtimer is undefined or $breastgrowthtimer is undefined>>
 			<<set $penisgrowthtimer to 500>>
 			<<set $bottomgrowthtimer to 500>>
-			<<set $breastgrowthtimer to 500>>	
+			<<set $breastgrowthtimer to 500>>
 		<</if>>
 		<<if $xchangeStatSplit>>
 			<<set $promiscuity to _body.promiscuity>>
@@ -553,6 +629,7 @@
 			<<set $xchangeStatsMerged to true>>
 		<</if>> */
 		
+		/* Innocence effect */
 		<<if _args[0] is undefined and $xchange.pill.innocenceEffect>>
 			<<set $awareness to $xchange.awareness>>
 			<<if $awareness gte 0>>
@@ -561,35 +638,38 @@
 			<</if>>
 		<</if>>
 
+		/* Bimbo effect (original repeated twice; kept once) */
 		<<if _args[0] is undefined and $xchange.pill.bimboEffect>>
 			<<if $xchange.science gt $sciencetrait>>
 				<<set $sciencetrait to $xchange.science>>
 				<<school_skill_change "science" 0>>
-				<<set $effectsmessage = 1>>
-				<<set $science_up_message = 1>>
+				<<set $effectsmessage to 1>>
+				<<set $science_up_message to 1>>
 			<</if>>
 			<<if $xchange.math gt $mathstrait>>
 				<<set $mathstrait to $xchange.math>>
 				<<school_skill_change "maths" 0>>
-				<<set $effectsmessage = 1>>
-				<<set $maths_up_message = 1>>
+				<<set $effectsmessage to 1>>
+				<<set $maths_up_message to 1>>
 			<</if>>
 			<<if $xchange.english gt $englishtrait>>
 				<<set $englishtrait to $xchange.english>>
 				<<school_skill_change "english" 0>>
-				<<set $effectsmessage = 1>>
-				<<set $english_up_message = 1>>
+				<<set $effectsmessage to 1>>
+				<<set $english_up_message to 1>>
 			<</if>>
 			<<if $xchange.history gt $historytrait>>
 				<<set $historytrait to $xchange.history>>
 				<<school_skill_change "history" 0>>
-				<<set $effectsmessage = 1>>
-				<<set $history_up_message = 1>>
+				<<set $effectsmessage to 1>>
+				<<set $history_up_message to 1>>
 			<</if>>
 			<<unset $promiscuityIgnore>>
 		<</if>>
+
+		/* Swell effect */
 		<<if _args[0] is undefined and $xchange.pill.swellEffect>>
-			<<if $player.gender is "f">>
+			<<if $player.sex is "f">>
 				<<set $xchange.pill.changedBody.penissize to $xchange.penissize>>
 			<<else>>
 				<<set $xchange.pill.changedBody.breastsize to $xchange.breastsize>>
@@ -624,8 +704,10 @@
 			<</if>>
 			<<unset $promiscuityIgnore>>
 		<</if>>
+
+		/* Swell effect */
 		<<if _args[0] is undefined and $xchange.pill.swellEffect>>
-			<<if $player.gender is "f">>
+			<<if $player.sex is "f">>
 				<<set $xchange.pill.changedBody.penissize to $xchange.penissize>>
 			<<else>>
 				<<set $xchange.pill.changedBody.breastsize to $xchange.breastsize>>
@@ -695,7 +777,14 @@
 			<<set $xchangeFameMerged to true>>
 		<</if>> */
 
+		/* Parasites restore */
+		<<if _body.parasite isnot undefined>>
+			<<run V.parasite = (typeof clone === "function") ? clone(_body.parasite) : JSON.parse(JSON.stringify(_body.parasite)) >>
+		<</if>>
+
 		<<calchairlengthstage>>
+		<<run updatePhysique()>>
+		<<updatesidebarimg>>
 	<</widget>>
 
 	<<widget "xchange-effects">>

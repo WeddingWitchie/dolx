@@ -386,14 +386,20 @@ function playerHasCharacteristic(characteristic) {
 			return between(V.hairlength, 100, 600) ? 2 : 0;
 		case "Long Hair":
 			return V.hairlength > 600 ? 2 : 0;
+		case "Miniature Body":
+			return V.bodysize === -1 ? 2 : 0;
 		case "Tiny Body":
 			return V.bodysize === 0 ? 2 : 0;
 		case "Small Body":
 			return V.bodysize === 1 ? 2 : 0;
 		case "Normal Body":
 			return V.bodysize === 2 ? 2 : 0;
+		case "Tall Body":
+			return V.bodysize === 2.5 ? 2 : 0;
 		case "Large Body":
 			return V.bodysize === 3 ? 2 : 0;
+		case "Giant Body":
+			return V.bodysize === 4 ? 2 : 0;
 		case "Lactation":
 			return (V.lactating >= 1 && V.breastfeedingdisable === "f") ? 2 : 0;
 		case "Pregnancy":
@@ -514,6 +520,11 @@ function getFemininityContribution(characteristic) {
 			femininity += Number(V.identity.body.hairlength.long.reject) * -50;
 			femininity += (V.identity.body.hairlength.preferred === "long") * 50;
 			break;
+			case "Miniature Body":
+			femininity += Number(V.identity.body.bodysize.tiny.acceptance) * 50;
+			femininity += Number(V.identity.body.bodysize.tiny.reject) * -50;
+			femininity += (V.identity.body.bodysize.preferred === "tiny") * 50;
+			break;
 		case "Tiny Body":
 			femininity += Number(V.identity.body.bodysize.tiny.acceptance) * 50;
 			femininity += Number(V.identity.body.bodysize.tiny.reject) * -50;
@@ -529,7 +540,17 @@ function getFemininityContribution(characteristic) {
 			femininity += Number(V.identity.body.bodysize.normal.reject) * -0;
 			femininity += (V.identity.body.bodysize.preferred === "normal") * 0;
 			break;
+		case "Tall Body":
+			femininity += Number(V.identity.body.bodysize.normal.acceptance) * 0;
+			femininity += Number(V.identity.body.bodysize.normal.reject) * -0;
+			femininity += (V.identity.body.bodysize.preferred === "normal") * 0;
+			break;
 		case "Large Body":
+			femininity += Number(V.identity.body.bodysize.large.acceptance) * -50;
+			femininity += Number(V.identity.body.bodysize.large.reject) * 50;
+			femininity += (V.identity.body.bodysize.preferred === "large") * -50;
+			break;
+		case "Giant Body":
 			femininity += Number(V.identity.body.bodysize.large.acceptance) * -50;
 			femininity += Number(V.identity.body.bodysize.large.reject) * 50;
 			femininity += (V.identity.body.bodysize.preferred === "large") * -50;
@@ -1339,3 +1360,48 @@ function xchangeEffectsMessages() {
 	return fragment;
 }
 window.xchangeEffectsMessages = xchangeEffectsMessages;
+
+(() => {
+	// Ensure setup exists
+	if (typeof window.setup !== "object" || window.setup === null) {
+		window.setup = {};
+	}
+
+	// Ensure Math.clamp exists (some forks have it, some don't)
+	if (typeof Math.clamp !== "function") {
+		Math.clamp = (n, min, max) => Math.min(max, Math.max(min, n));
+	}
+
+	// Valid bodysize values in your build
+	setup.bodySizeSteps = [-1, 0, 1, 2, 2.5, 3, 4];
+
+	// Snap any number to nearest valid bodysize step
+	setup.snapBodySize = function (v) {
+		v = Number(v);
+		if (!Number.isFinite(v)) return 2;
+
+		let best = setup.bodySizeSteps[0];
+		let bestD = Math.abs(v - best);
+
+		for (const s of setup.bodySizeSteps) {
+			const d = Math.abs(v - s);
+			if (d < bestD) { best = s; bestD = d; }
+		}
+		return best;
+	};
+
+	// Move by N steps in the discrete list (prevents 1.5 / 3.5 etc)
+	setup.stepBodySize = function (cur, stepDelta) {
+		cur = setup.snapBodySize(cur);
+		stepDelta = Math.trunc(Number(stepDelta) || 0);
+
+		const arr = setup.bodySizeSteps;
+		let idx = arr.indexOf(cur);
+		if (idx < 0) idx = arr.indexOf(2);
+
+		let next = idx + stepDelta;
+		next = Math.clamp(next, 0, arr.length - 1);
+
+		return arr[next];
+	};
+})();
