@@ -1197,14 +1197,14 @@ setup.pills = [
 		},
 		icon: "img/misc/icon/pillbreast.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
+			return this.owned() > 0 && V.player.sex !== "f" ? 1 : 0;
 		},
 		take_condition() {
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
 				? 1
 				: 0;
 		},
-		effects: [`<<take-xchange random(1,3) "random">>`],
+		effects: [`<<xchange-pink random(1,3)>>`],
 		npc_display_condition() {
 			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "m") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
 		},
@@ -2180,14 +2180,14 @@ setup.pills = [
 		},
 		icon: "img/misc/icon/pillpenis.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
+			return this.owned() > 0 && V.player.sex !== "m" ? 1 : 0;
 		},
 		take_condition() {
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null
 				? 1
 				: 0;
 		},
-		effects: [`<<take-xchange random(1,3) "random">>`],
+		effects: [`<<xchange-blue random(1,3)>>`],
 		npc_display_condition() {
 			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "f") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
 		},
