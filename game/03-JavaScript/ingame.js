@@ -936,30 +936,36 @@ function selectWardrobe(targetLocation = V.wardrobe_location, type) {
 window.selectWardrobe = selectWardrobe;
 
 function transferClothing(slot, index, oldWardrobe, newWardrobe) {
-	let oldWardrobeObject;
-	if (oldWardrobe) {
-		if (oldWardrobe === "wardrobe") {
-			oldWardrobeObject = V.wardrobe;
-		} else {
-			oldWardrobeObject = V.wardrobes[oldWardrobe];
-		}
+	// Ensure wardrobes container exists
+	if (!V.wardrobes) V.wardrobes = {};
+
+	// Resolve "wardrobe" vs location wardrobes
+	function resolveWardrobe(key) {
+		const k = key || V.wardrobe_location;
+		if (k === "wardrobe") return V.wardrobe;
+
+		// Create the wardrobe location if missing (e.g. "inventory")
+		if (!V.wardrobes[k]) V.wardrobes[k] = {};
+		return V.wardrobes[k];
 	}
-	else {
-		if (V.wardrobe_location === "wardrobe") {
-			oldWardrobeObject = V.wardrobe;
-		} else {
-			oldWardrobeObject = V.wardrobes[V.wardrobe_location];
-		}
-	}
-	let newWardrobeObject;
-	if (newWardrobe === "wardrobe") {
-		newWardrobeObject = V.wardrobe;
-	} else {
-		newWardrobeObject = V.wardrobes[newWardrobe];
-	}
-	if (oldWardrobeObject && newWardrobeObject) {
-		newWardrobeObject[slot].push(oldWardrobeObject[slot][index]);
+
+	const oldWardrobeObject = resolveWardrobe(oldWardrobe);
+	const newWardrobeObject = resolveWardrobe(newWardrobe);
+
+	// Guard: missing slot or item
+	if (!oldWardrobeObject || !oldWardrobeObject[slot] || oldWardrobeObject[slot][index] == null) return;
+
+	// Ensure destination slot is an array
+	if (!Array.isArray(newWardrobeObject[slot])) newWardrobeObject[slot] = [];
+
+	// Move item
+	newWardrobeObject[slot].push(oldWardrobeObject[slot][index]);
+
+	// Remove from old wardrobe
+	if (typeof oldWardrobeObject[slot].deleteAt === "function") {
 		oldWardrobeObject[slot].deleteAt(index);
+	} else {
+		oldWardrobeObject[slot].splice(index, 1);
 	}
 }
 window.transferClothing = transferClothing;
