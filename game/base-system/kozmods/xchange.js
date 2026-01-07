@@ -128,7 +128,7 @@ function pleasure(amount, source) {
 			case "bottom_grope":
 				let analWetnessPenalty = 1;
 				if (amount > 0 && beingPenetrated.includes(V.anusstate)) {
-					statChange.pain(V.analPain);
+					statChange.pain(V.analPain || 0);
 					analWetnessPenalty = Math.min(V.anusWetness/60, 1);
 					if (V.penis_addict_trait === 1) sensitivity += 0.5;
 				}

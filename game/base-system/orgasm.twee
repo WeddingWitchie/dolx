@@ -1247,35 +1247,47 @@
 <</widget>>
 
 <<widget "penetrationPainCalculate">>
-	<<set $vaginalPain to 0>>
-	<<set $analPain to 0>>
-	<<set $penisPain to 0>>
+	/* Don’t store derived values as 0 in the save */
+	<<unset $vaginalPain>><<unset $analPain>><<unset $penisPain>>
+
+	<<set _vaginalPain to 0>>
+	<<set _analPain to 0>>
+	<<set _penisPain to 0>>
+
 	<<if $demon lt 6 and $gamemode isnot "soft">>
 		<<if $player.vaginaExist>>
 			<<if $consensual is 1>>
-				<<set $vaginalPain to Math.floor(3 * Math.pow(0.4,$vaginaWetness/8))>>
+				<<set _vaginalPain to Math.floor(3 * Math.pow(0.4, $vaginaWetness/8))>>
 			<<else>>
-				<<set $vaginalPain to Math.floor(6 * Math.pow(0.5,$vaginaWetness/25))>>
+				<<set _vaginalPain to Math.floor(6 * Math.pow(0.5, $vaginaWetness/25))>>
 			<</if>>
 		<</if>>
+
 		<<if $player.penisExist>>
 			<<if $consensual is 1>>
-				<<set $penisPain to Math.floor(3 * Math.pow(0.4,$penisWetness/8))>>
+				<<set _penisPain to Math.floor(3 * Math.pow(0.4, $penisWetness/8))>>
 			<<else>>
-				<<set $penisPain to Math.floor(6 * Math.pow(0.5,$penisWetness/25))>>
+				<<set _penisPain to Math.floor(6 * Math.pow(0.5, $penisWetness/25))>>
 			<</if>>
 		<</if>>
+
 		<<if $consensual is 1>>
-			<<set $analPain to Math.floor(3 * Math.pow(0.4,$anusWetness/8))>>
+			<<set _analPain to Math.floor(3 * Math.pow(0.4, $anusWetness/8))>>
 		<<else>>
-			<<set $analPain to Math.floor(6 * Math.pow(0.5,$anusWetness/25))>>
+			<<set _analPain to Math.floor(6 * Math.pow(0.5, $anusWetness/25))>>
 		<</if>>
+
 		<<if $gamemode is "hard">>
-			<<set $vaginalPain *= 2>>
-			<<set $penisPain *= 2>>
-			<<set $analPain *= 2>>
+			<<set _vaginalPain *= 2>>
+			<<set _penisPain *= 2>>
+			<<set _analPain *= 2>>
 		<</if>>
 	<</if>>
+
+	/* Only save the values if they’re > 0 */
+	<<if _vaginalPain gt 0>><<set $vaginalPain to _vaginalPain>><</if>>
+	<<if _penisPain gt 0>><<set $penisPain to _penisPain>><</if>>
+	<<if _analPain gt 0>><<set $analPain to _analPain>><</if>>
 <</widget>>
 
 <!-- Lube is only released when vaginaArousalWetness is over 60 (also, its max value is 100)-->
