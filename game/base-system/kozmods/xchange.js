@@ -1405,3 +1405,42 @@ window.xchangeEffectsMessages = xchangeEffectsMessages;
 		return arr[next];
 	};
 })();
+
+(() => {
+	// Can the CURRENT player body get pregnant? XChange Pregnancy Sanity
+	setup.xchangeCanBePregnant = function () {
+		const V = State.variables;
+		return V.player?.sex === "f" && V.player?.vaginaExist === true;
+	};
+
+	// If pill is active, strip incompatible effects (prevents "stuck" flags on old saves)
+	setup.xchangeSanitisePillEffects = function () {
+		const V = State.variables;
+		const pill = V.xchange?.pill;
+		if (!pill?.active) return;
+
+		// Fertile only makes sense if the body can be pregnant
+		if (!setup.xchangeCanBePregnant()) {
+			pill.fertile = false;
+		}
+	};
+})();
+
+(() => {
+	// XChange Fertile Helpers
+	setup.xchangeCanBePregnantNow = function () {
+		const V = State.variables;
+		return V.player?.sex === "f" && V.player?.vaginaExist === true;
+	};
+
+	setup.xchangeSanitiseFertile = function () {
+		const V = State.variables;
+		const pill = V.xchange?.pill;
+		if (!pill?.active) return;
+
+		// If the current body can't be pregnant, Fertile must not exist.
+		if (pill.fertile && !setup.xchangeCanBePregnantNow()) {
+			pill.fertile = false;
+		}
+	};
+})();
