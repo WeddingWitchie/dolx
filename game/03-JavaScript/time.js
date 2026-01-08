@@ -2595,6 +2595,11 @@ function getArousal(passMinutes) {
 	if (V.parasite.right_thigh.name) addedArousal += minuteMultiplier;
 	if (V.drugged > 1) addedArousal += minuteMultiplier;
 	if (playerHasButtPlug()) addedArousal += minuteMultiplier;
+	if (playerVibratorOn()) {
+		const sens = (typeof V.genitalsensitivity === "number") ? V.genitalsensitivity : 1;
+		const power = (V.worn.vibrator && typeof V.worn.vibrator.power === "number") ? V.worn.vibrator.power : 1;
+		addedArousal += minuteMultiplier * (3 + power * 2) * sens;
+	}
 	if (numberOfEarSlime()) {
 		if (V.parasite.left_ear.name === "slime" && random(1, 10) >= 9) statChange.drugs(Math.min(60, passMinutes));
 		if (V.parasite.right_ear.name === "slime" && random(1, 10) >= 9) statChange.drugs(Math.min(60, passMinutes));

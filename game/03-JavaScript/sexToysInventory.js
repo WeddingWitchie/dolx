@@ -208,6 +208,11 @@ function sexToysInventoryOnWearClick(index, category) {
 	}
 	// If player chose "Wear it"
 	let cat;
+
+	// Vibrators should start off when worn (safe init)
+	if (setupCategory === "vibrator") {
+		if (typeof toy.vibrating !== "number") toy.vibrating = 0;
+	}
 	if (!toy.worn) {
 		// retrieve main category of our item in setup.sextoys
 		for (const sItem of setup.sextoys) {
