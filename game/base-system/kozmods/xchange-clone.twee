@@ -1,5 +1,22 @@
 :: XChange Clone Pill Widgets [widget]
 
+<<widget "xchange-ensure-skinColor">>
+<<run
+	const V = State.variables;
+
+	/* Ensure V.skinColor exists and is an object */
+	if (!V.skinColor || typeof V.skinColor !== "object") {
+		const prev = V.skinColor;
+		V.skinColor = { natural: (typeof prev === "string" && prev.trim()) ? prev.trim() : "light" };
+	}
+
+	/* Ensure V.skinColor.natural exists and is a non-empty string */
+	if (typeof V.skinColor.natural !== "string" || !V.skinColor.natural.trim()) {
+		V.skinColor.natural = "light";
+	}
+>>
+<</widget>>
+
 <<widget "xchange-clone">>
 	<<set _npcName to _args[1]>>
 	<<if _npcName is undefined>>
@@ -37,6 +54,7 @@
 <<widget "set-xchange-clone-body">>
 	<<set _npcName to _args[0]>>
 
+	<<xchange-ensure-skinColor>>
 	<!-- Set the npc's body type -->
 	<<if C.npc[_npcName].pronoun is "m" and C.npc[_npcName].gender is "m">>
 		<<set $player.gender_body to "m">>
@@ -102,13 +120,14 @@
 <<widget "set-xchange-clone-misc">>
 	<<set _npcName to _args[0]>>
 
+	<<xchange-ensure-skinColor>>
 	<<switch _npcName>>
 	<<case "Whitney">>
 		<<set $bodysize to 3>>
 		<<set $physiquesize to 16000>>
 		<<set $physique to 8000>>
 		<<set $beauty to ($beautymax / 7) * 3 + ($player.sex is "f"? 3000 : 0)>>
-		<<if ["ylight", "medium", "ymedium"].includes($skinColor.natural)>>
+		<<if $skinColor isnot undefined and $skinColor.natural isnot undefined and ["ylight", "medium", "ymedium"].includes($skinColor.natural)>>
 			<<set $skinColor.natural to "light">>
 		<</if>>
 	<</switch>>
