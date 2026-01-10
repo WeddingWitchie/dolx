@@ -1,3 +1,12 @@
+:: X-Change Compat Helpers [script]
+
+/* Compatibility helper: some older TwineScript used `defined(x)` in <<if>> conditions.
+   SugarCube/DoLP doesn't provide it by default. */
+if (typeof window.defined !== "function") {
+	window.defined = function (v) { return v !== undefined && v !== null; };
+}
+
+
 :: Widgets X-Change Variable Updates [widget]
 
 <<widget "xchange-init">>
@@ -17,7 +26,6 @@
 			postPermanenceFertilityReset: 1,
 			willpowerPoints: Math.max(200,$willpower),
 			known: [],
-			pubtimer: 0,
 		}>>
 	<</if>>
 	<<if $xchange.known is undefined>>
@@ -27,6 +35,16 @@
 	<<if $xchange.known isnot undefined and !Array.isArray($xchange.known)>>
 		<<set $xchange.known to []>>
 	<</if>>
+	/* Sanity: pubtimer must be a number >= 1, otherwise delete it (inactive). */
+	<<run (function () {
+		var x = State.variables.xchange;
+		if (!x) { return; }
+		var n = Number(x.pubtimer);
+		if (x.pubtimer !== undefined && (!Number.isFinite(n) || n < 1)) {
+			delete x.pubtimer;
+		}
+	})()>>
+
 	<<if $xchange.pill is undefined>>
 		<<set $xchange.pill to {
 			active: false,
@@ -914,7 +932,13 @@
 	<<if $recentmolest is -1>><<set $recentmolest to Math.max($moleststat - Time.days, 0)>><</if>>
 	<<if $recentrape is -1>><<set $recentrape to Math.max($rapestat - Time.days, 0)>><</if>>
 
-	<<if $xchange.pubtimer is undefined>><<set $xchange.pubtimer to 0>><</if>>
+	/* pubtimer: keep undefined when inactive; DO NOT default to 0 */
+	<<if $xchange is undefined>>
+		<<set $xchange to {}>>
+	<</if>>
+	<<if $xchange.pubtimer isnot undefined and (!Number.isFinite(Number($xchange.pubtimer)) or Number($xchange.pubtimer) lt 1)>>
+		<<run delete State.variables.xchange.pubtimer>>
+	<</if>>
 	<<if $xchange.machine isnot undefined>>
 		<<set $machineVaginalBought to $xchange.machine.vaginalBought? $xchange.machine.vaginalBought : 0>>
 		<<set $machineAnalBought to $xchange.machine.analBought? $xchange.machine.analBought : 0>>
@@ -1132,13 +1156,15 @@
 	<<if $xchange is undefined>><<set $xchange to {}>><</if>>
 	<<if $xchange.known is undefined>><<set $xchange.known to []>><</if>>
 
-	/* pubtimer: 0 (or non-number / <1) is invalid under current validation */
-	<<if $xchange.pubtimer is 0>>
-		<<unset $xchange.pubtimer>>
-	<</if>>
-	<<if $xchange.pubtimer isnot undefined and (!Number.isFinite($xchange.pubtimer) or $xchange.pubtimer lt 1)>>
-		<<unset $xchange.pubtimer>>
-	<</if>>
+	/* pubtimer: must be a number >= 1, otherwise delete it (inactive). */
+	<<run (function () {
+		var x = State.variables.xchange;
+		if (!x) { return; }
+		var n = Number(x.pubtimer);
+		if (x.pubtimer !== undefined && (!Number.isFinite(n) || n < 1)) {
+			delete x.pubtimer;
+		}
+	})()>>
 
 	<<if $xchange.pill is undefined>>
 		<<set $xchange.pill to {}>>

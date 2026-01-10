@@ -822,10 +822,25 @@ function xchangeTimePassedCheck(minutes = 1) {
 	// Portal Panties
 	wikifier("portalPantiesPass", minutes);
 
-	// Pub
-	V.xchange.pubtimer = Math.max(V.xchange.pubtimer - 1, 0);
+	// Pub: pubtimer is valid only if it's >= 1; otherwise it should not exist.
+	if (V.xchange) {
+		const n = Number(V.xchange.pubtimer);
 
-
+		// If it's missing, do nothing (inactive).
+		if (V.xchange.pubtimer === undefined) {
+			// no-op
+		}
+		// If it exists but isn't a valid number, delete it.
+		else if (!Number.isFinite(n)) {
+			delete V.xchange.pubtimer;
+		}
+		// Otherwise tick it down by minutes; delete when it expires.
+		else {
+			const next = n - minutes;
+			if (next < 1) delete V.xchange.pubtimer;
+			else V.xchange.pubtimer = next;
+		}
+	}
 }
 window.xchangeTimePassedCheck = xchangeTimePassedCheck;
 
