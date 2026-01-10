@@ -1106,9 +1106,33 @@
 			<<set _buff += _buffAmount * $combatExtended.enemyDefeatScalingLimit>>
 		<</if>>
 	<</if>>
-	<<set $enemyhealth to  Math.round($enemyhealth * (1 + (_buff / 100)))>>
-	<<set $enemyhealthmax to $enemyhealth>>
-	<<set $permenemyhealthmax to $enemyhealthmax>>
+	/* Enemy HP scaling: robust against corrupted _buff and won't "lock" max to tiny values */
+	<<set _enemyHPBuff to Number(_buff)>>
+
+	/* If _buff is corrupted or insane, treat it as 0 (no buff) */
+	<<if !Number.isFinite(_enemyHPBuff) or _enemyHPBuff lt -50 or _enemyHPBuff gt 500>>
+		<<set _enemyHPBuff to 0>>
+	<</if>>
+
+	/* Apply scaling once to current enemyhealth */
+	<<set $enemyhealth to Math.max(1, Math.round($enemyhealth * (1 + (_enemyHPBuff / 100))))>>
+
+	/* Never force max/perma-max DOWN to current health—only raise/initialize */
+	<<set _eh to Number($enemyhealth)>>
+	<<set _ehm to Number($enemyhealthmax)>>
+	<<set _pehm to Number($permenemyhealthmax)>>
+
+	<<if !Number.isFinite(_ehm) or _ehm lt 1>>
+		<<set $enemyhealthmax to _eh>>
+	<<else>>
+		<<set $enemyhealthmax to Math.max(_ehm, _eh)>>
+	<</if>>
+
+	<<if !Number.isFinite(_pehm) or _pehm lt 1>>
+		<<set $permenemyhealthmax to $enemyhealthmax>>
+	<<else>>
+		<<set $permenemyhealthmax to Math.max(_pehm, $enemyhealthmax)>>
+	<</if>>
 <</widget>>
 
 <<widget "npcStealMoney">>
