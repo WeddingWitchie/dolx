@@ -33,6 +33,24 @@ function generateBabyName(name, gender, childId) {
 	return result;
 }
 window.generateBabyName = generateBabyName;
+function ensureBirthId(pregnancy, mother) {
+  if (!pregnancy) return null;
+
+  if (!pregnancy.fetus || !Array.isArray(pregnancy.fetus)) pregnancy.fetus = [];
+  if (!pregnancy.fetus[0]) pregnancy.fetus[0] = {};
+
+  if (pregnancy.fetus[0].mother == null && mother != null) {
+    pregnancy.fetus[0].mother = mother;
+  }
+
+  if (pregnancy.fetus[0].birthId == null) {
+    if (!V.pregnancyStats) V.pregnancyStats = {};
+    if (typeof V.pregnancyStats.nextBirthId !== "number") V.pregnancyStats.nextBirthId = 1;
+    pregnancy.fetus[0].birthId = V.pregnancyStats.nextBirthId++;
+  }
+
+  return pregnancy.fetus[0].birthId;
+}
 
 function spermObjectToArray(spermObject = [], player, disableRng) {
 	const spermArray = [];

@@ -593,26 +593,44 @@ function pregnancyDaysEta(pregnancyObject) {
 window.pregnancyDaysEta = pregnancyDaysEta;
 
 function knowsAboutPregnancy(mother, whoToCheck, existingId) {
+	// Make sure containers exist
+	if (!V.pregnancyStats) V.pregnancyStats = {};
+	if (!V.pregnancyStats.awareOfBirthId) V.pregnancyStats.awareOfBirthId = {};
 	const awareOfBirthId = V.pregnancyStats.awareOfBirthId;
-	let birthId;
+
 	let whoToCheckConverted;
 	if (whoToCheck === "pc") {
 		whoToCheckConverted = whoToCheck;
-	} else if (V.NPCNameList.includes(whoToCheck)) {
+	} else if (Array.isArray(V.NPCNameList) && V.NPCNameList.includes(whoToCheck)) {
 		whoToCheckConverted = V.NPCNameList.indexOf(whoToCheck);
 	} else {
 		return false;
 	}
 
-	if (existingId !== undefined && awareOfBirthId[mother + existingId] && awareOfBirthId[mother + existingId].includes(whoToCheckConverted)) return true;
-
-	if (mother === "pc" && playerIsPregnant()) {
-		birthId = mother + getPregnancyObject().fetus[0].birthId;
-	} else if (C.npc[mother] && npcIsPregnant(mother)) {
-		birthId = mother + getPregnancyObject(mother).fetus[0].birthId;
+	// If caller provided an existing id, check that first
+	if (existingId !== undefined) {
+		const key = mother + existingId;
+		if (awareOfBirthId[key] && awareOfBirthId[key].includes(whoToCheckConverted)) return true;
 	}
 
-	if (birthId && awareOfBirthId[birthId] && awareOfBirthId[birthId].includes(whoToCheckConverted)) return true;
+	let keyToCheck = null;
+
+	// PC pregnancy
+	if (mother === "pc" && typeof playerIsPregnant === "function" && playerIsPregnant()) {
+		const preg = (typeof getPregnancyObject === "function") ? getPregnancyObject() : null;
+		const bid = ensureBirthId(preg, "pc"); // <- safe (creates fetus[0]/birthId if missing)
+		if (bid != null) keyToCheck = "pc" + bid;
+	}
+	// NPC pregnancy
+	else if (C && C.npc && C.npc[mother] && typeof npcIsPregnant === "function" && npcIsPregnant(mother)) {
+		const preg = (typeof getPregnancyObject === "function") ? getPregnancyObject(mother) : null;
+		const bid = ensureBirthId(preg, mother);
+		if (bid != null) keyToCheck = mother + bid;
+	}
+
+	if (keyToCheck && awareOfBirthId[keyToCheck] && awareOfBirthId[keyToCheck].includes(whoToCheckConverted)) {
+		return true;
+	}
 
 	return false;
 }
@@ -814,34 +832,170 @@ function pregnancyCountBetweenParents(parent1, parent2, motherAndFather = false)
 }
 window.pregnancyCountBetweenParents = pregnancyCountBetweenParents;
 
-// Not required for random npc's at all, should only be used for the PC
-function setBabyIntro(mother, introFor, birthId) {
-	if (!mother || !introFor) return false;
-	if (!V.babyIntros) V.babyIntros = {};
-	if (!V.babyIntros[introFor]) V.babyIntros[introFor] = [];
+/* ===== DoLX/DoLP pregnancy birthId safety patch =====
+   Prevents crashes like: "Cannot read properties of undefined (reading 'birthId')"
+   by ensuring pregnancy.fetus[0] exists and has a birthId, and by making
+   talkedAboutPregnancy / setTalkedAboutPregnancy / setBabyIntro resilient.
+*/
+(function () {
+  // ---- Helpers
+  function getV() {
+    // SugarCube common access patterns
+    if (typeof V !== "undefined") return V;
+    if (typeof State !== "undefined" && State.variables) return State.variables;
+    return null;
+  }
 
-	if (birthId !== undefined) {
-		// Player already gave birth
-		const children = Object.values(V.children).filter(child => child.mother === mother && child.birthId === birthId);
-		if (children.length && !V.babyIntros[introFor].find(intro => intro.birthId === birthId && intro.mother === mother)) {
-			V.babyIntros[introFor].push({ birthId: children[0].birthId, mother: children[0].mother, children: children.length });
-		}
-	} else {
-		// Before the player gives birth
-		const pregnancy = getPregnancyObject(mother === "pc" ? undefined : mother);
-		if (
-			pregnancy &&
-			pregnancy.type !== null &&
-			pregnancy.type !== "parasite" &&
-			pregnancy.fetus &&
-			pregnancy.fetus.length &&
-			!V.babyIntros[introFor].find(intro => intro.birthId === pregnancy.fetus[0].birthId && intro.mother === pregnancy.fetus[0].mother)
-		) {
-			V.babyIntros[introFor].push({ birthId: pregnancy.fetus[0].birthId, mother: pregnancy.fetus[0].mother, children: pregnancy.fetus.length });
-		}
-	}
-}
-DefineMacro("setBabyIntro", setBabyIntro);
+  // Fallback getter for pregnancy object if the function isn't globally available.
+  // If your build already has getPregnancyObject, we'll use it.
+  function safeGetPregnancyObject(mother) {
+    try {
+      if (typeof getPregnancyObject === "function") return getPregnancyObject(mother);
+    } catch (e) {}
+
+    // No global getPregnancyObject available: return null (caller will handle)
+    return null;
+  }
+
+  // Ensures pregnancy.fetus[0] and pregnancy.fetus[0].birthId exist.
+  // Returns birthId (number/string) or null if pregnancy is falsy.
+  function ensureBirthId(pregnancy) {
+    const Vv = getV();
+    if (!Vv || !pregnancy) return null;
+
+    if (!Array.isArray(pregnancy.fetus)) pregnancy.fetus = [];
+    if (!pregnancy.fetus[0]) pregnancy.fetus[0] = {};
+
+    if (pregnancy.fetus[0].birthId == null) {
+      // Create a stable-ish incremental ID stored in save
+      Vv.pregnancyStats ??= {};
+      if (typeof Vv.pregnancyStats.nextBirthId !== "number") Vv.pregnancyStats.nextBirthId = 1;
+      pregnancy.fetus[0].birthId = Vv.pregnancyStats.nextBirthId++;
+    }
+    return pregnancy.fetus[0].birthId;
+  }
+
+  // Expose helper for debugging if you want
+  window.ensureBirthId = ensureBirthId;
+
+  // ---- 1) Patch setBabyIntro (macro)
+  // If setBabyIntro exists, wrap it. If it doesn't, define a safe version based on your snippet.
+  const Vv = getV();
+  const hasDefineMacro = (typeof DefineMacro === "function");
+
+  function safeSetBabyIntro(mother, introFor, birthId) {
+    const Vv2 = getV();
+    if (!Vv2) return false;
+
+    if (!mother || !introFor) return false;
+    if (!Vv2.babyIntros) Vv2.babyIntros = {};
+    if (!Vv2.babyIntros[introFor]) Vv2.babyIntros[introFor] = [];
+
+    try {
+      if (birthId !== undefined) {
+        // Player already gave birth
+        const children = Object.values(Vv2.children || {}).filter(
+          (child) => child && child.mother === mother && child.birthId === birthId
+        );
+        if (
+          children.length &&
+          !Vv2.babyIntros[introFor].find((intro) => intro.birthId === birthId && intro.mother === mother)
+        ) {
+          Vv2.babyIntros[introFor].push({
+            birthId: children[0].birthId,
+            mother: children[0].mother,
+            children: children.length,
+          });
+        }
+      } else {
+        // Before the player gives birth
+        const pregnancy = safeGetPregnancyObject(mother === "pc" ? undefined : mother);
+
+        if (
+          pregnancy &&
+          pregnancy.type !== null &&
+          pregnancy.type !== "parasite" &&
+          Array.isArray(pregnancy.fetus) &&
+          pregnancy.fetus.length > 0
+        ) {
+          // Handles sparse arrays / missing fetus[0]
+          const bid = ensureBirthId(pregnancy);
+          if (bid == null) return false;
+
+          const pregMother = (pregnancy.fetus[0] && pregnancy.fetus[0].mother) ? pregnancy.fetus[0].mother : mother;
+
+          if (!Vv2.babyIntros[introFor].find((intro) => intro.birthId === bid && intro.mother === pregMother)) {
+            Vv2.babyIntros[introFor].push({
+              birthId: bid,
+              mother: pregMother,
+              children: pregnancy.fetus.length,
+            });
+          }
+        }
+      }
+    } catch (e) {
+      // Never crash the game because of intro tracking
+      console.warn("safeSetBabyIntro caught error:", e);
+      return false;
+    }
+
+    return true;
+  }
+
+  // Wrap existing or define new
+  if (typeof setBabyIntro === "function") {
+    const _origSetBabyIntro = setBabyIntro;
+    window.setBabyIntro = function (mother, introFor, birthId) {
+      try {
+        return _origSetBabyIntro(mother, introFor, birthId);
+      } catch (e) {
+        console.warn("setBabyIntro crashed; using safeSetBabyIntro:", e);
+        return safeSetBabyIntro(mother, introFor, birthId);
+      }
+    };
+  } else {
+    window.setBabyIntro = safeSetBabyIntro;
+  }
+
+  if (hasDefineMacro) {
+    try { DefineMacro("setBabyIntro", window.setBabyIntro); } catch (e) {}
+  }
+
+  // ---- 2) Harden talkedAboutPregnancy / setTalkedAboutPregnancy
+  // These are the ones crashing your Farm Work condition.
+  if (typeof talkedAboutPregnancy === "function") {
+    const _origTalked = talkedAboutPregnancy;
+    window.talkedAboutPregnancy = function (a, b) {
+      try {
+        return _origTalked(a, b);
+      } catch (e) {
+        console.warn("talkedAboutPregnancy crashed; returning false:", e);
+        return false;
+      }
+    };
+  }
+
+  if (typeof setTalkedAboutPregnancy === "function") {
+    const _origSetTalked = setTalkedAboutPregnancy;
+    window.setTalkedAboutPregnancy = function (a, b) {
+      try {
+        return _origSetTalked(a, b);
+      } catch (e) {
+        console.warn("setTalkedAboutPregnancy crashed; ignoring:", e);
+        return;
+      }
+    };
+  }
+
+  // ---- 3) Optional: if your build uses pregnancyStats arrays, ensure they exist
+  if (Vv) {
+    Vv.pregnancyStats ??= {};
+    Vv.pregnancyStats.playerVirginBirths ??= [];
+  }
+
+  console.log("[birthId safety patch] installed");
+})();
+
 
 // Birth Id is required here
 function removeBabyIntro(mother, introFor, birthId) {
@@ -854,29 +1008,48 @@ function removeBabyIntro(mother, introFor, birthId) {
 }
 DefineMacro("removeBabyIntro", removeBabyIntro);
 
-/* Returns the total times a someone has talked about someone elses pregnancy */
+/* Returns the total times someone has talked about someone else's pregnancy */
 function talkedAboutPregnancy(mother, whoToCheck, existingId) {
+	// Ensure containers exist
+	if (!V.pregnancyStats) V.pregnancyStats = {};
+	if (!V.pregnancyStats.talkedAboutPregnancy) V.pregnancyStats.talkedAboutPregnancy = {};
 	const talkedAbout = V.pregnancyStats.talkedAboutPregnancy;
-	let birthId;
+
 	let whoToCheckConverted;
 	if (whoToCheck === "pc") {
 		whoToCheckConverted = whoToCheck;
-	} else if (V.NPCNameList.includes(whoToCheck)) {
+	} else if (Array.isArray(V.NPCNameList) && V.NPCNameList.includes(whoToCheck)) {
 		whoToCheckConverted = V.NPCNameList.indexOf(whoToCheck);
 	} else {
 		return 0;
 	}
 
-	if (existingId !== undefined && talkedAbout[mother + existingId] && talkedAbout[mother + existingId][whoToCheckConverted]) {
-		return talkedAbout[mother + existingId][whoToCheckConverted];
+	// If an explicit id was provided, use it
+	if (existingId !== undefined) {
+		const key = mother + existingId;
+		if (talkedAbout[key] && talkedAbout[key][whoToCheckConverted]) {
+			return talkedAbout[key][whoToCheckConverted];
+		}
 	}
 
-	if (mother === "pc" && playerIsPregnant()) {
-		birthId = mother + getPregnancyObject().fetus[0].birthId;
-	} else if (C.npc[mother] && npcIsPregnant(mother)) {
-		birthId = mother + getPregnancyObject(mother).fetus[0].birthId;
+	let keyToCheck = null;
+
+	// PC pregnancy
+	if (mother === "pc" && typeof playerIsPregnant === "function" && playerIsPregnant()) {
+		const preg = (typeof getPregnancyObject === "function") ? getPregnancyObject() : null;
+		const bid = ensureBirthId(preg, "pc"); // SAFE
+		if (bid != null) keyToCheck = "pc" + bid;
 	}
-	if (birthId && talkedAbout[birthId] && talkedAbout[birthId][whoToCheckConverted]) return talkedAbout[birthId][whoToCheckConverted];
+	// NPC pregnancy
+	else if (C && C.npc && C.npc[mother] && typeof npcIsPregnant === "function" && npcIsPregnant(mother)) {
+		const preg = (typeof getPregnancyObject === "function") ? getPregnancyObject(mother) : null;
+		const bid = ensureBirthId(preg, mother); // SAFE
+		if (bid != null) keyToCheck = mother + bid;
+	}
+
+	if (keyToCheck && talkedAbout[keyToCheck] && talkedAbout[keyToCheck][whoToCheckConverted]) {
+		return talkedAbout[keyToCheck][whoToCheckConverted];
+	}
 
 	return 0;
 }

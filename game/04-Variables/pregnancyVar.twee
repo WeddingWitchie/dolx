@@ -1,4 +1,39 @@
 :: Widgets pregnancyVar [widget]
+<<run (function () {
+  var V = (typeof State !== "undefined" && State.variables) ? State.variables : window.V;
+  if (!V) return;
+
+  if (!V.pregnancyStats) V.pregnancyStats = {};
+  if (typeof V.pregnancyStats.nextBirthId !== "number") V.pregnancyStats.nextBirthId = 1;
+
+  function fixPreg(p, mother) {
+    if (!p) return;
+    // only repair "real" pregnancies (skip null/none)
+    if (p.type == null) return;
+
+    if (!p.fetus || !Array.isArray(p.fetus)) p.fetus = [];
+    if (!p.fetus[0]) p.fetus[0] = {};
+
+    if (p.fetus[0].mother == null) p.fetus[0].mother = mother;
+
+    if (p.fetus[0].birthId == null) {
+      p.fetus[0].birthId = V.pregnancyStats.nextBirthId++;
+    }
+  }
+
+  // PC pregnancy commonly lives in one of these
+  fixPreg(V.pregnancy, "pc");
+  fixPreg(V.playerPregnancy, "pc");
+
+  // NPC pregnancies (Alex and others)
+  if (V.C && V.C.npc) {
+    Object.keys(V.C.npc).forEach(function (name) {
+      var npc = V.C.npc[name];
+      if (npc && npc.pregnancy) fixPreg(npc.pregnancy, name);
+    });
+  }
+})();>>
+
 <<widget "pregnancyVar">>
 	<<if $pregnancyStats is undefined>>
 		<<set $pregnancyStats to {
