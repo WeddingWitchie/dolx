@@ -7,14 +7,27 @@
 
 	<<if ["School Boy Changing Room", "School Girl Changing Room"].includes($passage)>>
 		<<if $previousClothes is undefined>><<set $previousClothes to clone($worn)>><</if>>
-		<<run Object.entries($worn).forEach(([slot, item]) => {
-			const previousItem = $previousClothes[slot];
-			if (item.name isnot previousItem.name or item.colour isnot previousItem.colour or item.accessory_colour isnot previousItem.accessory_colour) {
-				if (["upper", "under_upper"].includes(slot)) _justChangedUpperClothes to true;
-				if (["lower", "under_lower"].includes(slot)) _justChangedLowerClothes to true;
-				_justChangedClothes to true;
-			}
-		})>>
+		<<run (() => {
+			const V = State.variables;
+			const T = State.temporary;
+			const worn = V.worn || {};
+			const prev = V.previousClothes || {};
+			Object.entries(worn).forEach(([slot, item]) => {
+				const curItem = (item && typeof item === "object") ? item : {};
+				const prevItem = (prev[slot] && typeof prev[slot] === "object") ? prev[slot] : {};
+				const curName = (curItem.name ?? curItem.type ?? "");
+				const prevName = (prevItem.name ?? prevItem.type ?? "");
+				const curCol  = (curItem.colour ?? "");
+				const prevCol = (prevItem.colour ?? "");
+				const curAcc  = (curItem.accessory_colour ?? "");
+				const prevAcc = (prevItem.accessory_colour ?? "");
+				if (curName !== prevName || curCol !== prevCol || curAcc !== prevAcc) {
+					if (slot === "upper" || slot === "under_upper") T._justChangedUpperClothes = true;
+					if (slot === "lower" || slot === "under_lower") T._justChangedLowerClothes = true;
+					T._justChangedClothes = true;
+				}
+			});
+		})()>>
 		<<set $previousClothes to clone($worn)>>
 	<</if>>
 
@@ -28,7 +41,7 @@
 	<<if _args[0] is "f">>
 		<<set _genderChance to 100 - maleChance()>>
 
-		<<if !$daily.school.changingRoomPregnancyFame>><<set $daily.school.changingRoomPregnancyFame to $player.gender_appearience is "m" ? random(500, 1500) : random(200, 1000)>><</if>>
+		<<if !$daily.school.changingRoomPregnancyFame>><<set $daily.school.changingRoomPregnancyFame to $player.gender_appearance is "m" ? random(500, 1500) : random(200, 1000)>><</if>>
 		<<if $fame.pregnancy gte $daily.school.changingRoomPregnancyFame or
 			playerBellyVisible() or
 			($settings.forcedCrossdressingEnabled and $whitneyCrossdressSwimwear gte 1 and $player.gender_appearance is "f")>>
