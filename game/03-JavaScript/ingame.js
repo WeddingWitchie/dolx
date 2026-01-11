@@ -1,9 +1,13 @@
 (function () {
-	// Run after story init / load
 	$(document).on(":passageend", function () {
-		if (typeof window.updatePhysique === "function") {
-			try { window.updatePhysique(); } catch (e) {}
-		}
+		if (typeof window.updatePhysique !== "function") return;
+
+		// Only run when X-Change has initialized the base stats
+		if (!V.xchange?.baseStats) return;
+		if (typeof V.xchange.baseStats.physique !== "number") return;
+		if (typeof V.xchange.baseStats.physiquesize !== "number") return;
+
+		window.updatePhysique();
 	});
 })();
 

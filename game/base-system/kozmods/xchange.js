@@ -286,34 +286,58 @@ function getPleasure(passMinutes) {
 }
 
 function updatePhysique() {
-	const physiquesizes = [6000, 10000, 12000, 16000];
+	// Add more sizes to match your extended bodysize system.
+	// 0..3 are original values, 4..6 are example "giant" tiers.
+	const physiquesizes = [6000, 10000, 12000, 16000, 20000, 24000, 28000];
 
-	// --- Safety guards (prevents undefined / NaN issues) ---
-	if (!V.player) V.player = {};
-	if (!V.xchange) V.xchange = {};
-	if (!V.xchange.baseStats) V.xchange.baseStats = {};
+	// Don't compute until X-Change base stats exist
+	if (!V.xchange?.baseStats) return;
+	if (typeof V.xchange.baseStats.physique !== "number") return;
+	if (typeof V.xchange.baseStats.physiquesize !== "number") return;
 
-	if (V.bodysize == null) V.bodysize = 0;
-	if (V.xchange.baseStats.physiquesize == null) {
-		V.xchange.baseStats.physiquesize = physiquesizes[V.bodysize] || 6000;
+	const bs = V.bodysize;
+
+	// Resolve physiquesize from bodysize (supports fractional & out-of-range)
+	let ps = null;
+
+	if (typeof bs === "number" && !Number.isNaN(bs)) {
+		// miniature (negative bodysize): scale down from smallest
+		if (bs < 0) {
+			ps = Math.round(physiquesizes[0] * Math.pow(0.8, Math.abs(Math.round(bs))));
+		} else {
+			// giant/fractional: interpolate between nearest entries
+			const lo = Math.floor(bs);
+			const hi = Math.ceil(bs);
+
+			if (physiquesizes[lo] != null && physiquesizes[hi] != null) {
+				const t = bs - lo;
+				ps = Math.round(physiquesizes[lo] + (physiquesizes[hi] - physiquesizes[lo]) * t);
+			} else if (physiquesizes[Math.round(bs)] != null) {
+				ps = physiquesizes[Math.round(bs)];
+			}
+		}
 	}
-	if (V.xchange.baseStats.physique == null) V.xchange.baseStats.physique = 0;
-	if (V.xchange.physiqueChangePercent == null) V.xchange.physiqueChangePercent = 100;
 
-	if (V.player.sex == null) V.player.sex = "male";
-	if (V.player.gender == null) V.player.gender = V.player.sex;
+	// If we still couldn't resolve, DON'T overwrite the existing value
+	if (typeof ps !== "number" || Number.isNaN(ps) || ps <= 0) return;
 
-	// --- Core calculation ---
-	V.physiquesize = physiquesizes[V.bodysize] || 6000;
+	V.physiquesize = ps;
 
-	V.physique =
+	const pct = (typeof V.xchange.physiqueChangePercent === "number")
+		? (V.xchange.physiqueChangePercent / 100)
+		: 1;
+
+	const genderMismatch =
+		V.player?.gender != null && V.player?.sex != null && (V.player.gender !== V.player.sex);
+
+	V.physique = Math.round(
 		V.xchange.baseStats.physique *
 		(V.physiquesize / V.xchange.baseStats.physiquesize) *
-		(V.player.gender !== V.player.sex
-			? V.xchange.physiqueChangePercent / 100
-			: 1);
+		(genderMismatch ? pct : 1)
+	);
 }
 window.updatePhysique = updatePhysique;
+
 if (typeof updatePhysique === "function") updatePhysique();
 
 function sumTalents() {
