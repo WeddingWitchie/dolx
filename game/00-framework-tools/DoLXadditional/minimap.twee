@@ -1,0 +1,58 @@
+:: Widgets MiniMap [widget]
+
+<<widget "hawkhunting_map">>
+	<<silently>>
+		<<set _inHunt to ($bird isnot undefined and $bird.hunts isnot undefined)>>
+
+		<<set _playerN to (_inHunt ? $bird.hunts.distanceNorth : 0)>>
+		<<set _playerE to (_inHunt ? $bird.hunts.distanceEast  : 0)>>
+
+		/* mapSize 5 => 11x11 */
+		<<set _mapSize to 5>>
+
+		/* targets format: [{n:?, e:?, label:"X"}, ...]
+		   If you don't set $hawkHuntTargets anywhere, it defaults to none. */
+		<<set _targets to ($hawkHuntTargets isnot undefined ? $hawkHuntTargets : [])>>
+	<</silently>>
+
+	<<if _inHunt>>
+	<div class="hawkmap-wrap">
+		<div class="hawkmap-gridbox">
+			<div class="hawkmap-label hawkmap-n">N</div>
+			<div class="hawkmap-label hawkmap-s">S</div>
+			<div class="hawkmap-label hawkmap-e">E</div>
+			<div class="hawkmap-label hawkmap-w">W</div>
+
+			<div class="hawkmap-grid hawkmap-grid-11">
+				<<for _n to _mapSize; _n gte -_mapSize; _n-->>
+					<<for _e to -_mapSize; _e lte _mapSize; _e++>>
+						<<capture _n _e>>
+							<div class="hawkmap-cell">
+								<<if _n is _playerN and _e is _playerE>>
+									<span class="hawkmap-you">YOU</span>
+								<<else>>
+									<<set _hit to false>>
+									<<for _t range _targets>>
+										<<if _t.n is _n and _t.e is _e>>
+											<span class="hawkmap-target"><<print _t.label ? _t.label : "X">></span>
+											<<set _hit to true>>
+										<</if>>
+									<</for>>
+									<<if !_hit>>
+										<span class="hawkmap-dot"></span>
+									<</if>>
+								<</if>>
+							</div>
+						<</capture>>
+					<</for>>
+				<</for>>
+			</div>
+		</div>
+
+		<div class="hawkmap-coords">
+			N <span class="hawkmap-mono"><<print _playerN>></span> /
+			E <span class="hawkmap-mono"><<print _playerE>></span>
+		</div>
+	</div>
+	<</if>>
+<</widget>>
