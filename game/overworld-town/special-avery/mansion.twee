@@ -244,21 +244,29 @@ You walk up the hill towards Avery's mansion. The gates rattle open as you appro
 <<if $avery_antiques.bolt_progress gte 5>>
 	<span class="green">The bolt comes loose!</span>
 	<<set $avery_antiques.bolts -= 1>>
+
 	<<if $avery_antiques.bolts lte 8 and !$avery_antiques.exposed.includes("dagger") and !$avery_antiques.stolen.includes("dagger")>>
 		<<set $avery_antiques.exposed.pushUnique("dagger")>>
 		The dagger is within reach.
 	<<elseif $avery_antiques.bolts lte 6 and !$avery_antiques.exposed.includes("amulet") and !$avery_antiques.stolen.includes("amulet")>>
 		<<set $avery_antiques.exposed.pushUnique("amulet")>>
 		The amulet is within reach.
-	<<elseif $avery_antiques.bolts lte 0 and $avery_antiques.progress lte 3>>
+	<<elseif $avery_antiques.bolts lte 0 and $avery_antiques.progress lte 2 and !$avery_antiques.exposed.includes("mask") and !$avery_antiques.stolen.includes("mask")>>
 		<<set $avery_antiques.exposed.pushUnique("mask")>>
 		The mask is within reach.
 	<</if>>
+
+	<<if $avery_antiques.bolts lte 0 and $avery_antiques.progress lte 3 and !$avery_antiques.exposed.includes("box") and !$avery_antiques.stolen.includes("box")>>
+		<<set $avery_antiques.exposed.pushUnique("box")>>
+		The box is within reach.
+	<</if>>
+
 	<<set $avery_antiques.bolt_progress to 0>>
 <<else>>
 	You manage to wiggle it a little, but can't yet pull it free.
 <</if>>
 <br><br>
+
 
 Bolts remaining:
 <<if $avery_antiques.bolts is 10>>
@@ -291,7 +299,9 @@ Bolts remaining:
 
 :: Mansion Display Consider
 <<effects>>
-
+<<if $avery_antiques.bolts lte 0 and !$avery_antiques.exposed.includes("box") and !$avery_antiques.stolen.includes("box")>>
+	<<set $avery_antiques.exposed.pushUnique("box")>>
+<</if>>
 
 You lift the glass protecting Avery's gold antiques. They're arranged in a row, dagger, amulet, mask, and a box. The gold alone must be worth a lot, irrespective of their value as antiques.
 <br><br>
@@ -314,11 +324,9 @@ There's nothing stopping you from taking them. However, Avery is sure to notice 
 <<if $avery_antiques.exposed.includes("box")>>
 	<<link [[Steal the box|Mansion Display Steal Box]]>>
 		<<set $blackmoney += 1000>>
-		<<crimeUp 1000 "thievery">>
 		<<set $avery_antiques.exposed.delete("box")>>
 		<<set $avery_antiques.stolen.pushUnique("box")>>
 	<</link>>
-	<<crime "thievery">>
 	<br>
 <</if>>
 <<link [[Step away|Mansion Display]]>><</link>>
