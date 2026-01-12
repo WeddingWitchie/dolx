@@ -264,6 +264,10 @@
 	<<if $voiceoverActive is undefined>>
 		<<set $voiceoverActive to "f">>
 	<</if>>
+	/* Ensure posture vars exist even if update-audio has not run */
+	<<set _voicePostureIsFemale to $player.gender_posture is "f" or ($player.sex is "f" and $player.gender_posture is "n")>>
+	<<set _voicePostureIsMale to $player.gender_posture is "m" or ($player.sex is "m" and $player.gender_posture is "n")>>
+
 	<<if _args[0] is "stop" and setup.bgvCurrentPlaylist isnot "none">>
 		/* Stop the current BGV playlist */
 		<<playlist setup.bgvCurrentPlaylist stop>>
@@ -297,11 +301,13 @@
 <</widget>>
 
 <<widget "voiceover">>
-	<<if ($options.audio is 1 and $options.voiceoverAudio is 1) and _args[1] is undefined and setup.bgvCurrentPlaylist isnot "none">>
+	<<if ($options.audio is 1 and $options.voiceoverAudio is 1) and _args[1] is undefined>>
 		/* Fade out the BGV */
-		<<playlist setup.bgvCurrentPlaylist volume 1>>
-		<<playlist setup.bgvCurrentPlaylist fadeout>>
-		<<set setup.bgvCurrentPlaylist to "none">>
+		<<if setup.bgvCurrentPlaylist isnot "none">>
+			<<playlist setup.bgvCurrentPlaylist volume 1>>
+			<<playlist setup.bgvCurrentPlaylist fadeout>>
+			<<set setup.bgvCurrentPlaylist to "none">>
+		<</if>>
 		<<set $voiceoverActive to "t">>
 
 		<<timed 3000ms>>
@@ -333,8 +339,7 @@
 				<</if>>
 
 		<</timed>>
-	
-	<<elseif ($options.audio is 1 and $options.voiceoverAudio is 1) and (_args[1] is "npc_f" or _args[1] is "npc_m")>>
+		<<elseif ($options.audio is 1 and $options.voiceoverAudio is 1) and (_args[1] is "npc_f" or _args[1] is "npc_m")>>
 		<<set _VOList to _args[0]>>
 		<<set _npc_volume to _args[1] is "npc_f"? 1 : 0.8>>
 		<<audio _VOList[random(0,_args[0].length-1)] play volume `_npc_volume * $options.voice_volume`>>
@@ -462,6 +467,10 @@
 <</widget>>
 
 <<widget "orgasm-voice">>
+
+	/* Ensure posture vars exist even if update-audio has not run */
+	<<set _voicePostureIsFemale to $player.gender_posture is "f" or ($player.sex is "f" and $player.gender_posture is "n")>>
+	<<set _voicePostureIsMale to $player.gender_posture is "m" or ($player.sex is "m" and $player.gender_posture is "n")>>
 	<<set _penetration to ["penetrated", "doublepenetrated", "tentacle", "tentacledeep"]>>
 	<<if _args[0] is undefined>>
 		<<if ($options.postureAffectsVoice and _voicePostureIsFemale) or (!$options.postureAffectsVoice and $player.sex is "f")>>
