@@ -146,8 +146,6 @@ function npcXChangeHourlyCheck(hours = 1) {
                 }
             }
         }
-	
-		
 	}
 }
 window.npcXChangeHourlyCheck = npcXChangeHourlyCheck;
