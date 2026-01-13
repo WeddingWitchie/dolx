@@ -1446,23 +1446,24 @@ window.xchangeEffectsMessages = xchangeEffectsMessages;
 })();
 
 (() => {
-	// Can the CURRENT player body get pregnant? XChange Pregnancy Sanity
-	setup.xchangeCanBePregnant = function () {
-		const V = State.variables;
-		return V.player?.sex === "f" && V.player?.vaginaExist === true;
-	};
+  // Can the CURRENT player body get pregnant?
+  // Keep this anatomy-based (not sex-based) to avoid the “male can get pregnant” bug.
+  setup.xchangeCanBePregnant = function () {
+    const V = State.variables;
+    return V.player?.vaginaExist === true;
+  };
 
-	// If pill is active, strip incompatible effects (prevents "stuck" flags on old saves)
-	setup.xchangeSanitisePillEffects = function () {
-		const V = State.variables;
-		const pill = V.xchange?.pill;
-		if (!pill?.active) return;
-
-		// Fertile only makes sense if the body can be pregnant
-		if (!setup.xchangeCanBePregnant()) {
-			pill.fertile = false;
-		}
-	};
+  // Fertile effect should only be "effective" when pregnancy is anatomically possible.
+  // This does NOT modify the save; it just gates behavior/UI.
+  setup.xchangeEffectiveFertile = function () {
+    const V = State.variables;
+    const pill = V.xchange?.pill;
+    if (!pill?.active) return false;
+    if (!pill.effectsKnown) return false;
+    if (pill.resistanceFakeout) return false;
+    if (!pill.fertile) return false;
+    return setup.xchangeCanBePregnant();
+  };
 })();
 
 (() => {
