@@ -74,28 +74,60 @@
 		<</if>>
     <</widget>>
 
-    <<widget "npc-xchange-load">>
-        <<set _targetName to _args[0]>>
-		<<set _npc to C.npc[_targetName]>>
-		<<if _args[1] is undefined>>
-			<<set _data to $xchange.savedNpcBodies[_targetName].original>>
-		<<elseif _args[1] is "genderswapped">>
-			<<set _data to $xchange.savedNpcBodies[_targetName].genderswap>>
-		<<elseif _args[1] is "herm">>
-			<<set _data to $xchange.savedNpcBodies[_targetName].herm>>
+	<<widget "npc-xchange-load">>
+		<<set _targetName to _args[0]>>
+		<<set _mode to _args[1]>>
+		<<if _args.length gte 2 and ["nosave","genderswapped","herm"].includes(_args[1]) is false>>
+			<<set _targetName to _args[0] + " " + _args[1]>>
+			<<set _mode to _args[2]>>
 		<</if>>
 
-		<<set _npc.gender to _data.gender>>
-		<<set _npc.pronoun to _data.pronoun>>
-		<<set _npc.breastsize to _data.breastsize>>
-		<<set _npc.breastdesc to _data.breastdesc>>
-		<<set _npc.breastsdesc to _data.breastsdesc>>
-		<<set _npc.penissize to _data.penissize>>
-		<<set _npc.penisdesc to _data.penisdesc>>
+		<<if $xchange is undefined>><<set $xchange to {}>><</if>>
+		<<if $xchange.savedNpcBodies is undefined>><<set $xchange.savedNpcBodies to {}>><</if>>
 
-        <<set $NPCName[_targetName] to _npc>> 
-        /* <<unset $xchange.savedNpcBodies[_targetName]>> */
-    <</widget>>
+		/* Prefer $NPCName for enemies/creatures, fallback to C.npc for regular named NPCs */
+		<<set _npc to $NPCName[_targetName]>>
+		<<if _npc is undefined>><<set _npc to C.npc[_targetName]>><</if>>
+
+		<<if _npc is undefined>>
+			<<run console.warn("npc-xchange-load: NPC not found:", _targetName, "mode:", _mode)>>
+		<<else>>
+			<<if $xchange.savedNpcBodies[_targetName] is undefined>>
+				<<set $xchange.savedNpcBodies[_targetName] to {}>>
+			<</if>>
+
+			<<if $xchange.savedNpcBodies[_targetName].original is undefined>>
+				<<set $xchange.savedNpcBodies[_targetName].original to {
+					gender: _npc.gender,
+					pronoun: _npc.pronoun,
+					breastsize: _npc.breastsize,
+					breastdesc: _npc.breastdesc,
+					breastsdesc: _npc.breastsdesc,
+					penissize: _npc.penissize,
+					penisdesc: _npc.penisdesc
+				}>>
+			<</if>>
+
+			<<set _data to $xchange.savedNpcBodies[_targetName].original>>
+			<<if _mode is "genderswapped" and $xchange.savedNpcBodies[_targetName].genderswap isnot undefined>>
+				<<set _data to $xchange.savedNpcBodies[_targetName].genderswap>>
+			<<elseif _mode is "herm" and $xchange.savedNpcBodies[_targetName].herm isnot undefined>>
+				<<set _data to $xchange.savedNpcBodies[_targetName].herm>>
+			<</if>>
+
+			<<if _data>>
+				<<if _data.gender isnot undefined>><<set _npc.gender to _data.gender>><</if>>
+				<<if _data.pronoun isnot undefined>><<set _npc.pronoun to _data.pronoun>><</if>>
+				<<if _data.breastsize isnot undefined>><<set _npc.breastsize to _data.breastsize>><</if>>
+				<<if _data.breastdesc isnot undefined>><<set _npc.breastdesc to _data.breastdesc>><</if>>
+				<<if _data.breastsdesc isnot undefined>><<set _npc.breastsdesc to _data.breastsdesc>><</if>>
+				<<if _data.penissize isnot undefined>><<set _npc.penissize to _data.penissize>><</if>>
+				<<if _data.penisdesc isnot undefined>><<set _npc.penisdesc to _data.penisdesc>><</if>>
+			<</if>>
+
+			<<set $NPCName[_targetName] to _npc>>
+		<</if>>
+	<</widget>>
 
     <<widget "npc-xchange-effects">>
         <<set _days to _args[0]>>
@@ -275,22 +307,35 @@
 
 	<<widget "npc-xchange-restore">>
 		<<set _targetName to _args[0]>>
-		<<set _pill to C.npc[_targetName]?.xchange>>
+		<<set _mode to _args[1]>>
+		<<if _args.length gte 2 and ["nosave","genderswapped","herm"].includes(_args[1]) is false>>
+			<<set _targetName to _args[0] + " " + _args[1]>>
+			<<set _mode to _args[2]>>
+		<</if>>
 
-		<<run console.log("NPC Restore: ", _targetName, _pill)>>
+		<<if $xchange is undefined>><<set $xchange to {}>><</if>>
+		<<if $xchange.pill is undefined>><<set $xchange.pill to {}>><</if>>
+		<<if $xchange.savedNpcBodies is undefined>><<set $xchange.savedNpcBodies to {}>><</if>>
 
-		<<if _args[1] isnot "nosave">>
-			<<if _pill.hermEffect>>
+		/* npc temp pill/effects object (can be undefined) */
+		<<set _pill to $NPCName[_targetName]?.xchange>>
+		<<if _pill is undefined>><<set _pill to C.npc[_targetName]?.xchange>><</if>>
+
+		<<run console.log("NPC Restore:", _targetName, "mode:", _mode, "pill:", _pill)>>
+
+		<<if _mode isnot "nosave">>
+			<<if _pill and _pill.hermEffect>>
 				<<npc-xchange-save _targetName "herm">>
-			<<elseif _pill.genderflipEffect>>
+			<<elseif _pill and _pill.genderflipEffect>>
 				<<npc-xchange-save _targetName "genderswapped">>
 			<</if>>
 
-			<<if C.npc[_targetName].startingSex is "m">>
-				<<npc-become-boy>>
-			<<elseif C.npc[_targetName].startingSex is "f">>
-				<<npc-become-girl>>
-				/* <<set $sexStats.vagina.menstruation.running = true>> */
+			<<if C.npc[_targetName]>>
+				<<if C.npc[_targetName].startingSex is "m">>
+					<<npc-become-boy>>
+				<<elseif C.npc[_targetName].startingSex is "f">>
+					<<npc-become-girl>>
+				<</if>>
 			<</if>>
 		<</if>>
 
@@ -322,7 +367,12 @@
 		<<set _pill.bimboEffect to false>>
 		<<set _pill.cumcureEffect to false>>
 		<<unset _pill.shouldHaveEnded>> */
-		<<run delete C.npc[_targetName].xchange>>
+		<<if $NPCName[_targetName] and $NPCName[_targetName].xchange isnot undefined>>
+			<<run delete $NPCName[_targetName].xchange>>
+		<</if>>
+		<<if C.npc[_targetName] and C.npc[_targetName].xchange isnot undefined>>
+			<<run delete C.npc[_targetName].xchange>>
+		<</if>>
 	<</widget>>
 
 	<<widget "npc-xchange-setpermanent">>
