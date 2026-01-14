@@ -1,185 +1,97 @@
 stages:
-  - build
-  - deploy
+    - build
+    - deploy
 
 variables:
-  GIT_STRATEGY: fetch
+    GIT_STRATEGY: fetch
 
 audio_job:
-  stage: build
-  script:
-    - $FULLVERSION = (Get-Content -Raw version).Trim()
-    - |
-      # --- ZIP helper: always write / paths inside the zip (Linux-friendly) ---
-      Add-Type -AssemblyName System.IO.Compression
-      Add-Type -AssemblyName System.IO.Compression.FileSystem
-
-      function New-ZipCrossPlatform {
-        param(
-          [Parameter(Mandatory=$true)][string]$SourceDir,
-          [Parameter(Mandatory=$true)][string]$ZipPath
-        )
-
-        if (Test-Path $ZipPath) { Remove-Item $ZipPath -Force }
-
-        $sourceFull = (Resolve-Path $SourceDir).Path.TrimEnd('\','/')
-
-        $zipStream = [System.IO.File]::Open($ZipPath, [System.IO.FileMode]::CreateNew)
-        $archive = New-Object System.IO.Compression.ZipArchive($zipStream, [System.IO.Compression.ZipArchiveMode]::Create, $false)
-
-        try {
-          Get-ChildItem -Path $SourceDir -Recurse -File | ForEach-Object {
-            $full = $_.FullName
-            $rel  = $full.Substring($sourceFull.Length).TrimStart('\','/')
-            $entryName = ($rel -replace '\\','/')   # <-- key line: force /
-            $entry = $archive.CreateEntry($entryName, [System.IO.Compression.CompressionLevel]::Optimal)
-
-            $entryStream = $entry.Open()
-            try {
-              $fileStream = [System.IO.File]::OpenRead($full)
-              try { $fileStream.CopyTo($entryStream) }
-              finally { $fileStream.Dispose() }
-            }
-            finally { $entryStream.Dispose() }
+    stage: build
+    script:
+        - $FULLVERSION=$(cat version)
+        - |
+          if ($FULLVERSION -match "DoLX (\d+\.\d+\.0)(?![a-z]+)") {
+            $VERSION=$matches[1]
+            echo "Building Audio Release $VERSION"
+            mkdir -p build/
+            mkdir -p build/audio/
+            cp -Recurse -Force ./audio/* ./build/audio/
+            Compress-Archive ./build/* "./DoLX_Audio_$VERSION.zip"
+            echo "Finished Building Audio Release $VERSION"
+            echo "Uploading Audio Release $VERSION"
+            Invoke-RestMethod -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" }  -InFile "./DoLX_Audio_$VERSION.zip" -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_Audio/$VERSION/DoLX_Audio_$VERSION.zip" -Method PUT
+            rm -Recurse -Force ./build
+            rm -Recurse -Force "./DoLX_Audio_$VERSION.zip"
+            echo "Finished Uploading Audio Release $VERSION"
           }
-        }
-        finally {
-          $archive.Dispose()
-          $zipStream.Dispose()
-        }
-      }
-      # --- end helper ---
-
-      if ($FULLVERSION -match "DoLX (\d+\.\d+\.0)(?![a-z]+)") {
-        $VERSION = $matches[1]
-        Write-Host "Building Audio Release $VERSION"
-
-        Remove-Item -Recurse -Force build -ErrorAction SilentlyContinue
-        New-Item -ItemType Directory -Force -Path "build\audio" | Out-Null
-
-        Copy-Item -Recurse -Force ".\audio\*" ".\build\audio\"
-
-        New-ZipCrossPlatform -SourceDir ".\build" -ZipPath ".\DoLX_Audio_$VERSION.zip"
-
-        Write-Host "Uploading Audio Release $VERSION"
-        Invoke-RestMethod -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" } -InFile ".\DoLX_Audio_$VERSION.zip" -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_Audio/$VERSION/DoLX_Audio_$VERSION.zip" -Method PUT
-
-        Remove-Item -Recurse -Force build
-        Remove-Item -Force ".\DoLX_Audio_$VERSION.zip"
-        Write-Host "Finished Uploading Audio Release $VERSION"
-      }
-  only:
-    - master
+    only:
+        - master
 
 img_job:
-  stage: build
-  script:
-    - $FULLVERSION = (Get-Content -Raw version).Trim()
-    - |
-      # --- ZIP helper: always write / paths inside the zip (Linux-friendly) ---
-      Add-Type -AssemblyName System.IO.Compression
-      Add-Type -AssemblyName System.IO.Compression.FileSystem
-
-      function New-ZipCrossPlatform {
-        param(
-          [Parameter(Mandatory=$true)][string]$SourceDir,
-          [Parameter(Mandatory=$true)][string]$ZipPath
-        )
-
-        if (Test-Path $ZipPath) { Remove-Item $ZipPath -Force }
-
-        $sourceFull = (Resolve-Path $SourceDir).Path.TrimEnd('\','/')
-
-        $zipStream = [System.IO.File]::Open($ZipPath, [System.IO.FileMode]::CreateNew)
-        $archive = New-Object System.IO.Compression.ZipArchive($zipStream, [System.IO.Compression.ZipArchiveMode]::Create, $false)
-
-        try {
-          Get-ChildItem -Path $SourceDir -Recurse -File | ForEach-Object {
-            $full = $_.FullName
-            $rel  = $full.Substring($sourceFull.Length).TrimStart('\','/')
-            $entryName = ($rel -replace '\\','/')   # <-- key line: force /
-            $entry = $archive.CreateEntry($entryName, [System.IO.Compression.CompressionLevel]::Optimal)
-
-            $entryStream = $entry.Open()
-            try {
-              $fileStream = [System.IO.File]::OpenRead($full)
-              try { $fileStream.CopyTo($entryStream) }
-              finally { $fileStream.Dispose() }
-            }
-            finally { $entryStream.Dispose() }
+    stage: build
+    script:
+        - $FULLVERSION=$(cat version)
+        - |
+          if ($FULLVERSION -match "DoLX (\d+\.\d+\.\d+)(?![a-z]+)") {
+            $VERSION=$matches[1]
+            echo "Building Images Release $VERSION"
+            mkdir -p build/
+            mkdir -p build/img/
+            mkdir -p build/img2/
+            cp -Recurse -Force ./img/* ./build/img/
+            cp -Recurse -Force ./img2/* ./build/img2/
+            Compress-Archive ./build/* "./DoLX_Images_$VERSION.zip"
+            echo "Finished Building Images Release $VERSION"
+            echo "Uploading Images Release $VERSION"
+            Invoke-RestMethod -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" }  -InFile "./DoLX_Images_$VERSION.zip" -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_Images/$VERSION/DoLX_Images_$VERSION.zip" -Method PUT
+            rm -Recurse -Force ./build
+            rm -Recurse -Force "./DoLX_Images_$VERSION.zip"
+            echo "Finished Uploading Images Release $VERSION"
           }
-        }
-        finally {
-          $archive.Dispose()
-          $zipStream.Dispose()
-        }
-      }
-      # --- end helper ---
-
-      if ($FULLVERSION -match "DoLX (\d+\.\d+\.\d+)(?![a-z]+)") {
-        $VERSION = $matches[1]
-        Write-Host "Building Images Release $VERSION"
-
-        Remove-Item -Recurse -Force build -ErrorAction SilentlyContinue
-        New-Item -ItemType Directory -Force -Path "build\img"  | Out-Null
-        New-Item -ItemType Directory -Force -Path "build\img2" | Out-Null
-
-        Copy-Item -Recurse -Force ".\img\*"  ".\build\img\"
-        Copy-Item -Recurse -Force ".\img2\*" ".\build\img2\"
-
-        New-ZipCrossPlatform -SourceDir ".\build" -ZipPath ".\DoLX_Images_$VERSION.zip"
-
-        Write-Host "Uploading Images Release $VERSION"
-        Invoke-RestMethod -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" } -InFile ".\DoLX_Images_$VERSION.zip" -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_Images/$VERSION/DoLX_Images_$VERSION.zip" -Method PUT
-
-        Remove-Item -Recurse -Force build
-        Remove-Item -Force ".\DoLX_Images_$VERSION.zip"
-        Write-Host "Finished Uploading Images Release $VERSION"
-      }
-  only:
-    - master
+    only:
+        - master
 
 html_job:
-  stage: build
-  script:
-    - $FULLVERSION = (Get-Content -Raw version).Trim()
-    - if ($FULLVERSION -match "DoLX (\d+\.\d+\.\d+[a-z]*)") {$VERSION=$matches[1]}
-    - echo "Building HTML Release $VERSION"
-    - ./compile.bat
-    # Single file zip is fine; no folder paths to break on Linux
-    - Compress-Archive "./Degrees of Lewdity VERSION.html" "./DoLX_HTML_$VERSION.zip"
-    - echo "Uploading HTML Release $VERSION"
-    - 'Invoke-RestMethod -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" }  -InFile "./DoLX_HTML_$VERSION.zip" -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_HTML/$VERSION/DoLX_HTML_$VERSION.zip" -Method PUT'
-    - rm -Recurse -Force "./DoLX_HTML_$VERSION.zip"
-    - echo "Finished Uploading HTML Release $VERSION"
-  only:
-    - master
+    stage: build
+    script:
+        - $FULLVERSION=$(cat version)
+        - if ($FULLVERSION -match "DoLX (\d+\.\d+\.\d+[a-z]*)") {$VERSION=$matches[1]}
+        - echo "Building HTML Release $VERSION"
+        - ./compile.bat
+        - Compress-Archive "./Degrees of Lewdity VERSION.html" "./DoLX_HTML_$VERSION.zip"
+        - echo "Finished Building HTML Release $VERSION"
+        - echo "Uploading HTML Release $VERSION"
+        - 'Invoke-RestMethod -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" }  -InFile "./DoLX_HTML_$VERSION.zip" -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_HTML/$VERSION/DoLX_HTML_$VERSION.zip" -Method PUT'
+        - rm -Recurse -Force "./DoLX_HTML_$VERSION.zip"
+        - echo "Finished Uploading HTML Release $VERSION"
+    only:
+        - master 
 
 release_job:
-  stage: deploy
-  needs:
-    - job: audio_job
-    - job: img_job
-    - job: html_job
-  rules:
+    stage: deploy
+    needs:
+        - job: audio_job
+        - job: img_job
+        - job: html_job
+    rules:
     - if: $CI_COMMIT_TAG
       when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  script:
-    - $FULLVERSION = (Get-Content -Raw version).Trim()
-    - |
-      if ($FULLVERSION -match "DoLX (((\d+\.\d+\.)\d+)[a-z]*)") {
-        $VERSION=$matches[1]
-        $MINOR=$matches[2]
-        $MAJOR=$matches[3]+"0"
-      }
-    - echo "Creating release ${VERSION}..."
-    - $html = "{`"name`":`"DownloadMe_DoLX_HTML_$VERSION`", `"url`":`"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_HTML/$VERSION/DoLX_HTML_$VERSION.zip`"}"
-    - $htmlJSON = $html | ConvertTo-Json
-    - $image = "{`"name`":`"DownloadMe_DoLX_Images_$MINOR`", `"url`":`"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_Images/$MINOR/DoLX_Images_$MINOR.zip`"}"
-    - $imageJSON = $image | ConvertTo-Json
-    - $audio = "{`"name`":`"DownloadMe_DoLX_Audio_$MAJOR`", `"url`":`"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_Audio/$MAJOR/DoLX_Audio_$MAJOR.zip`"}"
-    - $audioJSON = $audio | ConvertTo-Json
-    - C:\GitLab-Runner\release-cli.exe create --name "DoL:X-Change Edition $VERSION" --description ./DoLX_Changelog.md --ref $CI_COMMIT_SHA --tag-name $VERSION --assets-link=$htmlJSON --assets-link=$imageJSON --assets-link=$audioJSON
-  after_script:
-    - echo "Finished creating release."
+    script:
+        - $FULLVERSION=$(cat version)
+        - |
+          if ($FULLVERSION -match "DoLX (((\d+\.\d+\.)\d+)[a-z]*)") {
+            $VERSION=$matches[1]
+            $MINOR=$matches[2]
+            $MAJOR=$matches[3]+"0"
+          }
+        - echo "Creating release ${VERSION}..."
+        - $html = "{`"name`":`"DownloadMe_DoLX_HTML_$VERSION`", `"url`":`"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_HTML/$VERSION/DoLX_HTML_$VERSION.zip`"}"
+        - $htmlJSON = $html | ConvertTo-Json
+        - $image = "{`"name`":`"DownloadMe_DoLX_Images_$MINOR`", `"url`":`"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_Images/$MINOR/DoLX_Images_$MINOR.zip`"}"
+        - $imageJSON = $image | ConvertTo-Json
+        - $audio = "{`"name`":`"DownloadMe_DoLX_Audio_$MAJOR`", `"url`":`"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_Audio/$MAJOR/DoLX_Audio_$MAJOR.zip`"}"
+        - $audioJSON = $audio | ConvertTo-Json
+        - C:\GitLab-Runner\release-cli.exe create --name "DoL:X-Change Edition $VERSION" --description ./DoLX_Changelog.md --ref $CI_COMMIT_SHA --tag-name $VERSION --assets-link=$htmlJSON --assets-link=$imageJSON --assets-link=$audioJSON
+    after_script:
+        - echo "Finished creating release."
