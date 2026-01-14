@@ -5613,3 +5613,371 @@ You peer through the mansion gates. Seeing no one around, you step outside, and 
 	<<link [[Next|Danube Street]]>><</link>>
 <</if>>
 <br>
+
+:: Mansion Bedroom Masturbate
+<<set $location to "avery_mansion">>
+<<set $bus to "avery_bedroom">>
+<<set $avery_passage to $passage>>
+<<set $outside to 0>>
+<<effects>><<getTarget true>><<avery_mansion>>
+
+<<if $avery_mansion is undefined or $avery_mansion is 0>>
+	<<avery_mansion_init>>
+<</if>>
+<<if $avery_mansion.masturbate is undefined>>
+	<<set $avery_mansion.masturbate to {active:false, timerMax:40, timer:0}>>
+<</if>>
+
+/* Avery home check (schedule) */
+<<set _sched to ($avery_mansion.schedule || "away")>>
+<<set _awayStates to ["away","work","date","return"]>>
+<<set _averyHome to (!_awayStates.includes(_sched))>>
+
+/* If Avery is NOT home, hard-reset the caution session so it can't "carry over" */
+<<if !_averyHome>>
+	<<set $avery_mansion.masturbate.active to false>>
+	<<set $avery_mansion.masturbate.timer to 0>>
+	<<set $avery_mansion.masturbate.timerMax to 40>>
+	<<unset $avery_mansion.masturbate.finish>>
+<</if>>
+
+/* Start masturbation session once */
+<<if $masturbationstart is 1 or $avery_mansion.masturbate.active isnot true>>
+	<<set $masturbationstart to 0>>
+	<<set $avery_mansion.masturbate.active to true>>
+	<<unset $finish>>
+
+	<<if $masturbationstat is undefined or isNaN($masturbationstat)>>
+		<<set $masturbationstat to 0>>
+	<</if>>
+	<<set $masturbationstat to $masturbationstat + 1>>
+
+	<<masturbationstart>>
+
+	/* Only start the caution timer if Avery is home */
+	<<if _averyHome>>
+		<<if _sched is "sleep">>
+			<<set $avery_mansion.masturbate.timerMax to 60>>
+		<<else>>
+			<<set $avery_mansion.masturbate.timerMax to 40>>
+		<</if>>
+		<<set $avery_mansion.masturbate.timer to $avery_mansion.masturbate.timerMax>>
+	<<else>>
+		<<set $avery_mansion.masturbate.timer to 0>>
+	<</if>>
+<</if>>
+
+/* If Avery is home and timer hit 0, caught */
+<<if _averyHome and $avery_mansion.masturbate.timer lte 0>>
+	<<goto "Mansion Bedroom Masturbate Caught">>
+<</if>>
+
+/* Text + Caution UI */
+<<if !_averyHome>>
+	You have the bedroom to yourself.
+	<br><br>
+<<else>>
+	<<set _max to ($avery_mansion.masturbate.timerMax || 40)>>
+	<<set _t to ($avery_mansion.masturbate.timer || _max)>>
+	<<set _caution to Math.round(100 - ((_t / _max) * 100))>>
+	<<set _caution to Math.min(100, Math.max(0, _caution))>>
+
+	You try to keep quiet—Avery is somewhere in the mansion.
+	<br><br>
+
+	Caution: <<print _caution>>%
+	<div class="meter">
+		<<print '<div class="redbar" style="width:' + _caution + '%"></div>'>>
+	</div>
+	<br><br>
+<</if>>
+
+<<masturbationeffects>>
+<<masturbationactions>>
+<br><br>
+
+/* Controls (we control the return so you don't get the weird generic finish screen) */
+<div id="masturbationButtons">
+	<div id="next">
+		<<link [[Continue|Mansion Bedroom Masturbate]]>>
+			<<if _averyHome>>
+				<<set $avery_mansion.masturbate.timer to Math.max(0, ($avery_mansion.masturbate.timer || 0) - 1)>>
+			<</if>>
+		<</link>><<nexttext>>
+	</div>
+
+	<div id="stop">
+		<<link [[Stop|Mansion Bedroom Masturbate Finish]]>>
+			<<set $finish to 1>>
+		<</link>>
+	</div>
+</div>
+
+:: Mansion Bedroom Masturbate Finish
+<<set $location to "avery_mansion">><<set $bus to "avery_bedroom">><<set $avery_passage to $passage>><<set $outside to 0>>
+<<effects>>
+<<endmasturbation>>
+<<endcombat>>
+<<clotheson>>
+<<avery_mansion>>
+
+<<if $avery_mansion is undefined or $avery_mansion is 0>>
+	<<avery_mansion_init>>
+<</if>>
+<<if $avery_mansion.masturbate is undefined>>
+	<<set $avery_mansion.masturbate to {}>>
+<</if>>
+
+<<set _t to ($avery_mansion.masturbate.timer || 0)>>
+
+/* If player hit Stop, just exit */
+<<if $finish is 1>>
+	You stop and force yourself to breathe normally.
+	<br><br>
+	<<unset $finish>>
+	<<set $avery_mansion.masturbate.active to false>>
+	<<set $avery_mansion.masturbate.timer to 0>>
+	<<unset $avery_mansion.masturbate.finish>>
+	<<link [[Back to bed|Mansion Bedroom]]>><</link>>
+	<br>
+
+/* If time ran out AND Avery is home, caught */
+<<elseif _t lte 0 and $avery_mansion and !["away","work","date","return"].includes($avery_mansion.schedule || "away")>>
+	<<goto "Mansion Bedroom Masturbate Caught">>
+
+/* Otherwise, normal wrap-up */
+<<else>>
+	You clean yourself up and try to look innocent.
+	<br><br>
+	<<set $avery_mansion.masturbate.active to false>>
+	<<set $avery_mansion.masturbate.timer to 0>>
+	<<unset $avery_mansion.masturbate.finish>>
+	<<link [[Back to bed|Mansion Bedroom]]>><</link>>
+	<br>
+<</if>>
+
+:: Mansion Bedroom Masturbate Caught
+<<set $location to "avery_mansion">><<set $bus to "avery_bedroom">><<set $avery_passage to $passage>><<set $outside to 0>>
+<<effects>>
+<<endmasturbation>>
+<<endcombat>>
+<<clothesontowel>>
+<<avery_mansion>>
+
+<<if $avery_mansion is undefined or $avery_mansion is 0>>
+	<<avery_mansion_init>>
+<</if>>
+
+/* Clean session state so it can't linger */
+<<if $avery_mansion and $avery_mansion.masturbate>>
+	<<set $avery_mansion.masturbate.active to false>>
+	<<set $avery_mansion.masturbate.timer to 0>>
+	<<unset $avery_mansion.masturbate.finish>>
+<</if>>
+<<unset $finish>>
+
+<<npc Avery>><<person1>>
+<<set _rage to (C.npc.Avery.rage is undefined ? 0 : C.npc.Avery.rage)>>
+
+/* Helper: make sure $NPCList has the slots effectsman tries to touch */
+<<if $NPCList is undefined>>
+	<<set $NPCList to [C.npc.Avery]>>
+<</if>>
+<<for _i = 1; _i lte 5; _i++>>
+	<<if $NPCList[_i] is undefined>>
+		<<set $NPCList[_i] to {intro:0}>>
+	<<elseif $NPCList[_i].intro is undefined>>
+		<<set $NPCList[_i].intro to 0>>
+	<</if>>
+<</for>>
+
+/* If dungeon unlocked, ALWAYS go dungeon */
+<<if $avery_mansion.jobs and $avery_mansion.jobs.includes("dungeon")>>
+	A shadow falls across the doorway.
+	<br><br>
+	<<if _rage gte 50>>
+		"Disgusting," Avery snaps. "In my bed? You really are filthy."
+		<br><br>
+	<<else>>
+		Avery's gaze lingers, slow and possessive. "In my bed… couldn't help yourself?"
+		<br><br>
+	<</if>>
+
+	"Up," Avery says. "Now."
+	<br><br>
+	<<npcincr Avery dom 5>>
+	<span class="purple">You should know by now not to play around when the lion is home</span>. |<span class="purple">+Dominance</span>
+	<br><br>
+	<<link [[Next|Mansion Dungeon Intro 2]]>>
+		<<set $bus to "avery_dungeon">>
+		<<set $phase to 1>>
+	<</link>>
+	<br>
+<<else>>
+	A shadow falls across the doorway.
+	<br><br>
+	Avery's eyes glance down to your hand and the mess you're making, then back up to your face.
+	<br><br>
+
+	<<if _rage gte 50>>
+		"Pathetic," Avery spits. "Touching yourself in my bed like an animal. You even dare to smear your filth on <i>my</i> sheets."
+		<br><br>
+		<<He>> steps closer. "If you're going to act dirty in my house, <span class="red">I'll make you remember who you belong to</span>."
+		<br><br>
+		<<link [[Next|Mansion Masturbate Fight]]>>
+			<<set $averyCaughtTone to "rage">>
+			<<set $fightstart to 1>>
+		<</link>>
+		<br>
+	<<else>>
+		Avery's mouth curls into a satisfied smile. "In my bed? That's a bold way to stroke my ego."
+		<br><br>
+		<<He>> leans in. "If you're going to get worked up here... you'll do it properly. With me."
+		<br><br>
+		<<link [[Next|Bedroom Masturbate Sex]]>>
+			<<set $averyCaughtTone to "help">>
+			<<set $sexstart to 1>>
+		<</link>>
+		<br>
+	<</if>>
+<</if>>
+
+:: Bedroom Masturbate Sex
+<<if $sexstart is 1>>
+	<<set $sexstart to 0>>
+	<<npc Avery>><<person1>>
+
+	/* Ensure indices used by effectsman exist (don't overwrite index 0) */
+	<<if $NPCList is undefined>>
+		<<set $NPCList to [C.npc.Avery]>>
+	<</if>>
+	<<for _i = 1; _i lte 5; _i++>>
+		<<if $NPCList[_i] is undefined>>
+			<<set $NPCList[_i] to {intro:0}>>
+		<<elseif $NPCList[_i].intro is undefined>>
+			<<set $NPCList[_i].intro to 0>>
+		<</if>>
+	<</for>>
+
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+	<<maninit>>
+	<<set $enemytrust += 100>><<promiscuity1>>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[Next|Bedroom Masturbate Sex Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Bedroom Masturbate Sex]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Bedroom Masturbate Sex Finish
+<<set $outside to 0>><<effects>>
+<<if $enemyarousal gte $enemyarousalmax>>
+	<<ejaculation>>
+	Avery gathers <<himself>>, letting out a slow, satisfied sigh, then smiles like <<he>> is enjoying himself despite your situation. "Do that again, and I'm going to eat you whole."
+	<br><br>
+	<<tearful>>You tremble, but you force yourself to hold it together as you try to settle back down.<br><br>
+<<elseif $enemyhealth lte 0>>
+	You kick Avery away from you.
+	<<if C.npc.Avery.rage gte random(20, 100) and $averyragerevealed gte 1>>
+		<<He>> scoffs, gathers himself up, and pointedly refuses to look at you.
+	<<else>>
+		<<He>> scoffs and gathers himself up.
+	<</if>>
+	<br><br>
+	<<tearful>>You tremble, but you force yourself to hold it together as you try to settle back down.
+	<br><br>
+<<else>>
+	<<if C.npc.Avery.rage gte random(20, 100) and $averyragerevealed gte 1>>
+		<<He>> scoffs, gathers himself up, and punches the lamp on <<his>> bedside cabinet in frustration.
+	<<else>>
+		Avery scoffs and pointedly refuses to look at you.
+	<</if>>
+	<br><br>
+	<<tearful>>You tremble, but you force yourself to hold it together as you try to settle back down.
+	<br><br>
+<</if>>
+<<clotheson>>
+<<endcombat>>
+
+/* Drop dummy NPCList slots so Avery doesn't "stick" after the scene */
+<<if $NPCList isnot undefined and $NPCList.length gt 1>>
+	<<set $NPCList.length to 1>>
+<</if>>
+
+<<link [[Next|Mansion Bedroom]]>><</link>>
+<br>
+
+:: Mansion Masturbate Fight
+<<if $fightstart is 1>>
+	<<set $fightstart to 0>>
+	<<npc Avery>><<person1>>
+
+	/* Ensure indices used by effectsman exist (don't overwrite index 0) */
+	<<if $NPCList is undefined>>
+		<<set $NPCList to [C.npc.Avery]>>
+	<</if>>
+	<<for _i = 1; _i lte 5; _i++>>
+		<<if $NPCList[_i] is undefined>>
+			<<set $NPCList[_i] to {intro:0}>>
+		<<elseif $NPCList[_i].intro is undefined>>
+			<<set $NPCList[_i].intro to 0>>
+		<</if>>
+	<</for>>
+
+	<<neutral 1>>
+	<<maninit>>
+	<<set $enemytrust -= 100>>
+	<<set $enemyanger += 200>>
+	<<npcidlegenitals>>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<if _combatend or ($pain gte 100 and $willpowerpain is 0)>>
+	<span id="next"><<link [[Next|Mansion Masturbate Fight Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Mansion Masturbate Fight]]>><</link>></span><<nexttext>>
+<</if>>
+
+
+:: Mansion Masturbate Fight Finish
+<<effects>>
+<<if $enemyarousal gte $enemyarousalmax>>
+	<<ejaculation>>
+	Out of strength, Avery collapses. <<tearful>> you use the opportunity to escape from arm's reach.<<larage>><<npcincr Avery rage -1>>
+	<br><br>
+	<<His>> knees tremble as <<he>> climbs to <<his>> feet. <<He>> glares at you a moment, then walks away.
+	<br><br>
+
+<<elseif $enemyhealth lte 0>>
+	Avery's knees buckle, and <<he>> collapses in a heap. <<tearful>> you use the opportunity to escape from arm's reach.<<larage>><<npcincr Avery rage -1>><<ldom>><<npcincr Avery dom -1>>
+	<br><br>
+	<<tearful>> you recover.
+	<br><br>
+
+<<else>>
+	You fall to the ground, too hurt to continue fighting. Avery observes you a moment, considering, then <<he>> walks away.<<ggdom>><<npcincr Avery dom 3>>
+	<br><br>
+	<<tearful>> you struggle to your feet.
+	<br><br>
+<</if>>
+<<endcombat>>
+<<if $NPCList isnot undefined and $NPCList.length gt 1>><<set $NPCList.length to 1>><</if>>
+<<clotheson>>
+<<endevent>>
+<<link [[Next|Mansion Bedroom]]>><</link>>
+<br>
