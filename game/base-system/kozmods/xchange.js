@@ -1366,6 +1366,11 @@ function xchangeEffectsMessages() {
 		delete V.refractoryPeriodMessage;
 	}
 
+	if (V.dysphoriaReasonMessage) {
+		element("span", V.dysphoriaReasonMessage, "purple"); br();
+		delete V.dysphoriaReasonMessage;
+	}
+
 	if (V.dysphoriaMessage) {
 		element("span", "You suffer from dysphoria.", "purple"); br();
 		delete V.dysphoriaMessage;
