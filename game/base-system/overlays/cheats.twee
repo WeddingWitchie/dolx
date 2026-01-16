@@ -2067,14 +2067,33 @@
 				<<capture _hr>>
 					<<= _i gt 0 ? "<br>" : "">>
 					<<set _hours to _i is 0 ? "hour" : "hours">>
-					<<link [[_hr _hours|$passage]]>><<set $timeSkip to 1>><<pass _hr hour>><<unset $timeSkip>><</link>>
+					<<link [[_hr _hours|$passage]]>>
+						<<set $timeSkip to 1>>
+						<<set _days to Math.floor(_hr / 24)>>
+						<<set _remHours to _hr % 24>>
+						<<if _days gt 0>>
+							<<for _j to 0; _j lt _days; _j++>>
+								<<pass 1 day>>
+							<</for>>
+						<</if>>
+						<<if _remHours gt 0>>
+							<<pass _remHours hour>>
+						<</if>>
+						<<unset $timeSkip>>
+					<</link>>
 					/* <<= _i lt 7 ? "<br>" : "">> */
 				<</capture>>
 			<</for>>
 			<br>
 			<<for _i, _dy range [2, 3, 4, 5, 6, 7, 14, 28]>>
-				<<capture _dy>>
-					<<link [[_dy + " days"|$passage]]>><<set $timeSkip to 1>><<pass _dy days>><<unset $timeSkip>><</link>>
+				<<capture _dy, _i>>
+					<<link [[_dy + " days"|$passage]]>>
+						<<set $timeSkip to 1>>
+						<<for _j to 0; _j lt _dy; _j++>>
+							<<pass 1 day>>
+						<</for>>
+						<<unset $timeSkip>>
+					<</link>>
 					<<= _i lt 7 ? "<br>" : "">>
 				<</capture>>
 			<</for>>
