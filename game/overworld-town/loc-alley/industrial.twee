@@ -72,7 +72,26 @@ There's a ladder to your right; you think it will take you to the rooftops. The 
 			<<map "industrial">>
 			<br>
 		<</if>>
-		<<if ($portalPantiesEnabled and !$xchange.pill.portalEffect and $xchange.weeklyShadyDealer & 2) and (Time.hour gte 19 or Time.hour lt 6)>>
+
+		/* --- Weekly Shady Dealer init (must always run) --- */
+		<<set _weekIndex to Math.floor(Time.days / 7)>>
+		<<if $xchange.weeklyShadyDealerLastWeek is undefined or $xchange.weeklyShadyDealerLastWeek is null>>
+			<<set $xchange.weeklyShadyDealerLastWeek = _weekIndex>>
+		<</if>>
+		<<if $xchange.weeklyShadyDealer is undefined or $xchange.weeklyShadyDealer is null>>
+			<<set $xchange.weeklyShadyDealer = 0>>
+		<</if>>
+		/* New week → reroll flags */
+		<<if _weekIndex neq $xchange.weeklyShadyDealerLastWeek>>
+			<<set $xchange.weeklyShadyDealer = 0>>
+			/* 50% chance to enable alley dealer this week */
+			<<if random(1,100) lte 50>>
+				<<set $xchange.weeklyShadyDealer |= 2>>
+			<</if>>
+			<<set $xchange.weeklyShadyDealerLastWeek = _weekIndex>>
+		<</if>>
+		/* --- End weekly init --- */
+		<<if ($portalPantiesEnabled and !$xchange.pill.portalEffect and ($xchange.weeklyShadyDealer & 2)) and (Time.hour gte 19 or Time.hour lt 6)>>
 			You notice a shady looking person hanging around by an alley wall.
 			<br>
 			<<icon "mark.gif">><<link [[Approach the shady person (0:05)|Industrial Shady Person]]>><<pass 5>><</link>>
