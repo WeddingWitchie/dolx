@@ -22,32 +22,25 @@
 	<<run (function () {
 		var V = State.variables;
 		var fixed = 0;
-
 		function isObj(x) { return x && typeof x === "object"; }
-
 		function walk(obj, seen) {
 			if (!isObj(obj)) return;
 			if (seen && seen.has(obj)) return;
 			if (seen) seen.add(obj);
-
 			var keys = Object.keys(obj);
 			for (var i = 0; i < keys.length; i++) {
 				var k = keys[i];
 				var v = obj[k];
-
 				if (typeof v === "number" && !isFinite(v)) {
 					obj[k] = 0;
 					fixed++;
 					continue;
 				}
-
 				if (isObj(v)) walk(v, seen);
 			}
 		}
-
 		var seen = (typeof WeakSet !== "undefined") ? new WeakSet() : null;
 		walk(V, seen);
-
 		function clamp(n, min, max) {
 			n = Number(n);
 			if (!isFinite(n)) n = min;
@@ -55,7 +48,6 @@
 			if (n > max) n = max;
 			return n;
 		}
-
 		if (Object.prototype.hasOwnProperty.call(V, "breastsensitivity")) {
 			V.breastsensitivity = clamp(V.breastsensitivity, 0.25, 999);
 		}
@@ -65,7 +57,6 @@
 		if (Object.prototype.hasOwnProperty.call(V, "genitalsensitivity")) {
 			V.genitalsensitivity = clamp(V.genitalsensitivity, 0.25, 999);
 		}
-
 		State.temporary._xchangeNanFixed = fixed;
 	})();>>
 <</widget>>
@@ -151,7 +142,9 @@
 			<<if $xchange.customisedEyeColour is "random">>
 				<<set _colours to Object.keys(setup.colours.eyes_map)>>
 				<<run _colours.deleteWith(function (value) {
-					return value === "random"; /*|| value === "red possessed";*/
+					return value === "random"
+						|| /^colorWheelTemporary/i.test(value)
+						|| /possessed/i.test(value);
 				})>>
 				<<set _eyeColour to _colours.random()>>
 				<<set $leftEyeColour to _eyeColour>>
@@ -161,7 +154,16 @@
 				<<set $rightEyeColour to $xchange.customisedEyeColour>>
 			<</if>>
 			<<if $xchange.customisedHairColour is "random">>
-				<<set _hairColour to Object.keys(setup.colours.hair_map).random()>>
+				<<set _colours to Object.keys(setup.colours.hair_map)>>
+				<<run _colours.deleteWith(function (value) {
+					return value === "random" || /^colorWheelTemporary/i.test(value);
+				})>>
+				<<if _colours.length gt 0>>
+					<<set _hairColour to _colours[Math.floor(Math.random() * _colours.length)]>>
+				<<else>>
+					/* safety fallback: pick any non-random key */
+					<<set _hairColour to Object.keys(setup.colours.hair_map).find(k => k !== "random")>>
+				<</if>>
 				<<set $haircolour to _hairColour>>
 				<<set $hairfringecolour to _hairColour>>
 				<<set $naturalhaircolour to _hairColour>>
@@ -301,7 +303,9 @@
 			<<if $xchange.customisedEyeColour is "random">>
 				<<set _colours to Object.keys(setup.colours.eyes_map)>>
 				<<run _colours.deleteWith(function (value) {
-					return value === "random"; /*|| value === "red possessed";*/
+					return value === "random"
+						|| /^colorWheelTemporary/i.test(value)
+						|| /possessed/i.test(value);
 				})>>
 				<<set _eyeColour to _colours.random()>>
 				<<set $leftEyeColour to _eyeColour>>
@@ -311,7 +315,16 @@
 				<<set $rightEyeColour to $xchange.customisedEyeColour>>
 			<</if>>
 			<<if $xchange.customisedHairColour is "random">>
-				<<set _hairColour to Object.keys(setup.colours.hair_map).random()>>
+				<<set _colours to Object.keys(setup.colours.hair_map)>>
+				<<run _colours.deleteWith(function (value) {
+					return value === "random" || /^colorWheelTemporary/i.test(value);
+				})>>
+				<<if _colours.length gt 0>>
+					<<set _hairColour to _colours[Math.floor(Math.random() * _colours.length)]>>
+				<<else>>
+					/* safety fallback: pick any non-random key */
+					<<set _hairColour to Object.keys(setup.colours.hair_map).find(k => k !== "random")>>
+				<</if>>
 				<<set $haircolour to _hairColour>>
 				<<set $hairfringecolour to _hairColour>>
 				<<set $naturalhaircolour to _hairColour>>
@@ -841,142 +854,182 @@
 		<</for>>
 	<</widget>>
 
-	<<widget "xchange-addeffect">>
-		/* IMPORTANT: For purple effect, PC's sex should be set to male, and balls should be removed */
+<<widget "xchange-addeffect">>
+	/* IMPORTANT: For purple effect, PC's sex should be set to male, and balls should be removed */
+	<<if ["fertile","breeder","bull","genderflip","herm"].includes(_args[0])>>
 		<<run setup.xchangeSanitiseFertile()>>
-		<<set $xchange.pill.continueEffect to false>>
-		<<switch _args[0]>>
-		<<case "genderflip">>
-			<<if !$xchange.pill.genderflipEffect>>
-				<<set $xchange.pill.genderflipEffect to true>>
-				<<if $player.gender is "m">>
-					<<become-girl>>
-				<<else>>
-					<<become-boy>>
-				<</if>>
-				<<if $player.sex isnot "f">>
-					<<set $xchange.pill.breederEffect to false>>
-					<<set $xchange.pill.fertile to false>>
-					<<set $sexStats.vagina.menstruation.running = false>>
-				<</if>>
-				<<if $player.sex isnot "m">><<set $xchange.pill.bullEffect to false>><</if>>
-			<</if>>
-		<<case "crossdress">>
-			<<if !$xchange.pill.genderificationEffect>>
-				<<set $xchange.pill.genderificationEffect to true>>
-				<<if !$xchange.pill.genderflipEffect && !$xchange.pill.hermEffect>>
-					<<if $player.gender is "m">>
-						<<sissify>>
-					<<else>>
-						<<butchify>>
-					<</if>>
-				<</if>>
-			<</if>>
-		<<case "herm">>
-			<<if !$xchange.pill.genderflipEffect>>
-				<<set $xchange.pill.genderflipEffect to true>>
-				<<if $player.gender is "m">>
-					<<become-girl>>
-				<<else>>
-					<<become-boy>>
-				<</if>>
-			<</if>>
-			<<if !$xchange.pill.hermEffect>>
-				<<set $xchange.pill.hermEffect to true>>
-				<<hermify>>
-			<</if>>
-		<<case "resistance">>
-			<<if !$xchange.pill.resistanceEffect>>
-				<<set $xchange.pill.resistanceEffect to true>>
-				<<set $xchange.pill.resistanceChance to 100>>
-				<<set $xchange.pill.resistanceOrgasmsStat to 0>>
-			<</if>>
-		<<case "continue">>
-			<<set $xchange.pill.continueEffect to true>>
-		<<case "fertile">>
-			<<set $xchange.pill.fertile to true>>
-			<<set $sexStats.vagina.menstruation.running = true>>
-		<<case "breeder">>
-			<<set $xchange.pill.breederEffect to true>>
-			<<set $xchange.pill.breederEdgingCount to 0>>
-			<<set $xchange.pill.breederEdgingStress to 100>>
-			<<set $xchange.breederDenial to 0>>
-		<<case "bull">>
-			<<set $xchange.pill.bullEffect to true>>
-		<<case "portal">>
-			<<if $portalPantiesEnabled>>
-				<<set _duration to _args[1] ?? 1>>
-				<<set $xchange.pill.portalEffect to true>>
-				<<set $xchange.pill.portalEffectTimer to _duration * 24 - 1>>
-			<</if>>
-		<<case "passion">>
-			<<set $xchange.pill.passionEffect to true>>
-		<<case "dumb-bitch">>
-			<<set $xchange.pill.dumbBitchEffect to true>>
-		<<case "innocence">>
-			<<set $xchange.pill.innocenceEffect to true>>
-			<<set $xchange.awareness to $awareness>>
-			<<set $awareness to -200>>
-			<<set $innocencestate to 1>>
-			<<if $xchange.awareness gte 0>>
-				<<set $innocencemessage to "start">>
-			<</if>>
-		<<case "swell">>
-			<<set $xchange.pill.swellEffect to true>>
-			<<if $player.gender is "f">>
-				<<set $xchange.penissize to $player.penissize>>
-				<<set $player.penissize to $penissizemax>>
+	<</if>>
+	<<set $xchange.pill.continueEffect to false>>
+
+	<<if $xchange._debugEffectHistory is undefined>><<set $xchange._debugEffectHistory to []>><</if>>
+	<<run $xchange._debugEffectHistory.push(_args[0])>>
+
+	/* ADDED: refresh flag for mid-turn body changes */
+	<<set _xchangeNeedsRefresh to false>>
+
+	<<switch _args[0]>>
+
+	<<case "genderflip">>
+		<<if !$xchange.pill.genderflipEffect>>
+			<<set $xchange.pill.genderflipEffect to true>>
+			<<if $player.sex is "m">>
+				<<become-girl>>
 			<<else>>
-				<<set $xchange.breastsize to $player.breastsize>>
-				<<set $player.breastsize to $breastsizemax>>
-				<<set $xchange.bottomsize to $player.bottomsize>>
-				<<set $player.bottomsize to $bottomsizemax>>
+				<<become-boy>>
 			<</if>>
-		<<case "bimbo">>
-			<<set $xchange.pill.bimboEffect to true>>
-			<<set $promiscuityIgnore to 1>>
-			<<set $xchange.science to $sciencetrait>>
-			<<set $xchange.math to $mathstrait>>
-			<<set $xchange.english to $englishtrait>>
-			<<set $xchange.history to $historytrait>>
-			<<set $sciencetrait to -1>>
-			<<set $mathstrait to -1>>
-			<<set $englishtrait to -1>>
-			<<set $historytrait to -1>>
-			<<if $xchange.science gt $sciencetrait>>
-				<<school_skill_change "science" 0>>
-				<<set $effectsmessage = 1>>
-				<<set $science_down_message = 1>>
+			/* ADDED */
+			<<set _xchangeNeedsRefresh to true>>
+			<<if $player.sex isnot "f">>
+				<<set $xchange.pill.breederEffect to false>>
+				<<set $xchange.pill.fertile to false>>
+				<<set $sexStats.vagina.menstruation.running = false>>
 			<</if>>
-			<<if $xchange.math gt $mathstrait>>
-				<<school_skill_change "maths" 0>>
-				<<set $effectsmessage = 1>>
-				<<set $maths_down_message = 1>>
+			<<if $player.sex isnot "m">><<set $xchange.pill.bullEffect to false>><</if>>
+		<</if>>
+
+	<<case "crossdress">>
+		<<if !$xchange.pill.genderificationEffect>>
+			<<set $xchange.pill.genderificationEffect to true>>
+			<<if !$xchange.pill.genderflipEffect && !$xchange.pill.hermEffect>>
+				<<if $player.gender is "m">>
+					<<sissify>>
+				<<else>>
+					<<butchify>>
+				<</if>>
+				/* ADDED */
+				<<set _xchangeNeedsRefresh to true>>
 			<</if>>
-			<<if $xchange.english gt $englishtrait>>
-				<<school_skill_change "english" 0>>
-				<<set $effectsmessage = 1>>
-				<<set $english_down_message = 1>>
+		<</if>>
+
+	<<case "herm">>
+		<<if !$xchange.pill.genderflipEffect>>
+			<<set $xchange.pill.genderflipEffect to true>>
+			<<if $player.sex is "m">>
+				<<become-girl>>
+			<<else>>
+				<<become-boy>>
 			<</if>>
-			<<if $xchange.history gt $historytrait>>
-				<<school_skill_change "history" 0>>
-				<<set $effectsmessage = 1>>
-				<<set $history_down_message = 1>>
-			<</if>>
-		<<case "cumcure">>
-			<<set $xchange.pill.cumcureEffect to true>>
-		<<case "choice">>
-			<<xchange-setpermanent>>
-			<<set $xchangePermanenceMessage to 0>>
-			<<set $xchange.pill.choiceEffect to true>>
-		<<case "spike" "unknown">>
-			<<set $xchange.pill.effectsKnown to false>>
-		<<case "random">>
-			<<xchange-get-spikepool>>
-			<<xchange-addeffect _effectPool.random()>>
-		<<default>>
-		<</switch>>
-	<</widget>>
+			/* ADDED */
+			<<set _xchangeNeedsRefresh to true>>
+		<</if>>
+		<<if !$xchange.pill.hermEffect>>
+			<<set $xchange.pill.hermEffect to true>>
+			<<hermify>>
+			/* ADDED */
+			<<set _xchangeNeedsRefresh to true>>
+		<</if>>
+
+	<<case "resistance">>
+		<<if !$xchange.pill.resistanceEffect>>
+			<<set $xchange.pill.resistanceEffect to true>>
+			<<set $xchange.pill.resistanceChance to 100>>
+			<<set $xchange.pill.resistanceOrgasmsStat to 0>>
+		<</if>>
+
+	<<case "continue">>
+		<<set $xchange.pill.continueEffect to true>>
+
+	<<case "fertile">>
+		<<set $xchange.pill.fertile to true>>
+		<<set $sexStats.vagina.menstruation.running = true>>
+
+	<<case "breeder">>
+		<<set $xchange.pill.breederEffect to true>>
+		<<set $xchange.pill.breederEdgingCount to 0>>
+		<<set $xchange.pill.breederEdgingStress to 100>>
+		<<set $xchange.breederDenial to 0>>
+
+	<<case "bull">>
+		<<set $xchange.pill.bullEffect to true>>
+
+	<<case "portal">>
+		<<if $portalPantiesEnabled>>
+			<<set _duration to _args[1] ?? 1>>
+			<<set $xchange.pill.portalEffect to true>>
+			<<set $xchange.pill.portalEffectTimer to _duration * 24 - 1>>
+		<</if>>
+
+	<<case "passion">>
+		<<set $xchange.pill.passionEffect to true>>
+
+	<<case "dumb-bitch">>
+		<<set $xchange.pill.dumbBitchEffect to true>>
+
+	<<case "innocence">>
+		<<set $xchange.pill.innocenceEffect to true>>
+		<<set $xchange.awareness to $awareness>>
+		<<set $awareness to -200>>
+		<<set $innocencestate to 1>>
+		<<if $xchange.awareness gte 0>>
+			<<set $innocencemessage to "start">>
+		<</if>>
+
+	<<case "swell">>
+		<<set $xchange.pill.swellEffect to true>>
+		<<if $player.sex is "f">>
+			<<set $xchange.penissize to $player.penissize>>
+			<<set $player.penissize to $penissizemax>>
+		<<else>>
+			<<set $xchange.breastsize to $player.breastsize>>
+			<<set $player.breastsize to $breastsizemax>>
+			<<set $xchange.bottomsize to $player.bottomsize>>
+			<<set $player.bottomsize to $bottomsizemax>>
+		<</if>>
+
+	<<case "bimbo">>
+		<<set $xchange.pill.bimboEffect to true>>
+		<<set $promiscuityIgnore to 1>>
+		<<set $xchange.science to $sciencetrait>>
+		<<set $xchange.math to $mathstrait>>
+		<<set $xchange.english to $englishtrait>>
+		<<set $xchange.history to $historytrait>>
+		<<set $sciencetrait to -1>>
+		<<set $mathstrait to -1>>
+		<<set $englishtrait to -1>>
+		<<set $historytrait to -1>>
+		<<if $xchange.science gt $sciencetrait>>
+			<<school_skill_change "science" 0>>
+			<<set $effectsmessage = 1>>
+			<<set $science_down_message = 1>>
+		<</if>>
+		<<if $xchange.math gt $mathstrait>>
+			<<school_skill_change "maths" 0>>
+			<<set $effectsmessage = 1>>
+			<<set $maths_down_message = 1>>
+		<</if>>
+		<<if $xchange.english gt $englishtrait>>
+			<<school_skill_change "english" 0>>
+			<<set $effectsmessage = 1>>
+			<<set $english_down_message = 1>>
+		<</if>>
+		<<if $xchange.history gt $historytrait>>
+			<<school_skill_change "history" 0>>
+			<<set $effectsmessage = 1>>
+			<<set $history_down_message = 1>>
+		<</if>>
+
+	<<case "cumcure">>
+		<<set $xchange.pill.cumcureEffect to true>>
+
+	<<case "choice">>
+		<<xchange-setpermanent>>
+		<<set $xchangePermanenceMessage to 0>>
+		<<set $xchange.pill.choiceEffect to true>>
+
+	<<case "spike" "unknown">>
+		<<set $xchange.pill.effectsKnown to false>>
+
+	<<case "random">>
+		<<xchange-get-spikepool>>
+		<<xchange-addeffect _effectPool.random()>>
+	<<default>>
+	<</switch>>
+
+	<<if _xchangeNeedsRefresh and ($enemyanger isnot undefined or $enemytrust isnot undefined)>>
+		<<updatesidebarimg>>
+		<<goto $passage>>
+	<</if>>
+<</widget>>
 
 	<<widget "xchange-removeeffect">>
 		<<switch _args[0]>>
