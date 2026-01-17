@@ -392,7 +392,24 @@
 <</widget>>
 
 <<widget "fallenTransform">>
-	<<if (playerFeelsManlike() and $player.virginity.penile isnot true) or (playerFeelsGirllike() and $player.virginity.vaginal isnot true)>>
+	<<set _xchangeBlocksVow to false>>
+	<<run _xchangeBlocksVow =
+		(typeof playerIsXChanged === "function" && typeof pillIsPermanent === "function" && typeof pillTimerPaused === "function")
+			? (playerIsXChanged() && !(pillIsPermanent() || pillTimerPaused()))
+			: false; >>
+	<<if (((playerFeelsManlike() and $player.virginity.penile isnot true) or (playerFeelsGirllike() and $player.virginity.vaginal isnot true))
+		and !(playerIsXChanged() and !pillIsPermanent()))>>
+		/* Keep temple vow in sync with the virginity loss that triggers the fall and only break vow if NOT temp-xchanged, or if pill is permanent	*/
+		<<if !_xchangeBlocksVow and ($player.virginity.temple is true or $player.virginity.temple is 1)>>
+			<<set _taker to false>>
+			<<if playerFeelsManlike() and $player.virginity.penile isnot true>>
+				<<set _taker to $player.virginity.penile>>
+			<<elseif playerFeelsGirllike() and $player.virginity.vaginal isnot true>>
+				<<set _taker to $player.virginity.vaginal>>
+			<</if>>
+			<<set $virginityProtected to false>>
+			<<set $player.virginity.temple to (_taker ? _taker : false)>>
+		<</if>>
 		<<if ($angel gte 6)>>
 			<span class="red">Your halo shatters and your wings blacken. An overwhelming sense of loss overcomes you as your divine grace washes away.</span>
 			<<set $trauma to $traumamax>>
