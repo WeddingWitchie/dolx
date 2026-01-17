@@ -165,6 +165,17 @@
 <</widget>>
 
 <<widget "master-audio-update">>
+	<<if $voiceoverActive is undefined>>
+		<<set $voiceoverActive to "f">>
+			<<set $voiceoverActiveSince to 0>>
+	<</if>>
+	<<if $voiceoverActiveSince is undefined>>
+		<<set $voiceoverActiveSince to 0>>
+	<</if>>
+	<<if $voiceoverActive is "t" and $voiceoverActiveSince gt 0 and (Date.now() - $voiceoverActiveSince) > 8000>>
+		<<set $voiceoverActive to "f">>
+		<<set $voiceoverActiveSince to 0>>
+	<</if>>
 	<<if $options.muteonhide>>
 		<<masteraudio muteonhide>>
 	<<else>>
@@ -308,9 +319,10 @@
 			<<playlist setup.bgvCurrentPlaylist fadeout>>
 			<<set setup.bgvCurrentPlaylist to "none">>
 		<</if>>
+		<<set $voiceoverActiveSince to Date.now()>>
 		<<set $voiceoverActive to "t">>
 
-		<<timed 3000ms>>
+		<<timed 2000ms>>
 			/* Play the voiceover */
 			<<set _VOList to _args[0]>>
 			<<audio _VOList[random(0,_args[0].length-1)] play volume $options.voice_volume>>
@@ -322,8 +334,11 @@
 
 			<<set $voiceoverActive to "f">>
 			
-			/* Wait 6 seconds and then resume the BGV */
-			<<next 6s>>
+			/* Wait 1.5 seconds and then resume the BGV */
+			<<next 1500ms>>
+				<<set _voicePostureIsFemale to $player.gender_posture is "f" or ($player.sex is "f" and $player.gender_posture is "n")>>
+				<<set _voicePostureIsMale to $player.gender_posture is "m" or ($player.sex is "m" and $player.gender_posture is "n")>>
+				<<set _penetration to ["penetrated", "doublepenetrated", "tentacle", "tentacledeep"]>>
 				/* <<playlist setup.bgvCurrentPlaylist volume 0 >> */
 				/* <<arousal-voice "override">> */
 				<<if ($options.postureAffectsVoice and _voicePostureIsFemale) or (!$options.postureAffectsVoice and $player.sex is "f")>>
@@ -337,8 +352,8 @@
 				<<elseif ($options.postureAffectsVoice and _voicePostureIsMale) or (!$options.postureAffectsVoice and $player.sex is "m")>>
 					<<arousal-voice "override">>
 				<</if>>
-
 		<</timed>>
+
 		<<elseif ($options.audio is 1 and $options.voiceoverAudio is 1) and (_args[1] is "npc_f" or _args[1] is "npc_m")>>
 		<<set _VOList to _args[0]>>
 		<<set _npc_volume to _args[1] is "npc_f"? 1 : 0.8>>
@@ -439,8 +454,13 @@
 	<<set _voicePostureIsFemale to $player.gender_posture is "f" or ($player.sex is "f" and $player.gender_posture is "n")>>
 	<<set _voicePostureIsMale to $player.gender_posture is "m" or ($player.sex is "m" and $player.gender_posture is "n")>>
 
+	/* Local rub detection so this widget is safe to call from anywhere */
+	<<set _penisRubbingLocal to ["otherhand", "othermouth", "tentacle"]>>
+	<<set _rubbingLocal to ["otherhand", "othermouth", "othervagina"]>>
+	<<set _beingRubbedLocal to _rubbingLocal.includes($vaginastate) or _rubbingLocal.includes($anusstate) or _penisRubbingLocal.includes($penisstate) or $fingersInVagina gte 1>>
+
 	<<if ($options.postureAffectsVoice and _voicePostureIsFemale) or (!$options.postureAffectsVoice and $player.sex is "f")>>
-		<<if $pleasure gte $pleasuremax * 0.8 and _beingRubbed>>
+		<<if $pleasure gte $pleasuremax * 0.8 and _beingRubbedLocal>>
 			<<bgv "breath_fast" _args[0]>>
 		<<elseif $pleasure gte $pleasuremax * 0.6 or $orgasmcurrent gte 1>>
 			<<bgv "breath" _args[0]>>
