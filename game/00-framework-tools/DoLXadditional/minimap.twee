@@ -3,7 +3,6 @@
 <<widget "hawkhunting_map">>
 	<<silently>>
 		<<set _inHunt to ($bird isnot undefined and $bird.hunts isnot undefined)>>
-
 		<<set _playerN to (_inHunt ? $bird.hunts.distanceNorth : 0)>>
 		<<set _playerE to (_inHunt ? $bird.hunts.distanceEast  : 0)>>
 
@@ -22,7 +21,6 @@
 			<div class="hawkmap-label hawkmap-s">S</div>
 			<div class="hawkmap-label hawkmap-e">E</div>
 			<div class="hawkmap-label hawkmap-w">W</div>
-
 			<div class="hawkmap-grid hawkmap-grid-11">
 				<<for _n to _mapSize; _n gte -_mapSize; _n-->>
 					<<for _e to -_mapSize; _e lte _mapSize; _e++>>
@@ -48,11 +46,58 @@
 				<</for>>
 			</div>
 		</div>
-
 		<div class="hawkmap-coords">
 			N <span class="hawkmap-mono"><<print _playerN>></span> /
 			E <span class="hawkmap-mono"><<print _playerE>></span>
 		</div>
 	</div>
 	<</if>>
+<</widget>>
+
+<<widget "catacombs_map">>
+	<<silently>>
+		/* DoLX: passage() is a string */
+		<<set _p to passage().toLowerCase()>>
+		<<set _loc to _p.replace(/^catacombs/i,"").trim()>>
+		<<if _loc is "">><<set _loc to "catacombs">><</if>>
+
+		/* loc -> "x-y" */
+		<<set _loc2coord to {
+			"compound":"6-0","statues":"6-1","museum":"6-2","engravings":"6-3",
+			"ridge":"0-4","prison":"1-4","catacombs":"2-4","sarcophagi":"3-4","chasm":"4-4","bores coax":"5-4","bores":"6-4",
+			"mud climb":"0-5","stalagmites climb":"6-5",
+			"ridge climb":"0-6","mud":"1-6","masonry":"2-6","barrow":"3-6","stream":"4-6","stalagmites":"5-6","bores climb":"6-6"
+		}>>
+
+		<<set _playerKey to _loc2coord[_loc]>>
+
+		/* active cells = real layout (no colors, just presence) */
+		<<set _active to {
+			"6-0":1,"6-1":1,"6-2":1,"6-3":1,
+			"0-4":1,"1-4":1,"2-4":1,"3-4":1,"4-4":1,"5-4":1,"6-4":1,
+			"0-5":1,"6-5":1,
+			"0-6":1,"1-6":1,"2-6":1,"3-6":1,"4-6":1,"5-6":1,"6-6":1
+		}>>
+	<</silently>>
+
+	<div class="catmap-wrap">
+		<div class="catmap-grid">
+			<<for _y to 0; _y lt 7; _y++>>
+				<<for _x to 0; _x lt 7; _x++>>
+					<<capture _x _y>>
+						<<set _key to _x + '-' + _y>>
+						<<set _isActive to (_active[_key] isnot undefined)>>
+						<<set _cls to "catmap-cell">>
+						<<if _isActive>><<set _cls += " catmap-active">><</if>>
+						<<if !_isActive>><<set _cls += " catmap-void">><</if>>
+						<div @class="_cls">
+							<<if _playerKey and _key is _playerKey>>
+								<span class="catmap-you">YOU</span>
+							<</if>>
+						</div>
+					<</capture>>
+				<</for>>
+			<</for>>
+		</div>
+	</div>
 <</widget>>
