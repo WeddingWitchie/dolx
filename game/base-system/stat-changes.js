@@ -1000,7 +1000,7 @@ const statChange = (() => {
 		if (isNaN(amount)) paramError("prof", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 		if (amount) {
-			V.prof[skill] = Math.clamp((V.prof[skill] || 0) + amount * 5, 0, 1000);
+			V.prof[skill] = Math.clamp((V.prof[skill] || 0) + amount * 5 * (V.statGainMult / 100), 0, 1000);
 		}
 	}
 	DefineMacro("prof", prof);

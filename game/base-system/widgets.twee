@@ -5964,6 +5964,139 @@
 <</widget>>
 
 <<widget "tfcheck">>
+
+/* Seraphim detection (safe) */
+<<set _seraphimWingsVisible to false>>
+<<if $transformationParts isnot undefined and $transformationParts.seraphim isnot undefined>>
+	<<set _seraphimWingsVisible to (
+		$transformationParts.seraphim.wings isnot "hidden"
+		and $transformationParts.seraphim.wings isnot "disabled"
+	)>>
+<</if>>
+/* Initialize backup storage once */
+<<if $seraphimBackup is undefined>>
+	<<set $seraphimBackup to {
+		active: false,
+		harpy: 0,
+		birdbuild: 0,
+		angel: 0,
+		angelbuild: 0,
+		specialTransform: 0
+	}>>
+<</if>>
+/* Transition: OFF -> ON (store old values, then enforce) */
+<<if _seraphimWingsVisible and $seraphimBackup.active isnot true>>
+	<<set $seraphimBackup.active to true>>
+	<<set $seraphimBackup.harpy to $harpy>>
+	<<set $seraphimBackup.birdbuild to $birdbuild>>
+	<<set $seraphimBackup.angel to $angel>>
+	<<set $seraphimBackup.angelbuild to $angelbuild>>
+	<<set $seraphimBackup.specialTransform to $specialTransform>>
+	<<set $harpy to Math.max($harpy, 6)>>
+	<<set $birdbuild to Math.max($birdbuild, 100)>>
+	<<set $angel to Math.max($angel, 6)>>
+	<<set $angelbuild to Math.max($angelbuild, 50)>>
+	<<set $specialTransform to 1>>
+<</if>>
+/* Transition: ON -> OFF (restore) */
+<<if !_seraphimWingsVisible and $seraphimBackup.active is true>>
+	<<set $harpy to $seraphimBackup.harpy>>
+	<<set $birdbuild to $seraphimBackup.birdbuild>>
+	<<set $angel to $seraphimBackup.angel>>
+	<<set $angelbuild to $seraphimBackup.angelbuild>>
+	<<set $specialTransform to $seraphimBackup.specialTransform>>
+	<<set $seraphimBackup.active to false>>
+<</if>>
+
+/* Kitsune detection (safe) */
+<<set _kitsuneTailVisible to false>>
+<<if $transformationParts isnot undefined and $transformationParts.kitsune isnot undefined>>
+	<<set _kitsuneTailVisible to (
+		$transformationParts.kitsune.tail isnot "hidden"
+		and $transformationParts.kitsune.tail isnot "disabled"
+	)>>
+<</if>>
+/* Initialize Kitsune backup once */
+<<if $kitsuneBackup is undefined>>
+	<<set $kitsuneBackup to {
+		active: false,
+		fox: 0,
+		foxbuild: 0,
+		angel: 0,
+		angelbuild: 0,
+		specialTransform: 0
+	}>>
+<</if>>
+/* Transition OFF -> ON */
+<<if _kitsuneTailVisible and $kitsuneBackup.active isnot true>>
+	<<set $kitsuneBackup.active to true>>
+	<<set $kitsuneBackup.fox to $fox>>
+	<<set $kitsuneBackup.foxbuild to $foxbuild>>
+	<<set $kitsuneBackup.angel to $angel>>
+	<<set $kitsuneBackup.angelbuild to $angelbuild>>
+	<<set $kitsuneBackup.specialTransform to $specialTransform>>
+	/* Kitsune = Fox + Angel mechanics */
+	<<set $fox to Math.max($fox, 6)>>
+	<<set $foxbuild to Math.max($foxbuild, 100)>>
+	<<set $angel to Math.max($angel, 6)>>
+	<<set $angelbuild to Math.max($angelbuild, 50)>>
+	<<set $specialTransform to 1>>
+<</if>>
+/* Transition ON -> OFF */
+<<if !_kitsuneTailVisible and $kitsuneBackup.active is true>>
+	<<set $fox to $kitsuneBackup.fox>>
+	<<set $foxbuild to $kitsuneBackup.foxbuild>>
+	<<set $angel to $kitsuneBackup.angel>>
+	<<set $angelbuild to $kitsuneBackup.angelbuild>>
+	<<set $specialTransform to $kitsuneBackup.specialTransform>>
+	<<set $kitsuneBackup.active to false>>
+<</if>>
+
+/* Okami detection (safe) */
+<<set _okamiMiscVisible to false>>
+<<if $transformationParts isnot undefined and $transformationParts.okami isnot undefined>>
+	<<set _okamiMiscVisible to (
+		$transformationParts.okami.misc isnot "hidden"
+		and $transformationParts.okami.misc isnot "disabled"
+	)>>
+<</if>>
+/* Initialize Okami backup once */
+<<if $okamiBackup is undefined>>
+	<<set $okamiBackup to {
+		active: false,
+		wolfgirl: 0,
+		wolfbuild: 0,
+		angel: 0,
+		angelbuild: 0,
+		specialTransform: 0
+	}>>
+<</if>>
+/* Transition OFF -> ON */
+<<if _okamiMiscVisible and $okamiBackup.active isnot true>>
+	<<set $okamiBackup.active to true>>
+	<<set $okamiBackup.wolfgirl to $wolfgirl>>
+	<<set $okamiBackup.wolfbuild to $wolfbuild>>
+	<<set $okamiBackup.angel to $angel>>
+	<<set $okamiBackup.angelbuild to $angelbuild>>
+	<<set $okamiBackup.specialTransform to $specialTransform>>
+	/* Okami = Wolf + Angel mechanics */
+	<<set $wolfgirl to Math.max($wolfgirl, 6)>>
+	<<set $wolfbuild to Math.max($wolfbuild, 100)>>
+	<<set $angel to Math.max($angel, 6)>>
+	<<set $angelbuild to Math.max($angelbuild, 50)>>
+	<<set $specialTransform to 1>>
+<</if>>
+/* Transition ON -> OFF */
+<<if !_okamiMiscVisible and $okamiBackup.active is true>>
+	<<set $wolfgirl to $okamiBackup.wolfgirl>>
+	<<set $wolfbuild to $okamiBackup.wolfbuild>>
+	<<set $angel to $okamiBackup.angel>>
+	<<set $angelbuild to $okamiBackup.angelbuild>>
+	<<set $specialTransform to $okamiBackup.specialTransform>>
+	<<set $okamiBackup.active to false>>
+<</if>>
+
+
 	<<if ($fallenangel gte 2 or ($transformationParts.fallenAngel.wings isnot "hidden" and $transformationParts.fallenAngel.wings isnot "disabled"))>>
 		<<set $fallenangeltf to 1>>
 	<</if>>
