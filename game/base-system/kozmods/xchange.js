@@ -202,14 +202,68 @@ function pleasure(amount, source) {
 		let pleasureChange = amount * (amount > 0? mod : 1) * (amount > 0? Weather.BodyTemperature.arousalModifier : 1);
 		V.pleasure += pleasureChange;
 
-		// Prevent orgasming unless addictions are fulfilled (or you don't have them)
-		if ( ( V.penis_addict_trait !== 1 || penisAddictionFulfilled ) && ( V.hole_addict_trait !== 1 || holeAddictionFulfilled ) ) {
-			// Do Nothing
+		// Prevent orgasming unless addictions are fulfilled
+		const addictionsUnmet =
+			(V.penis_addict_trait === 1 && !penisAddictionFulfilled) ||
+			(V.hole_addict_trait === 1 && !holeAddictionFulfilled);
+
+		// toy detection (does NOT break if the selected toy index is 0)
+		const usingSexToy = (() => {
+			// If already set a flag elsewhere, respect it
+			if (V.usingSexToy) return true;
+
+			// Masturbation toy selectors (0 is a valid selection!)
+			const slots = ["Left", "Right", "Mouth", "Vagina", "Anus"];
+			for (const s of slots) {
+				const v = V["currentToy" + s];
+				if (v !== undefined && v !== null && v !== "none") return true;
+			}
+
+			// Fallback: worn items sometimes include plugs/vibes by name
+			const names = [];
+			try {
+				if (V.worn?.genitals?.name) names.push(V.worn.genitals.name);
+				if (V.worn?.under_lower?.name) names.push(V.worn.under_lower.name);
+				if (V.worn?.lower?.name) names.push(V.worn.lower.name);
+			} catch (e) {}
+
+			return names.some(n => /plug|buttplug|vibe|vibrator|bullet/i.test(String(n)));
+		})();
+
+		if (!addictionsUnmet) {
+			// Do nothing
 		} else {
-			V.pleasure = Math.clamp(V.pleasure, 0, V.pleasuremax * 4/5 - 1);
-			if (V.pleasure === V.pleasuremax * 4/5 - 1) {
+			const cap = V.pleasuremax * 4 / 5 - 1;
+
+			// Keep the message behavior
+			const showBlockedMsg = () => {
 				V.effectsmessage = 1;
 				V.sexual_addiction_message = 1;
+			};
+
+			if (usingSexToy) {
+				// Soft gate for toys:
+				// - clamp to cap
+				// - when capped, sometimes force a "breakthrough" to orgasm
+				if (V.pleasure > cap) V.pleasure = cap;
+
+				if (V.pleasure >= cap) {
+					showBlockedMsg();
+
+					// Chance per check to allow orgasm once you reach the cap
+					// Tune: 5-10 = hard, 15-25 = medium, 30+ = easy
+					const breakthroughChance = 20;
+					const roll = Math.floor(Math.random() * 100) + 1;
+
+					if (roll <= breakthroughChance) {
+						// Let the normal orgasm check happen this tick
+						V.pleasure = V.pleasuremax;
+					}
+				}
+			} else {
+				// Original hard block for non-toy situations
+				V.pleasure = Math.clamp(V.pleasure, 0, cap);
+				if (V.pleasure === cap) showBlockedMsg();
 			}
 		}
 
