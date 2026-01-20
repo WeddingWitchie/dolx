@@ -939,39 +939,126 @@ function selectWardrobe(targetLocation = V.wardrobe_location, type) {
 }
 window.selectWardrobe = selectWardrobe;
 
-function transferClothing(slot, index, oldWardrobe, newWardrobe) {
-	// Ensure wardrobes container exists
+function transferClothing(slot, index, oldWardrobe, newWardrobe, _opts) {
+	// opts: internal recursion guard
+	const opts = _opts || { moveLinkedPieces: true };
+
 	if (!V.wardrobes) V.wardrobes = {};
 
-	// Resolve "wardrobe" vs location wardrobes
 	function resolveWardrobe(key) {
 		const k = key || V.wardrobe_location;
 		if (k === "wardrobe") return V.wardrobe;
-
-		// Create the wardrobe location if missing (e.g. "inventory")
 		if (!V.wardrobes[k]) V.wardrobes[k] = {};
 		return V.wardrobes[k];
 	}
 
-	const oldWardrobeObject = resolveWardrobe(oldWardrobe);
-	const newWardrobeObject = resolveWardrobe(newWardrobe);
+	const oldW = resolveWardrobe(oldWardrobe);
+	const newW = resolveWardrobe(newWardrobe);
 
-	// Guard: missing slot or item
-	if (!oldWardrobeObject || !oldWardrobeObject[slot] || oldWardrobeObject[slot][index] == null) return;
+	if (!oldW || !oldW[slot] || oldW[slot][index] == null) return;
+	if (!Array.isArray(newW[slot])) newW[slot] = [];
 
-	// Ensure destination slot is an array
-	if (!Array.isArray(newWardrobeObject[slot])) newWardrobeObject[slot] = [];
+	// Keep a reference so we can re-find it if indices shift
+	const primary = oldW[slot][index];
 
-	// Move item
-	newWardrobeObject[slot].push(oldWardrobeObject[slot][index]);
+	// Helper: get outfitSecondary with fallback to setup.clothes (if available)
+	function getOutfitSecondary(s, item) {
+		if (item && item.outfitSecondary) return item.outfitSecondary;
+		try {
+			if (typeof setup !== "undefined" && setup.clothes && typeof clothesIndex === "function") {
+				const data = setup.clothes[s] && setup.clothes[s][clothesIndex(s, item)];
+				return data && data.outfitSecondary;
+			}
+		} catch (e) {}
+		return undefined;
+	}
+
+	// Helper: base name fallback (important if item.name got weird)
+	function getBaseName(s, item) {
+		try {
+			if (typeof setup !== "undefined" && setup.clothes && typeof clothesIndex === "function") {
+				const data = setup.clothes[s] && setup.clothes[s][clothesIndex(s, item)];
+				if (data && data.name) return data.name;
+			}
+		} catch (e) {}
+		return item && item.name;
+	}
+
+	// Helper: tolerant matching for custom colours/accessories/patterns
+	function sameColour(a, b) {
+		if (!a || !b) return false;
+		if (a.colour !== b.colour) return false;
+		if (a.colour === "custom" && a.colourCustom !== b.colourCustom) return false;
+		return true;
+	}
+	function sameAccessoryColour(a, b) {
+		if (!a || !b) return false;
+		// If either has no accessory, don't require accessory match
+		if (!a.accessory || a.accessory === 0 || !b.accessory || b.accessory === 0) return true;
+		if (a.accessory_colour !== b.accessory_colour) return false;
+		if (a.accessory_colour === "custom" && a.accessory_colourCustom !== b.accessory_colourCustom) return false;
+		return true;
+	}
+	function samePattern(a, b) {
+		if (!a || !b) return false;
+		// Only enforce if both have meaningful patterns
+		if (!a.pattern || a.pattern === 0 || !b.pattern || b.pattern === 0) return true;
+		return a.pattern === b.pattern;
+	}
+
+	// Move linked outfit pieces FIRST (so we don't strand them)
+	if (opts.moveLinkedPieces) {
+		const primaryName = getBaseName(slot, primary);
+
+		// Collect matches as [slotKey, idx] and delete from the end to avoid index shifting
+		const toMove = [];
+
+		for (const s of Object.keys(oldW)) {
+			const arr = oldW[s];
+			if (!Array.isArray(arr)) continue;
+
+			for (let i = arr.length - 1; i >= 0; i--) {
+				const it = arr[i];
+				if (!it) continue;
+				// skip the primary itself (by reference)
+				if (it === primary) continue;
+
+				const sec = getOutfitSecondary(s, it);
+				if (!sec || !sec[1]) continue;
+				// ignore detached/broken links
+				if (sec[1] === "broken" || sec[1] === "split") continue;
+
+				// Does this piece point to the primary?
+				if (sec[1] !== primaryName && sec[1] !== primary.name) continue;
+
+				// Match appearance so we don't grab wrong pieces
+				if (!sameColour(it, primary)) continue;
+				if (!sameAccessoryColour(it, primary)) continue;
+				if (!samePattern(it, primary)) continue;
+
+				toMove.push([s, i]);
+			}
+		}
+
+		// Move those pieces (recursion with guard)
+		for (const [s, i] of toMove) {
+			transferClothing(s, i, oldWardrobe, newWardrobe, { moveLinkedPieces: false });
+		}
+
+		// Re-find primary index in case something shifted
+		const newIndex = oldW[slot] ? oldW[slot].indexOf(primary) : -1;
+		if (newIndex === -1) return;
+		index = newIndex;
+	}
+
+	// Move primary
+	newW[slot].push(oldW[slot][index]);
 
 	// Remove from old wardrobe
-	if (typeof oldWardrobeObject[slot].deleteAt === "function") {
-		oldWardrobeObject[slot].deleteAt(index);
-	} else {
-		oldWardrobeObject[slot].splice(index, 1);
-	}
+	if (typeof oldW[slot].deleteAt === "function") oldW[slot].deleteAt(index);
+	else oldW[slot].splice(index, 1);
 }
+
 window.transferClothing = transferClothing;
 
 function clothingData(slot, item, data) {
