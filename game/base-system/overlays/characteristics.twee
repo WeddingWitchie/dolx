@@ -4,7 +4,6 @@
 	<<set _seraphimActive to false>>
 	<<set _kitsuneActive to false>>
 	<<set _okamiActive to false>>
-
 	<<if $transformationParts isnot undefined>>
 		<<if $transformationParts.seraphim isnot undefined>>
 			<<set _seraphimActive to ($transformationParts.seraphim.wings isnot "hidden" and $transformationParts.seraphim.wings isnot "disabled")>>
@@ -17,10 +16,38 @@
 		<</if>>
 	<</if>>
 
+	/* --- Xenos detection (3+ TF types incl. animal + non-animal) --- */
+	<<set _hasAngel to ($angel gte 6 or ($transformationParts.angel.wings isnot "hidden" and $transformationParts.angel.wings isnot "disabled"))>>
+	<<set _hasFallen to ($fallenangel gte 2 or ($transformationParts.fallenAngel.wings isnot "hidden" and $transformationParts.fallenAngel.wings isnot "disabled"))>>
+	<<set _hasDemon to ($demon gte 6 or ($transformationParts.demon.wings isnot "hidden" and $transformationParts.demon.wings isnot "disabled"))>>
+	<<set _hasWolf to ($wolfgirl gte 6 or ($transformationParts.wolf.tail isnot "hidden" and $transformationParts.wolf.tail isnot "disabled"))>>
+	<<set _hasCat  to ($cat gte 6 or ($transformationParts.cat.tail isnot "hidden" and $transformationParts.cat.tail isnot "disabled"))>>
+	<<set _hasCow  to ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>>
+	<<set _hasHarpy to ($harpy gte 6 or ($transformationParts.bird.wings isnot "hidden" and $transformationParts.bird.wings isnot "disabled"))>>
+	<<set _hasFox  to ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled"))>>
+	<<set _hasBunny to ($bunny gte 6 or ($transformationParts.bunny.tail isnot "hidden" and $transformationParts.bunny.tail isnot "disabled"))>>
+	<<set _hasBear to ($bear gte 6 or ($transformationParts.bear.tail isnot "hidden" and $transformationParts.bear.tail isnot "disabled"))>>
+	<<set _nonAnimalCount to 0>>
+	<<if _hasAngel>><<set _nonAnimalCount += 1>><</if>>
+	<<if _hasFallen>><<set _nonAnimalCount += 1>><</if>>
+	<<if _hasDemon>><<set _nonAnimalCount += 1>><</if>>
+	<<set _animalCount to 0>>
+	<<if _hasWolf>><<set _animalCount += 1>><</if>>
+	<<if _hasCat>><<set _animalCount += 1>><</if>>
+	<<if _hasCow>><<set _animalCount += 1>><</if>>
+	<<if _hasHarpy>><<set _animalCount += 1>><</if>>
+	<<if _hasFox>><<set _animalCount += 1>><</if>>
+	<<if _hasBunny>><<set _animalCount += 1>><</if>>
+	<<if _hasBear>><<set _animalCount += 1>><</if>>
+	<<set _isXenos to (_animalCount gte 1 and _nonAnimalCount gte 1 and (_animalCount + _nonAnimalCount) gte 3)>>
+	/* --- End Xenos detection --- */
+
 	<br>
 	You are 
 	<<if $wraithSkin>>
 		a spirit
+	<<elseif _isXenos>>
+		a xenos
 	<<elseif _seraphimActive and $angel gte 6 and $harpy gte 6>>
 		a seraphim
 	<<elseif _kitsuneActive and ($angel gte 6 or ($transformationParts.angel.wings isnot "hidden" and $transformationParts.angel.wings isnot "disabled")) and ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled"))>>
@@ -87,22 +114,26 @@
 			a<<if $player.gender is "n">>n<</if>>
 		<</if>>
 	<</if>>
-	<<if $xchange.pill.active>>
-		<<if $xchange.pill.hermEffect>>
-			<<pcGender>> transformed into a herm.
-		<<elseif $xchange.pill.genderflipEffect and !preferredPronouns($player.sex)>>
-			<<pcGender>> transformed into a <<=$player.gender is "m" ? "girl" : "boy">>.
-		<<elseif $xchange.pill.genderificationEffect>>
-			<<if $player.gender is "m">>
-				<<pcGender>> that has been sissified.
-			<<else>>
-				<<pcGender>> that has been butchified.
-			<</if>>
-		<<else>>
-			<<pcGender>>.
-		<</if>>
-	<<else>>
+
+	<<if !$xchange.pill.active>>
 		<<pcGender>>.
+	<<else>>
+		<<pcGender>>
+		<<set _pillBits to []>>
+		<<if $xchange.pill.hermEffect>>
+			<<run _pillBits.push("transformed into a herm")>>
+		<</if>>
+		<<if $xchange.pill.genderflipEffect and !preferredPronouns($player.sex)>>
+			<<run _pillBits.push("transformed into a " + ($player.gender is "m" ? "girl" : "boy"))>>
+		<</if>>
+		<<if $xchange.pill.genderificationEffect>>
+			<<run _pillBits.push(($player.gender is "m") ? "that has been sissified" : "that has been butchified")>>
+		<</if>>
+		<<if _pillBits.length > 0>>
+			<<print " " + _pillBits.join(" and ") + ".">>
+		<<else>>
+		  
+		<</if>>
 	<</if>>
 	<br><br>
 
