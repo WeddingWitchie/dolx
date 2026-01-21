@@ -322,10 +322,21 @@
 		<<set $voiceoverActiveSince to Date.now()>>
 		<<set $voiceoverActive to "t">>
 
-		<<timed 2000ms>>
-			/* Play the voiceover */
-			<<set _VOList to _args[0]>>
-			<<audio _VOList[random(0,_args[0].length-1)] play volume $options.voice_volume>>
+		<<timed 3000ms>>
+			/* Play the voiceover (dedupe) */
+			<<set _nowVO to Date.now()>>
+			<<if $lastPlayerVoiceoverPlayAt is undefined>><<set $lastPlayerVoiceoverPlayAt to 0>><</if>>
+			<<if $lastPlayerVoiceoverOrgasmcurrent is undefined>><<set $lastPlayerVoiceoverOrgasmcurrent to -1>><</if>>
+
+			<<set _dupeVO to ((_nowVO - $lastPlayerVoiceoverPlayAt lt 1500) or (($orgasmcurrent is $lastPlayerVoiceoverOrgasmcurrent) and (_nowVO - $lastPlayerVoiceoverPlayAt lt 8000)))>>
+
+			<<if _dupeVO is false>>
+				<<set $lastPlayerVoiceoverPlayAt to _nowVO>>
+				<<set $lastPlayerVoiceoverOrgasmcurrent to $orgasmcurrent>>
+				<<set _VOList to _args[0]>>
+				<<set _clip to _VOList[random(0,_VOList.length-1)]>>
+				<<audio _clip play volume $options.voice_volume>>
+			<</if>>
 			
 			<<if $fingersInVagina gte 1 and setup.bgsCurrentPlaylist isnot "none">>
 				<<playlist setup.bgsCurrentPlaylist fadeout>>
@@ -334,8 +345,8 @@
 
 			<<set $voiceoverActive to "f">>
 			
-			/* Wait 1.5 seconds and then resume the BGV */
-			<<next 1500ms>>
+			/* Wait 6 seconds and then resume the BGV */
+			<<next 6s>>
 				<<set _voicePostureIsFemale to $player.gender_posture is "f" or ($player.sex is "f" and $player.gender_posture is "n")>>
 				<<set _voicePostureIsMale to $player.gender_posture is "m" or ($player.sex is "m" and $player.gender_posture is "n")>>
 				<<set _penetration to ["penetrated", "doublepenetrated", "tentacle", "tentacledeep"]>>
@@ -493,6 +504,15 @@
 	<<set _voicePostureIsMale to $player.gender_posture is "m" or ($player.sex is "m" and $player.gender_posture is "n")>>
 	<<set _penetration to ["penetrated", "doublepenetrated", "tentacle", "tentacledeep"]>>
 	<<if _args[0] is undefined>>
+		/* Play player orgasm voice once per orgasm (blocks double-trigger) */
+		<<set _now to Date.now()>>
+		<<if $lastPlayerOrgasmVoiceAt is undefined>><<set $lastPlayerOrgasmVoiceAt to 0>><</if>>
+		<<if $lastPlayerOrgasmVoiceOrgasmcurrent is undefined>><<set $lastPlayerOrgasmVoiceOrgasmcurrent to -1>><</if>>
+		<<set _isDupe to ($orgasmcurrent is $lastPlayerOrgasmVoiceOrgasmcurrent) and (_now - $lastPlayerOrgasmVoiceAt lt 8000)>>
+		<<if _isDupe is false>>
+			<<set $lastPlayerOrgasmVoiceAt to _now>>
+			<<set $lastPlayerOrgasmVoiceOrgasmcurrent to $orgasmcurrent>>
+
 		<<if ($options.postureAffectsVoice and _voicePostureIsFemale) or (!$options.postureAffectsVoice and $player.sex is "f")>>
 			<<set _prefix to "">>
 			<<set _prefix += $options.f_voice + "_">>
@@ -517,6 +537,8 @@
 			<<voiceover setup.playlists.m_orgasm>>
 			<<ejaculation-sound>>
 		<</if>>
+		<</if>>
+
 	<<else>>
 		<<if _args[0] is "npc_f">>
 			<<init-playlist "npc_f">>
