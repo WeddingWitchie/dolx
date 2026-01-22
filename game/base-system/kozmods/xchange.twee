@@ -2881,15 +2881,55 @@
 		<<if _args[0] isnot undefined>>
 			<<set _mod to _args[0]>>
 
-			/* If no custom message was passed, add a default for Pregnancy dysphoria gains */
-			<<if (_args[1] is undefined or (typeof _args[1] is "string" and _args[1].trim().length is 0))
-				and $identityTopic is "Pregnancy"
-				and _mod gt 0>>
-				<<set $dysphoriaReasonMessage to "You recoil at the thought and possibility of pregnancy.">>
-			<</if>>
-			
 			<<if $identityOption>>
 				<<if (!$identityOption.acceptance or $identityOption.reject) and _mod gt 0>>
+
+				/* Reason message (optional override via _args[1]) */
+				<<set _reason to (typeof _args[1] is "string") ? _args[1].trim() : "">>
+				/* Default reasons (only if no custom string was passed) */
+				<<if _reason is "">>
+					<<switch $identityTopic>>
+						<<case "Pregnancy">>
+							<<set _reason to "You recoil at the thought and possibility of pregnancy.">>
+						<<case "Lactation">>
+							<<set _reason to "You recoil at the thought and possibility of lactating.">>
+						<<case "Masculine Appearance">>
+							<<set _reason to "Catching yourself looking masculine makes your stomach twist.">>
+						<<case "Feminine Appearance">>
+							<<set _reason to "Catching yourself looking feminine makes your stomach twist.">>
+						<<case "Vagina">>
+							<<set _reason to "Being reminded you have a vagina disgusts you.">>
+						<<case "Small Penis">>
+							<<set _reason to "Being reminded you have a small penis disgusts you.">>
+						<<case "Medium Penis">>
+							<<set _reason to "Being reminded you have an average penis disgusts you.">>
+						<<case "Big Penis">>
+							<<set _reason to "Being reminded you have a big penis disgusts you.">>
+						<<case "Masculine Pronouns" "Feminine Pronouns" "Neutral Pronouns">>
+							<<set _reason to "Someone refers to you with wrong pronouns. It makes your skin crawl.">>
+						<<case "Masculine Clothing" "Feminine Clothing">>
+							<<set _reason to "The fabric and silhouette cling in all the wrong ways, making you painfully aware of yourself.">>
+						<<case "Flat Breasts">>
+							<<set _reason to "Your chest looks empty in a way that leaves a sharp ache.">>
+						<<case "Small Breasts">>
+							<<set _reason to "Your chest looks not enough in a way that leaves a sharp ache.">>
+						<<case "Medium Breasts">>
+							<<set _reason to "Your chest looks average in a way that leaves a sharp ache.">>
+						<<case "Big Breasts">>
+							<<set _reason to "Your chest looks big in a way that leaves a sharp ache.">>
+						<<case "Short Hair" "Medium Hair" "Long Hair">>
+							<<set _reason to "The length of your hair makes you feel trapped in the wrong image.">>
+						<<case "Tiny Body" "Small Body" "Normal Body" "Large Body">>
+							<<set _reason to "Your body size doesn't match the space you want to take up, it sits wrong in your gut.">>
+						<<case "Small Ass" "Medium Ass" "Big Ass">>
+							<<set _reason to "Your ass size doesn't feels right and maddeningly hard to ignore.">>
+					<</switch>>
+				<</if>>
+				/* Store it for the UI (works for both custom and default) */
+				<<if _reason isnot "">>
+					<<set $dysphoriaReasonMessage to _reason>>
+				<</if>>
+				
 					<<set $effectsmessage to 1>>
 					<<set $dysphoriaMessage to true>>
 					<<set $identityOption.dysphoria to $identityOption.dysphoria + _mod>>
@@ -3129,7 +3169,7 @@
 		<<identitySelector "Pregnancy">>
 		<<if $identityOption and playerAwareTheyCanBePregnant()  and _bodyparts.includes("vagina") and _liquids.includesAny("cum", "semen") and _amount gte 1>>
 			<<if (!$identityOption.acceptance or $identityOption.reject)>>
-				<<dysphoria 10 "You recoil at the possibility of pregnancy from that sex.">>
+				<<dysphoria 10>>
 			<</if>>
 			<<if $identityPreference>>
 				<<stress -10>><<trauma -10>>

@@ -433,7 +433,7 @@ function playerHasCharacteristic(characteristic) {
 		case "Masculine Pronouns":
 			return V.identity.presentation.pronouns.masculine.misgendered;
 		case "Feminine Pronouns":
-			return V.identity.presentation.pronouns.masculine.misgendered;
+			return V.identity.presentation.pronouns.feminine.misgendered;
 		case "Neutral Pronouns":
 			return V.identity.presentation.pronouns.neutral.misgendered;
 		case "Flat Chest":
@@ -521,7 +521,6 @@ function getFemininityContribution(characteristic) {
 			femininity += Number(V.identity.presentation.pronouns.feminine.acceptance) * 100;
 			femininity += Number(V.identity.presentation.pronouns.feminine.reject) * -100;
 			femininity += (V.identity.presentation.pronouns.preferred === "f") * 100;
-			console.log(femininity);
 			break;
 		case "Neutral Pronouns":
 			femininity += Number(V.identity.presentation.pronouns.neutral.acceptance) * 0;
@@ -1421,7 +1420,17 @@ function xchangeEffectsMessages() {
 	}
 
 	if (V.dysphoriaReasonMessage) {
-		element("span", V.dysphoriaReasonMessage, "purple"); br();
+		const msgs = Array.isArray(V.dysphoriaReasonMessage)
+			? V.dysphoriaReasonMessage
+			: [V.dysphoriaReasonMessage];
+
+		for (const msg of msgs) {
+			if (typeof msg === "string" && msg.trim().length) {
+				element("span", msg, "purple");
+				br();
+			}
+		}
+
 		delete V.dysphoriaReasonMessage;
 	}
 
