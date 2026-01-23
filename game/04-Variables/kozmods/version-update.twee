@@ -711,6 +711,50 @@ if (typeof window.defined !== "function") {
 <</widget>>
 
 <<widget "xchange-modupdate">>
+<!-- Preflight for vanilla/old saves: ensure expected object shapes exist -->
+<<if $AMCTraits is undefined or $AMCTraits is null or typeof $AMCTraits isnot "object" or Array.isArray($AMCTraits)>>
+	<<set $AMCTraits to {}>>
+	<<run console.warn("DoLX: $AMCTraits missing/invalid (likely vanilla/old save). Initialising defaults.")>>
+<</if>>
+<<set _amcKeys to [
+	"beauty","physique",
+	"seductionskill","oralskill","vaginalskill","analskill","handskill","feetskill","bottomskill","thighskill","chestskill","penileskill",
+	"milk","semen","willpower",
+	"english","maths","science","history",
+	"skulduggery","swimming","dancing","athletics","tending","housekeeping",
+	"brawling","footwork","striking","kicking",
+	"sexFame","prostitutionFame","rapeFame","bestialityFame","exhibitionismFame","pregnancyFame","impregFame","scrapFame","goodFame","businessFame","socialFame","modelFame"
+]>>
+<<for _k range _amcKeys>>
+	<<if $AMCTraits[_k] is undefined>>
+		<<set $AMCTraits[_k] to 1>>
+	<</if>>
+<</for>>
+<<if $background is undefined or $background is null>>
+	<<set $background to {}>>
+<</if>>
+<<if typeof $background is "string">>
+	<<set _bgStr to $background>>
+	<<set $background to {}>>
+	<<set $background.type to _bgStr>>
+	<<set $background.id to _bgStr>>
+	<<run console.warn(`DoLX: Migrated $background from string "${_bgStr}" to object.`)>>
+<</if>>
+<<if $background.genderAnxious is undefined>>
+	<<set $background.genderAnxious to false>>
+<</if>>
+/* combatExtended: clamp reads subfields */
+<<if $combatExtended is undefined or $combatExtended is null or typeof $combatExtended isnot "object">>
+	<<set $combatExtended to {}>>
+<</if>>
+<<set _combatKeys to ["brawling","footwork","striking","kicking"]>>
+<<for _k range _combatKeys>>
+	<<if $combatExtended[_k] is undefined>>
+		<<set $combatExtended[_k] to 0>>
+	<</if>>
+<</for>>
+<!-- end preflight -->
+
 	<<xchange-init>>
 	<<xchange-init2>>
 
@@ -763,11 +807,42 @@ if (typeof window.defined !== "function") {
 	]>>
 
 	<<for _pill range _pills>>
-		<<if $sexStats.pills.pills && $sexStats.pills.pills[_pill] is undefined>>
+		<<if $sexStats and $sexStats.pills and $sexStats.pills.pills and $sexStats.pills.pills[_pill] is undefined>>
 			<<physicalAdjustmentsInit>>
 			<<break>>
 		<</if>>
 	<</for>>
+
+	<!-- Safety guards (prevents hard-crash on migrated/partial saves) -->
+	<<if $xchange is undefined or $xchange is null>>
+		<<set $xchange to {}>>
+	<</if>>
+	<<if $xchange.errorLog is undefined or $xchange.errorLog is null>>
+		<<set $xchange.errorLog to []>>
+	<</if>>
+	<<if $xchange.pill is undefined or $xchange.pill is null>>
+		<<set $xchange.pill to {}>>
+	<</if>>
+	<<if $xchange.pill.originalBody is undefined or $xchange.pill.originalBody is null>>
+		<<set $xchange.pill.originalBody to {}>>
+	<</if>>
+	<<if $xchange.pill.changedBody is undefined or $xchange.pill.changedBody is null>>
+		<<if $xchange.pill.active>>
+			<<run console.warn("X-Change: pill is active but changedBody is missing on load (migration/corruption).")>>
+			<<set $xchange.errorLog.push("Pill was active but changedBody was missing on load. Some effects may be inconsistent; please export/save+report if you see issues.")>>
+		<</if>>
+		<<set $xchange.pill.changedBody to {}>>
+	<</if>>
+	<<if $xchange.backComp is undefined or $xchange.backComp is null>>
+		<<set $xchange.backComp to {}>>
+	<</if>>
+	<<if $xchange.expectedGenderBy is undefined or $xchange.expectedGenderBy is null>>
+		<<set $xchange.expectedGenderBy to {}>>
+	<</if>>
+	<<if $genderknown is undefined or $genderknown is null>>
+		<<set $genderknown to []>>
+	<</if>>
+	<!-- end guards -->
 
 	<<if Object.keys($xchange.pill.changedBody).length gt 0 && $xchange.pill.changedBody.fame is undefined>>
 		<<set $xchange.pill.changedBody.fame to {
@@ -955,7 +1030,7 @@ if (typeof window.defined !== "function") {
 		<<set $portalPantiesEnabled to 1>>
 	<</if>>
 
-	<<if $portalPanties.state.mouth isnot undefined>>
+	<<if $portalPanties and $portalPanties.state and $portalPanties.state.mouth isnot undefined>>
 		<<unset $portalPanties.state.mouth>>
 	<</if>>
 
@@ -980,7 +1055,7 @@ if (typeof window.defined !== "function") {
 	<</if>>
 
 	<<if isNaN($penetratingOrgasmStat)>>
-		<<set $penetratingOrgasmStatOrgasmStat to $orgasmstat / 2>>
+		<<set $penetratingOrgasmStat to $orgasmstat / 2>>
 	<</if>>
 
 	<<master-audio-update>>

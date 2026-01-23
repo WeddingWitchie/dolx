@@ -1200,7 +1200,7 @@ function xchangeEffectsMessages() {
 
 	if (V.hermSaveWarningMessage) {
 		element("span", "WARNING:", "yellow");
-		element("span", "You've just loaded a save file featuring a character of unsupported sex or gender (quite likely a Vanilla herm). You've been forcefully turned into a male to attempt to keep the mod's systems working, but proceeding from here onward is entirely ill-adviced.", "red"); br(); br();
+		element("span", "You've just loaded a save file featuring a character of unsupported sex or gender (quite likely a Vanilla herm). You've been forcefully turned into a male to attempt to keep the mod's systems working, but proceeding from here onward is entirely ill-adviced and if you run into odd behaviour, that is expected.", "red"); br(); br();
 		delete V.hermSaveWarningMessage;
 	}
 

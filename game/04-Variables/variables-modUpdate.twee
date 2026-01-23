@@ -1481,7 +1481,7 @@
 			<</if>>
 			<<if $options.autoNNPCDisplay[_name.toLowerCase()].genderOverride is undefined>>
 				<<set $options.autoNNPCDisplay[_name.toLowerCase()].genderOverride to false>>
-				<<if C.npc[_nameReal].pronoun is "m">>
+				<<if C.npc[_nameReal] and C.npc[_nameReal].pronoun is "m">>
 					<<set $options.autoNNPCDisplay[_name.toLowerCase()].gender to "male">>
 				<<else>>
 					<<set $options.autoNNPCDisplay[_name.toLowerCase()].gender to "female">>
@@ -1512,13 +1512,51 @@
 				<<set _name = "ivory_wraith">>
 			<</if>>
 			<<if $options.autoNNPCDisplay[_name.toLowerCase()].gender is "">>
-				<<if C.npc[_nameReal].pronoun is "m">>
+				<<if C.npc[_nameReal] and C.npc[_nameReal].pronoun is "m">>
 					<<set $options.autoNNPCDisplay[_name.toLowerCase()].gender to "male">>
 				<<else>>
 					<<set $options.autoNNPCDisplay[_name.toLowerCase()].gender to "female">>
 				<</if>>
 			<</if>>
 		<</for>>
+	<</if>>
+
+	<<set _nameReal to _name>>
+
+	/* Normalise special names (only if _name is a string) */
+	<<if typeof _name is "string">>
+		<<if _name == "Black Wolf">>
+			<<set _name = "black_wolf">>
+		<<elseif _name == "Great Hawk">>
+			<<set _name = "great_hawk">>
+		<<elseif _name == "Ivory Wraith">>
+			<<set _name = "ivory_wraith">>
+		<</if>>
+	<</if>>
+
+	/* Guard: if _name isn't a string, skip safely and log */
+	<<if typeof _name isnot "string">>
+		<<run console.warn("modupdate: NPCNameList entry is not a string:", _name)>>
+	<<else>>
+		<<set _key to _name.toLowerCase()>>
+
+		/* Ensure the per-NPC slot exists */
+		<<if $options.autoNNPCDisplay[_key] is undefined>>
+			<<set $options.autoNNPCDisplay[_key] to {slot: 1, layer: "front"}>>
+		<</if>>
+		<<if $options.autoNNPCDisplay[_key].genderOverride is undefined>>
+			<<set $options.autoNNPCDisplay[_key].genderOverride to false>>
+		<</if>>
+		
+		/* Safe pronoun lookup */
+		<<if C.npc[_nameReal] and C.npc[_nameReal].pronoun is "m">>
+			<<set $options.autoNNPCDisplay[_key].gender to "male">>
+		<<elseif C.npc[_nameReal] and C.npc[_nameReal].pronoun>>
+			<<set $options.autoNNPCDisplay[_key].gender to "female">>
+		<<else>>
+			<<run console.warn("modupdate: missing npc/pronoun for "+_nameReal+" (key "+_key+")")>>
+			<<set $options.autoNNPCDisplay[_key].gender to ($options.nnpcDisplayGender || "male")>>
+		<</if>>
 	<</if>>
 
 	<<if $options.nnpcDisplaySkin is undefined>>
