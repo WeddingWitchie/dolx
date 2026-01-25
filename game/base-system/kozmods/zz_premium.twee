@@ -1,0 +1,206 @@
+:: X-Change Premium Widgets [widget]
+<<widget "xchange-premium">>
+	/* duration in days */
+	<<set _duration to _args[0]>>
+	<<if _duration is undefined or _duration <= 0>><<set _duration to 7>><</if>>
+
+	/* Ensure containers exist */
+	<<if $xchange is undefined>><<set $xchange to {}>><</if>>
+	<<if $xchange.pill is undefined>><<set $xchange.pill to {}>><</if>>
+	<<if $xchange.premium is undefined>><<set $xchange.premium to {}>><</if>>
+
+	/* Where we came from */
+	<<set $xchange.premium.duration to _duration>>
+	<<set $xchange.premium.originPassage to passage().title>>
+	<<set $xchange.pill.returnPassage to passage().title>>
+
+	/* Start fresh each dose */
+	<<set $xchange.premium.sideSelected to []>>
+	<<set $xchange.premium.mode to "side">>
+
+	<<goto "X-Change Premium Menu">>
+<</widget>>
+
+<<widget "xchange-premium-apply">>
+	<<if $xchange is undefined>><<set $xchange to {}>><</if>>
+	<<if $xchange.pill is undefined>><<set $xchange.pill to {}>><</if>>
+	<<if $xchange.premium is undefined>><<set $xchange.premium to {}>><</if>>
+
+	<<set _duration to $xchange.premium.duration>>
+	<<if _duration is undefined or _duration <= 0>><<set _duration to 7>><</if>>
+
+	<<set _effects to ($xchange.premium.sideSelected is undefined ? [] : $xchange.premium.sideSelected.slice())>>
+	<<set _mode to $xchange.premium.mode>>
+
+	/* Normalize some common aliases */
+	<<run _effects = _effects.map(e => {
+		if (e === "dumbbitch") return "dumb-bitch";
+		if (e === "portal panties") return "portal";
+		if (e === "preg") return "fertile";
+		return e;
+	})>>
+
+	/* Body/genitals options */
+	<<if _mode is "male">>
+		<<if $player isnot undefined and $player.vaginaExist>><<run _effects.push("genderflip")>><</if>>
+		<<set $xchange.pill.presentationGenderOverride to "m">>
+	<<elseif _mode is "female">>
+		<<if $player isnot undefined and $player.penisExist>><<run _effects.push("genderflip")>><</if>>
+		<<set $xchange.pill.presentationGenderOverride to "f">>
+	<<elseif _mode is "flip">>
+		<<run _effects.push("genderflip")>>
+		/* keep identity/pronouns as-is */
+		<<set $xchange.pill.presentationGenderOverride to null>>
+	<<elseif _mode is "present_m">>
+		<<set $xchange.pill.presentationGenderOverride to "m">>
+	<<elseif _mode is "present_f">>
+		<<set $xchange.pill.presentationGenderOverride to "f">>
+	<<else>>
+		<<set $xchange.pill.presentationGenderOverride to null>>
+	<</if>>
+
+	/* Apply X-Change effects */
+	<<xchange-effects _duration _effects>>
+
+	/* Mark choice complete (some flows check this) */
+	<<set $xchange.pill.done to true>>
+
+	/* Clean UI state so next dose is fresh */
+	<<set $xchange.premium.sideSelected to []>>
+	<<set $xchange.premium.mode to "side">>
+
+	<<xchange-premium-exit>>
+<</widget>>
+
+<<widget "xchange-premium-cancel">>
+	<<if $xchange is undefined>><<set $xchange to {}>><</if>>
+	<<if $xchange.pill is undefined>><<set $xchange.pill to {}>><</if>>
+	<<if $xchange.premium is undefined>><<set $xchange.premium to {}>><</if>>
+
+	<<set $xchange.pill.done to true>>
+	<<set $xchange.premium.sideSelected to []>>
+	<<set $xchange.premium.mode to "side">>
+	<<xchange-premium-exit>>
+<</widget>>
+
+<<widget "xchange-premium-exit">>
+	<<set _exit to $xchange.premium.originPassage>>
+	<<if _exit is undefined>><<set _exit to $xchange.pill.returnPassage>><</if>>
+	<<if _exit is undefined>><<set _exit to "Take Pill From Medicine Drawer">><</if>>
+
+	<<if _exit isnot undefined and Story.has(_exit)>>
+		<<goto _exit>>
+	<<else>>
+		<<goto "PillCollection">>
+	<</if>>
+<</widget>>
+
+
+:: X-Change Premium Menu
+Choose what you want this dose to do:
+<br>
+<<link "Side effects only" "X-Change Premium Side Effects">>
+	<<set $xchange.premium.mode to "side">>
+<</link>>
+<br>
+<<link "Total body change" "X-Change Premium Body Options">>
+	<<set $xchange.premium.mode to "body">>
+<</link>>
+<br>
+<<link "Gender override" "X-Change Premium Presentation Options">>
+	<<set $xchange.premium.mode to "present">>
+<</link>>
+
+
+:: X-Change Premium Side Effects
+Pick the side effects you want:
+<br>
+<<set _labels to {
+	"crossdress": "Genderification (sissify/butchify)",
+	"innocence": "Innocence",
+	"passion": "Passion",
+	"dumb-bitch": "Dumb bitch",
+	"swell": "Swell",
+	"cumcure": "CumCure",
+	"bimbo": "Bimbo",
+	"bull": "Bull",
+	"breeder": "Breeder",
+	"portal": "Portal panties"
+}>>
+
+<<set _available to [
+	"crossdress",
+	"dumb-bitch",
+	"innocence",
+	"passion",
+	"swell",
+	"cumcure",
+	"bimbo",
+	"bull",
+	"breeder",
+	"portal"
+]>>
+
+<<set _chosen to ($xchange.premium.sideSelected is undefined ? [] : $xchange.premium.sideSelected)>>
+
+<<for _i = 0; _i < _available.length; _i++>>
+	<<set _e to _available[_i]>>
+	<<set _on to _chosen.includes(_e)>>
+	<<set _txt to (_on ? "☑ " : "☐ ") + (_labels[_e] || _e)>>
+	<<capture _e _txt>>
+		<<link _txt "X-Change Premium Side Effects">>
+			<<if _chosen is undefined>><<set _chosen to []>><</if>>
+			<<if _chosen.includes(_e)>>
+				<<run _chosen.splice(_chosen.indexOf(_e), 1)>>
+			<<else>>
+				<<run _chosen.push(_e)>>
+			<</if>>
+			<<set $xchange.premium.sideSelected to _chosen>>
+		<</link>>
+	<</capture>>
+	<br>
+<</for>>
+
+<br>
+<<link "Clear selection" "X-Change Premium Side Effects">>
+	<<set $xchange.premium.sideSelected to []>>
+<</link>>
+<br>
+<<link "Apply selected">>
+	<<set $xchange.premium.mode to "side">>
+	<<xchange-premium-apply>>
+<</link>>
+<br>
+<<link "More options (total body change) →" "X-Change Premium Body Options">>
+	<<set $xchange.premium.mode to "body">>
+<</link>>
+
+
+
+:: X-Change Premium Body Options
+Total body with genital and gender change options:
+<br>
+<<link "Make body male" >><<set $xchange.premium.mode to "male">><<xchange-premium-apply>><</link>>
+<br>
+<<link "Make body female" >><<set $xchange.premium.mode to "female">><<xchange-premium-apply>><</link>>
+<br>
+<<link "Flip sex only" >><<set $xchange.premium.mode to "flip">><<xchange-premium-apply>><</link>>
+<br><br>
+
+<<link "← Back to side effects" "X-Change Premium Side Effects">>
+	<<set $xchange.premium.mode to "side">>
+<</link>>
+
+
+:: X-Change Premium Presentation Options
+Presentation-only override, no sex/genitals change:
+<br>
+<<link "Present as male" >><<set $xchange.premium.mode to "present_m">><<xchange-premium-apply>><</link>>
+<br>
+<<link "Present as female" >><<set $xchange.premium.mode to "present_f">><<xchange-premium-apply>><</link>>
+
+<br><br>
+
+<<link "← Back to side effects" "X-Change Premium Side Effects">>
+	<<set $xchange.premium.mode to "side">>
+<</link>>
