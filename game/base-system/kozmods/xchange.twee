@@ -133,36 +133,80 @@
 		/* Loading existing values, or generating new ones */
 		<<if $player.sex !== "f" && Object.keys($xchange.pill.changedBody).length gt 0>>
 			<<load-body "genderswapped">>
+			<<if $xchange.customisedSkinColour is "random" || $xchange.customisedEyeColour is "random">>
+				/* Optional: allow wraith appearance even on loaded bodies */
+				<<set _wraithChance to ($xchange.wraithChance is undefined ? 0.70 : Math.clamp($xchange.wraithChance, 0, 1))>>
+				<<if Math.random() < _wraithChance>>
+					<<set _skinKeys to Object.keys(setup.colours.skin_options)>>
+					<<set _wraithSkinKeys to _skinKeys.filter(k => /ivory|wraith/i.test(k))>>
+					<<if _wraithSkinKeys.length gt 0>>
+						<<set $player.skin.color to _wraithSkinKeys.random()>>
+					<</if>>
+
+					<<set _eyeKeys to Object.keys(setup.colours.eyes_map).filter(k => k !== "random" && !/^colorWheelTemporary/i.test(k))>>
+					<<set _wraithEyeKeys to _eyeKeys.filter(k => /possessed|wraith|ivory/i.test(k))>>
+					<<if _wraithEyeKeys.length gt 0>>
+						<<set _eyeColour to _wraithEyeKeys.random()>>
+						<<set $leftEyeColour to _eyeColour>>
+						<<set $rightEyeColour to _eyeColour>>
+					<</if>>
+				<</if>>
+			<</if>>
 		<<else>>
 			<<set $player.breastsize to random($breastsizemin,$breastsizemax)>>
 			<<set $player.bottomsize to random($bottomsizemin,$bottomsizemax)>>
 			<<set $player.penissize to -2>>
 			<<set $ballssize to -2>>
+
+			/* --- Ivory Wraith roll (tweak chance here), default is 0.70 (70%) --- */
+			<<set _wraithChance to ($xchange.wraithChance is undefined ? 0.70 : Math.clamp($xchange.wraithChance, 0, 1))>>
+			<<set _doWraith to (Math.random() < _wraithChance)>>
+
 			<<if $xchange.customisedSkinColour is "random">>
-				<<set _skinColour to Object.keys(setup.colours.skin_options).random()>>
-				<<set $player.skin.color to _skinColour>>
+				<<set _skinKeys to Object.keys(setup.colours.skin_options)>>
+				/* "Wraith" pool: keys containing ivory/wraith */
+				<<set _wraithSkinKeys to _skinKeys.filter(k => /ivory|wraith/i.test(k))>>
+				/* Normal pool: everything else (prevents wraith unless the roll hits) */
+				<<set _normalSkinKeys to _skinKeys.filter(k => !/ivory|wraith/i.test(k))>>
+				<<if _doWraith && _wraithSkinKeys.length gt 0>>
+					<<set $player.skin.color to _wraithSkinKeys.random()>>
+				<<elseif _normalSkinKeys.length gt 0>>
+					<<set $player.skin.color to _normalSkinKeys.random()>>
+				<<else>>
+					/* safety fallback */
+					<<set $player.skin.color to "medium">>
+				<</if>>
 			<<elseif $xchange.customisedSkinColour isnot "nochange">>
 				<<if setup.colours.skin_options[$xchange.customisedSkinColour] isnot undefined>>
 					<<set $player.skin.color to $xchange.customisedSkinColour>>
 				<<else>>
-					/* either keep current color OR pick a default */
 					<<set $player.skin.color to "medium">>
 				<</if>>
 			<</if>>
+
 			<<if $xchange.customisedEyeColour is "random">>
-				<<set _colours to Object.keys(setup.colours.eyes_map)>>
-				<<run _colours.deleteWith(function (value) {
-					return value === "random"
-						|| /^colorWheelTemporary/i.test(value)
-						|| /possessed/i.test(value);
-				})>>
-				<<set _eyeColour to _colours.random()>>
+				<<set _eyeKeys to Object.keys(setup.colours.eyes_map)>>
+				/* remove non-choices */
+				<<set _eyeKeys to _eyeKeys.filter(k => k !== "random" && !/^colorWheelTemporary/i.test(k))>>
+				/* Wraith eyes: includes possessed/wraith/ivory */
+				<<set _wraithEyeKeys to _eyeKeys.filter(k => /possessed|wraith|ivory/i.test(k))>>
+				/* Normal eyes: everything else */
+				<<set _normalEyeKeys to _eyeKeys.filter(k => !/possessed|wraith|ivory/i.test(k))>>
+				<<if _doWraith && _wraithEyeKeys.length gt 0>>
+					<<set _eyeColour to _wraithEyeKeys.random()>>
+				<<elseif _normalEyeKeys.length gt 0>>
+					<<set _eyeColour to _normalEyeKeys.random()>>
+				<<else>>
+					/* safety fallback: any remaining key */
+					<<set _eyeColour to _eyeKeys.random()>>
+				<</if>>
 				<<set $leftEyeColour to _eyeColour>>
 				<<set $rightEyeColour to _eyeColour>>
 			<<elseif $xchange.customisedEyeColour isnot "nochange">>
 				<<set $leftEyeColour to $xchange.customisedEyeColour>>
 				<<set $rightEyeColour to $xchange.customisedEyeColour>>
 			<</if>>
+
 			<<if $xchange.customisedHairColour is "random">>
 				<<set _colours to Object.keys(setup.colours.hair_map)>>
 				<<run _colours.deleteWith(function (value) {
@@ -304,36 +348,80 @@
 		/* Loading existing values, or generating new ones */
 		<<if $player.sex !== "m" && Object.keys($xchange.pill.changedBody).length gt 0>>
 			<<load-body "genderswapped">>
+			<<if $xchange.customisedSkinColour is "random" || $xchange.customisedEyeColour is "random">>
+				/* Optional: allow wraith appearance even on loaded bodies */
+				<<set _wraithChance to ($xchange.wraithChance is undefined ? 0.70 : Math.clamp($xchange.wraithChance, 0, 1))>>
+				<<if Math.random() < _wraithChance>>
+					<<set _skinKeys to Object.keys(setup.colours.skin_options)>>
+					<<set _wraithSkinKeys to _skinKeys.filter(k => /ivory|wraith/i.test(k))>>
+					<<if _wraithSkinKeys.length gt 0>>
+						<<set $player.skin.color to _wraithSkinKeys.random()>>
+					<</if>>
+
+					<<set _eyeKeys to Object.keys(setup.colours.eyes_map).filter(k => k !== "random" && !/^colorWheelTemporary/i.test(k))>>
+					<<set _wraithEyeKeys to _eyeKeys.filter(k => /possessed|wraith|ivory/i.test(k))>>
+					<<if _wraithEyeKeys.length gt 0>>
+						<<set _eyeColour to _wraithEyeKeys.random()>>
+						<<set $leftEyeColour to _eyeColour>>
+						<<set $rightEyeColour to _eyeColour>>
+					<</if>>
+				<</if>>
+			<</if>>
 		<<else>>
 			<<set $player.breastsize to 0>>
 			<<set $player.bottomsize to 0>>
 			<<set $player.penissize to random($penissizemin,$penissizemax)>>
 			<<set $ballssize to random(-2,3)>>
+
+			/* --- Ivory Wraith roll (tweak chance here), default is 0.70 (70%) --- */
+			<<set _wraithChance to ($xchange.wraithChance is undefined ? 0.70 : Math.clamp($xchange.wraithChance, 0, 1))>>
+			<<set _doWraith to (Math.random() < _wraithChance)>>
+
 			<<if $xchange.customisedSkinColour is "random">>
-				<<set _skinColour to Object.keys(setup.colours.skin_options).random()>>
-				<<set $player.skin.color to _skinColour>>
+				<<set _skinKeys to Object.keys(setup.colours.skin_options)>>
+				/* "Wraith" pool: keys containing ivory/wraith */
+				<<set _wraithSkinKeys to _skinKeys.filter(k => /ivory|wraith/i.test(k))>>
+				/* Normal pool: everything else (prevents wraith unless the roll hits) */
+				<<set _normalSkinKeys to _skinKeys.filter(k => !/ivory|wraith/i.test(k))>>
+				<<if _doWraith && _wraithSkinKeys.length gt 0>>
+					<<set $player.skin.color to _wraithSkinKeys.random()>>
+				<<elseif _normalSkinKeys.length gt 0>>
+					<<set $player.skin.color to _normalSkinKeys.random()>>
+				<<else>>
+					/* safety fallback */
+					<<set $player.skin.color to "medium">>
+				<</if>>
 			<<elseif $xchange.customisedSkinColour isnot "nochange">>
 				<<if setup.colours.skin_options[$xchange.customisedSkinColour] isnot undefined>>
 					<<set $player.skin.color to $xchange.customisedSkinColour>>
 				<<else>>
-					/* either keep current color OR pick a default */
 					<<set $player.skin.color to "medium">>
 				<</if>>
 			<</if>>
+
 			<<if $xchange.customisedEyeColour is "random">>
-				<<set _colours to Object.keys(setup.colours.eyes_map)>>
-				<<run _colours.deleteWith(function (value) {
-					return value === "random"
-						|| /^colorWheelTemporary/i.test(value)
-						|| /possessed/i.test(value);
-				})>>
-				<<set _eyeColour to _colours.random()>>
+				<<set _eyeKeys to Object.keys(setup.colours.eyes_map)>>
+				/* remove non-choices */
+				<<set _eyeKeys to _eyeKeys.filter(k => k !== "random" && !/^colorWheelTemporary/i.test(k))>>
+				/* Wraith eyes: includes possessed/wraith/ivory */
+				<<set _wraithEyeKeys to _eyeKeys.filter(k => /possessed|wraith|ivory/i.test(k))>>
+				/* Normal eyes: everything else */
+				<<set _normalEyeKeys to _eyeKeys.filter(k => !/possessed|wraith|ivory/i.test(k))>>
+				<<if _doWraith && _wraithEyeKeys.length gt 0>>
+					<<set _eyeColour to _wraithEyeKeys.random()>>
+				<<elseif _normalEyeKeys.length gt 0>>
+					<<set _eyeColour to _normalEyeKeys.random()>>
+				<<else>>
+					/* safety fallback: any remaining key */
+					<<set _eyeColour to _eyeKeys.random()>>
+				<</if>>
 				<<set $leftEyeColour to _eyeColour>>
 				<<set $rightEyeColour to _eyeColour>>
 			<<elseif $xchange.customisedEyeColour isnot "nochange">>
 				<<set $leftEyeColour to $xchange.customisedEyeColour>>
 				<<set $rightEyeColour to $xchange.customisedEyeColour>>
 			<</if>>
+
 			<<if $xchange.customisedHairColour is "random">>
 				<<set _colours to Object.keys(setup.colours.hair_map)>>
 				<<run _colours.deleteWith(function (value) {
