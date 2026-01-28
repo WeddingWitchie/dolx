@@ -43,8 +43,11 @@
             <<npc-xchange-effects _duration _effects>>
         <</if>>
 
+		<<if $xchange.npcTimesTaken is undefined>><<set $xchange.npcTimesTaken to {}>><</if>>
+
 		<<if _targetName>>
-			<<set $xchange.timesTaken[_targetName]++>>
+			<<if $xchange.npcTimesTaken[_targetName] is undefined>><<set $xchange.npcTimesTaken[_targetName] to 0>><</if>>
+			<<set $xchange.npcTimesTaken[_targetName]++>>
 		<</if>>
 
         <<npc-deselect-xchange-target>>
@@ -53,16 +56,16 @@
 
     <<widget "npc-xchange-save">>
         <<set _targetName to _args[0]>>
-		<<set _npc to C.npc[_targetName]>>
+		<<set _npcSave to C.npc[_targetName]>>
 
         <<set _data to {
-			gender: _npc.gender,
-			pronoun: _npc.pronoun,
-			breastsize: _npc.breastsize,
-			breastdesc: _npc.breastdesc,
-			breastsdesc: _npc.breastsdesc,
-			penissize: _npc.penissize,
-			penisdesc: _npc.penisdesc,
+			gender: _npcSave.gender,
+			pronoun: _npcSave.pronoun,
+			breastsize: _npcSave.breastsize,
+			breastdesc: _npcSave.breastdesc,
+			breastsdesc: _npcSave.breastsdesc,
+			penissize: _npcSave.penissize,
+			penisdesc: _npcSave.penisdesc,
 		}>>
 
 		<<if _args[1] is undefined>>
@@ -85,11 +88,14 @@
 		<<if $xchange is undefined>><<set $xchange to {}>><</if>>
 		<<if $xchange.savedNpcBodies is undefined>><<set $xchange.savedNpcBodies to {}>><</if>>
 
-		/* Prefer $NPCName for enemies/creatures, fallback to C.npc for regular named NPCs */
-		<<set _npc to $NPCName[_targetName]>>
-		<<if _npc is undefined>><<set _npc to C.npc[_targetName]>><</if>>
+		/* Resolve the live NPC object we actually want to update */
+		<<set _npcLoad to $NPCName[_targetName]>>
+		<<if _npcLoad is undefined and $NPCNameList.includes(_targetName)>>
+			<<set _npcLoad to $NPCName[$NPCNameList.indexOf(_targetName)]>>
+		<</if>>
+		<<if _npcLoad is undefined>><<set _npcLoad to C.npc[_targetName]>><</if>>
 
-		<<if _npc is undefined>>
+		<<if _npcLoad is undefined>>
 			<<run console.warn("npc-xchange-load: NPC not found:", _targetName, "mode:", _mode)>>
 		<<else>>
 			<<if $xchange.savedNpcBodies[_targetName] is undefined>>
@@ -98,13 +104,13 @@
 
 			<<if $xchange.savedNpcBodies[_targetName].original is undefined>>
 				<<set $xchange.savedNpcBodies[_targetName].original to {
-					gender: _npc.gender,
-					pronoun: _npc.pronoun,
-					breastsize: _npc.breastsize,
-					breastdesc: _npc.breastdesc,
-					breastsdesc: _npc.breastsdesc,
-					penissize: _npc.penissize,
-					penisdesc: _npc.penisdesc
+					gender: _npcLoad.gender,
+					pronoun: _npcLoad.pronoun,
+					breastsize: _npcLoad.breastsize,
+					breastdesc: _npcLoad.breastdesc,
+					breastsdesc: _npcLoad.breastsdesc,
+					penissize: _npcLoad.penissize,
+					penisdesc: _npcLoad.penisdesc
 				}>>
 			<</if>>
 
@@ -116,16 +122,16 @@
 			<</if>>
 
 			<<if _data>>
-				<<if _data.gender isnot undefined>><<set _npc.gender to _data.gender>><</if>>
-				<<if _data.pronoun isnot undefined>><<set _npc.pronoun to _data.pronoun>><</if>>
-				<<if _data.breastsize isnot undefined>><<set _npc.breastsize to _data.breastsize>><</if>>
-				<<if _data.breastdesc isnot undefined>><<set _npc.breastdesc to _data.breastdesc>><</if>>
-				<<if _data.breastsdesc isnot undefined>><<set _npc.breastsdesc to _data.breastsdesc>><</if>>
-				<<if _data.penissize isnot undefined>><<set _npc.penissize to _data.penissize>><</if>>
-				<<if _data.penisdesc isnot undefined>><<set _npc.penisdesc to _data.penisdesc>><</if>>
+				<<if _data.gender isnot undefined>><<set _npcLoad.gender to _data.gender>><</if>>
+				<<if _data.pronoun isnot undefined>><<set _npcLoad.pronoun to _data.pronoun>><</if>>
+				<<if _data.breastsize isnot undefined>><<set _npcLoad.breastsize to _data.breastsize>><</if>>
+				<<if _data.breastdesc isnot undefined>><<set _npcLoad.breastdesc to _data.breastdesc>><</if>>
+				<<if _data.breastsdesc isnot undefined>><<set _npcLoad.breastsdesc to _data.breastsdesc>><</if>>
+				<<if _data.penissize isnot undefined>><<set _npcLoad.penissize to _data.penissize>><</if>>
+				<<if _data.penisdesc isnot undefined>><<set _npcLoad.penisdesc to _data.penisdesc>><</if>>
 			<</if>>
 
-			<<set $NPCName[_targetName] to _npc>>
+			<<if $NPCNameList.includes(_targetName)>><<set $NPCName[$NPCNameList.indexOf(_targetName)] to _npcLoad>><</if>>
 		<</if>>
 	<</widget>>
 
@@ -403,8 +409,8 @@
 
         <<set _brdes to ["nipple","budding","tiny","small","pert","modest","full","large","ample","massive","huge","gigantic","enormous"]>>
 
-		<<if _npc and _npc.startingSex isnot "f" && Object.keys($xchange.savedNpcBodies[_targetName].genderswap).length gt 0>>
-			<<npc-xchange-load "genderswapped">>
+		<<if _npc and _npc.startingSex isnot "f" && $xchange.savedNpcBodies[_targetName] isnot undefined && $xchange.savedNpcBodies[_targetName].genderswap isnot undefined && Object.keys($xchange.savedNpcBodies[_targetName].genderswap).length gt 0>>
+			<<npc-xchange-load _targetName "genderswapped">>
 
 			<<for _key range Object.keys(_npc)>>
 				<<if !_npcTemp>><<break>><</if>>
@@ -470,8 +476,8 @@
             either("massive cock","huge cock","humongous cock","immense cock","gigantic cock","enormous cock"),
         ]>>
 
-		<<if _npc and _npc.startingSex isnot "m" && Object.keys($xchange.savedNpcBodies[_targetName].genderswap).length gt 0>>
-			<<npc-xchange-load "genderswapped">>
+		<<if _npc and _npc.startingSex isnot "m" && $xchange.savedNpcBodies[_targetName] isnot undefined && $xchange.savedNpcBodies[_targetName].genderswap isnot undefined && Object.keys($xchange.savedNpcBodies[_targetName].genderswap).length gt 0>>
+			<<npc-xchange-load _targetName "genderswapped">>
 
 			<<for _key range Object.keys(_npc)>>
 				<<if !_npcTemp>><<break>><</if>>
