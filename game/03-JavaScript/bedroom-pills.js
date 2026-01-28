@@ -2674,6 +2674,45 @@ setup.pills = [
 		},
 		effects: [`<<xchange-removeeffect "cumcure">>`, "<<xchange-addsideeffect>>"],
 	},
+	
+	{
+		name: "X-Change Premium",
+		description:
+			"A 'premium' X-Change pill of unknown origin and manufacture. It makes you feel like you're about to choose something you can't unchoose.",
+		onTakeMessage:
+			"You roll the premium pill between your fingers for a second too long... then down it anyway.<br><br><span class=\"red\">The reaction is almost instant. A spear of heat punches through your stomach and detonates outward, dragging you to your knees like a puppet with its strings cut. Your skin goes cold-sweat slick, your throat tightens, and your pulse slams hard enough to blur your vision.<<gggpain>><br><br>Every nerve lights up at once, like your body is being <i>rewritten</i> line by line while you're still inside it. For a stupid moment, you wonder if this is the price of something novel, or if you're indeed being played as a guinea pig? <<ggstress>><<gtrauma>><br><br></span>When it finally eases, you're left trembling, breathing shallowly but your body feel like it could become anything... if you tell it what to be.",
+		warning_label:
+			"Warning: Experimental formulation. Effects may vary.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_pills() {
+			return "Take pill";
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "premium",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillpremium.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+		},
+		effects: ["<<pain 180>><<stress 130>><<trauma 80>><<gpain>><<gstress>><<gtrauma>>", "<<xchange-premium 7>>"],
+	},
 	{
 		name: "X-Change Antidote",
 		description:
@@ -3136,6 +3175,7 @@ function backCompPillsInventory() {
 		"X-Change Antidote": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Antidote Forte": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Test": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+		"X-Change Premium": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 	});
 	if (typeof oPills === "undefined") {
 		/* If our $sexStats.pills was empty, simply set the object in preparation to assign. */
