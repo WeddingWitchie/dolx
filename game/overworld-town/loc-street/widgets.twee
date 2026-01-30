@@ -3320,6 +3320,21 @@
 :: Widgets Events Street [widget]
 <<widget "eventsstreet">>
 	<<rng>>
+	/* Build bullytimer faster in alley/park so Whitney is huntable */
+	<<if $eventskip is 0 and !$eventforced>>
+		<<set _bullyGain = 1>>
+		/* alleys: faster */
+		<<if $location is "alley">>
+			<<set _bullyGain += 3>>
+		<</if>>
+		/* park district: slightly faster (adjust if want) */
+		<<if $bus is "park">>
+			<<set _bullyGain += 2>>
+		<</if>>
+		<<set $bullytimer += _bullyGain>>
+		/* cap to keep the probability sane */
+		<<if $bullytimer gt 100>><<set $bullytimer to 100>><</if>>
+	<</if>>
 
 	/* Events that must bypass eventpool and any conditions */
 	<<if $wraith.state and $eventforced and Time.isBloodMoon() and !_wraithEventSkipped>>
