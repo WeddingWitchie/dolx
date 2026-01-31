@@ -10,7 +10,7 @@
 		<<set _mapSize to 5>>
 
 		/* targets format: [{n:?, e:?, label:"X"}, ...]
-		   If you don't set $hawkHuntTargets anywhere, it defaults to none. */
+		   If don't set $hawkHuntTargets anywhere, it defaults to none. */
 		<<set _targets to ($hawkHuntTargets isnot undefined ? $hawkHuntTargets : [])>>
 	<</silently>>
 
@@ -45,10 +45,6 @@
 					<</for>>
 				<</for>>
 			</div>
-		</div>
-		<div class="hawkmap-coords">
-			N <span class="hawkmap-mono"><<print _playerN>></span> /
-			E <span class="hawkmap-mono"><<print _playerE>></span>
 		</div>
 	</div>
 	<</if>>
@@ -95,6 +91,198 @@
 								<span class="catmap-you">YOU</span>
 							<</if>>
 						</div>
+					<</capture>>
+				<</for>>
+			<</for>>
+		</div>
+	</div>
+<</widget>>
+
+<<widget "oldSewers_minimap">>
+	<<silently>>
+		<<set _p to passage().toLowerCase()>>
+		<<set _loc to _p.replace(/^sewers\s+/,"").trim()>>
+		<<set _loc to _loc.replace(/\s+hide$/,"").trim()>>
+
+		<<set _pass2node to {
+			"residential":"litter",
+			"commercial":"rubbish",
+			"industrial":"detritus",
+			"waterfall":"wet",
+			"lake":"lake",
+
+			"rubble":"crumble",
+			"ruins":"ruined",
+			"hole":"breeze",
+			"wood":"wood",
+			"webs":"webs",
+
+			"algae":"algae",
+			"mud":"mud",
+			"scrap":"scrap",
+			"workshop":"sculpture",
+			"shrooms":"fungus",
+
+			"smuggler's pub":"pub"
+		}>>
+
+		<<set _hereNode to _pass2node[_loc]>>
+
+		<<set _label to {
+			"wet":"Wet","detritus":"Detritus","rubbish":"Rubbish","litter":"Litter",
+			"crumble":"Crumble","ruined":"Ruined","breeze":"Breeze","wood":"Wood","webs":"Webs",
+			"algae":"Algae","mud":"Mud","scrap":"Scrap","sculpture":"Sculpture","fungus":"Fungus",
+			"pub":"Smuggler&#39;s<br>Pub"
+		}>>
+
+		<<set _antiqueNode to {
+			"webs":     (!$weekly.sewers.antiqueCandlestick),
+			"lake":     (!$weekly.sewers.antiqueCrystal),
+			"fungus":   (!$weekly.sewers.antiqueDildo),
+			"breeze":   (!$weekly.sewers.antiqueHorn),
+			"sculpture":(!$weekly.sewers.antiqueWatch)
+		}>>
+
+		/* layout */
+		<<set _nodeAt to {
+			"7-2":"lake",
+			"7-3":"wet",
+			"7-5":"detritus",
+			"7-7":"rubbish",
+			"7-9":"litter",
+
+			"4-5":"crumble",
+			"5-7":"ruined",
+			"3-9":"breeze",
+			"5-10":"wood",
+			"3-11":"webs",
+
+			"9-5":"algae",
+			"9-7":"mud",
+			"9-9":"scrap",
+			"11-11":"sculpture",
+			"12-7":"fungus",
+
+			"12-1":"pub"
+		}>>
+
+		<<set _mainNodeKey to {"7-2":1,"7-3":1,"7-5":1,"7-7":1,"7-9":1}>>
+
+		<<set _corrH to {
+			"5-5":1,"6-5":1,"8-5":1,
+			"6-7":1,"8-7":1,
+			"10-7":1,"11-7":1,
+			"5-9":1,"6-9":1,"8-9":1,
+			"10-9":1,"11-9":1,
+			"4-11":1,"12-3":1,
+			"12-11":1,"3-7":1,"4-7":1
+		}>>
+
+		<<set _corrV to {
+			"3-8":1,
+			"7-4":1,"7-6":1,"7-8":1,
+			"9-6":1,"5-11":1,
+			"11-10":1,"12-2":1
+		}>>
+
+		<<set _mainCorrKey to {"7-4":1,"7-6":1,"7-8":1}>>
+		<<set _mainCorrKey to {"7-2":1,"7-4":1,"7-6":1,"7-8":1}>>
+
+		/* dashed blue path:
+		- from Pub down to the Algae row, then left to Algae
+		- plus the existing fungus→down→sculpture-side path
+		*/
+		<<set _bluePathKey to {
+			/* pub -> algae */
+			"12-2":1,"12-3":1,"12-4":1,"12-5":1,
+			"10-5":1,"11-5":1,
+
+			/* fungus -> sculpture-side corridor */
+			"12-8":1,"12-9":1,"12-10":1,"12-11":1
+		}>>
+
+		/* make sure the bluePath tiles are also real corridor tiles */
+		<<set _corrV["12-3"] to 1>><<set _corrV["12-4"] to 1>><<set _corrV["12-5"] to 1>>
+		<<set _corrH["10-5"] to 1>><<set _corrH["11-5"] to 1>><<set _corrV["5-6"] to 1>>
+		<<set _corrV["12-8"] to 1>><<set _corrV["12-9"] to 1>><<set _corrV["12-10"] to 1>>
+		<<set _corrH["12-11"] to 1>>
+
+		/* player cell */
+		<<set _playerKey to "">>
+		<<for _y to 0; _y lt 15; _y++>>
+			<<for _x to 0; _x lt 15; _x++>>
+				<<set _k to _x + "-" + _y>>
+				<<if _nodeAt[_k] and _hereNode and _nodeAt[_k] is _hereNode>>
+					<<set _playerKey to _k>>
+				<</if>>
+			<</for>>
+		<</for>>
+
+		/* crop bounds to active tiles so border touches outermost active tiles */
+		<<set _minX to 14>><<set _maxX to 0>><<set _minY to 14>><<set _maxY to 0>>
+		<<set _has to false>>
+		<<for _y to 0; _y lt 15; _y++>>
+			<<for _x to 0; _x lt 15; _x++>>
+				<<set _k to _x + "-" + _y>>
+				<<if _nodeAt[_k] or _corrH[_k] or _corrV[_k] or _bluePathKey[_k]>>
+					<<set _has to true>>
+					<<if _x lt _minX>><<set _minX to _x>><</if>>
+					<<if _x gt _maxX>><<set _maxX to _x>><</if>>
+					<<if _y lt _minY>><<set _minY to _y>><</if>>
+					<<if _y gt _maxY>><<set _maxY to _y>><</if>>
+				<</if>>
+			<</for>>
+		<</for>>
+
+		<<if !_has>>
+			<<set _minX to 0>><<set _maxX to 14>><<set _minY to 0>><<set _maxY to 14>>
+		<</if>>
+
+		<<set _w to (_maxX - _minX + 1)>>
+		<<set _h to (_maxY - _minY + 1)>>
+
+		/* inline style for dynamic grid sizing + aspect ratio */
+		<<set _gridStyle to
+			"grid-template-columns:repeat(" + _w + ", 1fr);" +
+			"grid-template-rows:repeat(" + _h + ", 1fr);" +
+			"aspect-ratio:" + _w + "/" + _h + ";"
+		>>
+	<</silently>>
+
+	<div class="sewmap-wrap">
+		<div class="sewmap-grid" @style="_gridStyle">
+			<<for _y to _minY; _y lte _maxY; _y++>>
+				<<for _x to _minX; _x lte _maxX; _x++>>
+					<<capture _x _y>>
+						<<set _key to _x + "-" + _y>>
+						<<set _cls to "sewmap-cell">>
+
+						<<if _nodeAt[_key]>>
+							<<set _cls += " sewmap-block sewmap-room">>
+							<<if _mainNodeKey[_key] isnot undefined>><<set _cls += " sewmap-main">><</if>>
+							<<if _playerKey and _key is _playerKey>><<set _cls += " sewmap-here">><</if>>
+
+							<div @class="_cls">
+								<<set _nid to _nodeAt[_key]>>
+								<<if _antiqueNode[_nid]>><span class="sewmap-dot"></span><</if>>
+
+								<<if _playerKey and _key is _playerKey>>
+									<span class="sewmap-you">YOU</span>
+								<<else>>
+									<<set _ncls to "sewmap-name">><<if _nid is "sculpture" or _nid is "pub">><<set _ncls += " sewmap-name-small">><</if>><span @class="_ncls"><<print _label[_nid]>></span>
+								<</if>>
+							</div>
+
+						<<elseif _corrH[_key] or _corrV[_key]>>
+							<<set _cls += " sewmap-block">>
+							<<if _mainCorrKey[_key] isnot undefined>><<set _cls += " sewmap-main">><</if>>
+							<<if _bluePathKey[_key] isnot undefined>><<set _cls += " sewmap-bluepath">><</if>>
+							<div @class="_cls"></div>
+
+						<<else>>
+							<<set _cls += " sewmap-void">>
+							<div @class="_cls"></div>
+						<</if>>
 					<</capture>>
 				<</for>>
 			<</for>>
