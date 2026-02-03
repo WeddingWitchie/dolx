@@ -79,6 +79,21 @@
 		return out;
 	};
 
+	function ensurePillPremiumFlagDefault() {
+	const V = getV();
+	const pill = V && V.xchange && V.xchange.pill ? V.xchange.pill : null;
+	if (pill && pill.active && typeof pill.isPremium !== "boolean") {
+		pill.isPremium = false;
+	}
+	}
+
+	try { ensurePillPremiumFlagDefault(); } catch (e) {}
+	try {
+	if (typeof jQuery !== "undefined") {
+		jQuery(document).on(":passagestart", ensurePillPremiumFlagDefault);
+	}
+	} catch (e) {}
+
 	// --- Pronoun/text override while active ---
 	(function patchPresentationOverride() {
 		let origMan = typeof window.playerFeelsManlike === "function" ? window.playerFeelsManlike : null;
