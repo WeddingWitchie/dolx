@@ -336,11 +336,8 @@ It isn't long before the door to the barn opens, and the lights flicker on. Remy
 		Since you're pilled already, this pill would have no effect. Even Remy pauses seeing you. "No change? Nevermind."
 	<<else>>
 
-		/* -------------------------
-		   1) FIRST TIME: always Choice Pill
-		   ------------------------- */
-		<<if $xchange.remyHasChoicePilled is 0>>
-			<<set $xchange.remyHasChoicePilled to 1>>
+		  /* Choice Pill only if you misbehave (obey < 10) */
+		<<if $livestock_obey lt 10 and (!playerIsXChanged() or !pillIsPermanent())>>
 			<<set $xchange.remyChoicePill to 1>>
 			<<set _remyChoiceFlag to 1>>
 
@@ -350,21 +347,7 @@ It isn't long before the door to the barn opens, and the lights flicker on. Remy
 			<<xchange-choice>>
 			<<set $xchange.pill.genderflipEffect to _oldGF>>
 
-		/* -------------------------
-		   2) AFTER THAT: Choice Pill only if you misbehave (obey < 10)
-		   ------------------------- */
-		<<elseif $livestock_obey lt 10 and (!playerIsXChanged() or !pillIsPermanent())>>
-			<<set $xchange.remyChoicePill to 1>>
-			<<set _remyChoiceFlag to 1>>
-
-			<<set _oldGF to $xchange.pill.genderflipEffect>>
-			<<set $xchange.pill.genderflipEffect to 0>>
-			<<xchange-choice>>
-			<<set $xchange.pill.genderflipEffect to _oldGF>>
-
-		/* -------------------------
-		   3) OTHERWISE: random spike only if settings allow spikes
-		   ------------------------- */
+		/* Random spike only if settings allow spikes */
 		<<elseif playerMayBeSpiked()>>
 			<<xchange-random-spike>>
 		<</if>>
@@ -372,11 +355,10 @@ It isn't long before the door to the barn opens, and the lights flicker on. Remy
 		<<set _afterX to playerIsXChanged()>>
 
 		<<if !_beforeX and _afterX>>
-			<br><br>
+			<br>
 			You feel the characteristic warmth of an X-Change pill spreading throughout your body, as your figure molds and changes itself into the
 			<<if $player.gender is "f">>handsome form of a man<<elseif $player.gender is "m">>beautiful shape of a woman<</if>>.
 		<<else>>
-			<br><br>
 			<<He>> then awaits a couple moments and after no change ensues <<he>> concludes: "No change? Nevermind."
 		<</if>>
 	<</if>>
