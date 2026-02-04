@@ -1761,25 +1761,46 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 
 	<<set $_strugglevar to $_slot.replace("_","") + "struggle">>
 
-	<<set _lowerOffersEasyAccess to 
-		($worn.lower.vagina_exposed or $worn.lower.anal_exposed) and 
+	<<set _lowerOffersEasyAccess to
+		($worn.lower.vagina_exposed or $worn.lower.anal_exposed) and
 		($worn.under_lower.name is "naked" or $worn.under_lower.vagina_exposed or $worn.under_lower.anal_exposed)
 	>>
 
 	<<rng>>
-	<<if $worn[$_slot].name is "naked" and !$removed?.includes($_slot)>>
-		<<if !$removed>>
-			<<set $removed to []>>
+
+	<<if !$removed>>
+		<<set $removed to []>>
+	<</if>>
+
+	/* === FIX: always handle naked slots early and exit === */
+	<<if $worn[$_slot].name is "naked">>
+		<<if $removed.indexOf($_slot) is -1>>
+			<<set $removed.push($_slot)>>
 		<</if>>
 
 		/* <<cast_aside_clothes>> */
 		<<combat-reset-hand $_hand>>
 		<<hand_section_two $_hand>>
 		<<exit>>
-	/* <<elseif $worn[$_slot].state is 0>>
-		<<combat-reset-hand $_hand>> */
+	<</if>>
+
+	/* Optional:Enable by changing <<if false>> to <<if true>> if want to catch real corruption on non-naked items. */
+	/* Currently enabled to see why the bug happens */
+	<<if true>>
+		<<if $worn[$_slot].state is 0>>
+			<span class="red">[BUG] Invalid clothing state=0 — slot: <<print $_slot>>, item: <<print $worn[$_slot].name>></span>
+			<<combat-reset-hand $_hand>>
+			<<hand_section_two $_hand>>
+			<<exit>>
+		<</if>>
+	<</if>>
+
+	<<if !$removed.includes($_slot) and $worn[$_slot].name is "naked">>
+		/* (Should never happen now due to early-exit above) */
 		<<set $removed.push($_slot)>>
-	<<elseif $worn[$_slot].type.includes("strap-on") and $worn[$_slot].state is "waist" and $penisstate is 0>>
+	<</if>>
+
+	<<if $worn[$_slot].type.includes("strap-on") and $worn[$_slot].state is "waist" and $penisstate is 0>>
 		<<combat-reset-hand $_hand>>
 	<<elseif $combatgoal isnot "strip" and $_slot is "lower" and $worn[$_slot].skirt is 1 and _lowerOffersEasyAccess>>
 		<<combat-reset-hand $_hand>>
