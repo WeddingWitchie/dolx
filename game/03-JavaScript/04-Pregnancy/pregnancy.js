@@ -1,3 +1,57 @@
+/* X-CHANGE SAVE REPAIR NOTICE */
+window.xChangeQueueNotice = function (id, html) {
+	const V = (typeof State !== "undefined" && State.variables) ? State.variables : window.V;
+	if (!V) return;
+
+	V.xChangeFlags ??= {};
+	if (V.xChangeFlags[id]) return;
+
+	V.xChangeNotices ??= [];
+	V.xChangeNotices.push({ id, html });
+};
+(function () {
+	function renderNotices() {
+		const V = (typeof State !== "undefined" && State.variables) ? State.variables : window.V;
+		if (!V?.xChangeNotices?.length) return;
+
+		V.xChangeFlags ??= {};
+
+		const passEl = document.querySelector("#passage") || document.querySelector(".passage");
+		if (!passEl) return;
+
+		while (V.xChangeNotices.length) {
+			const n = V.xChangeNotices.shift();
+			if (!n || !n.id || V.xChangeFlags[n.id]) continue;
+
+			V.xChangeFlags[n.id] = true;
+
+			const box = document.createElement("div");
+			box.innerHTML = n.html;
+			box.style.cssText = [
+				"border:2px solid #ff4d4d",
+				"background:rgba(255,0,0,0.12)",
+				"color:#ffb3b3",
+				"padding:12px 12px",
+				"border-radius:8px",
+				"margin:0 0 14px 0",
+				"font-size:1em",
+				"line-height:1.4",
+				"word-break:break-word",
+				"overflow-wrap:anywhere",
+				"box-sizing:border-box"
+			].join(";");
+
+			passEl.prepend(box);
+		}
+	}
+
+	if (window.jQuery) {
+		jQuery(document).on(":passagedisplay", renderNotices);
+	} else {
+		document.addEventListener(":passagedisplay", renderNotices);
+	}
+})();
+
 /* eslint-disable no-undef */
 // Should a name type for species be setup, say, human/wolf specific names
 function generateBabyName(name, gender, childId) {
@@ -33,24 +87,6 @@ function generateBabyName(name, gender, childId) {
 	return result;
 }
 window.generateBabyName = generateBabyName;
-function ensureBirthId(pregnancy, mother) {
-  if (!pregnancy) return null;
-
-  if (!pregnancy.fetus || !Array.isArray(pregnancy.fetus)) pregnancy.fetus = [];
-  if (!pregnancy.fetus[0]) pregnancy.fetus[0] = {};
-
-  if (pregnancy.fetus[0].mother == null && mother != null) {
-    pregnancy.fetus[0].mother = mother;
-  }
-
-  if (pregnancy.fetus[0].birthId == null) {
-    if (!V.pregnancyStats) V.pregnancyStats = {};
-    if (typeof V.pregnancyStats.nextBirthId !== "number") V.pregnancyStats.nextBirthId = 1;
-    pregnancy.fetus[0].birthId = V.pregnancyStats.nextBirthId++;
-  }
-
-  return pregnancy.fetus[0].birthId;
-}
 
 function spermObjectToArray(spermObject = [], player, disableRng) {
 	const spermArray = [];
@@ -205,8 +241,6 @@ function playerPregnancyAttempt(baseMulti = 1, genital = "vagina") {
 	if (V.earSlime.growth >= 100 && V.earSlime.focus === "pregnancy") basePenalty = Math.floor(basePenalty / 2);
 	if (V.earSlime.growth >= 100 && V.earSlime.focus === "impregnation") basePenalty = Math.floor(basePenalty * 2);
 
-	console.warn(basePenalty);
-
 	/*
 		When spermArray.length - 1 is lower than basePenalty, it uses basePenalty to determin if the pregnancy should occur or not
 		When spermArray.length - 1 is higher than basePenalty, the player will always get pregnant, so it uses spermArray.length - 1 to give all sperm a chance to impregnate the player
@@ -313,8 +347,54 @@ function pregnancyProgress(genital = "vagina") {
 	const pregnancy = V.sexStats[genital].pregnancy;
 	if (!pregnancy || pregnancy.type === null || pregnancy.type === "parasite" || V.statFreeze) return null;
 
-	V.pregnancyStats.totalDaysPregnant += 0.5;
-	if (pregnancy.awareOf) V.pregnancyStats.totalDaysPregnancyKnown += 0.5;
+	V.pregnancyStats ??= {};
+	const ps = V.pregnancyStats;
+
+	// Legacy init only (missing field)
+	if (ps.totalDaysPregnant == null) ps.totalDaysPregnant = 0;
+	if (ps.totalDaysPregnancyKnown == null) ps.totalDaysPregnancyKnown = 0;
+
+	// If corrupted, don't auto-reset. Flag + notify once, and skip increment.
+	if (Number.isFinite(ps.totalDaysPregnant)) {
+		ps.totalDaysPregnant += 0.5;
+	} else {
+		ps._nanRepairFlag = true;
+		ps._repair ??= {};
+		if (!ps._repair.nanDaysWarned) {
+			ps._repair.nanDaysWarned = true;
+			// Player-visible (one time)
+			if (window.xChangeQueueNotice) {
+				window.xChangeQueueNotice(
+					"nan_totalDaysPregnant",
+					`<b>X-Change: Save data issue detected</b><br>
+					Your save has a corrupt value for <b>pregnancyStats.totalDaysPregnant</b> (NaN/invalid). X-Change will <b>not</b> auto-reset it; it will skip updating this stat to avoid silent data loss.<br><br>
+					<b>This indicates a bug.</b> Please report with your save + steps.`
+				);
+			}
+			console.warn("[X-Change] pregnancyStats.totalDaysPregnant is corrupt (NaN/invalid). Skipping increment; not auto-resetting.");
+		}
+	}
+
+	if (pregnancy.awareOf) {
+		if (Number.isFinite(ps.totalDaysPregnancyKnown)) {
+			ps.totalDaysPregnancyKnown += 0.5;
+		} else {
+			ps._nanRepairFlag = true;
+			ps._repair ??= {};
+			if (!ps._repair.nanKnownDaysWarned) {
+				ps._repair.nanKnownDaysWarned = true;
+				if (window.xChangeQueueNotice) {
+					window.xChangeQueueNotice(
+						"nan_totalDaysPregnancyKnown",
+						`<b>X-Change: Save data issue detected</b><br>
+						Your save has a corrupt value for <b>pregnancyStats.totalDaysPregnancyKnown</b> (NaN/invalid). X-Change will <b>not</b> auto-reset it; it will skip updating this stat to avoid silent data loss.<br><br>
+						<b>This indicates a bug.</b> Please report with your save + steps.`
+					);
+				}
+				console.warn("[X-Change] pregnancyStats.totalDaysPregnancyKnown is corrupt (NaN/invalid). Skipping increment; not auto-resetting.");
+			}
+		}
+	}
 
 	if (pregnancy.timer < pregnancy.timerEnd) {
 		let multiplier = 1;
@@ -454,7 +534,10 @@ function endPlayerPregnancy(birthLocation, location) {
 	}
 
 	if (validBirth && ((genital === "vagina" && V.player.virginity.vaginal === true) || (genital === "anus" && V.player.virginity.anal === true))) {
-		V.pregnancyStats.playerVirginBirths.pushUnique(pregnancy.fetus[0].birthId);
+		V.pregnancyStats ??= {};
+		V.pregnancyStats.playerVirginBirths ??= [];
+		const bid = ensureBirthId(pregnancy, "pc");
+		if (bid != null) V.pregnancyStats.playerVirginBirths.pushUnique(bid);
 	}
 
 	V.sexStats[genital].pregnancy = {
@@ -812,85 +895,186 @@ function defaultBirthLocations(type, birthLocation, location) {
 	return [birthLocation, location];
 }
 
+// ---------- Pregnancy helpers (paste ABOVE giveBirthToChildren) ----------
+function _pf_isFiniteNum(x) {
+  return typeof x === "number" && Number.isFinite(x);
+}
+
+function _pf_inc(obj, key, by = 1) {
+  const v = obj[key];
+  obj[key] = _pf_isFiniteNum(v) ? (v + by) : by;
+}
+
+// NaN-safe + sparse-array-safe birthId creator
+function ensureBirthId(pregnancy, mother) {
+  const V = (typeof State !== "undefined" && State.variables) ? State.variables : window.V;
+  if (!V || !pregnancy) return null;
+
+  if (!Array.isArray(pregnancy.fetus)) pregnancy.fetus = [];
+
+  // If fetus array is sparse (length>0 but [0] missing), pull the first real entry
+  if (pregnancy.fetus.length > 0 && !pregnancy.fetus[0]) {
+    const firstReal = pregnancy.fetus.find(f => f && typeof f === "object");
+    if (firstReal) pregnancy.fetus[0] = firstReal;
+  }
+
+  // Still missing? create a container (prevents crashes; doesn't invent childId etc)
+  if (!pregnancy.fetus[0]) pregnancy.fetus[0] = {};
+
+  if (pregnancy.fetus[0].mother == null && mother != null) {
+    pregnancy.fetus[0].mother = mother;
+  }
+
+  V.pregnancyStats ??= {};
+
+  // IMPORTANT: typeof NaN === "number", so we must use Number.isFinite
+	if (!_pf_isFiniteNum(V.pregnancyStats.nextBirthId) || V.pregnancyStats.nextBirthId < 1) {
+		let maxBid = 0;
+
+		// scan existing children
+		if (V.children && typeof V.children === "object") {
+			for (const child of Object.values(V.children)) {
+				if (!child) continue;
+				const n = child.birthId;
+				if (_pf_isFiniteNum(n) && n > maxBid) maxBid = n;
+			}
+		}
+
+		// scan current fetus list (covers ongoing pregnancy)
+		for (const f of pregnancy.fetus) {
+			if (!f) continue;
+			const n = f.birthId;
+			if (_pf_isFiniteNum(n) && n > maxBid) maxBid = n;
+		}
+
+		V.pregnancyStats.nextBirthId = maxBid + 1;
+		V.pregnancyStats._nanRepairFlag = true;
+
+		if (!V.pregnancyStats._nextBirthIdWarned) {
+			V.pregnancyStats._nextBirthIdWarned = true;
+			window.xChangeQueueNotice(
+				"repair_nextBirthId",
+				`<b>X-Change: Save repair notice</b><br>
+				Your save had an invalid <b>pregnancyStats.nextBirthId</b>. X-Change rebuilt it from existing data to prevent pregnancy tracking errors.<br><br>
+				<b>This may indicate a bug.</b> Please report it with your save and steps to Discord Server.`
+			);
+		}
+	}
+
+  if (!_pf_isFiniteNum(pregnancy.fetus[0].birthId) || pregnancy.fetus[0].birthId < 1) {
+    pregnancy.fetus[0].birthId = V.pregnancyStats.nextBirthId++;
+  }
+
+  return pregnancy.fetus[0].birthId;
+}
+window.ensureBirthId = ensureBirthId;
+
 function giveBirthToChildren(mother, birthLocation, location, pregnancyOverride) {
-	let pregnancy;
-	if (mother === "pc") {
-		pregnancy = getPregnancyObject();
-	} else if (C.npc[mother]) {
-		pregnancy = C.npc[mother].pregnancy;
-	} else {
-		pregnancy = pregnancyOverride;
-	}
-	if (!pregnancy || !pregnancy.fetus.length) return false;
-	if (mother) {
-		let parentId = parentFunction.findParent(mother, 0, true);
-		if (parentId) {
-			if (Array.isArray(parentId)) parentId = parentId[0];
-			parentFunction.increaseBirths(parentId.id, 0);
-			// Fix for previous named npc's not updating totalBirthEvents
-			if (mother !== "pc") pregnancy.totalBirthEvents = parentId.births;
-		}
-	}
+  const V = (typeof State !== "undefined" && State.variables) ? State.variables : window.V;
 
-	const birthId = mother + pregnancy.fetus[0].birthId;
-	switch (location) {
-		case "home":
-			setKnowsAboutPregnancy(mother, "Bailey", birthId, true, pregnancyOverride);
-			break;
-		case "wolf_cave":
-			setKnowsAboutPregnancy(mother, "Black Wolf", birthId);
-			break;
-		case "tower":
-			setKnowsAboutPregnancy(mother, "Great Hawk", birthId);
-			break;
-		default:
-			break;
-	}
+  let pregnancy;
+  if (pregnancyOverride) {
+    pregnancy = pregnancyOverride;
+  } else if (mother === "pc") {
+    pregnancy = getPregnancyObject();
+  } else if (typeof C !== "undefined" && C.npc && C.npc[mother]) {
+    pregnancy = C.npc[mother].pregnancy;
+  } else {
+    pregnancy = null;
+  }
 
-	switch (pregnancy.type) {
-		case "human":
-			V.pregnancyStats.humanToysUnlocked = true;
-			break;
-		case "wolf":
-			V.pregnancyStats.wolfToysUnlocked = true;
-			break;
-		case "hawk":
-			V.pregnancyStats.hawkToysUnlocked = true;
-			break;
-	}
+  // getPregnancyObject() might return [pregnancy, genital]
+  if (Array.isArray(pregnancy)) pregnancy = pregnancy[0];
 
-	pregnancy.fetus.forEach(childObject => {
-		pregnancy.givenBirth++;
-		V.children[childObject.childId] = {
-			...childObject,
-			name: !childObject.eggTimer ? generateBabyName(childObject.name, childObject.gender, childObject.childId) : "",
-			born: { day: clone(Time.monthDay), month: clone(Time.monthName), year: clone(Time.year) },
-			location,
-			birthLocation,
-		};
-		if (childObject.mother === "pc") {
-			V.pregnancyStats.playerChildren++;
-		} else if (childObject.father === "pc") {
-			V.pregnancyStats.npcChildren++;
-		} else {
-			V.pregnancyStats.npcChildrenUnrelatedToPlayer++;
-		}
-		switch (childObject.type) {
-			case "human":
-				V.pregnancyStats.humanChildren++;
-				break;
-			case "wolf":
-				V.pregnancyStats.wolfChildren++;
-				break;
-			case "hawk":
-				V.pregnancyStats.hawkChildren++;
-				// Hawk's born time should be replaced later with the day they hatch
-				V.children[childObject.childId].laid = { day: clone(Time.monthDay), month: clone(Time.monthName), year: clone(Time.year) };
-				V.children[childObject.childId].laidLocation = birthLocation;
-				break;
-		}
-	});
-	return true;
+  if (!pregnancy) return false;
+  if (!Array.isArray(pregnancy.fetus) || pregnancy.fetus.length === 0) return false;
+
+  // Fix sparse fetus + make sure birthId exists BEFORE anything else reads it
+  const bid = ensureBirthId(pregnancy, mother);
+  if (bid == null) return false;
+
+  if (mother) {
+    let parentId = parentFunction.findParent(mother, 0, true);
+    if (parentId) {
+      if (Array.isArray(parentId)) parentId = parentId[0];
+      parentFunction.increaseBirths(parentId.id, 0);
+      if (mother !== "pc") pregnancy.totalBirthEvents = parentId.births;
+    }
+  }
+
+  V.pregnancyStats ??= {};
+  V.children ??= {};
+
+  // Prevent NaN sources
+  if (!_pf_isFiniteNum(pregnancy.givenBirth)) pregnancy.givenBirth = 0;
+
+  // Unlocks are booleans, safe
+  switch (pregnancy.type) {
+    case "human": V.pregnancyStats.humanToysUnlocked = true; break;
+    case "wolf":  V.pregnancyStats.wolfToysUnlocked = true; break;
+    case "hawk":  V.pregnancyStats.hawkToysUnlocked = true; break;
+  }
+
+  // Mark who knows (PASS ONLY THE NUMBER bid — do NOT prefix mother here)
+  switch (location) {
+    case "home":
+      setKnowsAboutPregnancy(mother, "Bailey", bid, true, pregnancyOverride);
+      break;
+    case "wolf_cave":
+      setKnowsAboutPregnancy(mother, "Black Wolf", bid, true, pregnancyOverride);
+      break;
+    case "tower":
+      setKnowsAboutPregnancy(mother, "Great Hawk", bid, true, pregnancyOverride);
+      break;
+  }
+
+  // Process births. Use _pf_inc to avoid NaNs forever.
+  pregnancy.fetus.forEach(childObject => {
+    if (!childObject || typeof childObject !== "object") return;
+
+    _pf_inc(pregnancy, "givenBirth", 1);
+
+    if (!childObject.childId) {
+      // If childId is missing, don't create broken child entries
+      return;
+    }
+
+    V.children[childObject.childId] = {
+      ...childObject,
+      name: !childObject.eggTimer
+        ? generateBabyName(childObject.name, childObject.gender, childObject.childId)
+        : "",
+      born: { day: clone(Time.monthDay), month: clone(Time.monthName), year: clone(Time.year) },
+      location,
+      birthLocation,
+    };
+
+    // Player/NPC totals (NaN-safe)
+    if (childObject.mother === "pc") {
+      _pf_inc(V.pregnancyStats, "playerChildren", 1);
+    } else if (childObject.father === "pc") {
+      _pf_inc(V.pregnancyStats, "npcChildren", 1);
+    } else {
+      _pf_inc(V.pregnancyStats, "npcChildrenUnrelatedToPlayer", 1);
+    }
+
+    // Species totals (NaN-safe)
+    switch (childObject.type) {
+      case "human":
+        _pf_inc(V.pregnancyStats, "humanChildren", 1);
+        break;
+      case "wolf":
+        _pf_inc(V.pregnancyStats, "wolfChildren", 1);
+        break;
+      case "hawk":
+        _pf_inc(V.pregnancyStats, "hawkChildren", 1);
+        V.children[childObject.childId].laid = { day: clone(Time.monthDay), month: clone(Time.monthName), year: clone(Time.year) };
+        V.children[childObject.childId].laidLocation = birthLocation;
+        break;
+    }
+  });
+
+  return true;
 }
 
 function recordSperm({
