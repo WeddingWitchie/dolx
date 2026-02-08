@@ -3086,27 +3086,28 @@
 	<<set _steps to [-1, 0, 1, 2, 2.5, 3, 4]>>
 	<<set _label to ["Miniature", "Tiny", "Small", "Normal", "Tall", "Large", "Giant"]>>
 
-	/* Physique max by size category (keeps old values as anchors) */
 	<<set _physMax to {
-		"-1": 3000,   /* Miniature */
-		"0":  6000,   /* Tiny */
-		"1":  10000,  /* Small */
-		"2":  12000,  /* Normal */
-		"2.5": 14000, /* Tall */
-		"3":  16000,  /* Large */
-		"4":  16000   /* Giant */
+		"-1": 3000,
+		"0":  6000,
+		"1":  10000,
+		"2":  12000,
+		"2.5": 14000,
+		"3":  16000,
+		"4":  16000
 	}>>
 
-	<<capture _i, _steps, _label, _physMax>>
-		<<for _i = 0; _i < _steps.length; _i++>>
-			<<set _val to _steps[_i]>>
+	<<for _i = 0; _i < _steps.length; _i++>>
+		<<set _val to _steps[_i]>>
+		<<set _txt to _label[_i]>>
+		<<set _newMax to _physMax[String(_val)]>>
+
+		<<capture _val _txt _newMax>>
 			<span @class="$bodysize is _val ? 'goldLink' : 'link'">
-				<<link _label[_i]>>
+				<<link _txt>>
 					<<set $bodysize to _val>>
 
-					/* Rescale physique proportionally to the new max */
 					<<set _physique_max_old to $physiquesize>>
-					<<set $physiquesize to _physMax[String(_val)]>>
+					<<set $physiquesize to _newMax>>
 					<<if _physique_max_old isnot undefined and _physique_max_old gt 0>>
 						<<set $physique *= ($physiquesize / _physique_max_old)>>
 					<</if>>
@@ -3114,8 +3115,8 @@
 					<<replace "#statsBodySize">><<cheatsBodySize>><</replace>>
 				<</link>>
 			</span> <<= _i lt _steps.length - 1 ? "|" : "">>
-		<</for>>
-	<</capture>>
+		<</capture>>
+	<</for>>
 <</widget>>
 
 <<widget "cheatsBodyShape">>
