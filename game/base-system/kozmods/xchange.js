@@ -482,6 +482,12 @@ function playerHasCharacteristic(characteristic) {
 			return (V.lactating >= 1 && V.breastfeedingdisable === "f") ? 2 : 0;
 		case "Pregnancy":
 			return (playerAwareTheyArePregnant() || (playerAwareTheyCanBePregnant() && playerIsCreampied())) ? 2 : 0;
+		case "In Heat":
+		case "In heat":
+			return (typeof playerHeatMinArousal === "function" && playerHeatMinArousal() > 0) ? 2 : 0;
+		case "In Rut":
+		case "In rut":
+			return (typeof playerRutMinArousal === "function" && playerRutMinArousal() > 0) ? 2 : 0;
 		default:
 			return 0;
 	}
@@ -1538,7 +1544,8 @@ window.xchangeEffectsMessages = xchangeEffectsMessages;
 	// XChange Fertile Helpers
 	setup.xchangeCanBePregnantNow = function () {
 		const V = State.variables;
-		return V.player?.sex === "f" && V.player?.vaginaExist === true;
+		// Keep this anatomy-based to match setup.xchangeCanBePregnant()
+		return V.player?.vaginaExist === true;
 	};
 
 	setup.xchangeSanitiseFertile = function () {
@@ -1551,4 +1558,66 @@ window.xchangeEffectsMessages = xchangeEffectsMessages;
 			pill.fertile = false;
 		}
 	};
+	// Back-compat: old saves may be missing newer X-Change pill fields.
+	// We only *fill in missing* fields; we don't wipe or "sanitise" existing data.
+	setup.xchangeEnsurePillDefaults = function () {
+		const V = State?.variables;
+		const pill = V?.xchange?.pill;
+		if (!pill) return;
+
+		// effectsKnown was introduced later; if missing and the pill is active or any effect is present,
+		// assume the player is aware (they'd notice the changes anyway).
+		if (pill.effectsKnown === undefined) {
+			const hasAnyEffect =
+				!!pill.fertile ||
+				!!pill.breederEffect ||
+				!!pill.bullEffect ||
+				!!pill.genderflipEffect ||
+				!!pill.genderificationEffect ||
+				!!pill.hermEffect ||
+				!!pill.resistanceEffect ||
+				!!pill.continueEffect ||
+				!!pill.portalEffect;
+
+			pill.effectsKnown = !!pill.active || hasAnyEffect;
+		}
+	};
+
+
+	// Back-compat: older saves may be missing global X-Change fields that core game code expects.
+	// We only initialise values when they're missing/invalid, to avoid wiping legitimate data.
+	setup.xchangeEnsureCompatGlobals = function () {
+		const V = State?.variables;
+		if (!V) return;
+		V.xchange ??= {};
+
+		// story-functions.js uses V.xchange.breederDenial in arithmetic.
+		// If it's missing or non-numeric, it can turn risk into NaN and silently disable heat.
+		const bd = Number(V.xchange.breederDenial);
+		if (!Number.isFinite(bd)) {
+			V.xchange.breederDenial = 0;
+		} else {
+			V.xchange.breederDenial = Math.clamp(bd, 0, 6);
+		}
+
+		// story-functions.js also gates heat when pregnant using V.pregnancyStats.heatStillEnabled
+		V.pregnancyStats ??= {};
+		if (typeof V.pregnancyStats.heatStillEnabled !== "boolean") {
+			try {
+				V.pregnancyStats.heatStillEnabled = (typeof playerIsPregnant === "function") ? !playerIsPregnant() : true;
+			} catch (e) {
+				V.pregnancyStats.heatStillEnabled = true;
+			}
+		}
+	};
+	// Run once now (if State is ready), and again whenever a passage starts (to catch freshly-loaded saves).
+	try { setup.xchangeEnsurePillDefaults(); } catch (e) {}
+	try { setup.xchangeEnsureCompatGlobals(); } catch (e) {}
+	if (typeof jQuery === "function") {
+		jQuery(document).on(":passagestart", () => {
+			try { setup.xchangeEnsurePillDefaults(); } catch (e) {}
+	try { setup.xchangeEnsureCompatGlobals(); } catch (e) {}
+		});
+	}
+
 })();

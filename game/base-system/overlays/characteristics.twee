@@ -1771,6 +1771,7 @@
 	<<set $_knowsTheyCanBecomePregnant to ($settings.playerPregnancyHumanEnabled or $settings.playerPregnancyBeastEnabled) and playerAwareTheyCanBePregnant()>>
 	<<set $_heatArousal to playerHeatMinArousal()>>
 	<<set $_rutArousal to playerRutMinArousal()>>
+
 	<<if $_heatArousal or $_rutArousal>>
 		<<set $_source to []>>
 		<<set $_sourceText to "Something">>
@@ -1784,20 +1785,29 @@
 		<<if $earSlime.growth gt 50 and (($earSlime.focus is "pregnancy" and $_heatArousal) or ($earSlime.focus is "impregnation" and $_rutArousal))>>
 			<<run $_source.push("ear slime")>>
 		<</if>>
-		<<if $_source.length>>
-			<<set $_sourceText to "Your " + formatList($_source, "and")>>
+		<<if $xchange isnot undefined and $xchange.pill isnot undefined and $xchange.pill.active and ($xchange.pill.fertile or $xchange.pill.breederEffect or $xchange.pill.bullEffect)>>
+			<<run $_source.push("X-Change pill")>>
 		<</if>>
 
+		/* If arousal is active but no source was found, add a neutral fallback */
+		<<if $_source.length is 0>>
+			<<run $_source.push("body")>>
+		<</if>>
+
+		<<set $_sourceText to "Your " + formatList($_source, "and")>>
+
 		/* arousedText */
-		<<if $_source.length and $_heatArousal and $_knowsTheyCanBecomePregnant>>
+		<<if $_heatArousal and $_knowsTheyCanBecomePregnant>>
 			<<run $_arousal.push("heat")>>
 		<</if>>
-		<<if $_source.length and $_rutArousal>>
+		<<if $_rutArousal>>
 			<<run $_arousal.push("rut")>>
 		<</if>>
+
 		<<if $_arousal.length>>
 			<<set $_arousedText to "sending you into " + formatList($_arousal, "and")>>
 		<</if>>
 	<</if>>
-	<</silently>><<if $_sourceText>><<print $_sourceText>><<print $_source.length and $_source.length gte 2 ? " are " : " is">> <<print $_arousedText>>.<<if _args[0]>><br><br><</if>><</if>>
+<</silently>><<if $_sourceText>><<print $_sourceText>><<print $_source.length gte 2 ? " are " : " is">> <<print $_arousedText>>.<<if _args[0]>><br><br><</if>><</if>>
 <</widget>>
+
