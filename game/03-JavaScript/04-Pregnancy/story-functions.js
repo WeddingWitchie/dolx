@@ -168,17 +168,18 @@ function playerIsPregnant() {
 window.playerIsPregnant = playerIsPregnant;
 
 function playerPregnancyProgress(percent = true) {
-	if (!V.sexStats) return null;
-	const vpregnancy = V.sexStats.vagina.pregnancy;
-	const apregnancy = V.sexStats.anus.pregnancy;
-	if (percent) {
-		if (vpregnancy.timerEnd) return Math.clamp(vpregnancy.timer / vpregnancy.timerEnd, 0, 1);
-		if (apregnancy.timerEnd) return Math.clamp(apregnancy.timer / apregnancy.timerEnd, 0, 1);
-	} else {
-		if (vpregnancy.timerEnd) return vpregnancy.timer;
-		if (apregnancy.timerEnd) return apregnancy.timer;
-	}
-	return null;
+	const ss = V.sexStats;
+	const vpregnancy = ss?.vagina?.pregnancy;
+	const apregnancy = ss?.anus?.pregnancy;
+
+	if (!vpregnancy && !apregnancy) return null;
+
+	const read = (p) => {
+		if (!p?.timerEnd) return null;
+		return percent ? Math.clamp(p.timer / p.timerEnd, 0, 1) : p.timer;
+	};
+
+	return read(vpregnancy) ?? read(apregnancy);
 }
 window.playerPregnancyProgress = playerPregnancyProgress;
 
