@@ -512,6 +512,25 @@ You jump out of the way, <span class="red">but it's no good.</span> The <<person
 :: Pirate Deck
 <<set $location to "pirate_ship">><<set $outside to 1>><<effects>><<getTarget true>>
 
+<<silently>>
+	<<if $pirate_journey isnot undefined>>
+		<<if $pirate_journey_total is undefined>>
+			<<set $pirate_journey_total to $pirate_journey>>
+		<</if>>
+		<<if $pirate_journey_startStamp is undefined>>
+			<<set $pirate_journey_startStamp to $timeStamp>>
+		<</if>>
+		<<if $timeStamp isnot undefined>>
+			<<set _dayUnit to ($timeStamp > 100000000000 ? 86400000 : 86400)>>
+			<<set _elapsedDays to Math.floor(($timeStamp - $pirate_journey_startStamp) / _dayUnit)>>
+			<<if _elapsedDays lt 0>><<set _elapsedDays to 0>><</if>>
+			<<set _remaining to $pirate_journey_total - _elapsedDays>>
+			<<if _remaining lt 0>><<set _remaining to 0>><</if>>
+			<<set $pirate_journey to _remaining>>
+		<</if>>
+	<</if>>
+<</silently>>
+
 You are on the deck aboard the pirate ship.
 <<if Weather.dayState is "night">>
 	<<if Weather.bloodMoon>>
@@ -556,7 +575,7 @@ You are on the deck aboard the pirate ship.
 
 <<if $stress gte $stressmax and !$possessed>>
 	<<passoutpirates>>
-<<elseif (Time.dayState is "dawn" or Time.dayState is "day") and $pirate_journey lte 1>>
+<<elseif $pirate_journey lte 0>>
 	<<npc "Zephyr">><<person1>>
 	"Land ho!" shouts a voice from the crow's nest. Zephyr strides to one side of the deck and raises <<his>> telescope. You don't need a telescope to see the shoreline, the beach sloping towards a treeline. It's close. You wonder why no one saw it until now.
 	<br><br>
@@ -1129,7 +1148,9 @@ You remain silent as Zephyr rows the boat up to a pier on Mer Street. "This is w
 "As ye like," Zephyr says. "I've been meaning to sail there. The locals have some interesting, eh, trinkets." <<He>> pauses, and when <<he>> next speaks it's in an odd hurry. "Journey should take a week."
 <br><br>
 
-<<set $pirate_journey to 7>>
+<<set $pirate_journey_total to 7>>
+<<set $pirate_journey_startStamp to $timeStamp>>
+<<set $pirate_journey to $pirate_journey_total>>
 
 <<link [[Next|Pirate Deck]]>><<endevent>><</link>>
 <br>
@@ -1302,7 +1323,9 @@ The open sea comes into view ahead. There's an audible sigh of relief as the boa
 "Now then," Zephyr announces once the shore is a great distance away, turning to you.
 
 <<if $temple_spear_mission is 1>>
-	<<set $pirate_journey to 7>>
+	<<set $pirate_journey_total to 7>>
+<<set $pirate_journey_startStamp to $timeStamp>>
+<<set $pirate_journey to $pirate_journey_total>>
 	"The journey should take a week." <<He>> peers through <<his>> telescope, and swings it over the horizon. "Yes, I'd say a week. In the meantime,
 	<<if $pirate_rank gte 1>>
 		you're a <span class="blue">mate</span> aboard this vessel, and have some duties.
