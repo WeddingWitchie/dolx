@@ -3147,20 +3147,52 @@
 		<</for>>
 	<</capture>>
 <</widget>>
-<<widget "cheatsDemeanour">>
-	<<set _faceVariants to Object.values(setup.faceVariantOptions[V.facestyle])>>
 
-	<<capture _i>>
-		<<for _i = 0; _i < _faceVariants.length; _i++>>
-			<span @class="$facevariant is _faceVariants[_i] ? 'goldLink' : 'unselected'">
-				<<link _faceVariants[_i].toUpperFirst()>>
-					<<set $facevariant to _faceVariants[_i]>>
-					<<replace "#statsDemeanour">><<cheatsDemeanour>><</replace>><<updatesidebarimg>>
-				<</link>>
-			</span>	<<= _i lt _faceVariants.length - 1 ? "|" : "">>
+<<widget "cheatsDemeanour">>
+	<<set _style to V.facestyle>>
+
+	/* Validate style */
+	<<if _style is undefined or !setup.faceVariantOptions or !setup.faceVariantOptions[_style]>>
+		<<set _style to "default">>
+		<<set $facestyle to "default">>
+		<<set $facevariant to "default">>
+	<</if>>
+
+	<<set _raw to setup.faceVariantOptions[_style]>>
+
+	/* Normalise to entries: [label, value] */
+	<<set _entries to []>>
+	<<if Array.isArray(_raw)>>
+		<<for _i = 0; _i < _raw.length; _i++>>
+			<<set _v to _raw[_i]>>
+			<<set _entries.push([_v.toUpperFirst(), _v])>>
 		<</for>>
-	<</capture>>
+	<<else>>
+		<<set _entries to Object.entries(_raw)>>
+	<</if>>
+
+	<<if !_entries or _entries.length is 0>>
+		No face variants available for this face style.
+	<<else>>
+		<<for _i = 0; _i < _entries.length; _i++>>
+			<<set _label to _entries[_i][0]>>
+			<<set _val to _entries[_i][1]>>
+
+			<<capture _label _val>>
+				<span @class="$facevariant is _val ? 'goldLink' : 'unselected'">
+					<<link _label>>
+						<<set $facevariant to _val>>
+						<<replace "#statsDemeanour">><<cheatsDemeanour>><</replace>>
+						<<updatesidebarimg>>
+					<</link>>
+				</span>
+			<</capture>>
+
+			<<= _i lt _entries.length - 1 ? "|" : "">>
+		<</for>>
+	<</if>>
 <</widget>>
+
 <<widget "cheatsSpeechAttitude">>
 	<<set _submissiveness = [1500, 1000, 500]>>
 	<<set _attitude = ["meek", "neutral", "bratty"]>>
