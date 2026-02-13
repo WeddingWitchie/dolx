@@ -1038,9 +1038,10 @@ function recordSperm({
 	return false;
 }
 DefineMacro("recordSperm", recordSperm);
-DefineMacro("recordVaginalSperm", (target, spermOwner, spermType, daysTillRemovalOverride) =>
-	recordSperm({ target, spermOwner, spermType, daysTillRemovalOverride })
-);
+DefineMacro("recordVaginalSperm", (target, spermOwner, spermType, daysTillRemovalOverride) => {
+	recordSperm({ target, spermOwner, spermType, daysTillRemovalOverride });
+	xchangeXtendGrowth( target, spermOwner, spermType );
+});
 DefineMacro("recordAnusSperm", (target, spermOwner, spermType, daysTillRemovalOverride) =>
 	recordSperm({ genital: "anus", target, spermOwner, spermType, daysTillRemovalOverride })
 );

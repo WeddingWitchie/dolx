@@ -802,6 +802,47 @@ setup.pills = [
 		npcEffects: [`<<npc-take-xchange 3 "genderflip" "continue">>`],
 	},
 	{
+		name: "X-Change X-Tend",
+		description:
+			"Genderswapping pill that grants you the opportunity to achieve your ever-dreamed penis endowment. With this pill, you'll temporarily transform into a woman with the uncanny ability to integrate superior genetic code from other human males. Get their big dick juice into your womb, and with every load you'll come closer to matching their size and girth.",
+		onTakeMessage: 
+			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a woman's body.<br><br>Your new body feels smaller, lighter, and strangely sensitive to the touch.<br><br>Looking in the mirror, you also realise you look exceedingly beautiful as well.",
+		warning_label:
+			"Warning: Orgasming while under the effects of this pill will cause your virile member to shrink. Beware that this pill offers no built-in protections against pregancy, which can result in genderswap permanency. Also, certain parasitic infections (in particular those affecting the genitalia) may prevent this pill from expiring naturally.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "pink xtend",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillbreast.png",
+		display_condition() {
+			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
+		},
+		take_condition() {
+			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-pink 7 "xtend" "fertile">>`],
+		npc_display_condition() {
+			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "m") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-take-xchange 7 "genderflip" "xtend" "fertile">>`],
+	},
+	{
 		name: "X-Change Pink Resistance",
 		description:
 			"Temporary pill but if you climax, there's a chance it becomes permanent. Each climax increases the likelihood of permanence. Pill effects may last upto 24 hours or less. It is impossible to become pregnant while under the non-permanent effects of Resistance.",
@@ -3106,6 +3147,7 @@ function backCompPillsInventory() {
 		"X-Change Pink Weekly": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Pink NOW": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Pink Xtra Strength": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+		"X-Change X-Tend": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Pink Resistance": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Pink Continue": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Pink Breeder": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},

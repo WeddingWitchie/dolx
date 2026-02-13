@@ -1459,6 +1459,7 @@
 	so that it's more obvious what's wrong when people report bugs -->
 <<widget "penissize">><<silently>>
 	<<set $_size to $combat or $playerHasStraponOverride ? playerPenisSize() : $player.penissize>>
+	<<set _measure to 8 + 3 * $_size + ($playerHasStraponOverride? 0 : (1000 - $penisgrowthtimer)/500)>>
 	<<switch $_size>>
 		<<case -2>><<set _text_output to "micro">>
 		<<case -1>><<set _text_output to "mini">>
@@ -1469,6 +1470,7 @@
 		<<case 4>><<set _text_output to "enormous">>
 		<<default>><<set _text_output to "[Widget 'penissize' - Invalid Penis Value of - " + $_size + ($playerHasStraponOverride ? " - $playerHasStraponOverride is set" : "") + "]">>
 	<</switch>>
+	<<set _text_output to `${_measure.toFixed(2)} cm`>>
 	<<set _penisSizeDescribed to true>>
 <</silently>><<print _text_output>><</widget>>
 
@@ -1502,7 +1504,7 @@
 <!-- [0] - if truthy, genital sensitivity is omitted -->
 <<widget "penis">><<silently>>
 	<!-- Size, skip if mentioned this passage already -->
-	<<if _penisSizeDescribed>>
+	<<if _penisSizeDescribed and !_characteristicsOverride>>
 		<<set _penissize_text to "">>
 	<<else>>
 		<<penissize>><<set _penissize_text to _text_output>>
