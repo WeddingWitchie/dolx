@@ -301,6 +301,7 @@
 			<<set $sexStats.vagina.menstruation.running = true>>
 		<</if>>
 	<</if>>
+	<<ensureSexStatsForPhysicalAdjustments>>
 	<<if $sexStats.vagina.pregnancy.fetus is undefined>>
 		<<set $sexStats.vagina.pregnancy.fetus = []>>
 		<<run delete $sexStats.vagina.pregnancy.currentCount>>
@@ -370,6 +371,7 @@
 
 :: Widgets physicalAdjustments [widget]
 <<widget "physicalAdjustments">>
+<<ensureSexStatsForPhysicalAdjustments>>
 	/*Breasts*/
 	<<switch $sexStats.pills.mostTaken["breast"]>>
 		<<case "growth">>
@@ -397,8 +399,10 @@
 
 		<<set _breastMulti += (Math.clamp($sexStats.breasts.playedWith, 0, 500) / 250)>>
 
-		<<set _breastMulti += Math.clamp($sexStats.anus.pregnancy.fetus.length / 10,0,0.5)>>
-		<<set _breastMulti += Math.clamp($sexStats.vagina.pregnancy.fetus.length / 10,0,0.5)>>
+		<<set _anusFetusLen to ($sexStats.anus && $sexStats.anus.pregnancy && $sexStats.anus.pregnancy.fetus) ? $sexStats.anus.pregnancy.fetus.length : 0>>
+		<<set _vagFetusLen  to ($sexStats.vagina && $sexStats.vagina.pregnancy && $sexStats.vagina.pregnancy.fetus) ? $sexStats.vagina.pregnancy.fetus.length : 0>>
+		<<set _breastMulti += Math.clamp(_anusFetusLen / 10, 0, 0.5)>>
+		<<set _breastMulti += Math.clamp(_vagFetusLen  / 10, 0, 0.5)>>
 
 		<<if $purity gte 990>>
 			<<set _breastMulti -= 1>>
@@ -629,8 +633,6 @@
 
 	<<run resetAllDoseTaken()>>
 	<<autoTakePillCheck>>
-
-	/************************************/
 <</widget>>
 
 <<widget "autoTakePillCheck">>
@@ -717,6 +719,7 @@
 
 /*<<creampie "npc" "anus">> -- <<set $sexStats.creampie.npc.anus++>>*/
 /*<<creampie "self" "mouth">> -- <<set $sexStats.creampie.self.mouth++>>*/
+
 :: Widgets creampie [widget]
 <<widget "creampie">>
 	<<if _args[0] and _args[1]>>

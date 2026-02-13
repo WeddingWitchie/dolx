@@ -1,28 +1,52 @@
 :: X-Change Old Gender Identity Widgets [widget]
 <<set $xchange to $xchange || {}>>
+<<set $xchange.giAutoEnabled to true>>
+<<set $xchange.giTransformEnabled to true>>
+<<set $xchange.giTransformEnabled to true>>
+<<set $xchange.giRange to 1000>>
+<<set $xchange.giStepPerDay to 8>>
+<<set $xchange.giTransformThreshold to 30>>
 
-<<if $xchange.giAutoEnabled is undefined>>
-	<<set $xchange.giAutoEnabled to false>>
-<</if>>
-<<if $xchange.giTransformEnabled is undefined>>
-	<<set $xchange.giTransformEnabled to false>>
-<</if>>
-<<if $xchange.giRange is undefined>>
-	<<set $xchange.giRange to 1000>>
-<</if>>
-<<if $xchange.giStepPerDay is undefined>>
-	<<set $xchange.giStepPerDay to 8>>
-<</if>>
-<<if $xchange.giTransformThreshold is undefined>>
-	<<set $xchange.giTransformThreshold to 30>>
-<</if>>
+<<widget "ensure-sexstats-min">>
+	/* Only fill missing sub-fields that some widgets read. Avoid touching pregnancy/other complex structures. */
+	<<if $sexStats is undefined>>
+		<<set $sexStats = {}>>
+	<</if>>
+
+	<<if $sexStats.breasts is undefined>>
+		<<set $sexStats.breasts = { playedWith : 0 }>>
+	<<elseif $sexStats.breasts.playedWith is undefined>>
+		<<set $sexStats.breasts.playedWith = 0>>
+	<</if>>
+
+	<<if $sexStats.creampie is undefined>>
+		<<set $sexStats.creampie = {}>>
+	<</if>>
+	<<if $sexStats.creampie.self is undefined>>
+		<<set $sexStats.creampie.self = { anus: 0, mouth: 0, vagina: 0 }>>
+	<</if>>
+	<<if $sexStats.creampie.npc is undefined>>
+		<<set $sexStats.creampie.npc = { anus: 0, mouth: 0, vagina: 0 }>>
+	<</if>>
+
+	/* Some X-Change effects reference menstruation. Keep it lightweight. */
+	<<if $sexStats.vagina is undefined>>
+		<<set $sexStats.vagina = {}>>
+	<</if>>
+	<<if $sexStats.vagina.menstruation is undefined>>
+		<<set $sexStats.vagina.menstruation = { running: false }>>
+	<<elseif $sexStats.vagina.menstruation.running is undefined>>
+		<<set $sexStats.vagina.menstruation.running = false>>
+	<</if>>
+<</widget>>
+
+
 <<if $xchange.genderIdentityEnabled is undefined>>
 	<<set $xchange.genderIdentityEnabled to true>>
 <</if>>
 <<if $genderidentity is undefined>>
-	<<set $genderidentity to 500>>
+	<<set $genderidentity to 500>>  /* midpoint of 0..1000 */
 <</if>>
-
 
 <<widget "gi-compute-target">>
 	/* Produces:
@@ -121,6 +145,8 @@
 <</widget>>
 
 <<widget "gi-auto-update">>
+	<<ensure-sexstats-min>>
+
 	<<if !$xchange.genderIdentityEnabled or !$xchange.giAutoEnabled>>
 		<<return>>
 	<</if>>
@@ -160,6 +186,16 @@
 	/* Determine whether this drift is feminising or masculinising in the existing “relative” sense */
 	<<set _feminising to ($player.gender is "m") ? (_delta lt 0) : (_delta gt 0)>>
 
+	/* Only allow body changes once on the matching side of the GI meter */
+	<<set _mid to Math.floor($xchange.giRange / 2)>>
+	<<set _onFeminineSide to ($player.gender is "m") ? ($xchange.giValue lte _mid) : ($xchange.giValue gte _mid)>>
+
+	<<if (_feminising and not _onFeminineSide) or ((not _feminising) and _onFeminineSide)>>
+		/* If drifting, but haven't crossed the midpoint yet — don't change the body */
+		<<set $xchange.giDrift to 0>>
+		<<set _passedThreshold to false>>
+	<</if>>
+
 	/* Reset stage machine when direction flips (prevents ping-pong corruption) */
 	<<if _feminising and $xchange.giShiftMode isnot "f">>
 		<<set $xchange.giShiftMode to "f">>
@@ -171,25 +207,14 @@
 
 	<<set $xchange.giDrift += Math.abs(_delta)>>
 
-	/* How many full transformation steps are queued up? */
-	<<set _steps to Math.floor($xchange.giDrift / _th)>>
-
-	/* Safety cap so you don't trigger 1000 steps after huge time skips */
-	<<if _steps gt 10>>
-		<<set _steps to 10>>
-	<</if>>
-
-	<<if _steps gt 0>>
-		<<set $xchange.giDrift -= (_steps * _th)>>
-
-		<<for _i = 0; _i lt _steps; _i++>>
-			<<if _feminising>>
-				<<gi-feminise-step>>
-			<<else>>
-				<<gi-masculinise-step>>
-			<</if>>
-		<</for>>
-	<</if>>
+	<<for _iter = 0; _iter < 200 && $xchange.giDrift >= _th; _iter++>>
+		<<set $xchange.giDrift -= _th>>
+		<<if _feminising>>
+			<<gi-feminise-step>>
+		<<else>>
+			<<gi-masculinise-step>>
+		<</if>>
+<</for>>
 <</widget>>
 
 <<widget "gi-feminise-step">>
@@ -254,8 +279,8 @@
 
 		<<case 3>> /* Face / bodyshape swap */
 			<<if $player.gender_body isnot "f">>
-				<<if $facestyle is "default">>
-					<<set $facevariant to ["sweet","catty","default","foxy"].random()>>
+				<<if $facestyle is "gentle">>
+					<<set $facevariant to ["sweet","catty","gentle","foxy"].random()>>
 				<</if>>
 				<<set $player.gender_body to "f">>
 				<<set $player.bodyshape to "curvy">>
@@ -342,11 +367,11 @@
 
 		<<case 3>> /* Face/bodyshape male */
 			<<if $player.gender_body isnot "m">>
-				<<if $facestyle is "default">>
-					<<set $facevariant to ["default","aloof","foxy"].random()>>
+				<<if $facestyle is "gentle">>
+					<<set $facevariant to ["gentle","aloof","foxy"].random()>>
 				<</if>>
 				<<set $player.gender_body to "m">>
-				<<set $player.bodyshape to "default">>
+				<<set $player.bodyshape to "classic">>
 			<</if>>
 			<<set $xchange.giShiftStage to 4>>
 
@@ -358,3 +383,119 @@
 	<<run updatePhysique()>>
 	<<clamp>>
 <</widget>>
+
+<<widget "ensureSexStatsForPhysicalAdjustments">>
+	<<run (function () {
+		var v = State.variables;
+
+		function isPlainObject(o) {
+			return o && typeof o === "object" && !Array.isArray(o);
+		}
+		function ensureObj(parent, key) {
+			if (!isPlainObject(parent[key])) parent[key] = {};
+			return parent[key];
+		}
+		function ensureArr(parent, key) {
+			if (!Array.isArray(parent[key])) parent[key] = [];
+			return parent[key];
+		}
+		function ensureNum(parent, key, fallback) {
+			if (typeof parent[key] !== "number" || Number.isNaN(parent[key])) parent[key] = fallback;
+			return parent[key];
+		}
+		function ensureStr(parent, key, fallback) {
+			if (typeof parent[key] !== "string") parent[key] = fallback;
+			return parent[key];
+		}
+		function ensureBool(parent, key, fallback) {
+			if (typeof parent[key] !== "boolean") parent[key] = fallback;
+			return parent[key];
+		}
+		function ensureNullable(parent, key, fallback) {
+			if (!(key in parent)) parent[key] = fallback;
+			return parent[key];
+		}
+
+		/* Root */
+		if (!isPlainObject(v.sexStats)) v.sexStats = {};
+		var ss = v.sexStats;
+
+		/* Breasts */
+		var breasts = ensureObj(ss, "breasts");
+		ensureNum(breasts, "playedWith", 0);
+
+		/* Creampie buckets */
+		var creampie = ensureObj(ss, "creampie");
+		var self = ensureObj(creampie, "self");
+		var npc = ensureObj(creampie, "npc");
+
+		["anus", "mouth", "vagina"].forEach(function (k) {
+			ensureNum(self, k, 0);
+			ensureNum(npc, k, 0);
+		});
+
+		/* Vagina/Anus pregnancy chain + a few common fields */
+		function ensureBodyChannel(key) {
+			var ch = ensureObj(ss, key);
+
+			var preg = ensureObj(ch, "pregnancy");
+			ensureArr(preg, "fetus");
+
+			ensureNullable(preg, "type", null);
+			ensureNullable(preg, "timer", null);
+			ensureNullable(preg, "timerEnd", null);
+			ensureNullable(preg, "timeEnd", null);
+			ensureNullable(preg, "awareOf", null);
+
+			ensureNum(preg, "motherStatus", 0);
+			ensureNum(preg, "givenBirth", 0);
+			ensureNum(preg, "totalBirthEvents", 0);
+			ensureNum(preg, "parasiteBirthEvents", 0);
+
+			ensureBool(preg, "waterBreaking", false);
+			ensureArr(preg, "potentialFathers");
+
+			var mens = ensureObj(ch, "menstruation");
+			ensureNum(mens, "stage", 1);
+			ensureNum(mens, "timer", 0);
+			ensureBool(mens, "blocked", false);
+			ensureBool(mens, "ergotBlocked", false);
+			ensureArr(mens, "history");
+
+			ensureArr(ch, "sperm");
+		}
+
+		ensureBodyChannel("vagina");
+		ensureBodyChannel("anus");
+
+		/* Pills structure used by physicalAdjustments */
+		var pills = ensureObj(ss, "pills");
+
+		var mostTaken = ensureObj(pills, "mostTaken");
+		["bottom", "breast", "penis", "pregnancy"].forEach(function (k) {
+			ensureStr(mostTaken, k, "");
+		});
+
+		var lastTaken = ensureObj(pills, "lastTaken");
+		["bottom", "breast", "penis", "pregnancy"].forEach(function (k) {
+			ensureStr(lastTaken, k, "");
+		});
+
+		var pillBucket = ensureObj(pills, "pills");
+		function ensurePill(name) {
+			var p = ensureObj(pillBucket, name);
+			ensureNum(p, "doseTaken", 0);
+			ensureNum(p, "overdose", 0);
+		}
+
+		[
+			"breast growth",
+			"breast reduction",
+			"penis growth",
+			"penis reduction",
+			"bottom growth",
+			"bottom reduction"
+		].forEach(ensurePill);
+	})()>>
+<</widget>>
+
