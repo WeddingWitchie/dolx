@@ -2479,6 +2479,7 @@
 
 	/* IDENTITY */
 	<<widget "identitySettings">>
+	<<xchange-ensure-bodysize-identity>>
 
 		<div class="settingsGrid">
 			<div class="settingsToggleItemWide">
@@ -2735,6 +2736,23 @@
 			<div class="settingsToggleItem">
 				<span class="gold">Body Size </span> <mouse class = "tooltip linkBlue">(?)<span>Unaccepted characteristics will cause dysphoria.</span></mouse>
 				<br>
+				Miniature:
+				<br>
+				<label data-target='["identity.body.bodysize.miniature.acceptance"]' data-disabledif="V.identity.body.bodysize.miniature.acceptance" class="red">
+					Reject <<checkbox "$identity.body.bodysize.miniature.reject" false true autocheck>>
+				</label> |
+				<<if $identity.init isnot 2>>
+					<label data-target='["identity.body.bodysize.preferred", "identity.init"]' data-disabledif="V.identity.body.bodysize.preferred === 'miniature' || V.identity.init">
+						Unaccepted <<radiobutton "$identity.body.bodysize.miniature.acceptance" false autocheck>>
+					</label> |
+					<label data-target='["identity.body.bodysize.miniature.reject", "identity.init"]' data-disabledif="V.identity.body.bodysize.miniature.reject || V.identity.init">
+						Accepted <<radiobutton "$identity.body.bodysize.miniature.acceptance" true autocheck>>
+					</label> |
+				<</if>>
+				<label data-target='["identity.body.bodysize.miniature.acceptance"]' data-disabledif="!V.identity.body.bodysize.miniature.acceptance" class="green">
+					Preferred <<radiobutton "$identity.body.bodysize.preferred" "miniature" autocheck>>
+				</label>
+				<br>
 				Tiny: 
 				<br> 
 				<label data-target='["identity.body.bodysize.tiny.acceptance"]' data-disabledif="V.identity.body.bodysize.tiny.acceptance" class="red">Reject <<checkbox "$identity.body.bodysize.tiny.reject" false true autocheck>></label> |
@@ -2762,6 +2780,15 @@
 				<</if>>
 				<label data-target='["identity.body.bodysize.normal.acceptance"]' data-disabledif="!V.identity.body.bodysize.normal.acceptance" class="green">Preferred <<radiobutton "$identity.body.bodysize.preferred" "normal" autocheck>></label>
 				<br>
+				Tall: 
+				<br> 
+				<label data-target='["identity.body.bodysize.tall.acceptance"]' data-disabledif="V.identity.body.bodysize.tall.acceptance" class="red">Reject <<checkbox "$identity.body.bodysize.tall.reject" false true autocheck>></label> |
+				<<if $identity.init isnot 2>>
+					<label data-target='["identity.body.bodysize.preferred", "identity.init"]' data-disabledif="V.identity.body.bodysize.preferred === 'tall' || V.identity.init">Unaccepted <<radiobutton "$identity.body.bodysize.tall.acceptance" false autocheck>></label> |
+					<label data-target='["identity.body.bodysize.tall.reject", "identity.init"]' data-disabledif="V.identity.body.bodysize.tall.reject || V.identity.init">Accepted <<radiobutton "$identity.body.bodysize.tall.acceptance" true autocheck>></label> |
+				<</if>>
+				<label data-target='["identity.body.bodysize.tall.acceptance"]' data-disabledif="!V.identity.body.bodysize.tall.acceptance" class="green">Preferred <<radiobutton "$identity.body.bodysize.preferred" "tall" autocheck>></label>
+				<br>
 				Large: 
 				<br> 
 				<label data-target='["identity.body.bodysize.large.acceptance"]' data-disabledif="V.identity.body.bodysize.large.acceptance" class="red">Reject <<checkbox "$identity.body.bodysize.large.reject" false true autocheck>></label> |
@@ -2770,6 +2797,15 @@
 					<label data-target='["identity.body.bodysize.large.reject", "identity.init"]' data-disabledif="V.identity.body.bodysize.large.reject || V.identity.init">Accepted <<radiobutton "$identity.body.bodysize.large.acceptance" true autocheck>></label> |
 				<</if>>
 				<label data-target='["identity.body.bodysize.large.acceptance"]' data-disabledif="!V.identity.body.bodysize.large.acceptance" class="green">Preferred <<radiobutton "$identity.body.bodysize.preferred" "large" autocheck>></label>
+				<br>
+				Giant: 
+				<br> 
+				<label data-target='["identity.body.bodysize.giant.acceptance"]' data-disabledif="V.identity.body.bodysize.giant.acceptance" class="red">Reject <<checkbox "$identity.body.bodysize.giant.reject" false true autocheck>></label> |
+				<<if $identity.init isnot 2>>
+					<label data-target='["identity.body.bodysize.preferred", "identity.init"]' data-disabledif="V.identity.body.bodysize.preferred === 'giant' || V.identity.init">Unaccepted <<radiobutton "$identity.body.bodysize.giant.acceptance" false autocheck>></label> |
+					<label data-target='["identity.body.bodysize.giant.reject", "identity.init"]' data-disabledif="V.identity.body.bodysize.giant.reject || V.identity.init">Accepted <<radiobutton "$identity.body.bodysize.giant.acceptance" true autocheck>></label> |
+				<</if>>
+				<label data-target='["identity.body.bodysize.giant.acceptance"]' data-disabledif="!V.identity.body.bodysize.giant.acceptance" class="green">Preferred <<radiobutton "$identity.body.bodysize.preferred" "giant" autocheck>></label>
 				<br>
 			</div>
 
@@ -2876,7 +2912,9 @@
 		<</if>>
 	<</widget>>
 
-	<<widget "identityScreen">>	
+	<<widget "identityScreen">>
+	<<xchange-ensure-bodysize-identity>>
+
 		<div class="identity-box-list">
 			<div class="settingsGrid">
 				<div class="settingsToggleItemWide">
@@ -2998,6 +3036,9 @@
 			<<case "Long Hair">>
 				<<set $identityOption to $identity.body.hairlength.long>>
 				<<set $identityPreference to $identity.body.hairlength.preferred is "long" ? true : false>>
+			<<case "Miniature Body">>
+				<<set $identityOption to $identity.body.bodysize.miniature>>
+				<<set $identityPreference to $identity.body.bodysize.preferred is "miniature" ? true : false>>
 			<<case "Tiny Body">>
 				<<set $identityOption to $identity.body.bodysize.tiny>>
 				<<set $identityPreference to $identity.body.bodysize.preferred is "tiny" ? true : false>>
@@ -3007,9 +3048,15 @@
 			<<case "Normal Body">>
 				<<set $identityOption to $identity.body.bodysize.normal>>
 				<<set $identityPreference to $identity.body.bodysize.preferred is "normal" ? true : false>>
+			<<case "Tall Body">>
+				<<set $identityOption to $identity.body.bodysize.tall>>
+				<<set $identityPreference to $identity.body.bodysize.preferred is "tall" ? true : false>>
 			<<case "Large Body">>
 				<<set $identityOption to $identity.body.bodysize.large>>
 				<<set $identityPreference to $identity.body.bodysize.preferred is "large" ? true : false>>
+			<<case "Giant Body">>
+				<<set $identityOption to $identity.body.bodysize.giant>>
+				<<set $identityPreference to $identity.body.bodysize.preferred is "giant" ? true : false>>
 			<<case "Lactation">>
 				<<set $identityOption to $identity.body.lactation>>
 				<<set $identityPreference to $identity.body.lactation.preferred is "lactation" ? true : false>>
@@ -3063,7 +3110,7 @@
 							<<set _reason to "Your chest looks big in a way that leaves a sharp ache.">>
 						<<case "Short Hair" "Medium Hair" "Long Hair">>
 							<<set _reason to "The length of your hair makes you feel trapped in the wrong image.">>
-						<<case "Tiny Body" "Small Body" "Normal Body" "Large Body">>
+						<<case "Miniature Body" "Tiny Body" "Small Body" "Normal Body" "Tall Body" "Large Body" "Giant Body">>
 							<<set _reason to "Your body size doesn't match the space you want to take up, it sits wrong in your gut.">>
 						<<case "Small Ass" "Medium Ass" "Big Ass">>
 							<<set _reason to "Your ass size doesn't feels right and maddeningly hard to ignore.">>

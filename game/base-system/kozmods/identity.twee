@@ -7,6 +7,22 @@
 <<set $xchange.giStepPerDay to 8>>
 <<set $xchange.giTransformThreshold to 30>>
 
+<<widget "xchange-ensure-bodysize-identity">>
+	<<set $identity to $identity || {}>>
+	<<set $identity.body to $identity.body || {}>>
+	<<set $identity.body.bodysize to $identity.body.bodysize || {}>>
+
+	<<if $identity.body.bodysize.preferred is undefined>>
+		<<set $identity.body.bodysize.preferred to "normal">>
+	<</if>>
+
+	<<for _k range ["miniature","tiny","small","normal","tall","large","giant"]>>
+		<<if $identity.body.bodysize[_k] is undefined>>
+			<<set $identity.body.bodysize[_k] to {acceptance:false, reject:false, dysphoria:0, tolerance:0}>>
+		<</if>>
+	<</for>>
+<</widget>>
+
 <<widget "ensure-sexstats-min">>
 	/* Only fill missing sub-fields that some widgets read. Avoid touching pregnancy/other complex structures. */
 	<<if $sexStats is undefined>>
@@ -76,7 +92,9 @@
 					<<case "Big Penis">>
 					<<case "Flat Chest">>
 					<<case "Short Hair">>
+					<<case "Tall Body">>
 					<<case "Large Body">>
+					<<case "Giant Body">>
 						<<set _dir to 1>>
 
 					/* Feminine-leaning */
@@ -98,6 +116,7 @@
 					/* Neutral-ish (pulls average toward 0 by adding weight but no signed sum) */
 					<<case "Neutral Pronouns">>
 					<<case "Medium Hair">>
+					<<case "Miniature Body">>
 					<<case "Tiny Body">>
 					<<case "Normal Body">>
 						<<set _dir to 0>>
