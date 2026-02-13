@@ -1,0 +1,360 @@
+:: X-Change Old Gender Identity Widgets [widget]
+<<set $xchange to $xchange || {}>>
+
+<<if $xchange.giAutoEnabled is undefined>>
+	<<set $xchange.giAutoEnabled to false>>
+<</if>>
+<<if $xchange.giTransformEnabled is undefined>>
+	<<set $xchange.giTransformEnabled to false>>
+<</if>>
+<<if $xchange.giRange is undefined>>
+	<<set $xchange.giRange to 1000>>
+<</if>>
+<<if $xchange.giStepPerDay is undefined>>
+	<<set $xchange.giStepPerDay to 8>>
+<</if>>
+<<if $xchange.giTransformThreshold is undefined>>
+	<<set $xchange.giTransformThreshold to 30>>
+<</if>>
+<<if $xchange.genderIdentityEnabled is undefined>>
+	<<set $xchange.genderIdentityEnabled to true>>
+<</if>>
+<<if $genderidentity is undefined>>
+	<<set $genderidentity to 500>>
+<</if>>
+
+
+<<widget "gi-compute-target">>
+	/* Produces:
+		$xchange.giAxis    = absolute axis in [-1..1] where +1 = masculine, -1 = feminine
+		$xchange.giTarget  = target $genderidentity in [0..giRange] relative to $player.gender
+	*/
+
+	<<set _sum to 0>>
+	<<set _wsum to 0>>
+
+	<<for _categoryName, _category range setup.identityIndex>>
+		<<for _char,_icon range _category>>
+			<<identitySelector _char>>
+			<<if $identityOption>>
+
+				/* Direction on absolute axis */
+				<<set _dir to 0>>
+				<<set _w to 1>>
+
+				<<switch _char>>
+					/* Masculine-leaning */
+					<<case "Masculine Clothing">>
+					<<case "Masculine Appearance">>
+					<<case "Masculine Pronouns">>
+					<<case "Small Penis">>
+					<<case "Medium Penis">>
+					<<case "Big Penis">>
+					<<case "Flat Chest">>
+					<<case "Short Hair">>
+						<<set _dir to 1>>
+
+					/* Feminine-leaning */
+					<<case "Feminine Clothing">>
+					<<case "Feminine Appearance">>
+					<<case "Feminine Pronouns">>
+					<<case "Vagina">>
+					<<case "Small Breasts">>
+					<<case "Medium Breasts">>
+					<<case "Big Breasts">>
+					<<case "Small Ass">>
+					<<case "Medium Ass">>
+					<<case "Big Ass">>
+					<<case "Long Hair">>
+					<<case "Pregnancy">>
+					<<case "Lactation">>
+						<<set _dir to -1>>
+
+					/* Neutral-ish (pulls average toward 0 by adding weight but no signed sum) */
+					<<case "Neutral Pronouns">>
+					<<case "Medium Hair">>
+					<<case "Normal Body">>
+						<<set _dir to 0>>
+						<<set _w to 1.25>>
+				<</switch>>
+
+				/* Build “support” for this option from preferred/accepted/rejected + dysphoria.
+				   This is intentionally bounded so it can’t explode.
+				*/
+				<<set _support to 0>>
+
+				<<if $identityPreference>>
+					<<set _support += 0.6>>
+				<</if>>
+
+				<<if $identityOption.acceptance>>
+					<<set _support += 0.3>>
+				<</if>>
+
+				<<if $identityOption.reject>>
+					<<set _support -= 0.8>>
+				<</if>>
+
+				<<set _dys to ($identityOption.dysphoria is undefined ? 0 : $identityOption.dysphoria)>>
+				<<set _support -= Math.clamp((_dys / 100) * 0.4, 0, 0.4)>>
+
+				<<set _support to Math.clamp(_support, -1, 1)>>
+
+				<<set _sum += (_dir * _support * _w)>>
+				<<set _wsum += _w>>
+
+			<</if>>
+		<</for>>
+	<</for>>
+
+	<<set _axis to (_wsum is 0 ? 0 : Math.clamp(_sum / _wsum, -1, 1))>>
+
+	<<set _range to ($xchange.giRange is undefined ? 1000 : $xchange.giRange)>>
+	<<set _absVal to Math.round(((_axis + 1) / 2) * _range)>>
+
+	/* Convert absolute axis into the *existing* “relative to player.gender” meaning:
+	   - male: higher = more masculine
+	   - female: higher = more feminine
+	*/
+	<<set $xchange.giAxis to _axis>>
+	<<set $xchange.giTarget to ($player.gender is "m" ? _absVal : (_range - _absVal))>>
+<</widget>>
+
+<<widget "gi-auto-update">>
+	<<if !$xchange.genderIdentityEnabled or !$xchange.giAutoEnabled>>
+		<<return>>
+	<</if>>
+
+	<<gi-compute-target>>
+
+	<<set _range to ($xchange.giRange is undefined ? 1000 : $xchange.giRange)>>
+	<<set _step to ($xchange.giStepPerDay is undefined ? 8 : $xchange.giStepPerDay)>>
+
+	/* One-time init (migration) if save predates $genderidentity */
+	<<if $genderidentity is undefined>>
+		<<set $genderidentity to Math.round(_range / 2)>>
+		<<set $xchange.giMigrationWarning to true>>
+	<</if>>
+
+	<<set _delta to Math.clamp($xchange.giTarget - $genderidentity, 0 - _step, _step)>>
+
+	<<if _delta isnot 0>>
+		<<set $genderidentity += _delta>>
+		<<set $genderidentity to Math.clamp($genderidentity, 0, _range)>>
+		<<gi-transform-from-drift _delta>>
+	<</if>>
+<</widget>>
+
+<<widget "gi-transform-from-drift">>
+	<<if !$xchange.giTransformEnabled>>
+		<<return>>
+	<</if>>
+
+	<<set _delta to _args[0]>>
+	<<set _th to ($xchange.giTransformThreshold is undefined ? 30 : $xchange.giTransformThreshold)>>
+
+	<<if $xchange.giDrift is undefined>>
+		<<set $xchange.giDrift to 0>>
+	<</if>>
+
+	/* Determine whether this drift is feminising or masculinising in the existing “relative” sense */
+	<<set _feminising to ($player.gender is "m") ? (_delta lt 0) : (_delta gt 0)>>
+
+	/* Reset stage machine when direction flips (prevents ping-pong corruption) */
+	<<if _feminising and $xchange.giShiftMode isnot "f">>
+		<<set $xchange.giShiftMode to "f">>
+		<<set $xchange.giShiftStage to 0>>
+	<<elseif !_feminising and $xchange.giShiftMode isnot "m">>
+		<<set $xchange.giShiftMode to "m">>
+		<<set $xchange.giShiftStage to 0>>
+	<</if>>
+
+	<<set $xchange.giDrift += Math.abs(_delta)>>
+
+	/* How many full transformation steps are queued up? */
+	<<set _steps to Math.floor($xchange.giDrift / _th)>>
+
+	/* Safety cap so you don't trigger 1000 steps after huge time skips */
+	<<if _steps gt 10>>
+		<<set _steps to 10>>
+	<</if>>
+
+	<<if _steps gt 0>>
+		<<set $xchange.giDrift -= (_steps * _th)>>
+
+		<<for _i = 0; _i lt _steps; _i++>>
+			<<if _feminising>>
+				<<gi-feminise-step>>
+			<<else>>
+				<<gi-masculinise-step>>
+			<</if>>
+		<</for>>
+	<</if>>
+<</widget>>
+
+<<widget "gi-feminise-step">>
+	<<if $xchange.giShiftStage is undefined>>
+		<<set $xchange.giShiftStage to 0>>
+	<</if>>
+
+	/* Read preferred “final sizes” from identity prefs */
+	<<set _chPref to $identity.body.chest.preferred>>
+	<<set _btmPref to $identity.body.bottom.preferred>>
+	<<set _szPref to $identity.body.bodysize.preferred>>
+
+	<<set _breastTarget to (_chPref is "flat") ? 0 : (_chPref is "small") ? 1 : (_chPref is "medium") ? 2 : 3>>
+	<<set _bottomTarget to (_btmPref is "small") ? 1 : (_btmPref is "medium") ? 2 : 3>>
+
+	<<set _sizeTarget to (_szPref is "tiny") ? 0 : (_szPref is "small") ? 1 : (_szPref is "normal") ? 2 : 2>>
+
+	<<switch $xchange.giShiftStage>>
+
+		<<case 0>> /* Penis size reduction until swap */
+			<<if $player.penisExist>>
+				<<if $player.penissize gt 0>>
+					<<set $player.penissize -= 1>>
+				<<else>>
+					/* Swap to vagina (core lines copied from become-girl genital section) */
+					<<set $vaginause to 0>>
+					<<set $vaginastate to 0>>
+					<<set $penisuse to "none">>
+					<<set $penisstate to "none">>
+					<<set $player.sex to "f">>
+					<<set $player.ballsExist to false>>
+					<<set $player.penisExist to false>>
+					<<set $player.vaginaExist to true>>
+					<<set $player.penissize to -2>>
+					<<set $ballssize to -2>>
+					<<set $xchange.giShiftStage to 1>>
+				<</if>>
+			<<else>>
+				<<set $xchange.giShiftStage to 1>>
+			<</if>>
+
+		<<case 1>> /* Body size down */
+			<<if $bodysize gt _sizeTarget>>
+				<<set $bodysize to setup.stepBodySize($bodysize, -1)>>
+			<<else>>
+				<<set $xchange.giShiftStage to 2>>
+			<</if>>
+
+		<<case 2>> /* Breasts / ass up toward preference */
+			<<set _changed to false>>
+			<<if $player.breastsize lt _breastTarget>>
+				<<set $player.breastsize += 1>>
+				<<set _changed to true>>
+			<</if>>
+			<<if $player.bottomsize lt _bottomTarget>>
+				<<set $player.bottomsize += 1>>
+				<<set _changed to true>>
+			<</if>>
+			<<if !_changed>>
+				<<set $xchange.giShiftStage to 3>>
+			<</if>>
+
+		<<case 3>> /* Face / bodyshape swap */
+			<<if $player.gender_body isnot "f">>
+				<<if $facestyle is "default">>
+					<<set $facevariant to ["sweet","catty","default","foxy"].random()>>
+				<</if>>
+				<<set $player.gender_body to "f">>
+				<<set $player.bodyshape to "curvy">>
+			<</if>>
+			<<set $xchange.giShiftStage to 4>>
+
+		<<case 4>> /* Continue nudging sizes until “final” */
+			<<set _changed2 to false>>
+			<<if $player.breastsize lt _breastTarget>>
+				<<set $player.breastsize += 1>>
+				<<set _changed2 to true>>
+			<</if>>
+			<<if $player.bottomsize lt _bottomTarget>>
+				<<set $player.bottomsize += 1>>
+				<<set _changed2 to true>>
+			<</if>>
+			<<if !_changed2>>
+				<<set $xchange.giShiftStage to 5>>
+			<</if>>
+
+	<</switch>>
+
+	<<run updatePhysique()>>
+	<<clamp>>
+<</widget>>
+
+<<widget "gi-masculinise-step">>
+	<<if $xchange.giShiftStage is undefined>>
+		<<set $xchange.giShiftStage to 0>>
+	<</if>>
+
+	<<set _chPref to $identity.body.chest.preferred>>
+	<<set _btmPref to $identity.body.bottom.preferred>>
+	<<set _szPref to $identity.body.bodysize.preferred>>
+
+	/* Masculine targets: breast/ass low, size maybe higher */
+	<<set _breastTarget to (_chPref is "flat") ? 0 : 0>>
+	<<set _bottomTarget to (_btmPref is "small") ? 1 : 1>>
+	<<set _sizeTarget to (_szPref is "large") ? 3 : 2>>
+
+	<<switch $xchange.giShiftStage>>
+
+		<<case 0>> /* Breasts/ass down */
+			<<set _changed to false>>
+			<<if $player.breastsize gt _breastTarget>>
+				<<set $player.breastsize -= 1>>
+				<<set _changed to true>>
+			<</if>>
+			<<if $player.bottomsize gt _bottomTarget>>
+				<<set $player.bottomsize -= 1>>
+				<<set _changed to true>>
+			<</if>>
+			<<if !_changed>>
+				<<set $xchange.giShiftStage to 1>>
+			<</if>>
+
+		<<case 1>> /* Body size up */
+			<<if $bodysize lt _sizeTarget>>
+				<<set $bodysize to setup.stepBodySize($bodysize, 1)>>
+			<<else>>
+				<<set $xchange.giShiftStage to 2>>
+			<</if>>
+
+		<<case 2>> /* Genitals: grow penis then remove vagina */
+			<<if !$player.penisExist>>
+				/* Swap to penis (core lines from become-boy genital section) */
+				<<set $vaginause to "none">>
+				<<set $vaginastate to "none">>
+				<<set $penisuse to 0>>
+				<<set $penisstate to 0>>
+				<<set $player.sex to "m">>
+				<<set $player.ballsExist to true>>
+				<<set $player.penisExist to true>>
+				<<set $player.vaginaExist to false>>
+				<<set $player.penissize to 1>>
+				<<set $xchange.giShiftStage to 3>>
+			<<else>>
+				<<if $player.penissize lt 3>>
+					<<set $player.penissize += 1>>
+				<<else>>
+					<<set $xchange.giShiftStage to 3>>
+				<</if>>
+			<</if>>
+
+		<<case 3>> /* Face/bodyshape male */
+			<<if $player.gender_body isnot "m">>
+				<<if $facestyle is "default">>
+					<<set $facevariant to ["default","aloof","foxy"].random()>>
+				<</if>>
+				<<set $player.gender_body to "m">>
+				<<set $player.bodyshape to "default">>
+			<</if>>
+			<<set $xchange.giShiftStage to 4>>
+
+		<<case 4>> /* Done */
+			<<set $xchange.giShiftStage to 5>>
+
+	<</switch>>
+
+	<<run updatePhysique()>>
+	<<clamp>>
+<</widget>>
