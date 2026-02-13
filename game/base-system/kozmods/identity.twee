@@ -76,6 +76,7 @@
 					<<case "Big Penis">>
 					<<case "Flat Chest">>
 					<<case "Short Hair">>
+					<<case "Large Body">>
 						<<set _dir to 1>>
 
 					/* Feminine-leaning */
@@ -97,6 +98,7 @@
 					/* Neutral-ish (pulls average toward 0 by adding weight but no signed sum) */
 					<<case "Neutral Pronouns">>
 					<<case "Medium Hair">>
+					<<case "Tiny Body">>
 					<<case "Normal Body">>
 						<<set _dir to 0>>
 						<<set _w to 1.25>>
@@ -169,6 +171,26 @@
 		<<set $genderidentity to Math.clamp($genderidentity, 0, _range)>>
 		<<gi-transform-from-drift _delta>>
 	<</if>>
+
+	/* --- Extra: drift from current GI position ("pressure"), so body keeps shifting even when GI has settled --- */
+	<<if $xchange.giTransformEnabled>>
+		<<set _mid to Math.floor(_range / 2)>>
+		<<if _mid > 0>>
+			<<set _pressureRaw to Math.abs($genderidentity - _mid)>>
+			/* scale so it behaves the same whether range is 8 or 1000 */
+			<<set _pressure to Math.round(Math.min(_step, (_pressureRaw / _mid) * _step))>>
+
+			<<if _pressure > 0>>
+				/* Signed so gi-transform-from-drift keeps using its own direction logic */
+				<<set _signed to (($player.gender === "m")
+					? (($genderidentity <= _mid) ? -_pressure : _pressure)
+					: (($genderidentity >= _mid) ?  _pressure : -_pressure)
+				)>>
+
+				<<gi-transform-from-drift _signed>>
+			<</if>>
+		<</if>>
+	<</if>>
 <</widget>>
 
 <<widget "gi-transform-from-drift">>
@@ -177,30 +199,45 @@
 	<</if>>
 
 	<<set _delta to _args[0]>>
+	<<if _delta is 0>>
+		<<return>>
+	<</if>>
+
+	<<set _range to ($xchange.giRange is undefined ? 1000 : $xchange.giRange)>>
+	<<set _mid to Math.floor(_range / 2)>>
 	<<set _th to ($xchange.giTransformThreshold is undefined ? 30 : $xchange.giTransformThreshold)>>
 
-	<<if $xchange.giDrift is undefined>>
-		<<set $xchange.giDrift to 0>>
+	<<if $xchange.giDrift is undefined>><<set $xchange.giDrift to 0>><</if>>
+	<<if $xchange.giShiftMode is undefined>><<set $xchange.giShiftMode to "">><</if>>
+	<<if $xchange.giShiftStage is undefined>><<set $xchange.giShiftStage to 0>><</if>>
+
+	/* Direction (matches "relative" GI meaning from gi-compute-target) */
+	<<set _feminising to false>>
+	<<if $player.gender is "m">>
+		<<set _feminising to (_delta lt 0)>>
+	<<else>>
+		<<set _feminising to (_delta gt 0)>>
 	<</if>>
 
-	/* Determine whether this drift is feminising or masculinising in the existing “relative” sense */
-	<<set _feminising to ($player.gender is "m") ? (_delta lt 0) : (_delta gt 0)>>
+	/* Which side of the meter are we CURRENTLY on? */
+	<<set _onFeminineSide to false>>
+	<<if $player.gender is "m">>
+		<<set _onFeminineSide to ($genderidentity lte _mid)>>
+	<<else>>
+		<<set _onFeminineSide to ($genderidentity gte _mid)>>
+	<</if>>
 
-	/* Only allow body changes once on the matching side of the GI meter */
-	<<set _mid to Math.floor($xchange.giRange / 2)>>
-	<<set _onFeminineSide to ($player.gender is "m") ? ($xchange.giValue lte _mid) : ($xchange.giValue gte _mid)>>
-
+	/* Guard: don't change body until meter on the matching side */
 	<<if (_feminising and not _onFeminineSide) or ((not _feminising) and _onFeminineSide)>>
-		/* If drifting, but haven't crossed the midpoint yet — don't change the body */
 		<<set $xchange.giDrift to 0>>
-		<<set _passedThreshold to false>>
+		<<return>>
 	<</if>>
 
-	/* Reset stage machine when direction flips (prevents ping-pong corruption) */
+	/* Reset stage machine when direction flips */
 	<<if _feminising and $xchange.giShiftMode isnot "f">>
 		<<set $xchange.giShiftMode to "f">>
 		<<set $xchange.giShiftStage to 0>>
-	<<elseif !_feminising and $xchange.giShiftMode isnot "m">>
+	<<elseif (not _feminising) and $xchange.giShiftMode isnot "m">>
 		<<set $xchange.giShiftMode to "m">>
 		<<set $xchange.giShiftStage to 0>>
 	<</if>>
@@ -214,288 +251,208 @@
 		<<else>>
 			<<gi-masculinise-step>>
 		<</if>>
-<</for>>
+	<</for>>
 <</widget>>
 
+
 <<widget "gi-feminise-step">>
-	<<if $xchange.giShiftStage is undefined>>
+
+	/* Stage machine init */
+	<<if $xchange.giShiftMode isnot "f">>
+		<<set $xchange.giShiftMode to "f">>
 		<<set $xchange.giShiftStage to 0>>
 	<</if>>
 
-	/* Read preferred “final sizes” from identity prefs */
-	<<set _chPref to $identity.body.chest.preferred>>
-	<<set _btmPref to $identity.body.bottom.preferred>>
-	<<set _szPref to $identity.body.bodysize.preferred>>
+	/* Stage 0: setup */
+	<<if $xchange.giShiftStage is 0>>
+		<<if $player.gender is "m">>
+			<<set $xchange.giMaxGenderIdentityShift to 900>>
+		<</if>>
+		<<set $xchange.giShiftStage to 1>>
+	<</if>>
 
-	<<set _breastTarget to (_chPref is "flat") ? 0 : (_chPref is "small") ? 1 : (_chPref is "medium") ? 2 : 3>>
-	<<set _bottomTarget to (_btmPref is "small") ? 1 : (_btmPref is "medium") ? 2 : 3>>
-
-	<<set _sizeTarget to (_szPref is "tiny") ? 0 : (_szPref is "small") ? 1 : (_szPref is "normal") ? 2 : 2>>
-
-	<<switch $xchange.giShiftStage>>
-
-		<<case 0>> /* Penis size reduction until swap */
-			<<if $player.penisExist>>
-				<<if $player.penissize gt 0>>
-					<<set $player.penissize -= 1>>
-				<<else>>
-					/* Swap to vagina (core lines copied from become-girl genital section) */
-					<<set $vaginause to 0>>
-					<<set $vaginastate to 0>>
-					<<set $penisuse to "none">>
-					<<set $penisstate to "none">>
-					<<set $player.sex to "f">>
-					<<set $player.ballsExist to false>>
-					<<set $player.penisExist to false>>
-					<<set $player.vaginaExist to true>>
-					<<set $player.penissize to -2>>
-					<<set $ballssize to -2>>
-					<<set $xchange.giShiftStage to 1>>
-				<</if>>
+	/* Stage 1: keep shrinking penis until it can be removed */
+	<<if $xchange.giShiftStage is 1>>
+		<<if $player.penisExist>>
+			<<if $player.penissize gt 0>>
+				<<set $player.penissize -= 1>>
+				<<return>>
 			<<else>>
-				<<set $xchange.giShiftStage to 1>>
-			<</if>>
-
-		<<case 1>> /* Body size down */
-			<<if $bodysize gt _sizeTarget>>
-				<<set $bodysize to setup.stepBodySize($bodysize, -1)>>
-			<<else>>
+				<<set $player.penisExist to false>>
+				<<set $player.vaginaExist to true>>
+				<<set $player.penissize to -2>>
 				<<set $xchange.giShiftStage to 2>>
 			<</if>>
+		<<else>>
+			<<if !$player.vaginaExist>>
+				<<set $player.vaginaExist to true>>
+			<</if>>
+			<<set $xchange.giShiftStage to 2>>
+		<</if>>
+	<</if>>
 
-		<<case 2>> /* Breasts / ass up toward preference */
-			<<set _changed to false>>
-			<<if $player.breastsize lt _breastTarget>>
-				<<set $player.breastsize += 1>>
-				<<set _changed to true>>
-			<</if>>
-			<<if $player.bottomsize lt _bottomTarget>>
-				<<set $player.bottomsize += 1>>
-				<<set _changed to true>>
-			<</if>>
-			<<if !_changed>>
-				<<set $xchange.giShiftStage to 3>>
-			<</if>>
+	/* Stage 2: secondary sex characteristics (one change per step) */
+	<<if $xchange.giShiftStage is 2>>
+		<<if $player.breastsize lt 5>>
+			<<set $player.breastsize += 1>>
+			<<return>>
+		<</if>>
+		<<if $player.bottomsize lt 4>>
+			<<set $player.bottomsize += 1>>
+			<<return>>
+		<</if>>
+		<<set $xchange.giShiftStage to 3>>
+	<</if>>
 
-		<<case 3>> /* Face / bodyshape swap */
-			<<if $player.gender_body isnot "f">>
-				<<if $facestyle is "gentle">>
-					<<set $facevariant to ["sweet","catty","gentle","foxy"].random()>>
-				<</if>>
-				<<set $player.gender_body to "f">>
-				<<set $player.bodyshape to "curvy">>
-			<</if>>
-			<<set $xchange.giShiftStage to 4>>
+	/* Stage 3: align physical sex */
+	<<if $xchange.giShiftStage is 3>>
+		<<if $player.sex is "m">>
+			<<set $player.sex to "f">>
+		<</if>>
+		<<set $xchange.giShiftStage to 2>>
+	<</if>>
 
-		<<case 4>> /* Continue nudging sizes until “final” */
-			<<set _changed2 to false>>
-			<<if $player.breastsize lt _breastTarget>>
-				<<set $player.breastsize += 1>>
-				<<set _changed2 to true>>
-			<</if>>
-			<<if $player.bottomsize lt _bottomTarget>>
-				<<set $player.bottomsize += 1>>
-				<<set _changed2 to true>>
-			<</if>>
-			<<if !_changed2>>
-				<<set $xchange.giShiftStage to 5>>
-			<</if>>
-
-	<</switch>>
-
-	<<run updatePhysique()>>
-	<<clamp>>
 <</widget>>
 
 <<widget "gi-masculinise-step">>
-	<<if $xchange.giShiftStage is undefined>>
+
+	/* Stage machine init */
+	<<if $xchange.giShiftMode isnot "m">>
+		<<set $xchange.giShiftMode to "m">>
 		<<set $xchange.giShiftStage to 0>>
 	<</if>>
 
-	<<set _chPref to $identity.body.chest.preferred>>
-	<<set _btmPref to $identity.body.bottom.preferred>>
-	<<set _szPref to $identity.body.bodysize.preferred>>
+	/* Stage 0: setup */
+	<<if $xchange.giShiftStage is 0>>
+		<<if $player.gender is "f">>
+			<<set $xchange.giMaxGenderIdentityShift to 900>>
+		<</if>>
+		<<set $xchange.giShiftStage to 1>>
+	<</if>>
 
-	/* Masculine targets: breast/ass low, size maybe higher */
-	<<set _breastTarget to (_chPref is "flat") ? 0 : 0>>
-	<<set _bottomTarget to (_btmPref is "small") ? 1 : 1>>
-	<<set _sizeTarget to (_szPref is "large") ? 3 : 2>>
+	/* Stage 1: keep growing penis until it exists; then remove vagina */
+	<<if $xchange.giShiftStage is 1>>
+		<<if !$player.penisExist>>
+			<<set $player.penisExist to true>>
+			<<set $player.penissize to 0>>
+			<<return>>
+		<</if>>
 
-	<<switch $xchange.giShiftStage>>
+		<<if $player.penissize lt 0>>
+			<<set $player.penissize += 1>>
+			<<return>>
+		<</if>>
 
-		<<case 0>> /* Breasts/ass down */
-			<<set _changed to false>>
-			<<if $player.breastsize gt _breastTarget>>
-				<<set $player.breastsize -= 1>>
-				<<set _changed to true>>
-			<</if>>
-			<<if $player.bottomsize gt _bottomTarget>>
-				<<set $player.bottomsize -= 1>>
-				<<set _changed to true>>
-			<</if>>
-			<<if !_changed>>
-				<<set $xchange.giShiftStage to 1>>
-			<</if>>
+		<<if $player.vaginaExist>>
+			<<set $player.vaginaExist to false>>
+			<<return>>
+		<</if>>
 
-		<<case 1>> /* Body size up */
-			<<if $bodysize lt _sizeTarget>>
-				<<set $bodysize to setup.stepBodySize($bodysize, 1)>>
-			<<else>>
-				<<set $xchange.giShiftStage to 2>>
-			<</if>>
+		<<set $xchange.giShiftStage to 2>>
+	<</if>>
 
-		<<case 2>> /* Genitals: grow penis then remove vagina */
-			<<if !$player.penisExist>>
-				/* Swap to penis (core lines from become-boy genital section) */
-				<<set $vaginause to "none">>
-				<<set $vaginastate to "none">>
-				<<set $penisuse to 0>>
-				<<set $penisstate to 0>>
-				<<set $player.sex to "m">>
-				<<set $player.ballsExist to true>>
-				<<set $player.penisExist to true>>
-				<<set $player.vaginaExist to false>>
-				<<set $player.penissize to 1>>
-				<<set $xchange.giShiftStage to 3>>
-			<<else>>
-				<<if $player.penissize lt 3>>
-					<<set $player.penissize += 1>>
-				<<else>>
-					<<set $xchange.giShiftStage to 3>>
-				<</if>>
-			<</if>>
+	/* Stage 2: secondary characteristics (one change per step) */
+	<<if $xchange.giShiftStage is 2>>
+		<<if $player.breastsize gt 0>>
+			<<set $player.breastsize -= 1>>
+			<<return>>
+		<</if>>
+		<<if $player.bottomsize gt 0>>
+			<<set $player.bottomsize -= 1>>
+			<<return>>
+		<</if>>
+		<<set $xchange.giShiftStage to 3>>
+	<</if>>
 
-		<<case 3>> /* Face/bodyshape male */
-			<<if $player.gender_body isnot "m">>
-				<<if $facestyle is "gentle">>
-					<<set $facevariant to ["gentle","aloof","foxy"].random()>>
-				<</if>>
-				<<set $player.gender_body to "m">>
-				<<set $player.bodyshape to "classic">>
-			<</if>>
-			<<set $xchange.giShiftStage to 4>>
+	/* Stage 3: align physical sex */
+	<<if $xchange.giShiftStage is 3>>
+		<<if $player.sex is "f">>
+			<<set $player.sex to "m">>
+		<</if>>
+		<<set $xchange.giShiftStage to 2>>
+	<</if>>
 
-		<<case 4>> /* Done */
-			<<set $xchange.giShiftStage to 5>>
-
-	<</switch>>
-
-	<<run updatePhysique()>>
-	<<clamp>>
 <</widget>>
 
 <<widget "ensureSexStatsForPhysicalAdjustments">>
-	<<run (function () {
-		var v = State.variables;
 
-		function isPlainObject(o) {
-			return o && typeof o === "object" && !Array.isArray(o);
-		}
-		function ensureObj(parent, key) {
-			if (!isPlainObject(parent[key])) parent[key] = {};
-			return parent[key];
-		}
-		function ensureArr(parent, key) {
-			if (!Array.isArray(parent[key])) parent[key] = [];
-			return parent[key];
-		}
-		function ensureNum(parent, key, fallback) {
-			if (typeof parent[key] !== "number" || Number.isNaN(parent[key])) parent[key] = fallback;
-			return parent[key];
-		}
-		function ensureStr(parent, key, fallback) {
-			if (typeof parent[key] !== "string") parent[key] = fallback;
-			return parent[key];
-		}
-		function ensureBool(parent, key, fallback) {
-			if (typeof parent[key] !== "boolean") parent[key] = fallback;
-			return parent[key];
-		}
-		function ensureNullable(parent, key, fallback) {
-			if (!(key in parent)) parent[key] = fallback;
-			return parent[key];
-		}
+	/* Root */
+	<<if $sexStats is undefined or $sexStats is null>>
+		<<set $sexStats to {}>>
+	<</if>>
 
-		/* Root */
-		if (!isPlainObject(v.sexStats)) v.sexStats = {};
-		var ss = v.sexStats;
+	/* Breasts */
+	<<if $sexStats.breasts is undefined or $sexStats.breasts is null>>
+		<<set $sexStats.breasts to {}>>
+	<</if>>
+	<<if $sexStats.breasts.playedWith is undefined>>
+		<<set $sexStats.breasts.playedWith to 0>>
+	<</if>>
 
-		/* Breasts */
-		var breasts = ensureObj(ss, "breasts");
-		ensureNum(breasts, "playedWith", 0);
+	/* Creampie buckets */
+	<<if $sexStats.creampie is undefined or $sexStats.creampie is null>>
+		<<set $sexStats.creampie to {}>>
+	<</if>>
+	<<if $sexStats.creampie.self is undefined or $sexStats.creampie.self is null>>
+		<<set $sexStats.creampie.self to {}>>
+	<</if>>
+	<<if $sexStats.creampie.npc is undefined or $sexStats.creampie.npc is null>>
+		<<set $sexStats.creampie.npc to {}>>
+	<</if>>
 
-		/* Creampie buckets */
-		var creampie = ensureObj(ss, "creampie");
-		var self = ensureObj(creampie, "self");
-		var npc = ensureObj(creampie, "npc");
+	<<if $sexStats.creampie.self.anus is undefined>><<set $sexStats.creampie.self.anus to 0>><</if>>
+	<<if $sexStats.creampie.self.mouth is undefined>><<set $sexStats.creampie.self.mouth to 0>><</if>>
+	<<if $sexStats.creampie.self.vagina is undefined>><<set $sexStats.creampie.self.vagina to 0>><</if>>
 
-		["anus", "mouth", "vagina"].forEach(function (k) {
-			ensureNum(self, k, 0);
-			ensureNum(npc, k, 0);
-		});
+	<<if $sexStats.creampie.npc.anus is undefined>><<set $sexStats.creampie.npc.anus to 0>><</if>>
+	<<if $sexStats.creampie.npc.mouth is undefined>><<set $sexStats.creampie.npc.mouth to 0>><</if>>
+	<<if $sexStats.creampie.npc.vagina is undefined>><<set $sexStats.creampie.npc.vagina to 0>><</if>>
 
-		/* Vagina/Anus pregnancy chain + a few common fields */
-		function ensureBodyChannel(key) {
-			var ch = ensureObj(ss, key);
+	/* Vagina / Anus + pregnancy chain */
+	<<if $sexStats.vagina is undefined or $sexStats.vagina is null>>
+		<<set $sexStats.vagina to {}>>
+	<</if>>
+	<<if $sexStats.vagina.pregnancy is undefined or $sexStats.vagina.pregnancy is null>>
+		<<set $sexStats.vagina.pregnancy to {}>>
+	<</if>>
+	<<if $sexStats.vagina.pregnancy.fetus is undefined>><<set $sexStats.vagina.pregnancy.fetus to []>><</if>>
+	<<if $sexStats.vagina.pregnancy.potentialFathers is undefined>><<set $sexStats.vagina.pregnancy.potentialFathers to []>><</if>>
+	<<if $sexStats.vagina.pregnancy.parasiteBirthEvents is undefined>><<set $sexStats.vagina.pregnancy.parasiteBirthEvents to 0>><</if>>
+	<<if $sexStats.vagina.pregnancy.parasiteFeltMovement is undefined>><<set $sexStats.vagina.pregnancy.parasiteFeltMovement to false>><</if>>
+	<<if $sexStats.vagina.pregnancy.timeEnd is undefined>><<set $sexStats.vagina.pregnancy.timeEnd to null>><</if>>
 
-			var preg = ensureObj(ch, "pregnancy");
-			ensureArr(preg, "fetus");
+	<<if $sexStats.anus is undefined or $sexStats.anus is null>>
+		<<set $sexStats.anus to {}>>
+	<</if>>
+	<<if $sexStats.anus.pregnancy is undefined or $sexStats.anus.pregnancy is null>>
+		<<set $sexStats.anus.pregnancy to {}>>
+	<</if>>
+	<<if $sexStats.anus.pregnancy.fetus is undefined>><<set $sexStats.anus.pregnancy.fetus to []>><</if>>
+	<<if $sexStats.anus.pregnancy.potentialFathers is undefined>><<set $sexStats.anus.pregnancy.potentialFathers to []>><</if>>
+	<<if $sexStats.anus.pregnancy.parasiteBirthEvents is undefined>><<set $sexStats.anus.pregnancy.parasiteBirthEvents to 0>><</if>>
+	<<if $sexStats.anus.pregnancy.parasiteFeltMovement is undefined>><<set $sexStats.anus.pregnancy.parasiteFeltMovement to false>><</if>>
+	<<if $sexStats.anus.pregnancy.timeEnd is undefined>><<set $sexStats.anus.pregnancy.timeEnd to null>><</if>>
 
-			ensureNullable(preg, "type", null);
-			ensureNullable(preg, "timer", null);
-			ensureNullable(preg, "timerEnd", null);
-			ensureNullable(preg, "timeEnd", null);
-			ensureNullable(preg, "awareOf", null);
+	/* Pills structures used by physicalAdjustments */
+	<<if $sexStats.pills is undefined or $sexStats.pills is null>>
+		<<set $sexStats.pills to {}>>
+	<</if>>
+	<<if $sexStats.pills.mostTaken is undefined or $sexStats.pills.mostTaken is null>>
+		<<set $sexStats.pills.mostTaken to {}>>
+	<</if>>
+	<<if $sexStats.pills["pills"] is undefined or $sexStats.pills["pills"] is null>>
+		<<set $sexStats.pills["pills"] to {}>>
+	<</if>>
 
-			ensureNum(preg, "motherStatus", 0);
-			ensureNum(preg, "givenBirth", 0);
-			ensureNum(preg, "totalBirthEvents", 0);
-			ensureNum(preg, "parasiteBirthEvents", 0);
+	<<if $sexStats.pills.mostTaken["breast"] is undefined>><<set $sexStats.pills.mostTaken["breast"] to "">><</if>>
+	<<if $sexStats.pills.mostTaken["penis"] is undefined>><<set $sexStats.pills.mostTaken["penis"] to "">><</if>>
+	<<if $sexStats.pills.mostTaken["bottom"] is undefined>><<set $sexStats.pills.mostTaken["bottom"] to "">><</if>>
 
-			ensureBool(preg, "waterBreaking", false);
-			ensureArr(preg, "potentialFathers");
+	<<if $sexStats.pills["pills"]["breast growth"] is undefined>><<set $sexStats.pills["pills"]["breast growth"] to {doseTaken:0, overdose:0}>><</if>>
+	<<if $sexStats.pills["pills"]["breast reduction"] is undefined>><<set $sexStats.pills["pills"]["breast reduction"] to {doseTaken:0, overdose:0}>><</if>>
+	<<if $sexStats.pills["pills"]["penis growth"] is undefined>><<set $sexStats.pills["pills"]["penis growth"] to {doseTaken:0, overdose:0}>><</if>>
+	<<if $sexStats.pills["pills"]["penis reduction"] is undefined>><<set $sexStats.pills["pills"]["penis reduction"] to {doseTaken:0, overdose:0}>><</if>>
+	<<if $sexStats.pills["pills"]["bottom growth"] is undefined>><<set $sexStats.pills["pills"]["bottom growth"] to {doseTaken:0, overdose:0}>><</if>>
+	<<if $sexStats.pills["pills"]["bottom reduction"] is undefined>><<set $sexStats.pills["pills"]["bottom reduction"] to {doseTaken:0, overdose:0}>><</if>>
 
-			var mens = ensureObj(ch, "menstruation");
-			ensureNum(mens, "stage", 1);
-			ensureNum(mens, "timer", 0);
-			ensureBool(mens, "blocked", false);
-			ensureBool(mens, "ergotBlocked", false);
-			ensureArr(mens, "history");
-
-			ensureArr(ch, "sperm");
-		}
-
-		ensureBodyChannel("vagina");
-		ensureBodyChannel("anus");
-
-		/* Pills structure used by physicalAdjustments */
-		var pills = ensureObj(ss, "pills");
-
-		var mostTaken = ensureObj(pills, "mostTaken");
-		["bottom", "breast", "penis", "pregnancy"].forEach(function (k) {
-			ensureStr(mostTaken, k, "");
-		});
-
-		var lastTaken = ensureObj(pills, "lastTaken");
-		["bottom", "breast", "penis", "pregnancy"].forEach(function (k) {
-			ensureStr(lastTaken, k, "");
-		});
-
-		var pillBucket = ensureObj(pills, "pills");
-		function ensurePill(name) {
-			var p = ensureObj(pillBucket, name);
-			ensureNum(p, "doseTaken", 0);
-			ensureNum(p, "overdose", 0);
-		}
-
-		[
-			"breast growth",
-			"breast reduction",
-			"penis growth",
-			"penis reduction",
-			"bottom growth",
-			"bottom reduction"
-		].forEach(ensurePill);
-	})()>>
 <</widget>>
-
