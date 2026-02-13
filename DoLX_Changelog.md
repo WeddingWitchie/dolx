@@ -15,7 +15,8 @@
 
 ### Rebalancing and Bug fixes:
 * Restored the "current sex" sidebar icon feature. But made it start disabled by default, as agreed with D.N.A.
-* Limited the hallway spike event to only happen once you're a notorious pill taker.
+* (0.17.1b) Limited the hallway spike event to only happen once you're a notorious pill taker. 
+* (0.17.1c) X-Tend now gives you a Cancel pill when first consumed, which can be used to end the transformation early if you already failed. Also, a tracker was added to the trait screen to visualise cummulative dick size changes.
 
 ### Dev note (Akoz):
 Heya! I was given a few days off from work, and I was itching to implement this pill so I could go play the game myself with the Christmas Vanilla changes that D.N.A. so gracefully merged in my place. I hope y'all are having fun despite my absence, and I hope y'all get to enjoy this new pill that was cooked by the broad X-Change community.
