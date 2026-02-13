@@ -963,6 +963,7 @@
 		<<set $xchange.pill.breederEffect to false>>
 		<<set $xchange.breederDenial to 0>>
 		<<set $xchange.pill.bullEffect to false>>
+		<<set $xchange.pill.xtendEffect to false>>
 		<<set $xchange.pill.resistanceEffect to false>>
 		<<set $xchange.pill.continueEffect to false>>
 		<<set $xchange.pill.passionEffect to false>>
@@ -1051,6 +1052,13 @@
 			/* ADDED */
 			<<set _xchangeNeedsRefresh to true>>
 		<</if>>
+
+	<<case "xtend">>
+		<<set $xchange.pill.xtendEffect to true>>
+		<<set $xchange.pill.xtendTracker to {
+			orgasmed: 0,
+			penisSizeGains: 0,
+		}>>
 
 	<<case "resistance">>
 		<<if !$xchange.pill.resistanceEffect>>
@@ -1357,6 +1365,17 @@
 			<<set $xchangeRestoreMessage to 3>>
 		<</if>>
 
+		<<if $xchange.pill.xtendEffect>>
+			<<if $xchange.pill.xtendTracker.orgasmed>>
+				<<set $player.penisSize to Math.clamp($player.penisSize - $xchange.pill.xtendTracker.orgasmed, $penissizemin, $penissizemax)>>
+			<<else>>
+				<<set _increase to $xchange.pill.xtendTracker.penisSizeGains / 1000>>
+				<<set _remainder to $xchange.pill.xtendTracker.penisSizeGains % 1000>>
+				<<set $player.penisSize to Math.clamp($player.penisSize + _increase, $penissizemin, $penissizemax)>>
+				<<set $penisgrowthtimer to Math.max(0, $penisgrowthtimer - _remainder)>>
+			<</if>>
+		<</if>>
+
 		/* Clear pill effects */
 		<<if $xchange.pill.passionEffect>><<set $drugged to 0>><</if>>
 		<<set $xchange.pill.active to false>>
@@ -1395,6 +1414,10 @@
 		<<if _pill and _pill.breederEffect>>
 			<<set $xchange.breederOrgasm to false>>
 			<<unset $breederCreampied>>
+		<</if>>
+		<<if _pill.xtendEffect>>
+			<<set _pill.xtendTracker.orgasmed++>>
+			<<set $xtendMessage to _pill.xtendTracker.orgasmed gt 1? 3 : 2>>
 		<</if>>
 		<<if _pill.resistanceEffect>>
 			<<set _pill.resistanceChance to (_pill.resistanceChance * $xchange.resistanceOrgasmPenalty)>>
@@ -1762,6 +1785,8 @@
 				<mouse class="tooltip linkBlue">(?)<span>Extends its duration every time you climax.</span></mouse></li><</if>>
 			<<if $xchange.pill.resistanceEffect>><li>Resistance Effect.
 				<mouse class="tooltip linkBlue">(?)<span>Less likely to expire after its full lapse with each orgasm.</span></mouse></li><</if>>
+			<<if $xchange.pill.resistanceEffect>><li>X-Tend Effect.
+				<mouse class="tooltip linkBlue">(?)<span>Let's you grow your original penis size with every creampie from a bigger dick that yours, at the risk of forfeiting your gains and shrinking your size if you orgasm.</span></mouse></li><</if>>
 			<<if $xchange.pill.breederEffect>><li>Breeder Effect.
 				<mouse class="tooltip linkBlue">(?)<span>Enhances your fertility. Triggers orgasms upon insemination. And dimishes stress while sperm remains inside the vagina.</span></mouse>
 			</li><</if>>
@@ -1860,20 +1885,23 @@
 	<</widget>>
 
 	<<widget "currentSexSidebar">>
-		<<if $options.showCurrentSexIcon is undefined>>
-			<<set $options.showCurrentSexIcon to 0>>
-		<</if>>
-
 		<<if $options.showCurrentSexIcon>>
 			<div id="bodysex-sidebar" class="bodysex-sidebar">
 				<<if playerIsXChanged() and $xchange.pill.hermEffect and !$statFreeze>>
-					<img src="img/misc/icon/unisex.png">
-				<<elseif $player.gender_appearance is "f">>
-					<img src="img/misc/icon/female.png">
-				<<elseif $player.gender_appearance is "m">>
-					<img src="img/misc/icon/male.png">
-				<<else>>
-					<img src="img/misc/icon/unisex.png">
+					<div tooltip="<span class='green'>Herm</span>"><img dragable="false" src="img/misc/icon/unisex.png"></div>
+					
+				<<elseif $player.sex is "f">>
+					<<if playerIsXChanged() and $xchange.pill.genderificationEffect and !$xchange.pill.genderflipEffect>>
+						<div tooltip="<span class='blue'>Butch</span>"><img dragable="false" src="img/misc/icon/butch.png"></div>
+					<<else>>
+						<div tooltip="<span class='meek'>Female</span>"><img dragable="false" src="img/misc/icon/female.png"></div>
+					<</if>>
+				<<elseif $player.sex is "m">>
+					<<if playerIsXChanged() and $xchange.pill.genderificationEffect and !$xchange.pill.genderflipEffect>>
+						<div tooltip="<span class='meek'>Sissy</span>"><img dragable="false" src="img/misc/icon/sissy.png"></div>
+					<<else>>
+						<div tooltip="<span class='blue'>Male</span>"><img dragable="false" src="img/misc/icon/male.png"></div>
+					<</if>>
 				<</if>>
 			</div>
 		<</if>>

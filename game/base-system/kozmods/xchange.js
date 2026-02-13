@@ -886,6 +886,17 @@ function updateRemoverPillCatalogue() {
 }
 window.updateRemoverPillCatalogue = updateRemoverPillCatalogue;
 
+function xchangeXtendGrowth(target, spermOwner, spermType) {
+	if (target === "pc" && spermType === "human") {
+		if (V.xchange.pill.originalBody.penissize < spermOwner.penissize) {
+			V.xchange.pill.xtendTracker.penisSizeGains += 500;
+			V.xtendMessage = 1;
+			V.effectsmessage = 1;
+		}
+	}
+}
+window.xchangeXtendGrowth = xchangeXtendGrowth;
+
 function xchangeTimePassedCheck(minutes = 1) {
 	
 	if (V.arousal >= V.arousalmax * 2/5) 
@@ -1382,6 +1393,21 @@ function xchangeEffectsMessages() {
 		br();
 
 		delete V.sexual_addiction_message;
+	}
+
+	if (V.xtendMessage) {
+		if (V.xtendMessage === 1) {
+			element("span", "Your body accepts the new genetic code.", "gold");
+			element("span", "Your penis will be larger when you turn back.", "green");
+		}
+		else if (V.xtendMessage === 2) {
+			element("span", "You just lost all your penis size gains! And your dick will be smaller when you turn back.", "red");
+		}
+		else if (V.xtendMessage === 3) {
+			element("span", "Your original body's dick just shrunk even further.", "red");
+		}
+		br();
+		delete V.xtendMessage;
 	}
 
 	if (V.dumbBitchOrgasmMessage) {
