@@ -806,7 +806,7 @@ setup.pills = [
 		description:
 			"Genderswapping pill that grants you the opportunity to achieve your ever-dreamed penis endowment. With this pill, you'll temporarily transform into a woman with the uncanny ability to integrate superior genetic code from other human males. Get their big dick juice into your womb, and with every load you'll come closer to matching their size and girth.",
 		onTakeMessage: 
-			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a woman's body.<br><br>Your new body feels smaller, lighter, and strangely sensitive to the touch.<br><br>Looking in the mirror, you also realise you look exceedingly beautiful as well.",
+			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a woman's body.<br><br>Your new body feels smaller, lighter, and strangely sensitive to the touch.<br><br>Looking in the mirror, you also realise you look exceedingly beautiful as well. | <span class='blue'>+1 X-Change X-Tend Cancel pill</span>",
 		warning_label:
 			"Warning: Orgasming while under the effects of this pill will cause your virile member to shrink. Beware that this pill offers no built-in protections against pregancy, which can result in genderswap permanency. Also, certain parasitic infections (in particular those affecting the genitalia) may prevent this pill from expiring naturally.",
 		autoTake() {
@@ -836,11 +836,52 @@ setup.pills = [
 				? 1
 				: 0;
 		},
-		effects: [`<<xchange-pink 7 "xtend" "fertile">>`],
+		effects: [`<<xchange-pink 7 "xtend" "fertile">>`, `<<set V.sexStats.pills["pills"]["X-Change X-Tend Cancel"].owned++>>`],
 		npc_display_condition() {
 			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "m") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
 		},
-		npcEffects: [`<<npc-take-xchange 7 "genderflip" "xtend" "fertile">>`],
+		npcEffects: [`<<npc-take-xchange 7 "genderflip" "xtend" "fertile">>`, `<<set V.sexStats.pills["pills"]["X-Change X-Tend Cancel"].owned++>>`],
+	},
+	{
+		name: "X-Change X-Tend Cancel",
+		description:
+			"This companion pill to the X-Change X-Tend allows you to end you transformation early, at the cost of forfeiting any gains.Its main purpose however is to let you cut your losses, if you happen to have orgasmed already while under the X-Tend's effects. Thus preventing you from suffering any further losses without the chance of any gains.",
+		onTakeMessage: 
+			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as it slowly begins to twist and turn, rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a man's body.<br><br>Being back in your old body feels rather nostalgic after having spent some time genderswapped.",
+		warning_label:
+			"Warning: This pill will not negate any genital size losses already incurred pver the course of its companion pill's effect. Nor will it allow you to cash-in your gains early. If this pill is ingested to cancel the companion pill's effect, any prior size gains will be lost.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "pink xtend",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillcure.png",
+		display_condition() {
+			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
+		},
+		take_condition() {
+			return playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null && V.xchange.pill.xtendEffect
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-restore>>`],
+		npc_display_condition() {
+			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "m") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
+		},
+		npcEffects: [`<<npc-xchange-restore>>`],
 	},
 	{
 		name: "X-Change Pink Resistance",
