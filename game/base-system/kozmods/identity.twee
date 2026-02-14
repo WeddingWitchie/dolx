@@ -7,6 +7,20 @@
 <<set $xchange.giStepPerDay to 8>>
 <<set $xchange.giTransformThreshold to 30>>
 
+/* For Gender Identity Setting (Dysphoria) */
+<<if $xchange.giBreastSizeEnabled is undefined>><<set $xchange.giBreastSizeEnabled to false>><</if>>
+<<if $xchange.giAssSizeEnabled is undefined>><<set $xchange.giAssSizeEnabled to false>><</if>>
+<<if $xchange.giGenitalsEnabled is undefined>><<set $xchange.giGenitalsEnabled to false>><</if>>
+<<if $xchange.giHairLengthEnabled is undefined>><<set $xchange.giHairLengthEnabled to false>><</if>>
+<<if $xchange.giBodySizeEnabled is undefined>><<set $xchange.giBodySizeEnabled to false>><</if>>
+<<if $xchange.giFecundityEnabled is undefined>><<set $xchange.giFecundityEnabled to false>><</if>>
+<<if $xchange.giBreastSizeConfigured is undefined>><<set $xchange.giBreastSizeConfigured to false>><</if>>
+<<if $xchange.giAssSizeConfigured is undefined>><<set $xchange.giAssSizeConfigured to false>><</if>>
+<<if $xchange.giGenitalsConfigured is undefined>><<set $xchange.giGenitalsConfigured to false>><</if>>
+<<if $xchange.giHairLengthConfigured is undefined>><<set $xchange.giHairLengthConfigured to false>><</if>>
+<<if $xchange.giBodySizeConfigured is undefined>><<set $xchange.giBodySizeConfigured to false>><</if>>
+<<if $xchange.giFecundityConfigured is undefined>><<set $xchange.giFecundityConfigured to false>><</if>>
+
 <!-- LEGACY -->
 	<<widget "maleidentity">>
 		<<set _change to _args[0]>>
@@ -208,152 +222,206 @@
 				Body
 			</div>
 
-			<div class="settingsToggleItem">
+		<div class="settingsToggleItemWide">
+			<span class="gold bold">Body identity toggles:</span><br>
+				<label class="gi-body-toggle" data-gi-key="giBreastSizeEnabled" data-gi-box="gi-box-breasts" data-target='["xchange.giBreastSizeEnabled"]'>Breast Size <<checkbox "$xchange.giBreastSizeEnabled" false true autocheck>></label> |
+				<label class="gi-body-toggle" data-gi-key="giAssSizeEnabled" data-gi-box="gi-box-ass" data-target='["xchange.giAssSizeEnabled"]'>Ass Size <<checkbox "$xchange.giAssSizeEnabled" false true autocheck>></label> |
+				<label class="gi-body-toggle" data-gi-key="giGenitalsEnabled" data-gi-box="gi-box-genitals" data-target='["xchange.giGenitalsEnabled"]'>Genitals <<checkbox "$xchange.giGenitalsEnabled" false true autocheck>></label> |
+				<label class="gi-body-toggle" data-gi-key="giHairLengthEnabled" data-gi-box="gi-box-hair" data-target='["xchange.giHairLengthEnabled"]'>Hair Length <<checkbox "$xchange.giHairLengthEnabled" false true autocheck>></label> |
+				<label class="gi-body-toggle" data-gi-key="giBodySizeEnabled" data-gi-box="gi-box-bodysize" data-target='["xchange.giBodySizeEnabled"]'>Body Size <<checkbox "$xchange.giBodySizeEnabled" false true autocheck>></label> |
+				<label class="gi-body-toggle" data-gi-key="giFecundityEnabled" data-gi-box="gi-box-fecundity" data-target='["xchange.giFecundityEnabled"]'>Fecundity <<checkbox "$xchange.giFecundityEnabled" false true autocheck>></label>
+				<mouse class="tooltip linkBlue">(?)<span>Enable which Body topics are active for dysphoria/tolerance. Disabled categories are hidden and have no effect.</span></mouse>
+		</div>
+
+		<<run (function () {
+			if (setup.giBodyToggleInstalled) return;
+			setup.giBodyToggleInstalled = true;
+
+			function syncFromState() {
+				$(".gi-body-toggle").each(function () {
+					var key = this.getAttribute("data-gi-key");
+					var boxId = this.getAttribute("data-gi-box");
+					var enabled = State.variables.xchange && State.variables.xchange[key];
+					var box = document.getElementById(boxId);
+					if (box) box.style.display = enabled ? "" : "none";
+				});
+			}
+
+			$(document).on("change", ".gi-body-toggle input[type=checkbox]", function () {
+				var label = this.closest(".gi-body-toggle");
+				if (!label) return;
+				var boxId = label.getAttribute("data-gi-box");
+				var box = document.getElementById(boxId);
+				if (box) box.style.display = this.checked ? "" : "none";
+			});
+
+		/* Mark category as configured once the player interacts with anything inside it.
+		Use click for inputs so selecting "Unaccepted" (false->false) still counts as chosen. */
+		function markGiConfigured(el) {
+			var box = el.closest(".settingsToggleItem[data-gi-config]");
+			if (!box) return;
+			var ckey = box.getAttribute("data-gi-config");
+			if (!ckey) return;
+			if (!State.variables.xchange) State.variables.xchange = {};
+			State.variables.xchange[ckey] = true;
+		}
+
+		/* inputs (checkbox/radio) */
+		$(document).on("click", ".settingsToggleItem[data-gi-config] input", function () {
+			markGiConfigured(this);
+		});
+
+		/* selects */
+		$(document).on("change", ".settingsToggleItem[data-gi-config] select", function () {
+			markGiConfigured(this);
+		});
+		$(document).on(":passagedisplay", syncFromState);
+			setTimeout(syncFromState, 0);
+		})();>>
+
+			<div class="settingsToggleItem" id="gi-box-breasts" data-gi-config="giBreastSizeConfigured" style="display:none;">
 				<span class="gold">Breast Size </span> <mouse class="tooltip linkBlue">(?)<span>Unaccepted characteristics will cause dysphoria.</span></mouse>
 				<br>
 				Flat: 
 				<br> 
 				<label data-target='["identity.body.chest.flat.acceptance"]' data-disabledif="V.identity.body.chest.flat.acceptance" class="red">Reject <<checkbox "$identity.body.chest.flat.reject" false true autocheck>></label> |
-				<<if $identity.init isnot 2>>
-					<label data-target='["identity.body.chest.preferred", "identity.init"]' data-disabledif="V.identity.body.chest.preferred === 'flat' || V.identity.init">Unaccepted <<radiobutton "$identity.body.chest.flat.acceptance" false autocheck>></label> |
-					<label data-target='["identity.body.chest.flat.reject", "identity.init"]' data-disabledif="V.identity.body.chest.flat.reject || V.identity.init">Accepted <<radiobutton "$identity.body.chest.flat.acceptance" true autocheck>></label> |
+				<<if $identity.init isnot 2 or !$xchange.giBreastSizeConfigured>>
+					<label data-target='["identity.body.chest.preferred", "identity.init"]' data-disabledif="V.identity.body.chest.preferred === 'flat'">Unaccepted <<radiobutton "$identity.body.chest.flat.acceptance" false autocheck>></label> |
+					<label data-target='["identity.body.chest.flat.reject", "identity.init"]' data-disabledif="V.identity.body.chest.flat.reject">Accepted <<radiobutton "$identity.body.chest.flat.acceptance" true autocheck>></label> |
 				<</if>>
 				<label data-target='["identity.body.chest.flat.acceptance"]' data-disabledif="!V.identity.body.chest.flat.acceptance" class="green">Preferred <<radiobutton "$identity.body.chest.preferred" "flat" autocheck>></label>
 				<br>
 				Small: 
 				<br> 
 				<label data-target='["identity.body.chest.small.acceptance"]' data-disabledif="V.identity.body.chest.small.acceptance" class="red">Reject <<checkbox "$identity.body.chest.small.reject" false true autocheck>></label> |
-				<<if $identity.init isnot 2>>
-					<label data-target='["identity.body.chest.preferred", "identity.init"]' data-disabledif="V.identity.body.chest.preferred === 'small' || V.identity.init">Unaccepted <<radiobutton "$identity.body.chest.small.acceptance" false autocheck>></label> |
-					<label data-target='["identity.body.chest.small.reject", "identity.init"]' data-disabledif="V.identity.body.chest.small.reject || V.identity.init">Accepted <<radiobutton "$identity.body.chest.small.acceptance" true autocheck>></label> |
+				<<if $identity.init isnot 2 or !$xchange.giBreastSizeConfigured>>
+					<label data-target='["identity.body.chest.preferred", "identity.init"]' data-disabledif="V.identity.body.chest.preferred === 'small'">Unaccepted <<radiobutton "$identity.body.chest.small.acceptance" false autocheck>></label> |
+					<label data-target='["identity.body.chest.small.reject", "identity.init"]' data-disabledif="V.identity.body.chest.small.reject">Accepted <<radiobutton "$identity.body.chest.small.acceptance" true autocheck>></label> |
 				<</if>>
 				<label data-target='["identity.body.chest.small.acceptance"]' data-disabledif="!V.identity.body.chest.small.acceptance" class="green">Preferred <<radiobutton "$identity.body.chest.preferred" "small" autocheck>></label>
 				<br>
 				Medium: 
 				<br> 
 				<label data-target='["identity.body.chest.medium.acceptance"]' data-disabledif="V.identity.body.chest.medium.acceptance" class="red">Reject <<checkbox "$identity.body.chest.medium.reject" false true autocheck>></label> |
-				<<if $identity.init isnot 2>>
-					<label data-target='["identity.body.chest.preferred", "identity.init"]' data-disabledif="V.identity.body.chest.preferred === 'medium' || V.identity.init">Unaccepted <<radiobutton "$identity.body.chest.medium.acceptance" false autocheck>></label> |
-					<label data-target='["identity.body.chest.medium.reject", "identity.init"]' data-disabledif="V.identity.body.chest.medium.reject || V.identity.init">Accepted <<radiobutton "$identity.body.chest.medium.acceptance" true autocheck>></label> |
+				<<if $identity.init isnot 2 or !$xchange.giBreastSizeConfigured>>
+					<label data-target='["identity.body.chest.preferred", "identity.init"]' data-disabledif="V.identity.body.chest.preferred === 'medium'">Unaccepted <<radiobutton "$identity.body.chest.medium.acceptance" false autocheck>></label> |
+					<label data-target='["identity.body.chest.medium.reject", "identity.init"]' data-disabledif="V.identity.body.chest.medium.reject">Accepted <<radiobutton "$identity.body.chest.medium.acceptance" true autocheck>></label> |
 				<</if>>
 				<label data-target='["identity.body.chest.medium.acceptance"]' data-disabledif="!V.identity.body.chest.medium.acceptance" class="green">Preferred <<radiobutton "$identity.body.chest.preferred" "medium" autocheck>></label>
 				<br>
 				Big: 
 				<br> 
 				<label data-target='["identity.body.chest.big.acceptance"]' data-disabledif="V.identity.body.chest.big.acceptance" class="red">Reject <<checkbox "$identity.body.chest.big.reject" false true autocheck>></label> |
-				<<if $identity.init isnot 2>>
-					<label data-target='["identity.body.chest.preferred", "identity.init"]' data-disabledif="V.identity.body.chest.preferred === 'big' || V.identity.init">Unaccepted <<radiobutton "$identity.body.chest.big.acceptance" false autocheck>></label> |
-					<label data-target='["identity.body.chest.big.reject", "identity.init"]' data-disabledif="V.identity.body.chest.big.reject || V.identity.init">Accepted <<radiobutton "$identity.body.chest.big.acceptance" true autocheck>></label> |
+				<<if $identity.init isnot 2 or !$xchange.giBreastSizeConfigured>>
+					<label data-target='["identity.body.chest.preferred", "identity.init"]' data-disabledif="V.identity.body.chest.preferred === 'big'">Unaccepted <<radiobutton "$identity.body.chest.big.acceptance" false autocheck>></label> |
+					<label data-target='["identity.body.chest.big.reject", "identity.init"]' data-disabledif="V.identity.body.chest.big.reject">Accepted <<radiobutton "$identity.body.chest.big.acceptance" true autocheck>></label> |
 				<</if>>
 				<label data-target='["identity.body.chest.big.acceptance"]' data-disabledif="!V.identity.body.chest.big.acceptance" class="green">Preferred <<radiobutton "$identity.body.chest.preferred" "big" autocheck>></label>
 				<br>
 			</div>
-			<div class="settingsToggleItem">
+			<div class="settingsToggleItem" id="gi-box-ass" data-gi-config="giAssSizeConfigured" style="display:none;">
 				<span class="gold">Ass Size </span> <mouse class="tooltip linkBlue">(?)<span>Unaccepted characteristics will cause dysphoria.</span></mouse>
 				<br>
 				Small: 
 				<br> 
 				<label data-target='["identity.body.bottom.small.acceptance"]' data-disabledif="V.identity.body.bottom.small.acceptance" class="red">Reject <<checkbox "$identity.body.bottom.small.reject" false true autocheck>></label> |
-				<<if $identity.init isnot 2>>
-					<label data-target='["identity.body.bottom.preferred", "identity.init"]' data-disabledif="V.identity.body.bottom.preferred === 'small' || V.identity.init">Unaccepted <<radiobutton "$identity.body.bottom.small.acceptance" false autocheck>></label> |
-					<label data-target='["identity.body.bottom.small.reject", "identity.init"]' data-disabledif="V.identity.body.bottom.small.reject || V.identity.init">Accepted <<radiobutton "$identity.body.bottom.small.acceptance" true autocheck>></label> |
+				<<if $identity.init isnot 2 or !$xchange.giAssSizeConfigured>>
+					<label data-target='["identity.body.bottom.preferred", "identity.init"]' data-disabledif="V.identity.body.bottom.preferred === 'small'">Unaccepted <<radiobutton "$identity.body.bottom.small.acceptance" false autocheck>></label> |
+					<label data-target='["identity.body.bottom.small.reject", "identity.init"]' data-disabledif="V.identity.body.bottom.small.reject">Accepted <<radiobutton "$identity.body.bottom.small.acceptance" true autocheck>></label> |
 				<</if>>
 				<label data-target='["identity.body.bottom.small.acceptance"]' data-disabledif="!V.identity.body.bottom.small.acceptance" class="green">Preferred <<radiobutton "$identity.body.bottom.preferred" "small" autocheck>></label>
 				<br>
 				Medium: 
 				<br> 
 				<label data-target='["identity.body.bottom.medium.acceptance"]' data-disabledif="V.identity.body.bottom.medium.acceptance" class="red">Reject <<checkbox "$identity.body.bottom.medium.reject" false true autocheck>></label> |
-				<<if $identity.init isnot 2>>
-					<label data-target='["identity.body.bottom.preferred", "identity.init"]' data-disabledif="V.identity.body.bottom.preferred === 'medium' || V.identity.init">Unaccepted <<radiobutton "$identity.body.bottom.medium.acceptance" false autocheck>></label> |
-					<label data-target='["identity.body.bottom.medium.reject", "identity.init"]' data-disabledif="V.identity.body.bottom.medium.reject || V.identity.init">Accepted <<radiobutton "$identity.body.bottom.medium.acceptance" true autocheck>></label> |
+				<<if $identity.init isnot 2 or !$xchange.giAssSizeConfigured>>
+					<label data-target='["identity.body.bottom.preferred", "identity.init"]' data-disabledif="V.identity.body.bottom.preferred === 'medium'">Unaccepted <<radiobutton "$identity.body.bottom.medium.acceptance" false autocheck>></label> |
+					<label data-target='["identity.body.bottom.medium.reject", "identity.init"]' data-disabledif="V.identity.body.bottom.medium.reject">Accepted <<radiobutton "$identity.body.bottom.medium.acceptance" true autocheck>></label> |
 				<</if>>
 				<label data-target='["identity.body.bottom.medium.acceptance"]' data-disabledif="!V.identity.body.bottom.medium.acceptance" class="green">Preferred <<radiobutton "$identity.body.bottom.preferred" "medium" autocheck>></label>
 				<br>
 				Big: 
 				<br> 
 				<label data-target='["identity.body.bottom.big.acceptance"]' data-disabledif="V.identity.body.bottom.big.acceptance" class="red">Reject <<checkbox "$identity.body.bottom.big.reject" false true autocheck>></label> |
-				<<if $identity.init isnot 2>>
-					<label data-target='["identity.body.bottom.preferred", "identity.init"]' data-disabledif="V.identity.body.bottom.preferred === 'big' || V.identity.init">Unaccepted <<radiobutton "$identity.body.bottom.big.acceptance" false autocheck>></label> |
-					<label data-target='["identity.body.bottom.big.reject", "identity.init"]' data-disabledif="V.identity.body.bottom.big.reject || V.identity.init">Accepted <<radiobutton "$identity.body.bottom.big.acceptance" true autocheck>></label> |
+				<<if $identity.init isnot 2 or !$xchange.giAssSizeConfigured>>
+					<label data-target='["identity.body.bottom.preferred", "identity.init"]' data-disabledif="V.identity.body.bottom.preferred === 'big'">Unaccepted <<radiobutton "$identity.body.bottom.big.acceptance" false autocheck>></label> |
+					<label data-target='["identity.body.bottom.big.reject", "identity.init"]' data-disabledif="V.identity.body.bottom.big.reject">Accepted <<radiobutton "$identity.body.bottom.big.acceptance" true autocheck>></label> |
 				<</if>>
 				<label data-target='["identity.body.bottom.big.acceptance"]' data-disabledif="!V.identity.body.bottom.big.acceptance" class="green">Preferred <<radiobutton "$identity.body.bottom.preferred" "big" autocheck>></label>
 				<br>
 			</div>
-
-			<div class="settingsToggleItem">
+			<div class="settingsToggleItem" id="gi-box-genitals" data-gi-config="giGenitalsConfigured" style="display:none;">
 				<span class="gold">Genitals </span> <mouse class="tooltip linkBlue">(?)<span>Unaccepted characteristics will cause dysphoria.</span></mouse>
 				<br>
 				Vagina: 
 				<br> 
 				<label data-target='["identity.body.genitals.vagina.acceptance"]' data-disabledif="V.identity.body.genitals.vagina.acceptance" class="red">Reject <<checkbox "$identity.body.genitals.vagina.reject" false true autocheck>></label> |
-				<<if $identity.init isnot 2>>
-					<label data-target='["identity.body.genitals.preferred", "identity.init"]' data-disabledif="V.identity.body.genitals.preferred === 'vagina' || V.identity.init">Unaccepted <<radiobutton "$identity.body.genitals.vagina.acceptance" false autocheck>></label> |
-					<label data-target='["identity.body.genitals.vagina.reject", "identity.init"]' data-disabledif="V.identity.body.genitals.vagina.reject || V.identity.init">Accepted <<radiobutton "$identity.body.genitals.vagina.acceptance" true autocheck>></label> |
+				<<if $identity.init isnot 2 or !$xchange.giGenitalsConfigured>>
+					<label data-target='["identity.body.genitals.preferred", "identity.init"]' data-disabledif="V.identity.body.genitals.preferred === 'vagina'">Unaccepted <<radiobutton "$identity.body.genitals.vagina.acceptance" false autocheck>></label> |
+					<label data-target='["identity.body.genitals.vagina.reject", "identity.init"]' data-disabledif="V.identity.body.genitals.vagina.reject">Accepted <<radiobutton "$identity.body.genitals.vagina.acceptance" true autocheck>></label> |
 				<</if>>
 				<label data-target='["identity.body.genitals.vagina.acceptance"]' data-disabledif="!V.identity.body.genitals.vagina.acceptance" class="green">Preferred <<radiobutton "$identity.body.genitals.preferred" "vagina" autocheck>></label>
 				<br>
 				Small Penis: 
 				<br> 
 				<label data-target='["identity.body.genitals.smallpenis.acceptance"]' data-disabledif="V.identity.body.genitals.smallpenis.acceptance" class="red">Reject <<checkbox "$identity.body.genitals.smallpenis.reject" false true autocheck>></label> |
-				<<if $identity.init isnot 2>>
-					<label data-target='["identity.body.genitals.preferred", "identity.init"]' data-disabledif="V.identity.body.genitals.preferred === 'smallpenis' || V.identity.init">Unaccepted <<radiobutton "$identity.body.genitals.smallpenis.acceptance" false autocheck>></label> |
-					<label data-target='["identity.body.genitals.smallpenis.reject", "identity.init"]' data-disabledif="V.identity.body.genitals.smallpenis.reject || V.identity.init">Accepted <<radiobutton "$identity.body.genitals.smallpenis.acceptance" true autocheck>></label> |
+				<<if $identity.init isnot 2 or !$xchange.giGenitalsConfigured>>
+					<label data-target='["identity.body.genitals.preferred", "identity.init"]' data-disabledif="V.identity.body.genitals.preferred === 'smallpenis'">Unaccepted <<radiobutton "$identity.body.genitals.smallpenis.acceptance" false autocheck>></label> |
+					<label data-target='["identity.body.genitals.smallpenis.reject", "identity.init"]' data-disabledif="V.identity.body.genitals.smallpenis.reject">Accepted <<radiobutton "$identity.body.genitals.smallpenis.acceptance" true autocheck>></label> |
 				<</if>>
 				<label data-target='["identity.body.genitals.smallpenis.acceptance"]' data-disabledif="!V.identity.body.genitals.smallpenis.acceptance" class="green">Preferred <<radiobutton "$identity.body.genitals.preferred" "smallpenis" autocheck>></label>
 				<br>
 				Medium Penis: 
 				<br> 
 				<label data-target='["identity.body.genitals.mediumpenis.acceptance"]' data-disabledif="V.identity.body.genitals.mediumpenis.acceptance" class="red">Reject <<checkbox "$identity.body.genitals.mediumpenis.reject" false true autocheck>></label> |
-				<<if $identity.init isnot 2>>
-					<label data-target='["identity.body.genitals.preferred", "identity.init"]' data-disabledif="V.identity.body.genitals.preferred === 'mediumpenis' || V.identity.init">Unaccepted <<radiobutton "$identity.body.genitals.mediumpenis.acceptance" false autocheck>></label> |
-					<label data-target='["identity.body.genitals.mediumpenis.reject", "identity.init"]' data-disabledif="V.identity.body.genitals.mediumpenis.reject || V.identity.init">Accepted <<radiobutton "$identity.body.genitals.mediumpenis.acceptance" true autocheck>></label> |
+				<<if $identity.init isnot 2 or !$xchange.giGenitalsConfigured>>
+					<label data-target='["identity.body.genitals.preferred", "identity.init"]' data-disabledif="V.identity.body.genitals.preferred === 'mediumpenis'">Unaccepted <<radiobutton "$identity.body.genitals.mediumpenis.acceptance" false autocheck>></label> |
+					<label data-target='["identity.body.genitals.mediumpenis.reject", "identity.init"]' data-disabledif="V.identity.body.genitals.mediumpenis.reject">Accepted <<radiobutton "$identity.body.genitals.mediumpenis.acceptance" true autocheck>></label> |
 				<</if>>
 				<label data-target='["identity.body.genitals.mediumpenis.acceptance"]' data-disabledif="!V.identity.body.genitals.mediumpenis.acceptance" class="green">Preferred <<radiobutton "$identity.body.genitals.preferred" "mediumpenis" autocheck>></label>
 				<br>
 				Big Penis: 
 				<br> 
 				<label data-target='["identity.body.genitals.bigpenis.acceptance"]' data-disabledif="V.identity.body.genitals.bigpenis.acceptance" class="red">Reject <<checkbox "$identity.body.genitals.bigpenis.reject" false true autocheck>></label> |
-				<<if $identity.init isnot 2>>
-					<label data-target='["identity.body.genitals.preferred", "identity.init"]' data-disabledif="V.identity.body.genitals.preferred === 'bigpenis' || V.identity.init">Unaccepted <<radiobutton "$identity.body.genitals.bigpenis.acceptance" false autocheck>></label> |
-					<label data-target='["identity.body.genitals.bigpenis.reject", "identity.init"]' data-disabledif="V.identity.body.genitals.bigpenis.reject || V.identity.init">Accepted <<radiobutton "$identity.body.genitals.bigpenis.acceptance" true autocheck>></label> |
+				<<if $identity.init isnot 2 or !$xchange.giGenitalsConfigured>>
+					<label data-target='["identity.body.genitals.preferred", "identity.init"]' data-disabledif="V.identity.body.genitals.preferred === 'bigpenis'">Unaccepted <<radiobutton "$identity.body.genitals.bigpenis.acceptance" false autocheck>></label> |
+					<label data-target='["identity.body.genitals.bigpenis.reject", "identity.init"]' data-disabledif="V.identity.body.genitals.bigpenis.reject">Accepted <<radiobutton "$identity.body.genitals.bigpenis.acceptance" true autocheck>></label> |
 				<</if>>
 				<label data-target='["identity.body.genitals.bigpenis.acceptance"]' data-disabledif="!V.identity.body.genitals.bigpenis.acceptance" class="green">Preferred <<radiobutton "$identity.body.genitals.preferred" "bigpenis" autocheck>></label>
 				<br>
 			</div>
-
-			<div class="settingsToggleItem">
+			<div class="settingsToggleItem" id="gi-box-hair" data-gi-config="giHairLengthConfigured" style="display:none;">
 				<span class="gold">Hair Length </span> <mouse class="tooltip linkBlue">(?)<span>Unaccepted characteristics will cause dysphoria.</span></mouse>
 				<br>
 				Short: 
 				<br> 
 				<label data-target='["identity.body.hairlength.short.acceptance"]' data-disabledif="V.identity.body.hairlength.short.acceptance" class="red">Reject <<checkbox "$identity.body.hairlength.short.reject" false true autocheck>></label> |
-				<<if $identity.init isnot 2>>
-					<label data-target='["identity.body.hairlength.preferred", "identity.init"]' data-disabledif="V.identity.body.hairlength.preferred === 'short' || V.identity.init">Unaccepted <<radiobutton "$identity.body.hairlength.short.acceptance" false autocheck>></label> |
-					<label data-target='["identity.body.hairlength.short.reject", "identity.init"]' data-disabledif="V.identity.body.hairlength.short.reject || V.identity.init">Accepted <<radiobutton "$identity.body.hairlength.short.acceptance" true autocheck>></label> |
+				<<if $identity.init isnot 2 or !$xchange.giHairLengthConfigured>>
+					<label data-target='["identity.body.hairlength.preferred", "identity.init"]' data-disabledif="V.identity.body.hairlength.preferred === 'short'">Unaccepted <<radiobutton "$identity.body.hairlength.short.acceptance" false autocheck>></label> |
+					<label data-target='["identity.body.hairlength.short.reject", "identity.init"]' data-disabledif="V.identity.body.hairlength.short.reject">Accepted <<radiobutton "$identity.body.hairlength.short.acceptance" true autocheck>></label> |
 				<</if>>
 				<label data-target='["identity.body.hairlength.short.acceptance"]' data-disabledif="!V.identity.body.hairlength.short.acceptance" class="green">Preferred <<radiobutton "$identity.body.hairlength.preferred" "short" autocheck>></label>
 				<br>
 				Medium: 
 				<br> 
 				<label data-target='["identity.body.hairlength.medium.acceptance"]' data-disabledif="V.identity.body.hairlength.medium.acceptance" class="red">Reject <<checkbox "$identity.body.hairlength.medium.reject" false true autocheck>></label> |
-				<<if $identity.init isnot 2>>
-					<label data-target='["identity.body.hairlength.preferred", "identity.init"]' data-disabledif="V.identity.body.hairlength.preferred === 'medium' || V.identity.init">Unaccepted <<radiobutton "$identity.body.hairlength.medium.acceptance" false autocheck>></label> |
-					<label data-target='["identity.body.hairlength.medium.reject", "identity.init"]' data-disabledif="V.identity.body.hairlength.medium.reject || V.identity.init">Accepted <<radiobutton "$identity.body.hairlength.medium.acceptance" true autocheck>></label> |
+				<<if $identity.init isnot 2 or !$xchange.giHairLengthConfigured>>
+					<label data-target='["identity.body.hairlength.preferred", "identity.init"]' data-disabledif="V.identity.body.hairlength.preferred === 'medium'">Unaccepted <<radiobutton "$identity.body.hairlength.medium.acceptance" false autocheck>></label> |
+					<label data-target='["identity.body.hairlength.medium.reject", "identity.init"]' data-disabledif="V.identity.body.hairlength.medium.reject">Accepted <<radiobutton "$identity.body.hairlength.medium.acceptance" true autocheck>></label> |
 				<</if>>
 				<label data-target='["identity.body.hairlength.medium.acceptance"]' data-disabledif="!V.identity.body.hairlength.medium.acceptance" class="green">Preferred <<radiobutton "$identity.body.hairlength.preferred" "medium" autocheck>></label>
 				<br>
 				Long: 
 				<br> 
 				<label data-target='["identity.body.hairlength.long.acceptance"]' data-disabledif="V.identity.body.hairlength.long.acceptance" class="red">Reject <<checkbox "$identity.body.hairlength.long.reject" false true autocheck>></label> |
-				<<if $identity.init isnot 2>>
-					<label data-target='["identity.body.hairlength.preferred", "identity.init"]' data-disabledif="V.identity.body.hairlength.preferred === 'long' || V.identity.init">Unaccepted <<radiobutton "$identity.body.hairlength.long.acceptance" false autocheck>></label> |
-					<label data-target='["identity.body.hairlength.long.reject", "identity.init"]' data-disabledif="V.identity.body.hairlength.long.reject || V.identity.init">Accepted <<radiobutton "$identity.body.hairlength.long.acceptance" true autocheck>></label> |
+				<<if $identity.init isnot 2 or !$xchange.giHairLengthConfigured>>
+					<label data-target='["identity.body.hairlength.preferred", "identity.init"]' data-disabledif="V.identity.body.hairlength.preferred === 'long'">Unaccepted <<radiobutton "$identity.body.hairlength.long.acceptance" false autocheck>></label> |
+					<label data-target='["identity.body.hairlength.long.reject", "identity.init"]' data-disabledif="V.identity.body.hairlength.long.reject">Accepted <<radiobutton "$identity.body.hairlength.long.acceptance" true autocheck>></label> |
 				<</if>>
 				<label data-target='["identity.body.hairlength.long.acceptance"]' data-disabledif="!V.identity.body.hairlength.long.acceptance" class="green">Preferred <<radiobutton "$identity.body.hairlength.preferred" "long" autocheck>></label>
 				<br>
 			</div>
-
-			<div class="settingsToggleItem">
+			<div class="settingsToggleItem" id="gi-box-bodysize" data-gi-config="giBodySizeConfigured" style="display:none;">
 				<span class="gold">Body Size </span> <mouse class = "tooltip linkBlue">(?)<span>Unaccepted characteristics will cause dysphoria.</span></mouse>
 				<br>
 				Miniature:
@@ -361,11 +429,11 @@
 				<label data-target='["identity.body.bodysize.miniature.acceptance"]' data-disabledif="V.identity.body.bodysize.miniature.acceptance" class="red">
 					Reject <<checkbox "$identity.body.bodysize.miniature.reject" false true autocheck>>
 				</label> |
-				<<if $identity.init isnot 2>>
-					<label data-target='["identity.body.bodysize.preferred", "identity.init"]' data-disabledif="V.identity.body.bodysize.preferred === 'miniature' || V.identity.init">
+				<<if $identity.init isnot 2 or !$xchange.giBodySizeConfigured>>
+					<label data-target='["identity.body.bodysize.preferred", "identity.init"]' data-disabledif="V.identity.body.bodysize.preferred === 'miniature'">
 						Unaccepted <<radiobutton "$identity.body.bodysize.miniature.acceptance" false autocheck>>
 					</label> |
-					<label data-target='["identity.body.bodysize.miniature.reject", "identity.init"]' data-disabledif="V.identity.body.bodysize.miniature.reject || V.identity.init">
+					<label data-target='["identity.body.bodysize.miniature.reject", "identity.init"]' data-disabledif="V.identity.body.bodysize.miniature.reject">
 						Accepted <<radiobutton "$identity.body.bodysize.miniature.acceptance" true autocheck>>
 					</label> |
 				<</if>>
@@ -376,84 +444,81 @@
 				Tiny: 
 				<br> 
 				<label data-target='["identity.body.bodysize.tiny.acceptance"]' data-disabledif="V.identity.body.bodysize.tiny.acceptance" class="red">Reject <<checkbox "$identity.body.bodysize.tiny.reject" false true autocheck>></label> |
-				<<if $identity.init isnot 2>>
-					<label data-target='["identity.body.bodysize.preferred", "identity.init"]' data-disabledif="V.identity.body.bodysize.preferred === 'tiny' || V.identity.init">Unaccepted <<radiobutton "$identity.body.bodysize.tiny.acceptance" false autocheck>></label> |
-					<label data-target='["identity.body.bodysize.tiny.reject", "identity.init"]' data-disabledif="V.identity.body.bodysize.tiny.reject || V.identity.init">Accepted <<radiobutton "$identity.body.bodysize.tiny.acceptance" true autocheck>></label> |
+				<<if $identity.init isnot 2 or !$xchange.giBodySizeConfigured>>
+					<label data-target='["identity.body.bodysize.preferred", "identity.init"]' data-disabledif="V.identity.body.bodysize.preferred === 'tiny'">Unaccepted <<radiobutton "$identity.body.bodysize.tiny.acceptance" false autocheck>></label> |
+					<label data-target='["identity.body.bodysize.tiny.reject", "identity.init"]' data-disabledif="V.identity.body.bodysize.tiny.reject">Accepted <<radiobutton "$identity.body.bodysize.tiny.acceptance" true autocheck>></label> |
 				<</if>>
 				<label data-target='["identity.body.bodysize.tiny.acceptance"]' data-disabledif="!V.identity.body.bodysize.tiny.acceptance" class="green">Preferred <<radiobutton "$identity.body.bodysize.preferred" "tiny" autocheck>></label>
 				<br>
 				Small: 
 				<br> 
 				<label data-target='["identity.body.bodysize.small.acceptance"]' data-disabledif="V.identity.body.bodysize.small.acceptance" class="red">Reject <<checkbox "$identity.body.bodysize.small.reject" false true autocheck>></label> |
-				<<if $identity.init isnot 2>>
-					<label data-target='["identity.body.bodysize.preferred", "identity.init"]' data-disabledif="V.identity.body.bodysize.preferred === 'small' || V.identity.init">Unaccepted <<radiobutton "$identity.body.bodysize.small.acceptance" false autocheck>></label> |
-					<label data-target='["identity.body.bodysize.small.reject", "identity.init"]' data-disabledif="V.identity.body.bodysize.small.reject || V.identity.init">Accepted <<radiobutton "$identity.body.bodysize.small.acceptance" true autocheck>></label> |
+				<<if $identity.init isnot 2 or !$xchange.giBodySizeConfigured>>
+					<label data-target='["identity.body.bodysize.preferred", "identity.init"]' data-disabledif="V.identity.body.bodysize.preferred === 'small'">Unaccepted <<radiobutton "$identity.body.bodysize.small.acceptance" false autocheck>></label> |
+					<label data-target='["identity.body.bodysize.small.reject", "identity.init"]' data-disabledif="V.identity.body.bodysize.small.reject">Accepted <<radiobutton "$identity.body.bodysize.small.acceptance" true autocheck>></label> |
 				<</if>>
 				<label data-target='["identity.body.bodysize.small.acceptance"]' data-disabledif="!V.identity.body.bodysize.small.acceptance" class="green">Preferred <<radiobutton "$identity.body.bodysize.preferred" "small" autocheck>></label>
 				<br>
 				Normal: 
 				<br> 
 				<label data-target='["identity.body.bodysize.normal.acceptance"]' data-disabledif="V.identity.body.bodysize.normal.acceptance" class="red">Reject <<checkbox "$identity.body.bodysize.normal.reject" false true autocheck>></label> |
-				<<if $identity.init isnot 2>>
-					<label data-target='["identity.body.bodysize.preferred", "identity.init"]' data-disabledif="V.identity.body.bodysize.preferred === 'normal' || V.identity.init">Unaccepted <<radiobutton "$identity.body.bodysize.normal.acceptance" false autocheck>></label> |
-					<label data-target='["identity.body.bodysize.normal.reject", "identity.init"]' data-disabledif="V.identity.body.bodysize.normal.reject || V.identity.init">Accepted <<radiobutton "$identity.body.bodysize.normal.acceptance" true autocheck>></label> |
+				<<if $identity.init isnot 2 or !$xchange.giBodySizeConfigured>>
+					<label data-target='["identity.body.bodysize.preferred", "identity.init"]' data-disabledif="V.identity.body.bodysize.preferred === 'normal'">Unaccepted <<radiobutton "$identity.body.bodysize.normal.acceptance" false autocheck>></label> |
+					<label data-target='["identity.body.bodysize.normal.reject", "identity.init"]' data-disabledif="V.identity.body.bodysize.normal.reject">Accepted <<radiobutton "$identity.body.bodysize.normal.acceptance" true autocheck>></label> |
 				<</if>>
 				<label data-target='["identity.body.bodysize.normal.acceptance"]' data-disabledif="!V.identity.body.bodysize.normal.acceptance" class="green">Preferred <<radiobutton "$identity.body.bodysize.preferred" "normal" autocheck>></label>
 				<br>
 				Tall: 
 				<br> 
 				<label data-target='["identity.body.bodysize.tall.acceptance"]' data-disabledif="V.identity.body.bodysize.tall.acceptance" class="red">Reject <<checkbox "$identity.body.bodysize.tall.reject" false true autocheck>></label> |
-				<<if $identity.init isnot 2>>
-					<label data-target='["identity.body.bodysize.preferred", "identity.init"]' data-disabledif="V.identity.body.bodysize.preferred === 'tall' || V.identity.init">Unaccepted <<radiobutton "$identity.body.bodysize.tall.acceptance" false autocheck>></label> |
-					<label data-target='["identity.body.bodysize.tall.reject", "identity.init"]' data-disabledif="V.identity.body.bodysize.tall.reject || V.identity.init">Accepted <<radiobutton "$identity.body.bodysize.tall.acceptance" true autocheck>></label> |
+				<<if $identity.init isnot 2 or !$xchange.giBodySizeConfigured>>
+					<label data-target='["identity.body.bodysize.preferred", "identity.init"]' data-disabledif="V.identity.body.bodysize.preferred === 'tall'">Unaccepted <<radiobutton "$identity.body.bodysize.tall.acceptance" false autocheck>></label> |
+					<label data-target='["identity.body.bodysize.tall.reject", "identity.init"]' data-disabledif="V.identity.body.bodysize.tall.reject">Accepted <<radiobutton "$identity.body.bodysize.tall.acceptance" true autocheck>></label> |
 				<</if>>
 				<label data-target='["identity.body.bodysize.tall.acceptance"]' data-disabledif="!V.identity.body.bodysize.tall.acceptance" class="green">Preferred <<radiobutton "$identity.body.bodysize.preferred" "tall" autocheck>></label>
 				<br>
 				Large: 
 				<br> 
 				<label data-target='["identity.body.bodysize.large.acceptance"]' data-disabledif="V.identity.body.bodysize.large.acceptance" class="red">Reject <<checkbox "$identity.body.bodysize.large.reject" false true autocheck>></label> |
-				<<if $identity.init isnot 2>>
-					<label data-target='["identity.body.bodysize.preferred", "identity.init"]' data-disabledif="V.identity.body.bodysize.preferred === 'large' || V.identity.init">Unaccepted <<radiobutton "$identity.body.bodysize.large.acceptance" false autocheck>></label> |
-					<label data-target='["identity.body.bodysize.large.reject", "identity.init"]' data-disabledif="V.identity.body.bodysize.large.reject || V.identity.init">Accepted <<radiobutton "$identity.body.bodysize.large.acceptance" true autocheck>></label> |
+				<<if $identity.init isnot 2 or !$xchange.giBodySizeConfigured>>
+					<label data-target='["identity.body.bodysize.preferred", "identity.init"]' data-disabledif="V.identity.body.bodysize.preferred === 'large'">Unaccepted <<radiobutton "$identity.body.bodysize.large.acceptance" false autocheck>></label> |
+					<label data-target='["identity.body.bodysize.large.reject", "identity.init"]' data-disabledif="V.identity.body.bodysize.large.reject">Accepted <<radiobutton "$identity.body.bodysize.large.acceptance" true autocheck>></label> |
 				<</if>>
 				<label data-target='["identity.body.bodysize.large.acceptance"]' data-disabledif="!V.identity.body.bodysize.large.acceptance" class="green">Preferred <<radiobutton "$identity.body.bodysize.preferred" "large" autocheck>></label>
 				<br>
 				Giant: 
 				<br> 
 				<label data-target='["identity.body.bodysize.giant.acceptance"]' data-disabledif="V.identity.body.bodysize.giant.acceptance" class="red">Reject <<checkbox "$identity.body.bodysize.giant.reject" false true autocheck>></label> |
-				<<if $identity.init isnot 2>>
-					<label data-target='["identity.body.bodysize.preferred", "identity.init"]' data-disabledif="V.identity.body.bodysize.preferred === 'giant' || V.identity.init">Unaccepted <<radiobutton "$identity.body.bodysize.giant.acceptance" false autocheck>></label> |
-					<label data-target='["identity.body.bodysize.giant.reject", "identity.init"]' data-disabledif="V.identity.body.bodysize.giant.reject || V.identity.init">Accepted <<radiobutton "$identity.body.bodysize.giant.acceptance" true autocheck>></label> |
+				<<if $identity.init isnot 2 or !$xchange.giBodySizeConfigured>>
+					<label data-target='["identity.body.bodysize.preferred", "identity.init"]' data-disabledif="V.identity.body.bodysize.preferred === 'giant'">Unaccepted <<radiobutton "$identity.body.bodysize.giant.acceptance" false autocheck>></label> |
+					<label data-target='["identity.body.bodysize.giant.reject", "identity.init"]' data-disabledif="V.identity.body.bodysize.giant.reject">Accepted <<radiobutton "$identity.body.bodysize.giant.acceptance" true autocheck>></label> |
 				<</if>>
 				<label data-target='["identity.body.bodysize.giant.acceptance"]' data-disabledif="!V.identity.body.bodysize.giant.acceptance" class="green">Preferred <<radiobutton "$identity.body.bodysize.preferred" "giant" autocheck>></label>
 				<br>
 			</div>
-
-			<div class="settingsToggleItem">
+			<div class="settingsToggleItem" id="gi-box-fecundity" data-gi-config="giFecundityConfigured" style="display:none;">
 				<span class="gold">Fecundity </span> <mouse class = "tooltip linkBlue">(?)<span>Unaccepted characteristics will cause dysphoria.</span></mouse>
 				<br>
 				Lactation: 
 				<br> 
 				<label data-target='["identity.body.lactation.acceptance"]' data-disabledif="V.identity.body.lactation.acceptance" class="red">Reject <<checkbox "$identity.body.lactation.reject" false true autocheck>></label> |
-				<<if $identity.init isnot 2>>
-					<label data-target='["identity.body.lactation.preferred", "identity.init"]' data-disabledif="V.identity.body.lactation.preferred === 'lactation' || V.identity.init">Unaccepted <<radiobutton "$identity.body.lactation.acceptance" false autocheck>></label> |
-					<label data-target='["identity.body.lactation.reject", "identity.init"]' data-disabledif="V.identity.body.lactation.reject || V.identity.init">Accepted <<radiobutton "$identity.body.lactation.acceptance" true autocheck>></label> |
+				<<if $identity.init isnot 2 or !$xchange.giFecundityConfigured>>
+					<label data-target='["identity.body.lactation.preferred", "identity.init"]' data-disabledif="V.identity.body.lactation.preferred === 'lactation'">Unaccepted <<radiobutton "$identity.body.lactation.acceptance" false autocheck>></label> |
+					<label data-target='["identity.body.lactation.reject", "identity.init"]' data-disabledif="V.identity.body.lactation.reject">Accepted <<radiobutton "$identity.body.lactation.acceptance" true autocheck>></label> |
 				<</if>>
 				<label data-target='["identity.body.lactation.acceptance"]' data-disabledif="!V.identity.body.lactation.acceptance" class="green">Preferred <<checkbox "$identity.body.lactation.preferred" "none" "lactation" autocheck>></label>
 				<br>
 				Pregnancy: 
 				<br> 
 				<label data-target='["identity.body.pregnancy.acceptance"]' data-disabledif="V.identity.body.pregnancy.acceptance" class="red">Reject <<checkbox "$identity.body.pregnancy.reject" false true autocheck>></label> |
-				<<if $identity.init isnot 2>>
-					<label data-target='["identity.body.pregnancy.preferred", "identity.init"]' data-disabledif="V.identity.body.pregnancy.preferred === 'pregnancy' || V.identity.init">Unaccepted <<radiobutton "$identity.body.pregnancy.acceptance" false autocheck>></label> |
-					<label data-target='["identity.body.pregnancy.reject", "identity.init"]' data-disabledif="V.identity.body.pregnancy.reject || V.identity.init">Accepted <<radiobutton "$identity.body.pregnancy.acceptance" true autocheck>></label> |
+				<<if $identity.init isnot 2 or !$xchange.giFecundityConfigured>>
+					<label data-target='["identity.body.pregnancy.preferred", "identity.init"]' data-disabledif="V.identity.body.pregnancy.preferred === 'pregnancy'">Unaccepted <<radiobutton "$identity.body.pregnancy.acceptance" false autocheck>></label> |
+					<label data-target='["identity.body.pregnancy.reject", "identity.init"]' data-disabledif="V.identity.body.pregnancy.reject">Accepted <<radiobutton "$identity.body.pregnancy.acceptance" true autocheck>></label> |
 				<</if>>
 				<label data-target='["identity.body.pregnancy.acceptance"]' data-disabledif="!V.identity.body.pregnancy.acceptance" class="green">Preferred <<checkbox "$identity.body.pregnancy.preferred" "none" "pregnancy" autocheck>></label>
 				<br>
 			</div>
-
 		</div>
-
 	<</widget>>
 
 	<<widget "lockInIdentitySetting">>
@@ -545,27 +610,39 @@
 						<li>You don't gain Trauma from Rejected characteristics, but you don't gain Tolerance towards it either. Staying at maximum Dysphoria in a Rejected characteristic is dangerous.</li>
 					</ul>
 				</div>
+
 				<<for _categoryName, _category range setup.identityIndex>>
-					<div class="settingsHeader">
-						<span class="gold bold">_categoryName</span><br>
-					</div>
+					<<set _hasAny to false>>
 					<<for _char, _icon range _category>>
 						<<identitySelector _char>>
 						<<if $identityOption>>
-							<<silently>>
-								<<set _active to (playerHasCharacteristic(_char) and (!$identityOption.acceptance or $identityOption.reject))>>
-								<<set _identityConfig = { 
-									name: _char, 
-									icon: _icon,
-									status: "<<identityStatus $identityOption $identityPreference>>", 
-									tolerance: "<<statbarinverted $identityOption.tolerance 100>>", 
-									dysphoria: "<<statbar 0 $identityOption.dysphoria 100>>", 
-									active: _active
-								}>>
-							<</silently>>
-							<<identity-box-simple _identityConfig>>
+							<<set _hasAny to true>>
 						<</if>>
 					<</for>>
+
+					<<if _hasAny>>
+						<div class="settingsHeader">
+							<span class="gold bold">_categoryName</span><br>
+						</div>
+
+						<<for _char, _icon range _category>>
+							<<identitySelector _char>>
+							<<if $identityOption>>
+								<<silently>>
+									<<set _active to (playerHasCharacteristic(_char) and (!$identityOption.acceptance or $identityOption.reject))>>
+									<<set _identityConfig = { 
+										name: _char, 
+										icon: _icon,
+										status: "<<identityStatus $identityOption $identityPreference>>", 
+										tolerance: "<<statbarinverted $identityOption.tolerance 100>>", 
+										dysphoria: "<<statbar 0 $identityOption.dysphoria 100>>", 
+										active: _active
+									}>>
+								<</silently>>
+								<<identity-box-simple _identityConfig>>
+							<</if>>
+						<</for>>
+					<</if>>
 				<</for>>
 			</div>
 		</div>
@@ -591,6 +668,8 @@
 
 	<<widget "identitySelector">>
 	<<set $identityTopic to _args[0]>>
+		<<set $identityOption to undefined>>
+		<<set $identityPreference to false>>
 		<<if _args[0] isnot undefined>>
 			<<switch _args[0]>>
 			<<case "Masculine Clothing">>
@@ -615,74 +694,120 @@
 				<<set $identityOption to $identity.presentation.pronouns.neutral>>
 				<<set $identityPreference to $identity.presentation.pronouns.preferred is "n" ? true : false>>
 			<<case "Flat Chest">>
-				<<set $identityOption to $identity.body.chest.flat>>
-				<<set $identityPreference to $identity.body.chest.preferred is "flat" ? true : false>>
+				<<if $xchange.giBreastSizeEnabled>>
+					<<set $identityOption to $identity.body.chest.flat>>
+					<<set $identityPreference to $identity.body.chest.preferred is "flat" ? true : false>>
+				<</if>>
 			<<case "Small Breasts">>
-				<<set $identityOption to $identity.body.chest.small>>
-				<<set $identityPreference to $identity.body.chest.preferred is "small" ? true : false>>
+				<<if $xchange.giBreastSizeEnabled>>
+					<<set $identityOption to $identity.body.chest.small>>
+					<<set $identityPreference to $identity.body.chest.preferred is "small" ? true : false>>
+				<</if>>
 			<<case "Medium Breasts">>
-				<<set $identityOption to $identity.body.chest.medium>>
-				<<set $identityPreference to $identity.body.chest.preferred is "medium" ? true : false>>
+				<<if $xchange.giBreastSizeEnabled>>
+					<<set $identityOption to $identity.body.chest.medium>>
+					<<set $identityPreference to $identity.body.chest.preferred is "medium" ? true : false>>
+				<</if>>
 			<<case "Big Breasts">>
-				<<set $identityOption to $identity.body.chest.big>>
-				<<set $identityPreference to $identity.body.chest.preferred is "big" ? true : false>>
+				<<if $xchange.giBreastSizeEnabled>>
+					<<set $identityOption to $identity.body.chest.big>>
+					<<set $identityPreference to $identity.body.chest.preferred is "big" ? true : false>>
+				<</if>>
 			<<case "Small Ass">>
-				<<set $identityOption to $identity.body.bottom.small>>
-				<<set $identityPreference to $identity.body.bottom.preferred is "small" ? true : false>>
+				<<if $xchange.giAssSizeEnabled>>
+					<<set $identityOption to $identity.body.bottom.small>>
+					<<set $identityPreference to $identity.body.bottom.preferred is "small" ? true : false>>
+				<</if>>
 			<<case "Medium Ass">>
-				<<set $identityOption to $identity.body.bottom.medium>>
-				<<set $identityPreference to $identity.body.bottom.preferred is "medium" ? true : false>>
+				<<if $xchange.giAssSizeEnabled>>
+					<<set $identityOption to $identity.body.bottom.medium>>
+					<<set $identityPreference to $identity.body.bottom.preferred is "medium" ? true : false>>
+				<</if>>
 			<<case "Big Ass">>
-				<<set $identityOption to $identity.body.bottom.big>>
-				<<set $identityPreference to $identity.body.bottom.preferred is "big" ? true : false>>
+				<<if $xchange.giAssSizeEnabled>>
+					<<set $identityOption to $identity.body.bottom.big>>
+					<<set $identityPreference to $identity.body.bottom.preferred is "big" ? true : false>>
+				<</if>>
 			<<case "Vagina">>
-				<<set $identityOption to $identity.body.genitals.vagina>>
-				<<set $identityPreference to $identity.body.genitals.preferred is "vagina" ? true : false>>
+				<<if $xchange.giGenitalsEnabled>>
+					<<set $identityOption to $identity.body.genitals.vagina>>
+					<<set $identityPreference to $identity.body.genitals.preferred is "vagina" ? true : false>>
+				<</if>>
 			<<case "Small Penis">>
-				<<set $identityOption to $identity.body.genitals.smallpenis>>
-				<<set $identityPreference to $identity.body.genitals.preferred is "smallpenis" ? true : false>>
+				<<if $xchange.giGenitalsEnabled>>
+					<<set $identityOption to $identity.body.genitals.smallpenis>>
+					<<set $identityPreference to $identity.body.genitals.preferred is "smallpenis" ? true : false>>
+				<</if>>
 			<<case "Medium Penis">>
-				<<set $identityOption to $identity.body.genitals.mediumpenis>>
-				<<set $identityPreference to $identity.body.genitals.preferred is "mediumpenis" ? true : false>>
+				<<if $xchange.giGenitalsEnabled>>
+					<<set $identityOption to $identity.body.genitals.mediumpenis>>
+					<<set $identityPreference to $identity.body.genitals.preferred is "mediumpenis" ? true : false>>
+				<</if>>
 			<<case "Big Penis">>
-				<<set $identityOption to $identity.body.genitals.bigpenis>>
-				<<set $identityPreference to $identity.body.genitals.preferred is "bigpenis" ? true : false>>
+				<<if $xchange.giGenitalsEnabled>>
+					<<set $identityOption to $identity.body.genitals.bigpenis>>
+					<<set $identityPreference to $identity.body.genitals.preferred is "bigpenis" ? true : false>>
+				<</if>>
 			<<case "Short Hair">>
-				<<set $identityOption to $identity.body.hairlength.short>>
-				<<set $identityPreference to $identity.body.hairlength.preferred is "short" ? true : false>>
+				<<if $xchange.giHairLengthEnabled>>
+					<<set $identityOption to $identity.body.hairlength.short>>
+					<<set $identityPreference to $identity.body.hairlength.preferred is "short" ? true : false>>
+				<</if>>
 			<<case "Medium Hair">>
-				<<set $identityOption to $identity.body.hairlength.medium>>
-				<<set $identityPreference to $identity.body.hairlength.preferred is "medium" ? true : false>>
+				<<if $xchange.giHairLengthEnabled>>
+					<<set $identityOption to $identity.body.hairlength.medium>>
+					<<set $identityPreference to $identity.body.hairlength.preferred is "medium" ? true : false>>
+				<</if>>
 			<<case "Long Hair">>
-				<<set $identityOption to $identity.body.hairlength.long>>
-				<<set $identityPreference to $identity.body.hairlength.preferred is "long" ? true : false>>
+				<<if $xchange.giHairLengthEnabled>>
+					<<set $identityOption to $identity.body.hairlength.long>>
+					<<set $identityPreference to $identity.body.hairlength.preferred is "long" ? true : false>>
+				<</if>>
 			<<case "Miniature Body">>
-				<<set $identityOption to $identity.body.bodysize.miniature>>
-				<<set $identityPreference to $identity.body.bodysize.preferred is "miniature" ? true : false>>
+				<<if $xchange.giBodySizeEnabled>>
+					<<set $identityOption to $identity.body.bodysize.miniature>>
+					<<set $identityPreference to $identity.body.bodysize.preferred is "miniature" ? true : false>>
+				<</if>>
 			<<case "Tiny Body">>
-				<<set $identityOption to $identity.body.bodysize.tiny>>
-				<<set $identityPreference to $identity.body.bodysize.preferred is "tiny" ? true : false>>
+				<<if $xchange.giBodySizeEnabled>>
+					<<set $identityOption to $identity.body.bodysize.tiny>>
+					<<set $identityPreference to $identity.body.bodysize.preferred is "tiny" ? true : false>>
+				<</if>>
 			<<case "Small Body">>
-				<<set $identityOption to $identity.body.bodysize.small>>
-				<<set $identityPreference to $identity.body.bodysize.preferred is "small" ? true : false>>
+				<<if $xchange.giBodySizeEnabled>>
+					<<set $identityOption to $identity.body.bodysize.small>>
+					<<set $identityPreference to $identity.body.bodysize.preferred is "small" ? true : false>>
+				<</if>>
 			<<case "Normal Body">>
-				<<set $identityOption to $identity.body.bodysize.normal>>
-				<<set $identityPreference to $identity.body.bodysize.preferred is "normal" ? true : false>>
+				<<if $xchange.giBodySizeEnabled>>
+					<<set $identityOption to $identity.body.bodysize.normal>>
+					<<set $identityPreference to $identity.body.bodysize.preferred is "normal" ? true : false>>
+				<</if>>
 			<<case "Tall Body">>
-				<<set $identityOption to $identity.body.bodysize.tall>>
-				<<set $identityPreference to $identity.body.bodysize.preferred is "tall" ? true : false>>
+				<<if $xchange.giBodySizeEnabled>>
+					<<set $identityOption to $identity.body.bodysize.tall>>
+					<<set $identityPreference to $identity.body.bodysize.preferred is "tall" ? true : false>>
+				<</if>>
 			<<case "Large Body">>
-				<<set $identityOption to $identity.body.bodysize.large>>
-				<<set $identityPreference to $identity.body.bodysize.preferred is "large" ? true : false>>
+				<<if $xchange.giBodySizeEnabled>>
+					<<set $identityOption to $identity.body.bodysize.large>>
+					<<set $identityPreference to $identity.body.bodysize.preferred is "large" ? true : false>>
+				<</if>>
 			<<case "Giant Body">>
-				<<set $identityOption to $identity.body.bodysize.giant>>
-				<<set $identityPreference to $identity.body.bodysize.preferred is "giant" ? true : false>>
+				<<if $xchange.giBodySizeEnabled>>
+					<<set $identityOption to $identity.body.bodysize.giant>>
+					<<set $identityPreference to $identity.body.bodysize.preferred is "giant" ? true : false>>
+				<</if>>
 			<<case "Lactation">>
-				<<set $identityOption to $identity.body.lactation>>
-				<<set $identityPreference to $identity.body.lactation.preferred is "lactation" ? true : false>>
+				<<if $xchange.giFecundityEnabled>>
+					<<set $identityOption to $identity.body.lactation>>
+					<<set $identityPreference to $identity.body.lactation.preferred is "lactation" ? true : false>>
+				<</if>>
 			<<case "Pregnancy">>
-				<<set $identityOption to $identity.body.pregnancy>>
-				<<set $identityPreference to $identity.body.pregnancy.preferred is "pregnancy" ? true : false>>
+				<<if $xchange.giFecundityEnabled>>
+					<<set $identityOption to $identity.body.pregnancy>>
+					<<set $identityPreference to $identity.body.pregnancy.preferred is "pregnancy" ? true : false>>
+				<</if>>
 			<<default>>
 			<</switch>>
 		<</if>>
@@ -812,8 +937,73 @@
 				<</if>>
 			<</for>>
 		<</for>>
+
+		/* When identity is locked, mark enabled body categories as configured so the UI actually locks them. */
+		<<if $xchange.giBreastSizeEnabled>><<set $xchange.giBreastSizeConfigured to true>><</if>>
+		<<if $xchange.giAssSizeEnabled>><<set $xchange.giAssSizeConfigured to true>><</if>>
+		<<if $xchange.giGenitalsEnabled>><<set $xchange.giGenitalsConfigured to true>><</if>>
+		<<if $xchange.giHairLengthEnabled>><<set $xchange.giHairLengthConfigured to true>><</if>>
+		<<if $xchange.giBodySizeEnabled>><<set $xchange.giBodySizeConfigured to true>><</if>>
+		<<if $xchange.giFecundityEnabled>><<set $xchange.giFecundityConfigured to true>><</if>>
+
 		<<set $identity.init to 2>>
 	<</widget>>
+
+	<<run (function () {
+		/* Auto-finalise identity locking picked during character creation.
+		   - Character creation can set V.identity.init = 1 ("pending lock") but never runs <<lockInIdentity>>.
+		   - After the game fully starts, some init code may recreate V.xchange, which can wipe the *Configured* flags.
+		   This hook:
+		     (1) commits init=1 -> init=2 by running <<lockInIdentity>> once setup.identityIndex exists
+		     (2) ensures enabled body categories are marked *Configured* whenever identity is locked (init>=2),
+		         so the UI actually hides the Unaccepted/Accepted radios and stays locked. */
+		if (setup.giAutoCommitIdentityLockInstalled) return;
+		setup.giAutoCommitIdentityLockInstalled = true;
+
+		function ensureConfiguredFlags(V) {
+			if (!V.xchange) V.xchange = {};
+			/* Mark categories configured if they are enabled AND identity is locked.
+			   (The UI keeps categories editable when !Configured, even if init==2.) */
+			if (V.identity && V.identity.init >= 2) {
+				if (V.xchange.giBreastSizeEnabled)   V.xchange.giBreastSizeConfigured   = true;
+				if (V.xchange.giAssSizeEnabled)      V.xchange.giAssSizeConfigured      = true;
+				if (V.xchange.giGenitalsEnabled)     V.xchange.giGenitalsConfigured     = true;
+				if (V.xchange.giHairLengthEnabled)   V.xchange.giHairLengthConfigured   = true;
+				if (V.xchange.giBodySizeEnabled)     V.xchange.giBodySizeConfigured     = true;
+				if (V.xchange.giFecundityEnabled)    V.xchange.giFecundityConfigured    = true;
+			}
+		}
+
+		function autoCommitIdentityLock() {
+			var V = State && State.variables;
+			if (!V || !V.identity) return;
+
+			/* If we are already locked, just make sure config flags didn't get wiped. */
+			if (V.identity.init >= 2) {
+				ensureConfiguredFlags(V);
+				return;
+			}
+
+			/* Pending lock: wait until identity index exists (defined by base game / other mod files). */
+			if (V.identity.init !== 1) return;
+			if (!setup.identityIndex) return;
+
+			if (setup.giAutoCommitIdentityLockInProgress) return;
+			setup.giAutoCommitIdentityLockInProgress = true;
+
+			try {
+				new Wikifier(null, "<<lockInIdentity>>"); /* sets init=2 */
+				ensureConfiguredFlags(V);
+			} catch (e) {
+				console.error("[X-Change GI] auto-commit identity lock failed", e);
+			} finally {
+				setup.giAutoCommitIdentityLockInProgress = false;
+			}
+		}
+
+		$(document).on(":passagedisplay", autoCommitIdentityLock);
+		setTimeout(autoCommitIdentityLock, 0);
+	})();>>>
 
 	<<widget "tolerance">>
 		<<if _args[0] isnot undefined>>
