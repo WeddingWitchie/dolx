@@ -1014,7 +1014,7 @@
 		<</addinlineevent>>
 	<</if>>
 
-	<<if $whitneymaths is "active" or $whitneymaths is "seat">>
+	<<if ($whitneymaths is "active" or $whitneymaths is "seat") and ![1,2].includes($whitney_orphanage_special_seen)>>
 		<<addinlineevent "mathsWhitneyShirt">>
 			<<npc Whitney>><<person1>>
 			"It's too hot," Whitney insists, pulling <<his>> shirt over <<his>> head,
@@ -1344,9 +1344,7 @@
 
 			<</if>>
 
-
 		<</if>>
-
 		
 		<<if $whitneymaths is "active">>
 			You hear Whitney laugh behind you.
@@ -1394,7 +1392,7 @@
 				The class erupts into another cheer as River looks at you. "Is this true? That's against school rules. Sit down."
 				<<gtrauma>><<gstress>><<gdelinquency>><<gcool>><<trauma 2>><<stress `($_skirt is 1 ? 2 : 4)`>><<detention 2>><<status 1>>
 
-				<<if $whitneymaths is "active" or $whitneymaths is "seat">>
+				<<if ($whitneymaths is "active" or $whitneymaths is "seat") and ![1,2].includes($whitney_orphanage_special_seen)>>
 					<br><br>
 
 					Whitney smirks.
@@ -1508,7 +1506,7 @@
 		<<set $mathsproject to "ongoing">><<set $mathsprojectdays to (21 + (7 - Time.weekDay))>>
 		<<mathsprojectstart>>
 		<<npc River>><<person1>><<generatey2>>"Everyone listen," River announces. <<He>> knocks on <<his>> desk. "That includes you at the back. I have something special for you today. We hold an annual competition for students in your year." This grabs a <<person2>><<person>> at the front's attention. <<He>> sits upright.
-		<<if $whitneymaths is "active" or $whitneymaths is "seat">>
+		<<if ($whitneymaths is "active" or $whitneymaths is "seat") and ![1,2].includes($whitney_orphanage_special_seen)>>
 			Whitney is less impressed, and reclines in <<nnpc_his "Whitney">> seat with an open textbook resting on <<nnpc_his "Whitney">> face.
 		<</if>>
 		<br><br>
@@ -1815,7 +1813,7 @@
 	<<runeventpool>>
 <</widget>>
 
-<<widget "mathsWhitneyAttendChance">>
+<<widget "mathsWhitneyAttendChanceOrphanage">>
 	<<if !$whitneymaths or $whitneymaths is "absent">>
 		<<if C.npc.Whitney.state is "active" and Time.minute lte 40>>
 			<<set _wearingSkirt to (clothingData('lower', $worn.lower, "skirt") is 1)>>
@@ -1824,38 +1822,13 @@
 			})>>
 			<<set _whitneyMadAtSkirt to $settings.forcedCrossdressingEnabled and $whitneyskirtcheck gte 1 and (!_wearingSkirt or $worn.lower.reveal lte 200)>>
 			<<set _whitneyMadAtClothes to $settings.forcedCrossdressingEnabled and $whitneyCrossdressSchool gte 1 and _maleClothes.length>>
+			<<set $whitneyskirtmaths to _whitneyMadAtSkirt or _whitneyMadAtClothes>>
 
 			<<if !$whitneymaths>>
-				<!-- Whitney attending Maths class for the first time during the game -->
+				<!-- Whitney attending Maths class for the first time during the game (orphanage rejection variant) -->
 				<<npc Whitney 1>><<person1>>
-				Whitney swaggers in. "So you decided to show up," River says, pointing at an empty seat at the front. "Tuck your shirt in."
-				<br><br>
-
-				<<set $whitneyskirtmaths to _whitneyMadAtSkirt or _whitneyMadAtClothes>>
-
-				<<if $whitneyromance is 1>>
-					<<set $whitneymaths to "seat">>
-					Whitney rolls <<his>> eyes, and instead takes a seat beside you.
-					<<if _whitneyMadAtClothes>>
-						<<He>> glares at you as <<he>> spots your
-						<<print $worn[_maleClothes[0]].name>><<if _whitneyMadAtSkirt and _maleClothes[0] isnot "lower">> and lack of a skirt<</if>>.
-					<<elseif _whitneyMadAtSkirt>>
-						<<He>> glares at you as <<he>> spots your $worn.lower.name.
-					<</if>>
-				<<else>>
-					<<set $whitneymaths to "active">>
-					Whitney rolls <<his>> eyes,
-					<<if _whitneyMadAtClothes>>
-						before glaring at you as <<he>> spots your
-						<<print $worn[_maleClothes[0]].name>><<if _whitneyMadAtSkirt and _maleClothes[0] isnot "lower">> and lack of a skirt<</if>>.
-						<<He>> takes a seat at the back.
-					<<elseif _whitneyMadAtSkirt>>
-						before glaring at you as <<he>> spots your $worn.lower.name. <<He>> takes a seat at the back.
-					<<else>>
-						and instead takes a seat at the back.
-					<</if>>
-				<</if>>
-				<<He>> tucks just the front of <<his>> shirt into <<his>> <<npcClothesText $NPCList[0] "lower">> as <<he>> sits.
+				Whitney turns up late, drifting in like the lesson doesn't apply to <<him>>.
+				<<set $whitneymaths to "active">>
 				<<endevent>>
 				<br><br>
 			<<else>>
@@ -1866,10 +1839,92 @@
 
 				<<if random(1, 100) lte $_whitney_maths_chance>>
 					<<npc Whitney 1>><<person1>>
+					<<set $whitneymaths to "active">>
+					Whitney slips into the room and takes a seat, expression flat and unreadable.
+					<<endevent>>
+					<br><br>
+				<<elseif $whitneymaths isnot undefined>>
+					<!-- if whitney HAS attended class before, but is not present now -->
+					<<set $whitneymaths to "absent">>
+				<</if>>
+			<</if>>
+
+			<<if $whitneymaths is "active">>
+				<<if $daily.school.mathsOrphanageWhitneyScene is undefined>>
+					<<set $daily.school.mathsOrphanageWhitneyScene to true>>
+					<<set _roll to random(1,5)>>
+					<<npc Whitney 1>><<person1>>
+
+					<<if _roll is 1>>
+						Whitney drops into the seat beside you.
+						<<He>> swings <<his>> shoulder into yours. Your chair screeches against the floor and your knees knock the underside of the desk.
+						<br><br>
+						"Whoops," <<he>> mutters as <<he>> watches you steady yourself. <<He>> taps the edge of your desk with two fingers. "Think I dropped some trash."
+						<br><br>
+						You shift to pull yourself back into place. Before you can, another student slides into the space on Whitney's other side, leaning over, taking up room with their elbow and their laughter. 
+						Your shoulder ends up pinned between desk and body heat, your only option to scoot smaller.
+					<<elseif _roll is 2>>
+						While River faces the board, Whitney leans across the aisle and murmurs into another student's ear.
+						The student goes still, then flicks their eyes to you. Whitney smiles without showing teeth and keeps talking as if reading out a list.
+						<br><br>
+						Whitney taps the student's desk with a pen, once, twice. The pen clicks. The student nods, swallowing.
+						<br><br>
+						When River turns back around, Whitney is already upright, hands folded, gaze forward. The other student sits stiff, a grin they cannot hold tugging at their mouth.
+					<<elseif _roll is 3>>
+						Something lands on your desk. A crumpled bit of trash bounces and rolls toward your notebook. Then another hits, lighter, aimed to make noise.
+						<br><br>
+						You keep your eyes down. Your pencil moves, even when your fingers want to lock.
+						<br><br>
+						A wad of chewed gum follows. It sticks for a breath, then slides, leaving a wet smear that drags across the wood. Snickers ripple from behind you, quick and spreading, then cut off into coughing when River shifts.
+					<<elseif _roll is 4>>
+						Whitney stretches <<his>> leg out under the desks and hooks the back of your chair with <<his>> shoe.
+						You feel the pressure first, a slow pull, then the sudden jerk. Your chair skips. Your pencil slashes a crooked line across your work.
+						<br><br>
+						<<He>> chuckles and nudges your chair again, smaller this time, testing how much <<he>> can get away with.
+						<br><br>
+						Your pencil case tips. A couple of pens clatter to the floor. Someone laughs and does not bother to hide it. Whitney watches you reach down, then shifts <<his>> foot to block the closest pen from your fingers until you have to stretch farther.
+					<<else>>
+						A folded note skids onto your desk, pushed from behind. The paper stops beside your hand.
+						You do not open it. You slide it to the side and keep writing.
+						<br><br>
+						Another note arrives, this one pressed down by two fingers from the student behind you, held there until you notice. When you still do not take it, they let go and whisper something that makes a nearby desk snort.
+						<br><br>
+						Whitney leans forward just enough for <<his>> breath to reach your ear. "You can pretend you don't see it," <<he>> murmurs. "Everyone else does."
+					<</if>>
+					<<lcool>><<status -3>><<stress 3>><<gstress>><br><br>
+				<</if>>
+			<</if>>
+		<<elseif $whitneymaths isnot undefined>>
+			<!-- if whitney HAS attended class before, but is unable to attend -->
+			<<set $whitneymaths to "absent">>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "mathsWhitneyAttendChance">>
+	<<if [1,2].includes($whitney_orphanage_special_seen)>>
+		<<mathsWhitneyAttendChanceOrphanage>>
+	<<else>>
+		<<if !$whitneymaths or $whitneymaths is "absent">>
+			<<if C.npc.Whitney.state is "active" and Time.minute lte 40>>
+				<<set _wearingSkirt to (clothingData('lower', $worn.lower, "skirt") is 1)>>
+				<<set _maleClothes to Object.keys($worn).filter((slot) => {
+					return $worn[slot].gender is "m" and !["genitals", "under_upper", "under_lower"].includes(slot);
+				})>>
+				<<set _whitneyMadAtSkirt to $settings.forcedCrossdressingEnabled and $whitneyskirtcheck gte 1 and (!_wearingSkirt or $worn.lower.reveal lte 200)>>
+				<<set _whitneyMadAtClothes to $settings.forcedCrossdressingEnabled and $whitneyCrossdressSchool gte 1 and _maleClothes.length>>
+
+				<<if !$whitneymaths>>
+					<!-- Whitney attending Maths class for the first time during the game -->
+					<<npc Whitney 1>><<person1>>
+					Whitney swaggers in. "So you decided to show up," River says, pointing at an empty seat at the front. "Tuck your shirt in."
+					<br><br>
+
 					<<set $whitneyskirtmaths to _whitneyMadAtSkirt or _whitneyMadAtClothes>>
+
 					<<if $whitneyromance is 1>>
 						<<set $whitneymaths to "seat">>
-						Whitney enters the class. <<He>> shoves past a <<generatey2>><<person2>><<person>> and sits beside you.<<person1>>
+						Whitney rolls <<his>> eyes, and instead takes a seat beside you.
 						<<if _whitneyMadAtClothes>>
 							<<He>> glares at you as <<he>> spots your
 							<<print $worn[_maleClothes[0]].name>><<if _whitneyMadAtSkirt and _maleClothes[0] isnot "lower">> and lack of a skirt<</if>>.
@@ -1878,25 +1933,60 @@
 						<</if>>
 					<<else>>
 						<<set $whitneymaths to "active">>
-						Whitney enters the class. <<He>>
+						Whitney rolls <<his>> eyes,
 						<<if _whitneyMadAtClothes>>
-							glares at you when <<he>> spots your <<print $worn[_maleClothes[0]].name>><<if _whitneyMadAtSkirt and _maleClothes[0] isnot "lower">> and lack of a skirt<</if>>. <<He>> takes a seat at the back.
+							before glaring at you as <<he>> spots your
+							<<print $worn[_maleClothes[0]].name>><<if _whitneyMadAtSkirt and _maleClothes[0] isnot "lower">> and lack of a skirt<</if>>.
+							<<He>> takes a seat at the back.
 						<<elseif _whitneyMadAtSkirt>>
-							glares at you when <<he>> spots your $worn.lower.name. <<He>> takes a seat at the back.
+							before glaring at you as <<he>> spots your $worn.lower.name. <<He>> takes a seat at the back.
 						<<else>>
-							takes a seat at the back.
+							and instead takes a seat at the back.
 						<</if>>
 					<</if>>
+					<<He>> tucks just the front of <<his>> shirt into <<his>> <<npcClothesText $NPCList[0] "lower">> as <<he>> sits.
 					<<endevent>>
 					<br><br>
-				<<elseif $whitneymaths isnot undefined>>
-					<!-- if whitney HAS attended class before, but is not present now -->
-					<<set $whitneymaths to "absent">>
+				<<else>>
+					<<set $_whitney_maths_chance to ((C.npc.Whitney.love / 3) + (C.npc.Whitney.dom * 3) + (C.npc.Whitney.lust / 3))>>
+					<<set $_whitney_tardy_modifier to (Time.minute lte 20 ? Time.minute : -Time.minute + 40) - 10>>
+					<!-- whitney_tardy_modifier starts out negative, becomes positive at 10 minutes late, peaks at 20 minutes late, and hits negative again at 30 minutes late -->
+					<<set $_whitney_maths_chance += $_whitney_tardy_modifier>>
+
+					<<if random(1, 100) lte $_whitney_maths_chance>>
+						<<npc Whitney 1>><<person1>>
+						<<set $whitneyskirtmaths to _whitneyMadAtSkirt or _whitneyMadAtClothes>>
+						<<if $whitneyromance is 1>>
+							<<set $whitneymaths to "seat">>
+							Whitney enters the class. <<He>> shoves past a <<generatey2>><<person2>><<person>> and sits beside you.<<person1>>
+							<<if _whitneyMadAtClothes>>
+								<<He>> glares at you as <<he>> spots your
+								<<print $worn[_maleClothes[0]].name>><<if _whitneyMadAtSkirt and _maleClothes[0] isnot "lower">> and lack of a skirt<</if>>.
+							<<elseif _whitneyMadAtSkirt>>
+								<<He>> glares at you as <<he>> spots your $worn.lower.name.
+							<</if>>
+						<<else>>
+							<<set $whitneymaths to "active">>
+							Whitney enters the class. <<He>>
+							<<if _whitneyMadAtClothes>>
+								glares at you when <<he>> spots your <<print $worn[_maleClothes[0]].name>><<if _whitneyMadAtSkirt and _maleClothes[0] isnot "lower">> and lack of a skirt<</if>>. <<He>> takes a seat at the back.
+							<<elseif _whitneyMadAtSkirt>>
+								glares at you when <<he>> spots your $worn.lower.name. <<He>> takes a seat at the back.
+							<<else>>
+								takes a seat at the back.
+							<</if>>
+						<</if>>
+						<<endevent>>
+						<br><br>
+					<<elseif $whitneymaths isnot undefined>>
+						<!-- if whitney HAS attended class before, but is not present now -->
+						<<set $whitneymaths to "absent">>
+					<</if>>
 				<</if>>
+			<<elseif $whitneymaths isnot undefined>>
+				<!-- if whitney HAS attended class before, but is unable to attend -->
+				<<set $whitneymaths to "absent">>
 			<</if>>
-		<<elseif $whitneymaths isnot undefined>>
-			<!-- if whitney HAS attended class before, but is unable to attend -->
-			<<set $whitneymaths to "absent">>
 		<</if>>
 	<</if>>
 <</widget>>
@@ -4245,7 +4335,7 @@
 	<<if $drugged lte 0>>
 		<<set $_rescue to []>>
 
-		<<if _args.includes("Whitney") and C.npc.Whitney.dom gte random(10, 25) and C.npc.Whitney.state is "active" and $whitneyromance is 1>>
+		<<if _args.includes("Whitney") and ![1,2].includes($whitney_orphanage_special_seen) and C.npc.Whitney.dom gte random(10, 25) and C.npc.Whitney.state is "active" and $whitneyromance is 1>>
 			<<set $_rescue.push("Whitney")>>
 		<</if>>
 
