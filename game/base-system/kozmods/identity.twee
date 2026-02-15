@@ -162,7 +162,54 @@
 				<</if>>
 				<label data-target='["identity.presentation.pronouns.neutral.acceptance"]' data-disabledif="!V.identity.presentation.pronouns.neutral.acceptance" class="green">Preferred <<radiobutton "$identity.presentation.pronouns.preferred" "n" autocheck>></label>
 				<br>
-				<div data-target='["identity.presentation.pronouns.neutral.acceptance", "identity.presentation.pronouns.feminine.acceptance", "identity.presentation.pronouns.masculine.acceptance"]' data-disabledif="[V.identity.presentation.pronouns.masculine.acceptance, V.identity.presentation.pronouns.feminine.acceptance, V.identity.presentation.pronouns.neutral.acceptance].filter(v => v).length < 2">
+
+				<<silently>>
+					/* Guard against invalid preferred pronoun state.
+					   - Static preferred (m/f/n) must be accepted.
+					   - Dynamic preferred ("body/clothing/appearance/posture") is only valid when ALL pronoun types are accepted.
+					   These guards prevent "preferred" pointing at unaccepted/rejected options or becoming empty. */
+					<<if !$identity.presentation.pronouns.preferred>>
+						<<set $identity.presentation.pronouns.preferred to "n">>
+					<</if>>
+
+					<<set _accPronCount to (
+						($identity.presentation.pronouns.masculine.acceptance ? 1 : 0) +
+						($identity.presentation.pronouns.feminine.acceptance ? 1 : 0) +
+						($identity.presentation.pronouns.neutral.acceptance ? 1 : 0)
+					)>>
+
+					<<set _fallback to "n">>
+					<<if $identity.presentation.pronouns.neutral.acceptance>>
+						<<set _fallback to "n">>
+					<<elseif $identity.presentation.pronouns.feminine.acceptance>>
+						<<set _fallback to "f">>
+					<<elseif $identity.presentation.pronouns.masculine.acceptance>>
+						<<set _fallback to "m">>
+					<</if>>
+
+					/* Static preferred must be accepted */
+					<<if ($identity.presentation.pronouns.preferred is "m" and !$identity.presentation.pronouns.masculine.acceptance)
+						or ($identity.presentation.pronouns.preferred is "f" and !$identity.presentation.pronouns.feminine.acceptance)
+						or ($identity.presentation.pronouns.preferred is "n" and !$identity.presentation.pronouns.neutral.acceptance)>>
+						<<set $identity.presentation.pronouns.preferred to _fallback>>
+						<<set $effectsmessage to 1>>
+						<<set $xchange.pronounPrefAutoFix to true>>
+					<</if>>
+
+					/* Dynamic preferred only when all three are accepted */
+					<<if ["body","clothing","appearance","posture"].includes($identity.presentation.pronouns.preferred) and _accPronCount < 3>>
+						<<set $identity.presentation.pronouns.preferred to _fallback>>
+						<<set $effectsmessage to 1>>
+						<<set $xchange.pronounPrefAutoFix to true>>
+					<</if>>
+				<</silently>>
+
+				<<if $xchange.pronounPrefAutoFix>>
+					<br><span class="red">Your preferred pronoun setting became incompatible with your accepted pronouns. It has been reverted to a valid static preference.</span>
+					<<set $xchange.pronounPrefAutoFix to false>>
+				<</if>>
+
+				<div data-target='["identity.presentation.pronouns.neutral.acceptance", "identity.presentation.pronouns.feminine.acceptance", "identity.presentation.pronouns.masculine.acceptance"]' data-disabledif="[V.identity.presentation.pronouns.masculine.acceptance, V.identity.presentation.pronouns.feminine.acceptance, V.identity.presentation.pronouns.neutral.acceptance].filter(v => v).length < 3">
 					<span class="gold">Preferred pronouns based on: </span>
 					<br> 
 					<label>Current Sex <<radiobutton "$identity.presentation.pronouns.preferred" "body" autocheck>></label> |
