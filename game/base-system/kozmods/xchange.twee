@@ -2394,3 +2394,37 @@
 		<<if _xchangeSkinTone is "no">><<set _xchangeSkinShade to "change">><</if>>
 		<<set $xchange.customisedSkinColour to _xchangeSkinTone + _xchangeSkinShade>>
 	<</widget>>
+
+<<widget "xchange-suspicious-pill">>
+	<<set _dur to random(1,3)>>
+
+	/* Always flip */
+	<<set _effects to ["genderflip"]>>
+
+	/* Add 1 totally random extra effect (NOT using spikepool) */
+	<<set _pool to ["genderflip","crossdress","herm","breeder","passion","innocence","swell","bimbo","cumcure","bull","xtend"]>>
+	<<if $portalPantiesEnabled>><<run _pool.push("portal")>><</if>>
+
+	<<run _effects.push(_pool.random())>>
+
+	/* Optional: 25% chance of a second extra effect */
+	<<if random(1,100) lte 25>>
+		<<run _effects.push(_pool.random())>>
+	<</if>>
+
+	/* Optional: remove duplicates */
+	<<run _effects = [...new Set(_effects)]>>
+
+	<<if !playerIsXChanged()>>
+		<<save-body>>
+		<<xchange-effects _dur _effects>>
+		<<exposedcheck>>
+
+		<<if $xchange.pill.genderflipEffect>>
+			<<if $xchange.blackmail.intro>><<set $xchange.blackmail.hasGenderswapped to true>><</if>>
+			<<if $xchange.blackmail.activeQuest>><<set $xchange.blackmail.hasGenderswappedRecently to true>><</if>>
+		<</if>>
+
+		<<set $xchange.timesTaken.player++>>
+	<</if>>
+<</widget>>
