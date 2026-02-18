@@ -2,11 +2,26 @@ function getPregnancyObject(mother = "pc", returnGenital = false) {
 	let pregnancy = {};
 	let genital = "vagina";
 	if (mother === "pc") {
-		if (V.player.vaginaExist) {
-			pregnancy = V.sexStats.vagina.pregnancy;
-		} else {
-			pregnancy = V.sexStats.anus.pregnancy;
+		const vp = V?.sexStats?.vagina?.pregnancy;
+		const ap = V?.sexStats?.anus?.pregnancy;
+
+		const vPreg = vp && vp.type !== null && vp.type !== "parasite";
+		const aPreg = ap && ap.type !== null && ap.type !== "parasite";
+
+		if (aPreg && !vPreg) {
+			pregnancy = ap;
 			genital = "anus";
+		} else if (vPreg) {
+			pregnancy = vp;
+			genital = "vagina";
+		} else {
+			if (V.player.vaginaExist) {
+				pregnancy = vp || {};
+				genital = "vagina";
+			} else {
+				pregnancy = ap || {};
+				genital = "anus";
+			}
 		}
 	} else if (C.npc[mother] && C.npc[mother].pregnancy.enabled !== undefined) {
 		pregnancy = C.npc[mother].pregnancy;
