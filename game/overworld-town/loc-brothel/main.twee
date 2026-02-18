@@ -3251,8 +3251,8 @@ Briar looks up as you step in then, unexpectedly, <<his>> expression softens.
 <</switch>>
 <</if>>
 
-<<He>> drifts back to the desk and taps two fingers against the wood. "Did you know <span class="red">we</span> have other variants?" 
-<<He>> lowers <<his>> voice, as if sharing a secret. "A <span class="lewd">premium</span> line. Cleaner. Controlled. Better for... <i>analysis</i>."
+<<He>> drifts back to the desk and taps two fingers against the wood. "Did you know <span class="red">we</span> have other variants? 
+A <span class="lewd">premium</span> line. Cleaner. Controlled. Better for... <i>analysis</i>."
 <br><br>
 Briar's gaze stays on you. "Interested?"
 
@@ -3305,6 +3305,7 @@ You take the pill between your fingers. It's warm and you know it's been held to
 
 <<set $weekly.briarPremiumPill to 1>>
 <<set $sexStats.pills.pills[_premiumPillName].owned += 1>>
+<<set $xchange.premium.ownedBase to $sexStats.pills.pills[_premiumPillName].owned>>
 <<set $xchange.premium.feedbackPending to true>>
 <<set $xchange.premium.doseBase to $sexStats.pills.pills[_premiumPillName].doseTaken>>
 <<world_corruption "soft" 10>>
@@ -3320,7 +3321,7 @@ You take the pill between your fingers. It's warm and you know it's been held to
 You don't reach for it.
 <br><br>
 Briar's smile lingers, patient and unfazed like <<he>> expects resistance, and planned around it. "All right, it is okay. I'll be here with same offer."
-<br>
+<br><br>
 <<He>> draws the pill back to <<his>> side of the desk.
 <br><br>
 
@@ -3343,12 +3344,35 @@ Briar raises an eyebrow. "We don't have anything to discuss."
 <br><br>
 <<getouticon>><<link [[Leave|Briar's Office]]>><<endevent>><</link>>
 <<else>>
+<div id="briarPremiumFeedbackBlock">
 	<<set _doseNow to $sexStats.pills.pills[_premiumPillName].doseTaken>>
 	<<set _doseBase to ($xchange.premium.doseBase is undefined ? _doseNow : $xchange.premium.doseBase)>>
+	<<set _ownedNow to $sexStats.pills.pills[_premiumPillName].owned>>
+	<<set _ownedBase to ($xchange.premium.ownedBase is undefined ? _ownedNow : $xchange.premium.ownedBase)>>
+	<<set _onPremiumNow to ($xchange.pill and $xchange.pill.active and $xchange.pill.isPremium is true)>>
 
-	<<if _doseNow lte _doseBase>>
-		Briar's gaze moves to your hands, then back to your face. "You haven't taken it yet." <<He>> waves you off. "Come back after."
-		<br><br>
+	/* Main detection: dose increased OR inventory decreased */
+	<<set _tookPill to (_doseNow gt _doseBase) or (_ownedNow lt _ownedBase)>>
+
+	/* Retro-save rescue: no ownedBase recorded, but pill is gone */
+	<<set _tookPill to _tookPill or ($xchange.premium.ownedBase is undefined and _ownedNow is 0)>>
+
+	<<if !_tookPill>>
+		Briar's gaze moves to your hands, then back to your face.
+		<<if _ownedNow gt 0>>
+			<<He>> frowns. "But you still have it. Take it, then come back."
+			<br>
+		<<elseif _onPremiumNow>>
+			<<He>> frowns. "You're on it right now. Come back after it's done."
+			<br>
+		<<else>>
+			<br><br>
+			<<link "I already took it earlier...">>
+				<<set _tookPill to true>>
+				<<replace "#briarPremiumFeedbackBlock">><<goto "Briar Premium Pill Feedback">><</replace>>
+			<</link>>
+		<</if>>
+		<br>
 		<<getouticon>><<link [[Leave|Briar's Office]]>><<endevent>><</link>>
 	<<else>>
 		Briar leans forward, interested. "So? Did it work?"
@@ -3357,6 +3381,7 @@ Briar raises an eyebrow. "We don't have anything to discuss."
 		<br>
 		<<link [[I'm not sure.|Briar Premium Pill Feedback NotSure]]>><</link>>
 	<</if>>
+</div>
 <</if>>
 
 :: Briar Premium Pill Feedback Worked
@@ -3365,12 +3390,13 @@ Briar raises an eyebrow. "We don't have anything to discuss."
 <<set $xchange to $xchange || {}>>
 <<set $xchange.premium to $xchange.premium || {}>>
 
-Briar's eyes brighten by a fraction while makes a small quick note. "Excellent! Come back next week. I'll have another ready. Same arrangement."
+Briar's eyes brighten by a fraction while makes a small quick note. "Excellent! Come back later. I'll have another ready. Same arrangement."
 <br><br>
 
 <<set $xchange.premium.feedbackPending to false>>
 <<set $xchange.premium.lastResult to "worked">>
-
+<<set $xchange.premium.doseBase to null>>
+<<set $xchange.premium.ownedBase to null>>
 <<getouticon>><<link [[Leave|Briar's Office]]>><<endevent>><</link>>
 
 :: Briar Premium Pill Feedback NotSure
@@ -3380,12 +3406,13 @@ Briar's eyes brighten by a fraction while makes a small quick note. "Excellent! 
 <<set $xchange.premium to $xchange.premium || {}>>
 
 Briar hums, unimpressed or maybe just thinking. "Interesting. Either the dose is wrong... or you are. But, well, try again another time. And come back next week regardless." 
-<<His>> smile returns, calm and proprietary. "I'm always collecting."
+<<His>> smile returns. "I'm always collecting."
 <br><br>
 
 <<set $xchange.premium.feedbackPending to false>>
 <<set $xchange.premium.lastResult to "notsure">>
-
+<<set $xchange.premium.doseBase to null>>
+<<set $xchange.premium.ownedBase to null>>
 <<getouticon>><<link [[Leave|Briar's Office]]>><<endevent>><</link>>
 
 :: Briar Premium Pill Intro
