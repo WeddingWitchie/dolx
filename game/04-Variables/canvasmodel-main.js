@@ -2317,7 +2317,7 @@ Renderer.CanvasModels.main = {
 				if (!T.activeNNPC) return ZIndices.deco_bg2 + 1;
 
 				const cfg = V.options.autoNNPCDisplay?.[T.activeNNPC];
-				const layer = (!T.optionsEnabled && cfg && cfg.layer) ? cfg.layer : V.options.nnpcDisplayLayer;
+				const layer = V.options.nnpcDisplayLayer;
 
 				return layer === "front"
 					? ZIndices.deco_fg1 + 1
