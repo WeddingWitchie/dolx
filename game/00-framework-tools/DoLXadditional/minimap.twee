@@ -289,3 +289,54 @@
 		</div>
 	</div>
 <</widget>>
+
+<<widget "tentacleplains_map">>
+	<<silently>>
+		<<set _mapSize to 5>>
+		<<set _innerR  to 3>>
+
+		<<set _playerN to ($tentnorth is undefined ? 0 : $tentnorth)>>
+		<<set _playerE to ($tenteast  is undefined ? 0 : $tenteast)>>
+
+		<<set _squidN to -4>>
+		<<set _squidE to -4>>
+	<</silently>>
+
+	<div class="tplmap-wrap">
+		<div class="tplmap-gridbox">
+			<div class="tplmap-grid">
+
+				<<for _n = _mapSize; _n gte -_mapSize; _n-->>
+					<<for _e = -_mapSize; _e lte _mapSize; _e++>>
+						<<capture _n, _e>>
+							<<set _class to "tplmap-cell tplmap-outer">>
+
+							/* inner 7x7 (no abs needed) */
+							<<if _n gte -_innerR and _n lte _innerR and _e gte -_innerR and _e lte _innerR>>
+								<<set _class to "tplmap-cell tplmap-inner">>
+							<</if>>
+
+							/* core overrides */
+							<<if _n is 0 and _e is 0>>
+								<<set _class to "tplmap-cell tplmap-core">>
+							<</if>>
+
+							<div @class="_class">
+								<<if _n is _playerN and _e is _playerE>>
+									<span class="tplmap-you">YOU</span>
+
+								<<elseif _n is 4 and _e is 4 and $tentspray isnot 1>>
+									<span class="tplmap-icon"><<peppersprayicon>></span>
+
+								<<elseif _n is _squidN and _e is _squidE>>
+									<span class="tplmap-icon"><<exiticon>></span>
+								<</if>>
+							</div>
+						<</capture>>
+					<</for>>
+				<</for>>
+
+			</div>
+		</div>
+	</div>
+<</widget>>
