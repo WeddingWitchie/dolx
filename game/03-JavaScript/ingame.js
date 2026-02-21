@@ -1694,6 +1694,11 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 			}
 			break;
 		case "seductionskill":
+			if (V.drunk < 240) {
+				result += V.drunk;
+			} else {
+				result += 480 - V.drunk;
+			}
 			if (V.earSlime.growth > 50 && !V.earSlime.defyCooldown) {
 				result = Math.floor(result * (1 + (V.earSlime.growth - 50) / 600));
 			}
@@ -1717,9 +1722,9 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 			}
 			break;
 	}
-	if (V.drunk >= 120 && V.substanceRebalance == 1) {
+	if (V.drunk >= 120 && V.substanceRebalance == 1 && !["seductionskill", "willpower"].includes(skill)) {
 		result = Math.round(result * (1 - (0.1 * Math.round(V.drunk / 120))));
-	} else if (V.drunk >= 1 && V.substanceRebalance == 1) {
+	} else if (V.drunk >= 1 && V.substanceRebalance == 1 && !["seductionskill", "willpower"].includes(skill)) {
 		result = Math.round(result * 0.95);
 	}
 	return result;
