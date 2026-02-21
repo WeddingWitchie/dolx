@@ -463,8 +463,11 @@ function xchangeXtendGrowth(target, spermOwner, spermType) {
 		if (V.xchange.pill.originalBody.penissize + Math.floor(V.xchange.pill.xtendTracker.penisSizeGains/1000) < spermOwner.penissize) {
 			V.xchange.pill.xtendTracker.penisSizeGains += 250 + Math.random() * 250;
 			V.xtendMessage = 1;
-			V.effectsmessage = 1;
 		}
+		else {
+			V.xtendMessage = 6;
+		}
+		V.effectsmessage = 1;
 	}
 }
 window.xchangeXtendGrowth = xchangeXtendGrowth;
@@ -858,18 +861,33 @@ function xchangeEffectsMessages() {
 	}
 
 	if (V.xtendMessage) {
-		if (V.xtendMessage === 1) {
-			element("span", "Your body accepts the new genetic code.", "gold");
-			element("span", "Your penis will be larger when you turn back.", "green");
-		}
-		else if (V.xtendMessage === 2) {
-			element("span", "You just lost all your penis size gains! And your dick will be smaller when you turn back.", "red");
-		}
-		else if (V.xtendMessage === 3) {
-			element("span", "Your original body's dick just shrunk even further.", "red");
+		switch (V.xtendMessage) {
+			case 1:
+				element("span", "Your body accepts the new genetic code.", "gold");
+				element("span", "Your penis will be larger when you turn back.", "green");
+				break;
+			case 2:
+				element("span", "You just lost all your penis size gains! And your dick will be smaller when you turn back.", "red");
+				break;
+			case 3:
+				element("span", "Your original body's dick just shrank even further.", "red");
+				break;
+			case 4:
+				element("span", V.options.showExactMeasurements? `Your dick shrank by ${V.xtendMessageValue}cm.` : "Your dick is smaller than it used to be.", "red");
+				break;
+			case 5:
+				element("span", V.options.showExactMeasurements? `Your dick grew by ${V.xtendMessageValue}cm.` : "Your dick is larger than it used to be.", "green");
+				break;
+			case 6:
+				element("span", "That genetic material was of inferior quality.", "gold");
+				element("span", "Your projected penis size remains unchanged.", "blue"); 
+				break;
+			default:
+				break;
 		}
 		br();
 		delete V.xtendMessage;
+		delete V.xtendMessageValue;
 	}
 
 	if (V.dumbBitchOrgasmMessage) {
