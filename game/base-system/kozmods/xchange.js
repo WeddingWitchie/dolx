@@ -460,8 +460,8 @@ window.updateRemoverPillCatalogue = updateRemoverPillCatalogue;
 
 function xchangeXtendGrowth(target, spermOwner, spermType) {
 	if (target === "pc" && spermType === "human") {
-		if (V.xchange.pill.originalBody.penissize < spermOwner.penissize) {
-			V.xchange.pill.xtendTracker.penisSizeGains += 500;
+		if (V.xchange.pill.originalBody.penissize + Math.floor(V.xchange.pill.xtendTracker.penisSizeGains/1000) < spermOwner.penissize) {
+			V.xchange.pill.xtendTracker.penisSizeGains += 250 + Math.random() * 250;
 			V.xtendMessage = 1;
 			V.effectsmessage = 1;
 		}
