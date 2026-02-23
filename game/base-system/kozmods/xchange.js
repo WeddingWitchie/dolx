@@ -340,39 +340,32 @@ function getPleasure(passMinutes) {
 }
 
 function updatePhysique() {
-	// Add more sizes to match extended bodysize system.
-	// 0..3 are original values, 4..6 are example "giant" tiers.
 	const physiquesizes = [6000, 10000, 12000, 16000, 20000, 24000, 28000];
 
-	// Don't compute until X-Change base stats exist
 	if (!V.xchange?.baseStats) return;
 	if (typeof V.xchange.baseStats.physique !== "number") return;
 	if (typeof V.xchange.baseStats.physiquesize !== "number") return;
+	if (V.xchange.baseStats.physiquesize <= 0) return;
 
 	const bs = V.bodysize;
-
-	// Resolve physiquesize from bodysize (supports fractional & out-of-range)
 	let ps = null;
 
 	if (typeof bs === "number" && !Number.isNaN(bs)) {
-		// miniature (negative bodysize): scale down from smallest
 		if (bs < 0) {
-			ps = Math.round(physiquesizes[0] * Math.pow(0.8, Math.abs(Math.round(bs))));
+		ps = Math.round(physiquesizes[0] * Math.pow(0.8, Math.abs(Math.round(bs))));
 		} else {
-			// giant/fractional: interpolate between nearest entries
-			const lo = Math.floor(bs);
-			const hi = Math.ceil(bs);
+		const lo = Math.floor(bs);
+		const hi = Math.ceil(bs);
 
-			if (physiquesizes[lo] != null && physiquesizes[hi] != null) {
-				const t = bs - lo;
-				ps = Math.round(physiquesizes[lo] + (physiquesizes[hi] - physiquesizes[lo]) * t);
-			} else if (physiquesizes[Math.round(bs)] != null) {
-				ps = physiquesizes[Math.round(bs)];
-			}
+		if (physiquesizes[lo] != null && physiquesizes[hi] != null) {
+			const t = bs - lo;
+			ps = Math.round(physiquesizes[lo] + (physiquesizes[hi] - physiquesizes[lo]) * t);
+		} else if (physiquesizes[Math.round(bs)] != null) {
+			ps = physiquesizes[Math.round(bs)];
+		}
 		}
 	}
 
-	// If we still couldn't resolve, DON'T overwrite the existing value
 	if (typeof ps !== "number" || Number.isNaN(ps) || ps <= 0) return;
 
 	V.physiquesize = ps;
@@ -383,6 +376,18 @@ function updatePhysique() {
 
 	const genderMismatch =
 		V.player?.gender != null && V.player?.sex != null && (V.player.gender !== V.player.sex);
+
+	// Cheat target: convert desired final physique into baseStats.physique
+	const target = V.xchange?.physiqueCheatTarget;
+	if (typeof target === "number" && !Number.isNaN(target)) {
+		const factor =
+		(V.physiquesize / V.xchange.baseStats.physiquesize) *
+		(genderMismatch ? pct : 1);
+
+		if (factor > 0) {
+		V.xchange.baseStats.physique = Math.max(0, Math.round(target / factor));
+		}
+	}
 
 	V.physique = Math.round(
 		V.xchange.baseStats.physique *
