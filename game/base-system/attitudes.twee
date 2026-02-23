@@ -240,27 +240,35 @@
 			<</if>>
 
 			<<if $attitudesControl.unlockGender>><br>
-				<label>
-					<<checkbox "$identityCap" true false autocheck>>
-					You are not attached to your original gender.
-					<i>If unchecked, your Gender Identity won't go below 5, but you will gain Stress and Trauma when losing Gender Identity instead.</i>
-				</label>
-				<br>
-				<label>
-					<<checkbox "$xchange.giAutoEnabled" true false autocheck>>
-					Sync Gender Identity to your Identity settings.
-					<i>This makes the Gender Identity meter do daily update automatically from your preferred/accepted/rejected traits and dysphoria.</i>
-				</label>
-				<br>
-				<label>
-					<<checkbox "$xchange.giTransformEnabled" true false autocheck>>
-					Allow slow body changes from Gender Identity drift.
-					<i>When the meter steadily moves toward femininity/masculinity, your body will change gradually over days.</i>
-				</label>
-				/* Safety: if player enables transformation, auto-sync should be on */
-				<<if $xchange.giTransformEnabled and !$xchange.giAutoEnabled>>
-					<<set $xchange.giAutoEnabled to true>>
-				<</if>>
+				<span id="gi-cap-wrap">
+					<label><<checkbox "$identityCap" false true autocheck>>
+						You are not attached to your original gender.
+						<i>If unchecked, your Gender Identity won't go below 5, but you will gain Stress and Trauma when losing Gender Identity instead.</i>
+					</label>
+				</span><br>
+				<span id="gi-auto-wrap">
+					<label><<checkbox "$xchange.giAutoEnabled" false true autocheck>>
+						Sync Gender Identity to your Identity settings.
+						<i>This makes the Gender Identity meter do daily update automatically from your preferred/accepted/rejected traits and dysphoria.</i>
+					</label>
+				</span><br>
+				<span id="gi-transform-wrap">
+					<label><<checkbox "$xchange.giTransformEnabled" false true autocheck>>
+						Allow slow body changes from Gender Identity drift.
+						<i>When the meter steadily moves toward femininity/masculinity, your body will change gradually over days.</i>
+					</label>
+				</span>
+
+				<<script>>
+				(function(){
+					const ns=".giAttitudeLocks";const doc=$(document);function setWrapDisabled($wrap,disabled){$wrap.find('input[type="checkbox"]').prop("disabled",!!disabled);if(disabled){$wrap.addClass("black");}else{$wrap.removeClass("black");}}
+				function refreshGiLocks(){
+					const V=State.variables;const canAuto=!!V.identityCap;if(!canAuto){V.xchange.giAutoEnabled=false;V.xchange.giTransformEnabled=false;V.xchange.giTransformConsent=false;}else if(!V.xchange.giAutoEnabled){V.xchange.giTransformEnabled=false;V.xchange.giTransformConsent=false;}const canTransform=canAuto&&!!V.xchange.giAutoEnabled;setWrapDisabled($("#gi-auto-wrap"),!canAuto);setWrapDisabled($("#gi-transform-wrap"),!canTransform);}
+					doc.off("change" + ns, "#gi-cap-wrap input, #gi-auto-wrap input");
+					doc.on("change" + ns, "#gi-cap-wrap input, #gi-auto-wrap input", function () {
+						setTimeout(refreshGiLocks, 0);});setTimeout(refreshGiLocks, 0);})();
+				<</script>>
+				
 			<<else>><br>
 				<input type="checkbox" checked disabled />
 				<span class="black"> You are not attached to your original gender.

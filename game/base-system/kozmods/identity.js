@@ -718,7 +718,7 @@ window.playerFeelsGirllike = playerFeelsGirllike;
 		x.giTransformConsent = toStrictBool(x.giTransformConsent);
 
 		// Lock behind the same unlock the UI uses
-		const unlocked = (V.attitudesControl?.unlockGender === true);
+		const unlocked = (V.attitudesControl?.unlockGender === true) && (V.identityCap === true);
 		if (!unlocked) {
 			x.giAutoEnabled = false;
 			x.giTransformEnabled = false;
