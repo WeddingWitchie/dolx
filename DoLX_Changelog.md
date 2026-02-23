@@ -11,6 +11,9 @@
 * None.
 
 ### Rebalancing and Fixes:
-* Fixed typo that prevented XTend from changing your dick correctly.
-* DoLP NNPC display now properly respects the layer setting, even in auto mode.
-* Can now stop rejecting an identity trait when begrudgingly accepting it.
+* Xtend gains now require the "donor" to be larger than your current projected size would be. 
+* Randomised how much dick size you gain per creampie on X-Tend (between 0.5-1cm).
+* Added a toggle for displaying exact dick measures, and added more feedback messages for the xtend effect.
+* Fixed inability to ever become fertile sometimes, if a pill's effects got applied in the wrong order.
+* Added an additional line on characteristics overlay to convey the current menstrual cycle stage.
+* Rectified an old conflict of alcohol intoxication effect between DoLP and X-Change (now only our mod's modifier gets apply, and not DoLP's substance rebalance, when it comes to seduction and willpower calculations).
