@@ -23,21 +23,30 @@
 	}
 
 	function ensureInvEntry(name) {
-		const V = getV();
-		if (!V) return null;
-		V.sexStats = V.sexStats || {};
-		V.sexStats.pills = V.sexStats.pills || {};
-		V.sexStats.pills.pills = V.sexStats.pills.pills || {};
+const V = getV();
+if (!V) return null;
+V.sexStats = V.sexStats || {};
+V.sexStats.pills = V.sexStats.pills || {};
+V.sexStats.pills.pills = V.sexStats.pills.pills || {};
 
-		const inv = V.sexStats.pills.pills;
-		if (!inv[name] || typeof inv[name] !== "object") {
-			inv[name] = { owned: 0, doseTaken: 0, overdose: 0 };
-		} else {
-			if (typeof inv[name].owned !== "number") inv[name].owned = 0;
-			if (typeof inv[name].doseTaken !== "number") inv[name].doseTaken = 0;
-			if (typeof inv[name].overdose !== "number") inv[name].overdose = 0;
-		}
-		return inv[name];
+const inv = V.sexStats.pills.pills;
+if (!inv[name] || typeof inv[name] !== "object") {
+	// Missing entry (common when loading older saves after new pills were added)
+	inv[name] = { owned: 0, doseTaken: 0, overdose: 0 };
+} else {
+	// Only fill missing fields; don't silently coerce existing values.
+	if (!("owned" in inv[name])) inv[name].owned = 0;
+	if (!("doseTaken" in inv[name])) inv[name].doseTaken = 0;
+	if (!("overdose" in inv[name])) inv[name].overdose = 0;
+
+	// If types are wrong, log loudly (helps find real root cause instead of masking it).
+	if (typeof inv[name].owned !== "number" || typeof inv[name].doseTaken !== "number" || typeof inv[name].overdose !== "number") {
+		try {
+			console.warn("[X-Change Premium] Pill inventory entry has unexpected types for", name, inv[name]);
+		} catch (e) {}
+	}
+}
+return inv[name];
 	}
 
 	function ensureAllInvEntries() {
@@ -51,35 +60,103 @@
 		}
 	}
 
-	// --- Safe listUniqueCarriedXchangePills() ---
-	window.listUniqueCarriedXchangePills = function () {
+// --- listUniqueCarriedXchangePills() ---
+// Core X-Change defines this to *limit which pills are usable on NPCs during combat*.
+// Premium must NOT replace that logic, only:
+//  1) prevent missing-inventory crashes (ensureAllInvEntries)
+//  2) expose a separate helper that returns *all* carried X-Change pills for non-combat/premium UIs.
+//  3) wrap the core function lazily once it's present, so load-order can't break it.
+
+function listUniqueCarriedXchangePillsAll() {
+	const V = getV();
+	if (!V) return [];
+
+	ensureAllInvEntries();
+
+	const inv = (V.sexStats && V.sexStats.pills && V.sexStats.pills.pills) ? V.sexStats.pills.pills : {};
+	const defs = getPillDefs();
+
+	const out = [];
+	const seen = new Set();
+
+	for (const def of defs) {
+		if (!def || typeof def.name !== "string") continue;
+		if (def.type !== "xchange") continue;
+
+		const entry = inv[def.name];
+		const owned = entry ? Number(entry.owned) : 0;
+		if (!(owned > 0)) continue;
+		if (seen.has(def.name)) continue;
+
+		seen.add(def.name);
+		out.push(def);
+	}
+	return out;
+}
+
+// A "known-safe" limited implementation (mirrors the core's current experimental rollout list).
+// Used only as a fallback if the core function isn't available yet.
+function listUniqueCarriedXchangePillsLimited() {
+	const V = getV();
+	if (!V) return [];
+
+	ensureAllInvEntries();
+
+	const defs = getPillDefs().filter(p => p && p.type === "xchange");
+	const inv = V.sexStats && V.sexStats.pills && V.sexStats.pills.pills ? V.sexStats.pills.pills : {};
+
+	const allowed = new Set([
+		"pink basic", "blue basic",
+		"pink continue", "pink resistance",
+		"blue continue", "blue resistance",
+	]);
+
+	const out = [];
+	for (const pill of defs) {
+		const entry = inv[pill.name];
+		const owned = entry ? Number(entry.owned) : 0;
+		if (owned > 0 && allowed.has(pill.subtype)) out.push(pill);
+	}
+	return out;
+}
+
+// Expose helpers for debugging / UIs that explicitly want the full list.
+window.listUniqueCarriedXchangePillsAll = listUniqueCarriedXchangePillsAll;
+window.listUniqueCarriedXchangePillsLimited = listUniqueCarriedXchangePillsLimited;
+
+function wrapCoreListUniqueCarriedXchangePills() {
+	const cur = window.listUniqueCarriedXchangePills;
+
+	// If the core hasn't defined it yet, provide the limited fallback (core may overwrite later).
+	if (typeof cur !== "function") {
+		window.listUniqueCarriedXchangePills = listUniqueCarriedXchangePillsLimited;
+		return;
+	}
+
+	// Already wrapped? leave it.
+	if (cur.__xchangePremiumWrapped) return;
+
+	const orig = cur;
+	function wrapped() {
 		const V = getV();
 		if (!V) return [];
-
 		ensureAllInvEntries();
+		return orig.apply(this, arguments);
+	}
 
-		const inv = (V.sexStats && V.sexStats.pills && V.sexStats.pills.pills) ? V.sexStats.pills.pills : {};
-		const defs = getPillDefs();
+	wrapped.__xchangePremiumWrapped = true;
+	wrapped.__orig = orig; // make captured original visible for debugging
+	window.listUniqueCarriedXchangePills = wrapped;
+}
 
-		const out = [];
-		const seen = new Set();
+try { wrapCoreListUniqueCarriedXchangePills(); } catch (e) {}
+try {
+	if (typeof jQuery !== "undefined") {
+		jQuery(document).on(":passagestart", wrapCoreListUniqueCarriedXchangePills);
+	}
+} catch (e) {}
 
-		for (const def of defs) {
-			if (!def || typeof def.name !== "string") continue;
-			if (def.type !== "xchange") continue;
-
-			const entry = inv[def.name];
-			const owned = entry && typeof entry.owned === "number" ? entry.owned : 0;
-			if (owned <= 0) continue;
-			if (seen.has(def.name)) continue;
-
-			seen.add(def.name);
-			out.push(def);
-		}
-		return out;
-	};
-
-	function ensurePillPremiumFlagDefault() {
+function ensurePillPremiumFlagDefault() {
 	const V = getV();
 	const pill = V && V.xchange && V.xchange.pill ? V.xchange.pill : null;
 	if (pill && pill.active && typeof pill.isPremium !== "boolean") {
