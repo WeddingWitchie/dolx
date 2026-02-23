@@ -895,7 +895,6 @@ function defaultBirthLocations(type, birthLocation, location) {
 	return [birthLocation, location];
 }
 
-// ---------- Pregnancy helpers (paste ABOVE giveBirthToChildren) ----------
 function _pf_isFiniteNum(x) {
   return typeof x === "number" && Number.isFinite(x);
 }
@@ -956,7 +955,7 @@ function ensureBirthId(pregnancy, mother) {
 				"repair_nextBirthId",
 				`<b>X-Change: Save repair notice</b><br>
 				Your save had an invalid <b>pregnancyStats.nextBirthId</b>. X-Change rebuilt it from existing data to prevent pregnancy tracking errors.<br><br>
-				<b>This may indicate a bug.</b> Please report it with your save and steps to Discord Server.`
+				<b>If you encounter any error after this, please report it with your save and steps to Discord Server.</b>`
 			);
 		}
 	}
