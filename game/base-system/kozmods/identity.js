@@ -227,8 +227,13 @@ function playerHasCharacteristic(characteristic) {
 			return V.bodysize === 3 ? 2 : 0;
 		case "Giant Body":
 			return V.bodysize === 4 ? 2 : 0;
-		case "Lactation":
-			return (V.lactating >= 1 && V.breastfeedingdisable === "f") ? 2 : 0;
+		case "Lactation": {
+			// Lactation dysphoria should trigger when the player is lactating AND lactation content is enabled.
+			// Some builds use V.settings.breastFeedingEnabled; older saves/builds may still have V.breastfeedingdisable ("f" = not disabled).
+			const lactating = Number(V.lactating) >= 1;
+			const enabled = (V.settings && V.settings.breastFeedingEnabled === true) || V.breastfeedingdisable === "f";
+			return (lactating && enabled) ? 2 : 0;
+		}
 		case "Pregnancy":
 			return (playerAwareTheyArePregnant() || (playerAwareTheyCanBePregnant() && playerIsCreampied())) ? 2 : 0;
 		case "In Heat":
