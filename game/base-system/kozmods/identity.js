@@ -27,7 +27,7 @@ window.playerBodyIsMale = playerBodyIsMale;
 function playerBodyIsFemale() {
 	return (V.player.gender === "f" && !playerIsXChanged()) || (V.player.gender === "m" && playerIsXChanged());
 }
-window.playerBodyIsMale = playerBodyIsMale;
+window.playerBodyIsFemale = playerBodyIsFemale;
 
 /* 
 	@args:
@@ -688,10 +688,57 @@ window.playerFeelsGirllike = playerFeelsGirllike;
 				V.pregnancyStats.heatStillEnabled = true;
 			}
 		}
+	
+
+	// GI safety: keep the Gender Identity drift system truly OFF unless explicitly enabled,
+	// and prevent "armed" drift/stage from firing later.
+	setup.xchangeEnsureGiSafety = function () {
+		const V = State?.variables;
+		if (!V) return;
+		V.xchange ??= {};
+		const x = V.xchange;
+
+		const toStrictBool = (v) => (v === true || v === 1 || v === "true");
+
+		// Ensure flags are strict booleans
+		if (x.genderIdentityEnabled === undefined) x.genderIdentityEnabled = true;
+		x.genderIdentityEnabled = toStrictBool(x.genderIdentityEnabled);
+
+		x.giAutoEnabled = toStrictBool(x.giAutoEnabled);
+		x.giTransformEnabled = toStrictBool(x.giTransformEnabled);
+
+		// Consent gate (sticky-off): defaults to current transform setting once, but if transforms are later disabled,
+		// consent is revoked and must be explicitly re-enabled by the player.
+		if (x.giTransformConsent === undefined) x.giTransformConsent = x.giTransformEnabled;
+		x.giTransformConsent = toStrictBool(x.giTransformConsent);
+
+		// Lock behind the same unlock the UI uses
+		const unlocked = (V.attitudesControl?.unlockGender === true);
+		if (!unlocked) {
+			x.giAutoEnabled = false;
+			x.giTransformEnabled = false;
+			x.giTransformConsent = false;
+		}
+
+		// Turning transforms off revokes consent (prevents them silently coming back later)
+		if (x.giTransformEnabled !== true) {
+			x.giTransformConsent = false;
+		}
+
+		// If the system isn't fully enabled+consented, clear queued drift/stage so it can't "fire later".
+		if (x.giAutoEnabled !== true || x.giTransformEnabled !== true || x.giTransformConsent !== true) {
+			x.giDrift = 0;
+			x.giShiftStage = 0;
+			x.giShiftMode = "";
+		}
 	};
+
+};
 	// Run once now (if State is ready), and again whenever a passage starts (to catch freshly-loaded saves).
 	try { setup.xchangeEnsurePillDefaults(); } catch (e) {}
 	try { setup.xchangeEnsureCompatGlobals(); } catch (e) {}
+			try { setup.xchangeEnsureGiSafety(); } catch (e) {}
+	try { setup.xchangeEnsureGiSafety(); } catch (e) {}
 	if (typeof jQuery === "function") {
 		jQuery(document).on(":passagestart", () => {
 			try { setup.xchangeEnsurePillDefaults(); } catch (e) {}

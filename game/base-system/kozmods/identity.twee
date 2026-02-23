@@ -1,11 +1,56 @@
 :: X-Change Gender Identity Widgets [widget]
 <<set $xchange to $xchange || {}>>
-<<set $xchange.giAutoEnabled to true>>
-<<set $xchange.giTransformEnabled to true>>
-<<set $xchange.giTransformEnabled to true>>
+
+/* Defaults: OFF until player explicitly enables them */
+<<if $xchange.giAutoEnabled is undefined>>
+	<<set $xchange.giAutoEnabled to false>>
+<</if>>
+<<if $xchange.giTransformEnabled is undefined>>
+	<<set $xchange.giTransformEnabled to false>>
+<</if>>
+
+/* Safety: GI features are LOCKED behind the 'not attached to original gender' unlock.
+   If the unlock isn't active, force the GI system OFF and clear drift/stage so it can't fire at midnight. */
+<<if $attitudesControl is undefined or !$attitudesControl.unlockGender>>
+	<<set $xchange.giAutoEnabled to false>>
+	<<set $xchange.giTransformEnabled to false>>
+	<<set $xchange.giDrift to 0>>
+	<<set $xchange.giShiftStage to 0>>
+	<<set $xchange.giShiftMode to "">>
+<</if>>
+
+
+/* Normalise GI toggles to strict booleans (protect against "false" strings / 0/1, etc.) */
+<<set $xchange.giAutoEnabled = ($xchange.giAutoEnabled is true or $xchange.giAutoEnabled is 1 or $xchange.giAutoEnabled is "true")>>
+<<set $xchange.giTransformEnabled = ($xchange.giTransformEnabled is true or $xchange.giTransformEnabled is 1 or $xchange.giTransformEnabled is "true")>>
+<<if $xchange.genderIdentityEnabled is undefined>><<set $xchange.genderIdentityEnabled to true>><</if>>
+<<set $xchange.genderIdentityEnabled = ($xchange.genderIdentityEnabled is true or $xchange.genderIdentityEnabled is 1 or $xchange.genderIdentityEnabled is "true")>>
+
+/* Consent gate: once disabled, GI body changes will NOT resume unless the player explicitly re-consents. */
+<<if $xchange.giTransformConsent is undefined>>
+	<<set $xchange.giTransformConsent to $xchange.giTransformEnabled>>
+<</if>>
+<<set $xchange.giTransformConsent = ($xchange.giTransformConsent is true or $xchange.giTransformConsent is 1 or $xchange.giTransformConsent is "true")>>
+
+/* If transforms are disabled, also revoke consent and clear queued drift/stage so it can't "fire later". */
+<<if $xchange.giTransformEnabled isnot true>>
+	<<set $xchange.giTransformConsent to false>>
+	<<set $xchange.giDrift to 0>>
+	<<set $xchange.giShiftStage to 0>>
+	<<set $xchange.giShiftMode to "">>
+<</if>>
+
 <<set $xchange.giRange to 1000>>
 <<set $xchange.giStepPerDay to 8>>
 <<set $xchange.giTransformThreshold to 30>>
+
+
+<<widget "gi-disarm">>
+	<<set $xchange.giDrift to 0>>
+	<<set $xchange.giShiftStage to 0>>
+	<<set $xchange.giShiftMode to "">>
+<</widget>>
+
 
 /* For Gender Identity Setting (Dysphoria) */
 <<if $xchange.giBreastSizeEnabled is undefined>><<set $xchange.giBreastSizeEnabled to false>><</if>>
@@ -1405,9 +1450,14 @@
 	<</widget>>
 
 	<<widget "gi-auto-update">>
+		<<if $attitudesControl is undefined or !$attitudesControl.unlockGender>>
+			<<return>>
+		<</if>>
+
 		<<ensure-sexstats-min>>
 
-		<<if !$xchange.genderIdentityEnabled or !$xchange.giAutoEnabled>>
+		<<if $xchange.genderIdentityEnabled isnot true or $xchange.giAutoEnabled isnot true>>
+			<<gi-disarm>>
 			<<return>>
 		<</if>>
 
@@ -1431,7 +1481,7 @@
 		<</if>>
 
 		/* --- Extra: drift from current GI position ("pressure"), so body keeps shifting even when GI has settled --- */
-		<<if $xchange.giTransformEnabled>>
+		<<if $xchange.giTransformEnabled is true and $xchange.giTransformConsent is true>>
 			<<set _mid to Math.floor(_range / 2)>>
 			<<if _mid > 0>>
 				<<set _pressureRaw to Math.abs($genderidentity - _mid)>>
@@ -1452,7 +1502,15 @@
 	<</widget>>
 
 	<<widget "gi-transform-from-drift">>
-		<<if !$xchange.giTransformEnabled>>
+		<<if $attitudesControl is undefined or !$attitudesControl.unlockGender>>
+			<<return>>
+		<</if>>
+
+		<<if $xchange.genderIdentityEnabled isnot true
+			or $xchange.giAutoEnabled isnot true
+			or $xchange.giTransformEnabled isnot true
+			or $xchange.giTransformConsent isnot true>>
+			<<gi-disarm>>
 			<<return>>
 		<</if>>
 
