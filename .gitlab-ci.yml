@@ -1,97 +1,192 @@
 stages:
-    - build
-    - deploy
+  - build
+  - deploy
 
 variables:
-    GIT_STRATEGY: fetch
+  GIT_STRATEGY: fetch
 
 audio_job:
-    stage: build
-    script:
-        - $FULLVERSION=$(cat version)
-        - |
-          if ($FULLVERSION -match "DoLX (\d+\.\d+\.0)(?![a-z]+)") {
-            $VERSION=$matches[1]
-            echo "Building Audio Release $VERSION"
-            mkdir -p build/
-            mkdir -p build/audio/
-            cp -Recurse -Force ./audio/* ./build/audio/
-            Compress-Archive ./build/* "./DoLX_Audio_$VERSION.zip"
-            echo "Finished Building Audio Release $VERSION"
-            echo "Uploading Audio Release $VERSION"
-            Invoke-RestMethod -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" }  -InFile "./DoLX_Audio_$VERSION.zip" -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_Audio/$VERSION/DoLX_Audio_$VERSION.zip" -Method PUT
-            rm -Recurse -Force ./build
-            rm -Recurse -Force "./DoLX_Audio_$VERSION.zip"
-            echo "Finished Uploading Audio Release $VERSION"
-          }
-    only:
-        - master
+  stage: build
+  script:
+    - |
+      $ErrorActionPreference = "Stop"
+      $FULLVERSION = Get-Content -Raw ./version
+
+      if ($FULLVERSION -match "DoLX (\d+\.\d+\.0)(?![a-z]+)") {
+        $VERSION = $matches[1]
+        Write-Host "Building Audio Release $VERSION"
+
+        mkdir -p build/
+        mkdir -p build/audio/
+        cp -Recurse -Force ./audio/* ./build/audio/
+
+        Compress-Archive ./build/* "./DoLX_Audio_$VERSION.zip" -Force
+
+        Write-Host "Finished Building Audio Release $VERSION"
+        Write-Host "Uploading Audio Release $VERSION"
+
+        $uploadUrl = "$env:CI_API_V4_URL/projects/$env:CI_PROJECT_ID/packages/generic/DoLX_Audio/$VERSION/DoLX_Audio_$VERSION.zip"
+
+        curl.exe --fail --show-error --silent `
+          --header "JOB-TOKEN: $env:CI_JOB_TOKEN" `
+          --header "Content-Type: application/zip" `
+          --retry 5 `
+          --retry-delay 5 `
+          --retry-all-errors `
+          --upload-file "./DoLX_Audio_$VERSION.zip" `
+          "$uploadUrl"
+
+        if ($LASTEXITCODE -ne 0) { throw "Audio upload failed." }
+
+        rm -Recurse -Force ./build
+        rm -Recurse -Force "./DoLX_Audio_$VERSION.zip"
+
+        Write-Host "Finished Uploading Audio Release $VERSION"
+      }
+      else {
+        Write-Host "Audio package skipped (version is not x.y.0): $FULLVERSION"
+      }
+  only:
+    - master
 
 img_job:
-    stage: build
-    script:
-        - $FULLVERSION=$(cat version)
-        - |
-          if ($FULLVERSION -match "DoLX (\d+\.\d+\.\d+)(?![a-z]+)") {
-            $VERSION=$matches[1]
-            echo "Building Images Release $VERSION"
-            mkdir -p build/
-            mkdir -p build/img/
-            mkdir -p build/img2/
-            cp -Recurse -Force ./img/* ./build/img/
-            cp -Recurse -Force ./img2/* ./build/img2/
-            Compress-Archive ./build/* "./DoLX_Images_$VERSION.zip"
-            echo "Finished Building Images Release $VERSION"
-            echo "Uploading Images Release $VERSION"
-            Invoke-RestMethod -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" }  -InFile "./DoLX_Images_$VERSION.zip" -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_Images/$VERSION/DoLX_Images_$VERSION.zip" -Method PUT
-            rm -Recurse -Force ./build
-            rm -Recurse -Force "./DoLX_Images_$VERSION.zip"
-            echo "Finished Uploading Images Release $VERSION"
-          }
-    only:
-        - master
+  stage: build
+  script:
+    - |
+      $ErrorActionPreference = "Stop"
+      $FULLVERSION = Get-Content -Raw ./version
+
+      if ($FULLVERSION -match "DoLX (\d+\.\d+\.\d+)(?![a-z]+)") {
+        $VERSION = $matches[1]
+        Write-Host "Building Images Release $VERSION"
+
+        mkdir -p build/
+        mkdir -p build/img/
+        mkdir -p build/img2/
+        cp -Recurse -Force ./img/* ./build/img/
+        cp -Recurse -Force ./img2/* ./build/img2/
+
+        Compress-Archive ./build/* "./DoLX_Images_$VERSION.zip" -Force
+
+        Write-Host "Finished Building Images Release $VERSION"
+        Write-Host "Uploading Images Release $VERSION"
+
+        $uploadUrl = "$env:CI_API_V4_URL/projects/$env:CI_PROJECT_ID/packages/generic/DoLX_Images/$VERSION/DoLX_Images_$VERSION.zip"
+
+        curl.exe --fail --show-error --silent `
+          --header "JOB-TOKEN: $env:CI_JOB_TOKEN" `
+          --header "Content-Type: application/zip" `
+          --retry 5 `
+          --retry-delay 5 `
+          --retry-all-errors `
+          --upload-file "./DoLX_Images_$VERSION.zip" `
+          "$uploadUrl"
+
+        if ($LASTEXITCODE -ne 0) { throw "Images upload failed." }
+
+        rm -Recurse -Force ./build
+        rm -Recurse -Force "./DoLX_Images_$VERSION.zip"
+
+        Write-Host "Finished Uploading Images Release $VERSION"
+      }
+      else {
+        Write-Host "Images package skipped (version has suffix): $FULLVERSION"
+      }
+  only:
+    - master
 
 html_job:
-    stage: build
-    script:
-        - $FULLVERSION=$(cat version)
-        - if ($FULLVERSION -match "DoLX (\d+\.\d+\.\d+[a-z]*)") {$VERSION=$matches[1]}
-        - echo "Building HTML Release $VERSION"
-        - ./compile.bat
-        - Compress-Archive "./Degrees of Lewdity VERSION.html" "./DoLX_HTML_$VERSION.zip"
-        - echo "Finished Building HTML Release $VERSION"
-        - echo "Uploading HTML Release $VERSION"
-        - 'Invoke-RestMethod -Headers @{ "JOB-TOKEN"="$CI_JOB_TOKEN" }  -InFile "./DoLX_HTML_$VERSION.zip" -Uri "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_HTML/$VERSION/DoLX_HTML_$VERSION.zip" -Method PUT'
-        - rm -Recurse -Force "./DoLX_HTML_$VERSION.zip"
-        - echo "Finished Uploading HTML Release $VERSION"
-    only:
-        - master 
+  stage: build
+  script:
+    - |
+      $ErrorActionPreference = "Stop"
+      $FULLVERSION = Get-Content -Raw ./version
+
+      if ($FULLVERSION -match "DoLX (\d+\.\d+\.\d+[a-z]*)") {
+        $VERSION = $matches[1]
+      }
+      else {
+        throw "Could not parse HTML version from version file: $FULLVERSION"
+      }
+
+      Write-Host "Building HTML Release $VERSION"
+      ./compile.bat
+      Compress-Archive "./Degrees of Lewdity VERSION.html" "./DoLX_HTML_$VERSION.zip" -Force
+
+      Write-Host "Finished Building HTML Release $VERSION"
+      Write-Host "Uploading HTML Release $VERSION"
+
+      $uploadUrl = "$env:CI_API_V4_URL/projects/$env:CI_PROJECT_ID/packages/generic/DoLX_HTML/$VERSION/DoLX_HTML_$VERSION.zip"
+
+      curl.exe --fail --show-error --silent `
+        --header "JOB-TOKEN: $env:CI_JOB_TOKEN" `
+        --header "Content-Type: application/zip" `
+        --retry 5 `
+        --retry-delay 5 `
+        --retry-all-errors `
+        --upload-file "./DoLX_HTML_$VERSION.zip" `
+        "$uploadUrl"
+
+      if ($LASTEXITCODE -ne 0) { throw "HTML upload failed." }
+
+      rm -Recurse -Force "./DoLX_HTML_$VERSION.zip"
+      Write-Host "Finished Uploading HTML Release $VERSION"
+  only:
+    - master
 
 release_job:
-    stage: deploy
-    needs:
-        - job: audio_job
-        - job: img_job
-        - job: html_job
-    rules:
-    - if: $CI_COMMIT_TAG
+  stage: deploy
+  needs:
+    - job: audio_job
+    - job: img_job
+    - job: html_job
+  rules:
+    - if: '$CI_COMMIT_TAG'
       when: never
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    script:
-        - $FULLVERSION=$(cat version)
-        - |
-          if ($FULLVERSION -match "DoLX (((\d+\.\d+\.)\d+)[a-z]*)") {
-            $VERSION=$matches[1]
-            $MINOR=$matches[2]
-            $MAJOR=$matches[3]+"0"
-          }
-        - echo "Creating release ${VERSION}..."
-        - $html = "{`"name`":`"DownloadMe_DoLX_HTML_$VERSION`", `"url`":`"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_HTML/$VERSION/DoLX_HTML_$VERSION.zip`"}"
-        - $htmlJSON = $html | ConvertTo-Json
-        - $image = "{`"name`":`"DownloadMe_DoLX_Images_$MINOR`", `"url`":`"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_Images/$MINOR/DoLX_Images_$MINOR.zip`"}"
-        - $imageJSON = $image | ConvertTo-Json
-        - $audio = "{`"name`":`"DownloadMe_DoLX_Audio_$MAJOR`", `"url`":`"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/DoLX_Audio/$MAJOR/DoLX_Audio_$MAJOR.zip`"}"
-        - $audioJSON = $audio | ConvertTo-Json
-        - C:\GitLab-Runner\release-cli.exe create --name "DoL:X-Change Edition $VERSION" --description ./DoLX_Changelog.md --ref $CI_COMMIT_SHA --tag-name $VERSION --assets-link=$htmlJSON --assets-link=$imageJSON --assets-link=$audioJSON
-    after_script:
-        - echo "Finished creating release."
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+  script:
+    - |
+      $ErrorActionPreference = "Stop"
+      $FULLVERSION = Get-Content -Raw ./version
+
+      if ($FULLVERSION -match "DoLX (((\d+\.\d+\.)\d+)[a-z]*)") {
+        $VERSION = $matches[1]   
+        $MINOR   = $matches[2]
+        $MAJOR   = $matches[3] + "0" 
+      }
+      else {
+        throw "Could not parse release version from version file: $FULLVERSION"
+      }
+
+      Write-Host "Creating release $VERSION..."
+
+      $desc = Get-Content -Raw "./DoLX_Changelog.md"
+
+      $htmlObj = @{
+        name = "DownloadMe_DoLX_HTML_$VERSION"
+        url  = "$env:CI_API_V4_URL/projects/$env:CI_PROJECT_ID/packages/generic/DoLX_HTML/$VERSION/DoLX_HTML_$VERSION.zip"
+      }
+      $htmlJSON = $htmlObj | ConvertTo-Json -Compress
+
+      $imageObj = @{
+        name = "DownloadMe_DoLX_Images_$MINOR"
+        url  = "$env:CI_API_V4_URL/projects/$env:CI_PROJECT_ID/packages/generic/DoLX_Images/$MINOR/DoLX_Images_$MINOR.zip"
+      }
+      $imageJSON = $imageObj | ConvertTo-Json -Compress
+
+      $audioObj = @{
+        name = "DownloadMe_DoLX_Audio_$MAJOR"
+        url  = "$env:CI_API_V4_URL/projects/$env:CI_PROJECT_ID/packages/generic/DoLX_Audio/$MAJOR/DoLX_Audio_$MAJOR.zip"
+      }
+      $audioJSON = $audioObj | ConvertTo-Json -Compress
+
+      & "C:\GitLab-Runner\release-cli.exe" create `
+        --name "DoL:X-Change Edition $VERSION" `
+        --description "$desc" `
+        --ref "$env:CI_COMMIT_SHA" `
+        --tag-name "$VERSION" `
+        --assets-link "$htmlJSON" `
+        --assets-link "$imageJSON" `
+        --assets-link "$audioJSON"
+  after_script:
+    - echo "Finished creating release."
