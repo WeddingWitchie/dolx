@@ -203,3 +203,74 @@ function ensurePillPremiumFlagDefault() {
 		}
 	} catch (e) {}
 })();
+
+
+/* X-Change Premium popup/dialog helpers */
+(function () {
+	"use strict";
+
+	function premiumPassageMarkup(name) {
+		if (typeof Story === "undefined" || !Story.has(name)) {
+			return "''Missing premium menu passage:'' " + name;
+		}
+		return Story.get(name).processText();
+	}
+
+	function ensurePremiumVars() {
+		const V = (typeof State !== "undefined" && State.variables) ? State.variables : (typeof window.V !== "undefined" ? window.V : null);
+		if (!V) return null;
+		V.xchange = V.xchange || {};
+		V.xchange.pill = V.xchange.pill || {};
+		V.xchange.premium = V.xchange.premium || {};
+		if (!V.xchange.premium.screenPassage) V.xchange.premium.screenPassage = "X-Change Premium Menu";
+		return V;
+	}
+
+	window.renderXChangePremiumMenu = function renderXChangePremiumMenu(name) {
+		const V = ensurePremiumVars();
+		if (!V || typeof Dialog === "undefined") return false;
+
+		const passageName = name || V.xchange.premium.screenPassage || "X-Change Premium Menu";
+		V.xchange.premium.screenPassage = passageName;
+
+		try {
+			if (typeof Dialog.isOpen === "function" && Dialog.isOpen("xchange-premium")) {
+				Dialog.empty();
+			} else if (typeof Dialog.create === "function") {
+				Dialog.create("Premium Pill", "xchange-premium");
+			} else if (typeof Dialog.setup === "function") {
+				Dialog.setup("Premium Pill", "xchange-premium");
+			} else {
+				console.error("[X-Change Premium] No compatible Dialog API found.");
+				return false;
+			}
+
+			if (typeof Dialog.wikiPassage === "function") {
+				Dialog.wikiPassage(passageName);
+			} else if (typeof Dialog.wiki === "function") {
+				Dialog.wiki(premiumPassageMarkup(passageName));
+			} else {
+				console.error("[X-Change Premium] Dialog exists, but cannot render wiki content.");
+				return false;
+			}
+
+			if (!(typeof Dialog.isOpen === "function" && Dialog.isOpen("xchange-premium"))) {
+				Dialog.open();
+			}
+			return true;
+		} catch (e) {
+			console.error("[X-Change Premium] Failed to render popup menu.", e);
+			return false;
+		}
+	};
+
+	window.openXChangePremiumMenu = function openXChangePremiumMenu() {
+		return window.renderXChangePremiumMenu();
+	};
+
+	window.closeXChangePremiumMenu = function closeXChangePremiumMenu() {
+		if (typeof Dialog !== "undefined" && typeof Dialog.close === "function") {
+			Dialog.close();
+		}
+	};
+})();

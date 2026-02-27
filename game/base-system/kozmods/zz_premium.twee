@@ -17,8 +17,9 @@
 	/* Start fresh each dose */
 	<<set $xchange.premium.sideSelected to []>>
 	<<set $xchange.premium.mode to "side">>
+	<<set $xchange.premium.screenPassage to "X-Change Premium Menu">>
 
-	<<goto "X-Change Premium Menu">>
+	<<run if (window.openXChangePremiumMenu) { window.openXChangePremiumMenu(); } else { console.error("[X-Change Premium] openXChangePremiumMenu helper missing"); }>>
 <</widget>>
 
 <<widget "xchange-premium-apply">>
@@ -69,8 +70,7 @@
 	/* Clean UI state so next dose is fresh */
 	<<set $xchange.premium.sideSelected to []>>
 	<<set $xchange.premium.mode to "side">>
-
-	<<xchange-premium-exit>>
+	<<set $xchange.premium.screenPassage to "X-Change Premium Menu">>
 <</widget>>
 
 <<widget "xchange-premium-cancel">>
@@ -82,35 +82,39 @@
 	<<set $xchange.pill.done to true>>
 	<<set $xchange.premium.sideSelected to []>>
 	<<set $xchange.premium.mode to "side">>
-	<<xchange-premium-exit>>
+	<<set $xchange.premium.screenPassage to "X-Change Premium Menu">>
 <</widget>>
 
-<<widget "xchange-premium-exit">>
-	<<set _exit to $xchange.premium.originPassage>>
-	<<if _exit is undefined>><<set _exit to $xchange.pill.returnPassage>><</if>>
-	<<if _exit is undefined>><<set _exit to "Take Pill From Medicine Drawer">><</if>>
-
-	<<if _exit isnot undefined and Story.has(_exit)>>
-		<<goto _exit>>
-	<<else>>
-		<<goto "PillCollection">>
-	<</if>>
+<<widget "xchange-premium-close">>
+	<<run if (window.closeXChangePremiumMenu) { window.closeXChangePremiumMenu(); }>>
+	<<run if (typeof Engine !== "undefined" && Engine.show) { Engine.show(); }>>
 <</widget>>
 
 
 :: X-Change Premium Menu
 Choose what you want this dose to do:
 <br>
-<<link "Side effects only" "X-Change Premium Side Effects">>
+<<link "Side effects only">>
 	<<set $xchange.premium.mode to "side">>
+	<<set $xchange.premium.screenPassage to "X-Change Premium Side Effects">>
+	<<run window.renderXChangePremiumMenu && window.renderXChangePremiumMenu("X-Change Premium Side Effects")>>
 <</link>>
 <br>
-<<link "Total body change" "X-Change Premium Body Options">>
+<<link "Total body change">>
 	<<set $xchange.premium.mode to "body">>
+	<<set $xchange.premium.screenPassage to "X-Change Premium Body Options">>
+	<<run window.renderXChangePremiumMenu && window.renderXChangePremiumMenu("X-Change Premium Body Options")>>
 <</link>>
 <br>
-<<link "Gender override" "X-Change Premium Presentation Options">>
+<<link "Gender override">>
 	<<set $xchange.premium.mode to "present">>
+	<<set $xchange.premium.screenPassage to "X-Change Premium Presentation Options">>
+	<<run window.renderXChangePremiumMenu && window.renderXChangePremiumMenu("X-Change Premium Presentation Options")>>
+<</link>>
+<br><br>
+<<link "Cancel">>
+	<<xchange-premium-cancel>>
+	<<xchange-premium-close>>
 <</link>>
 
 
@@ -152,7 +156,7 @@ Pick the side effects you want:
 	<<set _on to _chosen.includes(_e)>>
 	<<set _txt to (_on ? "☑ " : "☐ ") + (_labels[_e] || _e)>>
 	<<capture _e _txt>>
-		<<link _txt "X-Change Premium Side Effects">>
+		<<link _txt>>
 			<<if _chosen is undefined>><<set _chosen to []>><</if>>
 			<<if _chosen.includes(_e)>>
 				<<run _chosen.splice(_chosen.indexOf(_e), 1)>>
@@ -160,51 +164,76 @@ Pick the side effects you want:
 				<<run _chosen.push(_e)>>
 			<</if>>
 			<<set $xchange.premium.sideSelected to _chosen>>
+			<<set $xchange.premium.screenPassage to "X-Change Premium Side Effects">>
+			<<run window.renderXChangePremiumMenu && window.renderXChangePremiumMenu("X-Change Premium Side Effects")>>
 		<</link>>
 	<</capture>>
 	<br>
 <</for>>
 
 <br>
-<<link "Clear selection" "X-Change Premium Side Effects">>
+<<link "Clear selection">>
 	<<set $xchange.premium.sideSelected to []>>
+	<<set $xchange.premium.screenPassage to "X-Change Premium Side Effects">>
+	<<run window.renderXChangePremiumMenu && window.renderXChangePremiumMenu("X-Change Premium Side Effects")>>
 <</link>>
 <br>
 <<link "Apply selected">>
 	<<set $xchange.premium.mode to "side">>
 	<<xchange-premium-apply>>
+	<<xchange-premium-close>>
 <</link>>
 <br>
-<<link "More options (total body change) →" "X-Change Premium Body Options">>
+<<link "More options (total body change) →">>
 	<<set $xchange.premium.mode to "body">>
+	<<set $xchange.premium.screenPassage to "X-Change Premium Body Options">>
+	<<run window.renderXChangePremiumMenu && window.renderXChangePremiumMenu("X-Change Premium Body Options")>>
 <</link>>
-
+<br>
+<<link "Cancel">>
+	<<xchange-premium-cancel>>
+	<<xchange-premium-close>>
+<</link>>
 
 
 :: X-Change Premium Body Options
 Total body with genital and gender change options:
 <br>
-<<link "Make body male" >><<set $xchange.premium.mode to "male">><<xchange-premium-apply>><</link>>
+<<link "Make body male">><<set $xchange.premium.mode to "male">><<xchange-premium-apply>><<xchange-premium-close>><</link>>
 <br>
-<<link "Make body female" >><<set $xchange.premium.mode to "female">><<xchange-premium-apply>><</link>>
+<<link "Make body female">><<set $xchange.premium.mode to "female">><<xchange-premium-apply>><<xchange-premium-close>><</link>>
 <br>
-<<link "Flip sex only" >><<set $xchange.premium.mode to "flip">><<xchange-premium-apply>><</link>>
+<<link "Flip sex only">><<set $xchange.premium.mode to "flip">><<xchange-premium-apply>><<xchange-premium-close>><</link>>
 <br><br>
 
-<<link "← Back to side effects" "X-Change Premium Side Effects">>
+<<link "← Back to side effects">>
 	<<set $xchange.premium.mode to "side">>
+	<<set $xchange.premium.screenPassage to "X-Change Premium Side Effects">>
+	<<run window.renderXChangePremiumMenu && window.renderXChangePremiumMenu("X-Change Premium Side Effects")>>
+<</link>>
+<br>
+<<link "Cancel">>
+	<<xchange-premium-cancel>>
+	<<xchange-premium-close>>
 <</link>>
 
 
 :: X-Change Premium Presentation Options
 Gender presentation-only override, no sex/genitals change:
 <br>
-<<link "Present as male" >><<set $xchange.premium.mode to "present_m">><<xchange-premium-apply>><</link>>
+<<link "Present as male">><<set $xchange.premium.mode to "present_m">><<xchange-premium-apply>><<xchange-premium-close>><</link>>
 <br>
-<<link "Present as female" >><<set $xchange.premium.mode to "present_f">><<xchange-premium-apply>><</link>>
+<<link "Present as female">><<set $xchange.premium.mode to "present_f">><<xchange-premium-apply>><<xchange-premium-close>><</link>>
 
 <br><br>
 
-<<link "← Back to side effects" "X-Change Premium Side Effects">>
+<<link "← Back to side effects">>
 	<<set $xchange.premium.mode to "side">>
+	<<set $xchange.premium.screenPassage to "X-Change Premium Side Effects">>
+	<<run window.renderXChangePremiumMenu && window.renderXChangePremiumMenu("X-Change Premium Side Effects")>>
+<</link>>
+<br>
+<<link "Cancel">>
+	<<xchange-premium-cancel>>
+	<<xchange-premium-close>>
 <</link>>
