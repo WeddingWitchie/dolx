@@ -5625,6 +5625,9 @@ You peer through the mansion gates. Seeing no one around, you step outside, and 
 <<if $avery_mansion is undefined or $avery_mansion is 0>>
 	<<avery_mansion_init>>
 <</if>>
+<<if $avery_mansion.masturbate is undefined>>
+	<<set $avery_mansion.masturbate to {}>>
+<</if>>
 
 /* Avery home check (schedule) */
 <<set _sched to ($avery_mansion.schedule || "away")>>
@@ -5646,50 +5649,55 @@ You peer through the mansion gates. Seeing no one around, you step outside, and 
 	<<if _averyHome>>
 		<<set $timerMax to (_sched is "sleep" ? 60 : 40)>>
 		<<set $timer to $timerMax>>
+		<<set $avery_mansion.masturbate.active to true>>
+		<<set $avery_mansion.masturbate.timer to $timer>>
+		<<set $avery_mansion.masturbate.timerMax to $timerMax>>
 	<<else>>
+		<<set $avery_mansion.masturbate.active to false>>
+		<<set $avery_mansion.masturbate.timer to 0>>
+		<<unset $avery_mansion.masturbate.timerMax>>
 		<<unset $timer>>
 		<<unset $timerMax>>
 	<</if>>
 <</if>>
 
-/* If Avery is home and timer hit 0, caught */
-<<if _averyHome and $timer lte 0>>
-	<<goto "Mansion Bedroom Masturbate Caught">>
-<</if>>
-
-/* Text + Caution UI */
-<<if !_averyHome>>
-	You have the bedroom to yourself.
-	<br><br>
+/* If Avery is home and the caution meter is full, resolve the caught event inline. */
+<<if _averyHome and $timer isnot undefined and $timer lte 0>>
+	<<include "Mansion Bedroom Masturbate Caught">>
 <<else>>
-	<<set _max to ($timerMax || 40)>>
-	<<set _t to ($timer || _max)>>
-	<<set _caution to Math.round(100 - ((_t / _max) * 100))>>
-	<<set _caution to Math.min(100, Math.max(0, _caution))>>
-	You try to keep quiet, as Avery is somewhere in the mansion.
-	<br><br>
-	Caution: <<print _caution>>%
-	<div class="meter">
-		<<print '<div class="redbar" style="width:' + _caution + '%"></div>'>>
-	</div>
-	<br><br>
-<</if>>
+	/* Text + Caution UI */
+	<<if !_averyHome>>
+		You have the bedroom to yourself.
+		<br><br>
+	<<else>>
+		<<set _max to ($timerMax || 40)>>
+		<<set _t to ($timer || _max)>>
+		<<set _caution to Math.round(100 - ((_t / _max) * 100))>>
+		<<set _caution to Math.min(100, Math.max(0, _caution))>>
+		You try to keep quiet, as Avery is somewhere in the mansion.
+		<br><br>
+		Caution: <<print _caution>>%
+		<div class="meter">
+			<<print '<div class="redbar" style="width:' + _caution + '%"></div>'>>
+		</div>
+		<br><br>
+	<</if>>
 
-<<masturbationeffects>>
-<<masturbationactions>>
+	<<masturbationeffects>>
+	<<masturbationactions>>
 
-<<if _averyHome>>
-	<<masturbationControls "timer">>
-<<else>>
-	<<masturbationControls>>
+	<<if _averyHome>>
+		<<set $avery_mansion.masturbate.timer to ($timer is undefined ? 0 : $timer)>>
+		<<set $avery_mansion.masturbate.timerMax to ($timerMax is undefined ? 0 : $timerMax)>>
+		<<masturbationControls "timer">>
+	<<else>>
+		<<masturbationControls>>
+	<</if>>
 <</if>>
 
 :: Mansion Bedroom Masturbate Finish
 <<set $location to "avery_mansion">><<set $bus to "avery_bedroom">><<set $avery_passage to $passage>><<set $outside to 0>>
 <<effects>>
-<<endmasturbation>>
-<<endcombat>>
-<<clotheson>>
 <<avery_mansion>>
 <<if $avery_mansion is undefined or $avery_mansion is 0>>
 	<<avery_mansion_init>>
@@ -5697,32 +5705,43 @@ You peer through the mansion gates. Seeing no one around, you step outside, and 
 <<if $avery_mansion.masturbate is undefined>>
 	<<set $avery_mansion.masturbate to {}>>
 <</if>>
-<<set _t to ($avery_mansion.masturbate.timer || 0)>>
+<<set _awayStates to ["away","work","date","return"]>>
+<<set _homeNow to (!_awayStates.includes($avery_mansion.schedule || "away"))>>
+<<set _t to ($timer is undefined or isNaN($timer) ? ($avery_mansion.masturbate.timer || 0) : $timer)>>
 
-/* If player hit Stop, just exit */
-<<if $finish is 1>>
-	You stop and force yourself to breathe normally.
-	<br><br>
-	<<unset $finish>>
-	<<set $avery_mansion.masturbate.active to false>>
-	<<set $avery_mansion.masturbate.timer to 0>>
-	<<unset $avery_mansion.masturbate.finish>>
-	<<link [[Back to bed|Mansion Bedroom]]>><</link>>
-	<br>
-
-/* If time ran out AND Avery is home, caught */
-<<elseif _t lte 0 and $avery_mansion and !["away","work","date","return"].includes($avery_mansion.schedule || "away")>>
-	<<goto "Mansion Bedroom Masturbate Caught">>
-
-/* Otherwise, normal wrap-up */
+/* Resolve the caught event inline. */
+<<if !$finish and _homeNow and _t lte 0>>
+	<<include "Mansion Bedroom Masturbate Caught">>
 <<else>>
-	You clean yourself up and try to look innocent.
-	<br><br>
-	<<set $avery_mansion.masturbate.active to false>>
-	<<set $avery_mansion.masturbate.timer to 0>>
-	<<unset $avery_mansion.masturbate.finish>>
-	<<link [[Back to bed|Mansion Bedroom]]>><</link>>
-	<br>
+	<<endmasturbation>>
+	<<endcombat>>
+	<<clotheson>>
+
+	/* If player hit Stop, just exit */
+	<<if $finish is 1>>
+		You stop and force yourself to breathe normally.
+		<br><br>
+		<<unset $finish>>
+		<<set $avery_mansion.masturbate.active to false>>
+		<<set $avery_mansion.masturbate.timer to 0>>
+		<<unset $avery_mansion.masturbate.finish>>
+		<<unset $timer>>
+		<<unset $timerMax>>
+		<<link [[Back to bed|Mansion Bedroom]]>><</link>>
+		<br>
+
+	/* Otherwise, normal wrap-up */
+	<<else>>
+		You clean yourself up and try to look innocent.
+		<br><br>
+		<<set $avery_mansion.masturbate.active to false>>
+		<<set $avery_mansion.masturbate.timer to 0>>
+		<<unset $avery_mansion.masturbate.finish>>
+		<<unset $timer>>
+		<<unset $timerMax>>
+		<<link [[Back to bed|Mansion Bedroom]]>><</link>>
+		<br>
+	<</if>>
 <</if>>
 
 :: Mansion Bedroom Masturbate Caught
@@ -5741,8 +5760,11 @@ You peer through the mansion gates. Seeing no one around, you step outside, and 
 	<<set $avery_mansion.masturbate.active to false>>
 	<<set $avery_mansion.masturbate.timer to 0>>
 	<<unset $avery_mansion.masturbate.finish>>
+	<<unset $avery_mansion.masturbate.timerMax>>
 <</if>>
 <<unset $finish>>
+<<unset $timer>>
+<<unset $timerMax>>
 <<npc Avery>><<person1>>
 <<set _rage to (C.npc.Avery.rage is undefined ? 0 : C.npc.Avery.rage)>>
 
