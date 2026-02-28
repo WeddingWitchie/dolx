@@ -107,8 +107,15 @@
 <</widget>>
 
 <<widget "mirrorMenu">>
-	<<set $_mirror to _args[0] || 'mirror'>>
+	<<set $_mirror to _args[0] || 'mirror'>><<repairBrokenVowAngelState>>
 	You look into the $_mirror.
+	<<if $fallenMirrorRepairNotice is "fallen">>
+		<br><span class="red">As you stare into your reflection, divine grace finally gives way to ruin. What should have happened long ago catches up with you.</span><br>
+		<<set $fallenMirrorRepairNotice to 0>>
+	<<elseif $fallenMirrorRepairNotice is "shattered">>
+		<br><span class="red">As you stare into your reflection, the last remains of your divine grace finally break apart.</span><br>
+		<<set $fallenMirrorRepairNotice to 0>>
+	<</if>>
 	<<if $fallenangel is 2>>
 		A pathetic excuse of a person
 	<<elseif $hallucinogen gte 200>>
@@ -3669,5 +3676,37 @@
 	<</if>>
 	<<if $bunnybuild gte 1>>
 	Bunny Transform: <<link [[Reset|$passage]]>><<bunnyTransform 99>><<updatesidebarimg>><</link>><<if $bunnytf is 1>><span class="green">Safe</span><<else>><span class="red">Unsafe</span><</if>><br>
+	<</if>>
+<</widget>>
+
+<<widget "repairBrokenVowAngelState">>
+	<<set _tempXChanged to false>>
+	<<run _tempXChanged =
+		(typeof playerIsXChanged === "function" && typeof pillIsPermanent === "function" && typeof pillTimerPaused === "function")
+			? (playerIsXChanged() && !(pillIsPermanent() || pillTimerPaused()))
+			: false; >>
+
+	<<set _brokenTempleVow to ($player.virginity.temple isnot true and $player.virginity.temple isnot 1)>>
+
+	/* Repair only known bad save state:
+	   vow broken + still angelic + not temp xchanged + not already fallen */
+	<<if _brokenTempleVow and !_tempXChanged and $fallenangel lt 2>>
+		<<if $angel gte 6>>
+			/* Full fallen angel repair */
+			<<set $trauma to $traumamax>>
+			<<set $fallenangel to 2>>
+			<<set $transformationParts.fallenAngel.halo to ($transformationParts.angel.halo is "hidden" ? "default" : $transformationParts.angel.halo)>>
+			<<set $transformationParts.fallenAngel.wings to ($transformationParts.angel.wings is "classic" ? "classic" : "default")>>
+			<<set $fallenangeltf to 1>>
+			<<set _freshFallen to true>>
+			<<earnFeat "Fallen Angel">>
+			<<angelTransform 99>>
+			<<set $specialTransform to 1>>
+			<<set $fallenMirrorRepairNotice to "fallen">>
+		<<elseif $angel gte 4>>
+			/* Halo-only angel state should still be stripped if vow is already broken */
+			<<angelTransform 99>>
+			<<set $fallenMirrorRepairNotice to "shattered">>
+		<</if>>
 	<</if>>
 <</widget>>
