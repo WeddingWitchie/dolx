@@ -33,9 +33,17 @@
 
 	<<set _stayedInLocker to ["School Boy Changing Room", "School Girl Changing Room", "School Pool Wardrobe"].includes($passagePrev)>>
 
-	<<set _studentsKnow to ($schoolrep.crossdress gte 5 or $schoolrep.herm gte 5) and $changingroomstate isnot "empty">>
-	/* Base setup, may have unique overrides later */
-	<<set _allowedToChange to [_args[0], "h"].includes(_studentsKnow ? $player.sex : $player.gender_appearance)>>
+	<<set _knownHerm to ($schoolrep.herm gte 5 and $player.penisExist and $player.vaginaExist and $changingroomstate isnot "empty")>>
+	<<set _knownCrossdress to ($schoolrep.crossdress gte 5 and $changingroomstate isnot "empty")>>
+	<<set _studentsKnow to (_knownHerm or _knownCrossdress)>>
+
+	/* Base setup */
+	<<if _knownHerm>>
+		/* known herm can use either room */
+		<<set _allowedToChange to true>>
+	<<else>>
+		<<set _allowedToChange to [_args[0], "h"].includes(_studentsKnow ? $player.sex : $player.gender_appearance)>>
+	<</if>>
 
 	/* Specific changing room overrides */
 	<<if _args[0] is "f">>
@@ -54,6 +62,13 @@
 	<<else>>
 		<<set _genderChance to maleChance()>>
 	<</if>>
+
+	/* Final override: known herm should never be blocked by crossdress logic */
+	<<if _knownHerm>>
+		<<set _studentsKnow to true>>
+		<<set _allowedToChange to true>>
+	<</if>>
+
 	<<set _seenGender to (_studentsKnow ? $player.gender : $player.gender_appearance)>> <!-- If they know you crossdress, then they won't judge you by appearance -->
 	<<set _uncomfortable to ($backgroundTraits.includes("crossdresser") and $player.sex is _args[0])>>
 	<<set _notStartedLesson to Time.hour is 14 and Time.minute lte 5>>
