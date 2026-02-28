@@ -93,19 +93,34 @@ function hourlyClothingFemininityCheck(hours = 1) {
 	const hasMascClothesAcceptance = V.identity.presentation.clothing.masculine.acceptance;
 	const hasMascClothesRejection = V.identity.presentation.clothing.masculine.reject;
 
-// --- Hypno crossdress cheat gate (keeps X-Change working) ---
-V.cheats = V.cheats || {};
-const genderifyActive = !!(V.xchange?.pill?.active && V.xchange.pill.genderificationEffect);
-const hypnoCrossdressLevel = V.cheats.disableHypnoCrossdress ? 0 : (V.hypnosis_traits?.crossdressing || 0);
+// --- Hypno crossdress / genderify handling ---
+	V.cheats = V.cheats || {};
+	const genderifyActive = !!(V.xchange?.pill?.active && V.xchange.pill.genderificationEffect);
+	const hypnoCrossdressLevel = V.cheats.disableHypnoCrossdress ? 0 : (V.hypnosis_traits?.crossdressing || 0);
 
-	if (genderifyActive || hypnoCrossdressLevel >= 1) {
-		if (V.player.gender === "m" && currentWornFemininity < 0) {
+	/*
+	* If the player actively uses the identity system, let identity preferences decide.
+	* Only use the legacy crossdress/genderify inversion when the player does NOT care for gender.
+	*/
+	const legacyCrossdressMode = (genderifyActive || hypnoCrossdressLevel >= 1) && !playerCaresForGender();
+
+	const bodyIsMale = (typeof playerBodyIsMale === "function")
+		? playerBodyIsMale()
+		: (!!V.player?.penisExist && !V.player?.vaginaExist);
+
+	const bodyIsFemale = (typeof playerBodyIsFemale === "function")
+		? playerBodyIsFemale()
+		: (!!V.player?.vaginaExist && !V.player?.penisExist);
+
+	if (legacyCrossdressMode) {
+		if (bodyIsMale && currentWornFemininity < 0) {
 			wikifier("stress", 800 * hours, 1);
 			V.genderificationStressMessage = 1;
 			V.effectsmessage = 1;
 		}
 		else if (
-			(V.player.gender === "m" && (!hasFemClothesAcceptance || !playerCaresForGender()) && currentWornFemininity > 0) &&
+			bodyIsMale &&
+			currentWornFemininity > 0 &&
 			(genderifyActive || hypnoCrossdressLevel < 4)
 		) {
 			wikifier("stress", -10 * hours);
@@ -113,17 +128,19 @@ const hypnoCrossdressLevel = V.cheats.disableHypnoCrossdress ? 0 : (V.hypnosis_t
 			V.genderificationStressMessage = 2;
 			V.effectsmessage = 1;
 		}
-		if (V.player.gender === "f" && currentWornFemininity > 0) {
+
+		if (bodyIsFemale && currentWornFemininity > 0) {
 			wikifier("stress", 800 * hours, 1);
 			V.genderificationStressMessage = 3;
 			V.effectsmessage = 1;
 		}
 		else if (
-			(V.player.gender === "f" && (!hasMascClothesAcceptance || !playerCaresForGender()) && currentWornFemininity < 0) &&
+			bodyIsFemale &&
+			currentWornFemininity < 0 &&
 			(genderifyActive || hypnoCrossdressLevel < 4)
 		) {
 			wikifier("stress", -10 * hours);
-			V.tiredness -= 200 * hours; // <-- fixed: original was missing "* hours"
+			V.tiredness -= 200 * hours;
 			V.genderificationStressMessage = 4;
 			V.effectsmessage = 1;
 		}
@@ -150,7 +167,6 @@ const hypnoCrossdressLevel = V.cheats.disableHypnoCrossdress ? 0 : (V.hypnosis_t
 			V.effectsmessage = 1;
 		}
 	}
-	
 }
 window.hourlyClothingFemininityCheck = hourlyClothingFemininityCheck;
 
