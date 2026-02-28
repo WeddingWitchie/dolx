@@ -267,18 +267,22 @@ function pleasure(amount, source) {
 			}
 		}
 
+		if (V.xchange.breederEdgingCount == null) V.xchange.breederEdgingCount = 0;
+		if (V.xchange.breederEdgingStress == null) V.xchange.breederEdgingStress = 0;
+	
 		// Cannot orgasm under breeder unless there's semen in vagina
-		if (playerIsXChanged() && V.xchange.pill?.breederEffect && (!playerIsCreampied() || V.xchange.breederOrgasmLock && !V.xchange.breederOrgasm) && oldPleasure + pleasureChange >= V.pleasuremax * 4/5) {
-			V.pleasure = Math.clamp(V.pleasure, 0, V.pleasuremax * 4/5 - 1);
-			V.xchange.pill.breederEdgingCount++;
+		if (playerIsXChanged() && V.xchange.pill?.breederEffect && (!playerIsCreampied() || (V.xchange.breederOrgasmLock && !V.xchange.breederOrgasm)) && oldPleasure + pleasureChange >= V.pleasuremax * 4/5
+		) {
+			V.pleasure = Math.clamp(V.pleasure, 0, V.pleasuremax * 4/5 - 1); V.xchange.breederEdgingCount++;
 		}
-		if (V.xchange.pill.breederEdgingCount > 10) {
+
+		if (V.xchange.breederEdgingCount > 10) {
 			V.effectsmessage = 1;
 			V.breederEdgingMessage = 1;
 			V.xchange.breederDenial++;
-			V.xchange.pill.breederEdgingCount = 0;
-			V.xchange.pill.breederEdgingStress = Math.min(V.xchange.pill.breederEdgingStress + 50, 800);
-			fragment.append(wikifier("stress", V.xchange.pill.breederEdgingStress, 1));
+			V.xchange.breederEdgingCount = 0;
+			V.xchange.breederEdgingStress = Math.min(V.xchange.breederEdgingStress + 50, 800);
+			fragment.append(wikifier("stress", V.xchange.breederEdgingStress, 1));
 		}
 
 		fragment.append(wikifier("arousal-moan", amount * (amount > 0? mod : 1) * (amount > 0? Weather.BodyTemperature.arousalModifier : 1), sensitivity));
@@ -839,7 +843,7 @@ function xchangeEffectsMessages() {
 	if (V.breederEdgingMessage) {
 		element("span", "Your body refuses to cum like this.", "purple"); 
 		element("span", "You crave some thick gooey semen in your "+ either("pussy.","vagina."), "red");
-		if (V.xchange.pill.breederEdgingStress > 400)
+		if ((V.xchange.breederEdgingStress ?? 0) > 400)
 			fragment.append(wikifier("ggstress"));
 		else
 			fragment.append(wikifier("gstress")); 
