@@ -120,7 +120,13 @@ You are in the brothel. Several stages dot the crowded room. The staff look flus
 	<br>
 <</if>>
 
-<<officeicon>><<link [[Briar's office (0:03)|Briar's Office]]>><<pass 3>><</link>>
+<<set _briarOfficePassage to "Briar's Office">>
+	<<set $xchange to $xchange || {}>>
+	<<set $xchange.premium to $xchange.premium || {}>>
+	<<if ($xchange.everConsumed or playerIsXChanged()) and !$xchange.premium.introSeen and !$xchange.premium.feedbackPending and !$weekly.briarPremiumPill>>
+		<<set _briarOfficePassage to "Briar Premium Pill Intro">>
+	<</if>>
+<<officeicon>><<link "Briar's office (0:03)" _briarOfficePassage>><<pass 3>><<if _briarOfficePassage is "Briar Premium Pill Intro">><<set $xchange.premium.introSeen to true>><</if>><</link>>
 <br><br>
 	<<if $exposed lte 0>>
 		<<harvesticon>><<link [[Leave (0:01)|Harvest Street]]>><<pass 1>><</link>>
@@ -668,10 +674,6 @@ Briar's goon keeps a close eye on you as you peek out the front exit. The street
 
 	<<set $xchange to $xchange || {}>>
 	<<set $xchange.premium to $xchange.premium || {}>>
-	<<if ($xchange.everConsumed or playerIsXChanged()) and !$xchange.premium.introSeen and !$xchange.premium.feedbackPending and !$weekly.briarPremiumPill>>
-		<<set $xchange.premium.introSeen to true>>
-		<<goto "Briar Premium Pill Intro">>
-	<</if>>
 	<<if $xchange.premium.feedbackPending>>
 		<<pillicon>><<link [[Tell Briar about the premium pill|Briar Premium Pill Feedback]]>><</link>>
 		<br>
@@ -3368,8 +3370,13 @@ Briar raises an eyebrow. "We don't have anything to discuss."
 		<<else>>
 			<br><br>
 			<<link "I already took it earlier...">>
-				<<set _tookPill to true>>
-				<<replace "#briarPremiumFeedbackBlock">><<goto "Briar Premium Pill Feedback">><</replace>>
+				<<replace "#briarPremiumFeedbackBlock">>
+					Briar leans forward, interested. "So? Did it work?"
+					<br><br>
+					<<link [[Yeah. It worked.|Briar Premium Pill Feedback Worked]]>><</link>>
+					<br>
+					<<link [[I'm not sure.|Briar Premium Pill Feedback NotSure]]>><</link>>
+				<</replace>>
 			<</link>>
 		<</if>>
 		<br>

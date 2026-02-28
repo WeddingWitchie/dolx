@@ -40,6 +40,8 @@ You are on Harvest Street. There's a road leading out of town, and many of the b
 <<if $exposed gte 1>>
 	<<exhibitionism "street">>
 <</if>>
+<<set _streetAutoEvent to "">>
+
 <<if $pleasure gte $pleasuremax>>
 	<<if $worn.vibrator isnot undefined
 		and $worn.vibrator.vibrating is 1
@@ -51,14 +53,14 @@ You are on Harvest Street. There's a road leading out of town, and many of the b
 		and random(1, 100) lte 35>>
 
 		<<set $vibeWalkReturnPassage to State.passage>>
-		<<goto "VibeWalkSpasm">>
+		<<set _streetAutoEvent to "VibeWalkSpasm">>
 
 	<<else>>
 		<<orgasmstreet>>
 	<</if>>
 <</if>>
 
-<<if $rng gte 66>>
+<<if _streetAutoEvent is "" and $rng gte 66>>
 	<<set $xchange to $xchange || {}>>
 	<<set $xchange.premium to $xchange.premium || {}>>
 	<<set $weekly to $weekly || {}>>
@@ -66,11 +68,16 @@ You are on Harvest Street. There's a road leading out of town, and many of the b
 		and !$weekly.xchangePremiumTownEvent>>
 		<<set $weekly.xchangePremiumTownEvent to true>>
 		<<set $xchange.premium.townEventActive to true>>
-		<<goto "Premium Pill Slave">>
+		<<set _streetAutoEvent to "Premium Pill Slave">>
 	<</if>>
 <</if>>
 
-<<if $stress gte $stressmax and !$possessed>>
+<<if _streetAutoEvent is "VibeWalkSpasm">>
+	<<include "VibeWalkSpasm">>
+<<elseif _streetAutoEvent is "Premium Pill Slave">>
+	<<include "Premium Pill Slave">>
+<<elseif $stress gte $stressmax and !$possessed>>
+
 	<<passoutstreet>>
 <<elseif $pubfame and $pubfame.task is "bailey" and $pubfame.bailey.fight is "ready">>
 	<<generateRole 0 0 "thug">><<generateRole 1 0 "thug">><<generateRole 2 0 "thug">><<generateRole 3 0 "thug">>

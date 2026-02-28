@@ -45,6 +45,7 @@ You are on Connudatus Street. The numerous clubs, bars and restaurants make it t
 		<<exhibitionism "street">>
 	<</if>>
 <</if>>
+<<set _autoEvent to "">>
 <<if $pleasure gte $pleasuremax>>
 	<<if $worn.vibrator isnot undefined
 		and $worn.vibrator.vibrating is 1
@@ -56,170 +57,174 @@ You are on Connudatus Street. The numerous clubs, bars and restaurants make it t
 		and random(1, 100) lte 35>>
 
 		<<set $vibeWalkReturnPassage to State.passage>>
-		<<goto "VibeWalkSpasm">>
+		<<set _autoEvent to "VibeWalkSpasm">>
 
 	<<else>>
 		<<orgasmstreet>>
 	<</if>>
 <</if>>
-<<if currentSkillValue('skulduggery') gte 200 and $skulduggeryDintro isnot 1>>
-	<<set $skulduggeryDintro to 1>>
-	Your experience breaking the rules of society lets you look at the street in a new light. So many people with their valuables close at hand, and lightly guarded. <span class="gold">You can now rob people on Connudatus Street.</span>
-	<br><br>
-<</if>>
-<<if $stress gte $stressmax and !$possessed>>
-	<<passoutstreet>>
-<<elseif $bartend_info is 1 and !$possessed>>
-	<<set $bartend_info to 2>>
-	<<generate1>><<person1>>
-	"Hey <<girl>>," says a voice by the club. A <<person>> leans against the wall. "Darryl had me wait for you. Says you got some trouble coming your way and need someone to walk you home."
-	<br><br>
-
-	<<link [[Accept (0:15)|Connudatus VIP Walk]]>><<pass 15>><</link>>
-	<br>
-	<<link [[Refuse|Connudatus VIP Refuse]]>><</link>>
-	<br>
-<<elseif $per_npc.bartend and !$possessed>>
-	<<loadNPC 0 bartend>><<person1>>
-	<<if $rng gte 81>>
-		<<generate2>><<generate3>>
-		Three figures loom from the dark, blocking your path. One steps into the light cast by a street lamp. <span class="red">It's the <<person>> who harassed you in the club.</span>
-		<br><br>
-		"Boggles my mind," <<he>> snarls. "That trash like you think they can deny me. Time to learn your place. I even brought friends to help teach." <<He>> lunges for you.
-		<br><br>
-	<<elseif $rng gte 51>>
-		<<generate2>>
-		Two figures loom from the dark, blocking your path. One steps into the light cast by a street lamp. <span class="red">It's the <<person>> who harassed you in the club.</span>
-		<br><br>
-		"Boggles my mind," <<he>> snarls. "That trash like you think they can deny me. Time to learn your place. I even brought a friend to help teach." <<He>> lunges for you.
-		<br><br>
-	<<else>>
-		A figure looms from the dark, blocking your path. <<He>> steps into the light cast by a street lamp. <span class="red">It's the <<person>> who harassed you in the club.</span>
-		<br><br>
-
-		"Boggles my mind," <<he>> snarls. "That trash like you think they can deny me. Time to learn your place." <<He>> lunges for you.
+<<if _autoEvent is "VibeWalkSpasm">>
+	<<include "VibeWalkSpasm">>
+<<else>>
+	<<if currentSkillValue('skulduggery') gte 200 and $skulduggeryDintro isnot 1>>
+		<<set $skulduggeryDintro to 1>>
+		Your experience breaking the rules of society lets you look at the street in a new light. So many people with their valuables close at hand, and lightly guarded. <span class="gold">You can now rob people on Connudatus Street.</span>
 		<br><br>
 	<</if>>
-	<<link [[Next|Connudatus VIP Rape]]>><<set $molestationstart to 1>><</link>>
-	<br>
-<<elseif $brothel_rivalry is undefined and C.npc.Darryl.love gte 10 and !$possessed>>
+	<<if $stress gte $stressmax and !$possessed>>
+		<<passoutstreet>>
+	<<elseif $bartend_info is 1 and !$possessed>>
+		<<set $bartend_info to 2>>
+		<<generate1>><<person1>>
+		"Hey <<girl>>," says a voice by the club. A <<person>> leans against the wall. "Darryl had me wait for you. Says you got some trouble coming your way and need someone to walk you home."
+		<br><br>
 
-	A car screeches to a halt in front of you. A door swings open, <span class="pink">and a strong pair of arms pull you in.</span>
-	<br><br>
-
-	<<link [[Next|Connudatus Briar Abduct]]>><<set $brothel_rivalry to 1>><<set $brothel_rivalry_timer to 7>><</link>>
-	<br>
-
-<<elseif $rng gte 96 and Time.dayState is "day" and $eventskip isnot 1>>
-	<<generateyv1>><<person1>>
-	There's a noise from the market and some loud shouting. A market stall owner has just grabbed a <<person>>
-	<<if $rng % 2 == 0>>you recognise from the orphanage<<set $phase to 0>>
-	<<else>>you recognise from school<<set $phase to 10>>
-	<</if>>and is shouting angrily at <<him>>.
-	<br><br>
-	<<link [[Try to help (0:05)|Market Street Urchin Help]]>><<pass 5>><</link>>
-	<br>
-	<<link [[Ignore|Connudatus Street]]>><<set $eventskip to 1>><<endevent>><</link>>
-	<br>
-
-<<else>>
-	<<location-danger>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<set _crime to Math.clamp(crimeSumCurrent() / 10, 0, 12000)>>
-	<<if ($danger gte (9900 - $allure - _locationDanger) or $eventforced) and $eventskip is 0>>
-		<<eventsstreet>>
-	<<elseif ($danger gte (10500 - _crime)) and !$daily.streetPolice and $eventskip is 0>>
-		<<streetpolice>>
-	<<else>>
-		<<if $options.mapTop is true>>
-			<<map "connudatus">>
-			<br>
-		<</if>>
-		<<if $xchange.blackmail.activeQuest?.id is 12>>
-			<br>
-			<<ind>><<link [[Flash a passerby (0:05)|Connudatus Street Flash]]>><<pass 5>><</link>>
-			<br>
-		<</if>>
-
-		Places of interest
+		<<link [[Accept (0:15)|Connudatus VIP Walk]]>><<pass 15>><</link>>
 		<br>
-		<<if Time.dayState isnot "dawn" and Time.dayState isnot "day">>
-			<<if $exposed gte 1 and $stripclubintro is 1>>
-				<<stripclubicon>><<link [[Strip club (0:02)|Strip Club Exposed]]>><<pass 2>><</link>>
-				<br>
-			<<elseif $exposed lte 0>>
-				<<stripclubicon>><<link [[Strip club (0:02)|Strip Club]]>><<pass 2>><</link>>
-				<br>
-			<</if>>
-		<</if>>
-		<<if Time.dayState isnot "dusk" and Time.dayState isnot "night" and Time.hour isnot 6>>
-			<<stripclubicon>><<link [[Strip club (0:01)|Strip Club Lock]]>><<pass 1>><</link>>
-			<br>
-		<<elseif Time.hour is 6>>
-			<<stripclubicon>><span class="blue">People are leaving the club.</span> It must be closing time.
-			<br>
-		<</if>>
-		<<if $skulduggeryDintro is 1 and $exposed lte 0>>
-			<<crimeicon "mark">><<link [[Look for a mark (0:20)|Connudatus Street Thievery]]>><<pass 20>><<crimeUp 1 "petty">><</link>><<crime "petty">>
-			<br>
-		<</if>>
-		<<if Time.dayState is "dawn" and $exposed lte 0 and $daily.stallRented isnot 1>>
-			<<if $money gte 1500>>
-				<<stallicon>><<link [[Rent a stall (0:20 £15)|Stall Rent]]>><</link>>
-				<br>
-			<<else>>
-				<<stallicon>><span class="blue">You could rent a stall here if you had the money.</span>
-				<br>
-			<</if>>
-		<<elseif $daily.stallRented is 1 and Time.dayState isnot "night" and $exposed lte 0>>
-			<<stallicon "open">><<link [[Attend your stall (0:20)|Stall]]>><<pass 20>><</link>>
-			<br>
-			<<stallicon "open">><<link [[Decide which products to sell|Stall Whitelist]]>><</link>>
-			<br>
-		<</if>>
-		<<if (Time.dayState is "dawn" or $daily.stallRented is 1) and Time.dayState isnot "night" and $money gte 3000 and $exposed lte 0>>
-			<<if $daily.stallRented is 1>>
-				<<set _string to "your">>
-			<<else>>
-				<<set _string to "a">>
-			<</if>>
-			<<stallicon>><<link [["Put down a deposit for " + _string + " stall (0:05 £30)"|Stall Deposit]]>><<pass 5>><</link>>
-			<br>
-		<</if>>
-		<<if Time.hour gte 6 and Time.hour lte 20 and $exposed lte 0>>
-			<<stallicon "open">><<link [[Explore the markets (0:30)|Connudatus Markets]]>><<pass 30>><</link>>
-			<br>
-		<</if>>
-		<!-- <<casinoicon>><<link [[Casino (0:01)|Casino]]>><<pass 1>><</link>> -->
-		<<if Time.dayState is "night" and $exposed gte 2 and hasSexStat("exhibitionism", 4, true) and $daily.ex.connudatus isnot 1>>
-			<<ind>><<link [[Streak (0:05)|Streak Naked]]>><<pass 5>><<set $daily.ex.connudatus to 1>><</link>><<exhibitionist4>>
-			<br>
-		<<elseif Time.dayState is "night" and $exposed gte 1 and hasSexStat("exhibitionism", 2, true) and $daily.ex.connudatus isnot 1>>
-			<<ind>><<link [[Streak (0:05)|Streak Undies]]>><<pass 5>><<set $daily.ex.connudatus to 1>><</link>><<exhibitionist2>>
-			<br>
-		<</if>>
+		<<link [[Refuse|Connudatus VIP Refuse]]>><</link>>
 		<br>
-		<<if (($exposed is 1 and $uncomfortable.underwearPublic) or ($exposed is 2 and $uncomfortable.nudePublic)) and Time.dayState isnot "night">>
+	<<elseif $per_npc.bartend and !$possessed>>
+		<<loadNPC 0 bartend>><<person1>>
+		<<if $rng gte 81>>
+			<<generate2>><<generate3>>
+			Three figures loom from the dark, blocking your path. One steps into the light cast by a street lamp. <span class="red">It's the <<person>> who harassed you in the club.</span>
+			<br><br>
+			"Boggles my mind," <<he>> snarls. "That trash like you think they can deny me. Time to learn your place. I even brought friends to help teach." <<He>> lunges for you.
+			<br><br>
+		<<elseif $rng gte 51>>
+			<<generate2>>
+			Two figures loom from the dark, blocking your path. One steps into the light cast by a street lamp. <span class="red">It's the <<person>> who harassed you in the club.</span>
+			<br><br>
+			"Boggles my mind," <<he>> snarls. "That trash like you think they can deny me. Time to learn your place. I even brought a friend to help teach." <<He>> lunges for you.
+			<br><br>
 		<<else>>
-			<<add_link "Travel<br>">><<hideDisplay>>
-			<<barb>>
-			<<danube>>
-			<<cliff>>
-			<<wolf>>
-			<<if $exposed lte 0>>
-				<<buswait>>
-			<</if>>
-			<<bike>>
-			<<loiter>>
+			A figure looms from the dark, blocking your path. <<He>> steps into the light cast by a street lamp. <span class="red">It's the <<person>> who harassed you in the club.</span>
+			<br><br>
+
+			"Boggles my mind," <<he>> snarls. "That trash like you think they can deny me. Time to learn your place." <<He>> lunges for you.
+			<br><br>
 		<</if>>
-		<<add_link "<br>Alternate routes<br>">><<hideDisplay>>
-		<<residential>>
-		<<commercial>>
-		<<stormdrain>>
-		<<displayLinks>>
-		<<if $options.mapTop isnot true>>
+		<<link [[Next|Connudatus VIP Rape]]>><<set $molestationstart to 1>><</link>>
+		<br>
+	<<elseif $brothel_rivalry is undefined and C.npc.Darryl.love gte 10 and !$possessed>>
+
+		A car screeches to a halt in front of you. A door swings open, <span class="pink">and a strong pair of arms pull you in.</span>
+		<br><br>
+
+		<<link [[Next|Connudatus Briar Abduct]]>><<set $brothel_rivalry to 1>><<set $brothel_rivalry_timer to 7>><</link>>
+		<br>
+
+	<<elseif $rng gte 96 and Time.dayState is "day" and $eventskip isnot 1>>
+		<<generateyv1>><<person1>>
+		There's a noise from the market and some loud shouting. A market stall owner has just grabbed a <<person>>
+		<<if $rng % 2 == 0>>you recognise from the orphanage<<set $phase to 0>>
+		<<else>>you recognise from school<<set $phase to 10>>
+		<</if>>and is shouting angrily at <<him>>.
+		<br><br>
+		<<link [[Try to help (0:05)|Market Street Urchin Help]]>><<pass 5>><</link>>
+		<br>
+		<<link [[Ignore|Connudatus Street]]>><<set $eventskip to 1>><<endevent>><</link>>
+		<br>
+
+	<<else>>
+		<<location-danger>>
+		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
+		<<set _crime to Math.clamp(crimeSumCurrent() / 10, 0, 12000)>>
+		<<if ($danger gte (9900 - $allure - _locationDanger) or $eventforced) and $eventskip is 0>>
+			<<eventsstreet>>
+		<<elseif ($danger gte (10500 - _crime)) and !$daily.streetPolice and $eventskip is 0>>
+			<<streetpolice>>
+		<<else>>
+			<<if $options.mapTop is true>>
+				<<map "connudatus">>
+				<br>
+			<</if>>
+			<<if $xchange.blackmail.activeQuest?.id is 12>>
+				<br>
+				<<ind>><<link [[Flash a passerby (0:05)|Connudatus Street Flash]]>><<pass 5>><</link>>
+				<br>
+			<</if>>
+
+			Places of interest
 			<br>
-			<<map "connudatus">>
+			<<if Time.dayState isnot "dawn" and Time.dayState isnot "day">>
+				<<if $exposed gte 1 and $stripclubintro is 1>>
+					<<stripclubicon>><<link [[Strip club (0:02)|Strip Club Exposed]]>><<pass 2>><</link>>
+					<br>
+				<<elseif $exposed lte 0>>
+					<<stripclubicon>><<link [[Strip club (0:02)|Strip Club]]>><<pass 2>><</link>>
+					<br>
+				<</if>>
+			<</if>>
+			<<if Time.dayState isnot "dusk" and Time.dayState isnot "night" and Time.hour isnot 6>>
+				<<stripclubicon>><<link [[Strip club (0:01)|Strip Club Lock]]>><<pass 1>><</link>>
+				<br>
+			<<elseif Time.hour is 6>>
+				<<stripclubicon>><span class="blue">People are leaving the club.</span> It must be closing time.
+				<br>
+			<</if>>
+			<<if $skulduggeryDintro is 1 and $exposed lte 0>>
+				<<crimeicon "mark">><<link [[Look for a mark (0:20)|Connudatus Street Thievery]]>><<pass 20>><<crimeUp 1 "petty">><</link>><<crime "petty">>
+				<br>
+			<</if>>
+			<<if Time.dayState is "dawn" and $exposed lte 0 and $daily.stallRented isnot 1>>
+				<<if $money gte 1500>>
+					<<stallicon>><<link [[Rent a stall (0:20 £15)|Stall Rent]]>><</link>>
+					<br>
+				<<else>>
+					<<stallicon>><span class="blue">You could rent a stall here if you had the money.</span>
+					<br>
+				<</if>>
+			<<elseif $daily.stallRented is 1 and Time.dayState isnot "night" and $exposed lte 0>>
+				<<stallicon "open">><<link [[Attend your stall (0:20)|Stall]]>><<pass 20>><</link>>
+				<br>
+				<<stallicon "open">><<link [[Decide which products to sell|Stall Whitelist]]>><</link>>
+				<br>
+			<</if>>
+			<<if (Time.dayState is "dawn" or $daily.stallRented is 1) and Time.dayState isnot "night" and $money gte 3000 and $exposed lte 0>>
+				<<if $daily.stallRented is 1>>
+					<<set _string to "your">>
+				<<else>>
+					<<set _string to "a">>
+				<</if>>
+				<<stallicon>><<link [["Put down a deposit for " + _string + " stall (0:05 £30)"|Stall Deposit]]>><<pass 5>><</link>>
+				<br>
+			<</if>>
+			<<if Time.hour gte 6 and Time.hour lte 20 and $exposed lte 0>>
+				<<stallicon "open">><<link [[Explore the markets (0:30)|Connudatus Markets]]>><<pass 30>><</link>>
+				<br>
+			<</if>>
+			<!-- <<casinoicon>><<link [[Casino (0:01)|Casino]]>><<pass 1>><</link>> -->
+			<<if Time.dayState is "night" and $exposed gte 2 and hasSexStat("exhibitionism", 4, true) and $daily.ex.connudatus isnot 1>>
+				<<ind>><<link [[Streak (0:05)|Streak Naked]]>><<pass 5>><<set $daily.ex.connudatus to 1>><</link>><<exhibitionist4>>
+				<br>
+			<<elseif Time.dayState is "night" and $exposed gte 1 and hasSexStat("exhibitionism", 2, true) and $daily.ex.connudatus isnot 1>>
+				<<ind>><<link [[Streak (0:05)|Streak Undies]]>><<pass 5>><<set $daily.ex.connudatus to 1>><</link>><<exhibitionist2>>
+				<br>
+			<</if>>
+			<br>
+			<<if (($exposed is 1 and $uncomfortable.underwearPublic) or ($exposed is 2 and $uncomfortable.nudePublic)) and Time.dayState isnot "night">>
+			<<else>>
+				<<add_link "Travel<br>">><<hideDisplay>>
+				<<barb>>
+				<<danube>>
+				<<cliff>>
+				<<wolf>>
+				<<if $exposed lte 0>>
+					<<buswait>>
+				<</if>>
+				<<bike>>
+				<<loiter>>
+			<</if>>
+			<<add_link "<br>Alternate routes<br>">><<hideDisplay>>
+			<<residential>>
+			<<commercial>>
+			<<stormdrain>>
+			<<displayLinks>>
+			<<if $options.mapTop isnot true>>
+				<br>
+				<<map "connudatus">>
+			<</if>>
 		<</if>>
 	<</if>>
 <</if>>

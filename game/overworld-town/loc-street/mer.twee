@@ -44,6 +44,9 @@ You are on Mer Street. The street is dominated by the docks and shipping industr
 		<br><br>
 	<</if>>
 <</if>>
+
+<<set _merStreetAutoEvent to "">>
+
 <<if $pleasure gte $pleasuremax>>
 	<<if $worn.vibrator isnot undefined
 		and $worn.vibrator.vibrating is 1
@@ -55,14 +58,14 @@ You are on Mer Street. The street is dominated by the docks and shipping industr
 		and random(1, 100) lte 35>>
 
 		<<set $vibeWalkReturnPassage to State.passage>>
-		<<goto "VibeWalkSpasm">>
+		<<set _merStreetAutoEvent to "VibeWalkSpasm">>
 
 	<<else>>
 		<<orgasmstreet>>
 	<</if>>
 <</if>>
 
-<<if $rng gte 66>>
+<<if _merStreetAutoEvent is "" and $rng gte 66>>
 	<<set $xchange to $xchange || {}>>
 	<<set $xchange.premium to $xchange.premium || {}>>
 	<<set $weekly to $weekly || {}>>
@@ -70,52 +73,58 @@ You are on Mer Street. The street is dominated by the docks and shipping industr
 		and !$weekly.xchangePremiumTownEvent>>
 		<<set $weekly.xchangePremiumTownEvent to true>>
 		<<set $xchange.premium.townEventActive to true>>
-		<<goto "Premium Pill Slave">>
+		<<set _merStreetAutoEvent to "Premium Pill Slave">>
 	<</if>>
 <</if>>
 
-<<if $stress gte $stressmax and !$possessed>>
-	<<passoutstreet>>
+<<if _merStreetAutoEvent is "VibeWalkSpasm">>
+	<<include "VibeWalkSpasm">>
+<<elseif _merStreetAutoEvent is "Premium Pill Slave">>
+	<<include "Premium Pill Slave">>
 <<else>>
+	<<if $stress gte $stressmax and !$possessed>>
+		<<passoutstreet>>
+	<<else>>
 	<<location-danger>>
 	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if ($danger gte (9900 - $allure - _locationDanger) or $eventforced) and $eventskip is 0>>
-		<<eventsstreet>>
-	<<elseif ($danger gte (11500 - _crime)) and !$daily.streetPolice and $eventskip is 0>>
-		<<streetpolice>>
-	<<else>>
-		<<if $options.mapTop is true>>
-			<<map "mer">>
-			<br>
-		<</if>>
-		Places of interest
-		<br>
-		<<docksicon>><<link [[Docks (0:02)|Docks]]>><<pass 2>><</link>>
-		<br>
-		<<if $historytrait gte 2>>
-			<<coastalpathicon>><<link [[Coastal path (0:30)|Coast Path Mer]]>><<pass 30>><</link>>
-			<br>
-		<</if>>
-		<br>
-		<<if (($exposed is 1 and $uncomfortable.underwearPublic) or ($exposed is 2 and $uncomfortable.nudePublic)) and Time.dayState isnot "night">>
+		<<if ($danger gte (9900 - $allure - _locationDanger) or $eventforced) and $eventskip is 0>>
+			<<eventsstreet>>
+		<<elseif ($danger gte (11500 - _crime)) and !$daily.streetPolice and $eventskip is 0>>
+			<<streetpolice>>
 		<<else>>
-			<<add_link "Travel<br>">><<hideDisplay>>
-			<<starfish>>
-			<<oxford>>
-			<<harvest>>
-			<<if $exposed lte 0>>
-				<<buswait>>
+			<<if $options.mapTop is true>>
+				<<map "mer">>
+				<br>
 			<</if>>
-			<<bike>>
-			<<loiter>>
-		<</if>>
-		<<add_link "<br>Alternate routes<br>">><<hideDisplay>>
-		<<industrial>>
-		<<stormdrain>>
-		<<displayLinks>>
-		<<if $options.mapTop isnot true>>
+			Places of interest
 			<br>
-			<<map "mer">>
+			<<docksicon>><<link [[Docks (0:02)|Docks]]>><<pass 2>><</link>>
+			<br>
+			<<if $historytrait gte 2>>
+				<<coastalpathicon>><<link [[Coastal path (0:30)|Coast Path Mer]]>><<pass 30>><</link>>
+				<br>
+			<</if>>
+			<br>
+			<<if (($exposed is 1 and $uncomfortable.underwearPublic) or ($exposed is 2 and $uncomfortable.nudePublic)) and Time.dayState isnot "night">>
+			<<else>>
+				<<add_link "Travel<br>">><<hideDisplay>>
+				<<starfish>>
+				<<oxford>>
+				<<harvest>>
+				<<if $exposed lte 0>>
+					<<buswait>>
+				<</if>>
+				<<bike>>
+				<<loiter>>
+			<</if>>
+			<<add_link "<br>Alternate routes<br>">><<hideDisplay>>
+			<<industrial>>
+			<<stormdrain>>
+			<<displayLinks>>
+			<<if $options.mapTop isnot true>>
+				<br>
+				<<map "mer">>
+			<</if>>
 		<</if>>
 	<</if>>
 <</if>>
