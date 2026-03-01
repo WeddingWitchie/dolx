@@ -105,3 +105,93 @@ Macro.add("doubleslider", {
 		slider.callOnChange();
 	},
 });
+
+/*
+* Using same concept above, numberslider for DoLX NPC body parts (dick and vagina) should be cut out or gated
+* This because DoLX doesn't have herm base
+*/
+Macro.add("doublesliderNoMiddle", {
+	handler() {
+		let [var1, var2, var3, leftcolor, middlecolor, rightcolor] = this.args;
+		if (this.args.length < 3) {
+			throw new Error("Bad doublesliderNoMiddle args " + JSON.stringify(this.args));
+		}
+		if (this.args.length === 3) {
+			leftcolor = "#fa0000";
+			middlecolor = "#ab00fa";
+			rightcolor = "#006cfa";
+		}
+
+		function updateValues(data) {
+			let bar2 = data.slider.find(".irs-bar2");
+			if (bar2.length === 0) bar2 = $("<span>").addClass("irs-bar2").appendTo(data.slider);
+
+			const leftLabel = data.slider.find(".irs-from");
+			const middleLabel = data.slider.find(".irs-single");
+			const rightLabel = data.slider.find(".irs-to");
+
+			// Left side width
+			bar2.css("width", "" + (data.from / (data.max - data.min)) * 100 + "%");
+
+			// Labels
+			leftLabel.css("visibility", V[var1] > 0 ? "visible" : "hidden");
+			middleLabel.css("visibility", "hidden"); // middle always disabled
+			rightLabel.css("visibility", V[var3] > 0 ? "visible" : "hidden");
+
+			leftLabel.html(V[var1] + "%");
+			rightLabel.html(V[var3] + "%");
+
+			const a = data.max - data.min;
+			leftLabel.css("left", "calc(" + (data.from / a) * 50 + "% - " + leftLabel.width() / 2 + "px)");
+			rightLabel.css("left", "calc(" + (data.from + (100 - data.from) / 2) + "% - " + rightLabel.width() / 2 + "px)");
+		}
+
+		const input = $("<input>")
+			.appendTo(this.output)
+			.ionRangeSlider({
+				type: "single",
+				skin: "roundprobability",
+				hide_min_max: true,
+				postfix: "%",
+				min: 0,
+				max: 100,
+				from: V[var1],
+				onStart(data) {
+					// force middle off
+					V[var2] = 0;
+					V[var3] = 100 - V[var1];
+
+					updateValues(data);
+
+					data.slider.find(".irs-handle.single").css("--color", leftcolor);
+					data.slider.find(".irs-from").css("--color", leftcolor);
+					data.slider.find(".irs-bar2").css("--color", leftcolor);
+
+					data.slider.find(".irs-single").css("--color", middlecolor);
+					data.slider.find(".irs-bar").css("--color", middlecolor);
+
+					data.slider.find(".irs-to").css("--color", rightcolor);
+					data.slider.find(".irs-line").css("--color", rightcolor);
+				},
+				onChange(data) {
+					V[var1] = data.from;
+					V[var2] = 0;
+					V[var3] = 100 - data.from;
+
+					jQuery("#numberslider-value-" + var1).text(V[var1]);
+					jQuery("#numberslider-value-" + var2).text(V[var2]);
+					jQuery("#numberslider-value-" + var3).text(V[var3]);
+
+					updateValues(data);
+				},
+			});
+
+		const slider = input.data("ionRangeSlider");
+		const oldDrawHandles = slider.drawHandles;
+		slider.drawHandles = function () {
+			oldDrawHandles.call(this);
+			updateValues(this.result);
+		};
+		slider.callOnChange();
+	},
+});
