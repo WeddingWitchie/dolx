@@ -1,0 +1,144 @@
+:: World Rewrite Widgets [widget]
+<<widget "worldSexRewriteInstallUiHelpers">>
+	<<script>>
+		window.refreshWorldSexRewriteSettingsSlot = function () {
+			if (typeof window.jQuery !== "function") return;
+			var $slot = jQuery("#worldSexRewriteSettingsSlot");
+			if (!$slot.length) return;
+			$slot.empty();
+			new Wikifier($slot[0], "<<worldSexRewriteSettingsBody>>");
+		};
+
+		window.setWorldSexRewriteRiskAccepted = function (value) {
+			if (typeof State === "undefined" || !State.variables) return;
+			State.variables.settings = State.variables.settings || {};
+			State.variables.settings.sexRewriteRiskAccepted = !!value;
+			window.refreshWorldSexRewriteSettingsSlot();
+		};
+	<</script>>
+<</widget>>
+
+<<widget "worldSexRewriteInit">>
+	<<set $settings to $settings || {}>>
+	<<if $settings.sexRewriteMode is undefined>><<set $settings.sexRewriteMode to "off">><</if>>
+	<<if $settings.sexRewritePendingMode is undefined>><<set $settings.sexRewritePendingMode to "">><</if>>
+	<<if $settings.sexRewriteRiskAccepted is undefined>><<set $settings.sexRewriteRiskAccepted to false>><</if>>
+	<<if $settings.sexRewriteShowWarning is undefined>><<set $settings.sexRewriteShowWarning to false>><</if>>
+	<<if $settings.sexRewriteShowDisableConfirm is undefined>><<set $settings.sexRewriteShowDisableConfirm to false>><</if>>
+	<<run ensureWorldSexRewriteState()>>
+	<<worldSexRewriteInstallUiHelpers>>
+<</widget>>
+
+<<widget "worldSexRewriteSettings">>
+	<<worldSexRewriteInit>>
+	<div class="solidBorderContainer settings-container">
+		<div id="worldSexRewriteSettingsSlot">
+			<<worldSexRewriteSettingsBody>>
+		</div>
+	</div>
+<</widget>>
+
+<<widget "worldSexRewriteSettingsBody">>
+	<div class="settingsGrid">
+		<div class="settingsHeader">World Rewrite</div>
+
+		<div class="settingsToggleItemWide">
+			<span class="gold">Current Mode:</span>
+			<<print worldSexRewriteModeLabel()>>
+		</div>
+
+		<div class="settingsToggleItemWide">
+			<span class="gold">Choose Mode</span><br>
+
+			<<button "Mixed (Off)">>
+				<<if $settings.sexRewriteMode isnot "off">>
+					<<set $settings.sexRewritePendingMode to "off">>
+					<<set $settings.sexRewriteShowDisableConfirm to true>>
+					<<set $settings.sexRewriteShowWarning to false>>
+					<<set $settings.sexRewriteRiskAccepted to false>>
+					<<replace "#worldSexRewriteSettingsSlot">><<worldSexRewriteSettingsBody>><</replace>>
+				<</if>>
+			<</button>>
+			|
+			<<button "Female Only">>
+				<<set $settings.sexRewritePendingMode to "femaleOnly">>
+				<<set $settings.sexRewriteShowWarning to true>>
+				<<set $settings.sexRewriteShowDisableConfirm to false>>
+				<<set $settings.sexRewriteRiskAccepted to false>>
+				<<replace "#worldSexRewriteSettingsSlot">><<worldSexRewriteSettingsBody>><</replace>>
+			<</button>>
+			|
+			<<button "Male Only">>
+				<<set $settings.sexRewritePendingMode to "maleOnly">>
+				<<set $settings.sexRewriteShowWarning to true>>
+				<<set $settings.sexRewriteShowDisableConfirm to false>>
+				<<set $settings.sexRewriteRiskAccepted to false>>
+				<<replace "#worldSexRewriteSettingsSlot">><<worldSexRewriteSettingsBody>><</replace>>
+			<</button>>
+		</div>
+
+		<<if $settings.sexRewriteShowWarning and ["femaleOnly", "maleOnly"].includes($settings.sexRewritePendingMode)>>
+			<div class="settingsToggleItemWide">
+				<span class="red"><b>Warning: this setting performs a rewrite.</b></span><br>
+					<div class="small-description">
+					You are about to force world generation and related data toward 
+					<span class="gold"><<print worldSexRewriteModeLabel($settings.sexRewritePendingMode)>></span> mode.
+					</div>
+					<ul class="small-description" style="margin:0.5em 0 0 1.2em;">
+						<li>Existing saves may already contain NPCs or data that do not match this rewrite.</li>
+						<li>Some named NPC scenes, titles, pronouns, or story assumptions may become inconsistent.</li>
+						<li>Pregnancy, childbirth, children, and stored NPC data may behave unexpectedly.</li>
+						<li>Turning this setting off later may stop future forcing, but it may not fully undo changes already applied to this save.</li>
+					</ul>
+				<<if $settings.sexRewriteRiskAccepted>>
+					<label>
+						<input type="checkbox" checked onchange="window.setWorldSexRewriteRiskAccepted(this.checked)">
+						I understand the risks and want to continue.
+					</label>
+				<<else>>
+					<label>
+						<input type="checkbox" onchange="window.setWorldSexRewriteRiskAccepted(this.checked)">
+						I understand the risks and want to continue.
+					</label>
+				<</if>>
+
+				<br>
+
+				<<if $settings.sexRewriteRiskAccepted>>
+					<<button "Apply Confirmed Rewrite">>
+						<<run applyWorldSexRewrite($settings.sexRewritePendingMode)>>
+						<<replace "#worldSexRewriteSettingsSlot">><<worldSexRewriteSettingsBody>><</replace>>
+					<</button>>
+					|
+				<</if>>
+
+				<<button "Cancel">>
+					<<set $settings.sexRewritePendingMode to "">>
+					<<set $settings.sexRewriteShowWarning to false>>
+					<<set $settings.sexRewriteRiskAccepted to false>>
+					<<replace "#worldSexRewriteSettingsSlot">><<worldSexRewriteSettingsBody>><</replace>>
+				<</button>>
+			</div>
+		<</if>>
+
+		<<if $settings.sexRewriteShowDisableConfirm and $settings.sexRewritePendingMode is "off">>
+			<div class="settingsToggleItemWide">
+				<span class="gold"><b>Turn rewrite off?</b></span><br>
+				<div class="small-description">
+					This restores saved chance sliders for future generation, but does not fully undo already rewritten NPCs or children.
+				</div>
+
+				<<button "Disable Rewrite">>
+					<<run applyWorldSexRewrite("off")>>
+					<<replace "#worldSexRewriteSettingsSlot">><<worldSexRewriteSettingsBody>><</replace>>
+				<</button>>
+				|
+				<<button "Cancel">>
+					<<set $settings.sexRewritePendingMode to "">>
+					<<set $settings.sexRewriteShowDisableConfirm to false>>
+					<<replace "#worldSexRewriteSettingsSlot">><<worldSexRewriteSettingsBody>><</replace>>
+				<</button>>
+			</div>
+		<</if>>
+	</div>
+<</widget>>

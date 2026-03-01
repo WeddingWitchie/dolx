@@ -368,7 +368,7 @@ function pregnancyProgress(genital = "vagina") {
 					"nan_totalDaysPregnant",
 					`<b>X-Change: Save data issue detected</b><br>
 					Your save has a corrupt value for <b>pregnancyStats.totalDaysPregnant</b> (NaN/invalid). X-Change will <b>not</b> auto-reset it; it will skip updating this stat to avoid silent data loss.<br><br>
-					<b>This indicates a bug.</b> Please report with your save + steps.`
+					<b>If you encounter any error after this,</b> please report with your save + steps in Discord Server.`
 				);
 			}
 			console.warn("[X-Change] pregnancyStats.totalDaysPregnant is corrupt (NaN/invalid). Skipping increment; not auto-resetting.");
@@ -949,15 +949,8 @@ function ensureBirthId(pregnancy, mother) {
 		V.pregnancyStats.nextBirthId = maxBid + 1;
 		V.pregnancyStats._nanRepairFlag = true;
 
-		if (!V.pregnancyStats._nextBirthIdWarned) {
-			V.pregnancyStats._nextBirthIdWarned = true;
-			window.xChangeQueueNotice(
-				"repair_nextBirthId",
-				`<b>X-Change: Save repair notice</b><br>
-				Your save had an invalid <b>pregnancyStats.nextBirthId</b>. X-Change rebuilt it from existing data to prevent pregnancy tracking errors.<br><br>
-				<b>If you encounter any error after this, please report it with your save and steps to Discord Server.</b>`
-			);
-		}
+		// The notice off atm as I didn't see any error about pregnancy again
+		// if (!V.pregnancyStats._nextBirthIdWarned) { V.pregnancyStats._nextBirthIdWarned = true; window.xChangeQueueNotice("repair_nextBirthId", `<b>X-Change: Save repair notice</b><br>Your save had an invalid <b>pregnancyStats.nextBirthId</b>. X-Change rebuilt it from existing data to prevent pregnancy tracking errors.<br><br><b>If you encounter any error after this, please report it with your save and steps to Discord Server.</b>`); }
 	}
 
   if (!_pf_isFiniteNum(pregnancy.fetus[0].birthId) || pregnancy.fetus[0].birthId < 1) {
