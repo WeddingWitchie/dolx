@@ -85,7 +85,7 @@ function pleasure(amount, source) {
 		const playerIsBeingPenetrated =
 			beingPenetrated.includes(V.vaginause) || beingPenetrated.includes(V.anususe) || [0,3].includes(V.portalPanties.state.vagina?.new) || [0,3].includes(V.portalPanties.state.anus?.new) || V.portalejacvagina || V.portalejacanus;
 
-		const penisAddictionFulfilled = playerIsBeingPenetrated || playerHasButtPlug() ;
+		const penisAddictionFulfilled = playerIsBeingPenetrated;
 		const holeAddictionFulfilled = penetrating.includes(V.penisuse);
 
 		// Apply effect according to source
@@ -177,7 +177,7 @@ function pleasure(amount, source) {
 			mod += sensitivityMod;
 		}
 
-		if (amount > 0 && ((V.penis_addict_trait === 1 && (!playerIsBeingPenetrated || playerHasButtPlug())) || (V.hole_addict_trait === 1 && (!holeAddictionFulfilled || playerHasStrapon())))) {
+		if (amount > 0 && ((V.penis_addict_trait === 1 && !penisAddictionFulfilled) || (V.hole_addict_trait === 1 && !holeAddictionFulfilled))) {
 			mod *= 0.6;
 		}
 
@@ -244,20 +244,21 @@ function pleasure(amount, source) {
 			if (usingSexToy) {
 				// Soft gate for toys:
 				// - clamp to cap
-				// - when capped, sometimes force a "breakthrough" to orgasm
+				// - when capped, rarely force a weak, unsatisfying breakthrough orgasm
 				if (V.pleasure > cap) V.pleasure = cap;
 
 				if (V.pleasure >= cap) {
-					showBlockedMsg();
-
-					// Chance per check to allow orgasm once you reach the cap
 					// Tune: 5-10 = hard, 15-25 = medium, 30+ = easy
-					const breakthroughChance = 20;
+					const breakthroughChance = 10;
 					const roll = Math.floor(Math.random() * 100) + 1;
 
 					if (roll <= breakthroughChance) {
-						// Let the normal orgasm check happen this tick
+						// Let the normal orgasm check happen this tick, but mark it as unsatisfying.
 						V.pleasure = V.pleasuremax;
+						V.effectsmessage = 1;
+						V.sexual_addiction_toy_breakthrough_message = 1;
+					} else {
+						showBlockedMsg();
 					}
 				}
 			} else {
@@ -851,6 +852,16 @@ function xchangeEffectsMessages() {
 		br();
 
 		delete V.breederEdgingMessage;
+	}
+
+	if (V.sexual_addiction_toy_breakthrough_message) {
+		element("span", "You trying to force out an orgasm with the toy.", "purple");
+		element("span", "Instead of relief, you just end up more tense and distracted.", "red");
+		fragment.append(wikifier("ggstress"));
+		fragment.append(wikifier("stress", 30));
+		br();
+
+		delete V.sexual_addiction_toy_breakthrough_message;
 	}
 
 	if (V.sexual_addiction_message) {
