@@ -337,7 +337,14 @@ function masturbationEffectsArms(
 	if (V[armAction] === 0) return fragment;
 
 	if (V[armAction] === "mrest") {
-		if (random(0, 100) >= 91 && V.earSlime.corruption > currentSkillValue("willpower") / 10 && V.corruptionMasturbation === undefined) {
+		if (
+			random(0, 100) >= 91 &&
+			V.earSlime.corruption > currentSkillValue("willpower") / 10 &&
+			V.corruptionMasturbation === undefined &&
+			V.penis_addict_trait !== 1 &&
+			V.hole_addict_trait !== 1 &&
+			!(V.xchange?.pill?.breederEffect && !playerIsCreampied())
+		) {
 			V.corruptionMasturbation = true;
 			V.corruptionMasturbationCount = random(2, 6);
 			fragment.append(span("The slime in your ear decides that it will continue for you.", "red"));
@@ -3701,6 +3708,10 @@ function masturbationEffectsVaginaAnus({ span, otherElement, additionalEffect, s
 			clearAction("vagina");
 			wikifier("arousal", 500, "vaginal");
 			wikifier("drugs", 10);
+			if (playerIsXChanged() && V.xchange?.pill?.breederEffect) {
+				wikifier("bodyliquid", "vagina", "nectar");
+				wikifier("breeder-orgasm", "vagina", "nectar", 1);
+			}
 			if (V.arousal >= (V.arousalmax / 5) * 4) {
 				fragment.append(span("You hungrily ride the plant, rubbing it as quickly as you can. The sensation threatens to drive you mad."));
 			} else if (V.arousal >= (V.arousalmax / 5) * 3) {

@@ -2057,8 +2057,10 @@
 		<<set _bodyparts to _args[0]>>
 		<<set _liquids to _args[1]>>
 		<<set _amount to _args[2]>>
+		<<set _hasVaginaTarget to (_bodyparts is "vagina") or (Array.isArray(_bodyparts) and _bodyparts.includes("vagina"))>>
+		<<set _hasBreederLiquid to (_liquids is "cum") or (_liquids is "semen") or (_liquids is "nectar") or (Array.isArray(_liquids) and (_liquids.includes("cum") or _liquids.includes("semen") or _liquids.includes("nectar")))>>
 
-	<<if playerIsXChanged() and $xchange.pill.breederEffect and _bodyparts.includes("vagina") and _liquids.includesAny("cum", "semen", "nectar") and _amount gte 1>>
+	<<if playerIsXChanged() and $xchange.pill.breederEffect and _hasVaginaTarget and _hasBreederLiquid and _amount gte 1>>
 		<<set $pleasure to $pleasuremax>>
 		<<set $breederOrgasm to 1>>
 		<<set $breederCreampied to true>>
@@ -2072,7 +2074,9 @@
 		<<set _bodyparts to _args[0]>>
 		<<set _liquids to _args[1]>>
 		<<set _amount to _args[2]>>
-		<<if playerIsXChanged() and $xchange.pill.cumcureEffect and _bodyparts.includesAny("vagina", "anus", "mouth") and _liquids.includesAny("cum", "semen", "nectar") and _amount gte 1 and !(pillIsPermanent() or pillTimerPaused())>>
+		<<set _hasCumcureTarget to (_bodyparts is "vagina") or (_bodyparts is "anus") or (_bodyparts is "mouth") or (Array.isArray(_bodyparts) and (_bodyparts.includes("vagina") or _bodyparts.includes("anus") or _bodyparts.includes("mouth")))>>
+		<<set _hasCumcureLiquid to (_liquids is "cum") or (_liquids is "semen") or (_liquids is "nectar") or (Array.isArray(_liquids) and (_liquids.includes("cum") or _liquids.includes("semen") or _liquids.includes("nectar")))>>
+		<<if playerIsXChanged() and $xchange.pill.cumcureEffect and _hasCumcureTarget and _hasCumcureLiquid and _amount gte 1 and !(pillIsPermanent() or pillTimerPaused())>>
 			<<set $xchange.pill.duration to Math.max($xchange.pill.duration - $xchange.cumcureTime, 0)>>
 		<</if>>
 	<</widget>>
