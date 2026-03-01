@@ -3135,6 +3135,77 @@ function onTakeClick(itemName) {
 }
 window.onTakeClick = onTakeClick;
 
+function onTakeClickSilent(itemName) {
+	if (!setup.pills.find(pill => pill.name === itemName)) return;
+	if (!V.sexStats?.pills?.pills?.[itemName]) return;
+	if ((V.sexStats.pills.pills[itemName].owned || 0) <= 0) return false;
+
+	V.sexStats.pills.pills[itemName].owned -= 1;
+
+	switch (itemName) {
+		case "Anti-Parasite Cream":
+			V.sexStats.pills.pills[itemName].doseTaken += 14;
+			break;
+		case "Hair Growth Formula":
+			V.sexStats.pills.pills[itemName].doseTaken += 3;
+			break;
+		default:
+			V.pillsConsumed = (V.pillsConsumed || 0) + 1;
+			V.sexStats.pills.pills[itemName].doseTaken += 1;
+			break;
+	}
+
+	for (const item of setup.pills) {
+		if (item.name === itemName) {
+			for (const widget of item.effects) {
+				Wikifier.wikifyEval(typeof widget === "function" ? widget() : widget);
+			}
+
+			V.sexStats.pills.lastTaken[item.type] = item.subtype;
+			V.sexStats.pills.mostTaken[item.type] = window.redetermineMostTaken(item.type, item.subtype);
+			V.lastPillTakenDescription = item.onTakeMessage;
+
+			/* Reuse original daily notice path */
+			V.pillsTaken = 1;
+
+			return true;
+		}
+	}
+
+	return false;
+}
+window.onTakeClickSilent = onTakeClickSilent;
+
+function autoTakeDailyPills() {
+	if (!setup?.pills || !V.sexStats?.pills?.pills) return;
+
+	const categories = ["bottom", "breast", "penis", "pregnancy", "parasite", "hair", "xchange"];
+
+	for (const category of categories) {
+		let chosen = null;
+
+		for (const pill of setup.pills) {
+			if (!pill || pill.type !== category) continue;
+			if (typeof pill.autoTake !== "function") continue;
+			if (pill.autoTake() !== true) continue;
+
+			chosen = pill;
+			break;
+		}
+
+		if (!chosen) continue;
+		if (typeof chosen.take_condition === "function" && chosen.take_condition() !== 1) continue;
+
+		if (typeof chosen.owned === "function" && chosen.owned() <= 0) {
+			V.pillsTakenLast = 1;
+			continue;
+		}
+
+		onTakeClickSilent(chosen.name);
+	}
+}
+window.autoTakeDailyPills = autoTakeDailyPills;
+
 function onAutoTakeClick(itemName, itemType) {
 	for (const item in setup.pills) {
 		if (setup.pills[item].name === itemName) {
@@ -3350,6 +3421,7 @@ function resetAllDoseTaken() {
 				break;
 		}
 	}
+	autoTakeDailyPills();
 }
 window.resetAllDoseTaken = resetAllDoseTaken;
 
