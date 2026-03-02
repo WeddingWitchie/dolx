@@ -607,45 +607,121 @@
 	<<set $earSlime.event to $earSlimeEvent>>
 	<<unset $earSlimeEvent>>
 	<<set $earSlime.eventTimer to 4>>
+
 	<<if !$slimeBedExit>>
 		<<set $slimeBedExit to "Bed">>
 		<<set $slimeBedroomExit to "Bedroom">>
 	<</if>>
-	<<switch $earSlime.event>>
+
+	<<set $_eventText to "">>
+	<<if typeof $earSlime.event is "string">>
+		<<set $_eventText to $earSlime.event>>
+	<<else>>
+		<<run console.warn("[slimeEventResult] $earSlime.event is not a string:", V.earSlime ? V.earSlime.event : undefined)>>
+	<</if>>
+
+	<<switch $_eventText>>
 		<<case "go running or swimming naked for an hour">><<set $earSlime.eventLength to 2>>
 		<<case "go running or swimming naked for two hours">><<set $earSlime.eventLength to 4>>
 		<<case "study at the school library while naked for an hour">><<set $earSlime.eventLength to 3>>
 		<<case "study at the school library while naked for two hours">><<set $earSlime.eventLength to 6>>
 	<</switch>>
-	<<if $earSlime.event.includes("masturbate and orgasm at least")>>
+
+	<<if $_eventText.includes("masturbate and orgasm at least")>>
 		/* Gets set to 0 on it being completed */
-		<<set $earSlime.defyCooldown += 82>>
+		<<if $earSlime.defyCooldown is undefined or $earSlime.defyCooldown is null>>
+			<<set $earSlime.defyCooldown to 0>>
+			<<set $earSlime.defyCooldown += 82>>
+		<<elseif !Number.isFinite($earSlime.defyCooldown)>>
+			<<run console.warn("[slimeEventResult] $earSlime.defyCooldown is invalid; skipping increment:", V.earSlime ? V.earSlime.defyCooldown : undefined)>>
+		<<else>>
+			<<set $earSlime.defyCooldown += 82>>
+		<</if>>
 	<</if>>
-	<<if $earSlime.event.includes("go running or swimming") or $earSlime.event.includes("study at the school") or $earSlime.event.includes("masturbate") or $earSlime.event.includes("use the farm equipment to empty")>>
+
+	<<if $_eventText.includes("go running or swimming") or $_eventText.includes("study at the school") or $_eventText.includes("masturbate") or $_eventText.includes("use the farm equipment to empty")>>
 		<<set $earSlime.noSleep to true>>
 	<<else>>
 		<<set $earSlime.noSleep to false>>
 	<</if>>
-	<<set $_multiplier to $earSlime.growth lt 150 ? 1 : 2>>
-	<<if $earSlime.event is "only wear feminine clothes for a while">>
-		<<set $earSlime.event to "">>
-		<<if playerIsPregnant() and playerBellySize(true) gte 5>>
-			<<set $earSlime.forcedDressing to {type: "f", days: random(14 * $_multiplier, 31 * $_multiplier)}>>
-		<<else>>
-			<<set $earSlime.forcedDressing to {type: "f", days: random(3 * $_multiplier, 14 * $_multiplier)}>>
-		<</if>>
-	<<elseif $earSlime.event is "only wear masculine clothes for a while">>
-		<<set $earSlime.event to "">>
-		<<set $earSlime.forcedDressing to {type: "m", days: random(3 * $_multiplier, 14 * $_multiplier)}>>
+
+	<<set $_canRollDress to true>>
+	<<set $_multiplier to 0>>
+
+	<<if Number.isFinite($earSlime.growth)>>
+		<<set $_multiplier to $earSlime.growth lt 150 ? 1 : 2>>
+	<<else>>
+		<<run console.error("[slimeEventResult] Invalid $earSlime.growth; cannot calculate forced dressing duration.", {
+			growth: V.earSlime ? V.earSlime.growth : undefined,
+			earSlime: V.earSlime
+		})>>
+		<<set $_canRollDress to false>>
 	<</if>>
-	<<if $earSlime.event is "only sleep naked from now on">>
+
+	<<if $_canRollDress>>
+		<<set $_dressFemPregMin to Math.floor(14 * $_multiplier)>>
+		<<set $_dressFemPregMax to Math.floor(31 * $_multiplier)>>
+		<<set $_dressFemMin to Math.floor(3 * $_multiplier)>>
+		<<set $_dressFemMax to Math.floor(14 * $_multiplier)>>
+		<<set $_dressMascMin to Math.floor(3 * $_multiplier)>>
+		<<set $_dressMascMax to Math.floor(14 * $_multiplier)>>
+
+		<<if !Number.isInteger($_dressFemPregMin) or !Number.isInteger($_dressFemPregMax) or $_dressFemPregMax lt $_dressFemPregMin>>
+			<<run console.error("[slimeEventResult] Invalid feminine pregnant dressing bounds; skipping forced dressing.", {
+				multiplier: _multiplier,
+				min: _dressFemPregMin,
+				max: _dressFemPregMax
+			})>>
+			<<set $_canRollDress to false>>
+		<</if>>
+
+		<<if !Number.isInteger($_dressFemMin) or !Number.isInteger($_dressFemMax) or $_dressFemMax lt $_dressFemMin>>
+			<<run console.error("[slimeEventResult] Invalid feminine dressing bounds; skipping forced dressing.", {
+				multiplier: _multiplier,
+				min: _dressFemMin,
+				max: _dressFemMax
+			})>>
+			<<set $_canRollDress to false>>
+		<</if>>
+
+		<<if !Number.isInteger($_dressMascMin) or !Number.isInteger($_dressMascMax) or $_dressMascMax lt $_dressMascMin>>
+			<<run console.error("[slimeEventResult] Invalid masculine dressing bounds; skipping forced dressing.", {
+				multiplier: _multiplier,
+				min: _dressMascMin,
+				max: _dressMascMax
+			})>>
+			<<set $_canRollDress to false>>
+		<</if>>
+	<</if>>
+
+	<<if $_eventText is "only wear feminine clothes for a while">>
+		<<set $earSlime.event to "">>
+		<<if $_canRollDress>>
+			<<if playerIsPregnant() and playerBellySize(true) gte 5>>
+				<<set $earSlime.forcedDressing to {type: "f", days: random($_dressFemPregMin, $_dressFemPregMax)}>>
+			<<else>>
+				<<set $earSlime.forcedDressing to {type: "f", days: random($_dressFemMin, $_dressFemMax)}>>
+			<</if>>
+		<<else>>
+			<<run console.warn("[slimeEventResult] Skipped feminine forcedDressing due to invalid growth/bounds.")>>
+		<</if>>
+	<<elseif $_eventText is "only wear masculine clothes for a while">>
+		<<set $earSlime.event to "">>
+		<<if $_canRollDress>>
+			<<set $earSlime.forcedDressing to {type: "m", days: random($_dressMascMin, $_dressMascMax)}>>
+		<<else>>
+			<<run console.warn("[slimeEventResult] Skipped masculine forcedDressing due to invalid growth/bounds.")>>
+		<</if>>
+	<</if>>
+
+	<<if $_eventText is "only sleep naked from now on">>
 		<<strip>>
 		<<set $earSlime.alwaysSleepNaked to true>>
 		<<set $earSlime.event to "">>
 		You strip before getting into bed.
 		<br><br>
 		<<link [[Next|$slimeBedExit]]>><<unset $slimeBedExit>><<unset $slimeBedroomExit>><</link>>
-	<<elseif $earSlime.event is "go commando">>
+	<<elseif $_eventText is "go commando">>
 		<<set $earSlime.event to "">>
 		<<if $earSlime.corruption lt 50 and $earSlime.growth is 0>>
 			<<set $earSlime.forcedCommando to random(2, 4)>>

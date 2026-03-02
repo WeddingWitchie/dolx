@@ -2088,23 +2088,65 @@ Another voice cuts through the haze. It sounds like <<anxious_guard 2>>. "I-I ca
 <br><br>
 
 <<set _pregnancy to getPregnancyObject()>>
-<<if _pregnancy.totalBirthEvents gte 5>>
-	<<set _min to 15>>
-	<<set _max to 60>>
-<<elseif _pregnancy.totalBirthEvents gte 3>>
-	<<set _min to 30>>
-	<<set _max to 120>>
+<<set _birthTimingValid to true>>
+<<set _birthEvents to undefined>>
+<<set _fetusLength to undefined>>
+<<set _timeCalc to undefined>>
+<<set _hours to "??">>
+<<set _minutes to "??">>
+
+<<if !_pregnancy>>
+	<<run console.error("[Pregnancy Birth Prison 2] Missing pregnancy object.")>>
+	<<set _birthTimingValid to false>>
+<<elseif !Number.isFinite(_pregnancy.totalBirthEvents)>>
+	<<run console.error("[Pregnancy Birth Prison 2] Invalid pregnancy totalBirthEvents:", _pregnancy)>>
+	<<set _birthTimingValid to false>>
 <<else>>
-	<<set _min to 60>>
-	<<set _max to 180>>
+	<<set _birthEvents to _pregnancy.totalBirthEvents>>
 <</if>>
 
-<<set _max to Math.floor(_max * (1 + Math.floor(_pregnancy.fetus.length * 0.2)))>>
-<<set _min to Math.floor(_min * (1 + Math.floor(_pregnancy.fetus.length * 0.2)))>>
+<<if _birthTimingValid>>
+	<<if Array.isArray(_pregnancy.fetus)>>
+		<<set _fetusLength to _pregnancy.fetus.length>>
+	<<elseif _pregnancy.fetus is not undefined and Number.isFinite(_pregnancy.fetus.length)>>
+		<<set _fetusLength to _pregnancy.fetus.length>>
+	<<else>>
+		<<run console.error("[Pregnancy Birth Prison 2] Invalid pregnancy fetus data:", _pregnancy ? _pregnancy.fetus : undefined)>>
+		<<set _birthTimingValid to false>>
+	<</if>>
+<</if>>
 
-<<set _timeCalc to random(_min, _max)>>
-<<set _hours to Math.floor(_timeCalc / 60)>>
-<<set _minutes to _timeCalc % 60>>
+<<if _birthTimingValid>>
+	<<if _birthEvents gte 5>>
+		<<set _min to 15>>
+		<<set _max to 60>>
+	<<elseif _birthEvents gte 3>>
+		<<set _min to 30>>
+		<<set _max to 120>>
+	<<else>>
+		<<set _min to 60>>
+		<<set _max to 180>>
+	<</if>>
+
+	<<set _mult to 1 + Math.floor(_fetusLength * 0.2)>>
+	<<set _max to Math.floor(_max * _mult)>>
+	<<set _min to Math.floor(_min * _mult)>>
+
+	<<if !Number.isInteger(_min) or !Number.isInteger(_max) or _min lt 0 or _max lt _min>>
+		<<run console.error("[Pregnancy Birth Prison 2] Invalid random bounds", {
+			min: _min,
+			max: _max,
+			birthEvents: _birthEvents,
+			fetusLength: _fetusLength,
+			pregnancy: _pregnancy
+		})>>
+		<<set _birthTimingValid to false>>
+	<<else>>
+		<<set _timeCalc to random(_min, _max)>>
+		<<set _hours to Math.floor(_timeCalc / 60)>>
+		<<set _minutes to _timeCalc % 60>>
+	<</if>>
+<</if>>
 
 <<switch playerNormalPregnancyType()>>
 	<<case "human">>
@@ -2114,7 +2156,14 @@ Another voice cuts through the haze. It sounds like <<anxious_guard 2>>. "I-I ca
 		The pain grows as time seems to rapidly speed up and slow down. You hear the words "breathe" and "push" many times, and you do your best to comply.
 		<br><br>
 
-		<<link [["Next ("+_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")"| Pregnancy Birth Prison 3]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
+		<<if _birthTimingValid>>
+			<<link [["Next ("+_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")"| Pregnancy Birth Prison 3]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
+		<<else>>
+			<b>Debug notice:</b> Birth timing data is invalid for this save. Time advance was skipped so the bad state is not silently hidden.
+			<br><br>
+			<<link [[Continue without time advance| Pregnancy Birth Prison 3]]>><<endevent>><<playerPrebirth>><</link>>
+		<</if>>
+
 	<<case "wolf">>
 		<<methodical_guard 0 capo>> voice floats through the fog. "This is... unexpected. Non-human pregnancy. Focus..."
 		<br><br>
@@ -2122,7 +2171,13 @@ Another voice cuts through the haze. It sounds like <<anxious_guard 2>>. "I-I ca
 		The pain grows as time seems to rapidly speed up and slow down. You hear the words "breathe" and "push" many times, and you do your best to comply.
 		<br><br>
 
-		<<link [["Next ("+_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")"| Pregnancy Birth Prison Wolf]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
+		<<if _birthTimingValid>>
+			<<link [["Next ("+_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")"| Pregnancy Birth Prison Wolf]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
+		<<else>>
+			<b>Debug notice:</b> Birth timing data is invalid for this save. Time advance was skipped so the bad state is not silently hidden.
+			<br><br>
+			<<link [[Continue without time advance| Pregnancy Birth Prison Wolf]]>><<endevent>><<playerPrebirth>><</link>>
+		<</if>>
 <</switch>>
 
 :: Pregnancy Birth Prison 3

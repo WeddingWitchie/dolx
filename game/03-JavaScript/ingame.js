@@ -2995,17 +2995,51 @@ window.earSlimeMakingMundaneRequests = earSlimeMakingMundaneRequests;
 
 function earSlimeCorruptionClothes() {
 	if (!numberOfEarSlime()) return 0;
+
 	if (!V.daily.corruptionSlimeClothes) {
-		const baseCorruption = V.earSlime.corruption + V.earSlime.growth;
-		// Reduced from the original equivalent of *2.5 and *12.5, still want it to have SOME effect, but this should hopefully soften it enough
-		V.daily.corruptionSlimeClothes = Math.clamp(random(baseCorruption, baseCorruption * 5) - currentSkillValue("willpower"), 0, 1000);
+		const rawCorruption = Number(V.earSlime?.corruption);
+		const rawGrowth = Number(V.earSlime?.growth);
+
+		if (!Number.isFinite(rawCorruption) || !Number.isFinite(rawGrowth)) {
+			console.error("[earSlimeCorruptionClothes] Invalid ear slime values", {
+				corruption: V.earSlime?.corruption,
+				growth: V.earSlime?.growth,
+				earSlime: V.earSlime,
+			});
+		}
+
+		const baseCorruption = Math.max(
+			0,
+			Math.floor((Number.isFinite(rawCorruption) ? rawCorruption : 0) + (Number.isFinite(rawGrowth) ? rawGrowth : 0))
+		);
+
+		let min = baseCorruption;
+		let max = Math.floor(baseCorruption * 5);
+
+		if (!Number.isInteger(min) || !Number.isInteger(max) || max < min) {
+			console.error("[earSlimeCorruptionClothes] Invalid random bounds", {
+				min,
+				max,
+				baseCorruption,
+				earSlime: V.earSlime,
+			});
+			min = 0;
+			max = 0;
+		}
+
+		V.daily.corruptionSlimeClothes = Math.clamp(random(min, max) - currentSkillValue("willpower"), 0, 1000);
 	}
+
 	const cap = ["prison", "asylum"].includes(V.location) ? 1000 : 500;
 
 	T.allowSchoolClothes =
 		!!Time.schoolDay || (V.location === "brothel" && Time.weekDay === 6 && V.brothelshowdata?.type === "gangbang" && !V.brothelshowdata?.done);
 
-	return Math.clamp(V.daily.corruptionSlimeClothes + (V.earSlime.growth >= 100 && V.earSlime.defyCooldown ? V.earSlime.defyCooldown * 25 : 0), 0, cap);
+	return Math.clamp(
+		V.daily.corruptionSlimeClothes + (V.earSlime.growth >= 100 && V.earSlime.defyCooldown ? V.earSlime.defyCooldown * 25 : 0),
+		0,
+		cap
+	);
 }
 window.earSlimeCorruptionClothes = earSlimeCorruptionClothes;
 

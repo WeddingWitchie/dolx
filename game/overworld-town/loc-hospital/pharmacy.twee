@@ -849,7 +849,17 @@ You ask the nurse for morning after pills.
 :: Pharmacy Morning After pill 2
 <<set $outside to 0>><<set $location to "hospital">><<effects>>
 <<money -50000 "pharmacyAfterPill">>
-<<set $pregnancyStats.aftermorningpills++>>
+<<if $pregnancyStats is undefined>>
+	<<set $pregnancyStats to {}>>
+<</if>>
+<<if $pregnancyStats.aftermorningpills is undefined>>
+	<<set $pregnancyStats.aftermorningpills to 0>>
+	<<set $pregnancyStats.aftermorningpills += 1>>
+<<elseif !Number.isFinite($pregnancyStats.aftermorningpills)>>
+	<<run console.warn("[Morning After pill] pregnancyStats.aftermorningpills is invalid; skipping increment:", V.pregnancyStats?.aftermorningpills)>>
+<<else>>
+	<<set $pregnancyStats.aftermorningpills += 1>>
+<</if>>
 <<pregnancyMorningAfterPill>>
 
 The nurse points you to a chair to sit on and you take the pill while <<he>> watches you carefully.

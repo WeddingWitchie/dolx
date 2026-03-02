@@ -569,7 +569,7 @@ function weekPassed() {
 		V.nightmareTimer--;
 		if (V.nightmareTimer <= 0) delete V.nightmareTimer;
 	}
-	if (V.brothelVending && V.brothelVending.products >= 1) {
+	if (ensureBrothelVendingState() && V.brothelVending.products >= 1) {
 		if (V.brothelVending.condoms === 0 && V.brothelVending.lube === 0) V.brothelVending.weeksEmpty += 1;
 		V.brothelVending.weeksRent++;
 		if (V.brothelVending.weeksEmpty >= 4) V.brothelVending.status = "sold";
@@ -605,6 +605,50 @@ function weekPassed() {
 	V.weekly.clearProperties();
 }
 
+
+function ensureBrothelVendingState() {
+	if (V.brothelVending == null) return false;
+
+	if (typeof V.brothelVending !== "object") {
+		console.warn("[brothelVending] Repaired non-object state:", V.brothelVending);
+		V.brothelVending = {};
+	}
+
+	if (typeof V.brothelVending.status !== "string") V.brothelVending.status = "idea";
+
+	const numericDefaults = {
+		products: 0,
+		condoms: 0,
+		lube: 0,
+		condomsSold: 0,
+		lubeSold: 0,
+		weeksRent: 0,
+		weeksEmpty: 0,
+		total: 0,
+	};
+
+	for (const [key, fallback] of Object.entries(numericDefaults)) {
+		if (!Number.isFinite(V.brothelVending[key])) {
+			console.warn(`[brothelVending] Repaired invalid ${key}:`, V.brothelVending[key]);
+			V.brothelVending[key] = fallback;
+		}
+	}
+
+	V.brothelVending.products = Math.max(0, Math.floor(V.brothelVending.products));
+	V.brothelVending.condoms = Math.max(0, Math.floor(V.brothelVending.condoms));
+	V.brothelVending.lube = Math.max(0, Math.floor(V.brothelVending.lube));
+	V.brothelVending.condomsSold = Math.max(0, Math.floor(V.brothelVending.condomsSold));
+	V.brothelVending.lubeSold = Math.max(0, Math.floor(V.brothelVending.lubeSold));
+	V.brothelVending.weeksRent = Math.max(0, Math.floor(V.brothelVending.weeksRent));
+	V.brothelVending.weeksEmpty = Math.max(0, Math.floor(V.brothelVending.weeksEmpty));
+	V.brothelVending.total = Math.max(0, Math.floor(V.brothelVending.total));
+
+	V.brothelVending.condomsToRefill = Math.max(0, 200 - V.brothelVending.condoms);
+	V.brothelVending.lubeToRefill = Math.max(0, 200 - V.brothelVending.lube);
+
+	return true;
+}
+
 function dayPassed(days) {
 	Weather.sky.initSun();
 
@@ -617,6 +661,7 @@ function dayPassed(days) {
 		wikifier("seenPassageChecks");
 		wikifier("prison_day");
 		wikifier("clearNPC", "pharmNurse");
+		ensureBrothelVendingState();
 
 		V.physiquechange = 1;
 		V.home_event_timer--;
@@ -907,27 +952,24 @@ function dayPassed(days) {
 			delete V.tentacle_forest_lurker;
 		}
 
-		if (V.brothelVending) {
-			const rng = random(Math.min(1, V.brothelVending.condoms), Math.min(10, V.brothelVending.condoms));
-			V.brothelVending.condoms -= rng;
-			V.brothelVending.condomsSold += rng;
-			V.brothelVending.condomsToRefill = 200 - V.brothelVending.condoms;
-			V.brothelVending.total = (V.brothelVending.total || 0) + rng;
-		}
+		if (ensureBrothelVendingState()) {
+			const condomMin = Math.max(0, Math.floor(Math.min(1, V.brothelVending.condoms)));
+			const condomMax = Math.max(condomMin, Math.floor(Math.min(10, V.brothelVending.condoms)));
+			const condomSoldToday = random(condomMin, condomMax);
 
-		if (V.brothelVending) {
-			const rng = random(Math.min(1, V.brothelVending.lube), Math.min(10, V.brothelVending.lube));
-			V.brothelVending.lube -= rng;
-			V.brothelVending.lubeSold += rng;
-			V.brothelVending.lubeToRefill = 200 - V.brothelVending.lube;
-			V.brothelVending.total = (V.brothelVending.total || 0) + rng;
-		}
-	
-		if (V.dailyBrothelPriceCheck) {
-			V.dailyBrothelPriceCheck = undefined;
-			V.brothelExclusiveGloryholeAccuratePrice = undefined;
-			V.brothelExclusiveGloryholeEstimatePrice = undefined;
-			V.brothelExclusiveGloryholeRoughEstimatePrice = undefined;
+			V.brothelVending.condoms -= condomSoldToday;
+			V.brothelVending.condomsSold += condomSoldToday;
+			V.brothelVending.condomsToRefill = Math.max(0, 200 - V.brothelVending.condoms);
+			V.brothelVending.total += condomSoldToday;
+
+			const lubeMin = Math.max(0, Math.floor(Math.min(1, V.brothelVending.lube)));
+			const lubeMax = Math.max(lubeMin, Math.floor(Math.min(10, V.brothelVending.lube)));
+			const lubeSoldToday = random(lubeMin, lubeMax);
+
+			V.brothelVending.lube -= lubeSoldToday;
+			V.brothelVending.lubeSold += lubeSoldToday;
+			V.brothelVending.lubeToRefill = Math.max(0, 200 - V.brothelVending.lube);
+			V.brothelVending.total += lubeSoldToday;
 		}
 
 		wikifier("menstruationCycle", "daily");

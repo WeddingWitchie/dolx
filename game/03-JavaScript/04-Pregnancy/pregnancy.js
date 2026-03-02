@@ -828,7 +828,27 @@ function endNpcPregnancy(npcName, birthLocation, location) {
 		}
 	}
 
-	if (validBirth) V.pregnancyStats.npcTotalBirthEvents++;
+	if (validBirth) {
+		V.pregnancyStats ??= {};
+
+		if (V.pregnancyStats.npcTotalBirthEvents == null) {
+			// Missing field: safe legacy init
+			V.pregnancyStats.npcTotalBirthEvents = 0;
+		} else if (!Number.isFinite(V.pregnancyStats.npcTotalBirthEvents)) {
+			// Corrupt field: do not silently reset, just flag and skip
+			V.pregnancyStats._nanRepairFlag = true;
+			V.pregnancyStats._repair ??= {};
+
+			if (!V.pregnancyStats._repair.nanNpcTotalBirthEventsWarned) {
+				V.pregnancyStats._repair.nanNpcTotalBirthEventsWarned = true;
+				console.warn(
+					"[X-Change] pregnancyStats.npcTotalBirthEvents is corrupt (NaN/invalid). Skipping increment; not auto-resetting."
+				);
+			}
+		} else {
+			V.pregnancyStats.npcTotalBirthEvents += 1;
+		}
+	}
 	return validBirth;
 }
 DefineMacro("endNpcPregnancy", endNpcPregnancy);
