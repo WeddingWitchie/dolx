@@ -167,7 +167,9 @@
 	<<set _waterActionTime to [18, 15, 12, 10, 8, 8, 7, 7, 6, 6, 5, 4][$_swimLevel] || 3>>
 
 	<<pass _waterActionTime sec>>
-	<<set $oxygen -= _waterActionTime * 10>>
+	<<if $transformationParts.traits.aquatic is "disabled">>
+		<<set $oxygen -= _waterActionTime * 10>>
+	<</if>>
 	<<if $lake_ice_broken gte 1>>
 		<<if random(1, 120) lte _waterActionTime>>
 			<<unset $lake_ice_broken>>
@@ -693,7 +695,7 @@
 				<<if ["thievery", "petty"].includes(_crimeType) and
 				$foxbuild gte 1 and
 				($foxCrimeLimit is undefined or $foxCrimeLimit lt 3) and
-				Math.max($wolfbuild, $catbuild, $cowbuild, $birdbuild, $foxbuild, $bunnybuild) is $foxbuild>>
+				Math.max($wolfbuild, $catbuild, $cowbuild, $waterdragonbuild, $birdbuild, $foxbuild, $bunnybuild) is $foxbuild>>
 					<!-- If the player steals enough, and fox is their highest beast TF (and above 0), apply fox TF pressure -->
 					<!-- Resets daily at 6AM, in dawnCheck, time.js -->
 					<<set $foxCrimeProgress ||= 0>>
@@ -5888,6 +5890,7 @@
 	<<set $transformationParts.bunny.ears = "disabled">>
 	<<set $transformationParts.cat.ears = "disabled">>
 	<<set $transformationParts.cow.ears = "disabled">>
+	<<set $transformationParts.waterdragon.ears = "disabled">>
 	<<set $transformationParts.fox.ears = "disabled">>
 	<<set $transformationParts.wolf.ears = "disabled">>
 	<<set $transformationParts.okami.ears = "disabled">>
@@ -5910,6 +5913,7 @@
 
 <<widget "clearhorns">>
 	<<set $transformationParts.cow.horns = "disabled">>
+	<<set $transformationParts.waterdragon.horns = "disabled">>
 <</widget>>
 
 <<widget "cleardivinetail">>
@@ -5924,6 +5928,7 @@
 	<<set $transformationParts.bunny.tail = "disabled">>
 	<<set $transformationParts.cat.tail = "disabled">>
 	<<set $transformationParts.cow.tail = "disabled">>
+	<<set $transformationParts.waterdragon.tail = "disabled">>
 	<<set $transformationParts.fox.tail = "disabled">>
 	<<set $transformationParts.wolf.tail = "disabled">>
 <</widget>>
@@ -6118,6 +6123,9 @@
 	<<if ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>>
 		<<set $cowtf to 1>>
 	<</if>>
+	<<if ($waterdragon gte 6 or ($transformationParts.waterdragon.tail isnot "hidden" and $transformationParts.waterdragon.tail isnot "disabled"))>>
+		<<set $waterdragontf to 1>>
+	<</if>>
 	<<if ($bear gte 6 or ($transformationParts.bear.tail isnot "hidden" and $transformationParts.bear.tail isnot "disabled"))>>
 		<<set $beartf to 1>>
 	<</if>>
@@ -6228,6 +6236,10 @@
 	<<set $catbuild to 0>>
 	<<set $cow to 0>>
 	<<set $cowbuild to 0>>
+	<<set $waterdragon to 0>>
+	<<set $waterdragonbuild to 0>>
+	<<set $waterdragontf to 0>>
+	<<set $TFWaterDragonBuffs to 0>>
 	<<set $bear to 0>>
 	<<set $bearbuild to 0>>
 	<<set $harpy to 0>>

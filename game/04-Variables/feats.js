@@ -1048,6 +1048,13 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Transformation"],
 	},
+	"Lost Legacy": {
+		title: "Lost Legacy",
+		desc: "Came back from extinction.",
+		difficulty: 1,
+		series: "",
+		filter: ["All", "Transformation"],
+	},
 	Harpy: {
 		title: "Fly Like an Eagle",
 		desc: "Casting a great shadow.",
@@ -3054,6 +3061,7 @@ function earnHourlyFeats() {
 	if (V.fallenangel >= 2) earnFeat("Fallen Angel");
 	if (V.demon >= 6) earnFeat("Demon");
 	if (V.cow >= 6) earnFeat("Cattle");
+	if (V.waterdragon >= 7) earnFeat("Lost Legacy");
 	if (V.bear >= 6) earnFeat("Bear");
 	if ((V.harpy >= 6 || V.transformationParts.bird.wings == "default")) earnFeat("Harpy");
 	if (V.fox >= 6) earnFeat("Fox");

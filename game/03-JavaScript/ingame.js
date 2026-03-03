@@ -1531,6 +1531,9 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 			if (V.TFBirdBuffs == 1) {
 				result = Math.round(result * 0.8);
 			}
+			if (V.TFWaterDragonBuffs == 1) {
+				result = Math.round(result * 1.5);
+			}
 			if (V.TFFoxBuffs == 1) {
 				result = Math.round(result * 0.9);
 			}
@@ -1569,6 +1572,9 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 			}
 			if (V.TFFoxBuffs == 1) {
 				result = Math.round(result * 1.1);
+			}
+			if (V.TFWaterDragonBuffs == 1) {
+				result = Math.round(result * 1.2);
 			}
 			if (V.TFBunnyBuffs == 1) {
 				result = Math.round(result * 1.5);

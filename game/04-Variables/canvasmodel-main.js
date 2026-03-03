@@ -346,6 +346,11 @@ Renderer.CanvasModels.main = {
 			"cow_tail_type": "disabled",
 			"cow_tail_layer": "front",
 			"cow_ears_type": "disabled",
+			"waterdragon_horns_type": "disabled",
+			"waterdragon_horns_layer": "back",
+			"waterdragon_tail_type": "disabled",
+			"waterdragon_tail_layer": "front",
+			"waterdragon_ears_type": "disabled",
 			"bird_wings_type": "disabled",
 			"bird_wing_right": "idle",
 			"bird_wing_left": "idle",
@@ -1903,6 +1908,30 @@ Renderer.CanvasModels.main = {
 			src: `img/transformations/cow/ears/tag.png`,
 		}),
 		"cow_tail": genlayer_tail("cow", false),
+
+		/***
+		 *    ██     ██  █████  ████████ ███████ ██████
+		 *    ██     ██ ██   ██    ██    ██      ██   ██
+		 *    ██  █  ██ ███████    ██    █████   ██████
+		 *    ██ ███ ██ ██   ██    ██    ██      ██   ██
+		 *     ███ ███  ██   ██    ██    ███████ ██   ██
+		 *
+		 *    ██████  ██████   █████   ██████   ██████  ███    ██
+		 *    ██   ██ ██   ██ ██   ██ ██       ██    ██ ████   ██
+		 *    ██   ██ ██████  ███████ ██   ███ ██    ██ ██ ██  ██
+		 *    ██   ██ ██   ██ ██   ██ ██    ██ ██    ██ ██  ██ ██
+		 *    ██████  ██   ██ ██   ██  ██████   ██████  ██   ████
+		 */
+		"waterdragon_horns": genlayer_horns("waterdragon", {
+			filters: ["body"],
+			zfn(options) {
+				return options.waterdragon_horns_layer === "front" ? ZIndices.over_head + 1 : ZIndices.horns + 1;
+			},
+		}),
+		"waterdragon_ears": genlayer_ears("waterdragon", false, {
+			z: ZIndices.horns,
+		}),
+		"waterdragon_tail": genlayer_tail("waterdragon", false),
 
 		/***
 		 *    ██████  ██ ██████  ██████
@@ -4595,7 +4624,7 @@ Renderer.CanvasModels.main = {
 		 *████  █████ ████  ████    █   █ █ █ █  ██ █████ 
 		 *█     █   █ █   █ █   █   █   █  ██ █   █     █ 
 		 *█████ █   █ █   █ █   █ █████ █   █  ███  █████
- 		 */
+		 */
 		 
 		"earrings": genlayer_clothing_main('earrings', {
 			srcfn(options) {
@@ -6114,34 +6143,34 @@ function setClothingFilter(options, slot, clothingObject, setupObj, filterSuffix
 }
 
 function makeupAdjustment(options) {
-    let limit = [0, -0.1];
-    switch (options.skin_type) {
-        case "medium":
+	let limit = [0, -0.1];
+	switch (options.skin_type) {
+		case "medium":
 		case "rmedium":
-        case "ymedium":
+		case "ymedium":
 		case "gmedium":
 		case "bmedium":
-            limit = [-0.1, -0.3];
-            break;
-        case "dark":
+			limit = [-0.1, -0.3];
+			break;
+		case "dark":
 		case "rdark":
-        case "ydark":
+		case "ydark":
 		case "gdark":
 		case "bdark":
-            limit = [-0.3, -0.4];
-            break;
-        case "gyaru":
+			limit = [-0.3, -0.4];
+			break;
+		case "gyaru":
 		case "rgyaru":
-        case "ygyaru":
+		case "ygyaru":
 		case "ggyaru":
 		case "bgyaru":
-            limit = [0, -0.2];
-            break;
-        default:
-    }
-    const [min, max] = limit;
-    const ratio = options.skin_tone / 100;
-    options.makeup_adjustment = min + (max - min) * ratio;
+			limit = [0, -0.2];
+			break;
+		default:
+	}
+	const [min, max] = limit;
+	const ratio = options.skin_tone / 100;
+	options.makeup_adjustment = min + (max - min) * ratio;
 }
 
 

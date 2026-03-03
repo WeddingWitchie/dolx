@@ -1561,6 +1561,7 @@ The floor carries you with it, until you're pressed against the wall. It continu
 
 	<<link [[Next|Islander Return Held]]>><<handheldon>><</link>>
 	<br>
+	<<link [[Tell you still want to explore|Islander Later ]]>><<handheldon>><</link>>
 <<elseif $spear_vessel is "sea">>
 	<<loadNPC 0 "old_islander">>
 	<<loadNPC 1 "sleeper">>
@@ -1576,7 +1577,7 @@ The floor carries you with it, until you're pressed against the wall. It continu
 	<br>
 	<<link [[Don't tell them|Islander Return Refrain]]>><<handheldon>><</link>>
 	<br>
-
+	<<link [[Tell you still want to explore|Islander Later ]]>><<handheldon>><</link>>
 <<elseif $spear_vessel is "Zephyr">>
 	<<loadNPC 0 "old_islander">>
 	<<loadNPC 1 "sleeper">>
@@ -1592,6 +1593,7 @@ The floor carries you with it, until you're pressed against the wall. It continu
 	<br>
 	<<link [[Don't tell them|Islander Return Refrain]]>><<handheldon>><</link>>
 	<br>
+	<<link [[Tell you still want to explore|Islander Later]]>><<handheldon>><</link>>
 <<elseif $spear_vessel is "temple">>
 	<<loadNPC 0 "old_islander">>
 	<<loadNPC 1 "sleeper">>
@@ -1607,6 +1609,7 @@ The floor carries you with it, until you're pressed against the wall. It continu
 	<br>
 	<<link [[Don't tell them|Islander Return Refrain]]>><<handheldon>><</link>>
 	<br>
+	<<link [[Tell you still want to explore|Islander Later]]>><<handheldon>><</link>>
 <<elseif $spear_vessel>>
 	<<loadNPC 0 "old_islander">>
 	<<loadNPC 1 "sleeper">>
@@ -1620,6 +1623,7 @@ The floor carries you with it, until you're pressed against the wall. It continu
 
 	<<link [[Next|Islander Return Refrain]]>><<handheldon>><</link>>
 	<br>
+	<<link [[Tell you still want to explore|Islander Later]]>><<handheldon>><</link>>
 <<else>>
 	<<generateRole 0 0 "old islander">><<person1>>
 	<<set _generate_victim to 1>>
@@ -1642,6 +1646,12 @@ The floor carries you with it, until you're pressed against the wall. It continu
 	<<link [[Remain silent|Islander 2]]>><<set $phase to 3>><</link>>
 	<br>
 <</if>>
+
+:: Islander Later
+<<effects>>
+The elderly nodding. "Suit yourself."
+<br><br>
+<<link [[Next|Island]]>><<endevent>><</link>>
 
 :: Islander 2
 <<effects>><<wearProp "tea">>
@@ -2174,6 +2184,25 @@ You disembark. Curiously, the boat starts floating in the return direction as so
 	<<island_events_wood>>
 <<elseif !$island.explore_locations.includes("shore")>>
 	<<island_events_shore>>
+<<elseif ($waterdragontf is 1 or $waterdragon gte 7 or $transformationParts.traits.aquatic isnot "disabled") and random(1, 4) is 4>>
+	<<cleareventpool>>
+	<<addevent "waterdragon_island_event_home" 1.3>>
+	<<addevent "waterdragon_island_event_language" 1>>
+	<<addevent "waterdragon_island_event_trill" 1.1>>
+	<<addevent "waterdragon_island_event_tidepool" 0.9>>
+	<<addevent "waterdragon_island_event_carving" 0.8>>
+	<<addevent "waterdragon_island_event_spring" 0.9>>
+	<<if $island.explore is "shore">>
+		<<addevent "waterdragon_island_event_home" 0.4>>
+		<<addevent "waterdragon_island_event_tidepool" 0.6>>
+	<<elseif $island.explore is "wood">>
+		<<addevent "waterdragon_island_event_trill" 0.7>>
+		<<addevent "waterdragon_island_event_spring" 0.6>>
+	<<elseif $island.explore is "battleground" or $island.explore is "plain">>
+		<<addevent "waterdragon_island_event_carving" 0.6>>
+		<<addevent "waterdragon_island_event_language" 0.4>>
+	<</if>>
+	<<runeventpool>>
 <<elseif random(1, 2) is 2 and dangerEvent()>>
 	<<cleareventpool>>
 

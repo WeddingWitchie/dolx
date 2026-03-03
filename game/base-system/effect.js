@@ -1507,6 +1507,49 @@ function effects() {
 				case "cowDown5":
 					element("span", "Your balance feels different. Your cow tail has disappeared.", "gold");
 					break;
+				case "waterdragonUp1":
+					element("span", "You feel an intense desire to go swimming underwater.", "gold");
+					break;
+				case "waterdragonUp2":
+					element("span", "Your mouth feels different. You explore your mouth and wince as your tongue presses against your new fangs.", "gold");
+					break;
+				case "waterdragonUp3":
+					element("span", "Your head feels heavier. You reach up, and find that a pair of horns have sprouted.", "gold");
+					break;
+				case "waterdragonUp4":
+					element("span", "Your ears itch. You reach up to them, and find them much bigger than you expected. You've grown a pair of dragon ears.", "gold");
+					break;
+				case "waterdragonUp5":
+					element("span", "Your lower back tingles.", "gold");
+					break;
+				case "waterdragonUp6":
+					element("span", "Your bottom feels heavier than usual. You reach behind you and feel your new scaly tail. It's strong.", "gold");
+					break;
+				case "waterdragonUp7":
+					element("span", "Your skin feels different. You look at your hands and see them take on an indigo hue. You feel the depths call.", "gold");
+					fragment.append(wikifier("earnFeat", "'Lost Legacy'"));
+					break;
+				case "waterdragonDown0":
+					element("span", "You no longer feel the need to swim.", "gold");
+					break;
+				case "waterdragonDown1":
+					element("span", "Your fangs have turned into regular teeth.", "gold");
+					break;
+				case "waterdragonDown2":
+					element("span", "Your horns have disappeared.", "gold");
+					break;
+				case "waterdragonDown3":
+					element("span", "Your dragon ears have disappeared.", "gold");
+					break;
+				case "waterdragonDown4":
+					element("span", "Your lower back has stopped tingling.", "gold");
+					break;
+				case "waterdragonDown5":
+					element("span", "Your balance feels different. Your dragon tail has disappeared.", "gold");
+					break;
+				case "waterdragonDown6":
+					element("span", "Your body feels different. You look at your hands and notice them return to normal.", "gold");
+					break;
 				case "bearUp1":
 					element("span", "You have a strange toothache and a strange craving for honey.", "gold");
 					break;

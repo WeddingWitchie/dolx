@@ -216,6 +216,11 @@ setup.colours = {
 			blendMode: "multiply",
 			desaturate: false,
 		},
+		waterdragon: {
+			gradient: ["#dccdf5", "#b692f9", "#00d1ff"],
+			blendMode: "multiply",
+			desaturate: false,
+		},
 		ghost: {
 			gradient: ["#ffffff", "#ffffff"],
 			blendMode: "multiply",

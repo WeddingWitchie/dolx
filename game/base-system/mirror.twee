@@ -176,7 +176,7 @@
 	<<if !$simpleMirror>>
 		/* only display the tf menu if there's actually some options that can be changed */
 		<<set $_tfs to setup.transformations.filter(tf => tf.parts?.some(part => tf.level >= part.tfRequired))>>
-		<<set _permtfs to ["angeltf","fallenangeltf","fallenangelplustf","demontf","wolftf","cattf","cowtf","beartf","harpytf","foxtf","bunnytf"]>>
+		<<set _permtfs to ["angeltf","fallenangeltf","fallenangelplustf","demontf","wolftf","cattf","cowtf","beartf","waterdragontf","harpytf","foxtf","bunnytf"]>>
 		<<if $_tfs.length >= 1 or _permtfs.some(tf => V[tf] === 1)>>
 			__Transformation__
 			<br>
@@ -368,6 +368,9 @@
 		<</if>>
 		<<if ["ears", "tail"].filter(p => $transformationParts.bear[p] is "disabled").length < 2>>
 			<<run _increaseBoth(`Bear ${"+".repeat(2 - Math.ceil(["ears","tail"].filter(p => $transformationParts.bear[p] is "disabled").length))}`)>>
+		<</if>>
+		<<if ["ears", "tail", "horns"].filter(p => $transformationParts.waterdragon[p] is "disabled").length < 3>>
+			<<run _increaseBoth(`Draconic ${"+".repeat(2 - Math.ceil(["ears", "tail", "horns"].filter(p => $transformationParts.waterdragon[p] is "disabled").length / 2))}`)>>
 		<</if>>
 		<<if ["ears", "tail"].filter(p => $transformationParts.bunny[p] is "disabled").length < 2>>
 			<<run _increaseBoth(`Bunny ${"+".repeat(2 - Math.ceil(["ears","tail"].filter(p => $transformationParts.bunny[p] is "disabled").length))}`)>>
@@ -2501,6 +2504,7 @@
 	<<set _cat to $transformationParts.cat>>
 	<<set _cow to $transformationParts.cow>>
 	<<set _bear to $transformationParts.bear>>
+	<<set _waterdragon to $transformationParts.waterdragon || {horns:"disabled", ears:"disabled", tail:"disabled"}>>
 	<<set _wolf to $transformationParts.wolf>>
 	<<set _bird to $transformationParts.bird>>
 	<<set _fox to $transformationParts.fox>>
@@ -2517,6 +2521,7 @@
 	<<set _catFullCheck to ($cat gte 6) or $cattf is 1>>
 	<<set _cowFullCheck to ($cow gte 6) or $cowtf is 1>>
 	<<set _bearFullCheck to ($bear gte 6) or $beartf is 1>>
+	<<set _waterdragonFullCheck to ($waterdragon gte 6 or (_waterdragon.tail isnot "hidden" and _waterdragon.tail isnot "disabled")) or $waterdragontf is 1>>
 	<<set _wolfFullCheck to ($wolfgirl gte 6) or $wolftf is 1>>
 	<<set _birdFullCheck to ($harpy gte 6) or $harpytf is 1>>
 	<<set _foxFullCheck to ($fox gte 6) or $foxtf is 1>>
@@ -2527,6 +2532,7 @@
 	<<set _catPartialCheck to ($cat gte 4) or $cattf is 1>>
 	<<set _cowPartialCheck to ($cow gte 4) or $cowtf is 1>>
 	<<set _bearPartialCheck to ($bear gte 4) or $beartf is 1>>
+	<<set _waterdragonPartialCheck to ($waterdragon gte 4) or $waterdragontf is 1>>
 	<<set _wolfPartialCheck to ($wolfgirl gte 4) or $wolftf is 1>>
 	<<set _birdPartialCheck to ($harpy gte 4) or $harpytf is 1>>
 	<<set _foxPartialCheck to ($fox gte 4) or $foxtf is 1>>
@@ -2537,14 +2543,15 @@
 	<<set _catInitialCheck to ($cat gte 2) or $cattf is 1>>
 	<<set _cowInitialCheck to ($cow gte 2) or $cowtf is 1>>
 	<<set _bearInitialCheck to ($bear gte 2) or $beartf is 1>>
+	<<set _waterdragonInitialCheck to ($waterdragon gte 2) or $waterdragontf is 1>>
 	<<set _wolfInitialCheck to ($wolfgirl gte 2) or $wolftf is 1>>
 	<<set _birdInitialCheck to ($harpy gte 2) or $harpytf is 1>>
 	<<set _foxInitialCheck to ($fox gte 2) or $foxtf is 1>>
 	<<set _bunnyInitialCheck to ($bunny gte 2) or $bunnytf is 1>>
 
-	<<if _wolfInitialCheck or _catInitialCheck or _cowFullCheck or _bearFullCheck or $harpy gte 3 or $harpytf is 1 or $fox gte 3 or $foxtf is 1 or _bunnyInitialCheck or (_demonPartialCheck and $exhibitionism gte 95)>>
+	<<if _wolfInitialCheck or _catInitialCheck or _cowFullCheck or _bearFullCheck or _waterdragonInitialCheck or $harpy gte 3 or $harpytf is 1 or $fox gte 3 or $foxtf is 1 or _bunnyInitialCheck or (_demonPartialCheck and $exhibitionism gte 95)>>
 		__Traits__<br>
-		<<if _wolfInitialCheck or _catInitialCheck or _foxInitialCheck or _bearInitialCheck>>
+		<<if _wolfInitialCheck or _catInitialCheck or _foxInitialCheck or _bearInitialCheck or _waterdragonInitialCheck>>
 			Fangs: <<checkbox "_traits.fangs" "disabled" "default" autocheck>><br>
 		<</if>>
 		<<if _catInitialCheck or _birdInitialCheck or _foxInitialCheck>>
@@ -2568,6 +2575,9 @@
 		<<if _demonPartialCheck and hasSexStat("exhibitionism", 6, true)>>
 			Flaunting when exposed: <<checkbox "_traits.flaunting" "disabled" "default" autocheck>><br>
 		<</if>>
+		<<if $waterdragon gte 7 or $waterdragontf is 1>>
+			Aquatic Lungs: <<checkbox "_traits.aquatic" "disabled" "default" autocheck>><br>
+		<</if>>
 		<<if $cat gte 7 or $cattf is 1>>
 			Heterochromia:
 			<<if _cat.heterochromia isnot "default">>
@@ -2589,6 +2599,9 @@
 			<</if>>
 			<<if _bearFullCheck>>
 				Ursine Strength: <<checkbox "$TFBearBuffs" 0 1 autocheck>><br>
+			<</if>>
+			<<if _waterdragonFullCheck>>
+				Dragon's Grace: <<checkbox "$TFWaterDragonBuffs" 0 1 autocheck>><br>
 			<</if>>
 			<<if _birdFullCheck>>
 				Sky's Embrace: <<checkbox "$TFBirdBuffs" 0 1 autocheck>><br>
@@ -2626,6 +2639,12 @@
 				<<set _options["Bear"] = "bear">>
 				<<if _traits.tempTolerance is "bear">>
 					<<set _tempToleranceChoice to _options["Bear"]>>
+				<</if>>
+			<</if>>
+			<<if _waterdragonFullCheck>>
+				<<set _options["Water Dragon"] = "waterdragon">>
+				<<if _traits.tempTolerance is "waterdragon">>
+					<<set _tempToleranceChoice to _options["Water Dragon"]>>
 				<</if>>
 			<</if>>
 			<<if _birdFullCheck>>
@@ -2910,6 +2929,18 @@
 			<<set _earsChoice to _options["Kitsune"]>>
 		<</if>>
 	<</if>>
+	<<if _waterdragonPartialCheck>>
+		<<set _options["Water Dragon"] = ["waterdragon", "default"]>>
+		<<set _options["Water Dragon Purple"] = ["waterdragon", "purple"]>>
+		<<set _options["Water Dragon Gray"] = ["waterdragon", "gray"]>>
+		<<if _waterdragon.ears is "default">>
+			<<set _earsChoice to _options["Water Dragon"]>>
+		<<elseif _waterdragon.ears is "purple">>
+			<<set _earsChoice to _options["Water Dragon Purple"]>>
+		<<elseif _waterdragon.ears is "gray">>
+			<<set _earsChoice to _options["Water Dragon Gray"]>>
+		<</if>>
+	<</if>>
 	<<if !_earsChoice>>
 		<<set _earsChoice to 0>>
 	<</if>>
@@ -3045,6 +3076,15 @@
 			<<set _hornsChoice to _options["Cow"]>>
 		<</if>>
 	<</if>>
+	<<if _waterdragonPartialCheck>>
+		<<set _options["Water Dragon"] = ["waterdragon", "default"]>>
+		<<set _options["Water Dragon Short"] = ["waterdragon", "short"]>>
+		<<if _waterdragon.horns is "default">>
+			<<set _hornsChoice to _options["Water Dragon"]>>
+		<<elseif _waterdragon.horns is "short">>
+			<<set _hornsChoice to _options["Water Dragon Short"]>>
+		<</if>>
+	<</if>>
 	<<if !_hornsChoice>>
 		<<set _hornsChoice to 0>>
 	<</if>>
@@ -3153,6 +3193,24 @@
 			<<set _tailChoice to _options["Wolf Default"]>>
 		<<elseif _wolf.tail is "feral">>
 			<<set _tailChoice to _options["Wolf Feral"]>>
+		<</if>>
+	<</if>>
+	<<if _waterdragonFullCheck>>
+		<<set _options["Water Dragon Long"] = ["waterdragon", "default"]>>
+		<<set _options["Water Dragon Short"] = ["waterdragon", "short"]>>
+		<<set _options["Water Dragon Long Purple"] = ["waterdragon", "purple"]>>
+		<<set _options["Water Dragon Long Gray"] = ["waterdragon", "gray"]>>
+		<<set _options["Water Dragon Short Gray"] = ["waterdragon", "sgray"]>>
+		<<if _waterdragon.tail is "default">>
+			<<set _tailChoice to _options["Water Dragon Long"]>>
+		<<elseif _waterdragon.tail is "short">>
+			<<set _tailChoice to _options["Water Dragon Short"]>>
+		<<elseif _waterdragon.tail is "purple">>
+			<<set _tailChoice to _options["Water Dragon Long Purple"]>>
+		<<elseif _waterdragon.tail is "gray">>
+			<<set _tailChoice to _options["Water Dragon Long Gray"]>>
+		<<elseif _waterdragon.tail is "sgray">>
+			<<set _tailChoice to _options["Water Dragon Short Gray"]>>
 		<</if>>
 	<</if>>
 	<<if !_tailChoice>>
@@ -3384,7 +3442,7 @@
 	<div class="settingsToggleItemWide no-numberify">
 		<span class="gold bold">Layer Adjustments:</span>
 		<br>
-		<<if !["demon", "cow"].every(transform => T[transform].horns is "disabled")>>
+		<<if !["demon", "cow", "waterdragon"].every(transform => T[transform].horns is "disabled")>>
 			<<switch $hornslayer>>
 				<<case "front">>
 					<<link "Prioritise headwear over horns">>
@@ -3404,7 +3462,7 @@
 			<</switch>>
 			<br>
 		<</if>>
-		<<if !["demon", "cat", "cow", "bear", "wolf", "bird", "fox", "okami", "kitsune"].every(transform => T[transform].tail is "disabled")>>
+		<<if !["demon", "cat", "cow", "bear", "wolf", "bird", "fox", "okami", "kitsune", "waterdragon"].every(transform => T[transform].tail is "disabled")>>
 			<<switch $taillayer>>
 				<<case "front">>
 					<<link "Push tail back">>
@@ -3667,6 +3725,9 @@
 	<</if>>
 	<<if $bearbuild gte 1>>
 	Bear Transform: <<link [[Reset|$passage]]>><<bearTransform 99>><<updatesidebarimg>><</link>><<if $beartf is 1>><span class="green">Safe</span><<else>><span class="red">Unsafe</span><</if>><br>
+	<</if>>
+	<<if $waterdragonbuild gte 1>>
+	Water Dragon Transform: <<link [[Reset|$passage]]>><<waterdragonTransform 99>><<updatesidebarimg>><</link>><<if $waterdragontf is 1>><span class="green">Safe</span><<else>><span class="red">Unsafe</span><</if>><br>
 	<</if>>
 	<<if $birdbuild gte 1>>
 	Bird Transform: <<link [[Reset|$passage]]>><<harpyTransform 99>><<updatesidebarimg>><</link>><<if $harpytf is 1>><span class="green">Safe</span><<else>><span class="red">Unsafe</span><</if>><br>

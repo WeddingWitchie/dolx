@@ -395,6 +395,11 @@ DefineMacro("modelprepare-player-body", function () {
 	T.modeloptions.cow_tail_type = V.transformationParts.cow.tail;
 	T.modeloptions.cow_tail_layer = V.taillayer;
 	T.modeloptions.cow_ears_type = V.transformationParts.cow.ears;
+	T.modeloptions.waterdragon_horns_type = V.transformationParts.waterdragon.horns;
+	T.modeloptions.waterdragon_horns_layer = V.hornslayer;
+	T.modeloptions.waterdragon_tail_type = V.transformationParts.waterdragon.tail;
+	T.modeloptions.waterdragon_tail_layer = V.taillayer;
+	T.modeloptions.waterdragon_ears_type = V.transformationParts.waterdragon.ears;
 
 	T.modeloptions.bird_wings_type = V.transformationParts.bird.wings;
 	T.modeloptions.bird_wings_layer = V.wingslayer;

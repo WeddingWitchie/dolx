@@ -9,6 +9,7 @@
 			demon: {horns:"disabled", wings:"disabled", tail: "disabled"},
 			cat: {ears:"disabled", tail:"disabled", heterochromia:"disabled"},
 			cow: {horns:"disabled", ears:"disabled", tail:"disabled"},
+			waterdragon: {horns:"disabled", ears:"disabled", tail:"disabled"},
 			bear: {plumage:"disabled", pubes:"disabled", ears:"disabled", tail:"disabled"},
 			wolf: {ears:"disabled", tail:"disabled", pubes:"disabled", pits:"disabled"},
 			bird: {tail:"disabled", wings:"disabled", eyes:"disabled", malar:"disabled", plumage:"disabled", pubes:"disabled"},
@@ -71,6 +72,15 @@
 			<</if>>
 			<<if ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>>
 				<<set $transformationParts.cow.tail to "default">>
+			<</if>>
+			<<if ($waterdragon gte 2 or $transformationParts.waterdragon.horns is "default")>>
+				<<set $transformationParts.waterdragon.horns to "default">>
+			<</if>>
+			<<if $waterdragon gte 4>>
+				<<set $transformationParts.waterdragon.ears to "default">>
+			<</if>>
+			<<if ($waterdragon gte 6 or ($transformationParts.waterdragon.tail isnot "hidden" and $transformationParts.waterdragon.tail isnot "disabled"))>>
+				<<set $transformationParts.waterdragon.tail to "default">>
 			<</if>>
 			<<if $bunny gte 4>>
 				<<set $transformationParts.bunny.ears to "default">>
@@ -195,6 +205,7 @@
 			<<case "wolf">>  <<set $wolfbuild  = Math.clamp($wolfbuild  + _args[1], 0, 100)>>
 			<<case "cat">>   <<set $catbuild   = Math.clamp($catbuild   + _args[1], 0, 100)>>
 			<<case "cow">>   <<set $cowbuild   = Math.clamp($cowbuild   + _args[1], 0, 100)>>
+			<<case "waterdragon">>   <<set $waterdragonbuild   = Math.clamp($waterdragonbuild   + _args[1], 0, 100)>>
 			<<case "bear">>  <<set $bearbuild  = Math.clamp($bearbuild  + _args[1], 0, 100)>>
 			<<case "bird">>  <<set $birdbuild  = Math.clamp($birdbuild  + _args[1], 0, 100)>>
 			<<case "fox">>   <<set $foxbuild   = Math.clamp($foxbuild   + _args[1], 0, 100)>>
@@ -214,7 +225,10 @@
 		<<if _args[0] isnot "cow" and $worn.neck.name isnot "cow bell">>
 			<<set $cowbuild  = Math.clamp($cowbuild  - _args[1], 0, 100)>>
 		<</if>>
-		<<if _args[0] isnot "bear" and $worn.handheld.name isnot "honey pouch" and $worn.handheld.name isnot "bear bag"and $worn.head.name isnot "honey hair clip">>
+		<<if _args[0] isnot "waterdragon" and $worn.earrings.variable isnot "lilacheadpiece">>
+			<<set $waterdragonbuild = Math.clamp($waterdragonbuild - _args[1], 0, 100)>>
+		<</if>>
+		<<if _args[0] isnot "bear" and $worn.handheld.name isnot "honey pouch" and $worn.handheld.name isnot "bear bag" and $worn.head.name isnot "honey hair clip">>
 			<<set $bearbuild  = Math.clamp($bearbuild  - _args[1], 0, 100)>>
 		<</if>>
 		<<if _args[0] isnot "bird" and $worn.head.name isnot "feathered hair clip" and $worn.neck.name isnot "feather necklace">>
@@ -247,7 +261,11 @@
 			<<transform cow -1>>
 		<</if>>
 
-		<<if $bearbuild gte 1 and $worn.handheld.name isnot "honey pouch" and $worn.handheld.name isnot "bear bag"and $worn.head.name isnot "honey hair clip" and playerNormalPregnancyType() isnot "bear">>
+		<<if $waterdragonbuild gte 1 and $worn.earrings.variable isnot "lilacheadpiece" and playerNormalPregnancyType() isnot "waterdragon">>
+			<<transform waterdragon -1>>
+		<</if>>
+
+		<<if $bearbuild gte 1 and $worn.handheld.name isnot "honey pouch" and $worn.handheld.name isnot "bear bag" and $worn.head.name isnot "honey hair clip" and playerNormalPregnancyType() isnot "bear">>
 			<<transform bear -1>>
 		<</if>>
 
@@ -296,7 +314,7 @@
 		<<set $specialTransform to 1>>
 	<</if>>
 
-	<<if $cat gt 0 or $wolfgirl gt 0 or $cow gt 0 or $harpy gt 0 or $fox gt 0 or $bear gt 0 or $bunny gt 0>>
+	<<if $cat gt 0 or $wolfgirl gt 0 or $cow gt 0 or $waterdragon gt 0 or $harpy gt 0 or $fox gt 0 or $bear gt 0 or $bunny gt 0>>
 		<<set $physicalTransform to 1>>
 	<<else>>
 		<<set $physicalTransform to 0>>
@@ -350,13 +368,13 @@
 
 	<<if $settings.transformAnimalEnabled>>
 		<<script>>
-			let manifestArray = [V.wolfgirl, V.cat, V.cow, V.harpy, V.fox, V.bear, V.bunny];
+			let manifestArray = [V.wolfgirl, V.cat, V.cow, V.harpy, V.fox, V.bear, V.bunny, V.waterdragon];
 			var highestManifestIndex = manifestArray.indexOf(Math.max(...manifestArray));
 
 			if (manifestArray[highestManifestIndex] > 0) {
 				T.activeTransformIndex = highestManifestIndex;
 			} else {
-				let buildArray = [V.wolfbuild, V.catbuild, V.cowbuild, V.birdbuild, V.foxbuild, V.bearbuild, V.bunnybuild];
+				let buildArray = [V.wolfbuild, V.catbuild, V.cowbuild, V.birdbuild, V.foxbuild, V.bearbuild, V.bunnybuild, V.waterdragonbuild];
 				let buildMax = Math.max(...buildArray);
 				let highestBuildIndex = buildArray.indexOf(buildMax);
 
@@ -381,6 +399,8 @@
 				<<bearTransform $bear>>
 			<<case 6>>
 				<<bunnyTransform $bunny>>
+			<<case 7>>
+				<<waterdragonTransform $waterdragon>>
 		<</switch>>
 	<</if>>
 <</widget>>
@@ -1065,6 +1085,119 @@
 	<<milkvolume 0>>
 <</widget>>
 
+<<widget "waterdragonTransform">>
+	<<if _args[0] gte 0>>
+		<<switch _args[0]>>
+			<<case 0>>
+				<<if $waterdragonbuild gte 5>>
+					<<set $waterdragon to 1>>
+					<<run $timeMessages.pushUnique("waterdragonUp1")>>
+					<<set $physicalTransform to 1>>
+				<</if>>
+			<<case 1>>
+				<<if $waterdragonbuild gte 10>>
+					<<set $waterdragon to 2>>
+					<<run $timeMessages.pushUnique("waterdragonUp2")>>
+					<<set $transformationParts.traits.fangs to "default">>
+				<<elseif $waterdragonbuild lt 5>>
+					<<set $waterdragon to 0>>
+					<<set $physicalTransform to 0>>
+					<<run $timeMessages.pushUnique("waterdragonDown0")>>
+				<</if>>
+			<<case 2>>
+				<<if $waterdragonbuild gte 15>>
+					<<set $waterdragon to 3>>
+					<<set $transformationParts.waterdragon.horns to "default">>
+					<<run $timeMessages.pushUnique("waterdragonUp3")>>
+				<<elseif $waterdragonbuild lt 10>>
+					<<set $waterdragon to 1>>
+					<<run $timeMessages.pushUnique("waterdragonDown1")>>
+					<<set $transformationParts.traits.fangs to "disabled">>
+				<</if>>
+			<<case 3>>
+				<<if $waterdragonbuild gte 20>>
+					<<set $waterdragon to 4>>
+					<<run $timeMessages.pushUnique("waterdragonUp4")>>
+					<<set $transformationParts.waterdragon.ears to "default">>
+				<<elseif $waterdragonbuild lt 15>>
+					<<set $waterdragon to 2>>
+					<<run $timeMessages.pushUnique("waterdragonDown2")>>
+					<<set $transformationParts.waterdragon.horns to "disabled">>
+				<</if>>
+			<<case 4>>
+				<<if $waterdragonbuild gte 25>>
+					<<set $waterdragon to 5>>
+					<<run $timeMessages.pushUnique("waterdragonUp5")>>
+				<<elseif $waterdragonbuild lt 20>>
+					<<set $waterdragon to 3>>
+					<<run $timeMessages.pushUnique("waterdragonDown3")>>
+					<<set $transformationParts.waterdragon.ears to "disabled">>
+				<</if>>
+			<<case 5>>
+				<<if $waterdragonbuild gte 30>>
+					<<set $waterdragon to 6>>
+					<<run $timeMessages.pushUnique("waterdragonUp6")>>
+					<<set $transformationParts.waterdragon.tail to "default">>
+					<<set $transformationParts.traits.leviathan to "default">>
+					<<set $TFWaterDragonBuffs to 1>>
+				<<elseif $waterdragonbuild lt 25>>
+					<<set $waterdragon to 4>>
+					<<run $timeMessages.pushUnique("waterdragonDown4")>>
+				<</if>>
+			<<case 6>>
+				<<if $waterdragonbuild gte 50>>
+					<<set $waterdragon to 7>>
+					<<run $timeMessages.pushUnique("waterdragonUp7")>>
+					<<set $transformationParts.waterdragon.tail to "default">>
+					<<set $waterdragontf to 1>>
+					<<set $player.skin_temp.color to $player.skin.color>>
+					<<set $player.skin.color to "waterdragon">>
+					<<set $transformationParts.traits.aquatic to "default">>
+				<<elseif $waterdragonbuild lt 30>>
+					<<set $waterdragon to 5>>
+					<<set $TFWaterDragonBuffs to 0>>
+					<<set $transformationParts.traits.leviathan to "disabled">>
+					<<run $timeMessages.pushUnique("waterdragonDown5")>>
+					<<set $transformationParts.waterdragon.tail to "disabled">>
+				<</if>>
+			<<case 7>>
+				<<if $waterdragonbuild lt 50>>
+					<<set $waterdragon to 6>>
+					<<run $timeMessages.pushUnique("waterdragonDown6")>>
+					<<set $transformationParts.traits.aquatic to "disabled">>
+					<<set $waterdragontf to 0>>
+					<<set $player.skin.color to $player.skin_temp.color>>
+				<</if>>
+			<<case 99>>
+				<<if ($waterdragon gte 6 or ($transformationParts.waterdragon.tail isnot "hidden" and $transformationParts.waterdragon.tail isnot "disabled"))>>
+					<<set $physicalTransform to 0>>
+				<</if>>
+				<<set $waterdragon to 0>>
+				<<set $TFWaterDragonBuffs to 0>>
+				<<set $waterdragonbuild to 0>>
+				<<set $transformationParts.waterdragon.tail to "disabled">>
+				<<set $transformationParts.waterdragon.ears to "disabled">>
+				<<set $transformationParts.waterdragon.horns to "disabled">>
+				<<set $transformationParts.traits.fangs to "disabled">>
+				<<set $transformationParts.traits.aquatic to "disabled">>
+				<<set $transformationParts.traits.leviathan to "disabled">>
+				<<set $player.skin.color to $player.skin_temp.color>>
+		<</switch>>
+	<<else>>
+		<<clearAnimalTransformations>>
+		<<set $physicalTransform to 1>>
+		<<set $waterdragontf to 1>>
+		<<set $TFWaterDragonBuffs to 1>>
+		<<set $waterdragon to 6>>
+		<<set $waterdragonbuild to 100>>
+		<<set $transformationParts.waterdragon.horns to "default">>
+		<<set $transformationParts.waterdragon.ears to "default">>
+		<<set $transformationParts.waterdragon.tail to "default">>
+		<<set $transformationParts.traits.aquatic to "default">>
+		<<set $transformationParts.traits.leviathan to "default">>
+	<</if>>
+<</widget>>
+
 <<widget "bearTransform">>
 	<<if _args[0] gte 0>>
 		<<switch _args[0]>>
@@ -1521,6 +1654,7 @@
 <<widget "clearAnimalTransformations">>
 	<<harpyTransform 99>>
 	<<cowTransform 99>>
+	<<waterdragonTransform 99>>
 	<<bearTransform 99>>
 	<<catTransform 99>>
 	<<wolfTransform 99>>

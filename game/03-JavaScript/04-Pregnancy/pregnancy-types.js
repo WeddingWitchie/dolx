@@ -284,6 +284,7 @@ function beastTransform(mother, father) {
 		if (V.wolfgirl >= 6) return "wolf";
 		if ((V.harpy >= 6  || V.transformationParts.bird.wings == "default")) return "bird";
 		if (V.fox >= 6) return "fox";
+		if (V.waterdragon >= 7) return "waterdragon";
 		if (V.bunny >= 6) return "bunny";
 	}
 	return null;
