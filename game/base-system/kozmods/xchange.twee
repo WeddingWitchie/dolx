@@ -36,26 +36,6 @@
 <<widget "xchange-sanitize-state">>
 	<<run (function () {
 		var V = State.variables;
-		var fixed = 0;
-		function isObj(x) { return x && typeof x === "object"; }
-		function walk(obj, seen) {
-			if (!isObj(obj)) return;
-			if (seen && seen.has(obj)) return;
-			if (seen) seen.add(obj);
-			var keys = Object.keys(obj);
-			for (var i = 0; i < keys.length; i++) {
-				var k = keys[i];
-				var v = obj[k];
-				if (typeof v === "number" && !isFinite(v)) {
-					obj[k] = 0;
-					fixed++;
-					continue;
-				}
-				if (isObj(v)) walk(v, seen);
-			}
-		}
-		var seen = (typeof WeakSet !== "undefined") ? new WeakSet() : null;
-		walk(V, seen);
 		function clamp(n, min, max) {
 			n = Number(n);
 			if (!isFinite(n)) n = min;
@@ -72,8 +52,130 @@
 		if (Object.prototype.hasOwnProperty.call(V, "genitalsensitivity")) {
 			V.genitalsensitivity = clamp(V.genitalsensitivity, 0.25, 999);
 		}
-		State.temporary._xchangeNanFixed = fixed;
 	})();>>
+<</widget>>
+
+<<widget "xchange-sanitize-body">>
+	<<set _body to _args[0]>>
+	<<if _args[1] is undefined>>
+		<<set _label to "body">>
+	<<else>>
+		<<set _label to _args[1]>>
+	<</if>>
+	<<run (function (body, label) {
+		var T = State.temporary;
+		var V = State.variables;
+		T.xchangeBodyCheck = {
+			valid: true,
+			label: label,
+			issues: [],
+			suggested: {},
+			repairedBody: body
+		};
+		if (!body || typeof body !== "object") {
+			return;
+		}
+		function validIntValue(value) {
+			return Number.isFinite(Number(value)) && Number.isInteger(Number(value));
+		}
+		function inspectBoundedInt(value, fallback, min, max, key) {
+			var n = Number(value);
+			if (!Number.isFinite(n)) {
+				n = Number(fallback);
+			}
+			if (!Number.isFinite(n)) {
+				n = min;
+			}
+			n = Math.trunc(n);
+			if (n < min) n = min;
+			if (n > max) n = max;
+			if (Number(value) !== n || !Number.isFinite(Number(value)) || !Number.isInteger(Number(value))) {
+				T.xchangeBodyCheck.valid = false;
+				T.xchangeBodyCheck.issues.push(key + ": " + String(value) + " -> " + String(n));
+				T.xchangeBodyCheck.suggested[key] = n;
+			}
+		}
+		var breastMin = validIntValue(V.breastsizemin) ? Math.trunc(Number(V.breastsizemin)) : 0;
+		var breastMax = validIntValue(V.breastsizemax) ? Math.trunc(Number(V.breastsizemax)) : Math.max(breastMin, setup.breastsizes ? setup.breastsizes.length - 1 : breastMin);
+		var bottomMin = validIntValue(V.bottomsizemin) ? Math.trunc(Number(V.bottomsizemin)) : 0;
+		var bottomMax = validIntValue(V.bottomsizemax) ? Math.trunc(Number(V.bottomsizemax)) : bottomMin;
+		var penisMin = validIntValue(V.penissizemin) ? Math.min(-2, Math.trunc(Number(V.penissizemin))) : -2;
+		var penisMax = validIntValue(V.penissizemax) ? Math.trunc(Number(V.penissizemax)) : 10;
+		var ballsMin = -2;
+		var ballsMax = 3;
+
+		var breastFallback = (V.player && validIntValue(V.player.breastsize)) ? Math.trunc(Number(V.player.breastsize)) : breastMin;
+		var bottomFallback = (V.player && validIntValue(V.player.bottomsize)) ? Math.trunc(Number(V.player.bottomsize)) : bottomMin;
+		var penisFallback = (V.player && validIntValue(V.player.penissize)) ? Math.trunc(Number(V.player.penissize)) : penisMin;
+		var ballsFallback = validIntValue(V.ballssize) ? Math.trunc(Number(V.ballssize)) : ballsMin;
+
+		if ("breastsize" in body) {
+			inspectBoundedInt(body.breastsize, breastFallback, breastMin, breastMax, "breastsize");
+		}
+		if ("bottomsize" in body) {
+			inspectBoundedInt(body.bottomsize, bottomFallback, bottomMin, bottomMax, "bottomsize");
+		}
+		if ("penissize" in body) {
+			inspectBoundedInt(body.penissize, penisFallback, penisMin, penisMax, "penissize");
+		}
+		if ("ballssize" in body) {
+			inspectBoundedInt(body.ballssize, ballsFallback, ballsMin, ballsMax, "ballssize");
+		}
+		["penisgrowthtimer", "bottomgrowthtimer", "breastgrowthtimer"].forEach(function (key) {
+			if (key in body && !Number.isFinite(Number(body[key]))) {
+				T.xchangeBodyCheck.valid = false;
+				T.xchangeBodyCheck.issues.push(key + ": " + String(body[key]) + " -> 500");
+				T.xchangeBodyCheck.suggested[key] = 500;
+			}
+		});
+		if (!T.xchangeBodyCheck.valid) {
+			var repaired = (typeof clone === "function") ? clone(body) : JSON.parse(JSON.stringify(body));
+			Object.keys(T.xchangeBodyCheck.suggested).forEach(function (key) {
+				repaired[key] = T.xchangeBodyCheck.suggested[key];
+			});
+			T.xchangeBodyCheck.repairedBody = repaired;
+			console.warn("[X-Change validate-body] " + label, T.xchangeBodyCheck.issues, JSON.parse(JSON.stringify(body)));
+		}
+	})(_body, _label)>>
+<</widget>>
+
+<<run (function () {
+	window.xChangeQueueNoticeSafe = window.xChangeQueueNoticeSafe || function (key, html) {
+		if (typeof window.xChangeQueueNotice === "function") {
+			window.xChangeQueueNotice(key, html);
+		} else {
+			console.warn("[X-Change notice]", key, html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim());
+		}
+	};
+})();>>
+
+<<widget "xchange-apply-swell">>
+	<<if $xchange.pill.swellEffect>>
+		<<run (function () {
+			var V = State.variables;
+			function toFiniteInt(value, fallback) {
+				var n = Number(value);
+				if (!Number.isFinite(n)) n = Number(fallback);
+				if (!Number.isFinite(n)) n = 0;
+				return Math.trunc(n);
+			}
+			if (V.xchange?.pill?.swellTarget === "penis") {
+				var penisMin = toFiniteInt(V.penissizemin, -2);
+				var penisMax = toFiniteInt(V.penissizemax, penisMin);
+				if (penisMax < penisMin) penisMax = penisMin;
+				V.player.penissize = penisMax;
+			} else if (V.xchange?.pill?.swellTarget === "breasts") {
+				var breastMin = toFiniteInt(V.breastsizemin, 0);
+				var breastMax = toFiniteInt(V.breastsizemax, breastMin);
+				if (breastMax < breastMin) breastMax = breastMin;
+				var bottomMin = toFiniteInt(V.bottomsizemin, 0);
+				var bottomMax = toFiniteInt(V.bottomsizemax, bottomMin);
+				if (bottomMax < bottomMin) bottomMax = bottomMin;
+				V.player.breastsize = breastMax;
+				V.player.bottomsize = bottomMax;
+			}
+		})()>>
+	<</if>>
 <</widget>>
 
 <<if $xchange._didSpikepoolKeyFix is not true>>
@@ -390,15 +492,6 @@
 				<</if>>
 			<</if>>
 		<<else>>
-			<<if !Number.isInteger($penissizemin) or !Number.isInteger($penissizemax) or $penissizemax lt $penissizemin>>
-				<<run console.error("[xchange-blue/xchange restore] Invalid penis size bounds", {
-					penissizemin: V.penissizemin,
-					penissizemax: V.penissizemax
-				})>>
-			<<else>>
-				<<set $player.penissize to random($penissizemin,$penissizemax)>>
-			<</if>>
-
 			<<set $player.breastsize to 0>>
 			<<set $player.bottomsize to 0>>
 			<<if !Number.isInteger($penissizemin) or !Number.isInteger($penissizemax) or $penissizemax lt $penissizemin>>
@@ -571,7 +664,7 @@
 			<<set _body to $xchange.pill.originalBody>>
 			<<if $player.gender is "m">>
 				<<set $player.penissize to _body.penissize>>
-				<<set $ballssize to _body.penissize>>
+				<<set $ballssize to _body.ballssize>>
 			<<elseif $player.gender is "f">>
 				<<set $player.breastsize to _body.breastsize>>
 				<<set $player.bottomsize to _body.bottomsize>>
@@ -678,18 +771,41 @@
 			deviancy: $deviancy,
 		}>>
 
+		<<if _args[0] is undefined>>
+			<<set _bodySlotLabel to "originalBody">>
+		<<else>>
+			<<set _bodySlotLabel to _args[0]>>
+		<</if>>
+
+		<<xchange-sanitize-body _savedbody _bodySlotLabel>>
+		<<set _skipBodySave to false>>
+		<<if _xchangeBodyCheck.valid isnot true>>
+			<<set _skipBodySave to true>>
+			<<run (function (label, issues) {
+				var V = State.variables;
+				V.xchange._invalidBodySaveWarned = V.xchange._invalidBodySaveWarned || {};
+				if (!V.xchange._invalidBodySaveWarned[label]) {V.xchange._invalidBodySaveWarned[label] = true;
+					window.xChangeQueueNoticeSafe("invalid_body_save_" + label,
+						`<b>X-Change: Body cache save blocked</b><br>X-Change detected an invalid <b>${label}</b> body snapshot (${issues.join(", ")}). 
+						It refused to silently repair or overwrite that cached body slot.<br><br><b>If you encounter any error after this, please report it with your save and steps to Discord Server.</b>`
+					);}
+				console.warn("[X-Change save-body] Blocked invalid cached slot save:", label, issues);})(_bodySlotLabel, State.temporary.xchangeBodyCheck.issues)>>
+		<</if>>
+
 		/* Parasites (deep clone to avoid reference mutation) */
 		<<run _savedbody.parasite = (typeof clone === "function") ? clone(V.parasite) : JSON.parse(JSON.stringify(V.parasite)) >>
 
-		<<if _args[0] is undefined>>
-			<<set $xchange.pill.originalBody to _savedbody>>
-		<<elseif _args[0] is "genderswapped">>
-			<<set $xchange.pill.changedBody to _savedbody>>
-		<<elseif _args[0] is "herm">>
-			<<set $xchange.pill.hermBody to _savedbody>>
-		<<elseif _args[0] is "cloned" and _args[1] isnot undefined>>
-			<<set _npcName to _args[1]>>
-			<<set $xchange.pill.clonedBody[_npcName] to _savedbody>>
+		<<if !_skipBodySave>>
+			<<if _args[0] is undefined>>
+				<<set $xchange.pill.originalBody to _savedbody>>
+			<<elseif _args[0] is "genderswapped">>
+				<<set $xchange.pill.changedBody to _savedbody>>
+			<<elseif _args[0] is "herm">>
+				<<set $xchange.pill.hermBody to _savedbody>>
+			<<elseif _args[0] is "cloned" and _args[1] isnot undefined>>
+				<<set _npcName to _args[1]>>
+				<<set $xchange.pill.clonedBody[_npcName] to _savedbody>>
+			<</if>>
 		<</if>>
 	<</widget>>
 
@@ -706,10 +822,29 @@
 		<</if>>
 
 		<<if _body is undefined>>
-			<<break>>
-		<</if>>
+			<<run console.warn("[X-Change load-body] Missing body slot:", _args[0])>>
+		<<else>>
+			<<if _args[0] is undefined>>
+				<<set _bodySlotLabel to "originalBody">>
+			<<else>>
+				<<set _bodySlotLabel to _args[0]>>
+			<</if>>
 
-		/* Core appearance */
+			<<xchange-sanitize-body _body _bodySlotLabel>>
+			<<if _xchangeBodyCheck.valid isnot true>>
+				<<run (function (label, issues) {
+					var V = State.variables;
+					V.xchange._runtimeBodyFallbackWarned = V.xchange._runtimeBodyFallbackWarned || {};
+					if (!V.xchange._runtimeBodyFallbackWarned[label]) {V.xchange._runtimeBodyFallbackWarned[label] = true;
+						window.xChangeQueueNoticeSafe("runtime_body_fallback_" + label,
+							`<b>X-Change: Runtime body fallback notice</b><br>Your save contains an invalid cached <b>${label}</b> body snapshot (${issues.join(", ")}). 
+							X-Change used a temporary in-memory fallback for this transformation so the game can continue.<br><br><b>It did not silently rewrite the cached snapshot.</b> 
+							If you encounter any error after this, please report it with your save and steps to Discord Server.`
+						);}})(_bodySlotLabel, State.temporary.xchangeBodyCheck.issues)>>
+				<<set _body to _xchangeBodyCheck.repairedBody>>
+			<</if>>
+
+			/* Core appearance */
 		<<set $bodysize to _body.bodysize>>
 		<<set $facestyle to _body.facestyle>>
 		<<set $facevariant to _body.facevariant>>
@@ -757,21 +892,6 @@
 		<<set $penisgrowthtimer to _body.penisgrowthtimer>>
 		<<set $bottomgrowthtimer to _body.bottomgrowthtimer>>
 		<<set $breastgrowthtimer to _body.breastgrowthtimer>>
-
-		<<if _body.sex isnot undefined>><<set $player.sex to _body.sex>><</if>>
-		<<if _body.penisExist isnot undefined>>
-			<<set $player.penisExist to _body.penisExist>>
-		<</if>>
-		<<if _body.ballsExist isnot undefined>>
-			<<set $player.ballsExist to _body.ballsExist>>
-		<</if>>
-		<<if _body.vaginaExist isnot undefined>>
-			<<set $player.vaginaExist to _body.vaginaExist>>
-		<</if>>
-		<<if _body.penisuse isnot undefined>><<set $penisuse to _body.penisuse>><</if>>
-		<<if _body.penisstate isnot undefined>><<set $penisstate to _body.penisstate>><</if>>
-		<<if _body.vaginause isnot undefined>><<set $vaginause to _body.vaginause>><</if>>
-		<<if _body.vaginastate isnot undefined>><<set $vaginastate to _body.vaginastate>><</if>>
 
 		/* <<if !$xchangeFameMerged>> */
 			<<set $fame to _body.fame>>
@@ -847,52 +967,10 @@
 		<</if>>
 
 		/* Swell effect */
-		<<if _args[0] is undefined and $xchange.pill.swellEffect>>
-			<<if $player.sex is "f">>
-				<<set $xchange.pill.changedBody.penissize to $xchange.penissize>>
-			<<else>>
-				<<set $xchange.pill.changedBody.breastsize to $xchange.breastsize>>
-				<<set $xchange.pill.changedBody.bottomsize to $xchange.bottomsize>>
-			<</if>>
+		<<if _args[0] is undefined>>
+			<<xchange-apply-swell>>
 		<</if>>
 
-		<<if _args[0] is undefined and $xchange.pill.bimboEffect>>
-			<<if $xchange.science gt $sciencetrait>>
-				<<set $sciencetrait to $xchange.science>>
-				<<school_skill_change "science" 0>>
-				<<set $effectsmessage = 1>>
-				<<set $science_up_message = 1>>
-			<</if>>
-			<<if $xchange.math gt $mathstrait>>
-				<<set $mathstrait to $xchange.math>>
-				<<school_skill_change "maths" 0>>
-				<<set $effectsmessage = 1>>
-				<<set $maths_up_message = 1>>
-			<</if>>
-			<<if $xchange.english gt $englishtrait>>
-				<<set $englishtrait to $xchange.english>>
-				<<school_skill_change "english" 0>>
-				<<set $effectsmessage = 1>>
-				<<set $english_up_message = 1>>
-			<</if>>
-			<<if $xchange.history gt $historytrait>>
-				<<set $historytrait to $xchange.history>>
-				<<school_skill_change "history" 0>>
-				<<set $effectsmessage = 1>>
-				<<set $history_up_message = 1>>
-			<</if>>
-			<<unset $promiscuityIgnore>>
-		<</if>>
-
-		/* Swell effect */
-		<<if _args[0] is undefined and $xchange.pill.swellEffect>>
-			<<if $player.sex is "f">>
-				<<set $xchange.pill.changedBody.penissize to $xchange.penissize>>
-			<<else>>
-				<<set $xchange.pill.changedBody.breastsize to $xchange.breastsize>>
-				<<set $xchange.pill.changedBody.bottomsize to $xchange.bottomsize>>
-			<</if>>
-		<</if>>
 
 		/* <<if $xchange_fame gte 1000>>
 			<<set _ogFame to $xchange.pill.originalBody.fame>>
@@ -964,6 +1042,7 @@
 		<<calchairlengthstage>>
 		<<run updatePhysique()>>
 		<<updatesidebarimg>>
+		<</if>>
 	<</widget>>
 
 	<<widget "xchange-effects">>
@@ -993,8 +1072,10 @@
 		<<set $xchange.pill.dumbBitchEffect to false>>
 		<<set $xchange.pill.portalEffect to false>>
 		<<set $xchange.pill.portalEffectTimer to 0>>
+		<<set $xchange.pill.choiceEffect to false>>
 		<<set $xchange.pill.innocenceEffect to false>>
 		<<set $xchange.pill.swellEffect to false>>
+		<<set $xchange.pill.swellTarget to undefined>>
 		<<set $xchange.pill.bimboEffect to false>>
 		<<set $xchange.pill.cumcureEffect to false>>
 
@@ -1125,15 +1206,44 @@
 
 	<<case "swell">>
 		<<set $xchange.pill.swellEffect to true>>
-		<<if $player.sex is "f">>
-			<<set $xchange.penissize to $player.penissize>>
-			<<set $player.penissize to $penissizemax>>
+		<<set $xchange.pill.swellTarget to ($player.sex is "f" ? "penis" : "breasts")>>
+		<<if $xchange.pill.swellTarget is "penis">>
+			<<run (function () {
+				var V = State.variables;
+				var penisMin = Number.isFinite(Number(V.penissizemin)) ? Math.trunc(Number(V.penissizemin)) : -2;
+				var penisMax = Number.isFinite(Number(V.penissizemax)) ? Math.trunc(Number(V.penissizemax)) : penisMin;
+				if (penisMax < penisMin) penisMax = penisMin;
+				var current = Number(V.player.penissize);
+				if (!Number.isFinite(current)) current = penisMin;
+				current = Math.trunc(current);
+				if (current < penisMin) current = penisMin;
+				if (current > penisMax) current = penisMax;
+				V.xchange.penissize = current;
+			})()>>
 		<<else>>
-			<<set $xchange.breastsize to $player.breastsize>>
-			<<set $player.breastsize to $breastsizemax>>
-			<<set $xchange.bottomsize to $player.bottomsize>>
-			<<set $player.bottomsize to $bottomsizemax>>
+			<<run (function () {
+				var V = State.variables;
+				var breastMin = Number.isFinite(Number(V.breastsizemin)) ? Math.trunc(Number(V.breastsizemin)) : 0;
+				var breastMax = Number.isFinite(Number(V.breastsizemax)) ? Math.trunc(Number(V.breastsizemax)) : breastMin;
+				if (breastMax < breastMin) breastMax = breastMin;
+				var bottomMin = Number.isFinite(Number(V.bottomsizemin)) ? Math.trunc(Number(V.bottomsizemin)) : 0;
+				var bottomMax = Number.isFinite(Number(V.bottomsizemax)) ? Math.trunc(Number(V.bottomsizemax)) : bottomMin;
+				if (bottomMax < bottomMin) bottomMax = bottomMin;
+				var currentBreast = Number(V.player.breastsize);
+				if (!Number.isFinite(currentBreast)) currentBreast = breastMin;
+				currentBreast = Math.trunc(currentBreast);
+				if (currentBreast < breastMin) currentBreast = breastMin;
+				if (currentBreast > breastMax) currentBreast = breastMax;
+				var currentBottom = Number(V.player.bottomsize);
+				if (!Number.isFinite(currentBottom)) currentBottom = bottomMin;
+				currentBottom = Math.trunc(currentBottom);
+				if (currentBottom < bottomMin) currentBottom = bottomMin;
+				if (currentBottom > bottomMax) currentBottom = bottomMax;
+				V.xchange.breastsize = currentBreast;
+				V.xchange.bottomsize = currentBottom;
+			})()>>
 		<</if>>
+		<<xchange-apply-swell>>
 
 	<<case "bimbo">>
 		<<set $xchange.pill.bimboEffect to true>>
@@ -1230,12 +1340,46 @@
 			<</if>>
 		<<case "swell">>
 			<<set $xchange.pill.swellEffect to false>>
-			<<if $player.gender is "f">>
-				<<set $player.penissize to $xchange.penissize>>
-			<<else>>
-				<<set $player.breastsize to $xchange.breastsize>>
-				<<set $player.bottomsize to $xchange.bottomsize>>
+			<<if $xchange.pill.swellTarget is "penis">>
+				<<run (function () {
+					var V = State.variables;
+					var penisMin = Number.isFinite(Number(V.penissizemin)) ? Math.trunc(Number(V.penissizemin)) : -2;
+					var penisMax = Number.isFinite(Number(V.penissizemax)) ? Math.trunc(Number(V.penissizemax)) : penisMin;
+					if (penisMax < penisMin) penisMax = penisMin;
+					var restore = Number(V.xchange.penissize);
+					if (!Number.isFinite(restore)) restore = Number(V.player.penissize);
+					if (!Number.isFinite(restore)) restore = penisMin;
+					restore = Math.trunc(restore);
+					if (restore < penisMin) restore = penisMin;
+					if (restore > penisMax) restore = penisMax;
+					V.player.penissize = restore;
+				})()>>
+			<<elseif $xchange.pill.swellTarget is "breasts">>
+				<<run (function () {
+					var V = State.variables;
+					var breastMin = Number.isFinite(Number(V.breastsizemin)) ? Math.trunc(Number(V.breastsizemin)) : 0;
+					var breastMax = Number.isFinite(Number(V.breastsizemax)) ? Math.trunc(Number(V.breastsizemax)) : breastMin;
+					if (breastMax < breastMin) breastMax = breastMin;
+					var bottomMin = Number.isFinite(Number(V.bottomsizemin)) ? Math.trunc(Number(V.bottomsizemin)) : 0;
+					var bottomMax = Number.isFinite(Number(V.bottomsizemax)) ? Math.trunc(Number(V.bottomsizemax)) : bottomMin;
+					if (bottomMax < bottomMin) bottomMax = bottomMin;
+					var restoreBreast = Number(V.xchange.breastsize);
+					if (!Number.isFinite(restoreBreast)) restoreBreast = Number(V.player.breastsize);
+					if (!Number.isFinite(restoreBreast)) restoreBreast = breastMin;
+					restoreBreast = Math.trunc(restoreBreast);
+					if (restoreBreast < breastMin) restoreBreast = breastMin;
+					if (restoreBreast > breastMax) restoreBreast = breastMax;
+					var restoreBottom = Number(V.xchange.bottomsize);
+					if (!Number.isFinite(restoreBottom)) restoreBottom = Number(V.player.bottomsize);
+					if (!Number.isFinite(restoreBottom)) restoreBottom = bottomMin;
+					restoreBottom = Math.trunc(restoreBottom);
+					if (restoreBottom < bottomMin) restoreBottom = bottomMin;
+					if (restoreBottom > bottomMax) restoreBottom = bottomMax;
+					V.player.breastsize = restoreBreast;
+					V.player.bottomsize = restoreBottom;
+				})()>>
 			<</if>>
+			<<set $xchange.pill.swellTarget to undefined>>
 		<<case "bimbo">>
 			<<set $xchange.pill.bimboEffect to false>>
 			<<if $xchange.science gt $sciencetrait>>
@@ -1404,16 +1548,25 @@
 		<<set $xchange.pill.active to false>>
 		<<set $xchange.pill.baseSex to undefined>>
 		<<set $xchange.pill.baseGenitals to undefined>>
+		<<set $xchange.pill.fertile to false>>
 		<<set $xchange.pill.genderflipEffect to false>>
+		<<set $xchange.pill.genderificationEffect to false>>
+		<<set $xchange.pill.hermEffect to false>>
+		<<set $xchange.pill.breederEffect to false>>
+		<<set $xchange.pill.bullEffect to false>>
+		<<set $xchange.pill.xtendEffect to false>>
+		<<set $xchange.pill.resistanceEffect to false>>
+		<<set $xchange.pill.continueEffect to false>>
 		<<set $xchange.pill.portalEffect to false>>
 		<<set $xchange.pill.portalEffectTimer to 0>>
 		<<set $xchange.pill.passionEffect to false>>
+		<<set $xchange.pill.dumbBitchEffect to false>>
 		<<set $xchange.pill.choiceEffect to false>>
 		<<set $xchange.pill.innocenceEffect to false>>
 		<<set $xchange.pill.swellEffect to false>>
+		<<set $xchange.pill.swellTarget to undefined>>
 		<<set $xchange.pill.bimboEffect to false>>
 		<<set $xchange.pill.cumcureEffect to false>>
-		/*Is $xchange.breederEffect not getting cleared here? */
 		<<set $xchange.breederDenial to 0>>
 		<<unset $xchange.pill.shouldHaveEnded>>
 
@@ -1775,7 +1928,7 @@
 			<<if $xchange.pill.innocenceEffect>><li>Innocence Effect.
 				<mouse class="tooltip linkBlue">(?)<span>While under this pill, all sexual awareness is wiped from your mind.</span></mouse></li><</if>>
 			<<if $xchange.pill.swellEffect>><li>Swell Effect.
-				<mouse class="tooltip linkBlue">(?)<span>Increases the size of your <<print $player.gender is "m" ? "breasts and ass" : "penis">> for the duration.</span></mouse></li><</if>>
+				<mouse class="tooltip linkBlue">(?)<span>Increases the size of your <<print $xchange.pill.swellTarget is "breasts" ? "breasts and ass" : "penis">> for the duration.</span></mouse></li><</if>>
 			<<if $xchange.pill.bimboEffect>><li>Bimbo Effect.
 				<mouse class="tooltip linkBlue">(?)<span>Reduces your intelligence and increases your lewdness.</span></mouse></li><</if>>
 			<<if $xchange.pill.cumcureEffect>><li>CumCure Effect.
