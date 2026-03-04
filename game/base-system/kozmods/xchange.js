@@ -469,16 +469,53 @@ function updateRemoverPillCatalogue() {
 window.updateRemoverPillCatalogue = updateRemoverPillCatalogue;
 
 function xchangeXtendGrowth(target, spermOwner, spermType) {
-	if (target === "pc" && spermType === "human") {
-		if (V.xchange.pill.originalBody.penissize + Math.floor(V.xchange.pill.xtendTracker.penisSizeGains/1000) < spermOwner.penissize) {
-			V.xchange.pill.xtendTracker.penisSizeGains += 250 + Math.random() * 250;
-			V.xtendMessage = 1;
+	// Defensive guards: X-Change's xtend tracker can be missing on some saves / mod mixes.
+	if (target !== "pc" || spermType !== "human") return;
+
+	const pill = V.xchange && V.xchange.pill;
+	if (!pill || !pill.originalBody) return;
+	if (!spermOwner || typeof spermOwner.penissize !== "number") return;
+
+	// Ensure tracker exists (minimal repair, with a one-time notice).
+	if (!pill.xtendTracker || typeof pill.xtendTracker !== "object" || Array.isArray(pill.xtendTracker)) {
+		pill.xtendTracker = { penisSizeGains: 0 };
+		if (!pill._xtendTrackerWarned) {
+			pill._xtendTrackerWarned = true;
+			if (typeof window.xChangeQueueNotice === "function") {
+				window.xChangeQueueNotice(
+					"repair_xtendTracker",
+					`<b>X-Change: Save repair notice</b><br>Your save was missing <b>xchange.pill.xtendTracker</b>. X-Change recreated it to prevent XTend growth errors.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>`
+				);
+			} else {
+				console.warn("[X-Change] Save repair: recreated missing pill.xtendTracker");
+			}
 		}
-		else {
-			V.xtendMessage = 6;
-		}
-		V.effectsmessage = 1;
 	}
+
+	// Ensure gains value is sane (avoid NaN cascades).
+	if (!Number.isFinite(pill.xtendTracker.penisSizeGains)) {
+		pill.xtendTracker.penisSizeGains = 0;
+		if (!pill._xtendTrackerGainsWarned) {
+			pill._xtendTrackerGainsWarned = true;
+			if (typeof window.xChangeQueueNotice === "function") {
+				window.xChangeQueueNotice(
+					"repair_xtendTrackerGains",
+					`<b>X-Change: Save repair notice</b><br>Your save had an invalid <b>xchange.pill.xtendTracker.penisSizeGains</b>. X-Change reset it to <b>0</b> to prevent XTend growth errors.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>`
+				);
+			} else {
+				console.warn("[X-Change] Save repair: reset invalid pill.xtendTracker.penisSizeGains");
+			}
+		}
+	}
+
+	const gainedStages = Math.floor(pill.xtendTracker.penisSizeGains / 1000);
+	if (pill.originalBody.penissize + gainedStages < spermOwner.penissize) {
+		pill.xtendTracker.penisSizeGains += 250 + Math.random() * 250;
+		V.xtendMessage = 1;
+	} else {
+		V.xtendMessage = 6;
+	}
+	V.effectsmessage = 1;
 }
 window.xchangeXtendGrowth = xchangeXtendGrowth;
 
