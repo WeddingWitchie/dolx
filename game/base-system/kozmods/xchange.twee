@@ -1,11 +1,5 @@
 :: X-Change Pill Widgets [widget]
 
-<<if $xchange.giAutoEnabled is undefined>>
-	<<set $xchange.giAutoEnabled to false>>
-<</if>>
-<<if $xchange.giTransformEnabled is undefined>>
-	<<set $xchange.giTransformEnabled to false>>
-<</if>>
 <<if $xchange.giStepPerDay is undefined>>
 	<<set $xchange.giStepPerDay to 8>>
 <</if>>
@@ -14,6 +8,12 @@
 <</if>>
 <<if $xchange.giRange is undefined>>
 	<<set $xchange.giRange to 1000>>
+<</if>>
+<<if $xchange.pillSensitivityChange is undefined>>
+	<<set $xchange.pillSensitivityChange = 0>>
+<</if>>
+<<if $xchange.impuritySensitivityBonus is undefined>>
+	<<set $xchange.impuritySensitivityBonus = 0>>
 <</if>>
 
 /* Ensure pill object + sub-objects exist (prevents Object.keys(undefined) crashes) */
@@ -25,17 +25,36 @@
 <<set $xchange.pill.hermBody     to $xchange.pill.hermBody     || {}>>
 <<set $xchange.pill.clonedBody   to $xchange.pill.clonedBody   || {}>>
 
-/* New tuning vars added upstream: MUST exist before settings UI / math touches them */
-<<if $xchange.pillSensitivityChange is undefined>>
-	<<set $xchange.pillSensitivityChange = 0>>
-<</if>>
-<<if $xchange.impuritySensitivityBonus is undefined>>
-	<<set $xchange.impuritySensitivityBonus = 0>>
-<</if>>
+/* X-Change: repair notice helper (warn once, queue via window.xChangeQueueNotice) */
+<<run (function(){if (setup.xChangeRepairNoticeOnce) return;setup.xChangeRepairNoticeOnce = function(id, html){
+		try {var V = State.variables;V.xchange = V.xchange || {};V.xchange._repairNotices = V.xchange._repairNotices || {};
+			if (V.xchange._repairNotices[id]) return;V.xchange._repairNotices[id] = true;
+			if (window.xChangeQueueNotice) window.xChangeQueueNotice(id, html);
+			console.warn("[X-Change: Save repair notice]", id);
+		} catch(e) {
+			try { console.warn("[X-Change: Save repair notice] failed", id, e); } catch(_) {}}};})();>>
 
 <<widget "xchange-sanitize-state">>
-	<<run (function () {
-		var V = State.variables;
+	<<run (function () {var V = State.variables; var fixed = 0;
+		function isObj(x) { return x && typeof x === "object"; }
+		function walk(obj, seen) {
+			if (!isObj(obj)) return;
+			if (seen && seen.has(obj)) return;
+			if (seen) seen.add(obj);
+			var keys = Object.keys(obj);
+			for (var i = 0; i < keys.length; i++) {
+				var k = keys[i];
+				var v = obj[k];
+				if (typeof v === "number" && !isFinite(v)) {
+					obj[k] = 0;
+					fixed++;
+					continue;
+				}
+				if (isObj(v)) walk(v, seen);
+			}
+		}
+		var seen = (typeof WeakSet !== "undefined") ? new WeakSet() : null;
+		walk(V, seen);
 		function clamp(n, min, max) {
 			n = Number(n);
 			if (!isFinite(n)) n = min;
@@ -52,135 +71,11 @@
 		if (Object.prototype.hasOwnProperty.call(V, "genitalsensitivity")) {
 			V.genitalsensitivity = clamp(V.genitalsensitivity, 0.25, 999);
 		}
-	})();>>
-<</widget>>
-
-<<widget "xchange-sanitize-body">>
-	<<set _body to _args[0]>>
-	<<if _args[1] is undefined>>
-		<<set _label to "body">>
-	<<else>>
-		<<set _label to _args[1]>>
-	<</if>>
-	<<run (function (body, label) {
-		var T = State.temporary;
-		var V = State.variables;
-		T.xchangeBodyCheck = {
-			valid: true,
-			label: label,
-			issues: [],
-			suggested: {},
-			repairedBody: body
-		};
-		if (!body || typeof body !== "object") {
-			return;
-		}
-		function validIntValue(value) {
-			return Number.isFinite(Number(value)) && Number.isInteger(Number(value));
-		}
-		function inspectBoundedInt(value, fallback, min, max, key) {
-			var n = Number(value);
-			if (!Number.isFinite(n)) {
-				n = Number(fallback);
-			}
-			if (!Number.isFinite(n)) {
-				n = min;
-			}
-			n = Math.trunc(n);
-			if (n < min) n = min;
-			if (n > max) n = max;
-			if (Number(value) !== n || !Number.isFinite(Number(value)) || !Number.isInteger(Number(value))) {
-				T.xchangeBodyCheck.valid = false;
-				T.xchangeBodyCheck.issues.push(key + ": " + String(value) + " -> " + String(n));
-				T.xchangeBodyCheck.suggested[key] = n;
-			}
-		}
-		var breastMin = validIntValue(V.breastsizemin) ? Math.trunc(Number(V.breastsizemin)) : 0;
-		var breastMax = validIntValue(V.breastsizemax) ? Math.trunc(Number(V.breastsizemax)) : Math.max(breastMin, setup.breastsizes ? setup.breastsizes.length - 1 : breastMin);
-		var bottomMin = validIntValue(V.bottomsizemin) ? Math.trunc(Number(V.bottomsizemin)) : 0;
-		var bottomMax = validIntValue(V.bottomsizemax) ? Math.trunc(Number(V.bottomsizemax)) : bottomMin;
-		var penisMin = validIntValue(V.penissizemin) ? Math.min(-2, Math.trunc(Number(V.penissizemin))) : -2;
-		var penisMax = validIntValue(V.penissizemax) ? Math.trunc(Number(V.penissizemax)) : 10;
-		var ballsMin = -2;
-		var ballsMax = 3;
-
-		var breastFallback = (V.player && validIntValue(V.player.breastsize)) ? Math.trunc(Number(V.player.breastsize)) : breastMin;
-		var bottomFallback = (V.player && validIntValue(V.player.bottomsize)) ? Math.trunc(Number(V.player.bottomsize)) : bottomMin;
-		var penisFallback = (V.player && validIntValue(V.player.penissize)) ? Math.trunc(Number(V.player.penissize)) : penisMin;
-		var ballsFallback = validIntValue(V.ballssize) ? Math.trunc(Number(V.ballssize)) : ballsMin;
-
-		if ("breastsize" in body) {
-			inspectBoundedInt(body.breastsize, breastFallback, breastMin, breastMax, "breastsize");
-		}
-		if ("bottomsize" in body) {
-			inspectBoundedInt(body.bottomsize, bottomFallback, bottomMin, bottomMax, "bottomsize");
-		}
-		if ("penissize" in body) {
-			inspectBoundedInt(body.penissize, penisFallback, penisMin, penisMax, "penissize");
-		}
-		if ("ballssize" in body) {
-			inspectBoundedInt(body.ballssize, ballsFallback, ballsMin, ballsMax, "ballssize");
-		}
-		["penisgrowthtimer", "bottomgrowthtimer", "breastgrowthtimer"].forEach(function (key) {
-			if (key in body && !Number.isFinite(Number(body[key]))) {
-				T.xchangeBodyCheck.valid = false;
-				T.xchangeBodyCheck.issues.push(key + ": " + String(body[key]) + " -> 500");
-				T.xchangeBodyCheck.suggested[key] = 500;
-			}
-		});
-		if (!T.xchangeBodyCheck.valid) {
-			var repaired = (typeof clone === "function") ? clone(body) : JSON.parse(JSON.stringify(body));
-			Object.keys(T.xchangeBodyCheck.suggested).forEach(function (key) {
-				repaired[key] = T.xchangeBodyCheck.suggested[key];
-			});
-			T.xchangeBodyCheck.repairedBody = repaired;
-			console.warn("[X-Change validate-body] " + label, T.xchangeBodyCheck.issues, JSON.parse(JSON.stringify(body)));
-		}
-	})(_body, _label)>>
-<</widget>>
-
-<<run (function () {
-	window.xChangeQueueNoticeSafe = window.xChangeQueueNoticeSafe || function (key, html) {
-		if (typeof window.xChangeQueueNotice === "function") {
-			window.xChangeQueueNotice(key, html);
-		} else {
-			console.warn("[X-Change notice]", key, html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim());
-		}
-	};
-})();>>
-
-<<widget "xchange-apply-swell">>
-	<<if $xchange.pill.swellEffect>>
-		<<run (function () {
-			var V = State.variables;
-			function toFiniteInt(value, fallback) {
-				var n = Number(value);
-				if (!Number.isFinite(n)) n = Number(fallback);
-				if (!Number.isFinite(n)) n = 0;
-				return Math.trunc(n);
-			}
-			if (V.xchange?.pill?.swellTarget === "penis") {
-				var penisMin = toFiniteInt(V.penissizemin, -2);
-				var penisMax = toFiniteInt(V.penissizemax, penisMin);
-				if (penisMax < penisMin) penisMax = penisMin;
-				V.player.penissize = penisMax;
-			} else if (V.xchange?.pill?.swellTarget === "breasts") {
-				var breastMin = toFiniteInt(V.breastsizemin, 0);
-				var breastMax = toFiniteInt(V.breastsizemax, breastMin);
-				if (breastMax < breastMin) breastMax = breastMin;
-				var bottomMin = toFiniteInt(V.bottomsizemin, 0);
-				var bottomMax = toFiniteInt(V.bottomsizemax, bottomMin);
-				if (bottomMax < bottomMin) bottomMax = bottomMin;
-				V.player.breastsize = breastMax;
-				V.player.bottomsize = bottomMax;
-			}
-		})()>>
-	<</if>>
+		State.temporary._xchangeNanFixed = fixed;})();>>
 <</widget>>
 
 <<if $xchange._didSpikepoolKeyFix is not true>>
 	<<set $xchange._didSpikepoolKeyFix to true>>
-
 	/* Migrate dumb-bitch setting key variants -> canonical $xchange.spikepool.dumbbitch */
 	<<if $xchange.spikepool.dumbbitch is undefined>>
 		<<if $xchange.spikepool["dumb-bitch"] is not undefined>>
@@ -275,6 +170,9 @@
 					bottomsizemin: V.bottomsizemin,
 					bottomsizemax: V.bottomsizemax
 				})>>
+			<<run setup.xChangeRepairNoticeOnce("repair_xchange_body_size_bounds", "<b>Save repair notice</b><br>Your save/runtime had invalid <b>breast/bottom size bounds</b> while generating a transformed body. X-Change used safe fallback sizes to prevent <b>NaN</b> body parts and sprite crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
+			<<set $player.breastsize to 0>>
+			<<set $player.bottomsize to 2>>
 			<<else>>
 				<<set $player.breastsize to random($breastsizemin,$breastsizemax)>>
 				<<set $player.bottomsize to random($bottomsizemin,$bottomsizemax)>>
@@ -492,6 +390,17 @@
 				<</if>>
 			<</if>>
 		<<else>>
+			<<if !Number.isInteger($penissizemin) or !Number.isInteger($penissizemax) or $penissizemax lt $penissizemin>>
+				<<run console.error("[xchange-blue/xchange restore] Invalid penis size bounds", {
+					penissizemin: V.penissizemin,
+					penissizemax: V.penissizemax
+				})>>
+			<<run setup.xChangeRepairNoticeOnce("repair_xchange_penis_size_bounds", "<b>Save repair notice</b><br>Your save/runtime had invalid <b>penis size bounds</b> while generating a transformed body. X-Change used a safe fallback size to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
+			<<set $player.penissize to -2>>
+			<<else>>
+				<<set $player.penissize to random($penissizemin,$penissizemax)>>
+			<</if>>
+
 			<<set $player.breastsize to 0>>
 			<<set $player.bottomsize to 0>>
 			<<if !Number.isInteger($penissizemin) or !Number.isInteger($penissizemax) or $penissizemax lt $penissizemin>>
@@ -499,6 +408,8 @@
 					penissizemin: V.penissizemin,
 					penissizemax: V.penissizemax
 				})>>
+			<<run setup.xChangeRepairNoticeOnce("repair_xchange_penis_size_bounds", "<b>Save repair notice</b><br>Your save/runtime had invalid <b>penis size bounds</b> while generating a transformed body. X-Change used a safe fallback size to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
+			<<set $player.penissize to -2>>
 			<<else>>
 				<<set $player.penissize to random($penissizemin,$penissizemax)>>
 			<</if>>
@@ -664,7 +575,7 @@
 			<<set _body to $xchange.pill.originalBody>>
 			<<if $player.gender is "m">>
 				<<set $player.penissize to _body.penissize>>
-				<<set $ballssize to _body.ballssize>>
+				<<set $ballssize to _body.penissize>>
 			<<elseif $player.gender is "f">>
 				<<set $player.breastsize to _body.breastsize>>
 				<<set $player.bottomsize to _body.bottomsize>>
@@ -710,6 +621,33 @@
 			args 1: used to specify which npc by name
 		*/
 
+		<<set _slotLabel to "originalBody">>
+		<<if _args[0] isnot undefined>><<set _slotLabel to _args[0]>><</if>>
+
+		<<set _sb_bs to Number($player.breastsize)>>
+		<<if isNaN(_sb_bs)>>
+			<<run setup.xChangeRepairNoticeOnce(("repair_xchange_savebody_breastsize_" + (_slotLabel ? _slotLabel : "unknown")), ("<b>Save repair notice</b><br>Your save had an invalid <b>player.breastsize</b> while X-Change was saving a body snapshot (<b>" + _slotLabel + "</b>). X-Change stored a safe fallback value in the snapshot to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>"))>>
+			<<set _sb_bs to 0>>
+		<</if>>
+
+		<<set _sb_bot to Number($player.bottomsize)>>
+		<<if isNaN(_sb_bot)>>
+			<<run setup.xChangeRepairNoticeOnce(("repair_xchange_savebody_bottomsize_" + (_slotLabel ? _slotLabel : "unknown")), ("<b>Save repair notice</b><br>Your save had an invalid <b>player.bottomsize</b> while X-Change was saving a body snapshot (<b>" + _slotLabel + "</b>). X-Change stored a safe fallback value in the snapshot to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>"))>>
+			<<set _sb_bot to 2>>
+		<</if>>
+
+		<<set _sb_ps to Number($player.penissize)>>
+		<<if isNaN(_sb_ps)>>
+			<<run setup.xChangeRepairNoticeOnce(("repair_xchange_savebody_penissize_" + (_slotLabel ? _slotLabel : "unknown")), ("<b>Save repair notice</b><br>Your save had an invalid <b>player.penissize</b> while X-Change was saving a body snapshot (<b>" + _slotLabel + "</b>). X-Change stored a safe fallback value in the snapshot to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>"))>>
+			<<set _sb_ps to -2>>
+		<</if>>
+
+		<<set _sb_ball to Number($ballssize)>>
+		<<if isNaN(_sb_ball)>>
+			<<run setup.xChangeRepairNoticeOnce(("repair_xchange_savebody_ballssize_" + (_slotLabel ? _slotLabel : "unknown")), ("<b>Save repair notice</b><br>Your save had an invalid <b>ballssize</b> while X-Change was saving a body snapshot (<b>" + _slotLabel + "</b>). X-Change stored a safe fallback value in the snapshot to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>"))>>
+			<<set _sb_ball to -2>>
+		<</if>>
+
 		<<set _savedbody to {
 			/* Core appearance */
 			bodysize: $bodysize,
@@ -717,10 +655,10 @@
 			facevariant: $facevariant,
 			gender_body: $player.gender_body,
 			bodyshape: $player.bodyshape,
-			breastsize: $player.breastsize,
-			bottomsize: $player.bottomsize,
-			penissize: $player.penissize,
-			ballssize: $ballssize,
+			breastsize: _sb_bs,
+			bottomsize: _sb_bot,
+			penissize: _sb_ps,
+			ballssize: _sb_ball,
 
 			/* Sex / genital state (IMPORTANT for proper revert) */
 			sex: $player.sex,
@@ -771,41 +709,18 @@
 			deviancy: $deviancy,
 		}>>
 
-		<<if _args[0] is undefined>>
-			<<set _bodySlotLabel to "originalBody">>
-		<<else>>
-			<<set _bodySlotLabel to _args[0]>>
-		<</if>>
-
-		<<xchange-sanitize-body _savedbody _bodySlotLabel>>
-		<<set _skipBodySave to false>>
-		<<if _xchangeBodyCheck.valid isnot true>>
-			<<set _skipBodySave to true>>
-			<<run (function (label, issues) {
-				var V = State.variables;
-				V.xchange._invalidBodySaveWarned = V.xchange._invalidBodySaveWarned || {};
-				if (!V.xchange._invalidBodySaveWarned[label]) {V.xchange._invalidBodySaveWarned[label] = true;
-					window.xChangeQueueNoticeSafe("invalid_body_save_" + label,
-						`<b>X-Change: Body cache save blocked</b><br>X-Change detected an invalid <b>${label}</b> body snapshot (${issues.join(", ")}). 
-						It refused to silently repair or overwrite that cached body slot.<br><br><b>If you encounter any error after this, please report it with your save and steps to Discord Server.</b>`
-					);}
-				console.warn("[X-Change save-body] Blocked invalid cached slot save:", label, issues);})(_bodySlotLabel, State.temporary.xchangeBodyCheck.issues)>>
-		<</if>>
-
 		/* Parasites (deep clone to avoid reference mutation) */
 		<<run _savedbody.parasite = (typeof clone === "function") ? clone(V.parasite) : JSON.parse(JSON.stringify(V.parasite)) >>
 
-		<<if !_skipBodySave>>
-			<<if _args[0] is undefined>>
-				<<set $xchange.pill.originalBody to _savedbody>>
-			<<elseif _args[0] is "genderswapped">>
-				<<set $xchange.pill.changedBody to _savedbody>>
-			<<elseif _args[0] is "herm">>
-				<<set $xchange.pill.hermBody to _savedbody>>
-			<<elseif _args[0] is "cloned" and _args[1] isnot undefined>>
-				<<set _npcName to _args[1]>>
-				<<set $xchange.pill.clonedBody[_npcName] to _savedbody>>
-			<</if>>
+		<<if _args[0] is undefined>>
+			<<set $xchange.pill.originalBody to _savedbody>>
+		<<elseif _args[0] is "genderswapped">>
+			<<set $xchange.pill.changedBody to _savedbody>>
+		<<elseif _args[0] is "herm">>
+			<<set $xchange.pill.hermBody to _savedbody>>
+		<<elseif _args[0] is "cloned" and _args[1] isnot undefined>>
+			<<set _npcName to _args[1]>>
+			<<set $xchange.pill.clonedBody[_npcName] to _savedbody>>
 		<</if>>
 	<</widget>>
 
@@ -822,38 +737,61 @@
 		<</if>>
 
 		<<if _body is undefined>>
-			<<run console.warn("[X-Change load-body] Missing body slot:", _args[0])>>
-		<<else>>
-			<<if _args[0] is undefined>>
-				<<set _bodySlotLabel to "originalBody">>
-			<<else>>
-				<<set _bodySlotLabel to _args[0]>>
-			<</if>>
+			<<break>>
+		<</if>>
 
-			<<xchange-sanitize-body _body _bodySlotLabel>>
-			<<if _xchangeBodyCheck.valid isnot true>>
-				<<run (function (label, issues) {
-					var V = State.variables;
-					V.xchange._runtimeBodyFallbackWarned = V.xchange._runtimeBodyFallbackWarned || {};
-					if (!V.xchange._runtimeBodyFallbackWarned[label]) {V.xchange._runtimeBodyFallbackWarned[label] = true;
-						window.xChangeQueueNoticeSafe("runtime_body_fallback_" + label,
-							`<b>X-Change: Runtime body fallback notice</b><br>Your save contains an invalid cached <b>${label}</b> body snapshot (${issues.join(", ")}). 
-							X-Change used a temporary in-memory fallback for this transformation so the game can continue.<br><br><b>It did not silently rewrite the cached snapshot.</b> 
-							If you encounter any error after this, please report it with your save and steps to Discord Server.`
-						);}})(_bodySlotLabel, State.temporary.xchangeBodyCheck.issues)>>
-				<<set _body to _xchangeBodyCheck.repairedBody>>
-			<</if>>
-
-			/* Core appearance */
+		/* Core appearance */
 		<<set $bodysize to _body.bodysize>>
 		<<set $facestyle to _body.facestyle>>
 		<<set $facevariant to _body.facevariant>>
 		<<set $player.gender_body to _body.gender_body>>
 		<<set $player.bodyshape to _body.bodyshape>>
-		<<set $player.breastsize to _body.breastsize>>
-		<<set $player.bottomsize to _body.bottomsize>>
-		<<set $player.penissize to _body.penissize>>
-		<<set $ballssize to _body.ballssize>>
+		<<set _lb_bs to Number(_body.breastsize)>>
+		<<if isNaN(_lb_bs)>>
+			<<run setup.xChangeRepairNoticeOnce(("repair_xchange_loadbody_breastsize_" + (_args[0] ? _args[0] : "originalBody")), "<b>Save repair notice</b><br>X-Change attempted to load a cached body with invalid <b>breastsize</b>. It will fall back to your current value (or a safe default) to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
+			<<set _lb_bs to Number($player.breastsize)>>
+			<<if isNaN(_lb_bs)>>
+				<<run setup.xChangeRepairNoticeOnce(("repair_xchange_loadbody_breastsize_current_" + (_args[0] ? _args[0] : "originalBody")), "<b>Save repair notice</b><br>Your current <b>player.breastsize</b> was also invalid. X-Change set it to a safe default to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
+				<<set _lb_bs to 0>>
+			<</if>>
+		<</if>>
+		<<set $player.breastsize to _lb_bs>>
+
+		<<set _lb_bot to Number(_body.bottomsize)>>
+		<<if isNaN(_lb_bot)>>
+			<<run setup.xChangeRepairNoticeOnce(("repair_xchange_loadbody_bottomsize_" + (_args[0] ? _args[0] : "originalBody")), "<b>Save repair notice</b><br>X-Change attempted to load a cached body with invalid <b>bottomsize</b>. It will fall back to your current value (or a safe default) to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
+			<<set _lb_bot to Number($player.bottomsize)>>
+			<<if isNaN(_lb_bot)>>
+				<<run setup.xChangeRepairNoticeOnce(("repair_xchange_loadbody_bottomsize_current_" + (_args[0] ? _args[0] : "originalBody")), "<b>Save repair notice</b><br>Your current <b>player.bottomsize</b> was also invalid. X-Change set it to a safe default to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
+				<<set _lb_bot to 2>>
+			<</if>>
+		<</if>>
+		<<set $player.bottomsize to _lb_bot>>
+
+
+		<<set _lb_ps to Number(_body.penissize)>>
+		<<if isNaN(_lb_ps)>>
+			<<run setup.xChangeRepairNoticeOnce(("repair_xchange_loadbody_penissize_" + (_args[0] ? _args[0] : "originalBody")), "<b>Save repair notice</b><br>X-Change attempted to load a cached body with invalid <b>penissize</b>. It will fall back to your current value (or a safe default) to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
+			<<set _lb_ps to Number($player.penissize)>>
+			<<if isNaN(_lb_ps)>>
+				<<run setup.xChangeRepairNoticeOnce(("repair_xchange_loadbody_penissize_current_" + (_args[0] ? _args[0] : "originalBody")), "<b>Save repair notice</b><br>Your current <b>player.penissize</b> was also invalid. X-Change set it to a safe default to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
+				<<set _lb_ps to -2>>
+			<</if>>
+		<</if>>
+		<<set $player.penissize to _lb_ps>>
+
+
+		<<set _lb_ball to Number(_body.ballssize)>>
+		<<if isNaN(_lb_ball)>>
+			<<run setup.xChangeRepairNoticeOnce(("repair_xchange_loadbody_ballssize_" + (_args[0] ? _args[0] : "originalBody")), "<b>Save repair notice</b><br>X-Change attempted to load a cached body with invalid <b>ballssize</b>. It will fall back to your current value (or a safe default) to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
+			<<set _lb_ball to Number($ballssize)>>
+			<<if isNaN(_lb_ball)>>
+				<<run setup.xChangeRepairNoticeOnce(("repair_xchange_loadbody_ballssize_current_" + (_args[0] ? _args[0] : "originalBody")), "<b>Save repair notice</b><br>Your current <b>ballssize</b> was also invalid. X-Change set it to a safe default to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
+				<<set _lb_ball to -2>>
+			<</if>>
+		<</if>>
+		<<set $ballssize to _lb_ball>>
+
 
 		/* Sex / genital state (IMPORTANT for proper revert) */
 		<<if _body.sex isnot undefined>><<set $player.sex to _body.sex>><</if>>
@@ -892,6 +830,21 @@
 		<<set $penisgrowthtimer to _body.penisgrowthtimer>>
 		<<set $bottomgrowthtimer to _body.bottomgrowthtimer>>
 		<<set $breastgrowthtimer to _body.breastgrowthtimer>>
+
+		<<if _body.sex isnot undefined>><<set $player.sex to _body.sex>><</if>>
+		<<if _body.penisExist isnot undefined>>
+			<<set $player.penisExist to _body.penisExist>>
+		<</if>>
+		<<if _body.ballsExist isnot undefined>>
+			<<set $player.ballsExist to _body.ballsExist>>
+		<</if>>
+		<<if _body.vaginaExist isnot undefined>>
+			<<set $player.vaginaExist to _body.vaginaExist>>
+		<</if>>
+		<<if _body.penisuse isnot undefined>><<set $penisuse to _body.penisuse>><</if>>
+		<<if _body.penisstate isnot undefined>><<set $penisstate to _body.penisstate>><</if>>
+		<<if _body.vaginause isnot undefined>><<set $vaginause to _body.vaginause>><</if>>
+		<<if _body.vaginastate isnot undefined>><<set $vaginastate to _body.vaginastate>><</if>>
 
 		/* <<if !$xchangeFameMerged>> */
 			<<set $fame to _body.fame>>
@@ -967,10 +920,52 @@
 		<</if>>
 
 		/* Swell effect */
-		<<if _args[0] is undefined>>
-			<<xchange-apply-swell>>
+		<<if _args[0] is undefined and $xchange.pill.swellEffect>>
+			<<if $player.sex is "f">>
+				<<set $xchange.pill.changedBody.penissize to $xchange.penissize>>
+			<<else>>
+				<<set $xchange.pill.changedBody.breastsize to $xchange.breastsize>>
+				<<set $xchange.pill.changedBody.bottomsize to $xchange.bottomsize>>
+			<</if>>
 		<</if>>
 
+		<<if _args[0] is undefined and $xchange.pill.bimboEffect>>
+			<<if $xchange.science gt $sciencetrait>>
+				<<set $sciencetrait to $xchange.science>>
+				<<school_skill_change "science" 0>>
+				<<set $effectsmessage = 1>>
+				<<set $science_up_message = 1>>
+			<</if>>
+			<<if $xchange.math gt $mathstrait>>
+				<<set $mathstrait to $xchange.math>>
+				<<school_skill_change "maths" 0>>
+				<<set $effectsmessage = 1>>
+				<<set $maths_up_message = 1>>
+			<</if>>
+			<<if $xchange.english gt $englishtrait>>
+				<<set $englishtrait to $xchange.english>>
+				<<school_skill_change "english" 0>>
+				<<set $effectsmessage = 1>>
+				<<set $english_up_message = 1>>
+			<</if>>
+			<<if $xchange.history gt $historytrait>>
+				<<set $historytrait to $xchange.history>>
+				<<school_skill_change "history" 0>>
+				<<set $effectsmessage = 1>>
+				<<set $history_up_message = 1>>
+			<</if>>
+			<<unset $promiscuityIgnore>>
+		<</if>>
+
+		/* Swell effect */
+		<<if _args[0] is undefined and $xchange.pill.swellEffect>>
+			<<if $player.sex is "f">>
+				<<set $xchange.pill.changedBody.penissize to $xchange.penissize>>
+			<<else>>
+				<<set $xchange.pill.changedBody.breastsize to $xchange.breastsize>>
+				<<set $xchange.pill.changedBody.bottomsize to $xchange.bottomsize>>
+			<</if>>
+		<</if>>
 
 		/* <<if $xchange_fame gte 1000>>
 			<<set _ogFame to $xchange.pill.originalBody.fame>>
@@ -1042,7 +1037,6 @@
 		<<calchairlengthstage>>
 		<<run updatePhysique()>>
 		<<updatesidebarimg>>
-		<</if>>
 	<</widget>>
 
 	<<widget "xchange-effects">>
@@ -1072,10 +1066,8 @@
 		<<set $xchange.pill.dumbBitchEffect to false>>
 		<<set $xchange.pill.portalEffect to false>>
 		<<set $xchange.pill.portalEffectTimer to 0>>
-		<<set $xchange.pill.choiceEffect to false>>
 		<<set $xchange.pill.innocenceEffect to false>>
 		<<set $xchange.pill.swellEffect to false>>
-		<<set $xchange.pill.swellTarget to undefined>>
 		<<set $xchange.pill.bimboEffect to false>>
 		<<set $xchange.pill.cumcureEffect to false>>
 
@@ -1206,44 +1198,46 @@
 
 	<<case "swell">>
 		<<set $xchange.pill.swellEffect to true>>
-		<<set $xchange.pill.swellTarget to ($player.sex is "f" ? "penis" : "breasts")>>
-		<<if $xchange.pill.swellTarget is "penis">>
-			<<run (function () {
-				var V = State.variables;
-				var penisMin = Number.isFinite(Number(V.penissizemin)) ? Math.trunc(Number(V.penissizemin)) : -2;
-				var penisMax = Number.isFinite(Number(V.penissizemax)) ? Math.trunc(Number(V.penissizemax)) : penisMin;
-				if (penisMax < penisMin) penisMax = penisMin;
-				var current = Number(V.player.penissize);
-				if (!Number.isFinite(current)) current = penisMin;
-				current = Math.trunc(current);
-				if (current < penisMin) current = penisMin;
-				if (current > penisMax) current = penisMax;
-				V.xchange.penissize = current;
-			})()>>
+		<<if $player.sex is "f">>
+			<<set _ps to Number($player.penissize)>>
+			<<if isNaN(_ps)>>
+				<<run setup.xChangeRepairNoticeOnce("repair_xchange_penissize_nan", "<b>Save repair notice</b><br>Your save had an invalid <b>player.penissize</b> during the Swell effect. X-Change will ignore the swell size change to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
+				<<set _ps to -2>>
+			<</if>>
+			<<set $xchange.penissize to _ps>>
+			<<set _psMax to Number($penissizemax)>>
+			<<if isNaN(_psMax)>>
+				<<run setup.xChangeRepairNoticeOnce("repair_xchange_penissizemax_nan", "<b>Save repair notice</b><br>Your save had an invalid <b>penissizemax</b> during the Swell effect. X-Change will keep the current size to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
+				<<set _psMax to $xchange.penissize>>
+			<</if>>
+			<<set $player.penissize to _psMax>>
 		<<else>>
-			<<run (function () {
-				var V = State.variables;
-				var breastMin = Number.isFinite(Number(V.breastsizemin)) ? Math.trunc(Number(V.breastsizemin)) : 0;
-				var breastMax = Number.isFinite(Number(V.breastsizemax)) ? Math.trunc(Number(V.breastsizemax)) : breastMin;
-				if (breastMax < breastMin) breastMax = breastMin;
-				var bottomMin = Number.isFinite(Number(V.bottomsizemin)) ? Math.trunc(Number(V.bottomsizemin)) : 0;
-				var bottomMax = Number.isFinite(Number(V.bottomsizemax)) ? Math.trunc(Number(V.bottomsizemax)) : bottomMin;
-				if (bottomMax < bottomMin) bottomMax = bottomMin;
-				var currentBreast = Number(V.player.breastsize);
-				if (!Number.isFinite(currentBreast)) currentBreast = breastMin;
-				currentBreast = Math.trunc(currentBreast);
-				if (currentBreast < breastMin) currentBreast = breastMin;
-				if (currentBreast > breastMax) currentBreast = breastMax;
-				var currentBottom = Number(V.player.bottomsize);
-				if (!Number.isFinite(currentBottom)) currentBottom = bottomMin;
-				currentBottom = Math.trunc(currentBottom);
-				if (currentBottom < bottomMin) currentBottom = bottomMin;
-				if (currentBottom > bottomMax) currentBottom = bottomMax;
-				V.xchange.breastsize = currentBreast;
-				V.xchange.bottomsize = currentBottom;
-			})()>>
+			<<set _bs to Number($player.breastsize)>>
+			<<if isNaN(_bs)>>
+				<<run setup.xChangeRepairNoticeOnce("repair_xchange_breastsize_nan", "<b>Save repair notice</b><br>Your save had an invalid <b>player.breastsize</b> during the Swell effect. X-Change rebuilt it from safe defaults to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
+				<<set _bs to 0>>
+			<</if>>
+			<<set $xchange.breastsize to _bs>>
+			<<set _bsMax to Number($breastsizemax)>>
+			<<if isNaN(_bsMax)>>
+				<<run setup.xChangeRepairNoticeOnce("repair_xchange_breastsizemax_nan", "<b>Save repair notice</b><br>Your save had an invalid <b>breastsizemax</b> during the Swell effect. X-Change will keep the current size to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
+				<<set _bsMax to $xchange.breastsize>>
+			<</if>>
+			<<set $player.breastsize to _bsMax>>
+
+			<<set _bot to Number($player.bottomsize)>>
+			<<if isNaN(_bot)>>
+				<<run setup.xChangeRepairNoticeOnce("repair_xchange_bottomsize_nan", "<b>Save repair notice</b><br>Your save had an invalid <b>player.bottomsize</b> during the Swell effect. X-Change rebuilt it from safe defaults to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
+				<<set _bot to 2>>
+			<</if>>
+			<<set $xchange.bottomsize to _bot>>
+			<<set _botMax to Number($bottomsizemax)>>
+			<<if isNaN(_botMax)>>
+				<<run setup.xChangeRepairNoticeOnce("repair_xchange_bottomsizemax_nan", "<b>Save repair notice</b><br>Your save had an invalid <b>bottomsizemax</b> during the Swell effect. X-Change will keep the current size to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
+				<<set _botMax to $xchange.bottomsize>>
+			<</if>>
+			<<set $player.bottomsize to _botMax>>
 		<</if>>
-		<<xchange-apply-swell>>
 
 	<<case "bimbo">>
 		<<set $xchange.pill.bimboEffect to true>>
@@ -1340,46 +1334,27 @@
 			<</if>>
 		<<case "swell">>
 			<<set $xchange.pill.swellEffect to false>>
-			<<if $xchange.pill.swellTarget is "penis">>
-				<<run (function () {
-					var V = State.variables;
-					var penisMin = Number.isFinite(Number(V.penissizemin)) ? Math.trunc(Number(V.penissizemin)) : -2;
-					var penisMax = Number.isFinite(Number(V.penissizemax)) ? Math.trunc(Number(V.penissizemax)) : penisMin;
-					if (penisMax < penisMin) penisMax = penisMin;
-					var restore = Number(V.xchange.penissize);
-					if (!Number.isFinite(restore)) restore = Number(V.player.penissize);
-					if (!Number.isFinite(restore)) restore = penisMin;
-					restore = Math.trunc(restore);
-					if (restore < penisMin) restore = penisMin;
-					if (restore > penisMax) restore = penisMax;
-					V.player.penissize = restore;
-				})()>>
-			<<elseif $xchange.pill.swellTarget is "breasts">>
-				<<run (function () {
-					var V = State.variables;
-					var breastMin = Number.isFinite(Number(V.breastsizemin)) ? Math.trunc(Number(V.breastsizemin)) : 0;
-					var breastMax = Number.isFinite(Number(V.breastsizemax)) ? Math.trunc(Number(V.breastsizemax)) : breastMin;
-					if (breastMax < breastMin) breastMax = breastMin;
-					var bottomMin = Number.isFinite(Number(V.bottomsizemin)) ? Math.trunc(Number(V.bottomsizemin)) : 0;
-					var bottomMax = Number.isFinite(Number(V.bottomsizemax)) ? Math.trunc(Number(V.bottomsizemax)) : bottomMin;
-					if (bottomMax < bottomMin) bottomMax = bottomMin;
-					var restoreBreast = Number(V.xchange.breastsize);
-					if (!Number.isFinite(restoreBreast)) restoreBreast = Number(V.player.breastsize);
-					if (!Number.isFinite(restoreBreast)) restoreBreast = breastMin;
-					restoreBreast = Math.trunc(restoreBreast);
-					if (restoreBreast < breastMin) restoreBreast = breastMin;
-					if (restoreBreast > breastMax) restoreBreast = breastMax;
-					var restoreBottom = Number(V.xchange.bottomsize);
-					if (!Number.isFinite(restoreBottom)) restoreBottom = Number(V.player.bottomsize);
-					if (!Number.isFinite(restoreBottom)) restoreBottom = bottomMin;
-					restoreBottom = Math.trunc(restoreBottom);
-					if (restoreBottom < bottomMin) restoreBottom = bottomMin;
-					if (restoreBottom > bottomMax) restoreBottom = bottomMax;
-					V.player.breastsize = restoreBreast;
-					V.player.bottomsize = restoreBottom;
-				})()>>
+			<<if $player.sex is "f">>
+				<<set _psRestore to Number($xchange.penissize)>>
+				<<if isNaN(_psRestore)>>
+					<<run setup.xChangeRepairNoticeOnce("repair_xchange_penissize_restore_nan", "<b>Save repair notice</b><br>Your save had an invalid stored <b>xchange.penissize</b> while ending the Swell effect. X-Change will keep the current size to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
+				<<else>>
+					<<set $player.penissize to _psRestore>>
+				<</if>>
+			<<else>>
+				<<set _bsRestore to Number($xchange.breastsize)>>
+				<<if isNaN(_bsRestore)>>
+					<<run setup.xChangeRepairNoticeOnce("repair_xchange_breastsize_restore_nan", "<b>Save repair notice</b><br>Your save had an invalid stored <b>xchange.breastsize</b> while ending the Swell effect. X-Change will keep the current size to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
+				<<else>>
+					<<set $player.breastsize to _bsRestore>>
+				<</if>>
+				<<set _botRestore to Number($xchange.bottomsize)>>
+				<<if isNaN(_botRestore)>>
+					<<run setup.xChangeRepairNoticeOnce("repair_xchange_bottomsize_restore_nan", "<b>Save repair notice</b><br>Your save had an invalid stored <b>xchange.bottomsize</b> while ending the Swell effect. X-Change will keep the current size to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
+				<<else>>
+					<<set $player.bottomsize to _botRestore>>
+				<</if>>
 			<</if>>
-			<<set $xchange.pill.swellTarget to undefined>>
 		<<case "bimbo">>
 			<<set $xchange.pill.bimboEffect to false>>
 			<<if $xchange.science gt $sciencetrait>>
@@ -1548,25 +1523,16 @@
 		<<set $xchange.pill.active to false>>
 		<<set $xchange.pill.baseSex to undefined>>
 		<<set $xchange.pill.baseGenitals to undefined>>
-		<<set $xchange.pill.fertile to false>>
 		<<set $xchange.pill.genderflipEffect to false>>
-		<<set $xchange.pill.genderificationEffect to false>>
-		<<set $xchange.pill.hermEffect to false>>
-		<<set $xchange.pill.breederEffect to false>>
-		<<set $xchange.pill.bullEffect to false>>
-		<<set $xchange.pill.xtendEffect to false>>
-		<<set $xchange.pill.resistanceEffect to false>>
-		<<set $xchange.pill.continueEffect to false>>
 		<<set $xchange.pill.portalEffect to false>>
 		<<set $xchange.pill.portalEffectTimer to 0>>
 		<<set $xchange.pill.passionEffect to false>>
-		<<set $xchange.pill.dumbBitchEffect to false>>
 		<<set $xchange.pill.choiceEffect to false>>
 		<<set $xchange.pill.innocenceEffect to false>>
 		<<set $xchange.pill.swellEffect to false>>
-		<<set $xchange.pill.swellTarget to undefined>>
 		<<set $xchange.pill.bimboEffect to false>>
 		<<set $xchange.pill.cumcureEffect to false>>
+		/*Is $xchange.breederEffect not getting cleared here? */
 		<<set $xchange.breederDenial to 0>>
 		<<unset $xchange.pill.shouldHaveEnded>>
 
@@ -1928,7 +1894,7 @@
 			<<if $xchange.pill.innocenceEffect>><li>Innocence Effect.
 				<mouse class="tooltip linkBlue">(?)<span>While under this pill, all sexual awareness is wiped from your mind.</span></mouse></li><</if>>
 			<<if $xchange.pill.swellEffect>><li>Swell Effect.
-				<mouse class="tooltip linkBlue">(?)<span>Increases the size of your <<print $xchange.pill.swellTarget is "breasts" ? "breasts and ass" : "penis">> for the duration.</span></mouse></li><</if>>
+				<mouse class="tooltip linkBlue">(?)<span>Increases the size of your <<print $player.sex is "m" ? "breasts and ass" : "penis">> for the duration.</span></mouse></li><</if>>
 			<<if $xchange.pill.bimboEffect>><li>Bimbo Effect.
 				<mouse class="tooltip linkBlue">(?)<span>Reduces your intelligence and increases your lewdness.</span></mouse></li><</if>>
 			<<if $xchange.pill.cumcureEffect>><li>CumCure Effect.

@@ -484,7 +484,7 @@ function xchangeXtendGrowth(target, spermOwner, spermType) {
 			if (typeof window.xChangeQueueNotice === "function") {
 				window.xChangeQueueNotice(
 					"repair_xtendTracker",
-					`<b>X-Change: Save repair notice</b><br>Your save was missing <b>xchange.pill.xtendTracker</b>. X-Change recreated it to prevent XTend growth errors.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>`
+					`<b>Save repair notice</b><br>Your save was missing <b>xchange.pill.xtendTracker</b>. X-Change recreated it to prevent XTend growth errors.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>`
 				);
 			} else {
 				console.warn("[X-Change] Save repair: recreated missing pill.xtendTracker");
@@ -500,7 +500,7 @@ function xchangeXtendGrowth(target, spermOwner, spermType) {
 			if (typeof window.xChangeQueueNotice === "function") {
 				window.xChangeQueueNotice(
 					"repair_xtendTrackerGains",
-					`<b>X-Change: Save repair notice</b><br>Your save had an invalid <b>xchange.pill.xtendTracker.penisSizeGains</b>. X-Change reset it to <b>0</b> to prevent XTend growth errors.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>`
+					`<b>Save repair notice</b><br>Your save had an invalid <b>xchange.pill.xtendTracker.penisSizeGains</b>. X-Change reset it to <b>0</b> to prevent XTend growth errors.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>`
 				);
 			} else {
 				console.warn("[X-Change] Save repair: reset invalid pill.xtendTracker.penisSizeGains");

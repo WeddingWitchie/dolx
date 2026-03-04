@@ -1,57 +1,3 @@
-/* X-CHANGE SAVE REPAIR NOTICE */
-window.xChangeQueueNotice = function (id, html) {
-	const V = (typeof State !== "undefined" && State.variables) ? State.variables : window.V;
-	if (!V) return;
-
-	V.xChangeFlags ??= {};
-	if (V.xChangeFlags[id]) return;
-
-	V.xChangeNotices ??= [];
-	V.xChangeNotices.push({ id, html });
-};
-(function () {
-	function renderNotices() {
-		const V = (typeof State !== "undefined" && State.variables) ? State.variables : window.V;
-		if (!V?.xChangeNotices?.length) return;
-
-		V.xChangeFlags ??= {};
-
-		const passEl = document.querySelector("#passage") || document.querySelector(".passage");
-		if (!passEl) return;
-
-		while (V.xChangeNotices.length) {
-			const n = V.xChangeNotices.shift();
-			if (!n || !n.id || V.xChangeFlags[n.id]) continue;
-
-			V.xChangeFlags[n.id] = true;
-
-			const box = document.createElement("div");
-			box.innerHTML = n.html;
-			box.style.cssText = [
-				"border:2px solid #ff4d4d",
-				"background:rgba(255,0,0,0.12)",
-				"color:#ffb3b3",
-				"padding:12px 12px",
-				"border-radius:8px",
-				"margin:0 0 14px 0",
-				"font-size:1em",
-				"line-height:1.4",
-				"word-break:break-word",
-				"overflow-wrap:anywhere",
-				"box-sizing:border-box"
-			].join(";");
-
-			passEl.prepend(box);
-		}
-	}
-
-	if (window.jQuery) {
-		jQuery(document).on(":passagedisplay", renderNotices);
-	} else {
-		document.addEventListener(":passagedisplay", renderNotices);
-	}
-})();
-
 /* eslint-disable no-undef */
 // Should a name type for species be setup, say, human/wolf specific names
 function generateBabyName(name, gender, childId) {
@@ -970,7 +916,7 @@ function ensureBirthId(pregnancy, mother) {
 		V.pregnancyStats._nanRepairFlag = true;
 
 		// The notice off atm as I didn't see any error about pregnancy again
-		// if (!V.pregnancyStats._nextBirthIdWarned) { V.pregnancyStats._nextBirthIdWarned = true; window.xChangeQueueNotice("repair_nextBirthId", `<b>X-Change: Save repair notice</b><br>Your save had an invalid <b>pregnancyStats.nextBirthId</b>. X-Change rebuilt it from existing data to prevent pregnancy tracking errors.<br><br><b>If you encounter any error after this, please report it with your save and steps to Discord Server.</b>`); }
+		// if (!V.pregnancyStats._nextBirthIdWarned) { V.pregnancyStats._nextBirthIdWarned = true; window.xChangeQueueNotice("repair_nextBirthId", `<b>Save repair notice</b><br>Your save had an invalid <b>pregnancyStats.nextBirthId</b>. X-Change rebuilt it from existing data to prevent pregnancy tracking errors.<br><br><b>If you encounter any error after this, please report it with your save and steps to Discord Server.</b>`); }
 	}
 
   if (!_pf_isFiniteNum(pregnancy.fetus[0].birthId) || pregnancy.fetus[0].birthId < 1) {

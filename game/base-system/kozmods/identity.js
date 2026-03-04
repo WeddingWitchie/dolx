@@ -622,7 +622,7 @@ window.playerFeelsGirllike = playerFeelsGirllike;
 
 (() => {
   // Can the CURRENT player body get pregnant?
-  // Keep this anatomy-based (not sex-based) to avoid the “male can get pregnant” bug.
+  // Keep this anatomy-based (not sex-based) to avoid the "male can get pregnant" bug.
   setup.xchangeCanBePregnant = function () {
     const V = State.variables;
     return V.player?.vaginaExist === true;
@@ -660,7 +660,7 @@ window.playerFeelsGirllike = playerFeelsGirllike;
 		}
 	};
 	// Back-compat: old saves may be missing newer X-Change pill fields.
-	// We only *fill in missing* fields; we don't wipe or "sanitise" existing data.
+	// We only fill in missing fields; we don't wipe or "sanitise" existing data.
 	setup.xchangeEnsurePillDefaults = function () {
 		const V = State?.variables;
 		const pill = V?.xchange?.pill;
@@ -765,5 +765,59 @@ window.playerFeelsGirllike = playerFeelsGirllike;
 			try { setup.xchangeEnsurePillDefaults(); } catch (e) {}
 	try { setup.xchangeEnsureCompatGlobals(); } catch (e) {}
 		});
+	}
+})();
+
+/* X-CHANGE SAVE REPAIR NOTICE */
+window.xChangeQueueNotice = function (id, html) {
+	const V = (typeof State !== "undefined" && State.variables) ? State.variables : window.V;
+	if (!V) return;
+
+	V.xChangeFlags ??= {};
+	if (V.xChangeFlags[id]) return;
+
+	V.xChangeNotices ??= [];
+	V.xChangeNotices.push({ id, html });
+};
+(function () {
+	function renderNotices() {
+		const V = (typeof State !== "undefined" && State.variables) ? State.variables : window.V;
+		if (!V?.xChangeNotices?.length) return;
+
+		V.xChangeFlags ??= {};
+
+		const passEl = document.querySelector("#passage") || document.querySelector(".passage");
+		if (!passEl) return;
+
+		while (V.xChangeNotices.length) {
+			const n = V.xChangeNotices.shift();
+			if (!n || !n.id || V.xChangeFlags[n.id]) continue;
+
+			V.xChangeFlags[n.id] = true;
+
+			const box = document.createElement("div");
+			box.innerHTML = n.html;
+			box.style.cssText = [
+				"border:2px solid #ff4d4d",
+				"background:rgba(255,0,0,0.12)",
+				"color:#ffb3b3",
+				"padding:12px 12px",
+				"border-radius:8px",
+				"margin:0 0 14px 0",
+				"font-size:1em",
+				"line-height:1.4",
+				"word-break:break-word",
+				"overflow-wrap:anywhere",
+				"box-sizing:border-box"
+			].join(";");
+
+			passEl.prepend(box);
+		}
+	}
+
+	if (window.jQuery) {
+		jQuery(document).on(":passagedisplay", renderNotices);
+	} else {
+		document.addEventListener(":passagedisplay", renderNotices);
 	}
 })();
