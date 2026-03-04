@@ -1584,7 +1584,7 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 			}
 			break;
 		case "willpower":
-			if (V.xchange.willpowerSystemEnabled === 1) {
+			if (V.xchange && V.xchange.willpowerSystemEnabled === 1 && Number.isFinite(V.xchange.willpowerPoints)) {
 				result = V.xchange.willpowerPoints;
 			}
 			else {
@@ -2092,6 +2092,7 @@ function fameSum(...fameTypes) {
 window.fameSum = fameSum;
 
 function checkTFparts() {
+	if (V.transformationParts == null || typeof V.transformationParts !== "object" || Array.isArray(V.transformationParts)) return {};
 	const tfParts = {};
 	// Iterate over each transformation
 	Object.entries(V.transformationParts).forEach(([tfName, tf]) =>
@@ -2161,7 +2162,6 @@ function setupTransformations() {
 			},
 			type: "physicalTransform",
 			parts: [
-				{ name: "ears", tfRequired: 4 },
 				{ name: "ears", tfRequired: 4 },
 				{ name: "tail", tfRequired: 6 },
 				{ name: "heterochromia", tfRequired: 7 },
@@ -2287,6 +2287,33 @@ function setupTransformations() {
 DefineMacro("setupTransformations", setupTransformations);
 
 function validateTransformations() {
+	// --- TF parts schema guard (silent init, does not overwrite valid values) ---
+	if (!Array.isArray(setup.transformations) && typeof setupTransformations === "function") {
+		setupTransformations();
+	}
+	if (V.transformationParts == null || typeof V.transformationParts !== "object" || Array.isArray(V.transformationParts)) {
+		V.transformationParts = {};
+	}
+	if (V.transformationParts.traits == null || typeof V.transformationParts.traits !== "object" || Array.isArray(V.transformationParts.traits)) {
+		V.transformationParts.traits = {};
+	}
+	setup.transformations?.forEach(tf => {
+		const tfname = tf.name === "fallenangel" ? "fallenAngel" : tf.name;
+		if (V.transformationParts[tfname] == null || typeof V.transformationParts[tfname] !== "object" || Array.isArray(V.transformationParts[tfname])) {
+			V.transformationParts[tfname] = {};
+		}
+		// Make missing/invalid entries behave like "disabled" until unlocked by the logic below.
+		tf.parts?.forEach(part => {
+			if (typeof V.transformationParts[tfname][part.name] !== "string") {
+				V.transformationParts[tfname][part.name] = "disabled";
+			}
+		});
+		tf.traits?.forEach(trait => {
+			if (typeof V.transformationParts.traits[trait.name] !== "string") {
+				V.transformationParts.traits[trait.name] = "disabled";
+			}
+		});
+	});
 	const physTFs = setup.transformations.filter(tf => tf.type === "physicalTransform" && tf.level >= 1);
 	if (physTFs.length >= 2)
 		Errors.report(
