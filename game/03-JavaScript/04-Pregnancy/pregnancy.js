@@ -301,8 +301,7 @@ function pregnancyProgress(genital = "vagina") {
 	if (ps.totalDaysPregnancyKnown == null) ps.totalDaysPregnancyKnown = 0;
 
 	// If corrupted, don't auto-reset. Flag + notify once, and skip increment.
-	if (Number.isFinite(ps.totalDaysPregnant)) {
-		ps.totalDaysPregnant += 0.5;
+	if (_pf_inc(ps, "totalDaysPregnant", 0.5)) {
 	} else {
 		ps._nanRepairFlag = true;
 		ps._repair ??= {};
@@ -322,8 +321,7 @@ function pregnancyProgress(genital = "vagina") {
 	}
 
 	if (pregnancy.awareOf) {
-		if (Number.isFinite(ps.totalDaysPregnancyKnown)) {
-			ps.totalDaysPregnancyKnown += 0.5;
+		if (_pf_inc(ps, "totalDaysPregnancyKnown", 0.5)) {
 		} else {
 			ps._nanRepairFlag = true;
 			ps._repair ??= {};
@@ -442,9 +440,11 @@ function endPlayerPregnancy(birthLocation, location) {
 	const [pregnancy, genital] = getPregnancyObject("pc", true);
 	const menstruation = V.sexStats.vagina.menstruation;
 
-	if (!pregnancy || !pregnancy.fetus.length) return false;
+	if (!pregnancy || !Array.isArray(pregnancy.fetus) || pregnancy.fetus.length === 0) return false;
+	const f0 = _pf_firstFetus(pregnancy);
+	if (!f0) return false;
 
-	if (pregnancy.fetus[0].father === "Alex") {
+	if (f0.father === "Alex") {
 		delete C.npc.Alex.pregnancy.pcKnowledge;
 		delete C.npc.Alex.pregnancy.test;
 		delete C.npc.Alex.pregnancy.ultraSound;
@@ -462,7 +462,7 @@ function endPlayerPregnancy(birthLocation, location) {
 	}
 
 	let validBirth;
-	if (pregnancy.fetus[0].childId) {
+	if (f0.childId) {
 		giveBirthToChildren("pc", birthLocation, location);
 		validBirth = true;
 	}
@@ -730,14 +730,16 @@ function endNpcPregnancy(npcName, birthLocation, location) {
 	}
 	const pregnancy = C.npc[npcName].pregnancy;
 
-	if (!pregnancy || pregnancy.enabled === undefined || !pregnancy.fetus.length) return false;
+	if (!pregnancy || pregnancy.enabled === undefined || !Array.isArray(pregnancy.fetus) || pregnancy.fetus.length === 0) return false;
+	const f0 = _pf_firstFetus(pregnancy);
+	if (!f0) return false;
 
 	// Handled by Baileys Orphanage event and when naming them, this is backup for other situations
-	if (pregnancy.fetus[0].childId && location !== "home" && pregnancy.fetus[0].mother !== "pc" && pregnancy.fetus[0].father === "pc") {
+	if (f0.childId && location !== "home" && f0.mother !== "pc" && f0.father === "pc") {
 		document.getElementById("passages").children[0].append(Wikifier.wikifyEval('<<earnFeat "First Fatherhood">>'));
 	}
 	let validBirth;
-	if (pregnancy.fetus[0].childId) {
+	if (f0.childId) {
 		giveBirthToChildren(npcName, birthLocation, location);
 		validBirth = true;
 	}
@@ -829,7 +831,14 @@ function randomPregnancyProgress() {
 				if (npcDetails) {
 					giveBirthToChildren(npcDetails.fullDescription, birthLocation, location, npc.pregnancy);
 				} else {
-					giveBirthToChildren(npc.pregnancy.fetus[0].mother, birthLocation, location, npc.pregnancy);
+					const f0 = _pf_firstFetus(npc.pregnancy);
+					const motherName = f0 && f0.mother ? f0.mother : null;
+					if (motherName) {
+						giveBirthToChildren(motherName, birthLocation, location, npc.pregnancy);
+					} else {
+						console.warn("[X-Change] Stored NPC pregnancy finished but mother is missing (sparse/invalid fetus). Skipping birth to avoid silent data loss.", npc.pregnancy);
+						return; // don't delete this storedNPC entry
+					}
 				}
 				toDelete.push(npcKey);
 			}
@@ -865,9 +874,50 @@ function _pf_isFiniteNum(x) {
   return typeof x === "number" && Number.isFinite(x);
 }
 
+// Get the first real fetus entry without mutating the array (handles sparse arrays safely)
+function _pf_firstFetus(pregnancy) {
+  if (!pregnancy || !Array.isArray(pregnancy.fetus)) return null;
+  return pregnancy.fetus[0] || pregnancy.fetus.find(f => f && typeof f === "object") || null;
+}
+
 function _pf_inc(obj, key, by = 1) {
-  const v = obj[key];
-  obj[key] = _pf_isFiniteNum(v) ? (v + by) : by;
+  // Missing field: safe legacy init
+  const v = obj ? obj[key] : undefined;
+  if (v == null) {
+    if (obj) obj[key] = by;
+    return true;
+  }
+
+  // Normal numeric case
+  if (_pf_isFiniteNum(v)) {
+    obj[key] = v + by;
+    return true;
+  }
+
+  // Safe numeric-string normalization (no data loss)
+  if (typeof v === "string") {
+    const n = Number(v);
+    if (Number.isFinite(n)) {
+      obj[key] = n + by;
+      return true;
+    }
+  }
+
+  // Corrupt value: do NOT silently reset. Flag + warn once per key on pregnancyStats.
+  const V = (typeof State !== "undefined" && State.variables) ? State.variables : window.V;
+  const store = (V && obj === V.pregnancyStats) ? obj : null;
+  if (store) {
+    store._nanRepairFlag = true;
+    store._repair ??= {};
+    const warnKey = `inc_${key}_warned`;
+    if (!store._repair[warnKey]) {
+      store._repair[warnKey] = true;
+      console.warn(`[X-Change] pregnancyStats.${key} is corrupt (NaN/invalid). Skipping increment; not auto-resetting.`);
+    }
+  } else {
+    console.warn(`[X-Change] Counter "${key}" is corrupt (NaN/invalid). Skipping increment; not auto-resetting.`);
+  }
+  return false;
 }
 
 // NaN-safe + sparse-array-safe birthId creator
@@ -883,8 +933,29 @@ function ensureBirthId(pregnancy, mother) {
     if (firstReal) pregnancy.fetus[0] = firstReal;
   }
 
-  // Still missing? create a container (prevents crashes; doesn't invent childId etc)
-  if (!pregnancy.fetus[0]) pregnancy.fetus[0] = {};
+  // Still missing? Don't invent fetus containers. Flag + warn/notice and abort.
+  if (!pregnancy.fetus[0]) {
+    pregnancy._repair ??= {};
+    if (!pregnancy._repair.placeholderFetus0Warned) {
+      pregnancy._repair.placeholderFetus0Warned = true;
+      pregnancy._repair.placeholderFetus0Snapshot = {
+        fetusLength: pregnancy.fetus.length,
+        fetusTypes: pregnancy.fetus.map(f => (f && typeof f === "object") ? "object" : String(f)),
+        when: (V && V.time != null) ? V.time : "unknown",
+      };
+      if (typeof window !== "undefined" && typeof window.xChangeQueueNotice === "function" && !pregnancy._repair.placeholderFetus0Noticed) {
+        pregnancy._repair.placeholderFetus0Noticed = true;
+        window.xChangeQueueNotice(
+          "pregnancy_placeholder_fetus0",
+          `<b>X-Change: Save data issue detected</b><br>
+          Your save has a broken pregnancy fetus list (sparse/invalid array). X-Change will not invent fetus data.<br><br>
+          <b>This indicates a bug.</b> Please report with your save + steps.`
+        );
+      }
+      console.warn("[X-Change] Pregnancy fetus[0] was missing (sparse/invalid array). Aborting birthId assignment. Please report with save + steps.", pregnancy._repair.placeholderFetus0Snapshot);
+    }
+    return null;
+  }
 
   if (pregnancy.fetus[0].mother == null && mother != null) {
     pregnancy.fetus[0].mother = mother;
@@ -912,8 +983,19 @@ function ensureBirthId(pregnancy, mother) {
 			if (_pf_isFiniteNum(n) && n > maxBid) maxBid = n;
 		}
 
+		const oldNextBirthId = V.pregnancyStats.nextBirthId;
 		V.pregnancyStats.nextBirthId = maxBid + 1;
+
 		V.pregnancyStats._nanRepairFlag = true;
+		V.pregnancyStats._repair ??= {};
+		if (!V.pregnancyStats._repair.nextBirthIdRebuilt) {
+			V.pregnancyStats._repair.nextBirthIdRebuilt = {
+				was: oldNextBirthId,
+				now: V.pregnancyStats.nextBirthId,
+				maxBid,
+				when: (V.time != null) ? V.time : "unknown",
+			};
+		}
 
 		// The notice off atm as I didn't see any error about pregnancy again
 		// if (!V.pregnancyStats._nextBirthIdWarned) { V.pregnancyStats._nextBirthIdWarned = true; window.xChangeQueueNotice("repair_nextBirthId", `<b>Save repair notice</b><br>Your save had an invalid <b>pregnancyStats.nextBirthId</b>. X-Change rebuilt it from existing data to prevent pregnancy tracking errors.<br><br><b>If you encounter any error after this, please report it with your save and steps to Discord Server.</b>`); }
@@ -963,8 +1045,13 @@ function giveBirthToChildren(mother, birthLocation, location, pregnancyOverride)
   V.pregnancyStats ??= {};
   V.children ??= {};
 
-  // Prevent NaN sources
-  if (!_pf_isFiniteNum(pregnancy.givenBirth)) pregnancy.givenBirth = 0;
+  let createdAny = false;
+
+  // givenBirth is a counter used for internal tracking. Only init if missing.
+  if (pregnancy.givenBirth == null) pregnancy.givenBirth = 0;
+  else if (!_pf_isFiniteNum(pregnancy.givenBirth)) {
+    console.warn("[X-Change] pregnancy.givenBirth is corrupt (NaN/invalid). Not auto-resetting; further increments will be skipped.");
+  }
 
   // Unlocks are booleans, safe
   switch (pregnancy.type) {
@@ -990,12 +1077,13 @@ function giveBirthToChildren(mother, birthLocation, location, pregnancyOverride)
   pregnancy.fetus.forEach(childObject => {
     if (!childObject || typeof childObject !== "object") return;
 
-    _pf_inc(pregnancy, "givenBirth", 1);
-
     if (!childObject.childId) {
       // If childId is missing, don't create broken child entries
       return;
     }
+
+    createdAny = true;
+    _pf_inc(pregnancy, "givenBirth", 1);
 
     V.children[childObject.childId] = {
       ...childObject,
@@ -1032,7 +1120,7 @@ function giveBirthToChildren(mother, birthLocation, location, pregnancyOverride)
     }
   });
 
-  return true;
+  return createdAny;
 }
 
 function recordSperm({

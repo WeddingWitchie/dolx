@@ -1093,26 +1093,30 @@
 			<<if $_aPregnancy.type is "parasite" or $_aPregnancy.type is null>>
 				<<for _i to 0; _i lt maxParasites("anus"); _i++>>
 					<<if $_aPregnancy.fetus[_i] isnot undefined>>
-						<<if $_aPregnancy.fetus[_i].fertilised>>
-							Anal slot <<=_i+1>> is pregnant with a $_aPregnancy.fetus[_i].stats.gender $_aPregnancy.fetus[_i].creature.
-							<<if $_aPregnancy.fetus[_i].stats.gender is "Hermaphrodite">>
-								<<if $pregnancyStats.parasiteDoctorEvents gte 4 and $_aPregnancy.fetus[_i].daysLeft is 0>>
+						<<set _pfFetus to $_aPregnancy.fetus[_i]>>
+						<<set _pfStats to _pfFetus.stats>>
+						<<set _pfGender to (_pfStats && _pfStats.gender != null) ? _pfStats.gender : "unknown">>
+						<<set _pfCreature to (_pfFetus && _pfFetus.creature != null) ? _pfFetus.creature : "unknown">>
+						<<if _pfFetus.fertilised>>
+							Anal slot <<=_i+1>> is pregnant with a <<=_pfGender>> <<=_pfCreature>>.
+							<<if _pfGender is "Hermaphrodite">>
+								<<if $pregnancyStats.parasiteDoctorEvents gte 4 and _pfFetus.daysLeft is 0>>
 									Dr Harper will be able to help you to deliver at any time.
 								<<elseif $pregnancyStats.parasiteDoctorEvents gte 4>>
-									Dr Harper will be able to help you to deliver in <<=$_aPregnancy.fetus[_i].daysLeft>> days.
+									Dr Harper will be able to help you to deliver in <<=_pfFetus.daysLeft>> days.
 								<<else>>
 									You will need to see Dr Harper to deliver.
 								<</if>>
 							<<else>>
-								<<if $_aPregnancy.fetus[_i].daysLeft is 0>>
+								<<if _pfFetus.daysLeft is 0>>
 									It will be ready to deliver at any time soon.
 								<<else>>
-									It will be ready to deliver in less than <<=$_aPregnancy.fetus[_i].daysLeft>> days.
+									It will be ready to deliver in less than <<=_pfFetus.daysLeft>> days.
 								<</if>>
 							<</if>>
 							<br>
 						<<else>>
-							Anal slot <<=_i+1>> has a $_aPregnancy.fetus[_i].stats.gender $_aPregnancy.fetus[_i].creature egg ready to be fertilised.<br>
+							Anal slot <<=_i+1>> has a <<=_pfGender>> <<=_pfCreature>> egg ready to be fertilised.<br>
 						<</if>>
 					<<else>>
 						Anal slot <<=_i+1>> is empty.<br>
@@ -1132,26 +1136,30 @@
 				<<if $_vPregnancy.type is "parasite" or $_vPregnancy.type is null>>
 					<<for _i to 0; _i lt maxParasites("vagina"); _i++>>
 						<<if $_vPregnancy.fetus[_i] isnot undefined>>
-							<<if $_vPregnancy.fetus[_i].fertilised>>
-								Vaginal slot <<=_i+1>> is pregnant with a $_vPregnancy.fetus[_i].stats.gender $_vPregnancy.fetus[_i].creature.
-								<<if $_vPregnancy.fetus[_i].stats.gender is "Hermaphrodite">>
-									<<if $pregnancyStats.parasiteDoctorEvents gte 4 and $_vPregnancy.fetus[_i].daysLeft is 0>>
+							<<set _pvFetus to $_vPregnancy.fetus[_i]>>
+							<<set _pvStats to _pvFetus.stats>>
+							<<set _pvGender to (_pvStats && _pvStats.gender != null) ? _pvStats.gender : "unknown">>
+							<<set _pvCreature to (_pvFetus && _pvFetus.creature != null) ? _pvFetus.creature : "unknown">>
+							<<if _pvFetus.fertilised>>
+								Vaginal slot <<=_i+1>> is pregnant with a <<=_pvGender>> <<=_pvCreature>>.
+								<<if _pvGender is "Hermaphrodite">>
+									<<if $pregnancyStats.parasiteDoctorEvents gte 4 and _pvFetus.daysLeft is 0>>
 										Dr Harper will be able to help you to deliver at any time.
 									<<elseif $pregnancyStats.parasiteDoctorEvents gte 4>>
-										Dr Harper will be able to help you to deliver in <<=$_vPregnancy.fetus[_i].daysLeft + 1>> days.
+										Dr Harper will be able to help you to deliver in <<=_pvFetus.daysLeft + 1>> days.
 									<<else>>
 										You will need to see Dr Harper to deliver.
 									<</if>>
 								<<else>>
-									<<if $_vPregnancy.fetus[_i].daysLeft is 0>>
+									<<if _pvFetus.daysLeft is 0>>
 										It will be ready to deliver at any time soon.
 									<<else>>
-										It will be ready to deliver in less than <<=$_vPregnancy.fetus[_i].daysLeft>> days.
+										It will be ready to deliver in less than <<=_pvFetus.daysLeft>> days.
 									<</if>>
 								<</if>>
 								<br>
 							<<else>>
-								Vaginal slot <<=_i+1>> has a $_vPregnancy.fetus[_i].stats.gender $_vPregnancy.fetus[_i].creature egg ready to be fertilised.<br>
+								Vaginal slot <<=_i+1>> has a <<=_pvGender>> <<=_pvCreature>> egg ready to be fertilised.<br>
 							<</if>>
 						<<else>>
 							Vaginal slot <<=_i+1>> is empty.<br>
@@ -1188,10 +1196,26 @@
 		<</if>>
 		<<foldout false "_extraPregnancyFoldout">>
 			<span class="gold">Pregnancy</span>
+
+			<<set _pregStats to $pregnancyStats || {}>>
+			<<set _totalDaysPregnant to Number(_pregStats.totalDaysPregnant)>>
+			<<set _totalDaysPregnancyKnown to Number(_pregStats.totalDaysPregnancyKnown)>>
+
 			/* Previously commented out for being a major spoil, but caused players to think a bug had occurred */
-			Total days being pregnant: <<print Math.floor($pregnancyStats.totalDaysPregnant)>>
+			Total days being pregnant:
+			<<if Number.isFinite(_totalDaysPregnant)>>
+				<<print Math.floor(_totalDaysPregnant)>>
+			<<else>>
+				<span class="red">Invalid (NaN)</span>
+			<</if>>
 			<br>
-			Total days knowingly being pregnant: <<print Math.floor($pregnancyStats.totalDaysPregnancyKnown)>>
+
+			Total days knowingly being pregnant:
+			<<if Number.isFinite(_totalDaysPregnancyKnown)>>
+				<<print Math.floor(_totalDaysPregnancyKnown)>>
+			<<else>>
+				<span class="red">Invalid (NaN)</span>
+			<</if>>
 			<br>
 			<<if !canBeMPregnant() and ($_aPregnancy.type is null or $_aPregnancy.type is "parasite")>>
 				<<if $_vPregnancy.type is "parasite">>
@@ -1216,7 +1240,7 @@
 					<br>
 					<<if $harpy gte 4>>
 						<<if $harpyEggs>>
-							You are carrying $harpyEggs.count eggs.
+							You are carrying <<print $harpyEggs.count>> eggs.
 						<<elseif $harpyEggsPrevent>>
 							You cannot currently produce eggs.
 						<<else>>
@@ -1232,7 +1256,7 @@
 							Those whose sperm you have inside you currently:
 							<ul>
 								<<for _name range _trackedNPCs>>
-									<<set $_count to _spermArray.filter(s => s.source === T.name.source).length>>
+									<<set $_count to _spermArray.filter(s => s.source === _name.source).length>>
 									<li>
 										<<print pregnancyNameCorrection(_name.source)>>
 										<<if $_count gt 1>>
@@ -1271,7 +1295,7 @@
 					<br>
 					<<if $harpy gte 4>>
 						<<if $harpyEggs>>
-							You are carrying $harpyEggs.count eggs.
+							You are carrying <<print $harpyEggs.count>> eggs.
 						<<elseif $harpyEggsPrevent>>
 							You cannot currently produce eggs.
 						<<else>>
@@ -1287,7 +1311,7 @@
 							Those whose sperm you have inside you currently:
 							<ul>
 								<<for _name range _trackedNPCs>>
-									<<set $_count to _spermArray.filter(s => s.source === T.name.source).length>>
+									<<set $_count to _spermArray.filter(s => s.source === _name.source).length>>
 									<li>
 										<<print pregnancyNameCorrection(_name.source)>>
 										<<if $_count gt 1>>
@@ -1304,6 +1328,7 @@
 					<</if>>
 				<</if>>
 			<</if>>
+			<<xchangePregnancyCounterRepair>>
 		<</foldout>>
 		<<if $NPCName.find(npc => npc.pregnancy and npc.pregnancy.enabled isnot undefined)>>
 			<<foldout false "_npcPregnancyFoldout">>
@@ -2263,4 +2288,47 @@
 		<<set $_text_output to ` <<link "${_args[0]}">><<set _produceStatsSorting to "${_args[0]}">><<replace "#produceStatsDiv">><<produceStats>><</replace>><</link>>`>>
 	<</if>>
 <</silently>><<if $_text_output>><<print $_text_output>><</if>>
+<</widget>>
+
+<<widget "xchangePregnancyCounterRepair">>
+	<<set _pregStats to $pregnancyStats || {}>>
+	<<set _badTotal to !Number.isFinite(Number(_pregStats.totalDaysPregnant))>>
+	<<set _badKnown to !Number.isFinite(Number(_pregStats.totalDaysPregnancyKnown))>>
+
+	<<if _badTotal or _badKnown>>
+		<div id="xchange-pregnancy-counter-repair-ui">
+			<span class="red">Invalid pregnancy counters detected.</span>
+			<br>
+			This save has broken pregnancy counters.
+			<br>
+			This repair only resets the invalid counters.
+			<br>
+			It does <b>not</b> remove fetus data, fathers, or current pregnancy objects.
+			<br>
+			<<link "Repair invalid pregnancy counters">>
+				<<if !$pregnancyStats or typeof $pregnancyStats isnot "object" or Array.isArray($pregnancyStats)>>
+					<<set $pregnancyStats to {}>>
+				<</if>>
+
+				<<if !Number.isFinite(Number($pregnancyStats.totalDaysPregnant))>>
+					<<set $pregnancyStats.totalDaysPregnant to 0>>
+				<</if>>
+
+				<<if !Number.isFinite(Number($pregnancyStats.totalDaysPregnancyKnown))>>
+					<<set $pregnancyStats.totalDaysPregnancyKnown to 0>>
+				<</if>>
+
+				<<run console.warn("[X-Change repair] Repaired invalid pregnancy counters", {
+					totalDaysPregnant: V.pregnancyStats.totalDaysPregnant,
+					totalDaysPregnancyKnown: V.pregnancyStats.totalDaysPregnancyKnown
+				})>>
+
+				<<replace "#xchange-pregnancy-counter-repair-ui">>
+					<span class="green">Pregnancy counter repair applied.</span>
+					<br>
+					Please save, reload, and retest the birth event.
+				<</replace>>
+			<</link>>
+		</div>
+	<</if>>
 <</widget>>

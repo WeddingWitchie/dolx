@@ -52,7 +52,15 @@ You shake your head. <<He>> holds open the door for you, and you leave the offic
 	<<link [[Enquire about parasite hermaphrodite removal (0:30)|Remove Futa Pregnancy]]>><<pass 30>><<set $futaCheck to true>><<set $firstOption to false>><</link>>
 	<br>
 <</if>>
-<<if $pregnancyStats.parasiteTypesSeen.length gte 4 and $pregnancyStats.parasiteBook is 1>>
+<<set _typesSeenArr to (Array.isArray($pregnancyStats.parasiteTypesSeen) ? $pregnancyStats.parasiteTypesSeen : [])>>
+<<if !Array.isArray($pregnancyStats.parasiteTypesSeen)>>
+	<<set $pregnancyStats._repair to $pregnancyStats._repair || {}>>
+	<<if !$pregnancyStats._repair.warn_parasiteTypesSeen>>
+		<<set $pregnancyStats._repair.warn_parasiteTypesSeen to true>>
+		<<run console.warn("[X-Change] pregnancyStats.parasiteTypesSeen was invalid in Pregnancy Discussion passage:", V.pregnancyStats?.parasiteTypesSeen)>>
+	<</if>>
+<</if>>
+<<if _typesSeenArr.length gte 4 and $pregnancyStats.parasiteBook is 1>>
 	<<link [[Enquire about information on parasites (0:05)|Harper Parasite Book]]>><<pass 5>><<set $firstOption to false>><</link>>
 	<br>
 <</if>>
@@ -196,7 +204,20 @@ Harper stares unblinking at your <<bottom>> as the pulsing increases in intensit
 <<set $checkboxReplace to {}>>
 <<set $parasiteSelectionCount to 0>>
 <<set _newlyBirthed to {}>>
-<<set _allSeen to $pregnancyStats.parasiteTypesSeen.length + $pregnancyStats.parasiteVariantsSeen.length>>
+<<set _typesSeenArr to (Array.isArray(_typesSeenArr) ? _typesSeenArr : [])>>
+<<set _variantsSeenArr to (Array.isArray(_variantsSeenArr) ? _variantsSeenArr : [])>>
+<<if !Array.isArray(_typesSeenArr) or !Array.isArray(_variantsSeenArr)>>
+	<<set $pregnancyStats._repair to $pregnancyStats._repair || {}>>
+	<<if !$pregnancyStats._repair.warn_parasiteSeenArrays>>
+		<<set $pregnancyStats._repair.warn_parasiteSeenArrays to true>>
+		<<run console.warn("[X-Change] pregnancyStats parasite seen arrays were invalid in GiveBirth passage:", { parasiteTypesSeen: V.pregnancyStats?.parasiteTypesSeen, parasiteVariantsSeen: V.pregnancyStats?.parasiteVariantsSeen })>>
+		<<run (window.xChangeQueueNotice && window.xChangeQueueNotice(
+			"repair_parasiteSeenArrays",
+			"<b>X-Change: Save repair notice</b><br>Your save has invalid parasite tracking arrays (<b>pregnancyStats.parasiteTypesSeen</b> / <b>parasiteVariantsSeen</b>). X-Change used safe temporary lists to prevent crashes, so parasite discoveries might not record properly this time.<br><br><b>Please report this with your save and steps.</b>"
+		))>>
+	<</if>>
+<</if>>
+<<set _allSeen to _typesSeenArr.length + _variantsSeenArr.length>>
 
 Following the directions from Doctor Harper, you get into position and attempt to deliver <<if $pregnancyStats.namesParasitesChild is true>>your baby<<else>>the parasites<</if>>. <<if _stressMulti gt 0>><<gstress>><</if>><<set $stress += 250 * _stressMulti>>
 <br><br>
@@ -231,19 +252,19 @@ Following the directions from Doctor Harper, you get into position and attempt t
 				<!-- If the creature has a variant, like Pale. Currently does not account for creatures with more than one variant, because those don't yet exist -->
 				<!-- Possible task for the future: turn parasite variants into variables, so there can be multiple -->
 				<<set _split to _result.creature.split(" ")>>
-				<<if !$pregnancyStats.parasiteVariantsSeen.includes(_split[0]) and _split[0] isnot _split[1]>>
-					<<set $pregnancyStats.parasiteVariantsSeen.pushUnique(_split[0])>>
+				<<if !_variantsSeenArr.includes(_split[0]) and _split[0] isnot _split[1]>>
+					<<set _variantsSeenArr.pushUnique(_split[0])>>
 					<!-- For Pale Tentacle, this will set _newlyBirthed.Pale to "tentacle" -->
 					<<set _newlyBirthed[_split[0]] to _split[1].toLowerCase()>>
 				<</if>>
-				<<if !$pregnancyStats.parasiteTypesSeen.includes(_split[1])>>
-					<<set $pregnancyStats.parasiteTypesSeen.pushUnique(_split[1])>>
+				<<if !_typesSeenArr.includes(_split[1])>>
+					<<set _typesSeenArr.pushUnique(_split[1])>>
 					<<set _newlyBirthed[_split[1]] to true>>
 				<</if>>
 			<<else>>
 				<!-- Creatures without variants -->
-				<<if !$pregnancyStats.parasiteTypesSeen.includes(_result.creature)>>
-					<<set $pregnancyStats.parasiteTypesSeen.pushUnique(_result.creature)>>
+				<<if !_typesSeenArr.includes(_result.creature)>>
+					<<set _typesSeenArr.pushUnique(_result.creature)>>
 					<<set _newlyBirthed[_result.creature] to true>>
 				<</if>>
 			<</if>>
@@ -290,10 +311,10 @@ Following the directions from Doctor Harper, you get into position and attempt t
 		<</switch>>
 		<br><br>
 	<</for>>
-	<<if $pregnancyStats.parasiteBook is 3 and $pregnancyStats.parasiteTypesSeen.length + $pregnancyStats.parasiteVariantsSeen.length gt _allSeen>>
+	<<if $pregnancyStats.parasiteBook is 3 and _typesSeenArr.length + _variantsSeenArr.length gt _allSeen>>
 		You write about <<if $pregnancyStats.namesParasitesChild is true>>your new children<<else>>the new parasites<</if>> in your notebook.
 		<br><br>
-	<<elseif $pregnancyStats.parasiteTypesSeen.length gte 4 and (!$pregnancyStats.parasiteBook or $pregnancyStats.parasiteBook is 1)>>
+	<<elseif _typesSeenArr.length gte 4 and (!$pregnancyStats.parasiteBook or $pregnancyStats.parasiteBook is 1)>>
 		<<set $pregnancyStats.parasiteBook to 1>>
 		<br><br>
 		You find yourself wondering at the sheer number of different types of creatures you've birthed and wonder if there's any way to know more. <span class="gold">Doctor Harper might be able to help you.</span>
@@ -575,18 +596,28 @@ You feel yourself being lifted. You hear a voice, but the words don't make sense
 The midwife places a mask over your face. You feel your consciousness fade. Several other figures appear around you, their forms ablur.
 <br><br>
 
-<<set $litter_potention_fathers to getPregnancyObject().potentialFathers.length>>
+<<set _pregnancy to getPregnancyObject()>>
+<<set _pregType to playerNormalPregnancyType()>>
 
-/*Alex variables*/
-<<if (getPregnancyObject().potentialFathers.length is 1 or getPregnancyObject().potentialFathers.length is undefined) and getPregnancyObject().fetus[0].father is "Alex">>
-	<<set $alex_pregnancy to {}>>
-	<<set $alex_pregnancy.knows to knowsAboutPregnancy("pc","Alex")>>
-	<<set $alex_pregnancy.talked to talkedAboutPregnancy("pc","Alex")>>
-	<<set $alex_pregnancy.source to getPregnancyObject().fetus[0].father>>
-
+/* Safe litter potential fathers count */
+<<if _pregnancy.potentialFathers and _pregnancy.potentialFathers.length isnot undefined>>
+	<<set $litter_potention_fathers to _pregnancy.potentialFathers.length>>
+<<else>>
+	<<set $litter_potention_fathers to 0>>
 <</if>>
 
-<<set _pregnancy to getPregnancyObject()>>
+/* Alex variables */
+<<if _pregnancy.fetus and _pregnancy.fetus[0] and _pregnancy.fetus[0].father is "Alex">>
+	<<if !_pregnancy.potentialFathers or _pregnancy.potentialFathers.length is 1 or _pregnancy.potentialFathers.length is undefined>>
+		<<if $alex_pregnancy is undefined or typeof $alex_pregnancy isnot "object" or Array.isArray($alex_pregnancy)>>
+			<<set $alex_pregnancy to {}>>
+		<</if>>
+		<<set $alex_pregnancy.knows to knowsAboutPregnancy("pc","Alex")>>
+		<<set $alex_pregnancy.talked to talkedAboutPregnancy("pc","Alex")>>
+		<<set $alex_pregnancy.source to _pregnancy.fetus[0].father>>
+	<</if>>
+<</if>>
+
 <<if _pregnancy.totalBirthEvents gte 5>>
 	<<set _min to 15>>
 	<<set _max to 60>>
@@ -598,36 +629,39 @@ The midwife places a mask over your face. You feel your consciousness fade. Seve
 	<<set _max to 180>>
 <</if>>
 
-<<set _max to Math.floor(_max * (1 + Math.floor(_pregnancy.fetus.length * 0.2)))>>
-<<set _min to Math.floor(_min * (1 + Math.floor(_pregnancy.fetus.length * 0.2)))>>
+<<set _fetusCount to (_pregnancy.fetus and _pregnancy.fetus.length) ? _pregnancy.fetus.length : 0>>
+<<set _max to Math.floor(_max * (1 + Math.floor(_fetusCount * 0.2)))>>
+<<set _min to Math.floor(_min * (1 + Math.floor(_fetusCount * 0.2)))>>
 
 <<set _timeCalc to random(_min, _max)>>
 <<set _hours to Math.floor(_timeCalc / 60)>>
 <<set _minutes to _timeCalc % 60>>
 
 /* Note: Pregnancy species */
-<<switch playerNormalPregnancyType()>>
+<<switch _pregType>>
 	<<case "human">>
 		<<setKnowsAboutPregnancy "pc" "Bailey">>
 		Harper's voice floats through the fog. "Normal human<<if !$player.vaginaExist>>, abnormal delivery<</if>>, but keep the others on the line, just in case..."
 		<br><br>
-
 		The pain grows as time seems to rapidly speed up and slow down. You hear the words "breathe" and "push" many times, and you do your best to comply.
 		<br><br>
 
 		<<if $dissociation gte 1>>
 			Everything slowly fades away once again. You stand in a black abyss. Your whole body feels fuzzy, and the pain is gone. You stand there, alone in the dark. In the distance, a bright white light hovers. It must be several kilometres away. You begin walking towards it, when you suddenly realise that you're stepping in shallow water. You step forward again to the sound of sloshing. Another step. Another. You need to get to the light. You aren't sure why, but you know you must. Something's waiting for you there, you can feel it.
 			<br><br>
-
 			You start to run. As you get closer, the darkness around you dissipates until only the light surrounds you. You continue running until you come to a wooden door with a golden handle. You grasp it and open it slowly. The light drowns you.
 			<br><br>
 		<</if>>
+		<<link [["Next (" + _hours + ":" + (_minutes lt 10 ? "0" : "") + _minutes + ")"|Pregnancy Birth Hospital 3]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
 
-		<<link [["Next ("+_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")"| Pregnancy Birth Hospital 3]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
 	<<case "wolf">>
 		Harper's voice floats through the fog. "Not human. This will be an abnormal delivery. Follow my instructions to the letter..."
 		<br><br>
-		<<link [["Next ("+_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")"| Pregnancy Birth Hospital Wolf]]>><<endevent>><<pass _timeCalc>><</link>>
+		<<link [["Next (" + _hours + ":" + (_minutes lt 10 ? "0" : "") + _minutes + ")"|Pregnancy Birth Hospital Wolf]]>><<endevent>><<pass _timeCalc>><</link>>
+	<<default>>
+		Harper's voice floats through the fog. "Something is unusual about this delivery. Stay calm and follow my instructions."
+		<br><br>
+		<<link [["Next (" + _hours + ":" + (_minutes lt 10 ? "0" : "") + _minutes + ")"|Pregnancy Birth Hospital 3]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
 <</switch>>
 
 :: Pregnancy Birth Hospital 3
@@ -1499,11 +1533,32 @@ Player re-equips clothes.
 <</switch>>
 The packaging said to wait 3 minutes, but it feels like an eternity passes. <<gstress>><<stress 3>>
 <br><br>
-<<if !Number.isFinite($pregnancyStats.pregnancyTestsTaken)>>
-	<<run console.warn("[X-Change] pregnancyStats.pregnancyTestsTaken was invalid in pregnancyTest passage:", V.pregnancyStats?.pregnancyTestsTaken)>>
-	<<set $pregnancyStats.pregnancyTestsTaken to 0>>
+<<set _ps to $pregnancyStats>>
+<<if !_ps or typeof _ps !== "object" or Array.isArray(_ps)>>
+	<<run console.warn("[X-Change] $pregnancyStats was not an object in pregnancyTest passage:", V.pregnancyStats)>>
+	<<set $pregnancyStats to {}>>
+	<<set _ps to $pregnancyStats>>
 <</if>>
-<<set $pregnancyStats.pregnancyTestsTaken += 1>>
+
+<<if typeof _pf_inc is "function">>
+	<<set _ok to _pf_inc(_ps, "pregnancyTestsTaken", 1)>>
+	<<if !_ok>>
+		<<set $pregnancyStats._repair to $pregnancyStats._repair || {}>>
+		<<if !$pregnancyStats._repair.notice_pregnancyTestsTaken>>
+			<<set $pregnancyStats._repair.notice_pregnancyTestsTaken to true>>
+			<<run (window.xChangeQueueNotice && window.xChangeQueueNotice(
+				"repair_pregnancyTestsTaken",
+				"<b>X-Change: Save repair notice</b><br>Your save has an invalid <b>pregnancyStats.pregnancyTestsTaken</b>. X-Change skipped incrementing it to avoid silent data loss.<br><br><b>Please report this with your save and steps.</b>"
+			))>>
+		<</if>>
+	<</if>>
+<<else>>
+	<<if !Number.isFinite(_ps.pregnancyTestsTaken)>>
+		<<run console.warn("[X-Change] pregnancyStats.pregnancyTestsTaken was invalid in pregnancyTest passage:", V.pregnancyStats?.pregnancyTestsTaken)>>
+		<<set _ps.pregnancyTestsTaken to 0>>
+	<</if>>
+	<<set _ps.pregnancyTestsTaken += 1>>
+<</if>>
 <<if !$player.vaginaExist>>
 	<<set _pregnancyTest to $sexStats.anus.pregnancy>>
 	<<if _pregnancyTest.type is null or _pregnancyTest.type is "parasite" or _pregnancyTest.timer is 0 or (between(_pregnancyTest.timer, 0, 3) and random(0,100) gte 10) or (between(_pregnancyTest.timer, 3, 6) and random(0,100) gte 15)>>

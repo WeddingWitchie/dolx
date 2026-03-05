@@ -2254,7 +2254,7 @@
 
 		<span class="gold"><<= _anal.toUpperFirst()>> Parasitic Pregnancy</span>
 		<br>
-		You can have up to <<number _slots>> _anal <<= _slots is 1 ? "parasite" : "parasites">>.
+		You can have up to <<number _slots>> <<=_anal>> <<= _slots is 1 ? "parasite" : "parasites">>.
 		<<if $_pregnancy.fetus.length lt maxParasites(_args[0])>>
 			<br><br>
 			<<if $_aPregnancy.type is "parasite" or $_aPregnancy.type is null>>
@@ -2272,10 +2272,10 @@
 				<<if $_pregnancy.motherStatus lt 2>>
 					<label><<checkbox "_hermaphrodite" false true autocheck>> Hermaphrodite</label>
 				<<else>>
-					You can only have one hermaphrodite parasite in your _args[0] at a time.
+					You can only have one hermaphrodite parasite in your <<=_args[0]>> at a time.
 				<</if>>
 			<<else>>
-				You are currently unable to host parasites due to your current _anal pregnancy.
+				You are currently unable to host parasites due to your current <<=_anal>> pregnancy.
 			<</if>>
 			<br>
 		<<else>>
@@ -2284,11 +2284,16 @@
 		<hr>
 		<<for _i to 0; _i lt maxParasites(_args[0]); _i++>>
 			<<if $_aPregnancy.fetus[_i] isnot undefined>>
-				<<if $_aPregnancy.fetus[_i].fertilised>>
-					<<= _anal.toUpperFirst()>> slot <<=_i+1>> is pregnant with a $_aPregnancy.fetus[_i].stats.gender $_aPregnancy.fetus[_i].creature.
+				<<set _fetus to $_aPregnancy.fetus[_i]>>
+				<<set _fetusStats to (_fetus && _fetus.stats && typeof _fetus.stats === "object" && !Array.isArray(_fetus.stats)) ? _fetus.stats : {}>>
+				<<set _fetusGender to _fetusStats.gender || "unknown">>
+				<<set _fetusCreature to _fetus.creature || "unknown">>
+
+				<<if _fetus.fertilised>>
+					<<= _anal.toUpperFirst()>> slot <<=_i+1>> is pregnant with a <<=_fetusGender>> <<=_fetusCreature>>.
 					<br>
 				<<else>>
-					<<= _anal.toUpperFirst()>> slot <<=_i+1>> has a $_aPregnancy.fetus[_i].stats.gender $_aPregnancy.fetus[_i].creature egg ready to be fertilised.
+					<<= _anal.toUpperFirst()>> slot <<=_i+1>> has a <<=_fetusGender>> <<=_fetusCreature>> egg ready to be fertilised.
 					<br>
 				<</if>>
 			<<else>>
@@ -2296,16 +2301,31 @@
 				<br>
 			<</if>>
 		<</for>>
-		<<link $_linkName>>
-			<<if $sexStats[_args[0]].pregnancy.type is "parasite">>
-				<<set $sexStats[_args[0]].pregnancy.fetus to []>>
-				<<set $sexStats[_args[0]].pregnancy.type to null>>
-				<<if $sexStats[_args[0]].pregnancy.motherStatus is 2>>
-					<<set $sexStats[_args[0]].pregnancy.motherStatus to 1>>
+				<<set _p0 to $sexStats[_args[0]].pregnancy>>
+		<<set _fetus0 to (_p0 && _p0.fetus && Array.isArray(_p0.fetus)) ? _p0.fetus : []>>
+		<<set _hasAny0 to _fetus0.some(f => f != null)>>
+		<<set _needsReset0 to _hasAny0 || (_p0 && _p0.type) || (_p0 && _p0.motherStatus > 0)>>
+
+		<<if _needsReset0>>
+			<<link $_linkName>>
+				<<set _p to $sexStats[_args[0]].pregnancy>>
+				<<set _fetusArr to (_p && _p.fetus && Array.isArray(_p.fetus)) ? _p.fetus : []>>
+				<<set _hasAny to _fetusArr.some(f => f != null)>>
+
+				/* Allow clearing when there is anything to clear, or when state is inconsistent (type/motherStatus set without fetus). */
+				<<if _hasAny or _p.type or (_p.motherStatus gt 0)>>
+					<<set _p.fetus to []>>
+					<<set _p.type to null>>
+					<<if _p.motherStatus gt 0>><<set _p.motherStatus to 0>><</if>>
+				<<else>>
+					<<run console.warn("[X-Change cheat] Clear parasite pregnancy hidden/disabled state mismatch:", {slot: _args[0], type: _p && _p.type, fetusLen: _fetusArr.length, motherStatus: _p && _p.motherStatus})>>
 				<</if>>
-			<</if>>
-			<<replace `"#cheatsParasiteOptions-" + _args[0]`>><<cheatsParasiteOptions _args[0]>><</replace>>
-		<</link>>
+
+				<<replace `"#cheatsParasiteOptions-" + _args[0]`>><<cheatsParasiteOptions _args[0]>><</replace>>
+			<</link>>
+		<<else>>
+			<span class="disabled" style="opacity:0.6"><<= $_linkName>></span>
+		<</if>>
 	<</capture>>
 <</widget>>
 

@@ -624,7 +624,7 @@ function knowsAboutPregnancy(mother, whoToCheck, existingId) {
 	}
 
 	// If caller provided an existing id, check that first
-	if (existingId !== undefined) {
+	if (existingId !== undefined && existingId !== null) {
 		const key = mother + existingId;
 		if (awareOfBirthId[key] && awareOfBirthId[key].includes(whoToCheckConverted)) return true;
 	}
@@ -686,6 +686,11 @@ function setKnowsAboutPregnancy(mother, whoNowKnows, existingId, track, pregnanc
 		const rest = existing.slice(mother.length);
 		const n = Number(rest);
 		if (Number.isFinite(n)) existing = n;
+	}
+	// Also accept numeric-string ids like "12"
+	if (typeof existing === "string") {
+		const n2 = Number(existing);
+		if (Number.isFinite(n2)) existing = n2;
 	}
 
 	let birthKey = null;
@@ -913,7 +918,7 @@ function talkedAboutPregnancy(mother, whoToCheck, existingId) {
 	}
 
 	// If an explicit id was provided, use it
-	if (existingId !== undefined) {
+	if (existingId !== undefined && existingId !== null) {
 		const key = mother + existingId;
 		if (talkedAbout[key] && talkedAbout[key][whoToCheckConverted]) {
 			return talkedAbout[key][whoToCheckConverted];
@@ -964,6 +969,11 @@ function setTalkedAboutPregnancy(mother, whoToIncrement, existingId) {
 		const rest = existing.slice(mother.length);
 		const n = Number(rest);
 		if (Number.isFinite(n)) existing = n;
+	}
+	// Also accept numeric-string ids like "12"
+	if (typeof existing === "string") {
+		const n2 = Number(existing);
+		if (Number.isFinite(n2)) existing = n2;
 	}
 
 	let key = null;
