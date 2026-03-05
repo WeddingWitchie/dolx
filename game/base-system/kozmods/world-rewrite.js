@@ -19,22 +19,22 @@
 	function ensureState() {
 		const V = getV();
 		V.settings ||= {};
-		if (V.settings.sexRewriteMode === undefined) V.settings.sexRewriteMode = "off";
-		if (V.settings.sexRewritePendingMode === undefined) V.settings.sexRewritePendingMode = "";
-		if (V.settings.sexRewriteRiskAccepted === undefined) V.settings.sexRewriteRiskAccepted = false;
-		if (V.settings.sexRewriteShowWarning === undefined) V.settings.sexRewriteShowWarning = false;
-		if (V.settings.sexRewriteShowDisableConfirm === undefined) V.settings.sexRewriteShowDisableConfirm = false;
-		if (V.settings.sexRewriteBackup === undefined) V.settings.sexRewriteBackup = null;
-		if (V.settings.sexRewriteDisplayBackup === undefined) V.settings.sexRewriteDisplayBackup = null;
-		if (V.settings.sexRewriteLastApplied === undefined) V.settings.sexRewriteLastApplied = null;
+		if (V.settings.genderOverrideMode === undefined) V.settings.genderOverrideMode = "off";
+		if (V.settings.genderOverridePendingMode === undefined) V.settings.genderOverridePendingMode = "";
+		if (V.settings.genderOverrideRiskAccepted === undefined) V.settings.genderOverrideRiskAccepted = false;
+		if (V.settings.genderOverrideShowWarning === undefined) V.settings.genderOverrideShowWarning = false;
+		if (V.settings.genderOverrideShowDisableConfirm === undefined) V.settings.genderOverrideShowDisableConfirm = false;
+		if (V.settings.genderOverrideBackup === undefined) V.settings.genderOverrideBackup = null;
+		if (V.settings.genderOverrideDisplayBackup === undefined) V.settings.genderOverrideDisplayBackup = null;
+		if (V.settings.genderOverrideLastApplied === undefined) V.settings.genderOverrideLastApplied = null;
 		return V;
 	}
 
 	function getMode() {
-		return ensureState().settings.sexRewriteMode || "off";
+		return ensureState().settings.genderOverrideMode || "off";
 	}
 
-	function getForcedSex(mode = getMode()) {
+	function getForcedGender(mode = getMode()) {
 		switch (mode) {
 			case "femaleOnly":
 				return "f";
@@ -46,7 +46,7 @@
 	}
 
 	function isRewriteActive(mode = getMode()) {
-		return !!getForcedSex(mode);
+		return !!getForcedGender(mode);
 	}
 
 	function modeLabel(mode = getMode()) {
@@ -61,7 +61,7 @@
 	}
 
 	function forcedChance(mode = getMode()) {
-		const forced = getForcedSex(mode);
+		const forced = getForcedGender(mode);
 		if (forced === "m") return 100;
 		if (forced === "f") return 0;
 		return null;
@@ -69,8 +69,8 @@
 
 	function backupChanceStateIfNeeded() {
 		const V = ensureState();
-		if (V.settings.sexRewriteBackup) return;
-		V.settings.sexRewriteBackup = {
+		if (V.settings.genderOverrideBackup) return;
+		V.settings.genderOverrideBackup = {
 			maleChance: V.settings.maleChance,
 			maleChanceSplit: V.settings.maleChanceSplit,
 			maleChanceMale: V.settings.maleChanceMale,
@@ -102,19 +102,19 @@
 
 	function restoreChanceState() {
 		const V = ensureState();
-		const backup = V.settings.sexRewriteBackup;
+		const backup = V.settings.genderOverrideBackup;
 		if (!backup) return;
 		Object.keys(backup).forEach(key => {
 			V.settings[key] = backup[key];
 		});
-		V.settings.sexRewriteBackup = null;
+		V.settings.genderOverrideBackup = null;
 	}
 
 	function backupNnpcDisplayStateIfNeeded() {
 		const V = ensureState();
 		V.options ||= {};
-		if (V.settings.sexRewriteDisplayBackup) return;
-		V.settings.sexRewriteDisplayBackup = {
+		if (V.settings.genderOverrideDisplayBackup) return;
+		V.settings.genderOverrideDisplayBackup = {
 			nnpcDisplayGender: V.options.nnpcDisplayGender,
 			autoNNPCDisplay: JSON.parse(JSON.stringify(V.options.autoNNPCDisplay || {})),
 		};
@@ -122,7 +122,7 @@
 
 	function applyNnpcDisplayOverride(mode) {
 		const V = ensureState();
-		const forced = getForcedSex(mode);
+		const forced = getForcedGender(mode);
 		if (!forced) return;
 		V.options ||= {};
 		V.options.autoNNPCDisplay ||= { enabled: false };
@@ -149,15 +149,15 @@
 
 	function restoreNnpcDisplayState() {
 		const V = ensureState();
-		const backup = V.settings.sexRewriteDisplayBackup;
+		const backup = V.settings.genderOverrideDisplayBackup;
 		if (!backup) return;
 		V.options ||= {};
 		V.options.nnpcDisplayGender = backup.nnpcDisplayGender;
 		V.options.autoNNPCDisplay = JSON.parse(JSON.stringify(backup.autoNNPCDisplay || {}));
-		V.settings.sexRewriteDisplayBackup = null;
+		V.settings.genderOverrideDisplayBackup = null;
 	}
 
-	function rewriteSexedType(type, forced) {
+	function rewriteGenderedType(type, forced) {
 		if (typeof type !== "string") return type;
 		if (/(wolf|fox|cat|cow|harpy|hawk|plant|bunny|bear)(boy|girl)$/i.test(type)) {
 			return type.replace(/boy$/i, forced === "m" ? "boy" : "girl").replace(/girl$/i, forced === "m" ? "boy" : "girl");
@@ -228,7 +228,7 @@
 
 	function getDisplayBackupGenderForKey(key) {
 		const V = ensureState();
-		const backup = V.settings.sexRewriteDisplayBackup;
+		const backup = V.settings.genderOverrideDisplayBackup;
 		if (!backup || !backup.autoNNPCDisplay || !key || key === "0") return null;
 		return backup.autoNNPCDisplay[key]?.gender || null;
 	}
@@ -261,12 +261,12 @@
 	}
 
 	function normalizeNpcObject(npc, options = {}) {
-		const forced = getForcedSex(options.mode);
+		const forced = getForcedGender(options.mode);
 		if (!forced || !npc || typeof npc !== "object") return npc;
 
-		/* World rewrite locks presentation/social sex, but leaves genital/body sliders available. */
+		/* World gender override locks presentation/social gender, but leaves genital/body sliders available. */
 		npc.pronoun = forced;
-		npc.type = rewriteSexedType(npc.type, forced);
+		npc.type = rewriteGenderedType(npc.type, forced);
 		normalizePronouns(npc);
 		normalizeTitle(npc);
 		if (!isNamedNpcObject(npc)) rebuildFullDescription(npc, forced);
@@ -274,10 +274,10 @@
 	}
 
 	function normalizeChildObject(child, options = {}) {
-		const forced = getForcedSex(options.mode);
+		const forced = getForcedGender(options.mode);
 		if (!forced || !child || typeof child !== "object") return child;
 		child.gender = forced;
-		child.type = rewriteSexedType(child.type, forced);
+		child.type = rewriteGenderedType(child.type, forced);
 		if (child.pronoun !== undefined) child.pronoun = forced;
 		if (child.pronouns && typeof child.pronouns === "object") {
 			child.pronouns.he = forced === "m" ? "he" : "she";
@@ -311,19 +311,19 @@
 		const style = document.createElement("style");
 		style.id = "world-sex-rewrite-lock-styles";
 		style.textContent = `
-			.sexRewriteLockedPanel {
+			.genderOverrideLockedPanel {
 				opacity: 0.5;
 				filter: grayscale(0.2);
 			}
-			.sexRewriteLockedPanel .sexRewriteLockNote,
-			.sexRewriteRowNote {
+			.genderOverrideLockedPanel .genderOverrideLockNote,
+			.genderOverrideRowNote {
 				display: block;
 				margin-top: 0.55em;
 				color: #ffbf73;
 				font-size: 0.9em;
 				line-height: 1.35;
 			}
-			.sexRewriteLockedAnchor {
+			.genderOverrideLockedAnchor {
 				pointer-events: none !important;
 				opacity: 0.55 !important;
 				text-decoration: none !important;
@@ -337,13 +337,13 @@
 		$elements.each(function () {
 			const $el = window.jQuery(this);
 			if (lock) {
-				if ($el.data("sexRewriteOrigDisabled") === undefined) {
-					$el.data("sexRewriteOrigDisabled", !!$el.prop("disabled"));
+				if ($el.data("genderOverrideOrigDisabled") === undefined) {
+					$el.data("genderOverrideOrigDisabled", !!$el.prop("disabled"));
 				}
 				$el.prop("disabled", true);
-			} else if ($el.data("sexRewriteOrigDisabled") !== undefined) {
-				$el.prop("disabled", !!$el.data("sexRewriteOrigDisabled"));
-				$el.removeData("sexRewriteOrigDisabled");
+			} else if ($el.data("genderOverrideOrigDisabled") !== undefined) {
+				$el.prop("disabled", !!$el.data("genderOverrideOrigDisabled"));
+				$el.removeData("genderOverrideOrigDisabled");
 			}
 		});
 	}
@@ -352,18 +352,18 @@
 		$anchors.each(function () {
 			const $a = window.jQuery(this);
 			if (lock) {
-				if ($a.data("sexRewriteLocked") === undefined) {
-					$a.data("sexRewriteLocked", true);
+				if ($a.data("genderOverrideLocked") === undefined) {
+					$a.data("genderOverrideLocked", true);
 				}
-				$a.addClass("sexRewriteLockedAnchor").attr("aria-disabled", "true");
-			} else if ($a.data("sexRewriteLocked") !== undefined) {
-				$a.removeClass("sexRewriteLockedAnchor").removeAttr("aria-disabled");
-				$a.removeData("sexRewriteLocked");
+				$a.addClass("genderOverrideLockedAnchor").attr("aria-disabled", "true");
+			} else if ($a.data("genderOverrideLocked") !== undefined) {
+				$a.removeClass("genderOverrideLockedAnchor").removeAttr("aria-disabled");
+				$a.removeData("genderOverrideLocked");
 			}
 		});
 	}
 
-	function setLockNote($panel, message, noteClass = "sexRewriteLockNote") {
+	function setLockNote($panel, message, noteClass = "genderOverrideLockNote") {
 		if (!$panel || !$panel.length) return;
 		$panel.find("." + noteClass).remove();
 		if (message) {
@@ -373,7 +373,7 @@
 
 	function togglePanelLock($panel, lock, message) {
 		if (!$panel || !$panel.length) return;
-		$panel.toggleClass("sexRewriteLockedPanel", !!lock);
+		$panel.toggleClass("genderOverrideLockedPanel", !!lock);
 		toggleInputsDisabled($panel.find("input, select, button, textarea"), !!lock);
 		toggleAnchorsDisabled($panel.find("a"), !!lock);
 		setLockNote($panel, lock ? message : "");
@@ -381,9 +381,9 @@
 
 	function setRowNote($row, message) {
 		if (!$row || !$row.length) return;
-		$row.find(".sexRewriteRowNote").remove();
+		$row.find(".genderOverrideRowNote").remove();
 		if (message) {
-			window.jQuery('<div class="sexRewriteRowNote"></div>').text(message).appendTo($row.first());
+			window.jQuery('<div class="genderOverrideRowNote"></div>').text(message).appendTo($row.first());
 		}
 	}
 
@@ -405,7 +405,7 @@
 		if (typeof window.jQuery !== "function") return;
 		const V = ensureState();
 		const $ = window.jQuery;
-		const forced = getForcedSex(mode);
+		const forced = getForcedGender(mode);
 		const active = !!forced;
 		const forcedValue = forcedChance(mode);
 		const modeText = modeLabel(mode);
@@ -524,7 +524,7 @@
 
 	function syncRewriteState() {
 		const mode = getMode();
-		if (getForcedSex(mode)) {
+		if (getForcedGender(mode)) {
 			applyChanceState(mode);
 			applyNnpcDisplayOverride(mode);
 			normalizeStoredCollections({ mode });
@@ -534,44 +534,44 @@
 		forceCurrentSettingsDom(mode);
 	}
 
-	function applyWorldSexRewrite(mode, options = {}) {
+	function applyWorldGenderOverride(mode, options = {}) {
 		const V = ensureState();
 		const nextMode = ["off", "femaleOnly", "maleOnly"].includes(mode) ? mode : "off";
-		const previousMode = V.settings.sexRewriteMode || "off";
+		const previousMode = V.settings.genderOverrideMode || "off";
 
 		if (nextMode === "off") {
-			V.settings.sexRewriteMode = "off";
-			V.settings.sexRewritePendingMode = "";
-			V.settings.sexRewriteRiskAccepted = false;
-			V.settings.sexRewriteShowWarning = false;
-			V.settings.sexRewriteShowDisableConfirm = false;
+			V.settings.genderOverrideMode = "off";
+			V.settings.genderOverridePendingMode = "";
+			V.settings.genderOverrideRiskAccepted = false;
+			V.settings.genderOverrideShowWarning = false;
+			V.settings.genderOverrideShowDisableConfirm = false;
 			restoreChanceState();
 			restoreNnpcDisplayState();
-			V.settings.sexRewriteLastApplied = { from: previousMode, to: "off", stamp: Date.now() };
+			V.settings.genderOverrideLastApplied = { from: previousMode, to: "off", stamp: Date.now() };
 			forceCurrentSettingsDom("off");
-			return V.settings.sexRewriteMode;
+			return V.settings.genderOverrideMode;
 		}
 
 		backupChanceStateIfNeeded();
 		backupNnpcDisplayStateIfNeeded();
-		V.settings.sexRewriteMode = nextMode;
-		V.settings.sexRewritePendingMode = "";
-		V.settings.sexRewriteRiskAccepted = false;
-		V.settings.sexRewriteShowWarning = false;
-		V.settings.sexRewriteShowDisableConfirm = false;
+		V.settings.genderOverrideMode = nextMode;
+		V.settings.genderOverridePendingMode = "";
+		V.settings.genderOverrideRiskAccepted = false;
+		V.settings.genderOverrideShowWarning = false;
+		V.settings.genderOverrideShowDisableConfirm = false;
 		applyChanceState(nextMode);
 		normalizeStoredCollections({ mode: nextMode, force: true, source: options.source || "manual" });
-		V.settings.sexRewriteLastApplied = { from: previousMode, to: nextMode, stamp: Date.now() };
+		V.settings.genderOverrideLastApplied = { from: previousMode, to: nextMode, stamp: Date.now() };
 		forceCurrentSettingsDom(nextMode);
-		return V.settings.sexRewriteMode;
+		return V.settings.genderOverrideMode;
 	}
 
 	function installChanceWrapper(fnName) {
-		const wrappedFlag = "__sexRewriteWrapped_" + fnName;
+		const wrappedFlag = "__genderOverrideWrapped_" + fnName;
 		if (window[wrappedFlag]) return true;
 		if (typeof window[fnName] !== "function") return false;
 		const original = window[fnName];
-		window["__sexRewriteOriginal_" + fnName] = original;
+		window["__genderOverrideOriginal_" + fnName] = original;
 		window[fnName] = function () {
 			const chance = forcedChance();
 			if (chance != null) return chance;
@@ -582,12 +582,12 @@
 	}
 
 	function installBirthWrapper() {
-		if (window.__sexRewriteBirthWrapped) return true;
+		if (window.__genderOverrideBirthWrapped) return true;
 		if (typeof window.giveBirthToChildren !== "function") return false;
 		const original = window.giveBirthToChildren;
-		window.__sexRewriteOriginalGiveBirthToChildren = original;
+		window.__genderOverrideOriginalGiveBirthToChildren = original;
 		window.giveBirthToChildren = function (mother, birthLocation, location, pregnancyOverride) {
-			const forced = getForcedSex();
+			const forced = getForcedGender();
 			if (forced) {
 				let pregnancy = pregnancyOverride;
 				if (!pregnancy) {
@@ -604,7 +604,7 @@
 			if (forced) normalizeStoredCollections();
 			return result;
 		};
-		window.__sexRewriteBirthWrapped = true;
+		window.__genderOverrideBirthWrapped = true;
 		return true;
 	}
 
@@ -644,13 +644,13 @@
 	}
 
 	function installPregnancyCompatibilityWrappers() {
-		if (window.__sexRewritePregCompatWrapped) return true;
+		if (window.__genderOverridePregCompatWrapped) return true;
 		if (typeof window.playerPregnancyPossibleWith !== "function" || typeof window.NPCPregnancyPossibleWithPlayer !== "function") return false;
 
 		const originalPlayerPregnancyPossibleWith = window.playerPregnancyPossibleWith;
 		const originalNPCPregnancyPossibleWithPlayer = window.NPCPregnancyPossibleWithPlayer;
-		window.__sexRewriteOriginalPlayerPregnancyPossibleWith = originalPlayerPregnancyPossibleWith;
-		window.__sexRewriteOriginalNPCPregnancyPossibleWithPlayer = originalNPCPregnancyPossibleWithPlayer;
+		window.__genderOverrideOriginalPlayerPregnancyPossibleWith = originalPlayerPregnancyPossibleWith;
+		window.__genderOverrideOriginalNPCPregnancyPossibleWithPlayer = originalNPCPregnancyPossibleWithPlayer;
 
 		window.playerPregnancyPossibleWith = function (NPC) {
 			if (!isRewriteActive()) return originalPlayerPregnancyPossibleWith.apply(this, arguments);
@@ -748,7 +748,7 @@
 			};
 		}
 
-		window.__sexRewritePregCompatWrapped = true;
+		window.__genderOverridePregCompatWrapped = true;
 		return true;
 	}
 
@@ -763,7 +763,7 @@
 
 
 	function installSettingsRefreshHooks() {
-		if (window.__sexRewriteSettingsRefreshHooksInstalled) return;
+		if (window.__genderOverrideSettingsRefreshHooksInstalled) return;
 		if (typeof window.jQuery !== "function") return;
 		const $ = window.jQuery;
 		const selector = [
@@ -771,7 +771,7 @@
 			"#subsectionDiv a", "#subsectionDiv button", "#subsectionDiv input", "#subsectionDiv select",
 			"#npcSettingsMenu a", "#npcSettingsMenu button", "#npcSettingsMenu input", "#npcSettingsMenu select",
 			"#nnpcDisplay a", "#nnpcDisplay button", "#nnpcDisplay input", "#nnpcDisplay select",
-			"#worldSexRewriteSettingsBody a", "#worldSexRewriteSettingsBody button", "#worldSexRewriteSettingsBody input"
+			"#worldGenderOverrideSettingsBody a", "#worldGenderOverrideSettingsBody button", "#worldGenderOverrideSettingsBody input"
 		].join(", ");
 		let queued = false;
 		function queueSync() {
@@ -783,7 +783,7 @@
 			}, 0);
 		}
 		$(document).on("click change input", selector, queueSync);
-		window.__sexRewriteSettingsRefreshHooksInstalled = true;
+		window.__genderOverrideSettingsRefreshHooksInstalled = true;
 	}
 
 	function scheduleWrapperInstall() {
@@ -815,16 +815,16 @@
 		scheduleWrapperInstall();
 	}
 
-	window.ensureWorldSexRewriteState = ensureState;
-	window.applyWorldSexRewrite = applyWorldSexRewrite;
-	window.syncWorldSexRewriteState = syncRewriteState;
-	window.worldSexRewriteModeLabel = modeLabel;
-	window.worldSexRewriteForcedSex = getForcedSex;
-	window.worldSexRewriteNormalizeAll = normalizeStoredCollections;
-	window.worldSexRewriteNormalizeNpc = normalizeNpcObject;
-	window.worldSexRewriteNormalizeChild = normalizeChildObject;
-	window.worldSexRewriteForceSettingsDom = forceCurrentSettingsDom;
-	window.worldSexRewriteActive = isRewriteActive;
+	window.ensureWorldGenderOverrideState = ensureState;
+	window.applyWorldGenderOverride = applyWorldGenderOverride;
+	window.syncWorldGenderOverrideState = syncRewriteState;
+	window.worldGenderOverrideModeLabel = modeLabel;
+	window.worldGenderOverrideForcedGender = getForcedGender;
+	window.worldGenderOverrideNormalizeAll = normalizeStoredCollections;
+	window.worldGenderOverrideNormalizeNpc = normalizeNpcObject;
+	window.worldGenderOverrideNormalizeChild = normalizeChildObject;
+	window.worldGenderOverrideForceSettingsDom = forceCurrentSettingsDom;
+	window.worldGenderOverrideActive = isRewriteActive;
 
 	ensureState();
 	installSettingsRefreshHooks();
