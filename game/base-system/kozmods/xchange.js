@@ -271,8 +271,9 @@ function pleasure(amount, source) {
 		if (V.xchange.breederEdgingCount == null) V.xchange.breederEdgingCount = 0;
 		if (V.xchange.breederEdgingStress == null) V.xchange.breederEdgingStress = 0;
 	
-		// Cannot orgasm under breeder unless there's semen in vagina
-		if (playerIsXChanged() && V.xchange.pill?.breederEffect && (!playerIsCreampied() || (V.xchange.breederOrgasmLock && !V.xchange.breederOrgasm)) && oldPleasure + pleasureChange >= V.pleasuremax * 4/5
+		// Cannot orgasm under breeder unless there is actual internal semen, or a breeder-valid insemination event just occurred.
+		const breederSatisfied = playerIsCreampied() || V.xchange.breederOrgasm || V.breederCreampied;
+		if (playerIsXChanged() && V.xchange.pill?.breederEffect && !breederSatisfied && oldPleasure + pleasureChange >= V.pleasuremax * 4/5
 		) {
 			V.pleasure = Math.clamp(V.pleasure, 0, V.pleasuremax * 4/5 - 1); V.xchange.breederEdgingCount++;
 		}

@@ -2912,7 +2912,21 @@
 		The <<beasttype>> shudders in orgasm.
 	<</if>>
 
-	<<if $pleasure gte $pleasuremax>><<orgasm>><</if>>
+	<<if $beastGroupFight isnot 0>>
+		<<for _extra = 0; _extra lt $enemyno; _extra++>>
+			<<if _extra isnot _jj and $NPCList[_extra] isnot undefined>>
+				<<if $NPCList[_extra].penis is "vagina" or $NPCList[_extra].penis is "vaginadouble">>
+					The <<print $NPCList[_extra].type>> shudders in orgasm too, spilling semen deep into your womb.
+					<<vaginalejacstat>><<ejacstat>><<set $hygiene += 500>><<bodyliquid "vagina" "semen">>
+					<<recordVaginalSperm "pc" $NPCList[_extra] `($enemytype is "man" ? "human" : $NPCList[_extra].type)`>>
+				<<elseif $NPCList[_extra].penis is "vaginaentrance" or $NPCList[_extra].penis is "vaginaimminent" or $NPCList[_extra].penis is "vaginaentrancedouble" or $NPCList[_extra].penis is "vaginaimminentdouble">>
+					The <<print $NPCList[_extra].type>> shudders in orgasm too, spilling semen over your <<pussy>>.
+					<<vaginalentranceejacstat>><<ejacstat>><<set $hygiene += 500>><<bodyliquid "vaginaoutside" "semen">>
+					<<recordSperm `{target: "pc", spermOwner: $NPCList[_extra], spermType: ($enemytype is "man" ? "human" : $NPCList[_extra].type), rngModifier: 15, rngType: "canWash"}`>>
+				<</if>>
+			<</if>>
+		<</for>>
+	<</if>>
 
 	<!-- End orgasm loop -->
 
