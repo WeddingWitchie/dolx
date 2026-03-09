@@ -1,5 +1,5 @@
 /**
- * As the v0.18.0 DoLX update, DNA separated gender-identity and pill related handling:
+ * As the v0.17.0 DoLX update, DNA separated gender-identity and pill related handling:
  * - JS-side logic moved/split from `xchange.js` into `identity.js`
  * - The split also applied for the corresponding Twine-side logic
  * =========================
@@ -99,47 +99,38 @@ function hourlyClothingFemininityCheck(hours = 1) {
 	const hypnoCrossdressLevel = V.cheats.disableHypnoCrossdress ? 0 : (V.hypnosis_traits?.crossdressing || 0);
 
 	/*
-	* If the player actively uses the identity system, let identity preferences decide.
-	* Only use the legacy crossdress/genderify inversion when the player does NOT care for gender.
+	* Hypno crossdress / genderify should still run even when the player cares for gender.
+	* Use the player's baseline gender for the compulsion direction so body changes from X-Change
+	* do not flip the urge from feminine to masculine mid-pill.
 	*/
-	const legacyCrossdressMode = (genderifyActive || hypnoCrossdressLevel >= 1) && !playerCaresForGender();
-
-	const bodyIsMale = (typeof playerBodyIsMale === "function")
-		? playerBodyIsMale()
-		: (!!V.player?.penisExist && !V.player?.vaginaExist);
-
-	const bodyIsFemale = (typeof playerBodyIsFemale === "function")
-		? playerBodyIsFemale()
-		: (!!V.player?.vaginaExist && !V.player?.penisExist);
-
-	if (legacyCrossdressMode) {
-		if (bodyIsMale && currentWornFemininity < 0) {
+	if (genderifyActive || hypnoCrossdressLevel >= 1) {
+		if (V.player.gender === "m" && currentWornFemininity < 0) {
 			wikifier("stress", 800 * hours, 1);
 			V.genderificationStressMessage = 1;
 			V.effectsmessage = 1;
 		}
 		else if (
-			bodyIsMale &&
+			V.player.gender === "m" &&
 			currentWornFemininity > 0 &&
 			(genderifyActive || hypnoCrossdressLevel < 4)
 		) {
-			wikifier("stress", -10 * hours);
+			wikifier("stress", -10 * hours, 1);
 			V.tiredness -= 200 * hours;
 			V.genderificationStressMessage = 2;
 			V.effectsmessage = 1;
 		}
 
-		if (bodyIsFemale && currentWornFemininity > 0) {
+		if (V.player.gender === "f" && currentWornFemininity > 0) {
 			wikifier("stress", 800 * hours, 1);
 			V.genderificationStressMessage = 3;
 			V.effectsmessage = 1;
 		}
 		else if (
-			bodyIsFemale &&
+			V.player.gender === "f" &&
 			currentWornFemininity < 0 &&
 			(genderifyActive || hypnoCrossdressLevel < 4)
 		) {
-			wikifier("stress", -10 * hours);
+			wikifier("stress", -10 * hours, 1);
 			V.tiredness -= 200 * hours;
 			V.genderificationStressMessage = 4;
 			V.effectsmessage = 1;
@@ -449,11 +440,11 @@ function identityCharacteristicCategory(category) {
 			else return "Long Hair";
 		case "Size":
 			if (playerHasCharacteristic("Tiny Body")) return "Tiny Body";
-            else if (playerHasCharacteristic("Miniature Body")) return "Miniature Body";
+			else if (playerHasCharacteristic("Miniature Body")) return "Miniature Body";
 			else if (playerHasCharacteristic("Small Body")) return "Small Body";
-            else if (playerHasCharacteristic("Tall Body")) return "Tall Body";
+			else if (playerHasCharacteristic("Tall Body")) return "Tall Body";
 			else if (playerHasCharacteristic("Normal Body")) return "Normal Body";
-            else if (playerHasCharacteristic("Large Body")) return "Large Body";
+			else if (playerHasCharacteristic("Large Body")) return "Large Body";
 			else return "Giant Body";
 		default:
 			return false;
@@ -624,20 +615,20 @@ window.playerFeelsGirllike = playerFeelsGirllike;
   // Can the CURRENT player body get pregnant?
   // Keep this anatomy-based (not sex-based) to avoid the "male can get pregnant" bug.
   setup.xchangeCanBePregnant = function () {
-    const V = State.variables;
-    return V.player?.vaginaExist === true;
+	const V = State.variables;
+	return V.player?.vaginaExist === true;
   };
 
   // Fertile effect should only be "effective" when pregnancy is anatomically possible.
   // This does NOT modify the save; it just gates behavior/UI.
   setup.xchangeEffectiveFertile = function () {
-    const V = State.variables;
-    const pill = V.xchange?.pill;
-    if (!pill?.active) return false;
-    if (!pill.effectsKnown) return false;
-    if (pill.resistanceFakeout) return false;
-    if (!pill.fertile) return false;
-    return setup.xchangeCanBePregnant();
+	const V = State.variables;
+	const pill = V.xchange?.pill;
+	if (!pill?.active) return false;
+	if (!pill.effectsKnown) return false;
+	if (pill.resistanceFakeout) return false;
+	if (!pill.fertile) return false;
+	return setup.xchangeCanBePregnant();
   };
 })();
 
