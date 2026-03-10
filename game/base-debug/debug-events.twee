@@ -4,7 +4,10 @@
 	Since I didn't find an appropriate file to put this in, I decided to make my own.
 	Feel free to delete this comment at leisure. -->
 <<widget "checkEventNPC">>
-	<<if (EventSystem.isSlotTaken(_args[0]) and !EventSystem.Disable) or $enemynomax gte 6 or $enemyno gte 6>>
+	<<set _eventBeastContext to ($monster is 1 or $beastGroupFight is 1 or $combatTrain isnot undefined)>>
+	<<set _eventSlotTaken to (EventSystem.isSlotTaken(_args[0]) and !EventSystem.Disable)>>
+
+	<<if (_eventSlotTaken and !_eventBeastContext) or $enemynomax gte 6 or $enemyno gte 6>>
 		<<set $endeventerror to $lastgenerated>>
 		<<clearsinglenpc _args[0]>>
 		<!-- <<endevent phaseless>> -->
@@ -89,15 +92,19 @@
 		<<for $_i to 0; $_i lt $event.buffer.length; $_i++>>
 			<<set $_eventNPC to $event.buffer[$_i]>>
 			<<set $_time to new DateTime($_eventNPC.time + V.startDate)>>
+			<<set $_widgetStack to $_eventNPC.area.length gt 1 ? $_eventNPC.area.slice(1) : []>>
+			<<set $_legalBeastEvent to ($_widgetStack.includes("beastNEWinit") or $_widgetStack.includes("beastTrainGenerate") or $_widgetStack.includes("combatTrainAdvance"))>>
 			<<print ($NPCList[$_eventNPC.slot] || {}).fullDescription || "No description.">><br>
 			Defined in passage <<print $_eventNPC.area[0]>>, at <<ampm $_time.getHours() $_time.getMinutes()>>.<br>
 			<<if $_eventNPC.area.length gt 1>>
 				Widget Stack:
-				<<set $_widgetStack to $_eventNPC.area.slice(1)>>
 				<<for $_iStack = 0; $_iStack lt $_widgetStack.length; $_iStack++>>
 					<<print "<<$_widgetStack[$_iStack]>>">><<if $_iStack isnot $_widgetStack.length - 1>>, <</if>>
 				<</for>>
 				<br>
+				<<if $_legalBeastEvent>>
+					<span class="green">Recognized beast-train lifecycle entry. This reload/generation is expected and should not be treated as an escaped NPC by itself.</span><br>
+				<</if>>
 			<</if>>
 			<!-- Check other event NPCs for linked passages -->
 			<<for $_j to 0; $_j lt $event.buffer.length; $_j++>>
@@ -117,7 +124,11 @@
 			Set in slot <<print $_eventNPC.slot>> of $$NPCList.<br>
 			<<for $_j to 0; $_j lt $event.buffer.length; $_j++>>
 				<<if $_i isnot $_j and $_eventNPC.slot is $_eventNPC.slot[$_j]>>
-					<span class="red">This NPC has been overwritten or overwrote another one in slot <<print $event.slot[$_eventNPC.slot]>>!</span><br>
+					<<if !$_legalBeastEvent>>
+						<span class="red">This NPC has been overwritten or overwrote another one in slot <<print $event.slot[$_eventNPC.slot]>>!</span><br>
+					<<else>>
+						<span class="green">This slot reuse matches a known beast-train reload path.</span><br>
+					<</if>>
 					<<break>>
 				<</if>>
 			<</for>>
