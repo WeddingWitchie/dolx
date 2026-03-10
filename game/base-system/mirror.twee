@@ -3768,16 +3768,17 @@
 	<<set _tempXChanged to false>>
 	<<run _tempXChanged =
 		(typeof playerIsXChanged === "function" && typeof pillIsPermanent === "function" && typeof pillTimerPaused === "function")
-			? (playerIsXChanged() && !(pillIsPermanent() || pillTimerPaused()))
-			: false; >>
+			? (playerIsXChanged() && !(pillIsPermanent() || pillTimerPaused())) : false; >>
 
 	/* Only count as broken vow if the player actually had temple vow history. */
 	<<set _hasTempleVowHistory to ($temple_rank isnot undefined and $temple_rank isnot "prospective")>>
 	<<set _brokenTempleVow to _hasTempleVowHistory and ($player.virginity.temple isnot true and $player.virginity.temple isnot 1)>>
 
-	/* Repair only known bad save state:
-	   actual broken vow + still angelic + not temp xchanged + not already fallen */
-	<<if _brokenTempleVow and !_tempXChanged and $fallenangel lt 2>>
+	/* Match the Virgin trait exactly */
+	<<set _hasVirginTrait to ($player.virginity.vaginal is true and $player.virginity.penile is true)>>
+
+	/* Repair only known bad save state: actual broken vow or no longer qualifies for Virgin (trait) + still angelic + not temp xchanged + not already fallen */
+	<<if (_brokenTempleVow or !_hasVirginTrait) and !_tempXChanged and $fallenangel lt 2>>
 		<<if $angel gte 6>>
 			/* Full fallen angel repair */
 			<<set $trauma to $traumamax>>

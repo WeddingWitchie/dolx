@@ -438,54 +438,50 @@
 
 <<widget "fallenTransform">>
 	<<set _canCheckTempXChanged to (typeof playerIsXChanged === "function" and typeof pillIsPermanent === "function" and typeof pillTimerPaused === "function")>>
-
-	<<if !_canCheckTempXChanged>>
-		<<if $debug is 1>>
-			<span class="red">fallenTransform warning: missing X-Change helper function.</span><br>
-		<</if>>
-		<<return>>
-	<</if>>
-
 	<<set _tempXChanged to (playerIsXChanged() and !(pillIsPermanent() or pillTimerPaused()))>>
-	<<set _lostRelevantVirginity to ((playerFeelsManlike() and $player.virginity.penile isnot true) or (playerFeelsGirllike() and $player.virginity.vaginal isnot true))>>
 
-	<<if _lostRelevantVirginity>>
-		<<if _tempXChanged>>
-			<<if $angel gte 4>>
-				<span class="green">Divine forgiveness washes the sins from your soul, as this is not your true body (yet?).</span>
-			<</if>>
-		<<else>>
-			<<if ($player.virginity.temple is true or $player.virginity.temple is 1)>>
-				<<set _taker to false>>
-				<<if playerFeelsManlike() and $player.virginity.penile isnot true>>
-					<<set _taker to $player.virginity.penile>>
-				<<elseif playerFeelsGirllike() and $player.virginity.vaginal isnot true>>
-					<<set _taker to $player.virginity.vaginal>>
-				<</if>>
-				<<set $virginityProtected to false>>
-				<<set $player.virginity.temple to (_taker isnot false ? _taker : false)>>
-			<</if>>
+	/* Match the same rule as the Virgin trait */
+	<<set _hasVirginTrait to ($player.virginity.vaginal is true and $player.virginity.penile is true)>>
+	<<set _lostRelevantVirginity to !_hasVirginTrait>>
 
-			<<if $angel gte 6>>
-				<span class="red">Your halo shatters and your wings blacken. An overwhelming sense of loss overcomes you as your divine grace washes away.</span>
-				<<set $trauma to $traumamax>>
-				<<set $fallenangel to 2>>
-				<<set $transformationParts.fallenAngel.halo to ($transformationParts.angel.halo is "hidden" ? "default" : $transformationParts.angel.halo)>>
-				<<set $transformationParts.fallenAngel.wings to ($transformationParts.angel.wings is "classic" ? "classic" : "default")>>
-				<<set $fallenangeltf to 1>>
-				<<set _freshFallen to true>>
-				<<earnFeat "Fallen Angel">>
-			<<elseif $angel gte 4>>
-				<span class="red">Your halo shatters and fades.</span>
-			<</if>>
+	/* Temporary X-Change: show forgiveness text only, never force a fall here */
+	<<if _tempXChanged>>
+		<<if $angel gte 4>>
+			<span class="green">Divine forgiveness washes the sins from your soul, as this is not your true body (yet?).</span>
+		<</if>>
 
-			<<if $angel gt 0>>
-				<<angelTransform 99>>
+	/* Permanent or original body: do the actual broken-vow fall logic */
+	<<elseif _lostRelevantVirginity>>
+		<<if ($player.virginity.temple is true or $player.virginity.temple is 1)>>
+			<<set _taker to false>>
+			<<if $player.virginity.penile isnot true and $player.virginity.penile>>
+				<<set _taker to $player.virginity.penile>>
+			<<elseif $player.virginity.vaginal isnot true and $player.virginity.vaginal>>
+				<<set _taker to $player.virginity.vaginal>>
 			<</if>>
+			<<set $virginityProtected to false>>
+			<<set $player.virginity.temple to (_taker isnot false ? _taker : false)>>
+		<</if>>
 
-			<<if $fallenangel is 2>>
-				<<set $specialTransform to 1>>
-			<</if>>
+		<<if $angel gte 6>>
+			<span class="red">Your halo shatters and your wings blacken. An overwhelming sense of loss overcomes you as your divine grace washes away.</span>
+			<<set $trauma to $traumamax>>
+			<<set $fallenangel to 2>>
+			<<set $transformationParts.fallenAngel.halo to ($transformationParts.angel.halo is "hidden" ? "default" : $transformationParts.angel.halo)>>
+			<<set $transformationParts.fallenAngel.wings to ($transformationParts.angel.wings is "classic" ? "classic" : "default")>>
+			<<set $fallenangeltf to 1>>
+			<<set _freshFallen to true>>
+			<<earnFeat "Fallen Angel">>
+		<<elseif $angel gte 4>>
+			<span class="red">Your halo shatters and fades.</span>
+		<</if>>
+
+		<<if $angel gt 0>>
+			<<angelTransform 99>>
+		<</if>>
+
+		<<if $fallenangel is 2>>
+			<<set $specialTransform to 1>>
 		<</if>>
 	<</if>>
 <</widget>>
