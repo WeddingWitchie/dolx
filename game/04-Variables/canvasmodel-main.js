@@ -5188,6 +5188,7 @@ function getClothingPathBreastsAcc(slot, options) {
 	const breastImg = options.worn[slot].setup.breast_img;
 	const breastAccImg = options.worn[slot].setup.breast_acc_img;
 	const breastSize = typeof breastAccImg === 'object' ? breastAccImg[options.breast_size] : typeof breastImg === 'object' ? breastImg[options.breast_size] : Math.min(options.breast_size, 6);
+	if (breastSize == null) return null;
 	const pattern = options.worn[slot].pattern && options.worn[slot].setup.pattern_layer === "secondary" ? "_" + options.worn[slot].pattern?.replace(/ /g,"_") : '';
 	const path = `img/clothes/${slot}/${options.worn[slot].setup.variable}/${breastSize}_acc${pattern}.png`;
 	return gray_suffix(path, options.filters[`worn_${slot}_acc`]);
@@ -5426,13 +5427,18 @@ function genlayer_clothing_breasts_detail(slot, overrideOptions) {
 	return genlayer_clothing_detail(slot, Object.assign({
 		showfn(options) {
 				let breastImg = options.worn[slot].setup.breast_acc_img;
-				if (typeof breastImg === 'object' && breastImg[options.breast_size] !== null) breastImg = 1;
+				if (typeof breastImg === 'object' && breastImg[options.breast_size] != null) breastImg = 1;
 				return options.show_clothes && options.worn[slot].index > 0 && breastImg === 1 && !!options.worn[slot].pattern && !!options.worn[slot].setup.breast_pattern;
 			},
 		srcfn(options) {
 			const breastImg = options.worn[slot].setup.breast_img;
 			const breastAccImg = options.worn[slot].setup.breast_acc_img;
-			const breastSize = typeof breastAccImg === 'object' ? breastAccImg[options.breast_size] : typeof breastImg === 'object' ? breastImg[options.breast_size] : Math.min(options.breast_size, 6);
+			let breastSize;
+			if (typeof breastAccImg === 'object') breastSize = breastAccImg[options.breast_size];
+			else if (breastAccImg === 1) breastSize = Math.min(options.breast_size, 6);
+			else if (typeof breastImg === 'object') breastSize = breastImg[options.breast_size];
+			else breastSize = Math.min(options.breast_size, 6);
+			if (breastSize == null) return null;
 
 			const pattern = options.worn[slot].pattern ? options.worn[slot].pattern?.replace(/ /g,"_") : '';
 			return`img/clothes/${slot}/${options.worn[slot].setup.variable}/${breastSize}_${pattern}.png`;
@@ -5452,7 +5458,7 @@ function genlayer_clothing_breasts(slot, overrideOptions) {
 		},
 		showfn(options) {
 			let breastImg = options.worn[slot].setup.breast_img;
-			if (typeof breastImg === 'object' && breastImg[options.breast_size] !== null) breastImg = 1;
+			if (typeof breastImg === 'object' && breastImg[options.breast_size] != null) breastImg = 1;
 			return options.show_clothes && options.worn[slot].index > 0 && breastImg === 1;
 		},
 
@@ -5466,6 +5472,7 @@ function genlayer_clothing_breasts(slot, overrideOptions) {
 				&& !setup.altdisabled.includes("breasts");
 
 			const breastSize = typeof breastImg === 'object' ? breastImg[options.breast_size] : Math.min(options.breast_size, 6);
+			if (breastSize == null) return null;
 			const pattern = options.worn[slot].pattern && !["tertiary", "secondary"].includes(options.worn[slot].setup.pattern_layer) ? "_" + options.worn[slot].pattern?.replace(/ /g,"_") : '';
 			const end = isAltPosition ? '_alt' : '';
 			const path = `img/clothes/${slot}/${setup.variable}/${breastSize}${pattern}${end}.png`;
@@ -5661,9 +5668,9 @@ function genlayer_clothing_breasts_acc(slot, overrideOptions) {
 			const breastImg = options.worn[slot].setup.breast_img;
 			let breastAcc = 0;
 
-			if (breastAccImg === 1 && typeof breastImg === 'object' && breastImg[options.breast_size] !== null)
+			if (breastAccImg === 1 && typeof breastImg === 'object' && breastImg[options.breast_size] != null)
 				breastAcc = 1;
-			else if (typeof breastAccImg === 'object' && options.worn[slot].setup.breast_acc_img[options.breast_size] !== null)
+			else if (typeof breastAccImg === 'object' && options.worn[slot].setup.breast_acc_img[options.breast_size] != null)
 				breastAcc = 1;
 
 			return options.show_clothes
@@ -6172,5 +6179,3 @@ function makeupAdjustment(options) {
 	const ratio = options.skin_tone / 100;
 	options.makeup_adjustment = min + (max - min) * ratio;
 }
-
-
