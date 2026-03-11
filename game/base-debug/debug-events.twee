@@ -6,11 +6,16 @@
 <<widget "checkEventNPC">>
 	<<set _eventBeastContext to ($monster is 1 or $beastGroupFight is 1 or $combatTrain isnot undefined)>>
 	<<set _eventSlotTaken to (EventSystem.isSlotTaken(_args[0]) and !EventSystem.Disable)>>
+	<<set $NPCList to $NPCList || []>>
 
 	<<if (_eventSlotTaken and !_eventBeastContext) or $enemynomax gte 6 or $enemyno gte 6>>
 		<<set $endeventerror to $lastgenerated>>
 		<<clearsinglenpc _args[0]>>
 		<!-- <<endevent phaseless>> -->
+	<</if>>
+	<<if !_eventBeastContext and $NPCList[_args[0]] is undefined>>
+		<<set $NPCList[_args[0]] to clone(setup.baseNPC)>>
+		<<run console.warn("[DoLX] NPCList[" + _args[0] + "] missing after checkEventNPC in " + passage() + " — created base slot.")>>
 	<</if>>
 	<<set $lastgenerated to $passage>>
 <</widget>>

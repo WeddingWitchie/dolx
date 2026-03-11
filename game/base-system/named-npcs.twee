@@ -842,6 +842,9 @@ Zohar
 	* We also now have the option to have the Named NPC be set into the first available slot instead, by setting the secent argument _args[1] to a negative number, such as -1. However this will bypass the check for npcs that have broken free from a previous passage.
 	* Remember: available rows go from 0 to 5 ($NPCList[0] to $NPCList[5]). No more than that.
 	*/
+	<<set $NPCList to $NPCList || []>>
+	<<unset _overwrite>>
+
 	<<if _args[1] lt 0>>
 		<<for _controller to 0; _controller lte $NPCList.length; _controller++>>
 			<<if _controller gte 6>>
@@ -852,7 +855,7 @@ Zohar
 				<<set _overwrite to true>>
 				<<break>> <!-- Always remember to break the for loop when the condition is met -->
 			<</if>>
-			<<if $NPCList[_controller].gender is undefined and $NPCList[_controller].description is undefined>>
+			<<if !$NPCList[_controller] or ($NPCList[_controller].gender is undefined and $NPCList[_controller].description is undefined)>>
 				<!-- These comparisons could be changed to a proper variable, for example $NPCList[x].active which would store if NPC x is active or not. To make things simple, we compare to .gender and .description since those two are always set to something other than 0 if the NPC in question is in fact active -->
 				<<set _npcno to clone(_controller)>>
 				<<break>> <!-- Always remember to break the for loop when the condition is met -->
@@ -863,6 +866,18 @@ Zohar
 	<<else>>
 		<<set _npcno to 0>>
 	<</if>>
+
+	<<if _npcno lt 0>>
+		<<set _npcno to 0>>
+	<<elseif _npcno gt 5>>
+		<span class="red"> Error: Named NPC slot was out of range. Clamped to slot 5.</span>
+		<<set _npcno to 5>>
+	<</if>>
+	<<if !$NPCList[_npcno]>>
+		<<set $NPCList[_npcno] to clone(setup.baseNPC)>>
+		<<run console.warn("[DoLX] NPCList[" + _npcno + "] missing before <<npc>> — created empty slot.")>>
+	<</if>>
+
 	<<if _npcno is 0 and $enemyno gte 1 and !_overwrite>>
 		<<set $endeventerror to $lastgenerated>>
 		<<endevent phaseless>>
@@ -907,28 +922,28 @@ Zohar
 		<<set $pronoun to $NPCName[_i].pronoun>>
 	<</if>>
 	/*Sets up multiple orgasms, code needs work*/
-	<<set $NPCList[0].maxOrgasms to 1>>
-	<<set $NPCList[0].orgasms to 0>>
+	<<set $NPCList[_npcno].maxOrgasms to 1>>
+	<<set $NPCList[_npcno].orgasms to 0>>
 	<<if $multiOrgasmToggle is 1>>
-		<<set _nameCheck to $NPCList[0].fullDescription>>
+		<<set _nameCheck to $NPCList[_npcno].fullDescription>>
 		<<if ["Robin", "Kylar", "Sydney", "Leighton", "Gwylan"].includes(_nameCheck)>>
-			<<set $NPCList[0].maxOrgasms to 2 + Math.floor($NPCName[$NPCNameList.indexOf(_nameCheck)].lust / 20)>>
+			<<set $NPCList[_npcno].maxOrgasms to 2 + Math.floor($NPCName[$NPCNameList.indexOf(_nameCheck)].lust / 20)>>
 		<<elseif ["Doren","Quinn","Niki","Jordan","Harper","Landry","Morgan","River","Mason","Sam","Winter","Sirris","Darryl"].includes(_nameCheck)>>
-			<<set $NPCList[0].maxOrgasms to 3 + Math.floor($NPCName[$NPCNameList.indexOf(_nameCheck)].lust / 20)>>
+			<<set $NPCList[_npcno].maxOrgasms to 3 + Math.floor($NPCName[$NPCNameList.indexOf(_nameCheck)].lust / 20)>>
 		<<elseif ["Avery","Whitney","Remy","Wren","Alex","Charlie"].includes(_nameCheck)>>
-			<<set $NPCList[0].maxOrgasms to 4 + Math.floor($NPCName[$NPCNameList.indexOf(_nameCheck)].lust / 20)>>
+			<<set $NPCList[_npcno].maxOrgasms to 4 + Math.floor($NPCName[$NPCNameList.indexOf(_nameCheck)].lust / 20)>>
 		<<elseif ["Bailey","Briar","Eden","Black Wolf","Great Hawk","Ivory Wraith","Zephyr","Riley"].includes(_nameCheck)>>
-			<<set $NPCList[0].maxOrgasms to 5 + Math.floor($NPCName[$NPCNameList.indexOf(_nameCheck)].lust / 20)>>
+			<<set $NPCList[_npcno].maxOrgasms to 5 + Math.floor($NPCName[$NPCNameList.indexOf(_nameCheck)].lust / 20)>>
 		<</if>>
 
-		<<if $NPCList[0].gender is "m">>
-			<<set $NPCList[0].maxOrgasms to Math.floor($NPCList[0].maxOrgasms / 2)>>
+		<<if $NPCList[_npcno].gender is "m">>
+			<<set $NPCList[_npcno].maxOrgasms to Math.floor($NPCList[_npcno].maxOrgasms / 2)>>
 		<</if>>
 
-		<<set $NPCList[0].maxOrgasms to Math.clamp($NPCList[0].maxOrgasms, 0, 5)>>
+		<<set $NPCList[_npcno].maxOrgasms to Math.clamp($NPCList[_npcno].maxOrgasms, 0, 5)>>
 	<</if>>
 
-	<<if $NPCList[0].maxOrgasms gt 1>>
+	<<if $NPCList[_npcno].maxOrgasms gt 1>>
 		<<set $setupMidOrgasm to true>>
 	<</if>>
 
