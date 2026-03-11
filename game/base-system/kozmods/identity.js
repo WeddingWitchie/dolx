@@ -612,44 +612,12 @@ window.playerFeelsGirllike = playerFeelsGirllike;
 })();
 
 (() => {
-  // Can the CURRENT player body get pregnant?
-  // Keep this anatomy-based (not sex-based) to avoid the "male can get pregnant" bug.
-  setup.xchangeCanBePregnant = function () {
-	const V = State.variables;
-	return V.player?.vaginaExist === true;
-  };
+	// Ensure setup exists
+	if (typeof window.setup !== "object" || window.setup === null) {window.setup = {};}
 
-  // Fertile effect should only be "effective" when pregnancy is anatomically possible.
-  // This does NOT modify the save; it just gates behavior/UI.
-  setup.xchangeEffectiveFertile = function () {
-	const V = State.variables;
-	const pill = V.xchange?.pill;
-	if (!pill?.active) return false;
-	if (!pill.effectsKnown) return false;
-	if (pill.resistanceFakeout) return false;
-	if (!pill.fertile) return false;
-	return setup.xchangeCanBePregnant();
-  };
-})();
+	// Ensure Math.clamp exists
+	if (typeof Math.clamp !== "function") {Math.clamp = (n, min, max) => Math.min(max, Math.max(min, n));}
 
-(() => {
-	// XChange Fertile Helpers
-	setup.xchangeCanBePregnantNow = function () {
-		const V = State.variables;
-		// Keep this anatomy-based to match setup.xchangeCanBePregnant()
-		return V.player?.vaginaExist === true;
-	};
-
-	setup.xchangeSanitiseFertile = function () {
-		const V = State.variables;
-		const pill = V.xchange?.pill;
-		if (!pill?.active) return;
-
-		// If the current body can't be pregnant, Fertile must not exist.
-		if (pill.fertile && !setup.xchangeCanBePregnantNow()) {
-			pill.fertile = false;
-		}
-	};
 	// Back-compat: old saves may be missing newer X-Change pill fields.
 	// We only fill in missing fields; we don't wipe or "sanitise" existing data.
 	setup.xchangeEnsurePillDefaults = function () {
@@ -700,7 +668,7 @@ window.playerFeelsGirllike = playerFeelsGirllike;
 				V.pregnancyStats.heatStillEnabled = true;
 			}
 		}
-	
+	};
 
 	// GI safety: keep the Gender Identity drift system truly OFF unless explicitly enabled,
 	// and prevent "armed" drift/stage from firing later.
@@ -712,7 +680,6 @@ window.playerFeelsGirllike = playerFeelsGirllike;
 
 		const toStrictBool = (v) => (v === true || v === 1 || v === "true");
 
-		// Ensure flags are strict booleans
 		if (x.genderIdentityEnabled === undefined) x.genderIdentityEnabled = true;
 		x.genderIdentityEnabled = toStrictBool(x.genderIdentityEnabled);
 
@@ -745,16 +712,17 @@ window.playerFeelsGirllike = playerFeelsGirllike;
 		}
 	};
 
-};
-	// Run once now (if State is ready), and again whenever a passage starts (to catch freshly-loaded saves).
+	// Run once now
 	try { setup.xchangeEnsurePillDefaults(); } catch (e) {}
 	try { setup.xchangeEnsureCompatGlobals(); } catch (e) {}
-			try { setup.xchangeEnsureGiSafety(); } catch (e) {}
 	try { setup.xchangeEnsureGiSafety(); } catch (e) {}
+
+	// Run again on every passage start
 	if (typeof jQuery === "function") {
 		jQuery(document).on(":passagestart", () => {
 			try { setup.xchangeEnsurePillDefaults(); } catch (e) {}
-	try { setup.xchangeEnsureCompatGlobals(); } catch (e) {}
+			try { setup.xchangeEnsureCompatGlobals(); } catch (e) {}
+			try { setup.xchangeEnsureGiSafety(); } catch (e) {}
 		});
 	}
 })();
