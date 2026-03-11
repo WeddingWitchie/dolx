@@ -1,0 +1,253 @@
+:: Dye Harder Settings Widgets [widget]
+
+<<widget "dhmCfgDoll">>
+	<<switch _args[0]>>
+		<<case "saved">>
+			<<set _hairopt to "tmp0">>
+		<<case "tmp">>
+			<<set _hairopt to "tmp1">>
+		<<default>>
+			<<set _hairopt to "tmp0">>
+	<</switch>>
+
+	<div class="mannequin-inner" @style="'transform: translateX('+ $dhmod.movedoll + 'px);'">
+		<<selectmodel "main" "preset1">>
+		<<set _modeloptions.tanningEnabled to false>>
+		<<set _modeloptions.mannequin to true>>
+		<<set _modeloptions.hair_colour to _hairopt>>
+		<<set _modeloptions.hair_fringe_colour to _hairopt>>
+		<<set _modeloptions.show_face to false>>
+		<<rendermodel "canvas-mannequin">>
+	</div>
+<</widget>>
+
+<<widget "dhmCfgDollUpdate">>
+	<<if _args[0] isnot undefined>>
+		<<set _id to _args[0]>>
+	<<else>>
+		<<set _id to "saved">>
+	<</if>>
+
+	<<replace `'#presetman-mannequin-' + _id`>><<dhmCfgDoll _id>><</replace>>
+<</widget>>
+
+<!--
+-- options
+-- stolen —- i mean, borrowed from clothing store
+-- game/overworld-town/loc-shop/clothing-v2.twee 
+-->
+<!-- button only
+-- {{{ -->
+<<widget "dhmCfgButton">>
+	/* <<furnitureicon "candyPillow">><<link "Dye Harder hairmod">>
+		<<replace '#dhm-options'>><<dhmCfgLoad>><</replace>>
+		<<run linkifyDivs('#dhm-options')>>
+		<<toggleclass '#dhm-options' 'hidden'>>
+	<</link>>
+	<div id='dhm-options' class='no-click-overlay no-numberify hidden' onclick="$(this).addClass('hidden')">
+		<!-- Don't load options menu right away to not slow down shop loading -->
+	</div> */
+<</widget>>
+<!--}}}-->
+
+<<widget "dhmPmanBox">>
+	<!-- {{{ -->
+	<<if _args[0] isnot undefined>>
+		<<set _id to _args[0]>>
+	<<else>>
+		<<set _id to "saved">>
+	<</if>>
+
+	<<switch _id>>
+		<<case "saved">>
+			<<set _presetList to dhmod.userPresets>>
+		<<case "tmp">>
+			<<set _presetList to _dhmLoaded.passed>>
+	<</switch>>
+
+	<div class="controls">
+		<<capture _presetList>>
+			<<if Object.keys(_presetList).length gt 0>>
+				<div class="row">
+					<div class="listbox">
+						<<listbox `'_presetSelected' + _id` autoselect>>
+							<<optionsfrom Object.keys(_presetList) >>
+						<</listbox>>
+					</div>
+				</div>
+				<div class="buttons row">
+					<div @id="'rename' + _id" class="btn-rename">
+						<<button "Rename">>
+							<<run dhmShop.pmanBtnRename(T[`presetSelected${T.id}`], T.id)>>
+						<</button>>
+					</div>
+					<div @id="'delete' + _id" class="btn-delete">
+						<<button "Delete">>
+							<<if confirm('Delete preset "' + T[`presetSelected${T.id}`] + '"?')>>
+								<<run dhmShop.pmanBtnDelete(T[`presetSelected${T.id}`], T.id)>>
+							<</if>>
+						<</button>>
+					</div>
+				</div>
+			<<else>>
+				No presets
+			<</if>>
+		<</capture>>
+	</div>
+	<!--}}}-->
+<</widget>>
+
+<<widget "dhmPresetLoader">>
+	<<unset _dhmLoaded>>
+	<label>
+		Import presets file
+		<br>
+		<input type="file" id="dhm-preset-loader" accept=".txt,.json" onchange="dhmShop.presetImport(this.files)" />
+	</label>
+<</widget>>
+
+<<widget "dhmPresetLoaded">>
+	<<dhmPresetview "tmp">>
+	<hr>
+	<div class="flexitem">
+		<div class="row">
+			<div id="dupe-report"></div>
+			<label id="on-duplicate">
+				<<checkbox "$dhmod.cfg.overwrite" false true autocheck>>
+				Overwrite conflicting names (skip if unchecked)
+			</label>
+		</div>
+		<div class="row buttons">
+			<<button "Confirm Import">>
+				<<run dhmShop.onImportConfirm()>>
+			<</button>>
+			<<button "Cancel Import">>
+				<<replace "#presetman-loader">><<dhmPresetLoader>><</replace>>
+			<</button>>
+		</div>
+	</div>
+<</widget>>
+
+<<widget "dhmReplaceSimilar">>
+	<<replace `'#presetman-fallback' + _args[0]`>>
+		<div class="flexitem">
+			<div class="row">
+				<<print setup.colours.hair_map[_args[1]].name_cap>>
+			</div>
+			<div class="row">
+				<<dyeSwatch _args[1]>>
+			</div>
+		</div>
+	<</replace>>
+<</widget>>
+
+<<widget "dhmPresetview">>
+	<!-- {{{ -->
+	<<if _args[0] isnot undefined>>
+		<<set _id to _args[0]>>
+	<<else>>
+		<<set _id to "saved">>
+	<</if>>
+
+	<<capture _id>>
+	<div class="subgrid">
+		<div class="presetman-container flexitem">
+			<div class="row">
+				<table class="dhm prices">
+					<tr><th>HEX:</th><td><span @id="'presetman-hex' + _id">--</span></td></tr>
+					<tr><th>Brightness:</th><td><span @id="'presetman-brightness' + _id">--</span></td></tr>
+					<tr><th>Approximate Vanilla swatch:</th><td class="swatch"><span @id="'presetman-fallback' + _id">--</span></td></tr>
+				</table>
+			</div>
+
+			<div class="row" @id="'preset-dropdown-container-' + _id">
+				<<dhmPmanBox _id>>
+			</div>
+		</div>
+		
+		<div class="column">
+			<div @id="'doll-container-' + _id" class="no-numberify mannequin">
+				<div @id="'presetman-mannequin-' + _id" class="mannequin">
+					<<dhmCfgDoll _id>>
+				</div>
+			</div>
+		</div>
+	</div>
+	<</capture>>
+	<!-- }}} -->
+<</widget>>
+
+<<widget "dhmPresetManager">>
+	<<if Object.keys(dhmod.userPresets).length gt 0>>
+		<<dhmPresetview "saved">>
+		<hr>
+		<div class="flexitem">
+			<div class="row buttons">
+				<<button "Export saved presets">>
+					<<run dhmShop.presetExport()>>
+				<</button>>
+				<div class="background-red">
+					<<button "Delete ALL saved presets">>
+						<<run dhmShop.pmanBtnPurge()>>
+					<</button>>
+				</div>
+			</div>
+		</div>
+
+		<<run $(() => {
+			dhmShop.pmanHook("saved");
+			dhmShop.pmanOnChange(_presetSelectedsaved, "saved");
+		});>>	
+	<<else>>
+		You have no presets to manage.
+	<</if>>
+<</widget>>
+
+<<widget "dhmCfgLoad">>
+	<div class="dhm options-div" onclick="event.stopPropagation()">
+		<div id="options-buttons" class="options-buttons-div">
+			<div class="options-button button-apply div-link">
+				<<link "Save and Close">>
+					<<addclass '#dhm-options' 'hidden'>>
+				<</link>>
+			</div>
+		</div>
+
+		<div class="options-body">
+			<div class="settingsGrid">
+				<div class="settingsHeader">Mod options</div>
+				<!-- {{{ -->
+				<div class="settingsToggleItemWide">
+					<label>
+						<<checkbox "$dhmod.cfg.ui" false true autocheck>>
+						Enable custom UI
+					</label>
+					<br>
+					<label>
+						<<checkbox "$dhmod.cfg.prices" false true autocheck>>
+						Enable custom prices
+					</label>
+				</div>
+				<!-- }}} -->
+			</div>
+
+			<div id="preset-manager" class="settingsGrid">
+				<div class="settingsHeader">Preset Manager</div>
+
+				<div class="settingsToggleItem">
+					<span class="gold bold">Saved presets</span><br>
+					<div id="presetman-saved">
+						<<dhmPresetManager>>
+					</div>
+				</div>
+
+				<div class="settingsToggleItem">
+					<span class="gold bold">Preset importer</span>
+					<div id="presetman-loader">
+						<<dhmPresetLoader>>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+<</widget>>

@@ -186,6 +186,7 @@ window.colorNamer = function(hex, color_map) {
 	return closest;
 }
 
+window.stealColorNamerColors = function() { return colors; };
 window.colorNameTranslate = function(name, mode) {
   return (mode == "spaced name") ? colors[name][2] : (mode == "hex") ? colors[name][0] : colors[name][1]
 }

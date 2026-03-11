@@ -73,8 +73,8 @@ You are in the hairdressers. Various hair products are available for sale. You c
 				<<hairdressericon "hairspray">> <<link [[Purchase hair growth formula (£50)|Hairdressers Gel]]>><<money -5000 "hairdressers">><<set $sexStats.pills.pills["Hair Growth Formula"].owned += 3>><<set $sexStats.pills.boughtOnce to true>><<set $phase to 1>><</link>> | Owned: <span class="gold"><<= $sexStats.pills.pills["Hair Growth Formula"].owned>></span>
 			<<elseif $money gte 800>>
 				<<hairdressericon "hairspray">> <span class="blue">You can't afford any hair growth formula.</span>
-			<</if>>
-			<br><br>
+			<</if>><br><<dhmCfgButton>>
+			<br>
 		<</if>>
 		<<getouticon>><<link [[Leave|Shopping Centre]]>><</link>>
 	<</if>>
@@ -105,7 +105,8 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 
 :: Hairdressers Seat
 
-<<generate1>><<person1>>You take a seat, and a hairdresser soon appears behind you. "What'll it be, hun?" <<hairdressersPricelist>>
+<<dhmTempInit>><<generate1>><<person1>>You take a seat, and a hairdresser soon appears behind you. "What'll it be, hun?" <br>
+<<if dhmod.cfg.prices>><<dhmPricesReplace>><<else>><<hairdressersPricelist>><</if>>
 <<set $hairOption to $hairlength>>
 <<set $fringeOption to $fringelength>>
 <<set $dyeOption to "noChange">>
@@ -118,7 +119,7 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 	To pay: £0
 </div>
 <div id="hairDressers">
-	<<hairDressersOptions>>
+	<<if dhmod.cfg.ui>><<dhmUiReplace>><<else>><<hairDressersOptions>><</if>>
 </div>
 <<hairdressersReset>>
 
@@ -152,17 +153,17 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 <</widget>>
 
 <<widget "hairDressersOptions">>
-	<<set _currentCost to 0>>
+	<<set _currentCost to (dhmod.cfg.prices ? dhmShop.cashGrab() : 0)>>
 	<<if not $dyedHairPart>>
 		<<set $dyedHairPart to "hair">>
 	<</if>>
 	<<if not $twoToneHairDye>>
 		<<set $twoToneHairDye to false>>
 	<</if>>
-	<<if not $twoToneDyeOption1>>
+	<<if not $twoToneDyeOption1 or $twoToneDyeOption1 is "noChange">>
 		<<set $twoToneDyeOption1 to "red">>
 	<</if>>
-	<<if not $twoToneDyeOption2>>
+	<<if not $twoToneDyeOption2 or $twoToneDyeOption2 is "noChange">>
 		<<set $twoToneDyeOption2 to "black">>
 	<</if>>
 
@@ -175,8 +176,8 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 			<<mannequinHairdresser>>
 		</div>
 		<div>
-			<<if ($money gte _currentCost + 3000 or $hairOption isnot $hairlength) and $hairlength gt 100>>
-				<<if $hairOption isnot $hairlength>>
+			<<if ($money gte _currentCost + (dhmod.cfg.prices ? dhmShop.prices.hairCut : 3000) or $hairOption isnot $hairlength) and $hairlength gt 100>>
+				<<if $hairOption isnot $hairlength and not dhmod.cfg.prices>>
 					<<set _currentCost += 3000>>
 				<</if>>
 				Have your sides cut to your:
@@ -198,8 +199,8 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 				<br><br>
 			<</if>>
 
-			<<if ($money gte _currentCost + 3000 or $fringeOption isnot $fringelength) and $fringelength gte 100>>
-				<<if $fringeOption isnot $fringelength>>
+			<<if ($money gte _currentCost + (dhmod.cfg.prices ? dhmShop.prices.fringeCut : 3000) or $fringeOption isnot $fringelength) and $fringelength gte 100>>
+				<<if $fringeOption isnot $fringelength and not dhmod.cfg.prices>>
 					<<set _currentCost += 3000>>
 				<</if>>
 				Have your fringe cut until it's:
@@ -224,8 +225,8 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 			<<set _dyeNames to ["Red", "Jet black", "Black", "Blond", "Soft Blond", "Platinum blond", "Golden", "Ashy blond", "Strawberry blond", "Dark Brown", "Brown", "Soft brown", "Light brown", "Burnt Orange", "Ginger", "Blood Orange", "Blue", "Deep Blue", "Neon Blue", "Green", "Dark Lime", "Toxic Green", "Teal", "Pink", "Bright Pink", "Hot pink", "Soft pink", "Crimson", "Purple", "Medium Purple", "Bright Purple", "White", "Snow white"]>>
 			<<set $hairdressersHairColour to ["red", "jetblack", "black", "blond", "softblond", "platinumblond", "golden", "ashyblond", "strawberryblond", "darkbrown", "brown", "softbrown", "lightbrown", "burntorange", "ginger", "bloodorange", "blue", "deepblue", "neonblue", "green", "darklime", "toxicgreen", "teal", "pink", "brightpink", "hotpink", "softpink", "crimson", "purple", "mediumpurple", "brightpurple", "white", "snowwhite"]>>
 
-			<<if $money gte _currentCost + 3000 or $dyeOption isnot "noChange" or $twoToneHairDye>>
-				<<if $dyeOption is "removeDye">>
+			<<if $money gte _currentCost + (dhmod.cfg.prices ? dhmShop.calcWrapper('simple', $dyedHairPart) : 3000) or $dyeOption isnot "noChange" or $twoToneHairDye>>
+				<<if not dhmod.cfg.prices>><<if $dyeOption is "removeDye">>
 					<<set _currentCost += 3000>>
 				<<elseif not $twoToneHairDye and $dyeOption isnot "noChange">>
 					<<if $dyedHairPart is "hair">>
@@ -236,6 +237,7 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 				<<elseif $twoToneHairDye>>
 					<<set _currentCost += 25000>>
 				<</if>>
+			<</if>>
 				Have your hair dyed<<if $haircolour isnot $naturalhaircolour or $hairfringecolour isnot $naturalhaircolour>> or cleared of hair dye<</if>>:
 				<br>
 				<label><<radiobutton "$dyedHairPart" "hair" autocheck>> Full head</label> |
@@ -250,7 +252,7 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 				<<if $haircolour isnot $naturalhaircolour>>
 					<<set _dyeOptions["Remove dye"] to "removeDye">>
 				<</if>>
-				<<if $money gte _currentCost + 6000 or ($dyeOption isnot "noChange" and $dyeOption isnot "removeDye")>>
+				<<if $money gte _currentCost + (dhmod.cfg.prices ? dhmShop.calcWrapper('simple', $dyedHairPart) : 6000) or ($dyeOption isnot "noChange" and $dyeOption isnot "removeDye")>>
 					<<for _i to 0; _i lt _dyeNames.length; _i++>>
 						<<if ($haircolour is $hairdressersHairColour[_i] and $hairColourStyle is "simple") or $naturalhaircolour is $hairdressersHairColour[_i]>>
 							<<continue>>
@@ -296,12 +298,13 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 				<br><br>
 			<</if>>
 
-			<<if $money gte _currentCost + 1000 or $browsDyeOption isnot "noChange">>
-				<<if $browsDyeOption is "removeDye">>
+			<<if $money gte _currentCost + (dhmod.cfg.prices ? dhmShop.prices.browClear : 1000) or $browsDyeOption isnot "noChange">>
+				<<if not dhmod.cfg.prices>><<if $browsDyeOption is "removeDye">>
 					<<set _currentCost += 1000>>
 				<<elseif $browsDyeOption isnot "noChange">>
 					<<set _currentCost += 2000>>
 				<</if>>
+			<</if>>
 				Have your eyebrows dyed<<if $makeup.browscolour isnot $naturalhaircolour>> or cleared of hair dye<</if>>:
 				<br>
 
@@ -309,7 +312,7 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 				<<if $makeup.browscolour isnot $naturalhaircolour>>
 					<<set _browsDyeOptions["Remove dye"] to "removeDye">>
 				<</if>>
-				<<if $money gte _currentCost + 2000 or ($browsDyeOption isnot "noChange" and $browsDyeOption isnot "removeDye")>>
+				<<if $money gte _currentCost + (dhmod.cfg.prices ? dhmShop.prices.browDye : 2000) or ($browsDyeOption isnot "noChange" and $browsDyeOption isnot "removeDye")>>
 					<<for _i to 0; _i lt _dyeNames.length; _i++>>
 						<<if $makeup.browscolour is $hairdressersHairColour[_i] or $naturalhaircolour is $hairdressersHairColour[_i]>>
 							<<continue>>
@@ -359,7 +362,8 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 				<<money `-_currentCost` "hairdressers">>
 			<</link>>
 		<</if>>
-		<br><br>
+		<br>
+		<<cosmeticsicon "dyes">><<link [[Inquire about exotic dyes| Dye Harder Seat ]]>><</link>><br><br>
 		<<getouticon>><<link [[Leave|Hairdressers]]>><<endevent>><</link>>
 	<</if>>
 <</widget>>
@@ -426,10 +430,12 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 
 		<<if $dyedHairPart is "sides" or $dyedHairPart is "hair">>
 			<<set $hairColourStyle to "simple">>
+			<<set $dhmod.hair to dhmUtils.objEmpty()>>
 			<<set $haircolour to clone($naturalhaircolour)>>
 		<</if>>
 		<<if $dyedHairPart is "fringe" or $dyedHairPart is "hair">>
 			<<set $hairFringeColourStyle to "simple">>
+			<<set $dhmod.fringe to dhmUtils.objEmpty()>>
 			<<set $hairfringecolour to clone($naturalhaircolour)>>
 		<</if>>
 		<<set _pass += 15>>
@@ -438,10 +444,12 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 	<<elseif $dyeOption isnot "noChange" and not $twoToneHairDye>>
 		<<if $dyedHairPart is "sides" or $dyedHairPart is "hair">>
 			<<set $hairColourStyle to "simple">>
+			<<set $dhmod.hair to dhmUtils.objEmpty()>>
 			<<set $haircolour to clone($dyeOption)>>
 		<</if>>
 		<<if $dyedHairPart is "fringe" or $dyedHairPart is "hair">>
 			<<set $hairFringeColourStyle to "simple">>
+			<<set $dhmod.fringe to dhmUtils.objEmpty()>>
 			<<set $hairfringecolour to clone($dyeOption)>>
 		<</if>>
 		<<if _pass gt 0>>
@@ -461,11 +469,13 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 		<<if $dyedHairPart is "sides" or $dyedHairPart is "hair">>
 			<<set $hairColourStyle to "gradient">>
 			<<set $haircolour to clone($twoToneDyeOption1)>> /* This is set as a 'fallback' color for combat renderer */
+			<<set $dhmod.hair to dhmUtils.objEmpty()>>
 			<<set $hairColourGradient to clone(_gradient)>>
 		<</if>>
 		<<if $dyedHairPart is "fringe" or $dyedHairPart is "hair">>
 			<<set $hairFringeColourStyle to "gradient">>
 			<<set $hairfringecolour to clone($twoToneDyeOption2)>> /* This is set as a 'fallback' color for combat renderer */
+			<<set $dhmod.fringe to dhmUtils.objEmpty()>>
 			<<set $hairFringeColourGradient to clone(_gradient)>>
 		<</if>>
 
@@ -487,6 +497,7 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 
 	<<calchairlengthstage>>
 
+	<<unset $dhmod.tmp>>
 	<<pass _pass>>
 <</widget>>
 

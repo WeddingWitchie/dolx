@@ -1,0 +1,246 @@
+:: Dye Harder Widgets [widget]
+<<widget "dhmTempInit">>
+	<<run dhmShop.newSession();>>
+<</widget>>
+
+<!-- hairdresser mannequin -->
+<<widget "dhmMannequinRender">>
+	<!-- initial setup -->
+	<<set _colorNames to ["",""]>>
+	<<set _colorNames to $dhmod.tmp.colors>>
+	
+	<<if _args[0] is "default" and (($dyeOption isnot "noChange" and $dyeOption isnot "") or $twoToneHairDye)>>
+		<<set $dhmod.tmp.is_custom to false>>
+		<<if $twoToneHairDye>>
+			<<if $twoToneDyeOption1 isnot "noChange" and $twoToneDyeOption1 isnot "">>
+				<<set _colorNames[0] to $twoToneDyeOption1>>
+			<</if>>
+			<<if $twoToneDyeOption2 isnot "noChange" and $twoToneDyeOption2 isnot "">>
+				<<set _colorNames[1] to $twoToneDyeOption2>>
+			<</if>>
+		<<else>>
+			<<if $dyeOption is "removeDye">>
+				<<set _colorNames to [$naturalhaircolour, $naturalhaircolour]>>
+			<<elseif $dyeOption isnot "noChange" and $dyeOption isnot "">>
+				<<set _colorNames to [$dyeOption, $dyeOption]>>
+			<</if>>
+		<</if>>
+	<<elseif _args[0] isnot "default">>
+	<<set $dhmod.tmp.is_custom to true>>
+	<</if>>
+
+	<div class="mannequin-inner" @style="'transform: translateX('+ $dhmod.movedoll + 'px);'">
+		<<selectmodel "main" "shop">>
+
+		<<modelprepare-player-body>>
+		<<modelprepare-player-clothes>>
+
+		<!-- hair fringe/length setup -->
+		<<set _modeloptions.hair_sides_length to $hairOption != $hairlength ? convertHairLengthToStage("sides", $hairOption) : $hairlengthstage>>
+		<<set _modeloptions.hair_fringe_length to $fringeOption != $fringelength ? convertHairLengthToStage("fringe", $fringeOption) : $fringelengthstage>>
+
+		<<if $browsDyeOption isnot "noChange" and $browsDyeOption isnot "removeDye">>
+			<<set _modeloptions.brows_colour to $browsDyeOption>>
+		<</if>>
+
+		<<if $twoToneHairDye>>
+			<<set _preview_gradient to dhmShop.compileGradient(T.colorNames, 1)>>
+
+			<<if $dyedHairPart is "fringe" or $dyedHairPart is "hair">>
+				<<set _modeloptions.hair_fringe_colour_style to "gradient">>
+				<<set _modeloptions.hair_fringe_colour_gradient to _preview_gradient>>
+			<</if>>
+
+			<<if $dyedHairPart is "sides" or $dyedHairPart is "hair">>
+				<<set _modeloptions.hair_colour_style to "gradient">>
+				<<set _modeloptions.hair_colour_gradient to _preview_gradient>>
+			<</if>>
+		<<else>>
+			<<if $dyedHairPart is "fringe" or $dyedHairPart is "hair">>
+				<<set _modeloptions.hair_fringe_colour_style to "simple">>
+				<<set _modeloptions.hair_fringe_colour to _colorNames[0]>>
+			<</if>>
+
+			<<if $dyedHairPart is "sides" or $dyedHairPart is "hair">>
+				<<set _modeloptions.hair_colour_style to "simple">>
+				<<set _modeloptions.hair_colour to _colorNames[0]>>
+			<</if>>
+		<</if>>
+
+		<<rendermodel "canvas-mannequin">>
+	</div>
+<</widget>>
+
+<<widget "dhmMannequinUpdate">>
+	<<replace "#mannequin">><<dhmMannequinRender _args[0] _args[1]>><</replace>>
+<</widget>>
+
+<<widget "dhmMannequinControls">>
+	<div id="mannequin-controls">
+		<div class="movedoll"><<button '<'>><<set $dhmod.movedoll -= 5>><</button>></div>
+		<div> Adjust position </div>
+		<div class="movedoll"><<button '>'>><<set $dhmod.movedoll += 5>><</button>></div>
+	</div>
+	<<run $(() => { $(".movedoll").click(function(){ $(".mannequin-inner").css("transform", `translateX(${V.dhmod.movedoll}px)`) }); });>>
+<</widget>>
+
+<<widget "dhmDoll">>
+	<div id="doll-container" class="dhm no-numberify">
+		<<dhmMannequinControls>>
+		<div>
+			<div class="mannequin" id="mannequin">
+				<<dhmMannequinRender _args[0]>>
+			</div>
+		</div>
+	</div>
+<</widget>>
+
+<!-- mathematics -->
+<<widget "calcWrapper">>
+	£<<print (dhmShop.calcWrapper(_args[0], _args[1])/100).toFixed(2)>>
+<</widget>>
+
+<<widget "dhmPrices">>
+	A new sign by the mirror reads:
+	<table class="dhm prices">
+		<tr><td class="empty"></td><th>Plain dye</th><th>Two-tone</th></tr>
+		<tr><th>Full head</th><td><<calcWrapper 'simple-custom' 'hair'>></td><td><<calcWrapper 'gradient-custom' 'hair'>></td></tr>
+		<tr><th>Fringe only</th><td><<calcWrapper 'simple-custom' 'fringe'>></td><td><<calcWrapper 'gradient-custom' 'fringe'>></td></tr>
+		<tr><th>Sides only</th><td><<calcWrapper 'simple-custom' 'sides'>></td><td><<calcWrapper 'gradient-custom' 'sides'>></td></tr>
+		<tr><th>'Specialist' fee</th><td colspan=2>£30</td></tr>
+	</table>
+<</widget>>
+
+<<widget "dhmPayments">>
+	<div class="gold">
+		To pay: £ <span id="currentCost"><<print _currentCost/100>></span>
+		<br><br>
+	</div>
+
+	<<if $money gte _currentCost>>
+		<<link [[ ...Pay? | Dye Harder Actually Dying ]]>><<money `-_currentCost` "hairdressers">><</link>><br>
+	<<else>>
+		You don't have enough money to dye your <<print $dyedHairPart>>.
+		<br>
+	<</if>>
+<</widget>>
+
+<!-- custom hairdresser ui -->
+<<widget "dhmPanel">>
+	<<set _currentCost to 3000>>
+	<<set _currentCost += dhmShop.cashGrabCustom()>>
+	
+	<div class="bold gold">Hair Dye</div>
+	Have your hair dyed<<if $haircolour isnot $naturalhaircolour or $hairfringecolour is not $naturalhaircolour>> <span class="tentacle">HARDER</span><</if>>:
+	<div class="flexitem">
+		<div id="hairpart-toggles" class="toggles">
+			<label><<radiobutton "$dyedHairPart" "hair" autocheck>> Full head</label> |
+			<label><<radiobutton "$dyedHairPart" "fringe" autocheck>> Fringe</label> |
+			<label><<radiobutton "$dyedHairPart" "sides" autocheck>> Sides</label> 
+		</div>
+
+		<div id="twotone-toggles" class="toggles">
+			<label><<checkbox "$twoToneHairDye" false true autocheck>> Request a two-tone colouring</label>
+		</div>
+		<<if $twoToneHairDye>>
+			<div>
+				Style: <<listbox "$twoToneStyle" autoselect>>
+							<<optionsfrom setup.dhmod.gradients>>
+				<</listbox>>
+			</div>
+		<</if>>
+	</div>
+
+	<<run $(() => {
+	$("#checkbox-twotonehairdye").on("change", function(e) {
+			if(!!V.twoToneHairDye) {
+				$("#color-controls0").removeClass("settingsToggleItemWide");
+				$("#color-controls0").addClass("settingsToggleItem");
+				$("#color-controls1").removeClass("hidden");
+			} else {
+				$("#color-controls0").removeClass("settingsToggleItem");
+				$("#color-controls0").addClass("settingsToggleItemWide");
+				$("#color-controls1").addClass("hidden");
+			}
+			dhmShop.pickerResizeAll();
+		});
+	});>>
+<</widget>>
+
+<!-- custom color controls -->
+<<widget "dhmPicker">>
+	<<if _args[0] isnot undefined>>
+		<<set _index to _args[0]>>
+	<<else>>
+		<<set _index to 0>>
+	<</if>>
+
+	<<capture _index>>
+		<<set _class to _index > 0 ? 'settingsToggleItem hidden' : 'settingsToggleItemWide'>>
+		<div @id="'color-controls' + _index" @class="'dhm ' + _class">
+			<div class="controls color">
+				<div class="row">
+					Colour #<<print _index + 1>>
+				</div>
+
+				<div class="row picker">
+					<div @id="'picker' + _index" class="dhm picker"></div>
+					<div>
+					Hex: <span @id="'hex' + _index"></span> | <<link "Manual input">><<run dhmShop.setColorHex(_index)>><</link>>
+					</div>
+				</div>
+
+				<div class="row centered numberslider-inline">
+					<label>
+						Brightness:<br>
+						<span @id="'brightness' + _index">
+						<<numberslider `'_dhBrightness' + _index` $dhmod.tmp.brightnessStart[_index] -1 1 0.1>>
+						</span>
+					</label>
+				</div>
+			</div>
+			/* <div class="no-numberify settingsToggleItemWide presets">
+				<div @id="'preset-dropdown-toggle-' + _i" class="gold foldoutHeader">Presets</div>
+
+				<div @id="'preset-dropdown-container-' + _i" class="foldoutbody" style="display:none;">
+					<<dhmPresetsDropdown _index>>
+				</div>
+			</div> */
+		</div>
+	<</capture>>
+<</widget>>
+
+<<widget "dhmPresetsDropdown">>
+	/* <<if _args[0] isnot undefined>>
+		<<set _index to _args[0]>>
+	<<else>>
+		<<set _index to 0>>
+	<</if>>
+
+	<div class="controls">
+		<<if Object.keys($dhmod.userPresets).length !== 0>>
+			<div class="row">
+				<div class="listbox">
+					<<listbox `'_presetSelected' + _index` autoselect>>
+						<<optionsfrom ['', ...Object.keys($dhmod.userPresets)] >>
+					<</listbox>>
+				</div>
+				<div @id="'delete' + _index" class="btn-delete">
+					<<button "Del">>
+						<<if confirm('Delete preset "' + T[`presetSelected${T.index}`] + '"?')>>
+							<<run dhmShop.presetBtnDelete(T[`presetSelected${T.index}`])>>
+						<</if>>
+					<</button>>
+				</div>
+			</div>
+		<<else>>
+			No saved presets
+		<</if>>
+
+		<div @id="'save' + _index" class="btn-save row">
+			<<button "Save">>
+				<<run dhmShop.presetBtnSave(setup.colours.hair_map[`tmp${T.index}`].canvasfilter)>>
+			<</button>>
+		</div>
+	</div> */
+<</widget>>

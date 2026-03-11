@@ -1,0 +1,117 @@
+:: Dye Harder Seat
+<<if $dhmod.npc is undefined>>
+	<<generate2>>
+	<p>A <<person2>><<person>> interrupts before you can finish explaining your order. <<His>> hair is dyed in all seven colours of the rainbow, forming a psychedelic pattern whenever <<he>> moves. Neither you nor the hairdresser can tell where <<he>> came from.</p>
+	<p>"I'll handle this one," <<he>> pats the hairdresser on the shoulder, and produces a tablet with a high-resolution display, showing nothing but a colour picker with approximately 16 million possible colours.
+	"I like challenges. You sound like one."</p>
+	<p>You blink. "Are you sure I can just... pick any colour?"</p>
+	<p>"Don't worry. I'm a specialist ☆ ～"</p>
+<<else>>
+	<<set $NPCList[1] to clone($dhmod.npc)>>
+	<p>The <i>specialist</i> materializes from thin air as soon as you voice your request. The hairdresser shrugs and moves away.</p>
+	<p>"Welcome back, special customer ☆ ～" <<person2>><<He>> hands you the tablet with its infinite colour possibilities.</p>
+<</if>>
+You're seated in the hairdressers. The <i>specialist</i> waits expectantly.
+<<dhmPrices>>
+
+<<set $hairOption to $hairlength>>
+<<set $fringeOption to $fringelength>>
+<<set $browsDyeOption to "noChange">>
+<<set _dhBrightness to [0,0]>>
+<<set _pickers to 2>>
+<<set $dhmod.tmp.is_custom to true>>
+<<set $twoToneHairDye to false>>
+
+<div class="dhm">
+	<div id="hairdresser-options" class="no-numberify settingsGrid">
+		<div id="dhmPanel" class="settingsToggleItem">
+			<<dhmPanel>>
+		</div>
+
+		<div class="settingsToggleItem">
+			<<dhmDoll>>
+		</div>
+
+		<<for _i to 0; _i lt _pickers; _i++>>
+			<<dhmPicker _i>>
+		<</for>>
+	</div>
+
+	<div id="can-pay">
+		<<dhmPayments>>
+	</div>
+	<<link [[ Give up | Hairdressers ]]>>
+		<<endevent>>
+		<<unset $dhmod.tmp>>
+	<</link>>
+</div>
+<<run $(() => {
+	dhmShop.pickers = [];
+	dhmShop.newSession();
+
+	for(let i = 0; i < T.pickers; i++) {
+		dhmShop.pickerGen(i);
+		dhmShop.syncColorBrightnessSlider(i, dhmod.tmp.brightnessStart[i]);
+		dhmShop.syncColorPicker(i, dhmod.tmp.blendStart[i]);
+		dhmShop.presetAttachHooks(i);
+
+		$(`#preset-dropdown-toggle-${i}`).click(function(){ $(`#preset-dropdown-container-${i}`).toggle(); });
+	}
+	$(window).on('resize', function(event) { dhmShop.pickerResizeAll(); });
+
+	$("#dhmPanel").on("change", ".macro-listbox, .macro-radiobutton, .macro-checkbox", function (e) {
+		Wikifier.wikifyEval("<<replace #dhmPanel>><<dhmPanel>><</replace>>");
+		Wikifier.wikifyEval("<<replace #can-pay>><<dhmPayments>><</replace>>");
+		Wikifier.wikifyEval("<<dhmMannequinUpdate>>");
+	});
+});>>
+<br><br>
+
+
+:: Dye Harder Actually Dying
+<!--
+apply changes.
+the variable gymnastics are not extinct. just more discreet.
+-->
+<<set _pass to 0>>
+<<set _dyeApply to 0>>
+<<set _tmp0 to setup.colours.hair_map.tmp0.canvasfilter>>
+<<set _tmp1 to setup.colours.hair_map.tmp1.canvasfilter>>
+<<if $twoToneHairDye>>
+	<<set _gradient to dhmShop.compileGradient()>>
+	<<if $dyedHairPart is "fringe" or $dyedHairPart is "hair">>
+		<<set $hairFringeColourStyle to "gradient">>
+		<<set $hairFringeColourGradient to clone(_gradient)>>
+		<<run dhmUtils.fringeGradient([_tmp0, _tmp1])>>
+		<<if Math.trunc($fringelength/200) gte 3>><<set _dyeApply += (2 * Math.trunc($fringelength/200))>><</if>>
+	<</if>>
+	<<if $dyedHairPart is "sides" or $dyedHairPart is "hair">>
+		<<set $hairColourStyle to "gradient">>
+		<<set $hairColourGradient to clone(_gradient)>>
+		<<run dhmUtils.hairGradient([_tmp0, _tmp1])>>
+		<<if Math.trunc($hairlength/200) gte 3>><<set _dyeApply += (5 * Math.trunc($hairlength/200))>><</if>>
+	<</if>>
+<<else>>
+	<<if $dyedHairPart is "fringe" or $dyedHairPart is "hair">>
+		<<set $hairFringeColourStyle to "simple">>
+		<<if Math.trunc($fringelength/200) gte 3>><<set _dyeApply += (2 * Math.trunc($fringelength/200))>><</if>>
+		<<run dhmUtils.fringePlain([_tmp0])>>
+	<</if>>
+	<<if $dyedHairPart is "sides" or $dyedHairPart is "hair">>
+		<<set $hairColourStyle to "simple">>
+		<<run dhmUtils.hairPlain([_tmp0])>>
+		<<if Math.trunc($hairlength/200) gte 3>><<set _dyeApply += (5 * Math.trunc($hairlength/200))>><</if>>
+	<</if>>
+<</if>>
+
+<<run dhmUtils.colorCache()>>
+
+<<set _pass += 30>>
+<<unset $dhmod.tmp>>
+<p><<He>> nods enthusiastically and gets to work as soon as you make your choice, grabbing several dye tubs from the shelf and mixing them in a container like a mad scientist.</p>
+<p>Once the mixture foams and settles, <<he>> carefully applies it to your $dyedHairPart. <<if _dyeApply gt 0>><span class="blue">It takes a while since your $dyedHairPart is quite long.</span><</if>> The sharp smell of chemicals stings your nostrils.</p>
+<p>"There you go. All colorful and pretty. ☆ ～" <<He>> rinses the dye after exactly _pass minutes, smiling confidently.</p>
+<p>You look in the mirror. Somehow, you got exactly the result you were hoping for. Your hair doesn't seem as damaged as you'd expected after the procedure.</p>
+<<set _pass += _dyeApply>>
+<<pass _pass>>
+<<link [[ Leave | Hairdressers ]]>><<endevent>><<unset $dhmod.tmp>><</link>>

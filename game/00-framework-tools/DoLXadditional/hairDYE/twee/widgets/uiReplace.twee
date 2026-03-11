@@ -1,0 +1,309 @@
+:: Dye Harder Replacement Widgets [widget]
+<<widget "dhmPricesReplace">>
+	<!-- replace original prices sign with custom engine's
+	{{{-->
+	A sign by the mirror lists services and prices. You estimate how much you'd pay based on your hair length:
+	<table class="dhm prices">
+		<tr><td class="empty"></td><th>Plain dye</th><th>Two-tone dye</th><th>Cut</th></tr>
+		<tr><th>Full head</th>
+			<td><<calcWrapper 'simple' 'hair'>></td>
+			<td><<calcWrapper 'gradient' 'hair'>></td>
+			<td>£<<print (dhmShop.prices.fullCut/100).toFixed(2)>></td>
+		</tr>
+		<tr><th>Fringe only</th>
+			<td><<calcWrapper 'simple' 'fringe'>></td>
+			<td><<calcWrapper 'gradient' 'fringe'>></td>
+			<td>£<<print (dhmShop.prices.fringeCut/100).toFixed(2)>></td>
+		</tr>
+		<tr><th>Sides only</th>
+			<td><<calcWrapper 'simple' 'sides'>></td>
+			<td><<calcWrapper 'gradient' 'sides'>></td>
+			<td>£<<print (dhmShop.prices.hairCut/100).toFixed(2)>></td>
+		</tr>
+	<tr><th>Eyebrows</th><td>£<<print (dhmShop.prices.browDye/100).toFixed(2)>></td><td>-</td><td>-</td></tr>
+	</table>
+<!-- }}} -->
+<</widget>>
+
+<<widget "dhmUiReplace">>
+	<!-- modified version of <<hairdressersOptions>>
+			original in ' game/overworld-town/loc-shop/hairDressers.twee '
+	{{{ -->
+	<!-- variable setup
+	{{{-->
+	<<set _currentCost to (dhmod.cfg.prices ? dhmShop.cashGrab() : 0)>>
+	<<if not $dyedHairPart>>
+		<<set $dyedHairPart to "hair">>
+	<</if>>
+	<<if not $twoToneHairDye>>
+		<<set $twoToneHairDye to false>>
+	<</if>>
+	<<if not $twoToneDyeOption1 or $twoToneDyeOption1 is "noChange">>
+		<<set $twoToneDyeOption1 to "red">>
+	<</if>>
+	<<if not $twoToneDyeOption2 or $twoToneDyeOption2 is "noChange">>
+		<<set $twoToneDyeOption2 to "black">>
+	<</if>>
+
+	<<if not $twoToneStyle>>
+		<<set $twoToneStyle to $hairColourGradient.style>>
+	<</if>>
+	<!--}}}-->
+
+	<div id="hairdresser-options" class="no-numberify settingsGrid dhm">
+		<div class="settingsToggleItem">
+			<<dhmDoll "default">>
+		</div>	
+		<div id="item-cuts" class="flexitem">
+		<!-- {{{ -->
+			<div class="settingsToggleItem">
+				<div class="gold bold">Haircut</div>
+				<<if ($money gte _currentCost + (dhmod.cfg.prices ? dhmShop.prices.hairCut : 3000) or $hairOption isnot $hairlength) and $hairlength gt 100>>
+					<<if $hairOption isnot $hairlength and not dhmod.cfg.prices>>
+						<<set _currentCost += 3000>>
+					<</if>>
+					<div>
+						Have your sides cut to your:
+						<br>
+						<<set _hairNames to ["Ears", "Chin", "Shoulders", "Upper chest", "Middle chest", "Upper stomach", "Navel", "Thighs", "Knees", "Ankles"]>>
+						<<set _hairOptions to {"Don't cut":$hairlength}>>
+						<<for _i to 9; _i gte 0; _i-->>
+							<<set $_length to (_i * 100) + 100>>
+							<<if $_length + 50 lt $hairlength>> /* + 50 to ensure it's not cut too early */
+								<<set _hairOptions[_hairNames[_i]] to $_length>>
+							<</if>>
+						<</for>>
+						<<listbox "$hairOption" autoselect>>
+							<<optionsfrom _hairOptions>>
+						<</listbox>>
+					</div>
+				<<elseif $hairlength gt 100>>
+					You don't have enough money to cut your hair.
+				<</if>>
+			</div>
+
+			<div class="settingsToggleItem">
+				<div class="gold bold">Fringe Trim</div>
+				<<if ($money gte _currentCost + (dhmod.cfg.prices ? dhmShop.prices.fringeCut : 3000) or $fringeOption isnot $fringelength) and $fringelength gte 100>>
+					<<if $fringeOption isnot $fringelength and not dhmod.cfg.prices>>
+						<<set _currentCost += 3000>>
+					<</if>>
+					<div>
+						Have your fringe cut until it's:
+						<br>
+						<<set _fringeNames to ["Very short", "Short", "Standard", "Long"]>>
+						<<set _fringeOptions to {"Don't cut":$fringelength}>>
+					
+						<<for _i to 3; _i gte 0; _i-->>
+							<<set $_length to (_i * 200) + 100>>
+							<<if $_length + 50 lt $fringelength>> /* + 50 to ensure it's not cut too early */
+								<<set _fringeOptions[_fringeNames[_i]] to $_length>>
+							<</if>>
+						<</for>>
+						<<listbox "$fringeOption" autoselect>>
+							<<optionsfrom _fringeOptions>>
+						<</listbox>>
+					</div>
+				<<elseif $fringelength gte 100>>
+					You don't have enough money to cut your fringe.
+					<br><br>
+				<</if>>
+			</div>
+			<!-- }}} -->
+		</div>
+
+		<div id="item-dyes" class="settingsToggleItemWide">
+			<div class="bold gold">Hair Dye</div>
+				<!-- {{{ -->
+				<<set _dyeNames to ["Red","Jet black", "Black", "Blond", "Soft Blond", "Platinum blond", "Golden", "Ashy blond", "Strawberry blond", "Dark Brown", "Brown", "Soft brown", "Light brown", "Burnt Orange", "Ginger", "Blood Orange", "Blue", "Deep Blue", "Neon Blue", "Green", "Dark Lime", "Toxic Green", "Teal", "Pink", "Bright Pink", "Hot pink", "Soft pink", "Crimson", "Purple", "Medium Purple", "Bright Purple", "White", "Snow white"]>>
+				<<set $hairdressersHairColour to ["red","jetblack", "black", "blond", "softblond", "platinumblond", "golden", "ashyblond", "strawberryblond", "darkbrown", "brown", "softbrown", "lightbrown", "burntorange", "ginger", "bloodorange", "blue", "deepblue", "neonblue", "green", "darklime", "toxicgreen", "teal", "pink", "brightpink", "hotpink", "softpink", "crimson", "purple", "mediumpurple", "brightpurple", "white", "snowwhite"]>>
+
+				<<set _dyeOptions to {"Don't dye":"noChange"}>>
+				<<if $haircolour isnot $naturalhaircolour>>
+					<<set _dyeOptions["Remove dye"] to "removeDye">>
+				<</if>>
+				<!--}}}-->
+			<<if $money gte _currentCost + (dhmod.cfg.prices ? dhmShop.calcWrapper('simple', $dyedHairPart) : 3000) or $dyeOption isnot "noChange" or $twoToneHairDye>>
+
+				<<if $money gte _currentCost + (dhmod.cfg.prices ? dhmShop.calcWrapper('simple', $dyedHairPart) : 6000) or ($dyeOption isnot "noChange" and $dyeOption isnot "removeDye")>>
+					<<for _i to 0; _i lt _dyeNames.length; _i++>>
+						<<if ($haircolour is $hairdressersHairColour[_i] and $hairColourStyle is "simple") or $naturalhaircolour is $hairdressersHairColour[_i]>>
+							<<continue>>
+						<</if>>
+						<<set _dyeOptions[_dyeNames[_i]] to $hairdressersHairColour[_i]>>
+					<</for>>
+				<</if>>
+
+				<<if not dhmod.cfg.prices>>
+					<<if $dyeOption is "removeDye">>
+						<<set _currentCost += 3000>>
+					<<elseif not $twoToneHairDye and $dyeOption isnot "noChange">>
+						<<if $dyedHairPart is "hair">>
+							<<set _currentCost += 6000>>
+						<<else>>
+							<<set _currentCost += 5000>>
+						<</if>>
+					<<elseif $twoToneHairDye>>
+						<<set _currentCost += 25000>>
+					<</if>>
+				<</if>>
+				<br>
+			
+				<div class="subgrid" id="options-dye">
+					<div class="column">
+						<label><<radiobutton "$dyedHairPart" "hair" autocheck>> Full head</label> |
+						<label><<radiobutton "$dyedHairPart" "fringe" autocheck>> Fringe</label> |
+						<label><<radiobutton "$dyedHairPart" "sides" autocheck>> Sides</label> |
+						<br>
+					</div>
+					<div class="column">
+						<label><<checkbox "$twoToneHairDye" false true autocheck>> Request a two-tone colouring</label>
+					</div>
+				</div>
+			
+				<<if not $twoToneHairDye>>
+					<<dhmDyePreview 'simple' _dyeOptions>>
+				<<else>>
+					<<set _twotoneDyeOptions to {}>>
+					<<for _i to 0; _i lt _dyeNames.length; _i++>>
+						<<set _twotoneDyeOptions[_dyeNames[_i]] to $hairdressersHairColour[_i]>>
+					<</for>>
+			
+					<div class="column">
+						Style: <<listbox "$twoToneStyle" autoselect>>
+							<<optionsfrom setup.dhmod.gradients>>
+						<</listbox>>
+						<br>
+						<div class="palettes">
+							<div class="column">
+								First colour:
+								<br>
+								<<dhmDyePreview 'dye1' _twotoneDyeOptions>>
+							</div>
+							<div class="column">
+								Second colour:
+								<br>
+								<<dhmDyePreview 'dye2' _twotoneDyeOptions>>
+							</div>
+						</div>
+					</div>
+				<</if>>
+			<<else>>
+				You don't have enough money to dye your <<print $dyedHairPart>>.
+				<br><br>
+			<</if>>
+		</div>
+
+		<div id="item-brows" class="settingsToggleItemWide">
+			<div class="gold bold">Eyebrow dye</div>
+			<<if $money gte _currentCost + (dhmod.cfg.prices ? dhmShop.prices.browClear : 1000) or $browsDyeOption isnot "noChange">>
+				<<set _browsDyeOptions to {"Don't dye":"noChange"}>>
+				<<if $makeup.browscolour isnot $naturalhaircolour>>
+					<<set _browsDyeOptions["Remove dye"] to "removeDye">>
+				<</if>>
+				<<if $money gte _currentCost + (dhmod.cfg.prices ? dhmShop.prices.browDye : 2000) or ($browsDyeOption isnot "noChange" and $browsDyeOption isnot "removeDye")>>
+					<<for _i to 0; _i lt _dyeNames.length; _i++>>
+						<<if $makeup.browscolour is $hairdressersHairColour[_i] or $naturalhaircolour is $hairdressersHairColour[_i]>>
+							<<continue>>
+						<</if>>
+						<<set _browsDyeOptions[_dyeNames[_i]] to $hairdressersHairColour[_i]>>
+					<</for>>
+				<</if>>
+				<<if not dhmod.cfg.prices>>
+					<<if $browsDyeOption is "removeDye">>
+						<<set _currentCost += 1000>>
+					<<elseif $browsDyeOption isnot "noChange">>
+						<<set _currentCost += 2000>>
+					<</if>>
+				<</if>>
+				
+				Have your eyebrows dyed<<if $makeup.browscolour isnot $naturalhaircolour>> or cleared of hair dye<</if>>:
+				<br>
+
+				<<dhmDyePreview 'brows' _browsDyeOptions>>
+			<<else>>
+				You don't have enough money to dye your brow.
+				<br><br>
+			<</if>>
+		</div>
+	</div>
+
+	<<if _sydneyPresent>>
+		<<if (!_cancel or _currentCost gt 0) and $money gte _currentCost>>
+			<<hairdressericon "chair">><<link [[Continue|Sydney Hairdressers Session]]>>
+				<<money `-_currentCost` "hairdressers">>
+			<</link>>
+		<<elseif $money lt _currentCost>>
+			<span class="red">You don't have enough money to pay the hairdresser.</span>
+			<br><br>
+			<<hairdressericon "chair">><<link [[Continue|Sydney Hairdressers Session]]>><</link>>
+			<br>
+		<</if>>
+		<<if _cancel>>
+			<br><br>
+			<<getouticon>><<link [[Leave|Sydney Hairdressers Cancel]]>><<endevent>><</link>>
+		<</if>>
+	<<else>>
+
+		<<if $money lt _currentCost>>
+			<<hairdressericon "chair">><span class="red">You don't have enough money to pay the hairdresser.</span>
+		<<elseif $twoToneHairDye and ($twoToneDyeOption1 eq $twoToneDyeOption2)>>
+			<<hairdressericon "chair">><span class="red">You need to select two different colours for two-tone hair colouring.</span>
+		<<elseif _currentCost gt 0>>
+			<<hairdressericon "chair">><<link [[Pay hairdresser|Hairdressers Session]]>>
+				<<money `-_currentCost` "hairdressers">>
+			<</link>>
+		<</if>>
+		<br>
+		<<cosmeticsicon "dyes">><<link [[Inquire about exotic dyes | Dye Harder Seat ]]>><</link>><br><br>
+		<<getouticon>><<link [[Leave|Hairdressers]]>><<endevent>><</link>>
+	<</if>>
+	<!-- }}} -->
+<</widget>>
+
+<<widget "dhmDyePreview">>
+	<!-- replace dye dropdown selector with swatch preview
+	{{{ -->
+	<<set _hairtype = _args[0]>>
+	<<set _swatches = _args[1]>>
+	<div class="dhm palette no-numberify">
+		<<for _swatch range Object.entries(_swatches)>>
+			<<capture _swatch, _hairtype>>
+				<<set _btnname to `<<if _swatch[1] isnot "removeDye" and _swatch[1] isnot "noChange">>
+					<span @class="'hair-' + _swatch[1]">
+						<div style="height:20px; width:25px; margin:0 auto; background-color:#fd6064; border:1px solid #ccc;" class="colour-hair" @aria-label="_swatch[0]"></div>
+					</span>
+					<<else>>
+						_swatch[0]
+					<</if>>
+				`>>
+				<span @class="((_swatch[1] == $dyeOption && _hairtype == 'simple')||(_swatch[1] == $twoToneDyeOption1 && _hairtype == 'dye1')||(_swatch[1] == $twoToneDyeOption2 && _hairtype=='dye2')||(_swatch[1] == $browsDyeOption && _hairtype == 'brows')) ? 'makeupWorn':'makeupItem'">
+					<<button _btnname>>
+						<<switch _hairtype>>
+							<<case 'simple'>>
+								<<set $dyeOption to _swatch[1]>>
+							<<case 'dye1'>>
+								<<set $twoToneDyeOption1 to _swatch[1]>>
+							<<case 'dye2'>>
+								<<set $twoToneDyeOption2 to _swatch[1]>>
+							<<case 'brows'>>
+								<<set $browsDyeOption to _swatch[1]>>
+						<</switch>>
+						<<replace #hairDressers>><<dhmUiReplace>><</replace>>
+						<<replace #currentCost>>To pay: £<<print _currentCost / 100>><</replace>><<numberify "#passages > .passage">>
+					<</button>>
+				</span>
+			<</capture>>
+		<</for>>
+	</div>
+<!--}}}-->
+<</widget>>
+
+<<widget "dhmUiReload">>
+	<<if dhmod.cfg.ui>>
+		<<dhmUiReplace>>
+	<<else>>
+		<<hairDressersOptions>>
+	<</if>>
+<</widget>>
+

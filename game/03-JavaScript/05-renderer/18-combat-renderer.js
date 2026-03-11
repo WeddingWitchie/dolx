@@ -387,6 +387,7 @@ class CombatRenderer {
 	 * @returns {Partial<CompositeLayerSpec>}
 	 */
 	static createHairColourGradient(hairPart, gradient, hairType, hairLength, prefilterName) {
+		const dhmod = this.getDhmState();
 		const combatHair = CombatRenderer.getHairGradientType(hairType, gradient);
 		const filterPrototypeLibrary = setup.colours.hairgradients_prototypes[hairPart][gradient.style];
 		const filterPrototype = filterPrototypeLibrary[combatHair] || filterPrototypeLibrary.all;
@@ -395,7 +396,7 @@ class CombatRenderer {
 			// @ts-ignore
 			blend: clone(filterPrototype),
 			brightness: {
-				// @ts-ignore
+				// @ts-ignore 
 				gradient: filterPrototype.gradient,
 				values: filterPrototype.values,
 				// @ts-ignore
@@ -408,12 +409,15 @@ class CombatRenderer {
 			// @ts-ignore
 			filter.brightness.adjustments[colorIndex][0] = filter.blend.lengthFunctions[0](hairLength, filter.blend.colors[colorIndex][0]);
 			// @ts-ignore
-			filter.brightness.adjustments[colorIndex][1] = setup.colours.hair_map[gradient.colours[colorIndex]].canvasfilter.brightness || 0;
-
+			filter.brightness.adjustments[colorIndex][1] =
+			// @ts-ignore
+			setup.colours.hair_map[dhmod.hair.is_custom ? dhmod.hair.colors[colorIndex] : gradient.colours[colorIndex]].canvasfilter.brightness || 0;
 			// @ts-ignore
 			filter.blend.colors[colorIndex][0] = filter.blend.lengthFunctions[0](hairLength, filter.blend.colors[colorIndex][0]);
 			// @ts-ignore
-			filter.blend.colors[colorIndex][1] = setup.colours.hair_map[gradient.colours[colorIndex]].canvasfilter.blend;
+			filter.blend.colors[colorIndex][1] =
+			// @ts-ignore
+			setup.colours.hair_map[dhmod.hair.is_custom ? dhmod.hair.colors[colorIndex] : gradient.colours[colorIndex]].canvasfilter.blend;
 		}
 
 		const prefilter = setup.colours.sprite_prefilters[prefilterName];
@@ -668,15 +672,30 @@ class CombatRenderer {
 	 * @returns {Partial<CompositeLayerSpec>}
 	 */
 	static getHairFilter() {
+		const dhmod = this.getDhmState();
 		if (V.hairColourStyle === "simple") {
-			return CombatRenderer.lookupColour(setup.colours.hair_map, V.haircolour, "hair", "hair_custom", "hair");
+			return CombatRenderer.lookupColour(
+				setup.colours.hair_map,
+				// @ts-ignore
+				dhmod.hair.is_custom ? dhmod.hair.colors[0] : V.haircolour,
+				"hair",
+				"hair_custom",
+				"hair"
+			);
 		}
 		if (["wide flaps", "hime", "curtain", "mohawk"].includes(V.fringetype)) {
 			return this.getFringeFilter();
 		}
 		if (V.hairColourGradient.style === "split") {
 			const index = V.position === "missionary" ? 0 : 1;
-			return CombatRenderer.lookupColour(setup.colours.hair_map, V.hairColourGradient.colours[index], "hair", "hair_custom", "hair");
+			return CombatRenderer.lookupColour(
+				setup.colours.hair_map,
+				// @ts-ignore
+				dhmod.hair.is_custom ? dhmod.hair.colors[index] : V.hairColourGradient.colours[index],
+				"hair",
+				"hair_custom",
+				"hair"
+			);
 		}
 		return CombatRenderer.createHairColourGradient(
 			"sides",
@@ -700,24 +719,67 @@ class CombatRenderer {
 	 * @returns {Partial<CompositeLayerSpec>}
 	 */
 	static getPartFilter(part) {
+		const dhmod = this.getDhmState();
 		if (V.hairColourStyle === "simple") {
-			return CombatRenderer.lookupColour(setup.colours.hair_map, V.haircolour, "hair", "hair_custom", "hair");
+			return CombatRenderer.lookupColour(
+				setup.colours.hair_map,
+				// @ts-ignore
+				dhmod.hair.is_custom ? dhmod.hair.colors[0] : V.haircolour,
+				"hair",
+				"hair_custom",
+				"hair"
+			);
 		}
 		if (V.hairColourGradient.style === "split") {
 			if (["tail", "pubes"].includes(part) || (["wings", "ears"].includes(part) && CombatRenderer.getPosition(V.position) === "missionary")) {
-				return CombatRenderer.lookupColour(setup.colours.hair_map, V.hairColourGradient.colours[0], "hair", "hair_custom", "hair");
+				return CombatRenderer.lookupColour(
+					setup.colours.hair_map,
+					// @ts-ignore
+					dhmod.hair.is_custom ? dhmod.hair.colors[0] : V.hairColourGradient.colours[0],
+					"hair",
+					"hair_custom",
+					"hair"
+				);
 			}
-			return CombatRenderer.lookupColour(setup.colours.hair_map, V.hairColourGradient.colours[1], "hair", "hair_custom", "hair");
+			return CombatRenderer.lookupColour(
+				setup.colours.hair_map,
+				// @ts-ignore
+				dhmod.hair.is_custom ? dhmod.hair.colors[1] : V.hairColourGradient.colours[1],
+				"hair",
+				"hair_custom",
+				"hair"
+			);
 		}
 		if (V.hairColourGradient.style === "high-ombre") {
 			if (["tail", "pubes", "wings"].includes(part)) {
-				return CombatRenderer.lookupColour(setup.colours.hair_map, V.hairColourGradient.colours[0], "hair", "hair_custom", "hair");
+				return CombatRenderer.lookupColour(
+					setup.colours.hair_map,
+					// @ts-ignore
+					dhmod.hair.is_custom ? dhmod.hair.colors[0] : V.hairColourGradient.colours[0],
+					"hair",
+					"hair_custom",
+					"hair"
+				);
 			}
-			return CombatRenderer.lookupColour(setup.colours.hair_map, V.hairColourGradient.colours[1], "hair", "hair_custom", "hair");
+			return CombatRenderer.lookupColour(
+				setup.colours.hair_map,
+				// @ts-ignore
+				dhmod.hair.is_custom ? dhmod.hair.colors[1] : V.hairColourGradient.colours[1],
+				"hair",
+				"hair_custom",
+				"hair"
+			);
 		}
 		if (V.hairColourGradient.style === "low-ombre") {
 			if (["tail"].includes(part)) {
-				return CombatRenderer.lookupColour(setup.colours.hair_map, V.hairColourGradient.colours[0], "hair", "hair_custom", "hair");
+				return CombatRenderer.lookupColour(
+					setup.colours.hair_map,
+					// @ts-ignore
+					dhmod.hair.is_custom ? dhmod.hair.colors[0] : V.hairColourGradient.colours[0],
+					"hair",
+					"hair_custom",
+					"hair"
+				);
 			}
 			return CombatRenderer.createHairColourGradient(
 				"sides",
@@ -728,7 +790,14 @@ class CombatRenderer {
 			);
 		}
 		if (V.hairColourGradient.style === "face-frame") {
-			return CombatRenderer.lookupColour(setup.colours.hair_map, V.hairColourGradient.colours[1], "hair", "hair_custom", "hair");
+			return CombatRenderer.lookupColour(
+				setup.colours.hair_map,
+				// @ts-ignore
+				dhmod.hair.is_custom ? dhmod.hair.colors[1] : V.hairColourGradient.colours[1],
+				"hair",
+				"hair_custom",
+				"hair"
+			);
 		}
 		return CombatRenderer.createHairColourGradient(
 			"sides",
@@ -743,14 +812,23 @@ class CombatRenderer {
 	 * @returns {Partial<CompositeLayerSpec>}
 	 */
 	static getFringeFilter() {
+		const dhmod = this.getDhmState();
 		if (V.hairFringeColourStyle === "simple") {
-			return CombatRenderer.lookupColour(setup.colours.hair_map, V.hairfringecolour || V.haircolour, "hair_fringe", "hair_fringe_custom", "hair_fringe");
+			return CombatRenderer.lookupColour(
+				setup.colours.hair_map,
+				// @ts-ignore
+				dhmod.fringe.is_custom ? dhmod.fringe.colors[0] : (V.hairfringecolour || V.haircolour),
+				"hair_fringe",
+				"hair_fringe_custom",
+				"hair_fringe"
+			);
 		}
 		if (V.hairFringeColourGradient.style === "split" && this.getFringeType() !== "mohawk") {
 			const index = V.position === "missionary" ? 0 : 1;
 			return CombatRenderer.lookupColour(
 				setup.colours.hair_map,
-				V.hairFringeColourGradient.colours[index],
+				// @ts-ignore
+				dhmod.fringe.is_custom ? dhmod.fringe.colors[index] : V.hairFringeColourGradient.colours[index],
 				"hair_fringe",
 				"hair_fringe_custom",
 				"hair_fringe"
@@ -890,6 +968,22 @@ class CombatRenderer {
 				contrast: 1.0,
 			},
 		};
+	}
+
+	static getDhmState() {
+		const V = State.variables;
+
+		if (!V.dhmod || typeof V.dhmod !== "object") V.dhmod = {};
+		if (!V.dhmod.hair || typeof V.dhmod.hair !== "object") V.dhmod.hair = {};
+		if (!V.dhmod.fringe || typeof V.dhmod.fringe !== "object") V.dhmod.fringe = {};
+
+		if (!Array.isArray(V.dhmod.hair.colors)) V.dhmod.hair.colors = [];
+		if (typeof V.dhmod.hair.is_custom !== "boolean") V.dhmod.hair.is_custom = false;
+
+		if (!Array.isArray(V.dhmod.fringe.colors)) V.dhmod.fringe.colors = [];
+		if (typeof V.dhmod.fringe.is_custom !== "boolean") V.dhmod.fringe.is_custom = false;
+
+		return V.dhmod;
 	}
 
 	/**

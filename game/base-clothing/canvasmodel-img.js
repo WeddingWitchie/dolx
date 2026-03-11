@@ -98,10 +98,7 @@ DefineMacro("modelprepare-player-body", function () {
 		T.modeloptions.right_eye = V.makeup.eyelenses.right != 0 ? V.makeup.eyelenses.right : V.rightEyeColour;
 	}
 
-	T.modeloptions.hair_colour = V.haircolour.replace(" ", "");
-	T.modeloptions.hair_fringe_colour = V.hairfringecolour.replace(" ", "");
-	T.modeloptions.hair_colour_gradient = V.hairColourGradient;
-	T.modeloptions.hair_fringe_colour_gradient = V.hairFringeColourGradient;
+	dhmUtils.canvasSetup();
 	T.modeloptions.hair_colour_style = V.hairColourStyle;
 	T.modeloptions.hair_fringe_colour_style = V.hairFringeColourStyle;
 
