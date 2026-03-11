@@ -229,50 +229,59 @@
 	<<set $_location to _args[0]>>
 	<<set $_slot to _args[1]>>
 	<<set $_selectedWardrobe to ($_location is "wardrobe" or !($_location in $wardrobes) ? $wardrobe : $wardrobes[$_location])>>
-	<<set $_selectedWardrobe[$_slot].push(clone(setup.clothes[$_slot][_args[2]]))>>
-	<<set $_item to $_selectedWardrobe[$_slot].last()>>
-	<<if $_item.colour_options.length gt 0>>
-		<<if _args[3]>>
-			<<set $_item.colour to _args[3]>>
-			<<if $_item.colour is "custom">>
-				<<if _colourCustom isnot undefined>>
-					<<set $_item.colourCustom to _colourCustom>>
-					<<unset _colourCustom>>
-				<<else>>
-					<<set $_item.colourCustom to customColour($customColors.color.primary, $customColors.saturation.primary, $customColors.brightness.primary, $customColors.contrast.primary, $customColors.sepia.primary)>>
+
+	<<if $_selectedWardrobe[$_slot] is undefined>>
+		<<set $_selectedWardrobe[$_slot] to []>>
+	<</if>>
+
+	<<if setup.clothes[$_slot] is undefined or setup.clothes[$_slot][_args[2]] is undefined>>
+		<<run console.warn("[DoLX] sendToWardrobeFromDefault missing clothing source:", {passage: passage(), location: $_location, slot: $_slot, index: _args[2] })>>
+	<<else>>
+		<<set $_selectedWardrobe[$_slot].push(clone(setup.clothes[$_slot][_args[2]]))>>
+		<<set $_item to $_selectedWardrobe[$_slot].last()>>
+		<<if $_item.colour_options.length gt 0>>
+			<<if _args[3]>>
+				<<set $_item.colour to _args[3]>>
+				<<if $_item.colour is "custom">>
+					<<if _colourCustom isnot undefined>>
+						<<set $_item.colourCustom to _colourCustom>>
+						<<unset _colourCustom>>
+					<<else>>
+						<<set $_item.colourCustom to customColour($customColors.color.primary, $customColors.saturation.primary, $customColors.brightness.primary, $customColors.contrast.primary, $customColors.sepia.primary)>>
+					<</if>>
 				<</if>>
+			<<else>>
+				<<set $_item.colour to clone($_item.colour_options.random())>>
 			<</if>>
-		<<else>>
-			<<set $_item.colour to clone($_item.colour_options.random())>>
 		<</if>>
-	<</if>>
-	<<if $_item.accessory_colour_options.length gt 0 and $_item.accessory_colour_sidebar>>
-		<<if _args[4]>>
-			<<set $_item.accessory_colour to _args[4]>>
-			<<if $_item.accessory_colour is "custom">>
-				<<if _accessory_colourCustom isnot undefined>>
-					<<set $_item.accessory_colourCustom to _accessory_colourCustom>>
-					<<unset _accessory_colourCustom>>
-				<<else>>
-					<<set $_item.accessory_colourCustom to customColour($customColors.color.secondary, $customColors.saturation.secondary, $customColors.brightness.secondary, $customColors.contrast.secondary, $customColors.sepia.secondary)>>
+		<<if $_item.accessory_colour_options.length gt 0 and $_item.accessory_colour_sidebar>>
+			<<if _args[4]>>
+				<<set $_item.accessory_colour to _args[4]>>
+				<<if $_item.accessory_colour is "custom">>
+					<<if _accessory_colourCustom isnot undefined>>
+						<<set $_item.accessory_colourCustom to _accessory_colourCustom>>
+						<<unset _accessory_colourCustom>>
+					<<else>>
+						<<set $_item.accessory_colourCustom to customColour($customColors.color.secondary, $customColors.saturation.secondary, $customColors.brightness.secondary, $customColors.contrast.secondary, $customColors.sepia.secondary)>>
+					<</if>>
 				<</if>>
+			<<else>>
+				<<set $_item.accessory_colour to clone($_item.accessory_colour_options.random())>>
 			<</if>>
-		<<else>>
-			<<set $_item.accessory_colour to clone($_item.accessory_colour_options.random())>>
 		<</if>>
-	<</if>>
-	<<if $_item.pattern_options and $_item.pattern_options.length gt 0>>
-		<<if _args[5]>>
-			<<set $_item.pattern to _args[5]>>
-		<<else>>
-			<<set $_item.pattern to clone($_item.pattern_options[0])>>
+		<<if $_item.pattern_options and $_item.pattern_options.length gt 0>>
+			<<if _args[5]>>
+				<<set $_item.pattern to _args[5]>>
+			<<else>>
+				<<set $_item.pattern to clone($_item.pattern_options[0])>>
+			<</if>>
 		<</if>>
+		<<if _hoodDown and $_item.hoodposition isnot undefined>>
+			<<set $_item.hoodposition to "down">>
+			<<run delete $_item.outfitPrimary.head>>
+		<</if>>
+		<<run clothesDataTrimmer($_item)>>
 	<</if>>
-	<<if _hoodDown and $_item.hoodposition isnot undefined>>
-		<<set $_item.hoodposition to "down">>
-		<<run delete $_item.outfitPrimary.head>>
-	<</if>>
-	<<run clothesDataTrimmer($_item)>>
 <</widget>>
 
 /*The "...send" widgets give the player character new clothing. They take the index of the item you want to provide as an argument, the location you want to send it to as a second argument, (such as "wardrobe",) and the colour of the item as an optional third argument. Fourth argument defines the secondary colour, if present. Fifth argument defines the pattern, if present. Only the upper half is required in the case of outfits. They differ from the "...wear" widgets in that they send clothes to your wardrobe, rather than put them on your character.*/
