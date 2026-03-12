@@ -177,13 +177,13 @@
 		/* only display the tf menu if there's actually some options that can be changed */
 		<<set $_tfs to setup.transformations.filter(tf => tf.parts?.some(part => tf.level >= part.tfRequired))>>
 		<<set _permtfs to ["angeltf","fallenangeltf","fallenangelplustf","demontf","wolftf","cattf","cowtf","beartf","waterdragontf","harpytf","foxtf","bunnytf"]>>
-		<<if $_tfs.length >= 1 or _permtfs.some(tf => V[tf] === 1)>>
+		<<if $_tfs.length >= 1 or _permtfs.some(tf => V[tf] === 1) or $waterdragonCosmeticUnlocked is 1>>
 			__Transformation__
 			<br>
 			/* show the icon of the highest leveled transform with parts unlocked */
 			/* assumes maximum of 2 simultaneous transformations */
 			<<if $_tfs.length gt 1>><<set $_icon to ($_tfs[1]?.level gt $_tfs[0].level) ? $_tfs[1].name : $_tfs[0].name>><</if>>
-			<<if !$_icon>><<set $_icon to "angel">><</if>>
+			<<if !$_icon and $waterdragonCosmeticUnlocked is 1>><<set $_icon to "waterdragon">><<elseif !$_icon>><<set $_icon to "angel">><</if>>
 			<<tficon $_icon>>
 			<<link "Examine your inner self">><<set $mirrorMenu to "transformation">><<replace #mirror>><<mirrorDisplay>><</replace>><<numberify "#passages > .passage">><</link>>
 		<<else>>
@@ -2536,7 +2536,9 @@
 	<<if $waterdragonSkinLock is undefined>><<set $waterdragonSkinLock to 0>><</if>>
 	<<if $waterdragonCosmeticUnlocked is undefined>><<set $waterdragonCosmeticUnlocked to 0>><</if>>
 	<<set _waterdragonFullCheck to ($waterdragon gte 6 or (_waterdragon.tail isnot "hidden" and _waterdragon.tail isnot "disabled")) or $waterdragontf is 1>>
-	<<set _waterdragonSkinMenuCheck to (_waterdragonFullCheck or $waterdragonCosmeticUnlocked is 1 or $waterdragonSkinLock isnot 0)>>
+	<<set _waterdragonUnlockedCheck to ($waterdragonCosmeticUnlocked is 1)>>
+	<<set _waterdragonTraitsCheck to (_waterdragonFullCheck or _waterdragonUnlockedCheck)>>
+	<<set _waterdragonSkinMenuCheck to (_waterdragonTraitsCheck or $waterdragonSkinLock isnot 0)>>
 	<<set _wolfFullCheck to ($wolfgirl gte 6) or $wolftf is 1>>
 	<<set _birdFullCheck to ($harpy gte 6) or $harpytf is 1>>
 	<<set _foxFullCheck to ($fox gte 6) or $foxtf is 1>>
@@ -2548,6 +2550,7 @@
 	<<set _cowPartialCheck to ($cow gte 4) or $cowtf is 1>>
 	<<set _bearPartialCheck to ($bear gte 4) or $beartf is 1>>
 	<<set _waterdragonPartialCheck to ($waterdragon gte 4) or $waterdragontf is 1>>
+	<<set _waterdragonAppearanceCheck to (_waterdragonPartialCheck or _waterdragonUnlockedCheck)>>
 	<<set _wolfPartialCheck to ($wolfgirl gte 4) or $wolftf is 1>>
 	<<set _birdPartialCheck to ($harpy gte 4) or $harpytf is 1>>
 	<<set _foxPartialCheck to ($fox gte 4) or $foxtf is 1>>
@@ -2559,14 +2562,15 @@
 	<<set _cowInitialCheck to ($cow gte 2) or $cowtf is 1>>
 	<<set _bearInitialCheck to ($bear gte 2) or $beartf is 1>>
 	<<set _waterdragonInitialCheck to ($waterdragon gte 2) or $waterdragontf is 1>>
+	<<set _waterdragonMenuCheck to (_waterdragonInitialCheck or _waterdragonUnlockedCheck)>>
 	<<set _wolfInitialCheck to ($wolfgirl gte 2) or $wolftf is 1>>
 	<<set _birdInitialCheck to ($harpy gte 2) or $harpytf is 1>>
 	<<set _foxInitialCheck to ($fox gte 2) or $foxtf is 1>>
 	<<set _bunnyInitialCheck to ($bunny gte 2) or $bunnytf is 1>>
 
-	<<if _wolfInitialCheck or _catInitialCheck or _cowFullCheck or _bearFullCheck or _waterdragonInitialCheck or $harpy gte 3 or $harpytf is 1 or $fox gte 3 or $foxtf is 1 or _bunnyInitialCheck or (_demonPartialCheck and $exhibitionism gte 95)>>
+	<<if _wolfInitialCheck or _catInitialCheck or _cowFullCheck or _bearFullCheck or _waterdragonMenuCheck or $harpy gte 3 or $harpytf is 1 or $fox gte 3 or $foxtf is 1 or _bunnyInitialCheck or (_demonPartialCheck and $exhibitionism gte 95)>>
 		__Traits__<br>
-		<<if _wolfInitialCheck or _catInitialCheck or _foxInitialCheck or _bearInitialCheck or _waterdragonInitialCheck>>
+		<<if _wolfInitialCheck or _catInitialCheck or _foxInitialCheck or _bearInitialCheck or _waterdragonMenuCheck>>
 			Fangs: <<checkbox "_traits.fangs" "disabled" "default" autocheck>><br>
 		<</if>>
 		<<if _catInitialCheck or _birdInitialCheck or _foxInitialCheck>>
@@ -2624,7 +2628,7 @@
 			<<if _bearFullCheck>>
 				Ursine Strength: <<checkbox "$TFBearBuffs" 0 1 autocheck>><br>
 			<</if>>
-			<<if _waterdragonFullCheck or $waterdragonCosmeticUnlocked is 1>>
+			<<if _waterdragonTraitsCheck>>
 				Dragon's Grace: <<checkbox "$TFWaterDragonBuffs" 0 1 autocheck>><br>
 			<</if>>
 			<<if _birdFullCheck>>
@@ -2665,7 +2669,7 @@
 					<<set _tempToleranceChoice to _options["Bear"]>>
 				<</if>>
 			<</if>>
-			<<if _waterdragonFullCheck>>
+			<<if _waterdragonTraitsCheck>>
 				<<set _options["Water Dragon"] = "waterdragon">>
 				<<if _traits.tempTolerance is "waterdragon">>
 					<<set _tempToleranceChoice to _options["Water Dragon"]>>
@@ -2953,7 +2957,7 @@
 			<<set _earsChoice to _options["Kitsune"]>>
 		<</if>>
 	<</if>>
-	<<if _waterdragonPartialCheck>>
+	<<if _waterdragonAppearanceCheck>>
 		<<set _options["Water Dragon"] = ["waterdragon", "default"]>>
 		<<set _options["Water Dragon Purple"] = ["waterdragon", "purple"]>>
 		<<set _options["Water Dragon Gray"] = ["waterdragon", "gray"]>>
@@ -3100,7 +3104,7 @@
 			<<set _hornsChoice to _options["Cow"]>>
 		<</if>>
 	<</if>>
-	<<if _waterdragonPartialCheck>>
+	<<if _waterdragonAppearanceCheck>>
 		<<set _options["Water Dragon"] = ["waterdragon", "default"]>>
 		<<set _options["Water Dragon Short"] = ["waterdragon", "short"]>>
 		<<if _waterdragon.horns is "default">>
@@ -3219,7 +3223,7 @@
 			<<set _tailChoice to _options["Wolf Feral"]>>
 		<</if>>
 	<</if>>
-	<<if _waterdragonFullCheck>>
+	<<if _waterdragonTraitsCheck>>
 		<<set _options["Water Dragon Long"] = ["waterdragon", "default"]>>
 		<<set _options["Water Dragon Short"] = ["waterdragon", "short"]>>
 		<<set _options["Water Dragon Long Purple"] = ["waterdragon", "purple"]>>
