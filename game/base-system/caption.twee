@@ -143,7 +143,9 @@
 			<</switch>>
 			<br><br>
 		<</if>>
-		<<schoolday>>
+		<div id="storySidebarPanel">
+			<div id="statusCaptionPanel">
+				<<schoolday>>
 		<br>
 
 		<<caption_clamp>>
@@ -293,6 +295,7 @@
 			<</if>>
 			<<drunkcaption>><<druggedcaption>><<hallucinogencaption>>
 		</div>
+			</div>
 		<br>
 
 		<<if $options.clothingCaption or !$options.images>>
@@ -308,79 +311,86 @@
 		<</if>>
 
 		<div id="overlayButtons">
-			<<button CHARACTERISTICS>>
-				<<overlayReplace "characteristics">>
-			<</button>>
-			<<button SOCIAL>>
-				<<overlayReplace "social">>
-			<</button>>
-			<div class="sidebarButtonSplit">
-				<<button TRAITS>>
-					<<overlayReplace "traits">>
+			<div class="sidebarButtonGroup">
+				<<button CHARACTERISTICS>>
+					<<overlayReplace "characteristics">>
 				<</button>>
-				<<button JOURNAL>>
-					<<overlayReplace "journal">>
+				<<button SOCIAL>>
+					<<overlayReplace "social">>
 				<</button>>
-			</div>
-			<div class="sidebarButtonSplit">
-				<<button STATS>>
-					<<overlayReplace "statistics">>
-				<</button>>
-				<<button FEATS>>
-					<<overlayReplace "gameFeats">>
-				<</button>>
-			</div>
-			<br>
-			<div class="sidebarButtonSplit">
-				<<if $dancing is 0 and $combat is 0 and $passage isnot "Start2" and $cheatsEnabled is true or $debug is 1>>
-					<<button CHEATS>>
-						<<overlayReplace "cheats">>
+				<div class="sidebarButtonSplit">
+					<<button TRAITS>>
+						<<overlayReplace "traits">>
 					<</button>>
-				<</if>>
-				<<if $debug is 1>>
-					<<debug>>
-				<</if>>
+					<<button JOURNAL>>
+						<<overlayReplace "journal">>
+					<</button>>
+				</div>
+				<div class="sidebarButtonSplit">
+					<<button STATS>>
+						<<overlayReplace "statistics">>
+					<</button>>
+					<<button FEATS>>
+						<<overlayReplace "gameFeats">>
+					<</button>>
+				</div>
 			</div>
-			<div class="sidebarButtonSplit">
-				<<button "DOLX CREDITS">>
-					<<overlayReplace "DoLXCredits">>
-				<</button>>
-				<<button "DECOMOD">>
-					<<overlayReplace "mirrorMood">>
-				<</button>>
-			</div>
-			<!-- Event debug button - Shows an overlay stored in debug-events.twee. -->
-			<<if $event isnot undefined and $options.debugdisable is "f">>
-				<!-- Default _temp to what we should people regularly if an event active. -->
-				<<set _temp to "<span class='yellow'>SHOW EVENT INFO</span>">>
-				<!-- Prepare for cases where we want to update the button view. -->
-				<<if EventSystem.any()>>
-					<<if !EventSystem.validate()>>
-						<!-- Could not validate the NPC list with event data. -->
-						<<set _temp to "<span class='red'>EVENT ERROR</span>">>
-					<<elseif EventSystem.has(0) and EventSystem.get(0).area[0] is $passage>>
-						<<set _eventAlertMajorArea to false>>
-						<<set _temp to "<span class='green'>EVENT ACTIVE</span>">>
-					<<elseif setup.majorAreas.includes($passage)>>
-						<<set _eventAlertMajorArea to true>>
-						<<set _temp to "<span class='red'>EVENT ACTIVE</span>">>
-					<<elseif $event.buffer.map(e => e.area[0]).length is 1 and EventSystem.has(0) and ["Forest Cabin", "Eden Cabin", "Eden Clearing"].includes(EventSystem.get(0).area[0])>>
-						<<set _temp to "<span class='green'>EVENT ACTIVE</span>">>
+
+			<div class="sidebarButtonGroup">
+				<<if $dancing is 0 and $combat is 0 and $passage isnot "Start2" and $cheatsEnabled is true or $debug is 1>>
+					<div class="sidebarButtonSplit">
+						<<if $dancing is 0 and $combat is 0 and $passage isnot "Start2" and $cheatsEnabled is true or $debug is 1>>
+							<<button CHEATS>>
+								<<overlayReplace "cheats">>
+							<</button>>
+						<</if>>
+						<<if $debug is 1>>
+							<<debug>>
+						<</if>>
+					</div>
+				<</if>>
+
+				<div class="sidebarButtonSplit">
+					<<button "DOLX CREDITS">>
+						<<overlayReplace "DoLXCredits">>
+					<</button>>
+					<<button "DECOMOD">>
+						<<overlayReplace "mirrorMood">>
+					<</button>>
+				</div>
+
+				<<if $event isnot undefined and $options.debugdisable is "f">>
+					<<set _temp to "<span class='yellow'>SHOW EVENT INFO</span>">>
+					<<if EventSystem.any()>>
+						<<if !EventSystem.validate()>>
+							<<set _temp to "<span class='red'>EVENT ERROR</span>">>
+						<<elseif EventSystem.has(0) and EventSystem.get(0).area[0] is $passage>>
+							<<set _eventAlertMajorArea to false>>
+							<<set _temp to "<span class='green'>EVENT ACTIVE</span>">>
+						<<elseif setup.majorAreas.includes($passage)>>
+							<<set _eventAlertMajorArea to true>>
+							<<set _temp to "<span class='red'>EVENT ACTIVE</span>">>
+						<<elseif $event.buffer.map(e => e.area[0]).length is 1 and EventSystem.has(0) and ["Forest Cabin", "Eden Cabin", "Eden Clearing"].includes(EventSystem.get(0).area[0])>>
+							<<set _temp to "<span class='green'>EVENT ACTIVE</span>">>
+						<</if>>
 					<</if>>
+					<<button _temp>><<overlayReplace "eventExtraInfo">><</button>>
+					<<unset _temp>>
 				<</if>>
-				<<button _temp>><<overlayReplace "eventExtraInfo">><</button>>
-				<<unset _temp>>
-			<</if>>
-			<<if $options.showDebugRenderer>>
-				<<button "DEBUG RENDERER">><<overlayReplace "canvasModel">><</button>>
-			<</if>>
-			<div class="sidebarButtonSplit">
-				<<button OPTIONS>>
-					<<overlayReplace "options">>
-				<</button>>
-				<<button SAVES>>
-					<<overlayReplace "saves">>
-				<</button>>
+
+				<<if $options.showDebugRenderer>>
+					<<button "DEBUG RENDERER">><<overlayReplace "canvasModel">><</button>>
+				<</if>>
+
+				<div class="sidebarButtonSplit">
+					<<button OPTIONS>>
+						<<overlayReplace "options">>
+					<</button>>
+					<<button SAVES>>
+						<<overlayReplace "saves">>
+					<</button>>
+				</div>
+			</div>
 			</div>
 		</div>
 	</div>
@@ -420,22 +430,26 @@
 
 :: Widgets Clothing Caption [widget]
 <<widget "startCaption">>
-	<<versioninfo>>
+	<div class="dolx-start-sidebar-shell">
+		<div class="dolx-start-sidebar-header">
+			<<versioninfo>>
+		</div>
 
-	<div class="my-4">
-		<<linkinformation>>
-	</div>
+		<div class="dolx-start-sidebar-links my-4">
+			<<linkinformation>>
+		</div>
 
-	<<button SAVES>>
-		<<overlayReplace "saves">>
-	<</button>>
-	<div class="sidebarButtonSplit">
-		<<button OPTIONS>>
-			<<overlayReplace "options">>
+		<<button SAVES>>
+			<<overlayReplace "saves">>
 		<</button>>
-		<<button FEATS>>
-			<<overlayReplace "startFeats">>
-		<</button>>
+		<div class="sidebarButtonSplit">
+			<<button OPTIONS>>
+				<<overlayReplace "options">>
+			<</button>>
+			<<button FEATS>>
+				<<overlayReplace "startFeats">>
+			<</button>>
+		</div>
 	</div>
 <</widget>>
 

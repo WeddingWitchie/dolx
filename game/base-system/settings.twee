@@ -191,12 +191,8 @@
 			<<startOptionsComplexityButton "Basic" "default">>
 		</div>
 
-		<div id="startSelectionAdjusted" class="buttonSettings">
-			<<startOptionsComplexityButton "Moderate" "adjusted">>
-		</div>
-
 		<div id="startSelectionCustom" class="buttonSettings">
-			<<startOptionsComplexityButton "Advanced" "custom">>
+			<<startOptionsComplexityButton "Custom" "custom">>
 		</div>
 
 		<div id="startSelectionRandom" class="buttonSettings">
@@ -207,54 +203,28 @@
 	<hr>
 	<<set _featTabName to "Feat Boosts<span class='red'> *</span>"+ ($options.images is 1 ? " <img class='imgButton' src='img/ui/GoldCoin.gif'/>" : "")>>
 	<<switch _selectedStart>>
-		/*Basic Start is selected */
 		<<case "default">>
 			<div class="containerStart">
-			/*Character Creation*/
 				<<settingsTabButton "Character Creation<span class='red'> *</span>" "character">>
-			/*Feat Boosts */
 				<<settingsTabButton _featTabName "feat">>
-			/*Gallery*/
 				<<settingsTabButton "Gallery" "gallery">>
-			</div>
-		/*Moderate Start is Selected */
-		<<case "adjusted">>
-			<div class="containerStart">
-			/*Character Creation*/
-				<<settingsTabButton "Character Creation<span class='red'> *</span>" "character">>
-			/*Tweak Preferences, formerly Quick Start*/
-				<<settingsTabButton "Tweak Preferences" "tweak">>
-			/*Feat Boosts */
-				<<settingsTabButton _featTabName "feat">>
-			/*Gallery*/
-				<<settingsTabButton "Gallery" "gallery">>
-			</div>
-		/*Custom Start is Selected */
-		<<case "custom">>
-			<div class="containerStart">
-			/*Character Creation*/
-				<<settingsTabButton "Character Creation<span class='red'> *</span>" "character">>
-			/*Game Settings*/
-				<<settingsTabButton "Game Settings" "game">>
-			/*Mod Settings*/
-				<<settingsTabButton "Modded Settings" "dolp">>
-			/*Feat Boosts*/
-				<<settingsTabButton _featTabName "feat">>
-			/*Gallery*/
-				<<settingsTabButton "Gallery" "gallery">>
-			/*Export/Import Settings*/
 				<<settingsTabButton "Export/Import Settings" "export">>
 			</div>
-		/*Random Start is Selected */
+		<<case "custom">>
+			<div class="containerStart">
+				<<settingsTabButton "Character Creation<span class='red'> *</span>" "character">>
+				<<settingsTabButton "Game Settings" "game">>
+				<<settingsTabButton "Modded Settings" "dolp">>
+				<<settingsTabButton _featTabName "feat">>
+				<<settingsTabButton "Gallery" "gallery">>
+				<<settingsTabButton "Export/Import Settings" "export">>
+			</div>
 		<<case "random">>
 			<div class="containerStart">
-			/*Feat Boosts*/
 				<<settingsTabButton _featTabName "feat">>
-			/*Gallery*/
 				<<settingsTabButton "Gallery" "gallery">>
 			</div>
 	<</switch>>
-	/*Container for different tabs*/
 	<div id="settingsDiv">
 		<<switch $currentSettings>>
 			<<case "featSettings" "feat">><<featSettings>>
@@ -270,15 +240,16 @@
 		<<set _selectedStart to "default">>
 	<</if>>
 
-	Select your settings:
-	<br>
-	<div id="startOptions" class="no-numberify">
-		<<startOptions>>
-	</div>
-	<br>
+	<div class="dolx-start-shell">
+		<div class="dolx-start-heading"><p class="gold m-0">Select your settings:</p></div>
+		<div id="startOptions" class="no-numberify">
+			<<startOptions>>
+		</div>
+		<br>
 
-	<div id="settingsExit">
-		<<settingsExit>>
+		<div id="settingsExit">
+			<<settingsExit>>
+		</div>
 	</div>
 <</widget>>
 
@@ -433,49 +404,6 @@
 				<</button>>
 				<div class="small-description my-2" style>
 					Most settings, including NPC genders and beast appearance, can be changed later by using the <span class="gold">Gameplay Settings</span> link in your bedroom. <span class="red">You will not be able to change your character's genitalia or feat boosts after starting the game.</span>
-				</div>
-			<<case "adjusted">>
-				<div class="my-1"><span class="gold bold">Current Settings:</span> <i>Adjustable</i></div>
-				/* Reset these settings if going back to moderate/adjusted tab */
-				<<set $settings.maleChanceSplit to false>>
-				<<set $settings.maleChance to 50>>
-				<<set $settings.maleChanceMale to 50>>
-				<<set $settings.maleChanceFemale to 50>>
-				<<set $settings.beastMaleChanceSplit to false>>
-				<<set $settings.beastMaleChance to 50>>
-				<<set $settings.beastMaleChanceMale to 50>>
-				<<set $settings.beastMaleChanceFemale to 50>>
-				<<button "Start Game!">>
-					<<presets _kinkPreset "save">>
-					<<presets _namedNpcPreset "save">>
-					<<presets _monstersPreset "save">>
-					<<if _pregnancytype is "disabled">>
-						<<set $settings.playerPregnancyHumanEnabled to false>>
-						<<set $settings.playerPregnancyBeastEnabled to false>>
-						<<set $settings.playerPregnancyEggLayingEnabled to false>>
-						<<set $settings.npcPregnancyEnabled to false>>
-					<<else>>
-						<<set $settings.pregnancyType to _pregnancytype or "realistic">>
-						<<set $settings.playerPregnancyHumanEnabled to true>>
-						<<set $settings.playerPregnancyBeastEnabled to true>>
-						<<set $settings.playerPregnancyEggLayingEnabled to true>>
-						<<set $settings.npcPregnancyEnabled to true>>
-					<</if>>
-					<<if _incompletePregnancyDisable is false or (_incompletePregnancyDisable is true and !_foundPregnancy)>>
-						<<set $settings.incompletePregnancyEnabled to _incompletePregnancyDisable>>
-						<<npcPregnancyUpdater>>
-					<</if>>
-					<<lockInIdentity>>
-					<<if ($feats.locked or ($settings.cheatsEnabledToggle is false and $settings.rentCostModifier gte 1 and $statGainMult lte 100 and $npcHealthMult gte 100 and $nnpcHealthMult gte 100 and $beastHealthMult gte 100 and $tentacleHealthMult gte 100 and $struggleHealthMult gte 100)) and ($feats.soft or ($gamemode isnot "soft" and $settings.allureModifier gte 1)) and ($feats.pregnancyLocked or ($settings.humanPregnancyMonths gte 3 and $settings.wolfPregnancyWeeks gte 4)) and ($feats.pregnancySillyLocked or $settings.pregnancyType isnot "silly")>>
-						<<settingsExitFunction>>
-					<<else>><!-- confirm cheats -->
-						<<replace #settingsExit>><<settingsExitConfirm>><</replace>>
-					<</if>>
-				<</button>>
-				<div class="small-description my-2">
-					Most settings, including NPC genders and beast appearance, can be changed later by using the <span class="gold">Gameplay Settings</span> link in your bedroom. <span class="red">You will not be able to change your character's genitalia or feat boosts after starting the game.</span>
-					<hr>
-					<span class="red small-description">If changes were made to fetish toggles while in <span class="gold">Advanced Start,</span> they will be overwritten by your current selected settings.</span>
 				</div>
 			<<case "custom">>
 				<div class="my-1"><span class="gold bold">Current Settings:</span> <i>Customisable</i></div>
@@ -1383,13 +1311,13 @@
 		<div class="settingsHeader">
 			Personality
 		</div>
-		<div class="settingsToggleItemWide">
+		/* <div class="settingsToggleItemWide">
 			<span class="gold">Randomise:</span>
 			<br>
 			<<link "Character traits">><<presets "randomize" "characterSettings" `randomizeSettings('characterTrait')`>><</link>>
 			<mouse class="tooltip linkBlue">(?)<span>Randomises the player character's traits, including background, awareness, and general sensitivity. <i class="red">These traits cannot be changed after starting the game.</i></span></mouse>
 			<br>
-		</div>
+		</div> */
 		<div class="settingsToggleItemWide">
 			<span class="gold">Awareness:</span> <mouse class="tooltip linkBlue">(?)<span>Whether your character knows a thing or two about sex despite their lack of experience.</span></mouse>
 			<br>
@@ -1397,7 +1325,8 @@
 			<label>Knowledgeable <<radiobutton "$awareselect" "knowledgeable" autocheck>></label>
 		</div>
 		<div class="settingsToggleItemWide">
-			<span class="gold">Background:</span><br>
+			<span class="gold">Background:</span>
+			<mouse class="tooltip linkBlue">(?)<span><i class="red">These traits cannot be changed after starting the game.</i></span></mouse><br>
 			<label data-target='["background.athlete","background.delinquent"]' data-disabledif="V.background.athlete===true||V.background.delinquent===true"><mouse class="tooltip"><span class="teal">Nerd</span> <<checkbox "$background.nerd" false true autocheck>> - Good at school, and nobody expects you to hurt a fly. Picked on. (This will prevent the 'Unsocial Moth' feat from being earned) <span>
 				<b class="red">NOT recommended for beginners to this mod.</b>
 				<br><br>
@@ -1526,7 +1455,7 @@
 				</ul>
 			</span></mouse></label>
 			/*<br>
-			<label>Green Thumb <<checkbox "$background" "greenthumb" autocheck>> - More bountiful crops and no decay when using fertiliser. Start with ne unit of fertiliser.</label>*/
+			<label>Green Thumb <<checkbox "$background" "greenthumb" autocheck>> - More bountiful crops and no decay when using fertiliser. Start with one unit of fertiliser.</label>*/
 			<br>
 			<label><mouse class="tooltip"><span class="lewd">Dendrophile</span> <<checkbox "$background.plantlover" false true autocheck>> - Plants are everything to you.<span class="green">You're addicted to nectar. You're more vulnerable to aphrodisiacs and alcohol. Plantpeople and plant-based tentacles no longer require hallucinations to encounter. You get a bonus to Tending as your Trauma increases.</span></mouse>
 			</label>
@@ -1646,31 +1575,34 @@
 <<widget "gameMode">>
 	<span class="gold">Game Mode</span>
 	<br>
-	<label><mouse class="tooltip green">Normal mode<span>Survive in a dangerous world.</span></mouse>
-		<<if ($ironmanmode is true and $gamemode is "hard") and $passage != "Start">>
-			<input id="radiobutton-gamemode-8" name="radiobutton-gamemode" type="radio" tabindex="0" class="macro-radiobutton" disabled>
-		<<else>>
-			<<radiobutton "$gamemode" "normal" autocheck>>
-		<</if>>
-	</label>
-	<<ind>>
-	<label><mouse class = "tooltip blue">Soft mode<span>For those who prefer a light-hearted lewd adventure, though the game is still dark in places.<br><i class="red normal">This is an experimental feature and contains gamebreaking bugs. It will be changed or removed in the future. Leaving the settings with soft mode will prevent you from earning feats until it is set to normal mode. Doing this will permanently prevent some feats from being earned in this save.</i></span></mouse>
-		<<if ($ironmanmode is true and ["hard","normal"].includes($gamemode) is true) and $passage != "Start">>
-			<input id="radiobutton-gamemode-8" name="radiobutton-gamemode" type="radio" tabindex="0" class="macro-radiobutton" disabled>
-		<<else>>
-			<<radiobutton "$gamemode" "soft" autocheck>>
-		<</if>>
-	</label>
-	<<ind>>
-	<<if $intro is 1 or $gamemode is "hard">>
-		<label><mouse class = "tooltip purple">Hard mode<span>Removes lewd stat decay (promiscuity, exhibitionism, deviancy), making trauma and control increasingly difficult to manage. Can only be chosen at the game's start, and being incarcerated in the asylum will put you in normal mode. <br><i class="red normal">This is an experimental feature and will be changed or removed in the future.</i></span></mouse>
-			<<if $ironmanmode is true and $passage != "Start">>
-				<input id="radiobutton-gamemode-8" name="radiobutton-gamemode" type="radio" tabindex="0" class="macro-radiobutton" disabled>
+	<div class="dolx-game-mode-row">
+		<label class="dolx-mode-option">
+			<mouse class="tooltip green">Normal mode<span>Survive in a dangerous world.</span></mouse>
+			<<if ($ironmanmode is true and $gamemode is "hard") and $passage != "Start">>
+				<input id="radiobutton-gamemode-normal" name="radiobutton-gamemode" type="radio" tabindex="0" class="macro-radiobutton" disabled>
 			<<else>>
-				<<radiobutton "$gamemode" "hard" autocheck>>
+				<<radiobutton "$gamemode" "normal" autocheck>>
 			<</if>>
 		</label>
-	<</if>>
+		<label class="dolx-mode-option">
+			<mouse class="tooltip blue">Soft mode<span>For those who prefer a light-hearted lewd adventure, though the game is still dark in places.<br><i class="red normal">This is an experimental feature and contains gamebreaking bugs. It will be changed or removed in the future. Leaving the settings with soft mode will prevent you from earning feats until it is set to normal mode. Doing this will permanently prevent some feats from being earned in this save.</i></span></mouse>
+			<<if ($ironmanmode is true and ["hard","normal"].includes($gamemode) is true) and $passage != "Start">>
+				<input id="radiobutton-gamemode-soft" name="radiobutton-gamemode" type="radio" tabindex="0" class="macro-radiobutton" disabled>
+			<<else>>
+				<<radiobutton "$gamemode" "soft" autocheck>>
+			<</if>>
+		</label>
+		<<if $intro is 1 or $gamemode is "hard">>
+			<label class="dolx-mode-option">
+				<mouse class="tooltip purple">Hard mode<span>Removes lewd stat decay (promiscuity, exhibitionism, deviancy), making trauma and control increasingly difficult to manage. Can only be chosen at the game's start, and being incarcerated in the asylum will put you in normal mode. <br><i class="red normal">This is an experimental feature and will be changed or removed in the future.</i></span></mouse>
+				<<if $ironmanmode is true and $passage != "Start">>
+					<input id="radiobutton-gamemode-hard" name="radiobutton-gamemode" type="radio" tabindex="0" class="macro-radiobutton" disabled>
+				<<else>>
+					<<radiobutton "$gamemode" "hard" autocheck>>
+				<</if>>
+			</label>
+		<</if>>
+	</div>
 	<br>
 	<<if $ironmanmode and $passage isnot "Start">>
 		<span class="red">Cheats cannot be enabled during Ironman mode.</span>
@@ -2982,9 +2914,8 @@
 		<div class="settings-intro">
 			<<switch _args[0]>>
 				<<case "default">><span class="gold bold">Basic Start:</span> Fetish toggles and difficulty settings will be left at their <span class="teal">default</span> settings. All NPCs will be <span class="teal">randomly</span> generated. <i class="teal">Recommended for beginners.</i>
-				<<case "adjusted">><span class="gold bold">Moderate Start:</span> You can make <span class="teal">broad changes</span> to difficulty settings, preset kinks, and NPC genders. All NPCs will be <span class="teal">randomly</span> generated according to these settings.
-				<<case "custom">><span class="gold bold">Advanced Start:</span> You can adjust <span class="teal">all settings</span>, including fetish toggles, difficulty settings, and NPC genders, to create a playthrough tailored to your desires.
-				<<case "random">><span class="gold bold">Randomised Start:</span> Starts the game with <span class="teal">all settings</span> randomised, including character appearance, character traits, and difficulty settings. Both your character and all NPCs will be <span class="teal">randomly</span> generated for a completely blind playthrough. <i><span class="teal">To randomise specific settings prior to starting the game, select</span> <span class="gold">Advanced Start</span><span class="teal"> instead.</span></i>
+				<<case "custom">><span class="gold bold">Custom Start:</span> You can adjust <span class="teal">all settings</span>, including fetish toggles, difficulty settings, and NPC genders, to create a playthrough tailored to your desires.
+				<<case "random">><span class="gold bold">Randomised Start:</span> Starts the game with <span class="teal">all settings</span> randomised, including character appearance, character traits, and difficulty settings. Both your character and all NPCs will be <span class="teal">randomly</span> generated for a completely blind playthrough. <i><span class="teal">To randomise specific settings prior to starting the game, select</span> <span class="gold">Custom Start</span><span class="teal"> instead.</span></i>
 			<</switch>>
 		</div>
 	</div>
@@ -3163,11 +3094,27 @@
 <</widget>>
 
 <<widget "perNPCSettingsMenu">>
-	<span class="gold">Persistent NPCs:</span>
-	<br>
-	<<listbox "_pNPCId" autoselect>>
-		<<optionsfrom _npcKeys>>
-	<</listbox>>
+	<<set _npcIndex to _npcKeyNames.indexOf(_pNPCId)>>
+
+	<div class="settingsToggleIndent">
+		<span class="gold">Persistent NPCs:</span>
+		<<listbox "_pNPCId" autoselect>>
+			<<optionsfrom _npcKeys>>
+		<</listbox>>
+		<span style="font-size:80%">
+			| <<link "Previous">>
+				<<set _npcIndex to (_npcIndex is 0 ? _npcKeyNames.length - 1 : _npcIndex - 1)>>
+				<<set _pNPCId to _npcKeyNames[_npcIndex]>>
+				<<replace #perNPCSettingsMenu>><<perNPCSettingsMenu>><</replace>>
+			<</link>> |
+			<<link "Next">>
+				<<set _npcIndex to (_npcIndex is _npcKeyNames.length - 1 ? 0 : _npcIndex + 1)>>
+				<<set _pNPCId to _npcKeyNames[_npcIndex]>>
+				<<replace #perNPCSettingsMenu>><<perNPCSettingsMenu>><</replace>>
+			<</link>>
+		</span>
+	</div>
+
 	<<switch _pNPCId>>
 		<<case "scarred_inmate">>
 			<<if $per_npc[_pNPCId].description isnot "scarred">>
@@ -3180,92 +3127,97 @@
 				<<clearsinglenpc 0>>
 			<</if>>
 	<</switch>>
-	<<set _npcIndex to _npcKeyNames.indexOf(_pNPCId)>>
-	| <<link "Previous">>
-		<<set _npcIndex to (_npcIndex is 0 ? _npcKeyNames.length - 1 : --_npcIndex)>>
-		<<set _pNPCId to _npcKeyNames[_npcIndex]>>
-		<<replace #perNPCSettingsMenu>><<perNPCSettingsMenu>><</replace>>
-	<</link>> |
-	<<link "Next">>
-		<<set _npcIndex++>>
-		<<set _pNPCId to _npcKeyNames[_npcIndex]>>
-		<<replace #perNPCSettingsMenu>><<perNPCSettingsMenu>><</replace>>
-	<</link>>
-	<br><br>
+
 	<<if $per_npc[_pNPCId] eq null>>
 		<<error {
 			message	: `The given ID for pNPCs failed to match any available pNPC: ${_pNPCId}.`,
 			source	: _pNPCId
 		}>>
 	<<else>>
-		<<if $per_npc[_pNPCId].name_known>>
-			<span class="gold">$per_npc[_pNPCId].name the <<print _pNPCId.replace(/_/g, ' ')>></span>
-		<<elseif _pNPCId is "tower_creature">>
-			<span class="gold">The Night Monster</span>
-		<<elseif _pNPCId is "hacker">>
-			<span class="gold">'Mickey' the hacker</span>
-		<<elseif _pNPCId is "bishop">>
-			<span class="gold">The Bishop</span>
-		<<elseif _pNPCId is "bishop_right_hand">>
-			<span class="gold">The Bishop's right hand</span>
-		<<elseif _pNPCId is "bishop_left_hand">>
-			<span class="gold">The Bishop's left hand</span>
-		<<else>>
-			<span class="gold"><<print _pNPCId.toUpperFirst().replace(/_/g, ' ')>></span>
-		<</if>>
-		<<if $per_npc[_pNPCId].name_known and $debug is 1>>
-			| <<link "Rename">>
-				<<if $per_npc[_pNPCId].pronoun is "f">>
-					<<set $per_npc[_pNPCId].name to $NPC_names_f.random()>>
+		<div class="settingsGrid">
+			<div class="settingsHeader">
+				<<if $per_npc[_pNPCId].name_known>>
+					$per_npc[_pNPCId].name the <<print _pNPCId.replace(/_/g, ' ')>>
+				<<elseif _pNPCId is "tower_creature">>
+					The Night Monster
+				<<elseif _pNPCId is "hacker">>
+					'Mickey' the hacker
+				<<elseif _pNPCId is "bishop">>
+					The Bishop
+				<<elseif _pNPCId is "bishop_right_hand">>
+					The Bishop's right hand
+				<<elseif _pNPCId is "bishop_left_hand">>
+					The Bishop's left hand
 				<<else>>
-					<<set $per_npc[_pNPCId].name to $NPC_names_m.random()>>
+					<<print _pNPCId.toUpperFirst().replace(/_/g, ' ')>>
 				<</if>>
-				<<replace #perNPCSettingsMenu>><<perNPCSettingsMenu>><</replace>>
-			<</link>>
-		<</if>>
-		<br>
-		<div class="settingsToggle">
-			<span data-target="pernpc-npcidpronoun" data-disabledif="V.per_npc[T.pNPCId].pronoun==='i'||V.per_npc[T.pNPCId].pronoun==='t'">
-			<label><<radiobutton "$per_npc[_pNPCId].pronoun" "f" autocheck>> Female</label> |
-			<label><<radiobutton "$per_npc[_pNPCId].pronoun" "m" autocheck>> Male</label>
-			</span>
-		</div>
-		<div class="settingsToggle">
-			<label><<radiobutton "$per_npc[_pNPCId].gender" "f" autocheck>> Vagina</label> |
-			<label><<radiobutton "$per_npc[_pNPCId].gender" "m" autocheck>> Penis</label>
-			/* | <label><<radiobutton "$per_npc[_pNPCId].gender" "h" autocheck>> Both</label> */
-		</div>
-		<div class="settingsToggle">
-			Penis size - if applicable:
-			<br>
-			<<set _penisNames to ["", "Tiny", "Average", "Thick", "Huge"]>> /* the empty first element is necessary because _j starts at 1 */
-			<span data-target="pernpc-npcidgender" data-disabledif="V.per_npc[T.pNPCId].gender==='f'">
-			<<for _j to 1; _j lt _penisNames.length; _j++>>
-				<label>
-					<<radiobutton "$per_npc[_pNPCId].penissize" _j autocheck>>
-					<<print _penisNames[_j]>>
-				</label>
-				<<if _j isnot _penisNames.length -1>>|<</if>>
-			<</for>>
-			</span>
-		</div>
-		<div class="settingsToggle" style="display: inline-flex;">
-			Breast size:
-			<<numberslider "$per_npc[_pNPCId].breastsize" $per_npc[_pNPCId].breastsize 0 12 1 {
-				onInputChange: v => {
-					V.per_npc[_pNPCId].breastdesc = (v > 0) ? setup.breastsizes[v] + " breast" : "nipple";;
-					V.per_npc[_pNPCId].breastsdesc = (v > 0) ? setup.breastsizes[v] + " breasts" : "nipples";
-				},
-				value: v => {
-					return (v > 0) ? setup.breastsizes[v] + " breasts" : "nipples";
-				}
-			}>>
-		</div>
-		<div class="settingsToggle">
-			Skin colour:
-			<br>
-			<label><<radiobutton "$per_npc[_pNPCId].skincolour" "white" autocheck>> Pale</label> |
-			<label><<radiobutton "$per_npc[_pNPCId].skincolour" "black" autocheck>> Dark</label>
+
+				<<if $per_npc[_pNPCId].name_known and $debug is 1>>
+					<span style="font-size:80%">
+						<br>
+						<<link "Rename">>
+							<<if $per_npc[_pNPCId].pronoun is "f">>
+								<<set $per_npc[_pNPCId].name to $NPC_names_f.random()>>
+							<<else>>
+								<<set $per_npc[_pNPCId].name to $NPC_names_m.random()>>
+							<</if>>
+							<<replace #perNPCSettingsMenu>><<perNPCSettingsMenu>><</replace>>
+						<</link>>
+					</span>
+				<</if>>
+			</div>
+
+			<div class="settingsToggleItem">
+				<span class="gold">Gender:</span>
+				<br>
+				<span data-target="pernpc-npcidpronoun" data-disabledif="V.per_npc[T.pNPCId].pronoun==='i'||V.per_npc[T.pNPCId].pronoun==='t'">
+					<label><<radiobutton "$per_npc[_pNPCId].pronoun" "f" autocheck>> Female</label> |
+					<label><<radiobutton "$per_npc[_pNPCId].pronoun" "m" autocheck>> Male</label>
+				</span>
+			</div>
+
+			<div class="settingsToggleItem">
+				<span class="gold">Genitals:</span>
+				<br>
+				<label><<radiobutton "$per_npc[_pNPCId].gender" "f" autocheck>> Vagina</label> |
+				<label><<radiobutton "$per_npc[_pNPCId].gender" "m" autocheck>> Penis</label>
+			</div>
+
+			<div class="settingsToggleItem">
+				<<set _penisNames to ["", "Tiny", "Average", "Thick", "Huge"]>>
+				<span data-target="pernpc-npcidgender" data-disabledif="V.per_npc[T.pNPCId].gender==='f'">
+					<span class="gold">Penis size:</span>
+					<br>
+					<<for _j to 1; _j lt _penisNames.length; _j++>>
+						<label>
+							<<radiobutton "$per_npc[_pNPCId].penissize" _j autocheck>>
+							<<print _penisNames[_j]>>
+						</label>
+						<<if _j isnot _penisNames.length - 1>> | <</if>>
+					<</for>>
+				</span>
+			</div>
+
+			<div class="settingsToggleItem">
+				<span class="gold">Breast size:</span>
+				<br>
+				<<numberslider "$per_npc[_pNPCId].breastsize" $per_npc[_pNPCId].breastsize 0 12 1 {
+					onInputChange: v => {
+						V.per_npc[_pNPCId].breastdesc = (v > 0) ? setup.breastsizes[v] + " breast" : "nipple";
+						V.per_npc[_pNPCId].breastsdesc = (v > 0) ? setup.breastsizes[v] + " breasts" : "nipples";
+					},
+					value: v => {
+						return (v > 0) ? setup.breastsizes[v] + " breasts" : "nipples";
+					}
+				}>>
+			</div>
+
+			<div class="settingsToggleItem">
+				<span class="gold">Skin colour:</span>
+				<br>
+				<label><<radiobutton "$per_npc[_pNPCId].skincolour" "white" autocheck>> Pale</label> |
+				<label><<radiobutton "$per_npc[_pNPCId].skincolour" "black" autocheck>> Dark</label>
+			</div>
 		</div>
 	<</if>>
 	<div style="clear:both;"></div>
@@ -3675,17 +3627,17 @@
 					<<set _subsection to "combatExtended">><<replace #subsectionDiv>><<combatExtendedSettings>><</replace>>
 				<</link>><br>
 				<label>
-					<<checkbox "$combatExtended.standingFights" 0 1 autocheck>> Enable Standing Fights
-					<mouse class="tooltip linkBlue">(?)<span>All non-consensual encounters that isn't stuck in a wall or a glory hole will start as a standing fight.</span></mouse>
-				</label><br>
-				Standing Fight Type: <mouse class="tooltip linkBlue">(?)<span>Normal will still allow undressing and groping. Hostile will cause enemies to immediately use hostile actions.</span></mouse> 
-				<label>Normal <<radiobutton "$combatExtended.standingFightsType" "normal" autocheck>></label> |
-				<label>Hostile <<radiobutton "$combatExtended.standingFightsType" "hostile" autocheck>></label>
-				<br>
-				<label>
 					<<checkbox "$combatExtended.reverseRape" 0 1 autocheck>> Enable Reverse Rape
 					<mouse class="tooltip linkBlue">(?)<span>If you've beaten the enemy, all encounters will set the enemy to submissive and not end until you end it yourself. 75+ Promiscuity is required for it to trigger.</span></mouse>
 				</label><br>
+				<label>
+					<<checkbox "$combatExtended.standingFights" 0 1 autocheck>> Enable Standing Fights
+					<mouse class="tooltip linkBlue">(?)<span>All non-consensual encounters that isn't stuck in a wall or a glory hole will start as a standing fight.</span></mouse>
+				</label><br>
+				Standing Fight Type: <mouse class="tooltip linkBlue">(?)<span>Normal will still allow undressing and groping. Hostile will cause enemies to immediately use hostile actions.</span></mouse><br>
+				<label>Normal <<radiobutton "$combatExtended.standingFightsType" "normal" autocheck>></label> |
+				<label>Hostile <<radiobutton "$combatExtended.standingFightsType" "hostile" autocheck>></label>
+				<br>
 			</div>
 		</div>
 		<hr>
@@ -3850,7 +3802,7 @@
 				</span>
 				<span data-target="combatExtended.enemyMartialArts" data-disabledif="V.combatExtended.enemyMartialArts===0">
 					<div class="small-description">Enabling both MA Random Scaling and MA Level Scaling will result in both stacking.</div>
-					Enemy Martial Arts Scaling: 
+					Enemy Martial Arts Scaling:<br>
 					<label>Random <<radiobutton "$combatExtended.enemyMartialArtsScaling" "random" autocheck>></label> <mouse class="tooltip linkBlue">(?)<span>Enemy martial arts skill will be random.</span></mouse> |
 					<label>Level <<radiobutton "$combatExtended.enemyMartialArtsScaling" "level" autocheck>></label> <mouse class="tooltip linkBlue">(?)<span>Enemy martial arts skill will increase based on their level.</span></mouse> |
 					<label>Both <<radiobutton "$combatExtended.enemyMartialArtsScaling" "both" autocheck>></label> <mouse class="tooltip linkBlue">(?)<span>Random + Level Scaling.</span></mouse>
@@ -4520,7 +4472,7 @@
 
 <<widget "xchangeSettings">>
 	<div class="solidBorderContainer settings-container">
-		<div class="settingsGrid">
+		/* <div class="settingsGrid">
 			<div class="settingsHeader">
 				<span class="gold">Gratitude Corner</span>
 			</div>
@@ -4532,12 +4484,12 @@
 						<li><b>[[Frostberg: | "https://www.patreon.com/DegreesofLewdityPlus"]]</b> An incredibly dedicated developer thanks to whom we get to enjoy the expanded DoL experience that is DoLP.</li>
 						<li><b>[[Akoz: | "https://ko-fi.com/akozofbliss"]]</b> Yours truly, the kitty cat that put together this little X-Change adventure.</li>
 					</ul>
-					<b>This project has stayed free thanks to</b> the huge passion of the people above, along with the massive help of a talented group of artists and developers behind scenes.
+					<b>This project has stayed free</b> thanks to the huge passion of the people above, along with the massive help of a talented group of artists and developers behind scenes.
 					<br><br>
 				<</foldout>>
 				Click above to discover where you can send your support. 
 			</div>
-		</div>
+		</div> */
 		<div class="settingsGrid">
 			<div class="settingsHeader">
 				<span class="gold">Core Settings</span><br>
