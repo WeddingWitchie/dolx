@@ -49,7 +49,7 @@
 <<if $stress gte $stressmax>>
 	<<passoutshop>>
 <<else>>
-	<<if $phase is 1>><<set $phase to 0>>
+	<<if $phase is 1>><<set $phase to 0>><<set $gloryholeCustomerActive to 0>>
 
 	You enter one of the rooms and close the door behind you. A green light flickers on above.
 
@@ -57,10 +57,13 @@
 		<<consensual>><<set $consensual to 1>><<set $enemyanger to 0>><<set $enemytrust to 200>><<ejaculation>><<set $gloryhole to 0>><<set $punishmentposition to 0>>
 		<<tearful>> you count the money <<he>> pushes through the hole. You've gained <<printmoney $brothel_basement_price>>.
 		<<set $money += $brothel_basement_price>>
-		<<set $phase to 0>>
+		<<set $phase to 0>><<set $gloryholeCustomerActive to 0>>
 	<</if>>
 	<br><br>
-	<<generate1>><<person1>>
+	<<if !$gloryholeCustomerActive or !$NPCList[0] or !$NPCList[0].pronoun>>
+		<<set $NPCList to []>><<set $enemyno to 0>><<set $enemynomax to 1>><<run if (typeof EventSystem !== "undefined" && typeof EventSystem.clear === "function") EventSystem.clear();>>
+		<<generate1>><<set $gloryholeCustomerActive to 1>>
+	<</if>><<person1>>
 
 	You wait for several minutes, and the light turns red. A
 	<<if $NPCList[0].penis isnot "none">>
@@ -110,7 +113,7 @@
 	<</if>>
 	<<brothelicon>><<link [[Engage|Brothel Basement Sex]]>><<set $sexstart to 1>><<tiredness 3>><</link>><<gtiredness>>
 	<br>
-	<<getouticon>><<link [[Leave|Brothel Basement]]>><<endevent>><<endcombat>><<set $punishmentposition to 0>><<unset $desperateaction>><</link>>
+	<<getouticon>><<link [[Leave|Brothel Basement]]>><<endevent>><<endcombat>><<set $gloryholeCustomerActive to 0>><<set $punishmentposition to 0>><<unset $desperateaction>><</link>>
 	<br>
 <</if>>
 
@@ -123,6 +126,7 @@
 	<<neutral 1>>
 	<<maninit>>
 	<<npcgloryhole>>
+	<<person1>>
 <</if>>
 
 <<set $enemyarousal += 10>>
@@ -176,9 +180,9 @@
 
 <</if>>
 
-<<link [[Wait for another customer (0:10)|Brothel Gloryhole]]>><<pass 10>><</link>>
+<<link [[Wait for another customer (0:10)|Brothel Gloryhole]]>><<set $gloryholeCustomerActive to 0>><<pass 10>><</link>>
 <br>
-<<link [[Leave|Brothel Basement]]>><<set $punishmentposition to 0>><</link>>
+<<link [[Leave|Brothel Basement]]>><<set $gloryholeCustomerActive to 0>><<set $punishmentposition to 0>><</link>>
 <br>
 
 :: Brothel Exclusive Gloryhole
@@ -189,23 +193,27 @@
 	<<passoutshop>>
 <<else>>
 	<<if $phase is 1>>
-		<<set $phase to 0>>
+		<<set $phase to 0>><<set $exclusiveGloryholeCustomerActive to 0>><<unset $exclusiveGloryholeCustomerPresent>>
 		You enter one of the rooms and close the door behind you. A green light flickers on above.
 		<br><br>
 	<<elseif $phase is 2>>
 		<<set $enemyanger to 0>><<set $enemytrust to 200>><<ejaculation>><<fameprostitution 1>><<set $gloryhole to 0>><<set $punishmentposition to 0>><<set _moneyGain to $brothelExclusiveGloryholePrice * 100>>
 		<<tearful>> you count the money <<he>> pushes through the hole. You've gained <<printmoney _moneyGain>>.
 		<<set $money += _moneyGain>>
-		<<set $phase to 0>>
+		<<set $phase to 0>><<set $exclusiveGloryholeCustomerActive to 0>><<unset $exclusiveGloryholeCustomerPresent>>
 		<<set $sexavoid to _sexavoid>><<set $rapeavoid to _rapeavoid>>
 		<br><br>
 	<</if>>
-	<<generate1>><<person1>>
-
 	<<set _totalFame to fameTotal()>>
 	<<set _demand to Math.round(100 * Math.exp(-Math.log(10)/10 * ($brothelExclusiveGloryholePrice - ($brothel_basement_price / 100) - 10 - 5 * Math.floor(_totalFame/2000)) * 20/100)) * 100>>
 
-	<<if random(10000) lte _demand and _demand gt 0>>
+	<<if !$exclusiveGloryholeCustomerActive or !$NPCList[0] or !$NPCList[0].pronoun>>
+		<<set $NPCList to []>><<set $enemyno to 0>><<run if (typeof EventSystem !== "undefined" && typeof EventSystem.clear === "function") EventSystem.clear();>>
+		<<generate1>><<set $exclusiveGloryholeCustomerActive to 1>>
+		<<set $exclusiveGloryholeCustomerPresent to (random(10000) lte _demand and _demand gt 0)>>
+	<</if>><<person1>>
+
+	<<if $exclusiveGloryholeCustomerPresent>>
 		<<set _customer to true>>
 		You wait for several minutes, and the light turns red. A
 		<<if $NPCList[0].penis isnot "none">>
@@ -279,6 +287,7 @@
 	<<neutral 1>>
 	<<maninit>>
 	<<npcgloryhole>>
+	<<person1>>
 <</if>>
 
 <<set $enemyarousal += 10>>
@@ -331,9 +340,9 @@
 
 <</if>>
 
-<<link [[Wait for another customer|Brothel Exclusive Gloryhole]]>><</link>>
+<<link [[Wait for another customer|Brothel Exclusive Gloryhole]]>><<set $exclusiveGloryholeCustomerActive to 0>><<unset $exclusiveGloryholeCustomerPresent>><</link>>
 <br>
-<<link [[Leave|Brothel Basement]]>><<set $punishmentposition to 0>><</link>>
+<<link [[Leave|Brothel Basement]]>><<set $exclusiveGloryholeCustomerActive to 0>><<unset $exclusiveGloryholeCustomerPresent>><<set $punishmentposition to 0>><</link>>
 <br>
 
 :: Brothel Exclusive Price

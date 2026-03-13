@@ -38,9 +38,9 @@
 		<<set $NPCList to []>>
 	<</if>>
 	/* If the slot is STILL missing, repair it (do NOT throw <<error>>) */
-	<<if $NPCList[_n] is undefined>>
+	<<set _expectedFreshSlot to ($enemyno is 0 and _n is 0)>>
+	<<if !$NPCList[_n]>>
 		<<set $NPCList[_n] to {
-			/* minimal safe base shape */
 			pronoun: "m",
 			startingSex: "m",
 			gender: "m",
@@ -50,18 +50,27 @@
 			righthand: 0,
 			mouth: 0,
 			bold: 0,
+			name: "",
+			type: "human",
+			description: "ordinary",
+			role: "normal",
+			fullDescription: "ordinary person",
 			location: { head: 0, genitals: 0 },
 			clothes: {},
 			traits: [],
 			skills: {},
 			virginity: {},
-			pronouns: {}
+			pronouns: {},
+			penis: "none",
+			vagina: "none"
 		}>>
-		<<if !$bugNoticesShown.dolx_npc_repair>>
-			<<set $bugNoticesShown.dolx_npc_repair to true>>
-			<span class="red"><b>A bug happened!</b> NPC Generation is missing but DoLX fix it. Do report it to Discord server.</span><br>
+		<<if !_expectedFreshSlot>>
+			<<if !$bugNoticesShown.dolx_npc_repair>>
+				<<set $bugNoticesShown.dolx_npc_repair to true>>
+				<span class="red"><b>A bug happened!</b> NPC Generation is missing but DoLX fix it. Do report it to Discord server.</span><br>
+			<</if>>
+			<<run console.warn("[DoLX] NPCList[" + _n + "] unexpectedly missing in " + $passage + " — repaired base slot.")>>
 		<</if>>
-		<<run console.warn("[DoLX] NPCList[" + _n + "] missing after checkEventNPC in " + $passage + " — repaired base slot.")>>
 	<</if>>
 	<!-- END SAFETY GUARD -->
 
