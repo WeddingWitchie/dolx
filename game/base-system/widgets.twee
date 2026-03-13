@@ -3090,6 +3090,18 @@
 	<</if>>
 <</widget>>
 
+/* Can also set <<washRecordedSpermHardClear "anus" "pc">> for this but I think unecessary atm
+	as I make this for breeder pill being immune with stress coz sperm not properly being cleaned
+	and breeder only read vagina */
+<<widget "washRecordedSpermHardClear">>
+	<<run (() => {const V = State.variables; const slot = _args[0]; const target = _args[1];
+		if (target !== "pc" || !slot) return;
+		if (Array.isArray(V.sexStats?.[slot]?.sperm)) {V.sexStats[slot].sperm = [];}
+		if (slot === "vagina" && (!Array.isArray(V.sexStats?.vagina?.sperm) || V.sexStats.vagina.sperm.length === 0)) {
+			if (V.xchange) V.xchange.breederOrgasm = false; V.breederOrgasm = 0; delete V.breederCreampied;
+		}})()>>
+<</widget>>
+
 <<widget "waterwash">>
 	<<if $combat isnot 1>>
 		<<for _bodypart range setup.bodyliquid.bodyparts>>
@@ -3097,7 +3109,7 @@
 			<<if $player.bodyliquid[_bodypart]["semen"] gte 1>><<set $waterwash += 1>><<set $allure += 500>><<bodyliquid _bodypart "semen" -1>><</if>>
 			<<if $player.bodyliquid[_bodypart]["nectar"] gte 1>><<set $waterwash += 1>><<set $allure += 500>><<bodyliquid _bodypart "nectar" -1>><</if>>
 		<</for>>
-		<<washRecordedSperm "vagina" "pc">>
+		<<washRecordedSperm "vagina" "pc">><<washRecordedSpermHardClear "vagina" "pc">>
 		<<washRecordedSperm "anus" "pc">>
 	<</if>>
 
@@ -3128,7 +3140,7 @@
 <</widget>>
 
 <<widget "wash">>
-	<<washRecordedSperm "vagina" "pc">>
+	<<washRecordedSperm "vagina" "pc">><<washRecordedSpermHardClear "vagina" "pc">>
 	<<washRecordedSperm "anus" "pc">>
 	<<bodyliquid "clear">>
 	<<if $parasite.right_thigh.name is "maggot">>
