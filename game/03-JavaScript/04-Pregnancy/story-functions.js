@@ -545,7 +545,11 @@ function playerRutMinArousal() {
 	const pills = V.sexStats.pills.pills;
 	let minArousal = 0;
 
-	if (pills.contraceptive.doseTaken === 0 && ((V.player.beastRut !== undefined && V.player.beastRut <= 1) || (playerIsXChanged() && V.xchange.pill?.bullEffect))) {
+	const rutActive = (V.player.beastRut !== undefined && V.player.beastRut <= 1);
+	const bullActive = !!(playerIsXChanged() && V.xchange?.pill?.bullEffect);
+
+	// Bull should intensify rut, not bypass the rut cycle entirely.
+	if (pills.contraceptive.doseTaken === 0 && rutActive) {
 		if (V.earSlime.growth > 50 && V.earSlime.focus === "impregnation" && !V.earSlime.defyCooldown) {
 			minArousal += Math.clamp(V.earSlime.growth, 0, 200) * 5;
 		}
@@ -554,7 +558,7 @@ function playerRutMinArousal() {
 		if (V.cow >= 2) minArousal += Math.clamp(V.cowbuild, 0, 100) * 40;
 		if (V.fox >= 2) minArousal += Math.clamp(V.foxbuild, 0, 100) * 40;
 		if (V.bunny >= 2) minArousal += Math.clamp(V.bunnybuild, 0, 100) * 40;
-		if (playerIsXChanged() && V.xchange.pill?.bullEffect) minArousal += 100 * 40;
+		if (bullActive) minArousal += 100 * 40;
 	}
 	if (pills["fertility booster"].doseTaken > 2) {
 		minArousal += 500;
