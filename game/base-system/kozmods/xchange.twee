@@ -881,11 +881,12 @@
 			<<set $xchangeStatsMerged to true>>
 		<</if>> */
 		
-		/* Innocence effect */
-		<<if _args[0] is undefined and $xchange.pill.innocenceEffect>>
-			<<set $awareness to $xchange.awareness>>
-			<<if $awareness gte 0>>
+		/* Innocence effect sync */
+		<<if _args[0] is undefined and $xchange.pill.innocenceEffect and ($innocencestate isnot 1 or $awareness gte 0)>>
+			<<set $xchange.pill.innocenceEffect to false>>
+			<<if $awareness gte 0 and $innocencestate is 1>>
 				<<set $innocencestate to 0>>
+				<<set $trauma to $innocencetrauma>>
 				<<set $innocencemessage to "end">>
 			<</if>>
 		<</if>>
@@ -1190,12 +1191,13 @@
 
 	<<case "innocence">>
 		<<set $xchange.pill.innocenceEffect to true>>
-		<<set $xchange.awareness to $awareness>>
+			<<if $innocencestate isnot 1>>
+				<<set $innocencetrauma to $trauma>>
+				<<set $trauma to 0>>
+				<<set $innocencemessage to "start">>
+			<</if>>
 		<<set $awareness to -200>>
 		<<set $innocencestate to 1>>
-		<<if $xchange.awareness gte 0>>
-			<<set $innocencemessage to "start">>
-		<</if>>
 
 	<<case "swell">>
 		<<set $xchange.pill.swellEffect to true>>
@@ -1327,12 +1329,12 @@
 		<<case "dumb-bitch">>
 			<<set $xchange.pill.dumbBitchEffect to false>>		
 		<<case "innocence">>
+			<<set $awareness to 0>>
+			<<set $innocencestate to 0>>
+			<<set $trauma to $innocencetrauma>>
+			<<set $innocencetrauma to 0>>
+			<<set $innocencemessage to "end">>
 			<<set $xchange.pill.innocenceEffect to false>>
-			<<set $awareness to $xchange.awareness>>
-			<<if $awareness gte 0>>
-				<<set $innocencestate to 0>>
-				<<set $innocencemessage to "end">>
-			<</if>>
 		<<case "swell">>
 			<<set $xchange.pill.swellEffect to false>>
 			<<if $player.sex is "f">>
@@ -1519,8 +1521,18 @@
 			<</if>>
 		<</if>>
 
-		/* Clear pill effects */
+		/* Forced-end cleanup before clearing pill effects */
+		<<if $xchange.pill.innocenceEffect and $innocencestate is 1>>
+			<<set $awareness to 0>>
+			<<set $innocencestate to 0>>
+			<<set $trauma to $innocencetrauma>>
+			<<set $innocencetrauma to 0>>
+			<<set $innocencemessage to "end">>
+		<</if>>
+
 		<<if $xchange.pill.passionEffect>><<set $drugged to 0>><</if>>
+
+		/* Clear pill effects */
 		<<set $xchange.pill.active to false>>
 		<<set $xchange.pill.baseSex to undefined>>
 		<<set $xchange.pill.baseGenitals to undefined>>
@@ -1535,10 +1547,14 @@
 		<<set $xchange.pill.swellEffect to false>>
 		<<set $xchange.pill.bimboEffect to false>>
 		<<set $xchange.pill.cumcureEffect to false>>
-		/*Is $xchange.breederEffect not getting cleared here? */
+		<<set $xchange.pill.breederEffect to false>>
+		<<set $xchange.pill.bullEffect to false>>
+		<<set $xchange.pill.fertile to false>>
 		<<set $xchange.breederDenial to 0>>
+		<<set $xchange.breederOrgasm to false>>
+		<<set $breederOrgasm to 0>>
+		<<unset $breederCreampied>>
 		<<unset $xchange.pill.shouldHaveEnded>>
-
 	<</widget>>
 
 	<<widget "xchange-setpermanent">>

@@ -608,6 +608,10 @@ function xchangeHourlyCheck(hours = 1) {
 			if (V.xchange.pillPermanence === 1 && !pillIsPermanent() && (V.sexStats.vagina.pregnancy.type !== null || V.earSlime.growth > 50))
 				wikifier("xchange-setpermanent");
 
+			if (pill.innocenceEffect && (V.innocencestate !== 1 || V.awareness >= 0)) {
+				pill.innocenceEffect = false;
+			}
+
 			// Check if the pill should expire
 			if (pill.duration == 0)
 			{
