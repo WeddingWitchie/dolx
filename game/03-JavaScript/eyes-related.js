@@ -4,15 +4,34 @@ function buildEyeDetails() {
 	const lenses = V.makeup.eyelenses;
 	const colourMap = setup.colours.eyes_map;
 
+	function getEyeDisplayName(key) {
+		const entry = colourMap[key];
+		if (!entry) return key;
+
+		if (typeof entry.name === "string" && !/^colorWheelTemporary\d+$/.test(entry.name)) {
+			return entry.name;
+		}
+
+		if (entry.canvasfilter && typeof entry.canvasfilter.blend === "string" && typeof window.colorNamer === "function") {
+			const colourName = window.colorNamer(entry.canvasfilter.blend);
+			if (typeof window.colorNameTranslate === "function") {
+				return window.colorNameTranslate(colourName, "spaced name");
+			}
+			return colourName;
+		}
+
+		return entry.name || key;
+	}
+
 	if (lenses.right !== 0 || lenses.left !== 0) {
 		sentence += "You wear ";
 		if (typeof lenses.left === "string") {
-			sentence += setup.colours.eyes_map[lenses.left].name;
+			sentence += getEyeDisplayName(lenses.left);
 			concatFlag = true;
 		}
 		if (typeof lenses.right === "string" && lenses.left !== lenses.right) {
 			if (concatFlag) sentence += " and ";
-			sentence += setup.colours.eyes_map[lenses.right].name;
+			sentence += getEyeDisplayName(lenses.right);
 			concatFlag = true;
 		}
 		if (concatFlag) {
@@ -27,12 +46,12 @@ function buildEyeDetails() {
 	const leftEyeColour = colourMap[V.leftEyeColour];
 	const rightEyeColour = colourMap[V.rightEyeColour];
 	if (typeof leftEyeColour === "object") {
-		sentence += leftEyeColour.name;
+		sentence += getEyeDisplayName(V.leftEyeColour);
 		concatFlag = true;
 	}
 	if (typeof rightEyeColour === "object" && V.leftEyeColour !== V.rightEyeColour) {
 		if (concatFlag) sentence += " and ";
-		sentence += rightEyeColour.name;
+		sentence += getEyeDisplayName(V.rightEyeColour);
 		concatFlag = true;
 	}
 	if (concatFlag) sentence += " eyes";

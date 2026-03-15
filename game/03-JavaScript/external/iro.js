@@ -1855,8 +1855,12 @@ function tempEditPlayerEyeValues(tmp_save, eye, eye_name, color, s_c){
 		if (setup.colours.eyes[s_colours].variable == eye_name){
 			setup.colours.eyes[s_colours].canvasfilter.blend = color.hexString
 			setup.colours.eyes[s_colours].canvasfilter.brightness = color.hsl["l"] <= 0 ? 0 : color.hsl["l"] / 350
-			if (eye_name == "colorWheelTemporary0" || eye_name == "colorWheelTemporary1")
-				setup.colours.eyes[s_colours].csstext = window.colorNamer(color.hexString)
+			if (eye_name == "colorWheelTemporary0" || eye_name == "colorWheelTemporary1") {
+				const colourName = window.colorNameTranslate(window.colorNamer(color.hexString), "spaced name");
+				setup.colours.eyes[s_colours].name = colourName;
+				setup.colours.eyes[s_colours].name_cap = colourName.toUpperFirst();
+				setup.colours.eyes[s_colours].csstext = window.colorNamer(color.hexString);
+			}
 			/*console.log("debug 0========")
 			console.log("setup.colours.eyes["+s_colours+"].canvasfilter.blend = "+color.hexString)
 			console.log("setup.colours.eyes["+s_colours+"].canvasfilter.brightness = "+(color.hsl["l"] <= 0 ? 0 : color.hsl["l"] / 350))
@@ -1873,6 +1877,12 @@ function tempEditPlayerEyeValues(tmp_save, eye, eye_name, color, s_c){
 								  "index": c_color}
 			V.custom_eyecolours[c_color].canvasfilter.blend = color.hexString
 			V.custom_eyecolours[c_color].canvasfilter.brightness = color.hsl["l"] <= 0 ? 0 : color.hsl["l"] / 350
+			if (V.custom_eyecolours[c_color].variable == "colorWheelTemporary0" || V.custom_eyecolours[c_color].variable == "colorWheelTemporary1") {
+				const colourName = window.colorNameTranslate(window.colorNamer(color.hexString), "spaced name");
+				V.custom_eyecolours[c_color].name = colourName;
+				V.custom_eyecolours[c_color].name_cap = colourName.toUpperFirst();
+				V.custom_eyecolours[c_color].csstext = window.colorNamer(color.hexString);
+			}
 			break;
 		}
 		c_color = undefined
