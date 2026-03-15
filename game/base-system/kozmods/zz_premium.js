@@ -156,18 +156,40 @@ try {
 	}
 } catch (e) {}
 
-function ensurePillPremiumFlagDefault() {
-	const V = getV();
-	const pill = V && V.xchange && V.xchange.pill ? V.xchange.pill : null;
-	if (pill && pill.active && typeof pill.isPremium !== "boolean") {
-		pill.isPremium = false;
-	}
+function syncPremiumPillState() {
+		const V = getV();
+		const pill = V && V.xchange && V.xchange.pill ? V.xchange.pill : null;
+		if (!pill) return;
+
+		if (pill.active !== true) {
+			if (pill.isPremium === true) pill.isPremium = false;
+			if (pill.premiumActive === true) pill.premiumActive = false;
+			if (pill.presentationGenderOverride != null) pill.presentationGenderOverride = null;
+			return;
+		}
+
+		if (pill.premiumActive === true) {
+			if (pill.isPremium !== true) pill.isPremium = true;
+			return;
+		}
+
+		if (pill.isPremium === true || pill.presentationGenderOverride != null) {
+			try {
+				console.warn("[X-Change Premium] Clearing stale premium-only pill state from a non-premium active dose.", {
+					isPremium: pill.isPremium,
+					presentationGenderOverride: pill.presentationGenderOverride,
+					premiumActive: pill.premiumActive
+				});
+			} catch (e) {}
+			pill.isPremium = false;
+			pill.presentationGenderOverride = null;
+		}
 	}
 
-	try { ensurePillPremiumFlagDefault(); } catch (e) {}
+	try { syncPremiumPillState(); } catch (e) {}
 	try {
 	if (typeof jQuery !== "undefined") {
-		jQuery(document).on(":passagestart", ensurePillPremiumFlagDefault);
+		jQuery(document).on(":passagestart", syncPremiumPillState);
 	}
 	} catch (e) {}
 
