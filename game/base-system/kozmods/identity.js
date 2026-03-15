@@ -649,7 +649,11 @@ window.playerFeelsGirllike = playerFeelsGirllike;
 		const V = State?.variables;
 		if (!V) return;
 		V.xchange ??= {};
-
+		V.xchange.heat ??= {};
+		if (V.xchange.heat.permanentOn === undefined) {
+			V.xchange.heat.permanentOn = 0;
+		}
+		
 		// story-functions.js uses V.xchange.breederDenial in arithmetic.
 		// If it's missing or non-numeric, it can turn risk into NaN and silently disable heat.
 		const bd = Number(V.xchange.breederDenial);

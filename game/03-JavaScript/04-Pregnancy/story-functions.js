@@ -509,10 +509,16 @@ window.playerPregnancyRisk = playerPregnancyRisk;
 function playerHeatMinArousal() {
 	if (!V.sexStats || !V.sexStats.pills || (V.statFreeze && !V.statFreezeIgnoreRestrictions)) return 0;
 	if (!V.player.vaginaExist && !canBeMPregnant()) return 0;
+
+	// Permanent override: ignore cycle/pregnancy/pill logic, but still respect anatomy.
+	if (V.xchange?.heat?.permanentOn) {
+		return Math.clamp(Math.floor(V.arousalmax / 3), 0, V.arousalmax / 2);
+	}
+
 	if (playerIsPregnant() && !V.pregnancyStats.heatStillEnabled) return 0;
 
 	const pills = V.sexStats.pills.pills;
-	const risk = Math.clamp(playerPregnancyRisk()-V.xchange.breederDenial, 0, 6);
+	const risk = Math.clamp(playerPregnancyRisk() - V.xchange.breederDenial, 0, 6);
 	let minArousal = 0;
 
 	// Should always be the first to modify minArousal
@@ -542,14 +548,16 @@ window.playerHeatMinArousal = playerHeatMinArousal;
 function playerRutMinArousal() {
 	if (!V.player.penisExist || V.player.penissize < -1 || !V.sexStats || !V.sexStats.pills || (V.statFreeze && !V.statFreezeIgnoreRestrictions)) return 0;
 
+	// Permanent override: ignore cycle/pill logic, but still respect anatomy.
+	if (V.xchange?.heat?.permanentOn) {
+		return Math.clamp(Math.floor(V.arousalmax / 3), 0, V.arousalmax / 2);
+	}
+
 	const pills = V.sexStats.pills.pills;
 	let minArousal = 0;
 
-	const rutActive = (V.player.beastRut !== undefined && V.player.beastRut <= 1);
-	const bullActive = !!(playerIsXChanged() && V.xchange?.pill?.bullEffect);
-
 	// Bull should intensify rut, not bypass the rut cycle entirely.
-	if (pills.contraceptive.doseTaken === 0 && rutActive) {
+	if (pills.contraceptive.doseTaken === 0 && (V.player.beastRut !== undefined && V.player.beastRut <= 1)) {
 		if (V.earSlime.growth > 50 && V.earSlime.focus === "impregnation" && !V.earSlime.defyCooldown) {
 			minArousal += Math.clamp(V.earSlime.growth, 0, 200) * 5;
 		}
@@ -558,7 +566,7 @@ function playerRutMinArousal() {
 		if (V.cow >= 2) minArousal += Math.clamp(V.cowbuild, 0, 100) * 40;
 		if (V.fox >= 2) minArousal += Math.clamp(V.foxbuild, 0, 100) * 40;
 		if (V.bunny >= 2) minArousal += Math.clamp(V.bunnybuild, 0, 100) * 40;
-		if (bullActive) minArousal += 100 * 40;
+		if (playerIsXChanged() && V.xchange.pill?.bullEffect) minArousal += 100 * 40;
 	}
 	if (pills["fertility booster"].doseTaken > 2) {
 		minArousal += 500;
