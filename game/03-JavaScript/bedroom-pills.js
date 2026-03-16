@@ -1279,7 +1279,7 @@ setup.pills = [
 		},
 		icon: "img/misc/icon/pillbreast.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.sex !== "f" ? 1 : 0;
+			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
 		},
 		take_condition() {
 		const isPregnantForXChange =
@@ -2268,7 +2268,7 @@ setup.pills = [
 		},
 		icon: "img/misc/icon/pillpenis.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.sex !== "m" ? 1 : 0;
+			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
 		},
 		take_condition() {
 		const isPregnantForXChange =
