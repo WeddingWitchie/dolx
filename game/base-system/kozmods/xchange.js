@@ -212,6 +212,13 @@ function pleasure(amount, source) {
 			// If already set a flag elsewhere, respect it
 			if (V.usingSexToy) return true;
 
+			// A worn butt plug should count as a toy even outside masturbation flows.
+			// Some scenes keep it in a dedicated worn slot rather than a currentToy selector.
+			try {
+				if (typeof window.playerHasButtPlug === "function" && window.playerHasButtPlug()) return true;
+				if (V.worn?.butt_plug?.name && !["none", "naked"].includes(String(V.worn.butt_plug.name).toLowerCase())) return true;
+			} catch (e) {}
+
 			// Masturbation toy selectors (0 is a valid selection!)
 			const slots = ["Left", "Right", "Mouth", "Vagina", "Anus"];
 			for (const s of slots) {
@@ -222,12 +229,13 @@ function pleasure(amount, source) {
 			// Fallback: worn items sometimes include plugs/vibes by name
 			const names = [];
 			try {
+				if (V.worn?.butt_plug?.name) names.push(V.worn.butt_plug.name);
 				if (V.worn?.genitals?.name) names.push(V.worn.genitals.name);
 				if (V.worn?.under_lower?.name) names.push(V.worn.under_lower.name);
 				if (V.worn?.lower?.name) names.push(V.worn.lower.name);
 			} catch (e) {}
 
-			return names.some(n => /plug|buttplug|vibe|vibrator|bullet/i.test(String(n)));
+			return names.some(n => /plug|butt\s*plug|buttplug|vibe|vibrator|bullet|stroker|sleeve|flesh\s*light|fleshlight|onahole/i.test(String(n)));
 		})();
 
 		if (!addictionsUnmet) {
