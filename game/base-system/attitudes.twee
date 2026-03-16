@@ -242,20 +242,20 @@
 			<<if $attitudesControl.unlockGender>><br>
 				<span id="gi-cap-wrap">
 					<label><<checkbox "$identityCap" false true autocheck>>
-						You are not attached to your original gender.
-						<i>If unchecked, your Gender Identity won't go below 5, but you will gain Stress and Trauma when losing Gender Identity instead.</i>
+						Allow full drift away from your original gender.
+						<i>This acts as the limit / consent setting for whether Gender Identity drift can fully cross away from your starting gender.</i>
 					</label>
 				</span><br>
 				<span id="gi-auto-wrap">
 					<label><<checkbox "$xchange.giAutoEnabled" false true autocheck>>
-						Sync Gender Identity to your Identity settings.
-						<i>This makes the Gender Identity meter do daily update automatically from your preferred/accepted/rejected traits and dysphoria.</i>
+						Update Gender Identity from your Identity system.
+						<i>This makes the Gender Identity meter drift daily based on active Identity topics, acceptance / rejection state, and dysphoria.</i>
 					</label>
 				</span><br>
 				<span id="gi-transform-wrap">
 					<label><<checkbox "$xchange.giTransformEnabled" false true autocheck>>
-						Allow slow body changes from Gender Identity drift.
-						<i>When the meter steadily moves toward femininity/masculinity, your body will change gradually over days.</i>
+						Allow slow body changes to follow Gender Identity.
+						<i>This allows physical changes to gradually follow the current Identity direction.</i>
 					</label>
 				</span>
 
@@ -263,24 +263,23 @@
 				(function(){
 					const ns=".giAttitudeLocks";const doc=$(document);function setWrapDisabled($wrap,disabled){$wrap.find('input[type="checkbox"]').prop("disabled",!!disabled);if(disabled){$wrap.addClass("black");}else{$wrap.removeClass("black");}}
 				function refreshGiLocks(){
-					const V=State.variables;const canAuto=!!V.identityCap;if(!canAuto){V.xchange.giAutoEnabled=false;V.xchange.giTransformEnabled=false;V.xchange.giTransformConsent=false;}else if(!V.xchange.giAutoEnabled){V.xchange.giTransformEnabled=false;V.xchange.giTransformConsent=false;}const canTransform=canAuto&&!!V.xchange.giAutoEnabled;setWrapDisabled($("#gi-auto-wrap"),!canAuto);setWrapDisabled($("#gi-transform-wrap"),!canTransform);}
+					const V=State.variables;const hasGiSystem=!!(V.xchange&&V.xchange.genderIdentityEnabled);if(!hasGiSystem){V.xchange.giAutoEnabled=false;V.xchange.giTransformEnabled=false;V.xchange.giTransformConsent=false;}else if(!V.xchange.giAutoEnabled){V.xchange.giTransformEnabled=false;V.xchange.giTransformConsent=false;}const canAuto=hasGiSystem;const canTransform=hasGiSystem&&!!V.xchange.giAutoEnabled;setWrapDisabled($("#gi-auto-wrap"),!canAuto);setWrapDisabled($("#gi-transform-wrap"),!canTransform);}
 					doc.off("change" + ns, "#gi-cap-wrap input, #gi-auto-wrap input");
-					doc.on("change" + ns, "#gi-cap-wrap input, #gi-auto-wrap input", function () {
-						setTimeout(refreshGiLocks, 0);});setTimeout(refreshGiLocks, 0);})();
+					doc.on("change" + ns, "#gi-cap-wrap input, #gi-auto-wrap input", function () {setTimeout(refreshGiLocks, 0);});setTimeout(refreshGiLocks, 0);})();
 				<</script>>
 				
 			<<else>><br>
 				<input type="checkbox" checked disabled />
-				<span class="black"> You are not attached to your original gender.
-				<i>Unlock with higher gender identity.</i></span>
+				<span class="black"> Allow full drift away from your original gender.
+				<i>Enable the X-Change Gender Identity system first.</i></span>
 				<br>
 				<input type="checkbox" disabled />
-				<span class="black"> Sync Gender Identity to your Identity settings.
-				<i>Locked because it requires the option above.</i></span>
+				<span class="black"> Update Gender Identity from your Identity system.
+				<i>Available whenever the Gender Identity system itself is enabled.</i></span>
 				<br>
 				<input type="checkbox" disabled />
-				<span class="black"> Allow slow body changes from Gender Identity drift.
-				<i>This requires Identity sync first.</i></span>
+				<span class="black"> Allow slow body changes to follow Gender Identity.
+				<i>This requires Gender Identity updating first.</i></span>
 			<</if>>
 
 			<br>
@@ -1203,7 +1202,7 @@
 		V.attitudesControl.unlockSadoMaso = V.sadism >= 300 || V.masochism >= 300;
 		V.attitudesControl.unlockHypnosis = Object.keys(V.hypnosis_traits).length >= 1;
 		V.attitudesControl.unlockWillpower = V.willpower >= 429;
-		V.attitudesControl.unlockGender = V.genderidentity >= 625;
+		V.attitudesControl.unlockGender = !!(V.xchange && V.xchange.genderIdentityEnabled);
 		V.attitudesControl.unlockAveryMeek = V.avery_mansion?.jobs.includes("meek");
 		V.attitudesControl.unlockAveryKneel = V.avery_mansion?.jobs.includes("knees");
 		V.attitudesControl.unlockAveryBow = V.avery_mansion?.jobs.includes("bow");

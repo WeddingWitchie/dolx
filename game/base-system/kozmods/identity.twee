@@ -40,7 +40,7 @@
 	<<set $xchange.giShiftMode to "">>
 <</if>>
 
-<<set $xchange.giRange to 1000>>
+<<set $xchange.giRange to 1500>>
 <<set $xchange.giStepPerDay to 8>>
 <<set $xchange.giTransformThreshold to 30>>
 
@@ -124,6 +124,8 @@
 		<<if _args[0]>>
 			/* If it's a dream, reduce change to 10% */
 			<<set _multiplier to $statFreeze isnot true ? 2 : 0.2>> 
+			<<set _range to ($xchange.giRange is undefined ? 1500 : $xchange.giRange)>>
+			<<set _identityCapFloor to Math.round(_range * 0.625)>>
 			<<if $backgroundTraits.includes("crossdresser")>>
 				<<set _multiplier *= _args[0] < 0 ? 1.25 : 0.50 >>
 			<</if>>
@@ -131,16 +133,16 @@
 				<<set _multiplier *= _args[0] > 0 ? 1.25 : 0.50 >>
 			<</if>>
 			<<set $genderidentity += _args[0] * _multiplier>>
-			<<set $genderidentity to Math.clamp($genderidentity,0, 1000)>>
+			<<set $genderidentity to Math.clamp($genderidentity,0, _range)>>
 
 			<<if(!$identityCap)>>
-				<<set $genderidentity to Math.clamp($genderidentity,0, 1000)>>
+				<<set $genderidentity to Math.clamp($genderidentity,0, _range)>>
 			<<else>>
-				<<if($genderidentity<625)>>
+				<<if($genderidentity < _identityCapFloor)>>
 					<<set $identityCapMessage to true>>
 					<<stress 10>><<trauma 10>>
 				<</if>>
-				<<set $genderidentity to Math.clamp($genderidentity,625, 1000)>>
+				<<set $genderidentity to Math.clamp($genderidentity,_identityCapFloor, _range)>>
 			<</if>>
 		<</if>>
 	<</widget>>
@@ -1344,109 +1346,15 @@
 	<<if $xchange.genderIdentityEnabled is undefined>>
 		<<set $xchange.genderIdentityEnabled to true>>
 	<</if>>
-	<<if $genderidentity is undefined>>
-		<<set $genderidentity to 500>>  /* midpoint of 0..1000 */
+	<<if $genderidentity is undefined or $xchange.giMeterVersion isnot 5>>
+		<<run mapToLegacyGenderIdentity()>>
+		<<set $genderidentity to ($xchange.giTarget is undefined ? Math.round(($xchange.giRange is undefined ? 1500 : $xchange.giRange) / 2) : $xchange.giTarget)>>
+		<<set $xchange.giInitialized to true>>
+		<<set $xchange.giMeterVersion to 5>>
 	<</if>>
 
 	<<widget "gi-compute-target">>
-		/* Produces:
-			$xchange.giAxis    = absolute axis in [-1..1] where +1 = masculine, -1 = feminine
-			$xchange.giTarget  = target $genderidentity in [0..giRange] relative to $player.gender
-		*/
-
-		<<set _sum to 0>>
-		<<set _wsum to 0>>
-
-		<<for _categoryName, _category range setup.identityIndex>>
-			<<for _char,_icon range _category>>
-				<<identitySelector _char>>
-				<<if $identityOption>>
-
-					/* Direction on absolute axis */
-					<<set _dir to 0>>
-					<<set _w to 1>>
-
-					<<switch _char>>
-						/* Masculine-leaning */
-						<<case "Masculine Clothing">>
-						<<case "Masculine Appearance">>
-						<<case "Masculine Pronouns">>
-						<<case "Small Penis">>
-						<<case "Medium Penis">>
-						<<case "Big Penis">>
-						<<case "Flat Chest">>
-						<<case "Short Hair">>
-						<<case "Tall Body">>
-						<<case "Large Body">>
-						<<case "Giant Body">>
-							<<set _dir to 1>>
-
-						/* Feminine-leaning */
-						<<case "Feminine Clothing">>
-						<<case "Feminine Appearance">>
-						<<case "Feminine Pronouns">>
-						<<case "Vagina">>
-						<<case "Small Breasts">>
-						<<case "Medium Breasts">>
-						<<case "Big Breasts">>
-						<<case "Small Ass">>
-						<<case "Medium Ass">>
-						<<case "Big Ass">>
-						<<case "Long Hair">>
-						<<case "Pregnancy">>
-						<<case "Lactation">>
-							<<set _dir to -1>>
-
-						/* Neutral-ish (pulls average toward 0 by adding weight but no signed sum) */
-						<<case "Neutral Pronouns">>
-						<<case "Medium Hair">>
-						<<case "Miniature Body">>
-						<<case "Tiny Body">>
-						<<case "Normal Body">>
-							<<set _dir to 0>>
-							<<set _w to 1.25>>
-					<</switch>>
-
-					/* Build "support" for this option from preferred/accepted/rejected + dysphoria.
-					This is intentionally bounded so it can't explode.
-					*/
-					<<set _support to 0>>
-
-					<<if $identityPreference>>
-						<<set _support += 0.6>>
-					<</if>>
-
-					<<if $identityOption.acceptance>>
-						<<set _support += 0.3>>
-					<</if>>
-
-					<<if $identityOption.reject>>
-						<<set _support -= 0.8>>
-					<</if>>
-
-					<<set _dys to ($identityOption.dysphoria is undefined ? 0 : $identityOption.dysphoria)>>
-					<<set _support -= Math.clamp((_dys / 100) * 0.4, 0, 0.4)>>
-
-					<<set _support to Math.clamp(_support, -1, 1)>>
-
-					<<set _sum += (_dir * _support * _w)>>
-					<<set _wsum += _w>>
-
-				<</if>>
-			<</for>>
-		<</for>>
-
-		<<set _axis to (_wsum is 0 ? 0 : Math.clamp(_sum / _wsum, -1, 1))>>
-
-		<<set _range to ($xchange.giRange is undefined ? 1000 : $xchange.giRange)>>
-		<<set _absVal to Math.round(((_axis + 1) / 2) * _range)>>
-
-		/* Convert absolute axis into the existing "relative to player.gender" meaning:
-		- male: higher = more masculine
-		- female: higher = more feminine
-		*/
-		<<set $xchange.giAxis to _axis>>
-		<<set $xchange.giTarget to ($player.gender is "m" ? _absVal : (_range - _absVal))>>
+		<<run mapToLegacyGenderIdentity()>>
 	<</widget>>
 
 	<<widget "gi-auto-update">>
@@ -1456,32 +1364,37 @@
 
 		<<ensure-sexstats-min>>
 
-		<<if $xchange.genderIdentityEnabled isnot true or $xchange.giAutoEnabled isnot true>>
+		<<if $xchange.genderIdentityEnabled isnot true>>
 			<<gi-disarm>>
 			<<return>>
 		<</if>>
 
 		<<gi-compute-target>>
 
-		<<set _range to ($xchange.giRange is undefined ? 1000 : $xchange.giRange)>>
+		<<set _range to ($xchange.giRange is undefined ? 1500 : $xchange.giRange)>>
 		<<set _step to ($xchange.giStepPerDay is undefined ? 8 : $xchange.giStepPerDay)>>
 
-		/* One-time init (migration) if save predates $genderidentity */
-		<<if $genderidentity is undefined>>
-			<<set $genderidentity to Math.round(_range / 2)>>
-			<<set $xchange.giMigrationWarning to true>>
+		/* One-time init / migration: start at the actual overall identity target, not midpoint. */
+		<<if $genderidentity is undefined or $xchange.giMeterVersion isnot 5 or $xchange.giInitialized isnot true>>
+			<<set $genderidentity to $xchange.giTarget>>
+			<<set $xchange.giInitialized to true>>
+			<<set $xchange.giMeterVersion to 5>>
+			<<return>>
 		<</if>>
 
+		/* The meter itself always drifts daily while the identity system is enabled. */
 		<<set _delta to Math.clamp($xchange.giTarget - $genderidentity, 0 - _step, _step)>>
 
 		<<if _delta isnot 0>>
 			<<set $genderidentity += _delta>>
 			<<set $genderidentity to Math.clamp($genderidentity, 0, _range)>>
-			<<gi-transform-from-drift _delta>>
+			<<if $xchange.giAutoEnabled is true and $xchange.giTransformEnabled is true and $xchange.giTransformConsent is true>>
+				<<gi-transform-from-drift _delta>>
+			<</if>>
 		<</if>>
 
-		/* --- Extra: drift from current GI position ("pressure"), so body keeps shifting even when GI has settled --- */
-		<<if $xchange.giTransformEnabled is true and $xchange.giTransformConsent is true>>
+		/* Physical progression remains behind the auto/transform settings. */
+		<<if $xchange.giAutoEnabled is true and $xchange.giTransformEnabled is true and $xchange.giTransformConsent is true>>
 			<<set _mid to Math.floor(_range / 2)>>
 			<<if _mid > 0>>
 				<<set _pressureRaw to Math.abs($genderidentity - _mid)>>
@@ -1498,6 +1411,8 @@
 					<<gi-transform-from-drift _signed>>
 				<</if>>
 			<</if>>
+		<<else>>
+			<<gi-disarm>>
 		<</if>>
 	<</widget>>
 
@@ -1519,7 +1434,7 @@
 			<<return>>
 		<</if>>
 
-		<<set _range to ($xchange.giRange is undefined ? 1000 : $xchange.giRange)>>
+		<<set _range to ($xchange.giRange is undefined ? 1500 : $xchange.giRange)>>
 		<<set _mid to Math.floor(_range / 2)>>
 		<<set _th to ($xchange.giTransformThreshold is undefined ? 30 : $xchange.giTransformThreshold)>>
 

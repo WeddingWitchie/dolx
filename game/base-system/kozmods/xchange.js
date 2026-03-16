@@ -566,16 +566,19 @@ window.xchangeWeeklyCheck = xchangeWeeklyCheck;
 
 function xchangeDailyCheck(days = 1) {
 	if (!V.statFreeze) {
-		if ((V.hourlyFemininity > 0 && V.player.gender === "f") || (V.hourlyFemininity < 0 && V.player.gender === "m"))
-			wikifier("genderidentity", 1 * days);
-		else if ((V.hourlyFemininity > 0 && V.player.gender === "m") || (V.hourlyFemininity < 0 && V.player.gender === "f"))
-			wikifier("genderidentity", -1 * days);
-	
-		if (playerIsXChanged())
-			wikifier("genderidentity", -2 * days);
-	
-		V.effectsmessage = 1;
-		V.genderIdentityMessage = V.hourlyFemininity > 0? "f": (V.hourlyFemininity < 0? "m": 0);
+		const useIdentityMeterDrift = !!(V.xchange?.genderIdentityEnabled);
+		if (!useIdentityMeterDrift) {
+			if ((V.hourlyFemininity > 0 && V.player.gender === "f") || (V.hourlyFemininity < 0 && V.player.gender === "m"))
+				wikifier("genderidentity", 1 * days);
+			else if ((V.hourlyFemininity > 0 && V.player.gender === "m") || (V.hourlyFemininity < 0 && V.player.gender === "f"))
+				wikifier("genderidentity", -1 * days);
+		
+			if (playerIsXChanged())
+				wikifier("genderidentity", -2 * days);
+		
+			V.effectsmessage = 1;
+			V.genderIdentityMessage = V.hourlyFemininity > 0? "f": (V.hourlyFemininity < 0? "m": 0);
+		}
 		V.hourlyFemininity = 0;
 	
 		wikifier("blackmail-daypassed");

@@ -478,42 +478,347 @@ function preferredPronouns(gender) {
 }
 window.preferredPronouns = preferredPronouns;
 
+function getIdentityMeterDirection(characteristic) {
+	switch (characteristic) {
+		/* Masculine-leaning */
+		case "Masculine Clothing":
+		case "Masculine Appearance":
+		case "Masculine Pronouns":
+		case "Small Penis":
+		case "Medium Penis":
+		case "Big Penis":
+		case "Flat Chest":
+		case "Short Hair":
+		case "Tall Body":
+		case "Large Body":
+		case "Giant Body":
+			return { dir: 1, weight: 1 };
+		/* Feminine-leaning */
+		case "Feminine Clothing":
+		case "Feminine Appearance":
+		case "Feminine Pronouns":
+		case "Vagina":
+		case "Small Breasts":
+		case "Medium Breasts":
+		case "Big Breasts":
+		case "Small Ass":
+		case "Medium Ass":
+		case "Big Ass":
+		case "Long Hair":
+		case "Pregnancy":
+		case "Lactation":
+			return { dir: -1, weight: 1 };
+		/* Neutral-ish */
+		case "Neutral Pronouns":
+		case "Medium Hair":
+		case "Miniature Body":
+		case "Tiny Body":
+		case "Normal Body":
+			return { dir: 0, weight: 1.25 };
+		default:
+			return { dir: 0, weight: 0 };
+	}
+}
+window.getIdentityMeterDirection = getIdentityMeterDirection;
+
+function selectIdentityCharacteristic(characteristic) {
+	let option;
+	let preferred = false;
+	const id = V.identity || {};
+	const x = V.xchange || {};
+	const presentation = id.presentation || {};
+	const body = id.body || {};
+	switch (characteristic) {
+		case "Masculine Clothing":
+			option = presentation.clothing?.masculine;
+			preferred = presentation.clothing?.preferred === "m";
+			break;
+		case "Feminine Clothing":
+			option = presentation.clothing?.feminine;
+			preferred = presentation.clothing?.preferred === "f";
+			break;
+		case "Masculine Appearance":
+			option = presentation.appearance?.masculine;
+			preferred = presentation.appearance?.preferred === "m";
+			break;
+		case "Feminine Appearance":
+			option = presentation.appearance?.feminine;
+			preferred = presentation.appearance?.preferred === "f";
+			break;
+		case "Masculine Pronouns":
+			option = presentation.pronouns?.masculine;
+			preferred = presentation.pronouns?.preferred === "m";
+			break;
+		case "Feminine Pronouns":
+			option = presentation.pronouns?.feminine;
+			preferred = presentation.pronouns?.preferred === "f";
+			break;
+		case "Neutral Pronouns":
+			option = presentation.pronouns?.neutral;
+			preferred = presentation.pronouns?.preferred === "n";
+			break;
+		case "Flat Chest":
+			if (x.giBreastSizeEnabled) { option = body.chest?.flat; preferred = body.chest?.preferred === "flat"; }
+			break;
+		case "Small Breasts":
+			if (x.giBreastSizeEnabled) { option = body.chest?.small; preferred = body.chest?.preferred === "small"; }
+			break;
+		case "Medium Breasts":
+			if (x.giBreastSizeEnabled) { option = body.chest?.medium; preferred = body.chest?.preferred === "medium"; }
+			break;
+		case "Big Breasts":
+			if (x.giBreastSizeEnabled) { option = body.chest?.big; preferred = body.chest?.preferred === "big"; }
+			break;
+		case "Small Ass":
+			if (x.giAssSizeEnabled) { option = body.bottom?.small; preferred = body.bottom?.preferred === "small"; }
+			break;
+		case "Medium Ass":
+			if (x.giAssSizeEnabled) { option = body.bottom?.medium; preferred = body.bottom?.preferred === "medium"; }
+			break;
+		case "Big Ass":
+			if (x.giAssSizeEnabled) { option = body.bottom?.big; preferred = body.bottom?.preferred === "big"; }
+			break;
+		case "Vagina":
+			if (x.giGenitalsEnabled) { option = body.genitals?.vagina; preferred = body.genitals?.preferred === "vagina"; }
+			break;
+		case "Small Penis":
+			if (x.giGenitalsEnabled) { option = body.genitals?.smallpenis; preferred = body.genitals?.preferred === "smallpenis"; }
+			break;
+		case "Medium Penis":
+			if (x.giGenitalsEnabled) { option = body.genitals?.mediumpenis; preferred = body.genitals?.preferred === "mediumpenis"; }
+			break;
+		case "Big Penis":
+			if (x.giGenitalsEnabled) { option = body.genitals?.bigpenis; preferred = body.genitals?.preferred === "bigpenis"; }
+			break;
+		case "Short Hair":
+			if (x.giHairLengthEnabled) { option = body.hairlength?.short; preferred = body.hairlength?.preferred === "short"; }
+			break;
+		case "Medium Hair":
+			if (x.giHairLengthEnabled) { option = body.hairlength?.medium; preferred = body.hairlength?.preferred === "medium"; }
+			break;
+		case "Long Hair":
+			if (x.giHairLengthEnabled) { option = body.hairlength?.long; preferred = body.hairlength?.preferred === "long"; }
+			break;
+		case "Miniature Body":
+			if (x.giBodySizeEnabled) { option = body.bodysize?.miniature; preferred = body.bodysize?.preferred === "miniature"; }
+			break;
+		case "Tiny Body":
+			if (x.giBodySizeEnabled) { option = body.bodysize?.tiny; preferred = body.bodysize?.preferred === "tiny"; }
+			break;
+		case "Small Body":
+			if (x.giBodySizeEnabled) { option = body.bodysize?.small; preferred = body.bodysize?.preferred === "small"; }
+			break;
+		case "Normal Body":
+			if (x.giBodySizeEnabled) { option = body.bodysize?.normal; preferred = body.bodysize?.preferred === "normal"; }
+			break;
+		case "Tall Body":
+			if (x.giBodySizeEnabled) { option = body.bodysize?.tall; preferred = body.bodysize?.preferred === "tall"; }
+			break;
+		case "Large Body":
+			if (x.giBodySizeEnabled) { option = body.bodysize?.large; preferred = body.bodysize?.preferred === "large"; }
+			break;
+		case "Giant Body":
+			if (x.giBodySizeEnabled) { option = body.bodysize?.giant; preferred = body.bodysize?.preferred === "giant"; }
+			break;
+		case "Lactation":
+			if (x.giFecundityEnabled) { option = body.lactation; preferred = body.lactation?.preferred === "lactation"; }
+			break;
+		case "Pregnancy":
+			if (x.giFecundityEnabled) { option = body.pregnancy; preferred = body.pregnancy?.preferred === "pregnancy"; }
+			break;
+	}
+	return { option, preferred };
+}
+window.selectIdentityCharacteristic = selectIdentityCharacteristic;
+
+function getIdentityMeterGroup(characteristic) {
+	switch (characteristic) {
+		case "Masculine Pronouns":
+		case "Feminine Pronouns":
+		case "Neutral Pronouns":
+			return "pronouns";
+		case "Masculine Appearance":
+		case "Feminine Appearance":
+			return "appearance";
+		case "Masculine Clothing":
+		case "Feminine Clothing":
+			return "clothing";
+		case "Flat Chest":
+		case "Small Breasts":
+		case "Medium Breasts":
+		case "Big Breasts":
+			return "chest";
+		case "Small Ass":
+		case "Medium Ass":
+		case "Big Ass":
+			return "ass";
+		case "Vagina":
+		case "Small Penis":
+		case "Medium Penis":
+		case "Big Penis":
+			return "genitals";
+		case "Short Hair":
+		case "Medium Hair":
+		case "Long Hair":
+			return "hair";
+		case "Miniature Body":
+		case "Tiny Body":
+		case "Small Body":
+		case "Normal Body":
+		case "Tall Body":
+		case "Large Body":
+		case "Giant Body":
+			return "bodysize";
+		case "Pregnancy":
+			return "pregnancy";
+		case "Lactation":
+			return "lactation";
+		default:
+			return false;
+	}
+}
+window.getIdentityMeterGroup = getIdentityMeterGroup;
+
+function isIdentityMeterCharacteristicEnabled(characteristic) {
+	const x = V.xchange || {};
+	switch (getIdentityMeterGroup(characteristic)) {
+		case "chest":
+			return x.giBreastSizeEnabled === true;
+		case "ass":
+			return x.giAssSizeEnabled === true;
+		case "genitals":
+			return x.giGenitalsEnabled === true;
+		case "hair":
+			return x.giHairLengthEnabled === true;
+		case "bodysize":
+			return x.giBodySizeEnabled === true;
+		case "pregnancy":
+		case "lactation":
+			return x.giFecundityEnabled === true;
+		default:
+			return true;
+	}
+}
+window.isIdentityMeterCharacteristicEnabled = isIdentityMeterCharacteristicEnabled;
+
+function isIdentityMeterCharacteristicSelected(characteristic) {
+	if (!isIdentityMeterCharacteristicEnabled(characteristic)) return false;
+	const selected = selectIdentityCharacteristic(characteristic);
+	const option = selected.option;
+	const preferred = selected.preferred;
+	if (!option) return false;
+	return !!(
+		preferred ||
+		option.acceptance === true ||
+		option.reject === true ||
+		(Number(option.dysphoria) || 0) > 0
+	);
+}
+window.isIdentityMeterCharacteristicSelected = isIdentityMeterCharacteristicSelected;
+
+function getIdentityMeterSupport(characteristic) {
+	if (typeof setup === "undefined" || !setup.identityIndex) return 0;
+	if (!isIdentityMeterCharacteristicEnabled(characteristic)) return 0;
+	const selected = selectIdentityCharacteristic(characteristic);
+	const option = selected.option;
+	const preferred = selected.preferred;
+	if (!option) return 0;
+
+	let support = 0;
+	if (preferred) support += 0.75;
+	if (option.acceptance === true) support += 0.25;
+	if (option.reject === true) support -= 1.0;
+
+	const dys = Number(option.dysphoria) || 0;
+	support -= Math.clamp((dys / 100) * 0.6, 0, 0.6);
+
+	return Math.clamp(support, -1, 1);
+}
+window.getIdentityMeterSupport = getIdentityMeterSupport;
+
 function mapToLegacyGenderIdentity() {
-	let identityValue = 750;
-	for (const category in setup.identityIndex) {
-		for (const characteristic in setup.identityIndex[category]) {
-			const contribution = getFemininityContribution(characteristic);
-			identityValue += contribution * (V.player.gender === "f" ? 1 : -1);
+	const range = Number(V.xchange?.giRange) || 1500;
+	const meterVersion = 5;
+	const groups = {};
+	if (!V.xchange) V.xchange = {};
+
+	/* Early boot / partially initialized saves: avoid crashing before $player exists. */
+	if (!V.player || typeof V.player !== "object") {
+		V.xchange.giAxis = 0;
+		V.xchange.giTarget = Math.round(range / 2);
+		return V.xchange.giTarget;
+	}
+
+	if (setup?.identityIndex) {
+		for (const category in setup.identityIndex) {
+			for (const characteristic in setup.identityIndex[category]) {
+				const group = getIdentityMeterGroup(characteristic) || category;
+				const { dir, weight } = getIdentityMeterDirection(characteristic);
+				if (!weight) continue;
+				if (!isIdentityMeterCharacteristicSelected(characteristic)) continue;
+				const support = getIdentityMeterSupport(characteristic);
+				if (Math.abs(support) <= 1e-6) continue;
+				if (!groups[group]) groups[group] = { sum: 0, weight: 0, included: [] };
+				groups[group].sum += dir * support * weight;
+				groups[group].weight += weight;
+				groups[group].included.push({ characteristic, dir, weight, support });
+			}
 		}
 	}
 
-	V.genderidentity = Math.clamp(identityValue, 0, 1500);
-	return identityValue;
+	let categorySum = 0;
+	let categoryCount = 0;
+	const groupAxis = {};
+	for (const [group, data] of Object.entries(groups)) {
+		if (!(data.weight > 0)) continue;
+		const axis = Math.clamp(data.sum / data.weight, -1, 1);
+		groupAxis[group] = axis;
+		categorySum += axis;
+		categoryCount += 1;
+	}
+
+	const axis = categoryCount === 0 ? 0 : Math.clamp(categorySum / categoryCount, -1, 1);
+	const absVal = Math.round(((axis + 1) / 2) * range);
+	const baseGender = (V.player?.gender === "f") ? "f" : "m";
+	V.xchange.giGroupAxis = groupAxis;
+	V.xchange.giAxis = axis;
+	V.xchange.giTarget = (baseGender === "m" ? absVal : (range - absVal));
+
+	if (V.genderidentity === undefined || Number.isNaN(V.genderidentity) || V.xchange.giMeterVersion !== meterVersion) {
+		V.genderidentity = V.xchange.giTarget;
+		V.xchange.giInitialized = true;
+		V.xchange.giMeterVersion = meterVersion;
+	}
+	V.genderidentity = Math.clamp(V.genderidentity, 0, range);
+	return V.xchange.giTarget;
 }
 window.mapToLegacyGenderIdentity = mapToLegacyGenderIdentity;
 
 function hasGenderIdentity(stage) {
 	mapToLegacyGenderIdentity();
+	const range = Number(V.xchange?.giRange) || 1500;
+	const current = Math.clamp(Number(V.genderidentity) || 0, 0, range);
+	const threshold = ratio => Math.round(range * ratio);
 
 	switch (stage) {
 		case 8:
-			return V.genderidentity === 1500;
+			return current >= range;
 		case 7:
-			return V.genderidentity >= 1300;
+			return current >= threshold(13 / 15);
 		case 6:
-			return V.genderidentity >= 1100;
+			return current >= threshold(11 / 15);
 		case 5:
-			return V.genderidentity >= 900;
+			return current >= threshold(9 / 15);
 		case 4:
-			return V.genderidentity >= 600;
+			return current >= threshold(6 / 15);
 		case 3:
-			return V.genderidentity >= 400;
+			return current >= threshold(4 / 15);
 		case 2:
-			return V.genderidentity >= 200;
+			return current >= threshold(2 / 15);
 		case 1:
-			return V.genderidentity >= 1;
+			return current >= 1;
 		case 0:
-			return V.genderidentity === 0;
+			return current <= 0;
 		default:
 			return false;
 	}
