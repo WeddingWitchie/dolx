@@ -653,7 +653,8 @@ function calculateallure() {
 	/* Elk-scarred trait */
 	if (V.auriga_scar) allure += V.auriga_scar * 500;
 	allure = Math.clamp(allure, 0, 8000);
-	let baseAllure = allure;
+	let baseAllure = Math.floor(allure);
+	V.baseAllure = baseAllure;
 
 	/* weighted distribution */
 	allure = baseAllure * 0.05;
