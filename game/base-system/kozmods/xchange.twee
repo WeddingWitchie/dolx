@@ -922,9 +922,9 @@
 
 		/* Swell effect */
 		<<if _args[0] is undefined and $xchange.pill.swellEffect>>
-			<<if $player.sex is "f">>
+			<<if $xchange.pill.swellTarget is "penis">>
 				<<set $xchange.pill.changedBody.penissize to $xchange.penissize>>
-			<<else>>
+			<<elseif $xchange.pill.swellTarget is "curves">>
 				<<set $xchange.pill.changedBody.breastsize to $xchange.breastsize>>
 				<<set $xchange.pill.changedBody.bottomsize to $xchange.bottomsize>>
 			<</if>>
@@ -960,9 +960,9 @@
 
 		/* Swell effect */
 		<<if _args[0] is undefined and $xchange.pill.swellEffect>>
-			<<if $player.sex is "f">>
+			<<if $xchange.pill.swellTarget is "penis">>
 				<<set $xchange.pill.changedBody.penissize to $xchange.penissize>>
-			<<else>>
+			<<elseif $xchange.pill.swellTarget is "curves">>
 				<<set $xchange.pill.changedBody.breastsize to $xchange.breastsize>>
 				<<set $xchange.pill.changedBody.bottomsize to $xchange.bottomsize>>
 			<</if>>
@@ -1070,6 +1070,7 @@
 		<<set $xchange.pill.portalEffectTimer to 0>>
 		<<set $xchange.pill.innocenceEffect to false>>
 		<<set $xchange.pill.swellEffect to false>>
+		<<unset $xchange.pill.swellTarget>>
 		<<set $xchange.pill.bimboEffect to false>>
 		<<set $xchange.pill.cumcureEffect to false>>
 
@@ -1201,7 +1202,8 @@
 
 	<<case "swell">>
 		<<set $xchange.pill.swellEffect to true>>
-		<<if $player.sex is "f">>
+		<<if $player.penisExist and !$player.vaginaExist>>
+			<<set $xchange.pill.swellTarget to "penis">>
 			<<set _ps to Number($player.penissize)>>
 			<<if isNaN(_ps)>>
 				<<run setup.xChangeRepairNoticeOnce("repair_xchange_penissize_nan", "<b>Save repair notice</b><br>Your save had an invalid <b>player.penissize</b> during the Swell effect. X-Change will ignore the swell size change to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
@@ -1215,6 +1217,7 @@
 			<</if>>
 			<<set $player.penissize to _psMax>>
 		<<else>>
+			<<set $xchange.pill.swellTarget to "curves">>
 			<<set _bs to Number($player.breastsize)>>
 			<<if isNaN(_bs)>>
 				<<run setup.xChangeRepairNoticeOnce("repair_xchange_breastsize_nan", "<b>Save repair notice</b><br>Your save had an invalid <b>player.breastsize</b> during the Swell effect. X-Change rebuilt it from safe defaults to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
@@ -1337,14 +1340,14 @@
 			<<set $xchange.pill.innocenceEffect to false>>
 		<<case "swell">>
 			<<set $xchange.pill.swellEffect to false>>
-			<<if $player.sex is "f">>
+			<<if $xchange.pill.swellTarget is "penis">>
 				<<set _psRestore to Number($xchange.penissize)>>
 				<<if isNaN(_psRestore)>>
 					<<run setup.xChangeRepairNoticeOnce("repair_xchange_penissize_restore_nan", "<b>Save repair notice</b><br>Your save had an invalid stored <b>xchange.penissize</b> while ending the Swell effect. X-Change will keep the current size to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
 				<<else>>
 					<<set $player.penissize to _psRestore>>
 				<</if>>
-			<<else>>
+			<<elseif $xchange.pill.swellTarget is "curves">>
 				<<set _bsRestore to Number($xchange.breastsize)>>
 				<<if isNaN(_bsRestore)>>
 					<<run setup.xChangeRepairNoticeOnce("repair_xchange_breastsize_restore_nan", "<b>Save repair notice</b><br>Your save had an invalid stored <b>xchange.breastsize</b> while ending the Swell effect. X-Change will keep the current size to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
@@ -1358,6 +1361,7 @@
 					<<set $player.bottomsize to _botRestore>>
 				<</if>>
 			<</if>>
+			<<unset $xchange.pill.swellTarget>>
 		<<case "bimbo">>
 			<<set $xchange.pill.bimboEffect to false>>
 			<<if $xchange.science gt $sciencetrait>>
@@ -1545,6 +1549,7 @@
 		<<unset $xchange.pill.xtendTracker>>
 		<<set $xchange.pill.innocenceEffect to false>>
 		<<set $xchange.pill.swellEffect to false>>
+		<<unset $xchange.pill.swellTarget>>
 		<<set $xchange.pill.bimboEffect to false>>
 		<<set $xchange.pill.cumcureEffect to false>>
 		<<set $xchange.pill.breederEffect to false>>
