@@ -13,23 +13,64 @@ function paramError(functionName = "", param = "", value, expectedValues = "") {
 	);
 }
 
-function getSensitivity(part) {
-	let purityMod = (1000 - V.purity) * V.xchange.impuritySensitivityBonus / 1000;
-	const xchangeMod = playerIsXChanged() ? 
-		(V.player.sex === "f"? 1 : -1) * V.xchange.pillSensitivityChange : 0; 
-	const orgasmingMod = V.orgasmCum > 0 ? 1 : 0;
+function getAntiPillSensitivityBonus(part) {
+	const anti = V.xchange?.antiPillSensitivity;
+	if (!anti || typeof anti.hours !== "number" || anti.hours <= 0) return 0;
 
-	switch(part) {
+	const bonus = Number(anti.globalBonus);
+	if (!Number.isFinite(bonus) || bonus <= 0) return 0;
+
+	switch (part) {
 		case "mouth":
-			return V.mouthsensitivity;
+			return bonus * 3;
 		case "breast":
 		case "breasts":
-			return Math.clamp(V.breastsensitivity + purityMod + xchangeMod + orgasmingMod, 0.25, 6);
+			return bonus * 3;
 		case "bottom":
-			return Math.clamp(V.bottomsensitivity + purityMod + xchangeMod + orgasmingMod, 0.25, 3);
+			return bonus * 3;
+		case "anal":
+		case "buttocks":
 		case "genital":
 		case "genitals":
-			return Math.clamp(V.genitalsensitivity + 2 * purityMod + xchangeMod + orgasmingMod, 0.25, 10);
+			return bonus * 3;
+		case "hands":
+			return bonus * 3;
+		case "thighs":
+			return bonus * 3;
+		case "feet":
+			return bonus * 3;
+
+		default:
+			return 0;
+	}
+}
+window.getAntiPillSensitivityBonus = getAntiPillSensitivityBonus;
+
+function getGeneralSensitivity(part) {
+	const antiPillMod = getAntiPillSensitivityBonus(part);
+	return Math.clamp(1 + antiPillMod, 0.25, 6);
+}
+window.getGeneralSensitivity = getGeneralSensitivity;
+
+function getSensitivity(part) {
+	let purityMod = (1000 - V.purity) * V.xchange.impuritySensitivityBonus / 1000;
+	const xchangeMod = playerIsXChanged()
+		? (V.player.sex === "f" ? 1 : -1) * V.xchange.pillSensitivityChange
+		: 0;
+	const orgasmingMod = V.orgasmCum > 0 ? 1 : 0;
+	const antiPillMod = getAntiPillSensitivityBonus(part);
+
+	switch (part) {
+		case "mouth":
+			return Math.clamp(V.mouthsensitivity + antiPillMod, 0.25, 6);
+		case "breast":
+		case "breasts":
+			return Math.clamp(V.breastsensitivity + purityMod + xchangeMod + orgasmingMod + antiPillMod, 0.25, 8);
+		case "bottom":
+			return Math.clamp(V.bottomsensitivity + purityMod + xchangeMod + orgasmingMod + antiPillMod, 0.25, 5);
+		case "genital":
+		case "genitals":
+			return Math.clamp(V.genitalsensitivity + 2 * purityMod + xchangeMod + orgasmingMod + antiPillMod, 0.25, 12);
 		default:
 			paramError("getSensitivity", "part", part, "Expected a string, see function for accepted values");
 			break;
@@ -628,7 +669,6 @@ function xchangeHourlyCheck(hours = 1) {
 			{
 				pill.shouldHaveEnded = true;
 
-
 				if (!pillIsPermanent() && !pillTimerPaused() && pill.resistanceEffect && random(0,100) > pill.resistanceChance) {
 					if (V.xchange.pillPermanence === 1) wikifier("xchange-setpermanent");
 					else {
@@ -679,7 +719,17 @@ function xchangeHourlyCheck(hours = 1) {
 				delete pill.shouldHaveEnded;
 			}
 		}
-	
+
+		// Tick anti-pill hypersensitivity timer
+		if (V.xchange?.antiPillSensitivity && typeof V.xchange.antiPillSensitivity.hours === "number") {
+			V.xchange.antiPillSensitivity.hours = Math.max(V.xchange.antiPillSensitivity.hours - 1 * hours, 0);
+			if (V.xchange.antiPillSensitivity.hours === 0) {
+				delete V.xchange.antiPillSensitivity;
+				V.effectsmessage = 1;
+				V.antiPillSensitivityEndMessage = 1;
+			}
+		}		
+
 		// Apply hour-random passion effect
 		for (let i = 0; i < hours; i++) {
 			if (pill?.passionEffect && ((V.substanceRebalance == 1 && random(0,10) == 0) || random(0,8) == 0)) {
@@ -747,6 +797,16 @@ function xchangeEffectsMessages() {
 		element("span", "People have been gossiping about your X-Change escapades, and even the law has fully caught on."); br();
 		element("span", "You no longer benefit from having two identities.", "red");
 		delete V.xchangeFameMessage;
+	}
+
+	if (V.antiPillSensitivityMessage) {
+		element("span", "Your body feels itchy, raw, and disturbingly oversensitive after the anti-pill.", "pink"); br();
+		delete V.antiPillSensitivityMessage;
+	}
+
+	if (V.antiPillSensitivityEndMessage) {
+		element("span", "The anti-pill's itchy hypersensitivity finally fades.", "blue"); br();
+		delete V.antiPillSensitivityEndMessage;
 	}
 
 	if (V.xchangePermanenceMessage) {

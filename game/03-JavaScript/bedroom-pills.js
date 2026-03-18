@@ -2324,9 +2324,9 @@ setup.pills = [
 	{
 		name: "SWP Anti-crossdress Pill",
 		description:
-			"A shady pill advertised to deal with sissifying / butchifying effects, 100% satisfaction guaranteed.",
+			"A shady pill advertised to deal with sissifying / butchifying effects, 100% satisfaction guaranteed. <span class=\"red\">Be aware of its side effects!</span>",
 		onTakeMessage: 
-			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>And... quite surprisingly, you feel nothing? But not snake-oil nothing. Rather, you feel a nothingness that can only feel like relief not too distinct from a silence after being stuck in a noisy room. It seems the pill may have done what it advertised. But it's still too early to tell.<br><br>Even so, you take a deep breath in, safe in the belief you'll no longer have to deal with those awful mind-afflicting effects.",
+			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>At first, all you feel is a strange, hollow quietness spreading through you. Then the backlash hits. <span class=\"red\">A prickling itch crawls over your skin</span>, and before long your whole body turns so oversensitive that even the brush of your clothes feels almost painful.<br><br>Gritting your teeth through the discomfort, you cling to the hope that at least you will not have to deal with those awful mind-afflicting effects any longer.",
 		warning_label:
 			"Warning: May cause some side-effects. Do not take unless you've tested positive for the respective effect.",
 		autoTake() {
@@ -2361,9 +2361,9 @@ setup.pills = [
 	{
 		name: "SWP Anti-breeder Pill",
 		description:
-			"A shady pill advertised to deal with breeder effects, 100% satisfaction guaranteed.",
+			"A shady pill advertised to deal with breeder effects, 100% satisfaction guaranteed. <span class=\"red\">Be aware of its side effects!</span>",
 		onTakeMessage: 
-			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>And... quite surprisingly, you feel nothing? But not snake-oil nothing. Rather, you feel a nothingness that can only feel like relief not too distinct from a silence after being stuck in a noisy room. It seems the pill may have done what it advertised. But it's still too early to tell.<br><br>Even so, you take a deep breath in, safe in the belief you'll no longer have to deal with those awful mind-afflicting and body-altering effects.",
+			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>For a moment there is only relief as pressure inside you suddenly gone quiet. <span class=\"red\">Then a hot itch starts under your skin</span>, spreading into a raw, full-body sensitivity that makes every brush and shift of fabric feel almost painful.<br><br>You draw a breath, trying to endure the backlash in the hope you will no longer have to deal with those awful mind-afflicting and body-altering breeder effects.",
 		warning_label:
 			"Warning: Does not completely remove fertility. May cause some side-effects. Do not take unless you've tested positive for the respective effect.",
 		autoTake() {
@@ -2398,9 +2398,9 @@ setup.pills = [
 	{
 		name: "SWP Anti-bull Pill",
 		description:
-			"A shady pill advertised to deal with bull effects, 100% satisfaction guaranteed.",
+			"A shady pill advertised to deal with bull effects, 100% satisfaction guaranteed. <span class=\"red\">Be aware of its side effects!</span>",
 		onTakeMessage: 
-			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>And... quite surprisingly, you feel nothing? But not snake-oil nothing. Rather, you feel a nothingness that can only feel like relief not too distinct from a silence after being stuck in a noisy room. It seems the pill may have done what it advertised. But it's still too early to tell.<br><br>Even so, you take a deep breath in, safe in the belief you'll no longer have to deal with those awful mind-afflicting and body-altering effects.",
+			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>At first it feels like blessed relief, as though some feverish pressure has finally loosened its grip. <span class=\"red\">But the calm quickly sours into a crawling itch and a raw hypersensitivity</span> that spreads through your whole body until even your own movements feel upsettingly intense.<br><br>You steady yourself and hope the miserable comedown means you are finally free of those awful mind-afflicting and body-altering bull effects.",
 		warning_label:
 			"Warning: May cause some side-effects. Do not take unless you've tested positive for the respective effect.",
 		autoTake() {
@@ -2435,9 +2435,9 @@ setup.pills = [
 	{
 		name: "SWP Anti-continue Pill",
 		description:
-			"A shady pill advertised to deal with continue effects, 100% satisfaction guaranteed.",
+			"A shady pill advertised to deal with continue effects, 100% satisfaction guaranteed. <span class=\"red\">Be aware of its side effects!</span>",
 		onTakeMessage: 
-			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>And... quite surprisingly, you feel nothing? But not snake-oil nothing. Rather, you feel a nothingness that can only feel like relief not too distinct from a silence after being stuck in a noisy room. It seems the pill may have done what it advertised. But it's still too early to tell.<br><br>Even so, you take a deep breath in, safe in the knowledge you'll no longer have to deal with those awfully risky effects.",
+			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>At first there is only a strange, muted relief, like finally stepping out of a room that had been too loud for too long. Then the side effect sets in: <span class=\"red\">a restless itch under your skin and an oversensitivity</span> that turns every touch, every fold of cloth, into something upsettingly sharp and almost painful.<br><br>You bear it as best you can, hoping this miserable backlash means you will not have to deal with those awfully risky continue effects any longer.",
 		warning_label:
 			"Warning: May cause some side-effects. Do not take unless you've tested positive for the respective effect.",
 		autoTake() {
@@ -2472,9 +2472,9 @@ setup.pills = [
 	{
 		name: "SWP Anti-resistance Pill",
 		description:
-			"A shady pill advertised to deal with resistance effects, 100% satisfaction guaranteed.",
+			"A shady pill advertised to deal with resistance effects, 100% satisfaction guaranteed. <span class=\"red\">Be aware of its side effects!</span>",
 		onTakeMessage: 
-			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>And... quite surprisingly, you feel nothing? But not snake-oil nothing. Rather, you feel a nothingness that can only feel like relief not too distinct from a silence after being stuck in a noisy room. It seems the pill may have done what it advertised. But it's still too early to tell.<br><br>Even so, you take a deep breath in, safe in the knowledge you'll no longer have to deal with those awfully risky effects.",
+			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>The first sensation is relief. The second is much worse: <span class=\"red\">a prickling itch racing over your skin, followed by a raw hypersensitivity</span> that makes even harmless contact feel upsetting and borderline painful.<br><br>You swallow hard and try to focus that once this backlash passes, you should no longer have to deal with those awfully risky resistance effects.",
 		warning_label:
 			"Warning: May cause some side-effects. Do not take unless you've tested positive for the respective effect.",
 		autoTake() {
@@ -2509,9 +2509,9 @@ setup.pills = [
 	{
 		name: "SWP Anti-portal Pill",
 		description:
-			"A shady pill advertised to deal with portal effects, 100% satisfaction guaranteed.",
+			"A shady pill advertised to deal with portal effects, 100% satisfaction guaranteed. <span class=\"red\">Be aware of its side effects!</span>",
 		onTakeMessage: 
-			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>And... quite surprisingly, you feel nothing? But not snake-oil nothing. Rather, you feel a nothingness that can only feel like relief not too distinct from a silence after being stuck in a noisy room. It seems the pill may have done what it advertised. But it's still too early to tell.<br><br>Even so, you take a deep breath in, safe in the knowledge you'll no longer have to deal with those awfully risky effects.",
+			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>Relief comes first, like some wrongness has finally been drained out of you. Then your nerves flare. <span class=\"red\">An itchy heat spreads across your skin</span>, and before long your body feels so oversensitive that even light touch becomes upsetting.<br><br>You try to ride out the discomfort, trusting that at least you will no longer have to deal with those awfully risky portal effects.",
 		warning_label:
 			"Warning: May cause some side-effects. Do not take unless you've tested positive for the respective effect.",
 		autoTake() {
@@ -2546,9 +2546,9 @@ setup.pills = [
 	{
 		name: "SWP Anti-fertile Pill",
 		description:
-			"A shady pill advertised to deal with fertile effects, 100% satisfaction guaranteed.",
+			"A shady pill advertised to deal with fertile effects, 100% satisfaction guaranteed. <span class=\"red\">Be aware of its side effects!</span>",
 		onTakeMessage: 
-			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>And... quite surprisingly, you feel nothing? But not snake-oil nothing. Rather, you feel a nothingness that can only feel like relief not too distinct from a silence after being stuck in a noisy room. It seems the pill may have done what it advertised. But it's still too early to tell.<br><br>Even so, you take a deep breath in, safe in the knowledge you'll no longer have to deal with pregnancy risks.",
+			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>For one brief moment you feel only relief, as though the risk hanging over you has quietly ebbed away. Then the comedown bites back: <span class=\"red\">an insistent itch and a full-body oversensitivity</span> that makes even the brush of your clothes feel painful.<br><br>You breathe through it, telling yourself that if this worked, you will not have to deal with those pregnancy risks any longer.",
 		warning_label:
 			"Warning: May cause some side-effects. Do not take unless you've tested positive for the respective effect.",
 		autoTake() {
@@ -2583,9 +2583,9 @@ setup.pills = [
 	{
 		name: "SWP Anti-passion Pill",
 		description:
-			"A shady pill advertised to deal with passion effects, 100% satisfaction guaranteed.",
+			"A shady pill advertised to deal with passion effects, 100% satisfaction guaranteed. <span class=\"red\">Be aware of its side effects!</span>",
 		onTakeMessage: 
-			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>And... quite surprisingly, you feel nothing? But not snake-oil nothing. Rather, you feel a nothingness that can only feel like relief not too distinct from a silence after being stuck in a noisy room. It seems the pill may have done what it advertised. But it's still too early to tell.<br><br>Even so, you take a deep breath in, safe in the knowledge you'll no longer have to deal with those awfully risky effects.",
+			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>Relief hits first. Then your nerves seem to wake all at once. <span class=\"red\">A maddening itch crawls across your skin</span> and leaves your body feeling so oversensitive that every touch becomes irritating, upsetting, and faintly painful.<br><br>You endure it in the hope you will no longer have to deal with those awfully risky passion effects.",
 		warning_label:
 			"Warning: May cause some side-effects. Do not take unless you've tested positive for the respective effect.",
 		autoTake() {
@@ -2620,9 +2620,9 @@ setup.pills = [
 	{
 		name: "SWP Anti-dumb-bitch Pill",
 		description:
-			"A shady pill advertised to deal with dumb-bitch effects, 100% satisfaction guaranteed.",
+			"A shady pill advertised to deal with dumb-bitch effects, 100% satisfaction guaranteed. <span class=\"red\">Be aware of its side effects!</span>",
 		onTakeMessage: 
-			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>And... quite surprisingly, you feel nothing? But not snake-oil nothing. Rather, you feel a nothingness that can only feel like relief not too distinct from a silence after being stuck in a noisy room. It seems the pill may have done what it advertised. But it's still too early to tell.<br><br>Even so, you take a deep breath in, safe in the knowledge you'll no longer have to deal with those awfully risky effects.",
+			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>At first all you notice is the relief, like a fog lifting from somewhere inside your head. Then the rest of the side effects arrive together: <span class=\"red\">itching skin, raw nerves, and a whole-body oversensitivity</span> that makes even small sensations feel upsetting and almost painful.<br><br>You grit your teeth and hold onto the thought that, with any luck, you will not have to deal with those awfully risky dumb-bitch effects any longer.",
 		warning_label:
 			"Warning: May cause some side-effects. Do not take unless you've tested positive for the respective effect.",
 		autoTake() {
@@ -2657,9 +2657,9 @@ setup.pills = [
 	{
 		name: "SWP Anti-swell Pill",
 		description:
-			"A shady pill advertised to deal with swell effects, 100% satisfaction guaranteed.",
+			"A shady pill advertised to deal with swell effects, 100% satisfaction guaranteed. <span class=\"red\">Be aware of its side effects!</span>",
 		onTakeMessage: 
-			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>And... quite surprisingly, you feel nothing? But not snake-oil nothing. Rather, you feel a nothingness that can only feel like relief not too distinct from a silence after being stuck in a noisy room. It seems the pill may have done what it advertised. But it's still too early to tell.<br><br>Even so, you take a deep breath in, safe in the belief you'll no longer have to deal with those awful mind-afflicting and body-altering effects.",
+			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>For a moment there is only relief, as though some invasive fullness is finally receding. Then <span class=\"red\">a prickling itch blooms across your skin, followed by a raw hypersensitivity</span> that makes your own body feel tender, upset, and almost painful to move in.<br><br>You try to ignore the backlash and take comfort in the thought that you should not have to deal with those awful mind-afflicting and body-altering swell effects any longer.",
 		warning_label:
 			"Warning: May cause some side-effects. Do not take unless you've tested positive for the respective effect.",
 		autoTake() {
@@ -2694,9 +2694,9 @@ setup.pills = [
 	{
 		name: "SWP Anti-bimbo Pill",
 		description:
-			"A shady pill advertised to deal with bimbo (and himbo) effects, 100% satisfaction guaranteed.",
+			"A shady pill advertised to deal with bimbo (and himbo) effects, 100% satisfaction guaranteed. <span class=\"red\">Be aware of its side effects!</span>",
 		onTakeMessage: 
-			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>And... quite surprisingly, you feel nothing? But not snake-oil nothing. Rather, you feel a nothingness that can only feel like relief not too distinct from a silence after being stuck in a noisy room. It seems the pill may have done what it advertised. But it's still too early to tell.<br><br>Even so, you take a deep breath in, safe in the belief you'll no longer have to deal with those awful mind-afflicting and body-altering effects.",
+			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>The first sensation is relief. The second is <span class=\"red\">a spreading itch and a raw full-body oversensitivity</span> that makes every touch feel aggravating, upsetting, and almost painful.<br><br>You force yourself to breathe through it, hoping the discomfort is the price of being rid of those awful mind-afflicting and body-altering bimbo effects.",
 		warning_label:
 			"Warning: May cause some side-effects. Do not take unless you've tested positive for the respective effect.",
 		autoTake() {
@@ -2731,9 +2731,9 @@ setup.pills = [
 	{
 		name: "SWP Anti-cumcure Pill",
 		description:
-			"A shady pill advertised to deal with cumcure effects, 100% satisfaction guaranteed.",
+			"A shady pill advertised to deal with cumcure effects, 100% satisfaction guaranteed. <span class=\"red\">Be aware of its side effects!</span>",
 		onTakeMessage: 
-			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>And... quite surprisingly, you feel nothing? But not snake-oil nothing. Rather, you feel a nothingness that can only feel like relief not too distinct from a silence after being stuck in a noisy room. It seems the pill may have done what it advertised. But it's still too early to tell.<br><br>Even so, you take a deep breath in, safe in the belief you'll no longer have to deal with those awful mind-afflicting and body-altering effects.",
+			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>For a brief, there is only relief. <span class=\"red\">Then your skin starts to prickle</span>. The itch deepens into a raw hypersensitivity that spreads through your whole body until even the slightest contact feels upsettingly sharp.<br><br>You ride out the miserable aftermath in the hope that you will not have to deal with those awful mind-afflicting and body-altering cumcure effects any longer.",
 		warning_label:
 			"Warning: May cause some side-effects. Do not take unless you've tested positive for the respective effect.",
 		autoTake() {
