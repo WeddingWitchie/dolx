@@ -38,7 +38,7 @@
 		<<set $NPCList to []>>
 	<</if>>
 	/* If the slot is STILL missing, repair it (do NOT throw <<error>>) */
-	<<set _expectedFreshSlot to ($enemyno is 0 and _n is 0)>>
+	<<set _expectedFreshSlot to (_n is $enemyno)>>
 	<<if !$NPCList[_n]>>
 		<<set $NPCList[_n] to {
 			pronoun: "m",
@@ -67,9 +67,9 @@
 		<<if !_expectedFreshSlot>>
 			<<if !$bugNoticesShown.dolx_npc_repair>>
 				<<set $bugNoticesShown.dolx_npc_repair to true>>
-				<span class="red"><b>A bug happened!</b> NPC Generation is missing but DoLX fix it. Do report it to Discord server.</span><br>
+				<span class="red"><b>A bug happened!</b> NPC Generation is missing but DoLX fixed the base slot. Do report it to Discord server.</span><br>
 			<</if>>
-			<<run console.warn("[DoLX] NPCList[" + _n + "] unexpectedly missing in " + $passage + " — repaired base slot.")>>
+			<<run console.warn("[DoLX] NPCList[" + _n + "] unexpectedly missing after checkEventNPC in " + $passage + " — repaired base slot.")>>
 		<</if>>
 	<</if>>
 	<!-- END SAFETY GUARD -->
@@ -125,9 +125,28 @@
 
 	<<set $NPCList[_n].pregnancyAvoidance to random(0,100)>>
 
-	<<if $enemyno lt 6>><<set $enemyno += 1>><</if>>
+	<<if $enemyno is undefined>><<set $enemyno to 0>><</if>>
+	<<if $enemynomax is undefined>><<set $enemynomax to 0>><</if>>
+	<<set $enemyno to Math.max($enemyno, _n + 1)>>
+	<<set $enemynomax to Math.max($enemynomax, $enemyno)>>
 
 	<<npcattribute _n _gender _lvl>>
+
+	<<if !$NPCList[_n].type or $NPCList[_n].type is "undefined">><<set $NPCList[_n].type to "human">><</if>>
+	<<if !$NPCList[_n].description or $NPCList[_n].description is "undefined">><<set $NPCList[_n].description to "ordinary">><</if>>
+	<<if !$NPCList[_n].role or $NPCList[_n].role is "undefined">><<set $NPCList[_n].role to "normal">><</if>>
+	<<if !$NPCList[_n].fullDescription or $NPCList[_n].fullDescription is "undefined undefined">>
+		<<set $NPCList[_n].fullDescription to $NPCList[_n].description + " ">>
+		<<if $NPCList[_n].role isnot "normal">>
+			<<set $NPCList[_n].fullDescription += $NPCList[_n].role>>
+		<<elseif $NPCList[_n].pronoun is "m">>
+			<<set $NPCList[_n].fullDescription += ($NPCList[_n].teen is 1 ? "boy" : "man")>>
+		<<elseif $NPCList[_n].pronoun is "f">>
+			<<set $NPCList[_n].fullDescription += ($NPCList[_n].teen is 1 ? "girl" : "woman")>>
+		<<else>>
+			<<set $NPCList[_n].fullDescription += "person">>
+		<</if>>
+	<</if>>
 
 	<<set $NPCList[_n].index to _n>>
 	<<run EventSystem.push($passage, _n, $timeStamp)>>
