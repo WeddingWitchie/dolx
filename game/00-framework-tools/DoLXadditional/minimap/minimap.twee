@@ -344,3 +344,311 @@
 		</div>
 	</div>
 <</widget>>
+
+<<widget "forest_map">>
+	<<silently>>
+		/* Forest progress uses $forest from 0 to 100 in steps of 5. */
+		<<set _forestValue to ($forest is undefined ? 0 : Math.clamp($forest, 0, 100))>>
+		<<set _pos to Math.floor(_forestValue / 5)>>
+
+		<<if _pos lte 4>>
+			<<set _zoneLabel to "Forest outskirts">>
+		<<elseif _pos lte 10>>
+			<<set _zoneLabel to "Central forest">>
+		<<elseif _pos lte 19>>
+			<<set _zoneLabel to "Deep forest">>
+		<<else>>
+			<<set _zoneLabel to "End of the forest">>
+		<</if>>
+	<</silently>>
+
+	<div class="forestmap-wrap">
+		<div class="forestmap-scroller">
+			<div class="forestmap-grid">
+				<<for _i to 0; _i lte 20; _i++>>
+					<<capture _i>>
+						<<set _hue to 95>>
+						<<set _sat to (34 + Math.floor(_i * 0.8))>>
+						<<set _light to (84 - Math.floor(_i * 2.0))>>
+
+						<<if _i gte 11>>
+							<<set _sat to (_sat + 4)>>
+							<<set _light to (_light - 4)>>
+						<</if>>
+
+						<<if _i is 20>>
+							<<set _sat to 36>>
+							<<set _light to 28>>
+						<</if>>
+
+						<<set _style to "background:hsl(" + _hue + ", " + _sat + "%, " + _light + "%);">>
+						<<set _class to "forestmap-cell">>
+						<<if _i is _pos>><<set _class += " forestmap-here">><</if>>
+
+						<div @class="_class" @style="_style">
+							<<if _i is _pos>>
+								<span class="forestmap-you">YOU</span>
+							<</if>>
+						</div>
+					<</capture>>
+				<</for>>
+			</div>
+		</div>
+
+		<div class="forestmap-caption"><<print _zoneLabel>></div>
+	</div>
+
+	<<script>>
+		(function () {
+			const scrollers = document.querySelectorAll('.forestmap-scroller');
+			const scroller = scrollers[scrollers.length - 1];
+			const here = scroller && scroller.querySelector('.forestmap-here');
+			if (scroller && here) {
+				const left = here.offsetLeft - (scroller.clientWidth - here.clientWidth) / 2;
+				scroller.scrollLeft = Math.max(0, left);
+			}
+		})();
+	<</script>>
+<</widget>>
+
+
+<<widget "moor_map">>
+	<<silently>>
+		/* Moor progress uses $moor from 0 to 100 in steps of 5. */
+		<<set _moorValue to ($moor is undefined ? 0 : Math.clamp($moor, 0, 100))>>
+		<<set _pos to Math.floor(_moorValue / 5)>>
+
+		<<if _pos lte 4>>
+			<<set _zoneLabel to "Moor outskirts">>
+		<<elseif _pos lte 10>>
+			<<set _zoneLabel to "Central moor">>
+		<<elseif _pos lte 19>>
+			<<set _zoneLabel to "Deep moor">>
+		<<else>>
+			<<set _zoneLabel to "Ruined castle">>
+		<</if>>
+	<</silently>>
+
+	<div class="moormap-wrap">
+		<div class="moormap-scroller">
+			<div class="moormap-grid">
+				<<for _i to 0; _i lte 20; _i++>>
+					<<capture _i>>
+						/* 0-4 lavender outskirts, 5-10 sage center, 11-19 teal deep moor, 20 ruined castle grey */
+						<<if _i lte 4>>
+							<<set _hue to 272>>
+							<<set _sat to (66 - Math.floor(_i * 4))>>
+							<<set _light to (74 - Math.floor(_i * 2))>>
+						<<elseif _i lte 10>>
+							<<set _step to (_i - 5)>>
+							<<set _hue to 102>>
+							<<set _sat to (16 + Math.floor(_step * 1.4))>>
+							<<set _light to (69 - Math.floor(_step * 1.6))>>
+						<<elseif _i lte 19>>
+							<<set _step to (_i - 11)>>
+							<<set _hue to 178>>
+							<<set _sat to (24 + Math.floor(_step * 1.4))>>
+							<<set _light to (67 - Math.floor(_step * 1.7))>>
+						<<else>>
+							<<set _hue to 220>>
+							<<set _sat to 6>>
+							<<set _light to 77>>
+						<</if>>
+
+						<<set _style to "background:hsl(" + _hue + ", " + _sat + "%, " + _light + "%);">>
+						<<set _class to "moormap-cell">>
+						<<if _i is _pos>><<set _class += " moormap-here">><</if>>
+
+						<div @class="_class" @style="_style">
+							<<if _i is _pos>>
+								<span class="moormap-you">YOU</span>
+							<</if>>
+						</div>
+					<</capture>>
+				<</for>>
+			</div>
+		</div>
+
+		<div class="moormap-caption"><<print _zoneLabel>></div>
+	</div>
+
+	<<script>>
+		(function () {
+			const scrollers = document.querySelectorAll('.moormap-scroller');
+			const scroller = scrollers[scrollers.length - 1];
+			const here = scroller && scroller.querySelector('.moormap-here');
+			if (scroller && here) {
+				const left = here.offsetLeft - (scroller.clientWidth - here.clientWidth) / 2;
+				scroller.scrollLeft = Math.max(0, left);
+			}
+		})();
+	<</script>>
+<</widget>>
+
+
+<<widget "cave_map">>
+	<<silently>>
+		/* Beach cave / smuggler cave progress uses $cave from 0 to 100 in steps of 5. */
+		<<set _caveValue to ($cave is undefined ? 0 : Math.clamp($cave, 0, 100))>>
+		<<set _pos to Math.floor(_caveValue / 5)>>
+		<<set _pubKnown to ($smuggler_pub_known is 1 or $historytrait gte 4 or ($temple_spear_mission gte 1 and $temple_spear_mission_winter is 1))>>
+		<<set _mapStatus to (($museumAntiques and $museumAntiques.antiques) ? $museumAntiques.antiques.antiqueleathermap : undefined)>>
+		<<set _mapHidden to (_mapStatus isnot "found" and _mapStatus isnot "talk" and _mapStatus isnot "museum")>>
+		<<set _compassHidden to (!$weekly.beachCaveCompass)>>
+		<<set _showChestHint to (_mapHidden or _compassHidden)>>
+
+		<<if _caveValue lt 20>>
+			<<set _zoneLabel to "Water up to your neck">>
+		<<elseif _caveValue lt 50>>
+			<<set _zoneLabel to "Water up to your waist">>
+		<<elseif _caveValue lt 100>>
+			<<set _zoneLabel to "Feet in rushing water">>
+		<<else>>
+			<<set _zoneLabel to "Back of the cave">>
+		<</if>>
+	<</silently>>
+
+	<div class="cavemap-wrap">
+		<div class="cavemap-scroller">
+			<div class="cavemap-grid">
+				<<for _i to 0; _i lte 20; _i++>>
+					<<capture _i>>
+						/* pale wet stone -> blue grey -> deeper cave water */
+						<<if _i lte 3>>
+							<<set _hue to 190>>
+							<<set _sat to (10 + Math.floor(_i * 2))>>
+							<<set _light to (82 - Math.floor(_i * 2))>>
+						<<elseif _i lte 9>>
+							<<set _step to (_i - 4)>>
+							<<set _hue to 202>>
+							<<set _sat to (18 + Math.floor(_step * 1.6))>>
+							<<set _light to (78 - Math.floor(_step * 1.7))>>
+						<<elseif _i lte 19>>
+							<<set _step to (_i - 10)>>
+							<<set _hue to 204>>
+							<<set _sat to (28 + Math.floor(_step * 1.2))>>
+							<<set _light to (68 - Math.floor(_step * 1.2))>>
+						<<else>>
+							<<set _hue to 197>>
+							<<set _sat to 12>>
+							<<set _light to 56>>
+						<</if>>
+
+						<<set _style to "background:hsl(" + _hue + ", " + _sat + "%, " + _light + "%);">>
+						<<set _class to "cavemap-cell">>
+						<<if _i is _pos>><<set _class += " cavemap-here">><</if>>
+
+						<div @class="_class" @style="_style">
+							<<if _i gte 3 and _i lte 19>><span class="cavemap-antique cavemap-antique-basic"></span><</if>>
+							<<if _i gte 6 and _i lte 19>><span class="cavemap-antique cavemap-antique-deep"></span><</if>>
+							<<if _showChestHint and _i is 20>><span class="cavemap-antique cavemap-antique-chest"></span><</if>>
+							<<if _pubKnown and _i is 10>><span class="cavemap-pubdot"></span><</if>>
+							<<if _i is _pos>>
+								<span class="cavemap-you">YOU</span>
+							<</if>>
+						</div>
+					<</capture>>
+				<</for>>
+			</div>
+		</div>
+
+		<div class="cavemap-caption"><<print _zoneLabel>></div>
+		<div class="cavemap-legend">
+			<span class="cavemap-legend-item"><span class="cavemap-legend-mark cavemap-legend-basic"></span> Antiques 3–19</span>
+			<span class="cavemap-legend-item"><span class="cavemap-legend-mark cavemap-legend-deep"></span> Better finds 6–19</span>
+			<<if _showChestHint>>
+				<span class="cavemap-legend-item"><span class="cavemap-legend-mark cavemap-legend-chest"></span> Chest 20</span>
+			<</if>>
+		</div>
+	</div>
+
+	<<script>>
+		(function () {
+			const scrollers = document.querySelectorAll('.cavemap-scroller');
+			const scroller = scrollers[scrollers.length - 1];
+			const here = scroller && scroller.querySelector('.cavemap-here');
+			if (scroller && here) {
+				const left = here.offsetLeft - (scroller.clientWidth - here.clientWidth) / 2;
+				scroller.scrollLeft = Math.max(0, left);
+			}
+		})();
+	<</script>>
+<</widget>>
+
+
+<<widget "sea_map">>
+	<<silently>>
+		/* Sea progress uses $sea from 0 to 100 in steps of 10. */
+		<<set _seaValue to ($sea is undefined ? 0 : Math.clamp($sea, 0, 100))>>
+		<<set _pos to Math.floor(_seaValue / 10)>>
+
+		<<if _seaValue is 0>>
+			<<set _zoneLabel to "Near shore">>
+		<<elseif _seaValue lte 20>>
+			<<set _zoneLabel to "Near beach">>
+		<<elseif _seaValue lte 50>>
+			<<set _zoneLabel to "Near town">>
+		<<elseif _seaValue lt 100>>
+			<<set _zoneLabel to "Far out">>
+		<<else>>
+			<<set _zoneLabel to "Endless deep">>
+		<</if>>
+	<</silently>>
+
+	<div class="seamap-wrap">
+		<div class="seamap-scroller">
+			<div class="seamap-grid">
+				<<for _i to 0; _i lte 10; _i++>>
+					<<capture _i>>
+						/* pale shore blue -> ocean blue -> deep navy */
+						<<if _i lte 2>>
+							<<set _hue to 206>>
+							<<set _sat to (58 + Math.floor(_i * 2))>>
+							<<set _light to (78 - Math.floor(_i * 4))>>
+						<<elseif _i lte 5>>
+							<<set _step to (_i - 3)>>
+							<<set _hue to 210>>
+							<<set _sat to (62 + Math.floor(_step * 3))>>
+							<<set _light to (66 - Math.floor(_step * 5))>>
+						<<elseif _i lte 9>>
+							<<set _step to (_i - 6)>>
+							<<set _hue to 216>>
+							<<set _sat to (68 + Math.floor(_step * 3))>>
+							<<set _light to (50 - Math.floor(_step * 5))>>
+						<<else>>
+							<<set _hue to 220>>
+							<<set _sat to 76>>
+							<<set _light to 24>>
+						<</if>>
+
+						<<set _style to "background:hsl(" + _hue + ", " + _sat + "%, " + _light + "%);">>
+						<<set _class to "seamap-cell">>
+						<<if _i is _pos>><<set _class += " seamap-here">><</if>>
+
+						<div @class="_class" @style="_style">
+							<<if _i is 0>><span class="seamap-shore"></span><</if>>
+							<<if _i is 10>><span class="seamap-island"></span><</if>>
+							<<if _i is _pos>>
+								<span class="seamap-you">YOU</span>
+							<</if>>
+						</div>
+					<</capture>>
+				<</for>>
+			</div>
+		</div>
+
+		<div class="seamap-caption"><<print _zoneLabel>></div>
+	</div>
+
+	<<script>>
+		(function () {
+			const scrollers = document.querySelectorAll('.seamap-scroller');
+			const scroller = scrollers[scrollers.length - 1];
+			const here = scroller && scroller.querySelector('.seamap-here');
+			if (scroller && here) {
+				const left = here.offsetLeft - (scroller.clientWidth - here.clientWidth) / 2;
+				scroller.scrollLeft = Math.max(0, left);
+			}
+		})();
+	<</script>>
+<</widget>>
