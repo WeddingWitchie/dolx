@@ -1,14 +1,36 @@
 :: Kylar Abduction Event End
 <<effects>>
+<<if C.npc.Kylar.lust gte 100 and ($syndromekylarbuild is 4 or $syndromekylarbuild is 2) and C.npc.Kylar.startingSex is $player.sex and !npcIsXChanged("Kylar") and $kylar_xchange_decision is undefined>>
+	Kylar raises <span class="lewd">a X-Change pill</span> to <<his>> lips, convinced it will "fix" things before <<he>> starts.
+	<br><br>
+	<<link [[Let Kylar take it|Kylar Abduction Event End]]>><<set $kylar_xchange_decision to "allow">><</link>>
+	<br>
+	<<link [[Stop Kylar|Kylar Abduction Event End]]>><<set $kylar_xchange_decision to "stop">><</link>>
+	<br>
+	/* <<link [[Make Kylar take it yourself|Kylar Abduction Event End]]>><<set $kylar_xchange_decision to "force">><</link>> */
+<<else>>
+	<<include "Kylar Abduction Event End Core">>
+<</if>>
 
+:: Kylar Abduction Event End Core
+<<effects>>
 <<set _kylar to $NPCList[0]>>
-
 <<if C.npc.Kylar.lust gte 100>>
 	<<switch $syndromekylarbuild>>
 		<<case 4>>
+			<<set _kylarTookXchange to 0>>
 			<<if C.npc.Kylar.startingSex is $player.sex and !npcIsXChanged("Kylar")>>
-				<<npc-select-xchange-target 0>><<npc-take-xchange 1 "genderflip">>
-				<<set _kylarTookXchange to 1>>
+				<<if $kylar_xchange_decision is "stop">>
+					You catch sight of the pill before Kylar can swallow it and lash out, knocking it from <<his>> hand. Kylar freezes, then slowly lowers <<his>> arm.
+					<br><br>
+				<<else>>
+					<<npc-select-xchange-target 0>><<npc-take-xchange 1 "genderflip">>
+					<<set _kylarTookXchange to 1>>
+					<<if $kylar_xchange_decision is "force">>
+						You take the pill from Kylar's hand and make <<him>> swallow it before <<he>> can continue.
+					<</if>>
+				<</if>>
+				<<unset $kylar_xchange_decision>>
 			<</if>>
 			Kylar crawls towards you, and pulls <<himself>> up your legs.
 			<<if _kylarTookXchange and $xchange.timesTaken.Kylar is 1>>
@@ -71,9 +93,19 @@
 				<<kylarStockholmDefaultRape>>
 			<</if>>
 		<<case 2>>
+			<<set _kylarTookXchange to 0>>
 			<<if C.npc.Kylar.startingSex is $player.sex and !npcIsXChanged("Kylar")>>
-				<<npc-select-xchange-target 0>><<npc-take-xchange 7 "genderflip" `C.npc.Kylar.startingSex is "f"? "bull" : "breeder"`>>
-				<<set _kylarTookXchange to 1>>
+				<<if $kylar_xchange_decision is "stop">>
+					You catch sight of the pill before Kylar can swallow it and lash out, knocking it from <<his>> hand. Kylar freezes, then slowly lowers <<his>> arm.
+					<br><br>
+				<<else>>
+					<<npc-select-xchange-target 0>><<npc-take-xchange 7 "genderflip" `C.npc.Kylar.startingSex is "f"? "bull" : "breeder"`>>
+					<<set _kylarTookXchange to 1>>
+					<<if $kylar_xchange_decision is "force">>
+						You take the pill from Kylar's hand and make <<him>> swallow it before <<he>> can continue.
+					<</if>>
+				<</if>>
+				<<unset $kylar_xchange_decision>>
 			<</if>>
 			Kylar eyes up your body, any anxiety overcome by lust.
 			<<if _kylarTookXchange and $xchange.timesTaken.Kylar is 1>>
@@ -129,7 +161,7 @@
 			<</if>>
 		<<default>>
 			<<kylarStockholmDefaultRape>>
-		<</switch>>
+	<</switch>>
 <<elseif C.npc.Kylar.rage gte 100>>
 
 	"I don't understand," Kylar says. <<He>> sounds irritated. "I'm being so good to you. So very good. Are—" <span class="pink"><<His>> fist clenches around the knife.</span> "Are you thinking of someone else? Is that it?" There's anger in <<his>> voice now. Anger and fear.
@@ -198,7 +230,6 @@
 	<<link [[Next|Kylar Abduction]]>><<endevent>><</link>>
 	<br>
 <</if>>
-
 
 :: Kylar Abduction Neck Resist
 <<effects>>
