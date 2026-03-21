@@ -360,6 +360,13 @@ function effects() {
 	if (V.effectsmessage && !V.statFreeze && !V.silenceNotifications) {
 		delete V.effectsmessage;
 
+		if (V.speechDailyMessagePending && V.speechDailyMessage) {
+			element("span", V.speechDailyMessage, "lustful");
+			delete V.speechDailyMessagePending;
+			delete V.speechDailyMessage;
+			br();
+		}
+
 		if (V.recovered_from_pregnancy) {
 			delete V.recovered_from_pregnancy;
 			element("span", "You feel a familiar emptiness return in your womb.", "green");

@@ -663,6 +663,7 @@ more suspicion if you actually lose the round. -->
 <</widget>>
 
 <<widget "blackjackControls">>
+	<<speechresolve>>
 	<<set _player_can_choose to $blackjack.turn is "players" and $blackjack.playersScore lte 20>>
 	<<set _consts__max_marked_see_depth to 3>>
 	<<set _seen_cards_deck to []>>
@@ -834,36 +835,50 @@ more suspicion if you actually lose the round. -->
 			<<case "holecardingfail" "holecardingsuccess">>
 				"Careful there," Wren says. "<span class="red">You're peeking too hard.</span> You don't want to snap your own neck."
 				<br><br>
-				<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
-					"I-I'm sorry, I didn't mean to look!" you say.
-				<<elseif $speech_attitude is "bratty">>
+				<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy" or _speechAttitudeResolved is "docile")>>
+					You flinch. "I-I'm sorry, I didn't mean to look!"
+				<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+					"I wasn't trying to cheat," you say quickly. "I just glanced over."
+				<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "confident" or _speechAttitudeResolved is "special")>>
 					"Peeking? I'm just making sure your dealer isn't doing anything shady," you say. "Scared?"
+				<<elseif _speechAttitudeResolved is "cruel">>
+					"Then tell your dealer to stop fumbling the cards," you say. "This isn't exactly subtle."
 				<<else>>
-					"I wasn't peeking," you say.
+					"I wasn't peeking," you say, trying to sound steadier than you feel.
 				<</if>>
 				<br><br>
-				Wren scoffs. <<He>> doesn't look convinced by your words.
+				<<switch random(1,3)>>
+					<<case 1>>Wren scoffs. <<He>> doesn't look convinced by your words.
+					<<case 2>>Wren's mouth twists into a doubtful smirk. <<He>> drums <<his>> fingers once on the table, clearly unimpressed.
+					<<case 3>>Wren leans back and gives you a long look, like <<he>>'s deciding how stupid <<he>> thinks that excuse really was.
+				<</switch>>
 				<br><br>
 				<<blackjackCheatingCaught>>
 			<<case "markedcardseen">>
 				<<if _seen_dealer_card>>
-					Wren stares at you for a moment, before carefully inspecting <<his>> hole card. Then, <span class="red"><<he>> scoffs</span>.
+					Wren stares at you for a moment, then carefully inspects <<his>> hole card. A beat later, <span class="red"><<he>> scoffs</span>.
 					<br><br>
 				<<else>>
-					Wren stares at you for a moment, before grabbing a card from the deck. <<He>> inspects it, and then - <span class="red"><<he>> scoffs</span>.
+					Wren stares at you for a moment, then plucks a card from the deck and turns it in <<his>> fingers. When <<he>> sees the mark, <span class="red"><<he>> scoffs</span>.
 				<</if>>
 				<br><br>
 				<<He>> points to the mark you've placed on the card. "You ain't slick," Wren says.
 				<br><br>
-				<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
-					"I-It wasn't me, I didn't do anything!" you say.
-				<<elseif $speech_attitude is "bratty">>
+				<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy" or _speechAttitudeResolved is "docile")>>
+					"I-It wasn't me, I didn't do anything!" you blurt out.
+				<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "confident" or _speechAttitudeResolved is "special")>>
 					"Don't be stupid," you say. "That's just a scratch. For all we know it could be the dealer's fault."
+				<<elseif _speechAttitudeResolved is "cruel">>
+					"Maybe your cards are just handled badly," you say. "Not my problem if your table's sloppy."
 				<<else>>
 					"That's just a scratch," you say. "Doesn't mean it was intentional, let alone that it was me."
 				<</if>>
 				<br><br>
-				Wren scoffs. <<He>> doesn't look convinced by your words.
+				<<switch random(1,3)>>
+					<<case 1>>Wren scoffs again. <<He>> doesn't look convinced in the slightest.
+					<<case 2>>Wren rolls the card between <<his>> fingers, expression flat. Whatever excuse you gave, <<he>> clearly isn't buying it.
+					<<case 3>>Wren's eyes narrow. <<He>> lets the silence sit for a second, making your denial feel thinner by the second.
+				<</switch>>
 				<br><br>
 				<<blackjackCheatingCaught>>
 			<<default>>
@@ -2017,11 +2032,16 @@ more suspicion if you actually lose the round. -->
 <</widget>>
 
 <<widget "cards_naked_end">>
+	<<speechresolve>>
 	<<covered>>
-	<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
-		"I-I have no clothes," you say. "C-could you give me something to cover with?"
-	<<elseif $speech_attitude is "bratty">>
-		"You're really gonna leave me with no clothes?" you ask. "Give me a towel or something at least."
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy" or _speechAttitudeResolved is "docile")>>
+		You fold your arms over yourself. "I-I have no clothes," you say. "C-could you give me something to cover with?"
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"Could I at least have something to cover myself with?" you ask. "A towel would do."
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "confident" or _speechAttitudeResolved is "special")>>
+		"You're really going to leave me with no clothes?" you ask. "Give me a towel or something, at least."
+	<<elseif _speechAttitudeResolved is "cruel">>
+		You stare at Wren flatly. "If you're done humiliating me, give me something to cover up with."
 	<<else>>
 		"Could you give me a towel, at least?" you ask. "I'll be in danger like this."
 	<</if>>
@@ -2030,7 +2050,18 @@ more suspicion if you actually lose the round. -->
 	Wren leans behind <<him>>, and opens a drawer. <<He>> feels inside, and produces a small towel. "You can have this," <<he>> says. "But you'll have to earn it. I think my friends here deserve some fun."
 	<br><br>
 
-	"Satisfy them with your mouth," <<he>> continues, "and I'll let you wear a towel."
+	<<switch random(1,3)>>
+		<<case 1>>"You can have this," <<he>> says. "But you'll have to earn it. I think my friends here deserve some fun."
+		<<case 2>>"I've got something for you," Wren says, giving the towel a little shake. "But I'm not handing it over for free."
+		<<case 3>>Wren dangles the towel just enough to make it feel close. "You can cover yourself," <<he>> says, "after you've been useful."
+	<</switch>>
+	<br><br>
+
+	<<switch random(1,3)>>
+		<<case 1>>"Satisfy them with your mouth," <<he>> continues, "and I'll let you wear a towel."
+		<<case 2>>"Use that mouth of yours properly," Wren says, nodding toward the others, "and the towel is yours."
+		<<case 3>>"Make my friends happy first," <<he>> says. "Then you get to stop standing there bare."
+	<</switch>>
 	<br><br>
 
 	<<cards_oral_options>>

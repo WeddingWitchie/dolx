@@ -3237,6 +3237,7 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 	<<outfitChecks>>
 	<<set _n to _args[0]>>
 	<<set _npc = ($NPCList && _n !== undefined && $NPCList[_n]) ? $NPCList[_n] : null>>
+	<<speechresolve>>
 
 	<<if _npc>>
 		<!-- Converted his1-6 to hisselect #. Person1-6 to personselect #. $intro1-6 as array $NPCList[_n].intro -->
@@ -3901,7 +3902,16 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 							<span class="pink"><<He>> thrusts <<his>> $NPCList[_n].penisdesc deep into your <<bottom>><<alongsideButtPlug>>.</span>
 							<<switch $NPCList[_n].penissize>>
 							<<case 3 4>>
-								<span class="red"> You <<if $speech_attitude is "meek">>moan<<else>>whimper<</if>> as your ass stretches to accommodate both <<his>> cock and your $_buttplug.</span>
+								<<switch _speechAttitudeResolved>>
+							<<case "meek" "shy" "docile">>
+								<span class="red">A helpless moan slips from your lips as your ass stretches to accommodate both <<his>> cock and your $_buttplug.</span>
+							<<case "polite" "flamboyant">>
+								<span class="red">You gasp sharply as your ass stretches to accommodate both <<his>> cock and your $_buttplug.</span>
+							<<case "bratty" "cruel" "confident" "special">>
+								<span class="red">You grit your teeth and curse under your breath as your ass is forced to accommodate both <<his>> cock and your $_buttplug.</span>
+							<<default>>
+								<span class="red">You whimper as your ass stretches to accommodate both <<his>> cock and your $_buttplug.</span>
+							<</switch>>
 							<<case 1>>
 								<span class="green">You can barely feel it.</span>
 							<<default>>
@@ -3912,7 +3922,16 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 							<span class="pink"><<He>> thrusts <<his>> $NPCList[_n].penisdesc deep into your virgin anus<<alongsideButtPlug>>,</span> <span class="red">violating you in a way you hadn't conceived of.</span>
 							<<switch $NPCList[_n].penissize>>
 							<<case 3 4>>
-								<span class="red"> You <<if $speech_attitude is "meek">>squeal<<else>>scream<</if>> as your ass struggles to accommodate both <<his>> cock and your $_buttplug.</span>
+							<<switch _speechAttitudeResolved>>
+							<<case "meek" "shy" "docile">>
+								<span class="red">A startled squeal tears out of you as your ass struggles to accommodate both <<his>> cock and your $_buttplug.</span>
+							<<case "polite" "flamboyant">>
+								<span class="red">You cry out in shock as your ass struggles to accommodate both <<his>> cock and your $_buttplug.</span>
+							<<case "bratty" "cruel" "confident" "special">>
+								<span class="red">A ragged curse breaks from you as your ass strains around both <<his>> cock and your $_buttplug.</span>
+							<<default>>
+								<span class="red">You scream as your ass struggles to accommodate both <<his>> cock and your $_buttplug.</span>
+							<</switch>>
 							<<case 1>>
 								<span class="green"> While your ass is technically no longer virgin, you can barely feel it.</span>
 							<<default>>
@@ -6131,7 +6150,10 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 							"Let's get you naked.",
 							"I think you enjoy being stripped naked!",
 							"You don't need clothes.",
-							"You need to be naked!")>>"
+							"You need to be naked!",
+							"Come on, let me peel these off you.",
+							"You'll look better without a stitch on.",
+							"Why hide that body from me?")>>"
 						<<else>>
 							<<He>> speaks.
 							"<<print either("I'll rip your clothes off if I need to!",
@@ -6139,7 +6161,10 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 							"I want your clothes gone!",
 							"You like being stripped naked, don't you!",
 							"You don't deserve clothes.",
-							"I want you nude!")>>"
+							"I want you nude!",
+							"I'll tear every last layer off you.",
+							"Stop fighting and let me strip you.",
+							"Those clothes are coming off, whether you like it or not!")>>"
 						<</if>>
 					<</if>>
 				<<elseif $speechvaginavirgin is 1 and $NPCList[_n].penis is "vagina">>
@@ -7170,13 +7195,15 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 			<<print either(
 				"<<He>> straddles your face and slowly lowers <<his>> pussy down onto your mouth.",
 				"<<He>> stands over your face and lowers <<himself>>, planting <<his>> pussy on your face.",
-				"<<His>> pussy comes down onto your face and rests lightly on your mouth, and <<he>> waits expectantly."
+				"<<His>> pussy comes down onto your face and rests lightly on your mouth, and <<he>> waits expectantly.",
+				"<<He>> settles over your face, pressing <<his>> pussy to your mouth with slow, deliberate care.",
+				"<<He>> lowers <<his>> hips inch by inch until your mouth is pinned beneath <<his>> pussy."
 			)>>
 			</span>
 			<<submission 5 _n>><<set $NPCList[_n].vagina to "facesit">><<set $mouthuse to "facesit">><<set $mouthstate to "vagina">>
 			<<set $speechfacesit to 1>><<set $NPCList[_n].location.genitals = "head">><<set $mouthtarget to _n>>
 		<<else>>
-			<span class="purple"><<He>> takes hold of your head and gently guides it in towards <<his>> pussy as <<he>> opens <<his>> legs.</span>
+			<span class="purple"><<print either("<<He>> takes hold of your head and gently guides it in towards <<his>> pussy as <<he>> opens <<his>> legs.", "<<He>> cups the back of your head and eases you toward <<his>> pussy, spreading <<his>> legs for you.", "<<He>> parts <<his>> legs and draws your face closer until your lips brush <<his>> pussy.")>></span>
 			<<submission 5 _n>><<set $mouthuse to "othervagina">><<set $NPCList[_n].vagina to "mouth">><<set $mouthstate to "othervagina">>
 			<<set $speechvaginamouth to 1>><<set $NPCList[_n].location.genitals = "head">><<set $mouthtarget to _n>>
 		<</if>>
@@ -7192,10 +7219,10 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 			<<neutral 10 _n>>
 		<</if>>
 	<<elseif $enemyanger + $rng lte 80 and $NPCList[_n].lefthand is 0>>
-		<span class="lblue"><<He>> presses <<his>> fingers against <<his>> labia.</span>
+		<span class="lblue"><<print either("<<He>> presses <<his>> fingers against <<his>> labia.", "<<He>> drags <<his>> fingertips teasingly over <<his>> labia.", "<<He>> spreads <<his>> labia with two fingers and touches <<himself>>.")>></span>
 		<<neutral 1 _n>><<enemyarousal 10>><!-- <<set $NPCList[_n].vagina to "lefthand">><<set $NPCList[_n].lefthand to "othervagina">> -->
 	<<elseif $enemyanger + $rng lte 80 and $NPCList[_n].righthand is 0>>
-		<span class="lblue"><<He>> presses <<his>> fingers against <<his>> labia.</span>
+		<span class="lblue"><<print either("<<He>> presses <<his>> fingers against <<his>> labia.", "<<He>> drags <<his>> fingertips teasingly over <<his>> labia.", "<<He>> spreads <<his>> labia with two fingers and touches <<himself>>.")>></span>
 		<<neutral 1 _n>><<enemyarousal 10>><!-- <<set $NPCList[_n].vagina to "righthand">><<set $NPCList[_n].righthand to "othervagina">> -->
 	<<elseif $enemyanger + $rng lte 80>>
 		<<if $walltype is "front">>

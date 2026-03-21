@@ -3,6 +3,7 @@
 <<widget "sydneyEvent1AnalBeads">>
 	<<npc "Sydney">><<person1>>
 	<<run statusCheck("Sydney")>>
+	<<speechresolve>>
 	You earn <<adultShopWage>><<moneyGain _wage>>.
 	<br><br>
 
@@ -29,13 +30,20 @@
 			<</if>>
 		<<else>>
 			You turn to find Sydney twirling a string of beads around <<his>> palm, grinning.
-			<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
-				You tilt your head curiously. "I've never seen something like that before."
-			<<elseif $speech_attitude is "bratty">>
-				You furrow your brow. "What the hell is that?"
-			<<else>>
-				You give <<him>> a puzzled look. "What's that?"
-			<</if>>
+			<<switch _speechAttitudeResolved>>
+				<<case "meek" "shy">>
+					You tilt your head, baffled. "I've never seen something like that before."
+				<<case "polite" "flamboyant">>
+					You give <<him>> an inquisitive look. "Those are unusual. What exactly are they?"
+				<<case "confident" "special">>
+					You eye the beads, curious despite yourself. "What are those supposed to do?"
+				<<case "bratty">>
+					You furrow your brow. "What the hell is that?"
+				<<case "cruel">>
+					You stare at the beads with open disdain. "Seriously? What the hell is that?"
+				<<default>>
+					You give <<him>> a puzzled look. "What's that?"
+			<</switch>>
 			<br><br>
 
 			Sydney stops smiling. "You're shitting me.
@@ -189,27 +197,32 @@
 <</widget>>
 
 :: Whitney Dildo Thief
-	<<endevent>>
+	<<endevent>><<speechresolve>>
 	You hear Sydney yelling as you step into the store. "Hey, put that down and get out of here!"
 	<br><br>
 	You turn to see Whitney flash you a rakish grin as <<nnpc_he Whitney>> shoves past with a handful of dildos.
 	<br><br>
 	<<link [[Approach Sydney|Adult Shop Dildo Thief Approach Sydney]]>><<set $phase to 0>><</link>>
-	<<if $speech_attitude is "bratty" or $debug is 1>>
+	<<if ((_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "confident" or _speechAttitudeResolved is "cruel") or $debug is 1)>>
 		<br>
 		<<link [[Chase Whitney|Adult Shop Dildo Thief Chase 1]]>><</link>>
 	<</if>>
 
 :: Sydney Backroom Refuse Work
-<<set $location to "adult_shop">><<set $outside to 0>><<effects>><<run statusCheck("Sydney")>>
+<<set $location to "adult_shop">><<set $outside to 0>><<effects>><<run statusCheck("Sydney")>><<speechresolve>>
 
-<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
-	"I-I don't think I can help right now. Sorry." You kiss <<his>> cheek.
-<<elseif $speech_attitude is "bratty">>
-	"Do it yourself." You turn away to carry about your business without a second glance.
-<<else>>
-	"I'm sorry, but I can't help right now. Maybe later?"
-<</if>>
+<<switch _speechAttitudeResolved>>
+	<<case "meek" "shy">>
+		"I-I don't think I can help right now. Sorry." You kiss <<his>> cheek.
+	<<case "docile">>
+		"Sorry, Sydney. I can't right now," you murmur, giving <<him>> an apologetic look.
+	<<case "confident" "special">>
+		"Not right now," you say. "Ask me again later."
+	<<case "bratty" "cruel">>
+		"Do it yourself." You turn away without a second glance.
+	<<default>>
+		"I'm sorry, but I can't help right now. Maybe later?"
+<</switch>>
 <br>
 <<if _sydneyStatus.includes("corrupt")>>
 	Sydney pouts but lets go of your arm. "Alright. I suppose if you prefer to sit here doing nothing..."
@@ -245,15 +258,22 @@ Sirris winks at you, watching the exchange with a glint in <<nnpc_his Sirris>> e
 
 
 :: Sydney Backroom Enter Refuse
-<<set $location to "adult_shop">><<set $outside to 0>><<effects>><<run statusCheck("Sydney")>>
+<<set $location to "adult_shop">><<set $outside to 0>><<effects>><<run statusCheck("Sydney")>><<speechresolve>>
 
-<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
-	"I-I don't think I can help right now. Sorry." You kiss <<his>> cheek.
-<<elseif $speech_attitude is "bratty">>
-	"Do it yourself." You turn away to carry about your business without a second glance.
-<<else>>
-	"I'm sorry, but I can't help right now. Maybe later?"
-<</if>>
+<<switch _speechAttitudeResolved>>
+	<<case "meek" "shy">>
+		"I-I don't think I can help right now. Sorry." You kiss <<his>> cheek.
+	<<case "docile">>
+		"Sorry... not today," you say softly, easing <<his>> hand off you.
+	<<case "confident" "special">>
+		"Not today," you say. "Catch me another time."
+	<<case "bratty">>
+		"Do it yourself." You turn away and leave <<him>> to it.
+	<<case "cruel">>
+		"Find someone else," you say. "I'm not helping."
+	<<default>>
+		"I'm sorry, but I can't help right now. Perhaps another time?"
+<</switch>>
 <br>
 <<if _sydneyStatus.includes("corrupt")>>
 	Sydney pouts but lets go of your arm. "Alright. See you around, then."
@@ -267,15 +287,22 @@ Sirris winks at you, watching the exchange with a glint in <<nnpc_his Sirris>> e
 
 
 :: Sydney Backroom Intro
-<<set $location to "adult_shop">><<set $outside to 0>><<effects>><<run statusCheck("Sydney")>>
+<<set $location to "adult_shop">><<set $outside to 0>><<effects>><<run statusCheck("Sydney")>><<speechresolve>>
 
-<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
-	"O-okay," you say. "Can you show me where it is?"
-<<elseif $speech_attitude is "bratty">>
-	"Sure, I'll help," you say. "Where is it?"
-<<else>>
-	You nod. "Lead on."
-<</if>>
+<<switch _speechAttitudeResolved>>
+	<<case "meek" "shy">>
+		"O-okay," you say. "Can you show me where it is?"
+	<<case "docile">>
+		"Alright," you say quickly. "Just tell me what you need."
+	<<case "polite" "flamboyant">>
+		"Of course," you say. "Show me where it is."
+	<<case "bratty">>
+		"Sure, I'll help," you say. "Where is it?"
+	<<case "cruel">>
+		"Fine. Make it quick," you say.
+	<<default>>
+		You nod. "Lead on."
+<</switch>>
 <br>
 Sydney smiles and nods, before leading you to the backrooms.
 <br><br>
@@ -472,24 +499,30 @@ You ignore Sydney's <<if _sydneyStatus.includes("corrupt")>>goading<<else>>gawki
 <br>
 
 :: Sydney Backroom Lifted Encourage
-<<set $outside to 0>><<set $location to "adult_shop">><<effects>><<run statusCheck("Sydney")>>
+<<set $outside to 0>><<set $location to "adult_shop">><<effects>><<run statusCheck("Sydney")>><<speechresolve>>
 
-<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
-	You nudge Sydney's head upright with your thigh.
-	<br><br>
-
-	"Don't be shy," you whisper, caressing your mound. "It's all yours."
-<<elseif $speech_attitude is "bratty">>
-	You grab Sydney's head and guide it between your legs.
-	<br><br>
-
-	"I don't let anyone look for free," you say. "You gotta pay up."
-<<else>>
-	You hold Sydney's chin, tilting it back towards your crotch.
-	<br><br>
-
-	"You can look," you say. "If you give me something in return."
-<</if>>
+<<switch _speechAttitudeResolved>>
+	<<case "meek" "shy">>
+		You nudge Sydney's head upright with your thigh.
+		<br><br>
+		"Don't be shy," you whisper, caressing your mound. "It's all yours."
+	<<case "polite" "flamboyant">>
+		You tilt <<his>> chin back towards your crotch with a small smile.
+		<br><br>
+		"You may look," you say. "Provided you make it worth my while."
+	<<case "bratty">>
+		You grab Sydney's head and guide it between your legs.
+		<br><br>
+		"I don't let anyone look for free," you say. "You gotta pay up."
+	<<case "cruel">>
+		You force Sydney to keep looking.
+		<br><br>
+		"If you're going to stare," you say, "make yourself useful."
+	<<default>>
+		You hold Sydney's chin, tilting it back towards your crotch.
+		<br><br>
+		"You can look," you say. "If you give me something in return."
+	<</switch>>
 <<promiscuity3>>
 
 <<set $seductiondifficulty to 8000 - ((C.npc.Sydney.love + C.npc.Sydney.lust) * 15) - C.npc.Sydney.purity>>
@@ -516,15 +549,22 @@ You ignore Sydney's <<if _sydneyStatus.includes("corrupt")>>goading<<else>>gawki
 
 
 :: Sydney Backroom Lifting
-<<set $outside to 0>><<set $location to "adult_shop">><<effects>><<run statusCheck("Sydney")>>
+<<set $outside to 0>><<set $location to "adult_shop">><<effects>><<run statusCheck("Sydney")>><<speechresolve>>
 
-<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
-	You get down on hands and knees. "I... I think I can lift you instead. May I?"
-<<elseif $speech_attitude is "bratty">>
-	You squat down and pat your back. "C'mon. I'll give you a lift."
-<<else>>
-	You kneel down and wave over your shoulder. "I can lift you instead."
-<</if>>
+<<switch _speechAttitudeResolved>>
+	<<case "meek" "shy">>
+		You get down on hands and knees. "I... I think I can lift you instead. May I?"
+	<<case "polite" "flamboyant">>
+		You kneel and gesture over your shoulder. "Allow me. I'll lift you instead."
+	<<case "confident" "special">>
+		You crouch and jerk your head towards your back. "Up you go. I've got you."
+	<<case "bratty">>
+		You squat down and pat your back. "C'mon. I'll give you a lift."
+	<<case "cruel">>
+		You kneel without looking back. "Get on. And try not to be useless."
+	<<default>>
+		You kneel down and wave over your shoulder. "I can lift you instead."
+	<</switch>>
 <br><br>
 
 <<if $bodysize lte 0>>
@@ -572,7 +612,21 @@ rise from the ground.
 
 	You lower yourself down, letting Sydney hop to the floor.
 	<br><br>
-
+	<<switch _speechAttitudeResolved>>
+		<<case "meek" "shy" "docile">>
+			Your legs tremble with the effort, but Sydney's pleased look makes it worth it.
+		<<case "polite" "flamboyant">>
+			You straighten with a satisfied breath, quietly pleased you pulled it off so neatly.
+		<<case "confident" "special">>
+			You grin, more pleased with yourself than you want to admit.
+		<<case "bratty">>
+			You smirk up at <<him>>, already enjoying the praise you know is coming.
+		<<case "cruel">>
+			You take an extra second before setting <<him>> down, just to feel <<him>> tense on your shoulders.
+		<<default>>
+			You catch your breath and steady yourself.
+	<</switch>>
+	<br><br>
 	<<link [[Next|Sydney Backroom Lifting Success]]>><</link>>
 	<br>
 <<else>>
@@ -704,25 +758,31 @@ You push up with all your might, throwing Sydney off your head. <<He>> yelps as 
 <br>
 
 :: Sydney Backroom Lifting Roll
-<<set $outside to 0>><<set $location to "adult_shop">><<effects>><<run statusCheck("Sydney")>>
+<<set $outside to 0>><<set $location to "adult_shop">><<effects>><<run statusCheck("Sydney")>><<speechresolve>>
 
 You flip onto your back, without disturbing Sydney's position. <<He>> jerks away on instinct.
-<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
-	You stroke <<his>> thigh.
-	<br><br>
-
-	"You look tired," you coo. "Why don't you have a seat?"
-<<elseif $speech_attitude is "bratty">>
-	You grab <<his>> thighs, holding <<him>> still.
-	<br><br>
-
-	"Not so fast," you say. "I'm not done with you."
-<<else>>
-	You rest your hands on <<his>> hips.
-	<br><br>
-
-	"Going somewhere?" you say. "But I was just getting comfy."
-<</if>>
+<<switch _speechAttitudeResolved>>
+	<<case "meek" "shy">>
+		You stroke <<his>> thigh.
+		<br><br>
+		"You look tired," you coo. "Why don't you have a seat?"
+	<<case "docile">>
+		You keep <<him>> steady with gentle hands.
+		<br><br>
+		"You can stay," you murmur. "I don't mind."
+	<<case "bratty">>
+		You grab <<his>> thighs, holding <<him>> still.
+		<br><br>
+		"Not so fast," you say. "I'm not done with you."
+	<<case "cruel">>
+		You clamp your hands onto <<his>> legs.
+		<br><br>
+		"Sit," you say. "I'm still using you."
+	<<default>>
+		You rest your hands on <<his>> hips.
+		<br><br>
+		"Going somewhere?" you say. "But I was just getting comfy."
+	<</switch>>
 <<promiscuity4>>
 
 <<if _sydneyStatus.includes("corrupt")>>
@@ -772,7 +832,7 @@ You flip onto your back, without disturbing Sydney's position. <<He>> jerks away
 <</if>>
 
 :: Sydney Backroom Lifting Lick
-<<set $outside to 0>><<set $location to "adult_shop">><<effects>><<run statusCheck("Sydney")>>
+<<set $outside to 0>><<set $location to "adult_shop">><<effects>><<run statusCheck("Sydney")>><<speechresolve>>
 
 <<if $pronoun is "f">>
 	You run your tongue along Sydney's thigh, skimming <<his>> <<sydneyGenitals>>.
@@ -781,27 +841,37 @@ You flip onto your back, without disturbing Sydney's position. <<He>> jerks away
 <</if>>
 <<He>> shivers in pleasure, nearly toppling off you, but you
 
-<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
-	curl your knees to steady <<him>>.
-	<br><br>
-
-	"You look tired," you coo.
-	<<if $settings.facesitEnabled>>
-		"Why don't you have a seat?"
-	<<else>>
-		"You deserve a break."
-	<</if>>
-<<elseif $speech_attitude is "bratty">>
-	grasp <<his>> legs.
-	<br><br>
-
-	"Not so fast," you say. "I'm not done with you."
-<<else>>
-	hold <<his>> hips to steady <<him>>.
-	<br><br>
-
-	"Going somewhere?" you say. "But I was just getting comfy."
-<</if>>
+<<switch _speechAttitudeResolved>>
+	<<case "meek" "shy">>
+		curl your knees to steady <<him>>.
+		<br><br>
+		"You look tired," you coo.
+		<<if $settings.facesitEnabled>>
+			"Why don't you have a seat?"
+		<<else>>
+			"You deserve a break."
+		<</if>>
+	<<case "polite" "flamboyant">>
+		hold <<his>> hips to steady <<him>>.
+		<br><br>
+		"In such a hurry?" you ask. "Stay a moment longer."
+	<<case "confident" "special">>
+		keep <<him>> balanced with both hands.
+		<br><br>
+		"Not yet," you say. "I'm still enjoying this."
+	<<case "bratty">>
+		grasp <<his>> legs.
+		<br><br>
+		"Not so fast," you say. "I'm not done with you."
+	<<case "cruel">>
+		grip <<his>> legs hard enough to make the point.
+		<br><br>
+		"You move when I say," you tell <<him>>.
+	<<default>>
+		hold <<his>> hips to steady <<him>>.
+		<br><br>
+		"Going somewhere?" you say. "But I was just getting comfy."
+<</switch>>
 <<promiscuity4>>
 
 <<He>> chuckles. "You're that eager, huh?" <<He>>
@@ -895,7 +965,7 @@ You wrench your head away from Sydney's crotch. <<He>> pouts and crosses <<his>>
 <br>
 
 :: Sydney Backroom Lift Sex
-<<run statusCheck("Sydney")>>
+<<run statusCheck("Sydney")>><<speechresolve>>
 
 <<if $sexstart is 1>>
 	<<set $daily.sydney.sex = ($daily.sydney.sex || 0) + 1>><<set $sydney.sexTotal += 1>>
@@ -940,13 +1010,22 @@ You wrench your head away from Sydney's crotch. <<He>> pouts and crosses <<his>>
 			<br><br>
 		<</if>>
 
-		<<if $speech_attitude is "meek">>
-			You spread your legs, offering <<him>> easy access.
-		<<elseif $speech_attitude is "bratty">>
-			You push against <<his>> lips in encouragement.
-		<<else>>
-			You lean back and let <<him>> get to work.
-		<</if>>
+		<<switch _speechAttitudeResolved>>
+			<<case "meek" "shy">>
+				You spread your legs, offering <<him>> easy access.
+			<<case "docile">>
+				You stay pliant beneath <<him>>, quietly encouraging <<him>> on.
+			<<case "polite" "flamboyant">>
+				You part your legs for <<him>> with a composed, expectant smile.
+			<<case "confident" "special">>
+				You guide <<him>> in with an eager little nudge.
+			<<case "bratty">>
+				You push against <<his>> lips in encouragement.
+			<<case "cruel">>
+				You press <<him>> in harder, making it clear you expect results.
+			<<default>>
+				You lean back and let <<him>> get to work.
+		<</switch>>
 		<br><br>
 
 		<<if _sydneyOralPenis>>
@@ -1106,15 +1185,24 @@ You try to turn around but a <<person2>><<person>> rests a hand on your shoulder
 
 
 :: Sirris Shop Assistant Creeps Refuse
-<<set $location to "adult_shop">><<set $outside to 0>><<effects>>
+<<set $location to "adult_shop">><<set $outside to 0>><<effects>><<speechresolve>>
 
-<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
-	"No-no, I can't!" you exclaim.
-<<elseif $speech_attitude is "bratty">>
-	"Get out of my way, losers!" you demand.
-<<else>>
-	You refuse.
-<</if>>
+<<switch _speechAttitudeResolved>>
+	<<case "meek" "shy">>
+		"No-no, I can't!" you exclaim.
+	<<case "docile">>
+		"I can't," you say, shrinking back.
+	<<case "polite" "flamboyant">>
+		"No. I'm not doing that," you say firmly.
+	<<case "confident" "special">>
+		"No," you say. "Back off."
+	<<case "bratty">>
+		"Get out of my way, losers!" you demand.
+	<<case "cruel">>
+		"Touch me again and I'll make you regret it," you snap.
+	<<default>>
+		You refuse.
+<</switch>>
 <br><br>
 
 "Shut the fuck up," the <<person>> snarls. "Go ahead, scream. No one will hear you over this din." <<He>> licks <<his>> lips. "Now get your sweet ass over here."
@@ -1131,7 +1219,6 @@ The <<person2>><<person>> snatches a handful of your hair and drags you into an 
 
 
 :: Sirris Shop Assistant Refuse Creeps Rape
-
 <<if $molestationstart is 1>>
 	<<set $molestationstart to 0>>
 	<<controlloss>>
@@ -1196,15 +1283,24 @@ The <<person2>><<person>> snatches a handful of your hair and drags you into an 
 <br>
 
 :: Sirris Shop Assistant Creeps Agree
-<<set $location to "adult_shop">><<set $outside to 0>><<effects>>
+<<set $location to "adult_shop">><<set $outside to 0>><<effects>><<speechresolve>>
 
-<<if $speech_attitude is "meek">>
-	"I'll be a good little helper," you purr.
-<<elseif $speech_attitude is "bratty">>
-	"You two think you can keep up with me? Prove it."
-<<else>>
-	You give a solemn nod.
-<</if>>
+<<switch _speechAttitudeResolved>>
+	<<case "meek" "shy">>
+		"I'll be a good little helper," you purr.
+	<<case "docile">>
+		"Tell me what you want," you murmur.
+	<<case "polite" "flamboyant">>
+		"If you're that desperate for help," you say, "I suppose I can oblige."
+	<<case "confident" "special">>
+		You smile slowly. "Alright. Show me what you've got."
+	<<case "bratty">>
+		"You two think you can keep up with me? Prove it."
+	<<case "cruel">>
+		"If you're going to waste my time, at least entertain me," you say.
+	<<default>>
+		You give a solemn nod.
+<</switch>>
 <br><br>
 <<if $fame.rape gte 600 or $fame.sex gte 600>>
 	<<person1>>
@@ -1244,15 +1340,24 @@ You gain <<moneyGain 40>>.
 
 
 :: Adult Shop Whitney Spank Agree
-<<set $location to "adult_shop">><<set $outside to 1>><<effects>>
+<<set $location to "adult_shop">><<set $outside to 1>><<effects>><<speechresolve>>
 
-<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
-	You look down, but nod.
-<<elseif $speech_attitude is "bratty">>
-	"Oh, you think you can threaten me with a good time? Lead on," you purr.
-<<else>>
-	You nod your head in agreement.
-<</if>>
+<<switch _speechAttitudeResolved>>
+	<<case "meek" "shy">>
+		You look down, but nod.
+	<<case "docile">>
+		You lower your eyes and give a small, obedient nod.
+	<<case "polite" "flamboyant">>
+		You incline your head. "Alright. Lead on."
+	<<case "confident" "special">>
+		You meet Whitney's gaze and smile. "Fine. Show me what you've got."
+	<<case "bratty">>
+		"Oh, you think you can threaten me with a good time? Lead on," you purr.
+	<<case "cruel">>
+		You smirk. "If you're going to try, don't disappoint me."
+	<<default>>
+		You nod your head in agreement.
+<</switch>>
 <br><br>
 Spotting Sirris heading in your direction, <<he>> releases your arms and puts <<his>> hands around your shoulders. "Let's get out of here. There's an alleyway out back where no one will disturb us."
 <br><br>
@@ -1260,15 +1365,20 @@ Spotting Sirris heading in your direction, <<he>> releases your arms and puts <<
 
 
 :: Adult Shop Whitney Spank Refuse
-<<set $location to "adult_shop">><<set $outside to 0>><<effects>>
+<<set $location to "adult_shop">><<set $outside to 0>><<effects>><<speechresolve>>
 
-<<if $speech_attitude is "bratty">>
-You shove the bully away from you. "Get lost, I've got work to do."
-<<elseif ($speech_attitude is "meek" or $speech_attitude is "shy")>>
-"N-no, I have work to do. I'm sorry," you mumble.
-<<else>>
-"I can't, I'm working right now."
-<</if>>
+<<switch _speechAttitudeResolved>>
+<<case "meek" "shy">>
+	"N-no, I have work to do. I'm sorry," you mumble.
+<<case "docile">>
+	"I can't right now," you say quietly. "I'm working."
+<<case "confident" "special">>
+	"No chance," you say. "I'm busy."
+<<case "bratty" "cruel">>
+	You shove the bully away from you. "Get lost, I've got work to do."
+<<default>>
+	"I can't, I'm working right now."
+<</switch>>
 <br><br>
 The bully spots Sirris heading towards the two of you.
 <br><br>
@@ -1280,7 +1390,6 @@ You earn <<adultShopWage>><<moneyGain _wage>>.
 
 
 :: Adult Shop Whitney Spank Sex
-
 <<if $sexstart is 1>>
 	<<set $sexstart to 0>>
 	<<consensual>>
@@ -1420,16 +1529,21 @@ You earn <<adultShopWage>><<moneyGain _wage>>.<<npcincr Sirris love 5>><<glove "
 <br>
 
 :: Adult Shop Sydney Rosary
-<<set $outside to 0>><<set $location to "adult_shop">><<effects>>
+<<set $outside to 0>><<set $location to "adult_shop">><<effects>><<speechresolve>>
 
 <<if $phase is 1>>
-	<<if $speech_attitude is "meek">>
-		You giggle. "That's so naughty! Do you really think you can...?"
-	<<elseif $speech_attitude is "bratty">>
-		You shrug. "If you think you've the guts to do it, go for it."
-	<<else>>
-		You sigh with a smile. "I don't think I could stop you if I wanted to."
-	<</if>>
+	<<switch _speechAttitudeResolved>>
+		<<case "meek" "shy">>
+			You giggle. "That's so naughty! Do you really think you can...?"
+		<<case "confident" "special">>
+			You arch a brow. "If you're serious, then commit to it."
+		<<case "bratty">>
+			You shrug. "If you think you've the guts to do it, go for it."
+		<<case "cruel">>
+			You smirk. "Try it. I'll enjoy watching it blow up in your face."
+		<<default>>
+			You sigh with a smile. "I don't think I could stop you if I wanted to."
+	<</switch>>
 	<br><br>
 
 	<<set $sydneyAnalRosary to true>>
@@ -1438,13 +1552,18 @@ You earn <<adultShopWage>><<moneyGain _wage>>.<<npcincr Sirris love 5>><<glove "
 
 	<<He>> tucks the beads in <<his>> pocket and goes back to work, humming to <<himself>>.
 <<else>>
-	<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
-		You bite your lip nervously. "I'm not so sure that's a good idea..."
-	<<elseif $speech_attitude is "bratty">>
-		You cross your arms. "That's a good way to get your ass punished."
-	<<else>>
-		You raise an eyebrow. "That's a bit much, even for you."
-	<</if>>
+	<<switch _speechAttitudeResolved>>
+		<<case "meek" "shy">>
+			You bite your lip nervously. "I'm not so sure that's a good idea..."
+		<<case "docile">>
+			You wince. "Maybe don't tempt fate like that."
+		<<case "bratty">>
+			You cross your arms. "That's a good way to get your ass punished."
+		<<case "cruel">>
+			You laugh under your breath. "Go on, then. See how fast that gets you in trouble."
+		<<default>>
+			You raise an eyebrow. "That's a bit much, even for you."
+	<</switch>>
 	<br><br>
 
 	Sydney rolls <<his>> eyes.
@@ -1553,15 +1672,24 @@ You earn <<adultShopWage>><<moneyGain _wage>>.<<npcincr Sirris love 5>><<glove "
 <br>
 
 :: Adult Shop Sydney Beads Refuse
-<<set $outside to 0>><<set $location to "adult_shop">><<effects>>
+<<set $outside to 0>><<set $location to "adult_shop">><<effects>><<speechresolve>>
 
-<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
-	You squirm away from Sydney. "M-maybe another time."
-<<elseif $speech_attitude is "bratty">>
-	You shove Sydney away. "Not happening."
-<<else>>
-	You nudge Sydney's arm away and shake your head.
-<</if>>
+<<switch _speechAttitudeResolved>>
+	<<case "meek" "shy">>
+		You squirm away from Sydney. "M-maybe another time."
+	<<case "docile">>
+		You ease <<his>> hand aside. "Not now," you murmur.
+	<<case "polite" "flamboyant">>
+		You nudge Sydney's arm away and shake your head. "Not today."
+	<<case "confident" "special">>
+		You catch <<his>> wrist and push it aside. "No. Not happening today."
+	<<case "bratty">>
+		You shove Sydney away. "Not happening."
+	<<case "cruel">>
+		You knock <<his>> hand away. "Try that again and lose a finger."
+	<<default>>
+		You nudge Sydney's arm away and shake your head.
+<</switch>>
 <br>
 "C'mon," <<he>> whines. "Just give it a try!"
 <br><br>
@@ -1579,18 +1707,25 @@ Glancing over <<his>> shoulder, <<he>> grasps the back of your head and brings y
 <br>
 
 :: Adult Shop Sydney Pure Beads
-<<set $outside to 0>><<set $location to "adult_shop">><<effects>>
+<<set $outside to 0>><<set $location to "adult_shop">><<effects>><<speechresolve>>
 
 <<if $phase is 2>>
 	<<set $sydneySeen.pushUnique("pureBeads")>>
 	Sydney's eyes widen when you tell <<him>> what <<his>> "rosary" really is.
-	<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
-		You sugarcoat your explanation, leaving out the more graphic details, but <<hes>> still uncomfortable by the end.
-	<<elseif $speech_attitude is "bratty">>
-		You don't mince your words on its use. <<He>> has to stop you whenever you get too detailed.
-	<<else>>
-		<<He>> squirms throughout your explanation, but <<he>> listens without interruption.
-	<</if>>
+	<<switch _speechAttitudeResolved>>
+		<<case "meek" "shy">>
+			You sugarcoat your explanation, leaving out the more graphic details, but <<hes>> still uncomfortable by the end.
+		<<case "polite" "flamboyant">>
+			You keep your tone measured and clinical, which somehow only makes <<him>> more embarrassed.
+		<<case "confident" "special">>
+			You explain exactly what they're for and watch the realisation hit <<him>> piece by piece.
+		<<case "bratty">>
+			You don't mince your words on its use. <<He>> has to stop you whenever you get too detailed.
+		<<case "cruel">>
+			You describe their use with unhelpful precision, and <<he>> looks ready to die of second-hand shame.
+		<<default>>
+			<<He>> squirms throughout your explanation, but <<he>> listens without interruption.
+	<</switch>>
 	<br><br>
 
 	"R-really?" <<He>> gulps. "There? In your... But what about... And..." <<He>> cuts <<himself>> short, and shakes <<his>> head. "No, no, no. That's enough." <<He>> stares at the beads as if they were infectious, then eases them back in the box.
@@ -1624,7 +1759,7 @@ Glancing over <<his>> shoulder, <<he>> grasps the back of your head and brings y
 
 :: Temple Sydney Rosary
 <<set $outside to 0>><<set $location to "temple">><<temple_effects>><<effects>>
-<<run statusCheck("Sydney")>>
+<<run statusCheck("Sydney")>><<speechresolve>>
 
 <<if $phase is 2>>
 	You stroll through the temple grounds with Sydney,
@@ -1680,13 +1815,22 @@ Glancing over <<his>> shoulder, <<he>> grasps the back of your head and brings y
 		Once <<hes>> gone, Sydney shoots you a glare. "Don't look at me like that. It was a fun idea, but messing with <<nnpc_brother "Jordan">> Jordan? That's too far." <<person1>><<He>> purses <<his>> lips. "Dunno how I'm gonna explain the missing product to <<sydneyMum>>..."
 	<</if>>
 <<elseif $phase is 1>>
-	<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
-		You blush and look away. "That's very brave of you."
-	<<elseif $speech_attitude is "bratty">>
-		You shake your head in disbelief. "Alright, I admit it. That takes balls."
-	<<else>>
-		You stare in disbelief. "That's brave," you say. "Or crazy."
-	<</if>>
+	<<switch _speechAttitudeResolved>>
+		<<case "meek" "shy">>
+			You blush and look away. "That's very brave of you."
+		<<case "docile">>
+			You smile despite yourself. "I can't believe you really did it."
+		<<case "polite" "flamboyant">>
+			You stare in disbelief. "That was either very brave or very foolish."
+		<<case "confident" "special">>
+			You let out a short laugh. "Alright. I'll give you this one. That took nerve."
+		<<case "bratty">>
+			You shake your head in disbelief. "Alright, I admit it. That takes balls."
+		<<case "cruel">>
+			You smirk. "I honestly thought you'd crack first."
+		<<default>>
+			You stare in disbelief. "That's brave," you say. "Or crazy."
+	<</switch>>
 	<br><br>
 
 	<<if _sydneyStatus.includes("corrupt")>>
@@ -1698,13 +1842,20 @@ Glancing over <<his>> shoulder, <<he>> grasps the back of your head and brings y
 
 	You sit with Sydney for a bit, snickering at the occasional gawking passerby. <<He>> grows bored and returns to <<if $sydney_templeWork is "pray">>the pews<<else>><<his>> duties<</if>>.
 <<else>>
-	<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
-		You look around, worried. "Are you sure you should be doing this?" you mumble. "You could get in trouble."
-	<<elseif $speech_attitude is "bratty">>
-		You grab Sydney by the wrist and pull <<him>> to a secluded alcove, out of view. "You idiot," you snap. "Are you trying to get yourself in trouble?"
-	<<else>>
-		You give Sydney a concerned look. "This is a bad idea," you say. "You're going to get in trouble."
-	<</if>>
+	<<switch _speechAttitudeResolved>>
+		<<case "meek" "shy">>
+			You look around, worried. "Are you sure you should be doing this? You could get in trouble."
+		<<case "docile">>
+			You move closer and lower your voice. "Maybe save this for somewhere safer?"
+		<<case "confident" "special">>
+			You step in close. "Stop showing off before someone catches you."
+		<<case "bratty">>
+			You grab Sydney by the wrist and pull <<him>> to a secluded alcove, out of view. "You idiot! Are you trying to get yourself in trouble?"
+		<<case "cruel">>
+			You drag <<him>> out of sight with an irritated tug. "If you're going to be stupid, at least be discreet."
+		<<default>>
+			You give Sydney a concerned look. "This is a bad idea. You're going to get in trouble."
+	<</switch>>
 	<br><br>
 
 	<<if $purityRollover is 1>>
@@ -1860,16 +2011,23 @@ Glancing over <<his>> shoulder, <<he>> grasps the back of your head and brings y
 
 :: Adult Shop Sydney Cuffs Tease
 <<set $outside to 0>><<set $location to "adult_shop">><<effects>>
-<<run statusCheck("Sydney")>>
+<<run statusCheck("Sydney")>><<speechresolve>>
 
 You tap your chin in mock thought.
-<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
-	"Gosh, I don't know." You smile coyly. "I kind of like seeing you like this."
-<<elseif $speech_attitude is "bratty">>
-	"Help you?" you say. "Nah. Not when I've got you right where I want you."
-<<else>>
-	"Are you sure you need help?" you ask. "You look pretty good from where I'm standing."
-<</if>>
+<<switch _speechAttitudeResolved>>
+	<<case "meek" "shy">>
+		"Gosh, I don't know." You smile coyly. "I kind of like seeing you like this."
+	<<case "docile">>
+		"Maybe in a minute," you murmur. "You look a little too cute like this."
+	<<case "confident" "special">>
+		"Help you?" you ask. "Maybe. I'm enjoying the view first."
+	<<case "bratty">>
+		"Help you?" you say. "Nah. Not when I've got you right where I want you."
+	<<case "cruel">>
+		"Beg a little harder," you say. "Then maybe I'll think about it."
+	<<default>>
+		"Are you sure you need help?" you ask. "You look pretty good from where I'm standing."
+<</switch>>
 <br><br>
 
 <<if _sydneyStatus.includes("corrupt") and $sydneyromance is 1>>
@@ -2223,31 +2381,50 @@ You approach Sydney and the <<person>>. As you get close, you realise they're no
 
 :: Adult Shop Sydney Bartering 2
 <<set $outside to 0>><<set $location to "adult_shop">><<effects>>
-<<run statusCheck("Sydney")>>
+<<run statusCheck("Sydney")>><<speechresolve>>
 
 <<if $phase is 3>>
 	You step up to Sydney's side. The <<person>> shoots you an annoyed glance.
 	<br><br>
 
-	<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
-		"It's okay to be scared," you giggle. "We won't tease you."
-		<br>
-		The <<person>> balks. "Scared? It's a piece of plastic, for fuck's sake. I'm not—"
-		<br>
-		"Oh, <<hes>> totally scared," Sydney interjects. "And that's not even our biggest size!"
-	<<elseif $speech_attitude is "bratty">>
-		"Cut <<him>> some slack," you say to Sydney. "Just look at <<him>>. You can tell <<hes>> inexperienced."
-		<br>
-		The <<person>> grits <<his>> teeth. "I can hear you, you know."
-		<br>
-		Sydney giggles, ignoring <<him>>. "Poor thing, I bet <<hes>> afraid to touch <<himself>>."
-	<<else>>
-		"I hope this customer isn't giving you trouble," you say.
-		<br>
-		The <<person>> scoffs. <<person1>>"<<He>> started harassing me first."
-		<br>
-		Sydney laughs. <<person2>>"<<Him>>? Giving me trouble? <<He>> doesn't have the nerve."
-	<</if>>
+	<<switch _speechAttitudeResolved>>
+		<<case "meek" "shy">>
+			"It's okay to be scared," you giggle. "We won't tease you."
+			<br>
+			The <<person>> balks. "Scared? It's a piece of plastic, for fuck's sake. I'm not—"
+			<br>
+			"Oh, <<hes>> totally scared," Sydney interjects. "And that's not even our biggest size!"
+		<<case "docile">>
+			"Nobody starts out knowing everything," you say gently. "That's what advice is for."
+			<br>
+			The <<person>> stiffens. "I don't need advice. I was just asking."
+			<br>
+			Sydney hums. "You say that now, but you're still staring at the beginner shelf."
+		<<case "polite" "flamboyant">>
+			"There's no need to be embarrassed," you say. "Sydney can explain things if you ask nicely."
+			<br>
+			The <<person>> scowls. "I'm not embarrassed."
+			<br>
+			Sydney grins. "Then asking questions should be easy, shouldn't it?"
+		<<case "confident" "special">>
+			"Relax," you say. "Asking questions beats buying blind."
+			<br>
+			The <<person>> hesitates. "I wasn't buying blind."
+			<br>
+			Sydney laughs. "Then why are you sweating?"
+		<<case "bratty" "cruel">>
+			"Cut <<him>> some slack," you say to Sydney. "Just look at <<him>>. You can tell <<hes>> inexperienced."
+			<br>
+			The <<person>> grits <<his>> teeth. "I can hear you, you know."
+			<br>
+			Sydney giggles, ignoring <<him>>. "Poor thing, I bet <<hes>> afraid to touch <<himself>>."
+		<<default>>
+			"I hope this customer isn't giving you trouble," you say.
+			<br>
+			The <<person>> scoffs. <<person1>>"<<He>> started harassing me first."
+			<br>
+			Sydney laughs. <<person2>>"<<Him>>? Giving me trouble? <<He>> doesn't have the nerve."
+	<</switch>>
 	<br><br>
 
 	The <<person2>><<persons>> face turns red in a mixture of anger and embarrassment. What started as teasing grows into a heated debate between you and Sydney, and the <<person>>.
@@ -2292,40 +2469,44 @@ You approach Sydney and the <<person>>. As you get close, you realise they're no
 		Sydney frowns. "Maybe I need to work on my sales pitch."
 	<</if>>
 <<elseif $phase is 1>>
-	<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
-		"Maybe <<person2>><<he>> was exaggerating," you say. "I wouldn't put too much thought into it."
-		<br><br>
-
-		Sydney stares ahead, pensive, then smiles and nods. "You're right.
-	<<elseif $speech_attitude is "bratty">>
-		You shrug dismissively. "Nah, forget about it. <<person2>><<He>> was just trying to show off."
-		<br><br>
-
-		Sydney furrows <<person1>><<his>> brow. "I don't see what's so impressive about..." <<He>> sighs and shakes <<his>> head. "Never mind.
-	<<else>>
-		"I'm sure <<person2>><<he>> was lying," you say. "Don't stress over it."
-		<br><br>
-
-		Sydney sighs. "I was just worried for <<his>> health, that's all." <<person1>><<He>> shakes <<his>> head, then turns to you with a smile. "But you're right.
-	<</if>>
+	<<switch _speechAttitudeResolved>>
+		<<case "meek" "shy">>
+			"Maybe <<person2>><<he>> was exaggerating," you say. "I wouldn't put too much thought into it."
+			<br><br>
+			Sydney stares ahead, pensive, then smiles and nods. "You're right.
+		<<case "confident" "special">>
+			"<<person2>><<He>> was performing," you say. "Don't give <<him>> the satisfaction of getting in your head."
+			<br><br>
+			Sydney huffs a laugh. "You're probably right.
+		<<case "bratty" "cruel">>
+			You shrug dismissively. "Nah, forget about it. <<person2>><<He>> was just trying to show off."
+			<br><br>
+			Sydney furrows <<person1>><<his>> brow. "I don't see what's so impressive about..." <<He>> sighs and shakes <<his>> head. "Never mind.
+		<<default>>
+			"I'm sure <<person2>><<he>> was lying," you say. "Don't stress over it."
+			<br><br>
+			Sydney sighs. "I was just worried for <<his>> health, that's all." <<person1>><<He>> shakes <<his>> head, then turns to you with a smile. "But you're right.
+	<</switch>>
 	Let's just get back to work."
 <<else>>
-	<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
-		You blush. "W-well, actually..."
-		<br><br>
-
-		Sydney furrows <<person1>><<his>> brow. "'Actually'? Actually, what?" You silently stare down at your lap. Sydney grabs your arm, whining. "Come on, tell me!"
-	<<elseif $speech_attitude is "bratty">>
-		You smirk. "You sure are interested in this."
-		<br><br>
-
-		Sydney gasps. <<person1>><<He>> looks mortified. "N-no! I'm just curious, that's all. <<sydneyMum>> says curiosity is a virtue..."
-	<<else>>
-		You shrug. "You'd be surprised."
-		<br><br>
-
-		Sydney's mouth falls open. "What? What's that supposed to mean? You... you can't just say things like that!"
-	<</if>>
+	<<switch _speechAttitudeResolved>>
+		<<case "meek" "shy" "docile">>
+			You blush. "W-well, actually..."
+			<br><br>
+			Sydney furrows <<person1>><<his>> brow. "'Actually'? Actually, what?" You silently stare down at your lap. Sydney grabs your arm, whining. "Come on, tell me!"
+		<<case "confident" "special">>
+			You tilt your head. "You really want the answer to that?"
+			<br><br>
+			Sydney opens and closes <<his>> mouth. "Maybe? I mean... yes? No?"
+		<<case "bratty" "cruel">>
+			You smirk. "You sure are interested in this."
+			<br><br>
+			Sydney gasps. <<person1>><<He>> looks mortified. "N-no! I'm just curious, that's all. <<sydneyMum>> says curiosity is a virtue..."
+		<<default>>
+			You shrug. "You'd be surprised."
+			<br><br>
+			Sydney's mouth falls open. "What? What's that supposed to mean? You... you can't just say things like that!"
+	<</switch>>
 	<br><br>
 
 	You don't elaborate, despite Sydney's pestering. <<person1>><<He>> eventually gives up and returns to work, mumbling to <<himself>>.
@@ -2491,16 +2672,21 @@ You return to Sydney at the counter.
 
 
 :: Adult Shop Dildo Thief Chase 3
-<<set $location to "alley">><<set $bus to "industrial">><<set $outside to 1>><<effects>>
+<<set $location to "alley">><<set $bus to "industrial">><<set $outside to 1>><<effects>><<speechresolve>>
 
 <<endevent>><<npc Whitney>>
 You corner <<him>> in an alleyway.
 <br><br>
-<<if $speech_attitude is "bratty">>
-	"Give them back, jerk." You shove <<him>>.
-<<else>>
-	"Give them back," you say. "That's theft."
-<</if>>
+<<switch _speechAttitudeResolved>>
+	<<case "bratty" "confident">>
+		"Give them back, jerk." You shove <<him>>.
+	<<case "cruel">>
+		"Drop them," you say coldly. "Now."
+	<<case "polite" "flamboyant" "special">>
+		"Give them back," you say. "Those aren't yours."
+	<<default>>
+		"Give them back," you say. "That's theft."
+<</switch>>
 <br><br>
 "Calm down <<bitch>>, it's just a joke." <<He>> throws the dildos at your head. You dodge, but <<he>> uses the distraction to effect an escape. "See you around, slut!"
 <br><br>
@@ -2530,7 +2716,7 @@ deflect
 
 
 :: Adult Shop Dildo Lesson Seduction
-<<set $location to "adult_shop">><<set $outside to 0>><<effects>>
+<<set $location to "adult_shop">><<set $outside to 0>><<effects>><<speechresolve>>
 
 <<set $seductiondifficulty to 6000>>
 <<seductioncheck>>
@@ -2538,13 +2724,22 @@ deflect
 <<seductionskilluse>>
 
 You lean closer to the <<person>>.
-<<if $speech_attitude is "meek">>
-	"Let me show you. I'll be your good little helper," you coo into <<his>> ear.
-<<elseif $speech_attitude is "bratty">>
-	"Hmph, come on dummy. I'll show you everything," you jeer, nodding towards the back room.
-<<else>>
-	"Do you need a... private demonstration? There's a backroom where we can play," you whisper.
-<</if>>
+<<switch _speechAttitudeResolved>>
+	<<case "meek" "shy">>
+		"Let me show you. I'll be your good little helper," you coo into <<his>> ear.
+	<<case "docile">>
+		"If you want... I could show you privately," you murmur.
+	<<case "polite" "flamboyant">>
+		"Do you need a private demonstration? There's a backroom where we can play," you whisper.
+	<<case "confident" "special">>
+		"Come with me," you say softly. "I'll show you exactly how it works."
+	<<case "bratty">>
+		"Hmph, come on dummy. I'll show you everything," you jeer, nodding towards the back room.
+	<<case "cruel">>
+		"You clearly need hands-on instruction," you say. "Try to keep up."
+	<<default>>
+		"Do you need a... private demonstration? There's a backroom where we can play," you whisper.
+<</switch>>
 <<promiscuity2>>
 <<if $seductionrating gte $seductionrequired>>
 	<<He>> glances around, and takes you by the arm. You lead <<him>> into the back room, then <<he>> turns and embraces you.
@@ -2568,7 +2763,7 @@ You lean closer to the <<person>>.
 
 
 :: Adult Shop Dildo Lesson Refuse
-<<set $location to "adult_shop">><<set $outside to 0>><<effects>>
+<<set $location to "adult_shop">><<set $outside to 0>><<effects>><<speechresolve>>
 
 <<if $phase is 1>>
 	"This isn't a brothel, creep." You crumple up a pamphlet and chuck it at the <<person>>. "Read that and fuck off, before I stick those toys right up your—"
@@ -2579,13 +2774,20 @@ You lean closer to the <<person>>.
 
 	The rest of the shift passes without incident. You earn <<adultShopWage>><<moneyGain _wage>>.<<llove "Sirris">><<npcincr Sirris love -5>>
 <<else>>
-	<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
-		"H-here's a pamphlet. Everything you need should be in there."
-	<<elseif $speech_attitude is "bratty">>
-		You shove a pamphlet into the <<persons>> hands. "Read that. You can read, can't you?"
-	<<else>>
-		"Here's a pamphlet. Everything you need should be in there."
-	<</if>>
+	<<switch _speechAttitudeResolved>>
+		<<case "meek" "shy">>
+			"H-here's a pamphlet. Everything you need should be in there."
+		<<case "docile">>
+			"This should help," you say, holding out the pamphlet.
+		<<case "confident" "special">>
+			"Start with this," you say. "Then come back if you still have questions."
+		<<case "bratty">>
+			You shove a pamphlet into the <<persons>> hands. "Read that. You can read, can't you?"
+		<<case "cruel">>
+			You press the pamphlet into <<his>> hands. "Try educating yourself for once."
+		<<default>>
+			"Here's a pamphlet. Everything you need should be in there."
+	<</switch>>
 
 	<<He>> huffs and wears a sour expression while you complete the transaction.
 	<br><br>
@@ -2834,16 +3036,23 @@ Sydney trots up to the <<person>>, hand outstretched. You watch <<person2>><<him
 
 :: Adult Shop Passout Bondage Help
 <<run statusCheck("Sydney")>>
-<<set $outside to 0>><<set $location to "adult_shop">><<effects>>
+<<set $outside to 0>><<set $location to "adult_shop">><<effects>><<speechresolve>>
 
 You bound towards Sydney, straining against your bondage. <<He>> yelps and jumps back.
-<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
-	<<gagged_speech "P-please, Sydney,">> you whimper. <<gagged_speech "Please don't leave me!">>
-<<elseif $speech_attitude is "bratty">>
-	<<gagged_speech "Sydney!">> you grunt. <<gagged_speech "It's me, you idiot!">>
-<<else>>
-	<<gagged_speech "Sydney!">> you cry. <<gagged_speech "It's me!">>
-<</if>>
+<<switch _speechAttitudeResolved>>
+	<<case "meek" "shy">>
+		<<gagged_speech "P-please, Sydney,">> you whimper. <<gagged_speech "Please don't leave me!">>
+	<<case "docile">>
+		<<gagged_speech "Sydney...">> you plead. <<gagged_speech "Help me, please.">>
+	<<case "confident" "special">>
+		<<gagged_speech "Sydney!">> you grunt. <<gagged_speech "Over here!">>
+	<<case "bratty">>
+		<<gagged_speech "Sydney!">> you grunt. <<gagged_speech "It's me, you idiot!">>
+	<<case "cruel">>
+		<<gagged_speech "Sydney!">> you snarl through the gag. <<gagged_speech "Get me out of this!">>
+	<<default>>
+		<<gagged_speech "Sydney!">> you cry. <<gagged_speech "It's me!">>
+<</switch>>
 <br><br>
 
 The <<person1>><<person>> laughs nervously. "B-bad <<girl>>. Leave the nice <<person2>><<if $pronoun is "m">>fellow<<else>>lady<</if>> alone."
@@ -2882,7 +3091,7 @@ The <<person1>><<person>> laughs nervously. "B-bad <<girl>>. Leave the nice <<pe
 
 :: Adult Shop Passout Bondage Saved
 <<run statusCheck("Sydney")>>
-<<set $outside to 0>><<set $location to "adult_shop">><<effects>>
+<<set $outside to 0>><<set $location to "adult_shop">><<effects>><<speechresolve>>
 
 <<if _sydneyStatus.includes("corrupt")>>
 	Sydney lunges for the <<person1>><<person>>, who ends up tripping over your prone body.
@@ -2897,14 +3106,46 @@ The <<person1>><<person>> laughs nervously. "B-bad <<girl>>. Leave the nice <<pe
 <</if>>
 <br><br>
 
+<<switch _speechAttitudeResolved>>
+	<<case "meek" "shy" "docile">>
+		You stumble after <<him>>, trembling so hard your bindings rattle.
+	<<case "polite" "flamboyant">>
+		Relief hits you all at once, leaving you weak-kneed as you let Sydney steer you away.
+	<<case "confident" "special">>
+		You force yourself to keep moving, staying close at Sydney's side while your pulse pounds in your ears.
+	<<case "bratty">>
+		Your heart is still hammering, but the sight of Sydney taking charge leaves a fierce thrill under the panic.
+	<<case "cruel">>
+		Adrenaline keeps you sharp, every muscle wound tight as you let Sydney drag you clear.
+	<<default>>
+		Relief floods through you as Sydney gets you away from the crowd.
+<</switch>>
+<br><br>
+
 <<link [[Next|Adult Shop Passout Bondage Saved 2]]>><</link>>
 
 
 :: Adult Shop Passout Bondage Saved 2
-<<set $outside to 0>><<set $location to "adult_shop">><<effects>>
+<<set $outside to 0>><<set $location to "adult_shop">><<effects>><<speechresolve>>
 <<unbind>><<set $worn.face.type.push("broken")>><<faceruined>>
 <<person2>>
 Sydney wastes no time undoing your binds. As soon as your arms are free, <<he>> throws <<himself>> into them. You can feel <<his>> heart racing.
+<br><br>
+
+<<switch _speechAttitudeResolved>>
+	<<case "meek" "shy" "docile">>
+		You cling back just as tightly, still shaking too hard to say much of anything.
+	<<case "polite" "flamboyant">>
+		You wrap your arms around <<him>> and focus on steadying both your breathing and <<his>>.
+	<<case "confident" "special">>
+		You hold <<him>> firm, grounding <<him>> before your own racing nerves can take over.
+	<<case "bratty">>
+		You hug <<him>> back and try to laugh it off, though your voice comes out thinner than you mean it to.
+	<<case "cruel">>
+		You pull <<him>> close with a possessive grip, not ready to let go yet.
+	<<default>>
+		You hold <<him>> close, letting the shock ebb away by degrees.
+<</switch>>
 <br><br>
 
 Suddenly, the door flies open. Sydney tenses up, pulling you close, but <<he>> relaxes when <<he>> sees Sirris. "Sydney! Is everything alright?" <<nnpc_he "Sirris">> asks, panting. "I heard screaming, and..."

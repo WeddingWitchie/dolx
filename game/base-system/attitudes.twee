@@ -39,9 +39,9 @@
 			<br>
 			<label><<radiobutton "$speech_attitude_special" "polite" autocheck>> <span class="blue">Polite</span></label>
 			<br>
-			<label><<radiobutton "$speech_attitude_special" "neutral" autocheck>> Neutral</label><<set $custom_demeanor = "neutral">>
+			<label><<radiobutton "$speech_attitude_special" "neutral" autocheck>> Neutral</label>
 			<br>
-			<label><<radiobutton "$speech_attitude_special" "confident" autocheck>> <span class="gold">Confident</span></label>
+			<label><<radiobutton "$speech_attitude_special" "confident" autocheck>> <span class="teal">Confident</span></label>
 			<br>
 			<label><<radiobutton "$speech_attitude_special" "bratty" autocheck>> <span class="brat">Bratty</span></label>
 			<br>
@@ -49,7 +49,7 @@
 			<br><hr>
 			<label><<radiobutton "$speech_attitude_special" "flamboyant" autocheck>> <span class="pink">Flamboyant</span></label>
 			<br>
-			<label><<radiobutton "$speech_attitude_special" "special" autocheck>> <span class="cyan">Special</span></label>
+			<label><<radiobutton "$speech_attitude_special" "special" autocheck>> <span class="gold">Special</span></label>
 			<br>
 			<label><<radiobutton "$speech_attitude_special" "capricious" autocheck>> <span class="lustful">Capricious</span></label>
 			<br>
@@ -1211,4 +1211,34 @@
 			if (V.attitudesControl[c] && !T.oldControl[c]) { V.attitudesControl.showGoldLink = true; break }
 		}
 	<</script>>
+<</widget>>
+
+<<widget "speechresolve">>
+	<<set _speechAttitudeResolved to $speech_attitude>>
+	<<set _speechAttitudeBase to "neutral">>
+	<<set _speechVoice to "moan">>
+
+	<<if _speechAttitudeResolved is "fickle">>
+		<<if $speechDailyAttitude is undefined>>
+			<<set _speechFicklePool to ["meek", "shy", "neutral", "confident", "bratty"]>>
+			<<set $speechDailyAttitude to _speechFicklePool[random(0, _speechFicklePool.length - 1)]>>
+		<</if>>
+		<<set _speechAttitudeResolved to $speechDailyAttitude>>
+	<<elseif _speechAttitudeResolved is "capricious">>
+		<<set _speechCapriciousPool to ["meek", "shy", "polite", "neutral", "confident", "bratty"]>>
+		<<set _speechAttitudeResolved to _speechCapriciousPool[random(0, _speechCapriciousPool.length - 1)]>>
+	<<elseif _speechAttitudeResolved is "special">>
+		<<set _speechAttitudeResolved to either("polite", "bratty")>>
+	<</if>>
+
+	<<if _speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy" or _speechAttitudeResolved is "polite" or _speechAttitudeResolved is "docile" or _speechAttitudeResolved is "flamboyant">>
+		<<set _speechAttitudeBase to "meek">>
+		<<set _speechVoice to "plead">>
+	<<elseif _speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel">>
+		<<set _speechAttitudeBase to "bratty">>
+		<<set _speechVoice to "demand">>
+	<<else>>
+		<<set _speechAttitudeBase to "neutral">>
+		<<set _speechVoice to "moan">>
+	<</if>>
 <</widget>>

@@ -111,10 +111,21 @@
 
 
 :: Farm Assault Defeat
-<<effects>>
+<<effects>><<speechresolve>>
 
 <<npc Alex>><<person1>>
 You find Alex lying on <<his>> face, an empty bottle beside <<him>>. <<Hes>> unconscious.<<llldom>><<npcincr Alex dom -15>>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy" or _speechAttitudeResolved is "docile")>>
+	Your stomach drops.
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	A cold knot tightens in your chest, but you push it aside and move.
+<<elseif _speechAttitudeResolved is "bratty">>
+	Panic flashes hot through you, but you force it down before it can slow your hands.
+<<elseif _speechAttitudeResolved is "cruel">>
+	Fear curdles into anger almost at once.
+<<else>>
+	You shove the spike of panic aside and focus on what needs doing.
+<</if>>
 <br><br>
 
 <<if $farm_assault.tower is "defeated">>
@@ -196,23 +207,23 @@ You find Alex lying on <<his>> face, an empty bottle beside <<him>>. <<Hes>> unc
 	<br><br>
 	<<endevent>>
 	<<loadNPC 0 "farm_tower_guard">><<person1>>
-	You find the lookout sat at the base of the tower,
+	You find the lookout slumped at the base of the tower,
 	<<if $NPCList[0].traits.includes("relaxed")>>
-		trying to light a cigarette butt. "That was rougher than I expected," <<he>> says. "Could you help me up?"
+		rubbing ash between <<his>> fingers where a ruined cigarette has burnt out. "I've had better evenings," <<he>> says. "Mind giving me a hand?"
 	<<elseif $NPCList[0].traits.includes("sociable")>>
 		chatting on <<his>> phone. "—bosses are here. Call you back." <<He>> smiles at you. "You should have seen how many I took on before they got me."
 	<<elseif $NPCList[0].traits.includes("brooding")>>
 		gazing at the sky. "Sorry boss," <<he>> says. "I like to think I gave as good as I got."
 	<<else>>
-		watching you. "Have the angels come to take me away?" <<he>> laughs.
+		blinking up at you through a grimace. "I was hoping for a dramatic rescue," <<he>> says. "This will do."
 	<</if>>
-	You and Alex help <<him>> to <<his>> feet.
+	You and Alex haul <<him>> back to <<his>> feet.
 	<<if $NPCList[0].traits.includes("relaxed")>>
-		"I'll be alright," <<he>> continues. "Just need to stretch."
+		"I'll live," <<he>> says. "Give me a minute and a smoke, in either order."
 	<<elseif $NPCList[0].traits.includes("sociable")>>
-		"There's a stool just inside," <<he>> continues. "A little rest would do me good."
+		"There's a stool just inside," <<he>> says. "A sit-down would feel heavenly right about now."
 	<<elseif $NPCList[0].traits.includes("brooding")>>
-		"Don't worry about me," <<he>> continues. "I'll walk it off."
+		"Don't waste your worry on me," <<he>> says. "I can still stand."
 	<<else>>
 		"Your touch has me feeling better already," <<he>> continues. "I think I can limp back to my post."
 	<</if>>
@@ -1192,13 +1203,23 @@ You hear shouting outside.
 <br>
 
 :: Farm Assault Threaten
-<<effects>>
+<<effects>><<speechresolve>>
 
-You march into the open.
-<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
+You march into the open, forcing yourself not to hesitate.
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 	"I-I won't be bullied," you say. "Stop this at once, or you'll be sorry."
-<<elseif $speech_attitude is "bratty">>
+<<elseif _speechAttitudeResolved is "docile">>
+	"Please leave," you say, trying to keep your voice steady. "We don't want this to get worse."
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"Leave now, and we can all walk away from this," you say. "Push further, and you'll regret it."
+<<elseif _speechAttitudeResolved is "bratty">>
 	"Get the fuck off my property," you say. "Before I feed you to the pigs."
+<<elseif _speechAttitudeResolved is "confident">>
+	"Turn around and leave," you say. "You won't like what happens if you stay."
+<<elseif _speechAttitudeResolved is "cruel">>
+	"Keep coming," you say coldly. "I'll make an example of the first one through."
+<<elseif _speechAttitudeResolved is "special">>
+	"Last chance," you say. "Walk away, or I stop being nice about it."
 <<else>>
 	"If you leave now," you say, "I won't follow."
 <</if>>
@@ -2390,7 +2411,7 @@ You move as fast as you think you can get away with. $farm.tower_guard tries to 
 :: Farm Assault Sneak Bailey
 <<effects>>
 
-You move as fast as you think you can get away with. $farm.tower_guard tries to keep the thugs' attention.
+You dart forward while $farm.tower_guard keeps the thugs occupied, taking advantage of every second <<he>> buys you.
 <br><br>
 
 <<skulduggerycheck>>
@@ -2398,10 +2419,10 @@ You move as fast as you think you can get away with. $farm.tower_guard tries to 
 
 	<span class="green">You make it right up to a <<person>>, and shove.</span> <<He>> cries out in surprise as <<he>> flips over the railing, plummeting from the tower.
 	<<if $enemynomax gte 2>>
-		<<His>> colleagues turn in surprise. $farm.tower_guard seizes the opening, and smacks a <<person2>><<person>> in the face. <<He>> staggers back, then trips and tumbles down the stairs.
+		<<His>> colleagues whirl around in shock. $farm.tower_guard pounces on the opening and smacks a <<person2>><<person>> in the face. <<He>> stumbles, misses <<his>> footing, and crashes down the stairs.
 		<br><br>
 
-		The remaining thug flashes you a smile, then runs after <<him>>.
+		The remaining thug shoots you a quick, unnerving smile, then bolts after <<him>>.
 		<br><br>
 	<<else>>
 		<<His>> colleague turns in surprise. $farm.tower_guard seizes the opening with a punch, and sends the remaining thug tumbling down the stairs.
@@ -2446,13 +2467,22 @@ You move as fast as you think you can get away with. $farm.tower_guard tries to 
 <</if>>
 
 :: Farm Assault Intercept Wraith
-<<effects>><<set _assault_keys to Object.keys($farm_assault.teams)>>
+<<effects>><<speechresolve>><<set _assault_keys to Object.keys($farm_assault.teams)>>
 
 <<if !$wraithIntro>>
 	<<set $wraithIntro to true>>
-	You charge at the stranger. They're a beautiful pale figure, with translucent white robes and flowing silver hair. They regard you with angry red eyes, clawing at their own neck. A bizarre, slimy substance leaks wherever they walk.
+	You charge at the stranger. They're a beautiful, pallid figure in translucent white robes, silver hair drifting around them like smoke. Angry red eyes settle on you while one hand claws at their own throat. A bizarre, slimy substance smears the ground wherever they pass.
 <<elseif !$wraith.seenFarm>>
-	You charge at the stranger. They turn to look at you and chuckle. <span class="red">Their face is a terrible, familiar pale.</span> A bizarre, slimy substance leaks wherever it walks.
+	You charge at the stranger. They turn toward you and chuckle. <span class="red">Their face is a terrible, familiar pale.</span> The slick trail behind them gleams wetly in the dark.
+<<else>>
+	You charge at the pale figure. It turns to look at you and chuckles, leaving a glistening smear of slime in its wake.
+<</if>>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy" or _speechAttitudeResolved is "docile")>>
+	You steady yourself, forcing your breathing back under control.
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "confident")>>
+	You square your shoulders and meet its gaze head-on.
+<<elseif _speechAttitudeResolved is "cruel">>
+	Revulsion flashes through you and hardens into something colder.
 <<else>>
 	You charge at the pale figure. It turns to look at you and chuckles. A bizarre, slimy substance leaks wherever it walks.
 <</if>>
@@ -2463,7 +2493,7 @@ You move as fast as you think you can get away with. $farm.tower_guard tries to 
 
 <<generateWraith 1 true>>
 <<initWraith "man" "arms" "abomination">><<startWraith>><<set $wraith.seenFarm to true>>
-An ember crackles at <<his>> finger. <span class="red">The slime begins to spread across the field on its own.</span>
+An ember crackles at <<his>> finger. <span class="red">The slime begins to creep across the field under its own will.</span>
 <br><br>
 
 <<link [[Next|Farm Assault Wraith Fight]]>><<set $fightstart to 1>><<set $phase to 1>><</link>>

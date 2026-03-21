@@ -2484,6 +2484,7 @@
 <</widget>>
 
 <<widget "cottage_bailey_options">>
+	<<speechresolve>>
 	<<babyRent>>
 	<<rent_avery>>
 	<<if $money gte $rentmoney + ($babyRent or 0)>>
@@ -2493,15 +2494,22 @@
 		<br>
 	<<else>>
 		<<set $baileypaychain to 0>>
-		<<if $speech_attitude is "meek">>
-			"I-I don't have the money," you tell Bailey. "Please don't hurt Alex."
-		<<elseif $speech_attitude is "bratty">>
-			"I don't have it," you tell Bailey. "And wouldn't give you a penny if I did."
-		<<else>>
-			"I don't have it," you tell Bailey. "You're wasting your time."
-		<</if>>
+		<<switch _speechAttitudeResolved>>
+			<<case "meek" "shy">>
+				"I-I don't have the money," you tell Bailey, voice catching. "Please don't hurt Alex."
+			<<case "docile">>
+				"I don't have it," you say quickly. "Please, don't take it out on Alex."
+			<<case "polite" "flamboyant">>
+				"I don't have the money," you tell Bailey. "So stop threatening Alex and leave."
+			<<case "bratty" "confident" "special">>
+				"I don't have it," you tell Bailey. "And I wouldn't give you a penny if I did."
+			<<case "cruel">>
+				"I don't have it," you say. "And even if I did, I wouldn't waste it on you."
+			<<default>>
+				"I don't have it," you tell Bailey. "You're wasting your time."
+		<</switch>>
 		<br>
-		Alex rests a hand on your shoulder. "We won't be blackmailed," <<he>> says, glaring at the intruder. "Get the fuck off
+		Alex rests a steadying hand on your shoulder. "We won't be blackmailed," <<he>> says, glaring at the intruder. "Get the fuck off
 		<<if C.npc.Alex.dom gte 20>>
 			my
 		<<else>>
@@ -3400,6 +3408,7 @@
 <</widget>>
 
 <<widget "alex_cottage_pregnancy_reveal">>
+	<<speechresolve>>
 
 	<<npc "Alex">>
 
@@ -3407,23 +3416,28 @@
 		Alex seems nervous about something.
 
 	<<else>>
-		You hear more movement than usual at Alex's bedroom, curious, you enter <<his>> bedroom, only to find a nervous Alex wandering in the room.
+		You hear more movement than usual coming from Alex's bedroom. Curious, you step inside to find <<him>> pacing the room, too wound up to stay still.
 
 	<</if>>
 	<br><br>
 
 	You approach <<him>>.
 
-	<<if $speech_attitude is "meek">>
-		"I-is something wrong? I'm worried about you," you ask.
-	<<elseif $speech_attitude is "bratty">>
-		"What's wrong? Never seen you like this before," you ask.
-	<<else>>
-		"You okay? You don't look like yourself," you ask.
-	<</if>>
+	<<switch _speechAttitudeResolved>>
+		<<case "meek" "shy">>
+			"I-is something wrong? I'm worried about you..." you ask.
+		<<case "docile">>
+			"What's wrong? You look really tense," you ask softly.
+		<<case "bratty" "confident" "special">>
+			"What's wrong? Never seen you pace like this before," you ask.
+		<<case "cruel">>
+			"You look a mess. What's got you this worked up?" you ask.
+		<<default>>
+			"You okay? You don't look like yourself," you ask.
+	<</switch>>
 	<br><br>
 
-	Alex turns to you and <<his>> nervousness is replaced with a big smile.
+	Alex turns to you, and the nervous tension in <<his>> face gives way to a sudden, bright smile.
 
 	<<if pregnancyCountBetweenParents("Alex", "pc") lte 0 or pregnancyCountBetweenParents("pc", "Alex") lte 0>>
 		"Sorry, I'm just not really sure how to deal with this kind of stuff. Would you take a seat?" You nod.
@@ -3590,6 +3604,7 @@
 <</widget>>
 
 <<widget "pcFarmBirth">>
+	<<speechresolve>>
 	<<npc "Alex">>
 	<<if $farm_stage gte 7 and getPregnancyObject().potentialFathers.length is 1 and getPregnancyObject().fetus[0].father is "Alex" and talkedAboutPregnancy("pc","Alex") and C.npc.Alex.pregnancy.pcKnowledge is true>>
 
@@ -3599,19 +3614,24 @@
 		"What's wrong?" <<he>> asks. Approaching you, <<he>> sees your soaked crotch. "Oh...it's time already?"
 		<br><br>
 
-		<<if $speech_attitude is "meek">>
-			"I...I think so," you say.
-		<<elseif $speech_attitude is "bratty">>
-			"No shit, Sherlock," you say.
-		<<else>>
-			"It seems so," you say.
-		<</if>>
+		<<switch _speechAttitudeResolved>>
+			<<case "meek" "shy">>
+				"I...I think so," you say.
+			<<case "docile">>
+				"Yeah... I think it's time," you manage.
+			<<case "bratty" "confident" "special">>
+				"No shit, Sherlock," you say through a strained breath.
+			<<case "cruel">>
+				"Obviously," you hiss. "Now move."
+			<<default>>
+				"It seems so," you say.
+		<</switch>>
 		<br><br>
 
 		Alex tenses up, but quickly composes <<himself>>. "Here, let's go inside," <<he>> says, guiding you into the cottage and onto the sofa.
 		<br>
 
-		It doesn't take long before you start feeling contractions, this time stronger than usual. It's a little difficult to breathe.
+		It doesn't take long before the contractions hit properly, stronger than the ones before. Breathing through them takes more effort than you want to admit.
 		<br><br>
 
 		Alex gives you a preoccupied glance. "Don't worry," <<he>> reassures you. "I'll call the local doctor."
@@ -3756,6 +3776,7 @@
 <</widget>>
 
 <<widget "alexBoozeShopping">>
+	<<speechresolve>>
 	<<if $alexBooze is "noID">>
 		A slightly annoyed look appears on <<his>> face as <<he>> turns back toward you.
 
@@ -3763,23 +3784,41 @@
 			"Thought I included some alcohol on the list," Alex says, the annoyance dripping from <<his>> voice.
 			<br><br>
 
-			"Sorry, I don't have an ID."
+			<<switch _speechAttitudeResolved>>
+				<<case "docile">>
+					"I couldn't buy it. I don't have an ID."
+				<<case "polite" "flamboyant">>
+					"Sorry, I couldn't get it. They asked for ID."
+				<<case "bratty" "confident" "special">>
+					"Couldn't get it. No ID."
+				<<case "cruel">>
+					"They wanted ID. I don't have one, so no booze."
+				<<default>>
+					"Sorry... I don't have an ID."
+			<</switch>>
 			<br><br>
 
-			<<He>> cocks <<his>> head to the side, opening <<his>> mouth to speak before closing it again. Alex gives a nod and a mumbled apology.
+			<<He>> cocks <<his>> head to the side, opening <<his>> mouth to speak before closing it again. Alex gives a short nod and a mumbled apology.
 			<br><br>
 
 		<<else>>
 			"Why'd you leave out the alcohol?" Alex says, not trying to hide <<his>> displeasure. <<He>> draws closer, not leaving you with much space.<<gstress>><<stress 6>>
 			<br><br>
 
-			<<if $speech_attitude is "meek">>
-				"I'm sorry...I don't have an ID. Don't be angry..."
-			<<elseif $speech_attitude is "bratty">>
-				"Cause I don't have a fucking ID."
-			<<else>>
-				"Sorry, I didn't have an ID."
-			<</if>>
+			<<switch _speechAttitudeResolved>>
+				<<case "meek" "shy">>
+					"I'm sorry... I don't have an ID. Don't be angry..."
+				<<case "docile">>
+					"I couldn't get it. I don't have an ID."
+				<<case "polite" "flamboyant">>
+					"Sorry, I didn't have any ID on me."
+				<<case "bratty" "confident" "special">>
+					"Because I don't have a fucking ID."
+				<<case "cruel">>
+					"Because I don't have an ID, genius."
+				<<default>>
+					"Sorry, I didn't have an ID."
+			<</switch>>
 			<br><br>
 
 			"Should have mentioned it before I sent you out," <<he>> grumbles, staring at you for a moment. <<He>> turns away once again, leaving a bitter taste in the air as <<he>> walks off.<<gstress>><<stress 6>>
@@ -3798,39 +3837,69 @@
 			"Why'd you leave out the alcohol?" Alex says, not trying to hide <<his>> displeasure. <<He>> draws closer, not leaving you with much space.<<gstress>><<stress 6>>
 			<br><br>
 
-			<<if $speech_attitude is "meek">>
-				"I'm...I'm sorry...I'm just worried about you..."
-				<br><br>
+			<<switch _speechAttitudeResolved>>
+				<<case "meek" "shy">>
+					"I'm... I'm sorry... I'm just worried about you..."
+					<br><br>
 
-				Alex's face softens slightly, but the anger is still evident on it. <<He>> steps away, giving you some space. "Nothing to worry about. I'm right as rain."
-				<br><br>
+					Alex's face softens slightly, but the anger is still plain on it. <<He>> steps away, finally giving you some room. "Nothing to worry about. I'm right as rain."
+					<br><br>
 
-				<<He>> bumps shoulders with you before turning back toward the farmhouse. You swore <<he>> mumbled an apology.<<lstress>><<stress -6>>
+					<<He>> bumps shoulders with you before turning back toward the farmhouse. You could swear <<he>> mumbled an apology.<<lstress>><<stress -6>>
 
-			<<elseif $speech_attitude is "bratty">>
-				"Because you drink too fucking much!" you shout before pushing Alex away.
-				<br><br>
+				<<case "docile">>
+					"Because I was worried about you," you say. "I thought maybe you didn't need more."
+					<br><br>
 
-				<<He>> glares at you, clutching the basket tightly. <<Hes>> gritting <<his>> teeth tightly. "You got no fucking right to tell me if I'm drinking too much." Alex wastes not a moment turning away and heading back to the farmhouse.<<llove>><<ldom>><<npcincr "Alex" dom -1>>
+					Alex exhales through <<his>> nose, some of the heat draining from <<his>> expression. "You don't get to decide that for me," <<he>> says, quieter now. <<He>> turns back toward the farmhouse with a frustrated shake of <<his>> head.<<gstress>><<stress 4>>
 
-			<<else>>
-				"Thought you had plenty already."
-				<br><br>
+				<<case "polite" "flamboyant">>
+					"I thought you had enough already," you say. "I was trying to look out for you."
+					<br><br>
 
-				"Wouldn't have put it on the list if I had enough of it," Alex huffs before turning away. <<He>> looks over <<his>> shoulder with a hint of anger in <<his>> eyes. "Just enjoying my life," <<he>> says. "What's wrong with that?" <<He>> heads back to the farmhouse.<<gstress>><<stress 6>>
+					"Wouldn't have put it on the list if I had enough," Alex says, irritation still sharp in <<his>> voice. <<He>> gives you a look over <<his>> shoulder before heading back to the farmhouse.<<gstress>><<stress 6>>
 
-			<</if>>
+				<<case "bratty" "confident" "special">>
+					"Because you drink too fucking much!" you snap, shoving Alex back.
+					<br><br>
+
+					<<He>> glares at you, clutching the basket tightly. <<Hes>> gritting <<his>> teeth tightly. "You got no fucking right to tell me if I'm drinking too much." Alex wastes not a moment turning away and heading back to the farmhouse.<<llove>><<ldom>><<npcincr "Alex" dom -1>>
+
+				<<case "cruel">>
+					"Because you drink too much and someone had to say it," you say coldly.
+					<br><br>
+
+					Alex's eyes harden at once. "You got no fucking right to tell me that," <<he>> says, voice low and furious. <<He>> turns on <<his>> heel and heads straight back to the farmhouse.<<llove>><<ldom>><<npcincr "Alex" dom -1>>
+
+				<<default>>
+					"Thought you had plenty already."
+					<br><br>
+
+					"Wouldn't have put it on the list if I had enough of it," Alex huffs before turning away. <<He>> looks over <<his>> shoulder with a hint of anger in <<his>> eyes. "Just enjoying my life," <<he>> says. "What's wrong with that?" <<He>> heads back to the farmhouse.<<gstress>><<stress 6>>
+
+			<</switch>>
 		<<else>>
 			"Thought I included some alcohol on the list," Alex says, the annoyance dripping from <<his>> voice.
 			<br><br>
 
-			"You did. Thought you had plenty of it still."
+			<<switch _speechAttitudeResolved>>
+				<<case "meek" "shy">>
+					"You did. I just thought you still had plenty left."
+				<<case "polite" "flamboyant">>
+					"You did. I assumed you had enough already."
+				<<case "bratty" "confident" "special">>
+					"You did. Figured you had enough of the stuff already."
+				<<case "cruel">>
+					"You did. I assumed you could survive without topping up for one day."
+				<<default>>
+					"You did. Thought you had plenty of it still."
+			<</switch>>
 			<br><br>
 
 			Alex stares at you for a bit too long. You can tell <<he>> is biting <<his>> tongue. <<He>> shakes <<his>> head before sighing.
 			<br><br>
 
-			"Always can do with a little more. I'll go myself later and pick some up." <<His>> voice betrays the irritation <<he>> tried to brush off.
+			"Always can do with a little more. I'll go myself later and pick some up." <<His>> voice still carries the irritation <<he>> tried to smooth over.
 		<</if>>
 		<br><br>
 

@@ -300,24 +300,23 @@ The <<beasttype>> flies above the ruins of a castle, and begins a circling desce
 <br>
 
 :: Bird Capture Say
+<<speechresolve>>
 <<effects>>
 
 <<if $trauma gte ($traumamax / 7) * 4>>
-	<<switch $speech_attitude>>
-		<<case "meek">>
-			<<if $speech_attitude_special is "docile">>
-				"N-No! Please! No!" You fail to form any coherent sentence.
-			<<else>>
-				"P-Please don't hurt me," you beg.
-			<</if>>
+	<<switch _speechAttitudeResolved>>
+		<<case "docile">>
+			"N-No... please... no," you stammer, your voice shaking so badly the rest never quite comes out.
+		<<case "meek" "shy">>
+			"P-Please don't hurt me," you beg.
+		<<case "cruel">>
+			"Don't touch me," you say. "Try it and you'll regret it."
 		<<case "bratty">>
-			<<if $speech_attitude_special is "cruel">>
-				"Don't touch me," you say. "Or I'll make my touch hurt."
-			<<else>>
-				"Don't touch me," you say. "I'm warning you."
-			<</if>>
-		<<case "confident" "flamboyant" "special">>
-			"Don't touch me," you say. "Please."
+			"Don't touch me," you snap. "I'm warning you."
+		<<case "confident">>
+			"Don't touch me," you say, forcing steel into your voice. "Back off."
+		<<case "polite" "flamboyant">>
+			"Please don't touch me," you say, trying to keep your voice even.
 		<<default>>
 			"S-Stay away," you say. "Please."
 	<</switch>>
@@ -340,19 +339,19 @@ The <<beasttype>> flies above the ruins of a castle, and begins a circling desce
 		After a bit, the <<beasttype>> gets up and hops over to the precipice.
 	<</if>>
 <<else>>
-	<<switch $speech_attitude>>
+	<<switch _speechAttitudeResolved>>
+		<<case "docile">>
+			"P-please... let me go," you say.
 		<<case "meek" "shy">>
-			"<<if $speech_attitude_special is "docile">>I-I'm... P-please... <</if>>L-Let me go," you say.
+			"L-Let me go," you say.
+		<<case "cruel">>
+			"Get me down from this tower," you say. "Or I'll make sure you never fly again."
 		<<case "bratty">>
-			<<if $speech_attitude_special is "cruel">>
-				"Get me down from this tower," you say. "Or I'll make sure you will never be able to fly again."
-			<<else>>
-				"Get me down from this tower," you say. "Or else."
-			<</if>>
+			"Get me down from this tower," you say. "Or else."
 		<<case "confident">>
 			"Get me down from this tower," you say.
-		<<case "flamboyant" "special" "polite">>
-			"Let me go," you say. "Please."
+		<<case "polite" "flamboyant">>
+			"Please let me go," you say.
 		<<default>>
 			"Let me go," you say.
 	<</switch>>
@@ -374,15 +373,23 @@ The <<beasttype>> flies above the ruins of a castle, and begins a circling desce
 <br>
 
 :: Bird Capture Sorry
+<<speechresolve>>
 <<effects>>
 
-<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
-	"I-I'm sorry for leaving," you say.
-<<elseif $speech_attitude is "bratty">>
-	"Sorry for ditching you, I guess," you say.
-<<else>>
-	"Sorry for leaving last time," you say.
-<</if>>
+<<switch _speechAttitudeResolved>>
+	<<case "docile">>
+		"I-I'm sorry... I shouldn't have run," you say.
+	<<case "meek" "shy">>
+		"I-I'm sorry for leaving," you say.
+	<<case "cruel">>
+		"Fine. Sorry for leaving," you say, with little warmth in it.
+	<<case "bratty">>
+		"Sorry for ditching you, I guess," you say.
+	<<case "polite" "flamboyant">>
+		"I'm sorry for leaving before," you say.
+	<<default>>
+		"Sorry for leaving last time," you say.
+<</switch>>
 <br><br>
 
 The <<beasttype>> watches you a moment longer,
@@ -801,14 +808,22 @@ Once you're done, <<bhe>> fluffs <<bhis>> feathers and stands up.
 <br>
 
 :: Bird Rescue No Syndrome Tower Thank
+<<speechresolve>>
 <<effects>>
-<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
-	"Th-thank you for rescuing me," you say.
-<<elseif $speech_attitude is "bratty">>
-	"Thanks for helping me out there," you say.
-<<else>>
-	"Thank you," you say.
-<</if>>
+<<switch _speechAttitudeResolved>>
+	<<case "docile">>
+		"Th-thank you for rescuing me," you say softly.
+	<<case "meek" "shy">>
+		"Th-thank you for rescuing me," you say.
+	<<case "cruel">>
+		"You arrived just in time," you say. "Don't expect me to forget that."
+	<<case "bratty">>
+		"Thanks for helping me out there," you say.
+	<<case "polite" "flamboyant">>
+		"Thank you for rescuing me," you say.
+	<<default>>
+		"Thank you," you say.
+<</switch>>
 <br><br>
 
 The <<beasttype>> fluffs <<bhis>> feathers.
@@ -823,8 +838,18 @@ The <<beasttype>> fluffs <<bhis>> feathers.
 <br>
 
 :: Bird Rescue No Syndrome Tower Silent
+<<speechresolve>>
 <<effects>>
-You don't say anything, just looking at the <<beasttype>><<if ($speech_attitude is "meek" or $speech_attitude is "shy")>> fearfully<<else>> distrustfully<</if>>.
+You don't say anything, just looking at the <<beasttype>>
+<<switch _speechAttitudeResolved>>
+	<<case "meek" "shy">>fearfully
+	<<case "polite">>with visible unease
+	<<case "docile">>warily
+	<<case "flamboyant">>with guarded uncertainty
+	<<case "bratty" "cruel">>with open distrust
+	<<case "confident">>with a steady, guarded stare
+	<<default>>warily
+<</switch>>.
 
 <<if $monster is 1>>
 	<<bHis>> wings droop a bit as you don't respond, and <<bhis>> expression seems melancholy.
@@ -952,6 +977,7 @@ The <<beasttype>> looks at you, <<if $monster is 1>>smiling<<elseif understandsB
 <</if>>
 
 :: Bird Tower
+<<speechresolve>>
 <<if $bird.state is undefined>>
 	<<bird_init>>/*Fixes rare broken save issue*/
 <</if>>
@@ -1174,13 +1200,20 @@ You are inside <<if $syndromebird is 1>>your tower<<else>>a ruined tower<</if>>,
 	You hear a screech. The <<beasttype>> hovers in the air, talons outstretched, gaze fixed on the new mirror, on <<bhis>> reflection.
 	<br><br>
 
-	<<if $speech_attitude is "meek">>
-		"I-It's just a mirror," you say. "I wanted one for our home."
-	<<elseif $speech_attitude is "bratty">>
-		"Quit whining," you say. "It's just a mirror."
-	<<else>>
-		"What's wrong?" you ask. "It's just a mirror."
-	<</if>>
+	<<switch _speechAttitudeResolved>>
+		<<case "docile">>
+			"I-It's just a mirror," you say softly. "I thought it would make our home nicer."
+		<<case "meek" "shy">>
+			"I-It's just a mirror," you say. "I wanted one for our home."
+		<<case "cruel">>
+			"It's a mirror," you say. "It won't hurt you unless you pick a fight with your own reflection."
+		<<case "bratty">>
+			"Quit whining," you say. "It's just a mirror."
+		<<case "polite" "flamboyant">>
+			"It's only a mirror," you say. "I thought it would be nice for our home."
+		<<default>>
+			"What's wrong?" you ask. "It's just a mirror."
+	<</switch>>
 	<br><br>
 	<<if $monster gte 1>>
 		The <<beasttype>> lands. "I hate it," <<bhe>> says. <<bHis>> talons bite into the stone. "Dangerous. But if you like it—" <<bHe>> grimaces. "Put something over it when you're not using it."
@@ -1287,13 +1320,20 @@ You are inside <<if $syndromebird is 1>>your tower<<else>>a ruined tower<</if>>,
 	You see the <<beasttype>>'s lower half sticking out of your wardrobe. You walk up behind <<bhim>>.
 	<br><br>
 
-	<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
-		"W-what are you doing?" you ask.
-	<<elseif $speech_attitude is "bratty">>
-		"Hey, no, stop that! Why are you in my wardrobe?" you ask.
-	<<else>>
-		"What are you doing?" you ask.
-	<</if>>
+	<<switch _speechAttitudeResolved>>
+		<<case "docile">>
+			"P-please don't tear anything," you say. "What are you doing?"
+		<<case "meek" "shy">>
+			"W-what are you doing?" you ask.
+		<<case "cruel">>
+			"Get out of my wardrobe," you say sharply. "Now."
+		<<case "bratty">>
+			"Hey, no, stop that! Why are you in my wardrobe?" you ask.
+		<<case "polite" "flamboyant">>
+			"What are you doing in there?" you ask. "Please be careful with my clothes."
+		<<default>>
+			"What are you doing?" you ask.
+	<</switch>>
 	<<bHe>> jumps in surprise.
 	<br><br>
 
@@ -1666,6 +1706,7 @@ You are inside <<if $syndromebird is 1>>your tower<<else>>a ruined tower<</if>>,
 <</if>>
 
 :: Bird Tower Passout No Syndrome
+<<speechresolve>>
 <<setTowerTemp>><<effects>>
 
 <<if $phase is 0>>
@@ -1706,13 +1747,24 @@ You are inside <<if $syndromebird is 1>>your tower<<else>>a ruined tower<</if>>,
 	<</if>>
 <<else>>
 	You back up to the other side of the nest.
-	<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
+	<<switch _speechAttitudeResolved>>
+	<<case "meek" "shy">>
 		"P-Please don't hurt me," you whimper.
-	<<elseif $speech_attitude is "bratty">>
-		"Don't touch me you filthy <<beasttype>>!" you yell.
-	<<else>>
+	<<case "polite">>
+		"Please stay back," you say, voice trembling. "Don't hurt me."
+	<<case "docile">>
+		"Please... just don't hurt me," you whisper, shrinking in on yourself.
+	<<case "flamboyant">>
+		"Back off," you snap, though fear still shakes your voice.
+	<<case "bratty">>
+		"Don't touch me, you filthy <<beasttype>>!" you yell.
+	<<case "cruel">>
+		"Get your claws off me, you disgusting thing!" you spit.
+	<<case "confident">>
+		"Stay away from me," you shout, squaring yourself despite the fear in your chest.
+	<<default>>
 		"Get away from me!" you scream.
-	<</if>>
+<</switch>>
 	<br><br>
 
 	<<bHe>> stops.
@@ -1786,13 +1838,20 @@ You're still unable to move, which allows the <<beasttype>> to keep comforting y
 <</if>>
 
 :: Bird Tower Passout Syndrome
+<<speechresolve>>
 <<setTowerTemp>><<effects>>
 <<if $phase is 0>>
 	You get up and hug <<bhim>>.
-	<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>"Thank you for caring about me so much. But I'm alright," you say.
-	<<elseif $speech_attitude is "bratty">>"You don't have to be so worried, silly," you say.
-	<<else>>"I really am fine. Thanks for making sure though," you say.
-	<</if>>
+	<<switch _speechAttitudeResolved>>
+	<<case "meek" "shy">>"Thank you for caring about me so much. But I'm alright," you say.
+	<<case "polite">>"Thank you for worrying about me, but I really am alright," you say.
+	<<case "docile">>"I'm alright. Thank you for looking after me," you say softly.
+	<<case "flamboyant">>"You're sweet to fuss over me like that, but I'm alright," you say.
+	<<case "bratty">>"You don't have to be so worried, silly," you say.
+	<<case "cruel">>"Stop fussing. I'm fine," you say, brushing the concern aside.
+	<<case "confident">>"I'm really alright. Thanks for checking," you say.
+	<<default>>"I really am fine. Thanks for making sure though," you say.
+<</switch>>
 	<br><br>
 
 	The <<beasttype>>
@@ -1812,10 +1871,16 @@ You're still unable to move, which allows the <<beasttype>> to keep comforting y
 	<</if>>
 	You smile at <<bhim>>, then step out of the nest.
 <<else>>
-	<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>"I-I'm fine, really," you say as you stand up.
-	<<elseif $speech_attitude is "bratty">>"I already told you, I'm fine," you say as you stand up.
-	<<else>>"I'm alright," you say as you stand up.
-	<</if>>
+	<<switch _speechAttitudeResolved>>
+	<<case "meek" "shy">>"I-I'm fine, really," you say as you stand up.
+	<<case "polite">>"Really, I'm alright," you say as you stand up.
+	<<case "docile">>"I'm alright," you murmur as you rise.
+	<<case "flamboyant">>"I'm fine, really," you say as you get back to your feet.
+	<<case "bratty">>"I already told you, I'm fine," you say as you stand up.
+	<<case "cruel">>"I'm fine. Stop hovering," you say as you stand up.
+	<<case "confident">>"I'm alright," you say, standing steadily.
+	<<default>>"I'm alright," you say as you stand up.
+<</switch>>
 	<br><br>
 	<<if $monster is 1>>
 		"Are you sure?" <<bhe>> asks again. You repeat your answer. <<bHe>> does not sound satisfied with it.
@@ -2322,15 +2387,27 @@ It fills you with a strange warmth. <<eatLurker>><<drugs 120>><<ggdrugged>>
 
 
 :: Bird Tower Lurker Scold
+<<speechresolve>>
 <<setTowerTemp>><<effects>>
 
-<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
+<<switch _speechAttitudeResolved>>
+<<case "meek" "shy">>
 	"I-I'm sure it's very nice," you say. "But I can't eat this."
-<<elseif $speech_attitude is "bratty">>
+<<case "polite">>
+	"I appreciate the thought, but I really can't eat this," you say.
+<<case "docile">>
+	"I can't eat this," you say softly. "Please bring something else next time."
+<<case "flamboyant">>
+	"Darling, that simply isn't going in my mouth," you say, nudging the lurker away.
+<<case "bratty">>
 	"This food is unfit for a <<= $player.gender_appearance is "f" ? "lady like myself" : $player.gender_appearance is "m" ? "gentleman like myself" : "person of my stature">>," you say, lifting the lurker and flinging it at a wall.
-<<else>>
+<<case "cruel">>
+	"If you expect me to eat that, you're stupider than you look," you say, pitching the lurker aside.
+<<case "confident">>
+	"No. I'm not eating that," you say, kicking the lurker away for good measure.
+<<default>>
 	"I can't eat this," you say, raising your voice. You kick the lurker away for good measure.
-<</if>>
+<</switch>>
 <br><br>
 
 <<if $monster is 1>>
@@ -2384,15 +2461,27 @@ You hang the lurker on the rack for later.
 
 
 :: Bird Tower Trash
+<<speechresolve>>
 <<setTowerTemp>><<effects>>
 
-<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
+<<switch _speechAttitudeResolved>>
+<<case "meek" "shy">>
 	"Th-thank you," you say, lifting the rubbish. "It's a treasure."
-<<elseif $speech_attitude is "bratty">>
+<<case "polite">>
+	"Thank you," you say, carefully lifting the rubbish. "I'll look after it."
+<<case "docile">>
+	"Thank you. I'll keep it safe," you say, cradling the trinket.
+<<case "flamboyant">>
+	"Oh, lovely," you say, lifting the rubbish with a little flourish. "Thank you."
+<<case "bratty">>
 	"Nice and shiny," you say, lifting the rubbish. "Thanks, featherhead."
-<<else>>
+<<case "cruel">>
+	"At least this one sparkles," you say. "You managed that much."
+<<case "confident">>
+	"Thanks," you say, lifting the rubbish. "I'll add it to the pile."
+<<default>>
 	"Thank you," you say, lifting the rubbish.
-<</if>>
+<</switch>>
 <<if $syndromebird gte 1>>
 	You add it to the pile of valuables.<<set $bird.materials.junk++>>
 <</if>>
@@ -2409,15 +2498,27 @@ The <<beasttype>> puffs <<bhis>> plumes and <<if $monster is 1>>walks<<else>>hop
 
 
 :: Bird Tower Trash Scold
+<<speechresolve>>
 <<setTowerTemp>><<effects>>
 
-<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
+<<switch _speechAttitudeResolved>>
+<<case "meek" "shy">>
 	"It's very pretty," you say. "But could you bring me something useful next time?"
-<<elseif $speech_attitude is "bratty">>
+<<case "polite">>
+	"It's thoughtful, but I'd rather you brought me something useful next time," you say.
+<<case "docile">>
+	"Could you bring me something more useful next time?" you ask softly.
+<<case "flamboyant">>
+	"Cute, but not exactly practical," you say. "Bring me something useful next time, darling."
+<<case "bratty">>
 	"What am I supposed to do with this?" you say, chucking the rubbish from the tower. "Bring me something useful next time."
-<<else>>
+<<case "cruel">>
+	"Take your trash and try again," you say, throwing it from the tower. "Bring me something useful next time."
+<<case "confident">>
 	"This is just rubbish," you say. "Bring me something useful next time."
-<</if>>
+<<default>>
+	"This is just rubbish," you say. "Bring me something useful next time."
+<</switch>>
 <br><br>
 
 <<if $monster is 1>>
@@ -2596,15 +2697,27 @@ You lift the necklace.
 
 
 :: Bird Tower Valuables Scold
+<<speechresolve>>
 <<setTowerTemp>><<effects>>
 
-<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
+<<switch _speechAttitudeResolved>>
+<<case "meek" "shy">>
 	"I-is it stolen?" you ask. "You shouldn't steal!"
-<<elseif $speech_attitude is "bratty">>
+<<case "polite">>
+	"I can't accept something stolen," you say. "Please don't bring me that again."
+<<case "docile">>
+	"I don't want stolen things," you say quietly.
+<<case "flamboyant">>
+	"No stolen goods for me, thank you," you say, nudging it away. "Bring me something else."
+<<case "bratty">>
 	"I'm not accepting stolen goods," you say, kicking it away. "Bring me something practical."
-<<else>>
+<<case "cruel">>
+	"I'm not touching stolen junk," you say. "Bring me something worthwhile."
+<<case "confident">>
 	"I won't accept stolen goods," you say.
-<</if>>
+<<default>>
+	"I won't accept stolen goods," you say.
+<</switch>>
 <br><br>
 <<if $monster is 1>>
 	"Stolen? Don't know what stolen is, but I'm sorry I upset <<wife>>." <<bHe>> looks down in shame, and walks away.
@@ -2717,15 +2830,27 @@ You carefully drink the milkshake from the damaged cup. It's incredibly sweet. <
 
 
 :: Bird Tower Food Scold
+<<speechresolve>>
 <<setTowerTemp>><<effects>>
 
-<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
+<<switch _speechAttitudeResolved>>
+<<case "meek" "shy">>
 	"I-I'm not hungry," you say.
-<<elseif $speech_attitude is "bratty">>
+<<case "polite">>
+	"No thank you. I'm not hungry right now," you say.
+<<case "docile">>
+	"I'm not hungry," you say softly.
+<<case "flamboyant">>
+	"No appetite, I'm afraid," you say, waving it off.
+<<case "bratty">>
 	"I'm not hungry," you say, kicking the food away.
-<<else>>
+<<case "cruel">>
+	"Take it away. I'm not eating that," you say.
+<<case "confident">>
 	"I'm not hungry," you say.
-<</if>>
+<<default>>
+	"I'm not hungry," you say.
+<</switch>>
 <br><br>
 <<unset $bird_food>>
 
@@ -2801,15 +2926,27 @@ You thank the <<beasttype>>. You won't wear it, but the material might be useful
 <br>
 
 :: Bird Tower Clothes Scold
+<<speechresolve>>
 <<setTowerTemp>><<effects>>
 
-<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
+<<switch _speechAttitudeResolved>>
+<<case "meek" "shy">>
 	"Th-this doesn't suit me," you say.
-<<elseif $speech_attitude is "bratty">>
+<<case "polite">>
+	"Thank you, but this doesn't really suit me," you say.
+<<case "docile">>
+	"I don't think this suits me," you admit.
+<<case "flamboyant">>
+	"Oh, absolutely not. This does nothing for me," you say.
+<<case "bratty">>
 	"You've no fashion sense," you say, kicking the garment away.
-<<else>>
+<<case "cruel">>
+	"Hideous," you say, knocking the garment aside.
+<<case "confident">>
 	"I'm not wearing this," you say.
-<</if>>
+<<default>>
+	"I'm not wearing this," you say.
+<</switch>>
 
 <<if $monster is 1>>
 	"Sorry, <<wife>>, should have known you would prefer own plumage." <<bHe>> slinks away.
@@ -3244,6 +3381,7 @@ You sit by the rainwater pool.
 <</if>>
 
 :: Bird Tower Nest Rub
+<<speechresolve>>
 <<setTowerTemp>><<effects>><<npc "Great Hawk">>
 You slowly run your hands down the <<beasttypes>> feathers, towards <<bhis>> <<nnpc_genitals "Great Hawk">>.
 <<bHis>> eyes flutter open as you begin to rub.
@@ -3251,13 +3389,24 @@ You slowly run your hands down the <<beasttypes>> feathers, towards <<bhis>> <<n
 	<<deviancy1>>
 	<<if $monster is 1>>"<<Wife>> doesn't need to do this for me," <<bhe>> says as <<bhe>> rubs the tiredness from <<bhis>> eyes. "But I can't say no."<</if>>
 <<else>>
-	<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
-		You face your <<bottom>> towards <<bhim>> and give it a shake, looking over your shoulder at <<bhim>> with pleading eyes.
-	<<elseif $speech_attitude is "bratty">>
+	<<switch _speechAttitudeResolved>>
+	<<case "meek" "shy">>
+		You face your <<bottom>> towards <<bhim>> and give it a timid shake, looking over your shoulder with pleading eyes.
+	<<case "polite">>
+		You shift closer and open yourself to <<bhim>>, inviting <<bhim>> with a soft, expectant smile.
+	<<case "docile">>
+		You lower yourself obediently in front of <<bhim>>, silently offering your body.
+	<<case "flamboyant">>
+		You arch your back with playful flair and cast <<bhim>> a sultry look over your shoulder.
+	<<case "bratty">>
 		You throw one leg over <<bhim>>, giving <<bhim>> little choice.
-	<<else>>
+	<<case "cruel">>
+		You push yourself into <<bhim>>'s space with a challenging look, daring <<bhim>> to refuse.
+	<<case "confident">>
+		You sit up and spread your legs, gesturing towards your <<genitals>> with an inviting smile.
+	<<default>>
 		You sit up and spread your legs, gesturing towards your <<genitals>> with a smile.
-	<</if>>
+	<</switch>>
 	<<deviancy4>>
 	<<if $monster is 1>>
 		"<<Wife>> is ready to mate?" <<bHis>> eyes light up. "Anything for you."
@@ -3363,16 +3512,28 @@ You slowly run your hands down the <<beasttypes>> feathers, towards <<bhis>> <<n
 
 
 :: Bird Tower Sleep Push
+<<speechresolve>>
 <<setTowerTemp>><<effects>>
 
 <<if $monster is 1>>
-	<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
+	<<switch _speechAttitudeResolved>>
+	<<case "meek" "shy">>
 		"N...no, please,"
-	<<elseif $speech_attitude is "bratty">>
+	<<case "polite">>
+		"Not tonight, please,"
+	<<case "docile">>
+		"Please, not right now,"
+	<<case "flamboyant">>
+		"No, darling, not tonight,"
+	<<case "bratty">>
 		"Knock it off, featherhead,"
-	<<else>>
+	<<case "cruel">>
+		"Back off, featherbrain,"
+	<<case "confident">>
 		"I'm not in the mood,"
-	<</if>>
+	<<default>>
+		"I'm not in the mood,"
+	<</switch>>
 	you say as you try to push <<bhim>> away. <<bHis>> wings beat in frustration, and <<bhe>> squeezes you tightly for a moment before letting you go. <<bHe>> curls up next to you without further fuss.
 <<else>>
 	You shove the <<beasttype>> away from you. <<bHe>> flaps <<bhis>> wings in frustration, then curls up without further fuss.
@@ -3493,6 +3654,7 @@ You're soon squeaky clean.
 <br>
 
 :: Bird Tower Bathe Preen
+<<speechresolve>>
 <<setTowerTemp>><<effects>>
 <<npc "Great Hawk">><<person1>>
 <<set $daily.birdWash to 1>>
@@ -3500,13 +3662,24 @@ You're soon squeaky clean.
 	You walk around the pool until you're behind the <<beasttype>>. You rub <<bhis>> shoulders and coo into <<bhis>> ear. "Why don't I help you out a bit?"
 <<else>>
 	You walk around the pool until you're behind the <<beasttype>>. You carefully start to rub <<bhis>> wings.
-	<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
+	<<switch _speechAttitudeResolved>>
+	<<case "meek" "shy">>
 		"I-I can help," you say.
-	<<elseif $speech_attitude is "bratty">>
+	<<case "polite">>
+		"Let me help," you say gently.
+	<<case "docile">>
+		"I can help if you want," you say softly.
+	<<case "flamboyant">>
+		"Come here, let me make you presentable," you say.
+	<<case "bratty">>
 		"You're a mess," you say. "Let me help."
-	<<else>>
+	<<case "cruel">>
+		"Sit still. You're a mess," you say.
+	<<case "confident">>
 		"Let me help," you say.
-	<</if>>
+	<<default>>
+		"Let me help," you say.
+	<</switch>>
 <</if>>
 <<deviancy1>>
 
@@ -3684,16 +3857,28 @@ You step away from the pool.
 
 
 :: Bird Tower Groom
+<<speechresolve>>
 <<setTowerTemp>><<effects>>
 <<npc "Great Hawk">>
 <<set $daily.birdGroom to true>>
-<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
+<<switch _speechAttitudeResolved>>
+<<case "meek" "shy">>
 	"I-I can help," you say, joining <<bhim>>.
-<<elseif $speech_attitude is "bratty">>
-	"You're doing it all wrong," you say, joining <<bhim>>. "Let me help."
-<<else>>
+<<case "polite">>
 	"Let me help," you say, joining <<bhim>>.
-<</if>>
+<<case "docile">>
+	"I can help if you'd like," you say, settling beside <<bhim>>.
+<<case "flamboyant">>
+	"Move over, darling. Let me help," you say, joining <<bhim>>.
+<<case "bratty">>
+	"You're doing it all wrong," you say, joining <<bhim>>. "Let me help."
+<<case "cruel">>
+	"You're making a mess of it," you say, taking over. "Let me help."
+<<case "confident">>
+	"Let me help," you say, joining <<bhim>>.
+<<default>>
+	"Let me help," you say, joining <<bhim>>.
+<</switch>>
 <br><br>
 
 The <<beasttype>> shakes <<bhis>> feathers, and lets you stroke <<bhis>> wings.
@@ -4275,6 +4460,7 @@ You bring your attentive touch down towards <<bhis>> groin.
 <</if>>
 
 :: Bird Tower Tattoo Preen
+<<speechresolve>>
 <<setTowerTemp>><<effects>>
 <<if $phase is 0>>
 	<<if ["marker","tattoo","brand","magic"].includes($skin[_bodypart].pen)>>
@@ -4292,37 +4478,51 @@ You bring your attentive touch down towards <<bhis>> groin.
 	<<switch $skin[_bodypart].pen>>
 		<<case "marker">>
 			<<set _tattoo to "permanent marker">>
-			<<set _tattwo to "mark hers">>
+			<<set _tattwo to "marks">>
 		<<case "brand">>
 			<<set _tattoo to "a brand">>
 			<<set _tattwo to "brands">>
 		<<default>>
 			<<set _tattoo to "a tattoo">>
-			<<set _tattwo to "tat twos">>
+			<<set _tattwo to "tattoos">>
 	<</switch>>
 	<<if $monster is 1>>
-		<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
-			"It's something called _tattoo. Sorry, you can't clean it off, no matter how hard you try," you say.
-		<<elseif $speech_attitude is "bratty">>
-			"It's a thing called _tattoo, and it won't come off," you say. "<<= _tattoo is "permanent marker" ? 'Not right now, anyway' : 'Ever'>>."
-		<<else>>
-			"It's called _tattoo, and <<= _tattoo is "permanent marker" ? "it's, well... permanent. At least for right now" : "it's permanent">>," you say.
-		<</if>>
+		<<switch _speechAttitudeResolved>>
+			<<case "docile">>
+				"I-It's called <<= _tattoo>>," you say softly. "Sorry... it won't wash off."
+			<<case "meek" "shy">>
+				"It's something called <<= _tattoo>>. Sorry, you can't clean it off, no matter how hard you try," you say.
+			<<case "cruel">>
+				"It's called <<= _tattoo>>," you say. "You can stop scrubbing. It isn't coming off."
+			<<case "bratty">>
+				"It's a thing called <<= _tattoo>> and it won't come off," you say. "<<= _tattoo is "permanent marker" ? 'Not right now, anyway' : 'Ever'>>."
+			<<case "polite" "flamboyant">>
+				"It's called <<= _tattoo>>," you explain. "It isn't dirt, and it won't come off from preening."
+			<<default>>
+				"It's called <<= _tattoo>>, and <<= _tattoo is "permanent marker" ? "it's, well... permanent. At least for right now" : "it's permanent">>," you say.
+		<</switch>>
 		<br><br>
 
-		"Really?" the <<beasttype>> asks as <<bhe>> stops preening you to inspect your <<tattoo _bodypart>>. "<<Wife>> should be more careful. Don't let more... _tattwo get on you."
+		"Really?" the <<beasttype>> asks as <<bhe>> stops preening you to inspect your <<tattoo _bodypart>>. "<<Wife>> should be more careful. Don't let more... <<= _tattwo>> get on you."
 
 		<<if $skin[_bodypart].special is "Great Hawk">>
 			<br><br>
 
 			You point to the ink and try to explain what it means.
-			<<if $speech_attitude is "meek">>
-				"It's sort of special," you say. "It means I'm yours."
-			<<elseif $speech_attitude is "bratty">>
-				"Can you even read it?" you ask. "It says something about you."
-			<<else>>
-				"This one is special. I got it because of you," you explain.
-			<</if>>
+			<<switch _speechAttitudeResolved>>
+				<<case "docile">>
+					"S-sorry, this one is special," you say. "It means I'm yours."
+				<<case "meek" "shy">>
+					"It's sort of special," you say. "It means I'm yours."
+				<<case "cruel">>
+					"Can you tell?" you ask. "This one is about you."
+				<<case "bratty">>
+					"Can you even read it?" you ask. "It says something about you."
+				<<case "polite" "flamboyant">>
+					"This one is special," you explain. "I got it because of you."
+				<<default>>
+					"This one is special. I got it because of you," you explain.
+			<</switch>>
 			<br><br>
 
 			The <<beasttype>> listens to your explanation, head tilted to the side in curiosity. "Don't quite understand the meaning. But I trust <<wife>>."
@@ -4335,13 +4535,20 @@ You bring your attentive touch down towards <<bhis>> groin.
 	You flick <<bhim>> on the head.
 	<<if $skin[_bodypart].special is "Great Hawk">>
 		<<if $monster is 1>>
-			<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
-				"Sorry, but this one's special. It means I'm yours," you say.
-			<<elseif $speech_attitude is "bratty">>
-				"Can you even read it?" you ask. "It says something about you."
-			<<else>>
-				"This one is special. It's about you," you explain.
-			<</if>>
+			<<switch _speechAttitudeResolved>>
+				<<case "docile">>
+					"S-sorry, but this one's special. It means I'm yours," you say.
+				<<case "meek" "shy">>
+					"Sorry, but this one's special. It means I'm yours," you say.
+				<<case "cruel">>
+					"This one is about you," you say. "So stop picking at it."
+				<<case "bratty">>
+					"Can you even read it?" you ask. "It says something about you."
+				<<case "polite" "flamboyant">>
+					"This one is special. It's about you," you explain.
+				<<default>>
+					"This one is special. It's about you," you explain.
+			<</switch>>
 			<br><br>
 
 			The <<beasttype>> listens to your explanation, head tilted to the side in curiosity. "Don't quite understand the meaning. But I trust <<wife>>."
@@ -4513,6 +4720,7 @@ You push your wings back into <<bhis>> face, and <<bhe>> releases them.
 <</if>>
 
 :: Bird Perch Monster Kiss
+<<speechresolve>>
 <<setTowerTemp>><<effects>>
 <<if $monster is 1>>
 	You bring <<bhis>> head close to yours, and turn to kiss <<bhim>>. <<takeKissVirginity "Great Hawk" `($syndromebird is 1?"loveInterest":"romantic")`>>
@@ -4521,7 +4729,18 @@ You push your wings back into <<bhis>> face, and <<bhe>> releases them.
 	You lose track of the time as you hold each other. "Landbound displays of affection, so strange," <<bhe>> says suddenly. "Would only accept it from <<wife>>." <<glove>>
 <<else>>
 	You turn your head and give <<bhim>> a kiss on the side of <<bhis>> beak. <<bHe>> perks up, then begins <<if understandsBirdBehaviour()>>preening<<else>>running <<bhis>> beak through<</if>> <<if $transformationParts.bird.plumage isnot "disabled">>the feathers around your neck<<else>>your hair<</if>>.
-	You <<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>giggle<<elseif $speech_attitude is "bratty">>chuckle<<else>>laugh<</if>> at the sensation, then return the favour, gently combing your fingers through your partner's plumage, and softly kissing <<bhis>> cheeks and the side of <<bhis>> beak.
+	You
+<<switch _speechAttitudeResolved>>
+	<<case "meek" "shy">>giggle
+	<<case "polite">>laugh softly
+	<<case "docile">>smile and let out a small breathy laugh
+	<<case "flamboyant">>laugh brightly
+	<<case "bratty">>chuckle
+	<<case "cruel">>let out a dry, amused laugh
+	<<case "confident">>laugh
+	<<default>>laugh
+<</switch>>
+at the sensation, then return the favour, gently combing your fingers through your partner's plumage, and softly kissing <<bhis>> cheeks and the side of <<bhis>> beak.
 	<<takeKissVirginity "Great Hawk" `($syndromebird is 1?"loveInterest":"romantic")`>>
 	<br><br>
 	You lose track of time as you preen each other. Eventually you pull apart, and <<bhe>> trills <<if understandsBirdBehaviour()>>contentedly<<else>>softly<</if>>.
@@ -4655,16 +4874,28 @@ You push your wings back into <<bhis>> face, and <<bhe>> releases them.
 <<bird_perch_options>>
 
 :: Bird Tower Fly Intro
+<<speechresolve>>
 <<setTowerTemp>><<effects>>
 <<npc "Great Hawk">>
 You sit next to the <<beasttype>>. <<bHe>> stops singing as you catch <<bhis>> attention.
-<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
+<<switch _speechAttitudeResolved>>
+<<case "meek" "shy">>
 	"Could you... please... teach me how to fly?"
-<<elseif $speech_attitude is "bratty">>
+<<case "polite">>
+	"Could you teach me how to fly?"
+<<case "docile">>
+	"If you're willing... I'd like you to teach me how to fly,"
+<<case "flamboyant">>
+	"Teach me how to fly properly, won't you?"
+<<case "bratty">>
 	"I want you to teach me how to fly like you do,"
-<<else>>
+<<case "cruel">>
+	"You're going to teach me how to fly,"
+<<case "confident">>
 	"I want to learn to fly,"
-<</if>>
+<<default>>
+	"I want to learn to fly,"
+<</switch>>
 you say, flaring out your wings.
 <<if $monster is 1>>
 	<<if $bird.lock isnot 1>>
@@ -4822,16 +5053,28 @@ You wonder if anything you just experienced was real for a moment. The vertigo a
 <br>
 
 :: Bird Tower Give Captured Lurker
+<<speechresolve>>
 <<npc "Great Hawk">><<person1>>
 <<if ndef $bird_lurkers>><<set $bird_lurkers to 0>><</if>>
 <<run $bird_lurkers += $lurkers_held>>
-<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
+<<switch _speechAttitudeResolved>>
+<<case "meek" "shy">>
 	"I brought something for you," you say. "I really hope you like it."
-<<elseif $speech_attitude is "bratty">>
-	"I have something for you," you say. "You're welcome."
-<<else>>
+<<case "polite">>
 	"I brought you a gift," you say. "I hope you like it."
-<</if>>
+<<case "docile">>
+	"I brought this for you," you say softly.
+<<case "flamboyant">>
+	"I brought you a little present," you say with a smile. "Try not to swoon."
+<<case "bratty">>
+	"I have something for you," you say. "You're welcome."
+<<case "cruel">>
+	"I brought you something. Be grateful," you say.
+<<case "confident">>
+	"I brought you a gift," you say. "I hope you like it."
+<<default>>
+	"I brought you a gift," you say. "I hope you like it."
+<</switch>>
 <<wearProp "lurker">>
 You take your netted lurker and give it to your <<if $monster is 1>><<nnpc_wife "Great Hawk">><<else>>partner<</if>>. <<npcincr "Great Hawk" love 1>><<glove>>
 <br><br>
@@ -4857,20 +5100,41 @@ You take your netted lurker and give it to your <<if $monster is 1>><<nnpc_wife 
 <br>
 
 :: Bird Tower Give Captured Lurker Accept
+<<speechresolve>>
 <<canvas-model-override "mouth" "chew">>
-<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
+<<switch _speechAttitudeResolved>>
+<<case "meek" "shy">>
 	"Thank you," you say.
-<<elseif $speech_attitude is "bratty">>
+<<case "polite">>
+	"Thank you," you say warmly.
+<<case "docile">>
+	"Thank you," you murmur.
+<<case "flamboyant">>
+	"Why, thank you," you say.
+<<case "bratty">>
 	"Well, thanks," you say.
-<<else>>
+<<case "cruel">>
+	"Fine. Thanks," you say.
+<<case "confident">>
 	"Thanks," you say.
-<</if>>
+<<default>>
+	"Thanks," you say.
+<</switch>>
 	You sit down next to the lurker and begin to eat. The <<beasttype>> also resumes <<bhis>> meal, and the two of you devour the lurker in companionable silence.
 	<br><br>
 <<if $monster is 1>>
 	<<if $bird.hunts.unlocked is false>>
 		"<<Wife>> should go hunting more often," <<bhe>> says after you've both polished off the lurker. "Maybe go hunting together sometime?" <<bHe>> seems keen on the idea.
-		You make a noncommittal <<if $speech_attitude is "bratty">>grunt<<else>>hum<</if>> and scooch over so that you're sitting next to <<bhim>>.
+		You make a noncommittal
+		<<switch _speechAttitudeResolved>>
+			<<case "meek" "shy" "polite" "docile">>hum
+			<<case "flamboyant">>little sing-song hum
+			<<case "bratty">>grunt
+			<<case "cruel">>snort
+			<<case "confident">>hum
+			<<default>>hum
+		<</switch>>
+		and scooch over so that you're sitting next to <<bhim>>.
 	<<else>>
 		"<<Wife>> hunts well, even alone," <<bhe>> says after you've both polished off the lurker. You scooch over so that you're sitting next to <<bhim>>.
 	<</if>>
@@ -4892,13 +5156,25 @@ You take your netted lurker and give it to your <<if $monster is 1>><<nnpc_wife 
 <br>
 
 :: Bird Tower Give Captured Lurker Refuse
-<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
+<<speechresolve>>
+<<switch _speechAttitudeResolved>>
+<<case "meek" "shy">>
 	"I'm not very hungry," you say. "You can have it."
-<<elseif $speech_attitude is "bratty">>
+<<case "polite">>
+	"No thank you. You can have it," you say.
+<<case "docile">>
+	"I'm alright. You can have it," you say softly.
+<<case "flamboyant">>
+	"No, darling. It's all yours," you say.
+<<case "bratty">>
 	"Nah. I'll pass," you say.
-<<else>>
+<<case "cruel">>
+	"Keep it. I don't want it," you say.
+<<case "confident">>
 	"No thanks," you say. "You can have it."
-<</if>>
+<<default>>
+	"No thanks," you say. "You can have it."
+<</switch>>
 <br><br>
 
 <<if $monster is 1>>
@@ -5274,16 +5550,20 @@ You lay down some fabric and leaves in your part of the nest. It will prevent an
 <br>
 
 :: Bird Tower Build Nest 2
+<<speechresolve>>
 <<setTowerTemp>><<effects>><<wearProp "leaf">>
 <<npc "Great Hawk">><<person1>>
 You join the Great Hawk at your nest.
 <<if ["rest","sleep"].includes($bird.activity)>>
 	You gently shake <<bhim>> awake.
 <</if>>
-<<switch $speech_attitude>>
-	<<case "meek">>"<<if $speech_attitude_special is "docile">>I-I'm sorry... but... <</if>>C-can we make it softer? It's kind of... rough," you say.
-	<<case "flamboyant" "special" "polite">>"Can we please make it softer? I don't have as many feathers as you, so it's a little rough on me," you say.
+<<switch _speechAttitudeResolved>>
+	<<case "docile">>"I-I'm sorry, but... could we make it softer? It's a little rough on me," you say.
+	<<case "meek" "shy">>"C-can we make it softer? It's kind of... rough," you say.
+	<<case "cruel">>"This nest is uncomfortable," you say. "Help me fix it properly."
 	<<case "bratty">>"I'm sick of getting poked by twigs," you say. "We're making it more comfortable."
+	<<case "polite" "flamboyant">>"Can we please make it softer? I don't have nearly as many feathers as you," you say.
+	<<case "confident">>"We should make this softer," you say. "It's a bit rough for me."
 	<<default>>"Here, let me help," you say. "I don't have as many feathers as you, so it's a little rough on me."
 <</switch>>
 <br><br>
@@ -5295,10 +5575,10 @@ You join the Great Hawk at your nest.
 <</if>>
 before starting to pick wood away.
 <<set _eggCount to Object.values($children).filter(child => child.location is "tower" and child.eggTimer).length>>
-<<if _eggcount>>
+<<if _eggCount>>
 	You gently remove your <<pluralise _eggCount "egg">> and place <<pluralise _eggCount "it" "them">> on a folded piece of fabric.
 <</if>>
-You layer leaves in between sticks, and add some larger pieces of wood for better support. You smooth down the inner nest and make a comfortable sheet of fabric over the surface.
+You layer leaves in between the sticks, tucking softer pieces into the gaps so the frame stops biting into your skin. After that, you add some larger pieces of wood for support, smooth down the inner nest, and stretch a comfortable sheet of fabric over the surface.
 <br><br>
 
 When you're finished, your spouse looks pleased.
@@ -5311,6 +5591,7 @@ When you're finished, your spouse looks pleased.
 <br>
 
 :: Bird Tower Build Nest 3
+<<speechresolve>>
 <<setTowerTemp>><<effects>>
 <<npc "Great Hawk">><<person1>>
 <<wearProp "toolbox">>
@@ -5321,10 +5602,13 @@ You join the Great Hawk at your nest, carrying some materials and the toolbox wi
 <<bHe>> looks at you curiously.
 <br><br>
 
-<<switch $speech_attitude>>
-	<<case "meek">>"<<if $speech_attitude_special is "docile">>I-I'm sorry... but... <</if>>I think we need to start over," you say. "I-if that's not too much to ask."
-	<<case "special" "flamboyant" "polite">>"I think we need to start over," you say. "I think it will be better this way."
+<<switch _speechAttitudeResolved>>
+	<<case "docile">>"I-I'm sorry, but... I think we need to start over," you say. "If that's alright."
+	<<case "meek" "shy">>"I think we need to start over," you say. "I-if that's not too much to ask."
+	<<case "cruel">>"This thing is barely fit for sleeping in," you say. "We're rebuilding it."
 	<<case "bratty">>"This thing sucks for humans," you say. "We're redoing it."
+	<<case "polite" "flamboyant">>"I think we should start over," you say. "It will be much better this way."
+	<<case "confident">>"We need to start over," you say. "Trust me, it'll be better this way."
 	<<default>>"We need to start over," you say. "Trust me, it will be better this way."
 <</switch>>
 <br><br>
@@ -5335,12 +5619,12 @@ You join the Great Hawk at your nest, carrying some materials and the toolbox wi
 	<<bHe>> chirps<<if understandsBirdBehaviour()>> mournfully, but seems to cheer up quickly<</if>>.
 <</if>>
 <<set _eggCount to Object.values($children).filter(child => child.location is "tower" and child.eggTimer).length>>
-<<if _eggcount>>
+<<if _eggCount>>
 	You gently remove your <<pluralise _eggCount "egg">> and place <<pluralise _eggCount "it" "them">> on a folded piece of fabric.
 <</if>>
 <br><br>
 
-You get to work demolishing the old nest. It doesn't take long. You throw out any old wood or leaves and sort anything still usable by size and strength.
+You get to work dismantling the old nest. It doesn't take long. You throw out the rotted wood and flattened leaves, then sort anything still usable by size and strength.
 You also make sure to save the fabric from your last improvements to the nest.
 <br><br>
 
@@ -5352,7 +5636,7 @@ Your spouse works on the nest itself, and the two of you lift the base of it ont
 While <<bhe>> finishes meticulously placing each stick and log, you begin to sew fabric and lurker leather into small sacks. You fill them with leaves and feathers. It's the closest thing you'll get to a pillow out here.
 <br><br>
 
-You fill the nest with leaves, and throw two sewn sheets of fabric over the top. They're large enough to hang over the edges. Finally, you throw in your makeshift pillows. All that's left is to test it out.
+You fill the nest with leaves, and throw two sewn sheets of fabric over the top. They're large enought to hang over the edges. Finally, you throw in your makeshift pillows. All that's left is to test it out.
 <br><br>
 
 <<link [[Climb in|Bird Tower Build Nest 4]]>><<handheldon>><<set $phase to 1>><</link>>
@@ -5386,13 +5670,17 @@ You allow yourself a moment of rest after a job well done. Your spouse cuddles u
 <br>
 
 :: Bird Tower Build Nest Sex Start
+<<speechresolve>>
 <<setTowerTemp>><<effects>>
 You slowly run your hands down the <<beasttypes>> feathers, towards <<bhis>> <<nnpc_genitals "Great Hawk">>.
-<<switch $speech_attitude>>
-	<<case "meek">>"W-we still need to make sure it won't fall apart on us while we're..." you start. You push yourself closer to <<bhim>>.
-	<<case "bratty" "confident">><<if $speech_attitude_special is "cruel">>"Well, now we ough to break it in," you say and throw one leg over <<bhim>>, giving <<bhim>> little choice but to agree.<<else>>"How about we break it in?" you ask. You throw one leg over <<bhim>>, giving <<bhim>> little choice.<</if>>
-	<<case "flam">>"We need to make sure it won't fall apart on us while we'r having fun" you say. You throw one leg over <<bhim>>, giving <<bhim>> little choice.
-	<<case "polite" "special">>"I think we should test how durable it is," you say, spreading your legs with a smile.
+<<switch _speechAttitudeResolved>>
+	<<case "docile">>"W-we should make sure it won't fall apart while we're... using it," you murmur, inching closer to <<bhim>>.
+	<<case "meek" "shy">>"W-we still need to make sure it won't fall apart on us while we're..." you start. You push yourself closer to <<bhim>>.
+	<<case "cruel">>"Well, now we ought to break it in," you say and throw one leg over <<bhim>>, giving <<bhim>> little choice but to agree.
+	<<case "bratty">>"How about we break it in?" you ask. You throw one leg over <<bhim>>, giving <<bhim>> little choice.
+	<<case "flamboyant">>"We need to make sure it won't fall apart on us while we're having fun," you say with a sly smile, throwing one leg over <<bhim>>.
+	<<case "polite">>"I think we should test how durable it is," you say, spreading your legs with a smile.
+	<<case "confident">>"Let's see how sturdy this nest really is," you say, drawing <<bhim>> closer.
 	<<default>>"We should test how durable it is," you say, spreading your legs with a smile.
 <</switch>>
 <<deviancy1>>
@@ -6569,6 +6857,7 @@ Flying with your <<if $monster is 1>><<nnpc_wife "Great Hawk">><<else>>partner<<
 <br>
 
 :: Bird Tower Mating Ritual
+<<speechresolve>>
 <<effects>>
 The Great Hawk dives directly towards you, talons extended.
 <<if !$bird.ritual>>
@@ -6580,9 +6869,13 @@ The Great Hawk dives directly towards you, talons extended.
 	<</if>>
 	<br><br>
 
-	<<switch $speech_attitude>>
-		<<case "meek" "special">><<if $speech_attitude_special is "docile">>"W-What... Wh-why?" you try to yell, but only a shaky voice comes out. Your expression terrified enough to tell though.<<else>>"W-What... Why did you do that!?" you yell with a shaky voice.<</if>>
+	<<switch _speechAttitudeResolved>>
+		<<case "docile">>"W-What... wh-why?" you try to yell, but only a shaky voice comes out.
+		<<case "meek" "shy">>"W-What... Why did you do that!?" you yell with a shaky voice.
+		<<case "cruel">>"What was that supposed to be?" you snap. "Try that again and make it count."
 		<<case "bratty">>"Hey! Why the hell did you try to hit me?!" you yell in frustration.
+		<<case "polite" "flamboyant">>"Why did you do that? You nearly hit me," you say, breathless.
+		<<case "confident">>"Why did you do that?! You nearly hit me!" you yell.
 		<<default>>"Why did you do that?! You nearly hit me!" you yell.
 	<</switch>>
 	<br><br>
@@ -6655,16 +6948,19 @@ The Great Hawk dives directly towards you, talons extended.
 
 
 :: Bird Tower Mating Ritual Return
+<<speechresolve>>
 <<set $location to "tower">><<set $outside to 0>><<effects>>
 <<if $phase is 0>>
-	You land back on the perch. You wait for <<your_bird_text>> to land, then walk into the tower and climb into the nest. You can feel your animalistic urges taking over, telling you to mate. You lie down in the nest and spread your legs.
+	You land back on the perch. You wait for <<your_bird_text>> to land, then walk into the tower and climb into the nest. Your pulse is still high from the flight, and the last of your restraint gives way to raw instinct. You lie back in the nest and spread your legs.
 	<br><br>
 
-	<<switch $speech_attitude>>
-		<<case "meek" "shy">><<if $speech_attitude_special is "docile">>"I-I've got very scared there but... I-it was also... exciting. Maybe you could show me what a big, fearsome <<beasttype>> like you can really do?" you chirp."<<else>>"You had me really scared back there. But it was also... exciting. How about you show me what a big, fearsome <<beasttype>> like you can really do?" you chirp."<</if>>
-		<<case "flamboyant" "polite">>"I-I'm sure you'll have children one day," you say.
-		<<case "bratty" "confident" "framboyant" "special">><<if $speech_attitude_special is "cruel">>"You really took me by surprise earlier. And it wasn't a pleasant one. You're going to properly apologise for what happened, right?" you coo, licking your lips.<<else>>"You really took me by surprise earlier. And it wasn't a pleasant one. You're going to properly apologise for what happened, right?" you coo, licking your lips.<</if>>
-		<<default>>"I'm sure you'll have children of your own some day," you say.
+	<<switch _speechAttitudeResolved>>
+		<<case "docile">>"I-I'm still a little scared, but... it was exciting too," you chirp. "Maybe you could show me a little more?"
+		<<case "meek" "shy">>"You had me really scared back there. But it was also... exciting. How about you show me what a big, fearsome <<beasttype>> like you can really do?" you chirp.
+		<<case "cruel">>"You gave me quite a fright earlier," you coo. "You're going to make up for that properly, aren't you?"
+		<<case "bratty" "confident">>"You really took me by surprise earlier. And it wasn't a pleasant one. You're going to properly apologise for what happened, right?" you coo, licking your lips.
+		<<case "polite" "flamboyant">>"You startled me, but... I think I'd like to see how a great hawk courts properly," you say.
+		<<default>>"That little display left me excited," you say. "Show me what a fearsome <<beasttype>> like you can really do."
 	<</switch>>
 	<<deviancy1>>
 
@@ -6679,9 +6975,12 @@ The Great Hawk dives directly towards you, talons extended.
 	You land back on the perch. You feel a heat building up inside you. You wait for <<your_bird_text>> to land and pull <<bhim>> into your arms. This takes <<bhim>> by surprise. You gently pull <<bhis>> head down, then bring your mouth to <<bhis>> ear and whisper.
 	<br><br>
 
-	<<switch $speech_attitude>>
-		<<case "meek">>"The way you and I were holding on to each other felt so... intimate. I want to feel even more of you now. Please."
-		<<case "bratty" "confident" "special">>"Holding on to you mid-air was really exciting. You got me really aroused. I can't wait any longer to have you."
+	<<switch _speechAttitudeResolved>>
+		<<case "docile">>"Th-the way we held onto each other felt so intimate... I want to feel more of you now. Please."
+		<<case "meek" "shy">>"The way you and I were holding on to each other felt so... intimate. I want to feel even more of you now. Please."
+		<<case "cruel">>"Holding onto you mid-air was exciting," you say. "Now finish what that started."
+		<<case "bratty" "confident">>"Holding on to you mid-air was really exciting. You got me really aroused. I can't wait any longer to have you."
+		<<case "polite" "flamboyant">>"The way we were linked together in the air felt strangely intimate," you say. "I want to feel more of you now."
 		<<default>>"The way we were linked up together in the air was so intimate. It made me want to feel the rest of your body against mine."
 	<</switch>>
 	<br><br>
@@ -6697,19 +6996,19 @@ The Great Hawk dives directly towards you, talons extended.
 	You land back on the perch. You wait for <<your_bird_text>> to land, then walk into the tower and climb into the nest. You call out to <<bhim>>.
 	<br><br>
 
-	<<switch $speech_attitude>>
+	<<switch _speechAttitudeResolved>>
+		<<case "docile">>
+			"You were really wonderful up there... I would be very happy if I could see a little more," you say softly.
 		<<case "meek" "shy">>
-			<<if $speech_attitude_special is "docile">>
-				"You know, you were really great flying like that... I would be very happy if I could... see a bit more?" Your words are quiet, yet seductive.
-			<<else>>
-				"I really liked seeing you fly. And I want to see more of you." Your words are quiet, yet seductive.
-			<</if>>
+			"I really liked seeing you fly. And I want to see more of you." Your words are quiet, yet seductive.
+		<<case "cruel">>
+			"All that flying left me wanting more," you say in a sultry tone. "Don't leave me waiting."
 		<<case "bratty">>
-			<<if $speech_attitude_special is "cruel">>
-				"I'm feeling tired after all that flying. I really need some good mating session right now to get the energy back," you say in a sultry tone.
-			<<else>>
-				"I'm feeling tired after all that flying. I think a good mating session would bring back some energy," you say in a sultry tone.
-			<</if>>
+			"I'm feeling tired after all that flying. I think a good mating session would bring back some energy," you say in a sultry tone.
+		<<case "confident">>
+			"All that flying around really got me in the mood," you say. "You're not going to leave me all hot and bothered, right?"
+		<<case "polite" "flamboyant">>
+			"You looked wonderful in the air," you say. "Come here and let me admire the rest of you too."
 		<<default>>"All that flying around really got me in the mood. You're not going to leave me all hot and bothered, right?" you ask, voice filled with arousal.
 	<</switch>>
 	<br><br>
@@ -7328,12 +7627,15 @@ You look up to the sky.
 <</if>>
 
 :: Bird Tower Eggs Reassure
+<<speechresolve>>
 <<setTowerTemp>><<effects>>
 <<if $syndromebird gte 1>>
-	<<switch $speech_attitude>>
-		<<case "meek">>"<<if $speech_attitude_special is "docile">>I-I'm sorry... but... <</if>>"W-we can always try again," you say.
+	<<switch _speechAttitudeResolved>>
+		<<case "docile">>"I-I'm sorry... but we can always try again," you say.
+		<<case "meek" "shy">>"W-we can always try again," you say.
+		<<case "cruel">>"No point sulking over it," you say. "We'll just try again."
 		<<case "bratty">>"Don't be such a downer, just means we have to try harder," you say.
-		<<case "flamboyant" "special" "polite">>"Please don't be upset, we can always try again," you say.
+		<<case "polite" "flamboyant">>"Please don't be upset, we can always try again," you say.
 		<<default>>"Don't be upset, we can always try again," you say.
 	<</switch>>
 	<br><br>
@@ -7354,10 +7656,12 @@ You look up to the sky.
 	<<run delete $bird.syndrome>>
 	<<specialClothesUnlock "set" "bird">>
 <<else>>
-	<<switch $speech_attitude>>
-		<<case "meek" "special">>"<<if $speech_attitude_special is "docile">>I-I'm sorry... but... <</if>>I-I'm sure you'll have children one day," you say.
-		<<case "flamboyant" "polite">>"Please don't worry. I'm sure you'll have children one day," you say.
-		<<case "bratty">><<if $speech_attitude_special is "cruel">>"No need for complaining, you get to try a lot more often than humans do," you say.<<else>>"You're lucky, you get to try a lot more often than humans do," you say.<</if>>
+	<<switch _speechAttitudeResolved>>
+		<<case "docile">>"I-I'm sorry... but I'm sure you'll have children one day," you say.
+		<<case "meek" "shy">>"I-I'm sure you'll have children one day," you say.
+		<<case "cruel">>"No point complaining. You get to try a lot more often than humans do," you say.
+		<<case "bratty">>"You're lucky, you get to try a lot more often than humans do," you say.
+		<<case "polite" "flamboyant">>"Please don't worry. I'm sure you'll have children one day," you say.
 		<<default>>"I'm sure you'll have children of your own some day," you say.
 	<</switch>>
 	<br><br>
@@ -7465,9 +7769,9 @@ You let out a short gasp as you feel
 	<</if>>
 <<else>>
 	<<if $eggLayNumber gte 2>>
-		<span class="lewd">$eggLayNumber eggs</span> pass through your _eggnantGenital and land in your nest.
+		<span class="lewd">$eggLayNumber eggs</span> pass through your <<= _eggnantGenital>> and land in your nest.
 	<<else>>
-		<span class="lewd">an egg</span> pass through your _eggnantGenital and lands in your nest.
+		<span class="lewd">an egg</span> passes through your <<= _eggnantGenital>> and lands in your nest.
 	<</if>>
 <</if>>
 <<if $pleasure gte $pleasuremax>>
@@ -7560,12 +7864,15 @@ You're filled with a sense of maternal bliss.
 <<unset $eggLayNumber>>
 
 :: Bird Tower Player Eggs Reassure
+<<speechresolve>>
 <<setTowerTemp>><<effects>>
 <<if $syndromebird gte 1>>
-	<<switch $speech_attitude>>
-		<<case "meek">>"<<if $speech_attitude_special is "docile">>I-I'm sorry... but... <</if>>"W-we can always try again," you say.
+	<<switch _speechAttitudeResolved>>
+		<<case "docile">>"I-I'm sorry... but we can always try again," you say.
+		<<case "meek" "shy">>"W-we can always try again," you say.
+		<<case "cruel">>"No point sulking over it," you say. "We'll just try again."
 		<<case "bratty">>"Don't be such a downer, just means we have to try harder," you say.
-		<<case "flamboyant" "special" "polite">>"Please don't be upset, we can always try again," you say.
+		<<case "polite" "flamboyant">>"Please don't be upset, we can always try again," you say.
 		<<default>>"Don't be upset, we can always try again," you say.
 	<</switch>>
 	<br><br>
@@ -7586,10 +7893,12 @@ You're filled with a sense of maternal bliss.
 	<<run delete $bird.syndrome>>
 	<<specialClothesUnlock "set" "bird">>
 <<else>>
-	<<switch $speech_attitude>>
-		<<case "meek" "special">>"<<if $speech_attitude_special is "docile">>I-I'm sorry... but... <</if>>I-I'm sure you'll have children one day," you say.
-		<<case "flamboyant" "polite">>"Please don't worry. I'm sure you'll have children one day," you say.
-		<<case "bratty">><<if $speech_attitude_special is "cruel">>"No need for complaining, birds get to try a lot more often than humans do," you say.<<else>>"You're lucky, birds get to try a lot more often than humans do," you say.<</if>>
+	<<switch _speechAttitudeResolved>>
+		<<case "docile">>"I-I'm sorry... but I'm sure you'll have children one day," you say.
+		<<case "meek" "shy">>"I-I'm sure you'll have children one day," you say.
+		<<case "cruel">>"No point complaining. Birds get to try a lot more often than humans do," you say.
+		<<case "bratty">>"You're lucky, birds get to try a lot more often than humans do," you say.
+		<<case "polite" "flamboyant">>"Please don't worry. I'm sure you'll have children one day," you say.
 		<<default>>"I'm sure you'll have children of your own some day," you say.
 	<</switch>>
 	<br><br>
@@ -7899,16 +8208,28 @@ You carefully pluck away the last bits of egg shell from <<if $eggsHatched.lengt
 <br>
 
 :: Bird Tower Forcefeed Insist
+<<speechresolve>>
 <<effects>>
 
 <<if $phase is 0>> /* Scold */
-	<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
+	<<switch _speechAttitudeResolved>>
+	<<case "meek" "shy">>
 		"I-I'm really not that hungry," you say, curling up around your rumbling stomach.
-	<<elseif $speech_attitude is "bratty">>
+	<<case "polite">>
+		"No thank you. I can't eat that," you say, despite your rumbling stomach.
+	<<case "docile">>
+		"I can't eat that," you murmur, hugging your stomach.
+	<<case "flamboyant">>
+		"Absolutely not. I have standards," you say, even as your stomach complains.
+	<<case "bratty">>
 		"There's no way I'm eating that thing," you say, ignoring your rumbling stomach.
-	<<else>>
+	<<case "cruel">>
+		"I'd rather stay hungry than eat that," you snap.
+	<<case "confident">>
 		"I can't eat that," you say, even as your stomach rumbles.
-	<</if>>
+	<<default>>
+		"I can't eat that," you say, even as your stomach rumbles.
+	<</switch>>
 <<else>> /* Do nothing */
 	You turn your head away, ignoring the way your stomach rumbles.
 <</if>>
@@ -7972,6 +8293,7 @@ You shake your head, insisting that you don't want any.
 <</if>>
 
 :: Bird Tower Forcefeed
+<<speechresolve>>
 <<effects>>
 
 <<if $phase is 0>> /* Eat */
@@ -7984,7 +8306,7 @@ You shake your head, insisting that you don't want any.
 	The <<beasttype>> coos as you swallow, pressing another chunk to your lips. <<if $monster is 1>>"There we go, eat up." <</if>>You try turning your head away, but the <<beasttype>> just adjusts <<bhis>> angle of attack until you relent and let <<bhim>> keep feeding you. It's humiliating, but there's nothing you can do to stop <<bhim>>.<<stress 6>><<trauma 12>><<gstress>><<ggtrauma>>
 <</if>>
 <br><br>
-Soon your belly is full, and the <<beasttype>> <<= $phase is 0 ? "backs off" : "releases you">>.
+Soon your belly is full, and the <<beasttype>> <<= $phase is 0 ? "backs off with visible reluctance" : "finally releases you">>.
 <<if $monster is 1>>
 	"That wasn't so bad, was it?" <<bhe>> asks, looking you over, before ruffling <<bhis>> plumes and turning away. "<<Wife>> can eat the next one <<pherself>>."
 <<else>>
@@ -7996,13 +8318,24 @@ Soon your belly is full, and the <<beasttype>> <<= $phase is 0 ? "backs off" : "
 	As <<bhe>> does, you find yourself reaching out for <<bhim>>. <<bHe>> pauses, looking back at you, and for a moment you find yourself overwhelmed by emotion. <<bHes>> trying so hard to take care of you, in <<bhis>> own way. Have you ever felt that sort of kindness anywhere else? You've never had anyone go to such lengths to make sure you don't go hungry. Certainly not at the orphanage.
 	<br><br>
 	You step closer and hug the <<beasttype>> with all your strength. The <<beasttype>> squawks in surprise, then gently wraps <<bhis>> wings around you as well.
-	<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
+	<<switch _speechAttitudeResolved>>
+	<<case "meek" "shy">>
 		"Thank you for feeding me,"
-	<<elseif $speech_attitude is "bratty">>
+	<<case "polite">>
+		"Thank you for the food,"
+	<<case "docile">>
+		"Thanks for feeding me,"
+	<<case "flamboyant">>
+		"That was surprisingly decent, thank you,"
+	<<case "bratty">>
 		"That one wasn't awful,"
-	<<else>>
+	<<case "cruel">>
+		"That was barely acceptable,"
+	<<case "confident">>
 		"Thanks for the food,"
-	<</if>>
+	<<default>>
+		"Thanks for the food,"
+	<</switch>>
 	you say, slightly muffled by the <<beasttype>>'s plumage.
 	<br><br>
 	<<if $monster is 1>>

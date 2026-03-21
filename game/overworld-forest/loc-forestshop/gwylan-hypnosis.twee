@@ -1,13 +1,18 @@
 :: Gwylan Hypnosis Start
 <<effects>><<run statusCheck("Gwylan")>>
 <<set _hideHypnosisOptions to true>>
+<<speechresolve>>
 
 <<if $gwylan.requestLast?.hold is $phase>>
-	<<switch $speech_attitude>>
-		<<case "meek">>
+	<<switch _speechAttitudeResolved>>
+		<<case "meek" "shy">>
 			"C-can we continue now, please?" you ask.
-		<<case "bratty">>
+		<<case "polite" "docile" "flamboyant">>
+			"May we continue where we left off now, please?" you ask.
+		<<case "bratty" "cruel">>
 			"Alright, I did what you wanted, can we continue now?" you ask.
+		<<case "confident" "special">>
+			"Can we continue now?" you ask. "I want to finish this."
 		<<default>>
 			"May we continue where we left off now?" you ask.
 	<</switch>>
@@ -15,40 +20,49 @@
 	<<switch $phase>>
 		<<case "peace">>
 			<<if !$gwylanSeen.includes("hypnosis_peace")>>
-				<<switch $speech_attitude>>
-					<<case "meek">>"Y-you said you could help me with this," you say, gesturing to your unusual parts.
-					<<case "bratty" "confident" "special">>"So, can you help me with all this?" you ask, gesturing to your unusual parts.
+				<<switch _speechAttitudeResolved>>
+					<<case "meek" "shy">>"Y-you said you could help me with this," you say, gesturing to your unusual parts.
+					<<case "polite" "docile" "flamboyant">>"You said you could help me with my inner self," you say, gesturing to your unusual parts.
+					<<case "bratty" "cruel" "confident">>"So, can you help me with all this?" you ask, gesturing to your unusual parts.
 					<<default>>"You said you could help me with my inner self," you say, gesturing to your unusual parts.
 				<</switch>>
 			<<else>>
-				<<switch $speech_attitude>>
-					<<case "meek">>"C-can you help me with my inner self again?" you ask.
-					<<case "bratty" "confident">>"I need your help keeping my inner self under control again," you say.
+				<<switch _speechAttitudeResolved>>
+					<<case "meek" "shy">>"C-can you help me with my inner self again?" you ask.
+					<<case "polite" "docile" "flamboyant">>"Could you help me come to terms with my inner self again?" you ask.
+					<<case "bratty" "cruel" "confident">>"I need your help keeping my inner self under control again," you say.
 					<<default>>"Could you help me come to terms with my inner self again?" you ask.
 				<</switch>>
 			<</if>>
 		<<case "silence">>
-			<<switch $speech_attitude>>
-				<<case "meek">>"C-can you make <<if numberOfEarSlime() gt 1>>these things in my ears<<else>>this thing in my ear<</if>> stop?" you ask.
-				<<case "bratty" "special">>"Please, for the love of god, shut <<if numberOfEarSlime() gt 1>>these things in my ears<<else>>this thing in my ear<</if>> up," you say.
+			<<switch _speechAttitudeResolved>>
+				<<case "meek" "shy">>"C-can you make <<if numberOfEarSlime() gt 1>>these things in my ears<<else>>this thing in my ear<</if>> stop?" you ask.
+				<<case "polite" "docile" "flamboyant">>"Could you help me with <<if numberOfEarSlime() gt 1>>these things in my ears<<else>>this thing in my ear<</if>>?" you ask.
+				<<case "bratty" "cruel" "special">>"Please, for the love of god, shut <<if numberOfEarSlime() gt 1>>these things in my ears<<else>>this thing in my ear<</if>> up," you say.
 				<<default>>"Could you help me with <<if numberOfEarSlime() gt 1>>these things in my ears<<else>>this thing in my ear<</if>>?" you ask.
 			<</switch>>
 		<<case "slumber">>
-			<<switch $speech_attitude>>
-				<<case "meek">>"I-I've been having trouble sleeping," you say. "Can you help?"
-				<<case "bratty" "flamboyant" "special">>"I need my beauty sleep, but it's not coming easy," you say. "Can you help?"
+			<<switch _speechAttitudeResolved>>
+				<<case "meek" "shy">>"I-I've been having trouble sleeping," you say. "Can you help?"
+				<<case "polite" "docile">>"I've been having trouble sleeping," you say. "Could you help me?"
+				<<case "flamboyant">>"I need my beauty sleep, and lately it's been impossible," you say. "Can you help?"
+				<<case "bratty" "cruel" "special">>"I need my beauty sleep, but it's not coming easy," you say. "Can you help?"
+				<<case "confident">>"I've been having trouble sleeping," you say. "I need help fixing it."
 				<<default>>"I've been having trouble sleeping. Can you help?" you ask.
 			<</switch>>
 		<<case "insight">>
-			<<switch $speech_attitude>>
+			<<switch _speechAttitudeResolved>>
 				<<case "meek" "shy">>"I-I've been seeing things," you say. "Can you help?"
-				<<case "bratty">>"I think I'm losing it. I'm seeing things that can't be real," you say. "Can you help?"
+				<<case "polite" "docile" "flamboyant">>"I've been seeing things I know shouldn't be there," you say. "Can you help?"
+				<<case "bratty" "cruel">>"I think I'm losing it. I'm seeing things that can't be real," you say. "Can you help?"
+				<<case "confident" "special">>"I've been seeing things that aren't real," you say. "Can you help me sort it out?"
 				<<default>>"I've been seeing things. Can you help?" you ask.
 			<</switch>>
 		<<case "removal">>
-			<<switch $speech_attitude>>
-				<<case "meek">>"I-I think someone else is in my head," you say. "Can you make it stop?"
-				<<case "bratty" "confident">>"Someone's got my brain in a twist, I think. Can you help?" you ask.
+			<<switch _speechAttitudeResolved>>
+				<<case "meek" "shy">>"I-I think someone else is in my head," you say. "Can you make it stop?"
+				<<case "polite" "docile" "flamboyant">>"I don't feel like myself," you explain. "I think someone else hypnotised me. Can you help?"
+				<<case "bratty" "cruel" "confident">>"Someone's got my brain in a twist, I think. Can you help?" you ask.
 				<<default>>"I don't feel like myself. I have strange impulses, and I think someone else hypnotised me," you explain.
 			<</switch>>
 		<<default>>
@@ -465,9 +479,13 @@ Gwylan leaves momentarily, returning with a tray that holds a teacup, many herbs
 :: Gwylan Hypnosis Peace
 <<effects>><<run statusCheck("Gwylan")>>
 <<if $phase is "attention">>
-	<<switch $speech_attitude>>
-		<<case "meek">>"Everyone looks at me funny," you say. "More than usual."
-		<<case "bratty" "flamboyant" "special">>"Too many people get the wrong idea," you say.
+	<<speechresolve>>
+	<<switch _speechAttitudeResolved>>
+		<<case "meek" "shy">>"Everyone looks at me funny," you say. "More than usual."
+		<<case "polite" "docile">>"I get too many looks," you say. "I got too many before all this, it's just worse now."
+		<<case "flamboyant">>"Too many people get the wrong idea," you say. "And they're rarely subtle about it."
+		<<case "bratty" "cruel" "special">>"Too many people get the wrong idea," you say.
+		<<case "confident">>"People stare too much," you say. "It was bad before. Now it's worse."
 		<<default>>"I get too many looks," you say. "I got too many before all this, it's just worse now."
 	<</switch>>
 	<br><br>
@@ -483,9 +501,12 @@ Gwylan leaves momentarily, returning with a tray that holds a teacup, many herbs
 		"I understand. It's difficult enough without them."
 	<</if>>
 <<elseif $phase is "identity">>
-	<<switch $speech_attitude>>
+	<<speechresolve>>
+	<<switch _speechAttitudeResolved>>
 		<<case "meek" "shy">>"I didn't want this," you say. "It just happened."
-		<<case "bratty">>"I didn't ask for it," you say. "It just happened to me, but it's not me."
+		<<case "polite" "docile" "flamboyant">>"I'm not comfortable with this," you say. "It doesn't feel like me."
+		<<case "bratty" "cruel">>"I didn't ask for it," you say. "It just happened to me, but it's not me."
+		<<case "confident" "special">>"This isn't who I am," you say. "Something happened to me."
 		<<default>>"I'm not comfortable with this," you say. "It's not me."
 	<</switch>>
 	<br><br>
@@ -595,28 +616,36 @@ Gwylan leaves momentarily, returning with a tray that holds a teacup, many herbs
 		<<He>> looks away, but you think you see the slightest hint of sadness on <<his>> face as <<he>> does.
 	<</if>>
 <<elseif $phase is "cow">>
-	<<switch $speech_attitude>>
-		<<case "meek">>"It's too... dehumanising," you say. "I was treated like a real cow on that farm. I can't move on if I look like this."
-		<<case "bratty" "special" "flamboyant">>"I hate it. I hate what that farm did to me. I hate feeling ashamed for wanting to act human."
-		<<default>>"It brings backs memories of the farm. I can't stand it."
+	<<speechresolve>>
+	<<switch _speechAttitudeResolved>>
+		<<case "meek" "shy">>"It's too... dehumanising," you say. "I was treated like a real cow on that farm. I can't move on if I look like this."
+		<<case "polite" "docile">>"It brings back memories of the farm," you say. "I can't stand it."
+		<<case "flamboyant">>"I hate it. I hate what that farm did to me. I hate feeling ashamed for wanting to act human."
+		<<case "bratty" "cruel" "special">>"I hate it. I hate what that farm did to me. I hate feeling ashamed for wanting to act human."
+		<<case "confident">>"It drags me right back to that farm," you say. "I can't stand looking like this."
+		<<default>>"It brings back memories of the farm. I can't stand it."
 	<</switch>>
 	<br><br>
 
 	Gwylan nods solemnly.
 <<elseif $phase is "purity">>
-	<<switch $speech_attitude>>
-		<<case "meek">>"I can't ever be pure again, but... I at least want to go back to the way I was before," you say.
-		<<case "bratty">>"I don't want to think about how I was before anymore," you say.
+	<<speechresolve>>
+	<<switch _speechAttitudeResolved>>
+		<<case "meek" "shy">>"I can't ever be pure again, but... I at least want to go back to the way I was before," you say.
+		<<case "polite" "docile" "flamboyant">>"It's nothing but a reminder of what things were like before," you say.
+		<<case "bratty" "cruel">>"I don't want to think about how I was before anymore," you say.
 		<<default>>"It's nothing but a reminder of what things were like before," you say.
 	<</switch>>
 	<br><br>
 
 	"You can't erase it," <<he>> says quickly. "There's no erasing it, ever. There's no forgetting either. There's only acceptance, or misery." <<He>> smiles. "Let's work on the former."
 <<else>>
-	<<switch $speech_attitude>>
+	<<speechresolve>>
+	<<switch _speechAttitudeResolved>>
 		<<case "meek" "shy">>"I... I'm in..." You can't muster the words.
-		<<case "bratty">>"I'm bothered. Sexually. Like an animal."
-		<<default>>"It's that time of year," you say, trying to hide your embarassment.
+		<<case "polite" "docile" "flamboyant">>"It's that time of year," you say, trying to hide your embarrassment.
+		<<case "bratty" "cruel">>"I'm bothered. Sexually. Like an animal."
+		<<default>>"It's that time of year," you say, trying to hide your embarrassment.
 	<</switch>>
 	<br><br>
 
@@ -2307,9 +2336,9 @@ A flash of green light disorients you further, then you find yourself on your ha
 
 :: Gwylan Hypnosis Insight Ask
 <<effects>>
-<<if ($speech_attitude is "meek" or $speech_attitude is "shy" or $speech_attitude is "polite" or $speech_attitude is "flamboyant")>>
+<<speechresolve>><<if ((_speechAttitudeResolved is "meek") or (_speechAttitudeResolved is "shy") or (_speechAttitudeResolved is "polite") or (_speechAttitudeResolved is "docile") or (_speechAttitudeResolved is "flamboyant"))>>
 	"I hope it's not impudent," you say. "But can you share some details on how this works?"
-<<elseif $speech_attitude is "bratty">>
+<<elseif ((_speechAttitudeResolved is "bratty") or (_speechAttitudeResolved is "cruel"))>>
 	"What was that thing in the water?" you ask. "It'll be easier to remember if you tell me what's going on."
 <<else>>
 	"What's watching me from the water?" you ask. "What did you do?"
@@ -2362,9 +2391,11 @@ The incense has burned out. "Be aware. Perspectives can change." <<He>> starts t
 
 		Gwylan frowns. "I'll have to dig around in your head some more, then."
 	<<else>>
-		<<switch $speech_attitude>>
-			<<case "meek">>"Th-there's this doctor, named Harper. <<nnpc_Hes "Harper">> been giving me treatments, but they don't feel right."
-			<<case "bratty">>"There's this quack named Harper. <<nnpc_Hes "Harper">> been giving me treatments, but they're... not right."
+		<<speechresolve>>
+		<<switch _speechAttitudeResolved>>
+			<<case "meek" "shy">>"Th-there's this doctor, named Harper. <<nnpc_Hes "Harper">> been giving me treatments, but they don't feel right."
+			<<case "polite" "docile" "flamboyant">>"There's this doctor named Harper. <<nnpc_He "Harper">> keeps giving me these strange treatments, and they feel wrong, somehow."
+			<<case "bratty" "cruel">>"There's this quack named Harper. <<nnpc_Hes "Harper">> been giving me treatments, but they're... not right."
 			<<default>>"There's this doctor named Harper. <<nnpc_He "Harper">> keeps giving me these strange treatments, and they feel wrong, somehow."
 		<</switch>>
 		You think for a moment. "I can't remember why, though."
@@ -2378,9 +2409,11 @@ The incense has burned out. "Be aware. Perspectives can change." <<He>> starts t
 	<</if>>
 	<<set $gwylanSeen.pushUnique("hypnosis_removal_suggestion")>>
 <<elseif $phase is "scream">>
-	<<switch $speech_attitude>>
-		<<case "meek" "special" "shy">>"Whenever I... feel helpless, and like I want to scream for help, I end up hurting all over."
-		<<case "bratty">>"There are times when I feel like I need to yell for someone to help me. Every time I do, I end up with bruises."
+	<<speechresolve>>
+	<<switch _speechAttitudeResolved>>
+		<<case "meek" "shy">>"Whenever I... feel helpless, and like I want to scream for help, I end up hurting all over."
+		<<case "polite" "docile" "flamboyant">>"Whenever I feel like I need to scream for help, I end up with bruises all over."
+		<<case "bratty" "cruel">>"There are times when I feel like I need to yell for someone to help me. Every time I do, I end up with bruises."
 		<<default>>"Whenever I feel like I need to scream for help, I end up with bruises all over."
 	<</switch>>
 	<br><br>
@@ -2709,10 +2742,13 @@ It's Gwylan. "Caught you," <<he>> giggles, straddling you. "I saw you running, d
 :: Gwylan Hypnosis Removal Deviancy 2
 <<effects>><<run statusCheck("Gwylan")>>
 <<if $phase2 is 1>>
-	<<switch $speech_attitude>>
-		<<case "meek">>
-			You look down in shame. "I was running from the scary beasts," you say. "I ran for so long, though. I gave up, I thought it would be easier if I just..."
-		<<case "bratty">>
+	<<speechresolve>>
+	<<switch _speechAttitudeResolved>>
+		<<case "meek" "shy">>
+			You look down in shame. "I was running from the scary beasts," you say. "I ran for so long, though. I gave up. I thought it would be easier if I just..."
+		<<case "polite" "docile" "flamboyant">>
+			You look away. "I was running from the animals. I thought I could outrun them, but I got so tired, I thought it would hurt less if I..."
+		<<case "bratty" "cruel">>
 			You look down and cross your arms. "I was running from... some kind of beast," you say. "But I ran out of energy, and figured it would go by faster if I..."
 		<<default>>
 			You look away. "I was running from the animals. I thought I could outrun them, but I got so tired, I thought it would hurt less if I..."
@@ -2982,11 +3018,16 @@ Gwylan leads you back into the shop. "If there's anything else I can do for you,
 <<effects>><<run statusCheck("Gwylan")>>
 <<if $phase2 is 2 or $phase2 is 3>>
 	<<if $phase2 is 2>> /* Initial passage */
-		<<switch $speech_attitude>>
-			<<case "meek">>
+		<<speechresolve>>
+		<<switch _speechAttitudeResolved>>
+			<<case "meek" "shy">>
 				You slowly drop to your knees. "P-please," you start. "I want this."
-			<<case "bratty">>
+			<<case "polite" "docile" "flamboyant">>
+				You slowly sit down. "I want to go deeper," you say. "Really."
+			<<case "bratty" "cruel">>
 				You sit cross-legged. "I want this," you say. "Really."
+			<<case "confident" "special">>
+				You lower yourself to the floor and hold his gaze. "I want this," you say. "Take me deeper."
 			<<default>>
 				You slowly sit down. "I want to go deeper," you say. "Really."
 		<</switch>>
@@ -2994,11 +3035,14 @@ Gwylan leads you back into the shop. "If there's anything else I can do for you,
 
 		<<He>> locks eyes with you. "Why?" Your head pounds painfully. <<pain 2>><<gpain>>
 	<<else>> /* You want the hypnosis for its effects */
-		<<switch $speech_attitude>>
-			<<case "meek">>
+		<<speechresolve>>
+		<<switch _speechAttitudeResolved>>
+			<<case "meek" "shy">>
 				"It's just... the only way," you say quietly. "The only way to
-			<<case "bratty">>
+			<<case "bratty" "cruel">>
 				"Because I don't have any other options," you say firmly. "It's the only way to
+			<<case "confident" "special">>
+				"I don't see another way through this," you say. "It's the only way to
 			<<default>>
 				"It's the only way," you say, shrugging. "The only way to
 		<</switch>>
@@ -3057,10 +3101,13 @@ Gwylan leads you back into the shop. "If there's anything else I can do for you,
 <<elseif $phase2 is 4 or $phase2 is 5 or $phase2 is 6>>
 	<<if $phase2 is 4>> /* It makes you feel safe */
 		You cross your arms over your chest.
-		<<switch $speech_attitude>>
-			<<case "meek">>
+		<<speechresolve>>
+		<<switch _speechAttitudeResolved>>
+			<<case "meek" "shy">>
 				"It... it makes me feel safe," you say. "You make me feel safe."
-			<<case "bratty">>
+			<<case "polite" "docile" "flamboyant">>
+				"It makes me feel safe," you say. "Like you'll protect me from everything."
+			<<case "bratty" "cruel">>
 				"The world is fucking scary," you say. "But what you do to me makes it feel safer."
 			<<default>>
 				"It makes me feel safe," you say. "Like you'll protect me from everything."
@@ -3070,10 +3117,11 @@ Gwylan leads you back into the shop. "If there's anything else I can do for you,
 		<<He>> looks at you sadly. "I'm not convinced."
 	<<elseif $phase2 is 5>> /* You like feeling closer */
 		You shuffle a little closer to <<him>>.
-		<<switch $speech_attitude>>
-			<<case "meek">>
+		<<speechresolve>>
+		<<switch _speechAttitudeResolved>>
+			<<case "meek" "shy">>
 				"I... I like how close it makes me feel to you," you say.
-			<<case "bratty">>
+			<<case "bratty" "cruel">>
 				"I want to feel closer to you," you say. "Willingly."
 			<<default>>
 				"I like feeling this close to you," you say. "I want more."
@@ -3111,10 +3159,11 @@ Gwylan leads you back into the shop. "If there's anything else I can do for you,
 		"What was that? I didn't hear you." <<He>> crouches down to your eye level.
 		<br><br>
 
-		<<switch $speech_attitude>>
-			<<case "meek">>
+		<<speechresolve>>
+		<<switch _speechAttitudeResolved>>
+			<<case "meek" "shy">>
 				"P-please!" you say louder.
-			<<case "bratty">>
+			<<case "bratty" "cruel">>
 				You sigh and roll your eyes. "Pleeeeeease," you say.
 			<<default>>
 				"Please," you say louder.
@@ -3123,8 +3172,10 @@ Gwylan leads you back into the shop. "If there's anything else I can do for you,
 
 		"Please what?" <<He>> cups your cheek. "Tell me you want to do everything I say without question."
 	<<else>> /* Bark like a dog */
-		<<if $speech_attitude is "meek">>
+		<<speechresolve>><<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 			You straighten up on your knees,
+		<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "docile" or _speechAttitudeResolved is "flamboyant")>>
+			You gather yourself and settle onto your knees,
 		<<else>>
 			You shift around to get on your knees,
 		<</if>>
@@ -3176,11 +3227,14 @@ Gwylan leads you back into the shop. "If there's anything else I can do for you,
 	<<set $hypnosisTimers.devotion.time to Math.clamp($hypnosisTimers.devotion.time, 75, 95)>>
 <</if>>
 You muster your willpower to make sure it sounds like you mean it.
-<<switch $speech_attitude>>
+<<speechresolve>>
+<<switch _speechAttitudeResolved>>
 	<<case "meek" "shy">>
 		"I w-want... I want to do everything you say."
-	<<case "bratty" "confident">>
+	<<case "bratty" "cruel" "confident">>
 		"I want to do everything you say. Without question."
+	<<case "special">>
+		"I want to do everything you say," you murmur. "Without question."
 	<<default>>
 		"I want to... do everything you say... without question."
 <</switch>>
@@ -3241,20 +3295,20 @@ You lean forward and close the minuscule remaining distance, kissing <<him>>.
 
 :: Gwylan Hypnosis Deepest Love 2
 <<effects>><<run statusCheck("Gwylan")>>
-<<switch $speech_attitude>>
-	<<case "meek" "polite" "flamboyant" "shy">>
+<<speechresolve>>
+<<switch _speechAttitudeResolved>>
+	<<case "meek" "shy">>
 		"You're so insensitive! Say it back!" you pout.
-	<<case "bratty">>
+	<<case "bratty" "cruel">>
 		You clear your throat. <<He>> looks back at you.
 		<br><br>
-
 		"Well?" you say.
 		<br><br>
-
 		"Out the front door and to the left, mind the winch, it's a bit rusty," <<he>> responds.
 		<br><br>
-
 		"Say it back, smartass."
+	<<case "confident" "special">>
+		"Don't dodge me," you say. "Say it back."
 	<<default>>
 		"How rude," you say. "Say it back."
 <</switch>>
@@ -3269,22 +3323,22 @@ You lean forward and close the minuscule remaining distance, kissing <<him>>.
 :: Gwylan Talk Ear Slime
 <<effects>><<run statusCheck("Gwylan")>>
 <<set $gwylanSeen.pushUnique("ear_slime")>>
-<<if $gwylanJordanSlime>>
-	<<switch $speech_attitude>>
-		<<case "meek">>
+<<speechresolve>><<if $gwylanJordanSlime>>
+	<<switch _speechAttitudeResolved>>
+		<<case "meek" "shy">>
 			"S-someone told me you can help with something in my <<pluralise numberOfEarSlime(true) "ear">>," you say.
-		<<case "bratty" "confident">>
+		<<case "bratty" "cruel" "confident">>
 			"I heard that you can stop <<if numberOfEarSlime(true) gte 2>>these demons<<else>>this demon<</if>> in my ear from whispering sweet nothings," you say.
 		<<default>>
 			"Jordan said you can help me with <<if numberOfEarSlime(true) gte 2>>these things that are<<else>>this thing that's<</if>> whispering in my ear," you say.
 	<</switch>>
 <<else>>
-	<<switch $speech_attitude>>
-		<<case "meek">>
+	<<switch _speechAttitudeResolved>>
+		<<case "meek" "shy">>
 			"S-so, you said you can help with my intrusive thoughts?"
-		<<case "bratty" "confident">>
-			<<if $speech_attitude_special is "cruel">>
-				"I heard that you can get <<if numberOfEarSlime(true) gte 2>>these things ou my ears<<else>>this thing out of my ear<</if>>."
+		<<case "bratty" "cruel" "confident">>
+			<<if (_speechAttitudeResolved is "cruel")>>
+				"I heard that you can get <<if numberOfEarSlime(true) gte 2>>these things out of my ears<<else>>this thing out of my ear<</if>>."
 			<<else>>
 				"Please tell me you actually know how to get <<if numberOfEarSlime(true) gte 2>>these things out of my ears<<else>>this thing out of my ear<</if>>."
 			<</if>>
@@ -3333,10 +3387,11 @@ Not only will you have to hold your breath for a very long time, <span class="re
 
 :: Gwylan Talk Ear Slime Clothes
 <<effects>><<run statusCheck("Gwylan")>>
-<<switch $speech_attitude>>
-	<<case "meek">>
+<<speechresolve>>
+<<switch _speechAttitudeResolved>>
+	<<case "meek" "shy">>
 		"I-I can't wear those clothes," you say. "The <<pluralise numberOfEarSlime(true) "slime">> in my head won't let me."
-	<<case "bratty">>
+	<<case "bratty" "cruel">>
 		"I can't dress up for you," you say. "The <<pluralise numberOfEarSlime(true) "devil">> in my <<pluralise numberOfEarSlime(true) "ear">> won't permit it."
 	<<default>>
 		"I can't wear the clothes you asked me to," you say. "The <<pluralise numberOfEarSlime(true) "parasite">> in my head won't let me."

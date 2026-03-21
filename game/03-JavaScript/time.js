@@ -649,6 +649,24 @@ function ensureBrothelVendingState() {
 	return true;
 }
 
+function speechDailyCheck() {
+	if (V.statFreeze) return;
+
+	delete V.speechDailyMessage;
+	delete V.speechDailyMessagePending;
+
+	if (V.speech_attitude === "fickle") {
+		const pool = ["meek", "shy", "neutral", "confident", "bratty"];
+		V.speechDailyAttitude = pool[random(0, pool.length - 1)];
+		V.speechDailyAttitudeDay = Time.days;
+		V.speechDailyMessage = `Today you feel especially ${V.speechDailyAttitude}.`;
+		V.speechDailyMessagePending = 1;
+	} else {
+		delete V.speechDailyAttitude;
+		delete V.speechDailyAttitudeDay;
+	}
+}
+
 function dayPassed(days) {
 	Weather.sky.initSun();
 
@@ -1048,6 +1066,8 @@ function dayPassed(days) {
 			localStorage.setItem("hopelessCycle", localStorage.getItem("hopelessCycle").split(",").concatUnique(V.hcEndings));
 
 		V.daily.clearProperties();
+
+		speechDailyCheck();
 
 		if (V.stallDeposit >= 3000) {
 			V.stallDeposit -= 3000;

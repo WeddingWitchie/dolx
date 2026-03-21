@@ -294,20 +294,33 @@ You are in the archaeological office at the lake. Green tent walls surround a sp
 
 :: Lake Office Ask
 <<set $outside to 0>><<location "lake_office">><<effects>>
+<<speechresolve>>
 <<set $winterLakeTalk = ($winterLakeTalk || 0)>>
 <<if $winterLakeTalk is 0>>
-	<<if $speech_attitude is "meek">>
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 		"Was... was this worth it? Have you learned anything?"
-	<<elseif $speech_attitude is "bratty">>
+	<<elseif _speechAttitudeResolved is "docile">>
+		"Have you learned anything? I just wanted to ask."
+	<<elseif _speechAttitudeResolved is "flamboyant">>
+		"So, has this whole grand project paid off? Learned anything exciting?"
+	<<elseif _speechAttitudeResolved is "cruel">>
+		"Well? Was all this effort worth it, or are you still stuck guessing?"
+	<<elseif _speechAttitudeResolved is "bratty">>
 		"So, was this whole project worth the money? Did you learn anything?"
 	<<else>>
 		"Has the office been helpful? Did you learn anything?"
 	<</if>>
 <<else>>
-	<<if $speech_attitude is "meek">>
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 		"H-have you learned anything new?"
-	<<elseif $speech_attitude is "bratty">>
-		"Anything new?"
+	<<elseif _speechAttitudeResolved is "polite">>
+		"Have you learned anything new?"
+	<<elseif _speechAttitudeResolved is "docile">>
+		"Anything new since last time?"
+	<<elseif _speechAttitudeResolved is "flamboyant">>
+		"Anything new for me?"
+	<<elseif _speechAttitudeResolved is "cruel">>
+		"Anything new, or are you still treading water?"
 	<<else>>
 		"What's new?"
 	<</if>>
@@ -452,10 +465,19 @@ you ask.
 
 :: Lake Office Ask Bog
 <<set $outside to 0>><<location "lake_office">><<effects>>
+<<speechresolve>>
 <<set $bogProgress to 2>><<set $weekly.winterLakeTalk to false>>
-<<if $speech_attitude is "meek">>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 	"You were right about that brook, it leads into a scary bog," you say. "It looks dangerous."
-<<elseif $speech_attitude is "bratty">>
+<<elseif _speechAttitudeResolved is "polite">>
+	"You were right about the brook. It leads into a bog," you say. "I thought you should know."
+<<elseif _speechAttitudeResolved is "docile">>
+	"You were right about the brook," you say. "It leads into a bog, and it looks dangerous."
+<<elseif _speechAttitudeResolved is "flamboyant">>
+	"You were absolutely right about the brook," you say. "It spills into a dreadful bog. Very dramatic, very dangerous."
+<<elseif _speechAttitudeResolved is "cruel">>
+	"You were right about the brook. It leads into a bog," you say. "Nasty place. You really should've sent someone else first."
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "confident")>>
 	"You're right on the money about the brook, it leads into a bog," you say. "I went and looked for you. Aren't I sweet?"
 <<else>>
 	"You were right about the brook. It leads into a bog," you say.
@@ -1055,15 +1077,14 @@ You warm yourself against the heat emanating from the fireplace.
 <<fameschoolex 5>>
 <<generatey1>><<generatey2>>
 <<if ($phase is 0 and ($uncomfortable.nude is false) or ($phase is 1 and $uncomfortable.underwear is false))>>
-	In a moment of daring, you casually emerge from the lake despite your <<lewdness>>. <<flaunting>> you stroll right past a group of students.
-	It takes a moment for anyone to notice, but eventually a <<person1>><<person>> gasps and points at you, drawing the attention of several more.
+	Heart pounding, you rise from the lake anyway, water streaming from your body as you ignore your <<lewdness>>. <<flaunting>> you walk past the students as if you belong there.
+	For a few breaths no one reacts. Then a <<person1>><<person>> catches sight of you, gasps, and points, drawing every nearby gaze your way.
 	<br><br>
 
-	A few avert their eyes in embarrassment, but many more have their eyes glued to you as you stride over to the rocky alcove.
-	A <<person2>><<person>> especially takes an interest in you, but seems to hesitate before doing anything. You decide to increase your pace.
+	Some flush and look aside, but others stare openly as you cross toward the rocky alcove. One <<person2>><<person>> watches you with particular interest, yet never quite works up the nerve to follow. You lengthen your stride anyway.
 	<br><br>
 
-	You sit by the rocky alcove, just out of sight. You wonder how many are still looking in your direction.
+	Once you're tucked beside the rocks and out of sight, the water cooling on your skin, you can't help wondering how many eyes are still turned your way.
 <<else>>
 	In a moment of daring, you emerge from the lake despite your <<lewdness>>. You run right past a group of students, attempting to cover yourself however you can.
 	A <<person1>><<person>> points and laughs as you run, drawing the attention of several more. <<status -10>><<llcool>>
@@ -1073,7 +1094,7 @@ You warm yourself against the heat emanating from the fireplace.
 	A <<person2>><<person>> especially takes an interest in you, and for a moment, you think <<hes>> going to chase you. You increase your pace.
 	<br><br>
 
-	You sit by the rocky alcove, just out of sight. You wonder how many are still looking in your direction.
+	You crouch beside the rocks, just out of sight, and listen to the lingering noise behind you, wondering who might still be watching.
 <</if>>
 <<if $phase is 0>>
 	<<exhibitionism5>>
@@ -1136,7 +1157,7 @@ You warm yourself against the heat emanating from the fireplace.
 :: Lake Lotus
 <<effects>><<wearProp "lotus">>
 
-You swim among the lotus flowers, gathering seeds. <span class="gold">You can now grow <<icon "tending/lotus.png">> lotus.</span> <i>Lotus are valuable, but need a special environment to grow.</i>
+You glide between the lotus flowers, gently teasing loose a cluster of seeds before tucking them away. <span class="gold">You can now grow <<icon "tending/lotus.png">> lotus.</span> <i>Lotus are valuable, but need a special environment to grow.</i>
 <br><br>
 
 <<link [[Next|Lake Shallows]]>><<handheldon>><</link>>
@@ -1145,7 +1166,7 @@ You swim among the lotus flowers, gathering seeds. <span class="gold">You can no
 :: Lake Lotus Ice
 <<effects>><<wearProp "lotus">>
 
-You free the lotus flowers from the ice, gathering the seeds. <span class="gold">You can now grow <<icon "tending/lotus.png">> lotus.</span> <i>Lotus are valuable, but need a special environment to grow.</i>
+You chip the lotus flowers free from the ice and gather their seeds with numbed fingers. <span class="gold">You can now grow <<icon "tending/lotus.png">> lotus.</span> <i>Lotus are valuable, but need a special environment to grow.</i>
 <br><br>
 
 <<link [[Next|Lake Shallows Ice]]>><<handheldon>><</link>>
@@ -1374,17 +1395,17 @@ You lift the shovel, and thrust it into the ice. It's hard work, but you manage 
 <<if $laketeenspresent is 1>>
 	You are on the swimming dock. Several students accompany you on the dock. There is a bikini sitting on the edge with no signs of its owner.
 <<elseif Weather.precipitation is "rain">>
-	You are on the swimming dock. The sound of the rain hitting the water surrounding you is almost deafening. <<if $hallucinations gte 1>>You can't see far, yet you feel like something's watching you.<</if>>
+	Rain hammers the lake hard enough to drown out almost everything else. The dock trembles faintly beneath your feet. <<if $hallucinations gte 1>>You can't see far through the downpour, yet you still feel watched.<</if>>
 <<elseif Time.dayState is "day">>
-	You are on the swimming dock. The lake looks placid. You feel like the only person in the entire world.
+	The swimming dock creaks softly beneath you. In the daylight the lake looks calm and open enough to swallow the whole world, leaving you alone upon it.
 <<elseif Time.dayState is "night">>
 	<<if $laketeensfire is 1>>
-		You are on the swimming dock. You can see the fire from the party a little ways in the distance. Stars dot the water. You feel like you are floating among them.
+		From the dock, you can see the distant fire from the party flickering across the shore. Stars scatter across the dark water, making it feel as though you stand adrift among them.
 	<<else>>
-		You are on the swimming dock. Stars dot the water. You feel like you are floating among them. <<if $hallucinations gte 1>>You can't see far in the dark, yet you feel like something's watching you.<</if>>
+		Stars scatter across the dark water, and for a moment the dock feels less like wood and more like something floating between sky and lake. <<if $hallucinations gte 1>>You can't see far in the dark, yet the feeling of being watched never quite leaves you.<</if>>
 	<</if>>
 <<else>>
-	You are on the swimming dock. The only sounds you hear are waves crashing upon the sides of the dock.
+	You stand on the swimming dock with nothing around you but the slap of waves against the wood and the open stretch of water beyond.
 <</if>>
 <br><br>
 
@@ -1396,50 +1417,50 @@ You lift the shovel, and thrust it into the ice. It's hard work, but you manage 
 <<set $outside to 1>><<set $location to "lake">><<effects>><<lakeeffects>>
 <<if $phase is 1>>
 	<<set $phase to 0>>
-	You sit on the rock and look out at the lake.
+	You settle onto the rock and let your gaze drift across the lake.
 	<<if !Weather.isFreezing>>
 		<<if Time.dayState is "night">>
 			<<if Weather.precipitation is "rain">>
-				The violent darkness roils before you.
+				Dark water writhes under the rain, restless and lightless.
 			<<else>>
-				The blackness stretches before you.
+				Black water stretches out before you, swallowing the shore's last details.
 			<</if>>
 		<<else>>
 			<<if Weather.precipitation is "rain">>
-				The water dances with raindrops.
+				Raindrops stipple the surface until the whole lake seems to tremble.
 			<<else>>
-				The water is almost perfect in its stillness.
+				The water lies so still it looks painted in place.
 			<</if>>
 		<</if>>
 	<<else>>
 		<<if Time.dayState is "night">>
 			<<if Weather.precipitation is "snow">>
-				Silent snow settles in darkness.
+				Snow falls into the dark in utter silence.
 			<<else>>
-				The blackness stretches before you.
+				Frozen blackness stretches before you.
 			<</if>>
 		<<else>>
 			<<if Weather.isSnow is "snow">>
-				Snow blankets the ice.
+				Snow lies thick across the ice, softening the whole lake into white.
 			<<else>>
-				The ice reflects the world.
+				The ice gleams back the pale sky and shoreline.
 			<</if>>
 		<</if>>
 	<</if>>
 	<i>Meditation effectiveness depends on willpower.</i>
 <<elseif $phase is 2>>
 	<<set $phase to 0>>
-	With some effort you quiet your thoughts until they still.
+	You breathe through the restlessness and, little by little, your thoughts stop crowding one another.
 	<br><br>
 
-	An hour passes, and you feel less burdened.
+	An hour slips by. When you stir again, the weight on your mind feels lighter.
 <<elseif $phase is 3>>
 	<<set $phase to 0>>
 	You detach yourself from your thoughts. You witness them come and go, as if summoned by something else.
 
 	<<if $awareness gte 400>>
 		<br><br>
-		The <<if Weather.isFrozen("lake")>>ice<<else>>water<</if>> parts, revealing a gaping abyss. Terror shivers up your spine, and breaks your concentration.
+		The <<if Weather.isFrozen("lake")>>ice<<else>>water<</if>> peels apart, exposing a vast abyss beneath. Terror lances up your spine and shatters your concentration.
 		<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
 	<</if>>
 <<elseif $phase is 4 or $phase is 5>>
@@ -1483,7 +1504,7 @@ You lift the shovel, and thrust it into the ice. It's hard work, but you manage 
 	<<if $acceptance_breasts_small gte 1000>>
 		<br><br>
 		<<set _breastSizeName to setup.breastsizes[$player.breastsize].toUpperFirst()>>
-		Realisation dawns as you lean back. Your <<breasts>> beautiful. Why should you care what other people say about them? You've gained the <span class="green">Acceptance: _breastSizeName Breasts</span> trait.
+		Realisation dawns as you lean back. Your <<breasts>> are beautiful. Why should you care what other people say about them? You've gained the <span class="green">Acceptance: _breastSizeName Breasts</span> trait.
 	<</if>>
 <<elseif $phase is 9>>
 	<<set $phase to 0>>
@@ -1521,11 +1542,18 @@ You lift the shovel, and thrust it into the ice. It's hard work, but you manage 
 
 :: Lake Halloween Invite Inquire
 <<effects>>
+<<speechresolve>>
 
 You approach the pair.
-<<if $speech_attitude is "meek">>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 	"A party?" you ask. "May I come?"
-<<elseif $speech_attitude is "bratty">>
+<<elseif _speechAttitudeResolved is "polite">>
+	"Did you say there was a party?" you ask. "Could I come?"
+<<elseif _speechAttitudeResolved is "flamboyant">>
+	"A party at the lake?" you ask. "Now that sounds worth showing up for."
+<<elseif _speechAttitudeResolved is "cruel">>
+	"A party?" you say. "Fine. I'm coming."
+<<elseif _speechAttitudeResolved is "bratty">>
 	"Whatever you're doing," you say. "I want in."
 <<else>>
 	"What's this about a party?" you ask. "Sounds fun."
