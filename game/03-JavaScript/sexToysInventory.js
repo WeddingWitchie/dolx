@@ -178,7 +178,16 @@ window.sexToysInventoryOnCarryClick = sexToysInventoryOnCarryClick;
  * @returns {void}
  */
 function sexToysInventoryOnWearClick(index, category) {
-	const toy = V.player.inventory.sextoys[category][index];
+	const toy = V.player.inventory.sextoys?.[category]?.[index];
+	if (!toy) {
+		console.error("[DoLX] Missing sextoy in wear click", {
+			category,
+			index,
+			sextoys: V.player.inventory.sextoys,
+		});
+		return;
+	}
+
 	const setupToy = setup.sextoys[toy.index];
 	const setupCategory = setupToy.category;
 
@@ -221,7 +230,7 @@ function sexToysInventoryOnWearClick(index, category) {
 		// search for items with same main category
 		for (const sItem of setup.sextoys) {
 			// we find item with same main category than the item we try to wear
-			if (sItem.category === cat) {
+			if (sItem.category === cat && Array.isArray(V.player.inventory.sextoys[sItem.name])) {
 				// we go through each of this item owned in player inventory
 				for (const iItem in V.player.inventory.sextoys[sItem.name]) {
 					// we unwear each of them.
@@ -242,8 +251,20 @@ function sexToysInventoryOnWearClick(index, category) {
 	document.getElementById("sti_already_owned_" + category.replace(/\s/g, "_") + "_" + index).textContent = toy.worn ? "worn" : toy.carried ? "carried" : "";
 	$("[id*='sti_already_owned_']").each(function (i, element) {
 		const c = element.getAttribute("data-category");
-		const ind = element.getAttribute("data-index");
-		element.textContent = V.player.inventory.sextoys[c][ind].worn ? "worn" : V.player.inventory.sextoys[c][ind].carried ? "carried" : "";
+		const ind = Number(element.getAttribute("data-index"));
+		const item = V.player.inventory.sextoys?.[c]?.[ind];
+
+		if (!item) {
+			console.warn("[DoLX] stale sextoy UI index", {
+				category: c,
+				index: ind,
+				id: element.id,
+			});
+			element.textContent = "";
+			return;
+		}
+
+		element.textContent = item.worn ? "worn" : item.carried ? "carried" : "";
 	});
 	// this is an exception for strap-ons. Upon "wearing", also set them in under_lower as they don't have their own category yet.
 	if (setupCategory === "strap-on") {
@@ -305,15 +326,22 @@ function updateNumberInString(element, indexMin, category) {
 	// No need to update, this element is unrelated.
 	if (!element.id.includes(category.replace(/\s/g, "_"))) return;
 
+	const match = element.id.match(/\d+$/);
+	if (!match) throw new Error(`Misconfigured sex toy ID: ${element.id}`);
+
 	// extract the index from the element's ID and force it into a number.
-	const index = parseInt(element.id.match(/\d+$/)[0]);
+	const index = parseInt(match[0], 10);
 
 	if (isNaN(index)) throw new Error(`Misconfigured sex toy ID: ${element.id}`);
 	// No need to update, this element comes BEFORE the removed item, so its index is unaffected.
 	if (index < indexMin || index <= 0) return;
 
-	element.id = element.id.replace(/\d+/, index - 1);
-	if (element.onclick) element.onclick = () => window.sexToysInventoryOnItemClick(index - 1, category);
+	const newIndex = index - 1;
+	element.id = element.id.replace(/\d+$/, String(newIndex));
+	if (element.dataset && element.dataset.category === category && element.dataset.index !== undefined) {
+		element.dataset.index = String(newIndex);
+	}
+	if (element.onclick) element.onclick = () => window.sexToysInventoryOnItemClick(newIndex, category);
 }
 
 function checkSextoysGift(npcName) {
