@@ -1,4 +1,6 @@
 // @ts-check
+const closeVaginaEnemyPleasure = () => Number((/** @type {any} */ (V)).enemypleasure ?? 0);
+const closeVaginaEnemyPleasureMax = () => Number((/** @type {any} */ (V)).enemypleasuremax ?? 500);
 /* globals CombatRenderer, CloseCombatMapper, CloseOptions, CanvasModelLayers */
 
 /**
@@ -182,7 +184,7 @@ const combatCloseVagina = {
 				if (options.vagina.npc === "beast-oral") {
 					return false;
 				}
-				if (V.enemypleasure < V.enemypleasuremax) {
+				if (closeVaginaEnemyPleasure() < closeVaginaEnemyPleasureMax()) {
 					return false;
 				}
 				if (options.vagina.npc === "tentacle") {

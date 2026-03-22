@@ -1,4 +1,6 @@
 // @ts-check
+const npcMapperEnemyPleasure = () => Number((/** @type {any} */ (V)).enemypleasure ?? 0);
+const npcMapperEnemyPleasureMax = () => Number((/** @type {any} */ (V)).enemypleasuremax ?? 500);
 /* globals CombatRenderer, CharacterTypes, AnimationSpeed, PenetratorTypes, CombatPositions, CombatRendererBeastStateSetup, CombatRendererBeastSetup, BeastStates, BestialTypes, Partial, Dict */
 setup["getNPC"] = function (idx) {
 	const list = (typeof V !== "undefined" && V && Array.isArray(V.NPCList)) ? V.NPCList : null;
@@ -258,13 +260,13 @@ class NpcCombatMapper {
 			if (T.knotted || T.knotted_short) {
 				return "mid";
 			}
-			if (V.enemypleasure >= (V.enemypleasuremax / 5) * 4) {
+			if (npcMapperEnemyPleasure() >= (npcMapperEnemyPleasureMax() / 5) * 4) {
 				return "vfast";
 			}
-			if (V.enemypleasure >= (V.enemypleasuremax / 5) * 3) {
+			if (npcMapperEnemyPleasure() >= (npcMapperEnemyPleasureMax() / 5) * 3) {
 				return "fast";
 			}
-			if (V.enemypleasure >= (V.enemypleasuremax / 5) * 1) {
+			if (npcMapperEnemyPleasure() >= (npcMapperEnemyPleasureMax() / 5) * 1) {
 				return "mid";
 			}
 			return "slow";

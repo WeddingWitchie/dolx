@@ -1,4 +1,6 @@
 // @ts-check
+const playerMapperEnemyPleasure = () => Number((/** @type {any} */ (V)).enemypleasure ?? 0);
+const playerMapperEnemyPleasureMax = () => Number((/** @type {any} */ (V)).enemypleasuremax ?? 500);
 /* global Partial, Dict, Record, CombatRenderer, Player, Bodywriting, ClothedSlots, SkinColours, NpcCombatMapper, ShaftTarget, isTransformationPartEnabled, isChimeraEnabled, TotalClothingStates, TransformationKeys, TransformationParts, CombatClothingTypes, AnimationSpeed, LegPositions, MachineState, CondomOptions */
 
 /**
@@ -813,9 +815,9 @@ class PlayerCombatMapper {
 				}
 			} else {
 				if (T.knotted || T.knotted_short) return "mid";
-				if (V.enemypleasure >= (V.enemypleasuremax / 5) * 4) return "vfast";
-				if (V.enemypleasure >= (V.enemypleasuremax / 5) * 3) return "fast";
-				if (V.enemypleasure >= (V.enemypleasuremax / 5) * 1) return "mid";
+				if (playerMapperEnemyPleasure() >= (playerMapperEnemyPleasureMax() / 5) * 4) return "vfast";
+				if (playerMapperEnemyPleasure() >= (playerMapperEnemyPleasureMax() / 5) * 3) return "fast";
+				if (playerMapperEnemyPleasure() >= (playerMapperEnemyPleasureMax() / 5) * 1) return "mid";
 				return "slow";
 			}
 		}

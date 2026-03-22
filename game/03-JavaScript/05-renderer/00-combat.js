@@ -1,4 +1,6 @@
 // @ts-check
+const combatEnemyPleasure = () => Number((/** @type {any} */ (V)).enemypleasure ?? 0);
+const combatEnemyPleasureMax = () => Number((/** @type {any} */ (V)).enemypleasuremax ?? 500);
 /* globals Partial, PenetratorPositions */
 
 setup.clothingStates = [0, "chest", "midriff", "waist", "thighs", "knees", "ankles", "worn"];
@@ -79,7 +81,7 @@ class CombatSystem {
 		if (V.orgasmdown > 0) {
 			return true;
 		}
-		return V.enemypleasure > V.enemypleasuremax;
+		return combatEnemyPleasure() > combatEnemyPleasureMax();
 	}
 
 	isActive() {
@@ -553,7 +555,7 @@ class CombatSystem {
 		if (npcHasStrapon(index)) {
 			return false;
 		}
-		const pleasureMaxed = V.enemypleasure >= V.enemypleasuremax;
+		const pleasureMaxed = combatEnemyPleasure() >= combatEnemyPleasureMax();
 		return pleasureMaxed;
 	}
 

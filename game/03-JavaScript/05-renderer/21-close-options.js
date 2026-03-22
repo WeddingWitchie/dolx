@@ -1,4 +1,6 @@
 // @ts-check
+const closeMapperEnemyPleasure = () => Number((/** @type {any} */ (V)).enemypleasure ?? 0);
+const closeMapperEnemyPleasureMax = () => Number((/** @type {any} */ (V)).enemypleasuremax ?? 500);
 /* global CombatRenderer, PlayerCombatMapper, NpcCombatMapper */
 
 /**
@@ -411,9 +413,9 @@ class CloseCombatMapper {
 			}
 		} else {
 			if (T.knotted || T.knotted_short) return "mid";
-			if (V.enemypleasure >= (V.enemypleasuremax / 5) * 4) return "vfast";
-			if (V.enemypleasure >= (V.enemypleasuremax / 5) * 3) return "fast";
-			if (V.enemypleasure >= (V.enemypleasuremax / 5) * 1) return "mid";
+			if (closeMapperEnemyPleasure() >= (closeMapperEnemyPleasureMax() / 5) * 4) return "vfast";
+			if (closeMapperEnemyPleasure() >= (closeMapperEnemyPleasureMax() / 5) * 3) return "fast";
+			if (closeMapperEnemyPleasure() >= (closeMapperEnemyPleasureMax() / 5) * 1) return "mid";
 			return "slow";
 		}
 	}
