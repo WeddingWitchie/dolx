@@ -1,28 +1,153 @@
 :: Widgets HBSC Bank [widget]
+<<widget "hbscEnsure">>
+	<<run setup.hbsc.ensureState()>>
+<</widget>>
+
 <<widget "hbscOptions">>
-    <<if $passage isnot "HBSC Bank Ask Savings Accounts">>
-        <<socialiseicon "ask">><<link [[Ask about HBSC' Savings Accounts (0:02)|HBSC Bank Ask Savings Accounts]]>><<pass 2>><</link>>
-        <br>
-    <</if>>
-    <<if $passage isnot "HBSC Bank Ask Fixed-Term Deposits">>
-        <<socialiseicon "ask">><<link [[Ask about HBSC' Fixed-Term Deposits (0:02)|HBSC Bank Ask Fixed-Term Deposits]]>><<pass 2>><</link>>
-        <br>
-    <</if>>
-    <<if $passage isnot "HBSC Bank Account">>
-        <<if $hbsc.account.level lte 0>>
-            <<link [[Open an account (0:02)|HBSC Bank Account]]>><<pass 2>><</link>>
-            <br>
-        <<else>>
-            <<if $hbsc.account.level gte 1 and $hbsc.account.level lt 5>>
-                <<link [[Upgrade your account (0:02)|HBSC Bank Account]]>><<pass 2>><</link>>
-                <br>
-            <</if>>
-        <</if>>
-    <</if>>
-    <<if $hbsc.account.level gte 1>>
-        <<link [[Put down a Fixed-Term Deposit (0:02)|HBSC Bank Fixed-Term Deposit]]>><<pass 2>><</link>>
-        <br>
-    <</if>>
-    <<getouticon>><<link [[Leave|High Street]]>><<endevent>><</link>>
-    <br>
+	<<hbscEnsure>>
+	<<if $passage isnot "HBSC Bank Account">>
+		<<if $hbsc.account.level < 1>>
+			<<if $id>>
+				<<icon "access_card.png">><<link [[Open an HBSC account (0:02)|HBSC Bank Account]]>><<pass 2>><</link>>
+			<<else>>
+				<<socialiseicon "ask">><<link [[Ask about opening an HBSC account (0:02)|HBSC Bank Account]]>><<pass 2>><</link>>
+			<</if>>
+		<<else>>
+			<<icon "access_card.png">><<link [[Review your HBSC account (0:02)|HBSC Bank Account]]>><<pass 2>><</link>>
+		<</if>>
+		<br>
+	<</if>>
+
+	<<if $hbsc.account.level >= 1 and $passage isnot "HBSC Bank Deposit" and $passage isnot "HBSC Bank Deposit Confirm" and $passage isnot "HBSC Bank Deposit Result">>
+		<<schoolicon "library desk">><<link [[Deposit cash into savings (0:02)|HBSC Bank Deposit]]>><<pass 2>><</link>>
+		<br>
+	<</if>>
+
+	<<if $hbsc.account.level >= 1 and $passage isnot "HBSC Bank Withdraw" and $passage isnot "HBSC Bank Withdraw Confirm" and $passage isnot "HBSC Bank Withdraw Result">>
+		<<schoolicon "library desk">><<link [[Withdraw cash from savings (0:02)|HBSC Bank Withdraw]]>><<pass 2>><</link>>
+		<br>
+	<</if>>
+
+	<<if $hbsc.account.level >= 1 and $passage isnot "HBSC Bank Fixed-Term Deposit" and $passage isnot "HBSC Bank Fixed-Term Open" and $passage isnot "HBSC Bank Fixed-Term Source" and $passage isnot "HBSC Bank Fixed-Term Amount" and $passage isnot "HBSC Bank Fixed-Term Confirm" and $passage isnot "HBSC Bank Fixed-Term Open Result" and $passage isnot "HBSC Bank Fixed-Term Manage" and $passage isnot "HBSC Bank Fixed-Term Detail" and $passage isnot "HBSC Bank Fixed-Term Close Result">>
+		<<icon "email.png">><<link [[Manage fixed-term deposits (0:02)|HBSC Bank Fixed-Term Deposit]]>><<pass 2>><</link>>
+		<br>
+	<</if>>
+
+	<<if $passage isnot "HBSC Bank Ask Savings Accounts">>
+		<<socialiseicon "ask">><<link [[Ask how savings accounts work (0:02)|HBSC Bank Ask Savings Accounts]]>><<pass 2>><</link>>
+		<br>
+	<</if>>
+
+	<<if $passage isnot "HBSC Bank Ask Fixed-Term Deposits">>
+		<<socialiseicon "ask">><<link [[Ask how fixed-term deposits work (0:02)|HBSC Bank Ask Fixed-Term Deposits]]>><<pass 2>><</link>>
+		<br>
+	<</if>>
+
+	<br><<getouticon>><<link [[Leave|High Street]]>><<endevent>><</link>>
+<</widget>>
+
+<<widget "hbscJournal">>
+		<<if setup.hbsc and setup.hbsc.ensureState>>
+		<<run setup.hbsc.ensureState()>>
+		<<set _hbscNoticeSummary to setup.hbsc.summariseNotices($hbsc.notices)>>
+		<<set _hbscTermSummary to setup.hbsc.summariseFixedTerms($hbsc.fixedTerms)>>
+		<<set _hbscBanDays to setup.hbsc.getBanRemainingDays()>>
+		<<if $hbsc.account.level >= 1 or _hbscBanDays > 0 or _hbscNoticeSummary.savingsInterestCount > 0 or _hbscNoticeSummary.maturedCount > 0 or _hbscTermSummary.activeCount > 0 or _hbscTermSummary.maturedCount > 0>>
+			<hr>
+			<h1 class="header gold bold">HBSC Banking</h1>
+			<ul class="journal">
+				<<if $hbsc.account.level >= 1>>
+					<<icon "access_card.png">><span class="gold"><<print setup.hbsc.getTierName($hbsc.account.level)>></span>
+					|
+					Total savings: <<printmoney $hbsc.account.deposit>>
+				<</if>>
+				<<if _hbscBanDays > 0>>
+					<li>You are banned from HBSC counter service for <span class="red"><<print _hbscBanDays>> day<<print _hbscBanDays is 1 ? "" : "s">></span>.</li>
+				<</if>>
+				<<if _hbscNoticeSummary.savingsInterestCount > 0 or _hbscNoticeSummary.maturedCount > 0>>
+					<li>
+						Recent changes
+						<<if _hbscNoticeSummary.savingsInterestCount > 0>>
+							+<<printmoney _hbscNoticeSummary.savingsInterestTotal>> in savings interest
+						<</if>>
+					</li>
+				<</if>>
+				<<if _hbscTermSummary.activeCount > 0>>
+					<li>
+						You have <span class="gold"><<print _hbscTermSummary.activeCount>></span> active fixed terms, with <<printmoney _hbscTermSummary.activePrincipalTotal>> locked and the
+						<<if _hbscTermSummary.nearestDaysRemaining is 0>>
+							next maturity is <span class="pink">today</span>
+						<<elseif _hbscTermSummary.nearestDaysRemaining is 1>>
+							next maturity is <span class="gold">tomorrow</span>
+						<<else>>
+							next maturity in <span class="gold"><<print _hbscTermSummary.nearestDaysRemaining>></span> <<pluralise _hbscTermSummary.nearestDaysRemaining "day">>
+						<</if>>
+					</li>
+				<</if>>
+				<<if _hbscTermSummary.maturedCount > 0>>
+					<li>Ready to collect <span class="gold"><<print _hbscTermSummary.maturedCount>></span> matured fixed-term <<pluralise _hbscTermSummary.maturedCount "deposit" "deposits">>, totaling <<printmoney _hbscTermSummary.maturedReadyTotal>></li>
+				<</if>>
+			</ul>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "hbscStatistics">>
+	<<if setup.hbsc and setup.hbsc.ensureState>>
+		<<run setup.hbsc.ensureState()>>
+		<<set _hbscNoticeSummary to setup.hbsc.summariseNotices($hbsc.notices)>>
+		<<set _hbscTermSummary to setup.hbsc.summariseFixedTerms($hbsc.fixedTerms)>>
+		<<set _hbscBanDays to setup.hbsc.getBanRemainingDays()>>
+		<<set _hbscHasAccount to $hbsc.account.level gte 1>>
+		<<if _hbscHasAccount or _hbscBanDays gt 0 or _hbscTermSummary.activeCount gt 0 or _hbscTermSummary.maturedCount gt 0 or _hbscNoticeSummary.savingsInterestCount gt 0 or _hbscNoticeSummary.maturedCount gt 0>>
+			<<set _hbscTier to setup.hbsc.getSavingsTier($hbsc.account.level)>>
+			<<set _hbscMinBalance to _hbscTier.minimumBalance or 0>>
+			<<set _hbscRoom to _hbscHasAccount ? setup.hbsc.getDepositRoom($hbsc.account.level, $hbsc.account.deposit) : 0>>
+			<<set _hbscQualifies to _hbscHasAccount and $hbsc.account.deposit gte _hbscMinBalance>>
+			<<set _hbscMissing to _hbscHasAccount ? Math.max(0, _hbscMinBalance - $hbsc.account.deposit) : 0>>
+			<<foldout false "_hbscFoldout">>
+				<span class="gold">HBSC Banking</span>
+				<<if _hbscBanDays gt 0>>
+					Current teller ban: <span class="red"><<print _hbscBanDays>> day<<print _hbscBanDays is 1 ? "" : "s">></span>
+					<br>
+				<</if>>
+				<<if _hbscHasAccount>>
+					Tier: <<print _hbscTier.name>>
+					<br>
+					Savings balance: <<printmoney $hbsc.account.deposit>>
+					<br>
+					Deposit room remaining: <<if Number.isFinite(_hbscRoom)>><<printmoney _hbscRoom>><<else>>Unlimited<</if>>
+					<br>
+					Savings interest: <<print _hbscTier.interestAER.toFixed(2)>>% AER
+					<br>
+					Qualifying balance: <<if _hbscMinBalance gt 0>><<printmoney _hbscMinBalance>><<else>>None<</if>>
+					<br>
+					Currently qualifying for monthly savings interest: <<print _hbscQualifies ? "Yes" : "No">>
+					<<if not _hbscQualifies and _hbscMinBalance gt 0>>
+						<br>
+						Still needed to qualify: <<printmoney _hbscMissing>>
+					<</if>>
+					<br>
+					Last monthly savings interest credited: <<if $hbsc.lastSavingsInterest gt 0>><<printmoney $hbsc.lastSavingsInterest>><<else>>None<</if>>
+					<br>
+				<</if>>
+				Recent interest notices waiting at the branch: <<print _hbscNoticeSummary.savingsInterestCount>>
+				<br>
+				Recent fixed-term maturity notices waiting at the branch: <<print _hbscNoticeSummary.maturedCount>>
+				<br>
+				Active fixed-term deposits: <<print _hbscTermSummary.activeCount>>
+				<br>
+				Principal locked in active fixed terms: <<printmoney _hbscTermSummary.activePrincipalTotal>>
+				<br>
+				<<if _hbscTermSummary.nearestDaysRemaining isnot null>>
+					Nearest fixed-term maturity: <<print _hbscTermSummary.nearestDaysRemaining>> day<<print _hbscTermSummary.nearestDaysRemaining is 1 ? "" : "s">>
+					<br>
+				<</if>>
+				Matured fixed terms waiting to collect: <<print _hbscTermSummary.maturedCount>>
+				<br>
+				Ready-to-collect total: <<printmoney _hbscTermSummary.maturedReadyTotal>>
+			<</foldout>>
+		<</if>>
+	<</if>>
+
 <</widget>>

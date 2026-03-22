@@ -470,16 +470,11 @@ function yearPassed() {
 }
 
 function monthPassed() {
-	if (V.hbsc.account.level >= 5 && V.hbsc.account.deposit >= 250000000) {
-		V.hbsc.account.deposit *= 1 + (0.0025 / 12);
-	} else if (V.hbsc.account.level >= 4 && V.hbsc.account.deposit >= 50000000) {
-		V.hbsc.account.deposit *= 1 + (0.0075 / 12);
-	} else if (V.hbsc.account.level >= 3 && V.hbsc.account.deposit >= 10000000) {
-		V.hbsc.account.deposit *= 1 + (0.0125 / 12);
-	} else if (V.hbsc.account.level >= 2 && V.hbsc.account.deposit >= 50000000) {
-		V.hbsc.account.deposit *= 1 + (0.02 / 12);
-	} else if (V.hbsc.account.level >= 1) {
-		V.hbsc.account.deposit *= 1 + (0.025 / 12);
+	if (setup.hbsc?.ensureState) {
+		setup.hbsc.ensureState();
+	}
+	if (setup.hbsc?.processSavingsMonth) {
+		setup.hbsc.processSavingsMonth();
 	}
 
 	if (V.monthly !== undefined) V.monthly.clearProperties();
@@ -680,6 +675,8 @@ function dayPassed(days) {
 		wikifier("prison_day");
 		wikifier("clearNPC", "pharmNurse");
 		ensureBrothelVendingState();
+		if (setup.hbsc?.ensureState) setup.hbsc.ensureState();
+		if (setup.hbsc?.processDay) setup.hbsc.processDay();
 
 		V.physiquechange = 1;
 		V.home_event_timer--;
