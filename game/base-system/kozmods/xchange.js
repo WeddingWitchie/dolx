@@ -887,11 +887,19 @@ function xchangeEffectsMessages() {
 	}
 
 	if (V.identityCapMessage) {
-		if (V.player.gender === "m") {
-			element("span", "You reject these girly feelings from taking a hold of you!", "purple");
+		const giRange = Number(V.xchange?.giRange) || 1500;
+		const giMid = giRange / 2;
+		const giTarget = Number.isFinite(Number(V.xchange?.giTarget)) ? Number(V.xchange.giTarget) : giMid;
+		const giPull = giTarget < giMid ? "feminine" : giTarget > giMid ? "masculine" : null;
+		const giPullStrength = Math.abs(giTarget - giMid) / giMid;
+
+		if (!giPull || giPullStrength < 0.12) {
+			element("span", "You feel your sense of self shifting, but you steady yourself before it carries you any further.", "purple");
+		} else if (giPullStrength < 0.45) {
+			element("span", `You feel yourself leaning more ${giPull}, but you hold the change at bay.`, "purple");
 		} else {
-			element("span", "You stubbornly cling to your feminine self despite your growing masculine tendencies.", "purple");
-		}	
+			element("span", `A strong ${giPull} pull presses at the edge of your identity, but you refuse to let it settle in any deeper.`, "purple");
+		}
 		fragment.append(wikifier("gstress"));
 		fragment.append(wikifier("gtrauma")); br();
 		delete V.identityCapMessage;
