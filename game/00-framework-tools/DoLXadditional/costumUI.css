@@ -564,28 +564,44 @@ body::after {
 #settingsStart .dolx-game-mode-row,
 #settingsOptions .dolx-game-mode-row,
 #settingsDiv .dolx-game-mode-row {
-	display: flex;
-	flex-wrap: nowrap;
-	align-items: center;
-	gap: 1rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+	gap: 0.65rem 1rem;
+	align-items: start;
 	margin-top: 0.35rem;
 }
 
 #settingsStart .dolx-game-mode-row .dolx-mode-option,
 #settingsOptions .dolx-game-mode-row .dolx-mode-option,
 #settingsDiv .dolx-game-mode-row .dolx-mode-option {
-	display: inline-flex;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
 	align-items: center;
-	gap: 0.3rem;
-	white-space: nowrap;
+	column-gap: 0.45rem;
+	row-gap: 0.2rem;
+	min-width: 0;
 	margin: 0;
-	flex: 0 0 auto;
+	white-space: normal;
+}
+
+#settingsStart .dolx-game-mode-row .dolx-mode-option mouse,
+#settingsOptions .dolx-game-mode-row .dolx-mode-option mouse,
+#settingsDiv .dolx-game-mode-row .dolx-mode-option mouse {
+	display: inline;
+	min-width: 0;
+	white-space: normal;
+	line-height: 1.2;
 }
 
 #settingsStart .dolx-game-mode-row .macro-radiobutton,
 #settingsOptions .dolx-game-mode-row .macro-radiobutton,
-#settingsDiv .dolx-game-mode-row .macro-radiobutton {
+#settingsDiv .dolx-game-mode-row .macro-radiobutton,
+#settingsStart .dolx-game-mode-row input[type="radio"],
+#settingsOptions .dolx-game-mode-row input[type="radio"],
+#settingsDiv .dolx-game-mode-row input[type="radio"] {
 	margin: 0;
+	justify-self: end;
+	align-self: center;
 	vertical-align: middle;
 }
 
@@ -593,6 +609,20 @@ body::after {
 #settingsOptions .dolx-game-mode-row br,
 #settingsDiv .dolx-game-mode-row br {
 	display: none;
+}
+
+@media (max-width: 700px) {
+	#settingsStart .dolx-game-mode-row,
+	#settingsOptions .dolx-game-mode-row,
+	#settingsDiv .dolx-game-mode-row {
+		grid-template-columns: 1fr;
+	}
+
+	#settingsStart .dolx-game-mode-row .dolx-mode-option,
+	#settingsOptions .dolx-game-mode-row .dolx-mode-option,
+	#settingsDiv .dolx-game-mode-row .dolx-mode-option {
+		grid-template-columns: minmax(0, 1fr) auto;
+	}
 }
 
 /* DOLX CREDITS button */
@@ -708,4 +738,143 @@ body::after {
 #passages .passage .characteristic-box-list .meter > .fadingbar {
 	height: 100% !important;
 	min-height: 100% !important;
+}
+
+/* =========================
+   DoLX mobile layout fixes
+   Paste near end of file
+   ========================= */
+
+/* safer wrappers */
+.solidBorderContainer.settings-container,
+.settings-container,
+#othersFeelings,
+#faction-reputations.relation-box-list {
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 100%;
+	min-width: 0;
+}
+
+/* keep oversized children from forcing horizontal stretch */
+.solidBorderContainer.settings-container,
+.settings-container {
+	overflow-x: hidden;
+}
+
+/* inner settings blocks */
+.solidBorderContainer.settings-container .settingsToggle,
+.solidBorderContainer.settings-container .settingsToggleWide,
+.settings-container .settingsToggle,
+.settings-container .settingsToggleWide {
+	box-sizing: border-box;
+	max-width: 100%;
+	min-width: 0;
+}
+
+/* desktop-ish behaviour */
+@media screen and (min-width: 701px) {
+	.solidBorderContainer.settings-container::after,
+	.settings-container::after {
+		content: "";
+		display: block;
+		clear: both;
+	}
+
+	.solidBorderContainer.settings-container .settingsToggle,
+	.settings-container .settingsToggle {
+		width: calc(50% - 10px);
+		min-width: 275px;
+		float: left;
+	}
+
+	.solidBorderContainer.settings-container .settingsToggleWide,
+	.settings-container .settingsToggleWide {
+		width: calc(100% - 10px);
+		min-width: 275px;
+		float: left;
+	}
+}
+
+/* mobile */
+@media screen and (max-width: 700px) {
+	.solidBorderContainer.settings-container,
+	.settings-container {
+		padding: 6px;
+	}
+
+	.solidBorderContainer.settings-container .settingsToggle,
+	.solidBorderContainer.settings-container .settingsToggleWide,
+	.settings-container .settingsToggle,
+	.settings-container .settingsToggleWide {
+		float: none;
+		display: block;
+		width: 100%;
+		min-width: 0;
+		margin: 5px 0;
+	}
+
+	.solidBorderContainer.settings-container input,
+	.solidBorderContainer.settings-container select,
+	.solidBorderContainer.settings-container textarea,
+	.settings-container input,
+	.settings-container select,
+	.settings-container textarea {
+		box-sizing: border-box;
+		max-width: 100%;
+		min-width: 0;
+	}
+}
+
+/* =========================
+   Faction reputations
+   ========================= */
+
+#faction-reputations.relation-box-list {
+	overflow-x: hidden;
+}
+
+#faction-reputations.relation-box-list > * {
+	box-sizing: border-box;
+	max-width: 100%;
+	min-width: 0;
+}
+
+#faction-reputations.relation-box-list .relation-box,
+#faction-reputations.relation-box-list .relation-box-entry,
+#faction-reputations.relation-box-list .relation-row,
+#faction-reputations.relation-box-list .relation-item {
+	box-sizing: border-box;
+	max-width: 100%;
+	min-width: 0;
+}
+
+#faction-reputations.relation-box-list img,
+#faction-reputations.relation-box-list svg,
+#faction-reputations.relation-box-list canvas,
+#faction-reputations.relation-box-list table {
+	max-width: 100%;
+	height: auto;
+}
+
+@media (max-width: 700px) {
+	#faction-reputations.relation-box-list {
+		display: block;
+	}
+
+	#faction-reputations.relation-box-list .relation-box,
+	#faction-reputations.relation-box-list .relation-box-entry,
+	#faction-reputations.relation-box-list .relation-row,
+	#faction-reputations.relation-box-list .relation-item {
+		width: 100%;
+		margin-left: 0;
+		margin-right: 0;
+	}
+
+	#faction-reputations.relation-box-list table,
+	#faction-reputations.relation-box-list .table {
+		display: block;
+		width: 100%;
+		overflow-x: auto;
+	}
 }
