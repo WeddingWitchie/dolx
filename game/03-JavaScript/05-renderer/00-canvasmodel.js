@@ -251,6 +251,16 @@ class CanvasModel {
 			layer.frameDy = 0;
 		}
 
+		function redirectAltPathDeep(value) {
+			if (!value) return value;
+			if (typeof value === "string") return getGenderedPath(value);
+			if (Array.isArray(value)) return value.map(redirectAltPathDeep);
+			if (typeof value === "object" && typeof value.path === "string") {
+				return { ...value, path: getGenderedPath(value.path) };
+			}
+			return value;
+		}
+
 		function propeval(layer, propname) {
 			if (propname !== "show" && !debug && !layer.show) {
 				// Situation A:
@@ -303,6 +313,7 @@ class CanvasModel {
 			propeval(layer, "brightness");
 			propeval(layer, "contrast");
 			propeval(layer, "masksrc");
+			layer.masksrc = redirectAltPathDeep(layer.masksrc);
 			propeval(layer, "animation");
 			propeval(layer, "filters");
 			propeval(layer, "dx");

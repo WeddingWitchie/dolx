@@ -1039,7 +1039,7 @@ Renderer.CanvasModels.main = {
 
 							// Set offsets (mostly for preg belly)
 							const srcObject = {
-								path: layer.srcfn(newOptions),
+								path: getGenderedPath(layer.srcfn(newOptions)),
 								offsetX: layer.dxfn ? layer.dxfn(newOptions) : 0,
 								offsetY: layer.dyfn ? layer.dyfn(newOptions) : 0,
 							};
