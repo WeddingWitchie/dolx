@@ -628,7 +628,7 @@ function initHands() {
 	*/
 	setup.moddedClothes.hands = [
 		{
-			index: 7,
+			index: 0,
 			slot: "hands",
 			name: "thin metal bracelet",
 			name_cap: "Thin metal bracelet",
@@ -668,7 +668,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 1,
 			slot: "hands",
 			name: "simple metal bracelet",
 			name_cap: "Simple metal bracelet",
@@ -708,7 +708,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 2,
 			slot: "hands",
 			name: "metal bracelet",
 			name_cap: "Metal bracelet",
@@ -748,7 +748,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 3,
 			slot: "hands",
 			name: "thick metal bracelet",
 			name_cap: "Thick metal bracelet",
@@ -760,6 +760,7 @@ function initHands() {
 			integrity_max: 200,
 			fabric_strength: 20,
 			reveal: 200,
+			word: "a",
 			plural: 0,
 			colour: 0,
 			colour_options: ["bronze", "gold", "rose gold", "silver"],
@@ -787,7 +788,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 4,
 			slot: "hands",
 			name: "tiny faux jewel bracelet",
 			name_cap: "Tiny faux jewel bracelet",
@@ -827,7 +828,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 5,
 			slot: "hands",
 			name: "small faux jewel bracelet",
 			name_cap: "Small faux jewel bracelet",
@@ -867,7 +868,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 6,
 			slot: "hands",
 			name: "medium faux jewel bracelet",
 			name_cap: "Medium faux jewel bracelet",
@@ -947,7 +948,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 8,
 			slot: "hands",
 			name: "2ct diamond bracelet",
 			name_cap: "2ct diamond bracelet",
@@ -986,7 +987,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 9,
 			slot: "hands",
 			name: "5ct diamond bracelet",
 			name_cap: "5ct diamond bracelet",
@@ -1025,7 +1026,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 10,
 			slot: "hands",
 			name: "10ct diamond bracelet",
 			name_cap: "10ct diamond bracelet",
@@ -1064,7 +1065,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 11,
 			slot: "hands",
 			name: "20ct diamond bracelet",
 			name_cap: "20ct diamond bracelet",
@@ -1103,7 +1104,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 12,
 			slot: "hands",
 			name: "2ct ruby bracelet",
 			name_cap: "2ct ruby bracelet",
@@ -1142,7 +1143,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 13,
 			slot: "hands",
 			name: "5ct ruby bracelet",
 			name_cap: "5ct ruby bracelet",
@@ -1181,7 +1182,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 14,
 			slot: "hands",
 			name: "10ct ruby bracelet",
 			name_cap: "10ct ruby bracelet",
@@ -1220,7 +1221,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 15,
 			slot: "hands",
 			name: "20ct ruby bracelet",
 			name_cap: "20ct ruby bracelet",
@@ -1259,7 +1260,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 16,
 			slot: "hands",
 			name: "2ct emerald bracelet",
 			name_cap: "2ct emerald bracelet",
@@ -1298,7 +1299,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 17,
 			slot: "hands",
 			name: "5ct emerald bracelet",
 			name_cap: "5ct emerald bracelet",
@@ -1337,7 +1338,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 18,
 			slot: "hands",
 			name: "10ct emerald bracelet",
 			name_cap: "10ct emerald bracelet",
@@ -1376,7 +1377,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 19,
 			slot: "hands",
 			name: "20ct emerald bracelet",
 			name_cap: "20ct emerald bracelet",
@@ -1415,7 +1416,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 20,
 			slot: "hands",
 			name: "2ct sapphire bracelet",
 			name_cap: "2ct sapphire bracelet",
@@ -1454,7 +1455,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 21,
 			slot: "hands",
 			name: "5ct sapphire bracelet",
 			name_cap: "5ct sapphire bracelet",
@@ -1493,7 +1494,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 22,
 			slot: "hands",
 			name: "10ct sapphire bracelet",
 			name_cap: "10ct sapphire bracelet",
@@ -1532,7 +1533,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 23,
 			slot: "hands",
 			name: "20ct sapphire bracelet",
 			name_cap: "20ct sapphire bracelet",
@@ -1571,7 +1572,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 24,
 			slot: "hands",
 			name: "2ct aquamarine bracelet",
 			name_cap: "2ct aquamarine bracelet",
@@ -1610,7 +1611,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 25,
 			slot: "hands",
 			name: "5ct aquamarine bracelet",
 			name_cap: "5ct aquamarine bracelet",
@@ -1649,7 +1650,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 26,
 			slot: "hands",
 			name: "10ct aquamarine bracelet",
 			name_cap: "10ct aquamarine bracelet",
@@ -1688,7 +1689,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 27,
 			slot: "hands",
 			name: "20ct aquamarine bracelet",
 			name_cap: "20ct aquamarine bracelet",
@@ -1727,7 +1728,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 28,
 			slot: "hands",
 			name: "2ct tanzanite bracelet",
 			name_cap: "2ct tanzanite bracelet",
@@ -1766,7 +1767,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 29,
 			slot: "hands",
 			name: "5ct tanzanite bracelet",
 			name_cap: "5ct tanzanite bracelet",
@@ -1805,7 +1806,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 30,
 			slot: "hands",
 			name: "10ct tanzanite bracelet",
 			name_cap: "10ct tanzanite bracelet",
@@ -1844,7 +1845,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 31,
 			slot: "hands",
 			name: "20ct tanzanite bracelet",
 			name_cap: "20ct tanzanite bracelet",
@@ -1883,7 +1884,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 32,
 			slot: "hands",
 			name: "2ct topaz bracelet",
 			name_cap: "2ct topaz bracelet",
@@ -1922,7 +1923,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 33,
 			slot: "hands",
 			name: "5ct topaz bracelet",
 			name_cap: "5ct topaz bracelet",
@@ -1961,7 +1962,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 34,
 			slot: "hands",
 			name: "10ct topaz bracelet",
 			name_cap: "10ct topaz bracelet",
@@ -2000,7 +2001,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 35,
 			slot: "hands",
 			name: "20ct topaz bracelet",
 			name_cap: "20ct topaz bracelet",
@@ -2039,7 +2040,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 36,
 			slot: "hands",
 			name: "2ct amethyst bracelet",
 			name_cap: "2ct amethyst bracelet",
@@ -2078,7 +2079,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 37,
 			slot: "hands",
 			name: "5ct amethyst bracelet",
 			name_cap: "5ct amethyst bracelet",
@@ -2117,7 +2118,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 38,
 			slot: "hands",
 			name: "10ct amethyst bracelet",
 			name_cap: "10ct amethyst bracelet",
@@ -2156,7 +2157,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 39,
 			slot: "hands",
 			name: "20ct amethyst bracelet",
 			name_cap: "20ct amethyst bracelet",
@@ -2195,7 +2196,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 40,
 			slot: "hands",
 			name: "2ct spinel bracelet",
 			name_cap: "2ct spinel bracelet",
@@ -2234,7 +2235,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 41,
 			slot: "hands",
 			name: "5ct spinel bracelet",
 			name_cap: "5ct spinel bracelet",
@@ -2273,7 +2274,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 42,
 			slot: "hands",
 			name: "10ct spinel bracelet",
 			name_cap: "10ct spinel bracelet",
@@ -2312,7 +2313,7 @@ function initHands() {
 			rightImage: 1,
 		},
 		{
-			index: 7,
+			index: 43,
 			slot: "hands",
 			name: "20ct spinel bracelet",
 			name_cap: "20ct spinel bracelet",
