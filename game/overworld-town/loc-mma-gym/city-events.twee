@@ -1,0 +1,209 @@
+:: MMA Gym Lock
+<<set $outside to 1>><<effects>><<set $lock to 200>>
+<<openinghours>><br>
+<<if currentSkillValue('skulduggery') gte $lock>>
+	<<if $leftarm is "bound" and $rightarm is "bound">>
+		You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
+		<br><br>
+	<<else>>
+		<<wearProp "lockpick">>
+		<span class="green">The lock looks easy to pick.</span>
+		<br><br>
+		<<lockicon "pick">><<link [[Pick it (0:10)|MMA Gym]]>><<handheldon>><<pass 10>><<crimeUp 5 "trespassing">><<endevent>><</link>><<crime "trespassing">>
+		<br>
+	<</if>>
+<<else>>
+	<span class="red">The lock looks beyond your ability to pick.</span><<skulduggeryrequired>>
+	<br><br>
+<</if>>
+<<getouticon>><<link [[Leave|Nightingale Street]]>><<handheldon>><<endevent>><</link>>
+
+:: MMA Gym Register Sneak Riley
+<<set $outside to 0>><<effects>>
+<<set _rileyTone to "neutral">>
+<<switch $speech_attitude>>
+	<<case "meek" "shy" "docile" "polite">>
+		<<set _rileyTone to "meek">>
+	<<case "bratty" "cruel" "confident">>
+		<<set _rileyTone to "bratty">>
+<</switch>>
+You close your hand around the notes just as a voice cuts across the empty gym.
+<br><br>
+"Take it," Riley says. "If you truly need it."
+<br><br>
+You jerk around. Riley stands by the office door, arms folded, expression hard to read. There is no rush to the alarm, no grab for the register, no barked demand to put the money back. 
+Just Riley, watching you with a steadiness that somehow feels worse.
+<br><br>
+<<if _rileyTone is "meek">>
+	"W-why? I'm... I'm stealing from you." The words come out thin and uncertain, and your grip tightens around the cash before you even realise you've done it.
+<<elseif _rileyTone is "bratty">>
+	"Are you crazy? I'm stealing!" The challenge in your voice rings louder than you meant it to, but Riley doesn't rise to it.
+<<else>>
+	"Sorry," you say before you can stop yourself. But the apology sounds weak with the money still in your hand.
+<</if>>
+<br><br>
+"I know what this city is like. I know what it asks from people who don't have enough, and how fast it punishes them for falling behind. So if you need it, take it. If not, put it back."
+<<His>> gaze moves to your clenched hand, then back to your face. "But if what you really want isn't the cash, then stay. Train. Do something with that desperation besides letting it rot you from the inside."
+<br><br>
+That lands harder than being shouted at. The money suddenly feels heavier than it should.
+<br><br>
+<<link [[Take the money and leave|MMA Gym]]>><<money $tip "thievery">><<set $mmaGymMercyTraining to 0>><<endevent>><</link>>
+<br>
+<<link [[Put it back|MMA Gym]]>><<set $mmaGymMercyTraining to 0>><<endevent>><</link>>
+<br>
+<<link [[Stay and train with Riley (1:00)|MMA Dojo Lesson]]>><<set $mmaGymMercyTraining to 1>><<set $phase to 0>><</link>><<gathletics>><<gphysique>>
+
+:: MMA Dojo Lesson
+<<set $outside to 0>><<set $location to "mma_gym">><<effects>>
+<<if $mmaGymMercyTraining is 1 and $mmaDojoMercyIntro isnot 1 and $phase is 0>>
+	<<set $mmaDojoMercyIntro to 1>>
+	Riley jerks <<his>> head toward the mats. "Come on, then. If you're staying, you're working."
+	<br><br>
+	The cash register clicks shut behind you. The noise seems much too loud in the empty gym.
+	You tuck your hands away from it and follow Riley instead. The room feels quieter as if you've been given a way out of something ugly and don't quite know what to do with it yet.
+	<br><br>
+	"One hour," Riley says.
+	<br><br>
+	<<link [[Step onto the mats|MMA Dojo Lesson]]>><<set $phase to 99>><</link>>
+<<else>>
+	<<pass 60>><<set _failChance to 15>>
+	<<if $athletics lt 900>><<set _failChance to 25>><</if>>
+	<<if $athletics lt 600>><<set _failChance to 40>><</if>>
+	<<if $athletics lt 300>><<set _failChance to 60>><</if>>
+	The mat class is all breakfalls, sprawls, pummelling drills, and clinch work. There is nothing graceful about it once the sweat starts running. Every mistake ends with you on the canvas or being yanked back into position.
+	<<if random(1,100) lte _failChance>>
+		You mistime a drill, hit the mat badly, and spend the rest of the hour working around the sting while Riley makes you repeat the same movement until it finally sticks.<<gpain>>
+		<br><br>
+		"Better to learn here than in a real fight," <<he>> says.
+		<<physique 1>><<athletics 1>><<pain 3>><<tiredness 8>><<stress 4>>
+	<<elseif $athletics gte 900>>
+		You keep your feet under you, your hips where they should be, and your breathing mostly under control. Riley has you demonstrate one escape before the class breaks.
+		<<physique 2>><<athletics 2>><<tiredness 7>><<stress 3>>
+	<<elseif $athletics gte 500>>
+		You keep up well enough. A few drills go wrong before they go right, but by the end your body starts to understand the rhythm Riley wants from you.
+		<<physique 2>><<athletics 1>><<tiredness 8>><<stress 3>>
+	<<else>>
+		You hit the mat more than once, and the first few sprawls leave you winded. Riley keeps making you do it again until panic gives way to muscle memory.
+		<<physique 1>><<athletics 1>><<tiredness 9>><<stress 4>>
+	<</if>>
+	<<gwillpower>><<willpower 1>><<gathletics>><<gphysique>><<gstress>><<ggtiredness>>
+	<br><br>
+	<<if $mmaGymMercyTraining is 1>>
+		Riley then tosses you a towel, waits for you to catch your breath, then turn off the lights. "Come on. It's late. I'll walk you back."
+		<br><br>
+		<<link [[Next|MMA Dojo Lesson 2]]>><<set $mmaGymMercyTraining to 0>><<set $mmaDojoMercyIntro to 0>><<set $phase to 0>><</link>>
+	<<else>>
+		Riley claps once. "Enough. Stretch before you lock up on me."
+		<br><br>
+		<<link [[Next|MMA Gym]]>><<endevent>><</link>>
+	<</if>>
+<</if>>
+
+:: MMA Dojo Lesson 2
+<<set $outside to 1>><<set $location to "town">><<set $bus to "domus">><<effects>>
+The trip back is quieter than the lesson was. By the time the orphanage comes into view, the ache in your body has settled into something steadier.
+<br><br>
+"Get some sleep," <<he>> says before walking away.
+<br><br>
+<<link [[Next|Orphanage]]>><<endevent>><</link>>
+
+
+:: Riley Rescue Intro
+<<set $outside to 1>><<effects>><<npc Riley>><<person1>>
+A hand catches your arm hard enough to jerk you off balance.
+A stranger shoves you back against the wall before you can recover. Another closes in from the side, grinning too wide, with <span class="lewd">an X-Change pill</span> pinched between fingers.
+<br><br>
+"Hold still," one of them says. "This'll make this easier."
+<br><br>
+The other starts pawing at you, rough and impatient.
+<br><br>
+<<link [[Next|Riley Rescue Intro 2]]>><</link>>
+
+:: Riley Rescue Intro 2
+<<set $outside to 1>><<effects>>
+Before either of them can do more than grab, something slams into the first attacker's jaw to the point sprawling into the alley wall with a wet crack. The second barely has time to turn before Riley drives an elbow into ribs.
+<br><br>
+The pill clatters across the ground.
+<br><br>
+Riley plants <<his>> foot on one attacker's shoulder while the other scrambles backward, swearing. One look from Riley is enough to send both of them stumbling into the dark.
+<br><br>
+Only then does Riley glance over at you.
+"Oh? Didn't see you there." <<He>> studies you for a moment, then jerks <<his>> head toward the street. "Want to hang out in the gym for a moment?"
+<br><br>
+<<link [[Go with Riley|Riley Rescue Walk]]>><<pass 5>><</link>>
+<br>
+<<link [[Say no|Riley Rescue Decline]]>><</link>>
+
+:: Riley Rescue Decline
+<<set $outside to 1>><<effects>>
+You shake your head.
+<<if $speech_attitude is "meek" or $speech_attitude is "shy" or $speech_attitude is "docile" or $speech_attitude is "polite">>
+	"Th-thank you."
+	<br><br>
+	"Don't thank me yet," Riley says. "Get somewhere bright. And don't walk alone if you can help it."
+<<elseif $speech_attitude is "bratty" or $speech_attitude is "cruel" or $speech_attitude is "confident">>
+	"I had it handled," you mutter, even if your pulse is still racing.
+	<br><br>
+	Riley snorts. "Sure you did. Be careful anyway."
+<<else>>
+	You let out a shaky breath. "I'm okay. Sorry."
+	<br><br>
+	Riley shakes <<his>> head. "Nothing to apologise for. Just be careful."
+<</if>>
+<br><br>
+<<link [[Next|$rileyRescueReturnPassage]]>><<endevent>><</link>>
+
+:: Riley Rescue Walk
+<<set $outside to 0>><<set $location to "mma_gym">><<effects>>
+<<wearProp "juice" "white">>
+Riley does not ask questions on the way back.
+<br><br>
+<<He>> stays half a step ahead of you, broad enough to block the pavement and make anyone coming the other way think twice. By the time the gym door shuts behind you, the noise of the street feels far away.
+<br><br>
+Riley disappears into the back for a moment and returns with a nice, cold juice. "Drink."
+<br><br>
+The can is sharp and sweet and far too cold. It jolts you awake in a different way than panic did.<<tiredness -8>><<trauma -2>><<stress -4>><<lltiredness>><<ltrauma>><<lstress>>
+<br><br>
+Riley leans against the wall beside the mats, arms folded, waiting until some of the shaking leaves you.
+<br><br>
+<<link [[Next|Riley Rescue Walk 2]]>><</link>>
+
+:: Riley Rescue Walk 2
+<<effects>>
+<<if $speech_attitude is "meek" or $speech_attitude is "shy" or $speech_attitude is "docile" or $speech_attitude is "polite">>
+	"W-why help me?" you ask quietly, still curled around the can.
+	<br><br>
+	Riley looks at you like the question annoys <<him>> more than it should. "Because they were there and I was there. That enough?"
+	<br><br>
+	When you lower your eyes, <<he>> exhales through <<his>> nose. "You don't have to earn basic decency."
+<<elseif $speech_attitude is "bratty" or $speech_attitude is "cruel" or $speech_attitude is "confident">>
+	You tip the can back, then glance at Riley. "You always punch people this fast, or did I get special treatment?"
+	<br><br>
+	Riley's mouth twitches. "They were stupid enough to do that in front of me."
+	<<He>> then gives you a longer look. "You can stop acting fine for five minutes, if you want."
+<<else>>
+	You stare down into the can. "Sorry. I didn't mean to bring trouble here."
+	<br><br>
+	"You didn't," Riley says, blunt as ever. "They did."
+	<<He>> tips <<his>> head toward the benches. "Sit until your hands stop shaking."
+<</if>>
+<br><br>
+<<link [[Next|Riley Rescue Walk 3]]>><</link>>
+
+:: Riley Rescue Walk 3
+<<effects>>
+<<if Time.dayState is "night">>
+    For a while Riley just stays nearby instead of pressing you.
+    <br><br>
+	When Riley finally pushes off the wall, <<his>> voice has lost some of its edge. "You know what? I'm walking you home. You're not going back out there alone tonight."
+	<br><br>
+	<<link [[Let Riley walk you home|MMA Dojo Lesson 2]]>><<handheldon>><</link>>
+<<else>>
+    The gym sounds ordinary around you again: gloves thudding into bags, plates knocking together, someone laughing too loudly near the weights. Safe sounds. Boring sounds. The kind that let your breathing settle back into something normal.
+    <br><br>
+    When Riley finally pushes off the wall, <<his>> voice has lost some of its edge. "Stay as long as you want. Train, sit, leave, whatever. Just don't go wandering back out there half-spooked."
+	<br><br>
+	<<link [[Stay in the gym|MMA Gym]]>><<endevent>><<handheldon>><</link>>
+	<br>
+	<<link [[Leave once you've settled down|Nightingale Street]]>><<endevent>><<handheldon>><</link>>
+<</if>>
