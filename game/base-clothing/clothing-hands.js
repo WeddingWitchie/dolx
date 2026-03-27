@@ -280,7 +280,8 @@ function initHands() {
 			shop: ["clothing", "school", "adult"],
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: [],
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "pale tangerine", "teal", "pale white", "pale yellow", "custom"],
+			accessory_colour_sidebar: 1,
 			back_img: 0,
 			cursed: 0,
 			location: 0,
@@ -623,8 +624,8 @@ function initHands() {
 	setup.clothes.hands = clothing;
 
 	/*
-		Clothes that modders add go into this array, this should be empty in the base game at all times.
-		These items should have a `modder` variable with a the modders name in a short string
+		Clothes that modders add go into this array. This should be empty in the base game at all times.
+		These items should have a `modder` variable with the modder's name in a short string.
 	*/
 	setup.moddedClothes.hands = [
 		{

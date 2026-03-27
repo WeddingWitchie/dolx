@@ -78,7 +78,7 @@ function masturbationEffects() {
 			fragment.append(" ");
 			V.corruptionMasturbation = false;
 			delete V.corruptionMasturbationCount;
-		} else if (V.penis_addict_trait === 1 || V.hole_addict_trait === 1 || (V.xchange.pill.breederEffect && !playerIsCreampied())) {
+		} else if (V.penis_addict_trait === 1 || V.hole_addict_trait === 1 || (V.xchange?.pill?.breederEffect && !playerIsCreampied())) {
 			sWikifier(
 				`The slime in your ears gets frustrated as it notices that, despite its best effort, you're unable to cum. And making no progress, <span class="blue">it gives up.</span><<arousal 600 "masturbation">><<pain 4>><<stress 6>><<gstress>><<gpain>>`
 			);
@@ -163,7 +163,7 @@ function masturbationEffects() {
 		fragment.append(possessedMasturbation(span, br, sWikifier));
 	}
 
-	// Reset the record of the player's  current actions
+	// Reset the record of the player's current actions
 	V.masturbationActions = {};
 
 	fragment.append(masturbationEffectsVaginaAnus(otherVariables));
@@ -289,7 +289,10 @@ function masturbationEffects() {
 		random(0, 100) >= Math.clamp(135 - V.earSlime.corruption / 2, 80, 98) &&
 		V.earSlime.corruption > currentSkillValue("willpower") / 10 &&
 		V.corruptionMasturbation === undefined &&
-		V.penis_addict_trait !== 1 && V.hole_addict_trait !== 1 && !(V.xchange.pill.breederEffect && !playerIsCreampied())
+		!V.hypnosis_traits?.silence &&
+		V.penis_addict_trait !== 1 &&
+		V.hole_addict_trait !== 1 &&
+		!(V.xchange?.pill?.breederEffect && !playerIsCreampied())
 	) {
 		V.corruptionMasturbation = true;
 		V.corruptionMasturbationCount = random(1, 4);
@@ -341,6 +344,7 @@ function masturbationEffectsArms(
 			random(0, 100) >= 91 &&
 			V.earSlime.corruption > currentSkillValue("willpower") / 10 &&
 			V.corruptionMasturbation === undefined &&
+			!V.hypnosis_traits?.silence &&
 			V.penis_addict_trait !== 1 &&
 			V.hole_addict_trait !== 1 &&
 			!(V.xchange?.pill?.breederEffect && !playerIsCreampied())
@@ -356,7 +360,7 @@ function masturbationEffectsArms(
 		return fragment;
 	}
 
-	// Dealing with the player's  clothes, needs work; what if layer above is not exposed?
+	// Dealing with the player's clothes, needs work; what if layer above is not exposed?
 	switch (V[armAction]) {
 		case "moverupper":
 			clearAction("mrest");
@@ -608,7 +612,7 @@ function masturbationEffectsArms(
 	wikifier("testicles");
 	balls += T.text_output;
 
-	// Dealing with the player's  actions
+	// Dealing with the player's actions
 	switch (V[armAction]) {
 		case "msemencover":
 			clearAction("mrest");
@@ -863,7 +867,7 @@ function masturbationEffectsArms(
 				fragment.append(span(`You let go of your ${arm} breast.`));
 			}
 
-			// Deal with the player's  mouth actions
+			// Deal with the player's mouth actions
 			if (V[otherArm + "arm"] !== "mbreasthold") {
 				if (V.mouth === "mbreast") {
 					V.mouth = 0;
@@ -2926,7 +2930,7 @@ function masturbationEffectsMouth({
 
 	const altText = {};
 
-	// Dealing with the player's  actions
+	// Dealing with the player's actions
 	switch (V.mouthaction) {
 		case "mbreastentrance":
 			clearAction("mbreastlick");

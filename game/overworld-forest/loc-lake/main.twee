@@ -519,7 +519,7 @@ The group leaves the tent, saying their goodbyes. "I may ask you to join them on
 :: Lake Shore Mirror
 
 <<effects>>
-<<link [[Step away|Lake Shore]]>><<handheldon>><<unset $mirrorMenu>><<unset $bodywritingSet>><</link>>
+<<link [[Step away|Lake Shore]]>><<unset $mirrorMenu>><<unset $bodywritingSet>><</link>>
 <br>
 <<mirror "reflection">>
 <br><br>
@@ -878,22 +878,14 @@ You collect pieces of dry tinder, and other kindling. You manage to build up a s
 <<unset $phase>>
 <br><br>
 
-<<link [[Rest (0:15)|Lake Campsite Warmth]]>><<pass 15>><</link>><<gwarmth>>
+<<link [[Rest (0:15)|Lake Campsite Warmth]]>><<lakecampfirewarmth>><<pass 15>><</link>><<gwarmth>>
 <br>
 <<link [[Leave|Lake Campsite]]>><<set $phase to "extinguish">><</link>>
 
 :: Lake Campsite Warmth
 
-<<effects>><<lakeeffects>>
+<<lakecampfirewarmth>><<effects>><<lakeeffects>>
 
-<<set _outsideTemp to Weather.Temperature.getCelsius()>>
-<<set _tempIncrease to sigmoid(3, 37, 0.25, -4, _outsideTemp)>>
-<<set _tempOverride to _outsideTemp + _tempIncrease>>
-/* Increases ambient temp by ~3c to ~40c based on current ambient temp */
-/* This allows people to make use of it as a source for warmth */
-/* without causing massive exhaustion during warm days */
-/* Update the parameters as needed to improve user experience */
-<<set Weather.Temperature.override.outside = _tempOverride>>
 <<dry>>
 
 You warm yourself against the heat emanating from the fireplace.
@@ -929,7 +921,9 @@ You warm yourself against the heat emanating from the fireplace.
 
 :: Lake Shallows
 
-<<set $outside to 1>><<set $location to "lake">><<set $bus to "lakeshallows">><<water>><<effects>><<lakeeffects>>
+<<set $outside to 1>><<set $location to "lake">><<set $bus to "lakeshallows">>
+<<water>><<waterbr 2>><<effects>><<lakeeffects>>
+
 <<if $laketeenspresent is 1>>
 	You are swimming in the lake near the shore. The beach is alive with activity. <<if Time.season isnot "winter">>People play in the sand and water.<</if>>
 <<else>>
@@ -956,8 +950,7 @@ You warm yourself against the heat emanating from the fireplace.
 	<br><br>
 <</if>>
 
-<<if $lakeswim is 1>>
-	<<set $lakeswim to 0>>
+<<if $phase is "lakeswim">>
 	You practise swimming in the lake.
 	<<if Weather.dayState is "night">>
 		<<if Weather.precipitation is "rain">>
@@ -989,7 +982,6 @@ You warm yourself against the heat emanating from the fireplace.
 <</if>>
 
 <<if $phase is 1>>
-	<<set $phase to 0>>
 	You improvise a garment made from reeds and lilies and tie it around your chest. It's fragile and revealing, and you don't think you could take it off without breaking it, but it's better than nothing.
 	<<plantupper "seaweed">>
 	<br><br>
@@ -1001,7 +993,6 @@ You warm yourself against the heat emanating from the fireplace.
 	<<exposure>>
 <</if>>
 <<if $phase is 2>>
-	<<set $phase to 0>>
 	You improvise a garment made from reeds and lilies and tie it around your waist. It's fragile and revealing, and you don't think you could take it off without breaking it, but it's better than nothing.
 	<<plantlower "seaweed">>
 	<br><br>
@@ -1018,6 +1009,7 @@ You warm yourself against the heat emanating from the fireplace.
 	<</if>>
 	<<exposure>>
 <</if>>
+<<set $phase to 0>>
 
 
 <<if $stress gte $stressmax and !$possessed>>
@@ -1027,7 +1019,7 @@ You warm yourself against the heat emanating from the fireplace.
 <<elseif dangerEvent(0.5) and $eventskip is 0>>
 	<<eventlakewater>>
 <<else>>
-	<<swimicon "back">><<link [[Practise swimming (0:30)|Lake Shallows]]>><<stress -6>><<tiredness 6>><<set $lakeswim to 1>><<slimeEventEnd "swimming">><</link>><<gswimming>><<lstress>><<gtiredness>>
+	<<swimicon "back">><<link [[Practise swimming (0:30)|Lake Shallows]]>><<stress -6>><<tiredness 6>><<set $phase to "lakeswim">><<slimeEventEnd "swimming">><</link>><<gswimming>><<lstress>><<gtiredness>>
 	<br>
 	<<if $worn.upper.exposed gte 2 and $worn.under_upper.exposed gte 1
 	or $worn.upper.exposed gte 2 and $underupperwetstage gte 3
@@ -1155,26 +1147,28 @@ You warm yourself against the heat emanating from the fireplace.
 <</if>>
 
 :: Lake Lotus
-<<effects>><<wearProp "lotus">>
+<<effects>><<wearProp "lotus basket">>
 
 You glide between the lotus flowers, gently teasing loose a cluster of seeds before tucking them away. <span class="gold">You can now grow <<icon "tending/lotus.png">> lotus.</span> <i>Lotus are valuable, but need a special environment to grow.</i>
 <br><br>
 
-<<link [[Next|Lake Shallows]]>><<handheldon>><</link>>
+<<link [[Next|Lake Shallows]]>><</link>>
 <br>
 
 :: Lake Lotus Ice
-<<effects>><<wearProp "lotus">>
+<<effects>><<wearProp "lotus basket">>
 
 You chip the lotus flowers free from the ice and gather their seeds with numbed fingers. <span class="gold">You can now grow <<icon "tending/lotus.png">> lotus.</span> <i>Lotus are valuable, but need a special environment to grow.</i>
 <br><br>
 
-<<link [[Next|Lake Shallows Ice]]>><<handheldon>><</link>>
+<<link [[Next|Lake Shallows Ice]]>>><</link>>
 <br>
 
 :: Lake Depths
 
-<<set $outside to 1>><<set $location to "lake">><<set $bus to "lakedepths">><<water>><<effects>><<lakeeffects>>
+<<set $outside to 1>><<set $location to "lake">><<set $bus to "lakedepths">>
+<<water>><<waterbr 2>><<effects>><<lakeeffects>>
+
 <<if $laketeenspresent is 1>>
 	You are swimming in the middle of the lake near the dock. You see several students hanging out on and around it.
 <<else>>
@@ -1198,8 +1192,7 @@ You chip the lotus flowers free from the ice and gather their seeds with numbed 
 	<br><br>
 <</if>>
 
-<<if $lakeswim is 1>>
-	<<set $lakeswim to 0>>
+<<if $phase is "lakeswim">>
 	You practise swimming in the lake.
 	<<if Weather.dayState is "night">>
 		<<if Weather.precipitation is "rain">>
@@ -1231,7 +1224,6 @@ You chip the lotus flowers free from the ice and gather their seeds with numbed 
 <</if>>
 
 <<if $phase is 1>>
-	<<set $phase to 0>>
 	You improvise a garment made from reeds and lilies and tie it around your chest. It's fragile and revealing, and you don't think you could take it off without breaking it, but it's better than nothing.
 	<<plantupper "seaweed">>
 	<br><br>
@@ -1242,7 +1234,6 @@ You chip the lotus flowers free from the ice and gather their seeds with numbed 
 	<</if>>
 <</if>>
 <<if $phase is 2>>
-	<<set $phase to 0>>
 	You improvise a garment made from reeds and lilies and tie it around your waist. It's fragile and revealing, and you don't think you could take it off without breaking it, but it's better than nothing.
 	<<plantlower "seaweed">>
 	<br><br>
@@ -1258,6 +1249,7 @@ You chip the lotus flowers free from the ice and gather their seeds with numbed 
 		<br><br>
 	<</if>>
 <</if>>
+<<set $phase to 0>>
 
 
 <<if $stress gte $stressmax and !$possessed>>
@@ -1269,7 +1261,7 @@ You chip the lotus flowers free from the ice and gather their seeds with numbed 
 <<elseif dangerEvent(0.5) and $eventskip is 0>>
 	<<eventlakewater>>
 <<else>>
-	<<swimicon>><<link [[Practise swimming (0:30)|Lake Depths]]>><<stress -6>><<tiredness 6>><<set $lakeswim to 1>><<slimeEventEnd "swimming">><</link>><<gswimming>><<lstress>><<gtiredness>>
+	<<swimicon>><<link [[Practise swimming (0:30)|Lake Depths]]>><<stress -6>><<tiredness 6>><<set $phase to "lakeswim">><<slimeEventEnd "swimming">><</link>><<gswimming>><<lstress>><<gtiredness>>
 	<br>
 	<<if !Time.schoolDay and Weather.precipitation is "rain" and Time.dayState is "day" and $daily.masonSpoken isnot 1 and !$possessed>>
 		<<if $mason_count gte 1>>
@@ -1385,7 +1377,7 @@ You are in the middle of the frozen lake, near the swimming dock.
 You lift the shovel, and thrust it into the ice. It's hard work, but you manage to make a sizeable hole.
 <br><br>
 
-<<link [[Next|Lake Depths Ice]]>><<handheldon>><</link>>
+<<link [[Next|Lake Depths Ice]]>><</link>>
 <br>
 
 

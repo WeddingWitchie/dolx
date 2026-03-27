@@ -16,6 +16,7 @@
 	<<set $breastsensitivity to 1>>
 	<<set $bottomsensitivity to 1>>
 	<<set $genitalsensitivity to 1>>
+	<<set $alcoholMod to 1>>
 	<<set $facestyle to "default">>
 	<<set $facevariant to "default">>
 	<<set $eyeselect to "purple">>
@@ -1300,6 +1301,12 @@
 			<label><span class="pink">Very sensitive</span> <<radiobutton "$genitalsensitivity" 3 autocheck>></label> |
 			<label><span class="red">Hyper sensitive</span> <<radiobutton "$genitalsensitivity" 4 autocheck>></label>
 		</div>
+		<div class="settingsToggleItem">
+			<span class="gold">Alcohol Tolerance</span><br>
+			<label><span class="blue">Heavyweight </span><<radiobutton "$alcoholMod" 0.5 autocheck>></label> |
+			<label>Normal <<radiobutton "$alcoholMod" 1 autocheck>></label> |
+			<label><span class="red">Lightweight</span> <<radiobutton "$alcoholMod" 1.5 autocheck>></label>
+		</div>
 	</div>
 
 	<hr>
@@ -1545,7 +1552,7 @@
 					<<script>>
 						localStorage.removeItem("dolFeats");
 					<</script>>
-					<<setupFeats true>>
+					<<setupFeatBoosts true>>
 					<<displaySettings "featSettings">>
 				<</link>>
 				<span class="red"> This will remove all feats that have been earned so far, meaning you will have to collect them again.</span>
@@ -2792,6 +2799,37 @@
 				<</link>>
 			<</if>>
 		</div>
+		<div class="settingsToggleIndent">
+			<<foldout false "_gender">>
+				<span class="gold">Assign to all Named NPCs:</span>
+				Gender:
+				<<link "Male">><<assignAllNPCs "pronoun" "m">><</link>> | <<link "Female">><<assignAllNPCs "pronoun" "f">><</link>>
+				<br>
+				Genitals:
+				<<link "Penis">><<assignAllNPCs "gender" "m">><</link>> | <<link "Vagina">><<assignAllNPCs "gender" "f">><</link>>
+				<br>
+				Penis size:
+				<<set _penisNames to ["", "Tiny", "Average", "Thick", "Huge"]>> /* the empty first element is necessary because _j starts at 1 */
+				<<for _j to 1; _j lt _penisNames.length; _j++>>
+					<<capture _j>>
+						<<link _penisNames[_j]>><<assignAllNPCs "penissize" _j>><</link>>
+						<<if _j isnot _penisNames.length -1>>|<</if>>
+					<</capture>>
+				<</for>>
+				<br>
+				Breast size:
+				<<set _breastNames to ["Flat", "Budding", "Tiny", "Small", "Pert", "Modest", "Full", "Large", "Ample", "Massive", "Huge", "Gigantic", "Enormous"]>>
+				<<for _k to 0; _k lt _breastNames.length; _k++>>
+					<<capture _k>>
+						<<link _breastNames[_k]>><<assignAllNPCs "breastsize" _k>><</link>>
+						<<if _k isnot _breastNames.length -1>>|<</if>>
+					<</capture>>
+				<</for>>
+				<br>
+				Skin colour:
+				<<link "Pale">><<assignAllNPCs "skincolour" "white">><</link>> | <<link "Dark">><<assignAllNPCs "skincolour" "black">><</link>>
+			<</foldout>>
+		</div>
 		<hr>
 		<<if _npcId is undefined>>
 			<<set _npcId to 0>>
@@ -2811,11 +2849,14 @@
 
 		<<if _npcList is undefined>>
 			<<set _npcList to {}>>
-			<<for $_i to 0; $_i lt $NPCNameList.length; $_i++>>
-				<<set _npcList[clone($NPCNameList[$_i])] to clone($_i)>>
+			<<set _sortedNPCList to clone($NPCNameList).sort()>>
+
+			<<for $_i to 0; $_i lt _sortedNPCList.length; $_i++>>
+				<<set _npcList[_sortedNPCList[$_i]] to $NPCNameList.indexOf(_sortedNPCList[$_i])>>
 			<</for>>
 			<<if $passage is "Start" or !$wraithIntro>>
 				<<run delete _npcList["Ivory Wraith"]>>
+				<<run _sortedNPCList.delete("Ivory Wraith")>>
 			<</if>>
 		<</if>>
 
@@ -2860,6 +2901,28 @@
 			<<set _listActive to true>>
 		<</if>>
 	</div>
+<</widget>>
+
+<<widget "assignAllNPCs">>
+	<<set $_characteristic to _args[0]>>
+	<<set $_value to _args[1]>>
+	<<for $_i to 0; $_i lt $NPCName.length; $_i++>>
+		<<set $NPCName[$_i][$_characteristic] to $_value>>
+		<<if $_characteristic is "breastsize">>
+			<<set $NPCName[$_i].breastdesc to $_i > 0 ? setup.breastsizes[$_value] + " breast" : "nipple">>
+			<<set $NPCName[$_i].breastsdesc to $_i > 0 ? setup.breastsizes[$_value] + " breasts" : "nipples">>
+		<</if>>
+	<</for>>
+	<<if $passage isnot "start" and $per_npc and Object.keys($per_npc).length gt 0>>
+		<<for $_i, $_value range $per_npc>>
+			<<set $per_npc[$_i][$_characteristic] to $_value>>
+			<<if $_characteristic is "breastsize">>
+				<<set $per_npc[$_i].breastdesc to $_i > 0 ? setup.breastsizes[$_value] + " breast" : "nipple">>
+				<<set $per_npc[$_i].breastsdesc to $_i > 0 ? setup.breastsizes[$_value] + " breasts" : "nipples">>
+			<</if>>
+		<</for>>
+	<</if>>
+	<<replace #npcSettingsMenu>><<npcSettingsMenu>><</replace>>
 <</widget>>
 
 <<widget "exportsettings">>
@@ -2934,25 +2997,23 @@
 			<span style="font-size:80%">
 				<br>
 				<<link "Previous">>
-					<<if _npcId is 0>>
-						<<set _npcId to $NPCNameList.length - 1>>
+					<<set _sortedId to _sortedNPCList.indexOf($NPCNameList[_npcId])>>
+					<<if _sortedId is 0>>
+						<<set _sortedId to $NPCNameList.length - 2>>
 					<<else>>
-						<<set _npcId-->>
+						<<set _sortedId-->>
 					<</if>>
-					<<if _npcList[$NPCName[_npcId].nam] is undefined>>
-						<<set _npcId-->>
-					<</if>>
+					<<set _npcId to _npcList[_sortedNPCList[_sortedId]]>>
 					<<replace #npcSettingsMenu>><<npcSettingsMenu>><</replace>>
 				<</link>> <span style="color:white">|</span>
 				<<link "Next">>
-					<<if _npcId is $NPCNameList.length - 1>>
-						<<set _npcId to 0>>
+					<<set _sortedId to _sortedNPCList.indexOf($NPCNameList[_npcId])>>
+					<<if _sortedId gte $NPCNameList.length - 1>>
+						<<set _sortedId to 0>>
 					<<else>>
-						<<set _npcId++>>
+						<<set _sortedId++>>
 					<</if>>
-					<<if _npcList[$NPCName[_npcId].nam] is undefined>>
-						<<set _npcId++>>
-					<</if>>
+					<<set _npcId to _npcList[_sortedNPCList[_sortedId]]>>
 					<<replace #npcSettingsMenu>><<npcSettingsMenu>><</replace>>
 				<</link>>
 			</span>
@@ -2985,10 +3046,7 @@
 				<span class="gold">Penis size:</span>
 				<br>
 				<<for _j to 1; _j lt _penisNames.length; _j++>>
-					<label>
-						<<radiobutton "$NPCName[_npcId].penissize" _j autocheck>>
-						<<print _penisNames[_j]>>
-					</label>
+					<label>	<<radiobutton "$NPCName[_npcId].penissize" _j autocheck>><<= _penisNames[_j]>></label>
 					<<if _j isnot _penisNames.length -1>>|<</if>>
 				<</for>>
 			</span>
@@ -4821,7 +4879,7 @@
 	<br><br>
 	<div id="featsFinishButton" class="hidden">
 		<<link "Next">>
-			<<setupFeats true>>
+			<<setupFeatBoosts true>>
 			<<replace "#startCaption">><<startCaption>><</replace>>
 			<<replace "#settingsStart">><<settingsStart>><</replace>>
 		<</link>>

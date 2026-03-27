@@ -3,6 +3,25 @@
 <<set $outside to 1>><<set $location to "town">><<effects>>
 You climb the fence and haul yourself over the top, landing on Elk Street proper. You don't think anyone saw you.
 <br><br>
+
+<<link [[Next|Elk Street]]>><</link>>
+<br>
+
+:: Elk Compound Leave
+<<set $outside to 1>><<set $location to "town">><<effects>>
+You walk to the gate and speak with the guards.
+<br><br>
+<<if $speech_attitude is "meek">>
+	"I delivered the package," you say. "M-may I please be allowed to leave?"
+<<elseif $speech_attitude is "bratty">>
+	"All done," you say. "Can you let me go now?"
+<<else>>
+	"I delivered the package," you say. "Please allow me to leave."
+<</if>>
+<br><br>
+The guard looks you over. "You're cleared." You wait for the gate to be opened and exit back out onto Elk Street.
+<br><br>
+
 <<link [[Next|Elk Street]]>><</link>>
 <br>
 
@@ -10,15 +29,15 @@ You climb the fence and haul yourself over the top, landing on Elk Street proper
 
 <<set $outside to 1>><<set $location to "compound">><<effects>>
 You are in the compound on Elk Street. Three red brick buildings stand surrounded by a chain link fence. The gate is guarded by security personnel.
-<<if $compound.alarm gte 1>>
+<<if !$compound.allowed>>
 	<span class="red">You are trespassing.</span>
 <</if>>
 <br><br>
-<<if $compound.card isnot 2>>
+<<if !$compound.discovered>>
 	<span class="gold">You've discovered the compound on Elk Street.</span>
 	<<earnFeat "Illicit Science">>
 	<br><br>
-	<<set $compound.card to 2>>
+	<<set $compound.discovered to true>>
 <</if>>
 <<if $compound.alarm gte 1>>
 	<<set $daily.compoundState to 1>>
@@ -131,7 +150,11 @@ You are in the compound on Elk Street. Three red brick buildings stand surrounde
 			<<investigateicon>><<link [[Investigate the central building|Elk Compound Central]]>><</link>>
 			<br>
 		<</if>>
-		<<getouticon>><<link [[Climb the fence to safety|Elk Compound Climb]]>><<resetCompound>><</link>>
+		<<if $compound.allowed and !$compound.alarm>>
+			<<getouticon>><<link [[Leave through the front gate|Elk Compound Leave]]>><<resetCompound>><</link>>
+		<<else>>
+			<<getouticon>><<link [[Climb the fence to safety|Elk Compound Climb]]>><<resetCompound>><</link>>
+		<</if>>
 		<br>
 	<</if>>
 <</if>>
@@ -189,7 +212,7 @@ The door is locked tight.
 		<<wearProp "lockpick">>
 		<span class="green">The lock looks easy to pick.</span>
 		<br><br>
-		<<lockicon "pick">><<link [[Break in (0:05)|Elk Compound Interior]]>><<handheldon>><<pass 5>><<crimeUp 30 "trespassing">><</link>><<ggcrime "trespassing">><<gsecurity>>
+		<<lockicon "pick">><<link [[Break in (0:05)|Elk Compound Interior]]>><<pass 5>><<crimeUp 30 "trespassing">><</link>><<ggcrime "trespassing">><<gsecurity>>
 		<br>
 	<</if>>
 <<else>>
@@ -202,12 +225,12 @@ The door is locked tight.
 		<span class="blue">You'll need to wait for security to relax before making your delivery.</span>
 		<br>
 	<<else>>
-		<<ind>><<link [[Ring the doorbell|Elk Compound Central Ring]]>><<handheldon>><</link>>
+		<<ind>><<link [[Ring the doorbell|Elk Compound Central Ring]]>><</link>>
 		<br>
 	<</if>>
 
 <</if>>
-<<getouticon>><<link [[Leave|Elk Compound]]>><<handheldon>><</link>>
+<<getouticon>><<link [[Leave|Elk Compound]]>><</link>>
 <br>
 
 :: Elk Compound Central Ring
@@ -228,7 +251,7 @@ A green light flashes above. You feel a rumble, and the door opens. A <<person>>
 <br>
 
 :: Elk Compound Sell
-<<effects>><<wearProp "aphrodisiac jar">>
+<<effects>><<wearProp "phial pink mist">>
 
 You offer the
 <<if $phials_held gte 2>>
@@ -512,7 +535,7 @@ A <<generate3>><<npcClothesType $NPCList[2] "compoundLab">><<person3>><<person>>
 As soon as the <<person>> touches your arm a jolt surges through you. You lose consciousness.
 <br><br>
 
-<<link [[Next|Elk Compound Experiment]]>><<upperruined>><<lowerruined>><<underruined>><<underupperruined>><<handheldruined>><<endcombat>><</link>>
+<<link [[Next|Elk Compound Experiment]]>><<upperruined>><<lowerruined>><<underruined>><<underupperruined>><<handheldruined>><<if $combat is 1>><<endcombat>><<else>><<endevent>><</if>><</link>>
 <br>
 
 :: Elk Compound Fight Finish
@@ -951,7 +974,7 @@ The inside is dominated by a large lift.
 
 :: Elk Compound Interior Take
 
-<<set $outside to 0>><<set $location to "compound">><<effects>><<set $weekly.compoundCentre to true>><<wearProp "pepperspray">>
+<<set $outside to 0>><<set $location to "compound">><<effects>><<set $weekly.compoundCentre to true>><<wearProp "pepper spray">>
 
 <<if $compoundspray is 1>>
 	You pick up the laptop and canister then head for the exit.
@@ -973,13 +996,13 @@ The inside is dominated by a large lift.
 	<<set $daily.compoundState to 1>>
 	<br><br>
 	<<if $player.vaginaExist or $settings.analEnabled>>
-		<<link [[Protest|Elk Compound Interior Seduce]]>><<handheldon>><</link>>
+		<<link [[Protest|Elk Compound Interior Seduce]]>><</link>>
 		<br>
 	<</if>>
-	<<link [[Struggle|Elk Compound Interior Struggle]]>><<handheldon>><</link>>
+	<<link [[Struggle|Elk Compound Interior Struggle]]>><</link>>
 	<br>
 <<else>>
-	<<getouticon>><<link [[Leave|Elk Compound]]>><<handheldon>><</link>>
+	<<getouticon>><<link [[Leave|Elk Compound]]>><</link>>
 	<br>
 <</if>>
 
@@ -1038,10 +1061,7 @@ The inside is dominated by a large lift.
 	<<neutral 1>>
 
 	<<set $machine_health to 10>><<set $machine_ammo to 8>>
-	<<if $player.vaginaExist and $settings.analEnabled>>
-		<<machine_init vaginal arm_chains>>
-		<<set $machine.vaginal.armed to 1>>
-	<<elseif $player.vaginaExist>>
+	<<if $player.vaginaExist>>
 		<<machine_init vaginal arm_chains>>
 		<<set $machine.vaginal.armed to 1>>
 	<<else>>
@@ -1238,7 +1258,7 @@ You walk up to the gate. It's guarded by two security guards. <<generateSecurity
 	<<icon "lust.png">><<link [[Show them the aphrodisiac phial|Elk Compound Show]]>><</link>>
 	<br>
 <</if>>
-<<if $compound.card is 1>>
+<<if $compound.card>>
 	<<icon "access_card.png">><<link [[Show them the stolen card|Elk Compound Card]]>><</link>>
 	<br>
 <</if>>
@@ -1252,7 +1272,7 @@ You walk up to the gate. It's guarded by two security guards. <<generateSecurity
 You hold out the phial. The <<person>> peers at it. "Hmph," <<he>> sounds. "Fine. Central building. Make your delivery and get out." <<His>> companion disappears into a booth, and the gates shudder open.
 <br><br>
 
-<<link [[Elk Compound]]>><<endevent>><</link>>
+<<link [[Elk Compound]]>><<endevent>><<set $compound.allowed to true>><<set $daily.compoundAllowedEntrance to true>><</link>>
 <br>
 
 :: Elk Compound Card
@@ -1271,7 +1291,7 @@ The guard snatches the card and examines it. <<He>> runs it through a device at 
 <<His>> companion disappears into a booth, and the gates shudder open.
 <br><br>
 <<endevent>>
-<<link [[Enter|Elk Compound]]>><<endevent>><</link>>
+<<link [[Enter|Elk Compound]]>><<endevent>><<set $compound.allowed to true>><<set $daily.compoundAllowedEntrance to true>><</link>>
 <br>
 
 
@@ -1326,7 +1346,7 @@ You pick up the badge and study it. It identifies the <<person1>><<person>> as <
 
 
 :: Elk Compound Station Canister
-<<effects>><<wearProp "pepperspray">>
+<<effects>><<wearProp "pepper spray">>
 
 <<if $compoundspray2 isnot 1>>
 	<<set $compoundspray2 to 1>>

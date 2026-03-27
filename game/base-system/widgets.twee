@@ -2,9 +2,9 @@
 
 <<widget "toggledebug">>
 	<<if $debug>>
-		<<set $debug to 1>>
-	<<else>>
 		<<set $debug to 0>>
+	<<else>>
+		<<set $debug to 1>>
 	<</if>>
 <</widget>>
 
@@ -184,6 +184,7 @@
 
 <<widget "underwater">>
 	<<water>><<set $underwater to 1>><<set $underwatercheck to 1>><<unset $oxygenRecovery>>
+	<<waterbr 1>>
 	<<if $combat isnot 1>>
 		<<if $oxygen lt 0 and $nooxygen is 1>>
 			<<set $stress += 1000>>
@@ -226,14 +227,16 @@
 <<widget "oxygenrecovery">>
 	<<if $oxygenRecovery and $oxygen lt $oxygenmax>>
 		/* 8 minutes to recover from 0 oxygen */
-		<<set $_oxygenFullResaturation to 480>>
-		<<set _oxygenResaturationTimer to Math.ceil((1 - $oxygen/$oxygenmax)*$_oxygenFullResaturation/60)>>
-		<<if ['string', 'number'].includes(typeof(_args[0]))>>
-			<<set $phase to _args[0]>>
-		<<elseif _args[0]>>
-			<<set $phase to "oxygenrecovery">>
-		<</if>>
-		<<loitericon>><<link [[`Catch your breath (${getTimeString(_oxygenResaturationTimer)})`|$passage]]>><<pass _oxygenResaturationTimer>><</link>>
+		<<set _oxygenResaturationSeconds to Math.ceil((1 - $oxygen/$oxygenmax)*Time.oxygenResaturationDuration)>>
+		<<set _oxygenResaturationMinutes to Math.ceil(_oxygenResaturationSeconds/60)>>
+		<<loitericon>><<link [[`Catch your breath (${getTimeString(_oxygenResaturationMinutes)})`|$passage]]>>
+			<<if ['string', 'number'].includes(typeof(_args[0]))>>
+				<<set $phase to _args[0]>>
+			<<elseif _args[0]>>
+				<<set $phase to "oxygenrecovery">>
+			<</if>>
+			<<pass _oxygenResaturationSeconds seconds>>
+		<</link>>
 		<br>
 	<</if>>
 <</widget>>
@@ -583,9 +586,7 @@
 		<</if>>
 		<<stress _args[0] $_stress_multiplier>>
 		<<combattrauma `-1 * _args[0]`>>
-		<<if _args[1] is "demanding">>
-			<<set $enemyanger += 20 * _args[0]>>
-		<<elseif $NPCList[0].legs isnot "walk">>
+		<<if $NPCList[0].legs isnot "walk">>
 			<<set $enemyanger += 5 * _args[0]>>
 		<</if>>
 		<<def `_args[0] / 4`>>
@@ -1378,6 +1379,8 @@
 			<<set _args[0] *= 1.25>>
 		<</if>>
 		<<set $xchange.baseStats.physique -= 10 * _args[0]>>
+		<<set $xchange.baseStats.physique = Math.clamp($xchange.baseStats.physique, 0, $xchange.baseStats.physiquesize * $AMCTraits.physique)>>
+		<<run updatePhysique()>>
 	<</if>>
 <</widget>>
 
@@ -1448,15 +1451,15 @@
 
 <<widget "vaginalstat">><<if $statFreeze isnot true>><<set $vaginalstat += 1>><<set $vaginalTimeStat to Time.date.timeStamp>><</if>><</widget>>
 
-<<widget "vaginalejacstat">><<if $statFreeze isnot true>><<set $vaginalejacstat += 1>><<purity -2>><<fertiliseParasites "vagina">><<creampie "self" "vagina">><<set $vaginalEjacTimeStat to Time.date.timeStamp>><</if>><</widget>>
+<<widget "vaginalejacstat">><<if $statFreeze isnot true>><<set $vaginalejacstat += 1>><<purity -2>><<fertiliseParasites "vagina">><<internalejac>><<creampie "self" "vagina">><<set $vaginalEjacTimeStat to Time.date.timeStamp>><</if>><</widget>>
 
 <<widget "analstat">><<if $statFreeze isnot true>><<set $analstat += 1>><<set $analTimeStat to Time.date.timeStamp>><</if>><</widget>>
 
-<<widget "analejacstat">><<if $statFreeze isnot true>><<set $analejacstat += 1>><<purity -2>><<fertiliseParasites>><<creampie "self" "anus">><<set $analEjacTimeStat to Time.date.timeStamp>><</if>><</widget>>
+<<widget "analejacstat">><<if $statFreeze isnot true>><<set $analejacstat += 1>><<purity -2>><<fertiliseParasites>><<internalejac>><<creampie "self" "anus">><<set $analEjacTimeStat to Time.date.timeStamp>><</if>><</widget>>
 
 <<widget "oralstat">><<if $statFreeze isnot true>><<set $oralstat += 1>><</if>><</widget>>
 
-<<widget "oralejacstat">><<if $statFreeze isnot true>><<set $oralejacstat += 1>><<purity -1>><<creampie "self" "mouth">><</if>><</widget>>
+<<widget "oralejacstat">><<if $statFreeze isnot true>><<set $oralejacstat += 1>><<purity -1>><<internalejac>><<creampie "self" "mouth">><</if>><</widget>>
 
 <<widget "cunnilingusstat">><<if $statFreeze isnot true>><<set $cunnilingusstat += 1>><</if>><</widget>>
 
@@ -2085,8 +2088,8 @@
 				<<awareness 1>>
 			<</if>>
 		<</if>>
-		<<if $enemytype is "tentacles" 
-			or ($abomination is 1 and [$anusstate, $mouthstate, $penisstate, $vaginastate].includes("tentacle"))>>
+		<<if $enemytype is "tentacles"
+		or ($abomination is 1 and [$anusstate, $mouthstate, $penisstate, $vaginastate].includes("tentacle"))>>
 			<<set $tentaclerapestat += 1>>
 		<</if>>
 		<<if $enemytype is "tentacles" or $enemytype is "struggle">>
@@ -2174,7 +2177,7 @@
 		<<if $control gt 1>>
 			<<if $molesttrait gte 1 and $rapeavoid is 1>>
 			<<else>>
-				<<set $controlstart to $control>><<control -25>>
+				<<set $controlstart to $control>><<combatcontrol -25>>
 				<<if $control gte ($controlmax * 0.74)>>
 					<span class="purple">Your sense of control wavers.</span>
 				<<elseif $control gte ($controlmax * 0.49)>>
@@ -2389,11 +2392,11 @@
 
 <<widget "ragup">>
 	<<if $worn.upper.exposed gte 2>>
-		<<upperwear 79>>
+		<<upperwear "rag top">>
 	<</if>>
 
 	<<if $worn.lower.exposed gte 2>>
-		<<lowerwear 71>>
+		<<lowerwear "rag skirt">>
 	<</if>>
 <</widget>>
 
@@ -2404,9 +2407,9 @@
 	or $upperwetstage gte 3 and $underupperwetstage gte 3
 	or _args[0] is "force">>
 		<<if _args[0] is "seaweed">>
-			<<upperwear 163>>
+			<<upperwear "seaweed top">>
 		<<else>>
-			<<upperwear 6>>
+			<<upperwear "plant top">>
 		<</if>>
 	<</if>>
 <</widget>>
@@ -2418,9 +2421,9 @@
 	or $lowerwetstage gte 3 and $underlowerwetstage gte 3
 	or _args[0] is "force">>
 		<<if _args[0] is "seaweed">>
-			<<lowerwear 150>>
+			<<lowerwear "seaweed skirt">>
 		<<else>>
-			<<lowerwear 8>>
+			<<lowerwear "plant skirt">>
 		<</if>>
 	<</if>>
 <</widget>>
@@ -2428,40 +2431,40 @@
 <<widget "plantup">>
 	<<if $worn.upper.exposed gte 2 and $worn.under_upper.exposed gte 1 or $upperwetstage gte 3 and $underupperwetstage gte 3>>
 		<<if _args[0] is "seaweed">>
-			<<upperwear 163>>
+			<<upperwear "seaweed top">>
 		<<else>>
-			<<upperwear 6>>
+			<<upperwear "plant top">>
 		<</if>>
 	<</if>>
 	<<if $worn.lower.exposed gte 2 and $worn.under_lower.exposed gte 1 or $lowerwetstage gte 3 and $underlowerwetstage gte 3 or $lowerwetstage gte 3 and $worn.under_lower.exposed gte 1>>
 		<<if _args[0] is "seaweed">>
-			<<lowerwear 150>>
+			<<lowerwear "seaweed skirt">>
 		<<else>>
-			<<lowerwear 8>>
+			<<lowerwear "plant skirt">>
 		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "schoolspareclothes">>
 	<<if !$worn.upper.type.includes("school") or !$worn.lower.type.includes("school") and $worn.upper.set is $worn.lower.set>>
-		<<upperwear 5>><<set $worn.upper.colour to either("black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow")>><<set $worn.upper.integrity /= 2>>
+		<<upperwear "school shirt">><<set $worn.upper.colour to either("black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow")>><<set $worn.upper.integrity /= 2>>
 	<</if>>
 	<<if !$worn.lower.type.includes("school")>>
 		<<if $clothingselector is "m">>
-			<<lowerwear 6>><<set $worn.lower.colour to either("black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow")>><<set $worn.lower.integrity /= 2>>
+			<<lowerwear "school shorts">><<set $worn.lower.colour to either("black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow")>><<set $worn.lower.integrity /= 2>>
 		<<else>>
-			<<lowerwear 7>><<set $worn.lower.colour to either("black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow")>><<set $worn.lower.integrity /= 2>>
+			<<lowerwear "school skirt">><<set $worn.lower.colour to either("black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow")>><<set $worn.lower.integrity /= 2>>
 		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "spareschoolswimsuit">>
-	<<underupperwear 2>><<set $worn.under_upper.colour to either("black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow")>><<set $worn.under_upper.integrity /= 2>>
+	<<underupperwear "school swimsuit">><<set $worn.under_upper.colour to either("black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow")>><<set $worn.under_upper.integrity /= 2>>
 	<<set $worn.under_lower.colour to clone($worn.under_upper.colour)>><<set $worn.under_lower.integrity /= 2>>
 <</widget>>
 
 <<widget "spareschoolswimshorts">>
-	<<underlowerwear 7>><<set $worn.under_lower.colour to either("black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow")>><<set $worn.under_lower.integrity /= 2>>
+	<<underlowerwear "school swim shorts">><<set $worn.under_lower.colour to either("black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow")>><<set $worn.under_lower.integrity /= 2>>
 <</widget>>
 
 <<widget "exposureold">>
@@ -2732,8 +2735,8 @@
 
 <<widget "shackle_feet">>
 	<<switch _args[0]>>
-		<<case "vines">><<feetwear 50>>
-		<<default>><<feetwear 3>>
+		<<case "vines">><<feetwear "vines">>
+		<<default>><<feetwear "ankle cuffs">>
 	<</switch>>
 	<<legbind>>
 <</widget>>
@@ -3103,6 +3106,18 @@
 		}})()>>
 <</widget>>
 
+<<widget "waterbr">> /* Prints the specified number of linebreaks after "waterwash" prints text */
+	<<if _waterWashText>>
+		<<if _args[0] is 2>>
+			<br><br>
+		<<elseif _args[0] is 1>>
+			<br>
+		<<else>>
+			<span class="red">ERROR: No valid argument for "waterbr" (must be 1 or 2).</span>
+		<</if>>
+	<</if>>
+<</widget>>
+
 <<widget "waterwash">>
 	<<if $combat isnot 1>>
 		<<for _bodypart range setup.bodyliquid.bodyparts>>
@@ -3114,27 +3129,33 @@
 		<<washRecordedSperm "anus" "pc">>
 	<</if>>
 
+	<<if $waterwash is 0>> /* Return early if no lewd fluids */
+		<<set _waterWashText to false>> /* Temp variable to track if text is printed, checked in "waterbr" widget */
+		<<exit>>
+	<</if>>
+
 	<<if _waterDoesNotAttractAttention>>
 		<<if $waterwash gte 10>>
-			<span class="lewd">Copious amounts of lewd fluid washes into the water.</span><br>
+			<span class="lewd">Copious amounts of lewd fluid washes into the water.</span>
 		<<elseif $waterwash gte 5>>
-			<span class="lewd">Lots of lewd fluid washes into the water.</span><br>
+			<span class="lewd">Lots of lewd fluid washes into the water.</span>
 		<<elseif $waterwash gte 2>>
-			<span class="lewd">Lewd fluid washes into the water.</span><br>
-		<<elseif $waterwash is 1>>
-			<span class="lewd">Some lewd fluid washes into the water.</span><br>
+			<span class="lewd">Lewd fluid washes into the water.</span>
+		<<else>>
+			<span class="lewd">Some lewd fluid washes into the water.</span>
 		<</if>>
 	<<else>>
 		<<if $waterwash gte 10>>
-			<span class="lewd">Copious amounts of lewd fluid washes into the water. You hope it doesn't attract attention.</span><br>
+			<span class="lewd">Copious amounts of lewd fluid washes into the water. You hope it doesn't attract attention.</span>
 		<<elseif $waterwash gte 5>>
-			<span class="lewd">Lots of lewd fluid washes into the water. You hope it doesn't attract attention.</span><br>
+			<span class="lewd">Lots of lewd fluid washes into the water. You hope it doesn't attract attention.</span>
 		<<elseif $waterwash gte 2>>
-			<span class="lewd">Lewd fluid washes into the water. You hope it doesn't attract attention.</span><br>
-		<<elseif $waterwash is 1>>
-			<span class="lewd">Some lewd fluid washes into the water. You hope it doesn't attract attention.</span><br>
+			<span class="lewd">Lewd fluid washes into the water. You hope it doesn't attract attention.</span>
+		<<else>>
+			<span class="lewd">Some lewd fluid washes into the water. You hope it doesn't attract attention.</span>
 		<</if>>
 	<</if>>
+	<<set _waterWashText to true>>
 	<<set $waterwash to 0>>
 
 	<<washmakeup>>
@@ -3327,7 +3348,9 @@
 	<<if $combat isnot 1>>
 		<<if $demonabsorb gte 1>>
 			<<set $trauma -= (150 * $demonabsorb)>>
-			<span class="lewd">You absorb the sexual essence. You feel soothed.</span>
+			<<if _args[0]>>
+				<span class="lewd">You absorb the sexual essence. You feel soothed.</span>
+			<</if>>
 			<<set $demonabsorb to 0>>
 			<<traumaclamp>>
 		<</if>>
@@ -3526,9 +3549,9 @@
 		<<prison_teeth _teeth>> <<prison_teeth_text _teeth>>
 	<<elseif $location is "island">>
 		/* Steal a specific antique like a wooden carving? */
-		<<if currentSkillValue("skulduggery") gte 800 and $rng gte 96>>
+		<<if $rng gte 91>>
 			<span class="green">You find a stick.</span><<set $island.wood += 1>>
-		<<elseif (currentSkillValue("skulduggery") gte 800 and $rng gte 81) or $rng gte 91>>
+		<<elseif $rng gte 76>>
 			<span class="green">You find a handful of walnuts.</span><<set $island.walnut += 1>>
 		<<else>>
 			<span class="red">You find nothing to steal.</span>
@@ -3551,12 +3574,12 @@
 		<span class="green">You steal a charge for your pepper spray.</span>
 		<<crimeUp 50 "petty">>
 	<<elseif $rng gte 91 and !$compound.card>>
-		<<set $compound.card to 1>>
-		You steal a strange card. There's an address on it, for a location on <span class="gold">Elk Street.</span>
+		<<set $compound.card to true>>
+		<span class="green">You steal a strange card.</span> There's an address on it for a location on <span class="gold">Elk Street.</span>
 	<<elseif $rng gte 90>>
 		You steal a suspicious-looking pill.
 		<<set $sexStats.pills.pills["Suspicious Pink Pill"].owned += 1>><<set $sexStats.pills.boughtOnce to true>>
-		<<crimeUp 10 "petty">><<combatskulduggeryskilluse>><<combatcontrol 10>><<gcombatcontrol>>
+		<<crimeUp 10 "petty">>
 	<<else>>
 		<<rng 5 100>>
 		You steal <<moneyGain $rng>>.
@@ -4762,7 +4785,7 @@
 		<<rng>>
 		<<if $rng gte (100 - $_prob)>><<set $pillory.tenant.lowerexposed += 2>><</if>>
 		<<rng>>
-		<<if ($pillory.tenant.special.name is "" or $pillory.tenant.person.virginity.vaginal isnot true or ($pillory.tenant.person.gender is "m" and $pillory.tenant.person.strapon is undefined)) and $rng gte (100 - $_prob)>>			
+		<<if ($pillory.tenant.special.name is "" or $pillory.tenant.person.virginity.vaginal isnot true or ($pillory.tenant.person.gender is "m" and $pillory.tenant.person.strapon is undefined)) and $rng gte (100 - $_prob)>>
 			<<set $pillory.tenant.genital += 1>>
 		<</if>>
 		<<rng>>
@@ -4789,12 +4812,12 @@
 		<<if $NPCList[1].pronoun is "f">><<set $_female to true>><<else>><<set $_female to false>><</if>>
 		<<set $_ly to either("violently","openly","angrily","furiously","cheekily","repeatedly","clumsily","roughly","theatrically","dutifully","merrily","gleefully","drunkenly","ineptly")>>
 		/* need special case for strap-ons since they don't make sense in some scenes */
-		<<set $_haspenis to $pillory.tenant.person.gender isnot "f" and $pillory.tenant.person.strapon?.state is undefined>> 
-		<<set $_hasvagina to $pillory.tenant.person.gender isnot "m" or $pillory.tenant.person.strapon?.state isnot undefined>>	
+		<<set $_haspenis to $pillory.tenant.person.gender isnot "f" and $pillory.tenant.person.strapon?.state is undefined>>
+		<<set $_hasvagina to $pillory.tenant.person.gender isnot "m" or $pillory.tenant.person.strapon?.state isnot undefined>>
 		/* Minor events scale slowly with crowd */
-		<<set $_dangerlow to Math.clamp(2*$pillory.tenant.crowd, 1, 20)>>	
+		<<set $_dangerlow to Math.clamp(2*$pillory.tenant.crowd, 1, 20)>>
 		/* Major events need enough crowd to become likely. Some are more likely than others. */
-		<<set $_dangerhigh1 to Math.clamp(4*($pillory.tenant.crowd-5), 1, 20)>> 		
+		<<set $_dangerhigh1 to Math.clamp(4*($pillory.tenant.crowd-5), 1, 20)>>
 		<<set $_dangerhigh2 to Math.clamp(8*($pillory.tenant.crowd-5), 1, 40)>>
 		<<set $_dangerhigh3 to Math.clamp(12*($pillory.tenant.crowd-5), 1, 60)>>
 		<<if Time.dayState isnot "night">>
@@ -4852,7 +4875,7 @@
 					<<runeventpool>>
 				<</addinlineevent>>
 				<</if>>
-				<<if $_hasvagina>> 
+				<<if $_hasvagina>>
 				<<addinlineevent "day vagina" $_dangerhigh2>>
 					A <<person>> in rough farmer clothes approaches the pillory with a glass beaker.
 					<br>
@@ -4871,7 +4894,7 @@
 					<<The_pillory_person>> looks mortified, <<his>> face flitting between shock, shame and sexual exhaustion.
 				<</addinlineevent>>
 				<</if>>
-				<<if $_haspenis>> 
+				<<if $_haspenis>>
 				<<addinlineevent "day balls" $_dangerlow>>
 					A <<person>> walks up to the pillory and $_ly fondles the <<pillory_type>>'s balls.
 				<</addinlineevent>>
@@ -4907,7 +4930,7 @@
 					<br>
 				<</addinlineevent>>
 				<</if>>
-				<<if Time.month > 4 && Time.month < 9 and $settings.beesEnabled>> 
+				<<if Time.month > 4 && Time.month < 9 and $settings.beesEnabled>>
 				<<addinlineevent "day bug" $_dangerhigh1>>
 					<<set _bug to either("bee","wasp","bumblebee")>>
 					<<The_pillory_person>> shouts and helplessly wriggles and flaps as a _bug starts to circle <<him>>.
@@ -4950,7 +4973,7 @@
 				<<addinlineevent "day fruit miss" $_dangerlow>>
 					A <<person>> throws fruit at the <<pillory_type>> but misses completely.
 				<</addinlineevent>>
-				<<if $pillory.tenant.upperexposed lt 3>> 
+				<<if $pillory.tenant.upperexposed lt 3>>
 				<<addinlineevent "day upperexposed" $_dangerlow>>
 					A <<person>> walks up to the <<pillory_type>> and
 					<<if $pillory.tenant.upperexposed is 2>>
@@ -4976,7 +4999,7 @@
 					<<set $pillory.tenant.upperexposed += 1>>
 				<</addinlineevent>>
 				<</if>>
-				<<if $pillory.tenant.lowerexposed lt 2>> 
+				<<if $pillory.tenant.lowerexposed lt 2>>
 				<<addinlineevent "day lowerexposed" $_dangerlow>>
 					A <<person>> walks up to <<the_pillory_person>> and
 					<<if $pillory.tenant.lowerexposed is 1>>
@@ -4992,7 +5015,7 @@
 					<<set $pillory.tenant.spank += 1>>
 				<</addinlineevent>>
 			<<runeventpool>>
-			
+
 		<<else>> /*night*/
 			<<cleareventpool>>
 				<<addinlineevent "night shouts" 20>>
@@ -5012,29 +5035,29 @@
 					A <<person>> throws fruit at the <<pillory_type>> but misses completely.
 				<</addinlineevent>>
 				<<if $pillory.tenant.upperexposed lt 3>>
-				<<addinlineevent "night upperexposed" $_dangerlow>>				
+				<<addinlineevent "night upperexposed" $_dangerlow>>
 					<<set $pillory.tenant.upperexposed to 3>>
 					A <<person>> walks up to the helpless <<pillory_type>> and displaces all <<his>> upper clothes, fully baring <<his>> <<if $pronoun is "f">>$pillory.tenant.person.breastsdesc<<else>>chest<</if>> to the crowd.
 				<</addinlineevent>>
-				<</if>>				
+				<</if>>
 				<<if $pillory.tenant.lowerexposed lt 2>>
-				<<addinlineevent "night lowerexposed" $_dangerlow>>			
+				<<addinlineevent "night lowerexposed" $_dangerlow>>
 					<<set $pillory.tenant.lowerexposed to 2>>
 					A <<person>> walks up to the helpless <<pillory_type>> and displaces all <<his>> lower clothes, fully baring <<his>> <<if $_hasvagina>>pussy<<else>>$pillory.tenant.person.penisdesc<</if>> to the crowd. There is a loud cheer.
 				<</addinlineevent>>
 				<</if>>
 				<<if $settings.bestialityEnabled and ($settings.monsterChance lt 100 or $settings.monsterHallucinationsOnly)>>
-				<<addinlineevent "night no dog" 10>>		
+				<<addinlineevent "night no dog" 10>>
 					A <<person>> tries to incite a nearby dog to mount the prisoner's naked backside. It
 					<<if $rng % 2>>gives <<the_pillory_person>>'s ass a few tentative sniffs, but
 					<</if>>is not interested.
 				<</addinlineevent>>
 				<</if>>
-				<<addinlineevent "night slap" $_dangerlow>>		
+				<<addinlineevent "night slap" $_dangerlow>>
 					<<set $pillory.tenant.spank += 1>>
 					A <<person>> sneaks up behind the pillory and $_ly slaps the <<pillory_type>>'s exposed <<if $_hasvagina is "f">>cunt.<<else>>balls.<</if>> The crowd jeer and laugh as <<he>> howls in pain.
 				<</addinlineevent>>
-				<<addinlineevent "night teacher" $_dangerlow>>		
+				<<addinlineevent "night teacher" $_dangerlow>>
 					<<set $pillory.tenant.spank += 2>><br>
 					Some teacher you've seen around the school but never had classes with, walks drunkenly toward the pillory.
 					<<if $pillory.tenant.special.name is "Whitney">>
@@ -5051,41 +5074,41 @@
 					<</if>><br>
 					<<He>> spanks the <<pillory_type>>'s ass until <<person2>><<his>> arm tires. The crowd jeer and laugh as the <<person1>><<person>> howls in pain.
 				<</addinlineevent>>
-				<<addinlineevent "night face" $_dangerhigh3>>		
+				<<addinlineevent "night face" $_dangerhigh3>>
 					A <<person>> walks in front of the pillory and $_ly masturbates in front of the <<pillory_type>>.
 					<<person2>>
 					<<if $NPCList[1].gender is "m" and $NPCList[1].strapon is undefined>>
 						Cum soon splatters across <<the_pillory_person>>'s face.
 					<<else>>
 						<<He>> grinds <<his>> cunt against <<the_pillory_person>>'s<<person2>> face as <<he>> orgasms.
-					<</if>> 
+					<</if>>
 					The crowd cheer and laugh.
 				<</addinlineevent>>
 				<<if $_hasvagina>>
-				<<addinlineevent "night finger" 10>>	
+				<<addinlineevent "night finger" 10>>
 					A <<person>> walks behind the pillory and $_ly fingers the <<pillory_type>>. <<print either("The crowd cheer <<person2>><<him>> on.","The crowd take pictures and cheer <<person2>><<him>> on.","The crowd take pictures.","")>>
 				<</addinlineevent>>
 				<</if>>
 				<<if $settings.analEnabled>>
-				<<addinlineevent "night finger ass" 10>>	
+				<<addinlineevent "night finger ass" 10>>
 					A <<person>> walks behind the pillory and $_ly fingers the <<pillory_type>>'s asshole. <<print either("The crowd cheer <<person2>><<him>> on.","The crowd take pictures and cheer <<person2>><<him>> on.","The crowd take pictures.","")>>
 				<</addinlineevent>>
 				<</if>>
 				<<if ($pillory.tenant.special.name is "" or $pillory.tenant.person.virginity.anal isnot true) and $settings.analEnabled and ($settings.straponChance gt 0 or (!$_female and $settings.maleNPCVaginaChance lt 100) or ($_female and $settings.femaleNPCPenisChance gt 0))>>
-				<<addinlineevent "night ass" $_dangerhigh3>>		
+				<<addinlineevent "night ass" $_dangerhigh3>>
 					<<set $pillory.tenant.ass += 1>>
 					A <<person>> walks behind the pillory and $_ly rapes the <<pillory_type>>'s asshole<<if ($NPCList[1].gender isnot "m" or $NPCList[1].strapon isnot undefined) and $settings.straponChance gt 0>> with a strap-on<</if>>. <<print either("The crowd cheer <<person2>><<him>> on.","The crowd take pictures and cheer <<person2>><<him>> on.","The crowd take pictures.","")>>
 				<</addinlineevent>>
 				<</if>>
 				<<if ($pillory.tenant.special.name is "" or $pillory.tenant.person.virginity.vaginal isnot true) and ($settings.straponChance gt 0 or (!$_female and $settings.maleNPCVaginaChance lt 100) or ($_female and $settings.femaleNPCPenisChance gt 0))>>
-				<<addinlineevent "night vagina" $_dangerhigh3>>		
+				<<addinlineevent "night vagina" $_dangerhigh3>>
 					<<set $pillory.tenant.genital += 1>>
 					A <<person>> walks behind the pillory and $_ly rapes <<the_pillory_person>><<if ($NPCList[1].gender isnot "m" or $NPCList[1].strapon?.state isnot undefined) and $settings.straponChance gt 0>> with a strap-on<</if>>. <<person2>> <<print either("The crowd cheer <<person2>><<him>> on.","The crowd take pictures and cheer <<person2>><<him>> on.","The crowd take pictures.","")>>
 				<</addinlineevent>>
 				<</if>>
 				<<if $settings.bestialityEnabled and ($settings.monsterChance lt 100 or $settings.monsterHallucinationsOnly) and (($_hasvagina and ($pillory.tenant.special.name is "" or $pillory.tenant.person.virginity.vaginal isnot true)) or ($settings.analEnabled and ($pillory.tenant.special.name is "" or $pillory.tenant.person.virginity.anal isnot true))) and ((settings.beastMaleChance gt 0 and $settings.maleNPCVaginaChance lt 100) or (settings.beastMaleChance lt 100 and $settings.femaleNPCPenisChance gt 0))>>
-				<<addinlineevent "night dog" $_dangerhigh1>>	
-					<<if $_hasvagina and  ($pillory.tenant.special.name is "" or $pillory.tenant.person.virginity.vaginal isnot true)>><<set $pillory.tenant.genital += 1>><</if>>
+				<<addinlineevent "night dog" $_dangerhigh1>>
+					<<if $_hasvagina and ($pillory.tenant.special.name is "" or $pillory.tenant.person.virginity.vaginal isnot true)>><<set $pillory.tenant.genital += 1>><</if>>
 					<<if $settings.analEnabled and ($pillory.tenant.special.name is "" or $pillory.tenant.person.virginity.anal isnot true)>><<set $pillory.tenant.ass += 1>><</if>>
 					The crowd watch and photograph as a stray dog rapes <<the_pillory_person>>. A <<person2>><<person>> rewards the dog with a <<print either("biscuit.","pat on the head.","sweet.","cream bun.")>>
 					<br>
@@ -5093,7 +5116,7 @@
 				<</addinlineevent>>
 				<</if>>
 				<<if ($pillory.tenant.special.name is "" or ($pillory.tenant.person.virginity.anal isnot true and $pillory.tenant.person.virginity.oral isnot true)) and $settings.analEnabled and ($settings.straponChance gt 0 or (maleChance() gt 0 and $settings.maleNPCVaginaChance lt 100) or (maleChance() lt 100 and $settings.femaleNPCPenisChance gt 0))>>
-				<<addinlineevent "night spitroast ass" $_dangerhigh2>>		
+				<<addinlineevent "night spitroast ass" $_dangerhigh2>>
 					<<set $pillory.tenant.ass += 1>><<set $pillory.tenant.face += 1>>
 					<<set $_malepenischance to Math.floor(maleChance()*(100-$settings.maleNPCVaginaChance)/100)>>
 					<<set $_malestraponchance to Math.floor(maleChance()*$settings.maleNPCVaginaChance*$settings.straponChance/10000)>>
@@ -5104,35 +5127,35 @@
 					<<set $_femalepenischance2 to 2*Math.floor((100-maleChance())*$settings.femaleNPCPenisChance/100)>>
 					<<set $_femalestraponchance2 to 2*Math.floor((100-maleChance())*(100-$settings.femaleNPCPenisChance)*$settings.straponChance/10000)>>
 					<<cleareventpool>>
-					<<addinlineevent "policemen penis" $_malepenischance>>	
+					<<addinlineevent "policemen penis" $_malepenischance>>
 						A couple of off-duty policemen approach. They make a <<person>> record as they anally-spit-roast <<the_pillory_person>>. The crowd enjoys the spectacle.
 					<</addinlineevent>>
-					<<addinlineevent "men penis" $_malepenischance2>>	
+					<<addinlineevent "men penis" $_malepenischance2>>
 						Two men approach. Together they anally-spit-roast <<the_pillory_person>>. The crowd enjoys the spectacle.
 					<</addinlineevent>>
-					<<addinlineevent "policemen strap-on" $_malestraponchance>>	
+					<<addinlineevent "policemen strap-on" $_malestraponchance>>
 						A couple of off-duty policemen approach. They make a <<person>> record as they anally-spit-roast <<the_pillory_person>> with strap-ons. The crowd enjoys the spectacle.
 					<</addinlineevent>>
-					<<addinlineevent "men strap-on" $_malestraponchance2>>	
+					<<addinlineevent "men strap-on" $_malestraponchance2>>
 						Two men approach. Together they anally-spit-roast <<the_pillory_person>> with strap-ons. The crowd enjoys the spectacle.
 					<</addinlineevent>>
-					<<addinlineevent "policewomen penis" $_femalepenischance>>	
+					<<addinlineevent "policewomen penis" $_femalepenischance>>
 						A couple of off-duty policewomen approach. They make a <<person>> record as they anally-spit-roast <<the_pillory_person>>. The crowd enjoys the spectacle.
 					<</addinlineevent>>
-					<<addinlineevent "women penis" $_femalepenischance2>>	
+					<<addinlineevent "women penis" $_femalepenischance2>>
 						Two women approach. Together they anally-spit-roast <<the_pillory_person>>. The crowd enjoys the spectacle.
 					<</addinlineevent>>
-					<<addinlineevent "policewomen strap-on" $_femalestraponchance>>	
+					<<addinlineevent "policewomen strap-on" $_femalestraponchance>>
 						A couple of off-duty policewomen approach. They make a <<person>> record as they anally-spit-roast <<the_pillory_person>> with strap-ons. The crowd enjoys the spectacle.
 					<</addinlineevent>>
-					<<addinlineevent "women strap-on" $_femalestraponchance2>>	
+					<<addinlineevent "women strap-on" $_femalestraponchance2>>
 						Two policewomen approach. Together they anally-spit-roast <<the_pillory_person>> with strap-ons. The crowd enjoys the spectacle.
 					<</addinlineevent>>
 					<<runeventpool>>
-				<</addinlineevent>>		
-				<</if>>		
+				<</addinlineevent>>
+				<</if>>
 				<<if ($pillory.tenant.special.name is "" or ($pillory.tenant.person.virginity.vaginal isnot true and $pillory.tenant.person.virginity.oral isnot true)) and $_hasvagina and ($settings.straponChance gt 0 or (maleChance() gt 0 and $settings.maleNPCVaginaChance lt 100) or (maleChance() lt 100 and $settings.femaleNPCPenisChance gt 0))>>
-				<<addinlineevent "night spitroast" $_dangerhigh2>>		
+				<<addinlineevent "night spitroast" $_dangerhigh2>>
 					<<set $pillory.tenant.genital += 1>><<set $pillory.tenant.face += 1>>
 					<<set $_malepenischance to Math.floor(maleChance()*(100-$settings.maleNPCVaginaChance)/100)>>
 					<<set $_malestraponchance to Math.floor(maleChance()*$settings.maleNPCVaginaChance*$settings.straponChance/10000)>>
@@ -5143,35 +5166,35 @@
 					<<set $_femalepenischance2 to 2*Math.floor((100-maleChance())*$settings.femaleNPCPenisChance/100)>>
 					<<set $_femalestraponchance2 to 2*Math.floor((100-maleChance())*(100-$settings.femaleNPCPenisChance)*$settings.straponChance/10000)>>
 					<<cleareventpool>>
-					<<addinlineevent "policemen penis" $_malepenischance>>	
+					<<addinlineevent "policemen penis" $_malepenischance>>
 						A couple of off-duty policemen approach. They make a <<person>> record as they $_ly spit-roast <<the_pillory_person>>. The crowd enjoys the spectacle.
 					<</addinlineevent>>
-					<<addinlineevent "men penis" $_malepenischance2>>	
+					<<addinlineevent "men penis" $_malepenischance2>>
 						Two men approach. Together they $_ly spit-roast <<the_pillory_person>>. The crowd enjoys the spectacle.
 					<</addinlineevent>>
-					<<addinlineevent "policemen strap-on" $_malestraponchance>>	
+					<<addinlineevent "policemen strap-on" $_malestraponchance>>
 						A couple of off-duty policemen approach. They make a <<person>> record as they $_ly spit-roast <<the_pillory_person>> with strap-ons. The crowd enjoys the spectacle.
 					<</addinlineevent>>
-					<<addinlineevent "men strap-on" $_malestraponchance2>>	
+					<<addinlineevent "men strap-on" $_malestraponchance2>>
 						Two men approach. Together they $_ly spit-roast <<the_pillory_person>> with strap-ons. The crowd enjoys the spectacle.
 					<</addinlineevent>>
-					<<addinlineevent "policewomen penis" $_femalepenischance>>	
+					<<addinlineevent "policewomen penis" $_femalepenischance>>
 						A couple of off-duty policewomen approach. They make a <<person>> record as they $_ly spit-roast <<the_pillory_person>>. The crowd enjoys the spectacle.
 					<</addinlineevent>>
-					<<addinlineevent "women penis" $_femalepenischance2>>	
+					<<addinlineevent "women penis" $_femalepenischance2>>
 						Two women approach. Together they $_ly spit-roast <<the_pillory_person>>. The crowd enjoys the spectacle.
 					<</addinlineevent>>
-					<<addinlineevent "policewomen strap-on" $_femalestraponchance>>	
+					<<addinlineevent "policewomen strap-on" $_femalestraponchance>>
 						A couple of off-duty policewomen approach. They make a <<person>> record as they $_ly spit-roast <<the_pillory_person>> with strap-ons. The crowd enjoys the spectacle.
 					<</addinlineevent>>
-					<<addinlineevent "women strap-on" $_femalestraponchance2>>	
+					<<addinlineevent "women strap-on" $_femalestraponchance2>>
 						Two policewomen approach. Together they $_ly spit-roast <<the_pillory_person>> with strap-ons. The crowd enjoys the spectacle.
 					<</addinlineevent>>
 					<<runeventpool>>
 				<</addinlineevent>>
 				<</if>>
 			<<runeventpool>>
-		<</if>> 
+		<</if>>
 	<<else>>/* already abused recently - no action, don't want spamming this scene to accelerate things ridiculously */
 		The people around <<print either("jeer at","laugh at","point at","shout abuse at","taunt","mock","leer at")>>
 		<<if Time.schoolDay and ([7, 8, 15].includes(Time.hour)) and $rng lte 34>>
@@ -5205,7 +5228,7 @@
 				<<set $pillory.tenant.crowd += 1>>
 			<</if>>
 		<</if>>
-	<</if>>	
+	<</if>>
 	<<set $pillory.tenant.lastViewed to Time.date.timeStamp>>
 	<<if $pillory.tenant.upperexposed gte 3>><<set $pillory.tenant.upperexposed to 3>><</if>>
 	<<if $pillory.tenant.lowerexposed gt 2>><<set $pillory.tenant.lowerexposed to 2>><</if>>

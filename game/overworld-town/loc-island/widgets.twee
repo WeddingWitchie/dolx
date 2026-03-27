@@ -376,6 +376,88 @@
 	<</if>>
 <</widget>>
 
+/* Categories of island events */
+
+<<widget "island_events_category_miscellaneous">>
+	<<cleareventpool>>
+
+	<<addevent "island_events_plumeria" 1>>
+	<<addevent "island_events_birds" 1>>
+	<<addevent "island_events_pleasant_flower" 1>>
+	<<addevent "island_events_squirrel" 1>>
+	<<if $island.home isnot "rocky_hillock">>
+		<<addevent "island_events_rocky" 1>>
+	<</if>>
+	<<if $island.home isnot "waterfall">>
+		<<addevent "island_events_waterfall" 1>>
+	<</if>>
+	<<if $island.home isnot "gulch">>
+		<<addevent "island_events_gulch" 1>>
+	<</if>>
+
+	<<runeventpool>>
+<</widget>>
+
+<<widget "island_events_category_walnuts">>
+	<<cleareventpool>>
+
+	<<addevent "island_events_walnut" 2>>
+	<<addevent "island_events_walnut_2" 2>>
+	<<if $island.explore is "shore">>
+		<<addevent "island_events_walnut_3" 1>>
+	<</if>>
+
+	<<runeventpool>>
+<</widget>>
+
+<<widget "island_events_category_wood">>
+	<<cleareventpool>>
+
+	<<if $island.explore is "wood">>
+		<<addevent "island_events_wood_1" 2.5>>
+		<<addevent "island_events_wood_2" 2>>
+		<<if $islander_language gte 100>>
+			<<addevent "island_events_wood_3" 3>>
+		<<elseif $islander_language gte 50>>
+			<<addevent "island_events_wood_3" 2>>
+		<<else>>
+			<<addevent "island_events_wood_3" 1>>
+		<</if>>
+		<<addevent "island_events_wood_4" 1>>
+	<<else>>
+		<<addevent "island_events_wood_1" 1>>
+		<<addevent "island_events_wood_2" 1>>
+		<<addevent "island_events_wood_3" 1>>
+	<</if>>
+
+	<<runeventpool>>
+<</widget>>
+
+<<widget "island_events_category_islanders">>
+	<<cleareventpool>>
+
+	<<addevent "island_events_overhear" 2>>
+	<<addevent "island_events_duel" 2>>
+	<<addevent "island_events_sing" 2>>
+	<<if $island.explore is "battleground">>
+		<<addevent "island_events_battle" 1>>
+	<</if>>
+
+	<<runeventpool>>
+<</widget>>
+
+<<widget "island_events_category_antiques">>
+	<<cleareventpool>>
+
+	<<addevent "island_events_arrow" 2>>
+	<<addevent "island_events_broken_mask" 2>>
+	<<addevent "island_events_trilobite" 1>>
+
+	<<runeventpool>>
+<</widget>>
+
+/* Individual events */
+
 <<widget "island_events_snake">>
 	<<generateRole 0 0 "islander">><<person1>>
 	A startling hiss snatches your attention. You turn in the direction of the sound, and come face to face with a pair of serpentine eyes. A snake is held aloft by a <<person>>, the animal turned into a weapon.
@@ -513,7 +595,7 @@ You find a walnut tree, with fresh nuts lying about the base.
 <</widget>>
 
 <<widget "island_events_rocky">>
-	You find the rocky hillock where you made camp when you first arrived on the island. It looks <span class="teal">defensible</span> and the <span class="teal">high vantage</span> would make food easier to spot, but the numerous large rocks leave only a <span class="pink">cramped</span> space to live in.
+	You find the rocky hillock where you made camp when you first arrived on the island. It looks <span class="teal">defensible</span>, and the <span class="teal">high vantage</span> would make food easier to spot, but the numerous large rocks leave only a <span class="pink">cramped</span> space to live in.
 	<br><br>
 
 	<<link [[Take in the view, and leave|Island]]>><<island_explore_end>><<stress -6>><</link>><<lstress>>
@@ -523,7 +605,7 @@ You find a walnut tree, with fresh nuts lying about the base.
 <</widget>>
 
 <<widget "island_events_waterfall">>
-	You find a beautiful waterfall, surrounded by trees both above and below. It looks suitable for a camp, with the waterfall and cliff forming a <span class="blue">sound</span> barrier on one side. It also has a <span class="blue">good vantage</span> in that direction, making food easier to find, and a <span class="blue">spacious</span> area beside the river.
+	You find a beautiful waterfall, surrounded by trees both above and below. It looks suitable for a camp<<if $island.home is "rocky_hillock">>, if not as defensible as the rocky hillock<</if>>, with the waterfall and cliff forming a <span class="blue">sound</span> barrier on one side. It also has a <span class="blue">good vantage</span> in that direction, <<if $island.home is "rocky_hillock">>although food may be harder to find. There is<<else>>making food easier to find, and<</if>> a <span class="blue">spacious</span> area beside the river.
 	<br><br>
 
 	<<link [[Take in the view, and leave|Island]]>><<island_explore_end>><<stress -6>><</link>><<lstress>>
@@ -751,7 +833,7 @@ You find a walnut tree, with fresh nuts lying about the base.
 	<<set $island.explore_locations.pushUnique("plain")>>
 	The trees part, and open to a vast, uneven plain. There are patches of trees here and there, along with jagged rocks almost as tall as you. Long grass tickles your knees.
 	<br><br>
-	<<set $antiquemoney += 500>><<museumAntiqueStatus "antiqueobsidiandisc" "found">><<wearProp "disc">>
+	<<set $antiquemoney += 500>><<museumAntiqueStatus "antiqueobsidiandisc" "found">><<wearProp "antique disc">>
 	Light catches on something near your feet. Half-buried in the ground is an obsidian disc. It's the size and shape of a large coin. There are no markings, but the perfect round shape suggests it was made by intelligent hands. This might be a good place to find antiques.
 	<br><br>
 
@@ -763,7 +845,7 @@ You find a walnut tree, with fresh nuts lying about the base.
 <</widget>>
 
 <<widget "island_events_arrow">>
-	<<wearProp "islander arrow">>
+	<<wearProp "antique islander arrow">>
 	You find an arrow embedded in the ground. It's dirty, but intact. The odd handiwork might be worth something to a collector.
 	<br><br>
 	<<set $antiquemoney += 20>><<museumAntiqueStatus "antiqueislandarrow" "found">>
@@ -774,7 +856,7 @@ You find a walnut tree, with fresh nuts lying about the base.
 <<widget "island_events_broken_mask">>
 	You find one of the angular islander masks, lying against a tree. It's broken, with the straps snapped and a crack down the middle. Still, it might be worth something to a collector.
 	<br><br>
-	<<wearProp "islander mask">>
+	<<wearProp "antique islander mask">>
 	<<set $antiquemoney += 40>><<museumAntiqueStatus "antiquewoodenmask" "found">>
 	<<link [[Next|Island]]>><<handheldon>><<island_explore_end>><</link>>
 	<br>
@@ -785,7 +867,7 @@ You find a walnut tree, with fresh nuts lying about the base.
 	<br><br>
 	The fossil belongs in a museum, and it's easy to pry free.
 	<br><br>
-	<<set $antiquemoney += 50>><<museumAntiqueStatus "antiquetrilobitefossil" "found">><<wearProp "trilobite">>
+	<<set $antiquemoney += 50>><<museumAntiqueStatus "antiquetrilobitefossil" "found">><<wearProp "antique trilobite">>
 	<<link [[Next|Island]]>><<handheldon>><<island_explore_end>><</link>>
 <</widget>>
 

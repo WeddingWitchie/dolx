@@ -37,32 +37,32 @@ const combatCloseChest = {
 			filters: ["body"],
 			z: CombatRenderer.indices.closeBase,
 		},
-        breasts_front: {
-            srcfn(options) {
-                return `${options.src}chest/${options.chest.breasts}-front-job.png`;
-            },
-            showfn(options) {
-                return !!options.showChest && options.chest.base === "base-job" && V.player.breastsize > 0;
-            },
-            animationfn(options) {
-                return options.animKeyChest;
-            },
-            filters: ["body"],
-            z: CombatRenderer.indices.closeNpc + 1,
-        },
-        breasts_back: {
-            srcfn(options) {
-                return `${options.src}chest/${options.chest.breasts}-back-job.png`;
-            },
-            showfn(options) {
-                return !!options.showChest && options.chest.base === "base-job" && V.player.breastsize > 0;
-            },
-            animationfn(options) {
-                return options.animKeyChest;
-            },
-            filters: ["body"],
-            z: CombatRenderer.indices.closeNpc - 1,
-        },
+		breasts_front: {
+			srcfn(options) {
+				return `${options.src}chest/${options.chest.breasts}-front-job.png`;
+			},
+			showfn(options) {
+				return !!options.showChest && options.chest.base === "base-job" && V.player.breastsize > 0;
+			},
+			animationfn(options) {
+				return options.animKeyChest;
+			},
+			filters: ["body"],
+			z: CombatRenderer.indices.closeNpc + 1,
+		},
+		breasts_back: {
+			srcfn(options) {
+				return `${options.src}chest/${options.chest.breasts}-back-job.png`;
+			},
+			showfn(options) {
+				return !!options.showChest && options.chest.base === "base-job" && V.player.breastsize > 0;
+			},
+			animationfn(options) {
+				return options.animKeyChest;
+			},
+			filters: ["body"],
+			z: CombatRenderer.indices.closeNpc - 1,
+		},
 		npc: {
 			srcfn(options) {
 				return `${options.src}chest/npc/${options.chest.npc}.png`;

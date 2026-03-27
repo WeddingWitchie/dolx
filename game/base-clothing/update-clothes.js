@@ -26,6 +26,7 @@ function updateClothingColours(item, itemRef) {
 		case "mesh shirt":
 		case "fishnet stockings":
 		case "fishnet tights":
+		case "combat boots":
 			if (!item.colour || item.colour === 0) item.colour = "black";
 			break;
 		case "square shades":
@@ -88,6 +89,7 @@ function updateClothingColours(item, itemRef) {
 		case "school swim shorts":
 		case "futuristic bodysuit":
 		case "argyle sweater vest":
+		case "diving suit":
 			if (!item.accessory_colour || item.accessory_colour === 0) item.accessory_colour = item.colour;
 			if (item.colourCustom) item.accessory_colourCustom = item.colourCustom;
 			break;
@@ -175,6 +177,31 @@ function updateClothingColours(item, itemRef) {
 		case "classic gothic gown":
 		case "classic gothic skirt":
 			if (!item.accessory_colour || item.accessory_colour === 0) item.accessory_colour = item.colour;
+			break;
+		case "shadbelly coat":
+			if (!item.colour || item.colour === 0) item.colour = "black";
+			if (!item.accessory_colour || item.accessory_colour === 0) item.accessory_colour = "yellow";
+			if (!item.pattern || item.pattern === 0) item.pattern = "shirt";
+			break;
+		case "cheerleading top":
+		case "cheerleading skirt":
+		case "gym bloomers":
+		case "cheerleader gloves":
+		case "pom poms":
+			if (!item.accessory_colour || item.accessory_colour === 0) item.accessory_colour = "white";
+			break;
+		case "tam o' shanter":
+			if (!item.colour || item.colour === 0) item.colour = "green";
+			if (!item.accessory_colour || item.accessory_colour === 0) item.accessory_colour = "red";
+			if (!item.pattern || item.pattern === 0) item.pattern = "pompom";
+			break;
+		case "cowboy chaps":
+		case "cowboy print chaps":
+			if (!item.colour || item.colour === 0) item.colour = "denim";
+			break;
+		case "hairpin":
+			if (!item.colour || item.colour === 0) item.colour = "white";
+			if (!item.accessory_colour || item.accessory_colour === 0) item.accessory_colour = "white";
 			break;
 		default:
 			if ((item.colour === 0 || !item.colour) && itemRef.colour_options?.length) item.colour = itemRef.colour_options[0];
@@ -288,6 +315,7 @@ function updateClothesItem(slot, item, debug) {
 		}
 		item[key] = clone(itemRef[key]);
 	}
+	item.index = itemRef.index;
 	item.colour = remapColours[item.colour] || item.colour;
 	item.accessory_colour = remapColours[item.accessory_colour] || item.accessory_colour;
 	item.pattern = remapColours[item.pattern] || item.pattern;
@@ -465,6 +493,12 @@ function updateClothesItem(slot, item, debug) {
 			item.one_piece = 0;
 			item.type.pushUnique("waterproof");
 			break;
+		case "school skirt":
+			if (item.variable === "schoolskirt2") {
+				item.name = "simple school skirt";
+				item.name_cap = "Simple school skirt";
+			}
+			break;
 		case "catsuit":
 		case "catsuit bottoms":
 		case "cropped leather jacket":
@@ -487,6 +521,9 @@ function updateClothesItem(slot, item, debug) {
 			break;
 		case "starry witch hat":
 			item.accessory = 0;
+			break;
+		case "slacks":
+			item.type = ["formal", "school"];
 	}
 
 	if (debug) console.log("updateClothesItem:", slot, itemOld, clone(item));
@@ -582,6 +619,7 @@ function wardrobesUpdate() {
 				NOTE: "DO NOT USE THIS OBJECT TO STORE CLOTHES",
 				unlocked: true,
 				shopSend: true,
+				transfer: true,
 				name: "Orphanage",
 			},
 			changingRoom: clone(defWardrobe),
@@ -600,7 +638,12 @@ function wardrobesUpdate() {
 		V.wardrobes.changingRoom.unlocked = true;
 		/* eden's */
 		V.wardrobes.edensCabin.name = "Eden's Cabin";
+		V.wardrobes.edensCabin.isolated = true;
 		V.wardrobes.edensCabin.space = 10 * V.wardrobeMult;
+		// allow sending clothes to the cabin when pc can leave for a day
+		V.wardrobes.edensCabin.shopSend = V.edenfreedom >= 1;
+		// allow transferring clothes from the cabin when pc can leave for a week
+		V.wardrobes.edensCabin.transfer = V.edenfreedom >= 2;
 		if (V.syndromeeden) V.wardrobes.edensCabin.unlocked = true;
 		/* asylum */
 		V.wardrobes.asylum.locationRequirement.push("asylum");
@@ -761,6 +804,12 @@ function wardrobesUpdate() {
 			if (wardrobe && Array.isArray(wardrobe.upper) && !wardrobe.earrings) wardrobe.earrings = [];
 		});
 	}
-	V.wardrobes.alexFarm.isolated = true;
+	if (V.objectVersion.wardrobes < 16) {
+		V.wardrobes.alexFarm.isolated = true;
+		V.wardrobes.edensCabin.isolated = true;
+		V.wardrobes.edensCabin.shopSend = V.edenfreedom >= 1;
+		V.wardrobes.edensCabin.transfer = V.edenfreedom >= 2;
+		V.wardrobes.wardrobe.transfer = true;
+	}
 }
 DefineMacro("wardrobesUpdate", wardrobesUpdate);

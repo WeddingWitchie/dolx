@@ -357,7 +357,7 @@
 				child.type = "wolf";
 				const furColour = ["grey", "brown", "tan", "white"];
 				if (child.father === "Black Wolf") {
-					furColour.concat(["black", "black", "black"]);
+					furColour.push("black", "black", "black");
 				}
 				child.features.hairColour = furColour[random(0, furColour.length - 1)];
 				child.features.monster = 0;
@@ -653,16 +653,8 @@
 		<<set _pills.lastTaken to _pills.lastTaken || {}>>
 		<<set _pills.mostTaken to _pills.mostTaken || {}>>
 
-		/* Use pill registry as the key source (NOT lastTaken) */
-		<<set _keys to Object.keys(_pills.pills)>>
-
-		<<if $molestationstart isnot 1 and $combat is 0
-			and (["home", "alex_cottage", "asylum", "prison", "avery_mansion"].includes($location)
-				or ($location is "cabin" and $syndromeeden gte 1)
-				or ($location is "temple" and V.wardrobes.temple.unlocked)
-				or ($location is "pirate_ship" and V.wardrobes.pirate.unlocked))>>
-				<!-- Eden Syndrome is 0 or 1, but could be higher in the future -->
-
+		<<if $molestationstart isnot 1 and $combat is 0 and (["home", "alex_cottage", "asylum", "prison"].includes($location) or ($location is "cabin" and $syndromeeden gte 1) or ($location is "temple" and V.wardrobes.temple.unlocked) or ($location is "pirate_ship" and V.wardrobes.pirate.unlocked) or ($location is "avery_mansion" and $avery_fate isnot "fallen" and $avery_fate isnot "kicked"))>> <!-- Eden Syndrome is 0 or 1, but could be higher in the future. -->
+			<<set _keys to Object.keys(_pills.lastTaken)>> /* "lastTaken" is only used here to retrieve the pill type list. */
 			<<for _i, _key range _keys>>
 				<<run determineAutoTakePill(_key)>>
 
@@ -679,7 +671,7 @@
 								<<set $hairGrowthAppliedLast to true>>
 							<</if>>
 						<<else>>
-							<<set $pillsconsumed++>> /* to keep track of overall pill consumption (stats) */
+							<<set $pillsConsumed++>> /* to keep track of overall pill consumption (stats) */
 							<<set _pills.pills[_autoTakeDetermined].doseTaken += 1>>
 							<<run redetermineMostTaken(0, 0, _autoTakeDetermined)>>
 							<<run setLastTaken(null, null, _autoTakeDetermined)>>

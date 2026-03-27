@@ -847,13 +847,17 @@ Deciding that <<he>> might have bitten off more than <<he>> can chew, <<he>> fle
 :: Abduction
 
 <<if $molestationstart is 1>>
+	<<generate1>><<generate2>>
+	You wake up on a moth-eaten mattress in a small room you've never seen before. Your arms are bound behind your back.
+	<<set $leftarm to "bound">><<set $rightarm to "bound">><<handheldruined>>
+	You aren't alone.
 	<<set $molestationstart to 0>>
 	<<if random(1,5) isnot 1 and playerMayBeSpiked()>><<xchange-random-spike>><<xchange-seen 2>><</if>>
 	<<controlloss>>
 	<<violence 1>>
 	<<neutral 1>>
 	<<molested>>
-	<<generate1>><<generate2>><<maninit>><<set $leftarm to "bound">><<set $rightarm to "bound">><<handheldruined>>You wake up on a moth-eaten mattress in a small room you've never seen before. Your arms are bound behind your back. You aren't alone.
+	<<maninit>>
 	<br>
 <</if>>
 <<effects>>
@@ -950,7 +954,7 @@ You hasten your pace to escape the remarks.
 		Between throating the <<personsimple>>, beating <<him>>, and biting <<his>> <<if $pronoun is "m">>nipples<<else>>breasts<</if>>, it's clear they get off on the brutality.
 		<br><br>
 		By the time they cum and stagger away, you feel shaken and
-		<<if $speech_attitude is "meek">>
+		<<if $submissive gte 1500>>
 			weirdly aroused. Somewhere in your mind, you can't help imagining it was you, powerless and vulnerable to their animal lust. It fills you with horror and... something else.
 			<<gtrauma>><<garousal>><<trauma 3>><<stress 3>><<arousal 300>>
 		<<else>>
@@ -963,7 +967,7 @@ You hasten your pace to escape the remarks.
 		<<pain 5>>
 		<br><br>
 	<</if>>
-	The <<group>> tidy themselves up, sharing glances and satisfied smiles.
+	The assailants tidy themselves up, sharing glances and satisfied smiles.
 	They take some photos of the <<person3>><<person>>, broken and used at their feet.
 	<br><br>
 	"Aww, come on, can we keep <<him>>, please!" you hear the <<person2>><<person>> say.
@@ -978,23 +982,15 @@ You hasten your pace to escape the remarks.
 		The <<person3>><<person>> lies prone on the floor, exposed and unresponsive.
 		<br><br>
 		<<set _earSlimeCommando to numberOfEarSlime() and $earSlime.forcedCommando isnot undefined>>
-		<<if $pronoun is "m">>
-			<<link [[Help him (0:10)|StreetEx4 Choice]]>><<set $phase to 0>><</link>>
-			<br>
-			<<link [[Steal his clothes|StreetEx4 Choice]]>>
-				<<set $phase to 1>><<lowerwear 6>><<upperwear 5>><<set $worn.upper.integrity to 100>><<set $worn.lower.integrity to 50>>
-				<<if !_earSlimeCommando>><<underlowerwear 1>><<set $worn.under_lower.integrity to 15>><</if>>
-			<</link>>
-			<br>
-		<<else>>
-			<<link [[Help her (0:10)|StreetEx4 Choice]]>><<set $phase to 0>><</link>>
-			<br>
-			<<link [[Steal her clothes|StreetEx4 Choice]]>>
-				<<set $phase to 1>><<lowerwear 7>><<upperwear 5>><<set $worn.upper.integrity to 100>><<set $worn.lower.integrity to 50>>
-				<<if !_earSlimeCommando>><<underlowerwear 1>><<set $worn.under_lower.integrity to 15>><</if>>
-			<</link>>
-			<br>
-		<</if>>
+		<<link [[Help <<him>> (0:10)|StreetEx4 Choice]]>><<set $phase to 0>><</link>>
+		<br>
+		<<link [[Steal <<his>> clothes|StreetEx4 Choice]]>>
+			<<set $phase to 1>>
+			<<set _underwear to $pronoun is "m" ? "briefs" : "plain panties">>
+			<<set _lowerwear to $pronoun is "m" ? "school shorts" : "school skirt">>
+			<<lowerwear _lowerwear>><<upperwear "school shirt">><<set $worn.upper.integrity to 100>><<set $worn.lower.integrity to 50>>
+			<<if !_earSlimeCommando>><<underlowerwear _underwear>><<set $worn.under_lower.integrity to 15>><</if>>
+		<</link>>
 	<<else>>
 		<<link [[Next|StreetEx4 Play]]>><</link>>
 	<</if>>
@@ -1011,7 +1007,7 @@ You hasten your pace to escape the remarks.
 		<br><br>
 		The <<person3>><<person>> thanks you. Something in <<his>> eyes isn't right.
 		<br><br>
-		Without warning, <<he>> kicks the sobbing <<person1>><<person>> in the face, knocking <<him>> out cold. The <<person3>><<person>> strips the older <<person1>><<if $pronoun is "m">>man<<lowerwear 5>><<underlowerwear 4>><<upperwear 4>><<else>>woman<<underlowerwear 1>><<upperwear 1>><</if>> of <<his>> clothes and hands them to you.
+		Without warning, <<he>> kicks the sobbing <<person1>><<person>> in the face, knocking <<him>> out cold. The <<person3>><<person>> strips the older <<person1>><<if $pronoun is "m">>man<<lowerwear "shorts">><<underlowerwear "briefs">><<upperwear "t-shirt">><<else>>woman<<underlowerwear "plain panties">><<upperwear "sundress">><</if>> of <<his>> clothes and hands them to you.
 		<br><br>
 		"Thanks again."
 		<br><br>
@@ -1290,7 +1286,7 @@ You remain hidden, and hope no one looks down. The group remains unaware you're 
 <</if>>
 
 :: Street Ex Throw
-<<effects>><<wearProp "wallet" 0 "empty">>
+<<effects>><<wearProp "wallet empty">>
 
 You throw the <<wallet>> up the staircase.
 
@@ -1301,11 +1297,11 @@ You throw the <<wallet>> up the staircase.
 <</if>>
 <br><br>
 
-<<link [[Make excuses|Street Ex Deceive]]>><<handheldon>><</link>>
+<<link [[Make excuses|Street Ex Deceive]]>><</link>>
 <br>
-<<link [[Tell the truth|Street Ex Truth]]>><<handheldon>><</link>>
+<<link [[Tell the truth|Street Ex Truth]]>><</link>>
 <br>
-<<link [[Remain silent|Street Ex Silent]]>><<handheldon>><</link>>
+<<link [[Remain silent|Street Ex Silent]]>><</link>>
 <br>
 
 :: Street Ex Deceive
@@ -1484,7 +1480,7 @@ You fumble at the lock. It's as simple as they come, but it's dark and you have 
 :: Street Ex Dignity
 <<effects>>
 <<fameexhibitionism 4>>
-<<wearProp "wallet" 0 "empty">>
+<<wearProp "wallet empty">>
 You lift the <<wallet>>, take a deep breath, and march up the stairs. <<covered>>
 <br><br>
 
@@ -1498,21 +1494,21 @@ They close in around you. You don't think they'll take refusal well.
 <br><br>
 
 <<if $exposed gte 2>>
-	<<link [[Show yourself|Street Ex Dignity Show]]>><<handheldon>><<sub 1>><<stress 6>><<trauma 6>><<set $phase to 1>><</link>><<gstress>><<gtrauma>>
+	<<link [[Show yourself|Street Ex Dignity Show]]>><<sub 1>><<stress 6>><<trauma 6>><<set $phase to 1>><</link>><<gstress>><<gtrauma>>
 	<br>
-	<<if hasSexStat("exhibitionism", 5, true) true)>>
+	<<if hasSexStat("exhibitionism", 5, true)>>
 		<<link [[Flaunt|Street Ex Dignity Flaunt]]>><<handheldon>><<set $phase to 1>><</link>><<exhibitionist5>>
 		<br>
 	<</if>>
 <<else>>
-	<<link [[Show yourself|Street Ex Dignity Show]]>><<handheldon>><<sub 1>><<stress 6>><<trauma 6>><<set $phase to 0>><</link>><<gstress>><<gtrauma>>
+	<<link [[Show yourself|Street Ex Dignity Show]]>><<sub 1>><<stress 6>><<trauma 6>><<set $phase to 0>><</link>><<gstress>><<gtrauma>>
 	<br>
 	<<if hasSexStat("exhibitionism", 3, true)>>
 		<<link [[Flaunt|Street Ex Dignity Flaunt]]>><<handheldon>><<set $phase to 0>><</link>><<exhibitionist3>>
 		<br>
 	<</if>>
 <</if>>
-<<link [[Refuse|Street Ex Dignity Refuse]]>><<handheldon>><<def 1>><</link>>
+<<link [[Refuse|Street Ex Dignity Refuse]]>><<def 1>><</link>>
 <br>
 
 :: Street Ex Dignity Show
@@ -3396,14 +3392,7 @@ You wake up by the side of the road, leaning against a wall. A <<generate1>><<pe
 <<set $outside to 1>><<effects>>
 You follow the <<beasttype>> down the alley. <<bHe>> rounds a corner.
 
-<<if $stray_happiness lte random(1, 100) and random(1, 100) gte 98 and ($monster is 1 or $settings.bestialityEnabled)>>
-	You find <<bhim>> stood in the middle of the alley, looking at you. You hear a growl to your right and left. You're surrounded.
-	<br><br>
-	<<endevent>>
-	<<beastNEWinit 3 dog>>
-	<<link [[Next|Street Follow Rape]]>><<set $molestationstart to 1>><</link>>
-	<br>
-<<elseif $rng gte 91>>
+<<if $rng gte 91>>
 	You find <<bhim>> stood beside a brown rug. The rug coughs and rolls over. <<generate2>><<person2>>It's a <<person>>, and <<he>> looks sick. The <<beasttype 0>> looks at you and whimpers. <<if $monster is 1>><<person2>>"<<Hes>> sick. I don't know how to help."<</if>>
 	<br><br>
 	You run from the alley. A <<generate3>><<person3>><<person>> stands nearby, reading something on <<his>> phone. You tug on <<his>> jacket. <<He>> turns. "What?" <<he>> asks, irritated.
@@ -3416,27 +3405,34 @@ You follow the <<beasttype>> down the alley. <<bHe>> rounds a corner.
 	<br>
 	<<link [[Snatch the phone (0:10)|Street Follow Snatch]]>><<pass 10>><<crimeUp 30 "thievery">><<trauma -6>><</link>><<crime "thievery">><<ltrauma>>
 	<br>
+<<elseif $rng gte 86 and $stray_happiness lt random(1, 100) and ($monster is 1 or $settings.bestialityEnabled)>>
+	You find <<bhim>> stood in the middle of the alley, looking at you. You hear a growl to your right and left. You're surrounded.
+	<br><br>
+	<<endevent>>
+	<<beastNEWinit 3 dog>>
+	<<link [[Next|Street Follow Rape]]>><<set $molestationstart to 1>><</link>>
+	<br>
 <<else>>
 	You find <<bhim>> stood beside a ruined piece of leather. It's a wallet.
 	<<cleareventpool>>
 
 	<<addinlineevent "wallet_condom" 0.1>>
-		<<wearProp "wallet" 0 "condom">>
+		<<wearProp "wallet condom">>
 		There's a condom inside. You give the <<beasttype>> a nervous glance.<<gcondoms 1>>
 	<</addinlineevent>>
 
 	<<addinlineevent "wallet_empty" 1>>
-		<<wearProp "wallet" 0 "empty">>
+		<<wearProp "wallet empty">>
 		There's no money or identification inside, just some faded receipts.
 	<</addinlineevent>>
 
 	<<addinlineevent "wallet_money_5" 0.9>>
-		<<wearProp "wallet" 0 "money">>
+		<<wearProp "wallet">>
 		There's a <<moneyGain 5>> note inside.
 	<</addinlineevent>>
 
 	<<addinlineevent "wallet_money_100" 0.2>>
-		<<wearProp "wallet" 0 "money">>
+		<<wearProp "wallet">>
 		There's <<moneyGain 100>> inside! You look further but there's no identification.
 	<</addinlineevent>>
 
@@ -3452,7 +3448,7 @@ You follow the <<beasttype>> down the alley. <<bHe>> rounds a corner.
 		<<link [[Reward <<bhim>>|Street Follow Sex]]>><<handheldon>><<set $sexstart to 1>><</link>><<deviant2>>
 		<br>
 	<</if>>
-	<<link [[Pet <<bhim>>|Street Follow Pet]]>><<handheldon>><<trauma -6>><<stress -12>><</link>><<ltrauma>><<lstress>>
+	<<link [[Pet <<bhim>>|Street Follow Pet]]>><<trauma -6>><<stress -12>><</link>><<ltrauma>><<lstress>>
 	<br>
 <</if>>
 
@@ -3554,7 +3550,7 @@ You call an ambulance as <<he>> struggles. You finish as <<he>> kicks the <<beas
 You wait with the <<beasttype>> and the <<person2>><<person>> for the ambulance to arrive. You don't have to wait long. Two paramedics rush between the buildings and put <<him>> on a stretcher. They carry <<him>> to the waiting ambulance, and the <<beasttype>> follows. <<bHe 0>> gives you one last grateful bark then leaps into the vehicle as the doors shut.
 <br><br>
 <<famegood 10>>
-<<clotheson>><<wearProp "phone" 0 "mobile">>
+<<clotheson>><<wearProp "mobile phone">>
 <<destinationeventend>>
 
 :: Street Follow Sex Finish
@@ -4161,7 +4157,7 @@ A glance at one of them causes your stomach to fall. You close your eyes tight a
 "You won't get away with hiding your stolen loot in there," the <<person2>><<person>> growls.
 Your arms are bound behind you by the <<person1>><<person>>, while the <<person2>><<person>> recruits members of the public to assist them. Moments later the two officers and six random members of the public are pulling you and your $worn.genitals.name in every direction, trying to get them loose. Next thing, you are on the floor as hands pull at you.
 <br><br>
-However, the members of the public are far more interested in copping a feel than in genuinely helping: the guy 'pinning your head' is actually just grinding his crotch on your face, you spot the <<person3>><<person>> groping your <<breasts>> while the unseen person 'trying to remove the $worn.genitals.name' is clearly just determined to get a finger up your ass.
+However, the members of the public are far more interested in copping a feel than in genuinely helping: the person 'pinning your head' is actually just grinding his crotch on your face, you spot the <<person3>><<person>> groping your <<breasts>> while the unseen person 'trying to remove the $worn.genitals.name' is clearly just determined to get a finger up your ass.
 <br>
 Over the next few minutes they make little progress.
 <br>
@@ -4355,7 +4351,7 @@ As the <<person1>><<person>> binds your arms, the <<person2>><<person>> paces ne
 <br><br>
 The <<person2>><<person>> sits in front of you, pulls your face into <<his>> crotch and clamps your head between <<his>> thighs, while the <<person1>><<person>> kneels behind you, holding the hem of your $worn.genitals.name and rhythmically trying to pull it off. To anyone watching, it must look like you are being spit-roasted. Your $worn.genitals.name holds.
 <br><br>
-Next they recruit members of the public to assist. Soon the two officers and various members of the public are pulling you and your $worn.genitals.name in every direction. However, the general public are more interested in copping a feel than in genuinely helping the police: the guy 'holding your head' is actually just grinding his crotch in your face, the <<person3>><<person>> your age is mostly just groping your <<breasts>>, while some unseen person 'trying to remove the $worn.genitals.name' is clearly just trying to jam a thumb up your ass. Over the next few minutes they make little progress.
+Next they recruit members of the public to assist. Soon the two officers and various members of the public are pulling you and your $worn.genitals.name in every direction. However, the general public are more interested in copping a feel than in genuinely helping the police: the person 'holding your head' is actually just grinding his crotch in your face, the <<person3>><<person>> your age is mostly just groping your <<breasts>>, while some unseen person 'trying to remove the $worn.genitals.name' is clearly just trying to jam a thumb up your ass. Over the next few minutes they make little progress.
 <br><br>
 <<set $worn.genitals.integrity -= 40>>
 Finally, they give up, and you climb trembling to your feet.
@@ -5316,7 +5312,7 @@ A gaping hole dominates one wall. The same you entered through. It looks like th
 <</if>>
 
 <<set $tower_sleep -= 10>>
-You are in a <<if $NPCList[0].monster is "monster">>strange, monstrous <<if $NPCList[0].gender is "m">>boy<<else>>girl<</if>><<else>>strange monster<</if>>'s lair within a building near Elk Street. A gaping hole dominates one wall.
+You are in a <<if $NPCList[0].monster is "monster">>strange, monstrous <<if $NPCList[0].gender is "m">>man<<else>>woman<</if>><<else>>strange monster<</if>>'s lair within a building near Elk Street. A gaping hole dominates one wall.
 <br><br>
 <<if $stress gte $stressmax>>
 	<<link [[Next|Passout Monster Tower]]>><</link>>
@@ -5732,7 +5728,7 @@ The <<tower_creature_text>> lumbers over to you, stopping just within arm's reac
 			<br><br>
 		<</if>>
 
-		<<bHe>> lumbers over to <<bhis>> mattress and resumes <<bhis>> slumber, leaving you shivering in draughtiness of <<bhis>> lair.
+		<<bHe>> lumbers over to <<bhis>> mattress and resumes <<bhis>> slumber, leaving you shivering in the draughtiness of <<bhis>> lair.
 		<br><br>
 
 		<<link [[Next|Monster Tower]]>><<set $eventskip to 1>><<set $tower_sleep to 115>><</link>>
@@ -5815,7 +5811,7 @@ The <<tower_creature_text>> lumbers over to you, stopping just within arm's reac
 underneath the boiling water.
 <br><br>
 
-<<bHe>> does this for all of <<bhis>> treasures, polishing each one to a shine, until <<bhe>> finally <<bhe>> gets to you. <<bHe>> tries to pull you under the water.
+<<bHe>> does this for all of <<bhis>> treasures, polishing each one to a shine, until finally <<bhe>> gets to you. <<bHe>> tries to pull you under the water.
 <br><br>
 
 <<link [[Allow it (0:10)|Monster Tower Clean 2]]>><<wash>><<pass 10>><<set $phase to 0>><<trauma 6>><<stress 18>><<pain 4>><</link>><<gtrauma>><<ggstress>><<gggpain>>
@@ -6234,8 +6230,9 @@ You drop to the ground, writhing and moaning. You're not sure what you're doing,
 <<set $outside to 1>><<effects>>
 
 You lift the box.
+<<rng>>
 <<if $rng gte 81>>
-	<<wearProp "box" 0 "creature">>
+	<<wearProp "box creature">>
 	It's heavy. As soon as you flick open the latch, the lid shoots open and <span class="red">something leaps out.</span> You stumble backwards, and fall on your <<bottom>>.
 	<<gpain>><<gstress>><<pain 6>><<stress 6>>
 	<br><br>
@@ -6245,7 +6242,7 @@ You lift the box.
 
 	<<destinationeventend>>
 <<elseif $rng gte 61>>
-	<<wearProp "box" 0 "closed">>
+	<<wearProp "box">>
 	It's sealed by a heavy lock.
 	<br><br>
 
@@ -6255,14 +6252,14 @@ You lift the box.
 	<<link [[Leave it|Street Box Stop]]>><</link>>
 	<br>
 <<elseif $rng gte 41>>
-	<<wearProp "box" 0 "aphrodisiac">>
+	<<wearProp "box aphrodisiac">>
 	You flick open the latch. <span class="pink">A purple mist</span> spews from the opening, making you sneeze and drop the box. You feel warm.
 	<<drugs 120>><<garousal>><<arousal 1000>>
 	<br><br>
 
 	<<destinationeventend>>
 <<elseif $rng gte 21>>
-	<<wearProp "box" 0 "open">>
+	<<wearProp "box open">>
 	You open it. There's <<printmoney 5000>> inside.
 	<br><br>
 
@@ -6271,7 +6268,7 @@ You lift the box.
 	<<link [[Leave it|Street Box Stop]]>><</link>>
 	<br>
 <<else>>
-	<<wearProp "box" 0 "potato">>
+	<<wearProp "box potato">>
 	<<set _potatoRNG to random(25, 100)>>
 	You open it. It's full of potatoes. You get <span class="green">_potatoRNG</span>.
 	<br><br>
@@ -6306,8 +6303,12 @@ You cast a furtive glance over your shoulder, then take the money.
 
 :: Street Box Potatoes
 <<effects>>
+<<set $loftIngredients.potato to 10>>
 
 River has food delivered for the kitchen routinely, but there's never quite enough to go around. Perhaps your fellow residents would enjoy some chips.
+<br><br>
+
+<span class="gold">The loft kitchen now supplies potatoes.</span> Stock will last for a limited amount of recipes, and slowly decrease as time passes.
 <br><br>
 
 <<destinationeventend>>
@@ -6324,7 +6325,7 @@ You crouch in a nearby alley, out of sight of onlookers, and try to open the thi
 	<br><br>
 
 	<<skulduggeryuse>>
-	<<handheldon>><<wearProp "binder">>
+	<<wearProp "binder">>
 
 	Inside are binders full of paperwork, including balance sheets. They belong to a local corporation. Someone in the underworld might be interested in this.
 	<<set $blackmoney += 100>><<crimeUp 100 "thievery">>
@@ -6350,7 +6351,7 @@ You crouch in a nearby alley, out of sight of onlookers, and try to open the thi
 <<effects>>
 
 <<if $physiqueSuccess>>
-	<<handheldon>><<wearProp "binder">>
+	<<wearProp "binder">>
 	You lift the box above your head, and throw it against the ground. <span class="green">It smashes open.</span> Inside are binders full of paperwork, including balance sheets. They belong to a local corporation. Someone in the underworld might be interested in this.
 	<<set $blackmoney += 100>><<crimeUp 100 "thievery">>
 	<br><br>
@@ -6458,7 +6459,7 @@ The <<person1>><<person>> gawks at you, dumbstruck. You offer <<him>> <<his>> ba
 :: Street Van Help
 <<effects>>
 
-You accept the <<persons>> offer, and help <<him>> carry the boxes indoors.<<wearProp "box" 0 "closed">>
+You accept the <<persons>> offer, and help <<him>> carry the boxes indoors.<<wearProp "box">>
 
 <<if $rng gte 81>>
 	They're full of fruit, and pretty heavy.
@@ -6488,11 +6489,11 @@ One by one, the van is cleared of cargo. <<physique 6>>
 	<br><br>
 
 	<<set $skulduggerydifficulty to 1100>>
-	<<link [[Search carefully for a way out|Street Van Search]]>><<handheldon>><</link>><<skulduggerydifficulty>>
+	<<link [[Search carefully for a way out|Street Van Search]]>><</link>><<skulduggerydifficulty>>
 	<br>
-	<<link [[Bash the door open|Street Van Bash]]>><<handheldon>><</link>><<physiquedifficulty 1 22000>>
+	<<link [[Bash the door open|Street Van Bash]]>><</link>><<physiquedifficulty 1 22000>>
 	<br>
-	<<link [[Just wait (1:00)|Street Van Journey]]>><<handheldon>><<pass 60>><</link>>
+	<<link [[Just wait (1:00)|Street Van Journey]]>><<pass 60>><</link>>
 	<br>
 <<else>>
 	"Thanks," the <<person>> says as you put down the last box. "You're a life saver. Here you go, every penny earned."
@@ -6660,14 +6661,14 @@ The <<person3>><<person>> tries to grab you.
 	You're powerless to stop them.
 	<<if $worn.neck.name is "familiar collar" and $worn.neck.cursed is 1>>
 		<<endcombat>>
-		<<badEndTracking "Underground Farm" { reason: "uFarmLost" }>>
+		<<badEndTracking "Underground Farm" { reason: "uFarmBetrayedLost" }>>
 		<<link [[Next|Livestock Intro Familiar Collar]]>><</link>>
 	<<else>>
 		They fix a collar and chain around your neck, pull you to your feet, and force you to walk behind them.
 		<br><br>
 		<<leash 21>>
 		<<endcombat>>
-		<<badEndTracking "Underground Farm" { reason: "uFarmLost" }>>
+		<<badEndTracking "Underground Farm" { reason: "uFarmBetrayedLost" }>>
 		<<link [[Next|Livestock Intro]]>><</link>>
 	<</if>>
 
@@ -7040,9 +7041,9 @@ The <<person2>><<person>> looks concerned. "Are you injured?" <<he>> asks.
 <<if $exposed gte 1>>
 	"Your clothes are ruined," <<he>> says.
 	<<if $player.gender_appearance is "f">>
-		"I got this for my daughter, but you look the same size."<<upperwear 38>> <<He 2>> hands you a cute dress, and turns while you put it on. "Suits you perfectly."
+		"I got this for my daughter, but you look the same size."<<upperwear "patterned dress">> <<He 2>> hands you a cute dress, and turns while you put it on. "Suits you perfectly."
 	<<else>>
-		"I got these for my son, but you look the same size." <<upperwear 33>><<lowerwear 5>> <<He 2>> hands you a shirt and shorts, and turns while you put it on. "Suits you perfectly."
+		"I got these for my son, but you look the same size." <<upperwear "checkered shirt">><<lowerwear "shorts">> <<He 2>> hands you a shirt and shorts, and turns while you put it on. "Suits you perfectly."
 	<</if>>
 <<else>>
 <</if>>
@@ -7633,7 +7634,7 @@ The creature withdraws into the dark, leaving you alone on the street.
 <<generalUndress "wardrobe" "upper">>
 <<generalUndress "wardrobe" "lower">>
 <<generalUndress "wardrobe" "feet">>
-<<exhibitionism5>>
+<<exhibitionism5>><<wearProp "box open">>
 You open the package. Inside is <<= $lustfulClothes is "pimp" ? "a suit trimmed with faux fur and a feathered hat." : "some rather scanty-looking clothing and a pair of platform heels.">>
 As you put down the box and start to strip, the <<person>> grabs you and the box and drags you to an alleyway.
 <br><br>
@@ -7674,17 +7675,17 @@ You walk into a nearby alleyway and open the package. Inside is <<= $lustfulClot
 <<link [[Refuse|Shady Fan Sex Refuse]]>><</link>>
 
 :: Shady Fan Take
-<<set $outside to 1>><<effects>><<wearProp "box" 0 "closed">>
+<<set $outside to 1>><<effects>><<wearProp "box">>
 
 <<set _color to ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal"][random(0,8)]>>
 <<if $lustfulClothes is "pimp">>
-	<<generalSend "wardrobe" "upper" 158 _color>>
-	<<generalSend "wardrobe" "lower" 143 _color>>
-	<<generalSend "wardrobe" "head" 66 _color>>
+	<<generalSend "wardrobe" "upper" "pimp suit jacket" _color>>
+	<<generalSend "wardrobe" "lower" "pimp suit trousers" _color>>
+	<<generalSend "wardrobe" "head" "pimp hat" _color>>
 <<else>>
-	<<generalSend "wardrobe" "upper" 48 _color>>
-	<<generalSend "wardrobe" "lower" 44 _color>>
-	<<generalSend "wardrobe" "feet" 9 _color>>
+	<<generalSend "wardrobe" "upper" "tie-front top" _color>>
+	<<generalSend "wardrobe" "lower" "micro pleated skirt" _color>>
+	<<generalSend "wardrobe" "feet" "platform heels" _color>>
 <</if>>
 <<run delete $lustfulClothes>>
 
@@ -7703,13 +7704,13 @@ You ignore <<his>> request and walk away.
 
 <<set _color to ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal"][random(0,8)]>>
 <<if $lustfulClothes is "pimp">>
-	<<generalWear "upper" 158 _color>>
-	<<generalWear "lower" 143 _color>>
-	<<generalWear "head" 66 _color>>
+	<<upperwear "pimp suit jacket" _color>>
+	<<lowerwear "pimp suit trousers" _color>>
+	<<headwear "pimp hat" _color>>
 <<else>>
-	<<generalWear "upper" 48 _color>>
-	<<generalWear "lower" 44 _color>>
-	<<generalWear "feet" 9 _color>>
+	<<upperwear "tie-front top" _color>>
+	<<lowerwear "micro pleated skirt" _color>>
+	<<feetwear "platform heels" _color>>
 <</if>>
 <<run delete $lustfulClothes>>
 
@@ -7771,13 +7772,13 @@ You ignore the <<persons>> request and try to walk away, but <<he>> blocks your 
 
 <<set _color to ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal"][random(0,8)]>>
 <<if $lustfulClothes is "pimp">>
-	<<generalWear "upper" 158 _color>>
-	<<generalWear "lower" 143 _color>>
-	<<generalWear "head" 66 _color>>
+	<<upperwear "pimp suit jacket" _color>>
+	<<lowerwear "pimp suit trousers" _color>>
+	<<headwear "pimp hat" _color>>
 <<else>>
-	<<generalWear "upper" 48 _color>>
-	<<generalWear "lower" 44 _color>>
-	<<generalWear "feet" 9 _color>>
+	<<upperwear "tie-front top" _color>>
+	<<lowerwear "micro pleated skirt" _color>>
+	<<feetwear "platform heels" _color>>
 <</if>>
 <<clotheson>>
 <<run delete $lustfulClothes>>
@@ -9666,7 +9667,7 @@ You close your eyes and take slow, deep breaths. Soon enough, you fall unconscio
 
 :: Street Kidnap Wake
 <<set $outside to 0>><<set $location to "town">><<effects>><<set $bus to "domus">>
-<<bind>><<facewear 5>>
+<<bind>><<facewear "blindfold">>
 
 You regain consciousness. Your breathing is slow. It's the only thing you can hear. As your senses slowly return, you feel much more sensitive than normal around your chest and groin.<<garousal>>
 <br>
@@ -10144,9 +10145,9 @@ Despite the <<persons>> sincere tone, you think better of accepting a ride from 
 		<br><br>
 		<<if random(0, 10000) lt $fame.model + currentSkillValue("seductionskill") + $allure>>
 			<<if $trance gte 1>>
-				The <<person>> pulls back. <<He>> seeks your eyes again and, rising from <<his>> knees, starts to pull off <<his>> <<npcClothesText $NPCList[0] "lower">>. 
+				The <<person>> pulls back. <<He>> seeks your eyes again and, rising from <<his>> knees, starts to pull off <<his>> <<npcClothesText $NPCList[0] "lower">>.
 				<br><br>
-				<span class="blue">A familiar, distinct heat flares up in your groin and spreads throughout your body.</span> 
+				<span class="blue">A familiar, distinct heat flares up in your groin and spreads throughout your body.</span>
 				<<if $earSlime.corruption gte 80 and random(1, 4) gte 5 - numberOfEarSlime()>>
 					<span class="red">The ear slimes weaken your ability to think clearly.</span>
 					<<if numberOfEarSlime() gte 2>>
@@ -10163,7 +10164,7 @@ Despite the <<persons>> sincere tone, you think better of accepting a ride from 
 				<<link [[Resist|Street Private Photoshoot Resist]]>><</link>><<willpowerdifficulty `1 + _willpowerMod` `1500 + ($hypnosis_traits.suggestion * 100) + _willpowerMod`>>
 				<br>
 			<<elseif $hypnosis_traits.suggestion gt 0 and random(0, 100) lt 10 + $hypnosis_traits.suggestion and $settings.hypnosisEnabled>>
-				The <<person>> pulls back. <<He>> seeks your eyes again and, rising from <<his>> knees, starts to pull off <<his>> <<npcClothesText $NPCList[0] "lower">>. 
+				The <<person>> pulls back. <<He>> seeks your eyes again and, rising from <<his>> knees, starts to pull off <<his>> <<npcClothesText $NPCList[0] "lower">>.
 				<br><br>
 				<span class="blue">You feel something shift in your consciousness, as if you're entering a trance.</span> A wordless voice urges you to give in.
 				<<if $earSlime.corruption gte 80 and random(1, 4) gte 5 - numberOfEarSlime()>>
@@ -11595,9 +11596,9 @@ You ask <<him>> what happened to your underwear. "What—" <<he>> says, nearly t
 <<elseif $phase is 2>>
 	Shrugging, you throw your clothes on, including the
 	<<if !$settings.forcedCrossdressingEnabled>>
-		<<if $player.gender_appearance is "m">>jockstrap<<underlowerwear 28>><<else>>g-string<<underlowerwear 16>><</if>>.
+		<<if $player.gender_appearance is "m">>jockstrap<<underlowerwear "boxers">><<else>>g-string<<underlowerwear "crotchless panties">><</if>>.
 	<<else>>
-		<<if $NPCList[0].pronoun is "m">>jockstrap<<underlowerwear 28>><<else>>g-string<<underlowerwear 16>><</if>>.
+		<<if $NPCList[0].pronoun is "m">>jockstrap<<underlowerwear "boxers">><<else>>g-string<<underlowerwear "crotchless panties">><</if>>.
 	<</if>>
 <<else>>
 
@@ -12704,15 +12705,15 @@ You turn and walk away. You try to focus on looking for another way to cross, bu
 		You adjust your clothes and hide yourself behind your wings, letting hints of your body peek tantalizingly through the plumage.
 	<<elseif $demon gte 6 and $phase2 is 1>>
 		You bring your wings around to frame your chest and wrap your tail around your thigh, blowing a kiss for good measure.
-	<<elseif $wolfgirl>>
+	<<elseif $wolfgirl gte 6>>
 		You bend over and wag your tail, tongue lolling as you pant like an eager puppy.
-	<<elseif $cat>>
+	<<elseif $cat gte 6>>
 		You drape yourself over a nearby fence, lifting your tail to give a good look at your behind.
-	<<elseif $fox>>
+	<<elseif $fox gte 6>>
 		You swish your tail provocatively, bending over and giving the camera a coy smile.
-	<<elseif $harpy>>
+	<<elseif $harpy gte 6>>
 		You <<if $phase2 is 0>>flutter your wings and fan out your feathered tail<<elseif $phase2 is 1>>flutter your wings<<else>>fan out your feathered tail<</if>>, giving the camera a sultry look.
-	<<elseif $cow>>
+	<<elseif $cow gte 6>>
 		You cup your chest and arch your back, swaying your tail seductively behind you.
 	<<else>> /* Fallback, just in case */
 		You wink seductively, propping yourself up against a nearby wall while flaunting your <<if $phase2 is 1>>wings<<else>>animalistic features<</if>>.
@@ -12720,7 +12721,7 @@ You turn and walk away. You try to focus on looking for another way to cross, bu
 	<br><br>
 	The <<personsimple>> fumbles and nearly drops <<his>> camera in <<his>> haste to take your picture, lingering especially on your <<chest>> and <<bottom>>.
 	<br><br>
-	
+
 	<<exhibitionism1>>
 <</if>>
 <<if $phase is 2>>

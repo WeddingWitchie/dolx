@@ -599,7 +599,7 @@
 			<br>
 			<span class="description"> Binding your arms will destroy handheld items. Shackling your feet will destroy shoes.</span>
 			<br>
-			<<icon "clothes/gag.png">><<link "Gag">><<facewear 4>><<updatesidebarimg>><</link>> | <<link "Blindfold">><<facewear 5>><<updatesidebarimg>><</link>> | <<link "Gag and blindfold">><<facewear 6>><<updatesidebarimg>><</link>> | <<link "Bind arms">><<bind>><<updatesidebarimg>><</link>> | <<link "Shackle feet">><<shackle_feet>><<updatesidebarimg>><</link>>
+			<<icon "clothes/gag.png">><<link "Gag">><<facewear "gag">><<updatesidebarimg>><</link>> | <<link "Blindfold">><<facewear "blindfold">><<updatesidebarimg>><</link>> | <<link "Gag and blindfold">><<facewear "gag and blindfold">><<updatesidebarimg>><</link>> | <<link "Bind arms">><<bind>><<updatesidebarimg>><</link>> | <<link "Shackle feet">><<shackle_feet>><<updatesidebarimg>><</link>>
 			<br>
 			<<undobindingsicon>> <<link "Unbind all">><<unbind>><<if $worn.face.type.includes("gag") or $worn.face.type.includes("blindfold")>><<set $worn.face.type.push("broken")>><<faceruined>><</if>><<updatesidebarimg>><</link>>
 
@@ -1650,10 +1650,10 @@
 				<</if>>
 			</div>
 		<</if>>
-		<<if $dockwork is 2>>
+		<<if $docks.hired>>
 			<div class="settingsToggleItem">
 				<<docksicon>><span class="gold">Docks</span>
-				<<numberStepper "Status" $dockstatus "dockstatus">>
+				<<numberStepper "Status" $docks.status "docks.status">>
 			</div>
 		<</if>>
 		<<if $pirate_rank gte 0>>
@@ -2258,7 +2258,7 @@
 
 		<span class="gold"><<= _anal.toUpperFirst()>> Parasitic Pregnancy</span>
 		<br>
-		You can have up to <<number _slots>> <<=_anal>> <<= _slots is 1 ? "parasite" : "parasites">>.
+		You can have up to <<number _slots>> <<=_anal>> <<pluralise _slots "parasite">>.
 		<<if $_pregnancy.fetus.length lt maxParasites(_args[0])>>
 			<br><br>
 			<<if $_aPregnancy.type is "parasite" or $_aPregnancy.type is null>>
@@ -2507,7 +2507,7 @@
 					<<if $settings.playerPregnancyHumanEnabled>>
 						<<link "An anonymous donor">> /* The sperm owner is always the same, anonymous donor, so it helps pregnancy from only one source */
 							<<recordSperm `{target: "pc", spermOwner: "anonymous donor", spermType: "human", genital: _womb}`>>
-							<<replace "#cheatSpermSources">><span class="gold">$sexStats[_womb].sperm.length</span> <<= $sexStats[_womb].sperm.length is 1 ? "sperm source" : "sperm sources">><</replace>>
+							<<replace "#cheatSpermSources">><span class="gold">$sexStats[_womb].sperm.length</span> <<pluralise $sexStats[_womb].sperm.length "sperm source">><</replace>>
 						<</link>>
 						| <<link "A random person">> /* checks if males or females have penises, if there is no people with penises a foreigner inseminates PC */
 							<<set _impregnator to either("arbitrary", "aimless", "by-the-way", "casual", "driftless", "hit-or-miss", "fluky", "promiscuous", "slapdash", "irresponsible", "careless", "negligent") + " cheater ">>
@@ -2521,7 +2521,7 @@
 								<<set _impregnator += "foreigner">>
 							<</if>>
 							<<recordSperm `{target: "pc", spermOwner: _impregnator, spermType: "human", genital: _womb}`>>
-							<<replace "#cheatSpermSources">><span class="gold">$sexStats[_womb].sperm.length</span> <<= $sexStats[_womb].sperm.length is 1 ? "sperm source" : "sperm sources">><</replace>>
+							<<replace "#cheatSpermSources">><span class="gold">$sexStats[_womb].sperm.length</span> <<pluralise $sexStats[_womb].sperm.length "sperm source">><</replace>>
 						<</link>>
 					<</if>>
 					<<if $settings.playerPregnancyBeastEnabled>>
@@ -2549,7 +2549,7 @@
 								<<set _spermType to "wolf">>
 							<</if>>
 							<<recordSperm `{target: "pc", spermOwner: _impregnator, spermType: _spermType, genital: _womb}`>>
-							<<replace "#cheatSpermSources">><span class="gold">$sexStats[_womb].sperm.length</span> <<= $sexStats[_womb].sperm.length is 1 ? "sperm source" : "sperm sources">><</replace>>
+							<<replace "#cheatSpermSources">><span class="gold">$sexStats[_womb].sperm.length</span> <<pluralise $sexStats[_womb].sperm.length "sperm source">><</replace>>
 						<</link>>
 					<</if>>
 					<<for _pregEnabled range _impregnatorNPC>>
@@ -2575,14 +2575,14 @@
 						<<capture _actor, _spermType, _womb>>
 						| <<link _actor.nam>>
 							<<recordSperm `{target: "pc", spermOwner: _actor.nam, spermType: _spermType, genital: _womb}`>>
-							<<replace "#cheatSpermSources">><span class="gold">$sexStats[_womb].sperm.length</span> <<= $sexStats[_womb].sperm.length is 1 ? "sperm source" : "sperm sources">><</replace>>
+							<<replace "#cheatSpermSources">><span class="gold">$sexStats[_womb].sperm.length</span> <<pluralise $sexStats[_womb].sperm.length "sperm source">><</replace>>
 						<</link>>
 						<</capture>>
 					<</for>>
 					<<if $player.penisExist>>
 						| <<link "Yourself">>
 							<<recordSperm `{target: "pc", spermOwner: "pc", spermType: "human", genital: _womb}`>>
-							<<replace "#cheatSpermSources">><span class="gold">$sexStats[_womb].sperm.length</span> <<= $sexStats[_womb].sperm.length is 1 ? "sperm source" : "sperm sources">><</replace>>
+							<<replace "#cheatSpermSources">><span class="gold">$sexStats[_womb].sperm.length</span> <<pluralise $sexStats[_womb].sperm.length "sperm source">><</replace>>
 						<</link>>
 					<</if>>
 				<</if>>
@@ -2597,7 +2597,7 @@
 	<span class="gold">Impregnation</span>
 	<<if $player.penisExist and _impregnatableNPC.length>>
 		<br>
-		You can impregnate <span class="gold">_impregnatableNPC.length</span> fertile <<= _impregnatableNPC.length is 1 ? "NPC" : "NPCs">>.
+		You can impregnate <span class="gold">_impregnatableNPC.length</span> fertile <<pluralise _impregnatableNPC.length "NPC">>.
 		<br><br>
 		<<set _fertileNPC to 0>>
 		<<for _pregEnabled range _impregnatableNPC>>
@@ -3479,7 +3479,7 @@
 			<<numberStepper "X-Change Fame" $xchange_fame { callback: value => { V.xchange_fame = Math.clamp(value, 0, 1000) }, max: 1000, reverse: true, percentage: false}>>
 			<<if playerNormalPregnancyTotal() lt 8>>
 				<span class="description"><<set _pregsNeeded to Math.trunc(8-playerNormalPregnancyTotal())>>
-				Your pregnancy fame is capped by the amount of pregnancies you've had. You need to get pregnant <span class="gold"><<number _pregsNeeded>></span> more <<= _pregsNeeded is 1 ? "time" : "times">> to reach maximum pregnancy fame.</span>
+				Your pregnancy fame is capped by the amount of pregnancies you've had. You need to get pregnant <span class="gold"><<number _pregsNeeded>></span> more <<pluralise _pregsNeeded "time">> to reach maximum pregnancy fame.</span>
 			<</if>>
 		<<case "positive">>
 			<<numberStepper "Combat" $fame.scrap { callback: value => { V.fame.scrap = value }, max: 2000 * $AMCTraits.scrapFame, percentage: false}>>

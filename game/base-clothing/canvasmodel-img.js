@@ -181,38 +181,47 @@ DefineMacro("modelprepare-player-body", function () {
 			███████ ██████  ██ ████ ██ ███████
 			██   ██ ██   ██ ██  ██  ██      ██
 			██   ██ ██   ██ ██      ██ ███████
-		*/
+			*/
+	const wings = ["demon", "angel", "fallenAngel", "bird"].some(tf => !["hidden", "disabled"].includes(V.transformationParts[tf].wings));
+	const malePresentingNipples =
+		(V.player.gender_appearance === "m" && V.player.perceived_breastsize <= 2) ||
+		V.worn.under_upper.type.includes("covered") ||
+		(["beach", "pool", "sea", "lake", "lake_ruin"].includes(V.location) && V.worn.under_upper.exposed < 1 && V.underupperwetstage < 3);
+	const coverBreasts =
+		!malePresentingNipples &&
+		!V.dontHide &&
+		V.libertine !== 2 &&
+		V.worn.over_upper.exposed >= 1 &&
+		(V.worn.upper.exposed >= 1 || V.upperwetstage >= 3) &&
+		!V.worn.lower.type.includes("covered") &&
+		((V.uncomfortable.underwear && !V.worn.under_upper.type.includes("naked")) ||
+			(V.uncomfortable.nude && (V.worn.under_upper.exposed >= 1 || V.underupperwetstage >= 3)));
 
-	T.coverBreastsWithArm = false;
-	const leftArm = setup.clothes_all_slots.some(slot => ["left_cover", "clutch", "cover_both"].includes(V.worn[slot]?.holdPosition)) ? "cover" : "idle";
-	const rightArm = setup.clothes_all_slots.some(slot => ["right_cover", "cover_both"].includes(V.worn[slot]?.holdPosition))
-		? "cover"
-		: (V.worn.handheld.name !== "naked" && !["left_cover", "idle"].includes(V.worn.handheld?.holdPosition)) ||
-		  setup.clothes_all_slots.some(slot => V.worn[slot]?.holdPosition === "hold")
-		? "hold"
-		: "idle";
+	const acceptableExposure =
+		(["beach", "pool", "sea", "lake", "lake_ruin"].includes(V.location) && V.worn.under_lower.exposed < 1 && V.underlowerwetstage < 3) ||
+		V.worn.under_lower.type.includes("covered");
+	const coverCrotch =
+		!acceptableExposure &&
+		!V.dontHide &&
+		V.libertine !== 2 &&
+		V.worn.over_lower.exposed >= 1 &&
+		(V.worn.lower.exposed >= 1 || V.lowerwetstage >= 3) &&
+		((V.uncomfortable.underwear && !V.worn.under_lower.type.includes("naked")) ||
+			(V.uncomfortable.nude && (V.worn.under_lower.exposed >= 1 || V.underlowerwetstage >= 3)));
+
+	T.modeloptions.arm_left = armPosition("left");
+	T.modeloptions.arm_right = armPosition("right");
+	const leftArm = T.modeloptions.arm_left;
+	const rightArm = T.modeloptions.arm_right;
 
 	if (V.leftarm !== "bound" && V.leftarm !== "grappled") {
-		if (
-			!V.dontHide &&
-			V.libertine !== 2 &&
-			V.worn.over_upper.exposed >= 1 &&
-			(V.worn.upper.exposed >= 1 || V.upperwetstage >= 3) &&
-			!V.worn.lower.type.includes("covered") &&
-			((V.uncomfortable.underwear && !V.worn.under_upper.type.includes("naked")) ||
-				(V.uncomfortable.nude && (V.worn.under_upper.exposed >= 1 || V.underupperwetstage >= 3)))
-		) {
-			if (
-				(V.player.gender_appearance === "m" && V.player.perceived_breastsize <= 2) ||
-				V.worn.under_upper.type.includes("covered") ||
-				(["beach", "pool", "sea", "lake", "lake_ruin"].includes(V.location) && V.worn.under_upper.exposed < 1 && V.underupperwetstage < 3) || 
-				["home", "alex_cottage"].includes(V.location) || (V.combat === 1 && V.consensual === 1)
-			) {
+		if (coverBreasts) {
+			if (malePresentingNipples || ["home", "alex_cottage"].includes(V.location) || (V.combat === 1 && V.consensual === 1)) {
 				T.coverBreasts = false;
 				T.modeloptions.arm_left = leftArm;
 			} else {
 				T.coverBreasts = true;
-				T.modeloptions.arm_left = "cover"; // might be changed back to leftArm if covering with wings
+				T.modeloptions.arm_left = wings ? "cover" : leftArm;
 			}
 		} else {
 			T.coverBreasts = false;
@@ -233,7 +242,9 @@ DefineMacro("modelprepare-player-body", function () {
 		) {
 			if (
 				(["beach", "pool", "sea", "lake", "lake_ruin"].includes(V.location) && V.worn.under_lower.exposed < 1 && V.underlowerwetstage < 3) ||
-				V.worn.under_lower.type.includes("covered") || ["home", "alex_cottage"].includes(V.location)  || (V.combat === 1 && V.consensual === 1)
+				V.worn.under_lower.type.includes("covered") ||
+				["home", "alex_cottage"].includes(V.location) ||
+				(V.combat === 1 && V.consensual === 1)
 			) {
 				T.coverCrotch = false;
 				// "left_cover" checks included intentionally; parameter is meant to be used should there ever be a handheld item that should only use the left_cover hand position
@@ -260,7 +271,7 @@ DefineMacro("modelprepare-player-body", function () {
 			T.modeloptions.angel_wing_right = "idle";
 			T.modeloptions.fallen_wing_right = "idle";
 			T.modeloptions.bird_wing_right = "idle";
-		} else if (T.coverBreasts) {
+		} else if (T.coverBreasts && wings) {
 			if (
 				!T.disabled.includes(V.transformationParts.demon.wings) &&
 				!(isChimeraEnabled("demonharpy", "wings") && isPartEnabled(T.modeloptions.bird_wings_type))
@@ -281,42 +292,76 @@ DefineMacro("modelprepare-player-body", function () {
 			} else {
 				T.coverBreastsWithArm = true;
 			}
+		} else if (T.coverBreasts) {
+			T.coverBreastsWithArm = true;
 		}
 	}
 
-	if (V.rightarm !== "bound" && V.rightarm !== "grappled") {
-		if (!T.coverCrotch) {
-			if (!T.disabled.includes(V.transformationParts.demon.tail)) {
-				if (V.exposed >= 2 && !V.dontHide && V.libertine !== 2 && V.transformationParts.traits.flaunting === "default") {
-					T.modeloptions.demon_tail_state = "flaunt";
-					T.modeloptions.cat_tail_state = "flaunt";
-					T.modeloptions.cow_tail_state = "flaunt";
-				} else {
-					T.modeloptions.demon_tail_state = "idle";
-					T.modeloptions.cat_tail_state = "idle";
-				}
-			}
-			T.modeloptions.angel_wing_left = "idle";
-			T.modeloptions.fallen_wing_left = "idle";
-			T.modeloptions.bird_wing_left = "idle";
-		} else if (T.coverCrotch) {
-			if (!T.disabled.includes(V.transformationParts.demon.tail)) {
-				T.modeloptions.demon_tail_state = V.transformationParts.traits.flaunting === "default" ? "flaunt" : "cover";
-				T.modeloptions.cat_tail_state = "cover";
-				T.modeloptions.arm_right = rightArm;
-			} else if (!T.disabled.includes(V.transformationParts.angel.wings)) {
-				T.modeloptions.angel_wing_left = "cover";
-				T.modeloptions.bird_wing_left = "cover";
-				T.modeloptions.arm_right = rightArm;
-			} else if (!T.disabled.includes(V.transformationParts.fallenAngel.wings)) {
-				T.modeloptions.fallen_wing_left = "cover";
-				T.modeloptions.bird_wing_left = "cover";
-				T.modeloptions.arm_right = rightArm;
-			} else if (!T.disabled.includes(V.transformationParts.bird.wings)) {
-				T.modeloptions.bird_wing_left = "cover";
-				T.modeloptions.arm_right = rightArm;
-			}
+	if (coverCrotch && wings) {
+		if (!T.disabled.includes(V.transformationParts.demon.tail)) {
+			T.modeloptions.demon_tail_state = V.transformationParts.traits.flaunting === "default" ? "flaunt" : "cover";
+			if (!T.disabled.includes(V.transformationParts.cat.tail)) T.modeloptions.cat_tail_state = "cover";
+		} else if (!T.disabled.includes(V.transformationParts.angel.wings)) {
+			T.modeloptions.angel_wing_left = "cover";
+			T.modeloptions.bird_wing_left = "cover";
+		} else if (!T.disabled.includes(V.transformationParts.fallenAngel.wings)) {
+			T.modeloptions.fallen_wing_left = "cover";
+			T.modeloptions.bird_wing_left = "cover";
+		} else if (!T.disabled.includes(V.transformationParts.bird.wings)) {
+			T.modeloptions.bird_wing_left = "cover";
 		}
+	}
+
+	if (T.prop) {
+		T.modeloptions.prop = {};
+		T.modeloptions.prop = Object.assign({}, T.prop);
+		T.modeloptions.prop.show =
+			(T.modeloptions.arm_left !== "none" && T.modeloptions.arm_right !== "none") || T.modeloptions.prop.armPosition === "handsfree";
+		if (coverCrotch && T.prop.hasCoverImg && !wings) T.modeloptions.prop.name += "-cover";
+	}
+
+	function armPosition(arm) {
+		if (["grappled", "bound"].includes(V[arm + "arm"])) return "none";
+
+		if (T.prop) {
+			if (propCoversNudity(arm)) return "cover";
+
+			if (T.prop.armPosition === "clutch") return arm === "right" ? "hold" : "cover";
+			if (T.prop.armPosition === `${arm}_cover` || T.prop.armPosition === "cover_both") return "cover";
+			if (T.prop.armPosition === `${arm}_hold`) return "hold";
+		}
+
+		if (useCover(arm)) return "cover";
+		if (useHold(arm)) return "hold";
+
+		return "idle";
+	}
+
+	function propCoversNudity(arm) {
+		if (wings || !T.prop.hasCoverImg) return false;
+
+		if (arm === "right" && coverCrotch && !T.prop.armPosition.includes("left")) return true;
+		if (arm === "left" && coverBreasts && (T.prop.armPosition.includes("left") || T.prop.armPosition === "idle_both")) return true;
+		return false;
+	}
+
+	function useCover(arm) {
+		const leftCoverClothes = setup.clothes_all_slots.some(slot => ["left_cover", "clutch", "cover_both"].includes(V.worn[slot]?.holdPosition));
+		const rightCoverClothes = setup.clothes_all_slots.some(slot => ["right_cover", "cover_both"].includes(V.worn[slot]?.holdPosition));
+
+		if ((arm === "left" && leftCoverClothes) || (arm === "right" && rightCoverClothes)) return true;
+		if (!wings && ((arm === "left" && coverBreasts) || (arm === "right" && coverCrotch))) return true;
+		return false;
+	}
+
+	function useHold(arm) {
+		const rightHoldClothes =
+			setup.clothes_all_slots.some(slot => ["right_hold", "clutch"].includes(V.worn[slot]?.holdPosition)) ||
+			(V.worn.handheld.name !== "naked" && !["left_cover", "left_idle", "idle_both"].includes(V.worn.handheld?.holdPosition));
+		const leftHoldClothes = setup.clothes_all_slots.some(slot => V.worn[slot]?.holdPosition === "left_hold");
+
+		if ((arm === "right" && rightHoldClothes) || (arm === "left" && leftHoldClothes)) return true;
+		return false;
 	}
 
 	/*
@@ -324,7 +369,7 @@ DefineMacro("modelprepare-player-body", function () {
 			██     ██ ██   ██ ██    ██    ██ ████   ██ ██       ██
 			██  █  ██ ██████  ██    ██    ██ ██ ██  ██ ██   ███ ███████
 			██ ███ ██ ██   ██ ██    ██    ██ ██  ██ ██ ██    ██      ██
-			███ ███  ██   ██ ██    ██    ██ ██   ████  ██████  ███████
+			 ███ ███  ██   ██ ██    ██    ██ ██   ████  ██████  ███████
 		*/
 
 	if (V.options.bodywritingImages === true) {
@@ -382,7 +427,7 @@ DefineMacro("modelprepare-player-body", function () {
 	T.modeloptions.brows_position = V.browsposition;
 
 	// Mouth
-	if ((V.worn.handheld.type.includes("food") && !T.gift) || V.underwater === 1 || (T.tempEffects?.underwater && T.tempEffects.underwater !== "noMouth")) {
+	if (V.underwater === 1 || (T.tempEffects?.underwater && T.tempEffects.underwater !== "noMouth")) {
 		T.modeloptions.mouth = "chew";
 	} else if (V.trauma >= V.traumamax) {
 		T.modeloptions.mouth = "neutral";
@@ -396,6 +441,11 @@ DefineMacro("modelprepare-player-body", function () {
 		T.modeloptions.mouth = "neutral";
 	} else {
 		T.modeloptions.mouth = "smile";
+	}
+	if (T.prop?.folder === "food" && !T.prop.name.includes("gift")) {
+		const foodKey = T.prop.name.replace(/-/g, "_");
+		const recipe = setup.plants[foodKey]?.type === "food" || T.prop.name?.includes("inedible") || false;
+		if (!recipe) T.modeloptions.mouth = "chew";
 	}
 
 	// Blush

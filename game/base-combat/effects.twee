@@ -2002,7 +2002,7 @@
 
 		<<if $rightaction is "rightstopanus">>
 			<<set $rightaction to 0>><<set $rightactiondefault to "rightstopanus">>
-			You stop covering you anus with your right hand.
+			You stop covering your anus with your right hand.
 			<<set $rightarm to 0>>
 			<<if $leftarm isnot "anus">>
 				<<set $anususe to 0>>
@@ -5223,9 +5223,11 @@
 			<<willpowercombatcheck>>
 			<<if $neckuse is "hand" and $oxygen lt $oxygenmax and $settings.asphyxiaLevel gte 2>>
 				<<wheeze "scream for help">>
-			<<elseif $drugged gt 0 or !$willpowerSuccess>>
-				You try to scream for help, <span class="pink">but your arousal makes it sound like a lewd moan.</span>
+			<<elseif $drugged gt 0 or $arousal gte $arousalmax * 0.9>>
+				You try to scream for help, <span class="pink">but <<= $drugged gt 0 ? "your drugged state of mind" : "your arousal">> makes it sound like a lewd moan.</span>
 				<<neutral 1>><<set $speechmoan to 1>>
+			<<elseif !$willpowerSuccess>>
+				You try to scream for help, <span class="red">but your voice catches in your throat.</span>
 			<<elseif $uncomfortable.hypnosis is false and $hypnosis_traits.scream gte random(1,5)>>
 				<<set $mouthaction to 0>><<unset $askAction>><<set _sound to 1>>
 				<<hypnosisText 'You intend to scream for help, but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span> <<askrough>>'>>
@@ -5294,11 +5296,16 @@
 			<<elseif $enemytype is "beast">>
 				You tell <<him>> you're sorry for being bad.
 				<<set $mouthactiondefault to "plead">>
-				<<if $NPCList[$mouthtarget] is _unforgiver>>
+				<<if $NPCList[$mouthtarget] is _unforgiver and $apologised is 0>>
+					<!-- apology to an unforgiving character, instead add 25 anger at no english, remove maximum of 50 at excellent english -->
 					<<bHe>> ignores you.
 					<<set $apologised to 1>><<set $speechapologiseunforgiving to 1>>
-					<<set $enemyanger += Math.clamp(25 - $englishtrait * 20, $enemyangermax / -2, $enemyangermax / 2)>>
-				<<elseif !!_unforgiver>>
+					<<set $enemyanger += Math.clamp(25 - $englishtrait * 20, $enemyangermax / -4, $enemyangermax / 2)>>
+				<<elseif $NPCList[$mouthtarget] is _unforgiver>>
+					<!-- repeated apology, now it's just more anger -->
+					<span class = red><<bHe>> only looks more annoyed.</span>
+					<<set $enemyanger += Math.clamp(100 - $englishtrait * 20, 0, $enemyangermax / 2)>>
+				<<elseif !!_unforgiver and $apologised is 0>>
 					<<bHe>> looks towards
 					<<= /^[A-Z]/.test(_unforgiver.fullDescription) ? "" : "the ">>
 					<<= _unforgiver.fullDescription>>,
@@ -5348,9 +5355,13 @@
 					<<set $mouthactiondefault to "plead">>
 					<<if $NPCList[$mouthtarget] is _unforgiver>>
 						<span class="red"><<He>> scoffs.</span>
-						<<set $apologised to 1>><<set $speechapologiseunforgiving to 1>>
-						<<set $enemyanger += Math.clamp(25 - $englishtrait * 20, $enemyangermax / -2, $enemyangermax / 2)>>
-					<<elseif !!_unforgiver>>
+						<<if $apologised is 0>>
+							<<set $enemyanger += Math.clamp(25 - $englishtrait * 20, $enemyangermax / -4, $enemyangermax / 2)>>
+							<<set $apologised to 1>><<set $speechapologiseunforgiving to 1>>
+						<<else>>
+							<<set $enemyanger += Math.clamp(100 - $englishtrait * 20, 0, $enemyangermax / 2)>>
+						<</if>>
+					<<elseif !!_unforgiver and $apologised is 0>>
 						<<He>> looks over at
 						<<= /^[A-Z]/.test(_unforgiver.fullDescription) ? "" : "the ">>
 						<<= _unforgiver.fullDescription>>,

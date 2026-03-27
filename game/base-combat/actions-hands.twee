@@ -1753,35 +1753,38 @@
 		<<set $rightaction to 0>>
 		<<personselect $righttarget>>
 		<<set $_target to $NPCList[$righttarget]>>
-	<<set _leftHypno to (
-		$_target.lefthand is "hypnosis"
-		or ($_target.lefthand and $_target.lefthand.startsWith("hypnosis_"))
-		or $_target.lefthand is "hypnosis_deviancy"
-	)>>
-	<<set _rightHypno to (
-		$_target.righthand is "hypnosis"
-		or ($_target.righthand and $_target.righthand.startsWith("hypnosis_"))
-		or $_target.righthand is "hypnosis_deviancy"
-	)>>
+	<<if $_target>>
+		<<set _leftHypno to (
+			$_target.lefthand is "hypnosis"
+			or ($_target.lefthand and $_target.lefthand.startsWith("hypnosis_"))
+			or $_target.lefthand is "hypnosis_deviancy"
+		)>>
+		<<set _rightHypno to (
+			$_target.righthand is "hypnosis"
+			or ($_target.righthand and $_target.righthand.startsWith("hypnosis_"))
+			or $_target.righthand is "hypnosis_deviancy"
+		)>>
 
-	<<if _leftHypno>>
-		<<if $whackRandom and random(1,5) lte 2>>
-			<span class="brat">You fail to whack the <<print $_target.lefttool>> from the <<personselect $righttarget>><<persons>> hand.</span>
-			<<brat 5 $righttarget>>
-		<<else>>
-			You whack the <<print $_target.lefttool>> from <<personselect $righttarget>><<combatpersons>> hand.
-			<<combat-reset-hand "left">><<set $_target.lefttool to 0>>
-			<<brat 10 $righttarget>>
+		<<if _leftHypno>>
+			<<if $whackRandom and random(1,5) lte 2>>
+				<span class="brat">You fail to whack the <<print $_target.lefttool>> from the <<personselect $righttarget>><<persons>> hand.</span>
+				<<brat 5 $righttarget>>
+			<<else>>
+				You whack the <<print $_target.lefttool>> from <<personselect $righttarget>><<combatpersons>> hand.
+				<<combat-reset-hand "left">><<set $_target.lefttool to 0>>
+				<<brat 10 $righttarget>>
+			<</if>>
+		<<elseif _rightHypno>>
+			<<if $whackRandom and random(1,5) lte 2>>
+				<span class="brat">You fail to whack the <<print $_target.righttool>> from the <<personselect $righttarget>><<persons>> hand.</span>
+				<<brat 5 $righttarget>>
+			<<else>>
+				You whack the <<print $_target.righttool>> from <<personselect $righttarget>><<combatpersons>> hand.
+				<<combat-reset-hand "right">><<set $_target.righttool to 0>>
+				<<brat 10 $righttarget>>
+			<</if>>
 		<</if>>
-	<<elseif _rightHypno>>
-		<<if $whackRandom and random(1,5) lte 2>>
-			<span class="brat">You fail to whack the <<print $_target.righttool>> from the <<personselect $righttarget>><<persons>> hand.</span>
-			<<brat 5 $righttarget>>
-		<<else>>
-			You whack the <<print $_target.righttool>> from <<personselect $righttarget>><<combatpersons>> hand.
-			<<combat-reset-hand "right">><<set $_target.righttool to 0>>
-			<<brat 10 $righttarget>>
-		<</if>>
+	<</if>>
 	<</if>>
 
 		<</if>>
@@ -2274,6 +2277,7 @@
 		<<case "hypnosis_devotion">> <<combat-hand-hypnosis-devotion $_hand>>
 		<<case "hypnosis_deviancy">> <<combat-hand-hypnosis-deviancy $_hand>>
 		<<case "hypnosis_crossdressing">> <<combat-hand-hypnosis-crossdressing $_hand>>
+		<<case "hypnosis_end">> <<combat-set-hand-start $_hand>>
 		<<case "xchange_pill">> <<combat-hand-on-xchange-pill $_hand>>
 		<<case 0>> <<combat-set-hand-start $_hand>>
 		<<default>> <<run console.error("NPC hand action unaccounted for! Hand: " + $_hand + " Value: " + $_npcHand)>> <<run throw new Error("NPC hand action unaccounted for! Hand: " + $_hand + " Value: " + $_npcHand)>>

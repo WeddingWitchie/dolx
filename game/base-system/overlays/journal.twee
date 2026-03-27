@@ -91,7 +91,7 @@
 		<h1 class="header gold bold">Time-Sensitive</h1>
 		<ul class="journal">
 			<<if $avery_mansion>>/* Is Avery paying for the PC? */
-				<<if $avery_mansion.rage.assess gte 9>>
+				<<if $avery_mansion.rage.assess gte 9 or C.npc.Avery.state is "dismissed">>
 					<<set _avery_pay to false>>
 				<<else>>
 					<<set _avery_pay to true>>
@@ -158,6 +158,14 @@
 
 			<<if $avery_mansion?.schedule isnot "away" and $averydate is 1 and Time.hour lte 21 and $averydatedone isnot 1>> 
 				<li>You have a date scheduled with Avery <span class="pink"><<this_saturday>></span>. <<nnpc_He "Avery">>'ll wait for you <<= $avery_mansion ? "in the garage" : "on Domus Street">> between <span class="gold"><<ampm 20 00>></span> and <span class="gold"><<ampm 21 00>></span>.</li>
+			<</if>>
+
+			<<if $avery_valentines?.invite and !$avery_valentines?.done and !$avery_valentines?.missed_approach and !$avery_valentines_missed>>
+				<<if $avery_mansion>>
+					<li>Avery has invited you on a date for <span class="pink">Valentine's Day, on the 14th of February.</span> <<nnpc_He "Avery">>'ll wait for you in the mansion garage from <span class="gold"><<ampm 21 00>></span>.</li>
+				<<else>>
+					<li>Avery has invited you on a date for <span class="pink">Valentine's Day, on the 14th of February.</span> <<nnpc_He "Avery">>'ll wait for you on Domus Street from <span class="gold"><<ampm 20 00>></span>.</li>
+				<</if>>
 			<</if>>
 
 			<<if $harper_appointments.enabled or $schoolPsych is 1>>
@@ -353,11 +361,11 @@
 					<<run statusCheck("Gwylan")>>
 					<<if $gwylan.timer.ritual and Time.date.dayDifference(new DateTime(V.gwylan.timer.ritual)) > 0>>
 						<<set _ritualDays to Time.date.dayDifference(new DateTime(V.gwylan.timer.ritual))>>
-						Gwylan will be ready for another ritual in <span class="gold"><<number _ritualDays>></span> <<pluralise _ritualDays "day" "days">>.
+						<<if isGwylanAbsent() is "nobody">>Nobody<<else>>Gwylan<</if>> will be ready for another ritual in <span class="gold"><<number _ritualDays>></span> <<pluralise _ritualDays "day">>.
 					<<elseif _gwylanStatus.includes("badEndReady") or $gwylan.hunting is 3>>
-						<span class="red">Gwylan is waiting to perform another ritual with you.</span>
+						<span class="red"><<if isGwylanAbsent() is "nobody">>Nobody<<else>>Gwylan<</if>> is waiting to perform another ritual with you.</span>
 					<<else>>
-						<span class="pink">Gwylan is ready to perform another ritual.</span>
+						<span class="pink"><<if isGwylanAbsent() is "nobody">>Nobody<<else>>Gwylan<</if>> is ready to perform another ritual.</span>
 					<</if>>
 				</li>
 			<</if>>
@@ -374,7 +382,34 @@
 			<</if>>
 		<</for>>
 	<</if>>
-	<<if !$statFreeze and ((($location is "asylum" and ($eden_asylum_window is 1 or ($daily.eden.distract gte 1 and Time.hour lt 21))) || $temple_spear_mission gte 1 || $dockwork gte 2 || ($brothelshowdata.intro and $brothelshowdata.type is "none") || $robindebtevent gte 1 and $robinmissing isnot 0 || $pubtask2 is 1 || $pubtask || $police_hack is 1 || $pub_hack_job gte 1 || $pubfame ||( $earSlime.event and !_tempEventHide) || $earSlime.forcedCommando isnot undefined || $earSlime.forcedDressing isnot undefined || $temple_rank is "prospective" || $chef_state gte 4 || $mason_pond gte 1 || ($brothel_machine_repair gte 1 and $brothel_machine_repair lte 3) || ($harpy gte 6 and $birdFly isnot 1) || $adultshopgrandopening || ($adultshopintro is 1 and $adultshopunlocked is undefined)) || _dockKnown isnot undefined || $daily.stallRented isnot undefined || ($farm isnot undefined and $farm.build isnot "") || $gwylan?.request.event) || ($xchange.blackmail.activeQuest)>>
+	<<if !$statFreeze and (
+		($location is "asylum" and ($eden_asylum_window is 1 or ($daily.eden.distract gte 1 and Time.hour lt 21)))
+		|| $temple_spear_mission gte 1
+		|| $dockwork gte 2
+		|| $docks?.hired
+		|| _dockKnown isnot undefined
+		|| ($brothelshowdata.intro and $brothelshowdata.type is "none")
+		|| $robindebtevent gte 1 and $robinmissing isnot 0
+		|| $pubtask2 is 1
+		|| $pubtask
+		|| $police_hack is 1
+		|| $pub_hack_job gte 1
+		|| $pubfame
+		|| ($earSlime.event and !_tempEventHide)
+		|| $earSlime.forcedCommando isnot undefined
+		|| $earSlime.forcedDressing isnot undefined
+		|| $temple_rank is "prospective"
+		|| $chef_state gte 4
+		|| $mason_pond gte 1
+		|| ($brothel_machine_repair gte 1 and $brothel_machine_repair lte 3)
+		|| ($harpy gte 6 and $birdFly isnot 1)
+		|| $adultshopgrandopening
+		|| ($adultshopintro is 1 and $adultshopunlocked is undefined)
+		|| $daily.stallRented isnot undefined
+		|| ($farm isnot undefined and $farm.build isnot "")
+		|| $gwylan?.request.event
+		|| $xchange.blackmail.activeQuest
+	)>>
 		/*TODO: streamline during eventual Journal UI Overhaul bc lol. lmao, even. */
 		<hr>
 		<h1 class="header gold bold">Reminders</h1>
@@ -402,8 +437,8 @@
 				<</if>>
 			<</if>>
 
-			<<if $dockwork gte 2>>
-				<li><<docksicon>> You can work at the docks starting from <<ampm 7 00>> - <<ampm 8 00>><<if !($idDocksReveal is 2)>> on any day except school days<</if>>.</li>
+			<<if $docks.hired>>
+				<li><<docksicon>> You can work at the docks starting from <<ampm 6 00>> to <<ampm 7 00>>, or enter late before <<ampm 9 00>><<if $docks.fakeID isnot "shown">>, on any day except school days<</if>>.</li>
 			<</if>>
 
 			<<if $brothelshowdata.intro and $brothelshowdata.type is "none">>
@@ -811,13 +846,13 @@
 		</ul>
 	<</if>>
 
-	<<if ($valentines is 1 and $valentines_eden is 1) or $halloween is 1 or $christmas is 1>>
+	<<if ($valentines is 1) or $halloween is 1 or $christmas is 1>>
 		<hr>
 		<h1 class="header gold bold">Holidays</h1>
 	<</if>>
-	<<if $valentines_eden is 1>>
+	<<if $valentines is 1>>
 		<ul class="journal">
-			<li>Valentine's day is held on February 14th.</li>
+			<li>Valentine's day is held <<if Time.monthDay is 14>><span class="gold">today</span><<else>>on February 14th<</if>>. You feel spending time with someone special will be extra rewarding.</li>
 			<<if $valentines_eden is 1 and !$valentines_eden_bought>>
 				<li>You can buy something for Eden to celebrate.</li>
 			<<elseif $valentines_eden_bought is 1>>
@@ -1020,7 +1055,7 @@
 						<<else>>
 							<span class='fa-icon fa-unselected'></span>
 						<</if>>
-						<<icon "scissors.png">>Keeping your hair no longer than the top of your chest.
+						<<icon "scissors.png">>Keeping your hair no longer than your shoulders.
 					<</if>>
 					<<if $avery_mansion.jobs.includes("hairstyle")>>
 						<br>
@@ -1251,7 +1286,7 @@
 			<</if>>
 			<<if !$englishPlayRoles.SydneyKnown and !$englishPlayRoles.KylarKnown>>
 				<li>You can meet your partners in the English classroom after school.</li>
-			<<elseif !$englishPlayRoles.SydneyKnown or (!$englishPlayRoles.KylarKnown and !$englishPlayKylarReplace)>>
+			<<elseif !$englishPlayRoles.SydneyKnown or (!$englishPlayRoles.KylarKnown and !$englishPlayKylarReplace and $englishPlayRoles.Kylar isnot "none")>>
 				<li>You can meet your other partner in the English classroom after school.</li>
 			<</if>>
 			</ul>
@@ -1311,7 +1346,7 @@
 				<li><<foodicon "popcorn">> <span class="green">$popcorn</span> <<pluralise $popcorn "bag">> of popcorn.</li>
 			<</if>>
 			<<if $panties_held gt 0>>
-				<li><span class="clothes-white"><<icon "clothes/plain_panties.png">></span> <<print $panties_held is 1 ? "a pair" : "<span class='green'>$panties_held</span> pairs">> of stolen underwear. You can sell <<pluralise $panties_held "it" "them">> during lunchtime in the school rear courtyard.</li>
+				<li><span class="clothes-white"><<icon "clothes/plain_panties.png">></span> <<print $panties_held is 1 ? "a pair" : "<span class='green'>$panties_held</span> pairs">> of stolen underwear. You can sell <<pluralise $panties_held "it">> during lunchtime in the school rear courtyard.</li>
 			<</if>>
 			<<if _hasProduce>>
 				<li><<stallicon "open">> <span class="green">Products</span> for sale. You can sell them by renting a stand on Connudatus Street at dawn.</li>

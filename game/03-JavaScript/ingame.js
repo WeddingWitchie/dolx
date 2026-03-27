@@ -649,7 +649,24 @@ function getRobinLocation() {
 		T.robin_location = "orphanage";
 	} else if (Time.schoolDay && between(Time.hour, 8, 15)) {
 		T.robin_location = "school";
-	} else if (Time.hour === 16 && between(Time.minute, 31, 59)) {
+		// Start bathing time half an hour later if Robin has been asked to water the player's garden
+		// Robin will only water if crops are planted, will not water in the rain at all, and will not water during snow before the greenhouse is built
+	} else if (
+		V.robin.autoWater &&
+		C.npc.Robin.trauma < 50 &&
+		Weather.precipitation !== "rain" &&
+		(Weather.precipitation !== "snow" || V.alex_greenhouse >= 3) &&
+		((Time.hour === 16 && between(Time.minute, 30, 59)) || (Time.hour === 17 && between(Time.minute, 0, 29))) &&
+		orphanagePlotsPlanted()
+	) {
+		if (Time.hour === 16 && between(Time.minute, 30, 59) && !orphanagePlotsWatered()) {
+			T.robin_location = "garden";
+		} else if (!V.daily.robin.bath) {
+			T.robin_location = "bath";
+		} else {
+			T.robin_location = "orphanage";
+		}
+	} else if (Time.hour === 16 && between(Time.minute, 30, 59)) {
 		if (!V.daily.robin.bath) {
 			T.robin_location = "bath";
 		} else {
@@ -2130,7 +2147,7 @@ function setupTransformations() {
 			get build() {
 				return V.wolfbuild;
 			},
-			type: "beast",
+			type: "physicalTransform",
 			parts: [
 				{ name: "ears", tfRequired: 4 },
 				{
@@ -2321,10 +2338,10 @@ function validateTransformations() {
 			physTFs.map(tf => tf.name)
 		);
 	if (V.physicalTransform === 1 && physTFs.length === 0) Errors.report("Couldn't find active physical transformation, modded save?");
-	V.physicalTransform = Math.max(physTFs.length, 1);
+	V.physicalTransform = Math.min(physTFs.length, 1);
 
 	const specTFs = setup.transformations.filter(tf => tf.type === "specialTransform" && tf.level >= (tf.name === "fallenangel" ? 2 : 1));
-	V.specialTransform = Math.max(specTFs.length, 1);
+	V.specialTransform = Math.min(specTFs.length, 1);
 
 	const confirmedTraits = [];
 	setup.transformations.forEach(tf => {
@@ -2766,8 +2783,8 @@ function dailyConvert() {
 		if (V.sewersfeeding === 1) V.daily.morgan.feeding = 1;
 		if (V.sewersDaily) V.sewersDaily.forEach(n => (V.daily.morgan[n] = 1));
 		/* `$compoundstate != undefined` is no longer used as an indicator of the access to compound,
-		as it migrated to $daily.compoundState. $compound.card === 2 is used for that instead. */
-		if (V.compoundstate !== undefined) V.compoundcard = 2;
+		as it migrated to $daily.compoundState. $compound.discovered is used for that instead. */
+		if (V.compoundstate !== undefined) V.compound.discovered = true;
 		V.daily.pharm.impatient = V.left_before_nurse_returned;
 
 		/* unset old vars */
@@ -3115,10 +3132,40 @@ $(document).on(":onWeatherChange", () => {
 	V.daily.plotsRain = true;
 	Object.entries(V.plots).forEach(([location, plots]) => {
 		// Don't water greenhouse plants from rain - disabled for now
+		// Alternate text about a rainwater harvester was added, so this may not be needed
 		// if (location === "garden" && V.alex_greenhouse === 3) return;
 		plots.forEach(plot => (plot.water = 1));
 	});
 });
+
+// Returns true if one or more orphanage plots have been planted
+// Used to determine whether Robin should automatically water them
+function orphanagePlotsPlanted() {
+	if (V.plots?.garden) {
+		for (let i = 0; i < V.plots.garden.length; i++) {
+			if (V.plots.garden[i].stage >= 1) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+window.orphanagePlotsPlanted = orphanagePlotsPlanted;
+
+// Returns true if all orphanage plots have been watered
+// Used to determine whether Robin sshould automatically water them
+function orphanagePlotsWatered() {
+	if (V.plots?.garden) {
+		for (let i = 0; i < V.plots.garden.length; i++) {
+			if (V.plots.garden[i].water === 0) {
+				return false;
+			}
+		}
+		return true;
+	}
+	return false;
+}
+window.orphanagePlotsWatered = orphanagePlotsWatered;
 
 // Temporary until a rework
 // Apparently the sugarcube <<script>> parser don't parse the following correctly - so made it a function instead

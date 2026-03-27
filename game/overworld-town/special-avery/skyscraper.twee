@@ -9,6 +9,7 @@ You approach Avery's skyscraper.
 <</if>>
 <<gtowerprogress>>
 <br><br>
+<<set $avery_tower.progress to Math.clamp($avery_tower.progress, 0, 100)>>
 <<if $avery_tower.progress gte 100>>
 	The building towers above you. It looks <span class="green">100%</span> done. The opening ceremony will be soon.
 <<elseif $avery_tower.progress gte 80>>
@@ -70,7 +71,13 @@ You approach Avery's skyscraper.
 
 <<avery_mansion_skyscraper_calc>>
 
-Weekly Progress: <<print _tower_progress>>%
+Weekly Progress: 
+<<if ($avery_tower.progress + _tower_progress) lt 0>>
+	<<set _tower_progress to -$avery_tower.progress>>
+<<elseif ($avery_tower.progress + _tower_progress) gt 100>>
+	<<set _tower_progress to 100 - $avery_tower.progress>>
+<</if>>
+<<print _tower_progress>>%
 <br><br>
 
 <<link [[Leave (0:01)|Elk Street]]>><</link>>
@@ -593,7 +600,7 @@ The lift returns. Even this close, you hear no sound as it opens. Avery steps in
 
 Harper produces two fox masks. One larger, the ears tipped with silver. <<person3>><<He>> hands the smaller one to you.
 <br><br>
-<<facewear 42>>
+<<facewear "fox mask">>
 "There's usually only one fox," <<he>> says. "There was a hiccup. Something that shouldn't have happened. I looked long and hard, and found a precedent."
 <br><br>
 
@@ -1355,7 +1362,7 @@ Your lungs hungrily take in fresh air, although it's still marred with the stenc
 	<br><br>
 
 	<<Hes>> pulled away by a firefighter. "Alright, hero, give them some breathing room." <<He>> stubbornly clings to you for another moment, but relents.
-	"I-ll see you at h—" <<he>> stops <<himself>>, looking at Avery. <<He>> closes <<his>> eyes, and yells. "I'll see you at home!" <<He>> wears a hopeful smile.
+	"I'll see you at h—" <<he>> stops <<himself>>, looking at Avery. <<He>> closes <<his>> eyes, and yells. "I'll see you at home!" <<He>> wears a hopeful smile.
 	It looks like <<hes>> staying to help. <<npcincr Robin dom 10>><<ggdom "Robin">>
 <<elseif C.npc.Sirris.state is "active">>
 	Sirris walks up to the two of you. "Sydney will be happy that you're alright." <<person3>><<He>> kneels down, and ruffles your hair. "And how are you, Avery?"
@@ -1373,7 +1380,7 @@ Avery sighs deeply. You take one last look towards the building.
 	<<if $avery_mansion.fox.nobody>>
 		<span class="purple">Nobody emerges. Nobody smiles at you one last time before vanishing into the night.</span>
 	<<else>>
-		<span class="green">You see the <<say_brown_fox>> emerge,</span> <<person2>><<his>> cloak now lightly burnt. <<He>> smiles and nods at you, before vanishing into the night.
+		<span class="green">You see <<say_brown_fox>> emerge,</span> <<person2>><<his>> cloak now lightly burnt. <<He>> smiles and nods at you, before vanishing into the night.
 	<</if>>
 <<else>>
 	<span class="red">You never saw <<say_brown_fox>> leave.</span>
@@ -1552,12 +1559,12 @@ You remain silent. Avery looks at <<his>> hands while the doctor fusses with <<h
 		<<set $clothingselector to $player.gender_appearance>>
 	<</if>>
 	<<if $clothingselector is "m">>
-		<<underlowerwear 4>>
-		<<upperwear 4>>
-		<<lowerwear 5>>
+		<<underlowerwear "briefs">>
+		<<upperwear "t-shirt">>
+		<<lowerwear "shorts">>
 	<<else>>
-		<<upperwear 1>>
-		<<underlowerwear 1>>
+		<<upperwear "sundress">>
+		<<underlowerwear "plain panties">>
 	<</if>>
 <<else>>
 	A doctor patches you up.
@@ -3007,8 +3014,8 @@ You land with Avery on the pier, but the edge is close. Avery tries to hold onto
 <br>
 
 :: Skyscraper Whitney Stay 2
-<<water>>
-<<effects>>
+<<water>><<waterbr 2>><<effects>>
+
 You sink deep enough that your feet touch the ground. A moment later, a huge mass plunges after you, just several metres away. It's the van. The force pushes you back, and disorients you.
 <br><br>
 

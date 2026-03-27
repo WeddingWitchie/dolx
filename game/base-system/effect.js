@@ -169,8 +169,8 @@ function effectsWater(waterType = "liquid") {
 			}
 			sWikifier("<<covered>>");
 			br();
-			br();
-		} else if (wetIntro >= 1  && V.exposed >= 1) {
+			if (V.makeupWashed) br();
+		} else if (wetIntro >= 1) {
 			if (V.exhibitionism >= 35) {
 				span(
 					!V.worn.face.type.includes("blindfold")
@@ -185,7 +185,7 @@ function effectsWater(waterType = "liquid") {
 				);
 			}
 			br();
-			br();
+			if (V.makeupWashed) br();
 		}
 	}
 	return fragment;
@@ -1141,6 +1141,37 @@ function effects() {
 			delete V.pregnancyDailyEvent;
 		}
 
+		// Check if any parasites are present before running events. If not, clear events.
+		// TODO: Clear event messages in the case of "staggered" births where some parasites remain in that category. Otherwise, all events will continue to play until the daily reset, even if some parasites have already been birthed.
+		if (V.daily.parasiteEvent) {
+			if (V.sexStats.vagina.pregnancy.type === "parasite") {
+				for (let i = 0; i < maxParasites("vagina"); i++) {
+					if (V.sexStats.vagina.pregnancy.fetus[i] != undefined) {
+						T.hasVaginaParasiteForEvent = true;
+						break;
+					}
+				}
+			}
+			if (V.sexStats.anus.pregnancy.type === "parasite") {
+				for (let i = 0; i < maxParasites("anus"); i++) {
+					if (V.sexStats.anus.pregnancy.fetus[i] != undefined) {
+						T.hasAnusParasiteForEvent = true;
+						break;
+					}
+				}
+			}
+			if (!T.hasVaginaParasiteForEvent) {
+				V.daily.parasiteEvent = V.daily.parasiteEvent.filter(function(event) {
+					return !event.includes("vagina");
+				});
+			}
+			if (!T.hasAnusParasiteForEvent) {
+				V.daily.parasiteEvent = V.daily.parasiteEvent.filter(function(event) {
+					return !event.includes("anus");
+				});
+			}
+		}
+
 		if (V.daily.parasiteEvent) {
 			let minDaysLeft;
 			if (V.sexStats.vagina.pregnancy.type === "parasite") {
@@ -1844,6 +1875,18 @@ function effects() {
 					if (V.adultshopcontribution) fragment.append(wikifier("earnFeat", "'Opened Pandoras Box'"));
 					if (V.adultshopcontribution >= 12) fragment.append(wikifier("earnFeat", "'Opened Pandoras Cocks'"));
 					break;
+				case "valentinesTomorrow":
+					sWikifier(
+						`<span class="gold">Tomorrow is Valentine's Day. You find yourself looking forward to spending quality time with someone special.</span> <<stress -6>><<lstress>><<trauma -6>><<ltrauma>>`
+					);
+					br();
+					break;
+				case "valentinesToday":
+					sWikifier(
+						`<span class="gold">Today is Valentine's Day. You look forward to spending quality time with someone special today. You sense that doing so will be extra rewarding.</span> <<stress -6>><<lstress>><<trauma -6>><<ltrauma>>`
+					);
+					br();
+					break;
 				default:
 					// Report error
 					errors.pushUnique(messageKey);
@@ -1956,59 +1999,49 @@ Macro.add("effects", {
 			.off(":passageend.effects")
 			.on(":passageend.effects", function () {
 				try {
-					if (V?.options?.bigCanvas === true && V?.options?.images === 1) {
-						// Only set style if the element exists (prevents null.style crashes)
-						const setStyle = (sel, styles) => {
-							const el = document.querySelector(sel);
-							if (!el) return;
-							Object.assign(el.style, styles);
-						};
+					const setStyle = (sel, styles) => {
+						const el = document.querySelector(sel);
+						if (!el) return;
+						Object.assign(el.style, styles);
+					};
+					const imagesEnabled = V?.options?.images === 1;
+					const bigCanvas = V?.options?.bigCanvas === true;
+					const nonMobile = !Browser.isMobile.any() && !/joiplay|cyou\.joiplay\.joiplay|wv/i.test(navigator.userAgent);
 
-						setStyle("body.has-images #story-caption #storyCaptionDiv", {
-							top: "267px",
-							height: "calc(100% - 95px - 1.32em)",
-							width: "392px",
-						});
-						setStyle("body.has-images #storyCaptionContent", { width: "392px" });
-						setStyle("#img", { height: "267px", width: "328px" });
-						setStyle("canvas.mainCanvas", { height: "358px", width: "358px" });
-						setStyle("#ui-bar", { width: "24.5em" });
-						setStyle("#stats", { width: "392px" });
+					if (imagesEnabled) {
+						if (bigCanvas) {
+							setStyle("body.has-images #story-caption #storyCaptionDiv", {
+								top: "267px",
+								height: "calc(100% - 95px - 1.32em)",
+								width: "392px",
+							});
+							setStyle("body.has-images #storyCaptionContent", { width: "392px" });
+							setStyle("#img", { height: "267px", width: "328px" });
+							setStyle("canvas.mainCanvas", { height: "358px", width: "358px" });
+							setStyle("#ui-bar", { width: "24.5em" });
+							setStyle("#stats", { width: "392px" });
+						} else {
+							setStyle("body.has-images #story-caption #storyCaptionDiv", {
+								top: "192px",
+								height: "calc(100% - 20px - 1.32em)",
+								width: "280px",
+							});
+							setStyle("body.has-images #storyCaptionContent", { width: "280px" });
+							setStyle("#img", { height: "192px", width: "216px" });
+							setStyle("canvas.mainCanvas", { height: "256px", width: "256px" });
+							setStyle("#ui-bar", { width: "17.5em" });
+							setStyle("#stats", { width: "280px" });
+						}
+					}
+
+					if (nonMobile) {
+						setStyle("#story", { marginLeft: bigCanvas ? "27em" : "20em" });
 					}
 				} catch (e) {
 					console.error("effects :passageend handler crashed:", e);
 					console.error(e?.stack || "(no stack)");
 				}
-			if (V.options.bigCanvas == true) {
-				if (V.options.images == 1) {
-					document.querySelector("body.has-images #story-caption #storyCaptionDiv").style.top = "267px";
-					document.querySelector("body.has-images #story-caption #storyCaptionDiv").style.height  = "calc(100% - 95px - 1.32em)";
-					document.querySelector("body.has-images #story-caption #storyCaptionDiv").style.width  = "392px";
-					document.querySelector("body.has-images #storyCaptionContent").style.width  = "392px";
-					document.querySelector("#img").style.height = "267px";
-					document.querySelector("#img").style.width = "328px";
-					document.querySelector("canvas.mainCanvas").style.height = "358px";
-					document.querySelector("canvas.mainCanvas").style.width = "358px";
-					document.querySelector("#ui-bar").style.width = "24.5em";
-					document.querySelector("#stats").style.width  = "392px";
-				}
-				if (!Browser.isMobile.any() && !/joiplay|cyou\.joiplay\.joiplay|wv/i.test(navigator.userAgent)) document.querySelector("#story").style.marginLeft = "27em";
-			} else {
-				if (V.options.images == 1) {
-					document.querySelector("body.has-images #story-caption #storyCaptionDiv").style.top = "192px";
-					document.querySelector("body.has-images #story-caption #storyCaptionDiv").style.height  = "calc(100% - 20px - 1.32em)";
-					document.querySelector("body.has-images #story-caption #storyCaptionDiv").style.width  = "280px";
-					document.querySelector("body.has-images #storyCaptionContent").style.width  = "280px";
-					document.querySelector("#img").style.height = "192px";
-					document.querySelector("#img").style.width = "216px";
-					document.querySelector("canvas.mainCanvas").style.height = "256px";
-					document.querySelector("canvas.mainCanvas").style.width = "256px";
-					document.querySelector("#ui-bar").style.width = "17.5em";
-					document.querySelector("#stats").style.width  = "280px";
-				}
-				if (!Browser.isMobile.any() && !/joiplay|cyou\.joiplay\.joiplay|wv/i.test(navigator.userAgent)) document.querySelector("#story").style.marginLeft = "20em";
-			}
-		});
+			});
 		if (document.getElementById("ui-bar") && !window.uiBarObserver) {
 			window.uiBarObserver = new MutationObserver((mutations) => {
 				for (const mutation of mutations) {

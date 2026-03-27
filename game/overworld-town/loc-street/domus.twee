@@ -121,7 +121,7 @@ You are on Domus Street. The orphanage is here. The street is dominated by small
 			<br><br>
 			<<endevent>>
 			<<destinationeventend>>
-		<<elseif C.npc.Gwylan.state is "active" and !isGwylanAbsent() and !$daily.gwylan.cafe and !$daily.gwylan.cafeSkip and !$daily.gwylan.SchoolDropOff and !["reunion", "badEndReady"].includes(statusCheck("Gwylan")) and !(between($chef_state, 7, 8) and $chef_rework lte 30) and Time.schoolDay and Time.hour is 7 and $exposed lte 0 and ($gwylan.sea + ($gwylanTalked.count("fox_mask") * 20) + ($gwylanTalked.count("dark_pendant") * 20) gte 40)>>
+		<<elseif C.npc.Gwylan.state is "active" and !isGwylanAbsent() and !$daily.gwylan.cafe and !$daily.gwylan.cafeOfferDeclined and !$daily.gwylan.cafeSkip and !$daily.gwylan.SchoolDropOff and !["reunion", "badEndReady"].includes(statusCheck("Gwylan")) and !(between($chef_state, 7, 8) and $chef_rework lte 30) and Time.schoolDay and Time.hour is 7 and $exposed lte 0 and ($gwylan.sea + ($gwylanTalked.count("fox_mask") * 20) + ($gwylanTalked.count("dark_pendant") * 20) gte 40)>>
 			<<run statusCheck("Gwylan")>><<npc Gwylan>><<person1>>
 			<<set $daily.gwylan.SchoolDropOff to true>>
 			<<if ["Orphanage", "Bedroom", "Bathroom"].includes($passagePrev)>>
@@ -161,7 +161,7 @@ You are on Domus Street. The orphanage is here. The street is dominated by small
 
 			<<cafeicon>><<link [[Walk with Gwylan (0:05)|Gwylan Walk Cafe Solo]]>><<pass 5>><<set $phase to 0>><<set $daily.gwylan.cafe to true>><</link>>
 			<br>
-			<<refuseicon>><<link [[Decline the offer|Gwylan Walk Cafe Solo]]>><<set $phase to 1>><</link>>
+			<<refuseicon>><<link [[Decline the offer|Gwylan Walk Cafe Solo]]>><<set $phase to 1>><<set $daily.gwylan.cafeOfferDeclined to true>><</link>>
 			<br>
 		<<elseif C.npc.Avery.state is "active" and !$avery_injury and !$daily.averySchoolDropOff and Time.schoolDay and Time.hour is 7 and $exposed lte 0 and ["upper", "lower", "handheld"].some(part => $worn[part].type.includes("school")) and !$avery_mansion and (!$robinaverybeat or C.npc.Avery.rage lte 40) and ((C.npc.Avery.love gte random(20, 100) and ($rng gte 51 or Weather.precipitation isnot "none")) or (C.npc.Avery.love gte 20 and Time.weekDay is 2) or (C.npc.Avery.rage is 0 and $dateCount.Avery is 0 and !$averyRejected.dropOff))>>
 			<<npc "Avery">><<person1>>
@@ -263,7 +263,13 @@ You are on Domus Street. The orphanage is here. The street is dominated by small
 				<<map "domus">>
 				<br>
 			<</if>>
-			<<if $averydate is 1 and Time.hour is 20 and $averydatedone isnot 1 and !$avery_mansion>>
+
+			<<if $avery_valentines and $avery_valentines.invite and !$avery_valentines.done and Time.monthName is "February" and Time.monthDay is 14 and Time.hour gte 20 and !$avery_mansion>>
+				Avery waits for you by <<nnpc_his "Avery">> car.
+				<br>
+				<<icon "averys_car.png">><<link [[Valentine's Date|Avery Valentines]]>><</link>>
+				<br><br>
+			<<elseif $averydate is 1 and Time.hour is 20 and $averydatedone isnot 1 and !$avery_mansion>>
 				Avery waits for you by <<nnpc_his "Avery">> car.
 				<br>
 				<<icon "averys_car.png">><<link [[Date (1:20)|Avery Date]]>><</link>>
@@ -346,9 +352,9 @@ A girl with long brown hair sits on a bench at the side of the road, a basket on
 <<if !$worn.upper.type.includes("formal") or !$worn.lower.type.includes("formal")>>
 	"You'll need to dress the part," the girl says. "Here." She takes a bundle of clothing from a tentacle within her basket, and throws it on you. "There we go!"
 	<<if $player.gender_appearance is "f">>
-		<<upperwear 7>>
+		<<upperwear "evening gown">>
 	<<else>>
-		<<upperwear 15>><<lowerwear 16>>
+		<<upperwear "tuxedo jacket">><<lowerwear "tuxedo trousers">>
 	<</if>>
 	<br><br>
 <</if>>

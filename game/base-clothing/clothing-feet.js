@@ -670,7 +670,6 @@ function initFeet() {
 			variable: "combat",
 			combat: {
 				reference: "bootheels",
-				mainColour: "#333333",
 			},
 			state: 0,
 			state_base: 0,
@@ -681,8 +680,8 @@ function initFeet() {
 			word: "n",
 			plural: 1,
 			colour: 0,
-			colour_options: [],
-			colour_combat: "black",
+			colour_options: ["black", "soft brown", "light brown", "khaki", "sand", "tan", "white", "custom"],
+			colour_sidebar: 1,
 			type: ["normal", "rugged"],
 			gender: "m",
 			femininity: -100,
@@ -1866,7 +1865,7 @@ function initFeet() {
 			accessory_colour: 0,
 			accessory_colour_options: [],
 			cursed: 0,
-			notuck: 1,
+			notuck: 0,
 			location: 0,
 			iconFile: "christmas_boots.png",
 			accIcon: 0,
@@ -1910,8 +1909,8 @@ function initFeet() {
 	setup.clothes.feet = clothing;
 
 	/*
-		Clothes that modders add go into this array, this should be empty in the base game at all times.
-		These items should have a `modder` variable with a the modders name in a short string
+		Clothes that modders add go into this array. This should be empty in the base game at all times.
+		These items should have a `modder` variable with the modder's name in a short string.
 	*/
 	setup.moddedClothes.feet = [];
 

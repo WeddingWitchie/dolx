@@ -62,8 +62,8 @@ function gwylanRequest(override = null) {
 	) {
 		if (V.harpy >= 6 && V.birdFly >= 1) {
 			allPossibleRequests.push(["preen", 2]); // Preen player's wings
-		} else {
-			allPossibleRequests.push(["preen", 1]); // Feathers from GH, more rare since it's harder without TF
+		} else if (!V.avery_mansion || V.avery_fate) {
+			allPossibleRequests.push(["preen", 1]); // Feathers from GH, more rare since it's harder without TF. Do not request this if Avery's mansion is unlocked but before the end of the skyscraper questline to avoid missing dinner, dates, or parties
 		}
 	}
 	if (
@@ -152,7 +152,7 @@ function gwylanRequest(override = null) {
 			return V.gwylan.request;
 		case "preen":
 			V.gwylan.request.event = "preen";
-			V.gwylan.request.items = [{ category: "other", name: "feathers", need: seedrng.randomInt(4, 8) }];
+			V.gwylan.request.items = [{ category: "other", name: "feathers", need: seedrng.randomInt(3, 6) }];
 			V.gwylan.request.timer =
 				V.harpy >= 6 && V.birdFly >= 1 ? new DateTime(Time.date).addDays(1).timeStamp : new DateTime(Time.date).addDays(10).timeStamp; // 10 day timer if no bird tf
 			V.gwylan.request.special = V.harpy >= 6 ? "harpy" : "feathers";
@@ -622,7 +622,7 @@ function gwylanRequestIngredients() {
 	const isSeasonEnding = [2, 5, 8, 11].includes(Time.month) && Time.monthDay > Time.lastDayOfMonth - 22;
 	const nextSeason = Time.month > 11 || Time.month < 3 ? "spring" : Time.month > 8 ? "winter" : Time.month > 5 ? "autumn" : "summer";
 
-	const blockedTypes = ["food", "vegetable", "meat", "fish"]; // enable fish once we have a fishing system. Yes, I am serious.
+	const blockedTypes = ["food", "vegetable", "meat", "fish", "seafood"]; // enable fish and seafood once we have a fishing system. Yes, I am serious.
 	const blockedItems = ["pink_rose", "oyster_pearl", "orange", "ghost_orchid", "hen_of_the_woods", "red_helleborine", "lady_orchid", "fly_agaric", "spiked_rampion", "cloudberry", "scottish_bog_myrtle", "bog_orchid", "marsh_saxifrage"]; // oyster pearl could be a required ingredient for something powerful later?
 	const blockedSources = ["human"];
 	const seedOnly = ["carnation", "daisy", "lotus", "plumeria", "poppy", "strange_flower", "white_rose"]; // items that can only be asked for if the player has their seeds due to remote location or no wild harvest
@@ -754,6 +754,7 @@ function canCollectSamples() {
 	// Check broadly if sample collection is possible
 	if (!V.gwylan?.request?.event) return false;
 	if (!V.gwylan.request.items?.some(item => item.category === "sample")) return false;
+	if (V.statFreeze) return false;
 	if (pcAreArmsBound("both")) {
 		return "bound";
 	}
@@ -777,6 +778,13 @@ function canCollectSampleSingle(species, modifier = null) {
 	if (species === "harpy") speciesCorrected = "hawk";
 	if (species === "human" && V.npc.includes("Ivory Wraith")) return false; // no bustin
 
+	if (!speciesCorrected) {
+		Errors.report(`[canCollectSampleSingle]: speciesCorrected is undefined! Defaulting to human.`, {
+			Stacktrace: Utils.GetStack(),
+			speciesCorrected,
+		});
+		speciesCorrected = "human";
+	}
 	const hasNeededSample = V.gwylan.request.items?.some(item => item.category === "sample" && speciesCorrected.includes(item.name));
 
 	return hasNeededSample;
@@ -930,7 +938,7 @@ window.gwylanHypnoMax = gwylanHypnoMax;
 
 function gwylanForestRescueRange() {
 	if (!V.gwylanSeen?.includes("ritual_sex")) return 25;
-	if (V.worn.neck.name === "familiar collar") return 100;
+	if (V.worn.neck.name === "familiar collar" && V.worn.neck.cursed === 1) return 100;
 	if (V.fox >= 6) return 50;
 	return 25;
 }
