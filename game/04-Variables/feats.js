@@ -3104,6 +3104,10 @@ function earnHourlyFeats() {
 		earnFeat("Broodmother Zoologist");
 	}
 
+	if (V.sexStats.anus.pregnancy.motherStatus === 2 || V.sexStats.vagina.pregnancy.motherStatus === 2) {
+		earnFeat("Broodmother Host");
+	}
+
 	if (V.spraymax >= 7) earnFeat("Max Those Shots");
 	if ((V.semen_volume >= 2000 && V.semen_amount >= V.semen_volume) || (V.milk_volume >= 2000 && V.milk_amount >= V.milk_volume)) earnFeat("Feeling Full");
 	if (V.cool >= 400) earnFeat("Social Butterfly");
@@ -3451,6 +3455,8 @@ function setupFeatBoosts(force) {
 		sexToys: [{}, {}, {}, {}, {}, {}],
 		specialClothesSets: {},
 		earSlimeType: "immaturePassive",
+		divineTFs: "",
+		animalTFs: "",
 	};
 
 	const boostData = {
@@ -3581,6 +3587,161 @@ function setupFeatBoosts(force) {
 	};
 
 	const earnedFeats = Object.keys(V.feats.allSaves);
+	const hasFeat = feat => earnedFeats.includes(feat);
+	Object.assign(boostData, {
+		divineTFs: {
+			name: "Divine Transformations",
+			required: ["Angel", "Fallen Angel", "Demon", "Demon of Purity"],
+			cost: 50,
+			max: 1,
+			missing: "Unlock this boost by obtaining one of the divine transformations",
+		},
+		animalTFs: {
+			name: "Animal Transformations",
+			required: ["Neko", "Wolf", "Cattle", "Harpy", "Fox"],
+			cost: 30,
+			max: 1,
+			missing: "Unlock this boost by obtaining one of the animal transformations",
+		},
+		sadism: {
+			name: "Sadism",
+			required: ["Twisted Desire", "Served Hot"],
+			cost: 10,
+			maxMultiplier: 1,
+			missing: "Unlock this boost by obtaining one of the sadism or masochism feats",
+		},
+		masochism: {
+			name: "Masochism",
+			required: ["Twisted Desire", "Served Hot"],
+			cost: 10,
+			maxMultiplier: 1,
+			missing: "Unlock this boost by obtaining one of the sadism or masochism feats",
+		},
+		physique: {
+			name: "Physique",
+			required: ["Powerful", "Unstoppable Force"],
+			cost: 10,
+			maxMultiplier: 2.5,
+			missing: "Unlock this boost by obtaining the 'Powerful' feat",
+		},
+		willpower: {
+			name: "Willpower",
+			required: ["Disciplined", "Immovable Object"],
+			cost: 10,
+			maxMultiplier: 2.5,
+			missing: "Unlock this boost by obtaining the 'Disciplined' feat",
+		},
+		oral: {
+			name: "Oral",
+			required: ["Sex Specialist", "God of Lust"],
+			cost: 5,
+			maxMultiplier: 2.5,
+			missing: "Unlock this boost by obtaining the 'Sex Specialist' feat",
+		},
+		chest: {
+			name: "Chest",
+			required: ["Sex Specialist", "God of Lust"],
+			cost: 5,
+			maxMultiplier: 2.5,
+			missing: "Unlock this boost by obtaining the 'Sex Specialist' feat",
+		},
+		hands: {
+			name: "Hands",
+			required: ["Sex Specialist", "God of Lust"],
+			cost: 5,
+			maxMultiplier: 2.5,
+			missing: "Unlock this boost by obtaining the 'Sex Specialist' feat",
+		},
+		buttocks: {
+			name: "Buttocks",
+			required: ["Sex Specialist", "God of Lust"],
+			cost: 5,
+			maxMultiplier: 2.5,
+			missing: "Unlock this boost by obtaining the 'Sex Specialist' feat",
+		},
+		penile: {
+			name: "Penile",
+			required: ["Sex Specialist", "God of Lust"],
+			cost: 5,
+			maxMultiplier: 2.5,
+			missing: "Unlock this boost by obtaining the 'Sex Specialist' feat",
+		},
+		anal: {
+			name: "Anal",
+			required: ["Sex Specialist", "God of Lust"],
+			cost: 5,
+			maxMultiplier: 2.5,
+			missing: "Unlock this boost by obtaining the 'Sex Specialist' feat",
+		},
+		vaginal: {
+			name: "Vaginal",
+			required: ["Sex Specialist", "God of Lust"],
+			cost: 5,
+			maxMultiplier: 2.5,
+			missing: "Unlock this boost by obtaining the 'Sex Specialist' feat",
+		},
+		feet: {
+			name: "Feet",
+			required: ["Sex Specialist", "God of Lust"],
+			cost: 5,
+			maxMultiplier: 2.5,
+			missing: "Unlock this boost by obtaining the 'Sex Specialist' feat",
+		},
+		thighs: {
+			name: "Thighs",
+			required: ["Sex Specialist", "God of Lust"],
+			cost: 5,
+			maxMultiplier: 2.5,
+			missing: "Unlock this boost by obtaining the 'Sex Specialist' feat",
+		},
+		promiscuity: {
+			name: "Promiscuity",
+			required: ["No More Control"],
+			cost: 15,
+			max: 4,
+			missing: "Unlock this boost by obtaining the 'No More Control' feat",
+		},
+		exhibitionism: {
+			name: "Exhibitionism",
+			required: ["No More Control"],
+			cost: 15,
+			max: 4,
+			missing: "Unlock this boost by obtaining the 'No More Control' feat",
+		},
+		deviancy: {
+			name: "Deviancy",
+			required: ["No More Control"],
+			cost: 15,
+			max: 4,
+			missing: "Unlock this boost by obtaining the 'No More Control' feat",
+		},
+		transcend: {
+			name: "Transcendence",
+			required: [
+				"Unstoppable Force", "Immovable Object", "Agent 47", "Can't Touch This", "Atlantean", "Ludicrous Speed",
+				"Grass Toucher", "Demolisher of Filth", "Smarter than Einstein", "Human Calculator", "Voice of All Things",
+				"Errm, ackshually", "Irresistible", "God of Lust", "Rivers of White", "Sticky Fountain",
+				"Many Punch Man", "Fleet-Footed", "Knockout Artist", "Bladed Legs"
+			],
+			cost: 100,
+			max: Math.floor([
+				"Unstoppable Force", "Immovable Object", "Agent 47", "Can't Touch This", "Atlantean", "Ludicrous Speed",
+				"Grass Toucher", "Demolisher of Filth", "Smarter than Einstein", "Human Calculator", "Voice of All Things",
+				"Errm, ackshually", "Irresistible", "God of Lust", "Rivers of White", "Sticky Fountain",
+				"Many Punch Man", "Fleet-Footed", "Knockout Artist", "Bladed Legs"
+			].filter(hasFeat).length / 10),
+			missing: "Unlock this boost by obtaining at least 10 skill-related and fluid production AMC feats",
+		},
+		adaptiveGenes: {
+			name: "Adaptive Genes",
+			required: ["Angel", "Fallen Angel", "Demon", "Demon of Purity", "Neko", "Wolf", "Cattle", "Harpy", "Fox"],
+			cost: 50,
+			max: Math.floor([
+				"Angel", "Fallen Angel", "Demon", "Demon of Purity", "Neko", "Wolf", "Cattle", "Harpy", "Fox", "Bear", "Bunny"
+			].filter(hasFeat).length / 5),
+			missing: "Unlock this boost by obtaining at least 5 transformation feats",
+		},
+	});
 	Object.entries(boostData).forEach(([k, f]) => {
 		const maxEarned = !f.required.length ? 1 : f.required.filter(x => earnedFeats.includes(x)).length;
 		const max = !maxEarned ? 0 : f.max ?? (f.maxMultiplier * maxEarned || maxEarned);
@@ -3680,6 +3841,77 @@ function applyFeatBoosts() {
 	} else {
 		delete V.featsBoosts.earSlimeType;
 	}
+
+	// transformation starts
+	if (upgrades.divineTFs) {
+		switch (V.featsBoosts.divineTFs) {
+			case "angel":
+				wikifier("angelTransform");
+				break;
+			case "fallenAngel":
+				wikifier("fallenButNotOut", 98);
+				if (V.player.vaginaExist || V.player.virginity.vaginal !== true) V.player.virginity.vaginal = false;
+				if (V.player.penisExist || V.player.virginity.penile !== true) V.player.virginity.penile = false;
+				break;
+			case "demon":
+				V.purity = 0;
+				wikifier("demonTransform");
+				if (V.player.vaginaExist || V.player.virginity.vaginal !== true) V.player.virginity.vaginal = false;
+				if (V.player.penisExist || V.player.virginity.penile !== true) V.player.virginity.penile = false;
+				break;
+			case "virginDemon":
+				V.purity = 0;
+				wikifier("demonTransform");
+				break;
+		}
+	}
+	if (upgrades.animalTFs) {
+		switch (V.featsBoosts.animalTFs) {
+			case "cat":
+				wikifier("catTransform");
+				break;
+			case "wolf":
+				wikifier("wolfTransform");
+				break;
+			case "cow":
+				wikifier("cowTransform");
+				break;
+			case "waterdragon":
+				wikifier("waterdragonTransform");
+				V.waterdragonCosmeticUnlocked = 1;
+				break;
+			case "bear":
+				wikifier("bearTransform");
+				break;
+			case "harpy":
+				wikifier("harpyTransform");
+				break;
+			case "fox":
+				wikifier("foxTransform");
+				break;
+			case "bunny":
+				wikifier("bunnyTransform");
+				break;
+		}
+	}
+
+	// AMC-adjacent and sex specialist legacy DoLX boosts
+	if (upgrades.sadism) V.featsSadismBoost = gain("sadism", 1);
+	if (upgrades.masochism) V.featsMasochismBoost = gain("masochism", 1);
+	if (upgrades.physique) V.physique += gain("physique", 1500);
+	if (upgrades.willpower) V.willpower += gain("willpower", 200);
+	if (upgrades.oral) V.oralskill += gain("oral", 200);
+	if (upgrades.chest) V.chestskill += gain("chest", 200);
+	if (upgrades.hands) V.handskill += gain("hands", 200);
+	if (upgrades.buttocks) V.bottomskill += gain("buttocks", 200);
+	if (upgrades.penile) V.penileskill += gain("penile", 200);
+	if (upgrades.anal) V.analskill += gain("anal", 200);
+	if (upgrades.vaginal) V.vaginalskill += gain("vaginal", 200);
+	if (upgrades.feet) V.feetskill += gain("feet", 200);
+	if (upgrades.thighs) V.thighskill += gain("thighs", 200);
+	if (upgrades.promiscuity) V.promiscuity += gain("promiscuity", 15);
+	if (upgrades.exhibitionism) V.exhibitionism += gain("exhibitionism", 15);
+	if (upgrades.deviancy) V.deviancy += gain("deviancy", 15);
 
 	// random clothes
 	if (upgrades.randomClothing) {

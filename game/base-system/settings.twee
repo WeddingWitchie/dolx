@@ -2856,7 +2856,7 @@
 			<</for>>
 			<<if $passage is "Start" or !$wraithIntro>>
 				<<run delete _npcList["Ivory Wraith"]>>
-				<<run _sortedNPCList.delete("Ivory Wraith")>>
+				<<run (() => { const i = _sortedNPCList.indexOf("Ivory Wraith"); if (i >= 0) _sortedNPCList.splice(i, 1); })()>>
 			<</if>>
 		<</if>>
 
@@ -2905,20 +2905,20 @@
 
 <<widget "assignAllNPCs">>
 	<<set $_characteristic to _args[0]>>
-	<<set $_value to _args[1]>>
+	<<set $_targetValue to _args[1]>>
 	<<for $_i to 0; $_i lt $NPCName.length; $_i++>>
-		<<set $NPCName[$_i][$_characteristic] to $_value>>
+		<<set $NPCName[$_i][$_characteristic] to $_targetValue>>
 		<<if $_characteristic is "breastsize">>
-			<<set $NPCName[$_i].breastdesc to $_i > 0 ? setup.breastsizes[$_value] + " breast" : "nipple">>
-			<<set $NPCName[$_i].breastsdesc to $_i > 0 ? setup.breastsizes[$_value] + " breasts" : "nipples">>
+			<<set $NPCName[$_i].breastdesc to $_targetValue > 0 ? setup.breastsizes[$_targetValue] + " breast" : "nipple">>
+			<<set $NPCName[$_i].breastsdesc to $_targetValue > 0 ? setup.breastsizes[$_targetValue] + " breasts" : "nipples">>
 		<</if>>
 	<</for>>
-	<<if $passage isnot "start" and $per_npc and Object.keys($per_npc).length gt 0>>
-		<<for $_i, $_value range $per_npc>>
-			<<set $per_npc[$_i][$_characteristic] to $_value>>
+	<<if $passage isnot "Start" and $per_npc and Object.keys($per_npc).length gt 0>>
+		<<for $_npcKey, $_npcData range $per_npc>>
+			<<set $per_npc[$_npcKey][$_characteristic] to $_targetValue>>
 			<<if $_characteristic is "breastsize">>
-				<<set $per_npc[$_i].breastdesc to $_i > 0 ? setup.breastsizes[$_value] + " breast" : "nipple">>
-				<<set $per_npc[$_i].breastsdesc to $_i > 0 ? setup.breastsizes[$_value] + " breasts" : "nipples">>
+				<<set $per_npc[$_npcKey].breastdesc to $_targetValue > 0 ? setup.breastsizes[$_targetValue] + " breast" : "nipple">>
+				<<set $per_npc[$_npcKey].breastsdesc to $_targetValue > 0 ? setup.breastsizes[$_targetValue] + " breasts" : "nipples">>
 			<</if>>
 		<</for>>
 	<</if>>
@@ -2999,7 +2999,7 @@
 				<<link "Previous">>
 					<<set _sortedId to _sortedNPCList.indexOf($NPCNameList[_npcId])>>
 					<<if _sortedId is 0>>
-						<<set _sortedId to $NPCNameList.length - 2>>
+						<<set _sortedId to _sortedNPCList.length - 1>>
 					<<else>>
 						<<set _sortedId-->>
 					<</if>>
@@ -3008,7 +3008,7 @@
 				<</link>> <span style="color:white">|</span>
 				<<link "Next">>
 					<<set _sortedId to _sortedNPCList.indexOf($NPCNameList[_npcId])>>
-					<<if _sortedId gte $NPCNameList.length - 1>>
+					<<if _sortedId gte _sortedNPCList.length - 1>>
 						<<set _sortedId to 0>>
 					<<else>>
 						<<set _sortedId++>>

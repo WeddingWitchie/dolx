@@ -40,6 +40,7 @@ declare global {
 		icon: string;
 		shop?: any[];
 		boughtInBulk?: number;
+		handheld?: string;
 	}
 
 	export interface Plot {

@@ -3384,14 +3384,19 @@ function masturbationEffectsMouth({
 		case "maphropill":
 			clearAction("mrest");
 			if ([0, "disabled"].includes(V.mouth)) {
-				wikifier("drugs", 300);
-				const pills = V.player.inventory.sextoys["aphrodisiac pills"][0];
-				pills.uses -= 1;
-				if (pills.uses <= 0) V.player.inventory.sextoys["aphrodisiac pills"].splice(0, 1);
-				if (V.drugged > 0) {
-					fragment.append(span("You pop an aphrodisiac pill into your mouth and swallow. The lewd warmth within you intensifies."));
+				const pills = V.player.inventory?.sextoys?.["aphrodisiac pills"]?.[0];
+				if (!pills || !Number.isFinite(pills.uses) || pills.uses < 1) {
+					console.warn("[Masturbation] aphrodisiac pill action requested without valid stock.", V.player?.inventory?.sextoys?.["aphrodisiac pills"]);
+					fragment.append(span("You fumble for an aphrodisiac pill, but realise you don't have one to take.", "red"));
 				} else {
-					fragment.append(span("You pop an aphrodisiac pill into your mouth and swallow. A lewd warmth begins to spread in your belly."));
+					wikifier("drugs", 300);
+					pills.uses -= 1;
+					if (pills.uses <= 0) V.player.inventory.sextoys["aphrodisiac pills"].splice(0, 1);
+					if (V.drugged > 0) {
+						fragment.append(span("You pop an aphrodisiac pill into your mouth and swallow. The lewd warmth within you intensifies."));
+					} else {
+						fragment.append(span("You pop an aphrodisiac pill into your mouth and swallow. A lewd warmth begins to spread in your belly."));
+					}
 				}
 			}
 			break;

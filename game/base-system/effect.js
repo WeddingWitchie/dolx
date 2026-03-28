@@ -1966,12 +1966,6 @@ function effects() {
 		V.stressmax = 10000;
 	}
 
-	if (V.stressMaxScalingToggle) {
-		V.stressmax = 10000 + Math.floor(V.willpower * 5);
-	} else {
-		V.stressmax = 10000;
-	}
-
 	sWikifier("<<blackmail-effects>>");
 	sWikifier("<<portalPantiesDisplay>>");
 	

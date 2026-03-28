@@ -1076,7 +1076,7 @@
 		<<set _bodyWritingOptions.Masochism["Treat me bad"] to "treat_me_bad">>
 		<<set _bodyWritingOptions.Masochism["Make me squeal"] to "make_me_squeal">>
 	<</if>>
-	/* <<if $submissive gte 1200>> */
+	<<if $submissive gte 200>>
 		<<set _bodyWritingOptions.Submission to {}>>
 		<<set _bodyWritingOptions.Submission["Submissive"] to "submissive">>
 		<<set _bodyWritingOptions.Submission["Pet"] to "pet">>
@@ -1090,7 +1090,7 @@
 			<<set _bodyWritingOptions.Submission["Use Me"] to "use_me">>
 		<</if>>
 
-		/* <<if $submissive gte 1500>> */
+		<<if $submissive gte 500>>
 			<<set _bodyWritingOptions.Submission["Slave"] to "slave">>
 			<<set _bodyWritingOptions.Submission["Enslave Me"] to "enslave_me">>
 			<<set _bodyWritingOptions.Submission["Cum rag"] to "cum_rag">>
@@ -1101,8 +1101,8 @@
 					<<set _bodyWritingOptions.Submission["Walking dildo"] to "walking_dildo">>
 				<</if>>
 			<</if>>
-		/* <</if>> */
-	/* <</if>> */
+		<</if>>
+	<</if>>
 	<<if ($player.vaginaExist or ($sexStats.anus.pregnancy.awareOf or $sexStats.anus.pregnancy.givenBirth gte 1)) and hasSexStat("promiscuity", 5, true)>>
 		<<set _bodyWritingOptions.Pregnancy to {}>>
 		<<set _bodyWritingOptions.Pregnancy["Brood mother"] to "brood_mother">>
@@ -2308,7 +2308,6 @@
 								<<default>><<set _eye to "left">>
 							<</switch>>
 							<span @class="$makeup.eyelenses.left == _colour || $makeup.eyelenses.right == _colour ? 'makeupWorn' : 'makeupItem'">
-							<span class="makeupItem">
 								<<capture _colour>>
 									<<set _contactName to
 									`_colour <span @class="'eye-'+_colour.replace(/ /g, '-')"><span class="colour-sample bgcolour-eyes left-"></span></span>`>>
@@ -2358,6 +2357,46 @@
 									<</button>>
 								<</capture>>
 							</span>
+						<</for>>
+					</div>
+				<</if>>
+			</div>
+
+			<div class="settingsToggleItemWide">
+				<<cosmeticsicon "dyes">>
+				<<set _dyes = $makeup.owned.hairdye.filter(x => x.count > 0)>>
+				<<if _dyes.length == 0>>
+					You have no hair dye to dye your eyebrows with.
+				<<else>>
+					<span class="gold bold">Eyebrow Colour:</span>
+					<br>
+					<<if $makeup.browscolour != 0>>
+						Your brows are coloured with <<hairmapcolourtext $makeup.browscolour>> hair dye. Visit a hairdresser to restore them to their natural <<hairmapcolourtext $naturalhaircolour>> colour.
+					<<else>>
+						Your brows are their natural <<hairmapcolourtext $naturalhaircolour>> colour.
+					<</if>>
+					<br><br>
+					Dying your eyebrows will take <span class="gold">0:15</span> minutes.
+					<br>
+					<<browsColourPreview>>
+					<div class="makeupList no-numberify capitalize">
+						<<for _i to 0; _i lt _dyes.length; _i++>>
+							<<if $makeup.browscolour is _dyes[_i].colour or $naturalhaircolour is _dyes[_i].colour>>
+								<<continue>>
+							<</if>>
+							<<set _displayName to (_dyes[_i].colour in setup.colours.hair_map ? setup.colours.hair_map[_dyes[_i].colour].name : _dyes[_i].colour.charAt(0).toUpperCase() + _dyes[_i].colour.slice(1)) + " ×" + _dyes[_i].count>>
+							<<set _dyeName to _displayName + ` <span @class="'hair-' + _dyes[_i].colour.replace(/ /g, '-')"><span class="colour-sample bgcolour-hair colour-hair"></span></span>`>>
+							<<capture _dyes _i>>
+								<span @class="$browsDyeOption is _dyes[_i].colour ? 'makeupWorn' : 'makeupItem'">
+									<<button _dyeName>>
+										<<set $browsDyeOption to _dyes[_i].colour>>
+										<<replace #mirror>>
+											<<updatesidebarimg>>
+											<<mirrorDisplay>>
+										<</replace>>
+									<</button>>
+								</span>
+							<</capture>>
 						<</for>>
 					</div>
 				<</if>>
@@ -2459,11 +2498,25 @@
 
 <<widget "browsColourPreview">>
 	<span id="browsColourPreview">
-	<<if $browsDyeOption isnot "noChange">>
+	<<if $browsDyeOption isnot undefined and $browsDyeOption isnot "noChange">>
 		<span @class="'hair-' + $browsDyeOption.replace(/ /g, '-')">
 			<span class="colour-sample bgcolour-hair colour-hair"></span>
 		</span>
-		<br><<link [[Dye eyebrows (0:15)|$passage]]>><<set $mirror_eyebrow_dye to true>><<pass 15>><</link>>
+		<br><<link "Dye eyebrows (0:15)">>
+			<<pass 15>>
+			<<for _i to 0; _i lt $makeup.owned.hairdye.length; _i++>>
+				<<if $makeup.owned.hairdye[_i].colour is $browsDyeOption and $makeup.owned.hairdye[_i].count gt 0>>
+					<<set $makeup.owned.hairdye[_i].count-->>
+					<<break>>
+				<</if>>
+			<</for>>
+			<<set $makeup.browscolour to $browsDyeOption>>
+			<<unset $browsDyeOption>>
+			<<replace #mirror>>
+				<<updatesidebarimg>>
+				<<mirrorDisplay>>
+			<</replace>>
+		<</link>>
 	<</if>>
 	</span>
 <</widget>>
