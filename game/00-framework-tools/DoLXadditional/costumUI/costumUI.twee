@@ -1,0 +1,38 @@
+:: DoLX UI Toggle JS [script]
+setup.dolxUi = {
+	className: "dolx-ui",
+
+	apply() {
+		const root = document.documentElement;
+		if (!root || !window.State || !State.variables) {
+			return;
+		}
+
+		root.classList.toggle(this.className, !!State.variables.dolxCustomUIEnabled);
+	},
+};
+
+$(document).on(":storyready :passagerender", function () {
+	if (window.setup && setup.dolxUi) {
+		setup.dolxUi.apply();
+	}
+});
+
+:: DoLX UI Toggle Widgets [widget]
+<<widget "dolxUiStartButton">>
+	<div class="dolx-ui-start-button">
+		<<if $dolxCustomUIEnabled>>
+			<<button "CHANGE TO PLAIN UI">>
+				<<set $dolxCustomUIEnabled to 0>>
+				<<run setup.dolxUi.apply()>>
+				<<run Engine.show()>>
+			<</button>>
+		<<else>>
+			<<button "CHANGE TO UPDATED UI">>
+				<<set $dolxCustomUIEnabled to 1>>
+				<<run setup.dolxUi.apply()>>
+				<<run Engine.show()>>
+			<</button>>
+		<</if>>
+	</div>
+<</widget>>
