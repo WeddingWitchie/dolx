@@ -607,7 +607,7 @@
 <<widget "righthypnosiswhack">>
 	<<if $righttarget isnot "self">>
 		<<set $_target to $NPCList[$righttarget]>>
-		<<if $_target.righthand and ($_target.righthand is "hypnosis" or $_target.righthand.startsWith("hypnosis_")) or $_target.righthand and ($_target.righthand is "hypnosis" or $_target.righthand.startsWith("hypnosis_"))>>
+		<<if ($_target.lefthand and ($_target.lefthand is "hypnosis" or $_target.lefthand.startsWith("hypnosis_"))) or ($_target.righthand and ($_target.righthand is "hypnosis" or $_target.righthand.startsWith("hypnosis_"))) >>
 			<<set _rightaction["Whack the hypnotic instrument away"] to "hypnosiswhack">>
 		<</if>>
 	<</if>>
@@ -1716,12 +1716,7 @@
 			<<set $_lh to $_target.lefthand>>
 			<<set $_rh to $_target.righthand>>
 
-			<<if $_lh and (
-					$_lh is "hypnosis"
-					or ($_lh.match("^hypnosis_") is not null)
-					or $_lh is "hypnosis_deviancy"
-				)>>
-
+			<<if $_lh and ($_lh is "hypnosis" or ($_lh.match("^hypnosis_") is not null) or $_lh is "hypnosis_deviancy")>>
 				<<if $whackRandom and random(1,5) lte 2>>
 					<span class="brat">You fail to whack the <<print $_target.lefttool>> from the <<personselect $lefttarget>><<persons>> hand.</span>
 					<<brat 5 $lefttarget>>
@@ -1730,13 +1725,7 @@
 					<<combat-reset-hand "left">><<set $_target.lefttool to 0>>
 					<<brat 10 $lefttarget>>
 				<</if>>
-
-			<<elseif $_rh and (
-					$_rh is "hypnosis"
-					or ($_rh.match("^hypnosis_") is not null)
-					or $_rh is "hypnosis_deviancy"
-				)>>
-
+			<<elseif $_rh and ($_rh is "hypnosis" or ($_rh.match("^hypnosis_") is not null) or $_rh is "hypnosis_deviancy")>>
 				<<if $whackRandom and random(1,5) lte 2>>
 					<span class="brat">You fail to whack the <<print $_target.righttool>> from the <<personselect $lefttarget>><<persons>> hand.</span>
 					<<brat 5 $lefttarget>>
@@ -1745,48 +1734,38 @@
 					<<combat-reset-hand "right">><<set $_target.righttool to 0>>
 					<<brat 10 $lefttarget>>
 				<</if>>
-
 			<</if>>
 		<</if>>
+	<</if>>
 
 	<<if $rightaction is "hypnosiswhack">>
 		<<set $rightaction to 0>>
 		<<personselect $righttarget>>
 		<<set $_target to $NPCList[$righttarget]>>
-	<<if $_target>>
-		<<set _leftHypno to (
-			$_target.lefthand is "hypnosis"
-			or ($_target.lefthand and $_target.lefthand.startsWith("hypnosis_"))
-			or $_target.lefthand is "hypnosis_deviancy"
-		)>>
-		<<set _rightHypno to (
-			$_target.righthand is "hypnosis"
-			or ($_target.righthand and $_target.righthand.startsWith("hypnosis_"))
-			or $_target.righthand is "hypnosis_deviancy"
-		)>>
 
-		<<if _leftHypno>>
-			<<if $whackRandom and random(1,5) lte 2>>
-				<span class="brat">You fail to whack the <<print $_target.lefttool>> from the <<personselect $righttarget>><<persons>> hand.</span>
-				<<brat 5 $righttarget>>
-			<<else>>
-				You whack the <<print $_target.lefttool>> from <<personselect $righttarget>><<combatpersons>> hand.
-				<<combat-reset-hand "left">><<set $_target.lefttool to 0>>
-				<<brat 10 $righttarget>>
-			<</if>>
-		<<elseif _rightHypno>>
-			<<if $whackRandom and random(1,5) lte 2>>
-				<span class="brat">You fail to whack the <<print $_target.righttool>> from the <<personselect $righttarget>><<persons>> hand.</span>
-				<<brat 5 $righttarget>>
-			<<else>>
-				You whack the <<print $_target.righttool>> from <<personselect $righttarget>><<combatpersons>> hand.
-				<<combat-reset-hand "right">><<set $_target.righttool to 0>>
-				<<brat 10 $righttarget>>
-			<</if>>
-		<</if>>
-	<</if>>
-	<</if>>
+		<<if $_target>>
+			<<set $_lh to $_target.lefthand>>
+			<<set $_rh to $_target.righthand>>
 
+			<<if $_lh and ($_lh is "hypnosis" or ($_lh.match("^hypnosis_") is not null) or $_lh is "hypnosis_deviancy")>>
+				<<if $whackRandom and random(1,5) lte 2>>
+					<span class="brat">You fail to whack the <<print $_target.lefttool>> from the <<personselect $righttarget>><<persons>> hand.</span>
+					<<brat 5 $righttarget>>
+				<<else>>
+					You whack the <<print $_target.lefttool>> from <<personselect $righttarget>><<combatpersons>> hand.
+					<<combat-reset-hand "left">><<set $_target.lefttool to 0>>
+					<<brat 10 $righttarget>>
+				<</if>>
+			<<elseif $_rh and ($_rh is "hypnosis" or ($_rh.match("^hypnosis_") is not null) or $_rh is "hypnosis_deviancy")>>
+				<<if $whackRandom and random(1,5) lte 2>>
+					<span class="brat">You fail to whack the <<print $_target.righttool>> from the <<personselect $righttarget>><<persons>> hand.</span>
+					<<brat 5 $righttarget>>
+				<<else>>
+					You whack the <<print $_target.righttool>> from <<personselect $righttarget>><<combatpersons>> hand.
+					<<combat-reset-hand "right">><<set $_target.righttool to 0>>
+					<<brat 10 $righttarget>>
+				<</if>>
+			<</if>>
 		<</if>>
 	<</if>>
 <</widget>>
