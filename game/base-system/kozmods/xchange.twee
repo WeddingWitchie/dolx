@@ -2622,3 +2622,30 @@
 		<<set $xchange.timesTaken.player++>>
 	<</if>>
 <</widget>>
+
+<<widget "xchangeStartMedicineCabinet">>
+	<<set $sexStats.pills.boughtOnce to true>>
+	<<run (() => {
+		const V = State.variables;
+		if (!V.sexStats) V.sexStats = {};
+		if (!V.sexStats.pills) V.sexStats.pills = {};
+		if (!V.sexStats.pills.pills) V.sexStats.pills.pills = {};
+
+		const antidoteItem = setup && setup.pharmacyItems ? setup.pharmacyItems["xchange_antidote"] : null;
+		if (!antidoteItem || !antidoteItem.type) {
+			throw new Error("[DoLX] Missing setup.pharmacyItems.xchange_antidote during new-game medicine cabinet init.");
+		}
+
+		const key = antidoteItem.type;
+		if (V.sexStats.pills.pills[key] == null) {
+			V.sexStats.pills.pills[key] = { owned: 0 };
+		}
+
+		const slot = V.sexStats.pills.pills[key];
+		if (typeof slot.owned !== "number" || Number.isNaN(slot.owned)) {
+			throw new Error(`[DoLX] Invalid owned count for starter antidote slot '${key}'.`);
+		}
+
+		if (slot.owned < 1) slot.owned = 1;
+	})()>>
+<</widget>>
