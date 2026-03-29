@@ -3599,6 +3599,212 @@
 <</widget>>
 
 <<widget "backComp">>
+	<<set _historyCompatChanged to false>>
+
+	/* history-compat hydration for vars introduced after older moments were created */
+	<<if $alcoholMod is undefined or $alcoholMod is NaN>>
+		<<set $alcoholMod to 1>>
+		<<set _historyCompatChanged to true>>
+	<</if>>
+
+	/* docks variable cleanup / hydration */
+	<<if !$docks>>
+		<<set $docks to {
+			askedForWork: $dockwork ? true : false,
+			hired: $dockwork and $dockwork is 2 ? true : false,
+			wage: $dockwage ? ($dockwage + 500) : 1500,
+			status: $dockstatus || 30,
+			firstDay: $timeStats and $timeStats.docks and $timeStats.docks.total ? false : true,
+			dayType: "normal",
+			suspicion: 0,
+			fakeID: ["not considered", "idea", "shown"][$idDocksReveal || 0],
+			dailyHours: {
+				shift: {
+					total: 0,
+					workedHard: 0,
+					slacked: 0,
+					unpaid: 0,
+				},
+				overtime: {
+					total: 0,
+					workedHard: 0,
+					slacked: 0,
+					unpaid: 0,
+				}
+			},
+			slave: {
+				seen: $dockslave ? true : false,
+				money: $dockslavemoney || 0,
+			},
+			pub: {
+				count: $dockpubcount || 0,
+				cooldown: 0,
+			},
+			quiz: {
+				bet: $dockquiz and $dockquiz isnot "none" ? $dockquiz : "nothing",
+				home: $dockquizhome || 0,
+				away: $dockquizaway || 0,
+			}
+		}>>
+		<<set _historyCompatChanged to true>>
+
+		/* Increase docks status to new baseline for players who started docks content, but didn't progress in it */
+		<<if $docks.wage is 1500 and $docks.status lt 30>>
+			<<set $docks.status to 30>>
+		<</if>>
+
+		<<run ["dockwork", "dockwage", "dockstatus", "idDocksReveal", "dockslave", "dockslavemoney", "dockpubcount", "dockquiz", "dockquizhome", "dockquizaway"].forEach(v => delete V[v]);>>
+
+		<<if $daily>>
+			<<if $daily.docksLeftEarly is undefined>>
+				<<set $daily.docksLeftEarly to false>>
+			<</if>>
+			<<if $daily.docksExhibitionism is undefined>>
+				<<set $daily.docksExhibitionism to $daily.dockExhibitionism ? true : false>>
+			<</if>>
+		<</if>>
+	<<else>>
+		<<if $docks.askedForWork is undefined>>
+			<<set $docks.askedForWork to ($dockwork ? true : false)>>
+			<<set _historyCompatChanged to true>>
+		<</if>>
+		<<if $docks.hired is undefined>>
+			<<set $docks.hired to ($dockwork and $dockwork is 2 ? true : false)>>
+			<<set _historyCompatChanged to true>>
+		<</if>>
+		<<if $docks.wage is undefined or $docks.wage is NaN>>
+			<<set $docks.wage to ($dockwage ? ($dockwage + 500) : 1500)>>
+			<<set _historyCompatChanged to true>>
+		<</if>>
+		<<if $docks.status is undefined or $docks.status is NaN>>
+			<<set $docks.status to ($dockstatus || 30)>>
+			<<set _historyCompatChanged to true>>
+		<</if>>
+		<<if $docks.firstDay is undefined>>
+			<<set $docks.firstDay to ($timeStats and $timeStats.docks and $timeStats.docks.total ? false : true)>>
+			<<set _historyCompatChanged to true>>
+		<</if>>
+		<<if $docks.dayType is undefined>>
+			<<set $docks.dayType to "normal">>
+			<<set _historyCompatChanged to true>>
+		<</if>>
+		<<if $docks.suspicion is undefined or $docks.suspicion is NaN>>
+			<<set $docks.suspicion to 0>>
+			<<set _historyCompatChanged to true>>
+		<</if>>
+		<<if $docks.fakeID is undefined>>
+			<<set $docks.fakeID to ["not considered", "idea", "shown"][$idDocksReveal || 0]>>
+			<<set _historyCompatChanged to true>>
+		<</if>>
+
+		<<if !$docks.dailyHours>>
+			<<set $docks.dailyHours to {
+				shift: {
+					total: 0,
+					workedHard: 0,
+					slacked: 0,
+					unpaid: 0,
+				},
+				overtime: {
+					total: 0,
+					workedHard: 0,
+					slacked: 0,
+					unpaid: 0,
+				}
+			}>>
+			<<set _historyCompatChanged to true>>
+		<<else>>
+			<<if !$docks.dailyHours.shift>>
+				<<set $docks.dailyHours.shift to {
+					total: 0,
+					workedHard: 0,
+					slacked: 0,
+					unpaid: 0,
+				}>>
+				<<set _historyCompatChanged to true>>
+			<</if>>
+			<<if !$docks.dailyHours.overtime>>
+				<<set $docks.dailyHours.overtime to {
+					total: 0,
+					workedHard: 0,
+					slacked: 0,
+					unpaid: 0,
+				}>>
+				<<set _historyCompatChanged to true>>
+			<</if>>
+		<</if>>
+
+		<<if !$docks.slave>>
+			<<set $docks.slave to {
+				seen: $dockslave ? true : false,
+				money: $dockslavemoney || 0,
+			}>>
+			<<set _historyCompatChanged to true>>
+		<<else>>
+			<<if $docks.slave.seen is undefined>>
+				<<set $docks.slave.seen to ($dockslave ? true : false)>>
+				<<set _historyCompatChanged to true>>
+			<</if>>
+			<<if $docks.slave.money is undefined or $docks.slave.money is NaN>>
+				<<set $docks.slave.money to ($dockslavemoney || 0)>>
+				<<set _historyCompatChanged to true>>
+			<</if>>
+		<</if>>
+
+		<<if !$docks.pub>>
+			<<set $docks.pub to {
+				count: $dockpubcount || 0,
+				cooldown: 0,
+			}>>
+			<<set _historyCompatChanged to true>>
+		<<else>>
+			<<if $docks.pub.count is undefined or $docks.pub.count is NaN>>
+				<<set $docks.pub.count to ($dockpubcount || 0)>>
+				<<set _historyCompatChanged to true>>
+			<</if>>
+			<<if $docks.pub.cooldown is undefined or $docks.pub.cooldown is NaN>>
+				<<set $docks.pub.cooldown to 0>>
+				<<set _historyCompatChanged to true>>
+			<</if>>
+		<</if>>
+
+		<<if !$docks.quiz>>
+			<<set $docks.quiz to {
+				bet: $dockquiz and $dockquiz isnot "none" ? $dockquiz : "nothing",
+				home: $dockquizhome || 0,
+				away: $dockquizaway || 0,
+			}>>
+			<<set _historyCompatChanged to true>>
+		<<else>>
+			<<if $docks.quiz.bet is undefined>>
+				<<set $docks.quiz.bet to ($dockquiz and $dockquiz isnot "none" ? $dockquiz : "nothing")>>
+				<<set _historyCompatChanged to true>>
+			<</if>>
+			<<if $docks.quiz.home is undefined or $docks.quiz.home is NaN>>
+				<<set $docks.quiz.home to ($dockquizhome || 0)>>
+				<<set _historyCompatChanged to true>>
+			<</if>>
+			<<if $docks.quiz.away is undefined or $docks.quiz.away is NaN>>
+				<<set $docks.quiz.away to ($dockquizaway || 0)>>
+				<<set _historyCompatChanged to true>>
+			<</if>>
+		<</if>>
+
+		<<if $daily>>
+			<<if $daily.docksLeftEarly is undefined>>
+				<<set $daily.docksLeftEarly to false>>
+				<<set _historyCompatChanged to true>>
+			<</if>>
+			<<if $daily.docksExhibitionism is undefined>>
+				<<set $daily.docksExhibitionism to $daily.dockExhibitionism ? true : false>>
+				<<set _historyCompatChanged to true>>
+			<</if>>
+		<</if>>
+	<</if>>
+
+	<<if _historyCompatChanged>>
+		<<run if (typeof updateMoment === "function") updateMoment();>>
+	<</if>>
 
 	<<if $bunnybuild is undefined or $bunnybuild is NaN>>
 		<<set $bunnybuild to 0>>
@@ -6851,58 +7057,7 @@
 
 	<!-- 0.5.8.0 -->
 
-	/* docks variable cleanup */
-	<<if !$docks>>
-		<<set $docks to {
-			askedForWork: $dockwork ? true : false,
-			hired: $dockwork and $dockwork is 2 ? true : false,
-			wage: $dockwage ? ($dockwage + 500) : 1500,
-			status: $dockstatus || 30,
-			firstDay: $timeStats.docks and $timeStats.docks.total ? false : true,
-			dayType: "normal",
-			suspicion: 0,
-			fakeID: ["not considered", "idea", "shown"][$idDocksReveal || 0],
-			dailyHours: {
-				shift: {
-					total: 0,
-					workedHard: 0,
-					slacked: 0,
-					unpaid: 0,
-				},
-				overtime: {
-					total: 0,
-					workedHard: 0,
-					slacked: 0,
-					unpaid: 0,
-				}
-			},
-			slave: {
-				seen: $dockslave ? true : false,
-				money: $dockslavemoney || 0,
-			},
-			pub: {
-				count: $dockpubcount || 0,
-				cooldown: 0,
-			},
-			quiz: {
-				bet: $dockquiz and $dockquiz isnot "none" ? $dockquiz : "nothing",
-				home: $dockquizhome || 0,
-				away: $dockquizaway || 0,
-			}
-		}>>
-
-		/* Increase docks status to new baseline for players who started docks content, but didn't progress in it */
-		<<if $docks.wage is 1500 and $docks.status lt 30>>
-			<<set $docks.status to 30>>
-		<</if>>
-
-		<<run ["dockwork", "dockwage", "dockstatus", "idDocksReveal", "dockslave", "dockslavemoney", "dockpubcount", "dockquiz", "dockquizhome", "dockquizaway"].forEach(v => delete V[v]);>>
-
-		<<if $daily>>
-			<<set $daily.docksLeftEarly to false>>
-			<<set $daily.docksExhibitionism to $daily.dockExhibitionism ? true : false>>
-		<</if>>
-	<</if>>
+	/* docks variable cleanup moved to the top of backComp for history compatibility */
 
 	/* further compound variable cleanup */
 	<<if $compound>>
@@ -6971,9 +7126,7 @@
 	/* Replaced with $phase */
 	<<unset $lakeswim>>
 
-	<<if $alcoholMod is undefined>>
-		<<set $alcoholMod to 1>>
-	<</if>>
+	/* alcoholMod init moved to the top of backComp for history compatibility */
 
 	/* Fix corrupted variable */
 	<<set $pillsConsumed to ($pillsconsumed || 0) + ($pillsConsumed || 0)>>

@@ -1025,7 +1025,12 @@ const statChange = (() => {
 		if (isNaN(amount)) paramError("alcohol", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 		if (amount) {
-			let mod = V.alcoholMod;
+			let mod = Number(V.alcoholMod);
+			if (!Number.isFinite(mod)) {
+				V.alcoholMod = 1;
+				mod = 1;
+				if (typeof updateMoment === "function") updateMoment();
+			}
 			if (V.backgroundTraits.includes("plantlover") && amount > 0) mod = 1.5;
 			V.drunk = Math.clamp(V.drunk + amount * mod, 0, 1000);
 		}
