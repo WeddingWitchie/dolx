@@ -6,9 +6,29 @@
 <<widget "checkEventNPC">>
 	<<set _eventBeastContext to ($monster is 1 or $beastGroupFight is 1 or $combatTrain isnot undefined)>>
 	<<set _eventSlotTaken to (EventSystem.isSlotTaken(_args[0]) and !EventSystem.Disable)>>
-	<<set _eventTooManyNPCs to (($enemynomax gte 6 or $enemyno gte 6) and !_eventBeastContext)>>
 
-	<<if (_eventSlotTaken and !_eventBeastContext) or _eventTooManyNPCs>>
+	<<if (_eventSlotTaken and !_eventBeastContext) or ($enemynomax gte 6 or $enemyno gte 6)>>
+		<<if $eventDebugHistory is undefined>><<set $eventDebugHistory to []>><</if>>
+		<<set _eventReason to []>>
+		<<if ($enemynomax gte 6 or $enemyno gte 6)>><<run _eventReason.push("too many NPCs before regeneration")>><</if>>
+		<<if _eventSlotTaken and !_eventBeastContext>><<run _eventReason.push("slot collision before regeneration")>><</if>>
+		<<set _eventDebugEntry to {slot: _args[0], reason: _eventReason.join("; "), detectedIn: $passage, detectedAt: $timeStamp, lastgenerated: $lastgenerated}>>
+		<<if $event isnot undefined and $event.buffer isnot undefined>>
+			<<for _eventHistI = 0; _eventHistI lt $event.buffer.length; _eventHistI++>>
+				<<if $event.buffer[_eventHistI] and $event.buffer[_eventHistI].slot is _args[0]>>
+					<<set _eventDebugEntry to clone($event.buffer[_eventHistI])>>
+					<<set _eventDebugEntry.reason to _eventReason.join("; ")>>
+					<<set _eventDebugEntry.detectedIn to $passage>>
+					<<set _eventDebugEntry.detectedAt to $timeStamp>>
+					<<set _eventDebugEntry.lastgenerated to $lastgenerated>>
+					<<break>>
+				<</if>>
+			<</for>>
+		<</if>>
+		<<run $eventDebugHistory.push(_eventDebugEntry)>>
+		<<if $eventDebugHistory.length gt 25>>
+			<<run $eventDebugHistory.splice(0, $eventDebugHistory.length - 25)>>
+		<</if>>
 		<<set $endeventerror to $lastgenerated>>
 		<<clearsinglenpc _args[0]>>
 		<!-- <<endevent phaseless>> -->
@@ -18,21 +38,29 @@
 
 <<widget "eventExtraInfo">>
 	<!-- Setup useful variables -->
-	<<set $_passages = V.event is undefined
-		? []
-		: V.event.buffer.reduce((prev, cur) => {
-			prev.pushUnique(cur.area[0]);
-			return prev;
-		}, [])
-	>>
+	<<set $_passages to []>>
+	<<if $event isnot undefined and $event.buffer isnot undefined>>
+		<<for $_passageI = 0; $_passageI lt $event.buffer.length; $_passageI++>>
+			<<set $_eventPassageEntry to $event.buffer[$_passageI]>>
+			<<if $_eventPassageEntry and $_eventPassageEntry.area and $_eventPassageEntry.area[0]>>
+				<<run $_passages.pushUnique($_eventPassageEntry.area[0])>>
+			<</if>>
+		<</for>>
+	<</if>>
+	<<set _eventValidationFailed to (EventSystem.any() and !EventSystem.validate())>>
+	<<unset _eventreason>>
 
 	<h3>Area information</h3>
 
 	<br>
-	Passage: $_passages
+	Tracked passages: <<print $_passages.length gt 0 ? $_passages.join(", ") : "None">>
 	<br>
 
-	<<if _eventAlertMajorArea is true>>
+	<<if _eventValidationFailed>>
+		<span class="red">EventSystem.validate() failed. The live event buffer and the current NPC state disagree.</span><br>
+		<span class="yellow">This usually means a stale entry, a slot remap mismatch, or an uncleared event entry survived longer than it should have.</span>
+		<<set _eventreason to true>>
+	<<elseif _eventAlertMajorArea is true>>
 		<span class="red">You are in a major area, which means an NPC escaped!</span>
 		<<if $cheatsEnabled is true>>
 			Ignore this message if you've just used a cheat. Otherwise, <span class="red">please report this!</span>
@@ -40,8 +68,8 @@
 			<span class="red">Please report this!</span>
 		<</if>>
 		<<set _eventreason to true>>
-	<<elseif !_eventAlertMajorArea>>
-		<span class="green">This NPC was defined in this passage</span>
+	<<elseif _eventAlertMajorArea is false>>
+		<span class="green">This NPC was defined in this passage.</span>
 		<<set _eventreason to true>>
 	<<else>>
 		<<if $passage.includes("Street Stalk")>>
@@ -52,9 +80,18 @@
 			<<if $_passages.includes($passage)>>
 				<span class="green">You are in a passage where NPCs were generated.</span>
 				<<set _eventreason to true>>
-			<<elseif $passage.includes($_passages)>>
-				<span class="green">You are in a subpassage from where NPCs were generated. Usually this means they are still in use.</span>
-				<<set _eventreason to true>>
+			<<else>>
+				<<set _eventSubpassageMatch to false>>
+				<<for $_p = 0; $_p lt $_passages.length; $_p++>>
+					<<if $passage.includes($_passages[$_p])>>
+						<<set _eventSubpassageMatch to true>>
+						<<break>>
+					<</if>>
+				<</for>>
+				<<if _eventSubpassageMatch>>
+					<span class="green">You are in a subpassage from where NPCs were generated. Usually this means they are still in use.</span>
+					<<set _eventreason to true>>
+				<</if>>
 			<</if>>
 		<<else>>
 			<span class="yellow">You are not in an event.</span>
@@ -71,14 +108,27 @@
 	<div class="debug-event-container">
 	<<for $_i to 0; $_i lt $NPCList.length; $_i++>>
 		<<set $_npc to $NPCList[$_i]>>
-		<<set $_eventNPC to EventSystem.get($_i)>>
-		<<if $_npc.type isnot undefined and $_eventNPC isnot undefined>>
+		<<unset $_eventNPC>>
+		<<if $event isnot undefined and $event.buffer isnot undefined>>
+			<<for $_slotSearch = 0; $_slotSearch lt $event.buffer.length; $_slotSearch++>>
+				<<if $event.buffer[$_slotSearch] and $event.buffer[$_slotSearch].slot is $_i>>
+					<<set $_eventNPC to $event.buffer[$_slotSearch]>>
+					<<break>>
+				<</if>>
+			<</for>>
+		<</if>>
+		<<if $_npc and $_npc.type isnot undefined and $_eventNPC isnot undefined and $_eventNPC.area and $_eventNPC.area[0] isnot undefined and $_eventNPC.time isnot undefined>>
 			<<set $_time to new DateTime($_eventNPC.time + V.startDate)>>
 			<div class="debug-event-item debug-event-success">
 				ID: $_i | $_npc.fullDescription<br>
 				Sex: $_npc.gender | Gender: $_npc.pronouns.man<br>
 				Description: $_npc.description<<if $_npc.role>> | Role: $_npc.role<</if>><br>
 				Source: <<print $_eventNPC.area[0]>>, at: <<ampm $_time.getHours() $_time.getMinutes()>>.<br>
+			</div>
+		<<elseif $_npc and $_npc.type isnot undefined>>
+			<div class="debug-event-item debug-event-empty">
+				ID: $_i | $_npc.fullDescription<br>
+				<span class="yellow">Live NPC exists, but no valid event buffer entry is linked to this slot.</span>
 			</div>
 		<<else>>
 			<div class="debug-event-item debug-event-empty">
@@ -88,54 +138,88 @@
 	<</for>>
 	</div>
 
-	<<if $event isnot undefined>>
+	<<if $event isnot undefined and $event.buffer isnot undefined>>
 		<br>Extra debugging:<br>
 		<<for $_i to 0; $_i lt $event.buffer.length; $_i++>>
 			<<set $_eventNPC to $event.buffer[$_i]>>
-			<<set $_time to new DateTime($_eventNPC.time + V.startDate)>>
-			<<set $_widgetStack to $_eventNPC.area.length gt 1 ? $_eventNPC.area.slice(1) : []>>
-			<<set $_legalBeastEvent to ($_widgetStack.includes("beastNEWinit") or $_widgetStack.includes("beastTrainGenerate") or $_widgetStack.includes("combatTrainAdvance"))>>
-			<<print ($NPCList[$_eventNPC.slot] || {}).fullDescription || "No description.">><br>
-			Defined in passage <<print $_eventNPC.area[0]>>, at <<ampm $_time.getHours() $_time.getMinutes()>>.<br>
-			<<if $_eventNPC.area.length gt 1>>
-				Widget Stack:
-				<<for $_iStack = 0; $_iStack lt $_widgetStack.length; $_iStack++>>
-					<<print "<<$_widgetStack[$_iStack]>>">><<if $_iStack isnot $_widgetStack.length - 1>>, <</if>>
+			<<if $_eventNPC is undefined or $_eventNPC.slot is undefined or $_eventNPC.area is undefined or $_eventNPC.area[0] is undefined or $_eventNPC.time is undefined>>
+				<div class="debug-event-item debug-event-empty">
+					Event buffer index $_i is malformed.
+					<<if $_eventNPC isnot undefined and $_eventNPC.slot isnot undefined>><br>Slot: <<print $_eventNPC.slot>><</if>>
+				</div>
+			<<else>>
+				<<set $_time to new DateTime($_eventNPC.time + V.startDate)>>
+				<<set $_widgetStack to $_eventNPC.area.length gt 1 ? $_eventNPC.area.slice(1) : []>>
+				<<set $_legalBeastEvent to ($_widgetStack.includes("beastNEWinit") or $_widgetStack.includes("beastTrainGenerate") or $_widgetStack.includes("combatTrainAdvance"))>>
+				<<if $NPCList[$_eventNPC.slot] and $NPCList[$_eventNPC.slot].fullDescription>>
+					<<print $NPCList[$_eventNPC.slot].fullDescription>><br>
+				<<else>>
+					No description.<br>
+				<</if>>
+				<<if !$NPCList[$_eventNPC.slot] or $NPCList[$_eventNPC.slot].type is undefined>>
+					<span class="red">This event entry points to slot <<print $_eventNPC.slot>>, but no live NPC exists there right now.</span><br>
+				<</if>>
+				Defined in passage <<print $_eventNPC.area[0]>>, at <<ampm $_time.getHours() $_time.getMinutes()>>.<br>
+				<<if $_eventNPC.area.length gt 1>>
+					Widget Stack:
+					<<for $_iStack = 0; $_iStack lt $_widgetStack.length; $_iStack++>>
+						<<print "<<$_widgetStack[$_iStack]>>">><<if $_iStack isnot $_widgetStack.length - 1>>, <</if>>
+					<</for>>
+					<br>
+					<<if $_legalBeastEvent>>
+						<span class="green">Recognized beast-train lifecycle entry.</span><br>
+					<</if>>
+				<</if>>
+				<<unset _eventnumberinpassage>>
+				<<for $_j to 0; $_j lt $event.buffer.length; $_j++>>
+					<<set $_eventNPC2 to $event.buffer[$_j]>>
+					<<if $_eventNPC2 and $_eventNPC2.area and $_eventNPC2.area[0] isnot undefined and $_i isnot $_j and $_eventNPC.area[0] is $_eventNPC2.area[0]>>
+						<<if _eventnumberinpassage is undefined>>
+							<<set _eventnumberinpassage to 0>>
+						<</if>>
+						<<set _eventnumberinpassage += 1>>
+					<</if>>
+				<</for>>
+				<<if _eventnumberinpassage isnot undefined>>
+					<<print _eventnumberinpassage>> other NPC<<if _eventnumberinpassage isnot 1>>s<</if>> have also been defined in passage <<print $_eventNPC.area[0]>>.<br>
+					<<unset _eventnumberinpassage>>
+				<</if>>
+				Set in slot <<print $_eventNPC.slot>> of $$NPCList.<br>
+				<<for $_j to 0; $_j lt $event.buffer.length; $_j++>>
+					<<set $_eventNPC2 to $event.buffer[$_j]>>
+					<<if $_eventNPC2 and $_eventNPC2.slot isnot undefined and $_i isnot $_j and $_eventNPC.slot is $_eventNPC2.slot>>
+						<<if !$_legalBeastEvent>>
+							<span class="red">Two live event entries are pointing at slot <<print $_eventNPC.slot>>.</span><br>
+						<<else>>
+							<span class="green">This slot reuse matches a known beast-train reload path.</span><br>
+						<</if>>
+						<<break>>
+					<</if>>
 				<</for>>
 				<br>
-				<<if $_legalBeastEvent>>
-					<span class="green">Recognized beast-train lifecycle entry. This reload/generation is expected and should not be treated as an escaped NPC by itself.</span><br>
-				<</if>>
 			<</if>>
-			<!-- Check other event NPCs for linked passages -->
-			<<for $_j to 0; $_j lt $event.buffer.length; $_j++>>
-				<<set $_eventNPC2 to $event.buffer[$_j]>>
-				<<if $_i isnot $_j and $_eventNPC.area[0] is $_eventNPC2.area[0]>>
-					<<if _eventnumberinpassage is undefined>>
-						<<set _eventnumberinpassage to 0>>
-					<</if>>
-					<<set _eventnumberinpassage += 1>>
-				<</if>>
-			<</for>>
-			<!-- Check other event NPCs for linked passages -->
-			<<if _eventnumberinpassage isnot undefined>>
-				<<print _eventnumberinpassage>> other NPC<<if _eventnumberinpassage isnot 1>>s<</if>> have also been defined in passage <<print $_eventNPC.area[0]>>.<br>
-				<<unset _eventnumberinpassage>>
-			<</if>>
-			Set in slot <<print $_eventNPC.slot>> of $$NPCList.<br>
-			<<for $_j to 0; $_j lt $event.buffer.length; $_j++>>
-				<<if $_i isnot $_j and $_eventNPC.slot is $_eventNPC.slot[$_j]>>
-					<<if !$_legalBeastEvent>>
-						<span class="red">This NPC has been overwritten or overwrote another one in slot <<print $event.slot[$_eventNPC.slot]>>!</span><br>
-					<<else>>
-						<span class="green">This slot reuse matches a known beast-train reload path.</span><br>
-					<</if>>
-					<<break>>
-				<</if>>
-			<</for>>
-			<br>
 		<</for>>
 		Phase: $phase
+	<</if>>
+
+	<<if $eventDebugHistory and $eventDebugHistory.length gt 0>>
+		<br>
+		<h3>Recent event debug history</h3>
+		<<set _eventHistoryStart to Math.max(0, $eventDebugHistory.length - 6)>>
+		<<for $_histI = _eventHistoryStart; $_histI lt $eventDebugHistory.length; $_histI++>>
+			<<set $_histEntry to $eventDebugHistory[$_histI]>>
+			<<if $_histEntry>>
+				<<set $_histPassage to $_histEntry.area and $_histEntry.area.length gt 0 ? $_histEntry.area[0] : "Unknown">>
+				<<set $_histTime to $_histEntry.detectedAt isnot undefined ? new DateTime($_histEntry.detectedAt + V.startDate) : 0>>
+				<div class="debug-event-item debug-event-empty">
+					Slot: <<print $_histEntry.slot>> | <<print $_histEntry.reason ? $_histEntry.reason : "Recorded debug entry">><br>
+					Source: <<print $_histPassage>><<if $_histEntry.detectedIn isnot undefined>> | Detected in: <<print $_histEntry.detectedIn>><</if>><br>
+					<<if $_histTime>>
+						Detected at: <<ampm $_histTime.getHours() $_histTime.getMinutes()>><br>
+					<</if>>
+				</div>
+			<</if>>
+		<</for>>
 	<</if>>
 <</widget>>
 

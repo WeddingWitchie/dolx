@@ -1,19 +1,4 @@
 :: Widgets NPC Generation [widget]
-<<widget "bugNoticeOnce">>
-	<!-- Args: uniqueKey, messageHTML -->
-	<<set _key to _args[0]>>
-	<<set _msg to _args[1]>>
-	<<if $bugNoticesShown is undefined>>
-		<<set $bugNoticesShown to {}>>
-	<</if>>
-	<<if !$bugNoticesShown[_key]>>
-		<<set $bugNoticesShown[_key] to true>>
-		<div class="red" style="margin:0.6em 0; padding:0.6em; border:1px solid currentColor;">
-			<<print _msg>>
-		</div>
-	<</if>>
-<</widget>>
-
 <<widget "generateNPC">>
 	<!-- Args are NPC#(1-6), Status, Pronoun, Gender, Level -->
 	<!-- Example: <<generateNPC 1 a m m 18>> would generate NPC 1 as adult male/male "burly" -->
@@ -30,46 +15,19 @@
 	/* Let vanilla/DoLP try first */
 	<<checkEventNPC _n>>
 	/* Persistent one-time notice storage */
-	<<if $bugNoticesShown is undefined>>
-		<<set $bugNoticesShown to {}>>
-	<</if>>
+	<<if $bugNoticesShown is undefined>><<set $bugNoticesShown to {}>><</if>>
 	/* Ensure NPCList exists */
-	<<if $NPCList is undefined>>
-		<<set $NPCList to []>>
-	<</if>>
-	/* If the slot is STILL missing, repair it (do NOT throw <<error>>) */
+	<<if $NPCList is undefined>><<set $NPCList to []>><</if>>
+	/* If the slot is STILL missing, repair it conservatively */
 	<<set _expectedFreshSlot to (_n is $enemyno)>>
 	<<if !$NPCList[_n]>>
-		<<set $NPCList[_n] to {
-			pronoun: "m",
-			startingSex: "m",
-			gender: "m",
-			adult: 1,
-			teen: 0,
-			lefthand: 0,
-			righthand: 0,
-			mouth: 0,
-			bold: 0,
-			name: "",
-			type: "human",
-			description: "ordinary",
-			role: "normal",
-			fullDescription: "ordinary person",
-			location: { head: 0, genitals: 0 },
-			clothes: {},
-			traits: [],
-			skills: {},
-			virginity: {},
-			pronouns: {},
-			penis: "none",
-			vagina: "none"
-		}>>
+		<<set $NPCList[_n] to {pronoun: "m", startingSex: "m", gender: "m", adult: 1, teen: 0, active: 0, stance: 0, lefthand: 0, righthand: 0, mouth: 0, bold: 0, name: "", type: "human", description: "ordinary", role: "normal", fullDescription: "ordinary person", index: _n, location: { head: 0, genitals: 0 }, clothes: {}, traits: [], skills: {}, virginity: {}, pronouns: {}, penis: "none", vagina: "none"}>>
 		<<if !_expectedFreshSlot>>
 			<<if !$bugNoticesShown.dolx_npc_repair>>
 				<<set $bugNoticesShown.dolx_npc_repair to true>>
-				<span class="red"><b>A bug happened!</b> NPC Generation is missing but DoLX fixed the base slot. Do report it to Discord server.</span><br>
+				<span class="red"><b>A bug happened!</b> NPC Generation is missing but DoLX repaired the slot shell. Do report it to Discord server!</span><br>
 			<</if>>
-			<<run console.warn("[DoLX] NPCList[" + _n + "] unexpectedly missing after checkEventNPC in " + $passage + " — repaired base slot.")>>
+			<<run console.warn("[DoLX] NPCList[" + _n + "] unexpectedly missing after checkEventNPC in " + $passage + " — repaired shell slot.")>>
 		<</if>>
 	<</if>>
 	<!-- END SAFETY GUARD -->
@@ -125,11 +83,18 @@
 
 	<<set $NPCList[_n].pregnancyAvoidance to random(0,100)>>
 
+	/* fresh encounter generation normally starts from slot 0 */
 	<<if $enemyno is undefined>><<set $enemyno to 0>><</if>>
 	<<if $enemynomax is undefined>><<set $enemynomax to 0>><</if>>
-	<<set $enemyno to Math.max($enemyno, _n + 1)>>
-	<<set $enemynomax to Math.max($enemynomax, $enemyno)>>
-
+	<<if _n is 0>>
+		<<set $enemyno to 0>>
+		<<set $enemynomax to 0>>
+	<</if>>
+	<<if $enemyno lt (_n + 1)>>
+		<<set $enemyno to (_n + 1)>>
+	<</if>>
+	<<set $enemynomax to $enemyno>>
+	<<set $NPCList[_n].index to _n>>
 	<<npcattribute _n _gender _lvl>>
 
 	<<if !$NPCList[_n].type or $NPCList[_n].type is "undefined">><<set $NPCList[_n].type to "human">><</if>>

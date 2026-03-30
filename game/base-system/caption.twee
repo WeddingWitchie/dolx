@@ -347,24 +347,32 @@
 				</div>
 
 				<<if $event isnot undefined and $options.debugdisable is "f">>
-					<<set _temp to "<span class='yellow'>SHOW EVENT INFO</span>">>
+					<<set _temp to "<span class='yellow'>EVENT INFO</span>">>
+					<<unset _eventAlertMajorArea>>
 					<<if EventSystem.any()>>
+						<<set _event0 to EventSystem.has(0) ? EventSystem.get(0) : undefined>>
+						<<set _trackedPassages to ($event.buffer isnot undefined ? $event.buffer.reduce((prev, e) => {if (e && e.area && e.area[0] && !prev.includes(e.area[0])) {prev.push(e.area[0]);} return prev;}, []) : [])>>
 						<<if !EventSystem.validate()>>
-							<<set _temp to "<span class='red'>EVENT ERROR</span>">>
-						<<elseif EventSystem.has(0) and EventSystem.get(0).area[0] is $passage>>
+							<<set _temp to "<span class='red'>EVENT DESYNC</span>">>
+						<<elseif _event0 and _event0.area and _event0.area[0] is $passage>>
 							<<set _eventAlertMajorArea to false>>
 							<<set _temp to "<span class='green'>EVENT ACTIVE</span>">>
 						<<elseif setup.majorAreas.includes($passage)>>
 							<<set _eventAlertMajorArea to true>>
-							<<set _temp to "<span class='red'>EVENT ACTIVE</span>">>
-						<<elseif $event.buffer.map(e => e.area[0]).length is 1 and EventSystem.has(0) and ["Forest Cabin", "Eden Cabin", "Eden Clearing"].includes(EventSystem.get(0).area[0])>>
+							<<set _temp to "<span class='red'>EVENT ESCAPED</span>">>
+						<<elseif _trackedPassages.length is 1 and _event0 and _event0.area and ["Forest Cabin", "Eden Cabin", "Eden Clearing"].includes(_event0.area[0])>>
+							<<set _eventAlertMajorArea to false>>
 							<<set _temp to "<span class='green'>EVENT ACTIVE</span>">>
+						<<else>>
+							<<set _temp to "<span class='yellow'>SHOW EVENT INFO</span>">>
 						<</if>>
+						<<unset _event0>>
+						<<unset _trackedPassages>>
 					<</if>>
 					<<button _temp>><<overlayReplace "eventExtraInfo">><</button>>
 					<<unset _temp>>
 				<</if>>
-
+			
 				<<if $options.showDebugRenderer>>
 					<<button "DEBUG RENDERER">><<overlayReplace "canvasModel">><</button>>
 				<</if>>

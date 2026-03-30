@@ -551,17 +551,35 @@
 <</widget>>
 
 <<widget "npc-orgasm-voice">>
-	<!-- Count males and females to decide which orgasm voice to play -->
+	<!-- Only use actual encounter participants, not every NPC record in the passage pool. -->
+	<<set _activeNPCs to []>>
 	<<set _femaleCount to 0>><<set _maleCount to 0>>
 	<<set _anyMale to false>>
-	<<for _n=0; _n lt $NPCList.length; _n++>>
-		<<set _delay to random(0,3000)+"ms">>
-		<<if $NPCList[_n].pronoun is "f">>
+
+	<<for _n = 0; _n lt $NPCList.length; _n++>>
+		<<if $NPCList[_n] and $NPCList[_n].active is "active" and $NPCList[_n].stance isnot "defeated">>
+			<<run _activeNPCs.push($NPCList[_n])>>
+		<</if>>
+	<</for>>
+
+	/* Fallback for single-target scenes where active flags may not be populated yet. */
+	<<if _activeNPCs.length is 0 and $NPCList[$active_enemy] and $NPCList[$active_enemy].stance isnot "defeated">>
+		<<run _activeNPCs.push($NPCList[$active_enemy])>>
+	<<elseif _activeNPCs.length is 0 and $NPCList[$index] and $NPCList[$index].stance isnot "defeated">>
+		<<run _activeNPCs.push($NPCList[$index])>>
+	<<elseif _activeNPCs.length is 0 and $NPCList[0] and $NPCList[0].stance isnot "defeated">>
+		<<run _activeNPCs.push($NPCList[0])>>
+	<</if>>
+
+	<<for _n = 0; _n lt _activeNPCs.length; _n++>>
+		<<set _npc to _activeNPCs[_n]>>
+		<<set _delay to random(0,3000) + "ms">>
+		<<if _npc.pronoun is "f">>
 			<<set _femaleCount++>>
 			<<timed _delay>>
 				<<orgasm-voice "npc_f">>
 			<</timed>>
-		<<elseif $NPCList[_n].pronoun is "m">>
+		<<elseif _npc.pronoun is "m">>
 			<<set _maleCount++>>
 			<<set _anyMale to true>>
 			<<timed _delay>>

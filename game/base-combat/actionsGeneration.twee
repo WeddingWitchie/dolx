@@ -13,9 +13,7 @@
 		<div id="replaceAction">
 			<<replaceActionLink>>
 		</div>
-		<<if _targetlist is undefined>>
-			<<getTargetList>>
-		<</if>>
+		<<getTargetList>>
 	<</if>>
 	<<if !$stalk_end>>
 		<div id="listContainer">
@@ -2236,10 +2234,10 @@
 <<widget "getTargetList">><<silently>>
 	<<unset _firsttarget>>
 	<<set _targetlist to {}>><<set _targetnumber to 0>>
-	<<if $NPCList.some( x => Object.values(x).includes("active"))>>
+	<<if $NPCList.some(x => x && x.active === "active")>>
 		<<set _repeatcontroller to []>>
-		<<for _namecontroller = 0; _namecontroller lt $enemynomax; _namecontroller++>>
-			<<if ($NPCList[0].type isnot "human" and $beastGroupFight is 0) and $NPCList[0].type isnot "plant">>
+		<<for _namecontroller = 0; _namecontroller lt Math.min($enemynomax, $NPCList.length); _namecontroller++>>
+			<<if $NPCList[0] and ($NPCList[0].type isnot "human" and $beastGroupFight is 0) and $NPCList[0].type isnot "plant">>
 				<<set _namecontroller to $active_enemy>>
 				<<set _targetlist[$NPCList[_namecontroller].type] to _namecontroller>><<set _targetnumber += 1>>
 				<<if _firsttarget is undefined>>
@@ -2249,7 +2247,7 @@
 					<<set _targetYourself to true>>
 				<</if>>
 				<<break>>
-			<<elseif $NPCList[_namecontroller].active is "active" and $NPCList[_namecontroller].stance isnot "defeated">>
+			<<elseif $NPCList[_namecontroller] and $NPCList[_namecontroller].active is "active" and $NPCList[_namecontroller].stance isnot "defeated">>
 				<<if $NPCList[_namecontroller].fullDescription is "Ivory Wraith">>
 					<<set _smoltext to "pale figure">>
 					<<set $_wraithbreak to true>>
@@ -2305,8 +2303,8 @@
 	<<if $consensual is 1 and (((hasSexStat("promiscuity", 5, true) and $enemytype is "man") or (hasSexStat("deviancy", 5, true) and $enemytype isnot "man")) and $awareness gte 300 or ($promiscuityIgnore is 1))>>
 		<<set _doubletargetlist to {}>><<set _secondtarget to false>>
 		<<set _repeatcontroller to []>>
-		<<for _namecontroller = 0; _namecontroller lt $enemynomax; _namecontroller++>>
-			<<if $NPCList[_namecontroller].active is "active" and $NPCList[_namecontroller].stance isnot "defeated" and $NPCList[_namecontroller].penis is 0 and !($NPCList[_namecontroller].chastity.penis.includes("chastity"))>>
+		<<for _namecontroller = 0; _namecontroller lt Math.min($enemynomax, $NPCList.length); _namecontroller++>>
+			<<if $NPCList[_namecontroller] and $NPCList[_namecontroller].active is "active" and $NPCList[_namecontroller].stance isnot "defeated" and $NPCList[_namecontroller].penis is 0 and !($NPCList[_namecontroller].chastity.penis.includes("chastity"))>>
 				<<set _smoltext to $NPCList[_namecontroller].fullDescription>>
 				<<targetrepeatcontroller>>
 				<<set _repeatcontroller[_namecontroller] to _smoltext>>
@@ -2327,8 +2325,8 @@
 	<<if $consensual is 1 and (((hasSexStat("promiscuity", 5, true) and $enemytype is "man") or (hasSexStat("deviancy", 5, true) and $enemytype isnot "man")) and $awareness gte 300 or ($promiscuityIgnore is 1))>>
 		<<set _pussytargetlist to {}>><<set _pussytarget to false>>
 		<<set _repeatcontroller to []>>
-		<<for _namecontroller = 0; _namecontroller lt $enemynomax; _namecontroller++>>
-			<<if $NPCList[_namecontroller].active is "active" and $NPCList[_namecontroller].stance isnot "defeated" and $NPCList[_namecontroller].vagina is 0 and !($NPCList[_namecontroller].vagina.penis.includes("chastity"))>>
+		<<for _namecontroller = 0; _namecontroller lt Math.min($enemynomax, $NPCList.length); _namecontroller++>>
+			<<if $NPCList[_namecontroller] and $NPCList[_namecontroller].active is "active" and $NPCList[_namecontroller].stance isnot "defeated" and $NPCList[_namecontroller].vagina is 0 and !($NPCList[_namecontroller].vagina.penis.includes("chastity"))>>
 				<<set _smoltext to $NPCList[_namecontroller].fullDescription>>
 				<<targetrepeatcontroller>>
 				<<set _repeatcontroller[_namecontroller] to _smoltext>>
@@ -2336,14 +2334,13 @@
 					<<set _smoltext to "the " + _smoltext>>
 				<</if>>
 				<<set _pussytargetlist[_smoltext] to _namecontroller>><<set _pussytarget to true>>
-
 			<</if>>
 		<</for>>
 	<</if>>
 <</silently>><</widget>>
 
 <<widget "targetrepeatcontroller">>
-	<<set _smollertext to _smoltext>>
+	<<set _smollertext to _smollertext or _smoltext or "person">>
 	<<for _repeatnamecontroller = 0; _repeatnamecontroller lte _namecontroller; _repeatnamecontroller++>>
 		<<if _repeatcontroller[_repeatnamecontroller] is _smollertext>>
 			<<if _smollertext.includes("fifth") is true>>
