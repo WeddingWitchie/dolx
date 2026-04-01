@@ -937,13 +937,16 @@ if (V.temple_garden >= 1) {
 				delete V.pubfame.timer;
 			}
 			for (const fameKeys of Object.keys(V.fameDecay)) {
+				const isXChangeFame = fameKeys === "xchange";
 				if (V.fameDecayTimer[fameKeys] >= 1) {
 					V.fameDecayTimer[fameKeys]--;
-					V.fame[fameKeys] -= V.fameDecay[fameKeys];
+					if (isXChangeFame) V.xchange_fame = Math.clamp((V.xchange_fame ?? 0) - V.fameDecay[fameKeys], 0, 1000);
+					else V.fame[fameKeys] -= V.fameDecay[fameKeys];
 				} else if (V.fameDecayTimer[fameKeys] <= 0) {
 					delete V.fameDecayTimer[fameKeys];
 					delete V.fameDecay[fameKeys];
-					V.fame[fameKeys] = Math.round(V.fame[fameKeys]);
+					if (isXChangeFame) V.xchange_fame = Math.round(Math.clamp(V.xchange_fame ?? 0, 0, 1000));
+					else V.fame[fameKeys] = Math.round(V.fame[fameKeys]);
 				}
 			}
 		}
