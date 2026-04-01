@@ -865,7 +865,7 @@ function xchangeEffectsMessages() {
 			fragment.append(wikifier("ggstress")); br();
 			delete V.genderificationStressMessage;
 			break;
-		case 3:
+		case 4:
 			element("span", "You are feeling manly and vigourous in your fit.", "blue");
 			fragment.append(wikifier("llstress")); fragment.append(wikifier("ltiredness")); br();
 			delete V.genderificationStressMessage;
@@ -903,7 +903,7 @@ function xchangeEffectsMessages() {
 		const giRange = Number(V.xchange?.giRange) || 1500;
 		const giMid = giRange / 2;
 		const giTarget = Number.isFinite(Number(V.xchange?.giTarget)) ? Number(V.xchange.giTarget) : giMid;
-		const giPull = giTarget < giMid ? "feminine" : giTarget > giMid ? "masculine" : null;
+		const giPull = giTarget < giMid ? "masculine" : giTarget > giMid ? "feminine" : null;
 		const giPullStrength = Math.abs(giTarget - giMid) / giMid;
 
 		if (!giPull || giPullStrength < 0.12) {
@@ -1085,6 +1085,16 @@ function xchangeEffectsMessages() {
 		element("span", "You have learned to embrace a new aspect of yourself.", "green"); br();
 		delete V.identityAcceptanceMessage;
 	}
+	if (Array.isArray(V.giBodyChangeMessages) && V.giBodyChangeMessages.length) {
+		for (const msg of V.giBodyChangeMessages) {
+			if (typeof msg === "string" && msg.trim().length) {
+				element("span", msg, "gold");
+				br();
+			}
+		}
+		delete V.giBodyChangeMessages;
+	}
+
 
 	if (V.breakdownMessage) {
 		element("span", "The dysphoria has become too much.", "purple"); 

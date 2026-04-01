@@ -1,52 +1,18 @@
 :: X-Change Gender Identity Widgets [widget]
 <<set $xchange to $xchange || {}>>
 
-/* Defaults: OFF until player explicitly enables them */
-<<if $xchange.giAutoEnabled is undefined>>
-	<<set $xchange.giAutoEnabled to false>>
-<</if>>
-<<if $xchange.giTransformEnabled is undefined>>
-	<<set $xchange.giTransformEnabled to false>>
-<</if>>
-
-/* Safety: GI features are LOCKED behind the 'not attached to original gender' unlock.
-   If the unlock isn't active, force the GI system OFF and clear drift/stage so it can't fire at midnight. */
-<<if $attitudesControl is undefined or !$attitudesControl.unlockGender>>
-	<<set $xchange.giAutoEnabled to false>>
-	<<set $xchange.giTransformEnabled to false>>
-	<<set $xchange.giDrift to 0>>
-	<<set $xchange.giShiftStage to 0>>
-	<<set $xchange.giShiftMode to "">>
-<</if>>
-
-/* Normalise GI toggles to strict booleans (protect against "false" strings / 0/1, etc.) */
-<<set $xchange.giAutoEnabled = ($xchange.giAutoEnabled is true or $xchange.giAutoEnabled is 1 or $xchange.giAutoEnabled is "true")>>
-<<set $xchange.giTransformEnabled = ($xchange.giTransformEnabled is true or $xchange.giTransformEnabled is 1 or $xchange.giTransformEnabled is "true")>>
-<<if $xchange.genderIdentityEnabled is undefined>><<set $xchange.genderIdentityEnabled to true>><</if>>
-<<set $xchange.genderIdentityEnabled = ($xchange.genderIdentityEnabled is true or $xchange.genderIdentityEnabled is 1 or $xchange.genderIdentityEnabled is "true")>>
-
-/* Consent gate: once disabled, GI body changes will NOT resume unless the player explicitly re-consents. */
-<<if $xchange.giTransformConsent is undefined>>
-	<<set $xchange.giTransformConsent to $xchange.giTransformEnabled>>
-<</if>>
-<<set $xchange.giTransformConsent = ($xchange.giTransformConsent is true or $xchange.giTransformConsent is 1 or $xchange.giTransformConsent is "true")>>
-
-/* If transforms are disabled, also revoke consent and clear queued drift/stage so it can't "fire later". */
-<<if $xchange.giTransformEnabled isnot true>>
-	<<set $xchange.giTransformConsent to false>>
-	<<set $xchange.giDrift to 0>>
-	<<set $xchange.giShiftStage to 0>>
-	<<set $xchange.giShiftMode to "">>
-<</if>>
-
-<<set $xchange.giRange to 1500>>
-<<set $xchange.giStepPerDay to 8>>
-<<set $xchange.giTransformThreshold to 30>>
-
 <<widget "gi-disarm">>
 	<<set $xchange.giDrift to 0>>
 	<<set $xchange.giShiftStage to 0>>
 	<<set $xchange.giShiftMode to "">>
+<</widget>>
+
+<<widget "gi-note">>
+	<<if _args[0]>>
+		<<set $giBodyChangeMessages to $giBodyChangeMessages || []>>
+		<<run V.giBodyChangeMessages.push(String(_args[0]))>>
+		<<set $effectsmessage to 1>>
+	<</if>>
 <</widget>>
 
 /* For Gender Identity Setting (Dysphoria) */
@@ -1344,11 +1310,14 @@
 	<<if $xchange.genderIdentityEnabled is undefined>>
 		<<set $xchange.genderIdentityEnabled to true>>
 	<</if>>
-	<<if $genderidentity is undefined or $xchange.giMeterVersion isnot 5>>
+	<<if $genderidentity is undefined or $xchange.giMeterVersion isnot 6>>
 		<<run mapToLegacyGenderIdentity()>>
-		<<set $genderidentity to ($xchange.giTarget is undefined ? Math.round(($xchange.giRange is undefined ? 1500 : $xchange.giRange) / 2) : $xchange.giTarget)>>
-		<<set $xchange.giInitialized to true>>
-		<<set $xchange.giMeterVersion to 5>>
+		<<set _giInitRange to ($xchange.giRange is undefined ? 1500 : $xchange.giRange)>>
+		<<set _giInitDefault to ($player isnot undefined and $player.gender is "f") ? _giInitRange : 0>>
+		<<set $genderidentity to ($xchange.giTarget is undefined ? _giInitDefault : $xchange.giTarget)>>
+		/* Do NOT set giInitialized here — only gi-auto-update should set it
+		   so the first daily tick after character creation reinitializes properly. */
+		<<set $xchange.giMeterVersion to 6>>
 	<</if>>
 
 	<<widget "gi-compute-target">>
@@ -1367,40 +1336,23 @@
 				<<set _range to ($xchange.giRange is undefined ? 1500 : $xchange.giRange)>>
 				<<set _step to ($xchange.giStepPerDay is undefined ? 8 : $xchange.giStepPerDay)>>
 
-				/* One-time init / migration: start at the actual overall identity target, not midpoint. */
-				<<if $genderidentity is undefined or $xchange.giMeterVersion isnot 5 or $xchange.giInitialized isnot true>>
+				<<if $genderidentity is undefined or $xchange.giMeterVersion isnot 6 or $xchange.giInitialized isnot true>>
 					<<set $genderidentity to $xchange.giTarget>>
 					<<set $xchange.giInitialized to true>>
-					<<set $xchange.giMeterVersion to 5>>
+					<<set $xchange.giMeterVersion to 6>>
 				<<else>>
-					/* The meter itself always drifts daily while the identity system is enabled. */
 					<<set _delta to Math.clamp($xchange.giTarget - $genderidentity, 0 - _step, _step)>>
 
 					<<if _delta isnot 0>>
 						<<set $genderidentity += _delta>>
 						<<set $genderidentity to Math.clamp($genderidentity, 0, _range)>>
-						<<if $xchange.giAutoEnabled is true and $xchange.giTransformEnabled is true and $xchange.giTransformConsent is true>>
-							<<gi-transform-from-drift _delta>>
-						<</if>>
 					<</if>>
 
-					/* Physical progression remains behind the auto/transform settings. */
 					<<if $xchange.giAutoEnabled is true and $xchange.giTransformEnabled is true and $xchange.giTransformConsent is true>>
 						<<set _mid to Math.floor(_range / 2)>>
-						<<if _mid > 0>>
-							<<set _pressureRaw to Math.abs($genderidentity - _mid)>>
-							/* scale so it behaves the same whether range is 8 or 1000 */
-							<<set _pressure to Math.round(Math.min(_step, (_pressureRaw / _mid) * _step))>>
-
-							<<if _pressure > 0>>
-								/* Signed so gi-transform-from-drift keeps using its own direction logic */
-								<<set _signed to (($player.gender === "m")
-									? (($genderidentity <= _mid) ? -_pressure : _pressure)
-									: (($genderidentity >= _mid) ?  _pressure : -_pressure)
-								)>>
-
-								<<gi-transform-from-drift _signed>>
-							<</if>>
+						<<if $xchange.giTarget isnot _mid>>
+							<<set _signed to ($xchange.giTarget gt _mid) ? _step : (0 - _step)>>
+							<<gi-transform-from-drift _signed>>
 						<</if>>
 					<<else>>
 						<<gi-disarm>>
@@ -1428,24 +1380,13 @@
 					<<if $xchange.giShiftMode is undefined>><<set $xchange.giShiftMode to "">><</if>>
 					<<if $xchange.giShiftStage is undefined>><<set $xchange.giShiftStage to 0>><</if>>
 
-					/* Direction (matches "relative" GI meaning from gi-compute-target) */
-					<<set _feminising to false>>
-					<<if $player.gender is "m">>
-						<<set _feminising to (_delta lt 0)>>
-					<<else>>
-						<<set _feminising to (_delta gt 0)>>
-					<</if>>
+					/* Direction: universal axis, positive = feminising, negative = masculinising */
+					<<set _feminising to (_delta gt 0)>>
 
-					/* Which side of the meter are we CURRENTLY on? */
-					<<set _onFeminineSide to false>>
-					<<if $player.gender is "m">>
-						<<set _onFeminineSide to ($genderidentity lte _mid)>>
-					<<else>>
-						<<set _onFeminineSide to ($genderidentity gte _mid)>>
-					<</if>>
+					/* Guard: don't change body unless identity TARGET matches direction */
+					<<set _targetOnFeminineSide to ($xchange.giTarget gt _mid)>>
 
-					/* Guard: don't change body until meter on the matching side */
-					<<if (_feminising and not _onFeminineSide) or ((not _feminising) and _onFeminineSide)>>
+					<<if (_feminising and not _targetOnFeminineSide) or ((not _feminising) and _targetOnFeminineSide)>>
 						<<set $xchange.giDrift to 0>>
 					<<else>>
 						/* Reset stage machine when direction flips */
@@ -1482,6 +1423,23 @@
 			<<set $xchange.giShiftStage to 0>>
 		<</if>>
 
+		/* Compute preferred targets from identity settings */
+		<<set _breastTarget to 5>>
+		<<if $xchange.giBreastSizeEnabled>>
+			<<if $identity.body.chest.preferred is "flat">><<set _breastTarget to 0>>
+			<<elseif $identity.body.chest.preferred is "small">><<set _breastTarget to 3>>
+			<<elseif $identity.body.chest.preferred is "medium">><<set _breastTarget to 6>>
+			<<elseif $identity.body.chest.preferred is "big">><<set _breastTarget to 8>>
+			<</if>>
+		<</if>>
+		<<set _bottomTarget to 4>>
+		<<if $xchange.giAssSizeEnabled>>
+			<<if $identity.body.bottom.preferred is "small">><<set _bottomTarget to 2>>
+			<<elseif $identity.body.bottom.preferred is "medium">><<set _bottomTarget to 5>>
+			<<elseif $identity.body.bottom.preferred is "big">><<set _bottomTarget to 7>>
+			<</if>>
+		<</if>>
+
 		/* Stage 0: setup */
 		<<if $xchange.giShiftStage is 0>>
 			<<if $player.gender is "m">>
@@ -1490,33 +1448,48 @@
 			<<set $xchange.giShiftStage to 1>>
 		<</if>>
 
-		/* Stage 1: keep shrinking penis until it can be removed */
+		/* Stage 1: primary sex shift */
 		<<if not _giStepDone and $xchange.giShiftStage is 1>>
 			<<if $player.penisExist>>
 				<<if $player.penissize gt 0>>
 					<<set $player.penissize -= 1>>
+					<<gi-note "Your penis feels a little smaller.">>
 					<<set _giStepDone to true>>
 				<<else>>
 					<<set $player.penisExist to false>>
 					<<set $player.vaginaExist to true>>
 					<<set $player.penissize to -2>>
+					<<gi-note "A new warmth gathers between your legs as your body opens into a vagina.">>
 					<<set $xchange.giShiftStage to 2>>
+					<<set _giStepDone to true>>
 				<</if>>
 			<<else>>
 				<<if !$player.vaginaExist>>
 					<<set $player.vaginaExist to true>>
+					<<gi-note "A new warmth gathers between your legs as your body opens into a vagina.">>
+					<<set _giStepDone to true>>
 				<</if>>
 				<<set $xchange.giShiftStage to 2>>
 			<</if>>
 		<</if>>
 
-		/* Stage 2: secondary sex characteristics (one change per step) */
+		/* Stage 2: secondary characteristics — grow toward preferred targets */
 		<<if not _giStepDone and $xchange.giShiftStage is 2>>
-			<<if $player.breastsize lt 5>>
-				<<set $player.breastsize += 1>>
+			<<if $xchange.giHairLengthEnabled and $identity.body.hairlength.preferred is "long" and $hairlength lte 600>>
+				<<set $hairlength to Math.min($hairlength + 60, 601)>>
+				<<gi-note "Your hair has grown a little longer.">>
 				<<set _giStepDone to true>>
-			<<elseif $player.bottomsize lt 4>>
+			<<elseif $xchange.giHairLengthEnabled and $identity.body.hairlength.preferred is "medium" and $hairlength lt 300>>
+				<<set $hairlength to Math.min($hairlength + 60, 300)>>
+				<<gi-note "Your hair has grown a little longer.">>
+				<<set _giStepDone to true>>
+			<<elseif $player.breastsize lt _breastTarget>>
+				<<set $player.breastsize += 1>>
+				<<gi-note "Your chest feels a little fuller.">>
+				<<set _giStepDone to true>>
+			<<elseif $player.bottomsize lt _bottomTarget>>
 				<<set $player.bottomsize += 1>>
+				<<gi-note "Your hips and ass feel a little softer and fuller.">>
 				<<set _giStepDone to true>>
 			<<else>>
 				<<set $xchange.giShiftStage to 3>>
@@ -1527,18 +1500,35 @@
 		<<if not _giStepDone and $xchange.giShiftStage is 3>>
 			<<if $player.sex is "m">>
 				<<set $player.sex to "f">>
+				<<gi-note "Your body now reads as more distinctly female.">>
 			<</if>>
 			<<set $xchange.giShiftStage to 2>>
 		<</if>>
 	<</widget>>
 
-	<<widget "gi-masculinise-step">>
+<<widget "gi-masculinise-step">>
 		<<set _giStepDone to false>>
 
 		/* Stage machine init */
 		<<if $xchange.giShiftMode isnot "m">>
 			<<set $xchange.giShiftMode to "m">>
 			<<set $xchange.giShiftStage to 0>>
+		<</if>>
+
+		/* Compute preferred targets from identity settings */
+		<<set _penisTarget to 2>>
+		<<if $xchange.giGenitalsEnabled>>
+			<<if $identity.body.genitals.preferred is "smallpenis">><<set _penisTarget to 1>>
+			<<elseif $identity.body.genitals.preferred is "mediumpenis">><<set _penisTarget to 2>>
+			<<elseif $identity.body.genitals.preferred is "bigpenis">><<set _penisTarget to 4>>
+			<</if>>
+		<</if>>
+		<<set _bottomTarget to 2>>
+		<<if $xchange.giAssSizeEnabled>>
+			<<if $identity.body.bottom.preferred is "small">><<set _bottomTarget to 1>>
+			<<elseif $identity.body.bottom.preferred is "medium">><<set _bottomTarget to 3>>
+			<<elseif $identity.body.bottom.preferred is "big">><<set _bottomTarget to 5>>
+			<</if>>
 		<</if>>
 
 		/* Stage 0: setup */
@@ -1549,30 +1539,47 @@
 			<<set $xchange.giShiftStage to 1>>
 		<</if>>
 
-		/* Stage 1: keep growing penis until it exists; then remove vagina */
+		/* Stage 1: primary sex shift */
 		<<if not _giStepDone and $xchange.giShiftStage is 1>>
 			<<if !$player.penisExist>>
 				<<set $player.penisExist to true>>
 				<<set $player.penissize to 0>>
+				<<gi-note "A tight, unfamiliar weight forms between your legs.">>
 				<<set _giStepDone to true>>
 			<<elseif $player.penissize lt 0>>
 				<<set $player.penissize += 1>>
+				<<gi-note "The shape between your legs shifts again.">>
 				<<set _giStepDone to true>>
 			<<elseif $player.vaginaExist>>
 				<<set $player.vaginaExist to false>>
+				<<gi-note "The softness between your legs closes up and disappears.">>
 				<<set _giStepDone to true>>
 			<<else>>
 				<<set $xchange.giShiftStage to 2>>
 			<</if>>
 		<</if>>
 
-		/* Stage 2: secondary characteristics (one change per step) */
+		/* Stage 2: secondary characteristics — grow penis, shrink breasts/bottom toward targets */
 		<<if not _giStepDone and $xchange.giShiftStage is 2>>
-			<<if $player.breastsize gt 0>>
-				<<set $player.breastsize -= 1>>
+			<<if $xchange.giHairLengthEnabled and $identity.body.hairlength.preferred is "short" and $hairlength gt 100>>
+				<<set $hairlength to Math.max($hairlength - 60, 100)>>
+				<<gi-note "Your hair has shortened a little.">>
 				<<set _giStepDone to true>>
-			<<elseif $player.bottomsize gt 0>>
+			<<elseif $xchange.giHairLengthEnabled and $identity.body.hairlength.preferred is "medium" and $hairlength gt 350>>
+				<<set $hairlength to Math.max($hairlength - 60, 350)>>
+				<<gi-note "Your hair has shortened a little.">>
+				<<set _giStepDone to true>>
+			<<elseif $player.penisExist and $player.penissize lt _penisTarget>>
+				<<set $player.penissize += 1>>
+				<<gi-note "You feel a growing pressure between your legs. Your penis is a little larger.">>
+				<<set _giStepDone to true>>
+			<<elseif $player.breastsize gt 0>>
+				<<set $player.breastsize -= 1>>
+				<<gi-note "Your chest feels a little flatter.">>
+				<<set _giStepDone to true>>
+			<<elseif $player.bottomsize gt _bottomTarget>>
 				<<set $player.bottomsize -= 1>>
+				<<gi-note "Your hips and ass feel a little leaner.">>
 				<<set _giStepDone to true>>
 			<<else>>
 				<<set $xchange.giShiftStage to 3>>
@@ -1583,12 +1590,13 @@
 		<<if not _giStepDone and $xchange.giShiftStage is 3>>
 			<<if $player.sex is "f">>
 				<<set $player.sex to "m">>
+				<<gi-note "Your body now reads as more distinctly male.">>
 			<</if>>
 			<<set $xchange.giShiftStage to 2>>
 		<</if>>
 	<</widget>>
 
-	<<widget "ensureSexStatsForPhysicalAdjustments">>
+<<widget "ensureSexStatsForPhysicalAdjustments">>
 		/* Root */
 		<<if $sexStats is undefined or $sexStats is null>>
 			<<set $sexStats to {}>>

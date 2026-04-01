@@ -85,10 +85,24 @@ if (typeof window.defined !== "function") {
 			innocence: 1,
 		}>>
 	<</if>>
+	
+	/* GI system defaults */
 	<<if $genderidentity is undefined>>
-		<<set $genderidentity to 1000>>
-		<<set $genderidentitymax to 1000>>
+		<<set _giInitRange to ($xchange.giRange is undefined ? 1500 : $xchange.giRange)>>
+		<<if typeof mapToLegacyGenderIdentity is "function" and $player isnot undefined>>
+			<<run mapToLegacyGenderIdentity()>>
+			<<set $genderidentity to ($xchange.giTarget is undefined ? ($player.gender is "f" ? _giInitRange : 0) : $xchange.giTarget)>>
+		<<else>>
+			<<set $genderidentity to ($player.gender is "f" ? _giInitRange : 0)>>
+		<</if>>
+		<<set $genderidentitymax to _giInitRange>>
 	<</if>>
+	<<if $xchange.giAutoEnabled is undefined>><<set $xchange.giAutoEnabled to false>><</if>>
+	<<if $xchange.giTransformEnabled is undefined>><<set $xchange.giTransformEnabled to false>><</if>>
+	<<if $xchange.genderIdentityEnabled is undefined>><<set $xchange.genderIdentityEnabled to true>><</if>>
+	<<if $xchange.giTransformThreshold is undefined>><<set $xchange.giTransformThreshold to 120>><</if>>
+	<<if $xchange.giStepPerDay is undefined>><<set $xchange.giStepPerDay to 30>><</if>>
+
 	<<if $xchange_fame is undefined>>
 		<<set $xchange_fame to 0>>
 	<</if>>
@@ -1055,10 +1069,6 @@ if (typeof window.defined !== "function") {
 		<<set $xchange.disregardGender to 0>>
 	<</if>>
 
-	<<if $xchange.genderIdentityEnabled is undefined>>
-		<<set $xchange.genderIdentityEnabled to 1>>
-	<</if>>
-
 	<<if $schoolevent gt 2>><<set $schoolevent to 0>><</if>>
 
 	<<if $recentmolest is -1>><<set $recentmolest to Math.max($moleststat - Time.days, 0)>><</if>>
@@ -1165,10 +1175,6 @@ if (typeof window.defined !== "function") {
 
 	<<if $xchange.pill.breederEffect and $xchange.pill.breederEdgingStress is undefined>>
 		<<set $xchange.pill.breederEdgingStress to 100>>
-	<</if>>
-
-	<<if $xchange.genderIdentityEnabled isnot 1>>
-		<<set $xchange.genderIdentityEnabled to 1>>
 	<</if>>
 
 	<<if $xchange.blackmail and $xchange.blackmail.questsCompleted is undefined>>

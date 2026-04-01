@@ -240,12 +240,6 @@
 			<</if>>
 
 			<<if $attitudesControl.unlockGender>><br>
-				<span id="gi-cap-wrap">
-					<label><<checkbox "$identityCap" false true autocheck>>
-						Allow full drift away from your original gender.
-						<i>This acts as the limit / consent setting for whether Gender Identity drift can fully cross away from your starting gender.</i>
-					</label>
-				</span><br>
 				<span id="gi-auto-wrap">
 					<label><<checkbox "$xchange.giAutoEnabled" false true autocheck>>
 						Update Gender Identity from your Identity system.
@@ -263,19 +257,15 @@
 				(function(){
 					const ns=".giAttitudeLocks";const doc=$(document);function setWrapDisabled($wrap,disabled){$wrap.find('input[type="checkbox"]').prop("disabled",!!disabled);if(disabled){$wrap.addClass("black");}else{$wrap.removeClass("black");}}
 				function refreshGiLocks(){
-					const V=State.variables;const hasGiSystem=!!(V.xchange&&V.xchange.genderIdentityEnabled);if(!hasGiSystem){V.xchange.giAutoEnabled=false;V.xchange.giTransformEnabled=false;V.xchange.giTransformConsent=false;}else if(!V.xchange.giAutoEnabled){V.xchange.giTransformEnabled=false;V.xchange.giTransformConsent=false;}const canAuto=hasGiSystem;const canTransform=hasGiSystem&&!!V.xchange.giAutoEnabled;setWrapDisabled($("#gi-auto-wrap"),!canAuto);setWrapDisabled($("#gi-transform-wrap"),!canTransform);}
-					doc.off("change" + ns, "#gi-cap-wrap input, #gi-auto-wrap input");
-					doc.on("change" + ns, "#gi-cap-wrap input, #gi-auto-wrap input", function () {setTimeout(refreshGiLocks, 0);});setTimeout(refreshGiLocks, 0);})();
+					const V=State.variables;const hasGiSystem=!!(V.xchange&&V.xchange.genderIdentityEnabled);if(!hasGiSystem){V.xchange.giAutoEnabled=false;V.xchange.giTransformEnabled=false;V.xchange.giTransformConsent=false;}else if(!V.xchange.giAutoEnabled){V.xchange.giTransformEnabled=false;V.xchange.giTransformConsent=false;}const canTransform=hasGiSystem&&!!V.xchange.giAutoEnabled;setWrapDisabled($("#gi-auto-wrap"),!hasGiSystem);setWrapDisabled($("#gi-transform-wrap"),!canTransform);}
+					doc.off("change" + ns, "#gi-auto-wrap input");
+					doc.on("change" + ns, "#gi-auto-wrap input", function () {setTimeout(refreshGiLocks, 0);});setTimeout(refreshGiLocks, 0);})();
 				<</script>>
 				
 			<<else>><br>
-				<input type="checkbox" checked disabled />
-				<span class="black"> Allow full drift away from your original gender.
-				<i>Enable the X-Change Gender Identity system first.</i></span>
-				<br>
 				<input type="checkbox" disabled />
 				<span class="black"> Update Gender Identity from your Identity system.
-				<i>Available whenever the Gender Identity system itself is enabled.</i></span>
+				<i>Enable the X-Change Gender Identity system first.</i></span>
 				<br>
 				<input type="checkbox" disabled />
 				<span class="black"> Allow slow body changes to follow Gender Identity.

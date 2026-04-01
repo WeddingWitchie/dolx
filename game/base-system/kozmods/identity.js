@@ -463,6 +463,7 @@ function preferredPronouns(gender) {
 			}
 			else if (V.identity.presentation.pronouns.preferred === "appearance") return V.player.gender_appearance === "m";
 			else if (V.identity.presentation.pronouns.preferred === "posture") return V.player.gender_posture === "m";
+			return false;
 		case "f":
 			if (V.identity.presentation.pronouns.preferred === "f") return true;
 			else if (V.identity.presentation.pronouns.preferred === "body") return V.player.vaginaExist;
@@ -472,6 +473,7 @@ function preferredPronouns(gender) {
 			}
 			else if (V.identity.presentation.pronouns.preferred === "appearance") return V.player.gender_appearance === "f";
 			else if (V.identity.presentation.pronouns.preferred === "posture") return V.player.gender_posture === "f";
+			return false;
 		default:
 			return false;
 	}
@@ -480,7 +482,10 @@ window.preferredPronouns = preferredPronouns;
 
 function getIdentityMeterDirection(characteristic) {
 	switch (characteristic) {
-		/* Masculine-leaning */
+		/* Universal axis:
+		 *   min   = strongly masculine
+		 *   max = strongly feminine
+		So masculine-leaning traits should push NEGATIVE and feminine-leaning POSITIVE. */
 		case "Masculine Clothing":
 		case "Masculine Appearance":
 		case "Masculine Pronouns":
@@ -492,27 +497,27 @@ function getIdentityMeterDirection(characteristic) {
 		case "Tall Body":
 		case "Large Body":
 		case "Giant Body":
-			return { dir: 1, weight: 1 };
-		/* Feminine-leaning */
+			return { dir: -1, weight: 1 };
 		case "Feminine Clothing":
 		case "Feminine Appearance":
 		case "Feminine Pronouns":
 		case "Vagina":
-		case "Small Breasts":
 		case "Medium Breasts":
 		case "Big Breasts":
-		case "Small Ass":
 		case "Medium Ass":
 		case "Big Ass":
 		case "Long Hair":
 		case "Pregnancy":
 		case "Lactation":
-			return { dir: -1, weight: 1 };
+			return { dir: 1, weight: 1 };
 		/* Neutral-ish */
 		case "Neutral Pronouns":
 		case "Medium Hair":
+		case "Small Breasts":
+		case "Small Ass":
 		case "Miniature Body":
 		case "Tiny Body":
+		case "Small Body":
 		case "Normal Body":
 			return { dir: 0, weight: 1.25 };
 		default:
@@ -738,14 +743,13 @@ window.getIdentityMeterSupport = getIdentityMeterSupport;
 
 function mapToLegacyGenderIdentity() {
 	const range = Number(V.xchange?.giRange) || 1500;
-	const meterVersion = 5;
+	const meterVersion = 6;
 	const groups = {};
 	if (!V.xchange) V.xchange = {};
 
 	/* Early boot / partially initialized saves: avoid crashing before $player exists. */
 	if (!V.player || typeof V.player !== "object") {
 		V.xchange.giAxis = 0;
-		V.xchange.giTarget = Math.round(range / 2);
 		return V.xchange.giTarget;
 	}
 
@@ -777,12 +781,23 @@ function mapToLegacyGenderIdentity() {
 		categoryCount += 1;
 	}
 
-	const axis = categoryCount === 0 ? 0 : Math.clamp(categorySum / categoryCount, -1, 1);
+	/* Universal meter:
+	 *   axis -1 => fully masculine => 0
+	 *   axis +1 => fully feminine => range
+	 * Do NOT flip by the player's starting gender.
+	 * When no identity topics are active, default based on player's current gender.
+	 */
+	let axis;
+	if (categoryCount === 0) {
+		axis = V.player?.gender === "f" ? 1 : -1;
+	} else {
+		axis = Math.clamp(categorySum / categoryCount, -1, 1);
+	}
 	const absVal = Math.round(((axis + 1) / 2) * range);
-	const baseGender = (V.player?.gender === "f") ? "f" : "m";
+
 	V.xchange.giGroupAxis = groupAxis;
 	V.xchange.giAxis = axis;
-	V.xchange.giTarget = (baseGender === "m" ? absVal : (range - absVal));
+	V.xchange.giTarget = absVal;
 
 	if (V.genderidentity === undefined || Number.isNaN(V.genderidentity) || V.xchange.giMeterVersion !== meterVersion) {
 		V.genderidentity = V.xchange.giTarget;
@@ -853,12 +868,18 @@ function hasGenderIdentity(stage) {
 window.hasGenderIdentity = hasGenderIdentity;
 
 function playerFeelsManlike() {
-	return (V.player.gender === "m" && hasGenderIdentity(5)) || (V.player.gender === "f" && !hasGenderIdentity(4));
+	mapToLegacyGenderIdentity();
+	const range = Number(V.xchange?.giRange) || 1500;
+	const current = Math.clamp(Number(V.genderidentity) || 0, 0, range);
+	return current <= Math.round(range * (6 / 15));
 }
 window.playerFeelsManlike = playerFeelsManlike;
 
 function playerFeelsGirllike() {
-	return (V.player.gender === "f" && hasGenderIdentity(5)) || (V.player.gender === "m" && !hasGenderIdentity(4));
+	mapToLegacyGenderIdentity();
+	const range = Number(V.xchange?.giRange) || 1500;
+	const current = Math.clamp(Number(V.genderidentity) || 0, 0, range);
+	return current >= Math.round(range * (9 / 15));
 }
 window.playerFeelsGirllike = playerFeelsGirllike;
 
@@ -995,26 +1016,25 @@ window.playerFeelsGirllike = playerFeelsGirllike;
 		x.giAutoEnabled = toStrictBool(x.giAutoEnabled);
 		x.giTransformEnabled = toStrictBool(x.giTransformEnabled);
 
-		// Consent gate (sticky-off): defaults to current transform setting once, but if transforms are later disabled,
-		// consent is revoked and must be explicitly re-enabled by the player.
-		if (x.giTransformConsent === undefined) x.giTransformConsent = x.giTransformEnabled;
-		x.giTransformConsent = toStrictBool(x.giTransformConsent);
+		// Consent tracks the transform checkbox directly.
+		// The checkbox IS the consent, there is no separate consent UI.
+		// When transforms are enabled, consent is granted.
+		// When transforms are disabled, consent is revoked and drift is cleared.
+		x.giTransformConsent = x.giTransformEnabled;
 
-		// Lock behind the same unlock the UI uses
-		const unlocked = (V.attitudesControl?.unlockGender === true) && (V.identityCap === true);
+		// Lock behind the same unlock the UI uses.
+		// identityCap is NOT checked here — it controls how far the meter can drift,
+		// not whether the system is enabled. The genderidentity widget already enforces
+		// the cap floor when identityCap is true.
+		const unlocked = (V.attitudesControl?.unlockGender === true);
 		if (!unlocked) {
 			x.giAutoEnabled = false;
 			x.giTransformEnabled = false;
 			x.giTransformConsent = false;
 		}
 
-		// Turning transforms off revokes consent (prevents them silently coming back later)
-		if (x.giTransformEnabled !== true) {
-			x.giTransformConsent = false;
-		}
-
-		// If the system isn't fully enabled+consented, clear queued drift/stage so it can't "fire later".
-		if (x.giAutoEnabled !== true || x.giTransformEnabled !== true || x.giTransformConsent !== true) {
+		// If the system isn't fully enabled, clear queued drift/stage so it can't "fire later".
+		if (x.giAutoEnabled !== true || x.giTransformEnabled !== true) {
 			x.giDrift = 0;
 			x.giShiftStage = 0;
 			x.giShiftMode = "";
