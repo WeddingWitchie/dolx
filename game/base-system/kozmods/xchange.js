@@ -505,15 +505,27 @@ function playerMayBeSpiked() {
 window.playerMayBeSpiked = playerMayBeSpiked;
 
 function updateRemoverPillCatalogue() {
-	wikifier("xchange-get-spikepool"); 
-	T.effectPool.deleteWith((val)=>val==="genderflip");
-	T.effectPool.deleteWith((val)=>val==="herm");
+	V.xchange ??= {}; const antiTypes = [];
+
+	for (const pill of setup.pills ?? []) {
+		if (!pill || pill.type !== "xchange" || pill.subtype !== "anti-pill") continue; if (typeof pill.name !== "string") continue;
+		const match = pill.name.match(/^SWP Anti-(.+) Pill$/); if (!match) continue;
+		const type = match[1]; antiTypes.push(type);
+	}
+
+	const filtered = antiTypes.filter(type => {if (type === "portal" && !V.portalPantiesEnabled) return false; return true;});
+	const uniqueTypes = [...new Set(filtered)];
+	const shownTypes = 2;
+	const stockPerType = 1;
 
 	V.xchange.removerPillCatalogue = [];
-	for (let i = 0; i < 5; i++) {
-		// if (T.effectPool.length <= 0) break;
-		const pillType = T.effectPool.random();
-		V.xchange.removerPillCatalogue.push(pillType);
+
+	const pool = [...uniqueTypes];
+	const picks = Math.min(shownTypes, pool.length);
+
+	for (let i = 0; i < picks; i++) {
+		const type = pool.pluck(); // random unique pick
+		for (let j = 0; j < stockPerType; j++) {V.xchange.removerPillCatalogue.push(type);}
 	}
 }
 window.updateRemoverPillCatalogue = updateRemoverPillCatalogue;
@@ -598,10 +610,8 @@ function xchangeWeeklyCheck(weeks = 1) {
 	// 1 - 0b001: Suspicious Pills Dealer
 	// 2 - 0b010: Portal Pill Dealer
 	// 4 - 0b100: Effect Remover Pill Dealer
-	const dealerOdds = [1,2,4];
+	const dealerOdds = [1, 2, 4];
 	V.xchange.weeklyShadyDealer = dealerOdds.pluck() | dealerOdds.pluck();
-	if (V.xchange.weeklyShadyDealer & 4) updateRemoverPillCatalogue();
-
 }
 window.xchangeWeeklyCheck = xchangeWeeklyCheck;
 
@@ -618,7 +628,7 @@ function xchangeDailyCheck(days = 1) {
 				wikifier("genderidentity", -2 * days);
 		
 			V.effectsmessage = 1;
-			V.genderIdentityMessage = V.hourlyFemininity > 0? "f": (V.hourlyFemininity < 0? "m": 0);
+			V.genderIdentityMessage = V.hourlyFemininity > 0 ? "f" : (V.hourlyFemininity < 0 ? "m" : 0);
 		}
 		V.hourlyFemininity = 0;
 	
@@ -635,6 +645,9 @@ function xchangeDailyCheck(days = 1) {
 				
 		wikifier("dailyIdentityEffects");
 	}
+
+	// Effect Remover Pill Dealer now restocks daily instead of weekly, but availability stays in weekly check.
+	if (V.xchange?.weeklyShadyDealer & 4) {updateRemoverPillCatalogue();}
 }
 window.xchangeDailyCheck = xchangeDailyCheck;
 
