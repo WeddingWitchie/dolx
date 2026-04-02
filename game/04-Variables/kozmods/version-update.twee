@@ -1,19 +1,11 @@
 :: X-Change Compat Helpers [script]
-
 /* Compatibility helper: some older TwineScript used `defined(x)` in <<if>> conditions.
    SugarCube/DoLP doesn't provide it by default. */
-if (typeof window.defined !== "function") {
-	window.defined = function (v) { return v !== undefined && v !== null; };
-}
-
+if (typeof window.defined !== "function") { window.defined = function (v) { return v !== undefined && v !== null; }; }
 
 :: Widgets X-Change Variable Updates [widget]
 <<widget "xchange-init">>
-
-	<<if $monthly is undefined>>
-		<<set $monthly to { }>>
-	<</if>>
-
+	<<if $monthly is undefined>><<set $monthly to { }>><</if>>
 	<<if $xchange is undefined>>
 		<<set $xchange to {
 			nonconEnabled: 1,
@@ -27,22 +19,26 @@ if (typeof window.defined !== "function") {
 			known: [],
 		}>>
 	<</if>>
-	<<if $xchange.known is undefined>>
-		<<set $xchange.known to []>>
-	<</if>>
+	<<if $xchange.known is undefined>><<set $xchange.known to []>><</if>>
 	/* optional: if an old save made it the wrong type */
-	<<if $xchange.known isnot undefined and !Array.isArray($xchange.known)>>
-		<<set $xchange.known to []>>
-	<</if>>
+	<<if $xchange.known isnot undefined and !Array.isArray($xchange.known)>><<set $xchange.known to []>><</if>>
 	/* Sanity: pubtimer must be a number >= 1, otherwise delete it (inactive). */
 	<<run (function () {
-		var x = State.variables.xchange;
-		if (!x) { return; }
-		var n = Number(x.pubtimer);
-		if (x.pubtimer !== undefined && (!Number.isFinite(n) || n < 1)) {
-			delete x.pubtimer;
-		}
+		var x = State.variables.xchange; if (!x) { return; }
+		var n = Number(x.pubtimer); if (x.pubtimer !== undefined && (!Number.isFinite(n) || n < 1)) { delete x.pubtimer; }
 	})()>>
+
+	<<if $xchange._didSpikepoolKeyFix is not true>>
+		<<set $xchange._didSpikepoolKeyFix to true>>
+		/* Migrate dumb-bitch setting key variants -> canonical $xchange.spikepool.dumbbitch */
+		<<if $xchange.spikepool.dumbbitch is undefined>>
+			<<if $xchange.spikepool["dumb-bitch"] is not undefined>>
+				<<set $xchange.spikepool.dumbbitch to $xchange.spikepool["dumb-bitch"]>>
+			<<elseif $xchange.spikepool.dumbBitch is not undefined>>
+				<<set $xchange.spikepool.dumbbitch to $xchange.spikepool.dumbBitch>>
+			<</if>>
+		<</if>>
+	<</if>>
 
 	<<if $xchange.pill is undefined>>
 		<<set $xchange.pill to {
@@ -55,8 +51,6 @@ if (typeof window.defined !== "function") {
 			innocenceEffect: false,
 			cumcureEffect: false,
 			breederEffect: false,
-			swellEffect: false,
-			bimboEffect: false,
 			swellEffect: false,
 			bimboEffect: false,
 			continueEffect: false,
@@ -103,6 +97,54 @@ if (typeof window.defined !== "function") {
 	<<if $xchange.giTransformThreshold is undefined>><<set $xchange.giTransformThreshold to 120>><</if>>
 	<<if $xchange.giStepPerDay is undefined>><<set $xchange.giStepPerDay to 30>><</if>>
 
+	/* For Gender Identity Setting (Dysphoria) */
+	<<if $xchange.giBreastSizeEnabled is undefined>><<set $xchange.giBreastSizeEnabled to false>><</if>>
+	<<if $xchange.giAssSizeEnabled is undefined>><<set $xchange.giAssSizeEnabled to false>><</if>>
+	<<if $xchange.giGenitalsEnabled is undefined>><<set $xchange.giGenitalsEnabled to false>><</if>>
+	<<if $xchange.giHairLengthEnabled is undefined>><<set $xchange.giHairLengthEnabled to false>><</if>>
+	<<if $xchange.giBodySizeEnabled is undefined>><<set $xchange.giBodySizeEnabled to false>><</if>>
+	<<if $xchange.giFecundityEnabled is undefined>><<set $xchange.giFecundityEnabled to false>><</if>>
+	<<if $xchange.giBreastSizeConfigured is undefined>><<set $xchange.giBreastSizeConfigured to false>><</if>>
+	<<if $xchange.giAssSizeConfigured is undefined>><<set $xchange.giAssSizeConfigured to false>><</if>>
+	<<if $xchange.giGenitalsConfigured is undefined>><<set $xchange.giGenitalsConfigured to false>><</if>>
+	<<if $xchange.giHairLengthConfigured is undefined>><<set $xchange.giHairLengthConfigured to false>><</if>>
+	<<if $xchange.giBodySizeConfigured is undefined>><<set $xchange.giBodySizeConfigured to false>><</if>>
+	<<if $xchange.giFecundityConfigured is undefined>><<set $xchange.giFecundityConfigured to false>><</if>>
+
+	/* Migrate single genital preferred to dual-preference fields (vagina + penis size) */
+	<<if $identity and $identity.body and $identity.body.genitals>>
+		<<if $identity.body.genitals.preferredVagina is undefined>>
+			<<set $identity.body.genitals.preferredVagina to ($identity.body.genitals.preferred is "vagina")>>
+		<</if>>
+		<<if $identity.body.genitals.preferredPenis is undefined>>
+			<<set _oldPref to $identity.body.genitals.preferred>>
+			<<if _oldPref is "smallpenis" or _oldPref is "mediumpenis" or _oldPref is "bigpenis">>
+				<<set $identity.body.genitals.preferredPenis to _oldPref>>
+			<<else>>
+				<<set $identity.body.genitals.preferredPenis to false>>
+			<</if>>
+		<</if>>
+	<</if>>
+
+	/* Migrate single pronoun preferred to multi-preference fields */
+	<<if $identity and $identity.presentation and $identity.presentation.pronouns>>
+		<<if $identity.presentation.pronouns.preferredMasculine is undefined>>
+			<<set _oldPP to $identity.presentation.pronouns.preferred>>
+			<<set $identity.presentation.pronouns.preferredMasculine to (_oldPP is "m")>>
+			<<set $identity.presentation.pronouns.preferredFeminine to (_oldPP is "f")>>
+			<<set $identity.presentation.pronouns.preferredNeutral to (_oldPP is "n")>>
+			/* If was a dynamic mode, all three must have been accepted — mark them all preferred */
+			<<if ["body","clothing","appearance","posture"].includes(_oldPP)>>
+				<<set $identity.presentation.pronouns.preferredMasculine to true>>
+				<<set $identity.presentation.pronouns.preferredFeminine to true>>
+				<<set $identity.presentation.pronouns.preferredNeutral to true>>
+				<<set $identity.presentation.pronouns.pronounDynamicMode to _oldPP>>
+			<<else>>
+				<<set $identity.presentation.pronouns.pronounDynamicMode to "">>
+			<</if>>
+		<</if>>
+	<</if>>
+
 	<<if $xchange_fame is undefined>>
 		<<set $xchange_fame to 0>>
 	<</if>>
@@ -117,22 +159,10 @@ if (typeof window.defined !== "function") {
 	<</if>>
 
 	/* Hypnosis Variables */
-
-	<<if $hypnotistChance is undefined>>
-		<<set $hypnotistChance to 1>>
-	<</if>>
-
-	<<if $angryHypnotist is undefined>>
-		<<set $angryHypnotist to false>>
-	<</if>>
-
-	<<if $deviantHypnotist is undefined>>
-		<<set $deviantHypnotist to false>>
-	<</if>>
-
-	<<if $hypnosis_traits.crossdressing is undefined or $hypnosis_traits.crossdressing lt 0>>
-		<<set $hypnosis_traits.crossdressing to -1>>
-	<</if>>
+	<<if $hypnotistChance is undefined>><<set $hypnotistChance to 1>><</if>>
+	<<if $angryHypnotist is undefined>><<set $angryHypnotist to false>><</if>>
+	<<if $deviantHypnotist is undefined>><<set $deviantHypnotist to false>><</if>>
+	<<if $hypnosis_traits.crossdressing is undefined or $hypnosis_traits.crossdressing lt 0>><<set $hypnosis_traits.crossdressing to -1>><</if>>
 
 	<<if $xchange.supporterCode is undefined>>
 		<<set $xchange.supporterCode to "">>
@@ -773,49 +803,49 @@ if (typeof window.defined !== "function") {
 <</widget>>
 
 <<widget "xchange-modupdate">>
-<!-- Preflight for vanilla/old saves: ensure expected object shapes exist -->
-<<if $AMCTraits is undefined or $AMCTraits is null or typeof $AMCTraits isnot "object" or Array.isArray($AMCTraits)>>
-	<<set $AMCTraits to {}>>
-	<<run console.warn("DoLX: $AMCTraits missing/invalid (likely vanilla/old save). Initialising defaults.")>>
-<</if>>
-<<set _amcKeys to [
-	"beauty","physique",
-	"seductionskill","oralskill","vaginalskill","analskill","handskill","feetskill","bottomskill","thighskill","chestskill","penileskill",
-	"milk","semen","willpower",
-	"english","maths","science","history",
-	"skulduggery","swimming","dancing","athletics","tending","housekeeping",
-	"brawling","footwork","striking","kicking",
-	"sexFame","prostitutionFame","rapeFame","bestialityFame","exhibitionismFame","pregnancyFame","impregFame","scrapFame","goodFame","businessFame","socialFame","modelFame"
-]>>
-<<for _k range _amcKeys>>
-	<<if $AMCTraits[_k] is undefined>>
-		<<set $AMCTraits[_k] to 1>>
+	<!-- Preflight for vanilla/old saves: ensure expected object shapes exist -->
+	<<if $AMCTraits is undefined or $AMCTraits is null or typeof $AMCTraits isnot "object" or Array.isArray($AMCTraits)>>
+		<<set $AMCTraits to {}>>
+		<<run console.warn("DoLX: $AMCTraits missing/invalid (likely vanilla/old save). Initialising defaults.")>>
 	<</if>>
-<</for>>
-<<if $background is undefined or $background is null>>
-	<<set $background to {}>>
-<</if>>
-<<if typeof $background is "string">>
-	<<set _bgStr to $background>>
-	<<set $background to {}>>
-	<<set $background.type to _bgStr>>
-	<<set $background.id to _bgStr>>
-	<<run console.warn(`DoLX: Migrated $background from string "${_bgStr}" to object.`)>>
-<</if>>
-<<if $background.genderAnxious is undefined>>
-	<<set $background.genderAnxious to false>>
-<</if>>
-/* combatExtended: clamp reads subfields */
-<<if $combatExtended is undefined or $combatExtended is null or typeof $combatExtended isnot "object">>
-	<<set $combatExtended to {}>>
-<</if>>
-<<set _combatKeys to ["brawling","footwork","striking","kicking"]>>
-<<for _k range _combatKeys>>
-	<<if $combatExtended[_k] is undefined>>
-		<<set $combatExtended[_k] to 0>>
+	<<set _amcKeys to [
+		"beauty","physique",
+		"seductionskill","oralskill","vaginalskill","analskill","handskill","feetskill","bottomskill","thighskill","chestskill","penileskill",
+		"milk","semen","willpower",
+		"english","maths","science","history",
+		"skulduggery","swimming","dancing","athletics","tending","housekeeping",
+		"brawling","footwork","striking","kicking",
+		"sexFame","prostitutionFame","rapeFame","bestialityFame","exhibitionismFame","pregnancyFame","impregFame","scrapFame","goodFame","businessFame","socialFame","modelFame"
+	]>>
+	<<for _k range _amcKeys>>
+		<<if $AMCTraits[_k] is undefined>>
+			<<set $AMCTraits[_k] to 1>>
+		<</if>>
+	<</for>>
+	<<if $background is undefined or $background is null>>
+		<<set $background to {}>>
 	<</if>>
-<</for>>
-<!-- end preflight -->
+	<<if typeof $background is "string">>
+		<<set _bgStr to $background>>
+		<<set $background to {}>>
+		<<set $background.type to _bgStr>>
+		<<set $background.id to _bgStr>>
+		<<run console.warn(`DoLX: Migrated $background from string "${_bgStr}" to object.`)>>
+	<</if>>
+	<<if $background.genderAnxious is undefined>>
+		<<set $background.genderAnxious to false>>
+	<</if>>
+	/* combatExtended: clamp reads subfields */
+	<<if $combatExtended is undefined or $combatExtended is null or typeof $combatExtended isnot "object">>
+		<<set $combatExtended to {}>>
+	<</if>>
+	<<set _combatKeys to ["brawling","footwork","striking","kicking"]>>
+	<<for _k range _combatKeys>>
+		<<if $combatExtended[_k] is undefined>>
+			<<set $combatExtended[_k] to 0>>
+		<</if>>
+	<</for>>
+	<!-- end preflight -->
 
 	<<xchange-init>>
 	<<xchange-init2>>
@@ -963,32 +993,8 @@ if (typeof window.defined !== "function") {
 		<<set $xchangeStatsMerged to false>>
 	<</if>>
 
-	<<if $xchange.awareness is undefined>>
-		<<set $xchange.awareness to 0>>
-	<</if>>
-
-	<<if $xchange.heat is undefined>>
-		<<set $xchange.heat to {}>>
-	<</if>>
-
-	<<if $xchange.heat.bypassAsk is undefined>>
-		<<set $xchange.heat.bypassAsk to false>>
-	<</if>>
-
-	<<if $xchange.heat.systemOn is undefined>>
-		<<set $xchange.heat.systemOn to false>>
-	<</if>>
-
 	<<if $xchange.heat.message is undefined>>
 		<<set $xchange.heat.message to false>>
-	<</if>>
-
-	<<if $xchange.breederOrgasmLock is undefined>>
-		<<set $xchange.breederOrgasmLock to false>>
-	<</if>>
-
-	<<if $xchange.known is undefined>>
-		<<set $xchange.known to []>>
 	<</if>>
 
 	<<if $xchange.bottomsize is undefined>>
@@ -1043,8 +1049,6 @@ if (typeof window.defined !== "function") {
 		<<set $xchange.pill.changedBody.hairposition to $hairposition>>
 		<<set $xchange.pill.changedBody.earposition to $earposition>>
 		<<set $xchange.pill.changedBody.skinColor to $skinColor.natural>>
-		<<set $xchange.pill.changedBody.hairtype to $hairtype>>
-		<<set $xchange.pill.changedBody.fringetype to $fringetype>>
 	<</if>>
 
 	<<if Object.keys($xchange.pill.originalBody).length gt 0 and $xchange.pill.originalBody.haircolour is undefined>>
@@ -1057,8 +1061,6 @@ if (typeof window.defined !== "function") {
 		<<set $xchange.pill.originalBody.hairposition to $hairposition>>
 		<<set $xchange.pill.originalBody.earposition to $earposition>>
 		<<set $xchange.pill.originalBody.skinColor to $skinColor.natural>>
-		<<set $xchange.pill.originalBody.hairtype to $hairtype>>
-		<<set $xchange.pill.originalBody.fringetype to $fringetype>>
 	<</if>>
 
 	<<if $xchange.postPermanenceFertilityReset is undefined>>
@@ -1074,21 +1076,10 @@ if (typeof window.defined !== "function") {
 	<<if $recentmolest is -1>><<set $recentmolest to Math.max($moleststat - Time.days, 0)>><</if>>
 	<<if $recentrape is -1>><<set $recentrape to Math.max($rapestat - Time.days, 0)>><</if>>
 
-	/* pubtimer: keep undefined when inactive; DO NOT default to 0 */
-	<<if $xchange is undefined>>
-		<<set $xchange to {}>>
-	<</if>>
-	<<if $xchange.pubtimer isnot undefined and (!Number.isFinite(Number($xchange.pubtimer)) or Number($xchange.pubtimer) lt 1)>>
-		<<run delete State.variables.xchange.pubtimer>>
-	<</if>>
 	<<if $xchange.machine isnot undefined>>
 		<<set $machineVaginalBought to $xchange.machine.vaginalBought? $xchange.machine.vaginalBought : 0>>
 		<<set $machineAnalBought to $xchange.machine.analBought? $xchange.machine.analBought : 0>>
 		<<unset $xchange.machine>>
-	<</if>>
-
-	<<if $portalPantiesEnabled is undefined>>
-		<<set $portalPantiesEnabled to 1>>
 	<</if>>
 
 	<<if $portalPanties and $portalPanties.state and $portalPanties.state.mouth isnot undefined>>
@@ -1114,7 +1105,6 @@ if (typeof window.defined !== "function") {
 	<<if isNaN($beingPenetratedOrgasmStat)>>
 		<<set $beingPenetratedOrgasmStat to $orgasmstat / 2>>
 	<</if>>
-
 	<<if isNaN($penetratingOrgasmStat)>>
 		<<set $penetratingOrgasmStat to $orgasmstat / 2>>
 	<</if>>
@@ -1163,7 +1153,6 @@ if (typeof window.defined !== "function") {
 			<<set $xchange.pill.changedBody.facestyle to "default">>
 		<</if>>
 	<</if>>
-
 
 	<!-- Repairing corrupted variables -->
 	<<if isNaN(V.arousal)>><<set V.arousal to 0>><</if>>
@@ -1244,19 +1233,16 @@ if (typeof window.defined !== "function") {
 	<<if !["m","f"].includes($player.gender) or !["m","f"].includes($player.sex)>>
 		<<set $effectsmessage to 1>>
 		<<set $hermSaveWarningMessage to 1>>
-
 		<<set $player.gender to "m">>
 		<<set $player.sex to "m">>
 		<<set $vaginause to "none">>
 		<<set $vaginastate to "none">>
 		<<set $penisuse to 0>>
 		<<set $penisstate to 0>>
-		<<set $player.sex to "m">>
 		<<set $player.ballsExist to true>>
 		<<set $player.penisExist to true>>
 		<<set $player.vaginaExist to false>>
 		<<set $sexStats.vagina.menstruation.running = false>>
-
 		<<set $xchange.saveWasLoadedAsHerm to 1>>
 	<</if>>
 
@@ -1289,43 +1275,35 @@ if (typeof window.defined !== "function") {
 			<</if>>
 		<</for>>
 	<</if>>
-
 	<<clamp>>
-
 <</widget>>
 
 <<widget "xchange-sanity">>
+	/* NOTE: All checks below are already performed by <<xchange-init>>.
+	   This widget exists as a lightweight per-passage safety net.
+	   If <<xchange-init>> is guaranteed to have run, this is a no-op. */
 	<<if $xchange is undefined>><<set $xchange to {}>><</if>>
 	<<if $xchange.known is undefined>><<set $xchange.known to []>><</if>>
+	<<if $xchange.pill is undefined>><<set $xchange.pill to {}>><</if>>
+	<<if $xchange.pill.clone is undefined or $xchange.pill.clone is "" or $xchange.pill.clone is null>><<set $xchange.pill.clone to "none">><</if>>
+	<<if $xchange.pill.clonedBody is undefined or $xchange.pill.clonedBody is null>><<set $xchange.pill.clonedBody to {}>><</if>>
+
+	<<if $pregnancyStats.aftermorningpills is undefined>>
+		<<set $pregnancyStats.aftermorningpills to 0>>
+	<<elseif !Number.isFinite($pregnancyStats.aftermorningpills)>>
+		<<run console.warn("[Morning After pill] pregnancyStats.aftermorningpills is invalid; resetting:", V.pregnancyStats?.aftermorningpills)>>
+		<<set $pregnancyStats.aftermorningpills to 0>>
+	<</if>>
 
 	/* pubtimer: must be a number >= 1, otherwise delete it (inactive). */
-	<<run (function () {
-		var x = State.variables.xchange;
-		if (!x) { return; }
-		var n = Number(x.pubtimer);
-		if (x.pubtimer !== undefined && (!Number.isFinite(n) || n < 1)) {
-			delete x.pubtimer;
-		}
+	<<run (function () { var x = State.variables.xchange; if (!x) { return; } var n = Number(x.pubtimer);
+		if (x.pubtimer !== undefined && (!Number.isFinite(n) || n < 1)) { delete x.pubtimer; }
 	})()>>
 
-	<<if $xchange.pill is undefined>>
-		<<set $xchange.pill to {}>>
-	<</if>>
-	<<if $xchange.pill.clone is undefined or $xchange.pill.clone is "" or $xchange.pill.clone is null>>
-		<<set $xchange.pill.clone to "none">>
-	<</if>>
-	<<if $xchange.pill.clonedBody is undefined or $xchange.pill.clonedBody is null>>
-		<<set $xchange.pill.clonedBody to {}>>
-	<</if>>
-<</widget>>
-
-<<widget "xchange-const-sanity">>
 	<<run (function () {
 		if (typeof window.C !== "object" || window.C === null) return;
-
 		if (typeof C.tiredness !== "object" || C.tiredness === null) C.tiredness = {};
 		if (!Number.isFinite(C.tiredness.max)) C.tiredness.max = 2000;
-
 		if (typeof C.physique !== "object" || C.physique === null) C.physique = {};
 		if (!Number.isFinite(C.physique.max)) C.physique.max = 30000;
 	})()>>
@@ -1333,36 +1311,26 @@ if (typeof window.defined !== "function") {
 
 <<widget "ensureStatOverlayData">>
 	/* police / misc */
-	<<if $stat_police is undefined>>
-		<<set $stat_police to { community: 0, pillory: 0, prison: 0 }>>
-	<</if>>
-
-	<<if $schoolLessonsMissed is undefined>>
-		<<set $schoolLessonsMissed to {
-			science: 0,
-			maths: 0,
-			housekeeping: 0,
-			english: 0,
-			history: 0,
-			swimming: 0
-		}>>
-	<</if>>
-
-	<<if $fertiliser is undefined>>
-		<<set $fertiliser to {current:0,used:0}>>
-	<</if>>
-
-	<<if $brothelVending is undefined>>
-		<<set $brothelVending to { total: 0 }>>
-	<</if>>
-
-	<<if $wraith is undefined>>
-		<<set $wraith to { possessCount: 0 }>>
-	<</if>>
+	<<if $stat_police is undefined>><<set $stat_police to { community: 0, pillory: 0, prison: 0 }>><</if>>
+	<<if $schoolLessonsMissed is undefined>><<set $schoolLessonsMissed to { science: 0, maths: 0, housekeeping: 0, english: 0, history: 0, swimming: 0 }>><</if>>
+	<<if $fertiliser is undefined>><<set $fertiliser to {current:0,used:0}>><</if>>
+	<<if $brothelVending is undefined>><<set $brothelVending to { total: 0 }>><</if>>
+	<<if $wraith is undefined>><<set $wraith to { possessCount: 0 }>><</if>>
 
 	/* gambling */
 	<<if $estatePersistent is undefined>>
-		<<set $estatePersistent to {}>>
+		<<set $estatePersistent to {
+			totalGamesPlayed: 0,
+			totalGamesPlayedWithBetting: 0,
+			totalRoundsWon: 0,
+			totalRoundsLost: 0,
+			totalRoundsTied: 0,
+			totalBetRoundsWon: 0,
+			totalBetRoundsLost: 0,
+			totalBetRoundsTied: 0,
+			totalCaughtCheating: 0,
+			winStreakHighScore: 0
+		}>>
 	<</if>>
 	<<if $estatePersistent.totalGamesPlayed is undefined>><<set $estatePersistent.totalGamesPlayed to 0>><</if>>
 	<<if $estatePersistent.totalGamesPlayedWithBetting is undefined>><<set $estatePersistent.totalGamesPlayedWithBetting to 0>><</if>>
@@ -1381,7 +1349,22 @@ if (typeof window.defined !== "function") {
 
 	/* dates */
 	<<if $dateCount is undefined>>
-		<<set $dateCount to {}>>
+		<<set $dateCount to {
+			Total: 0,
+			Robin: 0,
+			Whitney: 0,
+			Kylar: 0,
+			Eden: 0,
+			Avery: 0,
+			BlackWolfHunts: 0,
+			GreatHawkHunts: 0,
+			GreatHawkCasual: 0,
+			Alex: 0,
+			Sydney: 0,
+			Gwylan: 0,
+			GwylanBeast: 0,
+			GwylanSex: 0
+		}>>
 	<</if>>
 	<<if $dateCount.Total is undefined>><<set $dateCount.Total to 0>><</if>>
 	<<if $dateCount.Robin is undefined>><<set $dateCount.Robin to 0>><</if>>
@@ -1399,7 +1382,23 @@ if (typeof window.defined !== "function") {
 
 	/* pregnancy */
 	<<if $pregnancyStats is undefined>>
-		<<set $pregnancyStats to {}>>
+		<<set $pregnancyStats to {
+			playerChildren:0,
+			humanChildren:0,
+			wolfChildren:0,
+			npcChildren:0,
+			npcChildrenUnrelatedToPlayer:0,
+			npcTotalBirthEvents:0,
+			humanToysUnlocked: false,
+			wolfToysUnlocked: false,
+			hawkToysUnlocked: false,
+			mother: 0,
+			aftermorningpills: 0,
+			pregnancyTestsTaken: 0,
+			parasiteBook: 0,
+			parasiteDoctorEvents: 0,
+			awareOfBirthId: {},
+		}>>
 	<</if>>
 	<<if $pregnancyStats.awareOfBirthId is undefined>><<set $pregnancyStats.awareOfBirthId to {}>><</if>>
 	<<if $pregnancyStats.talkedAboutPregnancy is undefined>><<set $pregnancyStats.talkedAboutPregnancy to {}>><</if>>
@@ -1415,9 +1414,7 @@ if (typeof window.defined !== "function") {
 	<<if $pregnancyStats.hawkChildren is undefined>><<set $pregnancyStats.hawkChildren to 0>><</if>>
 	<<if $pregnancyStats.childInteractions is undefined>><<set $pregnancyStats.childInteractions to 0>><</if>>
 	<<if $pregnancyStats.orphanageMilkBottlesTotal is undefined>><<set $pregnancyStats.orphanageMilkBottlesTotal to 0>><</if>>
-	<<if $pregnancyStats.aftermorningpills is undefined>><<set $pregnancyStats.aftermorningpills to 0>><</if>>
 	<<if $pregnancyStats.pregnancyTestsTaken is undefined>><<set $pregnancyStats.pregnancyTestsTaken to 0>><</if>>
-
 	<<if $children is undefined>><<set $children to {}>><</if>>
 	<<if $babyIntros is undefined>><<set $babyIntros to {}>><</if>>
 <</widget>>

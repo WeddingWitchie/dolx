@@ -852,22 +852,22 @@ function xchangeEffectsMessages() {
 	switch (V.genderificationStressMessage) {
 		case 1:
 			element("span", "You have an urge to dress cute.", "purple");
-			fragment.append(wikifier("ggstress")); br();
+			fragment.append(wikifier("gggstress")); br();
 			delete V.genderificationStressMessage;
 			break;
 		case 2:
 			element("span", "You are feeling cute and refreshed with your outfit.", "light-pink");
-			fragment.append(wikifier("llstress")); fragment.append(wikifier("ltiredness")); br();
+			fragment.append(wikifier("lstress")); fragment.append(wikifier("ltiredness")); br();
 			delete V.genderificationStressMessage;
 			break;
 		case 3:
 			element("span", "You have an urge to dress more manly.", "purple");
-			fragment.append(wikifier("ggstress")); br();
+			fragment.append(wikifier("gggstress")); br();
 			delete V.genderificationStressMessage;
 			break;
 		case 4:
 			element("span", "You are feeling manly and vigourous in your fit.", "blue");
-			fragment.append(wikifier("llstress")); fragment.append(wikifier("ltiredness")); br();
+			fragment.append(wikifier("lstress")); fragment.append(wikifier("ltiredness")); br();
 			delete V.genderificationStressMessage;
 			break;
 		default:
@@ -877,22 +877,22 @@ function xchangeEffectsMessages() {
 	switch (V.genderStressMessage) {
 		case 1:
 			element("span", "You feel awkward dressed up girly like this.", "purple");
-			fragment.append(wikifier("gstress")); br();
+			fragment.append(wikifier("ggstress")); br();
 			delete V.genderStressMessage;
 			break;
 		case 2:
 			element("span", "You feel gross in these girly clothes.", "red");
-			fragment.append(wikifier("ggstress")); br();
+			fragment.append(wikifier("gggstress")); br();
 			delete V.genderStressMessage;
 			break;
 		case 3:
 			element("span", "You feel awkward dressed up boyish like this.", "purple");
-			fragment.append(wikifier("gstress")); br();
+			fragment.append(wikifier("ggstress")); br();
 			delete V.genderStressMessage;
 			break;
 		case 4:
 			element("span", "You feel gross in these boyish clothes.", "red");
-			fragment.append(wikifier("ggstress")); br();
+			fragment.append(wikifier("gggstress")); br();
 			delete V.genderStressMessage;
 			break;
 		default:

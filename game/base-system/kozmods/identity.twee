@@ -1,66 +1,7 @@
 :: X-Change Gender Identity Widgets [widget]
-<<set $xchange to $xchange || {}>>
-
-<<widget "gi-disarm">>
-	<<set $xchange.giDrift to 0>>
-	<<set $xchange.giShiftStage to 0>>
-	<<set $xchange.giShiftMode to "">>
-<</widget>>
-
-<<widget "gi-note">>
-	<<if _args[0]>>
-		<<set $giBodyChangeMessages to $giBodyChangeMessages || []>>
-		<<run V.giBodyChangeMessages.push(String(_args[0]))>>
-		<<set $effectsmessage to 1>>
-	<</if>>
-<</widget>>
-
-/* For Gender Identity Setting (Dysphoria) */
-<<if $xchange.giBreastSizeEnabled is undefined>><<set $xchange.giBreastSizeEnabled to false>><</if>>
-<<if $xchange.giAssSizeEnabled is undefined>><<set $xchange.giAssSizeEnabled to false>><</if>>
-<<if $xchange.giGenitalsEnabled is undefined>><<set $xchange.giGenitalsEnabled to false>><</if>>
-<<if $xchange.giHairLengthEnabled is undefined>><<set $xchange.giHairLengthEnabled to false>><</if>>
-<<if $xchange.giBodySizeEnabled is undefined>><<set $xchange.giBodySizeEnabled to false>><</if>>
-<<if $xchange.giFecundityEnabled is undefined>><<set $xchange.giFecundityEnabled to false>><</if>>
-<<if $xchange.giBreastSizeConfigured is undefined>><<set $xchange.giBreastSizeConfigured to false>><</if>>
-<<if $xchange.giAssSizeConfigured is undefined>><<set $xchange.giAssSizeConfigured to false>><</if>>
-<<if $xchange.giGenitalsConfigured is undefined>><<set $xchange.giGenitalsConfigured to false>><</if>>
-<<if $xchange.giHairLengthConfigured is undefined>><<set $xchange.giHairLengthConfigured to false>><</if>>
-<<if $xchange.giBodySizeConfigured is undefined>><<set $xchange.giBodySizeConfigured to false>><</if>>
-<<if $xchange.giFecundityConfigured is undefined>><<set $xchange.giFecundityConfigured to false>><</if>>
 
 <!-- LEGACY -->
-	/* This two widget female/male identity not being called anywhere
-	does it being used? Delete it if it isn't */
-	<<widget "maleidentity">>
-		<<set _change to _args[0]>>
-		<<if $player.gender is "m">>
-			<<genderidentity _change>>
-		<<else>>
-			<<genderidentity `-_change`>>
-		<</if>>
-	<</widget>>
-	<<widget "femaleidentity">>
-		<<set _change to _args[0]>>
-		<<if $player.gender is "f">>
-			<<genderidentity _change>>
-		<<else>>
-			<<genderidentity `-_change`>>
-		<</if>>
-	<</widget>>
-
 	<<widget "genderidentity-orgasm">>
-		<<set _manlyUse to ["othervagina", "otheranus", "othermouth", "tentacle"]>>
-		/*<<if $player.gender is "m" and $player.penisExist and _manlyUse.includes($penisuse)>>
-			<<genderidentity 1>><<g-genderidentity>>
-		<<elseif $player.gender isnot "m" and $player.penisExist and _manlyUse.includes($penisuse)>>
-			<<genderidentity -3>><<l-genderidentity>>
-		<</if>>
-		<<if $player.gender is "f" and $player.vaginaExist>>
-			<<genderidentity 1>><<g-genderidentity>>
-		<<elseif $player.gender isnot "f" and $player.vaginaExist>>
-			<<genderidentity -3>><<l-genderidentity>>
-		<</if>>*/
 		<<if $player.vaginaExist>>
 			<<identitySelector "Vagina">>
 			<<if $identityOption>>
@@ -71,6 +12,7 @@
 				<</if>>
 			<</if>>
 		<</if>>
+		<<set _manlyUse to ["othervagina", "otheranus", "othermouth", "tentacle"]>>
 		<<if $player.penisExist and _manlyUse.includes($penisuse)>>
 			<<set _penis to identityCharacteristicCategory("Penis")>>
 			<<identitySelector _penis>>
@@ -144,89 +86,88 @@
 			</div>
 
 			<div class="settingsToggleItem">
-				<span class="gold">Pronouns </span> <mouse class="tooltip linkBlue">(?)<span>Unaccepted characteristics will cause dysphoria.</span></mouse>
+				<span class="gold">Pronouns </span> <mouse class="tooltip linkBlue">(?)<span>Unaccepted characteristics will cause dysphoria. You can prefer multiple pronoun types. When all three are preferred, dynamic pronoun modes become available.</span></mouse>
 				<br>
 				Masculine:
 				<br> 
 				<label data-target='["identity.presentation.pronouns.masculine.acceptance", "identity.presentation.pronouns.masculine.reject"]' data-disabledif="V.identity.presentation.pronouns.masculine.acceptance && !V.identity.presentation.pronouns.masculine.reject" class="red">Reject <<checkbox "$identity.presentation.pronouns.masculine.reject" false true autocheck>></label> |
 				<<if $identity.init isnot 2>>
-					<label data-target='["identity.presentation.pronouns.preferred", "identity.init"]' data-disabledif="V.identity.presentation.pronouns.preferred === 'm' || V.identity.init">Unaccepted <<radiobutton "$identity.presentation.pronouns.masculine.acceptance" false autocheck>></label> |
+					<label data-target='["identity.presentation.pronouns.preferredMasculine", "identity.init"]' data-disabledif="V.identity.presentation.pronouns.preferredMasculine || V.identity.init">Unaccepted <<radiobutton "$identity.presentation.pronouns.masculine.acceptance" false autocheck>></label> |
 					<label data-target='["identity.presentation.pronouns.masculine.reject", "identity.init"]' data-disabledif="V.identity.presentation.pronouns.masculine.reject || V.identity.init">Accepted <<radiobutton "$identity.presentation.pronouns.masculine.acceptance" true autocheck>></label> |
 				<</if>>
-				<label data-target='["identity.presentation.pronouns.masculine.acceptance"]' data-disabledif="!V.identity.presentation.pronouns.masculine.acceptance" class="green">Preferred <<radiobutton "$identity.presentation.pronouns.preferred" "m" autocheck>></label>
+				<label data-target='["identity.presentation.pronouns.masculine.acceptance"]' data-disabledif="!V.identity.presentation.pronouns.masculine.acceptance" class="green">Preferred <<checkbox "$identity.presentation.pronouns.preferredMasculine" false true autocheck>></label>
 				<br>
 				Feminine:
 				<br>
 				<label data-target='["identity.presentation.pronouns.feminine.acceptance", "identity.presentation.pronouns.feminine.reject"]' data-disabledif="V.identity.presentation.pronouns.feminine.acceptance && !V.identity.presentation.pronouns.feminine.reject" class="red">Reject <<checkbox "$identity.presentation.pronouns.feminine.reject" false true autocheck>></label> |
 				<<if $identity.init isnot 2>>
-					<label data-target='["identity.presentation.pronouns.preferred", "identity.init"]' data-disabledif="V.identity.presentation.pronouns.preferred === 'f' || V.identity.init">Unaccepted <<radiobutton "$identity.presentation.pronouns.feminine.acceptance" false autocheck>></label> |
+					<label data-target='["identity.presentation.pronouns.preferredFeminine", "identity.init"]' data-disabledif="V.identity.presentation.pronouns.preferredFeminine || V.identity.init">Unaccepted <<radiobutton "$identity.presentation.pronouns.feminine.acceptance" false autocheck>></label> |
 					<label data-target='["identity.presentation.pronouns.feminine.reject", "identity.init"]' data-disabledif="V.identity.presentation.pronouns.feminine.reject || V.identity.init">Accepted <<radiobutton "$identity.presentation.pronouns.feminine.acceptance" true autocheck>></label> |
 				<</if>>
-				<label data-target='["identity.presentation.pronouns.feminine.acceptance"]' data-disabledif="!V.identity.presentation.pronouns.feminine.acceptance" class="green">Preferred <<radiobutton "$identity.presentation.pronouns.preferred" "f" autocheck>></label>
+				<label data-target='["identity.presentation.pronouns.feminine.acceptance"]' data-disabledif="!V.identity.presentation.pronouns.feminine.acceptance" class="green">Preferred <<checkbox "$identity.presentation.pronouns.preferredFeminine" false true autocheck>></label>
 				<br>
 				Neutral:
 				<br> 
 				<label data-target='["identity.presentation.pronouns.neutral.acceptance", "identity.presentation.pronouns.neutral.reject"]' data-disabledif="V.identity.presentation.pronouns.neutral.acceptance && !V.identity.presentation.pronouns.neutral.reject" class="red">Reject <<checkbox "$identity.presentation.pronouns.neutral.reject" false true autocheck>></label> |
 				<<if $identity.init isnot 2>>
-					<label data-target='["identity.presentation.pronouns.preferred", "identity.init"]' data-disabledif="V.identity.presentation.pronouns.preferred === 'n' || V.identity.init">Unaccepted <<radiobutton "$identity.presentation.pronouns.neutral.acceptance" false autocheck>></label> |
+					<label data-target='["identity.presentation.pronouns.preferredNeutral", "identity.init"]' data-disabledif="V.identity.presentation.pronouns.preferredNeutral || V.identity.init">Unaccepted <<radiobutton "$identity.presentation.pronouns.neutral.acceptance" false autocheck>></label> |
 					<label data-target='["identity.presentation.pronouns.neutral.reject", "identity.init"]' data-disabledif="V.identity.presentation.pronouns.neutral.reject || V.identity.init">Accepted <<radiobutton "$identity.presentation.pronouns.neutral.acceptance" true autocheck>></label> |
 				<</if>>
-				<label data-target='["identity.presentation.pronouns.neutral.acceptance"]' data-disabledif="!V.identity.presentation.pronouns.neutral.acceptance" class="green">Preferred <<radiobutton "$identity.presentation.pronouns.preferred" "n" autocheck>></label>
+				<label data-target='["identity.presentation.pronouns.neutral.acceptance"]' data-disabledif="!V.identity.presentation.pronouns.neutral.acceptance" class="green">Preferred <<checkbox "$identity.presentation.pronouns.preferredNeutral" false true autocheck>></label>
 				<br>
 
 				<<silently>>
-					/* Guard against invalid preferred pronoun state.
-					   - Static preferred (m/f/n) must be accepted.
-					   - Dynamic preferred ("body/clothing/appearance/posture") is only valid when ALL pronoun types are accepted.
-					   These guards prevent "preferred" pointing at unaccepted/rejected options or becoming empty. */
-					<<if !$identity.presentation.pronouns.preferred>>
-						<<set $identity.presentation.pronouns.preferred to "n">>
+					/* Ensure preferred booleans can't be true when acceptance is false */
+					<<if $identity.presentation.pronouns.preferredMasculine and !$identity.presentation.pronouns.masculine.acceptance>>
+						<<set $identity.presentation.pronouns.preferredMasculine to false>>
+					<</if>>
+					<<if $identity.presentation.pronouns.preferredFeminine and !$identity.presentation.pronouns.feminine.acceptance>>
+						<<set $identity.presentation.pronouns.preferredFeminine to false>>
+					<</if>>
+					<<if $identity.presentation.pronouns.preferredNeutral and !$identity.presentation.pronouns.neutral.acceptance>>
+						<<set $identity.presentation.pronouns.preferredNeutral to false>>
 					<</if>>
 
-					<<set _accPronCount to (
-						($identity.presentation.pronouns.masculine.acceptance ? 1 : 0) +
-						($identity.presentation.pronouns.feminine.acceptance ? 1 : 0) +
-						($identity.presentation.pronouns.neutral.acceptance ? 1 : 0)
+					/* Count how many are individually preferred */
+					<<set _prefPronCount to (
+						($identity.presentation.pronouns.preferredMasculine ? 1 : 0) +
+						($identity.presentation.pronouns.preferredFeminine ? 1 : 0) +
+						($identity.presentation.pronouns.preferredNeutral ? 1 : 0)
 					)>>
 
-					<<set _fallback to "n">>
-					<<if $identity.presentation.pronouns.neutral.acceptance>>
-						<<set _fallback to "n">>
-					<<elseif $identity.presentation.pronouns.feminine.acceptance>>
-						<<set _fallback to "f">>
-					<<elseif $identity.presentation.pronouns.masculine.acceptance>>
-						<<set _fallback to "m">>
-					<</if>>
-
-					/* Static preferred must be accepted */
-					<<if ($identity.presentation.pronouns.preferred is "m" and !$identity.presentation.pronouns.masculine.acceptance)
-						or ($identity.presentation.pronouns.preferred is "f" and !$identity.presentation.pronouns.feminine.acceptance)
-						or ($identity.presentation.pronouns.preferred is "n" and !$identity.presentation.pronouns.neutral.acceptance)>>
-						<<set $identity.presentation.pronouns.preferred to _fallback>>
+					/* Clear dynamic mode if not all three are preferred */
+					<<if _prefPronCount lt 3 and ["body","clothing","appearance","posture"].includes($identity.presentation.pronouns.pronounDynamicMode)>>
+						<<set $identity.presentation.pronouns.pronounDynamicMode to "">>
 						<<set $effectsmessage to 1>>
 						<<set $xchange.pronounPrefAutoFix to true>>
 					<</if>>
 
-					/* Dynamic preferred only when all three are accepted */
-					<<if ["body","clothing","appearance","posture"].includes($identity.presentation.pronouns.preferred) and _accPronCount < 3>>
-						<<set $identity.presentation.pronouns.preferred to _fallback>>
-						<<set $effectsmessage to 1>>
-						<<set $xchange.pronounPrefAutoFix to true>>
+					/* Sync legacy preferred field for backward compat */
+					<<if _prefPronCount gte 3 and ["body","clothing","appearance","posture"].includes($identity.presentation.pronouns.pronounDynamicMode)>>
+						<<set $identity.presentation.pronouns.preferred to $identity.presentation.pronouns.pronounDynamicMode>>
+					<<elseif $identity.presentation.pronouns.preferredNeutral>>
+						<<set $identity.presentation.pronouns.preferred to "n">>
+					<<elseif $identity.presentation.pronouns.preferredFeminine>>
+						<<set $identity.presentation.pronouns.preferred to "f">>
+					<<elseif $identity.presentation.pronouns.preferredMasculine>>
+						<<set $identity.presentation.pronouns.preferred to "m">>
+					<<else>>
+						<<set $identity.presentation.pronouns.preferred to "n">>
 					<</if>>
 				<</silently>>
 
 				<<if $xchange.pronounPrefAutoFix>>
-					<br><span class="red">Your preferred pronoun setting became incompatible with your accepted pronouns. It has been reverted to a valid static preference.</span>
+					<br><span class="red">Your dynamic pronoun mode was cleared because not all pronoun types are preferred.</span>
 					<<set $xchange.pronounPrefAutoFix to false>>
 				<</if>>
 
-				<div data-target='["identity.presentation.pronouns.neutral.acceptance", "identity.presentation.pronouns.feminine.acceptance", "identity.presentation.pronouns.masculine.acceptance"]' data-disabledif="[V.identity.presentation.pronouns.masculine.acceptance, V.identity.presentation.pronouns.feminine.acceptance, V.identity.presentation.pronouns.neutral.acceptance].filter(v => v).length < 3">
+				<div data-target='["identity.presentation.pronouns.preferredMasculine", "identity.presentation.pronouns.preferredFeminine", "identity.presentation.pronouns.preferredNeutral"]' data-disabledif="!(V.identity.presentation.pronouns.preferredMasculine && V.identity.presentation.pronouns.preferredFeminine && V.identity.presentation.pronouns.preferredNeutral)">
 					<span class="gold">Preferred pronouns based on: </span>
 					<br> 
-					<label>Current Sex <<radiobutton "$identity.presentation.pronouns.preferred" "body" autocheck>></label> |
-					<label>Clothing <<radiobutton "$identity.presentation.pronouns.preferred" "clothing" autocheck>></label> |
-					<label>Appearance <<radiobutton "$identity.presentation.pronouns.preferred" "appearance" autocheck>></label> |
-					<label>Posture <<radiobutton "$identity.presentation.pronouns.preferred" "posture" autocheck>></label>
+					<label>Current Sex <<radiobutton "$identity.presentation.pronouns.pronounDynamicMode" "body" autocheck>></label> |
+					<label>Clothing <<radiobutton "$identity.presentation.pronouns.pronounDynamicMode" "clothing" autocheck>></label> |
+					<label>Appearance <<radiobutton "$identity.presentation.pronouns.pronounDynamicMode" "appearance" autocheck>></label> |
+					<label>Posture <<radiobutton "$identity.presentation.pronouns.pronounDynamicMode" "posture" autocheck>></label>
 				</div>
 			</div>
 			<div class="settingsToggleItem">
@@ -409,44 +350,58 @@
 				<br>
 			</div>
 			<div class="settingsToggleItem" id="gi-box-genitals" data-gi-config="giGenitalsConfigured" style="display:none;">
-				<span class="gold">Genitals </span> <mouse class="tooltip linkBlue">(?)<span>Unaccepted characteristics will cause dysphoria.</span></mouse>
+				<span class="gold">Genitals </span> <mouse class="tooltip linkBlue">(?)<span>Unaccepted characteristics will cause dysphoria. You may prefer both a vagina and a penis size simultaneously (for herm characters).</span></mouse>
 				<br>
 				Vagina: 
 				<br> 
 				<label data-target='["identity.body.genitals.vagina.acceptance", "identity.body.genitals.vagina.reject"]' data-disabledif="V.identity.body.genitals.vagina.acceptance && !V.identity.body.genitals.vagina.reject" class="red">Reject <<checkbox "$identity.body.genitals.vagina.reject" false true autocheck>></label> |
 				<<if $identity.init isnot 2 or !$xchange.giGenitalsConfigured>>
-					<label data-target='["identity.body.genitals.preferred", "identity.init"]' data-disabledif="V.identity.body.genitals.preferred === 'vagina'">Unaccepted <<radiobutton "$identity.body.genitals.vagina.acceptance" false autocheck>></label> |
+					<label data-target='["identity.body.genitals.preferredVagina", "identity.init"]' data-disabledif="V.identity.body.genitals.preferredVagina">Unaccepted <<radiobutton "$identity.body.genitals.vagina.acceptance" false autocheck>></label> |
 					<label data-target='["identity.body.genitals.vagina.reject", "identity.init"]' data-disabledif="V.identity.body.genitals.vagina.reject">Accepted <<radiobutton "$identity.body.genitals.vagina.acceptance" true autocheck>></label> |
 				<</if>>
-				<label data-target='["identity.body.genitals.vagina.acceptance"]' data-disabledif="!V.identity.body.genitals.vagina.acceptance" class="green">Preferred <<radiobutton "$identity.body.genitals.preferred" "vagina" autocheck>></label>
+				<label data-target='["identity.body.genitals.vagina.acceptance"]' data-disabledif="!V.identity.body.genitals.vagina.acceptance" class="green">Preferred <<checkbox "$identity.body.genitals.preferredVagina" false true autocheck>></label>
 				<br>
 				Small Penis: 
 				<br> 
 				<label data-target='["identity.body.genitals.smallpenis.acceptance", "identity.body.genitals.smallpenis.reject"]' data-disabledif="V.identity.body.genitals.smallpenis.acceptance && !V.identity.body.genitals.smallpenis.reject" class="red">Reject <<checkbox "$identity.body.genitals.smallpenis.reject" false true autocheck>></label> |
 				<<if $identity.init isnot 2 or !$xchange.giGenitalsConfigured>>
-					<label data-target='["identity.body.genitals.preferred", "identity.init"]' data-disabledif="V.identity.body.genitals.preferred === 'smallpenis'">Unaccepted <<radiobutton "$identity.body.genitals.smallpenis.acceptance" false autocheck>></label> |
+					<label data-target='["identity.body.genitals.preferredPenis", "identity.init"]' data-disabledif="V.identity.body.genitals.preferredPenis === 'smallpenis'">Unaccepted <<radiobutton "$identity.body.genitals.smallpenis.acceptance" false autocheck>></label> |
 					<label data-target='["identity.body.genitals.smallpenis.reject", "identity.init"]' data-disabledif="V.identity.body.genitals.smallpenis.reject">Accepted <<radiobutton "$identity.body.genitals.smallpenis.acceptance" true autocheck>></label> |
 				<</if>>
-				<label data-target='["identity.body.genitals.smallpenis.acceptance"]' data-disabledif="!V.identity.body.genitals.smallpenis.acceptance" class="green">Preferred <<radiobutton "$identity.body.genitals.preferred" "smallpenis" autocheck>></label>
+				<label data-target='["identity.body.genitals.smallpenis.acceptance"]' data-disabledif="!V.identity.body.genitals.smallpenis.acceptance" class="green">Preferred <<radiobutton "$identity.body.genitals.preferredPenis" "smallpenis" autocheck>></label>
 				<br>
 				Medium Penis: 
 				<br> 
 				<label data-target='["identity.body.genitals.mediumpenis.acceptance", "identity.body.genitals.mediumpenis.reject"]' data-disabledif="V.identity.body.genitals.mediumpenis.acceptance && !V.identity.body.genitals.mediumpenis.reject" class="red">Reject <<checkbox "$identity.body.genitals.mediumpenis.reject" false true autocheck>></label> |
 				<<if $identity.init isnot 2 or !$xchange.giGenitalsConfigured>>
-					<label data-target='["identity.body.genitals.preferred", "identity.init"]' data-disabledif="V.identity.body.genitals.preferred === 'mediumpenis'">Unaccepted <<radiobutton "$identity.body.genitals.mediumpenis.acceptance" false autocheck>></label> |
+					<label data-target='["identity.body.genitals.preferredPenis", "identity.init"]' data-disabledif="V.identity.body.genitals.preferredPenis === 'mediumpenis'">Unaccepted <<radiobutton "$identity.body.genitals.mediumpenis.acceptance" false autocheck>></label> |
 					<label data-target='["identity.body.genitals.mediumpenis.reject", "identity.init"]' data-disabledif="V.identity.body.genitals.mediumpenis.reject">Accepted <<radiobutton "$identity.body.genitals.mediumpenis.acceptance" true autocheck>></label> |
 				<</if>>
-				<label data-target='["identity.body.genitals.mediumpenis.acceptance"]' data-disabledif="!V.identity.body.genitals.mediumpenis.acceptance" class="green">Preferred <<radiobutton "$identity.body.genitals.preferred" "mediumpenis" autocheck>></label>
+				<label data-target='["identity.body.genitals.mediumpenis.acceptance"]' data-disabledif="!V.identity.body.genitals.mediumpenis.acceptance" class="green">Preferred <<radiobutton "$identity.body.genitals.preferredPenis" "mediumpenis" autocheck>></label>
 				<br>
 				Big Penis: 
 				<br> 
 				<label data-target='["identity.body.genitals.bigpenis.acceptance", "identity.body.genitals.bigpenis.reject"]' data-disabledif="V.identity.body.genitals.bigpenis.acceptance && !V.identity.body.genitals.bigpenis.reject" class="red">Reject <<checkbox "$identity.body.genitals.bigpenis.reject" false true autocheck>></label> |
 				<<if $identity.init isnot 2 or !$xchange.giGenitalsConfigured>>
-					<label data-target='["identity.body.genitals.preferred", "identity.init"]' data-disabledif="V.identity.body.genitals.preferred === 'bigpenis'">Unaccepted <<radiobutton "$identity.body.genitals.bigpenis.acceptance" false autocheck>></label> |
+					<label data-target='["identity.body.genitals.preferredPenis", "identity.init"]' data-disabledif="V.identity.body.genitals.preferredPenis === 'bigpenis'">Unaccepted <<radiobutton "$identity.body.genitals.bigpenis.acceptance" false autocheck>></label> |
 					<label data-target='["identity.body.genitals.bigpenis.reject", "identity.init"]' data-disabledif="V.identity.body.genitals.bigpenis.reject">Accepted <<radiobutton "$identity.body.genitals.bigpenis.acceptance" true autocheck>></label> |
 				<</if>>
-				<label data-target='["identity.body.genitals.bigpenis.acceptance"]' data-disabledif="!V.identity.body.genitals.bigpenis.acceptance" class="green">Preferred <<radiobutton "$identity.body.genitals.preferred" "bigpenis" autocheck>></label>
+				<label data-target='["identity.body.genitals.bigpenis.acceptance"]' data-disabledif="!V.identity.body.genitals.bigpenis.acceptance" class="green">Preferred <<radiobutton "$identity.body.genitals.preferredPenis" "bigpenis" autocheck>></label>
 				<br>
+
+				/* Sync dual preferences back to legacy preferred field for backward compat */
+				<<silently>>
+					<<if $identity.body.genitals.preferredVagina and $identity.body.genitals.preferredPenis>>
+						/* Herm: both selected. Legacy field gets vagina (arbitrary tie-break; dual fields are authoritative) */
+						<<set $identity.body.genitals.preferred to "vagina">>
+					<<elseif $identity.body.genitals.preferredVagina>>
+						<<set $identity.body.genitals.preferred to "vagina">>
+					<<elseif $identity.body.genitals.preferredPenis>>
+						<<set $identity.body.genitals.preferred to $identity.body.genitals.preferredPenis>>
+					<<else>>
+						<<set $identity.body.genitals.preferred to false>>
+					<</if>>
+				<</silently>>
 			</div>
 			<div class="settingsToggleItem" id="gi-box-hair" data-gi-config="giHairLengthConfigured" style="display:none;">
 				<span class="gold">Hair Length </span> <mouse class="tooltip linkBlue">(?)<span>Unaccepted characteristics will cause dysphoria.</span></mouse>
@@ -744,13 +699,13 @@
 				<<set $identityPreference to $identity.presentation.appearance.preferred is "f" ? true : false>>
 			<<case "Masculine Pronouns">>
 				<<set $identityOption to $identity.presentation.pronouns.masculine>>
-				<<set $identityPreference to $identity.presentation.pronouns.preferred is "m" ? true : false>>
+				<<set $identityPreference to !!$identity.presentation.pronouns.preferredMasculine>>
 			<<case "Feminine Pronouns">>
 				<<set $identityOption to $identity.presentation.pronouns.feminine>>
-				<<set $identityPreference to $identity.presentation.pronouns.preferred is "f" ? true : false>>
+				<<set $identityPreference to !!$identity.presentation.pronouns.preferredFeminine>>
 			<<case "Neutral Pronouns">>
 				<<set $identityOption to $identity.presentation.pronouns.neutral>>
-				<<set $identityPreference to $identity.presentation.pronouns.preferred is "n" ? true : false>>
+				<<set $identityPreference to !!$identity.presentation.pronouns.preferredNeutral>>
 			<<case "Flat Chest">>
 				<<if $xchange.giBreastSizeEnabled>>
 					<<set $identityOption to $identity.body.chest.flat>>
@@ -789,22 +744,22 @@
 			<<case "Vagina">>
 				<<if $xchange.giGenitalsEnabled>>
 					<<set $identityOption to $identity.body.genitals.vagina>>
-					<<set $identityPreference to $identity.body.genitals.preferred is "vagina" ? true : false>>
+					<<set $identityPreference to !!$identity.body.genitals.preferredVagina>>
 				<</if>>
 			<<case "Small Penis">>
 				<<if $xchange.giGenitalsEnabled>>
 					<<set $identityOption to $identity.body.genitals.smallpenis>>
-					<<set $identityPreference to $identity.body.genitals.preferred is "smallpenis" ? true : false>>
+					<<set $identityPreference to $identity.body.genitals.preferredPenis is "smallpenis" ? true : false>>
 				<</if>>
 			<<case "Medium Penis">>
 				<<if $xchange.giGenitalsEnabled>>
 					<<set $identityOption to $identity.body.genitals.mediumpenis>>
-					<<set $identityPreference to $identity.body.genitals.preferred is "mediumpenis" ? true : false>>
+					<<set $identityPreference to $identity.body.genitals.preferredPenis is "mediumpenis" ? true : false>>
 				<</if>>
 			<<case "Big Penis">>
 				<<if $xchange.giGenitalsEnabled>>
 					<<set $identityOption to $identity.body.genitals.bigpenis>>
-					<<set $identityPreference to $identity.body.genitals.preferred is "bigpenis" ? true : false>>
+					<<set $identityPreference to $identity.body.genitals.preferredPenis is "bigpenis" ? true : false>>
 				<</if>>
 			<<case "Short Hair">>
 				<<if $xchange.giHairLengthEnabled>>
@@ -1061,7 +1016,7 @@
 
 		$(document).on(":passagedisplay", autoCommitIdentityLock);
 		setTimeout(autoCommitIdentityLock, 0);
-	})();>>>
+	})();>>
 
 	<<widget "tolerance">>
 		<<if _args[0] isnot undefined>>
@@ -1243,30 +1198,41 @@
 		<</if>>
 	<</widget>>
 
-	<<widget "g-genderidentity">>
-	<</widget>>
-	<<widget "gg-genderidentity">>
-	<</widget>>
-	<<widget "ggg-genderidentity">>
-	<</widget>>
-	<<widget "l-genderidentity">>
-	<</widget>>
-	<<widget "ll-genderidentity">>
-	<</widget>>
-	<<widget "lll-genderidentity">>
-	<</widget>>
-
 
 <!-- DNA'S TWEAK -->
+/* X-Change: repair notice helper (warn once, queue via window.xChangeQueueNotice) */
+<<run (function(){if (setup.xChangeRepairNoticeOnce) return;setup.xChangeRepairNoticeOnce = function(id, html){
+		try {var V = State.variables;V.xchange = V.xchange || {};V.xchange._repairNotices = V.xchange._repairNotices || {};
+			if (V.xchange._repairNotices[id]) return;V.xchange._repairNotices[id] = true;
+			if (window.xChangeQueueNotice) window.xChangeQueueNotice(id, html);
+			console.warn("[X-Change: Save repair notice]", id);
+		} catch(e) {
+			try { console.warn("[X-Change: Save repair notice] failed", id, e); } catch(_) {}}};})(
+	);>>
+
+<<if $genderidentity is undefined or $xchange.giMeterVersion isnot 6>>
+	<<run mapToLegacyGenderIdentity()>>
+	<<set _giInitRange to ($xchange.giRange is undefined ? 1500 : $xchange.giRange)>>
+	<<set _giInitDefault to ($player isnot undefined and $player.gender is "f") ? _giInitRange : 0>>
+	<<set $genderidentity to ($xchange.giTarget is undefined ? _giInitDefault : $xchange.giTarget)>>
+	<<set $xchange.giMeterVersion to 6>>
+<</if>>
+
+	<<widget "gi-disarm">>
+		<<set $xchange.giDrift to 0>><<set $xchange.giShiftStage to 0>><<set $xchange.giShiftMode to "">>
+	<</widget>>
+	
+	<<widget "gi-note">>
+		<<if _args[0]>>
+			<<set $giBodyChangeMessages to $giBodyChangeMessages || []>><<run V.giBodyChangeMessages.push(String(_args[0]))>><<set $effectsmessage to 1>>
+		<</if>>
+	<</widget>>
+
 	<<widget "xchange-ensure-bodysize-identity">>
 		<<set $identity to $identity || {}>>
 		<<set $identity.body to $identity.body || {}>>
 		<<set $identity.body.bodysize to $identity.body.bodysize || {}>>
-
-		<<if $identity.body.bodysize.preferred is undefined>>
-			<<set $identity.body.bodysize.preferred to "normal">>
-		<</if>>
-
+		<<if $identity.body.bodysize.preferred is undefined>><<set $identity.body.bodysize.preferred to "normal">><</if>>
 		<<for _k range ["miniature","tiny","small","normal","tall","large","giant"]>>
 			<<if $identity.body.bodysize[_k] is undefined>>
 				<<set $identity.body.bodysize[_k] to {acceptance:false, reject:false, dysphoria:0, tolerance:0}>>
@@ -1277,48 +1243,54 @@
 	<<widget "ensure-sexstats-min">>
 		/* Only fill missing sub-fields that some widgets read. Avoid touching pregnancy/other complex structures. */
 		<<if $sexStats is undefined>>
-			<<set $sexStats = {}>>
+			<<set $sexStats to { "breasts": { "playedWith": 0 },
+				"creampie": { "self": { "anus":0, "mouth":0, "vagina":0 }, "npc":{ "anus":0, "mouth":0, "vagina":0 } },
+				"pills":{
+					"pills":{
+						'bottom reduction':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'bottom growth':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'bottom blocker':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'breast reduction':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'breast growth':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'breast blocker':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'penis reduction':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'penis growth':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'penis blocker':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'fertility booster':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'contraceptive':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'asylum\'s prescription':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'Dr Harper\'s prescription':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'Anti-Parasite Cream': { autoTake: false, doseTaken: 0, owned: 0, overdose: 0 },
+					},
+					"boughtOnce": false,
+					"lastTaken":{"bottom":'', "breast":'', "penis":'', "pregnancy":''},
+					"mostTaken":{"bottom":'', "breast":'', "penis":'', "pregnancy":''}
+				} }>>
 		<</if>>
 
-		<<if $sexStats.breasts is undefined>>
-			<<set $sexStats.breasts = { playedWith : 0 }>>
-		<<elseif $sexStats.breasts.playedWith is undefined>>
-			<<set $sexStats.breasts.playedWith = 0>>
-		<</if>>
+		<<if $sexStats.breasts is undefined>><<set $sexStats.breasts = { playedWith : 0 }>><<elseif $sexStats.breasts.playedWith is undefined>><<set $sexStats.breasts.playedWith = 0>><</if>>
+		<<if $sexStats.creampie is undefined>><<set $sexStats.creampie = {}>><</if>>
+		<<if $sexStats.creampie.self is undefined>><<set $sexStats.creampie.self = { anus: 0, mouth: 0, vagina: 0 }>><</if>>
+		<<if $sexStats.creampie.npc is undefined>><<set $sexStats.creampie.npc = { anus: 0, mouth: 0, vagina: 0 }>><</if>>
 
-		<<if $sexStats.creampie is undefined>>
-			<<set $sexStats.creampie = {}>>
-		<</if>>
-		<<if $sexStats.creampie.self is undefined>>
-			<<set $sexStats.creampie.self = { anus: 0, mouth: 0, vagina: 0 }>>
-		<</if>>
-		<<if $sexStats.creampie.npc is undefined>>
-			<<set $sexStats.creampie.npc = { anus: 0, mouth: 0, vagina: 0 }>>
-		<</if>>
-
-		/* Some X-Change effects reference menstruation. Keep it lightweight. */
 		<<if $sexStats.vagina is undefined>>
-			<<set $sexStats.vagina = {}>>
+			<<set _baseDays to random(24,38)>>
+			<<if _baseDays lt 26>><<set _baseDaysRng to random(0,4)>><<elseif _baseDays gte 30>><<set _baseDaysRng to random(-4,0)>><<else>><<set _baseDaysRng to random(-2,2)>><</if>>
+			<<set _currentDaysMax to _baseDays + random(0, _baseDaysRng)>>
+			<<set $sexStats.vagina to {
+				"pregnancy": { "fetus": [], "givenBirth": 0, "parasiteBirthEvents": 0, "totalBirthEvents": 0, "motherStatus": 0, "waterBreaking": false, "type": null, "timer": null, "timerEnd": null, "awareOf": null, "potentialFathers": [], },
+				"menstruation":{ "baseDays": _baseDays, "baseDaysRng": _baseDaysRng, "currentDay": random(0, _baseDays + random(0,_baseDaysRng)), "lastDaysMax": _currentDaysMax, "currentDaysMax": _currentDaysMax, "currentState": "normal", "recoveryTime": null, "recoveryTimeStart": null, "recoveryStage": null, "periodEnabled": true, "running": false, "stages": [0, 0, 0, 0], },
+				"sperm":[] }>>
+			<<set _menstruation to $sexStats.vagina.menstruation>>
+			<<set _stage2 to Math.round(_menstruation.currentDaysMax * 0.17)>>
+			<<if _stage2 gte 4>><<set _stage2-->><</if>>
+			<<set _stage3 to Math.round(_menstruation.currentDaysMax * 0.5)>>
+			<<if _stage3 lt 13>><<set _stage3++>><<elseif _stage3 gte 18>><<set _stage3-->><</if>>
+			<<set _menstruation.stages to [0, _stage2, _stage3, _stage3 + random(1,2) * 0.5]>>
+			<<if $player.vaginaExist>><<set $sexStats.vagina.menstruation.running = true>><</if>>
 		<</if>>
-		<<if $sexStats.vagina.menstruation is undefined>>
-			<<set $sexStats.vagina.menstruation = { running: false }>>
-		<<elseif $sexStats.vagina.menstruation.running is undefined>>
-			<<set $sexStats.vagina.menstruation.running = false>>
-		<</if>>
+		<<if $sexStats.vagina.menstruation is undefined>><<set $sexStats.vagina.menstruation = { running: false }>><<elseif $sexStats.vagina.menstruation.running is undefined>><<set $sexStats.vagina.menstruation.running = false>><</if>>
 	<</widget>>
-
-	<<if $xchange.genderIdentityEnabled is undefined>>
-		<<set $xchange.genderIdentityEnabled to true>>
-	<</if>>
-	<<if $genderidentity is undefined or $xchange.giMeterVersion isnot 6>>
-		<<run mapToLegacyGenderIdentity()>>
-		<<set _giInitRange to ($xchange.giRange is undefined ? 1500 : $xchange.giRange)>>
-		<<set _giInitDefault to ($player isnot undefined and $player.gender is "f") ? _giInitRange : 0>>
-		<<set $genderidentity to ($xchange.giTarget is undefined ? _giInitDefault : $xchange.giTarget)>>
-		/* Do NOT set giInitialized here — only gi-auto-update should set it
-		   so the first daily tick after character creation reinitializes properly. */
-		<<set $xchange.giMeterVersion to 6>>
-	<</if>>
 
 	<<widget "gi-compute-target">>
 		<<run mapToLegacyGenderIdentity()>>
@@ -1506,7 +1478,7 @@
 		<</if>>
 	<</widget>>
 
-<<widget "gi-masculinise-step">>
+	<<widget "gi-masculinise-step">>
 		<<set _giStepDone to false>>
 
 		/* Stage machine init */
@@ -1596,74 +1568,143 @@
 		<</if>>
 	<</widget>>
 
-<<widget "ensureSexStatsForPhysicalAdjustments">>
+	<<widget "ensureSexStatsForPhysicalAdjustments">>
 		/* Root */
 		<<if $sexStats is undefined or $sexStats is null>>
-			<<set $sexStats to {}>>
+			<<set $sexStats to {
+				"breasts": { "playedWith": 0 },
+				"creampie": { "self": { "anus":0, "mouth":0, "vagina":0 }, "npc":{ "anus":0, "mouth":0, "vagina":0 } },
+				"pills":{
+					"pills":{
+						'bottom reduction':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'bottom growth':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'bottom blocker':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'breast reduction':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'breast growth':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'breast blocker':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'penis reduction':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'penis growth':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'penis blocker':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'fertility booster':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'contraceptive':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'asylum\'s prescription':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'Dr Harper\'s prescription':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'Anti-Parasite Cream': { autoTake: false, doseTaken: 0, owned: 0, overdose: 0 },
+					},
+					"boughtOnce": false,
+					"lastTaken":{"bottom":'', "breast":'', "penis":'', "pregnancy":''},
+					"mostTaken":{"bottom":'', "breast":'', "penis":'', "pregnancy":''}
+				} }>>
 		<</if>>
 
 		/* Breasts */
-		<<if $sexStats.breasts is undefined or $sexStats.breasts is null>>
-			<<set $sexStats.breasts to {}>>
-		<</if>>
-		<<if $sexStats.breasts.playedWith is undefined>>
-			<<set $sexStats.breasts.playedWith to 0>>
-		<</if>>
+		<<if $sexStats.breasts is undefined or $sexStats.breasts is null>><<set $sexStats.breasts to {}>><</if>>
+		<<if $sexStats.breasts.playedWith is undefined>><<set $sexStats.breasts.playedWith to 0>><</if>>
 
 		/* Creampie buckets */
-		<<if $sexStats.creampie is undefined or $sexStats.creampie is null>>
-			<<set $sexStats.creampie to {}>>
-		<</if>>
-		<<if $sexStats.creampie.self is undefined or $sexStats.creampie.self is null>>
-			<<set $sexStats.creampie.self to {}>>
-		<</if>>
-		<<if $sexStats.creampie.npc is undefined or $sexStats.creampie.npc is null>>
-			<<set $sexStats.creampie.npc to {}>>
-		<</if>>
-
+		<<if $sexStats.creampie is undefined or $sexStats.creampie is null>><<set $sexStats.creampie to {}>><</if>>
+		<<if $sexStats.creampie.self is undefined or $sexStats.creampie.self is null>><<set $sexStats.creampie.self to {}>><</if>>
+		<<if $sexStats.creampie.npc is undefined or $sexStats.creampie.npc is null>><<set $sexStats.creampie.npc to {}>><</if>>
 		<<if $sexStats.creampie.self.anus is undefined>><<set $sexStats.creampie.self.anus to 0>><</if>>
 		<<if $sexStats.creampie.self.mouth is undefined>><<set $sexStats.creampie.self.mouth to 0>><</if>>
 		<<if $sexStats.creampie.self.vagina is undefined>><<set $sexStats.creampie.self.vagina to 0>><</if>>
-
 		<<if $sexStats.creampie.npc.anus is undefined>><<set $sexStats.creampie.npc.anus to 0>><</if>>
 		<<if $sexStats.creampie.npc.mouth is undefined>><<set $sexStats.creampie.npc.mouth to 0>><</if>>
 		<<if $sexStats.creampie.npc.vagina is undefined>><<set $sexStats.creampie.npc.vagina to 0>><</if>>
 
 		/* Vagina / Anus + pregnancy chain */
 		<<if $sexStats.vagina is undefined or $sexStats.vagina is null>>
-			<<set $sexStats.vagina to {}>>
+			<<set _baseDays to random(24,38)>>
+			<<if _baseDays lt 26>><<set _baseDaysRng to random(0,4)>><<elseif _baseDays gte 30>><<set _baseDaysRng to random(-4,0)>><<else>><<set _baseDaysRng to random(-2,2)>><</if>>
+			<<set _currentDaysMax to _baseDays + random(0, _baseDaysRng)>>
+			<<set $sexStats.vagina to {
+				"pregnancy": { "fetus": [], "givenBirth": 0, "parasiteBirthEvents": 0, "totalBirthEvents": 0, "motherStatus": 0, "waterBreaking": false, "type": null, "timer": null, "timerEnd": null, "awareOf": null, "potentialFathers": [], },
+				"menstruation":{ "baseDays": _baseDays, "baseDaysRng": _baseDaysRng, "currentDay": random(0, _baseDays + random(0,_baseDaysRng)), "lastDaysMax": _currentDaysMax, "currentDaysMax": _currentDaysMax, "currentState": "normal", "recoveryTime": null, "recoveryTimeStart": null, "recoveryStage": null, "periodEnabled": true, "running": false, "stages": [0, 0, 0, 0], },
+				"sperm":[]
+			}>>
+			<<set _menstruation to $sexStats.vagina.menstruation>>
+			<<set _stage2 to Math.round(_menstruation.currentDaysMax * 0.17)>>
+			<<if _stage2 gte 4>><<set _stage2-->><</if>>
+			<<set _stage3 to Math.round(_menstruation.currentDaysMax * 0.5)>>
+			<<if _stage3 lt 13>><<set _stage3++>><<elseif _stage3 gte 18>><<set _stage3-->><</if>>
+			<<set _menstruation.stages to [0, _stage2, _stage3, _stage3 + random(1,2) * 0.5]>>
+			<<if $player.vaginaExist>><<set $sexStats.vagina.menstruation.running = true>><</if>>
 		<</if>>
-		<<if $sexStats.vagina.pregnancy is undefined or $sexStats.vagina.pregnancy is null>>
-			<<set $sexStats.vagina.pregnancy to {}>>
-		<</if>>
+		<<if $sexStats.vagina.pregnancy is undefined or $sexStats.vagina.pregnancy is null>><<set $sexStats.vagina.pregnancy to {}>><</if>>
 		<<if $sexStats.vagina.pregnancy.fetus is undefined>><<set $sexStats.vagina.pregnancy.fetus to []>><</if>>
 		<<if $sexStats.vagina.pregnancy.potentialFathers is undefined>><<set $sexStats.vagina.pregnancy.potentialFathers to []>><</if>>
-		<<if $sexStats.vagina.pregnancy.parasiteBirthEvents is undefined>><<set $sexStats.vagina.pregnancy.parasiteBirthEvents to 0>><</if>>
 		<<if $sexStats.vagina.pregnancy.parasiteFeltMovement is undefined>><<set $sexStats.vagina.pregnancy.parasiteFeltMovement to false>><</if>>
 		<<if $sexStats.vagina.pregnancy.timeEnd is undefined>><<set $sexStats.vagina.pregnancy.timeEnd to null>><</if>>
+		<<if $sexStats.anus.pregnancy is undefined or $sexStats.anus.pregnancy is null>><<set $sexStats.anus.pregnancy to {}>><</if>>	
+		<<if $sexStats.vagina.pregnancy.parasiteBirthEvents is undefined>>
+			<<set $sexStats.vagina.pregnancy.parasiteBirthEvents to 0>>
+			<<set $sexStats.vagina.pregnancy.parasiteFeltMovement to false>>
+			<<set $sexStats.vagina.pregnancy.timerEnd to null>>
+			<<run delete $sexStats.vagina.pregnancy.beastMotherStatus>>
+			<<run delete $sexStats.vagina.pregnancy.ultrasoundDone>>
+			<<run delete $sexStats.vagina.pregnancy.morningSicknessWaking>>
+			<<run delete $sexStats.vagina.pregnancy.morningSicknessGeneral>>
+			<<run delete $sexStats.vagina.pregnancy.bellySize>>
+			<<run delete $sexStats.vagina.pregnancy.timerStart>>
+		<</if>>
+		<<if $sexStats.anus is undefined or $sexStats.anus is null>><<set $sexStats.anus to { "pregnancy": { fetus: [], givenBirth: 0, parasiteBirthEvents: 0, motherStatus: 0, type: null, awareOf: null, timer: null, timerEnd: null, type: null, potentialFathers: [], totalBirthEvents: 0, }, "sperm":[], }>><</if>>
+		<<if $sexStats.anus.pregnancy.fetus is undefined>>
+			<<set $sexStats.anus.pregnancy.fetus to []>>
+			<<for $_i to 0; $_i lt 4; $_i++>>
+				<<if $sexStats.anus.pregnancy[$_i] isnot null>>
+					<<run $sexStats.anus.pregnancy.fetus.push(clone($sexStats.anus.pregnancy[$_i]))>>
+					<<if $sexStats.anus.pregnancy.fetus.last().stats.gender is "Futa">>
+						<<set $sexStats.anus.pregnancy.fetus.last().stats.gender to "Hermaphrodite">>
+					<</if>>
+					<<set $sexStats.anus.pregnancy.type to "parasite">>
+				<</if>>
+				<<run delete $sexStats.anus.pregnancy[$_i]>>
+			<</for>>
+			<<if !$sexStats.anus.pregnancy.parasiteBirthEvents>>
+				<<set $sexStats.anus.pregnancy.parasiteBirthEvents to clone($sexStats.anus.pregnancy.givenBirth)>>
+				<<set $sexStats.anus.pregnancy.parasiteFeltMovement to clone($sexStats.anus.pregnancy.feltMovement)>>
+				<<set $sexStats.anus.pregnancy.givenBirth to 0>>
+			<</if>>
+			<<pregnancyVar>> <!--In case it's not been ran before -->
+			<<if $sexStats.anus.pregnancy.seenDoctor>><<set $pregnancyStats.parasiteDoctorEvents to clone($sexStats.anus.pregnancy.seenDoctor)>><</if>>
+			<<if $sexStats.anus.pregnancy.book>><<set $pregnancyStats.parasiteBook to clone($sexStats.anus.pregnancy.book)>><</if>>
+			<<if $sexStats.anus.pregnancy.typesSeen>><<set $pregnancyStats.parasiteTypesSeen to clone($sexStats.anus.pregnancy.typesSeen)>><</if>>
+			<<if $sexStats.anus.pregnancy.variantsSeen>><<set $pregnancyStats.parasiteVariantsSeen to clone($sexStats.anus.pregnancy.variantsSeen)>><</if>>
 
-		<<if $sexStats.anus is undefined or $sexStats.anus is null>>
-			<<set $sexStats.anus to {}>>
+			/*Vagina Parity Variables*/
+			<<set $sexStats.anus.pregnancy.awareOf to null>>
+			<<set $sexStats.anus.pregnancy.timer to null>>
+			<<set $sexStats.anus.pregnancy.timerEnd to null>>
+			<<set $sexStats.anus.pregnancy.timerEnd to null>>
+			<<set $sexStats.anus.pregnancy.waterBreaking to false>>
+			<<set $sexStats.anus.pregnancy.potentialFathers to []>>
+			<<set $sexStats.anus.pregnancy.totalBirthEvents to 0>>
+
+			<<set $sexStats.anus.sperm to []>>
+
+			<<run delete $sexStats.anus.pregnancy.maxCount>>
+			<<run delete $sexStats.anus.pregnancy.count>>
+			<<run delete $sexStats.anus.pregnancy.lowestDaysLeft>>
+			<<run delete $sexStats.anus.pregnancy.lowestTimeLeft>>
+			<<run delete $sexStats.anus.pregnancy.feltMovement>>
+			<<run delete $sexStats.anus.pregnancy.fertile>>
+			<<run delete $sexStats.anus.pregnancy.fertilised>>
+			<<run delete $sexStats.anus.pregnancy.namesChildren>>
+			<<run delete $sexStats.anus.pregnancy.seenDoctor>>
+			<<run delete $sexStats.anus.pregnancy.book>>
+			<<run delete $sexStats.anus.pregnancy.typesSeen>>
+			<<run delete $sexStats.anus.pregnancy.variantsSeen>>
+			<<run delete $sexStats.anus.pregnancy.autoRepairDone>>
 		<</if>>
-		<<if $sexStats.anus.pregnancy is undefined or $sexStats.anus.pregnancy is null>>
-			<<set $sexStats.anus.pregnancy to {}>>
-		<</if>>
-		<<if $sexStats.anus.pregnancy.fetus is undefined>><<set $sexStats.anus.pregnancy.fetus to []>><</if>>
 		<<if $sexStats.anus.pregnancy.potentialFathers is undefined>><<set $sexStats.anus.pregnancy.potentialFathers to []>><</if>>
 		<<if $sexStats.anus.pregnancy.parasiteBirthEvents is undefined>><<set $sexStats.anus.pregnancy.parasiteBirthEvents to 0>><</if>>
 		<<if $sexStats.anus.pregnancy.parasiteFeltMovement is undefined>><<set $sexStats.anus.pregnancy.parasiteFeltMovement to false>><</if>>
 		<<if $sexStats.anus.pregnancy.timeEnd is undefined>><<set $sexStats.anus.pregnancy.timeEnd to null>><</if>>
 
 		/* Pills structures used by physicalAdjustments */
-		<<if $sexStats.pills is undefined or $sexStats.pills is null>>
-			<<set $sexStats.pills to {}>>
-		<</if>>
-		<<if $sexStats.pills.mostTaken is undefined or $sexStats.pills.mostTaken is null>>
-			<<set $sexStats.pills.mostTaken to {}>>
-		<</if>>
-		<<if $sexStats.pills["pills"] is undefined or $sexStats.pills["pills"] is null>>
-			<<set $sexStats.pills["pills"] to {}>>
-		<</if>>
+		<<if $sexStats.pills is undefined or $sexStats.pills is null>><<set $sexStats.pills to {}>><</if>>
+		<<if $sexStats.pills.mostTaken is undefined or $sexStats.pills.mostTaken is null>><<set $sexStats.pills.mostTaken to {}>><</if>>
+		<<if $sexStats.pills["pills"] is undefined or $sexStats.pills["pills"] is null>><<set $sexStats.pills["pills"] to {}>><</if>>
 
 		<<if $sexStats.pills.mostTaken["breast"] is undefined>><<set $sexStats.pills.mostTaken["breast"] to "">><</if>>
 		<<if $sexStats.pills.mostTaken["penis"] is undefined>><<set $sexStats.pills.mostTaken["penis"] to "">><</if>>
