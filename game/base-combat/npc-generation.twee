@@ -114,6 +114,15 @@
 	<</if>>
 
 	<<set $NPCList[_n].index to _n>>
+	/* Retire any stale event buffer entry for this slot before pushing a fresh one. This is the defensive counterpart to the beast-context
+	   cleanup in checkEventNPC. It guarantees no duplicates regardless of the code-path that leads here. */
+	<<if $event isnot undefined and $event.buffer isnot undefined>>
+		<<for _evtPushI to $event.buffer.length - 1; _evtPushI gte 0; _evtPushI-->>
+			<<if $event.buffer[_evtPushI] and $event.buffer[_evtPushI].slot is _n>>
+				<<run $event.buffer.splice(_evtPushI, 1)>>
+			<</if>>
+		<</for>>
+	<</if>>
 	<<run EventSystem.push($passage, _n, $timeStamp)>>
 <</widget>>
 

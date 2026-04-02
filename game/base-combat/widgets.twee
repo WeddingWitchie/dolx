@@ -542,6 +542,17 @@
 		<<set $combatTrain.length-->>
 		<<set $combatTrain.active += 1>>
 		<<loadNPC 0 `"beast_" + $combatTrain.active`>>
+		/* Sync event buffer: retire old entry for slot 0, push fresh one for the
+		   beast we just loaded.  Without this, validate() sees the old NPC's entry
+		   but slot 0 now holds a different beast → mismatch → false error. */
+		<<if $event isnot undefined and $event.buffer isnot undefined>>
+			<<for _evtTrainI to $event.buffer.length - 1; _evtTrainI gte 0; _evtTrainI-->>
+				<<if $event.buffer[_evtTrainI] and $event.buffer[_evtTrainI].slot is 0>>
+					<<run $event.buffer.splice(_evtTrainI, 1)>>
+				<</if>>
+			<</for>>
+		<</if>>
+		<<run EventSystem.push($passage, 0, $timeStamp)>>
 		<<if $NPCList[0].monster is "monster">>
 			<<set $monster to 1>>
 		<<else>>
@@ -561,6 +572,15 @@
 	<<else>>
 		<<for _e_n to 0; _e_n lt $combatTrain.total_length + 1; _e_n++>>
 			<<loadNPC _e_n `"beast_" + _e_n`>>
+			/* Sync event buffer for each reloaded beast slot */
+			<<if $event isnot undefined and $event.buffer isnot undefined>>
+				<<for _evtReloadI to $event.buffer.length - 1; _evtReloadI gte 0; _evtReloadI-->>
+					<<if $event.buffer[_evtReloadI] and $event.buffer[_evtReloadI].slot is _e_n>>
+						<<run $event.buffer.splice(_evtReloadI, 1)>>
+					<</if>>
+				<</for>>
+			<</if>>
+			<<run EventSystem.push($passage, _e_n, $timeStamp)>>
 			<<if $beastGroupFight is 0 and !$ejaculatingMid>>
 				<<clearNPC `"beast_" + _e_n`>>
 			<</if>>
@@ -602,6 +622,16 @@
 		<<clearnpc>>
 	<</if>>
 	<<loadNPC 0 beast_0>>
+	/* Sync event buffer: after clearnpc + loadNPC the buffer is stale.
+	   Clear any leftover entries for slot 0, then register the loaded beast. */
+	<<if $event isnot undefined and $event.buffer isnot undefined>>
+		<<for _evtGenI to $event.buffer.length - 1; _evtGenI gte 0; _evtGenI-->>
+			<<if $event.buffer[_evtGenI] and $event.buffer[_evtGenI].slot is 0>>
+				<<run $event.buffer.splice(_evtGenI, 1)>>
+			<</if>>
+		<</for>>
+	<</if>>
+	<<run EventSystem.push($passage, 0, $timeStamp)>>
 <</widget>>
 
 /* Cannot remove as it is used in combat logic */
@@ -625,7 +655,9 @@
 		<<set $_position to _args[1]>>
 		<<unset _npc>>
 		<<for _j = 0; _j lt $enemynomax; _j++>>
-			<<if $_part is "hand" and ($NPCList[_j]["lefthand"] is $_position or $NPCList[_j]["righthand"] is $_position)>>
+			<<if !$NPCList[_j]>>
+				/* Skip empty slot */
+			<<elseif $_part is "hand" and ($NPCList[_j]["lefthand"] is $_position or $NPCList[_j]["righthand"] is $_position)>>
 				<<personselect _j>>
 				<<set _npc to $NPCList[_j]>>
 				<<break>>
@@ -649,7 +681,7 @@
 	<<if _args[0]>>
 		<<unset _npc>>
 		<<for _j = 0; _j lt $enemynomax; _j++>>
-			<<if $NPCList[_j].penis is _args[0] or $NPCList[_j].vagina is _args[0]>>
+			<<if $NPCList[_j] and ($NPCList[_j].penis is _args[0] or $NPCList[_j].vagina is _args[0])>>
 				<<personselect _j>>
 				<<set _npc to $NPCList[_j]>>
 				<<break>>
@@ -686,7 +718,7 @@
 		<<set _text_output to $_condomArticle>>
 		<<if $_condom is "player" and $player.condom>>
 			<<set $_condomDesc to clone($player.condom)>>
-		<<elseif $NPCList[$_condom].condom>>
+		<<elseif $NPCList[$_condom] and $NPCList[$_condom].condom>>
 			<<set $_condomDesc to clone($NPCList[$_condom].condom)>>
 		<<else>>
 			<<set _text_output to "ERROR: Condom $_condom invalid">>
@@ -1103,13 +1135,13 @@
 <</widget>>
 
 <<widget "healthMultiplier">>
-	<<if $NPCList[0].health isnot undefined and $NPCList[0].health gt $enemyhealth>>
+	<<if $NPCList[0] and $NPCList[0].health isnot undefined and $NPCList[0].health gt $enemyhealth>>
 		<<set $enemyhealth to $NPCList[0].health>>
 	<</if>>
 	<<set _buff to 0>>
 	<<if $enemytype is "beast">>
 		<<set $enemyhealth to Math.round($enemyhealth * ($beastHealthMult / 100))>>
-	<<elseif setup.NPCNameList.includes($NPCList[0].fullDescription)>>
+	<<elseif $NPCList[0] and setup.NPCNameList.includes($NPCList[0].fullDescription)>>
 		<<set $enemyhealth to Math.round($enemyhealth * ($nnpcHealthMult / 100))>>
 	<<else>>
 		<<set $enemyhealth to Math.round($enemyhealth * ($npcHealthMult / 100))>>

@@ -7,10 +7,26 @@
 	<<set _eventBeastContext to ($monster is 1 or $beastGroupFight is 1 or $combatTrain isnot undefined)>>
 	<<set _eventSlotTaken to (EventSystem.isSlotTaken(_args[0]) and !EventSystem.Disable)>>
 
-	<<if (_eventSlotTaken and !_eventBeastContext) or ($enemynomax gte 6 or $enemyno gte 6)>>
+	/* Beast-context slot reuse: the NPC data is about to be overwritten by generateNPC,
+	   so we only need to retire the OLD event-buffer entry for this slot.  This prevents
+	   duplicate entries (old + new) which cause EventSystem.validate() to fail.
+	   We do NOT clear the NPC itself, generateNPC will overwrite it properly. */
+	<<if _eventSlotTaken and _eventBeastContext>>
+		<<if $event isnot undefined and $event.buffer isnot undefined>>
+			<<for _evtCleanI to $event.buffer.length - 1; _evtCleanI gte 0; _evtCleanI-->>
+				<<if $event.buffer[_evtCleanI] and $event.buffer[_evtCleanI].slot is _args[0]>>
+					<<run $event.buffer.splice(_evtCleanI, 1)>>
+				<</if>>
+			<</for>>
+		<</if>>
+	<</if>>
+
+	/* Non-beast slot collision, or NPC count exceeds hard cap (gt 6, not gte 6;
+	   having exactly 6 beast NPCs is a valid state, e.g. pound encounters). */
+	<<if (_eventSlotTaken and !_eventBeastContext) or ($enemynomax gt 6 or $enemyno gt 6)>>
 		<<if $eventDebugHistory is undefined>><<set $eventDebugHistory to []>><</if>>
 		<<set _eventReason to []>>
-		<<if ($enemynomax gte 6 or $enemyno gte 6)>><<run _eventReason.push("too many NPCs before regeneration")>><</if>>
+		<<if ($enemynomax gt 6 or $enemyno gt 6)>><<run _eventReason.push("too many NPCs before regeneration")>><</if>>
 		<<if _eventSlotTaken and !_eventBeastContext>><<run _eventReason.push("slot collision before regeneration")>><</if>>
 		<<set _eventDebugEntry to {slot: _args[0], reason: _eventReason.join("; "), detectedIn: $passage, detectedAt: $timeStamp, lastgenerated: $lastgenerated}>>
 		<<if $event isnot undefined and $event.buffer isnot undefined>>
