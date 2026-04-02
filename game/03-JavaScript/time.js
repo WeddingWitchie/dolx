@@ -1584,6 +1584,12 @@ function dailyNPCEffects() {
 						Jordan: "Quinn",
 					};
 
+					if (V.avery_mansion.guest === "HBSC Gala") {
+						V.avery_mansion.guest = "Quinn";
+					} else {
+						V.avery_mansion.guest = rotation[V.avery_mansion.guest] || "Quinn";
+					}
+
 					V.avery_mansion.guest = rotation[V.avery_mansion.guest];
 				}
 

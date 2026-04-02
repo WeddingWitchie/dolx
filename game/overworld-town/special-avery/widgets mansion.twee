@@ -20,7 +20,7 @@
 	<<else>>
 		None<br>
 	<</if>>
-	Guest: <<print $avery_mansion.guest>><br>
+	Guest: <<= $avery_mansion.guest is "HBSC Gala" ? "Unannounced guest" : $avery_mansion.guest>><br>
 	/*Date: <<print $averydate>><br>*/
 	Avery passage: $avery_passage<br>
 	Avery mansion pool: <<print $avery_mansion.pool>><br>
@@ -153,6 +153,8 @@
 	<<set $avery_mansion.guest to "Bailey">>
 	<<set $avery_mansion.landry to 0>>
 	<<set $avery_mansion.vault_progress to 0>>
+	<<set $avery_mansion.hbsc_gala_seen to false>>
+	<<set $avery_mansion.hbsc_gala_cooldown to 0>>
 
 	<<set $avery_mansion.kitchen_stock to {
 		normal: ["salt", "vegetable_oil", "bottle_of_milk", "flour", "chicken_egg", "beef", "pork", "truffle", "cream", "tomato", "red_wine", "white_wine", "rice", "chilli_pepper"],
@@ -2759,6 +2761,18 @@
 		<br><br>
 		<<link [[Next|Mansion Party Briar]]>><</link>>
 		<br>
+	<<elseif $avery_mansion.guest is "HBSC Gala">>
+		Avery keeps walking past the atrium and out through the front doors. A polished black car waits at the bottom of the steps, its driver already holding the rear door open.
+		<br><br>
+		"The mansion can survive one evening without a receiving line," Avery says, settling into the back seat as you follow.
+		<<if $averyragerevealed gte 1>> "Try not to disgrace me in front of people who understand ledgers better than breeding stock."<<else>> "Best behaviour."<</if>>
+		<br><br>
+		The car pulls away. City lights slide over the glass. 
+		<br><br>
+		"The gala is held in a private salon above the branch," <<he>> says, adjusting <<his>> cuff without looking at you. "Smile when required. Speak when useful. And when you're uncertain, let me be the one who looks expensive."
+		<br><br>
+		<<link [[Next|Mansion Party HBSC Gala Arrival]]>><</link>>
+		<br>
 	<<elseif $avery_mansion.guest is "Harper">>
 		<<npc "Harper" 2>><<generate3>><<generateyv4>><<generateyv5>><<generateyv6>>
 		Avery leads you to the atrium. "The Doctor has low roots," Avery says. "But <<nnpc_hes "Harper">> risen far. Show proper respect."
@@ -2800,7 +2814,15 @@
 		<<set $avery_mansion.party_guests_seen to []>>
 	<</if>>
 
-	<<run const rotation = {
+	<<if $avery_mansion.guest isnot "HBSC Gala">>
+		<<set $avery_mansion.party_guests_seen.pushUnique($avery_mansion.guest)>>
+	<<else>>
+		/* Mark gala as attended at least once; set cooldown before it can trigger again */
+		<<set $avery_mansion.hbsc_gala_seen to true>><<set $avery_mansion.hbsc_gala_cooldown to 5>>
+	<</if>>
+
+	<<run const finishedGuest = V.avery_mansion.guest;
+	const rotation = {
 		Bailey: "Quinn",
 		Quinn: "Remy",
 		Remy: "Briar",
@@ -2808,9 +2830,18 @@
 		Harper: V.avery_mansion.jordan_intro ? "Jordan" : "Quinn",
 		Jordan: "Quinn",
 	};
-	V.avery_mansion.guest = rotation[V.avery_mansion.guest];>>
 
-	<<set $avery_mansion.party_guests_seen.pushUnique($avery_mansion.guest)>>
+	let nextGuest = finishedGuest === "HBSC Gala" ? "Quinn" : (rotation[finishedGuest] || "Quinn");
+
+	/* Gala cooldown tick */
+	if (V.avery_mansion.hbsc_gala_cooldown > 0) {V.avery_mansion.hbsc_gala_cooldown--;}
+
+	/* HBSC Gala surprise injection */
+	/* Replaces the next scheduled guest (except Bailey) with a sudden gala invitation. 1-in-3 chance each cycle, only when the cooldown has expired. */
+	if (nextGuest !== "Bailey"
+		&& V.hbsc && V.hbsc.account && V.hbsc.account.level >= 1 && V.hbsc.averyAccountUnlockNoticeSeen && V.avery_mansion.hbsc_gala_cooldown <= 0 && finishedGuest !== "HBSC Gala"
+		&& random(1, 3) === 1) {nextGuest = "HBSC Gala";}
+	V.avery_mansion.guest = nextGuest;>>
 <</widget>>
 
 <<widget "avery_mansion_party_speech">>
@@ -3685,7 +3716,18 @@
 	<</for>>
 	<<set $NPCList.length to 6>>
 
-	<<if $worn.upper.type.includes("formal") and $worn.lower.type.includes("formal")>>
+	<<if $avery_mansion.guest is "HBSC Gala">>
+		<<if $worn.upper.type.includes("formal") and $worn.lower.type.includes("formal")>>
+			"Change of plans. An invitation arrived. The sort one doesn't refuse."
+			Avery pulls a card from <<his>> breast pocket and holds it for you to read the gold lettering: <span class="gold">HBSC Charity Gala.</span> "We mustn't keep them waiting."
+			<br><br>
+			<<avery_mansion_party_start_links>>
+		<<else>>
+			Avery examines your outfit, impatience flickering across <<his>> face. "No. This won't do. I'll dress you myself."
+			<br><br>
+			<<link [[Next|Mansion Party Dress]]>><</link>>
+		<</if>>
+	<<elseif $worn.upper.type.includes("formal") and $worn.lower.type.includes("formal")>>
 		Avery examines your outfit, and smiles. "Good," <<he>> says, linking <<his>> arm with yours. "Come. We've guests to greet."
 		<br><br>
 
@@ -3749,6 +3791,8 @@
 
 	<<if $possessed>>
 		<<set _avery_interrupt to false>>
+	<<elseif $_avery_present is true and $hbsc.account.level gte 1 and $hbsc.averyAccountUnlockPending>>
+		<<set _avery_interrupt to "bank_account">>
 	<<elseif $_avery_present is true and $avery_valentines and $avery_valentines.invite and !$avery_valentines.ready and Time.monthName is "February" and Time.monthDay is 14 and Time.hour gte 21>>
 		<<set _avery_interrupt to "valentines_ready">>
 	<<elseif $_avery_present is true and $avery_injury>>
@@ -3782,7 +3826,7 @@
 			<<set _avery_interrupt to "fox">>
 		<</if>>
 	<</if>>
-	<<if _args[0] and ["injury","work","party_missed","party_prepare","party","date_approach","date_ready","work","skyscraper_approach","skyscraper_ready","valentines_approach", "valentines_ready", "valentines_missed"].includes(_avery_interrupt)>>
+	<<if _args[0] and ["injury","work","party_missed","party_prepare","party","date_approach","date_ready","work","skyscraper_approach","skyscraper_ready","valentines_approach", "valentines_ready", "valentines_missed", "bank_account"].includes(_avery_interrupt)>>
 		<<avery_mansion_seen>>
 	<</if>>
 <</widget>>
@@ -4273,6 +4317,18 @@
 						"Jordan brought the usual entourage, and they were the usual headache.
 					<<case "revealed chase">>
 						I had to deal with those religious crazies alone.
+				<</switch>>
+			<<case "HBSC Gala">>
+				<<set $avery_mansion.hbsc_gala_seen to true>>
+				<<switch $_dialog_type>>
+					<<case "normal">>
+						There was a gala at the bank. A sudden invitation. I went without you, and spent the evening explaining your absence to people who notice empty seats.
+					<<case "chase">>
+						The bank held a gala. A sudden invitation I couldn't refuse. I had to attend alone, like some discarded bachelor. Do not make me do that again.
+					<<case "revealed">>
+						"There was a charity gala at the HBSC branch. I had to go alone, and cover for the empty chair beside me. People noticed.
+					<<case "revealed chase">>
+						The bank gala came and went without you. I covered for your absence in front of donors and trustees. Be grateful I'm generous with excuses.
 				<</switch>>
 		<</switch>>
 		/* Announcing next guest (if not bailey) */

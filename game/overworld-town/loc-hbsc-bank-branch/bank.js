@@ -209,6 +209,16 @@ setup.hbsc.ensureState = function () {
 	if (typeof V.hbsc.selectedFixedTermId !== "string") V.hbsc.selectedFixedTermId = "";
 	if (!Number.isFinite(V.hbsc.lastSavingsInterest)) V.hbsc.lastSavingsInterest = 0;
 
+	/* Auto-queue Avery's bank-account notice for any player who already has
+	   an HBSC account but hasn't seen the event yet.  This covers saves that
+	   were created before the notice was added — the flag is set on ANY bank
+	   interaction, not only on account opening. */
+	if (V.hbsc.account.level >= 1
+		&& V.hbsc.averyAccountUnlockNoticeSeen !== true
+		&& V.hbsc.averyAccountUnlockPending !== true) {
+		V.hbsc.averyAccountUnlockPending = true;
+	}
+
 	for (const term of V.hbsc.fixedTerms) {
 		if (term == null || typeof term !== "object") continue;
 
@@ -625,4 +635,39 @@ setup.hbsc.closeFixedTerm = function (id, withdrawalKind = "full", target = "dep
 	}
 
 	return { ok: true, payout, term, target, closed: willClose };
+};
+
+/**
+ * Receive money from an outside source (charity payout, NPC transfer, etc.)
+ * directly into the player's HBSC savings.  Respects the current tier's
+ * deposit limit — any overflow is added to carried cash instead.
+ *
+ * @param {number} amount  Internal-currency amount to transfer.
+ * @returns {{ok:boolean, toDeposit:number, toCash:number, overflow:boolean}}
+ */
+setup.hbsc.receiveExternalDeposit = function (amount) {
+	const V = State.variables;
+	setup.hbsc.ensureState();
+
+	const requested = setup.hbsc.roundMoney(amount);
+	if (!(requested > 0)) return { ok: false, toDeposit: 0, toCash: 0, overflow: false };
+
+	/* No account — give as carried cash */
+	if (V.hbsc.account.level < 1) {
+		V.money += requested;
+		return { ok: true, toDeposit: 0, toCash: requested, overflow: true };
+	}
+
+	const room = setup.hbsc.getDepositRoom(V.hbsc.account.level, V.hbsc.account.deposit);
+	const toDeposit = Math.min(requested, Number.isFinite(room) ? room : requested);
+	const toCash = requested - toDeposit;
+
+	if (toDeposit > 0) {
+		V.hbsc.account.deposit = setup.hbsc.roundMoney(V.hbsc.account.deposit + toDeposit);
+	}
+	if (toCash > 0) {
+		V.money += toCash;
+	}
+
+	return { ok: true, toDeposit, toCash, overflow: toCash > 0 };
 };

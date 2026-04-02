@@ -365,13 +365,26 @@ You place the <<recipe_name $gift.name>> in front of Avery.
 :: Avery Gifts End
 <<pass 10>><<effects>>
 
+/* Avery bank-transfer reward
+   Fires when Avery already noticed the player's bank account AND the player served exactly what Avery asked for this meal. */
+<<if $avery_mansion and $hbsc and $hbsc.averyAccountUnlockNoticeSeen is true and $hbsc.account.level >= 1 and $avery_mansion.rage.dinner_wrong isnot true and $avery_mansion?.food.name is $gift.name>>
+<br>
+Partway through the meal, Avery sets <<his>> fork down and picks up <<his>> phone. <<He>> scrolls through something without looking up, taps twice, and puts it away again as though the gesture hardly mattered.
+"I've transferred <<printmoney 100000>> to your HBSC savings. Consider it a practical compliment. You cooked what I asked for, so I rewarded the behaviour I want to see."
+<br><br>
+/* Avery's food reward — deposited to HBSC savings, respects tier deposit cap */
+<<set _averyXferResult to setup.hbsc.receiveExternalDeposit(100000)>>
+	<<if _averyXferResult.overflow>>
+		<span class="red">Your HBSC savings didn't have enough room for the full amount. The remainder was added to the cash you're carrying.</span>
+		<br><br>
+	<</if>>
+<</if>>
 <<if $avery_mansion>>
 	Avery finishes <<his>> meal, and stands.
 	<<avery_mansion_food_select>>
 <<else>>
 	Avery finishes <<his>> meal, and stands. <<He>> leads you outside, and into <<his>> waiting car.
 	<br><br>
-
 	<<avery_date_options>>
 <</if>>
 
