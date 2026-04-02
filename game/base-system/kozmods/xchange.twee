@@ -9,67 +9,6 @@
 <<set $xchange.pill.hermBody     to $xchange.pill.hermBody     || {}>>
 <<set $xchange.pill.clonedBody   to $xchange.pill.clonedBody   || {}>>
 
-/* X-Change: repair notice helper (warn once, queue via window.xChangeQueueNotice) */
-<<run (function(){if (setup.xChangeRepairNoticeOnce) return;setup.xChangeRepairNoticeOnce = function(id, html){
-		try {var V = State.variables;V.xchange = V.xchange || {};V.xchange._repairNotices = V.xchange._repairNotices || {};
-			if (V.xchange._repairNotices[id]) return;V.xchange._repairNotices[id] = true;
-			if (window.xChangeQueueNotice) window.xChangeQueueNotice(id, html);
-			console.warn("[X-Change: Save repair notice]", id);
-		} catch(e) {
-			try { console.warn("[X-Change: Save repair notice] failed", id, e); } catch(_) {}}};})();>>
-
-<<widget "xchange-sanitize-state">>
-	<<run (function () {var V = State.variables; var fixed = 0;
-		function isObj(x) { return x && typeof x === "object"; }
-		function walk(obj, seen) {
-			if (!isObj(obj)) return;
-			if (seen && seen.has(obj)) return;
-			if (seen) seen.add(obj);
-			var keys = Object.keys(obj);
-			for (var i = 0; i < keys.length; i++) {
-				var k = keys[i];
-				var v = obj[k];
-				if (typeof v === "number" && !isFinite(v)) {
-					obj[k] = 0;
-					fixed++;
-					continue;
-				}
-				if (isObj(v)) walk(v, seen);
-			}
-		}
-		var seen = (typeof WeakSet !== "undefined") ? new WeakSet() : null;
-		walk(V, seen);
-		function clamp(n, min, max) {
-			n = Number(n);
-			if (!isFinite(n)) n = min;
-			if (n < min) n = min;
-			if (n > max) n = max;
-			return n;
-		}
-		if (Object.prototype.hasOwnProperty.call(V, "breastsensitivity")) {
-			V.breastsensitivity = clamp(V.breastsensitivity, 0.25, 999);
-		}
-		if (Object.prototype.hasOwnProperty.call(V, "bottomsensitivity")) {
-			V.bottomsensitivity = clamp(V.bottomsensitivity, 0.25, 999);
-		}
-		if (Object.prototype.hasOwnProperty.call(V, "genitalsensitivity")) {
-			V.genitalsensitivity = clamp(V.genitalsensitivity, 0.25, 999);
-		}
-		State.temporary._xchangeNanFixed = fixed;})();>>
-<</widget>>
-
-<<if $xchange._didSpikepoolKeyFix is not true>>
-	<<set $xchange._didSpikepoolKeyFix to true>>
-	/* Migrate dumb-bitch setting key variants -> canonical $xchange.spikepool.dumbbitch */
-	<<if $xchange.spikepool.dumbbitch is undefined>>
-		<<if $xchange.spikepool["dumb-bitch"] is not undefined>>
-			<<set $xchange.spikepool.dumbbitch to $xchange.spikepool["dumb-bitch"]>>
-		<<elseif $xchange.spikepool.dumbBitch is not undefined>>
-			<<set $xchange.spikepool.dumbbitch to $xchange.spikepool.dumbBitch>>
-		<</if>>
-	<</if>>
-<</if>>
-
 	<<widget "sissify">>
 		<<wash>>
 		<<set $player.gender_body to "f">>
@@ -374,17 +313,6 @@
 				<</if>>
 			<</if>>
 		<<else>>
-			<<if !Number.isInteger($penissizemin) or !Number.isInteger($penissizemax) or $penissizemax lt $penissizemin>>
-				<<run console.error("[xchange-blue/xchange restore] Invalid penis size bounds", {
-					penissizemin: V.penissizemin,
-					penissizemax: V.penissizemax
-				})>>
-			<<run setup.xChangeRepairNoticeOnce("repair_xchange_penis_size_bounds", "<b>Save repair notice</b><br>Your save/runtime had invalid <b>penis size bounds</b> while generating a transformed body. X-Change used a safe fallback size to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
-			<<set $player.penissize to -2>>
-			<<else>>
-				<<set $player.penissize to random($penissizemin,$penissizemax)>>
-			<</if>>
-
 			<<set $player.breastsize to 0>>
 			<<set $player.bottomsize to 0>>
 			<<if !Number.isInteger($penissizemin) or !Number.isInteger($penissizemax) or $penissizemax lt $penissizemin>>
@@ -559,7 +487,7 @@
 			<<set _body to $xchange.pill.originalBody>>
 			<<if $player.gender is "m">>
 				<<set $player.penissize to _body.penissize>>
-				<<set $ballssize to _body.penissize>>
+				<<set $ballssize to _body.ballssize>>
 			<<elseif $player.gender is "f">>
 				<<set $player.breastsize to _body.breastsize>>
 				<<set $player.bottomsize to _body.bottomsize>>
@@ -870,7 +798,9 @@
 			<<set $xchange.pill.innocenceEffect to false>>
 			<<if $awareness gte 0 and $innocencestate is 1>>
 				<<set $innocencestate to 0>>
+				<<set $awareness to (typeof $innocenceawareness === "number" ? $innocenceawareness : 0)>>
 				<<set $trauma to $innocencetrauma>>
+				<<set $innocenceawareness to 0>>
 				<<set $innocencemessage to "end">>
 			<</if>>
 		<</if>>
@@ -1179,6 +1109,7 @@
 		<<set $xchange.pill.innocenceEffect to true>>
 			<<if $innocencestate isnot 1>>
 				<<set $innocencetrauma to $trauma>>
+				<<set $innocenceawareness to $awareness>>
 				<<set $trauma to 0>>
 				<<set $innocencemessage to "start">>
 			<</if>>
@@ -1322,10 +1253,11 @@
 		<<case "dumb-bitch">>
 			<<set $xchange.pill.dumbBitchEffect to false>>		
 		<<case "innocence">>
-			<<set $awareness to 0>>
+			<<set $awareness to (typeof $innocenceawareness === "number" ? $innocenceawareness : 0)>>
 			<<set $innocencestate to 0>>
 			<<set $trauma to $innocencetrauma>>
 			<<set $innocencetrauma to 0>>
+			<<set $innocenceawareness to 0>>
 			<<set $innocencemessage to "end">>
 			<<set $xchange.pill.innocenceEffect to false>>
 		<<case "swell">>
@@ -1530,10 +1462,11 @@
 
 		/* Forced-end cleanup before clearing pill effects */
 		<<if $xchange.pill.innocenceEffect and $innocencestate is 1>>
-			<<set $awareness to 0>>
+			<<set $awareness to (typeof $innocenceawareness === "number" ? $innocenceawareness : 0)>>
 			<<set $innocencestate to 0>>
 			<<set $trauma to $innocencetrauma>>
 			<<set $innocencetrauma to 0>>
+			<<set $innocenceawareness to 0>>
 			<<set $innocencemessage to "end">>
 		<</if>>
 
