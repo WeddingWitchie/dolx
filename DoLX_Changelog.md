@@ -11,5 +11,4 @@
 
 ## Changelog
 ## Rebalancing and Fixes:
-* Fixed an issue where **new saves** could fail during **initialization**.
-* Rebalanced **bank gala robbery difficulty**, making robbery attempts **harder** during the event.
+* Fixed an issue where **bank graphic failed to load**
