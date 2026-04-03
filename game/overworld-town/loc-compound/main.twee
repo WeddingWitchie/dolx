@@ -9,24 +9,31 @@ You climb the fence and haul yourself over the top, landing on Elk Street proper
 
 :: Elk Compound Leave
 <<set $outside to 1>><<set $location to "town">><<effects>>
+<<speechresolve>>
 You walk to the gate and speak with the guards.
 <br><br>
-<<if $speech_attitude is "meek">>
-	"I delivered the package," you say. "M-may I please be allowed to leave?"
-<<elseif $speech_attitude is "bratty">>
-	"All done," you say. "Can you let me go now?"
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+	"I delivered the package," you say. "C-could I go now, please?"
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"I've made the delivery," you say. "Would you mind letting me out?"
+<<elseif _speechAttitudeResolved is "docile">>
+	"I've dropped it off," you say quietly. "Can I leave now, please?"
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+	"Job done," you say. "Open the gate."
+<<elseif _speechAttitudeResolved is "confident">>
+	"Delivery's sorted," you say. "Let me through."
 <<else>>
 	"I delivered the package," you say. "Please allow me to leave."
 <</if>>
 <br><br>
-The guard looks you over. "You're cleared." You wait for the gate to be opened and exit back out onto Elk Street.
+The guard gives you another once-over, then jerks <<his>> head towards the booth. "You're cleared." 
 <br><br>
-
+You wait for the gate to grind open, then head back out onto Elk Street.
+<br><br>
 <<link [[Next|Elk Street]]>><</link>>
 <br>
 
 :: Elk Compound
-
 <<set $outside to 1>><<set $location to "compound">><<effects>>
 You are in the compound on Elk Street. Three red brick buildings stand surrounded by a chain link fence. The gate is guarded by security personnel.
 <<if !$compound.allowed>>
@@ -63,10 +70,8 @@ You are in the compound on Elk Street. Three red brick buildings stand surrounde
 	<</if>>
 	The compound suddenly falls silent, and you look around. You take a deep breath, but it feels like you're breathing through cotton. <<rainWraith true>>
 	<br><br>
-
 	Your ears begin to ring, and a shape forms in the <<print Weather.precipitation>>. A beautiful pale figure floats just above the ground, wearing translucent white robes that flow in the wind. Its eyes flash a bright <<wraithEyes>>.
 	<br><br>
-
 	<<if $wraith.state is "haunt" or $wraith.offspring is "dead">>
 		<<if $wraith.state is "haunt">>
 			It claws angrily at its neck, glaring at you. "<span class="wraith">Thief among thieves. You're right at home.</span>"
@@ -75,27 +80,21 @@ You are in the compound on Elk Street. Three red brick buildings stand surrounde
 		<</if>>
 		It's silent for a few seconds.
 		<br><br>
-
 		<<if $wraith.offspring is "sold">>
 			"<span class="wraith">Or did you hear your children calling to you?</span>"
 			<br><br>
 		<</if>>
-
 		Abruptly, it turns to look at something at the ground, or possibly through it. It looks agitated. You try to take a step back, and it twists its head to stare at you. "<span class="wraith">Enemy of my enemy. A tool.</span>" In an instant, it's standing in front of you. Shapes begin to spin in its eyes, and your body starts to relax in spite of yourself.
 		<br><br>
-
 		<<skinicon "wraith">><<link [[Give in|Elk Compound Wraith Give]]>><<endevent>><</link>>
 	<<else>>
 		It doesn't seem to notice you at first. It looks agitated. It stares at the ground, or possibly through it, before catching you in the corner of its eye and turning to you. "<span class="wraith"><<pcPetname "Wraith">>.</span>"
 		<br><br>
-
 		It looks you over, before floating toward you. "<span class="wraith">You are not with them. Are you against them?<<if $wraith.offspring is "sold">> Or did you hear our children crying out?<</if>></span>" It reaches you and holds out a hand, palm open. "<span class="wraith">Lend me yourself.</span>" Shapes begin to spin in its eyes, and your body starts to relax in spite of yourself.
 		<br><br>
-
 		<<skinicon "wraith">><<link [[Take its hand|Elk Compound Wraith Give]]>><<endevent>><</link>><<handholdingvirginitywarning>>
 	<</if>>
 	<br>
-
 	<<refuseicon>><<link [[Resist|Elk Compound Wraith Resist]]>><</link>>
 <<else>>
 	<<if $compound.alarm gte random(1, 3) and $eventskip isnot 1>>
@@ -119,7 +118,6 @@ You are in the compound on Elk Street. Three red brick buildings stand surrounde
 		<<else>>
 			A hand rests on your shoulder. <<generateSecurity 1>><<person1>>"Alright <<girl>>, playtime's over." <<He>> waves <<his>> baton in front of your face. "I found <<phim>> outside," <<he>> says into <<his>> radio. "Alright, I'll keep <<phim>> here until then."
 			<br><br>
-
 			<<if $compound.bluff is true>>
 				<span class="pink">Bluffing isn't going to work again.</span>
 				<br>
@@ -161,7 +159,6 @@ You are in the compound on Elk Street. Three red brick buildings stand surrounde
 <<set $eventskip to 0>>
 
 :: Elk Compound Pipes
-
 <<set $outside to 0>><<set $location to "compound">><<effects>>
 The door to the building opens easily, and you enter. The inside is dominated by a pool of pink liquid.
 <<if !$compound.theft.pipes>>
@@ -172,21 +169,17 @@ The door to the building opens easily, and you enter. The inside is dominated by
 <<else>>
 	<br><br>
 <</if>>
-
 <<if isPubfameTaskAccepted("compound") and !$pubfame.compound.cameras.includes("the building with storage tanks")>>
 	<<techicon "vcam">><<link [[Put down a camera|Elk Compound Pipes Camera]]>><<set $compound.alarm++>><<set $pubfame.compound.cameras.pushUnique("the building with storage tanks")>><</link>><<gsecurity>>
 	<br>
 <</if>>
-
 <<getouticon>><<link [[Leave|Elk Compound]]>><</link>>
 <br>
 
 :: Elk Compound Smoke
-
 <<set $outside to 0>><<set $location to "compound">><<effects>>
 The door opens easily and you enter the building. The inside is full of a sweet-smelling smoke. You can only see a few feet in front of you. The smoke makes you feel light-headed.
 <br><br>
-
 <<if !$compound.theft.smoke>>
 	<<investigateicon>><<link [[Explore (0:10)|Elk Compound Explore]]>><<pass 10>><</link>>
 	<br>
@@ -200,7 +193,6 @@ The door opens easily and you enter the building. The inside is full of a sweet-
 <br>
 
 :: Elk Compound Central
-
 <<set $outside to 1>><<set $location to "compound">><<effects>><<set $lock to 300>>
 The door is locked tight.
 <br><br>
@@ -228,18 +220,15 @@ The door is locked tight.
 		<<ind>><<link [[Ring the doorbell|Elk Compound Central Ring]]>><</link>>
 		<br>
 	<</if>>
-
 <</if>>
 <<getouticon>><<link [[Leave|Elk Compound]]>><</link>>
 <br>
 
 :: Elk Compound Central Ring
 <<effects>>
-
 <<generate1>><<person1>>
 A green light flashes above. You feel a rumble, and the door opens. A <<person>> regards you with a cool stare, waiting.
 <br><br>
-
 <<if $phials_held gte 2>>
 	<<link [[Sell the phials of aphrodisiac|Elk Compound Sell]]>><</link>>
 	<br>
@@ -252,7 +241,6 @@ A green light flashes above. You feel a rumble, and the door opens. A <<person>>
 
 :: Elk Compound Sell
 <<effects>><<wearProp "phial pink mist">>
-
 You offer the
 <<if $phials_held gte 2>>
 	phials.
@@ -277,27 +265,28 @@ The <<person>> examines the fluid without a word, then pulls a wad of cash from 
 <<link [[Next|Elk Compound]]>><<endevent>><</link>>
 <br>
 
-
 :: Elk Compound Central Apologise
-<<effects>>
-
-<<if $speech_attitude is "meek" "shy" "docile" "capricious">>
+<<effects>><<speechresolve>>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 	"I-I'm lost," you say. "Sorry."
-<<elseif $speech_attitude is "bratty" "frickle" "confident">>
-	"Wrong number," you say. "Sorry."
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"Sorry," you say. "I seem to have taken a wrong turn."
+<<elseif _speechAttitudeResolved is "docile">>
+	"Sorry," you mutter. "I shouldn't be here."
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+	"Wrong door," you say. "My mistake."
+<<elseif _speechAttitudeResolved is "confident">>
+	"Not what I was looking for," you say. "Sorry about that."
 <<else>>
 	"I'm lost," you say. "Sorry."
 <</if>>
 <br><br>
-
-The <<person>> slams the door. An alarm blares a moment later.
+The <<person>> stares at you for a beat, then slams the door. An alarm blares a moment later.
 <br><br>
-
 <<link [[Next|Elk Compound]]>><<endevent>><</link>>
 <br>
 
 :: Elk Compound Bestiality
-
 <<if $molestationstart is 1>>
 	<<set $molestationstart to 0>>
 	<<controlloss>>
@@ -333,7 +322,6 @@ The <<person>> slams the door. An alarm blares a moment later.
 <</if>>
 
 :: Elk Compound Run
-
 <<set $outside to 1>><<set $location to "compound">><<effects>>
 <<if $athleticsSuccess>>
 	You <span class="green">successfully</span> climb the fence and haul yourself over the top, landing on Elk Street proper. You hear <<beasttype>>s bark behind you, alerting the guards, who arrive in time to see you escape.
@@ -348,7 +336,6 @@ The <<person>> slams the door. An alarm blares a moment later.
 <</if>>
 
 :: Elk Compound Bestiality Finish
-
 <<set $outside to 1>><<set $location to "compound">><<effects>>
 <<if $enemypleasure gte $enemypleasuremax>>
 	<<beastejaculation>>
@@ -397,7 +384,6 @@ The <<person>> slams the door. An alarm blares a moment later.
 <</if>>
 
 :: Elk Compound Bestiality 2
-
 <<effects>>
 <<effectsman>>
 <br>
@@ -413,7 +399,6 @@ The <<person3>><<person>> films you.
 <<stateman>>
 <br><br>
 <<actionsman>>
-
 <<if _combatend>>
 	<span id="next"><<link [[Next|Elk Compound Bestiality 2 Finish]]>><</link>></span><<nexttext>>
 <<else>>
@@ -421,7 +406,6 @@ The <<person3>><<person>> films you.
 <</if>>
 
 :: Elk Compound Bestiality 2 Finish
-
 <<set $outside to 1>><<set $location to "compound">><<effects>>
 <<if $enemypleasure gte $enemypleasuremax>>
 	<<beastejaculation>>
@@ -459,12 +443,18 @@ The <<person3>><<person>> films you.
 <</if>>
 
 :: Elk Compound Bluff
-
 <<set $outside to 1>><<set $location to "compound">><<effects>>
-<<if $speech_attitude is "meek">>
-	"I-I—" you stammer. "I kicked my ball over the fence. I just wanted it back." You look down in mock shame.
-<<elseif $speech_attitude is "bratty">>
-	You turn to face <<him>> and place your hands on your hips. "Excuse me?" you say. "I have every right to be here. You'll stop bothering me if you value your job."
+<<speechresolve>>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+	"I-I—" you stammer. "I kicked my ball over the fence. I only came to get it back." You keep your eyes down and do your best to look harmless.
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"Sorry," you say. "I only came in to fetch something I lost. I'll be out of your way in a moment."
+<<elseif _speechAttitudeResolved is "docile">>
+	"I just wanted to grab my ball and go," you say softly.
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+	You turn to face <<him>> and plant your hands on your hips. "Excuse me?" you say. "I've every right to be here. Stop hassling me unless you'd like a complaint."
+<<elseif _speechAttitudeResolved is "confident">>
+	You meet <<his>> stare without blinking. "I'm here on business. Ask your supervisor if you've got a problem with that."
 <<else>>
 	"I'm delivering something," you say. "Go ask your boss."
 <</if>>
@@ -473,12 +463,18 @@ The <<person3>><<person>> films you.
 <<skulduggeryuse>>
 <<if $skulduggerysuccess is 1>>
 	<<set $compound.bluff to true>>
-	<<if $speech_attitude is "meek">>
-		<<He>> sighs. "Stupid <<girl>>, you shouldn't enter places you don't understand. Go find your ball, but then leave straight away, alright?" <span class="green">You nod and skip away.</span>
-	<<elseif $speech_attitude is "bratty">>
-		You've unnerved <<him>>. "Wait a moment," <<he>> says. "Just let me confirm that with my supervisor." <<He>> turns away to talk into <<his>> radio. That's all you need. <span class="green">You slip away while <<his>> back is turned.</span>
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		<<He>> sighs. "Stupid <<girl>>, you shouldn't wander into places you don't understand. Go fetch your ball, then leave straight away, alright?" <span class="green">You bob your head and hurry off before <<he>> can change <<his>> mind.</span>
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"Then get it and be quick," <<he>> says with a frown. <span class="green">You offer a quick thanks and move off at once.</span>
+	<<elseif _speechAttitudeResolved is "docile">>
+		"Then pick it up and go," <<he>> says. <span class="green">You murmur an apology and slip away.</span>
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		You've rattled <<him>>. "Wait there," <<he>> says. "I need to confirm that." <<He>> turns away to speak into <<his>> radio. <span class="green">You take the opening and drift off while <<his>> back is turned.</span>
+	<<elseif _speechAttitudeResolved is "confident">>
+		<<He>> hesitates. "Right. Fine. Just don't wander where you shouldn't." <span class="green">You give a curt nod and carry on as though you belong there.</span>
 	<<else>>
-		"You really shouldn't be skulking around then," <<he>> says. "Just do your job and leave. It's not safe for you around here." <span class="green">You nod and walk away.</span>
+		"You really shouldn't be skulking around then," <<he>> says. "Just do your job and leave. It's not safe for you around here." <span class="green">You nod and move off.</span>
 	<</if>>
 	<br><br>
 	<<endevent>>
@@ -492,7 +488,6 @@ The <<person3>><<person>> films you.
 <</if>>
 
 :: Elk Compound Fight
-
 <<if $fightstart is 1>>
 	<<set $fightstart to 0>>
 	<<neutral 1>>
@@ -503,14 +498,12 @@ The <<person3>><<person>> films you.
 	You smack <<his>> hand away from you. "If that's how you want it," <<he>> says.
 	<br><br>
 <</if>>
-
 <<effects>>
 <<effectsman>>
 <<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
-
 <<if _combatend or ($pain gte 100 and $willpowerpain is 0)>>
 	<span id="next"><<link [[Next|Elk Compound Fight Finish]]>><</link>></span><<nexttext>>
 <<else>>
@@ -518,7 +511,6 @@ The <<person3>><<person>> films you.
 <</if>>
 
 :: Elk Compound Underground
-
 <<set $outside to 1>><<set $location to "compound">><<effects>>
 "We won't need to wait long," the <<person1>><<person>> says. As if in answer, the
 <<if $phase is 1>>
@@ -534,12 +526,10 @@ A <<generate3>><<npcClothesType $NPCList[2] "compoundLab">><<person3>><<person>>
 <br><br>
 As soon as the <<person>> touches your arm a jolt surges through you. You lose consciousness.
 <br><br>
-
 <<link [[Next|Elk Compound Experiment]]>><<upperruined>><<lowerruined>><<underruined>><<underupperruined>><<handheldruined>><<if $combat is 1>><<endcombat>><<else>><<endevent>><</if>><</link>>
 <br>
 
 :: Elk Compound Fight Finish
-
 <<set $outside to 0>><<set $location to "compound">><<effects>>
 <<if $enemypleasure gte $enemypleasuremax>>
 	<<ejaculation "short">>
@@ -565,7 +555,6 @@ As soon as the <<person>> touches your arm a jolt surges through you. You lose c
 <</if>>
 
 :: Elk Compound Experiment
-
 <<pass 1 hour>><<set $outside to 0>><<set $location to "compound">><<effects>>
 <<resetCompound>>
 You wake up, naked <<if playerChastity()>>save for your $worn.genitals.name<</if>> and strapped to a metal board. Pipes and wires protrude from concrete walls. <<generateRole 0 0 "scientist">><<npcClothesType $NPCList[0] "compoundLab">><<person1>>A <<person>> works at a console in the corner. <<He>> glances at you. "Aha," <<he>> says. "You're awake." <<He>> pushes <<himself>> towards you on <<his>> chair and produces a bundle of wires from <<his>> lab coat.
@@ -607,9 +596,7 @@ The wires have pads on one end. <<He>> starts sticking them to your body. <<He>>
 <<compoundoptions>>
 
 :: Elk Compound Crystal
-
 <<set $outside to 0>><<set $location to "compound">><<effects>>
-
 <<if dangerEvent() and $eventskip is 0>>
 	<<if $rng gte 51 and $settings.tentaclesEnabled and $hallucinations gte 2>>
 		As you cross the walkway several tentacles rise from the fluid beneath you.
@@ -664,7 +651,6 @@ The wires have pads on one end. <<He>> starts sticking them to your body. <<He>>
 <</if>>
 
 :: Elk Compound Tentacles
-
 <<if $molestationstart is 1>>
 	<<set $molestationstart to 0>>
 	<<set $combat to 1>>
@@ -675,7 +661,6 @@ The wires have pads on one end. <<He>> starts sticking them to your body. <<He>>
 	<<set $tentacles[0].shaft to "waist">>
 <</if>>
 <<statetentacles>>
-
 <<effects>>
 <<effectstentacles>>
 <<tentacles>>
@@ -707,7 +692,6 @@ The creature loses interest in you, and disappears into the pink liquid. <<tearf
 <</if>>
 
 :: Elk Compound Explore
-
 <<set $outside to 0>><<set $location to "compound">><<effects>>
 You walk deeper into the building. The entrance is swallowed behind you. You make your way through a maze of pipes and machinery of unknown use. The smoke starts to make you feel warm.
 <<drugs 60>>
@@ -721,9 +705,7 @@ You come to a plinth with a purple crystal sat atop it. It looks valuable.
 <br>
 
 :: Elk Compound Purple
-
 <<set $outside to 0>><<set $location to "compound">><<effects>>
-
 You take the crystal. It's warm to the touch.
 <<if $trash_key isnot 1>>
 <<set $trash_key to 1>>You grab the key as well. It's not as heavy as it looks. <i>It must fit a large lock somewhere.</i>
@@ -739,7 +721,6 @@ Finding your way out is much easier than getting here.
 <br>
 
 :: Elk Compound Honest
-
 <<set $outside to 0>><<set $location to "compound">><<effects>>
 <<if isPubfameTaskAccepted("compound")>>
 	<<if $compound.interrogation.honest is 1>>
@@ -814,11 +795,9 @@ Finding your way out is much easier than getting here.
 	<</if>>
 <</if>>
 <br><br>
-
 <<compoundoptions>>
 
 :: Elk Compound Lie
-
 <<set $outside to 0>><<set $location to "compound">><<effects>>
 <<if $compound.interrogation.lie is 1>>
 	"I work for the government," you say. "You better let me go."
@@ -849,7 +828,6 @@ Finding your way out is much easier than getting here.
 <<compoundoptions>>
 
 :: Elk Compound Mock
-
 <<set $outside to 0>><<set $location to "compound">><<effects>>
 <<if $compound.interrogation.mock is 1>>
 	"Sure, I'll tell you everything," you say. "I'm here to spank naughty lab assistants. Unbind me so I can get to work."
@@ -880,7 +858,6 @@ Finding your way out is much easier than getting here.
 <<compoundoptions>>
 
 :: Elk Compound Beg
-
 <<set $outside to 0>><<set $location to "compound">><<effects>>
 <<if $compound.interrogation.beg is 1>>
 	"Please don't hurt me," you say.
@@ -911,44 +888,41 @@ Finding your way out is much easier than getting here.
 <<compoundoptions>>
 
 :: Elk Compound Flirt
-
 <<set $outside to 0>><<set $location to "compound">><<effects>>
 <<if $compound.interrogation.flirt is 1>>
 	"You have me all tied up and exposed," you say. "Isn't there something else you'd rather do to me?"<<promiscuity1>>
-
+	<br><br>
 	<<He>> blushes, unsure how to respond. "D-don't joke around like that. You're in big trouble." You control your breathing and focus.
 	<br><br>
 <<elseif $compound.interrogation.flirt is 2>>
 	"Some people would pay good money for the treatment you're giving me," you say. "I should thank you properly."<<promiscuity2>>
-
+	<br><br>
 	<<He>> shifts uncomfortably. "Don't think you can sweet talk me. It won't work."
 	<br><br>
 <<elseif $compound.interrogation.flirt is 3>>
 	"The real torture here," you say. "Is being denied your touch."
 	<<promiscuity3>>
-
+	<br><br>
 	<<He>> moves <<his>> hand away from the dials and rubs <<his>> temple. "Just stop it will you?"
 	<br><br>
 <<elseif $compound.interrogation.flirt is 4>>
 	"You're such a tease. I can't wait to see what you want for the main course." You wink.
-	<<promiscuity4>>
+	<<promiscuity4>><br><br>
 	"This is the main course," <<he>> says, blushing. "Where did you learn to talk like this?"
 	<br><br>
 <<else>>
 	"I'm getting too hot here," you say. "Please help me. I'm at your mercy. Your fingers, your tongue, your..."
-	<<promiscuity5>>
+	<<promiscuity5>><br><br>
 	"Stop! Right now." <<He>> seems serious.
 	<br><br>
 <</if>>
 <<compoundoptions>>
 
 :: Elk Compound Interior
-
 <<set $outside to 0>><<set $location to "compound">><<effects>>
 You successfully pick the lock and enter the building.
 <<set $compound.alarm++>>
 <<skulduggeryuse 400 "locks">>
-
 The inside is dominated by a large lift.
 <<if $weekly.compoundCentre>>
 	You see no way to operate it.
@@ -973,9 +947,7 @@ The inside is dominated by a large lift.
 <br>
 
 :: Elk Compound Interior Take
-
 <<set $outside to 0>><<set $location to "compound">><<effects>><<set $weekly.compoundCentre to true>><<wearProp "pepper spray">>
-
 <<if $compoundspray is 1>>
 	You pick up the laptop and canister then head for the exit.
 	<br><br>
@@ -987,7 +959,6 @@ The inside is dominated by a large lift.
 	<span class="gold">You've gained an additional pepper spray charge.</span>
 	<br><br>
 <</if>>
-
 <<if random(1, 4) is 4>>
 	You push the button beside the door. Nothing happens. You push it again, and two hatches open on either side of you. Metal arms shoot out, grasping your wrists and pushing you to the ground.
 	<br><br>
@@ -1006,60 +977,43 @@ The inside is dominated by a large lift.
 	<br>
 <</if>>
 
-
 :: Elk Compound Interior Seduce
 <<effects>>
-
-
 <<set $seductiondifficulty to 8000>>
 <<seductioncheck>>
 <<seductionskilluptext>>
 <<seductionskilluse>>
-
 "I'm not an intruder," you say.
 <br><br>
 <<if $seductionrating gte $seductionrequired>>
-
 	<span class="green">"SCANNING."</span> A red light beside the door flickers. "TEST SUBJECT IDENTIFIED. <<if $settings.pregnancySpeechEnabled>>BREEDING <</if>>PROCEDURE INITIATED." Another hatch opens, larger than the others. A phallic object emerges from the dark.
 	<br><br>
-
 	<<link [[Next|Elk Compound Machine Rape]]>><<set $molestationstart to 1>><</link>>
 	<br>
-
 <<else>>
-
 	<span class="red">INTRUDER REFUSING TO COOPERATE.</span> A jolt runs through the metal arms, shocking you.<<gpain>><<pain 4>>
 	<br><br>
 	<<generateSecurity 1>><<generateSecurity 2>>
 	A <<fullGroup>> rush in, batons ready. They relax when they see you.
 	<br><br>
-
 	"This junk was worth bringing up," the <<person1>><<person>> says, strapping the baton to <<his>> side.
 	<br><br>
-
 	"Shut it down," the <<person2>><<person>> says. "I'll let downstairs know." <<He>> unclips a radio from <<his>> side.
 	<br><br>
-
-
 	<<link [[Fight|Elk Compound Interior Fight]]>><</link>>
 	<br>
 	<<link [[Convince them to let you go|Elk Compound Interior Convince]]>><</link>><<englishdifficulty 1 1000>>
 	<br>
 	<<link [[Remain silent|Elk Compound Interior Silent]]>><</link>>
 	<br>
-
 <</if>>
 
-
-
 :: Elk Compound Machine Rape
-
 <<if $molestationstart is 1>>
 	<<set $molestationstart to 0>>
 	<<controlloss>>
 	<<violence 1>>
 	<<neutral 1>>
-
 	<<set $machine_health to 10>><<set $machine_ammo to 8>>
 	<<if $player.vaginaExist>>
 		<<machine_init vaginal arm_chains>>
@@ -1069,16 +1023,11 @@ The inside is dominated by a large lift.
 		<<set $machine.anal.armed to 1>>
 	<</if>>
 <</if>>
-
 <<effects>>
-
 <<machine_effects>><<machine_combat>>
 <<machine_state>>
-
-
 <br><br>
 <<machine_actions>>
-
 <<if $machine.number lte 0 or $finish is 1>>
 	<span id="next"><<link [[Next|Elk Compound Machine Rape End]]>><</link>></span><<nexttext>>
 <<else>>
@@ -1086,10 +1035,8 @@ The inside is dominated by a large lift.
 <</if>>
 <br>
 
-
 :: Elk Compound Machine Rape End
 <<effects>>
-
 <<if $anusfucked is 1 or $vaginafucked is 1 or $penisfucked is 1>>
 	"<<if $settings.pregnancySpeechEnabled>>BREEDING <</if>>SUCCESSFUL," the voice intones. The arms and phallus retract, and the hatches close.
 	<br><br>
@@ -1099,28 +1046,20 @@ The inside is dominated by a large lift.
 <</if>>
 <<tearful>> you rise to your feet.
 <br><br>
-
 <<machine_end>>
 <<clotheson>>
-
 <<link [[Next|Elk Compound]]>><</link>>
 <br>
 
-
 :: Elk Compound Interior Struggle
 <<effects>>
-
 <<generateSecurity 1>><<generateSecurity 2>>
 You pull against the metal grip, but it's too tight. The doors open. A <<fullGroup>> rush in, batons ready. They relax when they see you.
 <br><br>
-
 "This junk was worth bringing up," the <<person1>><<person>> says, strapping the baton to <<his>> side.
 <br><br>
-
 "I'll shut it down," the <<person2>><<person>> says. "You let downstairs know."
 <br><br>
-
-
 <<link [[Fight|Elk Compound Interior Fight]]>><</link>>
 <br>
 <<link [[Convince them to let you go|Elk Compound Interior Convince]]>><</link>><<englishdifficulty 1 1000>>
@@ -1130,71 +1069,100 @@ You pull against the metal grip, but it's too tight. The doors open. A <<fullGro
 
 :: Elk Compound Interior Fight
 <<effects>>
-
 You grasp the metal arm as it retracts, hauling you to your feet. The <<person2>><<person>> lets <<his>> radio fall to <<his>> side as <<he>> prepares to fight.
 <br><br>
-
 <<link [[Next|Elk Compound Fight 2]]>><<set $fightstart to 1>><</link>>
 <br>
 
 :: Elk Compound Interior Convince
 <<effects>>
-
+<<speechresolve>>
 <<if $englishSuccess>>
-	<<if $speech_attitude is "meek">>
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 		"P-please let me go,"
 		<<if $pain gte 20>>
-			you say, letting your tears flow.
+			you say, tears starting to spill despite yourself.
 		<<else>>
 			you say.
 		<</if>>
-		"I'm just a student. I-I didn't mean any harm. I-I-I..."
-	<<elseif $speech_attitude is "bratty">>
-		"I'm sure your boss will be thrilled with you," you say. "Catching a local student. I only made it as far as the compound interior."
+		"I'm just a student. I didn't mean any harm. I only got this far by mistake."
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"Please let me go," you say
+		<<if $pain gte 20>>
+			, your voice catching.
+		<<else>>
+			.
+		<</if>>
+			"I'm a student, not a threat. I shouldn't have come in, but I meant no harm."
+	<<elseif _speechAttitudeResolved is "docile">>>
+		"Please," you say quietly
+		<<if $pain gte 20>>
+			, wincing.
+		<<else>>
+			.
+		<</if>>
+			"I got lost. I wasn't trying to cause trouble."
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		"I'm sure your boss will be thrilled," you say
+		<<if $pain gte 20>>
+			, though the strain shows in your voice.
+		<<else>>
+			.
+		<</if>>
+			"Two grown guards dragging in a local student who barely made it inside."
+	<<elseif _speechAttitudeResolved is "confident">>>
+		"I'm a local student, not some rival spy," you say
+		<<if $pain gte 20>>
+			, forcing the words out through the ache.
+		<<else>>
+			.
+		<</if>>
+			"You've made your point. Let me go and call it done."
 	<<else>>
-		"I'm sure your boss will be thrilled with you," you say. "Catching a local student. I only made it as far as the compound interior."
+		"I'm sure your boss will be thrilled with you," you say
+		<<if $pain gte 20>>
+			, your voice tight with pain.
+		<<else>>
+			.
+		<</if>>
+			"Catching a local student. I only made it as far as the compound interior."
 	<</if>>
 	<br><br>
-	<span class="green">The pair share an awkward look.</span> "We were just scaring you," the <<person1>><<person>> says.
+	<span class="green">The pair exchange an awkward look.</span> "We were just scaring you," the <<person1>><<person>> says at last.
 	<br><br>
-
-	They take you to the Compound gates. It clanks shut behind you.
+	They march you back to the Compound gates and shove you through. It clanks shut behind you.
 	<br><br>
-
 	<<link [[Next|Elk Street]]>><<resetCompound>><<endevent>><<set $eventskip to 1>><</link>>
 	<br>
-
 <<else>>
-	<<if $speech_attitude is "meek">>
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 		"Y-you'll get in trouble too if you turn me in," you say. "You were meant to catch me sooner."
-	<<elseif $speech_attitude is "bratty">>
-		"Let me go," you say. "Or I'll tell your boss how much you suck at your jobs."
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"Please let me go," you say. "You can tell your boss you stopped me well before I got anywhere important."
+	<<elseif _speechAttitudeResolved is "docile">>
+		"Please don't turn me in," you say. "I wasn't trying to make trouble."
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		"Let me go," you say. "Or I'll make sure your boss hears how badly you handled this."
+	<<elseif _speechAttitudeResolved is "confident">>
+		"Let me go," you say evenly. "Or I'll tell your boss how far I got before either of you noticed."
 	<<else>>
 		"Let me go," you say. "Or I'll tell your boss how far I got before you managed to catch me."
 	<</if>>
 	<br><br>
-
-	<span class="red">The pair ignore you.</span> The <<person2>><<person>> steps away and talks into <<his>> radio.
+	<span class="red">The pair ignore you.</span> The <<person2>><<person>> steps aside and mutters into <<his>> radio.
 	<br><br>
-
 	<<link [[Next|Elk Compound Underground]]>><<set $phase to 1>><</link>>
 	<br>
-
 <</if>>
-
 
 :: Elk Compound Interior Silent
 <<effects>>
-
 You remain silent as the <<person2>><<person>> talks into <<his>> radio.
 <br><br>
-
 <<link [[Next|Elk Compound Underground]]>><<set $phase to 1>><</link>>
 <br>
 
-
 :: Elk Compound Fight 2
-
 <<if $fightstart is 1>>
 	<<set $fightstart to 0>>
 	<<neutral 1>>
@@ -1204,23 +1172,19 @@ You remain silent as the <<person2>><<person>> talks into <<his>> radio.
 	<<npcidlegenitals>>
 	<br><br>
 <</if>>
-
 <<effects>>
 <<effectsman>>
 <<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
-
 <<if _combatend or ($pain gte 100 and $willpowerpain is 0)>>
 	<span id="next"><<link [[Next|Elk Compound Fight 2 Finish]]>><</link>></span><<nexttext>>
 <<else>>
 	<span id="next"><<link [[Next|Elk Compound Fight 2]]>><</link>></span><<nexttext>>
 <</if>>
 
-
 :: Elk Compound Fight 2 Finish
-
 <<set $outside to 0>><<set $location to "compound">><<effects>>
 <<if $enemypleasure gte $enemypleasuremax>>
 	<<ejaculation "short">>
@@ -1228,7 +1192,6 @@ You remain silent as the <<person2>><<person>> talks into <<his>> radio.
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
-
 	<<link [[Next|Elk Street]]>><<resetCompound>><<set $eventskip to 1>><</link>>
 	<br>
 <<elseif $enemyhealth lte 0>>
@@ -1236,7 +1199,6 @@ You remain silent as the <<person2>><<person>> talks into <<his>> radio.
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
-
 	<<link [[Next|Elk Street]]>><<resetCompound>><<set $eventskip to 1>><</link>>
 	<br>
 <<else>>
@@ -1247,13 +1209,10 @@ You remain silent as the <<person2>><<person>> talks into <<his>> radio.
 	<br>
 <</if>>
 
-
 :: Elk Compound Approach
 <<set $outside to 1>><<set $location to "compound">>
-
 You walk up to the gate. It's guarded by two security guards. <<generateSecurity 1>><<generateSecurity 2>><<person1>>One of them, a <<person>>, puts an arm out as you approach. "No closer, <<girl>>. This is private property." <<His>> companion sizes you up.
 <br><br>
-
 <<if $phials_held gte 1>>
 	<<icon "lust.png">><<link [[Show them the aphrodisiac phial|Elk Compound Show]]>><</link>>
 	<br>
@@ -1265,28 +1224,36 @@ You walk up to the gate. It's guarded by two security guards. <<generateSecurity
 <<elkicon>><<link [[Leave|Elk Street]]>><<endevent>><</link>>
 <br>
 
-
 :: Elk Compound Show
 <<effects>><<wearProp "aphrodisiac jar">>
-
-You hold out the phial. The <<person>> peers at it. "Hmph," <<he>> sounds. "Fine. Central building. Make your delivery and get out." <<His>> companion disappears into a booth, and the gates shudder open.
+You hold out the phial. 
 <br><br>
-
+The <<person>> peers at it. "Hmph. Fine. Central building. Make your delivery and get out." <<His>> companion disappears into a booth, and the gates shudder open.
+<br><br>
 <<link [[Elk Compound]]>><<endevent>><<set $compound.allowed to true>><<set $daily.compoundAllowedEntrance to true>><</link>>
 <br>
 
 :: Elk Compound Card
 <<effects>>
-<<if $speech_attitude is "meek">>
+<<speechresolve>>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 	"S-sorry <<sir>>," you say. "But I was told to come here."
-<<elseif $speech_attitude is "bratty">>
-	"Shut it," you say. "I have business here."
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"I was told to report here," you say, holding the card out. "Would you check it, please?"
+<<elseif _speechAttitudeResolved is "docile">>
+	"I was told to come here," you say quietly, offering the card.
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+	"Shut it," you say. "I've got business here."
+<<elseif _speechAttitudeResolved is "confident">>
+	"I've got clearance," you say. "Check the card."
 <<else>>
 	"I have business here," you say.
 <</if>>
-You hold out the stolen card.
+<<if (_speechAttitudeResolved isnot "polite" and _speechAttitudeResolved isnot "flamboyant" and _speechAttitudeResolved isnot "docile")>>
+	You hold out the stolen card.
+<</if>>
 <br><br>
-The guard snatches the card and examines it. <<He>> runs it through a device at <<his>> belt and examines the screen. "Hmph," <<he>> sounds. "Fine. Make your delivery and get out."
+The guard snatches the card and examines it. <<He>> runs it through a device at <<his>> belt and studies the screen. "Hmph," <<he>> says. "Fine. Make your delivery and get out."
 <br><br>
 <<His>> companion disappears into a booth, and the gates shudder open.
 <br><br>
@@ -1294,34 +1261,26 @@ The guard snatches the card and examines it. <<He>> runs it through a device at 
 <<link [[Enter|Elk Compound]]>><<endevent>><<set $compound.allowed to true>><<set $daily.compoundAllowedEntrance to true>><</link>>
 <br>
 
-
 :: Elk Compound Station
 <<set $location to "compound">><<effects>>
-
 The carriage slows as it arrives on a new platform, surrounded by stone brickwork. You peer through the carriage window. There's a blue metal door along one wall. Crates like those at the estate are stacked nearby, but these are empty. There's also a ladder, leading to a hatch several metres above.
 <br><br>
-
 <<generateSecurity 1>><<generateSecurity 2>>
 You walk towards the carriage entrance. The blue door shudders open, and you take cover. A <<fullGroup>> jog through, wearing white uniforms and holding large guns. They haven't noticed you.
 <br><br>
-
 <<link [[Next|Elk Compound Station 2]]>><</link>>
 <br>
 
-
 :: Elk Compound Station 2
 <<effects>>
-
 "Empty," the <<person>> says. "Not even loaded."
 <br><br>
 "Someone's in deep shit," the <<person2>><<person>> replies. "Thought we sent one of ours out there."
 <br><br>
 The <<person1>><<person>> lifts <<his>> radio. "All clear. Roger."
 <br><br>
-
 A small canister rolls out of a pouch at the <<person1>><<persons>> side. The blue door shuts behind them.
 <br><br>
-
 <<if $compoundspray2 isnot 1>>
 	<<peppersprayicon>><<link [[Take the canister|Elk Compound Station Canister]]>><<set $spraymax += 1>><<spray 5>><<world_corruption "soft" -10>><</link>><<gspraymax>>
 	<br>
@@ -1334,53 +1293,42 @@ A small canister rolls out of a pouch at the <<person1>><<persons>> side. The bl
 
 :: Elk Compound Station Badge
 <<effects>>
-
 You pick up the badge and study it. It identifies the <<person1>><<person>> as <<= $NPCList[0].name>>, a guard with a high level of security clearance.
 <br><br>
-
 /*
 <<icon "access_card.png">><<link [[Try the door|Elk Compound Lab Enter]]>><<endevent>><</link>>
 <br>
 */
 <<getouticon>><<link [[Just leave|Elk Compound Station Leave]]>><</link>>
 
-
 :: Elk Compound Station Canister
 <<effects>><<wearProp "pepper spray">>
-
 <<if $compoundspray2 isnot 1>>
 	<<set $compoundspray2 to 1>>
 	You pick up the canister. It looks like a charge for your pepper spray, but with an exposed computer chip at the base. You put it in, then head for the exit.
 	<br><br>
-
 	<span class="gold">You've gained an additional pepper spray charge.</span>
 	<br><br>
 <<else>>
 	You pick up the canister. It's a charge for your pepper spray. You put it in, then head for the exit.
 	<br><br>
 <</if>>
-
 There's only one other way out. The hatch on the ceiling. You climb the ladder, and open it. The sound of traffic greets you. You climb the rest of the way, emerging in an alley by Elk Street.
 <br><br>
-
 The hatch clicks shut behind you.
 <br><br>
-
 <<link [[Next|Elk Street]]>><<set $eventskip to 1>><<endevent>><</link>>
 <br>
 
 :: Elk Compound Station Leave
 <<effects>>
-
 <<if $phase is "escape">>
 	The facility doors shut behind you shortly after you step out onto the station platform.
 <</if>>
 There's only one other way out. The hatch on the ceiling. You climb the ladder, and open it. The sound of traffic greets you. You climb the rest of the way, emerging in an alley by Elk Street.
 <br><br>
-
 The hatch clicks shut behind you.
 <br><br>
-
 <<link [[Next|Elk Street]]>><<set $eventskip to 1>><<endevent>><</link>>
 <br>
 
