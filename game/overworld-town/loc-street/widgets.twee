@@ -3625,6 +3625,24 @@
 			<</if>>
 		<</if>>
 
+		/* Teeth compliment events; only when teeth recently brushed, up to 3/day */
+		<<if $beautyBoost and $beautyBoost.teeth gt 0 and ($daily.teethCompliment is undefined or $daily.teethCompliment lt 3)>>
+			<<addinlineevent "streetTeethCompliment" 0.8>>
+				<<set $daily.teethCompliment to ($daily.teethCompliment || 0) + 1>>
+				<<generatey1>><<person1>>
+				<<set _teethLines to [
+					`A <<person>> passing by glances at you and smiles. "You have a lovely smile, you know that?" <<He>> says, before continuing on <<his>> way. The unexpected compliment lifts your spirits.`,
+					`You catch a <<person>> staring for a moment. "Sorry, I just... your teeth are really nice," <<he>> says with an awkward grin, looking away. You can't help but feel a small swell of pride.`,
+					`A friendly-looking <<person>> waves at you. "Hello! Great smile," <<he>> says brightly as <<he>> passes. You feel more confident about yourself.`
+				]>>
+				<<print _teethLines[random(0, _teethLines.length - 1)]>>
+				<<control 2>><<gcontrol>>
+				<<stress -4>><<lstress>>
+				<<endevent>>
+				<<destinationeventend>>
+			<</addinlineevent>>
+		<</if>>
+
 		<<runeventpool>>
 	<</if>>
 

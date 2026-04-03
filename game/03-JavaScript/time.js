@@ -172,7 +172,7 @@ const Time = (() => {
 						statChange.tiredness(-120);
 					}
 					if (prevDate.weekDay === 7 && currentDate.weekDay === 1) weekPassed();
-					dayPassed(days);
+					dayPassed(1);
 					if (prevDate.yearDay < Time.startDate.yearDay && currentDate.yearDay >= Time.startDate.yearDay) yearPassed();
 				}
 				// pass the remaining hours
@@ -437,6 +437,14 @@ window.Time = Time;
 $(document).on(":passageinit", () => {
 	/* Set current time */
 	Time.set();
+
+	/* Ensure beautyBoost object exists (save compatibility) */
+	V.beautyBoost ??= { bath: 0, teeth: 0, face: 0, hands: 0, hygiene: 0 };
+	if (V.beautyBoost.bath == null) V.beautyBoost.bath = 0;
+	if (V.beautyBoost.teeth == null) V.beautyBoost.teeth = 0;
+	if (V.beautyBoost.face == null) V.beautyBoost.face = 0;
+	if (V.beautyBoost.hands == null) V.beautyBoost.hands = 0;
+	if (V.beautyBoost.hygiene == null) V.beautyBoost.hygiene = 0;
 });
 
 /* Local functions */
@@ -1215,6 +1223,15 @@ function hourPassed(hours) {
 		// robin pillory
 		if (V.robinPillory && V.robinPillory.danger !== undefined && V.robinPillory.active) wikifier("robinPilloryHour");
 
+		// Beauty boost decay (bath, teeth, face, hands, hygiene — makeup is dynamic, no decay needed)
+		if (V.beautyBoost) {
+			if (V.beautyBoost.bath > 0) V.beautyBoost.bath = Math.max(V.beautyBoost.bath - 333, 0);
+			if (V.beautyBoost.teeth > 0) V.beautyBoost.teeth = Math.max(V.beautyBoost.teeth - 340, 0);
+			if (V.beautyBoost.face > 0) V.beautyBoost.face = Math.max(V.beautyBoost.face - 500, 0);
+			if (V.beautyBoost.hands > 0) V.beautyBoost.hands = Math.max(V.beautyBoost.hands - 750, 0);
+			if (V.beautyBoost.hygiene > 0) V.beautyBoost.hygiene = Math.max(V.beautyBoost.hygiene - 170, 0);
+		}
+
 		// time checks
 		if (Time.hour === 6) dawnCheck();
 		if (Time.hour === 12) noonCheck();
@@ -1492,7 +1509,7 @@ function dailyNPCEffects() {
 	if (V.robindebtevent === 0) V.robinmissing = 0;
 	if (V.robinpaid >= 1) statChange.trauma(-25);
 	if ((V.robinromance === 1 || V.robinsexfriend === 1) && C.npc.Robin.dom >= 40) wikifier("npcincr", "Robin", "lust", 1);
-	if ((V.beauty >= V.beautymax && C.npc.Robin.trauma <= 0 && !V.robinmissing)) wikifier("npcincr", "Robin", "lust", 2);
+	if ((getEffectiveBeauty() >= V.beautymax && C.npc.Robin.trauma <= 0 && !V.robinmissing)) wikifier("npcincr", "Robin", "lust", 2);
 	if (V.robinPilloryFail) {
 		delete V.robinPilloryFail;
 		delete V.robinPillory;

@@ -207,17 +207,71 @@ function effectsMakeup() {
 		element.textContent = text + " ";
 		fragment.append(element);
 	};
+	const br = () => fragment.append(document.createElement("br"));
 
 	if (V.makeupWashed) {
 		delete V.makeupWashed;
-		span(`Your makeup is washed away${V.beauty >= (V.beautymax / 7) * 4 ? ", revealing your natural beauty" : ""}.`, "teal");
-		fragment.append(document.createElement("br"));
+		const hadBeautyBoost = typeof getBeautyBoost === "function" && getBeautyBoost() > 0;
+		span(`Your makeup is washed away${V.beauty >= (V.beautymax / 7) * 4 ? ", revealing your natural beauty" : hadBeautyBoost ? "" : ", and you feel a little plainer"}.`, "teal");
+		br();
 	}
 
 	if (V.makeup.mascara && V.makeup.mascara_running < painToTearsLvl(V.pain) && !V.makeup.mascara.includes("waterproof")) {
 		V.makeup.mascara_running = painToTearsLvl(V.pain);
 	}
 
+	/* Beauty boost status messages (shown once per source per application) */
+	if (V.beautyBoost) {
+		if (V.beautyBoost.bath > 0 && !V.beautyBoost._bathShown) {
+			V.beautyBoost._bathShown = true;
+			span("You feel refreshed from your bath. Your skin has a healthy glow.", "gold");
+			br();
+		} else if (V.beautyBoost.bath <= 0 && V.beautyBoost._bathShown) {
+			delete V.beautyBoost._bathShown;
+			span("The freshness from your bath has faded. You could use another wash.", "teal");
+			br();
+		}
+
+		if (V.beautyBoost.teeth > 0 && !V.beautyBoost._teethShown) {
+			V.beautyBoost._teethShown = true;
+			span("Your clean smile gives you a quiet confidence.", "gold");
+			br();
+		} else if (V.beautyBoost.teeth <= 0 && V.beautyBoost._teethShown) {
+			delete V.beautyBoost._teethShown;
+			span("The minty freshness in your mouth has worn off.", "teal");
+			br();
+		}
+
+		if (V.beautyBoost.face > 0 && !V.beautyBoost._faceShown) {
+			V.beautyBoost._faceShown = true;
+			span("Your face feels fresh and clean.", "gold");
+			br();
+		} else if (V.beautyBoost.face <= 0 && V.beautyBoost._faceShown) {
+			delete V.beautyBoost._faceShown;
+			span("Your face no longer feels as fresh as before.", "teal");
+			br();
+		}
+
+		if (V.beautyBoost.hands > 0 && !V.beautyBoost._handsShown) {
+			V.beautyBoost._handsShown = true;
+			span("Your hands feel clean and refreshed.", "gold");
+			br();
+		} else if (V.beautyBoost.hands <= 0 && V.beautyBoost._handsShown) {
+			delete V.beautyBoost._handsShown;
+			span("Your hands don't feel as clean anymore.", "teal");
+			br();
+		}
+
+		if (V.beautyBoost.hygiene > 0 && !V.beautyBoost._hygieneShown) {
+			V.beautyBoost._hygieneShown = true;
+			span("You feel cleaner and more presentable.", "gold");
+			br();
+		} else if (V.beautyBoost.hygiene <= 0 && V.beautyBoost._hygieneShown) {
+			delete V.beautyBoost._hygieneShown;
+			span("You don't feel quite as fresh down there anymore.", "teal");
+			br();
+		}
+	}
 	return fragment;
 }
 

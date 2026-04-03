@@ -548,16 +548,16 @@
 						<<set _icon='misc/icon/unisex'>>
 					<</if>>
 					<<set _genderConfig = { name : "Gender Identity", icon : _icon, currentValue : $genderidentity, modifier: 100, modTypes: { good: [], bad: [] },
-						states : [
-							{ requiredValue: 0,		color: 'blue',	description: 'You are a man.'},
-							{ requiredValue: 1,		color: 'navy',	description: 'You identify as a man.'},
-							{ requiredValue: 200,	color: 'lblue',	description: 'You mostly identify as a man.'},
-							{ requiredValue: 400,	color: 'teal',	description: 'You lean toward being a man.'},
-							{ requiredValue: 600,	color: 'green',	description: 'You are non-binary.'},
-							{ requiredValue: 900,	color: 'teal',	description: 'You lean toward being a woman.'},
-							{ requiredValue: 1100,	color: 'lilac',	description: 'You mostly identify as a woman.'},
-							{ requiredValue: 1300,	color: 'lewd',	description: 'You identify as a woman.'},
-							{ requiredValue: 1500,	color: 'pink',	description: 'You are a woman.'}
+						states: [
+							{ requiredValue: 0,		color: 'blue',	description: 'You are male.' },
+							{ requiredValue: 1,		color: 'navy',	description: 'You identify as male.' },
+							{ requiredValue: 200,	color: 'lblue',	description: 'You mostly identify as male.' },
+							{ requiredValue: 400,	color: 'teal',	description: 'You lean male.' },
+							{ requiredValue: 600,	color: 'green',	description: 'You are non-binary.' },
+							{ requiredValue: 900,	color: 'teal',	description: 'You lean female.' },
+							{ requiredValue: 1100,	color: 'lilac',	description: 'You mostly identify as female.' },
+							{ requiredValue: 1300,	color: 'lewd',	description: 'You identify as female.' },
+							{ requiredValue: 1500,	color: 'pink',	description: 'You are female.' }
 						]
 					}>>
 					<<set _giSpeed to (Number($xchange.giStepPerDay) || 8)>>
@@ -784,40 +784,25 @@
 				<</if>>
 
 				<!--BEAUTY-->
-				<<if $AMCTraits.beauty is 2>>
-					<<set _beautyConfig = { name : "Beauty [Immutable]", icon : "ui/sym_beauty", displayType : "level", currentValue : $beauty, maxValue: $beautymax * $AMCTraits.beauty, modifier: 100, modTypes: { good: [], bad: [] },
-						states : [
-							{ requiredValue:	0,						level: 0, color: 'red',		description: 'You are plain.'},
-							{ requiredValue:	$beautymax / 7,			level: 1, color: 'pink',	description: 'You are cute.'},
-							{ requiredValue:	($beautymax / 7) * 2,	level: 2, color: 'purple',	description: 'You are pretty.'},
-							{ requiredValue:	($beautymax / 7) * 3,	level: 3, color: 'blue',	description: 'You are charming.'},
-							{ requiredValue:	($beautymax / 7) * 4,	level: 4, color: 'lblue',	description: 'You are beautiful.'},
-							{ requiredValue:	($beautymax / 7) * 5,	level: 5, color: 'teal',	description: 'You are ravishing.'},
-							{ requiredValue:	($beautymax / 7) * 6,	level: 6, color: 'green',	description: 'Your beauty is divine.'},
-							{ requiredValue:	($beautymax / 7) * 7,	level: 7, color: 'green',	description: 'You are alluring.'},
-							{ requiredValue:	($beautymax / 7) * 8,	level: 8, color: 'gold',	description: 'You are stunning.'},
-							{ requiredValue:	($beautymax / 7) * 9,	level: 9, color: 'gold',	description: 'You are mesmerizing.'},
-							{ requiredValue:	($beautymax / 7) * 10,	level: 10, color: 'gold',	description: 'You are enchanting.'},
-							{ requiredValue:	($beautymax / 7) * 11,	level: 11, color: 'gold',	description: 'You are captivating.'},
-							{ requiredValue:	($beautymax / 7) * 12,	level: 12, color: 'lustful',description: 'You are breathtaking.'},
-							{ requiredValue:	($beautymax / 7) * 13,	level: 13, color: 'lustful',description: 'Your beauty surpasses divinity.'}
-						]
-					}>>
-					<<set _beautyConfig.name to `Beauty <mouse class="tooltip small-description">[Immutable]<span>This value won't change no matter what, except by the action of the X-Change pills.</span></mouse>`>>
-				<<else>>
-					<<set _beautyConfig = { name : "Beauty [Immutable]", icon : "ui/sym_beauty", displayType : "level", currentValue : $beauty, maxValue: $beautymax, modifier: 100, modTypes: { good: [], bad: [] },
-						states : [
-							{ requiredValue:	0,						level: 0, color: 'red',		description: 'You are plain.'},
-							{ requiredValue:	$beautymax / 7,			level: 1, color: 'pink',	description: 'You are cute.'},
-							{ requiredValue:	($beautymax / 7) * 2,	level: 2, color: 'purple',	description: 'You are pretty.'},
-							{ requiredValue:	($beautymax / 7) * 3,	level: 3, color: 'blue',	description: 'You are charming.'},
-							{ requiredValue:	($beautymax / 7) * 4,	level: 4, color: 'lblue',	description: 'You are beautiful.'},
-							{ requiredValue:	($beautymax / 7) * 5,	level: 5, color: 'teal',	description: 'You are ravishing.'},
-							{ requiredValue:	($beautymax / 7) * 6,	level: 6, color: 'green',	description: 'Your beauty is divine.'}
-						]
-					}>>
-					<<set _beautyConfig.name to `Beauty <mouse class="tooltip small-description">[Immutable]<span>This value won't change no matter what, except by the action of the X-Change pills.</span></mouse>`>>
-				<</if>>
+				<<set _beautyConfig = { name : "Beauty [Immutable]", icon : "ui/sym_beauty", displayType : "level", currentValue : getEffectiveBeauty(), maxValue: $beautymax * $AMCTraits.beauty, modifier: 100, modTypes: { good: [], bad: [] },
+					states : [
+						{ requiredValue:	0,						level: 0, color: 'red',		description: 'You are plain.'},
+						{ requiredValue:	$beautymax / 7,			level: 1, color: 'pink',	description: 'You are cute.'},
+						{ requiredValue:	($beautymax / 7) * 2,	level: 2, color: 'purple',	description: 'You are pretty.'},
+						{ requiredValue:	($beautymax / 7) * 3,	level: 3, color: 'blue',	description: 'You are charming.'},
+						{ requiredValue:	($beautymax / 7) * 4,	level: 4, color: 'lblue',	description: 'You are beautiful.'},
+						{ requiredValue:	($beautymax / 7) * 5,	level: 5, color: 'teal',	description: 'You are ravishing.'},
+						{ requiredValue:	($beautymax / 7) * 6,	level: 6, color: 'green',	description: 'Your beauty is divine.'},
+						{ requiredValue:	($beautymax / 7) * 7,	level: 7, color: 'green',	description: 'You are alluring.'},
+						{ requiredValue:	($beautymax / 7) * 8,	level: 8, color: 'gold',	description: 'You are stunning.'},
+						{ requiredValue:	($beautymax / 7) * 9,	level: 9, color: 'gold',	description: 'You are mesmerizing.'},
+						{ requiredValue:	($beautymax / 7) * 10,	level: 10, color: 'gold',	description: 'You are enchanting.'},
+						{ requiredValue:	($beautymax / 7) * 11,	level: 11, color: 'gold',	description: 'You are captivating.'},
+						{ requiredValue:	($beautymax / 7) * 12,	level: 12, color: 'lustful',description: 'You are breathtaking.'},
+						{ requiredValue:	($beautymax / 7) * 13,	level: 13, color: 'lustful',description: 'Your beauty surpasses divinity.'}
+					]
+				}>>
+				<<set _beautyConfig.name to `Beauty <mouse class="tooltip small-description">[Immutable]<span>Your base beauty won't change except by X-Change pills. Temporary boosts from hygiene and makeup can enhance it.</span></mouse>`>>
 
 				<!--PROMISCUITY-->
 				<<set _promiscuityConfig = { name : "Promiscuity", icon : "ui/sym_lust", displayType : "level", currentValue : $promiscuity, maxValue: 100, modifier: 100, modTypes: { good: [], bad: [] },

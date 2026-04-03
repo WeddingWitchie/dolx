@@ -16,6 +16,64 @@ const statChange = (() => {
 		);
 	}
 
+	/**
+	 * Returns the total temporary beauty bonus from all active sources.
+	 * Includes: bath, teeth, face, hands, hygiene (intimate), and makeup (dynamic).
+	 * Use this wherever game mechanics read beauty to include temporary boosts.
+	 */
+	function getBeautyBoost() {
+		let boost = 0;
+		if (V.beautyBoost) {
+			boost += (V.beautyBoost.bath || 0)
+				+ (V.beautyBoost.teeth || 0)
+				+ (V.beautyBoost.face || 0)
+				+ (V.beautyBoost.hands || 0)
+				+ (V.beautyBoost.hygiene || 0);
+		}
+		// Makeup boost: calculated dynamically (350 per cosmetic, 170 for concealer, up to total of 1350) 
+		// No decay since it's consumed on use
+		if (V.makeup) {
+			if (V.makeup.lipstick && V.makeup.lipstick !== 0) boost += 350;
+			if (V.makeup.eyeshadow && V.makeup.eyeshadow !== 0) boost += 350;
+			if (V.makeup.mascara && V.makeup.mascara !== 0) boost += 350;
+			if (V.makeup.blusher && V.makeup.blusher !== 0) boost += 350;
+			if (V.makeup.concealer && V.makeup.concealer !== 0) boost += 170;
+		}
+		return boost;
+	}
+
+	/**
+	 * Returns a breakdown of active beauty boost sources for UI display.
+	 */
+	function getBeautyBoostSources() {
+		const sources = [];
+		if (V.beautyBoost) {
+			if (V.beautyBoost.bath > 0) sources.push("bathed");
+			if (V.beautyBoost.teeth > 0) sources.push("clean teeth");
+			if (V.beautyBoost.face > 0) sources.push("fresh face");
+			if (V.beautyBoost.hands > 0) sources.push("clean hands");
+			if (V.beautyBoost.hygiene > 0) sources.push("good hygiene");
+		}
+		if (V.makeup) {
+			const hasMakeup = (V.makeup.lipstick && V.makeup.lipstick !== 0)
+				|| (V.makeup.eyeshadow && V.makeup.eyeshadow !== 0)
+				|| (V.makeup.mascara && V.makeup.mascara !== 0)
+				|| (V.makeup.blusher && V.makeup.blusher !== 0)
+				|| (V.makeup.concealer && V.makeup.concealer !== 0);
+			if (hasMakeup) sources.push("makeup");
+		}
+		return sources;
+	}
+
+	/**
+	 * Returns effective beauty (base + temporary boosts), clamped to the true beauty cap.
+	 * Respects AMCTraits.beauty multiplier (e.g. 2x for immutable double-cap saves).
+	 */
+	function getEffectiveBeauty() {
+		const max = (V.beautymax || 1000) * (V.AMCTraits?.beauty || 1);
+		return Math.clamp((V.beauty || 0) + getBeautyBoost(), 0, max);
+	}
+
 	function trauma(amount) {
 		if (isNaN(amount)) return paramError("trauma", "amount", amount, "Expected a number.");
 		amount = Number(amount);
@@ -516,7 +574,7 @@ const statChange = (() => {
 		if (V.backgroundTraits.includes("nerd")) {
 			amount *= 0.75;
 		}
-		amount *= 1 + 0.50 * (V.beauty / V.beautymax);
+		amount *= 1 + 0.50 * (getEffectiveBeauty() / V.beautymax);
 		
 		if (amount > 0) {
 			V.cool += amount;
@@ -1387,6 +1445,12 @@ const statChange = (() => {
 		timeTrackingTotal,
 		badEndTracking,
 		badEndTrackingEnd,
+		getBeautyBoost,
+		getEffectiveBeauty,
+		getBeautyBoostSources,
 	};
 })();
 window.statChange = statChange;
+window.getBeautyBoost = statChange.getBeautyBoost;
+window.getEffectiveBeauty = statChange.getEffectiveBeauty;
+window.getBeautyBoostSources = statChange.getBeautyBoostSources;

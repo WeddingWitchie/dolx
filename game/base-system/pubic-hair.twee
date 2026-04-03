@@ -1,3 +1,193 @@
+:: Face Wash
+<<effects>><<set _exit to $bathroomExit or "Bathroom">>
+
+<<if $leftarm is "bound" and $rightarm is "bound">>
+	<span class="red">Both of your arms are bound</span>, and you're unable to wash your face.
+	<br><br>
+	<<link [[Next|_exit]]>><<endevent>><<canvas-model-override "clear">><<run delete $bathroomExit>><</link>>
+	<<exitAll>>
+<</if>>
+
+<<set _faceFluids to setup.bodyliquid.combined("face") gte 1 ? true : false>>
+<<set _faceMarked to ($skin.left_cheek.pen is "pen" or $skin.left_cheek.pen is "lipstick" or $skin.left_cheek.pen is "mud" or $skin.right_cheek.pen is "pen" or $skin.right_cheek.pen is "lipstick" or $skin.right_cheek.pen is "mud" or $skin.forehead.pen is "pen" or $skin.forehead.pen is "lipstick" or $skin.forehead.pen is "mud")>>
+
+<<if $location is "home">> /* simple face washing events at the orphanage */
+	<<cleareventpool>>
+
+	<<addinlineevent "orphanage_facewash_normal">>
+		You cup water in your hands and wash your face. <<if _faceFluids>>You take a moment to rinse away the fluids clinging to your skin. <</if>><<if _faceMarked>>You carefully scrub your cheeks and forehead until the marks there are gone. <</if>>The cool water leaves you feeling a little fresher.
+	<</addinlineevent>>
+
+	<<addinlineevent "orphanage_facewash_soapless" 0.25>>
+		You reach for the soap, but someone has used it up and left nothing behind. Annoyed, you rummage around the bathroom until you find another bar, then quickly wash your face clean.
+		<<if _faceFluids or _faceMarked>> You make sure to clean away every trace of the mess on your skin.<</if>>
+	<</addinlineevent>>
+
+	<<addinlineevent "orphanage_facewash_towelless" 0.25>>
+		You wash your face, then realise the towel isn't where it should be. After a brief search, you find it shoved into a cabinet. Someone must have moved it.
+	<</addinlineevent>>
+
+	<<if Time.isBloodMoon()>>
+		<<addinlineevent "orphanage_facewash_bloodmoon">>
+			You wash your face in the sink. The silence is suffocating, and even the cool water does little to settle your nerves. And you bet you just see something in the mirror.<<gstress>><<stress 6>>
+			<br><br>
+			<<if _faceFluids or _faceMarked>>You still make sure to clean yourself thoroughly before stepping back from the basin.<</if>>
+		<</addinlineevent>>
+	<<elseif Time.dayState is "night">>
+		<<addinlineevent "orphanage_facewash_night">>
+			You wash your face in the sink. It is quiet at night, and the simple routine helps you relax and clear your head.<<lstress>><<stress -6>>
+		<</addinlineevent>>
+
+		<<addinlineevent "orphanage_facewash_night_distracted" 0.5>>
+			You wash your face in the sink. It is quiet at night, but you are distracted by <<print either("some stray dogs barking", "a couple arguing", "someone shouting", "someone revving their engine", "someone playing loud music", "the sound of glass shattering")>> outside.
+		<</addinlineevent>>
+	<<else>>
+		<<addinlineevent "orphanage_facewash_loud" 0.5>>
+			You wash your face in the sink when a loud <<print either("bang hits the bathroom door, but nobody enters", "crash sounds from somewhere outside")>>. You pause for a moment, wondering what caused the noise.<<gstress>><<stress 6>>
+		<</addinlineevent>>
+
+		<<addinlineevent "orphanage_facewash_orphan" 0.5>>
+			<<generateyv1>>
+			You wash your face in the sink. You hear <<print either("two", "a group of")>> people talking outside before one enters the bathroom.
+			<br><br>
+			<<person1>><<He>> notices you and startles slightly. "<<if $orphan_reb lt random(1, 50)>>Sorry, <</if>><<print either("I'll wait outside", "I'll give you some space", "I should have knocked")>>," <<he>> says before quickly stepping back out.
+			<<endevent>>
+		<</addinlineevent>>
+
+		<<if $orphan_hope gte random(1, 50)>>
+			<<addinlineevent "orphanage_facewash_hope">>
+				You wash your face in the sink while you hear two people talking just outside the bathroom. They sound hopeful about being able to meet Bailey's demands <<print either("without prostituting themselves", "without resorting to skulduggery", "through their day jobs", "through odd jobs around the city", "through tips from their work as temps")>>.<<lstress>><<stress -6>>
+			<</addinlineevent>>
+		<</if>>
+
+		<<if $orphan_reb gte random(1, 50)>>
+			<<addinlineevent "orphanage_facewash_reb">>
+				<<generateyv1>>
+				You are washing your face when an orphan suddenly barges in and crowds the sink beside you, forcing you to finish up in the cramped space.<<gstress>><<stress 6>>
+				<<endevent>>
+			<</addinlineevent>>
+		<</if>>
+	<</if>>
+
+	<<if Weather.precipitation is "rain">>
+		<<addinlineevent "orphanage_facewash_rain">>
+			You wash your face in the sink. The <<if Time.isBloodMoon()>>rain outside drowns out your thoughts and leaves you feeling uneasy.<<gstress>><<stress 6>><<else>>muffled sound of the rain outside calms your nerves.<<lstress>><<stress -6>><</if>>
+		<</addinlineevent>>
+	<</if>>
+
+	<<if $tiredness gte (C.tiredness.max / 5) * 4>>
+		<<addinlineevent "orphanage_facewash_tired">>
+			You splash water on your face a little too carelessly and end up snorting some up your nose. You recoil, blinking water from your eyes. You need to get more sleep.<<gstress>><<stress 6>>
+		<</addinlineevent>>
+	<</if>>
+
+	<<runeventpool>>
+<<else>> /* normal face washing message in places other than the orphanage */
+	You wash your face in the sink. <<if _faceFluids>>You rinse away the fluids clinging to your skin. <</if>><<if _faceMarked>>You carefully scrub your cheeks and forehead until the marks there are gone. <</if>>The cool water leaves you feeling a little fresher.
+<</if>>
+<<wash_face>>
+<br><br>
+
+<<link [[Next|_exit]]>><<endevent>><<canvas-model-override "clear">><<run delete $bathroomExit>><</link>>
+
+
+:: Hand Wash
+<<effects>>
+<<set _exit to $bathroomExit or "Bathroom">>
+
+<<if $leftarm is "bound" and $rightarm is "bound">>
+	<span class="red">Both of your arms are bound</span>, and you're unable to wash your hands.
+	<br><br>
+
+	<<link [[Next|_exit]]>><<endevent>><<canvas-model-override "clear">><<run delete $bathroomExit>><</link>>
+	<<exitAll>>
+<<elseif $leftarm is "bound" or $rightarm is "bound">>
+	<span class="red">One of your arms is bound</span>, and you're unable to properly wash both hands.
+	<br><br>
+
+	<<link [[Next|_exit]]>><<endevent>><<canvas-model-override "clear">><<run delete $bathroomExit>><</link>>
+	<<exitAll>>
+<</if>>
+
+<<set _handFluids to (setup.bodyliquid.combined("leftarm") + setup.bodyliquid.combined("rightarm")) gte 1 ? true : false>>
+
+<<if $location is "home">> /* simple hand washing events at the orphanage */
+	<<cleareventpool>>
+
+	<<addinlineevent "orphanage_handwash_normal">>
+		You wash your hands in the sink, rubbing your palms, fingers, and knuckles together until they feel clean again. <<if _handFluids>>You make sure to rinse away the fluids coating your skin.<</if>>
+	<</addinlineevent>>
+
+	<<addinlineevent "orphanage_handwash_soapless" 0.25>>
+		You reach for the soap, but somebody has used it up and left nothing behind. Annoyed, you dig through the bathroom until you find another bar, then scrub your hands clean.
+	<</addinlineevent>>
+
+	<<addinlineevent "orphanage_handwash_towelless" 0.25>>
+		You finish washing your hands, only to realise the towel is missing from its hook. After a short search, you find it tucked away in a cabinet. Someone must have moved it.
+	<</addinlineevent>>
+
+	<<if Time.isBloodMoon()>>
+		<<addinlineevent "orphanage_handwash_bloodmoon">>
+			You wash your hands in the sink. The silence of the orphanage is suffocating, and the slow trickle of water only makes the room feel more oppressive. And you wonder what shadow you see in the mirror before.<<gstress>><<stress 6>>
+		<</addinlineevent>>
+	<<elseif Time.dayState is "night">>
+		<<addinlineevent "orphanage_handwash_night">>
+			You wash your hands in the sink. The orphanage is quiet at night, and the small act of cleaning yourself helps settle your thoughts.<<lstress>><<stress -6>>
+		<</addinlineevent>>
+
+		<<addinlineevent "orphanage_handwash_night_distracted" 0.5>>
+			You wash your hands in the sink. The orphanage is quiet at night, but you are distracted by <<print either("some stray dogs barking", "a couple arguing", "someone shouting", "someone revving their engine", "someone playing loud music", "the sound of glass shattering")>> outside.
+		<</addinlineevent>>
+	<<else>>
+		<<addinlineevent "orphanage_handwash_loud" 0.5>>
+			You wash your hands in the sink when a loud <<print either("bang hits the bathroom door, but nobody enters", "crash sounds from somewhere outside")>> startles you. You pause, listening for a moment.<<gstress>><<stress 6>>
+		<</addinlineevent>>
+
+		<<addinlineevent "orphanage_handwash_orphan" 0.5>>
+			<<generateyv1>>
+			You are washing your hands when you hear <<print either("two", "a group of")>> orphans talking outside before one enters the bathroom.
+			<br><br>
+			<<person1>><<He>> notices you by the sink and blinks. "<<if $orphan_reb lt random(1, 50)>>Sorry, <</if>><<print either("I'll wait outside", "I'll give you some space", "I should have knocked")>>," <<he>> says before stepping back out.
+			<<endevent>>
+		<</addinlineevent>>
+
+		<<if $orphan_hope gte random(1, 50)>>
+			<<addinlineevent "orphanage_handwash_hope">>
+				You wash your hands in the sink while you hear two orphans talking just outside the bathroom. They sound hopeful about being able to meet Bailey's demands <<print either("without prostituting themselves", "without resorting to skulduggery", "through their day jobs", "through odd jobs around the city", "through tips from their work as temps")>>.<<lstress>><<stress -6>>
+			<</addinlineevent>>
+		<</if>>
+
+		<<if $orphan_reb gte random(1, 50)>>
+			<<addinlineevent "orphanage_handwash_reb">>
+				<<generateyv1>>
+				You are washing your hands when an orphan barges in and crowds the sink beside you, forcing you to hurry through the rest of it.<<gstress>><<stress 6>>
+				<<endevent>>
+			<</addinlineevent>>
+		<</if>>
+	<</if>>
+
+	<<if Weather.precipitation is "rain">>
+		<<addinlineevent "orphanage_handwash_rain">>
+			You wash your hands in the sink. The <<if Time.isBloodMoon()>>rain outside drowns out your thoughts and makes the whole room feel uncanny.<<gstress>><<stress 6>><<else>>muffled sound of the rain outside calms your nerves.<<lstress>><<stress -6>><</if>>
+		<</addinlineevent>>
+	<</if>>
+
+	<<if $tiredness gte (C.tiredness.max / 5) * 4>>
+		<<addinlineevent "orphanage_handwash_tired">>
+			You wash your hands on autopilot and nearly leave the soap slick on them before catching yourself and rinsing it off properly. You need to get more sleep.
+		<</addinlineevent>>
+	<</if>>
+
+	<<runeventpool>>
+<<else>> /* normal hand washing message in places other than the orphanage */
+	You wash your hands in the sink, rubbing your palms, fingers, and knuckles together until they feel clean again. <<if _handFluids>>You make sure to rinse away the fluids coating your skin.<</if>>
+<</if>>
+<<wash_hands>>
+<br><br>
+
+<<link [[Next|_exit]]>><<endevent>><<canvas-model-override "clear">><<run delete $bathroomExit>><</link>>
+
+
 :: Widgets Pubic Hair [widget]
 
 <<widget "pbhairinit">>
@@ -25,6 +215,10 @@
 
 <<widget "personalUpkeep">>
 	<<set $bathroomExit to $passage>>
+	<<bathroomicon "sink">><<link [[Wash face (0:05)|Face Wash]]>><<pass 5>><</link>>
+	<br>
+	<<bathroomicon "sink">><<link [[Wash hands (0:05)|Hand Wash]]>><<pass 5>><</link>>
+	<br>
 	<<bathroomicon "toothbrush">><<link [[Brush teeth (0:05)|Bathroom Brush]]>><<pass 5>><</link>>
 	<br>
 	<<if $settings.pubicHairEnabled and ($pblevel gte 2 or $pbstrip gte 1 or $pblevelballs gte 2)>>
