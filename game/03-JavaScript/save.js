@@ -1130,7 +1130,6 @@ function settingsObjects(type) {
 				tentacleHealthMult: { min: 1, max: 1000000, decimals: 0, displayName: "Tentacle Health Max Multiplier:" },
 				struggleHealthMult: { min: 1, max: 1000000, decimals: 0, displayName: "Struggle Health Max Multiplier:" },
 				enemystatstyle: { strings: ["full", "default"], randomize: "gameplay", displayName: "Enemy stat display:" },
-				dpctext: { min: 0, max: 1, decimals: 0, displayName: "Meme Text Expanded:" },
 				realisticTransparency: { min: 0, max: 1, decimals: 0, displayName: "Realistic Clothing Transparency:" },
 				wardrobeMult: { min: 0, max: 20, decimals: 0, displayName: "Wardrobe Capacity Multiplier:" },
 				bikePersistentLocation: { min: 0, max: 1, decimals: 0, displayName: "Persistent Bike Location:" },
