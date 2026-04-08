@@ -899,6 +899,11 @@ function xchangeEffectsMessages() {
 			break;
 	}
 
+	if (V.giDriftMessage) {
+		element("span", V.giDriftMessage, "purple"); br();
+		delete V.giDriftMessage;
+	}
+
 	if (V.identityCapMessage) {
 		const giRange = Number(V.xchange?.giRange) || 1500;
 		const giMid = giRange / 2;

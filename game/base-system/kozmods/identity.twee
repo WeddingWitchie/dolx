@@ -1319,8 +1319,44 @@
 					<<set _delta to Math.clamp($xchange.giTarget - $genderidentity, 0 - _step, _step)>>
 
 					<<if _delta isnot 0>>
+						/* Track stage before drift for threshold-crossing notification */
+						<<set _stageBefore to 0>>
+						<<if $genderidentity gte 1500>><<set _stageBefore to 8>>
+						<<elseif $genderidentity gte 1300>><<set _stageBefore to 7>>
+						<<elseif $genderidentity gte 1100>><<set _stageBefore to 6>>
+						<<elseif $genderidentity gte 900>><<set _stageBefore to 5>>
+						<<elseif $genderidentity gte 600>><<set _stageBefore to 4>>
+						<<elseif $genderidentity gte 400>><<set _stageBefore to 3>>
+						<<elseif $genderidentity gte 200>><<set _stageBefore to 2>>
+						<<elseif $genderidentity gte 1>><<set _stageBefore to 1>>
+						<</if>>
+
 						<<set $genderidentity += _delta>>
 						<<set $genderidentity to Math.clamp($genderidentity, 0, _range)>>
+
+						/* Check if stage changed */
+						<<set _stageAfter to 0>>
+						<<if $genderidentity gte 1500>><<set _stageAfter to 8>>
+						<<elseif $genderidentity gte 1300>><<set _stageAfter to 7>>
+						<<elseif $genderidentity gte 1100>><<set _stageAfter to 6>>
+						<<elseif $genderidentity gte 900>><<set _stageAfter to 5>>
+						<<elseif $genderidentity gte 600>><<set _stageAfter to 4>>
+						<<elseif $genderidentity gte 400>><<set _stageAfter to 3>>
+						<<elseif $genderidentity gte 200>><<set _stageAfter to 2>>
+						<<elseif $genderidentity gte 1>><<set _stageAfter to 1>>
+						<</if>>
+
+						<<if _stageAfter isnot _stageBefore>>
+							<<set _driftDir to (_delta gt 0) ? "feminine" : "masculine">>
+							<<set $effectsmessage to 1>>
+							<<if _stageAfter is 4>>
+								<<set $giDriftMessage to "Your sense of self feels balanced between masculine and feminine.">>
+							<<elseif _stageAfter gt _stageBefore>>
+								<<set $giDriftMessage to "You feel your sense of self drifting in a more " + _driftDir + " direction.">>
+							<<else>>
+								<<set $giDriftMessage to "You feel your sense of self drifting in a more " + _driftDir + " direction.">>
+							<</if>>
+						<</if>>
 					<</if>>
 
 					<<if $xchange.giAutoEnabled is true and $xchange.giTransformEnabled is true and $xchange.giTransformConsent is true>>

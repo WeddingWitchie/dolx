@@ -912,6 +912,112 @@
 			<br><br>
 		<</foldout>>
 
+		<<if $xchange and $xchange.genderIdentityEnabled>>
+		<<foldout false "_genderIdentityFoldout">>
+			<span class="gold">Gender Identity</span>
+
+			<<set _giRange to ($xchange.giRange is undefined ? 1500 : $xchange.giRange)>>
+			<<set _giMid to Math.floor(_giRange / 2)>>
+			<<set _giCurrent to Math.clamp(Number($genderidentity) || 0, 0, _giRange)>>
+			<<set _giTarget to (Number.isFinite(Number($xchange.giTarget)) ? Number($xchange.giTarget) : _giMid)>>
+			<<set _giStep to (Number($xchange.giStepPerDay) || 30)>>
+
+			Meter: <span class=_giColour><<print Math.round(_giCurrent)>> / _giRange</span>
+			<br>
+
+			/* Target and drift */
+			<<set _giTargetDir to (_giTarget gt _giMid) ? "feminine" : (_giTarget lt _giMid) ? "masculine" : "neutral">>
+			<<set _giDelta to _giTarget - _giCurrent>>
+
+			Identity target: <span class="gold"><<print Math.round(_giTarget)>></span> (<span class=_giColour>_giTargetDir</span>)
+			<br>
+			Daily drift: <span class="gold"><<print _giStep>> / day</span>
+			<br>
+
+			<<if Math.abs(_giDelta) lte 1>>
+				Drift status: <span class="green">Stable (already at target)</span>
+			<<else>>
+				<<set _giDaysLeft to Math.ceil(Math.abs(_giDelta) / _giStep)>>
+				<<set _giDriftDir to (_giDelta gt 0) ? "feminine" : "masculine">>
+				Drifting: <span class=_giColour>toward _giDriftDir</span> (~_giDaysLeft days remaining)
+			<</if>>
+			<br>
+
+			<br>
+			<span class="gold">Body Transformation</span>
+			<br>
+			<<if $xchange.giAutoEnabled isnot true>>
+				Auto-update: <span class="red">Off</span> <span class="small-description">(enable in Attitudes)</span>
+			<<else>>
+				Auto-update: <span class="green">On</span>
+			<</if>>
+			<br>
+			<<if $xchange.giTransformEnabled isnot true>>
+				Body changes: <span class="red">Off</span> <span class="small-description">(enable in Attitudes)</span>
+			<<elseif $xchange.pill and $xchange.pill.active is true>>
+				Body changes: <span class="blue">Paused</span> <span class="small-description">(X-Change pill active)</span>
+			<<else>>
+				Body changes: <span class="green">Active</span>
+			<</if>>
+			<br>
+
+			<<if $xchange.giTransformEnabled is true>>
+				<<set _giTh to ($xchange.giTransformThreshold is undefined ? 120 : $xchange.giTransformThreshold)>>
+				<<set _giDrift to (Number($xchange.giDrift) || 0)>>
+				<<set _giMode to $xchange.giShiftMode || "none">>
+				<<set _giStage to (Number($xchange.giShiftStage) || 0)>>
+
+				Transform direction: <<if _giMode is "f">><span class="pink">Feminising</span><<elseif _giMode is "m">><span class="lblue">Masculinising</span><<else>><span class="grey">None</span><</if>>
+				<br>
+				Transform stage: <span class="gold">_giStage</span> <span class="small-description">(stage 0: setup, stage 1: primary, stage 2: secondary, stage 3: alignment)</span>
+				<br>
+				Drift accumulation: <span class="gold"><<print Math.round(_giDrift)>> / _giTh</span>
+				<br>
+				<<set _giDriftPct to Math.round((_giDrift / _giTh) * 100)>>
+				Next body change: <<if _giDriftPct gte 100>><span class="green">Imminent</span><<else>><span class="gold">_giDriftPct%</span><</if>>
+				<br>
+			<</if>>
+
+			<br>
+			<span class="gold">Active Body Topics</span>
+			<br>
+			<<set _giTopics to []>>
+			<<if $xchange.giGenitalsEnabled>><<run _giTopics.push("Genitals")>><</if>>
+			<<if $xchange.giBreastSizeEnabled>><<run _giTopics.push("Breast Size")>><</if>>
+			<<if $xchange.giAssSizeEnabled>><<run _giTopics.push("Ass Size")>><</if>>
+			<<if $xchange.giHairLengthEnabled>><<run _giTopics.push("Hair Length")>><</if>>
+			<<if $xchange.giBodySizeEnabled>><<run _giTopics.push("Body Size")>><</if>>
+			<<if $xchange.giFecundityEnabled>><<run _giTopics.push("Fecundity")>><</if>>
+			<<if _giTopics.length gt 0>>
+				<<print _giTopics.join(", ")>>
+			<<else>>
+				<span class="grey">None (only presentation topics active)</span>
+			<</if>>
+			<br>
+
+			/* Current body state */
+			<br>
+			<span class="gold">Current Body</span>
+			<br>
+			Sex: <<if $player.sex is "f">><span class="pink">Female</span><<else>><span class="lblue">Male</span><</if>>
+			<br>
+			<<if $player.penisExist>>
+				Penis: <span class="lblue">Size $player.penissize</span>
+				<br>
+			<</if>>
+			<<if $player.vaginaExist>>
+				Vagina: <span class="pink">Present</span>
+				<br>
+			<</if>>
+			Breasts: <span class="gold">Size $player.breastsize</span>
+			<br>
+			Bottom: <span class="gold">Size $player.bottomsize</span>
+			<br>
+			Hair length: <span class="gold">$hairlength</span>
+			<br>
+		<</foldout>>
+		<</if>>
+
 		<<foldout false "_clothesFoldout">>
 			<span class="gold">Clothes</span>
 			<<if $worn.upper.name isnot "naked">>
