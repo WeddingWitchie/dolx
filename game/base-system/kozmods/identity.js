@@ -979,6 +979,69 @@ window.playerFeelsGirllike = playerFeelsGirllike;
 				V.pregnancyStats.heatStillEnabled = true;
 			}
 		}
+
+		// Ensure $ballssize always exists (female-start characters may never have it initialised,
+		// which causes NaN when save-body runs Number($ballssize)).
+		if (V.ballssize === undefined || V.ballssize === null || !Number.isFinite(Number(V.ballssize))) {
+			V.ballssize = V.player?.ballsExist ? 0 : -2;
+		}
+
+		// Repair corrupted cached body snapshots from older versions.
+		// Old saves may have NaN penissize/ballssize/hair baked into the snapshot.
+		const pill = V.xchange?.pill;
+		if (pill) {
+			const slots = ["originalBody", "changedBody", "hermBody"];
+			for (const slot of slots) {
+				const body = pill[slot];
+				if (!body || typeof body !== "object" || !Object.keys(body).length) continue;
+
+				// Fix penissize
+				if ("penissize" in body && !Number.isFinite(Number(body.penissize))) {
+					body.penissize = body.penisExist ? 0 : -2;
+				}
+
+				// Fix ballssize
+				if ("ballssize" in body && !Number.isFinite(Number(body.ballssize))) {
+					body.ballssize = body.ballsExist ? 0 : -2;
+				}
+
+				// Fix breastsize
+				if ("breastsize" in body && !Number.isFinite(Number(body.breastsize))) {
+					body.breastsize = 0;
+				}
+
+				// Fix bottomsize
+				if ("bottomsize" in body && !Number.isFinite(Number(body.bottomsize))) {
+					body.bottomsize = 2;
+				}
+
+				// Fix undefined hair fields that cause image path errors
+				if (body.hairtype === undefined) body.hairtype = V.hairtype ?? "default";
+				if (body.hairlength === undefined || !Number.isFinite(Number(body.hairlength))) {
+					body.hairlength = Number.isFinite(Number(V.hairlength)) ? V.hairlength : 200;
+				}
+				if (body.fringetype === undefined) body.fringetype = V.fringetype ?? "default";
+				if (body.fringelength === undefined || !Number.isFinite(Number(body.fringelength))) {
+					body.fringelength = Number.isFinite(Number(V.fringelength)) ? V.fringelength : 200;
+				}
+				if (body.haircolour === undefined) body.haircolour = V.haircolour ?? "brown";
+				if (body.naturalhaircolour === undefined) body.naturalhaircolour = V.naturalhaircolour ?? body.haircolour ?? "brown";
+				if (body.hairfringecolour === undefined) body.hairfringecolour = V.hairfringecolour ?? body.haircolour ?? "brown";
+			}
+
+			// Also repair cloned bodies if present
+			if (pill.clonedBody && typeof pill.clonedBody === "object") {
+				for (const [name, body] of Object.entries(pill.clonedBody)) {
+					if (!body || typeof body !== "object") continue;
+					if ("penissize" in body && !Number.isFinite(Number(body.penissize))) {
+						body.penissize = body.penisExist ? 0 : -2;
+					}
+					if ("ballssize" in body && !Number.isFinite(Number(body.ballssize))) {
+						body.ballssize = body.ballsExist ? 0 : -2;
+					}
+				}
+			}
+		}
 	};
 
 	// GI safety: keep the Gender Identity drift system truly OFF unless explicitly enabled,
