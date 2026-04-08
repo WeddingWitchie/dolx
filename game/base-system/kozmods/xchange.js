@@ -248,62 +248,88 @@ function pleasure(amount, source) {
 			(V.penis_addict_trait === 1 && !penisAddictionFulfilled) ||
 			(V.hole_addict_trait === 1 && !holeAddictionFulfilled);
 
-		// toy detection (does NOT break if the selected toy index is 0)
-		const usingSexToy = (() => {
-			// If already set a flag elsewhere, respect it
-			if (V.usingSexToy) return true;
+		// If a breakthrough orgasm was already triggered, let it through
+		// until pleasure drops (orgasm processed). Don't re-clamp.
+		if (V.xchange.breakthroughOrgasm && V.pleasure >= V.pleasuremax * 4 / 5) {
+			// Let it ride — orgasm processing will handle it
+		} else if (V.xchange.breakthroughOrgasm && V.pleasure < V.pleasuremax * 4 / 5) {
+			// Orgasm processed, clear the bypass
+			delete V.xchange.breakthroughOrgasm;
+		} else if (addictionsUnmet) {
+			// Trait-aware toy detection: each addiction needs a DIFFERENT type of toy.
+			// Penis addict ("getting railed") → insertive toys (things inside the player)
+			// Hole addict ("get your cock into something") → enveloping toys (things around the penis)
+			const usingSexToy = (() => {
+				// Scene-level explicit flag
+				if (V.usingSexToy) return true;
 
-			// A worn butt plug should count as a toy even outside masturbation flows.
-			// Some scenes keep it in a dedicated worn slot rather than a currentToy selector.
-			try {
-				if (typeof window.playerHasButtPlug === "function" && window.playerHasButtPlug()) return true;
-				if (V.worn?.butt_plug?.name && !["none", "naked"].includes(String(V.worn.butt_plug.name).toLowerCase())) return true;
-			} catch (e) {}
+				// --- Penis Addict: needs something INSIDE the player ---
+				if (V.penis_addict_trait === 1 && !penisAddictionFulfilled) {
+					// Worn butt plug (inserted)
+					try {
+						if (typeof window.playerHasButtPlug === "function" && window.playerHasButtPlug()) return true;
+						if (V.worn?.butt_plug?.name && !["none", "naked"].includes(String(V.worn.butt_plug.name).toLowerCase())) return true;
+					} catch (e) {}
 
-			// Masturbation toy selectors (0 is a valid selection!)
-			const slots = ["Left", "Right", "Mouth", "Vagina", "Anus"];
-			for (const s of slots) {
-				const v = V["currentToy" + s];
-				if (v !== undefined && v !== null && v !== "none") return true;
-			}
+					// Insertive masturbation toys (vagina/anus slots) during masturbation
+					if (V.masturbating) {
+						for (const s of ["Vagina", "Anus"]) {
+							const v = V["currentToy" + s];
+							if (v !== undefined && v !== null && v !== "none") return true;
+						}
+					}
 
-			// Fallback: worn items sometimes include plugs/vibes by name
-			const names = [];
-			try {
-				if (V.worn?.butt_plug?.name) names.push(V.worn.butt_plug.name);
-				if (V.worn?.genitals?.name) names.push(V.worn.genitals.name);
-				if (V.worn?.under_lower?.name) names.push(V.worn.under_lower.name);
-				if (V.worn?.lower?.name) names.push(V.worn.lower.name);
-			} catch (e) {}
+					// Worn insertive genital accessories
+					try {
+						if (V.worn?.genitals?.name && !["none", "naked"].includes(String(V.worn.genitals.name).toLowerCase())) {
+							if (/vibe|vibrator|bullet|egg/i.test(String(V.worn.genitals.name))) return true;
+						}
+					} catch (e) {}
+				}
 
-			return names.some(n => /plug|butt\s*plug|buttplug|vibe|vibrator|bullet|stroker|sleeve|flesh\s*light|fleshlight|onahole/i.test(String(n)));
-		})();
+				// --- Hole Addict: needs something AROUND the penis ---
+				if (V.hole_addict_trait === 1 && !holeAddictionFulfilled) {
+					// Enveloping masturbation toys (penis slot) during masturbation
+					if (V.masturbating && V.player?.penisExist) {
+						// Check Left/Right hand toys for stroker-type items
+						for (const s of ["Left", "Right"]) {
+							const v = V["currentToy" + s];
+							if (v !== undefined && v !== null && v !== "none") {
+								// Check if it's an enveloping toy by looking up the setup definition
+								try {
+									const toyDef = setup.sextoys?.[v];
+									if (toyDef && /stroker|sleeve|fleshlight|onahole|masturbator/i.test(String(toyDef.name || ""))) return true;
+									if (toyDef?.category === "stroker") return true;
+								} catch (e) {}
+							}
+						}
+					}
+				}
 
-		if (!addictionsUnmet) {
-			// Do nothing
-		} else {
+				return false;
+			})();
+
 			const cap = V.pleasuremax * 4 / 5 - 1;
 
-			// Keep the message behavior
 			const showBlockedMsg = () => {
 				V.effectsmessage = 1;
 				V.sexual_addiction_message = 1;
 			};
 
 			if (usingSexToy) {
-				// Soft gate for toys:
-				// - clamp to cap
-				// - when capped, rarely force a weak, unsatisfying breakthrough orgasm
+				// Soft gate: clamp to cap, with small chance of breakthrough orgasm
 				if (V.pleasure > cap) V.pleasure = cap;
 
 				if (V.pleasure >= cap) {
-					// Tune: 5-10 = hard, 15-25 = medium, 30+ = easy
 					const breakthroughChance = 10;
 					const roll = Math.floor(Math.random() * 100) + 1;
 
 					if (roll <= breakthroughChance) {
-						// Let the normal orgasm check happen this tick, but mark it as unsatisfying.
+						// Real orgasm; hollow and unsatisfying, but it IS an orgasm.
+						// Set bypass flag so subsequent pleasure() calls don't re-clamp.
 						V.pleasure = V.pleasuremax;
+						V.xchange = V.xchange || {};
+						V.xchange.breakthroughOrgasm = true;
 						V.effectsmessage = 1;
 						V.sexual_addiction_toy_breakthrough_message = 1;
 					} else {
@@ -311,7 +337,7 @@ function pleasure(amount, source) {
 					}
 				}
 			} else {
-				// Original hard block for non-toy situations
+				// Hard block without appropriate toy
 				V.pleasure = Math.clamp(V.pleasure, 0, cap);
 				if (V.pleasure === cap) showBlockedMsg();
 			}
@@ -904,25 +930,6 @@ function xchangeEffectsMessages() {
 		delete V.giDriftMessage;
 	}
 
-	if (V.identityCapMessage) {
-		const giRange = Number(V.xchange?.giRange) || 1500;
-		const giMid = giRange / 2;
-		const giTarget = Number.isFinite(Number(V.xchange?.giTarget)) ? Number(V.xchange.giTarget) : giMid;
-		const giPull = giTarget < giMid ? "masculine" : giTarget > giMid ? "feminine" : null;
-		const giPullStrength = Math.abs(giTarget - giMid) / giMid;
-
-		if (!giPull || giPullStrength < 0.12) {
-			element("span", "You feel your sense of self shifting, but you steady yourself before it carries you any further.", "purple");
-		} else if (giPullStrength < 0.45) {
-			element("span", `You feel yourself leaning more ${giPull}, but you hold the change at bay.`, "purple");
-		} else {
-			element("span", `A strong ${giPull} pull presses at the edge of your identity, but you refuse to let it settle in any deeper.`, "purple");
-		}
-		fragment.append(wikifier("gstress"));
-		fragment.append(wikifier("gtrauma")); br();
-		delete V.identityCapMessage;
-	}
-
 	if (V.breastSensitiveRubMessage) {
 		if (!V.worn.under_upper.type.includes("naked") && V.worn.under_upper.exposed < 2) {
 			wikifier("breastsensitivity");
@@ -963,10 +970,10 @@ function xchangeEffectsMessages() {
 	}
 
 	if (V.sexual_addiction_toy_breakthrough_message) {
-		element("span", "You trying to force out an orgasm with the toy.", "purple");
-		element("span", "Instead of relief, you just end up more tense and distracted.", "red");
+		element("span", "The toy pushes you over the edge, and your body finally gives in.", "purple");
+		element("span", "The orgasm washes through you, but it feels hollow; your body craves the real thing.", "blue");
 		fragment.append(wikifier("ggstress"));
-		fragment.append(wikifier("stress", 30));
+		fragment.append(wikifier("stress", 15));
 		br();
 
 		delete V.sexual_addiction_toy_breakthrough_message;
