@@ -1071,7 +1071,9 @@
 							<<tolerance -3>>
 						<</if>>
 					<<elseif !$identityOption.reject>>
-						<<set _shift to Math.ceil(0 - ($identityOption.dysphoria / 2))>>
+						/* Halve dysphoria daily, but always decrease by at least 1 to prevent
+						   getting stuck at dysphoria = 1 forever (Math.ceil(-0.5) = 0). */
+						<<set _shift to Math.min(Math.ceil(0 - ($identityOption.dysphoria / 2)), -1)>>
 						<<tolerance 5>>
 						<<dysphoria _shift>>
 						<<sub `_shift * -0.1`>>
@@ -1211,12 +1213,12 @@
 			try { console.warn("[X-Change: Save repair notice] failed", id, e); } catch(_) {}}};})(
 	);>>
 
-<<if $genderidentity is undefined or $xchange.giMeterVersion isnot 6>>
+<<if $genderidentity is undefined or $xchange.giMeterVersion isnot 7>>
 	<<run mapToLegacyGenderIdentity()>>
 	<<set _giInitRange to ($xchange.giRange is undefined ? 1500 : $xchange.giRange)>>
 	<<set _giInitDefault to ($player isnot undefined and $player.gender is "f") ? _giInitRange : 0>>
 	<<set $genderidentity to ($xchange.giTarget is undefined ? _giInitDefault : $xchange.giTarget)>>
-	<<set $xchange.giMeterVersion to 6>>
+	<<set $xchange.giMeterVersion to 7>>
 <</if>>
 
 	<<widget "gi-disarm">>
@@ -1309,10 +1311,10 @@
 				<<set _range to ($xchange.giRange is undefined ? 1500 : $xchange.giRange)>>
 				<<set _step to ($xchange.giStepPerDay is undefined ? 8 : $xchange.giStepPerDay)>>
 
-				<<if $genderidentity is undefined or $xchange.giMeterVersion isnot 6 or $xchange.giInitialized isnot true>>
+				<<if $genderidentity is undefined or $xchange.giMeterVersion isnot 7 or $xchange.giInitialized isnot true>>
 					<<set $genderidentity to $xchange.giTarget>>
 					<<set $xchange.giInitialized to true>>
-					<<set $xchange.giMeterVersion to 6>>
+					<<set $xchange.giMeterVersion to 7>>
 				<<else>>
 					<<set _delta to Math.clamp($xchange.giTarget - $genderidentity, 0 - _step, _step)>>
 
@@ -1430,8 +1432,13 @@
 					<<set _giStepDone to true>>
 				<<else>>
 					<<set $player.penisExist to false>>
+					<<set $player.ballsExist to false>>
 					<<set $player.vaginaExist to true>>
 					<<set $player.penissize to -2>>
+					<<ensure-sexstats-min>>
+					<<if $sexStats.vagina and $sexStats.vagina.menstruation>>
+						<<set $sexStats.vagina.menstruation.running to true>>
+					<</if>>
 					<<gi-note "A new warmth gathers between your legs as your body opens into a vagina.">>
 					<<set $xchange.giShiftStage to 2>>
 					<<set _giStepDone to true>>
@@ -1439,6 +1446,11 @@
 			<<else>>
 				<<if !$player.vaginaExist>>
 					<<set $player.vaginaExist to true>>
+					<<set $player.ballsExist to false>>
+					<<ensure-sexstats-min>>
+					<<if $sexStats.vagina and $sexStats.vagina.menstruation>>
+						<<set $sexStats.vagina.menstruation.running to true>>
+					<</if>>
 					<<gi-note "A new warmth gathers between your legs as your body opens into a vagina.">>
 					<<set _giStepDone to true>>
 				<</if>>
@@ -1516,6 +1528,7 @@
 		<<if not _giStepDone and $xchange.giShiftStage is 1>>
 			<<if !$player.penisExist>>
 				<<set $player.penisExist to true>>
+				<<set $player.ballsExist to true>>
 				<<set $player.penissize to 0>>
 				<<gi-note "A tight, unfamiliar weight forms between your legs.">>
 				<<set _giStepDone to true>>
@@ -1525,6 +1538,9 @@
 				<<set _giStepDone to true>>
 			<<elseif $player.vaginaExist>>
 				<<set $player.vaginaExist to false>>
+				<<if $sexStats.vagina and $sexStats.vagina.menstruation>>
+					<<set $sexStats.vagina.menstruation.running to false>>
+				<</if>>
 				<<gi-note "The softness between your legs closes up and disappears.">>
 				<<set _giStepDone to true>>
 			<<else>>

@@ -751,7 +751,7 @@ window.getIdentityMeterSupport = getIdentityMeterSupport;
 
 function mapToLegacyGenderIdentity() {
 	const range = Number(V.xchange?.giRange) || 1500;
-	const meterVersion = 6;
+	const meterVersion = 7;
 	const groups = {};
 	if (!V.xchange) V.xchange = {};
 
