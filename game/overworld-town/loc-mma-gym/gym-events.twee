@@ -1,92 +1,98 @@
 :: MMA Gym
 <<set $outside to 0>><<set $location to "mma_gym">><<effects>><<npc Riley>><<person1>>
+<<if $mmagymintro is undefined or $mmagymintro is null>><<set $mmagymintro to 0>><</if>>
 <<if $mmaGymAccessAsked is undefined>><<set $mmaGymAccessAsked to 0>><</if>>
 <<if $mmaGymAccessUnlocked is undefined>><<set $mmaGymAccessUnlocked to 0>><</if>>
 <<if $mmaGymSparUnlocked is undefined>><<set $mmaGymSparUnlocked to 0>><</if>>
 <<if $mmaConditioningUnlocked is undefined>><<set $mmaConditioningUnlocked to 0>><</if>>
 <<if $mmaWeightsSessions is undefined>><<set $mmaWeightsSessions to 0>><</if>>
-The MMA gym smells of sweat, disinfectant, and old rubber. Heavy bags sway along one wall, a cramped weights area sits beyond a rack of battered plates, and a square of mats at the back serves as Riley's class space. Nothing in here is polished for show.
-<br><br>
-It exists to wear people down and build them back up.
-<br><br>
+<<set $openinghour to 8>><<set $closinghour to 21>>
+<<set $openinghours to 0>><<if Time.hour gte 8 and Time.hour lt 21>><<set $openinghours to 1>><</if>>
 
-<<if $stress gte $stressmax>>
-	<<passoutshop>>
+<<if $mmagymintro isnot 1 and $openinghours is 1>>
+	<<mmaGymIntro "MMA Gym">>
 <<else>>
-	<<if $pleasure gte $pleasuremax>>
-		<<orgasmLocation "mmaGym">>
-	<</if>>
-    <<if Time.hour is $closinghour>>
-		It is closing time. Riley starts shooing everyone toward the door.<<if $exposed gte 1>> Your stomach drops as you remember what state of dress you are in.<</if>>
-		<br>
-	<<elseif $openinghours is 0>>
-		The building is dark and still. Without the music and shouting, the place feels bigger.
-		<br><br>
-	<</if>>
-	<<if $openinghours is 1 and $exposed lt 1>>
-		<<icon "physique.png">><<link [[Use the weights room (0:30)|MMA Weights Room]]>><<set $phase to 0>><<pass 30>><</link>><<gphysique>><<gathletics>><<note " Moderate fatigue" "red">>
-		<br>
-		<<if $mmaGymAccessUnlocked isnot 1>>
-			<<if $mmaGymAccessAsked isnot 1>>
-				<<socialiseicon "ask">><<link [[Ask Riley about using the rest of the gym|MMA Gym Access Request]]>><<set $phase to 0>><</link>>
-				<br>
-			<<else>>
-				<<socialiseicon "ask">><<link [[Ask Riley for another assessment (0:30)|MMA Riley Challenge Start]]>><<set $mmaRileyChallengeMode to "unlock">><<set $phase to 0>><<pass 30>><</link>>
-				<br>
-			<</if>>
-		<<else>>
-			<<if $combatExtended.standingFights is 1 and $combatExtended.footworkToggle is 1>>
-				<<if $money gte 1200>>
-					<<mmagymicon>><<link [[Take a footwork lesson (£120 1:00)|Footwork Lesson]]>><<set $phase to 0>><<set $gymstage to 0>><<set $usedEvents = []>><<money -12000 "mmaGymLessons">><</link>><<gfootwork>><<note " Heavy fatigue risk" "red">>
-					<br>
-				<<else>>
-					<span class="blue">You can't afford a footwork lesson.</span>
-					<br>
-				<</if>>
-			<</if>>
-			<<if $combatExtended.strikingToggle is 1>>
-				<<if $money gte 1800>>
-					<<mmagymicon>><<link [[Take a striking lesson (£180 1:00)|Striking Lesson]]>><<set $phase to 0>><<set $gymstage to 0>><<set $usedEvents = []>><<money -18000 "mmaGymLessons">><</link>><<note "+ Striking" "green">><<note " Heavy fatigue risk" "red">>
-					<br>
-				<<else>>
-					<span class="blue">You can't afford a striking lesson.</span>
-					<br>
-				<</if>>
-			<</if>>
-			<<if $combatExtended.kickingToggle is 1>>
-				<<if $money gte 1800>>
-					<<mmagymicon>><<link [[Take a kicking lesson (£180 1:00)|Kicking Lesson]]>><<set $phase to 0>><<set $gymstage to 0>><<set $usedEvents = []>><<money -18000 "mmaGymLessons">><</link>><<note "+ Kicking" "green">><<note " Heavy fatigue risk" "red">>
-					<br>
-				<<else>>
-					<span class="blue">You can't afford a kicking lesson.</span>
-					<br>
-				<</if>>
-			<</if>>
-			<<if $mmaConditioningUnlocked is 1>>
-				<<if $money gte 1000>>
-					<<mmagymicon>><<link [[Take a conditioning lesson (£100 1:00)|Conditioning Lesson 1]]>><<set $phase to 0>><<money -10000 "mmaGymLessons">><</link>><<gphysique>><<gathletics>><<gwillpower>><<note " Brutal fatigue" "red">>
-					<br>
-				<<else>>
-					<span class="blue">You can't afford a conditioning lesson.</span>
-					<br>
-				<</if>>
-			<<else>>
-				<span class="blue">Riley hasn't opened conditioning work to you yet.</span>
-				<br>
-			<</if>>
-			<<socialiseicon>><<link [[Spar with Riley (0:30)|MMA Riley Challenge Start]]>><<set $mmaRileyChallengeMode to "spar">><<set $phase to 0>><<pass 30>><</link>>
+	The MMA gym smells of sweat, disinfectant, and old rubber. Heavy bags sway along one wall, a cramped weights area sits beyond a rack of battered plates, and a square of mats at the back serves as Riley's class space. Nothing in here is polished for show.
+	<br><br>
+	It exists to wear people down and build them back up.
+	<br><br>
+	<<if $stress gte $stressmax>>
+		<<passoutshop>>
+	<<else>>
+		<<if $pleasure gte $pleasuremax>>
+			<<orgasmLocation "mmaGym">>
+		<</if>>
+		<<if Time.hour is 21>>
+			It is closing time. Riley starts shooing everyone toward the door.<<if $exposed gte 1>> Your stomach drops as you remember what state of dress you are in.<</if>>
+			<br>
+		<<elseif $openinghours is 0>>
+			The building is dark and still. Without the music and shouting, the place feels bigger.
 			<br>
 		<</if>>
-	<</if>>
-	<<if $openinghours is 0 and Time.hour isnot $closinghour and !$weekly.theft.mmaGym>>
-		<<shopicon "register">><<link [[Examine the cash register|MMA Gym Register]]>><</link>>
+		<<if $openinghours is 1 and $exposed lt 1>>
+			<<icon "physique.png">><<link [[Use the weights room (0:30)|MMA Weights Room]]>><<set $phase to 0>><<pass 30>><</link>><<gphysique>><<gathletics>><<note " Moderate fatigue" "red">>
+			<br>
+			<<if $mmaGymAccessUnlocked isnot 1>>
+				<<if $mmaGymAccessAsked isnot 1>>
+					<<socialiseicon "ask">><<link [[Ask Riley about using the rest of the gym|MMA Gym Access Request]]>><<set $phase to 0>><</link>>
+					<br>
+				<<else>>
+					<<socialiseicon "ask">><<link [[Ask Riley for another assessment (0:30)|MMA Riley Challenge Start]]>><<set $mmaRileyChallengeMode to "unlock">><<set $phase to 0>><<pass 30>><</link>>
+					<br>
+				<</if>>
+			<<else>>
+				<<if $combatExtended.standingFights is 1 and $combatExtended.footworkToggle is 1>>
+					<<if $money gte 1200>>
+						<<mmagymicon>><<link [[Take a footwork lesson (£120 1:00)|Footwork Lesson]]>><<set $phase to 0>><<set $gymstage to 0>><<set $usedEvents = []>><<money -12000 "mmaGymLessons">><</link>><<gfootwork>><<note " Heavy fatigue risk" "red">>
+						<br>
+					<<else>>
+						<span class="blue">You can't afford a footwork lesson.</span>
+						<br>
+					<</if>>
+				<</if>>
+				<<if $combatExtended.strikingToggle is 1>>
+					<<if $money gte 1800>>
+						<<mmagymicon>><<link [[Take a striking lesson (£180 1:00)|Striking Lesson]]>><<set $phase to 0>><<set $gymstage to 0>><<set $usedEvents = []>><<money -18000 "mmaGymLessons">><</link>><<note "+ Striking" "green">><<note " Heavy fatigue risk" "red">>
+						<br>
+					<<else>>
+						<span class="blue">You can't afford a striking lesson.</span>
+						<br>
+					<</if>>
+				<</if>>
+				<<if $combatExtended.kickingToggle is 1>>
+					<<if $money gte 1800>>
+						<<mmagymicon>><<link [[Take a kicking lesson (£180 1:00)|Kicking Lesson]]>><<set $phase to 0>><<set $gymstage to 0>><<set $usedEvents = []>><<money -18000 "mmaGymLessons">><</link>><<note "+ Kicking" "green">><<note " Heavy fatigue risk" "red">>
+						<br>
+					<<else>>
+						<span class="blue">You can't afford a kicking lesson.</span>
+						<br>
+					<</if>>
+				<</if>>
+				<<if $mmaConditioningUnlocked is 1>>
+					<<if $money gte 1000>>
+						<<mmagymicon>><<link [[Take a conditioning lesson (£100 1:00)|Conditioning Lesson 1]]>><<set $phase to 0>><<money -10000 "mmaGymLessons">><</link>><<gphysique>><<gathletics>><<gwillpower>><<note " Brutal fatigue" "red">>
+						<br>
+					<<else>>
+						<span class="blue">You can't afford a conditioning lesson.</span>
+						<br>
+					<</if>>
+				<<else>>
+					<span class="blue">Riley hasn't opened conditioning work to you yet.</span>
+					<br>
+				<</if>>
+				<<socialiseicon>><<link [[Spar with Riley (0:30)|MMA Riley Challenge Start]]>><<set $mmaRileyChallengeMode to "spar">><<set $phase to 0>><<pass 30>><</link>>
+				<br>
+			<</if>>
+		<</if>>
+		<<if $openinghours is 0 and Time.hour isnot 21 and !$weekly.theft.mmaGym>>
+			<<shopicon "register">><<link [[Examine the cash register|MMA Gym Register]]>><</link>>
+			<br>
+		<</if>>
 		<br>
+		<<nightingaleicon>><<link [[Leave|Nightingale Street]]>><<endevent>><</link>>
+		<br><br>
 	<</if>>
-	<br>
-	<<nightingaleicon>><<link [[Leave|Nightingale Street]]>><<endevent>><</link>>
-	<br><br>
 <</if>>
-
 
 :: MMA Gym Introduction
 <<effects>>

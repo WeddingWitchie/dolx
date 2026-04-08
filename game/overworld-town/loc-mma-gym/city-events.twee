@@ -1,6 +1,8 @@
 :: MMA Gym Lock
-<<set $outside to 1>><<effects>><<set $lock to 200>>
-<<openinghours>><br>
+<<set $outside to 1>><<set $location to "mma_gym">><<effects>><<set $lock to 200>>
+<<set $openinghour to 8>><<set $closinghour to 21>>
+<<set $openinghours to 0>><<if Time.hour gte 8 and Time.hour lt 21>><<set $openinghours to 1>><</if>>
+<br>
 <<if currentSkillValue('skulduggery') gte $lock>>
 	<<if $leftarm is "bound" and $rightarm is "bound">>
 		You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
@@ -17,6 +19,52 @@
 	<br><br>
 <</if>>
 <<getouticon>><<link [[Leave|Nightingale Street]]>><<handheldon>><<endevent>><</link>>
+
+:: MMA Gym Register
+<<set $outside to 0>><<effects>><<set $lock to 200>>
+A standard cash register sits on a counter. It's locked tight.
+<br><br>
+<<if currentSkillValue('skulduggery') gte $lock>>
+	<<if $leftarm is "bound" and $rightarm is "bound">>
+		You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
+		<br><br>
+	<<else>>
+		<<wearProp "lockpick">>
+		<span class="green">The lock looks easy to pick.</span>
+		<br><br>
+		<<lockicon "pick">><<link [[Pick it (0:10)|MMA Gym Register Sneak]]>><<handheldon>><<pass 10>><<crimeUp 10 "thievery">><</link>><<crime "thievery">>
+		<br>
+	<</if>>
+<<else>>
+	<span class="red">The lock looks beyond your ability to pick.</span><<skulduggeryrequired>>
+	<br><br>
+<</if>>
+<<getouticon>><<link [[Leave|MMA Gym]]>><<handheldon>><</link>>
+<br>
+
+:: MMA Gym Register Sneak
+<<set $outside to 0>><<effects>><<set $lock to 200>>
+<<set $weekly.theft.mmaGym to true>>
+<<set $tip to random(3000, 9000)>>
+You deftly open the cash register and count out the money inside.
+There's <<printmoney $tip>>.
+<br>
+<<if $skulduggery lt 300>>
+	<<skulduggeryskilluse>>
+<<else>>
+	<span class="blue">There's nothing more you can learn from locks this simple.</span>
+	<br><br>
+<</if>>
+<<if $rng lte 40>>
+	<<skulshopevents>>
+<<elseif $rng lte 80>>
+	<<link [[Next|MMA Gym Register Sneak Riley]]>><</link>>
+<<else>>
+	<<link [[Take it|MMA Gym]]>><<endevent>><<money $tip "thievery">><<crimeUp `$tip / 100` "thievery">><</link>><<crime "thievery">>
+	<br>
+	<<link [[Leave it|MMA Gym]]>><<endevent>><</link>>
+	<br>
+<</if>>
 
 :: MMA Gym Register Sneak Riley
 <<set $outside to 0>><<effects>>
@@ -47,7 +95,7 @@ Just Riley, watching you with a steadiness that somehow feels worse.
 <br><br>
 That lands harder than being shouted at. The money suddenly feels heavier than it should.
 <br><br>
-<<link [[Take the money and leave|MMA Gym]]>><<money $tip "thievery">><<set $mmaGymMercyTraining to 0>><<endevent>><</link>>
+<<link [[Take the money and leave|Nightingale Street]]>><<money $tip "thievery">><<set $mmaGymMercyTraining to 0>><<endevent>><</link>>
 <br>
 <<link [[Put it back|MMA Gym]]>><<set $mmaGymMercyTraining to 0>><<endevent>><</link>>
 <br>
@@ -71,6 +119,7 @@ That lands harder than being shouted at. The money suddenly feels heavier than i
 	<<if $athletics lt 600>><<set _failChance to 40>><</if>>
 	<<if $athletics lt 300>><<set _failChance to 60>><</if>>
 	The mat class is all breakfalls, sprawls, pummelling drills, and clinch work. There is nothing graceful about it once the sweat starts running. Every mistake ends with you on the canvas or being yanked back into position.
+	<br><br>
 	<<if random(1,100) lte _failChance>>
 		You mistime a drill, hit the mat badly, and spend the rest of the hour working around the sting while Riley makes you repeat the same movement until it finally sticks.<<gpain>>
 		<br><br>
