@@ -524,7 +524,7 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 				<<set $anusstate to "handentrance">>
 			<<else>>
 				<<he>> removes your $worn.butt_plug.name and moves <<his>> hand away.
-				<<combat-reset-hand $_hand>><<neutral 5 _n>>
+				<<combat-reset-hand _args[0]>><<neutral 5 _n>>
 			<</if>>
 		<</if>>
 		<<set $anususe to "hand">>
@@ -817,7 +817,7 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 	<<rng>>
 	<<if $rng gte 96>>
 		<span class="blue"><<He>> moves <<his>> _hand-hand $_toy away from your ass.</span>
-		<<combat-reset-hand _args[0]>><<set $NPCList[_n][$_hand + "tool"] to 0>>
+		<<combat-reset-hand _args[0]>><<set $NPCList[_n][_args[0] + "tool"] to 0>>
 		/*<<set $anususe to 0>>*/
 	<<elseif $rng gte 21 or $noanal is 1>>
 		<<He>> <<print either("rubs","slaps")>> and teases your <<print either("anus","ass")>> with the $_toy in <<his>> _hand hand<<if $_clothing isnot undefined>>, through your <<print $_clothing>><<elseif playerHasButtPlug()>>, <<print either("rubbing against","through")>> your $worn.butt_plug.name<</if>>.
@@ -1949,7 +1949,14 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 	<<if $worn.genitals.name is "naked">>
 		/* <<cast_aside_clothes>> */
 		<<combat-reset-hand _args[0]>>
-		<<hand_section_two $_hand>>
+		/* _args[0] may be "left", "right", or "both" (from hand_section's both-hands path).
+		   hand_section_two only accepts "left" or "right", so split "both" into two calls. */
+		<<if _args[0] is "both">>
+			<<hand_section_two "left">>
+			<<hand_section_two "right">>
+		<<else>>
+			<<hand_section_two _args[0]>>
+		<</if>>
 		<<exit>>
 	<<else>>
 		<<if $worn.genitals.name is "chastity parasite">>
