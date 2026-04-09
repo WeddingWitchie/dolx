@@ -1,0 +1,210 @@
+:: Bank Heist Widgets [widget]
+
+<<widget "initBankHeist">>
+	<<if $xchange.premium is undefined>><<set $xchange.premium to {}>><</if>>
+	<<if $xchange.bankHeist is undefined>>
+		<<set $xchange.bankHeist to {
+			intro: false, route: "", landryWarned: false, wrenRecruited: false,
+			wrenHintGiven: false, wrenReported: false, observationDays: 0,
+			observationLog: [], suspicion: 0, lastObservationDay: 0,
+			heistReady: false, heistStarted: false, heistComplete: false,
+			heistFailed: false, heistFailureTold: false, masterSeen: false,
+			blackCardObtained: false, landryReported: false,
+			premiumPillsReceived: false, briarLeadSet: false,
+			mickeyPrepDay: 0, mickeyPrepDays: 0, hasEarpiece: false,
+			alertLevel: 0, sneak: null, earpieceCompromised: false,
+			keptEarpiece: false, failDay: 0, retryLetterRead: false
+		}>>
+	<</if>>
+	<<if $xchange.bankHeist.wrenReported is undefined>><<set $xchange.bankHeist.wrenReported to false>><</if>>
+	<<if $xchange.bankHeist.mickeyPrepDay is undefined>><<set $xchange.bankHeist.mickeyPrepDay to 0>><</if>>
+	<<if $xchange.bankHeist.mickeyPrepDays is undefined>><<set $xchange.bankHeist.mickeyPrepDays to 0>><</if>>
+	<<if $xchange.bankHeist.hasEarpiece is undefined>><<set $xchange.bankHeist.hasEarpiece to false>><</if>>
+	<<if $xchange.bankHeist.alertLevel is undefined>><<set $xchange.bankHeist.alertLevel to 0>><</if>>
+	<<if $xchange.bankHeist.sneak is undefined>><<set $xchange.bankHeist.sneak to null>><</if>>
+	<<if $xchange.bankHeist.earpieceCompromised is undefined>><<set $xchange.bankHeist.earpieceCompromised to false>><</if>>
+	<<if $xchange.bankHeist.keptEarpiece is undefined>><<set $xchange.bankHeist.keptEarpiece to false>><</if>>
+	<<if $xchange.bankHeist.failDay is undefined>><<set $xchange.bankHeist.failDay to 0>><</if>>
+	<<if $xchange.bankHeist.retryLetterRead is undefined>><<set $xchange.bankHeist.retryLetterRead to false>><</if>>
+<</widget>>
+
+<<widget "bankHeistCheck">>
+	<<if !$xchange.bankHeist.intro and !$xchange.bankHeist.heistComplete>>
+		<<if $hbsc and $hbsc.galaAntiPillStolen>><<set $xchange.bankHeist.canTrigger to "gala">>
+		<<elseif $world_corruption_soft gte 30 and $xchange.premium and ($xchange.premium.lastResult is "worked" or $xchange.premium.lastResult is "notsure")>><<set $xchange.bankHeist.canTrigger to "premium">>
+		<<elseif $xchange.blackmail and $xchange.blackmail.questsCompleted gte 3>><<set $xchange.bankHeist.canTrigger to "blackmail">>
+		<<else>><<set $xchange.bankHeist.canTrigger to false>><</if>>
+	<</if>>
+<</widget>>
+
+/* ================================================================
+ * Gap 0 (same day):      +3 suspicion, NO progress
+ * Gap 1 (consecutive):   +2 suspicion, NO progress
+ * Gap 2 (tight spacing): +1 suspicion, counts as observation
+ * Gap 3+ (proper):       clean, counts as observation
+ * ================================================================ */
+<<widget "bankHeistObservation">>
+	<<set _heist to $xchange.bankHeist>>
+	<<set _daysSinceLast to Time.days - _heist.lastObservationDay>>
+	<<if _daysSinceLast is 0>>
+		/* Same day - most suspicious, no progress */
+		<<set _heist.suspicion += 3>>
+		<<set _heistVisitType to "sameDay">>
+	<<elseif _daysSinceLast is 1>>
+		/* Consecutive day - very suspicious, no progress */
+		<<set _heist.suspicion += 2>>
+		<<set _heistVisitType to "consecutive">>
+	<<else>>
+		/* Spaced visit - counts as new observation */
+		<<if _daysSinceLast is 2>>
+			/* Tight spacing - mild suspicion */
+			<<set _heist.suspicion += 1>>
+		<</if>>
+		/* 3+ days gap = clean */
+		<<set _heist.suspicion -= 2>>
+		<<set _heist.observationDays += 1>>
+		<<set _heist.observationLog.push(Time.days)>>
+		<<set _heistVisitType to "valid">>
+	<</if>>
+	<<set _heist.lastObservationDay to Time.days>>
+	/* Ban if suspicion too high */
+	<<if _heist.suspicion gte 8>>
+		<<run setup.hbsc.ensureState()>>
+		<<set $hbsc.banUntilDay to Math.max($hbsc.banUntilDay || 0, Time.days + 5)>>
+		<<set _heist.suspicion to 0>>
+		<<set _heist.observationDays to 0>>
+		<<set _heist.observationLog to []>>
+	<</if>>
+<</widget>>
+
+<<widget "bankHeistStealthCheck">>
+	/* _args[0] = difficulty (1-10), _args[1] = skill name */
+	<<set _difficulty to _args[0] or 5>>
+	<<set _skillValue to $skulduggery>>
+	<<if _args[1] is "athletics">>
+		<<set _skillValue to $athletics>>
+	<<elseif _args[1] is "science">>
+		<<set _skillValue to $science>>
+	<</if>>
+	<<set _relBonus to 0>>
+	<<if C.npc.Wren and C.npc.Wren.love gte 20>>
+		<<set _relBonus += 20>>
+	<</if>>
+	<<set _roll to random(1, 1000)>>
+	<<set _threshold to _skillValue + _relBonus - (_difficulty * 100)>>
+	<<if _roll lte _threshold>>
+		<<set _heistStealthResult to "success">>
+	<<else>>
+		<<set _heistStealthResult to "failure">>
+	<</if>>
+<</widget>>
+
+<<widget "bankHeistMickeyReadyCheck">>
+	<<set _heist to $xchange.bankHeist>>
+	<<if _heist.mickeyPrepDays gt 0 and Time.days gte (_heist.mickeyPrepDay + _heist.mickeyPrepDays)>><<set _mickeyReady to true>>
+	<<else>><<set _mickeyReady to false>><<set _mickeyDaysLeft to Math.max(1, (_heist.mickeyPrepDay + _heist.mickeyPrepDays) - Time.days)>><</if>>
+<</widget>>
+
+<<widget "bankHeistMoveGuards">>
+	<<set _s to $xchange.bankHeist.sneak>>
+	<<set _s.guardA += _s.guardADir>>
+	<<if _s.guardA gte 6>><<set _s.guardADir to -1>>
+	<<elseif _s.guardA lte 0>><<set _s.guardADir to 1>><</if>>
+	<<if _s.guardBAlert>><<set _s.guardB to _s.position>><<set _s.guardBAlert to false>>
+	<<elseif _s.turns % 4 is 0>><<set _s.guardB to random(3, 6)>><</if>>
+	<<set _s.turns += 1>><<set _s.peeked to false>>
+<</widget>>
+
+<<widget "bankHeistMickeyHint">>
+	<<set _s to $xchange.bankHeist.sneak>>
+	<<set _distA to Math.abs(_s.guardA - _s.position)>>
+	<<set _distB to Math.abs(_s.guardB - _s.position)>>
+	<<if _s.cameraBlackout gt 0>>
+		<span class="green">Mickey: "Camera feed is down. <<print _s.cameraBlackout>> turn<<if _s.cameraBlackout isnot 1>>s<</if>> left. Move."</span>
+		<<set _s.cameraBlackout -= 1>>
+	<<elseif _distA lte 1 and _distB lte 1>>
+		<span class="red">Mickey, urgent: "Two on you. Hide. Now."</span>
+	<<elseif _distA lte 1>>
+		<span class="pink">Mickey: "Patrol <<if _s.guardADir gt 0>>heading your way<<else>>sweeping back<</if>>. Hold."</span>
+	<<elseif _distB lte 1>>
+		<span class="purple">Mickey: "Stationary guard close. Stay low."</span>
+	<<elseif _distA lte 2 or _distB lte 2>>
+		<span class="blue">Mickey: "Guards nearby. You can move, careful."</span>
+	<<else>>
+		<span class="teal">Mickey: "Clear. Go."</span>
+	<</if>>
+<</widget>>
+
+<<widget "bankHeistLandryOptions">>
+	<<bankHeistCheck>>
+	<<if $xchange.bankHeist.canTrigger and !$xchange.bankHeist.intro and ($pub_hack_job gte 1 or $mickeyPub gte 2)>>
+		<<socialiseicon "ask">><<link [[Landry seems uneasy...|Heist Landry Approach]]>><<set $xchange.bankHeist.intro to true>><<set $xchange.bankHeist.route to $xchange.bankHeist.canTrigger>><</link>><br>
+	<</if>>
+	<<if $xchange.bankHeist.intro and !$xchange.bankHeist.heistComplete and !$xchange.bankHeist.heistFailed>>
+		<<if $xchange.bankHeist.landryWarned and !$xchange.bankHeist.wrenRecruited>>
+			<<townhallicon>><<link [[Ask Landry about the heist|Heist Landry Wren Hint]]>><</link>><br>
+		<<elseif $xchange.bankHeist.wrenReported and !$xchange.bankHeist.heistReady>>
+			<<townhallicon>><<link [[Bring the bank mapping to Mickey|Heist Landry Mickey Mapping]]>><</link>><br>
+		<<elseif $xchange.bankHeist.heistReady and !$xchange.bankHeist.heistStarted>>
+			<<townhallicon>><<link [[Discuss the heist plan|Heist Landry Begin]]>><</link>><br>
+		<</if>>
+	<</if>>
+	<<if $xchange.bankHeist.heistComplete and !$xchange.bankHeist.landryReported>>
+		<<townhallicon>><<link [[Report the heist to Landry|Heist Landry Report]]>><</link>><br>
+	<</if>>
+	<<if $xchange.bankHeist.heistFailed and !$xchange.bankHeist.heistFailureTold>>
+		<<townhallicon>><<link [[Talk to Landry about the failed heist|Heist Failure Landry]]>><</link>><br>
+	<</if>>
+<</widget>>
+
+<<widget "bankHeistWrenOptions">>
+	<<if $xchange.bankHeist.landryWarned and !$xchange.bankHeist.wrenRecruited>>
+		<<townhallicon>><<link [[Talk to Wren about a job|Heist Wren Approach]]>><</link>><br>
+	<</if>>
+	<<if $xchange.bankHeist.wrenRecruited and $xchange.bankHeist.observationDays gte 7 and !$xchange.bankHeist.wrenReported>>
+		<<townhallicon>><<link [[Tell Wren about the bank|Heist Wren Report Observation]]>><</link>><br>
+	<</if>>
+<</widget>>
+
+/* Reset heist variables for retry. Keeps: intro, route, landryWarned,
+ * wrenRecruited, wrenReported, observationDays, masterSeen.
+ * Does NOT require re-observation. Mickey re-preps (new random timer). */
+<<widget "bankHeistRetryReset">>
+	<<set $xchange.bankHeist.heistFailed to false>>
+	<<set $xchange.bankHeist.heistFailureTold to false>>
+	<<set $xchange.bankHeist.heistStarted to false>>
+	<<set $xchange.bankHeist.heistReady to true>>
+	<<set $xchange.bankHeist.mickeyPrepDay to Time.days>>
+	<<set $xchange.bankHeist.mickeyPrepDays to random(3, 7)>>
+	<<set $xchange.bankHeist.alertLevel to 0>>
+	<<set $xchange.bankHeist.sneak to null>>
+	<<set $xchange.bankHeist.hasEarpiece to false>>
+	<<set $xchange.bankHeist.earpieceCompromised to false>>
+	<<set $xchange.bankHeist.retryLetterRead to false>>
+	<<set $xchange.bankHeist.failDay to 0>>
+<</widget>>
+
+/* Check if retry letter should appear. Call in daily update or bedroom. */
+<<widget "bankHeistRetryCheck">>
+	<<set _heistRetryReady to false>>
+	<<if $xchange.bankHeist.heistFailed and $xchange.bankHeist.heistFailureTold and !$xchange.bankHeist.retryLetterRead>>
+		<<if $xchange.bankHeist.failDay lte 0>>
+			/* Save-compat fallback: stamp failDay for old saves */
+			<<set $xchange.bankHeist.failDay to Time.days>>
+		<</if>>
+		<<if (Time.days - $xchange.bankHeist.failDay) gte 45>>
+			<<set _heistRetryReady to true>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+/* Bedroom letter display. Passage after the blackmail letter block. */
+<<widget "bankHeistRetryLetter">>
+	<<bankHeistRetryCheck>>
+	<<if _heistRetryReady>>
+		<span class="gold"><b>NEW!</b></span> <span class="purple">There's a folded note on the floor by the door.</span> No envelope. Just paper, creased twice, slid under the gap.
+		<br>
+		<<icon "ask.png">><<link [[Read it|Heist Retry Letter]]>><</link>>
+		<br><br>
+	<</if>>
+<</widget>>

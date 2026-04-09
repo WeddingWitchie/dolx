@@ -910,7 +910,7 @@ setup.feats = {
 		hint: "Hint: Discover the secret of Kylar's manor.",
 		filter: ["All", "Social"],
 	},
-	"Owned": {
+	Owned: {
 		title: "Owned",
 		desc: "Being owned might not be that bad.",
 		difficulty: 1,
@@ -931,7 +931,7 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Social"],
 	},
-	"Entrepreneur": {
+	Entrepreneur: {
 		title: "Entrepreneur",
 		desc: "Get 2000 business fame.",
 		difficulty: 2,
@@ -959,14 +959,14 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Social"],
 	},
-	"Streetwalker": {
+	Streetwalker: {
 		title: "Streetwalker",
 		desc: "Get 2000 prostitution fame.",
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Social"],
 	},
-	"Easy": {
+	Easy: {
 		title: "Easy",
 		desc: "Get 2000 rape fame.",
 		difficulty: 2,
@@ -980,21 +980,21 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Social"],
 	},
-	"Flaunter": {
+	Flaunter: {
 		title: "Flaunter",
 		desc: "Get 2000 exhibitionism fame.",
 		difficulty: 1,
 		series: "",
 		filter: ["All", "Social"],
 	},
-	"Bearer": {
+	Bearer: {
 		title: "Bearer",
 		desc: "Get 2000 pregnancy fame.",
 		difficulty: 4,
 		series: "",
 		filter: ["All", "Social"],
 	},
-	"Stud": {
+	Stud: {
 		title: "Stud",
 		desc: "Get 2000 impregnation fame.",
 		difficulty: 4,
@@ -2252,7 +2252,7 @@ setup.feats = {
 		filter: ["All", "Special"],
 		hint: "Hint: Time and effort.",
 	},
-	"Aphrodite": {
+	Aphrodite: {
 		title: "Aphrodite",
 		desc: "Even the gods blush at your beauty.",
 		difficulty: 3,
@@ -2297,7 +2297,7 @@ setup.feats = {
 		softLockable: true,
 		hint: "Hint: Max dancing with tempered dancing.",
 	},
-	"Atlantean": {
+	Atlantean: {
 		title: "Atlantean",
 		desc: "You are fishier than any fish can fish to fish.",
 		difficulty: 3,
@@ -2333,17 +2333,6 @@ setup.feats = {
 		softLockable: true,
 		hint: "Hint: Max housekeeping with tempered housekeeping.",
 	},
-	/* fishing release
-	"Master Baiter": {
-		title: "Menace to the Ecosystem",
-		desc: "women want me fish fear me",
-		difficulty: 3,
-		series: "",
-		filter: ["All", "AMC Traits"],
-		softLockable: true,
-		hint: "Hint: Max fishing with tempered fishing.",
-	},
-	*/
 	"Smarter than Einstein": {
 		title: "Smarter than Einstein",
 		desc: "You have ascended the 'erm ackchually' technique.",
@@ -2389,7 +2378,7 @@ setup.feats = {
 		softLockable: true,
 		hint: "Hint: Max school skills with all tempered school skills.",
 	},
-	"Irresistible": {
+	Irresistible: {
 		title: "Irresistible",
 		desc: "Nobody can resist your sheer ability to seduce, not even Frost.",
 		difficulty: 3,
@@ -2644,7 +2633,7 @@ setup.feats = {
 		softLockable: true,
 		hint: "Hint: Win against an enemy with 1000000 health.",
 	},
-	"Hitless": {
+	Hitless: {
 		title: "Hitless",
 		desc: "They didn't even put so much as a scratch on you.",
 		difficulty: 3,
@@ -2653,7 +2642,7 @@ setup.feats = {
 		softLockable: true,
 		hint: "Hint: Win a fight and take no damage.",
 	},
-	"Brawler": {
+	Brawler: {
 		title: "Brawler",
 		desc: "Numbers don't matter to you, it's almost like you have a sixth sense.",
 		difficulty: 2,
@@ -2661,7 +2650,7 @@ setup.feats = {
 		filter: ["All", "Combat Extended"],
 		softLockable: true,
 	},
-	"Balanced": {
+	Balanced: {
 		title: "Balanced",
 		desc: "You stay on your feet no matter what, like the ground itself fears you falling.",
 		difficulty: 2,
@@ -2768,7 +2757,7 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Discoveries-Other"],
 	},
-	"Marshlight": {
+	Marshlight: {
 		title: "Marshlight",
 		desc: "You found and successfully picked a Marsh Saxifrage.",
 		difficulty: 4,
@@ -2781,6 +2770,14 @@ setup.feats = {
 		difficulty: 1,
 		series: "",
 		filter: ["All", "Stats"],
+	},
+	"Grand Theft Auto": {
+		title: "Grand Theft Auto",
+		desc: "Ah, shit. Here we go again.",
+		difficulty: 3,
+		series: "",
+		filter: ["All", "Discoveries-Town"],
+		hint: "Hint: Finish a grand theft.",
 	},
 };
 

@@ -1,0 +1,252 @@
+:: Heist Wren Approach
+<<endevent>>
+<<effects>><<npc Wren>><<person1>>
+
+You pull Wren aside from the card table. <<His>> friends grumble but <<he>> waves them off.
+<br><br>
+<<if $wrenSeenLast is "pregnancy">><<He>> looks you over, expression softening just a fraction. "Last time I saw you, you were in a rather more... delicate condition. You've recovered well."
+<<elseif $wrenSeenLast is "catsuit">><<He>> tilts <<his>> head, a sly grin spreading across <<his>> face. "I remember the catsuit. Bold fashion choice."
+<<elseif $wrenSeenLast is "prison">><<He>> raises an eyebrow. "Prison didn't break you, then. Good. You'll need that kind of spine for what I have in mind."
+<<elseif $wrenSeen?.length>><<He>> studies you, then chuckles. "Oh, wow! What's the hurry?"
+<<else>><<He>> regards you with open curiosity, sizing you up from head to toe. "So you're the one Landry's been going on about."<</if>>
+<br><br>
+<<if $speech_attitude is "meek">>
+	"I need your help," you say. The words come out more earnestly than you'd intended. "It's about the bank."
+<<elseif $speech_attitude is "bratty">>
+	"So," you begin, casual as you can manage, "how do you feel about robbing a bank?"
+<<else>>
+	"Landry sent me," you say. "We're planning something big. The bank."
+<</if>>
+<br><br>
+<<link [[Next|Heist Wren React]]>><</link>>
+
+:: Heist Wren React
+<<effects>>
+Wren's expression shifts. Surprise, calculation, amusement, one after the other before settling on fascination.
+<br><br>
+<<if $speech_attitude is "bratty">>
+	"Rob a bank," <<he>> repeats, a grin crawling across <<his>> face. "I thought you'd never ask."
+<<else>>
+	"The bank. As in, the only bank in this city that matters. The one with the connections that go all the way up to..." 
+	<<He>> trails off, whistling low. "That bank."
+<</if>>
+<br><br>
+<<He>> crosses <<his>> arms and paces, thinking. <<His>> eyes are bright.
+<br><br>
+"Landry's been talking about that place for years. Never had anyone stupid enough to actually try it." <<He>> catches your eye. "That's a compliment, by the way."
+<br><br>
+<<link [[Next|Heist Wren React 2]]>><</link>>
+
+:: Heist Wren React 2
+<<effects>>
+<<He>> holds up a finger. "But before we go anywhere near that vault, we need intelligence. Real intelligence. Not Landry's second-hand rumours."
+<br><br>
+<<if $wrenSeenLast is "catsuit">>
+	<<He>> smirks. "I've seen you move. You've got the instincts for this. But instinct isn't enough. We need a plan built on observation."
+<<elseif $wrenSeenLast is "prison">>
+	"You survived prison. That tells me you can keep your head down and your eyes open. That's exactly what I need from you."
+<<elseif $wrenSeenLast is "pregnancy">>
+	<<He>> pauses, expression flickering with something softer. "Look, last time we crossed paths, things were... complicated. But I know you're tougher than you look. You'll need to be."
+<<else>>
+	<<He>> gives you a long, appraising look. "I hope you're as competent as Landry thinks you are."
+<</if>>
+<br><br>
+<<link [[Listen to Wren's plan|Heist Wren Plan]]>><</link>>
+
+:: Heist Wren Plan
+<<effects>>
+"Here's what you're going to do," Wren says. <<He>> holds up <<his>> hand to points.
+"You're going to visit the bank. As a customer. Nothing unusual. Deposit, withdrawal, check a balance, whatever normal people do.
+While you're there, you watch. You watch everything."
+<br><br>
+<<He>> leans closer.
+<br><br>
+"Guard positions. Camera angles. Which doors need keycards and which ones don't. When the tellers switch shifts. How long it takes security to respond to a disturbance. Everything."
+<<He>> holds up <<his>> hand again. "Seven visits. <span class="red">But don't visit too often.</span> The guards aren't idiots. Space your visits. If you feel eyes on you, leave immediately and come back another day."
+<br><br>
+<<link [[Next|Heist Wren Plan 2]]>><</link>>
+
+:: Heist Wren Plan 2
+<<effects>>
+<<He>> fixes you with a steady gaze. "If you draw too much suspicion, they'll ban you from the premises. One month, minimum. And then we have to start from scratch."
+<br><br>
+<<if $speech_attitude is "meek">>
+	You swallow hard. "And if they catch me watching?"
+	<br><br>
+	"Then you'll wish they'd just banned you," <<he>> says flatly. Then <<his>> expression softens. "But you'll be fine. Just be natural."
+<<elseif $speech_attitude is "bratty">>
+	"Seven visits to the most boring building in the city," you say. "Thrilling."
+	<br><br>
+	"Says the person who agreed to rob it." <<He>> grins. "Now go be boring. Boringly observant."
+<<else>>
+	You nod. "Seven visits. Space them out. Don't get noticed."
+	<br><br>
+	"Quick study. I like that."
+<</if>>
+<br><br>
+<<set $xchange.bankHeist.wrenRecruited to true>>
+<span class="gold"><i>Wren has joined the heist.</i></span><br>
+<<getouticon>><<link [[Leave|Estate]]>><<endevent>><</link>>
+
+:: Heist Bank Observation
+<<hbscEnsure>><<effects>><<bankHeistObservation>>
+<<set _heist to $xchange.bankHeist>><<set _obs to _heist.observationDays>>
+<<if setup.hbsc.isBanned()>>
+	<<set _banDays to setup.hbsc.getBanRemainingDays()>>
+	You step inside the bank, but before you can settle in, a guard approaches. 
+	"We've noticed you've been glancing around to where you shouldn't. The management has asked that you refrain from visiting for a while. For your own comfort."
+	<br><br>
+	It's not a request. You're escorted to the door.
+	<br><br>
+	<span class="red">You've been banned from the bank for <<print _banDays>> more day<<if _banDays isnot 1>>s<</if>>. Your observation progress has been reset.</span>
+	<br>
+	<<getouticon>><<link [[Leave|High Street]]>><<endevent>><</link>>
+<<elseif _heistVisitType is "sameDay">>
+	You enter the bank again, but there's nothing new to observe. The same guards, the same cameras, the same routines you already noted earlier today.
+	<<if _heist.suspicion gte 5 and _heist.suspicion lt 8>>
+		<<if _heist.suspicion gte 7>>
+			But a guard near the entrance is staring at you. <span class="red">You need to stay away for a while.</span>
+		<<else>>
+			You notice a guard glance your way more than once. <span class="pink">You may be drawing attention.</span>
+		<</if>>
+	<</if>><br><br>
+	<span class="purple">Visiting the bank twice in one day is reckless.</span>
+	<br>
+	<<getouticon>><<link [[Leave|High Street]]>><<endevent>><</link>>
+<<elseif _heistVisitType is "consecutive">>
+	You enter the bank and take your place in the queue. You try to look casual, but you were just here yesterday. The tellers are the same. The guards are the same. One of them glances at you with recognition.
+	<br><br>
+	<<if _heist.suspicion gte 5 and _heist.suspicion lt 8>>
+		<<if _heist.suspicion gte 7>>
+			A guard near the entrance is staring at you. Not the casual glance of a bored employee, but a hard, focused look. <span class="red">You're drawing significant attention</span>,
+		<<else>>
+			You notice a guard glance your way more than once. <span class="pink">You may be drawing attention</span>,
+		<</if>>
+		making you remember
+	<</if>>
+	Wren's warning echoes in your head. <i>Back-to-back days will flag you.</i>
+	<br><br>
+	<<getouticon>><<link [[Leave|High Street]]>><<endevent>><</link>>
+<<else>>
+	/* Valid observation - spaced properly */
+	You enter the bank and take your place in the queue. You do your best to look bored while your eyes move.
+	<<if _heist.suspicion gte 5 and _heist.suspicion lt 8>>
+		<<if _heist.suspicion gte 7>>
+			But a guard near the entrance is staring at you. Not the casual glance of a bored employee, but a hard, focused look. <span class="def">You're drawing significant attention. You should space your visits further apart.</span>
+		<<elseif _heist.suspicion gte 5>>
+			You notice a guard glance your way more than once. <span class="red">You may be drawing attention. Consider spacing your visits out more.</span>
+		<</if>>
+	<</if>>
+	<br><br>
+	<<if _obs is 1>>
+		Your first visit. The main floor has two visible cameras, one above the entrance, one covering the teller windows. Three guards on the floor, all armed. You note the position of a service door behind the counter. It requires a keycard.
+		<br><br>
+		<span class="teal">Observation 1/7: Floor layout noted.</span>
+	<<elseif _obs is 2>>
+		Second visit. Different time, different teller. You study the guard rotation. One guard stays by the entrance, one roams, one monitors a small desk near the back. The roaming guard passes the service door every four minutes.
+		<br><br>
+		<span class="teal">Observation 2/7: Guard rotation pattern identified.</span>
+	<<elseif _obs is 3>>
+		Third visit. The cameras have a blind spot near the eastern wall, partially obscured by a decorative pillar. The service door opens periodically. You catch a glimpse of a staircase descending downward.
+		<br><br>
+		<span class="teal">Observation 3/7: Camera blind spot and basement access located.</span>
+	<<elseif _obs is 4>>
+		Fourth visit. A man in an expensive suit arrives and is escorted through the service door without stopping at any teller. A VIP. The guard at the back desk waves him through after a brief exchange. No visible keycard. Verbal code, perhaps.
+		<br><br>
+		<span class="teal">Observation 4/7: VIP access procedure observed.</span>
+	<<elseif _obs is 5>>
+		Fifth visit. You time the shift change. At half past one, the roaming guard is replaced. There's a thirty-second window where both guards are in the break room corridor, visible through a briefly opened door.
+		<br><br>
+		<span class="teal">Observation 5/7: Shift change window identified.</span>
+	<<elseif _obs is 6>>
+		Sixth visit. You study the electronic lock on the service door more closely. It's a magnetic strip reader, older model. The kind Wren could bypass in <<nnpc_his "Wren">> sleep. You also notice a maintenance hatch near the restrooms that likely connects to the building's utility corridor.
+		<br><br>
+		<span class="teal">Observation 6/7: Lock type and alternate access route catalogued.</span>
+	<<elseif _obs gte 7>>
+		Seventh visit. You run through everything one more time, committing the details to memory. Guard positions, camera angles, the shift change window, the magnetic lock, the maintenance hatch, the staircase to the vault.
+		<br><br>
+		You have everything you need.
+		<br><br>
+		<span class="gold">Observation complete. Report back to Wren.</span>
+	<</if>>
+	<br>
+	<<getouticon>><<link [[Leave|High Street]]>><<endevent>><</link>>
+<</if>>
+
+:: Heist Wren Report Observation
+<<endevent>>
+<<effects>><<npc Wren>><<person1>>
+You pull Wren aside again. <<His>> friends are getting used to this by now, though a few shoot you dirty looks.
+<br><br>
+You lay out everything you've observed. 
+The floor plan, the guard rotations, the camera blind spots, the shift change window, the magnetic locks, the maintenance hatch.
+<br><br>
+Wren listens without interrupting. When you finish, <<he>> is quiet for a moment. Then <<he>> grins. "You're good at this. Better than I expected."
+<br><br>
+<<link [[Next|Heist Wren Report Observation 2]]>><</link>>
+
+:: Heist Wren Report Observation 2
+<<effects>>
+Wren starts pacing, energy building.
+<br><br>
+"The maintenance hatch is our way in. Connects to the utility corridor, which should run alongside the vault staircase. 
+I can bypass the magnetic locks. Those old strip readers have a known exploit."
+<br><br>
+<<He>> stops, turning to face you. "The shift change window is our golden thirty seconds. That's when we move from the utility corridor to the staircase. 
+After that, we're in the dark. Literally. The vault level has its own power supply and security system.
+<<if $skulduggery gte 600>>With your skills, I'd give us decent odds.<<elseif $skulduggery gte 400>>It'll be tight, but doable.<<else>>It's going to be dangerous. Very dangerous. Make sure you're prepared.<</if>>"
+<br><br>
+<<link [[Next|Heist Wren Report Observation 3]]>><</link>>
+
+:: Heist Wren Report Observation 3
+<<effects>>
+Wren folds <<his>> arms and leans against the wall.
+<br><br>
+"I can handle the physical side. Locks, doors, getting us in and out. But the electronic security? The vault level systems?" <<He>> shakes <<his>> head. "That's not my area. <span class="teal">We need our little friend at the pub</span> to look at this mapping. 
+They can figure out the electronic layout and guide us through the systems."
+<br><br>
+<<if $speech_attitude is "meek">>
+	"You mean Mickey?" you ask quietly.
+	<br><br>
+	"Don't say their name out loud," <<he>> says, though <<hes>> smiling. "But yes. Bring what you've got to the pub. Landry can pass it along."
+<<elseif $speech_attitude is "bratty">>
+	"So I get to play courier again," you sneer. "Wonderful."
+	<br><br>
+	"Think of it as networking." <<He>> grins. "Now go. The sooner they see this mapping, the sooner we move."
+<<else>>
+	You nod. "The pub. I'll get it to them."
+	<br><br>
+	"Good. The sooner they see this, the sooner we move."
+<</if>>
+<br><br><<set $xchange.bankHeist.wrenReported to true>>
+<<link [[Are you nervous?|Heist Wren Report Nervous]]>><</link>>
+
+:: Heist Wren Report Nervous
+<<effects>>
+<<if $speech_attitude is "meek">>
+	"Are you nervous?" you ask quietly.
+<<elseif $speech_attitude is "bratty">>
+	"What, you're not even a little scared?" you ask.
+<<else>>
+	"Are you nervous about this?" you ask.
+<</if>>
+<br><br>
+Wren pauses. For a moment, the bravado drops.
+<br><br>
+<<if $wrenSeenLast is "catsuit">>
+	"I've broken into a lot of places. Worn a lot of disguises." <<He>> smiles faintly. "But nothing like this. This one matters."
+<<elseif $wrenSeenLast is "prison">>
+	"I've been locked up before. I know what it's like. And I know what kind of place this bank is." <<He>> meets your eyes. "So yes. A little."
+<<elseif $wrenSeenLast is "pregnancy">>
+	"I've seen enough to know that things don't always go to plan." <<His>> expression is unreadable. "But we go anyway. That's the job."
+<<else>>
+	"Nervous? No. Nervous is for people who have something to lose. I'm..." <<He>> searches for the word. "Alert."
+<</if>>
+<br><br>
+<<link [[Next|Heist Wren Report Nervous 2]]>><</link>>
+
+:: Heist Wren Report Nervous 2
+<<effects>>
+Wren straightens. "See you on the other side."
+<br><br>
+<<getouticon>><<link [[Leave|Estate]]>><<endevent>><</link>>

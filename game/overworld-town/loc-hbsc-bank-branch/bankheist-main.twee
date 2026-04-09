@@ -1,0 +1,529 @@
+:: Heist Landry Begin
+<<endevent>>
+<<effects>><<npc Landry>><<person1>>
+<<bankHeistMickeyReadyCheck>>
+<<if !_mickeyReady>>
+	"So," Landry says, folding <<his>> hands. "You and Wren. Ready?"
+	<br><br>
+	<<if $speech_attitude is "meek">>"As ready as I'll ever be," you say.
+	<<elseif $speech_attitude is "bratty">>"Born ready. Let's do this," you say.
+	<<else>>"We're ready," you confirm.<</if>>
+	<br><br>
+	Landry glances at Mickey's door and raps on it twice. "Ready?"
+	<br><br>
+	The door cracks open. Mickey peers out. "I'm not. The camera system runs on a rolling encryption cycle. I need to map the pattern before I can kill the feed cleanly. Force it and the system trips a silent alarm."
+	<span class="teal"><<print _mickeyDaysLeft>> more day<<if _mickeyDaysLeft isnot 1>>s<</if>></span>. Don't rush me." 
+	<br><br>
+	The door clicks shut. You hear the complex lock engage.
+	<br><br>
+	Landry shrugs. "You heard them. Come back later."
+	<br><br>
+	<<getouticon>><<link [[Leave|Pub]]>><<endevent>><</link>>
+<<else>>
+	"So," Landry says. "You and Wren. Ready?"
+	<br><br>
+	Before you can answer, Mickey's door opens. They holds out a small object. A flesh-coloured earpiece, barely larger than a pea.
+	"Put this in when you get to the bank. I'll be on the other end. Camera feeds, guard patrol, and I can kill the service level cameras for thirty seconds when you need it. One blackout. That's all I get without tripping the backup."
+	<br><br>
+	They fix you with a hard look. "When you're done, win or lose, you destroy this. Snap it, crush it, swallow it... scrap the last one, swallow only after you chew it. It has my signal signature. 
+	<span class="red">If anyone finds it, they find me</span>."
+	<br><br>
+	<<if $speech_attitude is "meek">>"I understand," you say, taking the earpiece carefully.
+	<<elseif $speech_attitude is "bratty">>"Chew and swallow it. Got it." You pocket the earpiece.<br><br>"Don't be cute," they say. The door shuts. You hear the complex lock set into place.
+	<<else>>You take the earpiece and nod. "It won't be found."<br><br>Mickey nods once and retreats. The door clicks shut.<</if>>
+	<br><br>
+	<<set $xchange.bankHeist.hasEarpiece to true>><<set $xchange.bankHeist.heistStarted to true>>
+	Landry leans forward. "<span class="teal">Tonight. After midnight. Wren meets you at the bank</span>. Shift change at 2 a.m." <<He>> meets your eyes. "If you get caught, you're on your own."
+	<br><br>
+	<<getouticon>><<link [[Leave|Pub]]>><<endevent>><</link>>
+<</if>>
+
+:: Heist Begin
+<<endevent>>
+<<effects>><<npc Wren>><<person1>>
+The streets are empty. The bank is a dark shape against the sky, marble wet with drizzle.
+<br><br>
+You press the earpiece into your ear. A faint crackle, then Mickey's voice: "Can you hear me? Good-good. Don't talk back unless you have to."
+<br><br>
+A hand touches your elbow. Wren appears beside you in dark clothes. <<His>> eyes glint in the streetlight.
+"Right on time." <<He>> nods toward the east side. "Maintenance hatch. Thirty metres. Stay close."
+<br><br>
+<<link [[Follow Wren|Heist Entry]]>><</link>>
+
+:: Heist Entry
+<<effects>><<if $avery_fate is "ascended">><<location "avery_skyscraper">><<else>><<location "office">><</if>><<effects>>
+The maintenance hatch is exactly where you mapped it. Wren crouches beside it and works in silence. The grate comes free with a soft click.
+<br><br>
+You slide through into a narrow utility corridor. Stale air, old wiring, damp concrete. Emergency lighting casts amber pools on the floor. Wren drops in behind you and replaces the grate.
+<br><br>
+Mickey's voice: "I've got eyes on service level cameras. Two guards. One roaming, one near the vault stairs. I'll guide you through."
+<br><br>
+Wren taps your shoulder. "I'll watch our back. You lead. If anything goes wrong behind us, I'll handle it."
+<br><br>
+<<set $xchange.bankHeist.sneak to {
+	position: 3, progress: 0, turns: 0, action: "none",
+	guardA: 1, guardADir: 1, guardB: 5, guardBAlert: false,
+	cameraBlackout: 0, peeked: false, wrenFreebie: true
+}>>
+<<set $xchange.bankHeist.alertLevel to 0>>
+<<link [[Enter the service corridor|Heist Corridor]]>><</link>>
+
+:: Heist Corridor
+<<effects>>
+<<set _s to $xchange.bankHeist.sneak>>
+<<set _heist to $xchange.bankHeist>>
+/* ============= PROCESS ACTION ============= */
+<<switch _s.action>>
+	<<case "dash">>
+		You break from cover and move fast toward the next section.
+		<<set _distA to Math.abs(_s.guardA - _s.position)>>
+		<<if _distA lte 1 and _s.cameraBlackout lte 0>>
+			<<if _s.wrenFreebie>>
+				<<set _s.wrenFreebie to false>>
+				Wren grabs your collar and yanks you behind a support pillar. The patrol guard walks right past, close enough to touch.
+				<br><br>
+				"Careful," Wren breathes. <span class="red">You won't get that lucky again.</span>
+				<<set _heist.alertLevel += 1>>
+			<<else>>
+				The patrol guard spots you. "Hey! Who's there?"
+				<<set _caught to true>>
+			<</if>>
+		<<else>>
+			You make it to the next section without trouble.
+			<<set _s.progress += 1>>
+		<</if>>
+	<<case "sneak">>
+		You press against the wall and inch forward.
+		<<bankHeistStealthCheck 4 "skulduggery">>
+		<<if _heistStealthResult is "success">>
+			You move like a shadow. <span class="green">Clean advance.</span>
+			<<set _s.progress += 1>>
+		<<else>>
+			Your foot scuffs the floor. A guard pauses, listening.
+			<<if random(1,100) lte 60>>
+				After a long moment, the guard resumes patrol. Your nerves are shot, but you moved up.
+				<<set _s.progress += 1>><<set _heist.alertLevel += 1>>
+			<<else>>
+				<<if _s.wrenFreebie>>
+					<<set _s.wrenFreebie to false>>
+					Wren throws a coin down the opposite corridor. The guard turns. You slip past.
+					<br><br>
+					"Owe me one," Wren whispers.
+					<<set _s.progress += 1>>
+				<<else>>
+					The guard's flashlight sweeps your position. "I see you. Don't move."
+					<<set _caught to true>>
+				<</if>>
+			<</if>>
+		<</if>>
+	<<case "hide">>
+		You press into a recessed doorway and hold still.
+		<<set _distA to Math.abs(_s.guardA - _s.position)>>
+		<<if _distA lte 1>>
+			The patrol guard walks past. <<if $skulduggery gte 400>>You control your breathing. <<He>> doesn't notice you.<<else>>You hold your breath. <<He>> pauses, then moves on.<</if>>
+		<<else>>
+			Nothing happens. The corridor is quiet.
+		<</if>>
+	<<case "peek">>
+		You lean out from cover and scan the corridor.
+		<<set _s.peeked to true>>
+	<<case "camera">>
+		<<if _s.cameraBlackout lte 0>>
+			You whisper into the earpiece. "Kill the cameras."
+			<<set _s.cameraBlackout to 3>><<set _s.cameraBlackoutUse to true>>
+		<<else>>
+			Mickey: "Already running the blackout. Don't waste it."
+		<</if>>
+	<<case "wait">>
+		You stay put and listen. Pipes tick. Somewhere, a guard's boot squeaks on tile.
+	<<default>>
+<</switch>>
+<br><br>
+/* ============= CHECK STATE ============= */
+<<if _caught>>
+	The guard radios in. More footsteps. Lots of them.
+	<br><br>
+	Wren grabs your arm. "We're blown. Run!"
+	<br><br>
+	<<link [[Run|Heist Failure]]>><</link>>
+	<br>
+	<<link [[Surrender|Heist Failure Surrender]]>><</link>>
+<<elseif _s.progress gte 4>>
+	You reach the service door. The magnetic lock blinks red. Wren is already on it.
+	<br><br>
+	Mickey: "I can see you at the door. You're through. I'm losing coverage past here. The vault level is on its own system.
+	But before that, hold..."
+	<br><br>
+	The magnetic lock now blinks <span class="green">green.</span> The lock clicks open.
+	<br><br>
+	<<link [[Descend to the vault|Heist Vault Door]]>><</link>>
+<<else>>
+	/* ============= CONTINUE LOOP ============= */
+	<<bankHeistMoveGuards>>
+	<<bankHeistMickeyHint>>
+	<<switch _s.progress>>
+		<<case 0>><span class="pink">You're at the corridor entrance. The vault stairs are far ahead.</span>
+		<<case 1>><span class="purple">You've passed the first section.</span>
+		<<case 2>><span class="blue">Halfway through the service corridor.</span>
+		<<case 3>><span class="teal">Almost there. One more section to the vault door.</span>
+	<</switch>>
+	<<switch _heist.alertLevel>>
+		<<case 0>><span class="green">The guards have no idea you're here.</span>
+		<<case 1>><span class="purple">The guards seem slightly on edge.</span>
+		<<case 2>><span class="pink">The guards are alert.</span>
+		<<case 3>><span class="red">The guards are actively searching.</span>
+	<</switch>>
+	<<if _s.peeked>>
+		<br>
+		<<set _distA to Math.abs(_s.guardA - _s.position)>>
+		<<set _distB to Math.abs(_s.guardB - _s.position)>>
+		<<if _distA lte 1>><span class="red">The patrol guard is right next to you!</span>
+		<<elseif _distA lte 2>><span class="pink">You can see the patrol guard nearby, <<if _s.guardADir gt 0>>moving toward you<<else>>moving away<</if>>.</span>
+		<<else>><span class="teal">The patrol guard is far enough away.</span><</if>>
+		<br>
+		<<if _distB lte 1>><span class="red">The stationary guard is very close.</span>
+		<<elseif _distB lte 2>><span class="purple">The stationary guard is a short distance away.</span>
+		<<else>><span class="teal">The stationary guard is not a concern right now.</span><</if>>
+	<</if>>
+	<br><br>
+	<<caveicon "north">><<link [[Dash forward|Heist Corridor]]>><<set _s.action to "dash">><</link>><<note "Fast, risky" "pink">>
+	<br>
+	<<lockicon "pick">><<link [[Sneak forward|Heist Corridor]]>><<set _s.action to "sneak">><</link>><<skulduggerydifficulty>>
+	<br>
+	<<crimeicon>><<link [[Hide|Heist Corridor]]>><<set _s.action to "hide">><</link>><<note "Wait for guards to pass" "teal">>
+	<br>
+	<<crimeicon "mark">><<link [[Peek|Heist Corridor]]>><<set _s.action to "peek">><</link>><<note "Check guard positions" "blue">>
+	<br>
+	<<loitericon>><<link [[Wait|Heist Corridor]]>><<set _s.action to "wait">><</link>><<note "Guards shift positions" "teal">>
+	<br>
+	<<if _s.cameraBlackout lte 0 and !_s.cameraBlackoutUse>>
+		<<techicon "monitors">><<link [[Use camera blackout|Heist Corridor]]>><<set _s.action to "camera">><</link>><<note "One-time, 3 turns" "gold">>
+		<br>
+	<</if>>
+<</if>>
+
+:: Heist Vault Door
+<<effects>>
+The staircase is longer than expected. The walls change from plaster to concrete, then to stone. The air grows colder.
+<br><br>
+<<if $awarelevel gte 3>>
+	<span class="erase-from-history"><span class="navy">A prickling sensation runs along your scalp. You've felt this before. In the temple, in the forest. The sense of being watched by something without eyes.
+	<br><br></span></span>
+<</if>>
+At the bottom, a heavy steel door. Mechanical combination lock. Old-fashioned but formidable.
+Wren studies it and smirks. "Old school. I love old school."
+<br><br>
+<<He>> presses <<his>> ear to the metal and begins turning the dial.
+<br><br>
+<<link [[Next|Heist Vault Door 2]]>><</link>>
+
+:: Heist Vault Door 2
+<<effects>><<bankHeistStealthCheck 6 "skulduggery">>
+<<if _heistStealthResult is "success">>
+	The lock clicks. Wren pushes the door open.<<pass 5>>
+	<br><br>
+	"Nothing to it," <<he>> says. But you can see the sweat on <<his>> temples.
+<<else>>
+	The lock resists. Wren tries again. Your heart is in your throat. Finally the mechanism surrenders.<<pass 8>>
+	<br><br>
+	"That one fought back," <<he>> admits.<<set $xchange.bankHeist.alertLevel += 1>>
+<</if>>
+<br><br>
+Beyond the door, the vault level opens up. Not a single room but a network of corridors lined with numbered deposit boxes. 
+Through a glass partition, a terminal. Multiple monitors, all dark.
+<br><br>
+<<link [[Approach the terminal|Heist Terminal]]>><</link>>
+
+:: Heist Terminal
+<<effects>>
+The glass partition slides open at your touch. No resistance. That feels wrong. Something about this feels deliberate. As if you were expected.
+<br><br>
+Wren stays at the corridor entrance. "Five minutes. Find the accounts, clone credentials, get out."
+<br><br>
+You sit at the terminal. Screens comes to life. No password prompt. Account ledgers, transfer records, distribution schedules.
+<br><br>
+<<link [[Next|Heist Terminal 2]]>><<pass 5>><</link>>
+
+:: Heist Terminal 2
+<<effects>>
+<<bankHeistStealthCheck 7 "skulduggery">>
+<<set _totalAlert to $xchange.bankHeist.alertLevel>>
+<<if _heistStealthResult is "success" and _totalAlert lt 3>>
+	Your fingers move quickly. You find the master account. You clone the credentials to a blank card.
+	The terminal blinks once. Transfer complete. You pocket the card.
+	<br><br>
+	"Got it," you whisper.
+	<br><br>
+	Wren nods. "Then let's..."
+	<br><br>
+	<<He>> stops. <<His>> eyes widen, fixed on something behind you.
+	<br><br>
+	<<link [[Turn around|Heist Success Master]]>><</link>>
+<<elseif _heistStealthResult is "success" or _totalAlert lt 4>>
+	Your fingers fumble at first but you find your rhythm. You locate the master's primary ledger and clone the credentials.
+	<br><br>
+	<span class="red">An alarm chimes in the distant</span>.
+	<br><br>
+	"Time's up," Wren hisses. "Move!"
+	<br><br>
+	You pocket the card and run. <span class="navy">A shape at the far end of the corridor catches your eye.</span>
+	<br><br>
+	<<link [[Keep running|Heist Success Master]]>><</link>>
+<<else>>
+	The terminal locks. A harsh buzzing fills the air. A vibration in the walls.
+	<br><br>
+	Wren swears. "<span class="red">They know we're here</span>."
+	<br><br>
+	Lights flood the vault level. Footsteps from multiple directions.
+	<br><br>
+	<<link [[Run for it|Heist Failure]]>><</link>>
+	<br>
+	<<link [[Surrender|Heist Failure Surrender]]>><</link>>
+<</if>>
+
+:: Heist Success Master
+<<effects>>
+<<set $xchange.bankHeist.masterSeen to true>>
+You stop. Just for a moment.
+<br><br>
+A figure stands at the far end of the corridor. Perfectly still. The dim emergency lighting catches on something protruding from their face.
+<<if $hallucinations gte 1>>
+	Antlers, branching like pale silver coral, growing from where their eyes should be. The sockets are dark and hollow beneath the bone.
+<<else>>
+	It might be antlers, or some elaborate mask. Hard to tell in the half-light.
+<</if>>
+<br><br>
+<<if $awarelevel gte 3>>
+	<span class="erase-from-history"><span class="navy">You've felt this presence before. In the temple. In the forest. This is something old.
+	</span></span>
+<<else>>
+	Something about the figure makes every instinct screams at you to look away.
+<</if>>
+<br><br>
+The carved crescent smile on the mask catches the emergency light.<<awareness 2>><<ggawareness>><<trauma 30>><<gggtrauma>>
+<br><br>
+<<link [[Next|Heist Success Master 2]]>><</link>>
+
+:: Heist Success Master 2
+<<effects>>
+"<span class="red">Don't look at it</span>," Wren hisses, grabbing your arm. <<His>> voice is raw with fear. "Don't. Look. Move."<<stress 2>><<gstress>>
+<br><br>
+<<He>> pulls you away. But you look back.
+<br><br>
+<<link [[Next|Heist Success Master 3]]>><</link>>
+
+:: Heist Success Master 3
+<<effects>>
+The figure inclines their head.
+<br><br>
+Then the emergency lights flicker, and they're gone.
+<br><br>
+<<link [[Flee|Heist Escape]]>><</link>>
+
+:: Heist Escape
+<<effects>>
+The two of you tear back through the vault corridors, up the staircase, through the service door, into the utility corridor.
+No alarms. No guards. The silence is worse than any pursuit.
+<br><br>
+<<bankHeistStealthCheck 5 "athletics">>
+<<if _heistStealthResult is "success">>
+	The corridor is empty. Whatever happened in the vault hasn't reached the surface.<<pass 21>>
+<<else>>
+	A guard rounds the corner ahead. You see each other at the same moment. <<pass 30>>
+	<br><br>
+	Wren slams into the guard shoulder-first. <<He>> goes down.
+	<br><br>
+	"Keep moving!" Wren shouts.<<gstress>><<stress 4>><<set $xchange.bankHeist.alertLevel += 1>>
+<</if>>
+<br><br>
+<<link [[Flee|Heist Escape 2]]>><</link>>
+
+:: Heist Escape 2
+<<set $location to "town">><<effects>><<set $bus to "high">>
+You reach the maintenance hatch. 
+<br><br>
+Wren pushes you through first, then follows. Outside. Night air. Rain on your face. Your hands are shaking. The card is in your pocket.
+<br><br>
+<<link [[Next|Heist Escape Earpiece]]>><</link>>
+
+:: Heist Escape Earpiece
+<<effects>>
+You lean against the wall, gasping.<<tiredness 21>><<gggtiredness>>
+<br><br>
+<<if $speech_attitude is "meek">>"Did that really just happen?" you whisper.
+<<elseif $speech_attitude is "bratty">>"Well," you manage between breaths, "that was terrifying."
+<<else>>"We did it," you say. It doesn't feel real.<</if>>
+<br><br>
+Wren shakes <<his>> head. "The thing at the end. I've heard stories about <span class="elk">the master</span>." <<He>> meets your eyes. "They weren't exaggerating."
+<br><br>
+Mickey's voice crackles in your ear, making you flinch. "You're out? Good-good. Now destroy the earpiece. Right now. Snap it and drop it in a drain."
+<br><br>
+<<link [[Destroy the earpiece|Heist Escape Destroy]]>><</link>>
+<br>
+<<link [[Pocket it for now|Heist Escape Keep]]>><</link>>
+
+:: Heist Escape Destroy
+<<effects>>
+You pull the earpiece out and snap it between your fingers. The pieces vanish into a storm drain.
+<br><br>
+Silence. Mickey is gone.
+<br><br>
+<<set $xchange.bankHeist.hasEarpiece to false>>
+<<link [[Next|Heist Escape Final]]>><</link>>
+
+:: Heist Escape Keep
+<<effects>>
+You hesitat, but keep the earpiece. Mickey's line goes dead.
+<br><br>
+<span class="red"><i>You might put Mickey in bad situation.</i></span>
+<br>
+<<set $xchange.bankHeist.keptEarpiece to true>>
+<<link [[Next|Heist Escape Final]]>><</link>>
+
+:: Heist Escape Final
+<<effects>>
+Wren stands and steadies <<himself>>.
+<br><br>
+"<span class="teal">Take the card to Landry</span>. <<nnpc_him "Landry">> needs to see it. And be careful. Whatever that thing was, it saw us."
+<br><br>
+<<set $xchange.bankHeist.heistComplete to true>>
+<<set $xchange.bankHeist.sneak to null>>
+<<set $wrenSeenLast to "heist">>
+<<set $wrenSeen.pushUnique("heist")>>
+<<crimeicon "plunder">><<link [[Disappear into the night|Forest]]>><<endevent>><<pass 30>><</link>>
+
+:: Heist Failure
+<<effects>>
+You bolt for the staircase. Wren is ahead. The footsteps behind are fast, closing in.
+<br><br>
+<<bankHeistStealthCheck 8 "athletics">>
+<<if _heistStealthResult is "success">>
+	You make it to the staircase. Wren holds the door. You throw yourself through.
+	<br><br><<pass 10>>
+	A hand catches your ankle. You hit the floor. More hands drag you back.
+	<br><br>
+	Wren hesitates, face twisted. Then <<he>> mouths one word. <span class="red">"Sorry."</span> And is gone.
+<<else>>
+	A body slams you into the wall. Stars burst across your vision. Wren's footsteps recede. <<He>> got away. <span class="red">You didn't</span>.<<pass 15>>
+<</if>>
+<br><br>
+Mickey's voice in your ear: "Destroy the earpiece. Now."
+<br><br>
+<<link [[Crush the earpiece|Heist Failure Earpiece]]>><</link>>
+<br>
+<<link [[No time|Heist Failure 2]]>><</link>>
+
+:: Heist Failure Surrender
+<<effects>>
+You raise your hands.
+<br><br>
+Wren stares. "What are you <i>doing</i>?" <<he>> hisses. You shake your head. There's no way out.
+<br><br>
+<<He>> looks at you for one long moment. Then <<he>> runs.
+<br><br>
+The guards close in. One produces a zip tie.
+<br><br>
+Mickey: "The earpiece. Destroy it. Please."
+<br><br>
+<<link [[Crush the earpiece|Heist Failure Earpiece]]>><</link>>
+<br>
+<<link [[No time|Heist Failure 2]]>><</link>>
+
+:: Heist Failure Earpiece
+<<effects>>
+You jam your hand against your ear and crush the earpiece. The casing cracks. A shard cuts your ear. The signal dies.
+<br><br>
+<<set $xchange.bankHeist.hasEarpiece to false>>
+The guards grab your arms. One notices the blood on your ear. "What did you just do?"
+<br><br>
+"Nothing," you say.
+<br><br>
+<<link [[Next|Heist Failure 2]]>><</link>>
+
+:: Heist Failure 2
+<<effects>>
+You're dragged upstairs, through corridors you never mapped, and put in a small windowless room. The guards say nothing.
+<br><br>
+Then the police arrive. You're processed, printed, charged. Breaking and entering. Trespassing. <i>Attempted grand theft</i>.
+<br><br>
+<span class="red">You've been arrested.</span>
+<br><br>
+<<link [[Next|Heist Failure 3]]>><</link>>
+
+:: Heist Failure 3
+<<effects>><<crimeUp 5000>>
+<<set $xchange.bankHeist.heistFailed to true>>
+<<set $xchange.bankHeist.failDay to Time.days>>
+<<set $xchange.bankHeist.sneak to null>>
+<<if $xchange.bankHeist.hasEarpiece>>
+	During processing, an officer pulls the earpiece from your ear. They bag it as evidence. <span class="red">Mickey's signal signature is compromised.</span>
+	<<set $xchange.bankHeist.earpieceCompromised to true>>
+	<<set $xchange.bankHeist.hasEarpiece to false>>
+	<br><br>
+<</if>>
+As the officers lead you away, you catch a glimpse through the bank's glass doors. A shape on the upper floor. <span class="navy">The silhouette of antlers</span>.
+<<set $xchange.bankHeist.masterSeen to true>>
+<br><br>
+<<link [[Next|Police Prison Intro]]>><<endevent>><<pass 30>><<generatePolice 1>><<generatePolice 2>><</link>>
+
+:: Heist Failure Landry
+<<endevent>>
+<<effects>><<npc Landry>><<person1>>
+Landry takes one look at you and knows.
+<br><br>
+<<He>> slides a drink across the bar and waits.
+<br><br>
+<<if $speech_attitude is "meek">>"I'm sorry," you say. "I failed."
+<<elseif $speech_attitude is "bratty">>"Before you say 'I told you so'..."<br><br>"I wasn't going to," <<he>> says quietly.
+<<else>>"It went wrong," you say simply.<</if>>
+<br><br>
+Landry exhales. "I heard. News travels fast." <<He>> drums <<his>> fingers on the bar. "Wren?"
+<br><br>
+"Got away."
+<br><br>
+<<He>> nods. "Good. <<nnpc_Hes "Wren">> too useful to lose."
+<br><br>
+<<link [[Next|Heist Failure Landry 2]]>><</link>>
+
+:: Heist Failure Landry 2
+<<if $xchange.bankHeist.earpieceCompromised>>
+	<<set $pubfame.status to "hiding">><<set $pubfame.timer to 21>>
+	Mickey's door cracks open. "They got the earpiece?" Their voice is flat.
+	<br><br>
+	"I'm sorry," you say.
+	<br><br>
+	"Don't apologise. Just stay away from me for a while. I need to relocate some things." The door shuts. The lock engages harder than usual.
+	<br><br>
+<</if>>
+<<He>> looks at you. "This doesn't change anything. The bank is still vulnerable. We just need to regroup. 
+<<if $xchange.blackmail.intro is 1>>For now, damage control."<<else>>"For now, lay low."<</if>>
+<br><br>
+<<set $xchange.bankHeist.heistFailureTold to true>>
+<<getouticon>><<link [[Leave|Pub]]>><<endevent>><</link>>
+
+
+:: Heist Retry Letter
+<<effects>>
+You unfold the note. No name, no address. The handwriting is cramped but careful.
+<br><br>
+<i>The dust has settled. Our friend is back on their feet and the heat has died down. If you're still interested in finishing what we started, come see me. Same place, same table.</i>
+<br><br>
+<i>The bank changed their guard rotation after what happened, but the fundamentals haven't. If anything, their overconfidence has grown. They think they've won.</i>
+<br><br>
+<i>Let's prove them wrong.</i>
+<br><br>
+<i>- P.S. Wren says <<nnpc_he "Wren">> owes you a drink.</i>
+<br><br>
+<<set $xchange.bankHeist.retryLetterRead to true>>
+<<bankHeistRetryReset>>
+<<link [[Burn the note|Heist Retry Letter Burn]]>><</link>>
+
+:: Heist Retry Letter Burn
+<<effects>>
+You hold the note over a candle. The paper catches, curls, and turns to ash. No trace.
+<br><br>
+Landry would approve.
+<br><br>
+<span class="gold"><i>The heist is back on. Talk to Landry at the pub.</i></span>
+<br><br>
+<<link [[Next|Bedroom]]>><</link>>
