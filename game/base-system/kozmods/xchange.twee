@@ -69,22 +69,34 @@
 			<<if $xchange.customisedSkinColour is "random" || $xchange.customisedEyeColour is "random">>
 				/* Optional: allow wraith appearance even on loaded bodies */
 				<<set _wraithChance to ($xchange.wraithChance is undefined ? 0.70 : Math.clamp($xchange.wraithChance, 0, 1))>>
-				<<if Math.random() < _wraithChance>>
+				<<set _doWraith to (Math.random() < _wraithChance)>>
+
+				<<if $xchange.customisedSkinColour is "random">>
 					<<set _skinKeys to Object.keys(setup.colours.skin_options)>>
 					<<set _wraithSkinKeys to _skinKeys.filter(k => /ivory|wraith/i.test(k))>>
-					<<if _wraithSkinKeys.length gt 0>>
+					<<set _normalSkinKeys to _skinKeys.filter(k => !/ivory|wraith/i.test(k))>>
+					<<if _doWraith && _wraithSkinKeys.length gt 0>>
 						<<set $player.skin.color to _wraithSkinKeys.random()>>
-					<</if>>
-
-					<<set _eyeKeys to Object.keys(setup.colours.eyes_map).filter(k => k !== "random" && !/^colorWheelTemporary/i.test(k))>>
-					<<set _wraithEyeKeys to _eyeKeys.filter(k => /possessed|wraith|ivory/i.test(k))>>
-					<<if _wraithEyeKeys.length gt 0>>
-						<<set _eyeColour to _wraithEyeKeys.random()>>
-						<<set $leftEyeColour to _eyeColour>>
-						<<set $rightEyeColour to _eyeColour>>
+					<<elseif _normalSkinKeys.length gt 0>>
+						<<set $player.skin.color to _normalSkinKeys.random()>>
 					<</if>>
 				<</if>>
+				<<if $xchange.customisedEyeColour is "random">>
+					<<set _eyeKeys to Object.keys(setup.colours.eyes_map).filter(k => k !== "random" && !/^colorWheelTemporary/i.test(k))>>
+					<<set _wraithEyeKeys to _eyeKeys.filter(k => /possessed|wraith|ivory/i.test(k))>>
+					<<set _normalEyeKeys to _eyeKeys.filter(k => !/possessed|wraith|ivory/i.test(k))>>
+					<<if _doWraith && _wraithEyeKeys.length gt 0>>
+						<<set _eyeColour to _wraithEyeKeys.random()>>
+					<<elseif _normalEyeKeys.length gt 0>>
+						<<set _eyeColour to _normalEyeKeys.random()>>
+					<<else>>
+						<<set _eyeColour to _eyeKeys.random()>>
+					<</if>>
+					<<set $leftEyeColour to _eyeColour>>
+					<<set $rightEyeColour to _eyeColour>>
+				<</if>>
 			<</if>>
+
 		<<else>>
 			<<if !Number.isInteger($breastsizemin) or !Number.isInteger($breastsizemax) or !Number.isInteger($bottomsizemin) or !Number.isInteger($bottomsizemax) or $breastsizemax lt $breastsizemin or $bottomsizemax lt $bottomsizemin>>
 				<<run console.error("[xchange-pink/xchange restore] Invalid body size bounds", {
@@ -296,22 +308,34 @@
 			<<if $xchange.customisedSkinColour is "random" || $xchange.customisedEyeColour is "random">>
 				/* Optional: allow wraith appearance even on loaded bodies */
 				<<set _wraithChance to ($xchange.wraithChance is undefined ? 0.70 : Math.clamp($xchange.wraithChance, 0, 1))>>
-				<<if Math.random() < _wraithChance>>
+				<<set _doWraith to (Math.random() < _wraithChance)>>
+
+				<<if $xchange.customisedSkinColour is "random">>
 					<<set _skinKeys to Object.keys(setup.colours.skin_options)>>
 					<<set _wraithSkinKeys to _skinKeys.filter(k => /ivory|wraith/i.test(k))>>
-					<<if _wraithSkinKeys.length gt 0>>
+					<<set _normalSkinKeys to _skinKeys.filter(k => !/ivory|wraith/i.test(k))>>
+					<<if _doWraith && _wraithSkinKeys.length gt 0>>
 						<<set $player.skin.color to _wraithSkinKeys.random()>>
-					<</if>>
-
-					<<set _eyeKeys to Object.keys(setup.colours.eyes_map).filter(k => k !== "random" && !/^colorWheelTemporary/i.test(k))>>
-					<<set _wraithEyeKeys to _eyeKeys.filter(k => /possessed|wraith|ivory/i.test(k))>>
-					<<if _wraithEyeKeys.length gt 0>>
-						<<set _eyeColour to _wraithEyeKeys.random()>>
-						<<set $leftEyeColour to _eyeColour>>
-						<<set $rightEyeColour to _eyeColour>>
+					<<elseif _normalSkinKeys.length gt 0>>
+						<<set $player.skin.color to _normalSkinKeys.random()>>
 					<</if>>
 				<</if>>
+				<<if $xchange.customisedEyeColour is "random">>
+					<<set _eyeKeys to Object.keys(setup.colours.eyes_map).filter(k => k !== "random" && !/^colorWheelTemporary/i.test(k))>>
+					<<set _wraithEyeKeys to _eyeKeys.filter(k => /possessed|wraith|ivory/i.test(k))>>
+					<<set _normalEyeKeys to _eyeKeys.filter(k => !/possessed|wraith|ivory/i.test(k))>>
+					<<if _doWraith && _wraithEyeKeys.length gt 0>>
+						<<set _eyeColour to _wraithEyeKeys.random()>>
+					<<elseif _normalEyeKeys.length gt 0>>
+						<<set _eyeColour to _normalEyeKeys.random()>>
+					<<else>>
+						<<set _eyeColour to _eyeKeys.random()>>
+					<</if>>
+					<<set $leftEyeColour to _eyeColour>>
+					<<set $rightEyeColour to _eyeColour>>
+				<</if>>
 			<</if>>
+
 		<<else>>
 			<<set $player.breastsize to 0>>
 			<<set $player.bottomsize to 0>>
