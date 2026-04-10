@@ -11,6 +11,25 @@
 
 <<if $mmagymintro isnot 1 and $openinghours is 1>>
 	<<mmaGymIntro "MMA Gym">>
+<<elseif $openinghours is 0>>
+	The building is dark and still in its closing time. Without the music and shouting, the place feels bigger. But you spot a standard cash register sits on a counter. It's locked tight.
+	<br><br><<set $lock to 200>>
+	<<if currentSkillValue('skulduggery') gte $lock>>
+		<<if $leftarm is "bound" and $rightarm is "bound">>
+			You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
+			<br><br>
+		<<else>>
+			<<wearProp "lockpick">>
+			<span class="green">The lock looks easy to pick.</span>
+			<br><br>
+			<<lockicon "pick">><<link [[Pick it (0:10)|MMA Gym Register Sneak]]>><<handheldon>><<pass 10>><<crimeUp 10 "thievery">><</link>><<crime "thievery">>
+			<br>
+		<</if>>
+	<<else>>
+		<span class="red">The lock looks beyond your ability to pick.</span><<skulduggeryrequired>>
+		<br><br>
+	<</if>>
+	<<nightingaleicon>><<link [[Leave|Nightingale Street]]>><<endevent>><</link>>
 <<else>>
 	The MMA gym smells of sweat, disinfectant, and old rubber. Heavy bags sway along one wall, a cramped weights area sits beyond a rack of battered plates, and a square of mats at the back serves as Riley's class space. Nothing in here is polished for show.
 	<br><br>
@@ -25,11 +44,7 @@
 		<<if Time.hour is 21>>
 			It is closing time. Riley starts shooing everyone toward the door.<<if $exposed gte 1>> Your stomach drops as you remember what state of dress you are in.<</if>>
 			<br>
-		<<elseif $openinghours is 0>>
-			The building is dark and still. Without the music and shouting, the place feels bigger.
-			<br>
-		<</if>>
-		<<if $openinghours is 1 and $exposed lt 1>>
+		<<elseif $openinghours is 1 and $exposed lt 1>>
 			<<icon "physique.png">><<link [[Use the weights room (0:30)|MMA Weights Room]]>><<set $phase to 0>><<pass 30>><</link>><<gphysique>><<gathletics>><<note " Moderate fatigue" "red">>
 			<br>
 			<<if $mmaGymAccessUnlocked isnot 1>>
@@ -84,11 +99,6 @@
 				<br>
 			<</if>>
 		<</if>>
-		<<if $openinghours is 0 and Time.hour isnot 21 and !$weekly.theft.mmaGym>>
-			<<shopicon "register">><<link [[Examine the cash register|MMA Gym Register]]>><</link>>
-			<br>
-		<</if>>
-		<br>
 		<<nightingaleicon>><<link [[Leave|Nightingale Street]]>><<endevent>><</link>>
 		<br><br>
 	<</if>>

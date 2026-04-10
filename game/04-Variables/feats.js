@@ -695,9 +695,9 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Social"],
 	},
-	"Great Hawk the Terror": {
-		title: "Great Hawk the Terror",
-		desc: "Mate for life.",
+	"Mate for life": { // FIX: was duplicate key "Great Hawk the Terror" - rename as needed
+		title: "Mate for life",
+		desc: "You can't change your partner, as this species mates for life.",
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Social"],
@@ -3076,6 +3076,7 @@ function earnHourlyFeats() {
 	if (V.bear >= 6) earnFeat("Bear");
 	if ((V.harpy >= 6 || V.transformationParts.bird.wings == "default")) earnFeat("Harpy");
 	if (V.fox >= 6) earnFeat("Fox");
+	if (V.bunny >= 6) earnFeat("Bunny");
 
 	const specialTraits =
 		(V.orgasmtrait >= 1 ? 1 : 0) +
@@ -3271,7 +3272,7 @@ function earnHourlyFeats() {
 		(!V.player.vaginaExist || V.vaginalskill >= 2000) &&
 		(!V.player.penisExist || V.penileskill >= 2000) &&
 		V.oralskill >= 2000 &&
-		(V.analskill >= 2000 || V.analdisable === "t") &&
+		(V.analskill >= 2000 || V.settings.analEnabled === false) &&
 		V.handskill >= 2000 &&
 		V.feetskill >= 2000 &&
 		V.bottomskill >= 2000 &&
@@ -3377,7 +3378,7 @@ function updateFeats() {
 			if (!curFeats[feat]?.valueOf()) curFeats[feat] = new Date(1);
 		}
 		// if feat was unlocked earlier, do nothing
-		if (allFeats[feat] && getTimeNumber(allFeats[feat] <= getTimeNumber(curFeats[feat]))) return;
+		if (allFeats[feat] && getTimeNumber(allFeats[feat]) <= getTimeNumber(curFeats[feat])) return;
 		// else update allFeats and capture the flag
 		allFeats[feat] = clone(curFeats[feat]);
 		writeFlag = true;
@@ -3913,6 +3914,7 @@ function applyFeatBoosts() {
 	// random clothes
 	if (upgrades.randomClothing) {
 		let clothingItems = upgrades.randomClothing * 3;
+		let retries = clothingItems * 3; // cap retries to prevent infinite loop
 		const options = {
 			head: [],
 			face: [],
@@ -3930,6 +3932,7 @@ function applyFeatBoosts() {
 		};
 		const equip = clone(setup.clothingLayer.body);
 		for (const slot of equip) {
+			if (!options[slot]) options[slot] = []; // handle slots not in hardcoded list
 			if (!Array.isArray(setup.clothes?.[slot])) continue;
 			for (let index = 0; index < setup.clothes[slot].length; index++) {
 				const clothing = setup.clothes[slot][index];
@@ -4025,7 +4028,7 @@ function applyFeatBoosts() {
 				for (const [wardrobeSlot, wardrobeItem] of Object.entries(itemsToAdd)) {
 					V.wardrobe[wardrobeSlot].push(wardrobeItem);
 				}
-			} else {
+			} else if (retries-- > 0) {
 				clothingItems += 1;
 			}
 		}
@@ -4033,16 +4036,13 @@ function applyFeatBoosts() {
 
 	// special clothes
 	if (upgrades.specialClothing) {
-		const unlocked = V.feats.allSaves.specialClothes;
 		specialClothesUpdate();
-		const level = gain("specialClothing", 1);
-		// old notes on the level:
-		/* Level 1 upgrade - unlock previosuly unlocked special clothing sets by selection. */
-		/* Level 2 upgrade - unlock all special clothes unlocked in any other save. */
-		/* Level 3 upgrade - everything is remembered. */
-		unlocked.forEach(c => {
-			if (V.featsBoosts.specialClothesSets[c] === true) specialClothesUnlock("set", c, Math.clamp(level, 2, 3));
-		});
+		// cost is 0, so gain() would be Infinity. In DoLP this causes the level 1/2/3 switch
+		// to always fall through to the else (level 1) path, which iterates specialClothesSets directly.
+		// We replicate that behavior here to match DoLP.
+		for (const [setName, selected] of Object.entries(V.featsBoosts.specialClothesSets)) {
+			if (selected === true) specialClothesUnlock("set", setName, 2);
+		}
 	}
 
 	// tattoos
