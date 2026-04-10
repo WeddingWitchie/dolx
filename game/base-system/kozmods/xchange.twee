@@ -252,6 +252,18 @@
 		<<set $player.penisExist to false>>
 		<<set $player.vaginaExist to true>>
 
+		/* Adapt chastity device to new body */
+		<<if $worn.genitals.type.includes("chastity")>>
+			<<if $worn.genitals.type.includes("cage") and !$worn.genitals.type.includes("hidden")>>
+				<<set _cageIdx to $worn.genitals.type.indexOf("cage")>>
+				<<run $worn.genitals.type.splice(_cageIdx, 1)>>
+				<<run $worn.genitals.type.push("hidden")>>
+				<<set $worn.genitals.exposed to 0>>
+				<<set $worn.genitals.exposed_base to 0>>
+				<<set $xchange.chastityAdaptedMessage to "feminize">>
+			<</if>>
+		<</if>>
+
 		/* Parasites */
 		<<set $parasite.clit to $parasite.penis>>
 		<<set $parasite.labia to $parasite.balls>>
@@ -487,6 +499,18 @@
 		<<set $player.penisExist to true>>
 		<<set $player.vaginaExist to false>>
 		<<set $sexStats.vagina.menstruation.running to false>>
+
+		/* Adapt chastity device to new body */
+		<<if $worn.genitals.type.includes("chastity")>>
+			<<if $worn.genitals.type.includes("hidden") and !$worn.genitals.type.includes("cage")>>
+				<<set _hiddenIdx to $worn.genitals.type.indexOf("hidden")>>
+				<<run $worn.genitals.type.splice(_hiddenIdx, 1)>>
+				<<run $worn.genitals.type.push("cage")>>
+				<<set $worn.genitals.exposed to 1>>
+				<<set $worn.genitals.exposed_base to 1>>
+				<<set $xchange.chastityAdaptedMessage to "butchify">>
+			<</if>>
+		<</if>>
 
 		/* Parasites (reverse of become-girl: move clit/labia back into penis/balls, then clear clit/labia) */
 		<<set $parasite.penis to $parasite.clit>>
@@ -781,6 +805,25 @@
 		<<if _body.penisstate isnot undefined>><<set $penisstate to _body.penisstate>><</if>>
 		<<if _body.vaginause isnot undefined>><<set $vaginause to _body.vaginause>><</if>>
 		<<if _body.vaginastate isnot undefined>><<set $vaginastate to _body.vaginastate>><</if>>
+
+		/* Adapt chastity device to restored body */
+		<<if $worn.genitals.type.includes("chastity")>>
+			<<if $player.vaginaExist and !$player.penisExist and $worn.genitals.type.includes("cage") and !$worn.genitals.type.includes("hidden")>>
+				<<set _cIdx to $worn.genitals.type.indexOf("cage")>>
+				<<run $worn.genitals.type.splice(_cIdx, 1)>>
+				<<run $worn.genitals.type.push("hidden")>>
+				<<set $worn.genitals.exposed to 0>>
+				<<set $worn.genitals.exposed_base to 0>>
+				<<set $xchange.chastityAdaptedMessage to "feminize">>
+			<<elseif $player.penisExist and !$player.vaginaExist and $worn.genitals.type.includes("hidden") and !$worn.genitals.type.includes("cage")>>
+				<<set _hIdx to $worn.genitals.type.indexOf("hidden")>>
+				<<run $worn.genitals.type.splice(_hIdx, 1)>>
+				<<run $worn.genitals.type.push("cage")>>
+				<<set $worn.genitals.exposed to 1>>
+				<<set $worn.genitals.exposed_base to 1>>
+				<<set $xchange.chastityAdaptedMessage to "butchify">>
+			<</if>>
+		<</if>>
 
 		/* <<if !$xchangeFameMerged>> */
 			<<set $fame to _body.fame>>
@@ -1851,12 +1894,12 @@
 		<ul>
 			<<if $xchange.pill.choiceEffect>><li>Choice.
 				<mouse class="tooltip linkBlue">(?)<span>The effect of this pill remains indefinitely until its companion pill is ingested.</span></mouse></li><</if>>
-			<<if $xchange.pill.genderflipEffect>><li>Genderflip.
-				<mouse class="tooltip linkBlue">(?)<span>Switches your body's sexual characteristics to those of the opposite gender.</span></mouse></li><</if>>
+			<<if $xchange.pill.genderflipEffect>><li>Sexflip.
+				<mouse class="tooltip linkBlue">(?)<span>Switches your body's sexual characteristics to those of the opposite genital.</span></mouse></li><</if>>
 			<<if $xchange.pill.hermEffect>><li>Herm.
-				<mouse class="tooltip linkBlue">(?)<span>Mixes up your body's sexual characteristics to those of your original gender and those of the opposite.</span></mouse></li><</if>>
+				<mouse class="tooltip linkBlue">(?)<span>Mixes up your body's sexual characteristics to those of your original genital and those of the opposite.</span></mouse></li><</if>>
 			<<if $xchange.pill.genderificationEffect>><li><<= $player.gender is "m"? "Sissification": "Butchification">>.
-				<mouse class="tooltip linkBlue">(?)<span>Partially changes your body's characteristics. Rewards crossdressing (relative to your original gender).</span></mouse></li><</if>>
+				<mouse class="tooltip linkBlue">(?)<span>Partially changes your body's characteristics. Rewards crossdressing (relative to your original sex).</span></mouse></li><</if>>
 			<<if $xchange.pill.continueEffect>><li>Continue Effect.
 				<mouse class="tooltip linkBlue">(?)<span>Extends its duration every time you climax.</span></mouse></li><</if>>
 			<<if $xchange.pill.resistanceEffect>><li>Resistance Effect.

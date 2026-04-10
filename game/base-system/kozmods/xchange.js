@@ -1128,6 +1128,15 @@ function xchangeEffectsMessages() {
 		delete V.suspiciousPillDebuffMessage;
 	}
 
+	if (V.xchange?.chastityAdaptedMessage) {
+		if (V.xchange.chastityAdaptedMessage === "feminize") {
+			element("span", "You feel your chastity device shift and reshape around your new anatomy, enclosing your new sex tightly.", "teal"); br();
+		} else if (V.xchange.chastityAdaptedMessage === "butchify") {
+			element("span", "You feel your chastity device constrict and reform into a cage around your new anatomy, locking your new sex in place.", "teal"); br();
+		}
+		delete V.xchange.chastityAdaptedMessage;
+	}
+
 	return fragment;
 }
 window.xchangeEffectsMessages = xchangeEffectsMessages;
