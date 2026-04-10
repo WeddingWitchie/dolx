@@ -3421,6 +3421,12 @@ function updateFeats() {
 		});
 	}
 	allFeats.specialClothes = specialClothes;
+
+	// Award specialClothes series feats based on unlocked set count
+	const totalFeatSets = getSpecialSets(set => set.feat).length;
+	if (specialClothes.length >= Math.ceil(totalFeatSets / 2)) { earnFeat("Curious Attire"); }
+	if (specialClothes.length >= totalFeatSets) { earnFeat("Wicked Wardrobe"); }
+
 	V.feats.allSaves = allFeats;
 
 	// update permanent feat storage
