@@ -1090,34 +1090,36 @@ if (V.temple_garden >= 1) {
 		V.daily.kylar.libraryStalk = rollKylarLibraryStalkFlag();
 
 		if (V.bike >= 1) {
+			/* Protection as percentage reduction (matches depot notes) */
 			if (V.bikeSecurityGear == 5) {
-				T.bikeTheftProtection = 999;
+				T.bikeTheftProtection = 0.90;
 			} else if (V.bikeSecurityGear == 4) {
-				T.bikeTheftProtection = 750;
+				T.bikeTheftProtection = 0.70;
 			} else if (V.bikeSecurityGear == 3) {
-				T.bikeTheftProtection = 500;
+				T.bikeTheftProtection = 0.50;
 			} else if (V.bikeSecurityGear == 2) {
-				T.bikeTheftProtection = 300;
+				T.bikeTheftProtection = 0.30;
 			} else if (V.bikeSecurityGear == 1) {
-				T.bikeTheftProtection = 100;
+				T.bikeTheftProtection = 0.10;
 			} else {
 				T.bikeTheftProtection = 0;
 			}
+			T.bikeTheftChanceBonus = 0;
 			if (V.bikeLocationCategory == "lake") {
-				T.bikeTheftChance = 500 - T.bikeTheftProtection;
+				T.bikeTheftChance = 500;
 			} else if (V.bikeLocationCategory == "left" || V.bikeLocationCategory == "mid" || V.bikeLocationCategory == "right") {
 				if (V.baileydefeatedchain >= 1) {
 					T.bikeTheftChanceBonus = 250;
-				} else {
-					T.bikeTheftChanceBonus = 0;
 				}
-				T.bikeTheftChance = 750 - T.bikeTheftProtection + T.bikeTheftChanceBonus;
+				T.bikeTheftChance = 750 + T.bikeTheftChanceBonus;
 			} else if (V.bikeLocationCategory == "farm") {
-				if (V.farm?.aggro) T.bikeTheftChanceBonus = 900 * (V.farm.aggro / 100);
-				T.bikeTheftChance = 100 - T.bikeTheftProtection + T.bikeTheftChanceBonus;
+				if (V.farm?.aggro) T.bikeTheftChanceBonus = Math.floor(900 * (V.farm.aggro / 100));
+				T.bikeTheftChance = 100 + T.bikeTheftChanceBonus;
 			} else {
 				T.bikeTheftChance = 0;
 			}
+			/* Apply protection as percentage reduction */
+			T.bikeTheftChance = Math.floor(T.bikeTheftChance * (1 - T.bikeTheftProtection));
 			if ((random(1, 1000) <= T.bikeTheftChance) && V.bikeSecurity == 1) {
 				V.bikeStolen = 1;
 				V.bike = 0;
