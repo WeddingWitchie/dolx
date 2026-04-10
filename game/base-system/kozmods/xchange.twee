@@ -2561,6 +2561,49 @@
 		<</if>>
 
 		<<set $xchange.timesTaken.player++>>
+
+		/* Suspicious pill skill debuff: 20-35% chance */
+		<<set _debuffChance to random(20,35)>>
+		<<if random(1,100) lte _debuffChance>>
+			<<set _skillPool to [
+				{ key: "physique", name: "Physique" },
+				{ key: "willpower", name: "Willpower" },
+				{ key: "skulduggery", name: "Skulduggery" },
+				{ key: "danceskill", name: "Dancing" },
+				{ key: "swimmingskill", name: "Swimming" },
+				{ key: "athletics", name: "Athletics" },
+				{ key: "tending", name: "Tending" },
+				{ key: "housekeeping", name: "Housekeeping" }
+			]>>
+			<<set _combatPool to [
+				{ key: "brawling", name: "Brawling", combat: true },
+				{ key: "footwork", name: "Footwork", combat: true },
+				{ key: "striking", name: "Striking", combat: true },
+				{ key: "kicking", name: "Kicking", combat: true }
+			]>>
+			/* Pick 1-3 skills to debuff */
+			<<set _allSkills to [..._skillPool, ..._combatPool]>>
+			<<set _count to random(1,3)>>
+			<<set _hitNames to []>>
+			<<for _s to 0; _s lt _count && _allSkills.length gt 0; _s++>>
+				<<set _pick to random(0, _allSkills.length - 1)>>
+				<<set _chosen to _allSkills.splice(_pick, 1)[0]>>
+				<<if _chosen.combat>>
+					<<if $combatExtended && $combatExtended[_chosen.key] isnot undefined>>
+						<<set $combatExtended[_chosen.key] to Math.max(0, $combatExtended[_chosen.key] - 300)>>
+						<<run _hitNames.push(_chosen.name)>>
+					<</if>>
+				<<else>>
+					<<if State.variables[_chosen.key] isnot undefined>>
+						<<set State.variables[_chosen.key] to Math.max(0, State.variables[_chosen.key] - 300)>>
+						<<run _hitNames.push(_chosen.name)>>
+					<</if>>
+				<</if>>
+			<</for>>
+			<<if _hitNames.length gt 0>>
+				<<set $suspiciousPillDebuffMessage to _hitNames>>
+			<</if>>
+		<</if>>
 	<</if>>
 <</widget>>
 

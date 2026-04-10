@@ -1121,6 +1121,13 @@ function xchangeEffectsMessages() {
 		delete V.breakdownEndMessage;
 	}
 
+	if (V.suspiciousPillDebuffMessage) {
+		const skills = V.suspiciousPillDebuffMessage;
+		element("span", "Something went wrong with the suspicious pill.", "red"); br();
+		element("span", `The botched transformation has weakened your ${skills.join(", ")}.`, "purple"); br();
+		delete V.suspiciousPillDebuffMessage;
+	}
+
 	return fragment;
 }
 window.xchangeEffectsMessages = xchangeEffectsMessages;
