@@ -3332,19 +3332,6 @@ function earnHourlyFeats() {
 	if (V.fame.pregnancy >= 2000) earnFeat("Bearer");
 	if (V.fame.impreg >= 2000) earnFeat("Stud");
 
-	// if (V.fame.scrap >= 4000) earnFeat("Urban Myth");
-	// if (V.fame.good >= 4000) earnFeat("Guardian Angel");
-	// if (V.fame.business >= 4000) earnFeat("Mogul");
-	// if (V.fame.social >= 4000) earnFeat("The Unmissable");
-	// if (V.fame.model >= 4000) earnFeat("Face of the Spotlight");
-	// if (V.fame.sex >= 4000) earnFeat("Public Transit");
-	// if (V.fame.prostitution >= 4000) earnFeat("Lady of the Night");
-	// if (V.fame.rape >= 4000) earnFeat("Public Fucktoy");
-	// if (V.fame.bestiality >= 4000) earnFeat("Absolute Deviant");
-	// if (V.fame.exhibitionism >= 4000) earnFeat("Attention Addict");
-	// if (V.fame.pregnancy >= 4000) earnFeat("Broodmother");
-	// if (V.fame.impreg >= 4000) earnFeat("Progenitor");
-
 	// Should be last
 	let currentMax = 0;
 	for (let i = 0; i < Object.keys(setup.feats).length; i++) {

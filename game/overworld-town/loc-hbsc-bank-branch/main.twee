@@ -1,16 +1,15 @@
 :: HBSC Bank Branch
-<<hbscEnsure>><<set $outside to 0>><<effects>><<if $avery_fate is "ascended">><<location "avery_skyscraper">><<else>><<location "office">><</if>><<effects>>
-
-You approach the town hall, a tall building in the heart of the commercial district. It stands between a bustling shopping centre and a sleek office building, its polished facade reflecting the steady movement of shoppers and professionals alike. The entire perimeter is watched by discreet but obvious security.
+<<run setup.hbsc.ensureState()>><<effects>><<if $avery_fate is "ascended">><<location "avery_skyscraper">><<else>><<location "office">><</if>>
+You approach the town hall, a tall building in the heart of the commercial district. It stands between a bustling shopping centre and a sleek office building, its polished facade reflecting the steady movement of shoppers and professionals alike. 
+The entire perimeter is watched by discreet but obvious security.
 <br><br>
-
 <<generate1>><<person1>><<generate2>>
 You enter a long waiting room lined with wooden doors. A <<person1>><<person>> sits behind the front desk while a queue shuffles forward.
 <br><br>
-
 <<if setup.hbsc.isBanned()>>
 	<<set _banDays to setup.hbsc.getBanRemainingDays()>>
-	A uniformed member of security steps in before you can reach the desk. "Not today. Your account has been flagged after you tried to sneak around the branch. Counter service is suspended for <span class = "red"><<print _banDays>> more day<<print _banDays is 1 ? "" : "s">></span>."
+	A uniformed member of security steps in before you can reach the desk. "Not today. 
+	Your account has been flagged after you tried to sneak around the branch. Counter service is suspended for <span class = "red"><<print _banDays>> more day<<print _banDays is 1 ? "" : "s">></span>."
 	<br><br>
 	<<if $hbsc.lastPenaltyAmount > 0>>
 		The teller adds, "The security penalty has already been taken from your savings for <<printmoney $hbsc.lastPenaltyAmount>>."
@@ -34,10 +33,8 @@ You enter a long waiting room lined with wooden doors. A <<person1>><<person>> s
 <<getouticon>><<link [[Leave|High Street]]>><<endevent>><</link>>
 
 :: HBSC Bank Wait
-<<hbscEnsure>>
 <<effects>>
 You wait in line behind a <<person2>><<person>>.
-
 <<if $rng gte 91>>
 	<<He>> carries a locked briefcase and grips the handle tightly. When <<his>> turn arrives, <<he>> places it on the counter and murmurs something under <<his>> breath.
 	<br><br>
@@ -116,9 +113,7 @@ It's your turn. The teller looks up expectantly. "How can I help you, <<psir>>?"
 <<hbscOptions>>
 
 :: HBSC Bank Priority
-<<hbscEnsure>>
-<<effects>>
-<<person2>>
+<<effects>><<person2>>
 You settle into the swivel chair and the <<person>> greets you with a professional smile.
 <<if Time.dayState is "day" or Time.dayState is "dawn">>
 	"Good morning, fine <<psir>>. How can I help you today?"
@@ -129,7 +124,7 @@ You settle into the swivel chair and the <<person>> greets you with a profession
 <<hbscOptions>>
 
 :: HBSC Bank Ask Savings Accounts
-<<hbscEnsure>><<effects>>
+<<effects>>
 <<set _hasAccount to ($hbsc.account.level gte 1)>>
 <<set _tierLevel to (_hasAccount ? $hbsc.account.level : 1)>>
 <<set _tier to setup.hbsc.getSavingsTier(_tierLevel)>>
@@ -189,7 +184,6 @@ The teller slides a brochure over to you. "Think of this as your ordinary HBSC s
 	• Perks: 10% lower fixed-term early-withdrawal fee
 </div>
 <br>
-
 <div class="hbsc-brochure">
 	<span class="gold">Your current savings status</span><br>
 	• Current Tier: <<print _tier.name>><br>
@@ -213,7 +207,6 @@ The teller slides a brochure over to you. "Think of this as your ordinary HBSC s
 	<</if>>
 </div>
 <br>
-
 <<if not _hasAccount>>
 	The teller taps the brochure. "If you open an account today, you start on Basic. Higher tiers are upgrades. Their qualifying balances only decide whether that tier's monthly savings interest applies when the month rolls over; they are not one-time bonuses."
 <<elseif _tierLevel is 1>>
@@ -227,8 +220,7 @@ The teller slides a brochure over to you. "Think of this as your ordinary HBSC s
 <<hbscOptions>>
 
 :: HBSC Bank Ask Fixed-Term Deposits
-<<hbscEnsure>><<effects>>
-
+<<effects>>
 <<if $speech_attitude is "meek">>
 	"H-how do your fixed-term deposits work..?" you ask.
 <<elseif $speech_attitude is "bratty">>
@@ -282,18 +274,14 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 <<hbscOptions>>
 
 :: HBSC Bank Account
-<<hbscEnsure>><<effects>>
-<<set _level to $hbsc.account.level>>
-<<set _deposit to $hbsc.account.deposit>>
+<<effects>>
+<<set _level to $hbsc.account.level>><<set _deposit to $hbsc.account.deposit>>
 <<if _level is 5>><<wearProp "keycard" "black">>
 <<elseif _level is 4>><<wearProp "keycard" "tangerine">>
 <<elseif _level is 3>><<wearProp "keycard" "gold">>
 <<elseif _level is 2>><<wearProp "keycard" "silver">>
-<<elseif _level is 1>><<wearProp "keycard" "green">>
-<</if>>
-<<set _cash to $money>>
-<<set _total to _cash + _deposit>>
-<<set _hasId to !!$id>>
+<<elseif _level is 1>><<wearProp "keycard" "green">><</if>>
+<<set _cash to $money>><<set _total to _cash + _deposit>><<set _hasId to !!$id>>
 
 <<if _level < 1>>
 	<<if $speech_attitude is "meek">>
@@ -439,14 +427,13 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 <</if>>
 
 :: HBSC Bank Account Upgrade
-<<hbscEnsure>><<effects>>
+<<effects>>
 <<set _target to $hbsc.targetTier>>
 <<if _target is 5>><<wearProp "keycard" "black">>
 <<elseif _target is 4>><<wearProp "keycard" "tangerine">>
 <<elseif _target is 3>><<wearProp "keycard" "gold">>
 <<elseif _target is 2>><<wearProp "keycard" "silver">>
-<<elseif _target is 1 and $hbsc.account.level >= 1>><<wearProp "keycard" "green">>
-<</if>>
+<<elseif _target is 1 and $hbsc.account.level >= 1>><<wearProp "keycard" "green">><</if>>
 <<if _target is undefined or _target < 1 or _target > 5>>
 	The teller glances at the screen and frowns. "There isn't a valid upgrade request queued right now. Let's go back to your account overview."
 	<br><br>
@@ -499,15 +486,14 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 <</if>>
 
 :: HBSC Bank Account Upgrade Confirm
-<<hbscEnsure>><<effects>>
+<<effects>>
 <<set _target to $hbsc.targetTier>>
 <<set _topUp to Math.max(0, setup.hbsc.roundMoney($hbsc.upgradeTopUp))>>
 <<if _target is 5>><<wearProp "keycard" "black">>
 <<elseif _target is 4>><<wearProp "keycard" "tangerine">>
 <<elseif _target is 3>><<wearProp "keycard" "gold">>
 <<elseif _target is 2>><<wearProp "keycard" "silver">>
-<<elseif _target is 1>><<wearProp "keycard" "green">>
-<</if>>
+<<elseif _target is 1>><<wearProp "keycard" "green">><</if>>
 
 <<if _target is undefined or _target < 1 or _target > 5 or (_target > 1 and $hbsc.account.level < 1)>>
 	The teller frowns at the terminal. "That upgrade request is no longer valid. Let's go back to the account menu."
@@ -544,8 +530,7 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 <</if>>
 
 :: HBSC Bank Deposit
-<<hbscEnsure>><<effects>>
-
+<<effects>>
 <<if $hbsc.account.level < 1>>
 	The teller folds <<his>> hands. "You'll need an HBSC account before I can accept a savings deposit."
 	<br><br>
@@ -601,7 +586,7 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 
 
 :: HBSC Bank Deposit Confirm
-<<hbscEnsure>><<effects>>
+<<effects>>
 <<set _amount to setup.hbsc.roundMoney($hbsc.transactionAmount)>>
 <<set _tier to setup.hbsc.getSavingsTier($hbsc.account.level)>>
 <<set _room to setup.hbsc.getDepositRoom($hbsc.account.level, $hbsc.account.deposit)>>
@@ -655,7 +640,7 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 <</if>>
 
 :: HBSC Bank Deposit Result
-<<hbscEnsure>><<effects>>
+<<effects>>
 <<set _requested to setup.hbsc.roundMoney($hbsc.transactionAmount)>>
 <<set _result to setup.hbsc.makeSavingsDeposit($hbsc.transactionAmount)>>
 <<set $hbsc.transactionAmount to 0>><<set $hbsc.transactionInput to "">>
@@ -695,7 +680,6 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 <</if>>
 
 :: HBSC Bank Withdraw
-<<hbscEnsure>>
 <<effects>>
 
 <<if $hbsc.account.level < 1>>
@@ -732,9 +716,8 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 	<</if>>
 <</if>>
 
-
 :: HBSC Bank Withdraw Confirm
-<<hbscEnsure>><<effects>>
+<<effects>>
 <<set _amount to setup.hbsc.roundMoney($hbsc.transactionAmount)>>
 <<set _cashAfter to setup.hbsc.roundMoney($money + _amount)>>
 <<set _depositAfter to setup.hbsc.roundMoney($hbsc.account.deposit - _amount)>>
@@ -774,7 +757,7 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 <</if>>
 
 :: HBSC Bank Withdraw Result
-<<hbscEnsure>><<effects>>
+<<effects>>
 <<set _requested to setup.hbsc.roundMoney($hbsc.transactionAmount)>>
 <<set _result to setup.hbsc.makeSavingsWithdrawal($hbsc.transactionAmount)>>
 <<set $hbsc.transactionAmount to 0>><<set $hbsc.transactionInput to "">>
@@ -810,8 +793,7 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 <</if>>
 
 :: HBSC Bank Fixed-Term Deposit
-<<hbscEnsure>><<effects>>
-
+<<effects>>
 <<if $hbsc.account.level < 1>>
 	The teller folds <<his>> hands. "You'll need an HBSC account before I can open or manage fixed-term deposits."
 	<br><br>
@@ -852,7 +834,7 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 <</if>>
 
 :: HBSC Bank Fixed-Term Open
-<<hbscEnsure>><<effects>>
+<<effects>>
 
 <<if $hbsc.account.level < 1>>
 	The teller folds <<his>> hands. "You'll need an HBSC account before I can open a fixed-term deposit."
@@ -871,7 +853,7 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 <</if>>
 
 :: HBSC Bank Fixed-Term Source
-<<hbscEnsure>><<effects>>
+<<effects>>
 <<set _months to $hbsc.ftMonths>>
 <<if _months is undefined or setup.hbsc.getFixedTermPlan(_months) is null>>
 	The teller glances at the terminal. "Let's start with the term length first."
@@ -904,9 +886,8 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 <</if>>
 
 :: HBSC Bank Fixed-Term Amount
-<<hbscEnsure>><<effects>>
-<<set _months to $hbsc.ftMonths>>
-<<set _source to $hbsc.ftSource>>
+<<effects>>
+<<set _months to $hbsc.ftMonths>><<set _source to $hbsc.ftSource>>
 <<set _available to (_source === "deposit" ? $hbsc.account.deposit : $money)>>
 <<set _sourceLabel to (_source is "deposit" ? "HBSC savings balance" : "carried cash")>>
 
@@ -945,10 +926,8 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 <</if>>
 
 :: HBSC Bank Fixed-Term Confirm
-<<hbscEnsure>><<effects>>
-
-<<set _months to $hbsc.ftMonths>>
-<<set _source to $hbsc.ftSource>>
+<<effects>>
+<<set _months to $hbsc.ftMonths>><<set _source to $hbsc.ftSource>>
 <<set _available to (_source === "deposit" ? $hbsc.account.deposit : $money)>>
 <<set _sourceLabel to (_source is "deposit" ? "HBSC savings balance" : "carried cash")>>
 <<set _amount to setup.hbsc.roundMoney($hbsc.ftAmount)>>
@@ -991,7 +970,7 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 <</if>>
 
 :: HBSC Bank Fixed-Term Open Result
-<<hbscEnsure>><<effects>>
+<<effects>>
 <<set _requested to setup.hbsc.roundMoney($hbsc.ftAmount)>>
 <<set _result to setup.hbsc.openFixedTerm($hbsc.ftAmount, $hbsc.ftMonths, $hbsc.ftSource)>>
 <<set $hbsc.ftAmount to 0>><<set $hbsc.ftAmountInput to "">>
@@ -1050,8 +1029,7 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 <</if>>
 
 :: HBSC Bank Fixed-Term Manage
-<<hbscEnsure>><<effects>>
-
+<<effects>>
 <<if $hbsc.fixedTerms.length <= 0>>
 	The teller glances at the screen. "You don't have any fixed-term deposits to manage right now."
 	<br><br>
@@ -1088,9 +1066,8 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 <</if>>
 
 :: HBSC Bank Fixed-Term Detail
-<<hbscEnsure>><<effects>>
+<<effects>>
 <<set _term to setup.hbsc.getFixedTermById($hbsc.selectedFixedTermId)>>
-
 <<if _term is null>>
 	The teller glances at the screen. "I can't find that fixed-term deposit any more. It may already have been collected."
 	<br><br>
@@ -1151,12 +1128,10 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 <</if>>
 
 :: HBSC Bank Fixed-Term Close Result
-<<hbscEnsure>><<effects>>
-<<set _kind to $hbsc.ftCloseKind>>
-<<set _target to $hbsc.ftCloseTarget>>
+<<effects>>
+<<set _kind to $hbsc.ftCloseKind>><<set _target to $hbsc.ftCloseTarget>>
 <<set _result to setup.hbsc.closeFixedTerm($hbsc.selectedFixedTermId, _kind, _target)>>
 <<set $hbsc.ftCloseKind to "">><<set $hbsc.ftCloseTarget to "">>
-
 <<if _result.ok>>
 	<<if _result.term.status is "active">>
 		The teller confirms the partial early withdrawal and updates the remaining fixed-term balance.
@@ -1203,12 +1178,10 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 	<<hbscOptions>>
 <</if>>
 
-
 :: HBSC Bank Branch Sneak
-<<hbscEnsure>><<set $outside to 1>><<effects>><<if $avery_fate is "ascended">><<location "avery_skyscraper">><<else>><<location "office">><</if>><<effects>>
+<<run setup.hbsc.ensureState()>><<effects>><<if $avery_fate is "ascended">><<location "avery_skyscraper">><<else>><<location "office">><</if>>
 <<set $lock to 1000>>
-	
-The bank is closed, but the glass frontage and polished stonework do little to hide the security hardware built into the entrance. <span class="red">Cameras watch the doors from more than one angle.</span>
+	The bank is closed, but the glass frontage and polished stonework do little to hide the security hardware built into the entrance. <span class="red">Cameras watch the doors from more than one angle.</span>
 You drift closer anyway, eyeing the lock and wondering whether there's a way in after hours.
 <br><br>
 <<if currentSkillValue('skulduggery') gte $lock>>
@@ -1230,7 +1203,7 @@ You drift closer anyway, eyeing the lock and wondering whether there's a way in 
 <<getouticon>><<link [[Leave|High Street]]>><<endevent>><</link>>
 
 :: HBSC Bank Branch Sneak 2
-<<hbscEnsure>><<set $outside to 1>><<effects>>
+<<effects>>
 You crouch by the bank door and set to work on the lock. For a moment it seems possible.
 <br><br>
 Before you can properly get anywhere, a sharp tone chirps above the frame and a metal shutter slams halfway down.
@@ -1241,7 +1214,7 @@ Two security guards are on you almost instantly. One twists your arm behind your
 <<link [[Next|HBSC Bank Branch Sneak 3]]>><</link>>
 
 :: HBSC Bank Branch Sneak 3
-<<hbscEnsure>><<set $outside to 1>><<effects>>
+<<effects>>
 <<if $hbsc.account.level >= 1>>
 	<<set _penalty to setup.hbsc.applySneakPenalty()>>
 	A manager arrives a moment later, checks your account, and gives you a look that turns icy. "You already bank here? Then listen carefully. You are banned from counter service for <<print _penalty.banDays>> days."
