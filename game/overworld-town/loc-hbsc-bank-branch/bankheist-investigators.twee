@@ -1,0 +1,553 @@
+:: Heist Investigators Widgets [widget]
+
+/* ================================================================
+ * Street event: Master's agents investigating the heist
+ * Triggers when heist is reported and crime >= 5000
+ * Behaviour scales with $xchange.bankHeist.alertLevel
+ * ================================================================ */
+<<widget "streetHeistInvestigators">>
+	<<initBankHeist>>
+	<<set _al to $xchange.bankHeist.alertLevel or 0>>
+	<<if _al lte 0>>
+		/* alertLevel 0: Watchers - atmospheric, no danger */
+		<<generate1>><<person1>>
+		You notice a <<person>> in a dark suit standing perfectly still near a shopfront. <<He>> isn't shopping. <<He>> isn't waiting for anyone. <<His>> eyes sweep the street in slow, methodical passes.
+		<<if $awarelevel gte 3>>
+			<br><br>
+			<span class="navy">Something about <<him>> sets your teeth on edge. The stillness. The patience. You've felt this kind of attention before. In the bank. In the vault.</span>
+			<<awareness 1>><<gawareness>>
+		<<elseif $awarelevel gte 1>>
+			<br><br>
+			<span class="purple"><<He>> doesn't look like police. Something about <<him>> feels worse than police.</span>
+		<</if>>
+		<br><br>
+		<<if $skulduggery gte 600>>
+			You spot a second one across the road, mirroring the first's behaviour. <span class="red">They're searching for someone.</span>
+			<<if $awarelevel gte 2>>
+				<span class="navy">You hope it isn't you.</span>
+			<</if>>
+		<</if>>
+		<<stress 6>><<gstress>>
+		<br><br>
+		<<destinationeventend>>
+	<<elseif _al lte 2>>
+		/* alertLevel 1-2: Approach and interrogation */
+		<<generate1>><<person1>><<generate2>>
+		Two figures in dark suits step out from either side of the pavement, blocking your path. The <<person1>><<person>> is tall, broad-shouldered. <<His>> companion, a <<person2>><<person>>, holds a small leather folder.
+		<br><br>
+		"Excuse us," the <<person2>><<person>> says. <<His>> voice is polite. Too polite. "We're conducting a private inquiry. A matter concerning the bank. You live in this area, yes?"
+		<br><br>
+		<<link [[Try to slip away|Heist Investigator Flee]]>><</link>><<skulduggerydifficulty>><<athleticsdifficulty 1 800>>
+		<br>
+		<<link [[Answer their questions|Heist Investigator Questions]]>><</link>>
+		<br>
+	<<else>>
+		/* alertLevel 3: Full chase */
+		<<generate1>><<person1>><<generate2>>
+		You hear the screech of tyres. A black car pulls up hard against the kerb. Three figures in dark suits pour out, moving fast, moving toward you.
+		<br><br>
+		The lead figure, a <<person1>><<person>>, points directly at you. "<span class="red">That's the one.</span>"
+		<br><br>
+		<<link [[Run|Heist Investigator Chase 1]]>><</link>>
+		<br>
+		<<link [[Surrender|Heist Investigator Surrender]]>><</link>>
+		<br>
+	<</if>>
+<</widget>>
+
+/* ================================================================
+ * Bank event: Security encounter post-heist
+ * Different flavor - corporate, cold, procedural
+ * ================================================================ */
+<<widget "bankHeistSecurityEncounter">>
+	<<initBankHeist>>
+	<<set _al to $xchange.bankHeist.alertLevel or 0>>
+	<<generate1>><<person1>>
+	<<if _al lte 0>>
+		/* Clean heist - subtle unease */
+		As you conduct your business, you notice a <<person>> in a grey suit watching from behind the glass partition near the service corridor. <<He>> has a clipboard. <<He>> isn't writing anything on it.
+		<br><br>
+		<<if $awarelevel gte 2>>
+			<span class="navy">You recognise the service corridor. You were in there. The memory of the vault, the figure with the antlers, surfaces.</span>
+			<<stress 6>><<gstress>><<trauma 2>><<gtrauma>>
+		<<else>>
+			<<He>> catches your eye and smiles. It doesn't reach <<his>> eyes.
+			<<stress 3>><<gstress>>
+		<</if>>
+		<br><br>
+	<<elseif _al lte 2>>
+		/* Messy heist - direct questioning */
+		You're halfway through your transaction when a <<person>> in a grey suit approaches the counter. <<He>> flashes credentials at the teller, who immediately steps aside.
+		<br><br>
+		"A moment of your time," <<he>> says. It isn't a question. <<He>> gestures toward a side office. "Routine security review. Won't take long."
+		<br><br>
+		<<link [[Follow quietly|Heist Bank Security Questions]]>><</link>>
+		<br>
+		<<link [[Refuse and leave|Heist Bank Security Refuse]]>><</link>>
+		<br>
+		<<exit>>
+	<<else>>
+		/* alertLevel 3 - they're waiting for you */
+		The moment you step through the door, two guards move to flank you. A <<person>> in a grey suit steps forward from behind the counter.
+		<br><br>
+		"We've been expecting someone like you," <<he>> says. "Please come with us. <span class="red">This isn't a request.</span>"
+		<br><br>
+		<<link [[Go quietly|Heist Bank Security Caught]]>><</link>>
+		<br>
+		<<link [[Break free and run|Heist Bank Security Run]]>><</link>><<athleticsdifficulty 1 1000>><<physiquedifficulty 5000 14000>>
+		<br>
+		<<exit>>
+	<</if>>
+<</widget>>
+
+:: Heist Investigator Flee
+<<effects>>
+<<bankHeistStealthCheck 6 "skulduggery">>
+<<if _heistStealthResult is "success">>
+	You step sideways, casual as anything, and slip between two parked cars. By the time they react, you're already through a gap in the fence and cutting through a back garden.
+	<br><br>
+	<<bankHeistStealthCheck 5 "athletics">>
+	<<if _heistStealthResult is "success">>
+		<span class="green">You vault a wall and drop into an alley. Clean getaway.</span>
+		<<stress -6>><<lstress>><<trauma -6>><<ltrauma>><<crimeUp 300>>
+		<br><br>
+		<span class="red">But they saw your face. They'll remember it.</span>
+		<br>
+		<<destinationeventend>>
+	<<else>>
+		You scramble over a wall but catch your foot on the top. You hit the ground hard on the other side.<<pain 4>><<gpain>>
+		<br><br>
+		You pick yourself up and keep moving. <span class="teal">They don't follow.</span> Maybe they got what they needed just from watching you run.
+		<<stress -3>><<crimeUp 300>>
+		<br>
+		<<destinationeventend>>
+	<</if>>
+<<else>>
+	The <<person1>><<person>> catches your arm before you've taken two steps. <<His>> grip is like iron.
+	<br><br>
+	"Running makes you look guilty," <<he>> says. "We just want to talk."
+	<br><br>
+	<<link [[Answer their questions|Heist Investigator Questions]]>><</link>>
+	<br>
+<</if>>
+
+:: Heist Investigator Questions
+<<effects>>
+<<set _al to $xchange.bankHeist.alertLevel or 0>>
+The <<person2>><<person>> opens <<his>> leather folder. Inside is a photograph. You can't see it clearly from this angle, but you catch a glimpse of a building. The bank.
+<br><br>
+"There was an incident at the bank recently," <<he>> says. "A break-in. Sophisticated. Professional." <<He>> watches your face. "You wouldn't know anything about that, would you?"
+<br><br>
+<<if $english gte 600>>
+	<<link [["I heard about it on the news"|Heist Investigator Answer Good]]>><</link>> <span class="green">English</span>
+	<br>
+<<else>>
+	<span class="purple"><i>You know you could deflect this better if you were more articulate, but the words escape you.</i></span>
+	<br>
+<</if>>
+<<link [[I don't know what you're talking about|Heist Investigator Answer Deny]]>><</link>>
+<br>
+<<link [[Stay silent|Heist Investigator Answer Silent]]>><</link>>
+<br>
+
+:: Heist Investigator Answer Good
+<<effects>>
+<<bankHeistStealthCheck 4 "skulduggery">>
+"Terrible business," you say, shaking your head. "I bank there myself. Are my accounts safe?"
+<br><br>
+The two exchange a glance. The <<person2>><<person>> closes <<his>> folder.
+<br><br>
+<<if _heistStealthResult is "success">>
+	"Your accounts are fine," <<he>> says. There's a pause. "Thank you for your time."
+	<br><br>
+	They step aside and let you pass. <span class="green">You kept your composure.</span>
+	<<stress -6>><<lstress>>
+	<br><br>
+	<<destinationeventend>>
+<<else>>
+	"Your accounts are fine." <<He>> studies you a moment longer. "We may be in touch."
+	<br><br>
+	They step aside. <span class="purple">You don't think they believed you entirely, but they didn't have enough to push further.</span>
+	<<stress 6>><<gstress>>
+	<br><br>
+	<<destinationeventend>>
+<</if>>
+
+:: Heist Investigator Answer Deny
+<<effects>>
+<<set _al to $xchange.bankHeist.alertLevel or 0>>
+"I don't know what you're talking about," you say.
+<br><br>
+The <<person1>><<person>> tilts <<his>> head. "No? Interesting. Because we've been talking to people in this neighbourhood, and your name has come up."
+<br><br>
+<<if $english gte 400>>
+	<<bankHeistStealthCheck 5 "skulduggery">>
+	<<if _heistStealthResult is "success">>
+		"People say all sorts of things," you reply evenly. "Am I being detained?"
+		<br><br>
+		Another exchanged glance. "No," the <<person2>><<person>> says. "Not today."
+		<br><br>
+		They step aside. <span class="teal">That was close.</span>
+		<<stress 6>><<gstress>>
+		<br><br>
+		<<destinationeventend>>
+	<<else>>
+		"People say all sorts of things," you manage, but your voice wavers.
+		<br><br>
+		The <<person1>><<person>> smiles. It's not a kind smile. "They do. And some of those things are very specific." <<He>> produces a second photograph. This one shows the east side of the bank. The maintenance hatch.
+		<br><br>
+		"We'll be watching," <<he>> says. They leave.
+		<<stress 12>><<gstress>><<trauma 6>><<gtrauma>>
+		<br><br>
+		<<destinationeventend>>
+	<</if>>
+<<else>>
+	<<if _al gte 2>>
+		Your denial sounds flat even to your own ears. The <<person1>><<person>> produces a second photograph. The maintenance hatch on the east wall.
+		<br><br>
+		"We know someone went through here," <<he>> says. "And we know they had help. Names, faces... we're putting it together."
+		<br><br>
+		<<He>> leans in. "Last chance. Who planned it?"
+		<br><br>
+		<<link [[Say nothing|Heist Investigator Arrested]]>><</link>>
+		<br>
+		<<link [[Say I want a lawyer|Heist Investigator Arrested]]>><</link>>
+		<br>
+	<<else>>
+		"Hmm." The <<person2>><<person>> makes a note. "We'll be in touch."
+		<br><br>
+		They leave. <span class="purple">Your hands are shaking.</span>
+		<<stress 12>><<gstress>><<trauma 6>><<gtrauma>>
+		<br><br>
+		<<destinationeventend>>
+	<</if>>
+<</if>>
+
+:: Heist Investigator Answer Silent
+<<effects>>
+You say nothing. The silence stretches.
+<br><br>
+The <<person1>><<person>> studies you. "Silence is an answer too," <<he>> says.
+<br><br>
+<<set _al to $xchange.bankHeist.alertLevel or 0>>
+<<if _al gte 2>>
+	The <<person2>><<person>> closes <<his>> folder. "We have enough. Come with us."
+	<br><br>
+	<<link [[Next|Heist Investigator Arrested]]>><</link>>
+	<br>
+<<else>>
+	They exchange a look, then step aside. "We'll see you again," the <<person2>><<person>> says.
+	<<stress 12>><<gstress>><<trauma 6>><<gtrauma>>
+	<br><br>
+	<<destinationeventend>>
+<</if>>
+
+:: Heist Investigator Arrested
+<<effects>>
+They take your arms. Not roughly, not gently. Professionally. The black car is still at the kerb. You're guided into the back seat.
+<br><br>
+The drive is silent. You're not taken to the police station. You're taken somewhere else. Somewhere with no sign on the door.
+<br><br>
+After hours of questions you can't answer and threats you can't counter, they hand you over to the police.<<stress 24>><<trauma 18>>
+<br><br>
+<span class="red">You've been arrested.</span>
+<br><<crimeUp 2000>>
+<<link [[Next|Police Prison Intro]]>><<endevent>><<pass 30>><<generatePolice 1>><<generatePolice 2>><</link>>
+
+:: Heist Investigator Chase 1
+<<effects>>
+You bolt. Instinct takes over. The streets blur.
+<br><br>
+<<bankHeistStealthCheck 6 "athletics">>
+<<if _heistStealthResult is "success">>
+	<span class="green">You're fast.</span> You cut left through a market crowd, weaving between stalls. Shouts behind you, but fading.
+	<br><br>
+	<<link [[Keep running|Heist Investigator Chase 2]]>><</link>>
+	<br>
+<<else>>
+	You sprint hard but they're faster. One of them is nearing you.
+	<br><br>
+	<<link [[Duck into an alley|Heist Investigator Chase Alley]]>><</link>>
+	<br>
+	<<link [[Try to lose them in the crowd|Heist Investigator Chase Crowd]]>><</link>>
+	<br>
+<</if>>
+
+:: Heist Investigator Chase 2
+<<effects>>
+<<bankHeistStealthCheck 5 "skulduggery">>
+You need to disappear. Running isn't enough. They'll have more people, more cars.
+<br><br>
+<<if _heistStealthResult is "success">>
+	You spot a construction site. Scaffolding, tarpaulins, a gap in the fence. You slide through and press yourself flat behind a skip. Footsteps thunder past.
+	<br><br>
+	<<bankHeistStealthCheck 4 "science">>
+	<<if _heistStealthResult is "success">>
+		You notice the scaffolding connects to a drainage pipe that runs down to the storm drains. <span class="green">You could use it to disappear completely.</span>
+		<br><br>
+		You wait until the footsteps fade, then climb down. By the time they double back, you're underground and gone.<<stress -12>><<trauma -6>><<crimeUp 300>><<llstress>><<lltrauma>>
+		<br><br>
+		<span class="green">You escaped.</span>
+		<br>
+		<<destinationeventend>>
+	<<else>>
+		You wait behind the skip, heart hammering. Minutes pass. The footsteps don't return.<<stress -6>><<trauma -3>><<crimeUp 300>><<lstress>><<ltrauma>>
+		<br><br>
+		<span class="teal">You escaped. Barely.</span>
+		<br>
+		<<destinationeventend>>
+	<</if>>
+<<else>>
+	You try to squeeze through a gap but your clothes snag. You tear free but the delay costs you.
+	<br><br>
+	<<link [[Climb the scaffolding|Heist Investigator Chase Climb]]>><</link>><<athleticsdifficulty 1 1000>>
+	<br>
+	<<link [[Hide behind the skip|Heist Investigator Chase Hide]]>><</link>><<skulduggerydifficulty>>
+	<br>
+<</if>>
+
+:: Heist Investigator Chase Alley
+<<effects>>
+<<bankHeistStealthCheck 7 "skulduggery">>
+You cut hard into a narrow alley. Bins, fire escapes, the smell of grease.
+<br><br>
+<<if _heistStealthResult is "success">>
+	You find a recessed doorway and press yourself into it. The pursuers run past the alley entrance without looking.<<stress -6>><<crimeUp 300>><<lstress>>
+	<br><br>
+	<span class="green">They missed you.</span>
+	<br>
+	<<destinationeventend>>
+<<else>>
+	Dead end. A chain-link fence, too high to climb quickly. You turn. The <<person1>><<person>> blocks the alley entrance.
+	<br><br>
+	"Nowhere left to run," <<he>> says.
+	<br><br>
+	<<link [[Next|Heist Investigator Arrested]]>><</link>>
+	<br>
+<</if>>
+
+:: Heist Investigator Chase Crowd
+<<effects>>
+<<bankHeistStealthCheck 6 "skulduggery">>
+You push into the densest part of the crowd, hunching low, changing direction twice.
+<br><br>
+<<if _heistStealthResult is "success">>
+	You duck into a shop and out the back door. Through a loading bay, over a wall, and into a residential street.<<stress -9>><<trauma -3>><<crimeUp 300>><<llstress>><<ltrauma>>
+	<br><br>
+	<span class="green">You lost them.</span>
+	<br>
+	<<destinationeventend>>
+<<else>>
+	A hand clamps onto your shoulder from behind. "Don't make this harder."
+	<br><br>
+	<<link [[Next|Heist Investigator Arrested]]>><</link>>
+	<br>
+<</if>>
+
+:: Heist Investigator Chase Climb
+<<effects>>
+<<bankHeistStealthCheck 7 "athletics">>
+You grab the scaffolding and haul yourself up. Pipes clang beneath your feet.
+<br><br>
+<<if _heistStealthResult is "success">>
+	You reach the rooftop and sprint across it. The gap to the next building is narrow. You jump, and make it.
+	<br><br>
+	Below, you hear swearing. They can't follow.<<stress -12>><<trauma -6>><<crimeUp 300>><<llstress>><<lltrauma>>
+	<br><br>
+	<span class="green">You're free.</span>
+	<br>
+	<<destinationeventend>>
+<<else>>
+	Your foot slips on a wet bar. You catch yourself, but the delay is enough. A hand grabs your ankle.
+	<br><br>
+	"Come down. Now."<<pain 8>><<gggpain>>
+	<br><br>
+	<<link [[Next|Heist Investigator Arrested]]>><</link>>
+	<br>
+<</if>>
+
+:: Heist Investigator Chase Hide
+<<effects>>
+<<bankHeistStealthCheck 7 "skulduggery">>
+You duck behind the skip and press yourself flat against the concrete.
+<br><br>
+<<if _heistStealthResult is "success">>
+	Footsteps approach. Slow. Searching. They check the other side of the skip. A torch beam sweeps above your head.
+	<br><br>
+	"Not here," someone says. The footsteps move on.
+	<br><br>
+	You wait a full five minutes before you move. <span class="green">They're gone.</span>
+	<<stress -9>><<trauma -6>><<crimeUp 300>>
+	<br><br>
+	<<destinationeventend>>
+<<else>>
+	A torch beam finds you immediately. "There."
+	<br><br>
+	<<link [[Next|Heist Investigator Arrested]]>><</link>>
+	<br>
+<</if>>
+
+:: Heist Investigator Surrender
+<<effects>>
+You raise your hands. There's no point running from three of them.
+<br><br>
+The <<person1>><<person>> nods. "Smart."
+<br><br>
+<<link [[Next|Heist Investigator Arrested]]>><</link>>
+
+:: Heist Bank Security Questions
+<<effects>>
+The office is small and windowless. The <<person>> sits across from you, folder open. A camera blinks red in the corner.
+<br><br>
+"This won't take long," <<he>> says. "We're reviewing all clients who visited the branch around the time of the incident. Standard procedure."
+<br><br>
+<<He>> asks about your account, your visiting patterns, your reason for banking here. Then:
+<span class="red">"Have you ever noticed anything unusual about the service corridors? The maintenance areas?"</span>
+<br><br>
+<<if $english gte 600>>
+	<<link [[I wouldn't know where those are|Heist Bank Security Answer Good]]>><</link>> <span class="green">English</span>
+	<br>
+<<else>>
+	<span class="purple"><i>You wish you could sound more convincing, but the right words won't come.</i></span>
+	<br>
+<</if>>
+<<link [[No, nothing|Heist Bank Security Answer Deny]]>><</link>>
+<br>
+<<link [[Stay silent|Heist Bank Security Answer Silent]]>><</link>>
+<br>
+
+:: Heist Bank Security Answer Good
+<<effects>>
+<<bankHeistStealthCheck 4 "skulduggery">>
+"Service corridors?" You furrow your brow. "I just use the counter like everyone else. Is there a problem with my account?"
+<br><br>
+<<if _heistStealthResult is "success">>
+	<<He>> studies you for a long moment, then closes the folder. "No. Your account is in perfect order." <<He>> stands. "Thank you for your cooperation."
+	<br><br>
+	<<He>> opens the door. <span class="green">You walk out calmly. Nothing to worry about.</span>
+	<<stress -6>><<lstress>>
+	<br><br>
+	<<getouticon>><<link [[Leave|High Street]]>><<endevent>><</link>>
+<<else>>
+	<<He>> watches you carefully. "Mmhm." <<He>> makes a note. "We'll be reviewing footage. If anything jogs your memory, you know where to find us."
+	<br><br>
+	<<He>> opens the door. <span class="purple">You're free to go, but you feel eyes on your back all the way out.</span>
+	<<stress 6>><<gstress>>
+	<br><br>
+	<<getouticon>><<link [[Leave|High Street]]>><<endevent>><</link>>
+<</if>>
+
+:: Heist Bank Security Answer Deny
+<<effects>>
+<<set _al to $xchange.bankHeist.alertLevel or 0>>
+"No," you say. "Nothing unusual."
+<br><br>
+<<if _al gte 2>>
+	<<He>> pulls a photograph from the folder. It shows the maintenance hatch. "This was forced open on the night in question. Whoever did it knew exactly where to find it."
+	<br><br>
+	<<He>> leans forward. "And our records show you visited this branch seven times in the weeks before the break-in. All at different times. All spending longer than a typical transaction."
+	<br><br>
+	<<if $english gte 500>>
+		<<link [[I was comparing interest rates|Heist Bank Security Answer Good]]>><</link>> <span class="green">English</span>
+		<br>
+	<</if>>
+	<<link [[Say nothing more|Heist Bank Security Detained]]>><</link>>
+	<br>
+<<else>>
+	<<He>> nods and makes a note. "Very well. Thank you for your time."
+	<br><br>
+	<<He>> opens the door. <span class="purple">The interview felt too easy. Maybe they're waiting for you to make a mistake.</span>
+	<<stress 6>><<gstress>>
+	<br><br>
+	<<getouticon>><<link [[Leave|High Street]]>><<endevent>><</link>>
+<</if>>
+
+:: Heist Bank Security Answer Silent
+<<effects>>
+<<set _al to $xchange.bankHeist.alertLevel or 0>>
+You sit in silence. The <<person>> waits. The camera blinks.
+<br><br>
+<<if _al gte 2>>
+	"Silence is noted," <<he>> says. <<He>> presses a button under the desk. The door opens. Two guards enter.
+	<br><br>
+	"Escort our guest to the holding room. The police will want to speak with <<phim>>."
+	<br><br>
+	<<link [[Next|Heist Bank Security Detained]]>><</link>>
+	<br>
+<<else>>
+	After a very long minute, <<he>> closes the folder. "Thank you for your time." <<His>> tone is cold.
+	<br><br>
+	You're let out. <span class="pink">That won't be the last time they ask.</span>
+	<<stress 12>><<gstress>><<trauma 6>><<gtrauma>>
+	<br><br>
+	<<getouticon>><<link [[Leave|High Street]]>><<endevent>><</link>>
+<</if>>
+
+:: Heist Bank Security Detained
+<<effects>>
+You're moved to a small room deeper in the building. No windows. The door locks behind you.
+<br><br>
+Hours pass. Then the police arrive.<<stress 24>><<trauma 18>><<gggstress>><<gggtrauma>>
+<br><br>
+<span class="red">You've been arrested.</span>
+<br><<crimeUp 2000>>
+<<link [[Next|Police Prison Intro]]>><<endevent>><<pass 30>><<generatePolice 1>><<generatePolice 2>><</link>>
+
+:: Heist Bank Security Refuse
+<<effects>>
+"No thank you," you say, turning toward the exit. "I'm in a hurry."
+<br><br>
+The <<person>> doesn't move. "I see." <<He>> nods to the guards.
+<br><br>
+<<bankHeistStealthCheck 5 "skulduggery">>
+<<if _heistStealthResult is "success">>
+	You walk briskly but calmly toward the door. The guards hesitate, unsure if they have the authority to physically stop you. 
+	By the time they decide, you're through the door and onto the street.
+	<br><br>
+	<span class="teal">You left before they could press further. But they know your face now.</span>
+	<br><<crimeUp 100>>
+	<<getouticon>><<link [[Leave|High Street]]>><<endevent>><</link>>
+<<else>>
+	A guard steps into your path. "The officer asked you to stay," <<he>> says.
+	<br><br>
+	<<link [[Follow to the office|Heist Bank Security Questions]]>><</link>>
+	<br>
+	<<link [[Push past and run|Heist Bank Security Run]]>><</link>><<athleticsdifficulty 1 1000>>
+	<br>
+<</if>>
+
+:: Heist Bank Security Caught
+<<effects>>
+You're led through the service corridor. The same corridor you snuck through. The irony is not lost on you.
+<br><br>
+<<link [[Next|Heist Bank Security Detained]]>><</link>>
+
+:: Heist Bank Security Run
+<<effects>>
+<<bankHeistStealthCheck 7 "athletics">>
+You shoulder past the guard and sprint for the exit. The marble floor is slippery under your feet.
+<br><br>
+<<if _heistStealthResult is "success">>
+	<<bankHeistStealthCheck 5 "skulduggery">>
+	You burst through the front doors and hit the street running. Pedestrians scatter.
+	<br><br>
+	<<if _heistStealthResult is "success">>
+		You cut through an alley, vault a low wall, and disappear into the crowd on the next street. <span class="green">Clean escape.</span>
+		<<stress -6>><<trauma -3>><<crimeUp 300>>
+		<br><br>
+		<<set $location to "town">>
+		<<destinationeventend>>
+	<<else>>
+		You make it two blocks before you have to stop, gasping. No one followed. <span class="teal">You're free, for now.</span>
+		<<stress 3>><<gstress>><<crimeUp 300>>
+		<br><br>
+		<<set $location to "town">>
+		<<destinationeventend>>
+	<</if>>
+<<else>>
+	Your foot catches on the carpet. You stumble. Two guards pile on before you can recover.
+	<<pain 6>><<gpain>>
+	<br><br>
+	<<link [[Next|Heist Bank Security Detained]]>><</link>>
+	<br>
+<</if>>
