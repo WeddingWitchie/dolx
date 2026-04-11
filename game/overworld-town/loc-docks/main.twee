@@ -115,14 +115,21 @@ The other dockers overheard and grumble as you leave. They're just jealous.
 
 :: Docks Ask
 <<set $outside to 0>><<effects>>
+<<speechresolve>>
 
 You approach a <<generate1>><<person1>><<person>> standing on a raised platform. <<He>> jots something on <<his>> clipboard while observing the workers.
 <br><br>
 
-<<if $speech_attitude is "meek">>
-	"Excuse me," you say. "S-sorry to bother you. Are you hiring?"
-<<elseif $speech_attitude is "bratty">>
-	"Hey," you say. "I'm looking for work. Who do I talk to?"
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+	"Excuse me," you say, keeping your voice small beneath the crash of the waves. "S-sorry to bother you, but are you hiring?"
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"Excuse me," you say. "I was hoping to ask whether you're hiring."
+<<elseif _speechAttitudeResolved is "docile">>
+	"Hello," you say quietly. "Are you looking for more workers?"
+<<elseif _speechAttitudeResolved is "confident">>
+	"Hello," you say. "I'm looking for work. Are you hiring?"
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+	"Hey," you call. "I'm after a job. Who do I talk to?"
 <<else>>
 	"Hello," you say. "Are you hiring?"
 <</if>>
@@ -138,6 +145,7 @@ The door is open. A <<generate2>><<person2>><<person>> looks up from <<his>> des
 <br>
 
 :: Docks Ask 2
+<<speechresolve>>
 "We're looking for more hands," the <<person>> says. "So many ships come and go nowadays. You'll want details." <<He>> sits back behind <<his>> desk.
 <br><br>
 
@@ -155,7 +163,20 @@ The door is open. A <<generate2>><<person2>><<person>> looks up from <<his>> des
 
 <<if $id is 1>>
 	<<set $docks.fakeID to "shown">>
-	You show <<him>> the fake ID you purchased from Briar. "I'm not a student<<if $speech_attitude is "meek">>..<</if>>."
+	You show <<him>> the fake ID you purchased from Briar.
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		"I'm not a student anymore..." you mumble.
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"I don't attend school anymore," you say.
+	<<elseif _speechAttitudeResolved is "docile">>
+		"I don't go to school anymore," you say quietly.
+	<<elseif _speechAttitudeResolved is "confident">>
+		"I'm not a student anymore," you say.
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		"Not a student," you say. "See?"
+	<<else>>
+		"I'm not a student anymore," you say.
+	<</if>>
 	<br><br>
 
 	<<He>> glances at it, then hands it back. "Can't be too careful. Everything else still applies, except for the 'no working on school days' part."
@@ -598,7 +619,7 @@ You lean over and whisper something into the <<persons>> ear.
 			<br><br>
 			You follow the <<person>> toward a secluded area of the docks, away from view. There is a wild look in <<his>> eyes. "Don't tell anyone, you understand?" <<he>> warns. "This is between you and me. No one else. Loose lips sink ships." Not giving you a chance to respond, <<he>> embraces you.
 		<<elseif $docks.flirtTarget is 4>> /* temple oath */
-			"I—" <<He>> looks down in shame. "I'm not strong enough. I need to purge these urges, and I need someone to help me. Someone like you." <<He>> smiles weakly. "Come. I know just the place."
+			"I..." <<He>> looks down in shame. "I'm not strong enough. I need to purge these urges, and I need someone to help me. Someone like you." <<He>> smiles weakly. "Come. I know just the place."
 			<br><br>
 			You follow <<him>> toward a secluded area of the docks, away from view. "I need this," <<he>> says. "I need you. Purge me." There is one last moment of fleeting hesitation before <<he>> presses in close to embrace you.
 		<<elseif $docks.flirtTarget is 5>> /* different orientation */
@@ -645,13 +666,13 @@ You lean over and whisper something into the <<persons>> ear.
 	<<else>>
 		The <<person>> <<print either("jerks away", "pulls back", "recoils")>> from you, as if woken from a <<print either("dream", "fugue")>>.
 		<<if $docks.flirtTarget is 3>> /* married */
-			"N— no, I can't do this. This is wrong. What am I doing?" <<He>> looks uneasy as <<he>> walks away.
+			"N-no, I can't do this. This is wrong. What am I doing?" <<He>> looks uneasy as <<he>> walks away.
 		<<elseif $docks.flirtTarget is 4>> /* temple oath */
 			"I— I can't break my vow. The temple would know. I—" <<His>> breath catches in <<his>> throat. "I have to go!" <<He>> gets up and hurries away.
 		<<elseif $docks.flirtTarget is 5>> /* different orientation */
 			"I'm sorry, but this feels... wrong, somehow. Like there's something wrong with me." <<He>> looks uneasy. "Sorry, but I need to go."
 		<<elseif $docks.flirtTarget is 6>> /* no hookups */
-			"I— I'm not interested. I'm looking for something more steady. There's just these... holes in my thoughts lately. Lapses of judgment. I don't mean to offend." <<He>> gives you an apologetic look before turning away.
+			"I... I'm not interested. I'm looking for something more steady. There's just these... holes in my thoughts lately. Lapses of judgment. I don't mean to offend." <<He>> gives you an apologetic look before turning away.
 		<<else>> /* just hungry */
 			"Hmm. Nope. Still hungry. Sorry, but maybe after I've had my lunch."
 		<</if>>
@@ -1249,10 +1270,17 @@ You ignore the strange vehicle and continue working.
 
 :: Docks Angry
 <<effects>>
+<<speechresolve>>
 
-<<if $speech_attitude is "meek">>
-	"I'm just trying to work," you say. "Please let me."
-<<elseif $speech_attitude is "bratty">>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+	"I'm only trying to work," you say. "Please just let me be."
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"Could you leave it off," you say. "I'm here to work, not play your games."
+<<elseif _speechAttitudeResolved is "docile">>
+	"Please stop," you say softly. "I only want to finish my shift."
+<<elseif _speechAttitudeResolved is "confident">>
+	"Pack it in," you say. "I'm here to work."
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
 	"Fuck you," you say. "You're supposed to be working."
 <<else>>
 	"This is cruel," you say. "I'll report you."
@@ -1323,14 +1351,21 @@ You successfully pick the lock and open the container. The <<person>> glances ar
 
 :: Docks Slave Help
 <<set $outside to 1>><<effects>>
+<<speechresolve>>
 
 You rush from the container, and find the <<person1>><<person>> who saw you open it.
 <br><br>
 
-<<if $speech_attitude is "meek">>
-	"There's someone who needs help," you say. "They're tied up and hurt."
-<<elseif $speech_attitude is "bratty">>
-	"What's going on," you say. "There's a bound person in there."
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+	"There's someone in that container," you say. "They're tied up and hurt. Please help."
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"There's someone in that container," you say. "They're bound and injured. Please come with me."
+<<elseif _speechAttitudeResolved is "docile">>
+	"Please," you say. "There's a person in there. They're hurt."
+<<elseif _speechAttitudeResolved is "confident">>
+	"There's a bound person inside that container," you say. "Come and help me get them out."
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+	"What's wrong with you," you say. "There's a bound person in there and they're hurt."
 <<else>>
 	"I found a person inside," you say. "They're bound and hurt."
 <</if>>
@@ -1347,13 +1382,20 @@ You return to the container, and find the <<person1>><<person>> lying where you 
 
 :: Docks Slave Untie
 <<set $outside to 0>><<effects>>
+<<speechresolve>>
 
 You untie the bindings and remove the gag.
 
-<<if $speech_attitude is "meek">>
-	"Please don't cry," you say. "I'll look after you. What's your name?"
-<<elseif $speech_attitude is "bratty">>
-	"Don't cry," you say. "Someone nasty might hear. What's your name?"
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+	"Please don't cry," you say. "You're all right now. I'll look after you. What's your name?"
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"Easy now," you say. "You're safe with me. Can you tell me your name?"
+<<elseif _speechAttitudeResolved is "docile">>
+	"It's all right," you say softly. "No one's going to tie you up again. What's your name?"
+<<elseif _speechAttitudeResolved is "confident">>
+	"You're safe now," you say. "Take a breath. What's your name?"
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+	"Don't cry," you say. "We need to move before someone nasty comes back. What's your name?"
 <<else>>
 	"It's okay," you say. "You're safe now. What's your name?"
 <</if>>
@@ -1422,6 +1464,7 @@ The <<person>> seems anxious.
 
 :: Docks Slave Station 2
 <<effects>>
+<<speechresolve>>
 
 <<if $phase gte 1>>
 	You hand the <<person>> the ticket and £<<print $docks.slave.money>>.
@@ -1429,10 +1472,16 @@ The <<person>> seems anxious.
 	You hand the <<person>> the ticket.
 <</if>>
 
-<<if $speech_attitude is "meek">>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 	"It was nice to meet you," you say. "I hope you have a nice journey."
-<<elseif $speech_attitude is "bratty">>
-	"You should be okay from here," you say.
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"Take care of yourself," you say. "I hope you have a pleasant journey home."
+<<elseif _speechAttitudeResolved is "docile">>
+	"You'll be all right now," you say softly. "Have a safe journey."
+<<elseif _speechAttitudeResolved is "confident">>
+	"This train will take you home," you say. "You'll be all right from here."
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+	"You should be okay from here," you say. "Try to stay out of trouble."
 <<else>>
 	"This train will take you home," you say.
 <</if>>
@@ -1472,11 +1521,18 @@ The <<person>> stands and takes <<his>> position in front of the board as the <<
 
 :: Passout Docks 2
 <<effects>>
+<<speechresolve>>
 
 <<if $phase is 0>>
-	<<if $speech_attitude is "meek">>
-		"L-let me go," you say. "You're being mean."
-	<<elseif $speech_attitude is "bratty">>
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		"L-let me go," you say, voice shaking. "Please. You're being horrible."
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"Let me go," you say. "This has gone far enough."
+	<<elseif _speechAttitudeResolved is "docile">>
+		"Please untie me," you say softly. "I haven't done anything to you."
+	<<elseif _speechAttitudeResolved is "confident">>
+		"Untie me scum," you say. "Now."
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
 		"Untie me at once," you say. "Or I'll throw you into the sea with the other scum."
 	<<else>>
 		"You scum," you say. "Let me go."
@@ -1484,10 +1540,16 @@ The <<person>> stands and takes <<his>> position in front of the board as the <<
 	<br><br>
 	The <<person1>><<person>> laughs. "Let you go? Sure. After I've had my fun."
 <<elseif $phase is 1>>
-	<<if $speech_attitude is "meek">>
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 		"Please don't hurt me," you say. "I promise I won't tell anyone."
-	<<elseif $speech_attitude is "bratty">>
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"Please don't do this," you say. "Let me go and you'll never hear from me again."
+	<<elseif _speechAttitudeResolved is "docile">>
+		"Please let me go," you say softly. "I won't tell a soul."
+	<<elseif _speechAttitudeResolved is "confident">>
 		"This is childish," you say. "Let me go now and I won't tell anyone."
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		"This is pathetic," you say. "Untie me now and maybe I won't have you dragged off in chains."
 	<<else>>
 		"Please let me go," you say. "I won't tell anyone."
 	<</if>>
@@ -1694,11 +1756,18 @@ The pair cheer their colleague on.
 
 :: Docks Pub Crawl Eyeing Encourage
 <<effects>>
+<<speechresolve>>
 
-<<if $speech_attitude is "meek">>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 	"You should talk to <<him>>," you say. "Just be yourself."
-<<elseif $speech_attitude is "bratty">>
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"You should talk to <<him>>," you say. "A little charm might take you further than staring from across the room."
+<<elseif _speechAttitudeResolved is "docile">>
+	"You could try speaking to <<him>>," you say softly. "It might go better than you think."
+<<elseif _speechAttitudeResolved is "confident">>
 	"Talk to <<him>>," you say. "<<He>> will appreciate the assertiveness."
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+	"Stop gawping and talk to <<him>>," you say. "You'll get nowhere sulking into your drink."
 <<else>>
 	"You should talk to <<him>>," you say. "You'll regret it if you don't."
 <</if>>
@@ -1764,11 +1833,18 @@ You ignore the flirters, finish your drink and leave with your colleagues.
 
 :: Docks Pub Crawl Contest
 <<effects>>
+<<speechresolve>>
 
 <<if $phase is 0>><<set $phase += 1>>
-	<<if $speech_attitude is "meek">>
-		"You're wrong," you say. Everyone turns to you. "I bet I can drink even more than you."
-	<<elseif $speech_attitude is "bratty">>
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		"Y-You're wrong," you say. Everyone turns to you. "I bet I can drink even more than you."
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"I don't think that's quite right," you say. Everyone turns to you. "I could outdrink you easily."
+	<<elseif _speechAttitudeResolved is "docile">>
+		"I can do it," you say quietly. Everyone turns to you. "I could drink more than you."
+	<<elseif _speechAttitudeResolved is "confident">>
+		"I can handle myself," you say. Everyone turns to you. "In fact, I can drink better than you."
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
 		You laugh. Everyone turns to you. "It's you I'm worried about," you say to the <<person>>. "You'll be out cold within an hour."
 	<<else>>
 		"I can handle myself," you say. Everyone turns to you. "In fact, I can handle drink better than you."
@@ -1991,15 +2067,22 @@ The <<person>> grasps your neck and leans in. "I tried asking nicely," <<he>> wh
 
 :: Docks Pub Crawl Body
 <<effects>>
+<<speechresolve>>
 
 <<set $seductiondifficulty to 4000>>
 <<seductioncheck>>
 <<seductionskilluptext>>
 <<seductionskilluse>>
 
-<<if $speech_attitude is "meek">>
-	"I-I hope it's worth this much," you say. "I bet my body."
-<<elseif $speech_attitude is "bratty">>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+	"I-I hope I'm worth this much," you say. "I bet my body."
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"If money won't do," you say, "then I'll wager my body."
+<<elseif _speechAttitudeResolved is "docile">>
+	"I'll put myself up," you say softly. "My body, if you win."
+<<elseif _speechAttitudeResolved is "confident">>
+	"Instead of money," you say. "I bet my body. If you win, you can have me."
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
 	It's your turn to scoff. "That all?" you say. "Fine. I bet my body. If you win, you can do whatever you want to me."
 <<else>>
 	"Instead of money," you say. "If you win, you can have me."
@@ -2167,10 +2250,17 @@ The pub owner steps up to a microphone in the corner of the room, preparing to r
 
 :: Docks Pub Crawl Gangbang Refuse
 <<effects>>
+<<speechresolve>>
 
-<<if $speech_attitude is "meek">>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 	"S-sorry," you say. "But I don't want to."
-<<elseif $speech_attitude is "bratty">>
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"No," you say. "That was a joke, not an invitation."
+<<elseif _speechAttitudeResolved is "docile">>
+	"No, thank you," you say softly. "I'm not doing that."
+<<elseif _speechAttitudeResolved is "confident">>
+	"Tsk. I'm not paying up like that over a pub quiz," you say.
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
 	"Fuck off," you say. "You didn't think I'd really bet myself for so little, right?"
 <<else>>
 	"No." You shake your head. "I'm not doing that over a pub quiz."
@@ -2187,10 +2277,17 @@ You leave the pub with your colleagues.
 
 :: Docks Pub Crawl Fight
 <<effects>>
+<<speechresolve>>
 
-<<if $speech_attitude is "meek">>
-	"S-sorry," you say. "But I don't want to."
-<<elseif $speech_attitude is "bratty">>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+	"S-sorry," you say. "But no. I'm not doing that."
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"Absolutely not," you say. "Take the joke and leave it there."
+<<elseif _speechAttitudeResolved is "docile">>
+	"No, thank you," you say softly. "Please leave me alone."
+<<elseif _speechAttitudeResolved is "confident">>
+	"Fuck off," you say. "Try laying a hand on me and see what happens."
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
 	"Fuck off," you say. "You didn't think I'd really bet myself for so little, right?"
 <<else>>
 	"No." You shake your head. "I'm not doing that over a pub quiz."
@@ -2593,6 +2690,7 @@ The owner reads the sailor's answers.
 
 :: Docks Fake ID
 <<effects>>
+<<speechresolve>>
 <<generate1>><<person1>>
 
 You flag down a manager.
@@ -2601,7 +2699,18 @@ You flag down a manager.
 "Need something?" <<he>> asks, only partially paying attention to you. "You know we can't let you work today."
 <br><br>
 
-"I'm not actually a student anymore<<if $speech_attitude is "meek">>..." you mumble,<<else>>," you say,<</if>> handing <<him>> the fake ID you purchased from Briar.
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+	"I'm not actually a student anymore," you mumble.
+<<elseif _speechAttitudeResolved is "docile">>
+	"I don't go to school anymore," you say quietly.
+<<elseif _speechAttitudeResolved is "confident">>
+	"I'm not a student anymore," you say.
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+	"I'm not actually a student," you say. "See?"
+<<else>>
+	"I'm not actually a student anymore," you say.
+<</if>>
+You hand <<him>> the fake ID you purchased from Briar.
 <br><br>
 
 <<He>> examines it briefly, then hands it back to you. "So you aren't," <<he>> says, making a note of something on <<his>> clipboard. "In that case, you're allowed to work during the week, starting now."

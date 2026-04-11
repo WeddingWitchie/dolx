@@ -1,10 +1,9 @@
 :: HBSC Bank Branch
 <<run setup.hbsc.ensureState()>><<effects>><<if $avery_fate is "ascended">><<location "avery_skyscraper">><<else>><<location "office">><</if>>
-You approach the town hall, a tall building in the heart of the commercial district. It stands between a bustling shopping centre and a sleek office building, its polished facade reflecting the steady movement of shoppers and professionals alike. 
-The entire perimeter is watched by discreet but obvious security.
+You approach HBSC bank, a tall building in the heart of the commercial district. It stands between a bustling shopping centre and an office block. The entire frontage is watched by discreet but obvious security.
 <br><br>
 <<generate1>><<person1>><<generate2>>
-You enter a long waiting room lined with wooden doors. A <<person1>><<person>> sits behind the front desk while a queue shuffles forward.
+Inside, the waiting hall is all polished wood, muted carpet, and closed office doors. A <<person1>><<person>> sits behind the front desk while the queue inches forward beneath a low business talk.
 <br><br>
 <<if setup.hbsc.isBanned()>>
 	<<set _banDays to setup.hbsc.getBanRemainingDays()>>
@@ -120,7 +119,7 @@ It's your turn. The teller looks up expectantly. "How can I help you, <<psir>>?"
 
 :: HBSC Bank Priority
 <<effects>><<person2>>
-You settle into the swivel chair and the <<person>> greets you with a professional smile.
+You settle into a padded swivel chair at the quieter priority desk, away from the slower queue. The <<person>> greets you with a professional smile.
 <<if Time.dayState is "day" or Time.dayState is "dawn">>
 	"Good morning, fine <<psir>>. How can I help you today?"
 <<else>>
@@ -139,10 +138,13 @@ You settle into the swivel chair and the <<person>> greets you with a profession
 <<set _qualifiesNow to (_qualifyingBalance lte 0 or _savingsBalance gte _qualifyingBalance)>>
 <<set _neededForTier to Math.max(0, _qualifyingBalance - _savingsBalance)>>
 
-<<if $speech_attitude is "meek">>
-	"H-how do your savings accounts work..?" you ask.
-<<elseif $speech_attitude is "bratty">>
-	"So how do your savings accounts work, exactly?" you ask.
+<<speechresolve>>
+<<if ((_speechAttitudeResolved is "meek") or (_speechAttitudeResolved is "shy") or (_speechAttitudeResolved is "docile"))>>
+	"Could you explain your savings accounts to me, please?" you ask.
+<<elseif ((_speechAttitudeResolved is "polite") or (_speechAttitudeResolved is "flamboyant"))>>
+	"Could you walk me through your savings accounts, please?" you ask.
+<<elseif (_speechAttitudeResolved is "confident")>>
+	"Talk me through your savings accounts," you say.
 <<else>>
 	"How do your savings accounts work?" you ask.
 <</if>>
@@ -227,10 +229,15 @@ The teller slides a brochure over to you. "Think of this as your ordinary HBSC s
 
 :: HBSC Bank Ask Fixed-Term Deposits
 <<effects>>
-<<if $speech_attitude is "meek">>
-	"H-how do your fixed-term deposits work..?" you ask.
-<<elseif $speech_attitude is "bratty">>
-	"So how do your fixed-term deposits work?" you ask.
+<<speechresolve>>
+<<if ((_speechAttitudeResolved is "meek") or (_speechAttitudeResolved is "shy") or (_speechAttitudeResolved is "docile"))>>
+	"Could you explain your fixed-term deposits to me, please?" you ask.
+<<elseif ((_speechAttitudeResolved is "polite") or (_speechAttitudeResolved is "flamboyant"))>>
+	"Could you walk me through your fixed-term deposits, please?" you ask.
+<<elseif (_speechAttitudeResolved is "confident")>>
+	"Talk me through your fixed-term deposits," you say.
+<<elseif ((_speechAttitudeResolved is "bratty") or (_speechAttitudeResolved is "cruel"))>>
+	"Right. How do your fixed-term deposits actually work?" you ask.
 <<else>>
 	"How do your fixed-term deposits work?" you ask.
 <</if>>
@@ -290,10 +297,11 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 <<set _cash to $money>><<set _total to _cash + _deposit>><<set _hasId to !!$id>>
 
 <<if _level < 1>>
-	<<if $speech_attitude is "meek">>
-		"I'd like to open an account, please..." you say.
-	<<elseif $speech_attitude is "bratty">>
-		"I want to open an account," you say.
+	<<speechresolve>>
+	<<if ((_speechAttitudeResolved is "meek") or (_speechAttitudeResolved is "shy") or (_speechAttitudeResolved is "docile"))>>
+		"I'd like to open an account, please," you say.
+	<<elseif ((_speechAttitudeResolved is "polite") or (_speechAttitudeResolved is "flamboyant"))>>
+		"I'd like to open an account with HBSC bank, please," you say.
 	<<else>>
 		"I'd like to open an account," you say.
 	<</if>>
@@ -317,7 +325,7 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 		<br><br>
 		<<getouticon>><<link [[Leave|High Street]]>><<endevent>><</link>>
 	<<else>>
-		The teller nods. "Certainly. A Basic account is your starting tier. Once it's open, you can deposit funds, withdraw them again, or upgrade when your savings balance qualifies."
+		The teller nods and pulls a fresh card from the tray. "Certainly. A Basic account is your starting tier. Once it's open, you can deposit funds, withdraw them again, or upgrade when your savings balance qualifies."
 		<br><br>
 
 		<div class="hbsc-brochure">
@@ -336,15 +344,20 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 	<<set _room to setup.hbsc.getDepositRoom(_level, _deposit)>>
 	<<set _monthlyPreview to setup.hbsc.calcSavingsMonthInterest(_deposit, _level)>>
 
-	<<if $speech_attitude is "meek">>
-		"I'd like to go over my account, please..." you say.
-	<<elseif $speech_attitude is "bratty">>
+	<<speechresolve>>
+	<<if ((_speechAttitudeResolved is "meek") or (_speechAttitudeResolved is "shy") or (_speechAttitudeResolved is "docile"))>>
+		"I'd like to go over my account, please," you say.
+	<<elseif ((_speechAttitudeResolved is "polite") or (_speechAttitudeResolved is "flamboyant"))>>
+		"Could I go over my account details, please?" you ask.
+	<<elseif (_speechAttitudeResolved is "confident")>>
+		"Let me see my account details," you say.
+	<<elseif ((_speechAttitudeResolved is "bratty") or (_speechAttitudeResolved is "cruel"))>>
 		"Show me my account details," you say.
 	<<else>>
 		"I'd like to go over my account," you say.
 	<</if>>
 	<br><br>
-	The teller turns the monitor towards you.
+	The teller turns the monitor towards you and taps the first line on the screen.
 	<br><br>
 
 	<div class="hbsc-brochure">
@@ -546,7 +559,7 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 	<<set _room to setup.hbsc.getDepositRoom($hbsc.account.level, $hbsc.account.deposit)>>
 	<<set _maxDeposit to Math.min($money, Number.isFinite(_room) ? _room : $money)>>
 
-	"You'd like to deposit cash into your HBSC savings balance," the teller says, bringing up the deposit screen.
+	The teller taps a few keys and brings up the deposit screen. "You'd like to deposit cash into your HBSC savings balance."
 	<br><br>
 
 	<div class="hbsc-brochure">
@@ -693,7 +706,7 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 	<br><br>
 	<<icon "access_card.png">><<link [[Open an HBSC account|HBSC Bank Account]]>><</link>>
 <<else>>
-	"You'd like to withdraw money from your HBSC savings balance," the teller says, opening the withdrawal screen.
+	The teller opens the withdrawal screen and glances back up at you. "You'd like to withdraw money from your HBSC savings balance."
 	<br><br>
 
 	<div class="hbsc-brochure">
@@ -818,7 +831,7 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 		<</if>>
 	<</for>>
 
-	The teller opens the fixed-term menu. "From here, I can open a new fixed-term deposit for you or manage one you've already opened."
+	The teller opens the fixed-term menu and turns the screen just enough for you to follow. "From here, I can open a new fixed-term deposit for you or manage one you've already opened."
 	<br><br>
 
 	<div class="hbsc-brochure">
@@ -847,7 +860,7 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 	<br><br>
 	<<icon "access_card.png">><<link [[Review your HBSC account (0:02)|HBSC Bank Account]]>><<pass 2>><</link>>
 <<else>>
-	Choose the term length you want to open.
+	The teller waits with one hand on the mouse. Choose the term length you want to open.
 	<br><br>
 	<<link [[Open a 1-month fixed-term deposit|HBSC Bank Fixed-Term Source]]>><<set $hbsc.ftMonths to 1>><</link>>
 	<br>
@@ -906,7 +919,7 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 	<br><br>
 	<<hbscOptions>>
 <<else>>
-	Choose how much to lock into the <<print _months>>-month term.
+	The teller points to the empty field on the screen. Choose how much to lock into the <<print _months>>-month term.
 	<br><br>
 
 	<div class="hbsc-brochure">
@@ -957,7 +970,7 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 	<br><br>
 	<<link [[Next|HBSC Bank Fixed-Term Amount]]>><</link>>
 <<else>>
-	The teller turns the screen towards you. "Before I book that in, please confirm the details."
+	The teller turns the screen towards you and taps the summary box. "Before I book that in, please confirm the details."
 	<br><br>
 
 	<div class="hbsc-brochure">
@@ -982,7 +995,7 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 <<set $hbsc.ftAmount to 0>><<set $hbsc.ftAmountInput to "">>
 
 <<if _result.ok>>
-	The teller confirms the amount and finalises the booking. "Done. Your fixed-term deposit is now active."
+	The teller confirms the amount, stamps the paperwork, and finalises the booking. "Done. Your fixed-term deposit is now active."
 	<br><br>
 
 	<div class="hbsc-brochure">
@@ -1041,7 +1054,7 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 	<br><br>
 	<<hbscOptions>>
 <<else>>
-	"Here are your fixed-term deposits," the teller says, turning the screen towards you.
+	"Here are your fixed-term deposits," the teller says, turning the screen towards you and scrolling through the list.
 	<br><br>
 
 	<<for _i = 0; _i < $hbsc.fixedTerms.length; _i++>>
@@ -1125,7 +1138,7 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 			<<set _halfPreview to setup.hbsc.calcFixedTermEarlyWithdrawal(_term.principal, _term.months, _term.elapsedDays, $hbsc.account.level, "half")>>
 			<<link [[Withdraw half into HBSC savings and keep the rest invested|HBSC Bank Fixed-Term Close Result]]>><<set $hbsc.ftCloseKind to "half">><<set $hbsc.ftCloseTarget to "deposit">><</link>>
 			<br>
-			<<link [[Withdraw half as cash and keep the rest invested|HBSC Bank Fixed-Term Close Result]]>><<set $hbsc.ftCloseKind to "half">><<set $hbsc.ftCloseTarget to "money">><</link>>
+			<<link [[Take an early partial withdrawal as cash|HBSC Bank Fixed-Term Close Result]]>><<set $hbsc.ftCloseKind to "half">><<set $hbsc.ftCloseTarget to "money">><</link>>
 			<br>
 		<</if>>
 		<br>
@@ -1142,7 +1155,7 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 	<<if _result.term.status is "active">>
 		The teller confirms the partial early withdrawal and updates the remaining fixed-term balance.
 	<<else>>
-		The teller processes the payout and closes the fixed-term deposit.
+		The teller processes the payout, stamps the closure slip, and closes the fixed-term deposit.
 	<</if>>
 	<br><br>
 
@@ -1187,8 +1200,8 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 :: HBSC Bank Branch Sneak
 <<run setup.hbsc.ensureState()>><<effects>><<if $avery_fate is "ascended">><<location "avery_skyscraper">><<else>><<location "office">><</if>>
 <<set $lock to 1000>>
-	The bank is closed, but the glass frontage and polished stonework do little to hide the security hardware built into the entrance. <span class="red">Cameras watch the doors from more than one angle.</span>
-You drift closer anyway, eyeing the lock and wondering whether there's a way in after hours.
+	The bank is closed, but the glass frontage and polished stonework do little to hide the security built into the entrance. <span class="red">Cameras watch the doors from more than one angle.</span>
+You drift closer anyway, studying the lock and the seams around the frame, wondering whether there is a way in after hours.
 <br><br>
 <<if currentSkillValue('skulduggery') gte $lock>>
 	<<if pcAreArmsBound("both")>>
@@ -1210,11 +1223,11 @@ You drift closer anyway, eyeing the lock and wondering whether there's a way in 
 
 :: HBSC Bank Branch Sneak 2
 <<effects>>
-You crouch by the bank door and set to work on the lock. For a moment it seems possible.
+You crouch by the bank door and set to work on the lock. For a moment it seems possible. The pick bites, the tumblers shift, and the latch almost gives.
 <br><br>
-Before you can properly get anywhere, a sharp tone chirps above the frame and a metal shutter slams halfway down.
+Then a sharp tone chirps above the frame and a metal shutter slams partway down.
 <br><br>
-Two security guards are on you almost instantly. One twists your arm behind your back while the other barks into a radio. This branch clearly expects people to try this.
+Two security guards are on you almost at once. One twists your arm behind your back while the other barks into a radio. This branch clearly expects people to try this.
 <span class="red">Your name and face are logged with the police as a trespassing suspect.</span><<crimeUp 1000 "trespassing">><<crime "trespassing">>
 <br><br>
 <<link [[Next|HBSC Bank Branch Sneak 3]]>><</link>>
