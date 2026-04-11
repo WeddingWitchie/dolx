@@ -1202,7 +1202,7 @@ function clothesReturnLocation(item, type) {
 	// prettier-ignore
 	if (
 		!lastTaken ||
-		(V.settings.multipleWardrobes !== "all" || V.settings.multipleWardrobes !== "isolated") ||
+		(V.settings.multipleWardrobes !== "all" && V.settings.multipleWardrobes !== "isolated") ||
 		!V.wardrobes[lastTaken] ||
 		!V.wardrobes[lastTaken].unlocked
 	) {
@@ -1644,7 +1644,7 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 			if (V.TFCowBuffs == 1) {
 				result = Math.round(result * 1.4);
 			}
-			result = Math.round(result * (1 + 0.1 * V.sciencetrait))
+			result = Math.round(result * (1 + 0.1 * V.sciencetrait));
 			break;
 		case "housekeeping":
 			if (V.worn.upper.type.includes("maid")) {
@@ -2595,7 +2595,7 @@ function getHalloweenCostume() {
 		return "harpy TF";
 	} else if (T.tf.foxEars && T.tf.foxTail) {
 		return "fox TF";
-	} else if (T.tf.bearEars && T.tf.BearTail) {
+	} else if (T.tf.bearEars && T.tf.bearTail) {
 		return "bear TF";
 
 		/* Misc outcomes */
