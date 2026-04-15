@@ -157,12 +157,12 @@ function hcItemHolding(id, filterfn) {
 window.hcItemHolding = hcItemHolding;
 
 function hcItemLitTorch() {
-	return V.hcItems.find(torch => torch.type === "torch" && torch.location === "held" && torch.state === "lit" && torch.state === "lit");
+	return V.hcItems.find(torch => torch.type === "torch" && torch.location === "held" && torch.state === "lit");
 }
 window.hcItemLitTorch = hcItemLitTorch;
 
 function hcItemHasFreeHand() {
-	return V.hcItems.filter(items => items.location === "held" && items.twoHanded) && V.hcItems.filter(items => items.location === "held").length < 2;
+	return !V.hcItems.some(items => items.location === "held" && items.twoHanded) && V.hcItems.filter(items => items.location === "held").length < 2;
 }
 window.hcItemHasFreeHand = hcItemHasFreeHand;
 
