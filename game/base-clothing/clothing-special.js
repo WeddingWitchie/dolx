@@ -112,9 +112,6 @@ function initSpecialClothes() {
 		{ name: "chain tunic", 					sets: ["historic", "chain_tunic"] },
 		{ name: "chain leggings", 				sets: ["historic", "chain_tunic"] },
 		{ name: "chain boots", 					sets: ["historic", "chain_tunic"] },
-		
-		{ name: "ancient coral ring", 			sets: ["antiques"] },
-		{ name: "antique gold amulet", 			sets: ["antiques"] },
 
 		{ name: "serafuku", 					sets: ["foreign_school"] },
 		{ name: "classic serafuku", 			sets: ["foreign_school"] },
@@ -873,8 +870,10 @@ function specialClothesRefresh() {
 			});
 		});
 
-	if (getUnlockedSpecialSets().length >= getSpecialSets().length / 2) wikifier("earnFeat", "'Curious Attire'");
-	if (getUnlockedSpecialSets().length >= getSpecialSets().length) wikifier("earnFeat", "'Wicked Wardrobe'");
+	const unlockedFeatSets = getUnlockedSpecialSets().filter(set => setup.specialClothesSets[set]?.feat);
+	const totalFeatSets = getSpecialSets(set => set.feat).length;
+	if (unlockedFeatSets.length >= totalFeatSets / 2) wikifier("earnFeat", "'Curious Attire'");
+	if (unlockedFeatSets.length >= totalFeatSets) wikifier("earnFeat", "'Wicked Wardrobe'");
 
 	statusCheck("Gwylan");
 }

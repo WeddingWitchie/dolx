@@ -869,6 +869,25 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<run setup.hbsc.ensureState()>>
 	<<initBankHeist>>
 
+	/* Ensure antique special clothes entries exist in V.specialClothes */
+	<<specialClothesUpdate>>
+
+	/* Directly unlock antique special clothes if museum is complete */
+	<<if $museumAntiques isnot undefined and $museumAntiques.museumCount is $museumAntiques.maxCount>>
+		<<for _sc range $specialClothes>>
+			<<if (_sc.name.includes("antique") or _sc.name.includes("ancient")) and _sc.unlocked lt 3>>
+				<<set _sc.unlocked to 3>>
+			<</if>>
+		<</for>>
+	<</if>>
+
+	<<specialClothesRefresh>>
+
+	/* Persist unlocked sets to localStorage so feat boosters reflect them */
+	<<if $feats isnot undefined and $feats.allSaves isnot undefined>>
+		<<updateFeats>>
+	<</if>>
+
 	<<if $xchangePill isnot undefined>>
 		<<set $xchange.pill to $xchangePill>>
 		<<unset $xchangePill>>

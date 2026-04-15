@@ -3061,6 +3061,18 @@ function earnHourlyFeats() {
 		specialClothesUnlock("set", "antiques");
 	}
 
+	// Award specialClothes series feats based on unlocked set count
+	if (V.specialClothes) {
+		const unlockedFeatSets = getUnlockedSpecialSets().filter(set => setup.specialClothesSets[set].feat);
+		const totalFeatSets = getSpecialSets(set => set.feat).length;
+		if (unlockedFeatSets.length >= Math.ceil(totalFeatSets / 2)) {
+			earnFeat("Curious Attire");
+		}
+		if (unlockedFeatSets.length >= totalFeatSets) {
+			earnFeat("Wicked Wardrobe");
+		}
+	}
+
 	// LI Romance
 	const loveCount = (V.robinromance ? 1 : 0) + (V.whitneyromance ? 1 : 0) + (V.kylarenglish ? 1 : 0) + (V.sydneyromance ? 1 : 0);
 	if (loveCount >= 3) earnFeat("Love Triangles");
@@ -3408,11 +3420,6 @@ function updateFeats() {
 		});
 	}
 	allFeats.specialClothes = specialClothes;
-
-	// Award specialClothes series feats based on unlocked set count
-	const totalFeatSets = getSpecialSets(set => set.feat).length;
-	if (specialClothes.length >= Math.ceil(totalFeatSets / 2)) { earnFeat("Curious Attire"); }
-	if (specialClothes.length >= totalFeatSets) { earnFeat("Wicked Wardrobe"); }
 
 	V.feats.allSaves = allFeats;
 
