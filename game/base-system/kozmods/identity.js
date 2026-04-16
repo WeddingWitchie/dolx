@@ -3,10 +3,10 @@
  * - JS-side logic moved/split from `xchange.js` into `identity.js`
  * - The split also applied for the corresponding Twine-side logic
  * =========================
- * Important:
+ * Important!
  * Some gender-identity "core" functions / related utilities are still live inside `xchange.js`.
  * If what you're looking for isn't defined here, there's a good chance it's still in `xchange.js`
- * (likewise, some mirrored behavior may be in `identity.twee` and its Twine-side correspondence).
+ * (likewise, some mirrored behavior may be in `identity.twee` and its Twine-side correspondence)
 **/
 
 function playerCaresForGender() {
@@ -793,8 +793,7 @@ function mapToLegacyGenderIdentity() {
 	 *   axis -1 => fully masculine => 0
 	 *   axis +1 => fully feminine => range
 	 * Do NOT flip by the player's starting gender.
-	 * When no identity topics are active, default based on player's current gender.
-	 */
+	 * When no identity topics are active, default based on player's current gender */
 	let axis;
 	if (categoryCount === 0) {
 		axis = V.player?.gender === "f" ? 1 : -1;
@@ -806,6 +805,60 @@ function mapToLegacyGenderIdentity() {
 	V.xchange.giGroupAxis = groupAxis;
 	V.xchange.giAxis = axis;
 	V.xchange.giTarget = absVal;
+
+	/* === Full breakdown for the Statistics "Choice Breakdown" foldout ===
+	 * Re-walks every enabled characteristic so the UI can show even the ones that currently push nothing (e.g. "Not accepted" with zero dysphoria)
+	 * Three buckets per group:
+	 *   included  — actually moves the meter (|effect| > 0)
+	 *   diluting  — has a stance but dir is neutral, so it only pulls the
+	 *               group's axis toward centre (contributes weight, no push)
+	 *   dormant   — no stance at all (unaccepted, no dysphoria, not preferred)
+	 * This is derived data; safe to overwrite every call */
+	const breakdown = {};
+	if (setup?.identityIndex) {
+		for (const category in setup.identityIndex) {
+			for (const characteristic in setup.identityIndex[category]) {
+				const group = getIdentityMeterGroup(characteristic) || category;
+				const { dir, weight } = getIdentityMeterDirection(characteristic);
+				if (!weight) continue;
+				if (!isIdentityMeterCharacteristicEnabled(characteristic)) continue;
+
+				const selected = selectIdentityCharacteristic(characteristic);
+				const opt = selected.option || {};
+				const preferred = !!selected.preferred;
+				const accepted = opt.acceptance === true;
+				const rejected = opt.reject === true;
+				const dysphoria = Number(opt.dysphoria) || 0;
+				const hasStance = preferred || accepted || rejected || dysphoria > 0;
+				const support = hasStance ? getIdentityMeterSupport(characteristic) : 0;
+				const effect = dir * support * weight;
+
+				if (!breakdown[group]) {
+					breakdown[group] = {
+						axis: (group in groupAxis) ? groupAxis[group] : 0,
+						included: [],
+						diluting: [],
+						dormant: [],
+					};
+				}
+
+				const entry = {
+					characteristic, dir, weight, support, effect,
+					preferred, accepted, rejected, dysphoria,
+				};
+
+				if (!hasStance) {
+					breakdown[group].dormant.push(entry);
+				} else if (Math.abs(effect) > 1e-6) {
+					breakdown[group].included.push(entry);
+				} else {
+					/* Has a stance but dir is 0 (neutral-axis trait); contributes weight only, pulling the group's axis toward centre. */
+					breakdown[group].diluting.push(entry);
+				}
+			}
+		}
+	}
+	V.xchange.giBreakdown = breakdown;
 
 	if (V.genderidentity === undefined || Number.isNaN(V.genderidentity) || V.xchange.giMeterVersion !== meterVersion) {
 		V.genderidentity = V.xchange.giTarget;

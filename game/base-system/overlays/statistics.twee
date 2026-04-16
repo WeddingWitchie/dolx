@@ -922,16 +922,16 @@
 			<<set _giTarget to (Number.isFinite(Number($xchange.giTarget)) ? Number($xchange.giTarget) : _giMid)>>
 			<<set _giStep to (Number($xchange.giStepPerDay) || 30)>>
 
-			Meter: <span class=_giColour><<print Math.round(_giCurrent)>> / _giRange</span>
+			Meter: <<print Math.round(_giCurrent)>> / _giRange
 			<br>
 
 			/* Target and drift */
 			<<set _giTargetDir to (_giTarget gt _giMid) ? "feminine" : (_giTarget lt _giMid) ? "masculine" : "neutral">>
 			<<set _giDelta to _giTarget - _giCurrent>>
 
-			Identity target: <span class="gold"><<print Math.round(_giTarget)>></span> (<span class=_giColour>_giTargetDir</span>)
+			Daily drift: <<print _giStep>> / day
 			<br>
-			Daily drift: <span class="gold"><<print _giStep>> / day</span>
+			Identity target: _giTargetDir
 			<br>
 
 			<<if Math.abs(_giDelta) lte 1>>
@@ -939,7 +939,7 @@
 			<<else>>
 				<<set _giDaysLeft to Math.ceil(Math.abs(_giDelta) / _giStep)>>
 				<<set _giDriftDir to (_giDelta gt 0) ? "feminine" : "masculine">>
-				Drifting: <span class=_giColour>toward _giDriftDir</span> (~_giDaysLeft days remaining)
+				Drifting: toward _giDriftDir (~_giDaysLeft days remaining)
 			<</if>>
 			<br>
 
@@ -999,22 +999,151 @@
 			<br>
 			<span class="gold">Current Body</span>
 			<br>
-			Sex: <<if $player.sex is "f">><span class="pink">Female</span><<else>><span class="lblue">Male</span><</if>>
-			<br>
 			<<if $player.penisExist>>
-				Penis: <span class="lblue">Size $player.penissize</span>
+				Penis: Size $player.penissize
 				<br>
 			<</if>>
 			<<if $player.vaginaExist>>
-				Vagina: <span class="pink">Present</span>
+				Vagina: Present
 				<br>
 			<</if>>
-			Breasts: <span class="gold">Size $player.breastsize</span>
+			Breasts: Size $player.breastsize
 			<br>
-			Bottom: <span class="gold">Size $player.bottomsize</span>
+			Bottom: Size $player.bottomsize
 			<br>
-			Hair length: <span class="gold">$hairlength</span>
-			<br>
+			Hair length: $hairlength
+			<br><br>
+
+			/* Choice Breakdown to explains how every identity choice shapes the meter target. Covers active pushes, neutral dilution, and dormant (no-opinion) characteristics. */
+			<<gi-compute-target>>
+			<<foldout false "_giBreakdownFoldout">>
+				<span class="gold">Choice Breakdown</span>
+
+				/* --- Legend: how each stance translates to meter force --- */
+				<span class="small-description">How stances affect the meter:</span>
+				<br>
+				&nbsp;&nbsp;• <span class="green">Preferred</span>: strong push in the characteristic's direction.
+				<br>
+				&nbsp;&nbsp;• <span class="lblue">Accepted</span>: mild push in the characteristic's direction.
+				<br>
+				&nbsp;&nbsp;• <span class="lilac">Not accepted</span>: no stance taken.
+				<br>
+				&nbsp;&nbsp;• <span class="red">Rejected</span>: strong push in the opposite direction.
+				<br>
+				&nbsp;&nbsp;• <span class="red">Dysphoria</span>: weakening or inverting the pushes.
+				<br>
+				&nbsp;&nbsp;• <span class="grey">Neutral-axis traits</span>: never push a direction but still pull the group's axis toward centre.
+				<br>
+
+				<<set _giBreakdown to $xchange.giBreakdown || {}>>
+				<<set _giGroupOrder to ["pronouns","appearance","clothing","chest","ass","genitals","hair","bodysize","pregnancy","lactation"]>>
+				<<set _giGroupLabels to {
+					pronouns:   "Pronouns",
+					appearance: "Appearance",
+					clothing:   "Clothing",
+					chest:      "Chest / Breasts",
+					ass:        "Ass",
+					genitals:   "Genitals",
+					hair:       "Hair",
+					bodysize:   "Body Size",
+					pregnancy:  "Pregnancy",
+					lactation:  "Lactation"
+				}>>
+
+				<<set _giAnyGroup to false>>
+				<<for _giG range _giGroupOrder>>
+					<<if _giBreakdown[_giG]>>
+						<<set _giAnyGroup to true>>
+						<<set _giData to _giBreakdown[_giG]>>
+						<<set _giGroupAxis to Number(_giData.axis) || 0>>
+						<<set _giGroupLabel to _giGroupLabels[_giG] || _giG>>
+
+						<<if _giGroupAxis gt 0.1>>
+							<<set _giGroupLean to "feminine">>
+						<<elseif _giGroupAxis lt -0.1>>
+							<<set _giGroupLean to "masculine">>
+						<<else>>
+							<<set _giGroupLean to "neutral / balanced">>
+						<</if>>
+
+						<br>
+						<span class="gold">_giGroupLabel</span> leans _giGroupLean
+						<br>
+
+						/* ----- Active entries: push the meter ----- */
+						<<for _giC range _giData.included>>
+							<<set _giEffect to Number(_giC.effect) || 0>>
+							<<set _giDys to Number(_giC.dysphoria) || 0>>
+
+							<<if _giC.rejected>>
+								<<set _giStanceHTML to '<span class="red">Rejected</span>'>>
+							<<elseif _giC.preferred>>
+								<<set _giStanceHTML to '<span class="green">Preferred</span>'>>
+							<<elseif _giC.accepted>>
+								<<set _giStanceHTML to '<span class="lblue">Accepted</span>'>>
+							<<else>>
+								<<set _giStanceHTML to '<span class="lilac">Not accepted</span>'>>
+							<</if>>
+							<<if _giDys gt 0>>
+								<<set _giStanceHTML += ' <span class="red">+ dysphoria ' + Math.round(_giDys) + '</span>'>>
+							<</if>>
+
+							<<if _giEffect gt 0>>
+								<<set _giEffectArrow to "→ pushes feminine">><<set _giEffectSign to "+">>
+							<<else>>
+								<<set _giEffectArrow to "→ pushes masculine">><<set _giEffectSign to "">>
+							<</if>>
+
+							&nbsp;&nbsp;• _giC.characteristic: <<print _giStanceHTML>> _giEffectSign<<print _giEffect.toFixed(2)>> _giEffectArrow
+							<br>
+						<</for>>
+
+						/* ----- Diluting entries: neutral-axis traits with a stance ----- */
+						<<for _giC range _giData.diluting>>
+							<<if _giC.rejected>>
+								<<set _giStanceHTML to '<span class="red">Rejected</span>'>>
+							<<elseif _giC.preferred>>
+								<<set _giStanceHTML to '<span class="green">Preferred</span>'>>
+							<<elseif _giC.accepted>>
+								<<set _giStanceHTML to '<span class="lblue">Accepted</span>'>>
+							<<else>>
+								<<set _giStanceHTML to '<span class="lilac">Not accepted</span>'>>
+							<</if>>
+							<<if (Number(_giC.dysphoria) || 0) gt 0>>
+								<<set _giStanceHTML += ' <span class="red">+ dysphoria ' + Math.round(_giC.dysphoria) + '</span>'>>
+							<</if>>
+
+							&nbsp;&nbsp;• _giC.characteristic: <<print _giStanceHTML>> <span class="grey">neutral trait → dilutes toward centre</span>
+							<br>
+						<</for>>
+
+						/* ----- Dormant entries: no stance at all ----- */
+						<<for _giC range _giData.dormant>>
+							&nbsp;&nbsp;• _giC.characteristic: <span class="lilac">Not accepted</span> <span class="grey">no push</span>
+							<br>
+						<</for>>
+					<</if>>
+				<</for>>
+
+				<<if not _giAnyGroup>>
+					<br>
+					<span class="grey">No identity topics are enabled. Enable Pronouns / Appearance / Clothing / Body topics in the X-Change Attitudes menu to see per-choice effects here.</span>
+					<br>
+				<</if>>
+
+				/* Summary overall axis + target mapped to the meter's descriptive state labels (matches the meter UI exactly) */
+				<br>
+				<<set _giFinalAxis to Number($xchange.giAxis) || 0>>
+				<<if _giFinalAxis gt 0.1>>
+					<<set _giFinalLean to "feminine">>
+				<<elseif _giFinalAxis lt -0.1>>
+					<<set _giFinalLean to "masculine">>
+				<<else>>
+					<<set _giFinalLean to "balanced">>
+				<</if>>
+				<span class="gold">Overall axis:</span> _giFinalLean
+				<br>
+			<</foldout>>
 		<</foldout>>
 		<</if>>
 
