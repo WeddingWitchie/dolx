@@ -145,6 +145,8 @@ You settle into a padded swivel chair at the quieter priority desk, away from th
 	"Could you walk me through your savings accounts, please?" you ask.
 <<elseif (_speechAttitudeResolved is "confident")>>
 	"Talk me through your savings accounts," you say.
+<<elseif ((_speechAttitudeResolved is "bratty") or (_speechAttitudeResolved is "cruel"))>>
+	"Right. How do the savings accounts here work, then?" you ask.
 <<else>>
 	"How do your savings accounts work?" you ask.
 <</if>>
@@ -302,6 +304,10 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 		"I'd like to open an account, please," you say.
 	<<elseif ((_speechAttitudeResolved is "polite") or (_speechAttitudeResolved is "flamboyant"))>>
 		"I'd like to open an account with HBSC bank, please," you say.
+	<<elseif (_speechAttitudeResolved is "confident")>>
+		"I want to open an account," you say.
+	<<elseif ((_speechAttitudeResolved is "bratty") or (_speechAttitudeResolved is "cruel"))>>
+		"Open an account for me," you say.
 	<<else>>
 		"I'd like to open an account," you say.
 	<</if>>
@@ -1200,7 +1206,7 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 :: HBSC Bank Branch Sneak
 <<run setup.hbsc.ensureState()>><<effects>><<if $avery_fate is "ascended">><<location "avery_skyscraper">><<else>><<location "office">><</if>>
 <<set $lock to 1000>>
-	The bank is closed, but the glass frontage and polished stonework do little to hide the security built into the entrance. <span class="red">Cameras watch the doors from more than one angle.</span>
+The bank is closed, but the glass frontage and polished stonework do little to hide the security built into the entrance. <span class="red">Cameras watch the doors from more than one angle.</span>
 You drift closer anyway, studying the lock and the seams around the frame, wondering whether there is a way in after hours.
 <br><br>
 <<if currentSkillValue('skulduggery') gte $lock>>
@@ -1223,14 +1229,455 @@ You drift closer anyway, studying the lock and the seams around the frame, wonde
 
 :: HBSC Bank Branch Sneak 2
 <<effects>>
-You crouch by the bank door and set to work on the lock. For a moment it seems possible. The pick bites, the tumblers shift, and the latch almost gives.
+<<if $xchange.bankHeist and $xchange.bankHeist.landryReported and crimeSumCurrent() gte 4000>>
+	<<generate1>><<person1>>
+	You crouch by the bank door and set to work on the lock. The pick bites, the tumblers shift, and the latch almost gives.
+	<br><br>
+	Then the door opens from the inside.
+	<br><br>
+	A figure in a grey suit looks down at you. Not a guard. Not police. Someone else. "We've been expecting someone to try this. Come in. We should talk."
+	<br><br>
+	<span class="red">The bank is on high alert since the break-in.</span>
+	<br><<set $xchange.bankHeist.alertLevel += 1>>
+	<<link [[Go inside|Bank Unrest Interrogation]]>><</link>>
+<<else>>
+	You crouch by the bank door and set to work on the lock. For a moment it seems possible. The pick bites, the tumblers shift, and the latch almost gives.
+	<br><br>
+	Then a sharp tone chirps above the frame and a metal shutter slams partway down.
+	<br><br>
+	Two security guards are on you almost at once. One twists your arm behind your back while the other barks into a radio. This branch clearly expects people to try this.
+	<span class="red">Your name and face are logged with the police as a trespassing suspect.</span><<crimeUp 1000 "trespassing">><<crime "trespassing">>
+	<br>
+	<<link [[Next|HBSC Bank Branch Sneak 3]]>><</link>>
+<</if>>
+
+:: Bank Unrest Interrogation
+<<effects>>
+<<set $xchange.bankHeist.unrestSuspicion to 0>>
+You're led through the empty lobby and down a hallway you've never seen before. The lights are dim.
+A windowless room. A single chair bolted to the floor. The <<person>> in the grey suit closes the door behind you and sits across a small table. Two more suited figures stand behind <<him>>, hands folded.
 <br><br>
-Then a sharp tone chirps above the frame and a metal shutter slams partway down.
+"Sit."
 <br><br>
-Two security guards are on you almost at once. One twists your arm behind your back while the other barks into a radio. This branch clearly expects people to try this.
-<span class="red">Your name and face are logged with the police as a trespassing suspect.</span><<crimeUp 1000 "trespassing">><<crime "trespassing">>
+<<speechresolve>>
+<<if ((_speechAttitudeResolved is "meek") or (_speechAttitudeResolved is "shy"))>>
+	You sink into the chair before they have to tell you twice. Your hands fold in your lap, but you can feel them trembling slightly.
+<<elseif (_speechAttitudeResolved is "docile")>>
+	You sit without hesitation, folding your hands on the table. Something in the room makes it easy to comply.
+<<elseif ((_speechAttitudeResolved is "polite") or (_speechAttitudeResolved is "flamboyant"))>>
+	You take the seat carefully, sitting straight. You keep your expression composed, though it costs more effort than you'd like.
+<<elseif (_speechAttitudeResolved is "confident")>>
+	You sit, keeping your expression neutral and your breathing steady.
+<<elseif ((_speechAttitudeResolved is "bratty") or (_speechAttitudeResolved is "cruel"))>>
+	You drop into the chair like it was your idea, trying to project an ease you don't quite feel.
+<<else>>
+	You sit, keeping your expression neutral.
+<</if>>
 <br><br>
-<<link [[Next|HBSC Bank Branch Sneak 3]]>><</link>>
+"Let's start with an easy one. What are you doing at this bank, after hours, with a lockpick?"
+<br><br>
+<<link [[Explain yourself|Bank Unrest Q1]]>><</link>><<englishdifficulty 500 900>>
+<br>
+<<link [[Stay silent|Bank Unrest Q1 Silent]]>><</link>>
+
+:: Bank Unrest Q1
+<<effects>>
+<<speechresolve>>
+<<bankHeistStealthCheck 5 "english">>
+<<if _heistStealthResult is "success">>
+	<<if ((_speechAttitudeResolved is "meek") or (_speechAttitudeResolved is "shy"))>>
+		"I-I lost my card," you stammer. "I thought if I could just get to the ATM inside... I know it was stupid. I'm sorry."
+	<<elseif (_speechAttitudeResolved is "docile")>>
+		"I lost my card," you say quietly. "I just wanted to check if it was still inside. I know I should have waited until morning."
+	<<elseif ((_speechAttitudeResolved is "polite") or (_speechAttitudeResolved is "flamboyant"))>>
+		"I misplaced my card this afternoon. I thought it might still be at the counter." You pause. "I realise I should have called ahead instead of coming in person. I apologise."
+	<<elseif ((_speechAttitudeResolved is "bratty") or (_speechAttitudeResolved is "cruel"))>>
+		"Dare. A friend dared me. Stupid, I know. You got me, fine."
+	<<else>>
+		"I was trying to retrieve something I left earlier. Bad judgment. I shouldn't have tried to let myself in."
+	<</if>>
+	<br><br>
+	<span class="green">Your voice is steady enough. The <<person1>><<person>> watches you, weighing it.</span>
+	<<set $xchange.bankHeist.unrestSuspicion += 0>>
+<<else>>
+	<<if ((_speechAttitudeResolved is "meek") or (_speechAttitudeResolved is "shy"))>>
+		"I... I don't... I'm sorry..." The words don't come. You trail off into silence.
+	<<elseif (_speechAttitudeResolved is "docile")>>
+		You open your mouth, but what comes out is barely a whisper. "I didn't mean to... I just—" Nothing holds together.
+	<<elseif ((_speechAttitudeResolved is "polite") or (_speechAttitudeResolved is "flamboyant"))>>
+		You begin carefully, but your explanation starts to fold under the weight of its own detail. The more you say, the worse it sounds.
+	<<elseif (_speechAttitudeResolved is "confident")>>
+		You open your mouth, then close it. Nothing comes out that sounds believable. The explanation that seemed solid in your head falls apart on the way out.
+	<<elseif ((_speechAttitudeResolved is "bratty") or (_speechAttitudeResolved is "cruel"))>>
+		"None of your business," you snap. The second the words are out, you know it was a mistake.
+	<<else>>
+		You open your mouth, then close it. Nothing comes out that sounds believable.
+	<</if>>
+	<br><br>
+	<span class="pink">The <<person1>><<person>> makes a note on a small pad.</span>
+	<<set $xchange.bankHeist.unrestSuspicion += 1>>
+<</if>>
+<br>
+<<link [[Next|Bank Unrest Q2]]>><</link>>
+
+:: Bank Unrest Q1 Silent
+<<effects>>
+<<speechresolve>>
+<<if ((_speechAttitudeResolved is "meek") or (_speechAttitudeResolved is "shy"))>>
+	You stare at the table. The words won't come, and you don't try to force them.
+<<elseif (_speechAttitudeResolved is "docile")>>
+	You fold your hands and sit quietly. There's nothing safe to say.
+<<elseif ((_speechAttitudeResolved is "polite") or (_speechAttitudeResolved is "flamboyant"))>>
+	You meet <<his>> eyes for a moment, then look away. You say nothing.
+<<elseif ((_speechAttitudeResolved is "bratty") or (_speechAttitudeResolved is "cruel"))>>
+	You lean back slightly and say nothing. It's about the only power you have left in here.
+<<else>>
+	You say nothing. The silence stretches until it feels solid.
+<</if>>
+<br><br>
+The <<person1>><<person>> tilts <<his>> head. "Nothing to say. Interesting choice."
+<br><br>
+<<set $xchange.bankHeist.unrestSuspicion += 1>>
+<<link [[Next|Bank Unrest Q2]]>><</link>>
+
+:: Bank Unrest Q2
+<<effects>>
+<<He>> opens a folder. Inside are photographs. You, outside the bank. You, inside during your observation visits. Timestamps.
+<br><br>
+"You've been spending a lot of time here. And then there was an incident. A break-in. Quite a coincidence."
+<br><br>
+<<He>> leans forward slightly. "We're going to find out who was behind that. We'd like to do that quickly. Anyone you'd like to tell us about?"
+<br><br>
+<<link [[Deflect|Bank Unrest Q2 Deflect]]>><</link>><<skulduggerydifficulty 400 800>>
+<br>
+<<link [[Give a false name|Bank Unrest Q2 Lie]]>><</link>><<englishdifficulty 600 1000>>
+<br>
+<<link [[Refuse to speak|Bank Unrest Q2 Refuse]]>><</link>>
+
+:: Bank Unrest Q2 Deflect
+<<effects>>
+<<speechresolve>>
+<<bankHeistStealthCheck 5 "skulduggery">>
+<<if _heistStealthResult is "success">>
+	<<if ((_speechAttitudeResolved is "meek") or (_speechAttitudeResolved is "shy"))>>
+		"My account is here," you say carefully. "I come here because that's where my account is. Is that suspicious now?"
+		<br><br>
+		You add, quietly, "If you have something that actually connects me to what happened, I'd like to know what it is."
+	<<elseif (_speechAttitudeResolved is "docile")>>
+		"I bank here," you say. "That's why I visit. That's all there is to it."
+		<br><br>
+		You pause. "If there's evidence connecting me to something, I'd like to see it."
+	<<elseif ((_speechAttitudeResolved is "polite") or (_speechAttitudeResolved is "flamboyant"))>>
+		"I visit because my account is here. I'm not sure how that becomes evidence of anything." You keep your voice even. "If you have something more specific, I'm happy to answer. Otherwise, I'd appreciate being allowed to go."
+	<<elseif ((_speechAttitudeResolved is "bratty") or (_speechAttitudeResolved is "cruel"))>>
+		"I bank here. That's it. That's the whole mystery solved." You lean forward slightly. "So either show me something real or let me walk."
+	<<else>>
+		"I come here because my account is here. Are my visits a crime now?" You hold <<his>> gaze. "If you have evidence tying me to whatever happened, show it. Otherwise I'd like to go."
+	<</if>>
+	<br><br>
+	<span class="green">The <<person1>><<person>> doesn't react, but the two behind <<him>> exchange a glance.</span>
+<<else>>
+	<<if ((_speechAttitudeResolved is "meek") or (_speechAttitudeResolved is "shy"))>>
+		You try to sound calm, but you can hear the uncertainty bleeding through. You look at the photographs spread on the table and feel it all starting to unravel.
+	<<elseif (_speechAttitudeResolved is "docile")>>
+		You say the right words, but your voice is too flat, too careful. It doesn't sound like someone with nothing to hide.
+	<<elseif ((_speechAttitudeResolved is "polite") or (_speechAttitudeResolved is "flamboyant"))>>
+		You start well, but your deflection is too rehearsed. The <<person1>><<persons>> expression doesn't change, but something behind <<his>> eyes shifts.
+	<<elseif ((_speechAttitudeResolved is "bratty") or (_speechAttitudeResolved is "cruel"))>>
+		It comes out too aggressive. Someone who's got nothing to worry about doesn't lean forward like that. The <<person1>><<person>> tilts <<his>> head, and you know you've read it wrong.
+	<<else>>
+		You try to sound confident, but your voice betrays you. You look at the photographs and realise how damning they look in sequence.
+	<</if>>
+	<br><br>
+	<span class="pink">The <<person1>><<person>> smiles.</span>
+	<<set $xchange.bankHeist.unrestSuspicion += 1>>
+<</if>>
+<br>
+<<link [[Next|Bank Unrest Q3]]>><</link>>
+
+:: Bank Unrest Q2 Lie
+<<effects>>
+<<speechresolve>>
+<<bankHeistStealthCheck 6 "english">>
+<<if _heistStealthResult is "success">>
+	<<if ((_speechAttitudeResolved is "meek") or (_speechAttitudeResolved is "shy"))>>
+		You give them a name, stumbling through it like you're reluctant rather than lying. It actually helps.
+	<<elseif (_speechAttitudeResolved is "docile")>>
+		You give them a name. Someone distant, barely remembered. You offer it plainly, without colour or drama, and that plainness makes it land.
+	<<elseif ((_speechAttitudeResolved is "polite") or (_speechAttitudeResolved is "flamboyant"))>>
+		You give them a name, framing it with appropriate reluctance. You apologise for not mentioning it sooner. The details are plausible, vague where they need to be, and delivered with just enough discomfort to seem real.
+	<<elseif ((_speechAttitudeResolved is "bratty") or (_speechAttitudeResolved is "cruel"))>>
+		You drop a name like you're bored of holding onto it. The nonchalance actually sells it.
+	<<else>>
+		You give them a name. Someone you know but not well. Someone who lives far away. The details are plausible enough to chase, vague enough to buy time.
+	<</if>>
+	<br><br>
+	<span class="green">One of the suited figures steps out to verify.</span>
+<<else>>
+	<<if ((_speechAttitudeResolved is "meek") or (_speechAttitudeResolved is "shy"))>>
+		You offer a name in a small voice, but the follow-up question is one you can't answer without inventing more. Your hesitation is a different kind that looks like guilt.
+	<<elseif (_speechAttitudeResolved is "docile")>>
+		You give them a name, but it's too thin. When the follow-up question comes, you have nothing to build on.
+	<<elseif ((_speechAttitudeResolved is "polite") or (_speechAttitudeResolved is "flamboyant"))>>
+		You construct it carefully, but the details don't hold up under pressure. One follow-up question exposes a gap, and the next one makes it a hole.
+	<<elseif ((_speechAttitudeResolved is "bratty") or (_speechAttitudeResolved is "cruel"))>>
+		You toss out a name, but when they push on the details, you've got nothing behind it. Bravado doesn't make a lie stick.
+	<<else>>
+		You give them a name and a story, but the details are thin. The <<person1>><<person>> asks a follow-up question you can't answer without contradicting yourself.
+	<</if>>
+	<br><br>
+	"Try again?" <<he>> suggests.
+	<br><br>
+	<span class="pink">Your lie crumbles.</span>
+	<<set $xchange.bankHeist.unrestSuspicion += 2>>
+<</if>>
+<br>
+<<link [[Next|Bank Unrest Q3]]>><</link>>
+
+:: Bank Unrest Q2 Refuse
+<<effects>>
+<<speechresolve>>
+<<if ((_speechAttitudeResolved is "meek") or (_speechAttitudeResolved is "shy"))>>
+	"I... I don't have anything to say," you murmur.
+<<elseif ((_speechAttitudeResolved is "polite") or (_speechAttitudeResolved is "flamboyant"))>>
+	"I'm afraid I don't have anything useful to offer," you say.
+<<elseif ((_speechAttitudeResolved is "bratty") or (_speechAttitudeResolved is "cruel"))>>
+	"Not going to happen," you say flatly.
+<<else>>
+	"I have nothing to say," you say quietly.
+<</if>>
+<br><br>
+<<He>> nods slowly. "Noted."
+<br><br>
+<<set $xchange.bankHeist.unrestSuspicion += 1>>
+<<link [[Next|Bank Unrest Q3]]>><</link>>
+
+:: Bank Unrest Q3
+<<effects>>
+<<He>> closes the folder. "One last thing."
+<br><br>
+<<He>> slides a single photograph across the table. It shows a building you don't immediately recognise. Then you do. It's the pub. The one on Harvest Street.
+<br><br>
+"We've been watching this place. Certain people come and go. People who might know a great deal about what happened here." <<He>> taps the photograph. "If you'd like to share anything about the people inside, now would be the time."
+<br><br>
+<<if $xchange.bankHeist.keptEarpiece>>
+	<span class="pink">The earpiece in your pocket suddenly feels heavier than lead.</span>
+	<br>
+<</if>>
+<<link [[Act ignorant|Bank Unrest Q3 Deny]]>><</link>><<englishdifficulty 700 1200>>
+<br>
+<<link [[Name Landry|Bank Unrest Q3 Betray]]>><</link>>
+<br>
+<<link [[Stay silent|Bank Unrest Q3 Silent]]>><</link>>
+<br>
+<<if pcAreArmsBound("both")>>
+	<span class="blue">Your arms are bound. You can't fight your way out.</span>
+	<br>
+<<else>>
+	<<link [[Rush the door|Bank Unrest Q3 Escape]]>><</link>><<athleticsdifficulty 1 1000>>
+	<br>
+<</if>>
+
+:: Bank Unrest Q3 Deny
+<<effects>>
+<<speechresolve>>
+<<bankHeistStealthCheck 7 "english">>
+<<if _heistStealthResult is "success">>
+	<<if ((_speechAttitudeResolved is "meek") or (_speechAttitudeResolved is "shy"))>>
+		"I've never been in there," you say, though your voice doesn't quite stay level. "I don't know the people who go there. I can't help you."
+	<<elseif (_speechAttitudeResolved is "docile")>>
+		"I've never been inside that pub," you say simply. "I wouldn't know who to name even if I wanted to."
+	<<elseif ((_speechAttitudeResolved is "polite") or (_speechAttitudeResolved is "flamboyant"))>>
+		"I'm afraid I can't help you with that. I don't frequent that pub, and I don't know who does."
+	<<elseif ((_speechAttitudeResolved is "bratty") or (_speechAttitudeResolved is "cruel"))>>
+		"I don't know that place. Never been in. If you've got a name you want, you'll have to find it yourself."
+	<<else>>
+		"I've never been inside that pub," you say flatly. "I don't know who drinks there. And I'm not going to invent names to make this go away."
+	<</if>>
+	<br><br>
+	<span class="green">You hold <<his>> gaze. The <<person1>><<person>> doesn't speak for a long moment.</span>
+<<else>>
+	<<if ((_speechAttitudeResolved is "meek") or (_speechAttitudeResolved is "shy"))>>
+		"I don't... I've never..." You trail off. You can hear how guilty it sounds. You try to recover and only make it worse.
+	<<elseif (_speechAttitudeResolved is "docile")>>
+		"I've never—" You stop. Something about the way <<he>> looks at you makes the sentence collapse.
+	<<elseif ((_speechAttitudeResolved is "polite") or (_speechAttitudeResolved is "flamboyant"))>>
+		You begin your denial carefully, but it becomes too careful. You realise mid-sentence that you're constructing something that sounds built rather than remembered.
+	<<elseif ((_speechAttitudeResolved is "bratty") or (_speechAttitudeResolved is "cruel"))>>
+		"I don't know it, never been—" You stop. Even you can hear it. The denial came too fast.
+	<<else>>
+		"I don't... I've never..." You trail off. You realise mid-sentence that denying knowledge of the pub is its own tell. Normal people don't deny knowledge of a pub they've never been to. They ask questions.
+	<</if>>
+	<br><br>
+	<span class="pink">The <<person1>><<person>> sees it too.</span>
+	<<set $xchange.bankHeist.unrestSuspicion += 2>>
+<</if>>
+<br>
+<<link [[Next|Bank Unrest Verdict]]>><</link>>
+
+:: Bank Unrest Q3 Escape
+<<effects>>
+<<speechresolve>>
+<<bankHeistStealthCheck 7 "athletics">>
+<<if ((_speechAttitudeResolved is "meek") or (_speechAttitudeResolved is "shy"))>>
+	Something breaks. You're moving before you've made the decision, throwing yourself out of the chair toward the door.
+<<elseif (_speechAttitudeResolved is "docile")>>
+	For a moment you consider it. Then you stop considering it and just go. You're halfway to the door before anyone reacts.
+<<elseif ((_speechAttitudeResolved is "bratty") or (_speechAttitudeResolved is "cruel"))>>
+	Enough of this. You're out of the chair before the thought fully forms, driving hard for the door.
+<<else>>
+	You lunge out of the chair toward the door. Chairs scrape behind you.
+<</if>>
+<br><br>
+<<if _heistStealthResult is "success">>
+	Your shoulder hits the door at full speed. The latch gives. You're in the hallway, running, before they can react.
+	<br><br>
+	<<bankHeistStealthCheck 5 "skulduggery">>
+	<<if _heistStealthResult is "success">>
+		You remember the layout from your observations. Service corridor. Maintenance hatch. You're out a side exit and into the alley before they can block the main doors.
+		<span class="green">You escaped.</span> But they saw your face, heard your voice, and know exactly who you are.<<crimeUp 500>><<stress 6>><<trauma 6>>
+		<br><br>
+		<<getouticon>><<link [[Next|High Street]]>><<endevent>><<unset $xchange.bankHeist.unrestSuspicion>><</link>>
+	<<else>>
+		You get lost in the corridors. By the time you find an exit, two suited figures are already blocking it.
+		<br><br>
+		<<link [[Next|Bank Unrest Caught]]>><</link>>
+	<</if>>
+<<else>>
+	Hands close on your shoulders before you reach the door. You're thrown back into the chair. Hard.<<pain 6>><<gpain>>
+	<br><br>
+	"Bad decision," the <<person1>><<person>> says.
+	<br><br>
+	<<link [[Next|Bank Unrest Caught]]>><</link>>
+<</if>>
+
+:: Bank Unrest Q3 Betray
+<<effects>>
+<<speechresolve>>
+<<if ((_speechAttitudeResolved is "meek") or (_speechAttitudeResolved is "shy"))>>
+	"Landry," you whisper, eyes on the table. "At the pub on Harvest Street. <<nnpc_He "Landry">> planned it."
+<<elseif (_speechAttitudeResolved is "docile")>>
+	"Landry." You say like reading off a name from a list. "The pub on Harvest Street. That's who planned it."
+<<elseif ((_speechAttitudeResolved is "polite") or (_speechAttitudeResolved is "flamboyant"))>>
+	You take a breath. "The name you want is Landry. <<nnpc_He "Landry">> operates out of a pub on Harvest Street. I believe that's who you're looking for."
+<<elseif ((_speechAttitudeResolved is "bratty") or (_speechAttitudeResolved is "cruel"))>>
+	"Fine. Landry. The Harvest Street pub. That's who you want. Happy now?" you blurt.
+<<else>>
+	"Landry. At the Harvest Street pub. That's who you're looking for," you say.
+<</if>>
+<br><br>
+The <<person1>><<person>> nods slowly. <<He>> closes the folder. "That matches what we already know."<<stress 24>><<trauma 24>>
+<br><br>
+<span class="pink">You gave them nothing but a betrayal.</span>
+<<set $xchange.bankHeist.unrestSuspicion += 3>>
+<br>
+<<link [[Next|Bank Unrest Verdict]]>><</link>>
+
+:: Bank Unrest Q3 Silent
+<<effects>>
+<<speechresolve>>
+<<if ((_speechAttitudeResolved is "meek") or (_speechAttitudeResolved is "shy"))>>
+	You look down at the table. You can't bring yourself to say anything.
+<<elseif (_speechAttitudeResolved is "docile")>>
+	You keep your hands still and say nothing. You let the silence answer for you.
+<<elseif ((_speechAttitudeResolved is "polite") or (_speechAttitudeResolved is "flamboyant"))>>
+	You hold <<his>> gaze and say nothing. There's nothing to say that wouldn't make this worse.
+<<elseif ((_speechAttitudeResolved is "bratty") or (_speechAttitudeResolved is "cruel"))>>
+	You cross your arms and say nothing. If they have something on you, let them show it.
+<<else>>
+	You meet <<his>> eyes and say nothing.
+<</if>>
+<br><br>
+The <<person1>><<person>> nods, as if you'd confirmed something.
+<br><br>
+<<set $xchange.bankHeist.unrestSuspicion += 1>>
+<<link [[Next|Bank Unrest Verdict]]>><</link>>
+
+:: Bank Unrest Verdict
+<<effects>>
+<<set _al to $xchange.bankHeist.alertLevel or 0>>
+<<set _susp to $xchange.bankHeist.unrestSuspicion or 0>>
+The <<person1>><<person>> sits back and studies you for a long moment.
+<br><br>
+<<if _al gte 3>>
+	/* alertLevel 3: caught no matter what */
+	"We appreciate your cooperation," <<he>> says, though nothing in <<his>> tone suggests appreciation. "Unfortunately, that doesn't change what has to happen next."
+	<br><br>
+	<<He>> nods to one of the figures behind <<him>>. "Call the police. Have them collect our trespasser. Make sure the charges stick."
+	<br><br>
+	<<link [[Next|Bank Unrest Caught]]>><</link>>
+<<elseif _susp gte 4>>
+	/* High suspicion at any level = arrest */
+	"Your story doesn't hold together." <<He>> nods to a colleague. "Call it in."
+	<br><br>
+	<<link [[Next|Bank Unrest Caught]]>><</link>>
+<<elseif _al gte 1>>
+	/* alertLevel 1-2: pressured release */
+	"We'll let you go." <<He>> stands. "But understand something. We know where you live. We know who you speak to. 
+	If you come near this building again, if we find your name connected to any further incident, this conversation will have a different ending."
+	<br><br>
+	<<He>> gestures to the door. "Leave. Don't run. Walk out like a customer who took a wrong turn."
+	<br><br>
+	<<speechresolve>>
+	<<if ((_speechAttitudeResolved is "meek") or (_speechAttitudeResolved is "shy"))>>
+		You keep your eyes down as you're escorted out. Your legs feel unsteady the whole way to the door.
+	<<elseif (_speechAttitudeResolved is "docile")>>
+		You stand when they indicate you should, walk where they direct you, and don't look back. Out is out.
+	<<elseif ((_speechAttitudeResolved is "polite") or (_speechAttitudeResolved is "flamboyant"))>>
+		You take a breath and walk out with your head up, keeping your pace measured. It's the only dignity left to take with you.
+	<<elseif ((_speechAttitudeResolved is "bratty") or (_speechAttitudeResolved is "cruel"))>>
+		You leave without a word. Getting the last one would cost more than it's worth right now.
+	<<else>>
+		You walk out steadily, resisting the urge to move faster than a customer who took a wrong turn.
+	<</if>>
+	<<stress 18>><<trauma 12>><<gstress>><<gtrauma>>
+	<br><br>
+	<<getouticon>><<link [[Leave|High Street]]>><<endevent>><<unset $xchange.bankHeist.unrestSuspicion>><</link>>
+<<else>>
+	/* alertLevel 0: free */
+	"We'll let this go," <<he>> says. "The lock picking is unfortunate, but the damage is minor. Consider this a warning."
+	<br><br>
+	<<He>> waves to the door. "Go. Don't come back after hours. Use the counter like everyone else."
+	<br><br>
+	<<speechresolve>>
+	<<if ((_speechAttitudeResolved is "meek") or (_speechAttitudeResolved is "shy"))>>
+		You nod quickly and leave before anything changes. The cool air outside feels like a reprieve.
+	<<elseif (_speechAttitudeResolved is "docile")>>
+		You thank them quietly and leave without looking back.
+	<<elseif ((_speechAttitudeResolved is "polite") or (_speechAttitudeResolved is "flamboyant"))>>
+		You offer a brief, composed acknowledgement and show yourself out. There's nothing more to be gained by staying.
+	<<elseif ((_speechAttitudeResolved is "bratty") or (_speechAttitudeResolved is "cruel"))>>
+		You're shown out. You manage not to say anything on the way.
+	<<else>>
+		You're shown out through the front doors.
+	<</if>>
+	<<stress -6>><<lstress>>
+	<br><br>
+	<<getouticon>><<link [[Leave|High Street]]>><<endevent>><<unset $xchange.bankHeist.unrestSuspicion>><</link>>
+<</if>>
+
+:: Bank Unrest Caught
+<<effects>>
+<<speechresolve>>
+The <<person1>><<person>> nods to the figures behind <<him>>. Hands clamp down on your shoulders. You're hauled out of the chair.
+<br><br>
+<<if ((_speechAttitudeResolved is "meek") or (_speechAttitudeResolved is "shy"))>>
+	You don't struggle. You couldn't if you wanted to.
+<<elseif (_speechAttitudeResolved is "docile")>>
+	You go where they take you. There's nothing else to do.
+<<elseif ((_speechAttitudeResolved is "polite") or (_speechAttitudeResolved is "flamboyant"))>>
+	You don't resist. Resistance wouldn't accomplish anything now.
+<<elseif ((_speechAttitudeResolved is "bratty") or (_speechAttitudeResolved is "cruel"))>>
+	You think about fighting it. You don't. Two against one in a locked room was never going to end well.
+<<else>>
+	You let them move you without fighting. The math doesn't work in your favour.
+<</if>>
+<br><br>
+You're moved to a smaller room. The door locks. Hours pass before the police arrive.<<stress 24>><<trauma 18>><<gggstress>><<gggtrauma>>
+<br><br>
+<span class="red">You've been arrested.</span><<crimeUp 1000>>
+<br>
+<<link [[Next|Police Prison Intro]]>><<endevent>><<unset $xchange.bankHeist.unrestSuspicion>><<pass 30>><<generatePolice 1>><<generatePolice 2>><</link>>
 
 :: HBSC Bank Branch Sneak 3
 <<effects>>
