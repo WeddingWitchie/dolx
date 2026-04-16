@@ -771,16 +771,39 @@ Please be patient with them; they don't mean nothing by it! We're always underst
 	<<addinlineevent "cafe_oral" 1>>
 		<<generate1>><<person1>>A <<person>> sits at a table alone with <<his>> head back and eyes closed.
 		<<if $awareness gte 400>>
-			<<generates2>>From the way <<hes>> grinding, it's quite obvious <<hes>> getting oral. <<Hes>> barely trying to hide it.
-			Covertly checking, you notice a <<person2>><<person>> under the table,
-			<<print either("gently","eagerly","energetically","sensually","clumsily","vigorously","dutifully","skilfully")>>
-			<<person1>>
-			<<if $NPCList[0].penis isnot "none">>
-				sucking the <<personsimple>> off.
-			<<else>>
-				eating the <<personsimple>> out.
+			<<generates2>>
+			/* Validate NPC-to-NPC pairing against sexuality settings */
+			<<set _p1Gen to $NPCList[0].gender>><<set _p2Gen to $NPCList[1].gender>>
+			<<set _oralPairValid to true>>
+			<<if $settings.maleChanceSplit and _p1Gen is _p2Gen>>
+				<<if _p1Gen is "m">>
+					/* maleChanceMale at 0 means no men are attracted to men */
+					<<set _oralPairValid to ($settings.maleChanceMale gt 0)>>
+				<<else>>
+					/* maleChanceFemale at 100 means no women are attracted to women */
+					<<set _oralPairValid to ($settings.maleChanceFemale lt 100)>>
+				<</if>>
 			<</if>>
-			<<garousal>><<arousal 200>>
+			<<if _oralPairValid>>
+				From the way <<hes>> grinding, it's quite obvious <<hes>> getting oral. <<Hes>> barely trying to hide it.
+				Covertly checking, you notice a <<person2>><<person>> under the table,
+				<<print either("gently","eagerly","energetically","sensually","clumsily","vigorously","dutifully","skilfully")>>
+				<<person1>>
+				<<if $NPCList[0].penis isnot "none">>
+					sucking the <<personsimple>> off.
+				<<else>>
+					eating the <<personsimple>> out.
+				<</if>>
+				<<garousal>><<arousal 200>>
+			<<else>>
+				/* NPC pair gender combination conflicts with sexuality settings */
+				<<if !Weather.isOvercast>>
+					<<He>> lies there with <<his>> face tipped up towards the sun, breathing through parted lips as though the warmth has gone straight to <<his>> head.
+				<<else>>
+					If not for the faint, regular shift of <<his>> body, you'd think <<he>> was asleep.
+				<</if>>
+				Every so often <<he>> tenses, then eases again with a shaky breath, enough to make you wonder what exactly is going on beneath the table.<<garousal>><<arousal 100>>
+			<</if>>
 		<<elseif $awareness gte 200>>
 			<<if !Weather.isOvercast>>
 				<<He>> seems to take almost sexual pleasure from sunbathing.
