@@ -258,6 +258,365 @@ Whether the island is truly calling you or you have simply gone half feral with 
 <<tficon "waterdragon">><<link [[Step onto the beach|Island Beach]]>><<endevent>><</link>>
 
 
+/*
+	=====================================================================
+	 WATER DRAGON TF; ISLAND DEFEAT BYPASS & ELDER ENCOUNTER
+	=====================================================================
+
+	HOW IT FLOWS:
+	  count 0 	 -> Awe. Ritual abandoned, PC released untouched.
+	  count 1 	 -> Breeding attempt (narrative -> combat -> narrative).
+	  count 5+ 	 -> Breeding begins, Elder interrupts, lore, Elder leads PC to the spear chamber
+	  more else	 -> Elder calls PC directly (social visit)
+
+	VARIABLES ADDED (can be used for future events if want):
+	  $island.dragon_defeat_count   — progression counter
+	  $island.dragon_elder_met      — unlocks recurring Elder visits
+	=====================================================================
+*/
+/* FIRST DEFEAT (no breeding, PC released) */
+:: Island Defeat Dragon Awe
+<<effects>>
+<<generateRole 2 0 "islander">><<person3>>
+A courtyard echoes with the rumble of unseen drums. The islanders smack their thighs and chests in time with the sound, as a <<person>> advances on you with round mask, three small circles above the eyes and mouth, a bundle of thin leaves in one hand, an ivory knife in the other.
+<br><br>
+<<He>> raises the knife. Traces it along your collarbone, over your shoulder, down to where the skin gives way to <span class="navy">scales.</span>
+<br><br>
+The knife stops. The <<persons>> hand trembles. <<He>> pulls the blade back, steps away from you, and for a long moment simply... stares.
+<br><br>
+The drums falter. One by one, the rhythms fall out of time with each other, then out of time altogether, until the courtyard holds only the sound of wind and breath. A murmur moves through the crowd.
+<br><br>
+<<if $islander_language gte 100>>
+	"...scales..."
+	<br>
+	"...impossible. It's impossible..."
+	<br>
+	"...look, look at <<phim>>..."
+	<br>
+	"...the old ones... the lost kin..."
+<<elseif $islander_language gte 50>>
+	You catch fragments words of scales, impossible, old ones, lost from mouth to mouth beneath the masks.
+<<else>>
+	They whisper in their incomprehensible language, but you recognise the shape of the sound. Awe. Or something like fear.
+<</if>>
+<br><br>
+<<link [[Next|Island Defeat Dragon Awe 2]]>><</link>>
+
+:: Island Defeat Dragon Awe 2
+<<effects>>
+The <<person3>><<person>> drops the bundle of leaves. The knife follows, clattering against the stone. <<He>> sinks to <<his>> knees, and presses <<his>> forehead to the ground in front of you.
+<br><br>
+Another follows. 
+<br><br>
+Then another.
+<br><br>
+The <<person1>><<person>> and <<person2>><<person>> exchange a look above their masks. Hesitantly, they loosen the ropes binding you to the stick. 
+Hands steady you as some lingering a moment too long on your scales as if trying to prove to themselves that you're real.
+<br><br>
+No one speaks directly to you. They back away, heads lowered, and leave a path clear to the arch at the edge of the courtyard.
+<br><br>
+You're free.
+<br><br>
+<<unbind>><<leg_unbind>>
+<<link [[Walk out|Island Defeat Dragon Released]]>><</link>>
+
+:: Island Defeat Dragon Released
+<<effects>>
+You walk past the kneeling islanders. None of them lift their heads. The one who was going to carve you with a plant still shakes, staring at the stones beneath <<his>> palms.
+<br><br>
+The corridor leds you back out into the woods. 
+<br><br>
+You hear the drums start again somewhere behind you when you walks away far.
+<br><br>
+<<set $island.dragon_defeat_count to 1>>
+<<if !$island.home>>
+	<<link [[Next|Island Treeline Search]]>><<endcombat>><</link>>
+<<else>>
+	<<link [[Next|Island]]>><<endcombat>><</link>>
+<</if>>
+
+/* BREEDING ATTEMPT (narrative -> combat -> narrative) */
+:: Island Defeat Dragon Breed Intro
+<<effects>>
+<<generateRole 2 0 "islander">><<generateRole 3 0 "islander">><<person3>>
+The drums don't start. That is the first thing you notice.
+<br><br>
+No masked person steps forward with leaves and a knife. Instead, the crowd shifts. Murmurs pass through it with something lower and hungrier. A group of <<personsimple>>s toward the front step out from the line, and the higher-ranked islanders around them
+<<if $islander_language gte 100>>
+	glance at each other. "Again," one mutters. "They're going to try again."
+	<br>
+	"Let them. It is our shame to bear. Our debt."
+<<elseif $islander_language gte 50>>
+	speak in low tones. You catch the word of shame, and debt, repeated.
+<<else>>
+	exchange words in their incomprehensible language.
+<</if>>
+<br><br>
+<<person3>>
+The <<person>> in front steps closer. <<He>> doesn't lift a knife. <<His>> hand shakes as <<he>> presses it flat against the scales on your shoulder.
+<br><br>
+<<if $islander_language gte 100>>
+	"Forgive us," <<he>> breathes, barely audible beneath the mask. "Forgive us. We have to. <span class="pink">We have to bring them back.</span>"
+<<elseif $islander_language gte 50>>
+	<<He>> whispers something under the mask. You catch forgive, and bring them back.
+<<else>>
+	<<He>> whispers in their tongue. You don't understand the words, but the cadence is a plea.
+<</if>>
+<br><br>
+<<link [[Next|Island Defeat Dragon Breed]]>><<set $molestationstart to 1>><</link>>
+
+:: Island Defeat Dragon Breed
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<maninit>>
+<</if>>
+<<effects>>
+<<effectsman>>
+<<alarmstate>>
+<<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend>>
+	<<if $island.dragon_defeat_count gte 5 and !$island.dragon_elder_met>>
+		<span id="next"><<link [[Next|Island Defeat Dragon Intervene]]>><</link>></span><<nexttext>>
+	<<else>>
+		<span id="next"><<link [[Next|Island Defeat Dragon Breed Finish]]>><</link>></span><<nexttext>>
+	<</if>>
+<<else>>
+	<span id="next"><<link [[Next|Island Defeat Dragon Breed]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Island Defeat Dragon Breed Finish
+<<effects>>
+<<if $enemyhealth lte 0>>
+	The <<person>> reels back, beaten. The others hesitate. And in their hesitation, you manage to pull free.
+	<br><br>
+<<else>>
+	<<ejaculation>>
+	The <<person>> withdraws, head bowed, and backs away from you with both hands raised as though in apology.
+	<br><br>
+<</if>>
+<<if $islander_language gte 100>>
+	"It isn't working," someone whispers at the edge of the crowd.
+	<br>
+	"Of course it isn't. We are not the ones meant to do this."
+	<br>
+	"Then why do we keep—"
+	<br>
+	"<i>Because we owe them</i>."
+<<elseif $islander_language gte 50>>
+	Whispers travel the crowd. You think you hear the word <i>owe</i>.
+<<else>>
+	They murmur amongst themselves in their tongue. You don't need to understand them to hear the weariness in it.
+<</if>>
+<br><br>
+<<link [[Next|Island Defeat Dragon Breed Finish 2]]>><</link>>
+
+:: Island Defeat Dragon Breed Finish 2
+<<effects>>
+The islanders carry you from the ruins, back to the rapid river bridged by a log. They haul the stick back into an upright position, so that you face the edge of the river.
+<br><br>
+With a single movement, the <<person>> slices through all the bindings attaching you to the rope. You plunge into the river.
+<br><br>
+You fall.
+<br><br>
+<<set $island.dragon_defeat_count += 1>>
+<<unbind>><<leg_unbind>>
+<<link [[Next|Island Defeat Tattoo End 2]]>><<endcombat>><</link>>
+
+/* ELDER INTERVENTION (triggers on the 5th dragon defeat) */
+:: Island Defeat Dragon Intervene
+<<effects>>
+<<generateRole 5 0 "old islander">><<saveNPC 5 "waterdragon_elder">><<person5>>
+The <<person3>><<person>> is still before you, breath ragged when the courtyard goes quiet.
+<br><br>
+It isn't the quiet of the drums stopping because the drums weren't even being played. This is the quiet of a room when somebody senior walks in.
+<br><br>
+A <<person5>><<personsimple>> in a hooded robe steps out from the shadow of the arch. <<He>> wears no mask. 
+The islanders part for <<him>> without being asked; the masked ones, the ones currently crowding you. <<His>> eyes are the only thing in the courtyard that seems older than the stones.
+<br><br>
+<<He>> looks at the <<person3>><<person>>. <<He>> does not raise <<his>> voice when talking.
+<<if $islander_language gte 100>>
+	"Enough."
+	<br><br>
+	The <<person3>><<person>> flinches as if struck.
+	<br><br>
+	"Untie the vessel. Step away. All of you."
+<<elseif $islander_language gte 50>>
+	A single word. You understand the shape of it as an order.
+	<br><br>
+	The <<person3>><<person>> flinches. Another word voiced about untie.
+<<else>>
+	A single word in the old tongue. You don't understand it, but the <<person3>><<person>> flinches as if struck. Another word. Hands fumble to obey.
+<</if>>
+<br><br>
+The ropes loosen. The crowd backs away, heads lowered, some of them whispering what might be apologies as they retreat.
+<br><br>
+The hooded <<person5>><<personsimple>> looks at you for the first time. <<His>> expression doesn't change. <<He>> lifts one hand and tilts <<his>> head toward the corridor <<he>> came from.
+<br><br>
+<i>Which means follow.</i>
+<br><br>
+<<unbind>><<leg_unbind>>
+<<link [[Follow|Island Defeat Dragon Follow]]>><<endcombat>><</link>>
+
+:: Island Defeat Dragon Follow
+<<effects>>
+<<loadNPC 0 "waterdragon_elder">><<person1>>
+You follow the <<personsimple>> through corridors you weren't carried through. These are older than the rest of the ruined walls that were fitted stone before the castle above them fell, floors polished by centuries of bare feet.
+<br><br>
+The <<person>> doesn't speak. <<His>> robe carries over the stone. Torches in brackets flare as you pass them, then gutter low again behind you, as though the light itself is reluctant to linger.
+<br><br>
+At a heavy wooden door, <<he>> stops. <<He>> places <<his>> palm against it, and the door swings inward on its own.
+<br><br>
+<<link [[Enter|Islander Elder Meeting]]>><</link>>
+
+:: Islander Elder Meeting
+<<effects>>
+The room beyond is round, low-ceilinged, carved out of the same polished stone. A brazier burns in the centre. Shelves line the walls with scrolls, jars, carved figurines, things you don't have names for. The air smells of salt and old smoke.
+<<He>> sets a kettle onto a hook above the flame.
+<br><br>
+Two other masked islanders stand just inside the door. A third is tending the fire. None of them look at you directly. They look at <<him>>, as if waiting.
+<br><br>
+"Leave us," <<he>> says.
+<br><br>
+The masked ones leave without a word. The door closes behind them on its own, the same way it opened. The brazier crackles.
+<br><br>
+The <<person>> finally turns to face you.
+<br><br>
+<<link [[Next|Islander Elder Alone]]>><</link>>
+
+:: Islander Elder Alone
+<<effects>>
+"Forgive them. They were not cruel to you. Only..." <<person>> searches for the word, "desperate. In a way that has had nowhere to go for a very long time."
+<br><br>
+<<He>> gestures for you to sit. A low stone bench appears to have been there the whole time. You're not certain it was.
+<br><br>
+"Please. Sit. You are the first of your kind to walk through that door in—" <<he>> stops, considers, and something briefly crosses <<his>> face that might be grief or might be a smile. "In a length of time."
+<br><br>
+<<link [[Sit|Islander Elder Lore]]>><</link>>
+
+:: Islander Elder Lore
+<<effects>><<wearProp "tea">>
+You sit. The <<person>> pours a thin, pale tea from the kettle, and hands you a cup. It smells faintly of brine and flowers.
+<br><br>
+"I will not pretend I don't know what you are," <<he>> says, settling onto the stones opposite you. "The scales. The way the light bends around you in water, even here, where you are dry. <i>One of the old ones</i>."
+<br><br>
+<<He>> cradles <<his>> own cup. Doesn't drink.
+<br><br>
+"Before the first humans crossed this sea, they were here. They built nothing and needed to build nothing. The tide was their house and the reef was their garden. 
+They sang to each other across distances that would break your ears to hear." <<He>> pauses. "They were beautiful. And then..."
+<br><br>
+<<He>> looks down at the tea.
+<br><br>
+"They did not die. It would have been cleaner if they had. They <i>dwindled,</i> one by one. A species remembered by fewer and fewer mouths, until one day there were no mouths left that remembered them at all."
+<br><br>
+<<link [[Listen|Islander Elder Lore 2]]>><</link>>
+
+:: Islander Elder Lore 2
+<<effects>><<wearProp "tea">>
+<<He>> finally drinks. Sets the cup down.
+"So. You can imagine what it did to the islanders when you stepped onto their stones with <i>scales</i>. What they did to you... I know. I should have come sooner. I am sorry."
+<br><br>
+<<He>> shakes <<his>> head.
+<br><br>
+"It is in the only way they know that is good, in terms of what they were trying to do. They want the old ones back. And look at the sea again without flinching.
+But good in a twisted shape that hurts. They have been trying to make the shame smaller by moving quickly, and their mistakes have gotten impulsive."
+<br><br>
+<<He>> looks at you. "I should have stopped them earlier. I have stopped them now. It may not happen the same way again, if you return here."
+<br><br>
+<<link [[Next|Islander Elder Final]]>><</link>>
+
+:: Islander Elder Final
+<<effects>><<wearProp "tea">>
+"Do you understand these?" <<he>> asked. 
+<br><br>
+But <<he>> doesn't wait for an answer.
+<br><br>
+"You don't. This isn't about me, anyway. Or us. I know why you're here. I've been waiting. Come."
+<br><br>
+<<He>> sets the cup aside. Stands. Lifts a torch from a bracket on the wall. The brazier dims as the torch flares.
+<br><br>
+<<set $island.dragon_elder_met to true>>
+<<set $island.dragon_defeat_count += 1>>
+<<link [[Follow|Islander Elder Spear Intro]]>><</link>>
+
+/* SPEAR CHAMBER */
+:: Islander Elder Spear Intro
+<<effects>>
+A door you hadn't seen opens at a touch of the <<persons>> palm, behind one of the shelves. The passage beyond is narrower than the corridor you came through, and the stone is older still.
+<br><br>
+You walk. The <<person>> is silent. The path takes you by other passages. You spy a room of sorts, with a bed, another with a table, and another with what looks like an archaic musical instrument sat beside a cushion. The cave walls look natural, though scrapes and scratches suggest there have been occupants for a while.
+<br><br>
+You arrive at a narrow staircase, a sheer drop on either side. 
+<br><br>
+"Watch your step," the <<person>> says. "It isn't far."
+<br><br>
+<<link [[Next|Islander Elder Spear]]>><</link>>
+
+:: Islander Elder Spear
+<<effects>><<person1>>
+<<set _generate_victim to 1>><<generateRole 1 0 "sleeper">><<saveNPC 1 "sleeper">>
+At last, you arrive at even ground. The dark seems to press in, preventing the <<persons>> torchlight from reaching more than a dozen feet in any direction, but <<his>> steps are assured.
+<br><br>
+"Sire," <<he>> says, coming to a halt beside a brazier. You can't see who <<he>> addresses, until <<he>> shoves the torch into the vessel beside <<him>>. 
+The firelight illuminates a <<person2>><<personsimple>>, lying still as a statue, arms clasped at <<his>> breast above the hilt of a gigantic, gilded spear.
+<br><br>
+As you look closer, you notice the figure's chest rising and falling, as if asleep.
+<br><br>
+"The time has come again," the <<person1>><<person>> says, softer than the old words of the ritual. "Your champion needs your spear. And this one..." <<he>> glances at you, "is of older kin than your champion. Forgive us this intrusion, and all that came before it."
+<br><br>
+<<He>> nods at you, and waits.
+<br><br>
+<<link [[Walk up to the sleeping figure|Islander Walk]]>><<set $island.walk to 1>><</link>>
+<br>
+<<link [[Kneel|Islander Kneel]]>><<set $island.kneel to 1>><</link>>
+<br>
+<<link [[Take the Spear|Islander Spear]]>><</link>>
+
+/* POST-ELDER: PC is handed straight to the Elder, no breeding */
+:: Island Defeat Dragon Elder Call
+<<effects>>
+<<loadNPC 5 "waterdragon_elder">><<person5>>
+The masked islanders don't even try, this time. The <<person1>><<person>> and <<person2>><<person>> glance at each other as they set you upright and then look past you, to the arch.
+<br><br>
+<<person5>><<He>> is already there. The hooded <<personsimple>>, the Elder. <<He>> must have been told the moment you were taken. <<He>> lifts one hand. The crowd parts without a sound.
+<br><br>
+"Come," <<he>> says simply. "The tea is already on."
+<br><br>
+<<unbind>><<leg_unbind>>
+<<link [[Follow|Islander Elder Revisit]]>><<endcombat>><</link>>
+
+:: Islander Elder Revisit
+<<effects>><<wearProp "tea">>
+<<loadNPC 0 "waterdragon_elder">><<person1>>
+The same round room. The same brazier. The same tea that smells of brine and flowers. The Elder pours you a cup and sits opposite, as though you were merely a few minutes late for something the two of you had arranged.
+<br><br>
+"They still reach for you," <<he>> says. "I told you they might. I am sorry."
+<br><br>
+<<He>> watches you over the rim of <<his>> cup.
+<br><br>
+"Stay as long as you need. When you go, I will make sure the path out is clear."
+<br><br>
+<<link [[Rest, then go|Islander Elder Leave]]>><<pass 35>><</link>>
+
+:: Islander Elder Leave
+<<effects>><<wearProp "tea">>
+You finish the tea. The Elder sees you to the door. The masked islanders outside bow their heads and make no move as you pass.
+<br><br>
+The corridor carries you gently out into the woods above the ruin, leaving the castle behind you as though it had quietly agreed to forget you were ever a prisoner in it.<<stress -8>><<tiredness -25>><<llstress>><<ltiredness>>
+<br><br>
+<<if !$island.home>>
+	<<link [[Next|Island Treeline Search]]>><<endevent>><</link>>
+<<else>>
+	<<link [[Next|Island]]>><<endevent>><</link>>
+<</if>>
+
+
 :: Water Dragon Helpers [widget]
 <<widget "waterdragonTravelContinue">>
 	<<if $waterdragonJourneyDay gte 7>>
