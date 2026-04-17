@@ -11,4 +11,4 @@
 
 ## Changelog
 ## Changes and Additions:
-* Bring back the old feature of portal pill's shady seller (the portal pill now grants money if you get it from them).
+* Fix trait menu (typo for "orange")
