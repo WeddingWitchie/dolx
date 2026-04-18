@@ -11,4 +11,10 @@
 
 ## Changelog
 ## Changes and Additions:
-* Fix trait menu (typo for "orange")
+* Tweaked **cafe oral narration** to recognize “cuntboy” and “dickgirl” NPC states.
+* Tweaked **X-Change sex car interaction**, now properly recognizes players wearing chastity.
+
+## Rebalancing and Fixes:
+* Fixed **Transgender trait disappearing** after reloading a save.
+* Fixed **Gwylan "tell school" narration issue**, which broke when the player had “dumbbitch” or “bimbo pill” effects.
+* Fixed typo in **"characterisitcs"** text.
