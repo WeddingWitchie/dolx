@@ -772,16 +772,18 @@ Please be patient with them; they don't mean nothing by it! We're always underst
 		<<generate1>><<person1>>A <<person>> sits at a table alone with <<his>> head back and eyes closed.
 		<<if $awareness gte 400>>
 			<<generates2>>
-			/* Validate NPC-to-NPC pairing against sexuality settings */
-			<<set _p1Gen to $NPCList[0].gender>><<set _p2Gen to $NPCList[1].gender>>
+			/* Validate NPC-to-NPC pairing against sexuality settings.
+			Compare .pronoun (visual appearance) not .gender (genitals) so that
+			cuntboys/dickgirls are classified by how they appear in the narration. */
+			<<set _p1App to $NPCList[0].pronoun>><<set _p2App to $NPCList[1].pronoun>>
 			<<set _oralPairValid to true>>
-			<<if $settings.maleChanceSplit and _p1Gen is _p2Gen>>
-				<<if _p1Gen is "m">>
-					/* maleChanceMale at 0 means no men are attracted to men */
-					<<set _oralPairValid to ($settings.maleChanceMale gt 0)>>
+			<<if $settings.maleChanceSplit and _p1App is _p2App>>
+				<<if _p1App is "m">>
+					/* maleChanceMale: 0 = no men attracted to men, 100 = all men attracted to men */
+					<<set _oralPairValid to ($settings.maleChanceMale gte 50)>>
 				<<else>>
-					/* maleChanceFemale at 100 means no women are attracted to women */
-					<<set _oralPairValid to ($settings.maleChanceFemale lt 100)>>
+					/* maleChanceFemale: 0 = all women attracted to women, 100 = no women attracted to women */
+					<<set _oralPairValid to ($settings.maleChanceFemale lte 50)>>
 				<</if>>
 			<</if>>
 			<<if _oralPairValid>>
@@ -796,7 +798,7 @@ Please be patient with them; they don't mean nothing by it! We're always underst
 				<</if>>
 				<<garousal>><<arousal 200>>
 			<<else>>
-				/* NPC pair gender combination conflicts with sexuality settings */
+				/* NPC pair appearance combination conflicts with sexuality settings */
 				<<if !Weather.isOvercast>>
 					<<He>> lies there with <<his>> face tipped up towards the sun, breathing through parted lips as though the warmth has gone straight to <<his>> head.
 				<<else>>
