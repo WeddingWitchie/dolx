@@ -119,29 +119,40 @@
 		<</if>>
 	<</if>>
 
-	<<if !$xchange.pill.active>>
-		<<if $background.transgender>>trans <</if>><<pcGender>>
+	/* Trans label: key off birth sex, not current body.
+	   born male  → "trans girl"  (MTF)
+	   born female → "trans boy"  (FTM)
+	   unknown/nb  → "trans <<pcGender>>" (safe fallback) */
+	<<if $background.transgender>>
+		<<set _transBirthSex to ($background.transOriginalSex !== undefined ? $background.transOriginalSex : $player.sex)>>
+		<<if _transBirthSex is "m">>
+			trans girl
+		<<elseif _transBirthSex is "f">>
+			trans boy
+		<<else>>
+			trans <<pcGender>>
+		<</if>>
 	<<else>>
-		<<if $background.transgender>>trans <</if>><<pcGender>>
+		<<pcGender>>
+	<</if>>
+
+	/* Pill transformation suffix; only shown while a pill is active */
+	<<if $xchange.pill.active>>
 		<<set _pillBits to []>>
 		<<if $xchange.pill.hermEffect>>
 			<<run _pillBits.push("transformed into a herm")>>
 		<</if>>
-
 		/* Only report genderflip if it actually changed sex since activation */
 		<<if $xchange.pill.genderflipEffect
 			and $xchange.pill.baseSex isnot undefined
 			and $xchange.pill.baseSex isnot $player.sex>>
 			<<run _pillBits.push("transformed into a " + ($player.sex is "m" ? "boy" : "girl"))>>
 		<</if>>
-
 		<<if $xchange.pill.genderificationEffect>>
 			<<run _pillBits.push(($player.gender is "m") ? "that has been sissified" : "that has been butchified")>>
 		<</if>>
 		<<if _pillBits.length > 0>>
 			<<print " " + _pillBits.join(" and ") + ".">>
-		<<else>>
-			/* default */
 		<</if>>
 	<</if>>
 	<br>

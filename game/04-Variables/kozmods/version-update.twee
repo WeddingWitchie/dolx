@@ -371,6 +371,23 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<<set $identityCap to false>>
 	<</if>>
 
+	/* One-time capture of a trans character's birth sex.
+	Used by the character description to know transition direction
+	(born male → "trans girl"; born female → "trans boy").
+	Priority:
+		1. pill.originalBody.sex — pre-pill body, survives pill end/perma
+			(covers existing saves that have used a pill)
+		2. player.sex — current sex before any pill taken
+			(covers new characters and saves that never took a pill)
+	Once stored, this never changes, so reassignment is blocked. */
+	<<if $background.transgender and $background.transOriginalSex is undefined>>
+		<<if $xchange.pill.originalBody isnot undefined
+			and $xchange.pill.originalBody.sex isnot undefined>>
+			<<set $background.transOriginalSex to $xchange.pill.originalBody.sex>>
+		<<else>>
+			<<set $background.transOriginalSex to $player.sex>>
+		<</if>>
+	<</if>>
 	<<if $background.genderAnxious is undefined>>
 		<<set $background.genderAnxious to false>>
 	<</if>>
@@ -947,33 +964,19 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<</for>>
 
 	<!-- Safety guards (prevents hard-crash on migrated/partial saves) -->
-	<<if $xchange is undefined or $xchange is null>>
-		<<set $xchange to {}>>
-	<</if>>
-	<<if $xchange.errorLog is undefined or $xchange.errorLog is null>>
-		<<set $xchange.errorLog to []>>
-	<</if>>
-	<<if $xchange.pill is undefined or $xchange.pill is null>>
-		<<set $xchange.pill to {}>>
-	<</if>>
-	<<if $xchange.pill.originalBody is undefined or $xchange.pill.originalBody is null>>
-		<<set $xchange.pill.originalBody to {}>>
-	<</if>>
+	<<if $xchange is undefined or $xchange is null>><<set $xchange to {}>><</if>>
+	<<if $xchange.errorLog is undefined or $xchange.errorLog is null>><<set $xchange.errorLog to []>><</if>>
+	<<if $xchange.pill is undefined or $xchange.pill is null>><<set $xchange.pill to {}>><</if>>
+	<<if $xchange.pill.originalBody is undefined or $xchange.pill.originalBody is null>><<set $xchange.pill.originalBody to {}>><</if>>
+	<<if $xchange.backComp is undefined or $xchange.backComp is null>><<set $xchange.backComp to {}>><</if>>
+	<<if $xchange.expectedGenderBy is undefined or $xchange.expectedGenderBy is null>><<set $xchange.expectedGenderBy to {}>><</if>>
+	<<if $genderknown is undefined or $genderknown is null>><<set $genderknown to []>><</if>>
 	<<if $xchange.pill.changedBody is undefined or $xchange.pill.changedBody is null>>
 		<<if $xchange.pill.active>>
 			<<run console.warn("X-Change: pill is active but changedBody is missing on load (migration/corruption).")>>
 			<<set $xchange.errorLog.push("Pill was active but changedBody was missing on load. Some effects may be inconsistent; please export/save+report if you see issues.")>>
 		<</if>>
 		<<set $xchange.pill.changedBody to {}>>
-	<</if>>
-	<<if $xchange.backComp is undefined or $xchange.backComp is null>>
-		<<set $xchange.backComp to {}>>
-	<</if>>
-	<<if $xchange.expectedGenderBy is undefined or $xchange.expectedGenderBy is null>>
-		<<set $xchange.expectedGenderBy to {}>>
-	<</if>>
-	<<if $genderknown is undefined or $genderknown is null>>
-		<<set $genderknown to []>>
 	<</if>>
 	<!-- end guards -->
 
