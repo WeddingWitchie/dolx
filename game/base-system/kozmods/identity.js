@@ -215,11 +215,11 @@ function playerHasCharacteristic(characteristic) {
 		case "Vagina":
 			return V.player.vaginaExist ? 2 : 0;
 		case "Small Penis":
-			return (V.player.penisExist && V.player.penissize <= 1) ? 2 : 0;
+			return (V.player.penisExist && V.player.penissize <= 3) ? 2 : 0;
 		case "Medium Penis":
-			return (V.player.penisExist && V.player.penissize === 2) ? 2 : 0;
+			return (V.player.penisExist && V.player.penissize === 4) ? 2 : 0;
 		case "Big Penis":
-			return (V.player.penisExist && V.player.penissize >= 3) ? 2 : 0;
+			return (V.player.penisExist && V.player.penissize >= 5) ? 2 : 0;
 		case "Short Hair":
 			return V.hairlength <= 100 ? 2 : 0;
 		case "Medium Hair":
@@ -1036,7 +1036,7 @@ window.playerFeelsGirllike = playerFeelsGirllike;
 		// Ensure $ballssize always exists (female-start characters may never have it initialised,
 		// which causes NaN when save-body runs Number($ballssize)).
 		if (V.ballssize === undefined || V.ballssize === null || !Number.isFinite(Number(V.ballssize))) {
-			V.ballssize = V.player?.ballsExist ? 0 : -2;
+			V.ballssize = 0;
 		}
 
 		// Repair corrupted cached body snapshots from older versions.
@@ -1050,12 +1050,12 @@ window.playerFeelsGirllike = playerFeelsGirllike;
 
 				// Fix penissize
 				if ("penissize" in body && !Number.isFinite(Number(body.penissize))) {
-					body.penissize = body.penisExist ? 0 : -2;
+					body.penissize = 0;
 				}
 
 				// Fix ballssize
 				if ("ballssize" in body && !Number.isFinite(Number(body.ballssize))) {
-					body.ballssize = body.ballsExist ? 0 : -2;
+					body.ballssize = 0;
 				}
 
 				// Fix breastsize
@@ -1087,10 +1087,10 @@ window.playerFeelsGirllike = playerFeelsGirllike;
 				for (const [name, body] of Object.entries(pill.clonedBody)) {
 					if (!body || typeof body !== "object") continue;
 					if ("penissize" in body && !Number.isFinite(Number(body.penissize))) {
-						body.penissize = body.penisExist ? 0 : -2;
+						body.penissize = 0;
 					}
 					if ("ballssize" in body && !Number.isFinite(Number(body.ballssize))) {
-						body.ballssize = body.ballsExist ? 0 : -2;
+						body.ballssize = 0;
 					}
 				}
 			}

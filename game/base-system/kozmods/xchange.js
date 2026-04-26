@@ -188,7 +188,7 @@ function pleasure(amount, source) {
 			case "pussy_grope":
 			case "penis_grope":
 				let wetnessPenalty = 1;
-				if (amount > 0 && V.player.vaginaExist === "t" && beingPenetrated.includes(V.vaginause)) {
+				if (amount > 0 && V.player.vaginaExist === true && beingPenetrated.includes(V.vaginause)) {
 					statChange.pain(V.vaginalPain);
 					wetnessPenalty = Math.min(V.vaginaWetness/60, 1);
 					if (V.penis_addict_trait === 1) sensitivity += 0.5;
@@ -421,7 +421,10 @@ function getPleasure(passMinutes) {
 }
 
 function updatePhysique() {
-	const physiquesizes = [6000, 10000, 12000, 16000, 20000, 24000, 28000];
+	// Vanilla physique ceiling per bodysize (indexed 0..4):
+	//   -1: 3000 (extrapolated below),  0: 6000,  1: 8000,
+	//    2: 10000, (2.5 -> 12000 via interpolation), 3: 14000, 4: 15000
+	const physiquesizes = [6000, 8000, 10000, 14000, 15000];
 
 	if (!V.xchange?.baseStats) return;
 	if (typeof V.xchange.baseStats.physique !== "number") return;
@@ -433,28 +436,29 @@ function updatePhysique() {
 
 	if (typeof bs === "number" && !Number.isNaN(bs)) {
 		if (bs < 0) {
-		ps = Math.round(physiquesizes[0] * Math.pow(0.8, Math.abs(Math.round(bs))));
+			// Vanilla anchors bs = -1 at 3000; extrapolate further-negative bs downward.
+			const extraSteps = Math.max(0, Math.abs(Math.round(bs)) - 1);
+			ps = Math.round(3000 * Math.pow(0.8, extraSteps));
 		} else {
-		const lo = Math.floor(bs);
-		const hi = Math.ceil(bs);
-
-		if (physiquesizes[lo] != null && physiquesizes[hi] != null) {
-			const t = bs - lo;
-			ps = Math.round(physiquesizes[lo] + (physiquesizes[hi] - physiquesizes[lo]) * t);
-		} else if (physiquesizes[Math.round(bs)] != null) {
-			ps = physiquesizes[Math.round(bs)];
-		}
+			const lastIdx = physiquesizes.length - 1;
+			if (bs >= lastIdx) {
+				// At or above top of the curve -> clamp (vanilla has no bs > 4 case).
+				ps = physiquesizes[lastIdx];
+			} else {
+				const lo = Math.floor(bs);
+				const hi = Math.ceil(bs);
+				const t = bs - lo;
+				ps = Math.round(physiquesizes[lo] + (physiquesizes[hi] - physiquesizes[lo]) * t);
+			}
 		}
 	}
 
 	if (typeof ps !== "number" || Number.isNaN(ps) || ps <= 0) return;
-
 	V.physiquesize = ps;
 
 	const pct = (typeof V.xchange.physiqueChangePercent === "number")
 		? (V.xchange.physiqueChangePercent / 100)
 		: 1;
-
 	const genderMismatch =
 		V.player?.gender != null && V.player?.sex != null && (V.player.gender !== V.player.sex);
 
@@ -462,11 +466,11 @@ function updatePhysique() {
 	const target = V.xchange?.physiqueCheatTarget;
 	if (typeof target === "number" && !Number.isNaN(target)) {
 		const factor =
-		(V.physiquesize / V.xchange.baseStats.physiquesize) *
-		(genderMismatch ? pct : 1);
+			(V.physiquesize / V.xchange.baseStats.physiquesize) *
+			(genderMismatch ? pct : 1);
 
 		if (factor > 0) {
-		V.xchange.baseStats.physique = Math.max(0, Math.round(target / factor));
+			V.xchange.baseStats.physique = Math.max(0, Math.round(target / factor));
 		}
 	}
 
@@ -565,7 +569,7 @@ function xchangeXtendGrowth(target, spermOwner, spermType) {
 	if (!pill.xtendTracker || typeof pill.xtendTracker.penisSizeGains !== "number") return;
 	if (!spermOwner || typeof spermOwner.penissize !== "number") return;
 
-	if (pill.originalBody.penissize + Math.floor(pill.xtendTracker.penisSizeGains / 1000) < spermOwner.penissize) {
+	if ((pill.originalBody.penissize - 2) + Math.floor(pill.xtendTracker.penisSizeGains / 1000) < spermOwner.penissize) {
 		pill.xtendTracker.penisSizeGains += 250 + Math.random() * 250;
 		V.xtendMessage = 1;
 	}

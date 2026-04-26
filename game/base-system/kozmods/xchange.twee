@@ -13,8 +13,8 @@
 		<<wash>>
 		<<set $player.gender_body to "f">>
 		<<set $player.bodyshape to "curvy">>
-		<<set $player.penissize to -2>>
-		<<set $ballssize to -2>>
+		<<set $player.penissize to 0>>
+		<<set $ballssize to 0>>
 		<<if $xchange.sizeOverride is "default">>
 			<<set $bodysize to setup.stepBodySize($bodysize, -1)>>
 		<<else>>
@@ -112,8 +112,8 @@
 				<<set $player.breastsize to random($breastsizemin,$breastsizemax)>>
 				<<set $player.bottomsize to random($bottomsizemin,$bottomsizemax)>>
 			<</if>>
-			<<set $player.penissize to -2>>
-			<<set $ballssize to -2>>
+			<<set $player.penissize to 0>>
+			<<set $ballssize to 0>>
 
 			/* --- Ivory Wraith roll (tweak chance here), default is 0.70 (70%) --- */
 			<<set _wraithChance to ($xchange.wraithChance is undefined ? 0.70 : Math.clamp($xchange.wraithChance, 0, 1))>>
@@ -357,11 +357,11 @@
 					penissizemax: V.penissizemax
 				})>>
 			<<run setup.xChangeRepairNoticeOnce("repair_xchange_penis_size_bounds", "<b>Save repair notice</b><br>Your save/runtime had invalid <b>penis size bounds</b> while generating a transformed body. X-Change used a safe fallback size to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
-			<<set $player.penissize to -2>>
+			<<set $player.penissize to 0>>
 			<<else>>
 				<<set $player.penissize to random($penissizemin,$penissizemax)>>
 			<</if>>
-			<<set $ballssize to random(-2,3)>>
+			<<set $ballssize to random(0,5)>>
 
 			/* --- Ivory Wraith roll (tweak chance here), default is 0.70 (70%) --- */
 			<<set _wraithChance to ($xchange.wraithChance is undefined ? 0.70 : Math.clamp($xchange.wraithChance, 0, 1))>>
@@ -599,13 +599,13 @@
 		<<set _sb_ps to Number($player.penissize)>>
 		<<if isNaN(_sb_ps)>>
 			<<run setup.xChangeRepairNoticeOnce(("repair_xchange_savebody_penissize_" + (_slotLabel ? _slotLabel : "unknown")), ("<b>Save repair notice</b><br>Your save had an invalid <b>player.penissize</b> while X-Change was saving a body snapshot (<b>" + _slotLabel + "</b>). X-Change stored a safe fallback value in the snapshot to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>"))>>
-			<<set _sb_ps to -2>>
+			<<set _sb_ps to 0>>
 		<</if>>
 
 		<<set _sb_ball to Number($ballssize)>>
 		<<if isNaN(_sb_ball)>>
 			<<run setup.xChangeRepairNoticeOnce(("repair_xchange_savebody_ballssize_" + (_slotLabel ? _slotLabel : "unknown")), ("<b>Save repair notice</b><br>Your save had an invalid <b>ballssize</b> while X-Change was saving a body snapshot (<b>" + _slotLabel + "</b>). X-Change stored a safe fallback value in the snapshot to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>"))>>
-			<<set _sb_ball to -2>>
+			<<set _sb_ball to 0>>
 		<</if>>
 
 		<<set _savedbody to {
@@ -735,7 +735,7 @@
 			<<set _lb_ps to Number($player.penissize)>>
 			<<if isNaN(_lb_ps)>>
 				<<run setup.xChangeRepairNoticeOnce(("repair_xchange_loadbody_penissize_current_" + (_args[0] ? _args[0] : "originalBody")), "<b>Save repair notice</b><br>Your current <b>player.penissize</b> was also invalid. X-Change set it to a safe default to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
-				<<set _lb_ps to -2>>
+				<<set _lb_ps to 0>>
 			<</if>>
 		<</if>>
 		<<set $player.penissize to _lb_ps>>
@@ -747,7 +747,7 @@
 			<<set _lb_ball to Number($ballssize)>>
 			<<if isNaN(_lb_ball)>>
 				<<run setup.xChangeRepairNoticeOnce(("repair_xchange_loadbody_ballssize_current_" + (_args[0] ? _args[0] : "originalBody")), "<b>Save repair notice</b><br>Your current <b>ballssize</b> was also invalid. X-Change set it to a safe default to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
-				<<set _lb_ball to -2>>
+				<<set _lb_ball to 0>>
 			<</if>>
 		<</if>>
 		<<set $ballssize to _lb_ball>>
@@ -937,16 +937,6 @@
 				<<set $history_up_message = 1>>
 			<</if>>
 			<<unset $promiscuityIgnore>>
-		<</if>>
-
-		/* Swell effect */
-		<<if _args[0] is undefined and $xchange.pill.swellEffect>>
-			<<if $xchange.pill.swellTarget is "penis">>
-				<<set $xchange.pill.changedBody.penissize to $xchange.penissize>>
-			<<elseif $xchange.pill.swellTarget is "curves">>
-				<<set $xchange.pill.changedBody.breastsize to $xchange.breastsize>>
-				<<set $xchange.pill.changedBody.bottomsize to $xchange.bottomsize>>
-			<</if>>
 		<</if>>
 
 		/* <<if $xchange_fame gte 1000>>
@@ -1190,7 +1180,7 @@
 			<<set _ps to Number($player.penissize)>>
 			<<if isNaN(_ps)>>
 				<<run setup.xChangeRepairNoticeOnce("repair_xchange_penissize_nan", "<b>Save repair notice</b><br>Your save had an invalid <b>player.penissize</b> during the Swell effect. X-Change will ignore the swell size change to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
-				<<set _ps to -2>>
+				<<set _ps to 0>>
 			<</if>>
 			<<set $xchange.penissize to _ps>>
 			<<set _psMax to Number($penissizemax)>>

@@ -588,11 +588,12 @@ blackmailQuests.low.push( // Sell flowers on a market stall, without any lower c
 		receiveItems: function() { 
 			wikifier("xchange-random-spike", "suppress");
 
-			if (V.plants.daisy === undefined)
-				V.plants.daisy = {"name": setup.plants.daisy.name, "plural": setup.plants.daisy.plural, "amount": 0};
-			else if (V.plants.daisy.name === undefined)
-				V.plants.daisy = {"name": setup.plants.daisy.name, "plural": setup.plants.daisy.plural, "amount": V.plants.daisy.amount};
-			V.plants.daisy.amount += 200;
+			const daisy = setup.foodstuff.daisy;
+			if (V.foodstuff.daisy === undefined)
+				V.foodstuff.daisy = {"name": daisy.name, "plural": daisy.plural, "amount": 0};
+			else if (V.foodstuff.daisy.name === undefined)
+				V.foodstuff.daisy = {"name": daisy.name, "plural": daisy.plural, "amount": V.foodstuff.daisy.amount};
+			V.foodstuff.daisy.amount += 200;
 
 			this.tookPill = true;
 		},
@@ -642,11 +643,12 @@ blackmailQuests.mid.push( // Sell flowers on a market stall, without any lower c
 		receiveItems: function() { 
 			wikifier("xchange-random-spike", "suppress");
 
-			if (V.plants.daisy === undefined)
-				V.plants.daisy = {"name": setup.plants.daisy.name, "plural": setup.plants.daisy.plural, "amount": 0};
-			else if (V.plants.daisy.name === undefined)
-				V.plants.daisy = {"name": setup.plants.daisy.name, "plural": setup.plants.daisy.plural, "amount": V.plants.daisy.amount};
-			V.plants.daisy.amount += 200;
+			const daisy = setup.foodstuff.daisy;
+			if (V.foodstuff.daisy === undefined)
+				V.foodstuff.daisy = {"name": daisy.name, "plural": daisy.plural, "amount": 0};
+			else if (V.foodstuff.daisy.name === undefined)
+				V.foodstuff.daisy = {"name": daisy.name, "plural": daisy.plural, "amount": V.foodstuff.daisy.amount};
+			V.foodstuff.daisy.amount += 200;
 
 			this.tookPill = true;
 		},

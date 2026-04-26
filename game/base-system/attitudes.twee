@@ -604,9 +604,7 @@
 		<<set _mouth["Growl"] to "growl">>
 	<</if>>
 
-	<<if $submissive gte 150>>
-		<<set _mouth["Moan"] to "moan">>
-	<</if>>
+	<<set _mouth["Moan"] to "moan">>
 	<<if (($angel gte 6 or ($transformationParts.angel.wings isnot "hidden" and $transformationParts.angel.wings isnot "disabled")) or $angeltf is 1) and $angelforgive isnot 1>>
 		<<set _mouth["Forgive"] to "forgive">>
 	<</if>>
@@ -619,9 +617,7 @@
 	<<if ($fallenangel gte 4 or $transformationParts.fallenAngel.wings is "fallenplus" or $transformationParts.fallenAngel.wings is "classicfallenplus") and $angelforgive isnot 1 and _args[0] is true>>
 		<<set _mouth["Disparage"] to "disparage">>
 	<</if>>
-	<<if $submissive lte 50 and _args[0] is true>>
-		<<set _mouth["Demand"] to "demand">>
-	<</if>>
+	<<set _mouth["Demand"] to "demand">>
 
 	<<if hasSexStat("promiscuity", 4, true) or hasSexStat("deviancy", 4, true) or _args[0] is true>>
 		<<set _mouth["Move your lips to their penis"] to "mouth">>
@@ -671,9 +667,7 @@
 	<</if>>
 
 	<<set _mouth["Lick ass"] to "anallick">>
-	<<if $submissive gte 150>>
-		<<set _mouth["Kiss ass"] to "analkiss">>
-	<</if>>
+	<<set _mouth["Kiss ass"] to "analkiss">>
 	<<if _args[0] is false>>
 		<<set _mouth["Pull away from their ass"] to "analpull">>
 	<</if>>
@@ -1192,28 +1186,47 @@
 	<</script>>
 <</widget>>
 
+<!--
+	speechresolve: reads the player's configured speech attitude ($speech_attitude)
+	and produces three temp variables callers can branch on:
+
+		_speechAttitudeResolved : the concrete attitude after unrolling
+		                          fickle / capricious / special randomizers.
+		                          One of: meek, shy, polite, neutral, confident,
+		                          bratty, docile, flamboyant, cruel.
+		_speechAttitudeBase     : a coarse 3-way bucket for simple widgets.
+		                          "meek"    = meek | shy | polite | docile | flamboyant
+		                          "bratty"  = bratty | cruel
+		                          "neutral" = everything else (incl. confident)
+		_speechVoice            : matching voice tone for <<speechvoice>>.
+		                          "plead" / "demand" / "moan"
+
+	Fickle is handled out-of-band by speechDailyCheck() in JS on the daily
+	time pass. That function rolls $speechDailyAttitude and queues a
+	"Today you feel especially X." line via $speechDailyMessage /
+	$speechDailyMessagePending.
+	
+	This widget just READS $speechDailyAttitude; it does not roll or clear
+	it. If it happens to be unset (fresh save, or the player switched to
+	"fickle" mid-day before the next day pass runs), we fall back to
+	"neutral" for this call so the daily pick and its announcement stay
+	in sync.
+-->
 <<widget "speechresolve">>
-	<<set _speechAttitudeResolved to $speech_attitude>>
-	<<set _speechAttitudeBase to "neutral">>
-	<<set _speechVoice to "moan">>
+	<<set _speechAttitudeResolved to ($speech_attitude ?? "neutral")>>
 
 	<<if _speechAttitudeResolved is "fickle">>
-		<<if $speechDailyAttitude is undefined>>
-			<<set _speechFicklePool to ["meek", "shy", "neutral", "confident", "bratty"]>>
-			<<set $speechDailyAttitude to _speechFicklePool[random(0, _speechFicklePool.length - 1)]>>
-		<</if>>
-		<<set _speechAttitudeResolved to $speechDailyAttitude>>
+		<<set _speechAttitudeResolved to ($speechDailyAttitude ?? "neutral")>>
 	<<elseif _speechAttitudeResolved is "capricious">>
-		<<set _speechCapriciousPool to ["meek", "shy", "polite", "neutral", "confident", "bratty"]>>
-		<<set _speechAttitudeResolved to _speechCapriciousPool[random(0, _speechCapriciousPool.length - 1)]>>
+		<<set _speechAttitudeResolved to either("meek", "shy", "polite", "neutral", "confident", "bratty")>>
 	<<elseif _speechAttitudeResolved is "special">>
 		<<set _speechAttitudeResolved to either("polite", "bratty")>>
 	<</if>>
 
-	<<if _speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy" or _speechAttitudeResolved is "polite" or _speechAttitudeResolved is "docile" or _speechAttitudeResolved is "flamboyant">>
+	<<if ["meek", "shy", "polite", "docile"].includes(_speechAttitudeResolved)>>
 		<<set _speechAttitudeBase to "meek">>
 		<<set _speechVoice to "plead">>
-	<<elseif _speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel">>
+	<<elseif ["bratty", "cruel"].includes(_speechAttitudeResolved)>>
 		<<set _speechAttitudeBase to "bratty">>
 		<<set _speechVoice to "demand">>
 	<<else>>

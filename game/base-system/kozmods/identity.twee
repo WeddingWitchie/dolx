@@ -39,10 +39,10 @@
 
 			<<set $genderidentity += _args[0] * _multiplier>>
 			<<set $genderidentity to Math.clamp($genderidentity,0, _range)>>
-			<<if(!$identityCap)>>
+			<<if !$identityCap>>
 				<<set $genderidentity to Math.clamp($genderidentity,0, _range)>>
 			<<else>>
-				<<if($genderidentity < _identityCapFloor)>>
+				<<if ($genderidentity < _identityCapFloor)>>
 					<<set $identityCapMessage to true>>
 					<<stress 10>><<trauma 10>>
 				<</if>>
@@ -1487,15 +1487,15 @@
 		/* Stage 1: primary sex shift */
 		<<if not _giStepDone and $xchange.giShiftStage is 1>>
 			<<if $player.penisExist>>
-				<<if $player.penissize gt 0>>
+				<<if $player.penissize gt 2>>
 					<<set $player.penissize -= 1>>
 					<<gi-note "Your penis feels a little smaller.">>
 					<<set _giStepDone to true>>
 				<<else>>
 					<<set $player.penisExist to false>>
 					<<set $player.ballsExist to false>>
-					<<set $player.penissize to -2>>
-					<<set $ballssize to -2>>
+					<<set $player.penissize to 0>>
+					<<set $ballssize to 0>>
 					<<set $player.vaginaExist to true>>
 					<<ensure-sexstats-min>>
 					<<if $sexStats.vagina and $sexStats.vagina.menstruation>>
@@ -1509,7 +1509,7 @@
 				<<if !$player.vaginaExist>>
 					<<set $player.vaginaExist to true>>
 					<<set $player.ballsExist to false>>
-					<<set $ballssize to -2>>
+					<<set $ballssize to 0>>
 					<<ensure-sexstats-min>>
 					<<if $sexStats.vagina and $sexStats.vagina.menstruation>>
 						<<set $sexStats.vagina.menstruation.running to true>>
@@ -1564,11 +1564,11 @@
 		<</if>>
 
 		/* Compute preferred targets from identity settings */
-		<<set _penisTarget to 2>>
+		<<set _penisTarget to 4>>
 		<<if $xchange.giGenitalsEnabled>>
-			<<if $identity.body.genitals.preferred is "smallpenis">><<set _penisTarget to 1>>
-			<<elseif $identity.body.genitals.preferred is "mediumpenis">><<set _penisTarget to 2>>
-			<<elseif $identity.body.genitals.preferred is "bigpenis">><<set _penisTarget to 4>>
+			<<if $identity.body.genitals.preferred is "smallpenis">><<set _penisTarget to 3>>
+			<<elseif $identity.body.genitals.preferred is "mediumpenis">><<set _penisTarget to 4>>
+			<<elseif $identity.body.genitals.preferred is "bigpenis">><<set _penisTarget to 6>>
 			<</if>>
 		<</if>>
 		<<set _bottomTarget to 2>>
@@ -1596,7 +1596,7 @@
 				<<set $ballssize to 0>>
 				<<gi-note "A tight, unfamiliar weight forms between your legs.">>
 				<<set _giStepDone to true>>
-			<<elseif $player.penissize lt 0>>
+			<<elseif $player.penissize lt 2>>
 				<<set $player.penissize += 1>>
 				<<gi-note "The shape between your legs shifts again.">>
 				<<set _giStepDone to true>>

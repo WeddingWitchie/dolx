@@ -1085,13 +1085,22 @@
 		<<set $loveInterest.senary to "None">>
 	<</if>>
 
-	<<set _food_keys to Object.keys(setup.plants)>>
+	<<if $foodstuff is undefined>>
+		<<set $foodstuff to {}>>
+	<</if>>
+	<<set _food_keys to Object.keys(setup.foodstuff)>>
 	<<for _i to 0; _i lt _food_keys.length; _i++>>
 		<<set $_type to _food_keys[_i]>>
-		<<if $plants[$_type] is undefined>>
-			<<set $plants[$_type] to {"name": setup.plants[$_type].name, "plural": setup.plants[$_type].plural, "amount": 0}>>
-		<<elseif $plants[$_type].name is undefined>>
-			<<set $plants[$_type] to {"name": setup.plants[$_type].name, "plural": setup.plants[$_type].plural, "amount": $plants[$_type].amount}>>
+		<<if $foodstuff[$_type] is undefined>>
+			<<set $foodstuff[$_type] to {"amount": 0}>>
+		<<elseif $foodstuff[$_type].amount is undefined>>
+			<<set $foodstuff[$_type].amount to 0>>
+		<</if>>
+
+		/* Preserve old pre-foodstuff plant inventory amounts without silently resetting them. */
+		<<if $plants isnot undefined and $plants[$_type] isnot undefined and typeof $plants[$_type].amount is "number" and $plants[$_type].amount gt $foodstuff[$_type].amount>>
+			<<set $foodstuff[$_type].amount to $plants[$_type].amount>>
+			<<run console.warn("[DoLX modUpdate] Migrated old $plants amount into $foodstuff.", { type: $_type, amount: $foodstuff[$_type].amount })>>
 		<</if>>
 	<</for>>
 
@@ -1328,49 +1337,47 @@
 		<<unset $furnitureMovePrice>>
 	<</if>>
 
-	<<if $plants.ghost_orchid.amount gte 1 or ($stall_stats isnot undefined and $stall_stats.ghost_orchid isnot undefined and $stall_stats.ghost_orchid.sold.amount gte 1)>>
+	<<if $foodstuff.ghost_orchid.amount gte 1 or ($stall_stats isnot undefined and $stall_stats.ghost_orchid isnot undefined and $stall_stats.ghost_orchid.sold.amount gte 1)>>
 		<<earnFeat "Phantom Bloom">>
 	<</if>>
 
-	<<if $plants.hen_of_the_woods.amount gte 1 or ($stall_stats isnot undefined and $stall_stats.hen_of_the_woods isnot undefined and $stall_stats.hen_of_the_woods.sold.amount gte 1)>>
+	<<if $foodstuff.hen_of_the_woods.amount gte 1 or ($stall_stats isnot undefined and $stall_stats.hen_of_the_woods isnot undefined and $stall_stats.hen_of_the_woods.sold.amount gte 1)>>
 		<<earnFeat "Whispering Fungi">>
 	<</if>>
 
-	<<if $plants.red_helleborine.amount gte 1 or ($stall_stats isnot undefined and $stall_stats.red_helleborine isnot undefined and $stall_stats.red_helleborine.sold.amount gte 1)>>
+	<<if $foodstuff.red_helleborine.amount gte 1 or ($stall_stats isnot undefined and $stall_stats.red_helleborine isnot undefined and $stall_stats.red_helleborine.sold.amount gte 1)>>
 		<<earnFeat "Crimson Veil">>
 	<</if>>
 
-	<<if $plants.lady_orchid.amount gte 1 or ($stall_stats isnot undefined and $stall_stats.lady_orchid isnot undefined and $stall_stats.lady_orchid.sold.amount gte 1)>>
+	<<if $foodstuff.lady_orchid.amount gte 1 or ($stall_stats isnot undefined and $stall_stats.lady_orchid isnot undefined and $stall_stats.lady_orchid.sold.amount gte 1)>>
 		<<earnFeat "Noble Harvest">>
 	<</if>>
 
-	<<if $plants.fly_agaric.amount gte 1 or ($stall_stats isnot undefined and $stall_stats.fly_agaric isnot undefined and $stall_stats.fly_agaric.sold.amount gte 1)>>
+	<<if $foodstuff.fly_agaric.amount gte 1 or ($stall_stats isnot undefined and $stall_stats.fly_agaric isnot undefined and $stall_stats.fly_agaric.sold.amount gte 1)>>
 		<<earnFeat "Fabled Cap">>
 	<</if>>
 
-	<<if $plants.spiked_rampion.amount gte 1 or ($stall_stats isnot undefined and $stall_stats.spiked_rampion isnot undefined and $stall_stats.spiked_rampion.sold.amount gte 1)>>
+	<<if $foodstuff.spiked_rampion.amount gte 1 or ($stall_stats isnot undefined and $stall_stats.spiked_rampion isnot undefined and $stall_stats.spiked_rampion.sold.amount gte 1)>>
 		<<earnFeat "Thorned Crown">>
 	<</if>>
 
-	<<if $plants.cloudberry.amount gte 1 or ($stall_stats isnot undefined and $stall_stats.cloudberry isnot undefined and $stall_stats.cloudberry.sold.amount gte 1)>>
+	<<if $foodstuff.cloudberry.amount gte 1 or ($stall_stats isnot undefined and $stall_stats.cloudberry isnot undefined and $stall_stats.cloudberry.sold.amount gte 1)>>
 		<<earnFeat "Amber Harvest">>
 	<</if>>
 
-	<<if $plants.scottish_bog_myrtle.amount gte 1 or ($stall_stats isnot undefined and $stall_stats.scottish_bog_myrtle isnot undefined and $stall_stats.scottish_bog_myrtle.sold.amount gte 1)>>
+	<<if $foodstuff.scottish_bog_myrtle.amount gte 1 or ($stall_stats isnot undefined and $stall_stats.scottish_bog_myrtle isnot undefined and $stall_stats.scottish_bog_myrtle.sold.amount gte 1)>>
 		<<earnFeat "Scent of the Highlands">>
 	<</if>>
 
-	<<if $plants.bog_orchid.amount gte 1 or ($stall_stats isnot undefined and $stall_stats.bog_orchid isnot undefined and $stall_stats.bog_orchid.sold.amount gte 1)>>
+	<<if $foodstuff.bog_orchid.amount gte 1 or ($stall_stats isnot undefined and $stall_stats.bog_orchid isnot undefined and $stall_stats.bog_orchid.sold.amount gte 1)>>
 		<<earnFeat "Bog Whisperer">>
 	<</if>>
 
-	<<if $plants.marsh_saxifrage.amount gte 1 or ($stall_stats isnot undefined and $stall_stats.marsh_saxifrage isnot undefined and $stall_stats.marsh_saxifrage.sold.amount gte 1)>>
+	<<if $foodstuff.marsh_saxifrage.amount gte 1 or ($stall_stats isnot undefined and $stall_stats.marsh_saxifrage isnot undefined and $stall_stats.marsh_saxifrage.sold.amount gte 1)>>
 		<<earnFeat "Marshlight">>
 	<</if>>
 
-	<<if $plants.fly_agaric.plural is "fly agaric">>
-		<<set $plants.fly_agaric.plural to "fly agarics">>
-	<</if>>
+	/* fly_agaric plural is now static setup.foodstuff metadata. */
 
 	<<if $hbsc is undefined>>
 		<<set $hbsc to {}>>
@@ -1634,7 +1641,8 @@
 		<<for _i to 0; _i lt $gwylan.request.items.length; _i++>>
 			<<if ["ghost_orchid", "hen_of_the_woods", "red_helleborine", "lady_orchid", "fly_agaric", "spiked_rampion", "cloudberry", "scottish_bog_myrtle", "bog_orchid", "marsh_saxifrage"].includes($gwylan.request.items[_i].name)>>
 				<<set $gwylan.request.items[_i].name to "mushroom">>
-				<<set $gwylan.request.items[_i].type to "shroom">>
+				<<set $gwylan.request.items[_i].type to "mushroom">>
+				<<set $gwylan.request.items[_i].category to "mushroom">>
 			<</if>>
 		<</for>>
 	<</if>>
@@ -1655,11 +1663,14 @@
 		<<set $whitneyFamiliarCollarKnown to 0>>
 	<</if>>
 
-	<<for _plants range Object.keys(V.plants)>>
-		<<if setup.plants[_plants] is undefined>>
-			<<run delete V.plants[_plants]>>
-		<</if>>
-	<</for>>
+	<<if V.plants isnot undefined>>
+		<<for _plants range Object.keys(V.plants)>>
+			<<if setup.foodstuff[_plants] is undefined>>
+				<<run console.warn("[DoLX modUpdate] Removing legacy $plants entry with no setup.foodstuff match.", { plant: _plants, entry: V.plants[_plants] })>>
+				<<run delete V.plants[_plants]>>
+			<</if>>
+		<</for>>
+	<</if>>
 
 	<<if $schoolLessonsMissed is undefined>>
 		<<set $schoolLessonsMissed to {
