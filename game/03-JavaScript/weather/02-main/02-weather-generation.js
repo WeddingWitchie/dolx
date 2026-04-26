@@ -214,6 +214,15 @@ Weather.WeatherGeneration = (() => {
 				const end = new DateTime(start).addHours(exception.duration);
 				const weatherTypeIndex = Weather.genSettings.weatherTypes.findIndex(wt => wt.name === exception.weatherType);
 
+				if (weatherTypeIndex === -1) {
+					console.error("[DoLX] Weather exception uses an unknown weatherType.", {
+						weatherType: exception.weatherType,
+						exception,
+						knownWeatherTypes: Weather.genSettings.weatherTypes.map(wt => wt.name),
+					});
+					return;
+				}
+
 				dayKeypoints.push({ timestamp: start.timeStamp, value: weatherTypeIndex });
 				dayKeypoints.push({ timestamp: end.timeStamp, value: weatherTypeIndex });
 			});
