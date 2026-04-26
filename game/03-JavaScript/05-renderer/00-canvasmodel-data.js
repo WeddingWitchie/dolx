@@ -7,7 +7,7 @@ const ZIndices = {
 	gradientlight: -3,
 	glowlight: -2,
 	spotlight: -1,
-	bg: 0,
+	background: 0,
 	over_head_back: 0,
 	head_back: 1,
 	basehead: 5,
@@ -119,12 +119,10 @@ const ZIndices = {
 	tailPenisCover: 165,
 	tailPenisCoverOverlay: 166,
 
-	old_over_upper: 171,
-
 	deco_fg2: 295,
 	deco_fg1: 300,
 
-	precipitationFront: 170,
+	foreground: 170,
 };
 window.ZIndices = ZIndices;
 
