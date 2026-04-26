@@ -490,12 +490,13 @@
 	<</if>>
 	<<if $options.images is 1 and (_args[1] or _args[0] isnot "normal") and _shopLocation isnot "mirrorhair">>
 		<<set _traitObj to setup.shopDetails[_args[0]]>>
+		<<set _traitFile to _args[0].replace(/([a-z])([A-Z])/g, "$1-$2").replace(/_/g, "-").toLowerCase()>>
 		<<set _traitName to _traitObj?.name>>
 		<<set _traitDesc to `<span class="black">` + _traitObj?.desc + `</span>`>>
 		<<set _traitDetails to `<i class="green normal">` + (_traitObj?.details isnot "none" ? " " + _traitObj?.details : "") + `</i>`>>
 		<<set $_tooltip to _traitDesc + "<br>" + _traitDetails>>
 		<span class="noDivider" @tooltip-title="_traitName" @tooltip="$_tooltip" tooltip-settings="{delay: 0}">
-			<img @src="'img/ui/clothes/traits/' + _args[0] + '.png'" class="clothing-trait">
+			<img @src="'img/ui/clothes/traits/' + _traitFile + '.png'" class="clothing-trait">
 		</span>
 	<<elseif _shopLocation is "mirrorhair">>
 		<<set _traitObj to setup.hairDetails[_args[0]]>>
@@ -1375,11 +1376,25 @@
 						<<if _pat and _item.pattern_options?.includes(_pat)>>
 							<<set _modeloptions.worn[_slot].pattern to _pat>>
 						<</if>>
+						<<set _position to setup.clothes[_slot][_modeloptions.worn[_slot].index]?.holdPosition>>
+						<<if _position or _slot is "handheld">>
+							<<set _modeloptions.arm_right to "hold">>
+							<<switch _position>>
+								<<case "left_cover">>
+									<<set _modeloptions.arm_left to "cover">>
+									<<set _modeloptions.arm_right to "idle">>
+								<<case "right_cover">>
+									<<set _modeloptions.arm_right to "cover">>
+								<<case "clutch">>
+									<<set _modeloptions.arm_left to "cover">>
+								<<case "cover_both">>
+									<<set _modeloptions.arm_left to "cover">>
+									<<set _modeloptions.arm_right to "cover">>
+								<<case "idle_both">>
+									<<set _modeloptions.arm_right to "idle">>
+							<</switch>>
+						<</if>>
 					<</for>>
-					<<if _slot is "handheld">>
-						<<set _position to setup.clothes.handheld[_modeloptions.worn.handheld.index]?.holdPosition>>
-						<<set _modeloptions.arm_right to _position is "right_cover" ? "cover" : _position is "idle" ? "idle" : "hold">>
-					<</if>>
 
 				<<rendermodel "canvas-mannequin">>
 
@@ -1388,7 +1403,7 @@
 					<div class="div-link mannequin-gender-button">
 						<<if $options.images is 1>>
 							<<set _genderIcon = (_mannequinGender == "m" ? "male" : (_mannequinGender == "f" ? "female" : "unisex"))>>
-							<img @src="'img/misc/icon/' + _genderIcon + '.png'">
+							<<icon _genderIcon>>
 						<<else>>
 							<span class="capitalize">_mannequinGender[0]</span>
 						<</if>>
@@ -1793,9 +1808,9 @@
 			<br>
 			<div class="legend-colour-sample" style="background-color: orangered"></div> - you will be way too hot at this temperature
 			<br>
-			<div class="legend-icon"><img src="img/ui/clothes/warmth_indicator.png"></div> - your warmth with your current clothes on
+			<div class="legend-icon"><img src="img/ui/clothes/warmth-indicator.png"></div> - your warmth with your current clothes on
 			<br>
-			<div class="legend-icon"><img src="img/ui/clothes/small_uarrow.png"></div> - warmth you'd have would you put other clothing on instead
+			<div class="legend-icon"><img src="img/ui/clothes/small-arrow.png"></div> - warmth you'd have would you put other clothing on instead
 		</div>
 	</div>
 <</widget>>
@@ -1803,8 +1818,8 @@
 <<widget "warmthscale">>
 	<div class="warmth-scale-container">
 		<div class="warmth-scale-div"></div>
-		<img id="warmthIndicator" class="warmth-indicator" src="img/ui/clothes/warmth_indicator.png" />
-		<img id="warmthIndicatorNew" class="warmth-indicator-arrow" src="img/ui/clothes/small_uarrow.png" />
+		<img id="warmthIndicator" class="warmth-indicator" src="img/ui/clothes/warmth-indicator.png" />
+		<img id="warmthIndicatorNew" class="warmth-indicator-arrow" src="img/ui/clothes/small-arrow.png" />
 	</div>
 	<<updatewarmthscale>>
 <</widget>>

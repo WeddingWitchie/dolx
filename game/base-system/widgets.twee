@@ -227,16 +227,16 @@
 <<widget "oxygenrecovery">>
 	<<if $oxygenRecovery and $oxygen lt $oxygenmax>>
 		/* 8 minutes to recover from 0 oxygen */
-		<<set _oxygenResaturationSeconds to Math.ceil((1 - $oxygen/$oxygenmax)*Time.oxygenResaturationDuration)>>
-		<<set _oxygenResaturationMinutes to Math.ceil(_oxygenResaturationSeconds/60)>>
-		<<loitericon>><<link [[`Catch your breath (${getTimeString(_oxygenResaturationMinutes)})`|$passage]]>>
+		<<set $_seconds to Math.ceil((1 - $oxygen/$oxygenmax) * Time.oxygenResaturationDuration)>>
+		<<set $_minutes to Math.ceil($_seconds / TimeConstants.secondsPerMinute)>>
+		<<loitericon>><<capture $_seconds>><<link [[`Catch your breath (${getTimeString($_minutes)})`|$passage]]>>
 			<<if ['string', 'number'].includes(typeof(_args[0]))>>
 				<<set $phase to _args[0]>>
 			<<elseif _args[0]>>
 				<<set $phase to "oxygenrecovery">>
 			<</if>>
-			<<pass _oxygenResaturationSeconds seconds>>
-		<</link>>
+			<<pass $_seconds seconds>>
+		<</link>><</capture>>
 		<br>
 	<</if>>
 <</widget>>
@@ -454,11 +454,7 @@
 					<<masochism _violence>>
 				<</if>>
 			<</if>>
-			<<if _violence gte 6>>
-				<<set $enemyanger -= 5>>
-			<<else>>
-				<<set $enemyanger -= _violence>>
-			<</if>>
+			<<set $enemyanger -= Math.clamp(_violence,0,5)>>
 			<<set $enemyarousal += 1>>
 			<<painclamp>>
 			<<set $encounterHit to 1>>
@@ -648,7 +644,7 @@
 					<!-- crime1 = first 5k of crime, crime2 = next 5k of crime -->
 					<<set $_normCrime1 to normalise($_crime1, C.crime.max / 10)>>
 					<<set $_normCrime2 to normalise($_crime2, C.crime.max / 10)>>
-					<!-- Both normalized to percentage of max/10 (currently 5k) -->
+					<!-- Both normalised to percentage of max/10 (currently 5k) -->
 					<<set $_stealthReduce1 to expCurve($_normcrime1, 3.0)>>
 					<!-- First 5k of crime at a curve to 5000 -->
 				*/
@@ -1208,9 +1204,7 @@
 		<</if>>
 	<</for>>
 
-	<<if $worn.under_upper.type.includes("athletic") and $player.breastsize gte 6>>
-		<<set _temp *= 1.1>>
-	<<elseif $player.breastsize gte 6>>
+	<<if $player.breastsize gte 6 and !$worn.under_upper.type.includes("athletic")>>
 		<<set _temp /= 1.1>>
 	<</if>>
 	<<if $athletics gt 1000 or $AMCTraits.halfGain is 1>>
@@ -2207,25 +2201,25 @@
 <</widget>>
 
 <<widget "weatherdisplay">>
-	<<set _season to (Time.season == "winter" ? "_winter" : "")>>
+	<<set _season to (Time.season == "winter" ? "-winter" : "")>>
 	<<set _weather_display to (Time.season == "winter" ? "winter" : "normal")>>
 	<<if $options.images is 1>>
 		<<if Time.dayState is "night" and (Time.isBloodMoon() or $forcedBloodmoon)>>
-			<<set _dayStateWithBloodMoon to "_bloodmoon">>
+			<<set _dayStateWithBloodMoon to "-blood-moon">>
 		<<else>>
-			<<set _dayStateWithBloodMoon to "_"+Time.dayState>>
+			<<set _dayStateWithBloodMoon to "-"+Time.dayState>>
 		<</if>>
-		<<set _dayState to "_"+Time.dayState>>
+		<<set _dayState to "-"+Time.dayState>>
 
 		<<set _imgLoc to 'img/misc/'>>
 		<<set _imgSky to 'img/misc/old/'>>
 
 		/* sky (upmost part) */
 		<<if $location is "tentworld">>
-			<<set _skybox to "skybox" + _dayState + "_tentacle">>
+			<<set _skybox to "skybox" + _dayState + "-tentacle">>
 		<<else>>
 			<<set _skybox to "skybox" + _dayStateWithBloodMoon>>
-			<<if $location is "bog">><<set _skybox += "_haze">><</if>>
+			<<if $location is "bog">><<set _skybox += "-haze">><</if>>
 			<img id="daystate" @src="_imgSky + 'sun' + _dayState + '.png'">
 			<img id="daystate" @src="_imgSky + 'moon' + _dayStateWithBloodMoon + '.png'">
 		<</if>>
@@ -2272,7 +2266,7 @@
 			<<case "day">>
 				<<switch Weather.name>>
 					<<case "clear" "lightClouds">>It's a bright and sunny day.
-					<<case "lightPrecipitation" "heavyPrecipitation" "thunderStorm">>
+					<<case "lightPrecipitation" "heavyPrecipitation" "storm" "thunderstorm">>
 						<<if Weather.precipitation is "rain">>
 							It's a rainy day.
 						<<else>>
@@ -2283,7 +2277,7 @@
 			<<case "night">>
 				<<switch Weather.name>>
 					<<case "clear" "lightClouds">>The stars are shining.
-					<<case "lightPrecipitation" "heavyPrecipitation" "thunderStorm">>
+					<<case "lightPrecipitation" "heavyPrecipitation" "storm" "thunderstorm">>
 						<<if Weather.precipitation is "rain">>
 							It's a rainy night.
 						<<else>>
@@ -2294,7 +2288,7 @@
 			<<case "dawn">>
 				<<switch Weather.name>>
 					<<case "clear" "lightClouds">>The sun is rising.
-					<<case "lightPrecipitation" "heavyPrecipitation" "thunderStorm">>
+					<<case "lightPrecipitation" "heavyPrecipitation" "storm" "thunderstorm">>
 					<<if Weather.precipitation is "rain">>
 						It's a rainy morning.
 					<<else>>
@@ -2305,7 +2299,7 @@
 			<<case "dusk">>
 				<<switch Weather.name>>
 					<<case "clear" "lightClouds">>The sun is setting.
-					<<case "lightPrecipitation" "heavyPrecipitation" "thunderStorm">>
+					<<case "lightPrecipitation" "heavyPrecipitation" "storm" "thunderstorm">>
 					<<if Weather.precipitation is "rain">>
 						It's a rainy evening.
 					<<else>>
@@ -3336,6 +3330,7 @@
 	<</if>>
 	<<ruffleHair>>
 	<<oxygenrefresh>>
+	<<set Weather.bodyTemperature to Math.clamp(Weather.bodyTemperature, Weather.tempSettings.minTemperature + 1.5, Weather.tempSettings.maxTemperature - 1)>>
 <</widget>>
 
 <<widget "vaginaraped">>
@@ -3446,7 +3441,7 @@
 		/*This version of sugarcube doesn't perform any processing inside of SVG elements, so we need to perform those actions ourselves inside a custom macro */
 		<<svg 260 130>>
 			<image x="2" class="zoomable" xlink:href="img/misc/map.png" width="256" height="128"> </image>
-			<image x="2" class="zoomable" @xlink:href="'img/misc/maparrow' + $map.location + '.png'" width="256" height="128"> </image>
+			<image x="2" class="zoomable" @xlink:href="'img/misc/map-arrow-' + $map.location + '.png'" width="256" height="128"> </image>
 
 			<<for _i to 0; _i lt $map.arrayList.length; _i++>>
 				<<set _canMoveTo = $debug || $map.available[$passage].includes($map.arrayList[_i])>>
@@ -3470,7 +3465,7 @@
 	<<elseif $options.images is 1 and $options.mapLegacy isnot true>>
 		<svg width="260" height="130">
 			<image x="2" xlink:href="img/misc/map.png"/>
-			<image x="2" @xlink:href="'img/misc/maparrow'+$map.location+'.png'"/>
+			<image x="2" @xlink:href="'img/misc/map-arrow'+$map.location+'.png'"/>
 		</svg>
 	<<elseif $options.images is 1>>
 		<<if $options.mapMovement is true and !$possessed>>
@@ -3495,7 +3490,7 @@
 				<area class="no-numberify" alt="Residential Alley" title="Residential Alley" coords="38,70,57,56" shape="rect" onclick="mapMove('Residential Alleyways')">
 			</map>
 		<</if>>
-		<div id="divmap"><img id="map" src="img/misc/map.png"><img id="maparrow" usemap="#town-image-map" @src="'img/misc/maparrow' + _args[0] + '.png'"></div>
+		<div id="divmap"><img id="map" src="img/misc/map.png"><img id="map-arrow" usemap="#town-image-map" @src="'img/misc/map-arrow-' + _args[0] + '.png'"></div>
 	<<else>>
 		<<textmap>>
 	<</if>>
@@ -3581,10 +3576,10 @@
 			<span class="red">You find nothing to steal.</span>
 			<<set _emptyHanded to true>>
 		<</if>>
-	<<elseif $location is "farm" and $livestock_dig isnot undefined>>
-		<<if $rng gte 91 and !$farm_key>>
-			<<set $farm_key to true>>
-			<<set $farmCellUnlk to false>>
+	<<elseif $location is "farm" and ($livestock.dig.fence isnot undefined or $livestock.dig.barn isnot undefined)>>
+		<<if $rng gte 91 and !$livestock.lock.keys>>
+			<<set $livestock.lock.keys to true>>
+			<<set $livestock.lock.unlocked to false>>
 			You pull a <span class="green">ring of keys</span> from the <<persons>> pocket and hide it in the straw.
 		<<else>>
 			<span class="red">You find nothing to steal.</span>
@@ -3613,62 +3608,6 @@
 		<<combatskulduggeryskilluse>><<combatcontrol 10>><<gcombatcontrol>>
 	<</if>>
 <</widget>>
-
-<<widget "statbaricons">>
-	<<if $options.images is 1 and _args[0]>>
-		<<if _args[1] gte 1>>
-			<img id="statbar" @src="'img/ui/' + _args[0] + '.png'">
-		<<elseif _args[2] gte 1>>
-			<img id="statbar" src="img/ui/point.png">
-		<</if>>
-		<<if _args[1] gte 2>>
-			<img id="statbar" @src="'img/ui/' + _args[0] + '.png'">
-		<<elseif _args[2] gte 2>>
-			<img id="statbar" src="img/ui/point.png">
-		<</if>>
-		<<if _args[1] gte 3>>
-			<img id="statbar" @src="'img/ui/' + _args[0] + '.png'">
-		<<elseif _args[2] gte 3>>
-			<img id="statbar" src="img/ui/point.png">
-		<</if>>
-		<<if _args[1] gte 4>>
-			<img id="statbar" @src="'img/ui/' + _args[0] + '.png'">
-		<<elseif _args[2] gte 4>>
-			<img id="statbar" src="img/ui/point.png">
-		<</if>>
-		<<if _args[1] gte 5>>
-			<img id="statbar" @src="'img/ui/' + _args[0] + '.png'">
-		<<elseif _args[2] gte 5>>
-			<img id="statbar" src="img/ui/point.png">
-		<</if>>
-		<<if _args[1] gte 6>>
-			<img id="statbar" @src="'img/ui/' + _args[0] + '.png'">
-		<<elseif _args[2] gte 6>>
-			<img id="statbar" src="img/ui/point.png">
-		<</if>>
-		<<if _args[1] gte 7>>
-			<img id="statbar" @src="'img/ui/' + _args[0] + '.png'">
-		<<elseif _args[2] gte 7>>
-			<img id="statbar" src="img/ui/point.png">
-		<</if>>
-		<<if _args[1] gte 8>>
-			<img id="statbar" @src="'img/ui/' + _args[0] + '.png'">
-		<<elseif _args[2] gte 8>>
-			<img id="statbar" src="img/ui/point.png">
-		<</if>>
-		<<if _args[1] gte 9>>
-			<img id="statbar" @src="'img/ui/' + _args[0] + '.png'">
-		<<elseif _args[2] gte 9>>
-			<img id="statbar" src="img/ui/point.png">
-		<</if>>
-		<<if _args[1] gte 10>>
-			<img id="statbar" @src="'img/ui/' + _args[0] + '.png'">
-		<<elseif _args[2] gte 10>>
-			<img id="statbar" src="img/ui/point.png">
-		<</if>>
-	<</if>>
-<</widget>>
-
 <<widget "characteristic-text">>
 	<<set _config = _args[0]>>
 
@@ -3809,9 +3748,9 @@
 		<<if _config.showStars>>
 			<span class="characteristic-description grade-progress">Daily Progress</span>
 			<div class="progress-stars">
-				<img class="icon" @src="'img/ui/' + (_config.starLevel > 0 ? 'bronze_star'	: 'empty_star') + '.png'" />
-				<img class="icon" @src="'img/ui/' + (_config.starLevel > 1 ? 'silver_star'	: 'empty_star') + '.png'" />
-				<img class="icon" @src="'img/ui/' + (_config.starLevel > 2 ? 'gold_star'	: 'empty_star') + '.png'" />
+				<img class="icon" @src="'img/ui/' + (_config.starLevel > 0 ? 'star-bronze'	: 'star-empty') + '.png'" />
+				<img class="icon" @src="'img/ui/' + (_config.starLevel > 1 ? 'star-silver'	: 'star-empty') + '.png'" />
+				<img class="icon" @src="'img/ui/' + (_config.starLevel > 2 ? 'star-gold'	: 'star-empty') + '.png'" />
 			</div>
 		<</if>>
 		<div class="meter">
@@ -3923,7 +3862,7 @@
 	<div class="relation-box" @style="(_boxConfig.style || '')">
 		<div class="relation-top-line">
 			<<if $options.images>>
-					<img class="relation-icon" src="img/misc/icon/wolfpup.png" />
+					<img class="relation-icon" src="img/misc/icon/wolf-pup.png" />
 			<</if>>
 			<span class="relation-name">Wolf Pack</span>
 		</div>
@@ -3966,61 +3905,61 @@
 				"love" : {
 					name : setup.loveAlias[T.npcData.nam](),
 					value : T.npcData.love,
-					activeIcon : 'img/ui/sym_love.png',
-					inactiveIcon: 'img/ui/emptyheart.png',
+					activeIcon : 'img/ui/sym-love.png',
+					inactiveIcon: 'img/ui/sym-love-empty.png',
 					color: 'red'
 				},
 				"lust" : {
 					name : "Lust",
 					value : T.npcData.lust,
 					iconOrientation : 'vertical',
-					activeIcon : 'img/ui/sym_lust.png',
-					inactiveIcon : 'img/ui/emptyvial.png',
+					activeIcon : 'img/ui/sym-lust.png',
+					inactiveIcon : 'img/ui/sym-lust-empty.png',
 					color: 'pink'
 				},
 				"dom" : {
 					name : "Dominance",
 					value : T.npcData.dom,
-					activeIcon : "img/ui/sym_dominance.png",
+					activeIcon : "img/ui/sym-dominance.png",
 					color: 'purple'
 				},
 				"trauma" : {
 					name : "Trauma",
 					value : T.npcData.trauma,
-					activeIcon : "img/ui/sym_trauma.png",
+					activeIcon : "img/ui/sym-trauma.png",
 					color: 'teal'
 				},
 				"rage" : {
 					name : "Rage",
 					value : T.npcData.rage,
-					activeIcon : "img/ui/sym_rage.png",
+					activeIcon : "img/ui/sym-rage.png",
 					color: 'gold'
 				},
 				"purity" : {
 					name: "Purity",
 					value: T.npcData.purity,
-					activeIcon: (T.npcData.virginity.vaginal == false || T.npcData.virginity.penile == false ? "img/ui/tf_fallenangel.png" : "img/ui/tf_angel.png"),
+					activeIcon: (T.npcData.virginity.vaginal == false || T.npcData.virginity.penile == false ? "img/ui/tf-fallen-angel.png" : "img/ui/tf-angel.png"),
 					color: 'white'
 				},
 				"corruption" : {
 					name: "Corruption",
 					value: T.npcData.corruption,
 					iconOrientation : 'horizontal-inverted',
-					activeIcon: "img/ui/tf_demon.png",
+					activeIcon: "img/ui/tf-demon.png",
 					color: 'purple'
 				},
 				"harmony" : {
 					name: "Harmony",
 					value: V.wolfpackharmony,
 					iconOrientation : 'vertical',
-					activeIcon: "img/ui/wolfharmony.png",
+					activeIcon: "img/ui/sym-harmony.png",
 					color: 'purple'
 				},
 				"ferocity" : {
 					name: "ferocity",
 					value: V.wolfpackferocity,
 					iconOrientation : 'vertical',
-					activeIcon: "img/ui/wolfferocity.png",
+					activeIcon: "img/ui/sym-ferocity.png",
 					color: 'purple'
 				}
 			};
@@ -4063,7 +4002,7 @@
 					</div>
 					<div class="relation-description">
 						<<if $options.images is 1 and (_rngWraithFace is 1 or $possessed)>>
-							<img id="wraith" @src="'img/ui/wraith' + V.wraith.state + '.png'">
+							<img id="wraith" @src="'img/ui/wraith-' + V.wraith.state + '.png'">
 						<<else>>
 							<<npcrelationship _npcData.nam>>
 						<</if>>
@@ -4084,7 +4023,7 @@
 							<small class="relation-title black"><i>The _wraithTitle</i></small>
 						</span>
 						<<if _loveInterest>>
-							<img class="love-interest-icon" src="img/ui/love_interest.png" alt="Love Interest" title="Love Interest"/>
+							<img class="love-interest-icon" src="img/ui/love-interest.png" alt="Love Interest" title="Love Interest"/>
 						<</if>>
 					</div>
 					<div class="relation-description">
@@ -4115,7 +4054,7 @@
 						<small class="relation-title black"><i>The _npcData.title</i></small>
 					</span>
 					<<if _loveInterest>>
-						<img class="love-interest-icon" src="img/ui/love_interest.png" alt="Love Interest" title="Love Interest"/>
+						<img class="love-interest-icon" src="img/ui/love-interest.png" alt="Love Interest" title="Love Interest"/>
 					<</if>>
 				</div>
 				<div class="relation-description">
@@ -5570,9 +5509,6 @@
 	<<set $_val to _args[1]>>
 	<<if !["crossdress", "herm"].includes($_rep) or isNaN($_val)>>
 		<<run Errors.report("schoolrep called with bad parameters", _args)>>
-	<<elseif ["crossdress", "herm"].some(rep => $schoolrep[rep] gte 5)>>
-		<!-- too famous, now engage in glorious nothing -->
-		<!-- TODO: what happens when pc sex-swaps/grows slime parts/magic? -->
 	<<elseif $_val lt 0 and !$daily.crossdressingFameReduction>>
 		<<set $schoolrep[$_rep] to Math.max(0, $schoolrep[$_rep] + $_val)>>
 	<<elseif $_val gt 0 and !$daily.school[$_rep] and !$worn.face.type.includes("mask")>>
@@ -6330,8 +6266,9 @@
 	<<set $facevariant to "default">>
 <</widget>>
 
-<<widget "angelBanishAction">>
-	<<set $angelBanish -->> /* Warning: assumes the player has at least 1 banishment charge*/
+<<widget "angelBanishUse">>
+	/* Warning: This assumes the player has at least 1 banishment charge, and can thus send it into the negatives */
+	<<set $angelBanish -->>
 
 	<<set _multi to $purity gte 1000 ? 2 : 1>>
 	<<defiance `($purity / 100) * _multi`>>

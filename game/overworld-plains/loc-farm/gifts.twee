@@ -25,7 +25,7 @@ Alex smiles at you.
 :: Alex Gifts
 <<effects>>
 <<npc Alex>><<person1>>
-<<set _gift to $gift.name + ($gift.handheld_gift ? " gift" : "")>>
+<<set _gift to setup.foodstuff[$gift].name + (setup.foodstuff[$gift].food.handheld_gift ? " gift" : "")>>
 <<wearProp _gift>>
 
 <<if $phase is 1>>
@@ -37,7 +37,7 @@ Alex smiles at you.
 <</if>>
 <br><br>
 
-<<if $gift.name is "full_english_breakfast">>
+<<if $gift is "full_english_breakfast">>
 	Alex grins. "It's never the wrong time of day for such a breakfast," <<he>> says, grabbing a handy knife and fork from a drawer. <<He>> tucks in at once, pausing only to wipe grease from <<his>> chin.<<gglove>><<npcincr Alex love 3>>
 	<br><br>
 
@@ -45,9 +45,9 @@ Alex smiles at you.
 	<br>
 	<<link [[Just watch|Alex Gifts Breakfast Watch]]>><</link>>
 	<br>
-	<<saveFavoriteFood "Alex" $gift.name>>
+	<<saveFavoriteFood "Alex" $gift>>
 	<<earnFeat "Home Cooking">>
-<<elseif $gift.name is "apple_crumble">>
+<<elseif $gift is "apple_crumble">>
 	"Apple crumble!" Alex says as you place the dessert in front of <<him>>. "My favourite!" <<He>> tucks in, shovelling large spoonfuls into <<his>> mouth in one go.
 	<br><br>
 	"The fruit has just the right amount of tartness," <<he>> says with <<his>> mouth full. "You're a good cook."<<gglove>><<npcincr Alex love 3>>
@@ -56,23 +56,24 @@ Alex smiles at you.
 	<br>
 	<<link [[Compliment|Alex Gifts Crumble Compliment]]>><<npcincr Alex dom 1>><</link>><<gdom>>
 	<br>
-	<<saveFavoriteFood "Alex" $gift.name>>
+	<<saveFavoriteFood "Alex" $gift>>
 	<<earnFeat "Home Cooking">>
-<<elseif $gift.name is "steak">>
+<<elseif $gift is "steak">>
+	<<loadNPC 1 "alexs_parent2">>
 	"This looks fancy," Alex says, observing the steak in front of <<him>>. "Like something prepared in a restaurant." <<He>> slices part of the meat, and seems surprised by its tenderness.
 	<br><br>
-	"Wow," <<he>> says through a mouthful. "My <<if $pronoun is "m">>ma<<else>>pa<</if>> would love this."<<gglove>><<npcincr Alex love 3>>
+	"Wow," <<he>> says through a mouthful. "My <<person2>><<ma>> would love this."<<gglove>><<npcincr Alex love 3>>
 	<br><br>
-	<<He>> eats a bit too fast. You're worried <<hes>> going to choke.
+	<<person1>><<He>> eats a bit too fast. You're worried <<hes>> going to choke.
 	<br><br>
 
 	<<link [[Get some water|Alex Gifts Steak Water]]>><<npcincr Alex love 1>><</link>><<glove>>
 	<br>
 	<<link [[Just wait|Alex Gifts Steak Wait]]>><</link>>
 	<br>
-	<<saveFavoriteFood "Alex" $gift.name>>
+	<<saveFavoriteFood "Alex" $gift>>
 	<<earnFeat "Home Cooking">>
-<<elseif $gift.name is "valentines_chocolate" and $valentines>>
+<<elseif $gift is "valentines_chocolate" and $valentines>>
 	<<earnFeat "Be My Valentine">>
 	You hand Alex the box of chocolates. <<He>> smiles. "Valentine's chocolate!
 	<<if $farm_stage gte 7>>
@@ -100,8 +101,8 @@ Alex smiles at you.
 		<<link [[Next|Farm Alex Bedroom]]>><<endevent>><</link>>
 		<br>
 	<</if>>
-<<elseif $gift.special.includes("spicy")>>
-	You place the <<recipe_name $gift.name>> in front of Alex. <<He>> licks <<his>> lips. "Smells spicy," <<he>> says, lifting <<his>> cutlery. "I hope it's really hot."
+<<elseif setup.foodstuff[$gift].food.tags.includes("spicy")>>
+	You place the <<recipe_name $gift>> in front of Alex. <<He>> licks <<his>> lips. "Smells spicy," <<he>> says, lifting <<his>> cutlery. "I hope it's really hot."
 	<br><br>
 	<<He>> tucks in, showing no sign of pain at first, but it's not long before tears start to stream. <<He>> doesn't stop eating though, until the dish is empty.
 	<br><br>
@@ -109,8 +110,8 @@ Alex smiles at you.
 	<br><br>
 	<<link [[Next|Farm Alex Bedroom]]>><<endevent>><</link>>
 	<br>
-<<elseif $gift.special.includes("drink")>>
-	You hand Alex the <<recipe_name $gift.name>>. <<He>> swirls it around. "Looks refreshing," <<he>> says. Then takes a sip. "Mmm." <<He>> takes a gulp. "That hits the spot."<<glove>><<npcincr Alex love 1>>
+<<elseif setup.foodstuff[$gift].food.tags.includes("drink")>>
+	You hand Alex the <<recipe_name $gift>>. <<He>> swirls it around. "Looks refreshing," <<he>> says. Then takes a sip. "Mmm." <<He>> takes a gulp. "That hits the spot."<<glove>><<npcincr Alex love 1>>
 	<br><br>
 
 	<<He>> finishes the rest of the drink in one long gulp, then sets the empty vessel down against <<his>> desk with a satisfied sigh. "Thanks."
@@ -119,11 +120,12 @@ Alex smiles at you.
 	<<link [[Next|Farm Alex Bedroom]]>><<endevent>><</link>>
 	<br>
 <<else>>
-	You hold out the <<recipe_name $gift.name>>. Alex whistles. "That looks delicious," <<he>> says. "All for me? Thank you."
+	<<loadNPC 1 "alexs_parent1">>
+	You hold out the <<recipe_name $gift>>. Alex whistles. "That looks delicious," <<he>> says. "All for me? Thank you."
 	<br><br>
-	<<He>> takes a bite. <<His>> enjoyment is clear at once. "You're a good cook," <<he>> says. "Better than <<if $pronoun is "f">>Mum<<else>>Dad<</if>>." Another bite. "Don't tell <<him>> I said that."
+	<<He>> takes a bite. <<His>> enjoyment is clear at once. "You're a good cook," <<he>> says. "Better than <<person2>><<Mum>>." Another bite. "Don't tell <<him>> I said that."
 	<br><br>
-	<<He>> puts down the plate and gives you a hopeful look. "Don't hesitate to feed me again should the idea strike you."<<glove>><<npcincr Alex love 1>>
+	<<person1>><<He>> puts down the plate. "Don't hesitate to feed me again should the idea strike you."<<glove>><<npcincr Alex love 1>>
 	<br><br>
 	<<link [[Next|Farm Alex Bedroom]]>><<endevent>><</link>>
 	<br>
@@ -185,8 +187,8 @@ Alex takes your meaning, puts an arm around you waist, and plants a kiss on your
 
 :: Alex Gifts Breakfast Watch
 <<effects>>
-
-You watch Alex devour the meal with almost reverent focus. When the plate is finally empty, <<he>> reclines in <<his>> chair, eyes closed and smiling like the world has briefly become simple again. "Thanks," <<he>> says. "Even better than <<if $pronoun is "m">>ma<<else>>pa<</if>> used to make."
+<<loadNPC 1 "alexs_parent2">>
+You watch Alex devour the meal. <<He>> reclines in <<his>> chair when finished, <<his>> eyes closed, and a satisfied smile on <<his>> face. "Thanks," <<he>> says. "Even better than <<person2>><<ma>> used to make."<<person1>>
 <br><br>
 
 <<link [[Next|Farm Alex Bedroom]]>><<endevent>><</link>>

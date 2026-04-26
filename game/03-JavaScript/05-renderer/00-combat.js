@@ -159,8 +159,9 @@ class CombatSystem {
 		return !!activeState;
 	}
 
-	isMouthActive() {
+	isMouthActive(canvas) {
 		const activeState = V.mouthstate && ["penetrated", "kiss", "tentacleentrance", "tentacleimminent", "tentacle", "tentacledeep"].includes(V.mouthstate);
+		if (canvas === "close" && V.mouthstate && ["entrance", "imminent"].includes(V.mouthstate)) return true;
 		return !!activeState;
 	}
 

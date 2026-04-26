@@ -443,9 +443,13 @@ DefineMacro("modelprepare-player-body", function () {
 		T.modeloptions.mouth = "smile";
 	}
 	if (T.prop?.folder === "food" && !T.prop.name.includes("gift")) {
-		const foodKey = T.prop.name.replace(/-/g, "_");
-		const recipe = setup.plants[foodKey]?.type === "food" || T.prop.name?.includes("inedible") || false;
-		if (!recipe) T.modeloptions.mouth = "chew";
+		const foodKey = T.prop.name
+			.replace(/-/g, "_")
+			.normalize("NFKD")
+			.replace(/[\u0300-\u036f]/g, "");
+		const category = setup.foodstuff[foodKey]?.category;
+		const shouldChew = (category ? category !== "dish" : true) && !T.prop.name.includes("inedible");
+		if (shouldChew) T.modeloptions.mouth = "chew";
 	}
 
 	// Blush
@@ -508,9 +512,9 @@ DefineMacro("modelprepare-player-body", function () {
 
 	T.modeloptions.cow_horns_type = V.transformationParts.cow.horns;
 	T.modeloptions.cow_horns_layer = V.hornslayer;
-	T.modeloptions.cow_tail_type = V.transformationParts.cow.tail;
+	T.modeloptions.cow_tail_type = V.transformationParts.cow.tail.replace(/ /g, "-");
 	T.modeloptions.cow_tail_layer = V.taillayer;
-	T.modeloptions.cow_ears_type = V.transformationParts.cow.ears;
+	T.modeloptions.cow_ears_type = V.transformationParts.cow.ears.replace(/ /g, "-");
 	T.modeloptions.waterdragon_horns_type = V.transformationParts.waterdragon.horns;
 	T.modeloptions.waterdragon_horns_layer = V.hornslayer;
 	T.modeloptions.waterdragon_tail_type = V.transformationParts.waterdragon.tail;
@@ -656,30 +660,67 @@ DefineMacro("modelprepare-player-body", function () {
 	}
 
 	if (V.player.penisExist) {
-		T.modeloptions.penis_size = Math.clamp(V.player.penissize, -2, 4);
-		T.modeloptions.penis = V.player.virginity.penile === true ? "virgin" : "default";
+		T.modeloptions.penis_size = Math.clamp(V.player.penissize, 0, 6);
 		T.modeloptions.balls = V.player.ballsExist;
-		T.modeloptions.penis_parasite = V.parasite.penis.name;
 		T.modeloptions.penis_condom = V.player.condom.type;
 		T.modeloptions.condom_colour = V.player.condom.colour;
+		const flaccid = V.arousal < 6000 ? "soft" : "hard";
+		const virgin = V.player.virginity.penile === true ? "-virgin-" : "-";
+		T.modeloptions.penis = flaccid + virgin + T.modeloptions.penis_size;
+
+		if (V.parasite.penis.name || V.parasite.clit.name === "parasite") {
+			/* ear-slime */
+			if (V.parasite.penis.name === "parasite" || V.parasite.clit.name === "parasite") {
+				T.modeloptions.ear_slime_size = V.player.penissize;
+				if (V.worn.genitals.name === "chastity parasite") {
+					switch (V.player.penissize) {
+						case 2:
+							T.modeloptions.ear_slime_size = 1;
+							break;
+						case 3:
+						case 4:
+							T.modeloptions.ear_slime_size = 2;
+							break;
+						case 5:
+						case 6:
+							T.modeloptions.ear_slime_size = 3;
+							break;
+						default:
+							T.modeloptions.ear_slime_size = 0;
+							break;
+					}
+				}
+				T.modeloptions.penis_parasite = `ear-slime-${T.modeloptions.ear_slime_size}`;
+			} else {
+				/* slime, urchin */
+				T.modeloptions.penis_parasite = V.parasite.penis.name;
+				if (playerChastity("cage")) {
+					/* slime-cage.png, urchin-cage.png */
+					T.modeloptions.penis_parasite += "-cage";
+					if (V.worn.genitals.name !== "chastity cage") {
+						/* slime-cage-fetish.png, slime-cage-small.png, slime-cage-flat.png, etc. */
+						const cageType = V.worn.genitals.name.replace(" chastity cage", "");
+						T.modeloptions.penis_parasite += `-${cageType}`;
+					}
+				} else {
+					/* slime-hard-3.png, urchin-hard-2.png, etc. */
+					T.modeloptions.penis_parasite += `-${flaccid}-${V.player.penissize}`;
+				}
+			}
+		}
 	}
 
-	if (V.player.vaginaExist) {
+	if (V.player.vaginaExist && V.parasite.penis.name && V.parasite.penis.name !== "parasite") {
+		/* slime-clit.png, urchin-clit.png */
 		T.modeloptions.clit_parasite = V.parasite.clit.name;
 	}
 
-	if (T.modeloptions.penis_parasite === "parasite" || T.modeloptions.clit_parasite === "parasite") {
-		// Always uses the clit image as a base
+	/* ear slime parasite */
+	if (V.parasite.penis.name === "parasite" || V.parasite.clit.name === "parasite") {
 		if (V.earSlime.focus === "impregnation") {
-			T.modeloptions.clit_parasite = "parasitem";
+			T.modeloptions.ear_slime_panties = "ear-slime-shorts";
 		} else {
-			T.modeloptions.clit_parasite = "parasite";
-		}
-
-		if (V.player.penisExist && V.player.ballsExist && V.player.penissize >= -1) {
-			T.modeloptions.penis_parasite = "parasite";
-		} else {
-			T.modeloptions.penis_parasite = "";
+			T.modeloptions.ear_slime_panties = "ear-slime-panties";
 		}
 
 		// Ensure it's always displayed
@@ -694,7 +735,7 @@ DefineMacro("modelprepare-player-body", function () {
 	}
 
 	// Dripping Speeds
-	const dripspeeds = ["", "Start", "VerySlow", "Slow", "Fast", "VeryFast"];
+	const dripspeeds = ["", "start", "very-slow", "slow", "fast", "very-fast"];
 
 	// Vagina
 	let _liquidamt = Math.clamp(setup.bodyliquid.combined("vagina"), 0, 5);
@@ -729,12 +770,12 @@ DefineMacro("modelprepare-player-body", function () {
 		*/
 
 	const cumsprite = {
-		chest: [null, "1", "2", "3", "4,5", "4,5"],
-		face: [null, "1,2", "1,2", "3,4", "3,4", "5"],
-		feet: [null, null, "2,3", "2,3", "4,5", "4,5"],
-		leftarm: [null, "1,2,3", "1,2,3", "1,2,3", "4,5", "4,5"],
-		rightarm: [null, "1,2,3", "1,2,3", "1,2,3", "4,5", "4,5"],
-		neck: [null, "1,2", "1,2", "3,4", "3,4", "5"],
+		chest: [null, "1", "2", "3", "4", "4"],
+		face: [null, "1", "1", "2", "2", "3"],
+		feet: [null, null, "1", "1", "2", "2"],
+		leftarm: [null, "1", "1", "1", "2", "2"],
+		rightarm: [null, "1", "1", "1", "2", "2"],
+		neck: [null, "1", "1", "2", "2", "3"],
 		thigh: [null, "1", "2", "3", "4", "5"],
 		tummy: [null, "1", "2", "3", "4", "5"],
 	};
@@ -773,6 +814,7 @@ DefineMacro("modelprepare-player-body", function () {
 
 	T.modeloptions.precipitation =
 		V.options.showSidebarEffects && Weather.precipitation !== "none" && Weather.overcast > 0.25 && V.outside === 1 && !V.underwater;
+	T.modeloptions.wraithFlash = V.options.showSidebarEffects;
 	T.modeloptions.water = V.options.showSidebarEffects && (V.underwater === 1 || T.tempEffects?.underwater);
 	T.modeloptions.waterBreath = V.options.showSidebarEffects && T.modeloptions.water && T.tempEffects?.underwater !== "noMouth";
 	T.modeloptions.fire = V.options.showSidebarEffects && (V.fire || T.tempEffects?.fire || (V.farm_assault && V.fields_damaged.includes(V.bus)));
@@ -780,7 +822,7 @@ DefineMacro("modelprepare-player-body", function () {
 	T.modeloptions.temperature = V.options.showSidebarEffects && !T.modeloptions.fire && !T.modeloptions.water && V.outside === 1 && Weather.temperature <= 5;
 	T.modeloptions.temperature = V.options.showSidebarEffects && !T.modeloptions.fire && !T.modeloptions.water && V.outside === 1 && Weather.temperature <= 5;
 	T.modeloptions.petals = V.options.showSidebarEffects && T.tempEffects?.petals;
-	if (T.modeloptions.petals) T.modeloptions.petalColour = V.sexRitual && V.gwylanSeen?.includes("romance") ? "pink" : "redWhite";
+	if (T.modeloptions.petals) T.modeloptions.petalColour = V.sexRitual && V.gwylanSeen?.includes("romance") ? "pink" : "red-white";
 	T.modeloptions.vines = T.tempEffects?.vines;
 });
 

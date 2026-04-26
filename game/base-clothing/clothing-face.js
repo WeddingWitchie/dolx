@@ -547,7 +547,7 @@ function initFace() {
 			shop: ["clothing", "adult"],
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: ["original", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "pale white", "yellow", "custom"],
+			accessory_colour_options: ["blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "pale white", "yellow", "custom"],
 			accessory_colour_sidebar: 1,
 			altposition: "none",
 			altdisabled: [],
@@ -1205,7 +1205,7 @@ function initFace() {
 			accessory_colour_options: [],
 			cursed: 0,
 			location: 0,
-			iconFile: "doggymuzzle.png",
+			iconFile: "doggy-muzzle.png",
 			accIcon: 0,
 		},
 		{
@@ -1302,7 +1302,7 @@ function initFace() {
 			accessory_colour_options: [],
 			cursed: 0,
 			location: 0,
-			iconFile: "islander_mask.png",
+			iconFile: "islander-mask.png",
 			accIcon: 0,
 		},
 		{
@@ -1452,7 +1452,7 @@ function initFace() {
 			accessory_colour_options: [],
 			cursed: 0,
 			location: 0,
-			iconFile: "foxmask.png",
+			iconFile: "fox-mask.png",
 			accIcon: 0,
 		},
 		{

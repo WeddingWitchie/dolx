@@ -90,6 +90,11 @@ const ColourUtils = (() => {
 		return intToHex(invertInt(hexToInt(hex)));
 	}
 
+	function hexToRgb(hex) {
+		const m = hex.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
+		return m ? [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)] : [255, 255, 255];
+	}
+
 	function rgbToHex(rgb) {
 		rgb = Object.assign({}, { r: 0, g: 0, b: 0 }, rgb);
 		const convert = num => {
@@ -193,7 +198,7 @@ const ColourUtils = (() => {
 			const r = (rgb >> 16) & 0xff;
 			const g = (rgb >> 8) & 0xff;
 			const b = rgb & 0xff;
-			const a = color.length > 7 ? parseInt(color.slice(7), 16) / 255 : 1; // Normalize alpha to [0, 1]
+			const a = color.length > 7 ? parseInt(color.slice(7), 16) / 255 : 1; // Normalise alpha to [0, 1]
 			return [r, g, b, a];
 		};
 
@@ -204,7 +209,7 @@ const ColourUtils = (() => {
 		const r = Math.round(r1 + (r2 - r1) * factor);
 		const g = Math.round(g1 + (g2 - g1) * factor);
 		const b = Math.round(b1 + (b2 - b1) * factor);
-		const a = Math.round((a1 + (a2 - a1) * factor) * 255); // Denormalize alpha to [0, 255]
+		const a = Math.round((a1 + (a2 - a1) * factor) * 255); // Denormalise alpha to [0, 255]
 
 		// Convert each component to a two-digit hexadecimal string and concatenate
 		let hex = `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
@@ -265,6 +270,7 @@ const ColourUtils = (() => {
 		hslToFilter,
 		toHslString,
 		hexToInt,
+		hexToRgb,
 		rgbToHsl,
 		invertInt,
 		rgbToHex,

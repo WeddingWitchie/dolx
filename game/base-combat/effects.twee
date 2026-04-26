@@ -1806,7 +1806,7 @@
 			<<if $uncomfortable.hypnosis is false and $hypnosis_traits.cover gte random(1,5)>>
 				<<hypnosisText 'You intend to cover your face, but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span> You stroke your face with your hands, winking and teasing around your lips.'>>
 				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>>
-			<<elseif $hypnosis_traits.cover gte 1 and currentSkillValue("willpower") lt random(1, (200 * $hypnosis_traits.cover))>>
+			<<elseif $hypnosis_traits.cover gte 1 and currentSkillValue('willpower') lt random(1, (200 * $hypnosis_traits.cover))>>
 				<<hypnosisText 'You intend to cover your face, <span class="pink">but the thought is snatched from your mind and replaced with another.</span> You stroke your face with your hands, winking and teasing around your lips.'>>
 				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>><<willpower 1>>
 			<<else>>
@@ -1825,7 +1825,7 @@
 			<<if $uncomfortable.hypnosis is false and $hypnosis_traits.cover gte random(1,5)>>
 				<<hypnosisText 'You intend to cover your face, but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span> You stroke your face with your left hand, winking and teasing around your lips.'>>
 				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>>
-			<<elseif $hypnosis_traits.cover gte 1 and currentSkillValue("willpower") lt random(1, (200 * $hypnosis_traits.cover))>>
+			<<elseif $hypnosis_traits.cover gte 1 and currentSkillValue('willpower') lt random(1, (200 * $hypnosis_traits.cover))>>
 				<<hypnosisText 'You intend to cover your face, <span class="pink">but the thought is snatched from your mind and replaced with another.</span> You stroke your face with your left hand, winking and teasing around your lips.'>>
 				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>><<willpower 1>>
 			<<else>>
@@ -1841,7 +1841,7 @@
 			<<if $uncomfortable.hypnosis is false and $hypnosis_traits.cover gte random(1,5)>>
 				<<hypnosisText 'You intend to cover your face, but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span> You stroke your face with your right hand, winking and teasing around your lips.'>>
 				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>>
-			<<elseif $hypnosis_traits.cover gte 1 and currentSkillValue("willpower") lt random(1, (200 * $hypnosis_traits.cover))>>
+			<<elseif $hypnosis_traits.cover gte 1 and currentSkillValue('willpower') lt random(1, (200 * $hypnosis_traits.cover))>>
 				<<hypnosisText 'You intend to cover your face, <span class="pink">but the thought is snatched from your mind and replaced with another.</span> You stroke your face with your right hand, winking and teasing around your lips.'>>
 				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>><<willpower 1>>
 			<<else>>
@@ -4618,10 +4618,12 @@
 					the <<person>>.
 				<</if>>
 				<<set $stalk_assess to true>>
-				<<if $npcrow.includes(0)>>
-					<<actionsconfrontNNPC>>
-				<<else>>
-					<<actionsconfront>>
+				<<if !$worn.face.type.includes("gag")>>
+					<<if $npcrow.includes(0)>>
+						<<actionsconfrontNNPC>>
+					<<else>>
+						<<actionsconfront>>
+					<</if>>
 				<</if>>
 				<br><br>
 				<<if $combatgoal is "confront">>
@@ -4964,21 +4966,21 @@
 
 		<<if $mouthaction is "demand">>
 			<<set $mouthaction to 0>><<set _sound to 1>>
-			<<if $wolfgirl gte 6>>
+			<<if ($wolfgirl gte 6 or ($transformationParts.wolf.tail isnot "hidden" and $transformationParts.wolf.tail isnot "disabled"))>>
 				<<stress -1>>
-				<<if $submissive gte 850>>
+				<<if $submissive gte 80>>
 					<<trauma 6>><<control -1>>
 				<</if>>
 			<</if>>
 			<<if $neckuse is "hand" and $oxygen lt $oxygenmax and $settings.asphyxiaLevel gte 2>>
-				<<if $submissive gte 850 and $wolfgirl gte 6>>
+				<<if $submissive gte 80 and ($wolfgirl gte 6 or ($transformationParts.wolf.tail isnot "hidden" and $transformationParts.wolf.tail isnot "disabled"))>>
 					<span @class=basicJitterCss()><<wheeze "demand something">></span>
 				<<else>>
 					<<wheeze "demand something">>
 				<</if>>
 			<<else>>
 				<<set $mouthactiondefault to "demand">>
-				<<if $submissive gte 850 and $wolfgirl gte 6>>
+				<<if $submissive gte 80 and ($wolfgirl gte 6 or ($transformationParts.wolf.tail isnot "hidden" and $transformationParts.wolf.tail isnot "disabled"))>>
 					<span @class=basicJitterCss()><<actionsdemand>></span>
 				<<else>>
 					<<actionsdemand>>
@@ -5168,7 +5170,7 @@
 				You bite down on the nipple, <<he>> <<if $enemytype is "man">>yelps<<elseif $enemytype is "beast">>growls<<else>>shrieks<</if>> and recoils in agony.
 				<<defiance 20 $mouthtarget>><<attackstat>><<set $mouthuse to 0>><<set $breastbitten to 1>><<set $mouthstate to 0>>
 				<<if $transformationParts.traits.fangs isnot "disabled">>
-					<<defiance 40 $mouthtarget>>
+					<<defiance 20 $mouthtarget>>
 					You lick your fangs clean.
 				<</if>>
 				<<if $head is "breasts">>
@@ -5232,7 +5234,7 @@
 				<<set $mouthaction to 0>><<unset $askAction>><<set _sound to 1>>
 				<<hypnosisText 'You intend to scream for help, but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span> <<askrough>>'>>
 				<<hypnotised 1>><<submission 1>><<set $enemyanger += (10 * $englishtrait)>>
-			<<elseif $hypnosis_traits.scream gte 1 and currentSkillValue("willpower") lt random(1, (200 * $hypnosis_traits.scream))>>
+			<<elseif $hypnosis_traits.scream gte 1 and currentSkillValue('willpower') lt random(1, (200 * $hypnosis_traits.scream))>>
 				<<set $mouthaction to 0>><<unset $askAction>><<set _sound to 1>>
 				<<hypnosisText 'You intend to scream for help, <span class="pink">but the thought is snatched from your mind and replaced with another.</span> <<askrough>>'>>
 				<<hypnotised 1>><<willpower 1>><<submission 1>><<set $enemyanger += (10 * $englishtrait)>>
@@ -5444,7 +5446,7 @@
 			<<if $neckuse is "hand" and $oxygen lt $oxygenmax and $settings.asphyxiaLevel gte 2>>
 				<<wheeze>>
 			<<else>>
-				<<if $submissive gte 1150 and !$robinRentEvent>>
+				<<if $submissive gte 100 and !$robinRentEvent>>
 					<<set $mouthactiondefault to "moan">>
 				<<else>>
 					<<set $mouthactiondefault to "plead">>
@@ -5560,7 +5562,7 @@
 					<<set $NPCList[$mouthtarget].penis to 0>><<set $NPCList[$mouthtarget].location.genitals to 0>>
 					<<defiance 20 $mouthtarget>><<attackstat>><<control 15>><<set $mouthuse to 0>><<set $penisbitten to 1>><<set $mouthstate to 0>>
 					<<if $transformationParts.traits.fangs isnot "disabled">>
-						<<defiance 20 $mouthtarget>><<defiance 20 $mouthtarget>>
+						<<defiance 20 $mouthtarget>>
 						You lick your fangs clean.
 					<</if>>
 				<</if>>
@@ -5578,7 +5580,7 @@
 				<<set $NPCList[$mouthtarget].vagina to 0>><<set $NPCList[$mouthtarget].location.genitals to 0>>
 				<<defiance 20 $mouthtarget>><<attackstat>><<control 15>><<set $mouthuse to 0>><<set $penisbitten to 1>><<set $mouthstate to 0>><<set $speechhit to 1>>
 				<<if $transformationParts.traits.fangs isnot "disabled">>
-					<<defiance 40 $mouthtarget>>
+					<<defiance 20 $mouthtarget>>
 					You lick your fangs clean.
 				<</if>>
 			<</if>>
@@ -5664,11 +5666,11 @@
 				<<set $mouthaction to 0>><<set $mouthactiondefault to "handbite">><<personselect $mouthtarget>>
 				<<actionshandbite $mouthtarget>>
 				<<if $transformationParts.traits.fangs isnot "disabled">>
-					<<defiance 6 $mouthtarget>>
+					<<defiance 4 $mouthtarget>>
 				<<else>>
 					<<defiance 2 $mouthtarget>>
 				<</if>>
-				<<if random(1, 5) gte 3 and ($transformationParts.traits.fangs isnot "disabled") or random(1, 5) gte 5>>
+				<<if ($transformationParts.traits.fangs is "disabled" and random(1, 5) gte 5) or ($transformationParts.traits.fangs isnot "disabled" and random(1, 5) gte 4)>>
 					<<set $mouthuse to 0>>
 					<<if $NPCList[$mouthtarget].lefthand is "mouth">>
 						<<set $NPCList[$mouthtarget].lefthand to 0>>

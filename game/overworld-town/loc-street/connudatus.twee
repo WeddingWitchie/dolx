@@ -145,13 +145,11 @@ You are on Connudatus Street. The numerous clubs, bars and restaurants make it t
 					<<stripclubicon>><<link [[Strip club (0:02)|Strip Club]]>><<pass 2>><</link>>
 					<br>
 				<</if>>
-			<</if>>
-
-			<<if Time.dayState isnot "dusk" and Time.dayState isnot "night" and Time.hour isnot 6>>
-				<<stripclubicon>><<link [[Strip club (0:01)|Strip Club Lock]]>><<pass 1>><</link>>
-				<br>
 			<<elseif Time.hour is 6>>
 				<<stripclubicon>><span class="blue">People are leaving the club.</span> It must be closing time.
+				<br>
+			<<else>>
+				<<stripclubicon>><<link [[Strip club (0:01)|Strip Club Lock]]>><<pass 1>><</link>>
 				<br>
 			<</if>>
 
@@ -161,7 +159,16 @@ You are on Connudatus Street. The numerous clubs, bars and restaurants make it t
 			<</if>>
 
 			<<if Time.dayState is "dawn" and $exposed lte 0 and $daily.stallRented isnot 1>>
-				<<if $money gte 1500>>
+				<<if $worn.face.type.includes("gag") and pcAreArmsBound("both")>>
+					<<stallicon>><span class="blue">You can't rent a stall while you're gagged and your arms are bound.</span>
+					<br>
+				<<elseif $worn.face.type.includes("gag")>>
+					<<stallicon>><span class="blue">You can't rent a stall while you're gagged.</span>
+					<br>
+				<<elseif pcAreArmsBound("both")>>
+					<<stallicon>><span class="blue">You can't rent a stall while your arms are bound.</span>
+					<br>
+				<<elseif $money gte 1500>>
 					<<stallicon>><<link [[Rent a stall (0:20 £15)|Stall Rent]]>><</link>>
 					<br>
 				<<else>>
@@ -169,8 +176,19 @@ You are on Connudatus Street. The numerous clubs, bars and restaurants make it t
 					<br>
 				<</if>>
 			<<elseif $daily.stallRented is 1 and Time.dayState isnot "night" and $exposed lte 0>>
-				<<stallicon "open">><<link [[Attend your stall (0:20)|Stall]]>><<pass 20>><</link>>
-				<br>
+				<<if $worn.face.type.includes("gag") and pcAreArmsBound("both")>>
+					<<stallicon>><span class="blue">You can't attend your stall while you're gagged and your arms are bound.</span>
+					<br>
+				<<elseif $worn.face.type.includes("gag")>>
+					<<stallicon>><span class="blue">You can't attend your stall while you're gagged.</span>
+					<br>
+				<<elseif pcAreArmsBound("both")>>
+					<<stallicon>><span class="blue">You can't attend your stall while your arms are bound.</span>
+					<br>
+				<<else>>
+					<<stallicon "open">><<link [[Attend your stall (0:20)|Stall]]>><<pass 20>><</link>>
+					<br>
+				<</if>>
 				<<stallicon "open">><<link [[Decide which products to sell|Stall Whitelist]]>><</link>>
 				<br>
 			<</if>>
@@ -450,7 +468,7 @@ You leave the car, and it drives away.
 		"That's what you get for fighting back, <<bitch>>," the <<person1>><<person>> says as <<he>> fixes <<his>> clothes. "Better be more careful next time," <<he>> adds, before leaving the alley.
 	<</if>>
 <<elseif $enemyhealth lte 0>>
-	With a final push, you manage to free yourself from the <<person1>><<person>>'s grasp, running away from the alley. <<He>> shouldn't follow you to the busy streets.
+	With a final push, you manage to free yourself from the <<person1>><<persons>> grasp, running away from the alley. <<He>> shouldn't follow you to the busy streets.
 <<else>>
 	<<He>> pulls away from you, mumbling something about "stupid tease" under <<his>> breath, before redressing and leaving the alley without looking back.
 <</if>>

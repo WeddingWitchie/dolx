@@ -6,7 +6,7 @@ Weather.Renderer.Layers.add({
 			/* Night sky */
 			effect: "skyGradiant",
 			drawCondition() {
-				return !Weather.bloodMoon && !this.renderInstance.skyDisabled;
+				return !Weather.bloodMoon && !this.renderInstance.sidebarSkyDisabled;
 			},
 			params: {
 				radius: 82,
@@ -34,7 +34,7 @@ Weather.Renderer.Layers.add({
 			/* Blood sky */
 			effect: "skyGradiant",
 			drawCondition() {
-				return Weather.bloodMoon && !this.renderInstance.skyDisabled;
+				return Weather.bloodMoon && !this.renderInstance.sidebarSkyDisabled;
 			},
 			params: {
 				color: {
@@ -57,7 +57,7 @@ Weather.Renderer.Layers.add({
 			/* Day sky */
 			effect: "skyGradiant",
 			drawCondition() {
-				return !this.renderInstance.skyDisabled;
+				return !this.renderInstance.sidebarSkyDisabled;
 			},
 			params: {
 				color: {
@@ -87,6 +87,36 @@ Weather.Renderer.Layers.add({
 				color: {
 					glow: "#300c36",
 					dark: "#631582",
+				},
+			},
+		},
+		{
+			effect: "colorOverlay",
+			drawCondition() {
+				return !this.renderInstance.sidebarSkyDisabled && Weather.current.darkenFactor.sky > 0;
+			},
+			compositeOperation: "source-atop",
+			params: {
+				darkenTarget: "#343434",
+			},
+			bindings: {
+				darkenFactor() {
+					return Weather.getWeatherDarkenFactor(Weather.current.darkenFactor.sky);
+				},
+			},
+		},
+		{
+			effect: "desaturate",
+			drawCondition() {
+				return !this.renderInstance.sidebarSkyDisabled;
+			},
+			compositeOperation: "copy",
+			params: {
+				maxDesaturate: 0.6,
+			},
+			bindings: {
+				factor() {
+					return Time.dayState === "day" || Time.dayState === "dawn" ? Weather.fog : 0;
 				},
 			},
 		},

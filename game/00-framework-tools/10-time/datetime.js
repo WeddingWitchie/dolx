@@ -1,4 +1,26 @@
 class DateTime {
+	/* Year 1 */
+	static get MIN_DATE() {
+		return Object.freeze(Object.assign(Object.create(DateTime.prototype), TimeConstants.MIN_DATE));
+	}
+
+	/* Year 9999 */
+	static get MAX_DATE() {
+		return Object.freeze(Object.assign(Object.create(DateTime.prototype), TimeConstants.MAX_DATE));
+	}
+
+	// TODO: When ES2022 is supported, convert to static fields and replace TimeConstants counterparts with DateTime fields
+	// static MIN_DATE = Object.create(DateTime.prototype).fromTimestamp(0);
+	// static MAX_DATE = Object.create(DateTime.prototype).fromTimestamp(315537897599);
+	// static {
+	// 	Object.defineProperties(DateTime, {
+	// 		MIN_DATE: { writable: false, enumerable: false, configurable: false },
+	// 		MAX_DATE: { writable: false, enumerable: false, configurable: false },
+	// 	});
+	// 	Object.freeze(DateTime.MIN_DATE);
+	// 	Object.freeze(DateTime.MAX_DATE);
+	// }
+
 	constructor(year = 2020, month = 1, day = 1, hour = 0, minute = 0, second = 0) {
 		if (arguments.length === 1) {
 			// If the argument is a DateTime object, copy its properties
@@ -13,8 +35,10 @@ class DateTime {
 				return;
 			}
 			// If the argument is a timestamp, validate it and set the DateTime object accordingly
-			if (arguments[0] < 0 || arguments[0] > 315569437199)
-				throw new Error("Invalid timestamp: Timestamp cannot be lower than 0 or higher than 315569437199.");
+			if (arguments[0] < TimeConstants.MIN_DATE.timeStamp || arguments[0] > TimeConstants.MAX_DATE.timeStamp)
+				throw new Error(
+					`Invalid timestamp: Timestamp cannot be lower than ${TimeConstants.MIN_DATE.timeStamp} or higher than ${TimeConstants.MAX_DATE.timeStamp}.`
+				);
 			this.fromTimestamp(arguments[0]);
 			return;
 		}
@@ -72,7 +96,8 @@ class DateTime {
 	 * @param {number} second
 	 */
 	toTimestamp(year, month, day, hour, minute, second) {
-		if (year < 1 || year > 9999) throw new Error("Invalid year: Year must be between 1-9999.");
+		if (year < TimeConstants.MIN_DATE.year || year > TimeConstants.MAX_DATE.year)
+			throw new Error(`Invalid year: Year must be between ${TimeConstants.MIN_DATE.timeStamp}-${TimeConstants.MAX_DATE.year}.`);
 		if (month < 1 || month > 12) throw new Error("Invalid month: Month must be between 1-12.");
 		const daysInMonth = DateTime.getDaysOfMonthFromYear(year);
 		if (day < 1 || day > daysInMonth[month - 1]) throw new Error("Invalid date: Day must be between 1-" + daysInMonth[month - 1] + ".");
@@ -87,6 +112,8 @@ class DateTime {
 		this.hour = hour;
 		this.minute = minute;
 		this.second = second;
+
+		return this;
 	}
 
 	/**
@@ -95,7 +122,7 @@ class DateTime {
 	 * @param {number} timestamp The timestamp to convert.
 	 */
 	fromTimestamp(timestamp) {
-		// Initialize the year to 1
+		// Initialise the year to 1
 		let year = 1;
 		let month = 0;
 		let day = Math.trunc(timestamp / TimeConstants.secondsPerDay);
@@ -104,9 +131,13 @@ class DateTime {
 		const second = timestamp;
 
 		// Maps the total number of days to the corresponding year and day.
-		while (day > DateTime.getDaysOfYear(year)) {
-			day -= DateTime.getDaysOfYear(year++);
+		const averageDaysPerYear = 365.25; // maximum average 4-year period in list of values safe to divide with
+		let remainingDays = day;
+		while (remainingDays >= DateTime.getDaysOfYear(year)) {
+			year += Math.trunc(remainingDays / averageDaysPerYear) || 1;
+			remainingDays = day - DateTime.getTotalDaysSinceStart(year);
 		}
+		day = remainingDays;
 
 		const daysPerMonth = DateTime.getDaysOfMonthFromYear(year);
 
@@ -114,6 +145,7 @@ class DateTime {
 		while (day >= daysPerMonth[month]) {
 			day -= daysPerMonth[month++];
 			if (month > 11) {
+				console.assert(month <= 11, "Month overflow for timestamp:%s, year %s", timestamp, year);
 				month = 0;
 				year++;
 			}
@@ -126,6 +158,8 @@ class DateTime {
 		this.hour = hour % 24;
 		this.minute = minute % 60;
 		this.second = second % 60;
+
+		return this;
 	}
 
 	/**
@@ -248,7 +282,7 @@ class DateTime {
 		if (!months) return this;
 		const addedMonths = this.month + months;
 		const newYear = this.year + Math.floor((addedMonths - 1) / 12);
-		const newMonth = addedMonths <= 0 ? (addedMonths + 12) : ((addedMonths - 1) % 12) + 1;
+		const newMonth = addedMonths <= 0 ? addedMonths + 12 : ((addedMonths - 1) % 12) + 1;
 		const newDay = Math.min(this.day, DateTime.getDaysOfMonthFromYear(newYear)[newMonth - 1]);
 
 		this.toTimestamp(newYear, newMonth, newDay, this.hour, this.minute, this.second);
@@ -371,6 +405,36 @@ class DateTime {
 		if (hour < 18) return "day";
 		if (hour < 21) return "dusk";
 		return "night";
+	}
+
+	/**
+	 * Returns whether or not enough time has passed in the current bad end for minute precision to be lost.
+	 *
+	 * @param {object} badEnd The bad end tracking object, V.badEndStats.last()
+	 * @returns {boolean} True if minutes should be obfuscated
+	 */
+	hasLostTrackOfMinutes(badEnd) {
+		const rules = window.Constants.badEndTimeRules;
+		if (!rules.badEndsWithTimeObfuscation.includes(badEnd?.source)) return false;
+		if (!Number.isFinite(badEnd?.trackedStart) || badEnd?.trackedEnd !== undefined) return false;
+
+		const elapsed = this.timeStamp - badEnd.trackedStart;
+		return elapsed >= rules.hoursToLoseMinutes * TimeConstants.secondsPerHour;
+	}
+
+	/**
+	 * Returns whether or not enough time has passed in the current bad end for time of day to be lost.
+	 *
+	 * @param {object} badEnd The bad end tracking object, V.badEndStats.last()
+	 * @returns {boolean} True if time should be obfuscated
+	 */
+	hasLostTrackOfTime(badEnd) {
+		const rules = window.Constants.badEndTimeRules;
+		if (!rules.badEndsWithTimeObfuscation.includes(badEnd?.source)) return false;
+		if (!Number.isFinite(badEnd?.trackedStart) || badEnd?.trackedEnd !== undefined) return false;
+
+		const elapsed = this.timeStamp - badEnd.trackedStart;
+		return elapsed >= rules.hoursToLoseTime * TimeConstants.secondsPerHour;
 	}
 
 	/**

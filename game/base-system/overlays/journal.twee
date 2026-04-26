@@ -26,9 +26,9 @@
 	<<if $options.images is 1>>
 		<div class="map">
 			<<if Weather.isSnow>>
-				<img id="world_map" src="img/misc/world_map_winter.png">
+				<img id="world_map" src="img/misc/world-map-winter.png">
 			<<else>>
-				<img id="world_map" src="img/misc/world_map.png">
+				<img id="world_map" src="img/misc/world-map.png">
 			<</if>>
 		</div>
 	<</if>>
@@ -162,9 +162,9 @@
 
 			<<if $avery_valentines?.invite and !$avery_valentines?.done and !$avery_valentines?.missed_approach and !$avery_valentines_missed>>
 				<<if $avery_mansion>>
-					<li>Avery has invited you on a date for <span class="pink">Valentine's Day, on the 14th of February.</span> <<nnpc_He "Avery">>'ll wait for you in the mansion garage from <span class="gold"><<ampm 21 00>></span>.</li>
+					<li>Avery has invited you on a date for <span class="pink">Valentine's Day, on <<= getFormattedDate(new DateTime(Time.year, 2, 14))>>.</span> <<nnpc_He "Avery">>'ll wait for you in the mansion garage from <span class="gold"><<ampm 21 00>></span>.</li>
 				<<else>>
-					<li>Avery has invited you on a date for <span class="pink">Valentine's Day, on the 14th of February.</span> <<nnpc_He "Avery">>'ll wait for you on Domus Street from <span class="gold"><<ampm 20 00>></span>.</li>
+					<li>Avery has invited you on a date for <span class="pink">Valentine's Day, on <<= getFormattedDate(new DateTime(Time.year, 2, 14))>>.</span> <<nnpc_He "Avery">>'ll wait for you on Domus Street from <span class="gold"><<ampm 20 00>></span>.</li>
 				<</if>>
 			<</if>>
 
@@ -404,6 +404,7 @@
 		|| $mason_pond gte 1
 		|| ($brothel_machine_repair gte 1 and $brothel_machine_repair lte 3)
 		|| ($harpy gte 6 and $birdFly isnot 1)
+		|| Object.values(V.children).filter(child => (child.type === "hawk" && child.location === "inventory")).length gt 0
 		|| $adultshopgrandopening
 		|| ($adultshopintro is 1 and $adultshopunlocked is undefined)
 		|| $daily.stallRented isnot undefined
@@ -485,16 +486,16 @@
 							<<case "temple">>
 								<<templeicon>> 'Mickey' wants you to find a book on architecture at the temple with a password on the inside cover.
 							<<case "kylar">>
-								<<icon "manilaenvelope.png">> 'Mickey' wants you to deliver a letter to
+								<<icon "manila-envelope.png">> 'Mickey' wants you to deliver a letter to
 								<<if C.npc.Kylar.state is "prison">>
 									the police station, so they can give it to Kylar.
 								<<else>>
 									Kylar<<if C.npc.Kylar.init isnot 1>>, a student at your school<</if>>.
 								<</if>>
 							<<case "wren">>
-								<<icon "manilaenvelope.png">> 'Mickey' wants you to deliver a letter to <<if $wren_intro is undefined>>a <<nnpc_gender "Wren">> named Wren. <<nnpc_He "Wren">> can be found at Remy's estate in the moor, or at the docks at night<<else>>Wren<</if>>.
+								<<icon "manila-envelope.png">> 'Mickey' wants you to deliver a letter to <<if $wren_intro is undefined>>a <<nnpc_gender "Wren">> named Wren. <<nnpc_He "Wren">> can be found at Remy's estate in the moor, or at the docks at night<<else>>Wren<</if>>.
 							<<case "hospital">>
-								<<icon "access_card.png">>
+								<<icon "access-card.png">>
 								'Mickey' wants you to steal a keycard from the hospital.
 								<<if $location is "asylum">>
 									However, you think they might be happy with a keycard from this place too.
@@ -559,7 +560,7 @@
 				<</switch>>
 			<</if>>
 			<<if $earSlime.forcedCommando isnot undefined>>
-				<li class="lewd"><<icon "cross.png" "infront">><span class="clothes-white"><<icon "clothes/plain_panties.png">></span> The slime in your head commanded you to go commando.</li>
+				<li class="lewd"><<icon "cross.png" "infront">><span class="clothes-white"><<icon "clothes/plain-panties.png">></span> The slime in your head commanded you to go commando.</li>
 			<</if>>
 			<<if $earSlime.forcedDressing isnot undefined>>
 				<li class="lewd"><<if $earSlime.forcedDressing.type is "f">><<femaleicon>><<else>><<maleicon>><</if>> The slime in your head commanded you to only wear more <<print $earSlime.forcedDressing.type is "f" ? "feminine" : "masculine">> clothing.</li>
@@ -602,6 +603,10 @@
 
 			<<if ($harpy gte 6 or ($transformationParts.bird.wings isnot "hidden" and $transformationParts.bird.wings isnot "disabled")) and $birdFly isnot 1>>
 				<li><<birdicon "prepare_hunt_day">> Your wings are strong, but you don't know how to use them. The Great Hawk could teach you.</li>
+			<</if>>
+			<<set _eggIcon to Object.values(V.children).filter(child => (child.type === "hawk" && child.location === "inventory")).length>>
+			<<if _eggIcon gt 0>>
+				<li><<birdicon "eggs">> You're carrying <<number _eggIcon>> fertilised bird <<pluralise _eggIcon "egg. It needs" "eggs. They need">> to be brought to <<if $syndromebird>>your nest<<else>>the tower<</if>> in the moor to hatch.</li>
 			<</if>>
 
 			<<if $farm_stage gte 5 and $estate_fence is undefined>>
@@ -652,9 +657,9 @@
 				<li>
 					<<switch $farm.build>>
 						<<case "parasites 1">>
-							<<farmicon 'parasitebarn'>> The parasite barn is being built.
+							<<farmicon 'parasite barn'>> The parasite barn is being built.
 						<<case "parasites 2">>
-							<<farmicon 'parasitebarn'>> The parasite barn is being expanded.
+							<<farmicon 'parasite barn'>> The parasite barn is being expanded.
 						<<case "wall 1">>
 							<<choreicon "fix">> The wall is undergoing a thorough repair.
 						<<case "wall 2">>
@@ -772,13 +777,13 @@
 						<li><<shopicon "forest">>Gwylan has asked you to wear <<if $gwylan.request.items.length gt 1>>some clothes<<else>>a clothing item<</if>> to the forest shop.</li>
 						<<gwylanJournalItems>>
 					<<case "ingredients">>
-						<li><<tendingicon "basket">>Gwylan has asked you to gather some ingredients.</li>
+						<li><<icon "tending/basket.png">>Gwylan has asked you to gather some ingredients.</li>
 						<<gwylanJournalItems>>
 					<<case "sample">>
-						<li><<iconUi "emptyvial.png">> Gwylan has asked you to gather some samples.</li>
+						<li><<iconUi "sym-lust-empty.png">> Gwylan has asked you to gather some samples.</li>
 						<<gwylanJournalItems>>
 					<<case "recipe">>
-						<li><<tendingicon "basket">>Gwylan has asked you to gather some items to make <span class="blue">$gwylan.request.special</span>.</li>
+						<li><<icon "tending/basket.png">>Gwylan has asked you to gather some items to make <span class="blue">$gwylan.request.special</span>.</li>
 						<<gwylanJournalItems>>
 					<<case "samplePlayer">>
 						/* ToDo: Gwylan */
@@ -793,12 +798,12 @@
 							<<set $_featherCount to $gwylan.request.items.find(feather => feather.name === "feathers").need>>
 							<li><<birdicon "feathers">> Gwylan has asked you for <span class="gold"><<number $_featherCount>></span> of the hawk's feathers.</li>
 							<<if $bird?.materials?.feathers>>You have <span class="blue"><<number $bird.materials.feathers>>.</span><</if>>
-							<<if $harpy gte 6>>
+							<<if ($harpy gte 6 or ($transformationParts.bird.wings isnot "hidden" and $transformationParts.bird.wings isnot "disabled"))>>
 								<span class="gold">Perhaps <<nnpc_he "Gwylan">> could preen your wings directly...</span>
 							<</if>>
 						<</if>>
 					<<case "cream">>
-						<li><<tendingicon "cream">><span class="lewd">Gwylan has made you a lewd offer involving some cream...</span></li>
+						<li><<foodstufficon "cream">><span class="lewd">Gwylan has made you a lewd offer involving some cream...</span></li>
 					<<case "robin">>
 						/* ToDo: Gwylan */
 					<<case "chastity">>
@@ -821,7 +826,7 @@
 						<<if $worn.genitals.name is "gold chastity belt" or $gwylan.request.details?.gold>>
 							<<antiqueicon "chastity">>
 						<<else>>
-							<<icon "clothes/chastity_belt.png">>
+							<<icon "clothes/chastity-belt.png">>
 						<</if>>
 						<span class="red">Remove</span> chastity device
 						<<if playerChastity() and $gwylan.request.items>>
@@ -853,7 +858,7 @@
 	<</if>>
 	<<if $valentines is 1>>
 		<ul class="journal">
-			<li>Valentine's day is held <<if Time.monthDay is 14>><span class="gold">today</span><<else>>on February 14th<</if>>. You feel spending time with someone special will be extra rewarding.</li>
+			<li>Valentine's day is held <<if Time.monthDay is 14>><span class="gold">today</span><<else>>on <<= getFormattedDate(new DateTime(Time.year, 2, 14))>><</if>>. You feel spending time with someone special will be extra rewarding.</li>
 			<<if $valentines_eden is 1 and !$valentines_eden_bought>>
 				<li>You can buy something for Eden to celebrate.</li>
 			<<elseif $valentines_eden_bought is 1>>
@@ -864,7 +869,7 @@
 
 	<<if $halloween is 1>>
 		<ul class="journal">
-			<li>Halloween is held on October 31st.</li>
+			<li>Halloween is held on <<= getFormattedDate(new DateTime(Time.year, 10, 31))>>.</li>
 			<<if $halloween_whitney is 1 and C.npc.Whitney.state isnot "dungeon">>
 				<li>Whitney will be trick-or-treating on Domus Street from <<ampm 19 00>>.</li>
 			<</if>>
@@ -936,20 +941,20 @@
 		<h1 class="header gold bold">Avery's Demands</h1>
 		<ul class="journal carry">
 			<li><<foodicon "eat">>Avery wants you to have dinner ready at <span @class="between(Time.weekDay,2,6) ? 'gold' : ''"><<ampm 21 00>> weekdays</span>.</li>
-			<<if $avery_mansion.food.name isnot "none">>
+			<<if $avery_mansion.food isnot "none">>
 				<li>
-					<<tendingicon $avery_mansion.food.icon>>
+					<<foodstufficon $avery_mansion.food>>
 					<<set $_averyMissedColor to ["","purple","pink","red"][Math.clamp($avery_mansion.rage.dinner_missed,0,3)]>>
-					<<set $_averyDishAmount to $plants[$avery_mansion.food.name].amount>>
-					<<set $_averyDishAmountColour to $plants[$avery_mansion.food.name].amount ? "green" : "red">>
-					<span @class="$_averyMissedColor">Avery wants <<recipe_name $avery_mansion.food.name "article">>.</span> You currently have <span @class="$_averyDishAmountColour"><<print $_averyDishAmount>></span>.
+					<<set $_averyDishAmount to $foodstuff[$avery_mansion.food].amount>>
+					<<set $_averyDishAmountColour to $foodstuff[$avery_mansion.food].amount ? "green" : "red">>
+					<span @class="$_averyMissedColor">Avery wants <<recipe_name $avery_mansion.food "article">>.</span> You currently have <span @class="$_averyDishAmountColour"><<print $_averyDishAmount>></span>.
 				</li>
 			<</if>>
 			<<if !["missed", "started"].includes($avery_mansion.party_state)>>
-				<li><<icon "front_gate.png">>You're expected at Avery's mansion <span @class="Time.weekDay is 1 ? 'gold' : ''">after <<ampm 18>> <<if ["first sunday skip", "finished", "skipped"].includes($avery_mansion.party_state)>>next<<else>>on<</if>> Sunday</span>, for a party. The guest of honour is $avery_mansion.guest.</li>
+				<li><<icon "front-gate.png">>You're expected at Avery's mansion <span @class="Time.weekDay is 1 ? 'gold' : ''">after <<ampm 18>> <<if ["first sunday skip", "finished", "skipped"].includes($avery_mansion.party_state)>>next<<else>>on<</if>> Sunday</span>, for a party. The guest of honour is $avery_mansion.guest.</li>
 			<</if>>
 			<<if $avery_mansion.fox.task and !$avery_fate>>
-				<li><<icon "clothes/foxmask.png">>
+				<li><<icon "clothes/fox-mask.png">>
 				<<if $avery_mansion.fox.task_complete is "success">>
 					<span class="green">You have completed the brown fox's task.</span>
 				<<elseif $avery_mansion.fox.task_complete is "fail">>
@@ -1000,11 +1005,11 @@
 			<<if $avery_mansion.fake_stones is 1>>
 				<li><<investigateicon>> Find a convincing fake to swap for the wishing stones.</li>
 			<<elseif $avery_mansion.fake_stones is 2>>
-				<li><<icon "avery_vault.png">> Leave the fake wishing stones in Avery's vault.</li>
+				<li><<icon "avery-vault.png">> Leave the fake wishing stones in Avery's vault.</li>
 			<</if>>*/
-			<<if $avery_mansion.jobs.length>>
+			<<if $avery_mansion.jobs.filter(job => !job.includes("dungeon")).length>>
 				<li>
-					<<icon "avery_garage.png">> Additionally, Avery expects to see proper presentation from you when <<nnpc_he "Avery">> returns from work.
+					<<icon "avery-garage.png">> Additionally, Avery expects to see proper presentation from you when <<nnpc_he "Avery">> returns from work.
 					<<if $avery_mansion.jobs.includes("maid")>>
 						<br>
 						<<if $worn.upper.type.includes("maid") and $worn.lower.type.includes("maid")>>
@@ -1076,7 +1081,7 @@
 						<<else>>
 							<span class='fa-icon fa-unselected'></span>
 						<</if>>
-						<<icon "clothes/feather_duster.png">><span @class="$_averyCleanColor">Keeping <<nnpc_his Avery>> mansion clean.</span>
+						<<icon "clothes/feather-duster.png">><span @class="$_averyCleanColor">Keeping <<nnpc_his Avery>> mansion clean.</span>
 					<</if>>
 				</li>
 			<</if>>
@@ -1303,14 +1308,14 @@
 		<</if>>
 	<</if>>
 
-	<<set _plant_keys to Object.keys($plants)>>
-	<<set _hasProduce to Object.keys($plants).some(key => $plants[key].amount >= 1)>>
-	<<set _carrying to [$antiquemoney, $blackmoney, $phials_held, $lurkers_held, $popcorn, $milkshake, $panties_held].some(i => i >= 1)>>
+	<<set _foodstuffKeys to Object.keys($foodstuff)>>
+	<<set _hasProduce to Object.keys($foodstuff).some(key => $foodstuff[key].amount >= 1)>>
+	<<set _carrying to [$antiquemoney, $blackmoney, $phials_held, $lurkers_held, $popcorn, $milkshake, $panties_held, $prison?.teeth].some(i => i >= 1)>>
 	<<if _carrying or _hasProduce>>
 		<hr>
 		<h1 class="header gold bold">Inventory</h1>
 	<</if>>
-	<<if $farm_key is true and $location is "farm" and !$bus.includes("farm")>>
+	<<if $livestock.lock.keys is true and $location is "farm" and !$bus.includes("farm")>>
 		You have stored:
 		<ul class="journal carry">
 			<li><<lockicon "bronze key">> <span class="green">A ring of keys</span> in your stall. You can use them to escape, but be careful not to get caught with them.</li>
@@ -1321,7 +1326,7 @@
 		You are carrying:
 		<ul class="journal carry">
 			<<if ["prison", "prison_beach"].includes($location) and $prison.teeth gte 1>>
-				<li><<tendingicon "sharks_teeth">> <span class="green"><<number $prison.teeth>></span> shark's teeth.
+				<li><<icon "tending/sharks-teeth.png">> <span class="green"><<number $prison.teeth>></span> shark's teeth.
 				<<if $prison_wren_intro isnot 1>>
 					You can find Wren in the yard on Fridays after lunch.
 				<</if>>
@@ -1347,7 +1352,7 @@
 				<li><<foodicon "popcorn">> <span class="green">$popcorn</span> <<pluralise $popcorn "bag">> of popcorn.</li>
 			<</if>>
 			<<if $panties_held gt 0>>
-				<li><span class="clothes-white"><<icon "clothes/plain_panties.png">></span> <<print $panties_held is 1 ? "a pair" : "<span class='green'>$panties_held</span> pairs">> of stolen underwear. You can sell <<pluralise $panties_held "it">> during lunchtime in the school rear courtyard.</li>
+				<li><span class="clothes-white"><<icon "clothes/plain-panties.png">></span> <<print $panties_held is 1 ? "a pair" : "<span class='green'>$panties_held</span> pairs">> of stolen underwear. You can sell <<pluralise $panties_held "it">> during lunchtime in the school rear courtyard.</li>
 			<</if>>
 			<<if _hasProduce>>
 				<li><<stallicon "open">> <span class="green">Products</span> for sale. You can sell them by renting a stand on Connudatus Street at dawn.</li>
@@ -1362,12 +1367,10 @@
 			<details class="journal">
 				<summary class="journal">Products</summary>
 				<<set $_types to []>>
-				<<for _t to 0; _t lt _plant_keys.length; _t++>>
-					<<set _plantObj = $plants[_plant_keys[_t]]>>
-					<<if _plantObj?.name && setup.plants[_plantObj.name]>>
-						<<set _produce = setup.plants[_plantObj.name]>>
-						<<set $_types.pushUnique(_produce.type?.toUpperFirst() ?? "Unknown")>>
-					<</if>>
+				<<for _t to 0; _t lt _foodstuffKeys.length; _t++>>
+					<<set _foodstuff to setup.foodstuff[_foodstuffKeys[_t]]>>
+					<<set _foodstuffType to ((_foodstuff?.category) === "dish" ? "food" : _foodstuff?.category)>>
+					<<set $_types.pushUnique(_foodstuffType.toUpperFirst())>>
 				<</for>>
 				<<set $_types.sort()>>
 				<<if $_types.length>>
@@ -1462,7 +1465,7 @@
 							<<switch _valueM>>
 								<<case "notFound">>
 									<div class="item unknown" @tooltip="_antique">
-										<<icon "museum_empty.png">>
+										<<icon "museum-empty.png">>
 									</div>
 								<<default>>
 									<div class="item" @tooltip="_antique">
@@ -1518,7 +1521,7 @@
 										<<set _painting += `</div>`>>
 									<</if>>
 									<div class="item" @tooltip="_painting">
-										<img class="icon" @src="'img/misc/icon/' + _museumPaintingText[_labelP].iconFull" width="120" height="120">
+										<img class="icon" @src="'img/misc/prop/' + _museumPaintingText[_labelP].inlineFull" width="120" height="120">
 										<<switch _labelP>>
 											<<case "paintingsnake">><<set _percent to (Math.round($hcEndings.length) / 7 * 100)>>
 											<<case "paintingward">><<set _percent to $bleedingWardCheckpoint ? 50 : 100>>
@@ -1528,8 +1531,8 @@
 											<<if $options.images>>
 												<div class="progress">
 													<span class="starBar">
-														<img class="active-icon-img" src="img/ui/gold_star.png">
-														<img class="inactive-icon-img" src="img/ui/empty_star.png">
+														<img class="active-icon-img" src="img/ui/star-gold.png">
+														<img class="inactive-icon-img" src="img/ui/star-empty.png">
 													</span>
 												</div>
 											<<else>>
@@ -1542,15 +1545,15 @@
 								<<case "talk">>
 									<<set $_tooltipPainting to `You should ask Winter about the ${_museumPaintingText[_labelP].journalName.toLowerCase()}.`>>
 									<div class="item" @tooltip="$_tooltipPainting">
-										<img class="icon" @src="'img/misc/icon/' + _museumPaintingText[_labelP].iconFull" width="120" height="120">
+										<img class="icon" @src="'img/misc/prop/' + _museumPaintingText[_labelP].inlineFull" width="120" height="120">
 									</div>
 								<<case "notFound">>
 									<div class="item" tooltip="Unknown Painting.">
-										<img class="icon" src="img/misc/icon/antiques/paintings/curtain.png" width="120" height="120">
+										<img class="icon" src="img/misc/prop/curtain.png" width="120" height="120">
 									</div>
 								<<default>>
 									<div class="item" @tooltip="_painting">
-										<img class="icon" @src="'img/misc/icon/' + _museumPaintingText[_labelP].iconRaw" width="120" height="120">
+										<img class="icon" @src="'img/misc/prop/' + _museumPaintingText[_labelP].inlineRaw" width="120" height="120">
 									</div>
 							<</switch>>
 						<</for>>
@@ -1561,16 +1564,16 @@
 		<</if>>
 
 		<<if $plants_known.length gte 0>>
-			<<set _plant_keys to Object.keys(setup.plants)>>
+			<<set _foodstuffKeys to Object.keys(setup.foodstuff)>>
 			<<set _collection to 0>>
 			<<for _i to 0; _i lt $plants_known.length; _i++>>
-				<<if Object.keys(setup.plants).includes($plants_known[_i])>>
+				<<if Object.keys(setup.foodstuff).includes($plants_known[_i])>>
 					<<set _collection += 1>>
 				<</if>>
 			<</for>>
 			<<set _total to 0>>
-			<<for _i to 0; _i lt _plant_keys.length; _i++>>
-				<<if (setup.plants[_plant_keys[_i]].type === "flower" || setup.plants[_plant_keys[_i]].type === "vegetable") && setup.plants[_plant_keys[_i]].season.length gt 0>>
+			<<for _i to 0; _i lt _foodstuffKeys.length; _i++>>
+				<<if setup.foodstuff[_foodstuffKeys[_i]]?.tending?.has_seeds>>
 					<<set _total += 1>>
 				<</if>>
 			<</for>>
@@ -1589,11 +1592,14 @@
 			<details class="journal">
 				<summary class="journal">Seeds</summary>
 				<div class="itemCollectible">
-					<<for _i to 0; _i lt _plant_keys.length; _i++>>
-						<<set _tooltip to setup.plants[_plant_keys[_i]].seed_name ? setup.plants[_plant_keys[_i]].seed_name.toUpperFirst() : (setup.plants[_plant_keys[_i]].plural[0].toUpperCase() + setup.plants[_plant_keys[_i]].plural.substring(1))>>
-						<<set _icon to setup.plants[_plant_keys[_i]].icon>>
-						<<if (setup.plants[_plant_keys[_i]].type is "flower" or setup.plants[_plant_keys[_i]].type is "vegetable") && setup.plants[_plant_keys[_i]].season.length gt 0>>
-							<<if $plants_known.includes( setup.plants[_plant_keys[_i]].name)>>
+					<<for _i to 0; _i lt _foodstuffKeys.length; _i++>>
+						<<set _seedItem to setup.foodstuff[_foodstuffKeys[_i]]>>
+						<<set _seedName to _seedItem?.tending?.seed_name>>
+						<<set _seedPlural to _seedItem?.plural or "">>
+						<<set _tooltip to _seedName ? _seedName.toUpperFirst() : (_seedPlural[0].toUpperCase() + _seedPlural.substring(1))>>
+						<<set _icon to _seedItem?.icon>>
+						<<if _seedItem?.tending?.has_seeds>>
+							<<if $plants_known.includes(_foodstuffKeys[_i])>>
 								<div class="item" @tooltip="_tooltip">
 									<<icon `"tending/" + _icon`>>
 								</div>
@@ -1613,23 +1619,24 @@
 
 <<widget "journalInventory">>
 	<<set $_filter to _args[0] || "all">>
-	<<for _t to 0; _t lt _plant_keys.length; _t++>>
-		<<set _item to $plants[_plant_keys[_t]]>>
-		<<set _produce to setup.plants[_item.name]>>
-		<<if _item.amount gte 1>>
-			<<if $_filter is "all" or _produce.type is $_filter>>
+	<<for _t to 0; _t lt _foodstuffKeys.length; _t++>>
+		<<set _foodstuffKey to _foodstuffKeys[_t]>>
+		<<set _foodstuff to setup.foodstuff[_foodstuffKey]>>
+		<<set _item to $foodstuff[_foodstuffKey]>>
+		<<set _foodstuffType to ((_foodstuff?.category) === "dish" ? "food" : _foodstuff?.category)>>
+		<<if _item?.amount gte 1>>
+			<<if $_filter is "all" or _foodstuffType is $_filter>>
 				<<set _formatter = new Intl.NumberFormat('en-gb', { roundingMode: 'trunc', notation: 'compact' })>>
 				<<set _amount = _formatter.format(_item.amount)>>
 				<<if _item.amount === 1>>
-					<<set _itemName to _produce.singular || _produce.name.replace(/_/g, ' ')>>
+					<<set _itemName to _foodstuff.singular>>
 				<<else>>
-					<<set _itemName to _produce.plural>>
+					<<set _itemName to _foodstuff.plural>>
 				<</if>>
 				<<set _tooltip to `<span class="green">${_item.amount}</span> ${_itemName}`>>
 
 				<div class="item" @tooltip="_tooltip">
-					<<set _iconName to _produce.icon.replace(/\.[^/.]+$/, "")>>
-					<<tendingicon _iconName>>
+					<<foodstufficon _foodstuffKey>>
 					<hr>
 					<<= _amount>>
 				</div>

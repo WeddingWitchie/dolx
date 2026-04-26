@@ -53,6 +53,7 @@ module.exports = {
 		// DoL shortcuts
 		C: "readonly",
 		DeserializeGame: "readonly",
+		F: "readonly", // setup.foodstuff
 		globals: "readonly",
 		T: "readonly",
 		V: "readonly",
@@ -266,6 +267,9 @@ module.exports = {
 		boundedRandom: "readonly",
 		calculateBinomial: "readonly",
 		weightedRandom: "readonly",
+		degToRad: "readonly",
+		normAngle: "readonly",
+		shortestDelta: "readonly",
 		doArraysMatch: "readonly",
 		countMatchesInArray: "readonly",
 		arrayIntersect: "readonly",
@@ -328,19 +332,18 @@ module.exports = {
 	],
 
 	parserOptions: {
-		// Support back to ES2020 to cover old mobile devices with outdated WebView versions that fail on 2020 and up functions
 		sourceType: "module",
 	},
 
 	env: {
 		browser: true,
-		es2021: true,
+		es2022: true,
 		jquery: true,
 	},
 
 	plugins: ["es-x"],
 
-	extends: ["eslint:recommended", "plugin:jsdoc/recommended", "prettier-standard/prettier-file", "plugin:es-x/restrict-to-es2021"],
+	extends: ["eslint:recommended", "plugin:jsdoc/recommended", "prettier-standard/prettier-file", "plugin:es-x/restrict-to-es2022"],
 
 	settings: {
 		jsdoc: {

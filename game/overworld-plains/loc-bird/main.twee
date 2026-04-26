@@ -54,11 +54,9 @@
 				<<link [[Don't resist|Moor Bird Still]]>><<set $phase to 4>><</link>>
 				<br>
 			<<else>>
-				<<if $birdescaped gte 1 and $submissive gte 1800>>
-					<<link [[Don't resist|Moor Bird Still]]>><<sub 1>><<set $phase to 1>><</link>><<submissivetext>>
+				<<if $birdescaped gte 1 and $submissive gte 1500>>
+					<<link [[Don't resist|Moor Bird Still]]>><<sub 3>><<set $phase to 1>><</link>><<submissivetext>>
 					<br>
-				<<elseif $birdescaped gte 1>>
-					<!-- No option to give in after successfully resisting already -->
 				<<else>>
 					<<link [[Don't resist|Moor Bird Still]]>><<sub 1>><<set $phase to 0>><</link>>
 					<br>
@@ -675,6 +673,7 @@ You let <<bhim>> grasp your shoulders with <<bhis>> talons, and <<bhe>> lifts yo
 
 :: Bird Rescue No Syndrome Tower 1
 <<effects>>
+<<unset $moor_hunt>>
 In the distance, you see a
 <<if $birdescaped gte 1>>
 	familiar tower. <span class="red"><<bHes>> taking you back to <<bhis>> nest.</span><<gstress>><<stress 4>>
@@ -869,7 +868,7 @@ A brief moment passes in <<if $monster is 1>>awkward <</if>>silence, before the 
 
 :: Bird Rescue No Syndrome Tower Punch
 <<effects>>
-You take the opportunity to land a clean punch on the <<beasttype>>'s wing. <<bHe>> lets out a pained shriek, before fluttering over to the other side of the room. <<if currentSkillValue('physique') gte 10000>><<bHe>> seems to have a bit of difficulty moving the wing you punched.<</if>>
+You take the opportunity to land a clean punch on the <<beasttype>>'s wing. <<bHe>> lets out a pained shriek, before fluttering over to the other side of the room. <<if currentSkillValue('physique') gte 8000>><<bHe>> seems to have a bit of difficulty moving the wing you punched.<</if>>
 <br><br>
 
 The <<beasttype>> looks at you from across the tower with a hurt<<if $monster is 1>> and betrayed<</if>> expression, periodically testing the wing. <<if currentSkillValue('physique') gte 12000 and $monster is 1>><<bHe>> looks to be on the verge of tears.<</if>>
@@ -884,7 +883,7 @@ The <<beasttype>> looks at you from across the tower with a hurt<<if $monster is
 <br><br>
 
 <<set $bird.state to "hunting">>
-<<if currentSkillValue('physique') gte 16000>>
+<<if currentSkillValue('physique') gte 15000>>
 	<<pass 20>><<set $bird.timer to 180>>
 	The two of you sit there in silence. The <<beasttype>>'s wing seems to recover slowly, and you're not willing to move while <<bhes>> focusing on you this intensely. <<if $monster is 1>>You can see tears beading in the corner of <<bhis>> eyes. <</if>>Once the <<beasttype>> seems to think that <<bhe>> can fly, <<bhe>> slowly walks towards the perch, keeping an eye on you the whole time. Once there <<bhe>> flies off, leaving you alone.
 <<elseif currentSkillValue('physique') gte 12000>>
@@ -1494,15 +1493,21 @@ You are inside <<if $syndromebird is 1>>your tower<<else>>a ruined tower<</if>>,
 		<</if>>
 		<br><br>
 	<</if>>
-	<<if pcAreArmsBound("any") or $feetuse is "bound" or $worn.feet.name is "ankle cuffs">>
-		<<if $possessed>>
-			You stare down at your bindings. You pull, and they fall apart, unable to hold against you.
-			<br><br>
-			<<unbind>>
+	<<if $possessed and (pcAreArmsBound("any") or $feetuse is "bound" or $worn.feet.type.includes("shackle"))>>
+		You stare down at your bindings.
+		<<if breakableSoftBinding()>>
+			You pull, and they fall apart, unable to hold against you.
+			<<if ["ankle cuffs", "ball and chain"].includes($worn.feet.name)>>
+				You then hear a click, and your $worn.feet.name fall to the ground.
+			<</if>>
 		<<else>>
-			<<undobindingsicon>><<link [[Undo your bindings (0:10)|Bird Tower Unbind]]>><<bird_pass 10>><<unbind>><</link>>
-			<br><br>
+			You hear a click, and your $worn.feet.name fall to the ground.
 		<</if>>
+		<br><br>
+		<<unbind>>
+	<<elseif breakableSoftBinding()>>
+		<<undobindingsicon>><<link [[Undo your bindings (0:10)|Bird Tower Unbind]]>><<bird_pass 10>><<unbind>><</link>>
+		<br><br>
 	<</if>>
 
 	<<birdicon "perch">><<link [[Approach the perch|Bird Tower Perch]]>><</link>>
@@ -1594,13 +1599,13 @@ You are inside <<if $syndromebird is 1>>your tower<<else>>a ruined tower<</if>>,
 		<br>
 	<<else>>
 		<<if $bird.duster is true>>
-			<<icon "clothes/feather_duster.png">><<link [[Grab your feather duster|Bird Tower]]>><<handheldstrip>><<handheldwear "feather duster">><<run delete $bird.duster>><</link>>
+			<<icon "clothes/feather-duster.png">><<link [[Grab your feather duster|Bird Tower]]>><<handheldstrip>><<handheldwear "feather duster">><<run delete $bird.duster>><</link>>
 			<<if $worn.handheld.name isnot "naked">>
 				| <span class="blue">Swap out your $worn.handheld.name</span>
 			<</if>>
 			<br>
 		<<elseif $worn.handheld.name is "feather duster">>
-			<<icon "clothes/feather_duster.png">><<link [[Hang up your feather duster|Bird Tower]]>><<if $carried.handheld.name isnot "naked">><<handheldon>><<else>><<handheldruined true>><</if>><<set $bird.duster to true>><</link>>
+			<<icon "clothes/feather-duster.png">><<link [[Hang up your feather duster|Bird Tower]]>><<if $carried.handheld.name isnot "naked">><<handheldon>><<else>><<handheldruined true>><</if>><<set $bird.duster to true>><</link>>
 			<<if $carried.handheld.name isnot "naked">>
 				| <span class="blue">Retrieve your $carried.handheld.name</span>
 			<</if>>
@@ -3019,22 +3024,23 @@ You put it in the wardrobe.
 <<if _eggCount>>
 	<<Number _eggCount>> <<pluralise _eggCount "egg is" "eggs are">> protected in the nest. You bring <<pluralise _eggCount "it">> close for safekeeping.
 <</if>>
-<<endevent>>
 <<if $wraith.state and $wraithPrison and $bird.upgrades.mirror is 1 and ($moonstate is "evening" or $moonstate is _nightstate)>>
 	You feel anxious, and your eyes dart over to the mirror.
 <</if>>
 <br><br>
+<<endevent>>
 
 <<if $syndromebird is 1 and $bird.activity is "sleep" and $bird.state is "home" and !$bird.satisfied>>
-	<<link [[Rub lewdly|Bird Tower Nest Rub]]>><<transform bird 1>><<npcincr "Great Hawk" love 1>><<npcincr "Great Hawk" dom -1>><<set $phase to 1>><</link>><<glove>><<npc "Great Hawk">><<person1>><<ldom>><<endevent>><<deviant1>>
+	<<npc "Great Hawk">><<person1>>
+	<<link [[Rub lewdly|Bird Tower Nest Rub]]>><<transform bird 1>><<npcincr "Great Hawk" love 1>><<npcincr "Great Hawk" dom -1>><<set $phase to 1>><</link>><<glove>><<ldom>><<deviant1>>
 	<br>
 	<<if hasSexStat("deviancy", 4, true)>>
 		<<link [[Wake for sex|Bird Tower Nest Rub]]>><<transform bird 1>><<npcincr "Great Hawk" love 3>><<npcincr "Great Hawk" dom 1>><<set $phase to 2>><</link>><<gglove>><<gdom>><<deviant4>>
 		<br>
 	<</if>>
 	<br>
+	<<endevent>>
 <</if>>
-<<endevent>>
 
 <<nightmareCheck "Bird Tower Sleep">>
 
@@ -4424,7 +4430,7 @@ You bring your attentive touch down towards <<bhis>> groin.
 		<<addinlineevent "bird_bask_rescued">>
 			<<run delete $weekly.birdRescued>>
 			As you bask, your thoughts turn to your recent ordeal with
-			<<if $remySeen?.includesAny("farm","livestock","manor") or $livestock_intro isnot undefined>>
+			<<if $remySeen?.includesAny("farm","livestock","manor") or $livestock.intro isnot undefined>>
 				Remy's thugs out in the moor.
 			<<else>>
 				the people that tried to kidnap you out on the moor.
@@ -5958,7 +5964,7 @@ Expanding on the drying rack is simple, especially with the right tools. You use
 
 <<set $bird.firepit.maxItems to $bird.upgrades.rack * 2>>
 
-<<link [[Next|Bird Tower]]>>><</link>>
+<<link [[Next|Bird Tower]]>><</link>>
 <br>
 
 :: Bird Tower Build Rack 3
@@ -6069,7 +6075,7 @@ You consider your options. The moor itself has nothing special, neither do the a
 <br><br>
 
 Eventually your mind settles on the
-<<if $remySeen?.includesAny("farm","livestock","manor") or $livestock_intro isnot undefined>>
+<<if $remySeen?.includesAny("farm","livestock","manor") or $livestock.intro isnot undefined>>
 	Remy estate. Knowing the kind of business they do, you're sure they would have something special.
 	<<if $estate and $estate.chaos>>
 		You're no stranger to causing trouble for Remy, but the mere thought of stealing something from the estate with <<your_bird_text>> fills you with adrenaline.
@@ -6402,7 +6408,7 @@ Where will you fly?
 
 	<<addinlineevent "flight_casual_moor_people" 1>>
 		You notice a small group of people walking around.
-		<<if $livestock_intro isnot undefined>>
+		<<if $livestock.intro isnot undefined>>
 			You recognise them from Remy's farm.
 		<<else>>
 			None of them look familiar to you.
@@ -6489,7 +6495,7 @@ Where will you fly?
 		<</addinlineevent>>
 	<</if>>
 
-	<<if $remySeen?.includesAny("farm","livestock","manor") or $livestock_intro isnot undefined>>
+	<<if $remySeen?.includesAny("farm","livestock","manor") or $livestock.intro isnot undefined>>
 		<<addinlineevent "flight_casual_moor_remy" 1>>
 			You end up close to the outskirts of the moor. You spot Remy's estate a bit further away. <<your_bird_text "cap">> looks uneasy.
 			<<if $monster is 1>>
@@ -7193,7 +7199,7 @@ You look through your telescope.
 			You see a group of campfires.
 		<</if>>
 		They're surrounded by tents, which are themselves surrounded by supplies and makeshift barriers. The occupants are dressed in matching uniforms.
-		<<if $remySeen?.includesAny("farm","livestock","manor") or $livestock_intro isnot undefined>>
+		<<if $remySeen?.includesAny("farm","livestock","manor") or $livestock.intro isnot undefined>>
 			You recognise them. <span class="red">Remy's goons.</span>
 		<<else>>
 			They look dangerous.
@@ -7687,7 +7693,7 @@ You look up to the sky.
 <br>
 
 :: Bird Tower Eggs Take
-<<setTowerTemp>><<effects>><<wearProp "hawk egg">>
+<<setTowerTemp>><<effects>><<wearProp `"hawk egg " + Math.clamp($eggLayNumber, 1, 3)`>>
 
 You take the unfertilised <<pluralise $eggLayNumber "egg">> from the nest. <<your_bird_text "cap">> doesn't seem to mind. <<tending_pick bird_egg $eggLayNumber $eggLayNumber>>
 <br><br>
@@ -7809,7 +7815,7 @@ You're filled with a sense of maternal bliss.
 		You're flooded with emotion. <<trauma -12>><<lltrauma>>
 	<</if>>
 	<br><br>
-	<<wearProp "hawk egg">>
+	<<wearProp `"hawk egg " + Math.clamp(_eggIcon, 1, 3)`>>
 	<<if $syndromebird isnot 1 and $bird.syndrome gte 15>>
 		Your eyes wander down to the <<pluralise $eggLayNumber "egg">>. Your <<pluralise $eggLayNumber "child">>. Your mind fills with instinctual purpose. You rest your head on <<bhis>> shoulder. <<bHis>> plumage is so soft. Staying here with <<bhim>> doesn't seem so bad anymore.
 		<span class="red">It's not <<bhis>> fault. <<bHe>> only wants a mate.

@@ -1,5 +1,5 @@
 /* Create the sky canvas instance */
-Weather.sky = new Weather.Renderer.Sky({
+Weather.sidebar = new Weather.Renderer.Sky({
 	id: "canvasSkybox",
 	setup: setup.SkySettings.canvas.sidebar,
 	layers: [
@@ -13,8 +13,13 @@ Weather.sky = new Weather.Renderer.Sky({
 		"horizonGlow",
 		"location",
 		"precipitation",
+		"lightningNear",
+		"lightningMid",
+		"lightningFar",
+		"lightningExtra",
 		"bloodGlow",
 		"sunGlow",
 		"fog",
+		"locationSmoke",
 	],
 });

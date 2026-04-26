@@ -578,22 +578,22 @@ function effects() {
 
 		if (V.penisgrowthmessage !== undefined) {
 			switch (V.penisgrowthmessage) {
-				case 4:
+				case 6:
 					element("span", "Your penis has grown to a prodigious size.", "purple");
 					break;
-				case 3:
+				case 5:
 					element("span", "Your penis has grown larger.", "purple");
 					break;
-				case 2:
+				case 4:
 					element("span", "Your penis has grown to an unremarkable size.", "purple");
 					break;
-				case 1:
+				case 3:
 					element("span", "Your penis has grown, though it's still small.", "purple");
 					break;
-				case 0:
+				case 2:
 					element("span", "Your penis looks like it's recovering.", "purple");
 					break;
-				case -1:
+				case 1:
 					element("span", "Your penis looks like it's been given another chance.", "purple");
 					break;
 			}
@@ -603,47 +603,43 @@ function effects() {
 		if (V.penisshrinkmessage !== undefined) {
 			if (V.worn.genitals.name === "chastity parasite") {
 				switch (V.penisshrinkmessage) {
+					case 5:
+						element("span", "Your chastity parasite has shrunk, though it still hints at an impressive penis size.", "purple");
+						break;
+					case 4:
+						element("span", "Your chastity parasite has shrunk to an unremarkable size.", "purple");
+						break;
 					case 3:
-						element("span", "Your chastity parasite has shrunk, though it still hints of an impressive penis size.", "purple");
-						break;
-					case 2:
-						element("span", "Your chastity parasite has shrunk, it hints of a much less unremarkable penis size.", "purple");
-						break;
-					case 1:
 						element("span", "Your chastity parasite has become smaller.", "purple");
 						break;
-					case 0:
+					case 2:
 						element("span", "Your chastity parasite has become tiny.", "purple");
 						break;
-					case -1:
-						element("span", "Your chastity parasite looks ridiculously tiny, you briefly wonder if your penis could still work.", "purple");
+					case 1:
+						element("span", "Your chastity parasite looks like it may shrivel up.", "purple");
 						break;
-					case -2:
-						element(
-							"span",
-							"Your chastity parasite looks like it could just have a clit inside, you briefly wonder if you still have a penis.",
-							"purple"
-						);
+					case 0:
+						element("span", "Your chastity parasite looks like it's barely concealing anything.", "purple");
 						break;
 				}
 			} else {
 				switch (V.penisshrinkmessage) {
-					case 3:
+					case 5:
 						element("span", "Your penis has shrunk, though it's still of an impressive size.", "purple");
 						break;
-					case 2:
+					case 4:
 						element("span", "Your penis has shrunk to an unremarkable size.", "purple");
 						break;
-					case 1:
+					case 3:
 						element("span", "Your penis has become smaller.", "purple");
 						break;
-					case 0:
+					case 2:
 						element("span", "Your penis has become tiny.", "purple");
 						break;
-					case -1:
+					case 1:
 						element("span", "Your penis looks like it may shrivel up.", "purple");
 						break;
-					case -2:
+					case 0:
 						element("span", "Your penis looks like it may never be used properly again.", "purple");
 						break;
 				}
@@ -1200,7 +1196,7 @@ function effects() {
 		if (V.daily.parasiteEvent) {
 			if (V.sexStats.vagina.pregnancy.type === "parasite") {
 				for (let i = 0; i < maxParasites("vagina"); i++) {
-					if (V.sexStats.vagina.pregnancy.fetus[i] != undefined) {
+					if (V.sexStats.vagina.pregnancy.fetus[i] !== undefined) {
 						T.hasVaginaParasiteForEvent = true;
 						break;
 					}
@@ -1208,19 +1204,19 @@ function effects() {
 			}
 			if (V.sexStats.anus.pregnancy.type === "parasite") {
 				for (let i = 0; i < maxParasites("anus"); i++) {
-					if (V.sexStats.anus.pregnancy.fetus[i] != undefined) {
+					if (V.sexStats.anus.pregnancy.fetus[i] !== undefined) {
 						T.hasAnusParasiteForEvent = true;
 						break;
 					}
 				}
 			}
 			if (!T.hasVaginaParasiteForEvent) {
-				V.daily.parasiteEvent = V.daily.parasiteEvent.filter(function(event) {
+				V.daily.parasiteEvent = V.daily.parasiteEvent.filter(function (event) {
 					return !event.includes("vagina");
 				});
 			}
 			if (!T.hasAnusParasiteForEvent) {
-				V.daily.parasiteEvent = V.daily.parasiteEvent.filter(function(event) {
+				V.daily.parasiteEvent = V.daily.parasiteEvent.filter(function (event) {
 					return !event.includes("anus");
 				});
 			}
@@ -1342,6 +1338,27 @@ function effects() {
 			br();
 			V.earSlime.event = "";
 			V.earSlime.noSleep = false;
+		}
+	}
+
+	if (V.cheatClothes) {
+		if (V.worn.upper.name !== "naked") {
+			V.worn.upper.integrity = V.worn.upper.integrity_max;
+		}
+		if (V.worn.over_upper.name !== "naked") {
+			V.worn.over_upper.integrity = V.worn.over_upper.integrity_max;
+		}
+		if (V.worn.over_lower.name !== "naked") {
+			V.worn.over_lower.integrity = V.worn.over_lower.integrity_max;
+		}
+		if (V.worn.lower.name !== "naked") {
+			V.worn.lower.integrity = V.worn.lower.integrity_max;
+		}
+		if (V.worn.under_lower.name !== "naked") {
+			V.worn.under_lower.integrity = V.worn.under_lower.integrity_max;
+		}
+		if (V.worn.under_upper.name !== "naked") {
+			V.worn.under_upper.integrity = V.worn.under_upper.integrity_max;
 		}
 	}
 

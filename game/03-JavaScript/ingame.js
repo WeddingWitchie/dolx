@@ -419,9 +419,6 @@ function loveInterestFunction() {
 		delete T.awareChecked;
 		Wikifier.wikifyEval("<<replace #loveInterest>><<loveInterest>><</replace>>");
 	});
-	jQuery(document).on("change", "#listbox-loveinteresttertiary", function (e) {
-		Wikifier.wikifyEval("<<replace #loveInterest>><<loveInterest>><</replace>>");
-	});
 }
 DefineMacro("loveInterestFunction", loveInterestFunction);
 
@@ -575,11 +572,10 @@ function updateAskColour() {
 }
 DefineMacroS("updateAskColour", updateAskColour);
 
-function bulkProduceValue(plant, quantity = 250) {
-	if (plant != null) {
-		const baseCost = (plant.plant_cost * quantity) / 2;
-
-		const seasonBoost = !plant.season.includes(Time.season) ? 1.1 : 1;
+function bulkProduceValue(foodstuff, quantity = 250) {
+	if (foodstuff != null) {
+		const baseCost = (foodstuff.shop.sell_price * quantity) / 2;
+		const seasonBoost = foodstuff.tending?.seasons && !foodstuff.tending.seasons.includes(Time.season) ? 1.1 : 1;
 
 		const qualityControlBoost = V.factoryUpgrades.qualityControl ? V.factoryUpgrades.qualityControl * 0.05 : 0; // +5% per level
 		const packagingBoost = V.factoryUpgrades.packaging ? V.factoryUpgrades.packaging * 0.05 : 0; // +5% per level
@@ -1901,7 +1897,7 @@ function hasSexStat(input, required, modifiers = 2) {
 	}
 	statValue = Math.clamp(statValue, 0, 100);
 
-	if (V.xchange.pill.bimboEffect) {
+	if (V.xchange?.pill?.bimboEffect) {
 		statValue = 100;
 	}
 
@@ -2127,7 +2123,7 @@ window.checkTFparts = checkTFparts;
 
 /*
 	Might be good to convert the whole TF mechanic, including `transformationStateUpdate` to something like below at some point.
-	Part of the transformationParts is unused right now, but its to account for this potential.
+	Part of the transformationParts is unused right now, but it's to account for this potential.
 */
 function setupTransformations() {
 	setup.transformations = [
@@ -2734,6 +2730,8 @@ function dailyConvert() {
 			wolfCaveDog: V.wolf_cave_dog,
 			jordan_missing: V.jordan_missing,
 			blackWolfMonsterRoll: V.blackWolfMonsterRoll,
+			greatHawkMonsterRoll: V.greatHawkMonsterRoll,
+			nightMonsterMonsterRoll: V.nightMonsterMonsterRoll,
 			templePray: V.temple_pray,
 			lakeMeditate: V.lake_meditate,
 			masonSpoken: V.mason_spoken,
@@ -2741,7 +2739,6 @@ function dailyConvert() {
 			rocksPoolInvite: V.rocks_pool_invite,
 			birdWash: V.bird_wash,
 			birdDailyGreeting: V.birdDailyGreeting,
-			greatHawkMonsterRoll: V.greatHawkMonsterRoll,
 			estateBluffed: V.estate_bluffed,
 			estateChaos: V.estate_chaos,
 			spaEvent: V.spa_event,
@@ -2810,7 +2807,7 @@ function dailyConvert() {
 			// eslint-disable-next-line prettier/prettier
 			/* pharm */ "left_before_nurse_returned", "pharmTriedSeduction", "pharmSexFinished", "pharmClosed", "pharmSeductionFailed", "pharmDaily",
 			// eslint-disable-next-line prettier/prettier
-			/* misc */ "comb", "motherwake", "harpervisit", "policecollarseduceattempt", "tenyclusPlayed", "beachstrip", "compoundstate", "baileyvisit", "lakecouple", "museumgreengemtouch", "fenceclimb", "cafeeaten", "mirrortentacles", "massattended", "dockexhibitionism", "home_event", "leightondanceoffered", "wolf_cave_dog", "jordan_missing", "blackWolfMonsterRoll", "temple_pray", "lake_meditate", "mason_spoken", "stall_rented", "rocks_pool_invite", "bird_wash", "birdDailyGreeting", "greatHawkMonsterRoll", "estate_bluffed", "estate_chaos", "spa_event", "estate_done", "lewd_unlock", "bailey_wake_day", "manor_forage", "manor_garden", "manor_kitchen", "manor_parents", "manor_lab", "promiscuitystress1", "promiscuitystress2", "promiscuitystress3", "promiscuitystress4", "promiscuitystress5", "exhibitionismstress1", "exhibitionismstress2", "exhibitionismstress3", "exhibitionismstress4", "exhibitionismstress5", "deviancystress1", "deviancystress2", "deviancystress3", "deviancystress4", "deviancystress5", "seenPets", "asylumfirsttreatment", "asylumsecondtreatment", "asylumassessment", "asylumexercise", "slimeFarmNaked"
+			/* misc */ "comb", "motherwake", "harpervisit", "policecollarseduceattempt", "tenyclusPlayed", "beachstrip", "compoundstate", "baileyvisit", "lakecouple", "museumgreengemtouch", "fenceclimb", "cafeeaten", "mirrortentacles", "massattended", "dockexhibitionism", "home_event", "leightondanceoffered", "wolf_cave_dog", "jordan_missing", "blackWolfMonsterRoll", "greatHawkMonsterRoll", "nightMonsterMonsterRoll", "temple_pray", "lake_meditate", "mason_spoken", "stall_rented", "rocks_pool_invite", "bird_wash", "birdDailyGreeting", "estate_bluffed", "estate_chaos", "spa_event", "estate_done", "lewd_unlock", "bailey_wake_day", "manor_forage", "manor_garden", "manor_kitchen", "manor_parents", "manor_lab", "promiscuitystress1", "promiscuitystress2", "promiscuitystress3", "promiscuitystress4", "promiscuitystress5", "exhibitionismstress1", "exhibitionismstress2", "exhibitionismstress3", "exhibitionismstress4", "exhibitionismstress5", "deviancystress1", "deviancystress2", "deviancystress3", "deviancystress4", "deviancystress5", "seenPets", "asylumfirsttreatment", "asylumsecondtreatment", "asylumassessment", "asylumexercise", "slimeFarmNaked"
 		].forEach(n => delete V[n]);
 	}
 }
@@ -2966,7 +2963,7 @@ window.beastMaleChance = beastMaleChance;
 function penisNames(override) {
 	const names = ["penis"];
 
-	if (V.player.penissize < 0 && !override) return names;
+	if (V.player.penissize < 2 && !override) return names;
 
 	if ((V.awareness >= 100 && !override) || override >= 1) names.push("dick");
 	if ((V.awareness >= 200 && V.purity < 900 && !override) || override >= 2) names.push("cock");
@@ -3128,7 +3125,7 @@ $(document).on(":onWeatherChange", () => {
 	if (T.currentWeather.precipitationIntensity === 0) precipitation = "none";
 	else precipitation = Weather.isFreezing ? "snow" : "rain";
 
-	if (V.daily?.plotsRain || precipitation !== "rain") return;
+	if (!V.daily || V.daily?.plotsRain || precipitation !== "rain") return;
 	V.daily.plotsRain = true;
 	Object.entries(V.plots).forEach(([location, plots]) => {
 		// Don't water greenhouse plants from rain - disabled for now
@@ -3185,7 +3182,7 @@ function tendingDay() {
 			// Growth check
 			if (plot.stage >= 1 && (plot.water === 1 || plot.bed === "water")) {
 				plot.days += 1;
-				if (plot.days >= setup.plants[plot.plant].days * ((plot.stage + 1) / 5)) {
+				if (plot.days >= (setup.foodstuff[plot.plant].tending.growth_days * (plot.stage + 1)) / 5) {
 					plot.stage += 1;
 				}
 			}
@@ -3268,8 +3265,8 @@ window.unableTakeVirginity = unableTakeVirginity;
 function canGiftFood(npc) {
 	let amount = 0;
 
-	Object.values(setup.plants).forEach(plants => {
-		if (plants.type === "food" && V.plants[plants.name] && V.plants[plants.name].amount > 0) {
+	Object.entries(setup.foodstuff).forEach(([key, item]) => {
+		if (item.category === "dish" && V.foodstuff[key]?.amount > 0) {
 			amount++;
 		}
 	});
@@ -3284,9 +3281,9 @@ function ingredientIsAllowed(providedKey) {
 	const isAllowed = key => {
 		if (provided.includes(key) || !exceptions || exceptions.includes(key)) return true;
 
-		const setupObject = setup.plants[key];
-		if (Array.isArray(setupObject?.ingredients) && setupObject.ingredients.length) {
-			return setupObject.ingredients.every(ingredient => {
+		const setupObject = setup.foodstuff[key];
+		if (setupObject.recipe?.ingredients.length) {
+			return setupObject.recipe.ingredients.every(ingredient => {
 				return isAllowed(ingredient);
 			});
 		}
@@ -3298,28 +3295,37 @@ function ingredientIsAllowed(providedKey) {
 window.ingredientIsAllowed = ingredientIsAllowed;
 
 function ingredientAlternativesSetup(recipe) {
-	const alternatives = {
-		bottle_of_milk: [],
-		cream: [],
-		strange_flower: ["blood_lemon"],
-		chicken_egg: ["bird_egg"],
-		beef: [],
+	const alternatives = {};
+	const addAlternative = (ingredient, alternative) => {
+		if (!alternatives[ingredient]) alternatives[ingredient] = [];
+		alternatives[ingredient].pushUnique(alternative);
 	};
-	if (V.chef_state >= 3 && T.allowLewdIngredients && (!V.options.ingredientsAutoManage || V.options.ingredientsAutoManageLewd)) {
-		alternatives.bottle_of_milk.pushUnique("baby_bottle_of_breast_milk");
-		alternatives.cream.pushUnique("bottle_of_semen");
+	const lewdAllowed = V.chef_state >= 3 && T.allowLewdIngredients && (!V.options.ingredientsAutoManage || V.options.ingredientsAutoManageLewd);
+
+	Object.entries(setup.foodstuff).forEach(([key, item]) => {
+		const ingredientAlternatives = item?.ingredient_alternatives;
+		if (!ingredientAlternatives) return;
+		ingredientAlternatives.normal.forEach(alternative => addAlternative(key, alternative));
+		if (lewdAllowed) ingredientAlternatives.lewd.forEach(alternative => addAlternative(key, alternative));
+	});
+
+	const recipeAlternatives = setup.foodstuff[recipe]?.recipe?.ingredient_alternatives;
+	if (recipeAlternatives?.normal) {
+		Object.entries(recipeAlternatives.normal).forEach(([ingredient, list]) => {
+			list.forEach(alternative => addAlternative(ingredient, alternative));
+		});
 	}
-	switch (recipe) {
-		case "lasagne":
-			alternatives.beef.pushUnique("chicken");
-			break;
+	if (lewdAllowed && recipeAlternatives?.lewd) {
+		Object.entries(recipeAlternatives.lewd).forEach(([ingredient, list]) => {
+			list.forEach(alternative => addAlternative(ingredient, alternative));
+		});
 	}
 
 	return alternatives;
 }
 
 function ingredientsProvided(mainIngredient, recipe) {
-	if (!setup.plants[mainIngredient] || !setup.plants[recipe]) return false;
+	if (!setup.foodstuff[mainIngredient] || !setup.foodstuff[recipe]) return false;
 	const alternatives = ingredientAlternativesSetup(recipe);
 	const options = [mainIngredient];
 
@@ -3333,18 +3339,18 @@ function ingredientUsed(mainIngredient, recipe) {
 
 	// When auto management has been disabled
 	if (!V.options.ingredientsAutoManage) {
-		if (Array.isArray(alternatives[mainIngredient]) && alternatives[mainIngredient].includes(V.plants[mainIngredient].alternative)) {
-			return V.plants[mainIngredient].alternative;
+		if (Array.isArray(alternatives[mainIngredient]) && alternatives[mainIngredient].includes(V.foodstuff[mainIngredient].alternative)) {
+			return V.foodstuff[mainIngredient].alternative;
 		}
 		return mainIngredient;
 	}
 
 	// Check for any provided ingredients first
-	if (ingredientsProvided(mainIngredient)) return ingredientsProvided(mainIngredient);
+	if (ingredientsProvided(mainIngredient, recipe)) return ingredientsProvided(mainIngredient, recipe);
 
 	// Check for alternatives if there is none of the normal ingredient
-	if (alternatives[mainIngredient]?.length && V.plants[mainIngredient]?.amount <= 0) {
-		const alternative = alternatives[mainIngredient].find(ingredient => V.plants[ingredient]?.amount > 0);
+	if (alternatives[mainIngredient]?.length && V.foodstuff[mainIngredient]?.amount <= 0) {
+		const alternative = alternatives[mainIngredient].find(ingredient => V.foodstuff[ingredient]?.amount > 0);
 		if (alternative) return alternative;
 	}
 	return mainIngredient;
@@ -3352,12 +3358,12 @@ function ingredientUsed(mainIngredient, recipe) {
 window.ingredientUsed = ingredientUsed;
 
 function ingredientsTotal(mainIngredient, recipe, includeAlternatives) {
-	if (!setup.plants[mainIngredient]) return 0;
+	if (!setup.foodstuff[mainIngredient]) return 0;
 	const alternatives = ingredientAlternativesSetup(recipe);
-	let count = V.plants[mainIngredient].amount;
+	let count = V.foodstuff[mainIngredient].amount;
 	if (includeAlternatives && alternatives[mainIngredient] && !T.ingredientsSupplied?.includes(mainIngredient)) {
 		alternatives[mainIngredient].forEach(ingredient => {
-			count += V.plants[ingredient]?.amount || 0;
+			count += V.foodstuff[ingredient]?.amount || 0;
 		});
 	}
 	return count;
@@ -3373,12 +3379,12 @@ function ingredientsOptions(mainIngredient, recipe) {
 window.ingredientsOptions = ingredientsOptions;
 
 function ingredientsNextAlternative(mainIngredient, recipe) {
-	if (!V.plants[mainIngredient]) return;
+	if (!V.foodstuff[mainIngredient]) return;
 	const options = ingredientsOptions(mainIngredient, recipe);
-	const currentAlt = V.plants[mainIngredient].alternative || mainIngredient;
+	const currentAlt = V.foodstuff[mainIngredient].alternative || mainIngredient;
 	const currentIndex = options.indexOf(currentAlt);
 	const nextIndex = currentIndex === -1 || currentIndex + 1 >= options.length ? 0 : currentIndex + 1;
-	V.plants[mainIngredient].alternative = options[nextIndex];
+	V.foodstuff[mainIngredient].alternative = options[nextIndex];
 }
 window.ingredientsNextAlternative = ingredientsNextAlternative;
 
@@ -3403,8 +3409,8 @@ function kitchenFilter() {
 	let providedIngredients = false;
 	let knownRestrictions = false;
 
-	Object.keys(setup.plants).forEach((recipe) => {
-		const item = setup.plants[recipe];
+	Object.keys(setup.foodstuff).forEach((recipe) => {
+		const item = setup.foodstuff[recipe];
 
 		// FILTER: only keep items that match at least one term (case-insensitive)
 		if (terms.length) {
@@ -3413,14 +3419,14 @@ function kitchenFilter() {
 					V.options.ingredientsSearch !== "ingredients" &&
 					(
 						norm(item.name).includes(term) ||
-						norm(item.type).includes(term) ||
+						norm(item.category).includes(term) ||
 						norm(item.plural).includes(term) ||
 						norm(item.singular).includes(term)
 					);
 
 				const matchesRecipe =
 					V.options.ingredientsSearch !== "recipes" &&
-					(item.ingredients ?? []).some((ingredient) =>
+					(item.recipe?.ingredients ?? []).some((ingredient) =>
 						norm(ingredient).includes(term) ||
 						norm(ingredientUsed(ingredient)).includes(term)
 					);
@@ -3441,22 +3447,21 @@ function kitchenFilter() {
 			}
 			return;
 		}
-
-		if (!V.plants[recipe].recipe || !item.ingredients) return;
+		if (!V.foodstuff[recipe].knows_recipe || !item.recipe || !item.recipe.ingredients.length) return;
 
 		let group;
-		if (item.special.includes("sweet")) {
+		if (item.food?.tags.includes("sweet")) {
 			group = "sweets";
-		} else if (item.special.includes("drink")) {
+		} else if (item.food?.tags.includes("drink")) {
 			group = "drinks";
-		} else if (item.type.includes("ingredient")) {
+		} else if (item.category === "ingredient") {
 			group = "ingredients";
 		} else {
 			group = "savouries";
 		}
 
 		let missingIngredientsFound = false;
-		item.ingredients.forEach((ingredient) => {
+		item.recipe.ingredients.forEach((ingredient) => {
 			if (ingredientsTotal(ingredient, recipe, true) <= 0 && !ingredientsProvided(ingredient, recipe)) {
 				missingIngredientsFound = true;
 			}
@@ -3488,24 +3493,24 @@ function marketFilter() {
 
 	let missingItems = false;
 
-	Object.keys(setup.plants).forEach(product => {
-		const item = setup.plants[product];
+	Object.keys(setup.foodstuff).forEach(product => {
+		const item = setup.foodstuff[product];
 
-		if (V.plants[product].amount <= 0 && V.plants[product].marketStall === undefined) return;
+		if (V.foodstuff[product].amount <= 0 && V.foodstuff[product].marketStall === undefined) return;
 
-		// Makes sure items always get this set for older saves
-		if (V.plants[product].marketStall === undefined) V.plants[product].marketStall = !setup.plants[product]?.shop?.length;
+		// Defaults items to not be displayed in the market stall
+		if (V.foodstuff[product].marketStall === undefined) V.foodstuff[product].marketStall = false;
 
 		if (
 			marketFilter &&
-			!marketFilter.find(term => item.name.includes(term) || item.type.includes(term) || item.plural?.includes(term) || item.singular?.includes(term))
+			!marketFilter.find(term => item.name.includes(term) || item.category.includes(term) || item.plural?.includes(term) || item.singular?.includes(term))
 		) {
 			return;
 		}
 
-		T.marketGroups.pushUnique(item.type);
-		let group = item.type;
-		if (V.plants[product].amount <= 0) {
+		T.marketGroups.pushUnique(item.category);
+		let group = item.category;
+		if (V.foodstuff[product].amount <= 0) {
 			missingItems = true;
 			group = "No Stock";
 		}
@@ -3602,3 +3607,17 @@ function displayDefiantOption(amount) {
 	}
 }
 window.displayDefiantOption = displayDefiantOption;
+
+function breakableSoftBinding() {
+	/* Allow unbinding any arm bindings, but limit unbinding legs to soft materials or bugged bound states with no clothing */
+	if (
+		pcAreArmsBound("any") ||
+		((["ropes", "vines"].includes(V.worn.feet.name) || [V.feetuse, V.leftleg, V.rightleg].includes("bound")) &&
+		!["ankle cuffs", "ball and chain"].includes(V.worn.feet.name))
+	) {
+		return true;
+	}
+	return false;
+}
+
+window.breakableSoftBinding = breakableSoftBinding;

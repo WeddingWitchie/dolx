@@ -2,6 +2,7 @@ Weather.Renderer.Effect = class Effect {
 	constructor(effect, condition, compositeOperation, params) {
 		this.params = params ?? {};
 		this.id = params.id;
+		this.effectName = effect.name;
 		this.onInit = effect.init;
 		this.onDraw = effect.draw;
 		this.onEnable = effect.onEnable;
@@ -63,15 +64,18 @@ Weather.Renderer.Effect = class Effect {
 
 		if (this.imagePaths && Object.keys(this.imagePaths).length > 0) {
 			imageLoadPromises = Object.keys(this.imagePaths).map(name => {
-				return new Promise((resolve, reject) => {
-					const img = new Image();
-					img.onload = () => {
+				const src = this.imagePaths[name];
+				return window.ImageCache.getOrCreate(src)
+					.then(img => {
 						this.images[name] = img;
-						resolve(img);
-					};
-					img.onerror = () => reject(new Error(`Could not load image ${name} at path ${this.imagePaths[name]}`));
-					img.src = this.imagePaths[name];
-				});
+						return img;
+					})
+					.catch(() => {
+						if (V.options.images) {
+							Errors.report(`Warning: Missing effect image: Could not load image ${name} at path ${src}`);
+						}
+						return null;
+					});
 			});
 		}
 
@@ -79,7 +83,7 @@ Weather.Renderer.Effect = class Effect {
 		const subEffectsImageLoadPromises = this.effects.map(subEffect => subEffect.loadImages());
 		return Promise.all([...imageLoadPromises, ...subEffectsImageLoadPromises]);
 	}
-
+	
 	/**
 	 * Allows adding of sub-effects recursively
 	 *
@@ -112,8 +116,8 @@ Weather.Renderer.Effect = class Effect {
 	}
 
 	/**
-	 * Initializes the effect. This method should be called before draw().
-	 * It ensures all sub-effects are initialized and executes the effect's custom init logic
+	 * Initialises the effect. This method should be called before draw().
+	 * It ensures all sub-effects are initialised and executes the effect's custom init logic
 	 *
 	 * @returns {Promise} A promise that resolves when the init is complete
 	 */

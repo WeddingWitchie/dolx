@@ -241,7 +241,7 @@ const statChange = (() => {
 			if (V.cow >= 6 || V.transformationParts.cow.tail === "default" || V.transformationParts.cow.tail === "black") amount *= 2;
 			if (V.semen_volume >= V.semen_max || V.AMCTraits.halfGain == 1) amount /= 2;
 			/* Prevents those who can only have "female climax" increase their cum volume */
-			if (V.player.penissize > -2 || amount <= 0) V.semen_volume += amount * (V.statGainMult / 100);
+			if (V.player.penissize > 0 || amount <= 0) V.semen_volume += amount * (V.statGainMult / 100);
 
 			V.semen_volume = Math.clamp(V.semen_volume, 0, V.semen_max * V.AMCTraits.semen);
 		}
@@ -739,25 +739,25 @@ const statChange = (() => {
 		amount = Number(amount);
 		if (amount) {
 			switch (V.player.penissize) {
-				case 4:
+				case 6:
 					insecurity("penis_big", amount);
 					return statDisplay.ginsecurity("penis_big");
-				case 3:
+				case 5:
 					if (V.player.gender !== "m") {
 						insecurity("penis_big", amount);
 						return statDisplay.ginsecurity("penis_big");
 					}
 					break;
-				case 1:
+				case 3:
 					insecurity("penis_small", amount);
 					return statDisplay.ginsecurity("penis_small");
-				case 0:
+				case 2:
 					insecurity("penis_small", Math.floor(amount * 1.5));
 					return statDisplay.ginsecurity("penis_small");
-				case -1:
+				case 1:
 					insecurity("penis_small", Math.floor(amount * 2));
 					return statDisplay.ginsecurity("penis_small");
-				case -2:
+				case 0:
 					insecurity("penis_small", Math.floor(amount * 2.5));
 					return statDisplay.ginsecurity("penis_small");
 			}
@@ -789,8 +789,8 @@ const statChange = (() => {
 
 		return [
 			{
-				penis_small: V.player.penisExist && V.player.penissize <= 1,
-				penis_big: V.player.penisExist && V.player.penissize >= (V.player.gender === "m" ? 4 : 3),
+				penis_small: V.player.penisExist && V.player.penissize <= 3,
+				penis_big: V.player.penisExist && V.player.penissize >= (V.player.gender === "m" ? 6 : 5),
 				breasts_small: V.player.gender === "f" && between(V.player.breastsize, 0, 4),
 				breasts_big: V.player.breastsize >= (V.player.gender === "m" ? 1 : 8),
 				pregnancy: playerBellySize() >= 8,
@@ -872,16 +872,16 @@ const statChange = (() => {
 		if (amount > 0) {
 			let type;
 			switch (V.player.penissize) {
-				case 4:
+				case 6:
 					type = "penis_big";
 					break;
-				case 3:
+				case 5:
 					if (V.player.gender !== "m") type = "penis_big";
 					break;
+				case 3:
+				case 2:
 				case 1:
 				case 0:
-				case -1:
-				case -2:
 					type = "penis_small";
 					break;
 			}
@@ -965,7 +965,7 @@ const statChange = (() => {
 		if (isNaN(amount)) paramError("livestockObey", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 		if (amount) {
-			V.livestock_obey = Math.clamp((V.livestock_obey || 0) + amount, 0, 100);
+			V.livestock.obey = Math.clamp((V.livestock.obey || 0) + amount, 0, 100);
 		}
 	}
 	DefineMacro("livestock_obey", livestockObey);
@@ -1345,7 +1345,7 @@ const statChange = (() => {
 		if (lastBadEnd && !lastBadEnd.trackedEnd) {
 			badEndTrackingEnd(lastBadEnd.source, {
 				reason: "unknown",
-				notes: `Not tracked in passage ${V.passage}, likely from an error`,
+				notes: `A bad end started in passage ${V.passage} while the previous bad end was still active. This is an error. Please report this to Vrelnir.`,
 			});
 		}
 
@@ -1369,7 +1369,8 @@ const statChange = (() => {
 		if (!lastBadEnd || lastBadEnd.source !== source || lastBadEnd.trackedEnd) {
 			badEndTracking(source, {
 				reason: "unknown",
-				notes: `Not correctly tracked in passage ${V.passage}, ${V.badEndStats.length ? "likely from an error" : "likely from loading an old save"}`,
+				notes: `No bad end was considered active in ${V.passage} when badEndTrackingEnd was called. This is
+				 ${V.badEndStats.length ? "an error. Please report this to Vrelnir" : "likely due to loading an old save"}.`,
 			});
 			lastBadEnd = V.badEndStats.last();
 		}

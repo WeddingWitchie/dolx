@@ -66,7 +66,7 @@
 				const detailsArg = details
 					? `\`C.npc['${name}'].virginityDetails.${virginity}\``
 					: '';
-				T[virginityNamed].push(`${nameText}<<virginityToolTip ${detailsArg} ${name} "npc" ${virginity}>>`);
+				T[virginityNamed].push(`${nameText}<<virginityToolTip ${detailsArg} "${name}" "npc" ${virginity}>>`);
 			}
 		})>>
 
@@ -594,7 +594,7 @@
 		<</if>>
 		<br>
 		School lessons missed: <<print Object.values($schoolLessonsMissed).reduce((x, y) => x + y)>>
-		<mouse class="tooltip linkBlue">(?)<span>Bad math in earlier versions of the game may mean these stats are inaccurate before version '0.4.0.0'</span></mouse>
+		<mouse class="tooltip linkBlue">(?)<span>Bad maths in earlier versions of the game may mean these stats are inaccurate before version '0.4.0.0'</span></mouse>
 		<br>
 		Science lessons missed: $schoolLessonsMissed.science
 		<br>
@@ -852,14 +852,14 @@
 				<br>
 			<</if>>
 			<<if $player.penisExist>>
-				<<if $player.penissize gte -1>>
+				<<if $player.penissize gte 1>>
 					<<set $_penisGrowthMin to 0>>
 				<<else>>
 					<<set $_penisGrowthMin to -400>>
 				<</if>>
 				<<if $player.penissize gt 0>>
 					<<set $_penisGrowthMax to 1000>>
-				<<elseif $player.penissize is 0>>
+				<<elseif $player.penissize is 2>>
 					<<set $_penisGrowthMax to 1200>>
 				<<else>>
 					<<set $_penisGrowthMax to 1500>>
@@ -874,17 +874,17 @@
 				<mouse class="tooltip linkBlue">(?)<span>Reach 100% or above to grow, 0% or below to shrink.</span></mouse>
 				<br>
 				<<if $sexStats && $sexStats.pills>>
-					Penis can grow: <<print $player.penissize lt $penissizemax and ($player.penissize gte -1 or $sexStats.pills["pills"]["penis growth"].overdose - $sexStats.pills["pills"]["penis reduction"].overdose - ($worn.genitals.type.includes("shrinking") ? 20 : 0) gte 20)>>
-					<<if $player.penissize is -2 and $sexStats.pills["pills"]["penis growth"].overdose - $sexStats.pills["pills"]["penis reduction"].overdose - ($worn.genitals.type.includes("shrinking") ? 20 : 0) lt 20>>
+					Penis can grow: <<print $player.penissize lt $penissizemax and ($player.penissize gte 1 or $sexStats.pills["pills"]["penis growth"].overdose - $sexStats.pills["pills"]["penis reduction"].overdose - ($worn.genitals.type.includes("shrinking") ? 20 : 0) gte 20)>>
+					<<if $player.penissize is 0 and $sexStats.pills["pills"]["penis growth"].overdose - $sexStats.pills["pills"]["penis reduction"].overdose - ($worn.genitals.type.includes("shrinking") ? 20 : 0) lt 20>>
 						<mouse class="tooltip linkBlue">(?)<span>Need to overdose on growing pills or use an urchin penis parasite.</span></mouse>
 					<<elseif $player.penissize is $penissizemax>>
 						<mouse class="tooltip linkBlue">(?)<span>At max size.</span></mouse>
 					<</if>>
 					<br>
-					Penis can shrink: <<print $player.penissize gt $penissizemin and ($player.sex isnot "f" or $player.penissize gt 0) and ($player.penissize gte 0 or $sexStats.pills["pills"]["penis growth"].overdose - $sexStats.pills["pills"]["penis reduction"].overdose - ($worn.genitals.type.includes("shrinking") ? 20 : 0) lte -20)>>
-					<<if $player.sex is "f" && $player.penissize is 0>>
+					Penis can shrink: <<print $player.penissize gt $penissizemin and ($player.sex isnot "f" or $player.penissize gt 0) and ($player.penissize gte 2 or $sexStats.pills["pills"]["penis growth"].overdose - $sexStats.pills["pills"]["penis reduction"].overdose - ($worn.genitals.type.includes("shrinking") ? 20 : 0) lte -20)>>
+					<<if $player.sex is "f" && $player.penissize is 2>>
 						<mouse class="tooltip linkBlue">(?)<span>At min size for the parasite penis.</span></mouse>
-					<<elseif $player.penissize is -1 and $sexStats.pills["pills"]["penis growth"].overdose - $sexStats.pills["pills"]["penis reduction"].overdose - ($worn.genitals.type.includes("shrinking") ? 20 : 0) gt -20>>
+					<<elseif $player.penissize is 1 and $sexStats.pills["pills"]["penis growth"].overdose - $sexStats.pills["pills"]["penis reduction"].overdose - ($worn.genitals.type.includes("shrinking") ? 20 : 0) gt -20>>
 						<mouse class="tooltip linkBlue">(?)<span>Need to overdose on shrinking pills or use a slime penis parasite.</span></mouse>
 					<<elseif $player.penissize is $penissizemin>>
 						<mouse class="tooltip linkBlue">(?)<span>At min size.</span></mouse>
@@ -2297,7 +2297,7 @@
 <</widget>>
 
 <<widget "produceStats">>
-	<<set $_produceKeys to Object.keys(clone(setup.plants))>>
+	<<set $_produceKeys to Object.keys(clone(setup.foodstuff))>>
 	<span @class="_produceStatsCurrent ? '' : 'goldLink'">
 		/* Inverted in how it works */
 		<<link `_produceStatsCurrent ? "Show player stats" : "Hide player stats"`>>
@@ -2345,13 +2345,13 @@
 					if (a.toUpperCase() < b.toUpperCase()) return -1;
 					return 1;
 				case "Value":
-					return (setup.plants[b]?.plant_cost || 0) - (setup.plants[a]?.plant_cost || 0);
+					return setup.foodstuff[b].shop.sell_price - setup.foodstuff[a].shop.sell_price;
 				case "Amount":
-					return ($plants[b].amount || 0) - ($plants[a].amount || 0);
+					return ($foodstuff[b].amount || 0) - ($foodstuff[a].amount || 0);
 				case "Total":
-					return ((setup.plants[b]?.plant_cost * $plants[b].amount) || 0) - ((setup.plants[a]?.plant_cost * $plants[a].amount) || 0);
+					return (setup.foodstuff[b].shop.sell_price * $foodstuff[b].amount || 0) - (setup.foodstuff[a].shop.sell_price * $foodstuff[a].amount || 0);
 				case "Market: Allowed to be sold":
-					return $plants[b]?.marketStall ? 1 : -1;
+					return $foodstuff[b]?.marketStall ? 1 : -1;
 				case "Market: Sold Today":
 					return ($stall_stats[b]?.sold.amount || 0) - ($stall_stats[a]?.sold.amount || 0);
 				case "Market: Average Today":
@@ -2403,8 +2403,8 @@
 			</tr>
 		</thead>
 		<<for $_key range $_produceKeys>>
-			<<set $_produce to clone(setup.plants[$_key])>>
-			<<set $_playerProduce to clone($plants[$_key])>>
+			<<set $_produce to clone(setup.foodstuff[$_key])>>
+			<<set $_playerProduce to clone($foodstuff[$_key])>>
 			<<if $_playerProduce.amount lte 0 and
 			!$stall_stats?.[$_key]?.sold.amount and !$stall_stats?.[$_key]?.sold.amountHistory and
 			!$farmersProduce?.selling[$_key] and !$farmersProduce?.soldData?.[$_key]>>
@@ -2415,7 +2415,7 @@
 					<<recipe_name $_key>>
 				</td>
 				<td data-label="Value">
-					<<printmoney `$_produce.plant_cost or 0`>>
+					<<printmoney `$_produce?.shop?.cost ?? 0`>>
 				</td>
 				<<if !_produceStatsCurrent>>
 					<td data-label="Amount">
@@ -2427,7 +2427,7 @@
 					</td>
 					<td data-label="Total">
 						<<if $_playerProduce.amount gt 0>>
-							<<printmoney `($_produce.plant_cost or 0) * $_playerProduce.amount`>>
+							<<printmoney `($_produce?.shop?.cost ?? 0) * $_playerProduce.amount`>>
 						<<else>>
 							<span class="dash">-</span>
 						<</if>>
@@ -2435,8 +2435,8 @@
 				<</if>>
 				<<if _produceStatsMarket or _produceStatsMarketOverall>>
 					<td data-label="Market: Allowed to be sold">
-						<<if $plants[$_key]?.marketStall isnot undefined>>
-							<<print $plants[$_key].marketStall>>
+						<<if $foodstuff[$_key]?.marketStall isnot undefined>>
+							<<print $foodstuff[$_key].marketStall>>
 						<<else>>
 							<span class="dash">-</span>
 						<</if>>

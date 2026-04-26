@@ -8,7 +8,7 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 	<br><br>
 <</if>>
 
-<<if $farm.build isnot undefined and $farm.build isnot 0>>
+<<if $farm.build>>
 	<<switch $farm.build>>
 	<<case "wall 1">>
 		<span class="lblue">The wall is being repaired.</span>
@@ -97,8 +97,10 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 
 <<if $farm_stage lte 6>>
 	You'll earn <<moneyGainDisplay $farm.wage>> for every hour worked.
+	<br><br>
+<<elseif !$farm.build>>
+	<br><br>
 <</if>>
-<br><br>
 
 <<if ($exposed gte 2 and $uncomfortable.nude is true) or ($exposed is 1 and $uncomfortable.underwear is true)>>
 	<<if $farm.build_timer gte 1 and Time.hour gte 6>>
@@ -322,7 +324,7 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 	You're left on your back. Alex straddles you, and pins your wrists to the earth. "What's wrong?" <<he>> teases. "Can't you break free?"<<gglust>><<npcincr Alex lust 5>><<gdom>><<npcincr Alex dom 1>>
 	<br><br>
 
-	<<link [[Get on top|Farm Love Get]]>><<unset $alex_countdown>><</link>><<physiquedifficulty 1 16000>>
+	<<link [[Get on top|Farm Love Get]]>><<unset $alex_countdown>><</link>><<physiquedifficulty 1 15000>>
 	<br>
 	<<link [[Get annoyed|Farm Love Annoyed]]>><<unset $alex_countdown>><</link>>
 	<br>
@@ -398,16 +400,17 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 <<elseif $farm.build_finished.includes("tower 1")>>
 	<<run $farm.build_finished.delete("tower 1")>>
 	<<npc Alex>><<person1>>
+	<<loadNPC 1 "alexs_parent1">>
 	<span class="gold">A watchtower now stands guard over the fields.</span> You stand at its base. It looms above you. A head appears, leaning out the top. It's Alex.
 	<br><br>
 	"Come up," <<he>> says. "The view is fantastic."
 	<br><br>
 	You climb the wooden stairs, and emerge at the top. There's a roof overhead, but it's otherwise open. You can see the entire farm, the moor in one direction, and even the sea in the other.
 	<br><br>
-	<span class="purple">"We'll need to hire someone,"</span> Alex says, looking out. "They can stand guard here overnight. Catch Remy in the act if <<nnpc_he Remy>> tries anything while we sleep." <<He>> tries to shake the railing. It seems solid. "<span class="gold">There's a pub in town, near the entrance.</span> My <<if $pronoun is "m">>dad's<<else>>mum's<</if>> hired staff there before. That's where I'd look."
+	<span class="purple">"We'll need to hire someone,"</span> Alex says, looking out. "They can stand guard here overnight. Catch Remy in the act if <<nnpc_he Remy>> tries anything while we sleep." <<He>> tries to shake the railing. It seems solid. "<span class="gold">There's a pub in town, near the entrance.</span> My <<person2>><<mum>>'s hired staff there before. That's where I'd look."
 	<br><br>
 
-	<<He>> turns and walks down the stairs.
+	<<person1>><<He>> turns and walks down the stairs.
 	<br><br>
 
 	<<link [[Next|Farm Work]]>><<endevent>><</link>>
@@ -528,10 +531,11 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 <<elseif $farm.build_finished.includes("barn 2")>>
 	<<run $farm.build_finished.delete("barn 2")>>
 	<<npc Alex>><<person1>>
-	<span class="gold">You enter the expanded barn.</span> Alex is already there, calming one of the newcomers, an ill-tempered <<farm_text cattle>>. <<He>> waves at you. "We've got a lively herd," <<he>> says. "Almost as big as <<if $pronoun is "m">>dad's<<else>>mum's<</if>>. The one <<he>> manages directly, anyway."
+	<<loadNPC 1 "alexs_parent1">>
+	<span class="gold">You enter the expanded barn.</span> Alex is already there, calming one of the newcomers, an ill-tempered <<farm_text cattle>>. <<He>> waves at you. "We've got a lively herd," <<he>> says. "Almost as big as <<person2>><<mum>>'s. The one <<he>> manages directly, anyway."
 	<br><br>
 
-	<<He>> closes the gate, and rests a hand on your shoulder as <<he>> walks by.
+	<<person1>><<He>> closes the gate, and rests a hand on your shoulder as <<he>> walks by.
 	<br><br>
 
 	<<link [[Next|Farm Work]]>><<endevent>><</link>>
@@ -1752,7 +1756,7 @@ You help Alex carry feed across the yard, spilling it over the fence and into th
 :: Farm Pigs Feed
 <<effects>><<wearProp "bucket">>
 
-<<if currentSkillValue('physique') gte 16000>>
+<<if currentSkillValue('physique') gte 15000>>
 	You pour feed into a couple of buckets and traipse across the field. The buckets are heavy, <span class="green">but no trouble for someone of your strength.</span><<set $farm_work.pigs_fed += 1>><<physique 2>>
 	<br><br>
 <<else>>
@@ -2006,7 +2010,7 @@ You approach a <<farm_text horse>>. You take <<farm_his horse>> bridle in hand a
 	<<link [[Let <<farm_him horse>> mount you|Farm Horses Lewd Mount]]>><</link>><<deviant5>>
 	<br>
 <</if>>
-<br><br>
+<br>
 
 <<link [[Walk away|Farm Work]]>><</link>>
 <br>
@@ -3392,21 +3396,18 @@ You carry the feed to the field. Some of the younger <<farm_text_many dog>> beg 
 :: Farm Barn
 <<set $outside to 0>><<effects>>
 <<farm_work_update>>
-You are in the barn. The <<farm_text_many cattle>> sleep sound.
+You are in the barn. The <<farm_text_many cattle>> sleep soundly.
 <<if $farm.barn gte 1>>
 	A large, glowing milking machine stands in the centre.
-	<br><br>
 <<else>>
 	A large milking machine stands in the centre.
-	<br><br>
 <</if>>
+<br><br>
 
 <<if $stress gte $stressmax>>
-	<br><br>
 	<<passoutfarmroad>>
 <<else>>
 	<<if Time.betweenHours(6, 20)>>
-		<br><br>
 		The sun breaks through the high windows, and the <<farm_text_many cattle>> stir. You sneak from the building.
 		<br><br>
 
@@ -3414,16 +3415,14 @@ You are in the barn. The <<farm_text_many cattle>> sleep sound.
 		<br>
 	<<else>>
 		<<if hasSexStat("deviancy", 2)>>
-			<br>
 			<<if $settings.breastFeedingEnabled and $milk_amount gte 1>>
-				<br>
 				<<farmicon "milk">><<link [[Milk yourself (0:30)|Farm Barn Breasts]]>><<pass 30>><</link>><<deviant2>>
+				<br>
 			<</if>>
 			<<if $player.penisExist and $semen_amount gte 1 and !playerChastity("penis")>>
-				<br>
 				<<farmicon "milk">><<link [[Milk your penis (0:30)|Farm Barn Penis]]>><<pass 30>><</link>><<deviant2>>
+				<br>
 			<</if>>
-			<br>
 		<</if>>
 		<<getouticon>><<link [[Leave|Farm Work]]>><</link>>
 		<br>
@@ -3857,6 +3856,9 @@ You open your mouth to speak, but before you get the chance,
 	<</switch>> <<He>> sheepishly looks away. "Let's just get to work then," <<he>> mutters, sounding embarrassed.
 <<else>>
 	<<takeKissVirginity "Alex" `($alex_countdown is undefined?"loveInterest":"loveRape")`>>
+	<<if _pcKissVirginityTaken>>
+		<br><br>
+	<</if>>
 
 	You can taste the alcohol on <<his>> lips.
 	<<switch _speechAttitudeResolved>>

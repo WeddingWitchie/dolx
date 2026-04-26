@@ -50,7 +50,7 @@ setup.Locations = {
 
 setup.LocationImages = {
 	adult_shop: {
-		folder: "adult_shop",
+		folder: "adult-shop",
 		base: {
 			default: {
 				condition: () => !Weather.isSnow,
@@ -64,14 +64,14 @@ setup.LocationImages = {
 		emissive: {
 			windows: {
 				condition: () => V.adultshopstate !== "closed" && (Time.dayState === "dusk" || Time.dayState === "night"),
-				image: "emissive_windows.png",
+				image: "emissive-windows.png",
 				color: "#cf51ca",
 				size: 2,
 				intensity: 1.5,
 			},
 			heart: {
 				condition: () => V.adultshopstate !== "closed" && (Time.dayState === "dusk" || Time.dayState === "night"),
-				image: "emissive_heart.png",
+				image: "emissive-heart.png",
 				color: "#ff4fd6",
 				animation: {
 					frameDelay: 800,
@@ -81,14 +81,30 @@ setup.LocationImages = {
 			},
 			red: {
 				condition: () => V.adultshopstate !== "closed" && (Time.dayState === "dusk" || Time.dayState === "night"),
-				image: "emissive_red.png",
+				image: "emissive-red.png",
 				color: "#ff1d2f",
 				size: 1,
 			},
 		},
+		weather: {
+			fogDistributionCurve: 1.5,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 7,
+					bottom: 0,
+				},
+				fog: {
+					top: 11,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	alex_cottage: {
-		folder: "alex_cottage",
+		folder: "alex-cottage",
 		base: {
 			default: {
 				condition: () => !Weather.isSnow,
@@ -103,9 +119,25 @@ setup.LocationImages = {
 			image: "emissive.png",
 			condition: () => Weather.lightsOn,
 		},
+		weather: {
+			fogDistributionCurve: 1.2,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 6,
+					bottom: 0,
+				},
+				fog: {
+					top: 12,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	alex_farm: {
-		folder: "alex_farm",
+		folder: "alex-farm",
 		base: {
 			default: {
 				condition: () => !Weather.isSnow,
@@ -122,6 +154,22 @@ setup.LocationImages = {
 			color: "#deae66",
 			strength: 2,
 		},
+		weather: {
+			fogDistributionCurve: 1.5,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 9,
+					bottom: 0,
+				},
+				fog: {
+					top: 16,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	arcade: {
 		folder: "arcade",
@@ -137,36 +185,36 @@ setup.LocationImages = {
 		},
 		emissive: {
 			red: {
-				image: "emissive_red.png",
+				image: "emissive-red.png",
 				color: "#e36c59",
 				size: 5,
 			},
 			yellow: {
-				image: "emissive_yellow.png",
+				image: "emissive-yellow.png",
 				condition: () => Weather.lightsOn,
 				color: "#dcdb99cc",
 				size: 5,
 			},
 			green: {
-				image: "emissive_green.png",
+				image: "emissive-green.png",
 				condition: () => Weather.lightsOn,
 				color: "#4bc248",
 				size: 5,
 			},
 			orange: {
-				image: "emissive_orange.png",
+				image: "emissive-orange.png",
 				condition: () => Weather.lightsOn,
 				color: "#f59442",
 				size: 5,
 			},
 			purple: {
-				image: "emissive_purple.png",
+				image: "emissive-purple.png",
 				condition: () => Weather.lightsOn,
 				color: "#cf51ca",
 				size: 5,
 			},
 			blue: {
-				image: "emissive_blue.png",
+				image: "emissive-blue.png",
 				condition: () => Weather.lightsOn,
 				color: "#4f6edb",
 				size: 5,
@@ -185,6 +233,22 @@ setup.LocationImages = {
 				alpha: 0.4,
 			},
 		},
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 6,
+					bottom: 0,
+				},
+				fog: {
+					top: 8,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	asylum: {
 		folder: "asylum",
@@ -199,7 +263,7 @@ setup.LocationImages = {
 			},
 			clockMinute: {
 				condition: () => V.hallucinations < 1,
-				image: "clock1.png",
+				image: "clock-1.png",
 				frame: () => {
 					const numFrames = 8;
 					const segmentSize = 60 / numFrames;
@@ -208,7 +272,7 @@ setup.LocationImages = {
 			},
 			clockHour: {
 				condition: () => V.hallucinations < 1,
-				image: "clock2.png",
+				image: "clock-2.png",
 				frame: () => {
 					const numFrames = 8;
 					const segmentSize = 12 / numFrames;
@@ -217,7 +281,7 @@ setup.LocationImages = {
 			},
 			clockHallucinationMinute: {
 				condition: () => V.hallucinations >= 1,
-				image: "clock1.png",
+				image: "clock-1.png",
 				animation: {
 					frameDelay: 100,
 					cycleDelay: () => 0,
@@ -225,16 +289,32 @@ setup.LocationImages = {
 			},
 			clockHallucinationHour: {
 				condition: () => V.hallucinations >= 1,
-				image: "clock2.png",
+				image: "clock-2.png",
 				animation: {
 					frameDelay: 1000,
 					cycleDelay: () => 0,
 				},
 			},
 		},
+		weather: {
+			fogDistributionCurve: 2,
+			rainSplashEnabled: false,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 0,
+					bottom: 0,
+				},
+				fog: {
+					top: 6,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	avery_mansion: {
-		folder: "avery_mansion",
+		folder: "avery-mansion",
 		base: {
 			default: {
 				image: "base.png",
@@ -245,31 +325,31 @@ setup.LocationImages = {
 				condition: () => V.avery_fate !== "fallen" && V.avery_fate !== "kicked",
 			},
 			fire: {
-				image: "base_fire.png",
+				image: "base-fire.png",
 				condition: () => V.avery_mansion_fire_time > 0,
 				animation: {
 					frameDelay: 150,
 				},
 			},
 			ruin: {
-				image: "base_burnt.png",
+				image: "base-burnt.png",
 				condition: () => !V.avery_mansion_fire_time && (V.avery_fate === "fallen" || V.avery_fate === "kicked"),
 			},
 		},
 		emissive: {
 			white: {
-				image: "emissive_white.png",
+				image: "emissive-white.png",
 				condition: () => V.avery_fate !== "fallen" && V.avery_fate !== "kicked",
 				color: "#ffffff",
 				size: 5,
 			},
 			yellow: {
-				image: "emissive_yellow.png",
+				image: "emissive-yellow.png",
 				condition: () => Weather.lightsOn && V.avery_fate !== "fallen" && V.avery_fate !== "kicked",
 				size: 5,
 			},
 			fire: {
-				image: "fireparticle.png",
+				image: "fire-particle.png",
 				condition: () => V.avery_mansion_fire_time > 0,
 				animation: {
 					frameDelay: 150,
@@ -278,7 +358,7 @@ setup.LocationImages = {
 				strength: 1,
 			},
 			dust: {
-				image: "fireparticle_dust.png",
+				image: "fire-particle-dust.png",
 				condition: () => V.avery_mansion_fire_time > 0,
 				color: "#46221bff",
 				animation: {
@@ -290,7 +370,7 @@ setup.LocationImages = {
 		},
 		reflective: {
 			mask: {
-				image: "pool_fire.png",
+				image: "pool-fire.png",
 				condition: () => V.avery_mansion_fire_time > 0,
 				verticalFactor: 3.5,
 				amplitude: 6,
@@ -298,16 +378,32 @@ setup.LocationImages = {
 				horizon: 30,
 			},
 		},
+		weather: {
+			fogDistributionCurve: 0,
+			rainSplashEnabled: false,
+			fogEnabled: false,
+
+			groundBounds: {
+				splashes: {
+					top: 0,
+					bottom: 0,
+				},
+				fog: {
+					top: 0,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	avery_skyscraper: {
-		folder: "avery_skyscraper",
+		folder: "avery-skyscraper",
 		base: {
 			default: {
 				image: "base.png",
 				condition: () => V.avery_tower.progress >= 80,
 			},
 			default_mid: {
-				image: "base_mid.png",
+				image: "base-mid.png",
 				animation: {
 					frameDelay: 300,
 					cycleDelay: () => 1200,
@@ -315,15 +411,15 @@ setup.LocationImages = {
 				condition: () => V.avery_tower.progress >= 40 && V.avery_tower.progress < 80,
 			},
 			default_low: {
-				image: "base_low.png",
+				image: "base-low.png",
 				condition: () => V.avery_tower.progress < 40,
 			},
 			base_fire: {
-				image: "base_fire.png",
+				image: "base-fire.png",
 				condition: () => V.avery_skyscraper_fire_time > 1,
 			},
 			burnt: {
-				image: "base_burnt.png",
+				image: "base-burnt.png",
 				condition: () => (V.avery_fate === "saved" || V.avery_fate === "fallen" || V.avery_fate === "kicked") && !V.avery_skyscraper_fire_time,
 			},
 			winter: {
@@ -331,7 +427,7 @@ setup.LocationImages = {
 				condition: () => Time.season === "winter" && V.avery_tower.progress >= 80,
 			},
 			mid_winter: {
-				image: "mid_winter.png",
+				image: "mid-winter.png",
 				condition: () => Time.season === "winter" && V.avery_tower.progress >= 40 && V.avery_tower.progress < 80,
 			},
 		},
@@ -348,7 +444,7 @@ setup.LocationImages = {
 				size: 5,
 			},
 			mid_lights: {
-				image: "mid_lights.png",
+				image: "mid-lights.png",
 				condition: () => Time.dayState === "night" && V.avery_tower.progress < 80,
 				color: "#deae66",
 				size: 5,
@@ -363,79 +459,96 @@ setup.LocationImages = {
 				strength: 1,
 			},
 		},
+		weather: {
+			fogDistributionCurve: 5,
+			rainSplashEnabled: false,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 0,
+					bottom: 0,
+				},
+				fog: {
+					top: 12,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	banner: {
 		folder: "banner",
 		base: {
 			default: {
 				condition: () => !Weather.bloodMoon && !(Number(localStorage.getItem("worldCorruption")) > 24),
-				image: "banner_tentacles_1.png",
+				image: "banner-tentacles-1.png",
 			},
 			bloodmoon: {
 				condition: () => Weather.bloodMoon && !(Number(localStorage.getItem("worldCorruption")) > 24),
-				image: "banner_tentacles_bloodmoon_1.png",
+				image: "banner-tentacles-blood-moon-1.png",
 			},
 			tentacles2: {
 				condition: () =>
 					!Weather.bloodMoon && Number(localStorage.getItem("worldCorruption")) >= 25 && Number(localStorage.getItem("worldCorruption")) < 50,
-				image: "banner_tentacles_2.png",
+				image: "banner-tentacles-2.png",
 			},
 			bloodmoonTentacles2: {
 				condition: () =>
 					Weather.bloodMoon && Number(localStorage.getItem("worldCorruption")) >= 25 && Number(localStorage.getItem("worldCorruption")) < 50,
-				image: "banner_tentacles_bloodmoon_2.png",
+				image: "banner-tentacles-blood-moon-2.png",
 			},
 			tentacles3: {
 				condition: () =>
 					!Weather.bloodMoon && Number(localStorage.getItem("worldCorruption")) >= 50 && Number(localStorage.getItem("worldCorruption")) < 75,
-				image: "banner_tentacles_3.png",
+				image: "banner-tentacles-3.png",
 			},
 			bloodmoonTentacles3: {
 				condition: () =>
 					Weather.bloodMoon && Number(localStorage.getItem("worldCorruption")) >= 50 && Number(localStorage.getItem("worldCorruption")) < 75,
-				image: "banner_tentacles_bloodmoon_3.png",
+				image: "banner-tentacles-blood-moon-3.png",
 			},
 			tentacles4: {
 				condition: () =>
 					!Weather.bloodMoon && Number(localStorage.getItem("worldCorruption")) >= 75 && Number(localStorage.getItem("worldCorruption")) < 100,
-				image: "banner_tentacles_4.png",
+				image: "banner-tentacles-4.png",
 			},
 			bloodmoonTentacles4: {
 				condition: () =>
 					Weather.bloodMoon && Number(localStorage.getItem("worldCorruption")) >= 75 && Number(localStorage.getItem("worldCorruption")) < 100,
-				image: "banner_tentacles_bloodmoon_4.png",
+				image: "banner-tentacles-blood-moon-4.png",
 			},
 			tentacles5: {
 				condition: () => !Weather.bloodMoon && Number(localStorage.getItem("worldCorruption")) >= 100,
-				image: "banner_tentacles_5.png",
+				image: "banner-tentacles-5.png",
 			},
 			bloodmoonTentacles5: {
 				condition: () => Weather.bloodMoon && Number(localStorage.getItem("worldCorruption")) >= 100,
-				image: "banner_tentacles_bloodmoon_5.png",
+				image: "banner-tentacles-blood-moon-5.png",
 			},
 		},
 		emissive: {
 			default: {
-				image: "banner_tentacles_1.png",
-				condition: () => !Weather.bloodMoon && Weather.banner.orbitals.sun.factor < 0 && !(Number(localStorage.getItem("worldCorruption")) > 24),
+				image: "banner-tentacles-1.png",
+				condition: () =>
+					!Weather.bloodMoon && (Weather.banner?.orbitals.sun.factor ?? 1) < 0 && !(Number(localStorage.getItem("worldCorruption")) > 24),
 				color: "#ffffff40",
 				size: 0,
 				blur: 0,
 				intensity: 0.6,
 			},
 			bloodmoon: {
-				image: "banner_tentacles_bloodmoon_1.png",
-				condition: () => Weather.bloodMoon && Weather.banner.orbitals.sun.factor < 0 && !(Number(localStorage.getItem("worldCorruption")) > 24),
+				image: "banner-tentacles-blood-moon-1.png",
+				condition: () => Weather.bloodMoon && (Weather.banner?.orbitals.sun.factor ?? 1) < 0 && !(Number(localStorage.getItem("worldCorruption")) > 24),
 				color: "#ffffff40",
 				size: 0,
 				blur: 0,
 				intensity: 0.4,
 			},
 			tentacles2: {
-				image: "banner_tentacles_2.png",
+				image: "banner-tentacles-2.png",
 				condition: () =>
 					!Weather.bloodMoon &&
-					Weather.banner.orbitals.sun.factor < 0 &&
+					(Weather.banner?.orbitals.sun.factor ?? 1) < 0 &&
 					Number(localStorage.getItem("worldCorruption")) >= 25 &&
 					Number(localStorage.getItem("worldCorruption")) < 50,
 				color: "#ffffff40",
@@ -444,10 +557,10 @@ setup.LocationImages = {
 				intensity: 0.6,
 			},
 			bloodmoonTentacles2: {
-				image: "banner_tentacles_bloodmoon_2.png",
+				image: "banner-tentacles-blood-moon-2.png",
 				condition: () =>
 					Weather.bloodMoon &&
-					Weather.banner.orbitals.sun.factor < 0 &&
+					(Weather.banner?.orbitals.sun.factor ?? 1) < 0 &&
 					Number(localStorage.getItem("worldCorruption")) >= 25 &&
 					Number(localStorage.getItem("worldCorruption")) < 50,
 				color: "#ffffff40",
@@ -456,10 +569,10 @@ setup.LocationImages = {
 				intensity: 0.4,
 			},
 			tentacles3: {
-				image: "banner_tentacles_3.png",
+				image: "banner-tentacles-3.png",
 				condition: () =>
 					!Weather.bloodMoon &&
-					Weather.banner.orbitals.sun.factor < 0 &&
+					(Weather.banner?.orbitals.sun.factor ?? 1) < 0 &&
 					Number(localStorage.getItem("worldCorruption")) >= 50 &&
 					Number(localStorage.getItem("worldCorruption")) < 75,
 				color: "#ffffff40",
@@ -468,10 +581,10 @@ setup.LocationImages = {
 				intensity: 0.6,
 			},
 			bloodmoonTentacles3: {
-				image: "banner_tentacles_bloodmoon_3.png",
+				image: "banner-tentacles-blood-moon-3.png",
 				condition: () =>
 					Weather.bloodMoon &&
-					Weather.banner.orbitals.sun.factor < 0 &&
+					(Weather.banner?.orbitals.sun.factor ?? 1) < 0 &&
 					Number(localStorage.getItem("worldCorruption")) >= 50 &&
 					Number(localStorage.getItem("worldCorruption")) < 75,
 				color: "#ffffff40",
@@ -480,10 +593,10 @@ setup.LocationImages = {
 				intensity: 0.4,
 			},
 			tentacles4: {
-				image: "banner_tentacles_4.png",
+				image: "banner-tentacles-4.png",
 				condition: () =>
 					!Weather.bloodMoon &&
-					Weather.banner.orbitals.sun.factor < 0 &&
+					(Weather.banner?.orbitals.sun.factor ?? 1) < 0 &&
 					Number(localStorage.getItem("worldCorruption")) >= 75 &&
 					Number(localStorage.getItem("worldCorruption")) < 100,
 				color: "#ffffff40",
@@ -492,10 +605,10 @@ setup.LocationImages = {
 				intensity: 0.6,
 			},
 			bloodmoonTentacles4: {
-				image: "banner_tentacles_bloodmoon_4.png",
+				image: "banner-tentacles-blood-moon-4.png",
 				condition: () =>
 					Weather.bloodMoon &&
-					Weather.banner.orbitals.sun.factor < 0 &&
+					(Weather.banner?.orbitals.sun.factor ?? 1) < 0 &&
 					Number(localStorage.getItem("worldCorruption")) >= 75 &&
 					Number(localStorage.getItem("worldCorruption")) < 100,
 				color: "#ffffff40",
@@ -504,16 +617,16 @@ setup.LocationImages = {
 				intensity: 0.4,
 			},
 			tentacles5: {
-				image: "banner_tentacles_5.png",
-				condition: () => !Weather.bloodMoon && Weather.banner.orbitals.sun.factor < 0 && Number(localStorage.getItem("worldCorruption")) >= 100,
+				image: "banner-tentacles-5.png",
+				condition: () => !Weather.bloodMoon && (Weather.banner?.orbitals.sun.factor ?? 1) < 0 && Number(localStorage.getItem("worldCorruption")) >= 100,
 				color: "#ffffff40",
 				size: 0,
 				blur: 0,
 				intensity: 0.6,
 			},
 			bloodmoonTentacles5: {
-				image: "banner_tentacles_bloodmoon_5.png",
-				condition: () => Weather.bloodMoon && Weather.banner.orbitals.sun.factor < 0 && Number(localStorage.getItem("worldCorruption")) >= 100,
+				image: "banner-tentacles-blood-moon-5.png",
+				condition: () => Weather.bloodMoon && (Weather.banner?.orbitals.sun.factor ?? 1) < 0 && Number(localStorage.getItem("worldCorruption")) >= 100,
 				color: "#ffffff40",
 				size: 0,
 				blur: 0,
@@ -543,6 +656,22 @@ setup.LocationImages = {
 			snowTentacle: {
 				condition: () => V.weatherObj.snow > 450 && Number(localStorage.getItem("worldCorruption")) >= 25,
 				image: "snow.png",
+			},
+		},
+		weather: {
+			fogDistributionCurve: 3,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 0,
+					bottom: 0,
+				},
+				fog: {
+					top: 50,
+					bottom: 0,
+				},
 			},
 		},
 	},
@@ -593,6 +722,22 @@ setup.LocationImages = {
 				},
 			},
 		},
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 12,
+					bottom: 0,
+				},
+				fog: {
+					top: 14,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	blitz: {
 		folder: "blitz",
@@ -603,7 +748,7 @@ setup.LocationImages = {
 			},
 			street: {
 				condition: () => !["home", "manor", "winter"].includes(V.bus),
-				image: "base_street.png",
+				image: "base-street.png",
 			},
 			smoke: {
 				condition: () => ["home", "manor", "winter"].includes(V.bus) && !T.smokeOff,
@@ -615,10 +760,26 @@ setup.LocationImages = {
 			},
 			smoke_street: {
 				condition: () => !["home", "manor", "winter"].includes(V.bus),
-				image: "smoke_street.png",
+				image: "smoke-street.png",
 				animation: {
 					frameDelay: 220,
 					cycleDelay: 0,
+				},
+			},
+		},
+		weather: {
+			fogDistributionCurve: 1.2,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 19,
+					bottom: 0,
+				},
+				fog: {
+					top: 24,
+					bottom: 0,
 				},
 			},
 		},
@@ -646,7 +807,7 @@ setup.LocationImages = {
 		emissive: {
 			bloodmoon: {
 				condition: () => Weather.bloodMoon,
-				image: "emissive_blood.png",
+				image: "emissive-blood.png",
 				color: "#e63e3e66",
 				size: 15,
 			},
@@ -657,6 +818,22 @@ setup.LocationImages = {
 				size: 4,
 				animation: {
 					frameDelay: 250,
+				},
+			},
+		},
+		weather: {
+			fogDistributionCurve: 1.2,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 12,
+					bottom: 0,
+				},
+				fog: {
+					top: 16,
+					bottom: 0,
 				},
 			},
 		},
@@ -679,6 +856,22 @@ setup.LocationImages = {
 			color: "#deae66",
 			size: 5,
 		},
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 2,
+					bottom: 0,
+				},
+				fog: {
+					top: 7,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	cabin: {
 		folder: "cabin",
@@ -697,6 +890,22 @@ setup.LocationImages = {
 			condition: () => Weather.lightsOn,
 			color: "#deae66",
 			strength: 2,
+		},
+		weather: {
+			fogDistributionCurve: 2,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 4,
+					bottom: 0,
+				},
+				fog: {
+					top: 13,
+					bottom: 0,
+				},
+			},
 		},
 	},
 	cafe: {
@@ -729,9 +938,25 @@ setup.LocationImages = {
 				alpha: 0.5,
 			},
 		},
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 5,
+					bottom: 0,
+				},
+				fog: {
+					top: 8,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	cafe_construction: {
-		folder: "cafe_construction",
+		folder: "cafe-construction",
 		base: {
 			default: {
 				condition: () => !Weather.isSnow,
@@ -760,9 +985,25 @@ setup.LocationImages = {
 				alpha: 0.5,
 			},
 		},
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 5,
+					bottom: 0,
+				},
+				fog: {
+					top: 10,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	cafe_renovated: {
-		folder: "cafe_renovated",
+		folder: "cafe-renovated",
 		base: {
 			default: {
 				condition: () => !Weather.isSnow,
@@ -783,6 +1024,22 @@ setup.LocationImages = {
 				image: "water.png",
 				compositeOperation: "overlay",
 				alpha: 0.5,
+			},
+		},
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 5,
+					bottom: 0,
+				},
+				fog: {
+					top: 10,
+					bottom: 0,
+				},
 			},
 		},
 	},
@@ -823,6 +1080,22 @@ setup.LocationImages = {
 				condition: () => Weather.isSnow,
 				image: "snow.png",
 				alpha: 0.9,
+			},
+		},
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 0,
+					bottom: 0,
+				},
+				fog: {
+					top: 25,
+					bottom: 0,
+				},
 			},
 		},
 	},
@@ -872,6 +1145,22 @@ setup.LocationImages = {
 			color: "#c26802",
 			size: 1,
 		},
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 14,
+					bottom: 0,
+				},
+				fog: {
+					top: 16,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	churchyard: {
 		folder: "churchyard",
@@ -890,9 +1179,25 @@ setup.LocationImages = {
 			color: "#a8b5ff",
 			size: 2,
 		},
+		weather: {
+			fogDistributionCurve: 1.2,
+			rainSplashEnabled: false,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 0,
+					bottom: 0,
+				},
+				fog: {
+					top: 27,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	coastpath: {
-		folder: "coastal_path",
+		folder: "coastal-path",
 		base: {
 			default: {
 				image: "base.png",
@@ -943,9 +1248,25 @@ setup.LocationImages = {
 				},
 			},
 		},
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 13,
+					bottom: 0,
+				},
+				fog: {
+					top: 15,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	com_alley: {
-		folder: "com_alley",
+		folder: "com-alley",
 		base: {
 			default: {
 				condition: () => !Weather.bloodMoon && !Weather.isSnow,
@@ -957,7 +1278,7 @@ setup.LocationImages = {
 			},
 			blood: {
 				condition: () => Weather.bloodMoon && !Weather.isSnow,
-				image: "bloodmoon.png",
+				image: "blood-moon.png",
 				animation: {
 					frameDelay: 200,
 					cycleDelay: () => random(10, 60, true) * 1000,
@@ -973,6 +1294,22 @@ setup.LocationImages = {
 			condition: () => Weather.lightsOn,
 			color: "#deae66",
 			strength: 2,
+		},
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 0,
+					bottom: 0,
+				},
+				fog: {
+					top: 22,
+					bottom: 0,
+				},
+			},
 		},
 	},
 	compound: {
@@ -995,9 +1332,25 @@ setup.LocationImages = {
 				},
 			},
 		},
+		weather: {
+			fogDistributionCurve: 4,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 4,
+					bottom: 0,
+				},
+				fog: {
+					top: 13,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	dance_studio: {
-		folder: "dance_studio",
+		folder: "dance-studio",
 		base: {
 			default: {
 				condition: () => !Weather.isSnow,
@@ -1008,9 +1361,25 @@ setup.LocationImages = {
 				image: "snow.png",
 			},
 		},
+		weather: {
+			fogDistributionCurve: 3,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 4,
+					bottom: 0,
+				},
+				fog: {
+					top: 10,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	dilapidated_shop: {
-		folder: "dilapidated_shop",
+		folder: "dilapidated-shop",
 		base: {
 			default: {
 				condition: () => !Weather.isSnow,
@@ -1019,6 +1388,22 @@ setup.LocationImages = {
 			snow: {
 				condition: () => Weather.isSnow,
 				image: "snow.png",
+			},
+		},
+		weather: {
+			fogDistributionCurve: 3,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 7,
+					bottom: 0,
+				},
+				fog: {
+					top: 14,
+					bottom: 0,
+				},
 			},
 		},
 	},
@@ -1091,6 +1476,22 @@ setup.LocationImages = {
 				},
 			},
 		},
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 3,
+					bottom: 0,
+				},
+				fog: {
+					top: 20,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	drain: {
 		folder: "drain",
@@ -1126,6 +1527,23 @@ setup.LocationImages = {
 		// 		},
 		// 	},
 		// },
+
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 20,
+					bottom: 0,
+				},
+				fog: {
+					top: 26,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	estate: {
 		folder: "estate",
@@ -1143,6 +1561,22 @@ setup.LocationImages = {
 			condition: () => Weather.lightsOn,
 			image: "emissive.png",
 		},
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 6,
+					bottom: 0,
+				},
+				fog: {
+					top: 17,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	factory: {
 		folder: "factory",
@@ -1157,11 +1591,11 @@ setup.LocationImages = {
 			},
 			lorry_back: {
 				condition: () => Time.dayState !== "night" && Time.dayState !== "day",
-				image: "lorry_back.png",
+				image: "lorry-back.png",
 			},
 			lorry_front: {
 				condition: () => Time.dayState !== "night",
-				image: "lorry_front.png",
+				image: "lorry-front.png",
 			},
 			gate: {
 				condition: () => Time.dayState !== "night",
@@ -1170,7 +1604,7 @@ setup.LocationImages = {
 			inside: {
 				condition: () => Time.dayState !== "night",
 				image: "inside.png",
-				waitForAnimation: "lorry_moving",
+				waitForAnimation: "lorry-moving",
 				animation: {
 					frameDelay: 150,
 					cycleDelay: () => random(5, 15, true) * 1000,
@@ -1178,7 +1612,7 @@ setup.LocationImages = {
 			},
 			lorry_moving: {
 				condition: () => Time.dayState !== "night",
-				image: "lorry_moving.png",
+				image: "lorry-moving.png",
 				waitForAnimation: "inside",
 				animation: {
 					frameDelay: 150,
@@ -1194,33 +1628,49 @@ setup.LocationImages = {
 				color: "#e7eb81",
 			},
 			stop_lights: {
-				image: "lights_emissive.png",
+				image: "lights-emissive.png",
 				alwaysDisplay: true,
-				animation: "lorry_moving",
+				animation: "lorry-moving",
 				size: 5,
 				color: "#e34d4d",
 			},
 			lorry_lights: {
-				image: "lorry_emissive.png",
+				image: "lorry-emissive.png",
 				condition: () => Weather.lightsOn,
 				alwaysDisplay: false,
-				animation: "lorry_moving",
+				animation: "lorry-moving",
 				size: 10,
 				color: "#f7e092",
 			},
 			lorry_back_lights: {
-				image: "lorry_back_emissive.png",
+				image: "lorry-back-emissive.png",
 				alwaysDisplay: false,
-				animation: "lorry_moving",
+				animation: "lorry-moving",
 				size: 4,
 				color: "#e34d4d",
 			},
 			inside_lights: {
-				image: "inside_emissive.png",
+				image: "inside-emissive.png",
 				condition: () => Weather.lightsOn,
 				alwaysDisplay: false,
 				animation: "inside",
 				color: "#e6cc77",
+			},
+		},
+		weather: {
+			fogDistributionCurve: 1.2,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 10,
+					bottom: 0,
+				},
+				fog: {
+					top: 13,
+					bottom: 0,
+				},
 			},
 		},
 	},
@@ -1241,22 +1691,38 @@ setup.LocationImages = {
 			},
 			wind_base: {
 				condition: () => !Weather.isSnow && Time.season !== "winter",
-				image: "wind_base.png",
+				image: "wind-base.png",
 				animation: {
 					frameDelay: 1000,
 				},
 			},
 			wind_winter: {
 				condition: () => !Weather.isSnow && Time.season === "winter",
-				image: "wind_winter.png",
+				image: "wind-winter.png",
 				animation: {
 					frameDelay: 1000,
 				},
 			},
 		},
+		weather: {
+			fogDistributionCurve: 2,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 15,
+					bottom: 0,
+				},
+				fog: {
+					top: 19,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	farm_manors: {
-		folder: "farm_manors",
+		folder: "farm-manors",
 		base: {
 			default: {
 				condition: () => Time.season !== "winter",
@@ -1264,7 +1730,7 @@ setup.LocationImages = {
 			},
 			winter: {
 				condition: () => Time.season === "winter",
-				image: "base_winter.png",
+				image: "base-winter.png",
 			},
 			snow: {
 				condition: () => Weather.isSnow,
@@ -1274,6 +1740,22 @@ setup.LocationImages = {
 		emissive: {
 			image: "emissive.png",
 			condition: () => Weather.lightsOn,
+		},
+		weather: {
+			fogDistributionCurve: 2,
+			rainSplashEnabled: false,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 0,
+					bottom: 0,
+				},
+				fog: {
+					top: 28,
+					bottom: 0,
+				},
+			},
 		},
 	},
 	fields: {
@@ -1319,6 +1801,22 @@ setup.LocationImages = {
 			blur: 0,
 			intensity: 0.8,
 		},
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 21,
+					bottom: 0,
+				},
+				fog: {
+					top: 23,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	flats: {
 		folder: "flats",
@@ -1335,7 +1833,7 @@ setup.LocationImages = {
 				image: "sea.png",
 			},
 			power: {
-				image: "powerlines.png",
+				image: "power-lines.png",
 			},
 		},
 		emissive: {
@@ -1349,13 +1847,13 @@ setup.LocationImages = {
 			},
 			streetLight: {
 				condition: () => Weather.lightsOn,
-				image: "streetlight.png",
+				image: "street-light.png",
 				color: "#e8d39d",
 				size: 4,
 			},
 			streetGlow: {
 				condition: () => Weather.lightsOn,
-				image: "streetglow.png",
+				image: "street-glow.png",
 				intensity: 0.5,
 				color: "#deae6655",
 				size: 2,
@@ -1364,6 +1862,23 @@ setup.LocationImages = {
 		// reflective: {
 		// 	image: "reflective.png",
 		// },
+
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 5,
+					bottom: 0,
+				},
+				fog: {
+					top: 7,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	forest: {
 		folder: "forest",
@@ -1378,7 +1893,7 @@ setup.LocationImages = {
 			},
 			birds_light: {
 				condition: () => !Weather.bloodMoon,
-				image: "birds_light.png",
+				image: "birds-light.png",
 				animation: {
 					frameDelay: 200,
 					cycleDelay: () => random(5, 15, true) * 1000,
@@ -1386,7 +1901,7 @@ setup.LocationImages = {
 			},
 			bloodmoon: {
 				condition: () => Weather.bloodMoon,
-				image: "bloodmoon.png",
+				image: "blood-moon.png",
 				animation: {
 					frameDelay: 300,
 					cycleDelay: () => random(2, 7, true) * 1000,
@@ -1396,7 +1911,7 @@ setup.LocationImages = {
 		emissive: {
 			blood0: {
 				condition: () => Weather.bloodMoon,
-				image: "emissive_blood0.png",
+				image: "emissive-blood-0.png",
 				animation: {
 					frameDelay: 200,
 					cycleDelay: () => random(2, 7, true) * 1000,
@@ -1405,7 +1920,7 @@ setup.LocationImages = {
 			},
 			blood1: {
 				condition: () => Weather.bloodMoon,
-				image: "emissive_blood1.png",
+				image: "emissive-blood-1.png",
 				animation: {
 					frameDelay: 2000,
 					cycleDelay: () => random(4, 10, true) * 1000,
@@ -1414,7 +1929,7 @@ setup.LocationImages = {
 			},
 			blood2: {
 				condition: () => Weather.bloodMoon,
-				image: "emissive_blood2.png",
+				image: "emissive-blood-2.png",
 				animation: {
 					frameDelay: 200,
 					cycleDelay: () => random(4, 11, true) * 1000,
@@ -1423,7 +1938,7 @@ setup.LocationImages = {
 			},
 			blood3: {
 				condition: () => Weather.bloodMoon,
-				image: "emissive_blood3.png",
+				image: "emissive-blood-3.png",
 				animation: {
 					frameDelay: 200,
 					cycleDelay: () => random(3, 12, true) * 1000,
@@ -1431,9 +1946,25 @@ setup.LocationImages = {
 				color: "#e63e3e",
 			},
 		},
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 0,
+					bottom: 0,
+				},
+				fog: {
+					top: 30,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	forest_shop: {
-		folder: "forest_shop",
+		folder: "forest-shop",
 		base: {
 			spring: {
 				condition: () => !Weather.isSnow && Time.season === "spring",
@@ -1457,19 +1988,19 @@ setup.LocationImages = {
 			},
 			front_spring: {
 				condition: () => Time.season === "spring",
-				image: "front_spring.png",
+				image: "front-spring.png",
 			},
 			front_summer: {
 				condition: () => Time.season === "summer",
-				image: "front_summer.png",
+				image: "front-summer.png",
 			},
 			front_autumn: {
 				condition: () => Time.season === "autumn",
-				image: "front_autumn.png",
+				image: "front-autumn.png",
 			},
 			front_winter: {
 				condition: () => Time.season === "winter",
-				image: "front_winter.png",
+				image: "front-winter.png",
 			},
 			smoke: {
 				condition: () => !Weather.bloodMoon && !Weather.lightsOn,
@@ -1485,13 +2016,29 @@ setup.LocationImages = {
 				condition: () => Weather.lightsOn && !V.gwylan?.timer?.nobody && !V.yearningLetter,
 			},
 			tower: {
-				image: "emissive_tower_only.png",
+				image: "emissive-tower-only.png",
 				condition: () => Weather.lightsOn && !V.gwylan?.timer?.nobody && V.yearningLetter,
+			},
+		},
+		weather: {
+			fogDistributionCurve: 2,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 13,
+					bottom: 0,
+				},
+				fog: {
+					top: 17,
+					bottom: 0,
+				},
 			},
 		},
 	},
 	forest_shop_garden: {
-		folder: "forest_shop_garden",
+		folder: "forest-shop-garden",
 		base: {
 			default: {
 				condition: () => !Weather.isSnow,
@@ -1519,6 +2066,22 @@ setup.LocationImages = {
 			intensity: 1.2,
 			size: 2,
 		},
+		weather: {
+			fogDistributionCurve: 2,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 21,
+					bottom: 0,
+				},
+				fog: {
+					top: 27,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	home: {
 		folder: "home",
@@ -1531,19 +2094,69 @@ setup.LocationImages = {
 				condition: () => Weather.isSnow,
 				image: "snow.png",
 			},
-			smoke: {
-				condition: () => !Weather.bloodMoon,
-				image: "smoke.png",
-				animation: {
-					frameDelay: 200,
-					cycleDelay: () => 3000,
-					startDelay: () => 3000,
-				},
-			},
 		},
 		emissive: {
 			image: "emissive.png",
 			condition: () => Weather.lightsOn,
+		},
+		particles: [
+			{
+				condition: () => !Weather.bloodMoon,
+				type: "smoke",
+				shape: "image",
+				image: "img/misc/sky/clouds/fog/2.png",
+				origin: [3, 71.5], // Coordinates from the top left
+				rate: 3, // Particles generated per second
+				size: 4, // Size of the particle in px
+				riseSpeed: 0.8,
+				spread: 6,
+				alpha: 1,
+				color: "#4c4c4cff", // Last 2 numbers are the alpha (99 in hex means 60%)
+				windSpeed: 3, // strength of the wind, will push the particles in a direction
+				windDirection: 0, // degrees - A value of 0 is right (east)
+				minFadeDistance: 1, // minimum fade time of the particles (in distance (px))
+				maxFadeDistance: 25, // maximum fade time
+				fadeTime: 1.2, // In seconds
+				driftAmplitude: 0, // curve - mostly useful if we want the smoke to travel straight up (but in a wobbly curve)
+				driftWavelength: 0, // wavelength of the curve
+			},
+			{
+				condition: () => !Weather.bloodMoon,
+				type: "smoke",
+				shape: "image",
+				image: "img/misc/sky/clouds/fog/2.png",
+				origin: [20, 69],
+				rate: 3,
+				size: 4,
+				riseSpeed: 0.8,
+				spread: 8,
+				alpha: 1,
+				color: "#484848ff",
+				windSpeed: 2,
+				windDirection: 0,
+				minFadeDistance: 1,
+				maxFadeDistance: 20,
+				fadeTime: 1.2,
+				driftAmplitude: 0,
+				driftWavelength: 0,
+			},
+		],
+
+		weather: {
+			fogDistributionCurve: 2,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 2,
+					bottom: 0,
+				},
+				fog: {
+					top: 7,
+					bottom: 0,
+				},
+			},
 		},
 	},
 	hospital: {
@@ -1562,9 +2175,25 @@ setup.LocationImages = {
 			image: "emissive.png",
 			condition: () => Weather.lightsOn,
 		},
+		weather: {
+			fogDistributionCurve: 2,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 13,
+					bottom: 0,
+				},
+				fog: {
+					top: 18,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	ind_alley: {
-		folder: "ind_alley",
+		folder: "ind-alley",
 		base: {
 			default: {
 				condition: () => !Weather.isSnow,
@@ -1589,6 +2218,22 @@ setup.LocationImages = {
 			color: "#deae66",
 			strength: 2,
 		},
+		weather: {
+			fogDistributionCurve: 2,
+			rainSplashEnabled: false,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 0,
+					bottom: 0,
+				},
+				fog: {
+					top: 18,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	island: {
 		folder: "island",
@@ -1609,9 +2254,25 @@ setup.LocationImages = {
 				},
 			},
 		},
+		weather: {
+			fogDistributionCurve: 2,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 16,
+					bottom: 0,
+				},
+				fog: {
+					top: 29,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	kylar_manor: {
-		folder: "kylar_manor",
+		folder: "kylar-manor",
 		base: {
 			default: {
 				condition: () => !Weather.isSnow,
@@ -1629,9 +2290,25 @@ setup.LocationImages = {
 			size: 4,
 			intensity: 0.8,
 		},
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 4,
+					bottom: 0,
+				},
+				fog: {
+					top: 19,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	kylarmanor_grounds: {
-		folder: "kylarmanor_grounds",
+		folder: "kylar-manor-grounds",
 		base: {
 			default: {
 				condition: () => !Weather.isSnow,
@@ -1648,6 +2325,22 @@ setup.LocationImages = {
 			color: "#9484d1",
 			size: 2,
 			intensity: 0.4,
+		},
+		weather: {
+			fogDistributionCurve: 4,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 18,
+					bottom: 0,
+				},
+				fog: {
+					top: 30,
+					bottom: 0,
+				},
+			},
 		},
 	},
 	lake: {
@@ -1683,7 +2376,7 @@ setup.LocationImages = {
 			},
 			blood0: {
 				condition: () => Weather.bloodMoon,
-				image: "blood0.png",
+				image: "blood-0.png",
 				animation: {
 					frameDelay: 200,
 					cycleDelay: () => random(2, 7, true) * 1000,
@@ -1692,7 +2385,7 @@ setup.LocationImages = {
 			},
 			blood1: {
 				condition: () => Weather.bloodMoon,
-				image: "blood1.png",
+				image: "blood-1.png",
 				animation: {
 					frameDelay: 2000,
 					cycleDelay: () => random(4, 10, true) * 1000,
@@ -1701,7 +2394,7 @@ setup.LocationImages = {
 			},
 			blood2: {
 				condition: () => Weather.bloodMoon,
-				image: "blood2.png",
+				image: "blood-2.png",
 				animation: {
 					frameDelay: 200,
 					cycleDelay: () => random(4, 11, true) * 1000,
@@ -1739,9 +2432,25 @@ setup.LocationImages = {
 				image: "ice.png",
 			},
 		},
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 9,
+					bottom: 0,
+				},
+				fog: {
+					top: 30,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	lake_office: {
-		folder: "lake_office",
+		folder: "lake-office",
 		base: {
 			default: {
 				condition: () => Time.season !== "winter",
@@ -1771,13 +2480,13 @@ setup.LocationImages = {
 				strength: 2,
 			},
 			heater: {
-				image: "emissive_winter.png",
+				image: "emissive-winter.png",
 				condition: () => !Weather.lightsOn && Time.season === "winter",
 				color: "#ff5724",
 				strength: 1,
 			},
 			heaterdim: {
-				image: "emissive_winter.png",
+				image: "emissive-winter.png",
 				condition: () => Weather.lightsOn && Time.season === "winter",
 				color: "#360c01",
 				strength: 1,
@@ -1792,9 +2501,25 @@ setup.LocationImages = {
 				alpha: () => (!Weather.isFrozen("lake") ? 0.6 : 0.15),
 			},
 		},
+		weather: {
+			fogDistributionCurve: 5,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 14,
+					bottom: 0,
+				},
+				fog: {
+					top: 34,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	lake_ruin: {
-		folder: "lake_ruin",
+		folder: "lake-ruin",
 		base: {
 			default: {
 				condition: () => !Weather.bloodMoon && !Weather.isSnow,
@@ -1814,15 +2539,15 @@ setup.LocationImages = {
 			},
 			bloodmoon: {
 				condition: () => Weather.bloodMoon && Weather.isSnow,
-				image: "bloodmoon.png",
+				image: "blood-moon.png",
 				animation: {
 					frameDelay: 300,
 					cycleDelay: () => 0,
 				},
 			},
-			bloodmoon_snow: {
+			blood_moon_snow: {
 				condition: () => Weather.bloodMoon && !Weather.isSnow,
-				image: "bloodmoon_snow.png",
+				image: "blood-moon-snow.png",
 				animation: {
 					frameDelay: 300,
 					cycleDelay: () => 0,
@@ -1832,7 +2557,7 @@ setup.LocationImages = {
 		emissive: {
 			blood: {
 				condition: () => Weather.bloodMoon,
-				image: "emissive_blood.png",
+				image: "emissive-blood.png",
 				animation: "bloodmoon",
 				color: "#e63e3e",
 			},
@@ -1854,10 +2579,27 @@ setup.LocationImages = {
 		},
 		// 	bloodMoon: {
 		// 		condition: () => Weather.bloodMoon,
-		// 		image: "reflective_blood.png",
+		// 		image: "reflective-blood.png",
 		// 	},
 		// 	horizon: 112,
 		// },
+
+		weather: {
+			fogDistributionCurve: 0,
+			rainSplashEnabled: false,
+			fogEnabled: false,
+
+			groundBounds: {
+				splashes: {
+					top: 0,
+					bottom: 0,
+				},
+				fog: {
+					top: 0,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	landfill: {
 		folder: "landfill",
@@ -1869,6 +2611,22 @@ setup.LocationImages = {
 			snow: {
 				condition: () => Weather.isSnow,
 				image: "snow.png",
+			},
+		},
+		weather: {
+			fogDistributionCurve: 2,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 6,
+					bottom: 0,
+				},
+				fog: {
+					top: 16,
+					bottom: 0,
+				},
 			},
 		},
 	},
@@ -1884,9 +2642,25 @@ setup.LocationImages = {
 				image: "snow.png",
 			},
 		},
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 0,
+					bottom: 0,
+				},
+				fog: {
+					top: 17,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	townhall: {
-		folder: "town_hall",
+		folder: "town-hall",
 		base: {
 			default: {
 				image: "base.png",
@@ -1897,7 +2671,7 @@ setup.LocationImages = {
 			},
 			trees_winter: {
 				condition: () => Time.season === "winter",
-				image: "trees_winter.png",
+				image: "trees-winter.png",
 			},
 			snow: {
 				condition: () => Weather.isSnow,
@@ -1909,6 +2683,22 @@ setup.LocationImages = {
 			condition: () => Weather.lightsOn,
 			color: "#deae66",
 			strength: 2,
+		},
+		weather: {
+			fogDistributionCurve: 2,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 9,
+					bottom: 0,
+				},
+				fog: {
+					top: 15,
+					bottom: 0,
+				},
+			},
 		},
 	},
 	meadow: {
@@ -1938,6 +2728,22 @@ setup.LocationImages = {
 				size: 4,
 				animation: {
 					frameDelay: 200,
+				},
+			},
+		},
+		weather: {
+			fogDistributionCurve: 1.5,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 21,
+					bottom: 0,
+				},
+				fog: {
+					top: 26,
+					bottom: 0,
 				},
 			},
 		},
@@ -1972,6 +2778,23 @@ setup.LocationImages = {
 		// 	image: "reflective.png",
 		// 	horizon: 112,
 		// },
+
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 22,
+					bottom: 0,
+				},
+				fog: {
+					top: 24,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	museum: {
 		folder: "museum",
@@ -1986,12 +2809,28 @@ setup.LocationImages = {
 			},
 			grass: {
 				condition: () => Time.season === "autumn",
-				image: "grass_autumn.png",
+				image: "grass-autumn.png",
+			},
+		},
+		weather: {
+			fogDistributionCurve: 1.5,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 10,
+					bottom: 0,
+				},
+				fog: {
+					top: 17,
+					bottom: 0,
+				},
 			},
 		},
 	},
 	night_monster_lair: {
-		folder: "night_monster_lair",
+		folder: "night-monster-lair",
 		base: {
 			default: {
 				condition: () => !Weather.isSnow,
@@ -2003,7 +2842,7 @@ setup.LocationImages = {
 			},
 			beast: {
 				image: "beast.png",
-				condition: () => Time.dayState === "morning",
+				condition: () => Time.dayState === "dawn",
 				animation: {
 					frameDelay: 300,
 					cycleDelay: () => random(1, 5, true) * 1000,
@@ -2018,7 +2857,7 @@ setup.LocationImages = {
 			},
 			flies: {
 				image: "drip.png",
-				condition: () => Time.dayState !== "morning",
+				condition: () => Time.dayState !== "dawn",
 				animation: {
 					frameDelay: 300,
 					cycleDelay: () => 0,
@@ -2029,6 +2868,22 @@ setup.LocationImages = {
 				animation: {
 					frameDelay: 200,
 					cycleDelay: () => random(10, 30, true) * 1000,
+				},
+			},
+		},
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 0,
+					bottom: 0,
+				},
+				fog: {
+					top: 2,
+					bottom: 0,
 				},
 			},
 		},
@@ -2045,6 +2900,22 @@ setup.LocationImages = {
 				image: "snow.png",
 			},
 		},
+		weather: {
+			fogDistributionCurve: 2.5,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 7,
+					bottom: 0,
+				},
+				fog: {
+					top: 17,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	office: {
 		folder: "office",
@@ -2059,7 +2930,7 @@ setup.LocationImages = {
 			},
 			grass: {
 				condition: () => Time.season === "autumn",
-				image: "grass_autumn.png",
+				image: "grass-autumn.png",
 			},
 		},
 		emissive: {
@@ -2069,7 +2940,7 @@ setup.LocationImages = {
 			},
 			evening: {
 				condition: () => Weather.lightsOn && Time.dayState === "dusk",
-				image: "emissive_evening.png",
+				image: "emissive-evening.png",
 			},
 			redBlinkingLight: {
 				image: "red.png",
@@ -2081,9 +2952,25 @@ setup.LocationImages = {
 				},
 			},
 		},
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 8,
+					bottom: 0,
+				},
+				fog: {
+					top: 11,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	old_temple: {
-		folder: "old_temple",
+		folder: "old-temple",
 		base: {
 			default: {
 				condition: () => !Weather.isSnow,
@@ -2099,6 +2986,22 @@ setup.LocationImages = {
 			condition: () => Weather.lightsOn,
 			color: "#ff633f",
 			size: 4,
+		},
+		weather: {
+			fogDistributionCurve: 2,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 13,
+					bottom: 0,
+				},
+				fog: {
+					top: 21,
+					bottom: 0,
+				},
+			},
 		},
 	},
 	park: {
@@ -2123,8 +3026,8 @@ setup.LocationImages = {
 			treebirds: {
 				condition: () => !Weather.isSnow && Time.dayState !== "night",
 				// Not at same time as flyingbird
-				waitForAnimation: "flyingbird",
-				image: "treebirds.png",
+				waitForAnimation: "flying-bird",
+				image: "tree-birds.png",
 				animation: {
 					frameDelay: 300,
 					cycleDelay: () => random(2, 10, true) * 1000,
@@ -2133,8 +3036,8 @@ setup.LocationImages = {
 			flyingbird: {
 				condition: () => !Weather.isSnow && (Time.dayState === "dawn" || Time.dayState === "dusk"),
 				// Not at same time as treebirds
-				waitForAnimation: "treebirds",
-				image: "flyingbird.png",
+				waitForAnimation: "tree-birds",
+				image: "flying-bird.png",
 				animation: {
 					frameDelay: 200,
 					cycleDelay: () => random(10, 30, true) * 1000,
@@ -2146,9 +3049,25 @@ setup.LocationImages = {
 			condition: () => Weather.lightsOn,
 			color: "#deae66a5",
 		},
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 19,
+					bottom: 0,
+				},
+				fog: {
+					top: 23,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	estate_cottage: {
-		folder: "estate_cottage",
+		folder: "estate-cottage",
 		base: {
 			default: {
 				condition: () => !Weather.isSnow,
@@ -2167,9 +3086,25 @@ setup.LocationImages = {
 			image: "emissive.png",
 			condition: () => Weather.lightsOn,
 		},
+		weather: {
+			fogDistributionCurve: 2,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 11,
+					bottom: 0,
+				},
+				fog: {
+					top: 15,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	police_station: {
-		folder: "police_station",
+		folder: "police-station",
 		base: {
 			default: {
 				condition: () => !Weather.isSnow,
@@ -2180,7 +3115,7 @@ setup.LocationImages = {
 				image: "snow.png",
 			},
 			grass: {
-				image: "grass_autumn.png",
+				image: "grass-autumn.png",
 				condition: () => !Weather.isSnow && Time.season === "autumn",
 			},
 			car: {
@@ -2191,6 +3126,22 @@ setup.LocationImages = {
 		emissive: {
 			image: "emissive.png",
 			condition: () => Weather.lightsOn,
+		},
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 11,
+					bottom: 0,
+				},
+				fog: {
+					top: 15,
+					bottom: 0,
+				},
+			},
 		},
 	},
 	pool: {
@@ -2210,6 +3161,22 @@ setup.LocationImages = {
 				animation: {
 					frameDelay: 300,
 					cycleDelay: () => 0,
+				},
+			},
+		},
+		weather: {
+			fogDistributionCurve: 0,
+			rainSplashEnabled: false,
+			fogEnabled: false,
+
+			groundBounds: {
+				splashes: {
+					top: 0,
+					bottom: 0,
+				},
+				fog: {
+					top: 0,
+					bottom: 0,
 				},
 			},
 		},
@@ -2234,6 +3201,22 @@ setup.LocationImages = {
 				},
 			},
 		},
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 5,
+					bottom: 0,
+				},
+				fog: {
+					top: 9,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	prison: {
 		folder: "prison",
@@ -2251,6 +3234,22 @@ setup.LocationImages = {
 				animation: {
 					frameDelay: 200,
 					cycleDelay: () => 0,
+				},
+			},
+		},
+		weather: {
+			fogDistributionCurve: 4,
+			rainSplashEnabled: false,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 0,
+					bottom: 0,
+				},
+				fog: {
+					top: 23,
+					bottom: 0,
 				},
 			},
 		},
@@ -2302,8 +3301,24 @@ setup.LocationImages = {
 				},
 			},
 			prison_boat: {
-				image: "prison_boat.png",
+				image: "prison-boat.png",
 				condition: () => between(Time.hour, 12, 14) && Time.weekDay === 6,
+			},
+		},
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 11,
+					bottom: 0,
+				},
+				fog: {
+					top: 14,
+					bottom: 0,
+				},
 			},
 		},
 	},
@@ -2331,6 +3346,22 @@ setup.LocationImages = {
 			condition: () => Weather.lightsOn,
 			image: "emissive.png",
 		},
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 18,
+					bottom: 0,
+				},
+				fog: {
+					top: 21,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	pub: {
 		folder: "pub",
@@ -2350,9 +3381,25 @@ setup.LocationImages = {
 			color: "#deae66",
 			strength: 3,
 		},
+		weather: {
+			fogDistributionCurve: 1.5,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 5,
+					bottom: 0,
+				},
+				fog: {
+					top: 9,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	res_alley: {
-		folder: "res_alley",
+		folder: "res-alley",
 		base: {
 			default: {
 				condition: () => !Weather.isSnow,
@@ -2371,9 +3418,25 @@ setup.LocationImages = {
 				},
 			},
 		},
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 0,
+					bottom: 0,
+				},
+				fog: {
+					top: 21,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	riding_school: {
-		folder: "riding_school",
+		folder: "riding-school",
 		base: {
 			default: {
 				condition: () => !Weather.isSnow,
@@ -2389,6 +3452,22 @@ setup.LocationImages = {
 				animation: {
 					frameDelay: 200,
 					cycleDelay: () => 0,
+				},
+			},
+		},
+		weather: {
+			fogDistributionCurve: 1.2,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 19,
+					bottom: 0,
+				},
+				fog: {
+					top: 22,
+					bottom: 0,
 				},
 			},
 		},
@@ -2406,12 +3485,28 @@ setup.LocationImages = {
 			},
 			autumn: {
 				condition: () => !Weather.isSnow && Time.season === "autumn",
-				image: "grass_autumn.png",
+				image: "grass-autumn.png",
+			},
+		},
+		weather: {
+			fogDistributionCurve: 2,
+			rainSplashEnabled: false,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 0,
+					bottom: 0,
+				},
+				fog: {
+					top: 19,
+					bottom: 0,
+				},
 			},
 		},
 	},
 	school_rear_courtyard: {
-		folder: "school_rear_courtyard",
+		folder: "school-rear-courtyard",
 		base: {
 			default: {
 				condition: () => !Weather.isSnow,
@@ -2424,6 +3519,22 @@ setup.LocationImages = {
 			summer: {
 				image: "summer.png",
 				condition: () => !Weather.isSnow && Time.season === "summer",
+			},
+		},
+		weather: {
+			fogDistributionCurve: 2,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 12,
+					bottom: 0,
+				},
+				fog: {
+					top: 22,
+					bottom: 0,
+				},
 			},
 		},
 	},
@@ -2457,6 +3568,22 @@ setup.LocationImages = {
 				},
 			},
 		},
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 0,
+					bottom: 0,
+				},
+				fog: {
+					top: 21,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	sewers: {
 		folder: "sewers",
@@ -2465,9 +3592,25 @@ setup.LocationImages = {
 				image: "base.png",
 			},
 		},
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 29,
+					bottom: 29,
+				},
+				fog: {
+					top: 29,
+					bottom: 29,
+				},
+			},
+		},
 	},
 	pirate_ship: {
-		folder: "pirate_ship",
+		folder: "pirate-ship",
 		base: {
 			overlay: {
 				image: "water.png",
@@ -2490,6 +3633,22 @@ setup.LocationImages = {
 				image: "ship.png",
 				animation: {
 					frameDelay: 750,
+				},
+			},
+		},
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 0,
+					bottom: 0,
+				},
+				fog: {
+					top: 40,
+					bottom: 0,
 				},
 			},
 		},
@@ -2517,9 +3676,25 @@ setup.LocationImages = {
 				color: "#5b6ee1",
 			},
 		},
+		weather: {
+			fogDistributionCurve: 2,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 0,
+					bottom: 0,
+				},
+				fog: {
+					top: 10,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	shopping_centre: {
-		folder: "shopping_centre",
+		folder: "shopping-centre",
 		base: {
 			default: {
 				condition: () => !Weather.isSnow,
@@ -2528,6 +3703,22 @@ setup.LocationImages = {
 			snow: {
 				condition: () => Weather.isSnow,
 				image: "snow.png",
+			},
+		},
+		weather: {
+			fogDistributionCurve: 3,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 6,
+					bottom: 0,
+				},
+				fog: {
+					top: 13,
+					bottom: 0,
+				},
 			},
 		},
 	},
@@ -2553,13 +3744,13 @@ setup.LocationImages = {
 		},
 		emissive: {
 			emissive_dawn: {
-				image: "emissive_dawn.png",
+				image: "emissive-dawn.png",
 				condition: () => Time.dayState === "dawn",
 				color: "#e6de57",
 				size: 10,
 			},
 			light: {
-				image: "emissive_lights.png",
+				image: "emissive-lights.png",
 				condition: () => Weather.lightsOn,
 				color: "#e6de57dd",
 				size: 20,
@@ -2569,9 +3760,25 @@ setup.LocationImages = {
 				},
 			},
 		},
+		weather: {
+			fogDistributionCurve: 2,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 12,
+					bottom: 0,
+				},
+				fog: {
+					top: 18,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	strip_club: {
-		folder: "strip_club",
+		folder: "strip-club",
 		base: {
 			default: {
 				condition: () => !Weather.isSnow,
@@ -2585,48 +3792,48 @@ setup.LocationImages = {
 		emissive: {
 			windows: {
 				condition: () => Time.dayState === "dusk" || Time.dayState === "night",
-				image: "emissive_windows.png",
+				image: "emissive-windows.png",
 				size: 2,
 			},
 			green: {
 				condition: () => Time.dayState === "dusk" || Time.dayState === "night",
-				image: "emissive_green.png",
+				image: "emissive-green.png",
 				color: "#74ff9099",
 				size: 2,
 			},
 			pink1: {
 				condition: () => Time.dayState === "dusk" || Time.dayState === "night",
-				image: "emissive_pink1.png",
+				image: "emissive-pink-1.png",
 				color: "#ff4fd6",
 				size: 0,
 			},
 			pink2: {
 				condition: () => Time.dayState === "dusk" || Time.dayState === "night",
-				image: "emissive_pink.png",
+				image: "emissive-pink.png",
 				color: "#fe99ff99",
 				size: 4,
 			},
 			purple: {
 				condition: () => Time.dayState === "dusk" || Time.dayState === "night",
-				image: "emissive_purple.png",
+				image: "emissive-purple.png",
 				color: "#a91dff",
 				size: 0,
 			},
 			red: {
 				condition: () => Time.dayState === "dusk" || Time.dayState === "night",
-				image: "emissive_red.png",
+				image: "emissive-red.png",
 				color: "#ff1d2f",
 				size: 0,
 			},
 			blue: {
 				condition: () => Time.dayState === "dusk" || Time.dayState === "night",
-				image: "emissive_blue.png",
+				image: "emissive-blue.png",
 				color: "#a6f8ff",
 				size: 0,
 			},
 			lady: {
 				condition: () => Time.dayState === "dusk" || Time.dayState === "night",
-				image: "emissive_lady_pose.png",
+				image: "emissive-lady-pose.png",
 				animation: {
 					frameDelay: 1000,
 					cycleDelay: () => 1000,
@@ -2636,9 +3843,25 @@ setup.LocationImages = {
 			},
 			hair: {
 				condition: () => Time.dayState === "dusk" || Time.dayState === "night",
-				image: "emissive_lady_hair.png",
+				image: "emissive-lady-hair.png",
 				color: "#d8294899",
 				size: 3,
+			},
+		},
+		weather: {
+			fogDistributionCurve: 2,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 7,
+					bottom: 0,
+				},
+				fog: {
+					top: 12,
+					bottom: 0,
+				},
 			},
 		},
 	},
@@ -2660,6 +3883,22 @@ setup.LocationImages = {
 				condition: () => Weather.lightsOn && between(Time.hour, 18, 23),
 			},
 		},
+		weather: {
+			fogDistributionCurve: 2,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 10,
+					bottom: 0,
+				},
+				fog: {
+					top: 16,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	temple: {
 		folder: "temple",
@@ -2675,39 +3914,55 @@ setup.LocationImages = {
 		},
 		emissive: {
 			window_blue: {
-				image: "emissive_blue_window.png",
+				image: "emissive-blue-window.png",
 				condition: () => Weather.lightsOn,
 				size: 0,
 				intensity: 0.7,
 			},
 			window_orange: {
-				image: "emissive_orange_window.png",
+				image: "emissive-orange-window.png",
 				condition: () => Weather.lightsOn,
 				size: 0,
 				intensity: 0.7,
 			},
 			orange: {
-				image: "emissive_orange.png",
+				image: "emissive-orange.png",
 				condition: () => Weather.lightsOn,
 				color: "#dfaf70ee",
 				size: 4,
 			},
 			blue: {
-				image: "emissive_blue.png",
+				image: "emissive-blue.png",
 				condition: () => Weather.lightsOn,
 				color: "#7d98e9",
 				size: 2,
 			},
 			grey: {
-				image: "emissive_grey.png",
+				image: "emissive-grey.png",
 				condition: () => Weather.lightsOn,
 				color: "#dbe4b9",
 				size: 4,
 			},
 		},
+		weather: {
+			fogDistributionCurve: 3,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 7,
+					bottom: 0,
+				},
+				fog: {
+					top: 19,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	tentworld: {
-		folder: "tentworld",
+		folder: "tent-world",
 		base: {
 			default: {
 				image: "base.png",
@@ -2717,10 +3972,26 @@ setup.LocationImages = {
 				},
 			},
 			movingtent: {
-				image: "moving_tentacle.png",
+				image: "moving-tentacle.png",
 				animation: {
 					frameDelay: 300,
 					cycleDelay: () => random(1, 9, true) * 1000,
+				},
+			},
+		},
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 0,
+					bottom: 0,
+				},
+				fog: {
+					top: 17,
+					bottom: 0,
 				},
 			},
 		},
@@ -2758,9 +4029,25 @@ setup.LocationImages = {
 			},
 			emissive_blood: {
 				condition: () => Weather.bloodMoon,
-				image: "emissive_blood.png",
+				image: "emissive-blood.png",
 				color: "#e63e3e66",
 				size: 5,
+			},
+		},
+		weather: {
+			fogDistributionCurve: 3,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 9,
+					bottom: 0,
+				},
+				fog: {
+					top: 20,
+					bottom: 0,
+				},
 			},
 		},
 	},
@@ -2775,9 +4062,9 @@ setup.LocationImages = {
 				condition: () => Weather.isSnow,
 				image: "snow.png",
 			},
-			drivingCar: {
+			driving_car: {
 				condition: () => !Weather.bloodMoon,
-				image: "drivingcar.png",
+				image: "driving-car.png",
 				waitForAnimation: "flickeringLights",
 				alwaysDisplay: false,
 				animation: {
@@ -2785,9 +4072,9 @@ setup.LocationImages = {
 					cycleDelay: () => random(5, 15, true) * 1000,
 				},
 			},
-			parkedCar: {
+			parked_car: {
 				condition: () => !Weather.bloodMoon,
-				image: "parkedcar.png",
+				image: "parked-car.png",
 			},
 			cat: {
 				condition: () => Time.dayState === "night",
@@ -2807,18 +4094,34 @@ setup.LocationImages = {
 				color: "#deae66",
 				size: 4,
 			},
-			flickeringLights: {
+			flickering_lights: {
 				waitForAnimation: "drivingCar",
 				condition: grp => {
 					// Do not draw if car animation is running
 					return Weather.lightsOn && !grp?.animations?.get("drivingCar")?.inCycle;
 				},
-				image: "emissive_flicker.png",
+				image: "emissive-flicker.png",
 				color: "#deae66",
 				size: 4,
 				animation: {
 					frameDelay: 250,
 					cycleDelay: () => random(2, 20, true) * 1000,
+				},
+			},
+		},
+		weather: {
+			fogDistributionCurve: 1.5,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 18,
+					bottom: 0,
+				},
+				fog: {
+					top: 23,
+					bottom: 0,
 				},
 			},
 		},
@@ -2835,9 +4138,25 @@ setup.LocationImages = {
 				image: "snow.png",
 			},
 		},
+		weather: {
+			fogDistributionCurve: 2,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 10,
+					bottom: 0,
+				},
+				fog: {
+					top: 18,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	underground_farm: {
-		folder: "underground_farm",
+		folder: "underground-farm",
 		base: {
 			default: {
 				condition: () => !Weather.isSnow,
@@ -2848,9 +4167,25 @@ setup.LocationImages = {
 				image: "snow.png",
 			},
 		},
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 15,
+					bottom: 0,
+				},
+				fog: {
+					top: 17,
+					bottom: 0,
+				},
+			},
+		},
 	},
 	wolf_cave: {
-		folder: "wolf_cave",
+		folder: "wolf-cave",
 		base: {
 			default: {
 				condition: () => !Weather.isSnow,
@@ -2859,6 +4194,22 @@ setup.LocationImages = {
 			snow: {
 				condition: () => Weather.isSnow,
 				image: "snow.png",
+			},
+		},
+		weather: {
+			fogDistributionCurve: 2.5,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 16,
+					bottom: 0,
+				},
+				fog: {
+					top: 24,
+					bottom: 0,
+				},
 			},
 		},
 	},

@@ -23,7 +23,7 @@ Kylar gives you a strange look, noticing that you considered something.
 
 :: Kylar Gifts
 <<effects>>
-<<set _gift to $gift.name + ($gift.handheld_gift ? " gift" : "")>>
+<<set _gift to setup.foodstuff[$gift].name + (setup.foodstuff[$gift].food.handheld_gift ? " gift" : "")>>
 <<wearProp _gift>>
 
 <<if $phase is 1>>
@@ -35,31 +35,39 @@ Kylar gives you a strange look, noticing that you considered something.
 <</if>>
 <br><br>
 
-<<if $gift.name is "chilli_con_carne">>
+<<if $gift is "chilli_con_carne">>
 	You hold out the chilli con carne. Kylar recognises it at once. "M-my favourite." <<He>> receives it with shaking hands. "Th-thank you." <<He>> stares at it, motionless.<<gglove>><<npcincr Kylar love 3>>
 	<br><br>
 
 	"Can I eat it?" <<he>> asks.
 	<br><br>
-	<<saveFavoriteFood "Kylar" $gift.name>>
+	<<saveFavoriteFood "Kylar" $gift>>
 	<<earnFeat "Not for Rats">>
 	<<link [[Nod|Kylar Gifts Chilli Nod]]>><</link>>
 	<br>
 	<<link [[Suggest sharing it|Kylar Gifts Chilli Share]]>><<npcincr Kylar lust 5>><</link>><<glust>>
 	<br>
-<<elseif $gift.name is "bakewell_tart">>
-	You hold out the bakewell tart. "It looks so sweet," Kylar says. "M-my <<if $pronoun is "m">>mother<<else>>father<</if>> used to make these."<<lksuspicion>><<npcincr Kylar rage -1>>
+<<elseif $gift is "apple_crumble">>
+	You hold out the apple crumble. Kylar's eyes flick to the dish and widen briefly, before <<he>> catches <<himself>>. <<He>> doesn't say anything for a long beat. <<He>> just stares down at the golden crust, thumb tracing the edge of the container.
+	<br><br>
+
+	"...<<nnpc_He "Sydney">> used to beg <<nnpc_his "Sydney">> <<sydneyOtherParent>> for this," <<he>> mutters, almost to <<himself>>.
+	Kylar looks up at you, <<his>> expression unreadable. "Thanks. I-I will eat it. Later." <<He>> turns away before you can answer, still cradling the crumble. <<He>> seems unsure.<<glove>><<npcincr Kylar love 1>>
+	<br><br>
+	<<kylaroptions>>
+<<elseif $gift is "bakewell_tart">>
+	You hold out the Bakewell tart. "It looks so sweet," Kylar says. "M-my <<if $pronoun is "m">>mother<<else>>father<</if>> used to make these."<<lksuspicion>><<npcincr Kylar rage -1>>
 	<br><br>
 
 	<<He>> remains motionless.
 	<br><br>
-	<<saveFavoriteFood "Kylar" $gift.name>>
+	<<saveFavoriteFood "Kylar" $gift>>
 	<<earnFeat "Not for Rats">>
 	<<link [[Repeat that you made it for <<him>>|Kylar Gifts Bakewell Repeat]]>><</link>>
 	<br>
 	<<link [[Suggest sharing it|Kylar Gifts Bakewell Share]]>><</link>>
 	<br>
-<<elseif $gift.name is "valentines_chocolate" and $valentines>>
+<<elseif $gift is "valentines_chocolate" and $valentines>>
 	<<earnFeat "Be My Valentine">>
 	You hold out the heart-shaped box. Kylar freezes as if you had a gun to <<his>> head. Then, <<he>> reaches out with shaking hands.<<gglove>><<npcincr Kylar love 1>>
 	<br><br>
@@ -73,8 +81,8 @@ Kylar gives you a strange look, noticing that you considered something.
 	<br>
 	<<link [[Feed Kylar chocolates|Kylar Gifts Valentines Feed]]>><<npcincr Kylar love 1>><<npcincr Kylar lust 1>><</link>><<glust>><<glove>>
 	<br>
-<<elseif $gift.special.includes("spicy")>>
-	You hold out the <<recipe_name $gift.name>>. Kylar's hands shake in excitement as <<he>> receives it. "Th-thank you," <<he>> says, giving it a sniff. "It smells spicy."
+<<elseif setup.foodstuff[$gift].food.tags.includes("spicy")>>
+	You hold out the <<recipe_name $gift>>. Kylar's hands shake in excitement as <<he>> receives it. "Th-thank you," <<he>> says, giving it a sniff. "It smells spicy."
 	<br><br>
 
 	<<He>> takes a bite, and chews. <<He>> doesn't seem phased by the heat. "Th-thank you again," <<he>> says between mouthfuls.<<glove>><<npcincr Kylar love 1>>
@@ -85,13 +93,13 @@ Kylar gives you a strange look, noticing that you considered something.
 	<<link [[Watch|Kylar Gifts Spicy Watch]]>><</link>>
 	<br>
 
-<<elseif $gift.special.includes("drink")>>
-	You hold out the <<recipe_name $gift.name>>. Kylar takes it with both hands. "Thank you," <<he>> says. <<He>> watches you as <<he>> takes a sip, as if expecting you to take it back. <<His>> attention shifts to the drink once it's tasted, and <<he>> gulps down the rest. <<glove>><<npcincr Kylar love 1>>
+<<elseif setup.foodstuff[$gift].food.tags.includes("drink")>>
+	You hold out the <<recipe_name $gift>>. Kylar takes it with both hands. "Thank you," <<he>> says. <<He>> watches you as <<he>> takes a sip, as if expecting you to take it back. <<His>> attention shifts to the drink once it's tasted, and <<he>> gulps down the rest. <<glove>><<npcincr Kylar love 1>>
 	<br><br>
 
 	<<link [[Next|Kylar Gifts Drink End]]>><</link>>
 <<else>>
-	You hold out the <<recipe_name $gift.name>>. Kylar's hands shake in excitement as <<he>> receives it. "Th-thank you," <<he>> says. "I will treasure it."<<glove>><<npcincr Kylar love 1>>
+	You hold out the <<recipe_name $gift>>. Kylar's hands shake in excitement as <<he>> receives it. "Th-thank you," <<he>> says. "I will treasure it."<<glove>><<npcincr Kylar love 1>>
 	<br><br>
 
 	<<link [[Suggest eating it|Kylar Gifts Suggest]]>><</link>>
@@ -175,7 +183,7 @@ You become used to the rhythm, each taking a bite in turn, so it's noticeable wh
 <</if>>
 <br><br>
 
-Kylar takes the bakewell tart from your hands, and takes a bite. "It's just like I remember," <<he>> says. <<He>> turns away from you, and refuses to show <<his>> face for a few moments. Then <<he>> continues eating the tart with measured movements.
+Kylar takes the Bakewell tart from your hands, and takes a bite. "It's just like I remember," <<he>> says. <<He>> turns away from you, and refuses to show <<his>> face for a few moments. Then <<he>> continues eating the tart with measured movements.
 <br><br>
 
 "Thank you," <<he>> says when finished. "It was very good."
@@ -195,7 +203,7 @@ Kylar takes the bakewell tart from your hands, and takes a bite. "It's just like
 <</if>>
 <br><br>
 
-You sit beside Kylar, split the bakewell tart in two, and hand <<him>> a piece. You both take a bite. <<He>> turns <<his>> head away for a few moments. <<His>> face is flushed when <<he>> turns back.
+You sit beside Kylar, split the Bakewell tart in two, and hand <<him>> a piece. You both take a bite. <<He>> turns <<his>> head away for a few moments. <<His>> face is flushed when <<he>> turns back.
 <br><br>
 
 "Thank you," <<he>> says when finished. "It was very good."

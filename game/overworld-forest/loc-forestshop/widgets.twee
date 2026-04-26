@@ -284,13 +284,13 @@
 					<<set _ritualDays to 7>>
 				<</if>>
 				<<set $_askbr to true>>
-				<<icon "clothes/witch_hat_sage.png">><span class="pink">Gwylan will be ready for another ritual in <<number _ritualDays>> <<pluralise _ritualDays "day">>.</span>
+				<<icon "clothes/witch-hat-sage.png">><span class="pink">Gwylan will be ready for another ritual in <<number _ritualDays>> <<pluralise _ritualDays "day">>.</span>
 			<<elseif $gwylanSeen.includes("ritual_sex_intro")>>
 				<<set $_askbr to true>>
-				<<icon "clothes/witch_hat_sage.png">><<link [[Help Gwylan with <<his>> ritual (?:??)|Gwylan Ritual Select]]>><</link>>
+				<<icon "clothes/witch-hat-sage.png">><<link [[Help Gwylan with <<his>> ritual (?:??)|Gwylan Ritual Select]]>><</link>>
 			<<else>>
 				<<set $_askbr to true>>
-				<<icon "clothes/witch_hat_sage.png">><<link [[Help Gwylan with <<his>> ritual (?:??)|Gwylan Forest Journey Prep]]>><<endevent>><</link>>
+				<<icon "clothes/witch-hat-sage.png">><<link [[Help Gwylan with <<his>> ritual (?:??)|Gwylan Forest Journey Prep]]>><<endevent>><</link>>
 			<</if>>
 			<br>
 			<<if (!$gwylan.timer.sample or $gwylan.timer.sample lte Time.date.timeStamp) and !["meetAtCafe", "sample"].includes($gwylan.request.event)>>
@@ -317,7 +317,7 @@
 	<</if>>
 	<<if $gwylanSeen.includes("gwylan_ears") and !$gwylanSeen.includesAny("gwylan_ears_talk", "gwylan_tf_revealed") and $gwylanSeen.includes("hat_found")>>
 		<<set $_askbr to true>>
-		<<icon "clothes/witch_hat_sage.png">><<link [[Ask Gwylan about the ears on <<his>> hat (0:05)|Gwylan Talk TF Ears]]>><<pass 5>><</link>>
+		<<icon "clothes/witch-hat-sage.png">><<link [[Ask Gwylan about the ears on <<his>> hat (0:05)|Gwylan Talk TF Ears]]>><<pass 5>><</link>>
 		<br>
 	<</if>>
 	<<if $gwylanSeen.includes("gwylan_tail") and !$gwylanSeen.includesAny("gwylan_tail_talk", "gwylan_tf_revealed")>>
@@ -338,11 +338,11 @@
 	<<if $avery_mansion>>
 		<<if $avery_mansion.fox.known and $avery_mansion.fox.end and !$brownFoxRevealed and $gwylanTalked.includes("fox_mask") and ($brownFoxWoundedHint or $gwylanSeen.includes("yearning"))>>
 			<<set $_askbr to true>>
-			<<icon "clothes/foxmask.png">><<link [[Ask <<him>> to try on the fox mask (0:05)|Gwylan Talk Brown Fox]]>><<pass 5>><</link>>
+			<<icon "clothes/fox-mask.png">><<link [[Ask <<him>> to try on the fox mask (0:05)|Gwylan Talk Brown Fox]]>><<pass 5>><</link>>
 			<br>
 		<<elseif $brownFoxRevealed and !$brownFoxMaskTalk and $gwylanTalked.includes("fox_mask") and $avery_fate>>
 			<<set $_askbr to true>>
-			<<icon "clothes/foxmask.png">><<link [[Ask about the brown fox mask (0:05)|Gwylan Talk Brown Fox Mask]]>><<pass 5>><</link>>
+			<<icon "clothes/fox-mask.png">><<link [[Ask about the brown fox mask (0:05)|Gwylan Talk Brown Fox Mask]]>><<pass 5>><</link>>
 			<br>
 		<</if>>
 	<</if>>
@@ -390,15 +390,14 @@
 					<br>
 				<</if>>
 			<<case "ingredients">>
-				<<if $gwylan.request.special is "tutorial" and $gwylanTutorialShrooms + $plants.wolfshroom.amount gte 3>>
+				<<if $gwylan.request.special is "tutorial" and $gwylanTutorialShrooms + $foodstuff.wolfshroom.amount gte 3>>
 					<<set $_reqbr to true>>
-					<<tendingicon "wolfshroom">><<link [[Give <<him>> the wolfshrooms|Gwylan Request Tutorial Complete]]>><</link>>
+					<<foodstufficon "wolfshroom">><<link [[Give <<him>> the wolfshrooms|Gwylan Request Tutorial Complete]]>><</link>>
 					<br>
 				<<elseif gwylanRequestMet()>>
 					<<set $_reqbr to true>>
 					<<set $_iconItem to $gwylan.request.items.find(item => item.root)>>
-					<<set $_iconPlant to setup.plants[$_iconItem.name].icon.replace(/\.[^/.]+$/, "")>>
-					<<tendingicon $_iconPlant>><<link [[Give <<him>> the ingredients <<he>> asked for|Gwylan Request Ingredients Complete]]>><</link>>
+					<<foodstufficon $_iconItem.name>><<link [[Give <<him>> the ingredients <<he>> asked for|Gwylan Request Ingredients Complete]]>><</link>>
 					<br>
 				<</if>>
 			<<case "sample">>
@@ -411,7 +410,7 @@
 				/* ToDo: Gwylan */
 			<<case "cream">>
 				<<set $_reqbr to true>>
-				<<tendingicon "cream">><<link [[Take up <<his>> lewd offer|Gwylan Request Cream]]>><</link>>
+				<<foodstufficon "cream">><<link [[Take up <<his>> lewd offer|Gwylan Request Cream]]>><</link>>
 				<br>
 			<<case "preen">>
 				<<if $harpy gte 6 and $gwylan.request.special is "harpy">>
@@ -444,6 +443,11 @@
 			<<default>>
 				/* Request not applicable to interaction here */
 		<</switch>>
+		/* Necessary to avoid an uncompletable request if the golden chastity belt is removed before the request is turned in */
+		<<if $gwylan.request.event is "recipe" and $gwylan.request.special is "chastity" and !playerChastity()>>
+			<<lockicon "unlock">><<link [[Tell <<him>> you got your chastity device removed|Gwylan Chastity Removed]]>><</link>>
+			<br>
+		<</if>>
 		<<if !gwylanRequestMet() and !$gwylan.request.command and $debug is 1>>
 			/* ToDo: Gwylan - rerolling requests */
 			<span class="red">DEV NOTE: Request rerolling not yet implemented. Clears current request. May entirely break story progression if used carelessly.</span>
@@ -467,9 +471,9 @@
 	<</if>>
 	<<if !$gwylan.taken and $worn.neck.name is "familiar collar" and $gwylanSeen.includes("familiar_collar") and $daily.gwylan.collar_lock isnot 2>>
 		<<if $worn.neck.cursed is 1>>
-			<<icon "clothes/familiar_collar.png">><<link [[Ask Gwylan to unlock your familiar collar|Gwylan Familiar Collar Unlock]]>><</link>>
+			<<icon "clothes/familiar-collar.png">><<link [[Ask Gwylan to unlock your familiar collar|Gwylan Familiar Collar Unlock]]>><</link>>
 		<<else>>
-			<<icon "clothes/familiar_collar.png">><<link [[Ask Gwylan to lock your familiar collar|Gwylan Familiar Collar Lock]]>><</link>><<gwylanHypnoNote>>
+			<<icon "clothes/familiar-collar.png">><<link [[Ask Gwylan to lock your familiar collar|Gwylan Familiar Collar Lock]]>><</link>><<gwylanHypnoNote>>
 		<</if>>
 		<br>
 	<</if>>
@@ -632,7 +636,7 @@
 		<<set $_giftbr to true>>
 		<<for _key range Object.keys(V.NPCName[7].sextoys).filter(t => V.NPCName[7].sextoys[t][0].gift_state === "held")>>
 			<<set _toy to V.NPCName[7].sextoys[_key][0]>>
-			<<set _icon to `sexToys/${_toy.name.replace(/ /g, "_")}.png`>>
+			<<set _icon to `sex-toys/${_toy.name.replace(/ /g, "-")}.png`>>
 			<span @class="`clothes-${_toy.colour}`"><<icon _icon>></span>
 			<<capture _toy>>
 				<<link [[Gift Gwylan the _toy.colour _toy.name|Gwylan Gift Strap-on]]>>
@@ -2275,11 +2279,11 @@
 	<<if $options.images is 1>>
 		<div id="divcharms">
 			<<if $world_corruption_soft gt 0 and $world_corruption_soft lt 10>>
-				<img id="map" src="img/misc/prop/charm_big_0b.png">
+				<img id="map" src="img/misc/prop/charm-big-0b.png">
 			<<else>>
-				<img id="map" @src="'img/misc/prop/charm_big_' + Math.clamp(Math.ceil($world_corruption_soft / 10), 0, 10) + '.png'">
+				<img id="map" @src="'img/misc/prop/charm-big-' + Math.clamp(Math.ceil($world_corruption_soft / 10), 0, 10) + '.png'">
 			<</if>>
-			<img id="maparrow" @src="'img/misc/prop/charm_small_' + Math.clamp($world_corruption_hard, 0, 10) + '.png'">
+			<img id="maparrow" @src="'img/misc/prop/charm-small-' + Math.clamp($world_corruption_hard, 0, 10) + '.png'">
 		</div>
 		<br>
 	<</if>>

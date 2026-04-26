@@ -609,8 +609,8 @@
 	<</if>>
 
 	<<if $player.penissize is undefined>>
-		<<set $player.penissize to 2>>
-		<<set $penissizemax to 4>>
+		<<set $player.penissize to 4>>
+		<<set $penissizemax to 6>>
 		<<set $penisgrowthtimer to 700>>
 	<</if>>
 
@@ -1665,7 +1665,7 @@
 	<<if $birdbuild is undefined>>
 		<<set $birdbuild to 0>>
 		<<set $harpy to 0>>
-		<<set $home_gone to 0>>
+		<<set $hoursGoneFromHome to 0>>
 	<</if>>
 
 	<<if $hirsutedisable>>
@@ -3223,7 +3223,7 @@
 		<<npcincr Kylar dom -100>>
 	<</if>>
 
-	<!-- v0.3.10.3: fix for Kylar being initialized weirdly in combat after a prior bug set kylar's NPCName data weirdly -->
+	<!-- v0.3.10.3: fix for Kylar being initialised weirdly in combat after a prior bug set kylar's NPCName data weirdly -->
 	<<if _version lte 31003>>
 		<<set _kylar to C.npc.Kylar>>
 		<<if _kylar.penis isnot "none">>
@@ -3561,7 +3561,7 @@
 		<<set $historymissed to 0>>
 		<<set $swimmingmissed to 0>>
 	<</if>>
-	/* To correct some bad math that let it get into the negatives */
+	/* To correct some bad maths that let it get into the negatives */
 	<<if Math.min($sciencemissed,$mathsmissed,$englishmissed,$historymissed,$swimmingmissed) lt 0>>
 		<<set $_min to Math.min($sciencemissed,$mathsmissed,$englishmissed,$historymissed,$swimmingmissed)>>
 		<<set $sciencemissed -= $_min>>
@@ -3845,7 +3845,7 @@
 	/* Code that should not be moved into a check like above */
 	<<set $runWardrobeSanityChecker to true>>
 
-	<<if $objectVersion.updateClothes lt 76 or $objectVersion.updateClothes is undefined>>
+	<<if $objectVersion.updateClothes lt 77 or $objectVersion.updateClothes is undefined>>
 		<<updateClothes>>
 		<<if $objectVersion.updateClothes lt 38>>
 			<!-- V0.4.0.7 return items stuck in $store without proper .location -->
@@ -3887,7 +3887,7 @@
 
 		<!-- do NOT forget to bump this version in variables-start.twee, too -->
 
-		<<set $objectVersion.updateClothes to 76>>
+		<<set $objectVersion.updateClothes to 77>>
 	<</if>>
 
 	<<if !$specialClothesEffects?.pimp>>
@@ -3941,9 +3941,9 @@
 		<<set $objectVersion.feats to 2>>
 	<</if>>
 
-	<<if $objectVersion.wardrobes lt 16 or $objectVersion.wardrobes is undefined>>
+	<<if $objectVersion.wardrobes lt 17 or $objectVersion.wardrobes is undefined>>
 		<<wardrobesUpdate>>
-		<<set $objectVersion.wardrobes to 16>>
+		<<set $objectVersion.wardrobes to 17>>
 	<</if>>
 
 	<<if $objectVersion.museumAntiques lte 14 and $museumAntiques.antiques.antiquewhitescrystal isnot undefined>>
@@ -4017,8 +4017,6 @@
 						<<npcClothesType $per_npc[$_key] "security">>
 					<<elseif ["scarred_inmate", "tattooed_inmate"].includes($_key)>>
 						<<npcClothesType $per_npc[$_key] "prison">>
-					<<elseif ["tower_creature"].includes($_key)>>
-						<<npcClothesType $per_npc[$_key] "naked">>
 					<<elseif ["farm_tower_guard"].includes($_key)>>
 						<<npcClothesName $per_npc[$_key] "wildsFlannel">>
 					<<elseif ["prison_intro_officer"].includes($_key)>>
@@ -4350,7 +4348,7 @@
 		<<set $objectVersion.fame to 3>>
 	<</if>>
 
-	<!-- <= v0.3.8.6: Modeling rework -->
+	<!-- <= v0.3.8.6: Modelling rework -->
 	<<if typeof $photo is 'object'>>
 		<<script>>
 			const photo = V.photo;
@@ -4857,7 +4855,7 @@
 	<</if>>
 
 	<!-- V0.4 egg -->
-	<<if $plants.egg>>
+	<<if def $plants and $plants.egg>>
 		<<set $plants.chicken_egg to $plants.egg>>
 		<<run delete $plants.egg>>
 		<<set $plants.chicken_egg.name to "chicken_egg">>
@@ -4922,7 +4920,7 @@
 	<</if>>
 
 	<!-- Fixing broken transformation stuff -->
-	<<if $tfFIX is undefined or $tfFIX lte 7>>
+	<<if $tfFIX is undefined or $tfFIX lte 8>>
 		<<if $tfFIX is undefined>>
 			<!-- V0.4.0.5 repair transformationParts object after damage from mid-prayer room or nightmare saves -->
 			<<if $transformationParts.fox is undefined>>
@@ -5014,7 +5012,14 @@
 			<<if $fox gte 6>><<set $transformationHistory.pushUnique("fox")>><</if>>
 		<</if>>
 
-		<<set $tfFIX to 8>>
+		<!-- 0.6.0.0 TF name updates -->
+		<<if $tfFIX is undefined or $tfFIX lte 8>>
+			<<if $transformationParts.fallenAngel.wings is "classicfallenplus">><<set $transformationParts.fallenAngel.wings to "classic-fallenplus">><</if>>
+			<<if $transformationParts.cow.ears is "spotted black">><<set $transformationParts.cow.ears to "spotted-black">><</if>>
+			<<if $transformationParts.cow.ears is "spotted brown">><<set $transformationParts.cow.ears to "spotted-brown">><</if>>
+		<</if>>
+
+		<<set $tfFIX to 9>>
 	<</if>>
 
 	<!-- V0.4.0.5 Old saves with untyped named NPCs -->
@@ -5894,7 +5899,7 @@
 			overcast: 0,
 			targetOvercast: 0,
 			monthlyTemperatures: [],
-			keypointsArr: []
+			keypointsArr: [],
 		}>>
 		<<set $player.bodyTemperature to 37>>
 		<<set $options.weatherUpdate to true>>
@@ -5923,7 +5928,7 @@
 
 		<!-- Failsafe if changing options immediately after load -->
 		<<run Weather.WeatherGeneration.generate(Time.date)>>
-		<<run Weather.sky.initialize()>>
+		<<run Weather.sidebar.initialize()>>
 	<</if>>
 
 	<<if $options.clothingCaption is undefined>>
@@ -6374,14 +6379,14 @@
 		<<set $makeup.blusher = 0>>
 	<</if>>
 	<!-- 0.5.3.0 makes sure $plants is defined on all saves and stocks supermarket-->
-	<<if $plants.salt is undefined>>
-		<<set _food_keys to Object.keys(setup.plants)>>
+	<<if def $plants and $plants.salt is undefined>>
+		<<set _food_keys to Object.keys(setup.foodstuff)>>
 		<<for _i to 0; _i lt _food_keys.length; _i++>>
 			<<set $_type to _food_keys[_i]>>
 			<<if $plants[$_type] is undefined>>
-				<<set $plants[$_type] to {"name": setup.plants[$_type].name, "plural": setup.plants[$_type].plural, "amount": 0}>>
+				<<set $plants[$_type] to {"name": setup.foodstuff[$_type].name, "plural": setup.foodstuff[$_type].plural, "amount": 0}>>
 			<<elseif $plants[$_type].name is undefined>>
-				<<set $plants[$_type] to {"name": setup.plants[$_type].name, "plural": setup.plants[$_type].plural, "amount": $plants[$_type].amount}>>
+				<<set $plants[$_type] to {"name": setup.foodstuff[$_type].name, "plural": setup.foodstuff[$_type].plural, "amount": $plants[$_type].amount}>>
 			<</if>>
 		<</for>>
 		<<supermarketWeekly>>
@@ -6411,14 +6416,14 @@
 		<<set $daily.giftedFood to {}>>
 	<</if>>
 	<!-- 0.5.3.1 makes sure the related $plants names use _ rather than spaces as they get used as object keys -->
-	<<if $plants.cheese_and_crackers.name is "cheese and crackers">>
+	<<if def $plants and $plants.cheese_and_crackers.name is "cheese and crackers">>
 		<<run ["cheese_and_crackers", "choc_chip_cookie", "spaghetti_bolognese", "porridge"].forEach(key => $plants[key].name to key)>>
 		<<set $plants.porridge.plural to "servings of porridge">>
 		<<set $plants.chips.plural to "packets of chips">>
 		<<set $plants.yorkshire_pudding.plural to "yorkshire puddings">>
 		<<set $plants.choc_chip_cookie.plural to "chocolate chip cookies">>
 	<</if>>
-	<<if $plants.chilli_con_carne.singular is "serving ">>
+	<<if def $plants and $plants.chilli_con_carne.singular is "serving ">>
 		<<set $plants.chilli_con_carne.singular to "serving of chilli con carne">>
 	<</if>>
 
@@ -6426,7 +6431,9 @@
 	<<set $daily.prison ||= {}>>
 
 	<!-- Rice does not have a supermarket quantity -->
-	<<set $plants.rice.supermarket ||= 0>>
+	<<if def $plants>>
+		<<set $plants.rice.supermarket ||= 0>>
+	<</if>>
 
 	<!-- Avery cards sending face items of the wrong colour -->
 	<<if $avery_cards?.face>>
@@ -6662,12 +6669,6 @@
 	<</for>>
 
 	<<unset $topless>>
-
-	<!-- 0.5.5.1, repair Avery recipe request if it pulled a string instead of the setup object -->
-	<<if $avery_mansion?.food and typeof $avery_mansion.food is "string">>
-		<<set $_recipeToFix to $avery_mansion.food>>
-		<<set $avery_mansion.food to Object.entries(clone(setup.plants)).find(([key, item]) => key === $_recipeToFix)[1]>>
-	<</if>>
 
 	<!-- 0.5.5.1, add kitchen stock to Avery's mansion object -->
 	<<if $avery_mansion and !$avery_mansion.kitchen_stock>>
@@ -6918,12 +6919,6 @@
 		<<set $dateCount.GwylanSex to 0>>
 	<</if>>
 
-	<!-- Increment in variables-start.twee as well whenever new tending objects are added -->
-	<<if !$objectVersion.plants or $objectVersion.plants lt 2>>
-		<<updatePlants>>
-		<<set $objectVersion.plants to 2>>
-	<</if>>
-
 	/* Text animation accessibility options */
 	<<if $options.textAnimations isnot undefined>>
 		<<set $options.textAnimsAll to $options.textAnimations>>
@@ -7145,6 +7140,296 @@
 	<<set $pillsConsumed to ($pillsconsumed || 0) + ($pillsConsumed || 0)>>
 	<<if def $pillsconsumed>>
 		<<unset $pillsconsumed>>
+	<</if>>
+
+	/* Getting rid of negative penis sizes */
+	<<if !$objectVersion.penisFix>>
+		<<if $player.penisExist>>
+			<<set $player.penissize += 2>>
+			<<if $frozenValues>>
+				<<set $frozenValues.penissize += 2>>
+			<</if>>
+			<<if $sexRitual?.penissize>>
+				<<set $sexRitual.penissize += 2>>
+			<</if>>
+		<</if>>
+		<<if $player.ballsExist>>
+			<<set $ballssize to $player.penissize>>
+			<<set $ballssizemax to $penissizemax>>
+			<<set $ballssizemin to $penissizemin>>
+		<</if>>
+		<<set $penissizemax += 2>>
+		<<set $penissizemin += 2>>
+		<<set $objectVersion.penisFix to 1>>
+	<</if>>
+
+	
+	<!-- Weather update -->
+	<<if $weatherObj.fogKeypoints is undefined>>
+		<<set $weatherObj.fogKeypoints to []>>
+	<</if>>
+
+	<<if $weatherObj.previousWeatherIndex is undefined>>
+		<<set $weatherObj.previousWeatherIndex to 0>>
+	<</if>>
+
+	<<unset $weatherObj.name>>
+	<<unset $weatherObj.fog>>
+	<<unset $weatherObj.overcast>>
+	<<unset $weatherObj.targetOvercast>>
+
+	/* Physique changes */
+	<<if !$physiqueSizeUpdate>>
+		<<set $physiqueSizeUpdate to true>>
+		<<if $physiquesize is 16000>>
+			<<set $physiquesize to 15000>>
+		<<elseif $physiquesize is 10000>>
+			<<set $physiquesize to 9000>>
+		<</if>>
+
+		<<if $physique gt $physiquesize>>
+			<<set $physique to $physiquesize>>
+		<</if>>
+	<</if>>
+
+	/* Better tracking of where the PC has met Harper */
+	<<if $hospitalintro>>
+		<<set $harperSeen to []>>
+		<<if $hospitalintro is "livestock" or $livestock_harper gte 1>>
+			<<set $harperSeen.pushUnique("livestock")>>
+		<</if>>
+		<<if $hospitalintro is "party" or ($avery_tower and $avery_tower.effects.includes("Harper"))>>
+			<<set $harperSeen.pushUnique("party")>>
+		<</if>>
+		<<if $hospitalintro is 1>>
+			<<set $harperSeen.pushUnique("hospital")>>
+		<</if>>
+		<<unset $hospitalintro>>
+	<</if>>
+
+	/* Unset Night Monster persistent NPC in favour of Named NPC (NNPC) */
+	<<if !$nightMonsterNNPCUpdate>>
+		<<set $nightMonsterNNPCUpdate to 1>> /* set to 1 here, set to 2 in variablesStart2 or Config.navigation.override */
+		<<clearNPC "tower_creature">>
+		<<run ["tower_creature_intro", "tower_sleep", "tower_sheet", "tower_view"].forEach(v => delete V[v]);>>
+	<</if>>
+
+	<<if $nightmonstermonster is undefined>>
+		<<rng>>
+		<<if $monsterchance gte $rng>>
+			<<set $nightmonstermonster to 1>>
+		<<else>>
+			<<set $nightmonstermonster to 0>>
+		<</if>>
+	<</if>>
+
+	/* Timer to pace events related to Whitney's home unlock */
+	<<if !$whitney_home_timer>>
+		<<set $whitney_home_timer to $whitneyromance ? 21 : 0>>
+	<</if>>
+
+	/* Move legacy stall vars to new names */
+	<<if def $plants_stall>>
+		<<if ndef $foodstuff_stall>>
+			<<set $foodstuff_stall to clone($plants_stall)>>
+		<</if>>
+		<<unset $plants_stall>>
+	<</if>>
+	<<if def $plant_inventory>>
+		<<if ndef $foodstuff_inventory>>
+			<<set $foodstuff_inventory to clone($plant_inventory)>>
+		<</if>>
+		<<unset $plant_inventory>>
+	<</if>>
+	<<if def $stall_plant>>
+		<<if ndef $stall_foodstuff>>
+			<<set $stall_foodstuff to $stall_plant>>
+		<</if>>
+		<<unset $stall_plant>>
+	<</if>>
+
+	/* Move legacy food inventory into $foodstuff, then drop $plants */
+	<<if ndef $foodstuff>>
+		<<set $foodstuff to {}>>
+	<</if>>
+	<<if def $plants>>
+		<<run Object.keys($plants).forEach(key => {
+			if (!setup.foodstuff[key]) return;
+			if (!V.foodstuff[key]) {
+				V.foodstuff[key] = clone(V.plants[key]);
+			} else {
+				Object.assign(V.foodstuff[key], clone(V.plants[key]));
+			}
+			delete V.foodstuff[key].name;
+			delete V.foodstuff[key].plural;
+			delete V.foodstuff[key].singular;
+		})>>
+		<<unset $plants>>
+	<</if>>
+
+	<<if def $objectVersion.plants and ndef $objectVersion.foodstuff>>
+		<<set $objectVersion.foodstuff to $objectVersion.plants>>
+	<</if>>
+	<<if def $objectVersion.plants>>
+		<<unset $objectVersion.plants>>
+	<</if>>
+
+	<<if $avery_mansion?.food?.name>>
+		<<set $avery_mansion.food to $avery_mansion.food.name>>
+	<</if>>
+
+	<<if def $foodstuff>>
+		<<run Object.keys($foodstuff).forEach(key => {
+			if (V.foodstuff[key]?.recipe === true && V.foodstuff[key].knows_recipe !== true) {
+				V.foodstuff[key].knows_recipe = true;
+			}
+			if ("recipe" in V.foodstuff[key]) {
+				delete V.foodstuff[key].recipe;
+			}
+		})>>
+	<</if>>
+
+	<!-- Increment in variables-start.twee as well whenever new foodstuff objects are added -->
+	<<if !$objectVersion.foodstuff or $objectVersion.foodstuff lt 3>>
+		<<updatePlants>>
+		<<set $objectVersion.foodstuff to 3>>
+	<</if>>
+
+	<!-- UFarm variable refactor -->
+	<<if $livestock is undefined>>
+		<<set $livestock to {}>>
+		<<set $livestock.dig to {}>>
+			<<if $livestock_dig isnot undefined>>
+				<<set $livestock.dig.fence to $livestock_dig>>
+				<<set $livestock.dig.barn to 0>>
+			<</if>>
+		<<set $livestock.horse to {}>>
+			<<if $livestock_horse isnot undefined>>
+				<<set $livestock.horse.reputation to $livestock_horse>>
+			<</if>>
+			<<if $livestock_horse_rescued isnot undefined>>
+				<<set $livestock.horse.rescued to $livestock_horse_rescued>>
+			<</if>>
+		<<set $livestock.lock to {}>>
+			<<if $livestock_lock_intro isnot undefined>>
+				<<set $livestock.lock.intro to $livestock_lock_intro>>
+			<</if>>
+			<<if $farm_key isnot undefined>>
+				<<set $livestock.lock.keys to $farm_key>>
+			<</if>>
+			<<if $farmCellUnlk isnot undefined>>
+				<<set $livestock.lock.unlocked to $farmCellUnlk>>
+			<</if>>
+			<<if $farmPatrol isnot undefined>>
+				<<set $livestock.lock.patrol to $farmPatrol>>
+			<</if>>
+			<<if $farmGateCD isnot undefined>>
+				<<set $livestock.lock.cooldown to $farmGateCD>>
+			<</if>>
+			<<if $livestockLockSeq isnot undefined>>
+				<<set $livestock.lock.sequence to $livestockLockSeq>>
+			<</if>>
+			<<if $farmLockStr isnot undefined>>
+				<<set $livestock.lock.strength to $farmLockStr>>
+			<</if>>
+			<<if $farmLockQty isnot undefined>>
+				<<set $livestock.lock.quality to $farmLockQty>>
+			<</if>>
+		<<set $livestock.jobs to {}>>
+			<<if $livestock_pig isnot undefined>>
+				<<set $livestock.jobs.pig to $livestock_pig>>
+			<</if>>
+			<<if $livestock_harper isnot undefined>>
+				<<set $livestock.jobs.harper to $livestock_harper>>
+			<</if>>
+		<<set $livestock.winter to {}>>
+			<<set $livestock.winter.active to false>>
+			<<set $livestock.winter.trigger to 0>>
+			<<set $livestock.winter.exam to false>>
+		<<if $livestock_food isnot undefined>>
+			<<set $livestock.food to true>>
+		<</if>>
+		<<if $livestock_muzzle isnot undefined>>
+			<<set $livestock.muzzle to true>>
+		<</if>>
+		<<if $livestock_return isnot undefined>>
+			<<set $livestock.return to $livestock_return>>
+		<</if>>
+		<<if $livestock_escape isnot undefined>>
+			<<set $livestock.escape to $livestock_escape>>
+		<</if>>
+		<<if $livestock_milk isnot undefined>>
+			<<set $livestock.milk to $livestock_milk>>
+		<</if>>
+		<<if $livestock_semen isnot undefined>>
+			<<set $livestock.semen to $livestock_semen>>
+		<</if>>
+		<<set $livestock.seen to []>>
+		<<if $livestock_intro isnot undefined>>
+			<<set $livestock.intro to true>>
+			<<set $livestock.obey to $livestock_obey>>
+			<<set $livestock.robin to $livestock_robin>>
+			<<set $livestock.noise to $livestock_noise>>
+			<<if !$livestock_river>>
+				<<set $livestock.seen.push("river")>>
+			<</if>>
+			<<if !$livestock_fence>>
+				<<set $livestock.seen.push("fence")>>
+			<</if>>
+			<<if !$livestock_grass>>
+				<<set $livestock.seen.push("grass")>>
+			<</if>>
+		<</if>>
+		<<run ["livestock_dig", "livestock_lock_intro", "livestockLockSeq", "farmLockStr", "farmLockQty", "livestock_pig", "livestock_obey", "livestock_intro", "livestock_robin", "livestock_noise", "livestock_river", "livestock_fence", "livestock_grass", "livestock_muzzle", "livestock_return", "livestock_escape", "livestock_harper", "livestock_horse", "livestock_horse_rescued", "livestock_food", "livestock_milk", "livestock_semen"].forEach(v => delete V[v]);>>
+	<</if>>
+
+	<<if $hy_parent or $hy_sibling>>
+		<<generate1>>
+		<<generates2>>
+		<<set $NPCList[0] to clone($hy_parent)>>
+		<<set $NPCList[1] to clone($hy_sibling)>>
+		<<saveNPC 0 "hy_parent">>
+		<<saveNPC 1 "hy_sibling">>
+		<<unset $hy_parent>>
+		<<unset $hy_sibling>>
+	<</if>>
+
+	<!-- Renaming variable -->
+	<<if $hoursGoneFromHome is undefined>>
+		<<set $hoursGoneFromHome to $home_gone>>
+		<<unset $home_gone>>
+	<</if>>
+
+	/* Fix errors with corrupted museum antique name in some saves */
+	<<if !$museumAntiques.antiques.antiqueleathermap and $museumAntiques.antiques.antiqueleatp>>
+		<<set $museumAntiques.antiques.antiqueleathermap to $museumAntiques.antiques.antiqueleatp>>
+		<<run delete V.museumAntiques.antiques.antiqueleatp>>
+	<</if>>
+
+	/* Hide warning about no replacement clothing when switching sets by default */
+	<<set $options.clothingReplacementWarning ??= false>>
+
+
+	/* Adding missing variable on fresh saves */
+	<<if !$livestock.horse>>
+		<<set $livestock.horse to {}>>
+	<</if>>
+
+	/*Adjusting oversized penis limits for  0.5.9.3 sneaky */
+	<<if $player.penisExist>>
+		<<if $penissizemax gte 7>>
+			<<set $penissizemax to 6>>
+		<</if>>
+		<<if $frozenValues and $frozenValues.penissize gte 7>>
+			<<set $frozenValues.penissize to 6>>
+		<</if>>
+		<<if $sexRitual?.penissize gte 7>>
+			<<set $sexRitual.penissize to 6>>
+		<</if>>
+	<</if>>
+
+	<<if $settings.condomLevel is undefined>>
+		<<set $settings.condomLevel to 3>>
 	<</if>>
 
 <</widget>>

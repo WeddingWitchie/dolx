@@ -406,6 +406,7 @@ function pregnancyNameCorrection(name, caps = false) {
 	switch (name) {
 		case "Black Wolf":
 		case "Great Hawk":
+		case "Night Monster":
 		case "Ivory Wraith":
 		case "cum bucket":
 			name = (caps ? "The " : "the ") + name;
@@ -546,7 +547,7 @@ function playerHeatMinArousal() {
 window.playerHeatMinArousal = playerHeatMinArousal;
 
 function playerRutMinArousal() {
-	if (!V.player.penisExist || V.player.penissize < -1 || !V.sexStats || !V.sexStats.pills || (V.statFreeze && !V.statFreezeIgnoreRestrictions)) return 0;
+	if (!V.player.penisExist || V.player.penissize < 1 || !V.sexStats || !V.sexStats.pills || (V.statFreeze && !V.statFreezeIgnoreRestrictions)) return 0;
 
 	// Permanent override: ignore cycle/pill logic, but still respect anatomy.
 	if (V.xchange?.heat?.permanentOn) {

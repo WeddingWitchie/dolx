@@ -18,7 +18,7 @@
 You are downstairs in Alex's cottage. It's tight, and cosy. There's a kitchen with modern appliances, and a small table, as well as a living room with a sofa and armchair.
 <br><br>
 
-<!-- Flavor text of Alex coming down, going up, or being upstairs -->
+<!-- Flavour text of Alex coming down, going up, or being upstairs -->
 <<if Time.hour is 21 and $alex_to_bed is undefined and $farm_end isnot 1>>
 	<<npc Alex>><<person1>>
 	<<if $farm_end isnot 1>>
@@ -445,15 +445,21 @@ There is a thermometer outside your window. It reads <span class="teal"><<print 
 				<</if>>
 		<</switch>>
 	<</if>>
-	<<if pcAreArmsBound("any") or $feetuse is "bound" or $worn.feet.name is "ankle cuffs">>
-		<<if $possessed>>
-			You stare down at your bindings. You pull, and they fall apart, unable to hold against you.
-			<br><br>
-			<<unbind>>
+	<<if $possessed and (pcAreArmsBound("any") or $feetuse is "bound" or $worn.feet.type.includes("shackle"))>>
+		You stare down at your bindings.
+		<<if breakableSoftBinding()>>
+			You pull, and they fall apart, unable to hold against you.
+			<<if ["ankle cuffs", "ball and chain"].includes($worn.feet.name)>>
+				You then hear a click, and your $worn.feet.name fall to the ground.
+			<</if>>
 		<<else>>
-			<<undobindingsicon>><<link [[Undo your bindings (0:10)|Farm Bedroom]]>><<set $unbind to 1>><<pass 10>><<unbind>><</link>>
-			<br><br>
+			You hear a click, and your $worn.feet.name fall to the ground.
 		<</if>>
+		<br><br>
+		<<unbind>>
+	<<elseif breakableSoftBinding()>>
+		<<undobindingsicon>><<link [[Undo your bindings (0:10)|Farm Bedroom]]>><<set $unbind to 1>><<pass 10>><<unbind>><</link>>
+		<br><br>
 	<</if>>
 	<<if $study is 1>>
 		<<unset $study>>
@@ -1122,15 +1128,15 @@ Alex still sounds sleepy, but also somewhat embarrassed. "What are you doing...?
 		<<bodyliquid "mouth" "goo">>
 	<</if>>
 <<else>> /* Give Alex a hand job */
-	Alex groans
-	<<if playerChastity()>>
-		<<if $worn.genitals.name is "chastity parasite">>
-			, gripping on to your $worn.genitals.name tightly
-		<</if>>
+	Alex
+	<<if playerChastity() and $worn.genitals.name is "chastity parasite">>
+		groans, gripping on to your $worn.genitals.name tightly
 	<<elseif $player.penisExist>>
-		, gripping on to your cock tightly
+		groans, gripping on to your cock tightly
 	<<elseif $player.vaginaExist>>
-		, thrusting deeply into your quim
+		groans, thrusting deeply into your quim
+	<<else>>
+		groans
 	<</if>>
 	as <<he>> cums over your hand.
 	<<if C.npc.Alex.penis isnot "none">>
@@ -2040,7 +2046,7 @@ Alex digs in as soon as <<he>> sits.
 				<<if _alex.dom gte 30>>
 					<<girl>>,
 				<<else>>
-					<<if $player.gender_appearance is "f">>wo<</if>>man,
+					<<woman>>,
 				<</if>>
 				a thriving business, and our own place together. What more could a <<nnpc_gendery "Alex">> ask for?"
 			<<else>>
@@ -2646,6 +2652,9 @@ You hold the back of Alex's head, and pull <<him>> into a kiss.<<set $consensual
 <<else>>
 	<<takeKissVirginity "Alex" "romantic">>
 <</if>>
+<<if _pcKissVirginityTaken>>
+	<br><br>
+<</if>>
 <<promiscuity1>>
 
 <<He>> straddles you, pinning you to the chair as <<his>> lips work down your jaw, then assault your neck. <<He>> gives you a playful bite before rolling onto the sofa beside you.
@@ -2927,7 +2936,7 @@ You get comfy beside Alex.
 			"Maybe we should work a little harder?"
 			<br><br>
 
-			"Sure, cow<<if $player.gender_appearance is "f">>girl<<else>>boy<</if>>." <<He>> softly bumps <<his>> head against yours. "Won't catch me complaining about that."
+			"Sure, cow<<girl>>." <<He>> softly bumps <<his>> head against yours. "Won't catch me complaining about that."
 
 		<<elseif childrenCountBetweenParents("pc","Alex") gte 1 or childrenCountBetweenParents("Alex","pc") gte 1>>
 			"What do you think about us having a family now?" you ask, resting your head on <<his>> shoulder.
@@ -3234,15 +3243,15 @@ You sit beside Alex, and make yourself comfy.
 
 <<if Time.hour gte 21>>
 	<<He>> glances at <<his>> bedside clock, and rises to <<his>> feet. "Time to hit the hay," <<he>> says, kissing you goodnight.<<takeKissVirginity "Alex" "loveInterest">>
-<br><br>
+	<br><br>
 
-<<link [[Get up|Farm Alex Bedroom]]>><<endevent>><</link>>
-<br>
+	<<link [[Get up|Farm Alex Bedroom]]>><<endevent>><</link>>
+	<br>
 <<else>>
-<<link [[Keep cuddling (0:30)|Farm Phone Cuddle 2]]>><<npcincr Alex love 1>><<pass 30>><</link>><<glove>>
-<br>
-<<link [[Get up|Farm Alex Bedroom]]>><<endevent>><</link>>
-<br>
+	<<link [[Keep cuddling (0:30)|Farm Phone Cuddle 2]]>><<npcincr Alex love 1>><<pass 30>><</link>><<glove>>
+	<br>
+	<<link [[Get up|Farm Alex Bedroom]]>><<endevent>><</link>>
+	<br>
 <</if>>
 
 :: Farm Phone Cuddle 2
@@ -3379,7 +3388,7 @@ You sit beside Alex, and make yourself comfy.
 		<<elseif _alex.dom lte -30>>
 			"Fuck, I can't work like this." <<His>> voice wavers. "You always make it so damn hard to want to. Don't ever change."
 		<<else>>
-			"How am I supposed to work like this?" <<he>> chuckles. "That's my <<if $player.gender_appearance is "f">>wo<</if>>man, alright. Always so damn special and charming."
+			"How am I supposed to work like this?" <<he>> chuckles. "That's my <<woman>>, alright. Always so damn special and charming."
 		<</if>>
 <</switch>>
 <br><br>
@@ -4353,16 +4362,16 @@ You rush to the door, where a figure with a big bag awaits.
 <br><br>
 
 <<if pregnancyCountBetweenParents("pc","Alex") isnot 1 or pregnancyCountBetweenParents("Alex","pc") isnot 1>>
-	<<if $hospitalintro isnot 1>>
-		<<if $hospitalintro is 0>>
-			"Hello, I'm Doctor Harper. I don't believe we've had the pleasure of meeting," <<he>> says, brushing <<his>> blond fringe away from <<his>> eyes. <<nnpc_He "Harper">> looks young for a doctor, can't be older than 25.
-		<<elseif $hospitalintro is "livestock">>
+	<<if !$harperSeen.includes("hospital")>>
+		<<if $harperSeen.includes("livestock")>>
 			It's the doctor from the farm. The one who experimented on you. "Hello, I'm Doctor Harper," <<he>> says. There's no recognition on <<his>> face.
-		<<elseif $hospitalintro is "party">>
-			It's the doctor from Avery's party. The one with the pink powder. "Hello, I'm Doctor Harper," <<he>> says.  <<He>> dons an innocent smile.
+		<<elseif $harperSeen.includes("party")>>
+			It's the doctor from Avery's party. The one with the pink powder. "Hello, I'm Doctor Harper," <<he>> says. <<He>> dons an innocent smile.
+		<<else>>
+			"Hello, I'm Doctor Harper. I don't believe we've had the pleasure of meeting," <<he>> says, brushing <<his>> blond fringe away from <<his>> eyes. <<nnpc_He "Harper">> looks young for a doctor, can't be older than 25.
 		<</if>>
 
-		<<set $hospitalintro to 1>>
+		<<set $harperSeen.pushUnique("hospital")>>
 	<<else>>
 		It's <span class="pink">Doctor Harper</span>. "Well, this certainly is a chance meeting," <<nnpc_he "Harper">> comments.
 	<</if>>
@@ -4599,10 +4608,10 @@ Harper smiles and leaves, pulling <<nnpc_his "Harper">> phone out of <<nnpc_his 
 	"Oi!" Alex interrupts. <<nnpc_He "Alex">> seems to have trouble walking<<if C.npc.Alex.pregnancy.nursery isnot true>>, <<his>> <<pluralise $alexBabiesCount "child">> on <<his>> arms <</if>>. "What makes you think that we should just give our <<pluralise $alexBabiesCount "child">> to you?"
 	<br><br>
 
-	Bailey turns <<nnpc_his "Bailey">> gaze to Alex. "Look, 'cow<<if _alex.pronoun is "f">>girl<<else>>boy<</if>>', you could've been fucked by any dumbass and I wouldn't care, but you hitched yourself to MY ward."
+	Bailey turns <<nnpc_his "Bailey">> gaze to Alex. "Look, 'cow<<nnpc_gendery "Alex">>', you could've been fucked by any dumbass and I wouldn't care, but you hitched yourself to MY ward."
 	<br><br>
 
-	Alex clenches <<his>> fists. "And who exactly said <<pshe>> is yours? <<pShes>> MY <<if $player.gender_appearance is "f">>woman<<else>>man<</if>>."
+	Alex clenches <<his>> fists. "And who exactly said <<pshe>> is yours? <<pShes>> MY <<woman>>."
 	<br>
 
 	Bailey fixes Alex with a piercing gaze. "And how exactly do you plan on taking care of a kid in a place like this?"
@@ -4781,16 +4790,16 @@ Alex stands up and opens the door. The only thing you see in the shadow of the d
 <br>
 
 <<if pregnancyCountBetweenParents("pc","Alex") isnot 1 or pregnancyCountBetweenParents("Alex","pc") isnot 1>>
-	<<if $hospitalintro isnot 1>>
-		<<if $hospitalintro is 0>>
-			"Hello, I'm Doctor Harper. I don't believe we've had the pleasure of meeting," <<he>> says, brushing <<his>> blond fringe away from <<his>> eyes. <<nnpc_He "Harper">> looks young for a doctor, can't be older than 25.
-		<<elseif $hospitalintro is "livestock">>
+	<<if !$harperSeen.includes("hospital")>>
+		<<if $harperSeen.includes("livestock")>>
 			It's the doctor from the farm. The one who experimented on you. "Hello, I'm Doctor Harper," <<he>> says. There's no recognition on <<his>> face.
-		<<elseif $hospitalintro is "party">>
+		<<elseif $harperSeen.includes("party")>>
 			It's the doctor from Avery's party. The one with the pink powder. "Hello, I'm Doctor Harper," <<he>> says. <<He>> dons an innocent smile.
+		<<else>>
+			"Hello, I'm Doctor Harper. I don't believe we've had the pleasure of meeting," <<he>> says, brushing <<his>> blond fringe away from <<his>> eyes. <<nnpc_He "Harper">> looks young for a doctor, can't be older than 25.
 		<</if>>
 
-		<<set $hospitalintro to 1>>
+		<<set $harperSeen.pushUnique("hospital")>>
 	<<else>>
 		It's <span class="pink">Doctor Harper</span>. "Well, this certainly is a chance meeting," <<nnpc_he "Harper">> comments.
 	<</if>>
@@ -4997,10 +5006,10 @@ As you descend the stairs, you can hear talking. Alex sounds angry.
 	"What makes you think that we should just give our <<pluralise $pcBabyCount "child">> to you?" Alex protests.
 	<br><br>
 
-	Bailey turns <<nnpc_his "Bailey">> gaze to Alex. "Look, 'cow<<if _alex.pronoun is "f">>girl<<else>>boy<</if>>', you could've fucked any whore and I wouldn't care, but you hitched yourself to MY ward."
+	Bailey turns <<nnpc_his "Bailey">> gaze to Alex. "Look, 'cow<<nnpc_gendery "Alex">>', you could've fucked any whore and I wouldn't care, but you hitched yourself to MY ward."
 	<br><br>
 
-	Alex clenches <<his>> fists. "And who exactly said <<pshe>> is yours? <<pShes>> MY <<if $player.gender_appearance is "f">>woman<<else>>man<</if>>."
+	Alex clenches <<his>> fists. "And who exactly said <<pshe>> is yours? <<pShes>> MY <<woman>>."
 	<br><br>
 
 	Bailey fixes Alex with a piercing gaze. "Oh, yeah? Then tell me how exactly do you plan on taking care of a kid in a place like this?"
@@ -5316,32 +5325,33 @@ You keep listening to Alex, not daring to interrupt <<him>>. <<He>> constantly a
 
 :: Farm Alex Orphanage Trip
 <<effects>>
-
-"Pa is kind of busy right now, but he said mother's at the city and that she agreed to help us, it shouldn't take long," <<he>> says looking more excited than before.
+<<loadNPC 1 "alexs_parent1">>
+<<loadNPC 2 "alexs_parent2">>
+"<<person2>><<Ma>> is kind of busy right now, but he said <<person3>><<father>>'s at the city and that <<he>> agreed to help us, it shouldn't take long," <<person1>><<he>> says looking more excited than before.
 <br><br>
 
 You don't have to wait much until a vehicle approaches and honks.
 <br>
 
-Alex's mother waves at you two.
+Alex's <<person3>><<father>> waves at you two.
 <br><br>
 
 Alex opens the door for you and helps you get in, entering from the other side and taking a seat next to you when you're in.
 <br><br>
 
-"My little <<if C.npc.Alex.pronoun is "f">>girl<<else>>boy<</if>> is finally settling down," she laughs.
+"My little <<nnpc_gendery "Alex">> is finally settling down," <<he>> laughs.
 <br>
 
-Alex blushes and turns <<his>> face away.
+Alex blushes and turns <<person1>><<his>> face away.
 <br><br>
 
-"And with such a <<if $player.gender_appearance is "f">>beautiful woman<<else>>handsome man<</if>>" she adds.
+"And with such a <<if $player.gender_appearance is "f">>beautiful<<else>>handsome<</if>> <<woman>>" <<person3>><<he>> adds.
 <br><br>
 
-"Mum!" Alex protests.
+"<<Mum>>!" Alex protests.
 <br>
 
-"What? I was telling the truth," she plays. You don't think Alex's face could get more red.
+"What? I was telling the truth," <<he>> plays. You don't think Alex's face could get more red.
 <br><br>
 
 <<link [[Next|Farm Alex Orphanage Trip 2]]>><</link>>
@@ -5373,7 +5383,7 @@ Alex opens the door for you and you get in, still with your <<if childrenCountBe
 	if (child.location === "home" && (child.father === "Alex" || child.mother === "Alex")) child.location = "alex_cottage";
 })>>
 
-<<His>> mother drives to the farm, occasionally looking at her <<if childrenCountBetweenParents("pc","Alex") is 1>>grandchild<<else>>grandchildren<</if>> and smiling.
+<<person1>><<His>> <<person3>><<father>> drives to the farm, occasionally looking at <<his>> <<if childrenCountBetweenParents("pc","Alex") is 1>>grandchild<<else>>grandchildren<</if>> and smiling.
 <br><br>
 
 It's not a long trip, and you soon arrive at the farm.
@@ -5382,7 +5392,7 @@ It's not a long trip, and you soon arrive at the farm.
 Alex helps you leave the vehicle and take your <<if childrenCountBetweenParents("pc","Alex") is 1>>child<<else>>children<</if>> to the cottage's nursery.
 <br><br>
 
-Alex's mother turns to Alex. "I need to get back to work now, but listen, I'm proud of you, you're making this place look like a home," she says as she drives away.
+Alex's <<father>> turns to Alex. "I need to get back to work now, but listen, I'm proud of you, you're making this place look like a home," <<he>> says as <<he>> drives away.<<person1>>
 <br><br>
 
 <<link [[Next|Farm Cottage]]>><</link>>

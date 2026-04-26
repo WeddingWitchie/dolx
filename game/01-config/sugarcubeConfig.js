@@ -12,8 +12,8 @@ const StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.5.8.10 DoLP v0.741 DoLX 0.18.4c",
-	versionName: `"Assorted Chocolates" edition`,
+	version: "0.5.9.4 DoLP v0.741 DoLX 0.18.4c",
+	versionName: `"Here Comes the Sun" edition`,
 	sneaky: false,
 	socialMediaEnabled: true,
 	sourceLinkEnabled: false,
@@ -181,6 +181,14 @@ Config.navigation.override = function (dest) {
 		if (dest.includes("Playground")) {
 			return dest.replace("Playground", "Courtyard");
 			/* Try not to include "Playground" in any passage names after this. */
+		}
+		if (V.nightMonsterNNPCUpdate === 1) {
+			/* Teleports the player out after Night Monster NNPC update to avoid error cases, particularly when importing mid-combat */
+			V.nightMonsterNNPCUpdate = 2;
+			if (dest.includes("Street Monster") || dest.includes("Monster Tower")) {
+				Wikifier.wikifyEval("<<endcombat>>");
+				return "Domus Street";
+			}
 		}
 		switch (dest) {
 			case "Modded Waiting Room":
@@ -731,7 +739,10 @@ Config.navigation.override = function (dest) {
 			case "Dye pubic hair Finish":
 			case "Farm dye pubic hair Finish":
 				return "Dye Hair";
-
+			case "Sewers Rats":
+				return "Sewers Scones Eat";
+			case "Sewers Rats Pretend":
+				return "Sewers Scones Pretend";
 			default:
 				return false;
 		}

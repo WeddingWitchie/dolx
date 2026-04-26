@@ -177,6 +177,8 @@ const Time = (() => {
 				}
 				// pass the remaining hours
 				hourPassed((hours - hoursToNextDay) % 24);
+				// reset BodyTemperature effects
+				delete T.bodyActivity;
 			}
 			// pass the remaining minutes
 			minutePassed((minutes - minsToNextHour) % 60);
@@ -669,7 +671,10 @@ function speechDailyCheck() {
 }
 
 function dayPassed(days) {
-	Weather.sky.initSun();
+	Weather.sidebar.initSun();
+	Weather.WeatherGeneration.updateWeather();
+	Weather.Temperature.updateTemperature();
+	Weather.FogGeneration.generateFogKeypoints(V.weatherObj.keypointsArr);
 
 	if (V.statFreeze) return;
 
@@ -698,14 +703,15 @@ function dayPassed(days) {
 		if (V.whitneyromance || C.npc.Whitney.dom >= 20) {
 			V.bullytimer += 20;
 			V.bullytimeroutside += 10;
+			V.whitney_home_timer += 1;
 		} else {
 			V.bullytimer += 10;
 			V.bullytimeroutside += 5;
 		}
-if (Time.weekDay === 7) {
-	if (V.brothelshowdata.type !== "none" && !V.brothelshowdata.done && V.brothelshowdata.intro) {
-		V.brothelshowdata.missed = true;
-		V.brothelshowdata.type = "none";
+		if (Time.weekDay === 7) {
+			if (V.brothelshowdata.type !== "none" && !V.brothelshowdata.done && V.brothelshowdata.intro) {
+				V.brothelshowdata.missed = true;
+				V.brothelshowdata.type = "none";
 			}
 			V.brothelshowdata.done = false;
 		}
@@ -731,12 +737,12 @@ if (Time.weekDay === 7) {
 		else if (rng >= 45) V.brothel_basement_price = 1000;
 		else V.brothel_basement_price = 500;
 
-if (V.chef_rework > 0) V.chef_rework--;
-if (V.chef_sus > 0) V.chef_sus--;
-if (V.stall_rejected >= 1) V.stall_rejected = Math.clamp(V.stall_rejected - 1, 0, 100);
-if (V.temple_garden >= 1) {
-	if (V.gwylan?.ritual >= Time.date.timeStamp) {
-		V.temple_garden = Math.clamp(V.temple_garden - 2, 0, 100);
+		if (V.chef_rework > 0) V.chef_rework--;
+		if (V.chef_sus > 0) V.chef_sus--;
+		if (V.stall_rejected >= 1) V.stall_rejected = Math.clamp(V.stall_rejected - 1, 0, 100);
+		if (V.temple_garden >= 1) {
+			if (V.gwylan?.ritual >= Time.date.timeStamp) {
+				V.temple_garden = Math.clamp(V.temple_garden - 2, 0, 100);
 			} else {
 				V.temple_garden = Math.clamp(V.temple_garden - 10, 0, 100);
 			}
@@ -920,6 +926,24 @@ if (V.temple_garden >= 1) {
 			if (V.farm.milking.catchChance > random(10, 1000) / 10) V.farm.milking.caught = true;
 			if (V.farm.milking.catchChance >= 25) V.farm.milking.catchChance = Math.clamp(V.farm.milking.catchChance * 0.95, 0, 100).toFixed(3);
 			else V.farm.milking.catchChance = Math.clamp(V.farm.milking.catchChance * 0.98, 0, 100).toFixed(3);
+		}
+
+		if (V.livestock?.winter) {
+			if (V.livestock.winter.active === false) {
+				if (Weather.temperature <= 0 && Time.month.between(9, 10)) V.livestock.winter.trigger++;
+				else if (Time.month >= 11 || Time.month === 1) {
+					if (V.bus === "livestock") V.livestock.winter.trigger = 5;
+					else V.livestock.winter.active = true;
+					V.livestock.winter.exam = false;
+				} else V.livestock.winter.trigger = 0;
+			} else {
+				if (Weather.temperature > 0 && Time.month === 2) V.livestock.winter.trigger++;
+				else if (Time.month >= 3 && Time.month <= 8) {
+					if (V.bus === "livestock") V.livestock.winter.trigger = 5;
+					else V.livestock.winter.active = false;
+					V.livestock.winter.exam = false;
+				} else V.livestock.winter.trigger = 0;
+			}
 		}
 
 		if (Weather.precipitation === "rain" && V.bird.upgrades?.firepit && !V.bird.upgrades.shelter) {
@@ -1162,7 +1186,7 @@ function hourPassed(hours) {
 		statChange.arousal(0, "time");
 		wikifier("wetnessCalculate");
 		// special clothes effects
-		// currently, only these slots can have lustful traits, consider universalizing
+		// currently, only these slots can have lustful traits, consider universalising
 		["upper", "lower", "feet", "head"].forEach(slot => {
 			["bimbo", "pimp"].forEach(type => {
 				if (V.worn[slot].type.includes(type)) ++V.specialClothesEffects[type].progress;
@@ -1204,7 +1228,7 @@ function hourPassed(hours) {
 			}
 		}
 		if (!V.avery_mansion || ["fallen", "kicked"].includes(V.avery_fate)) {
-			V.home_gone++;
+			V.hoursGoneFromHome++;
 		}
 
 		// Robin autowatering
@@ -1306,10 +1330,6 @@ function minutePassed(minutes) {
 	Weather.setAccumulatedSnow(minutes);
 	Weather.setIceThickness(minutes);
 
-	// Overcast
-	Weather.sky.updateFade();
-	V.weatherObj.overcast = round(Weather.sky.fadables.overcast.factor, 2);
-
 	// Effects
 	V.stress = Math.min(V.stress, V.stressmax);
 	if (V.substanceRebalance == 1) {
@@ -1406,11 +1426,13 @@ function secondPassed(seconds) {
 }
 
 function noonCheck() {
-	Weather.sky.initMoon();
-	Weather.sky.setMoonPhase();
+	Weather.sidebar.initMoon();
+	Weather.sidebar.setMoonPhase();
 
 	if (V.statFreeze) return;
 
+	V.robinwakeday = 0;
+	delete V.robin_kicked_out;
 	delete V.bartend_info;
 	delete V.bartend_info_other;
 	if (V.per_npc.bartend) wikifier("clearNPC", "bartend");
@@ -1449,7 +1471,6 @@ function noonCheck() {
 function dawnCheck() {
 	if (V.statFreeze) return;
 
-	V.robinwakeday = 0;
 	V.wolfwake = 0;
 	V.edenwake = 0;
 	delete V.skul_dock_init;
@@ -1461,9 +1482,9 @@ function dawnCheck() {
 	delete V.alexSomno;
 	delete V.alexSomnoAngry;
 	delete V.connudatus_stripped;
-	delete V.robin_kicked_out;
 	delete V.gwylanWake;
 	delete V.gwylanCafeWake;
+	delete V.whitney_night_knock;
 
 	if (V.schoolBlocked) delete V.schoolBlocked;
 
@@ -1984,8 +2005,8 @@ function dailyPlayerEffects() {
 	}
 
 	// Lower insecurity, reduced faster as the sizes become more acceptable
-	statChange.insecurity("penis_small", -Math.clamp(V.player.penissize + 1, 1, 5)); // Increases by 1 for each size above small
-	statChange.insecurity("penis_big", Math.clamp(V.player.penissize - 4, -5, -1)); // Increases by 1 for each size below large
+	statChange.insecurity("penis_small", -Math.clamp(V.player.penissize - 1, 1, 5)); // Increases by 1 for each size above small
+	statChange.insecurity("penis_big", Math.clamp(V.player.penissize - 6, -5, -1)); // Increases by 1 for each size below large
 
 	const reducedBreastsize = Math.floor(V.player.breastsize / 2);
 	if (V.player.sex !== "f") {
@@ -1999,8 +2020,8 @@ function dailyPlayerEffects() {
 
 	/* Disabled due to bug, and I'm not sure it's necessary anyway - Vrel
 	// Lower acceptance when it no longer applies, takes 200 days for it to drop to 0 from max
-	if (!(V.player.penisExist && V.player.penissize <= 1)) statChange.acceptance("penis_small", -5);
-	if (!(V.player.penisExist && V.player.penissize >= (V.player.sex === "m" ? 4 : 2))) statChange.acceptance("penis_big", -5);
+	if (!(V.player.penisExist && V.player.penissize <= 3)) statChange.acceptance("penis_small", -5);
+	if (!(V.player.penisExist && V.player.penissize >= (V.player.sex === "m" ? 6 : 4))) statChange.acceptance("penis_big", -5);
 	if (V.player.sex === "f" && !between(V.player.breastsize, 0, 4)) statChange.acceptance("breasts_small", -5);
 	if (!(V.player.breastsize >= (V.player.sex === "m" ? 1 : 8))) statChange.acceptance("breasts_big", -5);
 	*/
@@ -2096,7 +2117,7 @@ function dailyTransformationEffects() {
 
 function dailyLiquidEffects() {
 	if (V.player.penisExist) {
-		let amount = V.player.penissize - 1;
+		let amount = V.player.penissize - 3;
 		if (V.semen_volume <= 24) amount++;
 		if (V.semen_volume >= 6000) {
 			amount -= Math.floor(V.semen_volume / 600);
@@ -2976,8 +2997,9 @@ window.getShortFormattedDate = function (date) {
 
 /* Determines and replenishes stock at supermarket */
 function supermarketWeekly() {
-	Object.keys(setup.plants).forEach(key => {
-		if (setup.plants[key].shop?.includes("supermarket")) V.plants[key].supermarket = Math.trunc(3000 / setup.plants[key].plant_cost);
+	Object.keys(setup.foodstuff).forEach(key => {
+		if (setup.foodstuff[key].shop.available_in?.includes("supermarket"))
+			V.foodstuff[key].supermarket = Math.trunc(3000 / setup.foodstuff[key].shop.sell_price);
 	});
 }
 DefineMacro("supermarketWeekly", supermarketWeekly);

@@ -9,7 +9,7 @@ Weather.Renderer.Layers.add({
 		{
 			effect: "skyStarField",
 			drawCondition() {
-				return this.renderInstance.orbitals.sun.factor < 0.75 && !this.renderInstance.skyDisabled;
+				return this.renderInstance.orbitals.sun.factor < 0.75 && !this.renderInstance.sidebarSkyDisabled;
 			},
 			params: {
 				area: 256,
@@ -55,18 +55,24 @@ Weather.Renderer.Layers.add({
 				},
 				// Chance of these appearing is set in the weights above
 				images: {
-					star0: "img/misc/sky/stars/star_0.png",
-					star1: "img/misc/sky/stars/star_1.png",
-					star2: "img/misc/sky/stars/star_2.png",
-					star3: "img/misc/sky/stars/star_3.png",
-					star4: "img/misc/sky/stars/star_4.png",
+					star0: "img/misc/sky/stars/star-0.png",
+					star1: "img/misc/sky/stars/star-1.png",
+					star2: "img/misc/sky/stars/star-2.png",
+					star3: "img/misc/sky/stars/star-3.png",
+					star4: "img/misc/sky/stars/star-4.png",
 				},
 			},
 			bindings: {
 				alpha() {
 					const factor = this.renderInstance.orbitals.sun.factor;
 					const nightAlpha = Weather.bloodMoon ? this.opacity.bloodMoon : this.opacity.night;
-					return interpolate(nightAlpha, this.opacity.day, Math.clamp(factor + 0.4, 0, 1));
+					const dayFactor = Math.clamp(factor + 0.4, 0, 1);
+					const baseAlpha = interpolate(nightAlpha, this.opacity.day, dayFactor);
+
+					// Fade out stars as precipitation intensity increases, down to a min of 0.2
+					const precipFactor = inverseLerp(Weather.precipitationIntensity, 1.5, 3.5);
+					const precipFade = Math.clamp(interpolate(1, 0.2, precipFactor), 0.2, 1);
+					return baseAlpha * precipFade;
 				},
 				rotation() {
 					return Time.date.fractionOfDay * 360;

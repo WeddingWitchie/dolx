@@ -105,7 +105,7 @@
 				<br><br>
 
 				<<if $forest lte 25 and !isGwylanAbsent() and C.npc.Gwylan.state isnot "scorned">>
-					<<addinlineevent "gwylan" .6>>
+					<<addinlineevent "gwylan" 0.6>>
 						<<link [[Everything fades to black...|Passout Gwylan Hot Cold]]>><<set $passoutReason to "hypothermia">><</link>>
 					<</addinlineevent>>
 				<</if>>
@@ -285,12 +285,12 @@
 				<</if>>
 
 				<<if !_fullyNaked>>
-					<<addinlineevent "strip" .5>>
+					<<addinlineevent "strip" 0.5>>
 						<<link [[Everything fades to black...|Passout Heatstroke Strip]]>><<set $molestationstart to 1>><</link>>
 					<</addinlineevent>>
 				<</if>>
 
-				<<addinlineevent "rescue" .5>>
+				<<addinlineevent "rescue" 0.5>>
 					<<link [[Everything fades to black...|Passout Heatstroke Rescue]]>><</link>>
 				<</addinlineevent>>
 
@@ -386,7 +386,7 @@
 				<br><br>
 
 				<<if $forest lte 25 and !isGwylanAbsent() and C.npc.Gwylan.state isnot "scorned">>
-					<<addinlineevent "gwylan" .6>>
+					<<addinlineevent "gwylan" 0.6>>
 						<<link [[Everything fades to black...|Passout Gwylan Hot Cold]]>><<set $passoutReason to "hyperthermia">><</link>>
 					<</addinlineevent>>
 				<</if>>
@@ -1033,7 +1033,7 @@ You awaken in a dingy windowless room, the stone walls lit only by a flaming tor
 <br><br>
 
 <<if $passoutReason is "hyperthermia">>
-	"We found you passed out. You caused quite the worry, but my examination found no problems. You simply overheated." <<He>> strokes your hair. "<<= $farmGateCD is 0 ? "One of my men said you were acting up tonight. Maybe next time you'll be a good _cow and behave, hmm?" : "I'm proud you're being such a hard worker, but we can't have such a valuable member of our herd fainting, now can we?">> All that exercise must have gotten to you. Here, <<girl>>."
+	"We found you passed out. You caused quite the worry, but my examination found no problems. You simply overheated." <<He>> strokes your hair. "<<= $livestock.lock.cooldown is 0 ? "One of my men said you were acting up tonight. Maybe next time you'll be a good _cow and behave, hmm?" : "I'm proud you're being such a hard worker, but we can't have such a valuable member of our herd fainting, now can we?">> All that exercise must have gotten to you. Here, <<girl>>."
 	<br><br>
 
 	Remy holds up a bowl of water, and you realise just how parched you are. <<He>> lifts the bowl to your lips, and you gulp down the cool water greedily. Your desperation to slake your thirst causes some to spill on your <<chest>> and <<he>> chuckles. When the last drop of water is gone, you sigh with relief.
@@ -1048,9 +1048,9 @@ You awaken in a dingy windowless room, the stone walls lit only by a flaming tor
 <<else>>
 	"We found you passed out and shivering. You caused quite the worry, but my examination found no problems. You simply got too cold." <<He>> strokes your hair.
 	<br><br>
-	<<set Weather.bodyTemperature++>>
-	<<speechresolve>><<set _speechResolve to _speechAttitudeResolved>>
-	<<switch _speechResolve>>
+	<<set Weather.bodyTemperature++>><<if !$livestock.winter.active>><<set $livestock.winter.trigger++>><</if>>
+	<<speechresolve>>
+	<<switch _speechAttitudeResolved>>
 		<<case "meek" "shy">>
 			"Um... maybe if I had some clothes, that would help?" you whisper.
 		<<case "polite">>
@@ -1250,7 +1250,7 @@ Robin stands up. "I should get back to my stand now," <<he>> says, glancing over
 
 :: Passout Beach Heatstroke Students
 <<effects>>
-<<generateRole 0 "popular" "boy/girl">>
+<<generateRole 0 "popular" "boy/girl" t>>
 
 You feel a pair of arms hook under you and lift you off the sand.
 <<if $cool gte 240>>
@@ -1395,7 +1395,7 @@ You stay there for a while, listening as the <<person>> talks about <<his>> life
 <<effects>><<generate1>> <<person1>>
 <<set $outside to 0>><<set $location to "hospital">>
 
-The last thing you hear is a <<personsimple>>'s voice. "Wait, I know that face... people call <<phim>> `<<overworld_nickname_dolp>>`, right? We should get <<phim>> to a hospital." <<He>> scoops you up and places you in the backseat of a car. The car is warm, and you drift off.
+The last thing you hear is a <<personssimple>> voice. "Wait, I know that face... people call <<phim>> `<<overworld_nickname_dolp>>`, right? We should get <<phim>> to a hospital." <<He>> scoops you up and places you in the backseat of a car. The car is warm, and you drift off.
 <br><br>
 <<link [[Wake up|Hospital Bed]]>><<set $passoutReason to "hypothermia">><</link>>
 
@@ -1797,6 +1797,9 @@ After a few minutes, <<bhe>> gets off of you. <<if $monster is 1>>"Wait here," <
 
 <<if $phase is 1>>
 	You lean in close to <<your_bird_text>>. <<bHe>> turns <<bhis>> head towards you and nuzzles against your cheek. <<bHe>> <<= $monster is 1 ? "presses <<bhis>> lips to yours" : "pecks <<bhis>> beak against your lips">>. You return the <<= $monster is 1 ? "kiss, twining your arms around <<bhis>> neck" : "peck, peppering <<bhis>> face with small kisses">>. <<takeKissVirginity "Great Hawk" "loveInterest">>
+	<<if _pcKissVirginityTaken>>
+		<br><br>
+	<</if>>
 <<else>>
 	<<speechresolve>><<set _speechResolve to _speechAttitudeResolved>>
 	<<switch _speechResolve>>
@@ -2183,7 +2186,7 @@ after all." <<He>> almost sounds like <<hes>> trying to scold you.
 <<elseif _shirtless or _bottomExposed>>
 	<<He>> suddenly seems to realise the implications of your state of dress. "Oh, clothes! You need clothes." <<He>> quickly rummages through an antique wardrobe nearby and hands you
 	<<if $player.gender_appearance is "f">>
-		a sundress. <<upperwear "school shirt" "white">>
+		a sundress. <<upperwear "sundress" "white">>
 	<<elseif _shirtless>>
 		<<upperwear "t-shirt" "tangerine">>
 		an orange shirt<<if _bottomExposed>> and blue shorts<<lowerwear "shorts" "blue">><</if>>.
@@ -2598,6 +2601,7 @@ The <<person1>><<person>> takes out an informational pamphlet meant for tourists
 <<if hasSexStat("promiscuity", 2, true)>>
 	<<link [[Make out|Passout Heatstroke Kiss End]]>><<set $phase to 2>><</link>><<promiscuous2>><<kissvirginitywarning>>
 <</if>>
+
 :: Passout Heatstroke Kiss End
 <<effects>>
 <<set Weather.Temperature.override.increase.inside(-3, "The impromptu fan brings some relief.")>>
@@ -2631,7 +2635,9 @@ The <<person1>><<person>> takes out an informational pamphlet meant for tourists
 
 <<elseif $phase is 1>>
 	You lie still, and the <<person1>><<person>> presses <<his>> lips to yours. <<= either("<<His>> tongue tries to worm its way unpleasantly into your mouth.", "They're chapped and rough, the sensation not unlike kissing sandpaper.")>><<takeKissVirginity $NPCList[0] rape>>
-	<br><br>
+	<<if _pcKissVirginityTaken>>
+		<br><br>
+	<</if>>
 	<<He>> pulls away after a few moments. "Wow, the <<girls>> in this town are amazing. That was the best kiss I've ever had."
 	<br><br>
 	"<<pShes>> barely conscious, mate."
@@ -2645,18 +2651,18 @@ The <<person1>><<person>> takes out an informational pamphlet meant for tourists
 	<br><br>
 	<<person1>><<He>> pulls away after a few moments, breathless and bewildered. "Holy shit," <<he>> says.
 	<br><br>
-	<<speechresolve>><<set _speechResolve to _speechAttitudeResolved>>
-	<<switch _speechResolve>>
+	<<speechresolve>>
+	<<switch _speechAttitudeResolved>>
 		<<case "meek" "shy">>
 			"Th-thank you for finding me," you say with a coy twirl of your hair. "I feel much better."
 		<<case "polite">>
 			"Thank you for helping me," you say, cheeks warm. "I'm feeling much better now."
 		<<case "docile">>
-			"That helped," you murmur, still close enough to feel <<his>> breath. "Thank you."
+			"That helped," you murmur, still close enough to feel <<his>> breath. "Thank you, lover<<= $NPCList[0].pronouns.boy>>."
 		<<case "flamboyant">>
-			"Now <i>that</i> was a welcome rescue," you say with a lazy smile. "I'm feeling much better."
+			"Now <i>that</i> was a welcome rescue," you say with a lazy smile. "I'm feeling much better, lover<<= $NPCList[0].pronouns.boy>>."
 		<<case "bratty">>
-			"Yeah? Not bad yourself, lover<<= $NPCList[0].pronoun is "m" ? "boy" : "girl">>," you tease. "I'm feeling much better now."
+			"Yeah? Not bad yourself, lover<<= $NPCList[0].pronouns.boy>>," you tease. "I'm feeling much better now."
 		<<case "cruel">>
 			"There. Much better," you say, lips curling. "You were useful after all."
 		<<case "confident">>
@@ -3664,7 +3670,7 @@ After flashing you, <<he>> quickly runs off.
 	<br><br>
 	The voice makes the <<personsimple>> hesitate. You take the opportunity to push <<him>> away. <<He>> reaches for your arm to stop you from escaping, but luckily you manage to dodge <<him>>. You shove the door open, push past your saviour, and run down the hall.
 	<br><br>
-	You only start to slow down when you approach the lobby<<if $athletics lte 600>>, gasping for breath<</if>>.
+	You only start to slow down when you approach the lobby<<if currentSkillValue('athletics') lte 600>>, gasping for breath<</if>>.
 	<br><br>
 	<<clotheson>>
 
@@ -3830,7 +3836,7 @@ The <<person>> approaches you, coming to a stop a touch closer than is polite. "
 <</switch>>
 <br><br>
 <<if dangerEvent()>>
-	The <<person>>'s smile turns
+	The <<persons>> smile turns
 	<<if $rng gte 81 and $settings.bestialityEnabled>>
 		<<generateBEAST 2 dog>>
 		<<set $NPCList[1].name to $NPCList[1].pronoun is "f" ? $NPC_names_f.random() : $NPC_names_m.random()>>
@@ -3960,7 +3966,7 @@ The <<person>> approaches you, coming to a stop a touch closer than is polite. "
 <<elseif $enemyhealth lte 0>>
 	The <<person>> is knocked off of the settee, stumbling into a nearby coffee table. "<<= either(`Fuck!`,`You little <<bastard>>!`,`How dare you!?`)>>" <<he>> snarls.
 	<br><br>
-	<<tearful>> you scramble to your feet and rush for the door, running from the mansion as fast as you can. You only stop to catch your breath <<if $athletics lt 600>>in huge panting gulps <</if>>once you're a few blocks away.
+	<<tearful>> you scramble to your feet and rush for the door, running from the mansion as fast as you can. You only stop to catch your breath <<if currentSkillValue('athletics') lt 600>>in huge panting gulps <</if>>once you're a few blocks away.
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
@@ -4048,7 +4054,7 @@ The <<beasttype 1>> mounts you at <<bhis 1>> <<master>>'s command. The <<person>
 	<br><br>
 	The <<beasttype>> yips and doesn't move to follow as you scramble to your feet and rush for the door. Luckily, you're out before the <<person>> can get up from <<his>> leisurely sprawl.
 	<br><br>
-	<<tearful>> you run away from the mansion, only stopping to catch your breath <<if $athletics lt 600>>in huge panting gulps <</if>>once you're a few blocks away.
+	<<tearful>> you run away from the mansion, only stopping to catch your breath <<if currentSkillValue('athletics') lt 600>>in huge panting gulps <</if>>once you're a few blocks away.
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
@@ -4056,7 +4062,7 @@ The <<beasttype 1>> mounts you at <<bhis 1>> <<master>>'s command. The <<person>
 	<<link [[Next|Residential Alleyways]]>><<set $eventskip to 1>><</link>>
 	<br>
 <<else>>
-	<<tearful>> you can do nothing but lie there and take what the <<person>>'s dog gives you until it's satisfied.
+	<<tearful>> you can do nothing but lie there and take what the <<persons>> dog gives you until it's satisfied.
 	<br><br>
 	<<person1>><<beastejaculation>>
 

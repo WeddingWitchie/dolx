@@ -1027,14 +1027,14 @@
 			"You reach out and stroke the <<beasttype>> over the head."
 		)>>
 	<<else>>
-		<<if $arousal gte $arousalmax * 4/5>>
+		<<if $pleasure gte $pleasuremax * 4/5>>
 			<<= either(
 				"Consumed by desire, you <<handtext>> massage",
 				"As if possessed by lust, you <<handtext>> massage",
 				"Sighing heavily with each breath, you <<handtext>> massage",
 				"Burning with need, you <<handtext>> caress"
 			)>><<set _desire to 1>>
-		<<elseif $arousal gte $arousalmax * 2/5>>
+		<<elseif $pleasure gte $pleasuremax * 2/5>>
 			<<= either(
 				"Slowly losing yourself to the action, you <<handtext>> massage",
 				"With ever growing enthusiasm, you <<handtext>> massage",
@@ -2626,17 +2626,17 @@
 							"That belongs to Gwylan!"
 						<</if>>
 					<<elseif $vaginastate is "penetrated" or $anusstate is "penetrated">>
-						<<if $arousal lte $arousalmax / 5>>
+						<<if $pleasure lt $pleasuremax / 5>>
 							"Gwylan, I'll still keep my promise, please forgive me..."
-						<<elseif $arousal lte ($arousalmax / 5) * 4>>
+						<<elseif $pleasure lt ($pleasuremax / 5) * 4>>
 							"Take it out right now, or I'll tell Gwylan!"
 						<<else>>
 							"Help me, Gwylan... please..."
 						<</if>>
 					<<elseif $penisstate is "penetrated" or $penisstate is "otheranus">>
-						<<if $arousal lte $arousalmax / 5>>
+						<<if $pleasure lt $pleasuremax / 5>>
 							"Gwylan, I'll still keep my promise, please forgive me..."
-						<<elseif $arousal lte ($arousalmax / 5) * 4>>
+						<<elseif $pleasure lt ($pleasuremax / 5) * 4>>
 							"Take it out right now, or I'll tell Gwylan!"
 						<<else>>
 							"Help me, Gwylan... please..."
@@ -3581,7 +3581,7 @@
 	<<if $NPCList[0].fullDescription is "Gwylan" and $rng gte 51>>
 		"Take my breath away, Gwylan."
 	<<elseif $awarelevel gte 2 or $choketrait is 1>>
-		<<set _daddy to $enemyno is 1 and $NPCList[0].pronoun is 'm' and $submissive gte 1150 and random(1, 4) is 1>>
+		<<set _daddy to $enemyno is 1 and $NPCList[0].pronoun is 'm' and random(1, 4) is 1>>
 		<<print either(
 			'"Choke me' + (_daddy ? ', daddy' : '') + '."',
 			'"Put your hand around my throat' + (_daddy ? ', daddy' : '') + '."',
@@ -4207,7 +4207,7 @@
 					<<else>>
 						<<if $pleasure lte $pleasuremax / 5>>
 							<<switch random(1,3)>>
-								<<case 1>> <<if $awarelevel gte 1>>"I have a <<hawkText>> spouse already. NOT. AVAILABLE."<<else>>"I live like a <<if $player.gender_appearance is "m">>king<<else>>queen<</if>> in a castle with a lovely <<hawkText>> spouse, why should I bother with you?"<</if>>
+								<<case 1>> <<if $awarelevel gte 1>>"I have a <<hawkText>> spouse already. NOT. AVAILABLE."<<else>>"I live like a <<pking>> in a castle with a lovely <<hawkText>> spouse, why should I bother with you?"<</if>>
 								<<case 2>> "A <<hawkText>> treats me better than you."
 								<<case 3>> "At least bring me a ring first before you have your way with me, like the Great Hawk."
 							<</switch>>
@@ -4398,17 +4398,17 @@
 							"That's property of the witch!"
 						<</if>>
 					<<elseif $vaginastate is "penetrated" or $anusstate is "penetrated">>
-						<<if $arousal lte $arousalmax / 5>>
+						<<if $pleasure lt $pleasuremax / 5>>
 							"I'm already bewitched by Gwylan, not you!"
-						<<elseif $arousal lte ($arousalmax / 5) * 4>>
+						<<elseif $pleasure lt ($pleasuremax / 5) * 4>>
 							"Get out! That belongs to Gwylan!"
 						<<else>>
 							"M-my heart belongs to Gwylan, you piece of...!"
 						<</if>>
 					<<elseif $penisstate is "penetrated" or $penisstate is "otheranus">>
-						<<if $arousal lte $arousalmax / 5>>
+						<<if $pleasure lt $pleasuremax / 5>>
 							"I'm already bewitched by Gwylan, not you!"
-						<<elseif $arousal lte ($arousalmax / 5) * 4>>
+						<<elseif $pleasure lt ($pleasuremax / 5) * 4>>
 							"Get off of me! That belongs to Gwylan!"
 						<<else>>
 							"M-my heart belongs to Gwylan, you piece of...!"
@@ -4420,13 +4420,13 @@
 							<<case 3>> "If your gaze lingers on me, Gwylan's gaze will fall on you in turn."
 						<</switch>>
 					<<else>>
-						<<if $arousal lte $arousalmax / 5>>
+						<<if $pleasure lt $pleasuremax / 5>>
 							<<switch random(1,3)>>
 								<<case 1>> <<if $awarelevel gte 1>>"Fuck off, I already belong to Gwylan!"<<else>>"You're mean! I only want Gwylan!"<</if>>
 								<<case 2>> "Gwylan's heart is fragile, I won't break it!"
 								<<case 3>> "I need to go see Gwylan, let me go!"
 							<</switch>>
-						<<elseif $arousal lte ($arousalmax / 5) * 3>>
+						<<elseif $pleasure lt ($pleasuremax / 5) * 3>>
 							"You can't compare to Gwylan's skilled hands."
 						<<else>>
 							"Only Gwylan can bewitch me! Not you!"
@@ -5123,6 +5123,9 @@
 				<<takeKissVirginityNamed `$npc[$npcrow.indexOf($mouthtarget)]` true>>
 			<<else>>
 				<<takeKissVirginity $NPCList[$mouthtarget]>>
+			<</if>>
+			<<if _pcKissVirginityTaken>>
+				<br><br>
 			<</if>>
 		<</if>>
 	<<elseif $mouthstate is "kissimminent">>
@@ -5901,7 +5904,8 @@
 <</widget>>
 
 <<widget "actionspussythrust">><<silently>>
-	<<hisselect _args[0]>><<set _their to _text_output>>
+	<<personselect _args[0]>>
+	<<hisselect _args[0]>><<set _their to _hisselect_output>>
 	<<his>><<set _her to _text_output>>
 	<<penis>><<set _penis to _text_output>>
 	<<set _otheraction to "">>
@@ -5961,7 +5965,8 @@
 			<<set _youraction to either("You <<peniletext>> rub your <<penis>> against their pussy to control their arousal, trying to reduce your discomfort.","You <<peniletext>> work your <<penis>> against their pussy to control their arousal while trying to ease your discomfort.","You <<peniletext>> move your <<penis>> against their pussy to keep their arousal in check, trying to lessen your discomfort.")>>
 		<</if>>
 	<<else>>
-		<<hisselect _args[0]>><<set _their to _text_output>>
+		<<personselect _args[0]>>
+		<<hisselect _args[0]>><<set _their to _hisselect_output>>
 		<<his>><<set _her to _text_output>>
 		<<penis>><<set _penis to _text_output>>
 		<<set _otheraction to "">>
@@ -7061,9 +7066,8 @@
 		<</switch>>
 		<<gstress>><<stress 6>>
 	<<else>>
-		<<set $_rng to random(1, 5)>>
 		<<if _speechAttitudeBase is "meek">>
-			<<switch $_rng>>
+			<<switch random(1, 5)>>
 				<<case 1>> "St-stay back," you say. "I-I can defend myself."
 				<<case 2>> "Please don't come closer," you say.
 				<<case 3>> "Don't hurt me," you say. "Please don't."
@@ -7071,7 +7075,7 @@
 				<<case 5>> "Don't try anything," you say. "P-people know I'm here."
 			<</switch>>
 		<<elseif _speechAttitudeBase is "bratty">>
-			<<switch $_rng>>
+			<<switch random(1, 5)>>
 				<<case 1>> "Stay the fuck away," you say. "Or I'll make you sorry."
 				<<case 2>> "Touch me and I'll kick your ass," you say.
 				<<case 3>> "What you looking at?" you ask.
@@ -7079,7 +7083,7 @@
 				<<case 5>> "Don't even think about it," you say. "I've dealt with worse scum than you."
 			<</switch>>
 		<<else>>
-			<<switch $_rng>>
+			<<switch random(1, 5)>>
 				<<case 1>> "Keep your distance," you say. "Or you'll be sorry."
 				<<case 2>> "Don't touch me," you say. "Or you'll be in trouble."
 				<<case 3>> "Don't try anything," you say.
@@ -7122,13 +7126,13 @@
 			<<case 2>> You hiss.
 			<<case 3>> "Chase me," you say. "I'm itching to use these claws."
 		<</switch>>
-	<<elseif $cow gte 6 and random(1, 2) is 2>>
+	<<elseif ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled")) and random(1, 2) is 2>>
 		<<switch random(1, 3)>>
 			<<case 1>> "I'm not helpless," you say. "You can't run down charging cattle."
 			<<case 2>> "I know I'm a prize," you say. "But you'll have to catch me first."
 			<<case 3>> "Always after my milk," you tut. "But you haven't earned it."
 		<</switch>>
-	<<elseif $harpy gte 6 and random(1, 2) is 2>>
+	<<elseif ($harpy gte 6 or ($transformationParts.bird.wings isnot "hidden" and $transformationParts.bird.wings isnot "disabled")) and random(1, 2) is 2>>
 		<<switch random(1, 3)>>
 			<<case 1>> You screech.
 			<<case 2>> "These wings aren't just for show," you say.
@@ -7148,9 +7152,8 @@
 		<</switch>>
 		<<gstress>><<stress 6>>
 	<<else>>
-		<<set $_rng to random(1, 5)>>
 		<<if _speechAttitudeBase is "meek">>
-			<<switch $_rng>>
+			<<switch random(1, 5)>>
 				<<case 1>> "St-stay back," you say with a shy smile. "I-I can't run."
 				<<case 2>> "Please don't come closer," you say with a shy smile. "I-I'm helpless."
 				<<case 3>> "Don't hurt me," you say with a shy smile. "If you can catch me."
@@ -7158,7 +7161,7 @@
 				<<case 5>> "No one knows I'm here," you say with a shy smile. "If you catch me, I'll be helpless."
 			<</switch>>
 		<<elseif _speechAttitudeBase is "bratty">>
-			<<switch $_rng>>
+			<<switch random(1, 5)>>
 				<<case 1>> "You want some? Show me what you're made of."
 				<<case 2>> "There's no way someone like you can catch me," you say.
 				<<case 3>> You exaggerate a laugh. "You'll be easy to outrun."
@@ -7166,7 +7169,7 @@
 				<<case 5>> "I've outrun worse," you say with a grin.
 			<</switch>>
 		<<else>>
-			<<switch $_rng>>
+			<<switch random(1, 5)>>
 				<<case 1>> "You won't catch me," you say.
 				<<case 2>> "You'll have to catch me first," you say.
 				<<case 3>> "If you want to try anything," you start, "you'll have to catch me first."

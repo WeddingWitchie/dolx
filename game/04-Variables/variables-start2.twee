@@ -22,11 +22,11 @@
 	<<switch $bodysize>>
 		<<case -1>><<set $physiquesize to 3000>>
 		<<case 0>><<set $physiquesize to 6000>>
-		<<case 1>><<set $physiquesize to 10000>>
-		<<case 2>><<set $physiquesize to 12000>>
+		<<case 1>><<set $physiquesize to 8000>>
+		<<case 2>><<set $physiquesize to 10000>>
 		<<case 2.5>><<set $physiquesize to 12000>>
-		<<case 3>><<set $physiquesize to 16000>>
-		<<case 4>><<set $physiquesize to 20000>>
+		<<case 3>><<set $physiquesize to 14000>>
+		<<case 4>><<set $physiquesize to 15000>>
 	<</switch>>
 
 	<<clamp>>
@@ -134,15 +134,14 @@
 
 	/* Do not use this object directly - use the Weather singleton instead */
 	<<set $weatherObj to {
-		name: "clear",
 		snow: 0,
 		ice: {},
-		fog: 0,
-		overcast: 0,
-		targetOvercast: 0,
 		monthlyTemperatures: [],
-		keypointsArr: []
+		keypointsArr: [],
+		previousWeatherIndex: 0,
+		fogKeypoints: [],
 	}>>
+
 
 	/* Default start date: 6 sept (sunday), 2020, 07:00 */
 	/* Do not change start date during gameplay as time is relative to the start date */
@@ -162,8 +161,11 @@
 	<<unset $startingseason>>
 	<<set $timeStamp to 0>>
 	<<set Time.set()>>
-	<<run Weather.activeRenderer = Weather.sky>>
-	<<run Weather.sky.initialize()>>
+	<<run Weather.WeatherGeneration.updateWeather()>>
+	<<run Weather.Temperature.updateTemperature()>>
+	<<run Weather.FogGeneration.generateFogKeypoints(V.weatherObj.keypointsArr)>>
+	<<run Weather.activeRenderer = Weather.sidebar>>
+	<<run Weather.sidebar.initialize()>>
 	<<set $hourly to {}>>
 
 	<<set $backgroundTraits to []>>
@@ -538,6 +540,21 @@
 		jobOffered: false,
 		anger: 0,
 		handVirginProtected: false,
+	}>>
+
+	<<set $nightMonsterNNPCUpdate to 2>>
+
+	<<set $livestock to {
+		seen: [],
+		dig: {},
+		horse: {},
+		jobs: {},
+		lock: {},
+		winter: {
+			active: (Time.season is "winter" ? true : false),
+			exam: false,
+			trigger: 0
+		}
 	}>>
 
 	<<generateTipsList>>

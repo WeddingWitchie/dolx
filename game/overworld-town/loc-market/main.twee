@@ -6,13 +6,13 @@ You enter the small office responsible for the Connudatus market. A <<generate1>
 "<<printmoney 1500>> for the day," <<he>> says. "We close at <<ampm 21>>. We'll need to see a sample of what you intend to sell, too. We'll also need proof of citizenship, unless you're selling flowers or other produce."
 <br><br>
 
-<<set _plant_keys to Object.keys($plants)>>
-<<for _t to 0; _t lt _plant_keys.length; _t++>>
-	<<if $plants[_plant_keys[_t]].amount gte 1>>
-		<<set _plant_temp to clone($plants[_plant_keys[_t]].plural)>>
+<<set _foodstuffKeys to Object.keys($foodstuff)>>
+<<for _t to 0; _t lt _foodstuffKeys.length; _t++>>
+	<<if $foodstuff[_foodstuffKeys[_t]].amount gte 1>>
+		<<set _foodstuffSample to clone(setup.foodstuff[_foodstuffKeys[_t]].plural)>>
 	<</if>>
 <</for>>
-<<if _plant_temp is undefined>>
+<<if _foodstuffSample is undefined>>
 	<<pass 5>>
 	<span class="purple">You don't have anything appropriate to sell.</span>
 	<br>
@@ -20,7 +20,7 @@ You enter the small office responsible for the Connudatus market. A <<generate1>
 	<br>
 <<else>>
 	<<money -1500 "marketStall">><<set $daily.stallRented to 1>><<set $stall_money to 0>><<if !$stall_stats>><<set $stall_stats to {}>><</if>>
-	You show <<him>> one of your _plant_temp. It seems to satisfy. You sign the paperwork, hand over the money, and leave to find your stall.
+	You show <<him>> one of your _foodstuffSample. It seems to satisfy. You sign the paperwork, hand over the money, and leave to find your stall.
 	<br><br>
 	<<endevent>>
 
@@ -133,14 +133,14 @@ What goods do you want to present for sale?
 <br><br>
 
 <<for _r to 0; _r lt 4; _r++>>
-	<<if $attractiveness + $fame.business + currentSkillValue('tending') + ($plant_inventory.length * 100) + ($stall_rejected * 10) gte random(1, 10000)>>
+	<<if $attractiveness + $fame.business + currentSkillValue('tending') + ($foodstuff_inventory.length * 100) + ($stall_rejected * 10) gte random(1, 10000)>>
 		<<set _stall_attention to 1>>
 	<</if>>
 <</for>>
-<<set _plant_keys to Object.keys($plants)>>
-<<for _t to 0; _t lt _plant_keys.length; _t++>>
-	<<if $plants[_plant_keys[_t]].amount gte 1>>
-		<<set _plant_temp to clone($plants[_plant_keys[_t]].plural)>>
+<<set _foodstuffKeys to Object.keys($foodstuff)>>
+<<for _t to 0; _t lt _foodstuffKeys.length; _t++>>
+	<<if $foodstuff[_foodstuffKeys[_t]].amount gte 1>>
+		<<set _foodstuffSample to clone(setup.foodstuff[_foodstuffKeys[_t]].plural)>>
 	<</if>>
 <</for>>
 
@@ -156,7 +156,7 @@ What goods do you want to present for sale?
 <<elseif _inventory_found isnot 1>>
 	With nothing to sell, there's little reason to attend your stall.
 	<br><br>
-	<<if _plant_temp isnot undefined>>
+	<<if _foodstuffSample isnot undefined>>
 		<<ind>><<link [[Display new produce|Stall Rent Return]]>><</link>>
 	<</if>>
 	<br>
@@ -165,7 +165,7 @@ What goods do you want to present for sale?
 <<elseif _inventory_in_stall isnot 1>>
 	With nothing on display, there's little reason to attend your stall.
 	<br><br>
-	<<icon "projectMaths.png">><<link [[Manage your stall|Stall Manage]]>><</link>>
+	<<icon "project-maths.png">><<link [[Manage your stall|Stall Manage]]>><</link>>
 	<br>
 	<<connudatusicon>><<link [[Leave|Connudatus Street]]>><<endevent>><<endstall>><<clotheson>><</link>>
 	<br>
@@ -205,7 +205,7 @@ You review the products you're selling.
 <<if _inventory_in_stall isnot 1>>
 	With nothing on display, there's little reason to attend your stall.
 	<br><br>
-	<<icon "projectMaths.png">><<link [[Manage your stall|Stall Manage]]>><</link>>
+	<<icon "project-maths.png">><<link [[Manage your stall|Stall Manage]]>><</link>>
 	<br>
 	<<connudatusicon>><<link [[Leave|Connudatus Street]]>><<endevent>><<endstall>><<clotheson>><</link>>
 	<br>
@@ -425,7 +425,7 @@ The <<person>> lingers for a moment, looking you over as though deciding whether
 :: Stall Shuffle Silent
 <<effects>>
 
-The <<person>> stops in front of the <span class="green"><<print setup.plants[$stall_plant].plural>></span>. "How much for <span class="green"><<stall_amount>></span> of these?"
+The <<person>> stops in front of the <span class="green"><<print setup.foodstuff[$stall_foodstuff].plural>></span>. "How much for <span class="green"><<stall_amount>></span> of these?"
 <br><br>
 
 <<stall_trust>>
@@ -453,7 +453,7 @@ The <<person>> stops in front of the <span class="green"><<print setup.plants[$s
 <</switch>>
 <br><br>
 
-This time the <<person>> does stop, eyes settling on the <span class="green"><<print setup.plants[$stall_plant].plural>></span>. "How much for <span class="green"><<stall_amount>></span> of these?"
+The <<person>> stops in front of the <span class="green"><<print setup.foodstuff[$stall_foodstuff].plural>></span>. "How much for <span class="green"><<stall_amount>></span> of these?"
 <br><br>
 
 <<stall_trust>>
@@ -508,7 +508,7 @@ At last, the <<person>> <<stall_check_text>>. "How much for <span class="green">
 <</switch>>
 <br><br>
 
-The <<person1>><<person>> frowns. "Yes," <<he>> says. "Kids these days. No respect." <<He>> points at the <span class="green"><<print setup.plants[$stall_plant].plural>></span>. "How about <span class="green"><<stall_amount>></span> of these?"
+The <<person1>><<person>> frowns. "Yes," <<he>> says. "Kids these days. No respect." <<He>> points at the <span class="green"><<print setup.foodstuff[$stall_foodstuff].plural>></span>. "How about <span class="green"><<stall_amount>></span> of these?"
 <br><br>
 
 <<stall_trust>>
@@ -524,7 +524,7 @@ You try to keep up with the <<person1>><<person>>.
 	<span class="green">You know a thing or two yourself.</span> <<gtrust>><<set $enemytrust += 20>>
 	<br><br>
 
-	"Not every day I meet someone worth talking to," <<he>> says, looking at the <span class="green"><<print setup.plants[$stall_plant].plural>></span> in front of <<him>>. "How much for <span class="green"><<stall_amount>></span> of these?"
+	"Not every day I meet someone worth talking to," <<he>> says, looking at the <span class="green"><<print setup.foodstuff[$stall_foodstuff].plural>></span> in front of <<him>>. "How much for <span class="green"><<stall_amount>></span> of these?"
 	<br><br>
 
 	<<stall_trust>>
@@ -543,7 +543,7 @@ You try to keep up with the <<person1>><<person>>.
 <<effects>>
 <<speechresolve>>
 
-<<set _supermarketItem to (V.plants[V.stall_plant]?.supermarket >= 0)>>
+<<set _supermarketItem to (V.foodstuff[V.stall_foodstuff]?.supermarket >= 0)>>
 
 <<if _supermarketItem>>
 	<<switch _speechAttitudeResolved>>
@@ -607,8 +607,7 @@ You try to keep up with the <<person1>><<person>>.
 	"That's for me to know," you say.
 <</switch>>
 <br><br>
-
-"I didn't mean to pry," the <<person1>><<person>> says, lifting one of the <span class="green"><<print setup.plants[$stall_plant].plural>></span>. "How much for <span class="green"><<stall_amount>></span> of these?"
+"I didn't mean to pry," the <<person1>><<person>> says, lifting one of the <span class="green"><<print setup.foodstuff[$stall_foodstuff].plural>></span>. "How much for <span class="green"><<stall_amount>></span> of these?"
 <br><br>
 <<stall_trust>>
 <br><br>
@@ -637,7 +636,7 @@ You try to keep up with the <<person1>><<person>>.
 <<He>> glances down, as if seeing them for the first time.
 
 <<if $rng gte 51>>
-	<<He>> points at the <span class="green"><<print setup.plants[$stall_plant].name.replace(/_/g," ")>></span>. "How much for <span class="green"><<stall_amount>></span> of these?"
+	<<He>> points at the <span class="green"><<print setup.foodstuff[$stall_foodstuff].name.replace(/_/g," ")>></span>. "How much for <span class="green"><<stall_amount>></span> of these?"
 	<br><br>
 	<<stall_trust>>
 	<br><br>
@@ -669,7 +668,7 @@ You try to keep up with the <<person1>><<person>>.
 <</switch>>
 <br><br>
 
-The <<person1>><<person>> leans closer. "That so?" <<he>> says. <<He>> looks down at the <span class="green"><<print setup.plants[$stall_plant].name.replace(/_/g," ")>></span>. "How much for <span class="green"><<stall_amount>></span> of these?"
+The <<person1>><<person>> leans closer. "That so?" <<he>> says. <<He>> looks down at the <span class="green"><<print setup.foodstuff[$stall_foodstuff].name.replace(/_/g," ")>></span>. "How much for <span class="green"><<stall_amount>></span> of these?"
 
 <br><br>
 <<stall_trust>>
@@ -725,7 +724,7 @@ The <<person1>><<person>> stands upright, hands above <<his>> shoulders. "I mean
 <<else>>
 
 <span class="red"><<Hes>> too fast for you,</span> and you lose <<him>> in the maze of stalls.
-<<set $plants[$stall_expensive].amount -= 1>>
+<<set $foodstuff[$stall_expensive].amount -= 1>>
 <br><br>
 
 Panting, you look around. People from all over stare in your direction. The ones who aren't are still blushing. <<covered>>
@@ -782,7 +781,7 @@ Panting, you look around. People from all over stare in your direction. The ones
 <<else>>
 
 <span class="red"><<Hes>> too fast for you,</span> and you lose <<him>> in the maze of stalls.
-<<set $plants[$stall_expensive].amount -= 1>>
+<<set $foodstuff[$stall_expensive].amount -= 1>>
 <br><br>
 
 Panting, you look around. People from all over stare in your direction. Those who aren't are blushing. <<covered>>
@@ -950,7 +949,7 @@ You chase the <<person1>><<person>> through the market.
 
 	You return to your stall empty-handed.
 	<br><br>
-	<<set $plants[$stall_expensive].amount -= 1>>
+	<<set $foodstuff[$stall_expensive].amount -= 1>>
 	<<stall_actions>>
 <</if>>
 
@@ -1004,7 +1003,7 @@ You chase the <<person1>><<person>> through the market.
 
 <<else>>
 	You fall back, too hurt to continue fighting. The <<person1>><<person>> flees the alley, your <<print $stall_expensive.replace(/_/g," ")>> in hand.
-	<<set $plants[$stall_expensive].amount -= 1>>
+	<<set $foodstuff[$stall_expensive].amount -= 1>>
 	<br><br>
 	<<tearful>> you return to your stall.
 	<br><br>
@@ -1041,9 +1040,9 @@ You chase the <<person1>><<person>> through the market.
 
 	<<stall_actions>>
 <<else>>
-	<<set $stall_plant to $stall_expensive>>
+	<<set $stall_foodstuff to $stall_expensive>>
 	<<stall_update>>
-	Your call hooks <<him>> after all. The <<person>> steps closer and examines your <span class="green"><<print setup.plants[$stall_expensive].plural>></span>. "How much for <span class="green"><<stall_amount>></span> of these?" <<he>> asks.
+	Your call hooks <<him>> after all. The <<person>> walks over, and examines your <span class="green"><<print setup.foodstuff[$stall_expensive].plural>></span>. "How much for <span class="green"><<stall_amount>></span> of these?" <<he>> asks.
 	<br><br>
 
 	<<stall_trust>>
@@ -1114,7 +1113,7 @@ That wins a laugh out of you. You slip back to your stall.
 You return to your stall.
 <br><br>
 <<unset $stallThiefPartner>>
-<<set $plants[$stall_expensive].amount -= 1>>
+<<set $foodstuff[$stall_expensive].amount -= 1>>
 <<stall_actions>>
 
 :: Stall Scold
@@ -1158,7 +1157,7 @@ You take the <<print $stall_expensive.replace(/_/g," ")>> and return to your sta
 
 You decide <<he>> isn't worth leaving your stall unattended for.
 
-<<set $plants[$stall_expensive].amount -= 1>>
+<<set $foodstuff[$stall_expensive].amount -= 1>>
 <br><br>
 
 <<stall_actions>>
@@ -1167,20 +1166,13 @@ You decide <<he>> isn't worth leaving your stall unattended for.
 <<effects>>
 <<speechresolve>>
 
-<<switch _speechAttitudeResolved>>
-<<case "meek" "shy">>
-	"Do you like my <span class="green"><<print setup.plants[$stall_expensive].plural>></span>?" you ask, holding one up with a timid smile.
-<<case "polite" "flamboyant">>
-	"Take a look at these," you say, presenting them neatly. "They're some of my best."
-<<case "docile">>
-	"Here," you say, holding one up. "These are worth a look."
-<<case "confident">>
-	"Don't overlook these," you say, lifting one into view. "They're better than most on this street."
-<<case "bratty" "cruel">>
-	"Don't overlook my <span class="green"><<print setup.plants[$stall_expensive].plural>></span>," you say, holding one up.
-<<default>>
-	"Can I interest you in some <span class="green"><<print setup.plants[$stall_expensive].plural>></span>?" you ask, holding one up.
-<</switch>>
+<<if $speech_attitude is "meek">>
+	"Do you like my <span class="green"><<print setup.foodstuff[$stall_expensive].plural>></span>," you ask, holding one up.
+<<elseif $speech_attitude is "bratty">>
+	"Don't overlook my <span class="green"><<print setup.foodstuff[$stall_expensive].plural>></span>," you say, holding one up.
+<<else>>
+	"Can I interest you in some <span class="green"><<print setup.foodstuff[$stall_expensive].plural>></span>?" you ask, holding one up.
+<</if>>
 <br><br>
 
 <<if $enemytrust gte -50>>
@@ -1242,10 +1234,10 @@ You decide <<he>> isn't worth leaving your stall unattended for.
 	<<set $enemyarousal += 20>>
 	<br><br>
 
-	<<set $stall_plant to $plant_inventory.random()>>
+	<<set $stall_foodstuff to $foodstuff_inventory.random()>>
 	<<stall_update>>
 
-	<<He>> walks back to your stand and stops in front of the <span class="green"><<print setup.plants[$stall_plant].plural>></span>. "H-How much for <span class="green"><<stall_amount>></span> of these?"
+	<<He>> walks back to your stand and stops in front of the <span class="green"><<print setup.foodstuff[$stall_foodstuff].plural>></span>. "H-How much for <span class="green"><<stall_amount>></span> of these?"
 	<br><br>
 
 	<<stall_trust>>

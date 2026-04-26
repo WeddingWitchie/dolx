@@ -7,7 +7,19 @@ You are in your bedroom.
 <<if _furniture.wallpaper>>
 	<br>
 	<<set _premadeWall to ["vines", "tentacles", "plainwhite", "wavywhite", "cowgirls", "cow_girls", "hearts", "trees", "crosses", "starry", "deep sea", "beach", "crabs", "flames", "stained glass", "audience", "bears"].includes(_furniture.wallpaper.name)>>
-	<<set _wallpaper to _premadeWall ? "wallpaper_" + _furniture.wallpaper.name.replace(/ /,"_") : ['dol', 'degrees of lewdity'].some(e => _furniture.wallpaper.name.toLowerCase().includes(e)) ? "wallpaper_dol" : "wallpaper_custom">>
+	<<switch _furniture.wallpaper.name>>
+		<<case "plainwhite">><<set _wallpaper to "wallpaper-plain-white">>
+		<<case "wavywhite">><<set _wallpaper to "wallpaper-wavy-white">>
+		<<case "cow_girls">><<set _wallpaper to "wallpaper-cow-girls">>
+		<<default>>
+			<<if _premadeWall>>
+				<<set _wallpaper to "wallpaper-" + _furniture.wallpaper.name.replace(/ /g,"-")>>
+			<<elseif ['dol', 'degrees of lewdity'].some(e => _furniture.wallpaper.name.toLowerCase().includes(e))>>
+				<<set _wallpaper to "wallpaper-dol">>
+			<<else>>
+				<<set _wallpaper to "wallpaper-custom">>
+			<</if>>
+	<</switch>>
 
 	<<furnitureicon _wallpaper>>
 	<<switch _furniture.wallpaper.name>>
@@ -200,7 +212,7 @@ You are in your bedroom.
 /* Events */
 <br>
 <<if $robinbed is "yours" and Time.dayState !== "night" and !$possessed>>
-	<<unset $robinbed>>
+	<<unset $robinbed>><<unset $bedGuest>>
 	<<npc Robin>><<person1>>Robin yawns and heads to <<his>> own room.<<endevent>>
 	<<if Time.hour is 6 and Time.minute lte 20>><<run setRobinLocationOverride("orphanage", 6)>><</if>>
 	<br><br>
@@ -249,11 +261,11 @@ You are in your bedroom.
 	<<rngWraith 1>>
 <</if>>
 
-
-<<if pcAreArmsBound("any") or $feetuse is "bound" or $worn.feet.name is "ankle cuffs">>
+<<if breakableSoftBinding()>>
 	<<undobindingsicon>><<link [[Undo your bindings (0:10)|Bedroom]]>><<set $unbind to 1>><<pass 10>><<unbind>><</link>>
 	<br><br>
 <</if>>
+
 <<if $worn.face.cursed is 1>>
 	<<link [[Remove your $worn.face.name (0:10)|Bedroom]]>><<pass 10>><<set $worn.face.type.push("broken")>><<faceruined>><</link>>
 	<br><br>
@@ -420,7 +432,7 @@ The hallway outside connects to the rest of the orphanage.
 		<<else>>
 			<<orphanageWard>>
 			<br>
-			<span class="red">There's no way you can leave your room like this!</span>
+			<<main_hall_icon>> <span class="red">There's no way you can leave your room like this!</span>
 			<br><br>
 		<</if>>
 	<<else>>
@@ -439,7 +451,7 @@ The hallway outside connects to the rest of the orphanage.
 		<<else>>
 			<<orphanageWard>>
 			<br>
-			<span class="red">There's no way you can leave your room like this!</span>
+			<<main_hall_icon>> <span class="red">There's no way you can leave your room like this!</span>
 			<br><br>
 		<</if>>
 	<</if>>
@@ -463,7 +475,7 @@ The hallway outside connects to the rest of the orphanage.
 		<<else>>
 			<<orphanageWard>>
 			<br>
-			<span class="red">There's no way you can leave your room like this!</span>
+			<<main_hall_icon>> <span class="red">There's no way you can leave your room like this!</span>
 			<br><br>
 		<</if>>
 	<<else>>
@@ -483,7 +495,7 @@ The hallway outside connects to the rest of the orphanage.
 		<<else>>
 			<<orphanageWard>>
 			<br>
-			<span class="red">There's no way you can leave your room like this!</span>
+			<<main_hall_icon>> <span class="red">There's no way you can leave your room like this!</span>
 			<br><br>
 		<</if>>
 	<</if>>
@@ -510,7 +522,7 @@ The hallway outside connects to the rest of the orphanage.
 		<<if $kylar_camera is 4>>
 			The owl plushie watches you from the wardrobe. You know there's a camera inside.
 			<br>
-			<<furnitureicon "owlplushie">><<link [[Decide what to do with Kylar's camera (0:05)|Bedroom Kylar Camera]]>><<pass 5>><</link>>
+			<<furnitureicon "owl plushie">><<link [[Decide what to do with Kylar's camera (0:05)|Bedroom Kylar Camera]]>><<pass 5>><</link>>
 			<br><br>
 		<</if>>
 		<<if $kylar_camera is 0>>
@@ -521,7 +533,7 @@ The hallway outside connects to the rest of the orphanage.
 		<<elseif $kylar_camera is 1>>
 			The box Kylar tried to gift you sits at the foot of your bed. The owl plushie is inside.
 			<br>
-			<<furnitureicon "owlplushie">><<link [[Keep it as decoration|Bedroom Kylar Gift Keep]]>><</link>>
+			<<furnitureicon "owl plushie">><<link [[Keep it as decoration|Bedroom Kylar Gift Keep]]>><</link>>
 			<br>
 			<<gifticon "valentine">><<link [[Give it to an orphan|Bedroom Kylar Gift Orphan]]>><<hope 1>><</link>><<ghope>>
 			<br><br>
@@ -557,7 +569,7 @@ The hallway outside connects to the rest of the orphanage.
 	<<if $kylar_camera is 4>>
 		The owl plushie watches you from the wardrobe. You know there's a camera inside.
 		<br>
-		<<furnitureicon "owlplushie">><<link [[Decide what to do with Kylar's camera (0:05)|Bedroom Kylar Camera]]>><<pass 5>><</link>>
+		<<furnitureicon "owl plushie">><<link [[Decide what to do with Kylar's camera (0:05)|Bedroom Kylar Camera]]>><<pass 5>><</link>>
 		<br><br>
 	<</if>>
 	<<if $kylar_camera is 0>>
@@ -568,9 +580,9 @@ The hallway outside connects to the rest of the orphanage.
 	<<elseif $kylar_camera is 1>>
 		The box Kylar tried to gift you sits at the foot of your bed. The owl plushie is inside.
 		<br>
-		<<furnitureicon "owlplushie">><<link [[Keep it as decoration|Bedroom Kylar Gift Keep]]>><</link>>
+		<<furnitureicon "owl plushie">><<link [[Keep it as decoration|Bedroom Kylar Gift Keep]]>><</link>>
 		<br>
-		<<furnitureicon "owlplushie">><<link [[Give it to an orphan|Bedroom Kylar Gift Orphan]]>><<hope 1>><</link>><<ghope>>
+		<<furnitureicon "owl plushie">><<link [[Give it to an orphan|Bedroom Kylar Gift Orphan]]>><<hope 1>><</link>><<ghope>>
 		<br><br>
 	<</if>>
 <</if>>
@@ -1212,7 +1224,7 @@ You are in the bathroom.
 <<effects>>
 <<sleepeffects>><<rngWraith 2 "noBlood">>
 <<if $sleepWraith>>
-	<<set $wraith.mimic to "Robin">><<set $wraith.exit to "sleep">><<unset $sleepWraith>><<unset $robinbed>>
+	<<set $wraith.mimic to "Robin">><<set $wraith.exit to "sleep">><<unset $sleepWraith>><<unset $robinbed>><<unset $bedGuest>>
 	<<set _bed to Furniture.get('bed', $location)>>
 	<<if _bed and _bed.type.includes('comfy')>>
 		You sink into the soft, welcoming embrace of the bed, drifting off effortlessly, and wake up completely rested and rejuvenated.
@@ -1371,9 +1383,9 @@ You are in the bathroom.
 	<<His>> hands retreat, and you hear shuffling of clothes before <<his>> body is on you once again. "Won't you make me feel good?"
 	<br><br>
 
-	<<link [[Allow Kylar to continue|Bedroom Kylar Sneak Sex]]>><<set $sexstart to 1>><</link>><<gglove>><<npcincr Kylar love 2>>
+	<<link [[Allow Kylar to continue|Bedroom Kylar Sneak Sex]]>><<npcincr Kylar love 2>><<set $sexstart to 1>><</link>><<gglove>>
 	<br>
-	<<link [[Push Kylar away|Bedroom Kylar Sneak Push]]>><<npcincr Kylar love -1>><<npcincr Kylar rage 6>><<npcincr Kylar lust -2>><</link>><<llove>><<ggksuspicion>><<gglust>>
+	<<link [[Push Kylar away|Bedroom Kylar Sneak Push]]>><<npcincr Kylar love -1>><<npcincr Kylar rage 6>><<npcincr Kylar lust -2>><</link>><<llove>><<ggksuspicion>><<llust>>
 
 <<elseif $location is "home" and _kylarWake is 2>>
 	<<npc "Kylar">><<person1>>
@@ -1487,7 +1499,7 @@ You are in the bathroom.
 		<<unset $robinbed>>
 	<</if>>
 	<<if $robinbed is "yours">>
-		<<unset $robinbed>>
+		<<unset $robinbed>><<unset $bedGuest>>
 		<<npc Robin>><<person1>>
 		<<if _eggLayingWake>>
 			<<set $robinbed to "yours">>
@@ -1574,8 +1586,8 @@ You are in the bathroom.
 			<br>
 			<<link [[Berate Kylar|Kylar Orphanage Sleep Berate]]>><<set $kylarbed to 0>><<npcincr Kylar love -3>><</link>><<lllove>>
 			<br>
-			<<if displayDefiantOption(500) or $syndromekylar gte 1>>
-				<<link [[Slam the door|Kylar Orphanage Slam]]>><<set $kylarbed to 0>><<npcincr Kylar love 1>><<npcincr Kylar lust 1>><<if $submissive gt 500 and $wolfgirl gte 6>><<wolfDefiant 500>><</if>><</link>><<glove>><<glust>><<if $syndromekylar gte 1>><<stockholmTrait "Kylar">><<else>><<defianttext 500>><</if>>
+			<<if displayDefiantOption(50) or $syndromekylar gte 1>>
+				<<link [[Slam the door|Kylar Orphanage Slam]]>><<set $kylarbed to 0>><<npcincr Kylar love 1>><<npcincr Kylar lust 1>><<if $submissive gt 50 and ($wolfgirl gte 6 or ($transformationParts.wolf.tail isnot "hidden" and $transformationParts.wolf.tail isnot "disabled"))>><<wolfDefiant 50>><</if>><</link>><<glove>><<glust>><<if $syndromekylar gte 1>><<stockholmTrait "Kylar">><<else>><<defianttext 50>><</if>>
 			<</if>>
 
 		<<else>>
@@ -1837,7 +1849,7 @@ You scream. The trio recoil and scramble for the door handle. They flee into the
 <</if>>
 
 They hesitate, then the <<person3>><<person>> opens the door and leaves. The others follow, though the <<person1>><<person>> lingers a moment and leers at you.
-<<if !playerChastity("hidden") and $player.penisExist and ($player.penissize lte 1 or $player.penissize is 4) and random(0,9) gte 6>>
+<<if !playerChastity("hidden") and $player.penisExist and ($player.penissize lte 3 or $player.penissize is 6) and random(0,9) gte 6>>
 	<<telltalepenissize>>
 <</if>>
 <br><br>
@@ -2096,7 +2108,7 @@ The water's getting cold. "I'm squeaky clean," you say. "Thanks for the help." T
 			<</if>>
 		<</if>>
 
-		<<if !playerChastity("hidden") and $player.penisExist and ($player.penissize lte 1 or $player.penissize is 4) and random(0,9) gte 6>>
+		<<if !playerChastity("hidden") and $player.penisExist and ($player.penissize lte 3 or $player.penissize is 6) and random(0,9) gte 6>>
 			<<telltalepenissize>>
 		<<else>>
 			<<stress 6>><<trauma 6>>
@@ -2749,7 +2761,7 @@ You are in the main hall of the orphanage.
 	<<npc Bailey>><<person1>>
 	<<unset $baileyReunionScene>>
 
-	<<if $home_gone gte 24>>
+	<<if $hoursGoneFromHome gte 24>>
 		Bailey leans against a wall. A missing person's poster with a picture of you on it is pinned next to <<him>>.
 		<br><br>
 
@@ -2820,20 +2832,20 @@ You are in the main hall of the orphanage.
 	<br>
 	<<link [[Evade the question|Robin Pillory Evade]]>><</link>>
 
-<<elseif $home_gone gte 168 and Time.dayState isnot "night">>
+<<elseif $hoursGoneFromHome gte 168 and Time.dayState isnot "night">>
 	<<generatey1>><<person1>>
 	You notice something on the wall. It's a missing person's poster with a picture of you on it. It hasn't been taken down, which means Bailey must be looking for you as well.
 	<br><br>
 	<<if $orphan_hope gte 10>>
 		A <<person>> on cleaning duty notices you and glances at the poster. <<His>> eyes widen. "It's you!" <<he>> says, dropping <<his>> mop. "We didn't know if we'd see you again."
 		<br><br>
-		<<set $home_gone to 0>>
+		<<set $hoursGoneFromHome to 0>>
 		<<He>> sighs with relief while taking down the poster.<<ghope>><<hope 1>>
 		<br><br>
 	<<else>>
 		A <<person>> on cleaning duty notices you and spills <<his>> mop bucket. Before you can react, <<he>> steps forward and squeezes you. "It's you. We didn't think you were coming back, we—" <<He>> falls silent. Something drips onto your shoulder.
 		<br><br>
-		<<set $home_gone to 0>>
+		<<set $hoursGoneFromHome to 0>>
 		<<He>> sighs with relief while letting you go. <<He>> wipes away <<his>> tears, and takes down the poster.<<gghope>><<hope 3>>
 		<br><br>
 	<</if>>
@@ -3013,7 +3025,7 @@ and !$fromRobinRoom and _robin.cdquest is 2 and _robin.trauma lte 20 and !$daily
 		<br><br>
 		A brown-haired girl in a white sundress sits by the window.
 		<br>
-		<<ind>><<link [[Approach|Orphanage Sneaky Valentines]]>><</link>> <i>Sneaky update: Time travel to do days before Valentine's day for testing</i>
+		<<ind>><<link [[Approach|Orphanage Sneaky Whitney]]>><</link>> <i>Sneaky update: Enable Whitney's romance, and increase love, for testing their home</i>
 		<br><br>
 	<</if>>
 	<<if $halloween is 1 and Time.monthDay is 31 and !$fromRobinRoom and $robinmissing is 0 and Time.hour gte 16 and Time.hour lt 19 and _robin.init is 1>>
@@ -3046,7 +3058,7 @@ and !$fromRobinRoom and _robin.cdquest is 2 and _robin.trauma lte 20 and !$daily
 		<br><br>
 	<</if>>
 	<<if $christmas is 1 and Time.monthDay is 25 and Time.dayState isnot "night" and $exposed lte 0>>
-		<<icon "mainhall_christmas.png">><<link [[Celebrate Christmas (1:00)|Orphanage Christmas]]>><<pass 60>><<trauma -12>><<stress -6>><</link>><<lltrauma>><<lstress>>
+		<<icon "main-hall-christmas.png">><<link [[Celebrate Christmas (1:00)|Orphanage Christmas]]>><<pass 60>><<trauma -12>><<stress -6>><</link>><<lltrauma>><<lstress>>
 		<br>
 	<</if>>
 	<<gardenicon>><<link [[Garden (0:01)|Garden]]>><<pass 1>><</link>>
@@ -3305,7 +3317,6 @@ Face red and heart thumping, you dart past <<him>>, down the corridor and into y
 	<<link [[Refuse|Orphanage Flaunt Refuse]]>><</link>>
 	<br>
 <<else>>
-	<br><br>
 	<<link [[Next|Bedroom]]>><<endevent>><</link>>
 	<br>
 <</if>>
@@ -3493,7 +3504,7 @@ The warmth feels wonderful on your bare skin.
 
 
 	<<swarminit "slimes" "slime mass" "moving towards you" "encircle you" "fend off" 8 0>>
-	<<set $timer to 20>>
+	<<set $timer to 15>>
 <</if>>
 
 <<swarmeffects>>
@@ -3505,7 +3516,11 @@ The warmth feels wonderful on your bare skin.
 <<if $settings.tentaclesEnabled>>
 	<<tentacles>>
 	<<statetentacles>>
-	<<actionsOmni>>
+	<<if $tentacles.active lte 0>> /* Prevent actions getting stuck as "rest" instead of "swarmrest" */
+		<<swarmactions>>
+	<<else>>
+		<<actionsOmni>>
+	<</if>>
 <<else>>
 	<<swarmactions>>
 <</if>>
@@ -3519,7 +3534,7 @@ The warmth feels wonderful on your bare skin.
 :: Bath Slime Finish
 <<effects>>
 
-The last of the water drains from the bath, taking the slime with it. <<tearful>> you climb out the bath.
+The last of the water drains from the bath, taking the slime with it. <<tearful>> you climb out the bath.<<wash>>
 <br><br>
 
 <<endcombat>>
@@ -4228,8 +4243,8 @@ You open the locket around your neck.
 <div class="img-txt">
 	<div id="locket">
 		<span>
-			<img class="icon infront" @src="'img/ui/locket_'+$carried.neck.colour.replace(' ', '_')+'.png'">
-			<img class="icon" @src="'img/ui/locket_photo_'+$carried.neck.colour.replace(' ', '_')+'.png'">
+			<img class="icon infront" @src="'img/ui/locket-'+$carried.neck.colour.replace(' ', '-')+'.png'">
+			<img class="icon" @src="'img/ui/locket-'+$carried.neck.colour.replace(' ', '-')+'-photo.png'">
 		</span>
 	</div>
 	<div id="locket-txt">
@@ -4540,7 +4555,7 @@ The <<person2>><<person>> takes the tub and pours it over your face. <<He>> lean
 <br><br>
 <<if $pleasure gte $pleasuremax>>
 	The <<person1>><<persons>> work on your <<breasts>> is too much. <<orgasm>> You can't help but open your mouth. The <<person2>><<person>> takes advantage, and slides <<his>> tongue past your lips and over yours. <<takeKissVirginity $NPCList[1] "rape">>
-<<else>>
+	<br><br>
 <</if>>
 At last, the pair grow bored. Or perhaps they just ran out of cream. "That wasn't so bad, was it?" the <<person2>><<person>> says as <<he>> cuts through the rope binding your arms.
 <<unbind>>
@@ -4640,7 +4655,7 @@ You cry out from the rough handling. The pair hold you still, and listen.
 <<generate3>>
 A moment later you hear <span class="green">a knock at the door.</span> "Shit," the <<person1>><<person>> says. <<He>> turns to the <<person2>><<person>>. "Don't just sit there you lemon. See them off."
 <br><br>
-The <<person2>><<person>> leaves the living room, and you hear the front door open. "Everything okay in there?" says an unfamiliar <<person3>><<personsimple>>'s voice. "Just I thought I heard a scream."
+The <<person2>><<person>> leaves the living room, and you hear the front door open. "Everything okay in there?" says an unfamiliar <<person3>><<personssimple>> voice. "Just I thought I heard a scream."
 <br>
 "Everything's fine in here. I just stubbed my toe."
 <br>
@@ -4677,7 +4692,7 @@ The pair blame each other for the mishap, and spend a few moments arguing before
 
 :: Sold Wait
 <<effects>>
-<<pass 2>>
+
 You stay still, and listen to the argument at the door. It becomes more heated, until the stranger threatens to call the police. The <<person2>><<person>> slams the door in response. <<He>> returns to the living room.
 <br><br>
 The pair blame each other for the mishap, and spend a few moments arguing before deciding they can't risk keeping you here. They shove you out the back door, and then a gate, leading to a path running behind the garden.
@@ -4810,8 +4825,7 @@ Robin's mouth hangs similarly open. "Th-that..." <<He>> blinks and shakes <<his>
 You shake your head and <<if $transformationParts.bird.plumage isnot "hidden">>puff up your plumage as you <</if>><<if $eggLayNumber gte 2>>gather your eggs into your arms<<else>>pick up your egg<</if>>, mind blank save for an overwhelming sensation of maternal bliss.
 
 <<if playerIsPregnant() and _eggnant.type is "hawk">>
-	<<wearProp "hawk egg">>
-	<<set _eggIcon to $eggLayNumber>>
+	<<set _eggIcon to $eggLayNumber>><<wearProp `"hawk egg " + Math.clamp(_eggIcon, 1, 3)`>>
 	<span class="lewd">You're certain the <<pluralise $eggLayNumber "egg is" "eggs are">> fertilised.</span> You should bring <<pluralise $eggLayNumber "it">> back to your nest. You pick up <<number $eggLayNumber>> <<birdicon "eggs">> fertilised bird <<pluralise $eggLayNumber "egg">>.
 	<<if $eggLayNumber gte 2>>They're quite large, and you're left wondering how they all fit inside of you to begin with.<<else>>It's quite large, and you're left wondering why passing it didn't hurt more.<</if>>
 	<<pregnancyFeats "pc">>
@@ -4854,7 +4868,7 @@ You shake your head and <<if $transformationParts.bird.plumage isnot "hidden">>p
 	<<storeon "bed">>
 <</if>>
 <<if Time.hour is 6>><<run setRobinLocationOverride("orphanage", 6)>><</if>>
-<<unset $robinbed>><<unset $eggLayNumber>>
+<<unset $robinbed>><<unset $bedGuest>><<unset $eggLayNumber>>
 <<endevent>>
 <br><br>
 
@@ -4870,7 +4884,7 @@ You shake your head and <<if $transformationParts.bird.plumage isnot "hidden">>p
 <<set $outside to 0>><<set $location to "home">><<effects>>
 With a discreet motion, you undo your towel. It falls to the ground, exposing your <<chest>> and <<genitals>>.
 <<exhibitionism5>>
-The <<person>>'s eyes widen, and <<he>> seems transfixed by your naked form.
+The <<persons>> eyes widen, and <<he>> seems transfixed by your naked form.
 <br><br>
 <!-- Undress towel -->
 <<upperstrip>>
@@ -5082,7 +5096,7 @@ A tall blonde girl in a crisp black outfit walks by, carrying a sack over her sh
 The girl puts the head of the paddle on your shoulder, as if to knight you. "Hey there. Like my outfit?" She fleeces down the skirt of the chain tunic. "You can get one of these too, now. All you need to do is raid the castle and lay the pr—"
 <br><br>
 
-She clears her throat. "The shop. It's at the forest shop. It'll be a bitch to find, though. Unless you cheat. No judgement." She shrugs. "Probably the hardest thing to find there, unless you've cozied up to Winter lately for old <<nnpc_gender "Winter">> story time.
+She clears her throat. "The shop. It's at the forest shop. It'll be a bitch to find, though. Unless you cheat. No judgement." She shrugs. "Probably the hardest thing to find there, unless you've cosied up to Winter lately for old <<nnpc_gender "Winter">> story time.
 God, the things I would do to that dusty old fuck, if not for this." She shivers, flicking the halo above her head. "The shopkeep has some interesting things to say too, you know. If you really earn the stuff there, <<nnpc_he "Gwylan">> might just start to like you.
 Some of those clothes will be hard to reach. Now, I can't skip you to the end, but I can set you on the right path. Escaping any of those places will be on you, but it'll unlock those clothes for you all the same."
 <br><br>
@@ -5259,4 +5273,37 @@ The girl smiles at you as you approach.
 	<<avery_valentines_init>>
 	<<set $eventskip to 1>>
 <</link>> <i>Avery will invite you on the street, on Saturday.</i>
+<br>
+
+:: Orphanage Sneaky Whitney
+<<effects>>
+
+The girl smiles at you as you approach.
+<br><br>
+"Hello! Someone in town has decided to become more open with their special someone." She pauses. "If that special someone is you, I can speed things along. You can find them in the park on rainy non-school days."
+<br><br>
+
+<<link [[Enable Whitney's romance|Orphanage Sneaky Whitney Love]]>><<npc Whitney>><<person1>><<endevent>><<set $whitneyromance to 1>><<npcincr Whitney love 100>><<set $whitney_home_timer to 21>><</link>>
+<br>
+<<link [[Skip ahead to their home unlock|Orphanage Sneaky Whitney Home]]>><<set $whitneyromance to 1>><<npcincr Whitney love 100>><<set $whitney_home_timer to 21>><<set $whitney_home_stage to 3>><</link>>
+<br>
+<<link [[Decline for now|Orphanage]]>><</link>>
+<br>
+
+:: Orphanage Sneaky Whitney Love
+<<effects>>
+
+The girl sprinkles glitter over your head. "That did the trick," she says with a smile. "Have a nice day!"
+<br><br>
+
+<<link [[Next|Orphanage]]>><</link>>
+<br>
+
+:: Orphanage Sneaky Whitney Home
+<<set $location to "park">><<effects>>
+
+The girl nods, and produces a wooden rod. "You're off to the park! Stay safe." She taps your shoulder, and the world changes.
+<br><br>
+
+<<link [[Next|Whitney Home Intro 3]]>><<npc Whitney>><<person1>><</link>>
 <br>

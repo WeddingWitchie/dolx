@@ -72,6 +72,18 @@ setup.debugMenu.eventList = {
 			widgets: [``],
 		},
 		{
+			link: [`Foodstuff Prop Debug`, `Foodstuff Prop Debug`],
+			widgets: [``],
+		},
+		{
+			link: [`Learn all recipes`, stayOnPassageFn],
+			widgets: [`<<learn_recipe_all>>`],
+		},
+		{
+			link: [`Give 20 of each foodstuff`, stayOnPassageFn],
+			widgets: [`<<give_all_foodstuff>>`],
+		},
+		{
 			link: [`Strip`, stayOnPassageFn],
 			widgets: [`<<undressclothes "wardrobe">>`],
 		},
@@ -446,6 +458,10 @@ setup.debugMenu.eventList = {
 		{
 			link: [`Disable Debug Lines`, stayOnPassageFn],
 			widgets: [`<<set $debugLines to false>>`],
+		},
+		{
+			link: [`Toggle Weather Band Bounds`, stayOnPassageFn],
+			widgets: [`<<set $debugWeatherBandBounds to !$debugWeatherBandBounds>>`],
 		},
 		{
 			text_only: `\n`,
@@ -1607,7 +1623,7 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Whitney Romance`, stayOnPassageFn],
-			widgets: [`<<set $whitneyromance to 1>>`],
+			widgets: [`<<set $whitneyromance to 1>>`, `<<set $whitney_home_timer to 0>>`],
 		},
 		{
 			link: [`Pub Whore`, stayOnPassageFn],
@@ -1768,7 +1784,7 @@ function addFavouriteIcon(section, index, id) {
 
 		input.type = "image";
 		input.className = "heart";
-		input.src = "img/ui/heart_favourite.svg";
+		input.src = "img/ui/heart-favourite.png";
 		for (let i = 0; i < V.debug_favourite.length; i++) {
 			if (V.debug_favourite[i].link[0] === setup.debugMenu.eventList[section][index].link[0]) input.classList.toggle("liked"); // on load up if already favourite set heart red
 		}

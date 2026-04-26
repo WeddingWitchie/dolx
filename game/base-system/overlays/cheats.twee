@@ -544,9 +544,10 @@
 		<div class="settingsToggleItemWide">
 			You are not wearing <span class="gold"><<= $_clothes.join(", ")>></span>.
 
+			<br>
+			<label>Auto repair <<checkbox "$cheatClothes" false true autocheck>></label> |
 			/* Don't show links if player doesn't have anything to fix/destroy */
 			<<if $_clothes.length lt 8>>
-				<br>
 				<<link "Fix all">>
 					<<run _cl_slots.forEach((slot) => {
 						if (V.worn[slot].name === "naked") return;
@@ -1322,12 +1323,12 @@
 				<br><br>
 				<span class="gold">Penis Size</span>
 				<<set _penisText to ["Micro", "Mini", "Tiny", "Small", "Normal", "Large", "Enormous"]>>
-				<<numberslider "$player.penissize" $player.penissize  -2 4 1 {
+				<<numberslider "$player.penissize" $player.penissize 0 6 1 {
 				onInputChange: value => {
 					wikifier("<<updatesidebarimg false>>");
 				},
 				value: v => {
-					return T.penisText[v + 2];
+					return T.penisText[v];
 				}
 			}>>
 				<<if $debug is 1>>
@@ -1339,8 +1340,8 @@
 				<</if>>
 			<</if>>
 			<br><br>
-			Cover nudity (only if embarrassed): <<checkbox "$dontHide" true false autocheck>>
-			<<run $(() => $('#checkbox-donthide').on('change', e => wikifier('<<updatesidebarimg>>')))>>
+			<label>Cover nudity (only if embarrassed): <<checkbox "$dontHide" true false autocheck>>
+			<<run $(() => $('#checkbox-donthide').on('change', e => wikifier('<<updatesidebarimg>>')))>></label>
 		</div>
 		<div class="settingsToggleItem">
 			<span class="gold">Sensitivity</span>
@@ -1681,7 +1682,7 @@
 		<<if $docks and $docks.hired>>
 			<div class="settingsToggleItem">
 				<<docksicon>><span class="gold">Docks</span>
-				<<numberStepper "Status" $docks.status "docks.status">>
+				<<numberStepper "Status" $docks.status { callback: value => { V.docks.status = value } }>>
 			</div>
 		<</if>>
 		<<if $pirate_rank gte 0>>
@@ -2166,6 +2167,15 @@
 			<br>
 			<span id="cheatsWeather"><<cheatsWeather>></span>
 			<br>
+			<br>
+			<<numberStepper "Fog" {
+				callback: value => {
+					Weather.FogGeneration.setFog(value);
+				},
+				min: 0, max: 1, step: 0.1, colorArr: ["--blue"], percentage: false,
+				valueFormat: value => round(value, 1),
+				activeButtons: ["single", "double"]
+			}>>
 			<span class="description">Changing this setting will change the weather for at least 6 hours, before returning to the original weather simulation.</span>
 		</div>
 		<div class="settingsToggleItemWide">
@@ -3142,11 +3152,11 @@
 	<<set _physMax to {
 		"-1": 3000,
 		"0":  6000,
-		"1":  10000,
-		"2":  12000,
-		"2.5": 14000,
-		"3":  16000,
-		"4":  16000
+		"1":  8000,
+		"2":  10000,
+		"2.5": 12000,
+		"3":  14000,
+		"4":  15000
 	}>>
 
 	<<for _i = 0; _i < _steps.length; _i++>>
@@ -3278,7 +3288,7 @@
 <</widget>>
 
 <<widget "cheatsWeather">>
-	<<set _weatherTypes to ["clear", "lightClouds", "heavyClouds", "lightPrecipitation", "heavyPrecipitation"]>>
+	<<set _weatherTypes to ["clear", "lightClouds", "heavyClouds", "lightPrecipitation", "heavyPrecipitation", "storm", "thunderstorm"]>>
 	<<set _dayState to Weather.bloodMoon ? "blood" : Weather.dayState === "night" ? "night" : "day">>
 	<<capture _i, _weatherState, _dayState, _name, _iconType, _weatherIcon>>
 		<<for _i = 0; _i < _weatherTypes.length; _i++>>

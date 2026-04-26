@@ -135,7 +135,8 @@
 		A <<= $pain gte 100 ? "crying" : $pain gte 40 ? "tearful" : $pain gte 1 ? "frowning" : "cheerful">> <<girl>>
 	<</if>>
 	stares back.
-	<<if ["haunt", "despair"].includes($wraith.state) and $hallucinations gte 1 and ((random(1, 100) is 1) or ($controlled is 0 and random(1, 100) lte 5))>>
+	<<set _wraithMirror to !_wraithMirror && ["haunt", "despair"].includes($wraith.state) and $hallucinations gte 1 and ((random(1, 100) is 1) or ($controlled is 0 and random(1, 100) lte 5))>>
+	<<if _wraithMirror>>
 		<span class="fading">A pale figure stands behind.</span>
 	<</if>>
 	<br><br>
@@ -180,7 +181,7 @@
 		<<if $_tfs.length >= 1 or _permtfs.some(tf => V[tf] === 1) or $waterdragonCosmeticUnlocked is 1>>
 			__Transformation__
 			<br>
-			/* show the icon of the highest leveled transform with parts unlocked */
+			/* show the icon of the highest levelled transform with parts unlocked */
 			/* assumes maximum of 2 simultaneous transformations */
 			<<if $_tfs.length gt 1>><<set $_icon to ($_tfs[1]?.level gt $_tfs[0].level) ? $_tfs[1].name : $_tfs[0].name>><</if>>
 			<<if !$_icon and $waterdragonCosmeticUnlocked is 1>><<set $_icon to "waterdragon">><<elseif !$_icon>><<set $_icon to "angel">><</if>>
@@ -690,14 +691,6 @@
 		<<set _faceOpts to (setup.faceVariantOptions[_facestyleLocal] || {})>>
 		<<set _keys to Object.keys(_faceOpts)>>
 
-		/* If current facevariant isn't valid for this style, warn but DO NOT reset it
-		<<if _keys.length gt 0 and _faceOpts[$facevariant] is undefined>>
-			<span class="yellow">
-				Your saved demeanour isn't available for this face style. Pick one below to update it.
-			</span>
-			<br>
-		<</if>> */
-
 		<<if _keys.length gt 1>>
 			Your current demeanour is:
 			<<listbox "$facevariant" autoselect>>
@@ -1076,7 +1069,7 @@
 		<<set _bodyWritingOptions.Masochism["Treat me bad"] to "treat_me_bad">>
 		<<set _bodyWritingOptions.Masochism["Make me squeal"] to "make_me_squeal">>
 	<</if>>
-	<<if $submissive gte 200>>
+	<<if $submissive gte 1500>>
 		<<set _bodyWritingOptions.Submission to {}>>
 		<<set _bodyWritingOptions.Submission["Submissive"] to "submissive">>
 		<<set _bodyWritingOptions.Submission["Pet"] to "pet">>
@@ -1090,7 +1083,7 @@
 			<<set _bodyWritingOptions.Submission["Use Me"] to "use_me">>
 		<</if>>
 
-		<<if $submissive gte 500>>
+		<<if $submissive gte 1900>>
 			<<set _bodyWritingOptions.Submission["Slave"] to "slave">>
 			<<set _bodyWritingOptions.Submission["Enslave Me"] to "enslave_me">>
 			<<set _bodyWritingOptions.Submission["Cum rag"] to "cum_rag">>
@@ -1576,6 +1569,7 @@
 <</widget>>
 
 <<widget "mirrorHair">>
+	<<set _wraithMirror to false>>
 	<<mirroricon>><<link "Back">><<updatesidebarimg>><<replace #mirror>><<mirrorMenu>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
 	<<shopClothingFilterSettingsDefault>> /* Due to reusing the traits filtering */
 	<br><br>

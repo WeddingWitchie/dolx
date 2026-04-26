@@ -1818,14 +1818,14 @@ class PlayerCombatMapper {
 		if (clothing.combat?.mainColour && !["primary", "secondary"].includes(clothing.combat?.mainColour)) {
 			options.filters[mainFilterKey] = PlayerCombatMapper.genFilterWithHex(clothing.combat.mainColour);
 		} else if (clothing.combat?.mainColour && clothing.combat?.mainColour === "secondary") {
-			const accColour = clothing.accessory_colour === "original" ? 0 : clothing.combat?.accColour || clothing.accessory_colour;
+			const accColour = clothing.combat?.accColour || clothing.accessory_colour;
 			const accDebugName = slot + " accessory";
 			const accCustomFilter = clothing.accessory_colourCustom;
 			options.filters[mainFilterKey] = accColour
 				? CombatRenderer.lookupColour(setup.colours.clothes_map, accColour, accDebugName, accCustomFilter, clothing.prefilter)
 				: Renderer.emptyLayerFilter();
 		} else {
-			const colour = clothing.colour === "original" ? 0 : clothing.colour;
+			const colour = clothing.colour;
 			const debugName = slot + " clothing";
 			const customFilter = clothing.colourCustom;
 			options.filters[mainFilterKey] = colour
@@ -1836,14 +1836,14 @@ class PlayerCombatMapper {
 		if (clothing.combat?.accColour && !["primary", "secondary"].includes(clothing.combat?.accColour)) {
 			options.filters[accFilterKey] = PlayerCombatMapper.genFilterWithHex(clothing.combat.accColour);
 		} else if (clothing.combat?.accColour && clothing.combat?.accColour === "primary") {
-			const colour = clothing.colour === "original" ? 0 : clothing.colour;
+			const colour = clothing.colour;
 			const debugName = slot + " clothing";
 			const customFilter = clothing.colourCustom;
 			options.filters[accFilterKey] = colour
 				? CombatRenderer.lookupColour(setup.colours.clothes_map, colour, debugName, customFilter, clothing.prefilter)
 				: Renderer.emptyLayerFilter();
 		} else {
-			const accColour = clothing.accessory_colour === "original" ? 0 : clothing.combat?.accColour || clothing.accessory_colour;
+			const accColour = clothing.combat?.accColour || clothing.accessory_colour;
 			const accDebugName = slot + " accessory";
 			const accCustomFilter = clothing.accessory_colourCustom;
 			options.filters[accFilterKey] = accColour
@@ -1856,7 +1856,7 @@ class PlayerCombatMapper {
 		} else if (clothing.combat?.mainColour && !clothing.combat?.sleeveColour) {
 			options.filters[sleeveFilterKey] = PlayerCombatMapper.genFilterWithHex(clothing.combat.mainColour);
 		} else {
-			const colour = clothing.colour === "original" ? 0 : clothing.colour;
+			const colour = clothing.colour;
 			const debugName = slot + " clothing";
 			const customFilter = clothing.colourCustom;
 			options.filters[sleeveFilterKey] = colour
@@ -1869,7 +1869,7 @@ class PlayerCombatMapper {
 		} else if (clothing.combat?.accColour && !clothing.combat?.sleeveAccColour) {
 			options.filters[sleeveAccFilterKey] = PlayerCombatMapper.genFilterWithHex(clothing.combat.accColour);
 		} else {
-			const accColour = clothing.accessory_colour === "original" ? 0 : clothing.combat?.accColour || clothing.accessory_colour;
+			const accColour = clothing.combat?.accColour || clothing.accessory_colour;
 			const accDebugName = slot + " accessory";
 			const accCustomFilter = clothing.accessory_colourCustom;
 			options.filters[sleeveAccFilterKey] = accColour

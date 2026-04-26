@@ -28,6 +28,7 @@ Weather.Renderer.Layer = class Layer {
 	}
 
 	addEffect(effectName, params, bindings, condition, compositeOperation) {
+		if (!params) params = {};
 		const effectConfig = Weather.Renderer.Effects.effects.get(effectName);
 		if (!effectConfig) {
 			const errorPromise = Promise.reject(new Error(`Could not add effect '${effectName}' to layer ${this.name}. That effect does not exist.`));
@@ -36,7 +37,7 @@ Weather.Renderer.Layer = class Layer {
 		}
 		effectConfig.parentLayer = this;
 
-		// Set index for a consistent order - since it loads asyncronously
+		// Set index for a consistent order - since it loads asynchronously
 		const currentIndex = (this.effectIndex = (this.effectIndex ?? 0) + 1);
 		params.id = [currentIndex];
 		const effect = new Weather.Renderer.Effect(effectConfig, condition, compositeOperation, params);
@@ -62,7 +63,7 @@ Weather.Renderer.Layer = class Layer {
 		this.animationGroup?.stop();
 		this.animationGroup?.reset();
 
-		// Sequentially initialize each effect
+		// Sequentially initialise each effect
 		for (const effect of this.effects) {
 			await effect.init();
 		}
@@ -72,25 +73,8 @@ Weather.Renderer.Layer = class Layer {
 		this.animationGroup?.start();
 	}
 
-	setBlur() {
-		if (!this.blur) {
-			return "none";
-		}
-
-		let blurValue = Weather.fog * setup.SkySettings.blur.fogMaxBlurValue;
-		if (typeof this.blur === "number" && this.blur < blurValue) {
-			blurValue = this.blur;
-		} else if (typeof this.blur?.factor === "function") {
-			const normalizedFactor = normalise(this.blur.factor(), 1, setup.SkySettings.blur.minFactorToBlur);
-			const maxBlur = resolveValue(this.blur.max, setup.SkySettings.blur.fogMaxBlurValue);
-			const interpolatedValue = lerp(normalizedFactor, 0, maxBlur || 0);
-			blurValue = Math.max(blurValue, interpolatedValue);
-		}
-
-		return blurValue > 0 ? `blur(${blurValue}px)` : "none";
-	}
-
 	drawLayer(canvas) {
+		if (!this.canvas) return;
 		canvas.drawImage(this.canvas.element);
 	}
 
@@ -102,7 +86,6 @@ Weather.Renderer.Layer = class Layer {
 		const initPromises = this.effects.map(effect => effect.initPromise);
 		await Promise.all(initPromises);
 		this.canvas.clear();
-		this.canvas.ctx.filter = this.setBlur();
 		for (const effect of this.effects) {
 			try {
 				effect.draw(canvas, this.canvas);

@@ -327,7 +327,7 @@ class XrayCombatMapper {
 			case "wolf":
 			case "wolfgirl":
 			case "wolfboy":
-				penetrator.penetratorSprite = V.ejaculating === 1 && (T.knotted || T.knotted_short) ? "knottedFull" : "knotted";
+				penetrator.penetratorSprite = V.ejaculating === 1 && (T.knotted || T.knotted_short) ? "knotted-full" : "knotted";
 				penetrator.size = penetrator.npcType.includes("wolf") ? 3 : 2;
 				penetrator.base = V.ejaculating === 1 && (T.knotted || T.knotted_short) ? "knotting" : penetrator.base;
 				options.filters[slot + "Penetrator"] = {
@@ -426,7 +426,7 @@ class XrayCombatMapper {
 		if (npcHasStrapon(options[slot][npc])) {
 			penetrator[npc + "Strapon"] = true;
 			if (npcSource.penisdesc.includes("horse") && !penetrator.doublePen) {
-				penetrator["penetratorSprite" + index] = "horseGray";
+				penetrator["penetratorSprite" + index] = "horse-strapon";
 				penetrator["size" + index] = 5;
 			} else if (npcSource.penisdesc.includes("knotted") && !penetrator.doublePen) {
 				penetrator["penetratorSprite" + index] = "knotted";

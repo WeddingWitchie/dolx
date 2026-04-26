@@ -18,7 +18,7 @@ You shake your head. <<He>> holds open the door for you, and you leave the offic
 :: Pregnancy Discussion
 
 <<set $outside to 0>><<set $location to "town">><<effects>>
-<<if $hospitalintro is 0 or $hospitalintro is "livestock" or $hospitalintro is "party">>
+<<if !$harperSeen.includes("hospital")>>
 	<<harper_intro>>
 <<else>>
 	<<if $firstOption is undefined>><<set $firstOption to true>><</if>>
@@ -48,8 +48,10 @@ You shake your head. <<He>> holds open the door for you, and you leave the offic
 	<<link [[Enquire about feeling something large in your stomach (0:10)|Pregnancy Futa Introduction]]>><<pass 10>><<set $firstOption to false>><</link>>
 	<br>
 <</if>>
-<<if $pregnancyStats.parasiteDoctorEvents gte 4 and ($sexStats.anus.pregnancy.motherStatus is 2 or ($sexStats.vagina.pregnancy.motherStatus is 2 and !$worn.genitals.type.includes("hidden")))>>
-	<<link [[Enquire about parasite hermaphrodite removal (0:30)|Remove Futa Pregnancy]]>><<pass 30>><<set $futaCheck to true>><<set $firstOption to false>><</link>>
+<<set _aPregnancy to $sexStats.anus.pregnancy>>
+<<set _vPregnancy to $sexStats.vagina.pregnancy>>
+<<if $pregnancyStats.parasiteDoctorEvents gte 4 and ((_aPregnancy.motherStatus is 2 and _aPregnancy.type is "parasite" and _aPregnancy.fetus.find(parasite => parasite.stats.gender === "Hermaphrodite")) or (_vPregnancy.motherStatus is 2 and _vPregnancy.type is "parasite" and _vPregnancy.fetus.find(parasite => parasite.stats.gender === "Hermaphrodite") and !$worn.genitals.type.includes("hidden")))>>
+	<<link [[Enquire about hermaphrodite parasite removal (0:30)|Remove Futa Pregnancy]]>><<pass 30>><<set $futaCheck to true>><<set $firstOption to false>><</link>>
 	<br>
 <</if>>
 <<set _typesSeenArr to (Array.isArray($pregnancyStats.parasiteTypesSeen) ? $pregnancyStats.parasiteTypesSeen : [])>>
@@ -219,7 +221,7 @@ Harper stares unblinking at your <<bottom>> as the pulsing increases in intensit
 <</if>>
 <<set _allSeen to _typesSeenArr.length + _variantsSeenArr.length>>
 
-<<if $hospitalintro is 1>>
+<<if $harperSeen.includes("hospital")>>
 	Following the directions from Doctor Harper, you
 <<else>>
 	You
@@ -538,34 +540,34 @@ You feel yourself being lifted. You hear a voice, but the words don't make sense
 <<npc "Harper">><<person1>>
 <<setKnowsAboutPregnancy "pc" "Harper">>
 
-<<if $hospitalintro isnot 1>>
+<<if !$harperSeen.includes("hospital")>>
 	<<if $phase is 1>>
 		You awaken in a hospital bed. Several blurry figures move around. One leans closer, <<his>> features coalescing into those of a young <<personsimple>>.
-		<<if $hospitalintro is 0>>
-			"I'm Doctor Harper," <<he>> says, brushing <<his>> blond fringe away from <<his>> eyes. "Please don't be alarmed, but your waters have broken. You're in the hospital." <<Hes>> young for a doctor, can't be older than 25.
-		<<elseif $hospitalintro is "livestock">>
+		<<if $harperSeen.includes("livestock")>>
 			It's the doctor from the farm. The one who experimented on you. "I'm Doctor Harper," <<he>> says. There's no recognition on <<his>> face. "Please don't be alarmed, but your waters have broken. You're in the hospital."
-		<<elseif $hospitalintro is "party">>
+		<<elseif $harperSeen.includes("party")>>
 			It's the doctor from Avery's party. The one with the pink powder. "I'm Doctor Harper," <<he>> says. <<He>> dons an innocent smile. "Please don't be alarmed, but your waters have broken. You're in the hospital."
+		<<else>>
+			"I'm Doctor Harper," <<he>> says, brushing <<his>> blond fringe away from <<his>> eyes. "Please don't be alarmed, but your waters have broken. You're in the hospital." <<Hes>> young for a doctor, can't be older than 25.
 		<</if>>
 	<<else>>
 		The receptionist nods. "Please take a seat, the doctor will be right with you."
 		<br><br>
 
 		You don't need to wait long. A young <<personsimple>> dressed like a doctor arrives.
-		<<if $hospitalintro is 0>>
-			"I'm Doctor Harper," <<he>> says, brushing <<his>> blond fringe away from <<his>> eyes. "We've prepared a bed for you. This way." <<Hes>> young for a doctor, can't be older than 25.
-		<<elseif $hospitalintro is "livestock">>
+		<<if $harperSeen.includes("livestock")>>
 			It's the doctor from the farm. The one who experimented on you. "I'm Doctor Harper," <<he>> says. There's no recognition on <<his>> face. "We've prepared a bed for you. This way."
-		<<elseif $hospitalintro is "party">>
+		<<elseif $harperSeen.includes("party")>>
 			It's the doctor from Avery's party. The one with the pink powder. "I'm Doctor Harper," <<he>> says. <<He>> dons an innocent smile. "We've prepared a bed for you. This way."
+		<<else>>
+			"I'm Doctor Harper," <<he>> says, brushing <<his>> blond fringe away from <<his>> eyes. "We've prepared a bed for you. This way." <<Hes>> young for a doctor, can't be older than 25.
 		<</if>>
 		<br><br>
 
 		<<He>> leads you through the hospital, to a room in the labour ward. A midwife adjusts a machine by the bed.
 	<</if>>
 
-	<<set $hospitalintro to 1>>
+	<<set $harperSeen.pushUnique("hospital")>>
 <<else>>
 	<<if $phase is 1>>
 		You awaken in a hospital bed. Several blurry figures move around. One leans closer, <<his>> features coalescing into those of Doctor Harper. "Please don't be alarmed, but your waters have broken. You're in the hospital."
@@ -820,14 +822,14 @@ The midwife places a mask over your face. You feel your consciousness fade. Seve
 <<if $alex_pregnancy isnot undefined and $litter_potention_fathers is 1 and $alex_pregnancy.source is "Alex">>
 
 	<<if C.npc.Alex.pregnancy.nursery is true>>
-		Your <<if C.npc.Alex.pronoun is "f">>girlfriend<<else>>boyfriend<</if>> I think."
+		Your <<nnpc_girlfriend "Alex">> I think."
 		<br><br>
 
 		<<link [[Next|Pregnancy Birth Hospital Alex]]>><</link>>
 
 	<<else>>
 		<<set C.npc.Alex.pregnancy.hospitalBirth to true>>
-		Your <<if C.npc.Bailey.pronoun is "f">>mum<<else>>dad<</if>> I think."
+		Your <<nnpc_mum "Bailey">> I think."
 		<br><br>
 
 		<<link [[Next|Pregnancy Birth Hospital 6]]>><<endevent>><</link>>
@@ -835,7 +837,7 @@ The midwife places a mask over your face. You feel your consciousness fade. Seve
 	<</if>>
 
 <<else>>
-	Your <<if C.npc.Bailey.pronoun is "f">>mum<<else>>dad<</if>> I think."
+	Your <<nnpc_mum "Bailey">> I think."
 	<br><br>
 
 	<<link [[Next|Pregnancy Birth Hospital 6]]>><<endevent>><</link>>
@@ -2086,7 +2088,7 @@ You thank Doctor Harper for the scan as <<he>> hands you a warm towel. You wipe 
 <<getChildrenIds>><<childSelect _childrenIds.last()>>
 
 <<if $alexRescued>>
-	Alex taps <<his>> foot as <<he>> waits for you in the hospital foyer. <<He>> runs over to you, very nearly knocking you over. "Partner! I'm so glad you're alright. You know how to scare a <<= C.npc.Alex.pronoun is "m" ? "farmboy" : "farmgirl">>."
+	Alex taps <<his>> foot as <<he>> waits for you in the hospital foyer. <<He>> runs over to you, very nearly knocking you over. "Partner! I'm so glad you're alright. You know how to scare a farm<<nnpc_gendery "Alex">>."
 	<<unset $alexRescued>>
 <<else>>
 	Alex waits for you in the hospital foyer. <<He>> smiles when <<he>> sees you. "Hey, I got a call from the hospital saying that you were in labour. I got here as fast as I could."
@@ -2172,10 +2174,10 @@ Bailey ignores Alex's question and glares at you. "We've a place prepared at the
 "What makes you think that we'll just give our <<print $litter_size > 1 ? "children" : "child">> to you?" Alex protests.
 <br><br>
 
-Bailey turns <<nnpc_his "Bailey">> gaze to Alex. "Look, 'cow<<if _alex.pronoun is "f">>girl<<else>>boy<</if>>', you could've fucked any whore and I wouldn't care, but you hitched yourself to MY ward."
+Bailey turns <<nnpc_his "Bailey">> gaze to Alex. "Look, 'cow<<nnpc_gendery "Alex">>', you could've fucked any whore and I wouldn't care, but you hitched yourself to MY ward."
 <br>
 
-Alex clenches <<his>> fists. "And who exactly said <<pshe>> is yours? <<pShes>> MY <<if $player.gender_appearance is "f">>woman<<else>>man<</if>>."
+Alex clenches <<his>> fists. "And who exactly said <<pshe>> is yours? <<pShes>> MY <<woman>>."
 <br>
 
 Bailey fixes Alex with a piercing gaze. "And how exactly do you plan on taking care of a kid on that shithole you call a farm?"
@@ -2203,42 +2205,37 @@ A long and deafening silence fills the environment. Bailey keeps staring at you 
 :: Pregnancy Birth Hospital Alex 5
 <<effects>>
 <<set _alex to statusCheck("Alex")>>
-<<generate1>><<person1>>
-<<if $pronoun is "f">>
-	<<set $alex_parent to "mother">>
-<<else>>
-	<<set $alex_parent to "father">>
-<</if>>
+<<loadNPC 0 "alexs_parent1">>
 <<npc "Alex" 2>><<person2>>
 
 <<run Object.values(V.children).filter(child => {
 	if (child.location === "home" && (child.father === "Alex" || child.mother === "Alex")) child.location = "alex_cottage";
 })>>
 
-Alex's $alex_parent waves at you two.
+Alex's <<father>> waves at you two.
 <br><br>
 
 Alex opens the door for you. <<person2>><<He>> helps you in before settling into the seat next to you.
 <br><br>
 
 <<if pregnancyCountBetweenParents("pc", "Alex") gte 2>>
-	"Again?" <<nnpc_His "Alex">> $alex_parent laughs. "My <<if _alex.pronoun is "f">>daughter<<else>>son<</if>> is sure keeping you busy, ain't <<nnpc_he "Alex">>?"
+	"Again?" <<nnpc_His "Alex">> <<person1>><<father>> laughs. "My <<nnpc_daughter "Alex">> is sure keeping you busy, ain't <<nnpc_he "Alex">>?"
 	<br><br>
 
 	Alex blushes and looks away.
 	<br><br>
 
 <<else>>
-	"My little <<nnpc_gendery "Alex">> is finally settling down," <<nnpc_his "Alex">> $alex_parent says with a laugh.
+	"My little <<nnpc_gendery "Alex">> is finally settling down," <<nnpc_his "Alex">> <<person1>><<father>> says with a laugh.
 	<br>
 
 	Alex blushes and looks away.
 	<br><br>
 
-	"And with such a <<if $player.gender_appearance is "f">>beautiful woman<<else>>handsome man<</if>>!" <<person1>><<he>> adds.
+	"And with such a <<if $player.gender_appearance is "f">>beautiful<<else>>handsome<</if>> <<woman>>!" <<he>> adds.
 	<br>
 
-	"<<if $alex_parent is "mother">>Mum<<else>>Pa<</if>>!" Alex protests.
+	"<<Ma>>!" Alex protests.
 	<br>
 
 	"What? I'm telling the truth," <<he>> says. You don't think Alex's face can get any redder.
@@ -2261,13 +2258,13 @@ Alex helps you leave the vehicle and take your <<print $litter_size > 1 ? "child
 <br><br>
 
 <<if pregnancyCountBetweenParents("pc", "Alex") gte 2>>
-	Alex's $alex_parent turns to Alex. "Look, I'm happy you're settling down, but try using some protection, would you? Unless you want your kids to have more siblings than you do." <<He>> laughs before driving away.
+	Alex's <<father>> turns to Alex. "Look, I'm happy you're settling down, but try using some protection, would you? Unless you want your kids to have more siblings than you do." <<He>> laughs before driving away.
 	<br><br>
 
 <<else>>
-	Alex's $alex_parent turns to Alex. "I need to get back to work now, but listen, I'm proud of you. You're finally making this place look like a home," <<he>> says before driving away.
+	Alex's <<father>> turns to Alex. "I need to get back to work now, but listen, I'm proud of you. You're finally making this place look like a home," <<he>> says before driving away.
 	<br><br>
 
 <</if>>
 
-<<link [[Next|Farm Work]]>><<endevent>><<unset $litter_size>><<unset $alex_pregnancy>><<unset $alex_parent>><</link>>
+<<link [[Next|Farm Work]]>><<endevent>><<unset $litter_size>><<unset $alex_pregnancy>><</link>>

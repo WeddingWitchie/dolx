@@ -9,7 +9,7 @@ Weather.Renderer.Layers.add({
 		{
 			effect: "skyOrbital",
 			drawCondition() {
-				return this.renderInstance.orbitals.sun.factor > -0.5 && !this.renderInstance.skyDisabled;
+				return this.renderInstance.orbitals.sun.factor > -0.5 && !this.renderInstance.sidebarSkyDisabled;
 			},
 			params: {
 				images: { orbital: "img/misc/sky/sun.png" },
@@ -21,9 +21,24 @@ Weather.Renderer.Layers.add({
 			},
 		},
 		{
+			effect: "colorOverlay",
+			drawCondition() {
+				return !this.renderInstance.sidebarSkyDisabled && Weather.current.darkenFactor.sun > 0;
+			},
+			compositeOperation: "source-atop",
+			params: {
+				darkenTarget: "#000000",
+			},
+			bindings: {
+				darkenFactor() {
+					return Weather.getWeatherDarkenFactor(Weather.current.darkenFactor.sun);
+				},
+			},
+		},
+		{
 			effect: "outerRadialGlow",
 			drawCondition() {
-				return this.renderInstance.orbitals.sun.factor > -0.5 && !this.renderInstance.skyDisabled;
+				return this.renderInstance.orbitals.sun.factor > -0.5 && !this.renderInstance.sidebarSkyDisabled;
 			},
 			params: {
 				outerRadius: 24, // The radius of the outer glow
@@ -38,8 +53,24 @@ Weather.Renderer.Layers.add({
 					return this.renderInstance.orbitals.sun.factor;
 				},
 				diameter() {
-					// Reference this layer and above effect image
-					return this.renderInstance.layers.get("sun").effects[0].images.orbital.width;
+					const sunLayer = this.renderInstance.layers.get("sun");
+					const orbitalEffect = sunLayer.effects.find(effect => effect.effectName === "skyOrbital");
+					return orbitalEffect.images.orbital.width;
+				},
+			},
+		},
+		{
+			effect: "desaturate",
+			drawCondition() {
+				return !this.renderInstance.sidebarSkyDisabled;
+			},
+			compositeOperation: "copy",
+			params: {
+				maxDesaturate: 0.4,
+			},
+			bindings: {
+				factor() {
+					return Time.dayState === "day" || Time.dayState === "dawn" ? Weather.fog : 0;
 				},
 			},
 		},
@@ -53,7 +84,7 @@ Weather.Renderer.Layers.add({
 		{
 			effect: "outerRadialGlow",
 			drawCondition() {
-				return this.renderInstance.orbitals.sun.factor > -0.7 && !Weather.isOvercast && !this.renderInstance.skyDisabled;
+				return this.renderInstance.orbitals.sun.factor > -0.7 && !Weather.isOvercast && !this.renderInstance.sidebarSkyDisabled;
 			},
 			params: {
 				outerRadius: 64, // The radius of the outer glow
