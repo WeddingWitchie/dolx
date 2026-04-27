@@ -3,31 +3,115 @@ Weather.WeatherGeneration = (() => {
 		return weatherType.toLowerCase() === getWeather().name.toLowerCase();
 	}
 
+	function isValidWeatherTypeIndex(value) {
+		return (
+			Number.isInteger(value) &&
+			Weather.genSettings.weatherTypes[value] &&
+			typeof Weather.genSettings.weatherTypes[value].precipitationIntensity !== "undefined"
+		);
+	}
+
+	function hasInvalidWeatherKeypoints() {
+		return (
+			!Array.isArray(V.weatherObj.keypointsArr) ||
+			V.weatherObj.keypointsArr.some(keyPoint =>
+				!keyPoint ||
+				!Number.isFinite(keyPoint.timestamp) ||
+				!isValidWeatherTypeIndex(keyPoint.value)
+			)
+		);
+	}
+
+	function regenerateWeatherKeypoints(date, reason, context = {}) {
+		console.warn(`[DoLX] ${reason}; regenerating derived weather keypoints.`, {
+			...context,
+			targetTimestamp: date?.timeStamp,
+			keypoints: Array.isArray(V.weatherObj.keypointsArr) ? V.weatherObj.keypointsArr.length : "invalid",
+		});
+
+		V.weatherObj.keypointsArr = [];
+		generateWeather(date);
+
+		if (Weather.FogGeneration && typeof Weather.FogGeneration.generateFogKeypoints === "function") {
+			V.weatherObj.fogKeypoints = [];
+			Weather.FogGeneration.generateFogKeypoints(V.weatherObj.keypointsArr);
+		}
+	}
+
 	function getWeather(date) {
-		if (date) {
-			const lastKeyPoint = V.weatherObj.keypointsArr[V.weatherObj.keypointsArr.length - 1];
-			const lastKeyPointTimestamp = lastKeyPoint?.timestamp || 0;
-
-			if (!V.weatherObj.keypointsArr?.length) {
-				return null;
-			}
-
-			if (date.timeStamp > lastKeyPointTimestamp) {
-				console.warn(`getWeather: Provided date is after the last key point timestamp.`);
-				return null;
-			}
-
-			if (date.timeStamp < Time.date.timeStamp) {
-				console.warn(
-					`getWeather: Provided date is before the current timestamp. Returning the current weather type. You can probably ignore this warning.`
-				);
-				return interpolateWeather(new DateTime(Time.date));
-			}
-
-			return interpolateWeather(new DateTime(date));
+		if (!V.weatherObj || typeof V.weatherObj !== "object") {
+			console.warn(`[DoLX] Missing weatherObj in getWeather; recreating weather container.`, V.weatherObj);
+			V.weatherObj = { snow: 0, ice: {}, monthlyTemperatures: [], keypointsArr: [], previousWeatherIndex: 0, fogKeypoints: [] };
 		}
 
-		return interpolateWeather(new DateTime(Time.date));
+		const requestedDate = new DateTime(date ?? Time.date);
+		let targetDate = requestedDate;
+
+		if (date && requestedDate.timeStamp < Time.date.timeStamp) {
+			console.warn(
+				`getWeather: Provided date is before the current timestamp. Returning the current weather type. You can probably ignore this warning.`
+			);
+			targetDate = new DateTime(Time.date);
+		}
+
+		if (!Array.isArray(V.weatherObj.keypointsArr)) {
+			regenerateWeatherKeypoints(targetDate, "Weather keypoints were not an array", { keypointsArr: V.weatherObj.keypointsArr });
+		} else if (!V.weatherObj.keypointsArr.length) {
+			regenerateWeatherKeypoints(targetDate, "Weather keypoints were missing");
+		} else if (hasInvalidWeatherKeypoints()) {
+			regenerateWeatherKeypoints(targetDate, "Weather keypoints contained invalid weather type indexes", {
+				invalidKeypoints: V.weatherObj.keypointsArr.filter(keyPoint =>
+					!keyPoint ||
+					!Number.isFinite(keyPoint.timestamp) ||
+					!isValidWeatherTypeIndex(keyPoint.value)
+				),
+			});
+		}
+
+		let lastKeyPoint = V.weatherObj.keypointsArr[V.weatherObj.keypointsArr.length - 1];
+		let lastKeyPointTimestamp = lastKeyPoint?.timestamp || 0;
+
+		if (targetDate.timeStamp > lastKeyPointTimestamp) {
+			console.warn(`getWeather: Provided date is after the last key point timestamp. Generating additional weather keypoints.`);
+			generateWeather(targetDate);
+			lastKeyPoint = V.weatherObj.keypointsArr[V.weatherObj.keypointsArr.length - 1];
+			lastKeyPointTimestamp = lastKeyPoint?.timestamp || 0;
+		}
+
+		if (hasInvalidWeatherKeypoints()) {
+			regenerateWeatherKeypoints(targetDate, "Weather keypoints became invalid after generation");
+			lastKeyPoint = V.weatherObj.keypointsArr[V.weatherObj.keypointsArr.length - 1];
+			lastKeyPointTimestamp = lastKeyPoint?.timestamp || 0;
+		}
+
+		if (targetDate.timeStamp > lastKeyPointTimestamp) {
+			console.error(`getWeather: Weather generation failed to reach requested timestamp.`, {
+				targetTimestamp: targetDate.timeStamp,
+				lastKeyPointTimestamp,
+				keypoints: V.weatherObj.keypointsArr,
+			});
+		}
+
+		let weather = interpolateWeather(targetDate);
+
+		if (!weather || typeof weather.precipitationIntensity === "undefined") {
+			regenerateWeatherKeypoints(targetDate, "Weather interpolation returned an invalid weather type", {
+				weather,
+				keypoints: V.weatherObj.keypointsArr,
+			});
+			weather = interpolateWeather(targetDate);
+		}
+
+		if (!weather || typeof weather.precipitationIntensity === "undefined") {
+			console.error(`getWeather: Could not resolve a valid weather type after regeneration. Falling back to clear weather for this lookup.`, {
+				weather,
+				targetTimestamp: targetDate.timeStamp,
+				keypoints: V.weatherObj.keypointsArr,
+			});
+			return Weather.genSettings.weatherTypes[0];
+		}
+
+		return weather;
 	}
 
 	function updateWeather(date = new DateTime(Time.date)) {
@@ -103,6 +187,13 @@ Weather.WeatherGeneration = (() => {
 		if (!nextKeyPoint && currentKeyPoint) {
 			const current = Weather.genSettings.weatherTypes[currentKeyPoint.value];
 
+			if (!current || typeof current.precipitationIntensity === "undefined") {
+				console.error(`[DoLX] interpolateWeather found an invalid current weather keypoint.`, {
+					currentKeyPoint,
+					weatherTypes: Weather.genSettings.weatherTypes.map(type => type.name),
+				});
+			}
+
 			return current;
 		}
 
@@ -115,6 +206,17 @@ Weather.WeatherGeneration = (() => {
 
 		const current = Weather.genSettings.weatherTypes[currentKeyPoint.value];
 		const next = Weather.genSettings.weatherTypes[nextKeyPoint.value];
+
+		if (!current || typeof current.precipitationIntensity === "undefined" || !next || typeof next.precipitationIntensity === "undefined") {
+			console.error(`[DoLX] interpolateWeather found invalid weather keypoints.`, {
+				currentKeyPoint,
+				nextKeyPoint,
+				current,
+				next,
+				weatherTypes: Weather.genSettings.weatherTypes.map(type => type.name),
+			});
+			return current || next || Weather.genSettings.weatherTypes[0];
+		}
 
 		// Calculate the fraction of time passed between the current and next key points
 		const fraction = (currentTimeStamp - currentKeyPoint.timestamp) / (nextKeyPoint.timestamp - currentKeyPoint.timestamp);

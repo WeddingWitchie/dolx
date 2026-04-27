@@ -3119,9 +3119,19 @@ window.fixIntegrityUpdater = fixIntegrityUpdater;
 // Set plots to watered if it rains
 // Temporary solution until a rework
 $(document).on(":onWeatherChange", () => {
-	let precipitation;
-	if (T.currentWeather.precipitationIntensity === 0) precipitation = "none";
-	else precipitation = Weather.isFreezing ? "snow" : "rain";
+	const currentWeather = T.currentWeather ?? Weather.WeatherGeneration.getWeather();
+
+	if (!currentWeather || typeof currentWeather.precipitationIntensity === "undefined") {
+		console.error("[DoLX weather] Missing current weather during rain watering check.", {
+			currentWeather,
+			tempCurrentWeather: T.currentWeather,
+			timeStamp: V.timeStamp,
+			keypoints: V.weatherObj?.keypointsArr,
+		});
+		return;
+	}
+
+	const precipitation = currentWeather.precipitationIntensity === 0 ? "none" : Weather.isFreezing ? "snow" : "rain";
 
 	if (!V.daily || V.daily?.plotsRain || precipitation !== "rain") return;
 	V.daily.plotsRain = true;

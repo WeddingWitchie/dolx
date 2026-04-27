@@ -370,6 +370,7 @@ const statChange = (() => {
 		if (amount) {
 
 			let sexModifier = V.player.sex === "m" && amount > 0? 2 : 1;
+			let mod = 1;
 
 			// adds up to +1 to the arousal modifier when suffocating
 			if (V.choketrait) mod += (V.oxygenmax - V.oxygen) / V.oxygenmax;
@@ -450,7 +451,7 @@ const statChange = (() => {
 			}
 
 			let oldArousal = V.arousal;
-			let arousalChange = amount * sexModifier * (amount > 0? Weather.BodyTemperature.arousalModifier : 1);
+			let arousalChange = amount * sexModifier * (amount > 0 ? mod : 1) * (amount > 0 ? Weather.BodyTemperature.arousalModifier : 1);
 			V.arousal += arousalChange;
 			
 			fragment.append(wikifier("pleasure", amount, source));

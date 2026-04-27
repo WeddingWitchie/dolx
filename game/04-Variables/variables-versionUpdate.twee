@@ -5900,6 +5900,8 @@
 			targetOvercast: 0,
 			monthlyTemperatures: [],
 			keypointsArr: [],
+			previousWeatherIndex: 0,
+			fogKeypoints: [],
 		}>>
 		<<set $player.bodyTemperature to 37>>
 		<<set $options.weatherUpdate to true>>
@@ -5928,6 +5930,7 @@
 
 		<!-- Failsafe if changing options immediately after load -->
 		<<run Weather.WeatherGeneration.generate(Time.date)>>
+		<<run Weather.FogGeneration.generateFogKeypoints(V.weatherObj.keypointsArr)>>
 		<<run Weather.sidebar.initialize()>>
 	<</if>>
 
@@ -7429,8 +7432,7 @@
 
 	/* Fixing weather and fog keypoints for saves in the middle of a flashback event */
 	<<if $frozenValues>>
-		V.weatherObj.keypointsArr = [];
-		V.weatherObj.fogKeypoints = [];
+		<<run V.weatherObj.keypointsArr = []; V.weatherObj.fogKeypoints = []>>
 		<<run Weather.WeatherGeneration.generate(new DateTime(Time.date));>>
 		<<run Weather.FogGeneration.generateFogKeypoints(V.weatherObj.keypointsArr);>>
 	<</if>>
