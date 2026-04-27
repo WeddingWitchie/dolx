@@ -5,9 +5,13 @@
  *  1) When the weather changes from one with precipitation to less precipitation, the fog increases
  *  2) Some days are rolled as allDayFog days. On these rare days, the fogGoal is set to 1 (ignores fogIncreaseAllowed)
  *
- * With just these rules, too much fog could generate. So to control this, and to adjust the amount of fog depending on the time of the year, there is a fogIncreaseAllowed
- * value associated with the different parts of the year. If this is true at a given keypoint, then fog can increase. This value is re-rolled each day. You could link fog
- * generation directly to the temperature and temperature changes, but I feel like that would add more complexity than is worth.
+ * With just these rules, too much fog could generate. So to control this, and to adjust the amount of fog depending
+ * on the time of the year, there is a fogIncreaseAllowed value associated with the different parts of the year.
+ * If this is true at a given keypoint, then fog can increase. This value is re-rolled each day.
+ *
+ * Imported-save note:
+ *   Time.date can be ahead of the last fog keypoint. We extend the timeline on demand inside getFog so
+ *   interpolateFog always has a `nextKeyPoint` to work with, instead of returning null and crashing.
  */
 Weather.FogGeneration = (() => {
 	function setFog(value) {
@@ -24,38 +28,47 @@ Weather.FogGeneration = (() => {
 	}
 	window.setFog = setFog;
 
+	/**
+	 * Extend fog keypoints so they cover `date`. No-op if already covered.
+	 * Generates the underlying weather first, then derives matching fog keypoints.
+	 */
+	function ensureFogCoverage(date) {
+		const fogKeypoints = V.weatherObj.fogKeypoints;
+		const lastFog = fogKeypoints?.[fogKeypoints.length - 1];
+
+		if (lastFog && date.timeStamp <= lastFog.timestamp) return;
+
+		Weather.WeatherGeneration.getWeather(new DateTime(date));
+
+		if (V.weatherObj.keypointsArr?.length) {
+			generateFogKeypoints(V.weatherObj.keypointsArr);
+		}
+	}
+
 	function getFog(date) {
-		// If weather hasn't generated yet, then fog hasn't either
-		if (!V.weatherObj.keypointsArr?.length || !V.weatherObj.fogKeypoints?.length) {
-			return 0;
+		// If weather hasn't generated yet, then fog hasn't either.
+		if (!V.weatherObj.keypointsArr?.length) return 0;
+
+		const targetDate = date ? new DateTime(date) : new DateTime(Time.date);
+
+		if (targetDate.timeStamp < Time.date.timeStamp) {
+			console.warn("getFog: Provided date is before the current timestamp. Returning the current fog amount.");
+			return interpolateFog(new DateTime(Time.date));
 		}
 
-		if (date) {
-			if (date.timeStamp > V.weatherObj.fogKeypoints[V.weatherObj.fogKeypoints.length - 1].timestamp) {
-				console.warn(`getFog: Provided date is after the last keypoint timestamp.`);
-				return null;
-			}
-
-			if (date.timeStamp < Time.date.timeStamp) {
-				console.warn(`getFog: Provided date is before the current timestamp. Returning the current fog amount.`);
-				return interpolateFog(new DateTime(Time.date));
-			}
-
-			return interpolateFog(new DateTime(date));
-		}
-
-		return interpolateFog(new DateTime(Time.date));
+		ensureFogCoverage(targetDate);
+		return interpolateFog(targetDate);
 	}
 
 	function generateFogKeypoints(weatherKeypoints) {
 		V.weatherObj.fogKeypoints ??= [];
 		const fogKeypoints = V.weatherObj.fogKeypoints;
 
-		if (!weatherKeypoints.length) {
+		if (!weatherKeypoints?.length) {
 			throw new Error("weather keypoints are required to generate fog keypoints");
 		}
 
-		const lastFogTimestamp = V.weatherObj.fogKeypoints.length > 0 ? V.weatherObj.fogKeypoints[V.weatherObj.fogKeypoints.length - 1].timestamp : 0;
+		const lastFogTimestamp = fogKeypoints.length > 0 ? fogKeypoints[fogKeypoints.length - 1].timestamp : 0;
 		const lastWeatherTimestamp = weatherKeypoints[weatherKeypoints.length - 1].timestamp;
 
 		// Exit early if the last fog keypoint is after the last weather keypoint
@@ -97,7 +110,7 @@ Weather.FogGeneration = (() => {
 
 		const firstNewFogKeypointIndex = fogKeypoints.findIndex(keypoint => keypoint.timestamp > lastFogTimestamp);
 
-		// Assign flags, forwarding the previous weather keypoint's flags for the rest of the day, then roll new flags per day
+		// Assign flags, forwarding the previous keypoint's flags for the rest of the day, then roll new flags per day
 		let currentDayIdentifier = null;
 		let currentAllDayFog = false;
 		let currentFogIncreaseAllowed = false;
@@ -159,10 +172,12 @@ Weather.FogGeneration = (() => {
 
 	function interpolateFog(date) {
 		const fogKeypoints = V.weatherObj.fogKeypoints;
+		if (!fogKeypoints?.length) return 0;
+
 		const currentTimeStamp = date.timeStamp;
 
 		if (currentTimeStamp < fogKeypoints[0].timestamp) {
-			return fogKeypoints[0].fogGoal;
+			return Math.clamp(fogKeypoints[0].fogGoal ?? 0, 0, 1);
 		}
 
 		let currentKeyPoint = null;
@@ -172,18 +187,20 @@ Weather.FogGeneration = (() => {
 		for (const keyPoint of fogKeypoints) {
 			if (keyPoint.timestamp <= currentTimeStamp) {
 				currentKeyPoint = keyPoint;
-			}
-			if (keyPoint.timestamp > currentTimeStamp && !nextKeyPoint) {
+			} else {
 				nextKeyPoint = keyPoint;
+				break;
 			}
 		}
 
-		const currentGoal = currentKeyPoint.fogGoal;
-		const nextGoal = nextKeyPoint.fogGoal;
+		// No next keypoint: return the current value rather than crashing.
+		// ensureFogCoverage in getFog should normally prevent this from being reached.
+		if (!nextKeyPoint) return Math.clamp(currentKeyPoint?.fogGoal ?? 0, 0, 1);
 
-		// Calculate the fraction of time passed between the current and next keypoints
+		const currentGoal = currentKeyPoint.fogGoal ?? 0;
+		const nextGoal = nextKeyPoint.fogGoal ?? currentGoal;
+
 		const fraction = (currentTimeStamp - currentKeyPoint.timestamp) / (nextKeyPoint.timestamp - currentKeyPoint.timestamp);
-
 		const interpolatedGoal = currentGoal + (nextGoal - currentGoal) * fraction;
 
 		return Math.clamp(interpolatedGoal, 0, 1);
@@ -210,7 +227,7 @@ Weather.FogGeneration = (() => {
 		const previousFogGoal = previousKeyPoint.fogGoal ?? 0;
 
 		const hoursPassed = (currentKeyPoint.timestamp - previousKeyPoint.timestamp) / TimeConstants.secondsPerHour;
-		let fogGoal = previousFogGoal + currentWeather.fogChangeRate * hoursPassed;
+		let fogGoal = previousFogGoal + (currentWeather?.fogChangeRate ?? 0) * hoursPassed;
 
 		const previousPrecip = previousWeather?.precipitationIntensity ?? 0;
 		const currentPrecip = currentWeather?.precipitationIntensity ?? 0;
