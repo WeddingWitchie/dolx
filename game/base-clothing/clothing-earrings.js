@@ -940,7 +940,7 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "pattern",
-			accIcon: "pattern_acc",
+			accIcon: "pattern_acc.png",
 		},
 		{
 			index: 26,

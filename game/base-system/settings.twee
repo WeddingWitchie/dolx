@@ -688,17 +688,18 @@
 
 	<<for _name range setup.NPCNameList>>
 		<<set _nameReal to _name>>
-		<<if _name == "Black Wolf">>
-			<<set _name = "black_wolf">>
-		<<elseif _name == "Great Hawk">>
-			<<set _name = "great_hawk">>
-		<<elseif _name == "Ivory Wraith">>
-			<<set _name = "ivory_wraith">>
-		<</if>>
-		<<if C.npc[_nameReal].pronoun is "m">>
-			<<set $options.autoNNPCDisplay[_name.toLowerCase()].gender to "male">>
+		<<set _autoNNPCKey to _name.toLowerCase().split(" ").join("_")>>
+
+		<<if $options.autoNNPCDisplay is undefined>>
+			<<run console.warn("[settingsExitFunction] autoNNPCDisplay is missing. It should be initialised in variables-modUpdate.", _nameReal, _autoNNPCKey)>>
+		<<elseif $options.autoNNPCDisplay[_autoNNPCKey] is undefined>>
+			<<run console.warn("[settingsExitFunction] Missing autoNNPCDisplay entry. Fix variables-modUpdate init/migration.", _nameReal, _autoNNPCKey)>>
+		<<elseif C.npc[_nameReal] is undefined>>
+			<<run console.warn("[settingsExitFunction] Missing C.npc entry while syncing autoNNPCDisplay gender.", _nameReal, _autoNNPCKey)>>
+		<<elseif C.npc[_nameReal].pronoun is "m">>
+			<<set $options.autoNNPCDisplay[_autoNNPCKey].gender to "male">>
 		<<else>>
-			<<set $options.autoNNPCDisplay[_name.toLowerCase()].gender to "female">>
+			<<set $options.autoNNPCDisplay[_autoNNPCKey].gender to "female">>
 		<</if>>
 	<</for>>
 <</widget>>
