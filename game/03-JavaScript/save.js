@@ -774,11 +774,7 @@ function importSettingsData(data) {
 				// eslint-disable-next-line no-var
 				for (let j = 0; j < listKey.length; j++) {
 					// Overwrite to allow for "none" default value in the start passage to allow for rng to decide
-					if (
-						V.passage === "Start" &&
-						["pronoun", "gender", "skincolour"].includes(listKey[j]) &&
-						overrides.npc[V.NPCNameList[i]][listKey[j]] === "none"
-					) {
+					if (V.passage === "Start" && ["pronoun", "gender", "skincolour"].includes(listKey[j]) && overrides.npc[V.NPCNameList[i]][listKey[j]] === "none") {
 						V.NPCName[i][listKey[j]] = overrides.npc[V.NPCNameList[i]][listKey[j]];
 					} else if (validateValue(listObject[listKey[j]], overrides.npc[V.NPCNameList[i]][listKey[j]])) {
 						V.NPCName[i][listKey[j]] = overrides.npc[V.NPCNameList[i]][listKey[j]];
@@ -843,7 +839,7 @@ function exportSettings(data, type) {
 			shopDefaults: {},
 			options: {},
 			settings: {},
-			wardrobeDefaults: {},			
+			wardrobeDefaults: {},
 			combatExtended: {},
 			AMCTraits: {},
 		},
@@ -1012,19 +1008,7 @@ function settingsObjects(type) {
 					randomize: "characterTrait",
 				},
 				background: {
-					strings: [
-						"waif",
-						"nerd",
-						"athlete",
-						"delinquent",
-						"promiscuous",
-						"exhibitionist",
-						"deviant",
-						"beautiful",
-						"crossdresser",
-						"lustful",
-						"plantlover",
-					],
+					strings: ["waif", "nerd", "athlete", "delinquent", "promiscuous", "exhibitionist", "deviant", "beautiful", "crossdresser", "lustful", "plantlover"],
 					displayName: "Background:",
 					randomize: "characterTrait",
 				},
@@ -1145,10 +1129,10 @@ function settingsObjects(type) {
 					antiques: { min: 0, max: 1, decimals: 0, displayName: "Antique Price Buff:" },
 					stolen: { min: 0, max: 1, decimals: 0, displayName: "Stolen Goods Price Buff:" },
 					market: { min: 0, max: 1, decimals: 0, displayName: "Market Stall Price Buff:" },
-					aphrodisiacPhials: { min: 0, max: 1, decimals: 0, displayName: "Aphrodisiac Phial Price Buff:" }
+					aphrodisiacPhials: { min: 0, max: 1, decimals: 0, displayName: "Aphrodisiac Phial Price Buff:" },
 				},
 				historyTraitBuffs: {
-					improvedChances: { min: 0, max: 1, decimals: 0, displayName: "Antique Chance Buff:" }
+					improvedChances: { min: 0, max: 1, decimals: 0, displayName: "Antique Chance Buff:" },
 				},
 				DoLPTFBuffs: { min: 0, max: 1, decimals: 0, displayName: "Animal TF Buffs and Nerfs:" },
 				DoLPTFTempTolerance: { min: 0, max: 1, decimals: 0, displayName: "Animal TF Temperature Tolerance:" },
@@ -1212,7 +1196,7 @@ function settingsObjects(type) {
 					enemyHealthDefeatScalingMult: { min: 1, max: 1000000, decimals: 1, displayName: "Enemy Health Defeats Scaling Multiplier:" },
 					enemyDefeatScaling: { min: 1, max: 1000000, decimals: 0, displayName: "Enemy Defeats Scaling Interval:" },
 					enemyInfiniteDefeatScaling: { min: 0, max: 1, decimals: 0, displayName: "Enemy Infinite Defeats Scaling:" },
-					enemyDefeatScalingLimit: { min: 1, max: 1000000, decimals: 0, displayName: "Enemy Defeats Scaling Limit:" }
+					enemyDefeatScalingLimit: { min: 1, max: 1000000, decimals: 0, displayName: "Enemy Defeats Scaling Limit:" },
 				},
 				AMCTraits: {
 					halfGain: { min: 0, max: 1, decimals: 0, displayName: "Half Gain:" },
@@ -1452,7 +1436,7 @@ function settingsObjects(type) {
 					displayName: "Maximum bottom size:",
 					textMap: { 0: "Slender", 1: "Slim", 2: "Modest", 3: "Cushioned", 4: "Soft", 5: "Round", 6: "Plump", 7: "Large", 8: "Huge" },
 				},
-				penissizemin: { min: -2, max: 0, decimals: 0, displayName: "Minimum penis size:", textMap: { 0: "Micro", 1: "Mini", 2: "Tiny" } },
+				penissizemin: { min: 0, max: 2, decimals: 0, displayName: "Minimum penis size:", textMap: { 0: "Micro", 1: "Mini", 2: "Tiny" } },
 				penissizemax: {
 					min: 0,
 					max: 6,
@@ -1561,7 +1545,21 @@ function settingsObjects(type) {
 					displayName: "Skin colour: ",
 					textMap: { none: "N/A", white: "Pale", black: "Dark", ghost: "Ghostly Pale" },
 				},
-				penissize: { min: 0, max: 4, decimals: 0, displayName: "Penis size: ", textMap: { 0: "N/A", 1: "Tiny", 2: "Average", 3: "Thick", 4: "Huge" } },
+				penissize: {
+					min: 0,
+					max: 6,
+					decimals: 0,
+					displayName: "Penis size: ",
+					textMap: {
+						0: "Micro",
+						1: "Mini",
+						2: "Tiny",
+						3: "Small",
+						4: "Normal",
+						5: "Large",
+						6: "Enormous",
+					},
+				},
 				breastsize: {
 					min: 0,
 					max: 12,

@@ -801,21 +801,21 @@ Should probably be removed once said feature has been implemented
 	<<set $weekly.theft[$location]["Ban"] = $weekly.theft[$location]["Ban"] || false>>
 
     <<if !$weekly.theft[$location]["Ban"]>>
-        <<for _i, _keyObject range _ingredientsSupplied>>
-            <<capture _phase _keyObject _plant>>
-                <<set _plant = setup.foodstuff[_keyObject]>>
-                <<if !_plant>>
-                    <<run console.error("[DoLX kitchen] Missing foodstuff entry for supplied ingredient theft.", {location: $location, key: _keyObject, ingredientsSupplied: _ingredientsSupplied,})>>
-                    <span class="red">Missing foodstuff data for <<print _keyObject>>. Please report this to Discord server.</span><br><br>
-                <<elseif !$weekly.theft[$location][_keyObject]>>
-                    <<tendingicon _plant.icon>>
-                    <<set _resultPassage = $location + " Kitchen Steal Result">>
-                    <<link "Steal <<recipe_name _keyObject 'plural'>>" _resultPassage>>
-                        <<set $phase = _keyObject.toString()>>
-                        <<set $weekly.theft[$location][_keyObject] = true>>
-                    <</link>><br><br>
-                <<else>>
-                    <span class="blue">If you steal any more <<recipe_name _keyObject 'plural'>>,
+		<<for _i, _keyObject range _ingredientsSupplied>>
+			<<capture _phase _keyObject _foodstuff>>
+				<<set _foodstuff = setup.foodstuff[_keyObject]>>
+				<<if !_foodstuff>>
+					<<run console.error("[DoLX kitchen] Missing foodstuff entry for supplied ingredient theft.", {location: $location, key: _keyObject, ingredientsSupplied: _ingredientsSupplied})>>
+					<span class="red">Missing foodstuff data for <<print _keyObject>>. Please report this to Discord server.</span><br><br>
+				<<elseif !$weekly.theft[$location][_keyObject]>>
+					<<foodstufficon _keyObject>>
+					<<set _resultPassage = $location + " Kitchen Steal Result">>
+					<<link "Steal <<recipe_name _keyObject 'plural'>>" _resultPassage>>
+						<<set $phase = _keyObject.toString()>>
+						<<set $weekly.theft[$location][_keyObject] = true>>
+					<</link>><br>
+				<<else>>
+					<span class="blue">If you steal any more <<recipe_name _keyObject 'plural'>>,
 					<<switch $location>>
 					<<case "home">>
 						Bailey will surely notice.
@@ -832,9 +832,9 @@ Should probably be removed once said feature has been implemented
 					<</switch>>
 					</span>
 					<br>
-                <</if>>
-            <</capture>>
-        <</for>>
+				<</if>>
+			<</capture>>
+		<</for>>
     <<else>>
 		<<switch $location>>
 		<<case "home">>

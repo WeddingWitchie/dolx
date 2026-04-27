@@ -10,9 +10,7 @@ const statChange = (() => {
 			}`
 		);
 		throw new Error(
-			`Unexpected value for the function "${functionName}". Param "${param}" had unexpected value of "${value}".${
-				expectedValues ? ` ${expectedValues}` : ""
-			}`
+			`Unexpected value for the function "${functionName}". Param "${param}" had unexpected value of "${value}".${expectedValues ? ` ${expectedValues}` : ""}`
 		);
 	}
 
@@ -83,7 +81,7 @@ const statChange = (() => {
 				if (V.rapetrait) traumaMod *= 0.7;
 				if (V.bestialitytrait >= 1 && V.enemytype === "beast") traumaMod *= 0.7;
 				if (V.tentacletrait >= 1 && V.enemytype === "tentacles") traumaMod *= 0.7;
-				if (V.drunk >= 1 && V.substanceRebalance == 1) traumaMod *= 1 - (0.1 * Math.round(V.drunk / 120));
+				if (V.drunk >= 1 && V.substanceRebalance === 1) traumaMod *= 1 - 0.1 * Math.round(V.drunk / 120);
 
 				// increase trauma by 3x amount at 0 control, 1.5x at full, then apply modifiers
 				V.trauma += Math.trunc(amount * (3 - 1.5 * (V.control / V.controlmax)) * traumaMod);
@@ -140,7 +138,7 @@ const statChange = (() => {
 				if (V.rapetrait) traumaMod *= 0.7;
 				if (V.bestialitytrait >= 1 && V.enemytype === "beast") traumaMod *= 0.7;
 				if (V.tentacletrait >= 1 && V.enemytype === "tentacles") traumaMod *= 0.7;
-				if (V.drunk >= 1 && V.substanceRebalance == 1) traumaMod *= 1 - (0.1 * Math.round(V.drunk / 120));
+				if (V.drunk >= 1 && V.substanceRebalance === 1) traumaMod *= 1 - 0.1 * Math.round(V.drunk / 120);
 
 				// eslint-disable-next-line prettier/prettier
 				V.trauma += Math.trunc(((amount * 1) - ((amount * 0.5) * (V.control / V.controlmax))) * traumaMod)
@@ -239,7 +237,7 @@ const statChange = (() => {
 		if (V.player.penisExist && amount) {
 			amount *= 3;
 			if (V.cow >= 6 || V.transformationParts.cow.tail === "default" || V.transformationParts.cow.tail === "black") amount *= 2;
-			if (V.semen_volume >= V.semen_max || V.AMCTraits.halfGain == 1) amount /= 2;
+			if (V.semen_volume >= V.semen_max || V.AMCTraits.halfGain === 1) amount /= 2;
 			/* Prevents those who can only have "female climax" increase their cum volume */
 			if (V.player.penissize > 0 || amount <= 0) V.semen_volume += amount * (V.statGainMult / 100);
 
@@ -264,7 +262,7 @@ const statChange = (() => {
 			if (amount > 0) lactationPressure(V.cow >= 6 || V.transformationParts.cow.tail === "default" || V.transformationParts.cow.tail === "black" ? 2 : 1);
 			if (V.lactating) {
 				if (V.cow >= 6 || V.transformationParts.cow.tail === "default" || V.transformationParts.cow.tail === "black") amount *= 2;
-				if (V.milk_volume >= V.milk_max || V.AMCTraits.halfGain == 1) amount /= 2;
+				if (V.milk_volume >= V.milk_max || V.AMCTraits.halfGain === 1) amount /= 2;
 				V.milk_volume = Math.clamp(V.milk_volume + amount * (V.statGainMult / 100), 24, V.milk_max * V.AMCTraits.milk);
 			}
 		}
@@ -316,11 +314,11 @@ const statChange = (() => {
 				if (V.drunk <= 0) {
 					stressMod = 40;
 				} else {
-					if (V.substanceRebalance == 1) {
-						let drunkMod = Math.floor(V.drunk / 120);
-						stressMod = Math.max(1 - (0.15 * (1 + drunkMod)), 0);
+					if (V.substanceRebalance === 1) {
+						const drunkMod = Math.floor(V.drunk / 120);
+						stressMod = Math.max(1 - 0.15 * (1 + drunkMod), 0);
 					} else {
-						let drunkMod = Math.clamp(Math.floor(V.drunk / 120), 0, 4);
+						const drunkMod = Math.clamp(Math.floor(V.drunk / 120), 0, 4);
 						stressMod = 30 - drunkMod * 5;
 					}
 				}
@@ -373,7 +371,70 @@ const statChange = (() => {
 
 			let sexModifier = V.player.sex === "m" && amount > 0? 2 : 1;
 
-			switch (source){
+			// adds up to +1 to the arousal modifier when suffocating
+			if (V.choketrait) mod += (V.oxygenmax - V.oxygen) / V.oxygenmax;
+
+			if (V.drugged > 0) {
+				/*
+					Multiplies the modifier by up to 2x at full bar
+					Comment Akoz: I chose to make it multiply, rather than add to the modifier
+					so that the aphrodisiacs become quite threatening during nonconsensual use,
+					and more thrilling when used intentionally
+				*/
+				if (V.substanceRebalance === 1) {
+					mod *= 1 + V.drugged / 250;
+				} else {
+					mod *= 1 + V.drugged / 1000;
+				}
+			}
+
+			// Apply effect according to source
+			let sensitivity = 0;
+			let arousal;
+			switch (source) {
+				case undefined:
+				case "masturbation":
+					// No modifier. The usual behaviour for this widget
+					break;
+				case "mouth":
+				case "oral":
+				case "lips":
+				case "masturbationMouth":
+				case "masturbationOral":
+					sensitivity += V.mouthsensitivity;
+					break;
+				case "breast":
+				case "breasts":
+				case "chest":
+				case "nipple":
+				case "nipples":
+				case "masturbationBreasts":
+				case "masturbationNipples":
+					sensitivity += V.breastsensitivity;
+					if (playerIsPregnant()) sensitivity += 0.5;
+					break;
+				case "bottom":
+				case "anus":
+				case "anal":
+				case "ass":
+				case "butt":
+				case "masturbationAnal":
+				case "masturbationAss":
+					sensitivity += V.bottomsensitivity;
+					break;
+				case "genital":
+				case "genitals":
+				case "penis":
+				case "penile":
+				case "pussy":
+				case "vaginal":
+				case "vagina":
+				case "masturbationGenital":
+				case "masturbationPenis":
+				case "masturbationVagina":
+					sensitivity += V.genitalsensitivity;
+					if (playerIsPregnant()) sensitivity += 0.5;
+					break;
 				case "maso":
 					V.arousalmasochism += amount;
 					break;
@@ -432,8 +493,8 @@ const statChange = (() => {
 			amount *= 1.5;
 		}
 		if (amount) {
-			if (V.athleticsFitnessToggle == 1) {
-				V.tiredness += Math.round((amount * Weather.BodyTemperature.fatigueModifier * (amount > 0 ? 15 : 20)) * (1 - ((V.athletics * 5) / 40000)));
+			if (V.athleticsFitnessToggle === 1) {
+				V.tiredness += Math.round(amount * Weather.BodyTemperature.fatigueModifier * (amount > 0 ? 15 : 20) * (1 - (V.athletics * 5) / 40000));
 			} else {
 				V.tiredness += Math.round(amount * Weather.BodyTemperature.fatigueModifier * (amount > 0 ? 15 : 20));
 			}
@@ -471,7 +532,7 @@ const statChange = (() => {
 				arousal((amount * (-100 + V.masochism)) / 6, "maso");
 			}
 
-			if (V.drunk >= 1 && V.substanceRebalance == 1) pain *= 1 - (0.075 * (1 + Math.round(V.drunk / 120)));
+			if (V.drunk >= 1 && V.substanceRebalance === 1) pain *= 1 - 0.075 * (1 + Math.round(V.drunk / 120));
 
 			V.pain += pain * Weather.BodyTemperature.painModifier;
 		}
@@ -1043,7 +1104,7 @@ const statChange = (() => {
 		}
 
 		if (amount) {
-			if (V[type] >= V[type + "max"] || V.AMCTraits.halfGain == 1) amount /= 2;
+			if (V[type] >= V[type + "max"] || V.AMCTraits.halfGain === 1) amount /= 2;
 			V[type] = Math.clamp(V[type] + amount * (V.statGainMult / 100), 0, V[type + "max"] * V.AMCTraits[type] || 1000);
 		}
 	}
@@ -1110,7 +1171,7 @@ const statChange = (() => {
 		if (isNaN(amount)) paramError("hallucinogen", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 		if (amount) {
-			if (V.substanceRebalance == 1 && V.passage.includes("Gwylan")) amount /= 2;
+			if (V.substanceRebalance === 1 && V.passage.includes("Gwylan")) amount /= 2;
 			V.hallucinogen = Math.clamp(V.hallucinogen + amount, 0, 1000);
 		}
 	}
