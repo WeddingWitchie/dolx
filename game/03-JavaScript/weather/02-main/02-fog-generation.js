@@ -194,8 +194,28 @@ Weather.FogGeneration = (() => {
 		}
 
 		// No next keypoint: return the current value rather than crashing.
-		// ensureFogCoverage in getFog should normally prevent this from being reached.
-		if (!nextKeyPoint) return Math.clamp(currentKeyPoint?.fogGoal ?? 0, 0, 1);
+		// Two paths reach here:
+		//  - getFog → ensureFogCoverage normally prevents this; if it slips through, the ?? 0 keeps us safe.
+		//  - Saves made pre-fog update within a flashback event, loaded after the fog update, after <<unfreezePlayerStats>> is run.
+		if (currentKeyPoint && !nextKeyPoint) {
+			if (V.debug) {
+				const lastWeatherKeypointTimestamp = V.weatherObj.keypointsArr?.length
+					? V.weatherObj.keypointsArr[V.weatherObj.keypointsArr.length - 1].timestamp
+					: null;
+				const lastFogKeypointTimestamp = fogKeypoints[fogKeypoints.length - 1]?.timestamp ?? null;
+
+				console.warn(
+					`interpolateFog: currentKeyPoint is the last fog keypoint; returning currentKeyPoint.fogGoal.` +
+						` \ncurrentTimeStamp: ${currentTimeStamp}` +
+						` \ncurrentFogTimestamp: ${currentKeyPoint.timestamp}` +
+						` \nLast Weather Timestamp: ${lastWeatherKeypointTimestamp}` +
+						` \nLast Fog Timestamp: ${lastFogKeypointTimestamp}` +
+						` \nFog Keypoints Length=${fogKeypoints.length}` +
+						` \nWeather Keypoints Length=${V.weatherObj.keypointsArr?.length ?? 0}`
+				);
+			}
+			return Math.clamp(currentKeyPoint.fogGoal ?? 0, 0, 1);
+		}
 
 		const currentGoal = currentKeyPoint.fogGoal ?? 0;
 		const nextGoal = nextKeyPoint.fogGoal ?? currentGoal;

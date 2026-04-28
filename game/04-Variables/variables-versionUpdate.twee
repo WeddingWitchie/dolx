@@ -7208,6 +7208,10 @@
 		<<unset $hospitalintro>>
 	<</if>>
 
+	<<if C.npc.Harper.init is 1 and $harperSeen is undefined>>
+		<<set $harperSeen to []>>
+	<</if>>
+
 	/* Unset Night Monster persistent NPC in favour of Named NPC (NNPC) */
 	<<if !$nightMonsterNNPCUpdate>>
 		<<set $nightMonsterNNPCUpdate to 1>> /* set to 1 here, set to 2 in variablesStart2 or Config.navigation.override */
@@ -7384,17 +7388,6 @@
 		<<run ["livestock_dig", "livestock_lock_intro", "livestockLockSeq", "farmLockStr", "farmLockQty", "livestock_pig", "livestock_obey", "livestock_intro", "livestock_robin", "livestock_noise", "livestock_river", "livestock_fence", "livestock_grass", "livestock_muzzle", "livestock_return", "livestock_escape", "livestock_harper", "livestock_horse", "livestock_horse_rescued", "livestock_food", "livestock_milk", "livestock_semen"].forEach(v => delete V[v]);>>
 	<</if>>
 
-	<<if $hy_parent or $hy_sibling>>
-		<<generate1>>
-		<<generates2>>
-		<<set $NPCList[0] to clone($hy_parent)>>
-		<<set $NPCList[1] to clone($hy_sibling)>>
-		<<saveNPC 0 "hy_parent">>
-		<<saveNPC 1 "hy_sibling">>
-		<<unset $hy_parent>>
-		<<unset $hy_sibling>>
-	<</if>>
-
 	<!-- Renaming variable -->
 	<<if $hoursGoneFromHome is undefined>>
 		<<set $hoursGoneFromHome to $home_gone>>
@@ -7432,8 +7425,28 @@
 
 	/* Fixing weather and fog keypoints for saves in the middle of a flashback event */
 	<<if $frozenValues>>
-		<<run V.weatherObj.keypointsArr = []; V.weatherObj.fogKeypoints = []>>
+		<<run V.weatherObj.keypointsArr = [];>>
+		<<run V.weatherObj.fogKeypoints = [];>>
+		<<run V.frozenValues.weatherObj.keypointsArr = [];>>
+		<<run V.frozenValues.weatherObj.fogKeypoints = [];>>
 		<<run Weather.WeatherGeneration.generate(new DateTime(Time.date));>>
+		<<run Weather.FogGeneration.generateFogKeypoints(V.weatherObj.keypointsArr);>>
+
+		<<if $frozenValues.weatherObj.previousWeatherIndex is undefined>>
+			<<set $frozenValues.weatherObj.previousWeatherIndex to 0>>
+		<</if>>
+
+		<<unset $frozenValues.weatherObj.name>>
+		<<unset $frozenValues.weatherObj.fog>>
+		<<unset $frozenValues.weatherObj.overcast>>
+		<<unset $frozenValues.weatherObj.targetOvercast>>
+	<</if>>
+
+	<<if $weatherObj.keypointsArr.length === 0>>
+		<<run Weather.WeatherGeneration.generate(new DateTime(Time.date));>>
+	<</if>>
+
+	<<if $weatherObj.fogKeypoints.length === 0>>
 		<<run Weather.FogGeneration.generateFogKeypoints(V.weatherObj.keypointsArr);>>
 	<</if>>
 
@@ -7444,6 +7457,28 @@
 		<</if>>
 		<<if !$avery_antiques.exposed.includes("mask") and $museumAntiques.antiques.antiquegoldmask is "notFound">>
 			<<set $antiquemoney += 12000>><<museumAntiqueStatus "antiquegoldmask" "found">>
+		<</if>>
+	<</if>>
+
+	/* Fix broken wallpaper and poster icons */
+	<<if !$wallpaperIconFix>>
+		<<set $wallpaperIconFix to true>>
+		<<if $furniture.bedroom.wallpaper>>
+			<<switch $furniture.bedroom.wallpaper.name>>
+				<<case "plainwhite">>
+					<<set $furniture.bedroom.wallpaper.name to "plain-white">>
+					<<set $furniture.bedroom.wallpaper.nameCap to "Plain-white">>
+				<<case "wavywhite">>
+					<<set $furniture.bedroom.wallpaper.name to "wavy-white">>
+					<<set $furniture.bedroom.wallpaper.nameCap to "Wavy-white">>
+				<<case "cow_girls">>
+					<<set $furniture.bedroom.wallpaper.name to "cow-girls">>
+					<<set $furniture.bedroom.wallpaper.nameCap to "Cow-girls">>
+			<</switch>>
+		<</if>>
+		<<if $furniture.bedroom.poster?.name is "cow_girl">>
+			<<set $furniture.bedroom.poster.name to "cow-girl">>
+			<<set $furniture.bedroom.poster.nameCap to "Cow-girl">>
 		<</if>>
 	<</if>>
 <</widget>>

@@ -9,11 +9,24 @@ Weather.WeatherGeneration = (() => {
 		const targetDate = date ? new DateTime(date) : new DateTime(Time.date);
 
 		if (date && targetDate.timeStamp < Time.date.timeStamp) {
-			console.warn(
-				`getWeather: Provided date is before the current timestamp. Returning the current weather type. You can probably ignore this warning.`
-			);
+			if (V.debug) {
+				console.warn(
+					`getWeather: Provided date is before the current timestamp. Returning the current weather type.`
+				);
+			}
 			return interpolateWeather(new DateTime(Time.date));
 		}
+
+		// Ensure keypoints cover the target date. Imported/older saves can be ahead of generated weather.
+		const lastKeyPoint = V.weatherObj.keypointsArr[V.weatherObj.keypointsArr.length - 1];
+		if (!lastKeyPoint || targetDate.timeStamp > lastKeyPoint.timestamp) {
+			generateWeather(targetDate);
+		}
+
+		if (!V.weatherObj.keypointsArr.length) return null;
+
+		return interpolateWeather(targetDate);
+	}
 
 		// Ensure keypoints cover the target date. Imported/older saves can be ahead of generated weather.
 		const lastKeyPoint = V.weatherObj.keypointsArr[V.weatherObj.keypointsArr.length - 1];
