@@ -4004,9 +4004,8 @@ Renderer.CanvasModels.main = {
 				const worn = options.worn.rings;
 				const setupItem = worn.setup;
 				const isAltPosition = !options.alt_override && setupItem.altposition !== undefined && worn.alt === "alt";
-				const alt = isAltPosition ? "_alt" : "";
-				const path = `img/clothes/rings/${setupItem.variable}/left${alt}.png`;
-				return setupItem.colour_sidebar ? path.replace(/\.png$/, "_gray.png") : path;
+				const alt = isAltPosition ? "-alt" : "";
+				return `img/clothes/rings/${setupItem.variable}/left${alt}.png`;
 			},
 			showfn(options) {
 				const worn = options.worn.rings;
@@ -4024,11 +4023,10 @@ Renderer.CanvasModels.main = {
 			srcfn(options) {
 				const worn = options.worn.rings;
 				const setupItem = worn.setup;
-				const suffix = options.arm_left === "cover" ? "left_cover" : "left";
+				const suffix = options.arm_left === "cover" ? "left-cover" : "left";
 				const isAltPosition = !options.alt_override && setupItem.altposition !== undefined && worn.alt === "alt";
-				const alt = isAltPosition ? "_alt" : "";
-				const path = `img/clothes/rings/${setupItem.variable}/${suffix}${alt}.png`;
-				return setupItem.colour_sidebar ? path.replace(/\.png$/, "_gray.png") : path;
+				const alt = isAltPosition ? "-alt" : "";
+				return `img/clothes/rings/${setupItem.variable}/${suffix}${alt}.png`;
 			},
 			showfn(options) {
 				const worn = options.worn.rings;
@@ -4046,11 +4044,10 @@ Renderer.CanvasModels.main = {
 			srcfn(options) {
 				const worn = options.worn.rings;
 				const setupItem = worn.setup;
-				const suffix = options.arm_left === "cover" ? "left_cover" : "left";
+				const suffix = options.arm_left === "cover" ? "left-cover" : "left";
 				const isAltPosition = !options.alt_override && setupItem.altposition !== undefined && worn.alt === "alt";
-				const alt = isAltPosition ? "_alt" : "";
-				const path = `img/clothes/rings/${setupItem.variable}/${suffix}${alt}_acc.png`;
-				return setupItem.accessory_colour_sidebar ? path.replace(/\.png$/, "_gray.png") : path;
+				const alt = isAltPosition ? "-alt" : "";
+				return `img/clothes/rings/${setupItem.variable}/${suffix}${alt}-acc.png`;
 			},
 			showfn(options) {
 				const worn = options.worn.rings;
@@ -4069,11 +4066,10 @@ Renderer.CanvasModels.main = {
 				const worn = options.worn.rings;
 				const setupItem = worn.setup;
 				if (!setupItem.variable) return "";
-				const suffix = options.arm_left === "cover" ? "left_cover" : "left";
+				const suffix = options.arm_left === "cover" ? "left-cover" : "left";
 				const isAltPosition = !options.alt_override && setupItem.altposition !== undefined && worn.alt === "alt";
-				const alt = isAltPosition ? "_alt" : "";
-				const path = `img/clothes/rings/${setupItem.variable}/${suffix}${alt}.png`;
-				return setupItem.colour_sidebar ? path.replace(/\.png$/, "_gray.png") : path;
+				const alt = isAltPosition ? "-alt" : "";
+				return `img/clothes/rings/${setupItem.variable}/${suffix}${alt}.png`;
 			},
 			showfn() {
 				return false;
@@ -4095,11 +4091,10 @@ Renderer.CanvasModels.main = {
 			srcfn(options) {
 				const worn = options.worn.rings;
 				const setupItem = worn.setup;
-				const suffix = options.arm_left === "cover" ? "left_cover" : "left";
+				const suffix = options.arm_left === "cover" ? "left-cover" : "left";
 				const isAltPosition = !options.alt_override && setupItem.altposition !== undefined && worn.alt === "alt";
-				const alt = isAltPosition ? "_alt" : "";
-				const path = `img/clothes/rings/${setupItem.variable}/${suffix}${alt}_acc.png`;
-				return setupItem.accessory_colour_sidebar ? path.replace(/\.png$/, "_gray.png") : path;
+				const alt = isAltPosition ? "-alt" : "";
+				return `img/clothes/rings/${setupItem.variable}/${suffix}${alt}-acc.png`;
 			},
 			showfn(options) {
 				const worn = options.worn.rings;
@@ -4129,10 +4124,10 @@ Renderer.CanvasModels.main = {
 				const worn = options.worn.rings;
 				const setupItem = worn.setup;
 				const hold = options.handheld_position || "right";
-				const suffix = options.arm_right === "cover" ? "right_cover" : hold;
+				const suffix = options.arm_right === "cover" ? "right-cover" : hold;
 				const isAltPosition = !options.alt_override && setupItem.altposition !== undefined && worn.alt === "alt";
-				const alt = isAltPosition ? "_alt" : "";
-				return `img/clothes/rings/${setupItem.variable}/${suffix}_${alt}.png`;
+				const alt = isAltPosition ? "-alt" : "";
+				return `img/clothes/rings/${setupItem.variable}/${suffix}${alt}.png`;
 			},
 			showfn(options) {
 				const worn = options.worn.rings;
@@ -4156,11 +4151,10 @@ Renderer.CanvasModels.main = {
 				const worn = options.worn.rings;
 				const setupItem = worn.setup;
 				const hold = options.handheld_position || "right";
-				const suffix = options.arm_right === "cover" ? "right_cover" : hold;
+				const suffix = options.arm_right === "cover" ? "right-cover" : hold;
 				const isAltPosition = !options.alt_override && setupItem.altposition !== undefined && worn.alt === "alt";
-				const alt = isAltPosition ? "_alt" : "";
-				const path = `img/clothes/rings/${setupItem.variable}/${suffix}${alt}.png`;
-				return setupItem.colour_sidebar ? path.replace(/\.png$/, "_gray.png") : path;
+				const alt = isAltPosition ? "-alt" : "";
+				return `img/clothes/rings/${setupItem.variable}/${suffix}${alt}.png`;
 			},
 			showfn(options) {
 				const worn = options.worn.rings;
@@ -4180,11 +4174,10 @@ Renderer.CanvasModels.main = {
 				const worn = options.worn.rings;
 				const setupItem = worn.setup;
 				const hold = options.handheld_position || "right";
-				const suffix = options.arm_right === "cover" ? "right_cover" : hold;
+				const suffix = options.arm_right === "cover" ? "right-cover" : hold;
 				const isAltPosition = !options.alt_override && setupItem.altposition !== undefined && worn.alt === "alt";
-				const alt = isAltPosition ? "_alt" : "";
-				const path = `img/clothes/rings/${setupItem.variable}/${suffix}${alt}_acc.png`;
-				return setupItem.accessory_colour_sidebar ? path.replace(/\.png$/, "_gray.png") : path;
+				const alt = isAltPosition ? "-alt" : "";
+				return `img/clothes/rings/${setupItem.variable}/${suffix}${alt}-acc.png`;
 			},
 			showfn(options) {
 				const worn = options.worn.rings;
@@ -4203,10 +4196,10 @@ Renderer.CanvasModels.main = {
 				const worn = options.worn.rings;
 				const setupItem = worn.setup;
 				const hold = options.handheld_position || "right";
-				const suffix = options.arm_right === "cover" ? "right_cover" : hold;
+				const suffix = options.arm_right === "cover" ? "right-cover" : hold;
 				const isAltPosition = !options.alt_override && setupItem.altposition !== undefined && worn.alt === "alt";
-				const alt = isAltPosition ? "_alt" : "";
-				return `img/clothes/rings/${setupItem.variable}/${suffix}_${alt}.png`;
+				const alt = isAltPosition ? "-alt" : "";
+				return `img/clothes/rings/${setupItem.variable}/${suffix}${alt}.png`;
 			},
 			showfn(options) {
 				const worn = options.worn.rings;
@@ -4594,12 +4587,11 @@ Renderer.CanvasModels.main = {
 				const worn = options.worn.earrings;
 				const setupItem = worn.setup;
 				const isAltPosition = !options.alt_override && setupItem.altposition !== undefined && worn.alt === "alt";
-				const alt = isAltPosition ? "_alt" : "";
+				const alt = isAltPosition ? "-alt" : "";
 				const pattern = worn.pattern && !["tertiary", "secondary"].includes(setupItem.pattern_layer)
-					? "_" + worn.pattern?.replace(/ /g, "_")
+					? "-" + worn.pattern?.replace(/ /g, "-")
 					: "";
-				const path = `img/clothes/earrings/${setupItem.variable}/${worn.integrity}${pattern}${alt}.png`;
-				return setupItem.colour_sidebar ? path.replace(/\.png$/, "_gray.png") : path;
+				return `img/clothes/earrings/${setupItem.variable}/${worn.integrity}${pattern}${alt}.png`;
 			},
 			showfn(options) {
 				const worn = options.worn.earrings;
@@ -4619,13 +4611,12 @@ Renderer.CanvasModels.main = {
 				const worn = options.worn.earrings;
 				const setupItem = worn.setup;
 				const isAltPosition = !options.alt_override && setupItem.altposition !== undefined && worn.alt === "alt";
-				const integrity = setupItem.accessory_integrity_img ? `_${worn.integrity}` : "";
-				const alt = isAltPosition ? "_alt" : "";
+				const integrity = setupItem.accessory_integrity_img ? `-${worn.integrity}` : "";
+				const alt = isAltPosition ? "-alt" : "";
 				const pattern = worn.pattern && setupItem.pattern_layer === "secondary"
-					? "_" + worn.pattern?.replace(/ /g, "_")
+					? "-" + worn.pattern?.replace(/ /g, "-")
 					: "";
-				const path = `img/clothes/earrings/${setupItem.variable}/acc${integrity}${pattern}${alt}.png`;
-				return setupItem.accessory_colour_sidebar ? path.replace(/\.png$/, "_gray.png") : path;
+				return `img/clothes/earrings/${setupItem.variable}/acc${integrity}${pattern}${alt}.png`;
 			},
 			showfn(options) {
 				const worn = options.worn.earrings;
