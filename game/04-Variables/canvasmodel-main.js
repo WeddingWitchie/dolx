@@ -721,9 +721,16 @@ Renderer.CanvasModels.main = {
 			clothingObject[slot].deepMerge(options.worn[slot]);
 
 			let setupObj = clothingObject[slot].setup;
-			if (!setupObj.variable) {
-				setupObj = setup.clothes[slot][index];
-				clothingObject[slot].setup = setupObj
+			if (!setupObj?.variable) {
+				const lookup = setup.clothes[slot]?.[index];
+				if (lookup?.variable) {
+					setupObj = lookup;
+					clothingObject[slot].setup = setupObj;
+				}
+				// If lookup fails (e.g. index from a cross-mod save not present in
+				// the current setup.clothes[slot]), leave the default { type: [] }
+				// in place. showfn checks like `setup.leftImage === 1` evaluate
+				// false against the default, so the layer silently doesn't render.
 			}
 
 			setClothingFilter(options, slot, clothingObject[slot], setupObj, '', 'colour_sidebar', 'colour');
@@ -3995,13 +4002,7 @@ Renderer.CanvasModels.main = {
 
 			srcfn(options) {
 				const worn = options.worn.rings;
-				const setupItem = worn.setup?.variable ? worn.setup : setup.clothes.rings?.[worn.index];
-				if (!setupItem?.variable) {
-					console.error("[Canvas rings] Missing setup data while resolving main image.", { index: worn.index, worn });
-					return "";
-				}
-				worn.setup = setupItem;
-
+				const setupItem = worn.setup;
 				const isAltPosition = !options.alt_override && setupItem.altposition !== undefined && worn.alt === "alt";
 				const alt = isAltPosition ? "_alt" : "";
 				const path = `img/clothes/rings/${setupItem.variable}/left${alt}.png`;
@@ -4009,9 +4010,7 @@ Renderer.CanvasModels.main = {
 			},
 			showfn(options) {
 				const worn = options.worn.rings;
-				const setupItem = worn.setup?.variable ? worn.setup : setup.clothes.rings?.[worn.index];
-				if (!setupItem) return false;
-				worn.setup = setupItem;
+				const setupItem = worn.setup;
 				return options.show_clothes && worn.index > 0 && setupItem.leftImage === 1 && options.arm_left !== "none";
 			},
 			zfn(options) {
@@ -4024,13 +4023,7 @@ Renderer.CanvasModels.main = {
 
 			srcfn(options) {
 				const worn = options.worn.rings;
-				const setupItem = worn.setup?.variable ? worn.setup : setup.clothes.rings?.[worn.index];
-				if (!setupItem?.variable) {
-					console.error("[Canvas rings] Missing setup data while resolving left image.", { index: worn.index, worn });
-					return "";
-				}
-				worn.setup = setupItem;
-
+				const setupItem = worn.setup;
 				const suffix = options.arm_left === "cover" ? "left_cover" : "left";
 				const isAltPosition = !options.alt_override && setupItem.altposition !== undefined && worn.alt === "alt";
 				const alt = isAltPosition ? "_alt" : "";
@@ -4039,9 +4032,7 @@ Renderer.CanvasModels.main = {
 			},
 			showfn(options) {
 				const worn = options.worn.rings;
-				const setupItem = worn.setup?.variable ? worn.setup : setup.clothes.rings?.[worn.index];
-				if (!setupItem) return false;
-				worn.setup = setupItem;
+				const setupItem = worn.setup;
 				return options.show_clothes && worn.index > 0 && setupItem.leftImage === 1 && options.arm_left !== "none";
 			},
 			zfn(options) {
@@ -4054,13 +4045,7 @@ Renderer.CanvasModels.main = {
 
 			srcfn(options) {
 				const worn = options.worn.rings;
-				const setupItem = worn.setup?.variable ? worn.setup : setup.clothes.rings?.[worn.index];
-				if (!setupItem?.variable) {
-					console.error("[Canvas rings] Missing setup data while resolving left accessory image.", { index: worn.index, worn });
-					return "";
-				}
-				worn.setup = setupItem;
-
+				const setupItem = worn.setup;
 				const suffix = options.arm_left === "cover" ? "left_cover" : "left";
 				const isAltPosition = !options.alt_override && setupItem.altposition !== undefined && worn.alt === "alt";
 				const alt = isAltPosition ? "_alt" : "";
@@ -4069,9 +4054,7 @@ Renderer.CanvasModels.main = {
 			},
 			showfn(options) {
 				const worn = options.worn.rings;
-				const setupItem = worn.setup?.variable ? worn.setup : setup.clothes.rings?.[worn.index];
-				if (!setupItem) return false;
-				worn.setup = setupItem;
+				const setupItem = worn.setup;
 				return options.show_clothes && worn.index > 0 && setupItem.leftImage === 1 && setupItem.accessory === 1 && options.arm_left !== "none";
 			},
 			zfn(options) {
@@ -4084,13 +4067,8 @@ Renderer.CanvasModels.main = {
 
 			srcfn(options) {
 				const worn = options.worn.rings;
-				const setupItem = worn.setup?.variable ? worn.setup : setup.clothes.rings?.[worn.index];
-				if (!setupItem?.variable) {
-					console.error("[Canvas rings] Missing setup data while resolving fitted left image.", { index: worn.index, worn });
-					return "";
-				}
-				worn.setup = setupItem;
-
+				const setupItem = worn.setup;
+				if (!setupItem.variable) return "";
 				const suffix = options.arm_left === "cover" ? "left_cover" : "left";
 				const isAltPosition = !options.alt_override && setupItem.altposition !== undefined && worn.alt === "alt";
 				const alt = isAltPosition ? "_alt" : "";
@@ -4116,13 +4094,7 @@ Renderer.CanvasModels.main = {
 
 			srcfn(options) {
 				const worn = options.worn.rings;
-				const setupItem = worn.setup?.variable ? worn.setup : setup.clothes.rings?.[worn.index];
-				if (!setupItem?.variable) {
-					console.error("[Canvas rings] Missing setup data while resolving fitted left accessory image.", { index: worn.index, worn });
-					return "";
-				}
-				worn.setup = setupItem;
-
+				const setupItem = worn.setup;
 				const suffix = options.arm_left === "cover" ? "left_cover" : "left";
 				const isAltPosition = !options.alt_override && setupItem.altposition !== undefined && worn.alt === "alt";
 				const alt = isAltPosition ? "_alt" : "";
@@ -4131,9 +4103,7 @@ Renderer.CanvasModels.main = {
 			},
 			showfn(options) {
 				const worn = options.worn.rings;
-				const setupItem = worn.setup?.variable ? worn.setup : setup.clothes.rings?.[worn.index];
-				if (!setupItem) return false;
-				worn.setup = setupItem;
+				const setupItem = worn.setup;
 				return options.show_clothes
 					&& worn.index > 0
 					&& setupItem.leftImage === 1
@@ -4157,13 +4127,7 @@ Renderer.CanvasModels.main = {
 
 			srcfn(options) {
 				const worn = options.worn.rings;
-				const setupItem = worn.setup?.variable ? worn.setup : setup.clothes.rings?.[worn.index];
-				if (!setupItem?.variable) {
-					console.error("[Canvas rings] Missing setup data while resolving left detail image.", { index: worn.index, worn });
-					return "";
-				}
-				worn.setup = setupItem;
-
+				const setupItem = worn.setup;
 				const hold = options.handheld_position || "right";
 				const suffix = options.arm_right === "cover" ? "right_cover" : hold;
 				const isAltPosition = !options.alt_override && setupItem.altposition !== undefined && worn.alt === "alt";
@@ -4172,9 +4136,7 @@ Renderer.CanvasModels.main = {
 			},
 			showfn(options) {
 				const worn = options.worn.rings;
-				const setupItem = worn.setup?.variable ? worn.setup : setup.clothes.rings?.[worn.index];
-				if (!setupItem) return false;
-				worn.setup = setupItem;
+				const setupItem = worn.setup;
 				return options.show_clothes
 					&& worn.index > 0
 					&& setupItem.leftImage === 1
@@ -4192,13 +4154,7 @@ Renderer.CanvasModels.main = {
 
 			srcfn(options) {
 				const worn = options.worn.rings;
-				const setupItem = worn.setup?.variable ? worn.setup : setup.clothes.rings?.[worn.index];
-				if (!setupItem?.variable) {
-					console.error("[Canvas rings] Missing setup data while resolving right image.", { index: worn.index, worn });
-					return "";
-				}
-				worn.setup = setupItem;
-
+				const setupItem = worn.setup;
 				const hold = options.handheld_position || "right";
 				const suffix = options.arm_right === "cover" ? "right_cover" : hold;
 				const isAltPosition = !options.alt_override && setupItem.altposition !== undefined && worn.alt === "alt";
@@ -4208,9 +4164,7 @@ Renderer.CanvasModels.main = {
 			},
 			showfn(options) {
 				const worn = options.worn.rings;
-				const setupItem = worn.setup?.variable ? worn.setup : setup.clothes.rings?.[worn.index];
-				if (!setupItem) return false;
-				worn.setup = setupItem;
+				const setupItem = worn.setup;
 				return options.show_clothes && worn.index > 0 && setupItem.rightImage === 1 && options.arm_right !== "none";
 			},
 			zfn(options) {
@@ -4224,13 +4178,7 @@ Renderer.CanvasModels.main = {
 
 			srcfn(options) {
 				const worn = options.worn.rings;
-				const setupItem = worn.setup?.variable ? worn.setup : setup.clothes.rings?.[worn.index];
-				if (!setupItem?.variable) {
-					console.error("[Canvas rings] Missing setup data while resolving right accessory image.", { index: worn.index, worn });
-					return "";
-				}
-				worn.setup = setupItem;
-
+				const setupItem = worn.setup;
 				const hold = options.handheld_position || "right";
 				const suffix = options.arm_right === "cover" ? "right_cover" : hold;
 				const isAltPosition = !options.alt_override && setupItem.altposition !== undefined && worn.alt === "alt";
@@ -4240,9 +4188,7 @@ Renderer.CanvasModels.main = {
 			},
 			showfn(options) {
 				const worn = options.worn.rings;
-				const setupItem = worn.setup?.variable ? worn.setup : setup.clothes.rings?.[worn.index];
-				if (!setupItem) return false;
-				worn.setup = setupItem;
+				const setupItem = worn.setup;
 				return options.show_clothes && worn.index > 0 && setupItem.rightImage === 1 && setupItem.accessory === 1 && options.arm_right !== "none";
 			},
 			zfn(options) {
@@ -4255,13 +4201,7 @@ Renderer.CanvasModels.main = {
 
 			srcfn(options) {
 				const worn = options.worn.rings;
-				const setupItem = worn.setup?.variable ? worn.setup : setup.clothes.rings?.[worn.index];
-				if (!setupItem?.variable) {
-					console.error("[Canvas rings] Missing setup data while resolving right detail image.", { index: worn.index, worn });
-					return "";
-				}
-				worn.setup = setupItem;
-
+				const setupItem = worn.setup;
 				const hold = options.handheld_position || "right";
 				const suffix = options.arm_right === "cover" ? "right_cover" : hold;
 				const isAltPosition = !options.alt_override && setupItem.altposition !== undefined && worn.alt === "alt";
@@ -4270,9 +4210,7 @@ Renderer.CanvasModels.main = {
 			},
 			showfn(options) {
 				const worn = options.worn.rings;
-				const setupItem = worn.setup?.variable ? worn.setup : setup.clothes.rings?.[worn.index];
-				if (!setupItem) return false;
-				worn.setup = setupItem;
+				const setupItem = worn.setup;
 				return options.show_clothes
 					&& worn.index > 0
 					&& setupItem.rightImage === 1
@@ -4654,13 +4592,7 @@ Renderer.CanvasModels.main = {
 		"earrings": genlayer_clothing_main('earrings', {
 			srcfn(options) {
 				const worn = options.worn.earrings;
-				const setupItem = worn.setup?.variable ? worn.setup : setup.clothes.earrings?.[worn.index];
-				if (!setupItem?.variable) {
-					console.error("[Canvas earrings] Missing setup data while resolving main image.", { index: worn.index, worn });
-					return "";
-				}
-				worn.setup = setupItem;
-
+				const setupItem = worn.setup;
 				const isAltPosition = !options.alt_override && setupItem.altposition !== undefined && worn.alt === "alt";
 				const alt = isAltPosition ? "_alt" : "";
 				const pattern = worn.pattern && !["tertiary", "secondary"].includes(setupItem.pattern_layer)
@@ -4671,9 +4603,7 @@ Renderer.CanvasModels.main = {
 			},
 			showfn(options) {
 				const worn = options.worn.earrings;
-				const setupItem = worn.setup?.variable ? worn.setup : setup.clothes.earrings?.[worn.index];
-				if (!setupItem) return false;
-				worn.setup = setupItem;
+				const setupItem = worn.setup;
 
 				return options.show_clothes
 					&& worn.index > 0
@@ -4681,21 +4611,13 @@ Renderer.CanvasModels.main = {
 					&& !options.hide_all;
 			},
 			zfn() {
-				const earZ = typeof ZIndices.ears === "number" ? ZIndices.ears + 1 : 0;
-				const headZ = typeof ZIndices.basehead === "number" ? ZIndices.basehead + 0.1 : earZ;
-				return Math.max(earZ, headZ);
+				return Math.max(ZIndices.ears + 1, ZIndices.basehead + 0.1);
 			},
 		}),
 		"earrings_acc": genlayer_clothing_accessory('earrings', {
 			srcfn(options) {
 				const worn = options.worn.earrings;
-				const setupItem = worn.setup?.variable ? worn.setup : setup.clothes.earrings?.[worn.index];
-				if (!setupItem?.variable) {
-					console.error("[Canvas earrings] Missing setup data while resolving accessory image.", { index: worn.index, worn });
-					return "";
-				}
-				worn.setup = setupItem;
-
+				const setupItem = worn.setup;
 				const isAltPosition = !options.alt_override && setupItem.altposition !== undefined && worn.alt === "alt";
 				const integrity = setupItem.accessory_integrity_img ? `_${worn.integrity}` : "";
 				const alt = isAltPosition ? "_alt" : "";
@@ -4707,9 +4629,7 @@ Renderer.CanvasModels.main = {
 			},
 			showfn(options) {
 				const worn = options.worn.earrings;
-				const setupItem = worn.setup?.variable ? worn.setup : setup.clothes.earrings?.[worn.index];
-				if (!setupItem) return false;
-				worn.setup = setupItem;
+				const setupItem = worn.setup;
 
 				return options.show_clothes
 					&& worn.index > 0
@@ -4717,9 +4637,7 @@ Renderer.CanvasModels.main = {
 					&& setupItem.accessory === 1;
 			},
 			zfn() {
-				const earZ = typeof ZIndices.ears === "number" ? ZIndices.ears + 1 : 0;
-				const headZ = typeof ZIndices.basehead === "number" ? ZIndices.basehead + 0.1 : earZ;
-				return Math.max(earZ, headZ);
+				return Math.max(ZIndices.ears + 1, ZIndices.basehead + 0.1);
 			},
 		}),
 		/***

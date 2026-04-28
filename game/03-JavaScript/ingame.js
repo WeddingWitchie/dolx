@@ -3120,17 +3120,6 @@ window.fixIntegrityUpdater = fixIntegrityUpdater;
 // Temporary solution until a rework
 $(document).on(":onWeatherChange", () => {
 	const currentWeather = T.currentWeather ?? Weather.WeatherGeneration.getWeather();
-
-	if (!currentWeather || typeof currentWeather.precipitationIntensity === "undefined") {
-		console.error("[DoLX weather] Missing current weather during rain watering check.", {
-			currentWeather,
-			tempCurrentWeather: T.currentWeather,
-			timeStamp: V.timeStamp,
-			keypoints: V.weatherObj?.keypointsArr,
-		});
-		return;
-	}
-
 	const precipitation = currentWeather.precipitationIntensity === 0 ? "none" : Weather.isFreezing ? "snow" : "rain";
 
 	if (!V.daily || V.daily?.plotsRain || precipitation !== "rain") return;

@@ -3199,14 +3199,6 @@ function initFoodstuff() {
 				category: "flower",
 				kitchen_item_type_icon: "recipe-flower.png",
 				prop_folder: "tending",
-				tending: {
-					planting_bed: "earth",
-					growth_days: 7,
-					yield_multiplier: 1,
-					has_seeds: true,
-					seasons: [],
-					tags: [],
-				},
 				shop: {
 					sell_price: 5000000,
 				},
@@ -3220,14 +3212,6 @@ function initFoodstuff() {
 				category: "mushroom",
 				kitchen_item_type_icon: "recipe-shroom.png",
 				prop_folder: "tending",
-				tending: {
-					planting_bed: "earth",     // X-Change had this on earth, not wood; preserved
-					growth_days: 7,
-					yield_multiplier: 1,
-					has_seeds: true,
-					seasons: [],
-					tags: [],
-				},
 				shop: {
 					sell_price: 12500,
 				},
@@ -3241,14 +3225,6 @@ function initFoodstuff() {
 				category: "flower",
 				kitchen_item_type_icon: "recipe-flower.png",
 				prop_folder: "tending",
-				tending: {
-					planting_bed: "earth",
-					growth_days: 7,
-					yield_multiplier: 1,
-					has_seeds: true,
-					seasons: [],
-					tags: [],
-				},
 				shop: {
 					sell_price: 300000,
 				},
@@ -3262,14 +3238,6 @@ function initFoodstuff() {
 				category: "flower",
 				kitchen_item_type_icon: "recipe-flower.png",
 				prop_folder: "tending",
-				tending: {
-					planting_bed: "earth",
-					growth_days: 7,
-					yield_multiplier: 1,
-					has_seeds: true,
-					seasons: [],
-					tags: [],
-				},
 				shop: {
 					sell_price: 150000,
 				},
@@ -3283,14 +3251,6 @@ function initFoodstuff() {
 				category: "mushroom",
 				kitchen_item_type_icon: "recipe-shroom.png",
 				prop_folder: "tending",
-				tending: {
-					planting_bed: "earth",
-					growth_days: 7,
-					yield_multiplier: 1,
-					has_seeds: true,
-					seasons: [],
-					tags: [],
-				},
 				shop: {
 					sell_price: 20000,
 				},
@@ -3304,14 +3264,6 @@ function initFoodstuff() {
 				category: "flower",
 				kitchen_item_type_icon: "recipe-flower.png",
 				prop_folder: "tending",
-				tending: {
-					planting_bed: "earth",
-					growth_days: 7,
-					yield_multiplier: 1,
-					has_seeds: true,
-					seasons: [],
-					tags: [],
-				},
 				shop: {
 					sell_price: 150000,
 				},
@@ -3325,17 +3277,9 @@ function initFoodstuff() {
 				category: "fruit",
 				kitchen_item_type_icon: "recipe-fruit.png",
 				prop_folder: "tending",
-				tending: {
-					planting_bed: "earth",
-					growth_days: 7,
-					yield_multiplier: 1,
-					has_seeds: true,
-					seasons: [],
-					tags: [],
-				},
 				shop: {
 					sell_price: 2000,
-					stall_size: "small",      // old `special: ["small"]` → vanilla puts size on shop; verify this is the right key
+					stall_size: "small",
 				},
 			},
 			scottish_bog_myrtle: {
@@ -3344,17 +3288,9 @@ function initFoodstuff() {
 				singular: "scottish bog myrtle",
 				plural: "scottish bog myrtles",
 				icon: "scottish-bog-myrtle.png",
-				category: "mushroom",          // X-Change had type: "shroom"; preserved despite the name reading "myrtle"
+				category: "mushroom",
 				kitchen_item_type_icon: "recipe-shroom.png",
 				prop_folder: "tending",
-				tending: {
-					planting_bed: "earth",
-					growth_days: 7,
-					yield_multiplier: 1,
-					has_seeds: true,
-					seasons: [],
-					tags: [],
-				},
 				shop: {
 					sell_price: 10000,
 				},
@@ -3368,14 +3304,6 @@ function initFoodstuff() {
 				category: "flower",
 				kitchen_item_type_icon: "recipe-flower.png",
 				prop_folder: "tending",
-				tending: {
-					planting_bed: "earth",
-					growth_days: 7,
-					yield_multiplier: 1,
-					has_seeds: true,
-					seasons: [],
-					tags: [],
-				},
 				shop: {
 					sell_price: 120000,
 				},
@@ -3389,14 +3317,6 @@ function initFoodstuff() {
 				category: "flower",
 				kitchen_item_type_icon: "recipe-flower.png",
 				prop_folder: "tending",
-				tending: {
-					planting_bed: "earth",
-					growth_days: 7,
-					yield_multiplier: 1,
-					has_seeds: true,
-					seasons: [],
-					tags: [],
-				},
 				shop: {
 					sell_price: 250000,
 				},
