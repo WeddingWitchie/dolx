@@ -34,10 +34,10 @@ Weather.Thermometer = (() => {
 	function load() {
 		if (V.options.thermometerDisplay.includes("modded")) {
 			images.baseImg.src = "img/ui/weather/thermometer/" + V.options.thermometerDisplay + ".png";
-			images.fillImg.src = "img/ui/weather/thermo_filled/" + V.options.thermometerDisplay + ".png";
+			images.fillImg.src = "img/ui/weather/thermo-filled/" + V.options.thermometerDisplay + ".png";
 		} else {
 			images.baseImg.src = "img/ui/weather/thermometer.png";
-			images.fillImg.src = "img/ui/weather/thermo_filled.png";
+			images.fillImg.src = "img/ui/weather/thermo-filled.png";
 		}
 
 		Object.entries(images).map(([key, imageInfo]) => {
