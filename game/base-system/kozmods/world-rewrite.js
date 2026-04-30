@@ -1,6 +1,22 @@
 (function () {
 	"use strict";
 
+	const VALID_MODES = ["off", "femaleOnly", "maleOnly"];
+
+	/* Canonical pronoun maps. These are written unconditionally during normalisation
+	   so a previously-male NPC switched to femaleOnly does not retain stale "he/him/himself" */
+	const PRONOUN_MAP_M = {
+		he: "he", his: "his", hers: "his", him: "him",
+		himself: "himself", man: "man", boy: "boy", men: "men",
+	};
+	const PRONOUN_MAP_F = {
+		he: "she", his: "her", hers: "hers", him: "her",
+		himself: "herself", man: "woman", boy: "girl", men: "women",
+	};
+	function pronounMap(forced) {
+		return forced === "m" ? PRONOUN_MAP_M : PRONOUN_MAP_F;
+	}
+
 	function getV() {
 		if (typeof State !== "undefined" && State.variables) return State.variables;
 		if (typeof window !== "undefined") {
@@ -19,14 +35,15 @@
 	function ensureState() {
 		const V = getV();
 		V.settings ||= {};
-		if (V.settings.genderOverrideMode === undefined) V.settings.genderOverrideMode = "off";
-		if (V.settings.genderOverridePendingMode === undefined) V.settings.genderOverridePendingMode = "";
-		if (V.settings.genderOverrideRiskAccepted === undefined) V.settings.genderOverrideRiskAccepted = false;
-		if (V.settings.genderOverrideShowWarning === undefined) V.settings.genderOverrideShowWarning = false;
-		if (V.settings.genderOverrideShowDisableConfirm === undefined) V.settings.genderOverrideShowDisableConfirm = false;
-		if (V.settings.genderOverrideBackup === undefined) V.settings.genderOverrideBackup = null;
-		if (V.settings.genderOverrideDisplayBackup === undefined) V.settings.genderOverrideDisplayBackup = null;
-		if (V.settings.genderOverrideLastApplied === undefined) V.settings.genderOverrideLastApplied = null;
+		const s = V.settings;
+		if (s.genderOverrideMode === undefined) s.genderOverrideMode = "off";
+		if (s.genderOverridePendingMode === undefined) s.genderOverridePendingMode = "";
+		if (s.genderOverrideRiskAccepted === undefined) s.genderOverrideRiskAccepted = false;
+		if (s.genderOverrideShowWarning === undefined) s.genderOverrideShowWarning = false;
+		if (s.genderOverrideShowDisableConfirm === undefined) s.genderOverrideShowDisableConfirm = false;
+		if (s.genderOverrideBackup === undefined) s.genderOverrideBackup = null;
+		if (s.genderOverrideDisplayBackup === undefined) s.genderOverrideDisplayBackup = null;
+		if (s.genderOverrideLastApplied === undefined) s.genderOverrideLastApplied = null;
 		return V;
 	}
 
@@ -36,12 +53,9 @@
 
 	function getForcedGender(mode = getMode()) {
 		switch (mode) {
-			case "femaleOnly":
-				return "f";
-			case "maleOnly":
-				return "m";
-			default:
-				return null;
+			case "femaleOnly": return "f";
+			case "maleOnly":   return "m";
+			default:           return null;
 		}
 	}
 
@@ -51,12 +65,9 @@
 
 	function modeLabel(mode = getMode()) {
 		switch (mode) {
-			case "femaleOnly":
-				return "Female Only";
-			case "maleOnly":
-				return "Male Only";
-			default:
-				return "Mixed (Off)";
+			case "femaleOnly": return "Female Only";
+			case "maleOnly":   return "Male Only";
+			default:           return "Mixed (Off)";
 		}
 	}
 
@@ -66,6 +77,8 @@
 		if (forced === "f") return 0;
 		return null;
 	}
+
+	/* ---------------- Settings backup / restore ---------------- */
 
 	function backupChanceStateIfNeeded() {
 		const V = ensureState();
@@ -104,9 +117,7 @@
 		const V = ensureState();
 		const backup = V.settings.genderOverrideBackup;
 		if (!backup) return;
-		Object.keys(backup).forEach(key => {
-			V.settings[key] = backup[key];
-		});
+		Object.keys(backup).forEach(key => { V.settings[key] = backup[key]; });
 		V.settings.genderOverrideBackup = null;
 	}
 
@@ -157,43 +168,54 @@
 		V.settings.genderOverrideDisplayBackup = null;
 	}
 
+	function getDisplayBackupGenderForKey(key) {
+		const V = ensureState();
+		const backup = V.settings.genderOverrideDisplayBackup;
+		if (!backup || !backup.autoNNPCDisplay || !key || key === "0") return null;
+		return backup.autoNNPCDisplay[key]?.gender || null;
+	}
+
+	function getSafeDolpPreviewGender(key) {
+		const V = ensureState();
+		if (!key || key === "0") return V.options?.nnpcDisplayGender || "male";
+		const backupGender = getDisplayBackupGenderForKey(key);
+		if (backupGender) return backupGender;
+		const currentGender = V.options?.autoNNPCDisplay?.[key]?.gender;
+		if (currentGender) return currentGender;
+		return V.options?.nnpcDisplayGender || "male";
+	}
+
+	/* ---------------- NPC / child normalisation ---------------- */
+
 	function rewriteGenderedType(type, forced) {
 		if (typeof type !== "string") return type;
 		if (/(wolf|fox|cat|cow|harpy|hawk|plant|bunny|bear)(boy|girl)$/i.test(type)) {
-			return type.replace(/boy$/i, forced === "m" ? "boy" : "girl").replace(/girl$/i, forced === "m" ? "boy" : "girl");
+			const suffix = forced === "m" ? "boy" : "girl";
+			return type.replace(/(boy|girl)$/i, suffix);
 		}
 		if (type === "bull" && forced === "f") return "cow";
 		if (type === "cow" && forced === "m") return "bull";
 		return type;
 	}
 
-	function normalizePronouns(npc) {
-		if (!npc || typeof npc !== "object") return;
-		if (typeof window.generatePronouns === "function") {
-			try {
-				window.generatePronouns(npc);
-			} catch (_) {}
-		}
-		npc.pronouns ||= {};
-		const isMale = npc.pronoun === "m";
-		npc.pronouns.he = npc.pronouns.he || (isMale ? "he" : "she");
-		npc.pronouns.him = npc.pronouns.him || (isMale ? "him" : "her");
-		npc.pronouns.his = npc.pronouns.his || (isMale ? "his" : "her");
-		npc.pronouns.man = npc.pronouns.man || (isMale ? "man" : "woman");
-		npc.pronouns.boy = npc.pronouns.boy || (isMale ? "boy" : "girl");
-
-		/* Some checks in DoL/DoLP use these top-level aliases directly. */
-		npc.he = npc.pronouns.he;
-		npc.him = npc.pronouns.him;
-		npc.his = npc.pronouns.his;
-		npc.man = npc.pronouns.man;
-		npc.boy = npc.pronouns.boy;
+	function applyPronounMap(target, forced) {
+		if (!target || typeof target !== "object") return;
+		const map = pronounMap(forced);
+		target.pronouns ||= {};
+		/* Unconditional assignment; must overwrite stale pronouns left over from the prior gender. */
+		Object.assign(target.pronouns, map);
+		/* Some checks in DoL/DoLX read these top-level aliases directly. */
+		target.he = map.he;
+		target.him = map.him;
+		target.his = map.his;
+		target.man = map.man;
+		target.boy = map.boy;
 	}
 
-	function normalizeTitle(npc) {
+	function normalizeTitle(npc, forced) {
 		if (!npc || typeof npc !== "object") return;
 		if (typeof npc.title !== "string") return;
-		const isMale = npc.pronoun === "m";
+		const isMale = forced === "m";
 		switch (npc.title.toLowerCase()) {
 			case "man":
 			case "woman":
@@ -205,7 +227,6 @@
 				break;
 		}
 	}
-
 
 	function isNamedNpcObject(npc) {
 		if (!npc || typeof npc !== "object") return false;
@@ -226,23 +247,6 @@
 		return false;
 	}
 
-	function getDisplayBackupGenderForKey(key) {
-		const V = ensureState();
-		const backup = V.settings.genderOverrideDisplayBackup;
-		if (!backup || !backup.autoNNPCDisplay || !key || key === "0") return null;
-		return backup.autoNNPCDisplay[key]?.gender || null;
-	}
-
-	function getSafeDolpPreviewGender(key) {
-		const V = ensureState();
-		if (!key || key === "0") return V.options?.nnpcDisplayGender || "male";
-		const backupGender = getDisplayBackupGenderForKey(key);
-		if (backupGender) return backupGender;
-		const currentGender = V.options?.autoNNPCDisplay?.[key]?.gender;
-		if (currentGender) return currentGender;
-		return V.options?.nnpcDisplayGender || "male";
-	}
-
 	function rebuildFullDescription(npc, forced) {
 		if (!npc || typeof npc !== "object") return;
 		if (typeof npc.description !== "string" || !npc.description.length) return;
@@ -253,11 +257,9 @@
 		const sexWord = forced === "m"
 			? (npc.teen === 1 ? "boy" : "man")
 			: (npc.teen === 1 ? "girl" : "woman");
-		if (npc.type === "plant") {
-			npc.fullDescription = npc.description + " plant" + sexWord;
-		} else {
-			npc.fullDescription = npc.description + " " + sexWord;
-		}
+		npc.fullDescription = npc.type === "plant"
+			? npc.description + " plant" + sexWord
+			: npc.description + " " + sexWord;
 	}
 
 	function normalizeNpcObject(npc, options = {}) {
@@ -267,8 +269,8 @@
 		/* World gender override locks presentation/social gender, but leaves genital/body sliders available. */
 		npc.pronoun = forced;
 		npc.type = rewriteGenderedType(npc.type, forced);
-		normalizePronouns(npc);
-		normalizeTitle(npc);
+		applyPronounMap(npc, forced);
+		normalizeTitle(npc, forced);
 		if (!isNamedNpcObject(npc)) rebuildFullDescription(npc, forced);
 		return npc;
 	}
@@ -280,11 +282,7 @@
 		child.type = rewriteGenderedType(child.type, forced);
 		if (child.pronoun !== undefined) child.pronoun = forced;
 		if (child.pronouns && typeof child.pronouns === "object") {
-			child.pronouns.he = forced === "m" ? "he" : "she";
-			child.pronouns.him = forced === "m" ? "him" : "her";
-			child.pronouns.his = forced === "m" ? "his" : "her";
-			child.pronouns.man = forced === "m" ? "man" : "woman";
-			child.pronouns.boy = forced === "m" ? "boy" : "girl";
+			Object.assign(child.pronouns, pronounMap(forced));
 		}
 		return child;
 	}
@@ -304,6 +302,8 @@
 		if (C?.npc && typeof C.npc === "object") Object.values(C.npc).forEach(npc => normalizeNpcObject(npc, options));
 		if (V.children && typeof V.children === "object") Object.values(V.children).forEach(child => normalizeChildObject(child, options));
 	}
+
+	/* ---------------- Settings DOM lock UI ---------------- */
 
 	function ensureDomLockStyles() {
 		if (typeof document === "undefined") return;
@@ -389,8 +389,7 @@
 
 	function findGridByHeaderText($, headerText) {
 		return $(".settingsGrid").filter(function () {
-			const text = $(this).find(".settingsHeader").first().text().trim();
-			return text === headerText;
+			return $(this).find(".settingsHeader").first().text().trim() === headerText;
 		}).first();
 	}
 
@@ -409,15 +408,13 @@
 		const active = !!forced;
 		const forcedValue = forcedChance(mode);
 		const modeText = modeLabel(mode);
+
 		ensureDomLockStyles();
 
 		function syncRange(selector, value) {
 			$(selector).each(function () {
-				const $wrap = $(this);
-				const $range = $wrap.find('input[type="range"]');
-				if ($range.length) {
-					$range.val(value).trigger("input").trigger("change");
-				}
+				const $range = $(this).find('input[type="range"]');
+				if ($range.length) $range.val(value).trigger("input").trigger("change");
 			});
 		}
 
@@ -433,27 +430,38 @@
 
 		/* Human settings: generic genders + victim genders locked while override is active. */
 		const $npcGenderGrid = findGridByHeaderText($, "NPC Genders");
-		const $genericNpcPanel = $npcGenderGrid.find(".settingsToggleItem").eq(0);
-		const $victimPanel = $npcGenderGrid.find(".settingsToggleItem").eq(1);
-		togglePanelLock($genericNpcPanel, active, "This setting is unavailable because World Rewrite is active. Turn the override off to edit NPC gender distribution and orientation here.");
-		togglePanelLock($victimPanel, active, "This setting is unavailable because World Rewrite is active.");
+		togglePanelLock(
+			$npcGenderGrid.find(".settingsToggleItem").eq(0),
+			active,
+			"This setting is unavailable because World Rewrite is active. Turn the override off to edit NPC gender distribution and orientation here."
+		);
+		togglePanelLock(
+			$npcGenderGrid.find(".settingsToggleItem").eq(1),
+			active,
+			"This setting is unavailable because World Rewrite is active."
+		);
 
 		/* Beast settings: beast gender distribution locked while override is active. */
 		const $beastPrefGrid = findGridByHeaderText($, "Beast Preferences");
-		const $beastGenderPanel = $beastPrefGrid.find(".settingsToggleItem").eq(0);
-		togglePanelLock($beastGenderPanel, active, "This setting is unavailable because World Rewrite is active. Turn the override off to edit beast gender distribution here.");
+		togglePanelLock(
+			$beastPrefGrid.find(".settingsToggleItem").eq(0),
+			active,
+			"This setting is unavailable because World Rewrite is active. Turn the override off to edit beast gender distribution here."
+		);
 
 		/* Named NPC settings: lock social gender, but keep genitals/body controls editable. */
-		const $npcSettingsRoot = $("#npcSettingsMenu");
-		const $namedNpcGenderPanel = $npcSettingsRoot.find(".settingsToggleItem").filter(function () {
+		const $namedNpcGenderPanel = $("#npcSettingsMenu").find(".settingsToggleItem").filter(function () {
 			return $(this).find("> .gold").first().text().trim() === "Gender:";
 		}).first();
-		togglePanelLock($namedNpcGenderPanel, active, "This setting is unavailable because World Rewrite is active. Presentation gender is forced by the override; genitals below can still be edited.");
+		togglePanelLock(
+			$namedNpcGenderPanel,
+			active,
+			"This setting is unavailable because World Rewrite is active. Presentation gender is forced by the override; genitals below can still be edited."
+		);
 		if (active && $namedNpcGenderPanel.length) {
 			$namedNpcGenderPanel.find("input[type='radio'][value='" + forced + "']").prop("checked", true);
 		}
-		const $npcRootContainer = $(".solidBorderContainer.settings-container").has("#npcSettingsMenu").first();
-		const $randomAssignRow = $npcRootContainer.children(".settingsToggleIndent").first();
+		const $randomAssignRow = $(".solidBorderContainer.settings-container").has("#npcSettingsMenu").first().children(".settingsToggleIndent").first();
 		const $genderAssignLink = $randomAssignRow.find("a").filter(function () {
 			return $(this).text().trim() === "Genders";
 		});
@@ -462,8 +470,8 @@
 
 		/* NPC body parts: only the opposite-gender panels are locked. */
 		const $bodyGrid = findGridByHeaderText($, "NPC Body Parts");
-		const $breastPanel = findPanelByText($bodyGrid, "Average size of women's breasts");
-		const $penisPanel = findPanelByText($bodyGrid, "Average size of NPC penises");
+		const $breastPanel        = findPanelByText($bodyGrid, "Average size of women's breasts");
+		const $penisPanel         = findPanelByText($bodyGrid, "Average size of NPC penises");
 		const $femaleGenitalPanel = $bodyGrid.children(".solidBorderContainer").filter(function () {
 			return $(this).text().includes("Percentage of women that have only a vagina");
 		}).first();
@@ -472,27 +480,20 @@
 		}).first();
 		const $straponPanel = findPanelByText($bodyGrid, "Percentage of women that have strap-on penises");
 
-		if (mode === "femaleOnly") {
-			togglePanelLock($breastPanel, false, "");
-			togglePanelLock($penisPanel, false, "");
-			togglePanelLock($femaleGenitalPanel, false, "");
-			togglePanelLock($maleGenitalPanel, true, "This setting is unavailable because Female Only World Rewrite is active.");
-			togglePanelLock($straponPanel, false, "");
-		} else if (mode === "maleOnly") {
-			togglePanelLock($breastPanel, true, "This setting is unavailable because Male Only World Rewrite is active.");
-			togglePanelLock($penisPanel, false, "");
-			togglePanelLock($femaleGenitalPanel, true, "This setting is unavailable because Male Only World Rewrite is active.");
-			togglePanelLock($maleGenitalPanel, false, "");
-			togglePanelLock($straponPanel, true, "This setting is unavailable because Male Only World Rewrite is active.");
-		} else {
-			togglePanelLock($breastPanel, false, "");
-			togglePanelLock($penisPanel, false, "");
-			togglePanelLock($femaleGenitalPanel, false, "");
-			togglePanelLock($maleGenitalPanel, false, "");
-			togglePanelLock($straponPanel, false, "");
-		}
+		const lockBreast       = mode === "maleOnly";
+		const lockPenis        = false;
+		const lockFemaleGenital = mode === "maleOnly";
+		const lockMaleGenital  = mode === "femaleOnly";
+		const lockStrapon      = mode === "maleOnly";
+		const lockMsgF = "This setting is unavailable because Female Only World Rewrite is active.";
+		const lockMsgM = "This setting is unavailable because Male Only World Rewrite is active.";
+		togglePanelLock($breastPanel,        lockBreast,        lockMsgM);
+		togglePanelLock($penisPanel,         lockPenis,         "");
+		togglePanelLock($femaleGenitalPanel, lockFemaleGenital, lockMsgM);
+		togglePanelLock($maleGenitalPanel,   lockMaleGenital,   lockMsgF);
+		togglePanelLock($straponPanel,       lockStrapon,       lockMsgM);
 
-		/* DoLP NNPC display sidebar preview: keep preview visible and lock only sprite gender controls. */
+		/* DoLX NNPC display sidebar preview: keep preview visible and lock only sprite gender controls. */
 		if (active) {
 			const selectedKey = V.options && V.options.nnpcDisplay && V.options.nnpcDisplay !== 0
 				? String(V.options.nnpcDisplay).toLowerCase()
@@ -507,7 +508,9 @@
 			$("#autoNNPCGenderOverrideToggle input[type='checkbox']").prop("checked", true).prop("disabled", true);
 			$("input[type='radio'][name$='nnpcDisplayGender']").prop("disabled", true);
 			$("#autoNNPCGenderOverrideToggle .sex-rewrite-display-note, #manualNNPC .sex-rewrite-display-note").remove();
-			$('<span class="small-description sex-rewrite-display-note"></span>').text(" Gender locked by World Rewrite: " + modeText + ". DoLP preview keeps the saved sprite gender when needed so the avatar does not disappear. Slot, layer, and skin can still be changed.").appendTo("#autoNNPCGenderOverrideToggle");
+			$('<span class="small-description sex-rewrite-display-note"></span>')
+				.text(" Gender locked by World Rewrite: " + modeText + ". DoLX preview keeps the saved sprite gender when needed so the avatar does not disappear. Slot, layer, and skin can still be changed.")
+				.appendTo("#autoNNPCGenderOverrideToggle");
 			if (typeof window.Wikifier !== "undefined" && typeof window.Wikifier.wikifyEval === "function" && $("#nnpcDisplay").length && V.options?.NnpcDisplaySystem === "dolp") {
 				try { window.Wikifier.wikifyEval("<<updatesidebarimg>>"); } catch (_) {}
 			}
@@ -521,6 +524,8 @@
 			try { window.settingsDisableElement(); } catch (_) {}
 		}
 	}
+
+	/* ---------------- Public state ops ---------------- */
 
 	function syncRewriteState() {
 		const mode = getMode();
@@ -536,15 +541,19 @@
 
 	function applyWorldGenderOverride(mode, options = {}) {
 		const V = ensureState();
-		const nextMode = ["off", "femaleOnly", "maleOnly"].includes(mode) ? mode : "off";
+		const nextMode = VALID_MODES.includes(mode) ? mode : "off";
 		const previousMode = V.settings.genderOverrideMode || "off";
 
-		if (nextMode === "off") {
-			V.settings.genderOverrideMode = "off";
+		const resetTransientFlags = () => {
 			V.settings.genderOverridePendingMode = "";
 			V.settings.genderOverrideRiskAccepted = false;
 			V.settings.genderOverrideShowWarning = false;
 			V.settings.genderOverrideShowDisableConfirm = false;
+		};
+
+		if (nextMode === "off") {
+			V.settings.genderOverrideMode = "off";
+			resetTransientFlags();
 			restoreChanceState();
 			restoreNnpcDisplayState();
 			V.settings.genderOverrideLastApplied = { from: previousMode, to: "off", stamp: Date.now() };
@@ -555,10 +564,7 @@
 		backupChanceStateIfNeeded();
 		backupNnpcDisplayStateIfNeeded();
 		V.settings.genderOverrideMode = nextMode;
-		V.settings.genderOverridePendingMode = "";
-		V.settings.genderOverrideRiskAccepted = false;
-		V.settings.genderOverrideShowWarning = false;
-		V.settings.genderOverrideShowDisableConfirm = false;
+		resetTransientFlags();
 		applyChanceState(nextMode);
 		normalizeStoredCollections({ mode: nextMode, force: true, source: options.source || "manual" });
 		V.settings.genderOverrideLastApplied = { from: previousMode, to: nextMode, stamp: Date.now() };
@@ -566,15 +572,24 @@
 		return V.settings.genderOverrideMode;
 	}
 
+	/* ---------------- Function wrappers ---------------- */
+
 	function installChanceWrapper(fnName) {
 		const wrappedFlag = "__genderOverrideWrapped_" + fnName;
 		if (window[wrappedFlag]) return true;
 		if (typeof window[fnName] !== "function") return false;
 		const original = window[fnName];
 		window["__genderOverrideOriginal_" + fnName] = original;
-		window[fnName] = function () {
-			const chance = forcedChance();
-			if (chance != null) return chance;
+		window[fnName] = function (pronoun) {
+			if (isRewriteActive()) {
+				/* maleChance/beastMaleChance(pronoun) is used by widgets like <<spouse>>/<<partner>>
+				   to decide same-vs-opposite-gender pairing. In a forced single-gender world the
+				   partner is *always* the same gender as the asker, so return 100 here.
+				   The no-arg form remains the population-male-chance: 100 for male-only, 0 for female-only. */
+				if (arguments.length > 0 && (pronoun === "m" || pronoun === "f")) return 100;
+				const chance = forcedChance();
+				if (chance != null) return chance;
+			}
 			return original.apply(this, arguments);
 		};
 		window[wrappedFlag] = true;
@@ -608,150 +623,85 @@
 		return true;
 	}
 
+	/* The original pregnancy functions (see DoLX game/04-Variables/pregnancy.js) check
+	   `NPCObject.gender === "m"` to gate impregnation. The world override locks `pronoun`
+	   but deliberately leaves `gender` alone (so body sliders keep working). All the wrapper
+	   needs to do is set `gender` to a genital-derived value for the duration of the call,
+	   then let the original handle infertility, type checks, settings, etc. */
 
-	function resolvePregnancyNpc(NPC) {
+	function resolveNamedNpcObject(NPC) {
 		const V = ensureState();
-		let NPCObject = null;
-		let NPCNameCheck = null;
 		if (typeof NPC === "string") {
-			NPCNameCheck = NPC;
 			if (Array.isArray(V.NPCNameList) && V.NPCNameList.includes(NPC)) {
-				NPCObject = V.NPCName[V.NPCNameList.indexOf(NPC)];
+				return V.NPCName[V.NPCNameList.indexOf(NPC)];
 			}
-		} else if (NPC && typeof NPC === "object" && !Array.isArray(NPC)) {
-			if (Array.isArray(V.NPCNameList) && typeof NPC.fullDescription === "string" && V.NPCNameList.includes(NPC.fullDescription)) {
-				NPCNameCheck = NPC.fullDescription;
-				NPCObject = V.NPCName[V.NPCNameList.indexOf(NPC.fullDescription)];
-			} else if (Array.isArray(V.NPCNameList) && typeof NPC.description === "string" && V.NPCNameList.includes(NPC.description)) {
-				NPCNameCheck = NPC.description;
-				NPCObject = V.NPCName[V.NPCNameList.indexOf(NPC.description)];
-			} else {
-				NPCObject = NPC;
-				NPCNameCheck = NPC.description || NPC.fullDescription || null;
-			}
+			return null;
 		}
-		return { NPCObject, NPCNameCheck };
+		if (NPC && typeof NPC === "object" && !Array.isArray(NPC)) {
+			if (Array.isArray(V.NPCNameList)) {
+				if (typeof NPC.fullDescription === "string" && V.NPCNameList.includes(NPC.fullDescription)) {
+					return V.NPCName[V.NPCNameList.indexOf(NPC.fullDescription)];
+				}
+				if (typeof NPC.description === "string" && V.NPCNameList.includes(NPC.description)) {
+					return V.NPCName[V.NPCNameList.indexOf(NPC.description)];
+				}
+			}
+			return NPC;
+		}
+		return null;
 	}
 
-	function npcCanImpregnateByGenitals(npc) {
-		if (!npc || typeof npc !== "object") return false;
-		return npc.penis !== undefined && npc.penis !== "none" && !("strapon" in npc);
+	function genderForImpregnator(npc) {
+		/* "m" if NPC has a working penis (no strapon); original checks `"strapon" in NPC` itself,
+		   so we don't need to handle that here, just expose a male gender when there's a real penis. */
+		return (npc && npc.penis !== undefined && npc.penis !== "none") ? "m" : "f";
+	}
+	function genderForImpregnatable(npc) {
+		/* "f" if NPC has a vagina, otherwise "m" (which the original will reject). */
+		return (npc && npc.vagina !== undefined && npc.vagina !== "none") ? "f" : "m";
 	}
 
-	function npcCanBeImpregnatedByGenitals(npc) {
-		if (!npc || typeof npc !== "object") return false;
-		return npc.vagina !== undefined && npc.vagina !== "none";
+	function withTempGender(NPC, tempGender, fn) {
+		const target = resolveNamedNpcObject(NPC);
+		if (!target) return fn();
+		const had = Object.prototype.hasOwnProperty.call(target, "gender");
+		const saved = target.gender;
+		target.gender = tempGender;
+		try {
+			return fn();
+		} finally {
+			if (had) target.gender = saved;
+			else delete target.gender;
+		}
 	}
 
 	function installPregnancyCompatibilityWrappers() {
 		if (window.__genderOverridePregCompatWrapped) return true;
 		if (typeof window.playerPregnancyPossibleWith !== "function" || typeof window.NPCPregnancyPossibleWithPlayer !== "function") return false;
 
-		const originalPlayerPregnancyPossibleWith = window.playerPregnancyPossibleWith;
-		const originalNPCPregnancyPossibleWithPlayer = window.NPCPregnancyPossibleWithPlayer;
-		window.__genderOverrideOriginalPlayerPregnancyPossibleWith = originalPlayerPregnancyPossibleWith;
-		window.__genderOverrideOriginalNPCPregnancyPossibleWithPlayer = originalNPCPregnancyPossibleWithPlayer;
+		const origPlayerPreg = window.playerPregnancyPossibleWith;
+		const origNpcPreg    = window.NPCPregnancyPossibleWithPlayer;
+		window.__genderOverrideOriginalPlayerPregnancyPossibleWith = origPlayerPreg;
+		window.__genderOverrideOriginalNPCPregnancyPossibleWithPlayer = origNpcPreg;
 
 		window.playerPregnancyPossibleWith = function (NPC) {
-			if (!isRewriteActive()) return originalPlayerPregnancyPossibleWith.apply(this, arguments);
-			const V = ensureState();
-			const T = (typeof window !== "undefined") ? (window.T ||= {}) : {};
-			T.pregFalseReason = "";
-			const { NPCObject, NPCNameCheck } = resolvePregnancyNpc(NPC);
-			if (!NPCObject) {
-				T.pregFalseReason = "invalidNpc";
-				return false;
-			}
-			if (NPCNameCheck && setup.pregnancy.infertile.includes(NPCNameCheck)) {
-				T.pregFalseReason = "infertile";
-				return false;
-			}
-			if (NPCNameCheck && V.settings.incompletePregnancyEnabled === false && getC()?.npc?.[NPCNameCheck] && !setup.pregnancy.canImpregnatePlayer.includes(NPCNameCheck)) {
-				T.pregFalseReason = "infertile";
-				return false;
-			}
-			if (typeof window.getPregnancyObject === "function" && window.getPregnancyObject().fetus.length) {
-				T.pregFalseReason = "playerPregnant";
-				return false;
-			}
-			switch (NPCObject.type) {
-				case "human":
-					if (V.settings.playerPregnancyHumanEnabled === false) {
-						T.pregFalseReason = "pregnantDisabled";
-						return false;
-					}
-					break;
-				case "wolf":
-				case "wolfboy":
-				case "wolfgirl":
-				case "hawk":
-				case "harpy":
-					if (V.settings.playerPregnancyBeastEnabled === false || (V.settings.playerPregnancyEggLayingEnabled === false && ["hawk", "harpy"].includes(NPCObject.type))) {
-						T.pregFalseReason = "pregnantDisabled";
-						return false;
-					}
-					break;
-				default:
-					T.pregFalseReason = "pregnantTypeUnsupported";
-					return false;
-			}
-			if (!((V.player.vaginaExist || canBeMPregnant()) && npcCanImpregnateByGenitals(NPCObject))) {
-				T.pregFalseReason = "genitals";
-				return false;
-			}
-			return true;
+			if (!isRewriteActive()) return origPlayerPreg.apply(this, arguments);
+			const target = resolveNamedNpcObject(NPC);
+			return withTempGender(NPC, genderForImpregnator(target), () => origPlayerPreg.call(this, NPC));
 		};
 
 		window.NPCPregnancyPossibleWithPlayer = function (NPC) {
-			if (!isRewriteActive()) return originalNPCPregnancyPossibleWithPlayer.apply(this, arguments);
-			const V = ensureState();
-			const T = (typeof window !== "undefined") ? (window.T ||= {}) : {};
-			T.pregFalseReason = "";
-			const { NPCObject, NPCNameCheck } = resolvePregnancyNpc(NPC);
-			if (!NPCObject) {
-				T.pregFalseReason = "invalidNpc";
-				return false;
-			}
-			if (NPCNameCheck && getC()?.npc?.[NPCNameCheck]) {
-				const cNpc = getC().npc[NPCNameCheck];
-				if (setup.pregnancy.infertile.includes(NPCNameCheck) || !NPCObject.pregnancy?.enabled) {
-					T.pregFalseReason = "infertile";
-					return false;
-				}
-				if (NPCObject.pregnancy?.fetus?.length) {
-					T.pregFalseReason = "npcPregnant";
-					return false;
-				}
-			} else if (NPCObject.pregnancy) {
-				T.pregFalseReason = "npcPregnant";
-				return false;
-			}
-			if (V.settings.npcPregnancyEnabled === false) {
-				T.pregFalseReason = "pregnantDisabled";
-				return false;
-			}
-			if (!setup.pregnancy.typesEnabled.includes(NPCObject.type)) {
-				T.pregFalseReason = "pregnantTypeUnsupported";
-				return false;
-			}
-			if (!V.player.penisExist || !npcCanBeImpregnatedByGenitals(NPCObject)) {
-				T.pregFalseReason = "genitals";
-				return false;
-			}
-			return true;
+			if (!isRewriteActive()) return origNpcPreg.apply(this, arguments);
+			const target = resolveNamedNpcObject(NPC);
+			return withTempGender(NPC, genderForImpregnatable(target), () => origNpcPreg.call(this, NPC));
 		};
 
-		if (typeof window.pregnancyCompatible === "function") {
-			window.pregnancyCompatible = function (NPC) {
-				if (window.playerPregnancyPossibleWith(NPC) === false && window.NPCPregnancyPossibleWithPlayer(NPC) === false) return false;
-				return true;
-			};
-		}
+		/* `pregnancyCompatible` already delegates to the two above, so it now picks up our
+		   gender-swap behaviour automatically, no separate wrapper needed. */
 
 		window.__genderOverridePregCompatWrapped = true;
 		return true;
 	}
-
 
 	function installWrappers() {
 		const okA = installChanceWrapper("maleChance");
@@ -761,6 +711,7 @@
 		return okA && okB && okC && okD;
 	}
 
+	/* ---------------- Hooks & bootstrap ---------------- */
 
 	function installSettingsRefreshHooks() {
 		if (window.__genderOverrideSettingsRefreshHooksInstalled) return;
@@ -815,16 +766,16 @@
 		scheduleWrapperInstall();
 	}
 
-	window.ensureWorldGenderOverrideState = ensureState;
-	window.applyWorldGenderOverride = applyWorldGenderOverride;
-	window.syncWorldGenderOverrideState = syncRewriteState;
-	window.worldGenderOverrideModeLabel = modeLabel;
-	window.worldGenderOverrideForcedGender = getForcedGender;
-	window.worldGenderOverrideNormalizeAll = normalizeStoredCollections;
-	window.worldGenderOverrideNormalizeNpc = normalizeNpcObject;
+	window.ensureWorldGenderOverrideState   = ensureState;
+	window.applyWorldGenderOverride         = applyWorldGenderOverride;
+	window.syncWorldGenderOverrideState     = syncRewriteState;
+	window.worldGenderOverrideModeLabel     = modeLabel;
+	window.worldGenderOverrideForcedGender  = getForcedGender;
+	window.worldGenderOverrideNormalizeAll  = normalizeStoredCollections;
+	window.worldGenderOverrideNormalizeNpc  = normalizeNpcObject;
 	window.worldGenderOverrideNormalizeChild = normalizeChildObject;
 	window.worldGenderOverrideForceSettingsDom = forceCurrentSettingsDom;
-	window.worldGenderOverrideActive = isRewriteActive;
+	window.worldGenderOverrideActive        = isRewriteActive;
 
 	ensureState();
 	installSettingsRefreshHooks();
