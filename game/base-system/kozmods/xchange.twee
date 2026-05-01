@@ -575,7 +575,12 @@
 		<<set $player.ballsExist to $xchange.useHermBalls eq 1>>
 		<<set $player.penisExist to true>>
 		<<set $player.vaginaExist to true>>
-		<<set $sexStats.vagina.menstruation.running = false>>
+		/* Herm body has a vagina; preserve menstruation if the original body had one (so pregnancy still works) */
+		<<if $xchange.pill.baseGenitals and $xchange.pill.baseGenitals.vagina>>
+			<<set $sexStats.vagina.menstruation.running = true>>
+		<<else>>
+			<<set $sexStats.vagina.menstruation.running = false>>
+		<</if>>
 		<<run updatePhysique()>>
 	<</widget>>
 
@@ -1127,6 +1132,11 @@
 		<<if !$xchange.pill.hermEffect>>
 			<<set $xchange.pill.hermEffect to true>>
 			<<hermify>>
+			/* Herm body has a vagina; if the original body did too, allow fertility/pregnancy during the pill */
+			<<if $xchange.pill.baseGenitals and $xchange.pill.baseGenitals.vagina>>
+				<<set $xchange.pill.fertile to true>>
+				<<set $sexStats.vagina.menstruation.running = true>>
+			<</if>>
 			/* ADDED */
 			<<set _xchangeNeedsRefresh to true>>
 		<</if>>
@@ -1573,7 +1583,7 @@
 
 	<<widget "xchange-setpermanent">>
 		<<set $xchange.pill.duration to -1>>
-		<<if $player.sex is "f">>
+		<<if $player.sex is "f" or ($xchange.pill.hermEffect and $player.vaginaExist)>>
 			<<set $sexStats.vagina.menstruation.running = true>>
 			<<set $xchange.pill.fertile to true>>
 		<</if>>

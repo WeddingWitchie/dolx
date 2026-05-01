@@ -45,7 +45,7 @@ function desaturate(image, params=[2,1,1,1,1]) {
  */
 function desaturateFile(path, params=[2,1,1,1,1],skipexisting=true) {
 	let newname = path.replace(".png","_gray.png");
-	if (skipexisting && fs.existsSync(path)) return;
+	if (skipexisting && fs.existsSync(newname)) return;
 	let data = fs.readFileSync(path);
 	let png = PNG.sync.read(data);
 	desaturate(png,params);
@@ -127,7 +127,7 @@ function processSlot(setupfile,imgdir,varname,hasIntegrity) {
 			console.log("Found item " + v);
 			let files = [];
 			//Edit
-			if (varname === "setup.clothes.hands" or varname === "setup.clothes.rings"){ // hack but what can I do...
+			if (varname === "setup.clothes.hands" || varname === "setup.clothes.rings") { // hack but what can I do...
 				if (json.colour_sidebar) {
 					files.push("left","right","left_cover","right_cover");
 				}
