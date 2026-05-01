@@ -248,10 +248,10 @@ function pleasure(amount, source) {
 			(V.penis_addict_trait === 1 && !penisAddictionFulfilled) ||
 			(V.hole_addict_trait === 1 && !holeAddictionFulfilled);
 
-		// If a breakthrough orgasm was already triggered, let it through
-		// until pleasure drops (orgasm processed). Don't re-clamp.
+		// If a breakthrough orgasm was already triggered, let it through until pleasure drops (orgasm processed).
+		// Don't re-clamp.
 		if (V.xchange.breakthroughOrgasm && V.pleasure >= V.pleasuremax * 4 / 5) {
-			// Let it ride — orgasm processing will handle it
+			// Let it ride, orgasm processing will handle it
 		} else if (V.xchange.breakthroughOrgasm && V.pleasure < V.pleasuremax * 4 / 5) {
 			// Orgasm processed, clear the bypass
 			delete V.xchange.breakthroughOrgasm;
@@ -674,6 +674,27 @@ function xchangeDailyCheck(days = 1) {
 		V.xchange.blackmailHalt = Math.max(0, V.xchange.blackmailHalt - 1 * days);
 				
 		wikifier("dailyIdentityEffects");
+
+		try {
+			const refl = V.xchange?.permaReflection;
+			const today = (typeof Time !== "undefined" && Time && typeof Time.days === "number") ? Time.days : 0;
+			if (refl && refl.pending && !refl.answer && pillIsPermanent() && today > (refl.lastShownDay ?? -1)) {
+				V.xchangePermaReflectionMessage = 1;
+				V.effectsmessage = 1;
+			}
+		} catch (e) { /* defensive: never let scheduling break the daily tick */ }
+
+		try {
+			const refl2 = V.xchange?.permaReflection;
+			if (refl2 && refl2.answer && pillIsPermanent()) {
+				if (refl2.answer === "no") {
+					wikifier("stress", 5 * days);
+					wikifier("trauma", 5 * days);
+				} else if (refl2.answer === "yes") {
+					wikifier("stress", -5 * days);
+				}
+			}
+		} catch (e) { /* defensive */ }
 	}
 
 	// Effect Remover Pill Dealer now restocks daily instead of weekly, but availability stays in weekly check.
@@ -861,6 +882,25 @@ function xchangeEffectsMessages() {
 		}
 		delete V.xchangePermanenceMessage;
 	}
+
+	if (V.xchangePermaReflectionMessage) {
+		try {
+			if (pillIsPermanent() && V.xchange?.permaReflection?.pending && !V.xchange.permaReflection.answer) {
+				fragment.append(wikifier("perma-reflection-prompt"));
+				if (V.xchange.permaReflection) {
+					V.xchange.permaReflection.lastShownDay =
+						(typeof Time !== "undefined" && Time && typeof Time.days === "number") ? Time.days : 0;
+				}
+			}
+		} catch (e) { /* defensive */ }
+		delete V.xchangePermaReflectionMessage;
+	}
+
+	try {
+		if (pillIsPermanent() && V.xchange?.permaReflection?.answer) {
+			fragment.append(wikifier("perma-reflection-daily-reminder"));
+		}
+	} catch (e) { /* defensive */ }
 
 	switch (V.xchangeRestoreMessage) {
 		case 1:

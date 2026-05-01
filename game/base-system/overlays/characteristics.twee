@@ -119,12 +119,16 @@
 		<</if>>
 	<</if>>
 
-	/* Trans label: key off birth sex, not current body.
-	   born male  → "trans girl"  (MTF)
-	   born female → "trans boy"  (FTM)
-	   unknown/nb  → "trans <<pcGender>>" (safe fallback) */
 	<<if $background.transgender>>
-		<<set _transBirthSex to ($background.transOriginalSex !== undefined ? $background.transOriginalSex : $player.sex)>>
+		<<if $background.transOriginalSex !== undefined>>
+			<<set _transBirthSex to $background.transOriginalSex>>
+		<<elseif $player.gender is "m">>
+			<<set _transBirthSex to "f">>
+		<<elseif $player.gender is "f">>
+			<<set _transBirthSex to "m">>
+		<<else>>
+			<<set _transBirthSex to "n">>
+		<</if>>
 		<<if _transBirthSex is "m">>
 			trans girl
 		<<elseif _transBirthSex is "f">>
@@ -1683,7 +1687,8 @@
 	<span class="gold">Insecurities</span>
 	<div class="description">Scrutiny becomes harder to take as insecurity increases, inflicting more stress and damaging control. Acceptance renders you immune to the effect.</div>
 	<br><br>
-	<<set $_penisSize to setup.penisSizes[$player.penissize].toUpperFirst()>>
+	/* Defensive: setup.penisSizes[$player.penissize] can be undefined for characters without a penis or after X-Change state mutations */
+	<<set $_penisSize to (setup.penisSizes && setup.penisSizes[$player.penissize] ? setup.penisSizes[$player.penissize].toUpperFirst() : "")>>
 	<<if insecurityExists("penis_small")>>
 		<span class="red">Insecurity: <<print $_penisSize>> Penis</span>
 		<div class="meter">
@@ -1712,7 +1717,8 @@
 			</div>
 		<</if>>
 	<</if>>
-	<<set $_breastSize to setup.breastsizes[$player.breastsize].toUpperFirst()>>
+	/* Defensive: same pattern as $_penisSize above; guard against $player.breastsize being out of range or undefined. */
+	<<set $_breastSize to (setup.breastsizes && setup.breastsizes[$player.breastsize] ? setup.breastsizes[$player.breastsize].toUpperFirst() : "")>>
 	<<if insecurityExists("breasts_small")>>
 		<span class="red">Insecurity: <<print $player.breastsize ? "$_breastSize Breasts" : "Flat Chest">></span>
 		<div class="meter">

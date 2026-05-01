@@ -21078,3 +21078,57 @@ sugarcube-2:
       name: banner
     avery_mansion_morning_change:
       name: avery_mansion_morning_change
+    perma-reflection-prompt:
+      name: perma-reflection-prompt
+      description: |-
+        Rendered inline in the effects/wake-up screen on the day after the pill
+        becomes permanent, and on each subsequent day until the player decides.
+        The "Yes"/"No" choices override genital-topic dysphoria via the hook in
+        the <<dysphoria>> widget; "decide later" defers to the next day.
+
+        Important: this widget writes directly to $identity.body.genitals.X
+        instead of going through <<identitySelector>>. identitySelector gates
+        genital topics on $xchange.giGenitalsEnabled, which would silently
+        no-op the entire feature for any player who has the Genitals body
+        topic disabled in their X-Change Attitudes. By writing directly to
+        the underlying identity options, the player's standing choice applies
+        regardless of topic toggles, and the daily-effect hook in
+        xchangeDailyCheck adds a topic-independent stress/relief effect so
+        the choice still has felt consequences when the topic is disabled.
+
+        Before applying the override, the current state of the four genital
+        identity options is snapshotted into $xchange.permaReflection.snapshot
+        so that <<xchange-restore>> can roll it back if the player ever stops
+        being permapilled, such as through anti-pill use or permanence being
+        disabled. The override itself is also gated on pillIsPermanent() so it
+        stops applying the moment the pill is no longer permanent, even before
+        cleanup runs.
+    perma-reflection-clear:
+      name: perma-reflection-clear
+      description: "Permapill reflection cleanup: if the player had answered the
+        prompt while permanently pilled, this rolls back the genital identity
+        options to the pre-answer snapshot and wipes the reflection state, so
+        that a future re-permapill triggers a fresh prompt with a fresh
+        decision."
+    perma-reflection-snapshot:
+      name: perma-reflection-snapshot
+      description: "Helper: snapshot current state of all four genital identity
+        options into $xchange.permaReflection.snapshot. Called only the first
+        time the player answers Yes/No, so the original pre-permapill state is
+        what we save, not any subsequent overridden state."
+    perma-reflection-daily-reminder:
+      name: perma-reflection-daily-reminder
+      description: |
+        Renders a short narrative line each in-game day after the player has
+        answered the reflection prompt, tying the ongoing stress/relief loop
+        in xchangeDailyCheck back to the player's standing choice. Without
+        this line, players would see stress/trauma shifting daily without
+        any in-fiction reason for it.
+
+        Guarded by lastReminderDay so it fires at most once per in-game day
+        no matter how many wake-up paths or effects-screens trigger it. The
+        "yes"/"no" branches each pull from a small pool of variants so the
+        line doesn't read identically every morning over many in-game days.
+        Trans-aware: phrasing leans on $background.transgender so the line
+        acknowledges the trans player's distinct relationship to the body
+        the pill left them with.

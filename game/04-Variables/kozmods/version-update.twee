@@ -1460,3 +1460,153 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<if $children is undefined>><<set $children to {}>><</if>>
 	<<if $babyIntros is undefined>><<set $babyIntros to {}>><</if>>
 <</widget>>
+
+	<<widget "ensureSexStatsForPhysicalAdjustments">>
+		/* Root */
+		<<if $sexStats is undefined or $sexStats is null>>
+			<<set $sexStats to {
+				"breasts": { "playedWith": 0 },
+				"creampie": { "self": { "anus":0, "mouth":0, "vagina":0 }, "npc":{ "anus":0, "mouth":0, "vagina":0 } },
+				"pills":{
+					"pills":{
+						'bottom reduction':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'bottom growth':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'bottom blocker':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'breast reduction':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'breast growth':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'breast blocker':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'penis reduction':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'penis growth':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'penis blocker':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'fertility booster':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'contraceptive':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'asylum\'s prescription':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'Dr Harper\'s prescription':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+						'Anti-Parasite Cream': { autoTake: false, doseTaken: 0, owned: 0, overdose: 0 },
+					},
+					"boughtOnce": false,
+					"lastTaken":{"bottom":'', "breast":'', "penis":'', "pregnancy":''},
+					"mostTaken":{"bottom":'', "breast":'', "penis":'', "pregnancy":''}
+				} }>>
+		<</if>>
+
+		/* Breasts */
+		<<if $sexStats.breasts is undefined or $sexStats.breasts is null>><<set $sexStats.breasts to {}>><</if>>
+		<<if $sexStats.breasts.playedWith is undefined>><<set $sexStats.breasts.playedWith to 0>><</if>>
+
+		/* Creampie buckets */
+		<<if $sexStats.creampie is undefined or $sexStats.creampie is null>><<set $sexStats.creampie to {}>><</if>>
+		<<if $sexStats.creampie.self is undefined or $sexStats.creampie.self is null>><<set $sexStats.creampie.self to {}>><</if>>
+		<<if $sexStats.creampie.npc is undefined or $sexStats.creampie.npc is null>><<set $sexStats.creampie.npc to {}>><</if>>
+		<<if $sexStats.creampie.self.anus is undefined>><<set $sexStats.creampie.self.anus to 0>><</if>>
+		<<if $sexStats.creampie.self.mouth is undefined>><<set $sexStats.creampie.self.mouth to 0>><</if>>
+		<<if $sexStats.creampie.self.vagina is undefined>><<set $sexStats.creampie.self.vagina to 0>><</if>>
+		<<if $sexStats.creampie.npc.anus is undefined>><<set $sexStats.creampie.npc.anus to 0>><</if>>
+		<<if $sexStats.creampie.npc.mouth is undefined>><<set $sexStats.creampie.npc.mouth to 0>><</if>>
+		<<if $sexStats.creampie.npc.vagina is undefined>><<set $sexStats.creampie.npc.vagina to 0>><</if>>
+
+		/* Vagina / Anus + pregnancy chain */
+		<<if $sexStats.vagina is undefined or $sexStats.vagina is null>>
+			<<set _baseDays to random(24,38)>>
+			<<if _baseDays lt 26>><<set _baseDaysRng to random(0,4)>><<elseif _baseDays gte 30>><<set _baseDaysRng to random(-4,0)>><<else>><<set _baseDaysRng to random(-2,2)>><</if>>
+			<<set _currentDaysMax to _baseDays + random(0, _baseDaysRng)>>
+			<<set $sexStats.vagina to {
+				"pregnancy": { "fetus": [], "givenBirth": 0, "parasiteBirthEvents": 0, "totalBirthEvents": 0, "motherStatus": 0, "waterBreaking": false, "type": null, "timer": null, "timerEnd": null, "awareOf": null, "potentialFathers": [], },
+				"menstruation":{ "baseDays": _baseDays, "baseDaysRng": _baseDaysRng, "currentDay": random(0, _baseDays + random(0,_baseDaysRng)), "lastDaysMax": _currentDaysMax, "currentDaysMax": _currentDaysMax, "currentState": "normal", "recoveryTime": null, "recoveryTimeStart": null, "recoveryStage": null, "periodEnabled": true, "running": false, "stages": [0, 0, 0, 0], },
+				"sperm":[]
+			}>>
+			<<set _menstruation to $sexStats.vagina.menstruation>>
+			<<set _stage2 to Math.round(_menstruation.currentDaysMax * 0.17)>>
+			<<if _stage2 gte 4>><<set _stage2-->><</if>>
+			<<set _stage3 to Math.round(_menstruation.currentDaysMax * 0.5)>>
+			<<if _stage3 lt 13>><<set _stage3++>><<elseif _stage3 gte 18>><<set _stage3-->><</if>>
+			<<set _menstruation.stages to [0, _stage2, _stage3, _stage3 + random(1,2) * 0.5]>>
+			<<if $player.vaginaExist>><<set $sexStats.vagina.menstruation.running = true>><</if>>
+		<</if>>
+		<<if $sexStats.vagina.pregnancy is undefined or $sexStats.vagina.pregnancy is null>><<set $sexStats.vagina.pregnancy to {}>><</if>>
+		<<if $sexStats.vagina.pregnancy.fetus is undefined>><<set $sexStats.vagina.pregnancy.fetus to []>><</if>>
+		<<if $sexStats.vagina.pregnancy.potentialFathers is undefined>><<set $sexStats.vagina.pregnancy.potentialFathers to []>><</if>>
+		<<if $sexStats.vagina.pregnancy.parasiteFeltMovement is undefined>><<set $sexStats.vagina.pregnancy.parasiteFeltMovement to false>><</if>>
+		<<if $sexStats.vagina.pregnancy.timeEnd is undefined>><<set $sexStats.vagina.pregnancy.timeEnd to null>><</if>>
+		<<if $sexStats.anus.pregnancy is undefined or $sexStats.anus.pregnancy is null>><<set $sexStats.anus.pregnancy to {}>><</if>>	
+		<<if $sexStats.vagina.pregnancy.parasiteBirthEvents is undefined>>
+			<<set $sexStats.vagina.pregnancy.parasiteBirthEvents to 0>>
+			<<set $sexStats.vagina.pregnancy.parasiteFeltMovement to false>>
+			<<set $sexStats.vagina.pregnancy.timerEnd to null>>
+			<<run delete $sexStats.vagina.pregnancy.beastMotherStatus>>
+			<<run delete $sexStats.vagina.pregnancy.ultrasoundDone>>
+			<<run delete $sexStats.vagina.pregnancy.morningSicknessWaking>>
+			<<run delete $sexStats.vagina.pregnancy.morningSicknessGeneral>>
+			<<run delete $sexStats.vagina.pregnancy.bellySize>>
+			<<run delete $sexStats.vagina.pregnancy.timerStart>>
+		<</if>>
+		<<if $sexStats.anus is undefined or $sexStats.anus is null>><<set $sexStats.anus to { "pregnancy": { fetus: [], givenBirth: 0, parasiteBirthEvents: 0, motherStatus: 0, type: null, awareOf: null, timer: null, timerEnd: null, type: null, potentialFathers: [], totalBirthEvents: 0, }, "sperm":[], }>><</if>>
+		<<if $sexStats.anus.pregnancy.fetus is undefined>>
+			<<set $sexStats.anus.pregnancy.fetus to []>>
+			<<for $_i to 0; $_i lt 4; $_i++>>
+				<<if $sexStats.anus.pregnancy[$_i] isnot null>>
+					<<run $sexStats.anus.pregnancy.fetus.push(clone($sexStats.anus.pregnancy[$_i]))>>
+					<<if $sexStats.anus.pregnancy.fetus.last().stats.gender is "Futa">>
+						<<set $sexStats.anus.pregnancy.fetus.last().stats.gender to "Hermaphrodite">>
+					<</if>>
+					<<set $sexStats.anus.pregnancy.type to "parasite">>
+				<</if>>
+				<<run delete $sexStats.anus.pregnancy[$_i]>>
+			<</for>>
+			<<if !$sexStats.anus.pregnancy.parasiteBirthEvents>>
+				<<set $sexStats.anus.pregnancy.parasiteBirthEvents to clone($sexStats.anus.pregnancy.givenBirth)>>
+				<<set $sexStats.anus.pregnancy.parasiteFeltMovement to clone($sexStats.anus.pregnancy.feltMovement)>>
+				<<set $sexStats.anus.pregnancy.givenBirth to 0>>
+			<</if>>
+			<<pregnancyVar>> <!--In case it's not been ran before -->
+			<<if $sexStats.anus.pregnancy.seenDoctor>><<set $pregnancyStats.parasiteDoctorEvents to clone($sexStats.anus.pregnancy.seenDoctor)>><</if>>
+			<<if $sexStats.anus.pregnancy.book>><<set $pregnancyStats.parasiteBook to clone($sexStats.anus.pregnancy.book)>><</if>>
+			<<if $sexStats.anus.pregnancy.typesSeen>><<set $pregnancyStats.parasiteTypesSeen to clone($sexStats.anus.pregnancy.typesSeen)>><</if>>
+			<<if $sexStats.anus.pregnancy.variantsSeen>><<set $pregnancyStats.parasiteVariantsSeen to clone($sexStats.anus.pregnancy.variantsSeen)>><</if>>
+
+			/*Vagina Parity Variables*/
+			<<set $sexStats.anus.pregnancy.awareOf to null>>
+			<<set $sexStats.anus.pregnancy.timer to null>>
+			<<set $sexStats.anus.pregnancy.timerEnd to null>>
+			<<set $sexStats.anus.pregnancy.timerEnd to null>>
+			<<set $sexStats.anus.pregnancy.waterBreaking to false>>
+			<<set $sexStats.anus.pregnancy.potentialFathers to []>>
+			<<set $sexStats.anus.pregnancy.totalBirthEvents to 0>>
+
+			<<set $sexStats.anus.sperm to []>>
+
+			<<run delete $sexStats.anus.pregnancy.maxCount>>
+			<<run delete $sexStats.anus.pregnancy.count>>
+			<<run delete $sexStats.anus.pregnancy.lowestDaysLeft>>
+			<<run delete $sexStats.anus.pregnancy.lowestTimeLeft>>
+			<<run delete $sexStats.anus.pregnancy.feltMovement>>
+			<<run delete $sexStats.anus.pregnancy.fertile>>
+			<<run delete $sexStats.anus.pregnancy.fertilised>>
+			<<run delete $sexStats.anus.pregnancy.namesChildren>>
+			<<run delete $sexStats.anus.pregnancy.seenDoctor>>
+			<<run delete $sexStats.anus.pregnancy.book>>
+			<<run delete $sexStats.anus.pregnancy.typesSeen>>
+			<<run delete $sexStats.anus.pregnancy.variantsSeen>>
+			<<run delete $sexStats.anus.pregnancy.autoRepairDone>>
+		<</if>>
+		<<if $sexStats.anus.pregnancy.potentialFathers is undefined>><<set $sexStats.anus.pregnancy.potentialFathers to []>><</if>>
+		<<if $sexStats.anus.pregnancy.parasiteBirthEvents is undefined>><<set $sexStats.anus.pregnancy.parasiteBirthEvents to 0>><</if>>
+		<<if $sexStats.anus.pregnancy.parasiteFeltMovement is undefined>><<set $sexStats.anus.pregnancy.parasiteFeltMovement to false>><</if>>
+		<<if $sexStats.anus.pregnancy.timeEnd is undefined>><<set $sexStats.anus.pregnancy.timeEnd to null>><</if>>
+
+		/* Pills structures used by physicalAdjustments */
+		<<if $sexStats.pills is undefined or $sexStats.pills is null>><<set $sexStats.pills to {}>><</if>>
+		<<if $sexStats.pills.mostTaken is undefined or $sexStats.pills.mostTaken is null>><<set $sexStats.pills.mostTaken to {}>><</if>>
+		<<if $sexStats.pills["pills"] is undefined or $sexStats.pills["pills"] is null>><<set $sexStats.pills["pills"] to {}>><</if>>
+
+		<<if $sexStats.pills.mostTaken["breast"] is undefined>><<set $sexStats.pills.mostTaken["breast"] to "">><</if>>
+		<<if $sexStats.pills.mostTaken["penis"] is undefined>><<set $sexStats.pills.mostTaken["penis"] to "">><</if>>
+		<<if $sexStats.pills.mostTaken["bottom"] is undefined>><<set $sexStats.pills.mostTaken["bottom"] to "">><</if>>
+
+		<<if $sexStats.pills["pills"]["breast growth"] is undefined>><<set $sexStats.pills["pills"]["breast growth"] to {doseTaken:0, overdose:0}>><</if>>
+		<<if $sexStats.pills["pills"]["breast reduction"] is undefined>><<set $sexStats.pills["pills"]["breast reduction"] to {doseTaken:0, overdose:0}>><</if>>
+		<<if $sexStats.pills["pills"]["penis growth"] is undefined>><<set $sexStats.pills["pills"]["penis growth"] to {doseTaken:0, overdose:0}>><</if>>
+		<<if $sexStats.pills["pills"]["penis reduction"] is undefined>><<set $sexStats.pills["pills"]["penis reduction"] to {doseTaken:0, overdose:0}>><</if>>
+		<<if $sexStats.pills["pills"]["bottom growth"] is undefined>><<set $sexStats.pills["pills"]["bottom growth"] to {doseTaken:0, overdose:0}>><</if>>
+		<<if $sexStats.pills["pills"]["bottom reduction"] is undefined>><<set $sexStats.pills["pills"]["bottom reduction"] to {doseTaken:0, overdose:0}>><</if>>
+	<</widget>>
