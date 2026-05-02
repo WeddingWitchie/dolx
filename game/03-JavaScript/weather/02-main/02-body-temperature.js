@@ -259,6 +259,10 @@ Weather.BodyTemperature = (() => {
 				coldTolerance: -10, coldToleranceEnd: -15,
 				heatTolerance: 5, heatToleranceEnd: 10
 			},
+			waterdragon: {
+				coldTolerance: -40, coldToleranceEnd: -45,
+				heatTolerance: -1, heatToleranceEnd: -2
+			},
 		};
 
 		const mod = transformationAdjustments[V.transformationParts.traits.tempTolerance] ?? {
