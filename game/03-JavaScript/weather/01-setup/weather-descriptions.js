@@ -47,7 +47,7 @@ setup.WeatherDescriptions = {
 			dusk: () => Weather.precipitation === "rain" ? "Orange skies and storms churn." : "Orange skies dim behind the storm.",
 			night: () => Weather.precipitation === "rain" ? "Occasional flashes of lightning illuminate the night." : "The storm presses in through the night.",
 		},
-		thunderstorm: {
+		thunderStorm: {
 			dawn: () => Weather.precipitation === "rain" ? "A thunderstorm rages at dawn." : "A storm rages at dawn.",
 			day: () => Weather.precipitation === "rain" ? "Lightning brightens the clouds." : "A heavy storm churns through the day.",
 			dusk: () => Weather.precipitation === "rain" ? "Orange skies and thunderstorms churn." : "Orange skies darken behind the storm.",

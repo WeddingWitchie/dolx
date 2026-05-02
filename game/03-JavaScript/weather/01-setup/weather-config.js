@@ -385,7 +385,7 @@ setup.WeatherGeneration = {
 			fogChangeRate: -0.04,
 		},
 		{
-			name: "thunderstorm",
+			name: "thunderStorm",
 			iconType: () => "thunderstorm-" + Weather.precipitation,
 			value: 6,
 			probability: {
