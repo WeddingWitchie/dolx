@@ -106,6 +106,7 @@ declare module "twine-sugarcube" {
 			| "tentacles-wraith"
 			| "tentacles-wraith-penetrated";
 		tentacles: {
+			[index: number]: TentacleState | undefined;
 			0?: TentacleState;
 			1?: TentacleState;
 			2?: TentacleState;
@@ -134,6 +135,13 @@ declare module "twine-sugarcube" {
 		tentacleAnus: string | 0;
 		tentaclePenis: string | 0;
 		swarm: Swarm;
+
+		/** Named NPC display names, aligned with npcrow. */
+		npc: string[];
+		/** Named NPC row identifiers used to resolve entries in npc. */
+		npcrow: Array<string | number>;
+		/** Active combat NPC list. Entries can be sparse during setup/cleanup. */
+		NPCList: Array<Record<string, unknown> | undefined>;
 	}
 
 	export interface SugarCubeTemporaryVariables {
@@ -143,6 +151,8 @@ declare module "twine-sugarcube" {
 	export interface SugarCubeSetupObject {
 		positions: Positions[];
 		legPositions: LegPositions[];
+		/** Canonical named NPCs that may have dedicated combat speech/ejaculation macros. */
+		NPCNameList: string[];
 	}
 }
 
@@ -205,6 +215,8 @@ declare global {
 	}
 
 	export interface MachineStates {
+		[key: string]: MachineState | undefined;
+
 		tattoo: MachineState;
 		speed: any;
 	}

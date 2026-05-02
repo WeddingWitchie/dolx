@@ -871,7 +871,10 @@ function specialClothesRefresh() {
 		});
 
 	const unlockedFeatSets = getUnlockedSpecialSets().filter(set => setup.specialClothesSets[set]?.feat);
-	const totalFeatSets = getSpecialSets(set => set.feat).length;
+	const totalFeatSets = getSpecialSets(
+		/** @param {SpecialClothesSetsSetup} set */
+		set => set.feat
+	).length;
 	if (unlockedFeatSets.length >= totalFeatSets / 2) wikifier("earnFeat", "'Curious Attire'");
 	if (unlockedFeatSets.length >= totalFeatSets) wikifier("earnFeat", "'Wicked Wardrobe'");
 
@@ -886,7 +889,9 @@ DefineMacro("specialClothesRefresh", specialClothesRefresh);
  * @param {1 | 2 | 3} unlockLevel Unlock level, 1 = bypassed with cheats, 2 = unlocked with feat booster, 3 = unlocked with requirement or by in-passage call
  */
 function specialClothesUnlock(nameSpace = "set", name, unlockLevel = 3) {
+	/** @type {SpecialClothesSetup[]} */
 	let toUnlock = [];
+	/** @type {string[]} */
 	const toUnlockMessages = [];
 	if (nameSpace === "set") {
 		if (!getSpecialSets().includes(name)) {
@@ -899,7 +904,8 @@ function specialClothesUnlock(nameSpace = "set", name, unlockLevel = 3) {
 			return Errors.report(`ERROR: invalid ${nameSpace} name ${name} provided for special clothing unlock function`);
 		}
 		// Array of 1 with only the special clothes item with the provided name
-		toUnlock.push(setup.specialClothes.find(special => special.name === name));
+		const specialItem = setup.specialClothes.find(special => special.name === name);
+		if (specialItem) toUnlock.push(specialItem);
 	} else {
 		return Errors.report(`ERROR: invalid ${nameSpace} name ${name} provided for special clothing unlock function`);
 	}
@@ -943,6 +949,7 @@ function specialClothesUnlockText(toUnlock, group) {
 			}
 			if (toUnlock.length === 1) {
 				const clothingObject = setup.clothes.all.find(item => item.name === toUnlock[0]);
+				if (!clothingObject) return output;
 				const pluralText = clothingObject.plural === 1 ? "are" : "is";
 				if (clothingObject.name === "familiar collar") {
 					output += `<span class="forest-green">Your collar</span> <span class="gold">is now available at the forest shop, whenever you need it.</span><br><br>`;
@@ -1030,7 +1037,8 @@ function specialClothesUnlockText(toUnlock, group) {
 }
 
 /**
- * @param {Function?} filterfn array filter
+ * @param {((set: SpecialClothesSetsSetup) => unknown) | null} [filterfn] array filter
+ * @returns {string[]}
  */
 function getSpecialSets(filterfn = null) {
 	if (typeof filterfn !== "function") filterfn = () => true;
@@ -1042,15 +1050,18 @@ function getSpecialSets(filterfn = null) {
 window.getSpecialSets = getSpecialSets;
 
 /**
- * @param {Array} from Which array to use. In feats.js, this is used on a converted special clothes name list for importing feats from saves that use the old system.
+ * @param {string[]} [from] Which array to use. In feats.js, this is used on a converted special clothes name list for importing feats from saves that use the old system.
+ * @returns {string[]}
  */
 function getUnlockedSpecialSets(from = V.specialClothes.filter(c => c.unlocked >= 3).map(c => c.name)) {
+	/** @type {Map<string, { total: number, unlocked: number }>} */
 	const groupTracker = new Map(); // { total: X, unlocked: Y }
 
 	setup.specialClothes.forEach(item => {
 		item.sets.forEach(group => {
 			if (!groupTracker.has(group)) groupTracker.set(group, { total: 0, unlocked: 0 });
 			const groupData = groupTracker.get(group);
+			if (!groupData) return;
 			groupData.total++;
 			if (from.includes(item.name)) groupData.unlocked++;
 		});
@@ -1061,8 +1072,12 @@ function getUnlockedSpecialSets(from = V.specialClothes.filter(c => c.unlocked >
 window.getUnlockedSpecialSets = getUnlockedSpecialSets;
 
 // Does NOT need to be updated with new clothes. Adds spaces to old spaceless names to actually match clothing setup names. Required for updating localStorage object.
+/**
+ * @param {Record<string, unknown>} object
+ * @returns {string[]}
+ */
 function updateSpecialClothesNames(object) {
-	const ConversionObject = {
+	const ConversionObject = /** @type {{ name: Record<string, string>, convert: (obj: Record<string, unknown>) => string[] }} */ ({
 		name: {
 			witchdress: "witch dress",
 			witchhat: "witch hat",
@@ -1129,9 +1144,9 @@ function updateSpecialClothesNames(object) {
 			"sexypriest'svestments": "sexy priest's vestments",
 		},
 		convert(obj) {
-			return Object.keys(obj).map(key => this.name[key]);
+			return Object.keys(obj).map(key => this.name[key]).filter(Boolean);
 		},
-	};
+	});
 	return ConversionObject.convert(object);
 }
 window.updateSpecialClothesNames = updateSpecialClothesNames;

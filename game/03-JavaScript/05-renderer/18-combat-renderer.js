@@ -441,14 +441,26 @@ class CombatRenderer {
 		options.filters.penis = skinFilter;
 
 		if (options.showTan) {
-			const tanslots = ["breasts", "penis", "swimshorts", "swimsuitTop", "swimsuitBottom", "bikiniTop", "bikiniBottom"]
-				.map(slotname => [slotname, options["skin_tone_" + slotname]])
-				.filter(slot => slot[1] >= 0);
+			const tanOptions = /** @type {Record<string, any>} */ (options);
+			/** @type {{ filterKey: string, tone: number }[]} */
+			const tanslots = [];
+			for (const slotname of ["breasts", "penis", "swimshorts", "swimsuitTop", "swimsuitBottom", "bikiniTop", "bikiniBottom"]) {
+				const tone = tanOptions["skin_tone_" + slotname];
+				if (typeof tone === "number" && tone >= 0) {
+					tanslots.push({
+						filterKey: slotname,
+						tone,
+					});
+				}
+			}
 			// Brightest on top
-			tanslots.sort((a, b) => b[1] - a[1]);
+			tanslots.sort((a, b) => b.tone - a.tone);
 			tanslots.forEach((slot, i) => {
-				options.filters[slot[0]] = setup.colours.getSkinFilter(options.skinType, slot[1]);
-				options["ztan_" + slot[0]] = options["ztan_" + slot[0]] + 0.01 * i;
+				const zKey = "ztan_" + slot.filterKey;
+				const currentZ = tanOptions[zKey];
+
+				options.filters[slot.filterKey] = setup.colours.getSkinFilter(options.skinType, slot.tone);
+				tanOptions[zKey] = (typeof currentZ === "number" ? currentZ : 0) + 0.01 * i;
 			});
 		}
 	}
@@ -507,20 +519,22 @@ class CombatRenderer {
 	 * @returns {ClothesItem}
 	 */
 	static getClothingBySlot(slot) {
-		const active = V.worn[slot];
-		if (active == null) {
-			return CombatRenderer.emptyClothing;
-		}
-		const setupCategory = setup.sextoys.find(t => t.category === slot) ? setup.sextoys : setup.clothes[slot];
-		const defaults = setupCategory == null ? CombatRenderer.emptyClothing : setupCategory[active.index];
-		if (defaults == null) {
+		const isSexToySlot = setup.sextoys.some(t => t.category === slot);
+		const worn = /** @type {Record<string, any>} */ (V.worn);
+		const active = worn[slot]; if (active == null) {return CombatRenderer.emptyClothing;}
+		const setupCategory = isSexToySlot ? setup.sextoys : setup.clothes[/** @type {ClothedSlots} */ (slot)];
+		const setupItem = setupCategory == null ? CombatRenderer.emptyClothing : setupCategory[active.index];
+		if (setupItem == null) {
 			// Player likely used a modded item ported back to vanilla.
 			return CombatRenderer.emptyClothing;
 		}
-		const combat = Object.assign({}, defaults.combat, active.combat);
-		const result = Object.assign({}, defaults, active);
+
+		const defaults = /** @type {ClothesItem & { combat?: ClothesItem["combat"] }} */ (setupItem);
+		const activeItem = /** @type {Partial<ClothesItem> & { combat?: ClothesItem["combat"] }} */ (active);
+		const combat = Object.assign({}, defaults.combat, activeItem.combat);
+		const result = Object.assign({}, defaults, activeItem);
 		result.combat = combat;
-		return result;
+		return /** @type {ClothesItem} */ (result);
 	}
 
 	/**
@@ -528,12 +542,12 @@ class CombatRenderer {
 	 * @returns {ClothesItem}
 	 */
 	static getClothingSetupBySlot(slot) {
-		const active = V.worn[slot];
-		if (active == null) {
-			return CombatRenderer.emptyClothing;
-		}
-		const category = setup.sextoys.some(t => t.category === slot) ? setup.sextoys : setup.clothes[slot];
-		return category == null ? CombatRenderer.emptyClothing : category[active.index];
+		const isSexToySlot = setup.sextoys.some(t => t.category === slot);
+		const worn = /** @type {Record<string, any>} */ (V.worn);
+		const active = worn[slot]; if (active == null) {return CombatRenderer.emptyClothing;}
+		const category = isSexToySlot ? setup.sextoys : setup.clothes[/** @type {ClothedSlots} */ (slot)];
+		const setupItem = category == null ? CombatRenderer.emptyClothing : category[active.index];
+		return /** @type {ClothesItem} */ (setupItem || CombatRenderer.emptyClothing);
 	}
 
 	/**
@@ -544,7 +558,9 @@ class CombatRenderer {
 		// Wetness
 		let alpha = 1;
 		// Stage could be 0 to 200.
-		const stage = V[slot + "wet"];
+		const key = slot + "wet";
+		const stage = /** @type {Record<string, unknown>} */ (/** @type {unknown} */ (V))[key];
+
 		if (typeof stage === "number") {
 			const normalised = normalise(200 - stage, 200, 0);
 			alpha = normalised / 2 + 0.5;
@@ -976,10 +992,8 @@ class CombatRenderer {
 		if (!V.dhmod || typeof V.dhmod !== "object") V.dhmod = {};
 		if (!V.dhmod.hair || typeof V.dhmod.hair !== "object") V.dhmod.hair = {};
 		if (!V.dhmod.fringe || typeof V.dhmod.fringe !== "object") V.dhmod.fringe = {};
-
 		if (!Array.isArray(V.dhmod.hair.colors)) V.dhmod.hair.colors = [];
 		if (typeof V.dhmod.hair.is_custom !== "boolean") V.dhmod.hair.is_custom = false;
-
 		if (!Array.isArray(V.dhmod.fringe.colors)) V.dhmod.fringe.colors = [];
 		if (typeof V.dhmod.fringe.is_custom !== "boolean") V.dhmod.fringe.is_custom = false;
 
@@ -994,5 +1008,10 @@ class CombatRenderer {
 		return data.canvasfilter.blend;
 	}
 }
+/**
+ * Debug cache for inspecting generated combat renderer options.
+ *
+ * @type {Record<string, unknown>}
+ */
 CombatRenderer.options = {};
 window.CombatRenderer = CombatRenderer;

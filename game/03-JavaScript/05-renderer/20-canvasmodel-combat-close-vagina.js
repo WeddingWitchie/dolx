@@ -1,7 +1,7 @@
 // @ts-check
 const closeVaginaEnemyPleasure = () => Number((/** @type {any} */ (V)).enemypleasure ?? 0);
 const closeVaginaEnemyPleasureMax = () => Number((/** @type {any} */ (V)).enemypleasuremax ?? 500);
-/* globals CombatRenderer, CloseCombatMapper, CloseOptions, CanvasModelLayers */
+/* globals CombatRenderer, CloseCombatMapper, CloseOptions, CanvasModelLayers, CanvasModelOptions, Renderer, V, setup */
 
 /**
  * @type {CanvasModelOptions<CloseOptions>}
@@ -107,7 +107,7 @@ const combatCloseVagina = {
 				return `${options.src}vagina/${options.position}/hair/hirsute.png`;
 			},
 			showfn(options) {
-				return !!options.showVagina && options.vagina.hirsute;
+				return !!options.showVagina && !!options.vagina.hirsute;
 			},
 			animationfn(options) {
 				return options.animKeyVagina;
@@ -208,8 +208,8 @@ const combatCloseVagina = {
 
 /**
  *
- * @param {string} npc
- * @param {string} strapon
+ * @param {"npc" | "npc2"} npc
+ * @param {"strapon" | "dpStrapon"} strapon
  * @param {CanvasModelLayers<CloseOptions>} overrideOptions
  * @returns {CanvasModelLayers<CloseOptions>}
  */
@@ -232,7 +232,7 @@ function vaginaPenetrator(npc, strapon, overrideOptions = {}) {
 			return options.vagina[npc] === "tentacle" ? ["vaginaTentacle"] : filter;
 		},
 		desaturatefn(options) {
-			return options.vagina[strapon];
+			return !!options.vagina[strapon];
 		},
 		brightnessfn(options) {
 			return options.vagina[strapon] ? -0.25 : 0;
@@ -248,7 +248,7 @@ function vaginaPenetrator(npc, strapon, overrideOptions = {}) {
 
 /**
  *
- * @param {string} npc
+ * @param {"npc" | "npc2"} npc
  * @param {CanvasModelLayers<CloseOptions>} overrideOptions
  * @returns {CanvasModelLayers<CloseOptions>}
  */
@@ -276,7 +276,7 @@ function vaginaPenetratorCondom(npc, overrideOptions = {}) {
 
 /**
  *
- * @param {string} pubes
+ * @param {"pbstrip" | "pblevel"} pubes
  * @param {number} level
  * @param {CanvasModelLayers<CloseOptions>} overrideOptions
  * @returns {CanvasModelLayers<CloseOptions>}

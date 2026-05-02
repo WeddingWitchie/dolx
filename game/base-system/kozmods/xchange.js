@@ -123,8 +123,15 @@ function pleasure(amount, source) {
 		const beingPenetrated = ["penis", "penisdouble", "tentacle", "tentacledeep", "machine"];
 		const penetrating = ["penetrated", "othervagina", "otheranus", "othermouth"];
 		
+		const portalVaginaNew = V.portalPanties?.state?.vagina?.new;
+		const portalAnusNew = V.portalPanties?.state?.anus?.new;
 		const playerIsBeingPenetrated =
-			beingPenetrated.includes(V.vaginause) || beingPenetrated.includes(V.anususe) || [0,3].includes(V.portalPanties.state.vagina?.new) || [0,3].includes(V.portalPanties.state.anus?.new) || V.portalejacvagina || V.portalejacanus;
+			beingPenetrated.includes(V.vaginause) ||
+			beingPenetrated.includes(V.anususe) ||
+			[0, 3].includes(portalVaginaNew) ||
+			[0, 3].includes(portalAnusNew) ||
+			V.portalejacvagina ||
+			V.portalejacanus;
 
 		const penisAddictionFulfilled = playerIsBeingPenetrated;
 		const holeAddictionFulfilled = penetrating.includes(V.penisuse);

@@ -320,6 +320,6 @@ Result:
 
 ![result](canvasmodel-demo3.png)
 
-Pattern image in this example is ![pattern](../img/ui/wolfharmony.png). It is registered in `game/04-Variables/canvasmodel-patterns-lib.js` file.
+Pattern image in this example is ![pattern](../img/ui/sym-harmony.png). It is registered in `game/04-Variables/canvasmodel-patterns-lib.js` file.
 
 It is also possible to define a procedurally generated pattern that takes parameters. See same file.

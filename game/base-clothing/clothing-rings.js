@@ -9339,7 +9339,7 @@ function initRings() {
 		},
 		{
 			index: 239,
-			slot: "4ct rings",
+			slot: "rings",
 			name: "4ct amethyst ring",
 			name_cap: "Amethyst ring",
 			variable: "amethyst-4",

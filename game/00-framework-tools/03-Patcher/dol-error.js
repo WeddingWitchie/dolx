@@ -1,7 +1,11 @@
 // @ts-check
 
+/**
+ * @returns {string | Record<string, any>}
+ */
 function getDebuggingInfo() {
 	if (V == null) return "SugarCube variables could not be loaded.";
+	/** @type {Record<string, any>} */
 	const response = {
 		passage: V.passage,
 		stack: [...ExecutionContext.instance.callStack],
@@ -53,12 +57,13 @@ function getDebuggingInfo() {
 	for (let i = 0; i < V.NPCList.length; i++) {
 		const npc = V.NPCList[i];
 		if (npc.type) {
+			/** @type {Record<string, any>} */
 			const npcData = {
 				active: npc.active,
 				index: npc.index,
 			};
 			if (V.combat) {
-				Object.apply(npcData, {
+				Object.assign(npcData, {
 					mouth: npc.mouth,
 					penis: npc.penis,
 					lefthand: npc.lefthand,
@@ -72,11 +77,26 @@ function getDebuggingInfo() {
 	return response;
 }
 
-throwError = function (place, message, source, isExportable = true, isLogged = true) {
+/**
+ * @param {any} place
+ * @param {unknown} message
+ * @param {string} [source]
+ * @param {boolean} [isExportable]
+ * @param {boolean} [isLogged]
+ * @returns {false}
+ */
+throwError = function (place, message, source = "", isExportable = true, isLogged = true) {
 	// add game version and active passage info at the start of the error box
 	const header = `${StartConfig.version} ${L10n.get("errorTitle")} (:: ${passage()}): `;
 	// nested reports are implemented with military-grade stupidity, but informative enough for the screenshots
-	if (typeof message === "string") message = message.replace(/Export(\)+?)?$/, "$1").replaceAll("Export;", ";").replaceAll(header, "");
+	if (typeof message === "string") {
+		message = message
+			.replace(/Export(\)+?)?$/, "$1")
+			.replace(/Export;/g, ";")
+			.split(header).join("");
+	}
+
+	const sourceText = String(source ?? "");
 
 	const $wrapper = jQuery(document.createElement("div"));
 	const $toggle = jQuery(document.createElement("button"));
@@ -108,7 +128,7 @@ throwError = function (place, message, source, isExportable = true, isLogged = t
 		.appendTo($wrapper);
 
 	$title.addClass("error").text(mesg).appendTo($wrapper);
-	$code.text(source).appendTo($source);
+	$code.text(sourceText).appendTo($source);
 
 	if (isExportable && !Browser.isMobile.any()) {
 		$toggle.addClass("exportable");
@@ -135,10 +155,12 @@ throwError = function (place, message, source, isExportable = true, isLogged = t
 		.appendTo($wrapper);
 	$wrapper.addClass("error-view").appendTo(place);
 
-	const formattedSource = source.replace(/\n/g, "\n\t");
+	const formattedSource = sourceText.replace(/\n/g, "\n\t");
 	console.warn(`${mesg}\n\t${formattedSource}`);
 
-	if (isLogged && V.options?.debugdisable === "f") Errors.report(mesg, getDebuggingInfo());
+	if (isLogged && V.options?.debugdisable === "f") {
+		Errors.report(mesg, getDebuggingInfo());
+	}
 
 	return false;
 };

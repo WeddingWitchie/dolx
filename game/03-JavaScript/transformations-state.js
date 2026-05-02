@@ -1,4 +1,10 @@
+/**
+ * @typedef TransformationDefault
+ * @property {{ h: number, s: number, l: number }} colour
+ */
+
 class Transformations {
+	/** @returns {Readonly<Partial<Record<TransformationKeys, TransformationDefault>>>} */
 	static get defaults() {
 		return Object.freeze({
 			demon: {
@@ -7,4 +13,5 @@ class Transformations {
 		});
 	}
 }
+
 window.Transformations = Transformations;

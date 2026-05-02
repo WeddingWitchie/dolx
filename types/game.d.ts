@@ -21,6 +21,15 @@ declare module "twine-sugarcube" {
 		 */
 		startDate: number | undefined;
 
+		gwylan?: {
+			timer?: {
+				nobody?: boolean;
+				[key: string]: unknown;
+			};
+			[key: string]: unknown;
+		};
+		yearningLetter?: boolean;
+
 		effectsmessage: number;
 		loveInterest_message: number;
 		loveInterestAwareMessage: 0 | 1;
@@ -165,6 +174,59 @@ declare module "twine-sugarcube" {
 		avery_tower: {
 			progress: number;
 		};
+
+		/* Special clothing / unlock tracking used by clothing-special.js */
+		gwylanSeen?: string[];
+		robinSeen?: string[];
+		kylarSeen?: string[];
+		plants_known?: string[];
+		specialClothesEvents?: string[];
+		backgroundTraits?: string[];
+		hcEndings?: string[];
+		foodstuff: Record<string, { knows_recipe?: boolean }>;
+		virginTaken: Record<string, unknown[]>;
+		museumAntiques: {
+			paintings?: {
+				paintingward?: string;
+			};
+			museumCount: number;
+			maxCount: number;
+		};
+		danceStudio?: {
+			jobOffered?: boolean | number;
+		};
+		feats?: {
+			currentSave: Record<string, unknown>;
+		};
+		asylumescaped: number | boolean;
+		auriga_artefact?: unknown;
+		catsuit_found: boolean | number;
+		crypt_intro: number;
+		demon: number;
+		forest_shop_intro: number;
+		fox: number;
+		grace: number;
+		headdrive: number;
+		hookah_state: number;
+		islander_mask: number;
+		janet_book_read: number;
+		jordan_ritual_dance: number;
+		livestock_intro?: unknown;
+		loft_known: number;
+		moorLuck?: unknown;
+		museum_horse_success: boolean | number;
+		museum_stool_success: boolean | number;
+		prison_intro: number;
+		soup_kitchen_known: number;
+		stone_pendant_found: number;
+		syndromebird: number;
+		syndromeeden: number;
+		syndromekylar: number;
+		temple_confessor_intro: boolean | number;
+		temple_rank: string;
+		tentacletrait: number;
+		tenyclusPlayCount: number;
+		undergroundbrothelescaped: boolean | number;
 
 		/**
 		 * WeatherObj is the base source of truth for the weather. Any values related to the weather should

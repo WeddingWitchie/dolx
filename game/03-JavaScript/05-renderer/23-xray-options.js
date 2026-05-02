@@ -14,7 +14,7 @@
  * @property {XrayPlayerPenetrator} penis Player penis and penetrated.
  * @property {XrayNpcPenetrator} vagina Player vagina and penetrators.
  * @property {XrayNpcPenetrator} anus Player anus and penetrators.
- * @property {object} filters The filters for layers.
+ * @property {Record<string, any>} filters The filters for layers.
  * @property {string} animKeyBase
  * @property {string} animKeyVagina
  * @property {string} animKeyPenis
@@ -45,15 +45,22 @@
  * @property {boolean} show
  * @property {number=} npc
  * @property {number=} npc2
+ * @property {boolean=} npcStrapon
+ * @property {boolean=} npc2Strapon
  * @property {string} npcType
  * @property {number} size
  * @property {number} size2
  * @property {boolean} doublePen
  * @property {string} penetratorSprite
+ * @property {string=} penetratorSprite2
  * @property {string} tentacleColour
  * @property {boolean} isCumActive
  * @property {boolean} showCum
  * @property {number} cum
+ */
+
+/**
+ * @typedef {"vagina" | "anus"} XrayNpcSlot
  */
 
 class XrayCombatMapper {
@@ -219,18 +226,31 @@ class XrayCombatMapper {
 	/**
 	 * @param {XrayOptions} options
 	 * @param {XrayNpcPenetrator} penetrator
-	 * @param {"vagina" | "anus" | "penis"} slot
+	 * @param {XrayNpcSlot} slot
 	 */
 	static mapXrayPenetrators(options, penetrator, slot) {
+		/** @type {Record<string, any>} */
+		const SV = /** @type {Record<string, any>} */ (/** @type {unknown} */ (V));
+		const slotState = SV[slot + "state"];
+		const slotTarget = SV[slot + "target"];
+		const slotDoubleTarget = SV[slot + "doubletarget"];
+		const portalState = /** @type {{ type?: string, size?: number } | null} */ (V.portalPanties?.state?.[slot] || null);
+		const targetNpc = typeof slotTarget === "number" ? V.NPCList[slotTarget] : null;
+		const doubleTargetNpc = typeof slotDoubleTarget === "number" ? V.NPCList[slotDoubleTarget] : null;
+
 		/* Type of NPC penetrating the player */
 		penetrator.npcType =
-			V.enemytype === "machine" ? "machine" : ["tentacle", "tentacledeep"].includes(V[slot + "state"]) ? "tentacle" : V.portalPanties.state[slot] ? V.portalPanties.state[slot].type : V.NPCList[V[slot + "target"]].type;
+			V.enemytype === "machine"
+				? "machine"
+				: ["tentacle", "tentacledeep"].includes(slotState)
+				? "tentacle"
+				: portalState?.type || targetNpc?.type || "none";
 
 		/* slot is being doublepenetrated or not */
 		penetrator.doublePen =
-			V[slot + "state"] === "doublepenetrated" &&
-			V.NPCList[V[slot + "target"]].penis === slot + "double" &&
-			V.NPCList[V[slot + "doubletarget"]].penis === slot + "double";
+			slotState === "doublepenetrated" &&
+			targetNpc?.penis === slot + "double" &&
+			doubleTargetNpc?.penis === slot + "double";
 
 		/* If NPC pulled out, show empty xray base for that turn
 		if (T["pullOut" + slot.toUpperFirst()]) {
@@ -240,11 +260,11 @@ class XrayCombatMapper {
 			penetrator.show = false;
 		} else {
 			penetrator.base = "sex";
-			penetrator.npc = V[slot + "target"];
+			penetrator.npc = slotTarget;
 		}
 		*/
 		penetrator.base = "sex";
-		penetrator.npc = V[slot + "target"];
+		penetrator.npc = typeof slotTarget === "number" ? slotTarget : undefined;
 
 		/* Penetrator control */
 		switch (penetrator.npcType) {
@@ -266,11 +286,14 @@ class XrayCombatMapper {
 					undefined
 				);
 				break;
-			case "tentacle":
+			case "tentacle": {
 				penetrator.penetratorSprite = "tentacle";
-				for (let tentacleIndex = 0; tentacleIndex < V.tentacles.max; tentacleIndex++) {
-					if (V.tentacles[tentacleIndex] !== undefined && V.tentacles[tentacleIndex].fullDesc === V["tentacle" + slot.toUpperFirst()]) {
-						penetrator.size = V.tentacles[tentacleIndex].size;
+				const tentacles = /** @type {{ max: number } & Record<number, { fullDesc?: string, size?: number }>} */ (/** @type {unknown} */ (V.tentacles));
+				const tentacleTarget = SV["tentacle" + slot.toUpperFirst()];
+				for (let tentacleIndex = 0; tentacleIndex < tentacles.max; tentacleIndex++) {
+					const tentacle = tentacles[tentacleIndex];
+					if (tentacle !== undefined && tentacle.fullDesc === tentacleTarget) {
+						penetrator.size = tentacle.size ?? 0;
 						break;
 					}
 				}
@@ -283,23 +306,19 @@ class XrayCombatMapper {
 					undefined
 				);
 				break;
+			}
 			case "human":
 			case "plant":
 				/* For DP, bigger penis MUST be the primary target sprite. */
-				if (penetrator.doublePen) {
-					penetrator.npc =
-						V.NPCList[V[slot + "target"]].penissize <= V.NPCList[V[slot + "doubletarget"]].penissize
-							? V[slot + "doubletarget"]
-							: V[slot + "target"];
-					penetrator.npc2 = penetrator.npc === V[slot + "doubletarget"] ? V[slot + "target"] : V[slot + "doubletarget"];
+				if (penetrator.doublePen && typeof slotTarget === "number" && typeof slotDoubleTarget === "number" && targetNpc && doubleTargetNpc) {
+					penetrator.npc = targetNpc.penissize <= doubleTargetNpc.penissize ? slotDoubleTarget : slotTarget;
+					penetrator.npc2 = penetrator.npc === slotDoubleTarget ? slotTarget : slotDoubleTarget;
 				} else {
-					penetrator.npc = V[slot + "target"];
+					penetrator.npc = typeof slotTarget === "number" ? slotTarget : undefined;
 				}
 
 				this.mapXrayHumanPenis("npc", slot, options);
-				if (V.portalPanties.state[slot]) {
-					penetrator.size = V.portalPanties.state[slot].size;
-				}
+				if (portalState?.size !== undefined) penetrator.size = portalState.size;
 
 				if (penetrator.npc2 !== undefined) {
 					this.mapXrayHumanPenis("npc2", slot, options);
@@ -397,15 +416,16 @@ class XrayCombatMapper {
 		}
 
 		penetrator.isCumActive = false;
-		if (V.ejaculating === 1 || V[slot + "state"] === "tentacledeep" || V["portalejac"+slot]) {
+		const portalEjac = SV["portalejac" + slot];
+		if (V.ejaculating === 1 || slotState === "tentacledeep" || portalEjac) {
 			const npc1HasSperm =
-				V[slot + "state"] === "tentacledeep" || V["portalejac"+slot] ||
-				(combat.isNpcActive(penetrator.npc) && wearingCondom(penetrator.npc) !== "worn" && !npcHasStrapon(penetrator.npc));
+				slotState === "tentacledeep" || portalEjac ||
+				(penetrator.npc !== undefined && combat.isNpcActive(penetrator.npc) && wearingCondom(penetrator.npc) !== "worn" && !npcHasStrapon(penetrator.npc));
 			const npc2HasSperm =
-				V[slot + "state"] === "tentacledeep" ||
-				(combat.isNpcActive(penetrator.npc2) && wearingCondom(penetrator.npc2) !== "worn" && !npcHasStrapon(penetrator.npc2));
+				slotState === "tentacledeep" ||
+				(penetrator.npc2 !== undefined && combat.isNpcActive(penetrator.npc2) && wearingCondom(penetrator.npc2) !== "worn" && !npcHasStrapon(penetrator.npc2));
 			// Should this also check if NCPs are ejaculating? Or does $ejaculating = 1 do that
-			penetrator.isCumActive = npc1HasSperm || npc2HasSperm || V[slot + "state"] === "tentacledeep";
+			penetrator.isCumActive = npc1HasSperm || npc2HasSperm || slotState === "tentacledeep";
 		}
 
 		if (setup.bodyliquid.combined(slot) >= 1 || penetrator.isCumActive) {
@@ -416,43 +436,47 @@ class XrayCombatMapper {
 
 	/**
 	 * @param {"npc" | "npc2"} npc
-	 * @param {"vagina" | "anus" | "penis"} slot
+	 * @param {XrayNpcSlot} slot
 	 * @param {XrayOptions} options
 	 */
 	static mapXrayHumanPenis(npc, slot, options) {
 		const index = npc === "npc2" ? "2" : "";
 		const penetrator = options[slot];
-		const npcSource = V.NPCList[penetrator[npc]];
-		if (npcHasStrapon(options[slot][npc])) {
-			penetrator[npc + "Strapon"] = true;
+		const penetratorDyn = /** @type {Record<string, any>} */ (/** @type {unknown} */ (penetrator));
+		const npcIndex = penetrator[npc];
+		const npcSource = typeof npcIndex === "number" ? V.NPCList[npcIndex] : null;
+		const portalState = /** @type {{ size?: number } | null} */ (V.portalPanties?.state?.[slot] || null);
+
+		if (typeof npcIndex === "number" && npcSource && npcHasStrapon(npcIndex)) {
+			penetratorDyn[npc + "Strapon"] = true;
 			if (npcSource.penisdesc.includes("horse") && !penetrator.doublePen) {
-				penetrator["penetratorSprite" + index] = "horse-strapon";
-				penetrator["size" + index] = 5;
+				penetratorDyn["penetratorSprite" + index] = "horse-strapon";
+				penetratorDyn["size" + index] = 5;
 			} else if (npcSource.penisdesc.includes("knotted") && !penetrator.doublePen) {
-				penetrator["penetratorSprite" + index] = "knotted";
-				penetrator["size" + index] = 3;
+				penetratorDyn["penetratorSprite" + index] = "knotted";
+				penetratorDyn["size" + index] = 3;
 			} else if (npcSource.penisdesc.includes("tentacle")) {
-				penetrator["penetratorSprite" + index] = "tentacle";
-				penetrator["size" + index] = npcSource.penissize;
+				penetratorDyn["penetratorSprite" + index] = "tentacle";
+				penetratorDyn["size" + index] = npcSource.penissize;
 			} else if (npcSource.penisdesc.includes("dolphin") && !penetrator.doublePen) {
-				penetrator["penetratorSprite" + index] = "point";
-				penetrator["size" + index] = 2;
+				penetratorDyn["penetratorSprite" + index] = "point";
+				penetratorDyn["size" + index] = 2;
 			} else if (npcSource.strapon?.color === "fleshy") {
-				penetrator["penetratorSprite" + index] = "penis";
-				penetrator["size" + index] = npcSource.penissize;
-				penetrator[npc + "Strapon"] = false;
+				penetratorDyn["penetratorSprite" + index] = "penis";
+				penetratorDyn["size" + index] = npcSource.penissize;
+				penetratorDyn[npc + "Strapon"] = false;
 			} else {
-				penetrator["penetratorSprite" + index] = "strapon";
-				penetrator["size" + index] = npcSource.penissize;
+				penetratorDyn["penetratorSprite" + index] = "strapon";
+				penetratorDyn["size" + index] = npcSource.penissize;
 			}
 		} else {
-			penetrator["penetratorSprite" + index] = "penis";
-			penetrator["size" + index] = npcSource?.penissize ?? V.portalPanties.state[slot].size ?? 0;
-			if (wearingCondom(penetrator[npc])) {
+			penetratorDyn["penetratorSprite" + index] = "penis";
+			penetratorDyn["size" + index] = npcSource?.penissize ?? portalState?.size ?? 0;
+			if (npcSource && typeof npcIndex === "number" && wearingCondom(npcIndex)) {
 				options.filters[slot + "Condom" + index] = CombatRenderer.getCondomOptions(npcSource.condom).colour;
 			}
 		}
-		options.filters[slot + "Penetrator" + index] = npcSource ? NpcCombatMapper.getNpcPenetratorFilter(npcSource) : setup.colours.getSkinFilter("light",0);
+		options.filters[slot + "Penetrator" + index] = npcSource ? NpcCombatMapper.getNpcPenetratorFilter(npcSource) : setup.colours.getSkinFilter("light", 0);
 
 		return penetrator;
 	}
@@ -463,12 +487,13 @@ class XrayCombatMapper {
 	 */
 	static mapXrayPlayerPenis(options, penetrator) {
 		/* if player penetrating others */
+		const penisTargetNpc = typeof V.penistarget === "number" ? V.NPCList[V.penistarget] : null;
 		penetrator.penetratedType =
 			V.enemytype === "machine"
 				? "machine"
 				: V.penisstate !== 0 && (["tentacle", "tentacledeep"].includes(V.penisstate) || V.penistarget === "tentacles")
 				? "tentacle"
-				: V.NPCList[V.penistarget].type;
+				: penisTargetNpc?.type || "human";
 
 		const playerPenisType = playerHasStrapon() ? "strapon" : V.player.sex === "f" ? "parasite" : "penis";
 		penetrator.type = playerPenisType;

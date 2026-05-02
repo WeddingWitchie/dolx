@@ -8,7 +8,7 @@ T.modeloptions.filters.worn_upper_custom = {
 }
 */
 
-registerImagePattern("wolfharmony", "img/ui/wolfharmony.png");
+registerImagePattern("wolfharmony", "img/ui/sym-harmony.png");
 
 /*
 Example usage:

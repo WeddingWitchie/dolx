@@ -12,9 +12,11 @@
  * @returns {string} Matching named NPC ejaculation macro, or an empty string if none applies.
  */
 function namedNpcEjaculation(index, ...args) {
-	const npcName = V.npc[V.npcrow.indexOf(index)];
-	const npc = V.NPCList[index];
-	if (!npc) return '';
+	const npcRow = V.npcrow.indexOf(index);
+	const npcName = npcRow >= 0 ? V.npc[npcRow] : "";
+	const npcIndex = typeof index === "number" ? index : Number(index);
+	const npc = Number.isInteger(npcIndex) ? V.NPCList[npcIndex] : undefined;
+	if (!npc) return "";
 	const output = args[0] ? " " + args[0] : "";
 	// Prefer NPC-specific ejaculation macros when available.
 	if (npcName && Macro.has(`ejaculation-${npcName.toLowerCase()}`) && setup.NPCNameList.includes(npcName)) {

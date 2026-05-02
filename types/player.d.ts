@@ -11,6 +11,9 @@ declare module "twine-sugarcube" {
 			fallenAngel: DemonTransformationParts;
 			fox: FoxTransformationParts;
 			wolf: WolfTransformationParts;
+			bear: BearTransformationParts;
+			waterdragon: WaterDragonTransformationParts;
+			bunny: BunnyTransformationParts;
 			traits: {
 				fangs: string;
 				flaunting: string;
@@ -63,6 +66,8 @@ declare module "twine-sugarcube" {
 
 		vaginaWetness: number;
 		vaginaArousalWetness: number;
+		pbstrip: number;
+		pblevel: number;
 		arousalmasochism: number;
 		trackedArousal: int[];
 		timeSinceArousal: number;
@@ -84,6 +89,9 @@ declare module "twine-sugarcube" {
 		hairFringeColourStyle: "simple" | "gradient";
 		hairColourGradient: Gradient;
 		hairFringeColourGradient: Gradient;
+		/* Modded hair color */
+		dhmod?: Partial<DhmState>;
+		dhmod_invalidBackup?: DhmInvalidStateBackup[];
 
 		/**
 		 * Wtf is this
@@ -220,7 +228,18 @@ declare module "twine-sugarcube" {
 }
 
 declare global {
-	export type TransformationKeys = "angel" | "bird" | "cat" | "cow" | "demon" | "fallenAngel" | "fox" | "wolf" | "bear" | "bunny";
+	export type TransformationKeys =
+		| "angel"
+		| "bird"
+		| "cat"
+		| "cow"
+		| "demon"
+		| "fallenAngel"
+		| "fox"
+		| "wolf"
+		| "bear"
+		| "waterdragon"
+		| "bunny";
 
 	export type SkinPositions =
 		| "forehead"
@@ -369,6 +388,23 @@ declare global {
 		innerbodyparts: string[];
 		liquidtype: string[];
 		combined: (bodypart: string) => number;
+	}
+
+	export interface DhmHairState {
+		colors: string[];
+		is_custom: boolean;
+		invalidBackup?: unknown;
+	}
+
+	export interface DhmState {
+		hair: Partial<DhmHairState>;
+		fringe: Partial<DhmHairState>;
+	}
+
+	export interface DhmInvalidStateBackup {
+		passage?: string;
+		value: unknown;
+		time: number;
 	}
 }
 

@@ -17,9 +17,18 @@ interface AnimationSetting {
 	frames?: number | (() => number);
 }
 
+interface LocationImageAnimationGroup {
+	animations?: Map<string, { inCycle?: boolean }>;
+}
+
+type LocationImageNumericValue = number | (() => number);
+type LocationImageCondition = (group?: LocationImageAnimationGroup) => boolean | undefined;
+type LocationImageConditionValue = boolean | LocationImageCondition;
+type LocationImageCompositeOperation = string | (() => string);
+
 interface ImageSetting {
 	image: string;
-	condition?: boolean | (() => boolean);
+	condition?: LocationImageConditionValue;
 	waitForAnimation?: string;
 	alwaysDisplay?: boolean;
 	animation?: string | AnimationSetting;
@@ -28,7 +37,7 @@ interface ImageSetting {
 
 interface EmissiveSetting {
 	image: string;
-	condition?: boolean | (() => boolean);
+	condition?: LocationImageConditionValue;
 	waitForAnimation?: string;
 	alwaysDisplay?: boolean;
 	animation?: string | AnimationSetting;
@@ -36,44 +45,51 @@ interface EmissiveSetting {
 	size?: number;
 	blur?: number;
 	strength?: number;
-	intensity?: number | (() => number);
+	intensity?: LocationImageNumericValue;
 }
 
 interface ReflectiveSetting {
 	mask?: MaskSetting;
-	[key: string]: ReflectiveProperty;
+	[key: string]: MaskSetting | ReflectiveProperty | undefined;
 }
 
 interface MaskSetting {
 	image: string;
-	alpha?: number | (() => number);
-	horizon?: number | (() => number);
-	waveShiftFactor?: number | (() => number);
-	animationCondition?: boolean | (() => boolean);
-	verticalDirection?: number | (() => number);
-	verticalFactor?: number | (() => number);
-	verticalSpeed?: number | (() => number);
-	amplitude?: number | (() => number);
-	frequency?: number | (() => number);
-	verticalFactor?: number | (() => number);
+	alpha?: LocationImageNumericValue;
+	horizon?: LocationImageNumericValue;
+	waveShiftFactor?: LocationImageNumericValue;
+	blur?: LocationImageNumericValue;
+	animationCondition?: LocationImageCondition;
+	verticalDirection?: LocationImageNumericValue;
+	verticalFactor?: LocationImageNumericValue;
+	verticalSpeed?: LocationImageNumericValue;
+	amplitude?: LocationImageNumericValue;
+	frequency?: LocationImageNumericValue;
+	condition?: LocationImageConditionValue;
+	compositeOperation?: LocationImageCompositeOperation;
 }
 
 interface ReflectiveProperty {
 	image: string;
-	condition?: boolean | (() => boolean);
-	alpha?: number | (() => number);
+	condition?: LocationImageConditionValue;
+	alpha?: LocationImageNumericValue;
+	frequency?: LocationImageNumericValue;
+	verticalDirection?: LocationImageNumericValue;
+	waveShiftFactor?: LocationImageNumericValue;
+	blur?: LocationImageNumericValue;
+	horizon?: LocationImageNumericValue;
 	gradientMask?: boolean | (() => boolean);
 	alwaysDisplay?: boolean | (() => boolean);
-	compositeOperation?: string | (() => string);
+	compositeOperation?: LocationImageCompositeOperation;
 	animation?: string | AnimationSetting;
-	verticalFactor?: number | (() => number);
-	amplitude?: number | (() => number);
-	verticalSpeed?: number | (() => number);
+	verticalFactor?: LocationImageNumericValue;
+	amplitude?: LocationImageNumericValue;
+	verticalSpeed?: LocationImageNumericValue;
 }
 
 interface BoundsBand {
-	top?: number | (() => number);
-	bottom?: number | (() => number);
+	top?: LocationImageNumericValue;
+	bottom?: LocationImageNumericValue;
 }
 
 interface GroundBounds {
@@ -82,7 +98,7 @@ interface GroundBounds {
 }
 
 interface WeatherLocationSettings {
-	fogDistributionCurve?: number | (() => number);
+	fogDistributionCurve?: LocationImageNumericValue;
 	rainSplashEnabled?: boolean;
 	fogEnabled?: boolean;
 	groundBounds?: GroundBounds;

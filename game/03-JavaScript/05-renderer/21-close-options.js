@@ -1,7 +1,42 @@
 // @ts-check
 const closeMapperEnemyPleasure = () => Number((/** @type {any} */ (V)).enemypleasure ?? 0);
 const closeMapperEnemyPleasureMax = () => Number((/** @type {any} */ (V)).enemypleasuremax ?? 500);
-/* global CombatRenderer, PlayerCombatMapper, NpcCombatMapper */
+/* global CombatRenderer, PlayerCombatMapper, NpcCombatMapper, Condom */
+
+/**
+ * @typedef {"anus" | "vagina" | "mouth"} ClosePenetratorSlot
+ */
+
+/**
+ * @typedef {object} ClosePenetratorOptions
+ * @property {string} state
+ * @property {string | null} npc
+ * @property {string} [npc2]
+ * @property {string} [cumState]
+ * @property {boolean} [hirsute]
+ * @property {string} [silhouette]
+ * @property {boolean} [strapon]
+ * @property {boolean} [dpStrapon]
+ */
+
+/**
+ * @typedef {object} ClosePenisStateOptions
+ * @property {string} type
+ * @property {string | number} size
+ * @property {string} state
+ * @property {string | null} npc
+ * @property {boolean | Condom | false} condom
+ * @property {boolean} concealed
+ * @property {SkinColours} [npcTone]
+ */
+
+/**
+ * @typedef {object} CloseChestStateOptions
+ * @property {string | number} base
+ * @property {number | "topdown"} breasts
+ * @property {string} npc
+ * @property {boolean} [condom]
+ */
 
 /**
  * @typedef CloseOptions
@@ -15,14 +50,14 @@ const closeMapperEnemyPleasureMax = () => Number((/** @type {any} */ (V)).enemyp
  * @property {"doggy"|"missionary"} position Doggy or missionary position.
  * @property {number|"topdown"} breasts Breast size, or topdown sprites if size >= 8. (May want to add ability to toggle views.)
  * @property {"parasite"|"herm-balls"|"herm-base"} herm Player penis, used in vagina closeup.
- * @property {object} vagina Player vagina and penetrators, used in vagina closeup.
- * @property {object} penis Player penis and penetrated, used in penis closeup.
- * @property {object} anus Player anus and penetrators, used in arse closeup.
- * @property {object} chest Player chest and titjob.
- * @property {object} mouth Player face and penetrators, used in mouth close up.
+ * @property {ClosePenetratorOptions} vagina Player vagina and penetrators, used in vagina closeup.
+ * @property {ClosePenisStateOptions} penis Player penis and penetrated, used in penis closeup.
+ * @property {ClosePenetratorOptions} anus Player anus and penetrators, used in arse closeup.
+ * @property {CloseChestStateOptions} chest Player chest and titjob.
+ * @property {ClosePenetratorOptions} mouth Player face and penetrators, used in mouth close up.
  * @property {string} pcPenis Computed sprite for player penis, taking size/chastity/type into account.
  * @property {"beast"|"penis"|"tentacle"} breastsNpc Type of npc giving boobjob.
- * @property {object} filters The filters for layers.
+ * @property {Record<string, any>} filters The filters for layers.
  * @property {string|false} chastity
  * @property {string} pbhairColour
  * @property {string} condomColour
@@ -102,6 +137,8 @@ class CloseCombatMapper {
 		options.penis = {
 			type: penisType,
 			size: 1,
+			state: options.penis.state || "",
+			npc: options.penis.npc ?? null,
 			condom: V.player.condom && !playerChastity() && options.penis.size === 1,
 			concealed: playerChastity("hidden") && !playerHasStrapon(),
 		};
@@ -123,6 +160,7 @@ class CloseCombatMapper {
 		}
 
 		// Chastity
+		/** @type {Record<string, string>} */
 		const chastityTypes = {
 			"chastity belt": "belt",
 			"gold chastity belt": "belt-gold",
@@ -177,48 +215,47 @@ class CloseCombatMapper {
 	}
 
 	/**
-	 *
-	 * @param {string} slot
+	 * @param {ClosePenetratorSlot} slot
 	 * @param {CloseOptions} options
 	 */
 	static mapClosePenetrators(slot, options) {
 		// Defensive: V.active_enemy / V.NPCList entry can be missing when penetrator state is inconsistent
 		const enemyIndex = V.active_enemy;
-		const enemyObj =
-			Array.isArray(V.NPCList) && enemyIndex != null
-				? V.NPCList[enemyIndex]
-				: null;
+		const enemyObj = Array.isArray(V.NPCList) && typeof enemyIndex === "number" ? V.NPCList[enemyIndex] : null;
 
-		const activeEnemy = (enemyObj && enemyObj.type) ? enemyObj.type : (V.enemytype || "npc");
+		const activeEnemy = enemyObj?.type || V.enemytype || "npc";
 
 		const npc = ["horse", "centaur"].includes(activeEnemy)
 			? "horse"
 			: ["beast", "machine", "tentacles"].includes(V.enemytype)
-				? V.enemytype
-				: "npc";
+			? V.enemytype
+			: "npc";
+
+		const slotState = slot === "anus" ? String(V.anusstate ?? "") : slot === "vagina" ? String(V.vaginastate ?? "") : String(V.mouthstate ?? "");
+		const slotUse = slot === "anus" ? String(V.anususe ?? "") : slot === "vagina" ? String(V.vaginause ?? "") : String(V.mouthuse ?? "");
 
 		const chastity =
 			(playerChastity("hidden") || V.worn.genitals.name === "chastity parasite") &&
 			slot === "vagina" &&
 			!["horse", "machine"].includes(npc);
 
-		options[slot] = {};
+		options[slot] = { state: "", npc: null };
 
 		/* check $anusstate, $vaginastate, or $mouthstate */
-		switch (V[slot + "state"]) {
+		switch (slotState) {
 			case "tentacle":
 			case "tentacledeep":
 			case "tentacleentrance":
 			case "tentacleimminent":
 				/* tentacle penetrating, or preparing to penetrate, anus/vagina */
-				options[slot].state = chastity ? "chastity" : ["tentacle", "tentacledeep"].includes(V[slot + "state"]) ? "penetrated" : "entrance";
+				options[slot].state = chastity ? "chastity" : ["tentacle", "tentacledeep"].includes(slotState) ? "penetrated" : "entrance";
 				options[slot].npc = "tentacle";
 				break;
 			case "entrance":
 			case "imminent":
 			case "penetrated":
 				/* other enemy types penetrating, or preparing to penetrate, anus/vagina */
-				options[slot].state = chastity ? "chastity" : ["penetrated", "doublepenetrated"].includes(V[slot + "state"]) ? "penetrated" : "entrance";
+				options[slot].state = chastity ? "chastity" : ["penetrated", "doublepenetrated"].includes(slotState) ? "penetrated" : "entrance";
 				options[slot].npc = npc;
 				break;
 			case "doublepenetrated":
@@ -232,7 +269,7 @@ class CloseCombatMapper {
 			case "othermouthimminent":
 				/* beast oral. worst naming convention ever. */
 				if (V.enemytype === "beast" && V.monster !== 1) {
-					options[slot].state = V[slot + "state"] === "othermouth" ? "penetrated" : "entrance";
+					options[slot].state = slotState === "othermouth" ? "penetrated" : "entrance";
 					options[slot].npc = "beast-oral";
 				} else {
 					/* if monsterperson, no beast sprites; anus or vagina is not actively in use */
@@ -248,7 +285,7 @@ class CloseCombatMapper {
 
 		if (slot === "vagina") {
 			/* match drippy cum sprites to corresponding vagina state */
-			const entrance = ["entrance", "doubleentrance", "tentacleentrance", "imminent"].includes(V.vaginastate.toString()) ? "entrance" : "vagina";
+			const entrance = ["entrance", "doubleentrance", "tentacleentrance", "imminent"].includes(String(V.vaginastate)) ? "entrance" : "vagina";
 			options[slot].cumState = options.vagina.state === "penetrated" ? "penetrated" : entrance;
 			/* hirsute pubes */
 			options[slot].hirsute =
@@ -256,9 +293,9 @@ class CloseCombatMapper {
 		}
 
 		/* colour filters and silhouettes for enemies interacting with vagina/anus */
-		if (!["horse", "beast-oral", "machine", "tentacle"].includes(options[slot].npc)) {
-			if (options[slot].state === "penetrated" || V[`${slot}use`] === "othervagina") {
-				options[slot].silhouette = V[`${slot}use`] === "othervagina" ? "trib" : V[`${slot}state`] === "doublepenetrated" ? "dp" : "solo";
+		if (!["horse", "beast-oral", "machine", "tentacle"].includes(options[slot].npc || "")) {
+			if (options[slot].state === "penetrated" || slotUse === "othervagina") {
+				options[slot].silhouette = slotUse === "othervagina" ? "trib" : slotState === "doublepenetrated" ? "dp" : "solo";
 			}
 		}
 		/* tentacle colour could theoretically be outside of these functions, as tentacles are incompatible with other enemy types and can only have one colour, which applies to all tentacles interacting with vagina, anus, and penis slots. combat rework should allow for tentacles to be incorporated into other encounters and multiple tentacle colours (vines and roots, for example) */
@@ -267,10 +304,11 @@ class CloseCombatMapper {
 			options.filters[`${slot}Tentacle`] = CombatRenderer.lookupColour(setup.colours.tentacle_map, tentacleColour, "tentacle", undefined, undefined);
 		} else {
 			if (options[slot].npc) {
-				const targetNpc = V.NPCList[V[`${slot}target`]];
+				const targetIndex = slot === "anus" ? V.anustarget : slot === "vagina" ? V.vaginatarget : V.mouthtarget;
+				const targetNpc = typeof targetIndex === "number" && Array.isArray(V.NPCList) ? V.NPCList[targetIndex] : null;
 
 				/* filters for npc targeting vagina/anus */
-				if (!["horse", "beast-oral", "machine"].includes(options[slot].npc)) {
+				if (targetNpc && !["horse", "beast-oral", "machine"].includes(options[slot].npc || "")) {
 					options.filters[`${slot}Npc`] = NpcCombatMapper.getNpcPenetratorFilter(targetNpc);
 					options.filters[`${slot}Condom`] = CombatRenderer.getCondomOptions(targetNpc.condom).colour;
 				}
@@ -278,16 +316,17 @@ class CloseCombatMapper {
 			// Ensure filters object exists before writing into it
 			options.filters = options.filters || {};
 			if (options[slot].npc2) {
-				const idx2 = V[`${slot}doubletarget`];
-				const targetNpc2 = Array.isArray(V.NPCList) ? V.NPCList[idx2] : null;
+				const idx2 = slot === "anus" ? V.anusdoubletarget : slot === "vagina" ? V.vaginadoubletarget : null;
+				const targetNpc2 = typeof idx2 === "number" && Array.isArray(V.NPCList) ? V.NPCList[idx2] : null;
 
 				// If the "double target" doesn't exist, the DP state is invalid -> treat as single
 				if (!targetNpc2) {
 					delete options[slot].npc2;
 
 					// Prevent downstream logic from thinking this is DP
-					if (V[`${slot}state`] === "doublepenetrated") {
-						V[`${slot}state`] = "penetrated";
+					if (slotState === "doublepenetrated") {
+						if (slot === "anus") V.anusstate = "penetrated";
+						else if (slot === "vagina") V.vaginastate = "penetrated";
 					}
 				} else {
 					/* filters for npc double-penetrating vagina/anus */
@@ -300,10 +339,11 @@ class CloseCombatMapper {
 
 	/**
 	 * @param {CloseOptions} options
-	 * @returns {object}
+	 * @returns {ClosePenisStateOptions}
 	 */
 	static mapClosePenis(options) {
 		const penisType = V.player.sex === "f" ? "parasite" : V.player.ballsExist ? "penis" : "herm";
+		const activeNpc = typeof V.active_enemy === "number" ? V.NPCList[V.active_enemy] : null;
 		options.penis.type = penisType;
 		options.penis.condom = V.player.condom && !playerChastity();
 		options.penis.concealed = playerChastity("hidden") && !playerHasStrapon();
@@ -331,13 +371,13 @@ class CloseCombatMapper {
 			case "otheranusentrance":
 				/* penis preparing to penetrate npc */
 				options.penis.state = "entrance";
-				options.penis.npc = V.enemytype === "beast" && (V.monster !== 1 || V.NPCList[V.active_enemy].type === "centaur") ? "beast" : "npc";
+				options.penis.npc = V.enemytype === "beast" && (V.monster !== 1 || activeNpc?.type === "centaur") ? "beast" : "npc";
 				break;
 			case "penetrated":
 			case "otheranus":
 				/* penis penetrating npc */
 				options.penis.state = "penetrated";
-				options.penis.npc = V.enemytype === "beast" && (V.monster !== 1 || V.NPCList[V.active_enemy].type === "centaur") ? "beast" : "npc";
+				options.penis.npc = V.enemytype === "beast" && (V.monster !== 1 || activeNpc?.type === "centaur") ? "beast" : "npc";
 				break;
 			case "othermouth":
 			case "othermouthentrance":
@@ -362,10 +402,12 @@ class CloseCombatMapper {
 			const tentacleColour = V.tentacleColour || "tentacles-purple";
 			options.filters.penisTentacle = CombatRenderer.lookupColour(setup.colours.tentacle_map, tentacleColour, "penisTentacle", undefined, undefined);
 		}
-		if (V.NPCList[V.penistarget]) {
+		const penisTarget = typeof V.penistarget === "number" ? V.NPCList[V.penistarget] : null;
+		if (penisTarget) {
 			/* skin colour of npc targeting penis */
-			options.penis.npcTone =
-				V.NPCList[V.penistarget].skincolour === "ghost" ? "ghost" : V.NPCList[V.penistarget].skincolour === "black" ? "dark" : "light";
+			options.penis.npcTone = /** @type {SkinColours} */ (
+				penisTarget.skincolour === "ghost" ? "ghost" : penisTarget.skincolour === "black" ? "dark" : "light"
+			);
 			options.filters.penisNpc = setup.colours.getSkinFilter(options.penis.npcTone, 0);
 		}
 
@@ -376,12 +418,13 @@ class CloseCombatMapper {
 	 * @param {CloseOptions} options
 	 */
 	static mapCloseChest(options) {
-		const breastsNpc = V.NPCList[V.chesttarget];
+		const chestTarget = typeof V.chesttarget === "number" ? V.chesttarget : null;
+		const breastsNpc = chestTarget == null ? null : V.NPCList[chestTarget];
 		const topdown = V.player.breastsize >= 8 && ["penis", "tentacle"].includes(V.chestuse.toString()) && V.options.topdownBreastjob;
 		options.chest = {
 			base: ["penis", "tentacle"].includes(V.chestuse.toString()) ? (topdown ? "topdown-job" : "base-job") : V.player.breastsize,
 			breasts: V.player.breastsize,
-			npc: topdown ? "penis-topdown" : V.enemytype === "beast" ? "beast" : V.chestuse,
+			npc: topdown ? "penis-topdown" : V.enemytype === "beast" ? "beast" : V.chestuse.toString(),
 		};
 
 		if (options.chest.npc === "tentacle") {

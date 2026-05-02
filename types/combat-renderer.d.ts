@@ -43,7 +43,7 @@ declare global {
 	}
 
 	export interface CombatRendererNpcSetup {
-		beast: Record<BestialTypes, CombatRendererBeastSetup>;
+		beast: Partial<Record<BestialTypes, CombatRendererBeastSetup>>;
 	}
 
 	export interface CombatRendererBeastSetup extends CombatRendererBeastPositionSetup, CombatRendererBeastStateSetup {
@@ -66,7 +66,7 @@ declare global {
 		type: PenetratorTypes;
 		size: number;
 		colour: string;
-		target: number;
+		target: number | "tentacles";
 		position: PenetratorPositions?;
 		state: PenetratorStates?;
 		isEjaculating: boolean;

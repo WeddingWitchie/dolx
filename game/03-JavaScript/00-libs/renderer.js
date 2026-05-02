@@ -1,4 +1,4 @@
-///<reference path="model.d.ts"/>
+///<reference path="../../../devTools/canvasmodel/model.d.ts"/>
 /*
  * Created by aimozg on 29.08.2020.
  */

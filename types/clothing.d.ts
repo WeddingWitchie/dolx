@@ -11,10 +11,10 @@ declare module "twine-sugarcube" {
 		tryOn: {
 			autoReset: boolean;
 			ownedStored: {
-				[x in ClothedSlots]: ClothesItem?;
+				[x in ClothedSlots]: ClothesItem | undefined;
 			};
 			tryingOn: {
-				[x in ClothedSlots]: ClothesItem?;
+				[x in ClothedSlots]: ClothesItem | undefined;
 			};
 			showEquip: {
 				[x: string]: any;
@@ -55,6 +55,7 @@ declare module "twine-sugarcube" {
 		lowerwetstage: number;
 		underlowerwetstage: number;
 		specialClothes: specialClothesItem[];
+		portalPanties?: PortalPantiesState;
 	}
 
 	export interface SugarCubeSetupObject {
@@ -82,13 +83,23 @@ declare module "twine-sugarcube" {
 }
 
 declare global {
+	export interface PortalPantiesState {
+		state?: {
+			anus?: PortalPantiesHoleState | null | false;
+			vagina?: PortalPantiesHoleState | null | false;
+			penis?: PortalPantiesHoleState | null | false;
+		};
+	}
+
+	export interface PortalPantiesHoleState { new?: boolean | number; tempRemoval?: boolean; type?: string; size?: number;}
+
 	export type ClothingStates = "chest" | "midriff" | "waist" | "thighs" | "knees" | "ankles" | "totheside" | "worn";
 
 	export type ZeroedClothingStates = 0 | ClothingStates;
 
 	export type TotalClothingStates = ZeroedClothingStates | "default" | "full" | "bound" | "handjob" | "up" | "down" | "footjob" | "neck" | "worn";
 
-	export type ClothesSlots = "clothes_all_slots" | ClothedSlots;
+	export type ClothesSlots = "all" | "clothes_all_slots" | ClothedSlots;
 
 	export type ClothedSlots =
 		| "over_upper"
@@ -133,7 +144,7 @@ declare global {
 		unWear: setup.sextoyFunctions.unWear;
 		unCarry: setup.sextoyFunctions.unCarry;
 		shop: string[];
-		display_condition: function;
+		display_condition: Function;
 	}
 	export interface ClothesItem {
 		index: number;
@@ -372,7 +383,7 @@ declare global {
 	export interface SpecialClothesSetup {
 		name: string;
 		sets: string[];
-		requirements?(): boolean;
+		requirements?(): unknown;
 		hint?: string;
 	}
 	export interface PropSetup {
@@ -391,7 +402,7 @@ declare global {
 	}
 	export interface SpecialClothesSetsSetup {
 		text: string;
-		requirements?(): boolean;
+		requirements?(): unknown;
 		hint?: string;
 		shop: string[];
 		subsetOf?: string[];
@@ -405,7 +416,7 @@ declare global {
 	}
 	export type ArmPosition = "right_cover" | "right_idle" | "right_hold" | "left_cover" | "left_idle" | "cover_both" | "idle_both" | "clutch" | "handsfree";
 
-	function getCustomClothesColourCanvasFilter(hue: number, saturation: number, brightness: number, contrast: number, sepia = 0): CompositeLayerSpec;
+	function getCustomClothesColourCanvasFilter(hue: number, saturation: number, brightness: number, contrast: number, sepia?: number): CompositeLayerSpec;
 
 	function getCustomClothesColourCanvasFilter(filter: string): CompositeLayerSpec;
 }
