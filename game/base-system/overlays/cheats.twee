@@ -1497,16 +1497,16 @@
 			<<numberStepper "<<symbol love>> Love" `C.npc.Kylar.love` { callback: value => { C.npc.Kylar.love = value } }>>
 			<<numberStepper "<<symbol lust>> Lust" `C.npc.Kylar.lust` { callback: value => { C.npc.Kylar.lust = value } }>>
 			<<numberStepper "<<symbol jealousy>> Jealousy" `C.npc.Kylar.rage` { callback: value => { C.npc.Kylar.rage = value }, reverse: true }>>
-			<br>
+			<br>|
 			<<if $kylar_mad isnot 1>>
-				<<link [[Enable Kidnapping|$passage]]>><<set $kylar_mad to 1>><</link>>
+				<<link [[Enable Kidnapping|$passage]]>><<set $kylar_mad to 1>><</link>> |
 			<<elseif $kylar_mad is 1>>
-				<<link [[Disable Kidnapping|$passage]]>><<set $kylar_mad to 0>><</link>>
+				<<link [[Disable Kidnapping|$passage]]>><<set $kylar_mad to 0>><</link>> |
 			<</if>>
 			<<if C.npc.Kylar.state is "prison">>
-				<<link [[Reclaim Kylar|$passage]]>><<reclaimKylar>><</link>>
+				<<link [[Reclaim Kylar|$passage]]>><<reclaimKylar>><</link>> |
 			<<elseif C.npc.Kylar.state is "active">>
-				<<link [[Dismiss Kylar|$passage]]>><<dismissKylar>><</link>>
+				<<link [[Dismiss Kylar|$passage]]>><<dismissKylar>><</link>> |
 			<</if>>
 		</div>
 		<div class="settingsToggleItem">
@@ -1515,10 +1515,99 @@
 			<<numberStepper "<<symbol rage>> Rage" `C.npc.Avery.rage` { callback: value => { C.npc.Avery.rage = value }, reverse: true }>>
 			<<numberStepper "<<symbol dominance>> Dominance" `C.npc.Avery.dom` { callback: value => { C.npc.Avery.dom = value } }>>
 			<br>
-			<<if C.npc.Avery.state is "dismissed">>
-				<<link [[Reclaim Avery|$passage]]>><<unDismissAvery>><</link>>
-			<<elseif C.npc.Avery.state is "active">>
-				<<link [[Dismiss Avery|$passage]]>><<dismissAvery>><</link>>
+
+			<<if !$avery_mansion>>
+				<<if C.npc.Avery.state is "dismissed">>
+					<<link [[Reclaim Avery|$passage]]>><<unDismissAvery>><</link>>
+				<<elseif C.npc.Avery.state is "active">>
+					<<link [[Dismiss Avery|$passage]]>><<dismissAvery>><</link>>
+				<</if>>
+			<<elseif $avery_fate is undefined>>
+				Avery cannot be dismissed at the moment.
+			<<else>>
+				Avery is currently <<print $avery_fate>>
+				<br>
+
+				<<linkreplace `(C.npc.Avery.state is "dismissed" ? "Reclaim Avery" : "Fell Avery")`>>
+					<<if C.npc.Avery.state is "dismissed">>
+						Choose Avery's fate:
+						<br>
+
+						<<link [[Rescue Avery|$passage]]>>
+							<<set $avery_fate to "rescued">>
+							<<unDismissAvery>>
+						<</link>> | This will <span class="lblue">give you the Avery's Saviour Trait.</span>
+						<br>
+
+						<<link [[Ascend Avery|$passage]]>>
+							<<set $avery_fate to "ascended">>
+							<<set C.npc.Avery.title to "crimson hound">>
+							<<set C.npc.Harper.title to "silver fox">>
+							<<set C.npc.Remy.title to "high elk">>
+							<<if $auriga_scar is undefined>>
+								<<set $auriga_scar to 0>>
+							<</if>>
+							<<set $auriga_scar++>>
+							<<unDismissAvery>>
+						<</link>>
+						| This will<<if $auriga_scar is undefined or $auriga_scar lte 0>> <span class="red">give you the Elk-scarred Trait.</span><<else>> <span class="red">worsen your Elk Trait.</span><</if>>
+
+						<<if $avery_mansion_fire_time gte 1>>
+							<<set $avery_mansion_fire_time to 0>>
+						<</if>>
+					<<else>>
+						Choose Avery's fate:
+						<br>
+
+						<<link [[Let Avery fall|$passage]]>>
+							<<set _previousAveryFate to $avery_fate>>
+							<<set $avery_fate to "fallen">>
+							<<if _previousAveryFate is "rescued" and $avery_injury isnot undefined>>
+								<<unset $avery_injury>>
+							<</if>>
+							<<dismissAvery "hard">>
+							<<if _previousAveryFate is "ascended">>
+								<<if $auriga_scar isnot undefined and $auriga_scar gte 1>>
+									<<set $auriga_scar-->>
+								<</if>>
+								<<set C.npc.Harper.title to "doctor">>
+								<<set C.npc.Remy.title to "scarred">>
+							<</if>>
+						<</link>>
+
+						<<if $avery_fate is "ascended" and $auriga_scar isnot undefined and $auriga_scar gte 1>>
+							| This will<<if $auriga_scar is 1>> <span class="lblue">remove your Elk-scarred Trait.</span><<else>> <span class="lblue">weaken your Elk Trait.</span><</if>>
+						<</if>>
+						<<if $avery_fate is "rescued">>
+							| This will <span class="red">remove your Avery's Saviour Trait.</span>
+						<</if>>
+
+						<br>
+
+						<<link [[Kick Avery|$passage]]>>
+							<<set _previousAveryFate to $avery_fate>>
+							<<set $avery_fate to "kicked">>
+							<<if _previousAveryFate is "rescued" and $avery_injury isnot undefined>>
+								<<unset $avery_injury>>
+							<</if>>
+							<<dismissAvery "hard">>
+							<<if _previousAveryFate is "ascended">>
+								<<if $auriga_scar isnot undefined and $auriga_scar gte 1>>
+									<<set $auriga_scar-->>
+								<</if>>
+								<<set C.npc.Harper.title to "doctor">>
+								<<set C.npc.Remy.title to "scarred">>
+							<</if>>
+						<</link>>
+
+						<<if $avery_fate is "ascended" and $auriga_scar isnot undefined and $auriga_scar gte 1>>
+							| This will<<if $auriga_scar is 1>> <span class="lblue">remove your Elk-scarred Trait.</span><<else>> <span class="lblue">weaken your Elk Trait.</span><</if>>
+						<</if>>
+						<<if $avery_fate is "rescued">>
+							| This will <span class="red">remove your Avery's Saviour Trait.</span>
+						<</if>>
+					<</if>>
+				<</linkreplace>>
 			<</if>>
 		</div>
 
@@ -1600,16 +1689,13 @@
 	<hr>
 	<div class="settingsGrid">
 		<div class="settingsHeader options">Hopeless Cycle Setting</div>
-		<div class="settingsToggleItem">
+		<div class="settingsToggleItemWide">
 			<span class="gold">Suspicion and Loved</span>
-			<br>
-			<<link [[set loved to true|$passage]]>><<set $hc.loved to true>><</link>>
-			<br>
-			<<link [[set loved to false|$passage]]>><<set $hc.loved to false>><</link>>
-			<br>
-			<<link [[Reset suspicion level|$passage]]>><<set $_susPlus to 1>><<set $hc.suspicion to 0>><</link>>
-			<br>
-			<<link [[Max suspicion level|$passage]]>><<set $hc.suspicion to 100>><</link>>
+			<br>|
+			<<link [[Set loved to true|$passage]]>><<set $hc.loved to true>><</link>> |
+			<<link [[Set loved to false|$passage]]>><<set $hc.loved to false>><</link>> |
+			<<link [[Reset suspicion level|$passage]]>><<set $_susPlus to 1>><<set $hc.suspicion to 0>><</link>> |
+			<<link [[Max suspicion level|$passage]]>><<set $hc.suspicion to 100>><</link>> |
 		</div>
 	</div>
 		<hr>
