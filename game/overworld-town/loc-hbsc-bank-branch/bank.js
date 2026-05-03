@@ -111,11 +111,6 @@ setup.hbsc.submitAmountFromField = function (fieldId, mode, targetPassage) {
 	return false;
 };
 
-setup.hbsc.makeActionLink = function (label, fieldId, mode, targetPassage) {
-	const safeLabel = setup.hbsc.escapeHtml(label);
-	return `<a href="javascript:void(0)" onclick="return setup.hbsc.submitAmountFromField(${JSON.stringify(fieldId)}, ${JSON.stringify(mode)}, ${JSON.stringify(targetPassage)});">${safeLabel}</a>`;
-};
-
 setup.hbsc.getBanRemainingDays = function () {
 	const V = State.variables;
 	setup.hbsc.ensureState();
@@ -153,23 +148,9 @@ setup.hbsc.applySneakPenalty = function () {
 
 setup.hbsc.captureFieldValue = function (id) {
 	if (typeof document === "undefined" || !id) return "";
-
-	const readValue = (el) => {
-		if (!el) return "";
-		return typeof el.value === "string" ? el.value : String(el.value ?? "");
-	};
-
-	const passages = document.getElementById("passages");
-	if (passages) {
-		const escaped = (typeof CSS !== "undefined" && typeof CSS.escape === "function") ? CSS.escape(id) : id;
-		const matches = passages.querySelectorAll(`#${escaped}`);
-		for (let i = matches.length - 1; i >= 0; i--) {
-			const el = matches[i];
-			if (el && el.isConnected) return readValue(el);
-		}
-	}
-
-	return readValue(document.getElementById(id));
+	const el = document.getElementById(id);
+	if (!el) return "";
+	return typeof el.value === "string" ? el.value : String(el.value ?? "");
 };
 
 setup.hbsc.ensureState = function () {
@@ -446,13 +427,10 @@ setup.hbsc.processDay = function () {
 	for (const term of V.hbsc.fixedTerms) {
 		if (!term || term.status !== "active") continue;
 
-		term.elapsedDays = Math.max(term.elapsedDays, Time.days - term.createdOnDay);
-		if (term.elapsedDays < term.matureOnDay - term.createdOnDay) {
-			term.elapsedDays += 1;
-		}
+		const totalDays = term.matureOnDay - term.createdOnDay;
+		term.elapsedDays = Math.max(0, Math.min(Time.days - term.createdOnDay, totalDays));
 
-		if (term.elapsedDays >= term.matureOnDay - term.createdOnDay) {
-			term.elapsedDays = term.matureOnDay - term.createdOnDay;
+		if (term.elapsedDays >= totalDays) {
 			term.status = "matured";
 			term.maturedOnDay = Time.days;
 			const maturity = setup.hbsc.calcFixedTermMaturity(term.principal, term.months);
@@ -573,6 +551,7 @@ setup.hbsc.closeFixedTerm = function (id, withdrawalKind = "full", target = "dep
 	let remainingPrincipal = null;
 
 	if (term.status === "matured") {
+		if (withdrawalKind === "half") return { ok: false, reason: "halfNotAvailable" };
 		const total = Number.isFinite(term.maturityTotal)
 			? term.maturityTotal
 			: setup.hbsc.roundMoney(setup.hbsc.calcFixedTermMaturity(term.principal, term.months).total);
