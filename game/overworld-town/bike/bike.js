@@ -32,7 +32,7 @@ function bikeTime(destinationRegion) {
 				lakeToDeepForest *= 0.9;
 				farmToMoor *= 0.9;
 				break;
-			case "tires":
+			case "tyres":
 				townToLake *= 0.95;
 				lakeToDeepForest *= 0.95;
 				farmToMoor *= 0.95;
