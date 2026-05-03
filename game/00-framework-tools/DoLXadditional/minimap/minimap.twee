@@ -652,3 +652,77 @@
 		})();
 	<</script>>
 <</widget>>
+
+<<widget "docks_sneak_map">>
+	<<silently>>
+		/* Docks sneak uses $bus for its current zone.
+		   This widget keeps the same read-only style as the other minimaps. */
+		<<set _here to ($bus is undefined ? "" : $bus)>>
+
+		<<set _nodes to {
+			"0-0":{id:"MER", label:"Mer Street", kind:"street", small:false, sea:false},
+			"0-2":{id:"S", label:"Front Gate", kind:"room", small:false, sea:false},
+			"2-2":{id:"SE", label:"Car Park", kind:"room", small:false, sea:false},
+			"4-2":{id:"E", label:"Office", kind:"room", small:false, sea:false},
+			"6-2":{id:"M", label:"Cargo Containers", kind:"room", small:true, sea:false},
+			"0-4":{id:"SW", label:"Lorry Unloading Area", kind:"room", small:true, sea:false},
+			"4-4":{id:"NE", label:"Warehouse", kind:"room", small:false, sea:true},
+			"0-6":{id:"W", label:"Cranes", kind:"room", small:false, sea:false},
+			"2-6":{id:"NW", label:"Beside Anchored Ship", kind:"room", small:true, sea:true},
+			"4-6":{id:"N", label:"Aboard Anchored Ship", kind:"room", small:true, sea:true}
+		}>>
+
+		<<set _paths to {
+			"0-1":"v",
+			"0-3":"v",
+			"0-5":"v",
+			"1-2":"h",
+			"3-2":"h",
+			"5-2":"h",
+			"4-3":"v",
+			"1-6":"h",
+			"3-6":"h"
+		}>>
+
+	<</silently>>
+
+	<div class="dockmap-wrap">
+		<div class="dockmap-scroller">
+			<div class="dockmap-grid">
+				<<for _y to 0; _y lt 7; _y++>>
+					<<for _x to 0; _x lt 7; _x++>>
+						<<capture _x _y>>
+							<<set _key to _x + "-" + _y>>
+							<<set _node to _nodes[_key]>>
+							<<set _path to _paths[_key]>>
+							<<set _class to "dockmap-cell">>
+
+							<<if _node>>
+								<<set _class += " dockmap-room">>
+								<<if _node.kind is "street">><<set _class += " dockmap-street">><</if>>
+								<<if _node.id is _here>><<set _class += " dockmap-here">><</if>>
+							<<elseif _path>>
+								<<set _class += " dockmap-path dockmap-path-" + _path>>
+							<<else>>
+								<<set _class += " dockmap-void">>
+							<</if>>
+
+							<div @class="_class">
+								<<if _node>>
+									<<set _nameClass to "dockmap-name">>
+									<<if _node.small>><<set _nameClass += " dockmap-name-small">><</if>>
+									<span @class="_nameClass"><<print _node.label>></span>
+									<<if _node.sea>><span class="dockmap-sea" title="Sea exit"></span><</if>>
+								<</if>>
+							</div>
+						<</capture>>
+					<</for>>
+				<</for>>
+			</div>
+		</div>
+		<div class="dockmap-caption">
+			<span class="dockmap-legend"><span class="dockmap-legend-sea"></span> Sea exit</span>
+		</div>
+	</div>
+<</widget>>
+
