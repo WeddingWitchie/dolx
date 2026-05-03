@@ -1081,6 +1081,12 @@
 			title: "Special Traits",
 			traits: [
 				{
+					name: "Opium Addict",
+					colour: "red",
+					has: $backgroundTraits.includes("opiumaddict"),
+					text: "You're more vulnerable to aphrodisiacs and alcohol. Inhaling opium helps you sleep better and suppresses your insomnia.",
+				},
+				{
 					name: () => V.submissive <= 850 ? "Hedonist" : "Orgasm Addict",
 					colour: "lewd",
 					has: $orgasmtrait gte 1,
@@ -1587,11 +1593,28 @@
 			title: "Trauma Traits",
 			traits: [
 				{
-					name: () => V.hypnosis_traits.slumber ? "Suppressed Insomnia" : V.controlled === 0 ? "Insomnia" : "Controlled Insomnia",
-					colour: () => V.hypnosis_traits.slumber ? "black" : V.controlled === 0 ? "red" : "blue",
+					name: () => {
+						const opiumSuppressed = Array.isArray(V.backgroundTraits)
+							&& V.backgroundTraits.includes("opiumaddict")
+							&& !!V.poppyDrug?.insomniaSuppress;
+						if (V.hypnosis_traits.slumber || opiumSuppressed) return "Suppressed Insomnia";
+						return V.controlled === 0 ? "Insomnia" : "Controlled Insomnia";
+					},
+					colour: () => {
+						const opiumSuppressed = Array.isArray(V.backgroundTraits)
+							&& V.backgroundTraits.includes("opiumaddict")
+							&& !!V.poppyDrug?.insomniaSuppress;
+						if (V.hypnosis_traits.slumber || opiumSuppressed) return "black";
+						return V.controlled === 0 ? "red" : "blue";
+					},
 					has: $sleeptrouble gte 1,
 					text: "Sleep less effective.",
-					textColour: () => V.controlled === 0 && !V.hypnosis_traits.slumber ? "red" : "black",
+					textColour: () => {
+						const opiumSuppressed = Array.isArray(V.backgroundTraits)
+							&& V.backgroundTraits.includes("opiumaddict")
+							&& !!V.poppyDrug?.insomniaSuppress;
+						return V.controlled === 0 && !V.hypnosis_traits.slumber && !opiumSuppressed ? "red" : "black";
+					},
 				},
 				{
 					name: () => V.controlled === 0 ? "Nightmares" : "Controlled Nightmares",
@@ -1673,6 +1696,12 @@
 					colour: "lblue",
 					has: $robinpaid gte 1,
 					text: "Robin is dependent on you. You need to be strong. Increases daily trauma decay.",
+				},
+				{
+					name: "Pavlov: Poppy",
+					colour: "lewd",
+					has: $backgroundTraits.includes("pavlovpoppy"),
+					text: "Poppy's presence fills a hole that you didn't realise existed. You find it difficult to resist Poppy's pull. Reduces daily opium decay and fatigue gain around Poppy.",
 				},
 				{
 					name: "Stockholm Syndrome: Eden",

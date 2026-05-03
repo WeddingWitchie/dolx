@@ -99,6 +99,8 @@
 	<<set $settings.multipleWardrobes to "isolated">>
 	<<set $settings.tendingYieldModifier to 5>>
 	<<set $notifyUpdate = true>>
+	<<set $ModExclusiveLIEnabled to $ModExclusiveLIEnabled is undefined ? 0 : $ModExclusiveLIEnabled>>
+	<<run ensureModLISettings()>>
 	<<set _tan to 0>>
 
 	<<startingPlayerImageReset>>
@@ -688,18 +690,33 @@
 
 	<<for _name range setup.NPCNameList>>
 		<<set _nameReal to _name>>
-		<<set _autoNNPCKey to _name.toLowerCase().split(" ").join("_")>>
+		<<set _nnpcKey to _name.toLowerCase().split(" ").join("_")>>
 
 		<<if $options.autoNNPCDisplay is undefined>>
-			<<run console.warn("[settingsExitFunction] autoNNPCDisplay is missing. It should be initialised in variables-modUpdate.", _nameReal, _autoNNPCKey)>>
-		<<elseif $options.autoNNPCDisplay[_autoNNPCKey] is undefined>>
-			<<run console.warn("[settingsExitFunction] Missing autoNNPCDisplay entry. Fix variables-modUpdate init/migration.", _nameReal, _autoNNPCKey)>>
-		<<elseif C.npc[_nameReal] is undefined>>
-			<<run console.warn("[settingsExitFunction] Missing C.npc entry while syncing autoNNPCDisplay gender.", _nameReal, _autoNNPCKey)>>
-		<<elseif C.npc[_nameReal].pronoun is "m">>
-			<<set $options.autoNNPCDisplay[_autoNNPCKey].gender to "male">>
+			<<run console.warn("[settingsExitFunction] autoNNPCDisplay is missing. It should be initialised in variables-modUpdate.", _nameReal, _nnpcKey)>>
 		<<else>>
-			<<set $options.autoNNPCDisplay[_autoNNPCKey].gender to "female">>
+			/* create missing display entry for modded/new NNPCs on old saves */
+			<<if $options.autoNNPCDisplay[_nnpcKey] is undefined>>
+				<<set $options.autoNNPCDisplay[_nnpcKey] to {}>>
+			<</if>>
+			<<if $options.autoNNPCDisplay[_nnpcKey].slot is undefined>>
+				<<set $options.autoNNPCDisplay[_nnpcKey].slot to 1>>
+			<</if>>
+			<<if $options.autoNNPCDisplay[_nnpcKey].layer is undefined>>
+				<<set $options.autoNNPCDisplay[_nnpcKey].layer to "front">>
+			<</if>>
+			<<if $options.autoNNPCDisplay[_nnpcKey].genderOverride is undefined>>
+				<<set $options.autoNNPCDisplay[_nnpcKey].genderOverride to false>>
+			<</if>>
+
+			/* Guard in case an entry exists in setup.NPCNameList but C.npc data is missing */
+			<<if C.npc[_nameReal] is undefined>>
+				<<run console.warn("[settingsExitFunction] Missing C.npc entry while syncing autoNNPCDisplay gender.", _nameReal, _nnpcKey)>>
+			<<elseif C.npc[_nameReal].pronoun is "m">>
+				<<set $options.autoNNPCDisplay[_nnpcKey].gender to "male">>
+			<<else>>
+				<<set $options.autoNNPCDisplay[_nnpcKey].gender to "female">>
+			<</if>>
 		<</if>>
 	<</for>>
 <</widget>>
@@ -4083,9 +4100,52 @@
 	</div>
 <</widget>>
 
+<<widget "modLISettingsSection">>
+	<<run ensureModLISettings()>>
+	<<set _enabledModLIs to getActivatedModLIs()>>
+	<<set _availableModLIs to getAvailableModLIs()>>
+	<div class="settingsToggleItemWide">
+		<<if $ModExclusiveLIEnabled is 1>>
+			<div class="small-description red">Warning: activating a Mod-exclusive love interest is permanent for this save. Once activated, that LI stays available in this playthrough.</div>
+			<label>Select a custom LI to activate for this save:</label><br>
+			<<if _availableModLIs.length gt 0>>
+				<<for _modLIName range _availableModLIs>>
+					<<button _modLIName>>
+						<<run activateModLI(_modLIName)>>
+						<<replace #modLISettingsPanel>><<modLISettingsSection>><</replace>>
+					<</button>>
+					<<if _modLIName neq _availableModLIs[_availableModLIs.length - 1]>> | <</if>>
+				<</for>>
+			<<else>>
+				<div class="green">All Mod-exclusive love interests have already been activated for this save.</div>
+			<</if>>
+			<br>
+			<span class="gold">Activated in this save</span><br>
+			<<if _enabledModLIs.length gt 0>>
+				<<for _enabledName range _enabledModLIs>>
+					<<print _enabledName>>
+					<<if _enabledName neq _enabledModLIs[_enabledModLIs.length - 1]>> | <</if>>
+				<</for>>
+			<<else>>
+				<span class="small-description">No Mod-exclusive love interests have been permanently activated for this save yet.</span>
+			<</if>>
+		<<else>>
+			<span class="small-description">Turn on Mod-exclusive love interests to open the permanent activation menu. Already-activated LIs remain locked into this save even if this menu is hidden again later.</span>
+		<</if>>
+	</div>
+<</widget>>
+
 <<widget "dolpSettings">>
 	<div class="solidBorderContainer settings-container">
 		<div class="settingsGrid">
+			<div class="settingsToggleItem" id="modExclusiveLISetting">
+				<span class="gold">Mod-exclusive Love Interests</span>
+				<br>
+				<label><<checkbox "$ModExclusiveLIEnabled" 0 1 autocheck>> Show Mod-exclusive love interests</label>
+			</div>
+			<div id="modLISettingsPanel"><<modLISettingsSection>></div>
+			<<run $(() => {$('#modExclusiveLISetting input[type="checkbox"]').off('change.modli').on('change.modli', () => {Wikifier.wikifyEval('<<replace #modLISettingsPanel>><<modLISettingsSection>><</replace>>');});})>>
+			
 			<div class="settingsToggleItem">
 				<span class="gold">Enemy Stats Display</span> <mouse class = "tooltip linkBlue">(?)<span>As you enter an encounter, you will be given textual descriptions for the state of the enemy. The toggle here allows you to see exactly what number the enemy's stats are at.</span></mouse>
 				<br>

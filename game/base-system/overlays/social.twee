@@ -3,11 +3,36 @@
 <<widget "social">>
 	<div id="relation-display">
 		<<silently>>
+			<<poppySocialPrep>>
 			<<script>>
-				if (V.wolfpackharmony) C.npc["Black Wolf"].harmony = V.wolfpackharmony;
-				if (V.wolfpackferocity) C.npc["Black Wolf"].ferocity = V.wolfpackferocity;
+				/* Black Wolf: keep original behavior, but don't crash if missing */
+				if (C.npc["Black Wolf"]) {
+					if (V.wolfpackharmony != null) C.npc["Black Wolf"].harmony = V.wolfpackharmony;
+					if (V.wolfpackferocity != null) C.npc["Black Wolf"].ferocity = V.wolfpackferocity;
+				}
 				/*data config for non-standard NPCs boxes, allows for different stat configs, custom display data, and dynamic requirements*/
 				T.npcConfig = {
+					/* --- Poppy config added, rest is original --- */
+					"Poppy" : {
+						important : true,
+						love : { maxValue : 100 },
+						lust : { requirements : T.poppyLustUnlocked, maxValue : 100 },
+						patience : {
+							name : "Patience",
+							requirements : (T.poppyPatienceRaw || 0) > 0,
+							maxValue : 100,
+							minValue : 0,
+							activeIcon : setup.poppyPatienceIcon ? setup.poppyPatienceIcon(C.npc.Poppy ? C.npc.Poppy.patience : 0) : "img/ui/sym-patience-empty.png",
+							inactiveIcon : "img/ui/sym-patience-empty.png",
+						},
+						anger : {
+							name : "Anger",
+							requirements : (T.poppyPatienceRaw || 0) < 0,
+							maxValue : 100,
+							minValue : 0,
+							activeIcon : "img/ui/sym-poppy-rage.png",
+						},
+					},
 					"Robin" : {
 						important : true,
 						dom : { name : "Confidence", activeIcon : "img/ui/sym-confidence.png", color: "blue" }
@@ -90,19 +115,18 @@
 				};
 
 				/* This list dictates the order that the important NPCs will show up in on the social menu screen */
-				T.importantNpcOrder = ["Robin", "Whitney", "Eden", "Kylar", "Sydney", "Avery", "Great Hawk", "Black Wolf", "Alex"];
+				T.importantNpcOrder = ["Robin", "Whitney", "Eden", "Kylar", "Sydney", "Avery", "Great Hawk", "Black Wolf", "Alex", "Poppy"];
 				if (V.gwylanSeen?.includes("yearning")) T.importantNpcOrder.pushUnique("Gwylan");
 				T.specialNPCs = ["Ivory Wraith"];
 
 				/* this list is sorted */
-				T.importantNPCs = T.importantNpcOrder.map(name => V.NPCName[V.NPCNameList.indexOf(name)]);
+				T.importantNPCs = T.importantNpcOrder.map(function(name){ return V.NPCName[V.NPCNameList.indexOf(name)];}).filter(function(x){ return !!x; });
 
 				/* this list is unsorted */
-				T.otherNPCs = V.NPCName.filter(npc => !T.importantNpcOrder.includes(npc.nam) && !T.specialNPCs.includes(npc.nam));
+				T.otherNPCs = V.NPCName.filter(function(npc){return npc && T.importantNpcOrder.indexOf(npc.nam) === -1 && T.specialNPCs.indexOf(npc.nam) === -1;});
 
 				/* sorting takes the lower value and puts it first, so if a < b, a goes first. */
-				/* yes, this works on words, somehow. it's math shit, but it works. read a book if necessary. */
-				T.otherNPCs.sort((a,b) => a.nam - b.nam);
+				T.otherNPCs.sort(function(a,b){return String(a.nam).localeCompare(String(b.nam));});
 			<</script>>
 		<</silently>>
 

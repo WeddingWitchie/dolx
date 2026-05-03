@@ -252,7 +252,7 @@ Zohar
 			<<elseif $player.sex is "h">>
 				<<if $player.gender_body is "m" or ($player.gender_body is "a" and $player.breastsize lte 3)>>
 					<<set _override to "m">>
-				<<else>> <!-- if $player.gender_body is "f" or ($player.gender_body is "a" and $player.breastsize gt 3)) -->
+				<<else>> <!-- if $player.gender_body is "f" or ($player.gender_body is "a" and $player.breastsize gt 3) -->
 					<<set _override to "f">>
 				<</if>>
 			<<else>> <!-- if $player.sex is "f" -->
@@ -553,6 +553,29 @@ Zohar
 				<<if $nikiSeen is undefined>>
 					<<set $nikiSeen to []>>
 				<</if>>
+			<<case Poppy>>
+				<<if $poppySeen is undefined>>
+					<<set $poppySeen to []>>
+				<<elseif !Array.isArray($poppySeen)>>
+					<<set $poppySeen_legacy to $poppySeen>> 
+					<<run console.warn("[Poppy migration] $poppySeen was not an array; moved to $poppySeen_legacy:", V.poppySeen)>>
+					<<set $poppySeen to []>>
+					<<set $poppyMigrationNeedsReview to true>>
+				<</if>>
+				<<if $NPCName[_i].patience is undefined>>
+					<<set $NPCName[_i].patience to 100>>
+				<</if>>
+				<<if $daily is undefined>>
+					<<set $daily to {}>>
+				<</if>>
+				<<if $daily.poppy is undefined>>
+					<<set $daily.poppy to {}>>
+				<</if>>
+
+				<!-- keeps intent explicit; JS also handles undefined safely -->
+				<<if $poppyromance is undefined>>
+					<<set $poppyromance to -1>>
+				<</if>>
 			<<case Gwylan>>
 				<<set $gwylanSeen to []>>
 				<<set $gwylanTalked to []>>
@@ -583,6 +606,11 @@ Zohar
 			<<set $NPCName[_i].outfits to ["naked", "maleDefault", "femaleDefault"]>>
 		<</if>>
 		<<switch _nam>>
+			<<case Poppy>>
+				<<set $NPCName[_i].outfits.pushUnique(
+					"poppyLatexF",
+					"poppyTownM"
+				)>>
 			<<case Kylar>>
 				<<set $NPCName[_i].outfits.pushUnique(
 					"maleSchool", "femaleSchool",
@@ -664,6 +692,17 @@ Zohar
 					<<npcClothesType $NPCName[_i] "formal">>
 				<<else>>
 					<<npcClothesType $NPCName[_i] "business">>
+				<</if>>
+			<<case Poppy>>
+				<!-- Example rule: late night = latex for female; otherwise use "poppy" type -->
+				<<if Time.betweenHours(23, 6)>>
+					<<if $NPCName[_i].pronoun is "f">>
+						<<npcClothesName $NPCName[_i] "poppyLatexF">>
+					<<else>>
+						<<npcClothesName $NPCName[_i] "poppyTownM">>
+					<</if>>
+				<<else>>
+					<<npcClothesType $NPCName[_i] "poppy">>
 				<</if>>
 			<<case Robin>>
 				<<run getRobinCrossdressingStatus($NPCName[_i].crossdress)>>
@@ -1107,6 +1146,20 @@ Zohar
 			<<set $NPCList[_npcno].dodgeChance += 40>>
 		<</if>>
 
+	<<case "Poppy">>
+		<<set $NPCList[_npcno].health to 600>>
+		<<set $NPCList[_npcno].healthmax to 600>>
+		<<set $NPCList[_npcno].dodgeChance to 0>>
+		<<if $combatExtended.enemyBaseDodgeChance is 1>>
+			<<set $NPCList[_npcno].dodgeChance to 40>>
+		<</if>>
+		<<if $combatExtended.enemyMartialArts is 1>>
+			<<set $NPCList[_npcno].dodgeChance += 40>>
+		<</if>>
+		<<if !$NPCList[_npcno].traits.includes("unforgiving")>>
+			<<set $NPCList[_npcno].traits.push("unforgiving")>>
+		<</if>>
+
 	<<default>>
 		<<set $NPCList[_npcno].health to 200>>
 		<<set $NPCList[_npcno].healthmax to 200>>
@@ -1386,18 +1439,28 @@ Zohar
 	<<set _nam to _args[0]>>
 	<<set _var to _args[1]>>
 	<<set _val to _args[2]>>
-	<<if _args[3]>>
-		<<set _cheat to _args[3]>>
-	<</if>>
-
+	<<if _args[3]>><<set _cheat to _args[3]>><</if>>
 	<<set _i to $NPCNameList.indexOf(_nam)>>
+
+	<<set _isPoppy to _nam is "Poppy">>
+	<<if _isPoppy>>
+		<<if $NPCName[_i].timer is undefined>><<set $NPCName[_i].timer to {}>><</if>>
+		<<if $NPCName[_i].timer.lastPatienceDecay is undefined>><<set $NPCName[_i].timer.lastPatienceDecay to Time.date.timeStamp>><</if>>
+	<</if>>
 
 	<<switch _var>>
 	<<case love>>
-		<<if $valentines and Time.monthDay is 14 and setup.loveInterestNpc.includes(_nam)>>
+		<<if modLISelected("Poppy") and _isPoppy>><<run statusCheck("Poppy")>><</if>>
+		<<if $valentines and Time.monthDay is 14 and (setup.loveInterestNpc.includes(_nam) or (modLISelected("Poppy") and _isPoppy))>>
 			<<set _val += _val>>
 		<</if>>
-		<<set $NPCName[_i].love += _val>>
+		<<if modLISelected("Poppy") and _isPoppy and _val gt 0 and !_cheat>>
+			<<if T.poppyLoveGainAllowed>>
+				<<set $NPCName[_i].love += _val>>
+			<</if>>
+		<<else>>
+			<<set $NPCName[_i].love += _val>>
+		<</if>>
 	<<case dom>>
 		<<if _nam is "Gwylan" and _val gt 0>>
 			<<set $_stage to Math.floor($NPCName[_i].dom / 25)>>
@@ -1412,15 +1475,47 @@ Zohar
 	<<case trust>>
 		<<set $NPCName[_i].trust += _val>>
 	<<case lust>>
-		<<if $valentines and Time.monthDay is 14 and setup.loveInterestNpc.includes(_nam)>>
+		<<if modLISelected("Poppy") and _isPoppy>><<run statusCheck("Poppy")>><</if>>
+		<<if $valentines and Time.monthDay is 14 and (setup.loveInterestNpc.includes(_nam) or (modLISelected("Poppy") and _isPoppy))>>
 			<<set _val += _val>>
 		<</if>>
-		<<if _nam is "Sydney" and !_sydneyChastity and _val gt 0 and !_cheat>>
+		<<if modLISelected("Poppy") and _isPoppy and _val gt 0 and !_cheat>>
+			<<if T.poppyLustUnlocked>>
+				<<set $NPCName[_i].lust += _val>>
+				<<set _lustincr to 1>>
+			<</if>>
+		<<elseif _nam is "Sydney" and !_sydneyChastity and _val gt 0 and !_cheat>>
 			<<set $NPCName[_i].lust += (_val + 1)>>
+			<<set _lustincr to 1>>
 		<<else>>
 			<<set $NPCName[_i].lust += _val>>
+			<<set _lustincr to 1>>
 		<</if>>
-		<<set _lustincr to 1>>
+	<<case patience>>
+		<<if _isPoppy>>
+			<<if $NPCName[_i].patience is undefined>>
+				<<set $NPCName[_i].patience to 100>>
+			<</if>>
+
+			/* Signed temper stat: +100 (max patience) to -100 (max anger) */
+			<<set $NPCName[_i].patience += _val>>
+
+			<<if $NPCName[_i].patience gt 100>>
+				<<set $NPCName[_i].patience to 100>>
+			<<elseif $NPCName[_i].patience lt -100>>
+				<<set $NPCName[_i].patience to -100>>
+			<</if>>
+		<<else>>
+			<span class="red">NPCINCR error - patience is Poppy-only</span><br><br>
+		<</if>>
+
+	<<case anger>>
+		<<if _isPoppy>>
+			/* Anger is the negative side of patience */
+			<<npcincr Poppy patience (-_val)>>
+		<<else>>
+			<span class="red">NPCINCR error - anger is Poppy-only</span><br><br>
+		<</if>>
 	<<case rage>>
 		<<set $NPCName[_i].rage += _val>>
 	<<case state>>
@@ -1511,6 +1606,20 @@ Zohar
 			<<set $NPCName[_i].purity to _val>>
 		<<case corruption>>
 			<<set $NPCName[_i].corruption to _val>>
+		<<case patience>>
+			<<set $NPCName[_i].patience to _val>>
+			<<if $NPCName[_i].patience gt 100>>
+				<<set $NPCName[_i].patience to 100>>
+			<<elseif $NPCName[_i].patience lt 0>>
+				<<set $NPCName[_i].patience to 0>>
+			<</if>>
+		<<case anger>>
+			<<set $NPCName[_i].patience to 100 - _val>>
+			<<if $NPCName[_i].patience gt 100>>
+				<<set $NPCName[_i].patience to 100>>
+			<<elseif $NPCName[_i].patience lt 0>>
+				<<set $NPCName[_i].patience to 0>>
+			<</if>>
 		<<default>>
 			<span class="red">NPCSET error - Unknown value _var</span>
 			<br><br>
@@ -1989,6 +2098,67 @@ Zohar
 						wants to <span class="teal">spend more time with you</span>.
 					<<else>>
 						has no strong opinion of you.
+					<</if>>
+				<</if>>
+			<</if>>
+		<<case Poppy>>
+			<<set _i to $NPCNameList.indexOf("Poppy")>>
+			<<run statusCheck("Poppy")>>
+
+			<<set _love to $NPCName[_i].love>><<set _lust to $NPCName[_i].lust>>
+			<<set _pat to (typeof T.poppyPatience === "number" ? T.poppyPatience : 100)>>
+			<<set _anger to 100 - _pat>>
+
+			Poppy
+			<<if $NPCName[_i].state is "dismissed">>
+				wants <span class="red">nothing to do with you</span>.
+			<<else>>
+				<!-- High love lust lines (only when patience isn't low) -->
+				<<if _love gte 67 and T.poppyLustUnlocked and _pat gte 34 and _lust gte 67>>
+					is <span class="pink">ready to pounce on you</span>.
+				<<elseif _love gte 67 and T.poppyLustUnlocked and _pat gte 34 and _lust gte 34>>
+					<span class="purple">yearns for you</span>.
+				<<elseif _love gte 67>>
+					<<if _pat gte 67>>
+						<span class="green">adores you</span>.
+					<<elseif _pat gte 34>>
+						<span class="teal">cares about you</span>.
+					<<elseif _pat gte 20>>
+						<span class="blue">fusses over you</span>.
+					<<elseif _pat gte 10>>
+						<span class="purple">can't understand you</span>.
+					<<elseif _pat gte 1>>
+						thinks you're <span class="pink">hopeless</span>.
+					<<else>>
+						wants to <span class="red">get rid of you</span>.
+					<</if>>
+				<<elseif _love gte 34>>
+					<<if _pat gte 67>>
+						thinks you're <span class="green">cute</span>.
+					<<elseif _pat gte 34>>
+						is <span class="teal">worried about you</span>.
+					<<elseif _pat gte 20>>
+						is <span class="blue">impatient with you</span>.
+					<<elseif _pat gte 10>>
+						thinks you're <span class="purple">irritating</span>.
+					<<elseif _pat gte 1>>
+						thinks you're <span class="pink">getting on her nerves</span>.
+					<<else>>
+						wants to <span class="red">get rid of you</span>.
+					<</if>>
+				<<else>>
+					<<if _pat gte 67>>
+						is <span class="teal">curious about you</span>.
+					<<elseif _pat gte 34>>
+						<span class="lblue">tolerates you</span>.
+					<<elseif _pat gte 20>>
+						is <span class="blue">impatient with you</span>.
+					<<elseif _pat gte 10>>
+						thinks you're <span class="purple">irritating</span>.
+					<<elseif _pat gte 1>>
+						thinks you're <span class="pink">getting on her nerves</span>.
+					<<else>>
+						wants to <span class="red">get rid of you</span>.
 					<</if>>
 				<</if>>
 			<</if>>

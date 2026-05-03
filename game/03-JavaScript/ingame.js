@@ -2083,6 +2083,8 @@ function isPossibleLoveInterest(name) {
 			return V.farm_stage >= 7 && V.alex_countdown === undefined;
 		case "Gwylan":
 			return V.gwylanSeen?.includes("partners") || V.gwylanSeen?.includes("romance");
+		case "Poppy":
+			return V.poppyromance >= 0 && C.npc.Poppy && C.npc.Poppy.init === 1;
 		default:
 			return false;
 	}

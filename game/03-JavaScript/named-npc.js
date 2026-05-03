@@ -33,6 +33,11 @@ function statusCheck(name) {
 			case "Gwylan":
 				gwylanStatusCheck();
 				break;
+			// Mod LI
+			case "Poppy":
+				poppyStatusCheck(nnpc);
+				break;
+
 		}
 	}
 	return nnpc;

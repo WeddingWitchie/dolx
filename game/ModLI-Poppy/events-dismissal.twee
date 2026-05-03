@@ -1,0 +1,299 @@
+/* ========================================================================
+ * Poppy Dismissal event: "Max Anger → sold to the underground brothel"
+ *
+ * Flow:
+ *   streeteffects ─ poppyDismissalStreetCheck ─┐
+ *                                              │  sets $poppyDismissalWatched
+ *                                              ▼
+ *   eventsstreet ─ if $poppyDismissalWatched ─ poppyDismissalWatched widget
+ *                                              │  (timed countdown, then hit)
+ *                                              ▼
+ *                              [[Poppy Dismissal Abduction]]
+ *                                   │           │
+ *                                Fight       Submit / Fight-fail
+ *                                   │           │
+ *                            [[Elk Street]]     └─► [[Poppy Dismissal Submit]]
+ *                                                         │
+ *                                                         ▼
+ *                                      badEndTracking("Underground Dungeon",
+ *                                         { reasonStart: "soldPoppy" })
+ *                                                         │
+ *                                                         ▼
+ *                                                [[Underground Intro]]
+ *
+ * Once the event has fired at least once ($poppyDismissalFired), a separate
+ * single-use street encounter (<<poppyDismissalGlare>>) can roll, which is
+ * added to the event pool inside eventsstreet.
+ *
+ * Variables this widget set introduces:
+ *   $poppyDismissalWatched  (0/1)  — hunt-active flag, like $kylarwatched
+ *   $poppyDismissalTimer    (int)  — street ticks remaining before the hit
+ *   $poppyDismissalFired    (0/1)  — set once the abduction has played
+ * ======================================================================== */
+
+:: Poppy Dismissal Abduction
+<<effects>><<set $poppyFlat.dismissed to true>>
+<<npc Poppy>><<person1>>
+You wake up after being passed out for who knows how long. The back of your head throbs in pain. <<gggpain>><<pain 18>>
+<br><br>
+Your vision adjusts to the painfully bright light of the place. You realise that you're in a warehouse, bound and gagged onto a metal chair. When your vision clears, you see Poppy standing there in formal attire, staring at you menacingly. <<gggstress>><<stress 18>>
+<br><br>
+"You're awake at last," <<he>> says coldly. "Must be wondering why you're here, hm? I'll tell you why. You've been an insufferable, inconsiderate pain in the ass so bad that I can't make any more excuses to myself for your actions. I can't stand you anymore!" <<His>> shouts echo in the empty warehouse.
+<br><br>
+"You're a good-for-nothing asshole. I would kill you, but where's the fun in that?" Poppy tilts <<his>> head. "I thought you'd make a good cocksleeve. At least then you'll be of some use for some horny bastard."
+<br><br>
+<<if !$poppySeen.includes("poppy_tf_revealed")>>
+	<<set $poppySeen.push("poppy_tf_revealed")>><<run statusCheck("Poppy")>>
+	You see that Poppy has a tail similar to a fox, a pair of darkened wings, fox ears that twitch angrily, and a dark halo round <<his>> head. <<His>> eyes mock you. "How pitiful is it that <span class="purple">only now you truly understand</span>?" <<He>> growls out.
+	<br><br>
+<</if>>
+<<link [[Next|Poppy Dismissal Abduction 2]]>><</link>>
+
+:: Poppy Dismissal Abduction 2
+<<effects>>
+As if on cue, the metal doors to the warehouse behind Poppy slam open. A group of rough-looking people enters. Poppy turns away from you and faces the group. A bulky man glances at you over his shoulder, then nods at Poppy.
+<br><br>
+Poppy extends a hand out, and the man slaps a stack of cash into <<his>> palm. <<His>> tail sways approvingly.
+<br><br>
+Poppy turns to you with a satisfied smile. "Gotta go now, Bailey's expecting me. Enjoy being a slut in the underground brothel~ Be good to your customers, yeah? <span class="red">I hope I never see you again</span>."
+<br><br>
+The group starts to surround you. You hear Poppy leave the warehouse, the sound of <<his>> heels fading against the floor.
+<br><br>
+<<endevent>>
+<<generatey1>><<person1>>
+The <<person>> sneers at you. "Boss will definitely be happy when they see you." The rest of the group starts untying you from the chair to get you ready for transport.
+<br><br>
+<<link [[Fight|Poppy Dismissal Fight]]>><</link>><<physiquedifficulty 4000 12000>><br>
+<<link [[Submit|Poppy Dismissal Submit]]>><<stress 6>><<trauma 6>><</link>><<gstress>><<gtrauma>>
+
+:: Poppy Dismissal Fight
+<<effects>>
+You thrash against the closing grip of your captors with every ounce of strength you have, swinging your still-bound arms and aiming for anything that might give you an opening.
+<br><br><<physiquedifficulty 5000 16000 true>>
+<<if $physiqueSuccess>>
+	/* --- Success --- */
+	The rope binding your wrists finally gives way under the strain, and your elbow connects with someone's jaw. You scramble up and barrel past the group before they can recover, bursting out of the warehouse and into the cold air outside.
+	<br><br>
+	You don't stop running until the warehouse is well behind you. When you finally slow down, your chest heaving and your legs shaking, you recognise where you are in the treeline of the forest curls away behind a row of warehouses, and the street signs tell you this is <span class="green">Elk Street</span>.
+	<<athletics 5>><<trauma 3>><<stress -6>><<gathletics>><<lstress>><<gtrauma>>
+	<br><br>
+	<<link [[Next|Elk Street]]>><<endevent>><</link>>
+<<else>>
+	/* --- Failure: fall through to the Submit path --- */
+	It's not enough. The group overpowers you with practised ease, pinning your shoulders down and laughing at your struggle. One of them cuffs you across the face hard enough that your ears ring.
+	<<gtrauma>><<gpain>><<ggstress>><<trauma 6>><<stress 12>><<pain 6>>
+	<br><br>
+	<<link [[Next|Poppy Dismissal Submit]]>><</link>>
+<</if>>
+
+:: Poppy Dismissal Submit
+<<effects>><<pass 10>>
+The group forces you to your feet and reties your wrists together behind your back. They drag you out of the warehouse and toss you into the back of a van. The van rumbles into motion.
+<br><br>
+You aren't sure how long you were in the van, but it eventually comes to a stop. The doors open and the group drags you out.
+<br><br>
+<<link [[Next|Underground Intro]]>><<badEndTracking "Underground Dungeon" { reason: "soldPoppy" }>><<generate2>><<generate3>><</link>>
+
+/* LOCKED FLAT */
+:: Flats Poppy Locked
+<<set $location to "flats">><<set $outside to 0>><<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>>
+<<set $poppyFlat.lockedAttempts to (typeof $poppyFlat.lockedAttempts is "number" ? $poppyFlat.lockedAttempts : 0)>>
+You stop outside Poppy's flat.
+<br><br>
+The door with the poppy-shaped knob stays shut.<<if $poppyFlat.home>> You think you hear movement inside, but no one comes to answer.<</if>>
+<br><br>
+<<if $poppyFlat.lockedAttempts gte 5>>
+	You give already up.
+	<br><br>
+	<<getouticon>><<link [[Leave|Flats]]>><<endevent>><<set $eventskip to 0>><</link>>
+<<else>>
+	<<link [[Knock|Flats Poppy Locked Knock]]>><</link>><br>
+	<<link [[Plead|Flats Poppy Locked Plead]]>><</link>><br>
+	<<link [[Leave something behind|Flats Poppy Locked Leave Gift]]>><</link>>
+	<br><br>
+	<<getouticon>><<link [[Leave|Flats]]>><<endevent>><<set $eventskip to 0>><</link>>
+<</if>>
+
+:: Flats Poppy Locked Knock
+<<effects>>
+<<set $poppyFlat.lockedAttempts to (typeof $poppyFlat.lockedAttempts is "number" ? $poppyFlat.lockedAttempts : 0)>>
+<<set $poppyFlat.lockedAttempts++>>
+You knock on the door.
+<br><br>
+<<switch $poppyFlat.lockedAttempts>>
+	<<case 1>>
+		There is no answer.
+	<<case 2>>
+		You wait a little longer this time, listening hard. "Sorry..."
+		<br><br>
+		There is still no answer.
+	<<case 3>>
+		You knock again, louder now.
+		<<if $poppyFlat.home>> The faint sound from inside stops altogether.<</if>>
+		<br><br>
+		No one answers.
+	<<case 4>>
+		Your knuckles sting slightly against the wood.
+		<br><br>
+		There is still nothing from the other side of the door.
+	<<default>>
+		You knock one last time.
+		<br><br>
+		Nothing.
+		<br><br>
+		You give up.
+<</switch>>
+<br><br>
+<<if $poppyFlat.lockedAttempts gte 5>>
+	<<getouticon>><<link [[Leave|Flats]]>><<endevent>><<set $eventskip to 0>><</link>>
+<<else>>
+	<<poppyicon "flat">><<link [[Try again|Flats Poppy Locked]]>><</link>><br>
+	<<getouticon>><<link [[Leave|Flats]]>><<endevent>><<set $eventskip to 0>><</link>>
+<</if>>
+
+:: Flats Poppy Locked Plead
+<<effects>>
+<<set $poppyFlat.lockedAttempts to (typeof $poppyFlat.lockedAttempts is "number" ? $poppyFlat.lockedAttempts : 0)>>
+<<set $poppyFlat.lockedAttempts++>>
+"Poppy..." you call through the door. 
+<br><br>
+<<switch $poppyFlat.lockedAttempts>>
+	<<case 1>>
+		Your voice sounds small in the corridor.
+		<br><br>
+		There is no reply.
+	<<case 2>>
+		"I'm sorry." You try again, softer this time, as though that might make a difference.
+		<br><br>
+		There is still no reply.
+	<<case 3>>
+		"Can we talk...?" You linger by the door, waiting for even the slightest sign that <<nnpc_he "Poppy">> heard you.
+		<br><br>
+		Nothing comes.
+	<<case 4>>
+		The silence on the other side feels almost deliberate now.
+		<br><br>
+		You trail off, with no answer waiting for you.
+	<<default>>
+		Your words dry up in your throat.
+		<br><br>
+		There is still no answer.
+		<br><br>
+		You give up.
+<</switch>>
+<br><br>
+<<if $poppyFlat.lockedAttempts gte 5>>
+	<<getouticon>><<link [[Leave|Flats]]>><<endevent>><<set $eventskip to 0>><</link>>
+<<else>>
+	<<poppyicon "flat">><<link [[Try again|Flats Poppy Locked]]>><</link>><br>
+	<<getouticon>><<link [[Leave|Flats]]>><<endevent>><<set $eventskip to 0>><</link>>
+<</if>>
+
+:: Flats Poppy Locked Leave Gift
+<<effects>>
+<<set $poppyFlat.lockedAttempts to (typeof $poppyFlat.lockedAttempts is "number" ? $poppyFlat.lockedAttempts : 0)>>
+<<set $poppyFlat.lockedAttempts++>>
+You leave something by the door.
+<br><br>
+<<switch $poppyFlat.lockedAttempts>>
+	<<case 1>>
+		It looks oddly pathetic sitting there on its own.
+		<br><br>
+		No one comes to collect it.
+	<<case 2>>
+		You set it down a little more carefully this time, then wait.
+		<br><br>
+		Still, the door stays shut.
+	<<case 3>>
+		You step back and glance at the handle, half-expecting it to turn.
+		<br><br>
+		It does not.
+	<<case 4>>
+		The little offering sits untouched where you left it.
+		<br><br>
+		You stare at it for a moment, then look away.
+	<<default>>
+		You leave one last thing behind.
+		<br><br>
+		The door remains closed.
+		<br><br>
+		You give up.
+<</switch>>
+<br><br>
+<<if $poppyFlat.lockedAttempts gte 5>>
+	<<getouticon>><<link [[Leave|Flats]]>><<endevent>><<set $eventskip to 0>><</link>>
+<<else>>
+	<<poppyicon "flat">><<link [[Try again|Flats Poppy Locked]]>><</link>><br>
+	<<getouticon>><<link [[Leave|Flats]]>><<endevent>><<set $eventskip to 0>><</link>>
+<</if>>
+
+
+:: Widgets Poppy Dismissal [widget]
+<<widget "poppyDismissalStreetCheck">>
+	<<if !$poppyDismissalFired>>
+		<<run poppySchedule()>><<run statusCheck("Poppy")>>
+		<<if $poppyDismissalWatched is 1>>
+			/* Already hunting, keep the pressure visible while conditions hold. */
+			<<if T.poppyAnger gte 100 and ($location is "alley" or Time.hour gte 23 or Time.hour lte 5)>>
+				<span class="red">Someone is hunting you.</span>
+			<</if>>
+		<<elseif T.poppyAnger gte 100 and ($location is "alley" or Time.hour gte 23 or Time.hour lte 5)>>
+			<<set $poppyDismissalWatched to 1>>
+			<<set $poppyDismissalTimer to random(3, 5)>>
+			<<set $eventskip to 1>>
+			The hair on the back of your neck stands. <span class="red">Someone is hunting you.</span>
+            <<switch random(1, 3)>>
+                <<case 1>>
+                    <span class="red">You feel the gaze of a seething predator.</span>
+                <<case 2>>
+                    <span class="red">The street feels too quiet.</span>
+                <<case 3>>
+                    <span class="red">You see red from the corner of your eye.</span>
+            <</switch>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "poppyDismissalWatched">>
+	<<run poppySchedule()>><<run statusCheck("Poppy")>><<set $poppyDismissalTimer -= 1>>
+	/* Escape valve: if Poppy's anger dropped below max (patched up off-screen), abort the hunt cleanly. */
+	<<if T.poppyAnger lt 100>>
+		<<set $poppyDismissalWatched to 0>>
+		<<unset $poppyDismissalTimer>>
+		<<endevent>><<destinationeventend>>
+	<<elseif $poppyDismissalTimer gt 0>>
+		/* Another stalking beat, gives the PC one more chance to get indoors. */
+		<<switch random(1, 3)>>
+			<<case 1>>
+				<span class="red">You feel the gaze of a seething predator.</span>
+			<<case 2>>
+				<span class="red">The street feels too quiet.</span>
+			<<case 3>>
+				<span class="red">You see red from the corner of your eye.</span>
+		<</switch>>
+		<<gstress>><<stress 6>>
+		<br><br>
+        <<endevent>>
+		<<destinationeventend>>
+	<<else>>
+		/* Timer's up and the PC is still exposed, Poppy's crew makes the move. */
+		<<set $poppyDismissalWatched to 0>><<set $poppyDismissalFired to 1>>
+		Something hits the back of your head, hard. You hear the object connect with a sickening crack. Before you can react, your vision blurs and you collapse to the ground. The last thing you see is a pair of boots standing right beside your head before you black out completely.
+		<<gggpain>><<pain 20>><<ggstress>><<stress 12>>
+		<br><br>
+		<<link [[Next|Poppy Dismissal Abduction]]>><<earnFeat "Prey to the Slaughter">><</link>>
+	<</if>>
+<</widget>>
+
+<<widget "poppyDismissalGlare">>
+	<<set $poppySeen.pushUnique("dismissal_glare")>>
+	<<npc Poppy>><<person1>>
+	You feel a dreadful chill run down your spine. Someone is watching you like a predator stalking its prey. You whip your head around in a frenzy to identify who it might be, and lock eyes with the culprit. 
+    <br><br>
+    <span class="red">It's Poppy.</span>
+	<br><br>
+	<<Hes>> glaring at you from the opposite side of the street with a disdainful smile. Both of you hold eye contact before Poppy finally breaks it and continues on with <<his>> path. <<gstress>><<stress 6>>
+	<br><br>
+    <<endevent>>
+	<<destinationeventend>>
+<</widget>>

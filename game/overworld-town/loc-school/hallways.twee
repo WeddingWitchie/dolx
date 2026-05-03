@@ -42,6 +42,19 @@
 <</if>>
 <<schoolperiodtext>>
 
+<<if modLISelected("Poppy")>><<set _inClass to !["early","late","earlynoschool","latenoschool","daynoschool","morning","lunch","afternoon"].includes($schoolstate)>>
+<<set _inBreak to ["morning","lunch","afternoon"].includes($schoolstate)>>
+<!-- Treat both the first 5 minutes and the last minute of a class period as corridor transition time. -->
+<<set _classTransit to _inClass and (Time.minute lt 5 or Time.minute gte 59)>><</if>>
+<<if modLISelected("Poppy") and random(1,100) lte 20 and $eventskip is 0 and Array.isArray($poppySeen) and $poppySeen.includes("talk_intro") and C.npc.Poppy and C.npc.Poppy.init is 1 and (_inClass or _inBreak)>>
+	<<run poppySchedule()>>
+	<<set _poppyCanHallwayEvent to T.poppy_location is "schoolHallways" and Array.isArray(T.poppyStatus) and !T.poppyStatus.includes("DataInvalid")>>
+	<!-- During class transition time, fall through to the casual break branches instead of Skipping. -->
+	<<set _poppyHallwayContext to (_inClass and !_classTransit) ? "class" : "break">>
+<<else>>
+	<<set _poppyCanHallwayEvent to false>>
+<</if>>
+
 <<if !$settings.forcedCrossdressingEnabled>><<unset $whitneyskirtmaths>><</if>>
 <<if $whitneypantiesmaths or $whitneyskirtmaths>>
 	<<if $whitneypantiesmaths is "seen" and ($worn.under_lower.type.includes("naked") or ($whitneypantiescheck is 2 and $worn.under_lower.gender is "f"))>>
@@ -117,6 +130,9 @@
 	<<else>>
 		<<link [[Everything fades to black...|School Passout]]>><</link>>
 	<</if>>
+
+<<elseif _poppyCanHallwayEvent and $eventskip is 0>>
+	<<include "Hallways Poppy Event Dispatch">>
 
 <<elseif !["early", "late", "earlynoschool", "latenoschool", "daynoschool"].includes($schoolstate) and $eventskip is 0>>
 	<<if $exposed gte 1>>

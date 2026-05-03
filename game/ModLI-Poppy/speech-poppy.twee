@@ -1,0 +1,120 @@
+:: Widgets speech-Poppy [widget]
+<<widget "speech-poppy">>
+	<<set _virginityTarget to _args[0] or "Poppy">>
+	<<set _poppy to statusCheck("Poppy")>>
+	<<set _neckName to "">>
+	<<set _poppyStatus to T.poppyStatus or "">>
+
+	<<if $worn.neck and $worn.neck.name>>
+		<<set _neckName to $worn.neck.name>>
+	<</if>>
+
+	<<if ($speechpenisvirgin is 1 and $player.virginity.penile is _virginityTarget) or ($speechvaginavirgin is 1 and $player.virginity.vaginal is _virginityTarget)>>
+		<<He>> gasps, then grins. "Saving yourself for me? I'm flattered, darling."<<npcincr Poppy lust 3>><<gglust>>
+		<<if _poppy and _poppy.isValid and _poppy.love gte 40>>
+			<<npcincr Poppy love 5>><<gglove>>
+		<</if>>
+
+	<<elseif $speechanusvirgin is 1 and $player.virginity.anal is _virginityTarget>>
+		<<He>> shivers, smiling like <<hes>> trying not to look too pleased. "You're full of surprises, my jewel."<<npcincr Poppy lust 2>><<gglust>>
+
+	<<elseif $speechmouthvirgin is 1 and $player.virginity.oral is _virginityTarget>>
+		<<He>> strokes your cheek with <<his>> thumb. "Good. Keep going. You look lovely like this."<<npcincr Poppy lust 2>><<gglust>>
+
+	<<elseif $speechkissvirgin is 1 and $player.virginity.kiss is _virginityTarget>>
+		<<He>> blinks, then laughs softly. "Your first kiss too? Now you're making me feel possessive."<<npcincr Poppy love 3>><<gglove>>
+
+	<<elseif $speechnamedrop is 1>>
+		<<set $speechnamedrop to 0>>
+		<<switch _loveInterest>>
+			<<case "Whitney">>
+				<<He>> narrows <<his>> eyes. "Whitney? Seriously? That's who you're thinking about?"<<npcincr Poppy patience -1>><<lpatience>>
+			<<case "Gwylan">>
+				<<He>> makes a face. "That collar-witch? Hm. I suppose <<hes>> got decent taste."
+			<<case "Robin">>
+				<<He>> hums, though <<his>> smile tightens. "Robin seems sweet. Still, I'd rather you say my name."
+			<<case "Kylar">>
+				<<He>> stiffens. "Kylar. Right. Let's not talk about that person while I'm touching you."<<npcincr Poppy lust -15>><<lllust>><<npcincr Poppy patience -1>><<lpatience>>
+			<<case "Avery">>
+				<<He>> gives a small, sharp laugh. "Avery? Careful, jewel. I might start feeling competitive."<<npcincr Poppy lust 2>><<gglust>>
+			<<case "Eden">>
+				<<He>> tilts <<his>> head. "Eden? You do find trouble in the strangest places."
+			<<default>>
+				<<He>> presses closer. "Whoever you're thinking about, stop. Stay here with me, my jewel."
+		<</switch>>
+
+	<<elseif $speechsextoy is 1>>
+		<<set $speechsextoy to 0>>
+		<<set $_sexToy to ($rightarm is "heldSexToy" and $leftarm is "heldSexToy" ? "sex toys" : "sex toy")>>
+		<<He>> eyes your <<print $_sexToy>> and smiles. "Using toys too? You're really trying to spoil me."<<npcincr Poppy lust 2>><<gglust>>
+
+	<<elseif $clothesspeech is 1 and $worn.neck and ($worn.neck.collared is 1 or _neckName is "familiar collar" or _neckName.includes("Whitney's collar"))>>
+		<<set $clothesspeech to 0>>
+
+		<<if _neckName.includes("Whitney's collar")>>
+			<<if typeof $poppyromance is "number" and $poppyromance gte 0>>
+				<<He>> notices the collar you're wearing and makes a weird expression. "Whitney's... toy?" <<He>> asks with severe judgement in <<his>> tone. "Seriously..."
+				<br><br>
+				Poppy sticks <<his>> hand into <<his>> pocket and pulls out a pocket knife. With a flick of <<his>> wrist, the collar is cut through.
+				<br><br>
+				<<He>> yanks the collar off and stuffs it into <<his>> pocket. "Never wear that again, you hear me?"
+				<<run V.worn.neck = clone(setup.clothes.neck.find(c => c.name === "naked") || setup.clothes.neck[0])>>
+				<<npcincr Poppy patience -2>><<lpatience>>
+			<<else>>
+				<<He>> notices the collar you're wearing and makes a weird expression. "Whitney's... toy?" <<He>> asks with severe judgement in <<his>> tone. "I didn't know you were into that sort of thing, or that close to that... delinquent. Whatever makes you happy, I suppose."
+				<br><br>
+				Poppy sticks <<his>> hand into <<his>> pocket and pulls out a pocket knife. With a flick of <<his>> wrist, the collar is cut through. <<He>> yanks the collar off and stuffs it into <<his>> pocket. "Never wear that again, you hear me?"
+				<<run V.worn.neck = clone(setup.clothes.neck.find(c => c.name === "naked") || setup.clothes.neck[0])>>
+				<<npcincr Poppy patience -2>><<lpatience>>
+			<</if>>
+
+		<<elseif _poppyStatus.includes("LowPatience")>>
+			<<He>> glares at the collar on your neck, clearly bothered by it. <<He>> grits <<his>> teeth and clenches <<his>> fists, as if ready to lash out, though it never comes.
+			<br>
+			Poppy rolls <<his>> eyes with a scoff and looks away.
+			<<npcincr Poppy patience -6>>
+			<<if C.npc.Poppy and C.npc.Poppy.patience gt 0>>
+				<<lllpatience>>
+			<<else>>
+				<<ggganger>>
+			<</if>>
+
+		<<elseif _neckName is "familiar collar">>
+			<<if typeof $poppyromance is "number" and $poppyromance gte 0>>
+				<<He>> notices the familiar collar you're wearing. "That collar you're wearing... could you tell Gwylan to remove it when you visit? That'd make me happy."<<npcincr Poppy patience -2>><<lpatience>>
+			<<else>>
+				<<He>> notices the familiar collar you're wearing. "Oh! You're Gwylan's? I'm happy for you. I've crossed paths with Gwylan before. Gwylan's nice enough."
+			<</if>>
+
+		<<else>>
+			<<He>> notices the collar you're wearing and makes a weird expression. "I didn't know you were into that sort of thing." <<He>> manages to smile, albeit awkwardly.
+		<</if>>
+
+	<<elseif _silent isnot 1>>
+		<<set $poppysexcycle to $poppysexcycle or 0>>
+		<<switch $poppysexcycle>>
+			<<case 0>>
+				"I love doing this with you. You feel so good," <<he>> murmurs.
+			<<case 1>>
+				"The noises you make are adorable," <<he>> says, grinning.
+			<<case 2>>
+				"Did I find your sweet spot, darling?" <<he>> asks.
+			<<case 3>>
+				"We could keep going until morning," <<he>> says, breathless and amused.
+			<<case 4>>
+				<<if V.awareness gte 5>>
+					"If we have kits, I hope they're as cute as you," <<he>> says.
+				<<else>>
+					"If we have babies, I hope they're as cute as you," <<he>> says.
+				<</if>>
+			<<case 5>>
+				"Stay close, my jewel. I want to feel every little reaction," <<he>> whispers.
+			<<else>>
+				"I don't want this to stop," <<he>> breathes.
+		<</switch>>
+		<<set $poppysexcycle to ($poppysexcycle + 1) % 6>>
+
+	<<else>>
+		Ah... ngh! <<he>> gasps.
+	<</if>>
+<</widget>>

@@ -93,7 +93,8 @@ const statChange = (() => {
 			}
 		}
 
-		V.sleeptrouble = V.trauma >= 1 ? 1 : 0;
+		// Opium Addict trait: inhaling opium suppresses insomnia for the current sleep cycle.
+		V.sleeptrouble = V.trauma >= 1 && !V.poppyDrug?.insomniaSuppress ? 1 : 0;
 		V.nightmares = V.trauma >= (V.traumamax / 10) * 1 ? 1 : 0;
 
 		if (V.trauma >= (V.traumamax / 10) * 7) {
@@ -1151,7 +1152,7 @@ const statChange = (() => {
 				mod = 1;
 				if (typeof updateMoment === "function") updateMoment();
 			}
-			if (V.backgroundTraits.includes("plantlover") && amount > 0) mod = 1.5;
+			if ((V.backgroundTraits.includes("plantlover") || V.backgroundTraits.includes("opiumaddict")) && amount > 0) mod = 1.5;
 			V.drunk = Math.clamp(V.drunk + amount * mod, 0, 1000);
 		}
 	}
@@ -1162,7 +1163,7 @@ const statChange = (() => {
 		amount = Number(amount);
 		if (amount) {
 			let mod = 1;
-			if (V.backgroundTraits.includes("plantlover") && amount > 0) mod = 1.5;
+			if ((V.backgroundTraits.includes("plantlover") || V.backgroundTraits.includes("opiumaddict")) && amount > 0) mod = 1.5;
 			V.drugged = Math.clamp(V.drugged + amount * mod, 0, 1000);
 		}
 	}

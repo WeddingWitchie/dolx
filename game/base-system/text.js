@@ -267,6 +267,19 @@ statDisplay.create("gggperlove", (npc, simple) => {
 	return statDisplay.statChange(selectedNPC && !simple && (npc || V.enemyno >= 2) ? `${NPCName}'s ${loveAlias}` : loveAlias, 3, "green");
 });
 
+statDisplay.create("gpatience", () => {return statDisplay.statChange("Patience", 1, "green");});
+statDisplay.create("ggpatience", () => {return statDisplay.statChange("Patience", 2, "green");});
+statDisplay.create("gggpatience", () => {return statDisplay.statChange("Patience", 3, "green");});
+statDisplay.create("lpatience", () => {return statDisplay.statChange("Patience", -1, "red");});
+statDisplay.create("llpatience", () => {return statDisplay.statChange("Patience", -2, "red");});
+statDisplay.create("lllpatience", () => {return statDisplay.statChange("Patience", -3, "red");});
+statDisplay.create("ganger", () => {return statDisplay.statChange("Anger", 1, "red");});
+statDisplay.create("gganger", () => {return statDisplay.statChange("Anger", 2, "red");});
+statDisplay.create("ggganger", () => {return statDisplay.statChange("Anger", 3, "red");});
+statDisplay.create("langer", () => {return statDisplay.statChange("Anger", -1, "green");});
+statDisplay.create("llanger", () => {return statDisplay.statChange("Anger", -2, "green");});
+statDisplay.create("lllanger", () => {return statDisplay.statChange("Anger", -3, "green");});
+
 statDisplay.create("llust", npc => statDisplay.statChange(npc ? `${npc}'s Lust` : "Lust", -1, "teal"));
 statDisplay.create("lllust", npc => statDisplay.statChange(npc ? `${npc}'s Lust` : "Lust", -2, "teal"));
 statDisplay.create("llllust", npc => statDisplay.statChange(npc ? `${npc}'s Lust` : "Lust", -3, "teal"));

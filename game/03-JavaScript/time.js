@@ -700,6 +700,8 @@ function dayPassed(days) {
 	if (V.statFreeze) return;
 
 	for (let i = 0; i < days; i++) {
+		if (window.poppyDailyPatienceDecay) {window.poppyDailyPatienceDecay(1);}
+		
 		// Lose one day of tanning
 		Skin.applyTanningLoss(1440);
 
@@ -2230,6 +2232,11 @@ function dailyLiquidEffects() {
 			V.nectarmessage = "traitGain";
 			V.nectar_timer = 21;
 		}
+	}
+	
+	/* Poppy opium / Pavlov daily trait processing */
+	if (window.poppyDailyTraits) {
+		poppyDailyTraits();
 	}
 }
 

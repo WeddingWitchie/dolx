@@ -2937,7 +2937,16 @@ Robin watches as you leave <<him>> on the table. <<His>> soulless eyes stare at 
 
 <<npc Bailey>><<person1>>
 
-<<if Time.hour lte 6 or Time.hour gte 10>>
+/* Poppy-Bailey morning meeting; weekends 7AM-9AM, before Poppy is an LI */
+<<if modLISelected("Poppy")>><<set _poppyBaileyBlock to false>><<if typeof $poppyromance isnot "number" or $poppyromance lt 0>><<run poppySchedule()>><</if>><</if>>
+<<if modLISelected("Poppy") and $daily.poppy.baileyMeeting is 1 and T.poppy_location is "baileyOffice">>
+	<<set _poppyBaileyBlock to true>>
+	<<include "Bailey's Office Poppy Repeat">>
+<<elseif modLISelected("Poppy") and !$daily.poppy.baileyMeeting and T.poppy_location is "baileyOffice" and (typeof $poppyromance isnot "number" or $poppyromance lt 0) and random(1, 2) is 1>>
+	<<set $daily.poppy.baileyMeeting to 1>><<set _poppyBaileyBlock to true>>
+	<<include "Bailey's Office Poppy Meeting">>
+
+<<elseif Time.hour lte 6 or Time.hour gte 10>>
 	You enter Bailey's office. <<Hes>> not there. <<He>> should be around between 7 and 9 in the morning.
 	<br><br>
 
@@ -2993,6 +3002,7 @@ Robin watches as you leave <<him>> on the table. <<His>> soulless eyes stare at 
 	<br><br>
 <</if>>
 
+<<if !_poppyBaileyBlock>>
 <<if C.npc.Alex.pregnancy.fee isnot true and C.npc.Alex.pregnancy.nursery is true and (_alexMother or _alexFather) and (Time.hour gte 7 and Time.hour lte 9)>>
 	<<link [[Take your children to the farm|Bailey Office Alex Children Fee]]>><</link>>
 	<br>
@@ -3049,6 +3059,7 @@ Robin watches as you leave <<him>> on the table. <<His>> soulless eyes stare at 
 	<<main_hall_icon>><<link [[Main hall (0:01)|Orphanage]]>><<pass 1>><<endevent>><</link>>
 	<br>
 <</if>>
+<</if>> /* closes poppyBaileyBlock */
 
 :: Bailey Pound
 <<effects>>

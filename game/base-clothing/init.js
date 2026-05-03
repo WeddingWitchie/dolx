@@ -728,6 +728,10 @@ function initNpcClothes() {
 		{ name: "vintageFemale",		type: "formal", gender: "f", outfit: 1, clothes: npcAssignClothesToSet("vintage skirtsuit", "vintage skirt"), desc: "vintage skirtsuit"},
 		{ name: "ritualRobes",			type: "Gwylan", gender: "n", outfit: 1, clothes: npcAssignClothesToSet("ritual robes", "ritual skirt"), desc: "robes"},
 		/* -------------------------------------------------------------------------------------------------------------------------------------------------- */
+		{ name: "poppyLatexF", 			type: "poppy", gender: "f", outfit: 1, clothes: npcAssignClothesToSet("leather harness", "leather trousers"), desc: "leather harness and trousers" },
+		{ name: "poppyTownM", 			type: "poppy", gender: "m", outfit: 0, clothes: npcAssignClothesToSet("sweater", "breeches"), desc: "sweater and breeches" },
+		{ name: "poppyNeutral",			type: "poppy", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("shirt", "trousers"), desc: "shirt and trousers" },
+		/* -------------------------------------------------------------------------------------------------------------------------------------------------- */
 		{ name: "maleDefault",			type: "default", gender: "m", outfit: 0, clothes: npcAssignClothesToSet("shirt", "trousers"), desc: "shirt and trousers" },
 		{ name: "femaleDefault",		type: "default", gender: "f", outfit: 0, clothes: npcAssignClothesToSet("shirt", "skirt"), desc: "shirt and skirt" },
 	];

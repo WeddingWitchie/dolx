@@ -25,6 +25,7 @@
 
 	<<set $sleepHoursTotal to 0>>
 	<<set $_bonusFatigueLoss to 10>>
+	<<set _poppy_interrupt to false>>
 
 	<!-- sleeping with others -->
 	<<if $bedGuest or $wolfbed is 1>>
@@ -64,6 +65,8 @@
 		<<set $_bed to setup.furniture.get("singlebed")>>
 	<</if>>
 	<<if $location is "avery_mansion" or $location is "forest_shop">>
+		<<set $_bonusFatigueLoss += 100>>
+	<<elseif $location is "flats" and $bus is "poppy_bedroom">>
 		<<set $_bonusFatigueLoss += 100>>
 	<<elseif $_bed.type.includes('comfy')>>
 		<<set $_bonusFatigueLoss += 80>>
@@ -303,6 +306,14 @@
 				<<elseif wraithSleepEventCheck()>>
 					<<wraithEvent>>
 				<</if>>
+			<<case "flats">>
+				<<run poppySchedule()>><<run statusCheck("Poppy")>>
+				<<if T.poppyFlatBaileyDue>>
+					<<set _sleepinterrupt to 1>>
+				<<elseif $bus is "poppy_bedroom" and C.npc.Poppy and C.npc.Poppy.init is 1 and $poppyFlat.home and $poppyFlat.room is "bedroom" and (Number(C.npc.Poppy.lust) || 0) gte 60 and !$daily.poppy.flatBedSexDone and !(T.poppyStatus and T.poppyStatus.includes("LowPatience"))>>
+					<<set _sleepinterrupt to 1>>
+					<<set _poppy_interrupt to "sex">>
+				<</if>>
 			<<case "forest_shop">>
 				<<if ["walking_to_cafe", "cafe"].includes(gwylanSchedule()) and !$gwylanCafeWake and $exposed is 0>>
 					<!-- Gwylan wakes player to walk to cafe -->
@@ -480,6 +491,9 @@
 		<<case "Mansion Bed">>
 			<<set $_storeLocation to "Mansion Bed">>
 			<<set $wardrobe_location to "avery_mansion">>
+		<<case "Poppy Flats">>
+			<<set $_storeLocation to "Poppy Flats">>
+			<<set $wardrobe_location to "poppy_bedroom">>
 		<<default>>
 			Something went wrong with the "bedclotheson" widget, please report
 			<<run console.log('Something went wrong with the "bedclotheson" widget, please report')>>

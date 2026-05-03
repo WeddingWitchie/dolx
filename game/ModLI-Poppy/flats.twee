@@ -1,0 +1,1560 @@
+:: Flats Poppy Enter
+<<set $location to "flats">><<set $outside to 0>><<effects>>
+<<run poppySchedule()>><<run statusCheck("Poppy")>><<npc Poppy>><<person1>><<poppyFlatInit>>
+<<set $poppyFlat.kickedUntilDay to (typeof $poppyFlat.kickedUntilDay is "number" ? $poppyFlat.kickedUntilDay : -1)>>
+<<if ($poppyFlat.dismissed is true or $poppyDismissalFired is 1)>>
+	<<include "Flats Poppy Locked">>
+<<elseif !((Number($poppySafeHouse) gte 1 or (Number($poppyromance) gte 0 and $poppySeen.includes("lake_postclaim_intro"))) and !(Number($poppyFlat.kickedUntilDay) gte Time.days) and !Time.isBloodMoon())>>
+	<<if Number($poppyFlat.kickedUntilDay) gte Time.days>>
+		You try to enter Poppy's flat, but the door is locked. Maybe you should try again next time.
+	<<elseif Time.isBloodMoon()>>
+		You knock on Poppy's door. There's no response.
+	<<else>>
+		The door with the poppy flower remains closed.
+	<</if>>
+	<br><br>
+	<<getouticon>><<link [[Back|Flats]]>><<pass 1>><<endevent>><<set $eventskip to 0>><</link>>
+<<elseif T.poppyStatus.includes("LowPatience") and Number($poppyromance) lt 0>>
+	<<if $poppyFlat.home>>
+		You realise the door is locked. You knock on Poppy's door. You hear someone shuffling about inside, but no one answers.
+	<<else>>
+		You try to enter, but the door is locked.
+	<</if>>
+	<br><br>
+	<<getouticon>><<link [[Back|Flats]]>><<pass 1>><<endevent>><<set $eventskip to 0>><</link>>
+<<else>>
+	<<include "Flats Poppy First Entry">>
+<</if>>
+
+:: Flats Poppy First Entry
+<<effects>><<set $outside to 0>><<run poppySchedule()>><<run statusCheck("Poppy")>><<poppyFlatInit>>
+You are in Poppy's flat.
+<br><br>
+Soft furnishings and warm lighting give the space a gentle, warm feel. You take a breath. There's a subtle earthy and powdery scent in the air that makes you a little drowsy. There is at least one pot of poppy flowers on every windowsill.
+<<poppyOpiumPulse>>
+<<if Number($poppyromance) gte 0 and Number($poppySafeHouse) gte 1 and !$poppyFlat.bedroomUnlocked>>
+	<<set $poppyFlat.bedroomUnlocked to true>>
+	<<if $poppyFlat.bedroomUnlockedNoticeSeen isnot true>>
+		<span class="gold"><i>You now have access to Poppy's bedroom.</i></span>
+		<<set $poppyFlat.bedroomUnlockedNoticeSeen to true>>
+		<br><br>
+	<</if>>
+<</if>>
+<<poppyFlatContents>>
+
+:: Flats Poppy Living Room
+<<set $bus to "poppy_living_room">><<set $outside to 0>><<effects>>
+<<run poppySchedule()>><<run statusCheck("Poppy")>><<poppyFlatInit>>
+<<if Time.isBloodMoon() and !$possessed>>
+	The flat feels wrong under the red moon. Poppy is nowhere to be seen, and staying here suddenly feels like a terrible idea.
+	<br><br>
+	<<getouticon>><<link [[Leave the flat|Flats]]>><<pass 1>><<endevent>><<set $eventskip to 0>><</link>>
+<<elseif $tiredness gte C.tiredness.max>>
+	<<include "Flats Poppy Exhaustion Collapse">>
+<<elseif T.poppyFlatBaileyDue>>
+	<<set $daily.poppy.flatBaileySeenDay to Time.days>>
+	<<include "Flats Poppy Bailey">>
+<<else>>
+You are in Poppy's living room.
+<br><br>
+There is a glass coffee table between the couch and TV stand. The TV stand is decorated with cute little figurines. On the couch, a pillow stands out from its surroundings. It's a Frostburger pillow.
+<<poppyOpiumPulse>>
+<<if $poppyFlat.home>>
+	<<if $poppyFlat.room is "kitchen" and $poppyFlat.meal and !$daily.poppy.flatMeals[$poppyFlat.meal]>>
+		/* Poppy is cooking and player hears it from the living room */
+		You hear the sound of kitchen appliances clanking. The smell of food wafts through the air. Poppy is making <<print $poppyFlat.meal>>.
+		<br>
+		<<if $poppyFlat.meal is "breakfast">>
+			<<link [[Help Poppy make breakfast (0:20)|Flats Poppy Help Meal]]>><<pass 20>><</link>><br>
+			<<link [[Eat breakfast (0:20)|Flats Poppy Eat Meal]]>><<pass 20>><</link>><br><br>
+		<<else>>
+			<<link [[Help Poppy make dinner (0:20)|Flats Poppy Help Meal]]>><<pass 20>><</link>><br>
+			<<link [[Eat dinner (0:20)|Flats Poppy Eat Meal]]>><<pass 20>><</link>><br><br>
+		<</if>>
+	<<elseif $poppyFlat.room is "living_room">>
+		/* Poppy is in the living room with the player */
+		<<if Time.hour gte 15 and Time.hour lt 18>>
+			Poppy's sitting on the couch with <<his>> legs crossed and a book in hand.
+			<br>
+		<</if>>
+		<<rng>>
+		<<if $rng lte 35 and !$poppySeen.includes("flat_lipstick_event") and !$daily.poppy.flatLipstickChecked and random(1,4) is 1>>
+			<<set $daily.poppy.flatLipstickChecked to true>>
+			<<socialiseicon>><<link [[Approach Poppy|Flats Poppy Lipstick Event]]>><</link>>
+			<br>
+		<<else>>
+			<<socialiseicon>><<link [[Approach Poppy|Flats Poppy Social]]>><<set $eventskip to 0>><</link>>
+			<br>
+		<</if>>
+	<<else>>
+		/* Poppy is home but in the bedroom/bathroom player can chill on couch */
+		<<poppyicon "living_room">><<link [[Rest on the couch (0:15)|Flats Poppy Couch Rest]]>><<pass 15>><</link>>
+		<br>
+	<</if>>
+<<else>>
+	/* Poppy is not home at all */
+	<<poppyicon "living_room">><<link [[Rest on the couch (0:15)|Flats Poppy Couch Rest]]>><<pass 15>><</link>>
+	<br>
+<</if>>
+<<poppyicon "window">><<link [[Approach the window|Flats Poppy Window]]>><<set $poppyFlat.windowRoom to "living_room">><</link>>
+<br><br>
+<<poppyFlatContents>>
+<</if>>
+
+:: Flats Poppy Window
+<<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>><<set $outside to 0>>
+You approach the window.<br>
+<<if Time.hour lt 9>>
+	You can see that the street is already busy, even so early.
+<<elseif Time.hour lt 18>>
+	You can see pedestrians fill the pavements, but the sound of traffic dominates.
+<<elseif Time.hour lt 21>>
+	You can see that the sun has long since disappeared behind the towers, but the street remains busy.
+<<else>>
+	Voices and occasional shouting emerge from nearby buildings despite the hour.
+<</if>>
+<br><br>
+A pot of poppies rests on the sill, their colour vivid against the glass.
+<<poppyOpiumPulse>>
+<<if !$daily.poppy.flatTending[$poppyFlat.windowRoom]>>
+	<<poppyicon "poppy">><<link [[Tend to the poppies (0:15)|Flats Poppy Tend Poppies]]>><<pass 15>><</link>>
+<<else>>
+	<span class="blue">The poppies look well cared for.</span>
+<</if>>
+<br>
+<<if $bus is "poppy_bedroom">><<link [[Back|Flats Poppy Bedroom]]>><</link>><<else>><<link [[Back|Flats Poppy Living Room]]>><</link>><</if>>
+
+:: Flats Poppy Tend Poppies
+<<effects>><<set $outside to 0>><<run poppySchedule()>><<run statusCheck("Poppy")>><<wearProp "rose" "red">>
+<<set $daily.poppy.flatTending[$poppyFlat.windowRoom] to true>><<run markPoppyInteraction()>>
+You tend to the poppies.
+<br><br>
+You carefully pull out the weeds growing around the beautiful flowers. You water the soil and sprinkle a little bit of fertilizer around the flowers. Satisfied with your work, you take a step back.
+<br><br>
+<<if $poppyFlat.home and $poppyFlat.room isnot "bedroom">>
+	Poppy notices your work and smiles. "
+	<<if currentSkillValue('tending') gte 1000>>
+		You have a way with plants, don't you? I'm impressed."
+		<br><br>
+		You make <<printmoney 20000>><<money 20000 "flatsCleaning">>
+	<<elseif currentSkillValue('tending') gte 500>>
+		Not bad. Thank you for your help."
+		<br><br>
+		You make <<printmoney 10000>><<money 10000 "flatsCleaning">>
+	<<else>>
+		Hm... it could have been better, but still, thank you."
+		<br><br>
+		You make <<printmoney 5000>><<money 5000 "flatsCleaning">>
+	<</if>>
+<<else>>
+	When you finish, you notice a folded letter left nearby, tucked neatly where you could not have missed it.
+	You blink at it. You don't remember seeing it there before.
+	<br><br>
+	Inside is money, along with a short note thanking you for tending to the flowers.
+	<<if currentSkillValue('tending') gte 1000>>
+		You gain <<printmoney 20000>><<money 20000 "flatsCleaning">>
+	<<elseif currentSkillValue('tending') gte 500>>
+		You gain <<printmoney 10000>><<money 10000 "flatsCleaning">>
+	<<else>>
+		You gain <<printmoney 5000>><<money 5000 "flatsCleaning">>
+	<</if>>
+<</if>>
+<<poppyOpiumPulse false true>>
+<<if $bus is "poppy_bedroom">><<link [[Back|Flats Poppy Bedroom]]>><<handheldon>><</link>><<else>><<link [[Back|Flats Poppy Living Room]]>><<handheldon>><</link>><</if>>
+
+:: Flats Poppy Couch Rest
+<<set $bus to "poppy_living_room">><<set $outside to 0>><<effects>>
+You rest on the couch, enjoying the tranquility of the place that the orphanage could not give.
+<br><br>
+<<if $pain gt 0>>
+	You feel a little more at ease.
+	<<lstress>><<stress -4>><<lpain>><<pain -3>><<ltiredness>><<tiredness -15>>
+<<else>>
+	You feel a little more at ease, but the drowsiness doesn't fade.
+	<<lstress>><<stress -4>><<gtiredness>><<tiredness 15>>
+<</if>>
+/* Track addiction without double-applying the stat effects from the widget. */
+<<poppyOpiumPulse>>
+<<link [[Back|Flats Poppy Living Room]]>><</link>>
+
+/* ============================================================
+   LI SOCIAL INTERACTION
+   ============================================================ */
+:: Flats Poppy Social
+<<set $outside to 0>><<set $bus to "poppy_living_room">><<effects>>
+<<run poppySchedule()>><<run statusCheck("Poppy")>><<run markPoppyInteraction()>>
+<<if Time.isBloodMoon() and !$possessed>>
+	The flat feels wrong under the red moon. Poppy is nowhere to be seen, and staying here suddenly feels like a terrible idea.
+	<br><br>
+	<<getouticon>><<link [[Leave the flat|Flats]]>><<pass 1>><<endevent>><<set $eventskip to 0>><</link>>
+<<elseif !C.npc.Poppy or C.npc.Poppy.init isnot 1 or !$poppyFlat.home or $poppyFlat.room isnot "living_room">>
+	<<if $eventskip is 1>>
+		Poppy glances at <<his>> watch. "Oh, look at the time."
+		<br><br>
+		<<link [[Next|Flats Poppy Departure]]>><</link>>
+	<<else>>
+		<<include "Flats Poppy Departure">>
+	<</if>>
+<<else>>
+	<<poppyFlatsMenu>>
+<</if>>
+
+:: Flats Poppy Bodywriting Reaction
+<<effects>><<run statusCheck("Poppy")>><<set $outside to 0>>
+<<if _bodywriting_exposed gte 1 and !_bodypart>><<unset _bodypart>><</if>>
+<<if _bodywriting_exposed gte 1 and !$daily.poppy.bodywriting and _bodypart and Number($poppyromance) gte 0>>
+	<<set $daily.poppy.bodywriting to true>><<set _poppyStatus to Array.isArray(T.poppyStatus) ? T.poppyStatus : []>>
+	<<if ["Robin","Whitney","Eden","Kylar","Sydney","Avery","Alex","Black Wolf","Great Hawk","Gwylan"].includes($skin[_bodypart].special) and $skin[_bodypart].special isnot "Poppy">>
+		<<if _poppyStatus.includes("LowPatience")>>
+			You chat with Poppy. Poppy glares at the <<tattoo _bodypart>> on your <<bodypart _bodypart>>, clearly bothered by it. <<He>> grits <<his>> teeth and clenches <<his>> fists, as if ready to lash out at you, but the moment passes. 
+			<br><br>
+			Poppy rolls <<his>> eyes with a scoff and looks away.<<npcincr Poppy patience -4>><<if C.npc.Poppy.patience gt 0>><<llpatience>><<else>><<gganger>><</if>>
+		<<else>>
+			You chat with Poppy. Poppy narrows <<his>> eyes at the <<tattoo _bodypart>> on your <<bodypart _bodypart>>. "Why do you have someone else's name on you while you're my <<girlfriend>>?"
+			<br><br>
+			Poppy presses <<his>> thumb against your skin and tries to rub it off.
+			<br><br>
+			<<if ["marker","tattoo","brand","magic"].includes($skin[_bodypart].pen)>>
+				<<He>> frowns when it doesn't come off and quickly gives up with a huff. "If only I had rubbing alcohol with me..." <<he>> grumbles.
+				<<npcincr Poppy patience -4>><<if C.npc.Poppy.patience gt 0>><<llpatience>><<else>><<gganger>><</if>>
+			<<else>>
+				<span class="blue"><<He>> rubs at your <<tattoo _bodypart>> on your <<bodypart _bodypart>></span>,
+				<<if $skin[_bodypart].pen is "pen">>
+					smearing the ink before it finally comes away.
+				<<else>>
+					smearing the <<print $skin[_bodypart].pen>> before it finally comes away.
+				<</if>>
+				<br><br><<bodywriting_clear _bodypart>>
+				"There. All better." <<He>> smiles triumphantly.
+			<</if>>
+		<</if>>
+	<<elseif ["prostitution","rape","exhibitionism","sex"].includes($skin[_bodypart].special) or $skin[_bodypart].lewd is 1 and !_poppyStatus.includes("LowPatience")>>
+		You chat with Poppy. <<He>> studies the <<tattoo _bodypart>> on your <<bodypart _bodypart>> with a faint frown. "Such vulgar things shouldn't be written on you."
+		<br><br>
+		Poppy presses <<his>> thumb against your skin and tries to rub it off.
+		<br><br>
+		<<if ["marker","tattoo","brand","magic"].includes($skin[_bodypart].pen)>>
+			<<He>> frowns when it doesn't come off and quickly gives up with a huff. "If only I had rubbing alcohol with me..." <<he>> grumbles.
+			<<npcincr Poppy patience -2>><<if C.npc.Poppy.patience gt 0>><<lpatience>><<else>><<ganger>><</if>>
+		<<else>>
+			<span class="blue"><<He>> rubs at your <<tattoo _bodypart>> on your <<bodypart _bodypart>></span> until the writing smears away.
+			<<bodywriting_clear _bodypart>>
+			"There, all gone now." <<He>> smiles triumphantly and kisses you on the cheek. "You're all beautiful again."
+		<</if>>
+	<<elseif $skin[_bodypart].pen is "tattoo" and !_poppyStatus.includes("LowPatience")>>
+		You chat with Poppy. <<He>> notices the tattoo on your <<bodypart _bodypart>> and smiles. 
+		<br><br>
+		"That tattoo suits you. It must've been painful when you had it done, huh?" <<He>> chuckles.
+	<</if>>
+<</if>>
+<<poppyOpiumPulse>><<set $eventskip to 1>>
+<<poppyFlatsMenu>>
+
+:: Flats Poppy Pass Out
+<<effects>><<run statusCheck("Poppy")>><<set $outside to 0>>
+Your eyelids feel heavy and your vision blurs. Poppy tilts <<his>> head, looking at you with confusion. You want to warn <<him>> about your impending black out but you are too late.
+<br><br>
+<span class="red">You pass out.</span>
+<br><br>
+<<link [[Next|Flats Poppy Wake]]>><<pass 40>><</link>>
+
+:: Flats Poppy Wake
+<<effects>><<run statusCheck("Poppy")>><<set $outside to 0>>
+Your eyes flutter open after your unwelcomed nap. 
+<br><br>
+<<if T.poppyStatus.includes("LowPatience")>>You see an impatient Poppy staring down at you. "How nice of you to just fall asleep like that." <<He>> remarks in a sarcastic tone. It seems like <<he>> wanted to say more but held <<his>> tongue instead.
+<<else>>Poppy smiles down at you. "You must've been really tired huh? I'm glad that you got some well needed rest. Be sure to take care of yourself properly." <<He>> reminds you gently.<</if>>
+<<poppyOpiumPulse>><<set $eventskip to 1>><<pass 40>><<tiredness -100>>
+<<poppyFlatsMenu>>
+
+:: Flats Poppy Doze
+<<effects>><<run statusCheck("Poppy")>><<set $outside to 0>>
+As you are chatting with Poppy, <<his>> head starts to nod and <<his>> posture slumps slightly. You take a closer look to find that <<he>> had dozed off.
+<<poppyOpiumPulse>>
+<<link [[Wake Poppy gently|Flats Poppy Doze Gentle]]>><</link>>
+<br>
+<<link [[Scare Poppy|Flats Poppy Doze Scare]]>><</link>>
+
+:: Flats Poppy Doze Gentle
+<<effects>><<run statusCheck("Poppy")>><<set $outside to 0>>
+You rest a hand on Poppy's shoulder and gently shake <<him>> awake while calling <<his>> name. 
+<br><br>
+When <<he>> awoke, <<his>> cheeks are flushed with embarrassment.
+<br><br>
+"Sorry for dozing off like that in the middle of the conversation, that was rude of me. I should be more mindful of my sleep schedule..." <<He>> laughs bashfully.
+<<npcincr Poppy love 1>><<glove>><<poppyOpiumPulse>><<set $eventskip to 1>>
+<<poppyFlatsMenu>>
+
+:: Flats Poppy Doze Scare
+<<effects>><<run statusCheck("Poppy")>><<set $outside to 0>>
+You stand up and loom over <<him>> from behind. You ready yourself and slap both your hands on <<his>> shoulders, shouting <<his>> name loudly.
+<br><br>
+Poppy's ears pin back as <<he>> lets out a loud scream similar to a fox. You are sure that <<his>> scream can be heard from all four corners of the forest.
+<br><br>
+When Poppy realised it was you, <<he>> let out a shaky exhale and pressed a hand to <<his>> chest. "Oh, it's just you... don't scare me like that. I thought the hunter caught me..." Poppy's expression has gone sour after your little prank.
+<<npcincr Poppy patience -4>><<if C.npc.Poppy.patience gt 0>><<llpatience>><<else>><<gganger>><</if>>
+<<poppyOpiumPulse>>
+<<if $awarelevel lt 5 and !$poppySeen.includes("poppy_tf_revealed")>>
+	<<link [[Ask Poppy about the scream|Flats Poppy Doze Ask]]>><</link>>
+	<br>
+<</if>>
+<<link [[Back|Flats Poppy Social]]>><<set $eventskip to 1>><</link>>
+
+:: Flats Poppy Doze Ask
+<<effects>><<run statusCheck("Poppy")>><<set $outside to 0>>
+"Why does your scream sound like that?” you ask. "It's very foxlike."
+<br><br>
+Poppy pouts, unwilling to answer at first. "Isn't it a bit obvious? Come on now, <span class="blue">clear your vision</span>." <<He>> covers your eyes with <<his>> hand.
+<br><br>
+"<span class="navy">See what you're meant to see, what you want to see</span>."
+<<poppyOpiumPulse>><<if !$poppySeen.includes("poppy_tf_revealed")>><<set $poppySeen.push("poppy_tf_revealed")>><</if>>
+<<link [[Next|Flats Poppy Doze Ask 2]]>><</link>>
+
+:: Flats Poppy Doze Ask 2
+<<effects>><<run statusCheck("Poppy")>><<set $outside to 0>>
+You blink a few times when Poppy moves <<his>> hand away. You see a pair of fox ears on <<him>> as well as a floating halo that has been shattered. A fluffy fox tail is suddenly resting on your lap. You also see a pair of ink black wings that are folded neatly behind <<him>>.
+<br><br>
+"You're a... fallen fox?" you ask, your expression one of bewilderment.
+<br><br>
+Poppy grins at you. "<span class="green">There we go</span>. Don't you think that's less straining on your eyes?" <<His>> tail wags proudly.
+<<if !$poppySeen.includes("poppy_tf_revealed")>><<set $poppySeen.push("poppy_tf_revealed")>><</if>><<poppyOpiumPulse>><<set $eventskip to 1>>
+<<poppyFlatsMenu>>
+
+:: Flats Poppy Departure
+<<effects>><<run statusCheck("Poppy")>><<run poppySchedule()>><<set $outside to 0>>
+<<if T.poppyStatus.includes("LowPatience")>>
+    <<if T.poppy_location is "flatKitchen">>
+        Poppy stood up without a word and headed to the kitchen, not sparing you a glance.
+    <<else>>
+        Poppy stood up wordlessly and walked out the front door without looking back.
+    <</if>>
+<<elseif T.poppy_location is "flatKitchen">>
+    <<if Number($poppyromance) gte 0>>
+        <<if T.poppy_location_message is "breakfast">>
+            "I should get breakfast started." Poppy closes <<his>> book and stands, stretching with a warm smile. "I'll call you when it's ready, my jewel."
+        <<else>>
+            "Time to start on dinner." Poppy closes <<his>> book and stands. <<He>> leans down and presses a kiss to your forehead. "I'll call you when it's ready, my jewel."
+        <</if>>
+    <<else>>
+        <<if T.poppy_location_message is "breakfast">>
+            "I should get breakfast started." Poppy stands up and stretches. "I'll let you know when it's ready."
+        <<else>>
+            "Time to start on dinner." Poppy closes <<his>> book and stands. "I'll let you know when it's ready."
+        <</if>>
+    <</if>>
+<<elseif Number($poppyromance) gte 0>>
+    "What a shame, time flies by whenever I'm with you." Poppy stands up with a sigh. "Thanks for keeping me company, my jewel."
+    <br><br>
+    <<He>> kisses you on the cheek.
+    <br><br>
+    "I'll be home later. Bye bye now." <<He>> whispers into your ear before leaving with a giggle.<<arousal 200>><<garousal>>
+<<else>>
+    "I think it's time for me to go." Poppy stands up with a grunt. "Thanks for hanging around, I enjoyed your company. I'll be home later. Bye bye now!"
+    <br><br>
+    <<He>> waves to you and skips off into the front door.
+<</if>>
+<<poppyOpiumPulse>>
+<<link [[Back to living room|Flats Poppy Living Room]]>><</link>>
+
+:: Flats Poppy Chat
+<<set $location to "flats">><<set $bus to "poppy_living_room">><<set $outside to 0>>
+<<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>>
+<<if T.poppyStatus.includes("LowPatience")>>
+	You try to converse with Poppy, but <<he>> doesn't look at you. <<He>> gives you little to no response, <<if $awarelevel gte 5>>only the occasional ear twitch or tail flick.<</if>>
+<<elseif (Number(C.npc.Poppy.love) || 0) gte 80 and !$poppySeen.includes("poppy_tf_revealed") and $awarelevel lt 5>>
+	The more time you spend with Poppy, the more you feel like there's something just out of reach.
+	<br><br>
+	"There's something different about you," you say. "But I just can't put my finger on it."
+	<br><br>
+	<<He>> chuckles at your question. "Isn't it a bit obvious? Come on now, <span class="blue">clear your vision</span>." <<He>> covers your eyes with <<his>> hand.
+	<br><br>
+	"<span class="navy">See what you're meant to see, what you want to see</span>."
+	<<if !$poppySeen.includes("poppy_tf_revealed")>><<set $poppySeen.push("poppy_tf_revealed")>><</if>>
+<<elseif Number($poppyromance) gte 0>>
+	<<if random(1,2) is 1>>
+		Poppy listens tentatively as you talk. 
+		<br><br>
+		<<He>> takes your hand into <<his>> and rests it on <<his>> lap while caressing it mindlessly with <<his>> thumb.<<takeHandholdingVirginity "Poppy" "consensual" null true>> You smile at <<him>>.
+	<<else>>
+		You talk about your struggles in life. As you do so, Poppy gives you a sympathetic look and pulls you closer, resting <<his>> hand on your hips. 
+		<br><br>
+		You mention how harsh your caretaker is to you and the orphans.<<trauma -2>><<lltrauma>>
+		<br><br>
+		The topic seems to draw Poppy's attention more and make <<if $awarelevel gte 5>><<his>> ears perk up.<<else>><<him>> perk up.<</if>> <<He>> seemed hesitant to say something at first, but spoke up anyway. 
+		"You're right. No one should suffer such things in a place they call home. If Bailey tries anything with you, I'll do my best to help you." Poppy squeezes your hips lightly as reassurance.
+		<br><br>
+		"You got it, you're tougher than you look. Believe in yourself, my jewel." <<He>> gives you a quick peck on the cheek.
+		<<npcincr Poppy lust 1>><<glust>><<arousal 250>><<garousal>>
+	<</if>>
+<<else>>
+	<<if random(1,3) is 1>>
+		As you chat with Poppy, <<he>> occasionally nods and smiles. <<He>> chimes in every now and then but it's mostly a one sided conversation.
+	<<elseif random(1,3) is 2>>
+		You talk about your struggles in life. Poppy gives you a sympathetic look. You mention how harsh your caretaker is to you and the orphans.<<trauma -2>><<lltrauma>>
+		<br><br>
+		The topic seems to draw Poppy's attention more and make <<if $awarelevel gte 5>><<his>> fox ears perk up.<<else>><<him>> perk up.<</if>> "Bailey can be an asshole sometimes, I've experienced it firsthand, but <<nnpc_he 'Bailey'>> means well. You'll learn to appreciate <<nnpc_him 'Bailey'>> when you've endured the horrors of the world. There are much worse things out there than Bailey."
+		<<stress 1>><<gstress>><<awareness 5>><<gawareness>>
+		<br><br>
+		"Besides, <<nnpc_he 'Bailey'>>..." Poppy ponders for a moment before shaking <<his>> head with a smile. "Nevermind. You got it, you're tougher than you look. Believe in yourself."
+	<<else>>
+		You talk about your progress in housekeeping and the skills you're still unable to grasp despite multiple attempts. Poppy demonstrates with <<his>> hands, giving you detailed step by step instructions on how to solve your dilemma.
+		<<housekeeping 1>><<ghousekeeping>>
+		<br><br>
+		"There isn't much I could help you with since there's no equipment for me to demonstrate at the moment. Come see me at school if you still need help, okay?" <<He>> tilts <<his>> head with a smile.
+	<</if>>
+<</if>>
+<<if T.poppyLoveGainAllowed>><<glove>><<npcincr Poppy love 1>><</if>><<npcincr Poppy patience 1>><<if C.npc.Poppy.patience gt 0>><<gpatience>><<else>><<langer>><</if>>
+<<poppyOpiumPulse>>
+<<if (Number(C.npc.Poppy.love) || 0) gte 80 and !$poppySeen.includes("poppy_tf_revealed") and $awarelevel lt 5>>
+	<<link [[Next|Flats Poppy Doze Ask 2]]>><</link>>
+<<else>>
+	<<set $eventskip to 1>>
+	<<poppyFlatsMenu>>
+<</if>>
+
+:: Flats Poppy Chat Plant
+<<set $location to "flats">><<set $bus to "poppy_living_room">><<set $outside to 0>>
+<<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>>
+<<set $poppySeen.push("flat_chat_plant")>>
+"Why do you mainly plant poppy flowers?" you ask while eyeing the pot of poppies on the windowsill.
+<br><br>
+Poppy giggles and leans towards you, <<his>> face just inches from yours. "Well who did you think they named the flower after?"
+<<if Number($poppyromance) gte 0>><<garousal>><<arousal 300>><<if T.poppyLustUnlocked or Number($poppyromance) gte 0>><<npcincr Poppy lust 1>><<glust>><</if>><</if>>
+<br><br>
+Seeing your flushed face, Poppy pulls away, seemingly satisfied by your reaction.
+<<npcincr Poppy love 1>><<glove>><<npcincr Poppy patience 1>><<if C.npc.Poppy.patience gte 0>><<gpatience>><<else>><<langer>><</if>>
+<<poppyOpiumPulse>><<set $eventskip to 1>>
+<<poppyFlatsMenu>>
+
+:: Flats Poppy Flirt
+<<set $location to "flats">><<set $bus to "poppy_living_room">><<set $outside to 0>>
+<<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>><<promiscuity1>>
+<<if T.poppyStatus.includes("LowPatience")>>
+	You try to flirt with Poppy, but <<he>> doesn't look at you.
+	<br><br>
+	<<He>> gives you little to no response, only the occasional <<if $awarelevel gte 5>>ear twitch or tail flick<<else>>click of tongue<</if>>, and <<he>> seems more agitated than before.
+<<elseif Number($poppyromance) gte 0>>
+	<<if random(1,3) is 1>>
+		<<if $awarelevel gte 5>>
+			"Can I touch your tail?" you ask.
+			<br><br>
+			"Of course." Poppy smiles. <<He>> turns so that <<his>> back faces you. <<His>> fluffy tail settles onto your lap, and you stroke it gently, marveling at the thickness of it.
+			<br><br>
+			Feeling emboldened, you reach forward and rub the base of the tail. Poppy shivers, a quiet whimper leaves <<his>> lips. <<His>> tail starts to wag.<<arousal 300>><<garousal>>
+			<br><br>
+			"You enjoyed that as much as I did, didn't you?" Poppy says in a sultry tone as <<he>> turns to face you.
+		<<else>>
+			"Can I play with your hair?" you ask. "It looks so fluffy."
+			<br><br>
+			"Of course." Poppy smiles. <<He>> turns so that <<his>> back faces you. You sink your fingers into <<his>> hair and slowly comb through it. You marvel at the softness of it.
+			<br><br>
+			Feeling emboldened, you fist Poppy's hair and give it a slight tug, to which <<he>> responds with a grunt. <<He>> pulls away from you.
+			<br><br>
+			"Careful now, I bite." <<He>> looks over <<his>> shoulder, giving you a suggestive grin. "You're into that, aren't you?"<<arousal 300>><<garousal>>
+		<</if>>
+	<<elseif random(1,3) is 2>>
+		You move closer to Poppy and wrap your arms around <<his>> waist. "I feel so lucky to call you mine," you say as your lips hover near <<him>>.
+		<br><br>
+		"I feel the same, my jewel." <<He>> waits for you to make your move. You press your lips against <<him>>, and <<he>> melts into the kiss with a contented sigh. The kiss grows heated as Poppy eagerly pushes <<his>> tongue against your lips to tangle with yours. Both of you pull away to catch your breath.
+		<br><br>
+		"That was... fun." Poppy grins at you.<<arousal 300>><<garousal>>
+	<<else>>
+		You shift closer until your thigh presses against Poppy's. <<He>> glances at you, amused, as you curl up at <<his>> side and rest your head against <<his>> shoulder.
+		<br><br>
+		"My, how clingy." Poppy's voice is light with teasing, but <<he>> doesn't move away. Instead, <<he>> lets <<his>> <<if $awarelevel gte 5>>tail<<else>>hand<</if>> curl around your waist and draw you closer.
+		<br><br>
+		You breathe in the earthy, powdery scent clinging to <<him>> and tilt your face up. Poppy's lips brush your forehead, then linger at your temple. The soft affection makes your heart race far more than it should.
+		<br><br>
+		"Stay like this a little longer," <<he>> murmurs. "You look prettiest when you're needy for me."<<arousal 350>><<garousal>>
+	<</if>>
+<<else>>
+	<<if random(1,3) is 1>>
+		<<if $awarelevel gte 5>>
+			"Can I touch your tail?" you ask.
+			<br><br>
+			"Of course." Poppy smiles. <<He>> turns so that <<his>> back faces you. <<His>> fluffy tail settles onto your lap, you stroke it gently, marveling at the thickness of it. Feeling emboldened, you reach forward and rub the base of the tail. Poppy goes rigid for a moment and <<his>> tail flicks away from your lap.
+			<br><br>
+			"Careful now." <<He>> looks over <<his>> shoulder, giving you a subtle warning that hides behind a cunning smile.
+		<<else>>
+			"Can I play with your hair?" you ask. "It looks so fluffy."
+			<br><br>
+			"Of course." Poppy smiles. <<He>> turns so that <<his>> back faces you. You sink your fingers into <<his>> hair and slowly comb through it. You marvel at the softness of it.
+			<br><br>
+			Feeling emboldened, you fist Poppy's hair and give it a slight tug, to which <<he>> responds with a grunt. <<He>> pulls away from you.
+			<br><br>
+			"Careful now." <<He>> looks over <<his>> shoulder, giving you a subtle warning that hides behind a cunning smile.
+		<</if>>
+	<<elseif random(1,3) is 2>>
+		"You're so <<if C.npc.Poppy.gender is "m">>handsome<<else>>beautiful<</if>>, I wish I could keep you all to myself," you say as you rest a hand on Poppy's thigh. <<He>> seems amused by your advances, but not enough to make <<him>> flustered.
+		<br><br>
+		If anything, it seems that <<he>> took it as a challenge.
+		<br><br>
+		"Oh honey, you'll have to try harder than that..." Poppy leans forward, tilting your chin up with one hand as the other slides up your thigh. <<He>> holds intense eye contact with you as <<he>> rubs your inner thigh with <<his>> thumb.
+		<br><br>
+		"Not so bold now, are you?" You feel <<his>> breath on your lips.<<arousal 400>><<ggarousal>>
+		<br><br>
+		Poppy releases you after you've become a flustered mess. "Hm, seems like you have much to learn about the art of seduction." <<He>> chuckles.
+	<<else>>
+        You inch closer and let your knee brush against Poppy's leg. "You're always so nice to look at," you murmur, letting your gaze linger.
+        <br><br>
+        Poppy laughs softly. "Nice?" <<He>> leans closer until you can feel <<his>> breath against your cheek. "What a miserly compliment."
+        <br><br>
+        Before you can answer, <<he>> hooks a finger beneath your chin and studies your face with a knowing smile. <<His>> thumb strokes once over your lower lip, slow enough to make your face redden.
+        <br><br>
+        "There. That's a better look on you." <<He>> withdraws, looking entirely too pleased with <<himself>> as you sit there flustered.<<arousal 300>><<ggarousal>>
+	<</if>>
+<</if>>
+<<if T.poppyLoveGainAllowed>><<npcincr Poppy love 2>><<glove>><</if>><<if Number($poppyromance) gte 0 and !T.poppyStatus.includes("LowPatience")>><<npcincr Poppy lust 2>><<glust>><</if>>
+<<poppyOpiumPulse>>
+<<if Number($poppyromance) gte 0 and !T.poppyStatus.includes("LowPatience")>>
+	<<if hasSexStat("promiscuity", 2)>>
+		<<brothelicon>><<link [[Take it further (0:15)|Flats Poppy Take It Further]]>><<pass 15>><<set $daily.poppy.lastAction to "takeFurther">><</link>>
+		<br><br>
+	<<else>>
+		<<insufficientStat "promiscuity" "to take it further">>
+		<br>
+	<</if>>
+<</if>>
+<<set $eventskip to 1>>
+<<poppyFlatsMenu>>
+
+:: Flats Poppy TF
+<<set $location to "flats">><<set $bus to "poppy_living_room">><<set $outside to 0>>
+<<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>>
+<<if T.poppyStatus.includes("LowPatience")>>
+	<<if ($wolfgirl gte 6 or ($transformationParts.wolf.tail isnot "hidden" and $transformationParts.wolf.tail isnot "disabled"))>>
+		You let out a quiet howl, trying to draw Poppy's attention but <<he>> does not react.
+	<<elseif ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled"))>>
+		You yip for Poppy's attention. <<He>> does not respond.
+	<<elseif ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>>
+		You bump your head against Poppy's shoulder. <<He>> grunts upon contact and does not respond.
+	<<elseif ($harpy gte 6 or ($transformationParts.bird.wings isnot "hidden" and $transformationParts.bird.wings isnot "disabled"))>>
+		You sing a gentle tune for Poppy. <<He>> does not acknowledge you.
+	<<elseif ($cat gte 6 or ($transformationParts.cat.tail isnot "hidden" and $transformationParts.cat.tail isnot "disabled"))>>
+		You push your head against Poppy's chin and rub. <<He>> instinctively moves away from you with a frown. 
+		<br><br>
+		"Please don't do that again." <<He>> reprimands you.
+	<<elseif ($bear gte 6 or ($transformationParts.bear.tail isnot "hidden" and $transformationParts.bear.tail isnot "disabled"))>>
+		You lean against Poppy, putting all your weight on <<him>>. 
+		<br><br>
+		"Please stop that. You're heavy." <<He>> scoffs, clearly irritated by your action.
+		<br><br>
+		You sit upright after Poppy reprimanded you.
+	<<elseif ($bunny gte 6 or ($transformationParts.bunny.tail isnot "hidden" and $transformationParts.bunny.tail isnot "disabled"))>>
+		You butt your head against Poppy's arm to get <<his>> attention. <<He>> gives you a sideward glance and doesn't acknowledge you further.
+	<<else>>
+		You try to get Poppy's attention with your altered mannerisms, but <<he>> only seems more agitated than before.
+	<</if>>
+<<else>>
+	<<if ($wolfgirl gte 6 or ($transformationParts.wolf.tail isnot "hidden" and $transformationParts.wolf.tail isnot "disabled"))>>
+		You let out a quiet howl, drawing Poppy's attention. <<He>> follows along and starts howling with you. 
+		<br><br>
+		<<He>> runs out of breath first. 
+		<br><br>
+		"Wow, you're really good at this. No wonder you're a wolf." <<He>> says between breaths.
+		<<ltrauma>><<trauma -3>><<lstress>><<stress -5>><<if T.poppyLoveGainAllowed>><<npcincr Poppy love 1>><<glove>><</if>>
+		<<npcincr Poppy patience 1>><<if C.npc.Poppy.patience gte 0>><<gpatience>><<else>><<langer>><</if>>	
+	<<elseif ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled"))>>
+		You yip for Poppy's attention. Poppy yips back in response, <<he>> seems proud. 
+		<br><br>
+		"What is it, kit?" <<He>> laughs.
+		<br><br>
+		The two of you yip at each other for awhile until one of you tires.
+		<<ltrauma>><<trauma -3>><<lstress>><<stress -5>><<if T.poppyLoveGainAllowed>><<npcincr Poppy love 1>><<glove>><</if>>
+		<<npcincr Poppy patience 1>><<if C.npc.Poppy.patience gte 0>><<gpatience>><<else>><<langer>><</if>>	
+	<<elseif ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>>
+		You bump your head against Poppy's shoulder.
+		<br><br>
+		"Careful, you have quite sharp horns. I wouldn't want to get hurt." <<He>> smiles and pats your head, playing with your ears in the process.
+		<br><br>
+		You happily moo at <<him>>, which catches <<him>> by surprise.
+		<<ltrauma>><<trauma -3>><<lstress>><<stress -5>><<if T.poppyLoveGainAllowed>><<npcincr Poppy love 1>><<glove>><</if>>
+		<<npcincr Poppy patience 1>><<if C.npc.Poppy.patience gte 0>><<gpatience>><<else>><<langer>><</if>>	
+	<<elseif ($harpy gte 6 or ($transformationParts.bird.wings isnot "hidden" and $transformationParts.bird.wings isnot "disabled"))>>
+		You sing a gentle tune for Poppy. <<He>> closes <<his>> eyes to savour the melody all the while humming along with you. 
+		<br><br>
+		Once you finish, Poppy opens <<his>> eyes. "That was a beautiful tune, little mockingbird. It would make a great lullaby." <<He>> ponders with a slight smile.
+		<<ltrauma>><<trauma -3>><<lstress>><<stress -5>><<if T.poppyLoveGainAllowed>><<npcincr Poppy love 1>><<glove>><</if>>
+		<<npcincr Poppy patience 1>><<if C.npc.Poppy.patience gte 0>><<gpatience>><<else>><<langer>><</if>>	
+	<<elseif ($cat gte 6 or ($transformationParts.cat.tail isnot "hidden" and $transformationParts.cat.tail isnot "disabled"))>>
+		You push your head against Poppy's chin and rub. "Aw, the kitty wants some scritches?" 
+		<br><br>
+		<<He>> reaches up to scratch your chin and neck. <<His>> touch sends a shiver down your spine. You purr out of contentment.
+		<br><br>
+		You rest against <<him>> for awhile as <<he>> pets you.
+		<<ltrauma>><<trauma -3>><<lstress>><<stress -5>><<if T.poppyLoveGainAllowed>><<npcincr Poppy love 1>><<glove>><</if>>
+		<<npcincr Poppy patience 1>><<if C.npc.Poppy.patience gte 0>><<gpatience>><<else>><<langer>><</if>>	
+	<<elseif ($bear gte 6 or ($transformationParts.bear.tail isnot "hidden" and $transformationParts.bear.tail isnot "disabled"))>>
+		You lean against Poppy, putting all your weight on <<him>>. "Hey!" <<He>> scoffs playfully and leans towards you to push against your weight. "I'm not as strong as you think I am, you know?" 
+		<br><br>
+		<<He>> tries to push you upright with <<his>> hands.
+		<br><br>
+		You playfully lean against Poppy for a little longer before sitting upright.
+		<<ltrauma>><<trauma -3>><<lstress>><<stress -5>><<if T.poppyLoveGainAllowed>><<npcincr Poppy love 1>><<glove>><</if>>
+		<<npcincr Poppy patience 1>><<if C.npc.Poppy.patience gte 0>><<gpatience>><<else>><<langer>><</if>>	
+	<<elseif ($bunny gte 6 or ($transformationParts.bunny.tail isnot "hidden" and $transformationParts.bunny.tail isnot "disabled"))>>
+		You butt your head against Poppy's arm to get <<his>> attention. 
+		<br><br>
+		"Oh my, it seems like the bunny is feeling affectionate today." <<He>> smiles. "You have such beautiful ears." <<He>> reaches out to stroke them, and you shiver in delight.
+		<<ltrauma>><<trauma -3>><<lstress>><<stress -5>><<if T.poppyLoveGainAllowed>><<npcincr Poppy love 1>><<glove>><</if>>
+		<<npcincr Poppy patience 1>><<if C.npc.Poppy.patience gte 0>><<gpatience>><<else>><<langer>><</if>>	
+	<<else>>
+		Poppy indulges your altered mannerisms with a fond smile, though there isn't much for either of you to do with them here.
+		<<ltrauma>><<trauma -3>><<lstress>><<stress -5>><<if T.poppyLoveGainAllowed>><<npcincr Poppy love 1>><<glove>><</if>>
+		<<npcincr Poppy patience 1>><<if C.npc.Poppy.patience gte 0>><<gpatience>><<else>><<langer>><</if>>
+	<</if>>
+<</if>>
+<<poppyOpiumPulse>><<set $eventskip to 1>>
+<<poppyFlatsMenu>>
+
+:: Flats Poppy Gift Food
+<<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>><<set $outside to 0>>
+What would you like to give Poppy?
+<br><br>
+<<food_gift_list>>
+<<if _food_gift_found is true>>
+	<<skinicon "give">><<link [[Give gift (0:05)|Poppy Flats Gifts]]>><<pass 5>><<give_gift Poppy>><</link>>
+	<br>
+<<else>>
+	You don't have any suitable food to give right now.
+	<br><br>
+<</if>>
+<<refuseicon>><<link [[Reconsider|Flats Poppy Social]]>><<set $eventskip to 1>><</link>>
+
+:: Poppy Flats Gifts
+<<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>><<set $outside to 0>>
+<<set _gift to $gift.handheld_gift || $gift.handheld>><<wearProp _gift>>
+<<if T.poppyStatus and T.poppyStatus.includes("LowPatience")>>
+	Poppy glances at the food in your hands, then pointedly looks away.
+	<br><br>
+	"I'm not in the mood for gifts right now." <<He>> says flatly.
+	<<poppyOpiumPulse>><<set $eventskip to 1>><<handheldon>>
+	<<poppyFlatsMenu>>
+<<else>>
+	"I've made you a gift." you say. "I hope you like it."
+	<br><br>
+	<<if ["jammie_dodger", "rich_biscuit", "quiche"].includes($gift.name)>>
+		Before you could hold out the <<recipe_name $gift.name>>, Poppy's already giving you a knowing smirk. "I could smell it from a mile away."
+		<br><br>
+		When you present the <<recipe_name $gift.name>> to <<him>>, <<he>> thanks you as <<he>> takes it from your hand.
+		<br><br>
+		Poppy takes a bite and groans in delight as the food hits <<his>> tastebuds. "This is delicious! How'd you know this is my favourite?"<<gglove>><<npcincr Poppy love 3>><<saveFavoriteFood "Poppy" $gift.name>><<if T.poppyLustUnlocked>><<glust>><<npcincr Poppy lust 2>><</if>>
+        <<earnFeat "Hungry Fox">>
+    <<else>>
+		You hold out the <<recipe_name $gift.name>>. Poppy's eyes widen in surprise. <<He>> is able to quickly recover from the shock and take the food from your hands with a smile.
+		<br><br>
+		"Oh my, this looks delicious! Did you make this yourself?" Poppy takes a bite and nods as <<he>> chews. "Yummy... Thank you for sharing this with me."<<glove>><<npcincr Poppy love 1>>
+	<</if>>
+    <<poppyOpiumPulse>><<set $eventskip to 1>><<handheldon>>
+	<<poppyFlatsMenu>>
+<</if>>
+
+/* ============================================================
+   COUCH SEX, PC-initiated via Flirt > Take it further
+   ============================================================ */
+:: Flats Poppy Take It Further
+<<set $location to "flats">><<set $bus to "poppy_living_room">><<set $outside to 0>>
+<<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>>
+You lean on Poppy's shoulder and turn your head, pressing your lips against <<his>> neck. Poppy shivers at your touch.
+<<garousal>><<arousal 300>>
+<br><br>
+Poppy turns <<his>> head and grabs your chin. "Now now, are you really that desperate?" <<He>> teases. Holding that position for awhile, <<he>> leans in and kisses you, tangling <<his>> tongue against yours. <<He>> pulls back before it gets too heated.
+<br><br>
+"You know what I want..." you whisper, trying to capture <<his>> lips against yours once more.
+<br><br>
+"Hmm..." Poppy hums in contemplation.
+<br><br>
+"Please." you beg, almost to the point of whining.
+<br><br>
+Poppy chuckles. "Of course, how could I neglect the needs of my lover?"
+<<poppyOpiumPulse>>
+<<link [[Next|Flats Poppy Couch Sex]]>><<set $sexstart to 1>><</link>>
+
+:: Flats Poppy Couch Sex
+<<if $sexstart is 1>>
+	<<run statusCheck("Poppy")>>
+	<<set $sexstart to 0>>
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+	<<maninit>>
+<</if>>
+<<effects>>
+<<effectsman>>
+<<man>>
+<<stateman>>
+<br>
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[Next|Flats Poppy Couch Sex Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Flats Poppy Couch Sex]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Flats Poppy Couch Sex Finish
+<<set $location to "flats">><<set $bus to "poppy_living_room">><<set $outside to 0>>
+<<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>>
+<<ejaculation>>
+Poppy slumps against your shoulder to catch <<his>> breath.<<npcincr Poppy lust -20>><<llust>>
+<br><br>
+"That was... refreshing." <<He>> grins up at you and kisses you by the jaw. "Though a bit uncomfortable since the couch isn't the most ideal place to have sex. We should do this at... the bed next time. We can do it on the floor as well if you prefer that." Poppy laughs.
+<br><br>
+Poppy gets up and adjusts <<his>> clothes.
+<br><br>
+<<clotheson>><<endcombat>>
+<<link [[Next|Flats Poppy Social]]>><<set $eventskip to 1>><<npc Poppy>><<person1>><</link>>
+
+/* ============================================================
+   LIPSTICK EVENT
+   ============================================================ */
+:: Flats Poppy Lipstick Event
+<<set $location to "flats">><<set $bus to "poppy_living_room">><<set $outside to 0>>
+<<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>>
+<<set $poppySeen.push("flat_lipstick_event")>>
+You are in the living room. You see Poppy sitting on the couch with a tube of lipstick and mirror in hand. You also see multiple tubes of lipstick on top of the coffee table.
+<br><br>
+"What are you up to?" you ask as you sit down beside Poppy.
+<br><br>
+"Testing out some new lipsticks I bought." <<He>> smiles at you. "I couldn't decide which one I wanted or which fit me better so I just bought them all." <<He>> shrugs and applies lipstick onto <<his>> lips.
+<br><br>
+"Now that you're here, how about we do an experiment?" Poppy turns to you with a sly grin. "Let's see which lipstick is kiss proof." <<He>> pulls you closer by the chin and kisses you on the lips.<<garousal>><<arousal 300>>
+<br><br>
+When Poppy pulls away, <<he>> looks at you and pouts. "What a shame, it's not kiss proof. I liked this shade." <<He>> wipes <<his>> lips off with a tissue and starts applying another tube of lipstick. The process went on for awhile. Apply, kiss, wipe and repeat.
+<br><br>
+By the time Poppy is done, you are a blushing mess with your face and neck covered in lipstick marks. "At least there's some that are kiss proof. My money didn't go to waste after all. I didn't bore you with my experiment, did I?" <<He>> asks in a coy tone.
+<br><br>
+You shake your head furiously. "Not at all, I enjoyed it," you say with a lopsided grin.
+<br><br>
+Poppy chuckles. "Good <<girl>>." <<He>> kisses you on the lips before releasing you.
+<<poppyOpiumPulse>><<set $eventskip to 1>>
+<<poppyFlatsMenu>>
+
+/* ============================================================
+   KITCHEN
+   ============================================================ */
+:: Flats Poppy Kitchen
+<<set $location to "flats">><<set $bus to "poppy_kitchen">><<set $outside to 0>>
+<<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>><<poppyFlatInit>>
+<<if $tiredness gte C.tiredness.max>>
+	<<include "Flats Poppy Exhaustion Collapse">>
+<<elseif T.poppyFlatBaileyDue>>
+	<<set $daily.poppy.flatBaileySeenDay to Time.days>>
+	<<include "Flats Poppy Bailey">>
+<<else>>
+You are in Poppy's kitchen. The walls are lined with wooden wall cabinets and countertops that give off a cottage feeling. There are various kitchen appliances on the countertops along with seasonings neatly placed on a spice rack.
+<<poppyOpiumPulse>>
+<<if $poppyFlat.home and $poppyFlat.room is "kitchen" and $poppyFlat.meal and !$daily.poppy.flatMeals[$poppyFlat.meal]>>
+	Poppy is at the counter, working on <<print $poppyFlat.meal>>.
+	<br>
+	<<if $poppyFlat.meal is "breakfast">>
+		<<link [[Help Poppy make breakfast (0:20)|Flats Poppy Help Meal]]>><<run markPoppyInteraction()>><<pass 20>><</link>><br>
+		<<link [[Eat breakfast (0:20)|Flats Poppy Eat Meal]]>><<pass 20>><<run markPoppyInteraction()>><</link>><br><br>
+	<<else>>
+		<<link [[Help Poppy make dinner (0:20)|Flats Poppy Help Meal]]>><<run markPoppyInteraction()>><<pass 20>><</link>><br>
+		<<link [[Eat dinner (0:20)|Flats Poppy Eat Meal]]>><<pass 20>><<run markPoppyInteraction()>><</link>><br><br>
+	<</if>>
+<</if>>
+<<allowLewdIngredients>><<kitchenDisplay>>
+<<if $cookbook is true>>
+	<<set _baseTime to Math.max(180 - (6 * Math.round($housekeeping / 50)), 10)>>
+	<<set _timeString to getTimeString(_baseTime)>>
+	<br><br>
+	<<housekeeping_exam_select>>
+	<<if $chosen_recipe isnot "none">>
+		<span class="gold">You can teach yourself a recipe from your cookbook here.</span> You flip open the book and land on a recipe for <<print $chosen_recipe.replace(/_/g," ")>>.<br><br>
+		<<link [["Learn something new (" + _timeString + ")"|Kitchen Self Teach]]>><<pass _baseTime>><<housekeeping 1 1000>><</link>><<ghousekeeping 1000>>
+	<<else>>
+		There's no more recipes you can learn.
+	<</if>>
+<</if>>
+<br><br>
+<<poppyFlatContents>>
+<</if>>
+
+:: Flats Poppy Help Meal
+<<set $location to "flats">><<set $bus to "poppy_kitchen">><<set $outside to 0>>
+<<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>><<wearProp "knife">>
+You join Poppy in the kitchen, and offer to assist. 
+<br><br>
+<<He>> gives you a faint smile and asks you to wash and cut the vegetables while <<he>> cooks.<<ghousekeeping>><<housekeeping 1>>
+<<poppyOpiumPulse>>
+<<link [[Eat with Poppy|Flats Poppy Eat Meal]]>><<handheldon>><</link>>
+
+:: Flats Poppy Eat Meal
+<<set $location to "flats">><<set $bus to "poppy_kitchen">><<set $outside to 0>><<effects>>
+You sit at the kitchen table as Poppy bustles around the kitchen. 
+<br><br>
+<<He>> turns from the counter with two plates and places one in front of you. A <<if $poppyFlat.meal is "breakfast">>full English breakfast<<else>>lasagne<</if>> that makes your mouth water upon the sight of it. It smells good too.<<ltrauma>><<trauma -5>>
+<br><br>
+Poppy sits across from you and begins eating.
+<<poppyOpiumPulse>>
+<<link [[Thank Poppy|Flats Poppy Eat Thank]]>><</link>><<glove>><<if C.npc.Poppy.patience gte 0>><<gpatience>><<else>><<langer>><</if>>
+<br>
+<<link [[Chat|Flats Poppy Eat Chat]]>><</link>><<ltrauma>>
+<br>
+<<link [[Eat quietly|Flats Poppy Eat Quiet]]>><</link>><<lstress>>
+
+:: Flats Poppy Eat Thank
+<<set $location to "flats">><<set $bus to "poppy_kitchen">><<set $outside to 0>>
+<<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>>
+You compliment the food. "It's really good," you say. "Better than the restaurants in town."
+<br><br>
+Poppy tilts <<his>> head with a smile. "Thanks," <<he>> <<if $poppyFlat.meal is "breakfast">>pops a piece of cut sausage<<else>>shovels a spoonful of lasagne<</if>> into <<his>> mouth. "I got all my ingredients from a reliable source. Their produce is always fresh."
+<<npcincr Poppy love 1>><<glove>><<npcincr Poppy patience 1>><<if C.npc.Poppy.patience gte 0>><<gpatience>><<else>><<langer>><</if>><br><br>
+The two of you had a nice meal.
+<<set $daily.poppy.flatMeals[$poppyFlat.meal] to true>>
+<<poppyOpiumPulse>>  
+<<link [[Back|Flats Poppy Kitchen]]>><</link>>
+
+:: Flats Poppy Eat Chat
+<<set $location to "flats">><<set $bus to "poppy_kitchen">><<set $outside to 0>>
+<<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>>
+As you chat with Poppy, <<he>> occasionally nods and smiles. <<He>> would chime in every now and then but it's mostly a one sided conversation.
+<<ltrauma>><<trauma -3>>
+<br><br>
+The two of you had a nice meal.
+<<poppyOpiumPulse>>
+<<set $daily.poppy.flatMeals[$poppyFlat.meal] to true>>
+<<link [[Back|Flats Poppy Kitchen]]>><</link>>
+
+:: Flats Poppy Eat Quiet
+<<set $location to "flats">><<set $bus to "poppy_kitchen">><<set $outside to 0>>
+<<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>>
+You eat <<print $poppyFlat.meal>>. You're not feeling talkative, and Poppy seems content to focus on the food.<<lstress>><<stress -5>>
+<br><br>
+The two of you had a nice meal.
+<<poppyOpiumPulse>> 
+<<set $daily.poppy.flatMeals[$poppyFlat.meal] to true>>
+<<link [[Back|Flats Poppy Kitchen]]>><</link>>
+
+/* ============================================================
+   BATHROOM
+   ============================================================ */
+:: Flats Poppy Bathroom
+<<set $location to "flats">><<set $bus to "poppy_bathroom">><<set $outside to 0>>
+<<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>><<poppyFlatInit>>
+<<if $tiredness gte C.tiredness.max>>
+	<<include "Flats Poppy Exhaustion Collapse">>
+<<elseif T.poppyFlatBaileyDue>>
+	<<set $daily.poppy.flatBaileySeenDay to Time.days>>
+	<<include "Flats Poppy Bailey">>
+<<else>>
+You are in Poppy's bathroom. The shower rack is filled with Poppy's essential shower items.
+<<poppyOpiumPulse>>
+<<bathroomicon "shower">><<link [[Have a bath (0:30)|Flats Poppy Bath]]>><<pass 30>><</link>>
+<br>
+<<bathroomicon "toothbrush">><<link [[Brush teeth (0:05)|Flats Poppy Brush Teeth]]>><<pass 5>><</link>>
+<br>
+<<if $settings.pubicHairEnabled and ($pblevel gte 2 or $pbstrip gte 1 or $pblevelballs gte 2)>>
+	<<bathroomicon "shave">><<link [[Groom pubic hair|Flats Poppy Shave]]>><</link>>
+	<br>
+<</if>>
+<<pregnancyTest "Flats Poppy Bathroom">>
+<br>
+<<poppyFlatContents>>
+<</if>>
+
+:: Flats Poppy Bath
+<<set $location to "flats">><<set $bus to "poppy_bathroom">><<set $outside to 0>>
+<<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>><<strip>><<wash>><<wearProp "soap">>
+You wash yourself with Poppy's shower items, lingering in the heat until your muscles finally loosen.
+<<ltiredness>><<tiredness -10>><<lstress>><<stress -5>>
+<<poppyOpiumPulse>>
+<<link [[Back|Flats Poppy Bathroom]]>><<clotheson>><<handheldon>><<canvas-model-override "clear">><</link>>
+
+:: Flats Poppy Brush Teeth
+<<set $location to "flats">><<set $bus to "poppy_bathroom">><<set $outside to 0>>
+<<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>>
+<<switch $player.gender>><<case "m">><<wearProp "toothbrush" "blue">><<case "f">><<wearProp "toothbrush" "pink">><<default>><<wearProp "toothbrush" "purple">><</switch>>
+You squirt a dollop of toothpaste on your toothbrush and brush your teeth. <<if $transformationParts.traits.fangs isnot "disabled">>You take care to brush over and behind your fangs. <</if>>When finished, you spit into the sink, then rinse out your mouth.
+<<canvas-model-override "mouth" "chew">><<wash_mouth>>
+<<poppyOpiumPulse>>  
+<<link [[Back|Flats Poppy Bathroom]]>><<handheldon>><<canvas-model-override "clear">><</link>>
+
+:: Flats Poppy Shave
+<<set $location to "flats">><<set $bus to "poppy_bathroom">><<set $outside to 0>>
+<<effects>><<dontHideForNow>><<shavestrip>><<wearProp "razor">>
+You take off your clothes and look at your <<genitals>>.
+<<poppyOpiumPulse>>
+<<if playerChastity("hidden")>>
+	The belt fits snug against your body, and it seems that reaching pubes with a razor is almost impossible.
+	<br><br>
+	<<link [[Dress up|Flats Poppy Bathroom]]>><<clotheson>><<dontHideRevert>><</link>>
+	<<exit>>
+<</if>>
+<<if pcAreArmsBound("both")>>
+	<span class="red">Both of your arms are bound</span>, and you find it difficult to do anything about your pubes this way.
+	<br>
+	<<link [[Back|Flats Poppy Bathroom]]>><<dontHideRevert>><</link>>
+	<<exit>>
+<</if>>
+<<if playerChastity("cage")>>
+	Your penis is <<if $worn.genitals.name is "chastity parasite">>sealed inside the parasite<<else>>locked inside the cage<</if>>. Shaving around it will be a bit more tricky, but that's not a big deal.
+	<br><br>
+<</if>>
+<<if $pblevel gte 2 or $pbstrip gte 1 or $pblevelballs gte 2>>
+	<<shavestyleicon 'clean'>><<link [[Shave clean (0:15)|Flats Poppy Shave Clean]]>><<pass 15>><<arousal 100>><<set $pblevel to 0>><<set $pbgrowth to 0>><<set $pblevelballs to 0>><<set $pbgrowthballs to 0>><<set $pbstrip to 0>><<set $makeup.pbcolour to 0>><</link>>
+	<br>
+<</if>>
+<<if $pblevel gte 5 or $pbstrip gte 2 or ($pbstrip is 1 and $pblevel gte 2)>>
+	<<shavestyleicon 'strip'>><<link [[Form a landing strip (0:15)|Flats Poppy Shave Strip]]>><<pass 15>><<arousal 100>><<set $pbstripName to "neat landing strip">><<set $pblevel to 0>><<set $pbgrowth to 0>><<set $pbstrip to 1>><</link>>
+	<br>
+<</if>>
+<<if $pblevel gte 5 or $pbstrip gte 3 or ($pbstrip gte 2 and $pblevel gte 2)>>
+	<<shavestyleicon 'heart'>><<link [[Form a heart (0:15)|Flats Poppy Shave Strip]]>><<pass 15>><<arousal 100>><<set $pbstripName to "cute heart shape">><<set $pblevel to 0>><<set $pbgrowth to 0>><<set $pbstrip to 2>><</link>>
+	<br>
+<</if>>
+<<if $pblevel gte 5 or $pbstrip gte 4 or ($pbstrip gte 3 and $pblevel gte 2)>>
+	<<shavestyleicon 'triangle'>><<link [[Form a triangle (0:15)|Flats Poppy Shave Strip]]>><<pass 15>><<arousal 100>><<set $pbstripName to "neat triangle">><<set $pblevel to 0>><<set $pbgrowth to 0>><<set $pbstrip to 3>><</link>>
+	<br>
+<</if>>
+<<if $player.ballsExist is true>>
+	<<if $pblevel gte 2 or $pbstrip gte 1>>
+		<<shavestyleicon 'clean'>><<link [[Shave only pubis (0:10)|Flats Poppy Shave Pubis]]>><<pass 10>><<arousal 50>><<set $pblevel to 0>><<set $pbgrowth to 0>><<set $pbstrip to 0>><<if $pblevelballs is 0>><<set $makeup.pbcolour to 0>><</if>><</link>>
+		<br>
+	<</if>>
+	<<if $pblevelballs gte 3>>
+		<<shavestyleicon 'balls'>><<link [[Shave only balls (0:05)|Flats Poppy Shave Balls]]>><<pass 5>><<arousal 50>><<set $pblevelballs to 0>><<set $pbgrowthballs to 0>><<if $pblevel is 0 and $pbstrip is 0>><<set $makeup.pbcolour to 0>><</if>><</link>>
+		<br>
+	<</if>>
+<</if>>
+<<if $pblevel gt 5 or $pblevelballs gt 5>>
+	<<shavestyleicon 'trim'>><<link [[Trim short (0:10)|Flats Poppy Shave Trim]]>><<pass 10>><<arousal 100>>
+	<<if $pblevel gte 5>>
+		<<set $pblevel to 5>><<set $pbgrowth to 7>><<set $pbstrip to 0>>
+	<</if>>
+	<<if $pblevelballs gte 5>>
+		<<set $pblevelballs to 5>><<set $pbgrowthballs to 10>>
+	<</if>>
+	<</link>>
+	<br>
+<</if>>
+<<if !playerChastity("hidden")>>
+	<<cosmeticsicon "dyes">><<link [[Dye pubic hair|Flats Poppy Dye Pubic Hair]]>><</link>>
+	<br>
+<</if>>
+<<refuseicon>><<link [[Don't shave anything|Flats Poppy Bathroom]]>><<clotheson>><<dontHideRevert>><</link>>
+
+:: Flats Poppy Shave Clean
+<<set $location to "flats">><<set $bus to "poppy_bathroom">><<set $outside to 0>><<effects>>
+You pick up some shaving cream and a razor.
+<br>
+You sit down, spread your legs, and start carefully shaving your pubes. After a few minutes, you are done and your <<genitals_are 2>> now smooth and clean.
+<<poppyOpiumPulse>>
+<<link [[Next|Flats Poppy Bathroom]]>><<clotheson>><<dontHideRevert>><</link>>
+
+:: Flats Poppy Shave Pubis
+<<set $location to "flats">><<set $bus to "poppy_bathroom">><<set $outside to 0>><<effects>>
+You pick up some shaving cream and a razor.
+<br>
+You start carefully shaving hair. After a few minutes, you are done and your pubis is now smooth and clean.
+<<poppyOpiumPulse>>
+<<link [[Next|Flats Poppy Bathroom]]>><<clotheson>><<dontHideRevert>><</link>>
+
+:: Flats Poppy Shave Balls
+<<set $location to "flats">><<set $bus to "poppy_bathroom">><<set $outside to 0>><<effects>>
+You pick up some shaving cream and a razor.
+<br>
+You prop one leg on a bathtub and start carefully shaving your balls. After a few minutes, you are done and your testicles are now smooth and clean.
+<<poppyOpiumPulse>>
+<<link [[Next|Flats Poppy Bathroom]]>><<clotheson>><<dontHideRevert>><</link>>
+
+:: Flats Poppy Shave Strip
+<<set $location to "flats">><<set $bus to "poppy_bathroom">><<set $outside to 0>><<effects>>
+You pick up some shaving cream and a razor.
+<br>
+You sit down, spread your legs, and start carefully shaving your pubes. After a few minutes, you are done and your <<genitals_are 2>> now smooth and clean with a <<print $pbstripName>> adorning your pubis.
+<<poppyOpiumPulse>>
+<<link [[Next|Flats Poppy Bathroom]]>><<clotheson>><<dontHideRevert>><</link>>
+
+:: Flats Poppy Shave Trim
+<<set $location to "flats">><<set $bus to "poppy_bathroom">><<set $outside to 0>><<effects>><<wearProp "scissors">>
+You pick up a comb and a pair of scissors.
+<br>
+You sit down, spread your legs, and start carefully trimming your pubes. After a few minutes you are done and hair around your <<genitals 2>> is now neatly trimmed.
+<<poppyOpiumPulse>>
+<<link [[Next|Flats Poppy Bathroom]]>><<clotheson>><<dontHideRevert>><</link>>
+
+:: Flats Poppy Dye Pubic Hair
+<<set $location to "flats">><<set $bus to "poppy_bathroom">><<set $outside to 0>><<effects>>
+<<set _ownedColours = $makeup.owned.hairdye.filter(x => x.count > 0)>>
+<<if _ownedColours.length == 0>>
+	You don't own any hair dyes. Maybe you should visit a cosmetics shop to buy some.
+	<br>
+<<else>>
+	<<wearProp "hairdye">>
+	What colour will it be?
+	<br>
+	<<set _choice = _ownedColours[0].colour>>
+	<<for _i, _item range _ownedColours>>
+		<label><span class="grey-shadow"><span @class="'hair-' + _item.colour.replace(/ /g, '-')"><span class="colour-hair"><span style="color:#FD6064;"><<hairmapcolourtext _item.colour>></span></span></span></span>&nbsp;<<print '<<radiobutton "_choice" "'+_item.colour+'" ' + (_choice is _item.colour ? "checked" : "") + '>>'>></label>
+		&nbsp;x&nbsp;_item.count |
+	<</for>>
+
+	<<poppyOpiumPulse>>
+	<<link [[Dye pubic hair using selected colour (0:30)|Flats Poppy Dye Pubic Hair Finish]]>><<pass 30>><<set $makeup.owned.hairdye.find(x => x.colour == _choice).count -= 1>><<set $makeup.pbcolour = _choice>><</link>>
+<</if>>
+<br>
+<<link [[Back|Flats Poppy Shave]]>><</link>>
+
+:: Flats Poppy Dye Pubic Hair Finish
+<<set $location to "flats">><<set $bus to "poppy_bathroom">><<set $outside to 0>><<effects>>
+You treat your most sensitive parts with petroleum jelly and then prepare the hair dye.
+<br>
+Using a small brush, you carefully apply chemicals to your pubes and wait for them to soak in.
+<br>
+<<arousal 100>>
+<br>
+After several minutes, you rinse your private area with water and behold your <<genitals 2>> with <<hairmapcolourtext $makeup.pbcolour>> pubic hair.
+<<poppyOpiumPulse>>
+<<link [[Next|Flats Poppy Bathroom]]>><<clotheson>><<dontHideRevert>><</link>>
+
+/* ============================================================
+   BEDROOM
+   ============================================================ */
+:: Flats Poppy Bedroom Locked
+<<set $location to "flats">><<set $bus to "poppy_bedroom">><<set $outside to 0>>
+<<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>><<poppyFlatInit>><<set $lock to 1000>>
+<<if T.poppyFlatBaileyDue>>
+	<<set $daily.poppy.flatBaileySeenDay to Time.days>>
+	<<include "Flats Poppy Bailey">>
+<<else>>
+	You twist the doorknob to the bedroom. It's locked.
+	<<poppyOpiumPulse>>
+	<<if currentSkillValue('skulduggery') gte $lock>>
+		<<if pcAreArmsBound("both")>>
+			You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
+			<br><br>
+		<<else>>
+			<span class="green">The lock looks easy to pick.</span>
+			<br><br>
+			<<lockicon "pick">><<link [[Pick the lock|Flats Poppy Pick Lock]]>><<wearProp "lockpick">><</link>>
+			<br>
+		<</if>>
+	<<else>>
+		<span class="red">The lock looks beyond your ability to pick.</span>
+		<<skulduggeryrequired>>
+		<br><br>
+	<</if>>
+	<<link [[Leave|Flats Poppy Living Room]]>><</link>>
+<</if>>
+
+:: Flats Poppy Pick Lock
+<<set $location to "flats">><<set $bus to "poppy_bedroom">><<set $outside to 0>><<run markPoppyInteraction()>>
+<<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>><<skulduggerycheck>>
+<<if !$poppyFlat.home or $poppyFlat.room isnot "bedroom">>
+	<<if $skulduggerysuccess is 1>>
+		Just as you were about to push open the door, a hand slaps onto your shoulder, startling you.
+	<<else>>
+		You learned a thing or two about skulduggery. A hand slaps onto your shoulder, startling you.
+	<</if>>
+	<<skulduggeryuse>>
+	"Just what do you think you're doing?" You turn to see Poppy glaring at you with a scowl.
+	<<npcincr Poppy love -2>><<llove>><<npcincr Poppy patience -2>><<if C.npc.Poppy.patience gt 0>><<llpatience>><<else>><<gganger>><</if>>
+	<br><br>
+	"I think you should leave. If you want to skulk around, I suggest you do it elsewhere. Such behaviour is not welcome in my home." Poppy nudges <<his>> head in the direction of the front door. Knowing that there is no room for negotiation, you could only hang your head and walk out in shame.
+	<br><br><<set $poppyFlat.kickedUntilDay to Time.days + 7>>
+	<<getouticon>><<link [[Leave|Flats]]>><<pass 1>><<handheldon>><<endevent>><<set $eventskip to 0>><</link>>
+<<else>>
+	<<if $skulduggerysuccess is 1>>
+		Just as you were about to push open the door, it swings open, startling you.
+	<<else>>
+		You learned a thing or two about skulduggery. The door swings open, startling you.
+	<</if>>
+	<<skulduggeryuse>>
+	You swallow, trying to come up with an excuse but your words get stuck in your throat from how intently <<hes>> staring you down. It somehow reminds you of Bailey.<<gstress>><<stress 4>>
+	<br><br>
+	"I think you should leave. If you want to skulk around, I suggest you do it elsewhere. Such behaviour is not welcome in my home." Poppy nudges <<his>> head in the direction of the front door. Knowing that there is no room for negotiation, you could only hang your head and walk out in shame.
+	<br><br><<set $poppyFlat.kickedUntilDay to Time.days + 7>>
+	<<getouticon>><<link [[Leave|Flats]]>><<pass 1>><<handheldon>><<endevent>><<set $eventskip to 0>><</link>>
+<</if>>
+
+:: Flats Poppy Bedroom
+<<endevent>><<npc Poppy>><<person1>><<run poppySchedule()>><<run statusCheck("Poppy")>>
+<<set $location to "flats">><<set $bus to "poppy_bedroom">><<effects>><<set $outside to 0>>
+<<poppyFlatInit>>
+<<if Time.isBloodMoon() and !$possessed>>
+	The flat feels wrong under the red moon. Poppy is nowhere to be seen, and staying here suddenly feels like a terrible idea.
+	<br><br>
+	<<getouticon>><<link [[Leave the flat|Flats]]>><<pass 1>><<endevent>><<set $eventskip to 0>><</link>>
+<<elseif $tiredness gte C.tiredness.max>>
+	<<include "Flats Poppy Exhaustion Collapse">>
+<<elseif !$poppyFlat.bedroomUnlocked and (typeof $poppyromance is "number" ? $poppyromance : -1)>>
+	<<include "Flats Poppy Bedroom Locked">>
+<<elseif T.poppyFlatBaileyDue>>
+	<<set $daily.poppy.flatBaileySeenDay to Time.days>>
+	<<include "Flats Poppy Bailey">>
+<<else>>
+You are in Poppy's bedroom. 
+<br><br>
+A lavish vanity sits near the window. Beside it is a wire grid board that's filled with photos and notes. There's a big wardrobe on one wall and a bookshelf filled with stuffed plushies on the opposite. In between them, a double bed is perfectly made with various pillows arranged neatly on it. The extremely soft duvet seems to call out to you to lay on it. A giant fox plushie sits at the corner of the room.
+<br><br>
+There is a thermometer outside the window. It reads <span class="teal"><<print Weather.toSelectedString(Weather.temperature, 0)>></span>.<<print setup.WeatherDescriptions.extremeTemperature()>>
+<br><br>
+/* Poppy presence, shown before action links */
+<<if $poppyFlat.home>>
+	<<if Time.hour is 1 and $poppyFlat.room is "bedroom">>
+		Tired from a long and productive day, Poppy climbs into bed sleepily and snuggles under the covers.
+		<br><br>
+	<<elseif Time.hour gt 1 and Time.hour lt 6 and $poppyFlat.room is "bedroom">>
+		Poppy sleeps soundly in bed.
+		<br><br>
+	<<elseif Time.hour gte 6 and Time.hour lt 7 and !$daily.poppy.flatMeals[$poppyFlat.meal]>>
+		Poppy stretches and yawns as <<he>> gets up from bed. <<if !(T.poppyStatus and T.poppyStatus.includes("LowPatience"))>>"Morning <<if $player.gender_appearance is "m">>handsome<<else>>beautiful<</if>>. <span class="green">I'll go make breakfast</span>..."<</if>> 
+		<br><<He>> stalks to the kitchen.
+		<br><br>
+	<</if>>
+<</if>>
+
+/* Deferred state flags from other passages */
+<<if $unbind is 1>>
+	<<unset $unbind>>
+	<<if $possessed>>
+		You stare down at your bindings. You pull, and they fall apart, unable to hold against you. <<unbind>>
+		<br>
+	<<else>>
+		<span class="green">You rub your bindings against the bed frame.</span> It takes some effort, but eventually the material yields, freeing your limbs.
+		<br>
+	<</if>>
+<</if>>
+
+/* Conditional action links */
+<<if pcAreArmsBound("any") or $feetuse is "bound" or $worn.feet.name is "ankle cuffs">>
+	<<undobindingsicon>><<link [[Undo your bindings (0:10)|Flats Poppy Bedroom]]>><<set $unbind to 1>><<pass 10>><<unbind>><</link>>
+	<br>
+<</if>>
+<<if $worn.face.cursed is 1>>
+	<<ind>><<link [[Remove your $worn.face.name (0:10)|Flats Poppy Bedroom]]>><<pass 10>><<set $worn.face.type.push("broken")>><<faceruined>><</link>>
+	<br>
+<</if>>
+
+<<if $study is 1>>
+	<<unset $study>>
+	<<if $phase is 1>>
+		You crack open your science textbook and read through the material.
+	<<elseif $phase is 2>>
+		You crack open your maths textbook and read through the material.
+	<<elseif $phase is 3>>
+		You crack open your English textbook and read through the material.
+	<<elseif $phase is 4>>
+		You crack open your history textbook and read through the material.
+	<</if>>
+	<br>
+<</if>>
+<<projectoptions>>
+<<homeStudyOptions>>
+<br>
+<<if $ltsUsed isnot undefined>>
+	<<unset $ltsUsed>>
+	You fiddle with your lockpick training set. <<skulduggerycheck>><<skulduggeryuse>>
+<</if>>
+<<if $lockpickTrainingSet gte 1 and $stress lt $stressmax and !$possessed>>
+	<<lockpickTrainingSet>>
+<</if>>
+<<poppyOpiumPulse>>
+
+/* Bed */
+<<poppyicon "bed">><<link [[Strip and get in bed|Flats Poppy Bed]]>><</link>>
+<br>
+<<listsleepoutfits "Flats Poppy Bed">>
+<br>
+
+/* Room interactions */
+<<poppyicon "window">><<link [[Approach the window|Flats Poppy Bedroom Window]]>><<set $poppyFlat.windowRoom to "bedroom">><</link>>
+<br>
+<<pillicon>><<link [[Medicine drawer|Flats Poppy Medicine Drawer]]>><</link>>
+<br>
+<<poppyicon "wardrobe">><<link [[Wardrobe|Flats Poppy Wardrobe]]>><</link>>
+<br>
+<<if playerHasSexToys()>>
+	<<sextoysicon>><<link [[Sex toys|Sextoys Inventory]]>><<set $sextoyInvReturnLink to $passage>><</link>>
+	<br>
+<</if>>
+
+<<poppyicon "mirror">><<link [[Mirror|Poppy Flats Mirror]]>><</link>><br>
+<<poppyicon "board">><<link [[Wall grid board|Flats Poppy Wall Grid Board]]>><</link>>
+<br><br>
+<<poppyFlatContents>>
+<br><br>
+<<link [[Gameplay Settings|Settings]]>><<set $settingsExitPassage to "Flats Poppy Bedroom">><</link>><br>
+<<attitudesControlCheck>>
+<<if $attitudesControl.showGoldLink is true>>
+	<span class="goldLink"><<link [[Attitudes]]>><<set $attitudesExitPassage to $passage>><</link>> </span><span class="red">!!</span>
+<<else>>
+	<<link [[Attitudes]]>><<set $attitudesExitPassage to $passage>><</link>>
+	<br>
+<</if>>
+<<if $debug is 1>>
+	<<link [[Turn off debug mode|Bedroom]]>><<set $debug to 0>><</link>>
+	<br>
+<</if>>
+<</if>>
+
+:: Poppy Flats Mirror
+<<effects>>
+<<getouticon>><<link [[Step away|Flats Poppy Bedroom]]>><<handheldon>><<unset $mirrorMenu>><<unset $bodywritingSet>><<postMirror>><</link>>
+<br>
+<<mirror>>
+<br><br>
+
+/* ============================================================
+   BED SEX, Poppy-initiated (high lust, bedroom at night)
+   ============================================================ */
+:: Flats Poppy Bed Sex Init
+<<set $location to "flats">><<set $bus to "poppy_bedroom">><<set $outside to 0>>
+<<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>><<run markPoppyInteraction()>>
+<<set $daily.poppy.flatBedSexDone to true>>
+You are in Poppy's bedroom. A lavish vanity sits near the window. Beside it is a wire grid board that's filled with photos and notes. There's a big wardrobe on one wall and a bookshelf filled with stuffed plushies on the opposite. In between them, a double bed with Poppy already settled beneath the covers.
+<br><br>
+You hear the sheets ruffle. Poppy rolls over and wraps <<his>> arms around your waist. <<His>> tail flops onto your legs as <<he>> nuzzles against you. "My jewel… I need you."
+<<poppyOpiumPulse>>
+<<link [[Kiss|Flats Poppy Bed Sex]]>><<set $sexstart to 1>><<garousal>><<arousal 300>><</link>>
+<br>
+<<link [[Cuddle|Flats Poppy Bed Sex Cuddle]]>><</link>>
+
+:: Flats Poppy Bed Sex Cuddle
+<<set $location to "flats">><<set $bus to "poppy_bedroom">><<set $outside to 0>>
+<<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>>
+You tell Poppy that you're tired and only want to cuddle. <<He>> acknowledges you with a hum and kisses you on the forehead, wishing you good night.
+<<poppyOpiumPulse>>
+<<link [[Back|Flats Poppy Sleep]]>><</link>>
+
+:: Flats Poppy Bed Sex
+<<if $sexstart is 1>>
+	<<run statusCheck("Poppy")>>
+	<<set $sexstart to 0>>
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+	<<maninit>>
+<</if>>
+<<effects>>
+<<effectsman>>
+<<man>>
+<<stateman>>
+<br>
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[Next|Flats Poppy Bed Sex Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Flats Poppy Bed Sex]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Flats Poppy Bed Sex Finish
+<<set $location to "flats">><<set $bus to "poppy_bedroom">><<set $outside to 0>>
+<<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>>
+<<ejaculation>>
+Poppy rolls off of you with a sigh.<<npcincr Poppy lust -20>><<llust>>
+<br><br>
+<<He>> grabs your hand and brings it to <<his>> lips, kissing the back of your hand tenderly. "You're so divine… my jewel."
+<br><br>
+Poppy holds onto your hand until <<he>> falls into deep slumber.
+<br><br>
+<<clotheson>><<endcombat>>
+<<link [[Next|Flats Poppy Sleep]]>><</link>>
+
+/* ============================================================
+   REST OF BEDROOM OPTIONS
+   ============================================================ */
+:: Flats Poppy Bedroom Window
+<<set $location to "flats">><<set $bus to "poppy_bedroom">><<set $outside to 0>>
+<<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>>
+You approach the bedroom window.<br>
+<<if Time.hour lt 9>>
+	You can see that the street is already busy, even so early.
+<<elseif Time.hour lt 18>>
+	You can see pedestrians fill the pavements, but the sound of traffic dominates.
+<<elseif Time.hour lt 21>>
+	You can see that the sun has long since disappeared behind the towers, but the street remains busy.
+<<else>>
+	Voices and occasional shouting emerge from nearby buildings despite the hour.
+<</if>>
+<br><br>
+A pot of poppies rests on the sill, their colour vivid against the glass.
+<<poppyOpiumPulse>>
+<<if !$daily.poppy.flatTending["bedroom"]>>
+	<<poppyicon "poppy">><<link [[Tend to the poppies (0:15)|Flats Poppy Tend Poppies]]>><<set $poppyFlat.windowRoom to "bedroom">><<pass 15>><</link>>
+<<else>>
+	<span class="blue">The poppies look well cared for.</span>
+<</if>>
+<br>
+<<link [[Back|Flats Poppy Bedroom]]>><</link>>
+
+:: Flats Poppy Bed
+<<set $location to "flats">><<set $bus to "poppy_bedroom">><<set $outside to 0>>
+<<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>>
+<<strip>><<wearoutfit>>
+<<if $poppyFlat.home and $poppyFlat.room is "bedroom">>
+	You snuggle under the covers beside Poppy.
+<<else>>
+	You snuggle under the covers.
+<</if>>
+<<if $wraith.state and $wraithPrison and ($moonstate is "evening" or $moonstate is _nightstate)>>
+	You feel anxious, and your eyes dart over to the mirror.
+<</if>>
+<<poppyOpiumPulse>>
+<<nightmareCheck "Flats Poppy Sleep">>
+<<generateSleepLinks "Flats Poppy Sleep">>
+<<link [[Climb out of bed|Flats Poppy Bedroom]]>><<storeon "bed">><<set $wardrobe_location to "wardrobe">><<loadTempHairStyle>><<endevent>><<clotheson>><</link>>
+
+/* ============================================================
+   SLEEP RESOLUTION
+   ============================================================ */
+:: Flats Poppy Sleep
+<<run poppySchedule()>><<run statusCheck("Poppy")>><<poppyFlatInit>><<set $outside to 0>>
+<<set _autosavehere to true>><<sleep>><<effects>><<sleepeffects>><<wakingEffects $sleepHoursTotal>>
+<<if ["dryheaving","nausea"].includes(_wakingEffect)>>
+	<br><br>
+	You slept soundly, but now feel a little rough.
+	<br><br>
+<<elseif $nightmares gte 1 and $controlled is 0>>
+	You <<if _wakingEffect>>dreamed of<<else>>dream you are<</if>> being hunted by something <<if ["haunt", "despair"].includes($wraith.state) and $rng lte 25>>pale<<else>>dark<</if>> and terrible.
+<<else>>
+	<<if ($specialClothesEffects.bimbo.total gte random(100,1000) || $specialClothesEffects.pimp.total gte random(100,1000)) or $arousal gte ($arousalmax / 10) * 9>>
+		<<wetDream>>
+	<<elseif !_wakingEffect>>
+		You sleep soundly.
+		<br><br>
+	<<else>>
+		<br><br>
+	<</if>>
+<</if>>
+<<if T.poppyFlatBaileyDue>>
+	<span class="red">A sharp knock at the front door stirs you fully awake.</span>
+	<br><br>
+	<<set $wardrobe_location to "wardrobe">><<wardrobeSelection true>><<radiooutfits>>
+	<<poppyOpiumPulse>>
+	<<getouticon>><<link [[Get out of bed|Flats Poppy Bailey]]>><<set $daily.poppy.flatBaileySeenDay to Time.days>><<bedclotheson "bed">><<loadTempHairStyle>><<endevent>><<clotheson>><</link>>
+<<elseif _poppy_interrupt is "sex">>
+	<<include "Flats Poppy Bed Sex Init">>
+<<else>>
+	<<if $poppyFlat.home and $poppyFlat.room is "bedroom">>
+		Poppy lies beside you.
+		<br><br>
+	<<else>>
+		<<if Time.hour lte 5>>
+			You spread across the whole bed.
+		<<elseif Time.hour lte 8>>
+			Dawnlight filters through the curtains.
+		<<elseif Time.hour lte 17>>
+			The curtains keep the room dim.
+		<<else>>
+			The street is quiet outside.
+		<</if>>
+		<br><br>
+	<</if>>
+	<<set $wardrobe_location to "wardrobe">><<wardrobeSelection true>><<radiooutfits>>
+	<<poppyOpiumPulse>>
+	<<getouticon>><<link [[Get out of bed|Flats Poppy Bedroom]]>><<bedclotheson "bed">><<loadTempHairStyle>><<endevent>><<clotheson>><</link>>
+<</if>>
+
+:: Flats Poppy Pyjamas Bed
+<<set $location to "flats">><<set $bus to "poppy_bedroom">><<set $outside to 0>>
+<<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>><<wearoutfit>>
+You pull on something more comfortable and climb into bed. The warmth beneath the covers settles over you almost immediately.
+<<if $wraith.state and $wraithPrison and ($moonstate is "evening" or $moonstate is _nightstate)>>
+	You feel anxious, and your eyes dart over to the mirror.
+<</if>>
+<<poppyOpiumPulse>>
+<<nightmareCheck "Flats Poppy Sleep">><<generateSleepLinks "Flats Poppy Sleep">>
+<<link [[Climb out of bed|Flats Poppy Bedroom]]>><<storeon "bed">><<set $wardrobe_location to "wardrobe">><<loadTempHairStyle>><<endevent>><<clotheson>><</link>>
+
+:: Flats Poppy Medicine Drawer
+<<set $location to "flats">><<set $bus to "poppy_bedroom">><<set $outside to 0>>
+<<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>>
+You slide open the medicine drawer. Inside are neatly organised bandages, disinfectant, and a few labelled bottles Poppy clearly keeps stocked for emergencies. The arrangement is so precise that you suspect Poppy would notice instantly if anything went missing.
+<<poppyOpiumPulse>>
+<<link [[Manage your pills|PillCollection]]>><<set $pillsExitPassage to "Flats Poppy Bedroom">><</link>>
+<br>
+<<link [[Step away|Flats Poppy Bedroom]]>><</link>>
+
+:: Flats Poppy Wardrobe [exitCheckBypass]
+<<effects>><<set $outside to 0>><<set $wardrobe_location to "wardrobe">><<wardrobeSelection>>
+You sort through your things in Poppy's room.
+<div id="wardrobewear"><<wardrobewear>></div>
+<div id="wardrobeExits"><<wardrobeExits>></div>
+<<if $exposed lte 0>>
+	<<link [[Close wardrobe|Flats Poppy Bedroom]]>><<cleanupOnWardrobeExit>><</link>>
+<<elseif hasSexStat("exhibitionism", 5) or $exposed lte 1>>
+	<<link [[Close wardrobe|Flats Poppy Bedroom]]>><<cleanupOnWardrobeExit>><</link>>
+<<else>>
+	<span class="blue">You can't remain undressed like this!</span>
+<</if>>
+<<wardrobe>>
+
+:: Flats Poppy Wall Grid Board
+<<set $location to "flats">><<set $bus to "poppy_bedroom">><<set $outside to 0>>
+<<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>>
+You approach the wall grid board. 
+<br><br>
+It's filled with various photos of Poppy and <<his>> friends having fun together. A small sketched portrait of Poppy with a signature "Kmagi" on the corner is pinned on the top of the grid. Beside the sketch, there's a sticky note with cherry blossom stickers that reads "a potato with lore", and the line below it is "D.N.A. is inside all of us". 
+<<if !$poppySeen.includes("flat_board_seen")>><br><br>You're not sure what it means.<</if>>
+<br><br>
+You glance to a corner of the grid to see a blurry picture of Bailey that's taken from the side. <<if !$poppySeen.includes("flat_board_seen")>>You wonder why Poppy has such a photo of your caretaker.<</if>> You look to another corner of the grid and see a little doodle of yourself with a heart drawn on the side.
+<<if !$poppySeen.includes("flat_board_seen")>><<set $poppySeen.push("flat_board_seen")>><</if>>
+<<poppyOpiumPulse>>
+<<link [[Back|Flats Poppy Bedroom]]>><</link>>
+
+/* ============================================================
+   EXHAUSTION
+   ============================================================ */
+:: Flats Poppy Exhaustion Collapse
+<<set $location to "flats">><<set $outside to 0>><<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>>
+Your eyelids feel heavy and your vision blurs. You didn't realise that you've exhausted yourself. You collapse on the floor and pass out.
+<<poppyOpiumPulse>>
+<<link [[Next|Flats Poppy Exhaustion Wake]]>><<pass 60>><<tiredness -1800>><</link>>
+
+:: Flats Poppy Exhaustion Wake
+<<set $location to "flats">><<set $bus to "poppy_living_room">><<set $outside to 0>>
+<<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>><<run markPoppyInteraction()>>
+You wake up to find yourself on the couch in Poppy's living room. You don't remember how you got here and assume that Poppy came home when you passed out and moved you here.
+<<poppyOpiumPulse>>
+<<link [[Next|Flats Poppy Living Room]]>><</link>>
+
+/* ============================================================
+   BAILEY EVENT
+   ============================================================ */
+:: Flats Poppy Bailey
+<<endevent>><<npc Poppy>><<person1>><<run markPoppyInteraction()>>
+<<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>><<set $outside to 0>><<poppyFlatInit>>
+<<if T.poppyFlatBaileyHome>>
+	You hear a knock at the door. Poppy doesn't hesitate to get up and open the door. You follow suit to see who it could be.
+	<br><br>
+	<span class="red">It's Bailey.</span>
+	<br><br>
+	<<if !$poppySeen.includes("flat_bailey_intro")>>
+		"Poppy." Bailey greets the <<if $awarelevel gte 5>>crimson fox<<else>>crimson haired person<</if>>.
+		<br><br>
+		"Bailey." Poppy greets back with a smile.
+		<br><br>
+		"I'm here for my ward." Bailey says as <<nnpc_he "Bailey">> zones in on you. "<<pShe>> owes me. I'm here to collect."
+		<<set $poppySeen.push("flat_bailey_intro")>>
+	<<else>>
+		Bailey looks past Poppy and zones in on you. "Time to pay up," <<nnpc_he "Bailey">> says.
+	<</if>>
+	<br><br>
+	<<if T.poppyFlatBaileyLowPatience>>
+		Poppy pushes you towards the door until you're standing face to face with Bailey, outside of the flat. "<<pShes>> all yours." <<He>> says to Bailey and closes the door behind you.
+		<br><br>
+		Bailey folds <<nnpc_his "Bailey">> arms, impatient.<<gstress>><<stress 300>>
+		<br><br>
+		<<link [[Pay|Flats Poppy Bailey Pay]]>><</link>>
+		<br>
+		<<link [[Refuse|Flats Poppy Bailey Refuse]]>><</link>>
+	<<else>>
+		Poppy turns to you, looking at you expectantly. With the both of them looking at you, you feel pressured.
+		<<gstress>><<stress 300>>
+		<br><br>
+		<<link [[Pay|Flats Poppy Bailey Pay]]>><</link>>
+		<br>
+		<<link [[Refuse|Flats Poppy Bailey Refuse]]>><</link>>
+		<br>
+		<<if Number($poppyromance) gte 0>>
+			<<link [[Plead Poppy to pay for you|Flats Poppy Bailey Plead]]>><</link>>
+		<</if>>
+	<</if>>
+<<else>>
+	You hear a knock at the door. Poppy is not home at the moment so you went to check who it could be on <<his>> behalf.
+	<br><br>
+	You open the door. <span class="red">It's Bailey.</span>
+	<br><br>
+	"Time to pay up," <<nnpc_he "Bailey">> says.
+	<br><br>
+	<<link [[Pay|Flats Poppy Bailey Pay]]>><</link>>
+	<br>
+	<<link [[Refuse|Flats Poppy Bailey Refuse]]>><</link>>
+<</if>>
+
+:: Flats Poppy Bailey Pay
+<<set $outside to 0>><<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>><<rentpay>>
+<<if $poppyFlat.home>>
+	Poppy closes the door. "It's for the best." <<He>> smiles at you sympathetically.
+<</if>>
+<<poppyOpiumPulse>>
+<<set $renttime to 7>><<set $rentday to Time.weekDay>>
+<<link [[Next|Flats Poppy Living Room]]>><</link>>
+
+:: Flats Poppy Bailey Plead
+<<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>>
+<<if random(1,100) lte 50>>
+	You plead Poppy to pay for you. <<He>> seems hesitant about it. Bailey looks at <<him>> as <<he>> ponders.
+	<br><br>
+	With a sigh, Poppy finally relents and pays <<= ($rentmoney + ($babyRent or 0))>> you owe to Bailey.
+	<<npcincr Poppy love -1>><<llove>><<npcincr Poppy patience -1>><<if C.npc.Poppy.patience gt 0>><<lpatience>><<else>><<ganger>><</if>>
+	<br><br>
+	<<set $rentmoney to [10000,30000,50000,70000,100000,150000,200000][Math.clamp($rentstage,1,6)]>><<rentmod>>
+	Bailey takes the money from Poppy's hand and starts counting. When <<nnpc_hes "Bailey">> done, <<nnpc_he "Bailey">> nods.
+	<<if $rentstage is 1>>
+		"Next week I want <<printmoney $rentmoney "pink">><<babyRentDisplay " plus " " if you don't look after your children" "pink">>. You didn't think it would get any easier, did you?"
+	<<else>>
+		"Next week I want <<printmoney $rentmoney "pink">><<babyRentDisplay " plus " " if you don't look after your children" "pink">>."
+	<</if>>
+	<<set $baileydefeatedchain to 0>><<set $baileyRefusedToPay to 0>><<set $baileypaychain to ($baileypaychain || 0) + 1>>
+	<<unset $bailey_encroach>>
+	<<set $rentstage += 1>><<set $renttime to 7>><<set $rentday to Time.weekDay>>
+	<br><br>
+	Bailey turns to leave and Poppy closes the door. "Next time, you should be more responsible for your own personal matters. I can't always be helping you, especially when you put me up on the spot like that."
+	<br><br>
+	<<He>> looks annoyed but says nothing more on the matter.
+	<<poppyOpiumPulse>>
+	<<link [[Next|Flats Poppy Living Room]]>><</link>>
+<<else>>
+	You plead Poppy to pay for you.
+	<br><br>
+	<<He>> shakes <<his>> head. "Sorry, I can't." <<He>> doesn't give you any explanation.
+	<br><br>
+	<<link [[Pay|Flats Poppy Bailey Pay]]>><</link>>
+	<br>
+	<<link [[Refuse|Flats Poppy Bailey Refuse]]>><</link>>
+<</if>>
+
+:: Flats Poppy Bailey Refuse
+<<set $outside to 0>><<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>>
+<<set _rentDue to $rentmoney + ($babyRent or 0)>>
+<<set $baileypaychain to 0>><<set $baileyRefusedToPayTotal += _rentDue>><<set $baileyRefusedToPayTotalStat += _rentDue>>
+<<set $renttime to 7>><<set $rentday to Time.weekDay>>
+
+<<if $speech_attitude is "bratty">>
+	You stare at Bailey in defiance. "I'm not paying you. I don't care what you do to me."
+<<elseif ($speech_attitude is "meek" or $speech_attitude is "shy" or $speech_attitude is "special")>>
+	"N-no," you stutter, surprised by your own bravery. "I-I won't."
+<<else>>
+	"The money isn't yours," you say. "I'm keeping it."
+<</if>>
+<br><br>
+<<if T.poppyFlatBaileyHome and !T.poppyFlatBaileyLowPatience>>
+	Poppy lightly shakes <<his>> head at your defiance.
+	<br><br>
+<</if>>
+<<if $robinpaid is 1>>
+	"Very well," Bailey says. "It seems like Robin will be paying on your behalf." <<nnpc_he "Bailey">> turns to leave.
+	<br><br>
+	Your heart sinks at the implication.<<stress 300>><<gstress>>
+	<br><br>
+	<<if T.poppyFlatBaileyHome and !T.poppyFlatBaileyLowPatience>>
+		"Now a heavier price has to be paid." <<He>> looks a little disappointed in you, but says nothing more. Poppy closes the door.
+		<br><br>
+	<<elseif T.poppyFlatBaileyHome and T.poppyFlatBaileyLowPatience>>
+		Poppy offers no comfort, and no protest. The door remains shut behind you.
+		<br><br>
+	<<elseif !T.poppyFlatBaileyHome>>
+		You stand there for a moment after Bailey leaves, sick with dread over what Robin will have to endure in your place.
+		<br><br>
+	<</if>>
+	<span class="red">Robin will pay the price for your refusal.</span>
+	<br><br>
+	<<link [[Next|Flats Poppy Living Room]]>><<endevent>><</link>>
+<<else>>
+	<<endevent>>
+	<<npc Bailey>><<person1>>Bailey scowls and grabs you by the wrist, yanking you away from Poppy's doorway.
+	<br><br>
+	<<if T.poppyFlatBaileyHome>>
+		"Just so you know, <<he>> won't help you." Bailey's grip tightens. "<<nnpc_He "Poppy">> knows better than to interfere with my work."
+	<<else>>
+		"No one's going to help you," Bailey says coldly.
+	<</if>>
+	<br><br>
+	"But that's okay," <<He>> says, smiling. "I've already made arrangements. I don't know what they intend for you, and frankly I don't care." <<He>> produces a hood and length of rope. "Hold still."
+	<br><br>
+	<<link [[Next|Rent Intro]]>><<set $phase to 0>><<endevent "phaseless">><</link>>
+<</if>>

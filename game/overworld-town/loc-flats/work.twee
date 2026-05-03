@@ -1,6 +1,13 @@
 :: Flats Knock
 <<effects>>
 
+<<if modLISelected("Poppy")>>
+	<<run poppySchedule()>><<run statusCheck("Poppy")>><<poppyFlatInit>>
+	<<set _poppyRomanceVal to (typeof $poppyromance is "number" ? $poppyromance : -1)>>
+	<<set _poppySafeHouseVal to (typeof $poppySafeHouse is "number" ? $poppySafeHouse : 0)>>
+	<<set _poppyPatienceOkay to (T.poppyStatus.includes("MidPatience") or T.poppyStatus.includes("HighPatience"))>>
+<</if>>
+
 <<if $flats_progress is 1 and random(1, 10) is 10>>
 	You approach one of the flats, and raise your fist to knock. Then you notice the doorknob, <span class="purple">shaped like a lotus flower,</span> and remember the warning. Bad people reside here, apparently.
 	<br><br>
@@ -10,6 +17,22 @@
 	<br>
 <<else>>
 	<<cleareventpool>>
+
+	<<if modLISelected("Poppy") and C.npc.Poppy and C.npc.Poppy.init is 1 and _poppyRomanceVal lt 0 and _poppySafeHouseVal lt 1 and !Time.isBloodMoon() and $poppyFlat.home and Number(C.npc.Poppy.love) gte 50 and _poppyPatienceOkay>>
+		<<addinlineevent "flats_poppy_knock_work_intro" 2>>
+			<<npc Poppy>><<person1>>
+			You notice a flat with a poppy-shaped knob.<br>
+			You approach it, and knock on the door. It swings open to reveal <span class="purple">Poppy</span>, whose eyes widen in surprise.
+			<br><br>
+			"Oh hello! I wasn't expecting you," <<he>> says. "It seems you've found where I live. What can I do for you?"
+			<br><br>
+			<<socialiseicon "ask">><<link [[Ask for work|Flats Poppy Knock Ask]]>><</link>>
+			<br>
+			<<dooricon>><<link [[Excuse yourself and knock on another door (0:01)|Flats Knock]]>><<handheldon>><<pass 1>><</link>>
+			<br>
+			<<getouticon>><<link [[Say you've got the wrong address and leave|Flats]]>><<endevent>><</link>>
+		<</addinlineevent>>
+	<</if>>
 
 	<<addinlineevent "flats_vacant" 2>>
 		You approach one of the flats, and knock on the door. There's no answer.

@@ -1,0 +1,565 @@
+/*
+	Entry point reached from the main :: Lake Shore passage when:
+	  - poppySchedule() returned poppy_location "lake"
+	  - Poppy is introduced / available 
+	  - Weather allows the event (not rain, not snow, lake not frozen)
+	  - Time is within Poppy's weekend lake block
+
+	Implementation notes:
+	  - Always refresh statusCheck("Poppy") before evaluating menu state
+	  - Patience is treated as signed
+	  - Low Patience gates or replaces most affectionate options
+	  - Love gain should respect the same gating used by poppyStatusCheck()
+	  - Lust gain should only fire when Lust is unlocked / LI-valid
+	  - True-form reveal branches should not re-fire after awareness 5+ / seen flag
+*/
+:: Lake Poppy
+<<set $outside to 1>><<set $location to "lake">><<effects>><<lakeeffects>><<set $eventskip to 0>>
+<<run poppySchedule()>><<run statusCheck("Poppy")>><<npc Poppy>><<person1>>
+<<if !C.npc.Poppy or C.npc.Poppy.init isnot 1 or T.poppy_location isnot "lake" or Time.hour lt 9 or Time.hour gte 13 or Weather.precipitation is "rain" or Weather.precipitation is "snow">>
+	<span class="black">Poppy isn't here.</span>
+	<br><br>
+	<<link [[Back to shore|Lake Shore]]>><<endevent>><<set $eventskip to 0>><</link>>
+<<elseif Number($poppyromance) lt 0 and !$poppySeen.includes("lake_claim_declined") and (Number(C.npc.Poppy.love) || 0) gte 100 and T.poppyPatience gte 100>>
+	As you get closer, Poppy whips <<his>> head towards your direction. <<His>> eyes gleam with excitement after confirming your presence. 
+	<br><br>
+	<<He>> springs to <<his>> feet and rushes over to you. "I'm glad you're here! I... have something to tell you." Poppy looks bashful, which is somewhat uncharacteristic of <<him>>. 
+	<br><br>
+	"I'm in love with you. I feel drawn to you and want to... progress further into our relationship." <<He>> holds your hands and squeezes them gently. <<His>> eyes are filled with worry and hope.
+	<<poppyOpiumPulse>>  
+	<<link [[Accept|Lake Poppy Claim Accept]]>><</link>>
+	<br>
+	<<link [[Decline|Lake Poppy Claim Decline]]>><</link>>
+<<else>>
+	<<poppyLakeMenu>>
+<</if>>
+
+:: Poppy Bodywriting Reaction
+<<effects>><<lakeeffects>><<bodywritingExposureCheck>><<run statusCheck("Poppy")>>
+<<if _bodywriting_exposed gte 1 and !_bodypart>><<unset _bodypart>><</if>>
+<<if _bodywriting_exposed gte 1 and !$daily.poppy.bodywriting and _bodypart and Number($poppyromance) gte 0>>
+	<<set $daily.poppy.bodywriting to true>><<set _poppyStatus to Array.isArray(T.poppyStatus) ? T.poppyStatus : []>>
+	<<if ["Robin","Whitney","Eden","Kylar","Sydney","Avery","Alex","Black Wolf","Great Hawk","Gwylan"].includes($skin[_bodypart].special) and $skin[_bodypart].special isnot "Poppy">>
+		<<if _poppyStatus.includes("LowPatience")>>
+			You chat with Poppy. Poppy glares at the <<tattoo _bodypart>> on your <<bodypart _bodypart>>, clearly bothered by it. <<He>> grits <<his>> teeth and clenches <<his>> fists, as if ready to lash out at you, but the moment passes. 
+			<br><br>
+			Poppy rolls <<his>> eyes with a scoff and looks away.<<npcincr Poppy patience -4>><<if C.npc.Poppy.patience gt 0>><<llpatience>><<else>><<gganger>><</if>>
+		<<else>>
+			You chat with Poppy. Poppy narrows <<his>> eyes at the <<tattoo _bodypart>> on your <<bodypart _bodypart>>. "Why do you have someone else's name on you while you're my <<girlfriend>>?"
+			<br><br>
+			Poppy presses <<his>> thumb against your skin and tries to rub it off.
+			<br><br>
+			<<if ["marker","tattoo","brand","magic"].includes($skin[_bodypart].pen)>>
+				<<He>> frowns when it doesn't come off and quickly gives up with a huff. "If only I had rubbing alcohol with me..." <<he>> grumbles.
+				<<npcincr Poppy patience -4>><<if C.npc.Poppy.patience gt 0>><<llpatience>><<else>><<gganger>><</if>>
+			<<else>>
+				<span class="blue"><<He>> rubs at your <<tattoo _bodypart>> on your <<bodypart _bodypart>></span>,
+				<<if $skin[_bodypart].pen is "pen">>
+					smearing the ink before it finally comes away.
+				<<else>>
+					smearing the <<print $skin[_bodypart].pen>> before it finally comes away.
+				<</if>>
+				<br><br><<bodywriting_clear _bodypart>>
+				"There. All better." <<He>> smiles triumphantly.
+			<</if>>
+		<</if>>
+	<<elseif ["prostitution","rape","exhibitionism","sex"].includes($skin[_bodypart].special) or $skin[_bodypart].lewd is 1 and !_poppyStatus.includes("LowPatience")>>
+		You chat with Poppy. <<He>> studies the <<tattoo _bodypart>> on your <<bodypart _bodypart>> with a faint frown. "Such vulgar things shouldn't be written on you."
+		<br><br>
+		Poppy presses <<his>> thumb against your skin and tries to rub it off.
+		<br><br>
+		<<if ["marker","tattoo","brand","magic"].includes($skin[_bodypart].pen)>>
+			<<He>> frowns when it doesn't come off and quickly gives up with a huff. "If only I had rubbing alcohol with me..." <<he>> grumbles.
+			<<npcincr Poppy patience -2>><<if C.npc.Poppy.patience gt 0>><<lpatience>><<else>><<ganger>><</if>>
+		<<else>>
+			<span class="blue"><<He>> rubs at your <<tattoo _bodypart>> on your <<bodypart _bodypart>></span> until the writing smears away.
+			<<bodywriting_clear _bodypart>>
+			"There, all gone now." <<He>> smiles triumphantly and kisses you on the cheek. "You're all beautiful again."
+		<</if>>
+	<<elseif $skin[_bodypart].pen is "tattoo" and !_poppyStatus.includes("LowPatience")>>
+		You chat with Poppy. <<He>> notices the tattoo on your <<bodypart _bodypart>> and smiles. 
+		<br><br>
+		"That tattoo suits you. It must've been painful when you had it done, huh?" <<He>> chuckles.
+	<</if>>
+<</if>>
+<<poppyOpiumPulse>>
+<<poppyLakeReturn>>
+
+:: Lake Poppy Invite Home
+<<effects>><<lakeeffects>><<poppyFlatInit>>
+<<if !$poppySeen.includes("lake_postclaim_intro")>><<set $poppySeen.push("lake_postclaim_intro")>><</if>>
+Poppy hears you approaching and turns to you with a smile much softer than usual. 
+<br><br>
+"My precious jewel." <<He>> greets you warmly. "You should come and visit me at my place sometime. I live at the flats in Barb Street. You'll be able to tell which flat is mine. Look for the door with a Poppy on it." 
+<<He>> winks at you. "I would love to have your company at my home..." 
+<br><br>
+Poppy eyes you suggestively.<<npcincr Poppy lust 2>><<glust>>
+<<poppyOpiumPulse>>
+<span class="gold"><i>You now have access to Poppy's flat!</i></span>
+<<poppyLakeMenu>>
+
+:: Lake Poppy Chat
+<<effects>><<lakeeffects>><<run statusCheck("Poppy")>>
+<<if T.poppyStatus.includes("LowPatience")>>
+	You try to converse with Poppy, but <<he>> doesn't look at you. <<He>> gives you little to no response, <<if $awarelevel gte 5>>only the occasional ear twitch or tail flick.<</if>>
+<<elseif (Number(C.npc.Poppy.love) || 0) gte 80 and !$poppySeen.includes("poppy_tf_revealed") and $awarelevel lt 5>>
+	The more time you spend with Poppy, the more you feel like there's something just out of reach.
+	<br><br>
+	"There's something different about you," you say. "But I just can't put my finger on it."
+	<br><br>
+	<<He>> chuckles at your question. "Isn't it a bit obvious? Come on now, <span class="blue">clear your vision</span>." <<He>> covers your eyes with <<his>> hand.
+	<br><br>
+	"<span class="navy">See what you're meant to see, what you want to see</span>."
+	<<if !$poppySeen.includes("poppy_tf_revealed")>><<set $poppySeen.push("poppy_tf_revealed")>><</if>>
+<<elseif Number($poppyromance) gte 0>>
+	<<if random(1,2) is 1>>
+		Poppy listens tentatively as you talk.
+		<br><br>
+		<<He>> takes your hand into <<his>> and rests it on <<his>> lap while caressing it mindlessly with <<his>> thumb.<<takeHandholdingVirginity "Poppy" "consensual" null true>> You smile at <<him>>.
+	<<else>>
+		You talk about your struggles in life. As you do so, Poppy gives you a sympathetic look and pulls you closer, resting <<his>> hand on your hips. 
+		<br><br>
+		You mention how harsh your caretaker is to you and the orphans.<<trauma -2>><<lltrauma>>
+		<br><br>
+		The topic seems to draw Poppy's attention more and make <<if $awarelevel gte 5>><<his>> ears perk up.<<else>><<him>> perk up.<</if>> <<He>> seemed hesitant to say something at first, but spoke up anyway. 
+		"You're right. No one should suffer such things in a place they call home. If Bailey tries anything with you, I'll do my best to help you." Poppy squeezes your hips lightly as reassurance.
+		<br><br>
+		"You got it, you're tougher than you look. Believe in yourself, my jewel." <<He>> gives you a quick peck on the cheek.
+		<<npcincr Poppy lust 1>><<glust>><<arousal 250>><<garousal>>
+	<</if>>
+<<else>>
+	<<if random(1,3) is 1>>
+		As you chat with Poppy, <<he>> occasionally nods and smiles. <<He>> chimes in every now and then but it's mostly a one sided conversation.
+	<<elseif random(1,3) is 2>>
+		You talk about your struggles in life. Poppy gives you a sympathetic look. You mention how harsh your caretaker is to you and the orphans.<<trauma -2>><<lltrauma>>
+		<br><br>
+		The topic seems to draw Poppy's attention more and make <<if $awarelevel gte 5>><<his>> fox ears perk up.<<else>><<him>> perk up.<</if>> "Bailey can be an asshole sometimes, I've experienced it firsthand, but <<nnpc_he "Bailey">> means well. You'll learn to appreciate <<nnpc_him "Bailey">> when you've endured the horrors of the world. There are much worse things out there than Bailey."
+		<<stress 1>><<gstress>><<awareness 5>><<gawareness>>
+		<br><br>
+		"Besides, <<nnpc_he "Bailey">>..." Poppy ponders for a moment before shaking <<his>> head with a smile. "Nevermind. You got it, you're tougher than you look. Believe in yourself."
+	<<else>>
+		You talk about your progress in housekeeping and the skills you're still unable to grasp despite multiple attempts. Poppy demonstrates with <<his>> hands, giving you detailed step by step instructions on how to solve your dilemma.
+		<<housekeeping 1>><<ghousekeeping>>
+		<br><br>
+		"There isn't much I could help you with since there's no equipment for me to demonstrate at the moment. Come see me at school if you still need help, okay?" <<He>> tilts <<his>> head with a smile.
+	<</if>>
+<</if>>
+<<if T.poppyLoveGainAllowed>><<glove>><<npcincr Poppy love 1>><</if>><<npcincr Poppy patience 1>><<if C.npc.Poppy.patience gt 0>><<gpatience>><<else>><<langer>><</if>>
+<<poppyOpiumPulse>>
+<<if (Number(C.npc.Poppy.love) || 0) gte 80 and !$poppySeen.includes("poppy_tf_revealed") and $awarelevel lt 5>>
+	<<link [[Next|Lake Poppy Doze Ask 2]]>><</link>>
+<<else>>
+	<<poppyLakeReturn>>
+<</if>>
+
+:: Lake Poppy Flirt
+<<effects>><<lakeeffects>><<run statusCheck("Poppy")>><<promiscuity1>>
+<<if T.poppyStatus.includes("LowPatience")>>
+	You try to flirt with Poppy, but <<he>> doesn't look at you.
+	<br><br>
+	<<He>> gives you little to no response, only the occasional <<if $awarelevel gte 5>>ear twitch or tail flick<<else>>click of tongue<</if>>, and <<he>> seems more agitated than before.
+<<elseif Number($poppyromance) gte 0>>
+	<<if random(1,3) is 1>>
+		<<if $awarelevel gte 5>>
+			"Can I touch your tail?" you ask.
+			<br><br>
+			"Of course." Poppy smiles. <<He>> turns so that <<his>> back faces you. <<His>> fluffy tail settles onto your lap, and you stroke it gently, marveling at the thickness of it.
+			<br><br>
+			Feeling emboldened, you reach forward and rub the base of the tail. Poppy shivers, a quiet whimper leaves <<his>> lips. <<His>> tail starts to wag.<<arousal 300>><<garousal>>
+			<br><br>
+			"You enjoyed that as much as I did, didn't you?" Poppy says in a sultry tone as <<he>> turns to face you.
+		<<else>>
+			"Can I play with your hair?" you ask. "It looks so fluffy."
+			<br><br>
+			"Of course." Poppy smiles. <<He>> turns so that <<his>> back faces you. You sink your fingers into <<his>> hair and slowly comb through it. You marvel at the softness of it.
+			<br><br>
+			Feeling emboldened, you fist Poppy's hair and give it a slight tug, to which <<he>> responds with a grunt. <<He>> pulls away from you.
+			<br><br>
+			"Careful now, I bite." <<He>> looks over <<his>> shoulder, giving you a suggestive grin. "You're into that, aren't you?"<<arousal 300>><<garousal>>
+		<</if>>
+	<<elseif random(1,3) is 2>>
+		You move closer to Poppy and wrap your arms around <<his>> waist. "I feel so lucky to call you mine," you say as your lips hover near <<him>>.
+		<br><br>
+		"I feel the same, my jewel." <<He>> waits for you to make your move. You press your lips against <<him>>, and <<he>> melts into the kiss with a contented sigh. The kiss grows heated as Poppy eagerly pushes <<his>> tongue against your lips to tangle with yours. Both of you pull away to catch your breath.
+		<br><br>
+		"That was... fun." Poppy grins at you.<<arousal 300>><<garousal>>
+	<<else>>
+		You shift closer until your thigh presses against Poppy's. <<He>> glances at you, amused, as you curl up at <<his>> side and rest your head against <<his>> shoulder.
+		<br><br>
+		"My, how clingy." Poppy's voice is light with teasing, but <<he>> doesn't move away. Instead, <<he>> lets <<his>> <<if $awarelevel gte 5>>tail<<else>>hand<</if>> curl around your waist and draw you closer.
+		<br><br>
+		You breathe in the earthy, powdery scent clinging to <<him>> and tilt your face up. Poppy's lips brush your forehead, then linger at your temple. The soft affection makes your heart race far more than it should.
+		<br><br>
+		"Stay like this a little longer," <<he>> murmurs. "You look prettiest when you're needy for me."<<arousal 350>><<garousal>>
+	<</if>>
+<<else>>
+	<<if random(1,3) is 1>>
+		<<if $awarelevel gte 5>>
+			"Can I touch your tail?" you ask.
+			<br><br>
+			"Of course." Poppy smiles. <<He>> turns so that <<his>> back faces you. <<His>> fluffy tail settles onto your lap, you stroke it gently, marveling at the thickness of it. Feeling emboldened, you reach forward and rub the base of the tail. Poppy goes rigid for a moment and <<his>> tail flicks away from your lap.
+			<br><br>
+			"Careful now." <<He>> looks over <<his>> shoulder, giving you a subtle warning that hides behind a cunning smile.
+		<<else>>
+			"Can I play with your hair?" you ask. "It looks so fluffy."
+			<br><br>
+			"Of course." Poppy smiles. <<He>> turns so that <<his>> back faces you. You sink your fingers into <<his>> hair and slowly comb through it. You marvel at the softness of it.
+			<br><br>
+			Feeling emboldened, you fist Poppy's hair and give it a slight tug, to which <<he>> responds with a grunt. <<He>> pulls away from you.
+			<br><br>
+			"Careful now." <<He>> looks over <<his>> shoulder, giving you a subtle warning that hides behind a cunning smile.
+		<</if>>
+	<<elseif random(1,3) is 2>>
+		"You're so <<if C.npc.Poppy.gender is "m">>handsome<<else>>beautiful<</if>>, I wish I could keep you all to myself," you say as you rest a hand on Poppy's thigh. <<He>> seems amused by your advances, but not enough to make <<him>> flustered.
+		<br><br>
+		If anything, it seems that <<he>> took it as a challenge.
+		<br><br>
+		"Oh honey, you'll have to try harder than that..." Poppy leans forward, tilting your chin up with one hand as the other slides up your thigh. <<He>> holds intense eye contact with you as <<he>> rubs your inner thigh with <<his>> thumb.
+		<br><br>
+		"Not so bold now, are you?" You feel <<his>> breath on your lips.<<arousal 400>><<ggarousal>>
+		<br><br>
+		Poppy releases you after you've become a flustered mess. "Hm, seems like you have much to learn about the art of seduction." <<He>> chuckles.
+	<<else>>
+        You inch closer and let your knee brush against Poppy's leg. "You're always so nice to look at," you murmur, letting your gaze linger.
+        <br><br>
+        Poppy laughs softly. "Nice?" <<He>> leans closer until you can feel <<his>> breath against your cheek. "What a miserly compliment."
+        <br><br>
+        Before you can answer, <<he>> hooks a finger beneath your chin and studies your face with a knowing smile. <<His>> thumb strokes once over your lower lip, slow enough to make your face redden.
+        <br><br>
+        "There. That's a better look on you." <<He>> withdraws, looking entirely too pleased with <<himself>> as you sit there flustered.<<arousal 300>><<ggarousal>>
+	<</if>>
+<</if>>
+<<if T.poppyLoveGainAllowed>><<npcincr Poppy love 1>><<glove>><</if>><<if Number($poppyromance) gte 0 and !T.poppyStatus.includes("LowPatience")>><<npcincr Poppy lust 2>><<glust>><</if>>
+<<poppyOpiumPulse>>
+<<if Number($poppyromance) gte 0 and !T.poppyStatus.includes("LowPatience")>>
+	<<if hasSexStat("promiscuity", 2)>>
+		<<brothelicon>><<link [[Take it further (0:15)|Lake Poppy Take Further]]>><<pass 15>><<set $daily.poppy.lastAction to "takeFurther">><</link>>
+		<br><br>
+	<<else>>
+		<<insufficientStat "promiscuity" "to take it further">>
+		<br>
+	<</if>>
+<</if>>
+<<poppyLakeReturn>>
+
+:: Lake Poppy TF
+<<effects>><<lakeeffects>><<run statusCheck("Poppy")>>
+<<if T.poppyStatus.includes("LowPatience")>>
+	<<if ($wolfgirl gte 6 or ($transformationParts.wolf.tail isnot "hidden" and $transformationParts.wolf.tail isnot "disabled"))>>
+		You let out a quiet howl, trying to draw Poppy's attention but <<he>> does not react.
+	<<elseif ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled"))>>
+		You yip for Poppy's attention. <<He>> does not respond.
+	<<elseif ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>>
+		You bump your head against Poppy's shoulder. <<He>> grunts upon contact and does not respond.
+	<<elseif ($harpy gte 6 or ($transformationParts.bird.wings isnot "hidden" and $transformationParts.bird.wings isnot "disabled"))>>
+		You sing a gentle tune for Poppy. <<He>> does not acknowledge you.
+	<<elseif ($cat gte 6 or ($transformationParts.cat.tail isnot "hidden" and $transformationParts.cat.tail isnot "disabled"))>>
+		You push your head against Poppy's chin and rub. <<He>> instinctively moves away from you with a frown. 
+		<br><br>
+		"Please don't do that again." <<He>> reprimands you.
+	<<elseif ($bear gte 6 or ($transformationParts.bear.tail isnot "hidden" and $transformationParts.bear.tail isnot "disabled"))>>
+		You lean against Poppy, putting all your weight on <<him>>. 
+		<br><br>
+		"Please stop that. You're heavy." <<He>> scoffs, clearly irritated by your action.
+		<br><br>
+		You sit upright after Poppy reprimanded you.
+	<<elseif ($bunny gte 6 or ($transformationParts.bunny.tail isnot "hidden" and $transformationParts.bunny.tail isnot "disabled"))>>
+		You butt your head against Poppy's arm to get <<his>> attention. <<He>> gives you a sideward glance and doesn't acknowledge you further.
+	<<else>>
+		You try to get Poppy's attention with your altered mannerisms, but <<he>> only seems more agitated than before.
+	<</if>>
+<<else>>
+	<<if ($wolfgirl gte 6 or ($transformationParts.wolf.tail isnot "hidden" and $transformationParts.wolf.tail isnot "disabled"))>>
+		You let out a quiet howl, drawing Poppy's attention. <<He>> follows along and starts howling with you. 
+		<br><br>
+		<<He>> runs out of breath first. 
+		<br><br>
+		"Wow, you're really good at this. No wonder you're a wolf." <<He>> says between breaths.
+		<<ltrauma>><<trauma -3>><<lstress>><<stress -5>><<if T.poppyLoveGainAllowed>><<npcincr Poppy love 1>><<glove>><</if>>
+		<<npcincr Poppy patience 1>><<if C.npc.Poppy.patience gte 0>><<gpatience>><<else>><<langer>><</if>>	
+	<<elseif ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled"))>>
+		You yip for Poppy's attention. Poppy yips back in response, <<he>> seems proud. 
+		<br><br>
+		"What is it, kit?" <<He>> laughs.
+		<br><br>
+		The two of you yip at each other for awhile until one of you tires.
+		<<ltrauma>><<trauma -3>><<lstress>><<stress -5>><<if T.poppyLoveGainAllowed>><<npcincr Poppy love 1>><<glove>><</if>>
+		<<npcincr Poppy patience 1>><<if C.npc.Poppy.patience gte 0>><<gpatience>><<else>><<langer>><</if>>	
+	<<elseif ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>>
+		You bump your head against Poppy's shoulder.
+		<br><br>
+		"Careful, you have quite sharp horns. I wouldn't want to get hurt." <<He>> smiles and pats your head, playing with your ears in the process.
+		<br><br>
+		You happily moo at <<him>>, which catches <<him>> by surprise.
+		<<ltrauma>><<trauma -3>><<lstress>><<stress -5>><<if T.poppyLoveGainAllowed>><<npcincr Poppy love 1>><<glove>><</if>>
+		<<npcincr Poppy patience 1>><<if C.npc.Poppy.patience gte 0>><<gpatience>><<else>><<langer>><</if>>	
+	<<elseif ($harpy gte 6 or ($transformationParts.bird.wings isnot "hidden" and $transformationParts.bird.wings isnot "disabled"))>>
+		You sing a gentle tune for Poppy. <<He>> closes <<his>> eyes to savour the melody all the while humming along with you. 
+		<br><br>
+		Once you finish, Poppy opens <<his>> eyes. "That was a beautiful tune, little mockingbird. It would make a great lullaby." <<He>> ponders with a slight smile.
+		<<ltrauma>><<trauma -3>><<lstress>><<stress -5>><<if T.poppyLoveGainAllowed>><<npcincr Poppy love 1>><<glove>><</if>>
+		<<npcincr Poppy patience 1>><<if C.npc.Poppy.patience gte 0>><<gpatience>><<else>><<langer>><</if>>	
+	<<elseif ($cat gte 6 or ($transformationParts.cat.tail isnot "hidden" and $transformationParts.cat.tail isnot "disabled"))>>
+		You push your head against Poppy's chin and rub. "Aw, the kitty wants some scritches?" 
+		<br><br>
+		<<He>> reaches up to scratch your chin and neck. <<His>> touch sends a shiver down your spine. You purr out of contentment.
+		<br><br>
+		You rest against <<him>> for awhile as <<he>> pets you.
+		<<ltrauma>><<trauma -3>><<lstress>><<stress -5>><<if T.poppyLoveGainAllowed>><<npcincr Poppy love 1>><<glove>><</if>>
+		<<npcincr Poppy patience 1>><<if C.npc.Poppy.patience gte 0>><<gpatience>><<else>><<langer>><</if>>	
+	<<elseif ($bear gte 6 or ($transformationParts.bear.tail isnot "hidden" and $transformationParts.bear.tail isnot "disabled"))>>
+		You lean against Poppy, putting all your weight on <<him>>. "Hey!" <<He>> scoffs playfully and leans towards you to push against your weight. "I'm not as strong as you think I am, you know?" 
+		<br><br>
+		<<He>> tries to push you upright with <<his>> hands.
+		<br><br>
+		You playfully lean against Poppy for a little longer before sitting upright.
+		<<ltrauma>><<trauma -3>><<lstress>><<stress -5>><<if T.poppyLoveGainAllowed>><<npcincr Poppy love 1>><<glove>><</if>>
+		<<npcincr Poppy patience 1>><<if C.npc.Poppy.patience gte 0>><<gpatience>><<else>><<langer>><</if>>	
+	<<elseif ($bunny gte 6 or ($transformationParts.bunny.tail isnot "hidden" and $transformationParts.bunny.tail isnot "disabled"))>>
+		You butt your head against Poppy's arm to get <<his>> attention. 
+		<br><br>
+		"Oh my, it seems like the bunny is feeling affectionate today." <<He>> smiles. "You have such beautiful ears." <<He>> reaches out to stroke them, and you shiver in delight.
+		<<ltrauma>><<trauma -3>><<lstress>><<stress -5>><<if T.poppyLoveGainAllowed>><<npcincr Poppy love 1>><<glove>><</if>>
+		<<npcincr Poppy patience 1>><<if C.npc.Poppy.patience gte 0>><<gpatience>><<else>><<langer>><</if>>	
+	<<else>>
+		Poppy indulges your altered mannerisms with a fond smile, though there isn't much for either of you to do with them here.
+		<<ltrauma>><<trauma -3>><<lstress>><<stress -5>><<if T.poppyLoveGainAllowed>><<npcincr Poppy love 1>><<glove>><</if>>
+		<<npcincr Poppy patience 1>><<if C.npc.Poppy.patience gte 0>><<gpatience>><<else>><<langer>><</if>>
+	<</if>>
+<</if>>
+<<poppyOpiumPulse>>
+<<poppyLakeReturn>>
+
+:: Lake Poppy Departure
+<<effects>><<lakeeffects>><<run statusCheck("Poppy")>><<run poppySchedule()>>
+<<if T.poppyStatus.includes("LowPatience")>>
+	Poppy stood up wordlessly and walked into the forest without looking back.
+<<elseif Number($poppyromance) gte 0>>
+	"What a shame, time flies by whenever I'm with you." Poppy stands up with a sigh. "Thanks for keeping me company, my jewel."
+	<br><br>
+	<<He>> kisses you on the cheek. 
+	<br><br>
+	"Remember to come see me again, I'll be waiting. Bye bye now." <<He>> whispers into your ear before leaving with a giggle.<<arousal 200>><<garousal>>
+<<else>>
+	"I think it's time for me to go." Poppy stands up with a grunt. "Thanks for hanging around, I enjoyed your company. See you later!"
+	<br><br>
+	<<He>> waves to you and skips off into the forest.
+<</if>>
+<<poppyOpiumPulse>>
+<<link [[Back to shore|Lake Shore]]>><<endevent>><<set $eventskip to 0>><</link>>
+
+:: Lake Poppy Pass Out
+<<effects>><<lakeeffects>><<run statusCheck("Poppy")>>
+Your eyelids feel heavy and your vision blurs. Poppy tilts <<his>> head, looking at you with confusion. You want to warn <<him>> about your impending black out but you are too late.
+<br><br>
+<span class="red">You pass out.</span>
+<br><br>
+<<link [[Next|Lake Poppy Wake]]>><<pass 40>><<tiredness -100>><</link>>
+
+:: Lake Poppy Wake
+<<effects>><<lakeeffects>><<run statusCheck("Poppy")>>
+Your eyes flutter open after your unwelcomed nap. 
+<br><br>
+<<if T.poppyStatus.includes("LowPatience")>>You see an impatient Poppy staring down at you. "How nice of you to just fall asleep like that." <<He>> remarks in a sarcastic tone. It seems like <<he>> wanted to say more but held <<his>> tongue instead.
+<<else>>Poppy smiles down at you. "You must've been really tired huh? I'm glad that you got some well needed rest. Be sure to take care of yourself properly." <<He>> reminds you gently.<</if>>
+<<poppyOpiumPulse>>
+<<poppyLakeReturn>>
+
+:: Lake Poppy Doze
+<<effects>><<lakeeffects>><<run statusCheck("Poppy")>>
+As you are chatting with Poppy, <<his>> head starts to nod and <<his>> posture slumps slightly. You take a closer look to find that <<he>> had dozed off.
+<<poppyOpiumPulse>>
+<<link [[Wake Poppy gently|Lake Poppy Doze Gentle]]>><</link>>
+<br>
+<<link [[Scare Poppy|Lake Poppy Doze Scare]]>><</link>>
+
+:: Lake Poppy Doze Gentle
+<<effects>><<lakeeffects>><<run statusCheck("Poppy")>>
+You rest a hand on Poppy's shoulder and gently shake <<him>> awake while calling <<his>> name. 
+<br><br>
+When <<he>> awoke, <<his>> cheeks are flushed with embarrassment.
+<br><br>
+"Sorry for dozing off like that in the middle of the conversation, that was rude of me. I should be more mindful of my sleep schedule..." <<He>> laughs bashfully.
+<<npcincr Poppy love 1>><<glove>><<poppyOpiumPulse>>
+<<poppyLakeReturn>>
+
+:: Lake Poppy Doze Scare
+<<effects>><<lakeeffects>><<run statusCheck("Poppy")>>
+You stand up and loom over <<him>> from behind. You ready yourself and slap both your hands on <<his>> shoulders, shouting <<his>> name loudly.
+<br><br>
+Poppy's ears pin back as <<he>> lets out a loud scream similar to a fox. You are sure that <<his>> scream can be heard from all four corners of the forest.
+<br><br>
+When Poppy realised it was you, <<he>> let out a shaky exhale and pressed a hand to <<his>> chest. "Oh, it's just you... don't scare me like that. I thought the hunter caught me..." Poppy's expression has gone sour after your little prank.
+<<npcincr Poppy patience -4>><<if C.npc.Poppy.patience gt 0>><<llpatience>><<else>><<gganger>><</if>>
+<<poppyOpiumPulse>>
+<<if $awarelevel lt 5 and !$poppySeen.includes("poppy_tf_revealed")>>
+	<<link [[Ask Poppy about the scream|Lake Poppy Doze Ask]]>><</link>>
+	<br>
+<</if>>
+<<poppyLakeReturn>>
+
+:: Lake Poppy Doze Ask
+<<effects>><<lakeeffects>><<run statusCheck("Poppy")>>
+"Why does your scream sound like that?” you ask. "It's very foxlike."
+<br><br>
+Poppy pouts, unwilling to answer at first. "Isn't it a bit obvious? Come on now, <span class="blue">clear your vision</span>." <<He>> covers your eyes with <<his>> hand.
+<br><br>
+"<span class="navy">See what you're meant to see, what you want to see</span>."
+<<poppyOpiumPulse>><<if !$poppySeen.includes("poppy_tf_revealed")>><<set $poppySeen.push("poppy_tf_revealed")>><</if>>
+<<link [[Next|Lake Poppy Doze Ask 2]]>><</link>>
+
+:: Lake Poppy Doze Ask 2
+<<effects>><<lakeeffects>><<run statusCheck("Poppy")>>
+You blink a few times when Poppy moves <<his>> hand away. You see a pair of fox ears on <<him>> as well as a floating halo that has been shattered. A fluffy fox tail is suddenly resting on your lap. You also see a pair of ink black wings that are folded neatly behind <<him>>.
+<br><br>
+"You're a... fallen fox?" you ask, your expression one of bewilderment.
+<br><br>
+Poppy grins at you. "<span class="green">There we go</span>. Don't you think that's less straining on your eyes?" <<His>> tail wags proudly.
+<<if !$poppySeen.includes("poppy_tf_revealed")>><<set $poppySeen.push("poppy_tf_revealed")>><</if>><<poppyOpiumPulse>>
+<<poppyLakeReturn>>
+
+:: Lake Poppy Claim Accept
+<<effects>><<lakeeffects>><<run statusCheck("Poppy")>>
+You give Poppy's hands a squeeze and lean forward to kiss <<him>> on the nose. <<if $awarelevel gte 5>><<His>> ears perk in response.<<else>><<He>> perks up in response.<</if>> Surprise fills <<his>> eyes.<<takeHandholdingVirginity "Poppy" "loveInterest">>
+<br><br>
+"I feel the same. I want to be yours... and I hope I could fill you with glee for the rest of our relationship." you say. You wrap your arms around Poppy's waist and pull <<him>> into a kiss. <<He>> presses <<his>> body against yours, trying to deepen the kiss.
+<<takeKissVirginity "Poppy" "loveInterest">><<arousal 300>><<garousal>>
+<br><br>
+When the both of you pull away, you are left panting. 
+<br><br>
+"I'm... I'm so happy." Poppy flashes you a tearful smile.
+<br><br>
+<<loveInterestAdd "Poppy">><<set $poppyromance to 0>><<run poppyGrantPavlovIfNeeded()>>
+<<poppyOpiumPulse>>
+<<poppyLakeReturn>>
+
+:: Lake Poppy Claim Decline
+<<effects>><<lakeeffects>><<run statusCheck("Poppy")>>
+"I'm sorry, but I don't feel the same way." you say as you slowly let go of Poppy's hands. 
+<br><br>
+<<He>> blinks at you, then <<if $awarelevel gte 5>><<his>> ears droop as <</if>><<he>> lowers <<his>> gaze.
+<br><br>
+"Ah... that's alright. We can still be friends, right?" Poppy lifts <<his>> head to look you in the eyes. You can see the hurt in <<his>> eyes, making you feel somewhat guilty. 
+<br><br>
+"I should get going... sorry for bothering you." <<He>> gives you a bittersweet smile and turns on <<his>> heel to leave.
+<<if !$poppySeen.includes("lake_claim_declined")>><<set $poppySeen.push("lake_claim_declined")>><</if>>
+<<poppyOpiumPulse>>
+<<link [[Back to shore|Lake Shore]]>><<endevent>><<set $eventskip to 0>><</link>>
+
+:: Lake Poppy Take Further
+<<effects>><<lakeeffects>><<run poppySchedule()>><<run statusCheck("Poppy")>>
+<<if T.poppyStatus.includes("LowPatience")>>
+	You feel like you shouldn't test <<his>> patience.
+	<<poppyOpiumPulse>>
+	<<poppyLakeReturn>>
+<<elseif (Number(C.npc.Poppy.lust) || 0) lt 40>>
+	You slide your hand beneath Poppy's shirt, caressing the skin underneath.
+	<br><br>
+	<<He>> grasps your wrist gently and pulls you away. "Not right now, darling." <<He>> flashes you a courteous smile.
+	<<npcincr Poppy patience -2>><<if (Number(C.npc.Poppy.patience) || 0) gt 0>><<lpatience>><<else>><<ganger>><</if>>
+	<br><br>
+	You feel like you shouldn't test <<his>> patience.
+	<<poppyOpiumPulse>>
+	<<poppyLakeReturn>>
+<<else>>
+	You wrap your arms around Poppy's waist, pulling <<him>> flush against your body. "Do you... want to take this to the orphanage?" you ask.
+	<br><br>
+	Poppy grins and <<his>> tail starts to wag.
+	<br><br>
+	"Do you really feel the need to ask? Come on, what are you waiting for?" <<He>> springs to <<his>> feet, pulling you up by the hand.
+	<<arousal 400>><<ggarousal>>
+	<br><br>
+	Poppy drags you into the forest and makes <<his>> way through it with ease. There are no visible tracks to guide you, yet <<he>> moves as though <<he>> knows the forest like the back of <<his>> hand.
+	<<poppyOpiumPulse>>
+	<<link [[Next (0:20)|Poppy Take Further Return Home]]>><<pass 20>><</link>>
+<</if>>
+
+:: Poppy Take Further Return Home
+<<run statusCheck("Poppy")>><<set $bus to "home">><<set $location to "home">><<effects>>
+With a cheeky giggle, Poppy drags you into the orphanage in a hurry and runs up to your room. The moment the two of you step foot into your room, Poppy pounces at you with a <<if $awarelevel gte 5>>yip<<else>>squeal<</if>>, tackling you onto your bed. 
+<br><br>
+"Finally." <<He>> giggles.<<arousal 300>><<garousal>>
+<<poppyOpiumPulse>>
+<<link [[Next|Lake Poppy Take Further Handoff]]>><<set $sexstart to 1>><</link>>
+
+:: Lake Poppy Take Further Handoff
+<<if $sexstart is 1>>
+	<<run statusCheck("Poppy")>>
+	<<set $sexstart to 0>>
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+	<<maninit>>
+<</if>>
+<<effects>>
+<<effectsman>>
+<<man>>
+<<stateman>>
+<br>
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[Next|Lake Poppy Take Further Handoff Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Lake Poppy Take Further Handoff]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Lake Poppy Take Further Handoff Finish
+<<effects>><<set $location to "orphanage">><<run statusCheck("Poppy")>>
+<<ejaculation>>
+Poppy slumps against your shoulder to catch <<his>> breath. "You've made me see heaven, my love... we should spend time like this more often."
+<<npcincr Poppy lust -20>><<llust>>
+<br><br>
+Both of you snuggle for a while before Poppy gets off you and puts <<his>> clothes back on.
+<br><br>
+"See you soon, my jewel. Don't leave me waiting too long. Love you." <<He>> winks at you before leaving your room.
+<br><br>
+<<clotheson>><<endcombat>>
+<<link [[Next|Bedroom]]>><</link>>
+
+:: Poppy Lake Gifts List
+<<effects>><<lakeeffects>><<run poppySchedule()>><<run statusCheck("Poppy")>>
+What would you like to give Poppy?
+<br><br>
+<<food_gift_list>>
+<<if _food_gift_found is true>>
+	<<skinicon "give">><<link [[Give gift (0:05)|Poppy Lake Gifts]]>><<pass 5>><<give_gift Poppy>><</link>>
+	<br>
+<<else>>
+	You don't have any suitable food to give right now.
+	<br><br>
+<</if>>
+<<refuseicon>><<link [[Reconsider|Poppy Lake Gifts Reconsider]]>><</link>>
+
+:: Poppy Lake Gifts Reconsider
+<<effects>><<lakeeffects>><<run poppySchedule()>><<run statusCheck("Poppy")>>
+Poppy keeps gazing at the lake while waiting for you to speak.
+<<poppyOpiumPulse>>
+<<poppyLakeReturn>>
+
+:: Poppy Lake Gifts
+<<effects>><<lakeeffects>><<run poppySchedule()>><<run statusCheck("Poppy")>>
+<<set _gift to $gift.handheld_gift || $gift.handheld>><<wearProp _gift>>
+<<if T.poppyStatus and T.poppyStatus.includes("LowPatience")>>
+	Poppy glances at the food in your hands, then pointedly looks away.
+	<br><br>
+	"I'm not in the mood for gifts right now." <<He>> says flatly.
+	<<poppyOpiumPulse>><<handheldon>>
+	<<poppyLakeReturn>>
+<<else>>
+	"I've made you a gift." you say. "I hope you like it."
+	<br><br>
+	<<if ["jammie_dodger", "rich_biscuit", "quiche"].includes($gift.name)>>
+		Before you could hold out the <<recipe_name $gift.name>>, Poppy's already giving you a knowing smirk. "I could smell it from a mile away."
+		<br><br>
+		When you present the <<recipe_name $gift.name>> to <<him>>, <<he>> thanks you as <<he>> takes it from your hand.
+		<br><br>
+		Poppy takes a bite and groans in delight as the food hits <<his>> tastebuds. "This is delicious! How'd you know this is my favourite?"<<gglove>><<npcincr Poppy love 3>><<saveFavoriteFood "Poppy" $gift.name>><<if T.poppyLustUnlocked>><<glust>><<npcincr Poppy lust 2>><</if>>
+        <<earnFeat "Hungry Fox">>
+    <<else>>
+		You hold out the <<recipe_name $gift.name>>. Poppy's eyes widen in surprise. <<He>> is able to quickly recover from the shock and take the food from your hands with a smile.
+		<br><br>
+		"Oh my, this looks delicious! Did you make this yourself?" Poppy takes a bite and nods as <<he>> chews. "Yummy... Thank you for sharing this with me."<<glove>><<npcincr Poppy love 1>>
+	<</if>>
+    <<poppyOpiumPulse>><<handheldon>>
+	<<poppyLakeReturn>>
+<</if>>

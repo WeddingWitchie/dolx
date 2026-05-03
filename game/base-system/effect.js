@@ -1023,6 +1023,58 @@ function effects() {
 			delete V.nectarmessage;
 		}
 
+		if (window.poppyConsumePendingOpiumMessage) {
+			const poppyOpiumMessage = poppyConsumePendingOpiumMessage();
+			switch (poppyOpiumMessage) {
+				case "traitGainKnown":
+					element("span", "You find yourself craving the powdery scent of opium. You've gained the ", "purple");
+					element("span", '"Opium Addict"', "red");
+					element("span", " trait.", "purple");
+					br();
+					break;
+				case "traitGainUnknown":
+					element(
+						"span",
+						"You find yourself inexplicably craving Poppy's presence, and you can't really figure out why.",
+						"purple"
+					);
+					br();
+					break;
+				case "traitLostKnown":
+					element("span", "The craving for opium finally subsided. You lost the ", "lblue");
+					element("span", '"Opium Addict"', "red");
+					element("span", " trait.", "lblue");
+					br();
+					break;
+				case "traitLostUnknown":
+					element("span", "The craving for Poppy's presence finally subsided.", "lblue");
+					br();
+					break;
+				case "withdrawalsKnown":
+					sWikifier(
+						'<span class="red">Your body craves opium and has begun to suffer from withdrawals.</span> <<stress 12>><<ggstress>><<straighttrauma 12>><<ggtrauma>>'
+					);
+					br();
+					break;
+				case "withdrawalsUnknown":
+					sWikifier(
+						'<span class="red">Your body craves Poppy\'s presence and has begun to suffer from withdrawals.</span> <<stress 12>><<ggstress>><<straighttrauma 12>><<ggtrauma>>'
+					);
+					br();
+					break;
+			}
+		}
+		if (window.poppyConsumePendingPavlovMessage && poppyConsumePendingPavlovMessage()) {
+			element(
+				"span",
+				"Now that Poppy is your love interest, you can't help but feel drawn to them like a moth to a flame. You've gained the ",
+				"purple"
+			);
+			element("span", '"Pavlov: Poppy"', "red");
+			element("span", " trait.", "purple");
+			br();
+		}
+
 		if (V.hiddenTransformMessage) {
 			element(
 				"span",

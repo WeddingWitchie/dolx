@@ -1,6 +1,16 @@
 :: Temple
 
 <<set $outside to 0>><<set $location to "temple">><<sydneySchedule>><<temple_effects>><<effects>>
+
+<<if modLISelected("Poppy")>><<run poppySchedule()>><<run statusCheck("Poppy")>><</if>>
+<<if modLISelected("Poppy") and Time.isWeekEnd() and Time.hour gte 15 and Time.dayState isnot "night"
+    and $exposed lte 0 and $awarelevel gte 5 and C.npc.Poppy and C.npc.Poppy.init is 1
+    and Array.isArray($poppySeen) and !$poppySeen.includes("temple_fallen_story") 
+	and Array.isArray(T.poppyStatus) and !T.poppyStatus.includes("LowPatience")
+    and random(1, 100) gte 50>>
+    <<include "Temple Poppy Fallen Story Intro">>
+<<else>>
+
 You are in the main hall of the temple. Stone walls and pillars tower into darkness. Rows of seats face an altar at the end of the room.
 <<if Time.dayState isnot "night" and Time.dayState isnot "dusk">>
 	A figure wearing a white cowl kneels before the altar.
@@ -340,6 +350,7 @@ You are in the main hall of the temple. Stone walls and pillars tower into darkn
 	<<wolficon>><<link [[Leave (0:01)|Wolf Street]]>><<pass 1>><</link>>
 	<br>
 <</if>>
+<</if>> /* This "if" from Poppy one-time story event */
 <<set $eventskip to 0>>
 
 :: Temple Pray
