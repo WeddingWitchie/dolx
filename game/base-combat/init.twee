@@ -1484,3 +1484,55 @@
 		</label>
 	</div>
 <</widget>>
+
+
+<<widget "xchangeBodyDesyncCheck">>
+	<<set _xcVagSlot to ["vagina", "vaginaimminent", "vaginaentrance", "vaginadouble", "vaginaimminentdouble", "vaginaentrancedouble"]>>
+	<<set _xcPenSlotPenis to ["otheranus", "otheranusimminent", "otheranusentrance"]>>
+	<<set _xcPenSlotVagina to ["penis", "penisimminent", "penisentrance", "otheranus", "otheranusimminent", "otheranusentrance"]>>
+
+	<<if _args[0] isnot undefined>>
+		<<set _xcStart to _args[0]>>
+		<<set _xcEnd to _args[0] + 1>>
+	<<elseif $NPCList>>
+		<<set _xcStart to 0>>
+		<<set _xcEnd to $NPCList.length>>
+	<<else>>
+		<<set _xcStart to 0>>
+		<<set _xcEnd to 0>>
+	<</if>>
+
+	<<for _xcN = _xcStart; _xcN < _xcEnd; _xcN++>>
+		<<if $NPCList[_xcN]>>
+
+			/* NPC penis was lined up against player vagina, but the vagina is gone. */
+			<<if !$player.vaginaExist and _xcVagSlot.includes($NPCList[_xcN].penis)>>
+				<<personselect _xcN>>
+				<span class="blue"><<He>> falters and pulls back, finding nothing where there used to be.</span>
+				<<set $NPCList[_xcN].penis to 0>>
+				<<set $vaginause to 0>>
+				<<set $vaginastate to 0>>
+			<</if>>
+
+			/* Player penis was in / against an NPC orifice, but the penis is gone and there is no strap-on standing in for it. */
+			<<if !($player.penisExist or playerHasStrapon())>>
+				<<set _xcPenisCleared to false>>
+				<<if _xcPenSlotPenis.includes($NPCList[_xcN].penis)>>
+					<<set $NPCList[_xcN].penis to 0>>
+					<<set _xcPenisCleared to true>>
+				<</if>>
+				<<if _xcPenSlotVagina.includes($NPCList[_xcN].vagina)>>
+					<<set $NPCList[_xcN].vagina to 0>>
+					<<set _xcPenisCleared to true>>
+				<</if>>
+				<<if _xcPenisCleared>>
+					<<personselect _xcN>>
+					<span class="blue"><<He>> shifts away, the contact between you broken.</span>
+					<<set $penisuse to 0>>
+					<<set $penisstate to 0>>
+				<</if>>
+			<</if>>
+
+		<</if>>
+	<</for>>
+<</widget>>
