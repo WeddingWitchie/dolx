@@ -362,7 +362,7 @@ function hairdressersReset() {
 	$(() =>
 		$("#hairDressers").on("change", ".macro-listbox, .macro-radiobutton, .macro-checkbox", function (e) {
 			Wikifier.wikifyEval('<<replace #hairDressers>><<dhmUiReload>><</replace>>');
-			Wikifier.wikifyEval('<<replace #currentCost>>To pay: £<<print _currentCost / 100>><</replace>><<numberify "#passages > .passage">>');
+			Wikifier.wikifyEval('<<numberify "#passages > .passage">>');
 		})
 	);
 }
@@ -372,7 +372,7 @@ function hairdressersResetAlt() {
 	$(() =>
 		$("#hairDressersSydney").on("click", ".macro-cycle", function (e) {
 			Wikifier.wikifyEval("<<replace #hairDressersSydney>><<hairDressersOptionsSydney>><</replace>>");
-			Wikifier.wikifyEval('<<replace #currentCost>>To pay: £<<print _currentCost / 100>><</replace>><<numberify "#passages > .passage">>');
+			Wikifier.wikifyEval('<<numberify "#passages > .passage">>');
 		})
 	);
 }
