@@ -1481,10 +1481,10 @@
 			<<numberStepper "<<symbol lust>> Lust" `C.npc.Whitney.lust` { callback: value => { C.npc.Whitney.lust = value } }>>
 			<<numberStepper "<<symbol dominance>> Dominance" `C.npc.Whitney.dom` { callback: value => { C.npc.Whitney.dom = value }, max: 20 }>>
 			<<if C.npc.Whitney.state is "dungeon" and $bullyevent gte 1 or C.npc.Whitney.state is "pillory" and $bullyevent gte 1>>
-			<<link [[Reclaim Whitney|$passage]]>><<reclaimWhitney>><</link>>
+			| <<link [[Reclaim Whitney|$passage]]>><<reclaimWhitney>><</link>>
 			<<elseif $bullyevent gte 1 and C.npc.Whitney.state isnot "dungeon" and C.npc.Whitney.state isnot "pillory">>
-			<<link [[Dismiss Whitney|$passage]]>><<dismissWhitney>><</link>>
-			<</if>>
+			| <<link [[Dismiss Whitney|$passage]]>><<dismissWhitney>><</link>>
+			|<</if>>
 		</div>
 		<div class="settingsToggleItem">
 			<span class="gold">Eden</span>
@@ -1516,11 +1516,11 @@
 			<<numberStepper "<<symbol dominance>> Dominance" `C.npc.Avery.dom` { callback: value => { C.npc.Avery.dom = value } }>>
 			<br>
 
-			<<if !$avery_mansion>>
+			<<if !$avery_mansion>>|
 				<<if C.npc.Avery.state is "dismissed">>
-					<<link [[Reclaim Avery|$passage]]>><<unDismissAvery>><</link>>
+					<<link [[Reclaim Avery|$passage]]>><<unDismissAvery>><</link>> |
 				<<elseif C.npc.Avery.state is "active">>
-					<<link [[Dismiss Avery|$passage]]>><<dismissAvery>><</link>>
+					<<link [[Dismiss Avery|$passage]]>><<dismissAvery>><</link>> |
 				<</if>>
 			<<elseif $avery_fate is undefined>>
 				Avery cannot be dismissed at the moment.
@@ -1562,7 +1562,7 @@
 						<<link [[Let Avery fall|$passage]]>>
 							<<set _previousAveryFate to $avery_fate>>
 							<<set $avery_fate to "fallen">>
-							<<if _previousAveryFate is "rescued" and $avery_injury isnot undefined>>
+							<<if (_previousAveryFate is "rescued" or _previousAveryFate is "saved") and $avery_injury isnot undefined>>
 								<<unset $avery_injury>>
 							<</if>>
 							<<dismissAvery "hard">>
@@ -1578,7 +1578,7 @@
 						<<if $avery_fate is "ascended" and $auriga_scar isnot undefined and $auriga_scar gte 1>>
 							| This will<<if $auriga_scar is 1>> <span class="lblue">remove your Elk-scarred Trait.</span><<else>> <span class="lblue">weaken your Elk Trait.</span><</if>>
 						<</if>>
-						<<if $avery_fate is "rescued">>
+						<<if $avery_fate is "rescued" or $avery_fate is "saved">>
 							| This will <span class="red">remove your Avery's Saviour Trait.</span>
 						<</if>>
 
@@ -1642,9 +1642,7 @@
 			<span class="gold">Poppy</span>
 			<<numberStepper "<<symbol love>> Love" `C.npc.Poppy.love` { callback: value => { C.npc.Poppy.love = value }, max: 100 }>>
 			<<numberStepper "<<symbol lust>> Lust" `C.npc.Poppy.lust` { callback: value => { C.npc.Poppy.lust = value }, max: 100 }>>
-
-			<span id="poppytemper"><<poppyTemper>></span>
-			<span id="poppydesc" class="description"><<poppyTemperDesc>></span>
+			<span id="poppytemper"><<poppyTemper>></span><span id="poppydesc" class="description"><<poppyTemperDesc>></span>
 		</div><</if>>
 		/* Gwylan's love is a calculated value and any change added here would not stick. */
 		<<if $gwylanSeen?.includes("yearning")>>
@@ -1672,6 +1670,15 @@
 			<<numberStepper "<<symbol lust>> Lust" `C.npc.Zephyr.lust` { callback: value => { C.npc.Zephyr.lust = value }, max: 100 }>>
 		</div>
 		<div class="settingsToggleItem">
+			<span class="gold">Quinn</span>
+			<<numberStepper "<<symbol love>> Quinn Love" `C.npc.Quinn.love` { callback: value => { C.npc.Quinn.love = value } }>>
+			<<numberStepper "<<symbol lust>> Lust" `C.npc.Quinn.lust` { callback: value => { C.npc.Quinn.lust = value }, max: 100 }>>
+		</div>
+		<div class="settingsToggleItem">
+			<span class="gold">Modded NPCs</span>
+			<<numberStepper "<<symbol love>> Riley <<print setup.loveAlias.Riley()>>" `(V.NPCName[V.NPCNameList.indexOf("Riley")]?.love ?? C.npc.Riley.love) * 2` { max: 100, callback: value => { const raw = Math.clamp(Math.round(value / 2), 0, 50); C.npc.Riley.love = raw; const npc = V.NPCName[V.NPCNameList.indexOf("Riley")]; if (npc) npc.love = raw;}}>>
+		</div>
+		<div class="settingsToggleItem">
 			<span class="gold">Teachers</span>
 			<<numberStepper "<<symbol love>> Sirris <<print setup.loveAlias.Sirris()>>" `C.npc.Sirris.love` { callback: value => { C.npc.Sirris.love = value } }>>
 			<<numberStepper "<<symbol love>> Doren <<print setup.loveAlias.Doren()>>" `C.npc.Doren.love` { callback: value => { C.npc.Doren.love = value } }>>
@@ -1687,11 +1694,9 @@
 			<<numberStepper "<<symbol love>> Harper <<print setup.loveAlias.Harper()>>" `C.npc.Harper.love` { callback: value => { C.npc.Harper.love = value } }>>
 			<<numberStepper "<<symbol love>> Morgan <<print setup.loveAlias.Morgan()>>" `C.npc.Morgan.love` { callback: value => { C.npc.Morgan.love = value } }>>
 			<<numberStepper "<<symbol love>> Niki <<print setup.loveAlias.Niki()>>" `C.npc.Niki.love` { callback: value => { C.npc.Niki.love = value } }>>
-			<<numberStepper "<<symbol love>> Quinn Love" `C.npc.Quinn.love` { callback: value => { C.npc.Quinn.love = value } }>>
 			<<numberStepper "<<symbol love>> Remy <<print setup.loveAlias.Remy()>>" `C.npc.Remy.love` { callback: value => { C.npc.Remy.love = value } }>>
 			<<numberStepper "<<symbol love>> Sam <<print setup.loveAlias.Sam()>>" `C.npc.Sam.love` { callback: value => { C.npc.Sam.love = value }, max: 50 }>>
 			<<numberStepper "<<symbol love>> Wren <<print setup.loveAlias.Wren()>>" `C.npc.Wren.love` { callback: value => { C.npc.Wren.love = value }, max: 50 }>>
-			<<numberStepper "<<symbol love>> Riley <<print setup.loveAlias.Riley()>>" `(V.NPCName[V.NPCNameList.indexOf("Riley")]?.love ?? C.npc.Riley.love) * 2` { max: 100, callback: value => { const raw = Math.clamp(Math.round(value / 2), 0, 50); C.npc.Riley.love = raw; const npc = V.NPCName[V.NPCNameList.indexOf("Riley")]; if (npc) npc.love = raw; } }>>
 		</div>
 	</div>
 	<hr>
