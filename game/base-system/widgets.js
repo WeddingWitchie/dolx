@@ -94,7 +94,7 @@ function calculatePenisBulge() {
 }
 window.calculatePenisBulge = calculatePenisBulge;
 
-/* Calculate the player's gender appearance if their genitals and chest are exposed  */
+/* Calculate the player's gender appearance if their genitals and chest are exposed */
 function nudeGenderAppearance() {
 	if (V.settings.nudeGenderPerception === 2 && !playerChastity("hidden")) return V.player.sex;
 
@@ -122,6 +122,42 @@ function nudeGenderAppearance() {
 	return T.apparent_femininity_nude > 0 ? "f" : "m";
 }
 window.nudeGenderAppearance = nudeGenderAppearance;
+
+/**
+ * Returns the player's currently perceived gender ("m" or "f"), considering both appearance AND visible genitals (when the setting allows)
+ * - Setting 0 ("ignore"): always returns clothed gender_appearance.
+ * - Setting 1 ("consider"): if genitals are visibly exposed, recomputes via nudeGenderAppearance(); otherwise uses gender_appearance.
+ * - Setting 2 ("judge"): if genitals are visibly exposed, returns player.sex; otherwise uses gender_appearance.
+ *
+ * "Visibly exposed" = lower clothing fully open AND underwear fully open AND not in a chastity device that hides the area
+ */
+function perceivedGender() {
+	const setting = V.settings.nudeGenderPerception;
+
+	// Setting 0: NPCs ignore genitals entirely.
+	if (setting === 0 || setting === undefined) {
+		return V.player.gender_appearance;
+	}
+
+	// Are the genitals actually on display?
+	const lowerOpen = V.worn.lower.exposed >= 2;
+	const underOpen = V.worn.under_lower.exposed >= 2;
+	const hidden = (typeof playerChastity === "function") && playerChastity("hidden");
+	const genitalsExposed = lowerOpen && underOpen && !hidden;
+
+	if (!genitalsExposed) {return V.player.gender_appearance;}
+
+	// Genitals visible then reconsider.
+	if (setting === 2) {
+		// "Judge": genitals decide, full stop. Hermaphrodite falls back to appearance.
+		return V.player.sex === "h" ? V.player.gender_appearance : V.player.sex;
+	}
+
+	// Setting 1: re-run the nude calculation, which weights the whole body
+	// including genitals, breasts, build, markings, etc.
+	return nudeGenderAppearance();
+}
+window.perceivedGender = perceivedGender;
 
 /** Calculate the player's gender appearance */
 function genderappearancecheck() {
