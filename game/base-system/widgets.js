@@ -236,9 +236,9 @@ function genderappearancecheck() {
 	/* Sexswap fame */
 	if (playerIsXChanged() && V.xchange_fame >= 2) {
 		if (V.player.sex === "m") {
-			addfemininityfromfactor(V.xchange_fame / 2, "Fame: X-Change Junkie")
+			addfemininityfromfactor(V.xchange_fame / 2, "Sex flipped")
 		} else {
-			addfemininityfromfactor(0 - V.xchange_fame / 2, "Fame: X-Change Junkie")
+			addfemininityfromfactor(0 - V.xchange_fame / 2, "Sex flipped")
 		}
 	}
 	/* Special handling for calculating topless gender */
