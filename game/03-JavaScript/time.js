@@ -1166,7 +1166,14 @@ function dayPassed(days) {
 		/* Set flag to determine Kylar's position at lunch */
 		V.daily.kylar.libraryStalk = rollKylarLibraryStalkFlag();
 
-		if (V.bike >= 1) {
+		/* Tick down bike-theft cooldown each day regardless of ownership */
+		if (V.bikeStolenCooldown > 0) {
+			V.bikeStolenCooldown--;
+			if (V.bikeStolenCooldown <= 0) delete V.bikeStolenCooldown;
+		}
+
+		if (V.bike >= 1 && !V.bikeStolenCooldown) {
+			const STREET_LOCATIONS = ["domus", "barb", "danube", "wolf", "connudatus", "cliff", "high", "nightingale", "starfish", "oxford", "mer", "elk", "harvest"];
 			/* Protection as percentage reduction (matches depot notes) */
 			if (V.bikeSecurityGear == 5) {
 				T.bikeTheftProtection = 0.90;
@@ -1182,14 +1189,14 @@ function dayPassed(days) {
 				T.bikeTheftProtection = 0;
 			}
 			T.bikeTheftChanceBonus = 0;
-			if (V.bikeLocationCategory == "lake") {
+			if (V.bikeLocation == "lake") {
 				T.bikeTheftChance = 500;
-			} else if (V.bikeLocationCategory == "left" || V.bikeLocationCategory == "mid" || V.bikeLocationCategory == "right") {
+			} else if (STREET_LOCATIONS.includes(V.bikeLocation)) {
 				if (V.baileydefeatedchain >= 1) {
 					T.bikeTheftChanceBonus = 250;
 				}
 				T.bikeTheftChance = 750 + T.bikeTheftChanceBonus;
-			} else if (V.bikeLocationCategory == "farm") {
+			} else if (V.bikeLocation == "farm" || V.bikeLocation == "alex_farm") {
 				if (V.farm?.aggro) T.bikeTheftChanceBonus = Math.floor(900 * (V.farm.aggro / 100));
 				T.bikeTheftChance = 100 + T.bikeTheftChanceBonus;
 			} else {
@@ -1202,6 +1209,8 @@ function dayPassed(days) {
 				V.bike = 0;
 				if (V.bikeSecurityGear >= 1) V.bikeSecurityGearStolen = 1;
 				V.bikeSecurityGear = 0;
+				/* One-week grace period before another theft can occur */
+				V.bikeStolenCooldown = 7;
 			}
 		}
 	}
