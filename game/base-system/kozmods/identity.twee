@@ -1650,3 +1650,146 @@
 		<</if>>
 	<</widget>>
 
+	<<widget "perma-reflection-prompt">>
+		<<set $xchange.permaReflection to $xchange.permaReflection || {pending: false, lastShownDay: -1, answer: null, snapshot: null}>>
+		<<set _reflId to "perma-reflection-" + (typeof Time !== "undefined" && Time && typeof Time.days === "number" ? Time.days : random(0,99999)) + "-" + random(0,99999)>>
+
+		<div @id="_reflId" class="perma-reflection-box">
+			<p>You wake, and a hand drifts across your crotch before your eyes are even open. The shape under your fingers isn't the one you grew up with; it's the one the pill left you with, and it isn't going to leave. You spend a long moment muttering to yourself about this sex flip.</p>
+			<p><strong>Is this body something you want to keep?</strong></p>
+
+			<div class="perma-reflection-choices">
+				<span class="perma-reflection-choice">
+					<<link "Yes, this is what I want">>
+						<<perma-reflection-snapshot>>
+						<<set $xchange.permaReflection.answer to "yes">>
+						<<set $xchange.permaReflection.pending to false>>
+						<<for _i, _slot range ["vagina", "smallpenis", "mediumpenis", "bigpenis"]>>
+							<<if $identity and $identity.body and $identity.body.genitals and $identity.body.genitals[_slot]>>
+								<<set $identity.body.genitals[_slot].acceptance to true>>
+								<<set $identity.body.genitals[_slot].reject to false>>
+								<<set $identity.body.genitals[_slot].dysphoria to 0>>
+								<<set $identity.body.genitals[_slot].tolerance to Math.max($identity.body.genitals[_slot].tolerance || 0, 100)>>
+							<</if>>
+						<</for>>
+						<<replace `"#" + _reflId`>>
+							<div class="perma-reflection-box perma-reflection-result">
+								<span class="green"><strong>This is yours now</strong>, and the unease eases.</span>
+							</div>
+						<</replace>>
+					<</link>>
+				</span>
+
+				<span class="perma-reflection-choice">
+					<<link "No, this is wrong for me">>
+						<<perma-reflection-snapshot>>
+						<<set $xchange.permaReflection.answer to "no">>
+						<<set $xchange.permaReflection.pending to false>>
+						<<for _i, _slot range ["vagina", "smallpenis", "mediumpenis", "bigpenis"]>>
+							<<if $identity and $identity.body and $identity.body.genitals and $identity.body.genitals[_slot]>>
+								<<set $identity.body.genitals[_slot].acceptance to false>>
+								<<set $identity.body.genitals[_slot].reject to true>>
+								<<set $identity.body.genitals[_slot].dysphoria to 100>>
+								<<set $identity.body.genitals[_slot].tolerance to 0>>
+							<</if>>
+						<</for>>
+						<<replace `"#" + _reflId`>>
+							<div class="perma-reflection-box perma-reflection-result">
+								<span class="red"><strong>This isn't who you are</strong>, and your body knows it.</span>
+							</div>
+						<</replace>>
+					<</link>>
+				</span>
+
+				<span class="perma-reflection-choice">
+					<<link "I need time to decide">>
+						<<set $xchange.permaReflection.lastShownDay to (typeof Time !== "undefined" && Time && typeof Time.days === "number" ? Time.days : 0)>>
+						<<replace `"#" + _reflId`>>
+							<div class="perma-reflection-box perma-reflection-result">
+								<span class="teal"><strong>You set the question aside for now</strong>. The thought will return.</span>
+							</div>
+						<</replace>>
+					<</link>>
+				</span>
+			</div>
+		</div>
+	<</widget>>
+
+	<<widget "perma-reflection-snapshot">>
+		<<set $xchange.permaReflection to $xchange.permaReflection || {pending: false, lastShownDay: -1, answer: null, snapshot: null}>>
+		<<if $xchange.permaReflection.snapshot is null or $xchange.permaReflection.snapshot is undefined>>
+			<<set _snap to {}>>
+			<<for _i, _slot range ["vagina", "smallpenis", "mediumpenis", "bigpenis"]>>
+				<<if $identity and $identity.body and $identity.body.genitals and $identity.body.genitals[_slot]>>
+					<<set _snap[_slot] to {
+						acceptance: $identity.body.genitals[_slot].acceptance,
+						reject: $identity.body.genitals[_slot].reject,
+						dysphoria: $identity.body.genitals[_slot].dysphoria,
+						tolerance: $identity.body.genitals[_slot].tolerance
+					}>>
+				<</if>>
+			<</for>>
+			<<set $xchange.permaReflection.snapshot to _snap>>
+		<</if>>
+	<</widget>>
+
+	<<widget "perma-reflection-clear">>
+		<<if $xchange and $xchange.permaReflection>>
+			<<if $xchange.permaReflection.snapshot>>
+				<<for _slot, _saved range $xchange.permaReflection.snapshot>>
+					<<if $identity and $identity.body and $identity.body.genitals and $identity.body.genitals[_slot] and _saved>>
+						<<set $identity.body.genitals[_slot].acceptance to _saved.acceptance>>
+						<<set $identity.body.genitals[_slot].reject to _saved.reject>>
+						<<set $identity.body.genitals[_slot].dysphoria to _saved.dysphoria>>
+						<<set $identity.body.genitals[_slot].tolerance to _saved.tolerance>>
+					<</if>>
+				<</for>>
+			<</if>>
+			<<set $xchange.permaReflection to {pending: false, lastShownDay: -1, answer: null, snapshot: null, lastReminderDay: -1}>>
+		<</if>>
+		/* Also clear any queued prompt message so it doesn't render after restore. */
+		<<if $xchangePermaReflectionMessage>><<unset $xchangePermaReflectionMessage>><</if>>
+	<</widget>>
+
+	<<widget "perma-reflection-daily-reminder">>
+		<<set $xchange.permaReflection to $xchange.permaReflection || {pending: false, lastShownDay: -1, answer: null, snapshot: null, lastReminderDay: -1}>>
+		<<set _today to (typeof Time !== "undefined" && Time && typeof Time.days === "number" ? Time.days : 0)>>
+		<<if $background.transgender and $xchange.permaReflection.answer
+			and (typeof pillIsPermanent === "function") and pillIsPermanent()
+			and _today gt ($xchange.permaReflection.lastReminderDay !== undefined ? $xchange.permaReflection.lastReminderDay : -1)>>
+
+			<<set $xchange.permaReflection.lastReminderDay to _today>>
+			<<set _isTrans to !!($background and $background.transgender)>>
+
+			<<if $xchange.permaReflection.answer is "yes">>
+				<<set _yesLines to [
+					"A quiet moment draws your attention back to the body the pill left you with. <span class='green'>The thought no longer hurtful.</span>",
+					"For a moment, you notice the shape of yourself again. <span class='green'>It does not feel strange the way it once did.</span>",
+					"The thought of your changed body passes through you, familiar now rather than frightening. <span class='green'>It feels like home.</span>",
+					"You become aware of your body and find no urge to pull away from it. <span class='green'>It belongs to you.</span>",
+					"The sex flip crosses your mind, but the answer comes easily. <span class='green'>You want to keep this body.</span>"
+				]>>
+				<<if _isTrans>>
+					<<run _yesLines.push("A relief settles through you as you think about the body the pill left behind. <span class='green'>It feels closer to the one you always needed.</span>")>>
+					<<run _yesLines.push("The thought of going back feels distant. This body may have come from a pill, but <span class='green'>it answers something real in you.</span>")>>
+				<</if>>
+				<<print _yesLines.random()>>
+				<<stress -3>><<lstress>>
+			<<elseif $xchange.permaReflection.answer is "no">>
+				<<set _noLines to [
+					"A quiet moment draws your attention back to the body the pill left you with. <span class='red'>This isn't yours.</span>",
+					"For a moment, you notice the shape of yourself again, and <span class='red'>everything about it feels out of place.</span>",
+					"The sex flip crosses your mind. <span class='red'>This is not what you wanted.</span>",
+					"You become aware of your body and still find yourself grimacing from it. <span class='red'>It feels wrong.</span>",
+					"The changed of genital presses at the edge of your thoughts. <span class='red'>You never chose this.</span>"
+				]>>
+				<<if _isTrans>>
+					<<run _noLines.push("A bitter feeling rises as you think about the body the pill left behind. <span class='red'>This is not the body you fought to have.</span>")>>
+					<<run _noLines.push("Of all the shapes the pill could have forced on you, this is the one it chose. <span class='red'>It feels cruel.</span>")>>
+				<</if>>
+				<<print _noLines.random()>>
+				<<trauma 3>><<stress 3>><<gtrauma>><<gstress>>
+			<</if>>
+			<br>
+		<</if>>
+	<</widget>>
