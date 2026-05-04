@@ -682,10 +682,12 @@ function xchangeDailyCheck(days = 1) {
 				
 		wikifier("dailyIdentityEffects");
 
+		const isTrans = !!(V.background && V.background.transgender);
+
 		try {
 			const refl = V.xchange?.permaReflection;
 			const today = (typeof Time !== "undefined" && Time && typeof Time.days === "number") ? Time.days : 0;
-			if (refl && refl.pending && !refl.answer && pillIsPermanent() && today > (refl.lastShownDay ?? -1)) {
+			if (isTrans && refl && refl.pending && !refl.answer && pillIsPermanent() && today > (refl.lastShownDay ?? -1)) {
 				V.xchangePermaReflectionMessage = 1;
 				V.effectsmessage = 1;
 			}
@@ -693,7 +695,7 @@ function xchangeDailyCheck(days = 1) {
 
 		try {
 			const refl2 = V.xchange?.permaReflection;
-			if (refl2 && refl2.answer && pillIsPermanent()) {
+			if (isTrans && refl2 && refl2.answer && pillIsPermanent()) {
 				if (refl2.answer === "no") {
 					wikifier("stress", 5 * days);
 					wikifier("trauma", 5 * days);
@@ -840,7 +842,7 @@ function xchangeEffectsMessages() {
 	}
 
 	if (V.identityWarningMessage) {
-		if (V.identity.init < 2) {
+		if (V.identity.init < 2 && !(V.background && V.background.transgender)) {
 			element("span", "WARNING:", "yellow");
 			element("span", "You haven't locked in your identity preferences yet. Please, head to your room and into Gameplay Settings > Modded Settings > Identity Settings, and check the box at the bottom that says 'Lock Choices'. Make sure to review your character's identity preferences before saving your settings.", "red"); br(); br();
 		}
@@ -892,7 +894,8 @@ function xchangeEffectsMessages() {
 
 	if (V.xchangePermaReflectionMessage) {
 		try {
-			if (pillIsPermanent() && V.xchange?.permaReflection?.pending && !V.xchange.permaReflection.answer) {
+			const isTrans = !!(V.background && V.background.transgender);
+			if (isTrans && pillIsPermanent() && V.xchange?.permaReflection?.pending && !V.xchange.permaReflection.answer) {
 				fragment.append(wikifier("perma-reflection-prompt"));
 				if (V.xchange.permaReflection) {
 					V.xchange.permaReflection.lastShownDay =
@@ -904,7 +907,8 @@ function xchangeEffectsMessages() {
 	}
 
 	try {
-		if (pillIsPermanent() && V.xchange?.permaReflection?.answer) {
+		const isTrans = !!(V.background && V.background.transgender);
+		if (isTrans && pillIsPermanent() && V.xchange?.permaReflection?.answer) {
 			fragment.append(wikifier("perma-reflection-daily-reminder"));
 		}
 	} catch (e) { /* defensive */ }
