@@ -7009,6 +7009,8 @@
 						<span class="red">Something about it scares you.</span>
 					<</if>>
 					<<submission 2>><<set $anususe to "penis">><<set $NPCList[$vaginatarget].penis to "anusentrance">><<set $vaginause to 0>><<set $anusstate to "entrance">><<set $vaginastate to 0>>
+					<<set $anustarget to $vaginatarget>>
+					<<set $vaginatarget to 0>>
 				<<else>>
 					You give your <<bottom>> a little wiggle, but you just receive a slap.
 					<<violence 2>><<hitstat>><<bruise bottom>>
@@ -7051,6 +7053,9 @@
 						<span class="red">Something about it scares you.</span>
 					<</if>>
 					<<submission 2>><<set $anususe to "penis">><<set $NPCList[_npcA].penis to "anusentrance">><<set $vaginause to "penis">><<set $anusstate to "entrance">>
+					<<set $anustarget to _npcA>>
+					<<set $vaginatarget to _npcB>>
+					<<set $vaginadoubletarget to 0>>
 
 				<<else>>
 					You give your <<bottom>> a little wiggle, but you just receive a slap.
@@ -7062,13 +7067,14 @@
 		<<rng>>
 		<<if $vaginaaction is "penisanusdouble">>
 			<<set $vaginaaction to 0>><<meek 5 $vaginatarget>><<analskilluse>>
-			<<if $combatExtended.reverseRapeStart is 1 or combatSkillCheck("anal", $vaginatarget) and $anususe is "penis">>
+			<<if ($combatExtended.reverseRapeStart is 1 or combatSkillCheck("anal", $vaginatarget)) and $anususe is "penis">>
 				<<personselect $vaginatarget>><<set $vaginaactiondefault to "rest">>
 				<span class="blue">You give your <<bottom>> a little wiggle, <<combatperson>> responds to the provocation and moves <<his>> penis to join the phallus in front of your butt.</span>
 				<<submission 2>>
 				<<set $anususe to "penisdouble">><<set $anusstate to "doubleentrance">><<set $vaginause to 0>><<set $vaginastate to 0>>
 				<<set $NPCList[$vaginatarget].penis to "anusentrancedouble">>
 				<<set $anusdoubletarget to $vaginatarget>>
+				<<set $vaginatarget to 0>>
 				<<if $NPCList[$anustarget].penis is "anus">>
 					<<set $NPCList[$anustarget].penis to "anusdouble">>
 					<<set $anusstate to "doublepenetrated">>
@@ -7079,7 +7085,7 @@
 					<<set $NPCList[$anustarget].penis to "anusentrancedouble">>
 					<<set $anusstate to "doubleentrance">>
 				<<elseif $NPCList[$anustarget].penis is "cheeks">>
-					<<set $NPCList[$anustarget].penis to "anusentrance">>
+					<<set $NPCList[$anustarget].penis to "anusentrancedouble">>
 					<<set $bottomuse to 0>> /* Issues with ass cheeks likely stem from this culprit right here */
 				<</if>>
 				<<set $NPCList[$anustarget].location.genitals to "genitals">>
@@ -7430,6 +7436,8 @@
 					<span class="lblue">You spread your thighs, giving clear access to your pussy, and <<combatperson>> takes advantage and moves <<his>> penis away from your butt.</span>
 					<<set $NPCList[_npcA].penis to "vaginaentrance">><<set $NPCList[_npcB].penis to $NPCList[_npcB].penis.replace("double", "")>>
 					<<set $vaginause to "penis">><<set $vaginastate to "entrance">><<set $vaginatarget to _npcA>><<set $anususe to "penis">><<set $anusstate to $anusstate.replace("double", "")>>
+					<<set $anustarget to _npcB>>
+					<<set $anusdoubletarget to 0>>
 				<<else>>
 					You spread your thighs, but fail to garner interest.
 				<</if>>
@@ -7440,30 +7448,50 @@
 		<<rng>>
 		<<if $anusaction is "penispussydouble">>
 			<<set $anusaction to 0>><<meek 10>><<analskilluse>><<set $anusactiondefault to "penispussydouble">>
-			<<if $combatExtended.reverseRapeStart is 1 or combatSkillCheck("vaginal", $anustarget) and $vaginause isnot "doublepenis">>
+			<!-- Determine which NPC is moving (_npcA) vs. staying at the anus (_npcB) BEFORE the skill check -->
+			<<if $anusstate is "doubleentrance">>
+				<<set _npcA to ($NPCList[$anustarget].penis is "anusentrancedouble" ? $anustarget : $anusdoubletarget)>>
+				<<set _npcB to ($NPCList[$anustarget].penis is "anusentrancedouble" ? $anusdoubletarget : $anustarget)>>
+			<<else>>
+				<<set _npcA to $anustarget>>
+				<<set _npcB to 0>>
+			<</if>>
+			<!-- Find the existing single vagina occupant up-front so we can fail safely without mutating state -->
+			<<set _existingVagNpc to -1>>
+			<<for _k = 0; _k lt $enemyno; _k++>>
+				<<if $NPCList[_k] and ($NPCList[_k].penis is "vagina" or $NPCList[_k].penis is "vaginaimminent" or $NPCList[_k].penis is "vaginaentrance")>>
+					<<set _existingVagNpc to _k>>
+					<<break>>
+				<</if>>
+			<</for>>
+			<<if ($combatExtended.reverseRapeStart is 1 or combatSkillCheck("vaginal", _npcA)) and $vaginause is "penis" and _existingVagNpc gte 0>>
 				<<if $anusstate is "doubleentrance">>
-					<<set $anususe to "penis">><<set $anusstate to "entrance">>
-					<<set _npcA to ($NPCList[$anustarget].penis is "anusentrancedouble" ? $anustarget : $anusdoubletarget)>>
-					<<set _npcB to ($NPCList[$anustarget].penis is "anusentrancedouble" ? $anusdoubletarget : $anustarget)>>
+					<<set $anususe to "penis">>
+					<<set $anusstate to "entrance">>
 					<<set $NPCList[_npcB].penis to "anusentrance">>
+					<<set $anustarget to _npcB>>
 				<<else>>
-					<<set $anususe to 0>><<set $anusstate to 0>>
-					<<set _npcA to $anustarget>>
+					<<set $anususe to 0>>
+					<<set $anusstate to 0>>
+					<<set $anustarget to 0>>
 				<</if>>
+				<<set $anusdoubletarget to 0>>
 				<<personselect _npcA>>
-				<<if $vaginause is "penis">>
-					<span class="lblue">You spread your thighs, giving clear access to your pussy, and <<combatperson>> takes advantage and moves <<his>> penis away from your butt to join the phallus in front of your pussy.</span>
-					<<set $NPCList[_npcA].penis to "vaginaentrancedouble">>
-					<<set _npc to $NPCList.findIndex(npc => npc.penis isnot 0 and npc.penis.includes("vagina") and !npc.penis.includes("double"))>>
-					<<set $NPCList[_npc].penis to $NPCList[_npc].penis + "double">>
-					<<set $vaginastate to "double" + $vaginastate>><<set $vaginause to "penisdouble">><<set $vaginadoubletarget to _npcA>>
-				<<else>>
-					<span class="lblue">You spread your thighs, giving clear access to your pussy, and <<combatperson>> takes advantage and moves <<his>> penis away from your butt.</span>
-					<<set $NPCList[_npcA].penis to "vaginaentrance">>
-					<<set $vaginause to "penis">>
-					<<set $vaginastate to "entrance">>
-					<<set $vaginatarget to _npcA>>
+				<span class="lblue">You spread your thighs, giving clear access to your pussy, and <<combatperson>> takes advantage and moves <<his>> penis away from your butt to join the phallus in front of your pussy.</span>
+				<<set $NPCList[_npcA].penis to "vaginaentrancedouble">>
+				<<if $NPCList[_existingVagNpc].penis is "vagina">>
+					<<set $NPCList[_existingVagNpc].penis to "vaginadouble">>
+					<<set $vaginastate to "double">>
+				<<elseif $NPCList[_existingVagNpc].penis is "vaginaimminent">>
+					<<set $NPCList[_existingVagNpc].penis to "vaginaimminentdouble">>
+					<<set $vaginastate to "doubleimminent">>
+				<<elseif $NPCList[_existingVagNpc].penis is "vaginaentrance">>
+					<<set $NPCList[_existingVagNpc].penis to "vaginaentrancedouble">>
+					<<set $vaginastate to "doubleentrance">>
 				<</if>>
+				<<set $vaginause to "penisdouble">>
+				<<set $vaginadoubletarget to _npcA>>
+				<<set $vaginatarget to _existingVagNpc>>
 				<<submission 2>>
 				<<if $NPCList[_npcA].type is "plant" and $NPCList[_npcA].penissize gte 4 and canImpregnateParasite("vagina")>>
 					<span class="red">Something about it scares you.</span>
@@ -8288,11 +8316,12 @@
 		<<rng>>
 		<<if $penisaction is "penisanusdouble">>
 			<<set $penisaction to 0>><<meek 5 $penistarget>><<analskilluse>>
-			<<if $combatExtended.reverseRapeStart is 1 or combatSkillCheck("anal", $penistarget) and $anususe is "penis">>
+			<<if ($combatExtended.reverseRapeStart is 1 or combatSkillCheck("anal", $penistarget)) and $anususe is "penis">>
 				<<personselect $penistarget>><<set $penisactiondefault to "rest">>
 				<span class="blue">You give your <<bottom>> a little wiggle, <<combatperson>> responds to the provocation and moves <<his>> penis to join the phallus in front of your butt.</span>
 				<<submission 2>><<set $anususe to "penisdouble">><<set $NPCList[$penistarget].penis to "anusentrancedouble">><<set $penisuse to 0>><<set $anusstate to "doubleentrance">><<set $penisstate to 0>>
 				<<set $anusdoubletarget to $penistarget>>
+				<<set $penistarget to 0>>
 				<<if $NPCList[$anustarget].penis is "anus">>
 					<<set $NPCList[$anustarget].penis to "anusdouble">>
 				<<elseif $NPCList[$anustarget].penis is "anusimminent">>
@@ -8300,7 +8329,7 @@
 				<<elseif $NPCList[$anustarget].penis is "anusentrance">>
 					<<set $NPCList[$anustarget].penis to "anusentrancedouble">>
 				<<elseif $NPCList[$anustarget].penis is "cheeks">>
-					<<set $NPCList[$anustarget].penis to "anusentrance">>
+					<<set $NPCList[$anustarget].penis to "anusentrancedouble">>
 					<<set $bottomuse to 0>> /* Issues with ass cheeks likely stem from this culprit right here */
 				<</if>>
 				<<set $NPCList[$anustarget].location.genitals to "genitals">>
@@ -8338,33 +8367,39 @@
 		<<rng>>
 		<<if $penisaction is "penispussydouble">>
 			<<set $penisaction to 0>><<meek 10>><<penileskilluse>><<set $penisactiondefault to "penispussydouble">>
-			<<if $combatExtended.reverseRapeStart is 1 or combatSkillCheck("vaginal", $penistarget) and $vaginause is "penis">>
-				<<for _j = 0; _j lt $enemyno; _j++>>
-					<<if $NPCList[_j].penis is "penisentrance" or $NPCList[_j].penis is "penisimminent">>
-						<<personselect _j>>
-						<<submission 2>><<set $vaginause to "penisdouble">><<set $NPCList[_j].penis to "vaginaentrancedouble">><<set $penisuse to 0>><<set $vaginastate to "doubleentrance">><<set $penisstate to 0>>
-						<span class="lblue">You spread your thighs, giving clear access to your pussy, and <<combatperson>> takes advantage and moves <<his>> penis away from your <<penis>> to join the phallus in front of your pussy.</span>
-
-						<<set $vaginatarget to _n>>
-						<<set $vaginadoubletarget to "f">>
+			<<if ($combatExtended.reverseRapeStart is 1 or combatSkillCheck("vaginal", $penistarget)) and $vaginause is "penis">>
+				<<set _moverFound to false>>
+				<<set _j to $penistarget>>
+				<<if $NPCList[_j] and ($NPCList[_j].penis is "penisentrance" or $NPCList[_j].penis is "penisimminent")>>
+						<!-- Locate the existing single vagina occupant first; abort cleanly if absent -->
+						<<set _existingVagNpc to -1>>
 						<<for _k = 0; _k lt $enemyno; _k++>>
-							<<if $NPCList[_k].penis is "vagina">>
-								<<set $NPCList[_k].penis to "vaginadouble">>
-								<<set $vaginadoubletarget to _k>>
-								<<break>>
-							<<elseif $NPCList[_k].penis is "vaginaimminent">>
-								<<set $NPCList[_k].penis to "vaginaimminentdouble">>
-								<<set $vaginadoubletarget to _k>>
-								<<break>>
-							<<elseif $NPCList[_k].penis is "vaginaentrance">>
-								<<set $NPCList[_k].penis to "vaginaentrancedouble">>
-								<<set $vaginadoubletarget to _k>>
+							<<if $NPCList[_k] and ($NPCList[_k].penis is "vagina" or $NPCList[_k].penis is "vaginaimminent" or $NPCList[_k].penis is "vaginaentrance")>>
+								<<set _existingVagNpc to _k>>
 								<<break>>
 							<</if>>
 						<</for>>
-						<<break>>
+						<<if _existingVagNpc gte 0>>
+							<<personselect _j>>
+							<<submission 2>>
+							<<set $vaginause to "penisdouble">><<set $NPCList[_j].penis to "vaginaentrancedouble">><<set $penisuse to 0>><<set $vaginastate to "doubleentrance">><<set $penisstate to 0>>
+							<span class="lblue">You spread your thighs, giving clear access to your pussy, and <<combatperson>> takes advantage and moves <<his>> penis away from your <<penis>> to join the phallus in front of your pussy.</span>
+							<<if $NPCList[_existingVagNpc].penis is "vagina">>
+								<<set $NPCList[_existingVagNpc].penis to "vaginadouble">>
+							<<elseif $NPCList[_existingVagNpc].penis is "vaginaimminent">>
+								<<set $NPCList[_existingVagNpc].penis to "vaginaimminentdouble">>
+							<<elseif $NPCList[_existingVagNpc].penis is "vaginaentrance">>
+								<<set $NPCList[_existingVagNpc].penis to "vaginaentrancedouble">>
+							<</if>>
+							<<set $vaginatarget to _existingVagNpc>>
+							<<set $vaginadoubletarget to _j>>
+							<<set $penistarget to 0>>
+							<<set _moverFound to true>>
+						<</if>>
 					<</if>>
-				<</for>>
+				<<if !_moverFound>>
+					You spread your thighs, but fail to garner interest.
+				<</if>>
 			<<else>>
 				You spread your thighs, but fail to garner interest.
 			<</if>>
