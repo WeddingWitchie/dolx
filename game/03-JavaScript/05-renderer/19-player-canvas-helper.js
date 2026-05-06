@@ -1,9 +1,9 @@
 // @ts-check
-/* global CombatRenderer, CombatPlayerOptions, CanvasModelLayers, TransformationKeys, BodywritingOption, BodywritingSlot, ClothingRendererStep, ClothedSlots, CombatZIndices, TransformationPartOptions, TransformationParts, normaliseFileName, Errors, V */
+/* global CombatRenderer, CombatPlayerOptions, CanvasModelLayers, TransformationKeys, BodywritingOption, ClothingRendererStep, ClothedSlots, TransformationPartOptions, TransformationParts, normaliseFileName */
 
 class PlayerCanvasHelper {
 	/**
-	 * @param {BodywritingSlot} id
+	 * @param {string} id
 	 * @param {CanvasModelLayers<CombatPlayerOptions>} overrideOptions
 	 * @returns {CanvasModelLayers<CombatPlayerOptions>}
 	 */
@@ -85,7 +85,7 @@ class PlayerCanvasHelper {
 				}
 				return [`worn_${slot}_main`];
 			},
-			z: CombatRenderer.indices[/** @type {keyof CombatZIndices} */ (slot)],
+			z: CombatRenderer.indices[slot],
 		};
 		return Object.assign(defaults, overrideOptions);
 	}
@@ -220,7 +220,7 @@ class PlayerCanvasHelper {
 				const filter = `worn_${slot}_main`;
 				return [filter];
 			},
-			z: CombatRenderer.indices[/** @type {keyof CombatZIndices} */ (slot)],
+			z: CombatRenderer.indices[slot],
 		};
 		return Object.assign(defaults, overrideOptions);
 	}
@@ -266,14 +266,14 @@ class PlayerCanvasHelper {
 				const filter = `worn_${slot}_main`;
 				return [filter];
 			},
-			z: CombatRenderer.indices[/** @type {keyof CombatZIndices} */ (slot)],
+			z: CombatRenderer.indices[slot],
 		};
 		return Object.assign(defaults, overrideOptions);
 	}
 
 	/**
 	 *
-	 * @param {ClothedSlots} slot
+	 * @param {string} slot
 	 * @param {CanvasModelLayers<CombatPlayerOptions>} overrideOptions
 	 * @returns {CanvasModelLayers<CombatPlayerOptions>}
 	 */
@@ -300,9 +300,6 @@ class PlayerCanvasHelper {
 			},
 			alphafn(options) {
 				const clothes = options.clothes[slot];
-				if (clothes == null) {
-					return 1;
-				}
 				const alpha = clothes.alpha;
 				return alpha;
 			},
@@ -313,7 +310,7 @@ class PlayerCanvasHelper {
 				const filter = `worn_${slot}_acc`;
 				return [filter];
 			},
-			z: CombatRenderer.indices[/** @type {keyof CombatZIndices} */ (slot)],
+			z: CombatRenderer.indices[slot],
 		};
 		return Object.assign(defaults, overrideOptions);
 	}
@@ -371,14 +368,14 @@ class PlayerCanvasHelper {
 				}
 				return [filter];
 			},
-			z: CombatRenderer.indices[/** @type {keyof CombatZIndices} */ (slot)],
+			z: CombatRenderer.indices[slot],
 		};
 		return Object.assign(defaults, overrideOptions);
 	}
 
 	/**
 	 *
-	 * @param {ClothedSlots} slot
+	 * @param {string} slot
 	 * @param {"front" | "back"} layer
 	 * @param {CanvasModelLayers<CombatPlayerOptions>} overrideOptions
 	 * @returns {CanvasModelLayers<CombatPlayerOptions>}
@@ -403,9 +400,6 @@ class PlayerCanvasHelper {
 			},
 			alphafn(options) {
 				const clothes = options.clothes[slot];
-				if (clothes == null) {
-					return 1;
-				}
 				const alpha = clothes.alpha;
 				return alpha;
 			},
@@ -416,14 +410,14 @@ class PlayerCanvasHelper {
 				const filter = `worn_${slot}_sleeve_acc`;
 				return [filter];
 			},
-			z: CombatRenderer.indices[/** @type {keyof CombatZIndices} */ (slot)],
+			z: CombatRenderer.indices[slot],
 		};
 		return Object.assign(defaults, overrideOptions);
 	}
 
 	/**
 	 *
-	 * @param {ClothedSlots} slot
+	 * @param {string} slot
 	 * @param {CanvasModelLayers<CombatPlayerOptions>} overrideOptions
 	 * @returns {CanvasModelLayers<CombatPlayerOptions>}
 	 */
@@ -446,9 +440,6 @@ class PlayerCanvasHelper {
 			},
 			alphafn(options) {
 				const clothes = options.clothes[slot];
-				if (clothes == null) {
-					return 1;
-				}
 				const alpha = clothes.alpha;
 				return alpha;
 			},
@@ -459,14 +450,14 @@ class PlayerCanvasHelper {
 				const filter = `worn_${slot}_acc`;
 				return [filter];
 			},
-			z: CombatRenderer.indices[/** @type {keyof CombatZIndices} */ (slot)],
+			z: CombatRenderer.indices[slot],
 		};
 		return Object.assign(defaults, overrideOptions);
 	}
 
 	/**
 	 *
-	 * @param {ClothedSlots} slot
+	 * @param {string} slot
 	 * @param {CanvasModelLayers<CombatPlayerOptions>} overrideOptions
 	 * @returns {CanvasModelLayers<CombatPlayerOptions>}
 	 */
@@ -489,16 +480,13 @@ class PlayerCanvasHelper {
 			},
 			alphafn(options) {
 				const clothes = options.clothes[slot];
-				if (clothes == null) {
-					return 1;
-				}
 				const alpha = clothes.alpha;
 				return alpha;
 			},
 			animationfn(options) {
 				return options.animKey;
 			},
-			z: CombatRenderer.indices[/** @type {keyof CombatZIndices} */ (slot)],
+			z: CombatRenderer.indices[slot],
 		};
 		return Object.assign(defaults, overrideOptions);
 	}
@@ -530,8 +518,7 @@ class PlayerCanvasHelper {
 			filters: [transformation + "Tail"],
 			zfn(options) {
 				const value = options.transformations[transformation].tail;
-				const zKey = /** @type {"frontTail" | "backTail"} */ (`${layer}Tail`);
-				let z = CombatRenderer.indices[zKey];
+				let z = CombatRenderer.indices[layer + "Tail"];
 				if (value.inFront) {
 					z += 1;
 				}
@@ -543,7 +530,7 @@ class PlayerCanvasHelper {
 
 	/**
 	 * @param {TransformationKeys} transformation
-	 * @param {TransformationLayerPart} part
+	 * @param {TransformationParts} part
 	 * @param {"front" | "back"} layer
 	 * @param {CanvasModelLayers<CombatPlayerOptions>} overrideOptions
 	 * @returns {CanvasModelLayers<CombatPlayerOptions>}
@@ -586,8 +573,7 @@ class PlayerCanvasHelper {
 				}
 				/** @type {TransformationPartOptions} */
 				const value = options.transformations[transformation][part];
-				const zKey = /** @type {keyof CombatZIndices} */ (`${layer}${part.toUpperFirst()}`);
-				let z = CombatRenderer.indices[zKey];
+				let z = CombatRenderer.indices[layer + part.toUpperFirst()];
 				if (value.inFront) {
 					z += 1;
 				}

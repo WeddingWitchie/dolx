@@ -1,5 +1,5 @@
 // @ts-check
-/* globals CombatRenderer, CloseCombatMapper, CloseOptions, CanvasModelLayers, CanvasModelOptions, Renderer, V */
+/* globals CombatRenderer, CloseCombatMapper, CloseOptions, CanvasModelLayers */
 
 /**
  * @type {CanvasModelOptions<CloseOptions>}
@@ -71,8 +71,8 @@ const combatCloseArse = {
 
 /**
  *
- * @param {"npc" | "npc2"} npc
- * @param {"strapon" | "dpStrapon"} strapon
+ * @param {string} npc
+ * @param {string} strapon
  * @param {CanvasModelLayers<CloseOptions>} overrideOptions
  * @returns {CanvasModelLayers<CloseOptions>}
  */
@@ -111,7 +111,7 @@ function arsePenetrator(npc, strapon, overrideOptions = {}) {
 
 /**
  *
- * @param {"npc" | "npc2"} npc
+ * @param {string} npc
  * @param {CanvasModelLayers<CloseOptions>} overrideOptions
  * @returns {CanvasModelLayers<CloseOptions>}
  */

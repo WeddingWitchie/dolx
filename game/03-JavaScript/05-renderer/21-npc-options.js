@@ -2,31 +2,20 @@
 const npcMapperEnemyPleasure = () => Number((/** @type {any} */ (V)).enemypleasure ?? 0);
 const npcMapperEnemyPleasureMax = () => Number((/** @type {any} */ (V)).enemypleasuremax ?? 500);
 /* globals CombatRenderer, CharacterTypes, AnimationSpeed, PenetratorTypes, CombatPositions, CombatRendererBeastStateSetup, CombatRendererBeastSetup, BeastStates, BestialTypes, Partial, Dict */
-/**
- * @typedef {typeof setup & {
- * 	getNPC: (idx: number | null | undefined) => Npc | null,
- * 	npcPenis: (idx: number | null | undefined) => string,
- * 	npcStrapon: (idx: number | null | undefined) => boolean
- * }} NpcMapperSetup
- */
-
-/** @type {NpcMapperSetup} */
-const npcMapperSetup = /** @type {NpcMapperSetup} */ (/** @type {unknown} */ (setup));
-
-npcMapperSetup.getNPC = function (idx) {
-	const list = typeof V !== "undefined" && V && Array.isArray(V.NPCList) ? V.NPCList : null;
+setup["getNPC"] = function (idx) {
+	const list = (typeof V !== "undefined" && V && Array.isArray(V.NPCList)) ? V.NPCList : null;
 	if (!list) return null;
 	if (idx === undefined || idx === null) return null;
 	return list[idx] || null;
 };
 
-npcMapperSetup.npcPenis = function (idx) {
-	const npc = npcMapperSetup.getNPC(idx);
+setup["npcPenis"] = function (idx) {
+	const npc = setup["getNPC"](idx);
 	return npc && typeof npc.penis === "string" ? npc.penis : "";
 };
 
-npcMapperSetup.npcStrapon = function (idx) {
-	const npc = npcMapperSetup.getNPC(idx);
+setup["npcStrapon"] = function (idx) {
+	const npc = setup["getNPC"](idx);
 	return !!(npc && npc.strapon);
 };
 
@@ -459,18 +448,20 @@ class NpcCombatMapper {
 
 		// Beast
 
-		const beastType = /** @type {BestialTypes} */ (npc.type);
-		/** @type {CombatRendererBeastSetup | undefined} */
-		const configuration = setup.renderer.npc.beast[beastType];
+		/** @type {CombatRendererBeastSetup} */
+		const configuration = setup.renderer.npc.beast[npc.type];
 
 		options.show = false;
 		options.state = "over";
-		if (!configuration) {return options;}
 
 		// Explicitly false intended. If not specified, or true, show beast.
 		if (configuration.show === false) {
 			return options;
 		}
+
+		/** @type {BestialTypes} */
+		// @ts-ignore Just for type inferrence for isBeastStateEnabled, if we had a proper TypeScript setup, this wouldn't be needed.
+		const beastType = npc.type;
 
 		if (penetrator?.position && ["leftarm", "rightarm"].includes(penetrator.position)) {
 			return options;

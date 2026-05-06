@@ -2,7 +2,7 @@
 /* globals CombatClothingTypes ClothingStates ClothingRendererStepState CombatPositions Partial Record TotalClothingStates */
 
 /**
- * @typedef {Partial<Record<CombatPositions, Partial<Record<Exclude<TotalClothingStates, 0>, ClothingRendererStepState>>>>} RendererStepOptions
+ * @typedef {Partial<Record<CombatPositions, Partial<Record<ClothingStates, ClothingRendererStepState>>>>} RendererStepOptions
  */
 
 class ClothingRendererStep {

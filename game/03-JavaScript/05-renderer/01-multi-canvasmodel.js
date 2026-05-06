@@ -25,16 +25,14 @@ class MultiCanvasModel {
 
 	/**
 	 * @param {string} slot
-	 * @param {CanvasModel<any>} model
+	 * @param {CanvasModel} model
 	 * @param {boolean=} isAnimated
 	 */
 	constructor(slot, model, isAnimated = true) {
 		// Setup defaults
-		/** @type {Record<string, CanvasModel<any>>} */
 		this.models = {
 			[slot]: model,
 		};
-		/** @type {any[]} */
 		this.layers = [];
 		this.canvas = model.createCanvas(!isAnimated);
 		this.animatingCanvas = null;
@@ -47,10 +45,9 @@ class MultiCanvasModel {
 	/**
 	 * @param {string} id
 	 * @param {string} slot
-	 * @param {object} [metadata]
-	 * @returns {CanvasModel<any>}
+	 * @param {object=} metadata
 	 */
-	add(id, slot, metadata = {}) {
+	add(id, slot, metadata) {
 		const model = CanvasModel.create(id, slot);
 		model.options = model.defaultOptions();
 		model.metadata = metadata;

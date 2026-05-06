@@ -98,10 +98,6 @@ const playerMapperEnemyPleasureMax = () => Number((/** @type {any} */ (V)).enemy
  */
 
 /**
- * @typedef {"forehead" | "backCheek" | "frontCheek" | "backShoulder" | "frontShoulder" | "breasts" | "back" | "backBottom" | "frontBottom" | "pubic" | "backThigh" | "frontThigh"} BodywritingSlot
- */
-
-/**
  * @typedef {object} BodywritingOptions
  * @property {boolean} isEnabled
  * @property {BodywritingOption} forehead
@@ -148,16 +144,6 @@ const playerMapperEnemyPleasureMax = () => Number((/** @type {any} */ (V)).enemy
 /**
  * @typedef {object} Prop
  * @property {boolean} show
- */
-
-/**
- * Clothing slots that have a matching combat renderer z-index.
- *
- * @typedef {Extract<ClothedSlots, keyof CombatZIndices>} ClothedCombatZSlot
- */
-
-/**
- * @typedef {Extract<TransformationParts, keyof TransformationOptions>} TransformationLayerPart
  */
 
 /**
@@ -1044,8 +1030,7 @@ class PlayerCombatMapper {
 			if (!V.machine) {
 				return defaults;
 			}
-
-			/** @type {MachineState | undefined} */
+			/** @type {MachineState} */
 			const machine = V.machine[id];
 			if (machine == null) {
 				return defaults;
@@ -1085,14 +1070,9 @@ class PlayerCombatMapper {
 	 */
 	static getTentacles() {
 		const count = V.tentacles.active;
-		/** @type {TentacleState[]} */
 		const tentacles = [];
 		for (let i = 0; i < count; i++) {
-			/** @type {TentacleState | undefined} */
 			const tentacle = V.tentacles[i];
-			if (tentacle == null) {
-				continue;
-			}
 			tentacles.push(tentacle);
 		}
 		return tentacles;
@@ -1101,13 +1081,13 @@ class PlayerCombatMapper {
 	/**
 	 * @param {CombatPlayerOptions} options
 	 * @param {...Object<string, string>} parts
-	 * @returns {string | null}
+	 * @returns {string?}
 	 */
 	static getTentacleHeadPosition(options, ...parts) {
 		const count = V.tentacles.max;
 		// const count = V.tentacles.active;
 		for (let i = 0; i < count; i++) {
-			/** @type {TentacleState | undefined} */
+			/** @type {TentacleState?} */
 			const tentacle = V.tentacles[i];
 
 			if (tentacle == null) {
@@ -1133,13 +1113,13 @@ class PlayerCombatMapper {
 
 	/**
 	 * @param {ShaftTarget} target
-	 * @returns {TentacleState | null}
+	 * @returns {TentacleState?}
 	 */
 	static getTentacleByShaft(target) {
 		const count = V.tentacles.max;
 		// const count = V.tentacles.active;
 		for (let i = 0; i < count; i++) {
-			/** @type {TentacleState | undefined} */
+			/** @type {TentacleState?} */
 			const tentacle = V.tentacles[i];
 
 			if (tentacle == null) {
@@ -1176,7 +1156,7 @@ class PlayerCombatMapper {
 		}
 
 		/**
-		 * @param {"leftarm" | "rightarm"} target
+		 * @param {ShaftTarget} target
 		 * @param {Dict<string>} parts
 		 * @returns {ArmTentacle}
 		 */
@@ -1192,7 +1172,7 @@ class PlayerCombatMapper {
 		}
 
 		/**
-		 * @param {"leftleg" | "rightleg"} target
+		 * @param {ShaftTarget} target
 		 * @returns {LegTentacle}
 		 */
 		function getLegState(target) {
@@ -1327,13 +1307,10 @@ class PlayerCombatMapper {
 	}
 
 	/**
-	 * @param {string | number} arm
+	 * @param {object} arm
 	 * @returns {"bound" | "handjob" | "default"}
 	 */
 	static getArmState(arm) {
-		if (typeof arm !== "string") {
-			return "default";
-		}
 		if (["bound", "grappled", "behind"].includes(arm)) {
 			return "bound";
 		}
@@ -1365,7 +1342,6 @@ class PlayerCombatMapper {
 		) {
 			return "handjob";
 		}
-
 		return "default";
 	}
 
@@ -2323,12 +2299,12 @@ class PlayerCombatMapper {
 		}
 
 		/**
-		 * @param {SkinPositions} id
-		 * @param {function(SkinPositions, Bodywriting): BodywritingOption | null} mapper
+		 * @param {string} id
+		 * @param {function(string, Bodywriting): BodywritingOption?} mapper
 		 * @returns {BodywritingOption}
 		 */
 		function getState(id, mapper) {
-			/** @type {Bodywriting | undefined} */
+			/** @type {Bodywriting=} */
 			const bodywriting = V.skin[id];
 
 			const defaultState = {

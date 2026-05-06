@@ -77,16 +77,11 @@ const combatXrayVagina = {
 };
 
 /**
- * @param {"npc" | "npc2"} npc
- * @param {Partial<CanvasModelLayers<XrayOptions>>} [overrideOptions]
+ * @param {string} npc
+ * @param {CanvasModelLayers<XrayOptions>} overrideOptions
  * @returns {CanvasModelLayers<XrayOptions>}
  */
 function xrayVaginaPenetrator(npc, overrideOptions = {}) {
-	/** @type {"npc" | "npc2"} */
-	const penetratorKey = npc;
-
-	/** @type {"npcStrapon" | "npc2Strapon"} */
-	const straponKey = npc === "npc2" ? "npc2Strapon" : "npcStrapon";
 	/**
 	 * @type {CanvasModelLayers<XrayOptions>}
 	 */
@@ -97,18 +92,17 @@ function xrayVaginaPenetrator(npc, overrideOptions = {}) {
 			return `${options.src}vaginal/${options.vagina.penetratorSprite}${penSize}${dp}.png`;
 		},
 		showfn(options) {
-			const portalVagina = V.portalPanties?.state?.vagina;
-			return !!options.showNpcPenis && !!options.vagina.show && (options.vagina[penetratorKey] !== undefined || !!portalVagina);
+			return !!options.showNpcPenis && !!options.vagina.show && (options.vagina[npc] !== undefined || V.portalPanties.state.vagina);
 		},
 		animationfn(options) {
 			return options.animKeyVagina;
 		},
 		filters: npc === "npc2" ? ["vaginaPenetrator2"] : ["vaginaPenetrator"],
 		desaturatefn(options) {
-			return !!options.vagina[straponKey];
+			return !!options.vagina[npc + "Strapon"];
 		},
 		brightnessfn(options) {
-			return options.vagina[straponKey] ? -0.25 : 0;
+			return options.vagina[npc + "Strapon"] ? -0.25 : 0;
 		},
 		z: npc === "npc2" ? CombatRenderer.indices.xrayPenetrator2 : CombatRenderer.indices.xrayPenetrator,
 	};
@@ -116,8 +110,8 @@ function xrayVaginaPenetrator(npc, overrideOptions = {}) {
 }
 
 /**
- * @param {"npc" | "npc2"} npc
- * @param {Partial<CanvasModelLayers<XrayOptions>>} [overrideOptions]
+ * @param {string} npc
+ * @param {CanvasModelLayers<XrayOptions>} overrideOptions
  * @returns {CanvasModelLayers<XrayOptions>}
  */
 function xrayVaginaCondom(npc, overrideOptions = {}) {
@@ -132,8 +126,7 @@ function xrayVaginaCondom(npc, overrideOptions = {}) {
 		},
 		showfn(options) {
 			const target = npc === "npc2" ? V.vaginadoubletarget : V.vaginatarget;
-			const targetNpc = typeof target === "number" ? V.NPCList[target] : null;
-			return !!options.showNpcPenis && !!options.vagina.show && options.vagina[npc] !== undefined && !!targetNpc?.condom?.worn;
+			return !!options.showNpcPenis && !!options.vagina.show && options.vagina[npc] !== undefined && !!V.NPCList[target].condom.worn;
 		},
 		animationfn(options) {
 			return options.animKeyVagina;

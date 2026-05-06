@@ -1,5 +1,5 @@
 // @ts-check
-/* globals CombatRenderer, CloseCombatMapper, CloseOptions, CanvasModelOptions, Renderer, V */
+/* globals CombatRenderer, CloseCombatMapper, CloseOptions */
 
 /**
  * @type {CanvasModelOptions<CloseOptions>}
@@ -52,7 +52,7 @@ const combatClosePenis = {
 		},
 		penis: {
 			srcfn(options) {
-				if (options.penis.npc === "beast-oral" && !playerChastity() && !playerHasStrapon()) {
+				if (["beast-oral"].includes(options.penis.npc) && !playerChastity() && !playerHasStrapon()) {
 					return `${options.src}penis/${options.position}/${options.penis.size}-${options.penis.type}-${options.penis.state}.png`;
 				}
 				return `${options.src}penis/${options.position}/${options.penis.size}-${options.penis.type}.png`;

@@ -104,8 +104,7 @@ class CombatSystem {
 	}
 
 	isVaginaPenetrated() {
-		const portalVagina	= V.portalPanties?.state?.vagina;
-		const activeState	= (V.vaginastate && ["penetrated", "doublepenetrated", "tentacle", "tentacledeep"].includes(V.vaginastate)) || (portalVagina && !portalVagina.new && !portalVagina.tempRemoval);
+		const activeState = (V.vaginastate && ["penetrated", "doublepenetrated", "tentacle", "tentacledeep"].includes(V.vaginastate)) || (V.portalPanties.state.vagina && !V.portalPanties.state.vagina.new && !V.portalPanties.state.vagina.tempRemoval);
 		return !!activeState;
 	}
 
@@ -128,19 +127,14 @@ class CombatSystem {
 				"tentacledeep",
 			].includes(V.vaginastate);
 		const activeUse = V.vaginause === "tentaclerub" && canvas !== "close";
-		if (canvas === "close" && V.vaginastate && ["othervaginaentrance", "othervagina", "entrance", "imminent"].includes(V.vaginastate)) {
-			return true;
-		}
-		const portalVagina = V.portalPanties?.state?.vagina;
-		if (portalVagina && !portalVagina.new && !portalVagina.tempRemoval) return true;
+		if (canvas === "close" && V.vaginastate && ["othervaginaentrance", "othervagina", "entrance", "imminent"].includes(V.vaginastate)) return true;
+		if (V.portalPanties.state.vagina && !V.portalPanties.state.vagina.new && !V.portalPanties.state.vagina.tempRemoval) return true;
 		return activeState || activeUse;
 	}
 
 	isAnusPenetrated() {
-		const anusPenetrated = V.anusstate && ["penetrated", "doublepenetrated", "tentacle", "tentacledeep"].includes(V.anusstate);
-		const portalAnus	 = V.portalPanties?.state?.anus;
-		const portalActive	 = portalAnus && !portalAnus.new && !portalAnus.tempRemoval;
-		return !!(anusPenetrated || portalActive);
+		const activeState = (V.anusstate && ["penetrated", "doublepenetrated", "tentacle", "tentacledeep"].includes(V.anusstate)) || (V.portalPanties.state.anus && !V.portalPanties.state.anus.new && !V.portalPanties.state.anus.tempRemoval);
+		return !!activeState;
 	}
 
 	/**
@@ -155,7 +149,7 @@ class CombatSystem {
 		if (canvas === "close" && V.anusstate && ["entrance", "imminent", "othermouthentrance", "othermouthimminent"].includes(V.anusstate)) {
 			return true;
 		}
-		const portalAnus = V.portalPanties?.state?.anus; if (portalAnus && !portalAnus.new && !portalAnus.tempRemoval) return true;
+		if (V.portalPanties.state.anus && !V.portalPanties.state.anus.new && !V.portalPanties.state.anus.tempRemoval) return true;
 		const activeUse = V.anususe === "tentaclerub" && canvas !== "close";
 		return activeState || activeUse;
 	}
@@ -165,9 +159,6 @@ class CombatSystem {
 		return !!activeState;
 	}
 
-	/**
-	 * @param {string | undefined} [canvas]
-	 */
 	isMouthActive(canvas) {
 		const activeState = V.mouthstate && ["penetrated", "kiss", "tentacleentrance", "tentacleimminent", "tentacle", "tentacledeep"].includes(V.mouthstate);
 		if (canvas === "close" && V.mouthstate && ["entrance", "imminent"].includes(V.mouthstate)) return true;
@@ -179,9 +170,6 @@ class CombatSystem {
 		return !!activeState;
 	}
 
-	/**
-	 * @param {string | undefined} [canvas]
-	 */
 	isPenisActive(canvas) {
 		const activeState =
 			V.penisstate &&
@@ -200,9 +188,8 @@ class CombatSystem {
 				"otherpenisentrance",
 				"otherpenisimminent",
 			].includes(V.penisstate)
-		) {
+		)
 			return true;
-		}
 		return activeState || activeUse;
 	}
 
@@ -210,9 +197,6 @@ class CombatSystem {
 		return V.rightarm === "penis" || V.leftarm === "penis";
 	}
 
-	/**
-	 * @param {string | undefined} [canvas]
-	 */
 	isChestActive(canvas) {
 		const activeUse = V.chestuse === "penis";
 		// Why is this canvas argument here?

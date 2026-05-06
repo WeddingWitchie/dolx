@@ -1,5 +1,5 @@
 // @ts-check
-/* globals CombatRenderer, CloseCombatMapper, CloseOptions, CanvasModelLayers, CanvasModelOptions, Renderer, V */
+/* globals CombatRenderer, CloseCombatMapper, CloseOptions */
 
 /**
  * @type {CanvasModelOptions<CloseOptions>}
@@ -70,7 +70,7 @@ const combatCloseMouth = {
 
 /**
  *
- * @param {"npc" | "npc2"} npc
+ * @param {string} npc
  * @param {CanvasModelLayers<CloseOptions>} overrideOptions
  * @returns {CanvasModelLayers<CloseOptions>}
  */

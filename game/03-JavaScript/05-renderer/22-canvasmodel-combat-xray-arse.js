@@ -76,15 +76,11 @@ const combatXrayArse = {
 };
 
 /**
- * @param {"npc" | "npc2"} npc
- * @param {Partial<CanvasModelLayers<XrayOptions>>} [overrideOptions]
+ * @param {string} npc
+ * @param {CanvasModelLayers<XrayOptions>} overrideOptions
  * @returns {CanvasModelLayers<XrayOptions>}
  */
 function xrayArsePenetrator(npc, overrideOptions = {}) {
-	/** @type {"npc" | "npc2"} */
-	const penetratorKey = npc;
-	/** @type {"npcStrapon" | "npc2Strapon"} */
-	const straponKey = npc === "npc2" ? "npc2Strapon" : "npcStrapon";
 	/**
 	 * @type {CanvasModelLayers<XrayOptions>}
 	 */
@@ -95,22 +91,26 @@ function xrayArsePenetrator(npc, overrideOptions = {}) {
 			return `${options.src}anal/${options.anus.penetratorSprite}${penSize}${dp}.png`;
 		},
 		showfn(options) {
-			const portalAnus = V.portalPanties?.state?.anus;
-			return !!options.showNpcPenis && !!options.anus.show && (options.anus[penetratorKey] !== undefined || !!portalAnus);
+			return !!options.showNpcPenis && !!options.anus.show && (options.anus[npc] !== undefined || V.portalPanties.state.anus);
 		},
-		animationfn(options) {return options.animKeyArse;},
-
+		animationfn(options) {
+			return options.animKeyArse;
+		},
 		filters: npc === "npc2" ? ["anusPenetrator2"] : ["anusPenetrator"],
-		desaturatefn(options) {return !!options.anus[straponKey];},
-		brightnessfn(options) {return options.anus[straponKey] ? -0.25 : 0;},
+		desaturatefn(options) {
+			return !!options.anus[npc + "Strapon"];
+		},
+		brightnessfn(options) {
+			return options.anus[npc + "Strapon"] ? -0.25 : 0;
+		},
 		z: npc === "npc2" ? CombatRenderer.indices.xrayPenetrator2 : CombatRenderer.indices.xrayPenetrator,
 	};
 	return Object.assign(defaults, overrideOptions);
 }
 
 /**
- * @param {"npc" | "npc2"} npc
- * @param {Partial<CanvasModelLayers<XrayOptions>>} [overrideOptions]
+ * @param {string} npc
+ * @param {CanvasModelLayers<XrayOptions>} overrideOptions
  * @returns {CanvasModelLayers<XrayOptions>}
  */
 function xrayArseCondom(npc, overrideOptions = {}) {
@@ -125,8 +125,7 @@ function xrayArseCondom(npc, overrideOptions = {}) {
 		},
 		showfn(options) {
 			const target = npc === "npc2" ? V.anusdoubletarget : V.anustarget;
-			const targetNpc = typeof target === "number" ? V.NPCList[target] : null;
-			return !!options.showNpcPenis && !!options.anus.show && options.anus[npc] !== undefined && !!targetNpc?.condom?.worn;
+			return !!options.showNpcPenis && !!options.anus.show && options.anus[npc] !== undefined && !!V.NPCList[target].condom.worn;
 		},
 		animationfn(options) {
 			return options.animKeyArse;

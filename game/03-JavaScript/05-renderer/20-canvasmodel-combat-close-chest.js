@@ -1,5 +1,5 @@
 // @ts-check
-/* globals CombatRenderer, CloseCombatMapper, CloseOptions, CanvasModelOptions, Renderer, V, T */
+/* globals CombatRenderer, CloseCombatMapper, CloseOptions */
 
 /**
  * @type {CanvasModelOptions<CloseOptions>}

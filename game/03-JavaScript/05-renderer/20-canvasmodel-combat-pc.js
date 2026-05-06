@@ -1,5 +1,5 @@
 // @ts-check
-/* global CombatRenderer, CombatPlayerOptions, CanvasModelOptions, PlayerCombatMapper, PlayerCanvasHelper, V, Errors, combat, playerHasButtPlug */
+/* global CombatRenderer, CombatPlayerOptions, PlayerCombatMapper, PlayerCanvasHelper */
 
 /**
  * @type {CanvasModelOptions<CombatPlayerOptions>}

@@ -38,13 +38,11 @@ class EventData {
 		if (V.event == null) {
 			V.event = { buffer: [], schema: 1 };
 		}
-
-		const callStack = /** @type {{ name: string }[]} */ (ExecutionContext.instance.callStack);
 		V.event.buffer.push({
 			slot: index,
 			time,
 			// dnac: keeping it consistent with docs
-			area: [passage, ...callStack.map(meta => meta.name).slice(0, -1)],
+			area: [passage, ...ExecutionContext.instance.callStack.map(meta => meta.name).slice(0, -1)],
 		});
 	}
 
@@ -213,25 +211,19 @@ class EventData {
 		// .event ['Farm Work', 'Farm Work', 'Farm Work', 'Farm Work']
 		// .eventtime [497, 497, 497, 497]
 		// .eventslot [0, 1, 2, 3]
-		const variables = /** @type {Record<string, unknown>} */ (/** @type {unknown} */ (V));
-		const event = Array.isArray(variables.event) ? variables.event : [];
-		const eventslot = Array.isArray(variables.eventslot) ? variables.eventslot : [];
-		const eventtime = Array.isArray(variables.eventtime) ? variables.eventtime : [];
-
+		// @ts-ignore (Updater code)
+		const event = [...V.event];
 		V.event = {
 			buffer: [],
 			schema: 1,
 		};
 		for (let i = 0; i < event.length; i++) {
-			const passage = typeof event[i] === "string" ? event[i] : String(event[i] ?? "");
-			const slot = Number(eventslot[i]);
-			const time = Number(eventtime[i]);
-			if (passage && Number.isInteger(slot) && Number.isFinite(time)) {
-				this.push(passage, slot, time);
+			if (V.eventslot && V.eventtime) {
+				this.push(event[i], V.eventslot[i], V.eventtime[i]);
 			}
 		}
-		delete variables.eventtime;
-		delete variables.eventslot;
+		delete V.eventtime;
+		delete V.eventslot;
 	}
 }
 
