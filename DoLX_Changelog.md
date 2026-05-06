@@ -15,7 +15,7 @@
 * Added **Poppy** as a **modded Love Interest**.
   * Added adaptable Poppy display support, allowing their image to change depending on the event.
   * Added time fixes for Poppy.
-  * Added music for **Poppy** and flats.
+  * Added music for **Poppy** and flats (Flats music the same like cafe. Poppy ModLI using same music like sea)
 * Added a full **bike rework**.
   * Bikes now have proper events, narration, and mechanics.
   * Initial work by **Bec**.
