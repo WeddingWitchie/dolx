@@ -93,7 +93,12 @@
 	<<if $enemyno lt (_n + 1)>>
 		<<set $enemyno to (_n + 1)>>
 	<</if>>
-	<<set $enemynomax to $enemyno>>
+	<!-- $enemynomax is the peak NPC count for this encounter. It must be >= $enemyno at all
+	     times. Use Math.max so a stale low value (e.g. from a buggy decrement upstream) self-heals
+	     on the next NPC generation, rather than being silently overwritten lower. -->
+	<<if $enemynomax lt $enemyno>>
+		<<set $enemynomax to $enemyno>>
+	<</if>>
 	<<set $NPCList[_n].index to _n>>
 	<<npcattribute _n _gender _lvl>>
 

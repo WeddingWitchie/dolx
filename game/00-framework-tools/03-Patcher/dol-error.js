@@ -52,6 +52,10 @@ function getDebuggingInfo() {
 	}
 	for (let i = 0; i < V.NPCList.length; i++) {
 		const npc = V.NPCList[i];
+		// Guard against undefined/null slots (genuine gaps in $NPCList) before deref.
+		// Without this, `npc.type` throws TypeError, taking the entire error reporter
+		// down on the same encounters that already had problems worth reporting.
+		if (npc == null) continue;
 		if (npc.type) {
 			const npcData = {
 				active: npc.active,

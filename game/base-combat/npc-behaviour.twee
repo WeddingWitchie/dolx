@@ -89,14 +89,16 @@
 
 <<widget "npcidlegenitals">>
 	<<for _i = 0; _i < $NPCList.length; _i++>>
-		<<if $NPCList[_i].penis isnot "none">>
-			<<set $NPCList[_i].penis to "idle">>
+		<<if $NPCList[_i]>>
+			<<if $NPCList[_i].penis isnot "none">>
+				<<set $NPCList[_i].penis to "idle">>
+			<</if>>
+			<<if $NPCList[_i].vagina isnot "none">>
+				<<set $NPCList[_i].vagina to "idle">>
+			<</if>>
+			<<set $NPCList[_i].chest to "idle">>
+			<<set $NPCList[_i].condomAsk to true>>
 		<</if>>
-		<<if $NPCList[_i].vagina isnot "none">>
-			<<set $NPCList[_i].vagina to "idle">>
-		<</if>>
-		<<set $NPCList[_i].chest to "idle">>
-		<<set $NPCList[_i].condomAsk to true>>
 	<</for>>
 <</widget>>
 
@@ -139,39 +141,41 @@
 	<<set $position to "missionary">>
 	<<set _startpos to 0>>
 	<<for _i = 0; _i < $NPCList.length; _i++>>
-		<<set $NPCList[_i].righthand to 0>>
-		<<set $NPCList[_i].lefthand to 0>>
+		<<if $NPCList[_i]>>
+			<<set $NPCList[_i].righthand to 0>>
+			<<set $NPCList[_i].lefthand to 0>>
 
-		<<if $rightarm is 0>>	/* Person 1 grabs you */
-			<<set $rightarm to "grappled">>
-			<<set $NPCList[_i].lefthand to "arms">>
-		<</if>>
-		<<if $leftarm is 0>>
-			<<set $leftarm to "grappled">>
-			<<set $NPCList[_i].lefthand to "arms">>
-		<</if>>
+			<<if $rightarm is 0>>	/* Person 1 grabs you */
+				<<set $rightarm to "grappled">>
+				<<set $NPCList[_i].lefthand to "arms">>
+			<</if>>
+			<<if $leftarm is 0>>
+				<<set $leftarm to "grappled">>
+				<<set $NPCList[_i].lefthand to "arms">>
+			<</if>>
 
-		<<if $NPCList[_i].righthand is 0 and $NPCList[_i].lefthand is 0>>
-			<<switch _startpos>>
-				<<case 0>> /* Person 2 starts low */
-					<<if $worn.over_lower.name isnot "naked">>
-						<<set $NPCList[_i].lefthand to "overlowerclothes">>
-						<<set $NPCList[_i].righthand to "overlowerclothes">>
-					<<elseif $worn.lower.name isnot "naked">>
-						<<set $NPCList[_i].lefthand to "lowerclothes">>
-						<<set $NPCList[_i].righthand to "lowerclothes">>
-					<<elseif $worn.under_lower.name isnot "naked">>
-						<<set $NPCList[_i].lefthand to "underlowerclothes">>
-						<<set $NPCList[_i].righthand to "underlowerclothes">>
-					<</if>>
-				<<case 1>>	/* Person 3 starts high by default */
-				<<case 2>>	/* Person 4 works with 1 - goes straight to under */
-					<<if $worn.under_upper.name isnot "naked">>
-						<<set $NPCList[_i].lefthand to "underupperclothes">>
-						<<set $NPCList[_i].righthand to "underupperclothes">>
-					<</if>>
-			<</switch>>
-			<<set _startpos += 1>>
+			<<if $NPCList[_i].righthand is 0 and $NPCList[_i].lefthand is 0>>
+				<<switch _startpos>>
+					<<case 0>> /* Person 2 starts low */
+						<<if $worn.over_lower.name isnot "naked">>
+							<<set $NPCList[_i].lefthand to "overlowerclothes">>
+							<<set $NPCList[_i].righthand to "overlowerclothes">>
+						<<elseif $worn.lower.name isnot "naked">>
+							<<set $NPCList[_i].lefthand to "lowerclothes">>
+							<<set $NPCList[_i].righthand to "lowerclothes">>
+						<<elseif $worn.under_lower.name isnot "naked">>
+							<<set $NPCList[_i].lefthand to "underlowerclothes">>
+							<<set $NPCList[_i].righthand to "underlowerclothes">>
+						<</if>>
+					<<case 1>>	/* Person 3 starts high by default */
+					<<case 2>>	/* Person 4 works with 1 - goes straight to under */
+						<<if $worn.under_upper.name isnot "naked">>
+							<<set $NPCList[_i].lefthand to "underupperclothes">>
+							<<set $NPCList[_i].righthand to "underupperclothes">>
+						<</if>>
+				<</switch>>
+				<<set _startpos += 1>>
+			<</if>>
 		<</if>>
 	<</for>>
 <</widget>>
@@ -257,58 +261,62 @@
 
 <<widget "reversenpcidlegenitals">>
 	<<for _i = 0; _i < $NPCList.length; _i++>>
-		<<if $NPCList[_i].penis is "idle">>
-			<<set $NPCList[_i].penis to 0>>
+		<<if $NPCList[_i]>>
+			<<if $NPCList[_i].penis is "idle">>
+				<<set $NPCList[_i].penis to 0>>
+			<</if>>
+			<<if $NPCList[_i].vagina is "idle">>
+				<<set $NPCList[_i].vagina to 0>>
+			<</if>>
+			<<if $NPCList[_i].chest is "idle">>
+				<<set $NPCList[_i].chest to 0>>
+			<</if>>
+			<<if $NPCList[_i].traits.includes("lecher") or random(0,9) gt 6>>
+				<<set $NPCList[_i].condomAsk to false>>
+			<</if>>
+			<<set $NPCList[_i].lefthand to 0>>
+			<<set $NPCList[_i].righthand to 0>>
+			<<set $NPCList[_i].mouth to 0>>
+			<<if $player.sex is "m" or $player.sex is "h" or playerHasStrapon()>>
+				<<set $penisuse to 0>>
+				<<set $penisstate to 0>>
+			<</if>>
+			<<if $player.sex is "f" or $player.sex is "h">>
+				<<set $vaginause to 0>>
+				<<set $vaginastate to 0>>
+			<</if>>
+			<<set $chestuse to 0>>
+			<<set $cheststate to 0>>
+			<<set $anususe to 0>>
+			<<set $anusstate to 0>>
+			<<set $mouthuse to 0>>
+			<<set $mouthstate to 0>>
 		<</if>>
-		<<if $NPCList[_i].vagina is "idle">>
-			<<set $NPCList[_i].vagina to 0>>
-		<</if>>
-		<<if $NPCList[_i].chest is "idle">>
-			<<set $NPCList[_i].chest to 0>>
-		<</if>>
-		<<if $NPCList[_i].traits.includes("lecher") or random(0,9) gt 6>>
-			<<set $NPCList[_i].condomAsk to false>>
-		<</if>>
-		<<set $NPCList[_i].lefthand to 0>>
-		<<set $NPCList[_i].righthand to 0>>
-		<<set $NPCList[_i].mouth to 0>>
-		<<if $player.sex is "m" or $player.sex is "h" or playerHasStrapon()>>
-			<<set $penisuse to 0>>
-			<<set $penisstate to 0>>
-		<</if>>
-		<<if $player.sex is "f" or $player.sex is "h">>
-			<<set $vaginause to 0>>
-			<<set $vaginastate to 0>>
-		<</if>>
-		<<set $chestuse to 0>>
-		<<set $cheststate to 0>>
-		<<set $anususe to 0>>
-		<<set $anusstate to 0>>
-		<<set $mouthuse to 0>>
-		<<set $mouthstate to 0>>
 	<</for>>
 <</widget>>
 
 <<widget "npc_submissive_multiple">>
 	<<set _anyNamedNPC to false>>
 	<<for _i = 0; _i < $NPCList.length; _i++>>
-		<<if V.NPCNameList.includes($NPCList[_i].name) or V.NPCNameList.includes($NPCList[_i].fullDescription)>>
-			<<set _anyNamedNPC to true>>
-		<<else>>
-			/* <<if $enemytype is "man">>
-				<<if $NPCList[_i].penis isnot "none">>
-					<<set $NPCList[_i].penis to "clothed">>
-				<</if>>
-				<<if $NPCList[_i].vagina isnot "none">>
-					<<set $NPCList[_i].vagina to "clothed">>
-				<</if>>
-				<<set $NPCList[_i].chest to "clothed">>
-			<</if>> */
-			<<set $NPCList[_i].lefthand to "idle">>
-			<<set $NPCList[_i].righthand to "idle">>
-			<<set $NPCList[_i].mouth to "speech_only">>
-		/* <<set $NPCList[_i].location.genitals to 0>> */
-			/* <<set $NPCList[_i].stance to 0>> */
+		<<if $NPCList[_i]>>
+			<<if V.NPCNameList.includes($NPCList[_i].name) or V.NPCNameList.includes($NPCList[_i].fullDescription)>>
+				<<set _anyNamedNPC to true>>
+			<<else>>
+				/* <<if $enemytype is "man">>
+					<<if $NPCList[_i].penis isnot "none">>
+						<<set $NPCList[_i].penis to "clothed">>
+					<</if>>
+					<<if $NPCList[_i].vagina isnot "none">>
+						<<set $NPCList[_i].vagina to "clothed">>
+					<</if>>
+					<<set $NPCList[_i].chest to "clothed">>
+				<</if>> */
+				<<set $NPCList[_i].lefthand to "idle">>
+				<<set $NPCList[_i].righthand to "idle">>
+				<<set $NPCList[_i].mouth to "speech_only">>
+			/* <<set $NPCList[_i].location.genitals to 0>> */
+				/* <<set $NPCList[_i].stance to 0>> */
+			<</if>>
 		<</if>>
 	<</for>>
 	<<if !_anyNamedNPC>>

@@ -7074,7 +7074,6 @@
 				<<set $anususe to "penisdouble">><<set $anusstate to "doubleentrance">><<set $vaginause to 0>><<set $vaginastate to 0>>
 				<<set $NPCList[$vaginatarget].penis to "anusentrancedouble">>
 				<<set $anusdoubletarget to $vaginatarget>>
-				<<set $vaginatarget to 0>>
 				<<if $NPCList[$anustarget].penis is "anus">>
 					<<set $NPCList[$anustarget].penis to "anusdouble">>
 					<<set $anusstate to "doublepenetrated">>
@@ -7085,7 +7084,7 @@
 					<<set $NPCList[$anustarget].penis to "anusentrancedouble">>
 					<<set $anusstate to "doubleentrance">>
 				<<elseif $NPCList[$anustarget].penis is "cheeks">>
-					<<set $NPCList[$anustarget].penis to "anusentrancedouble">>
+					<<set $NPCList[$anustarget].penis to "anusentrance">>
 					<<set $bottomuse to 0>> /* Issues with ass cheeks likely stem from this culprit right here */
 				<</if>>
 				<<set $NPCList[$anustarget].location.genitals to "genitals">>
@@ -7457,13 +7456,7 @@
 				<<set _npcB to 0>>
 			<</if>>
 			<!-- Find the existing single vagina occupant up-front so we can fail safely without mutating state -->
-			<<set _existingVagNpc to -1>>
-			<<for _k = 0; _k lt $enemyno; _k++>>
-				<<if $NPCList[_k] and ($NPCList[_k].penis is "vagina" or $NPCList[_k].penis is "vaginaimminent" or $NPCList[_k].penis is "vaginaentrance")>>
-					<<set _existingVagNpc to _k>>
-					<<break>>
-				<</if>>
-			<</for>>
+			<<set _existingVagNpc to $NPCList.findIndex(npc => npc.penis isnot 0 and npc.penis isnot undefined and npc.penis.includes("vagina") and !npc.penis.includes("double"))>>
 			<<if ($combatExtended.reverseRapeStart is 1 or combatSkillCheck("vaginal", _npcA)) and $vaginause is "penis" and _existingVagNpc gte 0>>
 				<<if $anusstate is "doubleentrance">>
 					<<set $anususe to "penis">>
@@ -7479,19 +7472,10 @@
 				<<personselect _npcA>>
 				<span class="lblue">You spread your thighs, giving clear access to your pussy, and <<combatperson>> takes advantage and moves <<his>> penis away from your butt to join the phallus in front of your pussy.</span>
 				<<set $NPCList[_npcA].penis to "vaginaentrancedouble">>
-				<<if $NPCList[_existingVagNpc].penis is "vagina">>
-					<<set $NPCList[_existingVagNpc].penis to "vaginadouble">>
-					<<set $vaginastate to "double">>
-				<<elseif $NPCList[_existingVagNpc].penis is "vaginaimminent">>
-					<<set $NPCList[_existingVagNpc].penis to "vaginaimminentdouble">>
-					<<set $vaginastate to "doubleimminent">>
-				<<elseif $NPCList[_existingVagNpc].penis is "vaginaentrance">>
-					<<set $NPCList[_existingVagNpc].penis to "vaginaentrancedouble">>
-					<<set $vaginastate to "doubleentrance">>
-				<</if>>
+				<<set $NPCList[_existingVagNpc].penis to $NPCList[_existingVagNpc].penis + "double">>
+				<<set $vaginastate to "double" + $vaginastate>>
 				<<set $vaginause to "penisdouble">>
 				<<set $vaginadoubletarget to _npcA>>
-				<<set $vaginatarget to _existingVagNpc>>
 				<<submission 2>>
 				<<if $NPCList[_npcA].type is "plant" and $NPCList[_npcA].penissize gte 4 and canImpregnateParasite("vagina")>>
 					<span class="red">Something about it scares you.</span>
@@ -8321,7 +8305,6 @@
 				<span class="blue">You give your <<bottom>> a little wiggle, <<combatperson>> responds to the provocation and moves <<his>> penis to join the phallus in front of your butt.</span>
 				<<submission 2>><<set $anususe to "penisdouble">><<set $NPCList[$penistarget].penis to "anusentrancedouble">><<set $penisuse to 0>><<set $anusstate to "doubleentrance">><<set $penisstate to 0>>
 				<<set $anusdoubletarget to $penistarget>>
-				<<set $penistarget to 0>>
 				<<if $NPCList[$anustarget].penis is "anus">>
 					<<set $NPCList[$anustarget].penis to "anusdouble">>
 				<<elseif $NPCList[$anustarget].penis is "anusimminent">>
@@ -8329,7 +8312,7 @@
 				<<elseif $NPCList[$anustarget].penis is "anusentrance">>
 					<<set $NPCList[$anustarget].penis to "anusentrancedouble">>
 				<<elseif $NPCList[$anustarget].penis is "cheeks">>
-					<<set $NPCList[$anustarget].penis to "anusentrancedouble">>
+					<<set $NPCList[$anustarget].penis to "anusentrance">>
 					<<set $bottomuse to 0>> /* Issues with ass cheeks likely stem from this culprit right here */
 				<</if>>
 				<<set $NPCList[$anustarget].location.genitals to "genitals">>
@@ -8369,12 +8352,12 @@
 			<<set $penisaction to 0>><<meek 10>><<penileskilluse>><<set $penisactiondefault to "penispussydouble">>
 			<<if ($combatExtended.reverseRapeStart is 1 or combatSkillCheck("vaginal", $penistarget)) and $vaginause is "penis">>
 				<<set _moverFound to false>>
-				<<set _j to $penistarget>>
-				<<if $NPCList[_j] and ($NPCList[_j].penis is "penisentrance" or $NPCList[_j].penis is "penisimminent")>>
+				<<for _j = 0; _j lt $enemyno; _j++>>
+					<<if $NPCList[_j].penis is "penisentrance" or $NPCList[_j].penis is "penisimminent">>
 						<!-- Locate the existing single vagina occupant first; abort cleanly if absent -->
 						<<set _existingVagNpc to -1>>
 						<<for _k = 0; _k lt $enemyno; _k++>>
-							<<if $NPCList[_k] and ($NPCList[_k].penis is "vagina" or $NPCList[_k].penis is "vaginaimminent" or $NPCList[_k].penis is "vaginaentrance")>>
+							<<if $NPCList[_k].penis is "vagina" or $NPCList[_k].penis is "vaginaimminent" or $NPCList[_k].penis is "vaginaentrance">>
 								<<set _existingVagNpc to _k>>
 								<<break>>
 							<</if>>
@@ -8396,7 +8379,9 @@
 							<<set $penistarget to 0>>
 							<<set _moverFound to true>>
 						<</if>>
+						<<break>>
 					<</if>>
+				<</for>>
 				<<if !_moverFound>>
 					You spread your thighs, but fail to garner interest.
 				<</if>>
@@ -8512,23 +8497,25 @@
 	/* Check anal toy insertions */
 	<<set _insertions to []>>
 	<<for _i = 0; _i < $NPCList.length; _i++>>
-		<<if $NPCList[_i].lefthand is "anusdildo">>
-			<<personselect _i>>
-			<<if $npc_named is 1>>
-				<<set _npcDescription to $NPCList[_i].fullDescription>>
-			<<else>>
-				<<set _npcDescription to "the "+$NPCList[_i].fullDescription>>
+		<<if $NPCList[_i]>>
+			<<if $NPCList[_i].lefthand is "anusdildo">>
+				<<personselect _i>>
+				<<if $npc_named is 1>>
+					<<set _npcDescription to $NPCList[_i].fullDescription>>
+				<<else>>
+					<<set _npcDescription to "the "+$NPCList[_i].fullDescription>>
+				<</if>>
+				<<set _insertions.push(_npcDescription + "'s " + $NPCList[_i].lefttool)>>
 			<</if>>
-			<<set _insertions.push(_npcDescription + "'s " + $NPCList[_i].lefttool)>>
-		<</if>>
-		<<if $NPCList[_i].righthand is "anusdildo">>
-			<<personselect _i>>
-			<<if $npc_named is 1>>
-				<<set _npcDescription to $NPCList[_i].fullDescription>>
-			<<else>>
-				<<set _npcDescription to "the "+$NPCList[_i].fullDescription>>
+			<<if $NPCList[_i].righthand is "anusdildo">>
+				<<personselect _i>>
+				<<if $npc_named is 1>>
+					<<set _npcDescription to $NPCList[_i].fullDescription>>
+				<<else>>
+					<<set _npcDescription to "the "+$NPCList[_i].fullDescription>>
+				<</if>>
+				<<set _insertions.push(_npcDescription + "'s " + $NPCList[_i].righttool)>>
 			<</if>>
-			<<set _insertions.push(_npcDescription + "'s " + $NPCList[_i].righttool)>>
 		<</if>>
 	<</for>>
 	<<if _insertions isnot undefined>>
@@ -8542,17 +8529,19 @@
 	<<if $player.vaginaExist>>
 		<<set _insertions to []>>
 		<<for _i = 0; _i < $NPCList.length; _i++>>
-			<<if $NPCList[_i].lefthand is "vaginadildo">>
-				<<personselect _i>>
-				<<if $npc_named is 1>>
-					<<set _npcDescription to $NPCList[_i].fullDescription>>
-				<<else>>
-					<<set _npcDescription to "the "+$NPCList[_i].fullDescription>>
+			<<if $NPCList[_i]>>
+				<<if $NPCList[_i].lefthand is "vaginadildo">>
+					<<personselect _i>>
+					<<if $npc_named is 1>>
+						<<set _npcDescription to $NPCList[_i].fullDescription>>
+					<<else>>
+						<<set _npcDescription to "the "+$NPCList[_i].fullDescription>>
+					<</if>>
+					<<set _insertions.push(_npcDescription + "'s " + $NPCList[_i].lefttool)>>
 				<</if>>
-				<<set _insertions.push(_npcDescription + "'s " + $NPCList[_i].lefttool)>>
-			<</if>>
-			<<if $NPCList[_i].righthand is "vaginadildo">>
-				<<set _insertions.push($NPCList[_i].righttool)>>
+				<<if $NPCList[_i].righthand is "vaginadildo">>
+					<<set _insertions.push($NPCList[_i].righttool)>>
+				<</if>>
 			<</if>>
 		<</for>>
 		<<if _insertions isnot undefined>>
@@ -8566,13 +8555,15 @@
 	<<if $player.penisExist>>
 		/* Dildo rubbing on penis */
 		<<for _i = 0; _i < $NPCList.length; _i++>>
-			<<if $NPCList[_i].lefthand is "penisdildo">>
-				Your <<penis>> is rubbed by the $NPCList[_i].lefttool.
-				<<break>>
-			<</if>>
-			<<if $NPCList[_i].righthand is "penisdildo">>
-				Your <<penis>> is rubbed by the $NPCList[_i].righttool.
-				<<break>>
+			<<if $NPCList[_i]>>
+				<<if $NPCList[_i].lefthand is "penisdildo">>
+					Your <<penis>> is rubbed by the $NPCList[_i].lefttool.
+					<<break>>
+				<</if>>
+				<<if $NPCList[_i].righthand is "penisdildo">>
+					Your <<penis>> is rubbed by the $NPCList[_i].righttool.
+					<<break>>
+				<</if>>
 			<</if>>
 		<</for>>
 	<</if>>

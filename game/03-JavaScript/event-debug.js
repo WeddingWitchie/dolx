@@ -18,6 +18,53 @@
  */
 
 /**
+ * Returns true iff the given $NPCList entry represents a fully-generated, live NPC
+ * (not a baseNPC clone padding an unused slot, and not a genuine gap).
+ *
+ * WHY THIS PREDICATE EXISTS? Read this before "fixing" it back to a type-only check.
+ *
+ * The original validator used `"type" in npcList[i]`. 
+ * That check returns true for baseNPC clones (which have `type: "human"` set by setup.baseNPC). 
+ * After every <<endcombat>>, <<clearnpc>> populates slots 1..5 with baseNPC clones and sets
+ * NPCList.length = 6; that's the codebase's standard "padding" pattern, not a bug.
+ *
+ * With a type-only predicate, validate() interprets those padding clones as live
+ * NPCs, expects buffer entries for them, and fires "EVENT DESYNC" on every fresh
+ * encounter setup (Bailey's Office, Sydney's Temple, any street encounter, etc.).
+ * That happened consistently in this codebase but not in upstream DoL not because
+ * the encounter management differs, but because earlier validator versions in this
+ * tree used the type-only check and incorrectly treated padding as live state.
+ *
+ * The reliable post-generation marker is `fullDescription`: generateNPC and the
+ * <<npc>> widget both populate it as their final step, so a slot that has a real,
+ * non-empty, non-placeholder fullDescription is definitively a live NPC. baseNPC
+ * clones either have it unset, empty, or as the literal placeholder
+ * "undefined undefined" (see the fix-up code in npc-generation.twee).
+ *
+ * This predicate still catches every form of *real* desync:
+ *   - live NPC with no matching buffer entry → flagged via empty-slots check below
+ *   - buffer entry for a slot that's only a baseNPC clone → flagged via the slot >= numOfNPCs check below (since numOfNPCs reflects live NPCs only)
+ *   - two buffer entries for the same slot → flagged via the duplicate check
+ *   - more buffer entries than live NPCs → flagged via the length check
+ *
+ * What this predicate intentionally does NOT flag is baseNPC clones occupying unused slots
+ * that's not a desync, it's the codebase's expected steady state.
+ *
+ * @param {unknown} slot
+ * @returns {boolean}
+ */
+function isLiveNPC(slot) {
+	if (slot == null || typeof slot !== "object") return false;
+	/** @type {Record<string, any>} */
+	const npc = /** @type {any} */ (slot);
+	if (!npc.type || npc.type === "undefined") return false;
+	if (typeof npc.fullDescription !== "string") return false;
+	const fd = npc.fullDescription.trim();
+	if (!fd || fd === "undefined undefined" || fd === "undefined") return false;
+	return true;
+}
+
+/**
  * Handles event data for NPC objects for debugging.
  *
  * @module EventData
@@ -136,37 +183,57 @@ class EventData {
 	 * @returns {boolean}
 	 */
 	validate() {
-		// Return false if an event is not in progress. True would be a problem in our stack system for NPCs. False indicates normal operation.
+		// Return true if no event is in progress. False would indicate a problem in our stack
+		// system for NPCs. True indicates normal operation.
 		if (V.event == null) return true;
 
-		// Extrapolate slots
 		const buffer = V.event.buffer;
-
 		const npcList = V.NPCList;
 		if (!Array.isArray(npcList)) return true;
+		if (!Array.isArray(buffer)) return true;
 
-		// Making assumptions for the validator, traverse from the end, and when we hit the first NPC, return index.
-		// We plus one because we want the semantic size that we believe the NPC list is at.
-		// An NPCList of [empty, npc, npc, empty, empty, empty] would have a size of 3.
-		// We assume the first empty is a mistake, someone not following proper conduct in NPC gen.
-		let numOfNPCs = -1;
+		// Find the semantic NPC count: walk backwards to the last slot containing a real NPC.
+		//
+		// IMPORTANT: We can NOT use `"type" in npcList[i]` here, and we also can NOT use
+		// just `slot.type`; empirically setup.baseNPC has `type` set to a truthy default
+		// (likely "human"), so a clone produced by <<clearnpc>> still passes any type-only
+		// check. The only field that reliably distinguishes "fully generated" from "freshly
+		// cleared" is `fullDescription`: generateNPC constructs it at the end of generation
+		// from description + role + title, and a baseNPC clone has it either unset or as
+		// the literal placeholder "undefined undefined" (see npc-generation.twee guards).
+		//
+		// Also guard against npcList[i] itself being null/undefined (genuine gap), which
+		// the previous code would crash on (`"type" in undefined` throws TypeError).
+		let numOfNPCs = 0;
 		for (let i = npcList.length - 1; i >= 0; i--) {
-			if ("type" in npcList[i]) {
+			if (isLiveNPC(npcList[i])) {
 				numOfNPCs = i + 1;
 				break;
 			}
 		}
 
-		// First check for if buffer's length exceeds NPCList's length. (Guaranteed gaps or inaccurate tracking)
+		// No real NPCs in the list. If the buffer is also empty, fine. 
+		// If it has entries, those are stale (NPCs were cleared but buffer wasn't) then treat as desync.
+		if (numOfNPCs === 0) {
+			return buffer.length === 0;
+		}
+
+		// First check for if buffer's length exceeds the populated NPCList range.
 		if (buffer.length > numOfNPCs) return false;
 
-		// Generate array to track whether an NPC slot is used.
+		// Generate array to track whether an NPC slot is referenced by the buffer.
 		const usedArr = Array(numOfNPCs).fill(false);
-		// Example: [false, false, false, false, false] for 5 NPCs in $NPCList
 		for (let i = 0; i < buffer.length; i++) {
 			const element = buffer[i];
+			if (!element || typeof element.slot !== "number") continue;
+			// A buffer entry referencing a slot beyond the populated range is itself a desync.
+			if (element.slot < 0 || element.slot >= numOfNPCs) {
+				if (V.options.debugdisable === "f" || V.debug) {
+					console.warn("Buffer entry references non-existent NPC at slot", element.slot, "(numOfNPCs:", numOfNPCs, ")");
+				}
+				return false;
+			}
 			if (!usedArr[element.slot]) {
-				// Slot not accounted for yet, NPC is good.
 				usedArr[element.slot] = true;
 				continue;
 			} else if (V.options.debugdisable === "f" || V.debug) {
@@ -176,16 +243,14 @@ class EventData {
 			}
 		}
 
-		// Check usedArr for false values. Filter results where false remains into a new array at the index.
+		// Check usedArr for false values. These are slots with a real NPC but no buffer entry.
 		// [true, false, true, false] => [1, 3]
-		// We then intend to display these indices to the user for debugging.
 		const slots = [];
 		for (let i = 0; i < usedArr.length; i++) {
 			const e = usedArr[i];
 			if (!e) slots.push(i);
 		}
 		if (slots.length !== 0) {
-			// Index is slot, index being 0 or higher means we have an empty slot.
 			if (V.options.debugdisable === "f" || V.debug) {
 				console.warn("NPC slots that are empty:", slots);
 			}

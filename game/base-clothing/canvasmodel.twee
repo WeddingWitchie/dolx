@@ -138,12 +138,22 @@ Render model and JS-animate it
 					}
 				}
 			});
-			/* Also patch any existing NPC entries missing condom/type, since the mappers may iterate over the whole list */
+			/* Also patch existing live NPC entries missing condom/type, since the mappers may iterate over live NPCs.
+			Empty/base NPC slots must stay untouched. Missing tentacle target slots are handled by targetKeys/stubProps above. */
 			for (let i = 0; i < npcList.length; i++) {
-				if (npcList[i]) {
-					if (npcList[i].condom === undefined) npcList[i].condom = false;
-					if (npcList[i].type === undefined) npcList[i].type = 'vine';
-				}
+				const npc = npcList[i];
+
+				if (!npc) continue;
+
+				const fd = typeof npc.fullDescription === "string" ? npc.fullDescription.trim() : "";
+				const isLive = !!fd && fd !== "undefined" && fd !== "undefined undefined";
+
+				/* Base NPC padding / empty slots. Do not add condom or type here. */
+				if (!isLive) continue;
+
+				/* Live NPCs only. */
+				if (npc.condom === undefined) npc.condom = false;
+				if (!npc.type || npc.type === "undefined") npc.type = "human";
 			}
 		}
 
