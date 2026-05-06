@@ -193,10 +193,15 @@ function poppySchedule() {
 		return T.poppy_location;
 	}
 
+	// Time.minutesSinceMidnight is defined in time.js as Time.hour*60 + Time.minute.
+	// Several twee scenes also rely on this same property (e.g. the lake event), so
+	// we use the canonical name here for consistency.
 	const mins = Time.minutesSinceMidnight;
 	const isWeekend = Time.isWeekEnd();
 	const isSchoolDay = Time.schoolDay;
-	const isLessonDay = isSchoolDay && (Time.weekDay === 2 || Time.weekDay === 4); // Tue + Thu
+	// weekDay convention from time.js: 1 = Sunday ... 7 = Saturday.
+	// Tuesday = 3, Thursday = 5 — matches housekeeping.twee's [3, 5] check.
+	const isLessonDay = isSchoolDay && (Time.weekDay === 3 || Time.weekDay === 5); // Tue + Thu
 
 	const at = (start, end) => mins >= start && mins < end;
 

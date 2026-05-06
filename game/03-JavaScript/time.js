@@ -406,6 +406,10 @@ function getNextSchoolTermStartDate(date) {
 		get secondsSinceMidnight() {
 			return getSecondsSinceMidnight(currentDate);
 		},
+		// Whole minutes since 00:00 of the current in-game day. Referenced by poppySchedule()
+		get minutesSinceMidnight() {
+			return currentDate.hour * 60 + currentDate.minute;
+		},
 		get currentMoonPhase() {
 			return currentMoonPhase(currentDate);
 		},
