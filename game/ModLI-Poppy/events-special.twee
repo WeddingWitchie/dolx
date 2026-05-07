@@ -1,0 +1,196 @@
+/* Matches base-game pattern (cf. $christmas_robin_visit line 249 and $christmas_robin_gift_received line 2942):
+     • Flat persistent flag $christmas_poppy_orphanage gates re-entry.
+     • Date is implied by $christmas; we still spell out monthDay 25 for parity with sibling events.
+     • _li is a local convenience for branching dialogue inside the scene. */
+:: Poppy Christmas Orphanage
+<<set $christmas_poppy_orphanage to 1>><<set _poppyChristmasLI to Number($poppyromance) gte 0>>
+<<npc Poppy>><<person1>><<generatey2>><<person2>>
+You celebrate Christmas with the other residents. A <<person1>><<person>> passes a gift to another orphan. As <<he>> does, the door <b>slams</b> open, letting in a rush of cold air and snow.
+<<person1>><span class="purple">It's Poppy!</span> 
+<br><br>
+<<He>> stands in the doorway, grinning despite the cold, snowflakes melting on a bright red Santa costume. There's a large container balanced in <<his>> arms.
+<<He>> looks around the room, a warm glint in <<his>> eyes as <<he>> takes in the residents gathered in the main hall. 
+<br><br>
+<<He>> steps forward and calls out, "Hey, kiddos! Guess who brought cookies?"
+<br><br>
+Now that <<hes>> closer, you can see the container is filled with brightly decorated gingerbread men.
+<br><br>
+<<He>> takes it over to a table where the orphans gather around, eyes wide.
+"Merry Christmas, everyone," <<he>> says with a smile.
+<br><br>
+The cookies vanish into eager hands.
+<br><br>
+<<person2>>"So sweet!" <<he>> exclaims through a mouthful of gingerbread.
+<br><br>
+<<person1>>Poppy approaches you with two cookies in hand.
+<<if _poppyChristmasLI>>
+	"For you, my jewel." <<He>> says with a wink and passes you one. It's a Santa hat, decorated with red and white icing.
+	<br><br>
+	"Sorry I took so long, I tried to get here sooner for you, but I ran into some... <i>difficulties</i> along the way." Poppy says sheepishly.
+<<else>>
+	<<He>> passes you one. It's shaped like a Santa hat, decorated with red and white icing.
+	<br><br>
+	"Sorry I took so long. I meant to wake up earlier," Poppy says sheepishly.
+<</if>>
+<br><br>
+<<link [[Eat your cookie|Poppy Christmas Cookie]]>><</link>>
+
+:: Poppy Christmas Cookie
+<<effects>>
+You and Poppy eat the gingerbread cookies. You catch a glimpse of Poppy's cookie. It has orange and white icing, though you can't figure out what it is once <<he>> takes a bite.
+<br><br>
+<<link [[Compliment <<him>>|Poppy Christmas Compliment]]>><<npcincr Poppy love 1>><</link>><<glove>>
+<br>
+<<link [[Insult the baking|Poppy Christmas Insult]]>><<npcincr Poppy love -4>><<npcincr Poppy patience -5>><</link>><<llove>><<if C.npc.Poppy.patience gt 0>><<llpatience>><<else>><<gganger>><</if>>
+
+:: Poppy Christmas Compliment
+<<effects>>
+"It tastes great," you say.
+<br><br>
+Poppy breaks out into a smile. "Thank you!" <<he>> says with joy.
+<br><br>
+<<poppyChristmasBaileyPayment>>
+<br><br>
+<<link [[Next|Poppy Christmas After Answer]]>><</link>>
+
+:: Poppy Christmas Insult
+<<effects>><<person1>>
+"You need to work on your baking," you remark. "It doesn't taste as good as it looks."
+<br><br>
+Poppy doesn't say anything, but <<his>> glaring eyes speaks volume.
+<br><br>
+<<poppyChristmasBaileyPayment>>
+<br><br>
+<<link [[Next|Poppy Christmas After Answer]]>><</link>>
+
+:: Poppy Christmas After Answer
+<<effects>><<person1>>
+<<set _poppyChristmasLI to Number($poppyromance) gte 0>>
+Poppy heads back to you. 
+<br><br>
+"The orphans look so happy, don't they? I didn't see this very often before..."
+<<if _poppyChristmasLI>>
+	<<He>> trails off, appearing lost in thought for a moment. 
+	<br><br>
+	Poppy snaps out of <<his>> thoughts and looks back at you. "Hey, I have one more gift that I'd like to show you back at my flat. Would you like to come with me?" 
+	<br><br>
+	<<link [[Accept (0:10)|Poppy Christmas Flat Accept]]>>
+		<<set $christmas_poppy_flat_pending to 1>>
+		<<set $christmas_poppy_route to "accept">>
+		<<if window.markPoppyInteraction>><<run markPoppyInteraction()>><</if>>
+		<<pass 10>>
+	<</link>><<glove>>
+	<br>
+	<<link [[Decline|Poppy Christmas Flat Decline]]>>
+		<<set $christmas_poppy_flat_pending to 1>>
+		<<set $christmas_poppy_route to "decline">>
+		<<if window.markPoppyInteraction>><<run markPoppyInteraction()>><</if>>
+	<</link>>
+<<else>>
+	<<He>> trails off. "Well, now that that's done with, I think it'd be best if I head out too." 
+	<br><br>
+	<<He>> says over <<his>> shoulder as <<he>> leaves. You wave to <<him>>. 
+	<br><br>
+	<<link [[Next|Orphanage]]>><<if window.markPoppyInteraction>><<run markPoppyInteraction()>><</if>><<endevent>><</link>>
+<</if>>
+
+:: Poppy Christmas Flat Accept
+<<location "barb">><<effects>>
+"Yeah," You grin. 
+<br><br>
+"Who would miss out on free gifts?" You grab <<his>> hand and walk out the door towards Barb Street.
+<br><br>
+<<link [[Next|Poppy Christmas Flat Arrival]]>><<endevent>><</link>>
+
+:: Poppy Christmas Flat Decline
+<<effects>>
+"I can't right now." You say. 
+<br><br>
+"Well, alright. I'll be waiting for you at my flat later today." Poppy says before giving you a smooch on the cheek.
+<br><br>
+<<link [[Next|Orphanage]]>><<endevent>><</link>>
+
+:: Poppy Christmas Flat Arrival
+<<effects>><<set $location to "flats">><<set $bus to "poppy_living_room">>
+<<npc Poppy>><<person1>>
+<<if $christmas_poppy_route is "accept">>
+	Poppy opens the door and leads you inside before shutting it. 
+	<br><br>
+	"Well, I only slipped twice as we came. Thanks for catching me love." <<He>> says with a bit of embarrassment. 
+	<br><br>
+	"Now, why don't you wait here and I'll change into something a bit more comfortable," <<he>> says as <<he>> heads towards the bedroom. 
+	<br><br>
+	You wait a little while for Poppy to change, when <<he>> sings out from the bedroom. "Why don't you join me in here, my jewel?"
+<<else>>
+	You enter Poppy's flat. 
+	<br><br>
+	"Hello?" you call out.
+	<br><br>
+	"In here, my jewel!" Poppy responds, <<his>> voice coming from the bedroom.
+<</if>>
+<br><br>
+<<poppyicon "bed">><<link [[Enter the bedroom|Poppy Christmas Bedroom]]>><</link>>
+<br>
+<<getouticon>><<link [[Leave|Flats]]>>
+	<<npcincr Poppy love -3>><<npcincr Poppy patience -5>>
+	<<set $christmas_poppy_flat_done to 1>>
+	<<if window.markPoppyInteraction>><<run markPoppyInteraction()>><</if>>
+	<<endevent>>
+<</link>><<llove>><<if C.npc.Poppy.patience gt 0>><<llpatience>><<else>><<gganger>><</if>>
+
+:: Poppy Christmas Bedroom
+<<effects>>
+You enter the bedroom, to see Poppy in <<his>> Santa costume. But <<hes>> made a few changes to the outfit compared to <<his>> visit to the orphanage. 
+<br><br>
+<<if C.npc.Poppy.pronoun is "m">>
+	The suit is pulled apart, revealing <<his>> muscular chest and abs.
+<<else>>
+	The Santa suit has been replaced by a festive dress. It shows off <<his>> curves, and leaves little to the imagination with how high up the skirt is.
+<</if>>
+<br><br>
+"Well," Poppy says, looking you over with a smile, "why don't you join me, my jewel?"
+<br><br>
+<<link [[Join Poppy|Poppy Christmas Sex]]>><<set $sexstart to 1>><</link>><<promiscuous2>>
+
+:: Poppy Christmas Sex
+<<if $sexstart is 1>>
+	<<set $sexstart to 0>>
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+	<<maninit>>
+	<<set $enemytrust += 100>>
+	<<set $enemyanger to 0>>
+	<<promiscuity2>>
+<</if>>
+<<effects>>
+<<effectsman>>
+<<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[Next|Poppy Christmas Afterglow]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Poppy Christmas Sex]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Poppy Christmas Afterglow
+<<effects>>
+<<if $enemypleasure gte $enemypleasuremax>><<ejaculation>><</if>>
+<<set $christmas_poppy_flat_done to 1>>
+<<if window.markPoppyInteraction>>
+	<<run markPoppyInteraction()>>
+<</if>>
+<<npcincr Poppy love 2>><<npcincr Poppy lust -10>>
+"Well, that was certainly something, wasn't it? We should do that again some time," <<he>> says as <<he>> holds you close, savouring the bliss of the moment.
+<br><br>
+After a little while, you get dressed, say your goodbyes, and leave.
+<br><br>
+<<set _poppyChristmasUnlock to setup.specialClothes.filter(_clothes => _clothes.sets && _clothes.sets.includes("christmas")).map(_clothes => _clothes.name)>>
+<<if _poppyChristmasUnlock.length>>
+	<<print specialClothesUnlockText("christmas")>>
+<</if>>
+<br><br>
+<<endcombat>><<pass 30>><<clotheson>>
+<<link [[Next|Flats]]>><</link>>

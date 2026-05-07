@@ -2343,6 +2343,11 @@ function yearlyEventChecks() {
 		delete V.christmas_whitney;
 		delete V.edenmeal;
 		delete V.eden_christmas_dinner;
+		// Poppy Christmas flags clearing
+		delete V.christmas_poppy_orphanage;
+		delete V.christmas_poppy_flat_pending;
+		delete V.christmas_poppy_flat_done;
+		delete V.christmas_poppy_route;
 		delete V.christmas_wraith;
 	}
 }
