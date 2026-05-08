@@ -876,8 +876,13 @@ function xchangeEffectsMessages() {
 	}
 
 	if (V.xchangePermanenceMessage) {
+		const vaginalPregnancy = V.sexStats?.vagina?.pregnancy?.type !== null && V.sexStats?.vagina?.pregnancy?.type !== undefined;
+
 		if (V.xchange.pillPermanence === 1) {
 			element("span", "Seems you didn't turn back. Your pill's effects have become permanent", "red"); br();
+		}
+		else if (vaginalPregnancy && typeof pillTimerPaused === "function" && pillTimerPaused()) {
+			element("span", "Seems you didn't turn back. The life growing inside you holds the changes in place.", "red"); br();
 		}
 		else {
 			element("span", "Seems you didn't turn back...", "red"); br();
