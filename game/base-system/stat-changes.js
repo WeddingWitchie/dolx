@@ -501,12 +501,25 @@ const statChange = (() => {
 				V.tiredness += Math.round(amount * Weather.BodyTemperature.fatigueModifier * (amount > 0 ? 15 : 20));
 			}
 		}
+
+		/*
+		* Make sure dynamic max fatigue is current before overflow handling.
+		* This prevents scaled-max saves from being clamped against the base 2000 cap.
+		*/
+		if (typeof updateDynamicStatCaps === "function") updateDynamicStatCaps();
 		const overflow = V.tiredness - C.tiredness.max;
-		if (overflow > 0) {
-			// channel excessive fatigue into stress and trauma
-			stress(overflow / 3);
-			trauma(overflow / 6);
-			V.tiredness -= overflow;
+
+		if (Number.isFinite(overflow) && overflow > 0) {
+			if (V.xchange?.willpowerSystemEnabled && V.xchange.willpowerPoints > 0) {
+				wikifier("willpower-spending", overflow);
+			} else {
+				/*
+				* Preserve the DoLX overflow behaviour from the fatigue caption:
+				* excess fatigue becomes stress/trauma instead of silently vanishing.
+				*/
+				stress(overflow, 16); straighttrauma(overflow / 3);
+			}
+			V.tiredness = C.tiredness.max;
 		}
 	}
 	DefineMacro("tiredness", tiredness);

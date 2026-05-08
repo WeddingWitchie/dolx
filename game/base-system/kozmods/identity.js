@@ -80,7 +80,7 @@ function hourlyClothingFemininityCheck(hours = 1) {
 	currentWornFemininity += V.makeup.lipstick ? 50 : 0;
 	currentWornFemininity += V.makeup.mascara ? 50 : 0;
 	currentWornFemininity += V.makeup.eyeshadow ? 50 : 0;
-	
+
 	// Tick the hourly counter
 	V.hourlyFemininity += currentWornFemininity > 0 ? 1 : 0;
 	V.hourlyFemininity += currentWornFemininity < 0 ? -1 : 0;
@@ -93,7 +93,7 @@ function hourlyClothingFemininityCheck(hours = 1) {
 	const hasMascClothesAcceptance = V.identity.presentation.clothing.masculine.acceptance;
 	const hasMascClothesRejection = V.identity.presentation.clothing.masculine.reject;
 
-// --- Hypno crossdress / genderify handling ---
+	// --- Hypno crossdress / genderify handling ---
 	V.cheats = V.cheats || {};
 	const genderifyActive = !!(V.xchange?.pill?.active && V.xchange.pill.genderificationEffect);
 	const hypnoCrossdressLevel = V.cheats.disableHypnoCrossdress ? 0 : (V.hypnosis_traits?.crossdressing || 0);
@@ -115,8 +115,13 @@ function hourlyClothingFemininityCheck(hours = 1) {
 			(genderifyActive || hypnoCrossdressLevel < 4)
 		) {
 			wikifier("stress", -3 * hours, 1);
-			V.tiredness -= 50 * hours;
-			/* Throttle the positive message to avoid spam, show ~50% of the time */
+			/*
+			* Route through the tiredness macro instead of direct V.tiredness writes.
+			* This prevents fractional/direct fatigue changes and lets normal fatigue modifiers apply.
+			* Negative tiredness macro values are multiplied by 20, so -2.5 hours = -50 raw fatigue per hour before modifiers.
+			*/
+			wikifier("tiredness", -2.5 * hours, 1);
+
 			if (Math.random() < 0.50) {
 				V.genderificationStressMessage = 2;
 				V.effectsmessage = 1;
@@ -134,8 +139,13 @@ function hourlyClothingFemininityCheck(hours = 1) {
 			(genderifyActive || hypnoCrossdressLevel < 4)
 		) {
 			wikifier("stress", -3 * hours, 1);
-			V.tiredness -= 50 * hours;
-			/* Throttle the positive message to avoid spam, show ~50% of the time */
+			/*
+			* Route through the tiredness macro instead of direct V.tiredness writes.
+			* This prevents fractional/direct fatigue changes and lets normal fatigue modifiers apply.
+			* Negative tiredness macro values are multiplied by 20, so -2.5 hours = -50 raw fatigue per hour before modifiers.
+			*/
+			wikifier("tiredness", -2.5 * hours, 1);
+
 			if (Math.random() < 0.50) {
 				V.genderificationStressMessage = 4;
 				V.effectsmessage = 1;

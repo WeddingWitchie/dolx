@@ -1606,18 +1606,13 @@
 				<</if>>
 			</div>
 
-			<<if $tiredness gte C.tiredness.max>>
-				<<if $xchange.willpowerSystemEnabled and $xchange.willpowerPoints gt 0>>
-					<<set _neededWillpower to (($tiredness - C.tiredness.max))>>
-					<<willpower-spending _neededWillpower>>
-				<<else>>
-					<<set $stress += (($tiredness - C.tiredness.max) * 16)>><<set $trauma += (($tiredness - C.tiredness.max) / 3)>>
-				<</if>>
+			<<if typeof updateDynamicStatCaps is "function">>
+				<<run updateDynamicStatCaps()>>
 			<</if>>
 
-			<<set $tiredness = Math.clamp($tiredness, 0, C.tiredness.max)>>
+			<<set _displayTiredness to Math.clamp($tiredness, 0, C.tiredness.max)>>
 			<<set _showCaptionText to !$options.showCaptionText>>
-			<<statbar 0 $tiredness `C.tiredness.max` _showCaptionText>>
+			<<statbar 0 _displayTiredness `C.tiredness.max` _showCaptionText>>
 		</div>
 	<</if>>
 <</widget>>

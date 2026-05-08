@@ -278,6 +278,9 @@ function effectsMakeup() {
 function effects() {
 	const fragment = document.createDocumentFragment();
 
+	/* Must happen before any effect/caption/stat macro can clamp tiredness. */
+	if (typeof updateDynamicStatCaps === "function") updateDynamicStatCaps();
+
 	const sWikifier = text => {
 		fragment.append(Wikifier.wikifyEval(text + " "));
 	};
@@ -288,6 +291,19 @@ function effects() {
 		fragment.append(result);
 	};
 	const br = () => fragment.append(document.createElement("br"));
+
+	/* Keep dynamic stat caps ready before any render-time stat captions/macros run. */
+	if (V.tirednessMaxScalingToggle) {
+		C.tiredness.max = 2000 + Math.floor(currentSkillValue("physique", 0, 1) / 32);
+	} else {
+		C.tiredness.max = 2000;
+	}
+
+	if (V.stressMaxScalingToggle) {
+		V.stressmax = 10000 + Math.floor(currentSkillValue("willpower", 0, 1) * 5);
+	} else {
+		V.stressmax = 10000;
+	}
 
 	// Depricated as of current
 	// if (V.newVersionData) sWikifier("<<newversionnotification>>");
@@ -2060,7 +2076,22 @@ function effects() {
 	if (V.worn.genitals.cursed === 1 && V.worn.genitals.integrity <= 0) V.worn.genitals.type.push("broken");
 
 	if (V.worn.feet.type.includes("heels") && currentSkillValue("feetskill") < V.worn.feet.reveal) {
-		V.tiredness += (V.worn.feet.reveal - currentSkillValue("feetskill")) / 150;
+		const stamp = Number(Time?.date?.timeStamp); V.effectsTimeGuard ??= {};
+		if (Number.isFinite(stamp)) {
+			const last = Number(V.effectsTimeGuard.heelsFatigueTimestamp);
+
+			/* First render after installing/loading: seed only. This prevents F5/history from applying fatigue during render. */
+			if (!Number.isFinite(last)) {V.effectsTimeGuard.heelsFatigueTimestamp = stamp;}
+			else if (stamp > last) {
+				const elapsedHours = Math.min((stamp - last) / 3600, 24); V.effectsTimeGuard.heelsFatigueTimestamp = stamp;
+				const feetFatigue = ((V.worn.feet.reveal - currentSkillValue("feetskill")) / 150) * elapsedHours;
+				/*
+				* Route heel fatigue through the tiredness macro rather than direct V.tiredness writes.
+				* Positive tiredness macro values are multiplied by 15, so feetFatigue / 15 preserves the old raw value before normal modifiers.
+				*/
+				if (Number.isFinite(feetFatigue) && feetFatigue > 0) {wikifier("tiredness", feetFatigue / 15, 1);}
+			}
+		}
 	}
 
 	if (V.combat) sWikifier("<<pass $combatTimePass seconds>>");
@@ -2070,18 +2101,6 @@ function effects() {
 	V.menu = 0;
 
 	if (V.combat === 0 && V.ironmanmode === true) IronMan.scheduledSaves();
-
-	if (V.tirednessMaxScalingToggle) {
-		C.tiredness.max = 2000 + Math.floor(currentSkillValue("physique", 0, 1) / 32);
-	} else {
-		C.tiredness.max = 2000;
-	}
-
-	if (V.stressMaxScalingToggle) {
-		V.stressmax = 10000 + Math.floor(currentSkillValue("willpower", 0, 1) * 5);
-	} else {
-		V.stressmax = 10000;
-	}
 
 	sWikifier("<<blackmail-effects>>");
 	sWikifier("<<portalPantiesDisplay>>");

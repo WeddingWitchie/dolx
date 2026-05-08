@@ -82,6 +82,11 @@
 
 	<!-- sleephour repeats this until you have slept for the selected number of hours -->
 	<!-- if you select "just sleep", then you wake up when tiredness hits 0, or after 10 hours. -->
+	<<if typeof updateDynamicStatCaps is "function">><<run updateDynamicStatCaps()>><</if>>
+	<<set _sleepStartTiredness to $tiredness>>
+	<<set _sleepStartStress to $stress>>
+	<<set _sleepNoFatigueDropNotice to false>>
+
 	<<for $sleephour gte 1 or $sleephour lte -1>>
 		<<set $sleephour -= 1>>
 		<<if $avery_mansion and $bus is "avery_bedroom">>
@@ -340,6 +345,7 @@
 
 		<!-- Keep events above this comment -->
 		<<set $sleepHoursTotal += 1>><<set $sleepStat++>>
+		<<set _sleepHourStartTiredness to $tiredness>>
 
 		<!-- for "just sleep" option, if sleep is no longer required OR the player has slept for 10 hours, interrupt it. -->
 		<<if $sleephour lte -1 and ($tiredness lte 0 or $sleephour lte -11)>>
@@ -352,10 +358,6 @@
 		<<if !($sleeptrouble is 1 and $controlled is 0 and !$hypnosis_traits.slumber)>>
 			<<set _tiredness += 50>>
 			<<willpower-recovery `$willpower / 40`>> <!-- this slice of willpower recovery corresponds to no trauma --> 
-		<</if>>
-		<<if $hypnosis_traits.slumber>>
-			<<set _traumaToSleep to Math.floor($trauma / 100)>>
-			<<set _tiredness += _traumaToSleep>>
 		<</if>>
 		<<if $hypnosis_traits.slumber>>
 			<<set _traumaToSleep to Math.floor($trauma / 100)>>
@@ -392,7 +394,7 @@
 				<<set _tiredness to _tiredness * 0.8>>
 			<</if>>
 		<</if>>
-		<<set $tiredness -= Math.round(_tiredness)>>
+		<<set _sleepTirednessRecovery to Math.max(0, Math.round(_tiredness))>>
 
 		<<set Weather.BodyTemperature.addActivity("sleep")>>
 
@@ -402,12 +404,28 @@
 			<<pass 1 hour>>
 		<</if>>
 
+		/* Apply sleep recovery after hourly effects, so sleep is not immediately undone by the hour pass. */
+		<<set $tiredness -= _sleepTirednessRecovery>><<set $tiredness to Math.max(0, Math.round($tiredness))>>
+
 		<<if $nightmares gte 1 and $controlled is 0>>
 			<<stress 6>>
 		<</if>>
 
 		<<sleep_clamp>>/*Prevents bugged out values affecting events in anyway, -2000 fatigue and -360 stress arnt helpful*/
+		<<if _sleepHourStartTiredness gte C.tiredness.max and $tiredness gte _sleepHourStartTiredness>>
+			<<set _sleepNoFatigueDropNotice to true>>
+		<</if>>
 	<</for>>
+
+	<<if $sleepHoursTotal gt 0 and $tiredness gte _sleepStartTiredness>>
+		<<if $stress gt _sleepStartStress>>
+			<span class="red">You slept, but wake still exhausted and tense. Whatever rest you managed was swallowed by the strain on your body.</span><br>
+		<<else>>
+			<span class="red">You slept, but wake still exhausted. Whatever rest you managed barely took the edge off.</span><br>
+		<</if>>
+	<<elseif _sleepNoFatigueDropNotice and $tiredness gte C.tiredness.max>>
+		<span class="red">You slept, but wake still exhausted. The first hours of rest barely took the edge off.</span><br>
+	<</if>>
 <</widget>>
 
 <<widget "sleepeffects">>
