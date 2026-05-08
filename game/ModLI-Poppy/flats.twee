@@ -629,30 +629,39 @@ What would you like to give Poppy?
 
 :: Poppy Flats Gifts
 <<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>><<set $outside to 0>>
-<<set _gift to $gift.handheld_gift || $gift.handheld>><<wearProp _gift>>
-<<if T.poppyStatus and T.poppyStatus.includes("LowPatience")>>
-	Poppy glances at the food in your hands, then pointedly looks away.
+<<set _giftData to setup.foodstuff[$gift]>>
+<<if !_giftData>>
+	<<run console.warn("[Poppy Flats Gifts] Invalid gift key:", $gift)>>
+	Something goes wrong as you try to hand Poppy the gift.
 	<br><br>
-	"I'm not in the mood for gifts right now." <<He>> says flatly.
 	<<poppyOpiumPulse>><<set $eventskip to 1>><<handheldon>>
 	<<poppyFlatsMenu>>
 <<else>>
-	"I've made you a gift." you say. "I hope you like it."
-	<br><br>
-	<<if ["jammie_dodger", "rich_biscuit", "quiche"].includes($gift.name)>>
-		Before you could hold out the <<recipe_name $gift.name>>, Poppy's already giving you a knowing smirk. "I could smell it from a mile away."
+	<<set _gift to _giftData.name + (_giftData.food?.handheld_gift ? " gift" : "")>><<wearProp _gift>>
+	<<if T.poppyStatus and T.poppyStatus.includes("LowPatience")>>
+		Poppy glances at the food in your hands, then pointedly looks away.
 		<br><br>
-		When you present the <<recipe_name $gift.name>> to <<him>>, <<he>> thanks you as <<he>> takes it from your hand.
+		"I'm not in the mood for gifts right now," <<he>> says flatly.
+		<<poppyOpiumPulse>><<set $eventskip to 1>><<handheldon>>
+		<<poppyFlatsMenu>>
+	<<else>>
+		"I've made you a gift," you say. "I hope you like it."
 		<br><br>
-		Poppy takes a bite and groans in delight as the food hits <<his>> tastebuds. "This is delicious! How'd you know this is my favourite?"<<gglove>><<npcincr Poppy love 3>><<saveFavoriteFood "Poppy" $gift.name>><<if T.poppyLustUnlocked>><<glust>><<npcincr Poppy lust 2>><</if>>
-        <<earnFeat "Hungry Fox">>
-    <<else>>
-		You hold out the <<recipe_name $gift.name>>. Poppy's eyes widen in surprise. <<He>> is able to quickly recover from the shock and take the food from your hands with a smile.
-		<br><br>
-		"Oh my, this looks delicious! Did you make this yourself?" Poppy takes a bite and nods as <<he>> chews. "Yummy... Thank you for sharing this with me."<<glove>><<npcincr Poppy love 1>>
+		<<if ["jammie_dodger", "rich_biscuit", "quiche"].includes($gift)>>
+			Before you can hold out the <<recipe_name $gift>>, Poppy's already giving you a knowing smirk. "I could smell it from a mile away."
+			<br><br>
+			When you present the <<recipe_name $gift>> to <<him>>, <<he>> thanks you as <<he>> takes it from your hand.
+			<br><br>
+			Poppy takes a bite and groans in delight as the food hits <<his>> tastebuds. "This is delicious! How'd you know this is my favourite?"<<gglove>><<npcincr Poppy love 3>><<saveFavoriteFood "Poppy" $gift>><<if T.poppyLustUnlocked>><<glust>><<npcincr Poppy lust 2>><</if>>
+			<<earnFeat "Hungry Fox">>
+		<<else>>
+			You hold out the <<recipe_name $gift>>. Poppy's eyes widen in surprise. <<He>> quickly recovers and takes the food from your hands with a smile.
+			<br><br>
+			"Oh my, this looks delicious! Did you make this yourself?" Poppy takes a bite and nods as <<he>> chews. "Yummy... thank you for sharing this with me."<<glove>><<npcincr Poppy love 1>>
+		<</if>>
+		<<poppyOpiumPulse>><<set $eventskip to 1>><<handheldon>>
+		<<poppyFlatsMenu>>
 	<</if>>
-    <<poppyOpiumPulse>><<set $eventskip to 1>><<handheldon>>
-	<<poppyFlatsMenu>>
 <</if>>
 
 /* ============================================================
