@@ -1536,20 +1536,22 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 			if (V.hallucinogen >= 1 && V.substanceRebalance === 1) {
 				result = Math.round(result * (1 - 0.125 * Math.round(V.hallucinogen / 250)));
 			}
-			if (V.TFCatBuffs === 1) {
-				result = Math.round(result * 0.8);
-			}
-			if (V.TFBearBuffs === 1) {
-				result = Math.round(result * 1.3);
-			}
-			if (V.TFBirdBuffs === 1) {
-				result = Math.round(result * 0.8);
-			}
-			if (V.TFWaterDragonBuffs == 1) {
-				result = Math.round(result * 1.5);
-			}
-			if (V.TFFoxBuffs === 1) {
-				result = Math.round(result * 0.9);
+			if (V.DoLPTFBuffs === 1) {
+				if (V.TFCatBuffs === 1) {
+					result = Math.round(result * 0.8);
+				}
+				if (V.TFBearBuffs === 1) {
+					result = Math.round(result * 1.3);
+				}
+				if (V.TFBirdBuffs === 1) {
+					result = Math.round(result * 0.8);
+				}
+				if (V.TFWaterDragonBuffs === 1) {
+					result = Math.round(result * 1.5);
+				}
+				if (V.TFFoxBuffs === 1) {
+					result = Math.round(result * 0.9);
+				}
 			}
 			if (V.worn.upper.type.includes("heavy") || V.worn.lower.type.includes("heavy")) {
 				result *= V.physique / V.physiquesize / 3;
@@ -1569,29 +1571,31 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 			if (V.hallucinogen >= 1 && V.substanceRebalance === 1) {
 				result = Math.round(result * (1 - 0.125 * Math.round(V.hallucinogen / 250)));
 			}
-			if (V.TFWolfBuffs === 1) {
-				result = Math.round(result * 1.2);
-			}
-			if (V.TFCatBuffs === 1) {
-				result = Math.round(result * 1.1);
-			}
-			if (V.TFCowBuffs === 1) {
-				result = Math.round(result * 0.9);
-			}
-			if (V.TFBearBuffs === 1) {
-				result = Math.round(result * 1.2);
-			}
-			if (V.TFBirdBuffs === 1) {
-				result = Math.round(result * 1.2);
-			}
-			if (V.TFFoxBuffs === 1) {
-				result = Math.round(result * 1.1);
-			}
-			if (V.TFWaterDragonBuffs == 1) {
-				result = Math.round(result * 1.2);
-			}
-			if (V.TFBunnyBuffs === 1) {
-				result = Math.round(result * 1.5);
+			if (V.DoLPTFBuffs === 1) {
+				if (V.TFWolfBuffs === 1) {
+					result = Math.round(result * 1.2);
+				}
+				if (V.TFCatBuffs === 1) {
+					result = Math.round(result * 1.1);
+				}
+				if (V.TFCowBuffs === 1) {
+					result = Math.round(result * 0.9);
+				}
+				if (V.TFBearBuffs === 1) {
+					result = Math.round(result * 1.2);
+				}
+				if (V.TFBirdBuffs === 1) {
+					result = Math.round(result * 1.2);
+				}
+				if (V.TFFoxBuffs === 1) {
+					result = Math.round(result * 1.1);
+				}
+				if (V.TFWaterDragonBuffs === 1) {
+					result = Math.round(result * 1.2);
+				}
+				if (V.TFBunnyBuffs === 1) {
+					result = Math.round(result * 1.5);
+				}
 			}
 			if (V.worn.upper.type.includes("heavy") || V.worn.lower.type.includes("heavy")) {
 				result *= V.physique / V.physiquesize / 1.5;
@@ -1615,20 +1619,22 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 			if (V.hallucinogen >= 1 && V.substanceRebalance === 1) {
 				result = Math.round(result * (1 - 0.125 * Math.round(V.hallucinogen / 250)));
 			}
-			if (V.TFWolfBuffs === 1) {
-				result = Math.round(result * 1.1);
-			}
-			if (V.TFCatBuffs === 1) {
-				result = Math.round(result * 1.1);
-			}
-			if (V.TFCowBuffs === 1) {
-				result = Math.round(result * 0.8);
-			}
-			if (V.TFBearBuffs === 1) {
-				result = Math.round(result * 1.2);
-			}
-			if (V.TFBunnyBuffs === 1) {
-				result = Math.round(result * 0.8);
+			if (V.DoLPTFBuffs === 1) {
+				if (V.TFWolfBuffs === 1) {
+					result = Math.round(result * 1.1);
+				}
+				if (V.TFCatBuffs === 1) {
+					result = Math.round(result * 1.1);
+				}
+				if (V.TFCowBuffs === 1) {
+					result = Math.round(result * 0.8);
+				}
+				if (V.TFBearBuffs === 1) {
+					result = Math.round(result * 1.2);
+				}
+				if (V.TFBunnyBuffs === 1) {
+					result = Math.round(result * 0.8);
+				}
 			}
 			break;
 		case "tending":
@@ -1638,8 +1644,10 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 			if (V.hallucinogen >= 1 && V.substanceRebalance === 1) {
 				result = Math.round(result * (1 - 0.125 * Math.round(V.hallucinogen / 250)));
 			}
-			if (V.TFCowBuffs === 1) {
-				result = Math.round(result * 1.4);
+			if (V.DoLPTFBuffs === 1) {
+				if (V.TFCowBuffs === 1) {
+					result = Math.round(result * 1.4);
+				}
 			}
 			result = Math.round(result * (1 + 0.1 * V.sciencetrait));
 			break;
@@ -1659,17 +1667,19 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 			if (V.hallucinogen >= 1 && V.substanceRebalance === 1) {
 				result = Math.round(result * (1 - 0.125 * Math.round(V.hallucinogen / 250)));
 			}
-			if (V.TFWolfBuffs === 1) {
-				result = Math.round(result * 0.9);
-			}
-			if (V.TFCatBuffs === 1) {
-				result = Math.round(result * 0.9);
-			}
-			if (V.TFBearBuffs === 1) {
-				result = Math.round(result * 0.8);
-			}
-			if (V.TFBirdBuffs === 1) {
-				result = Math.round(result * 1.3);
+			if (V.DoLPTFBuffs === 1) {
+				if (V.TFWolfBuffs === 1) {
+					result = Math.round(result * 0.9);
+				}
+				if (V.TFCatBuffs === 1) {
+					result = Math.round(result * 0.9);
+				}
+				if (V.TFBearBuffs === 1) {
+					result = Math.round(result * 0.8);
+				}
+				if (V.TFBirdBuffs === 1) {
+					result = Math.round(result * 1.3);
+				}
 			}
 			break;
 		case "vaginalskill":
@@ -1725,20 +1735,22 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 			if (V.hallucinogen >= 1 && V.substanceRebalance === 1) {
 				result = Math.round(result * (1 - 0.125 * Math.round(V.hallucinogen / 250)));
 			}
-			if (V.TFCatBuffs === 1) {
-				result = Math.round(result * 1.2);
-			}
-			if (V.TFCowBuffs === 1) {
-				result = Math.round(result * 1.1);
-			}
-			if (V.TFBearBuffs === 1) {
-				result = Math.round(result * 0.9);
-			}
-			if (V.TFBirdBuffs === 1) {
-				result = Math.round(result * 1.1);
-			}
-			if (V.TFFoxBuffs === 1) {
-				result = Math.round(result * 1.2);
+			if (V.DoLPTFBuffs === 1) {
+				if (V.TFCatBuffs === 1) {
+					result = Math.round(result * 1.2);
+				}
+				if (V.TFCowBuffs === 1) {
+					result = Math.round(result * 1.1);
+				}
+				if (V.TFBearBuffs === 1) {
+					result = Math.round(result * 0.9);
+				}
+				if (V.TFBirdBuffs === 1) {
+					result = Math.round(result * 1.1);
+				}
+				if (V.TFFoxBuffs === 1) {
+					result = Math.round(result * 1.2);
+				}
 			}
 			break;
 	}
