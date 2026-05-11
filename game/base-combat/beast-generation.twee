@@ -126,25 +126,27 @@
 	<<set $NPCList[_n].description to _d[_i].pluck()>>
 	<<set $NPCList[_n].type to _t[_i]>>
 
+	/* Sets up beast multiple orgasms. Keep temporary orgasm state out of $NPCList.
+	   $NPCList is schema-validated, and .orgasms/.maxOrgasms trigger corruption warnings. */
+	<<set _npcMaxOrgasms to 1>>
 	<<if $beastMultiOrgasmToggle is 1>>
-		<<if !$NPCList[_n].maxOrgasms or $NPCList[_n].maxOrgasms lte 0>>
-			<<set _t to ["dog","cat","pig","wolf","dolphin","lizard","bear","boar","creature","horse","fox","hawk","cow","spider"]>>
-			<<switch $NPCList[_n].type>>
-				<<case "cat" "dolphin" "creature">>
-					<<set $NPCList[_n].maxOrgasms to 4>>
-				<<case "dog" "wolf" "pig" "bear" "boar" "horse" "cow">>
-					<<set $NPCList[_n].maxOrgasms to 3>>
-				<<case "lizard" "fox" "hawk" "spider">>
-					<<set $NPCList[_n].maxOrgasms to 2>>
-				<<default>>
-					<<set $NPCList[_n].maxOrgasms to 1>>
-			<</switch>>
+		<<switch $NPCList[_n].type>>
+			<<case "cat" "dolphin" "creature">>
+				<<set _npcMaxOrgasms to 4>>
+			<<case "dog" "wolf" "pig" "bear" "boar" "horse" "cow">>
+				<<set _npcMaxOrgasms to 3>>
+			<<case "lizard" "fox" "hawk" "spider">>
+				<<set _npcMaxOrgasms to 2>>
+			<<default>>
+				<<set _npcMaxOrgasms to 1>>
+		<</switch>>
+		<<if _npcMaxOrgasms gt 1 and $abomination isnot 1>>
+			<<if !$npcOrgasmState or typeof $npcOrgasmState isnot "object" or Array.isArray($npcOrgasmState)>>
+				<<set $npcOrgasmState to {}>>
+			<</if>>
+			<<set $npcOrgasmState[_n] to { max: _npcMaxOrgasms, count: 0 }>>
+			<<set $setupMidOrgasm to true>>
 		<</if>>
-		<<set $NPCList[_n].orgasms to 0>>
-	<</if>>
-
-	<<if $beastMultiOrgasmToggle is 1 and $NPCList[_n].maxOrgasms gt 1 and $abomination isnot 1>>
-		<<set $setupMidOrgasm to true>>
 	<</if>>
 
 	<<if $NPCList[_n].type is "wolf" or $NPCList[_n].type is "cat" or $NPCList[_n].type is "fox">>

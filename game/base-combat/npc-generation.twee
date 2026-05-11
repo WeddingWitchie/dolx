@@ -1025,47 +1025,22 @@
 
 	<<set $NPCList[_n].role to "normal">>
 
-	/*Sets up multiple orgasms, code needs work*/
-	/* <<set $NPCList[_n].maxOrgasms to 1>>
-	<<set $NPCList[_n].orgasms to 0>>
-
-	<<if $multiOrgasmToggle is 1>>
-		<<set _nameCheck to $NPCList[_n].fullDescription>>
-		
-		<<if ["Robin", "Kylar", "Sydney", "Leighton", "Gwylan"].includes(_nameCheck)>>
-			<<set $NPCList[_n].maxOrgasms to 2 + Math.floor($NPCName[$NPCNameList.indexOf(_nameCheck)].lust / 20)>>
-
-		<<elseif ["Doren","Quinn","Niki","Jordan","Harper","Landry","Morgan","River","Mason","Sam","Winter","Sirris","Darryl"].includes(_nameCheck)>>
-			<<set $NPCList[_n].maxOrgasms to 3 + Math.floor($NPCName[$NPCNameList.indexOf(_nameCheck)].lust / 20)>>
-
-		<<elseif ["Avery","Whitney","Remy","Wren","Alex","Charlie"].includes(_nameCheck)>>
-			<<set $NPCList[_n].maxOrgasms to 4 + Math.floor($NPCName[$NPCNameList.indexOf(_nameCheck)].lust / 20)>>
-
-		<<elseif ["Bailey","Briar","Eden","Black Wolf","Great Hawk","Ivory Wraith","Zephyr","Riley"].includes(_nameCheck)>>
-			<<set $NPCList[_n].maxOrgasms to 5 + Math.floor($NPCName[$NPCNameList.indexOf(_nameCheck)].lust / 20)>>
-
-		<<else>>
-			<<set $NPCList[_n].maxOrgasms += Math.floor(_i / 5)>>
+	/* Sets up generic NPC multiple orgasms. Do not store custom orgasm counters on $NPCList.
+	   $NPCList is schema-validated, and .orgasms/.maxOrgasms trigger corruption warnings. */
+	<<set _npcMaxOrgasms to 1>>
+	<<if $multiOrgasmToggle is 1 and $NPCList[_n].traits and $NPCList[_n].traits.includes("multi-orgasmic")>>
+		<<set _npcMaxOrgasms to 1 + Math.floor(_i / 5) + [0,0,0,0,0,0,1,1,1,2].random()>>
+		<<if $NPCList[_n].gender is "m">>
+			<<set _npcMaxOrgasms to Math.floor(_npcMaxOrgasms / 2)>>
 		<</if>>
-
-	<</if>> */
-
-	<<if $NPCList[_n].traits.includes("multi-orgasmic")>>
-		<<if !$NPCList[_n].maxOrgasms or $NPCList[_n].maxOrgasms lte 0>>
-			<<set $NPCList[_n].maxOrgasms = 1 + Math.floor(_i / 5) + [0,0,0,0,0,0,1,1,1,2].random()>>
-
-			<<if $NPCList[_n].gender is "m">>
-				<<set $NPCList[_n].maxOrgasms to Math.floor($NPCList[_n].maxOrgasms / 2)>>
+		<<set _npcMaxOrgasms to Math.clamp(_npcMaxOrgasms, 1, 5)>>
+		<<if _npcMaxOrgasms gt 1 and $abomination isnot 1>>
+			<<if !$npcOrgasmState or typeof $npcOrgasmState isnot "object" or Array.isArray($npcOrgasmState)>>
+				<<set $npcOrgasmState to {}>>
 			<</if>>
-
-			<<set $NPCList[_n].maxOrgasms to Math.clamp($NPCList[_n].maxOrgasms, 1, 5)>>
+			<<set $npcOrgasmState[_n] to { max: _npcMaxOrgasms, count: 0 }>>
+			<<set $setupMidOrgasm to true>>
 		<</if>>
-		<<set $NPCList[_n].orgasms to 0>>
-		
-	<</if>>
-
-	<<if $multiOrgasmToggle is 1 and $NPCList[_n].maxOrgasms gt 1 and $abomination isnot 1>>
-		<<set $setupMidOrgasm to true>>
 	<</if>>
 
 	<<if $NPCList[_n].pronoun is "m">>

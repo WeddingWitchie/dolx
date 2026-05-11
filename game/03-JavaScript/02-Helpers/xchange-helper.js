@@ -571,3 +571,10 @@ function updateDynamicStatCaps() {
 	}
 }
 window.updateDynamicStatCaps = updateDynamicStatCaps;
+
+if (Array.isArray(V.NPCList)) {
+	V.NPCList.forEach(npc => {if (npc && typeof npc === "object") {delete npc.orgasms; delete npc.maxOrgasms;}});
+}
+if (!V.npcOrgasmState || typeof V.npcOrgasmState !== "object" || Array.isArray(V.npcOrgasmState)) {
+	V.npcOrgasmState = {};
+}
