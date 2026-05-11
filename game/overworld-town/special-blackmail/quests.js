@@ -415,7 +415,7 @@ blackmailQuests.low.push( // Clean 3 chalets in uniform without underwear
 			else if (V.player.sex == "f") {
 				wikifier("generalWear", "upper", 12); // Maid dress
 			}
-			wikifier("generalWear", "handheld", 12); // Feather duster
+			wikifier("generalWear", "handheld", 10); // Feather duster
 			wikifier("updatesidebarimg");
 		},
 		onDayCleared: function() { 
