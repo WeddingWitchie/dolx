@@ -1,12 +1,12 @@
 /* ==============================================================
- * Poppy core functions were moved here on purpose.
+ * POPPY CORE FUNCTIONS WERE MOVED HERE ON PURPOSE
  * ==============================================================
  * The core Poppy functions were separated into this file to:
- * 1. avoid overpopulating the vanilla named NPC system,
- * 2. keep upstream merge conflicts smaller,
- * 3. make mod-specific behaviour easier to find,
- * 4. keep vanilla files cleaner and more readable,
- * 5. reduce the chance of unrelated regressions in shared NPC code.
+ * 1. avoid overpopulating the vanilla named NPC system
+ * 2. keep upstream merge conflicts smaller
+ * 3. make mod-specific behaviour easier to find
+ * 4. keep vanilla files cleaner and more readable
+ * 5. reduce the chance of unrelated regressions in shared NPC code
  *
  * This means named-npc.js should only keep the minimum integration
  * points needed to recognise and route Poppy through the normal NPC
@@ -20,8 +20,7 @@ function poppyStatusCheck(poppy = C.npc.Poppy) {
 	// Strict validation only (no silent auto-initialization here)
 	const missing =
 		!V.daily || !V.daily.poppy ||
-		!poppy.timer ||
-		poppy.timer.lastInteraction == null || poppy.timer.lastInteraction === "" ||
+		!poppy.timer || poppy.timer.lastInteraction == null || poppy.timer.lastInteraction === "" ||
 		typeof poppy.patience !== "number" || Number.isNaN(poppy.patience) ||
 		!Array.isArray(V.poppySeen);
 	if (missing) {
@@ -42,10 +41,7 @@ function poppyStatusCheck(poppy = C.npc.Poppy) {
 
 	// Patience is stored as a signed value (-100..100) in poppy.patience.
 	// anger is a display-only mirror and is never read back.
-	// This means <<npcincr Poppy patience N>> works correctly without a wrapper.
-	//
-	// One-time migration for old saves that used split storage
-	// (patience = positive side 0-100, anger = negative magnitude 0-100):
+	// This means "npcincr Poppy patience N" works correctly without a wrapper.
 	{
 		const _sp = Number(poppy.patience) || 0;
 		const _sa = Number(poppy.anger)    || 0;
@@ -57,7 +53,6 @@ function poppyStatusCheck(poppy = C.npc.Poppy) {
 		// _sp > 0 : positive patience, no change.
 	}
 
-
 	// Clamp signed value to -100..100
 	poppy.patience = Math.max(-100, Math.min(100, Number(poppy.patience) || 0));
 
@@ -65,8 +60,7 @@ function poppyStatusCheck(poppy = C.npc.Poppy) {
 	T.poppyPatienceRaw = poppy.patience;
 
 	// Split into UI-facing values (Sydney-style dual-face display)
-	T.poppyPatience = Math.max(0,  poppy.patience);
-	T.poppyAnger    = Math.max(0, -poppy.patience);
+	T.poppyPatience = Math.max(0, poppy.patience); T.poppyAnger = Math.max(0, -poppy.patience);
 
 	// Patience stays signed, do NOT overwrite with the positive-only display value.
 	// anger is a display-only mirror; it is never used for reconstruction.
@@ -131,6 +125,21 @@ function poppyDailyPatienceDecay(daysPassed = 1, poppy = C.npc.Poppy) {
 	if (!V.daily || !V.daily.poppy || !Array.isArray(V.poppySeen) || !poppy.timer) return;
 	if (typeof poppy.patience !== "number" || Number.isNaN(poppy.patience)) return;
 
+	// Decay policy:
+	//   • Non-LI no decay at all.
+	//     Patience is a relationship-pressure stat; without a romantic stake
+	//     there is nothing to slip from, so we leave it untouched.
+	//   • LI
+	//       – interacted that day  → 0 decay (the check is passed)
+	//       – missed that day      → 2 decay (the check is failed)
+	const isLI = typeof V.poppyromance === "number" && V.poppyromance >= 0;
+	if (!isLI) {
+		// Still stamp the decay timer so the date-roll bookkeeping moves on,
+		// otherwise the same days could be "re-processed" if the player later becomes an LI.
+		poppy.timer.lastPatienceDecay = Time.date.timeStamp;
+		return;
+	}
+
 	const processedDays = Math.max(0, Number(daysPassed) || 0);
 	if (processedDays <= 0) return;
 
@@ -141,16 +150,19 @@ function poppyDailyPatienceDecay(daysPassed = 1, poppy = C.npc.Poppy) {
 
 	/*
 		We are currently on Time.days.
-		If daysPassed is 2 and Time.days is 10,
-		the ended days being scored are 8 and 9.
+		If daysPassed is 2 and Time.days is 10, the ended days being scored are 8 and 9.
 	*/
 	for (let i = 0; i < processedDays; i++) {
 		const endedDay = Time.days - processedDays + i;
-		const decay = lastInteractionDay >= endedDay ? 1 : 5;
+		// Pass = interaction stamped on (or after) the day being scored.
+		const passed = lastInteractionDay >= endedDay;
+		const decay = passed ? 0 : 2;
 
-		poppy.patience -= decay;
-		poppy.patience = Math.max(-100, Math.min(100, Number(poppy.patience) || 0));
-		poppy.anger = Math.max(0, -poppy.patience);
+		if (decay !== 0) {
+			poppy.patience -= decay;
+			poppy.patience = Math.max(-100, Math.min(100, Number(poppy.patience) || 0));
+			poppy.anger = Math.max(0, -poppy.patience);
+		}
 	}
 
 	poppy.timer.lastPatienceDecay = Time.date.timeStamp;
@@ -194,20 +206,23 @@ function poppySchedule() {
 	}
 
 	// Time.minutesSinceMidnight is defined in time.js as Time.hour*60 + Time.minute.
-	// Several twee scenes also rely on this same property (e.g. the lake event), so
-	// we use the canonical name here for consistency.
+	// Several twee scenes also rely on this same property (e.g. the lake event), 
+	// so we use the canonical name here for consistency.
 	const mins = Time.minutesSinceMidnight;
 	const isWeekend = Time.isWeekEnd();
 	const isSchoolDay = Time.schoolDay;
 	// weekDay convention from time.js: 1 = Sunday ... 7 = Saturday.
-	// Tuesday = 3, Thursday = 5 — matches housekeeping.twee's [3, 5] check.
+	// Tuesday = 3, Thursday = 5 to matches housekeeping.twee's [3, 5] check.
 	const isLessonDay = isSchoolDay && (Time.weekDay === 3 || Time.weekDay === 5); // Tue + Thu
+	// School holiday = any day outside the school term. 
+	// During holidays Poppy is not running her housekeeping schedule, 
+	// so route those days through the weekend timetable
+	// otherwise the player has no way to bump into her at the lake / cafe / soup kitchen during the weeks-long holiday breaks.
+	const onHoliday = !Time.schoolTerm;
+	const useWeekendTimetable = isWeekend || onHoliday;
 
 	const at = (start, end) => mins >= start && mins < end;
-
-	let loc = "flatApartment";
-	let msg = "apartment";
-	let nightActive = 0;
+	let loc = "flatApartment"; let msg = "apartment"; let nightActive = 0;
 
 	// ---------- Shared daily timetable (applies every day) ----------
 	if (at(1380, 1440) || at(0, 60)) {
@@ -241,8 +256,10 @@ function poppySchedule() {
 		}
 		// 4PM–6PM on school days: no explicit slot → stays at flatApartment (home after prep)
 	}
-	// ---------- Weekend / holiday timetable ----------
-	else if (isWeekend) {
+	// ---------- Weekend / school-holiday timetable ----------
+	// Same slots whether it's a normal weekend day or a weekday during a school holiday 
+	// Poppy isn't at school either way, so their routine is the same.
+	else if (useWeekendTimetable) {
 		if (at(420, 540)) {
 			// 7–9AM: visiting Bailey's office
 			loc = "baileyOffice"; msg = "bailey";
@@ -289,8 +306,11 @@ DefineMacro("poppySchedule", poppySchedule);
 DefineMacro("poppyRefreshSchedule", poppySchedule); 
 
 
-
-/* global V, T, C, Time, DefineMacro, statChange */
+/* 
+ * ==============================================================
+ * global V, T, C, Time, DefineMacro, statChange
+ * ==============================================================
+ */
 (function () {
 	"use strict";
 

@@ -43,7 +43,7 @@ Your vision adjusts to the painfully bright light of the place. You realise that
 "You're a good-for-nothing asshole. I would kill you, but where's the fun in that?" Poppy tilts <<his>> head. "I thought you'd make a good cocksleeve. At least then you'll be of some use for some horny bastard."
 <br><br>
 <<if !$poppySeen.includes("poppy_tf_revealed")>>
-	<<set $poppySeen.push("poppy_tf_revealed")>><<run statusCheck("Poppy")>>
+	<<set $poppySeen.push("poppy_tf_revealed")>>
 	You see that Poppy has a tail similar to a fox, a pair of darkened wings, fox ears that twitch angrily, and a dark halo round <<his>> head. <<His>> eyes mock you. "How pitiful is it that <span class="purple">only now you truly understand</span>?" <<He>> growls out.
 	<br><br>
 <</if>>
@@ -96,7 +96,7 @@ You aren't sure how long you were in the van, but it eventually comes to a stop.
 
 /* LOCKED FLAT */
 :: Flats Poppy Locked
-<<set $location to "flats">><<set $outside to 0>><<effects>><<run poppySchedule()>><<run statusCheck("Poppy")>>
+<<set $location to "flats">><<set $outside to 0>><<effects>><<run poppySchedule()>>
 <<set $poppyFlat.lockedAttempts to (typeof $poppyFlat.lockedAttempts is "number" ? $poppyFlat.lockedAttempts : 0)>>
 You stop outside Poppy's flat.
 <br><br>
@@ -231,7 +231,7 @@ You leave something by the door.
 :: Widgets Poppy Dismissal [widget]
 <<widget "poppyDismissalStreetCheck">>
 	<<if !$poppyDismissalFired>>
-		<<run poppySchedule()>><<run statusCheck("Poppy")>>
+		<<run poppySchedule()>>
 		<<if $poppyDismissalWatched is 1>>
 			/* Already hunting, keep the pressure visible while conditions hold. */
 			<<if T.poppyAnger gte 100 and ($location is "alley" or Time.hour gte 23 or Time.hour lte 5)>>
@@ -255,7 +255,7 @@ You leave something by the door.
 <</widget>>
 
 <<widget "poppyDismissalWatched">>
-	<<run poppySchedule()>><<run statusCheck("Poppy")>><<set $poppyDismissalTimer -= 1>>
+	<<run poppySchedule()>><<set $poppyDismissalTimer -= 1>>
 	/* Escape valve: if Poppy's anger dropped below max (patched up off-screen), abort the hunt cleanly. */
 	<<if T.poppyAnger lt 100>>
 		<<set $poppyDismissalWatched to 0>>
@@ -296,4 +296,35 @@ You leave something by the door.
 	<br><br>
     <<endevent>>
 	<<destinationeventend>>
+<</widget>>
+
+<<widget "poppyStreetNecklace">>
+	<<npc Poppy>><<person1>>
+	You see a figure from the corner of your eye. You turn to see who it was and to your shock, <span class="purple">it's Poppy</span>. 
+	<br><br>
+	<<Hes>> walking out from one of the houses while twirling a gold necklace on <<his>> finger. Sensing your gaze, Poppy's head snaps your way with a glare. 
+	<br><br>
+	When <<he>> realised who it was, <<he>> quickly regained <<his>> composure. "Oh, it was just you." <<He>> laughs awkwardly and saunters over to you. "Don't tell anyone okay?" <<He>> whispers into your ear.
+	<<arousal 200>><<garousal>>
+	<br><br>
+	Before you realise it, Poppy has already pushed the gold necklace into your hands. "You're my accomplice now." <<He>> winks at you with a wide grin playing on <<his>> lips as Poppy scurries off into an alleyway.
+	<<set $antiquemoney += 1000>><<poppyOpiumPulse>><<endevent>>
+	<<destinationeventend>>
+<</widget>>
+
+<<widget "poppyStreetBadDate">>
+	<<effects>><<set $outside to 0>><<set $weekly.poppyStreetBadDate to true>>
+	<<npc Poppy>><<person1>><<run markPoppyInteraction()>>
+	<<if $location is "alley">>
+		You are in an alleyway. Brick walls hem the passage in on either side, and the sounds of the street feel muffled here.
+	<<else>>
+		You are in the street. Shops and houses crowd the roadside, and people drift past at their own pace.
+	<</if>>
+	<br><br>
+	Something grabs your wrist. You turn around to see Poppy with a smile that doesn't reach <<his>> eyes. 
+	<br><br>
+	"Hey. Do you have time? How about we go on a date?" <<His>> grip on your wrist tightens a fraction, like a pulse. You were sure you imagined it.<<stress 1>><<gstress>>
+	<<poppyOpiumPulse>>
+	<<link [[Go with Poppy|Street Poppy Bad Date Accept]]>><</link>><br>
+	<<link [[Say that you're busy|Street Poppy Bad Date Busy]]>><</link>>
 <</widget>>
