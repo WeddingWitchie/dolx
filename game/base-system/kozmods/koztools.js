@@ -617,6 +617,30 @@ function updateDynamicStatCaps() {
 }
 window.updateDynamicStatCaps = updateDynamicStatCaps;
 
+function dolxRepairMissingJewelleryWornSlots(context = "clothing render") {
+	if (!V?.worn || !setup?.clothes) return;
+
+	const warn = typeof window.dolxWarnOnce === "function"
+		? (key, msg, value) => window.dolxWarnOnce(key, msg, value)
+		: (_key, msg, value) => console.warn(msg, value);
+
+	for (const slot of ["earrings", "rings"]) {
+		if (V.worn[slot] && typeof V.worn[slot] === "object") continue;
+
+		const fallback = setup.clothes[slot]?.[0];
+		if (!fallback) continue;
+
+		warn(
+			`missing-worn-jewellery:${slot}`,
+			`[DoLX] Missing $worn.${slot} during ${context}; repairing with default naked ${slot}.`,
+			V.worn[slot]
+		);
+
+		V.worn[slot] = clone(fallback);
+	}
+}
+window.dolxRepairMissingJewelleryWornSlots = dolxRepairMissingJewelleryWornSlots;
+
 if (Array.isArray(V.NPCList)) {
 	V.NPCList.forEach(npc => {if (npc && typeof npc === "object") {delete npc.orgasms; delete npc.maxOrgasms;}});
 }
