@@ -91,7 +91,8 @@
 			<<elseif playerHasStrapon()>>
 				<span class="pink">You are overcome by sensation and climax under your strap-on.</span>
 			<<elseif $penisuse is "othervagina">>
-				<<if $NPCList[$penistarget].vagina is "penis">>
+				<<set _penisTargetNpc to Array.isArray($NPCList) ? $NPCList[$penistarget] : null>>
+				<<if _penisTargetNpc and _penisTargetNpc.vagina is "penis">>
 					<<personselect $penistarget>>
 					<<penileejacstat>>
 					<span class="pink">You are overcome by sensation and ejaculate<<if _cumDesc isnot "cum">> _cumDesc<</if>> deep into <<his>> womb.</span>
@@ -112,9 +113,9 @@
 					<</if>>
 					<<if $abomination is 1>>
 						/*ToDo: Pregnancy, figure out how the Wraith, plantpeople, etc will handle pregnancy.*/
-					<<elseif $npcrow.includes($penistarget)>>
-						<<recordSperm `{target: $NPCList[$penistarget].fullDescription, spermOwner: "pc", spermType: "human", rngModifier: _orgasmSpermRng}`>>
-					<<elseif $NPCList[$penistarget].pregnancy is 0 and ["realistic", "fetish"].includes($settings.pregnancyType)>>
+					<<elseif Array.isArray($npcrow) and $npcrow.includes($penistarget)>>
+						<<recordSperm `{target: _penisTargetNpc.fullDescription, spermOwner: "pc", spermType: "human", rngModifier: _orgasmSpermRng}`>>
+					<<elseif _penisTargetNpc.pregnancy is 0 and ["realistic", "fetish"].includes($settings.pregnancyType)>>
 						/* Pregnancy Count */
 						<<set $_count to Object.values($storedNPCs).reduce((prev, curr) => {
 							if(curr.pregnancy) return prev + 1;
@@ -131,60 +132,70 @@
 						<<set $_impregnatedChance to Math.floor($_impregnatedChance * (_orgasmSpermRng / 100))>>
 						/*If random NPC is impregnated, store NPC and fetus*/
 						<<if ($_impregnatedChance gte random(0,200) or _npcForceImpregnation)>>
-							<<switch $NPCList[$penistarget].type>>
-								<<case "human">><<set $_pregnancy to pregnancyGenerator.human(V.NPCList[$penistarget], "pc", true)>>
-								<<case "wolf">><<set $_pregnancy to pregnancyGenerator.wolf(V.NPCList[$penistarget], "pc", true, "vagina", false)>>
-								<<case "wolfgirl" "wolfboy">><<set $_pregnancy to pregnancyGenerator.wolf(V.NPCList[$penistarget], "pc", true, "vagina", true)>>
+							<<switch _penisTargetNpc.type>>
+								<<case "human">><<set $_pregnancy to pregnancyGenerator.human(_penisTargetNpc, "pc", true)>>
+								<<case "wolf">><<set $_pregnancy to pregnancyGenerator.wolf(_penisTargetNpc, "pc", true, "vagina", false)>>
+								<<case "wolfgirl" "wolfboy">><<set $_pregnancy to pregnancyGenerator.wolf(_penisTargetNpc, "pc", true, "vagina", true)>>
 							<</switch>>
 							<<if $_pregnancy and !(typeof $_pregnancy is "string" || $_pregnancy instanceof String)>>
 								<<if $consensual is 1 and ((random(0, 1 + $_count) is 0 and $_count lte 10) or (setup.pregnancy.randomAlwaysKeep.includes($location) and $_count lte 15))>>
 									<<storeNPC $penistarget "pregnancy">>
 									<<set $storedNPCs[_lastStoredName].pregnancy to $_pregnancy>>
 								<</if>>
-								<<if $settings.pregnancyType is "fetish">><<set _npcIsNowPregnant to $NPCList[$penistarget].fullDescription>><</if>>
-								<<set $NPCList[$penistarget].pregnancy to 1>>
+								<<if $settings.pregnancyType is "fetish">><<set _npcIsNowPregnant to _penisTargetNpc.fullDescription>><</if>>
+								/* _penisTargetNpc holds a reference to the live NPC object, not a clone. Mutations here persist on the actual $NPCList entry. */
+								<<set _penisTargetNpc.pregnancy to 1>>
 							<</if>>
 						<</if>>
 					<</if>>
-				<<elseif $NPCList[$penistarget].vagina is "penisimminent" or $NPCList[$penistarget].vagina is "penisentrance">>
+				<<elseif _penisTargetNpc and (_penisTargetNpc.vagina is "penisimminent" or _penisTargetNpc.vagina is "penisentrance")>>
 					<<personselect $penistarget>>
 					<span class="pink">You are overcome by sensation and ejaculate<<if _cumDesc isnot "cum">> _cumDesc<</if>> on <<his>> pussy.</span>
 				<</if>>
 			<<elseif $penisuse is "otheranus">>
 				<<for $_i = 0; $_i lt $enemynomax; $_i++>>
-					<<if $NPCList[$_i].penis is "otheranus" or $NPCList[$_i].vagina is "otheranus">>
-						<<personselect $_i>>
-						<<penileejacstat>>
-						<span class="pink">You are overcome by sensation and ejaculate<<if _cumDesc isnot "cum">> _cumDesc<</if>> deep into <<his>> bowels.</span>
-						<<internalejac>><<creampie "npc" "anus">><<fillOther>>
-					<<elseif $NPCList[$_i].penis is "otheranusimminent" or $NPCList[$_i].penis is "otheranusentrance" or $NPCList[$_i].vagina is "otheranusimminent" or $NPCList[$_i].vagina is "otheranusentrance">>
-						<<personselect $_i>>
-						<span class="pink">You are overcome by sensation and ejaculate<<if _cumDesc isnot "cum">> _cumDesc<</if>> on <<his>> ass.</span>
+					<<set _orgasmNpc to Array.isArray($NPCList) ? $NPCList[$_i] : null>>
+					<<if _orgasmNpc>>
+						<<if _orgasmNpc.penis is "otheranus" or _orgasmNpc.vagina is "otheranus">>
+							<<personselect $_i>>
+							<<penileejacstat>>
+							<span class="pink">You are overcome by sensation and ejaculate<<if _cumDesc isnot "cum">> _cumDesc<</if>> deep into <<his>> bowels.</span>
+							<<internalejac>><<creampie "npc" "anus">><<fillOther>>
+						<<elseif _orgasmNpc.penis is "otheranusimminent" or _orgasmNpc.penis is "otheranusentrance" or _orgasmNpc.vagina is "otheranusimminent" or _orgasmNpc.vagina is "otheranusentrance">>
+							<<personselect $_i>>
+							<span class="pink">You are overcome by sensation and ejaculate<<if _cumDesc isnot "cum">> _cumDesc<</if>> on <<his>> ass.</span>
+						<</if>>
 					<</if>>
 				<</for>>
 			<<elseif $penisuse is "othermouth">>
 				<<for $_i = 0; $_i lt $enemynomax; $_i++>>
-					<<if $NPCList[$_i].mouth is "penis">>
-						<<personselect $_i>>
-						<<penileejacstat>>
-						<span class="pink">You are overcome by sensation and ejaculate<<if _cumDesc isnot "cum">> _cumDesc<</if>> into <<his>> mouth.</span>
-						<<internalejac>><<creampie "npc" "mouth">><<fillOther>>
-					<<elseif $NPCList[$_i].mouth is "penisimminent" or $NPCList[$_i].mouth is "penisentrance">>
-						<<personselect $_i>>
-						<span class="pink">You are overcome by sensation and ejaculate<<if _cumDesc isnot "cum">> _cumDesc<</if>> on <<his>> face.</span>
+					<<set _orgasmNpc to Array.isArray($NPCList) ? $NPCList[$_i] : null>>
+					<<if _orgasmNpc>>
+						<<if _orgasmNpc.mouth is "penis">>
+							<<personselect $_i>>
+							<<penileejacstat>>
+							<span class="pink">You are overcome by sensation and ejaculate<<if _cumDesc isnot "cum">> _cumDesc<</if>> into <<his>> mouth.</span>
+							<<internalejac>><<creampie "npc" "mouth">><<fillOther>>
+						<<elseif _orgasmNpc.mouth is "penisimminent" or _orgasmNpc.mouth is "penisentrance">>
+							<<personselect $_i>>
+							<span class="pink">You are overcome by sensation and ejaculate<<if _cumDesc isnot "cum">> _cumDesc<</if>> on <<his>> face.</span>
+						<</if>>
 					<</if>>
 				<</for>>
 			<<elseif $penisuse is "otherpenis">>
 				<<for $_i = 0; $_i lt $enemyno; $_i++>>
-					<<if $NPCList[$_i].penis is "penis">>
-						<<personselect $_i>>
-						<<penileejacstat>>
-						<span class="pink">You are overcome by sensation and ejaculate<<if _cumDesc isnot "cum">> _cumDesc<</if>> over <<his>> penis.</span>
-						<<internalejac>><<fillOther>>
-						<!-- <<creampie "npc" "penis">> -->
-					<<elseif $NPCList[$_i].penis is "penisimminent" or $NPCList[$_i].penis is "penisentrance">>
-						<<personselect $_i>>
-						<span class="pink">You are overcome by sensation and ejaculate<<if _cumDesc isnot "cum">> _cumDesc<</if>> over <<his>> cock and stomach.</span>
+					<<set _orgasmNpc to Array.isArray($NPCList) ? $NPCList[$_i] : null>>
+					<<if _orgasmNpc>>
+						<<if _orgasmNpc.penis is "penis">>
+							<<personselect $_i>>
+							<<penileejacstat>>
+							<span class="pink">You are overcome by sensation and ejaculate<<if _cumDesc isnot "cum">> _cumDesc<</if>> over <<his>> penis.</span>
+							<<internalejac>><<fillOther>>
+							<!-- <<creampie "npc" "penis">> -->
+						<<elseif _orgasmNpc.penis is "penisimminent" or _orgasmNpc.penis is "penisentrance">>
+							<<personselect $_i>>
+							<span class="pink">You are overcome by sensation and ejaculate<<if _cumDesc isnot "cum">> _cumDesc<</if>> over <<his>> cock and stomach.</span>
+						<</if>>
 					<</if>>
 				<</for>>
 			<<elseif $penisuse is "tentacle">>
@@ -345,35 +356,38 @@
 			<<if $combat is 1>><<set $speechmilk to 1>><</if>>
 		<<elseif $combat is 1 and ($cheststate is "chest" or $cheststate is "chestimminent") and $settings.breastFeedingEnabled>>
 			<<for $_i = 0; $_i lt $enemynomax; $_i++>>
-				<<if $NPCList[$_i].mouth is "chest">>
-					<<personselect $_i>>
-					<<if $milk_amount gte (($milk_volume / 3) * 2) and $milk_amount gte 2500>>
-						<<if $milk_amount gte 2500>>
-							<span class="pink">Your orgasm makes your <<breasts>> start spraying milk. You flood <<his>> mouth, and <<hes>> forced to disengage, coughing.</span>
-							<<breastfeed 10>>
-							<<set $cheststate to "chestimminent">><<set $NPCList[$_i].mouth to "chestimminent">>
-							<<milkvolume 1>><<set $enemyanger += 10>>
-							<<set $speechmilk to 3>>
+				<<set _orgasmNpc to Array.isArray($NPCList) ? $NPCList[$_i] : null>>
+				<<if _orgasmNpc>>
+					<<if _orgasmNpc.mouth is "chest">>
+						<<personselect $_i>>
+						<<if $milk_amount gte (($milk_volume / 3) * 2) and $milk_amount gte 2500>>
+							<<if $milk_amount gte 2500>>
+								<span class="pink">Your orgasm makes your <<breasts>> start spraying milk. You flood <<his>> mouth, and <<hes>> forced to disengage, coughing.</span>
+								<<breastfeed 10>>
+								<<set $cheststate to "chestimminent">><<set _orgasmNpc.mouth to "chestimminent">>
+								<<milkvolume 1>><<set $enemyanger += 10>>
+								<<set $speechmilk to 3>>
+							<<else>>
+								<span class="pink">Your orgasm makes your <<breasts>> start spraying milk. <<He>> struggles to drink it all down.</span>
+								<<breastfeed 8>><<milkvolume 1>><<sex 2 "breast" $_i>>
+								<<set $speechmilk to 1>>
+							<</if>>
 						<<else>>
-							<span class="pink">Your orgasm makes your <<breasts>> start spraying milk. <<He>> struggles to drink it all down.</span>
-							<<breastfeed 8>><<milkvolume 1>><<sex 2 "breast" $_i>>
+							<span class="pink">Your orgasm makes your <<breasts>> leak even more milk into <<his>> eager mouth.</span>
+							<<breastfeed 4>><<milkvolume 1>><<sex 2 "breast" $_i>>
 							<<set $speechmilk to 1>>
 						<</if>>
-					<<else>>
-						<span class="pink">Your orgasm makes your <<breasts>> leak even more milk into <<his>> eager mouth.</span>
-						<<breastfeed 4>><<milkvolume 1>><<sex 2 "breast" $_i>>
-						<<set $speechmilk to 1>>
-					<</if>>
-				<<elseif $NPCList[$_i].mouth is "chestimminent" or $NPCList[$_i].mouth is "chestentrance">>
-					<<personselect $_i>>
-					<<if $milk_amount gte (($milk_volume / 3) * 2) and $milk_amount gte 2500>>
-						<span class="pink">Your orgasm makes your <<breasts>> start spraying milk all over <<his>> face.</span>
-						<<breastfeed 8>>
-						<<set $speechmilk to 2>>
-					<<else>>
-						<span class="pink">Your orgasm makes your <<breasts>> leak milk.</span>
-						<<breastfeed 3>>
-						<<set $speechmilk to 1>>
+					<<elseif _orgasmNpc.mouth is "chestimminent" or _orgasmNpc.mouth is "chestentrance">>
+						<<personselect $_i>>
+						<<if $milk_amount gte (($milk_volume / 3) * 2) and $milk_amount gte 2500>>
+							<span class="pink">Your orgasm makes your <<breasts>> start spraying milk all over <<his>> face.</span>
+							<<breastfeed 8>>
+							<<set $speechmilk to 2>>
+						<<else>>
+							<span class="pink">Your orgasm makes your <<breasts>> leak milk.</span>
+							<<breastfeed 3>>
+							<<set $speechmilk to 1>>
+						<</if>>
 					<</if>>
 				<</if>>
 			<</for>>
@@ -616,7 +630,8 @@
 			<br><span class="green">You feel that your orgasms are more intense when you can't breathe, and you like it.</span>
 		<</if>>
 	<</if>>
-	<<if ($halloween is 1 or $NPCList[0].fullDescription is "Ivory Wraith") and random(1, 10000) is 10000>>
+	<<set _firstOrgasmNpc to Array.isArray($NPCList) ? $NPCList[0] : null>>
+	<<if ($halloween is 1 or (_firstOrgasmNpc and _firstOrgasmNpc.fullDescription is "Ivory Wraith")) and random(1, 10000) is 10000>>
 		<span class="pink">Bustin' makes you feel good.</span>
 	<</if>>
 	

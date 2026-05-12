@@ -747,9 +747,31 @@ function updateOptions() {
 		const tmpButtons = T.buttons;
 		const tmpKey = T.key;
 
-		if (!State.restore(true)) return; // don't do anything if state couldn't be restored
-		V.options = optionsData;
-		State.show();
+		/*
+			Do not force-refresh a rewound/history state.
+
+			In SugarCube, State.length is the active past-history length
+			and State.size is the full in-play history size. During normal
+			forward play they match. If State.size is greater than State.length,
+			the player is viewing a rewound/history moment with future moments
+			still present.
+
+			Re-rendering that moment can re-run stateful passage code after
+			combat/NPC state has already moved on or been cleared.
+		*/
+		const viewingHistory = State.size > State.length;
+
+		if (viewingHistory) {
+			V.options = optionsData;
+
+			console.warn("[DoLX] Skipped options passage refresh while viewing history state.", {
+				passage: V.passage, statePassage: State.passage, stateLength: State.length, stateSize: State.size,
+			});
+		} else {
+			if (!State.restore(true)) return; // don't do anything if state couldn't be restored
+			V.options = optionsData;
+			State.show();
+		}
 
 		T.key = tmpKey;
 		T.buttons = tmpButtons;
