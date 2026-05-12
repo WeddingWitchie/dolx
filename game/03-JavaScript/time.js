@@ -987,16 +987,20 @@ function dayPassed(days) {
 
 		if (V.livestock?.winter) {
 			if (V.livestock.winter.active === false) {
-				if (Weather.temperature <= 0 && Time.month.between(9, 10)) V.livestock.winter.trigger++;
-				else if (Time.month >= 11 || Time.month === 1) {
-					if (V.bus === "livestock") V.livestock.winter.trigger = 5;
+				if (Time.month.between(9, 10)) {
+					if (Weather.temperature <= 0) V.livestock.winter.trigger++;
+					else V.livestock.winter.trigger = Math.clamp(V.livestock.winter.trigger - 1, 0, 4);
+				} else if (Time.month >= 11 || Time.month === 1) {
+					if (V.bus === "livestock") V.livestock.winter.trigger = 4;
 					else V.livestock.winter.active = true;
 					V.livestock.winter.exam = false;
 				} else V.livestock.winter.trigger = 0;
 			} else {
-				if (Weather.temperature > 0 && Time.month === 2) V.livestock.winter.trigger++;
-				else if (Time.month >= 3 && Time.month <= 8) {
-					if (V.bus === "livestock") V.livestock.winter.trigger = 5;
+				if (Time.month.between(2, 3)) {
+					if (Weather.temperature > 0) V.livestock.winter.trigger++;
+					else V.livestock.winter.trigger = Math.clamp(V.livestock.winter.trigger - 1, 0, 4);
+				} else if (Time.month >= 3 && Time.month <= 8) {
+					if (V.bus === "livestock") V.livestock.winter.trigger = 4;
 					else V.livestock.winter.active = false;
 					V.livestock.winter.exam = false;
 				} else V.livestock.winter.trigger = 0;
@@ -3052,7 +3056,7 @@ DefineMacro("earSlimeDaily", earSlimeDaily);
  * @param {...any} args
  */
 function getTimeString(...args) {
-	if (args[0] === null) return;
+	if (args[0] == null) return;
 	const hours = args[1] != null ? args[0] : 0;
 	const minutes = Math.max(args[1] != null ? args[1] : args[0], 0) + hours * 60;
 	return Math.trunc(minutes / 60) + ":" + ("0" + Math.trunc(minutes % 60)).slice(-2);
