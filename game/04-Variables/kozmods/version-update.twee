@@ -1,6 +1,6 @@
 :: X-Change Compat Helpers [script]
-/* Compatibility helper: some older TwineScript used `defined(x)` in <<if>> conditions.
-   SugarCube/DoLP doesn't provide it by default. */
+/* Compatibility helper: some older TwineScript used `defined(x)` in if conditions.
+   SugarCube doesn't provide it by default. */
 if (typeof window.defined !== "function") { window.defined = function (v) { return v !== undefined && v !== null; }; }
 
 :: Widgets X-Change Variable Updates [widget]
@@ -1360,35 +1360,45 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 <</widget>>
 
 <<widget "xchange-sanity">>
-	/* NOTE: All checks below are already performed by <<xchange-init>>.
-	   This widget exists as a lightweight per-passage safety net.
-	   If <<xchange-init>> is guaranteed to have run, this is a no-op. */
-	<<if $xchange is undefined>><<set $xchange to {}>><</if>>
-	<<if $xchange.known is undefined>><<set $xchange.known to []>><</if>>
-	<<if $xchange.pill is undefined>><<set $xchange.pill to {}>><</if>>
-	<<if $xchange.pill.clone is undefined or $xchange.pill.clone is "" or $xchange.pill.clone is null>><<set $xchange.pill.clone to "none">><</if>>
-	<<if $xchange.pill.clonedBody is undefined or $xchange.pill.clonedBody is null>><<set $xchange.pill.clonedBody to {}>><</if>>
-	<<if $sexStats.pills.pills[_premiumPillName] is undefined>><<set $sexStats.pills.pills[_premiumPillName] to {owned: 0, doseTaken: 0, overdose: 0}>><</if>>
-	
-	<<if $pregnancyStats.aftermorningpills is undefined>>
-		<<set $pregnancyStats.aftermorningpills to 0>>
-	<<elseif !Number.isFinite($pregnancyStats.aftermorningpills)>>
-		<<run console.warn("[Morning After pill] pregnancyStats.aftermorningpills is invalid; resetting:", V.pregnancyStats?.aftermorningpills)>>
-		<<set $pregnancyStats.aftermorningpills to 0>>
-	<</if>>
+    /* NOTE: All checks below are already performed by <<xchange-init>>.
+       This widget exists as a lightweight per-passage safety net.
+       If <<xchange-init>> is guaranteed to have run, this is a no-op. */
+    <<set $xchange to $xchange || {}>>
+    <<set $xchange.known to $xchange.known || []>>
+    <<set $xchange.pill to $xchange.pill || {}>>
+    <<set $xchange.spikepool to $xchange.spikepool || {}>>
+    <<set $xchange.pill.originalBody to $xchange.pill.originalBody || {}>>
+    <<set $xchange.pill.changedBody to $xchange.pill.changedBody  || {}>>
+    <<set $xchange.pill.hermBody to $xchange.pill.hermBody     || {}>>
+    <<set $xchange.pill.clonedBody to $xchange.pill.clonedBody   || {}>>
+    <<set $xchange.permaReflection to $xchange.permaReflection || {pending: false, lastShownDay: -1, answer: null, snapshot: null, lastReminderDay: -1}>>
 
-	/* pubtimer: must be a number >= 1, otherwise delete it (inactive). */
-	<<run (function () { var x = State.variables.xchange; if (!x) { return; } var n = Number(x.pubtimer);
-		if (x.pubtimer !== undefined && (!Number.isFinite(n) || n < 1)) { delete x.pubtimer; }
-	})()>>
+    /* clone is a string sentinel, not an object so keep the explicit check */
+    <<if !$xchange.pill.clone>><<set $xchange.pill.clone to "none">><</if>>
 
-	<<run (function () {
-		if (typeof window.C !== "object" || window.C === null) return;
-		if (typeof C.tiredness !== "object" || C.tiredness === null) C.tiredness = {};
-		if (!Number.isFinite(C.tiredness.max)) C.tiredness.max = 2000;
-		if (typeof C.physique !== "object" || C.physique === null) C.physique = {};
-		if (!Number.isFinite(C.physique.max)) C.physique.max = 30000;
-	})()>>
+    <<if $sexStats.pills.pills[_premiumPillName] is undefined>>
+        <<set $sexStats.pills.pills[_premiumPillName] to {owned: 0, doseTaken: 0, overdose: 0}>>
+    <</if>>
+    <<if $pregnancyStats.aftermorningpills is undefined or !Number.isFinite($pregnancyStats.aftermorningpills)>>
+        <<if $pregnancyStats.aftermorningpills !== undefined>>
+            <<run console.warn("[Morning After pill] pregnancyStats.aftermorningpills is invalid; resetting:", V.pregnancyStats?.aftermorningpills)>>
+        <</if>>
+        <<set $pregnancyStats.aftermorningpills to 0>>
+    <</if>>
+
+    /* pubtimer: must be a number >= 1, otherwise delete (inactive). */
+    <<run (function () {
+        var x = State.variables.xchange; if (!x) return;
+        var n = Number(x.pubtimer); if (x.pubtimer !== undefined && (!Number.isFinite(n) || n < 1)) delete x.pubtimer;
+    })()>>
+
+    <<run (function () {
+        if (typeof window.C !== "object" || window.C === null) return;
+        if (typeof C.tiredness !== "object" || C.tiredness === null) C.tiredness = {};
+        if (!Number.isFinite(C.tiredness.max)) C.tiredness.max = 2000;
+        if (typeof C.physique !== "object" || C.physique === null) C.physique = {};
+        if (!Number.isFinite(C.physique.max)) C.physique.max = 30000;
+    })()>>
 <</widget>>
 
 <<widget "ensureStatOverlayData">>

@@ -1,3 +1,13 @@
+/**
+ * D.N.A. separated some X-Change misc/helper widgets from the main pill handling file:
+ * - Core pill, body-save, effect, and transformation handling remains here or `xchange.twee`
+ * - Misc/shared helper widgets are being moved/split into `koztools`
+ * - JS-side logic may still live across `xchange.js`, `identity.js`, and related files
+ * =========================
+ * Important!
+ * If what you're looking for isn't defined here, check other files too.
+**/
+
 function paramError(functionName = "", param = "", value, expectedValues = "") {
 	if (typeof value === "object") value = JSON.stringify(value);
 	/* Included both types of error reporting, since this often will only occur in a link */
