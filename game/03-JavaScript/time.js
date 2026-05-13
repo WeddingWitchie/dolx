@@ -467,12 +467,28 @@ $(document).on(":passageinit", () => {
 	Time.set();
 
 	/* Ensure beautyBoost object exists (save compatibility) */
-	V.beautyBoost ??= { bath: 0, teeth: 0, face: 0, hands: 0, hygiene: 0 };
+	V.beautyBoost ??= { bath: 0, teeth: 0, face: 0, hands: 0, hygiene: 0, tan: 0 };
 	if (V.beautyBoost.bath == null) V.beautyBoost.bath = 0;
 	if (V.beautyBoost.teeth == null) V.beautyBoost.teeth = 0;
 	if (V.beautyBoost.face == null) V.beautyBoost.face = 0;
 	if (V.beautyBoost.hands == null) V.beautyBoost.hands = 0;
 	if (V.beautyBoost.hygiene == null) V.beautyBoost.hygiene = 0;
+	if (V.beautyBoost.tan == null) V.beautyBoost.tan = 0;
+
+	if (V.beautyBoost.spa == null || typeof V.beautyBoost.spa === "number") {
+		V.beautyBoost.spa = {
+			amount: Number.isFinite(V.beautyBoost.spa) ? V.beautyBoost.spa : 0,
+			expires: 0,
+			treatment: "spa treatment",
+		};
+	}
+	if (typeof V.beautyBoost.spa !== "object") V.beautyBoost.spa = { amount: 0, expires: 0, treatment: "spa treatment" };
+	if (!Number.isFinite(V.beautyBoost.spa.amount)) V.beautyBoost.spa.amount = 0;
+	if (!Number.isFinite(V.beautyBoost.spa.expires)) V.beautyBoost.spa.expires = 0;
+	if (typeof V.beautyBoost.spa.treatment !== "string") V.beautyBoost.spa.treatment = "spa treatment";
+	if (V.beautyBoost.spa.amount > 0 && V.beautyBoost.spa.expires > 0 && Time.days > V.beautyBoost.spa.expires) {
+		V.beautyBoost.spa.amount = 0; V.beautyBoost.spa.expiredNotice = true;
+	}
 });
 
 /* Local functions */
@@ -1321,13 +1337,14 @@ function hourPassed(hours) {
 		// robin pillory
 		if (V.robinPillory && V.robinPillory.danger !== undefined && V.robinPillory.active) wikifier("robinPilloryHour");
 
-		// Beauty boost decay (bath, teeth, face, hands, hygiene — makeup is dynamic, no decay needed)
+		// Beauty boost decay (bath, teeth, face, hands, hygiene, tan — makeup is dynamic, no decay needed; spa uses a day-based expiry)
 		if (V.beautyBoost) {
 			if (V.beautyBoost.bath > 0) V.beautyBoost.bath = Math.max(V.beautyBoost.bath - 333, 0);
 			if (V.beautyBoost.teeth > 0) V.beautyBoost.teeth = Math.max(V.beautyBoost.teeth - 340, 0);
 			if (V.beautyBoost.face > 0) V.beautyBoost.face = Math.max(V.beautyBoost.face - 500, 0);
 			if (V.beautyBoost.hands > 0) V.beautyBoost.hands = Math.max(V.beautyBoost.hands - 750, 0);
 			if (V.beautyBoost.hygiene > 0) V.beautyBoost.hygiene = Math.max(V.beautyBoost.hygiene - 170, 0);
+			if (V.beautyBoost.tan > 0) V.beautyBoost.tan = Math.max(V.beautyBoost.tan - 200, 0);
 		}
 
 		// time checks

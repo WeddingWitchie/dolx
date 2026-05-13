@@ -16,6 +16,11 @@
 You are in the spa on Danube Street. Large windows open onto a natural spring, and a corridor to the side leads to other facilities.
 A sign reads: "Tanning beds available. <<printmoney _price>> per session. Price may change with the season."
 <br><br>
+<<if $spaBanWeeks > 0 and Time.openingHours()>>
+	A receptionist looks up, then pales as a guard steps closer to the desk. "You are still banned from the spa. Come back in <span class="red"><<print $spaBanWeeks>> week<<print $spaBanWeeks is 1 ? "" : "s">></span>."
+	<br><br>
+	<<danubeicon>><<link [[Leave|Danube Street]]>><<endevent>><</link>>
+<<else>>
 <<if Time.openingHours()>>
 	<<if $daily.spaEvent is "party">>
 		<span class="purple">The spring is packed with bodies, and loud music plays.</span> Someone's hired the venue for a party.
@@ -71,7 +76,18 @@ A sign reads: "Tanning beds available. <<printmoney _price>> per session. Price 
 		<<else>>
 			<<spaicon "massage">><span class="blue">You cannot afford to use the tanning salon right now.</span>
 		<</if>>
-		<br>
+		<br><br>
+		<<if $spaBeautyMember is 1>>
+			<<cosmeticsicon "dyes">><<link [[Private beauty care|Spa Beauty Menu]]>><</link>>
+			<br>
+			<<if $daily.spaEvent is "party">>
+				<<socialiseicon "party">><<link [[Attend the members' party|Spa Members Party]]>><</link>>
+				<br>
+			<</if>>
+		<<else>>
+			<<cosmeticsicon "dyes">><<link [[Ask about private beauty care|Spa Beauty Gate]]>><</link>>
+			<br>
+		<</if>>
 	<</if>>
 	<<if !Time.openingHours() and Time.hour isnot $closinghour and !$weekly.theft.spa>>
 		<<shopicon "register">><<link [[Examine the cash register|Spa Register]]>><</link>>
@@ -80,7 +96,8 @@ A sign reads: "Tanning beds available. <<printmoney _price>> per session. Price 
 	<br>
 	<<danubeicon>><<link [[Leave|Danube Street]]>><<endevent>><</link>>
 	<br>
-<</if>>
+<</if>> /* end stress check */
+<</if>> /* end ban check */
 
 :: Spa Tan
 <<effects>>
@@ -120,10 +137,11 @@ They begin to work the scrub into your skin with firm, methodical strokes, start
 Grains of rice powder and bits of crushed fruit gently slough off layers of dead, tanned skin. A cooling sensation follows wherever they massage, leaving you feeling lighter and cleaner by the minute.
 <br><br>
 
-By the time they finish, your entire body feels silky smooth and a shade lighter. Your natural skin tone peeks through once more, glowing with a healthy brightness.
+By the time they finish, your entire body feels silky smooth and a shade lighter. Your natural skin tone peeks through once more, glowing with a healthy brightness.<<stress -4>><<lstress>>
 <br><br>
 <<run Skin.applyTanningLoss(5760)>>
-
+/* Whitening/polishing beauty boost decays 200/hour */
+<<set $beautyBoost to $beautyBoost || {}>><<set $beautyBoost.tan to 2500>>
 <<link [[Leave|Spa]]>><<pass 60>><</link>>
 
 :: Spa Tan Underwear
@@ -149,6 +167,8 @@ Surrounded by a blue glow, you close your eyes and relax as the warmth seeps int
 <<tanningPenaltiesOutput _tanningModifiers>>
 <br>
 <<pass 60>>
+/* Tanning beauty boost: healthy glow decays 200/hour in hourPassed */
+<<set $beautyBoost to $beautyBoost || {}>><<set $beautyBoost.tan to 2500>>
 <<if $rng gte 91>>
 	<<spa_tan_events>>
 <<elseif $rng gte 81>>
@@ -180,6 +200,8 @@ Surrounded by a blue glow, you close your eyes and relax as the warmth seeps int
 <<tanningPenaltiesOutput _tanningModifiers>>
 <br>
 <<pass 60>>
+/* Tanning beauty boost: healthy glow decays 200/hour in hourPassed */
+<<set $beautyBoost to $beautyBoost || {}>><<set $beautyBoost.tan to 2500>>
 <<if $rng gte 91>>
 	<<spa_tan_events>>
 <<elseif $rng gte 81>>
@@ -220,6 +242,8 @@ Surrounded by a blue glow, you feel your heart pump as the warmth seeps into you
 <<tanningPenaltiesOutput _tanningModifiers>>
 <br>
 <<pass 60>>
+/* Tanning beauty boost: healthy glow decays 200/hour in hourPassed */
+<<set $beautyBoost to $beautyBoost || {}>><<set $beautyBoost.tan to 2500>>
 <<endevent>>
 <<if $rng gte 81>>
 	<<spa_tan_events>>

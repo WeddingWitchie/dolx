@@ -1,0 +1,647 @@
+:: Spa Beauty Gate
+<<endevent>><<effects>><<generate1>><<person1>>
+<<set _hbscLevel to ($hbsc and $hbsc.account ? $hbsc.account.level : 0)>>
+<<set _hbscTier to _hbscLevel >= 5 ? "black" : _hbscLevel >= 4 ? "platinum" : _hbscLevel >= 3 ? "gold" : _hbscLevel >= 2 ? "silver" : _hbscLevel >= 1 ? "basic" : "no">>
+"Private beauty care is for members only." The receptionist smiles for a moment, then the smile fades. "The public facilities are enough for walk-ins."
+<br><br>
+Beyond the desk, the private corridor smells faintly of warm stone, expensive oils, and cut flowers. A uniformed guard watches from beside a frosted glass door.
+<br><br>
+<<link [[Push through anyway|Spa Beauty Push Through]]>><<crimeUp 80 "trespassing">><</link>><<crime "trespassing">>
+<br><br>
+<<if _hbscLevel >= 4>>
+	<<icon "access-card.png">><<link [[Show your HBSC priority card|Spa Beauty Bank Card]]>><</link>>
+	<br>
+<<elseif _hbscLevel is 3>>
+	<<icon "access-card.png">><<link [[Show your gold HBSC card|Spa Beauty Gold Card]]>><</link>>
+	<br>
+<<elseif _hbscLevel >= 1>>
+	<<icon "access-card.png">><<link [[Show your HBSC card|Spa Beauty Low Card]]>><</link>>
+	<br>
+<</if>>
+<<getouticon>><<link [[Leave it|Spa]]>><<endevent>><</link>>
+
+:: Spa Beauty Gold Card
+<<effects>>
+The receptionist takes one look at your card, then another at your face. "Gold is respectable. Very respectable. But our private suites are for clients with a higher level of access."
+<br><br>
+The apology sounds practised. The glance after it is honest. You understand well enough. You are close, but still not part of their world.
+<br><br>
+<<getouticon>><<link [[Leave|Spa]]>><<endevent>><</link>>
+
+:: Spa Beauty Low Card
+<<effects>>
+The receptionist looks at the card without touching it. "That is not the kind of account our members usually hold. The public services are still open to you."
+<br><br>
+<<getouticon>><<link [[Leave|Spa]]>><<endevent>><</link>>
+
+:: Spa Beauty Bank Card
+<<effects>>
+<<set _hbscLevel to ($hbsc and $hbsc.account ? $hbsc.account.level : 0)>>
+<<set _hbscTier to _hbscLevel >= 5 ? "black" : "platinum">>
+You slide your HBSC card onto the desk.
+<br><br>
+The receptionist glances down, ready to refuse you. Then <<his>> expression freezes. <<He>> coughs into <<his>> fist, straightens <<his>> posture, and returns the card with both hands.
+<br><br>
+"Of course," <<he>> says, now careful enough to sound almost frightened. "I had not realised you were a <<print _hbscTier>> client. We would be honoured to register you as a private member, if you want it."
+<br><br>
+<div class="hbsc-brochure">
+	<span class="gold">Private spa membership</span><br>
+	• Opening fee: <<printmoney 10000000>><br>
+	• Access: Private beauty care, members' parties, and personal masseur bookings
+</div>
+<br>
+<<if $spaBeautyMember is 1>>
+	"You are already on our private list," <<he>> adds quickly.
+	<br><br>
+	<<spaicon "massage">><<link [[Review private services|Spa Beauty Menu]]>><</link>>
+	<br>
+<<elseif $money >= 10000000>>
+	<<link [[Register as a private member|Spa Beauty Register]]>><<money -10000000 "spa">><<set $spaBeautyMember to 1>><</link>>
+	<br>
+<<else>>
+	<span class="blue">You cannot afford the opening fee.</span>
+	<br>
+<</if>>
+<<getouticon>><<link [[Leave|Spa]]>><<endevent>><</link>>
+
+:: Spa Beauty Register
+<<effects>>
+The receptionist takes a slim folder, a fountain pen, and a card stamped with the spa's crest. <<He>> does not mention the money again once the payment goes through.
+<br><br>
+"Welcome," <<he>> says. "Your name will be recognised at the private desk. Please let us know whether you would like a treatment, a social booking, or a personal masseur."
+<br><br>
+<span class="green"><i>You are now a private spa member.</i></span>
+<br>
+<<spaicon "massage">><<link [[View private beauty care|Spa Beauty Menu]]>><</link>>
+<br>
+<<getouticon>><<link [[Return to the foyer|Spa]]>><<endevent>><</link>>
+
+:: Spa Beauty Menu
+<<effects>>
+<<if $spaBeautyMember isnot 1>>
+	The receptionist's smile shuts like a door. "Members only."
+	<br><br>
+	<<link [[Back|Spa Beauty Gate]]>><</link>>
+<<else>>
+	The private treatment menu is printed on thick card. The prices are not hidden.
+	<br><br>
+	<div class="hbsc-brochure">
+		<span class="gold">Private beauty care</span><br>
+		• Pearl body polish and lymphatic massage: <<printmoney 2500000>><br>
+		• White caviar and 24-carat gold immersion: <<printmoney 15000000>><br>
+		• Diamond caviar renewal programme: <<printmoney 100000000>>
+	</div>
+	<br>
+	<<if $beautyBoost and $beautyBoost.spa and $beautyBoost.spa.amount > 0 and getSpaBeautyBoost() > 0>>
+		<i>Your current private treatment is <<print $beautyBoost.spa.treatment>>, lasting until day <<print $beautyBoost.spa.expires>>.</i>
+		<br><br>
+	<</if>>
+	<<if $money >= 2500000>>
+		<<spaicon "massage">><<link [[Book the pearl body polish (2:00)|Spa Beauty Pearl Arrive]]>><<money -2500000 "spa">><</link>>
+	<<else>>
+		<<spaicon "massage">><span class="blue">You cannot afford the pearl body polish.</span>
+	<</if>>
+	<br>
+	<<if $money >= 15000000>>
+		<<spaicon "massage">><<link [[Book the white caviar immersion (3:00)|Spa Beauty Caviar Arrive]]>><<money -15000000 "spa">><</link>>
+	<<else>>
+		<<spaicon "massage">><span class="blue">You cannot afford the white caviar immersion.</span>
+	<</if>>
+	<br>
+	<<if $money >= 100000000>>
+		<<spaicon "massage">><<link [[Book the diamond caviar renewal programme (4:00)|Spa Beauty Diamond Arrive]]>><<money -100000000 "spa">><</link>>
+	<<else>>
+		<<spaicon "massage">><span class="blue">You cannot afford the diamond caviar renewal programme.</span>
+	<</if>>
+	<br>
+	<<if $money >= 3000000>>
+		<<spaicon "massage">><<link [[Call your personal masseur (1:30)|Spa Private Masseur]]>><<money -3000000 "spa">><<pass 90>><</link>>
+	<<else>>
+		<<spaicon "massage">><span class="blue">You cannot afford to call a personal masseur.</span>
+	<</if>>
+	<br><br>
+	<<if $daily.spaEvent is "party">>
+		<<socialiseicon "party">><<link [[Attend the members' party|Spa Members Party]]>><</link>>
+		<br>
+	<</if>>
+	<<getouticon>><<link [[Return to the foyer|Spa]]>><<endevent>><</link>>
+<</if>>
+
+:: Spa Beauty Pearl Arrive
+<<effects>><<generate1>><<person1>>
+An attendant in white linen greets you at the entrance to the private wing. <<He>> checks your name against a leather-bound ledger, then leads you down a corridor that smells of warm stone and crushed herbs. The floor changes from tile to heated slate beneath your bare feet.
+<br><br>
+The treatment room is small and dim. Candles line a shelf above a stone basin. A narrow table covered in fresh linen sits in the centre. Beside it, a wooden tray holds a shallow ceramic bowl filled with pale pearl scrub that catches the light. A second bowl contains warm oil.
+<br><br>
+"Please undress and lie face down when you are ready," the attendant says, setting out a folded towel. "I will return in a moment." 
+<br><br>
+<<He>> draws a curtain across the doorway and leaves you to the quiet.
+<br><br>
+<<link [[Lie down on the table|Spa Beauty Pearl Treatment]]>><<pass 15>><</link>>
+
+:: Spa Beauty Pearl Treatment
+<<effects>>
+<<upperstrip>><<lowerstrip>><<legsstrip>><<feetstrip>><<handsstrip>><<handheldstrip>><<neckstrip>><<headstrip>>
+The <<person>> returns, rolls <<his>> sleeves to the elbow, and begins. <<He>> scoops up a mixture of pearl powder, milk, crushed rice, and something grainy that smells faintly of honey. <<He>> works it into your shoulders with the heels of <<his>> palms.
+<br><br>
+The scrub is rough at first, almost uncomfortable, but the pressure soon settles into a steady rhythm. <<He>> moves down your spine, across your lower back, and over each arm from shoulder to wrist. The milk softens the grit as <<he>> works, and you can feel old dry skin lifting away.
+<br><br>
+When <<he>> reaches your legs, <<he>> switches to the warmed oil. <<His>> thumbs find knots you didn't know you had; behind your knees, along the arches of your feet, in the tight bands of muscle above your ankles. Each one releases with a dull ache that dissolves into warmth.
+<br><br>
+<<He>> asks you to turn over. The ceiling is a blur of candlelight. <<He>> works the pearl scrub across your collarbones, your chest, the soft skin of your stomach. You feel the tension draining out of you.
+<br><br>
+<<link [[Next|Spa Beauty Pearl Finish]]>><<pass 60>><</link>>
+
+:: Spa Beauty Pearl Finish
+<<effects>>
+<<run V.beautyBoost = V.beautyBoost || {}; V.beautyBoost.spa = { amount: 3000, expires: Time.days + 7, treatment: "pearl body polish" }; delete V.beautyBoost._spaShown>>
+The <<person>> wipes the last of the scrub away with a warm, damp cloth, then pats your skin dry with a towel. <<He>> holds up a hand mirror.
+<br><br>
+Your skin looks different, as if someone has gently cleaned away a layer of neglect you had not noticed. Your complexion is smoother. The light catches it differently.
+<br><br>
+"The effects will last about a week," <<he>> says, folding the towel. "You will notice it most in the first few days. After that, it fades gradually."
+<br><br>
+You dress slowly. Your limbs feel heavy with relaxation, and even the walk back to the foyer seems easier than before.<<lstress>><<ltiredness>><<stress -8>><<tiredness -6>>
+<br><br>
+<<link [[Return to the foyer|Spa]]>><<pass 45>><<clotheson>><<endevent>><</link>>
+
+:: Spa Beauty Caviar Arrive
+<<effects>><<generate1>><<person1>>
+A <<person>> in a charcoal suit meets you in the private corridor. <<He>> does not introduce <<himself>>; <<he>> simply knows your name. <<He>> leads you past the standard treatment rooms to a door at the far end, marked with nothing but a small brass number.
+<br><br>
+Inside, the suite is larger than you expected. The walls are dark stone, and the lighting is warm and soft. A padded treatment table sits in the centre, with two trolleys beside it covered in bottles, vials, and tools you do not recognise. Soft music fills the space.
+<br><br>
+"The immersion takes about three hours," the suited <<person>> says. "We begin with a full-body cleanse, then the caviar application, and finish with gold-leaf recovery. You may undress behind the screen."
+<br><br>
+<<He>> draws a folding screen of dark wood and cream fabric across one corner of the room, then steps out to give you privacy.
+<br><br>
+<<link [[Undress and begin|Spa Beauty Caviar Treatment]]>><<pass 20>><</link>>
+
+:: Spa Beauty Caviar Treatment
+<<effects>>
+<<upperstrip>><<lowerstrip>><<legsstrip>><<feetstrip>><<handsstrip>><<handheldstrip>><<neckstrip>><<headstrip>>
+The treatment begins with a cleanse more thorough than any bath you have taken. Two attendants work in silence, one on your upper body and one on your lower body, using cloths soaked in something warm and faintly citrus-scented. Every inch of your skin is wiped, patted, and dried before the next stage begins.
+<br><br>
+The caviar extract is cold. It arrives in a shallow porcelain dish and has a sharp mineral smell. The suited <<person>> spreads it across your face first, then your neck and shoulders, in slow, careful strokes. It tightens slightly as it dries.
+<br><br>
+While the mask works, another attendant wraps your hands and feet in heated towels, then massages chilled metal rollers along the backs of your calves. The contrast between warm hands and feet and cold muscles is strange at first, then deeply relaxing.
+<br><br>
+Time blurs. 
+<br><br>
+They peel the caviar mask away in a single sheet, revealing skin that feels almost too smooth, as if the top layer has been gently softened away. The gold leaf comes next: thin squares pressed along your jawline, across your forehead, and down the bridge of your nose. The suited <<person>> smooths each piece flat with a soft brush.
+<br><br>
+<<link [[Next|Spa Beauty Caviar Finish]]>><<pass 100>><</link>>
+
+:: Spa Beauty Caviar Finish
+<<effects>>
+<<run V.beautyBoost = V.beautyBoost || {}; V.beautyBoost.spa = { amount: 5000, expires: Time.days + 30, treatment: "white caviar and 24-carat gold immersion" }; delete V.beautyBoost._spaShown>>
+The final hour is recovery. You lie still beneath a thin sheet while the gold leaf settles against your skin. The suited <<person>> brings a glass of chilled water with a single slice of cucumber floating in it, then waits nearby while you come back to yourself.
+<br><br>
+"This is not just a surface treatment," <<he>> explains. "The caviar extract and gold have been layered slowly, then sealed in with heat and pressure. With normal care, the effect should last for around one month."
+<br><br>
+<<He>> pauses, looking you over with professional approval. "You may notice the glow fading near the end of that period. That is expected. Until then, your skin should look rested, even when you are not."
+<br><br>
+When you sit up, you catch your reflection in the corridor mirror. The person looking back seems restored in a way sleep alone has never managed. There is a soft glow to your skin, expensive and difficult to ignore.<<lstress>><<ltiredness>><<stress -12>><<tiredness -10>>
+<br><br>
+<<link [[Return to the foyer|Spa]]>><<pass 60>><<clotheson>><<endevent>><</link>>
+
+:: Spa Beauty Diamond Arrive
+<<effects>><<generate1>><<person1>>
+The receptionist does not lead you to the private wing. Instead, a <<person>> appears at your side. <<He>> introduces <<himself>> only as your programme coordinator.
+<br><br>
+<<He>> walks you past the private treatment rooms, through a door you had assumed was a cupboard, and down a short flight of stairs to a suite beneath the spa itself. The air is cooler, drier, and very still.
+<br><br>
+"The Diamond programme is where our private work begins," <<he>> says, setting a leather portfolio on the counter. "It uses the most advanced renewal technology we are permitted to offer outside a clinical setting."
+<br><br>
+<<He>> opens the portfolio. Inside are photographs of your face. They were taken, you realise, from the spa's entry camera. "We have already begun your first assessment. The treatment is designed to last up to a year. More importantly, it keeps settling after you leave. You may surprise yourself when you catch your reflection over the next few weeks."
+<br><br>
+A locked cabinet on the far wall bears a brass plate with your name on it. Inside, you can see rows of small bottles, each labelled in neat handwriting.
+<br><br>
+<<link [[Take a seat in the examination chair|Spa Beauty Diamond Treatment]]>><<pass 20>><</link>>
+
+:: Spa Beauty Diamond Treatment
+<<effects>>
+<<upperstrip>><<lowerstrip>><<legsstrip>><<feetstrip>><<handsstrip>><<handheldstrip>><<neckstrip>><<headstrip>>
+The examination comes first. The coordinator measures your face with a thin metal tool, photographs you under three different lights, and writes numbers in a leather notebook. <<He>> does not explain what any of them mean.
+<br><br>
+Then the treatments begin, one after another without pause. Diamond dust, finer than sand, is brushed over your skin with bristles so soft you can barely feel them. Your skin stings faintly as it works, then goes numb, then warm. The coordinator wipes it away and nods at something only <<he>> can see.
+<br><br>
+The caviar mask is next, thicker and colder than the standard version. It sits on your face for twenty minutes while an attendant applies gold eye patches and massages serum into your scalp. The feeling is strange. Your face feels frozen in place while the rest of you melts into the chair.
+<br><br>
+Red-light therapy follows. You lie in a narrow capsule while warm light covers your skin. The coordinator explains that it helps collagen production; you barely hear <<him>> through the drowsy warmth.
+<br><br>
+The massage that ends the session is unlike any you have had. Your masseur works in silence, finding tension behind your ears, between your ribs, and in the small joints of your fingers.
+<br><br>
+<<link [[Next|Spa Beauty Diamond Finish]]>><<pass 150>><</link>>
+
+:: Spa Beauty Diamond Finish
+<<effects>>
+<<run V.beautyBoost = V.beautyBoost || {}; V.beautyBoost.spa = { amount: 7000, expires: Time.days + 365, treatment: "diamond caviar renewal programme" }; delete V.beautyBoost._spaShown>>
+The coordinator helps you stand. Your legs feel uncertain beneath you from the depth of relaxation. <<He>> steadies you with a hand on your elbow and guides you to a full-length mirror.
+<br><br>
+The difference is immediate and unsettling. Not because you look like a different person, but because you look like a better version of the same one. Your skin looks clearer, as if every tired mark has been sharpened away. The shadows beneath your eyes are gone. Even the way the light falls across your face seems brighter.
+<br><br>
+The coordinator then walks you back to the foyer in silence. The receptionist looks up as you pass, then looks again. For a second, even <<he>> forgets to be professional.<<lstress>><<ltiredness>><<ltrauma>><<stress -18>><<tiredness -16>><<trauma -6>>
+<br><br>
+<<link [[Return to the foyer|Spa]]>><<pass 70>><<clotheson>><<endevent>><</link>>
+
+:: Spa Private Masseur
+<<endevent>><<effects>><<generatey1>><<person1>>
+A private masseur arrives within minutes, carrying a folded table and a leather case of oils. <<He>> asks what pressure you prefer, checks before touching, and keeps the door unlatched until you tell <<him>> you are comfortable.
+<br><br>
+The massage is professional, warm, and thorough. Knots loosen beneath <<his>> hands. By the end, your limbs feel heavy and your thoughts pleasantly slow.
+<br><br>
+You feel relaxed and looked after.<<lstress>><<ltiredness>><<lpain>><<stress -10>><<tiredness -8>><<pain -4>>
+<br><br>
+<<if $money >= 500000>>
+	<<link [[Offer a private gratuity|Spa Private Masseur Offer]]>><</link>>
+	<br>
+<</if>>
+<<getouticon>><<link [[Return to the foyer|Spa]]>><<endevent>><</link>>
+
+:: Spa Private Masseur Offer
+<<effects>><<person1>>
+You let the quiet stretch for a moment after the massage ends. The <<person>> begins packing away <<his>> oils, careful not to look as though <<he>> is lingering.
+<br><br>
+"You did well," you say. "Very well."
+<br><br>
+<<He>> stills, one bottle half-slotted into the leather case.
+<br><br>
+"I could show my gratitude," you continue. "Privately. If you think you can satisfy me."
+<br><br>
+<<link [[Next|Spa Private Masseur Offer 2]]>><</link>>
+
+:: Spa Private Masseur Offer 2
+<<effects>><<switch random(1, 3)>>
+<<case 1>>
+	For a heartbeat, <<he>> only stares. Then <<his>> expression changes, eagerness breaking through the professional calm before <<he>> can hide it.
+	"I can!" <<He>> coughs, then lowers <<his>> voice. "I mean, if that is what you want."
+	<br><br>
+	You smile. "Seems we had the same thing in mind."
+<<case 2>>
+	"That is not usually part of the service," <<he>> says, though <<his>> eyes glance at the money you lay beside the folded sheet.
+	<br><br>
+	"I know you need this," you say softly. "And I know you can help me."
+	<br><br>
+	"What? Oh, wait. Y-You are..." <<He>> swallows, then gives a small nod. "Okay."
+<<case 3>>
+	<<He>> hesitates, hands hovering over the leather case. The offer is clear enough. The money is clearer.
+	<br><br>
+	"You can turn this down," you say.
+	<br><br>
+	That seems to undo the last of <<his>> restraint. <<He>> steps forward too quickly. "I need the money! And I can make it worth your money."
+<</switch>>
+<br><br>
+<<if $money >= 500000>>
+	<<link [[Accept the arrangement|Spa Private Masseur Intimate]]>><<money -500000 "spa">><<pass 60>><<set $sexstart to 1>><</link>>
+	<br>
+<</if>>
+<<getouticon>><<link [[Change your mind|Spa]]>><<endevent>><</link>>
+
+:: Spa Private Masseur Intimate
+<<if $sexstart is 1>>
+	<<set $sexstart to 0>>
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+	<<maninit>>
+	<<set $enemytrust += 100>>
+<</if>>
+<<effects>>
+<<effectsman>>
+<<man>>
+<<stateman>>
+<br>
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[Next|Spa Private Masseur Intimate Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Spa Private Masseur Intimate]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Spa Private Masseur Intimate Finish
+<<effects>>
+<<if $enemypleasure gte $enemypleasuremax>>
+	<<ejaculation>>
+	The <<person>> lets out a long, shaking breath and lies still beside you. For a time, neither of you speaks. <<He>> reaches for a towel and dabs the sweat from <<his>> brow before pressing it gently against your skin.
+	<br><br>
+	"That was..." <<He>> trails off and laughs quietly, folding the towel with care. "I will remember this session. T-Thank you for that."<<lstress>><<ltiredness>><<stress -6>><<tiredness -4>>
+<<elseif $enemyhealth lte 0>>
+	The <<person>> pulls away, breathing hard and rubbing <<his>> jaw. 
+    <br><br>
+    "Rough customer," <<he>> mutters. <<He>> gathers <<his>> things and leaves with a bruised look and a stiff nod, but no complaint.
+<<elseif $pleasure gte $pleasuremax>>
+	<<orgasmLocation "spa">>
+	The <<person>> smiles as you catch your breath. "I will take that as a compliment," <<he>> says quietly. 
+    <br><br>
+    <<He>> helps you sit up, then hands you a glass of cold water and a warm towel. "Take your time."<<lstress>><<ltiredness>><<stress -8>><<tiredness -6>>
+<<else>>
+	The <<person>> stretches and stands. "Time is up, I am afraid," <<he>> says, buttoning <<his>> shirt. "But I am available whenever you need."
+    <br><br>
+    <<He>> inclines <<his>> head and leaves you with a polite smile.
+<</if>>
+<<endcombat>><<clotheson>>
+<<link [[Return to the foyer|Spa]]>><</link>>
+
+:: Spa Members Party
+<<effects>>
+<<if $spaBeautyMember isnot 1>>
+	A guard steps in front of the frosted door. "Members only."
+	<br><br>
+	<<link [[Back|Spa]]>><<endevent>><</link>>
+<<else>>
+	<<endevent>><<generate1>><<person1>>
+	The members' party fills the private lounge and the garden courtyard beyond it. It has the loose, warm feel of a resort party, only cleaner, richer, and much harder to enter. Lanterns hang from potted palms. The pool is black tile, with frangipani flowers floating on the surface.
+	<br><br>
+	The guests wear linen shirts, silk dresses, loose trousers, and jewellery that looks plain until you notice the cost. The bar smells of lime, ginger, and expensive alcohol. Everyone sounds relaxed, but no one stops watching each other.
+	<br><br>
+	A <<person>> looks you over with open interest. "You're unusual to be in a room like this. That makes you either lucky, dangerous, or very good with money. Maybe all three."
+	<br><br>
+	<<socialiseicon>><<if random(1, 100) lte 35 and $xchange and $xchange.bankHeist and $xchange.bankHeist.heistComplete and !$daily.spaXChangeGossip>>
+        <<link [[Try to blend in (0:20)|Spa Members Party X-Change Gossip]]>><<pass 20>><<stress -3>><</link>>
+	<<else>>
+        <<link [[Try to blend in (0:20)|Spa Members Party First Round]]>><<pass 20>><<stress -3>><</link>>
+	<</if>><<lstress>>
+	<br>
+	<<if $money >= 300000>>
+		<<spaicon "massage">><<link [[Call your personal masseur from the party (1:30)|Spa Private Masseur]]>><<money -300000 "spa">><<pass 90>><</link>>
+		<br>
+	<</if>>
+	<<getouticon>><<link [[Return to the foyer|Spa]]>><<endevent>><</link>>
+<</if>>
+
+:: Spa Beauty Push Through
+<<endevent>><<effects>><<generate1>><<person1>>
+You step past the desk before the receptionist can finish saying no. The private corridor is only a few strides away.
+<br><br>
+The guard moves faster than expected. <<He>> catches your shoulder and turns you from the frosted door with a grip meant to bruise. "Out!"
+<br><br>
+You shove back. The receptionist lets out a sharp, panicked sound and reaches beneath the desk.
+<br><br>
+<<link [[Next|Spa Beauty Guard Fight]]>><<set $fightstart to 1>><</link>>
+
+:: Spa Beauty Guard Fight
+<<if $fightstart is 1>>
+	<<set $fightstart to 0>>
+	<<neutral 1>><<maninit>>
+	<<set $enemytrust -= 100>>
+	<<set $enemyanger += 200>>
+	<<npcidlegenitals>>
+<</if>>
+<<effects>>
+<<effectsman>>
+<<man>>
+<<stateman>>
+<br>
+<<actionsman>>
+<<if _combatend or $enemyhealth lte 0 or ($pain gte 100 and $willpowerpain is 0)>>
+	<span id="next"><<link [[Next|Spa Beauty Guard Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Spa Beauty Guard Fight]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Spa Beauty Guard Finish
+<<effects>>
+<<if $enemyhealth lte 0>>
+	The guard staggers back hard enough to hit the wall. But another guard appears at the far end, speaking rapidly into a radio.
+	<br><br>
+	You decide the suites are not worth being pinned between them. You leave before the second guard reaches you.
+	<br><br>
+	"<span class="red">You are banned from the spa</span> for three weeks!" the second guard barks.
+<<else>>
+	The guard forces you back through the foyer while the receptionist keeps repeating that the police do not need to be called if you simply leave. The patrons pretend not to watch.
+	<br><br>
+	"<span class="red">You're banned</span>," the guard barks, shoving the door open. "Three weeks. Try again before then and we call the police."
+<</if>>
+<br><br>
+<<getouticon>><<link [[Leave|Danube Street]]>><<endcombat>><<clotheson>><<set $spaBanWeeks to 3>><</link>>
+
+:: Spa Members Party First Round
+<<endevent>><<effects>><<generate1>><<person1>><<famesocial 5>>
+You take a drink that tastes of lime, mint, and flowers, then move towards a small group near a low table. They talk like old friends, but every sentence carries money. Villas. Import permits. A charity dinner where the seating plan matters more than the charity itself.
+<br><br>
+<<set _partyLine to random(1, 6)>>
+<<if _partyLine is 1>>
+	A <<person>> asks which family brought you here. When you say none, <<he>> laughs into <<his>> glass. "Even better. People love a self-made story."
+<<elseif _partyLine is 2>>
+	"I thought you were someone's guest," a <<person>> says. <<He>> looks again. "No. You're here by yourself. That is much rarer."
+<<elseif _partyLine is 3>>
+	Two guests lower their voices as you pass. You catch the words "HBSC" and "at that age", followed by a look that is almost respectful.
+<<elseif _partyLine is 4>>
+	A <<person>> praises the way you hold yourself, then your looks, then pretends <<he>> only meant the first part.
+<<elseif _partyLine is 5>>
+	Someone asks what you think about a charity dinner, then listens as if your answer might change the guest list.
+<<else>>
+	An older guest smiles over the rim of <<his>> drink. "Be careful. Rooms like this make you feel welcome until you forget they bite."
+<</if>>
+<br><br>
+You learn quickly that the trick is not to talk too much. The rich leave silences in conversation and wait to see who rushes to fill them. You let a few silences pass. That earns you more interest than bragging would have.
+<br><br>
+<<socialiseicon>><<link [[Follow the conversation to the terrace (0:25)|Spa Members Party Terrace]]>><<pass 25>><<stress -3>><</link>><<lstress>>
+<br>
+<<getouticon>><<link [[Return to the foyer|Spa]]>><<endevent>><</link>>
+
+:: Spa Members Party Terrace
+<<endevent>><<effects>><<generate1>><<person1>><<famesocial 5>>
+The terrace is warmer than the lounge. Night air carries the smell of flowers, chlorine, and expensive perfume. Guests sit around a low fire pit with bare ankles, open collars, and easy laughter that still feels practised.
+<br><br>
+A <<person>> waves you into the circle. "We were deciding whether ambition is rude. You arrived at the right time."
+<br><br>
+<<set _blendLine to random(1, 5)>>
+<<if _blendLine is 1>>
+	You say ambition is only rude when it fails. The table goes quiet, then someone laughs hard enough to spill a drink.
+<<elseif _blendLine is 2>>
+	You say people born rich like to call hunger ugly. A guest in pearls raises their brows, but does not argue.
+<<elseif _blendLine is 3>>
+	You shrug and say you have been called worse. That wins a few smiles, and one guest starts watching you like a possible investment.
+<<elseif _blendLine is 4>>
+	You turn the question back on them. They enjoy that. Rich people like being studied, as long as it makes them feel important.
+<<else>>
+	You let the silence sit for a moment, then ask what makes ambition respectable. The circle spends the next five minutes arguing with itself.
+<</if>>
+<br><br>
+The party loosens around you. Someone orders another round. Someone asks where you buy your clothes, then tries not to look disappointed when your answer gives them nothing useful.
+<br><br>
+<<socialiseicon>><<link [[Let them study you properly (0:20)|Spa Members Party Beauty Talk]]>><<pass 20>><<stress -4>><</link>><<lstress>>
+<br>
+<<getouticon>><<link [[Return to the foyer|Spa]]>><<endevent>><</link>>
+
+:: Spa Members Party Beauty Talk
+<<endevent>><<effects>><<generate1>><<person1>><<famesocial 5>>
+<<if $beautyBoost and $beautyBoost.spa and $beautyBoost.spa.amount > 0 and getSpaBeautyBoost() > 0>>
+	<<if random(1, 6) is 1>>
+		A <<person>> studies you with envy. "You had the <<print $beautyBoost.spa.treatment>>, didn't you? That finish is hard to fake. Good choice. Annoyingly good."
+	<<elseif random(1, 6) is 2>>
+		"Your skin catches the lantern light," a <<person>> says. <<He>> leans closer, then smiles. "Sorry. That sounded less strange in my head."
+	<<elseif random(1, 6) is 3>>
+		A guest taps <<his>> cheek, thinking. "The spa has improved. Last season everyone came out looking shiny. You look rested. Much better. Much more dangerous."
+	<<elseif random(1, 6) is 4>>
+		"That treatment suits you," a <<person>> says. "Some people pay to look rich and only manage to look scared. You still look like yourself."
+	<<elseif random(1, 6) is 5>>
+		Someone asks whether the effect is difficult to keep. Before you can answer, another guest says, "Of course it is. Beauty that lasts always sends a bill later."
+	<<else>>
+		A <<person>> smiles over <<his>> drink. "Whatever they did downstairs, keep doing it. People are trying not to stare, which means they are staring all the time."
+	<</if>>
+<<else>>
+	<<if random(1, 3) is 1>>
+		A <<person>> asks whether you have booked a treatment yet. "You should. Half the people here buy an hour of peace and call it maintenance."
+	<<elseif random(1, 3) is 2>>
+		Someone recommends the caviar suite, then admits <<he>> mostly likes the name. "White caviar immersion. It sounds like a threat from a very rich fish."
+	<<else>>
+		"The diamond programme is obscene," a <<person>> says. "That does not mean it is bad. Some obscene things are excellent."
+	<</if>>
+<</if>>
+<br><br>
+The comments should feel shallow, but they do not. In this room, appearance is a language. Everyone here can read money, effort, fear, and confidence with a single glance.
+<br><br>
+<<socialiseicon>><<link [[Stay for one more round (0:30)|Spa Members Party Final Round]]>><<pass 30>><<stress -4>><</link>><<lstress>>
+<br>
+<<getouticon>><<link [[Return to the foyer|Spa]]>><<endevent>><</link>>
+
+:: Spa Members Party Final Round
+<<endevent>><<effects>><<generate1>><<person1>><<famesocial 5>>
+Later, the music grows softer and the party spreads out. Some guests move towards the steam rooms. Others stay by the pool with their shoes under their chairs, talking about investments, lovers, scandals, and wellness in the same light voice.
+<br><br>
+A <<person>> sits beside you, close enough to speak quietly without making it intimate.
+<<set _finalLine to random(1, 5)>>
+<<if _finalLine is 1>>
+	<<He>> points out three guests who will pretend not to remember you tomorrow, and two who certainly will.
+<<elseif _finalLine is 2>>
+	<<He>> warns you that every compliment here is also a test. "But a test is not always an attack. Sometimes it is how they decide whether to make space."
+<<elseif _finalLine is 3>>
+	"Most people either apologise for being here or try too hard. You are doing neither. That will annoy people."
+<<elseif _finalLine is 4>>
+	<<He>> laughs when someone across the terrace raises a glass to you. "There. Now you are a small mystery. Use that before they solve you."
+<<else>>
+	<<He>> says nothing for a while, then gives you the name of a tailor, a quiet accountant, and a hotel bar where half the town agrees on its respectable lies.
+<</if>>
+<br><br>
+You blend with the rich well enough to worry them.<<lstress>><<stress -6>>
+<br><br>
+<<if $money >= 300000>>
+	<<spaicon "massage">><<link [[Call your personal masseur before leaving (1:30)|Spa Private Masseur]]>><<money -300000 "spa">><<pass 90>><</link>>
+	<br>
+<</if>>
+<<getouticon>><<link [[Return to the foyer|Spa]]>><<endevent>><</link>>
+
+:: Spa Members Party X-Change Gossip
+<<endevent>><<effects>><<set $outside to 0>><<generate1>><<person1>><<famesocial 15>>
+A small group is already seated together: an older <<person>> with silver rings on every finger, a younger couple who keep finishing each other's sentences, and a <<generate2>><<person2>><<person>> in a linen suit who has not spoken yet. The one in linen watches the room with the careful attention of someone who has learned when not to talk.
+<br><br>
+The <<person1>><<person>> with the rings gestures for you to sit. "A new face. You look like someone who still believes this town runs on hard work and good weather."
+<br><br>
+A few of the others laugh softly. Not at you. At the idea.
+<br><br>
+<<link [[Next|Spa Party Gossip Pills]]>><<pass 5>><</link>>
+
+:: Spa Party Gossip Pills
+<<effects>>
+"Have you ever wondered," the <<person1>><<person>> with the rings says, swirling <<his>> drink, "why this town is so... like this?"
+<br><br>
+<<person2>>The <<person>> in the linen suit shifts. "That is not a party conversation."
+<br><br>
+"Anything can be party talk, if you want it to be." <<person1>>The <<person>> with the rings leans back. "The pills. You know about the pills? Everyone in this room does. The ones that change your body, confuse your sense of self, and make you forget what you were angry about because you are too busy dealing with a new body."
+<br><br>
+The younger couple exchange a glance. And one of them says, "They are recreational. People take them at parties."
+<br><br>
+"People take them because they are <i>available</i>," <<person1>>the <<person>> corrects. "Have you ever asked yourself why something that powerful, that dangerous, is easier to find in this town than a decent plumber?"
+<br><br>
+<<link [[Keep listening|Spa Party Gossip Control]]>><<pass 5>><</link>>
+<br>
+<<link [[Ask who supplies them|Spa Party Gossip Bank]]>><<pass 5>><</link>>
+<br><br>
+<<getouticon>><<link [[Excuse yourself|Spa Members Party]]>><<pass 10>><</link>>
+
+:: Spa Party Gossip Control
+<<effects>>
+<<person1>>The <<person>> with the rings lowers <<his>> voice, though no one outside the circle could hear over the music. "Think about what the pills actually do. Not the party trick. The result. Someone takes one, their body changes, their hormones shift, and their sense of identity breaks in two. What happens to a person in that state?"
+<br><br>
+<<He>> counts on <<his>> fingers. "They become confused. Vulnerable. Dependent on whoever can explain what is happening to them. They stop paying attention to their jobs, their relationships, and the town around them. They become... <i>easy to govern</i>."
+<br><br>
+<<person2>>The <<person>> in the linen suit sets <<his>> glass down. "You are describing a conspiracy."
+<br><br>
+"I am describing an economy." <<person1>><<He>> smiles without warmth. "Confused people do not organise. People chasing pleasure do not protest. People made chemically stupid, and I am sorry, but that is what I mean, do not ask why the rents keep climbing while the wages do not."
+<br><br>
+The younger man speaks for the first time. "You make it sound deliberate."
+<br><br>
+"Because it is. It is the cheapest form of control ever invented. Cheaper than police. Cheaper than propaganda. You just make the pills available and let human nature do the rest," <<he>> says.
+<br><br>
+<<link [[Ask about the mayor|Spa Party Gossip Quinn]]>><<pass 5>><</link>>
+
+:: Spa Party Gossip Bank
+<<effects>>
+"No one knows for certain, but follow the money," <<person1>>the <<person>> with the rings says. <<He>> taps the arm of the sofa for emphasis. "Who in this town has the money to fund a supply network that large? Who has the connections to make sure it is never investigated, never seized, and never even mentioned in the local press?"
+<br><br>
+<<He>> pauses. Waits. Lets the silence do the work.
+<br><br>
+<<person2>>"The bank," the <<person>> in the linen suit says quietly, as though admitting something <<he>> has known for a long time and hoped was not true.
+<br><br>
+<<person1>>"The bank," <<he>> confirms. "HBSC. Or more precisely, the person who runs it. Not the board. They are accountants and yes-men. The <span class="elk">owner</span>. The one whose name you will not find on the official papers, but whose signature is on every decision that matters."
+<br><br>
+The younger guest frowns. "That is a serious accusation."
+<br><br>
+"It is a serious town." <<person1>><<He>> finishes <<his>> drink. "Where do you think the funding comes from? The pills are not made in a garage. There are labs, transport routes, and distribution networks. That takes money. Real money. The kind that only comes from an institution no one is allowed to audit."
+<br><br>
+<<link [[Ask about the mayor|Spa Party Gossip Quinn]]>><<pass 5>><</link>>
+
+:: Spa Party Gossip Quinn
+<<effects>>
+The younger one voices what you were thinking. "What about the mayor? Quinn. <<nnpc_He 'Quinn'>> must know."
+<br><br>
+<<person1>>The <<person>> with the rings laughs without humour. "Know? <<nnpc_He 'Quinn'>> allows it. Why do you think the bank is still standing? Why do you think no regulator has ever knocked on HBSC's door? A bank that size, in a town this small, with that kind of influence... you do not survive without political cover."
+<br><br>
+"Quinn is not stupid," <<he>> continues. "<<nnpc_He 'Quinn'>> is practical. <<nnpc_He 'Quinn'>> looks at the numbers and decides that whatever is happening under the surface is a price <<nnpc_he 'Quinn'>> is willing to let someone else pay. That is policy."
+<br><br>
+<<person2>>The <<person>> in the linen suit pinches the bridge of <<his>> nose. "You are saying the mayor and the bank are—"
+<br><br>
+<<person1>>"They feed each other." <<He>> reaches for a fresh glass from a passing tray. "The bank provides stability. The mayor provides cover. The pills provide control. Everyone in this room benefits from the arrangement, which is why no one in this room will ever do anything about it."
+<br><br>
+<<link [[Ask what else they know|Spa Party Gossip Cult]]>><<pass 5>><</link>>
+
+:: Spa Party Gossip Cult
+<<effects>>
+<<person2>>The <<person>> in the linen suit has been quiet for a while. Now <<he>> leans forward, elbows on <<his>> knees, and speaks in a voice so low you have to lean in to catch it.
+<br><br>
+"There is something else," <<he>> says. "Something I have only heard once, and from someone who was drunk enough to regret saying it the next morning."
+<br><br>
+<<person1>>The <<person>> with the rings raises an eyebrow but does not interrupt.
+<br><br>
+<<person2>>"The bank owner does not work alone. There is a circle. A group. Some call it a society, some a council, but the word I heard was cult." <<He>> pauses. "Old money. Old names. People who were powerful in this place before there was a town. They do not meet in boardrooms. They meet in places that are not on any map."
+<br><br>
+"That is a rumour," the younger guest says.
+<br><br>
+"So were the pills, once. I do not know what they believe. I do not know what they do behind closed doors. But I know one thing." <<He>> glances around the room as though checking for faces he does not recognise. "Their symbol. The person who told me drew it on a napkin before tearing it up."
+<br><br>
+"What was it?"
+<br><br>
+<<person2>>"An elk," <<he>> says. "Antlers and all."
+<br><br>
+<<link [[Next|Spa Party Gossip End]]>><<pass 5>><</link>>
+
+:: Spa Party Gossip End
+<<effects>>
+The conversation breaks apart after that. Someone refills their glass. The younger couple leave without saying goodbye. 
+<br><br>
+<<person1>>The <<person>> with the rings watches them go, then turns to you. "You are very quiet. That is either wisdom or shock. Either way, it is the correct response."
+<br><br>
+<<He>> stands, brushing invisible dust from <<his>> sleeve. "Enjoy the party. And if you ever see an elk in a place where there should not be one, do yourself a favour. <i>Do not ask about it</i>."
+<br><br>
+<<He>> walks away. The music swells to fill the silence <<he>> leaves behind.
+<br><br>
+You sit alone on the sofa for a moment. The room is the same, with crystal glasses, linen, and laughter, but it feels different now.
+<br><br>
+<<link [[Next|Spa Party Gossip End 2]]>><<pass 5>><</link>>
+
+:: Spa Party Gossip End 2
+<<effects>><<set $daily.spaXChangeGossip to true>>
+As you stand to leave, your eye catches something on the far wall, half-hidden behind a decorative screen. A piece of art you had not noticed before: a watercolour of a forest clearing, painted in muted greens and golds. It is unremarkable, the sort of thing you would walk past a hundred times without looking.
+<br><br>
+But in the centre of the clearing, barely visible between the trees, stands a figure with branching antlers.
+<br><br>
+You blink. Look again. It is just a painting of trees.<<stress 4>><<gstress>>
+<br><br>
+<<if $awareness lt 500>>
+	<span class="lblue">You feel more aware of the forces shaping this place.</span><<awareness 5>><<gawareness>>
+	<br><br>
+<</if>>
+<<link [[Return to the party|Spa Members Party]]>><<pass 10>><</link>>

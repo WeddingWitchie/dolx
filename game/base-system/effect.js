@@ -271,6 +271,31 @@ function effectsMakeup() {
 			span("You don't feel quite as fresh down there anymore.", "teal");
 			br();
 		}
+
+		if (V.beautyBoost.tan > 0 && !V.beautyBoost._tanShown) {
+			V.beautyBoost._tanShown = true;
+			span("Your skin has a warm, sun-kissed glow.", "gold");
+			br();
+		} else if (V.beautyBoost.tan <= 0 && V.beautyBoost._tanShown) {
+			delete V.beautyBoost._tanShown;
+			span("The glow from your tanning session has faded.", "teal");
+			br();
+		}
+
+		const spaBoost = V.beautyBoost.spa;
+		const spaActive = typeof getSpaBeautyBoost === "function" && getSpaBeautyBoost() > 0;
+		if (spaActive && !V.beautyBoost._spaShown) {
+			V.beautyBoost._spaShown = true;
+			span(`The effects of your ${spaBoost?.treatment || "spa treatment"} leave you looking carefully maintained.`, "gold");
+			br();
+		} else if ((!spaActive || spaBoost?.expiredNotice) && V.beautyBoost._spaShown) {
+			delete V.beautyBoost._spaShown;
+			if (V.beautyBoost.spa) delete V.beautyBoost.spa.expiredNotice;
+			span("The expensive polish from your spa treatment has finally faded.", "teal");
+			br();
+		} else if (spaBoost?.expiredNotice) {
+			delete V.beautyBoost.spa.expiredNotice;
+		}
 	}
 	return fragment;
 }

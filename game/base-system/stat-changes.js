@@ -14,6 +14,22 @@ const statChange = (() => {
 		);
 	}
 
+	function getSpaBeautyBoost() {
+		const spaBoost = V.beautyBoost?.spa;
+		if (!spaBoost) return 0;
+
+		// Compatibility with early experimental saves that stored the spa boost as a plain number.
+		if (typeof spaBoost === "number") return Math.max(0, spaBoost);
+		if (typeof spaBoost !== "object") return 0;
+
+		const amount = Number(spaBoost.amount) || 0;
+		const expires = Number(spaBoost.expires) || 0;
+		if (amount <= 0) return 0;
+		if (expires > 0 && typeof Time !== "undefined" && Time.days > expires) return 0;
+
+		return amount;
+	}
+
 	/**
 	 * Returns the total temporary beauty bonus from all active sources.
 	 * Includes: bath, teeth, face, hands, hygiene (intimate), and makeup (dynamic).
@@ -26,7 +42,9 @@ const statChange = (() => {
 				+ (V.beautyBoost.teeth || 0)
 				+ (V.beautyBoost.face || 0)
 				+ (V.beautyBoost.hands || 0)
-				+ (V.beautyBoost.hygiene || 0);
+				+ (V.beautyBoost.hygiene || 0)
+				+ (V.beautyBoost.tan || 0)
+				+ getSpaBeautyBoost();
 		}
 		// Makeup boost: calculated dynamically (350 per cosmetic, 170 for concealer, up to total of 1350) 
 		// No decay since it's consumed on use
@@ -51,6 +69,8 @@ const statChange = (() => {
 			if (V.beautyBoost.face > 0) sources.push("fresh face");
 			if (V.beautyBoost.hands > 0) sources.push("clean hands");
 			if (V.beautyBoost.hygiene > 0) sources.push("good hygiene");
+			if (V.beautyBoost.tan > 0) sources.push("healthy glow");
+			if (getSpaBeautyBoost() > 0) sources.push(V.beautyBoost.spa?.treatment || "spa treatment");
 		}
 		if (V.makeup) {
 			const hasMakeup = (V.makeup.lipstick && V.makeup.lipstick !== 0)
@@ -1525,9 +1545,11 @@ const statChange = (() => {
 		getBeautyBoost,
 		getEffectiveBeauty,
 		getBeautyBoostSources,
+		getSpaBeautyBoost,
 	};
 })();
 window.statChange = statChange;
 window.getBeautyBoost = statChange.getBeautyBoost;
 window.getEffectiveBeauty = statChange.getEffectiveBeauty;
 window.getBeautyBoostSources = statChange.getBeautyBoostSources;
+window.getSpaBeautyBoost = statChange.getSpaBeautyBoost;
