@@ -125,11 +125,10 @@ function fetishPregnancy({ genital = "vagina", target = null, spermOwner = null,
 	if (pregnancy && pregnancy.type === null) {
 		let chance = 100 / (target === "pc" ? 100 - V.settings.basePlayerPregnancyChance : 20 - V.settings.baseNpcPregnancyChance);
 
+		const xchangeRealBreederPregnancy = target === "pc" && playerIsXChanged() && V.xchange.pill?.breederEffect && V.xchange.pill?.fertile;
 		if (playerIsXChanged()) chance *= V.xchange.pregnancyMultPercent / 100;
-
-		if ((playerIsXChanged() && V.xchange.pill.breederEffect && target ==="pc") || (playerIsXChanged() && V.xchange.pill.bullEffect && target !== "pc")) {
-			chance = 100 / (100 - 98);
-		}
+		if (xchangeRealBreederPregnancy) {multi = Math.max(multi, 1);}
+		if (xchangeRealBreederPregnancy || (playerIsXChanged() && V.xchange.pill.bullEffect && target !== "pc")) {chance = 100 / (100 - 98);}
 
 		if (V.earSlime.growth >= 100 && V.earSlime.focus === "pregnancy") chance *= 2;
 		if (V.earSlime.growth >= 100 && V.earSlime.focus === "impregnation") chance /= 2;
