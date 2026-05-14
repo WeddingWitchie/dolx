@@ -1390,8 +1390,10 @@ function effects() {
 		fragment.append(xchangeEffectsMessages());
 	}
 
-	console.log("List of crime event types"); 
-	console.log("Crime event types:", Object.keys(V.crime.events));
+	if (V.debug === 1) {
+		console.log("List of crime event types");
+		console.log("Crime event types:", Object.keys(V.crime.events));
+	}
 	// for (let i = 0; i < Object.keys(V.crime.events).length; i++) {
 	// 	// This will intentionally trigger an error when crime events gets wiped, 
 	// 	// and will let me get save files closer to the source when somebody reports it again.

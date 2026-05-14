@@ -451,19 +451,17 @@ const dhmUtils = {
 		let fallback_previous = V.haircolour;
 		let fallback_new = this.plainFallback(filter.blend);
 
-		console.log(`color: ${filter.blend}`);
-		console.log(
-			`previous fallback: ${fallback_previous}, new fallback: ${fallback_new}`,
-		);
-		console.log(
-			`hsl1: ${tinycolor(filter.blend).toHslString()}, hsl2: ${tinycolor(this.defaultColors[fallback_new]).toHslString()}`,
-		);
+		if (V.debug === 1) {
+			console.log(`color: ${filter.blend}`);
+			console.log(`previous fallback: ${fallback_previous}, new fallback: ${fallback_new}`,);
+			console.log(`hsl1: ${tinycolor(filter.blend).toHslString()}, hsl2: ${tinycolor(this.defaultColors[fallback_new]).toHslString()}`,);
+		}
 
 		V.haircolour = fallback_new;
 		V.hairfringecolour = fallback_new;
 
 		let _name = this.colorCompareHsl(filter.blend, this.stolenColors);
-		console.log(`stolen name: ${_name}`);
+		if (V.debug === 1) {console.log(`stolen name: ${_name}`);}
 	},
 	// }}}
 
