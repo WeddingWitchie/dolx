@@ -1,0 +1,166 @@
+:: Widgets modLI [widget]
+/* --- Mod LI slot guarantor ---
+Ensures every registered mod LI that is already in $NPCNameList has a matching $NPCName slot, 
+and creates newly-unlocked mod LI slots on vanilla to mod save loads.
+Also strips known Night Monster vestiges from corrupted Poppy slots before defaults are padded.
+
+Returns immediately when all registered LI slots are already healthy. 
+Heavy work only runs when a slot is missing, mismatched, or carries vestige fields. */
+<<widget "modLI-init">>
+    <<script>>
+    (function () {
+        if (!Array.isArray(V.NPCNameList) || !Array.isArray(V.NPCName)) return;
+        if (typeof ensureModLISettings === "function") ensureModLISettings();
+
+        /* ---- Per-LI configs (extend here for new LIs) ---- */
+        var CONFIGS = {
+            "Poppy": {
+                metadata: { title: "tolerant", insecurity: "skill", adult: 1, teen: 0, type: "human" },
+                vestigeBadValues: {
+                    title:           ["horror", "The Horror"],
+                    insecurity:      ["weak"],
+                    type:            ["creature"],
+                    fullDescription: ["Night Monster"],
+                    description:     ["Night Monster"],
+                    claws:           ["claws"]
+                },
+                vestigeDeleteAlways: ["beastname", "monster"]
+            }
+            /* "OtherLI": { metadata: {...}, vestigeBadValues: {...}, vestigeDeleteAlways: [...] } */
+        };
+
+        var rawRegistry = (typeof setup === "object" && setup && Array.isArray(setup.modLIRegistry))
+            ? setup.modLIRegistry : ["Poppy"];
+        var unlocks = V.modLIUnlocks || {};
+
+        /* Normalize registry to a flat list of name strings */
+        var names = [];
+        for (var i = 0; i < rawRegistry.length; i++) {
+            var e = rawRegistry[i];
+            var n = typeof e === "string" ? e : (e && e.nam);
+            if (n) names.push(n);
+        }
+
+        /* ---- Fast-path: short-circuit if everything is already healthy ---- */
+        function isHealthy(slot, name) {
+            if (!slot || slot.nam !== name) return false;
+            if (!slot.virginity || slot.virginity.vaginal === undefined) return false;
+            var cfg = CONFIGS[name];
+            if (!cfg) return true;
+            var bad = cfg.vestigeBadValues;
+            if (bad) {
+                for (var k in bad) {
+                    if (bad[k].indexOf(slot[k]) !== -1) return false;
+                }
+            }
+            var del = cfg.vestigeDeleteAlways;
+            if (del) {
+                for (var j = 0; j < del.length; j++) {
+                    if (slot[del[j]] !== undefined) return false;
+                }
+            }
+            return true;
+        }
+
+        var needsWork = false;
+        for (var a = 0; a < names.length; a++) {
+            var nm = names[a];
+            var ix = V.NPCNameList.indexOf(nm);
+            if (ix === -1) {
+                if (unlocks[nm]) { needsWork = true; break; }
+            } else if (!isHealthy(V.NPCName[ix], nm)) {
+                needsWork = true;
+                break;
+            }
+        }
+        if (!needsWork) return;   /* ← This is where most calls bail out */
+
+        /* ---- Slow-path: actually repair ---- */
+        function buildDefaults(name) {
+            var d = {
+                nam: name, init: 0, intro: 0, aware: 0, name_known: 0,
+                description: name, fullDescription: name, pronoun: "f",
+                title: "", insecurity: "weak", adult: 1, teen: 0, type: "human",
+                love: 0, lust: 0, dom: 0, trauma: 0, rage: 0,
+                trust: 0, purity: 0, corruption: 0,
+                virginity: { vaginal: true, penile: true, anal: true, oral: true, handholding: true },
+                timer: {}, maxOrgasms: 1, orgasm: 0, promiscuity: 0,
+                skincolour: "white", haircolour: "brown", eyecolour: "blue",
+                breastsize: 3, penissize: 0,
+                pregnancy: { type: "none", timer: 0 }
+            };
+            var cfg = CONFIGS[name];
+            return cfg ? Object.assign(d, cfg.metadata) : d;
+        }
+
+        function cleanVestige(slot, name) {
+            var cfg = CONFIGS[name];
+            if (!cfg) return;
+            var bad = cfg.vestigeBadValues, del = cfg.vestigeDeleteAlways;
+            if (bad) for (var k in bad) {
+                if (bad[k].indexOf(slot[k]) !== -1) delete slot[k];
+            }
+            if (del) for (var i = 0; i < del.length; i++) {
+                if (slot[del[i]] !== undefined) delete slot[del[i]];
+            }
+        }
+
+        function patchMissing(slot, name) {
+            var d = buildDefaults(name);
+            for (var k in d) {
+                if (slot[k] === undefined) {
+                    slot[k] = (d[k] && typeof d[k] === "object") ? clone(d[k]) : d[k];
+                }
+            }
+            if (!slot.virginity || typeof slot.virginity !== "object") {
+                slot.virginity = clone(d.virginity);
+            } else {
+                var vk = ["vaginal", "penile", "anal", "oral", "handholding"];
+                for (var j = 0; j < vk.length; j++) {
+                    if (slot.virginity[vk[j]] === undefined) slot.virginity[vk[j]] = true;
+                }
+            }
+            if (!slot.timer || typeof slot.timer !== "object") slot.timer = {};
+            if (!slot.pregnancy || typeof slot.pregnancy !== "object") {
+                slot.pregnancy = clone(d.pregnancy);
+            } else {
+                if (slot.pregnancy.type === undefined) slot.pregnancy.type = "none";
+                if (slot.pregnancy.timer === undefined) slot.pregnancy.timer = 0;
+            }
+        }
+
+        function makeStub(name) {
+            var src = (typeof C === "object" && C && C.npc && C.npc[name])
+                || (typeof setup === "object" && setup && setup.npc && setup.npc[name])
+                || null;
+            var stub = Object.assign(buildDefaults(name), src ? clone(src) : {}, { nam: name });
+            cleanVestige(stub, name);
+            patchMissing(stub, name);
+            return stub;
+        }
+
+        for (var r = 0; r < names.length; r++) {
+            var name = names[r];
+            var idx = V.NPCNameList.indexOf(name);
+            if (idx === -1) {
+                if (!unlocks[name]) continue;
+                V.NPCNameList.push(name);
+                V.NPCName.push(makeStub(name));
+            } else {
+                var slot = V.NPCName[idx];
+                if (!slot || slot.nam !== name) {
+                    V.NPCName[idx] = makeStub(name);
+                } else {
+                    cleanVestige(slot, name);
+                    patchMissing(slot, name);
+                }
+            }
+        }
+
+        if (V.NPCName.length > V.NPCNameList.length) {
+            V.NPCName.length = V.NPCNameList.length;
+        }
+        if (typeof setup === "object" && setup) delete setup._poppyNpcIdx;
+    })();
+    <</script>>
+<</widget>>

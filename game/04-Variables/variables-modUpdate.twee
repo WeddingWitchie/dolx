@@ -1634,38 +1634,39 @@
 		"veteran_guard": () => "Respect"
 	}>>
 
-	<<set $robinmoney to Math.round($robinmoney)>>
-	<<run pruneNPCName()>>
+	<<modLI-init>>
 
-	/* <<if $gwylan isnot undefined && $gwylan.request isnot undefined && $gwylan.request.items isnot undefined>>
-		<<for _i to 0; _i lt $gwylan.request.items.length; _i++>>
-			<<if ["ghost_orchid", "hen_of_the_woods", "red_helleborine", "lady_orchid", "fly_agaric", "spiked_rampion", "cloudberry", "scottish_bog_myrtle", "bog_orchid", "marsh_saxifrage"].includes($gwylan.request.items[_i].name)>>
-				<<set $gwylan.request.items[_i].name to "mushroom">>
-				<<set $gwylan.request.items[_i].type to "mushroom">>
-				<<set $gwylan.request.items[_i].category to "mushroom">>
-			<</if>>
-		<</for>>
-	<</if>> */
+	/* Poppy LI data migration */
+	<<if $objectVersion.poppyLIData is undefined or $objectVersion.poppyLIData lt 1>>
+		<<if $daily is undefined>><<set $daily to {}>><</if>>
+		<<if $daily.poppy is undefined>><<set $daily.poppy to {}>><</if>>
 
-	<<if C.npc is undefined or C.npc.Poppy is undefined>>
-		/* stop here; Poppy base object must exist first */
-	<<else>>
-		<<set _poppyIndex to $NPCNameList.indexOf("Poppy")>>
-		<<if _poppyIndex is -1>>
-			/* Poppy missing entirely: append both list + object */
-			<<run $NPCNameList.push("Poppy")>>
-			<<run $NPCName.push(C.npc.Poppy)>>
-		<<else>>
-			/* Poppy name exists, but object slot may be missing/wrong */
-			<<if $NPCName[_poppyIndex] is undefined or $NPCName[_poppyIndex].nam isnot "Poppy">>
-				<<set $NPCName[_poppyIndex] to C.npc.Poppy>>
+		<<if !Array.isArray($poppySeen)>>
+			<<if $poppySeen isnot undefined>>
+				<<run console.warn("[Poppy migration] $poppySeen was not an array, resetting:", V.poppySeen)>>
 			<</if>>
+			<<set $poppySeen to []>>
+		<</if>>
+
+		<<if C.npc.Poppy>>
+			<<if C.npc.Poppy.timer is undefined>><<set C.npc.Poppy.timer to {}>><</if>>
+
+			<<if C.npc.Poppy.timer.lastInteraction is undefined>>
+				<<set C.npc.Poppy.timer.lastInteraction to Time.date.timeStamp>>
+			<</if>>
+			<<if C.npc.Poppy.timer.lastPatienceDecay is undefined>>
+				<<set C.npc.Poppy.timer.lastPatienceDecay to Time.date.timeStamp>>
+			<</if>>
+			<<if typeof C.npc.Poppy.patience !== "number">>
+				<<set C.npc.Poppy.patience to 100>>
+			<</if>>
+
+			<<set $objectVersion.poppyLIData to 1>>
 		<</if>>
 	<</if>>
-	<<set $opium_addiction to $opium_addiction ?? 0>>
-	<<set $opium_timer to $opium_timer ?? 0>>
-	<<set $opium_knowledge to $opium_knowledge ?? 0>>
-	<<set $opium_message to $opium_message ?? "">>
+
+	<<run pruneNPCName()>>
+	<<set $robinmoney to Math.round($robinmoney)>>
 
 	<<if $player.virginity.penile is "Frostberg">>
 		<<set $player.virginity.penile to "unknown">>

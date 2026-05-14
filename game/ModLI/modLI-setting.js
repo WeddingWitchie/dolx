@@ -1,5 +1,4 @@
-/* ModLI shared helpers
- *-------------------------------------------------------------*/
+/*------------------ ModLI shared helpers -------------------*/
 
 window.ensureModLISettings = function ensureModLISettings() {
 	if (V.modLIUnlocks == null) V.modLIUnlocks = {};
