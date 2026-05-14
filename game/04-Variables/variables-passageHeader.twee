@@ -29,6 +29,9 @@
 
 	/* Run stuff on every page refresh, save load, or version mismatch */
 	<<if versionUpdateCheck or onLoadUpdateCheck or !$saveVersions or $saveVersions.last() isnot StartConfig.version>>
+		/* PERF PATCH that decide BEFORE clearing the flags whether this is a real version mismatch or just a same-version load/refresh. */
+		<<set _needsMigration to (!$saveVersions or $saveVersions.last() isnot StartConfig.version)>>
+
 		<<set versionUpdateCheck to false>>
 		<<set onLoadUpdateCheck to false>>
 
@@ -38,8 +41,13 @@
 			it needs to use $ instead of _ because pre-weather save update code runs Engine.play() and that destroys temp variables
 			and probably causes some other bad effects. honestly, version updater needs a major update itself. */
 		<<set $prngpull to State.prng.pull>>
-		<<backComp>>
-		<<modupdate>>
+
+		/* PERF PATCH that only run the heavy migration pipeline on actual version mismatches.
+		Skipping these on same-version loads saves ~2100 if-checks across the three migration files. */
+		<<if _needsMigration>>
+			<<backComp>>
+			<<modupdate>>
+		<</if>>
 
 		<<updatehistorycontrols>>
 		<<set _preventUpdate to true>> /*prevent rewriting autosaves */

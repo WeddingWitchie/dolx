@@ -1,20 +1,44 @@
 :: DoLX UI Toggle JS [script]
 setup.dolxUi = {
 	className: "dolx-ui",
+	lastEnabled: null,
+	applyQueued: false,
 
-	apply() {
+	apply(force = false) {
 		const root = document.documentElement;
 		if (!root || !window.State || !State.variables) {
 			return;
 		}
 
-		root.classList.toggle(this.className, !!State.variables.dolxCustomUIEnabled);
+		const enabled = !!State.variables.dolxCustomUIEnabled;
+		if (!force && this.lastEnabled === enabled && root.classList.contains(this.className) === enabled) {
+			return;
+		}
+
+		root.classList.toggle(this.className, enabled);
+		this.lastEnabled = enabled;
+	},
+
+	scheduleApply() {
+		if (this.applyQueued) return;
+		this.applyQueued = true;
+
+		const run = () => {
+			this.applyQueued = false;
+			this.apply();
+		};
+
+		if (typeof window.requestAnimationFrame === "function") {
+			window.requestAnimationFrame(run);
+		} else {
+			window.setTimeout(run, 0);
+		}
 	},
 };
 
 $(document).on(":storyready :passagerender", function () {
 	if (window.setup && setup.dolxUi) {
-		setup.dolxUi.apply();
+		setup.dolxUi.scheduleApply();
 	}
 });
 
@@ -24,13 +48,13 @@ $(document).on(":storyready :passagerender", function () {
 		<<if $dolxCustomUIEnabled>>
 			<<button "CHANGE TO PLAIN UI">>
 				<<set $dolxCustomUIEnabled to 0>>
-				<<run setup.dolxUi.apply()>>
+				<<run setup.dolxUi.apply(true)>>
 				<<run Engine.show()>>
 			<</button>>
 		<<else>>
 			<<button "CHANGE TO UPDATED UI">>
 				<<set $dolxCustomUIEnabled to 1>>
-				<<run setup.dolxUi.apply()>>
+				<<run setup.dolxUi.apply(true)>>
 				<<run Engine.show()>>
 			<</button>>
 		<</if>>

@@ -1,15 +1,28 @@
 (function () {
 	"use strict";
 
-	function getButtonLabels() {
-		return Array.from(document.querySelectorAll(".link-internal.macro-button"))
-			.map((el) => (el.textContent || "").trim())
-			.filter(Boolean);
+	let scheduled = false;
+	let observerInstalled = false;
+
+	function getButtonLabelState() {
+		let hasSaves = false;
+		let hasCharacteristics = false;
+
+		const buttons = document.querySelectorAll(".link-internal.macro-button, .macro-button, button");
+		for (const el of buttons) {
+			const label = (el.textContent || "").trim();
+			if (label === "SAVES") hasSaves = true;
+			else if (label === "CHARACTERISTICS") hasCharacteristics = true;
+
+			if (hasSaves && hasCharacteristics) break;
+		}
+
+		return { hasSaves, hasCharacteristics };
 	}
 
 	function isStartLikeScreen() {
-		const labels = getButtonLabels();
-		return labels.includes("SAVES") && !labels.includes("CHARACTERISTICS");
+		const labels = getButtonLabelState();
+		return labels.hasSaves && !labels.hasCharacteristics;
 	}
 
 	function getDirectChildByTag(parent, tagName) {
@@ -21,8 +34,8 @@
 		return null;
 	}
 
-	function ensureStartCaptionAnchor() {
-		if (!isStartLikeScreen()) return;
+	function ensureStartCaptionAnchor(startLike) {
+		if (!startLike) return;
 
 		const startCaption = document.getElementById("startCaption");
 		if (!startCaption) return;
@@ -40,8 +53,8 @@
 		startCaption.insertBefore(h4, startCaption.firstChild);
 	}
 
-	function ensureOverlayButtonSplitAnchors() {
-		if (isStartLikeScreen()) return;
+	function ensureOverlayButtonSplitAnchors(startLike) {
+		if (startLike) return;
 
 		const overlayButtons = document.getElementById("overlayButtons");
 		if (!overlayButtons) return;
@@ -65,34 +78,90 @@
 	}
 
 	function ensureBreezeCompatAnchors() {
-		ensureStartCaptionAnchor();
-		ensureOverlayButtonSplitAnchors();
+		const startLike = isStartLikeScreen();
+		ensureStartCaptionAnchor(startLike);
+		ensureOverlayButtonSplitAnchors(startLike);
+	}
+
+	function scheduleEnsureBreezeCompatAnchors() {
+		if (scheduled) return;
+		scheduled = true;
+
+		const run = () => {
+			scheduled = false;
+			ensureBreezeCompatAnchors();
+		};
+
+		if (typeof window.requestAnimationFrame === "function") {
+			window.requestAnimationFrame(run);
+		} else {
+			window.setTimeout(run, 0);
+		}
+	}
+
+	function mutationTouchesUi(mutations) {
+		for (const mutation of mutations) {
+			if (mutation.type !== "childList") continue;
+
+			const target = mutation.target;
+			if (
+				target &&
+				(target.id === "startCaption" ||
+					target.id === "overlayButtons" ||
+					target.id === "story-caption" ||
+					target.id === "ui-bar" ||
+					target.id === "passages")
+			) {
+				return true;
+			}
+
+			for (const node of mutation.addedNodes) {
+				if (!(node instanceof Element)) continue;
+				if (
+					node.id === "startCaption" ||
+					node.id === "overlayButtons" ||
+					node.id === "story-caption" ||
+					node.id === "ui-bar" ||
+					node.id === "passages" ||
+					node.matches?.(".macro-button, .link-internal, .sidebarButtonSplit") ||
+					node.querySelector?.("#startCaption, #overlayButtons, #story-caption, #ui-bar, #passages, .macro-button, .link-internal, .sidebarButtonSplit")
+				) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	function installObserver() {
-		const observer = new MutationObserver(() => {
-			ensureBreezeCompatAnchors();
+		if (observerInstalled || !document.body) return;
+		observerInstalled = true;
+
+		const observer = new MutationObserver((mutations) => {
+			if (mutationTouchesUi(mutations)) {
+				scheduleEnsureBreezeCompatAnchors();
+			}
 		});
 
-		observer.observe(document.documentElement, {
+		observer.observe(document.body, {
 			childList: true,
 			subtree: true,
 		});
 	}
 
-	if (document.readyState === "loading") {
-		document.addEventListener("DOMContentLoaded", () => {
-			ensureBreezeCompatAnchors();
-			installObserver();
-		});
-	} else {
-		ensureBreezeCompatAnchors();
+	function init() {
+		scheduleEnsureBreezeCompatAnchors();
 		installObserver();
 	}
 
+	if (document.readyState === "loading") {
+		document.addEventListener("DOMContentLoaded", init, { once: true });
+	} else {
+		init();
+	}
+
 	if (window.jQuery) {
-		jQuery(document).on(":passagestart :passagerender :passagedisplay", function () {
-			ensureBreezeCompatAnchors();
-		});
+		jQuery(document).on(":passagestart :passagerender :passagedisplay", scheduleEnsureBreezeCompatAnchors);
 	}
 })();

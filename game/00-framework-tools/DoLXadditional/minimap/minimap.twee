@@ -12,6 +12,14 @@
 		/* targets format: [{n:?, e:?, label:"X"}, ...]
 		   If don't set $hawkHuntTargets anywhere, it defaults to none. */
 		<<set _targets to ($hawkHuntTargets isnot undefined ? $hawkHuntTargets : [])>>
+
+		/* Cache targets by coordinate so the render loop does not scan the target list for every cell. */
+		<<set _targetByKey to {}>>
+		<<for _t range _targets>>
+			<<if _t and _t.n isnot undefined and _t.e isnot undefined>>
+				<<set _targetByKey[_t.n + "-" + _t.e] to (_t.label ? _t.label : "X")>>
+			<</if>>
+		<</for>>
 	<</silently>>
 
 	<<if _inHunt>>
@@ -29,14 +37,10 @@
 								<<if _n is _playerN and _e is _playerE>>
 									<span class="hawkmap-you">YOU</span>
 								<<else>>
-									<<set _hit to false>>
-									<<for _t range _targets>>
-										<<if _t.n is _n and _t.e is _e>>
-											<span class="hawkmap-target"><<print _t.label ? _t.label : "X">></span>
-											<<set _hit to true>>
-										<</if>>
-									<</for>>
-									<<if !_hit>>
+									<<set _targetLabel to _targetByKey[_n + "-" + _e]>>
+									<<if _targetLabel isnot undefined>>
+										<span class="hawkmap-target"><<print _targetLabel>></span>
+									<<else>>
 										<span class="hawkmap-dot"></span>
 									<</if>>
 								<</if>>
@@ -167,6 +171,26 @@
 			"12-1":"pub"
 		}>>
 
+		/* Reverse lookup avoids scanning the whole 15x15 map just to find the player. */
+		<<set _node2key to {
+			"lake":"7-2",
+			"wet":"7-3",
+			"detritus":"7-5",
+			"rubbish":"7-7",
+			"litter":"7-9",
+			"crumble":"4-5",
+			"ruined":"5-7",
+			"breeze":"3-9",
+			"wood":"5-10",
+			"webs":"3-11",
+			"algae":"9-5",
+			"mud":"9-7",
+			"scrap":"9-9",
+			"sculpture":"11-11",
+			"fungus":"12-7",
+			"pub":"12-1"
+		}>>
+
 		<<set _mainNodeKey to {"7-2":1,"7-3":1,"7-5":1,"7-7":1,"7-9":1}>>
 
 		<<set _corrH to {
@@ -208,35 +232,11 @@
 		<<set _corrH["12-11"] to 1>>
 
 		/* player cell */
-		<<set _playerKey to "">>
-		<<for _y to 0; _y lt 15; _y++>>
-			<<for _x to 0; _x lt 15; _x++>>
-				<<set _k to _x + "-" + _y>>
-				<<if _nodeAt[_k] and _hereNode and _nodeAt[_k] is _hereNode>>
-					<<set _playerKey to _k>>
-				<</if>>
-			<</for>>
-		<</for>>
+		<<set _playerKey to (_hereNode ? _node2key[_hereNode] : "")>>
 
-		/* crop bounds to active tiles so border touches outermost active tiles */
-		<<set _minX to 14>><<set _maxX to 0>><<set _minY to 14>><<set _maxY to 0>>
-		<<set _has to false>>
-		<<for _y to 0; _y lt 15; _y++>>
-			<<for _x to 0; _x lt 15; _x++>>
-				<<set _k to _x + "-" + _y>>
-				<<if _nodeAt[_k] or _corrH[_k] or _corrV[_k] or _bluePathKey[_k]>>
-					<<set _has to true>>
-					<<if _x lt _minX>><<set _minX to _x>><</if>>
-					<<if _x gt _maxX>><<set _maxX to _x>><</if>>
-					<<if _y lt _minY>><<set _minY to _y>><</if>>
-					<<if _y gt _maxY>><<set _maxY to _y>><</if>>
-				<</if>>
-			<</for>>
-		<</for>>
-
-		<<if !_has>>
-			<<set _minX to 0>><<set _maxX to 14>><<set _minY to 0>><<set _maxY to 14>>
-		<</if>>
+		/* crop bounds to active tiles so border touches outermost active tiles
+		   Layout is static, so avoid scanning the full 15x15 map every render. */
+		<<set _minX to 3>><<set _maxX to 12>><<set _minY to 1>><<set _maxY to 11>>
 
 		<<set _w to (_maxX - _minX + 1)>>
 		<<set _h to (_maxY - _minY + 1)>>

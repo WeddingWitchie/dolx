@@ -103,6 +103,14 @@ const Time = (() => {
 
 	let currentDate = {};
 
+	/* PERF PATCH START for isSchoolTerm cache
+	   isSchoolTerm() creates 2–4 DateTime objects per call and is reached transitively by Time.schoolTerm / Time.schoolDay / Time.schoolTime,
+	   which fire from the sidebar and many widgets per passage. 
+	   The result is stable for a calendar day, so a single-entry cache keyed on year*10000 + month*100 + day is correct.
+	   Returns a primitive bool, so there is no aliasing risk. Re-apply on upstream merges. */
+	let _schoolTermCache = { key: -1, value: false };
+	/* PERF PATCH END */
+
 	function set(time = V.timeStamp) {
 		V.startDate ??= new DateTime(2022, 9, 4, 7).timeStamp;
 
@@ -222,17 +230,28 @@ function getNextSchoolTermStartDate(date) {
 	}
 
 	function isSchoolTerm(date) {
+		/* PERF PATCH START for read cache for matching calendar day */
+		const _k = date.year * 10000 + date.month * 100 + date.day;
+		if (_schoolTermCache.key === _k) return _schoolTermCache.value;
+		/* PERF PATCH END */
+
 		let termEndDate = getNextSchoolTermEndDate(date);
 		termEndDate = new DateTime(termEndDate.year, termEndDate.month, termEndDate.day);
 		termEndDate.addDays(1);
 		const firstMonday = date.getFirstWeekdayOfMonth(2);
 		const prevMonth = ((date.month - 2 + 12) % 12) + 1;
 
-		return !(
+		const _result = !(
 			date.timeStamp >= termEndDate.timeStamp ||
 			(holidayMonths.includes(date.month) && date.day >= firstMonday.day) ||
 			(holidayMonths.includes(prevMonth) && date.day < firstMonday.day)
 		);
+
+		/* PERF PATCH START for store under day-key */
+		_schoolTermCache.key = _k;
+		_schoolTermCache.value = _result;
+		/* PERF PATCH END */
+		return _result;
 	}
 
 	function isSchoolDay(date) {
