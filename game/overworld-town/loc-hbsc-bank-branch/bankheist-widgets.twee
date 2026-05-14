@@ -31,36 +31,37 @@
 <</widget>>
 
 /* ================================================================
- * Gap 0 (same day):      +3 suspicion, NO progress
- * Gap 1 (consecutive):   +2 suspicion, NO progress
- * Gap 2 (tight spacing): +1 suspicion, counts as observation
- * Gap 3+ (proper):       clean, counts as observation
+ * Bank observation spacing:
+ * Same day:        +3 suspicion, no progress
+ * Next day:        +2 suspicion, no progress
+ * Two-day gap:     +1 suspicion, counts as progress
+ * Three days more: safer, counts as progress
  * ================================================================ */
 <<widget "bankHeistObservation">>
 	<<initBankHeist>>
 	<<set _heist to $xchange.bankHeist>>
 	<<set _daysSinceLast to Time.days - _heist.lastObservationDay>>
 	<<if _daysSinceLast is 0>>
-		/* Same day - most suspicious, no progress */
+		/* Same day: very suspicious, no progress */
 		<<set _heist.suspicion += 3>>
 		<<set _heistVisitType to "sameDay">>
 	<<elseif _daysSinceLast is 1>>
-		/* Consecutive day - very suspicious, no progress */
+		/* Next day: suspicious, no progress */
 		<<set _heist.suspicion += 2>>
 		<<set _heistVisitType to "consecutive">>
 	<<else>>
-		/* Spaced visit - counts as new observation */
+		/* Enough spacing: counts as a new observation */
 		<<if _daysSinceLast is 2>>
-			/* Tight spacing - mild suspicion */
+			/* Two-day gap: a little suspicious */
 			<<set _heist.suspicion += 1>>
 		<</if>>
-		/* 3+ days gap = clean */
+		/* Three days or more is safe */
 		<<set _heist.suspicion -= 2>>
 		<<set _heist.observationDays += 1>>
 		<<set _heistVisitType to "valid">>
 	<</if>>
 	<<set _heist.lastObservationDay to Time.days>>
-	/* Ban if suspicion too high */
+	/* Ban the player from the bank if suspicion gets too high */
 	<<if _heist.suspicion gte 8>>
 		<<run setup.hbsc.ensureState()>>
 		<<set $hbsc.banUntilDay to Math.max($hbsc.banUntilDay || 0, Time.days + 5)>>
@@ -113,16 +114,16 @@
 	<<set _distA to Math.abs(_s.guardA - _s.position)>>
 	<<set _distB to Math.abs(_s.guardB - _s.position)>>
 	<<if _s.cameraBlackout gt 0>>
-		<span class="green">Mickey: "Camera feed is down. <<print _s.cameraBlackout>> turn<<if _s.cameraBlackout isnot 1>>s<</if>> left. Move."</span>
+		<span class="green">Mickey: "The cameras are down for <<print _s.cameraBlackout>> more turn<<if _s.cameraBlackout isnot 1>>s<</if>>. Go now."</span>
 		<<set _s.cameraBlackout -= 1>>
 	<<elseif _distA lte 1 and _distB lte 1>>
-		<span class="red">Mickey, urgent: "Two on you. Hide. Now."</span>
+		<span class="red">Mickey, urgent: "Two guards are close. Hide. Now."</span>
 	<<elseif _distA lte 1>>
-		<span class="pink">Mickey: "Patrol <<if _s.guardADir gt 0>>heading your way<<else>>sweeping back<</if>>. Hold."</span>
+		<span class="pink">Mickey: "A patrol is <<if _s.guardADir gt 0>>coming your way<<else>>turning back<</if>>. Wait."</span>
 	<<elseif _distB lte 1>>
-		<span class="purple">Mickey: "Stationary guard close. Stay low."</span>
+		<span class="purple">Mickey: "A guard is standing close by. Keep low."</span>
 	<<elseif _distA lte 2 or _distB lte 2>>
-		<span class="blue">Mickey: "Guards nearby. You can move, careful."</span>
+		<span class="blue">Mickey: "Guards are nearby. Move carefully."</span>
 	<<else>>
 		<span class="teal">Mickey: "Clear. Go."</span>
 	<</if>>
@@ -143,10 +144,10 @@
 		<</if>>
 	<</if>>
 	<<if $xchange.bankHeist.heistComplete and !$xchange.bankHeist.landryReported>>
-		<<townhallicon>><<link [[Report the heist to Landry|Heist Landry Report]]>><</link>><br>
+		<<townhallicon>><<link [[Tell Landry how the heist went|Heist Landry Report]]>><</link>><br>
 	<</if>>
 	<<if $xchange.bankHeist.heistFailed and !$xchange.bankHeist.heistFailureTold>>
-		<<townhallicon>><<link [[Talk to Landry about the failed heist|Heist Failure Landry]]>><</link>><br>
+		<<townhallicon>><<link [[Tell Landry the heist failed|Heist Failure Landry]]>><</link>><br>
 	<</if>>
 <</widget>>
 
@@ -160,9 +161,11 @@
 	<</if>>
 <</widget>>
 
-/* Reset heist variables for retry. Keeps: intro, route, landryWarned,
- * wrenRecruited, wrenReported, observationDays, masterSeen.
- * Does NOT require re-observation. Mickey re-preps (new random timer). */
+/* Reset heist variables for a retry.
+ * Keeps the story progress already earned: intro, route, landryWarned,
+ * wrenRecruited, wrenReported, observationDays, and masterSeen.
+ * The player does not need to observe the bank again. Mickey still needs
+ * a fresh prep timer. */
 <<widget "bankHeistRetryReset">>
 	<<initBankHeist>>
 	<<set $xchange.bankHeist.heistFailed to false>>
@@ -179,13 +182,13 @@
 	<<set $xchange.bankHeist.failDay to 0>>
 <</widget>>
 
-/* Check if retry letter should appear. Call in daily update or bedroom. */
+/* Check whether the retry letter should appear. Call this from the daily update or bedroom. */
 <<widget "bankHeistRetryCheck">>
 	<<initBankHeist>>
 	<<set _heistRetryReady to false>>
 	<<if $xchange.bankHeist.heistFailed and $xchange.bankHeist.heistFailureTold and !$xchange.bankHeist.retryLetterRead>>
 		<<if $xchange.bankHeist.failDay lte 0>>
-			/* Save-compat fallback: stamp failDay for old saves */
+			/* Save compatibility: set failDay for old saves */
 			<<set $xchange.bankHeist.failDay to Time.days>>
 		<</if>>
 		<<if (Time.days - $xchange.bankHeist.failDay) gte 45>>
@@ -195,7 +198,7 @@
 <</widget>>
 
 /* ================================================================
- * Bank Heist Journal - shows quest progress in the journal page
+ * Bank Heist Journal - shows clear quest steps in the journal
  * ================================================================ */
 <<widget "bankHeistJournal">>
 	<<initBankHeist>>
@@ -227,16 +230,16 @@
 			<<else>>
 				<li>Observe the bank for Wren. <span class="gold"><<print _bh.observationDays>>/7</span> visits completed.
 				<<if _bh.suspicion gte 5>>
-					<span class="purple">The guards are getting suspicious. Space your visits further apart.</span>
+					<span class="purple">The guards are getting suspicious. Wait longer between visits.</span>
 				<</if>>
 				</li>
 			<</if>>
 		<<elseif _bh.landryWarned and !_bh.wrenRecruited>>
-			<li><span class="teal">Find and recruit Wren.</span>
+			<li><span class="teal">Find Wren and ask for help.</span>
 			<<if $wrenSeen?.length>>
 				You've met <<nnpc_him "Wren">> before.
 			<<else>>
-				Try the docks at night or the industrial estate.
+				Try the docks at night, or look around the industrial estate.
 			<</if>>
 			</li>
 		<<else>>
@@ -246,11 +249,11 @@
 	<</if>>
 <</widget>>
 
-/* Bedroom letter display. Passage after the blackmail letter block. */
+/* Bedroom letter display. Put this after the blackmail letter block. */
 <<widget "bankHeistRetryLetter">>
 	<<bankHeistRetryCheck>>
 	<<if _heistRetryReady>>
-		<span class="gold"><b>NEW!</b></span> <span class="purple">There's a folded note on the floor by the door.</span> No envelope. Just paper, creased twice, slid under the gap.
+		<span class="gold"><b>NEW!</b></span> <span class="purple">A folded note lies on the floor by the door.</span> It has no envelope. Someone slid it under the gap.
 		<br>
 		<<icon "ask.png">><<link [[Read it|Heist Retry Letter]]>><</link>>
 		<br><br>
