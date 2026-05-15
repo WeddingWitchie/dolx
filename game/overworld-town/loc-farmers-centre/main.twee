@@ -77,9 +77,11 @@ The <<person>> opens a laptop. "So what do you have for me?"
 <<set $farmersProduce.toSell to {}>>
 <<set _foodstuffKeys to Object.keys($foodstuff)>>
 <<set _foodstuffItems to {}>>
+<<set _factorySellCategories to ["produce","vegetable","fruit","mushroom","flower"]>>
+
 <<if _foodstuffKeys.length gte 1>>
 	<<for _i to 0; _i lt _foodstuffKeys.length; _i++>>
-		<<if ["produce","vegetable","fruit","mushroom"].includes(setup.foodstuff[_foodstuffKeys[_i]].category)>>
+		<<if setup.foodstuff[_foodstuffKeys[_i]] and _factorySellCategories.includes(setup.foodstuff[_foodstuffKeys[_i]].category)>>
 			<<set _foodstuffItems[_foodstuffKeys[_i]] to clone($foodstuff[_foodstuffKeys[_i]])>>
 		<</if>>
 	<</for>>
@@ -332,7 +334,8 @@ The gate shudders open, and a lorry rumbles out, on its way to collect your prod
 		<<if !$farmersProduce.soldData>><<set $farmersProduce.soldData = {}>><</if>>
 		<<for _label, _value range $farmersProduce.selling>>
 			<<set _quantity to clone(_baseSaleQuantity)>>
-			<<if !setup.foodstuff[_label].tending?.seasons?.includes(Time.season)>>
+			<<set _seasons to setup.foodstuff[_label].tending?.seasons>>
+			<<if Array.isArray(_seasons) and !_seasons.includes(Time.season)>>
 				<<set _quantity to Math.floor(_quantity * 0.9)>>
 			<</if>>
 			<<set _rng to 800 + Math.floor(currentSkillValue('tending') / 5)>>
