@@ -576,24 +576,3 @@
 		<<if _xchangeSkinTone is "no">><<set _xchangeSkinShade to "change">><</if>>
 		<<set $xchange.customisedSkinColour to _xchangeSkinTone + _xchangeSkinShade>>
 	<</widget>>
-
-<<widget "xchangeStartMedicineCabinet">>
-	<<run (() => {
-		const V = State.variables; V.sexStats.pills.boughtOnce = true;
-		const antidoteItem = setup && setup.pharmacyItems ? setup.pharmacyItems["xchange_antidote"] : null;
-		if (!antidoteItem || !antidoteItem.type) {return;}
-
-		const key = antidoteItem.type;
-		if (V.sexStats.pills.pills[key] == null || typeof V.sexStats.pills.pills[key] !== "object") {
-			V.sexStats.pills.pills[key] = { owned: 0 };
-		}
-
-		const slot = V.sexStats.pills.pills[key];
-		if (typeof slot.owned !== "number" || Number.isNaN(slot.owned)) {
-			const repairedOwned = Number(slot.owned);
-			slot.owned = Number.isFinite(repairedOwned) ? repairedOwned : 0;
-		}
-
-		if (slot.owned < 1) {slot.owned = 1;}
-	})()>>
-<</widget>>

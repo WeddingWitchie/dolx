@@ -2022,11 +2022,27 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 	<<combat-reset-hand $_hand>><<set $NPCList[_n][$_hand + "tool"] to 0>>
 <</widget>>
 
+/* === Combat-pilling pre-roll ===
+Per-NPC "does this NPC carry a pill" decision is cached on the NPC object so it survives
+for the whole encounter but vanishes when the NPCList is rebuilt for the next fight.
+The per-turn draw chance is rolled fresh each turn. Both are gated on _npcWillDrawPill
+below so eligibility checks (mouth-free, not already pilled, etc.) still apply. */
 <<widget "combat-set-hand-start">>
 	<<rng>>
 	<<outfitChecks>>
-
 	<<combat-get-other-hand _args[0]>>
+
+	<<set _npcWillDrawPill to false>>
+	<<if $xchange and $xchange.combatPillingEnabled and $NPCList[_n] isnot undefined>>
+		<<if $NPCList[_n]._hasCombatPill is undefined>>
+			<<set _carryChance to ($xchange.combatPillingChance !== undefined ? $xchange.combatPillingChance : 25)>>
+			<<set $NPCList[_n]._hasCombatPill to (random(1, 100) lte _carryChance)>>
+		<</if>>
+		<<if $NPCList[_n]._hasCombatPill>>
+			<<set _drawChance to ($xchange.combatPillingDrawChance !== undefined ? $xchange.combatPillingDrawChance : 15)>>
+			<<set _npcWillDrawPill to (random(1, 100) lte _drawChance)>>
+		<</if>>
+	<</if>>
 
 	<<if $askedtochoke is 1 and $consensual is 1 and $settings.asphyxiaLevel gte 1 and ($neckuse isnot "hand" or ($otherNPChand is "throat" and $rng lte 30))>>
 		<<set $neckuse to "hand">>
@@ -2064,7 +2080,7 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 			<span class="purple"><<He>> tries to grapple you onto the floor with <<his>> _args[0] hand.</span>
 			<<set $speechgrapple to 1>><<combatExtendedStability -10>>
 		<</if>>
-	<<elseif $consensual isnot 1 and ($NPCList[_n].gender is $player.gender or !$xchange.restrictedSexCombatPilling) and ($combatExtended.stabilityLost is 1 or $combatExtended.standingFights is 0) and $NPCList[_n].lefthand isnot "xchange_pill" and $NPCList[_n].righthand isnot "xchange_pill" and playerMayBeSpiked() and (!playerIsXChanged() or $xchange.combatPillingIfPilled) and !$playerWasSpikedInEncounter and $xchange.combatPillingEnabled and $rng lte 15 and (!$NPCName.includes($NPCList[_n].fullDescription) || $xchange.NNPCcombatPillingEnabled)>>
+	<<elseif $consensual isnot 1 and ($NPCList[_n].gender is $player.gender or !$xchange.restrictedSexCombatPilling) and ($combatExtended.stabilityLost is 1 or $combatExtended.standingFights is 0) and $NPCList[_n].lefthand isnot "xchange_pill" and $NPCList[_n].righthand isnot "xchange_pill" and playerMayBeSpiked() and (!playerIsXChanged() or $xchange.combatPillingIfPilled) and !$playerWasSpikedInEncounter and $xchange.combatPillingEnabled and ($enemytype isnot "beast" or $xchange.combatPillingBeastsEnabled) and (!$NPCName.includes($NPCList[_n].fullDescription) || $xchange.NNPCcombatPillingEnabled) and _npcWillDrawPill>>
 		<span class="pink"><<He>> takes a <<print ($player.gender is "m"? "pink":"blue")>> pill out of <<his>> pocket.</span>
 		<<combat-pill-selection _args[0]>>
 

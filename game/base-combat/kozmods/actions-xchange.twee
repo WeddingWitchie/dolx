@@ -1,4 +1,30 @@
 :: Combat Actions XChange Widgets [widget]
+    <<widget "combat-apply-spike">>
+        <<set _isPure to false>>
+        <<if !playerIsXChanged() and $xchange isnot undefined and ($xchange.combatPillingPureRatio !== undefined ? $xchange.combatPillingPureRatio : 0) gte 1>>
+            <<set _pureRatio to ($xchange.combatPillingPureRatio !== undefined ? $xchange.combatPillingPureRatio : 0)>>
+            <<set _isPure to (random(1, 100) lte _pureRatio)>>
+        <</if>>
+
+        <<if _isPure>>
+            /* Clean Pink/Blue pill that the same as one from the Hospital. */
+            <<if $player.gender is "m">>
+                <<xchange-pink 1>>
+            <<else>>
+                <<xchange-blue 1>>
+            <</if>>
+            <br><span class="blue">It tastes plain like a normal, over-the-counter X-Change pill.</span><br><br>
+        <<else>>
+            /* Suspicious pill: random extras (and side effects, if the toggle is on; handled inside xchange-random-spike). */
+            <<xchange-random-spike "suppress">>
+            <<if $xchange isnot undefined and ($xchange.spikeSideEffectsEnabled !== undefined ? $xchange.spikeSideEffectsEnabled : 1)>>
+                <br><span class="pink">The pill burns acridly going down. Your skin feels painful and you know that was no clean pill.<<gstress>><<stress 4>><<gpain>><<pain 3>></span><br><br>
+            <<else>>
+                <br><span class="pink">You can't tell exactly what was in that pill.<<trauma 3>><<gtrauma>></span><br><br>
+            <</if>>
+        <</if>>
+        <<set $playerWasSpikedInEncounter to 1>>
+    <</widget>>
 
     <<widget "combat-hand-on-xchange-pill">>
         <<set _hand to _args[0]>>
@@ -32,13 +58,13 @@
                 /* forced pilling */
                 <span class="pink"><<He>> forces <<his>> pill down your throat.</span>
                 <<combat-reset-hand _args[0]>><<set $NPCList[_n][_hand + "tool"] to 0>>
-                <<xchange-random-spike "suppress">><<set $playerWasSpikedInEncounter to 1>>
+                <<combat-apply-spike>>
             <</if>>
         <<elseif $anususe is 0 and !playerChastity("anus")>>
             /* forced pilling */
             Confident your focus is on keeping your mouth closed off and guarded, <<he>> goes for your rear instead. <span class="pink">In a blink, the pill slips up inside your anus.</span>
             <<combat-reset-hand _args[0]>><<set $NPCList[_n][_hand + "tool"] to 0>>
-            <<xchange-random-spike "suppress">><<set $playerWasSpikedInEncounter to 1>>
+            <<combat-apply-spike>>
         
         <<else>>
             <<if $mouthuse is "righthand" or $mouthuse is "lefthand">>
@@ -62,12 +88,12 @@
                         /* forced pilling */
                         Confident your focus is on keeping your mouth closed off and guarded, <<he>> goes for your rear instead. <span class="pink">In a blink, the pill slips up inside your anus.</span>
                         <<combat-reset-hand _args[0]>><<set $NPCList[_n][_hand + "tool"] to 0>>
-                        <<xchange-random-spike "suppress">><<set $playerWasSpikedInEncounter to 1>>
+                        <<combat-apply-spike>>
                     <<else>>
                         /* forced pilling */
                         <span class="pink"><<He>> forces <<his>> pill down your throat.</span>
                         <<combat-reset-hand _args[0]>><<set $NPCList[_n][_hand + "tool"] to 0>>
-                        <<xchange-random-spike "suppress">><<set $playerWasSpikedInEncounter to 1>>
+                        <<combat-apply-spike>>
                     <</if>>
                 <<else>>
                     <span class="purple"><<He>> fiddles with the pill in <<his>> hand, looking for a chance to feed it to you.</span>
@@ -85,6 +111,11 @@
     <<widget "combat-pill-selection">>
         <<set _hand to _args[0]>>
         <<combat-set-hand-target _hand "xchange_pill">>
+        /* This NPC's single carried pill is now in their hand. 
+        Mark as no longer in pocket so that whacking or using it doesn't get re-rolled into another from nowhere. */
+        <<if $NPCList[_n] isnot undefined>>
+            <<set $NPCList[_n]._hasCombatPill to false>>
+        <</if>>
     <</widget>>
 
     <<widget "leftpillwhack">>

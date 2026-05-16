@@ -20574,8 +20574,6 @@ sugarcube-2:
       name: audioInit
     modupdate:
       name: modupdate
-    xchange-sanity:
-      name: xchange-sanity
     update-nnpc-follower:
       name: update-nnpc-follower
     update-audio:
@@ -21233,17 +21231,16 @@ sugarcube-2:
       name: courtyardrevealresponse_herm
     modLI-init:
       name: modLI-init
-      description: |-
+      description: >-
         Future mod LI checklist for this migration:
-
-        1. Register the LI elsewhere as usual: registerModLI, setup.modLIRegistry,
+        1. Register the LI elsewhere as usual: registerModLI,
+        setup.modLIRegistry,
           setup.NPCNameList, setup.loveAlias, setup.loveInterestNpc, npcNamed.twee
           positional arrays, and named-npcs.twee cases where applicable.
-
         2. Add one config entry below. metadata is mandatory because it is the
           canonical fallback used when vanilla->mod saves need a placeholder slot.
-
-        3. vestigeBadValues and vestigeDeleteAlways are legacy-save insurance only.
+        3. vestigeBadValues and vestigeDeleteAlways are legacy-save insurance
+        only.
           Use them when an older save may already contain a wrong autofilled slot
           such as Night Monster data in this LI's index. Delete the bad field first,
           then patchMissingDefaults() will restore the correct metadata value.
@@ -21260,3 +21257,20 @@ sugarcube-2:
           vestigeBadValues: {},
           vestigeDeleteAlways: []
         }
+    combat-apply-spike:
+      name: combat-apply-spike
+      description: |
+        Centralised entry point for administering a combat pill.
+
+        Rolls Suspicious vs Pure based on $xchange.combatPillingPureRatio (0-100):
+          - Pure: a clean Pink/Blue pill identical to one bought at the Hospital.
+                  1-day duration, no random extras, no side effects.
+                  Skipped (falls through to Suspicious) if the player is already pilled,
+                  because pure pills don't stack — only suspicious ones do.
+          - Suspicious: routes through xchange-random-spike, which itself decides whether
+                        to inflict the side-effect kick based on the global
+                        $xchange.spikeSideEffectsEnabled toggle (default on).
+
+        Always sets $playerWasSpikedInEncounter so the encounter won't try again.
+        The suppress flag on xchange-random-spike avoids a duplicate "You got spiked..."
+        line since the surrounding context already narrates the forced ingestion.

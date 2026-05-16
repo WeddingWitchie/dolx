@@ -2,6 +2,7 @@
 
 <<widget "characteristics">>
 <<if $statFreeze or $hc>>
+	<br>
 	You are ██████
 	<br><br>
 	You are ████████ compared to others. You have ████████████ eyes. You have █████ skin colour. You have ███████████████. You have ████████████████████████████████. When left natural, your ██████████████████████████, and your ████████████████████.
@@ -150,10 +151,7 @@
 			<<run _pillBits.push("transformed into a herm")>>
 		<</if>>
 		/* Only report genderflip if it actually changed sex since activation, and was not just the herm setup step */
-		<<if $xchange.pill.genderflipEffect
-			and !$xchange.pill.hermEffect
-			and $xchange.pill.baseSex isnot undefined
-			and $xchange.pill.baseSex isnot $player.sex>>
+		<<if $xchange.pill.genderflipEffect and !$xchange.pill.hermEffect and $xchange.pill.baseSex isnot undefined and $xchange.pill.baseSex isnot $player.sex>>
 			<<run _pillBits.push("transformed into a " + ($player.sex is "m" ? "boy" : "girl"))>>
 		<</if>>
 		<<if $xchange.pill.genderificationEffect>>
@@ -450,11 +448,11 @@
 	<<if $player.penisExist>>
 		<<set _penisWetnessTextConfig = { currentValue : $penisWetness, preText: 'Your penis is ', states: [
 			{ requiredValue: 0,		color: 'green',	description: 'dry.',				postText: ($player.penissize >= 4) ? " Insertions may be difficult." : ''},
-			{ requiredValue: 15,	color: 'teal',	description: 'a little slick.',	postText: ''},
-			{ requiredValue: 30,	color: 'lblue',	description: 'slick.',			postText: ''},
-			{ requiredValue: 45,	color: 'blue',	description: 'moist.',			postText: ''},
-			{ requiredValue: 60,	color: 'purple',description: 'wet.',			postText: ''},
-			{ requiredValue: 75,	color: 'pink',	description: 'dripping.',		postText: ''},
+			{ requiredValue: 15,	color: 'teal',	description: 'a little slick.',		postText: ''},
+			{ requiredValue: 30,	color: 'lblue',	description: 'slick.',				postText: ''},
+			{ requiredValue: 45,	color: 'blue',	description: 'moist.',				postText: ''},
+			{ requiredValue: 60,	color: 'purple',description: 'wet.',				postText: ''},
+			{ requiredValue: 75,	color: 'pink',	description: 'dripping.',			postText: ''},
 			{ requiredValue: 90,	color: 'red',	description: 'well-lubricated.',	postText: ($player.penissize >= 6) ? " It shouldn\'t have much trouble sliding into places, even at your size." : ''}
 		]}>>
 		<<characteristic-text _penisWetnessTextConfig>>
@@ -468,24 +466,15 @@
 
 	<<if playerHasVibrator()>>
 		<br><br>
-		<a class="sti_toggle_vibrator_button" onclick="window.togglePlayerVibrator(this)">
-			<<if playerVibratorOn()>>
-				Turn vibrator off
-			<<else>>
-				Turn vibrator on
-			<</if>>
-		</a>
-
-		<br>
-		<a id="stiVibePower"
-		class="sti_toggle_vibrator_button"
-		onclick="window.changePlayerVibratorPower(1, this)">
-			Vibrator power: <<print $worn.vibrator.power>>/<<print $worn.vibrator.powerMax>> (tap to increase)
-		</a>
-		<a class="sti_toggle_vibrator_button"
-		onclick="window.changePlayerVibratorPower(-1, document.getElementById('stiVibePower'))">
-			| Decrease power
-		</a>
+		<span class="sti-vibe-line">
+			<<sextoysicon>><b>Vibrator:</b>
+			<a class="sti-vibe-link" onclick="window.togglePlayerVibrator(this)"><<if playerVibratorOn()>>On<<else>>Off<</if>></a>
+			<span class="sti-vibe-sep">|</span>
+			<b>Power:</b>
+			<a class="sti-vibe-link" onclick="window.changePlayerVibratorPower(-1, this.parentElement.querySelector('.sti-vibe-power'))">−</a>
+			<a class="sti-vibe-power" onclick="window.changePlayerVibratorPower(1, this)"><<print $worn.vibrator.power>>/<<print $worn.vibrator.powerMax>></a>
+			<a class="sti-vibe-link" onclick="window.changePlayerVibratorPower(1, this.parentElement.querySelector('.sti-vibe-power'))">+</a>
+		</span>
 	<</if>>
 <</if>> /* if for special description in stat freeze */
 	<br><br>
@@ -547,7 +536,7 @@
 		<</if>>
 		<<if !_anyAltPositions>><li>No options available.</li><</if>>
 		</ul>
-	<</foldout>><br>
+	<</foldout>>
 
 	<div id="characteristics-display">
 

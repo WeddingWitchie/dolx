@@ -231,6 +231,12 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 
 	<<portalPantiesSetup>>
 	<<worldGenderOverrideInit>>
+	/* Defaults for combat-pilling controls (back-compat for older saves) */
+	<<if $xchange.combatPillingChance is undefined>><<set $xchange.combatPillingChance to 25>><</if>>
+	<<if $xchange.combatPillingBeastsEnabled is undefined>><<set $xchange.combatPillingBeastsEnabled to 0>><</if>>
+	<<if $xchange.combatPillingPureRatio is undefined>><<set $xchange.combatPillingPureRatio to 0>><</if>>
+	<<if $xchange.combatPillingDrawChance is undefined>><<set $xchange.combatPillingDrawChance to 15>><</if>>
+	<<if $xchange.spikeSideEffectsEnabled is undefined>><<set $xchange.spikeSideEffectsEnabled to 1>><</if>>
 
 	<<if $recentmolest is undefined>><<set $recentmolest to -1>><</if>>
 	<<if $recentrape is undefined>><<set $recentrape to -1>><</if>>
@@ -831,10 +837,48 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<<unset $xchange.pill.breederEdgingStress>>
 	<</if>>
 
+	/* These are standalone guards: they cover old saves where $xchange.pill exists but is missing sub-keys, 
+	so the full-object initializer above (which only fires when $xchange.pill is undefined) wouldn't repair them. */
+	<<if $xchange.pill isnot undefined>>
+		<<if $xchange.pill.originalBody is undefined>><<set $xchange.pill.originalBody to {}>><</if>>
+		<<if $xchange.pill.changedBody is undefined>><<set $xchange.pill.changedBody to {}>><</if>>
+		<<if $xchange.pill.clonedBody is undefined>><<set $xchange.pill.clonedBody to {}>><</if>>
+		/* clone is a string sentinel ("none"), not an object — explicit falsy check */
+		<<if !$xchange.pill.clone>><<set $xchange.pill.clone to "none">><</if>>
+	<</if>>
+
+	/* permaReflection state object */
+	<<if $xchange.permaReflection is undefined>>
+		<<set $xchange.permaReflection to {pending: false, lastShownDay: -1, answer: null, snapshot: null, lastReminderDay: -1}>>
+	<</if>>
+
+	/* Morning-after pill counter must be a finite number */
+	<<if $pregnancyStats isnot undefined>>
+		<<if $pregnancyStats.aftermorningpills is undefined or !Number.isFinite($pregnancyStats.aftermorningpills)>>
+			<<if $pregnancyStats.aftermorningpills !== undefined>>
+				<<run console.warn("[Morning After pill] pregnancyStats.aftermorningpills is invalid; resetting:", V.pregnancyStats?.aftermorningpills)>>
+			<</if>>
+			<<set $pregnancyStats.aftermorningpills to 0>>
+		<</if>>
+	<</if>>
+
+	/* Premium pill inventory slot to ensure it exists so the Briar premium-pill flow in main.twee 
+	(e.g. $sexStats.pills.pills["X-Change Premium"].owned += 1) doesn't throw on first use. Hardcoded to the canonical key. */
+	<<if $sexStats isnot undefined and $sexStats.pills isnot undefined and $sexStats.pills.pills isnot undefined>>
+		<<if $sexStats.pills.pills["X-Change Premium"] is undefined>>
+			<<set $sexStats.pills.pills["X-Change Premium"] to {owned: 0, doseTaken: 0, overdose: 0}>>
+		<</if>>
+	<</if>>
+
+	/* $xchange.premium container that used by the Briar premium-pill flow in main.twee.
+	   Previously inline-guarded inside the Briar's Office passages; centralised here. */
+	<<if $xchange.premium is undefined>>
+		<<set $xchange.premium to {}>>
+	<</if>>
 <</widget>>
 
 <<widget "xchange-init2">>
-	<<worldGenderOverrideInit>>
+	<<xchangeStartMedicineCabinet>>
 	<<if Object.keys($customColors.presets).length lt 10>>
 		<<for _i to 1; _i lte 10; _i++>>
 			<<set $customColors.presets["custom"+_i] to {
@@ -872,6 +916,18 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 			<<set $xchange.savedNpcBodies[$NPCNameList[_n]].herm to {}>>
 		<</if>>
 	<</for>>
+
+	/* Global C tiredness/physique caps */
+	<<run (function () {
+		if (typeof window.C !== "object" || window.C === null) return;
+		if (typeof C.tiredness !== "object" || C.tiredness === null) C.tiredness = {};
+		if (!Number.isFinite(C.tiredness.max)) C.tiredness.max = 2000;
+		if (typeof C.physique !== "object" || C.physique === null) C.physique = {};
+		if (!Number.isFinite(C.physique.max)) C.physique.max = 30000;
+	})()>>
+
+	/* Jewellery worn-slots repair */
+	<<script>>window.dolxRepairMissingJewelleryWornSlots?.();<</script>>
 <</widget>>
 
 <<widget "xchange-modupdate">>
@@ -921,7 +977,6 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<dhmInit>>
 	<<xchange-init>>
 	<<xchange-init2>>
-	<<run setup.hbsc.ensureState()>>
 
 	/* Ensure antique special clothes entries exist in V.specialClothes */
 	<<specialClothesUpdate>>
@@ -1356,50 +1411,6 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<clamp>>
 <</widget>>
 
-<<widget "xchange-sanity">>
-    /* NOTE: All checks below are already performed by <<xchange-init>>.
-       This widget exists as a lightweight per-passage safety net.
-       If <<xchange-init>> is guaranteed to have run, this is a no-op. */
-    <<set $xchange to $xchange || {}>>
-    <<set $xchange.known to $xchange.known || []>>
-    <<set $xchange.pill to $xchange.pill || {}>>
-    <<set $xchange.spikepool to $xchange.spikepool || {}>>
-    <<set $xchange.pill.originalBody to $xchange.pill.originalBody || {}>>
-    <<set $xchange.pill.changedBody to $xchange.pill.changedBody  || {}>>
-    <<set $xchange.pill.hermBody to $xchange.pill.hermBody     || {}>>
-    <<set $xchange.pill.clonedBody to $xchange.pill.clonedBody   || {}>>
-    <<set $xchange.permaReflection to $xchange.permaReflection || {pending: false, lastShownDay: -1, answer: null, snapshot: null, lastReminderDay: -1}>>
-
-    /* clone is a string sentinel, not an object so keep the explicit check */
-    <<if !$xchange.pill.clone>><<set $xchange.pill.clone to "none">><</if>>
-
-    <<if $sexStats.pills.pills[_premiumPillName] is undefined>>
-        <<set $sexStats.pills.pills[_premiumPillName] to {owned: 0, doseTaken: 0, overdose: 0}>>
-    <</if>>
-    <<if $pregnancyStats.aftermorningpills is undefined or !Number.isFinite($pregnancyStats.aftermorningpills)>>
-        <<if $pregnancyStats.aftermorningpills !== undefined>>
-            <<run console.warn("[Morning After pill] pregnancyStats.aftermorningpills is invalid; resetting:", V.pregnancyStats?.aftermorningpills)>>
-        <</if>>
-        <<set $pregnancyStats.aftermorningpills to 0>>
-    <</if>>
-
-    /* pubtimer: must be a number >= 1, otherwise delete (inactive). */
-    <<run (function () {
-        var x = State.variables.xchange; if (!x) return;
-        var n = Number(x.pubtimer); if (x.pubtimer !== undefined && (!Number.isFinite(n) || n < 1)) delete x.pubtimer;
-    })()>>
-
-    <<run (function () {
-        if (typeof window.C !== "object" || window.C === null) return;
-        if (typeof C.tiredness !== "object" || C.tiredness === null) C.tiredness = {};
-        if (!Number.isFinite(C.tiredness.max)) C.tiredness.max = 2000;
-        if (typeof C.physique !== "object" || C.physique === null) C.physique = {};
-        if (!Number.isFinite(C.physique.max)) C.physique.max = 30000;
-    })()>>
-
-	<<script>>window.dolxRepairMissingJewelleryWornSlots?.();<</script>>
-<</widget>>
-
 <<widget "ensureStatOverlayData">>
 	/* police / misc */
 	<<if $stat_police is undefined>><<set $stat_police to { community: 0, pillory: 0, prison: 0 }>><</if>>
@@ -1658,4 +1669,25 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<<if $sexStats.pills["pills"]["penis reduction"] is undefined>><<set $sexStats.pills["pills"]["penis reduction"] to {doseTaken:0, overdose:0}>><</if>>
 		<<if $sexStats.pills["pills"]["bottom growth"] is undefined>><<set $sexStats.pills["pills"]["bottom growth"] to {doseTaken:0, overdose:0}>><</if>>
 		<<if $sexStats.pills["pills"]["bottom reduction"] is undefined>><<set $sexStats.pills["pills"]["bottom reduction"] to {doseTaken:0, overdose:0}>><</if>>
+	<</widget>>
+	
+	<<widget "xchangeStartMedicineCabinet">>
+		<<run (() => {
+			const V = State.variables; V.sexStats.pills.boughtOnce = true;
+			const antidoteItem = setup && setup.pharmacyItems ? setup.pharmacyItems["xchange_antidote"] : null;
+			if (!antidoteItem || !antidoteItem.type) {return;}
+
+			const key = antidoteItem.type;
+			if (V.sexStats.pills.pills[key] == null || typeof V.sexStats.pills.pills[key] !== "object") {
+				V.sexStats.pills.pills[key] = { owned: 0 };
+			}
+
+			const slot = V.sexStats.pills.pills[key];
+			if (typeof slot.owned !== "number" || Number.isNaN(slot.owned)) {
+				const repairedOwned = Number(slot.owned);
+				slot.owned = Number.isFinite(repairedOwned) ? repairedOwned : 0;
+			}
+
+			if (slot.owned < 1) {slot.owned = 1;}
+		})()>>
 	<</widget>>
