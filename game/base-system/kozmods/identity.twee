@@ -65,7 +65,6 @@
 
 <!-- AELXER'S IDENTITY -->
 	<<widget "identitySettings">>
-	<<xchange-ensure-bodysize-identity>>
 
 		<div class="settingsGrid">
 			<div class="settingsToggleItemWide">
@@ -618,7 +617,6 @@
 	<</widget>>
 
 	<<widget "identityScreen">>
-	<<xchange-ensure-bodysize-identity>>
 
 		<div class="identity-box-list">
 			<div class="settingsGrid">
@@ -1254,78 +1252,12 @@
 		<</if>>
 	<</widget>>
 
-	<<widget "xchange-ensure-bodysize-identity">>
-		<<set $identity to $identity || {}>>
-		<<set $identity.body to $identity.body || {}>>
-		<<set $identity.body.bodysize to $identity.body.bodysize || {}>>
-		<<if $identity.body.bodysize.preferred is undefined>><<set $identity.body.bodysize.preferred to "normal">><</if>>
-		<<for _k range ["miniature","tiny","small","normal","tall","large","giant"]>>
-			<<if $identity.body.bodysize[_k] is undefined>>
-				<<set $identity.body.bodysize[_k] to {acceptance:false, reject:false, dysphoria:0, tolerance:0}>>
-			<</if>>
-		<</for>>
-	<</widget>>
-
-	<<widget "ensure-sexstats-min">>
-		/* Only fill missing sub-fields that some widgets read. Avoid touching pregnancy/other complex structures. */
-		<<if $sexStats is undefined>>
-			<<set $sexStats to { "breasts": { "playedWith": 0 },
-				"creampie": { "self": { "anus":0, "mouth":0, "vagina":0 }, "npc":{ "anus":0, "mouth":0, "vagina":0 } },
-				"pills":{
-					"pills":{
-						'bottom reduction':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-						'bottom growth':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-						'bottom blocker':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-						'breast reduction':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-						'breast growth':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-						'breast blocker':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-						'penis reduction':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-						'penis growth':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-						'penis blocker':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-						'fertility booster':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-						'contraceptive':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-						'asylum\'s prescription':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-						'Dr Harper\'s prescription':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-						'Anti-Parasite Cream': { autoTake: false, doseTaken: 0, owned: 0, overdose: 0 },
-					},
-					"boughtOnce": false,
-					"lastTaken":{"bottom":'', "breast":'', "penis":'', "pregnancy":''},
-					"mostTaken":{"bottom":'', "breast":'', "penis":'', "pregnancy":''}
-				} }>>
-		<</if>>
-
-		<<if $sexStats.breasts is undefined>><<set $sexStats.breasts = { playedWith : 0 }>><<elseif $sexStats.breasts.playedWith is undefined>><<set $sexStats.breasts.playedWith = 0>><</if>>
-		<<if $sexStats.creampie is undefined>><<set $sexStats.creampie = {}>><</if>>
-		<<if $sexStats.creampie.self is undefined>><<set $sexStats.creampie.self = { anus: 0, mouth: 0, vagina: 0 }>><</if>>
-		<<if $sexStats.creampie.npc is undefined>><<set $sexStats.creampie.npc = { anus: 0, mouth: 0, vagina: 0 }>><</if>>
-
-		<<if $sexStats.vagina is undefined>>
-			<<set _baseDays to random(24,38)>>
-			<<if _baseDays lt 26>><<set _baseDaysRng to random(0,4)>><<elseif _baseDays gte 30>><<set _baseDaysRng to random(-4,0)>><<else>><<set _baseDaysRng to random(-2,2)>><</if>>
-			<<set _currentDaysMax to _baseDays + random(0, _baseDaysRng)>>
-			<<set $sexStats.vagina to {
-				"pregnancy": { "fetus": [], "givenBirth": 0, "parasiteBirthEvents": 0, "totalBirthEvents": 0, "motherStatus": 0, "waterBreaking": false, "type": null, "timer": null, "timerEnd": null, "awareOf": null, "potentialFathers": [], },
-				"menstruation":{ "baseDays": _baseDays, "baseDaysRng": _baseDaysRng, "currentDay": random(0, _baseDays + random(0,_baseDaysRng)), "lastDaysMax": _currentDaysMax, "currentDaysMax": _currentDaysMax, "currentState": "normal", "recoveryTime": null, "recoveryTimeStart": null, "recoveryStage": null, "periodEnabled": true, "running": false, "stages": [0, 0, 0, 0], },
-				"sperm":[] }>>
-			<<set _menstruation to $sexStats.vagina.menstruation>>
-			<<set _stage2 to Math.round(_menstruation.currentDaysMax * 0.17)>>
-			<<if _stage2 gte 4>><<set _stage2-->><</if>>
-			<<set _stage3 to Math.round(_menstruation.currentDaysMax * 0.5)>>
-			<<if _stage3 lt 13>><<set _stage3++>><<elseif _stage3 gte 18>><<set _stage3-->><</if>>
-			<<set _menstruation.stages to [0, _stage2, _stage3, _stage3 + random(1,2) * 0.5]>>
-			<<if $player.vaginaExist>><<set $sexStats.vagina.menstruation.running = true>><</if>>
-		<</if>>
-		<<if $sexStats.vagina.menstruation is undefined>><<set $sexStats.vagina.menstruation = { running: false }>><<elseif $sexStats.vagina.menstruation.running is undefined>><<set $sexStats.vagina.menstruation.running = false>><</if>>
-	<</widget>>
-
 	<<widget "gi-compute-target">>
 		<<run mapToLegacyGenderIdentity()>>
 	<</widget>>
 
 	<<widget "gi-auto-update">>
 		<<if $attitudesControl and $attitudesControl.unlockGender>>
-			<<ensure-sexstats-min>>
-
 			<<if $xchange.genderIdentityEnabled isnot true>>
 				<<gi-disarm>>
 			<<else>>
@@ -1498,7 +1430,6 @@
 					<<set $player.penissize to 0>>
 					<<set $ballssize to 0>>
 					<<set $player.vaginaExist to true>>
-					<<ensure-sexstats-min>>
 					<<if $sexStats.vagina and $sexStats.vagina.menstruation>>
 						<<set $sexStats.vagina.menstruation.running to true>>
 					<</if>>
@@ -1511,7 +1442,6 @@
 					<<set $player.vaginaExist to true>>
 					<<set $player.ballsExist to false>>
 					<<set $ballssize to 0>>
-					<<ensure-sexstats-min>>
 					<<if $sexStats.vagina and $sexStats.vagina.menstruation>>
 						<<set $sexStats.vagina.menstruation.running to true>>
 					<</if>>

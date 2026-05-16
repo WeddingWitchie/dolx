@@ -843,7 +843,7 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<<if $xchange.pill.originalBody is undefined>><<set $xchange.pill.originalBody to {}>><</if>>
 		<<if $xchange.pill.changedBody is undefined>><<set $xchange.pill.changedBody to {}>><</if>>
 		<<if $xchange.pill.clonedBody is undefined>><<set $xchange.pill.clonedBody to {}>><</if>>
-		/* clone is a string sentinel ("none"), not an object — explicit falsy check */
+		/* clone is a string sentinel ("none"), not an object; explicit falsy check */
 		<<if !$xchange.pill.clone>><<set $xchange.pill.clone to "none">><</if>>
 	<</if>>
 
@@ -874,6 +874,38 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	   Previously inline-guarded inside the Briar's Office passages; centralised here. */
 	<<if $xchange.premium is undefined>>
 		<<set $xchange.premium to {}>>
+	<</if>>
+
+	/* --- $sexStats.vagina skeleton safety net --- */
+	<<if $sexStats isnot undefined>>
+		<<if $sexStats.vagina is undefined>>
+			<<set _esBaseDays to random(24,38)>>
+			<<if _esBaseDays lt 26>>
+				<<set _esBaseDaysRng to random(0,4)>>
+			<<elseif _esBaseDays gte 30>>
+				<<set _esBaseDaysRng to random(-4,0)>>
+			<<else>>
+				<<set _esBaseDaysRng to random(-2,2)>>
+			<</if>>
+			<<set _esCurrentDaysMax to _esBaseDays + random(0, _esBaseDaysRng)>>
+			<<set $sexStats.vagina to {
+				"pregnancy": { "fetus": [], "givenBirth": 0, "parasiteBirthEvents": 0, "totalBirthEvents": 0, "motherStatus": 0, "waterBreaking": false, "type": null, "timer": null, "timerEnd": null, "awareOf": null, "potentialFathers": [] },
+				"menstruation": { "baseDays": _esBaseDays, "baseDaysRng": _esBaseDaysRng, "currentDay": random(0, _esBaseDays + random(0, _esBaseDaysRng)), "lastDaysMax": _esCurrentDaysMax, "currentDaysMax": _esCurrentDaysMax, "currentState": "normal", "recoveryTime": null, "recoveryTimeStart": null, "recoveryStage": null, "periodEnabled": true, "running": false, "stages": [0, 0, 0, 0] },
+				"sperm": []
+			}>>
+			<<set _esMenstruation to $sexStats.vagina.menstruation>>
+			<<set _esStage2 to Math.round(_esMenstruation.currentDaysMax * 0.17)>>
+			<<if _esStage2 gte 4>><<set _esStage2-->><</if>>
+			<<set _esStage3 to Math.round(_esMenstruation.currentDaysMax * 0.5)>>
+			<<if _esStage3 lt 13>><<set _esStage3++>><<elseif _esStage3 gte 18>><<set _esStage3-->><</if>>
+			<<set _esMenstruation.stages to [0, _esStage2, _esStage3, _esStage3 + random(1,2) * 0.5]>>
+			<<if $player isnot undefined and $player.vaginaExist>><<set $sexStats.vagina.menstruation.running to true>><</if>>
+		<</if>>
+		<<if $sexStats.vagina.menstruation is undefined>>
+			<<set $sexStats.vagina.menstruation to { running: false }>>
+		<<elseif $sexStats.vagina.menstruation.running is undefined>>
+			<<set $sexStats.vagina.menstruation.running to false>>
+		<</if>>
 	<</if>>
 <</widget>>
 
