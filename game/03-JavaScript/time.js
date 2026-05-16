@@ -1422,6 +1422,16 @@ function minutePassed(minutes) {
 
 	parasiteProgressTime(minutes);
 	parasiteProgressTime(minutes, "vagina");
+
+	// --- Tummy parasite latch timer ---
+	// Tracks how long the tummy parasite has been attached, for the fertility bonus.
+	// Auto-resets to 0 when the parasite detaches.
+	if (V.parasite?.tummy?.name) {
+		V.parasite.tummy.latchedMinutes = (V.parasite.tummy.latchedMinutes || 0) + minutes;
+	} else if (V.parasite?.tummy) {
+		V.parasite.tummy.latchedMinutes = 0;
+	}
+
 	// eslint-disable-next-line no-undef
 	if (isPregnancyEnding()) {
 		// To prevent new events from occurring, allowing players to more easily go to the hospital or similar locations

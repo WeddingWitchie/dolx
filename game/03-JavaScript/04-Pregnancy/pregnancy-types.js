@@ -10,6 +10,22 @@ function maxParasites(genital = "anus") {
 }
 window.maxParasites = maxParasites;
 
+// --- Tummy parasite fertility bonus ---
+// Returns 0 to 0.75 based on how long the tummy parasite has been latched.
+// 0% before 2 weeks, ramps linearly to 75% over the following 2 weeks, then capped.
+function tummyParasiteFertilityBonus() {
+    const p = V.parasite && V.parasite.tummy;
+    if (!p || !p.name || !p.latchedMinutes) return 0;
+
+    const startMinutes = 14 * 24 * 60;  // 2 weeks
+    const peakMinutes  = 30 * 24 * 60;  // ~1 month
+    if (p.latchedMinutes < startMinutes) return 0;
+
+    const progress = Math.clamp((p.latchedMinutes - startMinutes) / (peakMinutes - startMinutes), 0, 1);
+    return 0.75 * progress;
+}
+window.tummyParasiteFertilityBonus = tummyParasiteFertilityBonus;
+
 function canImpregnateParasite(genital = "anus") {
 	if (V.settings.parasitePregnancyEnabled === false || (genital === "vagina" && !V.player.vaginaExist)) return false;
 	if (V.sexStats.pills.pills["Anti-Parasite Cream"] && V.sexStats.pills.pills["Anti-Parasite Cream"].doseTaken) return false;
@@ -395,6 +411,15 @@ window.pregnancyGenerator = {
 
 			if (random(0, 100) > 94 - twinBoost) count++;
 			if (random(0, 100) > 98 - tripletBoost) count++;
+
+			// --- Tummy parasite fertility boost ---
+			// Latched parasite raises the chance of carrying more than two children.
+			// At full duration (1 month+) this is a 75% chance to force triplets, with a smaller follow-up chance for quadruplets.
+			const parasiteBonus = mother === "pc" ? tummyParasiteFertilityBonus() : 0;
+				if (parasiteBonus > 0 && random(1, 100) <= parasiteBonus * 100) {
+					if (count < 3) count = 3;
+					if (count < 4 && random(1, 100) <= parasiteBonus * 40) count++;
+				}
 			/* Ready for the cloning of PurityGuy to begin */
 			for (let i = 0; i < count; i++) {
 				const childId =
@@ -476,6 +501,9 @@ window.pregnancyGenerator = {
 			if (motherObject.name === "Black Wolf" || fatherObject.name === "Black Wolf") {
 				furColour = furColour.concat(["black", "black", "black"]);
 			}
+			// Tummy parasite contributes extra effective fertility for litter size
+			const parasiteBonus = mother === "pc" ? tummyParasiteFertilityBonus() : 0;
+			const effectiveFertility = fertility + parasiteBonus * 4;
 			for (let i = 0; i < 8; i++) {
 				const childId =
 					"m" + motherObject.parentId.id + "b" + motherObject.parentId.kids + "d" + fatherObject.parentId.id + "f" + fatherObject.parentId.kids;
@@ -499,7 +527,7 @@ window.pregnancyGenerator = {
 				});
 				result.fetus.push(baby);
 				parentFunction.increaseKids(motherObject.parentId.id, 0, fatherObject.parentId.id);
-				if (i > 4 && random(0, 100) > 100 - i * Math.clamp(4 - fertility, 0, 4) && !magicTattoo) break;
+				if (i > 4 && random(0, 100) > 100 - i * Math.clamp(4 - effectiveFertility, 0, 4) && !magicTattoo) break;
 
 				// Hard coded limit
 				if (limit + result.fetus.length >= 1000) break;
@@ -611,6 +639,13 @@ window.pregnancyGenerator = {
 			}
 			if (!count) return false;
 			if (random(0, 100) > 94 - eggBoost) count++;
+
+			// --- Tummy parasite fertility boost (eggs) ---
+			const parasiteBonus = mother === "pc" ? tummyParasiteFertilityBonus() : 0;
+			if (parasiteBonus > 0 && random(1, 100) <= parasiteBonus * 100) {
+				if (count < 3) count = 3;
+				if (count < 4 && random(1, 100) <= parasiteBonus * 50) count++;
+			}
 
 			const featherColour = ["white", "brown"];
 
