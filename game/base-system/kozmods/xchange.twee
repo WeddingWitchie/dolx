@@ -174,6 +174,14 @@
 				<<set $hairfringecolour to $xchange.customisedHairColour>>
 				<<set $naturalhaircolour to $xchange.customisedHairColour>>
 			<</if>>
+			<<if $xchange.customisedHairColour isnot "nochange" and V.dhmod isnot undefined>>
+				<<if V.dhmod.hair isnot undefined>>
+					<<set V.dhmod.hair.is_custom to false>>
+				<</if>>
+				<<if V.dhmod.fringe isnot undefined>>
+					<<set V.dhmod.fringe.is_custom to false>>
+				<</if>>
+			<</if>>
 			<<if $hairlength lt 400>>
 				<<set _hairLengthLevels to [400,400,400,600,600,800,1000]>>
 				<<set $hairlength to _hairLengthLevels[random(0,_hairLengthLevels.length-1)]>>
@@ -425,6 +433,14 @@
 				<<set $hairfringecolour to $xchange.customisedHairColour>>
 				<<set $naturalhaircolour to $xchange.customisedHairColour>>
 			<</if>>
+			<<if $xchange.customisedHairColour isnot "nochange" and V.dhmod isnot undefined>>
+				<<if V.dhmod.hair isnot undefined>>
+					<<set V.dhmod.hair.is_custom to false>>
+				<</if>>
+				<<if V.dhmod.fringe isnot undefined>>
+					<<set V.dhmod.fringe.is_custom to false>>
+				<</if>>
+			<</if>>
 			<<if $hairlength gte 200>>
 				<<set $hairlength to 0>>
 			<</if>>
@@ -674,6 +690,16 @@
 		/* Parasites (deep clone to avoid reference mutation) */
 		<<run _savedbody.parasite = (typeof clone === "function") ? clone(V.parasite) : JSON.parse(JSON.stringify(V.parasite)) >>
 
+		/* DHM ("dye HARDER" mod) custom hair / fringe colour state */
+		<<if V.dhmod isnot undefined>>
+			<<if V.dhmod.hair isnot undefined>>
+				<<run _savedbody.dhmHair = (typeof clone === "function") ? clone(V.dhmod.hair) : JSON.parse(JSON.stringify(V.dhmod.hair)) >>
+			<</if>>
+			<<if V.dhmod.fringe isnot undefined>>
+				<<run _savedbody.dhmFringe = (typeof clone === "function") ? clone(V.dhmod.fringe) : JSON.parse(JSON.stringify(V.dhmod.fringe)) >>
+			<</if>>
+		<</if>>
+
 		<<if _args[0] is undefined>>
 			<<set $xchange.pill.originalBody to _savedbody>>
 		<<elseif _args[0] is "genderswapped">>
@@ -780,6 +806,21 @@
 		<<set $hairlength to _body.hairlength>>
 		<<set $fringelength to _body.fringelength>>
 		<<set $player.skin.color to _body.skinColor>>
+
+		/* DHM ("dye HARDER" mod) state restore */
+		<<if V.dhmod isnot undefined>>
+			<<if _body.dhmHair isnot undefined>>
+				<<run V.dhmod.hair = (typeof clone === "function") ? clone(_body.dhmHair) : JSON.parse(JSON.stringify(_body.dhmHair)) >>
+			<<elseif V.dhmod.hair isnot undefined and V.dhmod.hair.is_custom>>
+				<<set V.dhmod.hair.is_custom to false>>
+			<</if>>
+			<<if _body.dhmFringe isnot undefined>>
+				<<run V.dhmod.fringe = (typeof clone === "function") ? clone(_body.dhmFringe) : JSON.parse(JSON.stringify(_body.dhmFringe)) >>
+			<<elseif V.dhmod.fringe isnot undefined and V.dhmod.fringe.is_custom>>
+				<<set V.dhmod.fringe.is_custom to false>>
+			<</if>>
+			<<run if (typeof dhmUtils !== "undefined" && typeof dhmUtils.colorCache === "function") dhmUtils.colorCache(); >>
+		<</if>>
 
 		/* Fluids */
 		<<set $semen_amount to (_body.semen_amount ?? 0)>>
