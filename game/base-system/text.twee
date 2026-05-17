@@ -6108,7 +6108,13 @@
 	<<elseif $NPCList[$_npcGen].chastity.penis.includes("chastity")>>
 		<<set _text_output to $NPCList[$_npcGen].chastity.penis>>
 	<<elseif npcHasStrapon($_npcGen)>>
-		<<set _text_output to either("strap-on","strap-on cock")>>
+		<<switch $NPCList[$_npcGen].penissize>>
+			<<case 5>><<set _text_output to either("colossal strap-on","monstrous strap-on","towering strap-on","titanic strap-on")>>
+			<<case 4>><<set _text_output to either("huge strap-on","large strap-on","massive strap-on","enormous strap-on")>>
+			<<case 3>><<set _text_output to either("thick strap-on","hefty strap-on","sturdy strap-on","large strap-on")>>
+			<<case 1>><<set _text_output to either("small strap-on","little strap-on","slender strap-on")>>
+			<<default>><<set _text_output to either("strap-on","strap-on cock","toy cock")>>
+		<</switch>>
 	<<else>>
 		<<set _text_output to $NPCList[$_npcGen].penisdesc>>
 	<</if>>
@@ -6126,7 +6132,7 @@
 	<<elseif $NPCList[$_npcGen].chastity.penis.includes("chastity")>>
 		<<set _text_output to $NPCList[$_npcGen].chastity.penis>>
 	<<elseif npcHasStrapon($_npcGen)>>
-		<<set _text_output to either("strap-on","strap-on cock")>>
+		<<set _text_output to either("strap-on","strap-on penis","toy cock","prosthetic dick")>>
 	<<else>>
 		<<set _text_output to either("penis","penis","cock","shaft")>>
 	<</if>>
@@ -6145,7 +6151,13 @@
 		<<set $_ppcolor to $_straponcolor[1]>>*/
 		<<set $_ppcolor to $NPCList[$_npcGen].strapon.color>>
 		<<if $_ppcolor is "fleshy">><<set $_ppcolor to "tan">><</if>>
-		<<set _text_output to $NPCList[$_npcGen].penisdesc>>
+		<<switch $NPCList[$_npcGen].penissize>>
+			<<case 5>><<set _text_output to either("colossal strap-on","monstrous strap-on","towering strap-on","girthy strap-on")>>
+			<<case 4>><<set _text_output to either("huge strap-on","large strap-on","massive strap-on","enormous strap-on")>>
+			<<case 3>><<set _text_output to either("thick strap-on","hefty strap-on","sturdy strap-on","large strap-on")>>
+			<<case 1>><<set _text_output to either("small strap-on","little strap-on","slender strap-on")>>
+			<<default>><<set _text_output to either("strap-on","strap-on penis","toy dick")>>
+		<</switch>>
 	<<else>>
 		<<set _text_output to $NPCList[$_npcGen].penisdesc>>
 	<</if>>
@@ -6302,16 +6314,28 @@ Argument 2, where appropriate, determines whether it's the player undressing the
 		<<set _text_output += "$_chest and ">>
 	<</if>>
 	<<if ["both","lower"].includes($_part)>>
+		<<set $_npcHasStrapon to $_npc.strapon and $_npc.strapon.state is "worn">>
+		<<if $_npcHasStrapon>>
+			<<switch $_npc.penissize>>
+				<<case 5>><<set $_npcPenetratorDesc to either("colossal strap-on","monstrous strap-on","towering strap-on","titanic strap-on")>>
+				<<case 4>><<set $_npcPenetratorDesc to either("huge strap-on","large strap-on","massive strap-on","enormous strap-on")>>
+				<<case 3>><<set $_npcPenetratorDesc to either("thick strap-on","hefty strap-on","sturdy strap-on","large strap-on")>>
+				<<case 1>><<set $_npcPenetratorDesc to either("small strap-on","little strap-on","slender strap-on")>>
+				<<default>><<set $_npcPenetratorDesc to either("strap-on","strap-on cock","toy cock")>>
+			<</switch>>
+		<<else>>
+			<<set $_npcPenetratorDesc to $_npc.penisdesc>>
+		<</if>>
 		<<if $_npc.penis isnot "none" and $_npc.vagina isnot "none">>
-			<<set _text_output += "$_npc.penisdesc and <<his>> ">>
+			<<set _text_output += "$_npcPenetratorDesc and <<his>> ">>
 			<<set _text_output += $enemyarousal gte 40 ? "moistened pussy" : "pussy">>
-			<<if $_npc.chastity.penis.includes("chastity")>>
+			<<if !$_npcHasStrapon and $_npc.chastity.penis.includes("chastity")>>
 				<<set _text_output += ", inside of a $_npc.chastity.penis">>
 			<</if>>
 		<<elseif $_npc.penis isnot "none">>
-			<<set _text_output += $_npc.penisdesc>>
-			<<if $_npc.penisdesc.includes("strap-on")>>
-				<!-- placeholder -->
+			<<set _text_output += $_npcPenetratorDesc>>
+			<<if $_npcHasStrapon>>
+				<!-- Strap-ons do not get erection or chastity cage text. -->
 			<<else>>
 				<<if $_npc.chastity.penis.includes("chastity")>>
 					<<set _text_output += ", inside of a $_npc.chastity.penis">>
@@ -6337,6 +6361,8 @@ Argument 2, where appropriate, determines whether it's the player undressing the
 	<<if !$worn.face.type.includes("blindfold")>>
 		<<if $_npc.penis isnot "none">>
 			<<switch $_npc.penissize>>
+				<<case 5>>
+					<span class="red"> <<= either("It's difficult not to stare at the sheer size.", "The size makes you take a sharp breath.", "You struggle not to linger on the colossal shape.", "It looks almost impossible to take.")>></span>
 				<<case 4>>
 					<span class="red"> <<print setup.npcPenisRemarks["big"].random()>></span>
 				<<case 1>>

@@ -92,12 +92,46 @@
 					<</if>>
 				<<elseif ["vaginal", "anal", "oral"].includes(_args[1])>>
 					<<if $_npc>>
+						<<set $_npcPenetratorDesc to $_npc.penisdesc or "penis">>
+						<<if $_npc.strapon and $_npc.strapon.state is "worn">>
+							<<switch $_npc.penissize>>
+								<<case 6>>
+									<<set $_npcPenetratorDesc to "monstrous strap-on">>
+								<<case 5>>
+									<<set $_npcPenetratorDesc to "colossal strap-on">>
+								<<case 4>>
+									<<set $_npcPenetratorDesc to "huge strap-on">>
+								<<case 3>>
+									<<set $_npcPenetratorDesc to "thick strap-on">>
+								<<case 1>>
+									<<set $_npcPenetratorDesc to "small strap-on">>
+								<<default>>
+									<<set $_npcPenetratorDesc to "strap-on">>
+							<</switch>>
+						<</if>>
 						<<set $player.virginityDetails[_args[1]].npcPenisSize to $_npc.penissize>>
-						<<set $player.virginityDetails[_args[1]].npcPenisdesc to $_npc.penisdesc>>
+						<<set $player.virginityDetails[_args[1]].npcPenisdesc to $_npcPenetratorDesc>>
 					<</if>>
 					<<if $_npc2>>
+						<<set $_npcPenetratorDesc2 to $_npc2.penisdesc or "penis">>
+						<<if $_npc2.strapon and $_npc2.strapon.state is "worn">>
+							<<switch $_npc2.penissize>>
+								<<case 6>>
+									<<set $_npcPenetratorDesc2 to "monstrous strap-on">>
+								<<case 5>>
+									<<set $_npcPenetratorDesc2 to "colossal strap-on">>
+								<<case 4>>
+									<<set $_npcPenetratorDesc2 to "huge strap-on">>
+								<<case 3>>
+									<<set $_npcPenetratorDesc2 to "thick strap-on">>
+								<<case 1>>
+									<<set $_npcPenetratorDesc2 to "small strap-on">>
+								<<default>>
+									<<set $_npcPenetratorDesc2 to "strap-on">>
+							<</switch>>
+						<</if>>
 						<<set $player.virginityDetails[_args[1]].npcPenisSize2 to $_npc2.penissize>>
-						<<set $player.virginityDetails[_args[1]].npcPenisdesc2 to $_npc2.penisdesc>>
+						<<set $player.virginityDetails[_args[1]].npcPenisdesc2 to $_npcPenetratorDesc2>>
 					<</if>>
 					<<if !$player.virginityDetails[_args[1]].npcPenisSize>>
 						<<if $tentacles>>
@@ -441,7 +475,7 @@
 		<<set $_npc to $NPCList[$_npcId]>>
 	<</if>>
 
-	<<if $_npc and $_npc.penisdesc && $_npc.penisdesc.includes("strap-on")>>
+	<<if $_npc and $_npc.strapon and $_npc.strapon.state is "worn">>
 		<<set $_straponvirginityIgnore to ($_vType is "penile")>>
 	<</if>>
 
@@ -461,19 +495,41 @@
 			<<set $_npc.virginityDetails[$_vType].consensual to !!$consensual>>
 			<<set $_npc.virginityDetails[$_vType].position to $position>>
 		<</if>>
+		<<set $_takerNpc to undefined>>
+		<<set $_npcIndex to $NPCNameList.indexOf($_takerDesc)>>
+		<<if $_npcIndex isnot -1>>
+			<<set $_takerNpc to $NPCName[$_npcIndex]>>
+		<<else>>
+			<<run $NPCList.forEach(npc => {
+				if (npc.fullDescription is $_takerDesc) $_takerNpc to npc;
+			})>>
+		<</if>>
+		<<if $_takerNpc>>
+			<<set $_takerPenetratorDesc to $_takerNpc.penisdesc or "penis">>
+			<<if $_takerNpc.strapon and $_takerNpc.strapon.state is "worn">>
+				<<switch $_takerNpc.penissize>>
+					<<case 6>>
+						<<set $_takerPenetratorDesc to "monstrous strap-on">>
+					<<case 5>>
+						<<set $_takerPenetratorDesc to "colossal strap-on">>
+					<<case 4>>
+						<<set $_takerPenetratorDesc to "huge strap-on">>
+					<<case 3>>
+						<<set $_takerPenetratorDesc to "thick strap-on">>
+					<<case 1>>
+						<<set $_takerPenetratorDesc to "small strap-on">>
+					<<default>>
+						<<set $_takerPenetratorDesc to "strap-on">>
+				<</switch>>
+			<</if>>
+		<</if>>
 		<<if $_vType is "penile">>
 			<<set $_npc.virginityDetails[$_vType].npcPenisSize to $_npc.penissize>>
 			<<set $_npc.virginityDetails[$_vType].npcPenisdesc to $_npc.penisdesc>>
 		<<elseif ["vaginal", "anal", "oral"].includes($_vType)>>
-			<<set $_npcIndex to $NPCNameList.indexOf($_takerDesc)>>
-			<<if $_npcIndex isnot -1>>
-				<<set $_npc.virginityDetails[$_vType].npcPenisSize to $NPCName[$_npcIndex].penissize>>
-				<<set $_npc.virginityDetails[$_vType].npcPenisdesc to $NPCName[$_npcIndex].penisdesc>>
-			<<else>>
-				<<run $NPCList.forEach(npc => {
-					if (npc.fullDescription is $_takerDesc) $_npc.virginityDetails[$_vType].npcPenisSize to npc.penissize;
-					if (npc.fullDescription is $_takerDesc) $_npc.virginityDetails[$_vType].npcPenisdesc to npc.penisdesc;
-				})>>
+			<<if $_takerNpc>>
+				<<set $_npc.virginityDetails[$_vType].npcPenisSize to $_takerNpc.penissize>>
+				<<set $_npc.virginityDetails[$_vType].npcPenisdesc to $_takerPenetratorDesc>>
 			<</if>>
 		<</if>>
 
@@ -499,15 +555,9 @@
 					<<set $NPCName[$_i].virginityDetails[$_vType].npcPenisdesc to $NPCName[$_i].penisdesc>>
 				<<elseif ["vaginal", "anal", "oral"].includes($_vType)>>
 					<<if $debug is 1>><<run console.log($_takerDesc)>><</if>>
-					<<set $_npcIndex to $NPCNameList.indexOf($_takerDesc)>>
-					<<if $_npcIndex isnot -1>>
-						<<set $NPCName[$_i].virginityDetails[$_vType].npcPenisSize to $NPCName[$_npcIndex].penissize>>
-						<<set $NPCName[$_i].virginityDetails[$_vType].npcPenisdesc to $NPCName[$_npcIndex].penisdesc>>
-					<<else>>
-						<<run $NPCList.forEach(npc => {
-							if (npc.fullDescription is $_takerDesc) $NPCName[$_i].virginityDetails[$_vType].npcPenisSize to npc.penissize;
-							if (npc.fullDescription is $_takerDesc) $NPCName[$_i].virginityDetails[$_vType].npcPenisdesc to npc.penisdesc;
-						})>>
+					<<if $_takerNpc>>
+						<<set $NPCName[$_i].virginityDetails[$_vType].npcPenisSize to $_takerNpc.penissize>>
+						<<set $NPCName[$_i].virginityDetails[$_vType].npcPenisdesc to $_takerPenetratorDesc>>
 					<</if>>
 				<</if>>
 			<</if>>
@@ -852,7 +902,7 @@
 		<</if>>
 		/*Their penis*/
 		<<if $vaginastate is "entrance" or $vaginastate is "imminent">>
-			<<if ($NPCList[$_condomnpc].penis is "vaginaentrance" or $NPCList[$_condomnpc].penis is "vaginaimminent") and $NPCList[$_condomnpc].condom.worn is false and !$NPCList[$_condomnpc].penisdesc.includes("strap-on")>>
+			<<if ($NPCList[$_condomnpc].penis is "vaginaentrance" or $NPCList[$_condomnpc].penis is "vaginaimminent") and $NPCList[$_condomnpc].condom.worn is false and !npcHasStrapon($_condomnpc)>>
 				<<personselect $_condomnpc>>
 				<<if $NPCList[$_condomnpc].chastity.penis.includes("chastity")>>
 					<<He>> tries to put a condom on, but can't seem to get it over <<his>> $NPCList[$_condomnpc].chastity.penis. <span class="red"><<He>> quickly gives up.</span>
@@ -864,21 +914,21 @@
 			<</if>>
 		<</if>>
 		<<if $vaginastate is "penetrated">>
-			<<if $NPCList[$_condomnpc].penis is "vagina" and $NPCList[$_condomnpc].condom.worn is false and !$NPCList[$_condomnpc].penisdesc.includes("strap-on")>>
+			<<if $NPCList[$_condomnpc].penis is "vagina" and $NPCList[$_condomnpc].condom.worn is false and !npcHasStrapon($_condomnpc)>>
 				<<personselect $_condomnpc>>
 				<span class="green">The <<person>> briefly withdraws <<his>> penis from your vagina, slips <<condomDesc $_condomnpc $_condomArticle>> on, and slides it back in.</span>
 				<<equipNPCCondom $_condomnpc>>
 			<</if>>
 		<</if>>
 		<<if $anusstate is "entrance" or $anusstate is "imminent">>
-			<<if ($NPCList[$_condomnpc].penis is "anusentrance" or $NPCList[$_condomnpc].penis is "anusimminent") and $NPCList[$_condomnpc].condom.worn is false and !$NPCList[$_condomnpc].penisdesc.includes("strap-on")>>
+			<<if ($NPCList[$_condomnpc].penis is "anusentrance" or $NPCList[$_condomnpc].penis is "anusimminent") and $NPCList[$_condomnpc].condom.worn is false and !npcHasStrapon($_condomnpc)>>
 				<<personselect $_condomnpc>>
 				<span class="green">The <<person>> slips <<condomDesc $_condomnpc $_condomArticle>> onto <<his>> penis.</span>
 				<<equipNPCCondom $_condomnpc>>
 			<</if>>
 		<</if>>
 		<<if $anusstate is "penetrated">>
-			<<if $NPCList[$_condomnpc].penis is "anus" and $NPCList[$_condomnpc].condom.worn is false and !$NPCList[$_condomnpc].penisdesc.includes("strap-on")>>
+			<<if $NPCList[$_condomnpc].penis is "anus" and $NPCList[$_condomnpc].condom.worn is false and !npcHasStrapon($_condomnpc)>>
 				<<personselect $_condomnpc>>
 				<span class="green">The <<person>> briefly withdraws <<his>> penis from your ass, slips <<condomDesc $_condomnpc $_condomArticle>> on, and slides it back in.</span>
 				<<equipNPCCondom $_condomnpc>>

@@ -822,21 +822,6 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<<set $options.showExactMeasurements to true>>
 	<</if>>
 
-	<<if $xchange.breederEdgingCount is undefined>>
-		<<set $xchange.breederEdgingCount to 0>>
-	<</if>>
-	<<if $xchange.breederEdgingStress is undefined>>
-		<<set $xchange.breederEdgingStress to 0>>
-	<</if>>
-	<<if $xchange.pill and $xchange.pill.breederEdgingCount isnot undefined>>
-		<<set $xchange.breederEdgingCount to $xchange.pill.breederEdgingCount>>
-		<<unset $xchange.pill.breederEdgingCount>>
-	<</if>>
-	<<if $xchange.pill and $xchange.pill.breederEdgingStress isnot undefined>>
-		<<set $xchange.breederEdgingStress to $xchange.pill.breederEdgingStress>>
-		<<unset $xchange.pill.breederEdgingStress>>
-	<</if>>
-
 	/* These are standalone guards: they cover old saves where $xchange.pill exists but is missing sub-keys, 
 	so the full-object initializer above (which only fires when $xchange.pill is undefined) wouldn't repair them. */
 	<<if $xchange.pill isnot undefined>>
@@ -910,6 +895,8 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 <</widget>>
 
 <<widget "xchange-init2">>
+	<<if $customColors is undefined or $customColors is null or typeof $customColors isnot "object">><<set $customColors to {}>><</if>>
+	<<if $customColors.presets is undefined or $customColors.presets is null or typeof $customColors.presets isnot "object">><<set $customColors.presets to {}>><</if>>
 	<<xchangeStartMedicineCabinet>>
 	<<if Object.keys($customColors.presets).length lt 10>>
 		<<for _i to 1; _i lte 10; _i++>>
@@ -1032,6 +1019,20 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<if $xchangePill isnot undefined>>
 		<<set $xchange.pill to $xchangePill>>
 		<<unset $xchangePill>>
+	<</if>>
+
+	/* Breeder edging migration. Root vars are canonical; old nested pill vars are one-time legacy input. */
+	<<if def $xchange.pill.breederEdgingCount>>
+		<<set $xchange.breederEdgingCount to $xchange.pill.breederEdgingCount>>
+		<<unset $xchange.pill.breederEdgingCount>>
+	<<elseif ndef $xchange.breederEdgingCount>>
+		<<set $xchange.breederEdgingCount to 0>>
+	<</if>>
+	<<if def $xchange.pill.breederEdgingStress>>
+		<<set $xchange.breederEdgingStress to $xchange.pill.breederEdgingStress>>
+		<<unset $xchange.pill.breederEdgingStress>>
+	<<elseif ndef $xchange.breederEdgingStress>>
+		<<set $xchange.breederEdgingStress to ($xchange.pill.breederEffect ? 100 : 0)>>
 	<</if>>
 	
 	<<if $xchange.impuritySensitivityBonus is undefined>>
@@ -1322,14 +1323,13 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<!-- Repairing corrupted variables -->
 	<<if isNaN(V.arousal)>><<set V.arousal to 0>><</if>>
 	<<if isNaN(V.xchange.willpowerPoints)>><<set V.xchange.willpowerPoints to V.willpower>><</if>>
-	<<if V.trackedArousal.includes(NaN)>><<set V.trackedArousal to [0]>><</if>>
+	<<run (function () {
+		var V = State.variables;
+		if (!Array.isArray(V.trackedArousal) || V.trackedArousal.includes(NaN)) { V.trackedArousal = [0]; }
+	})()>>
 	<<if isNaN(V.vaginaArousalWetness)>><<set V.vaginaArousalWetness to 1>><</if>>
 	<<if isNaN(V.vaginaWetness)>><<set V.vaginaWetness to 1>><</if>>
 	<<if isNaN($combatExtended.brawling)>><<set $combatExtended.brawling to 0>><</if>>
-
-	<<if $xchange.pill.breederEffect and $xchange.pill.breederEdgingStress is undefined>>
-		<<set $xchange.pill.breederEdgingStress to 100>>
-	<</if>>
 
 	<<if $xchange.blackmail and $xchange.blackmail.questsCompleted is undefined>>
 		<<set $xchange.blackmail.questsCompleted to 0>>
@@ -1620,6 +1620,7 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<<if $sexStats.vagina.pregnancy.potentialFathers is undefined>><<set $sexStats.vagina.pregnancy.potentialFathers to []>><</if>>
 		<<if $sexStats.vagina.pregnancy.parasiteFeltMovement is undefined>><<set $sexStats.vagina.pregnancy.parasiteFeltMovement to false>><</if>>
 		<<if $sexStats.vagina.pregnancy.timeEnd is undefined>><<set $sexStats.vagina.pregnancy.timeEnd to null>><</if>>
+		<<if $sexStats.anus is undefined or $sexStats.anus is null>><<set $sexStats.anus to { "pregnancy": { fetus: [], givenBirth: 0, parasiteBirthEvents: 0, motherStatus: 0, type: null, awareOf: null, timer: null, timerEnd: null, potentialFathers: [], totalBirthEvents: 0 }, "sperm":[] }>><</if>>
 		<<if $sexStats.anus.pregnancy is undefined or $sexStats.anus.pregnancy is null>><<set $sexStats.anus.pregnancy to {}>><</if>>	
 		<<if $sexStats.vagina.pregnancy.parasiteBirthEvents is undefined>>
 			<<set $sexStats.vagina.pregnancy.parasiteBirthEvents to 0>>
@@ -1632,7 +1633,6 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 			<<run delete $sexStats.vagina.pregnancy.bellySize>>
 			<<run delete $sexStats.vagina.pregnancy.timerStart>>
 		<</if>>
-		<<if $sexStats.anus is undefined or $sexStats.anus is null>><<set $sexStats.anus to { "pregnancy": { fetus: [], givenBirth: 0, parasiteBirthEvents: 0, motherStatus: 0, type: null, awareOf: null, timer: null, timerEnd: null, type: null, potentialFathers: [], totalBirthEvents: 0, }, "sperm":[], }>><</if>>
 		<<if $sexStats.anus.pregnancy.fetus is undefined>>
 			<<set $sexStats.anus.pregnancy.fetus to []>>
 			<<for $_i to 0; $_i lt 4; $_i++>>
@@ -1705,7 +1705,11 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	
 	<<widget "xchangeStartMedicineCabinet">>
 		<<run (() => {
-			const V = State.variables; V.sexStats.pills.boughtOnce = true;
+			const V = State.variables;
+			V.sexStats ??= {};
+			V.sexStats.pills ??= {};
+			V.sexStats.pills.pills ??= {};
+			V.sexStats.pills.boughtOnce = true;
 			const antidoteItem = setup && setup.pharmacyItems ? setup.pharmacyItems["xchange_antidote"] : null;
 			if (!antidoteItem || !antidoteItem.type) {return;}
 

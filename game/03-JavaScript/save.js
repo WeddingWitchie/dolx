@@ -1247,6 +1247,7 @@ function settingsObjects(type) {
 						},
 					},
 					penisModifier: { min: -8, max: 8, decimals: 0, displayName: "Average size of NPC penises:", randomize: "encounter" },
+					npcColossalPenisChance: { min: 0, max: 100, decimals: 0, displayName: "Chance of colossal NPC penises:", randomize: "encounter" },
 					breastModifier: { min: -12, max: 12, decimals: 0, displayName: "Average size of women's breasts:", randomize: "encounter" },
 					rentCostModifier: { min: 0.1, max: 10, decimals: 1, displayName: "Bailey's rent:", randomize: "gameplay" },
 					baseNpcPregnancyChance: { min: 0, max: 16, decimals: 0, displayName: "Base NPC pregnancy chance:", randomize: "gameplay" },
