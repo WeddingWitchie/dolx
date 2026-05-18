@@ -1217,36 +1217,37 @@ function dayPassed(days) {
 
 		if (V.bike >= 1 && !V.bikeStolenCooldown) {
 			const STREET_LOCATIONS = ["domus", "barb", "danube", "wolf", "connudatus", "cliff", "high", "nightingale", "starfish", "oxford", "mer", "elk", "harvest"];
-			/* Protection as percentage reduction (matches depot notes) */
-			if (V.bikeSecurityGear == 5) {
-				T.bikeTheftProtection = 0.90;
-			} else if (V.bikeSecurityGear == 4) {
-				T.bikeTheftProtection = 0.70;
-			} else if (V.bikeSecurityGear == 3) {
-				T.bikeTheftProtection = 0.50;
-			} else if (V.bikeSecurityGear == 2) {
-				T.bikeTheftProtection = 0.30;
-			} else if (V.bikeSecurityGear == 1) {
-				T.bikeTheftProtection = 0.10;
-			} else {
-				T.bikeTheftProtection = 0;
-			}
+
+			/* Daily theft chance (out of 1000) indexed by V.bikeSecurityGear (0 = none, 5 = U-Lock + Alarm).
+			Calibrated so weekly theft chance is:
+				street: 75% / 50% / 30% / 15% / 7%  / 2%
+				lake:   40% / 23% / 13% /  6% / 2.7% / 0.7%
+				farm:   15% /  8% /  4% /  2% / 0.7% / 0%
+			Each tier roughly halves the weekly chance with cheap gear matters, top gear nearly eliminates theft. */
+			const DAILY_BY_TIER = {
+				street: [180, 94, 50, 23, 10, 3],
+				lake:   [72,  38, 20,  9,  4, 1],
+				farm:   [23,  12,  6,  3,  1, 0],
+			};
+			const tier = Math.clamp(V.bikeSecurityGear || 0, 0, 5);
+
 			T.bikeTheftChanceBonus = 0;
 			if (V.bikeLocation == "lake") {
-				T.bikeTheftChance = 500;
+				T.bikeTheftChance = DAILY_BY_TIER.lake[tier];
 			} else if (STREET_LOCATIONS.includes(V.bikeLocation)) {
 				if (V.baileydefeatedchain >= 1) {
-					T.bikeTheftChanceBonus = 250;
+					/* Bailey's chain gang ups street risk by 30% of the current tier, scales with gear instead of overwhelming it. */
+					T.bikeTheftChanceBonus = Math.floor(DAILY_BY_TIER.street[tier] * 0.3);
 				}
-				T.bikeTheftChance = 750 + T.bikeTheftChanceBonus;
+				T.bikeTheftChance = DAILY_BY_TIER.street[tier] + T.bikeTheftChanceBonus;
 			} else if (V.bikeLocation == "farm" || V.bikeLocation == "alex_farm") {
-				if (V.farm?.aggro) T.bikeTheftChanceBonus = Math.floor(900 * (V.farm.aggro / 100));
-				T.bikeTheftChance = 100 + T.bikeTheftChanceBonus;
+				/* Farm aggro at 100 doubles the tier risk on top of the base, so a no-gear bike at full aggro is ~38% weekly, not 100%. */
+				if (V.farm?.aggro) T.bikeTheftChanceBonus = Math.floor(DAILY_BY_TIER.farm[tier] * 2 * (V.farm.aggro / 100));
+				T.bikeTheftChance = DAILY_BY_TIER.farm[tier] + T.bikeTheftChanceBonus;
 			} else {
 				T.bikeTheftChance = 0;
 			}
-			/* Apply protection as percentage reduction */
-			T.bikeTheftChance = Math.floor(T.bikeTheftChance * (1 - T.bikeTheftProtection));
+
 			if ((random(1, 1000) <= T.bikeTheftChance) && V.bikeSecurity == 1) {
 				V.bikeStolen = 1;
 				V.bike = 0;
