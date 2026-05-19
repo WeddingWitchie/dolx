@@ -1,33 +1,143 @@
 :: Widgets speech-Bailey [widget]
 <<widget "speech-bailey">>
-	<<set $_stringsPre to ($enemyanger lte 60 ? "<<He>> snickers. ":"<<He>> snarls. ")>>
+	<<set $_stringsPre to ($enemyanger lte 60 ? "<<He>> snickers. " : "<<He>> snarls. ")>>
+	<<set $_baileyPenetratorSize to ((window.C && C.npc && C.npc.Bailey && Number.isFinite(Number(C.npc.Bailey.penissize))) ? Number(C.npc.Bailey.penissize) : 0)>>
+	<<set $_baileyColossalPenetrator to $_baileyPenetratorSize gte 5>>
 	<<if ($speechpenisvirgin is 1 and $player.virginity.penile is "Bailey") or ($speechvaginavirgin is 1 and $player.virginity.vaginal is "Bailey")>>
-		<<print $_stringsPre + `"Fuck. Your value just depreciated a little."`>>
+		<<if $_baileyColossalPenetrator>>
+			<<set $_strings to [
+				`"Still breathing? You should. Damaged goods are harder to sell."`,
+				`"Break too badly and you'll cost me money."`,
+				`"Now you know what happens when a debt gets collected in full."`
+			]>>
+		<<else>>
+			<<set $_strings to [
+				`"Fuck. Your value just depreciated a little."`,
+				`"There. Something else I can add to your account."`,
+				`"I collect what I'm owed."`
+			]>>
+		<</if>>
+		<<print $_stringsPre + $_strings[random(0, $_strings.length - 1)]>>
 	<<elseif $speechanusvirgin is 1 and $player.virginity.anal is "Bailey">>
-		<<print $_stringsPre + `"You should be putting out more if you're this tight. What do you think you're good for?"`>>
+		<<if $_baileyColossalPenetrator>>
+			<<set $_strings to [
+				`"If you pass out, this becomes tedious."`,
+				`"That's it. Take it, and don't make me write off the loss."`,
+				`"You should be grateful I know when to stop. Most buyers don't."`
+			]>>
+		<<else>>
+			<<set $_strings to [
+				`"You should be putting out more if you're this tight. What do you think you're good for?"`,
+				`"Tight. That's worth something, at least."`,
+				`"Don't glare at me. You're the one behind on payments."`
+			]>>
+		<</if>>
+		<<print $_stringsPre + $_strings[random(0, $_strings.length - 1)]>>
 	<<elseif $speechmouthvirgin is 1 and $player.virginity.oral is "Bailey">>
-		<<print $_stringsPre + `"Don't get any funny ideas. Just take it."`>>
+		<<if $_baileyColossalPenetrator>>
+			<<set $_strings to [
+				`"Choke too hard and I have to start over."`,
+				`"Open wider. You're not paid to look delicate."`,
+				`"Keep your eyes on me. I want to know you're listening."`
+			]>>
+		<<else>>
+			<<set $_strings to [
+				`"Just take it."`,
+				`"You'll learn. Everyone does."`,
+				`"Less hesitation next time. Time is money."`
+			]>>
+		<</if>>
+		<<print $_stringsPre + $_strings[random(0, $_strings.length - 1)]>>
 	<<elseif $speechkissvirgin is 1 and $player.virginity.kiss is "Bailey">>
-		<<print $_stringsPre + `"Surprised are you? You'll learn to kiss better soon."`>>
+		<<set $_strings to [
+			`"Surprised, are you? You'll learn to kiss better soon."`,
+			`"Don't look at me like that. It was only a kiss."`,
+			`"Now stop acting like I handed you a present."`
+		]>>
+		<<print $_stringsPre + $_strings[random(0, $_strings.length - 1)]>>
 	<<elseif $speechnamedrop is 1>>
 		<<set $speechnamedrop to 0>>
 		<<switch _loveInterest>>
 			<<case "Robin">>
-				<<print $_stringsPre + `"That worthless brat can't save you."`>>
+				<<set $_strings to [
+					`"That worthless brat can't save you."`,
+					`"Robin can't pay what you owe. Sentiment doesn't clear debt."`,
+					`"If Robin wants you back, <<nnpc_he "Robin">> should bring cash."`
+				]>>
+				<<print $_stringsPre + $_strings[random(0, $_strings.length - 1)]>>
+			<<case "Whitney">>
+				<<set $_strings to [
+					`"Whitney? That one makes trouble for free. I make money from it."`,
+					`"Don't hide behind that brat. <<nnpc_He "Whitney">> has debts of <<nnpc_his "Whitney">> own."`
+				]>>
+				<<print $_stringsPre + $_strings[random(0, $_strings.length - 1)]>>
 			<<case "Black Wolf" "Great Hawk">>
-				<<print $_stringsPre + `"People would pay extra to see you ${$player.penisExist ? "fuck" : "get fucked by"} some beast."`>>
+				<<set $_strings to [
+					`"People would pay extra to see you ${$player.penisExist ? "fuck" : "get fucked by"} some beast."`,
+					`"Animals, now? There's a market for everything, I suppose."`,
+					`"Keep that thing away from my property unless someone pays first."`
+				]>>
+				<<print $_stringsPre + $_strings[random(0, $_strings.length - 1)]>>
 			<<case "Eden">>
-				<<print $_stringsPre + `"You'll be going right back to <<nnpc_him 'Eden'>> if you keep this up."`>>
+				<<set $_strings to [
+					`"You'll be going right back to <<nnpc_him 'Eden'>> if you keep this up."`,
+					`"Eden thinks the woods hide everything. They don't."`
+				]>>
+				<<print $_stringsPre + $_strings[random(0, $_strings.length - 1)]>>
 			<<case "Gwylan">>
-				<<print `<<He>> pauses, then speaks. "Careful where you bring that name."`>>
+				<<set $_strings to [
+					`"<<He>> pauses, then speaks. \"Careful where you bring that name.\"`,
+					`"<<He>> goes still. \"Some names are more expensive than others. That one is dangerous.\""`
+				]>>
+				<<print $_strings[random(0, $_strings.length - 1)]>>
 			<<default>>
-				<<print $_stringsPre + `"If <<nnpc_he _loveInterest>> cared about you, <<nnpc_he _loveInterest>> would pay for you."`>>
+				<<set $_strings to [
+					`"If <<nnpc_he _loveInterest>> cared about you, <<nnpc_he _loveInterest>> would pay for you."`,
+					`"Names don't settle debt. Money does."`,
+					`"Tell <<nnpc_him _loveInterest>> to bring cash next time."`
+				]>>
+				<<print $_stringsPre + $_strings[random(0, $_strings.length - 1)]>>
 		<</switch>>
+	<<elseif $speechhit is 1>>
+		<<set $speechhit to 0>>
+		<<set $_strings to [
+			`"Hit me again and I'll add it to your rent."`,
+			`"That little outburst just cost you."`,
+			`"I will charge extra for difficult stock."`
+		]>>
+		<<print $_stringsPre + $_strings[random(0, $_strings.length - 1)]>>
+	<<elseif $speechmouthpenetrated is 1>>
+		<<set $speechmouthpenetrated to 0>>
+		<<set $_strings to [
+			`"Look at me while you do it. I want to see you understand."`,
+			`"Less noise. More use."`,
+			`"That's better."`
+		]>>
+		<<print $_stringsPre + $_strings[random(0, $_strings.length - 1)]>>
+	<<elseif $speechsextoy is 1>>
+		<<set $speechsextoy to 0>>
+		<<set $_sexToy to ($rightarm is "heldSexToy" and $leftarm is "heldSexToy" ? "sex toys" : "sex toy")>>
+		<<set $_strings to [
+			`"Brought your own $_sexToy? Resourceful. I might bill you less."`,
+			`"Put that $_sexToy to use, then. Wasting equipment is wasting money."`
+		]>>
+		<<print $_stringsPre + $_strings[random(0, $_strings.length - 1)]>>
 	<<elseif $speechcum is 1>>
-		<<set $_strings to [`"I hope you appreciate that."`,`"Just something to remember me by."`,`"We'll call that your going away gift."`]>>
+		<<set $_strings to [
+			`"I hope you appreciate that."`,
+			`"Just something to remember me by."`,
+			`"We'll call that your going away gift."`,
+			`"Add that to what you owe me."`,
+			`"Don't waste a drop. I hate waste."`
+		]>>
 		<<print $_stringsPre + $_strings[random(0, $_strings.length - 1)]>>
 	<<elseif $arousal gte 9500>>
-		<<set $_strings to [`"Nice look. Some people would pay big to see you hot and bothered like this."`,`"Should've brought a camera. Your profile would look great with this expression."`]>>
+		<<set $_strings to [
+			`"Nice look. Some people would pay big to see you hot and bothered like this."`,
+			`"Should've brought a camera. Your profile would look great with this expression."`,
+			`"That's the face that sells. Try not to ruin it."`,
+			`"You're easier to manage when your body betrays you."`
+		]>>
 		<<print $_stringsPre + $_strings[random(0, $_strings.length - 1)]>>
 	<<elseif $enemyanger lte 60>>
 		<<if $rng gte 81>>
@@ -42,33 +152,82 @@
 				<<run $_options.push("healthy")>>
 			<</if>>
 			<<switch $_options[random(0, $_options.length - 1)]>>
-				<<case "hair">><<print $_stringsPre + `"Kept your hair long? I know someone who will like that."`>>
-				<<case "cow">><<print $_stringsPre + `"Cows fetch a high price these days, you know."`>>
-				<<case "healthy">><<print $_stringsPre + `"You're strong. Good. Some people pay for the fight."`>>
-				<<case "default">><<print $_stringsPre + `"Don't make this harder than it needs to be."`>>
+				<<case "hair">>
+					<<set $_strings to [
+						`"Kept your hair long? I know someone who will like that."`,
+						`"Long hair photographs well. That's useful."`,
+						`"Someone asked for hair like yours once. Paid upfront, too."`
+					]>>
+					<<print $_stringsPre + $_strings[random(0, $_strings.length - 1)]>>
+				<<case "cow">>
+					<<set $_strings to [
+						`"Cows fetch a high price these days, you know."`,
+						`"Look at you. Practically a premium listing."`,
+						`"Some buyers are very specific. You're fortunate, or unlucky."`
+					]>>
+					<<print $_stringsPre + $_strings[random(0, $_strings.length - 1)]>>
+				<<case "healthy">>
+					<<set $_strings to [
+						`"You're strong. Good. Some people pay for the fight."`,
+						`"Good muscle tone. That keeps your value up."`,
+						`"Fit enough to struggle, then. Some clients like that."`
+					]>>
+					<<print $_stringsPre + $_strings[random(0, $_strings.length - 1)]>>
+				<<case "default">>
+					<<set $_strings to [
+						`"Don't make this harder than it needs to be."`,
+						`"Be sensible. Sensible people cost me less time."`,
+						`"Stay still and this stays simple."`
+					]>>
+					<<print $_stringsPre + $_strings[random(0, $_strings.length - 1)]>>
 			<</switch>>
 		<<elseif $rng gte 61>>
-			<<print $_stringsPre + `"You're so valuable!"`>>
+			<<set $_strings to [
+				`"You're so valuable!"`,
+				`"Don't look surprised. I know exactly what you're worth."`,
+				`"You'd be amazed what someone will pay for a familiar face."`
+			]>>
+			<<print $_stringsPre + $_strings[random(0, $_strings.length - 1)]>>
 		<<elseif $rng gte 41>>
-			<<print $_stringsPre + `"Just relax. I'll handle everything like always."`>>
+			<<set $_strings to [
+				`"Just relax. I'll handle everything like always."`,
+				`"You never were good with accounts. Let me deal with it."`,
+				`"Trust me. Or don't. The result is the same."`
+			]>>
+			<<print $_stringsPre + $_strings[random(0, $_strings.length - 1)]>>
 		<<elseif $rng gte 21>>
 			<<print $_stringsPre + `"You were always the best looking little ` + ["bastard","shit","<<bitch>>"][random(0,2)] + `."`>>
 		<<else>>
-			<<print $_stringsPre + `"It's easier this way. Trust me."`>>
+			<<set $_strings to [
+				`"It's easier this way. Trust me."`,
+				`"There are worse people than me waiting outside."`,
+				`"You don't need to know who asked for you."`
+			]>>
+			<<print $_stringsPre + $_strings[random(0, $_strings.length - 1)]>>
 		<</if>>
 	<<else>>
 		<<if $rng gte 91 and $enemyanger lte 70>>
-			<<print $_stringsPre + `"Maybe I should inspect you before we go."`>>
+			<<set $_strings to [
+				`"Maybe I should inspect you before we go."`,
+				`"Stand still. I need to check what condition you're in."`,
+				`"Let's see how much trouble you've caused me."`
+			]>>
+			<<print $_stringsPre + $_strings[random(0, $_strings.length - 1)]>>
 		<<else>>
-			<<set $_strings to
-				[`Why do you shits have to make it harder on yourselves?`,
+			<<set $_strings to [
+				`Why do you shits have to make it harder on yourselves?`,
 				`I told you to hold still.`,
 				`You're making it harder on both of us.`,
 				`You chose this.`,
 				`Are you going to listen to me now?`,
 				`I have someone willing to pay big for you.`,
-				`You're coming with me, and that's that.`]>>
-			<<print $_stringsPre + '"' + $_strings[random(0,6)] + '"'>>
+				`You're coming with me, and that's that.`,
+				`Keep fighting and I'll put the damage on your account.`,
+				`Someone already asked for you. Don't make me disappoint them.`,
+				`I know things about you that you never told me.`,
+				`Stop struggling. You're only lowering your price.`
+			]>>
+			<<print $_stringsPre + '"' + $_strings[random(0, $_strings.length - 1)] + '"'>>
 		<</if>>
 	<</if>>
 <</widget>>

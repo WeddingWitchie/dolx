@@ -1,18 +1,37 @@
 :: Widgets speech-Kylar [widget]
 <<widget "speech-kylar">>
 	<<set _kylar to statusCheck("Kylar")>>
-	<<if ($speechpenisvirgin is 1 and $player.virginity.penile is "Kylar") or ($speechvaginavirgin is 1 and $player.virginity.vaginal is "Kylar")>>
-		<<He>> gasps. "You were a virgin too," <<he>> says. "We were meant for each other."
+	<<set _kylarPenisSize to 0>>
+	<<if $NPCList[_n] and $NPCList[_n].penissize isnot undefined>>
+		<<set _kylarPenisSize to $NPCList[_n].penissize>>
+	<<elseif C.npc.Kylar and C.npc.Kylar.penissize isnot undefined>>
+		<<set _kylarPenisSize to C.npc.Kylar.penissize>>
+	<</if>>
+
+	<<if $speechvaginavirgin is 1 and $player.virginity.vaginal is "Kylar">>
+		<<if _kylarPenisSize gte 5>>
+			<<He>> gasps, eyes wet and shining. "I didn't mean to hurt you. I just... I couldn't stop once we were finally together."
+		<<else>>
+			<<He>> gasps. "You were a virgin too. We were meant for each other."
+		<</if>>
+	<<elseif $speechpenisvirgin is 1 and $player.virginity.penile is "Kylar">>
+		<<He>> gasps. "You saved this for me. I knew it. I knew we were meant to be each other's first."
 	<<elseif $speechanusvirgin is 1 and $player.virginity.anal is "Kylar">>
 		<<if $player.vaginaExist and $settings.pregnancySpeechEnabled>>
 			<<He>> gasps. "We can't make babies this way, but I just couldn't resist you."
 		<<elseif !$player.vaginaExist and _kylar.gender is "m" and knowsAboutAnyPregnancy("pc","Kylar") and $settings.pregnancySpeechEnabled>>
 			<<He>> gasps. "Is this how you got pregnant before? But you were still a virgin!"
+		<<elseif _kylarPenisSize gte 5>>
+			<<He>> trembles. "You're shaking so much. Please don't break. Please, please don't break before we're done."
 		<<else>>
 			<<He>> gasps. "Every part of you, the deepest part of you. I wanna feel it all!"
 		<</if>>
 	<<elseif $speechmouthvirgin is 1 and $player.virginity.oral is "Kylar">>
-		<<He>> gasps. "Finally, you're kissing the most intimate part of me. Just like in my dreams!"
+		<<if _kylarPenisSize gte 5>>
+			<<He>> strokes your cheek with shaking fingers. "Careful. Slowly. I dreamt about this, but I don't want you choking because of me."
+		<<else>>
+			<<He>> gasps. "Finally, you're kissing the most intimate part of me. Just like in my dreams!"
+		<</if>>
 	<<elseif $speechkissvirgin is 1 and $player.virginity.kiss is "Kylar">>
 		<<He>> gasps. "Iloveyouiloveyouiloveyou!!!"
 		<<set $kylarSeen.pushUnique("saidLove")>>
@@ -59,12 +78,18 @@
 	<<elseif $speechsextoy is 1>>
 		<<set $speechsextoy to 0>>
 		<<set $_sexToy to ($rightarm is "heldSexToy" and $leftarm is "heldSexToy" ? "sex toys" : "sex toy")>>
-		<<if !$player.penisExist and $NPCList[0].vagina isnot "none" and random(0,2) isnot 0>>
-			<<print `<<He>> looks at your $_sexToy and speaks. "` + [`U-use it. Please, use me, use it.`, `It's a sign of our love, right?`][random(0,1)] + `"`>>
-		<<elseif $player.penisExist or $NPCList[0].penis isnot "none" and random(0,2) isnot 0>>
-			<<print `<<He>> looks at your $_sexToy and speaks. "` + [`What... am I doing wrong...?`, `If it makes you happy, my love, but...`][random(0,1)] + `"`>>
+		<<if !$player.penisExist and $NPCList[0] and $NPCList[0].vagina isnot "none" and random(0,2) isnot 0>>
+			<<print `<<He>> looks at your $_sexToy and speaks. "` + [`U-Use it. Please, use me, use it.`, `It's a sign of our love, right?`, `If it helps you feel closer to me, then it's ours.`][random(0,2)] + `"`>>
+		<<elseif ($player.penisExist or ($NPCList[0] and $NPCList[0].penis isnot "none")) and random(0,2) isnot 0>>
+			<<print `<<He>> looks at your $_sexToy and speaks. "` + [`What... am I doing wrong...?`, `If it makes you happy, my love, but...`, `You don't need that when I'm right here.`][random(0,2)] + `"`>>
 		<<else>>
 			<<He>> looks at your $_sexToy and pouts. "Am I not good enough for you?"
+		<</if>>
+	<<elseif $combatgoal is "strip" and $rng lte 25>>
+		<<if $enemyanger gte 80>>
+			<<print `<<He>> tugs at your clothes with frantic hands. "` + [`Stop hiding from me. I know what you look like underneath.`, `These keep getting between us. I hate them.`, `You don't need anything else. You have me.`][random(0,2)] + `"`>>
+		<<else>>
+			<<print `<<He>> fusses with your clothes, face flushed. "` + [`I just want to see you. Only me.`, `You look so pretty when you stop covering up.`, `Don't be shy. I already know you're perfect.`][random(0,2)] + `"`>>
 		<</if>>
 	<<elseif _silent isnot 1>>
 		<<set $kylarsexcycle to $kylarsexcycle or 0>>
@@ -92,10 +117,22 @@
 			<<case 8>>
 				"I...l-love you," <<he>> says.
 				<<set $kylarSeen.pushUnique("saidLove")>>
+			<<case 9>>
+				"You made that sound just for me, didn't you?" <<he>> asks, smiling too wide.
+			<<case 10>>
+				"Don't think about anyone else," <<he>> whispers.
+			<<case 11>>
+				"I know every face you make," <<he>> says. "This one's my favourite."
+			<<case 12>>
+				"If you wanted me to stop staring, you shouldn't have been so beautiful," <<he>> says.
+			<<case 13>>
+				"We should run away after this," <<he>> says. "Somewhere quiet. Somewhere locked."
+			<<case 14>>
+				"Say my name," <<he>> pleads. "I need to hear it."
 			<<default>>
 				"You're so lewd and naughty and all mine," <<he>> says.
 		<</switch>>
-		<<set $kylarsexcycle to ($kylarsexcycle + 1) % 10>> <!-- increase by one, and reset to 0 if it hits 10 -->
+		<<set $kylarsexcycle to ($kylarsexcycle + 1) % 16>> <!-- increase by one, and reset to 0 if it hits 16 -->
 	<<else>>
 		"Ah...! Mnh." <<He>> moans.
 	<</if>>

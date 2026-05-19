@@ -13,6 +13,7 @@
  */
 function namedNpcEjaculation(index, ...args) {
 	const npcName = V.npc[V.npcrow.indexOf(index)];
+	// @ts-ignore
 	const npc = V.NPCList[index];
 	if (!npc) return '';
 	const output = args[0] ? " " + args[0] : "";
