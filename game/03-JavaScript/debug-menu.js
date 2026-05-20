@@ -240,7 +240,7 @@ setup.debugMenu.eventList = {
 			widgets: [
 				`<<set $settings.beastMaleChanceMale to 100>>`,
 				`<<set $settings.beastMaleChanceFemale to 100>>`,
-				`<<set $cbchance to 100>>`,
+				`<<set $settings.maleNPCVaginaChance to 100>>`,
 			],
 		},
 		{
@@ -248,7 +248,7 @@ setup.debugMenu.eventList = {
 			widgets: [
 				`<<set $settings.beastMaleChanceMale to 0>>`,
 				`<<set $settings.beastMaleChanceFemale to 0>>`,
-				`<<set $dgchance to 100>>`,
+				`<<set $settings.femaleNPCPenisChance to 100>>`,
 			],
 		},
 		{
