@@ -11,7 +11,7 @@
 <<if $mmagymintro isnot 1 and _openinghours is 1>>
 	<<mmaGymIntro "MMA Gym">>
 <<elseif _openinghours is 0>>
-	The building is dark and still in its closing time. Without the music and shouting, the place feels bigger. But you spot a standard cash register sits on a counter. It's locked tight.
+	The building is dark outside opening hours. Without the music and shouting, the place feels bigger. But you spot a standard cash register sits on a counter. It's locked tight.
 	<br><br><<set $lock to 200>>
 	<<if currentSkillValue('skulduggery') gte $lock>>
 		<<if $leftarm is "bound" and $rightarm is "bound">>
@@ -32,17 +32,22 @@
 <<else>>
 	The MMA gym smells of sweat, disinfectant, and old rubber. Heavy bags sway along one wall, a cramped weights area sits beyond a rack of battered plates, and a square of mats at the back serves as Riley's class space. Nothing in here is polished for show.
 	<br><br>
-	It exists to wear people down and build them back up.
-	<br><br>
 	<<if $stress gte $stressmax>>
 		<<passoutshop>>
 	<<else>>
 		<<if $pleasure gte $pleasuremax>>
 			<<orgasmLocation "mmaGym">>
 		<</if>>
+		<<if _openinghours is 1>>
+			<<lockericon>><<link [[Changing room|MMA Gym Changing Room]]>><</link>>
+			<br><br>
+		<</if>>
 		<<if Time.hour is 21>>
 			It is closing time. Riley starts shooing everyone toward the door.<<if $exposed gte 1>> Your stomach drops as you remember what state of dress you are in.<</if>>
 			<br>
+		<<elseif $exposed gte 1>>
+			<span class="blue">You're too exposed to use anything or interact with anyone.</span>
+			<<covered>><br>
 		<<elseif $leftarm is "bound" or $rightarm is "bound">>
 			<span class="blue">You can't make proper use of the gym room with your hands bound.</span>
 			<br>
@@ -98,12 +103,26 @@
 					<br>
 				<</if>>
 			<</if>>
+			<<socialiseicon>><<link [[Spar with the regulars (0:45)|MMA Regular Sparring]]>><</link>><<gathletics>><<note " Moderate fatigue" "red">>
+			<br>
 		<</if>>
-		<<if $mmaGymSparUnlocked is 1>>
+		<<if $mmaGymSparUnlocked is 1 and $exposed lt 1>>
 			<<socialiseicon>><<link [[Spar with Riley (0:30)|MMA Riley Challenge Start]]>><<set $mmaRileyChallengeMode to "spar">><<set $phase to 0>><<pass 30>><</link>>
 			<br>
 		<</if>>
-		<<nightingaleicon>><<link [[Leave|Nightingale Street]]>><<endevent>><</link>>
+		<<storeon "mma_gym" "check">>
+		<<if _store_check is 1 and ($worn.upper.name is "naked" or $worn.lower.name is "naked") and $exposed is 1>>
+			You left clothes in the changing room. Your <span class="lewd"><<lewdness>></span> is fine in here, but it would be considered lewd outside.
+			<br><br>
+			<<if $exhibitionism gte 15>>
+				<<nightingaleicon>><<link [[Go outside anyway|MMA Gym Outside Exhibitionism]]>><</link>>
+				<br>
+			<</if>>
+			<<link [[Return to the changing room|MMA Gym Changing Room]]>><</link>>
+		<<else>>
+			<br>
+			<<nightingaleicon>><<link [[Leave|Nightingale Street]]>><<endevent>><</link>>
+		<</if>>
 	<</if>>
 <</if>>
 
@@ -151,7 +170,7 @@
 <<if $speech_attitude is "meek" or $speech_attitude is "shy" or $speech_attitude is "docile">>
 	<<set _weightsThought to "You force the bar back up. Stronger means harder to corner, harder to scare, harder to push around when someone decides you look easy.">>
 <<elseif $speech_attitude is "bratty" or $speech_attitude is "cruel">>
-	<<set _weightsThought to "The thought keeps flashing up between sets: beat Riley, shut the smug idiots up, and stop letting anyone in town think they can look down on you.">>
+	<<set _weightsThought to "The thought flashes between sets: beat Riley, shut the smug idiots up, stop letting anyone in town look down on you.">>
 <<else>>
 	<<set _weightsThought to "You tell yourself the work is practical. More access, better training, more to gain from this place than a half-hour with the weights.">>
 <</if>>
@@ -160,12 +179,12 @@ The weights room is cramped and noisy, all clashing plates and sharp corrections
 <<print _weightsThought>>
 <br><br>
 <<if random(1,100) lte _failChance>>
-	The work gets away from you before the session is half done. Your form breaks, Riley stops you cold, and the restart feels worse than the first attempt.
+	Your form goes before you're half done. Riley stops you cold and makes you start over.
 	<br><br>
 	"Again," Riley says. "If you get sloppy under a bar, you get hurt. Learn that now."
 	<<physique 1>><<gphysique>><<athletics 1>><<gathletics>><<pain 2>><<gpain>><<tiredness 6>><<ggtiredness>><<stress 3>><<gstress>>
 <<elseif currentSkillValue('physique') gte 8000>>
-	The effort bites, but never quite takes control. You finish sore, breathing hard, and steady enough that Riley only needs to correct you once.
+	You finish sore, breathing hard, and steady enough that Riley only needs to correct you once.
 	<<physique 2>><<gphysique>><<athletics 1>><<gathletics>><<tiredness 3>><<gtiredness>><<stress 2>><<gstress>>
 <<elseif currentSkillValue('physique') gte 5000>>
 	By the end your limbs feel heavy and your shirt sticks to your back, but you keep your form together and get through the full session cleanly.
@@ -177,7 +196,7 @@ The weights room is cramped and noisy, all clashing plates and sharp corrections
 <<set $mmaWeightsSessions += 1>><<if $mmaWeightsSessions gt 5>><<set $mmaWeightsSessions to 5>><</if>>
 <br><br>
 <<if $mmaGymAccessUnlocked isnot 1 and $mmaWeightsSessions gte 2>>
-	You catch Riley watching the end of your set with <<his>> arms folded. <<He>> does not praise you, but <<he>> no longer looks like <<he>> expects you to quit halfway through.
+	You catch Riley at the end of your set, arms folded. No praise. But no dismissal either.
 	<br><br>
 <</if>>
 <<if $mmaGymAccessUnlocked is 1 and $mmaConditioningUnlocked isnot 1 and $mmaWeightsSessions gte 5 and currentSkillValue('physique') gte 5000>>
@@ -231,10 +250,10 @@ Riley glances at the clock. "Enough. Wipe the bench down when you're done."
 		For a moment, it actually works. Riley's posture shifts and a few people at ringside stop looking bored.
 		<<physique 1>><<athletics 1>><<ggphysique>><<gathletics>>
 	<<elseif $mmaRileyLastScore gte 1>>
-		It is not wrong, just not enough. You stay in the exchange, but it costs you, and your lungs start to burn a little hotter.
+		It is not wrong, just not enough. You stay in the exchange, but it costs you.
 		<<tiredness 6>><<ggtiredness>>
 	<<else>>
-		Riley reads it instantly and punishes you for it. The hit snaps through you hard enough to remind you that this is not a game anyone here is going to soften for your sake.
+		Riley reads it and punishes you for it. The hit snaps through you. Nobody here is softening this.
 		<<pain 12>><<ggpain>>
 	<</if>>
 	<br><br>
@@ -261,7 +280,7 @@ Riley glances at the clock. "Enough. Wipe the bench down when you're done."
 	Riley steps through the ropes and jerks <<his>> chin for you to follow.
 	"Five reads. Two waves. Show me you can think, move, and keep your nerve when somebody better than you is trying to make you stupid."
 	<br><br>
-	The people near the ring go quiet in that eager way that means they expect a spectacle.
+	The people near the ring go quiet. They want a show.
 	<br><br>
 	<<if $mmaWeightsSessions gte 3>>
 		Your body still remembers the weights room. The bar, the sled, the burning repetition of it. At least you are not stepping in cold.
@@ -411,19 +430,19 @@ What do you do?
 <<set $outside to 0>><<set $location to "mma_gym">><<effects>>
 <<include "MMA Riley Challenge Choice Result">>
 <<if $mmaRileyWaveScore gte 5>>
-	Riley steps back just enough to study you properly. The look on <<his>> face is sharp, but there is something almost proud in it now.
-	"You are progressing nicely. Do not ruin it by getting excited."
+	Riley steps back. The look on <<his>> face is sharp, but something's shifted.
+	"You are progressing. Don't ruin it by getting excited."
 <<elseif $mmaRileyWaveScore gte 0>>
-	Riley says nothing at first. <<He>> just looks at you, unreadable, like <<he>> is deciding whether what <<he>> saw counts as potential or inconvenience.
+	Riley says nothing. Just looks at you.
 	<br><br>
 	"Again," <<he>> says at last.
 <<else>>
-	One of the gym-goers laughs, and this time another joins in. Riley does not shut them up. <<He>> only looks at you, waiting to see whether embarrassment will make you worse.
+	One of the gym-goers laughs. Another joins in. Riley doesn't shut them up. <<He>> just looks at you.
 	<br><br>
 	"Again," <<he>> says.
 <</if>>
 <br><br>
-The second wave starts rougher. Riley does not bother easing you in now that <<he>> knows what you look like under pressure.
+The second wave starts rougher. Riley doesn't ease you in this time.
 <br><br>
 How do you answer the next engagement?
 <br><br>
@@ -469,7 +488,7 @@ How do you answer the next engagement?
 :: MMA Riley Challenge 5
 <<set $outside to 0>><<set $location to "mma_gym">><<effects>>
 <<include "MMA Riley Challenge Choice Result">>
-The last exchange comes when your breathing is rough and your body wants the simplest answer instead of the smartest one.
+The last exchange comes with your lungs still burning.
 <br><br>
 How do you close?
 <br><br>
@@ -620,7 +639,7 @@ Riley puts you on carries and sled work next. By now there is no such thing as r
 <<else>>
 	<<set _failChance to 8>>
 <</if>>
-Medicine-ball slams and jump rope finish off whatever rhythm you had left. Your shoulders ache, your calves tighten, and Riley does not soften the pace just because the hour is wearing on.
+Medicine-ball slams and jump rope. Your shoulders ache, your calves are tight, and Riley doesn't ease up.
 <br><br>
 <<if random(1,100) lte _failChance>>
 	The rope catches your ankles and the next slam almost slips from your hands. Riley makes you take a breath, then puts you straight back to work.
@@ -646,7 +665,7 @@ Medicine-ball slams and jump rope finish off whatever rhythm you had left. Your 
 <<else>>
 	<<set _failChance to 8>>
 <</if>>
-Riley ends the hour with burpees, sprawls, and one last miserable stretch of carrying weight after your body has already started bargaining with you.
+Riley ends the hour with burpees, sprawls, and one last stretch of carrying weight when your legs have nothing left.
 <br><br>
 <<if random(1,100) lte _failChance>>
 	You break before the session does. Riley catches it immediately and drives you through the final reps anyway, leaving you aching all over.
@@ -686,7 +705,7 @@ Riley checks the clock. "Enough. Get water before you drop on my floor."
 		The final block is nothing but tired legs and one more demand: move properly anyway.
 	<</if>>
 	<<if random(1,100) lte _failChance>>
-		You cross your feet, lose your balance, and eat Riley's correction more than once before the sequence starts to settle into your body.<<gpain>><<pain 2>>
+		You cross your feet, lose your balance, and eat Riley's correction more than once before it starts to stick.<<gpain>><<pain 2>>
 		<br><br>
 		"Again," Riley says. "Bad feet get you hit first."
 		<<footwork 6>><<tiredness 7>><<stress 3>>
@@ -746,7 +765,7 @@ Riley checks the clock. "Enough. Get water before you drop on my floor."
 		Your punches land clean and straight, with enough control left over to recover properly after each combination.
 		<<striking 8>><<physique 1>><<tiredness 6>><<stress 2>><<gphysique>>
 	<<elseif $combatExtended.striking gte 400>>
-		Most of your shots land well enough, though Riley still catches every moment your shoulders creep up with fatigue.
+		Most of your shots land well enough, though Riley catches every time your shoulders creep up.
 		<<striking 8>><<physique 1>><<tiredness 7>><<stress 2>><<gphysique>>
 	<<else>>
 		You hit hard enough, but not neatly. Riley keeps taking the sequence apart and forcing you to rebuild it piece by piece.
@@ -790,7 +809,7 @@ Riley checks the clock. "Enough. Get water before you drop on my floor."
 	<</if>>
 	<br><br>
 	<<if random(1,100) lte _failChance>>
-		A lazy recovery costs you your balance and Riley immediately makes you reset and do the sequence again until you can keep your feet under you.<<gpain>>
+		A lazy recovery costs you your balance. Riley makes you reset and run the sequence again until your feet stop sliding.<<gpain>>
 		<br><br>
 		"If you cannot recover, do not throw it," Riley says.
 		<<kicking 6>><<pain 1>><<tiredness 7>><<stress 3>>
@@ -817,3 +836,236 @@ Riley checks the clock. "Enough. Get water before you drop on my floor."
 		<<link [[Next|Kicking Lesson]]>><<set $gymstage += 1>><</link>>
 	<</if>>
 <</if>>
+
+:: MMA Gym Change
+<<effects>>
+<<if $leftarm is "bound" or $rightarm is "bound">>
+	You try to work your clothes loose, but your bound wrists make a mess of it.
+	<br><br>
+<<elseif $worn.upper.name isnot "naked">>
+	<<if $worn.lower.name isnot "naked" and $worn.upper.set isnot $worn.lower.set>>
+		You remove your $worn.lower.name and hang it on one of the metal hooks.
+		<<lowerundress "mma_gym">>
+	<<else>>
+		You remove your $worn.upper.name and hang it on one of the metal hooks.
+		<<upperundress "mma_gym">>
+	<</if>>
+<<elseif $worn.lower.name isnot "naked">>
+	You remove your $worn.lower.name and hang it on one of the metal hooks.
+	<<lowerundress "mma_gym">>
+<<else>>
+	You have already stripped down as much as you can.
+<</if>>
+<br><br>
+<<link [[Next|MMA Gym Changing Room]]>><</link>>
+
+:: MMA Gym Changing Room
+<<effects>>
+The MMA gym's changing room is narrow, tiled, and warmer than the floor outside. Lockers line one wall. Benches line the walls with hooks for clothes hanging above. The shower stalls hide behind a strip of clouded plastic that does not reach the floor.
+<br><br>
+You could change into your uniform, or similar clothes that are easy to move in here.
+<br><br>
+<<storeon "mma_gym" "check">>
+<<if _store_check is 1>>
+	You left your clothes here.
+	<br>
+	<<bathroomicon "robe">><<link [[Wear them|MMA Gym Changing Room]]>><<storeon "mma_gym">><</link>>
+	<br>
+<</if>>
+<<if $leftarm is "bound" or $rightarm is "bound">>
+	<span class="blue">You can't change properly with your hands bound.</span>
+	<br>
+<<else>>
+	<<if $worn.upper.name isnot "naked" or $worn.lower.name isnot "naked">>
+		<<lockericon "put in">><<link [[Change out of your clothes|MMA Gym Change]]>><</link>>
+		<br>
+	<</if>>
+	<<if $worn.upper.name is "naked" and $worn.lower.name is "naked">>
+		<<bathroomicon "shower">><<link [[Use the showers (0:10)|MMA Gym Shower]]>><<pass 10>><</link>>
+		<br>
+	<<else>>
+		<span class="blue">You should strip down before using the showers.</span>
+		<br>
+	<</if>>
+<</if>>
+<br>
+<<getouticon>><<link [[Return to the gym|MMA Gym]]>><<endevent>><</link>>
+
+:: MMA Gym Shower
+<<endevent>><<generate1>><<person1>><<effects>><<set _molestChance to 10>>
+<<if $exposed gte 1>><<set _molestChance += 8>><</if>><<if $allure gte 100>><<set _molestChance += 6>><</if>><<if $allure gte 250>><<set _molestChance += 6>><</if>><<if $world_corruption_soft gte 50>><<set _molestChance += 10>><</if>>
+You step under one of the showers and pull the curtain across. The water comes out cold enough to make you tense, then turns warm before settling into something you can stand.
+<br><br>
+Steam builds against the tiles.
+<br><br>
+<<if random(1, 100) lte _molestChance>>
+	A locker shuts somewhere behind you. Then another. The changing room grows quieter.
+	<br><br>
+	Footsteps cross the wet floor. They stop outside your shower. You wait for whoever it is to move on, but the shape behind the curtain stays where it is.
+	<br><br>
+	"Still in here?" <<he>> says. "Thought you were done on the mats."
+	<br><br>
+	The curtain pulls aside, revealing a <<person>> standing there in the steam. <<He>> grins. "Well... Look at that."
+	<br><br>
+	<<link [[Next|MMA Gym Molestation]]>><<set $molestationstart to 1>><</link>>
+<<else>>
+	You stay beneath the water until the sweat is gone. By the time you turn the shower off, the worst of the gym stink has washed down the drain.
+	<<wash>><<tiredness -15>><<ltiredness>><<stress -1>><<lstress>>
+	<br><br>
+	<<link [[Next|MMA Gym Changing Room]]>><</link>>
+<</if>>
+
+:: MMA Gym Molestation
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<maninit>>
+<</if>>
+<<effects>>
+<<effectsman>><<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+<<if $alarm is 1>>
+	<<if $rescue is 1>>
+	<<else>>
+		The shower walls throw your cry back at you. No one comes quickly enough.
+		<<set $alarm to 0>>
+		<<if $drugged gte 1>>Intoxicated as you are, you can't cry very convincingly.<</if>>
+		<br><br>
+		<<if $enemypleasure gte $enemypleasuremax>>
+			<span id="next"><<link [[Next|MMA Gym Molestation Ejaculation]]>><</link>></span><<nexttext>>
+		<<elseif $enemyhealth lte 0>>
+			<span id="next"><<link [[Next|MMA Gym Molestation Escape]]>><</link>></span><<nexttext>>
+		<<else>>
+			<span id="next"><<link [[Next|MMA Gym Molestation]]>><</link>></span><<nexttext>>
+		<</if>>
+	<</if>>
+<<elseif $enemypleasure gte $enemypleasuremax>>
+	<span id="next"><<link [[Next|MMA Gym Molestation Ejaculation]]>><</link>></span><<nexttext>>
+<<elseif $enemyhealth lte 0>>
+	<span id="next"><<link [[Next|MMA Gym Molestation Escape]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|MMA Gym Molestation]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: MMA Gym Molestation Ejaculation
+<<effects>><<ejaculation>>
+<<if $enemyanger gte ($enemyangermax / 5) * 3>>
+	<<He>> steps back first, still glaring as if you are the one who made trouble. You tense when <<he>> leans close again, but <<he>> only wipes <<his>> mouth with the back of <<his>> hand.
+	<br><br>
+	"Keep your mouth shut, <<bitch>>." Before leaving, <<he>> spits near your feet. You flinch.
+	<<wash>><<faceejacstat>><<ejacstat>><<set $facegoo += 1>>
+<<elseif $enemyanger gte 1>>
+	<<He>> backs off with a sharp breath, annoyed. <<He>> glances toward the door, listening for any movement beyond it.
+	<br><br>
+	"Don't make this my problem," <<he>> says. Then <<he>> slips past the lockers and leaves you there, the door swinging shut behind <<him>>.
+<<else>>
+	<<He>> stays close for a moment, watching you gather yourself on the wet tile. <<He>> doesn't look like someone who did anything wrong.
+	<br><br>
+	<<He>> gives you a thin smile. "Gym stays in the gym, yeah?"
+	<br><br>
+	Then <<he>> steps away, leaving you with the running water and nothing else.
+<</if>>
+<<endcombat>>
+<<tearful>> you force yourself upright. <<clotheson>>
+<br><br>
+<<link [[Next|MMA Gym Changing Room]]>><</link>>
+
+:: MMA Gym Molestation Escape
+<<effects>>
+<<He>> yells out and hits the tile hard. <span class="green"><<tearful>> you use the chance to get out of the shower</span>, stumbling between the lockers before <<he>> can grab you again.
+<br><br>
+<<endcombat>>
+<<npc Riley>><<person1>><<npcincr Riley love 1>>
+Riley can tell something's wrong the moment <<he>> sees you. <<His>> jaw tightens, but <<he>> keeps <<his>> distance. 
+<<if $worn.upper.name is "naked" and $worn.lower.name is "naked">>
+	<<He>> just takes a clean towel from nearby and offers it to you, letting you get covered before anyone looks over.
+	<br><br>
+	<<clothesontowel>>
+	You take it and wrap it around yourself.
+<<else>>
+	<<clotheson>>
+<</if>>
+Riley waits, then asks for a name.
+<br><br>
+You shake your head. You just want out of this room.
+<br><br>
+Riley does not press. <<He>> only turns towards the regulars and murmurs something you can't hear. The changing room stays quieter after that.
+<br><br>
+<<link [[Next|MMA Gym Changing Room]]>><</link>>
+
+:: MMA Gym Outside Exhibitionism
+<<effects>><<endevent>>
+<<flaunting>> You push through the gym door and step out onto Nightingale Street without bothering to change first.
+<br><br>
+The air hits you first. Then the street notices. A<<generate1>><<person1>> walking <<his>> dog shifts <<his>> gaze over to you and holds it a beat too long before looking away. Two guys by the kebab shop across the road nudge each other. Nobody says anything. They just... notice.
+<<exhibitionism3>>
+<br><br>
+The MMA gym's door swings shut behind you.
+<br><br>
+<<link [[Next|Nightingale Street]]>><<endevent>><</link>>
+
+:: MMA Regular Sparring
+<<endevent>><<generate1>><<person1>><<effects>><<pass 45>><<set _sparRoll to random(1, 4)>>
+Riley pairs you with a <<person>> after a warm-up. "Light work," Riley says, which in this room seems to mean nobody is supposed to admit how hard they are trying.
+<br><br>
+<<if _sparRoll is 1>>
+	Your partner starts using the breaks wrong. <<His>> hands find your waist during the reset. Your side. Your hip. Then grope your groin.
+	<br><br>
+	<<if $speech_attitude is "meek" or $speech_attitude is "shy" or $speech_attitude is "docile">>
+		You keep your guard up, pretending not to notice until Riley calls time. The regular smirks as <<he>> backs away.
+		<<arousal 300>><<stress 2>><<athletics 1>><<garousal>><<gstress>><<gathletics>>
+	<<elseif $speech_attitude is "bratty" or $speech_attitude is "cruel">>
+		You shove <<him>> off the next time <<he>> drifts in. "Try training instead of pawing. You might learn something."
+		<br><br>
+		A few people snort. Your partner's smile drops, and the rest of the round turns rough enough that Riley has to bark at both of you.
+		<<athletics 1>><<pain 2>><<stress 3>><<gathletics>><<gpain>><<gstress>>
+	<<else>>
+		You stop giving <<him>> clean resets. Every clinch costs <<him>> something.
+		<<athletics 1>><<tiredness 8>><<gathletics>><<gtiredness>>
+	<</if>>
+<<elseif _sparRoll is 2>>
+	Riley stops the round to correct your stance, steps in, moves your guard by hand, nudges your elbow into place.
+	<br><br>
+	<<if $speech_attitude is "meek" or $speech_attitude is "shy" or $speech_attitude is "docile">>
+		"I want to get it right," you say, quieter than you meant to.
+		<br><br>
+		"Then stop apologising with your shoulders," Riley says. "You are allowed to take space. Start acting like it."
+		<<willpower 1>><<gwillpower>><<stress 4>><<gstress>>
+	<<elseif $speech_attitude is "bratty" or $speech_attitude is "cruel">>
+		"Should I start making you look bad?"
+		<br><br>
+		Riley laughs. "Please do. It would be a nice change from correcting you."
+		<br><br>
+		Riley doesn't give you time to enjoy it.
+		<<athletics 1>><<pain 3>><<gathletics>><<gpain>>
+	<<else>>
+		You nod, reset your feet, and repeat the movement until Riley no longer has to touch your elbow back into place.
+		<br><br>
+		"Better," Riley says. "Do it before you need saving next time."
+		<<physique 1>><<tiredness 6>><<gtiredness>><<gphysique>>
+	<</if>>
+<<elseif _sparRoll is 3>>
+	The round turns scrappy when your partner tries to rush every exchange. It is ugly work, full of elbows tucked too late and feet fighting for space on the mat.
+	<br><br>
+	<<if currentSkillValue('athletics') gte 700 or currentSkillValue('physique') gte 5000>>
+		You keep calm under the rush, step out of <<his>> path, and let <<him>> chase you into bad positions until Riley finally calls time.
+		<br><br>
+		"Not bad," Riley says.
+		<<athletics 2>><<physique 1>><<tiredness 8>><<gathletics>><<gphysique>><<gtiredness>>
+	<<else>>
+		You make it through, though it is a mess. <<He>> keeps rushing you back while Riley shouts at you to move.
+		<<athletics 1>><<pain 3>><<tiredness 8>><<stress 3>><<gathletics>><<gpain>><<gtiredness>><<gstress>>
+	<</if>>
+<<else>>
+	The spar stays clean for once. You throw strikes and reset until the round starts feeling like actual training.
+	<<athletics 1>><<physique 1>><<willpower 1>><<tiredness 6>><<gathletics>><<gphysique>><<gwillpower>><<gtiredness>>
+<</if>>
+<br><br>
+Riley claps once. "Done. Water, then out of the way."
+<br><br>
+<<link [[Next|MMA Gym]]>><<endevent>><</link>>
