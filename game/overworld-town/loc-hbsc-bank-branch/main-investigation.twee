@@ -492,104 +492,6 @@ They move you to a smaller room and lock the door. Hours pass before the police 
 <br>
 <<getouticon>><<link [[Leave|High Street]]>><<endevent>><</link>>
 
-/* ================================================================
- * Street event: Master's agents investigating the heist
- * Triggers when heist is reported and crime >= 5000
- * Behaviour scales with $xchange.bankHeist.alertLevel
- * ================================================================ */
-:: Heist Investigators Widgets [widget]
-<<widget "streetHeistInvestigators">>
-	<<set _al to $xchange.bankHeist.alertLevel or 0>>
-	<<if _al lte 0>>
-		/* alertLevel 0: Watchers - atmospheric, no danger */
-		<<generate1>><<person1>>
-		You notice a <<person>> in a dark suit standing very still near a shopfront. <<He>> is not shopping. <<He>> is not waiting for anyone. <<His>> eyes move slowly over the street.
-		<<if $awarelevel gte 3>>
-			<br><br>
-			<span class="red">Something about <<him>> sets you on edge</span>. The stillness. The patience. You have felt this kind of attention before, in the bank and in the vault.
-			<<awareness 1>><<gawareness>>
-		<<elseif $awarelevel gte 1>>
-			<br><br>
-			<span class="purple"><<He>> does not look like police</span>. Somehow, that feels worse.
-		<</if>>
-		<br><br>
-		<<if $skulduggery gte 600>>
-			You spot a second one across the road, acting the same way. <span class="red">They are searching for someone.</span>
-			<<if $awarelevel lte 3>>
-				<span class="navy">You hope it isn't you.</span>
-			<</if>>
-		<</if>>
-		<<stress 6>><<gstress>>
-		<br><br>
-		<<destinationeventend>>
-	<<elseif _al lte 2>>
-		/* alertLevel 1-2: Approach and interrogation */
-		<<generate1>><<person1>><<generate2>>
-		Two figures in dark suits step out from either side of the pavement, blocking your path. The <<person1>><<person>> is tall and broad-shouldered. <<His>> companion, a <<person2>><<person>>, holds a small leather folder.
-		<br><br>
-		"Excuse us," the <<person2>><<person>> says. <<His>> voice is polite. Too polite. "We're conducting a private inquiry about the bank. You live in this area, yes?"
-		<br><br>
-		<<link [[Try to slip away|Heist Investigator Flee]]>><</link>><<skulduggerydifficulty>><<athleticsdifficulty 1 800>>
-		<br>
-		<<link [[Answer their questions|Heist Investigator Questions]]>><</link>>
-		<br>
-	<<else>>
-		/* alertLevel 3: Full chase */
-		<<generate1>><<person1>><<generate2>>
-		You hear tyres screech. A black car pulls up hard against the kerb. Three figures in dark suits get out fast and move straight towards you.
-		<br><br>
-		The lead figure, a <<person1>><<person>>, points directly at you. "<span class="red">That's the one.</span>"
-		<br><br>
-		<<link [[Run|Heist Investigator Chase 1]]>><</link>>
-		<br>
-		<<link [[Surrender|Heist Investigator Surrender]]>><</link>>
-		<br>
-	<</if>>
-<</widget>>
-
-/* ================================================================
- * Bank event: Security encounter post-heist
- * Different flavor - corporate, cold, procedural
- * ================================================================ */
-<<widget "bankHeistSecurityEncounter">>
-	<<set _al to $xchange.bankHeist.alertLevel or 0>>
-	<<generate1>><<person1>>
-	<<if _al lte 0>>
-		/* Clean heist - subtle unease */
-		As you deal with your bank business, you notice a <<person>> in a grey suit watching from behind the glass partition near the service corridor. <<He>> has a clipboard, but <<he>> is not writing anything on it.
-		<br><br>
-		<<if $awarelevel gte 2>>
-			<span class="navy">You recognise the service corridor</span>. You were in there. The memory of the vault and the figure with the antlers comes back.
-			<<stress 6>><<gstress>><<trauma 2>><<gtrauma>>
-		<<else>>
-			<<He>> catches your eye and smiles. The smile does not reach <<his>> eyes.
-			<<stress 3>><<gstress>>
-		<</if>>
-		<br><br>
-	<<elseif _al lte 2>>
-		/* Messy heist - direct questioning */
-		You are halfway through your transaction when a <<person>> in a grey suit approaches the counter. <<He>> shows the teller some ID, and the teller immediately steps aside.
-		<br><br>
-		"A moment of your time," <<he>> says. It is not a question. <<He>> gestures towards a side office. "Routine security review. It won't take long."
-		<br><br>
-		<<link [[Follow quietly|Heist Bank Security Questions]]>><</link>>
-		<br>
-		<<link [[Refuse and leave|Heist Bank Security Refuse]]>><</link>>
-		<br>
-		<<exit>>
-	<<else>>
-		/* alertLevel 3 - they're waiting for you */
-		The moment you step through the door, two guards move to either side of you. A <<person>> in a grey suit steps forward from behind the counter.
-		<br><br>
-		"We've been expecting someone like you," <<he>> says. "Please come with us. <span class="red">This isn't a request.</span>"
-		<br><br>
-		<<link [[Go quietly|Heist Bank Security Caught]]>><</link>>
-		<br>
-		<<link [[Break free and run|Heist Bank Security Run]]>><</link>><<athleticsdifficulty 1 1000>><<physiquedifficulty 5000 14000>>
-		<br>
-		<<exit>>
-	<</if>>
-<</widget>>
 
 :: Heist Investigator Flee
 <<effects>>
@@ -1042,3 +944,102 @@ You shoulder past the guard and sprint for the exit. The marble floor is slipper
 	<<link [[Next|Heist Bank Security Detained]]>><</link>>
 	<br>
 <</if>>
+
+/* ================================================================
+ * Street event: Master's agents investigating the heist
+ * Triggers when heist is reported and crime >= 5000
+ * Behaviour scales with $xchange.bankHeist.alertLevel
+ * ================================================================ */
+:: Heist Investigators Widgets [widget]
+<<widget "streetHeistInvestigators">>
+	<<set _al to $xchange.bankHeist.alertLevel or 0>>
+	<<if _al lte 0>>
+		/* alertLevel 0: Watchers - atmospheric, no danger */
+		<<generate1>><<person1>>
+		You notice a <<person>> in a dark suit standing very still near a shopfront. <<He>> is not shopping. <<He>> is not waiting for anyone. <<His>> eyes move slowly over the street.
+		<<if $awarelevel gte 3>>
+			<br><br>
+			<span class="red">Something about <<him>> sets you on edge</span>. The stillness. The patience. You have felt this kind of attention before, in the bank and in the vault.
+			<<awareness 1>><<gawareness>>
+		<<elseif $awarelevel gte 1>>
+			<br><br>
+			<span class="purple"><<He>> does not look like police</span>. Somehow, that feels worse.
+		<</if>>
+		<br><br>
+		<<if $skulduggery gte 600>>
+			You spot a second one across the road, acting the same way. <span class="red">They are searching for someone.</span>
+			<<if $awarelevel lte 3>>
+				<span class="navy">You hope it isn't you.</span>
+			<</if>>
+		<</if>>
+		<<stress 6>><<gstress>>
+		<br><br>
+		<<destinationeventend>>
+	<<elseif _al lte 2>>
+		/* alertLevel 1-2: Approach and interrogation */
+		<<generate1>><<person1>><<generate2>>
+		Two figures in dark suits step out from either side of the pavement, blocking your path. The <<person1>><<person>> is tall and broad-shouldered. <<His>> companion, a <<person2>><<person>>, holds a small leather folder.
+		<br><br>
+		"Excuse us," the <<person2>><<person>> says. <<His>> voice is polite. Too polite. "We're conducting a private inquiry about the bank. You live in this area, yes?"
+		<br><br>
+		<<link [[Try to slip away|Heist Investigator Flee]]>><</link>><<skulduggerydifficulty>><<athleticsdifficulty 1 800>>
+		<br>
+		<<link [[Answer their questions|Heist Investigator Questions]]>><</link>>
+		<br>
+	<<else>>
+		/* alertLevel 3: Full chase */
+		<<generate1>><<person1>><<generate2>>
+		You hear tyres screech. A black car pulls up hard against the kerb. Three figures in dark suits get out fast and move straight towards you.
+		<br><br>
+		The lead figure, a <<person1>><<person>>, points directly at you. "<span class="red">That's the one.</span>"
+		<br><br>
+		<<link [[Run|Heist Investigator Chase 1]]>><</link>>
+		<br>
+		<<link [[Surrender|Heist Investigator Surrender]]>><</link>>
+		<br>
+	<</if>>
+<</widget>>
+
+/* ================================================================
+ * Bank event: Security encounter post-heist
+ * Different flavor - corporate, cold, procedural
+ * ================================================================ */
+<<widget "bankHeistSecurityEncounter">>
+	<<set _al to $xchange.bankHeist.alertLevel or 0>>
+	<<generate1>><<person1>>
+	<<if _al lte 0>>
+		/* Clean heist - subtle unease */
+		As you deal with your bank business, you notice a <<person>> in a grey suit watching from behind the glass partition near the service corridor. <<He>> has a clipboard, but <<he>> is not writing anything on it.
+		<br><br>
+		<<if $awarelevel gte 2>>
+			<span class="navy">You recognise the service corridor</span>. You were in there. The memory of the vault and the figure with the antlers comes back.
+			<<stress 6>><<gstress>><<trauma 2>><<gtrauma>>
+		<<else>>
+			<<He>> catches your eye and smiles. The smile does not reach <<his>> eyes.
+			<<stress 3>><<gstress>>
+		<</if>>
+		<br><br>
+	<<elseif _al lte 2>>
+		/* Messy heist - direct questioning */
+		You are halfway through your transaction when a <<person>> in a grey suit approaches the counter. <<He>> shows the teller some ID, and the teller immediately steps aside.
+		<br><br>
+		"A moment of your time," <<he>> says. It is not a question. <<He>> gestures towards a side office. "Routine security review. It won't take long."
+		<br><br>
+		<<link [[Follow quietly|Heist Bank Security Questions]]>><</link>>
+		<br>
+		<<link [[Refuse and leave|Heist Bank Security Refuse]]>><</link>>
+		<br>
+		<<exit>>
+	<<else>>
+		/* alertLevel 3 - they're waiting for you */
+		The moment you step through the door, two guards move to either side of you. A <<person>> in a grey suit steps forward from behind the counter.
+		<br><br>
+		"We've been expecting someone like you," <<he>> says. "Please come with us. <span class="red">This isn't a request.</span>"
+		<br><br>
+		<<link [[Go quietly|Heist Bank Security Caught]]>><</link>>
+		<br>
+		<<link [[Break free and run|Heist Bank Security Run]]>><</link>><<athleticsdifficulty 1 1000>><<physiquedifficulty 5000 14000>>
+		<br>
+		<<exit>>
+	<</if>>
+<</widget>>
