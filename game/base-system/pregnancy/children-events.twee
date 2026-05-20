@@ -6,6 +6,13 @@
 	<<if _args[0]>>
 		<<if _args[0] is "tower">>
 			<<getChildrenIds `{location: _args[0], eggTimer: undefined}` "both">>
+			<<set _activeChildrenIds to []>>
+			<<for _childId range _childrenIds>>
+				<<if $children[_childId] and (!$children[_childId].localVariables or ($children[_childId].localVariables.farewell isnot true and $children[_childId].localVariables.activity isnot "dismissed"))>>
+					<<run _activeChildrenIds.push(_childId)>>
+				<</if>>
+			<</for>>
+			<<set _childrenIds to _activeChildrenIds>>
 		<<else>>
 			<<getChildrenIds `{location: _args[0]}`>>
 		<</if>>
@@ -15,6 +22,19 @@
 		<!-- Rework these later, they make no sense. Why can't children of different birth IDs interact? -->
 		<<if _args[0] is "tower">>
 			<<getSameBirthChildrenIds _args[0] 2 undefined "both">>
+			<<set _activeBirthChildrenIds to {}>>
+			<<for _birthId range Object.keys(_birthChildrenIds)>>
+				<<set _activeBirthChildrenIds[_birthId] to []>>
+				<<for _childId range _birthChildrenIds[_birthId]>>
+					<<if $children[_childId] and (!$children[_childId].localVariables or ($children[_childId].localVariables.farewell isnot true and $children[_childId].localVariables.activity isnot "dismissed"))>>
+						<<run _activeBirthChildrenIds[_birthId].push(_childId)>>
+					<</if>>
+				<</for>>
+				<<if _activeBirthChildrenIds[_birthId].length lt 2>>
+					<<run delete _activeBirthChildrenIds[_birthId]>>
+				<</if>>
+			<</for>>
+			<<set _birthChildrenIds to _activeBirthChildrenIds>>
 		<<else>>
 			<<getSameBirthChildrenIds _args[0] 2>>
 		<</if>>
@@ -375,7 +395,21 @@ When you're done bathing <<childhim>>, you lay <<childhim>> on a towel and gentl
 
 :: Childrens Home
 <<effects>>
-<<getChildrenIds `{location: $location}`>>
+<<if $location is "tower">>
+	<<getChildrenIds `{location: $location, eggTimer: undefined}` "both">>
+	<<set _leftNestChildrenIds to []>>
+	<<set _activeChildrenIds to []>>
+	<<for _childId range _childrenIds>>
+		<<if $children[_childId] and $children[_childId].localVariables and ($children[_childId].localVariables.farewell is true or $children[_childId].localVariables.activity is "dismissed")>>
+			<<run _leftNestChildrenIds.push(_childId)>>
+		<<else>>
+			<<run _activeChildrenIds.push(_childId)>>
+		<</if>>
+	<</for>>
+	<<set _childrenIds to _activeChildrenIds>>
+<<else>>
+	<<getChildrenIds `{location: $location}`>>
+<</if>>
 <<switch $location>>
 	<<case "home">>
 		You are in the orphanage nursery. There are a few cradles and cots scattered around.
@@ -403,8 +437,15 @@ When you're done bathing <<childhim>>, you lay <<childhim>> on a towel and gentl
 				Silence fills the room.
 		<</switch>>
 	<<case "tower">>
-		<<getChildrenIds `{location: $location, eggTimer: undefined}` "both">>
-		You are in the tower. You look around for your <<pluralise _childrenIds.length "child">>.
+		<<if _childrenIds.length gt 0>>
+			You are in the tower. You look around for your <<pluralise _childrenIds.length "child">>.
+		<<elseif _leftNestChildrenIds.length gt 0>>
+			You are in the tower. The nest is quiet now, the space emptier than it used to be.
+			<br><br>
+			You start to recollect your time with <<childrenNames _leftNestChildrenIds>>, and the moments you spent playing together. The memory settles warmly in your chest. <<stress -6>><<lstress>>
+		<<else>>
+			You are in the tower. The nest is quiet.
+		<</if>>
 <</switch>>
 <<if Time.dayState isnot "night" and (!$daily.childrenHomeEvent or !$daily.childrenHomeEvent.includes($location)) and random(1) is 1>>
 	<<if !$daily.childrenHomeEvent>>
