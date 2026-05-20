@@ -11,52 +11,128 @@
 
 ## Changelog
 ## Changes and Additions:
-* Added **bank heist prison cooldown**.
-  * After the bank heist is complete, the bank alert level now lowers by 1 point whenever the player is sent to prison.
-* Updated **bank heist observation behaviour**.
-  * Wren’s observation quest now recognises the player’s X-Change state.
-  * If the player is X-Changed, bank staff may be less suspicious because the player no longer matches the expected description.
-  * Guards may still react differently.
-* Updated **Water Dragon island travel**.
-  * Travelling to the island as a Water Dragon can now unlock the **Lost World** feat.
-* Restored **DoLP transparent clothing option**.
-  * Brought back the option to toggle the anti-transparent clothes setting on or off.
-* Added **missing images**.
-  * Added missing thunderstorm and penis size 6 image assets.
+* Updated **Beesss imagepack assets**.
+  * Added rename and masking fixes for the Beesss graphic mod by **DragonDust**.
+* Added **configurable X-Change settings**.
+  * Added new settings for X-Change spike and combat pilling behaviour.
+  * Added **Suspicious pills have side effects**, enabled by default.
+  * Gates side-effect calls inside `xchange-random-spike` so all spike sources share the same behaviour.
+  * Allows players to restore the old effects-only spike behaviour by disabling the toggle.
+  * Added combat settings for beasts carrying combat pills.
+  * Added NPC pill-carry chance and per-turn pill draw chance settings.
+  * Added a clean Pink/Blue pill ratio setting.
+  * Prevents duplicate side-effect application by removing the extra combat-side call.
+  * Ensures each NPC can only pull one pill per encounter.
+  * Applies beast filtering to combat pilling.
+  * Routes clean pills through `xchange-pink` and `xchange-blue`.
+  * Keeps Suspicious pills as the fallback when clean pills cannot apply.
+  * Updated combat pilling tooltips.
+  * Added guarded default initialisers for existing saves.
+  * Tidied mod init handling as a whole.
+  * Updated the character tab UI when wearing the bullet vibe.
+* Added **X-Change custom hex hair dye saving**.
+  * X-Change body snapshots now preserve custom hex hair dyes from advanced hair dye at the hairdresser.
+  * Custom dye data is now restored exactly when returning to a saved body.
+  * Legacy body saves without custom dye data now clear `is_custom` so the restored vanilla hair colour displays correctly.
+  * Re-runs `colorCache()` after restoration so renderer filter strings are available.
+  * Prevents stale custom dye flags from overriding newly assigned vanilla hair colours.
+  * Ensures custom dye state is safely snapshotted alongside vanilla hair variables.
+* Added **tummy parasite fertility scaling**.
+  * The tummy parasite now grants an automatic fertility bonus based on how long it has been latched.
+  * The bonus starts after 14 in-game days.
+  * The bonus scales up over time and reaches full strength after about 30 in-game days.
+  * At full strength, the parasite can increase the chance of higher-order pregnancies, including forcing triplets and adding a smaller follow-up chance for quadruplets.
+* Added **Colossal NPC penis size support and reactions**.
+  * Added Colossal as a selectable NPC penis size in relevant game settings.
+  * Added Colossal penis description pools for persistent and named NPC generation.
+  * Added support for random NPCs to roll Colossal size through `npcColossalPenisChance`.
+  * Updated NPC and beast generation logic so size 5 is no longer treated as only Huge.
+  * Added Colossal-specific reactions in vaginal, anal, oral, double penetration, beast, portal panties, pillory, wall, gloryhole, plant, and standard ejaculation scenes.
+  * Split shared `<<case 4 5>>` and `<<case 3 4 5>>` branches so Colossal has separate harsher reactions while Huge keeps its original text.
+  * Fixed unsafe pain formulas that could divide by zero when `penissize` is 5.
+  * Updated virginity and detail records to preserve size 5 and use strap-on-aware descriptions.
+  * Replaced fragile `penisdesc.includes("strap-on")` checks with `npcHasStrapon(...)` where appropriate.
+  * Added strap-on-aware display text so old descriptions like "monstrous cock" do not appear when an NPC is using a strap-on.
+  * Fixed several small typos and grammar issues while patching.
+  * Tidied init handling further.
+* Updated **earrings positioning**.
+  * Earrings can now be positioned behind hair, in front of hair, or behind fringe.
+  * This option can be found at the mirror under **Change your hair style**.
+* Updated **character description text**.
+  * Characters are now described as enby instead of orphan when their identity is non-binary.
+  * Character descriptions are now hidden during historical reenactment conditions, such as Hopeless Cycle or similar scenarios.
+* Updated **text widgets**.
+  * Made several text widgets aware of non-binary PCs, including friend, PC sex, fox, and bunny text.
+* Updated **TF trait descriptions**.
+  * Trait descriptions now better account for enby and transgender PCs.
+* Updated **mid-sex speech**.
+  * Added more variety for some named NPCs so they are no longer silent or repeating nearly identical lines.
+* Updated **parasite barn limit**.
+  * Increased the parasite barn maximum count to 50.
 
 ## Rebalancing and Fixes:
-* Fixed **Poppy LI support**.
-  * Fixed a missing check that was accidentally removed.
-  * Improved Poppy-related save repair and NPC metadata handling.
-* Fixed **fertile breeder pregnancy**.
-  * Real fertile breeder pregnancies could still fail with a 0% chance in fetish pregnancy mode when the fertility cycle multiplier was 0.
-  * Real breeder now correctly bypasses the cycle penalty when both the breeder effect and fertile state are active.
-  * Fake breeder behaviour is unchanged.
-* Fixed **blackmail park streaking quest**.
-  * Fixed an issue where the streaking option could fail to appear for the blackmail quest.
-* Add fixes by **CitrusBurst**.
-  * Fixed old wallpaper names that were renamed with hyphens, such as `wavywhite` to `wavy-white`.
-  * Fixed **Alex Cottage maths project bonus** missing +5 points when working on the maths project from Alex’s cottage.
-* Fixed **action text typo**.
-  * Corrected some typo in `action-text.twee`.
-* Tidied **bank narration**.
-  * Reworked bank text to make it less stiff and easier to read.
-* Optimised **save version checks**.
-  * `backComp` and `modupdate` now only run when the save version does not match `StartConfig.version`.
-  * Same-version save loads and page refreshes no longer run the full migration pipeline.
-  * Normal load and refresh setup still runs as before, including time setup, font setup, custom lenses, debug event sync, PRNG restore, and history controls.
-  * Older saves and saves without `saveVersions` still run migrations normally.
-* Improved **general performance**.
-  * Made parts of the code lighter for Updated UI, MiniMap UI, Mod LI settings, and Poppy core code.
-* Repaired **NPCName migration and mod LI defaults** (especially for vanilla's save).
-  * Registered mod LI NPCName slots are now guaranteed before `pruneNPCName` runs.
-  * New NPCNameList pushes are still gated behind `modLIUnlocks`, but existing NPCNameList slots are always repaired.
-  * Expanded mod LI stub defaults with relation-box-safe fields, including virginity, pregnancy, timers, orgasm state, appearance, and relationship stats.
-  * Existing half-repaired slots now get missing defaults backfilled without wiping relationship progress.
-  * Nested defaults now repair after `Object.assign`, preventing partial templates from replacing required nested data.
-  * Corrupted Poppy slots now have Night Monster vestige fields cleaned, including title, type, description, beastname, and monster.
-  * Restored Poppy’s canonical metadata, including tolerant title, skill insecurity, human type, and adult flags.
-  * Consolidated future mod LI metadata and vestige cleanup rules into a single config helper.
-  * Padded the `npcNamed` `_swi` array to match `NPCNameList` length and avoid silent index drift.
-* Reduced **console log noise**.
-  * Wrapped selected console logging behind debugger checks to keep normal console output cleaner.
+* Fixed **factory flower selling**.
+  * Fixed an issue where flowers could not be sold at the factory.
+* Fixed **brothel gloryhole crash**.
+  * Fixed a crash that could occur during brothel gloryhole content.
+* Fixed **waiting room crash for vanilla saves**.
+  * Fixed a crash that could occur in the waiting room when loading vanilla saves.
+* Fixed **reload page crash**.
+  * Fixed a crash caused by refreshing or reloading the browser with F5.
+  * `xchange-init` is now calculated correctly after page reloads.
+* Fixed **persistent bike lake access**.
+  * Previously, players could ride the bike to the lake from eligible locations even if `$town_projects.road` was below 4.
+  * With persistent bike location enabled, this could leave the bike at the lake before the lake had proper return access through the bus stop route.
+  * The lake bike link now only appears when either:
+    * persistent bike location is disabled, preserving the old free-access behaviour
+    * or `$town_projects.road gte 4`, meaning the lake bus stop route has been unlocked
+  * Non-persistent bike behaviour is unchanged.
+  * Persistent-bike saves can no longer strand the bike at the lake too early.
+* Rebalanced **bike theft chances by security tier**.
+  * Replaced the old bike theft protection multiplier with fixed daily theft chance tables by location and security tier.
+  * New values are calibrated around a 75% weekly theft chance for an unsecured street bike.
+  * Each security upgrade now provides a more meaningful reduction:
+    * No gear: ~75% weekly street theft chance
+    * Wheel Lock: ~50%
+    * Standard Chain: ~30%
+    * Heavy-Duty Chain: ~15%
+    * U-Lock: ~7%
+    * U-Lock + Alarm: ~2%
+  * Lake and farm locations now use separate lower-risk tables.
+  * Bailey's defeated-chain penalty now scales from the current street theft tier instead of adding a flat bonus.
+  * Farm aggro now scales multiplicatively with the farm theft tier instead of adding a large flat bonus.
+  * Clamps the security gear tier before table lookup to avoid invalid indexes.
+* Fixed **consensual beast knockdown loop**.
+  * Consensual dog and wolf encounters could endlessly repeat the Combat Extended standing-fight knockdown attempt on the Easy preset.
+  * The approach branch ignored `$consensual`, used hostile text, and did not always progress stance when stability loss failed.
+  * Added a consensual approach path.
+  * Blocks hostile knockdown logic during consensual beast encounters.
+* Fixed **X-Change special events**.
+  * Fixed street flirt and pub flirt events not happening correctly during X-Change content.
+* Fixed **Avery kitchen steal**.
+  * Fixed an issue with Avery kitchen stealing content.
+* Fixed **temple garden steal**.
+  * Clears `$templeGardenFruit` when temple garden steal flows finish so repeated direct steals reroll fruit instead of reusing the previous value.
+  * Replaced two stale `<<switch $phase>>` checks with `<<switch $templeGardenFruit>>` in wolf-related steal outcomes.
+  * Fixed repeated Steal actions always giving the same fruit.
+  * Fixed wolf-friendly night steals awarding no fruit.
+  * Fixed wolf steal recovery awarding no salvaged fruit.
+  * Fixed related typos.
+* Fixed **missed pronoun**.
+  * Fixed a missed pronoun in Elk Compound leave text.
+* Fixed **Whitney hallway event phrasing**.
+  * Reworded confusing phrasing in Whitney’s hallway event.
+* Fixed **sleep notice wording**.
+  * Reworded the notice shown when resting causes no fatigue change.
+  * The message is now more general and less confusing when fatigue is already 0, the PC is too stressed, or another condition prevents fatigue recovery.
+* Fixed **spacing and UI issues**.
+  * Removed weird spacing during the swimming competition.
+  * Removed weird spacing in the jewellery shop.
+  * Made the Updated UI bar meter thinner.
+* Wrapped **portal pill console warnings**.
+  * Wrapped portal pill console warnings behind debugger checks to reduce normal console noise.
+* Fixed by **CitrusBurst**.
+  * Re-added `<<healthMultiplier>>` and `$enemyarousalmax` to init for `Monster Tower Rape` and `Monster Tower Sex`.
+  * Updated `speech.twee` to remove the old `perceivedGender` gate.
+  * Updated speech logic to use the newer strap-on/herm genital selection condition.
+  * Cherry-picked merge audit changes from vanilla 0.5.8.10 to 0.5.9.8.
