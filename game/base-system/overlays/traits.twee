@@ -115,7 +115,7 @@
 					</span></mouse>",
 					colour: "lblue",
 					has: $backgroundTraits.includes("crossdresser") and !$background.transgender and $player.gender is "f",
-					text: "Stress decays faster while dressed as a boy, but slower when dressed as a girl. Additionally, it's much easier to see yourself as a boy as well",
+					text: "Stress decays faster while dressed as a boy, but slower when dressed as a girl. Additionally, it's much easier to see yourself as a boy as well.",
 				},
 				{
 					name: "<mouse class='tooltip lblue'>Transgender<span class='green'>You've always known yourself to be a different gender than the one you were born into, and no amount of dressing differently will change that (your identity is yours to define, not the world's to assign).</span></mouse>",
@@ -498,63 +498,71 @@
 			title: "Transformation Traits",
 			traits: [
 				{
-					name: () => V.player.gender is "n" ? "Wolf" : "Wolf <<pcGender>>",
+					name: () => {
+						if (playerFeelsManlike()) return "Wolfboy";
+						if (playerFeelsGirllike()) return "Wolfgirl";
+						return "Wolfkin";
+					},
 					colour: "grey",
 					has: ($wolfgirl gte 6 or ($transformationParts.wolf.tail isnot "hidden" and $transformationParts.wolf.tail isnot "disabled")),
 					text: 'The spirit of the wild lives within you. Defiant options are always available, reducing stress. When too submissive, acting defiant is traumatic and lowers control. Your ears and tail make you more conspicuous.',
 				},
 				{
-					name: () => V.player.gender is "n" ? "Cat" : "Cat <<pcGender>>",
+					name: () => {
+						if (playerFeelsManlike()) return "Catboy";
+						if (playerFeelsGirllike()) return "Catgirl";
+						return "Catkin";
+					},
 					colour: "grey",
 					has: ($cat gte 6 or ($transformationParts.cat.tail isnot "hidden" and $transformationParts.cat.tail isnot "disabled")),
 					text: 'You have an urge to lap up cream. Unlocks the "groom" action while dancing with lewd fluid on your person. Your ears and tail make you more conspicuous.',
 				},
 				{
-					name: "Bunny <<girl>>",
+					name: () => {
+						if (playerFeelsManlike()) return "Bunny boy";
+						if (playerFeelsGirllike()) return "Bunny girl";
+						return "Bunnykin";
+					},
 					colour: "grey",
 					has: ($bunny gte 6 or ($transformationParts.bunny.tail isnot "hidden" and $transformationParts.bunny.tail isnot "disabled")),
 					text: 'Your submissiveness increases over time. Your ears and tail make you more conspicuous.',
 				},
 				{
-					name: "Bear <<girl>>",
+					name: () => {
+						if (playerFeelsManlike()) return "Bear boy";
+						if (playerFeelsGirllike()) return "Bear girl";
+						return "Bearkin";
+					},
 					colour: "grey",
 					has: ($bear gte 6 or ($transformationParts.bear.tail isnot "hidden" and $transformationParts.bear.tail isnot "disabled")),
-					text: 'You have an urge to eat honey and lazy around. Your ears and tail make you more conspicuous.',
+					text: 'You have an urge to eat honey and laze around. Your ears and tail make you more conspicuous.',
 				},
 				{
 					name: () => {
-						if (V.player.gender_appearance is "m") {
-							if (V.player.gender is "n") {
-								return "Bull";
-							}
-							return "Bull <<pcGender>>";
-						} else {
-							if (V.player.gender is "n") {
-								return "Cow";
-							}
-							return "Cow <<pcGender>>";
-						}
+						if (playerFeelsManlike()) return "Bull";
+						if (playerFeelsGirllike()) return "Cow";
+						return "Bovine";
 					},
 					colour: "brat",
 					has: ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled")),
 					text: "You yearn to be milked. Milk and semen volume is increased. Certain body parts might grow. Your horns, ears and tail make you more conspicuous.",
 				},
 				{
-					name: () => V.hallucinations gte 2 || !V.settings.bestialityEnabled ? "Harpy" : V.player.gender is "n" ? "Bird" : "Bird <<pcGender>>",
+					name: () => {
+						if (V.hallucinations gte 2 || !V.settings.bestialityEnabled) return "Harpy";
+						if (playerFeelsManlike()) return "Birdboy";
+						if (playerFeelsGirllike()) return "Birdgirl";
+						return "Birdkin";
+					},
 					colour: "grey",
 					has: ($harpy gte 6 or ($transformationParts.bird.wings isnot "hidden" and $transformationParts.bird.wings isnot "disabled")),
 					text: "The skies call to you, and some feral part of you longs to answer. Your wings make you more conspicuous.",
 				},
 				{
 					name: () => {
-						if (V.player.gender_appearance is "m") {
-							if (V.player.gender is "n") {
-								return "Fox";
-							}
-							return "Fox <<pcGender>>";
-						} else {
-							return "Vixen";
-						}
+						if (playerFeelsManlike()) return "Foxboy";
+						if (playerFeelsGirllike()) return "Vixen";
+						return "Foxkin";
 					},
 					colour: "",
 					style: `background: linear-gradient(to right,#fe9000 0%, #ffffff 100%);-webkit-background-clip: text;-webkit-text-fill-color: transparent;`,
@@ -568,7 +576,7 @@
 					text: "You are a prey animal. Your submissiveness increases each day.",
 				},
 				{
-				    name: "Predatory Animal",
+					name: "Predatory Animal",
 					colour: "def",
 					has: $transformationParts.traits.predatoryAnimal isnot "disabled",
 					text: "You are a predatory animal. Your defiance increases each day.",
@@ -629,10 +637,10 @@
 					text: "The spirit of the wild courses through you, heightening your senses.",
 				},
 				{
-					name: "Felinous Mischief",
+					name: "Feline Mischief",
 					colour: "pink",
 					has: $DoLPTFBuffs is 1 and $TFCatBuffs is 1,
-					text: "Agility and mischief blends within you, your movements fluid and stealthy.",
+					text: "Agility and mischief blend within you, your movements fluid and stealthy.",
 				},
 				{
 					name: "Nature's Nurturer",
@@ -653,7 +661,7 @@
 					text: "A pep in your step, the winds your friend and the sky your limits.",
 				},
 				{
-					name: "Vixen's Guile",
+					name: "Fox's Guile",
 					colour: "gold",
 					has: $DoLPTFBuffs is 1 and $TFFoxBuffs is 1,
 					text: "Ever enticing, always within reach, but never within grasp, your guile eludes most.",
@@ -697,17 +705,47 @@
 				},
 				{
 					name: () => {
-						if(V.player.gender_appearance is "m"){
-							if(V.player.sex is "f" and isCrossdressing()){
-								return "Incubus (female)";
+						let transBodySex = V.player.sex;
+						if (V.xchange && V.xchange.pill && V.xchange.pill.active && V.xchange.pill.baseSex !== undefined) {
+							transBodySex = V.xchange.pill.baseSex;
+						}
+
+						let transGenderLabel = "trans person";
+						if (transBodySex === "m") {
+							transGenderLabel = "trans girl";
+						} else if (transBodySex === "f") {
+							transGenderLabel = "trans boy";
+						} else if (playerFeelsManlike()) {
+							transGenderLabel = "trans boy";
+						} else if (playerFeelsGirllike()) {
+							transGenderLabel = "trans girl";
+						}
+
+						if (playerFeelsManlike()) {
+							if (isCrossdressing()) {
+								if (V.background && V.background.transgender) {
+									return "Incubus (" + transGenderLabel + ")";
+								}
+								if (V.player.sex === "f") {
+									return "Incubus (female)";
+								}
 							}
 							return "Incubus";
-						}else{
-							if(V.player.sex is "m" and isCrossdressing()){
-								return "Succubus (male)";
+						}
+
+						if (playerFeelsGirllike()) {
+							if (isCrossdressing()) {
+								if (V.background && V.background.transgender) {
+									return "Succubus (" + transGenderLabel + ")";
+								}
+								if (V.player.sex === "m") {
+									return "Succubus (male)";
+								}
 							}
 							return "Succubus";
 						}
+
+						return "Demon";
 					},
 					colour: "red",
 					has: ($demon gte 6 or ($transformationParts.demon.wings isnot "hidden" and $transformationParts.demon.wings isnot "disabled")),
@@ -916,10 +954,14 @@
 					name: "Sexflip",
 					colour: "teal",
 					has: V.xchange.pill?.genderflipEffect,
-					text: `Your genital has been flipped to the opposite sex.`,
+					text: `Your genitals have been flipped to the opposite sex.`,
 				},
 				{
-					name: () => $player.gender is "m"? "Sissification" : "Butchification",
+					name: () => {
+						if (playerFeelsManlike()) return "Sissification";
+						if (playerFeelsGirllike()) return "Butchification";
+						return "Genderification";
+					},
 					colour: "lewd",
 					has: V.xchange.pill?.active && V.xchange.pill?.effectsKnown && V.xchange.pill?.genderificationEffect,
 					text: `Your body is different. Wearing clothes that fit your body's appearance feels good and refreshing. But only while you still identify as your original gender.`,
