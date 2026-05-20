@@ -25,6 +25,7 @@
 		<<set $combatExtended.feintingActive to 0>>
 
 		<<unset $xchange.resistCombatArousal>>
+		<<set _speechTrait to $xchange.pill.bimboEffect ? Math.max(0, $xchange.english ?? 0) : $englishtrait>>
 
 		/* Enemy CE Actions Reset */
 		<<set $combatExtended.enemyActiveDodgingActive to 0>>
@@ -4882,7 +4883,7 @@
 				<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
 					<<if $enemyno gte 2>>They don't<<else>><<He>> doesn't<</if>> understand your words, but <<if $enemyno gte 2>>react<<else>>reacts<</if>> to your tone.
 				<</if>>
-				<<meek `1 + $englishtrait`>>
+				<<meek `1 + _speechTrait`>>
 			<</if>>
 		<</if>>
 
@@ -4896,7 +4897,7 @@
 				<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
 					<<if $enemyno gte 2>>They don't<<else>><<He>> doesn't<</if>> understand your words, but <<if $enemyno gte 2>>react<<else>>reacts<</if>> to your tone.
 				<</if>>
-				<<submission `1 + $englishtrait`>>
+				<<submission `1 + _speechTrait`>>
 			<</if>>
 		<</if>>
 
@@ -4911,7 +4912,7 @@
 				<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
 					<span class="red"><<if $enemyno gte 2>>They don't<<else>><<He>> doesn't<</if>> understand your words,</span> and <<if $enemyno gte 2>>ignore<<else>>ignores<</if>> them.
 				<</if>>
-				<<submission `1 + $englishtrait`>>
+				<<submission `1 + _speechTrait`>>
 			<</if>>
 		<</if>>
 
@@ -4924,7 +4925,7 @@
 				<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
 					<span class="red"><<if $enemyno gte 2>>They don't<<else>><<He>> doesn't<</if>> understand your words,</span> and <<if $enemyno gte 2>>ignore<<else>>ignores<</if>> them.
 				<</if>>
-				<<submission 1>><<set $enemyanger += (10 * $englishtrait)>><<set $speechaskrough to 1>>
+				<<submission 1>><<set $enemyanger += (10 * _speechTrait)>><<set $speechaskrough to 1>>
 			<</if>>
 		<</if>>
 
@@ -4989,7 +4990,7 @@
 				<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
 					<<if $enemyno gte 2>>They don't understand your words, but flinch<<else>><<He>> doesn't understand your words, but flinches<</if>> at your tone.
 				<</if>>
-				<<defiance `1 + $englishtrait`>>
+				<<defiance `1 + _speechTrait`>>
 			<</if>>
 		<</if>>
 
@@ -5013,13 +5014,13 @@
 					<<set _disparage to false>>
 				<</if>>
 				<<actionsmock>><<set $speechdemand to 1>>
-				<<brat `1 + $englishtrait` $mouthtarget>>
+				<<brat `1 + _speechTrait` $mouthtarget>>
 				<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
 				<<elseif $mockaction is $NPCList[$mouthtarget].insecurity>>
 					<<if $consensual is 1>>
-						<<submission `1 + $englishtrait` $mouthtarget>>
+						<<submission `1 + _speechTrait` $mouthtarget>>
 					<<else>>
-						<<combatcontrol `1 + $englishtrait`>>
+						<<combatcontrol `1 + _speechTrait`>>
 					<</if>>
 				<</if>>
 			<</if>>
@@ -5235,11 +5236,11 @@
 			<<elseif $uncomfortable.hypnosis is false and $hypnosis_traits.scream gte random(1,5)>>
 				<<set $mouthaction to 0>><<unset $askAction>><<set _sound to 1>>
 				<<hypnosisText 'You intend to scream for help, but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span> <<askrough>>'>>
-				<<hypnotised 1>><<submission 1>><<set $enemyanger += (10 * $englishtrait)>>
+				<<hypnotised 1>><<submission 1>><<set $enemyanger += (10 * _speechTrait)>>
 			<<elseif $hypnosis_traits.scream gte 1 and currentSkillValue('willpower') lt random(1, (200 * $hypnosis_traits.scream))>>
 				<<set $mouthaction to 0>><<unset $askAction>><<set _sound to 1>>
 				<<hypnosisText 'You intend to scream for help, <span class="pink">but the thought is snatched from your mind and replaced with another.</span> <<askrough>>'>>
-				<<hypnotised 1>><<willpower 1>><<submission 1>><<set $enemyanger += (10 * $englishtrait)>>
+				<<hypnotised 1>><<willpower 1>><<submission 1>><<set $enemyanger += (10 * _speechTrait)>>
 			<<elseif numberOfEarSlime() and $earSlime.growth gte (currentSkillValue('willpower')/ 10)>>
 				You open your mouth to scream for help, <span class="lewd">but sudden arousal makes it sound like a lewd moan.</span> You feel the slime rapidly drug you.
 				<<if $earSlime.growth gt 50>><<set $earSlime.defyCooldown++>><</if>>
@@ -5304,11 +5305,11 @@
 					<!-- apology to an unforgiving character, instead add 25 anger at no english, remove maximum of 50 at excellent english -->
 					<<bHe>> ignores you.
 					<<set $apologised to 1>><<set $speechapologiseunforgiving to 1>>
-					<<set $enemyanger += Math.clamp(25 - $englishtrait * 20, $enemyangermax / -4, $enemyangermax / 2)>>
+					<<set $enemyanger += Math.clamp(25 - _speechTrait * 20, $enemyangermax / -4, $enemyangermax / 2)>>
 				<<elseif $NPCList[$mouthtarget] is _unforgiver>>
 					<!-- repeated apology, now it's just more anger -->
 					<span class = red><<bHe>> only looks more annoyed.</span>
-					<<set $enemyanger += Math.clamp(100 - $englishtrait * 20, 0, $enemyangermax / 2)>>
+					<<set $enemyanger += Math.clamp(100 - _speechTrait * 20, 0, $enemyangermax / 2)>>
 				<<elseif !!_unforgiver and $apologised is 0>>
 					<<bHe>> looks towards
 					<<= /^[A-Z]/.test(_unforgiver.fullDescription) ? "" : "the ">>
@@ -5320,7 +5321,7 @@
 					<</if>>
 					<span class="red"><<bHe>> <<beast_growls_text>> in response, and ignores your apology.</span>
 					<<set $apologised to 1>><<set $speechapologiseunforgiving to 1>>
-					<<set $enemyanger += Math.clamp(25 - $englishtrait * 20, $enemyangermax / -2, $enemyangermax / 2)>>
+					<<set $enemyanger += Math.clamp(25 - _speechTrait * 20, $enemyangermax / -2, $enemyangermax / 2)>>
 				<<elseif $apologised is 0>>
 					<<if $monster is 1>>
 						<<bHe>> growls. "Good. Now stay still."
@@ -5328,7 +5329,7 @@
 						While it doesn't understand you, your tone of voice has an impact.
 					<</if>>
 					<<set $apologised to 1>><<set $speechapologise to 1>>
-					<<set $enemyanger -= 50 * (1 + $englishtrait)>>
+					<<set $enemyanger -= 50 * (1 + _speechTrait)>>
 				<<else>>
 					<<bHe>> ignores you.
 					<<set $speechapologiseno to 1>>
@@ -5349,7 +5350,7 @@
 					<<set $mouthactiondefault to "plead">>
 					<<if $apologised is 0>>
 						<<set $apologised to 1>><<set $speechapologise to 1>><<set $wraithApologise to true>><<set $wraithApologiseCooldown to true>>
-						<<set $enemyanger -= 100 * (1 + $englishtrait)>>
+						<<set $enemyanger -= 100 * (1 + _speechTrait)>>
 					<<else>>
 						<<He>> angrily claws at <<his>> neck.
 						<<set $speechapologiseno to 1>>
@@ -5360,10 +5361,10 @@
 					<<if $NPCList[$mouthtarget] is _unforgiver>>
 						<span class="red"><<He>> scoffs.</span>
 						<<if $apologised is 0>>
-							<<set $enemyanger += Math.clamp(25 - $englishtrait * 20, $enemyangermax / -4, $enemyangermax / 2)>>
+							<<set $enemyanger += Math.clamp(25 - _speechTrait * 20, $enemyangermax / -4, $enemyangermax / 2)>>
 							<<set $apologised to 1>><<set $speechapologiseunforgiving to 1>>
 						<<else>>
-							<<set $enemyanger += Math.clamp(100 - $englishtrait * 20, 0, $enemyangermax / 2)>>
+							<<set $enemyanger += Math.clamp(100 - _speechTrait * 20, 0, $enemyangermax / 2)>>
 						<</if>>
 					<<elseif !!_unforgiver and $apologised is 0>>
 						<<He>> looks over at
@@ -5376,14 +5377,14 @@
 						<</if>>
 						<span class="red"><<He>> nods, and ignores your apology.</span>
 						<<set $apologised to 1>><<set $speechapologiseunforgiving to 1>>
-						<<set $enemyanger += Math.clamp(25 - $englishtrait * 20, $enemyangermax / -2, $enemyangermax / 2)>>
+						<<set $enemyanger += Math.clamp(25 - _speechTrait * 20, $enemyangermax / -2, $enemyangermax / 2)>>
 					<<elseif $apologised is 0>>
 						<<His>> face softens.
 						<<if $NPCList[$mouthtarget].fullDescription is "Avery">>
 							<<note "Avery's Saviour" "teal">>
 						<</if>>
 						<<set $apologised to 1>><<set $speechapologise to 1>>
-						<<set $enemyanger -= 50 * (1 + $englishtrait)>>
+						<<set $enemyanger -= 50 * (1 + _speechTrait)>>
 					<<else>>
 						<<He>> ignores you.
 						<<set $speechapologiseno to 1>>
