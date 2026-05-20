@@ -488,20 +488,23 @@
 
 <<widget "cave_map">>
 	<<silently>>
-		/* Beach cave / smuggler cave progress uses $cave from 0 to 100 in steps of 5. */
+		/* Beach cave / smuggler cave progress uses $cave from 0 to 100 in steps of 5.
+		   Convert it to display depth so the minimap matches the passage directions:
+		   left = towards the sea, right = deeper into the cave. */
 		<<set _caveValue to ($cave is undefined ? 0 : Math.clamp($cave, 0, 100))>>
-		<<set _pos to Math.floor(_caveValue / 5)>>
+		<<set _depthValue to (100 - _caveValue)>>
+		<<set _pos to Math.floor(_depthValue / 5)>>
 		<<set _pubKnown to ($smuggler_pub_known is 1 or $historytrait gte 4 or ($temple_spear_mission gte 1 and $temple_spear_mission_winter is 1))>>
 		<<set _mapStatus to (($museumAntiques and $museumAntiques.antiques) ? $museumAntiques.antiques.antiqueleathermap : undefined)>>
 		<<set _mapHidden to (_mapStatus isnot "found" and _mapStatus isnot "talk" and _mapStatus isnot "museum")>>
 		<<set _compassHidden to (!$weekly.beachCaveCompass)>>
 		<<set _showChestHint to (_mapHidden or _compassHidden)>>
 
-		<<if _caveValue lt 20>>
+		<<if _depthValue lt 20>>
 			<<set _zoneLabel to "Water up to your neck">>
-		<<elseif _caveValue lt 50>>
+		<<elseif _depthValue lt 50>>
 			<<set _zoneLabel to "Water up to your waist">>
-		<<elseif _caveValue lt 100>>
+		<<elseif _depthValue lt 100>>
 			<<set _zoneLabel to "Feet in rushing water">>
 		<<else>>
 			<<set _zoneLabel to "Back of the cave">>
