@@ -138,7 +138,6 @@
 <<widget "poppyicon">><<silently>>
 	<<set _key to (_args[0] || "flat").toLowerCase()>>
 	<<set _iconFile to "poppy/poppy-flat.png">>
-
 	<<switch _key>>
 		<<case "living_room">>
 			<<if $christmas is 1>>
@@ -212,6 +211,29 @@
 			<</if>>
 	<</switch>>
 <</silently>><<icon _iconFile>><</widget>>
+
+/* Poppy pregnancy data migration */
+<<widget "poppyPregnancy">>
+	<<if $objectVersion.poppyPregnancy is undefined or $objectVersion.poppyPregnancy lt 1>>
+		<<if C.npc.Poppy>>
+			/* Pregnancy object; required by npcPregnancyCycle and npcPregObject */
+			<<if C.npc.Poppy.pregnancy is undefined>>
+				<<set C.npc.Poppy.pregnancy to { fetus: [], enabled: true, type: "human" }>>
+			<<else>>
+				<<if !Array.isArray(C.npc.Poppy.pregnancy.fetus)>>
+					<<set C.npc.Poppy.pregnancy.fetus to []>>
+				<</if>>
+				<<if typeof C.npc.Poppy.pregnancy.enabled !== "boolean">>
+					<<set C.npc.Poppy.pregnancy.enabled to true>>
+				<</if>>
+				<<if C.npc.Poppy.pregnancy.type is undefined>>
+					<<set C.npc.Poppy.pregnancy.type to "human">>
+				<</if>>
+			<</if>>
+			<<set $objectVersion.poppyPregnancy to 1>>
+		<</if>>
+	<</if>>
+<</widget>>
 
 /*
 │   ████████╗██████╗  █████╗ ██╗████████╗
@@ -306,6 +328,7 @@
 	<<set $opium_timer to $opium_timer ?? 0>>
 	<<set $opium_knowledge to $opium_knowledge ?? 0>>
 	<<set $opium_message to $opium_message ?? "">>
+	<<poppyPregnancy>>
 <</widget>>
 
 /*

@@ -405,14 +405,22 @@ function playerEndWaterProgress() {
 	// Intended to end a hawk pregnancy in a different way
 	if (pregnancy.type === "hawk") return false;
 
+	// DoLX fix: 
+	// the original gate at waterBreakingTimer === 1 requires either no NPC loaded in V.NPCList[0], or V.eventAllowsWaterBreaking. 
+	// In DoLX the NPC list management leaves V.NPCList[0].type populated in most passages, so the timer can get stuck at 1 indefinitely.
+	// We add a "stuckAtOne" counter that forces release after 6 hours regardless.
+	const STUCK_AT_ONE_LIMIT = 6;
+	const stuckEscape = pregnancy.waterBreakingTimer === 1 && (pregnancy.stuckAtOne || 0) >= STUCK_AT_ONE_LIMIT;
+
 	if (
 		!isNaN(pregnancy.waterBreakingTimer) &&
 		pregnancy.waterBreakingTimer > 0 &&
-		(pregnancy.waterBreakingTimer > 1 || (!V.NPCList[0].type && !V.possessed) || V.eventAllowsWaterBreaking)
+		(pregnancy.waterBreakingTimer > 1 || (!V.NPCList[0].type && !V.possessed) || V.eventAllowsWaterBreaking || stuckEscape)
 	) {
 		pregnancy.waterBreakingTimer--;
 		if (pregnancy.waterBreakingTimer <= 0) {
 			pregnancy.waterBreaking = true;
+			delete pregnancy.stuckAtOne;
 			// To prevent new events from occurring, allowing players to more easily go to the hospital or similar locations
 			V.eventskip = 1;
 			return true;
@@ -420,9 +428,13 @@ function playerEndWaterProgress() {
 		return false;
 	} else if (!isNaN(pregnancy.waterBreakingTimer) && !pregnancy.waterBreaking && pregnancy.waterBreakingTimer <= 0) {
 		pregnancy.waterBreaking = true;
+		delete pregnancy.stuckAtOne;
 		// To prevent new events from occurring, allowing players to more easily go to the hospital or similar locations
 		V.eventskip = 1;
 		return true;
+	} else if (pregnancy.waterBreakingTimer === 1) {
+		// DoLX fix: track time spent stuck at the inner-gate boundary so the stuckEscape condition above eventually fires.
+		pregnancy.stuckAtOne = (pregnancy.stuckAtOne || 0) + 1;
 	}
 }
 
@@ -458,6 +470,17 @@ function endPlayerPregnancy(birthLocation, location) {
 		} else {
 			delete C.npc.Alex.pregnancy.fee;
 		}
+	}
+
+	// Poppy post-birth cleanup: clear reveal/test flags after the PC gives birth to Poppy's baby.
+	if (f0.father === "Poppy") {
+		delete C.npc.Poppy.pregnancy.pcKnowledge;
+		delete C.npc.Poppy.pregnancy.test;
+		delete C.npc.Poppy.pregnancy.ultraSound;
+		delete C.npc.Poppy.pregnancy.ultraSoundPics;
+		delete C.npc.Poppy.pregnancy.ultrasoundShown;
+		delete C.npc.Poppy.pregnancy.paternityRequested;
+		delete C.npc.Poppy.pregnancy.sample;
 	}
 
 	let validBirth;
@@ -772,6 +795,23 @@ function endNpcPregnancy(npcName, birthLocation, location) {
 			// Do Nothing
 		} else {
 			delete C.npc.Alex.pregnancy.fee;
+		}
+	}
+
+	// Poppy post-birth cleanup: clear stale reveal/test flags and queue the orphanage handoff when appropriate.
+	if (npcName === "Poppy") {
+		delete C.npc.Poppy.pregnancy.selfKnowledge;
+		delete C.npc.Poppy.pregnancy.pcKnowledge;
+		delete C.npc.Poppy.pregnancy.test;
+		delete C.npc.Poppy.pregnancy.ultraSound;
+		delete C.npc.Poppy.pregnancy.ultraSoundPics;
+		delete C.npc.Poppy.pregnancy.ultrasoundShown;
+		delete C.npc.Poppy.pregnancy.paternityRequested;
+		delete C.npc.Poppy.pregnancy.sample;
+		delete C.npc.Poppy.pregnancy.handoffMet;
+		delete C.npc.Poppy.pregnancy.handoffDay;
+		if (validBirth && location === "home" && (f0.mother === "pc" || f0.father === "pc")) {
+			C.npc.Poppy.pregnancy.handoffDay = Time.days;
 		}
 	}
 

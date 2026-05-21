@@ -453,6 +453,23 @@ When you're done bathing <<childhim>>, you lay <<childhim>> on a towel and gentl
 	<<else>>
 		<<run $daily.childrenHomeEvent.push($location)>>
 	<</if>>
+
+	<<if modLISelected("Poppy")>>
+		<<set _hasPoppyChildHome to false>>
+		<<run T.hasPoppyChildHome = Object.values(V.children || {}).some(child => child && (child.mother === "Poppy" || child.father === "Poppy") && child.location === "home")>>
+		<<set $childPassageExit to $passage>>
+		<<if $location is "home" and _hasPoppyChildHome and ($poppyFlat.dismissed is true or $poppyDismissalFired is 1) and !$poppySeen.includes("nursery_dismissed")>>
+			<<include "Poppy Nursery Dismissed">>
+			<<exit>>
+		<<elseif $location is "home" and _hasPoppyChildHome and !$poppySeen.includes("nursery_intro") and C.npc.Poppy and C.npc.Poppy.init is 1 and !($poppyFlat.dismissed is true or $poppyDismissalFired is 1)>>
+			<<include "Poppy Nursery Intro">>
+			<<exit>>
+		<<elseif $location is "home" and _hasPoppyChildHome and $poppySeen.includes("nursery_intro") and C.npc.Poppy and C.npc.Poppy.init is 1 and !($poppyFlat.dismissed is true or $poppyDismissalFired is 1) and random(1,100) lte 25>>
+			<<include "Poppy Nursery Reading">>
+			<<exit>>
+		<</if>>
+	<</if>>
+
 	<<cleareventpool>>
 	<<childrenEvents $location $passage>>
 	<<if _eventpool.length>>

@@ -1,0 +1,603 @@
+/* ==============================================================
+ * Poppy Pregnancy PC reveal scenes
+ * ============================================================== */
+:: Poppy Pregnancy Reveal
+<<effects>><<speechresolve>><<endevent "phaseless">><<npc "Poppy">><<person1>>
+<<run poppySchedule()>><<run markPoppyInteraction()>>
+<<if ![3,4].includes($phase)>>
+	<<if $location is "poppy_flat">>
+		You sit down beside Poppy.
+	<<else>>
+		You reach for Poppy and gently catch <<his>> sleeve.
+	<</if>>
+	<br><br>
+	<<if C.npc.Poppy.pregnancy.ultraSound is "collected">>
+		/* PC already showed the pregnancy test earlier; came back with ultrasound. */
+		<<set C.npc.Poppy.pregnancy.ultraSound to "done">>
+		"Hey, I have something to show you."
+		<br><br>
+		Poppy tilts <<his>> head curiously. "What is it?"
+		<br><br>
+		You hand <<him>> a printout of your ultrasound.
+		<<if V.player.vaginaExist or canBeMPregnant() and knowsAboutPregnancy("pc", "Poppy")>>
+			<<He>> looks surprised at first, but then a smile forms on <<his>> face. "Awh, our little one is growing well. So cute, like a little bean." <<He>> brushes <<his>> thumb across the picture. "I'm going to keep this with me, so I can look at it anytime."
+			<<llstress>><<stress -8>><<glove>><<npcincr Poppy love 1>>
+			<br><br>
+			<<link [[Next|Poppy Pregnancy Reveal 2]]>><</link>>
+		<<else>>
+			/* Male-PC route, Poppy demanded an ultrasound; route into the disbelief continuation. */
+			<<He>> squints at the picture, the confusion on <<his>> face deepening the longer <<he>> looks. Finally <<he>> raises <<his>> eyes to yours, waiting for you to speak.
+			<br><br>
+			<<if $phase isnot 3>><<set $phase to 4>><</if>>
+		<</if>>
+	<<elseif C.npc.Poppy.pregnancy.test is true>>
+		/* PC came back from hospital with paternity result. */
+		You hand Poppy the paternity test result. It takes <<him>> a while to read through it thoroughly.
+		<br><br>
+		"I'm sorry," <<he>> apologises, the guilt clear in <<his>> face. "I'm sorry for doubting you, my jewel. It must've made you feel like shit. I just... wasn't sure, and anxious."
+		<br><br>
+	<<else>>
+		/* Fresh approach, PC has only the pregnancy test. */
+		"Hey, do you have a minute? I have something I need to share with you. It's important," you say.
+		<br><br>
+		Poppy tilts <<his>> head curiously. "Of course! What is it?"
+		<br><br>
+	<</if>>
+<</if>>
+<<if C.npc.Poppy.pregnancy.test isnot true and $alex_countdown is undefined and C.npc.Poppy.pregnancy.ultraSound isnot "done">>
+	<<setKnowsAboutPregnancy "pc" "Poppy">><<setTalkedAboutPregnancy "pc" "Poppy">><<set C.npc.Poppy.pregnancy.pcKnowledge to true>>
+	<<if playerBellyVisible(true) and $phase isnot 4 and $phase isnot 3>>
+		/* Belly already visibly showing, PC just shows it. */
+		You hesitate. "Well, maybe it'd be easier if I just showed you..."
+		<br>
+		You <<if !$worn.upper.type.includes("naked")>>lift the hem of your shirt and <</if>>frame your belly with your hands, drawing <<his>> eyes to your stomach.
+		<br><br>
+		Poppy seems to ponder for a moment before resting a hand on your belly. "You really should've told me sooner... I would've done more for you if I knew earlier."
+		<br>
+		<<He>> kisses you on the cheek. "Regardless, I'm glad you told me. I love you."
+		<<llstress>><<stress -8>><<glove>><<npcincr Poppy love 1>>
+		<br><br>
+		<<link [[Next|Poppy Pregnancy Reveal 2]]>><</link>>
+	<<else>>
+		<<if $phase isnot 4 and $phase isnot 3>>
+			/* Hand over the test (or describe the equivalent awareness moment). */
+			<<switch getPregnancyObject().awareOf>>
+				<<case "temple">>
+					You tell <<him>> what Jordan from the temple told you.
+				<<case "pharmacy">>
+					You tell <<him>> what the nurse from the pharmacy told you.
+				<<default>>
+					<<wearProp "pregnancy test">>
+					With trembling fingers, you hand Poppy the pregnancy test.
+			<</switch>>
+			<br><br>
+			<<if V.player.vaginaExist or canBeMPregnant()>>
+				/* Vagina PC, your "PC pregnancy test" reaction. */
+				Poppy stares at it wide-eyed for a brief moment before <<his>> head snaps up, looking you dead in the eyes. "You're pregnant?!"
+				<br><br>
+			<</if>>
+		<</if>>
+		<<if $phase is 4>>
+			"It's yours, okay?" you say.
+		<<elseif $phase is 3>>
+			You both take a seat. With a sigh, you <<if !$worn.upper.type.includes("naked")>>lift the hem of your shirt and <</if>>frame your belly with your hands, drawing <<his>> eyes to your stomach.
+			<br>
+			"It's yours, okay?" you say.
+		<<else>>
+			You nod. "It's yours."
+		<</if>>
+		<br><br>
+		/* Paternity-doubt branch coz high sex fame. */
+		<<if $phase isnot 4 and $fame.sex gte 600>>
+			Poppy gives you a weird look. "I'm not so sure about that. You have a reputation of... sleeping around with other people. I can't trust you with just words alone. A paternity test wouldn't hurt, right?"
+			<br><br>
+			<<He>> reaches up and tugs a strand of <<his>> own hair free, pressing it into your palm.
+			<br><br>
+			<span class="blue">You'll need a paternity test to convince Poppy that <<he>> is the father.</span> The town hospital should be able to provide one.
+			<<set C.npc.Poppy.pregnancy.sample to true>><br>
+			<<link [[Next|<<currentPassage>>]]>><<endevent>><</link>>
+		<<else>>
+			<<if pregnancyCountBetweenParents("pc", "Poppy") lte 0>>
+				/* First pregnancy with Poppy, the excited "we're going to be parents" beat. */
+				A smile starts to form on <<his>> face. <<He>> pulls you into a tight embrace. "I can't believe this is happening... We're going to have a baby! We're going to be parents!!!"
+				<br><br>
+				You can feel <<him>> shaking with excitement. "I'm so glad I'm doing this with you..." Poppy pulls away enough for you to see the happy tears welling in <<his>> eyes. "I wouldn't have it any other way. I love you so much."
+			<<else>>
+				/* Returning pregnancy, gentler "Oh my, another little one" beat. */
+				"Oh my, another little one on the way." <<He>> giggles and rests a hand on your belly. "Be sure to get enough rest for yourself and the baby, my jewel. Don't stress yourself and the baby."
+				<br><br>
+				<<He>> kisses your forehead. "I love you."
+			<</if>>
+			<<llstress>><<stress -12>><<glove>><<npcincr Poppy love 1>>
+			<br><br>
+			<<if $phase is 4>>
+				As <<he>> pulls away, <<he>> looks at you. "Sorry for not believing you at first."
+				<br>
+				"Yeah, I know it was a lot to take in," you say with a small smile.
+				<br>
+				<<He>> laughs softly. "I'm just glad I get to share this with you."
+				<br><br>
+			<</if>>
+			<<link [[Next|Poppy Pregnancy Reveal 2]]>><</link>>
+		<</if>>
+	<</if>>
+<<elseif C.npc.Poppy.pregnancy.ultraSound is "done" and !V.player.vaginaExist>>
+	/* Male-PC route; finished showing ultrasound after Poppy demanded one. */
+	"I really am pregnant," you insist.
+	<<if pregnancyCountBetweenParents("pc", "Poppy") gt 0>>
+		"And it's yours."
+	<</if>>
+	<br><br>
+	<<if $fame.sex gte 600 and pregnancyCountBetweenParents("pc", "Poppy") gt 0 and !knowsAboutPregnancy("pc", "Poppy")>>
+		/* High-fame doubt branch for male PC too. */
+		Poppy gives you a weird look. "I'm not so sure about that. You have a reputation of... sleeping around with other people. I can't trust you with just words alone. A paternity test wouldn't hurt, right?"
+		<br><br>
+		<<He>> reaches up and tugs a strand of <<his>> own hair free, pressing it into your palm.
+		<br><br>
+		<span class="blue">You'll need a paternity test to convince Poppy that <<he>> is the father.</span> The town hospital should be able to provide one.
+		<<set C.npc.Poppy.pregnancy.sample to true>>
+		<<setKnowsAboutPregnancy "pc" "Poppy">><br>
+		<<link [[Next|Poppy Flat]]>><<endevent>><</link>>
+	<<else>>
+		<<setKnowsAboutPregnancy "pc" "Poppy">><<setTalkedAboutPregnancy "pc" "Poppy">><<set C.npc.Poppy.pregnancy.pcKnowledge to true>>
+		You see something flicker in Poppy's eyes before <<he>> hesitantly puts a hand on your belly.
+		<<if playerBellyVisible(true)>>
+			<span class="green">Your <<if getPregnancyObject().fetus.length gt 1>>babies shift<<else>>baby shifts<</if>> around inside you</span>. <<He>> caresses your baby bump.
+		<</if>>
+		"How did you...?"
+		<br><br>
+		<<if _speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy" or _speechAttitudeResolved is "docile">>
+			You shake your head. "I don't know. I can't explain it either..."
+		<<elseif _speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant" or _speechAttitudeResolved is "special">>
+			You let out a helpless breath. "I don't really know how to explain it either."
+		<<elseif _speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel">>
+			You shrug. "Fuck if I know. Life finds a way."
+		<<elseif _speechAttitudeResolved is "confident">>
+			You shrug. "I don't have an explanation. It's just happening."
+		<<else>>
+			You shrug. "Don't ask questions."
+		<</if>>
+		<br><br>
+		Poppy slowly pulls <<his>> hand away and slowly nods to <<himself>>. "I guess there really isn't any reason for me not to believe you, besides basic biology. Take good care of yourself, alright?"
+		<br><br>
+		<<if pregnancyCountBetweenParents("pc", "Poppy") gt 0>>
+			<<His>> gaze softens. "I can't believe we're going to start a family, despite the strange circumstances. I love you."
+		<</if>>
+		<<llstress>><<stress -12>><<glove>><<npcincr Poppy love 1>>
+		<br><br>
+		<<link [[Next|Poppy Pregnancy Reveal 2]]>><</link>>
+	<</if>>
+<<else>>
+	/* Paternity test branch follow-through; Poppy apologises and accepts. */
+	<<set C.npc.Poppy.pregnancy.test to false>><<run delete C.npc.Poppy.pregnancy.sample>>
+	<<setKnowsAboutPregnancy "pc" "Poppy">><<setTalkedAboutPregnancy "pc" "Poppy">><<set C.npc.Poppy.pregnancy.pcKnowledge to true>>
+	<<His>> expression softens. "I'm glad the baby is mine. I can't believe this is happening... We're going to start a family and become parents." <<He>> pulls you into a tight embrace. You can feel <<him>> shaking with excitement.
+	<br><br>
+	"I'm so glad I'm doing this with you..." Poppy pulls away enough for you to see the happy tears welling in <<his>> eyes. "I wouldn't have it any other way. I love you so much."
+	<<llstress>><<stress -12>><<glove>><<npcincr Poppy love 2>>
+	<br><br>
+	<<link [[Next|Poppy Pregnancy Reveal 2]]>><</link>>
+<</if>>
+
+:: Poppy Pregnancy Reveal Mpreg Alt
+<<effects>><<endevent "phaseless">><<npc "Poppy">><<person1>><<run poppySchedule()>><<run markPoppyInteraction()>>
+<<if $location is "poppy_flat">>
+	You sit down beside Poppy.
+<<else>>
+	You reach for Poppy and gently catch <<his>> sleeve.
+<</if>>
+"Hey, do you have a minute? I have something I need to share with you. It's important." 
+<br><br>
+Poppy tilts <<his>> head curiously. "Of course! What is it?"
+<br><br>
+<<switch getPregnancyObject().awareOf>>
+	<<case "wakingUp">>
+		With trembling words, you tell <<him>> what you thought when you looked at yourself after waking up. You show <<him>> your belly.
+	<<case "mirror">>
+		With trembling words, you tell <<him>> what you thought when you looked at yourself in the mirror. You show <<him>> your belly.
+	<<case "temple">>
+		With trembling words, you tell <<him>> what Jordan told you.
+	<<case "pharmacy">>
+		With trembling words, you tell <<him>> what the nurse from the pharmacy told you.
+	<<default>>
+		<<wearProp "pregnancy test">>
+		With trembling fingers, you hand Poppy the pregnancy test.
+<</switch>>
+<br><br>
+<<His>> gaze flicks between you and the pregnancy test before <<he>> lets out an awkward laugh. "Nice prank. I'm not falling for it though. This is clearly fake." <<He>> tries to hand the pregnancy test back to you.
+<br><br>
+You make a face. Poppy looks confused. "That can't be right... pregnancy tests have a probability of being inaccurate. You should get that checked out at the hospital."
+<br><br>
+<<if getPregnancyObject().ultrasoundDone or C.npc.Poppy.pregnancy.ultraSound is "collected">>
+	"I already have." You hand Poppy a printout of your ultrasound. <<He>> squints at the picture, looking more and more baffled as <<he>> stares at it. Finally <<he>> stares at you, waiting for you to speak.
+	<br><br>
+	<<set C.npc.Poppy.pregnancy.ultraSound to "done">>
+	<<link [[Next|Poppy Pregnancy Reveal]]>><<set $phase to 4>><</link>>
+<<else>>
+	/* PC only had the test. Poppy demands ultrasound. */
+	<<set C.npc.Poppy.pregnancy.ultraSound to "requested">>
+	<span class="blue">You'll need an ultrasound to convince Poppy that you're pregnant.</span><br>
+	<<link [[Next|Poppy Flat]]>><<endevent>><</link>>
+<</if>>
+
+:: Poppy Pregnancy Reveal 2
+<<effects>><<run statusCheck("Poppy")>>
+You hold each other for a while, trading quiet kisses between Poppy's whispered reassurances.<<glust>><<npcincr Poppy lust 1>>
+<br><br>
+Eventually <<he>> tucks a stray strand of your hair behind your ear, <<his>> hand lingering on your cheek. "Whatever happens from here, we figure it out together. Okay?"
+<br><br>
+You nod.
+<br><br>
+<<link [[Next|Poppy Flat]]>><<endevent>><</link>>
+
+/* ==============================================================
+ * Poppy Notices the Bump, auto-triggered intercept scenes
+ * ============================================================== */
+:: Poppy Notice Bump
+<<effects>><<set $daily.poppy.flatBumpNoticedDay to Time.days>><<endevent "phaseless">><<npc "Poppy">><<person1>>
+<<run poppySchedule()>><<run markPoppyInteraction()>>
+<<if !V.player.vaginaExist and !canBeMPregnant()>>
+	/* Shouldn't happen but guard anyway. Treat it as a false alarm. */
+	Poppy notices the shape of your stomach and pauses, concern crossing <<his>> face.
+	<br><br>
+	"Are you feeling alright?" <<he>> asks, looking embarrassed for staring. "Sorry, I just thought... never mind. Maybe you should sit down for a bit."
+	<br><br>
+	<<He>> fusses over you for a moment before seeming satisfied that nothing is seriously wrong.
+	<br><br>
+	<<link [[Next|Flats Poppy Living Room]]>><<endevent>><</link>>
+<<elseif !V.player.vaginaExist>>
+	/* Male PC route; disbelief, requests ultrasound. */
+	Poppy looks at you with wide eyes, clearly staring at your baby bump without shame. "Are you...?" <<He>> tilts <<his>> head in confusion. "But that's impossible, isn't it?"
+	<br><br>
+	<<He>> starts to doubt <<himself>>, but quickly shakes it off. "I think you should get that checked out. I'm worried for your health."
+	<br><br>
+	<<if getPregnancyObject().ultrasoundDone>>
+		/* PC already has ultrasound; produce it now. */
+		"I already have." You hand Poppy a printout of your ultrasound. <<He>> squints at the picture, looking more and more baffled as <<he>> stares at it. Finally <<he>> stares at you, hoping for an answer.
+		<br><br>
+		<<set C.npc.Poppy.pregnancy.ultraSound to "done">>
+		<<link [[Next|Poppy Pregnancy Reveal]]>><<set $phase to 3>><</link>>
+	<<else>>
+		<<set C.npc.Poppy.pregnancy.ultraSound to "requested">>
+		<span class="blue">You'll need an ultrasound to convince Poppy that you're pregnant.</span><br>
+		<<link [[Next|Flats Poppy Living Room]]>><<endevent>><</link>>
+	<</if>>
+<<else>>
+	/* Vagina-PC route; Poppy sees, asks who. */
+	<<set _fatherIsPoppy to false>>
+	<<set _pregObj to getPregnancyObject()>>
+	<<if _pregObj.fetus.length and _pregObj.potentialFathers and _pregObj.potentialFathers.find(f => f.source is "Poppy")>>
+		<<set _fatherIsPoppy to true>>
+	<</if>>
+	Poppy gasps when <<he>> sees you. "Oh my, you're pregnant?! Why didn't you tell me?!" <<He>> pouts a little<<if !_fatherIsPoppy>>, but then the pout turns into a smile<</if>>.
+	<br><br>
+	<<if _fatherIsPoppy>>
+		"It's yours, okay?" you say.
+		<br><br>
+		<<if $fame.sex gte 600>>
+			Poppy gives you a weird look. "I'm not so sure about that. You have a reputation of... sleeping around with other people. I can't trust you with just words alone. A paternity test wouldn't hurt, right?" <<He>> reaches up and tugs a strand of <<his>> own hair free, pressing it into your palm.
+			<br><br>
+			<span class="blue">You'll need a paternity test to convince Poppy that <<he>> is the father.</span> The town hospital should be able to provide one.
+			<<set C.npc.Poppy.pregnancy.sample to true>><<setKnowsAboutPregnancy "pc" "Poppy">><br>
+			<<link [[Next|Flats Poppy Living Room]]>><<endevent>><</link>>
+		<<else>>
+			Poppy seems to ponder for a moment before resting a hand on your belly. "You really should've told me sooner... I would've done more for you if I knew earlier. Regardless, I'm glad you told me." <<He>> kisses you on the cheek. "I love you."
+			<<setKnowsAboutPregnancy "pc" "Poppy">><<setTalkedAboutPregnancy "pc" "Poppy">><<set C.npc.Poppy.pregnancy.pcKnowledge to true>>
+			<<llstress>><<stress -8>><<glove>><<npcincr Poppy love 1>>
+			<br><br>
+			<<link [[Next|Flats Poppy Living Room]]>><<endevent>><</link>>
+		<</if>>
+	<<else>>
+		"Congratulations, but be careful, okay? I wouldn't want you to hurt yourself."
+		<<setKnowsAboutPregnancy "pc" "Poppy">><<setTalkedAboutPregnancy "pc" "Poppy">>
+		<br><br>
+		<<He>> leaves you be after.
+		<br><br>
+		<<link [[Next|Flats Poppy Living Room]]>><<endevent>><</link>>
+	<</if>>
+<</if>>
+
+/* ==============================================================
+ * PC Water Break scenes
+ * ============================================================== */
+:: Poppy PC Birth
+<<effects>><<speechresolve>><<endevent "phaseless">><<npc "Poppy">><<person1>>
+<<set $ambulance to 1>>
+<<if $bus is "poppy_living_room" or ($location is "flats" and $poppyFlat.home and $poppyFlat.room is "living_room") or $location is "poppy_flat">>
+	<<set $poppyPcBirthContext to "flat">>
+<<else>>
+	<<set $poppyPcBirthContext to "lake">>
+<</if>>
+<<if $poppyPcBirthContext is "flat">>
+	You call for Poppy, <<his>> name barely making it past your teeth before <<he>> comes running. "Uh oh! Looks like the baby's due!"
+	<br><br>
+	<<He>> guides you over to the couch before pulling out <<his>> phone and calling the ambulance. "Hang tight, my jewel. They'll be here really soon."
+	<br><br>
+	Poppy takes a seat beside you and holds your hand. <<He>> mutters reassuring words as the two of you wait for the ambulance. Through the contractions, you manage to focus on the steady warmth of <<his>> palm against yours.<<llstress>><<stress -4>><<gpain>><<violence 16>>
+	<br><br>
+<<else>>
+	Poppy's eyes go wide. "Uh oh! Looks like the baby's due!"
+	<br><br>
+	<<He>> carefully helps you down onto the grass before pulling out <<his>> phone and calling the ambulance. "Hang tight, my jewel. They'll be here really soon."
+	<br><br>
+	Poppy kneels beside you and holds your hand. <<He>> mutters reassuring words as the two of you wait for the ambulance. The pain comes in waves, but the open sky and Poppy's steady voice keep you anchored.<<llstress>><<stress -4>><<gpain>><<violence 16>>
+	<br><br>
+<</if>>
+<<link [[Next|Poppy PC Birth Harper]]>><</link>>
+
+:: Poppy PC Birth Harper
+<<effects>><<endevent "phaseless">><<npc "Poppy">><<person1>><<npc "Harper" 2>><<person2>>
+<<if $poppyPcBirthContext is "flat">>
+	It doesn't take long before you hear a knock.
+	<br><br>
+	Poppy stands up and opens the door. The only thing you see in the shadow of the doorframe is the silhouette of someone carrying a big bag. "Doctor..." Poppy says.
+	<br><br>
+	"If you'll excuse me," the person says, stepping inside the flat.
+<<else>>
+	It doesn't take long for the ambulance to arrive. The doors swing open and you see the silhouette of someone carrying a big bag.
+	<br><br>
+	"If you'll excuse me," the person says, stepping down toward you.
+<</if>>
+<br><br>
+<<if !$harperSeen.includes("hospital")>>
+	<<if $harperSeen.includes("livestock")>>
+		It's the doctor from the farm. The one who experimented on you. "Hello, I'm Doctor Harper," <<person2>><<he>> says. There's no recognition on <<his>> face.
+	<<elseif $harperSeen.includes("party")>>
+		<<set _hadSexWithHarper to $sexStats.npc.Harper.timesEjac gte 1>>
+		It's the doctor from the lewd party<<if _hadSexWithHarper>>. The one who you had sex with<</if>>. "Hello, I'm <span class="pink">Doctor Harper</span>," <<person2>><<he>> says.
+	<<else>>
+		It's <span class="pink">Doctor Harper</span>.
+	<</if>>
+	<<run $harperSeen.pushUnique("hospital")>>
+<<else>>
+	It's <span class="pink">Doctor Harper</span>.
+<</if>>
+<br><br>
+<<He>> examines you for a while, <<his>> brow drawn in concentration. "Everything seems normal; you can expect a healthy birth. We must bring you to the hospital right away."
+<br><br>
+<<if $poppyPcBirthContext is "flat">>
+	A pair of paramedics step in behind Harper and ease you onto a stretcher. Poppy keeps hold of your hand until the paramedics need room to work.
+<<else>>
+	The paramedics ease you onto a stretcher. Poppy keeps hold of your hand until the paramedics need room to work.
+<</if>>
+<br><br>
+<span class="red">Everything fades away.</span>
+<br><br>
+<<link [[Next (0:20)|Poppy PC Birth Hospital]]>><<endevent>><<pass 20>><</link>>
+
+:: Poppy PC Birth Hospital
+<<effects>><<npc "Harper">><<person1>>
+<<set $outside to 0>><<set $location to "hospital">><<run delete $poppyPcBirthContext>>
+You awaken in a hospital bed. Several blurry figures move around. One leans closer, <<his>> features coalescing into those of Doctor Harper.
+<br><br>
+"Please don't be alarmed, you're in the hospital."
+<br><br>
+"Please take a deep breath," <<he>> says.
+<br><br>
+<<link [[Next|Pregnancy Birth Hospital]]>><<endevent>><<set $phase to 1>><</link>>
+
+:: Poppy Self Pregnancy Reveal
+<<effects>><<endevent "phaseless">><<npc "Poppy">><<person1>>
+<<run poppySchedule()>><<run markPoppyInteraction()>>
+"My jewel! There you are." Poppy rushes over to you and takes your hand in <<his>>. "I uhm... I have something to tell you." <<He>> fidgets with your hand.
+<br><br>
+"What is it?" you ask.
+<br><br>
+Poppy takes a deep breath. <<He>> hesitates for a brief moment before speaking. "I'm... I'm pregnant!"
+<br><br>
+<<He>> withdraws one of <<his>> hands to pull out a positive pregnancy test, then presses it into your palm with more force than intended. "We're going to have a baby! Isn't that exciting?! We're going to be parents!"
+<br><br>
+Poppy pulls you into a tight hug. You can feel <<him>> shaking with excitement.
+<br><br>
+"I'm so glad I'm doing this with you..." Poppy pulls away enough for you to see the happy tears welling in <<his>> eyes. "I wouldn't have it any other way. I love you so much."
+<<setKnowsAboutPregnancy "Poppy" "pc">><<setTalkedAboutPregnancy "Poppy" "pc">>
+<<set C.npc.Poppy.pregnancy.pcKnowledge to true>>
+<<llstress>><<stress -16>><<glove>><<npcincr Poppy love 2>><<glust>><<npcincr Poppy lust 1>>
+<br><br>
+<<if $location is "lake">>
+	<<link [[Next|Lake Poppy]]>><<endevent>><</link>>
+<<else>>
+	<<link [[Next|Flats Poppy Living Room]]>><<endevent>><</link>>
+<</if>>
+
+:: Poppy Show Ultrasound
+<<effects>><<endevent "phaseless">><<npc "Poppy">><<person1>><<run poppySchedule()>><<run markPoppyInteraction()>>
+<<set C.npc.Poppy.pregnancy.ultrasoundShown to true>>
+<<set _fetusCount to (C.npc.Poppy.pregnancy.fetus && C.npc.Poppy.pregnancy.fetus.length) || 1>>
+"My jewel, look!" Poppy shows you a printed picture of an ultrasound. "It's our <<if _fetusCount gt 1>>babies<<else>>baby<</if>>! There's their <<if _fetusCount gt 1>>heads<<else>>head<</if>>, their hands and feet..."
+<br><br>
+<<He>> points at the picture as <<he>> goes, eyes alight with the same wonder you remember from <<his>> announcement. Seeing your unborn <<if _fetusCount gt 1>>children<<else>>child<</if>> growing well fills you with relief.<<lllstress>><<stress -10>><<glove>><<npcincr Poppy love 1>>
+<br><br>
+<<if $location is "lake">>
+	<<link [[Next|Lake Poppy]]>><<endevent>><</link>>
+<<else>>
+	<<link [[Next|Flats Poppy Living Room]]>><<endevent>><</link>>
+<</if>>
+
+:: Poppy Idle Pregnant Flat
+<<effects>><<endevent>><<npc "Poppy">><<person1>><<run poppySchedule()>><<run markPoppyInteraction()>>
+You see Poppy sitting on the couch with <<his>> eyes closed, listening to a gentle tune being played on the radio as <<he>> caresses <<his>> baby bump with a serene expression. The sight before you fills you with contentment.<<lstress>><<stress -4>>
+<br><br>
+<<socialiseicon>><<link [[Approach Poppy|Flats Poppy Social]]>><<set $eventskip to 0>><</link>>
+<br>
+
+:: Poppy Idle Pregnant Lake
+<<effects>><<endevent>><<lakeeffects>><<npc "Poppy">><<person1>>
+<<run poppySchedule()>><<run markPoppyInteraction()>>
+You see Poppy sitting by the lake with <<his>> eyes closed, humming a gentle tune as <<he>> caresses <<his>> baby bump with a serene expression. The sight before you fills you with contentment.<<lstress>><<stress -4>>
+<br><br>
+<<poppyLakeMenu>>
+
+/* ==============================================================
+ * Poppy orphanage handoff and nursery scenes 
+ * ============================================================== */
+:: Poppy Orphanage Handoff
+<<effects>><<speechresolve>><<endevent "phaseless">><<npc "Poppy">><<person1>><<npc "Bailey" 2>>
+<<run poppySchedule()>><<run markPoppyInteraction()>>
+You walk down the main hall of the orphanage. As you pass by Bailey's office, you see that the door is ajar. From within, you hear Bailey talking to someone.
+<br><br>
+Unable to hold back your curiosity, you peek through the crack to see Poppy talking with Bailey. Poppy seemingly senses your gaze and turns towards the door, making direct eye contact with you. "My jewel! Why are you lurking around like that? Come in!"
+<br><br>
+You push the door open to let yourself in and close it behind you.
+<br><br>
+<<set _babyIntroList to []>>
+<<if $babyIntros and $babyIntros.Poppy>>
+	<<run V.babyIntros.Poppy.forEach(child => T.babyIntroList.push({ owner: "Poppy", intro: child }))>>
+<</if>>
+<<if $babyIntros and $babyIntros.Bailey>>
+	<<run V.babyIntros.Bailey.forEach(child => T.babyIntroList.push({ owner: "Bailey", intro: child }))>>
+<</if>>
+<<set _babyIntro to null>><<set _babyIntroOwner to "Poppy">>
+<<run T.babyIntroEntry = T.babyIntroList.find(entry => entry.intro && entry.intro.mother === "Poppy") || null; T.babyIntro = T.babyIntroEntry ? T.babyIntroEntry.intro : null; T.babyIntroOwner = T.babyIntroEntry ? T.babyIntroEntry.owner : "Poppy">>
+<<set _babyCount to _babyIntro ? _babyIntro.children : 0>>
+<<if _babyCount lt 1>>
+	<<run T.babyCount = Object.values(V.children || {}).filter(child => child && (child.mother === "Poppy" || child.father === "Poppy") && child.location === "home").length>>
+<</if>>
+<<if _babyCount lt 1>><<set _babyCount to 1>><</if>><<set _isMultiple to _babyCount gt 1>>
+You see Poppy cradling <<if _isMultiple>>babies<<else>>a baby<</if>> in <<his>> arms. "Look at our <<if _isMultiple>>children<<else>>child<</if>>, <<if _isMultiple>>aren't they<<else>>isn't <<he>><</if>> cute? I haven't named <<if _isMultiple>>them<<else>><<him>><</if>> yet. Would you like to?"
+<br><br>
+<<link [[Yes (0:05)|Poppy Orphanage Handoff Name]]>><<set $phase to 1>><<pass 5>><</link>>
+<br>
+<<link [[No, let Poppy pick (0:01)|Poppy Orphanage Handoff Name]]>><<set $phase to 2>><<pass 1>><</link>>
+
+:: Poppy Orphanage Handoff Name
+<<effects>><<endevent "phaseless">><<npc "Poppy">><<person1>><<npc "Bailey" 2>>
+<<set _babyIntroList to []>>
+<<if $babyIntros and $babyIntros.Poppy>>
+	<<run V.babyIntros.Poppy.forEach(child => T.babyIntroList.push({ owner: "Poppy", intro: child }))>>
+<</if>>
+<<if $babyIntros and $babyIntros.Bailey>>
+	<<run V.babyIntros.Bailey.forEach(child => T.babyIntroList.push({ owner: "Bailey", intro: child }))>>
+<</if>>
+<<set _babyIntro to null>><<set _babyIntroOwner to "Poppy">>
+<<run T.babyIntroEntry = T.babyIntroList.find(entry => entry.intro && entry.intro.mother === "Poppy") || null; T.babyIntro = T.babyIntroEntry ? T.babyIntroEntry.intro : null; T.babyIntroOwner = T.babyIntroEntry ? T.babyIntroEntry.owner : "Poppy">>
+<<set _babyCount to _babyIntro ? _babyIntro.children : 0>>
+<<if _babyCount lt 1>>
+	<<run T.babyCount = Object.values(V.children || {}).filter(child => child && (child.mother === "Poppy" || child.father === "Poppy") && child.location === "home").length>>
+<</if>>
+<<if _babyCount lt 1>><<set _babyCount to 1>><</if>><<set _isMultiple to _babyCount gt 1>>
+<<if $phase is 1>>
+	/* PC chose to name the babies; route through the standard naming UI. */
+	<<if _babyIntro>>
+		<<setBabyIntro _babyIntroOwner "pc" _babyIntro.birthId>>
+		<<babyIntro _babyIntroOwner>>
+	<<else>>
+		/* Fallback if babyIntro data is missing; display the line and continue. */
+		You ask to name the <<if _isMultiple>>children<<else>>baby<</if>>.
+		<br><br>
+	<</if>>
+	Poppy smiles at the name you've chosen. "That's beautiful, my jewel. I love it."
+	<br><br>
+<<else>>
+	/* PC declined; Poppy picks. Trigger the standard naming UI with auto-pick instead. */
+	<<if _babyIntro>>
+		<<setBabyIntro _babyIntroOwner "pc" _babyIntro.birthId>>
+		/* Skip the naming menu; vanilla babyIntro auto-generates names when bypassed. */
+	<</if>>
+	Poppy smiles. "That's alright, I'll pick <<if _isMultiple>>names for them<<else>>a name for <<him>><</if>>."
+	<br><br>
+<</if>>
+"What brings you here?" you ask.
+<br><br>
+"Well... I'm here because I plan to have our <<if _isMultiple>>children<<else>>child<</if>> grow up here, as my flat isn't exactly a suitable environment for kids." Poppy says with a guilty expression. "I'm sorry, but this is the best for everyone, especially for the <<if _isMultiple>>babies<<else>>baby<</if>>. I'll come by whenever I can, I promise."
+<br><br>
+<<He>> kisses you on the cheek before leaving Bailey's office.<<glove>><<npcincr Poppy love 1>>
+<br><br>
+/* Mark the handoff as met so the orphanage intercept doesn't refire. */
+<<set C.npc.Poppy.pregnancy.handoffMet to true>>
+/* Bailey now delivers the standard £100/week speech, scaled to count. */
+<<set _knownPregnancyCount to 0>>
+<<run T.knownPregnancyCount = typeof knowsAboutChildrenTotal === "function" ? knowsAboutChildrenTotal("pc", "Bailey", "home") : T.babyCount>>
+<<endevent>><<npc "Bailey">><<person1>>
+"You're responsible for your offspring's care," Bailey says. "If I have to intervene, it'll cost you an extra <span class="red">£100</span> a week<<if _isMultiple>>, each<</if>>. They don't leave the nursery. Ever."
+<br><br>
+<<if !$ward_unlocked>>
+	<<set $ward_unlocked to 1>>
+	You can now access the <span class="gold">youth ward</span> and the <span class="gold">nursery</span>.
+	<br><br>
+<<elseif $ward_unlocked and _knownPregnancyCount lte 1>>
+	You already know the way to the nursery.
+	<br><br>
+<</if>>
+<<link [[Next|Orphanage]]>><<endevent>><</link>>
+
+/* ==============================================================
+ * Nursery RNG: Poppy & Bailey conversation overheard
+ * ============================================================== */
+:: Poppy Nursery Intro
+<<effects>><<endevent "phaseless">><<npc "Poppy">><<person1>><<npc "Bailey" 2>>
+<<run poppySchedule()>><<run markPoppyInteraction()>><<set _poppyChildIds to []>>
+<<run Object.values($children || {}).forEach(child => {if (child && (child.mother === "Poppy" || child.father === "Poppy") && child.location === "home") {T.poppyChildIds.push(child.childId);}})>>
+<<set _hasMultiple to _poppyChildIds.length gt 1>><<if _poppyChildIds.length gt 0>><<childSelect _poppyChildIds[0]>><</if>>
+You step foot into the orphanage nursery and see Poppy conversing with Bailey by <<childname>>'s cradle.
+<br><br>
+"You should—" Bailey cuts <<himself>> off when <<he>> notices you and frowns. Seeing Bailey's reaction, Poppy turns around. <<He>> gives you a quick smile before turning back to face Bailey.
+<br><br>
+"You worry too much, I can handle it," Poppy reassures Bailey on whatever they were talking about. <<He>> spins on <<his>> heels and rushes over to you with an excited smile.
+<br><br>
+"My beloved jewel!" <<He>> wraps <<his>> arms around you and pulls you into a tight hug. You hear Bailey scoff and walk around the two of you to leave the nursery.
+<br><br>
+"<<childname>> is adorable! <<childHe>> looks just like you!" You smile bashfully at Poppy's comment.<<llstress>><<stress -8>><<glove>><<npcincr Poppy love 1>>
+<br><br>
+Poppy pulls you towards <<childname>>'s cradle. The two of you look down at the sleeping babe. "Oh, <<childhe>> will look absolutely gorgeous when <<childhe>> grows up... just like <<childhis>> <<if $player.gender_appearance is "f">>mama<<else>>papa<</if>>."
+<br><br>
+<<He>> reaches <<his>> hand into the cradle to touch <<childname>>'s cheek. You feel your heart melt at the sight.<<llstress>><<stress -6>>
+<<if !$poppySeen>><<set $poppySeen to []>><</if>><<run $poppySeen.pushUnique("nursery_intro")>>
+<br><br>
+<<link [[Next|$childPassageExit]]>><<unset $childPassageExit>><<endevent>><</link>>
+
+/* ==============================================================
+ * Nursery RNG: Poppy reading storybook (repeatable)
+ * ============================================================== */
+:: Poppy Nursery Reading
+<<effects>><<endevent "phaseless">><<npc "Poppy">><<person1>><<run poppySchedule()>><<run markPoppyInteraction()>><<set _poppyChildIds to []>>
+<<run Object.values($children || {}).forEach(child => {if (child && (child.mother === "Poppy" || child.father === "Poppy") && child.location === "home") {T.poppyChildIds.push(child.childId);}})>>
+<<if _poppyChildIds.length gt 0>><<childSelect _poppyChildIds[0]>><</if>>
+You step into the nursery to find Poppy sitting on the ground with <<childname>> in <<his>> lap, reading a children's storybook. The sight of them fills you with unadulterated joy.<<llstress>><<stress -8>><<ltrauma>><<trauma -4>>
+<br><br>
+<<link [[Next|$childPassageExit]]>><<unset $childPassageExit>><<endevent>><</link>>
+
+/* ==============================================================
+ * Dismissed-Poppy nursery event (one-shot)
+ * ============================================================== */
+:: Poppy Nursery Dismissed
+<<effects>><<endevent "phaseless">><<npc "Poppy">><<person1>><<set _poppyChildIds to []>>
+<<run Object.values($children || {}).forEach(child => {if (child && (child.mother === "Poppy" || child.father === "Poppy") && child.location === "home") {T.poppyChildIds.push(child.childId);}})>>
+<<if _poppyChildIds.length gt 0>><<childSelect _poppyChildIds[0]>><</if>><<set _isMultiple to _poppyChildIds.length gt 1>>
+You step foot into the nursery and freeze in your tracks. Inside the nursery is someone you did not expect or wish to see. It's Poppy.
+<br><br>
+<<He>> looks at you and gives you a cold smile. <<He>> is standing right beside your wailing baby.<<gggstress>><<stress 16>>
+<br><br>
+Your mind immediately assumes what Poppy might have done to <<childname>> when you weren't here.
+<br><br>
+"What did you do?" Your tone is accusing.
+<br><br>
+"Oh please, I'm not here to hurt my own <<if _isMultiple>>children<<else>>child<</if>>." Poppy scoffs, finding your accusation insulting. "That would be against my morals. And besides, Bailey would kill me if I did."
+<br><br>
+"I caught wind that you've escaped the underground brothel, so I came to see it for myself. I wasn't expecting it, really. Seems like I've underestimated your capabilities..."
+<br><br>
+<<link [[Next|Poppy Nursery Dismissed 2]]>><</link>>
+
+:: Poppy Nursery Dismissed 2
+<<He>> approaches you with slow, measured steps, making you go on high alert. <<He>> leans close enough that <<his>> breath brushes your ear.<<ggstress>><<stress 8>>
+<br><br>
+/* Whisper line varies by fame band. */
+<<if $fame.sex gte 5000>>
+	"<<overworld_nickname_dolp>>? More like... a <span class="red"><<print either("Slut", "Whore", "Cumdump")>></span>." <<He>> whispers into your ear.
+<<elseif $fame.sex gte 1500>>
+	"<<overworld_nickname_dolp>>? More like... a <span class="red">Petty <<slut>></span>." <<He>> whispers into your ear.
+<<elseif $fame.sex gte 600>>
+	"<<overworld_nickname_dolp>>? More like... a <span class="red">Famewhore</span>." <<He>> whispers into your ear.
+<<else>>
+	"<span class="red">My jewel</span>." <<He>> whispers into your ear, the endearment edged like a knife.
+<</if>>
+<<stress 4>><<gstress>>
+<br><br>
+With a sigh, Poppy pats you on the shoulder. "Take good care of the <<if _isMultiple>>kids<<else>>kid<</if>>. If I hear one word about you neglecting <<if _isMultiple>>them<<else>><<childhim>><</if>>..."
+<br><br>
+<<He>> pulls away enough to assess you like a predator assessing its prey. "I'll deal with you personally."
+<br><br>
+Poppy finally leaves. You feel like you could finally breathe again.
+<<run $poppySeen.pushUnique("nursery_dismissed")>>
+<br><br>
+<<link [[Next|$childPassageExit]]>><<unset $childPassageExit>><<endevent>><</link>>

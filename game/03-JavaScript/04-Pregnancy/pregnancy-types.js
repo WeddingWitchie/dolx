@@ -14,15 +14,15 @@ window.maxParasites = maxParasites;
 // Returns 0 to 0.75 based on how long the tummy parasite has been latched.
 // 0% before 2 weeks, ramps linearly to 75% over the following 2 weeks, then capped.
 function tummyParasiteFertilityBonus() {
-    const p = V.parasite && V.parasite.tummy;
-    if (!p || !p.name || !p.latchedMinutes) return 0;
+	const p = V.parasite && V.parasite.tummy;
+	if (!p || !p.name || !p.latchedMinutes) return 0;
 
-    const startMinutes = 14 * 24 * 60;  // 2 weeks
-    const peakMinutes  = 30 * 24 * 60;  // ~1 month
-    if (p.latchedMinutes < startMinutes) return 0;
+	const startMinutes = 14 * 24 * 60;  // 2 weeks
+	const peakMinutes  = 30 * 24 * 60;  // ~1 month
+	if (p.latchedMinutes < startMinutes) return 0;
 
-    const progress = Math.clamp((p.latchedMinutes - startMinutes) / (peakMinutes - startMinutes), 0, 1);
-    return 0.75 * progress;
+	const progress = Math.clamp((p.latchedMinutes - startMinutes) / (peakMinutes - startMinutes), 0, 1);
+	return 0.75 * progress;
 }
 window.tummyParasiteFertilityBonus = tummyParasiteFertilityBonus;
 
@@ -291,7 +291,7 @@ function skinColourCalc(colour) {
 	].random();
 }
 
-// Only applies to the pc
+// PC's TF takes priority; otherwise certain named NPC parents pass their own.
 function beastTransform(mother, father) {
 	if (mother === "pc" || father === "pc") {
 		if (V.cat >= 10) return "cat";
@@ -303,6 +303,8 @@ function beastTransform(mother, father) {
 		if (V.waterdragon >= 7) return "waterdragon";
 		if (V.bunny >= 6) return "bunny";
 	}
+	// Poppy is a fallen-fox TF; always passes fox down.
+	if (mother === "Poppy" || father === "Poppy") return "fox";
 	return null;
 }
 
@@ -312,6 +314,8 @@ function divineTransform(mother, father) {
 		if (V.fallenangel >= 4) return "fallen";
 		if (V.demon >= 6) return "demon";
 	}
+	// Poppy is fallen; divine side passes too.
+	if (mother === "Poppy" || father === "Poppy") return "fallen"; 
 	return null;
 }
 

@@ -20,6 +20,12 @@
 	<span class="black">Poppy isn't here.</span>
 	<br><br>
 	<<link [[Back to shore|Lake Shore]]>><<endevent>><<set $eventskip to 0>><</link>>
+<<elseif isPregnancyEnding()>>
+	<<include "Poppy PC Birth">>
+<<elseif npcIsPregnant("Poppy") and npcPregnancyProgress("Poppy") gte 0.23 and !knowsAboutPregnancy("Poppy", "pc")>>
+	<<include "Poppy Self Pregnancy Reveal">>
+<<elseif npcIsPregnant("Poppy") and npcPregnancyProgress("Poppy") lt 0.48 and knowsAboutPregnancy("Poppy", "pc") and !C.npc.Poppy.pregnancy.ultrasoundShown>>
+	<<include "Poppy Show Ultrasound">>
 <<elseif Number($poppyromance) lt 0 and !$poppySeen.includes("lake_claim_declined") and (Number(C.npc.Poppy.love) || 0) gte 100 and T.poppyPatience gte 100>>
 	As you get closer, Poppy whips <<his>> head towards your direction. <<His>> eyes gleam with excitement after confirming your presence. 
 	<br><br>
@@ -31,7 +37,11 @@
 	<br>
 	<<link [[Decline|Lake Poppy Claim Decline]]>><</link>>
 <<else>>
-	<<poppyLakeMenu>>
+	<<if npcIsPregnant("Poppy") and npcPregnancyProgress("Poppy") gte 0.49 and knowsAboutPregnancy("Poppy", "pc")>>
+		<<include "Poppy Idle Pregnant Lake">>
+	<<else>>
+		<<poppyLakeMenu>>
+	<</if>>
 <</if>>
 
 :: Poppy Bodywriting Reaction

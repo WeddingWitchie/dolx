@@ -36,7 +36,7 @@ function poppyStatusCheck(poppy = C.npc.Poppy) {
 	let sp = Number(poppy.patience) || 0;
 	const sa = Number(poppy.anger) || 0;
 	if (sp === 0 && sa > 0) {
-		// Old split-storage format detected — convert to signed.
+		// Old split-storage format detected; convert to signed.
 		sp = -sa;
 	}
 	// Clamp signed value to -100..100 (single branch chain, no Math.* calls)
@@ -195,6 +195,17 @@ function poppySchedule() {
 		T.poppy_location = "flatApartment"; T.poppy_location_message = "apartment"; T.poppy_night_active = 0;
 		if (!V.poppyFlat) V.poppyFlat = {};
 		V.poppyFlat.home = true; V.poppyFlat.room = "living_room"; V.poppyFlat.meal = "";
+		return T.poppy_location;
+	}
+
+
+	// Poppy birth handoff override: after Poppy gives birth to a PC-linked child,
+	// keep her at the orphanage until the handoff scene fires.
+	const handoffDay = poppy.pregnancy && poppy.pregnancy.handoffDay;
+	const handoffMet = poppy.pregnancy && poppy.pregnancy.handoffMet;
+	if (handoffDay !== undefined && !handoffMet && (Time.days === handoffDay || Time.days === handoffDay + 1)) {
+		T.poppy_location = "orphanage"; T.poppy_location_message = "orphanage"; T.poppy_night_active = 0;
+		if (V.poppyFlat) { V.poppyFlat.home = false; V.poppyFlat.room = ""; V.poppyFlat.meal = ""; }
 		return T.poppy_location;
 	}
 
@@ -530,4 +541,35 @@ DefineMacro("poppyRefreshSchedule", poppySchedule);
 	window.poppyConsumePendingInsomniaSuppress = consumePendingInsomniaSuppress;
 	window.poppyGrantPavlovIfNeeded = grantPavlovIfNeeded;
 	window.poppyDetectScienceAKnowledge = detectScienceAKnowledge;
+})();
+
+/* =============================================================
+ * POPPY PREGNANCY INTEGRATION
+ * =============================================================
+ * Registration now lives in variables-static.twee:
+ *   setup.pregnancy.canBePregnant
+ *   setup.pregnancy.canImpregnatePlayer
+ *
+ * This block only repairs/normalises C.npc.Poppy.pregnancy for very old saves or unusual load-order edge cases.
+ * ============================================================= */
+(function () {
+	"use strict";
+	function poppyPregnancyEnsureState(poppy) {
+		poppy = poppy || (
+			typeof C !== "undefined" && C.npc ? C.npc.Poppy :
+			typeof V !== "undefined" && V.C && V.C.npc ? V.C.npc.Poppy :
+			null
+		);
+		if (!poppy) return null;
+
+		if (!poppy.pregnancy || typeof poppy.pregnancy !== "object") {
+			poppy.pregnancy = { fetus: [], enabled: true, type: "human" };
+		} else {
+			if (!Array.isArray(poppy.pregnancy.fetus)) poppy.pregnancy.fetus = [];
+			if (typeof poppy.pregnancy.enabled !== "boolean") poppy.pregnancy.enabled = true;
+			if (!poppy.pregnancy.type) poppy.pregnancy.type = "human";
+		}
+		return poppy.pregnancy;
+	}
+	window.poppyPregnancyEnsureState = poppyPregnancyEnsureState;
 })();

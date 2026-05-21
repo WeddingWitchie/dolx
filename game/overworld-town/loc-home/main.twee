@@ -2719,6 +2719,13 @@ You are in the main hall of the orphanage.
 
 <br><br>
 
+<<if modLISelected("Poppy")>>
+	<<set _poppyHandoffReady to C.npc.Poppy and C.npc.Poppy.init is 1 and C.npc.Poppy.pregnancy and C.npc.Poppy.pregnancy.handoffDay isnot undefined and !C.npc.Poppy.pregnancy.handoffMet and (Time.days is C.npc.Poppy.pregnancy.handoffDay or Time.days is C.npc.Poppy.pregnancy.handoffDay + 1)>>
+	<<if _poppyHandoffReady>>
+		<<run T.poppyHandoffReady = Object.values(V.children || {}).some(child => child && (child.mother === "Poppy" || child.father === "Poppy") && child.location === "home" && (child.mother === "pc" || child.father === "pc"))>>
+	<</if>>
+<</if>>
+
 <<if $stress gte $stressmax>>
 	<<passouthome>>
 <<elseif $rng gte 61 and $worn.upper.name is "large towel" and $worn.upper.set is $worn.lower.set and !$daily.orphanageflash and Time.hour lt 22 and Time.hour gte 6>>
@@ -2969,6 +2976,10 @@ and ($whitney_orphanage_special_seen gte 3 or $whitney_orphanage_special_seen is
 	<br><br>
 	<<link [[Next|Mansion Intro Orphanage]]>><</link>>
 	<br>
+
+<<elseif modLISelected("Poppy") and _poppyHandoffReady>>
+	<<include "Poppy Orphanage Handoff">>
+
 <<elseif $daily.homeEvent isnot 1 and Time.hour gte 6 and Time.hour lte 21>>
 	<<set $daily.homeEvent to 1>>
 	<<homeevent>>
