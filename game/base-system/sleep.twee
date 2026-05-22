@@ -66,7 +66,7 @@
 	<</if>>
 	<<if $location is "avery_mansion" or $location is "forest_shop">>
 		<<set $_bonusFatigueLoss += 100>>
-	<<elseif $location is "flats" and $bus is "poppy_bedroom">>
+	<<elseif modLISelected("Poppy") and $location is "flats" and $bus is "poppy_bedroom">>
 		<<set $_bonusFatigueLoss += 100>>
 	<<elseif $_bed.type.includes('comfy')>>
 		<<set $_bonusFatigueLoss += 80>>
@@ -312,12 +312,14 @@
 					<<wraithEvent>>
 				<</if>>
 			<<case "flats">>
-				<<run poppySchedule()>>
-				<<if T.poppyFlatBaileyDue>>
-					<<set _sleepinterrupt to 1>>
-				<<elseif $bus is "poppy_bedroom" and C.npc.Poppy and C.npc.Poppy.init is 1 and $poppyFlat.home and $poppyFlat.room is "bedroom" and (Number(C.npc.Poppy.lust) || 0) gte 60 and !$daily.poppy.flatBedSexDone and !(T.poppyStatus and T.poppyStatus.includes("LowPatience"))>>
-					<<set _sleepinterrupt to 1>>
-					<<set _poppy_interrupt to "sex">>
+				<<if modLISelected("Poppy")>>
+					<<run poppySchedule()>>
+					<<if T.poppyFlatBaileyDue>>
+						<<set _sleepinterrupt to 1>>
+					<<elseif $bus is "poppy_bedroom" and C.npc.Poppy and C.npc.Poppy.init is 1 and $poppyFlat.home and $poppyFlat.room is "bedroom" and (Number(C.npc.Poppy.lust) || 0) gte 60 and !$daily.poppy.flatBedSexDone and !(T.poppyStatus and T.poppyStatus.includes("LowPatience"))>>
+						<<set _sleepinterrupt to 1>>
+						<<set _poppy_interrupt to "sex">>
+					<</if>>
 				<</if>>
 			<<case "forest_shop">>
 				<<if ["walking_to_cafe", "cafe"].includes(gwylanSchedule()) and !$gwylanCafeWake and $exposed is 0>>
