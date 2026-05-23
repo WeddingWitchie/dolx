@@ -151,7 +151,7 @@
 <<link [[Next|$mmaGymIntroExit]]>><<unset $mmaGymIntroExit>><<endevent>><</link>>
 
 :: MMA Weights Room
-<<set $outside to 0>><<set $location to "mma_gym">><<effects>>
+<<set $outside to 0>><<set $location to "mma_gym">><<effects>><<speechresolve>>
 <<if $mmaWeightsSessions is undefined>><<set $mmaWeightsSessions to 0>><</if>>
 <<if $mmaGymAccessUnlocked is undefined>><<set $mmaGymAccessUnlocked to 0>><</if>>
 <<if $mmaConditioningUnlocked is undefined>><<set $mmaConditioningUnlocked to 0>><</if>>
@@ -167,12 +167,20 @@
 	<<set _failChance to 7>>
 <</if>>
 <<if ($willpower gte 500 or $athletics gte 700) and _failChance gt 7>><<set _failChance to 7>><</if>>
-<<if $speech_attitude is "meek" or $speech_attitude is "shy" or $speech_attitude is "docile">>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 	<<set _weightsThought to "You force the bar back up. Stronger means harder to corner, harder to scare, harder to push around when someone decides you look easy.">>
-<<elseif $speech_attitude is "bratty" or $speech_attitude is "cruel">>
+<<elseif _speechAttitudeResolved is "docile">>
+	<<set _weightsThought to "You follow the count Riley sets and make yourself finish each lift properly. It is easier to obey the rhythm than admit how much you need this strength.">>
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	<<set _weightsThought to "You keep your breathing neat and your form cleaner than your shaking muscles want it to be. If Riley is going to correct you, you would rather make Riley work for the excuse.">>
+<<elseif _speechAttitudeResolved is "confident">>
+	<<set _weightsThought to "The work is simple enough to trust: lift, breathe, recover, and prove you belong here without needing to say it out loud.">>
+<<elseif _speechAttitudeResolved is "bratty">>
 	<<set _weightsThought to "The thought flashes between sets: beat Riley, shut the smug idiots up, stop letting anyone in town look down on you.">>
+<<elseif _speechAttitudeResolved is "cruel">>
+	<<set _weightsThought to "The burn gives you something useful to aim at. Riley, the regulars, anyone who ever mistook you for easy aim. Let them laugh now, while they still can.">>
 <<else>>
-	<<set _weightsThought to "You tell yourself the work is practical. More access, better training, more to gain from this place than a half-hour with the weights.">>
+	<<set _weightsThought to "You tell yourself the work is practical. More access, better training, more to gain from this place than a session with the weights.">>
 <</if>>
 <<wearProp "weight">>
 The weights room is cramped and noisy, all clashing plates and sharp corrections. Riley keeps you moving between rack, bench, and sled without leaving much time to recover.
@@ -1010,16 +1018,27 @@ The MMA gym's door swings shut behind you.
 <<link [[Next|Nightingale Street]]>><<endevent>><</link>>
 
 :: MMA Regular Sparring
-<<endevent>><<generate1>><<person1>><<effects>><<pass 45>><<set _sparRoll to random(1, 4)>>
+<<endevent>><<generate1>><<person1>><<effects>><<pass 45>><<set _sparRoll to random(1, 4)>><<speechresolve>>
 Riley pairs you with a <<person>> after a warm-up. "Light work," Riley says, which in this room seems to mean nobody is supposed to admit how hard they are trying.
 <br><br>
 <<if _sparRoll is 1>>
 	Your partner starts using the breaks wrong. <<His>> hands find your waist during the reset. Your side. Your hip. Then grope your groin.
 	<br><br>
-	<<if $speech_attitude is "meek" or $speech_attitude is "shy" or $speech_attitude is "docile">>
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 		You keep your guard up, pretending not to notice until Riley calls time. The regular smirks as <<he>> backs away.
 		<<arousal 300>><<stress 2>><<athletics 1>><<garousal>><<gstress>><<gathletics>>
-	<<elseif $speech_attitude is "bratty" or $speech_attitude is "cruel">>
+	<<elseif _speechAttitudeResolved is "docile">>
+		You let the reset happen, shoulders tight and mouth shut, because making trouble here feels worse than enduring it. Riley's whistle finally cuts the round apart.
+		<<arousal 300>><<stress 3>><<athletics 1>><<garousal>><<gstress>><<gathletics>>
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		You catch <<his>> wrist the next time it wanders. "Hands where they're meant to be."
+		<br><br>
+		The words come out controlled enough to make the nearest regulars look away. Riley notices, and the rest of the round stays almost respectable.
+		<<athletics 1>><<stress 2>><<gathletics>><<gstress>>
+	<<elseif _speechAttitudeResolved is "confident">>
+		You stop giving <<him>> clean resets. Every move costs <<him>> something, and after the second one <<he>> starts remembering where <<his>> hands belong.
+		<<athletics 1>><<tiredness 8>><<gathletics>><<gtiredness>>
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
 		You shove <<him>> off the next time <<he>> drifts in. "Try training instead of pawing. You might learn something."
 		<br><br>
 		A few people snort. Your partner's smile drops, and the rest of the round turns rough enough that Riley has to bark at both of you.
@@ -1031,12 +1050,22 @@ Riley pairs you with a <<person>> after a warm-up. "Light work," Riley says, whi
 <<elseif _sparRoll is 2>>
 	Riley stops the round to correct your stance, steps in, moves your guard by hand, nudges your elbow into place.
 	<br><br>
-	<<if $speech_attitude is "meek" or $speech_attitude is "shy" or $speech_attitude is "docile">>
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 		"I want to get it right," you say, quieter than you meant to.
 		<br><br>
 		"Then stop apologising with your shoulders," Riley says. "You are allowed to take space. Start acting like it."
 		<<willpower 1>><<gwillpower>><<stress 4>><<gstress>>
-	<<elseif $speech_attitude is "bratty" or $speech_attitude is "cruel">>
+	<<elseif _speechAttitudeResolved is "docile">>
+		"Show me again," you say, holding still as Riley moves your guard.
+		<br><br>
+		Riley's mouth tightens. "Don't go limp. Help me fix it, or you'll just need fixing twice."
+		<<willpower 1>><<gwillpower>><<stress 3>><<gstress>>
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"Again, please," you say, trying to make the request sound steadier than your breath.
+		<br><br>
+		Riley gives you another correction, brisk and exact. "There. Polite is fine. Useful is better."
+		<<physique 1>><<gphysique>><<tiredness 5>><<gtiredness>>
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
 		"Should I start making you look bad?"
 		<br><br>
 		Riley laughs. "Please do. It would be a nice change from correcting you."
@@ -1047,7 +1076,7 @@ Riley pairs you with a <<person>> after a warm-up. "Light work," Riley says, whi
 		You nod, reset your feet, and repeat the movement until Riley no longer has to touch your elbow back into place.
 		<br><br>
 		"Better," Riley says. "Do it before you need saving next time."
-		<<physique 1>><<tiredness 6>><<gtiredness>><<gphysique>>
+		<<athletics 1>><<tiredness 6>><<gtiredness>><<gathletics>>
 	<</if>>
 <<elseif _sparRoll is 3>>
 	The round turns scrappy when your partner tries to rush every exchange. It is ugly work, full of elbows tucked too late and feet fighting for space on the mat.
