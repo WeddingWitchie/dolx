@@ -12,7 +12,7 @@ const StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.5.9.8 DoLP v0.741 DoLX 0.19.6",
+	version: "0.5.9.8 DoLP v0.741 DoLX 0.19.6a",
 	versionName: `"Here Comes the Sun" edition`,
 	sneaky: false,
 	socialMediaEnabled: true,

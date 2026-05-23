@@ -11,29 +11,45 @@
 
 ## Changelog
 ## Changes and Additions:
-* Flipped **Smuggler Cave minimap** direction.
-  * Adjusted the Smuggler Cave minimap position mapping so the visual route now matches the navigation links.
-  * "Towards the sea" now points left, while "Deeper" points right.
-  * Makes the cave map read more intuitively, with the entrance/sea side on the left and deeper cave progress moving to the right.
-* Updated **bank heist street investigation** timing.
-  * Changed the bank heist street investigator event from a daily event to a weekly event.
-* Added **speech-action English compensation** for the Bimbo Pill.
-  * The Bimbo Pill forces `$englishtrait` to `-1`, which previously zeroed out every `1 + $englishtrait` multiplier used by speech actions.
-  * While the bimbo effect is active, speech actions now fall back to the player's pre-bimbo English level stored in `$xchange.english`.
-  * The fallback has a floor of `0`, so affected speech actions are at worst as effective as a no-school baseline.
-  * Applies to affected speech actions such as pleading, moaning, demanding, mocking/teasing, apologising, asking to choke, asking for rough treatment, and hypno-scream-to-askrough.
-  * **Dumb Bitch** is intentionally NOT compensated, since its dumbness is permanent and earned per-orgasm, so reduced speech effectiveness remains intended.
+* Updated the **MMA gym**.
+  * Added a changing room.
+  * Added a shower area.
+  * Added sparring scenes between regulars.
+* Added **Poppy pregnancy content**.
+  * Added new pregnancy-related content for Poppy.
+* Added a new **Whitney outing event**.
+  * Added an event where the player can take Whitney out when Whitney is in the flat.
+  * The event is only available after completing either the special orphanage event or the Whitney loft event.
+* Updated the **Whitney special orphanage event**.
+  * If the player has Kylar's owl and chooses to proceed with Whitney, the event can now trigger suspicion or rage from Kylar.
+* Updated the **persistent bike feature**.
+  * If the player owns a bike and chooses to walk somewhere with a companion, the bike is now treated as being walked alongside them.
+  * The bike will now be moved to the destination where appropriate instead of being left behind.
+* Expanded **DoLP speech attitude flavor text**.
+  * Added more speech attitude flavor variations.
+  * Expanded related text across 10 files.
 
 ## Rebalancing and Fixes:
-* Fixed a missing `<<modupdate>>` call in `Start2`.
-* Fixed missing **Poppy** checks.
-  * Added missing Poppy handling where needed.
-  * Fixed hard-coded "her" wording for Poppy in the soup kitchen.
-* Fixed missing beast sex image handling.
-  * Added/fixed missing sex image support for beast content.
-* Fixed **GH empty-nest child handling**.
-  * Filtered dismissed GH/tower children out of normal child visit and activity event selection.
-  * Children marked as farewell/dismissed are no longer treated as present in the nest after their leaving scene.
-  * Added a quiet empty-nest memory moment when all GH children have left.
-  * The memory moment gives the player a small stress reduction while recollecting time spent with them.
-  * Keeps child data intact and only adjusts visit/event lookup logic.
+* Fixed an issue where the player could not go into labor even when the required time had passed.
+* Fixed old UI side menu spacing.
+  * Adjusted spacing in the side menu for the old UI.
+* Fixed multiple typo and text issues.
+  * Fixed a typo in the Ivory Wraith events.
+  * Fixed an `"an"` typo in the character description for transgender PCs.
+  * Fixed a typo in the Moor Wind Lift Tower.
+  * Fixed a money mismatch in the café.
+  * Fixed a typo in the dysphoria notice.
+  * Fixed a doubled `"a"` in clothing descriptions when carrying a backpack.
+* Fixed **Robin sleep** handling.
+  * Fixed an issue where Robin could fail to climb onto the player's bed.
+  * Updated some scenes to properly account for the player's sex-friend status with Robin.
+* Fixed additional **Poppy** issues.
+  * Fixed an issue where the science study event in Poppy's flat could incorrectly lead to the library.
+  * Tidied up related Poppy checks.
+* Fixed **transgender trait** handling.
+  * Fixed trans player handling in changing rooms.
+  * Fixed X-Change body text for transgender players.
+  * Changing room discomfort now uses gender for transgender backgrounds instead of sex.
+  * This prevents trans girls from being stressed in the girls' changing room after body alignment.
+  * Crossdresser handling remains unchanged for non-trans players.
+  * X-Change characteristic text now avoids saying a trans player was transformed into their own gender.
