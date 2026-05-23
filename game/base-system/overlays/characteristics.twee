@@ -150,9 +150,17 @@
 		<<if $xchange.pill.hermEffect>>
 			<<run _pillBits.push("transformed into a herm")>>
 		<</if>>
-		/* Only report genderflip if it actually changed sex since activation, and was not just the herm setup step */
+		/* Only report genderflip if sex actually changed since activation, and wasn't just the herm setup step */
 		<<if $xchange.pill.genderflipEffect and !$xchange.pill.hermEffect and $xchange.pill.baseSex isnot undefined and $xchange.pill.baseSex isnot $player.sex>>
-			<<run _pillBits.push("transformed into a " + ($player.sex is "m" ? "boy" : "girl"))>>
+			<<if $background.transgender and ((_transBodySex is "m" and $player.sex is "f") or (_transBodySex is "f" and $player.sex is "m"))>>
+				/* Trans player whose body now matches their gender; don't say "transformed into a girl/boy" because they already were one */
+				<<run _pillBits.push("whose body has been " + ($player.sex is "f" ? "feminised" : "masculinised") + " to match your gender")>>
+			<<elseif $background.transgender>>
+				/* Trans player whose body got pushed further from their gender */
+				<<run _pillBits.push("whose body has been forced further from your gender")>>
+			<<else>>
+				<<run _pillBits.push("transformed into a " + ($player.sex is "m" ? "boy" : "girl"))>>
+			<</if>>
 		<</if>>
 		<<if $xchange.pill.genderificationEffect>>
 			<<run _pillBits.push(($player.gender is "m") ? "that has been sissified" : "that has been butchified")>>

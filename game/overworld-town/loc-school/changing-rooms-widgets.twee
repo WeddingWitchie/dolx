@@ -70,7 +70,19 @@
 	<</if>>
 
 	<<set _seenGender to (_studentsKnow ? $player.gender : $player.gender_appearance)>> <!-- If they know you crossdress, then they won't judge you by appearance -->
-	<<set _uncomfortable to ($backgroundTraits.includes("crossdresser") and $player.sex is _args[0])>>
+	<<set _transChangingRoomGender to $player.gender_appearance>>
+	<<if $background.transgender and $xchange.pill.active and $xchange.pill.baseSex isnot undefined>>
+		<<set _transChangingRoomGender to $xchange.pill.baseSex is "m" ? "f" : ($xchange.pill.baseSex is "f" ? "m" : $player.gender_appearance)>>
+	<</if>>
+	<<if $background.transgender>>
+		/* Trans players: comfort is tied to gender identity, not sex. Same-gender room = home; opposite-gender room = wrong room. */
+		<<set _uncomfortable to (_transChangingRoomGender isnot _args[0] and _transChangingRoomGender isnot "h")>>
+	<<elseif $backgroundTraits.includes("crossdresser")>>
+		/* Crossdresser background: uncomfortable in their birth-sex room, the one they don't prefer. */
+		<<set _uncomfortable to ($player.sex is _args[0])>>
+	<<else>>
+		<<set _uncomfortable to false>>
+	<</if>>
 	<<set _notStartedLesson to Time.hour is 14 and Time.minute lte 5>>
 	<<set _finishedLesson to Time.hour is 15 or (Time.hour is 14 and Time.minute gte 58)>>
 <</widget>>
@@ -137,7 +149,7 @@
 
 <<widget "changingRoomFeelings">>
 	<<if $schoolrep.crossdress lt 3 and _args[0] is undefined>>
-		<<if $backgroundTraits.includes("crossdresser") and $player.sex isnot _changingRoomGenderType>>
+		<<if ($background.transgender and _transChangingRoomGender is _changingRoomGenderType) or (!$background.transgender and $backgroundTraits.includes("crossdresser") and $player.sex isnot _changingRoomGenderType)>>
 			<<if !$daily.school.changingRoomStressRelief>>
 				<span class="green">You feel good about that.</span><<lstress>><<stress -3>><<set $daily.school.changingRoomStressRelief to true>>
 			<<else>>
