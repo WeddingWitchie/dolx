@@ -1,0 +1,84 @@
+:: Farm Mod Widgets [widget]
+<<widget "tendingCropProgressStats">>
+	<<set _cropProgressCount to 0>>
+	<<set _canEstimateCropProgress to !$settings.blindStatsEnabled or currentSkillValue('tending') gte 1000 or $backgroundTraits.includes("greenthumb")>>
+	<<if _canEstimateCropProgress>>
+		<span class="small-description">Days left assume the crops are kept watered.</span>
+	<<else>>
+		<span class="small-description">Raise tending to 1,000, or have the green thumb background, to estimate exact harvest timing while blind stats are enabled.</span>
+	<</if>>
+
+	<table class="statsTable">
+		<thead>
+			<tr>
+				<th scope="col">Plot</th>
+				<th scope="col">Crop</th>
+				<th scope="col">Water</th>
+				<th scope="col">Harvest</th>
+			</tr>
+		</thead>
+
+		<<for _location range Object.keys($plots || {})>>
+			<<set _plotsHere to $plots[_location]>>
+			<<if Array.isArray(_plotsHere)>>
+				<<set _locationName to _location.replace(/_/g, " ").toLocaleUpperFirst()>>
+				<<if _location is "alex_farm">><<set _locationName to "Alex's farm">><</if>>
+				<<if _location is "farm">><<set _locationName to "Alex's farm">><</if>>
+				<<if _location is "garden">><<set _locationName to "Robin's garden">><</if>>
+
+				<<for _plotIndex to 0; _plotIndex lt _plotsHere.length; _plotIndex++>>
+					<<set _plot to _plotsHere[_plotIndex]>>
+					<<if _plot and _plot.stage gte 1 and _plot.plant isnot "none">>
+						<<set _cropProgressCount++>>
+						<<set _plant to setup.foodstuff[_plot.plant]>>
+
+						<tbody class="stat">
+							<td data-label="Plot">
+								_locationName<br>
+								<span class="small-description">Plot <<print _plotIndex + 1>></span>
+							</td>
+
+							<<if _plant>>
+								<<set _cropName to ((_plant.tending?.seed_name || _plant.plural || _plant.name || _plot.plant).replace(/_/g, " ")).toLocaleUpperFirst()>>
+								<<set _growthDays to _plant.tending?.growth_days>>
+								<td data-label="Crop">_cropName</td>
+							<<else>>
+								<<set _growthDays to undefined>>
+								<td data-label="Crop"><span class="red">Unknown crop: _plot.plant</span></td>
+							<</if>>
+
+							<td data-label="Water">
+								<<if _plot.stage gte 5>>
+									<span class="green">Ready</span>
+								<<elseif _plot.bed is "water">>
+									<span class="blue">Aquatic</span>
+								<<elseif _plot.water is 1>>
+									<span class="green">Watered</span>
+								<<else>>
+									<span class="purple">Dry</span>
+								<</if>>
+							</td>
+
+							<td data-label="Harvest">
+								<<if _plot.stage gte 5>>
+									<span class="green">Now</span>
+								<<elseif !_growthDays>>
+									<span class="red">Unknown</span>
+								<<elseif _canEstimateCropProgress>>
+									<<set _daysLeft to Math.max(Math.ceil(_growthDays - (_plot.days || 0)), 1)>>
+									<span class="orange"><<number _daysLeft>> <<pluralise _daysLeft "day">></span>
+								<<else>>
+									<span class="blue">Unknown</span>
+								<</if>>
+							</td>
+						</tbody>
+					<</if>>
+				<</for>>
+			<</if>>
+		<</for>>
+	</table>
+
+	<<if _cropProgressCount is 0>>
+		No crops are currently planted.
+	<</if>>
+<</widget>>
