@@ -405,36 +405,28 @@ function playerEndWaterProgress() {
 	// Intended to end a hawk pregnancy in a different way
 	if (pregnancy.type === "hawk") return false;
 
-	// DoLX fix: 
-	// the original gate at waterBreakingTimer === 1 requires either no NPC loaded in V.NPCList[0], or V.eventAllowsWaterBreaking. 
-	// In DoLX the NPC list management leaves V.NPCList[0].type populated in most passages, so the timer can get stuck at 1 indefinitely.
-	// We add a "stuckAtOne" counter that forces release after 6 hours regardless.
-	const STUCK_AT_ONE_LIMIT = 6;
-	const stuckEscape = pregnancy.waterBreakingTimer === 1 && (pregnancy.stuckAtOne || 0) >= STUCK_AT_ONE_LIMIT;
+	// DoLX fix:
+	// The original gate at NPCList[0].type doesn't work here, DoLX's NPC repair shell leaves slot 0 populated between scenes.
+	// Use V.enemyno instead: it's the live count of NPCs in the current encounter, reset by <<endevent>>,
+	// so it directly answers "is the player in a scene right now?"
+	const playerInScene = V.enemyno > 0 || V.possessed;
 
 	if (
 		!isNaN(pregnancy.waterBreakingTimer) &&
 		pregnancy.waterBreakingTimer > 0 &&
-		(pregnancy.waterBreakingTimer > 1 || (!V.NPCList[0].type && !V.possessed) || V.eventAllowsWaterBreaking || stuckEscape)
+		(pregnancy.waterBreakingTimer > 1 || !playerInScene || V.eventAllowsWaterBreaking)
 	) {
 		pregnancy.waterBreakingTimer--;
 		if (pregnancy.waterBreakingTimer <= 0) {
 			pregnancy.waterBreaking = true;
-			delete pregnancy.stuckAtOne;
-			// To prevent new events from occurring, allowing players to more easily go to the hospital or similar locations
 			V.eventskip = 1;
 			return true;
 		}
 		return false;
 	} else if (!isNaN(pregnancy.waterBreakingTimer) && !pregnancy.waterBreaking && pregnancy.waterBreakingTimer <= 0) {
 		pregnancy.waterBreaking = true;
-		delete pregnancy.stuckAtOne;
-		// To prevent new events from occurring, allowing players to more easily go to the hospital or similar locations
 		V.eventskip = 1;
 		return true;
-	} else if (pregnancy.waterBreakingTimer === 1) {
-		// DoLX fix: track time spent stuck at the inner-gate boundary so the stuckEscape condition above eventually fires.
-		pregnancy.stuckAtOne = (pregnancy.stuckAtOne || 0) + 1;
 	}
 }
 
