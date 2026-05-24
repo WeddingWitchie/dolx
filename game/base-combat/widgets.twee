@@ -16,11 +16,55 @@
 			<<set $_npc to $NPCName[$_npcIndex]>>
 		<<else>>
 			<<run $NPCList.forEach(npc => {
-				if (npc.fullDescription is $_taker) $_npc to npc;
+				if (npc && npc.fullDescription === $_taker) $_npc = npc;
 			})>>
 		<</if>>
 	<</if>>
 	<<if _args[1]>>
+		<<set _lostThisTurn to (_args[1] is "vaginal" and _vaginalLostThisTurn) or (_args[1] is "anal" and _analLostThisTurn) or (_args[1] is "oral" and _oralLostThisTurn)>>
+		<<if _lostThisTurn and $player.virginity[_args[1]] isnot true and $_taker isnot undefined and $_taker isnot 0>>
+			<<set _previousTaker to $player.virginity[_args[1]]>>
+			<<set _previousTakerText to _previousTaker ? String(_previousTaker) : "">>
+			<<if !_virginityTakersThisTurn>>
+				<<set _virginityTakersThisTurn to {}>>
+			<</if>>
+			<<if !_virginityTakersThisTurn[_args[1]]>>
+				<<set _virginityTakersThisTurn[_args[1]] to _previousTakerText ? [_previousTakerText] : []>>
+			<</if>>
+			<<set _alreadyCredited to _virginityTakersThisTurn[_args[1]].includes($_taker)>>
+			<<if !_alreadyCredited>>
+				<<if _previousTakerText>>
+					<<set $player.virginity[_args[1]] to `${_previousTakerText} and ${$_taker}`>>
+				<<else>>
+					<<set $player.virginity[_args[1]] to $_taker>>
+				<</if>>
+				<<if $player.virginityDetails and $player.virginityDetails[_args[1]]>>
+					<<set $player.virginityDetails[_args[1]].taker to $player.virginity[_args[1]]>>
+					<<if $_npc and ["vaginal", "anal", "oral"].includes(_args[1]) and !$player.virginityDetails[_args[1]].npcPenisSize2>>
+						<<set _npcPenetratorDesc2 to $_npc.penisdesc or "penis">>
+						<<if $_npc.strapon and $_npc.strapon.state is "worn">>
+							<<switch $_npc.penissize>>
+								<<case 6>>
+									<<set _npcPenetratorDesc2 to "monstrous strap-on">>
+								<<case 5>>
+									<<set _npcPenetratorDesc2 to "colossal strap-on">>
+								<<case 4>>
+									<<set _npcPenetratorDesc2 to "huge strap-on">>
+								<<case 3>>
+									<<set _npcPenetratorDesc2 to "thick strap-on">>
+								<<case 1>>
+									<<set _npcPenetratorDesc2 to "small strap-on">>
+								<<default>>
+									<<set _npcPenetratorDesc2 to "strap-on">>
+							<</switch>>
+						<</if>>
+						<<set $player.virginityDetails[_args[1]].npcPenisSize2 to $_npc.penissize>>
+						<<set $player.virginityDetails[_args[1]].npcPenisdesc2 to _npcPenetratorDesc2>>
+					<</if>>
+				<</if>>
+				<<run _virginityTakersThisTurn[_args[1]].push($_taker)>>
+			<</if>>
+		<</if>>
 		<<if _args[1] is "penile" and playerHasStrapon()>>
 			<!-- Do nothing -->
 		<<else>>
@@ -136,7 +180,7 @@
 					<<if !$player.virginityDetails[_args[1]].npcPenisSize>>
 						<<if $tentacles>>
 							<<run Object.values($tentacles).forEach(tentacle => {
-								if (tentacle and tentacle.fullDesc is $_taker and tentacle.size isnot undefined) $player.virginityDetails[_args[1]].tentacleSize to tentacle.size;
+								if (tentacle && tentacle.fullDesc === $_taker && tentacle.size !== undefined) $player.virginityDetails[_args[1]].tentacleSize = tentacle.size;
 							})>>
 						<</if>>
 					<</if>>
@@ -149,6 +193,12 @@
 
 				<<if $_taker isnot undefined and $_taker isnot 0>>
 					<<set $player.virginity[_args[1]] to $_taker>>
+					<<if ["vaginal", "anal", "oral"].includes(_args[1])>>
+						<<if !_virginityTakersThisTurn>>
+							<<set _virginityTakersThisTurn to {}>>
+						<</if>>
+						<<set _virginityTakersThisTurn[_args[1]] to [$_taker]>>
+					<</if>>
 					<<if $ironmanmode is true and $passage != "Loveth">>
 						<<run ironmanAutoSave()>>
 					<</if>>
@@ -191,6 +241,22 @@
 			<<run _trueBodyOK = (typeof playerIsXChanged === "function" && typeof pillIsPermanent === "function")
 				? (!playerIsXChanged() || pillIsPermanent())
 				: true; >>
+			<<set _templeLostThisTurn to (_args[1] is "vaginal" and _vaginalLostThisTurn)>>
+			<<if _templeLostThisTurn and $player.virginity.temple and $player.virginity.temple isnot true and $player.virginity.temple isnot 1 and $templePromised isnot _args[0] and _args[0] isnot undefined and _args[0] isnot 0 and _trueBodyOK>>
+				<<set _previousTempleTaker to $player.virginity.temple>>
+				<<set _previousTempleTakerText to _previousTempleTaker ? String(_previousTempleTaker) : "">>
+				<<if !_templeTakersThisTurn>>
+					<<set _templeTakersThisTurn to {}>>
+				<</if>>
+				<<if !_templeTakersThisTurn[_args[1]]>>
+					<<set _templeTakersThisTurn[_args[1]] to _previousTempleTakerText ? [_previousTempleTakerText] : []>>
+				<</if>>
+				<<set _alreadyTempleCredited to _templeTakersThisTurn[_args[1]].includes(_args[0])>>
+				<<if !_alreadyTempleCredited>>
+					<<set $player.virginity.temple to `${_previousTempleTakerText} and ${_args[0]}`>>
+					<<run _templeTakersThisTurn[_args[1]].push(_args[0])>>
+				<</if>>
+			<</if>>
 			<<if ($player.virginity.temple is true or $player.virginity.temple is 1)
 				and (_args[1] is "vaginal" or _args[1] is "penile")
 				and $templePromised isnot _args[0]
@@ -500,9 +566,7 @@
 		<<if $_npcIndex isnot -1>>
 			<<set $_takerNpc to $NPCName[$_npcIndex]>>
 		<<else>>
-			<<run $NPCList.forEach(npc => {
-				if (npc.fullDescription is $_takerDesc) $_takerNpc to npc;
-			})>>
+			<<run $NPCList.forEach(npc => {if (npc && npc.fullDescription === $_takerDesc) $_takerNpc = npc;})>>
 		<</if>>
 		<<if $_takerNpc>>
 			<<set $_takerPenetratorDesc to $_takerNpc.penisdesc or "penis">>
@@ -947,7 +1011,7 @@
 				<<set _itemsLeft to {}>>
 
 				<<run $_items.forEach(item => {
-					if (($currentSexToyRight is undefined or item.name isnot $currentSexToyRight.name) and item.type.includesAny("dildo","stroker") and !item.worn){
+					if (($currentSexToyRight === undefined || item.name !== $currentSexToyRight.name) && item.type.includesAny("dildo", "stroker") && !item.worn) {
 						_itemsLeft[item.namecap] = item;
 					}
 				})>>
@@ -962,7 +1026,7 @@
 				<<set _itemsRight to {}>>
 
 				<<run $_items.forEach(item => {
-					if (($currentSexToyLeft is undefined or item.name isnot $currentSexToyLeft.name) and item.type.includesAny("dildo","stroker") and !item.worn){
+					if (($currentSexToyLeft === undefined || item.name !== $currentSexToyLeft.name) && item.type.includesAny("dildo", "stroker") && !item.worn) {
 						_itemsRight[item.namecap] = item;
 					}
 				})>>
