@@ -100,7 +100,7 @@ const combatActionColours = {
 		],
 		def: [
 			/* leftaction or rightaction */
-			"spray", "lefthit", "righthit", "leftstruggle", "rightstruggle", "stopchokenoncon", "pursuit_grab", "leftumbrella", "rightumbrella", "leftcounter", "rightcounter", "leftfeint", "rightfeint", "lefthookpunch", "righthookpunch",
+			"spray", "lefthit", "righthit", "leftscratch", "rightscratch", "leftstruggle", "rightstruggle", "stopchokenoncon", "pursuit_grab", "leftumbrella", "rightumbrella", "leftcounter", "rightcounter", "leftfeint", "rightfeint", "lefthookpunch", "righthookpunch",
 			/* feetaction */
 			"kick", "ambush",
 			/* mouthaction */
@@ -150,7 +150,7 @@ const combatActionColours = {
 	Tentacle: {
 		def: [
 			/* leftaction or rightaction */
-			"lefthittentacle", "righthittentacle", "lefthit", "righthit", "leftbanish", "rightbanish",
+			"lefthittentacle", "righthittentacle", "lefthit", "righthit", "leftscratch", "rightscratch", "leftbanish", "rightbanish",
 			/* feetaction */
 			"feethit",
 			/* mouthaction */
