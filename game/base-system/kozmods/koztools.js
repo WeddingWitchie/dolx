@@ -647,3 +647,117 @@ if (Array.isArray(V.NPCList)) {
 if (!V.npcOrgasmState || typeof V.npcOrgasmState !== "object" || Array.isArray(V.npcOrgasmState)) {
 	V.npcOrgasmState = {};
 }
+
+// ==================================================
+// MOVED FROM time.js to keeps vanilla time.js untouched
+// ==================================================
+/* Brothel vending state repair / defaults.
+ * Called from time.js (weekPassed, dayPassed, etc.). Exported on window so those call sites continue to resolve after the move. */
+function ensureBrothelVendingState() {
+	if (V.brothelVending == null) return false;
+
+	if (typeof V.brothelVending !== "object") {
+		console.warn("[brothelVending] Repaired non-object state:", V.brothelVending);
+		V.brothelVending = {};
+	}
+
+	if (typeof V.brothelVending.status !== "string") V.brothelVending.status = "idea";
+
+	const numericDefaults = {
+		products: 0,
+		condoms: 0,
+		lube: 0,
+		condomsSold: 0,
+		lubeSold: 0,
+		weeksRent: 0,
+		weeksEmpty: 0,
+		total: 0,
+	};
+
+	for (const [key, fallback] of Object.entries(numericDefaults)) {
+		if (!Number.isFinite(V.brothelVending[key])) {
+			console.warn(`[brothelVending] Repaired invalid ${key}:`, V.brothelVending[key]);
+			V.brothelVending[key] = fallback;
+		}
+	}
+
+	V.brothelVending.products = Math.max(0, Math.floor(V.brothelVending.products));
+	V.brothelVending.condoms = Math.max(0, Math.floor(V.brothelVending.condoms));
+	V.brothelVending.lube = Math.max(0, Math.floor(V.brothelVending.lube));
+	V.brothelVending.condomsSold = Math.max(0, Math.floor(V.brothelVending.condomsSold));
+	V.brothelVending.lubeSold = Math.max(0, Math.floor(V.brothelVending.lubeSold));
+	V.brothelVending.weeksRent = Math.max(0, Math.floor(V.brothelVending.weeksRent));
+	V.brothelVending.weeksEmpty = Math.max(0, Math.floor(V.brothelVending.weeksEmpty));
+	V.brothelVending.total = Math.max(0, Math.floor(V.brothelVending.total));
+
+	V.brothelVending.condomsToRefill = Math.max(0, 200 - V.brothelVending.condoms);
+	V.brothelVending.lubeToRefill = Math.max(0, 200 - V.brothelVending.lube);
+
+	return true;
+}
+window.ensureBrothelVendingState = ensureBrothelVendingState;
+
+/* Daily speech-attitude roll for the "fickle" attitude.
+ * Called from dayPassed() in time.js. Exported on window for the call site. */
+function speechDailyCheck() {
+	if (V.statFreeze) return;
+
+	delete V.speechDailyMessage;
+	delete V.speechDailyMessagePending;
+
+	if (V.speech_attitude === "fickle") {
+		const pool = ["meek", "shy", "neutral", "confident", "bratty"];
+		V.speechDailyAttitude = pool[random(0, pool.length - 1)];
+		V.speechDailyAttitudeDay = Time.days;
+		V.speechDailyMessage = `Today you feel especially ${V.speechDailyAttitude}.`;
+		V.speechDailyMessagePending = 1;
+	} else {
+		delete V.speechDailyAttitude;
+		delete V.speechDailyAttitudeDay;
+	}
+}
+window.speechDailyCheck = speechDailyCheck;
+
+/* beautyBoost save-compat / expiry; relocated out of vanilla time.js's :passageinit handler.
+Runs on every passage as before, behavior identical. */
+$(document).on(":passageinit", () => {
+	/* Ensure beautyBoost object exists (save compatibility) */
+	V.beautyBoost ??= { bath: 0, teeth: 0, face: 0, hands: 0, hygiene: 0, tan: 0 };
+	if (V.beautyBoost.bath == null) V.beautyBoost.bath = 0;
+	if (V.beautyBoost.teeth == null) V.beautyBoost.teeth = 0;
+	if (V.beautyBoost.face == null) V.beautyBoost.face = 0;
+	if (V.beautyBoost.hands == null) V.beautyBoost.hands = 0;
+	if (V.beautyBoost.hygiene == null) V.beautyBoost.hygiene = 0;
+	if (V.beautyBoost.tan == null) V.beautyBoost.tan = 0;
+
+	if (V.beautyBoost.spa == null || typeof V.beautyBoost.spa === "number") {
+		V.beautyBoost.spa = {
+			amount: Number.isFinite(V.beautyBoost.spa) ? V.beautyBoost.spa : 0,
+			expires: 0,
+			treatment: "spa treatment",
+		};
+	}
+	if (typeof V.beautyBoost.spa !== "object") V.beautyBoost.spa = { amount: 0, expires: 0, treatment: "spa treatment" };
+	if (!Number.isFinite(V.beautyBoost.spa.amount)) V.beautyBoost.spa.amount = 0;
+	if (!Number.isFinite(V.beautyBoost.spa.expires)) V.beautyBoost.spa.expires = 0;
+	if (typeof V.beautyBoost.spa.treatment !== "string") V.beautyBoost.spa.treatment = "spa treatment";
+	if (V.beautyBoost.spa.amount > 0 && V.beautyBoost.spa.expires > 0 && Time.days > V.beautyBoost.spa.expires) {
+		V.beautyBoost.spa.amount = 0; V.beautyBoost.spa.expiredNotice = true;
+	}
+
+	/* Salon manicure boost, parallel slot to spa */
+	if (V.beautyBoost.nails == null || typeof V.beautyBoost.nails === "number") {
+		V.beautyBoost.nails = {
+			amount: Number.isFinite(V.beautyBoost.nails) ? V.beautyBoost.nails : 0,
+			expires: 0,
+			treatment: "salon manicure",
+		};
+	}
+	if (typeof V.beautyBoost.nails !== "object") V.beautyBoost.nails = { amount: 0, expires: 0, treatment: "salon manicure" };
+	if (!Number.isFinite(V.beautyBoost.nails.amount)) V.beautyBoost.nails.amount = 0;
+	if (!Number.isFinite(V.beautyBoost.nails.expires)) V.beautyBoost.nails.expires = 0;
+	if (typeof V.beautyBoost.nails.treatment !== "string") V.beautyBoost.nails.treatment = "salon manicure";
+	if (V.beautyBoost.nails.amount > 0 && V.beautyBoost.nails.expires > 0 && Time.days > V.beautyBoost.nails.expires) {
+		V.beautyBoost.nails.amount = 0; V.beautyBoost.nails.expiredNotice = true;
+	}
+});
