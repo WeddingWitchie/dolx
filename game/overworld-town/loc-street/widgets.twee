@@ -3677,6 +3677,43 @@
 			<</addinlineevent>>
 		<</if>>
 
+		/* Nail ambient events. Gated by <<playerNailsNoticeable>>: 
+		long nails (level 2+) or active manicure, and player isn't a cat-TF player.
+		Positive event up to 3/day at weight 0.8, negative up to 2/day at weight 0.5, the net social signal stays leaning rewarding. */
+		<<playerNailsNoticeable>>
+		<<if _nailsNoticeable and ($daily.nailCompliment is undefined or $daily.nailCompliment lt 3)>>
+			<<addinlineevent "streetNailCompliment" 0.8>>
+				<<set $daily.nailCompliment to ($daily.nailCompliment || 0) + 1>>
+				<<generatey1>><<person1>>
+				<<set _nailLines to [
+					`A <<person>> waiting at the crossing glances down, then double-takes at your hands. "Oh, sorry! Those nails... did you do them yourself?"<br><br><<He>> doesn't wait for an answer, just nods approvingly as the light changes.`,
+					`A <<person>> passing in the other direction slows for a moment. "Your nails," <<he>> says, almost to <<himself>>. "They actually look healthy. People don't take care like that anymore."<br><br><<He>> walks on before you can answer.`,
+					`A <<person>> sitting on a bench looks up as you pass and smiles. "Hands like a pianist," <<he>> says lightly.<br><br>The compliment is offhand enough that you can't tell if <<he>> means it, but you feel it anyway.`
+				]>>
+				<<print _nailLines[random(0, _nailLines.length - 1)]>>
+				<<control 2>><<gcontrol>>
+				<<stress -4>><<lstress>>
+				<<endevent>>
+				<<destinationeventend>>
+			<</addinlineevent>>
+		<</if>>
+
+		<<if _nailsNoticeable and ($daily.nailJudgement is undefined or $daily.nailJudgement lt 2)>>
+			<<addinlineevent "streetNailJudgement" 0.5>>
+				<<set $daily.nailJudgement to ($daily.nailJudgement || 0) + 1>>
+				<<generate1>><<person1>>
+				<<set _nailJudgeLines to [
+					`A <<person>> walking the other way clocks your hands and lets out a small huff. "Must be nice..." <<he>> says.<br><br><<He>> doesn't look back.`,
+					`Two <<personsimple>>s on a stoop watch you go past. "Look at those," one mutters to the other. "Who has time for that?"<br><br>The other one snorts. You pretend not to hear.`,
+					`A <<person>> at the bus stop glances at your nails, then at your face, then deliberately away.<br><br>The dismissal is quieter than a sneer but lands harder.`
+				]>>
+				<<print _nailJudgeLines[random(0, _nailJudgeLines.length - 1)]>>
+				<<stress 3>><<gstress>>
+				<<endevent>>
+				<<destinationeventend>>
+			<</addinlineevent>>
+		<</if>>
+
 		<<runeventpool>>
 	<</if>>
 

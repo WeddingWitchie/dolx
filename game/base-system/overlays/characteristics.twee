@@ -244,6 +244,8 @@
 		]
 	}>>
 	<<characteristic-text _hairTextConfig>>
+	<!--Nail Details-->
+	<<nailtext>>
 	<br><br>
 
 	<!--Pregnancy Details-->
@@ -1434,6 +1436,19 @@
 					<<set _seductionConfig.modTypes.good.pushUnique("lapine's celerity")>>
 				<</if>>
 			<</if>>
+
+			/* Long-nail hand-skill penalty. Modest at level 2 (long), substantial at level 3 (claw-like). */
+			<<playerHasClaws>>
+			<<if _hasClaws>>
+				/* Cat claws are retractable; no fine-motor penalty. */
+			<<elseif def $nailslevel and $nailslevel gte 3>>
+				<<set _handsConfig.modifier to Math.round(_handsConfig.modifier * 0.75)>>
+				<<set _handsConfig.modTypes.bad.pushUnique("long nails")>>
+			<<elseif def $nailslevel and $nailslevel gte 2>>
+				<<set _handsConfig.modifier to Math.round(_handsConfig.modifier * 0.9)>>
+				<<set _handsConfig.modTypes.bad.pushUnique("long nails")>>
+			<</if>>
+
 			<<if $options.statNerf lt 100>>
 				<<set _seductionConfig.modifier to Math.round(_seductionConfig.modifier * ($options.statNerf / 100))>>
 				<<set _seductionConfig.modTypes.bad.pushUnique("stat nerf")>>

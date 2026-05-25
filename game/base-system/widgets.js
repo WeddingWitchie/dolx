@@ -647,6 +647,13 @@ function calculateallure() {
 	for (const makeup of ["lipstick", "mascara", "eyeshadow", "blusher"]) {
 		if (V.makeup[makeup]) attractiveness += 100;
 	}
+	/* long nails; a "groomed" signal, modest boost.
+	   Cat-TF exemption: cat players' claws are retractable and sheathed during normal social contact, so the long-nail visual signal isn't on display.
+	   The cat TF gets its own attractiveness from cat ears/tail above. */
+	const playerHasCatClaws = V.cat >= 6 || (V.transformationParts.cat.tail !== "hidden" && V.transformationParts.cat.tail !== "disabled");
+	if (!playerHasCatClaws && V.nailslevel >= 2) {
+		attractiveness += V.nailslevel >= 3 ? 150 : 75;
+	}
 	V.attractiveness = Math.floor(attractiveness);
 
 	/* allure calcs */

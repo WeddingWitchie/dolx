@@ -1,0 +1,160 @@
+:: Nail Trim
+<<effects>>
+<<set _exit to $bathroomExit or "Bathroom">>
+<<if $leftarm is "bound" and $rightarm is "bound">>
+	<span class="red">Both of your arms are bound</span>, and you can't get hold of the clippers.
+	<br><br>
+	<<link [[Next|_exit]]>><<endevent>><<canvas-model-override "clear">><<run delete $bathroomExit>><</link>>
+	<<exitAll>>
+<<elseif $leftarm is "bound" or $rightarm is "bound">>
+	<span class="red">One of your arms is bound</span>, and you can't manage the clippers with just one free hand.
+	<br><br>
+	<<link [[Next|_exit]]>><<endevent>><<canvas-model-override "clear">><<run delete $bathroomExit>><</link>>
+	<<exitAll>>
+<</if>>
+<<if ($nailsgrowth ?? 0) lt 3>>
+	Your fingernails are already short, there's nothing to trim.
+<<else>>
+	<<if $nailsgrowth gte 14>>
+		You fetch the clippers from the cabinet and work down each finger. The crescents you'd been growing fall away in dry slivers, leaving your nails blunt and short again. You file the rough corners smooth before stepping back from the basin.
+	<<elseif $nailsgrowth gte 7>>
+		You fetch the clippers from the cabinet and even out each fingernail, taking the white tips down close to the quick. You file the corners smooth. Your hands look neat again.
+	<<else>>
+		You fetch the clippers and snip off the soft edges of each fingernail, tidying the few that had started to catch on things.
+	<</if>>
+	<<set $nailsgrowth to 0>>
+	<<set $nailslevel to 0>>
+	<<wash_hands>>
+<</if>>
+<br><br>
+<<link [[Next|_exit]]>><<endevent>><<canvas-model-override "clear">><<run delete $bathroomExit>><</link>>
+
+
+:: Widgets Nails [widget]
+<<widget "nailtext">><<nobr>>
+	<<if ($cat gte 6 or ($transformationParts.cat.tail isnot "hidden" and $transformationParts.cat.tail isnot "disabled"))>>
+		Your fingertips look ordinary, though you can feel sharp claws sheathed beneath the pads, ready to extend at your will.
+	<<elseif def $nailslevel and $nailslevel gte 3>>
+		Your fingernails have grown into hard, sharp points — long enough to leave marks when you scratch.
+	<<elseif def $nailslevel and $nailslevel gte 2>>
+		Your fingernails have grown long, the tips arching past your fingertips.
+	<<elseif def $nailslevel and $nailslevel gte 1>>
+		Your fingernails are kept neat, with a slim white edge to each one.
+	<<else>>
+		Your fingernails are short and neatly trimmed.
+	<</if>>
+<</nobr>><</widget>>
+
+<<widget "playerHasClaws">>
+	<<set _hasClaws to ($cat gte 6 or ($transformationParts.cat.tail isnot "hidden" and $transformationParts.cat.tail isnot "disabled"))>>
+<</widget>>
+
+<<widget "playerNailsNoticeable">>
+	<<playerHasClaws>>
+	<<set _nailsNoticeable to (
+		!_hasClaws and (
+			(def $nailslevel and $nailslevel gte 2)
+			or ($beautyBoost and $beautyBoost.nails and $beautyBoost.nails.amount > 0)
+		)
+	)>>
+<</widget>>
+
+<<widget "actionsscratch">>
+	<<playerHasClaws>>
+	<<if _hasClaws or (def $nailslevel and $nailslevel gte 3)>>
+		<<set _hand to "claws">>
+	<<else>>
+		<<set _hand to "nails">>
+	<</if>>
+	<<if _args[0] is "both">>
+		<<set $_target to $lefttarget>>
+	<<else>>
+		<<if _args[0] isnot undefined>>
+			<<set $_target to _args[0]>>
+		<<else>>
+			<<set $_target to 0>>
+		<</if>>
+	<</if>>
+	<<if $combatExtended.enemyDodgeSuccess gte 1 or $combatExtended.enemyCounterSuccess gte 1>>
+		<<if $enemytype is "beast">>
+			<<if $pain lte 20>>
+				<<= either(
+					"You try to rake your _hand across the <<beasttype>> but they",
+					"You swipe at the <<beasttype>> with your _hand but they"
+				)>>
+			<<elseif $pain lte 60>>
+				<<= either(
+					"You fight through pain and try to rake the <<beasttype>> with your _hand but they",
+					"Gritting through the pain, you slash at the <<beasttype>> with your _hand but they"
+				)>>
+			<<else>>
+				<<= either(
+					"Pained and terrified, you claw wildly at the <<beasttype>> but they",
+					"Panicked and hurting, you lash out with your _hand but they"
+				)>>
+			<</if>>
+		<<else>>
+			<<if $pain lte 20>>
+				<<= either(
+					"You try to rake <<someone $_target>> with your _hand but they",
+					"You swipe at <<someone $_target>> with your _hand but they"
+				)>>
+			<<elseif $pain lte 60>>
+				<<= either(
+					"You fight through the pain and try to rake at <<someone $_target>> with your _hand but they",
+					"Forcing yourself through the pain, you slash at <<someone $_target>> with your _hand but they"
+				)>>
+			<<else>>
+				<<= either(
+					"Pained and terrified, you claw wildly in self-defence but they",
+					"Scared and hurting, you lash out with your _hand in self-defence but they"
+				)>>
+			<</if>>
+		<</if>>
+		<<if $combatExtended.enemyCounterSuccess is 2>>
+			<span class="red">counter</span>
+		<<elseif $combatExtended.enemyDodgeSuccess is 2>>
+			<span class="red">dodge</span>
+		<<elseif $combatExtended.enemyCounterSuccess is 1>>
+			<span class="red">partially counter</span>
+		<<else>>
+			<span class="blue">partially dodge</span>
+		<</if>>.
+	<<else>>
+		<<if $enemytype is "beast">>
+			<<if $pain lte 20>>
+				<<= either(
+					"You rake your _hand across the <<beasttype>>.",
+					"You swipe at the <<beasttype>> with your _hand."
+				)>>
+			<<elseif $pain lte 60>>
+				<<= either(
+					"You fight through pain and rake the <<beasttype>> with your _hand.",
+					"You grit through the pain and slash at the <<beasttype>> with your _hand."
+				)>>
+			<<else>>
+				<<= either(
+					"Pained and terrified, you claw wildly at the <<beasttype>>.",
+					"Panicked, you thrash at the <<beasttype>> with your _hand."
+				)>>
+			<</if>>
+		<<else>>
+			<<if $pain lte 20>>
+				<<= either(
+					"You rake <<someone $_target>> with your _hand, leaving red lines where they pass.",
+					"You swipe at <<someone $_target>> with your _hand."
+				)>>
+			<<elseif $pain lte 60>>
+				<<= either(
+					"You fight through the pain and rake <<someone $_target>> with your _hand.",
+					"Through the pain, you slash at <<someone $_target>> with your _hand."
+				)>>
+			<<else>>
+				<<= either(
+					"Pained and terrified, you claw wildly in self-defence.",
+					"In a panic, you lash out with your _hand."
+				)>>
+			<</if>>
+		<</if>>
+	<</if>>
+<</widget>>

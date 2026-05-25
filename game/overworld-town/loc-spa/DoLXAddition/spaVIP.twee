@@ -89,11 +89,16 @@ The receptionist takes a slim folder, a fountain pen, and a card stamped with th
 		<span class="gold">Private beauty care</span><br>
 		• Pearl body polish and lymphatic massage: <<printmoney 2500000>><br>
 		• White caviar and 24-carat gold immersion: <<printmoney 15000000>><br>
-		• Diamond caviar renewal programme: <<printmoney 100000000>>
+		• Diamond caviar renewal programme: <<printmoney 100000000>><br>
+		• Signature manicure: <<printmoney 1250000>>
 	</div>
 	<br>
 	<<if $beautyBoost and $beautyBoost.spa and $beautyBoost.spa.amount > 0 and getSpaBeautyBoost() > 0>>
 		<i>Your current private treatment is <<print $beautyBoost.spa.treatment>>, lasting until day <<print $beautyBoost.spa.expires>>.</i>
+		<br><br>
+	<</if>>
+	<<if $beautyBoost and $beautyBoost.nails and $beautyBoost.nails.amount > 0>>
+		<i>Your nails are finished with the <<print $beautyBoost.nails.treatment>>, lasting until day <<print $beautyBoost.nails.expires>>.</i>
 		<br><br>
 	<</if>>
 	<<if $money >= 2500000>>
@@ -112,6 +117,12 @@ The receptionist takes a slim folder, a fountain pen, and a card stamped with th
 		<<spaicon "massage">><<link [[Book the diamond caviar renewal programme (4:00)|Spa Beauty Diamond Arrive]]>><<money -100000000 "spa">><</link>>
 	<<else>>
 		<<spaicon "massage">><span class="blue">You cannot afford the diamond caviar renewal programme.</span>
+	<</if>>
+	<br>
+	<<if $money >= 1250000>>
+		<<spaicon "massage">><<link [[Book the signature manicure (0:45)|Spa Beauty Manicure Arrive]]>><<money -1250000 "spa">><</link>>
+	<<else>>
+		<<spaicon "massage">><span class="blue">You cannot afford the signature manicure.</span>
 	<</if>>
 	<br>
 	<<if $money >= 3000000>>
@@ -244,6 +255,40 @@ The difference is immediate and unsettling. Not because you look like a differen
 The coordinator then walks you back to the foyer in silence. The receptionist looks up as you pass, then looks again. For a second, even <<he>> forgets to be professional.<<lstress>><<ltiredness>><<ltrauma>><<stress -18>><<tiredness -16>><<trauma -6>>
 <br><br>
 <<link [[Return to the foyer|Spa]]>><<pass 70>><<clotheson>><<endevent>><</link>>
+
+:: Spa Beauty Manicure Arrive
+<<effects>><<generate1>><<person1>>
+A <<person>> in a linen apron meets you in the private wing and leads you to a small parlour off the main corridor. The room smells faintly of orange-blossom oil and warm beeswax. A low chair sits beside a slim marble table; the surface holds a row of small ceramic dishes, a soft towel rolled to one side, and a tray of buffers and clippers arranged.
+<br><br>
+"Please make yourself comfortable," <<he>> says, gesturing to the chair. "Warm water and salts first, then we shape and finish."
+<br><br>
+You settle in. <<He>> wheels over a small copper basin of steaming water and sets it before you, then dips both your hands into it. The heat works its way up your wrists.
+<br><br>
+<<link [[Let the warm soak do its work|Spa Beauty Manicure Treatment]]>><<pass 10>><</link>>
+
+:: Spa Beauty Manicure Treatment
+<<effects>><<handsstrip>><<handheldstrip>>
+The <<person>> lifts your hands from the water one at a time, pats them dry, and begins. <<He>> works methodically with pushing back cuticles, easing the rough skin from around each nail, then shaping every tip with a fine glass file.
+<br><br>
+When the shape is right, <<he>> reaches for the buffer. The white edges of your nails brighten; the surface of each nail takes on a clean, smooth sheen. <<He>> finishes with a thin layer of clear lacquer that catches the light without colouring it. The effect is subtle. You wouldn't notice it on a stranger. You will notice it on yourself.
+<br><br>
+"A glass of water?" <<he>> asks, already pouring one. While the lacquer sets, <<he>> works a drop of warm oil into the skin of your knuckles and the backs of your hands. The oil smells faintly of almond.
+<br><br>
+<<link [[Examine the finished work|Spa Beauty Manicure Finish]]>><<pass 25>><</link>>
+
+:: Spa Beauty Manicure Finish
+<<effects>>
+<<run V.beautyBoost = V.beautyBoost || {}; V.beautyBoost.nails = { amount: 2800, expires: Time.days + 30, treatment: "signature manicure" }; delete V.beautyBoost._nailsShown>>
+/* The manicure shapes the nails to a clean, even neat length and resets the growth clock. 
+$nailsgrowth = 3 puts the player at the bottom of level 1, so they enjoy ~4 days of "neat" before drifting into "long", long enough to actually feel the manicure aesthetic while it matches their nail state. */
+<<set $nailsgrowth to 3>><<set $nailslevel to 1>>
+The <<person>> holds your hands palm-down on the towel and lets you look. The shape across all ten nails is perfectly even. The cuticles are clean. The surface of each nail catches the light like polished horn. Even the skin around them looks softer than it did half an hour ago.
+<br><br>
+"This will hold its appearance for about a month, with normal care," <<he>> says. "If you would like to return for a refresh, the receptionist can book you."
+<br><br>
+You flex your fingers. Even small movements feel a little different.<<lstress>><<stress -4>>
+<br><br>
+<<link [[Return to the foyer|Spa]]>><<pass 10>><<clotheson>><<endevent>><</link>>
 
 :: Spa Private Masseur
 <<endevent>><<effects>><<generatey1>><<person1>>

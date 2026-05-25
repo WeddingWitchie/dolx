@@ -508,6 +508,22 @@ $(document).on(":passageinit", () => {
 	if (V.beautyBoost.spa.amount > 0 && V.beautyBoost.spa.expires > 0 && Time.days > V.beautyBoost.spa.expires) {
 		V.beautyBoost.spa.amount = 0; V.beautyBoost.spa.expiredNotice = true;
 	}
+
+	/* Salon manicure boost, parallel slot to spa */
+	if (V.beautyBoost.nails == null || typeof V.beautyBoost.nails === "number") {
+		V.beautyBoost.nails = {
+			amount: Number.isFinite(V.beautyBoost.nails) ? V.beautyBoost.nails : 0,
+			expires: 0,
+			treatment: "salon manicure",
+		};
+	}
+	if (typeof V.beautyBoost.nails !== "object") V.beautyBoost.nails = { amount: 0, expires: 0, treatment: "salon manicure" };
+	if (!Number.isFinite(V.beautyBoost.nails.amount)) V.beautyBoost.nails.amount = 0;
+	if (!Number.isFinite(V.beautyBoost.nails.expires)) V.beautyBoost.nails.expires = 0;
+	if (typeof V.beautyBoost.nails.treatment !== "string") V.beautyBoost.nails.treatment = "salon manicure";
+	if (V.beautyBoost.nails.amount > 0 && V.beautyBoost.nails.expires > 0 && Time.days > V.beautyBoost.nails.expires) {
+		V.beautyBoost.nails.amount = 0; V.beautyBoost.nails.expiredNotice = true;
+	}
 });
 
 /* Local functions */
@@ -2027,6 +2043,19 @@ function dailyPlayerEffects() {
 	V.hairlength += 3 * genderFactor;
 	V.fringelength += 3 * genderFactor;
 	calchairlengthstage();
+
+	/* Fingernail growth.
+	   V.nailsgrowth — raw day counter since last trim (0 = freshly cut).
+	   V.nailslevel — derived display/gameplay stage, read by other systems:
+	       0 = freshly trimmed / short
+	       1 = neat / normal
+	       2 = long
+	       3 = very long, "claws" */
+	V.nailsgrowth = (V.nailsgrowth ?? 0) + 1;
+	if (V.nailsgrowth >= 14) V.nailslevel = 3;
+	else if (V.nailsgrowth >= 7) V.nailslevel = 2;
+	else if (V.nailsgrowth >= 3) V.nailslevel = 1;
+	else V.nailslevel = 0;
 	
 	// statChange.skill("beauty", (100 - (V.trauma / V.traumamax) * 100) * V.beautyMult);
 	// if (V.stressBeauty == 1) statChange.skill("beauty", (100 - (V.stress / V.stressmax) * 100) * V.beautyMult);
