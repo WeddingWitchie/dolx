@@ -433,14 +433,14 @@
 <</widget>>
 
 <<widget "bikeEvents">><<set $bikeEventHappened to 0>><<set $bikeDangerHappened to 0>><<set $bikeJourneyInterrupted to 0>>
-	<<set _bikeEventStart to $bikeStart>>
+<<set _bikeEventStart to $bikeStart>>
 	<<if _bikeEventStart is "alex_farm">><<set _bikeEventStart to "farm">><</if>>
 	<<set _bikeNormalEventChance to 65>>
 	<<if _bikeEventStart is "lake">><<set _bikeNormalEventChance to 75>><</if>>
 	<<if _bikeEventStart is "farm">><<set _bikeNormalEventChance to 70>><</if>>
 	<<set _bikeWeatherType to Weather.type || Weather.weatherType || Weather.weather || Weather.state || Weather.condition || Weather.name || "">>
-	<<set _bikeIsThunderStorm to _bikeWeatherType is "thunderStorm" or _bikeWeatherType is "thunderstorm" or Weather.thunder is true or Weather.isThunder is true or Weather.isThunderstorm is true or Weather.isThunderStorm is true>>
-	<<set _bikeIsStorm to _bikeIsThunderStorm or _bikeWeatherType is "storm" or Weather.storm is true or Weather.isStorm is true>>
+	<<set _bikeIsthunderstorm to _bikeWeatherType is "thunderstorm" or Weather.thunder is true or Weather.isThunder is true or Weather.isthunderstorm is true>>
+	<<set _bikeIsStorm to _bikeIsthunderstorm or _bikeWeatherType is "storm" or Weather.storm is true or Weather.isStorm is true>>
 	<<set _bikeIsRain to Weather.precipitation is "rain">>
 	<<set _bikeIsSnow to Weather.precipitation is "snow" or Weather.isSnow is true>>
 	<<set _bikeIsHeavyPrecipitation to _bikeWeatherType is "heavyPrecipitation" or (typeof Weather.precipitationIntensity is "number" and Weather.precipitationIntensity gte 0.5)>>
@@ -449,13 +449,13 @@
 	<<if _bikeIsRain or _bikeIsSnow>><<set _bikeNormalEventChance += 15>><</if>>
 	<<if _bikeIsStorm>><<set _bikeNormalEventChance += 15>><</if>>
 	<<if Weather.dayState is "night" or Weather.dayState is "bloodMoon">><<set _bikeNormalEventChance += 10>><</if>>
-	<<if _bikeNormalEventChance gt 90>><<set _bikeNormalEventChance to 90>><</if>>
+	<<set _bikeNormalEventChance to Math.min(_bikeNormalEventChance, 90)>>
 
 	<<switch _bikeEventStart>>
 		<<case "lake">>
 			<<switch Weather.dayState>>
 				<<case "bloodMoon">>
-					<<if _bikeIsThunderStorm>>
+					<<if _bikeIsthunderstorm>>
 						Thunder rolls through the forest as the blood moon stains the path red before your bike light finds them.
 					<<elseif _bikeIsStorm>>
 						The forest bends beneath the storm, branches scraping above while the blood moon leaks through the canopy.
@@ -471,7 +471,7 @@
 						Heavy clouds swallow most of the blood moon's light, leaving the forest path dark beneath your bike lamp.
 					<</if>>
 				<<case "night">>
-					<<if _bikeIsThunderStorm>>
+					<<if _bikeIsthunderstorm>>
 						Thunder shows the path in harsh flashes while rain and wind make the ride tense.
 					<<elseif _bikeIsStorm>>
 						A storm shakes the trees overhead, scattering leaves across the path as you fight to keep the bike steady.
@@ -495,7 +495,7 @@
 						Thick clouds blanket the sky, making the night even darker as your bike light struggles to illuminate the path ahead.
 					<</if>>
 				<<case "dusk">>
-					<<if _bikeIsThunderStorm>>
+					<<if _bikeIsthunderstorm>>
 						Thunder grumbles through the orange dusk, and every flash turns the wet forest path white for an instant.
 					<<elseif _bikeIsStorm>>
 						The dusk darkens under a rough storm, wind tugging at the trees as you guide your bike along the forest path.
@@ -519,7 +519,7 @@
 						Heavy clouds gather overhead, darkening the forest road as the light fades.
 					<</if>>
 				<<case "dawn">>
-					<<if _bikeIsThunderStorm>>
+					<<if _bikeIsthunderstorm>>
 						Thunder rolls through the pale dawn, the storm turning the forest road into a flashing track.
 					<<elseif _bikeIsStorm>>
 						A rough storm greets the dawn, shaking water from the trees as you pedal through the forest.
@@ -543,7 +543,7 @@
 						The sky is thick with clouds, turning the morning grey as you pedal forward through the forest.
 					<</if>>
 				<<default>>
-					<<if _bikeIsThunderStorm>>
+					<<if _bikeIsthunderstorm>>
 						Lightning brightens the clouds above the forest, and thunder follows as you keep your wheels on the wet path.
 					<<elseif _bikeIsStorm>>
 						A storm churns above the forest, throwing wind and loose leaves across the road as you continue your journey.
@@ -648,7 +648,7 @@
 		<<case "domus" "barb" "danube" "connudatus" "wolf" "high" "cliff" "nightingale" "starfish" "oxford" "elk" "mer" "harvest">>
 			<<switch Weather.dayState>>
 				<<case "bloodMoon">>
-					<<if _bikeIsThunderStorm>>
+					<<if _bikeIsthunderstorm>>
 						Lightning splits the blood-red sky above the town, flashing over wet tarmac and shuttered windows as you ride.
 					<<elseif _bikeIsStorm>>
 						The blood moon glows through racing storm clouds, turning the streets strange beneath your wheels.
@@ -664,7 +664,7 @@
 						Heavy clouds hide most of the blood moon, leaving only a dull red stain over the town.
 					<</if>>
 				<<case "night">>
-					<<if _bikeIsThunderStorm>>
+					<<if _bikeIsthunderstorm>>
 						Thunder shakes the streets, lightning flashing against shop windows while water runs fast through the gutters.
 					<<elseif _bikeIsStorm>>
 						A storm presses down over the town, wind dragging rubbish across the road as you fight the handlebars.
@@ -688,7 +688,7 @@
 						Thick clouds blanket the sky, blocking out any natural light as your bike light on the road ahead.
 					<</if>>
 				<<case "dusk">>
-					<<if _bikeIsThunderStorm>>
+					<<if _bikeIsthunderstorm>>
 						Thunderheads swallow the last orange light, and the town flashes bright whenever lightning forks above the roofs.
 					<<elseif _bikeIsStorm>>
 						Storm clouds roll over the town at dusk, pushing cold wind down the streets as you ride.
@@ -712,7 +712,7 @@
 						Dark clouds gather, creating an overcast sky that hides the last rays of daylight as you navigate the town streets.
 					<</if>>
 				<<case "dawn">>
-					<<if _bikeIsThunderStorm>>
+					<<if _bikeIsthunderstorm>>
 						The storm turning the dawn streets bright with sudden lightning.
 					<<elseif _bikeIsStorm>>
 						A storm roughens the dawn as you pedal on.
@@ -736,7 +736,7 @@
 						A layer of clouds turns the sky grey as you ride through the early morning.
 					<</if>>
 				<<default>>
-					<<if _bikeIsThunderStorm>>
+					<<if _bikeIsthunderstorm>>
 						Lightning brightens the clouds above town that follows you along the wet road.
 					<<elseif _bikeIsStorm>>
 						A storm clasps over the town as you continue your journey.
@@ -835,7 +835,7 @@
 		<<case "farm">>
 			<<switch Weather.dayState>>
 				<<case "bloodMoon">>
-					<<if _bikeIsThunderStorm>>
+					<<if _bikeIsthunderstorm>>
 						Lightning tears across the blood-red sky above the fields as you ride.
 					<<elseif _bikeIsStorm>>
 						The blood moon glows behind storm clouds over the open land as you ride.
@@ -851,7 +851,7 @@
 						Heavy clouds dull the blood moon as you ride.
 					<</if>>
 				<<case "night">>
-					<<if _bikeIsThunderStorm>>
+					<<if _bikeIsthunderstorm>>
 						Thunder clasps over the fields as you ride.
 					<<elseif _bikeIsStorm>>
 						A storm sweeps over the farmlands, shoving at your bike.
@@ -875,7 +875,7 @@
 						Thick clouds obscure the night sky, making it even darker as your bike light the rural road.
 					<</if>>
 				<<case "dusk">>
-					<<if _bikeIsThunderStorm>>
+					<<if _bikeIsthunderstorm>>
 						Thunderheads darken the sky, lightning flashing over the fields as you pedal through the wind.
 					<<elseif _bikeIsStorm>>
 						A storm rolls over the fields at dusk as you ride.
@@ -899,7 +899,7 @@
 						Low clouds gather above, dimming the sky as night approaches over the farmlands.
 					<</if>>
 				<<case "dawn">>
-					<<if _bikeIsThunderStorm>>
+					<<if _bikeIsthunderstorm>>
 						Thunder rolls across the waking fields as you ride.
 					<<elseif _bikeIsStorm>>
 						A storm hangs over the dawn fields as you ride through the morning.
@@ -923,7 +923,7 @@
 						Overcast clouds cover the morning sky as you ride through the farmlands.
 					<</if>>
 				<<default>>
-					<<if _bikeIsThunderStorm>>
+					<<if _bikeIsthunderstorm>>
 						Lightning brightens the open sky above the farmlands, thunder following across the fields as you ride.
 					<<elseif _bikeIsStorm>>
 						A storm clasps across the countryside, pushing against you on the rural road.
