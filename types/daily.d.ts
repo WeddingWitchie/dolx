@@ -12,6 +12,13 @@ declare module "twine-sugarcube" {
 			graceUp: boolean;
 		};
 	}
+
+	interface SugarCubeSetupObject {
+		penetratedPain: () => void;
+		painChangeByTime: (currentPain: number) => number;
+		tirednessChangeByPain: (currentPain: number) => number;
+		escapeAmount: () => number;
+	}
 }
 
 export {};

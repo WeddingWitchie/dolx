@@ -648,11 +648,91 @@ if (!V.npcOrgasmState || typeof V.npcOrgasmState !== "object" || Array.isArray(V
 	V.npcOrgasmState = {};
 }
 
+(() => {
+	// Ensure setup exists (defensive; other blocks in this file already do this)
+	if (typeof window.setup !== "object" || window.setup === null) window.setup = {};
+	// Internal helper, closure-scoped (not used outside this block).
+	const stateInvalid = (...states) => states.some((state) => state === undefined);
+
+	// Pain multiplier per bodysize step. 
+	// Keyed by VALUE, not array index, so it stays aligned with setup.bodySizeSteps = [-1, 0, 1, 2, 2.5, 3, 4].
+	// The old [2, 1, 0.5, 0] array silently returned undefined for bodysize -1, 2.5, and 4, which the `|| 0` then swallowed into zero pain.
+	// Adjust the -1 / 2.5 / 4 entries if the game-design intent differs.
+	const BODY_SIZE_PAIN_MODIFIER = new Map([
+		[-1,  3],     // very small frame: extra pain
+		[0,   2],
+		[1,   1],
+		[2,   0.5],
+		[2.5, 0.25],  // between 2 and 3
+		[3,   0],
+		[4,   0],     // very large frame: no extra pain
+	]);
+
+	// Increase pain based on penetration states every turn in combat.
+	setup.penetratedPain = function penetratedPain() {
+		if (stateInvalid(V.vaginastate, V.anusstate, V.mouthstate, V.bodysize)) return;
+
+		const painStates = {
+			penetrated: 1.5,
+			doublepenetrated: 4,
+			tentacle: 1.5,
+			tentacledeep: 3,
+		};
+
+		let pain = 0;
+		for (const state of [V.vaginastate, V.anusstate]) {
+			if (state in painStates) pain += painStates[state];
+		}
+		if (V.mouthstate in painStates) pain += painStates[V.mouthstate] * 0.5;
+
+		const modifier = BODY_SIZE_PAIN_MODIFIER.get(V.bodysize) ?? 0;
+		statChange.pain(pain * modifier);
+	};
+
+	// Per-minute pain decay rate. 
+	// Used as the `modifier` arg to statChange.pain from time.js, so this returns a negative number (pain decreases over time).
+	// Floor of 0.02 ensures pain always decays at least slowly, even at very high pain.
+	setup.painChangeByTime = function painChangeByTime(currentPain) {
+		return -Math.max(0.39 * Math.exp(-0.0195 * currentPain), 0.02);
+	};
+
+	// Multiplier on tiredness gain due to pain. 
+	// Used as a per-tick multiplier in stat-changes.js, where the fallback when this is missing is 1.
+	// Floor of 1 is intentional: pain only ever amplifies tiredness gain, never reduces it.
+	setup.tirednessChangeByPain = function tirednessChangeByPain(currentPain) {
+		return Math.max(0.00181 * Math.pow(currentPain, 1.45), 1);
+	};
+
+	// Multiplier on badend escape amount. Lower = harder to escape.
+	// Note: V.pain is clamped to [0, 200] by painClamp(), within which the painModifier quartic stays in roughly [0.05, 1].
+	// If the pain cap is ever raised above ~440, wrap the polynomial in Math.clamp(..., 0, 1) to prevent negative values from flipping the multiplier sign.
+	setup.escapeAmount = function escapeAmount() {
+		if (stateInvalid(V.pain, V.tiredness)) return 1;
+		const currentPain = V.pain;
+		const currentTiredness = V.tiredness;
+		const tirednessModifier = Math.min(
+			-0.0000001 * currentTiredness * currentTiredness
+				- 0.0002 * currentTiredness
+				+ 1,
+			1
+		);
+		const painModifier = Math.min(
+			-0.000000001 * currentPain ** 4
+				+ 0.0000007  * currentPain ** 3
+				- 0.0001275  * currentPain ** 2
+				+ 0.00075    * currentPain
+				+ 1,
+			1
+		);
+		return painModifier * tirednessModifier;
+	};
+})();
+
 // ==================================================
 // MOVED FROM time.js to keeps vanilla time.js untouched
 // ==================================================
-/* Brothel vending state repair / defaults.
- * Called from time.js (weekPassed, dayPassed, etc.). Exported on window so those call sites continue to resolve after the move. */
+/* Brothel vending state repair / defaults. Called from time.js (weekPassed, dayPassed, etc.). 
+	Exported on window so those call sites continue to resolve after the move. */
 function ensureBrothelVendingState() {
 	if (V.brothelVending == null) return false;
 

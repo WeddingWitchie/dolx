@@ -516,9 +516,9 @@ const statChange = (() => {
 		}
 		if (amount) {
 			if (V.athleticsFitnessToggle === 1) {
-				V.tiredness += Math.round(amount * Weather.BodyTemperature.fatigueModifier * (amount > 0 ? 15 : 20) * (1 - (V.athletics * 5) / 40000));
+				V.tiredness += Math.round(amount * Weather.BodyTemperature.fatigueModifier * (amount > 0 ? 15 : 20) * (1 - (V.athletics * 5) / 40000) * (setup.tirednessChangeByPain && amount > 0 ? setup.tirednessChangeByPain(V.pain) : 1));
 			} else {
-				V.tiredness += Math.round(amount * Weather.BodyTemperature.fatigueModifier * (amount > 0 ? 15 : 20));
+				V.tiredness += Math.round(amount * Weather.BodyTemperature.fatigueModifier * (amount > 0 ? 15 : 20) * (setup.tirednessChangeByPain && amount > 0 ? setup.tirednessChangeByPain(V.pain) : 1));
 			}
 		}
 

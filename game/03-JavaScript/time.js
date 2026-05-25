@@ -1397,7 +1397,7 @@ function minutePassed(minutes) {
 	}
 	// prevent fatigue from being an issue when passing days (actually 20+ hours) at a time
 	if (minutes < 1200 && V.timeSkip === undefined) statChange.tiredness(minutes / 15);
-	statChange.pain(minutes, -1);
+	statChange.pain(minutes, setup.painChangeByTime ? setup.painChangeByTime(V.pain) : -1);
 
 	// Arousal
 	const risk = playerPregnancyRisk();
