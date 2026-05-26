@@ -2797,6 +2797,15 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Discoveries-Other"],
 	},
+	"Stroke of Luck": {
+		title: "Stroke of Luck",
+		desc: "You found a four-leaf clover.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Discoveries-Other"],
+		hidden: true,
+		hint: "Hint: Even nature favours the lucky.",
+	},
 	"Dumb Bitch": {
 		title: "Dumb Bitch",
 		desc: "Totally fried your brain with orgasms.",

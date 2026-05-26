@@ -102,14 +102,27 @@ You search for plants long and sturdy enough to build an improvised garment. You
 :: Meadow Clover
 <<effects>>
 
-<<if $rng gte 60>> You had no luck finding a clover patch but the walk was relaxing.
-    <<stress -1>>
-    <br><br>
-    <<link [[Next|Meadow]]>><</link>>
-<<else>> You managed to find a clover patch. You spent some time combing through trying to find a four leaf clover, but no luck.
-    <<transform bunny 1>>
-    <br><br>
-    <<link [[Next|Meadow]]>><</link>>
+<<if $rng gte 60>>
+	You had no luck finding a clover patch but the walk was relaxing.
+	<<stress -3>><<lstress>>
+	<br><br>
+	<<link [[Next|Meadow]]>><</link>>
+<<else>>
+	<<set _tendingBonus to Math.floor(currentSkillValue('tending') / 200)>>
+	<<set _min to 1 + _tendingBonus>><<set _max to 3 + _tendingBonus * 2>>
+	You managed to find a clover patch. You spend some time combing through it, picking <<foodstufficon "clover">> three-leaf clovers as you search for something rarer.
+	<<tending_pick clover _min _max>><<transform bunny 1>>
+	<br><br>
+
+	<<if random(1, 100) lte 5>>
+		<span class="pulse-glow pulse-soft-green">Just as you're about to leave, a <<foodstufficon "four_leaf_clover">> four-leaf clover catches your eye.</span> Lucky.
+		<<tending_pick four_leaf_clover 1 1>><<earnFeat "Stroke of Luck">><<trauma -3>><<ltrauma>>
+		<br><br>
+	<<else>>
+		You couldn't find a four-leaf clover, though.
+		<br><br>
+	<</if>>
+	<<link [[Next|Meadow]]>><</link>>
 <</if>>
 
 :: Meadow Relax Slime Defy

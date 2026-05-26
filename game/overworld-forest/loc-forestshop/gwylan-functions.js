@@ -662,10 +662,10 @@ function gwylanRequestIngredients() {
 		{ key: "white_wine", difficulty: 1 },
 		{ key: "wild_honeycomb", difficulty: 3 },
 		{ key: "wolfshroom", difficulty: 1 },
-		// Note: X-Change's rare plants (ghost_orchid, hen_of_the_woods, red_helleborine, lady_orchid,
-		// fly_agaric, spiked_rampion, cloudberry, scottish_bog_myrtle, bog_orchid, marsh_saxifrage)
-		// are intentionally excluded - X-Change's pre-refactor code had them in `blockedItems` for the
-		// same reason. Add them here only if you want Gwylan to start requesting them.
+		{ key: "clover", difficulty: 1 },
+		// Note: 
+		// Rare plants (ghost_orchid, hen_of_the_woods, red_helleborine, lady_orchid, fly_agaric, spiked_rampion, cloudberry, scottish_bog_myrtle, bog_orchid, marsh_saxifrage) are intentionally excluded
+		// Add them here only if anyone want Gwylan to start requesting them.
 	];
 	const requiresSeeds = ["carnation", "daisy", "lotus", "plumeria", "poppy", "strange_flower", "white_rose"]; // items that can only be asked for if the player has their seeds due to remote location or no wild harvest
 
