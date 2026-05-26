@@ -1368,33 +1368,82 @@ function minutePassed(minutes) {
 
 	// Effects
 	V.stress = Math.min(V.stress, V.stressmax);
-	if (V.substanceRebalance === 1) {
-		if (V.drunk > 0) {
-			// use fancy math to ensure that `pass(60);` and `pass(30);pass(30);` apply the same amount of tiredness regardless of changed V.drunk value
-			const sum = (from, to) => ((from - to) * (from + to + 1)) / 2;
-			const drunkMod = sum(V.drunk, Math.max(V.drunk - minutes, 0));
-			// warning: assumes 1:1 negative alcohol changes, true as of yet
-			statChange.alcohol(-minutes * (1000 / (30 * 60)));
-			// V.drunk ranging from 0 to 1000, 1 minute at 1000 will add extra 1.25 of tiredness (2.25x total)
-			// reference values are 2x at 800, 1.5x at 400 (pain reduction from drunkenness starts at 360), 1.25x at 200
-			if (minutes < 1200) statChange.tiredness(drunkMod / 12000);
+	// substanceRebalance only affects metabolism rates, not tolerance logic itself.
+	const alcoholRate = V.substanceRebalance === 1 ? 1000 / (30 * 60) : 1;
+	const hallucinogenRate = V.substanceRebalance === 1 ? 1000 / (72 * 60) : 1;
+	const druggedRate = V.substanceRebalance === 1 ? 1000 / (36 * 60) : 1;
+
+	if (V.drunk > 0) {
+		// use fancy math to ensure that `pass(60);` and `pass(30);pass(30);` apply the same amount of tiredness regardless of changed V.drunk value
+		const sum = (from, to) => ((from - to) * (from + to + 1)) / 2;
+		const drunkMod = sum(V.drunk, Math.max(V.drunk - minutes, 0));
+
+		// --- Alcohol tolerance: build phase ---
+		// Reset the sobriety counter since alcohol is in the system.
+		V.timeSinceDrunk = 0;
+
+		const prevTolerance = V.alcoholTolerance || 0;
+		// Tolerance builds while heavily drunk (matches the existing >=360 heavy-drunk threshold).
+		// Full tolerance (1000) after ~2 in-game days continuously at V.drunk=1000.
+		if (V.drunk >= 360) {
+			const buildRate = (minutes * (V.drunk / 1000) * 1000) / 2880;
+			V.alcoholTolerance = Math.clamp(prevTolerance + buildRate, 0, 1000);
 		}
-		if (V.hallucinogen > 0) statChange.hallucinogen(-minutes * (1000 / (72 * 60)));
-		if (V.drugged > 0) statChange.drugs(-minutes * (1000 / (36 * 60)));
-	} else {
-		if (V.drunk > 0) {
-			// use fancy math to ensure that `pass(60);` and `pass(30);pass(30);` apply the same amount of tiredness regardless of changed V.drunk value
-			const sum = (from, to) => ((from - to) * (from + to + 1)) / 2;
-			const drunkMod = sum(V.drunk, Math.max(V.drunk - minutes, 0));
-			// warning: assumes 1:1 negative alcohol changes, true as of yet
-			statChange.alcohol(-minutes);
-			// V.drunk ranging from 0 to 1000, 1 minute at 1000 will add extra 1.25 of tiredness (2.25x total)
-			// reference values are 2x at 800, 1.5x at 400 (pain reduction from drunkenness starts at 360), 1.25x at 200
-			if (minutes < 1200) statChange.tiredness(drunkMod / 12000);
+		const newTolerance = V.alcoholTolerance || 0;
+
+		// Upward threshold notifications.
+		if (prevTolerance < 100 && newTolerance >= 100) {
+			V.effectsmessage = 1;
+			V.alcoholToleranceMessage = "developing";
+		} else if (prevTolerance < 300 && newTolerance >= 300) {
+			V.effectsmessage = 1;
+			V.alcoholToleranceMessage = "moderate";
+			if (typeof earnFeat === "function") earnFeat("Hardened Liver");
+		} else if (prevTolerance < 700 && newTolerance >= 700) {
+			V.effectsmessage = 1;
+			V.alcoholToleranceMessage = "high";
+		} else if (prevTolerance < 1000 && newTolerance >= 1000) {
+			V.effectsmessage = 1;
+			V.alcoholToleranceMessage = "full";
 		}
-		if (V.hallucinogen > 0) statChange.hallucinogen(-minutes);
-		if (V.drugged > 0) statChange.drugs(-minutes);
+
+		// Functional tolerance: scales the tiredness multiplier down toward zero.
+		const toleranceFactor = 1 - newTolerance / 1000;
+		// Metabolic tolerance: up to 1.5x faster alcohol clearance at max tolerance.
+		const clearanceMod = 1 + 0.5 * (newTolerance / 1000);
+		// warning: assumes 1:1 negative alcohol changes, true as of yet
+		statChange.alcohol(-minutes * alcoholRate * clearanceMod);
+		// V.drunk ranging from 0 to 1000, 1 minute at 1000 will add extra 1.25 of tiredness (2.25x total)
+		// reference values are 2x at 800, 1.5x at 400 (pain reduction from drunkenness starts at 360), 1.25x at 200
+		if (minutes < 1200) statChange.tiredness((drunkMod / 12000) * toleranceFactor);
+	} else if (V.alcoholTolerance > 0) {
+		// --- Sober: rehabilitation phase, ~30 in-game days for full decay ---
+		// Rate-independent: body recovery doesn't care about substanceRebalance.
+		V.timeSinceDrunk = (V.timeSinceDrunk || 0) + minutes;
+		const prevTolerance = V.alcoholTolerance;
+		V.alcoholTolerance = Math.max(0, V.alcoholTolerance - minutes * (1000 / 43200));
+
+		// Acute withdrawal stress: only during the first ~3 days of sobriety,
+		// only if tolerance was actually meaningful. Mirrors real-life acute withdrawal window.
+		if (prevTolerance > 300 && V.timeSinceDrunk < 4320 && minutes < 1200) {
+			statChange.stress(minutes * (prevTolerance / 1000) * 0.5);
+			if (V.alcoholToleranceMessage !== "withdrawal") {
+				V.effectsmessage = 1;
+				V.alcoholToleranceMessage = "withdrawal";
+			}
+		}
+
+		// Downward threshold notifications.
+		if (prevTolerance >= 1000 && V.alcoholTolerance < 1000) {
+			V.effectsmessage = 1;
+			V.alcoholToleranceMessage = "fading";
+		} else if (prevTolerance > 0 && V.alcoholTolerance <= 0) {
+			V.effectsmessage = 1;
+			V.alcoholToleranceMessage = "recovered";
+		}
 	}
+	if (V.hallucinogen > 0) statChange.hallucinogen(-minutes * hallucinogenRate);
+	if (V.drugged > 0) statChange.drugs(-minutes * druggedRate);
 	// prevent fatigue from being an issue when passing days (actually 20+ hours) at a time
 	if (minutes < 1200 && V.timeSkip === undefined) statChange.tiredness(minutes / 15);
 	statChange.pain(minutes, setup.painChangeByTime ? setup.painChangeByTime(V.pain) : -1);

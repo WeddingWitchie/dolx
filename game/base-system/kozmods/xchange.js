@@ -885,6 +885,33 @@ function xchangeEffectsMessages() {
 		delete V.antiPillSensitivityEndMessage;
 	}
 
+	if (V.alcoholToleranceMessage) {
+		switch (V.alcoholToleranceMessage) {
+			case "developing":
+				element("span", "Your body is starting to adapt to being drunk.", "pink"); br();
+				break;
+			case "moderate":
+				element("span", "Drunkenness has become something your body recognises.", "blue"); br();
+				break;
+			case "high":
+				element("span", "You've developed a strong tolerance to intoxication.", "green"); br();
+				break;
+			case "full":
+				element("span", "Your body has fully adapted to being drunk.", "gold"); br();
+				break;
+			case "withdrawal":
+				element("span", "Without anything fogging your head, your nerves feel restless.", "red"); br();
+				break;
+			case "fading":
+				element("span", "Without getting drunk regularly, your body's adaptation is beginning to fade.", "blue"); br();
+				break;
+			case "recovered":
+				element("span", "Your body has fully recovered from chronic drunkenness.", "green"); br();
+				break;
+		}
+		delete V.alcoholToleranceMessage;
+	}
+
 	if (V.xchangePermanenceMessage) {
 		const vaginalPregnancy = V.sexStats?.vagina?.pregnancy?.type !== null && V.sexStats?.vagina?.pregnancy?.type !== undefined;
 

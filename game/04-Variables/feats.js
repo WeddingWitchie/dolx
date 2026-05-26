@@ -1158,6 +1158,15 @@ setup.feats = {
 		series: "special trait",
 		filter: ["All", "Special"],
 	},
+	"Hardened Liver": {
+		title: "Hardened Liver",
+		desc: "Your body adapted to chronic drunkenness.",
+		difficulty: 1,
+		series: "",
+		hint: "Hint: Maybe ease up on getting drunk.",
+		filter: ["All", "Special"],
+		hidden: true,
+	},
 	"Broodmother Host": {
 		title: "Broodmother Host",
 		desc: "Host to an endless number of little critters.",
