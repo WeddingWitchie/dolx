@@ -1,0 +1,567 @@
+<!--
+==========================================================================
+ LOFT COOKING LESSONS
+==========================================================================
+ Variables introduced (all default-safe / undefined-tolerant):
+   $loft_cook_taught     1 once the orphans have learned. Permanent.
+   $loft_cook_attempts   drives retry framing.
+   $loftCook             transient minigame state, cleared on resolve.
+                         Uses candidates/prep for triage, sw/zoneStart for the burn meter, and taste for the final adjust loop.
+==========================================================================
+-->
+:: Loft Cook Look Away
+<<effects>>
+You drop your gaze and keep walking, the way everyone here learns to sooner or later.
+<br><br>
+But you saw it. The sharp wrists, the hollow cheeks, the careful way they move around their bruises. Whatever they scrape together goes to Bailey first; eating comes last, if it comes at all. The thought settles in your chest like a swallowed stone and stays there the whole way down the hall.
+<<lhope>><<hope -2>><<gstress>><<stress 6>>
+<br><br>
+<<link [[Next|Orphanage]]>><<endevent>><</link>>
+<br>
+
+:: Loft Cook Approach
+<<effects>><<speechresolve>>
+You step closer. The <<fullGroup>> go still as you reach them, with the wariness of people who've learned that attention usually costs something.
+<br><br>
+<<if _speechAttitudeResolved is "meek">>
+	"Hey," you say, soft as you can manage. "You holding up okay? Honestly."
+<<elseif _speechAttitudeResolved is "shy">>
+	"Um," you start, then make yourself go on. "You don't look so good, any of you. Are you okay?"
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"Forgive me for prying," you say warmly, "but you've all looked worn through lately. How are you, really?"
+<<elseif _speechAttitudeResolved is "docile">>
+	"I don't mean to bother you," you say. "I just wanted to ask how you're all getting on."
+<<elseif _speechAttitudeResolved is "confident">>
+	"Talk to me," you say, holding their eyes. "You lot look run into the ground. What's happening?"
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+	"Alright, out with it," you say. "You look starved. What's going on?"
+<<else>>
+	"Hey," you say evenly. "How are you all doing? And don't give me the polite answer."
+<</if>>
+<br><br>
+<<person1>>The <<person>> goes rigid. <<His>> gaze skitters to the floor, then the door. "I'm fine," <<he>> mutters, the word cracking apart on the way out, and before you can answer <<he>> bolts for the bedrooms with <<his>> shoulders up around <<his>> ears.
+<br><br>
+<<person2>>The <<person>> beside you flinches as a door bangs shut down the corridor, then lets out a sigh. "The other one's not fine. None of us are, really..."
+<br><br>
+<<link [[Next|Loft Cook Approach 2]]>><</link>>
+<br>
+
+:: Loft Cook Approach 2
+<<effects>><<speechresolve>>
+"It's the numbers." <<person2>><<He>> picks at a loose thread on <<his>> sleeve, not quite looking at you. "Bailey keeps putting them up. We hand over everything we earn and it's still short, so..." <<He>> gives a small, helpless shrug. "So we eat less. Easier to skip a meal than come back light."
+<br><br>
+<<He>> looks up at you then, something stripped bare in <<his>> face. "Some of us have stopped telling ourselves it's only for now."
+<br><br>
+<<if $orphan_reb gte 25>>
+	Then <<he>> grips a fistful of <<his>> own shirt and frowns hard at the floor. When <<he>> speaks again there's an edge to it that wasn't there before.
+	"We don't want handouts. We're not stupid. We just want to make it on our own, for once."
+	<br><br>
+	<<if _speechAttitudeResolved is "meek">>
+		"Okay," you say gently, hands raised. "No charity. I hear you. But there's a difference between a handout and knowing how to look after yourselves. Come with me, and bring your friends... and the others too."
+	<<elseif _speechAttitudeResolved is "shy">>
+		"I... I wasn't going to offer money," you say quietly. "Just... something that's actually yours to keep. Come with me, and bring your friends... and the others too."
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"Then I won't insult you with charity," you say. "What I'm offering, you'd be earning. Every bit of it. Come with me, and bring your friends... and the others too."
+	<<elseif _speechAttitudeResolved is "docile">>
+		"You're right, it's not my place," you say. "But maybe I can show you something, and you do the rest yourselves. Come with me, and bring your friends... and the others too."
+	<<elseif _speechAttitudeResolved is "confident">>
+		"Good," you say, meeting <<his>> eyes. "You don't want to be carried. So learn to stand. I'll show you how. Come with me, and bring your friends... and the others too."
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		"Good," you say, meeting <<his>> glare head-on. "Then stop waiting to be rescued. I'm not offering money. I'm offering something better. Come with me, and bring your friends... and the others too."
+	<<else>>
+		"I'm not arguing," you say. "You don't want to be carried. Fine. So learn to stand. Come with me, and bring your friends... and the others too."
+	<</if>>
+<<else>>
+	<<He>> trails off and hugs <<his>> arms across <<his>> chest, looking smaller than a moment ago.
+	<br><br>
+	<<if _speechAttitudeResolved is "meek">>
+		"I'm not going to pretend I can fix Bailey," you say quietly. "But maybe there's something I can do. Come with me, and bring your friends... and the others too."
+	<<elseif _speechAttitudeResolved is "shy">>
+		"I can't... I can't make it stop," you manage. "But I don't want you going hungry... if I can help it. Come with me, and bring your friends... and the others too."
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"I can't promise to fix any of this," you say. "But I think I can at least keep your plates fuller than they've been. Come with me, and bring your friends... and the others too."
+	<<elseif _speechAttitudeResolved is "docile">>
+		"I know it isn't much," you say. "But if you'll let me, there's one small thing I could help with. Come with me, and bring your friends... and the others too."
+	<<elseif _speechAttitudeResolved is "confident">>
+		"I can't change Bailey," you say. "But you don't have to go hungry while this lasts. Come with me, and bring your friends... and the others too."
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		"Right, enough moping," you say. "Feeling sorry for yourselves won't fill a plate. But I've got an idea that might. Come with me, and bring your friends... and the others too."
+	<<else>>
+		"I can't make Bailey ease up," you say. "But I don't think you have to go hungry while it lasts. Come with me, and bring your friends... and the others too."
+	<</if>>
+<</if>>
+<br><br>
+The <<personsimple>> nods and brings the others. It only takes seconds for a small crowd to gather, looking at you curiously.
+<br><br>
+The idea's already forming by the time you say it. You can't change what Bailey takes. But you could show them how to turn what little they keep into a proper meal, and there's a kitchen up in the loft <<nnpc_he "Bailey">> doesn't know exists.
+<br><br>
+<<link [[Bring them up to try something|Loft Cook Teach]]>><<set $loftCook to { mode: "teach", prep: 0, picks: 0, maxPicks: 3, result: "" }>><</link>>
+<br>
+<<link [[Reassure them and step back for now|Loft Cook Reassure]]>><</link>>
+<br>
+
+:: Loft Cook Reassure
+<<effects>>
+You tell them it'll be alright. That they're tougher than Bailey gives them credit for. That someone's looking out for them, even if it doesn't always feel that way.
+<br><br>
+It isn't much, and you know it. But some of the tightness goes out of their shoulders, and one of them manages something close to a smile before you let them go.<<hope 1>><<ghope>>
+<br><br>
+<<link [[Next|Orphanage]]>><<endevent>><</link>>
+<br>
+
+:: Loft Cook Teach
+<<set $outside to 0>><<set $location to "home">><<effects>>
+<<if !$loftCook>>
+	<<set $loftCook to { mode: "teach", prep: 0, picks: 0, maxPicks: 3, result: "" }>>
+<</if>>
+<<if $loftCook.mode is "teach">>
+	<<generateyv3>><<person3>>
+	You bring them up the stairs and into the kitchen, finger to your lips the whole way. They huddle in, wide-eyed, expecting Bailey to appear behind them at any moment. You keep your own voice low.
+	<br><br>
+	"They teach this in housekeeping at school," you say. "It's not as hard as it looks once someone shows you the trick of it."
+	<br><br>
+	<<housekeepingdifficulty 1 400 true>>
+	<<if $housekeepingSuccess>>
+		You talk them through it plainly, your hands sure as you go. A <<person>> lights up. "Oh... oh, I know this one!" <<He>> jumps in to explain how to keep an onion from making everyone cry, and which scraps to save for a stock. Between you, the lesson almost teaches itself.<<housekeeping 1 400>><<ghousekeeping 400>>
+		<<set $loftCook.prep += 4>>
+	<<else>>
+		You try to explain, but you keep losing the thread, and the <<person>> watching you frowns, lost. "Wait, before or after the...?" You're not really sure yourself. You'll just have to muddle through it together and hope for the best.<<housekeeping 1 400>><<ghousekeeping 400>>
+	<</if>>
+<<else>>
+	You slip up to the kitchen together. No lesson needed now; they move with nervous purpose, nudging one another aside when someone reaches for the wrong knife or forgets the clean cloth. One of them tosses you an apron.
+	<br><br>
+	"Quietly," you remind them. "And only what we can actually save."
+<</if>>
+<br><br>
+<<link [[Next|Loft Cook Teach 2]]>><<endevent>><</link>>
+<br>
+
+:: Loft Cook Teach 2
+<<if $loftCook.prep is undefined>><<set $loftCook.prep to 0>><</if>>
+<<if $loftCook.picks is undefined>><<set $loftCook.picks to 0>><</if>>
+<<if $loftCook.maxPicks is undefined>><<set $loftCook.maxPicks to 3>><</if>>
+"Right. Let's see what we've got."
+<br><br>
+<<if !$loftCook.candidates>>
+	<<loftCookBuildCandidates>>
+<</if>>
+<span id="loftPrep"><<loftPrepUI>></span>
+<br><br>
+<<link [[Actually, leave it for now|Orphanage Loft Kitchen]]>><<set $loftCook to undefined>><<endevent>><</link>>
+<br>
+
+:: Loft Cook Taste
+<<if !$loftCook>>
+	The pan sits cooling on the side, but the moment has slipped away.
+	<br><br>
+	<<link [[Next|Orphanage Loft Kitchen]]>><<endevent>><</link>>
+<<else>>
+	The pan comes off the heat with a soft hiss. The orphans crowd close, bowls ready, trying not to look too eager.
+	<br><br>
+	"Taste first," you whisper. "Too bland gets salt. Too sharp gets cream. We fix it before anyone has to pretend."
+	<br><br>
+	<span id="loftTaste"><<loftTasteUI>></span>
+<</if>>
+<br>
+
+:: Loft Cook Success
+<<set _mode to $loftCook ? $loftCook.mode : "teach">>
+<<set _dish to either("turnip_soup", "porridge", "potato_pancake")>>
+<<if _mode is "teach">>
+	You lift the pan away and serve before anyone's courage gives out.<<wearProp `setup.foodstuff[_dish].name`>> The orphan beside you breathes in over the bowl, then smiles like they're trying not to make a sound. It's plain food, but it's theirs. And it's good.<<stress -3>><<lstress>><<trauma -3>><<ltrauma>>
+	<br><br>
+	You hush them before the excitement carries, and they catch themselves, grinning behind their hands. You hand round bowls and eat together, cross-legged on the floor, listening for footsteps on the stairs that never come.
+	<br><br>
+	<<set $loft_cook_taught to 1>>
+	<span class="green">The orphans have learned to cook for themselves</span>. They seem more hopeful, and a little bolder.<<reb 1>><<greb>><<hope 3>><<gghope>>
+<<else>>
+	You and the orphans plate up together, a finger to your lips the whole time. The food's good and the company's better.<<tending_give _dish `setup.foodstuff[_dish].recipe.servings`>><<wearProp `setup.foodstuff[_dish].name`>><<stress -3>><<lstress>>
+	<br><br>
+	<<if $weekly.loftCookGain isnot 1>>
+		<<set $weekly.loftCookGain to 1>>
+		<span class="green">The orphans seem more hopeful, and a little bolder.</span><<reb 1>><<greb>><<hope 3>><<gghope>>
+	<<else>>
+		<span class="blue">You've already cooked together recently this week.</span>
+	<</if>>
+<</if>>
+<br><br>
+<<link [[Next|Orphanage Loft Kitchen]]>><<set $loftCook to undefined>><<endevent>><</link>>
+<br>
+
+:: Loft Cook Fail
+<<set _mode to $loftCook ? $loftCook.mode : "teach">>
+<<set _why to $loftCook ? $loftCook.result : "burnt">>
+<<if _why is "raw">>
+	You pull it off the heat too soon. The middle's still cold, and the orphans poke at it, faces falling.
+<<elseif _why is "burnt">>
+	The smell hits before you can react: scorched and bitter.<<wearProp "burnt">> You scrape the ruined food into the bin while the orphans look at their feet.
+<<elseif _why is "seasoning">>
+	You try to fix it, then try again, but each correction drags it further away from food. Too salty in one bite, sour in the next. The orphans accept the bowls anyway, which somehow makes it worse.
+<<else>>
+	It doesn't come together. The orphans look at the mess, then at you, crestfallen.
+<</if>>
+<<if _mode is "teach">>
+	<br><br>
+	"Hey. First go's always rough. We'll have another crack at it, you'll get it," you say, smiling.
+	<br><br>
+	A couple of them manage a small nod. They file back down the stairs, quieter than they came up.
+	<<set $loft_cook_attempts to ($loft_cook_attempts || 0) + 1>>
+<<else>>
+	<br><br>
+	You all stare at the wreckage for a second, then somebody snorts, and it's hard not to laugh. "Next time," one of them whispers.<<reb 1>><<greb>>
+<</if>>
+<br><br>
+<<link [[Next|Orphanage Loft Kitchen]]>><<set $loftCook to undefined>><<endevent>><</link>>
+<br>
+
+:: Loft Cook Widgets [widget]
+<<widget "loftCookBuildCandidates">>
+	<<set $loftIngredients to $loftIngredients || {}>>
+	<<set _basePool to ["flour", "potato", "turnip", "onion", "oats", "carrot", "cabbage"]>>
+	<<set _cands to []>>
+	<<set _badOne to random(0, 2)>>
+	<<set _badTwo to random(1, 100) lte 35 ? (_badOne + random(1, 2)) % 3 : -1>>
+	<<for _k to 0; _k lt 3 and _basePool.length gt 0; _k++>>
+		<<set _idx to random(0, _basePool.length - 1)>>
+		<<set _name to _basePool[_idx]>>
+		<<set _bad to _k is _badOne or _k is _badTwo>>
+		<<set _reason to _bad ? either("spoiled", "bad", "stale", "wrong") : "fresh">>
+		<<set _cands.push({ name: _name, bad: _bad, reason: _reason, used: false, source: "scrap" })>>
+		<<run _basePool.deleteAt(_idx)>>
+	<</for>>
+	<<set _stockKeys to Object.keys($loftIngredients).filter(key => ($loftIngredients[key] || 0) > 0 && setup.loftCookIsLessonFood(key))>>
+	<<run _stockKeys.sort((a, b) => (setup.foodstuff[a].plural || setup.foodstuff[a].name || a).localeCompare(setup.foodstuff[b].plural || setup.foodstuff[b].name || b))>>
+	<<for _ing range _stockKeys>>
+		<<set _cands.push({ name: _ing, bad: false, reason: "stocked", used: false, source: "stocked" })>>
+	<</for>>
+	<<set $loftCook.candidates to _cands>>
+<</widget>>
+
+<<widget "loftPrepUI">>
+	<<set $loftIngredients to $loftIngredients || {}>>
+	<<set _picksLeft to $loftCook.maxPicks - $loftCook.picks>>
+	<<set _readyFoodStocked to Object.keys($loftIngredients).some(key => ($loftIngredients[key] || 0) > 0 && setup.loftCookIsReadyFood(key))>>
+	<<set _lessonStocked to Object.keys($loftIngredients).some(key => ($loftIngredients[key] || 0) > 0 && setup.loftCookIsLessonFood(key))>>
+	You and the orphan look over what's on the shelf. The orphanage never has much, and some of it is past its best.
+	<<if _readyFoodStocked and _lessonStocked>>
+		The ready food you've left them is kept aside for meals. The cooking ingredients sit with the scraps, worth checking before anyone risks them.
+	<<elseif _readyFoodStocked>>
+		The ready food you've left them is kept aside for meals. For this lesson, they only manage to turn up a few scraps worth checking.
+	<<elseif _lessonStocked>>
+		Some of what you've left is on the shelf. The rest is scraps, and not all of it can be saved.
+	<<else>>
+		They only manage to turn up a few scraps worth checking.
+	<</if>>
+	<br><br>
+	<span class="gold">Pick three things worth saving.</span> You can use <<= _picksLeft>> more.
+	<br><br>
+	<<for _ci, _c range $loftCook.candidates>>
+		<<capture _ci, _c>>
+			<span class="loftPrepItem">
+			<<if _c.used>>
+				<span class="loftPrepUsed"><<print _c.name.replace(/_/g, " ")>></span>
+				<<if _c.source is "stocked">><span class="green">(used)</span><<elseif _c.bad>><span class="red">(<<print _c.reason>>)</span><<else>><span class="green">(kept)</span><</if>>
+			<<elseif _picksLeft lte 0>>
+				<<print _c.name.replace(/_/g, " ")>>
+			<<else>>
+				<<link `_c.name.replace(/_/g, " ")`>>
+					<<set $loftCook.picks++>>
+					<<set $loftCook.candidates[_ci].used to true>>
+					<<if _c.source is "stocked">>
+						<<set $loftIngredients[_c.name] to ($loftIngredients[_c.name] || 0) - 1>>
+						<<if $loftIngredients[_c.name] lte 0>><<run delete $loftIngredients[_c.name]>><</if>>
+						<<set $loftCook.prep += 6>>
+					<<elseif _c.bad>>
+						<<set $loftCook.prep -= 7>>
+						<<set $loftCook.badPicks to ($loftCook.badPicks || 0) + 1>>
+					<<else>>
+						<<set $loftCook.prep += 5>>
+					<</if>>
+					<<replace "#loftPrep">><<loftPrepUI>><</replace>>
+				<</link>>
+				<<if _c.source is "stocked">>
+					<span class="green">(stocked)</span>
+				<<elseif ($housekeeping || 0) gte 300>>
+					<<if _c.bad>><span class="red">(<<print _c.reason>>)</span><<else>><span class="green">(usable)</span><</if>>
+				<<elseif ($housekeeping || 0) gte 180 and _c.bad>>
+					<span class="red">(looks off)</span>
+				<</if>>
+			<</if>>
+			</span>
+		<</capture>>
+	<</for>>
+	<br><br>
+	<<if _picksLeft lte 0>>
+		/* Keep the target readable but not huge. Better housekeeping and clean prep still help. */
+		<<set _base to Math.clamp(Math.round(($housekeeping || 0) / 90), 2, 8)>>
+		<<set _sw to _base + 10 + Math.round(($loftCook.prep || 0) / 2)>>
+		One orphan gathers the chosen scraps into a bowl, watching your face for any sign that they've ruined it already.
+		<br><br>
+		<<link "Get the pan on the heat">>
+			<<replace "#loftPrep">><<loftBurnMeter _sw>><</replace>>
+		<</link>>
+	<</if>>
+<</widget>>
+
+<<widget "loftBurnMeter">>
+	<<set _rawSw to _args[0] is undefined ? 22 : Math.trunc(_args[0])>>
+	<<set _sw to Math.clamp(_rawSw, 14, 28)>>
+	<<set _duration to random(1500, 3000)>>
+	<<set _id to "loftBurn-" + random(100000, 999999)>>
+	<<set $loftCook.sw to _sw>>
+	<<set $loftCook.burnId to _id>>
+	<div id="<<print _id>>" class="loftBurnWrap" data-width="<<print _sw>>" data-min-start="18" data-max-end="88" data-duration="<<print _duration>>" data-done="0" data-started="0" data-pos="0" data-timer="0">
+		<div class="loftBurnTrack">
+			<div class="loftBurnZone"></div>
+			<div class="loftBurnScorch"></div>
+			<div class="loftBurnFill"></div>
+		</div>
+		<div class="loftBurnLabel">Start the pan, watch for the green, then plate it before it scorches.</div>
+		<div class="loftBurnHint">The orphans crowd close, waiting for your nod.</div>
+		<button type="button" class="loftBurnBtn" onclick="if (typeof setup !== 'undefined' && setup.loftCookBurnClick) return setup.loftCookBurnClick(this); var m = this.parentNode.querySelector('.loftBurnJsMissing'); if (m) m.style.display = 'block'; return false;">Start cooking</button>
+		<div class="loftBurnJsMissing">The cooking script has not loaded, so the meter can't start.</div>
+	</div>
+<</widget>>
+
+<<widget "loftTasteUI">>
+	<<if !$loftCook.taste>>
+		<<set $loftCook.taste to { round: 0, good: 0, bad: 0, issue: "", last: "", pool: ["bland", "sharp", "thin", "thick", "dull"] }>>
+	<</if>>
+	<<if $loftCook.taste.last>>
+		<<print $loftCook.taste.last>>
+		<br><br>
+		<<set $loftCook.taste.last to "">>
+	<</if>>
+	<<if $loftCook.taste.round gte 3>>
+		<<if $loftCook.taste.good gte 2>>
+			The pot settles into something warm and simple, enough to feed people who need feeding.
+			<br><br>
+			<<link [[Serve it quietly|Loft Cook Success]]>><<set $loftCook.result to "seasoned">><</link>>
+		<<else>>
+			You keep chasing the taste around the pot until nobody's sure what it was supposed to be any more.
+			<br><br>
+			<<link [[Serve what you can|Loft Cook Fail]]>><<set $loftCook.result to "seasoning">><</link>>
+		<</if>>
+	<<else>>
+		<<if !$loftCook.taste.pool or $loftCook.taste.pool.length lte 0>>
+			<<set $loftCook.taste.pool to ["bland", "sharp", "thin", "thick", "dull"]>>
+		<</if>>
+		<<set _idx to random(0, $loftCook.taste.pool.length - 1)>>
+		<<set _issue to $loftCook.taste.pool[_idx]>>
+		<<run $loftCook.taste.pool.deleteAt(_idx)>>
+		<<set $loftCook.taste.issue to _issue>>
+		<<if ($housekeeping || 0) gte 300>>
+			<<if _issue is "bland">>The taste is flat. It needs salt, not more heat.
+			<<elseif _issue is "sharp">>The edge catches at the back of your tongue. A spoon of cream would soften it.
+			<<elseif _issue is "thin">>It's watery. A handful of oats would give it body.
+			<<elseif _issue is "thick">>It's turned heavy. A little water would loosen it before it clags.
+			<<else>>It tastes of nothing in particular, dull and grey. A pinch of spice would wake it up.
+			<</if>>
+		<<elseif ($housekeeping || 0) gte 120>>
+			<<if _issue is "bland">>Something's missing. The orphans look to the salt, then back at you.
+			<<elseif _issue is "sharp">>It's got a bite to it. One orphan wrinkles their nose.
+			<<elseif _issue is "thin">>It runs off the spoon too quickly.
+			<<elseif _issue is "thick">>The spoon drags through it, sticky.
+			<<else>>It's edible, but grey somehow, like it's missing its warmth.
+			<</if>>
+		<<else>>
+			You taste it and frown. <span class="red">Something's wrong</span>, but the kitchen feels too warm and everyone is watching you.
+		<</if>>
+		<br><br>
+		<span class="loftTasteChoice"><<link [[Add salt|Loft Cook Taste]]>><<loftTastePick "salt">><</link>></span>| 
+		<span class="loftTasteChoice"><<link [[Stir in cream|Loft Cook Taste]]>><<loftTastePick "cream">><</link>></span>| 
+		<span class="loftTasteChoice"><<link [[Add oats|Loft Cook Taste]]>><<loftTastePick "oats">><</link>></span>| 
+		<span class="loftTasteChoice"><<link [[Loosen it with water|Loft Cook Taste]]>><<loftTastePick "water">><</link>></span>| 
+		<span class="loftTasteChoice"><<link [[Add a pinch of spice|Loft Cook Taste]]>><<loftTastePick "spice">><</link>></span>
+	<</if>>
+<</widget>>
+
+<<widget "loftTastePick">>
+	<<set _pick to _args[0]>>
+	<<set _issue to $loftCook.taste.issue>>
+	<<set _right to (_issue is "bland" and _pick is "salt") or (_issue is "sharp" and _pick is "cream") or (_issue is "thin" and _pick is "oats") or (_issue is "thick" and _pick is "water") or (_issue is "dull" and _pick is "spice")>>
+	<<set $loftCook.taste.round++>>
+	<<if _right>>
+		<<set $loftCook.taste.good++>>
+		<<set $loftCook.prep += 2>>
+		<<set $loftCook.taste.last to either("That does it. One of the orphans grins into the steam before remembering to keep quiet.", "The taste settles. Someone whispers, 'That's better,' as if saying it louder might ruin it.", "You stir once more, and the pot starts smelling like food instead of worry.")>>
+	<<else>>
+		<<set $loftCook.taste.bad++>>
+		<<set $loftCook.prep -= 3>>
+		<<set $loftCook.taste.last to either("The orphan beside you winces politely. Nobody says anything for a moment.", "It doesn't help. The taste turns stranger, and the spoon feels heavier in your hand.", "You see the mistake on their faces before you taste it yourself.")>>
+	<</if>>
+<</widget>>
+
+
+<<widget "loftKitchenStockUI">>
+	<<if $loft_cook_taught is 1 and Time.dayState isnot "night">>
+		<<set $loftIngredients to $loftIngredients || {}>>
+		<<set $foodstuff to $foodstuff || {}>>
+		<<set $weekly.loftCookStockCount to $weekly.loftCookStockCount || 0>>
+		<details class="journal loftStockDetails">
+			<summary class="journal">Leave food for the orphans</summary>
+			You can leave cooked food or cooking ingredients from your own supplies each week.
+			<br><br>
+			<span id="loftKitchenStockPanel"><<loftKitchenStockChoices>></span>
+		</details>
+		<br>
+	<</if>>
+<</widget>>
+
+<<widget "loftKitchenStockChoices">>
+	<<set $loftIngredients to $loftIngredients || {}>>
+	<<set $foodstuff to $foodstuff || {}>>
+	<<set $weekly.loftCookStockCount to $weekly.loftCookStockCount || 0>>
+	<<set _left to 3 - ($weekly.loftCookStockCount || 0)>>
+	<<if $loftCookStockMessage>>
+		<span class="green"><<print $loftCookStockMessage>></span>
+		<br>
+		<<set $loftCookStockMessage to "">>
+	<</if>>
+	<<if _left lte 0>>
+		<<set $weekly.loftCookStock to 1>>
+		<span class="blue">You've stocked the loft kitchen as much as you can this week.</span>
+	<<else>>
+		<<set _keys to Object.keys($foodstuff || {}).filter(key => $foodstuff[key] && $foodstuff[key].amount >= 1 && setup.loftCookIsStockableFood(key))>>
+		<<run _keys.sort((a, b) => (setup.foodstuff[a].plural || setup.foodstuff[a].name || a).localeCompare(setup.foodstuff[b].plural || setup.foodstuff[b].name || b))>>
+		<<if _keys.length lte 0>>
+			<span class="blue">You don't have any spare the orphans can use.</span>
+		<<else>>
+			<span class="gold">You can leave <<= _left>> more <<pluralise _left "bundle">> this week.</span>
+			<br><br>
+			<<set _formatter to new Intl.NumberFormat('en-gb', { roundingMode: 'trunc', notation: 'compact' })>>
+			<div class="itemInventory">
+			<<for _ing range _keys>>
+				<<capture _ing>>
+					<<set _count to Math.trunc($foodstuff[_ing].amount || 0)>>
+					<<if _count gt 0>>
+						<<set _label to _count is 1 ? (setup.foodstuff[_ing].singular || setup.foodstuff[_ing].name || _ing.replace(/_/g, " ")) : (setup.foodstuff[_ing].plural || setup.foodstuff[_ing].name || _ing.replace(/_/g, " "))>>
+						<<set _tooltip to `<span class="green">${_count}</span> ${_label}`>>
+						<<set _amountText to _formatter.format(_count)>>
+						<div class="item loftStockChoice" @tooltip="_tooltip">
+							<<link `'<span class="loftStockIcon"><<foodstufficon "' + _ing + '">></span><hr><span class="loftStockCount">' + _amountText + '</span>'`>>
+								<<if $foodstuff[_ing] and ($foodstuff[_ing].amount || 0) gte 1>>
+									<<set $foodstuff[_ing].amount to Math.max(0, Math.trunc(($foodstuff[_ing].amount || 0) - 1))>>
+									<<set $loftIngredients[_ing] to ($loftIngredients[_ing] || 0) + 1>>
+									<<set $weekly.loftCookStockCount to ($weekly.loftCookStockCount || 0) + 1>>
+									<<if ($weekly.loftCookStockCount || 0) gte 3>><<set $weekly.loftCookStock to 1>><</if>>
+									<<set $loftCookStockMessage to "You set some " + (setup.foodstuff[_ing].plural || setup.foodstuff[_ing].name || _ing).toLowerCase().replace(/_/g, " ") + " aside for them.">>
+								<<else>>
+									<<set $loftCookStockMessage to "You can't find enough of that to spare.">>
+								<</if>>
+								<<replace "#loftKitchenStockPanel">><<loftKitchenStockChoices>><</replace>>
+							<</link>>
+						</div>
+					<</if>>
+				<</capture>>
+			<</for>>
+			</div>
+		<</if>>
+	<</if>>
+<</widget>>
+
+
+<<widget "loftCookVignettes">>
+	<<set _gain to $weekly.loftCookGain isnot 1>>
+	<<set _usedStock to "">>
+	<<set $loftIngredients to $loftIngredients || {}>>
+	<<if $weekly.loftCookStockUsed isnot 1>>
+		<<set _stockUseKeys to Object.keys($loftIngredients).filter(key => ($loftIngredients[key] || 0) > 0 && setup.loftCookIsReadyFood(key))>>
+		<<if _stockUseKeys.length lte 0>>
+			<<set _stockUseKeys to Object.keys($loftIngredients).filter(key => ($loftIngredients[key] || 0) > 0 && setup.loftCookIsLessonFood(key))>>
+		<</if>>
+		<<if _stockUseKeys.length gt 0>>
+			<<set _usedStock to _stockUseKeys[random(0, _stockUseKeys.length - 1)]>>
+			<<set $loftIngredients[_usedStock] to Math.max(0, ($loftIngredients[_usedStock] || 0) - 1)>>
+			<<set $weekly.loftCookStockUsed to 1>>
+			<<if $loftIngredients[_usedStock] lte 0>><<run delete $loftIngredients[_usedStock]>><</if>>
+		<</if>>
+	<</if>>
+	You notice a small crowd gathering near the kitchen.
+	<<switch random(1, 10)>>
+	<<case 1>>
+		An orphan stands over a big pot, stirring with both hands on the spoon, brow furrowed in concentration. They glance up, grin, and go back to it.
+	<<case 2>>
+		A smaller orphan perches on a crate while an older one guides their hands on the knife, murmuring to keep their fingers tucked. They're being gentle about it.
+	<<case 3>>
+		Someone is carefully dividing a stew into bowls so every portion comes out even. They notice you and hold a finger to their lips.
+	<<case 4>>
+		An orphan kneads dough and hums a tune you faintly recognise, flour dusting their forearms. The room smells of yeast.
+	<<case 5>>
+		A bowl sits covered with a cloth on the windowsill, tucked aside. "For whoever gets back latest," an orphan whispers when they catch you looking.
+	<<case 6>>
+		An orphan presents a plate to the others with pride. Whatever it is, it looks edible, and the others applaud as quietly as they can manage.
+	<<case 7>>
+		Two orphans scrub pots and wipe counters, stifling laughter at some joke you've walked in on the tail end of. The kitchen is spotless behind them.
+	<<case 8>>
+		An older orphan tests a spoonful, squints, then passes it to a smaller one for judgement. The smaller one nods solemnly, as though approving a royal banquet.
+	<<case 9>>
+		Someone has written a list of chores on a scrap of card and pinned it beside the stove. The handwriting is shaky, but every task has been crossed off.
+	<<case 10>>
+		A few orphans sit around the table, tearing bread into pieces for the pot. No one takes more than their share, even when no one's watching.
+	<</switch>>
+	<<if _usedStock>>
+		They've taken some of the <span class="orange"><<print (setup.foodstuff[_usedStock].plural || setup.foodstuff[_usedStock].name || _usedStock).toLowerCase().replace(/_/g, " ")>></span> you left for them.
+		<<if $loftIngredients[_usedStock]>>
+			There should be enough left for <span class="gold"><<number $loftIngredients[_usedStock]>> <<pluralise $loftIngredients[_usedStock] "meal">></span>.
+		<<else>>
+			That was the last of it.
+		<</if>>
+	<</if>>
+	<<if _gain>>
+		<<set $weekly.loftCookGain to 1>>
+		They seem more sure of themselves.<<reb 1>><<greb>><<hope 3>><<gghope>>
+	<</if>>
+<</widget>>
+
+<<widget "homeeventloftcook">>
+	<<set _attempts to $loft_cook_attempts || 0>>
+	<<set _loftCookEventFallback to 0>>
+	<<if $loft_cook_taught is 1 and _attempts gte 2>>
+		<<switch random(1, 3)>>
+			<<case 1>>
+				<<generateyv1>><<generateyv2>>
+				A <<fullGroup>> gather near the loft, cheeks less hollow than you remember.
+				<br><br>
+				One of them catches your eye and gives you a quick, embarrassed smile before disappearing inside.
+			<<case 2>>
+				<<generateyv1>><<generateyv2>>
+				A <<fullGroup>> pass you by, still licking sauce from their lips. 
+				<br><br>
+				"You're eating too much," the <<person1>><<person>> whispers. "Only because someone finally showed us how," the <<person2>><<person>> whispers back.
+			<<case 3>>
+				<<generateyv1>><<generateyv2>>
+				A <<fullGroup>> brighten when they see you near the stairs. 
+				<br><br>
+				"Cook with us again," the <<person1>><<person>> starts, before the the <<person2>><<person>> claps a hand over <<person1>><<his>> mouth and glances towards Bailey's office. They both look far too pleased with themselves.
+		<</switch>>
+		<<hope 1>><<ghope>>
+	<<elseif $loft_cook_taught isnot 1 and _attempts lte 1>>
+		<<switch random(1, 3)>>
+			<<case 1>>
+				<<generateyv1>><<generateyv2>>
+				A <<fullGroup>> sit near the loft with dejected look. The <<person1>><<person>> notices you and sits up at once. "Are you going to show us more? U-Um, this weekend?"
+				<br><br>
+				"Maybe," you answer them.
+			<<case 2>>
+				<<generateyv1>><<generateyv2>>
+				You find a <<fullGroup>>, and they notice you. 
+				<br><br>
+				"We can cook better," the <<person1>><<person>> says quickly. "If you help."
+			<<case 3>>
+				<<generateyv1>><<generateyv2>>
+				A <<fullGroup>> linger by the loft door. "Do you think we can make it taste nice?" the <<person1>><<person>> mumbles.
+				<br><br>
+				"Not just plain food. Proper food with..." The <<person2>><<person>> go quiet when <<he>> realise you're close enough to hear.
+		<</switch>>
+		<<reb 1>><<greb>>
+	<<else>>
+		<<homeeventriver>>
+		<<set _loftCookEventFallback to 1>>
+	<</if>>
+	<<if _loftCookEventFallback isnot 1>>
+		<br><br>
+		<<link [[Next|Orphanage]]>><<endevent>><</link>>
+		<br>
+	<</if>>
+<</widget>>

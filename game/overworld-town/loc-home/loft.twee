@@ -12,6 +12,20 @@ You are in the loft above the orphanage. A wide hall runs down the centre. Corri
 	<br>
 <</if>>
 <br>
+
+<<if $loft_cook_taught is 1 and Time.dayState isnot "night">>
+	<<set _stocked to Object.keys($loftIngredients).some(key => ($loftIngredients[key] || 0) > 0 && setup.loftCookIsStockableFood(key))>>
+	<<set _chance to _stocked ? 35 : 10>>
+	<<if !Time.schoolDay and ((_stocked and $weekly.loftCookStockUsed isnot 1) or random(1, 100) lte _chance)>>
+		<<loftCookVignettes>><br>
+	<</if>>
+	<<if !Time.schoolDay and $weekly.loftCookTogether isnot 1 and Time.hour gte 9 and Time.hour lt 21>>
+		<<kitchenicon "messy">><<link [[Cook together with the orphans|Loft Cook Teach]]>><<set $weekly.loftCookTogether to 1>><<set $loftCook to { mode: "together", prep: 0, picks: 0, maxPicks: 3, result: "" }>><<pass 30>><</link>>
+		<br>
+	<</if>>
+<</if>>
+<br>
+
 <<if $loft_spray isnot 1 and $spray lt $spraymax and ($loft_kylar or $loft_independentLab)>>
 	<<peppersprayicon>><<link [[Refill pepper spray|Orphanage Loft Spray]]>><<spray 1>><<set $loft_spray to 1>><</link>><<gspray>>
 	<br>
@@ -51,30 +65,41 @@ You are in the kitchen in the orphanage loft, hidden away from Bailey.
 
 <<if Object.keys($loftIngredients).length gte 1>>
 	<<for _i range Object.keys($loftIngredients)>>
-		<<if $loftIngredients[_i] lte 0>>
+		<<if !setup.foodstuff[_i]>>
+			<<run delete $loftIngredients[_i]>>
+		<<elseif !setup.loftCookIsStockableFood(_i)>>
+			<<run delete $loftIngredients[_i]>>
+		<<elseif $loftIngredients[_i] lte 0>>
 			<<if $recipeMade and setup.foodstuff[$recipeMade].recipe?.ingredients.includes(_i)>>
 				<span class="red">You used the last of the <<print setup.foodstuff[_i].plural>>.</span>
 				<br>
 			<</if>>
 			<<run delete $loftIngredients[_i]>>
 		<<else>>
-			<span class="green">Some <<print setup.foodstuff[_i].plural>> were delivered here recently.</span> There should be enough for <span class="gold"><<number $loftIngredients[_i]>> <<pluralise $loftIngredients[_i] "meal">></span>.
+			<span class="green">Some <<print setup.foodstuff[_i].plural>> were left here recently.</span> There should be enough for <span class="gold"><<number $loftIngredients[_i]>> <<pluralise $loftIngredients[_i] "meal">></span>.
 			<br>
 		<</if>>
 	<</for>>
 	<br>
-	<<ingredientsSupplied `Object.keys($loftIngredients)`>>
+	<<set _suppliedKeys to Object.keys($loftIngredients).filter(key => setup.loftCookIsLessonFood(key))>>
+	<<if _suppliedKeys.length gte 1>>
+		<<ingredientsSupplied _suppliedKeys>>
+	<<else>>
+		You can cook whatever you like here, but you'll need to supply your own ingredients.
+		<br><br>
+	<</if>>
 <<else>>
 	You can cook whatever you like here, but you'll need to supply your own ingredients.
 	<br><br>
 <</if>>
+
+<<loftKitchenStockUI>>
 
 <<allowLewdIngredients>>
 <<kitchenDisplay>>
 <<if $cookbook is true>>
 	<<set _baseTime to Math.max(180 - (6 * Math.round($housekeeping / 50)), 10)>>
 	<<set _timeString to getTimeString(_baseTime)>>
-	<br><br>
 	<<housekeeping_exam_select>>
 	<<if $chosen_recipe isnot "none">>
 		<span class="gold">You can teach yourself a recipe from your cookbook here.</span> You flip open the book and land on a recipe for <<print $chosen_recipe.replace(/_/g," ")>>.<br><br>
@@ -84,6 +109,5 @@ You are in the kitchen in the orphanage loft, hidden away from Bailey.
 	<</if>>
 	<br><br>
 <</if>>
-
 <<getouticon>><<link [[Leave|Orphanage Loft]]>><<kitchenExit>><</link>>
 <br>
