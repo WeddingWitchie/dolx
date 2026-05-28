@@ -941,14 +941,21 @@
 				<<set $striking to 1>><<combatExtendedEnemyCheck $lefttarget>><<actionsscratch "both">>
 
 				/* Null-safe ring helpers.
-				_hasNailRings identifies nail armour by name; the item shares the "jewelled" type tag with gemstone rings,
-				so name match is the only reliable identifier. See clothing-rings.js index 265. */
+				_hasNailRings identifies nail armour by name; the item shares the "jewelled" type tag with gemstone rings, so name match is the only reliable identifier.
+				See clothing-rings.js index 265. */
 				<<set _ringsName to (($worn.rings && typeof $worn.rings.name === "string") ? $worn.rings.name : "")>>
 				<<set _ringsType to (($worn.rings && typeof $worn.rings.type === "string") ? $worn.rings.type : "")>>
 				<<set _hasNailRings to (_ringsName.includes("nail armour"))>>
 
-				<<set _scratchBase to (_effectiveNailLevel gte 3 ? 7 : 4)>>
-				<<set _scratchRingBonus to (_hasNailRings ? (_effectiveNailLevel gte 3 ? 3 : 1.5) : 0)>>
+				/* _scratchDef drives defiance macro's SOCIAL effects only (anger, arousal, stress) kept small. 
+				Health damage is applied flat afterwards via scratchFlatDamage macro, so it does NOT scale with physique. */
+				<<set _scratchDef to (_effectiveNailLevel gte 3 ? 1.25 : 0.8)>>
+				<<set _scratchFlat to (_effectiveNailLevel gte 3 ? 6 : 3)>>
+				<<if _hasNailRings>><<set _scratchFlat += 2>><</if>>
+
+				/* snapshot health before any defiance call so the flat override is exact */
+				<<set _scratchHpBefore to $enemyhealth>>
+				<<set _scratchNpcHpBefore to (($NPCList && $NPCList[$lefttarget] && typeof $NPCList[$lefttarget].health === "number") ? $NPCList[$lefttarget].health : undefined)>>
 
 				<<if $combatExtended.enemyDodgeSuccess gte 1 or $combatExtended.enemyCounterSuccess gte 1>>
 					<<if $combatExtended.enemyCounterSuccess is 2>>
@@ -956,26 +963,26 @@
 					<<elseif $combatExtended.enemyDodgeSuccess is 2>>
 						/* Attack dodged */
 					<<elseif $combatExtended.enemyCounterSuccess is 1>>
-						<<set _d to _scratchBase * 0.5>><<defiance _d $lefttarget>>
+						<<defiance `_scratchDef * 0.5` $lefttarget>>
 						<<violence 3>><<set $speechscratch to 1>><<set $attackstat += 2>><<combatExtendedStability -5>>
 						<<if _hasNailRings>>
 							Your nail-armour rings extend the bite of your claws.
-							<<set _d to _scratchRingBonus * 0.5>><<defiance _d $lefttarget>>
 						<</if>>
+						<<scratchFlatDamage _scratchHpBefore $lefttarget _scratchNpcHpBefore `Math.ceil(_scratchFlat * 0.5)`>>
 					<<else>>
-						<<set _d to _scratchBase * 0.6>><<defiance _d $lefttarget>>
+						<<defiance `_scratchDef * 0.6` $lefttarget>>
 						<<set $speechscratch to 1>><<set $attackstat += 2>>
 						<<if _hasNailRings>>
 							Your nail-armour rings extend the bite of your claws.
-							<<set _d to _scratchRingBonus * 0.6>><<defiance _d $lefttarget>>
 						<</if>>
+						<<scratchFlatDamage _scratchHpBefore $lefttarget _scratchNpcHpBefore `Math.ceil(_scratchFlat * 0.6)`>>
 					<</if>>
 				<<else>>
-					<<defiance _scratchBase $lefttarget>><<set $speechscratch to 1>><<set $attackstat += 2>>
+					<<defiance _scratchDef $lefttarget>><<set $speechscratch to 1>><<set $attackstat += 2>>
 					<<if _hasNailRings>>
 						Your nail-armour rings extend the bite of your claws, deepening the cuts.
-						<<defiance _scratchRingBonus $lefttarget>>
 					<</if>>
+					<<scratchFlatDamage _scratchHpBefore $lefttarget _scratchNpcHpBefore _scratchFlat>>
 				<</if>>
 			<<else>>
 				You try to rake your nails across the <<if $enemytype is "beast">><<beasttype>><<else>><<personselect $lefttarget>><<person>><</if>>, <span class="lewd">but your flushed body fumbles the angle.</span>
@@ -999,16 +1006,23 @@
 				<<else>>
 					The slime tries to stop you, <span class="green">but your nails catch flesh regardless.</span>
 					<<actionsscratch $lefttarget>>
-					<<set _scratchBase to (_effectiveNailLevel gte 3 ? 3 : 1.5)>>
-					<<defiance _scratchBase $lefttarget>><<set $speechscratch to 1>><<set $attackstat += 1>>
+					<<set _scratchDef to (_effectiveNailLevel gte 3 ? 0.5 : 0.35)>>
+					<<set _scratchFlat to (_effectiveNailLevel gte 3 ? 6 : 3)>>
+					<<set _scratchHpBefore to $enemyhealth>>
+					<<set _scratchNpcHpBefore to (($NPCList && $NPCList[$lefttarget] && typeof $NPCList[$lefttarget].health === "number") ? $NPCList[$lefttarget].health : undefined)>>
+					<<defiance _scratchDef $lefttarget>><<set $speechscratch to 1>><<set $attackstat += 1>>
+					<<scratchFlatDamage _scratchHpBefore $lefttarget _scratchNpcHpBefore _scratchFlat>>
 				<</if>>
 			<<else>>
 				<<actionsscratch $lefttarget>>
 				<<set _ringsName to (($worn.rings && typeof $worn.rings.name === "string") ? $worn.rings.name : "")>>
 				<<set _ringsType to (($worn.rings && typeof $worn.rings.type === "string") ? $worn.rings.type : "")>>
 				<<set _hasNailRings to (_ringsName.includes("nail armour"))>>
-				<<set _scratchBase to (_effectiveNailLevel gte 3 ? 3 : 1.5)>>
-				<<set _scratchRingBonus to (_hasNailRings ? (_effectiveNailLevel gte 3 ? 1 : 0.5) : 0)>>
+				<<set _scratchDef to (_effectiveNailLevel gte 3 ? 0.5 : 0.35)>>
+				<<set _scratchFlat to (_effectiveNailLevel gte 3 ? 6 : 3)>>
+				<<if _hasNailRings>><<set _scratchFlat += 2>><</if>>
+				<<set _scratchHpBefore to $enemyhealth>>
+				<<set _scratchNpcHpBefore to (($NPCList && $NPCList[$lefttarget] && typeof $NPCList[$lefttarget].health === "number") ? $NPCList[$lefttarget].health : undefined)>>
 
 				<<if $combatExtended.enemyDodgeSuccess gte 1 or $combatExtended.enemyCounterSuccess gte 1>>
 					<<if $combatExtended.enemyCounterSuccess is 2>>
@@ -1016,18 +1030,20 @@
 					<<elseif $combatExtended.enemyDodgeSuccess is 2>>
 						/* Attack dodged */
 					<<elseif $combatExtended.enemyCounterSuccess is 1>>
-						<<set _d to _scratchBase * 0.5>><<defiance _d $lefttarget>>
+						<<defiance `_scratchDef * 0.5` $lefttarget>>
 						<<violence 3>><<set $speechscratch to 1>><<set $attackstat += 1>><<combatExtendedStability -5>>
+						<<scratchFlatDamage _scratchHpBefore $lefttarget _scratchNpcHpBefore `Math.ceil(_scratchFlat * 0.5)`>>
 					<<else>>
-						<<set _d to _scratchBase * 0.6>><<defiance _d $lefttarget>>
+						<<defiance `_scratchDef * 0.6` $lefttarget>>
 						<<set $speechscratch to 1>><<set $attackstat += 1>>
+						<<scratchFlatDamage _scratchHpBefore $lefttarget _scratchNpcHpBefore `Math.ceil(_scratchFlat * 0.6)`>>
 					<</if>>
 				<<else>>
-					<<defiance _scratchBase $lefttarget>><<set $speechscratch to 1>><<set $attackstat += 1>>
+					<<defiance _scratchDef $lefttarget>><<set $speechscratch to 1>><<set $attackstat += 1>>
 					<<if _hasNailRings>>
 						Your nail-armour rings deepen the cuts.
-						<<defiance _scratchRingBonus $lefttarget>>
 					<</if>>
+					<<scratchFlatDamage _scratchHpBefore $lefttarget _scratchNpcHpBefore _scratchFlat>>
 				<</if>>
 			<</if>>
 		<</if>>
@@ -1050,16 +1066,23 @@
 				<<else>>
 					The slime tries to stop you, <span class="green">but your nails catch flesh regardless.</span>
 					<<actionsscratch $righttarget>>
-					<<set _scratchBase to (_effectiveNailLevel gte 3 ? 3 : 1.5)>>
-					<<defiance _scratchBase $righttarget>><<set $speechscratch to 1>><<set $attackstat += 1>>
+					<<set _scratchDef to (_effectiveNailLevel gte 3 ? 0.5 : 0.35)>>
+					<<set _scratchFlat to (_effectiveNailLevel gte 3 ? 6 : 3)>>
+					<<set _scratchHpBefore to $enemyhealth>>
+					<<set _scratchNpcHpBefore to (($NPCList && $NPCList[$righttarget] && typeof $NPCList[$righttarget].health === "number") ? $NPCList[$righttarget].health : undefined)>>
+					<<defiance _scratchDef $righttarget>><<set $speechscratch to 1>><<set $attackstat += 1>>
+					<<scratchFlatDamage _scratchHpBefore $righttarget _scratchNpcHpBefore _scratchFlat>>
 				<</if>>
 			<<else>>
 				<<actionsscratch $righttarget>>
 				<<set _ringsName to (($worn.rings && typeof $worn.rings.name === "string") ? $worn.rings.name : "")>>
 				<<set _ringsType to (($worn.rings && typeof $worn.rings.type === "string") ? $worn.rings.type : "")>>
 				<<set _hasNailRings to (_ringsName.includes("nail armour"))>>
-				<<set _scratchBase to (_effectiveNailLevel gte 3 ? 3 : 1.5)>>
-				<<set _scratchRingBonus to (_hasNailRings ? (_effectiveNailLevel gte 3 ? 1 : 0.5) : 0)>>
+				<<set _scratchDef to (_effectiveNailLevel gte 3 ? 0.5 : 0.35)>>
+				<<set _scratchFlat to (_effectiveNailLevel gte 3 ? 6 : 3)>>
+				<<if _hasNailRings>><<set _scratchFlat += 2>><</if>>
+				<<set _scratchHpBefore to $enemyhealth>>
+				<<set _scratchNpcHpBefore to (($NPCList && $NPCList[$righttarget] && typeof $NPCList[$righttarget].health === "number") ? $NPCList[$righttarget].health : undefined)>>
 
 				<<if $combatExtended.enemyDodgeSuccess gte 1 or $combatExtended.enemyCounterSuccess gte 1>>
 					<<if $combatExtended.enemyCounterSuccess is 2>>
@@ -1067,18 +1090,20 @@
 					<<elseif $combatExtended.enemyDodgeSuccess is 2>>
 						/* Attack dodged */
 					<<elseif $combatExtended.enemyCounterSuccess is 1>>
-						<<set _d to _scratchBase * 0.5>><<defiance _d $righttarget>>
+						<<defiance `_scratchDef * 0.5` $righttarget>>
 						<<violence 3>><<set $speechscratch to 1>><<set $attackstat += 1>><<combatExtendedStability -5>>
+						<<scratchFlatDamage _scratchHpBefore $righttarget _scratchNpcHpBefore `Math.ceil(_scratchFlat * 0.5)`>>
 					<<else>>
-						<<set _d to _scratchBase * 0.6>><<defiance _d $righttarget>>
+						<<defiance `_scratchDef * 0.6` $righttarget>>
 						<<set $speechscratch to 1>><<set $attackstat += 1>>
+						<<scratchFlatDamage _scratchHpBefore $righttarget _scratchNpcHpBefore `Math.ceil(_scratchFlat * 0.6)`>>
 					<</if>>
 				<<else>>
-					<<defiance _scratchBase $righttarget>><<set $speechscratch to 1>><<set $attackstat += 1>>
+					<<defiance _scratchDef $righttarget>><<set $speechscratch to 1>><<set $attackstat += 1>>
 					<<if _hasNailRings>>
 						Your nail-armour rings deepen the cuts.
-						<<defiance _scratchRingBonus $righttarget>>
 					<</if>>
+					<<scratchFlatDamage _scratchHpBefore $righttarget _scratchNpcHpBefore _scratchFlat>>
 				<</if>>
 			<</if>>
 		<</if>>
