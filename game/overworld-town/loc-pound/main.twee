@@ -104,10 +104,20 @@ The key is in its usual place. There's nothing stopping you from unlocking the c
 :: Pound Free Reassure
 <<effects>>
 
-<<if $speech_attitude is "meek">>
+<<speechresolve>>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 	"I-I'm here to rescue you," you say. "Don't be frightened."
-<<elseif $speech_attitude is "bratty">>
-	"I'm getting you out of here," you say. "Don't look so upset."
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"I'm here to get you out," you say. "Please come with me, and stay close."
+<<elseif _speechAttitudeResolved is "docile">>
+	"I-I'm here to help," you say. "Please don't be frightened. I'll do whatever I can."
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+	"I'm getting you out of here," you say.
+	<<if _speechAttitudeResolved is "cruel">>
+		"If anyone tries to stop us, that's their mistake."
+	<<else>>
+		"Don't look so upset."
+	<</if>>
 <<else>>
 	"I'm freeing you," you say. "Come on, we have to hurry."
 <</if>>
@@ -566,7 +576,7 @@ A <<person>> takes your leash and leans in. "They used to respect you," <<he>> s
 	<br><br>
 	"The <span class="purple">brute</span> savaged <<bhis 0>> master," says a <<person3>><<person>>, stopping beside you and folding <<his>> arms. "Now the master wants revenge. Needs us to knock some obedience into the mutt first though. No one can even get a collar on."
 	<br><br>
-	The <<person2>><<person>> escapes the cage and slams the door behind <<him>>. <<He>> carries half the collar. The rest has been torn off. "I ain't going near it," the <<person3>><<person>> laughs.
+	The <<person2>><<person>> escapes the cage and slams the door behind <<him>>. <<He>> carries part of the collar. The rest has been torn off. "I ain't going near it," the <<person3>><<person>> laughs.
 	<br><br>
 	<<link [[Next|Pound]]>><<endevent>><</link>>
 	<br>
@@ -672,18 +682,25 @@ A <<person>> takes your leash and leans in. "They used to respect you," <<he>> s
 :: Pound Work Intervene
 <<effects>>
 
-You rattle the cage door.
+You rattle the cage door. The sound makes the nearest <<pound_text>> flinch.
 
-<<if $speech_attitude is "meek">>
-	"Stop it," you say. "Y-you're hurting <<bhim 0>>."
-<<elseif $speech_attitude is "bratty">>
+<<speechresolve>>
+<<if _speechAttitudeResolved is "meek">>
+	"Stop it," you say. "Y-You're hurting <<bhim 0>>."
+<<elseif _speechAttitudeResolved is "shy">>
+	"P-Please stop," you say. "You're hurting <<bhim 0>>."
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"That's enough," you say. "You're hurting <<bhim 0>>."
+<<elseif _speechAttitudeResolved is "docile">>
+	"Please stop," you say. "You don't need to hurt <<bhim 0>>."
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
 	"Put the belt down," you say. "You psychopath."
 <<else>>
 	"Stop it," you say. "This is cruel."
 <</if>>
 <br><br>
 
-The <<person>> looks at you before giving the <<beasttype 0>> a final whack. "Alright," <<he>> says, panting from the exertion. <<He>> leaves the cage, but stops beside you. "<span class="pink">Best watch out, <<lass>>.</span> Don't think we won't make a <<bitch>> of you if you give us a reason."
+The <<person>> looks at you before giving the <<beasttype 0>> a final whack. The other cages go quiet. "All right," <<he>> says, panting from the exertion. <<He>> leaves the cage, but stops beside you. "<span class="pink">Best watch out, <<lass>>.</span> Don't think we won't make a <<bitch>> of you if you give us a reason."
 <br><br>
 
 <<if Time.hour gte $closinghour>>
@@ -784,10 +801,39 @@ The <<pound_text>> watch with blank expressions.
 :: Pound Work Sweep Scold
 <<effects>>
 
+<<speechresolve>>
 <<if $tendingSuccess>>
-	"Let go," you say, <span class="green">your voice firm and sure</span>. The <<beasttype>> relents, and chews on a bar instead.<<gpound_status>><<pound_status 1>>
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		"L-Let go," you say, forcing the words out. <span class="green">The <<beasttype>> relents,</span> and chews on a bar instead.<<gpound_status>><<pound_status 1>>
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"Let go, please," you say, your hand firm on the broom. <span class="green">The <<beasttype>> relents,</span> and chews on a bar instead.<<gpound_status>><<pound_status 1>>
+	<<elseif _speechAttitudeResolved is "docile">>
+		"Please let go," you say, waiting until <<bhe>> obeys. <span class="green">The <<beasttype>> relents,</span> and chews on a bar instead.<<gpound_status>><<pound_status 1>>
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		"Let go," you say, <span class="green">your voice firm and sure</span>. The <<beasttype>> relents, and chews on a bar instead.
+		<<if _speechAttitudeResolved is "cruel">>
+			"Good. Keep your teeth off my broom."
+		<</if>>
+		<<gpound_status>><<pound_status 1>>
+	<<else>>
+		"Let go," you say, <span class="green">your voice firm and sure</span>. The <<beasttype>> relents, and chews on a bar instead.<<gpound_status>><<pound_status 1>>
+	<</if>>
 <<else>>
-	"L-let go," you say, <span class="red">but it's hard to keep your voice steady while the <<beasttype>> jerks the broom around.</span> <<bHe>> only gives up <<bhis>> grip when satisfied, leaving teeth marks on the wood.<<lpound_status>><<pound_status -1>><<if $tending lt 200>><<tending 1>><<gtending>><</if>>
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		"L-Let go," you say, <span class="red">but it's hard to keep your voice steady while the <<beasttype>> jerks the broom around.</span> <<bHe>> only gives up <<bhis>> grip when satisfied, leaving teeth marks on the wood.<<lpound_status>><<pound_status -1>><<if $tending lt 200>><<tending 1>><<gtending>><</if>>
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"Let go, please," you say, <span class="red">but the <<beasttype>> keeps jerking the broom around.</span> <<bHe>> only gives up <<bhis>> grip when satisfied, leaving teeth marks on the wood.<<lpound_status>><<pound_status -1>><<if $tending lt 200>><<tending 1>><<gtending>><</if>>
+	<<elseif _speechAttitudeResolved is "docile">>
+		"Please let go," you say, <span class="red">but the <<beasttype>> ignores the plea.</span> <<bHe>> only gives up <<bhis>> grip when satisfied, leaving teeth marks on the wood.<<lpound_status>><<pound_status -1>><<if $tending lt 200>><<tending 1>><<gtending>><</if>>
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		"Let go," you snap, <span class="red">but the <<beasttype>> answers by wrenching the broom harder.</span> <<bHe>> only gives up <<bhis>> grip when satisfied, leaving teeth marks on the wood.
+		<<if _speechAttitudeResolved is "cruel">>
+			"You little shit!"
+		<</if>>
+		<<lpound_status>><<pound_status -1>><<if $tending lt 200>><<tending 1>><<gtending>><</if>>
+	<<else>>
+		"Let go," you say, <span class="red">but the <<beasttype>> jerks the broom around until your grip slips.</span> <<bHe>> only gives up <<bhis>> grip when satisfied, leaving teeth marks on the wood.<<lpound_status>><<pound_status -1>><<if $tending lt 200>><<tending 1>><<gtending>><</if>>
+	<</if>>
 <</if>>
 <br><br>
 
@@ -835,8 +881,20 @@ You refill the bowls in the rear courtyard, before a horde of eager <<pound_text
 :: Pound Work Feed Soothe
 <<effects>>
 
+<<speechresolve>>
 <<if $tendingSuccess>>
-	You crouch beside the <<beasttype 1>>, and stroke <<bhis 1>> ear. "Will you let your friend have some?" you ask. "For me?"
+	You crouch beside the <<beasttype 1>>, and stroke <<bhis 1>> ear.
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		"Will you let your friend have some?" you ask. "For me?"
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"Let your friend eat too, please," you say. "There's enough."
+	<<elseif _speechAttitudeResolved is "docile">>
+		"Please share," you say. "Just a little."
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		"Move over," you say. "Your friend needs food too."
+	<<else>>
+		"Let your friend have some," you say. "There's enough for both of you."
+	<</if>>
 	<br><br>
 	<<if $monster is 1>>
 		<span class="green">The <<beasttype 1>> is enthralled by your touch,</span> and clears a space for the <<beasttype 0>>. <<bHe 1>> goes as far as to guard <<bhim 0>> from other <<pound_text>>, allowing the <<beasttype 0>> to eat <<bhis 0>> fill. <<bHe 0>> smiles at you with gratitude.
@@ -928,8 +986,17 @@ Brush in hand, you enter one of the cages.
 :: Pound Work Brush Tell
 <<effects>><<wearProp "brush">>
 
+<<speechresolve>>
 <<if $tendingSuccess>>
-	"Clear off," you say. "Shoo!"
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		"Please stop," you say. "Shoo."
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"That's enough," you say. "Move aside, please."
+	<<elseif _speechAttitudeResolved is "docile">>
+		"Please get down," you say. "I need to brush you."
+	<<else>>
+		"Clear off," you say. "Shoo!"
+	<</if>>
 	<br><br>
 	<<if $monster is 1>>
 		"Yes!" the <<beasttype>> responds, leaving your leg alone. "Brush me now?"
@@ -944,7 +1011,17 @@ Brush in hand, you enter one of the cages.
 
 	<<poundEndEvent>>
 <<else>>
-	"St-stop," you manage. It's hard to maintain your composure, <span class="red">and the <<beasttype>> ignores you.</span>
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		"St-stop," you manage. It's hard to maintain your composure, <span class="red">and the <<beasttype>> ignores you.</span>
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"Stop that," you say, trying to keep your voice level, <span class="red">but the <<beasttype>> ignores you.</span>
+	<<elseif _speechAttitudeResolved is "docile">>
+		"Please stop," you manage, <span class="red">but the <<beasttype>> ignores you.</span>
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		"Get off," you snap, <span class="red">but the <<beasttype>> ignores you.</span>
+	<<else>>
+		"Stop," you say, trying to keep control, <span class="red">but the <<beasttype>> ignores you.</span>
+	<</if>>
 	<br><br>
 	You try to push <<bhim 0>> off. You're still struggling when the <<beasttype>> reaches orgasm, and a wet warmth coats your leg.<<garousal>><<arousal 600>>
 	<br><br>
@@ -998,8 +1075,18 @@ You endure the <<beasttype>>'s humping, until <<bhe>> reaches orgasm.
 :: Pound Work Brush Soothe
 <<effects>><<wearProp "brush">>
 
+<<speechresolve>>
 <<if $tendingSuccess>>
-	With slow but confident movements, you crouch beside the <<beasttype>> and stroke behind <<bhis>> ear. "There, there," you say. "I'm not going to hurt you. I promise."
+	With slow movements, you crouch beside the <<beasttype>> and stroke behind <<bhis>> ear.
+	<<if (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"There we are," you say. "Let me brush you, and I'll be gentle."
+	<<elseif _speechAttitudeResolved is "docile">>
+		"It's all right," you say. "I'll be gentle."
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		"Settle," you say. "I'm not here to fight you."
+	<<else>>
+		"There, there," you say. "I'm not going to hurt you. I promise."
+	<</if>>
 	<br><br>
 	The <<beasttype>> huffs, <span class="green">but lets you brush <<bhim>>.</span> <<bHes>> lying on <<bhis>> back with one leg kicking the air by the end.<<gpound_status>><<lstress>><<pound_status 1>><<stress -6>>
 <<else>>
@@ -1285,10 +1372,16 @@ The <<person2>><<person>> leers at you from the front. "We'll let you cover," <<
 :: Pound Exposed Help
 <<effects>>
 
-You keep your body hidden around the corner.
-<<if $speech_attitude is "meek">>
-	"E-excuse me?" you say. "Can you help me?"
-<<elseif $speech_attitude is "bratty">>
+You keep your body hidden around the corner, one hand pressed tight against the wall.
+
+<<speechresolve>>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+	"E-Excuse me?" you say. "Can you help me?"
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"Excuse me," you say. "Could you help me, please?"
+<<elseif _speechAttitudeResolved is "docile">>
+	"Please," you say. "I need help."
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
 	"Hey," you say. "Could you give me a hand?"
 <<else>>
 	"Hello," you say. "Could you help me?"
@@ -1443,8 +1536,19 @@ You hold the <<beasttype>>'s collar, and
 :: Pound Work Wash Soothe
 <<effects>>
 
+<<speechresolve>>
 <<if $tendingSuccess>>
-	"It's okay," you croon as you step closer. "The water is warm, and you'll feel better after. I promise."
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		"It's okay," you croon as you step closer. "The water is warm, and you'll feel better after. I promise."
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"The water is warm," you say as you step closer. "Let me wash you, please."
+	<<elseif _speechAttitudeResolved is "docile">>
+		"It's all right," you say as you step closer. "I'll be gentle."
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		"Hold still," you say as you step closer. "It's just water."
+	<<else>>
+		"The water is warm," you say as you step closer. "You'll feel better after."
+	<</if>>
 	<br><br>
 	<<if $monster is 1>>
 		<span class="green">"O-okay," <<bhe>> says, <<bhis>> nerves somewhat soothed.</span>
@@ -1456,7 +1560,17 @@ You hold the <<beasttype>>'s collar, and
 
 	You wash <<bhim>> from head to foot. <<bHe>> doesn't like the water at first, but soon gets used to it. You take the bucket and leave the cage, leaving <<bhim>> to shake off the water.
 <<else>>
-	"Don't be scared," you say. You hold the sponge out to show <<bhim>> there's nothing to be afraid of, <span class="red">but <<bhe>> only recoils further.</span><<gtending>><<tending 1>>
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		"Don't be scared," you say. You hold the sponge out to show <<bhim>> there's nothing to be afraid of, <span class="red">but <<bhe>> only recoils further.</span><<gtending>><<tending 1>>
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"Please, it's only water," you say, holding the sponge out, <span class="red">but <<bhe>> only recoils further.</span><<gtending>><<tending 1>>
+	<<elseif _speechAttitudeResolved is "docile">>
+		"I won't hurt you," you say, holding the sponge out, <span class="red">but <<bhe>> only recoils further.</span><<gtending>><<tending 1>>
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		"Stop acting like it's poison," you say, holding the sponge out, <span class="red">but <<bhe>> only recoils further.</span><<gtending>><<tending 1>>
+	<<else>>
+		"Don't be scared," you say. You hold the sponge out, <span class="red">but <<bhe>> only recoils further.</span><<gtending>><<tending 1>>
+	<</if>>
 	<br><br>
 
 	<<bHe>> relents eventually, but whines the whole time. When done, <<bhe>> shakes <<bhis>> head and fur with force enough to splash the <<pound_text>> in neighbouring cages. <span class="pink">You're drenched.</span>
@@ -1500,10 +1614,17 @@ You put the bucket aside, and crouch beside the <<beasttype>>. "If you promise t
 	<<case "wash">>
 		After a while, you manage to get the <<beasttype>> washed, but it leaves you out of breath.
 	<<case "calm">>
-		You attempt to calm the <<beasttype>> down.
-		<<if $speech_attitude is "meek">>
+		You attempt to calm the <<beasttype>> down, keeping the bucket low where <<bhe>> can see it.
+		<<speechresolve>>
+		<<if _speechAttitudeResolved is "meek">>
 			"Please calm down so I can wash you!" you plead.
-		<<elseif $speech_attitude is "bratty">>
+		<<elseif _speechAttitudeResolved is "shy">>
+			"P-Please sit still," you say. "I just need to wash you."
+		<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+			"Please sit still a moment," you say. "This will be easier for both of us."
+		<<elseif _speechAttitudeResolved is "docile">>
+			"Please calm down," you say. "I'll be gentle."
+		<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
 			"Would you stop fidgeting so much? I need to get this done!" you demand.
 		<<else>>
 			"Can you sit still?" you ask.
@@ -1633,7 +1754,18 @@ You attach leashes to five <<beastsplural>>. They're eager for the exercise, and
 :: Pound Work Walk Beach Flirt
 <<effects>>
 
-"They are," you say. "But they're not as cute as you."
+<<speechresolve>>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+	"They are," you say, struggling not to look away. "But they're not as cute as you."
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"They are lovely," you say. "Though you do rather well yourself."
+<<elseif _speechAttitudeResolved is "docile">>
+	"They're cute," you say. "But I think you are too."
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+	"They are," you say. "But they're not as cute as you."
+<<else>>
+	"They're cute," you say. "You're not bad yourself."
+<</if>>
 <<promiscuity1>>
 
 <<if random(1, 100) is 100>>
@@ -1654,16 +1786,23 @@ The <<beastsplural>> run until they're worn down enough to accept the leashes ba
 :: Pound Work Walk Beach Polite
 <<effects>>
 
-<<if $speech_attitude is "meek">>
-	"N-no," you say. "I just work at the pound."
-<<elseif $speech_attitude is "bratty">>
+<<speechresolve>>
+<<if _speechAttitudeResolved is "meek">>
+	"N-No," you say. "I just work at the pound."
+<<elseif _speechAttitudeResolved is "shy">>
+	"N-No," you say. "I'm only walking them for work."
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"No," you say. "I work at the pound, and I'm walking them."
+<<elseif _speechAttitudeResolved is "docile">>
+	"No," you say. "I'm only doing what I was told."
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
 	"No," you say. "This is my job."
 <<else>>
 	"No," you say. "I work at the pound."
 <</if>>
 <br><br>
 
-The <<person>> nods. "I wanted to see the pups once, maybe adopt one, but they stopped me at the gate. I swear I've seen others enter. Maybe they didn't like my face."
+The <<person>> nods, still watching the leashes in your hands. "I wanted to see the pups once, maybe adopt one, but they stopped me at the gate. I swear I've seen others enter. Maybe they didn't like my face."
 <br><br>
 
 The <<beastsplural>> run until they're worn down enough to accept the leashes back on their collars. You lead them back to the pound.
@@ -1749,8 +1888,17 @@ You arrive at the forest. You keep the <<beastsplural>> on their leashes, as get
 :: Pound Work Walk Forest Call
 <<effects>>
 <<wearProp "dog leash">>
+<<speechresolve>>
 <<if $tendingSuccess>>
-	"Here <<if $NPCList[0].pronoun is "m">>boy<<else>>girl<</if>>," you say. The <<beasttype 0>> responds, <span class="green">and leaves the flower be.</span>
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		"H-Here <<if $NPCList[0].pronoun is "m">>boy<<else>>girl<</if>>," you say. The <<beasttype 0>> responds, <span class="green">and leaves the flower be.</span>
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"Here, <<if $NPCList[0].pronoun is "m">>boy<<else>>girl<</if>>," you say, patting your leg. The <<beasttype 0>> responds, <span class="green">and leaves the flower be.</span>
+	<<elseif _speechAttitudeResolved is "docile">>
+		"Please come here," you say. The <<beasttype 0>> responds, <span class="green">and leaves the flower be.</span>
+	<<else>>
+		"Here <<if $NPCList[0].pronoun is "m">>boy<<else>>girl<</if>>," you say. The <<beasttype 0>> responds, <span class="green">and leaves the flower be.</span>
+	<</if>>
 	<br><br>
 
 	Once suitably exhausted, you lead the <<beastsplural>> back through town, to the pound.
@@ -1758,7 +1906,17 @@ You arrive at the forest. You keep the <<beastsplural>> on their leashes, as get
 
 	<<pound_walk_end>>
 <<else>>
-	"H-here," you stammer, <span class="red">but the <<beasttype 0>> ignores you.</span> <<bHe 0>> buries <<bhis 0>> nose in the flower, <span class="lewd">spreading pollen all around.</span> It smells sweet, and fills you with a strange warmth.<<ggarousal>><<arousal 1200>><<drugs 120>>
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		"H-Here," you stammer, <span class="red">but the <<beasttype 0>> ignores you.</span> <<bHe 0>> buries <<bhis 0>> nose in the flower, <span class="lewd">spreading pollen all around.</span> It smells sweet, and fills you with a strange warmth.<<ggarousal>><<arousal 1200>><<drugs 120>>
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"Come here, please," you call, <span class="red">but the <<beasttype 0>> ignores you.</span> <<bHe 0>> buries <<bhis 0>> nose in the flower, <span class="lewd">spreading pollen all around.</span> It smells sweet, and fills you with a strange warmth.<<ggarousal>><<arousal 1200>><<drugs 120>>
+	<<elseif _speechAttitudeResolved is "docile">>
+		"Please come back," you say, <span class="red">but the <<beasttype 0>> ignores you.</span> <<bHe 0>> buries <<bhis 0>> nose in the flower, <span class="lewd">spreading pollen all around.</span> It smells sweet, and fills you with a strange warmth.<<ggarousal>><<arousal 1200>><<drugs 120>>
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		"Get back here," you say, <span class="red">but the <<beasttype 0>> ignores you.</span> <<bHe 0>> buries <<bhis 0>> nose in the flower, <span class="lewd">spreading pollen all around.</span> It smells sweet, and fills you with a strange warmth.<<ggarousal>><<arousal 1200>><<drugs 120>>
+	<<else>>
+		"Here," you say, <span class="red">but the <<beasttype 0>> ignores you.</span> <<bHe 0>> buries <<bhis 0>> nose in the flower, <span class="lewd">spreading pollen all around.</span> It smells sweet, and fills you with a strange warmth.<<ggarousal>><<arousal 1200>><<drugs 120>>
+	<</if>>
 	<br><br>
 
 	The warmth builds, and your knees tremble. The <<beastsplural>> are also affected. They sniff and lick you. You're filled with a terrible urge to drop to the grass and let them do as they will.
@@ -1900,9 +2058,16 @@ You linger in a copse of trees near the street. The <<beastsplural>> don't under
 <br><br>
 
 A <<generate6>><<person6>><<person>> walks by.
-<<if $speech_attitude is "meek">>
-	"E-excuse me," you call out. "I've had an accident. Could you give me something to cover with?"
-<<elseif $speech_attitude is "bratty">>
+<<speechresolve>>
+<<if _speechAttitudeResolved is "meek">>
+	"E-Excuse me," you call out. "I've had an accident. Could you give me something to cover with?"
+<<elseif _speechAttitudeResolved is "shy">>
+	"E-Excuse me," you call out from behind the leaves. "Could you spare something to cover me?"
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"Excuse me," you call out. "I've had an accident. Could you lend me something to cover myself?"
+<<elseif _speechAttitudeResolved is "docile">>
+	"Please," you call out. "I need something to cover myself."
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
 	"Had an accident in the forest," you call out. "Could you give me something to cover with?"
 <<else>>
 	"Hello," you call out. "I've had an accident. Could you give me something to cover with?"
@@ -2001,9 +2166,9 @@ You glance over your shoulder. A few people follow in amusement, the <<person>> 
 It happens so fast. As you step out onto the street, the <<beasttype 0>> grabs the fabric around your ankle, and pulls. The straps dig into your shoulders, <span class="pink">then snap.</span> The fabric covering your chest begins to fall forward.
 <br><br>
 <<if pcAreArmsBound("both")>>
-	With your arms bound, you can't stop your <<breasts>> being barred. On top of that, the <<beastsplural>> tug your overalls further down your body as you walk, right over your feet. <span class="pink">You trip,</span> and land half-naked in the middle of the street.
+	With your arms bound, you can't stop your <<breasts>> being barred. On top of that, the <<beastsplural>> tug your overalls further down your body as you walk, right over your feet. <span class="pink">You trip,</span> and land partly naked in the middle of the street.
 <<else>>
-	You push the fabric against your chest with one arm, but the <<beastsplural>> tug your overalls further down your body as you walk, right over your feet. <span class="pink">You trip,</span> and land half-naked in the middle of the street.
+	You push the fabric against your chest with one arm, but the <<beastsplural>> tug your overalls further down your body as you walk, right over your feet. <span class="pink">You trip,</span> and land partly naked in the middle of the street.
 <</if>>
 <br><br>
 <<upperruined>>
@@ -2473,9 +2638,20 @@ A <<person2>><<person>> and <<person3>><<person>> notice you take that particula
 
 A pair of yellow eyes open in the corner, and regard you with suspicion.
 
+<<speechresolve>>
 <<if $tendingSuccess>>
 
-	"It's okay," you say. "I'm just here to make sure you're okay."
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		"I-It's okay," you say. "I'm just here to make sure you're okay."
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"It's all right," you say. "I'm only here to check on you."
+	<<elseif _speechAttitudeResolved is "docile">>
+		"I won't hurt you," you say. "I won't do anything you don't want."
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		"Growl at someone else," you say. "I'm not the one who locked you up."
+	<<else>>
+		"You're all right," you say. "I'm just here to make sure you are."
+	<</if>>
 	<br><br>
 
 	The dark stirs, and a colossal black <<beasttype 0>> steps into view. <<bHis 0>> black fur is matted and unkempt, and <<bhe 0>> resembles no breed of dog you're aware of. <<bHe 0>> could almost be a wolf.
@@ -2492,7 +2668,20 @@ A pair of yellow eyes open in the corner, and regard you with suspicion.
 	<<link [[Next|Pound Work Brute Brush]]>><<set $pound.progress to 4>><</link>>
 	<br>
 <<else>>
-	"G-good doggy," you say. "I'm—"
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		"G-Good doggy," you say. "I'm..."
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"Stay calm," you say. "I'm not here to trouble you."
+	<<elseif _speechAttitudeResolved is "docile">>
+		"Please don't hurt me," you say.
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		"Don't start," you say.
+		<<if _speechAttitudeResolved is "cruel">>
+			"I mean it."
+		<</if>>
+	<<else>>
+		"Steady," you say. "I'm just here to check on you."
+	<</if>>
 	<br><br>
 	<span class="red">A flash of white teeth strikes you with terror.</span> You flee the cage. The <<person2>><<person>> and <<person3>><<person>> laugh, but you don't care, you just need to be away.
 	<br><br>
@@ -2545,15 +2734,25 @@ You turn as you leave the cage, and make contact with the <<beasttype 0>>'s sad 
 <<generate1>><<person1>>
 A <<person>> prowls down the aisle between cages, sweeping fur with a broom. <<He>> stops as you approach <<him>>, and looks you up and down. "What you want?"
 <br><br>
-<<if $speech_attitude is "meek">>
+<<speechresolve>>
+<<if _speechAttitudeResolved is "meek">>
 	"I-I'm looking for work," you say. "Do you need help?"
-<<elseif $speech_attitude is "bratty">>
+<<elseif _speechAttitudeResolved is "shy">>
+	"I-I'm looking for work," you say. "I can help, if you need someone."
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"I'm looking for work," you say. "Do you need another pair of hands?"
+<<elseif _speechAttitudeResolved is "docile">>
+	"I can work," you say. "I'll do what you need."
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
 	"Got any work?" you ask.
+	<<if _speechAttitudeResolved is "cruel">>
+		"Nothing stupid."
+	<</if>>
 <<else>>
 	"I'm looking for work," you say. "Are you hiring?"
 <</if>>
 <br><br>
-The <<person>> spits, and nods. "You done anything like this before?" <<he>> asks. <<He>> cuts off your response. "Doesn't matter. We need the hands. Brushing, feeding, washing, walking. They're a handful."
+The <<person>> spits into a drain, and nods. "You done anything like this before?" <<he>> asks. <<He>> cuts off your response. "Doesn't matter. We need the hands. Brushing, feeding, washing, walking. They're a handful."
 <br><br>
 "We'll pay you <<printmoney 500>> an hour. Not much, but you'll get more if you do a good job. Start whenever."
 <br><br>
