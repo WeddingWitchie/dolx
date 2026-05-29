@@ -689,11 +689,21 @@ if (!V.npcOrgasmState || typeof V.npcOrgasmState !== "object" || Array.isArray(V
 		statChange.pain(pain * modifier);
 	};
 
-	// Per-minute pain decay rate. 
+	// Per-minute pain decay rate.
 	// Used as the `modifier` arg to statChange.pain from time.js, so this returns a negative number (pain decreases over time).
-	// Floor of 0.02 ensures pain always decays at least slowly, even at very high pain.
+	// Acclimation model: pain fades gently, speeding up the longer the PC has been hurting, within a fixed band.
+	//   PAIN_DECAY_MIN  = decay during the first interval (per minute).
+	//   PAIN_DECAY_MAX  = fastest decay once fully acclimated (per minute, hard cap).
+	//   PAIN_DECAY_STEP = added to the rate at each adaptation step (capped at PAIN_DECAY_MAX).
+	//   Steps trigger at 1h, 3h, 7h, 15h, 31h ... in pain (each gap doubles: 1, 2, 4, 8 ...).
+	// V.painDuration (minutes spent continuously in pain) is maintained in time.js minutePassed().
 	setup.painChangeByTime = function painChangeByTime(currentPain) {
-		return -Math.max(0.39 * Math.exp(-0.0195 * currentPain), 0.02);
+		const PAIN_DECAY_MIN = 0.3;
+		const PAIN_DECAY_MAX = 0.5;
+		const PAIN_DECAY_STEP = 0.05;
+		const hours = (V.painDuration || 0) / 60;
+		const steps = Math.floor(Math.log2(hours + 1));
+		return -Math.min(PAIN_DECAY_MIN + steps * PAIN_DECAY_STEP, PAIN_DECAY_MAX);
 	};
 
 	// Multiplier on tiredness gain due to pain. 

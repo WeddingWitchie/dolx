@@ -1446,7 +1446,16 @@ function minutePassed(minutes) {
 	if (V.drugged > 0) statChange.drugs(-minutes * druggedRate);
 	// prevent fatigue from being an issue when passing days (actually 20+ hours) at a time
 	if (minutes < 1200 && V.timeSkip === undefined) statChange.tiredness(minutes / 15);
-	statChange.pain(minutes, setup.painChangeByTime ? setup.painChangeByTime(V.pain) : -1);
+	// Pain acclimation: painChangeByTime ramps decay up the longer the PC has been hurting,
+	// so V.painDuration tracks how many minutes pain has been continuous. Compute decay first
+	// (so this block uses the time already spent in pain), then advance/reset the counter.
+	const painDecay = setup.painChangeByTime(V.pain);
+	statChange.pain(minutes, painDecay);
+	if (V.pain > statChange.minPain()) {
+		V.painDuration = (V.painDuration || 0) + minutes;
+	} else {
+		V.painDuration = 0;
+	}
 
 	// Arousal
 	const risk = playerPregnancyRisk();
