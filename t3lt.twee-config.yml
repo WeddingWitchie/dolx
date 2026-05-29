@@ -21290,28 +21290,6 @@ sugarcube-2:
       name: walkBikeFrom
     tendingCropProgressStats:
       name: tendingCropProgressStats
-    playerHasClaws:
-      name: playerHasClaws
-      description: >
-        <<playerHasClaws>> returns true via _hasClaws temp.
-
-        Single source of truth for "does the player have functional cat claws?"
-
-        Used by scratch resolution (always level-3 damage), menu gate (Scratch
-        always available), 
-
-        hand-skill penalty (always skipped), and could be reused by future
-        content (climbing checks, allure conditional, etc.).
-
-
-        IMPORTANT: 
-
-        there is a JS twin of this check in widgets.js calculateallure()
-
-        (variable `playerHasCatClaws`) because Twee widgets can't be called from
-        inside a JS function.
-
-        If the threshold changes, update there too.
     actionsscratch:
       name: actionsscratch
       description: >
@@ -21339,11 +21317,6 @@ sugarcube-2:
 
         jewelled-ring punch bonus, so nail armour now lives up to its
         description ("If you scratch somebody with them, it will hurt.").
-
-
-        Cat-TF: players with cat claws see <<playerHasClaws>> always deal
-        level-3 damage and have the Scratch menu option available
-
         regardless of $nailslevel; claws are present even at trim 0.
     nailtext:
       name: nailtext
@@ -21395,15 +21368,39 @@ sugarcube-2:
       name: loftKitchenStockUI
     scratchFlatDamage:
       name: scratchFlatDamage
-      description: |
+      description: >
         Scratch deals FLAT health damage, divorced from physique.
-        <<defiance>> normally deals 2 × defiance × (physique / 4000) health damage, which at high physique is enormous. A punch can hit for 700+.
-        For Scratch, we want a light, realistic graze, so we call <<defiance>> for its social/stat effects, such as enemy anger, arousal drain, and the player's trauma/stress,
-        then override the health it removed with a small flat amount.
+        <<defiance>> normally deals 2 × defiance × (physique / 4000) health
+        damage, which at high physique is enormous. A punch can hit for 700+.
+        For Scratch, we want a light, realistic graze, so we call <<defiance>>
+        for its social/stat effects, such as enemy anger, arousal drain, and the
+        player's trauma/stress, then override the health it removed with a small flat amount.
 
-        Usage: snapshot health BEFORE the <<defiance>> call(s), then call this AFTER them with the snapshot and the flat amount:
+        Usage: snapshot health BEFORE the <<defiance>> call(s), then call this
+        AFTER them with the snapshot and the flat amount:
           _args[0] = enemy health before the defiance call(s)
           _args[1] = target index, for multi-enemy $NPCList health
           _args[2] = that target's NPC health before, or undefined
           _args[3] = flat damage to apply
-        Result: the enemy loses exactly _args[3] health from the scratch, regardless of physique.
+        Result: the enemy loses exactly _args[3] health from the scratch,
+        regardless of physique.
+    scratchDamageProfile:
+      name: scratchDamageProfile
+      description: |
+        The damage brain for Scratch/Claw. Sets:
+          _scratchTier  — "claw" (level 3 nails OR any animal claw) else "scratch"
+          _scratchFlat  — flat health damage for ONE clean hit
+          _scratchDef   — small value for <<defiance>>'s social effects (anger/arousal/stress)
+
+        Design:
+          - CONSENSUAL ($consensual is 1): gentle, fixed love-taps. Scratch 3, Claw 6.
+            No body-size scaling; a feisty consensual scratch shouldn't gut a partner.
+          - NON-CONSENSUAL: "deadly", and scaled INVERSELY by body size so small/weak
+            PCs get a real weapon while big PCs gain little. They should punch, which
+            scales UP with physique elsewhere. The body ladder mirrors the combat
+            dodge ladder ($bodysize), inverted: small body = high multiplier.
+          - Nail-armour rings: flat +2, applied by caller, not here.
+        Caller passes _effectiveNailLevel and _clawType in scope via playerClawType
+        and the per-block effective-level set. This widget reads them.
+    playerClawType:
+      name: playerClawType

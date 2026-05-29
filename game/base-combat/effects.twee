@@ -934,7 +934,7 @@
 			<<set $leftactiondefault to "leftscratch">><<set $rightactiondefault to "rightscratch">>
 			/* Cat-TF: claws are always present and combat-extended count as level 3 regardless of natural nail length. 
 			_effectiveNailLevel drives the damage scaling below; $nailslevel is still useful for non-claw flavor. */
-			<<playerHasClaws>>
+			<<playerClawType>>
 			<<set _effectiveNailLevel to (_hasClaws ? 3 : ($nailslevel ?? 0))>>
 			<<willpowercombatcheck>>
 			<<if $willpowerSuccess>>
@@ -947,10 +947,10 @@
 				<<set _ringsType to (($worn.rings && typeof $worn.rings.type === "string") ? $worn.rings.type : "")>>
 				<<set _hasNailRings to (_ringsName.includes("nail armour"))>>
 
-				/* _scratchDef drives defiance macro's SOCIAL effects only (anger, arousal, stress) kept small. 
-				Health damage is applied flat afterwards via scratchFlatDamage macro, so it does NOT scale with physique. */
-				<<set _scratchDef to (_effectiveNailLevel gte 3 ? 1.25 : 0.8)>>
-				<<set _scratchFlat to (_effectiveNailLevel gte 3 ? 6 : 3)>>
+				/* Damage profile: tier (scratch/claw), consensual-aware, body-size scaled for non-consensual. 
+				_scratchDef = social effects, _scratchFlat = health. "dual" tells it this is a two-handed strike (slightly higher def). */
+				<<playerClawType>>
+				<<scratchDamageProfile "dual">>
 				<<if _hasNailRings>><<set _scratchFlat += 2>><</if>>
 
 				/* snapshot health before any defiance call so the flat override is exact */
@@ -992,7 +992,7 @@
 		<<if $leftaction is "leftscratch">>
 			<<set $leftaction to 0>><<set $leftactiondefault to "leftscratch">>
 			<<set $striking to 1>><<combatExtendedEnemyCheck $lefttarget>>
-			<<playerHasClaws>>
+			<<playerClawType>>
 			<<set _effectiveNailLevel to (_hasClaws ? 3 : ($nailslevel ?? 0))>>
 			<<willpowercombatcheck>>
 			<<if !$willpowerSuccess>>
@@ -1006,8 +1006,8 @@
 				<<else>>
 					The slime tries to stop you, <span class="green">but your nails catch flesh regardless.</span>
 					<<actionsscratch $lefttarget>>
-					<<set _scratchDef to (_effectiveNailLevel gte 3 ? 0.5 : 0.35)>>
-					<<set _scratchFlat to (_effectiveNailLevel gte 3 ? 6 : 3)>>
+					<<playerClawType>>
+					<<scratchDamageProfile "single">>
 					<<set _scratchHpBefore to $enemyhealth>>
 					<<set _scratchNpcHpBefore to (($NPCList && $NPCList[$lefttarget] && typeof $NPCList[$lefttarget].health === "number") ? $NPCList[$lefttarget].health : undefined)>>
 					<<defiance _scratchDef $lefttarget>><<set $speechscratch to 1>><<set $attackstat += 1>>
@@ -1018,8 +1018,8 @@
 				<<set _ringsName to (($worn.rings && typeof $worn.rings.name === "string") ? $worn.rings.name : "")>>
 				<<set _ringsType to (($worn.rings && typeof $worn.rings.type === "string") ? $worn.rings.type : "")>>
 				<<set _hasNailRings to (_ringsName.includes("nail armour"))>>
-				<<set _scratchDef to (_effectiveNailLevel gte 3 ? 0.5 : 0.35)>>
-				<<set _scratchFlat to (_effectiveNailLevel gte 3 ? 6 : 3)>>
+				<<playerClawType>>
+				<<scratchDamageProfile "single">>
 				<<if _hasNailRings>><<set _scratchFlat += 2>><</if>>
 				<<set _scratchHpBefore to $enemyhealth>>
 				<<set _scratchNpcHpBefore to (($NPCList && $NPCList[$lefttarget] && typeof $NPCList[$lefttarget].health === "number") ? $NPCList[$lefttarget].health : undefined)>>
@@ -1052,7 +1052,7 @@
 			<<set $rightaction to 0>><<set $rightactiondefault to "rightscratch">>
 			<<personselect $righttarget>>
 			<<set $striking to 1>><<combatExtendedEnemyCheck $righttarget>>
-			<<playerHasClaws>>
+			<<playerClawType>>
 			<<set _effectiveNailLevel to (_hasClaws ? 3 : ($nailslevel ?? 0))>>
 			<<willpowercombatcheck>>
 			<<if !$willpowerSuccess>>
@@ -1066,8 +1066,8 @@
 				<<else>>
 					The slime tries to stop you, <span class="green">but your nails catch flesh regardless.</span>
 					<<actionsscratch $righttarget>>
-					<<set _scratchDef to (_effectiveNailLevel gte 3 ? 0.5 : 0.35)>>
-					<<set _scratchFlat to (_effectiveNailLevel gte 3 ? 6 : 3)>>
+					<<playerClawType>>
+					<<scratchDamageProfile "single">>
 					<<set _scratchHpBefore to $enemyhealth>>
 					<<set _scratchNpcHpBefore to (($NPCList && $NPCList[$righttarget] && typeof $NPCList[$righttarget].health === "number") ? $NPCList[$righttarget].health : undefined)>>
 					<<defiance _scratchDef $righttarget>><<set $speechscratch to 1>><<set $attackstat += 1>>
@@ -1078,8 +1078,8 @@
 				<<set _ringsName to (($worn.rings && typeof $worn.rings.name === "string") ? $worn.rings.name : "")>>
 				<<set _ringsType to (($worn.rings && typeof $worn.rings.type === "string") ? $worn.rings.type : "")>>
 				<<set _hasNailRings to (_ringsName.includes("nail armour"))>>
-				<<set _scratchDef to (_effectiveNailLevel gte 3 ? 0.5 : 0.35)>>
-				<<set _scratchFlat to (_effectiveNailLevel gte 3 ? 6 : 3)>>
+				<<playerClawType>>
+				<<scratchDamageProfile "single">>
 				<<if _hasNailRings>><<set _scratchFlat += 2>><</if>>
 				<<set _scratchHpBefore to $enemyhealth>>
 				<<set _scratchNpcHpBefore to (($NPCList && $NPCList[$righttarget] && typeof $NPCList[$righttarget].health === "number") ? $NPCList[$righttarget].health : undefined)>>

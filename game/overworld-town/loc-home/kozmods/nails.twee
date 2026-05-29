@@ -32,8 +32,15 @@
 
 :: Nails [widget]
 <<widget "nailtext">><<nobr>>
-	<<if ($cat gte 6 or ($transformationParts.cat.tail isnot "hidden" and $transformationParts.cat.tail isnot "disabled"))>>
+	<<playerClawType>>
+	<<if _clawType is "cat">>
 		Your fingertips look ordinary, though you can feel sharp claws sheathed beneath the pads, ready to extend at your will.
+	<<elseif _clawType is "wolf">>
+		Thick, blunt claws cap each finger, more suited to digging and tearing than fine work.
+	<<elseif _clawType is "fox">>
+		Slender, needle-fine claws tip your fingers.
+	<<elseif _clawType is "bear">>
+		Heavy, curved claws extend from your fingers.
 	<<elseif def $nailslevel and $nailslevel gte 3>>
 		Your fingernails have grown into hard, sharp points, enough to leave marks when you scratch.
 	<<elseif def $nailslevel and $nailslevel gte 2>>
@@ -45,12 +52,58 @@
 	<</if>>
 <</nobr>><</widget>>
 
-<<widget "playerHasClaws">>
-	<<set _hasClaws to ($cat gte 6 or ($transformationParts.cat.tail isnot "hidden" and $transformationParts.cat.tail isnot "disabled"))>>
+<<widget "playerClawType">>
+	/* Single source of truth for "does the player have functional animal claws,
+	   and from which TF?" Returns:
+	     _clawType — "cat" | "wolf" | "fox" | "bear" | ""   (first match wins)
+	     _hasClaws — boolean convenience (true if _clawType isnot "")
+	   Each animal counts as "clawed" when awakened (gte 6) OR displaying a tail
+	   that isn't hidden/disabled, matching the canonical per-animal checks.
+	   Claws are retractable/always-present: a clawed PC scratches at claw tier
+	   regardless of natural nail length. */
+	<<set _clawType to "">>
+	<<if $cat gte 6 or ($transformationParts.cat.tail isnot "hidden" and $transformationParts.cat.tail isnot "disabled")>>
+		<<set _clawType to "cat">>
+	<<elseif $wolfgirl gte 6 or ($transformationParts.wolf.tail isnot "hidden" and $transformationParts.wolf.tail isnot "disabled")>>
+		<<set _clawType to "wolf">>
+	<<elseif $fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled")>>
+		<<set _clawType to "fox">>
+	<<elseif $bear gte 6 or ($transformationParts.bear.tail isnot "hidden" and $transformationParts.bear.tail isnot "disabled")>>
+		<<set _clawType to "bear">>
+	<</if>>
+	<<set _hasClaws to (_clawType isnot "")>>
 <</widget>>
 
+<<widget "scratchDamageProfile">><<silently>>
+	<<set _scratchTier to ((_hasClaws or (def _effectiveNailLevel and _effectiveNailLevel gte 3)) ? "claw" : "scratch")>>
+	<<set _scratchBaseFlat to (_scratchTier is "claw" ? 6 : 3)>>
+	<<set _scratchDef to (_scratchTier is "claw" ? (_args[0] is "dual" ? 1.25 : 0.5) : (_args[0] is "dual" ? 0.8 : 0.35))>>
+
+	<<if $consensual is 1>>
+		/* gentle: fixed, no body scaling */
+		<<set _scratchFlat to _scratchBaseFlat>>
+	<<else>>
+		/* deadly: inverse body-size multiplier (mirrors dodge ladder) */
+		<<if $bodysize lte 0>>
+			<<set _bodyMult to 4.0>>
+		<<elseif $bodysize is 1>>
+			<<set _bodyMult to 3.0>>
+		<<elseif $bodysize is 2>>
+			<<set _bodyMult to 2.0>>
+		<<elseif $bodysize is 2.5>>
+			<<set _bodyMult to 1.5>>
+		<<elseif $bodysize is 3>>
+			<<set _bodyMult to 1.0>>
+		<<else>>
+			/* bodysize 4+ (giant) */
+			<<set _bodyMult to 0.5>>
+		<</if>>
+		<<set _scratchFlat to Math.max(1, Math.round(_scratchBaseFlat * _bodyMult))>>
+	<</if>>
+<</silently>><</widget>>
+
 <<widget "playerNailsNoticeable">>
-	<<playerHasClaws>>
+	<<playerClawType>>
 	<<set _nailsNoticeable to (
 		!_hasClaws and (
 			(def $nailslevel and $nailslevel gte 2)
@@ -73,8 +126,18 @@
 <</silently>><</widget>>
 
 <<widget "actionsscratch">>
-	<<playerHasClaws>>
-	<<if _hasClaws or (def $nailslevel and $nailslevel gte 3)>>
+	<<playerClawType>>
+	/* _hand is substituted into every flavor sentence below,
+	so per-animal claw descriptors here give each TF distinct combat text for free. */
+	<<if _clawType is "wolf">>
+		<<set _hand to "blunt claws">>
+	<<elseif _clawType is "fox">>
+		<<set _hand to "needle-sharp claws">>
+	<<elseif _clawType is "bear">>
+		<<set _hand to "heavy claws">>
+	<<elseif _clawType is "cat">>
+		<<set _hand to "long claws">>
+	<<elseif def $nailslevel and $nailslevel gte 3>>
 		<<set _hand to "claws">>
 	<<else>>
 		<<set _hand to "nails">>
@@ -92,35 +155,35 @@
 		<<if $enemytype is "beast">>
 			<<if $pain lte 20>>
 				<<= either(
-					"You try to rake your _hand across the <<beasttype>> but they",
-					"You swipe at the <<beasttype>> with your _hand but they"
+					`You try to rake your <span class="red">${_hand}</span> across the <<beasttype>> but they`,
+					`You swipe at the <<beasttype>> with your <span class="red">${_hand}</span> but they`
 				)>>
 			<<elseif $pain lte 60>>
 				<<= either(
-					"You fight through pain and try to rake the <<beasttype>> with your _hand but they",
-					"Gritting through the pain, you slash at the <<beasttype>> with your _hand but they"
+					`You fight through pain and try to rake the <<beasttype>> with your <span class="red">${_hand}</span> but they`,
+					`Gritting through the pain, you slash at the <<beasttype>> with your <span class="red">${_hand}</span> but they`
 				)>>
 			<<else>>
 				<<= either(
-					"Pained and terrified, you claw wildly at the <<beasttype>> but they",
-					"Panicked and hurting, you lash out with your _hand but they"
+					`Pained and terrified, you claw wildly with your <span class="red">${_hand}</span> at the <<beasttype>> but they`,
+					`Panicked and hurting, you lash out with your <span class="red">${_hand}</span> but they`
 				)>>
 			<</if>>
 		<<else>>
 			<<if $pain lte 20>>
 				<<= either(
-					"You try to rake <<someone $_target>> with your _hand but they",
-					"You swipe at <<someone $_target>> with your _hand but they"
+					`You try to rake <<someone $_target>> with your <span class="red">${_hand}</span> but they`,
+					`You swipe at <<someone $_target>> with your <span class="red">${_hand}</span> but they`
 				)>>
 			<<elseif $pain lte 60>>
 				<<= either(
-					"You fight through the pain and try to rake at <<someone $_target>> with your _hand but they",
-					"Forcing yourself through the pain, you slash at <<someone $_target>> with your _hand but they"
+					`You fight through the pain and try to rake at <<someone $_target>> with your <span class="red">${_hand}</span> but they`,
+					`Forcing yourself through the pain, you slash at <<someone $_target>> with your <span class="red">${_hand}</span> but they`
 				)>>
 			<<else>>
 				<<= either(
-					"Pained and terrified, you claw wildly in self-defence but they",
-					"Scared and hurting, you lash out with your _hand in self-defence but they"
+					`Pained and terrified, you claw wildly with your <span class="red">${_hand}</span> in self-defence but they`,
+					`Scared and hurting, you lash out with your <span class="red">${_hand}</span> in self-defence but they`
 				)>>
 			<</if>>
 		<</if>>
@@ -137,35 +200,35 @@
 		<<if $enemytype is "beast">>
 			<<if $pain lte 20>>
 				<<= either(
-					`You <span class="red">rake</span> your _hand across the <<beasttype>>.`,
-					`You <span class="red">swipe</span> at the <<beasttype>> with your _hand.`
+					`You rake your <span class="red">${_hand}</span> across the <<beasttype>>.`,
+					`You swipe at the <<beasttype>> with your <span class="red">${_hand}</span>.`
 				)>>
 			<<elseif $pain lte 60>>
 				<<= either(
-					`You fight through pain and <span class="red">rake</span> the <<beasttype>> with your _hand.`,
-					`You grit through the pain and <span class="red">slash</span> at the <<beasttype>> with your _hand.`
+					`You fight through pain and rake the <<beasttype>> with your <span class="red">${_hand}</span>.`,
+					`You grit through the pain and slash at the <<beasttype>> with your <span class="red">${_hand}</span>.`
 				)>>
 			<<else>>
 				<<= either(
-					`Pained and terrified, you <span class="red">claw wildly</span> at the <<beasttype>>.`,
-					`Panicked, you <span class="red">thrash</span> at the <<beasttype>> with your _hand.`
+					`Pained and terrified, you claw wildly with your <span class="red">${_hand}</span> at the <<beasttype>>.`,
+					`Panicked, you thrash at the <<beasttype>> with your <span class="red">${_hand}</span>.`
 				)>>
 			<</if>>
 		<<else>>
 			<<if $pain lte 20>>
 				<<= either(
-					`You <span class="red">rake</span> <<someone $_target>> with your _hand, <span class="red">leaving red lines where they pass</span>.`,
-					`You <span class="red">swipe</span> at <<someone $_target>> with your _hand.`
+					`You rake <<someone $_target>> with your <span class="red">${_hand}</span>, <span class="red">leaving red lines where they pass</span>.`,
+					`You swipe at <<someone $_target>> with your <span class="red">${_hand}</span>.`
 				)>>
 			<<elseif $pain lte 60>>
 				<<= either(
-					`You fight through the pain and <span class="red">rake</span> <<someone $_target>> with your _hand.`,
-					`Through the pain, you <span class="red">slash</span> at <<someone $_target>> with your _hand.`
+					`You fight through the pain and rake <<someone $_target>> with your <span class="red">${_hand}</span>.`,
+					`Through the pain, you slash at <<someone $_target>> with your <span class="red">${_hand}</span>.`
 				)>>
 			<<else>>
 				<<= either(
-					`Pained and terrified, you <span class="red">claw wildly</span> in self-defence.`,
-					`In a panic, you <span class="red">lash out</span> with your _hand.`
+					`Pained and terrified, you claw wildly with your <span class="red">${_hand}</span> in self-defence.`,
+					`In a panic, you lash out with your <span class="red">${_hand}</span>.`
 				)>>
 			<</if>>
 		<</if>>
