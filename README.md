@@ -1,37 +1,22 @@
-# Degrees of Lewdity: XChange Edition
+# Degrees of Lewdity: X-Change Edition
+> You take a pill. And you turn into an incredibly attractive opposite-sex version of yourself (try to keep control of what happens next!).
 
-> You take a pill. And you turn into an incredibly attractive opposite sex version of yourself. (Until the effect of the pill wears off)
+DoL:X-Change Edition is a modded build of *Degrees of Lewdity* that **adds the X-Change pill system, DoL Plus integration, extra world content, gender identity mechanics, encounter/sex additions, event polish, quality-of-life changes, and audio support**.
 
-The premise is that simple.
+The original hook is simple: X-Change is a fictional brand of sex-swapping pills. In this mod, that idea is woven into the world instead of being treated as a one-off gimmick. Pills can be bought, forced on the player, slipped into events, used by NPCs, or tied into routes, encounters, and social pressure. They can open up new scenes, change how existing situations play out, or leave the player dealing with unexpected consequences. Sometimes they make a scene take a different turn from how it would in vanilla DoL, or even in DoL Plus. But in the middle of all that, there are heartwarming scenes you might not expect.
+
+**Join DoL:X today!** 
+And start enjoying both sexes!
+
+For spoilers, routes, and more specific mechanics, see the **[Content Guide](CONTENT_GUIDE.md)**.
 
 ---
 
-For those of you that don't know, X-Change is a fictitious brand that manufactures temporary gender-swapping pills that last for a set amount of time.
-
-This mod attempts to add the titular X-Change pills into the game, as its core focus.
-
-In addition to that, this mod has also integrated the DoL Plus mod as a core part of its experience.
-
-## Content
-
-For a full overview, check out the **[Content Guide](CONTENT_GUIDE.md)**!
-
-* Buy X-Change pills at the pharmacy in the hospital.
-* Be spiked with pills by random NPCs in the world.
-* Since you now get a bonus to Seduction while tipsy, you have an incentive to drink at the pub when trying to hookup there (and a chance to be spiked while drinking).
-* Add additional risk to playing Blackjack with Wren, by getting pilled with X-Change Continue or Resistance (if you're both same sex) upon your first loss.
-* Be forced to take pills to go on dates with Avery (if you're both same sex).
-* Get bullied by Whitney into staying pilled with X-Change Continue.
-* Ivory Wraith may also join the genderswapping fun by messing with your body in the underwater prison.
-* Experience DoL for the first time with an experimental audio system (currently only includes sex SFX and voiceovers. **Note: iOS not supported**).
-
-
-All of this, along with many small custom changes and improvements to the DoL Plus framework to better the X-Change Edition experience!
-
-**Join DoL:XE today!**
-And start enjoying both sexes!
-
-
 ## Discord
+Join the `#xchange-gender-pills` channel on the **[DOLP Discord](https://discord.gg/dolp)** for discussion, help, bug reports, and updates.
 
-Join the #xchange-gender-pills channel on [DOLP](https://discord.gg/dolp)'s discord server.
+## Credits
+* *Degrees of Lewdity* by Vrelnir and contributors.
+* DoL Plus framework and contributors.
+* X-Change Edition and additional mod content by DoL:X-Change contributors.
+* Additional assets, fixes, and content by the credited community contributors listed in the release page.
