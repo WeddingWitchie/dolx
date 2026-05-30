@@ -679,14 +679,90 @@ if (!V.npcOrgasmState || typeof V.npcOrgasmState !== "object" || Array.isArray(V
 			tentacledeep: 3,
 		};
 
+		// Wetness eases penetration pain. Maps a hole's wetness (0-100) to a multiplier:
+		//   dry (0)        -> WET_PAIN_MAX_MULT (full pain)
+		//   drenched (100) -> WET_PAIN_MIN_MULT (reduced, but never zero; penetration still hurts)
+		const WET_PAIN_MAX_MULT = 1;    // pain multiplier when completely dry
+		const WET_PAIN_MIN_MULT = 0.4;  // pain multiplier when fully wet (floor: stays hurtful)
+		const wetnessMult = wetness => {
+			const w = Math.clamp(wetness ?? 0, 0, 100) / 100;
+			return WET_PAIN_MAX_MULT - w * (WET_PAIN_MAX_MULT - WET_PAIN_MIN_MULT);
+		};
+
+		// Size (stretch) pain: large penetrators add extra pain on top of the base.
+		//   SIZE_PAIN_THRESHOLD = sizes at or below this add NO stretch pain (1=Mini ... 4=Normal).
+		//   SIZE_PAIN_PER_STEP  = pain added per size step above the threshold (5=Large, 6=Enormous).
+		// So with threshold 4 / step 2: size 5 -> +2, size 6 -> +4 (before wetness/body modifiers).
+		const SIZE_PAIN_THRESHOLD = 4;
+		const SIZE_PAIN_PER_STEP = 2;
+		const sizePain = size => Math.max(0, (size ?? 0) - SIZE_PAIN_THRESHOLD) * SIZE_PAIN_PER_STEP;
+
+		// Wetness only PARTIALLY eases stretch pain; a big penis still hurts even when fully wet.
+		//   SIZE_WET_MIN_MULT = fraction of stretch pain that remains when fully wet (floor).
+		const SIZE_WET_MIN_MULT = 0.7;
+		const sizeWetMult = wetness => {
+			const w = Math.clamp(wetness ?? 0, 0, 100) / 100;
+			return 1 - w * (1 - SIZE_WET_MIN_MULT);
+		};
+
+		// Find the largest penis fully seated in a hole. Full penetration sets the NPC's
+		// .penis to exactly the hole name (or holename+"double"); "entrance"/"imminent" don't count.
+		// Scanning NPCList by .penis avoids relying on $vaginatarget/$anustarget indices,
+		// where 0 ambiguously means both "NPC #0" and "none".
+		const maxPenetratorSize = (...penisValues) => {
+			if (!Array.isArray(V.NPCList)) return 0;
+			let maxSize = 0;
+			for (const npc of V.NPCList) {
+				if (npc && penisValues.includes(npc.penis)) {
+					const s = Number(npc.penissize);
+					if (Number.isFinite(s) && s > maxSize) maxSize = s;
+				}
+			}
+			return maxSize;
+		};
+
 		let pain = 0;
-		for (const state of [V.vaginastate, V.anusstate]) {
-			if (state in painStates) pain += painStates[state];
+		if (V.vaginastate in painStates) {
+			pain += painStates[V.vaginastate] * wetnessMult(V.vaginaWetness);
+			pain += sizePain(maxPenetratorSize("vagina", "vaginadouble")) * sizeWetMult(V.vaginaWetness);
 		}
-		if (V.mouthstate in painStates) pain += painStates[V.mouthstate] * 0.5;
+		if (V.anusstate in painStates) {
+			pain += painStates[V.anusstate] * wetnessMult(V.anusWetness);
+			pain += sizePain(maxPenetratorSize("anus", "anusdouble")) * sizeWetMult(V.anusWetness);
+		}
+		// Mouth has no wetness stat (saliva assumed); keep its existing 0.5 weighting unchanged.
+		if (V.mouthstate in painStates) {
+			pain += painStates[V.mouthstate] * 0.5;
+			pain += sizePain(maxPenetratorSize("mouth")) * 0.5;
+		}
 
 		const modifier = BODY_SIZE_PAIN_MODIFIER.get(V.bodysize) ?? 0;
 		statChange.pain(pain * modifier);
+
+		// --- Consensual vs non-consensual aftermath -------------------------------
+		// V.consensual:  1 = consensual encounter, 0 = assault.
+		// V.orgasmcount: the PC's orgasms this encounter (DoL's own per-scene counter, reset by combat init).
+		if (V.consensual === 1) {
+			// CONSENSUAL: after enough orgasms the PC acclimates and pain eases off each turn,
+			// faster the wetter things are (can fully null pain over time). "How wet during the action."
+			const ADAPT_ORGASM_THRESHOLD = 3;  // orgasms required before adaptation kicks in
+			const ADAPT_BASE = 1;              // pain removed per turn once adapted, when dry
+			const ADAPT_WET_BONUS = 4;         // extra removal that scales up to full wetness
+			if ((V.orgasmcount || 0) >= ADAPT_ORGASM_THRESHOLD) {
+				const wet = Math.clamp(Math.max(V.vaginaWetness ?? 0, V.anusWetness ?? 0), 0, 100) / 100;
+				const adapt = ADAPT_BASE + wet * ADAPT_WET_BONUS;
+				statChange.pain(-adapt, 1); // modifier 1 => removes exactly `adapt` pain
+			}
+		} else {
+			// NON-CONSENSUAL: once pain is maxed it can't climb further, so it slowly converts to
+			// trauma — 1 pain -> 1 trauma per turn (straighttrauma = raw 1:1, no control multiplier).
+			const TRAUMA_CONVERT_RATE = 1;
+			const PAIN_MAX = 200;
+			if (V.pain >= PAIN_MAX) {
+				statChange.pain(-TRAUMA_CONVERT_RATE, 1);
+				statChange.straighttrauma(TRAUMA_CONVERT_RATE);
+			}
+		}
 	};
 
 	// Per-minute pain decay rate.
