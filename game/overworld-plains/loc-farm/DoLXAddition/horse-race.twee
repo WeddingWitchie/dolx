@@ -1,0 +1,161 @@
+:: Racecourse
+<<run setup.horserace.ensureState()>>
+<<if $farm.horseRaceUnlocked isnot true>>
+	The fenced-off course is quiet. Alex has not opened it for racing yet.
+	<br><br>
+	<<link [[Return to the farm|Farm Work]]>><<endevent>><</link>>
+<<else>>
+	<<if $horserace.phase is "idle" or $horserace.phase is "finished">>
+		<<run setup.horserace.createRace(true)>>
+	<</if>>
+	The racecourse is already noisy. Bookies shout over each other, betting slips pass from hand to hand, and the horses are led towards the gate.
+	<<print setup.horserace.renderHorseList()>>
+	<<link "Place a bet" "Racecourse Betting">><</link>>
+<</if>>
+
+:: Racecourse Betting
+<<if $horserace.phase is "idle" or $horserace.phase is "finished">>
+	<<run setup.horserace.createRace(true)>>
+<</if>>
+The board changes one last time before the bookie shuts the window.
+<<print setup.horserace.renderHorseList()>>
+<<if $horserace.lastError>>
+	<p class="red"><<print $horserace.lastError>></p>
+<</if>>
+<<if !$horserace.selectedHorseId>>
+	Choose a horse to back.
+	<p class="horse-race-bet-links">
+	<<set _firstHorseLink to true>><<for _horse range $horserace.horses>><<if _firstHorseLink>><<set _firstHorseLink to false>><<else>> | <</if>><<set _label to _horse.name + " (" + _horse.odds.toFixed(2) + "x)">><<link _label "Racecourse Betting">><<set $horserace.selectedHorseId to _horse.id>><</link>><</for>>
+	</p>
+<<else>>
+	<<set _horse to setup.horserace.getHorse($horserace.selectedHorseId)>>
+	You choose <<print _horse.name>>. Enter the amount you want to bet.
+	<br>
+	<<set $horserace.betFieldId to setup.horserace.newFieldId("horse-bet")>>
+	<<print setup.horserace.makeTextInput($horserace.betFieldId, $horserace.betInput)>>
+	<br><br>
+	<<link "Place bet" "Racecourse Betting Submit">>
+		<<set $horserace.betInput to setup.horserace.captureFieldValue($horserace.betFieldId)>>
+	<</link>>
+	<br>
+	<<link "Choose a different horse" "Racecourse Betting">><<set $horserace.selectedHorseId to "">><</link>>
+<</if>>
+
+:: Racecourse Betting Submit
+<<set _betResult to setup.horserace.placeBet($horserace.selectedHorseId, $horserace.betInput)>>
+<<if _betResult.ok>>
+	The bookie takes your slip and waves you towards the rail.
+	<br><br>
+	<<link [[Watch the race|Racecourse Watch]]>><</link>>
+<<else>>
+	<<if $horserace.lastError>>
+		<p class="red"><<print $horserace.lastError>></p>
+	<</if>>
+	<<link [[Return to the betting window|Racecourse Betting]]>><</link>>
+<</if>>
+<br>
+
+:: Racecourse Watch
+<<if $horserace.phase is "betting">>
+	The race can't start until you place a bet.
+	<br><br>
+	<<link [[Return to the betting window|Racecourse Betting]]>><</link>>
+<<else>>
+	<<print setup.horserace.renderTrack()>>
+	<<script>>setTimeout(function () {
+		setup.horserace.placeMarkers();
+		setup.horserace.refreshLiveView("Racecourse Result", "See the result");
+	}, 0);<</script>>
+	<<print setup.horserace.renderRaceLog()>>
+	<<print setup.horserace.renderLiveControls("Racecourse Result", "See the result", "Start watching", "Pause watching", 1600)>>
+	<span id="horse-race-result-link">
+	<<link "Skip to the finish" "Racecourse Result">><<set $horserace.autoWatch to false>><<run setup.horserace.cancelAutoWatch()>><<run setup.horserace.simulateToEnd(false)>><</link>>
+	</span>
+<</if>>
+
+:: Racecourse Result
+<<set $horserace.autoWatch to false>>
+<<run setup.horserace.cancelAutoWatch()>>
+<<if $horserace.phase isnot "finished">>
+	<<run setup.horserace.simulateToEnd(false)>>
+<</if>>
+<<print setup.horserace.renderResult()>>
+<<link "Run another race" "Racecourse Betting">><<run setup.horserace.createRace(true)>><</link>>
+<br>
+<<link [[Return to the farm|Farm Work]]>><<endevent>><</link>>
+
+:: Farm Horse Race Intro
+<<run setup.horserace.ensureState()>>
+<<set $farm.horseRaceUnlocked to true>><<set $farm.horseRaceIntroSeen to true>>
+Alex leads you past the stable, down a fresh line of fencing where the grass has been cut short and the mud has been packed flat. Workers are still arguing over posts near the far bend, but the shape of the place is clear already: a racecourse.
+<br><br>
+"I wanted to show you before anyone else saw it," Alex says, unable to hide <<his>> smile. "We've done well. Not just survived. Done well. And that's because of you. The fields, the animals, the repairs... all of it. I couldn't have got this far alone."
+<br><br>
+<<He>> rubs the back of <<his>> neck. "One of my dad's old business partners helps run race meetings. Transport, bookies, safety checks, all that boring official stuff. We got talking, and... well. They're willing to work with us. We provide the land and horses. They bring the people who know how to make it legal and profitable."
+<br><br>
+A board has been nailed near the gate. The paint is still drying.
+<br><br>
+<span class="gold">Alex's farm can now host horse races.</span>
+<br><br>
+"No pressure," Alex adds, badly pretending this isn't the most excited <<he>> has looked all week. "But I thought we could walk the course. Make sure it doesn't fall apart before I invite half the town here."
+<br><br>
+<<link [[Walk the course|Farm Horse Race Walk]]>><<pass 5>><</link>>
+
+:: Farm Horse Race Walk
+<<effects>>
+One of the race horses stamps as you pass, neck arched and ears flicking. Its handler murmurs to it, but the horse looks more interested in the open track than in behaving.
+<br><br>
+"See? That's what I mean. Farm horses want a job. Race horses want a reason to bolt, and we just try to make sure they bolt in the right direction." <<He>> clicks <<his>> tongue as the horse tosses its head. "Still easier than dealing with Remy. Usually."
+<br><br>
+<<if $settings.bestialityEnabled>>
+	One stallion near the rail goes still as you pass, ears forward and body tense, before becoming <span class="pink">far too obviously excited as its cock erect</span>.
+	Another horse at the far end gives you the same fixed stare. Then a third.
+	<br><br>
+	Alex follows your gaze, then notices another horse reacting the same way. His face turns scarlet. "Right... Brilliant. Great. We're going over there now."
+	<br><br>
+	<<He>> catches your sleeve and quickly ushers you away from the rail, putting <<himself>> between you and the horses.
+<<else>>
+	One stallion near the rail goes very still as you pass, ears forward and body tense. It stamps once, then twice, making Alex wince.
+	Another horse at the far end starts making a fuss. Then a third joins in, tugging at its lead until the handler has to calm it down.
+	<br><br>
+	Alex looks from one horse to the next, frowning. "Right... Brilliant. Great. We're going over there now."
+	<br><br>
+	<<He>> catches your sleeve and quickly ushers you away from the rail.
+<</if>>
+<br><br>
+By the viewing rail, the handlers are already lining the horses up.
+"Let's watch them once," Alex says. "If nobody panics, jumps a fence, or makes me regret this, I'll call it a success."
+<br><br>
+<<link [[Watch the trial race|Farm Horse Race Trial Watch]]>><<run setup.horserace.startTrialRace()>><<pass 5>><</link>>
+
+:: Farm Horse Race Trial Watch
+<<print setup.horserace.renderTrack()>>
+<<script>>setTimeout(function () {
+	setup.horserace.placeMarkers();
+	setup.horserace.refreshLiveView("Farm Horse Race Trial Result", "See how it went");
+}, 0);<</script>>
+<<print setup.horserace.renderRaceLog()>>
+<<print setup.horserace.renderLiveControls("Farm Horse Race Trial Result", "See how it went", "Start the trial race", "Pause watching", 1600)>>
+<span id="horse-race-result-link">
+<<link "Let Alex skip to the finish" "Farm Horse Race Trial Result">><<set $horserace.autoWatch to false>><<run setup.horserace.cancelAutoWatch()>><<run setup.horserace.simulateToEnd(false)>><</link>>
+</span>
+
+:: Farm Horse Race Trial Result
+<<set $horserace.autoWatch to false>>
+<<run setup.horserace.cancelAutoWatch()>>
+<<if $horserace.phase isnot "finished">>
+	<<run setup.horserace.simulateToEnd(false)>>
+<</if>>
+<<print setup.horserace.renderResult()>>
+<<effects>>
+Alex watches the winner by the far rail. Only then does <<he>> seem to remember how to breathe.
+"Nothing broke!" <<He>> laughs, still a little nervous. "I'll take that as a good sign."
+<br><br>
+A handler waves from the track. Alex waves back, then turns to you with a brighter smile.
+<br><br>
+"I'll have the betting board ready next time," <<he>> says. "Come back when you want to watch a proper race. The bookies should be ready by then, if you feel like risking a little cash."
+<br><br>
+<span class="gold">The racecourse is now open from the farmyard.</span>
+<br>
+<<link [[Return to the farm|Farm Work]]>><<endevent>><</link>>
+
