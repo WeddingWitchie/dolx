@@ -4,11 +4,25 @@
 	let scheduled = false;
 	let observerInstalled = false;
 
+	/* The only UI we care about lives inside the sidebar caption / ui-bar.
+	   Observing that container instead of <body> avoids reacting to every mutation in #passages (the story text),
+	   which is where DoL does the overwhelming majority of its DOM churn. */
+	function getUiScope() {
+		return (
+			document.getElementById("story-caption") ||
+			document.getElementById("ui-bar") ||
+			null
+		);
+	}
+
 	function getButtonLabelState() {
 		let hasSaves = false;
 		let hasCharacteristics = false;
 
-		const buttons = document.querySelectorAll(".link-internal.macro-button, .macro-button, button");
+		/* Scope the button scan to the caption/ui-bar when available.
+		   SAVES and CHARACTERISTICS both live there, so we never need to walk every button in the whole document. */
+		const scope = getUiScope() || document;
+		const buttons = scope.querySelectorAll(".link-internal.macro-button, .macro-button, button");
 		for (const el of buttons) {
 			const label = (el.textContent || "").trim();
 			if (label === "SAVES") hasSaves = true;
@@ -78,6 +92,9 @@
 	}
 
 	function ensureBreezeCompatAnchors() {
+		/* Late-attach the observer once the caption container exists. */
+		installObserver();
+
 		const startLike = isStartLikeScreen();
 		ensureStartCaptionAnchor(startLike);
 		ensureOverlayButtonSplitAnchors(startLike);
@@ -109,8 +126,7 @@
 				(target.id === "startCaption" ||
 					target.id === "overlayButtons" ||
 					target.id === "story-caption" ||
-					target.id === "ui-bar" ||
-					target.id === "passages")
+					target.id === "ui-bar")
 			) {
 				return true;
 			}
@@ -122,9 +138,8 @@
 					node.id === "overlayButtons" ||
 					node.id === "story-caption" ||
 					node.id === "ui-bar" ||
-					node.id === "passages" ||
 					node.matches?.(".macro-button, .link-internal, .sidebarButtonSplit") ||
-					node.querySelector?.("#startCaption, #overlayButtons, #story-caption, #ui-bar, #passages, .macro-button, .link-internal, .sidebarButtonSplit")
+					node.querySelector?.("#startCaption, #overlayButtons, .macro-button, .link-internal, .sidebarButtonSplit")
 				) {
 					return true;
 				}
@@ -135,7 +150,11 @@
 	}
 
 	function installObserver() {
-		if (observerInstalled || !document.body) return;
+		if (observerInstalled) return;
+
+		const scope = getUiScope();
+		if (!scope) return; /* container not built yet; a later passage hook will retry */
+
 		observerInstalled = true;
 
 		const observer = new MutationObserver((mutations) => {
@@ -144,7 +163,10 @@
 			}
 		});
 
-		observer.observe(document.body, {
+		/* Narrow scope: only the sidebar caption / ui-bar, not the whole body.
+		   This is the single change that removes the per-passage tax
+		   we no longer get a callback for every node added to the story text. */
+		observer.observe(scope, {
 			childList: true,
 			subtree: true,
 		});
@@ -161,6 +183,9 @@
 		init();
 	}
 
+	/* Passage events remain the primary, reliable trigger. 
+	Combined with the narrowly-scoped observer above, this covers UI changes that happen outside passage navigation
+	(e.g. opening an overlay) without watching the entire document. */
 	if (window.jQuery) {
 		jQuery(document).on(":passagestart :passagerender :passagedisplay", scheduleEnsureBreezeCompatAnchors);
 	}
