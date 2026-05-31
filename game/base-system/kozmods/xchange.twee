@@ -1215,7 +1215,7 @@
 
 	<<case "dumb-bitch">>
 		<<set $xchange.pill.dumbBitchEffect to true>>
-		<<xchange-addsideeffect "silent">>
+		<<xchange-addsideeffect "dumbbitch">>
 
 	<<case "innocence">>
 		<<set $xchange.pill.innocenceEffect to true>>
@@ -1432,6 +1432,13 @@
 
 <<widget "xchange-addsideeffect">>
 	<<set _silent to _args.includes("silent") or _args.includes("quiet")>>
+
+	/* Identify which pill caused this side-effect so the notices don't blend together.
+	   Pass one of: "suspicious" (bar/spike), "antipill", "dumbbitch".
+	   Anything unrecognised falls back to a neutral "generic" notice. */
+	<<set _validSources to ["suspicious", "antipill", "dumbbitch"]>>
+	<<set _source to _args.find((a) => _validSources.includes(a)) || "generic">>
+
 	<<set $xchange.antiPillSensitivity to $xchange.antiPillSensitivity || {}>>
 
 	<<set _hoursAdded to 12>>
@@ -1440,13 +1447,15 @@
 
 	<<set $xchange.antiPillSensitivity.globalBonus to _bonus>>
 	<<set $xchange.antiPillSensitivity.hours to Math.clamp(($xchange.antiPillSensitivity.hours || 0) + _hoursAdded, _hoursAdded, _maxHours)>>
+	/* Remember the most recent cause so the fade notice (fired later, on sleep/time pass) matches. */
+	<<set $xchange.antiPillSensitivity.source to _source>>
 
 	/* Use the game's own pain macro, not raw $pain edits */
-	<<pain 100>>
+	<<pain 65>>
 
 	<<if !_silent>>
 		<<set $effectsmessage to 1>>
-		<<set $antiPillSensitivityMessage to 1>>
+		<<set $antiPillSensitivityMessage to _source>>
 	<</if>>
 <</widget>>
 
@@ -1798,11 +1807,10 @@
 				<</if>>
 			<</if>>
 			<<xchange-addeffect "unknown">>
-			/* A Suspicious pill inflicts the side-effect kick (pain + anti-pill sensitivity) when the player has enabled this in settings.
-			Silent so it doesn't pop the standard $effectsmessage in the middle of a combat turn; the calling context provides its own narrative line. 
+			/* A Suspicious pill inflicts the side-effect kick (pain + hypersensitivity) when the player has enabled this in settings.
 			Default behaviour (toggle on) treats every spike as Suspicious. Toggle off restores the legacy effects-only behaviour. */
 			<<if $xchange.spikeSideEffectsEnabled !== undefined ? $xchange.spikeSideEffectsEnabled : 1>>
-				<<xchange-addsideeffect "silent">>
+				<<xchange-addsideeffect "suspicious">>
 			<</if>>
 			<<if _args[0] isnot "suppress">>
 				<span class="pink">You got spiked with an unknown pill.</span>
@@ -1898,7 +1906,7 @@
 			<<set _decrease to _args[0] * 24>>
 			<<if playerIsXChanged() and !(pillIsPermanent() or pillTimerPaused())>>
 				<<set $xchange.pill.duration to Math.max($xchange.pill.duration - _decrease, 0)>>
-				<<pain 200>><<set $stress += Math.max($stressmax * (_args[0] / 8), $stressmax * 0.66)>>
+				<<pain 150>><<set $stress += Math.max($stressmax * (_args[0] / 8), $stressmax * 0.66)>>
 			<</if>>
 		<<else>>
 			<<error {

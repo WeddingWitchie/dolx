@@ -2356,7 +2356,7 @@ setup.pills = [
 				? 1
 				: 0;
 		},
-		effects: [`<<xchange-removeeffect "crossdress">>`, "<<xchange-addsideeffect>>"],
+		effects: [`<<xchange-removeeffect "crossdress">>`, "<<xchange-addsideeffect \"antipill\">>"],
 	},
 	{
 		name: "SWP Anti-breeder Pill",
@@ -2393,7 +2393,7 @@ setup.pills = [
 				? 1
 				: 0;
 		},
-		effects: [`<<xchange-removeeffect "breeder">>`, "<<xchange-addsideeffect>>"],
+		effects: [`<<xchange-removeeffect "breeder">>`, "<<xchange-addsideeffect \"antipill\">>"],
 	},
 	{
 		name: "SWP Anti-bull Pill",
@@ -2430,7 +2430,7 @@ setup.pills = [
 				? 1
 				: 0;
 		},
-		effects: [`<<xchange-removeeffect "bull">>`, "<<xchange-addsideeffect>>"],
+		effects: [`<<xchange-removeeffect "bull">>`, "<<xchange-addsideeffect \"antipill\">>"],
 	},
 	{
 		name: "SWP Anti-continue Pill",
@@ -2467,7 +2467,7 @@ setup.pills = [
 				? 1
 				: 0;
 		},
-		effects: [`<<xchange-removeeffect "continue">>`, "<<xchange-addsideeffect>>"],
+		effects: [`<<xchange-removeeffect "continue">>`, "<<xchange-addsideeffect \"antipill\">>"],
 	},
 	{
 		name: "SWP Anti-resistance Pill",
@@ -2504,7 +2504,7 @@ setup.pills = [
 				? 1
 				: 0;
 		},
-		effects: [`<<xchange-removeeffect "resistance">>`, "<<xchange-addsideeffect>>"],
+		effects: [`<<xchange-removeeffect "resistance">>`, "<<xchange-addsideeffect \"antipill\">>"],
 	},
 	{
 		name: "SWP Anti-portal Pill",
@@ -2541,7 +2541,7 @@ setup.pills = [
 				? 1
 				: 0;
 		},
-		effects: [`<<xchange-removeeffect "portal">>`, "<<xchange-addsideeffect>>"],
+		effects: [`<<xchange-removeeffect "portal">>`, "<<xchange-addsideeffect \"antipill\">>"],
 	},
 	{
 		name: "SWP Anti-fertile Pill",
@@ -2578,7 +2578,7 @@ setup.pills = [
 				? 1
 				: 0;
 		},
-		effects: [`<<xchange-removeeffect "fertile">>`, "<<xchange-addsideeffect>>"],
+		effects: [`<<xchange-removeeffect "fertile">>`, "<<xchange-addsideeffect \"antipill\">>"],
 	},
 	{
 		name: "SWP Anti-passion Pill",
@@ -2615,7 +2615,7 @@ setup.pills = [
 				? 1
 				: 0;
 		},
-		effects: [`<<xchange-removeeffect "passion">>`, "<<xchange-addsideeffect>>"],
+		effects: [`<<xchange-removeeffect "passion">>`, "<<xchange-addsideeffect \"antipill\">>"],
 	},
 	{
 		name: "SWP Anti-dumb-bitch Pill",
@@ -2652,7 +2652,7 @@ setup.pills = [
 				? 1
 				: 0;
 		},
-		effects: [`<<xchange-removeeffect "dumb-bitch">>`, "<<xchange-addsideeffect>>"],
+		effects: [`<<xchange-removeeffect "dumb-bitch">>`, "<<xchange-addsideeffect \"antipill\">>"],
 	},
 	{
 		name: "SWP Anti-swell Pill",
@@ -2689,7 +2689,7 @@ setup.pills = [
 				? 1
 				: 0;
 		},
-		effects: [`<<xchange-removeeffect "swell">>`, "<<xchange-addsideeffect>>"],
+		effects: [`<<xchange-removeeffect "swell">>`, "<<xchange-addsideeffect \"antipill\">>"],
 	},
 	{
 		name: "SWP Anti-bimbo Pill",
@@ -2726,7 +2726,7 @@ setup.pills = [
 				? 1
 				: 0;
 		},
-		effects: [`<<xchange-removeeffect "bimbo">>`, "<<xchange-addsideeffect>>"],
+		effects: [`<<xchange-removeeffect "bimbo">>`, "<<xchange-addsideeffect \"antipill\">>"],
 	},
 	{
 		name: "SWP Anti-cumcure Pill",
@@ -2763,7 +2763,7 @@ setup.pills = [
 				? 1
 				: 0;
 		},
-		effects: [`<<xchange-removeeffect "cumcure">>`, "<<xchange-addsideeffect>>"],
+		effects: [`<<xchange-removeeffect "cumcure">>`, "<<xchange-addsideeffect \"antipill\">>"],
 	},
 	
 	{

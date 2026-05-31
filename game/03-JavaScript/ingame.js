@@ -1416,7 +1416,7 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 			if (V.transformationParts.traits.sharpEyes !== "disabled") result = Math.floor(result * 1.05);
 			if (V.fox >= 6) result = Math.floor(result * 1.1);
 			if (V.hallucinogen >= 1 && V.substanceRebalance === 1) {
-				result = Math.round(result * (1 - 0.125 * Math.round(V.hallucinogen / 250)));
+				result = Math.round(result * Math.max(1 - 0.1 * Math.round(V.hallucinogen / 250), 0.6));
 			}
 			if (V.DoLPTFBuffs === 1) {
 				if (V.TFCatBuffs === 1) {
@@ -1446,7 +1446,7 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 				result = Math.floor(result * 1.1);
 			}
 			if (V.hallucinogen >= 1 && V.substanceRebalance === 1) {
-				result = Math.round(result * (1 - 0.125 * Math.round(V.hallucinogen / 250)));
+				result = Math.round(result * Math.max(1 - 0.1 * Math.round(V.hallucinogen / 250), 0.6));
 			}
 			if (V.DoLPTFBuffs === 1) {
 				if (V.TFWolfBuffs === 1) {
@@ -1485,7 +1485,7 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 				result = Math.floor(result * 0.5);
 			}
 			if (V.hallucinogen >= 1 && V.substanceRebalance === 1) {
-				result = Math.round(result * (1 - 0.125 * Math.round(V.hallucinogen / 250)));
+				result = Math.round(result * Math.max(1 - 0.1 * Math.round(V.hallucinogen / 250), 0.6));
 			}
 			if (V.DoLPTFBuffs === 1) {
 				if (V.TFWolfBuffs === 1) {
@@ -1534,7 +1534,7 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 				result = Math.floor(result * 0.5);
 			}
 			if (V.hallucinogen >= 1 && V.substanceRebalance === 1) {
-				result = Math.round(result * (1 - 0.125 * Math.round(V.hallucinogen / 250)));
+				result = Math.round(result * Math.max(1 - 0.1 * Math.round(V.hallucinogen / 250), 0.6));
 			}
 			if (V.DoLPTFBuffs === 1) {
 				if (V.TFCatBuffs === 1) {
@@ -1569,7 +1569,7 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 			if (V.transformationParts.traits.chase !== "disabled") result = Math.floor(result * 1.1);
 			if (V.worn.feet.type.includes("shackle")) result /= 10;
 			if (V.hallucinogen >= 1 && V.substanceRebalance === 1) {
-				result = Math.round(result * (1 - 0.125 * Math.round(V.hallucinogen / 250)));
+				result = Math.round(result * Math.max(1 - 0.1 * Math.round(V.hallucinogen / 250), 0.6));
 			}
 			if (V.DoLPTFBuffs === 1) {
 				if (V.TFWolfBuffs === 1) {
@@ -1609,7 +1609,15 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 				result = V.willpower;
 			}
 			result = Math.max(result, 0);
-			result = Math.floor(result * (1000-V.drunk)/1000 * (1000-V.drugged)/1000);
+			if (V.substanceRebalance === 1) {
+				// Rebalance: keep willpower checks passable while heavily intoxicated. 
+				// Drunk or drugged at max would otherwise multiply willpower to 0 and softlock willpower-gated scenes,
+				// so the combined intoxication penalty is floored at 25% of base willpower.
+				const intoxFactor = Math.max(((1000 - V.drunk) / 1000) * ((1000 - V.drugged) / 1000), 0.25);
+				result = Math.floor(result * intoxFactor);
+			} else {
+				result = Math.floor(result * (1000-V.drunk)/1000 * (1000-V.drugged)/1000);
+			}
 
 			if (numberOfEarSlime() >= 2 && V.earSlime.growth > 50) {
 				result = Math.floor(result * (0.9 - Math.clamp((V.earSlime.growth - 50) / 1000, 0, 0.1)));
@@ -1617,7 +1625,7 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 				result = Math.floor(result * 0.9);
 			}
 			if (V.hallucinogen >= 1 && V.substanceRebalance === 1) {
-				result = Math.round(result * (1 - 0.125 * Math.round(V.hallucinogen / 250)));
+				result = Math.round(result * Math.max(1 - 0.1 * Math.round(V.hallucinogen / 250), 0.6));
 			}
 			if (V.DoLPTFBuffs === 1) {
 				if (V.TFWolfBuffs === 1) {
@@ -1642,7 +1650,7 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 				result = Math.floor(result * (1 + V.trauma / (V.traumamax * 2)));
 			}
 			if (V.hallucinogen >= 1 && V.substanceRebalance === 1) {
-				result = Math.round(result * (1 - 0.125 * Math.round(V.hallucinogen / 250)));
+				result = Math.round(result * Math.max(1 - 0.1 * Math.round(V.hallucinogen / 250), 0.6));
 			}
 			if (V.DoLPTFBuffs === 1) {
 				if (V.TFCowBuffs === 1) {
@@ -1665,7 +1673,7 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 				result = Math.floor(result * 1.05);
 			}
 			if (V.hallucinogen >= 1 && V.substanceRebalance === 1) {
-				result = Math.round(result * (1 - 0.125 * Math.round(V.hallucinogen / 250)));
+				result = Math.round(result * Math.max(1 - 0.1 * Math.round(V.hallucinogen / 250), 0.6));
 			}
 			if (V.DoLPTFBuffs === 1) {
 				if (V.TFWolfBuffs === 1) {
@@ -1694,7 +1702,7 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 				result = Math.floor(result * (1 + Math.clamp(playerHeatMinArousal(), 0, 4000) / 20000));
 			}
 			if (V.hallucinogen >= 1 && V.substanceRebalance === 1) {
-				result = Math.round(result * (1 - 0.125 * Math.round(V.hallucinogen / 250)));
+				result = Math.round(result * Math.max(1 - 0.1 * Math.round(V.hallucinogen / 250), 0.6));
 			}
 			break;
 		case "penileskill":
@@ -1709,7 +1717,7 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 				result = Math.floor(result * (1 + Math.clamp(playerRutMinArousal(), 0, 4000) / 20000));
 			}
 			if (V.hallucinogen >= 1 && V.substanceRebalance === 1) {
-				result = Math.round(result * (1 - 0.125 * Math.round(V.hallucinogen / 250)));
+				result = Math.round(result * Math.max(1 - 0.1 * Math.round(V.hallucinogen / 250), 0.6));
 			}
 			break;
 		case "analskill":
@@ -1720,7 +1728,7 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 				result = Math.floor(result * (1 + Math.clamp(playerHeatMinArousal(), 0, 4000) / 20000));
 			}
 			if (V.hallucinogen >= 1 && V.substanceRebalance === 1) {
-				result = Math.round(result * (1 - 0.125 * Math.round(V.hallucinogen / 250)));
+				result = Math.round(result * Math.max(1 - 0.1 * Math.round(V.hallucinogen / 250), 0.6));
 			}
 			break;
 		case "seductionskill":
@@ -1733,7 +1741,7 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 				result = Math.floor(result * (1 + (V.earSlime.growth - 50) / 600));
 			}
 			if (V.hallucinogen >= 1 && V.substanceRebalance === 1) {
-				result = Math.round(result * (1 - 0.125 * Math.round(V.hallucinogen / 250)));
+				result = Math.round(result * Math.max(1 - 0.1 * Math.round(V.hallucinogen / 250), 0.6));
 			}
 			if (V.DoLPTFBuffs === 1) {
 				if (V.TFCatBuffs === 1) {
@@ -1755,7 +1763,7 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 			break;
 	}
 	if (V.drunk >= 120 && V.substanceRebalance === 1 && !["seductionskill", "willpower"].includes(skill)) {
-		result = Math.round(result * (1 - 0.1 * Math.round(V.drunk / 120)));
+		result = Math.round(result * Math.max(1 - 0.1 * Math.round(V.drunk / 120), 0.5));
 	} else if (V.drunk >= 1 && V.substanceRebalance === 1 && !["seductionskill", "willpower"].includes(skill)) {
 		result = Math.round(result * 0.95);
 	}

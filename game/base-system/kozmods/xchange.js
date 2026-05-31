@@ -796,13 +796,14 @@ function xchangeHourlyCheck(hours = 1) {
 			}
 		}
 
-		// Tick anti-pill hypersensitivity timer
+		// Tick hypersensitivity side-effect timer
 		if (V.xchange?.antiPillSensitivity && typeof V.xchange.antiPillSensitivity.hours === "number") {
 			V.xchange.antiPillSensitivity.hours = Math.max(V.xchange.antiPillSensitivity.hours - 1 * hours, 0);
 			if (V.xchange.antiPillSensitivity.hours === 0) {
+				const endSource = V.xchange.antiPillSensitivity.source || "generic";
 				delete V.xchange.antiPillSensitivity;
 				V.effectsmessage = 1;
-				V.antiPillSensitivityEndMessage = 1;
+				V.antiPillSensitivityEndMessage = endSource;
 			}
 		}		
 
@@ -876,12 +877,36 @@ function xchangeEffectsMessages() {
 	}
 
 	if (V.antiPillSensitivityMessage) {
-		element("span", "Your body feels itchy, raw, and disturbingly oversensitive after the anti-pill.", "pink"); br();
+		switch (V.antiPillSensitivityMessage) {
+			case "suspicious":
+				element("span", "The suspicious pill goes wrong; it leaves your skin itchy to the point of pain and oversensitive.", "pink"); br();
+				break;
+			case "antipill":
+				element("span", "The anti-pill reacts badly; your skin turns itchy to the point of pain and oversensitive.", "pink"); br();
+				break;
+			case "dumbbitch":
+				element("span", "The pill does more than dull your wits; it leaves your skin itchy to the point of pain and oversensitive.", "pink"); br();
+				break;
+			default:
+				element("span", "The pill goes wrong; it leaves your skin itchy to the point of pain and oversensitive.", "pink"); br();
+		}
 		delete V.antiPillSensitivityMessage;
 	}
 
 	if (V.antiPillSensitivityEndMessage) {
-		element("span", "The anti-pill's itchy hypersensitivity finally fades.", "blue"); br();
+		switch (V.antiPillSensitivityEndMessage) {
+			case "suspicious":
+				element("span", "The suspicious pill's itchy, painful hypersensitivity finally fades.", "blue"); br();
+				break;
+			case "antipill":
+				element("span", "The anti-pill's itchy, painful hypersensitivity finally fades.", "blue"); br();
+				break;
+			case "dumbbitch":
+				element("span", "The pill's itchy, painful hypersensitivity finally fades.", "blue"); br();
+				break;
+			default:
+				element("span", "The botched pill's itchy, painful hypersensitivity finally fades.", "blue"); br();
+		}
 		delete V.antiPillSensitivityEndMessage;
 	}
 

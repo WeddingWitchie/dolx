@@ -1369,9 +1369,11 @@ function minutePassed(minutes) {
 	// Effects
 	V.stress = Math.min(V.stress, V.stressmax);
 	// substanceRebalance only affects metabolism rates, not tolerance logic itself.
-	const alcoholRate = V.substanceRebalance === 1 ? 1000 / (30 * 60) : 1;
-	const hallucinogenRate = V.substanceRebalance === 1 ? 1000 / (72 * 60) : 1;
-	const druggedRate = V.substanceRebalance === 1 ? 1000 / (36 * 60) : 1;
+	// Alcohol calmed down: full drunk meter now clears in ~22.5h instead of 30h (a ~25% reduction),
+	// so time-passing scenes no longer leave the player surprisingly drunk afterward.
+	const alcoholRate = V.substanceRebalance === 1 ? 1000 / (22.5 * 60) : 1;
+	const hallucinogenRate = V.substanceRebalance === 1 ? 1000 / (54 * 60) : 1;
+	const druggedRate = V.substanceRebalance === 1 ? 1000 / (27 * 60) : 1;
 
 	if (V.drunk > 0) {
 		// use fancy math to ensure that `pass(60);` and `pass(30);pass(30);` apply the same amount of tiredness regardless of changed V.drunk value
