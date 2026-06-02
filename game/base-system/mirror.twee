@@ -681,44 +681,44 @@
 <</widget>>
 
 <<widget "faceVariantOptions">>
-	<<if !setup.faceVariantOptions or Object.keys(setup.faceVariantOptions).length is 0>>
-		<span class="red">Face variant options are unavailable.</span>
+	<<set _style to $facestyle>>
+
+	<<if _style is undefined or !setup.faceVariantOptions or !setup.faceVariantOptions[_style]>>
+		<<set _style to "default">>
+	<</if>>
+
+	<<set _raw to setup.faceVariantOptions[_style]>><<set _faceOpts to {}>>
+
+	<<if Array.isArray(_raw)>>
+		<<for _i = 0; _i < _raw.length; _i++>>
+			<<set _v to _raw[_i]>>
+			<<run _faceOpts[_v.toUpperFirst()] = _v>>
+		<</for>>
 	<<else>>
-		<<set _styles to Object.keys(setup.faceVariantOptions)>>
-		<<set _facestyleLocal to $facestyle>>
+		<<set _faceOpts to _raw || {}>>
+	<</if>>
 
-		/* If current facestyle has no entry, fall back for display ONLY */
-		<<if setup.faceVariantOptions[_facestyleLocal] is undefined or setup.faceVariantOptions[_facestyleLocal] is null>>
-			<<set _facestyleLocal to _styles[0]>>
-			<span class="yellow">
-				Your current face style has no demeanour list. Showing options for "<<print _facestyleLocal>>" without changing your saved demeanour.
+	<<set _keys to Object.keys(_faceOpts)>>
+
+	<<if _keys.length gt 1>>
+		Your current demeanour is:
+		<<listbox "$facevariant" autoselect>>
+			<<optionsfrom _faceOpts>>
+		<</listbox>>
+		<br>
+		<<run $(() => {
+			$("#listbox-facevariant")
+				.off("change.facevariant")
+				.on("change.facevariant", () => Wikifier.wikifyEval('<<updatesidebarimg true>>'));
+		})>>
+	<<else>>
+		There are
+		<mouse class="gold tooltip-small" style="border-bottom-color:white">
+			no alternative demeanours available.
+			<span class="blue">
+				Selecting a different face style may make additional demeanours available to you.
 			</span>
-			<br>
-		<</if>>
-
-		<<set _faceOpts to (setup.faceVariantOptions[_facestyleLocal] || {})>>
-		<<set _keys to Object.keys(_faceOpts)>>
-
-		<<if _keys.length gt 1>>
-			Your current demeanour is:
-			<<listbox "$facevariant" autoselect>>
-				<<optionsfrom _faceOpts>>
-			<</listbox>>
-			<br>
-			<<run $(() => {
-				$("#listbox-facevariant")
-					.off("change.facevariant")
-					.on("change.facevariant", () => Wikifier.wikifyEval('<<updatesidebarimg true>>'));
-			})>>
-		<<else>>
-			There are
-			<mouse class="gold tooltip-small" style="border-bottom-color:white">
-				no alternative demeanours available.
-				<span class="blue">
-					Selecting a different face style may make additional demeanours available to you.
-				</span>
-			</mouse>
-		<</if>>
+		</mouse>
 	<</if>>
 <</widget>>
 
