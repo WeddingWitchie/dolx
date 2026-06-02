@@ -2580,6 +2580,46 @@
 
 	<<tfcheck>>
 
+	/* Description (which species' wording is used in body text). */
+	<<if $tfDesc is undefined>><<set $tfDesc to { primary : "default" }>><</if>>
+	<<tfDescValidList>>
+	<<if $tfDescValid is undefined>><<set $tfDescValid to []>><</if>>
+	<<if $tfDescValid.length > 0>>
+		<div class="tf-description">
+			__Description__<br>
+			<<set _tfDescLabels to {
+				"xenos"       : "Xenos",
+				"demon"       : "Demon",
+				"angel"       : "Angel",
+				"fallen"      : "Fallen angel",
+				"cat"         : "Cat",
+				"cow"         : "Cow",
+				"bear"        : "Bear",
+				"waterdragon" : "Water dragon",
+				"wolf"        : "Wolf",
+				"harpy"       : "Harpy",
+				"fox"         : "Fox",
+				"bunny"       : "Bunny",
+				"okami"       : "Okami",
+				"kitsune"     : "Kitsune",
+				"seraphim"    : "Seraphim"
+			}>>
+			<<set _tfDescOrder to ["xenos", "demon", "angel", "fallen", "cat", "cow", "bear", "waterdragon", "wolf", "harpy", "fox", "bunny", "okami", "kitsune", "seraphim"]>>
+			<<set _tfDescOptions to { "Default (automatic)" : "default" }>>
+			<<for _tfDescKey range _tfDescOrder>>
+				<<if $tfDescValid.includes(_tfDescKey)>>
+					<<set _tfDescOptions[_tfDescLabels[_tfDescKey]] = _tfDescKey>>
+				<</if>>
+			<</for>>
+			<label>Described as:
+				<<listbox "$tfDesc.primary" autoselect>>
+					<<optionsfrom _tfDescOptions>>
+				<</listbox>>
+			</label>
+			<br><br>
+		</div>
+	<</if>>
+
 	<<set _angel to $transformationParts.angel>>
 	<<set _fallen to $transformationParts.fallenAngel>>
 	<<set _demon to $transformationParts.demon>>
@@ -3478,6 +3518,7 @@
 						<<option "Hide" false>>
 					<</listbox>>
 				</label>
+				<br>
 			<</if>>
 			<<if _chimeraOptions.demonwolf_tail>>
 				/* Using demon wolf chimera tail. */
@@ -3731,7 +3772,7 @@
 							<</if>>
 							<<if _chimeraOptions.demoncow_tail>>
 								/* Using demon cow chimera tail. */
-								<label>				Demon cow tail:
+								<label>Demon cow tail:
 									<<listbox "$chimera.demoncow.tail" autoselect>>
 										<<option "Show" true>>
 										<<option "Hide" false>>
@@ -3741,7 +3782,7 @@
 							<</if>>
 							<<if _chimeraOptions.demonwolf_tail>>
 								/* Using demon wolf chimera tail. */
-								<label>				Demon wolf tail:
+								<label>Demon wolf tail:
 									<<listbox "$chimera.demonwolf.tail" autoselect>>
 										<<option "Show" true>>
 										<<option "Hide" false>>
@@ -3751,7 +3792,7 @@
 							<</if>>
 							<<if _chimeraOptions.demonfox_tail>>
 								/* Using demon fox chimera tail. */
-								<label>				Demon fox tail:
+								<label>Demon fox tail:
 									<<listbox "$chimera.demonfox.tail" autoselect>>
 										<<option "Show" true>>
 										<<option "Hide" false>>
@@ -3761,7 +3802,7 @@
 							<</if>>
 							<<if _chimeraOptions.demonfox_ears>>
 								/* Using demon fox chimera ears. */
-								<label>				Demon fox ears:
+								<label>Demon fox ears:
 									<<listbox "$chimera.demonfox.ears" autoselect>>
 										<<option "Show" true>>
 										<<option "Hide" false>>
@@ -3781,7 +3822,7 @@
 							<</if>>
 							<<if _chimeraOptions.angelharpy_wings>>
 								/* Using angel harpy chimera wings. */
-								<label>				Angel harpy wings:
+								<label>Angel harpy wings:
 									<<listbox "$chimera.angelharpy.wings" autoselect>>
 										<<option "Show" true>>
 										<<option "Hide" false>>
@@ -3791,7 +3832,7 @@
 							<</if>>
 							<<if _chimeraOptions.fallenharpy_wings>>
 								/* Using fallen angel harpy chimera wings. */
-								<label>				Fallen harpy wings:
+								<label>Fallen harpy wings:
 									<<listbox "$chimera.fallenharpy.wings" autoselect>>
 										<<option "Show" true>>
 										<<option "Hide" false>>
@@ -3881,5 +3922,60 @@
 			<<angelTransform 99>>
 			<<set $fallenMirrorRepairNotice to "shattered">>
 		<</if>>
+	<</if>>
+<</widget>>
+
+/* Single source of truth for the Description chooser. */
+<<widget "tfDescValidList">>
+	<<set _tfParts to $transformationParts || {}>>
+	<<set _angelParts to _tfParts.angel || {}>>
+	<<set _fallenParts to _tfParts.fallenAngel || {}>>
+	<<set _demonParts to _tfParts.demon || {}>>
+	<<set _wolfParts to _tfParts.wolf || {}>>
+	<<set _catParts to _tfParts.cat || {}>>
+	<<set _cowParts to _tfParts.cow || {}>>
+	<<set _birdParts to _tfParts.bird || {}>>
+	<<set _foxParts to _tfParts.fox || {}>>
+	<<set _bunnyParts to _tfParts.bunny || {}>>
+	<<set _bearParts to _tfParts.bear || {}>>
+	<<set _waterdragonParts to _tfParts.waterdragon || {}>>
+
+	<<set _angelWingsActive to (_angelParts.wings isnot undefined and _angelParts.wings isnot "hidden" and _angelParts.wings isnot "disabled")>>
+	<<set _fallenWingsActive to (_fallenParts.wings isnot undefined and _fallenParts.wings isnot "hidden" and _fallenParts.wings isnot "disabled")>>
+	<<set _demonWingsActive to (_demonParts.wings isnot undefined and _demonParts.wings isnot "hidden" and _demonParts.wings isnot "disabled")>>
+	<<set _wolfTailActive to (_wolfParts.tail isnot undefined and _wolfParts.tail isnot "hidden" and _wolfParts.tail isnot "disabled")>>
+	<<set _catTailActive to (_catParts.tail isnot undefined and _catParts.tail isnot "hidden" and _catParts.tail isnot "disabled")>>
+	<<set _cowTailActive to (_cowParts.tail isnot undefined and _cowParts.tail isnot "hidden" and _cowParts.tail isnot "disabled")>>
+	<<set _birdWingsActive to (_birdParts.wings isnot undefined and _birdParts.wings isnot "hidden" and _birdParts.wings isnot "disabled")>>
+	<<set _foxTailActive to (_foxParts.tail isnot undefined and _foxParts.tail isnot "hidden" and _foxParts.tail isnot "disabled")>>
+	<<set _bunnyTailActive to (_bunnyParts.tail isnot undefined and _bunnyParts.tail isnot "hidden" and _bunnyParts.tail isnot "disabled")>>
+	<<set _bearTailActive to (_bearParts.tail isnot undefined and _bearParts.tail isnot "hidden" and _bearParts.tail isnot "disabled")>>
+	<<set _waterdragonTailActive to (_waterdragonParts.tail isnot undefined and _waterdragonParts.tail isnot "hidden" and _waterdragonParts.tail isnot "disabled")>>
+
+	<<set _present to {
+		"demon"       : ($demon gte 6 or $demontf is 1 or _demonWingsActive),
+		"angel"       : ($angel gte 6 or $angeltf is 1 or _angelWingsActive),
+		"fallen"      : ($fallenangel gte 2 or $fallenangeltf is 1 or _fallenWingsActive),
+		"cat"         : ($cat gte 6 or $cattf is 1 or _catTailActive),
+		"cow"         : ($cow gte 6 or $cowtf is 1 or _cowTailActive),
+		"bear"        : ($bear gte 6 or $beartf is 1 or _bearTailActive),
+		"waterdragon" : ($waterdragon gte 6 or $waterdragontf is 1 or _waterdragonTailActive),
+		"wolf"        : ($wolfgirl gte 6 or $wolftf is 1 or _wolfTailActive),
+		"harpy"       : ($harpy gte 6 or $harpytf is 1 or _birdWingsActive),
+		"fox"         : ($fox gte 6 or $foxtf is 1 or _foxTailActive),
+		"bunny"       : ($bunny gte 6 or $bunnytf is 1 or _bunnyTailActive),
+	}>>
+	<<set _present.okami    to (_present.wolf and _present.angel)>>
+	<<set _present.kitsune  to (_present.fox and _present.angel)>>
+	<<set _present.seraphim to (_present.harpy and _present.angel)>>
+	/* Xenos = at least one animal + one non-animal, 3+ base species total. */
+	<<set _animalN to ["wolf", "cat", "cow", "harpy", "fox", "bunny", "bear", "waterdragon"].filter(s => _present[s]).length>>
+	<<set _nonAnimalN to ["angel", "fallen", "demon"].filter(s => _present[s]).length>>
+	<<set _present.xenos to (_animalN gte 1 and _nonAnimalN gte 1 and (_animalN + _nonAnimalN) gte 3)>>
+	<<set $tfDescValid to Object.keys(_present).filter(s => _present[s])>>
+	/* Self-heal: if the saved choice is no longer valid, revert to automatic. */
+	<<if $tfDesc is undefined>><<set $tfDesc to { primary : "default" }>><</if>>
+	<<if $tfDesc.primary isnot "default" and !$tfDescValid.includes($tfDesc.primary)>>
+		<<set $tfDesc.primary to "default">>
 	<</if>>
 <</widget>>
