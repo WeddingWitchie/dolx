@@ -169,6 +169,7 @@
 <</widget>>
 
 <<widget "master-audio-update">>
+	<<if $options.npcVoiceoverAudio is undefined>><<set $options.npcVoiceoverAudio to 1>><</if>>
 	<<if $voiceoverActive is undefined>>
 		<<set $voiceoverActive to "f">>
 			<<set $voiceoverActiveSince to 0>>
@@ -369,7 +370,7 @@
 				<</if>>
 		<</timed>>
 
-		<<elseif ($options.audio is 1 and $options.voiceoverAudio is 1) and (_args[1] is "npc_f" or _args[1] is "npc_m")>>
+		<<elseif ($options.audio is 1 and $options.npcVoiceoverAudio isnot 0) and (_args[1] is "npc_f" or _args[1] is "npc_m")>>
 		<<set _VOList to _args[0]>>
 		<<set _npc_volume to _args[1] is "npc_f"? 1 : 0.8>>
 		<<audio _VOList[random(0,_args[0].length-1)] play volume `_npc_volume * $options.voice_volume`>>
@@ -377,7 +378,7 @@
 <</widget>>
 
 <<widget "ejaculation-sound">>
-	<<if ($options.audio is 1 and $options.voiceoverAudio is 1)>>
+	<<if $options.audio is 1 and ((_args[0] is "npc" and $options.npcVoiceoverAudio isnot 0) or (_args[0] isnot "npc" and $options.voiceoverAudio is 1))>>
 		<<init-playlist "squirt">>
 		<<audio `"squirt"+random(1,4)` play volume `0.8 * $options.bgs_volume`>>
 		<<timed 1000ms>>
@@ -589,7 +590,7 @@
 			<<timed _delay>>
 				<<orgasm-voice "npc_m">>
 				<<next 5s>>
-					<<ejaculation-sound>>
+					<<ejaculation-sound "npc">>
 			<</timed>>
 		<</if>>
 	<</for>>
