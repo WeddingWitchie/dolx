@@ -566,6 +566,38 @@
 				<</if>>
 			<<poppyOpiumPulse>>
 		<</if>>
+		<<if playerAwareTheyArePregnant()>>
+			<<if C.npc.Poppy.pregnancy.test is true>>
+				/* PC came back with paternity proof */
+				<<procedureicon "paternity">><<link [[Show Poppy the paternity result (0:05)|Poppy Pregnancy Reveal]]>><<pass 5>><</link>>
+				<br><br>
+			<<elseif !knowsAboutPregnancy("pc", "Poppy")>>
+				/* PC has never told Poppy; show whatever PC has */
+				<<if getPregnancyObject().ultrasoundDone and C.npc.Poppy.pregnancy.ultraSound is "requested">>
+					/* Poppy already saw the test once and asked for proof */
+					<<pregnancyicon "player">><<link [[Show Poppy the ultrasound (0:05)|Poppy Pregnancy Reveal]]>>
+						<<set C.npc.Poppy.pregnancy.ultraSound to "collected">><<pass 5>>
+					<</link>>
+					<br>
+				<<elseif getPregnancyObject().ultrasoundDone>>
+					/* PC has both test and ultrasound in hand, combined reveal */
+					<<pregnancyicon "player">><<link [[Show Poppy the pregnancy test and ultrasound (0:05)|Poppy Pregnancy Reveal]]>>
+						<<set C.npc.Poppy.pregnancy.ultraSound to "collected">><<pass 5>>
+					<</link>>
+					<br>
+				<<else>>
+					/* PC only has the test */
+					<<pregnancytesticon>>
+					<<if !V.player.vaginaExist>>
+						<<link [[Show Poppy the pregnancy test (0:05)|Poppy Pregnancy Reveal Mpreg Alt]]>><<pass 5>><</link>>
+					<<else>>
+						<<link [[Show Poppy the pregnancy test (0:05)|Poppy Pregnancy Reveal]]>><<pass 5>><</link>>
+					<</if>>
+					<br>
+				<</if>>
+			<br>
+			<</if>>
+		<</if>>
 		<<if !$poppySeen.includes("flat_chat_plant") and _poppyRom gte 0>>
 			<<socialiseicon>><<link [[Chat (0:15)|Flats Poppy Chat Plant]]>><<pass 15>><<set $daily.poppy.lastAction to "chat">><</link>><<if T.poppyLoveGainAllowed>><<glove>><</if>><<if _poppyPositive>><<gpatience>><<else>><<langer>><</if>>
 			<br>
