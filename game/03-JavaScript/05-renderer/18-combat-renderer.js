@@ -127,8 +127,8 @@ class CombatRenderer {
 			"neck",
 			"hands",
 			"handheld",
-			"earrings",
-			"rings",
+			//"earrings",
+			//"rings",
 			"legs",
 			"feet",
 			"genitals",
@@ -503,6 +503,24 @@ class CombatRenderer {
 	}
 
 	/**
+	 * Items sold under these shop tags are jewellery and should not render in combat.
+	 * @param {ClothesItem} item
+	 * @returns {boolean}
+	 */
+	static isCombatJewellery(item) {
+		if (item == null) return false;
+		let shops = Array.isArray(item.shop) ? item.shop : null;
+		// The combat clothing-state object may not carry the shop tags, so look them
+		// up from the original setup item by slot + sprite name (the worn variable).
+		if (shops == null && item.slot && item.name && setup.clothes?.[item.slot]) {
+			const source = setup.clothes[item.slot].find(c => c.variable === item.name);
+			shops = source && Array.isArray(source.shop) ? source.shop : [];
+		}
+		if (shops == null) shops = [];
+		return shops.includes("jewellery") || shops.includes("luxurious_jewellery");
+	}
+
+	/**
 	 * @param {ClothedSlots | SexToySlots} slot
 	 * @returns {ClothesItem}
 	 */
@@ -520,6 +538,8 @@ class CombatRenderer {
 		const combat = Object.assign({}, defaults.combat, active.combat);
 		const result = Object.assign({}, defaults, active);
 		result.combat = combat;
+		// Hide jewellery (bracelets, etc.) from combat rendering.
+		if (CombatRenderer.isCombatJewellery(result)) {return CombatRenderer.emptyClothing;}
 		return result;
 	}
 
@@ -533,7 +553,11 @@ class CombatRenderer {
 			return CombatRenderer.emptyClothing;
 		}
 		const category = setup.sextoys.some(t => t.category === slot) ? setup.sextoys : setup.clothes[slot];
-		return category == null ? CombatRenderer.emptyClothing : category[active.index];
+		const result = category == null ? CombatRenderer.emptyClothing : category[active.index];
+		if (result == null) {return CombatRenderer.emptyClothing;}
+		// Hide jewellery (bracelets, etc.) from combat rendering.
+		if (CombatRenderer.isCombatJewellery(result)) {return CombatRenderer.emptyClothing;}
+		return result;
 	}
 
 	/**
@@ -664,6 +688,8 @@ class CombatRenderer {
 		if (!globalShow) return false;
 		// Name is the identifier for clothing sprites, if null, problem occurred.
 		if (clothing?.name == null) return false;
+		// Never render jewellery (bracelets, etc.) in combat.
+		if (CombatRenderer.isCombatJewellery(clothing)) return false;
 		// Per clothing show flag.
 		return clothing.show;
 	}
