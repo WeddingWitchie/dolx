@@ -23,6 +23,186 @@ function paramError(functionName = "", param = "", value, expectedValues = "") {
 	);
 }
 
+/*
+ * X-Change body-cache safety.
+ * Old / cross-version saves can contain partial cached bodies.  
+ * Loading those directly can write undefined/NaN into facestyle, bodyshape, breastsize, bottomsize, etc.
+ * which breaks Characteristics and the body/face menus.
+ */
+function xChangeRepairNoticeOnce(id, message) {
+	const clean = String(message ?? "").replace(/<[^>]*>/g, " ");
+	try {
+		const existing = (typeof setup !== "undefined") ? setup.xChangeRepairNoticeOnce : null;
+		if (typeof existing === "function" && existing !== xChangeRepairNoticeOnce) {
+			existing(id, message);
+			return;
+		}
+		if (typeof window.xChangeQueueNotice === "function") {
+			window.xChangeQueueNotice(id, message);
+			return;
+		}
+		const SV = (typeof State !== "undefined" && State.variables) ? State.variables : window.V;
+		if (SV) {
+			SV.xChangeFlags ??= {};
+			SV.xChangeNotices ??= [];
+			if (!SV.xChangeFlags[id] && !SV.xChangeNotices.some(n => n?.id === id)) SV.xChangeNotices.push({ id, html: message });
+			return;
+		}
+	} catch (e) {}
+	console.warn(`[X-Change repair] ${id}: ${clean}`);
+}
+if (typeof window.setup !== "object" || window.setup === null) window.setup = {};
+if (typeof setup.xChangeRepairNoticeOnce !== "function") setup.xChangeRepairNoticeOnce = xChangeRepairNoticeOnce;
+
+function xChangeFiniteNumber(value, fallback) {
+	const n = Number(value);
+	return Number.isFinite(n) ? n : fallback;
+}
+
+function xChangeString(value, fallback) {
+	return typeof value === "string" && value.length > 0 ? value : fallback;
+}
+
+function xChangeBodySnapshotUsable(body) {
+	if (!body || typeof body !== "object" || Array.isArray(body)) return false;
+	if (Object.keys(body).length === 0) return false;
+
+	const requiredNumbers = ["bodysize", "breastsize", "bottomsize", "penissize", "ballssize"];
+	if (!requiredNumbers.every(key => Number.isFinite(Number(body[key])))) return false;
+
+	if (typeof body.facestyle !== "string" || body.facestyle.length === 0) return false;
+	if (typeof body.facevariant !== "string" || body.facevariant.length === 0) return false;
+	if (!["m", "f", "a"].includes(body.gender_body)) return false;
+	if (typeof body.bodyshape !== "string" || body.bodyshape.length === 0) return false;
+	if (!["m", "f"].includes(body.sex)) return false;
+
+	return true;
+}
+window.xChangeBodySnapshotUsable = xChangeBodySnapshotUsable;
+
+function xChangeSanitiseBodySnapshot(body, slotLabel = "body") {
+	if (!body || typeof body !== "object" || Array.isArray(body)) return false;
+
+	const player = V.player || {};
+	const bad = [];
+	const currentSex = ["m", "f"].includes(player.sex) ? player.sex : (["m", "f"].includes(player.gender) ? player.gender : "f");
+
+	const setNumber = (key, fallback) => {
+		const n = Number(body[key]);
+		if (Number.isFinite(n)) {
+			body[key] = n;
+		} else {
+			body[key] = fallback;
+			bad.push(key);
+		}
+	};
+
+	setNumber("bodysize", xChangeFiniteNumber(V.bodysize, 2));
+	setNumber("breastsize", xChangeFiniteNumber(player.breastsize, 0));
+	setNumber("bottomsize", xChangeFiniteNumber(player.bottomsize, 2));
+	setNumber("penissize", xChangeFiniteNumber(player.penissize, 0));
+	setNumber("ballssize", xChangeFiniteNumber(V.ballssize, 0));
+
+	const setString = (key, fallback) => {
+		if (typeof body[key] !== "string" || body[key].length === 0) {
+			body[key] = fallback;
+			bad.push(key);
+		}
+	};
+
+	setString("facestyle", xChangeString(V.facestyle, "default"));
+	setString("facevariant", xChangeString(V.facevariant, "default"));
+	if (!["m", "f", "a"].includes(body.gender_body)) {
+		body.gender_body = ["m", "f", "a"].includes(player.gender_body) ? player.gender_body : currentSex;
+		bad.push("gender_body");
+	}
+	setString("bodyshape", xChangeString(player.bodyshape, body.gender_body === "f" ? "curvy" : "classic"));
+	if (!["m", "f"].includes(body.sex)) {
+		body.sex = currentSex;
+		bad.push("sex");
+	}
+
+	if (typeof body.penisExist !== "boolean") body.penisExist = body.sex === "m" || body.penissize > 0;
+	if (typeof body.ballsExist !== "boolean") body.ballsExist = body.penisExist && body.ballssize > 0;
+	if (typeof body.vaginaExist !== "boolean") body.vaginaExist = body.sex === "f";
+
+	body.penisuse = body.penisuse ?? V.penisuse ?? 0;
+	body.penisstate = body.penisstate ?? V.penisstate ?? 0;
+	body.vaginause = body.vaginause ?? V.vaginause ?? 0;
+	body.vaginastate = body.vaginastate ?? V.vaginastate ?? 0;
+
+	setString("leftEyeColour", xChangeString(V.leftEyeColour, "brown"));
+	setString("rightEyeColour", xChangeString(V.rightEyeColour, body.leftEyeColour));
+	setString("haircolour", xChangeString(V.haircolour, "brown"));
+	body.hairColourGradient = body.hairColourGradient ?? V.hairColourGradient;
+	body.hairColourStyle = body.hairColourStyle ?? V.hairColourStyle;
+	setString("naturalhaircolour", xChangeString(V.naturalhaircolour, body.haircolour));
+	setString("hairtype", xChangeString(V.hairtype, "short"));
+	setString("hairfringecolour", xChangeString(V.hairfringecolour, body.haircolour));
+	body.hairFringeColourGradient = body.hairFringeColourGradient ?? V.hairFringeColourGradient;
+	body.hairFringeColourStyle = body.hairFringeColourStyle ?? V.hairFringeColourStyle;
+	setString("fringetype", xChangeString(V.fringetype, "default"));
+	setString("skinColor", xChangeString(player.skin?.color, "medium"));
+
+	setNumber("hairlength", xChangeFiniteNumber(V.hairlength, 0));
+	setNumber("fringelength", xChangeFiniteNumber(V.fringelength, 0));
+	setNumber("semen_amount", xChangeFiniteNumber(V.semen_amount, 0));
+	setNumber("milk_amount", xChangeFiniteNumber(V.milk_amount, 0));
+	setNumber("semen_volume", xChangeFiniteNumber(V.semen_volume, 0));
+	setNumber("milk_volume", xChangeFiniteNumber(V.milk_volume, 0));
+	setNumber("beauty", xChangeFiniteNumber(V.beauty, 0));
+	setNumber("penisgrowthtimer", xChangeFiniteNumber(V.penisgrowthtimer, 500));
+	setNumber("bottomgrowthtimer", xChangeFiniteNumber(V.bottomgrowthtimer, 500));
+	setNumber("breastgrowthtimer", xChangeFiniteNumber(V.breastgrowthtimer, 500));
+
+	body.fame ??= V.fame ?? {};
+	body.cool = xChangeFiniteNumber(body.cool, xChangeFiniteNumber(V.cool, 120));
+	body.crime ??= V.crime ?? {};
+	body.promiscuity = xChangeFiniteNumber(body.promiscuity, xChangeFiniteNumber(V.promiscuity, 0));
+	body.exhibitionism = xChangeFiniteNumber(body.exhibitionism, xChangeFiniteNumber(V.exhibitionism, 0));
+	body.deviancy = xChangeFiniteNumber(body.deviancy, xChangeFiniteNumber(V.deviancy, 0));
+
+	if (bad.length) {
+		xChangeRepairNoticeOnce(
+			`repair_xchange_sanitise_body_${slotLabel}`,
+			`<b>Save repair notice</b><br>X-Change repaired an incomplete cached body snapshot (<b>${slotLabel}</b>): ${bad.join(", ")}. This prevents undefined/NaN body values from breaking Characteristics, face, and body menus.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>`
+		);
+	}
+
+	return true;
+}
+window.xChangeSanitiseBodySnapshot = xChangeSanitiseBodySnapshot;
+
+function xChangeCachedBodyUsable(slotName) {
+	const pill = V.xchange?.pill;
+	if (!pill) return false;
+
+	const prop = slotName === "genderswapped" ? "changedBody" : slotName === "herm" ? "hermBody" : slotName;
+	const body = pill[prop];
+	if (!body || typeof body !== "object" || Array.isArray(body) || Object.keys(body).length === 0) return false;
+
+	if (xChangeBodySnapshotUsable(body)) return true;
+
+	// Transformed-body caches are expendable.  
+	// If they are bad, regenerate them instead of loading a half-empty object over the current player body.
+	if (prop === "changedBody" || prop === "hermBody") {
+		pill[prop] = {};
+		xChangeRepairNoticeOnce(
+			`repair_xchange_discard_bad_${prop}`,
+			`<b>Save repair notice</b><br>X-Change found an invalid cached transformed body (<b>${slotName}</b>) and discarded it. A fresh transformed body will be generated instead of loading broken size/face data.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>`
+		);
+		return false;
+	}
+
+	// Original-body cache cannot simply be thrown away during restore, so repair it.
+	xChangeSanitiseBodySnapshot(body, slotName);
+	return xChangeBodySnapshotUsable(body);
+}
+window.xChangeCachedBodyUsable = xChangeCachedBodyUsable;
+setup.xChangeBodySnapshotUsable = xChangeBodySnapshotUsable;
+setup.xChangeSanitiseBodySnapshot = xChangeSanitiseBodySnapshot;
+setup.xChangeCachedBodyUsable = xChangeCachedBodyUsable;
+
 function getAntiPillSensitivityBonus(part) {
 	const anti = V.xchange?.antiPillSensitivity;
 	if (!anti || typeof anti.hours !== "number" || anti.hours <= 0) return 0;

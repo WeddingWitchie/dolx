@@ -55,7 +55,7 @@
 		<<set $bodysize to setup.stepBodySize($bodysize, -1)>>
 
 		/* Loading existing values, or generating new ones */
-		<<if $player.sex !== "f" && Object.keys($xchange.pill.changedBody).length gt 0>>
+		<<if $player.sex !== "f" && setup.xChangeCachedBodyUsable("genderswapped")>>
 			<<load-body "genderswapped">>
 			<<if $xchange.customisedSkinColour is "random" || $xchange.customisedEyeColour is "random">>
 				/* Optional: allow wraith appearance even on loaded bodies */
@@ -317,7 +317,7 @@
 		<<set $bodysize to setup.stepBodySize($bodysize, 1)>>
 
 		/* Loading existing values, or generating new ones */
-		<<if $player.sex !== "m" && Object.keys($xchange.pill.changedBody).length gt 0>>
+		<<if $player.sex !== "m" && setup.xChangeCachedBodyUsable("genderswapped")>>
 			<<load-body "genderswapped">>
 			<<if $xchange.customisedSkinColour is "random" || $xchange.customisedEyeColour is "random">>
 				/* Optional: allow wraith appearance even on loaded bodies */
@@ -542,7 +542,7 @@
 			<<set $player.bodyshape to "slender">>
 		<</if>>
 
-		<<if Object.keys($xchange.pill.hermBody).length gt 0>>
+		<<if setup.xChangeCachedBodyUsable("herm")>>
 			<<load-body "herm">>
 		<<else>>
 			<<set _body to $xchange.pill.originalBody>>
@@ -727,6 +727,9 @@
 		<<if _body is undefined>>
 			<<break>>
 		<</if>>
+
+		<<set _slotName to (_args[0] ? _args[0] : "originalBody")>>
+		<<run setup.xChangeSanitiseBodySnapshot(_body, _slotName)>>
 
 		/* Core appearance */
 		<<set $bodysize to _body.bodysize>>
@@ -1069,7 +1072,7 @@
 		
 		<<set $xchange.pill.active to true>>
 		<<set $xchange.pill.baseSex to $player.sex>>
-		<<set $xchange.pill.baseGenitals to {penis: !!$player.penis, vagina: !!$player.vagina}>>
+		<<set $xchange.pill.baseGenitals to {penis: !!$player.penisExist, vagina: !!$player.vaginaExist}>>
 		<<set $xchange.pill.duration to _days * 24 - 1>> <!-- duration now in hours instead of days -->
 		<<set $xchange.pill.countdown to $xchange.pill.duration>>
 		<<set $xchange.pill.fertile to false>>
