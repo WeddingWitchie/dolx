@@ -48,7 +48,12 @@
             <<exit>>
         <</if>>
 
-        <<if !npcIsXChanged(_targetNo is undefined ?? _targetName)>>
+        <<if _targetNo is undefined>>
+            <<set _xchangeTargetId to _targetName>>
+        <<else>>
+            <<set _xchangeTargetId to _targetNo>>
+        <</if>>
+        <<if !npcIsXChanged(_xchangeTargetId)>>
             <<if _targetName>><<npc-xchange-save _targetName>><</if>>
             <<npc-xchange-effects _duration _effects>>
         <</if>>
@@ -66,25 +71,40 @@
 
     <<widget "npc-xchange-save">>
         <<set _targetName to _args[0]>>
-		<<set _npcSave to C.npc[_targetName]>>
 
-        <<set _data to {
-			gender: _npcSave.gender,
-			pronoun: _npcSave.pronoun,
-			breastsize: _npcSave.breastsize,
-			breastdesc: _npcSave.breastdesc,
-			breastsdesc: _npcSave.breastsdesc,
-			penissize: _npcSave.penissize,
-			penisdesc: _npcSave.penisdesc,
-		}>>
+        <<if $xchange is undefined>><<set $xchange to {}>><</if>>
+        <<if $xchange.savedNpcBodies is undefined>><<set $xchange.savedNpcBodies to {}>><</if>>
+        <<if $xchange.savedNpcBodies[_targetName] is undefined>><<set $xchange.savedNpcBodies[_targetName] to {}>><</if>>
 
-		<<if _args[1] is undefined>>
-			<<set $xchange.savedNpcBodies[_targetName].original to _data>> 		
-		<<elseif _args[1] is "genderswapped">>
-			<<set $xchange.savedNpcBodies[_targetName].genderswap to _data>>
-		<<elseif _args[1] is "herm">>
-			<<set $xchange.savedNpcBodies[_targetName].herm to _data>>
-		<</if>>
+        <<set _npcSave to undefined>>
+        <<if $NPCNameList.includes(_targetName)>>
+            <<set _npcSave to $NPCName[$NPCNameList.indexOf(_targetName)]>>
+        <</if>>
+        <<if _npcSave is undefined>><<set _npcSave to C.npc[_targetName]>><</if>>
+
+        <<if _npcSave is undefined>>
+            <<run console.warn("npc-xchange-save: NPC not found:", _targetName)>>
+        <<else>>
+            <<set _data to {
+                gender: _npcSave.gender,
+                pronoun: _npcSave.pronoun,
+                breastsize: _npcSave.breastsize,
+                breastdesc: _npcSave.breastdesc,
+                breastsdesc: _npcSave.breastsdesc,
+                penis: _npcSave.penis,
+                penissize: _npcSave.penissize,
+                penisdesc: _npcSave.penisdesc,
+                vagina: _npcSave.vagina
+            }>>
+
+            <<if _args[1] is undefined>>
+                <<set $xchange.savedNpcBodies[_targetName].original to clone(_data)>>
+            <<elseif _args[1] is "genderswapped">>
+                <<set $xchange.savedNpcBodies[_targetName].genderswap to clone(_data)>>
+            <<elseif _args[1] is "herm">>
+                <<set $xchange.savedNpcBodies[_targetName].herm to clone(_data)>>
+            <</if>>
+        <</if>>
     <</widget>>
 
 	<<widget "npc-xchange-load">>
@@ -99,9 +119,11 @@
 		<<if $xchange.savedNpcBodies is undefined>><<set $xchange.savedNpcBodies to {}>><</if>>
 
 		/* Resolve the live NPC object we actually want to update */
-		<<set _npcLoad to $NPCName[_targetName]>>
-		<<if _npcLoad is undefined and $NPCNameList.includes(_targetName)>>
-			<<set _npcLoad to $NPCName[$NPCNameList.indexOf(_targetName)]>>
+		<<set _npcLoad to undefined>>
+		<<set _npcLoadIndex to undefined>>
+		<<if $NPCNameList.includes(_targetName)>>
+			<<set _npcLoadIndex to $NPCNameList.indexOf(_targetName)>>
+			<<set _npcLoad to $NPCName[_npcLoadIndex]>>
 		<</if>>
 		<<if _npcLoad is undefined>><<set _npcLoad to C.npc[_targetName]>><</if>>
 
@@ -119,8 +141,10 @@
 					breastsize: _npcLoad.breastsize,
 					breastdesc: _npcLoad.breastdesc,
 					breastsdesc: _npcLoad.breastsdesc,
+					penis: _npcLoad.penis,
 					penissize: _npcLoad.penissize,
-					penisdesc: _npcLoad.penisdesc
+					penisdesc: _npcLoad.penisdesc,
+					vagina: _npcLoad.vagina
 				}>>
 			<</if>>
 
@@ -132,16 +156,57 @@
 			<</if>>
 
 			<<if _data>>
-				<<if _data.gender isnot undefined>><<set _npcLoad.gender to _data.gender>><</if>>
-				<<if _data.pronoun isnot undefined>><<set _npcLoad.pronoun to _data.pronoun>><</if>>
-				<<if _data.breastsize isnot undefined>><<set _npcLoad.breastsize to _data.breastsize>><</if>>
-				<<if _data.breastdesc isnot undefined>><<set _npcLoad.breastdesc to _data.breastdesc>><</if>>
-				<<if _data.breastsdesc isnot undefined>><<set _npcLoad.breastsdesc to _data.breastsdesc>><</if>>
-				<<if _data.penissize isnot undefined>><<set _npcLoad.penissize to _data.penissize>><</if>>
-				<<if _data.penisdesc isnot undefined>><<set _npcLoad.penisdesc to _data.penisdesc>><</if>>
+				<<set _bodyKeys to ["gender","pronoun","breastsize","breastdesc","breastsdesc","penis","penissize","penisdesc","vagina"]>>
+				<<for _key range _bodyKeys>>
+					<<if _data[_key] isnot undefined>><<set _npcLoad[_key] to clone(_data[_key])>><</if>>
+				<</for>>
+				<<if _npcLoad.pronoun>><<generatePronouns _npcLoad>><</if>>
 			<</if>>
 
-			<<if $NPCNameList.includes(_targetName)>><<set $NPCName[$NPCNameList.indexOf(_targetName)] to _npcLoad>><</if>>
+			<<if _npcLoadIndex isnot undefined>><<set $NPCName[_npcLoadIndex] to _npcLoad>><</if>>
+			<<npc-xchange-sync-active-target _targetName _npcLoadIndex>>
+		<</if>>
+	<</widget>>
+
+	<<widget "npc-xchange-sync-active-target">>
+		<<set _syncName to _args[0]>>
+		<<set _syncIndex to _args[1]>>
+		<<if _syncName is undefined>><<set _syncName to _targetName>><</if>>
+		<<if _syncIndex is undefined>><<set _syncIndex to _targetNameIndex>><</if>>
+		<<set _syncSource to undefined>>
+
+		<<if _syncIndex is undefined and _syncName and $NPCNameList.includes(_syncName)>>
+			<<set _syncIndex to $NPCNameList.indexOf(_syncName)>>
+		<</if>>
+		<<if _syncIndex isnot undefined and $NPCName[_syncIndex]>>
+			<<set _syncSource to $NPCName[_syncIndex]>>
+		<<elseif _syncName and C.npc[_syncName]>>
+			<<set _syncSource to C.npc[_syncName]>>
+		<</if>>
+
+		<<if _syncSource>>
+			<<set _syncKeys to ["gender","pronoun","breastsize","breastdesc","breastsdesc","penis","penissize","penisdesc","vagina","xchange"]>>
+
+			/* Keep C.npc updated without assigning directly into C.npc[...] as a macro target. */
+			<<if _syncName and C.npc[_syncName]>>
+				<<set _syncNpc to C.npc[_syncName]>>
+				<<for _key range _syncKeys>>
+					<<if _syncSource[_key] isnot undefined>><<set _syncNpc[_key] to clone(_syncSource[_key])>><</if>>
+				<</for>>
+				<<if _syncNpc.pronoun>><<generatePronouns _syncNpc>><</if>>
+			<</if>>
+
+			/* Keep an already-spawned sex-scene copy from using stale pronouns/body parts. */
+			<<if $NPCList>>
+				<<for _slot range $NPCList>>
+					<<if _slot and (_slot.description is _syncName or _slot.fullDescription is _syncName or _slot.nam is _syncName or _slot.name is _syncName)>>
+						<<for _key range _syncKeys>>
+							<<if _syncSource[_key] isnot undefined>><<set _slot[_key] to clone(_syncSource[_key])>><</if>>
+						<</for>>
+						<<if _slot.pronoun>><<generatePronouns _slot>><</if>>
+					<</if>>
+				<</for>>
+			<</if>>
 		<</if>>
 	<</widget>>
 
@@ -184,7 +249,10 @@
             <<set $NPCList[_targetNo].xchange to _pill>>
         <</if>>
         <<if _targetName>>
-            <<set $NPCName[_targetNameIndex].xchange to _pill>> /* TODO: Revise that doing this is correct */
+            <<set $NPCName[_targetNameIndex].xchange to _pill>>
+            <<set _syncNpc to C.npc[_targetName]>>
+            <<if _syncNpc>><<set _syncNpc.xchange to clone(_pill)>><</if>>
+            <<npc-xchange-sync-active-target _targetName _targetNameIndex>>
         <</if>>
 
     <</widget>>
@@ -382,8 +450,9 @@
 		<<if $NPCName[_targetName] and $NPCName[_targetName].xchange isnot undefined>>
 			<<run delete $NPCName[_targetName].xchange>>
 		<</if>>
-		<<if C.npc[_targetName] and C.npc[_targetName].xchange isnot undefined>>
-			<<run delete C.npc[_targetName].xchange>>
+		<<set _restoreNpc to C.npc[_targetName]>>
+		<<if _restoreNpc and _restoreNpc.xchange isnot undefined>>
+			<<run delete _restoreNpc.xchange>>
 		<</if>>
 	<</widget>>
 
@@ -433,7 +502,7 @@
 			<<set _npc.breastdesc to _brdes[_npc.breastsize] + " breast">>
 			<<set _npc.breastsdesc to _brdes[_npc.breastsize] + " breasts">>
 			/* <<set _npc.ballssize to 1>> */
-			<<set _npc.vagina to _npc.penis is "clothed"? "clothed" : _npcTemp.penis is "idle"? "idle" : 0>>
+			<<set _npc.vagina to _npc.penis is "clothed" ? "clothed" : (_npcTemp and _npcTemp.penis is "idle") ? "idle" : 0>>
 			<<set _npc.penis to "none">>
 			<<set _npc.penisdesc to "none">>
 			<<set _npc.penissize to 0>>
@@ -468,11 +537,17 @@
 			<<set _npcTemp.penisdesc to "none">>
 			<<set _npcTemp.penissize to 0>>
 		<</if>>
+		<<if _targetName>><<npc-xchange-sync-active-target _targetName _targetNameIndex>><</if>>
     <</widget>>
 
     <<widget "npc-become-boy">>
 		<<set _npcTemp to $NPCList[_targetNo]>>
         <<set _npc to $NPCName[_targetNameIndex]>>
+        <<set _swap to undefined>>
+        <<if $xchange.savedNpcBodies[_targetName]>>
+            <<set _swap to $xchange.savedNpcBodies[_targetName].genderswap>>
+        <</if>>
+        <<set _swapValidBoy to _swap and _swap.gender is "m" and _swap.penissize isnot undefined and _swap.penissize gt 0 and _swap.penisdesc and _swap.penisdesc isnot "none">>
 
         <<set _penissizes to [1, 2,2,2,2, 3,3,3, 4] >>
         <<set _penisdescs to [
@@ -483,7 +558,7 @@
             either("colossal cock", "monstrous cock", "titanic cock", "towering cock", "immense cock"),
         ]>>
 
-		<<if _npc and _npc.startingSex isnot "m" && $xchange.savedNpcBodies[_targetName] isnot undefined && $xchange.savedNpcBodies[_targetName].genderswap isnot undefined && Object.keys($xchange.savedNpcBodies[_targetName].genderswap).length gt 0>>
+		<<if _npc and _npc.startingSex isnot "m" and _swapValidBoy>>
 			<<npc-xchange-load _targetName "genderswapped">>
 
 			<<for _key range Object.keys(_npc)>>
@@ -502,7 +577,7 @@
 			<<set _npc.breastdesc to "nipple">>
 			<<set _npc.breastsdesc to "nipples">>
 			/* <<set _npc.ballssize to 1>> */
-			<<set _npc.penis to _npc.vagina is "clothed"? "clothed" : _npcTemp.vagina is "idle"? "idle" : 0>>
+			<<set _npc.penis to _npc.vagina is "clothed" ? "clothed" : (_npcTemp and _npcTemp.vagina is "idle") ? "idle" : 0>>
 			<<set _npc.penissize to _penissizes.random()>>
 			<<if _npc.penissize is 4 and ($settings.npcColossalPenisChance || 0) gt 0 and random(1, 100) lte $settings.npcColossalPenisChance>>
 				<<set _npc.penissize to 5>>
@@ -543,6 +618,7 @@
 			<<set _npcTemp.penisdesc to _penisdescs[_npcTemp.penissize-1]>>
 			<<set _npcTemp.vagina to "none">>
 		<</if>>
+		<<if _targetName>><<npc-xchange-sync-active-target _targetName _targetNameIndex>><</if>>
     <</widget>>
 
     <<widget "npc-sissify">>
@@ -582,6 +658,7 @@
 			<<set _npcTemp.penisdesc to "tiny penis">>
 			<<set _npcTemp.vagina to "none">>
 		<</if>>
+		<<if _targetName>><<npc-xchange-sync-active-target _targetName _targetNameIndex>><</if>>
 
     <</widget>>
 
@@ -622,6 +699,7 @@
 			<<set _npcTemp.penisdesc to "none">>
 			<<set _npcTemp.penissize to 0>>
 		<</if>>
+		<<if _targetName>><<npc-xchange-sync-active-target _targetName _targetNameIndex>><</if>>
 
     <</widget>>
 
@@ -707,7 +785,8 @@
 				<</if>> */
 
 				<<if $NPCNameList.includes(_npc.description)>>
-					<<set C.npc[_npc.description].xchange to _pill>> /* Update Named NPC data */
+					<<set _syncNpc to C.npc[_npc.description]>>
+					<<if _syncNpc>><<set _syncNpc.xchange to clone(_pill)>><</if>> /* Update Named NPC data */
 				<</if>>
 			<</if>>
 		<</for>>
