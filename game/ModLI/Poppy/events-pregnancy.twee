@@ -3,7 +3,7 @@
  * ============================================================== */
 :: Poppy Pregnancy Reveal
 <<effects>><<speechresolve>><<endevent "phaseless">><<npc "Poppy">><<person1>>
-<<run poppySchedule()>><<run markPoppyInteraction()>>
+<<run poppySchedule()>><<run markPoppyInteraction()>><<set _poppyRevealHandled to false>>
 <<if ![3,4].includes($phase)>>
 	<<if $location is "poppy_flat">>
 		You sit down beside Poppy.
@@ -22,7 +22,7 @@
 		<<if V.player.vaginaExist or canBeMPregnant() and knowsAboutPregnancy("pc", "Poppy")>>
 			<<He>> looks surprised at first, but then a smile forms on <<his>> face. "Awh, our little one is growing well. So cute, like a little bean." <<He>> brushes <<his>> thumb across the picture. "I'm going to keep this with me, so I can look at it anytime."
 			<<llstress>><<stress -8>><<glove>><<npcincr Poppy love 1>>
-			<<poppyOpiumPulse>>
+			<<poppyOpiumPulse>><<set _poppyRevealHandled to true>>
 			<<link [[Next|Poppy Pregnancy Reveal 2]]>><</link>>
 		<<else>>
 			/* Male-PC route, Poppy demanded an ultrasound; route into the disbelief continuation. */
@@ -44,7 +44,8 @@
 		<br><br>
 	<</if>>
 <</if>>
-<<if C.npc.Poppy.pregnancy.test isnot true and $alex_countdown is undefined and C.npc.Poppy.pregnancy.ultraSound isnot "done">>
+<<if !_poppyRevealHandled>>
+<<if C.npc.Poppy.pregnancy.test isnot true and C.npc.Poppy.pregnancy.ultraSound isnot "done">>
 	<<setKnowsAboutPregnancy "pc" "Poppy">><<setTalkedAboutPregnancy "pc" "Poppy">><<set C.npc.Poppy.pregnancy.pcKnowledge to true>>
 	<<if playerBellyVisible(true) and $phase isnot 4 and $phase isnot 3>>
 		/* Belly already visibly showing, PC just shows it. */
@@ -95,7 +96,7 @@
 			<br><br>
 			<span class="blue">You'll need a paternity test to convince Poppy that <<he>> is the father.</span> The town hospital should be able to provide one.
 			<<set C.npc.Poppy.pregnancy.sample to true>><<poppyOpiumPulse>>
-			<<link [[Next|<<currentPassage>>]]>><<endevent>><</link>>
+			<<link [[Next|Flats Poppy Social]]>><<endevent>><<npc "Poppy">><<person1>><</link>>
 		<<else>>
 			<<if pregnancyCountBetweenParents("pc", "Poppy") lte 0>>
 				/* First pregnancy with Poppy, the excited "we're going to be parents" beat. */
@@ -121,7 +122,7 @@
 			<<link [[Next|Poppy Pregnancy Reveal 2]]>><</link>>
 		<</if>>
 	<</if>>
-<<elseif C.npc.Poppy.pregnancy.ultraSound is "done" and !V.player.vaginaExist>>
+<<elseif C.npc.Poppy.pregnancy.test isnot true and C.npc.Poppy.pregnancy.ultraSound is "done" and !V.player.vaginaExist>>
 	/* Male-PC route; finished showing ultrasound after Poppy demanded one. */
 	"I really am pregnant," you insist.
 	<<if pregnancyCountBetweenParents("pc", "Poppy") gt 0>>
@@ -179,6 +180,7 @@
 	<<link [[Next|Poppy Pregnancy Reveal 2]]>><</link>>
 <</if>>
 
+<</if>>
 :: Poppy Pregnancy Reveal Mpreg Alt
 <<effects>><<endevent "phaseless">><<npc "Poppy">><<person1>><<run poppySchedule()>><<run markPoppyInteraction()>>
 <<if $location is "poppy_flat">>
@@ -453,7 +455,7 @@ You push the door open to let yourself in and close it behind you.
 	<<run T.babyCount = Object.values(V.children || {}).filter(child => child && (child.mother === "Poppy" || child.father === "Poppy") && child.location === "home").length>>
 <</if>>
 <<if _babyCount lt 1>><<set _babyCount to 1>><</if>><<set _isMultiple to _babyCount gt 1>>
-You see Poppy cradling <<if _isMultiple>>babies<<else>>a baby<</if>> in <<his>> arms. "Look at our <<if _isMultiple>>children<<else>>child<</if>>, <<if _isMultiple>>aren't they<<else>>isn't <<he>><</if>> cute? I haven't named <<if _isMultiple>>them<<else>><<him>><</if>> yet. Would you like to?"
+You see Poppy cradling <<if _isMultiple>>babies<<else>>a baby<</if>> in <<his>> arms. "Look at our <<if _isMultiple>>children<<else>>child<</if>>, <<if _isMultiple>>aren't they<<else>>isn't the baby<</if>> cute? I haven't named <<if _isMultiple>>them<<else>>the baby<</if>> yet. Would you like to?"
 <<poppyOpiumPulse>>
 <<link [[Yes (0:05)|Poppy Orphanage Handoff Name]]>><<set $phase to 1>><<pass 5>><</link>>
 <br>
@@ -493,7 +495,7 @@ You see Poppy cradling <<if _isMultiple>>babies<<else>>a baby<</if>> in <<his>> 
 		<<setBabyIntro _babyIntroOwner "pc" _babyIntro.birthId>>
 		/* Skip the naming menu; vanilla babyIntro auto-generates names when bypassed. */
 	<</if>>
-	Poppy smiles. "That's alright, I'll pick <<if _isMultiple>>names for them<<else>>a name for <<him>><</if>>."
+	Poppy smiles. "That's alright, I'll pick <<if _isMultiple>>names for them<<else>>a name for the baby<</if>>."
 	<br><br>
 <</if>>
 "What brings you here?" you ask.
@@ -524,7 +526,7 @@ You see Poppy cradling <<if _isMultiple>>babies<<else>>a baby<</if>> in <<his>> 
  * ============================================================== */
 :: Poppy Nursery Intro
 <<effects>><<endevent "phaseless">><<npc "Poppy">><<person1>><<npc "Bailey" 2>>
-<<run poppySchedule()>><<run markPoppyInteraction()>><<set _poppyChildIds to []>>
+<<run poppySchedule()>><<run markPoppyInteraction()>><<if $childPassageExit is undefined>><<set $childPassageExit to "Orphanage">><</if>><<set _poppyChildIds to []>>
 <<run Object.values($children || {}).forEach(child => {if (child && (child.mother === "Poppy" || child.father === "Poppy") && child.location === "home") {T.poppyChildIds.push(child.childId);}})>>
 <<set _hasMultiple to _poppyChildIds.length gt 1>><<if _poppyChildIds.length gt 0>><<childSelect _poppyChildIds[0]>><</if>>
 You step foot into the orphanage nursery and see Poppy conversing with Bailey by <<childname>>'s cradle.
@@ -548,7 +550,7 @@ Poppy pulls you towards <<childname>>'s cradle. The two of you look down at the 
  * Nursery RNG: Poppy reading storybook (repeatable)
  * ============================================================== */
 :: Poppy Nursery Reading
-<<effects>><<endevent "phaseless">><<npc "Poppy">><<person1>><<run poppySchedule()>><<run markPoppyInteraction()>><<set _poppyChildIds to []>>
+<<effects>><<endevent "phaseless">><<npc "Poppy">><<person1>><<run poppySchedule()>><<run markPoppyInteraction()>><<if $childPassageExit is undefined>><<set $childPassageExit to "Orphanage">><</if>><<set _poppyChildIds to []>>
 <<run Object.values($children || {}).forEach(child => {if (child && (child.mother === "Poppy" || child.father === "Poppy") && child.location === "home") {T.poppyChildIds.push(child.childId);}})>>
 <<if _poppyChildIds.length gt 0>><<childSelect _poppyChildIds[0]>><</if>>
 You step into the nursery to find Poppy sitting on the ground with <<childname>> in <<his>> lap, reading a children's storybook. The sight of them fills you with unadulterated joy.<<llstress>><<stress -8>><<ltrauma>><<trauma -4>>
@@ -559,7 +561,7 @@ You step into the nursery to find Poppy sitting on the ground with <<childname>>
  * Dismissed-Poppy nursery event (one-shot)
  * ============================================================== */
 :: Poppy Nursery Dismissed
-<<effects>><<endevent "phaseless">><<npc "Poppy">><<person1>><<set _poppyChildIds to []>>
+<<effects>><<endevent "phaseless">><<npc "Poppy">><<person1>><<if $childPassageExit is undefined>><<set $childPassageExit to "Orphanage">><</if>><<set _poppyChildIds to []>>
 <<run Object.values($children || {}).forEach(child => {if (child && (child.mother === "Poppy" || child.father === "Poppy") && child.location === "home") {T.poppyChildIds.push(child.childId);}})>>
 <<if _poppyChildIds.length gt 0>><<childSelect _poppyChildIds[0]>><</if>><<set _isMultiple to _poppyChildIds.length gt 1>>
 You step foot into the nursery and freeze in your tracks. Inside the nursery is someone you did not expect or wish to see. It's Poppy.
