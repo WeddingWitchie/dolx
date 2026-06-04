@@ -6175,19 +6175,23 @@ function genlayer_halo(side, tf, overrideOptions) {
 }
 
 function genlayer_tail(tf, hair, overrideOptions) {
+	// Each TF whose tail can become a demon-chimera tail -> its chimera key.
+	// TFs not listed here (waterdragon, bird, ...) never use demon cover/flaunt.
+	const demonChimera = { cow: "demoncow", cat: "demoncat", wolf: "demonwolf", fox: "demonfox" };
+	// True for the demon tail, or this TF's own demon-chimera tail when it's active.
+	const isDemonTail = () => tf === "demon" || (!!demonChimera[tf] && isChimeraEnabled(demonChimera[tf], "tail"));
+
 	return genlayer_tf(tf, "tail", "tail", Object.assign({
 		z: ZIndices.tailPenisCover,
 		filters: hair ? ["hair"] : [],
 
 		srcfn(options) {
-			const demon = tf === "demon" || isChimeraEnabled("demoncow", "tail") || isChimeraEnabled("demoncat", "tail") || isChimeraEnabled("demonwolf", "tail") || isChimeraEnabled("demonfox", "tail");
-			const tail = demon ? `tail-${options.demon_tail_state}` : "tail-idle";
+			const tail = isDemonTail() ? `tail-${options.demon_tail_state}` : "tail-idle";
 
 			return `img/transformations/${tf}/${tail}/${options[`${tf}_tail_type`]}.png`;
 		},
 		zfn(options) {
-			const cover = ["cover", "flaunt"].includes(options.demon_tail_state) && (tf === "demon" || isChimeraEnabled("demoncow", "tail") || isChimeraEnabled("demoncat", "tail") || isChimeraEnabled("demonwolf", "tail") || isChimeraEnabled("demonfox", "tail"));
-			if (cover) return ZIndices.tailPenisCover;
+			if (isDemonTail() && ["cover", "flaunt"].includes(options.demon_tail_state)) return ZIndices.tailPenisCover;
 			if (options[`${tf}_tail_layer`] === "back") return ZIndices.tail;
 			return ZIndices.back_lower;
 		},
