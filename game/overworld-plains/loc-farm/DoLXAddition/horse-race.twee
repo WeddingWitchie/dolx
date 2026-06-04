@@ -1,5 +1,5 @@
 :: Racecourse
-<<run setup.horserace.ensureState()>>
+<<run setup.horserace.ensureState()>><<outfitChecks>>
 <<if $farm.horseRaceUnlocked isnot true>>
 	The fenced-off course is quiet. Alex has not opened it for racing yet.
 	<br><br>
@@ -9,15 +9,25 @@
 		<<run setup.horserace.createRace(true)>>
 	<</if>>
 	The racecourse is already noisy. Bookies shout over each other, betting slips pass from hand to hand, and the horses are led towards the gate.
+	<br><br>
+	<<if $exposed gte 2>>
+		A few conversations die as you approach the rail. The bookies stare, the handlers pretend not to, and Alex quickly steps closer as if <<nnpc_he Alex>> can block the whole racecourse from seeing you.<<stress 6>><<gstress>>
+		<br><br><<if $face isnot "covered">><<fameexhibitionism 1>><</if>>
+	<<elseif $exposed is 1>>
+		Several people glance your way and whisper, but the bookies are more interested in taking bets than asking questions about what you're wearing... or almost not wearing.<<garousal>><<arousal 200>>
+		<br><br>
+	<</if>>
 	<<print setup.horserace.renderHorseList()>>
 	<<link "Place a bet" "Racecourse Betting">><</link>>
+	<br>
+	<<link [[Return to the farm|Farm Work]]>><<endevent>><</link>>
 <</if>>
 
 :: Racecourse Betting
 <<if $horserace.phase is "idle" or $horserace.phase is "finished">>
 	<<run setup.horserace.createRace(true)>>
 <</if>>
-The board changes one last time before the bookie shuts the window.
+The board changes one last time while the bookie calls for final bets.
 <<print setup.horserace.renderHorseList()>>
 <<if $horserace.lastError>>
 	<p class="red"><<print $horserace.lastError>></p>
@@ -25,7 +35,7 @@ The board changes one last time before the bookie shuts the window.
 <<if !$horserace.selectedHorseId>>
 	Choose a horse to back.
 	<p class="horse-race-bet-links">
-	<<set _firstHorseLink to true>><<for _horse range $horserace.horses>><<if _firstHorseLink>><<set _firstHorseLink to false>><<else>> | <</if>><<set _label to _horse.name + " (" + _horse.odds.toFixed(2) + "x)">><<capture _horse>><<link _label "Racecourse Betting">><<set $horserace.selectedHorseId to _horse.id>><</link>><</capture>><</for>>
+	<<set _firstHorseLink to true>><<for _horse range $horserace.horses>><<if _firstHorseLink>><<set _firstHorseLink to false>><<else>> <br> <</if>><<set _label to _horse.name + " (" + _horse.odds.toFixed(2) + "x)">><<capture _horse>><<link _label "Racecourse Betting">><<set $horserace.selectedHorseId to _horse.id>><</link>><</capture>><</for>>
 	</p>
 <<else>>
 	<<set _horse to setup.horserace.getHorse($horserace.selectedHorseId)>>
@@ -35,18 +45,18 @@ The board changes one last time before the bookie shuts the window.
 	<<print setup.horserace.makeTextInput($horserace.betFieldId, $horserace.betInput)>>
 	<br><br>
 	<<link "Place bet" "Racecourse Betting Submit">>
-		<<set $horserace.betInput to setup.horserace.captureFieldValue($horserace.betFieldId)>>
+		<<set $horserace.betInput to setup.horserace.captureFieldValue($horserace.betFieldId)>><<unset $horserace.betFieldId>>
 	<</link>>
 	<br>
-	<<link "Choose a different horse" "Racecourse Betting">><<set $horserace.selectedHorseId to "">><</link>>
+	<<link "Choose a different horse" "Racecourse Betting">><<set $horserace.selectedHorseId to "">><<unset $horserace.betFieldId>><</link>>
 <</if>>
 
 :: Racecourse Betting Submit
 <<set _betResult to setup.horserace.placeBet($horserace.selectedHorseId, $horserace.betInput)>>
 <<if _betResult.ok>>
-	The bookie takes your slip and waves you towards the rail.
+	The bookie takes your stake, tears off a betting slip, and waves you towards the rail.
 	<br><br>
-	<<link [[Watch the race|Racecourse Watch]]>><</link>>
+	<<link [[Go to the viewing rail|Racecourse Rail Check]]>><<npc Alex>><<person1>><</link>>
 <<else>>
 	<<if $horserace.lastError>>
 		<p class="red"><<print $horserace.lastError>></p>
@@ -55,7 +65,56 @@ The board changes one last time before the bookie shuts the window.
 <</if>>
 <br>
 
+:: Racecourse Rail Check
+<<outfitChecks>><<npc Alex>><<person1>>
+<<if $horserace.phase is "betting">>
+	The race can't start until you place a bet.
+	<br><br>
+	<<link [[Return to the betting window|Racecourse Betting]]>><</link>>
+<<elseif $exposed gte 2 and $settings.horsesEnabled and $daily.horseRaceHorseBreakChecked isnot true>>
+	<<set $daily.horseRaceHorseBreakChecked to true>><<set $horserace.autoWatch to false>><<run setup.horserace.cancelAutoWatch()>><<run setup.horserace.simulateToEnd(false)>>
+	Several horses glance your way as you approach the viewing rail. At first, it is easy to blame the noise, the crowd, or the unfamiliar scent of the racecourse.
+	Then you notice how fixed their attention is. Their ears turn towards you. One of them stops listening to its handler entirely.
+	<br><br>
+	<span class="pink">Only then does your own nakedness feel impossible to ignore.</span>
+	<br><br>
+	Alex notices, then looks you over with a frown. "Why are you walking around dressed like that here?"
+	<br><br>
+	<<speechresolve>>
+	<<if _speechAttitudeResolved is "meek">>
+		"Sorry," you say quietly, drawing in on yourself. "I didn't think it would matter."
+	<<elseif _speechAttitudeResolved is "shy">>
+		"It's not your business," you mutter, glancing aside.
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"I don't think my clothes are the important part right now, Alex," you say.
+	<<elseif _speechAttitudeResolved is "docile">>
+		"I can move away from the rail if you want," you say.
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		"None of your business," you say.
+		<<if _speechAttitudeResolved is "cruel">>
+			You make no effort to hide your irritation.
+		<</if>>
+	<<else>>
+		"It's not your business," you say.
+	<</if>>
+	<br><br>
+	Alex opens <<his>> mouth, then stops as a few spectators nearby snicker.
+	"Fine," <<he>> says, clicking <<his>> tongue. "Wear whatever you want at the biggest horse race we've ever had. Brilliant idea."
+	<br><br>
+	The horse that has been staring at you suddenly jerks hard against its lead. Its handler swears, boots sliding in the dirt as the animal surges towards the rail.
+	Alex tries to grab you, but the crowd panics and shoves between you.
+	<br><br>
+	<<link [[Next|Racecourse Horse Break]]>><<endevent>><<beastNEWinit 1 horse>><<set $molestationstart to 1>><</link>>
+<<else>>
+	One of the horses glances your way as you reach the viewing rail, then another. A third starts shifting uneasily, tugging at its lead until the handler has to pull it back.
+	<br><br>
+	One of the handlers hauls a horse back before it can get too close to the rail. Alex goes pale. "Maybe don't stand too close," <<he>> says, keeping one eye on the horses.<<stress 6>><<gstress>>
+	<br><br>
+	<<link [[Watch the race|Racecourse Watch]]>><</link>>
+<</if>>
+
 :: Racecourse Watch
+<<outfitChecks>>
 <<if $horserace.phase is "betting">>
 	The race can't start until you place a bet.
 	<br><br>
@@ -74,7 +133,7 @@ The board changes one last time before the bookie shuts the window.
 <</if>>
 
 :: Racecourse Result
-<<set $horserace.autoWatch to false>>
+<<unset $horserace.betFieldId>><<set $horserace.autoWatch to false>><<endevent>>
 <<run setup.horserace.cancelAutoWatch()>>
 <<if $horserace.phase isnot "finished">>
 	<<run setup.horserace.simulateToEnd(false)>>
@@ -82,7 +141,45 @@ The board changes one last time before the bookie shuts the window.
 <<print setup.horserace.renderResult()>>
 <<link "Run another race" "Racecourse Betting">><<run setup.horserace.createRace(true)>><</link>>
 <br>
-<<link [[Return to the farm|Farm Work]]>><<endevent>><</link>>
+<<link [[Return to the farm|Farm Work]]>><</link>>
+
+:: Racecourse Horse Break
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<beastNEWinit 1 horse m penis beast>>
+	<<beastCombatInit>>
+	<<set $NPCList[0].stance to "top">>
+	<<if $pronoun is "m">>
+		<<set $position to "doggy">>
+	<<else>>
+		<<set $position to "missionary">>
+	<</if>>
+	<<set $position_lock to 1>>
+<</if>>
+<<effects>>
+<<effectsman>>
+<<beast $enemyno>>
+<<audience>>
+<<stateman>>
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[Next|Racecourse Horse Break Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Racecourse Horse Break]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Racecourse Horse Break Finish
+<<effects>>
+The handlers finally get the horse under control and drag it away from the rail. The crowd takes a long moment to settle, muttering and staring as the bookies shout for everyone to move back.
+<br><br>
+By the time Alex finds you again, the race has already finished.
+<br><br>
+<<endcombat>>
+<<link [[Next|Racecourse Result]]>><</link>>
 
 :: Farm Horse Race Intro
 <<run setup.horserace.ensureState()>>
@@ -108,7 +205,7 @@ One of the race horses stamps as you pass, neck arched and ears flicking. Its ha
 "See? That's what I mean. Farm horses want a job. Race horses want a reason to bolt, and we just try to make sure they bolt in the right direction." <<He>> clicks <<his>> tongue as the horse tosses its head. "Still easier than dealing with Remy. Usually."
 <br><br>
 <<if $settings.bestialityEnabled>>
-	One stallion near the rail goes still as you pass, ears forward and body tense, before becoming <span class="pink">far too obviously excited as its cock erect</span>.
+	One stallion near the rail goes still as you pass, ears forward and body tense, before becoming <span class="pink">far too obviously excited, its cock visibly erect</span>.
 	Another horse at the far end gives you the same fixed stare. Then a third.
 	<br><br>
 	Alex follows your gaze, then notices another horse reacting the same way. His face turns scarlet. "Right... Brilliant. Great. We're going over there now."
@@ -147,9 +244,7 @@ By the viewing rail, the handlers are already lining the horses up.
 	<<run setup.horserace.simulateToEnd(false)>>
 <</if>>
 <<print setup.horserace.renderResult()>>
-<<effects>>
-Alex watches the winner by the far rail. Only then does <<he>> seem to remember how to breathe.
-"Nothing broke!" <<He>> laughs, still a little nervous. "I'll take that as a good sign."
+Alex watches the winner by the far rail. Only then does <<he>> seem to remember how to breathe. "Nothing broke!" <<He>> laughs, still a little nervous. "I'll take that as a good sign."
 <br><br>
 A handler waves from the track. Alex waves back, then turns to you with a brighter smile.
 <br><br>

@@ -6,7 +6,7 @@ setup.horserace = setup.horserace || {};
 
 	const HR = setup.horserace;
 
-	HR.VERSION = "0.1.3";
+	HR.VERSION = "0.1.4";
 
 	HR.DEFAULT_WATCH_DELAY = 1600;
 
@@ -470,6 +470,46 @@ setup.horserace = setup.horserace || {};
 		return false;
 	};
 
+
+	HR.refreshGameSidebar = function () {
+		try {
+			if (typeof UIBar !== "undefined" && UIBar && typeof UIBar.update === "function") {
+				UIBar.update();
+				return;
+			}
+			if (typeof window !== "undefined" && window.SugarCube && window.SugarCube.UIBar && typeof window.SugarCube.UIBar.update === "function") {
+				window.SugarCube.UIBar.update();
+			}
+		}
+		catch (e) {
+			if (State && State.variables && State.variables.debug === 1) {
+				console.warn("Horse race could not refresh the sidebar.", e);
+			}
+		}
+	};
+
+	HR.passRaceTime = function (minutes) {
+		const amount = Math.max(0, Math.floor(Number(minutes) || 0));
+		if (amount <= 0) return;
+
+		try {
+			const wiki = `<<pass ${amount}>>`;
+			const fragment = typeof document !== "undefined" ? document.createDocumentFragment() : null;
+			if (typeof Wikifier === "function") {
+				new Wikifier(fragment, wiki);
+			}
+			else if (typeof window !== "undefined" && typeof window.Wikifier === "function") {
+				new window.Wikifier(fragment, wiki);
+			}
+			HR.refreshGameSidebar();
+		}
+		catch (e) {
+			if (State && State.variables && State.variables.debug === 1) {
+				console.warn("Horse race could not run <<pass>>.", e);
+			}
+		}
+	};
+
 	HR.ensureState = function () {
 		const V = State.variables;
 		if (V.horserace == null || typeof V.horserace !== "object") V.horserace = {};
@@ -743,6 +783,7 @@ setup.horserace = setup.horserace || {};
 		if (race.phase === "betting") race.phase = "running";
 		if (race.phase !== "running") return race;
 
+		HR.passRaceTime(2);
 		race.round += 1;
 		const stepMessages = [];
 
@@ -809,7 +850,7 @@ setup.horserace = setup.horserace || {};
 		const caption = root.querySelector(".horse-race-caption");
 		const track = HR.trackDefs[race.trackId] || HR.trackDefs.oval;
 		if (caption) {
-			caption.innerHTML = `<strong>${HR.escapeHtml(track.name)}</strong> — lap ${race.round}`;
+			caption.innerHTML = `<strong>${HR.escapeHtml(track.name)}</strong>`;
 		}
 
 		const markers = Array.from(root.querySelectorAll(".horse-race-marker"));
@@ -1040,7 +1081,7 @@ setup.horserace = setup.horserace || {};
 				<path class="horse-race-hidden-path" d="${HR.escapeHtml(track.path)}"></path>
 				${markers}
 			</svg>
-			<div class="horse-race-caption"><strong>${HR.escapeHtml(track.name)}</strong> — lap ${race.round}</div>
+			<div class="horse-race-caption"><strong>${HR.escapeHtml(track.name)}</strong></div>
 			${progressRows}
 		</div>`;
 	};
@@ -1081,7 +1122,7 @@ setup.horserace = setup.horserace || {};
 			: (race.messages.length > 0 ? race.messages : ["The crowd waits for the next move."])).slice(0, 3);
 		const items = messages.map(function (message) {
 			if (message && typeof message === "object" && message.type === "skill") {
-				const round = Number.isFinite(message.round) ? `<span class="horse-race-log-round">Lap ${message.round}</span> ` : "";
+				const round = Number.isFinite(message.round) ? `<span class="horse-race-log-round">Moment ${message.round}</span> ` : "";
 				return `<li class="horse-race-skill-log">${round}<span class="horse-race-skill-badge">${HR.escapeHtml(message.skillName || "Skill")}</span> <strong>${HR.escapeHtml(message.horseName || "Horse")}</strong>: ${HR.escapeHtml(message.text || "surges forward.")}</li>`;
 			}
 			return `<li>${HR.escapeHtml(message)}</li>`;
