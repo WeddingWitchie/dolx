@@ -354,16 +354,26 @@ setup.hbsc.compoundInterestFromAER = function (principal, aerPercent, fractionOf
 	return principal * (Math.pow(1 + (aerPercent / 100), fractionOfYear) - 1);
 };
 
+/* Simple (pro-rata) interest: the yearly rate, scaled straight down by the fraction of a year the money is held.  
+   This is the model players expect:
+   one month = yearly rate / 12.  e.g. 300,000 at 2.50% for 1 month = 625.
+   (We keep compoundInterestFromAER above in case you ever want the strict
+   "true AER" behaviour back; just swap the calls below.) */
+setup.hbsc.simpleInterestFromAER = function (principal, aerPercent, fractionOfYear) {
+	if (!(principal > 0) || !(aerPercent > 0) || !(fractionOfYear > 0)) return 0;
+	return principal * (aerPercent / 100) * fractionOfYear;
+};
+
 setup.hbsc.calcSavingsMonthInterest = function (balance, accountLevel) {
 	const tier = setup.hbsc.getSavingsTier(accountLevel);
 	if (!(balance > 0) || balance < (tier.minimumBalance || 0)) return 0;
-	return setup.hbsc.compoundInterestFromAER(balance, tier.interestAER, 1 / 12);
+	return setup.hbsc.simpleInterestFromAER(balance, tier.interestAER, 1 / 12);
 };
 
 setup.hbsc.calcFixedTermMaturity = function (principal, months) {
 	const aer = setup.hbsc.getFixedTermAER(months, principal);
 	const fraction = months / 12;
-	const interest = setup.hbsc.compoundInterestFromAER(principal, aer, fraction);
+	const interest = setup.hbsc.simpleInterestFromAER(principal, aer, fraction);
 	return {
 		principal,
 		months,
@@ -377,7 +387,7 @@ setup.hbsc.calcFixedTermEarnedInterest = function (principal, months, elapsedDay
 	const aer = setup.hbsc.getFixedTermAER(months, principal);
 	const totalDays = Math.max(1, Math.round(months * 30));
 	const boundedElapsed = Math.max(0, Math.min(elapsedDays || 0, totalDays));
-	return setup.hbsc.compoundInterestFromAER(principal, aer, boundedElapsed / 365);
+	return setup.hbsc.simpleInterestFromAER(principal, aer, boundedElapsed / 365);
 };
 
 setup.hbsc.calcFixedTermEarlyWithdrawal = function (principal, months, elapsedDays, accountLevel, withdrawalKind) {
