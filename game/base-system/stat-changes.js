@@ -200,7 +200,8 @@ const statChange = (() => {
 			(V.awareness < 200 && V.hypnosis_traits.insight && V.settings.hypnosisEnabled) ||
 			V.hallucinogen > 0 ||
 			Time.isBloodMoon() ||
-			Object.values(V.worn).find(c => c.type.includes("esoteric"))
+			Object.values(V.worn).find(c => c.type.includes("esoteric")) ||
+			(V.transformationParts?.traits && !["disabled", "hidden"].includes(V.transformationParts.traits.dragonEyes))
 		) {
 			V.hallucinations = 2;
 		} else if (
