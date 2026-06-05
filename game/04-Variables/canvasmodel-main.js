@@ -954,11 +954,15 @@ Renderer.CanvasModels.main = {
 				options[`${slot}_fitted_right_move_src`] = "img/clothes/masks/soft-right-move.png";
 				options[`${slot}_fitted_left_move_src`]  = "img/clothes/masks/soft-left-move.png";
 			});
-			options.lowerMask.push(upperCheck && !options.belly_tucked ? "img/clothes/masks/soft-lower-clip.png" : null);
-			options.legsMask.push(upperCheck && !options.belly_tucked ? "img/clothes/masks/soft-lower-clip.png" : null);
-			options.lowerShadowMask.push(upperCheck ? "img/clothes/masks/soft-shadow.png" : null);
-			options.underLowerShadowMask.push(underUpperCheck ? "img/clothes/masks/soft-shadow.png" : null);
-			options.underLowerMask.push(underUpperCheck? "img/clothes/masks/soft-lower-clip.png" : null);
+			if (upperCheck && !options.belly_tucked) {
+				options.lowerMask.push("img/clothes/masks/soft-lower-clip.png");
+				options.legsMask.push("img/clothes/masks/soft-lower-clip.png");
+			}
+			if (upperCheck) options.lowerShadowMask.push("img/clothes/masks/soft-shadow.png");
+			if (underUpperCheck) {
+				options.underLowerShadowMask.push("img/clothes/masks/soft-shadow.png");
+				options.underLowerMask.push("img/clothes/masks/soft-lower-clip.png");
+			}
 		}
 
 		if (options.lower_tucked && !options.worn.lower.setup.notuck && !options.worn.feet.setup.notuck) {
@@ -5786,11 +5790,18 @@ function genlayer_clothing_belly_shadow(slot, overrideOptions) {
 				&& options.worn[slot].setup.mainImage !== 0;
 		},
 		brightnessfn(options) {
-			const mask = ((slot === "lower" && options.lowerShadowMask) || (slot === "under_lower" && options.underLowerShadowMask && !playerHasStrapon()))
-			return between(options.belly, 8, 24) && mask ? -0.25 : options.body_type === "soft" && mask ? -0.4 : 0;
+			const maskArr = slot === "lower" ? options.lowerShadowMask
+				: slot === "under_lower" && !playerHasStrapon() ? options.underLowerShadowMask
+				: null;
+			const hasMask = Array.isArray(maskArr) && maskArr.some(Boolean);
+			if (!hasMask) return 0;
+			return between(options.belly, 8, 24) ? -0.25 : options.body_type === "soft" ? -0.4 : 0;
 		},
 		masksrcfn(options) {
-			return slot === "lower" ? options.lowerShadowMask : slot === "under_lower" && !playerHasStrapon() ? options.underLowerShadowMask : ""
+			const maskArr = slot === "lower" ? options.lowerShadowMask
+				: slot === "under_lower" && !playerHasStrapon() ? options.underLowerShadowMask
+				: [];
+			return (maskArr || []).filter(Boolean);
 		}
 	}, overrideOptions));
 }
