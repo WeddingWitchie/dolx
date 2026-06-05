@@ -634,6 +634,10 @@ function weekPassed() {
 
 	supermarketWeekly();
 
+	// HBSC standing orders: 
+	// settle farm-guard wages and gambling-ring upkeep from savings before the unpaid-gambling penalty fires in xchangeWeeklyCheck().
+	if (setup.hbsc && typeof setup.hbsc.runStandingOrders === "function") {setup.hbsc.runStandingOrders();}
+
 	xchangeWeeklyCheck();
 
 	statChange.worldCorruption("soft", V.world_corruption_hard);

@@ -29,6 +29,11 @@
 		<br>
 	<</if>>
 
+	<<if $hbsc.account.level >= 1 and $passage isnot "HBSC Bank Standing Orders">>
+		<<icon "email.png">><<link [[Set up automatic payments (0:02)|HBSC Bank Standing Orders]]>><<pass 2>><</link>>
+		<br>
+	<</if>>
+
 	<<if $passage isnot "HBSC Bank Ask Savings Accounts">>
 		<<socialiseicon "ask">><<link [[Ask how savings accounts work (0:02)|HBSC Bank Ask Savings Accounts]]>><<pass 2>><</link>>
 		<br>
@@ -43,12 +48,13 @@
 <</widget>>
 
 <<widget "hbscJournal">>
-		<<if setup.hbsc and setup.hbsc.ensureState>>
+	<<if setup.hbsc and setup.hbsc.ensureState>>
 		<<run setup.hbsc.ensureState()>>
-		<<set _hbscNoticeSummary to setup.hbsc.summariseNotices($hbsc.notices)>>
-		<<set _hbscTermSummary to setup.hbsc.summariseFixedTerms($hbsc.fixedTerms)>>
-		<<set _hbscBanDays to setup.hbsc.getBanRemainingDays()>>
-		<<if $hbsc.account.level >= 1 or _hbscBanDays > 0 or _hbscNoticeSummary.savingsInterestCount > 0 or _hbscNoticeSummary.maturedCount > 0 or _hbscTermSummary.activeCount > 0 or _hbscTermSummary.maturedCount > 0>>
+		<<set _hbscNoticeSummary to setup.hbsc.summariseNotices($hbsc.notices)>><<set _hbscTermSummary to setup.hbsc.summariseFixedTerms($hbsc.fixedTerms)>><<set _hbscBanDays to setup.hbsc.getBanRemainingDays()>>
+		<<set _hbscAutoEnabled to []>>
+		<<for _i, _bill range setup.hbsc.AUTOPAY_BILLS>><<if setup.hbsc.isAutoPayEnabled(_bill.id)>><<run _hbscAutoEnabled.push(_bill.label)>><</if>><</for>>
+		<<set _hbscAutoCancelled to $hbsc.notices.filter(n => n and n.type is "autoPayCancelled")>>
+		<<if $hbsc.account.level >= 1 or _hbscBanDays > 0 or _hbscNoticeSummary.savingsInterestCount > 0 or _hbscNoticeSummary.maturedCount > 0 or _hbscTermSummary.activeCount > 0 or _hbscTermSummary.maturedCount > 0 or _hbscAutoEnabled.length > 0 or _hbscAutoCancelled.length > 0>>
 			<hr>
 			<h1 class="header gold bold">HBSC Banking</h1>
 			<ul class="journal">
@@ -82,6 +88,14 @@
 				<</if>>
 				<<if _hbscTermSummary.maturedCount > 0>>
 					<li>Ready to collect <span class="gold"><<print _hbscTermSummary.maturedCount>></span> matured fixed-term <<pluralise _hbscTermSummary.maturedCount "deposit" "deposits">>, totaling <<printmoney _hbscTermSummary.maturedReadyTotal>></li>
+				<</if>>
+				<<if _hbscAutoEnabled.length > 0>>
+					<li><<icon "email.png">>Bills covered by standing order: <span class="teal"><<print _hbscAutoEnabled.join(", ")>></span></li>
+				<</if>>
+				<<if _hbscAutoCancelled.length > 0>>
+					<<for _i, _c range _hbscAutoCancelled>>
+						<li><span class="red">Your standing order for <<print _c.label>> was cancelled</span> as your savings didn't cover it.</li>
+					<</for>>
 				<</if>>
 			</ul>
 		<</if>>

@@ -35,7 +35,16 @@
 		<<homeBabyIntro>>
 	<</if>>
 	<<babyRent>>
-	<<if $money gte $rentmoney + ($babyRent or 0)>>
+	<<set _rentTotal to ($rentmoney + ($babyRent or 0))>>
+	<<if setup.hbsc.canAutoPay("bailey", _rentTotal)>>
+		/* HBSC standing order is set up and the savings cover it: settle automatically. */
+		<<rentpay "bank">>
+		<<link [[Next|Rent Pay Auto]]>><<set $phase to $_robinWasInRoom>><</link>>
+	<<else>>
+		<<if setup.hbsc.cancelIfShort("bailey", _rentTotal)>>
+			<span class="red">Your HBSC standing order couldn't cover the rent, so it's been cancelled.</span><br>
+		<</if>>
+		<<if $money gte _rentTotal>>
 		<<link [[Pay|Rent Pay]]>><<set $phase to $_robinWasInRoom>><</link>>
 		<br>
 		<<link [[Refuse|Rent Refuse]]>><<def 1>><</link>>
@@ -72,6 +81,7 @@
 		<br><br>
 
 		<<rentnopay true>>
+		<</if>>
 	<</if>>
 	<<set $renttime to 7>><<set $rentday to Time.weekDay>>
 <</widget>>
@@ -121,16 +131,25 @@
 		<<homeBabyIntro>>
 	<</if>>
 	<<babyRent>>
-	<<if $money gte $rentmoney + ($babyRent or 0)>>
-		<<if $inRobinsRoom>>
-			<<link [[Pay|Rent Pay Robin]]>><<set $inRobinsRoom to true>><</link>>
-		<<else>>
-			<<link [[Pay|Rent Pay Robin]]>><</link>>
-		<</if>>
-		<br>
-		<<link [[Refuse|Rent Refuse Robin]]>><<def 1>><</link>>
-		<br>
+	<<set _rentTotal to ($rentmoney + ($babyRent or 0))>>
+	<<if setup.hbsc.canAutoPay("bailey", _rentTotal)>>
+		/* HBSC standing order is set up and the savings cover it: settle automatically. */
+		<<rentpay "bank">>
+		<<link [[Next|Rent Pay Auto]]>><<if $inRobinsRoom>><<set $inRobinsRoom to true>><</if>><</link>>
 	<<else>>
+		<<if setup.hbsc.cancelIfShort("bailey", _rentTotal)>>
+			<span class="red">Your HBSC standing order couldn't cover the rent, so it's been cancelled.</span><br>
+		<</if>>
+		<<if $money gte _rentTotal>>
+			<<if $inRobinsRoom>>
+				<<link [[Pay|Rent Pay Robin]]>><<set $inRobinsRoom to true>><</link>>
+			<<else>>
+				<<link [[Pay|Rent Pay Robin]]>><</link>>
+			<</if>>
+			<br>
+			<<link [[Refuse|Rent Refuse Robin]]>><<def 1>><</link>>
+			<br>
+		<<else>>
 		<<set $baileypaychain to 0>>
 		<<speechresolve>>
 		<<switch _speechAttitudeResolved>>
@@ -175,6 +194,7 @@
 		<<else>>
 			<<link [[Fight|Rent Robin Fight]]>><<set $fightstart to 1>><</link>>
 			<br>
+		<</if>>
 		<</if>>
 	<</if>>
 	<<set $renttime to 7>><<set $rentday to Time.weekDay>>
@@ -259,11 +279,26 @@
 <</widget>>
 
 <<widget "rentpay">>
-	<<money `-($rentmoney + ($babyRent or 0))` "baileyRent">>
+	/* The bank deduction is committed here so payment + bookkeeping stay atomic. */
+	<<set _payVia to (_args[0] || "cash")>>
+	<<if _payVia is "bank">>
+		<<set _bankPay to setup.hbsc.tryAutoPay("bailey", $rentmoney + ($babyRent or 0))>>
+		<<if not _bankPay.paid>>
+			/* Savings no longer cover it (edge case) and fall back to cash so rent is still settled. */
+			<<money `-($rentmoney + ($babyRent or 0))` "baileyRent">>
+			<<set _payVia to "cash">>
+		<</if>>
+	<<else>>
+		<<money `-($rentmoney + ($babyRent or 0))` "baileyRent">>
+	<</if>>
 	<<set $rentmoney to [10000,30000,50000,70000,100000,150000,200000][Math.clamp($rentstage,1,6)]>> <!-- note: clamping to 1 is intentional -->
 	<<rentmod>>
 
-	Bailey snatches the money from your hand and starts counting. "Good," <<nnpc_he "Bailey">> says, satisfied. "You came through.
+	<<if _payVia is "bank">>
+		Bailey goes to demand the cash, then glances at <<nnpc_his "Bailey">> phone. Seems your HBSC standing order has already cleared. <<nnpc_He "Bailey">> gives a short grunt, almost disappointed at the lack of fuss. "Hm. Paid up.
+	<<else>>
+		Bailey snatches the money from your hand and starts counting. "Good," <<nnpc_he "Bailey">> says, satisfied. "You came through.
+	<</if>>
 	<<if $rentstage is 1>>
 		Next week I want <<printmoney $rentmoney "pink">><<babyRentDisplay " plus " " if you don't look after your children" "pink">>. You didn't think it would get any easier, did you?"
 	<<else>>

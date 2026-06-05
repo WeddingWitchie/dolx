@@ -660,3 +660,195 @@ setup.hbsc.receiveExternalDeposit = function (amount) {
 
 	return { ok: true, toDeposit, toCash, overflow: toCash > 0 };
 };
+
+/* ===========================================
+   HBSC AUTOMATIC PAYMENTS (ADDITIVE)
+   =========================================== */
+
+/* The bills the bank is willing to handle. 
+`id` is the key each bill's event code passes to canAutoPay()/tryAutoPay(). 
+Array order = the order they appear on the management screen. */
+setup.hbsc.AUTOPAY_BILLS = [
+	{ id: "bailey",       label: "Orphanage rent (Bailey)",          blurb: "Bailey's weekly demand, including any childcare surcharge." },
+	{ id: "farmGuard",    label: "Farm tower guard wages",           blurb: "The watchtower guard's outstanding wages." },
+	{ id: "gamblingRing", label: "Gambling-ring upkeep (Landry)",    blurb: "Landry's weekly upkeep that keeps the cops away from the ring." }
+];
+
+setup.hbsc.getAutoPayBill = function (id) {
+	return setup.hbsc.AUTOPAY_BILLS.find(b => b.id === id) || null;
+};
+
+/* Ensure the autoPay sub-object exists.  
+Kept out of the main ensureState() so this file stays drop-in; every autoPay helper calls it first. */
+setup.hbsc.ensureAutoPayState = function () {
+	const V = State.variables;
+	setup.hbsc.ensureState();
+	if (V.hbsc.autoPay == null || typeof V.hbsc.autoPay !== "object") V.hbsc.autoPay = {};
+	for (const bill of setup.hbsc.AUTOPAY_BILLS) {
+		if (typeof V.hbsc.autoPay[bill.id] !== "boolean") V.hbsc.autoPay[bill.id] = false;
+	}
+	return V.hbsc.autoPay;
+};
+
+setup.hbsc.isAutoPayEnabled = function (id) {
+	return setup.hbsc.ensureAutoPayState()[id] === true;
+};
+
+setup.hbsc.setAutoPay = function (id, on) {
+	const auto = setup.hbsc.ensureAutoPayState();
+	if (!setup.hbsc.getAutoPayBill(id)) return false;
+	auto[id] = !!on;
+	return auto[id];
+};
+
+setup.hbsc.toggleAutoPay = function (id) {
+	return setup.hbsc.setAutoPay(id, !setup.hbsc.isAutoPayEnabled(id));
+};
+
+/* READ-ONLY check: would a standing order for `id` cover `amount` right now?
+Use this to decide which path to show WITHOUT moving any money. */
+setup.hbsc.canAutoPay = function (id, amount) {
+	const V = State.variables;
+	setup.hbsc.ensureAutoPayState();
+	const due = setup.hbsc.roundMoney(amount);
+	if (!(due > 0)) return false;
+	if (V.hbsc.account.level < 1) return false;
+	if (!setup.hbsc.isAutoPayEnabled(id)) return false;
+	return V.hbsc.account.deposit >= due;
+};
+
+/* COMMIT a standing-order payment.  
+This is what each bill's event code calls.  
+If the order is enabled AND the deposit covers the full amount, the money is taken from savings and { paid:true } is returned.
+Otherwise nothing is taken and { paid:false, reason } lets the caller fall back to the normal (cash / in-person) flow.
+   reason: "invalidAmount" | "noAccount" | "disabled" | "insufficientDeposit" */
+setup.hbsc.tryAutoPay = function (id, amount) {
+	const V = State.variables;
+	setup.hbsc.ensureAutoPayState();
+
+	const result = { ok: false, paid: false, amount: 0, reason: "", balance: V.hbsc.account.deposit };
+	const due = setup.hbsc.roundMoney(amount);
+
+	if (!(due > 0))                          { result.reason = "invalidAmount";       return result; }
+	if (V.hbsc.account.level < 1)            { result.reason = "noAccount";           return result; }
+	if (!setup.hbsc.isAutoPayEnabled(id))    { result.reason = "disabled";            return result; }
+	if (V.hbsc.account.deposit < due)        { result.reason = "insufficientDeposit"; return result; }
+
+	V.hbsc.account.deposit = setup.hbsc.roundMoney(V.hbsc.account.deposit - due);
+
+	const bill = setup.hbsc.getAutoPayBill(id);
+	V.hbsc.notices.push({
+		type: "autoPay",
+		day: Time.days,
+		billId: id,
+		label: bill ? bill.label : id,
+		amount: due,
+		balance: V.hbsc.account.deposit
+	});
+
+	result.ok = true;
+	result.paid = true;
+	result.amount = due;
+	result.balance = V.hbsc.account.deposit;
+	return result;
+};
+
+/* Summarise autoPay notices, e.g. to greet the player at the branch with "your standing orders paid X across N payments since your last visit".
+   Pass clear=true to remove the autoPay notices once you've shown them. */
+setup.hbsc.summariseAutoPay = function (clear) {
+	const V = State.variables;
+	setup.hbsc.ensureAutoPayState();
+	const summary = { count: 0, total: 0, byBill: {} };
+	if (!Array.isArray(V.hbsc.notices)) return summary;
+
+	for (const n of V.hbsc.notices) {
+		if (!n || n.type !== "autoPay") continue;
+		summary.count += 1;
+		const amt = Number.isFinite(n.amount) ? n.amount : 0;
+		summary.total += amt;
+		const key = n.billId || "other";
+		summary.byBill[key] = (summary.byBill[key] || 0) + amt;
+	}
+	summary.total = setup.hbsc.roundMoney(summary.total);
+
+	if (clear) V.hbsc.notices = V.hbsc.notices.filter(n => !(n && n.type === "autoPay"));
+	return summary;
+};
+
+/* If a standing order is switched on but the savings can't cover the amount due, cancel the order and leave a notice so the player is told.
+   Returns true if it cancelled, false otherwise (disabled, no account, or the balance actually covers it). 
+   Called whenever a bill falls due. */
+setup.hbsc.cancelIfShort = function (id, amount) {
+	const V = State.variables;
+	setup.hbsc.ensureAutoPayState();
+	const due = setup.hbsc.roundMoney(amount);
+	if (!setup.hbsc.isAutoPayEnabled(id)) return false;
+	if (V.hbsc.account.level < 1) return false;
+	if (V.hbsc.account.deposit >= due) return false;
+
+	setup.hbsc.setAutoPay(id, false);
+	const bill = setup.hbsc.getAutoPayBill(id);
+	V.hbsc.notices.push({
+		type: "autoPayCancelled",
+		day: Time.days,
+		billId: id,
+		label: bill ? bill.label : id,
+		shortfall: due,
+		balance: V.hbsc.account.deposit
+	});
+	return true;
+};
+
+/* ---------------------------------------------------------------------
+   WEEKLY RUNNER  (call once per week from weekPassed() in time.js, before xchangeWeeklyCheck()). 
+   --------------------------------------------------------------------- */
+setup.hbsc.runStandingOrders = function () {
+	setup.hbsc.ensureAutoPayState();
+	setup.hbsc.autoPayFarmGuard();
+	setup.hbsc.autoPayGamblingUpkeep();
+};
+
+/* Farm tower guard: clear the outstanding wages and run the same bookkeeping <<farm_guard_paid>> does, 
+but on the persistent V.farm.tower_guard_skill (the guard NPC isn't loaded while away). */
+setup.hbsc.autoPayFarmGuard = function () {
+	const V = State.variables;
+	setup.hbsc.ensureAutoPayState();
+	if (!V.farm || !V.farm.tower_guard) return false;
+
+	const unpaid = Number(V.farm.tower_guard_unpaid) || 0;
+	if (unpaid < 1) return false;
+
+	const owed = setup.hbsc.roundMoney((Number(V.farm.tower_guard_wage) || 0) * unpaid);
+	const res = setup.hbsc.tryAutoPay("farmGuard", owed);
+	if (!res.paid) {
+		setup.hbsc.cancelIfShort("farmGuard", owed);
+		return false;
+	}
+
+	const skill = Math.clamp((Number(V.farm.tower_guard_skill) || 0) + 20 * unpaid, 0, 1000);
+	V.farm.tower_guard_skill = skill;
+	V.farm.tower_guard_wage = 30000 + (skill * 100);
+	V.farm.tower_guard_unpaid = 0;
+	return true;
+};
+
+/* Gambling-ring upkeep (Landry): pay the current tier's upkeep and mark the week paid, mirroring <<gambling-pay-upkeep>>.
+Skips the startup week, when gambling-init has already set gamblingUpkeepPaid. */
+setup.hbsc.autoPayGamblingUpkeep = function () {
+	const V = State.variables;
+	setup.hbsc.ensureAutoPayState();
+	if (!V.xchange || !V.xchange.pubGamblingEnabled) return false;
+	if (V.weekly && V.weekly.gamblingUpkeepPaid === 1) return false;
+
+	const lvl = Math.clamp(Number(V.xchange.gamblingLvl) || 0, 0, 2);
+	const due = [200000, 400000, 1200000][lvl];
+	const res = setup.hbsc.tryAutoPay("gamblingRing", due);
+	if (!res.paid) {
+		setup.hbsc.cancelIfShort("gamblingRing", due);
+		return false;
+	}
+
+	if (V.weekly == null || typeof V.weekly !== "object") V.weekly = {};
+	V.weekly.gamblingUpkeepPaid = 1;
+	return true;
+};
