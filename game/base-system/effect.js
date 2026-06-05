@@ -2158,34 +2158,36 @@ Macro.add("effects", {
 					const bigCanvas = V?.options?.bigCanvas === true;
 					const nonMobile = !Browser.isMobile.any() && !/joiplay|cyou\.joiplay\.joiplay|wv/i.test(navigator.userAgent);
 
-					if (imagesEnabled) {
-						if (bigCanvas) {
-							setStyle("body.has-images #story-caption #storyCaptionDiv", {
-								top: "267px",
-								height: "calc(100% - 95px - 1.32em)",
-								width: "392px",
-							});
-							setStyle("body.has-images #storyCaptionContent", { width: "392px" });
-							setStyle("#img", { height: "267px", width: "328px" });
-							setStyle("canvas.mainCanvas", { height: "358px", width: "358px" });
-							setStyle("#ui-bar", { width: "24.5em" });
-							setStyle("#stats", { width: "392px" });
-						} else {
-							setStyle("body.has-images #story-caption #storyCaptionDiv", {
-								top: "192px",
-								height: "calc(100% - 20px - 1.32em)",
-								width: "280px",
-							});
-							setStyle("body.has-images #storyCaptionContent", { width: "280px" });
-							setStyle("#img", { height: "192px", width: "216px" });
-							setStyle("canvas.mainCanvas", { height: "256px", width: "256px" });
-							setStyle("#ui-bar", { width: "17.5em" });
-							setStyle("#stats", { width: "280px" });
+					if (!V.passage.includes("Waiting Room")) {
+						if (imagesEnabled) {
+							if (bigCanvas) {
+								setStyle("body.has-images #story-caption #storyCaptionDiv", {
+									top: "267px",
+									height: "calc(100% - 95px - 1.32em)",
+									width: "392px",
+								});
+								setStyle("body.has-images #storyCaptionContent", { width: "392px" });
+								setStyle("#img", { height: "267px", width: "328px" });
+								setStyle("canvas.mainCanvas", { height: "358px", width: "358px" });
+								setStyle("#ui-bar", { width: "24.5em" });
+								setStyle("#stats", { width: "392px" });
+							} else {
+								setStyle("body.has-images #story-caption #storyCaptionDiv", {
+									top: "192px",
+									height: "calc(100% - 20px - 1.32em)",
+									width: "280px",
+								});
+								setStyle("body.has-images #storyCaptionContent", { width: "280px" });
+								setStyle("#img", { height: "192px", width: "216px" });
+								setStyle("canvas.mainCanvas", { height: "256px", width: "256px" });
+								setStyle("#ui-bar", { width: "17.5em" });
+								setStyle("#stats", { width: "280px" });
+							}
 						}
-					}
 
-					if (nonMobile) {
-						setStyle("#story", { marginLeft: bigCanvas ? "27em" : "20em" });
+						if (nonMobile) {
+							setStyle("#story", { marginLeft: bigCanvas ? "27em" : "20em" });
+						}
 					}
 				} catch (e) {
 					console.error("effects :passageend handler crashed:", e);
