@@ -97,18 +97,23 @@
 			/*Checks for cursed equip*/
 			<<unset _cursedPrevent>>
 			<<set _wornOutfitPrimary to $worn[_slot].outfitPrimary>>
-			<<if $worn[_slot].cursed is 1>>
+			<<if $worn[_slot].cursed is 1 and $worn[_slot].name isnot "naked">>
 				You try to remove the <<print $worn[_slot].name>>, but fail. <<cursedtext $worn[_slot].name>>
 				<br>
 				<<set _cursedPrevent to true>>
+			<<elseif $worn[_slot].cursed is 1 and $worn[_slot].name is "naked">>
+				/* Self-heal: a bare slot must never stay cursed. Fixes saves where a cursed collar (e.g. Whitney's) was removed without fully resetting the slot, leaving cursed:1 behind. */
+				<<set $worn[_slot].cursed to 0>>
 			<</if>>
 			<<if _wornOutfitPrimary isnot undefined>>
 				<<for $_outfitPieceSlot, $_outfitPieceName range _wornOutfitPrimary>>
-					<<if $worn[$_outfitPieceSlot].cursed is 1 and _cursedPrevent isnot true>>
+					<<if $worn[$_outfitPieceSlot].cursed is 1 and $worn[$_outfitPieceSlot].name isnot "naked" and _cursedPrevent isnot true>>
 						<<capture $_outfitPieceSlot>>
 							<<cursedtext $worn[$_outfitPieceSlot].name>>
 						<</capture>>
 						<<set _cursedPrevent to true>>
+					<<elseif $worn[$_outfitPieceSlot].cursed is 1 and $worn[$_outfitPieceSlot].name is "naked">>
+						<<set $worn[$_outfitPieceSlot].cursed to 0>>
 					<</if>>
 				<</for>>
 			<</if>>
