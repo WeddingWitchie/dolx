@@ -48,12 +48,14 @@
 			<</if>>
 		<<elseif $whitney_toilet is 1 and C.npc.Whitney.state is "active" and $rng gte 51 and $daily.whitney.toiletCheck isnot 1>>
 			<<set $daily.whitney.toiletCheck to 1>>
-			<<set _toiletGender to playerBodyIsMale() ? "m" : "f">>
-			<<if $player.penisExist and $player.vaginaExist>>
-				<<set _correctBathroom to (C.npc.Whitney.pronoun is "m" ? "boys" : "girls")>>
-			<</if>>
-			<<if $changingRoomGender is "boys" and _toiletGender is "m" or $changingRoomGender is "girls" and _toiletGender is "f" or ($player.penisExist and $player.vaginaExist) and $changingRoomGender isnot _correctBathroom>>
-				<<if _toiletGender is C.npc.Whitney.pronoun>>
+			<!-- Migration guard for saves made before the assigned toilet was persisted. Lock in the long-standing "opposite of current body" rule once, deterministically, so enforcement never re-rolls per visit. -->
+			<<if $whitney_toilet_gender is undefined>><<set $whitney_toilet_gender to (playerBodyIsMale() ? "girls" : "boys")>><</if>>
+			<!-- Whitney's own toilet, used only to decide whether she turns up in person or sends friends. -->
+			<<set _whitneyRoom to (C.npc.Whitney.pronoun is "m" ? "boys" : "girls")>>
+			<<set _roomIsWhitneys to $changingRoomGender is _whitneyRoom>>
+			<!-- You broke the rule if you are not in the toilet Whitney actually assigned you (set in the bullyevent 11 scene). -->
+			<<if $changingRoomGender isnot $whitney_toilet_gender>>
+				<<if _roomIsWhitneys>>
 					<<npc Whitney>><<person1>>
 					You bump into Whitney. <<His>> expression darkens. "What did I say about showing your face in here?" <<he>> says. "I guess I'll have to beat it into you."
 					<br><br>
@@ -78,7 +80,7 @@
 					<br>
 				<</if>>
 			<<else>>
-				<<if _toiletGender is C.npc.Whitney.pronoun>>
+				<<if not _roomIsWhitneys>>
 					A couple of Whitney's friends enter the bathroom. They laugh and nudge each other. They make no aggressive moves, but they refuse to leave you alone.
 					<br><br>
 					"We're just here to make sure you <<if $player.penisExist>>sit down to pee<<else>>know how to use the urinal<</if>>. Whitney's orders."
@@ -3200,9 +3202,9 @@
 			<</if>>
 			<!-- _toiletAppearance is the player's current body sex via playerBodyIsMale(), pill included. It then has a 25% chance to flip to the opposite gender, so a forced/locked pill state always leaves a workable assignment. -->
 			<<set _toiletAppearance to playerBodyIsMale() ? "m" : "f">>
-			<<if random(1, 100) lte 25>>
-				<<set _toiletAppearance to _toiletAppearance is "m" ? "f" : "m">>
-			<</if>>
+			<<if random(1, 100) lte 25>><<set _toiletAppearance to _toiletAppearance is "m" ? "f" : "m">><</if>>
+			<!-- Persist the toilet Whitney assigns so the recurring toilet check enforces exactly what she says here. -->
+			<<set $whitney_toilet_gender to (_toiletAppearance is "m" ? "girls" : "boys")>>
 			<<if _toiletAppearance is _whitney.pronoun>>
 				<<He>> tries to push you into the <<print (_toiletAppearance is "m" ? "girl" : "boy")>>s' toilets.
 				<br><br>
