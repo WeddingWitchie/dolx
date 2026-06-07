@@ -275,7 +275,7 @@
 						<span @class="$player.gender_posture is _postures[_i].charAt(0) ? 'goldLink no-numberify' : 'unselected no-numberify'">
 							<<link _postures[_i].toUpperFirst()>>
 								<<set $player.gender_posture to _postures[_i].charAt(0)>>
-								<<exposedcheck>>
+								<<exposure>>
 								<<replace "#mirrorGender">><<mirrorGender>><</replace>>
 							<</link>>
 						</span>
@@ -335,7 +335,11 @@
 			<br>
 		<</if>>
 		<<if $worn.upper.type.includes("naked")>>
-			<<run _increaseBoth("Topless")>>
+			<<if $worn.lower.type.includes("overalls")>>
+				<<run _increaseBoth("Topless (covered)")>>
+			<<else>>
+				<<run _increaseBoth("Topless")>>
+			<</if>>
 		<<elseif $worn.upper.reveal gte 500>>
 			<<run _increaseBoth("Revealing top")>>
 		<</if>>
@@ -411,7 +415,7 @@
 
 		<<if $worn.upper.reveal + $worn.lower.reveal gte 50>>
 			<<set $_outfit to $worn.lower.name is "naked" or ($worn.upper.name is "naked" and $player.perceived_breastsize gt 2) ? '"outfit"' : 'outfit'>>
-			<<run _increaseAllure.push(`Alluring ${$_outfit} ${"+".repeat(Math.floor(($worn.upper.reveal + $worn.lower.reveal) / 400))}`)>>
+			<<run _increaseAllure.push(`Alluring ${$_outfit} ${"+".repeat(Math.floor((($worn.lower.type.includes("overalls") ? $worn.upper.reveal / 2 : $worn.upper.reveal) + $worn.lower.reveal) / 400))}`)>>
 			<<run _increaseAttractive.push(`Attractive ${$_outfit} ${"+".repeat(Math.floor(($worn.upper.reveal + $worn.lower.reveal) / 400))}`)>>
 		<</if>>
 		<<if $worn.head.reveal gte 50>>
@@ -731,6 +735,15 @@
 		<div class="settingsToggleItem">
 			<span class="gold bold">Tanning:</span>
 			<br>
+			Your chosen skin type:
+			<<listbox "$settings.tanningDifficulty" autoselect>>
+				<<option "Tans very easily" 0>>
+				<<option "Tans easily" 1>>
+				<<option "Tans moderately" 2>>
+				<<option "Tans poorly" 3>>
+				<<option "Hardly tans" 4>>
+			<</listbox>>
+			<br><br>
 			<span id="sunscreenDescription">
 				<<sunscreenDesc>>
 			</span>

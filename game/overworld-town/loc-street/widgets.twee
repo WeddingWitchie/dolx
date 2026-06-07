@@ -1652,6 +1652,18 @@
 			<<destinationeventend>>
 		<</if>>
 
+	<<elseif isPossibleLoveInterest("Kylar") and C.npc.Kylar.lust gte 25>>
+		<<set $kylarwatchedtimer to 0>>
+		<<npc Kylar>><<person1>>
+		<<set $NPCList[0].skills to {athletics: random(750, 1500), security: random(750, 1500)}>>
+		
+
+		As you are walking, you see the reflection of a small figure behind you in a window. You quickly turn around, but there's nobody there.
+		<br><br>
+		<span class="purple">You are being followed.</span>
+		<br><br>
+		<<link [[Next|Street Kylar Stalk]]>><<set $molestationstart to 1>><</link>>
+
 	<<elseif _kylarStatus.includesAll("Love","Lust")>>
 		<<set $kylarwatchedtimer to 0>><<rngWraith 2 "night">>
 
@@ -2073,6 +2085,8 @@
 
 	<<destinationeventend>>
 <</widget>>
+
+
 
 <<widget "streetexoffer">>
 	<<set $exhibitionismrunon to 0>>
@@ -3078,7 +3092,7 @@
 	<</switch>>
 	<br><br>
 
-	<<link [[Next|Connudatus Street]]>><<endevent>><</link>>
+	<<link [[Next|Connudatus Street]]>><<pass 15>><<endevent>><</link>>
 <</widget>>
 
 <<widget "connudatusMarketsProductsEvents">>
@@ -3157,7 +3171,7 @@
 					<</if>>
 
 					<<icon "clothes/checkered-shirt.png">>
-					<<if $worn.lower.outfitSecondary and !$worn.lower.outfitSecondary.includes("split") and !$worn.under_lower.type.includes("covered")>>
+					<<if $worn.lower.outfitSecondary and !$worn.lower.outfitSecondary.includes("split") and !$worn.under_lower.type.includes("lower_covering")>>
 						<span class="red">You can't buy the checkered shirt as removing your outfit would leave you exposed.</span>
 						<br>
 					<<elseif setup.clothes.upper[33].reveal lt earSlimeCorruptionClothes()>>
@@ -3281,7 +3295,28 @@
 					<<link [[Buy 24 bananas (£20)|Connudatus Street]]>><<money -2000>><<tending_give banana 24>><</link>>
 					<br>
 				<</if>>
-
+			<<case 8>>
+				You stop by a stall selling oranges. <<printmoney 55.5>> each.
+				<br><br>
+				<<if $money gte 55.5>>
+					<<link [[Buy 1 orange (£0.55)|Connudatus Street]]>><<money -55.5>><<tending_give orange 1>><</link>>
+					<br>
+				<<else>>
+					<span class="blue">You can't afford to buy any.</span>
+					<br>
+				<</if>>
+				<<if $money gte 111>>
+					<<link [[Buy 2 oranges (£1.10)|Connudatus Street]]>><<money -111>><<tending_give orange 2>><</link>>
+					<br>
+				<</if>>
+				<<if $money gte 166.5>>
+					<<link [[Buy 3 oranges (£1.65)|Connudatus Street]]>><<money -166.5>><<tending_give orange 3>><</link>>
+					<br>
+				<</if>>
+				<<if $money gte 222>>
+					<<link [[Buy 4 oranges (£2.20)|Connudatus Street]]>><<money -222>><<tending_give orange 4>><</link>>
+					<br>
+				<</if>>
 		<</switch>>
 
 	<</if>>
@@ -3301,7 +3336,11 @@
 		<br>
 	<</if>>
 
-	<<link [[Move away|Connudatus Markets Hook Up]]>><<set $phase to 1>><</link>>
+	<<if $hairlength gte 1000 and Time.hour gte 20 and random(1,4) is 1>>
+		<<link [[Move away|Connudatus Markets Hook Up]]>><<set $phase to "fall">><<dancedifficulty 100 1000>><</link>>
+	<<else>>
+		<<link [[Move away|Connudatus Markets Hook Up]]>><<set $phase to 1>><</link>>
+	<</if>>
 
 <</widget>>
 
@@ -3455,6 +3494,13 @@
 			<<addevent "streetnpcflash" 0.5>>
 			<<addevent "streetrocks" 0.5>>
 			<<addevent "streetvan" 1>>
+			
+			<<if $bus is "elk">>
+				<<addevent "elkBreeze" 1>>
+			<</if>>
+			<<if $bus is "high">>
+				<<addevent "highShoplift" 1>>
+			<</if>>
 
 			<<addinlineevent "ambient" 1>>
 				<<eventAmbient>>
@@ -3495,6 +3541,7 @@
 				<<addevent "streetstray" 1>>
 				<<addevent "shadyFan" 0.6>>
 				<<addevent "streetapproach" 1>>
+				<<addevent "streetSeduction" 1>>
 
 				<<if !playerIsXChanged() and !playerIsPregnant()>>
 					<<addevent "street-resistance-whoring" 1>>
@@ -3542,6 +3589,10 @@
 
 				<<if getTransformParts(["ears", "wings", "tail"])>>
 					<<addevent "streettfpicture" 1>>
+				<</if>>
+
+				<<if $hairlength gte 1000>>
+					<<addevent "streetlonghair" .7>>
 				<</if>>
 			<</if>>
 
@@ -4282,4 +4333,116 @@
 	<<link [[Flaunt (0:05)|Street Transformation Picture]]>><<pass 5>><<set $phase to 1>><</link>><<exhibitionist 1>>
 	<br>
 	<<link [[Refuse|Street Transformation Picture]]>><<set $phase to 2>><</link>>
+<</widget>>
+
+<<widget "streetSeduction">>
+	<<generate1>><<person1>>
+	You notice a well-dressed <<person>> eyeing you up from a bench across the street.
+	<br><br>
+	
+	<<link [[Keep walking|Street Seduction Walk]]>><</link>>
+	<br>
+	<<link [[Draw attention to your <<bottom>>|Street Seduction Draw]]>><</link>><<exhibitionist1>>
+	<br>
+	<<if hasSexStat("promiscuity", 2)>>
+		<<link [[Cross the street and seduce <<him>>|Street Seduction Seduce]]>><</link>><<promiscuous2>>
+		<br>
+	<<elseif $uncomfortable.prostituting is false>>
+		<<set _desperateaction to 1>>
+		<<link [[Cross the street and seduce <<him>>|Street Seduction Seduce]]>><<set $desperateaction to _desperateaction>><</link>><<promiscuous2>>
+		<br>
+	<</if>>
+<</widget>>
+
+
+
+<<widget "alleyways_capture_text">>
+	<<if $alleyways_rescue_npc_1 is "confident">>
+		The <<person1>><<person>> looks <span class="red">confident.</span>
+	<<else>>
+		The <<person1>><<person>> looks <span class="green">frustrated.</span>
+	<</if>>
+	<br>
+	<<if $alleyways_rescue_npc_2 is "confident">>
+		The <<person2>><<person>> looks <span class="red">confident.</span>
+	<<else>>
+		The <<person2>><<person>> looks <span class="green">manic.</span>
+	<</if>>
+	<br>
+	<<if $alleyways_rescue_npc_3 is "confident">>
+		The <<person3>><<person>> looks <span class="red">confident.</span>
+	<<else>>
+		The <<person3>><<person>> looks <span class="green">unnerved.</span>
+	<</if>>
+	<br><br>
+<</widget>>
+
+<<widget "alleyways_rescue_start">>
+	<<generate1>><<generate2>><<generate3>><<generateyv4>>
+	<<saveNPC 0 "alleyways_rescue_1">>
+	<<saveNPC 1 "alleyways_rescue_2">>
+	<<saveNPC 2 "alleyways_rescue_3">>
+	<<saveNPC 3 "alleyways_rescue_victim">>
+	<<set $alleyways_rescue_npc_1 to "confident">>
+	<<set $alleyways_rescue_npc_2 to "confident">>
+	<<set $alleyways_rescue_npc_3 to "confident">>
+	<<set $alleyways_prisoner_countdown to 24>>
+<</widget>>
+
+
+<<widget "alleyways_rescue_end">>
+	<<clearNPC "alleyways_rescue_1">>
+	<<clearNPC "alleyways_rescue_2">>
+	<<clearNPC "alleyways_rescue_3">>
+	<<clearNPC "alleyways_rescue_victim">>
+	<<unset $alleyways_prisoner_countdown>>
+	<<unset $alleyways_rescue_npc_1>>
+	<<unset $alleyways_rescue_npc_2>>
+	<<unset $alleyways_rescue_npc_3>>	
+	<<unbind>>
+<</widget>>
+
+
+<<widget "elkBreeze">>
+	The breeze picks up, dragging fumes from the compound in your direction.
+	
+	<<if $world_corruption_soft gte 50>>
+		The sickly sweetness almost makes you gag.<<gdrugged>><<drugs 60>>
+	<<elseif $world_corruption_soft gte 20>>
+		It carries a scent both sweet and foul.<<garousal>><<arousal 600>>
+	<<else>>
+		It smells foul.
+	<</if>>
+	<br><br>
+	
+	<<destinationeventend>>
+<</widget>>
+
+<<widget "highShoplift">>
+	<<generatey1>><<generate2>><<person1>>
+	You hear an alarm ring from an electronics shop. A <<person1>><<person>> runs through the doors, carrying a bag full of swag. A <<person2>><<person>> in a security uniform chases after <<person1>><<him>>.
+	<br><br>
+	
+	The thief runs in your direction, heading for an alley.
+	<br><br>
+	<<person2>>
+	<<link [[Ignore|High Shoplift Ignore]]>><</link>>
+	<br>
+	<<link [[Stop the shoplifter|High Shoplift Stop]]>><<reb -1>><</link>><<lreb>>
+	<br>
+	<<person2>>
+	<<if hasSexStat("exhibitionism", 2)>>
+		<<link [[Seduce the guard to distract <<him>>|High Shoplift Seduce]]>><</link>><<exhibitionist2>>
+		<br>
+	<</if>>
+<</widget>>
+
+
+<<widget "streetlonghair">>
+	A powerful gust of wind picks up, sending your hair into disarray. You try to disentangle it, but end up tripping over yourself.
+	<br><br>
+
+	<<link [[Try to stay upright|Street Long Hair]]>><<set $phase to "attempt">><</link>><<dancedifficulty 100 1000>>
+	<br>
+	<<link [[Brace yourself|Street Long Hair]]>><<set $phase to "endure">><</link>>
 <</widget>>

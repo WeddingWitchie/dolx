@@ -2004,7 +2004,7 @@
 
 	<<if $o_long_and_beautiful gt 10>>
 		<<set $o_long_and_beautiful to 10>>
-	<<elseif !$hy_parent and !$hy_student and $o_long_and_beautiful is 10>>
+	<<elseif !$hy_parent and !$hy_student and $o_long_and_beautiful gte 10>>
 		<<set $o_long_and_beautiful to 9>>
 	<</if>>
 
@@ -3854,7 +3854,7 @@
 	/* Code that should not be moved into a check like above */
 	<<set $runWardrobeSanityChecker to true>>
 
-	<<if $objectVersion.updateClothes lt 77 or $objectVersion.updateClothes is undefined>>
+	<<if $objectVersion.updateClothes lt 78 or $objectVersion.updateClothes is undefined>>
 		<<updateClothes>>
 		<<if $objectVersion.updateClothes lt 38>>
 			<!-- V0.4.0.7 return items stuck in $store without proper .location -->
@@ -3896,7 +3896,7 @@
 
 		<!-- do NOT forget to bump this version in variables-start.twee, too -->
 
-		<<set $objectVersion.updateClothes to 77>>
+		<<set $objectVersion.updateClothes to 78>>
 	<</if>>
 
 	<<if !$specialClothesEffects?.pimp>>
@@ -3906,7 +3906,7 @@
 		}>>
 	<</if>>
 
-	<<if $objectVersion.specialClothes lt 20 or $objectVersion.specialClothes is undefined>>
+	<<if $objectVersion.specialClothes lt 21 or $objectVersion.specialClothes is undefined>>
 
 		<!-- Old special clothing system conversion code, DO NOT INCREMENT -->
 		<<if $objectVersion.specialClothes lt 20 and !Array.isArray($specialClothes)>>
@@ -3943,7 +3943,7 @@
 		<<specialClothesRefresh>>
 
 		<!-- DO increment this, and don't forget to do it in variables-start.twee, too -->
-		<<set $objectVersion.specialClothes to 20>>
+		<<set $objectVersion.specialClothes to 21>>
 	<</if>>
 	<<if $objectVersion.feats lt 2>>
 		<<updateFeats>>
@@ -6681,10 +6681,12 @@
 	<!-- 0.5.5.1, add kitchen stock to Avery's mansion object -->
 	<<if $avery_mansion and !$avery_mansion.kitchen_stock>>
 		<<set $avery_mansion.kitchen_stock to {
-			normal: ["salt", "vegetable_oil", "bottle_of_milk", "flour", "chicken_egg", "beef", "pork", "truffle", "cream", "tomato", "red_wine", "white_wine", "rice", "chilli_pepper"],
+			normal: ["salt", "vegetable_oil", "bottle_of_milk", "flour", "chicken_egg", "beef", "pork", "truffle", "cream", "tomato", "red_wine", "white_wine", "rice", "chilli_pepper", "banana"],
 			requested: []
 		}>>
 		<<set $avery_mansion.kitchen_made to 0>>
+	<<elseif $avery_mansion and !$avery_mansion.kitchen_stock?.normal.includes("banana")>>
+		<<set $avery_mansion.kitchen_stock.normal.pushUnique("banana")>>
 	<</if>>
 
 	<!-- 0.5.5.2, proper skyscraper init -->
@@ -7299,9 +7301,9 @@
 	<</if>>
 
 	<!-- Increment in variables-start.twee as well whenever new foodstuff objects are added -->
-	<<if !$objectVersion.foodstuff or $objectVersion.foodstuff lt 4>>
+	<<if !$objectVersion.foodstuff or $objectVersion.foodstuff lt 5>>
 		<<updatePlants>>
-		<<set $objectVersion.foodstuff to 4>>
+		<<set $objectVersion.foodstuff to 5>>
 	<</if>>
 
 	<!-- UFarm variable refactor -->
@@ -7485,8 +7487,73 @@
 			<<set $furniture.bedroom.poster.nameCap to "Cow-girl">>
 		<</if>>
 	<</if>>
+
+	/* Renamed foodstuff keys to avoid diacritics. The name properties remain unchanged */
+	<<if $foodstuff.crème_brulee>>
+		<<updateFoodstuffKey "crème_brulee" "creme_brulee">>
+	<</if>>
+	<<if $foodstuff.soufflé>>
+		<<updateFoodstuffKey "soufflé" "souffle">>
+	<</if>>
+
+	/* Add skin type(tanning difficulty) options, from easiest 0 to hardest 4*/
+	<<if $settings.tanningDifficulty is undefined>>
+    	<<set $settings.tanningDifficulty to 2>>
+	<</if>>
+
+	/* Fixed the amount of Honeycomb and Blood Lemons that Gwylan asks for */
+	<<if $gwylan?.request?.items?.length>>
+        <<for _item range $gwylan.request.items>>
+            <<if _item.name is "wild_honeycomb" and _item.need gt 3>>
+                <<set _item.need to 3>>
+			<<elseif _item.name is "blood_lemon" and _item.need gt 6>>
+                <<set _item.need to 6>>
+            <</if>>
+        <</for>>
+    <</if>>
+	
+	/* Fixed Scarred Inmate not having a name */
+	<<if $per_npc.scarred_inmate && $per_npc.scarred_inmate.name is undefined>>
+		<<set $per_npc.scarred_inmate.name to ($per_npc.scarred_inmate.pronoun is "f" ? $NPC_names_f.random() : $NPC_names_m.random())>>
+		<<set $per_npc.scarred_inmate.fullDescription to $per_npc.scarred_inmate.name>>
+	<</if>>
+	
+	/* Supermarket Backcomp for Bananas and Orange additions */
+	<<for _key range Object.keys(setup.foodstuff)>>
+		<<if setup.foodstuff[_key].shop.available_in?.includes("supermarket") and V.foodstuff[_key].supermarket is undefined>>
+			<<set V.foodstuff[_key].supermarket to Math.trunc(3000 / setup.foodstuff[_key].shop.sell_price)>>
+		<</if>>
+	<</for>>
+
+	/* Unsetting $avery_valentines.invite to false when $avery_valentines.done is already true */
+	<<if $avery_valentines?.done is true and $avery_valentines?.invite is true>>
+		<<set $avery_valentines.invite to false>>
+	<</if>>
+
+	/* Fixed UB var not being unset after escape */
+	<<if $undergroundbrothel and $undergroundbrothel.escape isnot 0>>
+		<<set $undergroundbrothel to {"escape": $undergroundbrothel.escape}>>
+	<</if>>
+
+	/* setting npcSeen for already initiated NPCs */
+	<<if C.npc.Whitney.init is 1 and !$whitneySeen>>
+		<<set $whitneySeen to []>>
+	<</if>>
+	<<if C.npc.Eden.init is 1 and !$edenSeen>>
+		<<set $edenSeen to []>>
+	<</if>>
+	<<if C.npc.Doren.init is 1 and !$dorenSeen>>
+		<<set $dorenSeen to []>>
+	<</if>>
+	<<if C.npc.Sam.init is 1 and !$samSeen>>
+		<<set $samSeen to []>>
+	<</if>>
+	<<if C.npc.Alex.init is 1 and !$alexSeen>>
+		<<set $alexSeen to []>>
+	<</if>>
+
+	/* Fixed Butterfly Eyepatch not being unlocked */
+	<<if $specialClothes[125].unlocked is 3>>
+		<<set $specialClothes[133].unlocked to 3>>
+	<</if>>
 <</widget>>
-
-
-
-

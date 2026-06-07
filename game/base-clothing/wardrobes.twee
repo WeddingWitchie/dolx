@@ -179,7 +179,7 @@
 		<<if _slimePrevent.includes(_slot) and $wardrobeOption is "wear" and $earSlime.corruption gte 10>>
 			<<if $earSlime.forcedCommando isnot undefined and (_slot is "under_lower" or (_item.outfitPrimary and _item.outfitPrimary.under_lower and !["broken","split"].includes(_item.outfitPrimary.under_lower)))>>
 				<<if _item.type.includes("naked") or (_earSlimeEnableSwimwear and _item.type.includes("swim")) or (_earSlimeEnableDancewear and _item.type.includes("dance"))>>
-				<<elseif $earSlime.forcedCommando gt 0>>
+				<<elseif $earSlime.forcedCommando gte 0>>
 					<span class="red">You are unable to equip your _item.name, as the slime in your ear is forcing you to go commando.</span>
 					<br>
 					<<continue>>
@@ -771,6 +771,9 @@
 					<<if $worn[_slot].colour is "custom" or $worn[_slot].accessory_colour is "custom">>
 						<<run _colors[_slot+"custom"] = [$worn[_slot].colourCustom, $worn[_slot].accessory_colourCustom]>>
 					<</if>>
+					<<if $worn[_slot].pattern isnot undefined>>
+						<<set _colors[_slot].push($worn[_slot].pattern)>>
+					<</if>>
 				<</for>>
 				<<set _newOutfit.colors to _colors>>
 			<<else>>
@@ -1009,11 +1012,18 @@
 		<<case "upper">>
 			<<switch $worn.upper.variable>>
 				<<case "schoolcardigan">><<set _altLink to ["Tie cardigan around waist", "Wear cardigan normally"]>>
-				<<case "brownleather" "blackleather" "leathercropjacket" "winterjacket" "catsuit">><<set _altLink to ["Zip", "Unzip"]>>
+				<<case "brownleather" "blackleather" "leathercropjacket" "winterjacket">><<set _altLink to ["Zip jacket", "Unzip jacket"]>>
 				<<case "waistcoat" "waistcoatlapel" "blazershirt" "fittedblazershirt">><<set _altLink to ["Tuck in", "Untuck"]>>
-				<<case "dress" "buttondown" "oversizedbuttondown" "fittedbuttondown" "oversizedfittedbuttondown">><<set _altLink to ["Unbutton shirt", "Button up shirt"]>>
+				<<case "dress" "buttondown" "oversizedbuttondown" "fittedbuttondown" "oversizedfittedbuttondown" "shortsleevebuttonup">><<set _altLink to ["Unbutton shirt", "Button up shirt"]>>
 				<<case "catsuit">><<set _altLink to ["Unzip", "Zip"]>>
 				<<case "kimono" "kimonomini">><<set _altLink to ["Loosen", "Tighten"]>>
+				<<case "flowy sleeve top" "milkmaid dress">><<set _altLink to ["Pull sleeves down", "Pull sleeves up"]>>
+				<<case "striped sweater">><<set _altLink to ["Roll up the sleeves", "Roll down the sleeves"]>>
+				<<default>><<exit>>
+			<</switch>>
+		<<case "head">>
+			<<switch $worn.head.variable>>
+				<<case "bandana hat">><<set _altLink to ["Tie at the back", "Tie at the front"]>>
 				<<default>><<exit>>
 			<</switch>>
 		<<case "neck">>
@@ -1030,8 +1040,10 @@
 				<</switch>>
 			<<else>>
 				<<switch $worn.face.variable>>
-					<<case "medical eyepatch" "eyepatch">><<set _altLink to ["Cover left eye", "Cover right eye"]>>
+					<<case "medical eyepatch" "eyepatch" "rose eyepatch" "butterfly eyepatch">><<set _altLink to ["Cover left eye", "Cover right eye"]>>
+					<<case "plaster">><<set _altLink to ["Cover left cheek", "Cover right cheek"]>>
 					<<case "swimgoggles">><<set _altLink to ["Push on head", "Wear normally"]>>
+					<<case "sleeping mask">><<set _altLink to ["Night time", "Day time"]>>
 					<<default>><<exit>>
 				<</switch>>
 			<</if>>
@@ -1040,6 +1052,11 @@
 		<<case "hands">>
 			<<switch $worn.hands.variable>>
 				<<default>><<set _altLink to ["Put on right wrist", "Put on left wrist"]>>
+			<</switch>>
+		<<case "legs">>
+			<<switch $worn.legs.variable>>
+				<<case "kneeplaster">><<set _altLink to ["Cover left knee", "Cover right knee"]>>
+				<<default>><<exit>>
 			<</switch>>
 		<<default>><<exit>>
 	<</switch>>

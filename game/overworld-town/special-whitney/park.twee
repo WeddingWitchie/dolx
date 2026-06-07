@@ -58,7 +58,7 @@
 			<</if>>
 		<</if>>
 		<br><br>
-		You lean against Whitney as you trade sips of the milkshake. You're content to spend your time together in silence, 
+		You lean against Whitney as you trade sips of the milkshake. You're content to spend your time together in silence,
 		<<if $location is "park">>
 			watching as passers-by <<= Weather.precipitation isnot "none" ? "scurry through the " + Weather.precipitation : "stroll through the park">>.
 		<<else>>
@@ -289,6 +289,7 @@
 		<</if>>
 		<br>
 	<<else>>
+		<<npc Whitney>>
 		<<whitneyoptions>>
 		<br>
 	<</if>>
@@ -311,6 +312,7 @@
 	<<if $location is "park">>
 		<<link [[Next|Whitney Park]]>><</link>>
 	<<else>>
+		<<npc Whitney>>
 		<<whitneyoptions>>
 	<</if>>
 	<br>
@@ -360,7 +362,7 @@
 
 :: Whitney Milkshake Give
 	Whitney looks taken aback as you hand <<him>> the milkshake, and roughly wraps <<his>> arm around your shoulder.
-	You spend the next twenty minutes leaning against <<him>>, idly chatting while Whitney <<print playerBellyVisible() ? "drinks" : "drinks and smokes">>.
+	You spend the next twenty minutes leaning against <<him>>, idly chatting while Whitney <<print playerBellyVisible() || V.location === "flats" ? "drinks" : "drinks and smokes">>.
 	When <<hes>> done, <<he>> leans over and kisses you with a surprising softness. <<He>> tastes like vanilla and cigarettes.
 	<br><br>
 
@@ -419,7 +421,7 @@
 		"So you're saying we can do this again sometime?" You grin.
 	<</if>>
 	<br><br>
-	Whitney ignores you as <<he>> takes long sips from the shake, but doesn't move away. <<He>> soon finishes with a loud slurp, then shoves you 
+	Whitney ignores you as <<he>> takes long sips from the shake, but doesn't move away. <<He>> soon finishes with a loud slurp, then shoves you
 	<<if $location is "park">>
 		off the <<= Weather.precipitation is "snow" ? "ledge" : "bench">>.
 	<<else>>
@@ -517,7 +519,7 @@
 		<br><br>
 		Whitney's cheeks go beet red. <<He>> hides it by pushing your face away with <<his>> palm. "You ever call me that again and I'll fucking gut you." <<He>> chews on the straw, refusing to make eye contact.
 		<br><br>
-		You finish the milkshake together within a few minutes. "Thanks for the show, slut," <<he>> says when it's gone. "Now go bother someone else." 
+		You finish the milkshake together within a few minutes. "Thanks for the show, slut," <<he>> says when it's gone. "Now go bother someone else."
 		<<if $location is "park">>
 			<<He>> returns to <<his>> spot under the tree.
 		<</if>>
@@ -684,7 +686,12 @@
 
 <<elseif $phase is 2>> /* Steal */
 	<<wearProp "cherry">>
-	You tap <<his>> shoulder and point behind <<him>>. "Hey, aren't those your friends over there?"
+	<<if $location is "park">>
+		You tap <<his>> shoulder and point behind <<him>>. "Hey, aren't those your friends over there?"
+	<<else>>
+		You tap <<his>> shoulder. "Hey, I think I just heard your <<loadNPC 1 "whitney_parent_flat">><<person2>><<mum>>."
+		<<person1>>
+	<</if>>
 	<br><br>
 	<<if currentSkillValue('skulduggery') gte 500>>
 		Whitney's eyes widen. <<He>> twists around to look where you're pointing, and you snatch the milkshake out of <<his>> hand while <<hes>> distracted.
@@ -693,9 +700,15 @@
 		<br><br>
 		"Wh—! You cheeky fucking cunt!" Whitney tries to stay mad, but <<his>> lips only end up twisting into a sardonic grin. "You really are getting too comfortable around me," <<he>> laughs.<<npcincr Whitney love 1>><<glove>>
 		<br><br>
-		You laugh with <<him>>, until <<he>> snatches the drink back and shoves you off the <<= Weather.precipitation is "snow" ? "fountain" : "bench">>. "Don't do that again."<<stress 6>><<gstress>>
+		You laugh with <<him>>, until <<he>> snatches the drink back and shoves you
+		<<if $location is "park">>
+			off the <<= Weather.precipitation is "snow" ? "fountain" : "bench">>.
+		<<else>>
+			down onto the floor.
+		<</if>>
+		"Don't do that again."<<stress 6>><<gstress>>
 		<br><br>
-		You apprehensively take your seat next to <<him>> and continue sharing the milkshake until Whitney polishes it off with a loud slurp. <<He>> thrusts the empty cup into your hands. "There. I shared your stupid milkshake. Now go bother someone else."
+		You apprehensively take your seat next to <<him>> and continue sharing the milkshake until Whitney polishes it off with a loud slurp. <<He>> thrusts the empty cup into your hands. "There. I shared your stupid milkshake.<<= $location is "park" ? " Now go bother someone else." : "">>"
 		<<if $location is "park">>
 			<<He>> returns to <<his>> spot under the tree.
 			<br><br>
@@ -707,7 +720,7 @@
 			<<whitneyoptions>>
 		<</if>>
 	<<else>>
-		Whitney's eyes widen. <<He>> reacts faster than you expected, twisting around to look where you're pointing while shoving you 
+		Whitney's eyes widen. <<He>> reacts faster than you expected, twisting around to look where you're pointing while shoving you
 		<<if $location is "park">>
 			off the <<= Weather.precipitation is "snow" ? "fountain ledge" : "bench">>
 		<<else>>
@@ -870,7 +883,7 @@
 	<</if>>
 	<<set $phase to 1>>
 	Whitney shoves you down onto the <<= Weather.precipitation is "snow" ? "ledge" : "bench">> and climbs on top of you. "A deal's a deal, slut. Shut up and pucker up."
-	<<if !$worn.face.type.includes("covered") and !$worn.face.type.includes("gag")>>
+	<<if !$worn.face.type.includes("face_covering") and !$worn.face.type.includes("gag")>>
 		<<set $mouthuse to "kiss">><<set $mouthstate to "kissentrance">><<set $NPCList[0].mouth to "kissentrance">>
 	<</if>>
 
@@ -895,7 +908,7 @@
 <<effects>>
 
 <<if $enemyhealth lte 0>>
-	
+
 	You manage to throw Whitney off of you.
 	<<if $phase is 0>> /* Go with it */
 		"What the fuck is your problem?" <<he>> shouts, but you've already leapt from the <<= Weather.precipitation is "snow" ? "fountain ledge" : "park bench">> to sprint across the park.
@@ -967,7 +980,7 @@
 		<<whitneyexit>>
 	<</if>>
 <<elseif $alarm is 1 and $rescue is 1>>
-	Whitney's head snaps up when <<he>> notices a couple of park goers looking in your direction. "Damn, you've got a set of lungs," Whitney grumbles, fixing <<his>> clothes as <<he>> <<= $phase is 0 ? "climbs" : "crawls">> off of you. "You're in for it next time." 
+	Whitney's head snaps up when <<he>> notices a couple of park goers looking in your direction. "Damn, you've got a set of lungs," Whitney grumbles, fixing <<his>> clothes as <<he>> <<= $phase is 0 ? "climbs" : "crawls">> off of you. "You're in for it next time."
 	<<He>> picks up <<his>> umbrella and makes <<his>> exit from the park without turning back.
 	<br><br>
 

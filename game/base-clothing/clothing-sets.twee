@@ -531,7 +531,7 @@
 						<<if _corruptionEquipSkip.includes($_slot) and $earSlime.corruption gte 10>>
 							<<if $earSlime.forcedCommando isnot undefined and ($_slot is "under_lower" or ($_wardrobeItem.outfitPrimary and $_wardrobeItem.outfitPrimary.under_lower and !["broken","split"].includes($_wardrobeItem.outfitPrimary.under_lower)))>>
 								<<if $_wardrobeItem.type.includes("naked") or (_earSlimeEnableSwimwear and $_wardrobeItem.type.includes("swim")) or (_earSlimeEnableDancewear and $_wardrobeItem.type.includes("dance"))>>
-								<<elseif $earSlime.forcedCommando gt 0>>
+								<<elseif $earSlime.forcedCommando gte 0>>
 									<<set _notEquipped[$_slot] to {"name": $_incomingItemName, "reason": "corruption_slime_deny_commando"}>>
 									<<break>>
 								<<else>>
@@ -932,16 +932,9 @@
 
 <<widget "outfitEditor">>
 	<<link "Filter Options">><<toggleclass "#outfitEditorFilter" "hidden">><</link>> |
+	<<link "Import">><<toggleclass "#outfitEditorImport" "hidden">><</link>> |
 	<<link "Help">><<toggleclass "#outfitEditorHelp" "hidden">><</link>>
 
-	<div id="outfitEditorHelp" class="hidden">
-		All options change the settings the moment you change the option, however, they will only save or be updated in the passage only if you first change the passage (Leave the wardrobe or click on 'Update Wardrobe' at the bottom of this overlay).
-		<br><br>
-		Changing the clothing items may result in the colour settings being reset for that item. This is caused from going from an item with colour options to one that doesn't have any colour options. Just because you can change it to some item's doesn't mean you have access to every item.
-		<br><br>
-		Location is where the Outfit is unique to and will only show for that wardrobe. Please note, where it says 'No access', this is either based on the multiple wardrobe setting or may not be available till a later version of the game. In most cases the 'Orphanage' wardrobe will be shared when Multiple wardrobes is set to 'isolated only' or is disabled.
-		<br><br>
-	</div>
 	<<if _outfitEditorFilter is undefined>>
 		<<outfitEditorDefaultFilter>>
 	<</if>>
@@ -951,9 +944,34 @@
 	<div id="outfitEditorFilter" class="hidden">
 		<<outfitEditorFilter>>
 	</div>
+
+	<div id="outfitEditorImport" class="hidden">
+		<h4>Import</h4>
+		<textarea id="outfitEditorImportText"></textarea>
+		<br>
+		<<link "Submit">>
+			<<run importOutfit()>>
+			<<outfitEditorDefaultFilter>>
+			<<outfitEditorPageSetup>>
+			<<replace "#outfitEditorFilter">><<outfitEditorFilter>><</replace>>
+			<<replace "#outfitEditor">><<outfitEditorList>><</replace>>
+		<</link>>
+	</div>
+
+	<div id="outfitEditorHelp" class="hidden">
+		<h4>Help</h4>
+		All options change the settings the moment you change the option, however, they will only save or be updated in the passage only if you first change the passage (Leave the wardrobe or click on 'Update Wardrobe' at the bottom of this overlay).
+		<br><br>
+		Changing the clothing items may result in the colour settings being reset for that item. This is caused from going from an item with colour options to one that doesn't have any colour options. Just because you can change it to some item's doesn't mean you have access to every item.
+		<br><br>
+		Location is where the Outfit is unique to and will only show for that wardrobe. Please note, where it says 'No access', this is either based on the multiple wardrobe setting or may not be available till a later version of the game. In most cases the 'Orphanage' wardrobe will be shared when Multiple wardrobes is set to 'isolated only' or is disabled.
+		<br><br>
+	</div>
+
 	<div id="outfitEditor">
 		<<outfitEditorList>>
 	</div>
+
 	<<link [[Update wardrobe|$passage]]>><</link>>
 <</widget>>
 
@@ -1216,6 +1234,10 @@
 				<</if>>
 			<</link>>
 		</div>
+		
+		<span @id="'outfitItemExport-' + _args[0]"><<link "Export">>
+			<<run exportOutfit(_args[0])>>
+		<</link>></span>
 		<div @id="'outfitItemSub-' + _args[0]"></div>
 	<</capture>>
 <</widget>>

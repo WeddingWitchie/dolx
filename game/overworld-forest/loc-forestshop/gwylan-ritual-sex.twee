@@ -3,7 +3,11 @@
 <<set $outside to 0>><<set $location to "forest_shop">><<effects>><<run statusCheck("Gwylan")>>
 <<set _hideRitualOptions to true>>
 
-You tell Gwylan that you're ready to help enact the ritual.
+<<if $phase isnot "no">>
+    You tell Gwylan that you're ready to help enact the ritual.
+<<else>>
+	You ask Gwylan if you can lure a denizen of the forest for purging instead.
+<</if>>
 <br><br>
 
 <<if Time.isBloodMoon() or Time.monthDay is Time.lastDayOfMonth and Time.hour gte 16>>
@@ -31,10 +35,18 @@ You tell Gwylan that you're ready to help enact the ritual.
 
 		<<ind>><<link [[Lure a denizen of the forest for purging|Gwylan Forest Journey Prep]]>><<endevent>><</link>>
 		<br>
+	<<elseif $phase is "no">>
+        <<He>> shakes <<his>> head. "You've neglected me, dear." <<He>> smiles, it doesn't reach <<his>> ears. "This is the least you can do."
+        <br><br>
+
+        <<ind>><<link [[Act as the forest's vessel|Gwylan Ritual Start]]>><</link>><<if $gwylanSeen.includes("ritual_sex")>><<gwylanHypnoNote>><</if>>
+        <br>
 	<<elseif $gwylan.hunting is 3>>
 		<<He>> smiles. "Finally. We'll be doing the more advanced ritual. I've missed your touch." <<He>> blushes, and looks away. "I mean, it's more effective, and—" <<he>> stops, taking a deep breath. "<span class="lewd">I've been craving you, <<pcpetname "Gwylan">>.</span> It's been too long."
 		<br><br>
 
+		<<ind>><<link [[Ask to lure a denizen of the forest for purging|Gwylan Ritual Select]]>><<set $phase to "no">><</link>>
+		<br>
 		<<ind>><<link [[Act as the forest's vessel|Gwylan Ritual Start]]>><</link>><<if $gwylanSeen.includes("ritual_sex")>><<gwylanHypnoNote>><</if>>
 		<br>
 	<<elseif $gwylan.ritualNext is "sex" or $gwylan.hunting gte 2>>
@@ -45,6 +57,8 @@ You tell Gwylan that you're ready to help enact the ritual.
 		<</if>>
 		<br><br>
 
+		<<ind>><<link [[Ask to lure a denizen of the forest for purging|Gwylan Ritual Select]]>><<set $phase to "no">><</link>>
+		<br>
 		<<ind>><<link [[Act as the forest's vessel|Gwylan Ritual Start]]>><</link>><<if $gwylanSeen.includes("ritual_sex")>><<gwylanHypnoNote>><</if>>
 		<br>
 	<<else>>
@@ -1149,7 +1163,7 @@ Gwylan lights two incense burners, one on each side of the covered room. <<He>> 
 		<<handsundress "gwylanRitual">><<handheldundress "gwylanRitual">><<legsundress "gwylanRitual">><<feetundress "gwylanRitual">>
 		<<exhibitionism4>>
 <</switch>>
-<<if $worn.face.type.includesAny("covered", "mask")>>
+<<if $worn.face.type.includesAny("face_covering", "mask")>>
 	<<faceundress "gwylanRitual">>
 <</if>>
 <<He>> drops a garden hose into the large wooden tub and turns a valve. It begins to fill with steaming water. The incense and steam fill the air with warmth. <<gghallucinogens>><<hallucinogen 400>>
@@ -2096,9 +2110,9 @@ Gwylan's humming echoes around you. A fire is lit on your cheeks as <<he>> cups 
 	<<attach_leash true>><<set $sexRitual.leash to true>>
 	<<set $sexRitual.petplay to 1>>
 	<<set $gwylanSeen.pushUnique("petplay")>>
-<<elseif $worn.neck.collared is 1>>
+<<elseif $worn.neck.collared is 1 and _petplayChance isnot 0>>
 	<<set $sexRitual.arousal += 1>>
-	<<if !$worn.neck.type.includes("leash") and C.npc.Gwylan.lust gte 15 and _petplayChance isnot 0>>
+	<<if !$worn.neck.type.includes("leash") and C.npc.Gwylan.lust gte 15>>
 		You feel a tug from your collar and hear a small click. <span class="lewd"><<Hes>> attached a leash to it.</span>
 		<<attach_leash true>><<set $sexRitual.leash to true>>
 	<<elseif $worn.neck.type.includes("leash")>>
@@ -3247,6 +3261,11 @@ You let out another moan, the sensation amplified by whatever <<he>> had you dri
 
 		<span class="red">Multiple tentacles emerge from <<him>>.</span> "I... need you, dear."
 		<br><br>
+
+		<<set $anususe to 0>>
+		<<if $vaginause isnot 'none'>>
+			<<set $vaginause to 0>>
+		<</if>>
 
 		<<gwylanRitualPenetrate "withdraw">>
 
@@ -5436,7 +5455,7 @@ Perhaps you haven't been entirely cast out.
 			<<if $sexRitual.hypnosis is "Gwylan">>
 				<<He>> whines and barks at you. "Grrarf!"
 			<<elseif $sexRitual.bondage>>
-				/*  Unreachable action while hands are bound */
+				/* Unreachable action while hands are bound */
 				Your try to pull Gwylan's hair, but can't get a good enough grip with your wrists bound together.
 			<<elseif $sexRitual.willContest is "noHairPlay" and !$willpowerSuccess>>
 				<<set $sexRitual.noHairPull to true>>

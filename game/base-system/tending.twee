@@ -322,7 +322,7 @@
 				<<if $options.images is 1>>
 					<<foodstufficon _plantType>>
 				<</if>>
-				<span class="blue"><<print $_name.toLocaleUpperFirst()>> only grow in <<print $_plant.tending.planting_bed>>.</span>
+				<span class="blue"><<print $_name.toLocaleUpperFirst()>> only grow<<if $_plant.tending.seed_name>>s<</if>> in <<print $_plant.tending.planting_bed>>.</span>
 			<</if>>
 		<<else>>
 			<<tending_season_notice _plantType>>
@@ -472,7 +472,7 @@
 		<br>
 	<<elseif $location is "home" and orphanagePlotsPlanted() and ["orphanage", "garden", "bath", "sleep"].includes(getRobinLocation())>>
 		<<if $robin.autoWater and C.npc.Robin.trauma gte 50 and ((Time.hour gte 16 and Time.minute gte 30) or Time.hour gte 17) and !orphanagePlotsWatered()>>
-			<span class="red">Robin is too traumatized to water the garden for you.</span>
+			<span class="red">Robin is too traumatised to water the garden for you.</span>
 			<<set $robin.autoWater to false>>
 			<br>
 		<<elseif Weather.precipitation is "snow">>
@@ -610,20 +610,51 @@
 <</widget>>
 
 <<widget "updatePlants">>
-    <<set $_food_keys to Object.keys(setup.foodstuff)>>
-    <<for _i to 0; _i lt $_food_keys.length; _i++>>
-        <<set $_type to $_food_keys[_i]>>
-        <<if $foodstuff[$_type] is undefined>>
-            <<set $foodstuff[$_type] to {"amount": 0}>>
-        <</if>>
-    <</for>>
-    <<script>>
-        const sortedCatalog = {};
-        Object.keys(V.foodstuff)
-            .sort()
-            .forEach(key => {
-                sortedCatalog[key] = V.foodstuff[key];
-            });
-        V.foodstuff = sortedCatalog;
-    <</script>>
+	<<set $_food_keys to Object.keys(setup.foodstuff)>>
+	<<for _i to 0; _i lt $_food_keys.length; _i++>>
+		<<set $_type to $_food_keys[_i]>>
+		<<if $foodstuff[$_type] is undefined>>
+			<<set $foodstuff[$_type] to {"amount": 0}>>
+		<</if>>
+	<</for>>
+
+	<<script>>
+		const sortedCatalog = {};
+		Object.keys(V.foodstuff)
+			.sort()
+			.forEach(key => {
+				sortedCatalog[key] = V.foodstuff[key];
+			});
+		V.foodstuff = sortedCatalog;
+	<</script>>
+<</widget>>
+
+<<widget "updateFoodstuffKey">>
+	<<set $_oldKey to _args[0]>>
+	<<set $_newKey to _args[1]>>
+
+	<<set $foodstuff[$_newKey] to {}>>
+	<<set $foodstuff[$_newKey].amount to $foodstuff[$_oldKey].amount>>
+	<<if $foodstuff[$_oldKey].knows_recipe>>
+		<<set $foodstuff[$_newKey].knows_recipe to true>>
+	<</if>>
+	<<run delete V.foodstuff[$_oldKey]>>
+
+	<<if $gift is $_oldKey>>
+		<<set $gift to $_newKey>>
+	<</if>>
+	<<if $chosen_recipe is $_oldKey>>
+		<<set $chosen_recipe to $_newKey>>
+	<</if>>
+	<<if $avery_mansion?.food is $_oldKey>>
+		<<set $avery_mansion.food to $_newKey>>
+	<</if>>
+	<<if $avery_mansion?.food_last is $_oldKey>>
+		<<set $avery_mansion.food_last to $_newKey>>
+	<</if>>
+	<<if $avery_requested_food is $_oldKey>>
+		<<set $avery_requested_food to $_newKey>>
+	<</if>>
+
+	<<updatePlants>>
 <</widget>>

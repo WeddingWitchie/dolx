@@ -345,7 +345,7 @@
 			<br>
 		</div>
 		<<set _cl_slots to ["upper", "lower", "under_upper", "under_lower", "over_upper", "over_lower", "genitals"]>>
-		<<if $worn.face.type.includesAny("covered", "gag", "mask")>>
+		<<if $worn.face.type.includesAny("face_covering", "gag", "mask")>>
 			<<run _cl_slots.push("face")>>
 		<</if>>
 		<<set $_clothes to []>>
@@ -486,7 +486,7 @@
 			<<set $_clothes.push("a chastity belt")>>
 		<</if>>
 
-		<<if $worn.face.type.includesAny("covered", "gag", "mask")>>
+		<<if $worn.face.type.includesAny("face_covering", "gag", "mask")>>
 			<div class="settingsToggleItemWide numberslider-inline">
 				<span class="gold"><<clothingicon $worn.face "face">><<= $worn.face.name.toUpperFirst()>> integrity:</span>
 
@@ -572,11 +572,11 @@
 				<<listbox "_slot" autoselect>>
 					<<optionsfrom setup.clothingLayer.body>>
 				<</listbox>>
-				<<set _clothesID to "1">>
-				<<textbox "_clothesID" "1">>
+				<<set _clothesID to 1>>
+				<<numberbox "_clothesID" 1>>
 				<br>
 				<<link "Send">>
-					<<if !between(+_clothesID, 1, setup.clothes[_slot].length)>>
+					<<if !between(_clothesID, 1, setup.clothes[_slot].length - 1)>>
 						<<replace "#ClothesSendResult">>That didn't work!<</replace>>
 					<<else>>
 						<<shopbuyv2 _slot "buy" "send" _clothesID 1>>
@@ -1236,14 +1236,19 @@
 			<span class="gold">Eye Colour</span>
 			<br>
 			<<set _bar to false>>
+			<<set _temp_list to []>>
 			<<for _i = 0; _i < setup.colours.eyes.length; _i++>>
-				<<if setup.colours.eyes[_i].natural>>
+				<<if setup.colours.eyes[_i].natural and !_temp_list.includes(setup.colours.eyes[_i].name)>>
 					<<if _bar>>|<</if>>
-					<label><span @class="setup.colours.eyes[_i].csstext">
-						<<= setup.colours.eyes[_i].name>></span>
+					<label>
+						<span @class="setup.colours.eyes[_i].csstext">
+							<<= setup.colours.eyes[_i].name>>
+						</span>
 						<<radiovar "$eyeselected" setup.colours.eyes[_i].variable>>
 							<<cheatMenuEyesSelected>>
-						<</radiovar>></label>
+						<</radiovar>>
+						<<set _temp_list.push(setup.colours.eyes[_i].name)>>
+					</label>
 					<<set _bar to true>>
 				<</if>>
 			<</for>>
@@ -1969,6 +1974,10 @@
 					<<dooricon "doren">><<link [[Doren's Flat|Doren Entrance]]>><<cheats-teleport-function>><</link>>
 					<br>
 				<</if>>
+				<<if $whitney_home_stage gte 3 and (C.npc.Whitney.state is "active" or C.npc.Whitney.state is "rescued")>>
+					<<dooricon "whitney">><<link [[Whitney's Flat|Whitney Home Knock]]>><<set $daily.whitney.home_dawn to 1>><<cheats-teleport-function>><</link>>
+					<br>
+				<</if>>
 				<<dancestudioicon>><<link [[Dance Studio]]>><<cheats-teleport-function>><</link>>
 				<br>
 				<<policeicon>><<link [[Police Station]]>><<cheats-teleport-function>><</link>>
@@ -1977,6 +1986,20 @@
 				<br>
 				<<spaicon>><<link [[Spa]]>><<cheats-teleport-function>><</link>>
 				<br>
+				<<if $avery_mansion>>
+					<<if $avery_fate is "fallen" or $avery_fate is "kicked">>
+						<<if $avery_mansion_fire_time gte 1>>
+							<<icon "front-gate.png">><<link [[Avery's mansion|Mansion Fire]]>><<cheats-teleport-function>><</link>>
+							<br>
+						<<else>>
+							<<icon "front-gate.png">><<link [[Avery's mansion|Mansion Ruin]]>><<cheats-teleport-function>><</link>>
+							<br>
+						<</if>>
+					<<else>>
+						<<icon "front-gate.png">><<link [[Avery's mansion|Mansion Enter]]>><<cheats-teleport-function>><</link>>
+						<br>
+					<</if>>
+				<</if>>
 				<<wolficon>><<link [[Temple]]>><<cheats-teleport-function>><</link>>
 				<br>
 				<<kitchenicon "soup">><<link [[Soup Kitchen]]>><<cheats-teleport-function>><</link>>
@@ -2025,11 +2048,15 @@
 				<<lakeicon>><<link [[Forest Lake Campsite|Lake Campsite]]>><<cheats-teleport-function>><</link>><br>
 				<br>
 				<u>Plains</u><br>
+				<<roadicon>><<link [[Farm Road 1]]>><<cheats-teleport-function>><</link>><br>
 				<<farmicon "barn">><<link [[Farmland|Farmland]]>><<cheats-teleport-function>><</link>><br>
 				<<farmicon "meadow">><<link [[Meadow|Meadow]]>><<cheats-teleport-function>><</link>><br>
 				<<farmicon "horse">><<link [[Riding School|Riding School]]>><<cheats-teleport-function>><</link>><br>
 				<<mooricon "remy">><<link [[Remy's Estate (Gate)|Estate]]>><<estate_init gate>><<cheats-teleport-function>><</link>><br>
 				<<getinicon>><<link [[Remy's Estate (Secret)|Estate]]>><<estate_init secret>><<cheats-teleport-function>><</link>><br>
+				<<if $syndromebird is 1>>
+					<<birdicon "tower">><<link [[Bird Tower]]>><<cheats-teleport-function>><</link>><br>
+				<</if>>
 				<br>
 				<u>Moor</u><br>
 				<<mooricon>><<link [[Moor Plains|Moor]]>><<set $moor = 1>><<cheats-teleport-function>><</link>><br>

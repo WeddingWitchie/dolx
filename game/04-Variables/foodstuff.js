@@ -125,7 +125,7 @@ function initFoodstuff() {
 			index: 5,
 			name: "lotus",
 			singular: "lotus",
-			plural: "lotus",
+			plural: "lotuses",
 			icon: "lotus.png",
 			category: "flower",
 			kitchen_item_type_icon: "recipe-flower.png",
@@ -207,7 +207,8 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-fruit.png",
 			prop_folder: "tending",
 			shop: {
-				sell_price: 45,
+				sell_price: 300,
+				available_in: ["supermarket"],
 			},
 		},
 		banana: {
@@ -220,7 +221,8 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-fruit.png",
 			prop_folder: "tending",
 			shop: {
-				sell_price: 70,
+				sell_price: 100,
+				available_in: ["supermarket"],
 			},
 		},
 		lemon: {
@@ -1972,7 +1974,7 @@ function initFoodstuff() {
 				tags: ["vegetarian", "sweet"],
 			},
 		},
-		soufflé: {
+		souffle: {
 			index: 95,
 			name: "soufflé",
 			singular: "soufflé",
@@ -2166,7 +2168,7 @@ function initFoodstuff() {
 				tags: ["vegetarian", "sweet"],
 			},
 		},
-		crème_brulee: {
+		creme_brulee: {
 			index: 103,
 			name: "crème brûlée",
 			singular: "pot of crème brûlée",
@@ -3347,6 +3349,27 @@ function initFoodstuff() {
 					sell_price: 2000,
 				},
 			},
+		sunflower: {
+			index: 162,
+			name: "sunflower",
+			singular: "sunflower",
+			plural: "sunflowers",
+			icon: "sunflower.png",
+			category: "flower",
+			kitchen_item_type_icon: "recipe-flower.png",
+			prop_folder: "tending",
+			tending: {
+				planting_bed: "earth",
+				growth_days: 7,
+				yield_multiplier: 1,
+				has_seeds: true,
+				seasons: ["summer"],
+				tags: [],
+			},
+			shop: {
+				sell_price: 300,
+			},
+		},
 	};
 	finalizefoodstuff();
 }

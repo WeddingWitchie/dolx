@@ -672,7 +672,6 @@ sugarcube-2:
       description: >-
         Adds an inline event to the current eventpool.
 
-
         `<<addinlineevent name>> ... <</addinlineevent>>`
 
         or
@@ -688,18 +687,21 @@ sugarcube-2:
         appear twice as often as event with weight of 1.
 
         Default weight is 1.
-
-
-
         To display your events, use `<<runeventpool>>`
 
 
 
         To remove any existing events, use `<<cleareventpool>>`
+
+        Usage:
+        `<<addinlineevent name? weight?>> ... <</addinlineevent>>`
+        
+        - **name** _optional_: `string` - The name of the event. If not provided, defaults to "".
+        - **weight** _optional_: `number` - The relative probability of the event. An event with weight 2 will occur twice as often as an event with weight 1. If not provided, defaults to 1.
       parameters:
         - "|+ string"
         - "|+ number"
-        - string &+ number
+        - "string &+ number"
         - "|+ string |+ number"
     addNNPCOutfit:
       name: addNNPCOutfit
@@ -768,6 +770,12 @@ sugarcube-2:
       description: Prints worn over, middle, and under bottom clothing names
       tags:
         - text
+    alleyways_capture_text:
+      name: alleyways_capture_text
+    alleyways_rescue_end:
+      name: alleyways_rescue_end
+    alleyways_rescue_start:
+      name: alleyways_rescue_start
     allowLewdIngredients:
       name: allowLewdIngredients
     allSettings:
@@ -1133,6 +1141,14 @@ sugarcube-2:
       name: audiencecameraswarm
     audiencespeech:
       name: audiencespeech
+    auntie:
+      description: |-
+        Prints `auntie` or `uncle` depending on npc pronouns
+      tags: ["text"]
+    Auntie:
+      description: |-
+        Prints `Auntie` or `Uncle` depending on npc pronouns
+      tags: ["text"]
     autoTakePillCheck:
       name: autoTakePillCheck
     avery_antiques_end:
@@ -1247,6 +1263,8 @@ sugarcube-2:
       name: avery_mansion_links
     avery_mansion_location_tracker:
       name: avery_mansion_location_tracker
+    avery_mansion_morning_change:
+      name: avery_mansion_morning_change
     avery_mansion_move:
       name: avery_mansion_links
     avery_mansion_party_end:
@@ -1292,6 +1310,9 @@ sugarcube-2:
     avery_valentines_date_check:
       description: Checks the date and prevents Avery's regular dates from interfering
         with their Valentine's date.
+    avery_valentines_end:
+      description: |-
+        Unsets story variables used for Avery's Valetine's date that should not be maintianed, and satiates Avery.
     avery_valentines_init:
       description: Initialises the $avery_valentines object, used for Avery's
         Valentine's date.
@@ -1312,6 +1333,11 @@ sugarcube-2:
       name: averyscore
     averyspa:
       name: averyspa
+    awardVirginityFeat:
+      description: |-
+        Awards virginity loss feat if the NPC gives one.
+      parameters:
+        - NPC description
     awareness:
       description: >-
         Adds awareness to pc's state, with appropriate modifiers
@@ -1480,6 +1506,10 @@ sugarcube-2:
         - text
     bathroomLink:
       name: bathroomLink
+    bboy:
+      name: bboy
+    bBoy:
+      name: bBoy
     beach_cave_caught:
       name: beach_cave_caught
     beach_cave_end:
@@ -4174,6 +4204,12 @@ sugarcube-2:
     controlcaption:
       name: controlcaption
     controlloss:
+      description: |-
+        Checks if the player entered the event in a non-consensual way.
+
+        If they did, decrease the player's control and print a short blurb about their emotional state.
+
+        No control loss if $gamemode is "soft".
       name: controlloss
     corruption:
       description: >-
@@ -4952,6 +4988,8 @@ sugarcube-2:
         Used when the player returns to the cabin, or when the player gains
         freedom in the first place.
     effects:
+      description: |-
+        Someone please explain what this does I see it in the text and want to touch it but I don't know what it does and I am very confused.
       name: effects
     effects_prison:
       name: effects_prison
@@ -5430,6 +5468,41 @@ sugarcube-2:
       name: eventbog
     eventbogsafe:
       name: eventbogsafe
+    eventChecks:
+      description: |-
+        Sets a temporary variable checkResults to the outcome of the provided skill / status checks.
+
+        The "physique" check's maximum value defaults to the player's "physiquesize", aka their BODY SIZE'S maximum physique.
+
+        The naked checks check if the player is wearing clothes on the associated body parts. Clothes with the "Naked" Trait are ignored.
+        The "checkMin" and "checkMax" values are also ignored for these checks.
+
+        The "true" EventType will only use its baseChance value.
+
+        EventChecks format:
+        - **eventRequests**: `Array<EventTypes>` - The event requests to be evaluated.
+
+        EventRequest format:
+        - **checkType**: `EventTypes` - The parameter to be evaluated.
+          - Valid EventTypes: "physique" | "willpower" | "athletics" | "danceskill" | "housekeeping" | "skulduggery"
+        | "swimmingskill" | "tending" | "seductionskill" | "oralskill" | "genitalskill" | "vaginalskill" | "penileskill"
+        | "analskill" | "handskill" | "feetskill" | "bottomskill" | "thighskill" | "chestskill" | "science" | "maths"
+        | "english" | "history" | "spray" | "net" | "baton" | "whip" | "hairlength" | "hairnaked" | "facenaked" | "necknaked"
+        | "uppernaked" | "handsnaked" | "handheldnaked" | "lowernaked" | "legsnaked" | "feetnaked" | "true"
+        - **baseChance**: `number` - The base chance (0 to 100 percent) that the check succeeds, AFTER the randomized value has been passed. Defaults to 100.
+        - **checkMin**: `number` - The minimum randomized value that the parameter will need to pass, inclusive. Defaults to 1.
+        - **checkMax**: `number` - The maximum randomized value that the parameter will need to pass, inclusive. Defaults to the skill or stat's maximum value.
+        - **checkFail**: `boolean` - Check if the player fails instead of succeeds at the check. Defaults to False.
+        - **includeBurden**: `boolean` - Include the Temple Burden's influence in the evaluations. Defaults to True.
+          - The Temple's Burden negatively influences the following Skill Checks:
+          - Physique, Willpower, Athletics, Dancing, Housekeeping, Skulduggery, Swimming, Tending, English
+
+        Each index in checkResults corresponds to its requested event. How the outcome is interpreted is up to the caller.
+        - 1 means it failed.
+        - 2 means it succeeded.
+        - -1 means the player failed the check, but the Temple's Burden is activated.
+        - -2 means the player succeeded the check, but the Temple's Burden is activated.
+      name: eventChecks
     eventforest:
       name: eventforest
     eventforestdeep:
@@ -6667,6 +6740,12 @@ sugarcube-2:
         - text
     fringedescription:
       name: fringedescription
+    fringeDetails:
+      description: |-
+        Prints the current state of the player's fringe.
+
+        The player's fringe can grow from the top of their head the front of their face.
+      name: fringeDetails
     fullGroup:
       description: >-
         Prints gender makeup of currently active npcs as a list (ie, `Robin,
@@ -6887,8 +6966,9 @@ sugarcube-2:
         Prints `| + Dominance` or `| + NPCName's Dominance` if provided
 
         `<<gdom NPCName?>>`
-        - **NPCName** _optional_: `string` - name to display as their lust
+        - **NPCName** _optional_: `string` - name to display as their dominance
           - `"Robin"`: Displays "Confidence" instead
+          - `"Doren"`: Displays "Protectiveness" instead
       parameters:
         - "|+ text|string"
       tags:
@@ -8006,8 +8086,9 @@ sugarcube-2:
         Prints `| + + Dominance` or `| + + NPCName's Dominance` if provided
 
         `<<ggdom NPCName?>>`
-        - **NPCName** _optional_: `string` - name to display as their lust
+        - **NPCName** _optional_: `string` - name to display as their dominance
           - `"Robin"`: Displays "Confidence" instead
+          - `"Doren"`: Displays "Protectiveness" instead
       parameters:
         - "|+ text|string"
       tags:
@@ -8169,8 +8250,9 @@ sugarcube-2:
         Prints `| + + + Dominance` or `| + + + NPCName's Dominance` if provided
 
         `<<gggdom NPCName?>>`
-        - **NPCName** _optional_: `string` - name to display as their lust
+        - **NPCName** _optional_: `string` - name to display as their dominance
           - `"Robin"`: Displays "Confidence" instead
+          - `"Doren"`: Displays "Protectiveness" instead
       parameters:
         - "|+ text|string"
       tags:
@@ -8825,6 +8907,8 @@ sugarcube-2:
         - text
     girl:
       name: girl
+    Girl:
+      name: Girl
     girl_npc:
       name: girl_npc
     girlfriend:
@@ -8832,6 +8916,8 @@ sugarcube-2:
         using `<<girl>>` as reference.
       tags:
         - text
+    girlfriend_npc:
+      name: girlfriend_npc
     girls:
       name: girls
     gisland_tide:
@@ -9006,7 +9092,21 @@ sugarcube-2:
           - `"monk"` | `"priest"` | `"bishop"`
           - Defaults to any rank
       parameters:
-        - number |+ "monk"|"priest"|"bishop"
+        - 'number |+ "monk"|"priest"|"bishop"'
+    grandpa:
+      description: |-
+        Prints grandma/grandpa
+        
+        See <<Grandpa>> for capitalised prose
+      tags:
+        - text
+    Grandpa:
+      description: |-
+        Prints Grandma/Grandpa
+        
+        See <<grandpa>> for uncapitalised prose
+      tags:
+        - text
     greadiness:
       name: greadiness
     greb:
@@ -9338,6 +9438,12 @@ sugarcube-2:
       description: Prints colour of `$haircolour` or `two-toned`
     hairDescription:
       name: hairDescription
+    hairDetails:
+      description: |-
+        Prints the current state of the player's hair.
+
+        The player's hair can grow from the top of their head to their feet.
+      name: hairDetails
     hairDressersOptions:
       name: hairDressersOptions
     hairDressersOptionsSydney:
@@ -10077,6 +10183,8 @@ sugarcube-2:
       name: homeeventalex
     homeeventchef:
       name: homeeventchef
+    homeeventgh:
+      name: homeeventgh
     homeeventhopehi:
       name: homeeventhopehi
     homeeventhopelo:
@@ -10095,6 +10203,8 @@ sugarcube-2:
       name: homeeventriver
     homeeventwhitney:
       name: homeeventwhitney
+    homeeventwren:
+      name: homeeventwren
     homeStudyOptions:
       name: homeStudyOptions
     hookah_init:
@@ -10219,6 +10329,10 @@ sugarcube-2:
         - number
     hunger_description:
       name: hunger_description
+    hunter:
+      description: |-
+        Prints `hunter` or `hintress` depending on npc pronouns
+      tags: ["text"]
     hygiene:
       name: hygiene
       tags:
@@ -10662,6 +10776,8 @@ sugarcube-2:
       name: kennel_treat_options
     kennel_treats:
       name: kennel_treats
+    king:
+      name: king
     kissvirginitywarning:
       description: >-
         Prints `This action will take your first kiss` if your first kiss can
@@ -10895,8 +11011,9 @@ sugarcube-2:
         Prints `| - Dominance` or `| - NPCName's Dominance` if provided
 
         `<<ldom NPCName?>>`
-        - **NPCName** _optional_: `string` - name to display as their lust
+        - **NPCName** _optional_: `string` - name to display as their dominance
           - `"Robin"`: Displays "Confidence" instead
+          - `"Doren"`: Displays "Protectiveness" instead
       parameters:
         - "|+ text|string"
       tags:
@@ -11340,8 +11457,9 @@ sugarcube-2:
         Prints `| - - Dominance` or `| - - NPCName's Dominance` if provided
 
         `<<lldom NPCName?>>`
-        - **NPCName** _optional_: `string` - name to display as their lust
+        - **NPCName** _optional_: `string` - name to display as their dominance
           - `"Robin"`: Displays "Confidence" instead
+          - `"Doren"`: Displays "Protectiveness" instead
       parameters:
         - "|+ text|string"
       tags:
@@ -11476,8 +11594,9 @@ sugarcube-2:
         Prints `| - - - Dominance` or `| - - - NPCName's Dominance` if provided
 
         `<<llldom NPCName?>>`
-        - **NPCName** _optional_: `string` - name to display as their lust
+        - **NPCName** _optional_: `string` - name to display as their dominance
           - `"Robin"`: Displays "Confidence" instead
+          - `"Doren"`: Displays "Protectiveness" instead
       parameters:
         - "|+ text|string"
       tags:
@@ -11657,6 +11776,12 @@ sugarcube-2:
       description: Prints `| - - - Stockholm Syndrome`
       tags:
         - text
+    lllstray_happiness:
+      description: |-
+        Prints `| - - - Stray contentment`
+      tags:
+        - unused
+        - text
     lllstress:
       description: Prints `| - - - Stress`
       tags:
@@ -11793,6 +11918,12 @@ sugarcube-2:
         - text
     llstockholm:
       description: Prints `| - - Stockholm Syndrome`
+      tags:
+        - unused
+        - text
+    llstray_happiness:
+      description: |-
+        Prints `| - - Stray contentment`
       tags:
         - unused
         - text
@@ -11959,6 +12090,8 @@ sugarcube-2:
       description: "Shows the options for what to do with the locker key, in all cases
         of `:: Hallways Delinquent Lockers` where the player ends up with the
         key"
+    loft_window_options:
+      name: loft_window_options
     log:
       name: log
       tags:
@@ -12152,6 +12285,12 @@ sugarcube-2:
       tags:
         - unused
         - text
+    lstray_happiness:
+      description: |-
+        Prints `| - Stray contentment`
+      tags:
+        - unused
+        - text
     lstress:
       description: Prints `| - Stress`
       tags:
@@ -12206,6 +12345,20 @@ sugarcube-2:
         - text
     lyearning:
       description: Prints `| - Yearning` or `| - ???`
+      tags:
+        - text
+    ma:
+      name: ma
+    Ma:
+      name: Ma
+    maam:
+      description: |-
+        Prints `sir` or `maam` depending on pc's appearance
+      tags:
+        - text
+    Maam:
+      description: |-
+        Prints capitalised `Sir` or `Maam` depending on pc's appearance
       tags:
         - text
     machine_actions:
@@ -12609,6 +12762,12 @@ sugarcube-2:
     molestbusinit:
       name: molestbusinit
     molested:
+      description: |-
+        Triggers flashbacks if the player is suffering from them.
+
+        Raises the player's awareness and increases the counter for the number of times they've been molested.
+
+        No increases if the $gamemode is "soft"
       name: molested
     moleststat:
       name: moleststat
@@ -12881,6 +13040,10 @@ sugarcube-2:
         - unused
     moveCreature:
       name: moveCreature
+    mum:
+      name: mum
+    Mum:
+      name: Mum
     mummy:
       name: mummy
     Mummy:
@@ -12908,6 +13071,8 @@ sugarcube-2:
       name: museumtalk
     namedNpcComments:
       name: namedNpcComments
+    namedNpcEjaculation:
+      name: namedNpcEjaculation
     namedNpcPregnancy:
       name: namedNpcPregnancy
     nDays:
@@ -12972,6 +13137,10 @@ sugarcube-2:
       tags:
         - text
     neutral:
+      description: |-
+        \"\<!-- This widget's names ('neutral') is awful. Maybe 'molest' might better describe its use? -->"
+
+        Raises the player character's stress level, and both their and their enemy's Arousal.
       name: neutral
     neutralbreast:
       name: neutralbreast
@@ -13000,12 +13169,21 @@ sugarcube-2:
       description: >-
         Doesn't do anything, sort of
 
-
         Next links have stopped receiving this widget for a while now. Consider
         refactoring
       tags:
         - legacy
         - refactor
+    niece:
+      description: |-
+        Prints `niece` or `nephew` depending on npc pronouns
+      tags:
+        - text
+    Niece:
+      description: |-
+        Prints `Niece` or `Nephew` depending on npc pronouns
+      tags:
+        - text
     nightingale:
       name: nightingale
     nightingaleeventend:
@@ -13252,6 +13430,171 @@ sugarcube-2:
         - "%namedNPC%"
       tags:
         - text
+    nnpc_maam:
+      description: |-
+        Prints `ma'am` or `sir` for named NPC
+
+        `<<nnpc_maam namedNPCName>>`
+        - **namedNPCName**: `string` - named NPC name
+          - %namedNPCDesc%
+      parameters:
+        - "%namedNPC%"
+      tags:
+        - text
+    nnpc_Maam:
+      description: |-
+        Prints `Ma'am` or `Sir` for named NPC
+
+        `<<nnpc_Maam namedNPCName>>`
+        - **namedNPCName**: `string` - named NPC name
+          - %namedNPCDesc%
+      parameters:
+        - "%namedNPC%"
+      tags:
+        - text
+    nnpc_master:
+      description: |-
+        Prints `master` or `mistress` for named NPC
+
+        `<<nnpc_master namedNPCName>>`
+        - **namedNPCName**: `string` - named NPC name
+          - %namedNPCDesc%
+      parameters:
+        - "%namedNPC%"
+      tags:
+        - text
+    nnpc_monk:
+      description: |-
+        Prints `monk` or `nun` for named NPC
+
+        `<<nnpc_monk namedNPCName>>`
+        - **namedNPCName**: `string` - named NPC name
+          - %namedNPCDesc%
+      parameters:
+        - "%namedNPC%"
+      tags:
+        - text
+    nnpc_Monk:
+      description: |-
+        Prints `Monk` or `Nun` for named NPC
+
+        `<<nnpc_Monk namedNPCName>>`
+        - **namedNPCName**: `string` - named NPC name
+          - %namedNPCDesc%
+      parameters:
+        - "%namedNPC%"
+      tags:
+        - text
+    nnpc_mother:
+      description: |-
+        Prints `mother` or `sister` for named NPC
+
+        `<<nnpc_mother namedNPCName>>`
+        - **namedNPCName**: `string` - named NPC name
+          - %namedNPCDesc%
+      parameters:
+        - "%namedNPC%"
+      tags:
+        - text
+    nnpc_Mother:
+      description: |-
+        Prints `Mother` or `Father` for named NPC
+
+        `<<nnpc_Mother namedNPCName>>`
+        - **namedNPCName**: `string` - named NPC name
+          - %namedNPCDesc%
+      parameters:
+        - "%namedNPC%"
+      tags:
+        - text
+    nnpc_mrs:
+      description: |-
+        Prints `mrs` or `mr` for named NPC
+
+        `<<nnpc_mrs namedNPCName>>`
+        - **namedNPCName**: `string` - named NPC name
+          - %namedNPCDesc%
+      parameters:
+        - "%namedNPC%"
+      tags:
+        - text
+    nnpc_Mrs:
+      description: |-
+        Prints `Mrs` or `Mr` for named NPC
+
+        `<<nnpc_Mrs namedNPCName>>`
+        - **namedNPCName**: `string` - named NPC name
+          - %namedNPCDesc%
+      parameters:
+        - "%namedNPC%"
+      tags:
+        - text
+    nnpc_ms:
+      description: |-
+        Prints `ms` or `mr` for named NPC
+
+        `<<nnpc_ms namedNPCName>>`
+        - **namedNPCName**: `string` - named NPC name
+          - %namedNPCDesc%
+      parameters:
+        - "%namedNPC%"
+      tags:
+        - text
+    nnpc_Ms:
+      description: |-
+        Prints `Ms` or `Mr` for named NPC
+
+        `<<nnpc_Ms namedNPCName>>`
+        - **namedNPCName**: `string` - named NPC name
+          - %namedNPCDesc%
+      parameters:
+        - "%namedNPC%"
+      tags:
+        - text
+    nnpc_mum:
+      description: |-
+        Prints `mum` or `dad` for named NPC
+        
+        `<<nnpc_mum namedNPCName>>`
+        - **namedNPCName**: `string` - named NPC name
+          - %namedNPCDesc%
+      parameters:
+        - "%namedNPC%"
+      tags:
+        - text
+    nnpc_Mum:
+      description: |-
+        Prints `Mum` or `Dad` for named NPC
+        
+        `<<nnpc_Mum namedNPCName>>`
+        - **namedNPCName**: `string` - named NPC name
+          - %namedNPCDesc%
+      parameters:
+        - "%namedNPC%"
+      tags:
+        - text
+    nnpc_mummy:
+      description: |-
+        Prints `mummy` or `daddy` for named NPC
+        
+        `<<nnpc_mummy namedNPCName>>`
+        - **namedNPCName**: `string` - named NPC name
+          - %namedNPCDesc%
+      parameters:
+        - "%namedNPC%"
+      tags:
+        - text
+    nnpc_Mummy:
+      description: |-
+        Prints `Mummy` or `Daddy` for named NPC
+        
+        `<<nnpc_Mummy namedNPCName>>`
+        - **namedNPCName**: `string` - named NPC name
+          - %namedNPCDesc%
+      parameters:
+        - "%namedNPC%"
+      tags:
+        - text
     nnpc_title:
       description: |-
         Prints title of named NPC
@@ -13268,6 +13611,17 @@ sugarcube-2:
         Prints capitalised title of named NPC
 
         `<<nnpc_Title namedNPCName>>`
+        - **namedNPCName**: `string` - named NPC name
+          - %namedNPCDesc%
+      parameters:
+        - "%namedNPC%"
+      tags:
+        - text
+    nnpc_waiter:
+      description: |-
+        Prints `waiter` or `waitress` for named NPC
+
+        `<<nnpc_waiter namedNPCName>>`
         - **namedNPCName**: `string` - named NPC name
           - %namedNPCDesc%
       parameters:
@@ -14636,11 +14990,13 @@ sugarcube-2:
 
         - **npcName**: `string` - example kind to output
           - `"Avery"` | `"Gwylan"` | `"Wraith"`
+        - **npcEmotionMod** _optional_: `string` - npc's emotional intention when using this pet name
+          - `"angry"` | `"nice"`
       parameters:
         - '"Avery"|"Gwylan"|"Wraith"'
         - '"Avery" |+ "my"'
         - '"Wraith" |+ "angry"|"nice"'
-        - '"Gwylan" |+ "bad"|"naughty"|"good"|"dear"|"my"|"simple"'
+        - '"Gwylan" |+ "bad"|"naughty"|"good"|"dear"|"my"|"simple"|"name"'
       tags:
         - text
         - refactor
@@ -14653,6 +15009,10 @@ sugarcube-2:
         Most commonly used in conjunction with crossdressing.
       tags:
         - text
+    pdaughter:
+      name: pdaughter
+    pDaughter:
+      name: pDaughter
     penetrationPainCalculate:
       name: penetrationPainCalculate
     peniledifficulty:
@@ -14852,6 +15212,8 @@ sugarcube-2:
       name: personselect
     personsimple:
       name: personsimple
+    personssimple:
+      name: personssimple
     persony:
       description: |-
         Prints `boy` or `girl` randomly based on world gender distribution
@@ -15052,6 +15414,12 @@ sugarcube-2:
         - **change**: `number` - amount to change by
       parameters:
         - number
+    pking:
+      description: |-
+        Prints title for pc as a monarch (king/queen)
+
+        No existing capitalized version
+      tags: ["text"]
     plant_details:
       description: >-
         Prints season and location appropriate details for a plant person's hair
@@ -15158,7 +15526,6 @@ sugarcube-2:
 
         See `<<pMother>>` for capitalised prose
       tags:
-        - unused
         - text
     pMother:
       description: |-
@@ -15168,6 +15535,69 @@ sugarcube-2:
       tags:
         - unused
         - text
+    pmrs:
+      description: |-
+        Prints respectful title for pc (mr/mrs)
+
+        See `<<pMrs>>` for capitalised prose
+      tags:
+        - text
+    pMrs:
+      description: |-
+        Prints capitalised respectful title for pc (Mr/Mrs)
+
+        See `<<pmrs>>` for uncapitalised prose
+      tags:
+        - text
+    pms:
+      description: |-
+        Prints respectful title for pc (mr/ms)
+
+        See `<<pMs>>` for capitalised prose
+      tags:
+        - text
+    pMs:
+      description: |-
+        Prints capitalised respectful title for pc (Mr/Ms)
+
+        See `<<pms>>` for uncapitalised prose
+      tags:
+        - text
+    pmum:
+      description: |-
+        Prints title for pc as a parent (mum/dad)
+
+        See `<<pMum>>` for capitalised prose
+      tags:
+        - unused
+        - text
+    pMum:
+      description: |-
+        Prints capitalised title for pc as a parent (mum/dad)
+
+        See `<<pmum>>` for uncapitalised prose
+      tags:
+        - unused
+        - text
+    pmummy:
+      description: |-
+        Prints title for pc as a parent (mummy/daddy)
+
+        See `<<pMummy>>` for capitalised prose
+      tags:
+        - text
+    pMummy:
+      description: |-
+        Prints capitalised title for pc as a parent (mummy/daddy)
+
+        See `<<pmummy>>` for uncapitalised prose
+      tags:
+        - unused
+        - text
+    pniece:
+      name: pniece
+    pNiece:
+      name: pNiece
     police_computer_action:
       name: police_computer_action
     popcornEat:
@@ -15347,11 +15777,13 @@ sugarcube-2:
       description: Prints `priests` or `priestesses` depending on active NPC pronoun
       tags:
         - text
+    princess:
+      name: princess
     printbuysendhome:
       name: printbuysendhome
     printChastity:
       description: |-
-        Prints `$worn.genitals.name`
+        Prints the name of the currently-worn chastity device
 
         Used in a single spot that can be escaped. Consider refactoring
       tags:
@@ -15702,6 +16134,8 @@ sugarcube-2:
       name: pussyinspection
     pussyinspectionherm:
       name: pussyinspectionherm
+    pwaitress:
+      name: pwaitress
     quicksand_actions:
       name: quicksand_actions
     quicksand_end:
@@ -15821,6 +16255,8 @@ sugarcube-2:
       tags:
         - unused
         - text
+    reading_nook_recipe:
+      name: reading_nook_recipe
     reb:
       description: >-
         Adds rebelliousness to orphanage
@@ -16305,6 +16741,8 @@ sugarcube-2:
     safereplace:
       container: true
       name: safereplace
+    SamOptions:
+      name: SamOptions
     save_anxious_guard:
       name: save_anxious_guard
     save_methodical_guard:
@@ -16472,6 +16910,8 @@ sugarcube-2:
       name: sea_chest
     sea_eye:
       name: sea_eye
+    sea_hairwrap:
+      name: sea_hairwrap
     sea_pair_orgasm:
       name: sea_pair_orgasm
     sea_struggle:
@@ -16765,7 +17205,9 @@ sugarcube-2:
 
         - **slot**: `string` -
       parameters:
-        - string &+ string &+ string
+        - 'string &+ string &+ string'
+    setupBreastjobDemo:
+      name: setupBreastjobDemo
     setupCombatLightingDemo:
       description: No description.
     setupDefaults:
@@ -17585,6 +18027,8 @@ sugarcube-2:
         option
       tags:
         - text
+    smuggler_pub_wren:
+      name: smuggler_pub_wren
     smugglerdifficultyactions:
       name: smugglerdifficultyactions
     smugglerdifficultynpcs:
@@ -18333,6 +18777,8 @@ sugarcube-2:
       name: struggle_region
     struggle_skin:
       name: struggle_skin
+    struggle_softlock_prevent:
+      name: struggle_softlock_prevent
     struggle_state:
       name: struggle_state
     struggleClearActions:
@@ -18601,6 +19047,14 @@ sugarcube-2:
       name: temple_title
     temple_Title:
       name: temple_Title
+    templeLossLower:
+      description: |-
+        "a hollowness flows through you, reminding you of your loss. The loss of something that was never yours."
+      name: templeLossLower
+    templeLossUpper:
+      description: |-
+        "A hollowness flows through you, reminding you of your loss. The loss of something that was never yours."
+      name: templeLossUpper
     tending:
       name: tending
     tending_bird_eggs:
@@ -19253,6 +19707,14 @@ sugarcube-2:
       name: unbind
     unbindtemp:
       name: unbindtemp
+    uncle:
+      description: |-
+        Prints `aunt` or `uncle` depending on npc pronouns
+      tags: ["text"]
+    Uncle:
+      description: |-
+        Prints `Aunt` or `Uncle` depending on npc pronouns
+      tags: ["text"]
     underbottoms:
       description: Prints under_lower clothing layer, taking into account if it is
         part of an outfit
@@ -19366,6 +19828,10 @@ sugarcube-2:
     underslither:
       name: underslither
     undertop:
+      description: |-
+        Prints the current state of the player's under_upper clothing, assuping the over_upper clothing has been destroyed.
+
+        The corresponding lower check is called "undies"
       name: undertop
     UnderTopShop:
       name: UnderTopShop
@@ -19472,6 +19938,15 @@ sugarcube-2:
       tags:
         - text
     undies:
+      description: |-
+        Prints the current state of the player's under_lower clothing, assuping the over_lower clothing has been destroyed.
+
+        Optional parameter [0] possible values:
+        - 0 or omitted or null - display full name of undies or full genital description
+        - 1 - display simple name of undies or full genital description
+        - 2 - display simple name of undies or simple genital description
+
+        The corresponding upper check is called "undertop"
       name: undies
     undiestrauma:
       name: undiestrauma
@@ -19539,6 +20014,9 @@ sugarcube-2:
       name: updateFeats
     updateFeatsPointsMenu:
       name: updateFeatsPointsMenu
+    updateFoodstuffKey:
+      description: |-
+        For use when renaming (not deleting) setup.foodstuff keys. This widget mirrors changes to V.foodstuff and other variables
     updateHallucinations:
       description: Updates pc's hallucination state based on trauma, awareness, drugs,
         weather, and clothing
@@ -19622,6 +20100,9 @@ sugarcube-2:
       description: Verifies `V.plants` has a matching entry for every foodstuff object
         in `F`. Required after addition of cooking class, as tending objects are
         no longer optional.
+    updatePlayerTraumaState:
+      description: |-
+        Updates pc's trauma-derived state based on current trauma, including sleep trouble, nightmares, anxiety, flashbacks, panic attacks, and dissociation
     updateRecordedSperm:
       name: updateRecordedSperm
     updatesidebardescription:
@@ -19861,6 +20342,13 @@ sugarcube-2:
     victimgirls:
       name: victimgirls
     violence:
+      description: |-
+        Increases / decreases the player's stress, trauma, and pain based on the violence level.
+        I believe positive violence = Increase stress, trauma, and pain, while negative violence
+        has the opposite effect.
+
+        Would be nice if someone with a better understanding could update this description,
+        because I'm sort of winging it.
       name: violence
     violence_noncombat:
       name: violence_noncombat
@@ -19908,6 +20396,8 @@ sugarcube-2:
         - text
     vore:
       name: vore
+    vore_img:
+      name: vore_img
     voreactions:
       name: voreactions
     voreeffects:
@@ -20138,6 +20628,12 @@ sugarcube-2:
       name: wetnessCalculate
     wheeze:
       name: wheeze
+    whitney_gang_options:
+      name: whitney_gang_options
+    whitney_home_events:
+      name: whitney_home_events
+    whitney_home_events_gang:
+      name: whitney_home_events_gang
     whitney_parent:
       name: whitney_parent
     WhitneyChastityCheck:
@@ -20199,6 +20695,8 @@ sugarcube-2:
       name: wife
     Wife:
       name: Wife
+    wife_npc:
+      name: wife_npc
     willpower:
       description: >-
         Adds willpower to pc's state
@@ -20292,6 +20790,12 @@ sugarcube-2:
       name: wolfquick
     wolfTransform:
       name: wolfTransform
+    woman:
+      name: woman
+    woman_npc:
+      name: woman_npc
+    women_npc:
+      name: women_npc
     wood_required:
       name: wood_required
     word:
@@ -20926,8 +21430,6 @@ sugarcube-2:
       name: dolxUiStartButton
     cave_map:
       name: cave_map
-    avery_valentines_end:
-      name: avery_valentines_end
     mathsWhitneyAttendChanceOrphanage:
       name: mathsWhitneyAttendChanceOrphanage
     depositLibraryExitConfirm:
@@ -20988,80 +21490,16 @@ sugarcube-2:
       name: bankHeistJournal
     moor_harpy_tailwind:
       name: moor_harpy_tailwind
-    nnpc_mother:
-      name: nnpc_mother
-    nnpc_Mrs:
-      name: nnpc_Mrs
-    nnpc_Monk:
-      name: nnpc_Monk
-    uncle:
-      name: uncle
-    whitney_home_events_gang:
-      name: whitney_home_events_gang
-    whitney_home_events:
-      name: whitney_home_events
-    mum:
-      name: mum
-    whitney_gang_options:
-      name: whitney_gang_options
-    Auntie:
-      name: Auntie
-    niece:
-      name: niece
-    nnpc_mummy:
-      name: nnpc_mummy
-    hunter:
-      name: hunter
-    nnpc_waiter:
-      name: nnpc_waiter
-    maam:
-      name: maam
-    nnpc_maam:
-      name: nnpc_maam
-    princess:
-      name: princess
-    king:
-      name: king
-    nnpc_monk:
-      name: nnpc_monk
-    woman:
-      name: woman
     pHe:
       name: pHe
-    pwaitress:
-      name: pwaitress
-    pking:
-      name: pking
-    ma:
-      name: ma
     troughicon:
       name: troughicon
-    pmum:
-      name: pmum
-    pmrs:
-      name: pmrs
-    pms:
-      name: pms
-    nnpc_ms:
-      name: nnpc_ms
-    auntie:
-      name: auntie
     img:
       name: img
-    Ma:
-      name: Ma
-    setupBreastjobDemo:
-      name: setupBreastjobDemo
     xchange-removeeffect:
       name: xchange-removeeffect
-    pMrs:
-      name: pMrs
-    namedNpcEjaculation:
-      name: namedNpcEjaculation
     banner:
       name: banner
-    avery_mansion_morning_change:
-      name: avery_mansion_morning_change
     perma-reflection-prompt:
       name: perma-reflection-prompt
       description: |-

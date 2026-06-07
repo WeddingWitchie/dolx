@@ -3,7 +3,7 @@
 
 function initSpecialClothes() {
 	/* name: should ALWAYS match the clothing item's setup "name" property.
-	 * sets: whoch setup sets the clothes are a part of. Sets are defined in the object after this one.
+	 * sets: which setup sets the clothes are a part of. Sets are defined in the object after this one.
 	 * hint, requirements: Should ONLY be used if item is not part of its own set, and we know for sure it never will be, such as with simple items like the daisy and flower crown.
 	 * Otherwise, hint and requirements should be part of the sets setup further down.
 	*/
@@ -43,6 +43,7 @@ function initSpecialClothes() {
 		{ name: "candy cane", 					sets: ["christmas"] },
 
 		{ name: "rose", 						sets: ["valentines", "flowers"], requirements: () => V.gwylanSeen?.includes("rose"), hint: "get kissed by a rose" },
+		{ name: "rose eyepatch", 				sets: ["valentines", "rose_wedding"] },
 		{ name: "rose wedding veil", 			sets: ["valentines", "rose_wedding"] },
 		{ name: "long rose wedding veil", 		sets: ["valentines", "rose_wedding"] },
 		{ name: "rose wedding dress", 			sets: ["valentines", "rose_wedding"] },
@@ -156,6 +157,7 @@ function initSpecialClothes() {
 
 		{ name: "butterfly dress",				sets: ["butterfly"] },
 		{ name: "butterfly bow",				sets: ["butterfly"] },
+		{ name: "butterfly eyepatch",			sets: ["butterfly"] },
 
 		{ name: "succubus top",					sets: ["succubus"] },
 		{ name: "succubus lower back wings",	sets: ["succubus", "transformation"] },
@@ -348,7 +350,7 @@ function initSpecialClothes() {
 		},
 		underground_farm: {
 			text: "cow print set",
-			requirements: () => V.livestock_intro !== undefined,
+			requirements: () => V.livestock.intro !== undefined,
 			hint: "become livestock",
 			shop: ["forest", "adult"],
 			subsetOf: ["bad_end", "transformation"],
@@ -835,6 +837,8 @@ function specialClothesUpdate() {
 	if (!V.specialClothes.some(item => item.name === "antique copper ring")) V.specialClothes.push({ name: "antique copper ring", unlocked: 0 });
 	if (!V.specialClothes.some(item => item.name === "antique silver band")) V.specialClothes.push({ name: "antique silver band", unlocked: 0 });
 	if (!V.specialClothes.some(item => item.name === "ancient gold ring")) V.specialClothes.push({ name: "ancient gold ring", unlocked: 0 });
+	if (!V.specialClothes.some(item => item.name === "butterfly eyepatch")) V.specialClothes.push({ name: "butterfly eyepatch", unlocked: 0 });
+	if (!V.specialClothes.some(item => item.name === "rose eyepatch")) V.specialClothes.push({ name: "rose eyepatch", unlocked: 0 });
 
 	// Delete any entries that do not have a matching setup object.
 	V.specialClothes.forEach((clothing, index) => {

@@ -607,6 +607,13 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Social"],
 	},
+	"Whitney's Secret": {
+		title: "Whitney's Secret",
+		desc: "Discover Whitney's collection.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
 	"Kylar the Obsessed": {
 		title: "Kylar the Obsessed",
 		desc: "Fucking crazy.",
@@ -3832,7 +3839,7 @@ function applyFeatBoosts() {
 	// green thumb
 	if (upgrades.greenThumb) {
 		V.backgroundTraits.pushUnique("greenthumb");
-		if (V.fertilizer) ++V.fertilizer.current;
+		if (V.fertiliser) ++V.fertiliser.current;
 	}
 
 	// parasitic pregnancy
@@ -4079,7 +4086,7 @@ function applyFeatBoosts() {
 	// special clothes
 	if (upgrades.specialClothing) {
 		specialClothesUpdate();
-		// cost is 0, so gain() would be Infinity. In DoLP this causes the level 1/2/3 switch
+		// cost is 0, so gain() would be Infinity. In DoLX this causes the level 1/2/3 switch
 		// to always fall through to the else (level 1) path, which iterates specialClothesSets directly.
 		// We replicate that behavior here to match DoLP.
 		for (const [setName, selected] of Object.entries(V.featsBoosts.specialClothesSets)) {

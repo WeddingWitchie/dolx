@@ -394,7 +394,7 @@
 <</widget>>
 
 <<widget "violence">>
-	<!-- NG tuning v2.7 $arousal from $masochism/50 to /7. PC now orgasms at least once during spanking encounter at 50% masocism level and twice at 100% masoohism. /10 at max is required to orgasm once at 100% masochism. -->
+	<!-- NG tuning v2.7 $arousal from $masochism/50 to /7. PC now orgasms at least once during spanking encounter at 50% masochism level and twice at 100% masochism. /10 at max is required to orgasm once at 100% masochism. -->
 	<!-- NG added stress reduction for masochists. Trauma left same -->
 	<<if _args.length gte 1>>
 		<<set _violence = _args[0]>>
@@ -2343,16 +2343,16 @@
 
 <<widget "towelup">>
 	<<if $exposed gte 1>>
-		<<if $upperwetstage gte 3 and !$worn.under_upper.type.includes("covered") or $underupperwetstage gte 3 and $worn.under_upper.type.includes("covered")>>
-			<<upperwear 3 "white">>
+		<<if $upperwetstage gte 3 and !$worn.under_upper.type.includes("torso_covering") or $underupperwetstage gte 3 and $worn.under_upper.type.includes("torso_covering")>>
+			<<upperwear "towel top">>
 		<</if>>
-		<<if $lowerwetstage gte 3 and !$worn.under_lower.type.includes("covered") or $underlowerwetstage gte 3 and $worn.under_lower.type.includes("covered")>>
-			<<lowerwear 3 "white">>
+		<<if $lowerwetstage gte 3 and !$worn.under_lower.type.includes("lower_covering") or $underlowerwetstage gte 3 and $worn.under_lower.type.includes("lower_covering")>>
+			<<lowerwear "towel skirt">>
 		<</if>>
-		<<if $worn.upper.exposed gte 1 and !$worn.under_upper.type.includes("covered")>>
-			<<upperwear 14 "white">>
-		<<elseif $worn.lower.exposed gte 1 and !$worn.under_lower.type.includes("covered")>>
-			<<lowerwear 3 "white">>
+		<<if $worn.upper.exposed gte 1 and !$worn.under_upper.type.includes("torso_covering")>>
+			<<upperwear "large towel">>
+		<<elseif $worn.lower.exposed gte 1 and !$worn.under_lower.type.includes("lower_covering")>>
+			<<lowerwear "towel skirt">>
 		<</if>>
 	<</if>>
 	<<if $lowerwetstage gte 3>>
@@ -2367,11 +2367,11 @@
 
 <<widget "towelupm">>
 	<<if $exposed gte 1>>
-		<<if $lowerwetstage gte 3 and !$worn.under_lower.type.includes("covered")>>
-			<<lowerwear 3 "white">>
+		<<if $lowerwetstage gte 3 and !$worn.under_lower.type.includes("lower_covering")>>
+			<<lowerwear "towel skirt">>
 		<</if>>
-		<<if $worn.lower.exposed gte 1 and !$worn.under_lower.type.includes("covered")>>
-			<<lowerwear 3 "white">>
+		<<if $worn.lower.exposed gte 1 and !$worn.under_lower.type.includes("lower_covering")>>
+			<<lowerwear "towel skirt">>
 		<</if>>
 	<</if>>
 	<<if $worn.lower.exposed gte 1>>
@@ -2435,7 +2435,7 @@
 <</widget>>
 
 <<widget "schoolspareclothes">>
-	<<if !$worn.upper.type.includes("school") or !$worn.lower.type.includes("school") and $worn.upper.set is $worn.lower.set>>
+	<<if !wearingSchoolOutfit() and $worn.upper.set is $worn.lower.set>>
 		<<upperwear "school shirt">><<set $worn.upper.colour to either("black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow")>><<set $worn.upper.integrity /= 2>>
 	<</if>>
 	<<if !$worn.lower.type.includes("school")>>
@@ -2454,70 +2454,6 @@
 
 <<widget "spareschoolswimshorts">>
 	<<underlowerwear "school swim shorts">><<set $worn.under_lower.colour to either("black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow")>><<set $worn.under_lower.integrity /= 2>>
-<</widget>>
-
-<<widget "exposureold">>
-	<!-- In safe locations, while alone, the player won't cover up. Love interest check is likely not hitting everywhere it should be due to NPCs generating after this check. -->
-	<<if ["Wardrobe", "Bedroom", "Sleep", "Bird Tower", "Bird Hunt", "Spa Tan Underwear", "Spa Tan Curtains", "Spa Tan Naked", "Mirror"].some(keyword => V.passage.includes(keyword)) and !($NPCList.some(obj => Object.hasOwn(obj, "type")) and !$NPCList.find(({fullDescription:fd}) => fd && Object.values($loveInterest).includes(fd)))>>
-		<<set $libertine to 2>>
-	<<else>>
-		<<set $libertine to 0>>
-		<<if !["beach", "pool", "sea", "lake", "lake_ruin"].includes($location)>>
-			<<set $libertine to 0>>
-		<<else>>
-			<<set $libertine to 1>>
-		<</if>>
-		<<if ($location is "dance_studio" or $location is "strip_club" or $location is "brothel") and $worn.under_lower.type.includes("dance") and $worn.under_upper.type.includes("dance")>>
-			<<set $libertine to 1>>
-		<</if>>
-	<</if>>
-
-	<<exposedcheck>>
-
-	<<set $exposed to 0>>
-
-	<<if !$possessed>>
-		/*
-		To be considered exposing your underwear or breasts ($exposure 1 for both) the following must be true
-			Male appearing breasts do not count as exposed
-			over_upper needs to be exposing/displaced
-			upper needs to be exposing/displaced or wet
-			under_upper needs to not have covered trait or be exposing/displaced or be wet
-			lower needs to not have covered trait or be displaced or be wet
-		 */
-		<<if $player.gender_appearance isnot "m"
-		and $worn.over_upper.exposed gte 1
-		and ($worn.upper.exposed gte 1 or $upperwetstage gte 3)
-		and (!$worn.under_upper.type.includes("covered") or $worn.under_upper.exposure gte 1 or $underupperwetstage gte 3)
-		and (!$worn.lower.type.includes("covered") or $worn.lower.exposed gte 2 or $lowerwetstage gte 3)>>
-			<<set $exposed to 1>>
-		<</if>>
-
-		/*
-		To be considered exposing your underwear or genitals ($exposure 1 and 2 respectively) the following must be true
-			over_lower needs to be exposing/displaced
-			lower needs to be exposing/displaced or wet
-
-		To be considered exposing your underwear the following must be true
-			under_lower needs to not have the covered trait and be not exposing or wet
-		Otherwise to be considered exposing your genitals the following must be true
-			under_lower needs to be exposing or wet
-		 */
-		<<if $worn.over_lower.exposed gte 1
-		and ($worn.lower.exposed gte 1 or $lowerwetstage gte 3)>>
-			<<if $worn.under_lower.exposed is 0 and $underlowerwetstage lt 3 and !$worn.under_lower.type.includes("covered")>>
-				<<set $exposed to 1>>
-			<<elseif $worn.under_lower.exposed gte 1 or $underlowerwetstage gte 3>>
-				<<set $exposed to 2>>
-			<</if>>
-		<</if>>
-	<</if>>
-
-	<<set $exposedRaw to $exposed>>
-
-	<<if $libertine gte $exposed>>
-		<<set $exposed to 0>>
-	<</if>>
 <</widget>>
 
 <<widget "integritycheck">>
@@ -4171,6 +4107,7 @@
 	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, 0, 100)>>
 	<<set $NPCName[_i].rage = Math.clamp($NPCName[_i].rage, 0, 100)>>
 	<<set $NPCName[_i].dom = Math.clamp($NPCName[_i].dom, 0, 100)>>
+	<<set $NPCName[_i].lust = Math.clamp($NPCName[_i].lust, 0, 100)>>
 	<<set _i to $NPCNameList.indexOf("Great Hawk")>>
 	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, 0, 100)>>
 	<<set $NPCName[_i].dom = Math.clamp($NPCName[_i].dom, 0, 100)>>
@@ -4189,67 +4126,32 @@
 	<<set $NPCName[_i].lust = Math.clamp($NPCName[_i].lust, 0, 100)>>
 	<<set $NPCName[_i].dom = Math.clamp($NPCName[_i].dom, -50, 150)>>
 
-	<<set _i to $NPCNameList.indexOf("Darryl")>>
-	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, -50, 50)>>
-	<<set $NPCName[_i].dom = Math.clamp($NPCName[_i].dom, -50, 50)>>
-	<<set _i to $NPCNameList.indexOf("River")>>
-	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, -50, 50)>>
-	<<set $NPCName[_i].dom = Math.clamp($NPCName[_i].dom, -50, 50)>>
+	<<set _fastlovennpcclamps to ["Darryl", "River", "Mason", "Sam", "Wren", "Charlie"]>>
+	<<for _name range _fastlovennpcclamps>>
+		<<set _i to $NPCNameList.indexOf(_name)>>
+		<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, -50, 50)>>
+		<<set $NPCName[_i].dom = Math.clamp($NPCName[_i].dom, -50, 50)>>
+	<</for>>
+
+	<<set _defaultnnpcclamps to ["Bailey", "Briar", "Doren", "Harper", "Jordan", 
+								 "Landry", "Leighton", "Morgan", "Winter", "Niki", 
+								 "Quinn", "Remy", "Zephyr", "Sirris"]>>
+	<<for _name range _defaultnnpcclamps>>
+		<<set _i to $NPCNameList.indexOf(_name)>>
+		<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, -100, 100)>>
+		<<set $NPCName[_i].dom = Math.clamp($NPCName[_i].dom, -50, 50)>>
+	<</for>>
+
 	<<set _i to $NPCNameList.indexOf("Mason")>>
-	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, -50, 50)>>
 	<<set $NPCName[_i].lust = Math.clamp($NPCName[_i].lust, -50, 50)>>
-	<<set $NPCName[_i].dom = Math.clamp($NPCName[_i].dom, -50, 50)>>
-	<<set _i to $NPCNameList.indexOf("Sam")>>
-	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, -50, 50)>>
-	<<set $NPCName[_i].dom = Math.clamp($NPCName[_i].dom, -50, 50)>>
-	<<set _i to $NPCNameList.indexOf("Wren")>>
-	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, -50, 50)>>
-	<<set $NPCName[_i].dom = Math.clamp($NPCName[_i].dom, -50, 50)>>
-	<<set _i to $NPCNameList.indexOf("Charlie")>>
-	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, -50, 50)>>
-	<<set $NPCName[_i].dom = Math.clamp($NPCName[_i].dom, -50, 50)>>
+
+	/* Avery card game date special lust clamps */
 	<<set _i to $NPCNameList.indexOf("Bailey")>>
-	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, -100, 100)>>
-	<<set $NPCName[_i].dom = Math.clamp($NPCName[_i].dom, -50, 50)>>
-	<<set _i to $NPCNameList.indexOf("Briar")>>
-	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, -100, 100)>>
-	<<set $NPCName[_i].dom = Math.clamp($NPCName[_i].dom, -50, 50)>>
-	<<set _i to $NPCNameList.indexOf("Doren")>>
-	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, -100, 100)>>
-	<<set $NPCName[_i].dom = Math.clamp($NPCName[_i].dom, -50, 50)>>
-	<<set _i to $NPCNameList.indexOf("Harper")>>
-	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, -100, 100)>>
-	<<set $NPCName[_i].dom = Math.clamp($NPCName[_i].dom, -50, 50)>>
-	<<set _i to $NPCNameList.indexOf("Jordan")>>
-	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, -100, 100)>>
-	<<set $NPCName[_i].dom = Math.clamp($NPCName[_i].dom, -50, 50)>>
-	<<set _i to $NPCNameList.indexOf("Landry")>>
-	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, -100, 100)>>
-	<<set $NPCName[_i].dom = Math.clamp($NPCName[_i].dom, -50, 50)>>
+	<<set $NPCName[_i].lust = Math.clamp($NPCName[_i].lust, 0, 100)>>
 	<<set _i to $NPCNameList.indexOf("Leighton")>>
-	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, -100, 100)>>
-	<<set $NPCName[_i].dom = Math.clamp($NPCName[_i].dom, -50, 50)>>
-	<<set _i to $NPCNameList.indexOf("Morgan")>>
-	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, -100, 100)>>
-	<<set $NPCName[_i].dom = Math.clamp($NPCName[_i].dom, -50, 50)>>
-	<<set _i to $NPCNameList.indexOf("Winter")>>
-	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, -100, 100)>>
-	<<set $NPCName[_i].dom = Math.clamp($NPCName[_i].dom, -50, 50)>>
-	<<set _i to $NPCNameList.indexOf("Niki")>>
-	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, -100, 100)>>
-	<<set $NPCName[_i].dom = Math.clamp($NPCName[_i].dom, -50, 50)>>
+	<<set $NPCName[_i].lust = Math.clamp($NPCName[_i].lust, 0, 100)>>
 	<<set _i to $NPCNameList.indexOf("Quinn")>>
-	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, -100, 100)>>
-	<<set $NPCName[_i].dom = Math.clamp($NPCName[_i].dom, -50, 50)>>
-	<<set _i to $NPCNameList.indexOf("Remy")>>
-	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, -100, 100)>>
-	<<set $NPCName[_i].dom = Math.clamp($NPCName[_i].dom, -50, 50)>>
-	<<set _i to $NPCNameList.indexOf("Zephyr")>>
-	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, -100, 100)>>
-	<<set $NPCName[_i].dom = Math.clamp($NPCName[_i].dom, -50, 50)>>
-	<<set _i to $NPCNameList.indexOf("Sirris")>>
-	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, -100, 100)>>
-	<<set $NPCName[_i].dom = Math.clamp($NPCName[_i].dom, -50, 50)>>
+	<<set $NPCName[_i].lust = Math.clamp($NPCName[_i].lust, 0, 100)>>
 
 	<<set _i to $NPCNameList.indexOf("Ivory Wraith")>>
 	<<if $wraith.state is "haunt">>
@@ -4271,6 +4173,15 @@
 	<</if>>
 <</widget>>
 
+<<!-- The "game\04-Variables\variables-start2.twee" descriptions for hair and fringe length have their growth values
+	equal to each other. However, this widget contradicts that description and assumes the player's fringe will never
+	grow past their face.
+
+	Made a post on Discord about whether players want the character to be able to grow a longer fringe. Doesn't seem like
+	there's much interest, so will treat these descriptions as the default.
+
+	Someone will need to update the $fringelengthstage values to reflect the current in-game descriptions, to prevent
+	future confusion. -->>>
 <<widget "fringedescription">>
 	<<if $haircolour isnot $hairfringecolour>>
 		<<if $hairFringeColourStyle is "gradient">>
@@ -4297,6 +4208,54 @@
 	<<else>>
 		and your <<print $_fringe>> is very short.
 	<</if>>
+<</widget>>
+
+
+<<!-- Added a hair and fringe details widget to make hair length discrimination more viable.
+	Not sure if there's another file where this widget would be better placed. Feel free to move.
+	Descriptions based on the values in "game\base-system\overlays\characteristics.twee" and
+	the "game\04-Variables\variables-start2.twee".
+
+	See "game\overworld-plains\loc-farm\events.twee" for examples of its use. -->>>>
+<<widget "hairDetails">>
+	<<if $hairlength gte 900>>
+		extremely long <<haircolourtext>> hair\
+	<<elseif $hairlength gte 700>>
+		very long <<haircolourtext>> hair\
+	<<elseif $hairlength gte 400>>
+		long <<haircolourtext>> hair\
+	<<elseif $hairlength gte 100>>
+		<<haircolourtext>> hair\
+	<<else>>
+		short <<haircolourtext>> hair\
+	<</if>>
+<</widget>>
+
+
+<<widget "fringeDetails">>
+	<<silently>>
+	<<if $fringelength gte 980>>
+		very long <<hairfringecolourtext>> fringe\
+	<<elseif $fringelength gte 800>>
+		long <<hairfringecolourtext>> fringe\
+	<<elseif $fringelength gte 600>>
+		somewhat long <<hairfringecolourtext>> fringe\
+	<<elseif $fringelength gte 400>>
+		<<hairfringecolourtext>> fringe\
+	<<elseif $fringelength gte 200>>
+		short <<hairfringecolourtext>> fringe\
+	<<else>>
+		very short <<hairfringecolourtext>> fringe\
+	<</if>>
+	<</silently>>
+<</widget>>
+
+<<widget "templeLossLower">>
+	<span class="pink">a hollowness flows through you, reminding you of your loss. The loss of something that was never yours.</span>
+<</widget>>
+
+<<widget "templeLossUpper">>
+	<span class="pink">A hollowness flows through you, reminding you of your loss. The loss of something that was never yours.</span>
 <</widget>>
 
 <<widget "willpowerpain">>
@@ -5535,11 +5494,11 @@
 
 <<widget "schoolrep_naked">>
 	/* _args[0] is used as an overwrite to perform retroactive school reputation changes. For example, if a video of the player
-	nude circulates. If we just call "schoolrep_naked" when the news breaks and the player is wearing a chasitiy belt right now,
-	but NOT in the video, reputaiton will update incorrectly. Same is true vice versa.
+	nude circulates. If we just call "schoolrep_naked" when the news breaks and the player is wearing a chastity belt right now,
+	but NOT in the video, reputation will update incorrectly. Same is true vice versa.
 
 	The intended use-case of _args[0] is by saving a boolean of the status of playerChasity(Hidden) *at the time the video was
-	recorded*, and then input that boolean into _args[0] when the video circulates. Look at my implimentation of $flyover_chaste
+	recorded*, and then input that boolean into _args[0] when the video circulates. Look at my implementation of $flyover_chaste
 	to see the intended use in action. */
 
 	<<if !playerChastity("hidden") or _args[0] is false>>

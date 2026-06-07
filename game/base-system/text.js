@@ -693,10 +693,19 @@ statDisplay.create("ghousekeeping", amount => statDisplay.statChange("Housekeepi
 statDisplay.create("gghousekeeping", amount => statDisplay.statChange("Housekeeping", 2, "green", () => amount === undefined || V.housekeeping < amount || amount >= 1000 || V.easyHousekeeping >= 1));
 statDisplay.create("ggghousekeeping", amount => statDisplay.statChange("Housekeeping", 3, "green", () => amount === undefined || V.housekeeping < amount || amount >= 1000 || V.easyHousekeeping >= 1));
 
+statDisplay.create("gstray_happiness", () => statDisplay.statChange("Stray contentment", 1, "green"));
+statDisplay.create("ggstray_happiness", () => statDisplay.statChange("Stray contentment", 2, "green"));
+statDisplay.create("gggstray_happiness", () => statDisplay.statChange("Stray contentment", 3, "green"));
+statDisplay.create("lstray_happiness", () => statDisplay.statChange("Stray contentment", -1, "red"));
+statDisplay.create("llstray_happiness", () => statDisplay.statChange("Stray contentment", -2, "red"));
+statDisplay.create("lllstray_happiness", () => statDisplay.statChange("Stray contentment", -3, "red"));
+
 statDisplay.create("ldom", npc => {
 	let targetName = "";
 	if ((V.npc.includes("Robin") && !npc) || npc === "Robin") {
 		return statDisplay.statChange("Robin's Confidence", -1, "lblue");
+	} else if ((V.npc.includes("Doren") && !npc) || npc === "Doren") {
+		return statDisplay.statChange("Doren's Protectiveness", -1, "lblue");
 	} else if (npc) targetName = npc + "'s";
 	else if (V.npc.length >= 2) targetName = V.npc[0] + "'s";
 	return statDisplay.statChange(`${targetName} Dominance`, -1, "lblue");
@@ -705,6 +714,8 @@ statDisplay.create("lldom", npc => {
 	let targetName = "";
 	if ((V.npc.includes("Robin") && !npc) || npc === "Robin") {
 		return statDisplay.statChange("Robin's Confidence", -2, "lblue");
+	} else if ((V.npc.includes("Doren") && !npc) || npc === "Doren") {
+		return statDisplay.statChange("Doren's Protectiveness", -2, "lblue");
 	} else if (npc) targetName = npc + "'s";
 	else if (V.npc.length >= 2) targetName = V.npc[0] + "'s";
 	return statDisplay.statChange(`${targetName} Dominance`, -2, "lblue");
@@ -713,6 +724,8 @@ statDisplay.create("llldom", npc => {
 	let targetName = "";
 	if ((V.npc.includes("Robin") && !npc) || npc === "Robin") {
 		return statDisplay.statChange("Robin's Confidence", -3, "lblue");
+	} else if ((V.npc.includes("Doren") && !npc) || npc === "Doren") {
+		return statDisplay.statChange("Doren's Protectiveness", -3, "lblue");
 	} else if (npc) targetName = npc + "'s";
 	else if (V.npc.length >= 2) targetName = V.npc[0] + "'s";
 	return statDisplay.statChange(`${targetName} Dominance`, -3, "lblue");
@@ -721,6 +734,8 @@ statDisplay.create("gdom", npc => {
 	let targetName = "";
 	if ((V.npc.includes("Robin") && !npc) || npc === "Robin") {
 		return statDisplay.statChange("Robin's Confidence", 1, "purple");
+	} else if ((V.npc.includes("Doren") && !npc) || npc === "Doren") {
+		return statDisplay.statChange("Doren's Protectiveness", 1, "purple");
 	} else if (npc) targetName = npc + "'s";
 	else if (V.npc.length >= 2) targetName = V.npc[0] + "'s";
 	return statDisplay.statChange(`${targetName} Dominance`, 1, "purple");
@@ -729,6 +744,8 @@ statDisplay.create("ggdom", npc => {
 	let targetName = "";
 	if ((V.npc.includes("Robin") && !npc) || npc === "Robin") {
 		return statDisplay.statChange("Robin's Confidence", 2, "purple");
+	} else if ((V.npc.includes("Doren") && !npc) || npc === "Doren") {
+		return statDisplay.statChange("Doren's Protectiveness", 2, "purple");
 	} else if (npc) targetName = npc + "'s";
 	else if (V.npc.length >= 2) targetName = V.npc[0] + "'s";
 	return statDisplay.statChange(`${targetName} Dominance`, 2, "purple");
@@ -737,6 +754,8 @@ statDisplay.create("gggdom", npc => {
 	let targetName = "";
 	if ((V.npc.includes("Robin") && !npc) || npc === "Robin") {
 		return statDisplay.statChange("Robin's Confidence", 3, "purple");
+	} else if ((V.npc.includes("Doren") && !npc) || npc === "Doren") {
+		return statDisplay.statChange("Doren's Protectiveness", 3, "purple");
 	} else if (npc) targetName = npc + "'s";
 	else if (V.npc.length >= 2) targetName = V.npc[0] + "'s";
 	return statDisplay.statChange(`${targetName} Dominance`, 3, "purple");

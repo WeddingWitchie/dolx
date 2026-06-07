@@ -212,7 +212,7 @@ window.wetnessKeyword = wetnessKeyword;
 
 /**
  * Returns an optional wetness prefix for the article of clothing.
-
+ 
  * @param {string} slot clothing article slot used
  * @returns {string} printable integrity prefix
  */
@@ -444,15 +444,15 @@ function outfitChecks() {
 			wornSetupClothes("lower").skirt === 1) ||
 		(wornSetupClothes("over_lower").skirt === 1 && V.worn.lower.type.includes("naked")) ||
 		(V.worn.over_lower.type.includes("naked") && wornSetupClothes("lower").skirt === 1);
-	T.bottomExposed = V.worn.over_lower.name === "naked" && V.worn.lower.name === "naked" && !V.worn.under_lower.type.includes("covered");
+	T.bottomExposed = V.worn.over_lower.name === "naked" && V.worn.lower.name === "naked" && !V.worn.under_lower.type.includes("lower_covering");
 	T.shirtless =
 		V.worn.over_upper.name === "naked" &&
 		V.worn.upper.name === "naked" &&
-		!V.worn.lower.type.includes("covered") &&
-		!V.worn.under_upper.type.includes("covered");
+		!V.worn.lower.type.includes("overalls") &&
+		!V.worn.under_upper.type.includes("torso_covering");
 
 	T.topless =
-		V.worn.over_upper.name === "naked" && V.worn.upper.name === "naked" && V.worn.under_upper.name === "naked" && !V.worn.lower.type.includes("covered");
+		V.worn.over_upper.name === "naked" && V.worn.upper.name === "naked" && V.worn.under_upper.name === "naked" && !V.worn.lower.type.includes("overalls");
 	T.bottomless = V.worn.over_lower.name === "naked" && V.worn.lower.name === "naked" && V.worn.under_lower.name === "naked";
 	T.overNaked = V.worn.over_lower.name === "naked" && V.worn.over_upper.name === "naked";
 	T.middleNaked = T.shirtless && T.bottomExposed;
@@ -462,7 +462,10 @@ function outfitChecks() {
 	/* Temporary $worn[slot] variables. Generally called as _bottom.integrity or _top.name */
 	const topLayers = [V.worn.over_upper, V.worn.upper, V.worn.under_upper];
 	const bottomLayers = ["over_lower", "lower", "under_lower"];
-	T.top = topLayers.find(item => item.name !== "naked" && (!V.worn.lower || item !== V.worn.lower || item.type.includes("covered"))) || null;
+	T.top =
+		topLayers.find(
+			item => item.name !== "naked" && (!V.worn.lower || item !== V.worn.lower || item.type.includes("torso_covering") || item.type.includes("overalls"))
+		) || null;
 	T.topUnder = topLayers.slice(topLayers.indexOf(T.top) + 1).find(item => item.name !== "naked") || null;
 	T.bottom =
 		V.worn[
@@ -672,7 +675,7 @@ window.resolveValue = resolveValue;
 
 /**
  * This macro sets $rng. If the variable $rngOverride is set, $rng will always be set to that.
- * Set $rngOverride in the console for bugtesting purposes. Remember to unset it after testing is finished.
+ * Set $rngOverride in the console for bug testing purposes. Remember to unset it after testing is finished.
  * With two arguments, it sets $rng to a random value between the first arg and the second arg. This can be used to guarantee $rng is set to a specific value.
  * With one argument, it sets $rng to a random value between 1 and the arg.
  * With no arguments, it sets $rng to a random value between 1 and 100.
@@ -713,7 +716,7 @@ window.nullable = nullable;
  * This inputs an icon img tag, using the given filename.
  * Example: <<icon "bed.png">>
  * <<icon "bed.png" "nowhitespace">> does not add a trailing whitespace for formatting.
- * <<icon "bed.png" "infront">> will cause the icon to layer ontop of the next one
+ * <<icon "bed.png" "infront">> will cause the icon to layer on top of the next one
  */
 Macro.add("icon", {
 	handler() {
@@ -847,3 +850,161 @@ Macro.add("tml", {
 		this.output.append(link);
 	},
 });
+
+
+/**
+ * Sets a temporary variable checkResults to the outcome of the provided skill / status checks.
+ *
+ * The "physique" check's maximum value defaults to the player's "physiquesize", aka their BODY SIZE'S maximum physique.
+ * 
+ * The naked checks check if the player is wearing clothes on the associated body parts. Clothes with the "Naked" Trait are ignored.
+ * The "checkMin" and "checkMax" values are also ignored for these checks.
+ * 
+ * The "true" EventType will only use its baseChance value.
+ * EventChecks format:
+ ** __eventRequests__ _Array\<EventTypes>_ - The event requests to be evaluated.
+ * 
+ * EventRequest format:
+ ** __checkType__ _EventTypes_ - The parameter to be evaluated.
+ ** __baseChance__ _number_ - The base chance (0 to 100 percent) that the check succeeds, AFTER the randomized value has been passed. Defaults to 100.
+ ** __checkMin__ _number_ - The minimum randomized value that the parameter will need to pass, inclusive. Defaults to 1.
+ ** __checkMax__ _number_ - The maximum randomized value that the parameter will need to pass, inclusive. Defaults to the skill or stat's maximum value.
+ ** __checkFail__ _boolean_ - Check if the player fails instead of succeeds at the check. Defaults to False.
+ ** __includeBurden__ _boolean_ - Include the Temple Burden's influence in the evaluations. Defaults to True.
+ *** The Temple's Burden negatively influences the following Skill Checks:
+ *** Physique, Willpower, Athletics, Dancing, Housekeeping, Skulduggery, Swimming, Tending, English
+ * 
+ * @param {list<EventRequest>} eventRequests A list of requests to be checked.
+ * @returns {void} Each index in checkResults corresponds to its requested event. How the outcome is interpreted is up to the caller.
+ ** 1 means it failed.
+ ** 2 means it succeeded.
+ ** -1 means the player failed the check, but the Temple's Burden is activated.
+ ** -2 means the player succeeded the check, but the Temple's Burden is activated.
+ */
+function eventChecks(eventRequests) {
+	V.temple_burden ??= 0;
+	T.checkResults = [];
+
+	for (let i = 0; i < eventRequests.length; i++) {
+		let curCheckType = eventRequests[i].checkType;
+		if (curCheckType === undefined) throw new Error(`eventChecks: 'eventRequests[${i}].checkType' is 'undefined'`);
+		let curBaseChance = eventRequests[i].baseChance ?? 100;
+		let curCheckMin = eventRequests[i].checkMin ?? 1;
+		let curCheckMax = eventRequests[i].checkMax;
+		let curCheckFail = eventRequests[i].checkFail ?? false;
+		let curIncludeBurden = eventRequests[i].includeBurden ?? true;
+
+		let baseOutcome = curBaseChance >= random(1, 100);
+		let finalOutcome = 0;
+		/** 
+		 * I had to sort of guess where the values for each of these skill checks are stored. Some may use the wrong variables
+		 * and will need to be fixed.
+		 */
+		if (curCheckType === "physique") {
+			// Need special-cased code for the physique check.
+			let templeActivation = curIncludeBurden && (V.temple_burden >= random(1, 100));
+			let playerOutcome = currentSkillValue(curCheckType) >= random(curCheckMin, curCheckMax ?? V.physiquesize);
+			finalOutcome = ((curCheckFail ? !(baseOutcome && playerOutcome) : (baseOutcome && playerOutcome)) ? 2 : 1) * (templeActivation ? -1 : 1);
+		}
+		else if (
+			[
+				"willpower", "athletics", "danceskill", "housekeeping", "skulduggery", "swimmingskill", "tending",
+				"english"
+			].includes(curCheckType)
+		) {
+			/**
+			 * If we want to check if the player fails, take the inverse of the base chance and the player's outcome.
+			 * Then, convert that into 2 (for success) or 1 (for failure).
+			 * Then, make the output negative if the Temple's Burden activated during the skill check.
+			*/
+			let templeActivation = curIncludeBurden && (V.temple_burden >= random(1, 100));
+			let playerOutcome = currentSkillValue(curCheckType) >= random(curCheckMin, curCheckMax ?? 1000);
+			finalOutcome = ((curCheckFail ? !(baseOutcome && playerOutcome) : (baseOutcome && playerOutcome)) ? 2 : 1) * (templeActivation ? -1 : 1);
+		}
+		else if (
+			[
+				"seductionskill", "oralskill", "vaginalskill", "penileskill", "analskill", "handskill", "feetskill", "bottomskill",
+				"thighskill", "chestskill", "science", "maths", "history"
+			].includes(curCheckType)
+		) {
+			/**
+			 * If we want to check if the player fails, take the inverse of the base chance and the player's outcome.
+			 * Then, convert that into 2 (for success) or 1 (for failure).
+			*/
+			let playerOutcome = currentSkillValue(curCheckType) >= random(curCheckMin, curCheckMax ?? 1000);
+			finalOutcome = ((curCheckFail ? !(baseOutcome && playerOutcome) : (baseOutcome && playerOutcome)) ? 2 : 1);
+		} else if (curCheckType === "hairlength") {
+			// Need special-cased code for the "hairlength" eventCheck.
+			let playerOutcome = V[curCheckType] >= random(curCheckMin, curCheckMax ?? 1000);
+			finalOutcome = ((curCheckFail ? !(baseOutcome && playerOutcome) : (baseOutcome && playerOutcome)) ? 2 : 1);
+		} else if (curCheckType === "genitalskill") {
+			// Need special-cased code for the "genitalskill" eventCheck.
+			curCheckMax ??= 1000;
+			if (V.player.penisExist && V.player.vaginaExist) playerOutcome = Math.floor((currentSkillValue("vaginalskill") + currentSkillValue("penileskill")) / 2) >= random(curCheckMin, curCheckMax);
+			else if (V.player.penisExist) playerOutcome = currentSkillValue("penileskill") >= random(curCheckMin, curCheckMax);
+			else if (V.player.vaginaExist) playerOutcome = currentSkillValue("vaginalskill") >= random(curCheckMin, curCheckMax);
+			else throw new Error(`eventChecks: the player seems to have neither a penis nor a vagina. what?'`);
+			finalOutcome = ((curCheckFail ? !(baseOutcome && playerOutcome) : (baseOutcome && playerOutcome)) ? 2 : 1);
+		} else if (
+			[
+				"spray", "net", "baton", "whip"
+			].includes(curCheckType)
+		) {
+			/**
+			 * I believe the sprays, nets, batons, and whip skills are stored in prof.spray, prof.net, prof.baton, and prof.whip
+			 * 
+			 * There seems to be a "pickaxe" variable in the V.prof object. Will exclude this from the checks, since I don't see
+			 * a value for it in the existing save file variables.
+			*/
+			let playerOutcome = V["prof"][curCheckType] >= random(curCheckMin, curCheckMax ?? 1000);
+			finalOutcome = ((curCheckFail ? !(baseOutcome && playerOutcome) : (baseOutcome && playerOutcome)) ? 2 : 1);
+		} else if (
+			[
+				"hairnaked", "facenaked", "necknaked", "uppernaked", "handsnaked", "handheldnaked", "lowernaked", "legsnaked",
+				"feetnaked"
+			].includes(curCheckType)
+		) {
+			// Checks which of the player's slots lack clothing. Clothes with the "Naked" Trait will be ignored.
+			let playerOutcome = false;
+			switch (curCheckType) {
+				case "hairnaked":
+					playerOutcome = V.worn.over_head.type.includes("naked") && V.worn.head.type.includes("naked");
+					break;
+				case "facenaked":
+					playerOutcome = V.worn.face.type.includes("naked");
+					break;
+				case "necknaked":
+					playerOutcome = V.worn.neck.type.includes("naked");
+					break;
+				case "uppernaked":
+					playerOutcome = V.worn.upper.type.includes("naked") && V.worn.over_upper.type.includes("naked") && V.worn.under_upper.type.includes("naked");
+					break;
+				case "handsnaked":
+					playerOutcome = V.worn.hands.type.includes("naked");
+					break;
+				case "handheldnaked":
+					playerOutcome = V.worn.handheld.type.includes("naked");
+					break;
+				case "lowernaked":
+					playerOutcome = V.worn.lower.type.includes("naked") && V.worn.over_lower.type.includes("naked") && V.worn.under_lower.type.includes("naked");
+					break;
+				case "legsnaked":
+					playerOutcome = V.worn.legs.type.includes("naked");
+					break;
+				case "feetnaked":
+					playerOutcome = V.worn.feet.type.includes("naked");
+					break;
+				default:
+					throw new TypeError(`eventChecks: THIS SHOULD NOT BE POSSIBLE. PLEASE REPORT`);
+			}
+			finalOutcome = ((curCheckFail ? !(baseOutcome && playerOutcome) : (baseOutcome && playerOutcome)) ? 2 : 1);
+		} else if (eventRequests === "true") {
+			finalOutcome = baseOutcome;
+		} else {
+			throw new TypeError(`eventChecks: invalid string for 'eventRequests[${i}].checkType': ${eventRequests[i].checkType}`);
+		}
+		T.checkResults.push(finalOutcome);
+	}
+}
+window.eventChecks = eventChecks;
+DefineMacro("eventChecks", eventChecks);

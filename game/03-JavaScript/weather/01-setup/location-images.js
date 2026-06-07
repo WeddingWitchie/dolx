@@ -884,6 +884,14 @@ setup.LocationImages = {
 				condition: () => Weather.isSnow,
 				image: "snow.png",
 			},
+			snowroof: {
+				condition: () => Weather.isSnow,
+				image: "snowroof.png",
+				animation: {
+					frameDelay: 250,
+					cycleDelay: () => random(3, 7, true) * 1000,
+				}
+			},
 		},
 		emissive: {
 			image: "emissive.png",
@@ -892,21 +900,44 @@ setup.LocationImages = {
 			strength: 2,
 		},
 		weather: {
-			fogDistributionCurve: 2,
-			rainSplashEnabled: true,
+			fogDistributionCurve: 1.5,
+			rainSplashEnabled: false,
 			fogEnabled: true,
+			fogOpacity: 0.5,
 
 			groundBounds: {
 				splashes: {
-					top: 4,
+					top: 0,
 					bottom: 0,
 				},
 				fog: {
-					top: 13,
+					top: 20,
 					bottom: 0,
 				},
 			},
 		},
+		particles: [
+			{
+				condition: () => Weather.isSnow || (!Weather.isSnow && Weather.lightsOn),
+				type: "smoke",
+				shape: "image",
+				image: "img/misc/sky/clouds/fog/2.png",
+				origin: [30, 60],
+				rate: 3,
+				size: 4,
+				riseSpeed: 3,
+				spread: 2,
+				alpha: 0.2,
+				color: "rgba(195, 195, 195, 0.43)",
+				windSpeed: 1,
+				windDirection: 1,
+				minFadeDistance: 5,
+				maxFadeDistance: 10,
+				fadeTime: 4,
+				driftAmplitude: 1,
+				driftWavelength: 10,
+			},
+		],
 	},
 	cafe: {
 		folder: "cafe",
@@ -2109,13 +2140,13 @@ setup.LocationImages = {
 				rate: 3, // Particles generated per second
 				size: 4, // Size of the particle in px
 				riseSpeed: 0.8,
-				spread: 6,
+				spread: 5,
 				alpha: 1,
 				color: "#4c4c4cff", // Last 2 numbers are the alpha (99 in hex means 60%)
-				windSpeed: 3, // strength of the wind, will push the particles in a direction
+				windSpeed: 2, // strength of the wind, will push the particles in a direction
 				windDirection: 0, // degrees - A value of 0 is right (east)
 				minFadeDistance: 1, // minimum fade time of the particles (in distance (px))
-				maxFadeDistance: 25, // maximum fade time
+				maxFadeDistance: 35, // maximum fade time
 				fadeTime: 1.2, // In seconds
 				driftAmplitude: 0, // curve - mostly useful if we want the smoke to travel straight up (but in a wobbly curve)
 				driftWavelength: 0, // wavelength of the curve
@@ -2129,13 +2160,13 @@ setup.LocationImages = {
 				rate: 3,
 				size: 4,
 				riseSpeed: 0.8,
-				spread: 8,
+				spread: 7,
 				alpha: 1,
 				color: "#484848ff",
 				windSpeed: 2,
 				windDirection: 0,
 				minFadeDistance: 1,
-				maxFadeDistance: 20,
+				maxFadeDistance: 30,
 				fadeTime: 1.2,
 				driftAmplitude: 0,
 				driftWavelength: 0,
@@ -3076,10 +3107,6 @@ setup.LocationImages = {
 			snow: {
 				condition: () => Weather.isSnow,
 				image: "snow.png",
-				animation: {
-					frameDelay: 300,
-					cycleDelay: () => 1200,
-				},
 			},
 		},
 		emissive: {
@@ -3102,6 +3129,28 @@ setup.LocationImages = {
 				},
 			},
 		},
+		particles: [
+			{
+				condition: () => Weather.isSnow,
+				type: "smoke",
+				shape: "image",
+				image: "img/misc/sky/clouds/fog/2.png",
+				origin: [9, 63],
+				rate: 1,
+				size: 1,
+				riseSpeed: 2,
+				spread: 1,
+				alpha: 0.5,
+				color: "rgba(195, 195, 195, 0.43)",
+				windSpeed: 1,
+				windDirection: 1,
+				minFadeDistance: 5,
+				maxFadeDistance: 7,
+				fadeTime: 2,
+				driftAmplitude: 1,
+				driftWavelength: 10,
+			},
+		],
 	},
 	police_station: {
 		folder: "police-station",

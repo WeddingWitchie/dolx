@@ -152,6 +152,31 @@ Tulips grow in great patches near the riverbank.
 		<br>
 	<<elseif _robin_location is "park" and $exposed lte 0 and $balloonStand.open is true and $balloonStand.robin.status is "unaffected">>
 		<<balloonRobinIntro>>
+	<<elseif isInPark("doren") and $dorenintro is 1 and $weekly.dorenparkmeet isnot true and C.npc.Doren.love gte 90 and $loft_known is 1 and $loft_doren isnot 1>>
+		<<set $weekly.dorenparkmeet to true>>
+		<<npc "Doren">><<person1>>
+		You spot Doren setting up a little library on the lawn. It's made from a dollhouse, its attic a miniature library. The post is cemented down in a flower-filled planter.
+		<br><br>
+		<<He>> greets you with a smile. "<<Lass>>! Good <<= Time.hour lt 12 ? `morning` : `afternoon`>>. A few volunteers and I recently ran a book drive, and built this little library. I'm quite proud of it." <<He>> rests <<his>> hands on <<his>> waist with a grin.
+		<br><br>
+		<<if $loft_known is 1 and $loft_doren isnot 1 and C.npc.Doren.love gte 90>>
+			<<lofticon>><<link [[Tell Doren about the orphanage loft|Doren Loft]]>><</link>><<set $phase to 1>>
+			<br>
+		<</if>>
+		<<ind>><<link [[Leave|Doren Loft 2]]>><<set $phase to 2>><<set $phase2 to 1>><</link>>
+	<<elseif isInPark("sam") and $Sam_Park_Intro isnot 1 and $exposed lte 0>>
+		<<set $Sam_Park_Intro to 1>>
+		<<npc "Sam">><<person1>>
+		A duck waddles in front of you. It looks up at you, as if expecting something. Before you can react, a hand appears, holding a handful of corn.
+		<br><br>
+		"Give it some of this."
+		<br><br>
+		<i>It's Sam.</i>
+		<br><br>
+
+		<<link [[Feed the duck|Sam Park Intro]]>><<set $phase to "feed">> <</link>>
+		<br>
+		<<link [[Greet Sam|Sam Park Intro]]>><<set $phase to "greet">><</link>>
 	<<elseif $eventskip is 0 or $eventskip is 1>>
 		<<if $options.mapTop is true>>
 			<<map "park">>
@@ -215,6 +240,12 @@ Tulips grow in great patches near the riverbank.
 				<<parkicon "fountain">><<link [[Approach|Whitney Park]]>><<set $daily.whitney.textTrigger to true>><<if $daily.whitney.text is undefined>><<set $daily.whitney.text to 0>><<else>><<set $daily.whitney.text += 1>><</if>><</link>>
 				<br><br>
 			<</if>>
+			<<if isInPark("sam") and $Sam_Park_Intro is 1>>
+				You see Sam standing beside the bridge.
+				<br>
+				<<parkicon "bridge">><<link [[Walk over to <<nnpc_him "Sam">>|Sam Park]]>><</link>>
+				<br><br>
+			<</if>>
 		<</if>>
 		<<icon "men-toilet.png">><<link [[Men's toilets (0:01)|Men's Toilets]]>><<pass 1>><<endevent>><</link>>
 		<br>
@@ -223,6 +254,9 @@ Tulips grow in great patches near the riverbank.
 		<<if $leftleg is "bound" or $rightleg is "bound">>
 			<<set $_boundType to ($leftleg is "bound" ? ($rightleg is "bound" ? "both legs" : "your left leg") : "your right leg")>>
 			You cannot go for a run with $_boundType bound.
+			<br>
+		<<elseif $worn.feet.type.includes("shackle")>>
+			You cannot go for a run while shackled.
 			<br>
 		<<elseif $worn.feet.type.includes("heels") and ($exposed is 0 or Time.dayState is "night")>>
 			<<heelsicon>><<link [[Exercise in heels (0:30)|Park Exercise Heels]]>><<athletics 3>><<pass 30>><<tiredness 4>><<stress -1>><<slimeEventEnd "running">><</link>><<ggtiredness>><<gathletics>><<lstress>>

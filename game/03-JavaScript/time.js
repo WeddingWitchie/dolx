@@ -1863,6 +1863,10 @@ function dailyNPCEffects() {
 			C.npc.Sydney.chastity.anus = "";
 			V.sydneyAnalShieldComment = true;
 		}
+		if (V.sydney.heartbroken) V.sydney.heartbroken--;
+		else if (V.sydney.heartbroken === 0) {
+			delete V.sydney.heartbroken;
+		}
 	}
 
 	// Great Hawk
@@ -2215,7 +2219,7 @@ function dailyTransformationEffects() {
 	}
 
 	if (V.auriga_scar && V.location !== "asylum") {
-		const scarTrauma = V.auriga_scar * 50;
+		const scarTrauma = V.auriga_scar * 25;
 		const scarAwareness = V.auriga_scar;
 		const scarPurity = V.auriga_scar * -5;
 		if (V.trauma <= (V.traumamax / 5) * 3) statChange.trauma(scarTrauma);

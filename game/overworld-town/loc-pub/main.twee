@@ -1,6 +1,13 @@
 :: Widgets Pub [widget]
 
 <<widget "landryoptions">>
+	<<if $loft_gh is 1 and $landry_loft_known isnot 1>>
+		<<socialiseicon "ask">><<link [[Ask for help hiring workers|Pub Window Loft Ask]]>><</link>>
+		<br>
+	<<elseif $landry_loft_known is 1 and $loft_gh is 1 and $money gte 500000>>
+		<<highicon>><<link [[Hand Landry the money to hire workers|Pub Window Loft Purchase]]>><<money -500000 "orphanageUpgrades">><<endevent>><</link>>
+		<br>
+	<</if>>
 	<<if $blackmoney gte 1>>
 		<<highicon>><<link [[Sell stolen goods|Pub Sell]]>><</link>>
 		<br>
@@ -2140,7 +2147,7 @@ Landry hands the stones back to you. "The brown fox insisted that you should hol
 	<</if>>
 	<br><br>
 
-	"So I heard. You've done a good thing," Landry says. "Sorry I left out some details. The less you knew, the safer you were. Those friends of <<nnpc_his Avery>> will be cowed, but I'm under no illusions. This war is far from over, but this is the first significant blow we've struck."
+	"So I heard. You've done a good thing," Landry says. "Sorry, I left out some details. The less you knew, the safer you were. Those friends of <<nnpc_his Avery>> will be cowed, but I'm under no illusions. This war is far from over, but this is the first significant blow we've struck."
 	<br><br>
 
 	<<He>> pauses, but continues. "I'm sorry about the unforeseen complications. You weren't meant to be that close when they went off."
@@ -2347,30 +2354,32 @@ Landry leans forward. "You're already involved, and you're dangerously close to 
 <<getouticon>><<link [[Leave|Pub]]>><<endevent>><</link>>
 <br>
 
-
-:: Pub Reversal
-<<effects>>
-
-<<if $weekly.landryReversalTimer and $landryReversalJob>>
-	"I'm on it," <<he>> says. "Patience."
-<<elseif $landryReversalJob>>
-	<<set _variant to $player.gender is "m"?"(F)":"(M)">>
-	"Here you go," <<he>> hands you a <<= $player.gender is "m" ? "blue" : "pink">> pill.
-	| <span class="blue">+1 Choice Reversal pill</span>
-	<<set $sexStats.pills["pills"]["X-Change Choice Reversal "+_variant].owned++>>
-	<<set $sexStats.pills.boughtOnce to true>>
-	<<unset $xchange.remyChoicePill>>
-	<<unset $landryReversalJob>>
-	<<unset $wrenStealReversal>>
-<<else>>
-	"That'll cost you <span class="pink">£2000,</span>" <<he>> says. "It'll take a week, give or take."
-	<br><br> 
-	<<if $money gte 200000>>
-		<<highicon>><<link [[Pay (£2000)|Pub Landry]]>><<endevent>><<money -200000 "pub">><<set $weekly.landryReversalTimer to 1>><<set $landryReversalJob to true>><<unset $xchange.remyChoicePill>><</link>>
-	<<else>>
-		You can't afford the expense.
-	<</if>>	
-<</if>>
+:: Pub Window Loft Ask
+<<effects>><<set $landry_loft_known to 1>>
+You tell Landry about the loft at the orphanage, and your plan to build a bay window there.
+<br><br>
+"A good place for secrets," Landry muses. "Alright." <<He>> nods, and picks up <<his>> phone.
+<br><br>
+"Yes. Yes. It's—" <<he>> cuts off. "That's right." <<He>> hangs up, and raises five fingers. "<<printmoney 500000>>. The workers will arrive after you make the payment."
 <br><br>
 
-<<link [[Back|Pub Landry]]>><<endevent>><</link>>
+<<if $money gte 500000>>
+	<<highicon>><<link [[Hand over the money|Pub Window Loft Purchase]]>><<money -500000 "orphanageUpgrades">><<endevent>><</link>>
+	<br>
+<<else>>
+	<span class="blue">You don't have enough money for the payment.</span>
+	<br>
+<</if>>
+<<getouticon>><<link [[Leave|Pub]]>><<endevent>><</link>>
+<br>
+
+:: Pub Window Loft Purchase
+<<effects>><<pass 20>>
+<<generate1>><<generate2>><<generate3>><<generate4>>
+Landry counts the money, then points at the table in the corner. "Twenty minutes."
+<br><br>
+You walk over to the table and wait. Soon, a <<fullGroup>> arrive. Landry steps over to introduce you, and you discuss your plan with them.
+<br><br>
+They lead you to their van, and you give directions to the orphanage.
+<br><br>
+<<link [[Next (0:10)|Bird Loft 1]]>><<set $loft_gh to 2>><<set $loft_upgrade += 1>><<pass 10>><</link>>

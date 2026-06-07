@@ -746,6 +746,16 @@ function isInPark(name) {
 				&& C.npc.Whitney.init === 1 && Weather.precipitation !== "none"
 				&& Time.dayState === "day" && !Time.schoolTime
 				&& V.daily.whitney.park === undefined && V.pillory.tenant.special.name !== "Whitney";
+		case "doren":
+			// prettier-ignore
+			return C.npc.Doren.init === 1
+				&& Time.hour >= 9 && Time.hour <= 15
+				&& Time.weekDay === 7;
+		case "sam":
+			// prettier-ignore
+			return C.npc.Sam.init === 1
+				&& (Time.hour >= 6 && Time.hour < 7)
+				&& Weather.precipitation === "none";
 		default:
 			return false;
 	}
@@ -1354,6 +1364,12 @@ function clothesIndex(slot, itemToIndex) {
 }
 window.clothesIndex = clothesIndex;
 
+/**
+ * @param {string} skill The name of the requested skill.
+ * @param {number} disableModifiers How much of an effect that modifiers will have on the player's current skill. Higher values means a lower effect. Stops at 2.
+ * @param {number} [disableStatNerf=0] If 0 (default), multiplies the result by V.options.statNerf/100; pass non-zero to skip the stat nerf.
+ * @returns Returns the current value of the requested skill, accounting for potential modifiers.
+ */
 function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 	if (skill === "physique") {
 		if (V.physique == null && typeof window.updatePhysique === "function") {
@@ -2110,6 +2126,17 @@ function isPossibleLoveInterest(name) {
 	}
 }
 window.isPossibleLoveInterest = isPossibleLoveInterest;
+
+window.isPossibleLoveInterestVirginity = function(taker) {
+	if (typeof taker !== "string") return false;
+	if (taker.includes(" and ")) {
+		return taker.split(" and ").some(name => 
+			isPossibleLoveInterest(name.trim())
+		);
+	}
+	return isPossibleLoveInterest(taker);
+};
+window.isPossibleLoveInterestVirginity = isPossibleLoveInterestVirginity;
 
 function fameTotal() {
 	let result = 0;

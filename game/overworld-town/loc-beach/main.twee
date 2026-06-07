@@ -12,6 +12,18 @@ You are on the beach.
 	<<elseif Weather.isOvercast>>
 		The clouds have driven away most would-be visitors, but there are still people strolling along the water's edge.
 	<</if>>
+	<<if Time.weekDay is 1 and Time.hour is 11>> /* 11-12 */
+		You spot Doren
+		<<switch random(1,2)>>
+			<<case 1>>swimming from afar in
+				<<if C.npc.Doren.gender isnot "m">>
+					a <<= either ("bikini","swimsuit")>>.
+					<<else>>
+					a <<= either ("board shorts","speedo")>>.
+				<</if>>
+			<<case 2>>surfing from far away in a wet suit.
+		<</switch>>
+	<</if>>
 <<elseif Weather.dayState is "dawn">>
 	<<if !Weather.isOvercast>>
 		It is a popular destination for joggers, some of who bring dogs with them. A few families are setting up windbreakers. A group of students are playing volleyball.
@@ -179,6 +191,16 @@ You are on the beach.
 	<<elseif _robin_location is "beach" and $balloonStand.open is true and $balloonStand.robin.status is "unaffected">>
 		<<balloonRobinIntro>>
 	<<else>>
+		<<if Time.weekDay is 1 and Time.hour is 9 and !Weather.isOvercast>> /* 9-10 */
+			<<if pcAreArmsBound("both")>>
+				You could join in cleaning up the beach, <span class="blue">if your arms weren't bound.</span>
+			<<else>>
+			A group of volunteers of different ages in hi-vis vests cleaning up the beach. You spot Doren among them.
+			<br>
+			<<icon "community-service.png">><<link [[Join in (1:00)|Doren Beach Volunteer]]>><<pass 1 hour>><<tiredness 12>><<famegood 1>><</link>><<ggtiredness>>
+			<br><br>
+			<</if>>
+		<</if>>
 		<<if $scienceproject is "ongoing" and $sciencephallusknown is 1 and $sciencephallus lt 10 and Time.dayState isnot "night" and Weather.precipitation is "none">>
 			<<investigateicon>><<link [[Find participant for phallus project (0:15)|Beach Phallus]]>><<pass 15>><</link>>
 			<br>
@@ -223,12 +245,25 @@ You are on the beach.
 			<br>
 			<<set $_boundType to ($leftleg is "bound" ? ($rightleg is "bound" ? "both legs" : "your left leg") : "your right leg")>>
 			You cannot go for a run with $_boundType bound.
+		<<elseif $worn.feet.type.includes("shackle")>>
+			<br>
+			You cannot go for a run while shackled.
 		<<elseif $worn.feet.type.includes("heels")>>
 			<br>
 			<<walkicon>><<link [[Take a walk in heels (0:30)|Beach Heel Walk]]>><</link>><<gtiredness>><<lstress>>
 		<<else>>
 			<br>
 			<<runicon>><<link [[Go for a run (0:30)|Beach Run]]>><</link>><<gtiredness>><<gathletics>><<lstress>>
+		<</if>>
+		<<if Time.weekDay is 1 and (Time.hour gte 9 and Time.hour lte 10) and !Weather.isOvercast>>
+			<br>
+			<<if pcAreArmsBound("both")>>
+				You could join in cleaning up the beach, <span class="blue">if your arms weren't bound.</span>
+			<<else>>
+				A group of volunteers of different ages in hi-vi vests cleaning up the beach. You spot Doren among them.
+				<br>
+				<<icon "community-service.png">><<link [[Join in (1:00)|Doren Beach Volunteer]]>><<pass 1 hour>><<tiredness 12>><<famegood 1>><</link>><<ggtiredness>>
+			<</if>>
 		<</if>>
 		<<if !Weather.isOvercast and Time.dayState is "night">>
 			<br>
@@ -238,6 +273,8 @@ You are on the beach.
 			<br>
 			<<if pcAreArmsBound("both")>>
 				You could join in the game of volleyball, <span class="blue">if your arms weren't bound.</span>
+			<<elseif Time.weekDay is 1 and Time.hour is 10>> /* 10-11 */
+				<<socialiseicon "volleyball">><<link [[Volleyball|Doren Beach Volleyball]]>><</link>>
 			<<else>>
 				<<socialiseicon "volleyball">><<link [[Volleyball|Beach Volleyball]]>><</link>>
 			<</if>>
@@ -789,6 +826,10 @@ The <<person>> leaves you. <<He>> looks dejected.
 <<athletics 4>><<physique 1>>
 <<pass 30>><<location "beach">><<effects>>
 
+<<if $exposed gte 1>>
+	<<slimeEventEnd "running">>
+<</if>>
+
 You run along the shore.
 <<if Time.dayState is "night">>
 	<<if Weather.precipitation is "rain">>
@@ -824,6 +865,11 @@ You run along the shore.
 <</if>>
 <<tiredness 6>><<stress -6>>
 <br><br>
+
+<<if !Time.isWeekEnd() and (Time.hour === 6 && between(Time.minute, 0, 29))>>
+    Doren <<= either ("waves", "nods")>> at you as <<nnpc_he "Doren">> <<= either ("jogs", "runs")>> by.
+    <br><br>
+<</if>>
 
 <<physique 1>>
 <br><br>
@@ -1330,7 +1376,7 @@ The <<person>> tears down the beach past clusters of startled visitors. It shoul
 
 	You ignore <<him>> as you put your clothes on, finally covering yourself again.
 	<br><br>
-	
+
 	<<clotheson>>
 
 	<<link [[Next|Beach]]>><<endevent>><</link>>
@@ -1365,9 +1411,7 @@ You are already attracting attention and stares. You decide to turn around and r
 <<else>>
 	You think you are about to catch <<him>>, but outside the arcade, <<he>> slips into a crowd of people and disappears. You run past the crowd, trying to find <<him>>, but you see no sign of <<him>> or your clothes.
 	<br><br>
-	You spend a frantic minute trying to work out where the thief went, but <<he>> has vanished into the flow of bodies around you. Meanwhile, everyone can see your fully exposed <<genitals>><<if $player.breastsize gte 3>>, <<breasts>>,<</if>> and <<bottom>>. 
-	<br><br>
-	Hundreds of pictures must already have been taken, and more people keep noticing the commotion, stopping, staring, and pulling out their phones. You look wildly for some way to escape.
+	You spend a minute trying desperately to find out which direction the thief went, but you can no longer make <<him>> out amongst the many people milling about. Meanwhile, everyone can see your fully exposed <<genitals>><<if $player.breastsize gte 3>>, <<breasts>>,<</if>> and <<bottom>>. Hundreds of pictures must have been taken of you, and even more people are showing up and pulling out their phones. You try to find a way to escape.
 	<br><br>
 	Finally, you spot a gap in the crowd and run through. You run down the street, hearing laughter and shouts behind you. You sprint into the nearest alleyway and escape.
 	<<garousal>><<gstress>><<gtrauma>><<stress 6>><<trauma 6>><<arousal 600>><<fameexhibitionism 30 "pic">>

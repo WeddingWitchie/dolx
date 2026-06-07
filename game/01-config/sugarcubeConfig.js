@@ -12,8 +12,8 @@ const StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.5.9.8 DoLP v0.745 DoLX 0.19.9",
-	versionName: `"Here Comes the Sun" edition`,
+	version: "0.5.10.6 DoLP v0.745 DoLX 0.19.9",
+	versionName: `"Lofts of Clothes" edition`,
 	sneaky: false,
 	socialMediaEnabled: true,
 	sourceLinkEnabled: false,
@@ -219,6 +219,10 @@ Config.navigation.override = function (dest) {
 				return "Commercial Alleyways";
 			case "Industrial alleyways":
 				return "Industrial Alleyways";
+
+			case "English Event2":
+			case "English Event2 Molest":
+				return "English Molest";
 
 			case "Cafe Fruit Salad":
 			case "Cafe Autumn Ale":

@@ -182,6 +182,7 @@
 			<<set $player.penissize to $playerPenisSizeBackup>>
 	<</if>>*/
 	<<unset $struggle>>
+	<<unset $softlock_prevent>>
 <</widget>>
 
 <<widget "generateActionsStruggle">>
@@ -646,10 +647,10 @@
 		<</switch>>
 		<<if $_changetype isnot true>>
 			<<set _mouthaction to {}>>
-			<<if $mouthstate is "struggle" and !$worn.face.type.includes("covered") and !$worn.face.type.includes("gag")>>
+			<<if $mouthstate is "struggle" and !$worn.face.type.includes("face_covering") and !$worn.face.type.includes("gag")>>
 				<<set _mouthaction["Keep closed"] to "rest">>
 				<<set _mouthaction["Open"] to "open">>
-			<<elseif $worn.face.type.includes("covered") or $worn.face.type.includes("gag")>>
+			<<elseif $worn.face.type.includes("face_covering") or $worn.face.type.includes("gag")>>
 				<<set _mouthaction["Rest"] to "rest">>
 			<<elseif $mouthstate is "struggle_pen">>
 				<<set _mouthaction["Rest"] to "rest">>
@@ -1326,9 +1327,11 @@
 			<<set $struggle.enemy[_capture_creature].location to "fled">>
 			<<if $leftaction is "capture" and _lurker_net_possible isnot true>>
 				<<set $leftaction to "rest">>
+				<<set $leftarmstate to "rest">>
 			<</if>>
 			<<if $rightaction is "capture" and _lurker_net_possible isnot true>>
 				<<set $rightaction to "rest">>
+				<<set $rightarmstate to "rest">>
 			<</if>>
 		<<else>>
 			<span class="red">The creature squirms aside.</span><<gnet>><<prof net 1>>
@@ -1360,13 +1363,13 @@
 			<<case 0>>
 				<<if $struggle.mouth.legs is "tentacles">>
 					The <<print $struggle.mouth.creature>>'s tentacles wrap around your neck.<<neutral 2>>
-				<<elseif $worn.face.type.includes("covered") or $worn.face.type.includes("gag")>>
+				<<elseif $worn.face.type.includes("face_covering") or $worn.face.type.includes("gag")>>
 					The <<print $struggle.mouth.creature>>'s <<struggle_appendage mouth>> rubs against your $worn.face.name.<<neutral 1>>
 				<<else>>
 					The <<print $struggle.mouth.creature>>'s <<struggle_appendage mouth>> rubs against your face.<<neutral 1>>
 				<</if>>
 			<<case 1>>
-				<<if $worn.face.type.includes("covered") or $worn.face.type.includes("gag")>>
+				<<if $worn.face.type.includes("face_covering") or $worn.face.type.includes("gag")>>
 					The <<print $struggle.mouth.creature>> plays with your $worn.face.name, <span class="blue">searching for a way in.</span><<neutral 2 "mouth">>
 					/*<<struggle_clothes mouth>>*/
 				<<else>>
@@ -1996,7 +1999,7 @@
 			<<set _struggle_exposed to "naked">>
 		<</if>>
 	<<elseif _args[0] is "mouth">>
-		<<if $worn.face.type.includes("covered") or $worn.face.type.includes("gag")>>
+		<<if $worn.face.type.includes("face_covering") or $worn.face.type.includes("gag")>>
 			<<set _struggle_exposed to "mask">>
 		<<else>>
 			<<set _struggle_exposed to "naked">>
@@ -2010,7 +2013,7 @@
 		<<else>>
 			The <<print $struggle[_args[0]].creature>>'s appendage prods your <<struggle_bodypart _args[0]>> through your $worn.over_upper.name.<<neutral 1>>
 		<</if>>
-		<<set $worn.over_upper.integrity -= 10>>
+		<<set $worn.over_upper.integrity -= 10>><<struggle_softlock_prevent>>
 		<<if $struggle[_args[0]].creature is "slime">>
 			<span class="purple">The fabric hisses as it dissolves in the slime.</span><<set $worn.over_upper.integrity -= 30>>
 		<<elseif $struggle[_args[0]].creature is "pale slime">>
@@ -2027,7 +2030,7 @@
 	<<elseif _struggle_exposed is "main_top">>
 		<<set $struggle[_args[0]].progress -= 1>>
 		<<if $struggle[_args[0]].legs is "tentacles">>
-			The <<print $struggle[_args[0]].creature>>'s tentacles tear your $worn.upper.name as they search for a way in.<<neutral 2>><<set $worn.upper.integrity -= 10>>
+			The <<print $struggle[_args[0]].creature>>'s tentacles tear your $worn.upper.name as they search for a way in.<<neutral 2>><<set $worn.upper.integrity -= 10>><<struggle_softlock_prevent>>
 		<<else>>
 			The <<print $struggle[_args[0]].creature>>'s appendage prods your <<struggle_bodypart _args[0]>> through your $worn.upper.name.<<neutral 1>>
 		<</if>>
@@ -2052,7 +2055,7 @@
 		<<else>>
 			The <<print $struggle[_args[0]].creature>>'s appendage prods your $worn.under_upper.name.
 		<</if>>
-		<<set $worn.under_upper.integrity -= 10>>
+		<<set $worn.under_upper.integrity -= 10>><<struggle_softlock_prevent>>
 		<<if $struggle[_args[0]].creature is "slime">>
 			<span class="purple">The fabric hisses as it dissolves in the slime.</span><<set $worn.under_upper.integrity -= 30>>
 		<<elseif $struggle[_args[0]].creature is "pale slime">>
@@ -2073,7 +2076,7 @@
 		<<else>>
 			The <<print $struggle[_args[0]].creature>> tears at your $worn.over_lower.name, trying to reach the <<struggle_bodypart _args[0]>> beneath.<<neutral 1>>
 		<</if>>
-		<<set $worn.over_lower.integrity -= 10>>
+		<<set $worn.over_lower.integrity -= 10>><<struggle_softlock_prevent>>
 		<<if $struggle[_args[0]].creature is "slime">>
 			<span class="purple">The fabric hisses as it dissolves in the slime.</span><<set $worn.over_lower.integrity -= 30>>
 		<<elseif $struggle[_args[0]].creature is "pale slime">>
@@ -2094,7 +2097,7 @@
 		<<else>>
 			The <<print $struggle[_args[0]].creature>> tears at your $worn.lower.name, trying to reach the <<struggle_bodypart _args[0]>> beneath.<<neutral 1>>
 		<</if>>
-		<<set $worn.lower.integrity -= 10>>
+		<<set $worn.lower.integrity -= 10>><<struggle_softlock_prevent>>
 		<<if $struggle[_args[0]].creature is "slime">>
 			<span class="purple">The fabric hisses as it dissolves in the slime.</span><<set $worn.lower.integrity -= 30>>
 		<<elseif $struggle[_args[0]].creature is "pale slime">>
@@ -2115,7 +2118,7 @@
 		<<else>>
 			The <<print $struggle[_args[0]].creature>> tears at your $worn.under_lower.name, trying to get to the <<struggle_bodypart _args[0]>> beneath.<<neutral 1>>
 		<</if>>
-		<<set $worn.under_lower.integrity -= 10>>
+		<<set $worn.under_lower.integrity -= 10>><<struggle_softlock_prevent>>
 		<<if $struggle[_args[0]].creature is "slime">>
 			<span class="purple">The fabric hisses as it dissolves in the slime.</span><<set $worn.under_lower.integrity -= 30>>
 		<<elseif $struggle[_args[0]].creature is "pale slime">>
@@ -2134,14 +2137,14 @@
 		<<if $struggle[_args[0]].legs is "tentacles">>
 			<<if $worn.genitals.name is "chastity parasite">>
 				The <<print $struggle[_args[0]].creature>>'s tentacles worm round your $worn.genitals.name, rubbing and squeezing it in the process. <span class="lewd">Your clearly aroused reaction encourages it further.</span>
-				<<arousal 200 "genitals">><<neutral 2 "genitals">><<set $worn.genitals.integrity -= 5>>
+				<<arousal 200 "genitals">><<neutral 2 "genitals">><<set $worn.genitals.integrity -= 5>><<struggle_softlock_prevent>>
 			<<else>>
-				The <<print $struggle[_args[0]].creature>>'s tentacles worm behind your $worn.genitals.name, brushing against your <<struggle_bodypart _args[0]>> as they search for a way in.<<neutral 2 "genitals">><<set $worn.genitals.integrity -= 10>>
+				The <<print $struggle[_args[0]].creature>>'s tentacles worm behind your $worn.genitals.name, brushing against your <<struggle_bodypart _args[0]>> as they search for a way in.<<neutral 2 "genitals">><<set $worn.genitals.integrity -= 10>><<struggle_softlock_prevent>>
 			<</if>>
 		<<else>>
 			<<if $worn.genitals.name is "chastity parasite">>
 				The <<print $struggle[_args[0]].creature>> attempts to tear at your $worn.genitals.name, but only succeed at squeezing it and <span>further arousing you.</span>
-				<<neutral 1 "genitals">><<arousal 100 "genitals">><<set $worn.genitals.integrity -= 5>>
+				<<neutral 1 "genitals">><<arousal 100 "genitals">><<set $worn.genitals.integrity -= 5>><<struggle_softlock_prevent>>
 			<<else>>
 				The <<print $struggle[_args[0]].creature>> tears at your $worn.genitals.name, trying to get to your <<struggle_bodypart _args[0]>> beneath.<<neutral 1 "genitals">><<set $worn.genitals.integrity -= 10>>
 			<</if>>

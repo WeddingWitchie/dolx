@@ -113,38 +113,8 @@ const statChange = (() => {
 			}
 		}
 
-		// Opium Addict trait: inhaling opium suppresses insomnia for the current sleep cycle.
-		V.sleeptrouble = V.trauma >= 1 && !V.poppyDrug?.insomniaSuppress ? 1 : 0;
-		V.nightmares = V.trauma >= (V.traumamax / 10) * 1 ? 1 : 0;
-
-		if (V.trauma >= (V.traumamax / 10) * 7) {
-			V.anxiety = 2;
-		} else if (V.trauma >= (V.traumamax / 10) * 2) {
-			V.anxiety = 1;
-		} else {
-			V.anxiety = 0;
-		}
-
-		V.flashbacks = V.trauma >= (V.traumamax / 10) * 8 ? 1 : 0;
-
-		if (V.trauma >= (V.traumamax / 10) * 6) {
-			V.panicattacks = 2;
-		} else if (V.trauma >= (V.traumamax / 10) * 4) {
-			V.panicattacks = 1;
-		} else {
-			V.panicattacks = 0;
-		}
-
+		updatePlayerTraumaState();
 		updateHallucinations();
-
-		if (V.trauma >= V.traumamax) {
-			V.dissociation = 2;
-		} else if (V.trauma >= (V.traumamax / 10) * 9) {
-			V.dissociation = 1;
-		} else {
-			V.dissociation = 0;
-		}
-
 		traumaClamp();
 	}
 	DefineMacro("trauma", trauma);
@@ -192,6 +162,39 @@ const statChange = (() => {
 		V.trauma = Math.clamp(V.trauma, 0, V.traumamax);
 	}
 	DefineMacro("traumaclamp", traumaClamp);
+
+	function updatePlayerTraumaState() {
+		// Opium Addict trait: inhaling opium suppresses insomnia for the current sleep cycle.
+		V.sleeptrouble = V.trauma >= 1 && !V.poppyDrug?.insomniaSuppress ? 1 : 0;
+		V.nightmares = V.trauma >= (V.traumamax / 10) * 1 ? 1 : 0;
+
+		if (V.trauma >= (V.traumamax / 10) * 7) {
+			V.anxiety = 2;
+		} else if (V.trauma >= (V.traumamax / 10) * 2) {
+			V.anxiety = 1;
+		} else {
+			V.anxiety = 0;
+		}
+
+		V.flashbacks = V.trauma >= (V.traumamax / 10) * 8 ? 1 : 0;
+
+		if (V.trauma >= (V.traumamax / 10) * 6) {
+			V.panicattacks = 2;
+		} else if (V.trauma >= (V.traumamax / 10) * 4) {
+			V.panicattacks = 1;
+		} else {
+			V.panicattacks = 0;
+		}
+
+		if (V.trauma >= (V.traumamax / 10) * 9.5) {
+			V.dissociation = 2;
+		} else if (V.trauma >= (V.traumamax / 10) * 8.5) {
+			V.dissociation = 1;
+		} else {
+			V.dissociation = 0;
+		}
+	}
+	DefineMacro("updatePlayerTraumaState", updatePlayerTraumaState);
 
 	function updateHallucinations() {
 		if (
@@ -1483,6 +1486,7 @@ const statChange = (() => {
 		combattrauma,
 		straighttrauma,
 		traumaClamp,
+		updatePlayerTraumaState,
 		updateHallucinations,
 		control,
 		corruption,
