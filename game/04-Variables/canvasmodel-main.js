@@ -4052,7 +4052,7 @@ Renderer.CanvasModels.main = {
 				const setupItem = worn.setup;
 				const isAltPosition = !options.alt_override && setupItem.altposition !== undefined && worn.alt === "alt";
 				const alt = isAltPosition ? "-alt" : "";
-				return `img/clothes/rings/${setupItem.variable}/left${alt}.png`;
+				return `img/clothes/rings/${redirectRemovedRingStep(setupItem)}/left${alt}.png`;
 			},
 			showfn(options) {
 				const worn = options.worn.rings;
@@ -4073,7 +4073,7 @@ Renderer.CanvasModels.main = {
 				const suffix = options.arm_left === "cover" ? "left-cover" : "left";
 				const isAltPosition = !options.alt_override && setupItem.altposition !== undefined && worn.alt === "alt";
 				const alt = isAltPosition ? "-alt" : "";
-				return `img/clothes/rings/${setupItem.variable}/${suffix}${alt}.png`;
+				return `img/clothes/rings/${redirectRemovedRingStep(setupItem)}/${suffix}${alt}.png`;
 			},
 			showfn(options) {
 				const worn = options.worn.rings;
@@ -4094,7 +4094,7 @@ Renderer.CanvasModels.main = {
 				const suffix = options.arm_left === "cover" ? "left-cover" : "left";
 				const isAltPosition = !options.alt_override && setupItem.altposition !== undefined && worn.alt === "alt";
 				const alt = isAltPosition ? "-alt" : "";
-				return `img/clothes/rings/${setupItem.variable}/${suffix}${alt}-acc.png`;
+				return `img/clothes/rings/${redirectRemovedRingStep(setupItem)}/${suffix}${alt}-acc.png`;
 			},
 			showfn(options) {
 				const worn = options.worn.rings;
@@ -4116,7 +4116,7 @@ Renderer.CanvasModels.main = {
 				const suffix = options.arm_left === "cover" ? "left-cover" : "left";
 				const isAltPosition = !options.alt_override && setupItem.altposition !== undefined && worn.alt === "alt";
 				const alt = isAltPosition ? "-alt" : "";
-				return `img/clothes/rings/${setupItem.variable}/${suffix}${alt}.png`;
+				return `img/clothes/rings/${redirectRemovedRingStep(setupItem)}/${suffix}${alt}.png`;
 			},
 			showfn() {
 				return false;
@@ -4141,7 +4141,7 @@ Renderer.CanvasModels.main = {
 				const suffix = options.arm_left === "cover" ? "left-cover" : "left";
 				const isAltPosition = !options.alt_override && setupItem.altposition !== undefined && worn.alt === "alt";
 				const alt = isAltPosition ? "-alt" : "";
-				return `img/clothes/rings/${setupItem.variable}/${suffix}${alt}-acc.png`;
+				return `img/clothes/rings/${redirectRemovedRingStep(setupItem)}/${suffix}${alt}-acc.png`;
 			},
 			showfn(options) {
 				const worn = options.worn.rings;
@@ -4174,7 +4174,7 @@ Renderer.CanvasModels.main = {
 				const suffix = options.arm_right === "cover" ? "right-cover" : hold;
 				const isAltPosition = !options.alt_override && setupItem.altposition !== undefined && worn.alt === "alt";
 				const alt = isAltPosition ? "-alt" : "";
-				return `img/clothes/rings/${setupItem.variable}/${suffix}${alt}.png`;
+				return `img/clothes/rings/${redirectRemovedRingStep(setupItem)}/${suffix}${alt}.png`;
 			},
 			showfn(options) {
 				const worn = options.worn.rings;
@@ -4201,7 +4201,7 @@ Renderer.CanvasModels.main = {
 				const suffix = options.arm_right === "cover" ? "right-cover" : hold;
 				const isAltPosition = !options.alt_override && setupItem.altposition !== undefined && worn.alt === "alt";
 				const alt = isAltPosition ? "-alt" : "";
-				return `img/clothes/rings/${setupItem.variable}/${suffix}${alt}.png`;
+				return `img/clothes/rings/${redirectRemovedRingStep(setupItem)}/${suffix}${alt}.png`;
 			},
 			showfn(options) {
 				const worn = options.worn.rings;
@@ -4224,7 +4224,7 @@ Renderer.CanvasModels.main = {
 				const suffix = options.arm_right === "cover" ? "right-cover" : hold;
 				const isAltPosition = !options.alt_override && setupItem.altposition !== undefined && worn.alt === "alt";
 				const alt = isAltPosition ? "-alt" : "";
-				return `img/clothes/rings/${setupItem.variable}/${suffix}${alt}-acc.png`;
+				return `img/clothes/rings/${redirectRemovedRingStep(setupItem)}/${suffix}${alt}-acc.png`;
 			},
 			showfn(options) {
 				const worn = options.worn.rings;
@@ -4246,7 +4246,7 @@ Renderer.CanvasModels.main = {
 				const suffix = options.arm_right === "cover" ? "right-cover" : hold;
 				const isAltPosition = !options.alt_override && setupItem.altposition !== undefined && worn.alt === "alt";
 				const alt = isAltPosition ? "-alt" : "";
-				return `img/clothes/rings/${setupItem.variable}/${suffix}${alt}.png`;
+				return `img/clothes/rings/${redirectRemovedRingStep(setupItem)}/${suffix}${alt}.png`;
 			},
 			showfn(options) {
 				const worn = options.worn.rings;
