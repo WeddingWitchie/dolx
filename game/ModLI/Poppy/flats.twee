@@ -1672,6 +1672,21 @@ You wake up to find yourself on the couch in Poppy's living room. You don't reme
 :: Flats Poppy Bailey
 <<endevent>><<npc Poppy>><<person1>><<run markPoppyInteraction()>>
 <<effects>><<run poppySchedule()>><<set $outside to 0>>
+<<babyRent>>
+<<set _rentTotal to ($rentmoney + ($babyRent or 0))>>
+<<if setup.hbsc.canAutoPay("bailey", _rentTotal)>>
+	/* HBSC standing order is set up and the savings cover it: settle automatically, mirroring the orphanage rentdue widget so the flat honours the same standing order. */
+	You hear a knock at the door. <span class="red">It's Bailey.</span>
+	<br><br>
+	<<rentpay "bank">>
+	<br><br>
+	<<poppyOpiumPulse>>
+	<<set $renttime to 7>><<set $rentday to Time.weekDay>>
+	<<link [[Next|Flats Poppy Living Room]]>><</link>>
+<<else>>
+<<if setup.hbsc.cancelIfShort("bailey", _rentTotal)>>
+	<span class="red">Your HBSC standing order couldn't cover the rent, so it's been cancelled.</span><br><br>
+<</if>>
 <<if T.poppyFlatBaileyHome>>
 	You hear a knock at the door. Poppy doesn't hesitate to get up and open the door. You follow suit to see who it could be.
 	<br><br>
@@ -1718,6 +1733,7 @@ You wake up to find yourself on the couch in Poppy's living room. You don't reme
 	<<link [[Pay|Flats Poppy Bailey Pay]]>><</link>>
 	<br>
 	<<link [[Refuse|Flats Poppy Bailey Refuse]]>><</link>>
+<</if>>
 <</if>>
 
 :: Flats Poppy Bailey Pay

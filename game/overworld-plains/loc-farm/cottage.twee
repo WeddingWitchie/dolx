@@ -3526,6 +3526,22 @@ Alex talks on the phone, trying to keep <<his>> voice steady.
 
 :: Farm Cottage Bailey
 <<effects>>
+<<babyRent>>
+<<set _rentTotal to ($rentmoney + ($babyRent or 0))>>
+<<if setup.hbsc.canAutoPay("bailey", _rentTotal)>>
+	/* HBSC standing order is set up and the savings cover it: settle automatically, mirroring the orphanage rentdue widget so the cottage honours the same standing order. */
+	You open the door. <span class="red">It's Bailey.</span>
+	<br><br>
+	<<rentpay "bank">>
+	<br><br>
+	Alex appears at your shoulder, braced for trouble that never comes, then watches Bailey leave.
+	<br><br>
+	<<link [[Next|Farm Cottage]]>><<endevent>><</link>>
+	<br>
+<<else>>
+	<<if setup.hbsc.cancelIfShort("bailey", _rentTotal)>>
+		<span class="red">Your HBSC standing order couldn't cover the rent, so it's been cancelled.</span><br><br>
+	<</if>>
 
 <<npc Alex>><<person1>>
 <<if $phase is 3>>
@@ -3567,9 +3583,7 @@ Alex talks on the phone, trying to keep <<his>> voice steady.
 	<br><br>
 	<<cottage_bailey_options>>
 <</if>>
-
-
-
+<</if>>
 <<set $renttime to 7>><<set $rentday to Time.weekDay>>
 
 

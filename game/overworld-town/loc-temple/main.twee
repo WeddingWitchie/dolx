@@ -186,6 +186,20 @@ You are in the main hall of the temple. Stone walls and pillars tower into darkn
 		<br>
 		<<set $renttime to 7>><<set $rentday to Time.weekDay>>
 	<<else>>
+		<<babyRent>><<set _rentTotal to ($rentmoney + ($babyRent or 0))>>
+		<<if setup.hbsc.canAutoPay("bailey", _rentTotal)>>
+			/* HBSC standing order is set up and the savings cover it: settle automatically, mirroring the orphanage rentdue widget so the temple honours the same standing order. */
+			<<npc "Bailey">><<person1>>
+			A hand rests on your shoulder. <span class="red">It's Bailey.</span>
+			<br><br>
+			<<rentpay "bank">>
+			<br><br>
+			<<set $renttime to 7>><<set $rentday to Time.weekDay>>
+			<<link [[Next|Temple]]>><<endevent>><</link>>
+		<<else>>
+		<<if setup.hbsc.cancelIfShort("bailey", _rentTotal)>>
+			<span class="red">Your HBSC standing order couldn't cover the rent, so it's been cancelled.</span><br><br>
+		<</if>>
 		<<npc "Bailey">><<person1>>
 		<<if $per_npc.bishop_right_hand>>
 			<<loadNPC 1 "bishop_right_hand">><<loadNPC 2 "bishop_left_hand">>
@@ -212,6 +226,7 @@ You are in the main hall of the temple. Stone walls and pillars tower into darkn
 		<<rent_avery>>
 
 		<<temple_bailey_options>>
+		<</if>>
 	<</if>>
 <<else>>
 	<<if $pleasure gte $pleasuremax>>
