@@ -602,6 +602,7 @@ function weekPassed() {
 		if (V.brothelVending.weeksEmpty >= 4) V.brothelVending.status = "sold";
 	}
 	if (V.averySpaBanWeeks > 0) V.averySpaBanWeeks--;
+	if (V.spaBanWeeks > 0) V.spaBanWeeks--;
 
 	if (V.avery_mansion) {
 		V.avery_mansion.date_seen = false;
