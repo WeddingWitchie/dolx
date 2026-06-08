@@ -1,14 +1,25 @@
-/* Horse Race Betting Minigame for SugarCube / DoL-style projects */
+/* Horse Race Betting Minigame for DoL-style projects */
 setup.horserace = setup.horserace || {};
 
 (function () {
 	"use strict";
-
 	const HR = setup.horserace;
-
-	HR.VERSION = "0.1.4";
-
 	HR.DEFAULT_WATCH_DELAY = 1600;
+
+	/* ---- Gambling balance configuration -------------------------------- *
+	 * WEEKLY_WIN_CAP_POUNDS: total stake the player can safely place on
+	 *   racing in one in-game week before the bookie's horses start
+	 *   "having incidents". Set very high to effectively disable.
+	 *
+	 * PAYOUT_MARGIN: house edge applied to winning payouts. 1.0 = fair odds
+	 *   (the original, slightly player-favorable behaviour). 0.92 = the house
+	 *   keeps 8%, so grinding trends negative over time. Set to 1.0 to disable.
+	 *
+	 * The weekly reset is handled by DoL's native $weekly cleanup; all weekly
+	 * counters live on $weekly, so they clear automatically each game week.
+	 * ------------------------------------------------------------------- */
+	HR.WEEKLY_WIN_CAP_POUNDS = 10000;
+	HR.PAYOUT_MARGIN = 0.92;
 
 	HR.trackDefs = {
 		oval: {
@@ -211,7 +222,8 @@ setup.horserace = setup.horserace || {};
 		"Velvet Comet", "Green Bullet", "Old Crown", "Silver Orchard", "Saltwind",
 		"Midnight Loan", "Card Shark", "Foxglove", "Bright Rumour", "Rain Partner",
 		"Lucky Riot", "Amber Needle", "Glass Herald", "Cinder Waltz", "North Chapel",
-		"Paper Moon", "Blue Rascal", "Hidden Parish", "Cherry Debt", "Quiet Siren"
+		"Paper Moon", "Blue Rascal", "Hidden Parish", "Cherry Debt", "Quiet Siren",
+		"Red Lantern", "Ashen Clover", "Copper Saint", "Dawn Treaty", "Moss Chapel"
 	];
 
 	HR.fallbackConditions = ["turf", "dirt", "wet", "muddy"];
@@ -510,13 +522,39 @@ setup.horserace = setup.horserace || {};
 		}
 	};
 
+	HR.weeklyCapInternal = function () {return HR.toInternalMoney(HR.WEEKLY_WIN_CAP_POUNDS);};
+
+	/* Single source of truth for every weekly counter. They live on DoL's
+	   $weekly object, so the game's normal weekly cleanup resets them for us
+	   and nothing accumulates in the permanent save. */
+	HR.weeklyState = function () {
+		const V = State.variables;
+		if (V.weekly == null || typeof V.weekly !== "object") V.weekly = {};
+		const w = V.weekly;
+		if (!Number.isFinite(w.horseRaceWeeklyBets)) w.horseRaceWeeklyBets = 0;
+		if (!Number.isFinite(w.horseRaceWeeklyAccidents)) w.horseRaceWeeklyAccidents = 0;
+		if (!Number.isFinite(w.horseRaceIncidentLossStreak)) w.horseRaceIncidentLossStreak = 0;
+		if (!Array.isArray(w.horseRaceInjuredHorses)) w.horseRaceInjuredHorses = [];
+		if ("horseRaceWeeklyWinnings" in w) delete w.horseRaceWeeklyWinnings;
+		return w;
+	};
+
+	/* Total stake (in internal money units) the player can still safely place this week. */
+	HR.weeklyRemaining = function () {return HR.weeklyCapInternal() - HR.weeklyState().horseRaceWeeklyBets;};
+
+	HR.isCapReached = function () {return HR.weeklyRemaining() <= 0;};
+	HR.addWeeklyBet = function (amountInternal) {
+		if (!Number.isFinite(amountInternal)) return;
+		HR.weeklyState().horseRaceWeeklyBets += amountInternal;
+	};
+
+
 	HR.ensureState = function () {
 		const V = State.variables;
 		if (V.horserace == null || typeof V.horserace !== "object") V.horserace = {};
 
 		const race = V.horserace;
 		if (typeof race.phase !== "string") race.phase = "idle";
-		if (!Number.isFinite(race.inputNonce)) race.inputNonce = 0;
 		if (!Number.isFinite(race.round)) race.round = 0;
 		if (!Number.isFinite(race.betAmount)) race.betAmount = 0;
 		if (!Number.isFinite(race.payout)) race.payout = 0;
@@ -529,15 +567,28 @@ setup.horserace = setup.horserace || {};
 		if (typeof race.betHorseId !== "string") race.betHorseId = "";
 		if (typeof race.winnerId !== "string") race.winnerId = "";
 		if (typeof race.lastError !== "string") race.lastError = "";
-		if (typeof race.lastNotice !== "string") race.lastNotice = "";
 		if (typeof race.trackId !== "string" || !HR.trackDefs[race.trackId]) race.trackId = "oval";
 		if (typeof race.condition !== "string") race.condition = "clear";
 		if (typeof race.paidOut !== "boolean") race.paidOut = false;
 		if (typeof race.trial !== "boolean") race.trial = false;
 		if (typeof race.autoWatch !== "boolean") race.autoWatch = false;
 
+		/* Weekly counters used to live here; they now live on $weekly and reset
+		   with DoL's weekly cleanup. Shed the old fields from existing saves. */
+		if ("weeklyWinnings" in race) delete race.weeklyWinnings;
+		if ("weeklyAccidents" in race) delete race.weeklyAccidents;
+		if ("weekAnchorDay" in race) delete race.weekAnchorDay;
+		if ("inputNonce" in race) delete race.inputNonce;
+
+		/* Per-race "fixed" accident fields (reset by createRace). */
+		if (typeof race.accident !== "boolean") race.accident = false;
+		if (!Number.isFinite(race.accidentAtRound)) race.accidentAtRound = 0;
+		if (typeof race.accidentRefund !== "boolean") race.accidentRefund = false;
+		if (typeof race.incidentHorseId !== "string") race.incidentHorseId = "";
+
 		for (const horse of race.horses) {
 			if (!horse || typeof horse !== "object") continue;
+			if (typeof horse.accident !== "boolean") horse.accident = false;
 			if (!Number.isFinite(horse.progress)) horse.progress = 0;
 			if (!Number.isFinite(horse.stamina)) horse.stamina = 80;
 			if (!Number.isFinite(horse.boost)) horse.boost = 0;
@@ -549,25 +600,6 @@ setup.horserace = setup.horserace || {};
 		}
 
 		return race;
-	};
-
-	HR.newFieldId = function (prefix) {
-		const race = HR.ensureState();
-		race.inputNonce = Math.floor(race.inputNonce) + 1;
-		return `${prefix || "horse-race-field"}-${race.inputNonce}`;
-	};
-
-	HR.makeTextInput = function (id, value) {
-		const safeId = HR.escapeHtml(id);
-		const displayValue = typeof value === "string" ? value : "";
-		return `<input id="${safeId}" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" value="${HR.escapeHtml(displayValue)}">`;
-	};
-
-	HR.captureFieldValue = function (id) {
-		if (typeof document === "undefined" || !id) return "";
-		const el = document.getElementById(id);
-		if (!el) return "";
-		return typeof el.value === "string" ? el.value : String(el.value == null ? "" : el.value);
 	};
 
 	HR.getSkill = function (id) {
@@ -599,6 +631,7 @@ setup.horserace = setup.horserace || {};
 			focus,
 			finishKick: kick,
 			progress: 0,
+			accident: false,
 			boost: 0,
 			skillCooldown: HR.randInt(0, 2),
 			lastSkillRound: -99,
@@ -613,8 +646,14 @@ setup.horserace = setup.horserace || {};
 		const race = HR.ensureState();
 		if (!force && race.phase !== "idle" && race.phase !== "finished") return race;
 
-		const count = HR.randInt(3, 5);
-		const names = HR.shuffle(HR.horseNames).slice(0, count);
+		const weekly = HR.weeklyState();
+		const injuredNames = new Set(weekly.horseRaceInjuredHorses);
+		const availableNames = HR.horseNames.filter(name => !injuredNames.has(name));
+		const namePool = availableNames.length > 0 ? availableNames : HR.horseNames;
+		const minCount = Math.min(3, namePool.length);
+		const maxCount = Math.min(5, namePool.length);
+		const count = HR.randInt(minCount, maxCount);
+		const names = HR.shuffle(namePool).slice(0, count);
 		const horses = names.map((name, index) => HR.createHorse(name, index));
 		const bestScore = Math.max.apply(null, horses.map(horse => horse.formScore));
 
@@ -647,8 +686,35 @@ setup.horserace = setup.horserace || {};
 		race.trial = false;
 		race.autoWatch = false;
 		race.lastError = "";
-		race.lastNotice = "";
+		race.accident = false;
+		race.accidentAtRound = 0;
+		race.accidentRefund = false;
+		race.incidentHorseId = "";
 
+		return race;
+	};
+
+	/* Sheds the heavy per-race data (horse list, logs, ranking) from the save
+	   once a race is over and the player walks away, so finished races do not
+	   sit in every save slot. Weekly counters are untouched. */
+	HR.clearRaceData = function () {
+		const race = HR.ensureState();
+		if (race.phase !== "finished" && race.phase !== "idle") return race;
+		race.horses = [];
+		race.messages = [];
+		race.messageHistory = [];
+		race.ranking = [];
+		race.selectedHorseId = "";
+		race.betHorseId = "";
+		race.winnerId = "";
+		race.incidentHorseId = "";
+		race.betInput = "";
+		race.betAmount = 0;
+		race.payout = 0;
+		race.accident = false;
+		race.accidentAtRound = 0;
+		race.accidentRefund = false;
+		race.phase = "idle";
 		return race;
 	};
 
@@ -672,7 +738,6 @@ setup.horserace = setup.horserace || {};
 		const V = State.variables;
 		const race = HR.ensureState();
 		race.lastError = "";
-		race.lastNotice = "";
 		race.betInput = typeof rawAmount === "string" ? rawAmount : String(rawAmount == null ? "" : rawAmount);
 
 		if (race.phase !== "betting") {
@@ -696,20 +761,45 @@ setup.horserace = setup.horserace || {};
 			return { ok: false, reason: "insufficientMoney" };
 		}
 
+		/* Weekly stake cap:
+		The first £10,000 of stakes each week is safe. Once the player has
+		already placed that much, further bets are accepted but their backed
+		horse is secretly armed for a late-race incident. */
+		const weekly = HR.weeklyState();
+		const capped = HR.isCapReached();
+
 		V.money = HR.roundMoney(V.money - amount);
+		HR.addWeeklyBet(amount);
 		race.betHorseId = horse.id;
 		race.selectedHorseId = horse.id;
 		race.betAmount = amount;
 		race.phase = "running";
 		race.autoWatch = false;
 		race.messages = [`You back ${horse.name} for ${HR.formatMoney(amount)} at ${horse.odds.toFixed(2)}x odds.`];
+
+		if (capped) {
+			/* Arm a late incident. The first over-limit incident this week refunds
+			the stake; later ones keep the stake. The actual incident waits until
+			the backed horse is close to the finish, or the race is nearly over. */
+			race.accident = true;
+			race.accidentAtRound = HR.randInt(18, 24);
+			race.accidentRefund = weekly.horseRaceWeeklyAccidents <= 0;
+			weekly.horseRaceWeeklyAccidents += 1;
+		} else {
+			race.accident = false;
+			race.accidentAtRound = 0;
+			race.accidentRefund = false;
+		}
+
 		race.messageHistory = race.messages.slice();
-		race.lastNotice = "";
-		return { ok: true };
+		return { ok: true, accident: race.accident };
 	};
 
 	HR.rankedHorses = function (race) {
 		return race.horses.slice().sort(function (a, b) {
+			const aAccident = a && a.accident === true;
+			const bAccident = b && b.accident === true;
+			if (aAccident !== bAccident) return aAccident ? 1 : -1;
 			if (b.progress !== a.progress) return b.progress - a.progress;
 			return b.formScore - a.formScore;
 		});
@@ -789,11 +879,14 @@ setup.horserace = setup.horserace || {};
 
 		if (watching) {
 			for (const horse of race.horses) {
+				if (horse.accident === true) continue;
 				HR.trySkill(horse, race, stepMessages);
 			}
 		}
 
 		for (const horse of race.horses) {
+			if (horse.accident === true) continue;
+
 			const staminaPressure = (horse.stamina - 50) / 55;
 			const wetPenalty = race.condition === "wet" ? -0.15 : race.condition === "muddy" ? -0.35 : 0;
 			const trackChaos = race.trackId === "cross" ? HR.randFloat(-0.35, 0.45) : HR.randFloat(-0.2, 0.25);
@@ -803,6 +896,14 @@ setup.horserace = setup.horserace || {};
 			horse.progress = HR.clamp(horse.progress + Math.max(0.8, pace), 0, 100);
 			horse.stamina = HR.clamp(horse.stamina - HR.randFloat(1.8, 4.1), 0, horse.maxStamina + 35);
 			horse.boost *= 0.52;
+		}
+
+		if (race.accident) {
+			const incidentHorse = HR.getHorse(race.betHorseId);
+			if (incidentHorse && incidentHorse.accident !== true
+				&& (incidentHorse.progress >= 82 || race.round >= race.accidentAtRound)) {
+				HR.triggerAccident();
+			}
 		}
 
 		if (stepMessages.length === 0) {
@@ -824,6 +925,54 @@ setup.horserace = setup.horserace || {};
 		return race;
 	};
 
+	HR.triggerAccident = function () {
+		const V = State.variables;
+		const race = HR.ensureState();
+		const horse = HR.getHorse(race.betHorseId);
+
+		if (!horse) {
+			race.accident = false;
+			return race;
+		}
+
+		const refunded = race.accidentRefund;
+		const weekly = HR.weeklyState();
+
+		/* Only the backed horse is pulled up. The race continues for everyone else. */
+		race.accident = false;
+		race.incidentHorseId = horse.id;
+		horse.accident = true;
+		horse.boost = 0;
+		horse.stamina = 0;
+
+		if (!weekly.horseRaceInjuredHorses.includes(horse.name)) {
+			weekly.horseRaceInjuredHorses.push(horse.name);
+		}
+
+		if (!race.paidOut) {
+			if (refunded && race.betAmount > 0) {
+				V.money = HR.roundMoney((Number.isFinite(V.money) ? V.money : 0) + race.betAmount);
+			} else {
+				weekly.horseRaceIncidentLossStreak += 1;
+			}
+			/* This bet is already resolved. finishRace must not pay or charge it again. */
+			race.paidOut = true;
+		}
+
+		const accidentText = refunded
+			? `${horse.name} suddenly shortens its stride near the final stretch and is pulled up by the rider. The other horses thunder on while the medics hurry onto the track. The bookie sighs and returns your stake.`
+			: `${horse.name} falters near the final stretch and is pulled out of the race. The other horses keep running while the medics hurry onto the track, and the bookie keeps your stake.`;
+
+		const accidentMessage = {
+			type: "accident",
+			horseId: horse.id,
+			text: accidentText
+		};
+
+		race.messages = [accidentMessage];
+		race.messageHistory = [accidentMessage].concat(Array.isArray(race.messageHistory) ? race.messageHistory : []).slice(0, 3);
+		return race;
+	};
 	HR.simulateToEnd = function (watching) {
 		const race = HR.ensureState();
 		let guard = 0;
@@ -849,6 +998,7 @@ setup.horserace = setup.horserace || {};
 
 		const caption = root.querySelector(".horse-race-caption");
 		const track = HR.trackDefs[race.trackId] || HR.trackDefs.oval;
+		root.classList.toggle("horse-race-accident-active", race.accident === true || Boolean(race.incidentHorseId));
 		if (caption) {
 			caption.innerHTML = `<strong>${HR.escapeHtml(track.name)}</strong>`;
 		}
@@ -859,6 +1009,7 @@ setup.horserace = setup.horserace || {};
 			if (!horse) return;
 			marker.setAttribute("data-progress", horse.progress.toFixed(2));
 			marker.classList.toggle("horse-race-skill-active", Number.isFinite(horse.lastSkillRound) && race.round - horse.lastSkillRound <= 2);
+			marker.classList.toggle("horse-race-incident-horse", horse.accident === true || horse.id === race.incidentHorseId);
 			const title = marker.querySelector("title");
 			if (title) title.textContent = `${horse.name}: ${Math.floor(horse.progress)}%`;
 		});
@@ -873,6 +1024,7 @@ setup.horserace = setup.horserace || {};
 			if (text) text.textContent = `${Math.floor(horse.progress)}%`;
 			row.classList.toggle("horse-race-backed", horse.id === race.betHorseId);
 			row.classList.toggle("horse-race-skill-active", Number.isFinite(horse.lastSkillRound) && race.round - horse.lastSkillRound <= 2);
+			row.classList.toggle("horse-race-incident-horse", horse.accident === true || horse.id === race.incidentHorseId);
 		});
 
 		HR.placeMarkers();
@@ -998,7 +1150,8 @@ setup.horserace = setup.horserace || {};
 		if (!race.paidOut && race.betAmount > 0 && race.betHorseId !== "") {
 			const betHorse = HR.getHorse(race.betHorseId);
 			if (race.won && betHorse) {
-				race.payout = HR.roundMoney(race.betAmount * betHorse.odds);
+				const margin = Number.isFinite(HR.PAYOUT_MARGIN) ? HR.clamp(HR.PAYOUT_MARGIN, 0, 1) : 1;
+				race.payout = HR.roundMoney(race.betAmount * betHorse.odds * margin);
 				V.money = HR.roundMoney((Number.isFinite(V.money) ? V.money : 0) + race.payout);
 			}
 			race.paidOut = true;
@@ -1042,7 +1195,8 @@ setup.horserace = setup.horserace || {};
 		const markers = race.horses.map(function (horse, index) {
 			const label = HR.escapeHtml(String(index + 1));
 			const name = HR.escapeHtml(horse.name);
-			return `<g class="horse-race-marker" data-horse-id="${HR.escapeHtml(horse.id)}" data-progress="${horse.progress.toFixed(2)}" data-lane-index="${index}" data-name="${name}">
+			const incidentClass = horse.accident === true || horse.id === race.incidentHorseId ? " horse-race-incident-horse" : "";
+			return `<g class="horse-race-marker${incidentClass}" data-horse-id="${HR.escapeHtml(horse.id)}" data-progress="${horse.progress.toFixed(2)}" data-lane-index="${index}" data-name="${name}">
 				<title>${name}: ${Math.floor(horse.progress)}%</title>
 				<circle r="15"></circle>
 				<text text-anchor="middle" dominant-baseline="central">${label}</text>
@@ -1051,7 +1205,8 @@ setup.horserace = setup.horserace || {};
 
 		const progressRows = race.horses.map(function (horse) {
 			const betClass = horse.id === race.betHorseId ? " horse-race-backed" : "";
-			return `<div class="horse-race-progress${betClass}" data-horse-id="${HR.escapeHtml(horse.id)}">
+			const incidentClass = horse.accident === true || horse.id === race.incidentHorseId ? " horse-race-incident-horse" : "";
+			return `<div class="horse-race-progress${betClass}${incidentClass}" data-horse-id="${HR.escapeHtml(horse.id)}">
 				<span>${horse.lane}. ${HR.escapeHtml(horse.name)}</span>
 				<meter min="0" max="100" value="${horse.progress.toFixed(2)}"></meter>
 				<span data-progress-text>${Math.floor(horse.progress)}%</span>
@@ -1121,6 +1276,9 @@ setup.horserace = setup.horserace || {};
 			? race.messageHistory
 			: (race.messages.length > 0 ? race.messages : ["The crowd waits for the next move."])).slice(0, 3);
 		const items = messages.map(function (message) {
+			if (message && typeof message === "object" && message.type === "accident") {
+				return `<li class="horse-race-accident-log" style="color:#ff6b6b;"><strong>${HR.escapeHtml(message.text || "A horse is pulled up after an incident.")}</strong></li>`;
+			}
 			if (message && typeof message === "object" && message.type === "skill") {
 				const round = Number.isFinite(message.round) ? `<span class="horse-race-log-round">Moment ${message.round}</span> ` : "";
 				return `<li class="horse-race-skill-log">${round}<span class="horse-race-skill-badge">${HR.escapeHtml(message.skillName || "Skill")}</span> <strong>${HR.escapeHtml(message.horseName || "Horse")}</strong>: ${HR.escapeHtml(message.text || "surges forward.")}</li>`;
@@ -1134,15 +1292,47 @@ setup.horserace = setup.horserace || {};
 		const race = HR.ensureState();
 		if (race.phase !== "finished") HR.finishRace();
 
+		const incidentHorse = race.incidentHorseId ? HR.getHorse(race.incidentHorseId) : null;
+
 		const ranked = race.ranking
 			.map(horseId => HR.getHorse(horseId))
 			.filter(Boolean);
 		const rows = ranked.map(function (horse, index) {
 			const backed = horse.id === race.betHorseId ? " backed" : "";
-			return `<tr class="${backed}"><td>${index + 1}</td><td>${HR.escapeHtml(horse.name)}</td><td>${Math.floor(horse.progress)}%</td></tr>`;
+			const incident = horse.accident === true || horse.id === race.incidentHorseId;
+			const resultText = incident
+				? `<strong><span style="color:#ff6b6b;">Accident</span></strong>`
+				: `${Math.floor(horse.progress)}%`;
+
+			return `<tr class="${backed}">
+				<td>${index + 1}</td>
+				<td>${HR.escapeHtml(horse.name)}</td>
+				<td>${resultText}</td>
+			</tr>`;
 		}).join("");
 
 		const winner = HR.getHorse(race.winnerId);
+
+		if (incidentHorse) {
+			const winnerLine = winner
+				? `<p><strong>${HR.escapeHtml(winner.name)}</strong> crosses the winning post first, but the crowd is still looking back towards ${HR.escapeHtml(incidentHorse.name)}.</p>`
+				: `<p>The field reaches the end in confusion while the officials check the track.</p>`;
+
+			const stakeLine = race.accidentRefund
+				? `<p><strong><span style="color:#ffcf6b;">Your stake is returned.</span></strong> ${HR.escapeHtml(incidentHorse.name)} was pulled from the race, so your ${HR.formatMoney(race.betAmount)} bet wins nothing.</p>`
+				: `<p><strong><span style="color:#ff6b6b;">Your stake is lost.</span></strong> ${HR.escapeHtml(incidentHorse.name)} was pulled from the race, and the bookie keeps your ${HR.formatMoney(race.betAmount)} bet.</p>`;
+
+			return `<div class="horse-race-result">
+				${winnerLine}
+				<p><strong><span style="color:#ff6b6b;">${HR.escapeHtml(incidentHorse.name)} suffered an incident.</span></strong> Medics hurry onto the track while the other horses finish the race.</p>
+				${stakeLine}
+				<table class="horse-race-table">
+					<thead><tr><th>Place</th><th>Horse</th><th>Result</th></tr></thead>
+					<tbody>${rows}</tbody>
+				</table>
+			</div>`;
+		}
+
 		let celebration = winner
 			? `<p><strong>${HR.escapeHtml(winner.name)}</strong> crosses the winning post first. The crowd cheers while the bookies start checking their slips.</p>`
 			: "<p>The result board changes, and nobody seems certain who crossed the line first.</p>";
