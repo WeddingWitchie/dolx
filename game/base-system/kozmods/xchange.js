@@ -709,6 +709,103 @@ function pillIsPermanent() {
 }
 window.pillIsPermanent = pillIsPermanent;
 
+/* Hyper Fertility is an X-Change pill effect, not a separate medicine timer.
+ * While $xchange.pill.hyperFertilityEffect is true, PC-carried pregnancies advance faster and PC-caused conceptions can roll twins/triplets/quads.
+ */
+setup.xchangeHyperFertility = Object.assign(
+	{
+		speedMultiplier: 6,
+		twinChance: 80,
+		tripletChance: 50,
+		quadChance: 30,
+		accelerateParasites: false,
+	},
+	setup.xchangeHyperFertility || {}
+);
+
+function xchangeHyperFertilityActive() {
+	return !!(V.xchange?.pill?.active && V.xchange.pill.hyperFertilityEffect);
+}
+window.xchangeHyperFertilityActive = xchangeHyperFertilityActive;
+
+function fertilityTreatmentActive() {
+	return xchangeHyperFertilityActive();
+}
+window.fertilityTreatmentActive = fertilityTreatmentActive;
+
+function takeFertilityTreatment() {
+	if (V.xchange?.pill?.active) V.xchange.pill.hyperFertilityEffect = true;
+	return true;
+}
+window.takeFertilityTreatment = takeFertilityTreatment;
+
+function cancelFertilityTreatment() {
+	if (V.xchange?.pill) V.xchange.pill.hyperFertilityEffect = false;
+	return true;
+}
+window.cancelFertilityTreatment = cancelFertilityTreatment;
+
+function fertilityTreatmentApplyMultiples(baseCount, max = 4) {
+	if (!fertilityTreatmentActive()) return baseCount;
+	const cfg = setup.xchangeHyperFertility;
+	let count = baseCount;
+
+	if (count >= 1 && count < 2 && random(1, 100) <= cfg.twinChance) count = 2;
+	if (count >= 2 && count < 3 && random(1, 100) <= cfg.tripletChance) count = 3;
+	if (count >= 3 && count < 4 && random(1, 100) <= cfg.quadChance) count = 4;
+
+	return Math.min(count, max);
+}
+window.fertilityTreatmentApplyMultiples = fertilityTreatmentApplyMultiples;
+
+function xchangePregnancyDailyRate(type) {
+	const s = V.settings || {};
+	switch (type) {
+		case "human": {
+			const months = Number(s.humanPregnancyMonths);
+			return months > 0 ? 9 / months : 1;
+		}
+		case "wolf": {
+			const weeks = Number(s.wolfPregnancyWeeks);
+			return weeks > 0 ? 12 / weeks : 1;
+		}
+		default:
+			return 1;
+	}
+}
+
+function fertilityTreatmentDailyTick(days = 1) {
+	if (!fertilityTreatmentActive()) return;
+	const cfg = setup.xchangeHyperFertility;
+	const extraFactor = Math.max(0, cfg.speedMultiplier - 1);
+	const stats = V.sexStats;
+	if (!stats) return;
+
+	["vagina", "anus"].forEach(genital => {
+		const preg = stats[genital]?.pregnancy;
+		if (!preg?.type) return;
+
+		if (preg.type === "parasite") {
+			if (!cfg.accelerateParasites || !Array.isArray(preg.fetus)) return;
+			preg.fetus.forEach(fetus => {
+				if (typeof fetus?.daysLeft === "number") fetus.daysLeft = Math.max(0, fetus.daysLeft - extraFactor * days);
+			});
+			return;
+		}
+
+		if (typeof preg.timer === "number" && typeof preg.timerEnd === "number") {
+			const extra = extraFactor * xchangePregnancyDailyRate(preg.type) * days;
+			preg.timer = Math.min(preg.timer + extra, preg.timerEnd);
+		}
+	});
+}
+window.fertilityTreatmentDailyTick = fertilityTreatmentDailyTick;
+
+function fertilityTreatmentDurationText() {
+	return fertilityTreatmentActive() ? "Lasts with the X-Change pill" : "Not active";
+}
+window.fertilityTreatmentDurationText = fertilityTreatmentDurationText;
+
 function wondersAboutPillEnd() {
 	return V.xchange.pill.shouldHaveEnded === true && V.xchange.pill.countdown < 24; 
 }
@@ -891,6 +988,9 @@ function xchangeDailyCheck(days = 1) {
 
 	// Effect Remover Pill Dealer now restocks daily instead of weekly, but availability stays in weekly check.
 	if (V.xchange?.weeklyShadyDealer & 4) {updateRemoverPillCatalogue();}
+
+	// Hyper Fertility: accelerate PC-carried pregnancies while the X-Change effect is active.
+	if (typeof fertilityTreatmentDailyTick === "function") fertilityTreatmentDailyTick(days);
 }
 window.xchangeDailyCheck = xchangeDailyCheck;
 

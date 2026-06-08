@@ -1231,6 +1231,15 @@ setup.feats = {
 		filter: ["All", "Pregnancy"],
 		hint: "Hint: Do you know who did it?",
 	},
+	"Life Comes in Pairs": {
+		title: "Life Comes in Pairs",
+		desc: "Gave birth to twins.",
+		difficulty: 1,
+		series: "",
+		filter: ["All", "Pregnancy"],
+		hint: "Hint: Two of a kind.",
+		pregnancyLockable: true,
+	},
 	"Life Comes in Threes": {
 		title: "Life Comes in Threes",
 		desc: "Gave birth to triplets.",
@@ -1238,6 +1247,15 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Pregnancy"],
 		hint: "Hint: Three of a kind.",
+		pregnancyLockable: true,
+	},
+	"Life Comes in Fours": {
+		title: "Life Comes in Fours",
+		desc: "Gave birth to quadruplets.",
+		difficulty: 3,
+		series: "",
+		filter: ["All", "Pregnancy"],
+		hint: "Hint: Four of a kind.",
 		pregnancyLockable: true,
 	},
 	"Life begins when you least expect": {

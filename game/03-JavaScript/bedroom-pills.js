@@ -597,6 +597,43 @@ setup.pills = [
 		effects: [],
 	},
 	{
+		name: "X-Change Pink Hyper Fertility",
+		description:
+			"Temporary pill causing extreme fertility and accelerated pregnancy progression. While active, conception is all but guaranteed from unprotected encounters, an existing pregnancy progresses markedly faster, and successful conception is far more likely to result in twins, triplets, or quadruplets.",
+		onTakeMessage:
+			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a woman's body.<br><br>Your new body feels smaller, lighter, and strangely sensitive to the touch.<br><br>A deeper warmth settles low in your belly as the fertility formula takes hold.",
+		warning_label:
+			"Warning: Pregnancy will result in transformation becoming permanent. Multiple births are common and intended. Certain parasitic infections might also result in permanence, in particular those affecting the genitalia.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "pink hyper fertility",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pill-breast.png",
+		display_condition() {
+			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
+		},
+		take_condition() {
+			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-pink 7 "fertile" "fertility">>`],
+	},
+	{
 		name: "X-Change Pink NOW",
 		description:
 			"A significantly diluted version of X-Change Basic, intended for those on a tight schedule. Lasts about 6 hours. And just like with Basic, it's impossible to get pregnant.",
@@ -1338,6 +1375,43 @@ setup.pills = [
 			return this.owned() > 0 && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
 		},
 		npcEffects: [`<<npc-take-xchange random(1,3) "herm" "random">>`],
+	},
+	{
+		name: "X-Change Blue Hyper Fertility",
+		description:
+			"Temporary genderswap pill causing extreme fertility and accelerated reproductive potency. While active, your sperm becomes much more likely to cause pregnancy and successful conception is far more likely to result in twins, triplets, or quadruplets.",
+		onTakeMessage:
+			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a man's body.<br><br>Your new body feels larger, stronger, and quite ready to dish out and receive punishment.<br><br>A deeper warmth settles through you as the fertility formula takes hold.",
+		warning_label:
+			"Warning: Pregnancy will result in transformation becoming permanent. The fertility formula greatly increases reproductive potency. Certain parasitic infections might also result in permanence, in particular those affecting the genitalia.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "blue hyper fertility",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pill-penis.png",
+		display_condition() {
+			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
+		},
+		take_condition() {
+			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-blue 7 "fertile" "fertility">>`],
 	},
 	{
 		name: "X-Change Blue NOW",
@@ -2805,6 +2879,41 @@ setup.pills = [
 		effects: ["<<pain 180>><<stress 130>><<trauma 80>><<gpain>><<gstress>><<gtrauma>>", "<<xchange-premium 7>>"],
 	},
 	{
+		name: "SWP Anti-fertility Pill",
+		description:
+			"An X-Change counter-agent to the Hyper Fertility course. It flushes the stimulant and accelerant from your system, returning any ongoing pregnancy to its natural pace and removing the boosted odds of multiples. It does not undo a pregnancy already conceived.",
+		onTakeMessage:
+			"<span class=\"purple\">You take the counter-pill.</span><br><br>The lingering warmth in your body fades as the Hyper Fertility course is neutralised.",
+		warning_label:
+			"Warning: This pill only cancels the Hyper Fertility course. It is not a contraceptive and will not end or prevent a pregnancy.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "anti-pill",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillcure.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return playerIsXChanged() && V.xchange.pill.hyperFertilityEffect && V.xchange.pill.effectsKnown ? 1 : 0;
+		},
+		effects: [`<<xchange-removeeffect "fertile" "fertility">>`, "<<xchange-addsideeffect \"antipill\">>"],
+	},
+	{
 		name: "X-Change Antidote",
 		description:
 			"An expensive solution for those who are willing and can afford it. A pill that reduces the remaining duration of your current pill by a single day, at the expense of some severe side-effects. If remaining duration reaches zero, your pill shall expire within the next hour.",
@@ -3303,6 +3412,9 @@ function backCompPillsInventory() {
 		"asylum's prescription": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0 },
 		"Dr Harper's prescription": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0 },
 		"Anti-Parasite Cream": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0 },
+		"X-Change Pink Hyper Fertility": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+		"X-Change Blue Hyper Fertility": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+		"SWP Anti-fertility Pill": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Pink Basic": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Pink Weekly": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Pink NOW": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},

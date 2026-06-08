@@ -424,6 +424,12 @@ window.pregnancyGenerator = {
 					if (count < 3) count = 3;
 					if (count < 4 && random(1, 100) <= parasiteBonus * 40) count++;
 				}
+
+			// --- Fertility X-Change pill ---
+			// Boosts the PC's womb (carrying) or sperm (impregnating an NPC).
+			if ((mother === "pc" || father === "pc") && typeof fertilityTreatmentApplyMultiples === "function") {
+				count = fertilityTreatmentApplyMultiples(count, 4);
+			}
 			/* Ready for the cloning of PurityGuy to begin */
 			for (let i = 0; i < count; i++) {
 				const childId =
@@ -507,7 +513,11 @@ window.pregnancyGenerator = {
 			}
 			// Tummy parasite contributes extra effective fertility for litter size
 			const parasiteBonus = mother === "pc" ? tummyParasiteFertilityBonus() : 0;
-			const effectiveFertility = fertility + parasiteBonus * 4;
+			let effectiveFertility = fertility + parasiteBonus * 4;
+			// --- Fertility X-Change pill: larger litters ---
+			if ((mother === "pc" || father === "pc") && typeof fertilityTreatmentActive === "function" && fertilityTreatmentActive()) {
+				effectiveFertility += 3;
+			}
 			for (let i = 0; i < 8; i++) {
 				const childId =
 					"m" + motherObject.parentId.id + "b" + motherObject.parentId.kids + "d" + fatherObject.parentId.id + "f" + fatherObject.parentId.kids;
@@ -649,6 +659,11 @@ window.pregnancyGenerator = {
 			if (parasiteBonus > 0 && random(1, 100) <= parasiteBonus * 100) {
 				if (count < 3) count = 3;
 				if (count < 4 && random(1, 100) <= parasiteBonus * 50) count++;
+			}
+
+			// --- Fertility X-Change pill: more eggs ---
+			if ((mother === "pc" || father === "pc") && typeof fertilityTreatmentApplyMultiples === "function") {
+				count = fertilityTreatmentApplyMultiples(count, 4);
 			}
 
 			const featherColour = ["white", "brown"];

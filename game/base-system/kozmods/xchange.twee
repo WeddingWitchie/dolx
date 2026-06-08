@@ -1096,6 +1096,7 @@
 		<<unset $xchange.pill.swellTarget>>
 		<<set $xchange.pill.bimboEffect to false>>
 		<<set $xchange.pill.cumcureEffect to false>>
+		<<set $xchange.pill.hyperFertilityEffect to false>>
 
 		<<for _effect range _effectsList>>
 
@@ -1315,6 +1316,13 @@
 	<<case "cumcure">>
 		<<set $xchange.pill.cumcureEffect to true>>
 
+	<<case "fertility">>
+		<<set $xchange.pill.hyperFertilityEffect to true>>
+		<<if $player.vaginaExist>>
+			<<set $xchange.pill.fertile to true>>
+			<<set $sexStats.vagina.menstruation.running to true>>
+		<</if>>
+
 	<<case "choice">>
 		<<xchange-setpermanent>>
 		<<set $xchangePermanenceMessage to 0>>
@@ -1431,6 +1439,8 @@
 			<</if>>
 		<<case "cumcure">>
 			<<set $xchange.pill.cumcureEffect to false>>
+		<<case "fertility">>
+			<<set $xchange.pill.hyperFertilityEffect to false>>
 		<<case "spike" "unknown">>
 			<<set $xchange.pill.effectsKnown to true>>
 		<<default>>
@@ -1500,7 +1510,8 @@
 	<<widget "xchange-pink">>
 		<<set $xchange.pill.continueEffect to false>>
 		/* 	args[0]: duration of the pill
-			args onwards: "fertile" to enable fertility cycle 
+			args onwards: "fertile" enables the normal fertility cycle
+						"fertility" enables Hyper Fertility
 						"resistance" enables resistance effect
 						"continue" enables continue effect 
 		*/	
@@ -1522,7 +1533,8 @@
 	<<widget "xchange-blue">>
 		<<set $xchange.pill.continueEffect to false>>
 		/* 	args[0]: duration of the pill
-			args[1]: "fertile" to enable fertility cycle 
+			args onwards: "fertile" enables the normal fertility cycle
+					"fertility" enables Hyper Fertility
 					"resistance" enables resistance effect
 					"continue" enables continue effect 
 		*/
@@ -1619,6 +1631,7 @@
 		<<unset $xchange.pill.swellTarget>>
 		<<set $xchange.pill.bimboEffect to false>>
 		<<set $xchange.pill.cumcureEffect to false>>
+		<<set $xchange.pill.hyperFertilityEffect to false>>
 		<<set $xchange.pill.breederEffect to false>>
 		<<set $xchange.pill.bullEffect to false>>
 		<<set $xchange.pill.fertile to false>>
@@ -1906,6 +1919,10 @@
 		<<if $xchange.pill.cumcureEffect or !$xchange.spikepool.cumcure>>
 			<<run _effectPool.deleteWith((val)=>val==="cumcure")>>
 		<</if>>
+
+		<<if !$xchange.spikepool.fertility>>
+			<<run _effectPool.deleteWith((val)=>val==="fertility")>>
+		<</if>>
 	<</widget>>
 
 	<<widget "xchange-antidote">>
@@ -1948,6 +1965,9 @@
 			</li><</if>>
 			<<if $xchange.pill.bullEffect>><li>Bull Effect.
 				<mouse class="tooltip linkBlue">(?)<span>Enhances your fertility. Almost guarantees successful impregnation of partners.</span></mouse>
+			</li><</if>>
+			<<if $xchange.pill.hyperFertilityEffect>><li>Hyper Fertility Effect.
+				<mouse class="tooltip linkBlue">(?)<span>Speeds up your pregnancies and greatly raises the odds of twins, triplets or quadruplets. Lasts as long as this pill.</span></mouse>
 			</li><</if>>
 			<<if $xchange.pill.passionEffect>><li>Passion Effect.
 				<mouse class="tooltip linkBlue">(?)<span>Steadily dissolves aphrodisiacs into your bloodstream at an hourly rate.</span></mouse></li><</if>>

@@ -160,6 +160,9 @@ function fetishPregnancy({ genital = "vagina", target = null, spermOwner = null,
 function playerPregnancyAttempt(baseMulti = 1, genital = "vagina") {
 	const pregnancy = V.sexStats[genital].pregnancy;
 
+	// Hyper Fertility: treat the PC as fully fertile regardless of cycle timing, so conception isn't blocked off-ovulation (and works even while X-Changed, when the menstrual cycle is paused). baseMulti < 1 would otherwise bail here.
+	if (typeof fertilityTreatmentActive === "function" && fertilityTreatmentActive()) baseMulti = Math.max(baseMulti, 1);
+
 	if (pregnancy.fetus.length || isNaN(baseMulti) || baseMulti < 1 || V.settings.pregnancyType !== "realistic") return false;
 
 	const [trackedNPCs, spermArray] = spermObjectToArray(V.sexStats[genital].sperm, true);
@@ -185,6 +188,10 @@ function playerPregnancyAttempt(baseMulti = 1, genital = "vagina") {
 
 	if (V.earSlime.growth >= 100 && V.earSlime.focus === "pregnancy") basePenalty = Math.floor(basePenalty / 2);
 	if (V.earSlime.growth >= 100 && V.earSlime.focus === "impregnation") basePenalty = Math.floor(basePenalty * 2);
+
+	// Hyper Fertility: make conception highly reliable within realistic mode, ignoring the cycle window (a very low penalty, like the breeder pill).
+	// Stays on the realistic path so pregnancy feats still count.
+	if (typeof fertilityTreatmentActive === "function" && fertilityTreatmentActive()) basePenalty = Math.min(basePenalty, 2);
 
 	/*
 		When spermArray.length - 1 is lower than basePenalty, it uses basePenalty to determin if the pregnancy should occur or not
@@ -642,7 +649,7 @@ function namedNpcPregnancyAttempt(npcName, forcePregnancy = false) {
 	let xchangePregnancyModifier = playerIsXChanged() && !V.xchange.pill.bullEffect ? V.xchange.pregnancyMultPercent / 100 : 1;
 
 	/* Works in a similar way to playerPregnancyAttempt */
-	const basePenalty = playerIsXChanged() && V.xchange.pill?.bullEffect ? 2 : Math.floor((20 - V.settings.baseNpcPregnancyChance * xchangePregnancyModifier) * fertility);
+	const basePenalty = playerIsXChanged() && V.xchange.pill?.bullEffect ? 2 : ((typeof fertilityTreatmentActive === "function" && fertilityTreatmentActive()) ? 1 : Math.floor((20 - V.settings.baseNpcPregnancyChance * xchangePregnancyModifier) * fertility));
 	let rng = random(0, spermArray.length > basePenalty ? spermArray.length : basePenalty);
 	if (forcePregnancy && !spermArray[rng]) rng = 0;
 
@@ -1281,7 +1288,6 @@ function recordSperm({
 
 		if (spermFoundIndex !== -1) {
 			sperm[spermFoundIndex].quantity += quantity;
-			return true;
 		} else {
 			const newSperm = {
 				source: spermOwnerName,
@@ -1293,8 +1299,22 @@ function recordSperm({
 			if (rngModifier) newSperm.mod = rngModifier;
 
 			sperm.push(newSperm);
-			return true;
 		}
+
+		// Hyper Fertility: resolve conception immediately at insemination, the way Fetish mode does but through the *realistic* roll, so it stays a realistic pregnancy and pregnancy feats still count. 
+		// Skips sperm that is only on the outside ("canWash"), exactly like the fetish path does.
+		if (
+			typeof fertilityTreatmentActive === "function" &&
+			fertilityTreatmentActive() &&
+			(typeof rngType !== "string" || !rngType.includes("canWash"))
+		) {
+			if (target === "pc" && V.sexStats[genital].pregnancy.type === null) {
+				playerPregnancyAttempt(1, genital);
+			} else if (C.npc[target] && C.npc[target].pregnancy && C.npc[target].pregnancy.enabled && !C.npc[target].pregnancy.fetus.length) {
+				namedNpcPregnancyAttempt(target);
+			}
+		}
+		return true;
 	}
 	return false;
 }
