@@ -193,7 +193,7 @@ DefineMacro("modelprepare-player-body", function () {
 
 	if (V.leftarm !== "bound" && V.leftarm !== "grappled") {
 		if (coverBreasts) {
-			if (malePresentingNipples || ["home", "alex_cottage"].includes(V.location) || (V.combat === 1 && V.consensual === 1)) {
+			if (["home", "alex_cottage"].includes(V.location) || (V.combat === 1 && V.consensual === 1)) {
 				T.coverBreasts = false;
 				T.modeloptions.arm_left = leftArm;
 			} else {
