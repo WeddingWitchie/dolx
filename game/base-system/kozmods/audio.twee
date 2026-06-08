@@ -193,7 +193,8 @@
 	<<if setup.bgsCurrentPlaylist isnot "none" and setup.bgsCurrentPlaylist isnot undefined>>
 		<<playlist setup.bgsCurrentPlaylist volume `$options.bgs_volume ?? 1`>>
 	<</if>>
-	<<if setup.bgvCurrentPlaylist isnot "none" and setup.bgvCurrentPlaylist isnot undefined>>
+	<<if setup.bgvCurrentPlaylist isnot "none" and setup.bgvCurrentPlaylist isnot undefined and setup.playlists and setup.playlists[setup.bgvCurrentPlaylist]>>
+		<<init-playlist setup.bgvCurrentPlaylist>>
 		<<playlist setup.bgvCurrentPlaylist volume `$options.voice_volume ?? 1`>>
 	<</if>>
 <</widget>>
@@ -286,12 +287,16 @@
 
 	<<if _args[0] is "stop" and setup.bgvCurrentPlaylist isnot "none">>
 		/* Stop the current BGV playlist */
-		<<playlist setup.bgvCurrentPlaylist stop>>
+		<<if setup.bgvCurrentPlaylist isnot undefined and setup.playlists and setup.playlists[setup.bgvCurrentPlaylist]>>
+			<<init-playlist setup.bgvCurrentPlaylist>>
+			<<playlist setup.bgvCurrentPlaylist stop>>
+		<</if>>
 		<<set setup.bgvCurrentPlaylist to "none">>
 
 	<<elseif _args[0] isnot "stop" and _args[0] isnot setup.bgvCurrentPlaylist and ($voiceoverActive is "f" or _args[1] is "override")>>
 		/* Stop the previous BGV playlist */
-		<<if setup.bgvCurrentPlaylist isnot "none">>
+		<<if setup.bgvCurrentPlaylist isnot "none" and setup.bgvCurrentPlaylist isnot undefined and setup.playlists and setup.playlists[setup.bgvCurrentPlaylist]>>
+			<<init-playlist setup.bgvCurrentPlaylist>>
 			<<playlist setup.bgvCurrentPlaylist stop>>
 		<</if>>
 
@@ -320,8 +325,11 @@
 	<<if ($options.audio is 1 and $options.voiceoverAudio is 1) and _args[1] is undefined>>
 		/* Fade out the BGV */
 		<<if setup.bgvCurrentPlaylist isnot "none">>
-			<<playlist setup.bgvCurrentPlaylist volume 1>>
-			<<playlist setup.bgvCurrentPlaylist fadeout>>
+			<<if setup.bgvCurrentPlaylist isnot undefined and setup.playlists and setup.playlists[setup.bgvCurrentPlaylist]>>
+				<<init-playlist setup.bgvCurrentPlaylist>>
+				<<playlist setup.bgvCurrentPlaylist volume 1>>
+				<<playlist setup.bgvCurrentPlaylist fadeout>>
+			<</if>>
 			<<set setup.bgvCurrentPlaylist to "none">>
 		<</if>>
 		<<set $voiceoverActiveSince to Date.now()>>
