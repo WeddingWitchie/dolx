@@ -589,12 +589,28 @@
 		<<addevent "forestdagger" _antiqueChance>>
 	<<else>>
 		<<addevent "forestgem" _antiqueChance>>
-		<<addinlineevent "eventforestitem_bees" 4>>
-			<<if $settings.bestialityEnabled and $settings.beesEnabled>>
+		/* Bears are drawn to honey, so the hive shows up more often for them. */
+		<<set _beeWeight to 4>>
+		<<if ($bear gte 6 or ($transformationParts.bear.tail isnot "hidden" and $transformationParts.bear.tail isnot "disabled"))>>
+			<<set _beeWeight to 7>>
+		<</if>>
+		<<addinlineevent "eventforestitem_bees" _beeWeight>>
+			<<set _isBear to ($bear gte 6 or ($transformationParts.bear.tail isnot "hidden" and $transformationParts.bear.tail isnot "disabled"))>>
+			/* Bears can raid the hive even with bestiality disabled, as they never provoke the swarm. */
+			<<if ($settings.beesEnabled and $settings.bestialityEnabled) or _isBear>>
 				You hear a gentle buzz up ahead. A large beehive hangs from a tree. Workers fly in and out in a quest for pollen. The honey would be valuable.
 				<br><br>
 
-				<<if currentSkillValue('tending') gte 800>>
+				<<if _isBear>>
+					<<if pcAreArmsBound("both")>>
+						<span class="red">Both of your arms are bound</span>, so you are unable to harvest honeycomb.
+					<<else>>
+						The bees crawl over you but pay you no mind. <span class="green">Your bear nature lets you reach in and take the honeycomb without fear of their stings.</span>
+						<br>
+						<<foodstufficon "wild_honeycomb">><<link [[Harvest honeycomb (0:20)|Forest Honey Pick]]>><<pass 20>><</link>><<tendingdifficulty 0 1>>
+					<</if>>
+					<br>
+				<<elseif currentSkillValue('tending') gte 800>>
 					<<if pcAreArmsBound("both")>>
 						<span class="red">Both of your arms are bound</span>, so you are unable to harvest honeycomb.
 					<<else>>
