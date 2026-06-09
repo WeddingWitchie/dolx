@@ -4,6 +4,7 @@ stages:
 
 variables:
   GIT_STRATEGY: fetch
+  # Set DOLX_UPLOAD_AUDIO to "true" only when the audio files actually change!
   DOLX_AUDIO_PACKAGE_VERSION: "0.19.0"
   DOLX_UPLOAD_AUDIO: "false"
 
@@ -202,6 +203,22 @@ release_job:
       Write-Host "Creating release $VERSION..."
       Write-Host "Release will link audio package $AUDIO_VERSION."
 
+      function Test-PackageLink {
+        param(
+          [Parameter(Mandatory=$true)][string]$Name,
+          [Parameter(Mandatory=$true)][string]$Url
+        )
+
+        Write-Host "Checking $Name package link: $Url"
+        curl.exe --fail --show-error --silent --location --head `
+          --header "JOB-TOKEN: $env:CI_JOB_TOKEN" `
+          "$Url" | Out-Null
+
+        if ($LASTEXITCODE -ne 0) {
+          throw "$Name package link is missing or inaccessible: $Url"
+        }
+      }
+
       $desc = Get-Content -Raw "./DoLX_Changelog.md"
 
       $htmlObj = @{
@@ -221,6 +238,10 @@ release_job:
         url  = "$env:CI_API_V4_URL/projects/$env:CI_PROJECT_ID/packages/generic/DoLX_Audio/$AUDIO_VERSION/DoLX_Audio_$AUDIO_VERSION.zip"
       }
       $audioJSON = $audioObj | ConvertTo-Json -Compress
+
+      Test-PackageLink "HTML" $htmlObj.url
+      Test-PackageLink "Images" $imageObj.url
+      Test-PackageLink "Audio" $audioObj.url
 
       & "C:\GitLab-Runner\release-cli.exe" create `
         --name "DoL:X-Change Edition $VERSION" `
