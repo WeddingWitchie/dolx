@@ -1,5 +1,5 @@
 # DoL:X-Change Edition Player Guide
-Use this guide when you want to know what a system does, what choices it opens, and what can go wrong. It focuses on current player-facing behaviour: pills, identity, routes, danger, money, settings, and the mechanics that change how you play. *Updated based on ver 0.5.9.8 DoLP v0.741 DoLX 0.19.7a
+Use this guide when you want to know what a system does, what choices it opens, and what can go wrong. It focuses on current player-facing behaviour: pills, identity, routes, danger, money, settings, and the mechanics that change how you play. **Updated based on 0.5.10.8 DoLP v0.745 DoLX 0.20.0**
 
 > **⚠️ Spoiler warning:** this guide explains mechanics, route triggers, event conditions, and some scene outcomes. Stop before a section if you would rather discover it naturally.
 
@@ -29,13 +29,14 @@ Use this guide when you want to know what a system does, what choices it opens, 
    - 3.6 [Fingernails, Claws & Scratch](#36-fingernails-claws--scratch)
    - 3.7 [Fluids, Cleanup & Arousal Control](#37-fluids-cleanup--arousal-control)
    - 3.8 [Attitudes, Speech & Traits](#38-attitudes-speech--traits)
+   - 3.9 [Penetration Pain & Substance Rebalance](#39-penetration-pain--substance-rebalance)
 4. [Seduction, Beauty, Alcohol & Aphrodisiacs](#4-seduction-beauty-alcohol--aphrodisiacs)
    - 4.1 [Seduction & Beauty](#41-seduction--beauty)
    - 4.2 [VIP Beauty Spa, Makeup & Cosmetics](#42-vip-beauty-spa-makeup--cosmetics)
    - 4.3 [Alcohol](#43-alcohol)
    - 4.4 [Drunkenness Tolerance Trait](#44-drunkenness-tolerance-trait)
    - 4.5 [Aphrodisiacs](#45-aphrodisiacs)
-5. [Audio System](#5-audio-system-experimental)
+5. [Audio System](#5-audio-system)
 6. [Allure, Danger & Reputation](#6-allure-danger--reputation)
 7. [Fame & Piller Identity](#7-fame--piller-identity)
 8. [Willpower System](#8-willpower-system)
@@ -56,7 +57,11 @@ Use this guide when you want to know what a system does, what choices it opens, 
     - 10.1 [Danger Gradient](#101-danger-gradient)
     - 10.2 [Police Harassment](#102-police-harassment)
 11. [Economy: HBSC Bank & Bank Heist](#11-economy-hbsc-bank--bank-heist)
-12. [Gambling & Pub Content](#12-gambling--pub-content)
+    - 11.1 [HBSC Accounts, Interest & Standing Orders](#111-hbsc-accounts-interest--standing-orders)
+    - 11.2 [Bank Heist](#112-bank-heist)
+12. [Gambling, Pub & Horse Racing](#12-gambling-pub--horse-racing)
+    - 12.1 [Pub Gambling and Dice](#121-pub-gambling-and-dice)
+    - 12.2 [Farm Racecourse and Horse Betting](#122-farm-racecourse-and-horse-betting)
 13. [Named NPC & Route Content](#13-named-npc--route-content)
 14. [Events, Locations & Farming](#14-events-locations--farming)
 15. [Settings, Options & Cheat Menu](#15-settings-options--cheat-menu)
@@ -140,6 +145,13 @@ Use this when you want X-Change content without relying on random spike pools or
 - City danger content can also involve the Premium Pill.
 - A free pill is not automatically consequence-free. Treat it as a tempting offer, not pure charity.
 
+**Briar Premium Pill danger note:** Briar's free Premium Pill is tempting because it gives control over the transformation, but the route around it can become dangerous if you follow the wrong opportunity or let the situation escalate.
+- The danger branch can lead to the player being kidnapped and forced into an enslaved/captive sequence.
+- During that route, the problem is not just the pill. The player can lose freedom, be trapped in torment, and be kept under someone else's control until an unexpected rescuer eventually intervenes.
+- Take the warning seriously if you want to avoid forced-captivity content, heavy danger, or long route consequences.
+- Or, if you deliberately want to see what happens, treat Briar's offer as one of the clearer doors into that kind of event chain.
+> Be careful with “free” Premium access. It can be a shortcut to body control, but it can also be bait for a much worse situation.
+
 ### 1.3 Single-Variant & Special Pills
 
 #### X-Change™️ Breeder
@@ -166,6 +178,17 @@ Use this when you want X-Change content without relying on random spike pools or
 - Can interact with pilled pregnancy and impregnation settings.
 - Permanent rut can be enabled directly through settings if you want it without waiting for a pill.
 - Breeder and Bull can both appear in the spike pool while Herm is active, regardless of starting sex.
+
+#### X-Change™️ Hyper Fertility
+**An extreme fertility pill line.** Hyper Fertility is for players who want pregnancy and impregnation pressure turned up far beyond normal X-Change risk.
+- **Pink Hyper Fertility** turns the player female and makes conception almost certain after unprotected insemination.
+- **Blue Hyper Fertility** turns the player male and greatly increases the chance that insemination succeeds.
+- It also heavily raises multiple-birth odds: **twins 80%**, **triplets 50%**, and **quadruplets 30%**.
+- It can appear in pill spikes if you enable it in the spike pool.
+- Settings include spike-pool support, a frequency slider, and cheat toggle support.
+- New feats support multiple-birth outcomes, including **Life Comes in Pairs** for twins and **Fours** for quadruplets.
+
+> Hyper Fertility is not a casual fertility boost. Use it when you want pregnancy outcomes to become much more likely and much harder to ignore.
 
 #### X-Change™️ X-Tend
 **A restraint challenge for male-born PCs.** X-Tend can increase penis size, but only if you play carefully.
@@ -278,8 +301,11 @@ Some pills are not regular pharmacy purchases. You can still run into them throu
 - They can reduce skills as part of the risk.
 - You may steal suspicious pills instead of cash from NPCs during encounters.
 - The pockethole dealer has a daily rate, and Portal deals are tied to the industrial alley.
+- Shady dealer rumours can now appear through school hallway gossip.
+- Once heard, the rumour tells you where the shady dealers can be found that week, and the current weekly location is recorded in the journal.
 - The Anti-Pill Dealer may appear each week. When present, stock changes daily.
 - Anti-pill dealer access uses a flat **D-rank skulduggery** check.
+- The shady remover dealer can sell SWP Anti-pills, which acting like a normal Antidote for X-Change effects.
 
 ### 1.5 Pill Stacking, Spiking & Combat Pilling
 
@@ -332,6 +358,7 @@ Temporary X-Change states have special handling for temple vow and angelic conte
 - The Resistance orgasm tracker appears in stats while active.
 - You can take pills in bathrooms and toilets across the world map.
 - Pilled appearance, pregnancy chance while pilled, spike frequency, and spike pool selection all have settings support.
+- X-Change pill duration can be controlled from the cheat menu, with options for **1 day**, **3 days**, **1 week**, **1 month**, or **permanent** effects.
 - X-Change fame appears in cheat/menu tools and can matter for routes such as Mickey tasks.
 
 ---
@@ -531,7 +558,7 @@ The **Scratch** combat action is a new defiant action that uses your fingernails
 - Scratch damage scales with the effective nail or claw level.
 - Longer or sharper nails make Scratch stronger.
 - Nail-armour rings now interact with Scratch correctly.
-- Cat, wolf, fox, and bear always have Scratch available because their claws are part of the transformation.
+- Cat, wolf, fox, bear, and Water Dragon transformations always have Scratch available because their claws are part of the transformation.
 - Smaller characters can deal more scratch/claw damage in dangerous fights, while larger and stronger characters still generally benefit more from punching. This keeps claws useful without replacing strength builds.
 - Consensual scenes keep Scratch/claw damage low so playful scratching does not end scenes too quickly.
 
@@ -557,6 +584,26 @@ DoLX also reworks the DoL Plus attitude system across many scenes.
 - Predatory animal traits can give a daily defiance buff.
 - Submissive and deviant action tuning has been rebalanced, especially during mid-combat.
 - Some story choices no longer require submissiveness, and some defiant checks can use wolf-specific defiance requirements so wolf TF players with high submissiveness still have access to appropriate options.
+
+### 3.9 Penetration Pain & Substance Rebalance
+
+Penetration pain has been rebalanced so wetness, size, repeated stimulation, and encounter type matter more clearly.
+- Higher wetness can reduce vaginal and anal penetration pain over time.
+- Being dry keeps penetration more painful, so arousal and lubrication matter more than before.
+- Very large NPCs can still cause meaningful stretch pain even when the player is wet.
+- Colossal NPCs remain especially difficult to handle.
+- Large NPC penis sizes add extra stretch pain.
+- Double penetration uses the largest active penetrator when calculating stretch pain.
+- In consensual encounters, repeated orgasms can gradually reduce pain after the player climaxes three or more times in the same scene.
+- In non-consensual encounters, capped pain can convert a small amount into trauma each turn instead of sitting harmlessly at the cap forever.
+
+Substance rebalancing also makes intoxication less likely to completely break play.
+- Alcohol, hallucinogens, and other drugs wear off about **25% faster** under the rebalance.
+- Skill penalties from being drunk or high are gentler and capped.
+- Heavy intoxication still slows the player down, but should not reduce checks all the way to useless zero-values.
+- Botched-pill pain is lower under the Substance Rebalance option, making failed pill outcomes still painful but less extreme than before.
+
+> Wetness, arousal, intoxication, and encounter tone now matter more. A scene can become easier or worse depending on how prepared, drugged, or overwhelmed the player is.
 
 ---
 
@@ -615,6 +662,7 @@ Alcohol also interacts with willpower:
 - It makes pleasure-related checks harder.
 - It can make pain-related checks easier during combat, because drunkenness numbs pain.
 - The current system resolves an old conflict so DoLX's own alcohol modifier is the one used for seduction and willpower calculations.
+- Under the newer substance rebalance, alcohol and other drugs wear off faster and their skill penalties are capped, so heavy intoxication is still dangerous without making every check impossible.
 
 ### 4.4 Drunkenness Tolerance Trait
 
@@ -646,6 +694,7 @@ DoLX includes an audio system and adaptive background music.
 - Sissy / Butch pills may switch voiceover audio gender if posture is neutral.
 - The game can be muted automatically when its window is out of focus or hidden.
 - An alternative female voice for your character is available.
+- NPC moaning and orgasm voiceovers can be turned on or off separately, useful if you want combat/arousal audio without NPC voice playback.
 
 > Because this feature may be more sensitive to performance, browser, package, or platform issues than ordinary gameplay systems.
 
@@ -856,7 +905,11 @@ Police coverage and harassment also vary by area.
 
 ## 11. Economy: HBSC Bank & Bank Heist
 
-DoLX now integrates and expands the **HBSC Bank** feature into a fuller economy system. The bank can handle:
+DoLX now integrates and expands the **HBSC Bank** feature into a fuller economy system. The bank is useful for more than storing spare money: it can manage savings, fixed-term deposits, route payments, and now recurring bills.
+
+### 11.1 HBSC Accounts, Interest & Standing Orders
+
+The HBSC bank can handle:
 - opening an account
 - account tier upgrades
 - savings deposits and withdrawals
@@ -864,10 +917,26 @@ DoLX now integrates and expands the **HBSC Bank** feature into a fuller economy 
 - early fixed-term withdrawal options
 - journal and stats notices for interest
 - clearer brochure and rate information
+- automatic bill payments through standing orders
+
+**Standing orders** let the player route recurring bills through HBSC savings. The covered bills currently include:
+- orphanage rent, paid to Bailey
+- farm tower guard wages
+- gambling-ring upkeep, paid to Landry
+
+When a standing order is active, the journal records that the bill is covered. If the bank cannot cover the full amount when payment is due, the standing order is cancelled and the journal shows a red alert. Treat this as convenience, not immunity: the system helps you avoid forgetting rent or wages, but it still depends on having enough money in savings.
+
+Bailey rent standing orders can now apply from multiple living locations, including the farm cottage, Poppy's flat, the temple, and the orphanage. If savings are too low, the automatic payment fails and the player is told.
+
+**Fixed-term deposits now use simple yearly interest language.** The bank uses pro-rata yearly rates rather than compounded AER wording.
+- A **1-month £300,000** fixed-term deposit at **2.5% per year** pays **£625**.
+- A **12-month** term pays the full headline yearly rate.
+- Confirmation screens and result screens show both the interest earned and the term length.
+- Active deposit details show the total if the deposit is held to maturity.
 
 Avery can notice your **HBSC bank account**, which can unlock or change some Avery-related content. The bank also connects to the **Brown Fox** task, so it has uses beyond saving money.
 
-### Bank Heist
+### 11.2 Bank Heist
 
 A bank heist event has been added as a more active crime/economy route.
 - The heist includes skill checks and multiple outcomes.
@@ -880,7 +949,11 @@ A bank heist event has been added as a more active crime/economy route.
 
 ---
 
-## 12. Gambling & Pub Content
+## 12. Gambling, Pub & Horse Racing
+
+DoLX gambling is no longer only a pub side activity. The pub still has dice, drinking, and pill risk, while the farm can unlock a full horse-race betting minigame once the farm has been fully cleared.
+
+### 12.1 Pub Gambling and Dice
 
 A gambling ring can be set up at the pub.
 - Speak to **Landry** and ask about setting up a gambling ring.
@@ -889,8 +962,32 @@ A gambling ring can be set up at the pub.
 - Dice gambling can involve alcohol, pills, and alternative bets when the player runs out of money.
 - You can gamble with dice multiple times in a single day.
 - Dice minigame drinks may layer multiple spike effects on top of the current pill if you are already pilled.
+- Gambling-ring upkeep can be covered by HBSC standing order if you have enough savings.
 
 > This gives the pub another money route, but also places the character in a setting where drinking, risk, and spiking can overlap.
+
+### 12.2 Farm Racecourse and Horse Betting
+
+The farm can unlock a **horse race betting minigame** once the farm has been fully cleared. After that, the player can visit the racecourse, choose a horse to back, place a bet, and either watch the race unfold or skip straight to the result.
+
+Race basics:
+- Races use **3 to 5 random horses**.
+- Each horse has betting odds, and winning bets pay out according to those odds.
+- There are **2 race field types**.
+- Track going is based on the current weather.
+- Horses move around the track during the race display.
+- Horses can trigger random skills during the race, and skill activations appear in the race log.
+- Time passes while the horses are running, so racing is not a free pause in the day.
+- The racecourse closes at **21:00** and is unavailable at night after closing.
+
+Risk notes:
+- Betting is not just a clean money button. Horse incidents can happen.
+- Horses injured by incidents become unavailable until they recover.
+- If a horse is injured, it is usually better to wait until the next week before betting again.
+- The racecourse is safest when treated as a weekly side activity rather than something to spam until it breaks.
+- Large weekly betting exposure can push the route toward incident consequences, so spreading bets carefully is safer than chasing losses.
+
+> Watch the odds, weather, time, and injury state. A good bet can pay well, but an injured favourite cannot keep carrying you through the week.
 
 ---
 
@@ -944,6 +1041,8 @@ Kylar's route timing, obsession behaviour, and X-Change interactions have been a
 - Kylar will attempt to have sex with the player in their sleep rather than only masturbating on top of them.
 - Kylar can take pills of their own volition during the abduction event, and sometimes when horny, if you are currently a different sex than Kylar.
 - You may be able to let Kylar pill themselves, stop them, or do the pilling personally if circumstances allow.
+- Stalking signs are clearer for observant or traumatised characters. Players with **Sharp Eyes** or **Dragon Eyes** can notice when Kylar is stalking them.
+- Players with high awareness and high trauma can also notice the stalking, while other players may only hear footsteps.
 
 ### Remy
 
@@ -962,7 +1061,9 @@ Current player-facing notes:
 - Poppy has **Mod LI support**, but you need to turn them on in the settings before their love-interest content becomes available.
 - Poppy has **adaptable display support**, allowing their image to change depending on the event.
 - Poppy has a Christmas event that can trigger if the player celebrates Christmas with another orphan.
+- Poppy can now be available during winter.
 - Poppy has pregnancy-related content.
+- Poppy's math study event can involve stimulant use in their flat.
 - Poppy can let you temporarily stay at their flat, but this may require progressing Poppy as a love interest first.
 
 Poppy's stat decay:
@@ -991,7 +1092,9 @@ The Ivory Wraith and underwater prison content can interact with X-Change system
 - Avery can notice that you have a HBSC bank account and send money to the account for the correct cooking requests.
 - The Choice Reversal pill can be found at Avery's Mansion.
 - Avery reacts negatively if the player reverts their transformation while living with them.
+- Avery's mansion-intro Choice Pill scene now gives a clearer coloured notice, making it easier to tell when the pill choice matters.
 - Office wage from working as Avery's assistant can be boosted by beauty.
+- Jordan may react when spoken to at the temple if the player has a divine transformation.
 - Whitney may gain love from being made to orgasm during reverse rape.
 - Sirris class has an avoidance event that can let the player slip out of Leighton's inspection, though the first inspection remains unavoidable.
 
@@ -1025,6 +1128,29 @@ A **Water Dragon** transformation has been added as a new animal transformation.
 - A Water Dragon lore event can occur at the island spear encounter.
 - Water Dragon TF has temperature tolerance: near-cold-immunity, with a slight heat vulnerability.
 - A dragon skin option is available at the mirror.
+- Water Dragon now has its own claw/scratch text and uses the same claw rebalance as other animal transformations.
+- Water Dragon horns count properly as horns for horn-related checks and effects.
+- **Dragon Eyes** are available at the mirror, including for old saves that gained Water Dragon before the trait was added.
+- Dragon Eyes combine sharp eyes with the esoteric trait from special clothing, grant **+5% skulduggery**, and make the player always hallucinate regardless of awareness, trauma, or hallucinogens.
+
+### Bear Transformation and Honey
+
+Bear-transformed players are naturally drawn to honey.
+- Bear transformation increases the chance of finding honey in the forest.
+- Bear-transformed players can find honey regardless of honey-related settings.
+- Bear-transformed players can harvest honey more easily.
+
+### Daydreaming
+
+Daydreaming is more useful as a small recovery option.
+- All daydream choices now reduce fatigue.
+- Some special daydream events can also reduce stress or apply other additional effects.
+
+### Moor Harpy Tailwind
+
+The moor's instant tower-flight event is more specific now.
+- The random tailwind event that flies the player to the tower requires **Great Hawk syndrome** first.
+- Full Harpy / Great Hawk travel still has strong moor movement flavour, but the tower shortcut should no longer appear for characters who do not meet that route condition.
 
 ### Maps & Search Helpers
 
@@ -1034,7 +1160,7 @@ A **Water Dragon** transformation has been added as a new animal transformation.
 - Tentacle Plain has a minimap with exit paths and a pepper spray detector.
 - Forest, Moor, Smuggler Cave, and Sea minimaps have been added.
 - Dock sneak now has a minimap.
-- Full Harpy TF can interact with Moor RNG travel, making tower travel more common, with flying to the tower documented as **1 in 9** and walking there as **1 in 18**, while preserving normal moor events.
+- Full Harpy / Great Hawk routing can interact with Moor RNG travel, making tower travel more common once the relevant syndrome/route conditions are met, while preserving normal moor events.
 
 ### Crop Progress, Clovers & Loft Cooking
 
@@ -1105,11 +1231,11 @@ Advanced Hair Dye expands the hairdresser's dye options, giving you more control
 
 DoLX adds many new settings and cheat options so players can control how the mod behaves. It also adds more NNPC display options, including restored old display UI, vanilla follower-style display, and gender override support.
 
-You can adjust things like pill frequency, spike pools, pregnancy chance while pilled, pilled appearance, Portal content, permanent heat or rut, Gender Identity body changes, combat pill safety, audio, display options, and rebalance settings. The cheat menu also includes X-Change tools, including options for special pills and forcing the current pill effect to end.
+You can adjust things like pill frequency, spike pools, Hyper Fertility spike frequency, pregnancy chance while pilled, pilled appearance, Portal content, permanent heat or rut, Gender Identity body changes, combat pill safety, audio, NPC voiceovers, display options, and rebalance settings. The cheat menu also includes X-Change tools, including options for special pills, duration controls, and forcing the current pill effect to end.
 
 > Use cheats carefully, especially on saves with pregnancy, permanent transformations, identity changes, or active route content.
 
-Check the settings and cheat menu if you want more control over how often X-Change content appears and how risky it becomes.
+Check the settings and cheat menu if you want more control over how often X-Change content appears and how risky it becomes. Duration controls are especially powerful: a pill that normally feels like a short accident can be turned into a one-month or permanent route if you choose that style of play.
 
 ### Alternate Spritepack for X-Changed Bodies
 
