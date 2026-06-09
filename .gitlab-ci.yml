@@ -4,6 +4,8 @@ stages:
 
 variables:
   GIT_STRATEGY: fetch
+  DOLX_AUDIO_PACKAGE_VERSION: "0.19.0"
+  DOLX_UPLOAD_AUDIO: "false"
 
 audio_job:
   stage: build
@@ -11,13 +13,22 @@ audio_job:
     - |
       $ErrorActionPreference = "Stop"
       $FULLVERSION = Get-Content -Raw ./version
+      $AUDIO_VERSION = "$env:DOLX_AUDIO_PACKAGE_VERSION"
 
-      if ($FULLVERSION -match "DoLX (\d+\.\d+\.0)(?![a-z]+)") {
-        $VERSION = $matches[1]
-        Write-Host "Building Audio Release $VERSION"
+      if ([string]::IsNullOrWhiteSpace($AUDIO_VERSION)) {
+        throw "DOLX_AUDIO_PACKAGE_VERSION is empty. Set it to the latest uploaded audio package version."
+      }
+
+      if ($env:DOLX_UPLOAD_AUDIO -ne "true") {
+        Write-Host "Audio upload skipped."
+        Write-Host "Game version: $FULLVERSION"
+        Write-Host "Release will reuse existing audio package version $AUDIO_VERSION."
+      }
+      else {
+        Write-Host "Building Audio Release $AUDIO_VERSION"
 
         $buildDir = "./build_audio"
-        $zipPath = "./DoLX_Audio_$VERSION.zip"
+        $zipPath = "./DoLX_Audio_$AUDIO_VERSION.zip"
 
         Remove-Item -Recurse -Force $buildDir -ErrorAction SilentlyContinue
         Remove-Item -Force $zipPath -ErrorAction SilentlyContinue
@@ -35,10 +46,10 @@ audio_job:
         $zipSize = (Get-Item $zipPath).Length
         Write-Host ("Audio zip size: {0:N2} MB" -f ($zipSize / 1MB))
 
-        Write-Host "Finished Building Audio Release $VERSION"
-        Write-Host "Uploading Audio Release $VERSION"
+        Write-Host "Finished Building Audio Release $AUDIO_VERSION"
+        Write-Host "Uploading Audio Release $AUDIO_VERSION"
 
-        $uploadUrl = "$env:CI_API_V4_URL/projects/$env:CI_PROJECT_ID/packages/generic/DoLX_Audio/$VERSION/DoLX_Audio_$VERSION.zip"
+        $uploadUrl = "$env:CI_API_V4_URL/projects/$env:CI_PROJECT_ID/packages/generic/DoLX_Audio/$AUDIO_VERSION/DoLX_Audio_$AUDIO_VERSION.zip"
 
         curl.exe --fail --show-error --silent `
           --header "JOB-TOKEN: $env:CI_JOB_TOKEN" `
@@ -53,14 +64,10 @@ audio_job:
         Remove-Item -Recurse -Force $buildDir -ErrorAction SilentlyContinue
         Remove-Item -Force $zipPath -ErrorAction SilentlyContinue
 
-        Write-Host "Finished Uploading Audio Release $VERSION"
-      }
-      else {
-        Write-Host "Audio package skipped (version is not x.y.0): $FULLVERSION"
+        Write-Host "Finished Uploading Audio Release $AUDIO_VERSION"
       }
   only:
     - master
-
 img_job:
   stage: build
   script:
@@ -182,13 +189,18 @@ release_job:
       if ($FULLVERSION -match "DoLX (((\d+\.\d+\.)\d+)[a-z]*)") {
         $VERSION = $matches[1]
         $MINOR   = $matches[2]
-        $MAJOR   = $matches[3] + "0"
       }
       else {
         throw "Could not parse release version from version file: $FULLVERSION"
       }
 
+      $AUDIO_VERSION = "$env:DOLX_AUDIO_PACKAGE_VERSION"
+      if ([string]::IsNullOrWhiteSpace($AUDIO_VERSION)) {
+        throw "DOLX_AUDIO_PACKAGE_VERSION is empty. Set it to the latest uploaded audio package version."
+      }
+
       Write-Host "Creating release $VERSION..."
+      Write-Host "Release will link audio package $AUDIO_VERSION."
 
       $desc = Get-Content -Raw "./DoLX_Changelog.md"
 
@@ -205,8 +217,8 @@ release_job:
       $imageJSON = $imageObj | ConvertTo-Json -Compress
 
       $audioObj = @{
-        name = "DownloadMe_DoLX_Audio_$MAJOR"
-        url  = "$env:CI_API_V4_URL/projects/$env:CI_PROJECT_ID/packages/generic/DoLX_Audio/$MAJOR/DoLX_Audio_$MAJOR.zip"
+        name = "DownloadMe_DoLX_Audio_$AUDIO_VERSION"
+        url  = "$env:CI_API_V4_URL/projects/$env:CI_PROJECT_ID/packages/generic/DoLX_Audio/$AUDIO_VERSION/DoLX_Audio_$AUDIO_VERSION.zip"
       }
       $audioJSON = $audioObj | ConvertTo-Json -Compress
 
