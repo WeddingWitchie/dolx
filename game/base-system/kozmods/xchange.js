@@ -728,8 +728,12 @@ function xchangeHyperFertilityActive() {
 }
 window.xchangeHyperFertilityActive = xchangeHyperFertilityActive;
 
+// xchangeHyperFertilityActive() is whether the effect is on the pill (still true during a flashback / hopeless cycle).
+// This gate decides whether the effect should *apply right now*: never during statFreeze or hopeless cycle, so those sequences can't trigger conception/acceleration. 
+// The instant-conception roll fires at insemination and would otherwise bypass the time system that statFreeze halts. 
+// Off if EITHER state is set.
 function fertilityTreatmentActive() {
-	return xchangeHyperFertilityActive();
+	return xchangeHyperFertilityActive() && !V.statFreeze && !V.hc;
 }
 window.fertilityTreatmentActive = fertilityTreatmentActive;
 
