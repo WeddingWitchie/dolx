@@ -1,0 +1,342 @@
+:: Function [script]
+(function registerGrayPharmacyItems() {
+	function register() {
+		if (typeof setup !== "object" || setup === null) return;
+		if (typeof setup.pharmacyItems !== "object" || setup.pharmacyItems === null) {
+			setup.pharmacyItems = {};
+		}
+
+		/* Hospital gray price. 
+		Landry sells the full line at 6000 of "twice the hospital price", so the hospital baseline is 3000 per pill. */
+		const refPrice = 300000;
+
+		/* key -> pill name (the pill name is also the inventory `type`) */
+		const grayStock = {
+			xchange_gray_breeder: "X-Change Breeder",
+			xchange_gray_bull: "X-Change Bull",
+			xchange_gray_swell: "X-Change Swell",
+			xchange_gray_hyper_fertility: "X-Change Hyper Fertility",
+			xchange_gray_fertility: "X-Change Fertility",
+			xchange_gray_passion: "X-Change Passion",
+			xchange_gray_innocence: "X-Change Innocence",
+			xchange_gray_bimbo: "X-Change Bimbo",
+			xchange_gray_cumcure: "X-Change CumCure",
+			xchange_gray_dumb_bitch: "X-Change Dumb-Bitch",
+			xchange_gray_xtend: "X-Change X-Tend (Gray)",
+			xchange_gray_resistance: "X-Change Resistance",
+			xchange_gray_continue: "X-Change Continue",
+			xchange_gray_extension: "X-Change Weekly Extension",
+			xchange_gray_portal: "X-Change Portal",
+		};
+
+		for (const [key, pillName] of Object.entries(grayStock)) {
+			setup.pharmacyItems[key] = { name: pillName, type: pillName, price: refPrice };
+		}
+	}
+
+	if (typeof window !== "undefined" && typeof window.$ === "function") {
+		window.$(register);
+	} else if (typeof setTimeout === "function") {
+		setTimeout(register, 0);
+	} else {
+		register();
+	}
+})();
+
+(function defineXchangeEffectFlag() {
+	if (typeof window.setup !== "object" || window.setup === null) window.setup = {};
+
+	function xchangeEffectFlag(effect) {
+		switch (effect) {
+			case "genderflip": return "genderflipEffect";
+			case "crossdress": return "genderificationEffect";
+			case "herm": return "hermEffect";
+			case "xtend": return "xtendEffect";
+			case "resistance": return "resistanceEffect";
+			case "continue": return "continueEffect";
+			case "fertile": return "fertile";
+			case "breeder": return "breederEffect";
+			case "bull": return "bullEffect";
+			case "portal": return "portalEffect";
+			case "passion": return "passionEffect";
+			case "dumb-bitch": return "dumbBitchEffect";
+			case "innocence": return "innocenceEffect";
+			case "swell": return "swellEffect";
+			case "bimbo": return "bimboEffect";
+			case "cumcure": return "cumcureEffect";
+			case "fertility": return "hyperFertilityEffect";
+			case "choice": return "choiceEffect";
+			default: return "";
+		}
+	}
+
+	window.xchangeEffectFlag = xchangeEffectFlag;
+	setup.xchangeEffectFlag = xchangeEffectFlag;
+})();
+
+
+:: X-Change Gray Widgets [widget]
+	/* Compatibility wrapper around the JS helper. Mostly useful for quick in-game tests. */
+	<<widget "xchange-effect-flag">>
+		<<set _effectFlag to setup.xchangeEffectFlag(_args[0])>>
+	<</widget>>
+
+	/* Stack one or more effects onto an already-active pill without resetting the session. */
+	<<widget "xchange-stackeffects">>
+		<<set _days to _args[0]>>
+		<<set _newEffects to Array.isArray(_args[1]) ? _args[1] : _args.slice(1)>>
+
+		<<if $xchange.pill.clone is undefined>><<set $xchange.pill.clone to "none">><</if>>
+
+		<<for _effect range _newEffects>>
+			/* Continue and Resistance only make sense when a gendered/herm X-Change body is involved. */
+			<<if ["continue", "resistance"].includes(_effect) && !($xchange.pill.genderflipEffect || $xchange.pill.hermEffect)>>
+				<<continue>>
+			<</if>>
+
+			/* Skip if this effect is already running. */
+			<<set _effectFlag to setup.xchangeEffectFlag(_effect)>>
+			<<if _effectFlag isnot "" and $xchange.pill[_effectFlag]>>
+				<<continue>>
+			<</if>>
+
+			<<xchange-addeffect _effect _days>>
+		<</for>>
+
+		/* Give newly stacked effects enough time to matter, but don't shorten the running pill. */
+		<<if !pillIsPermanent()>>
+			<<set $xchange.pill.duration to Math.max($xchange.pill.duration || 0, _days * 24 - 1)>>
+		<</if>>
+	<</widget>>
+
+	/* Take a gray pill: effect-only, no forced genderflip. */
+	<<widget "xchange-gray">>
+		<<set _duration to _args[0]>>
+		<<set _effects to _args.slice(1)>>
+
+		<<if playerIsXChanged()>>
+			/* A session is running: add to the current body without resetting the pill. */
+			<<xchange-stackeffects _duration _effects>>
+			<<exposedcheck>>
+		<<else>>
+			/* No session: start a fresh session.
+			   Setting "$xchange.grayPillGenderflip" decides whether a standalone
+			   gray pill also swaps gender (effect on a new body) or keeps the
+			   original body (effect-only). Default/undefined = original body. */
+			<<save-body>>
+			<<if $xchange.grayPillGenderflip>>
+				<<run _effects.unshift("genderflip")>>
+			<</if>>
+			<<xchange-effects _duration _effects>>
+			<<exposedcheck>>
+			<<set $xchange.timesTaken.player++>>
+		<</if>>
+	<</widget>>
+
+	/* Gray extender: add days to a running X-Change session without adding a body flip. */
+	<<widget "xchange-extend">>
+		<<set _days to _args[0]>>
+		<<set _ensure to _args.slice(1)>>
+
+		<<if playerIsXChanged() and !pillIsPermanent()>>
+			<<set $xchange.pill.duration to $xchange.pill.duration + _days * 24>>
+			<<if $xchange.pill.clone is undefined>><<set $xchange.pill.clone to "none">><</if>>
+			<<for _effect range _ensure>>
+				<<set _effectFlag to setup.xchangeEffectFlag(_effect)>>
+				<<if _effectFlag is "" or !$xchange.pill[_effectFlag]>>
+					<<xchange-addeffect _effect _days>>
+				<</if>>
+			<</for>>
+		<</if>>
+	<</widget>>
+
+
+:: Pharmacy Gray Ask
+<<effects>>
+You nod at the small gray section of the shelf. 
+"Why don't you carry the full gray line? You stock every other X-Change variant under the sun."
+<br><br>
+The <<person>> glances at the shelf, then back at you.
+"Those are a higher-end product than the usual line. Newer process, smaller batches. 
+We get what we get, and the special stock changes every week."
+<br><br>
+<<He>> shrugs and goes back to <<his>> book.
+"Don't ask me why. We're not the ones who choose what goes on that shelf. <span class="elk">They</span> are."
+<br><br>
+<<link [[Next|Pharmacy]]>><</link>>
+
+/* LANDRY */
+:: Pub Landry Gray News
+<<endevent>>
+<<effects>><<npc Landry>><<person1>>
+The bartender doesn't even need to point this time. 
+Landry is already waving you over, and there's something different about <<him>>. 
+The wariness that usually sits behind <<his>> eyes has been replaced by something that looks almost like excitement.
+<br><br>
+"There <<pshe>> is." <<He>> pushes a drink towards you as you sit. 
+"I was starting to think I'd have to send the little fox to fetch you. We've had a breakthrough."
+<br><br>
+<<He>> leans in, voice dropping.
+<br><br>
+"Mickey's been living inside that card since the heist. Money flow, shipment manifests, supplier accounts, the lot. 
+They didn't just find out <i>who</i> moves the pills." <<He>> taps the table. 
+"They found out <i>how they're made</i>. Batch records. Formulations. The whole kitchen."
+<br><br>
+<<link [[Next|Pub Landry Gray News 2]]>><</link>>
+
+:: Pub Landry Gray News 2
+<<effects>>
+"So I called in some favours. People I trust, people with the right equipment and short memories." 
+<<He>> reaches into <<his>> coat and sets something on the table between you, shielded by <<his>> hand: 
+a small bottle of colourless capsules.
+<br><br>
+"We're calling them <span class="teal">gray pills</span>. 
+Every X-Change effect you've seen like the fertility lines, the body work, all of it but with the swap agent stripped out.
+No forced pink, no forced blue. You take one, you stay <i>you</i>, and the effect works with whatever body you're wearing. 
+Take it on its own, or on top of a regular pill. Your choice, for once."
+<br><br>
+<<He>> sits back, clearly pleased with <<himself>>.
+<br><br>
+"Safer. Controlled. Properly dosed, properly tested. The catch is they're a nightmare to make quietly. 
+Which brings us to the part you won't like." <<He>> turns the bottle so the light catches it.
+"<span class="gold">£6,000</span> a pill."
+<br><br>
+<<link [[Protest the price|Pub Landry Gray Protest]]>><</link>>
+<br>
+<<link [[Accept the price|Pub Landry Gray Accept]]>><</link>>
+
+:: Pub Landry Gray Protest
+<<effects>><<speechresolve>>
+<<if ((_speechAttitudeResolved is "meek") or (_speechAttitudeResolved is "shy"))>>
+	"That's... the hospital sells theirs for half that," you manage.
+<<elseif ((_speechAttitudeResolved is "polite") or (_speechAttitudeResolved is "flamboyant"))>>
+	"Six thousand?" you say. "The hospital charges half that. You're aware of this, I assume."
+<<elseif _speechAttitudeResolved is "docile">>
+	"The hospital's are cheaper," you say quietly. "Half the price."
+<<elseif _speechAttitudeResolved is "confident">>
+	You frowns. "Six grand. The hospital sells the same thing for three. Try again."
+<<elseif ((_speechAttitudeResolved is "bratty") or (_speechAttitudeResolved is "cruel"))>>
+	"Twice the hospital price? Did the heist knock something loose in your head?" you hiss.
+<<else>>
+	"That's twice what the hospital charges," you say.
+<</if>>
+<br><br>
+Landry doesn't even react at first. <<He>> has clearly rehearsed this.
+<br><br>
+"It is. And here's what the hospital price doesn't buy you." <<He>> raises a finger. 
+"One: making these <i>safely</i> costs real money.
+Clean equipment, proper testing, people who know what they're doing and get paid enough not to talk about it."
+<br><br>
+A second finger. "Two: security. Every batch we make is a batch <span class="elk">the master's</span> people could trace. 
+Staying invisible isn't free. A chunk of every pill goes straight into making sure there's nothing left to find."
+<br><br>
+A third finger. "Three: and check their shelf sometime if you don't believe me... the hospital doesn't carry the full gray line. 
+Never has. A few stable ones, the odd special when it suits whoever does their ordering. 
+I carry <i>everything</i>. You're not paying double for the same product. 
+You're paying for the complete catalogue, made by people who aren't owned by the man we're trying to bury."
+<br><br>
+<<link [[Accept the price|Pub Landry Gray Accept]]>><</link>>
+
+:: Pub Landry Gray Accept
+<<effects>>
+<<if $xchange.grayPills is undefined>><<set $xchange.grayPills to {}>><</if>>
+<<set $xchange.grayPills.landryIntro to true>>
+"Fine," you say. "Six thousand."
+<br><br>
+"Knew you'd see sense." Landry pockets the bottle and raises one cautioning hand before you can reach for your money.
+<br><br>
+"One rule. <span class="gold">One pill per day.</span> Not negotiable. 
+Every single capsule gets made to order and walked through three pairs of hands before it reaches this table. 
+That's how it stays clean, and that's how nobody upstream notices a pattern. 
+You want bulk, go queue at the hospital with everyone else and take your chances with whatever
+<span class="elk">they</span> decided to put in this week."
+<br><br>
+<<He>> settles back into the booth.
+<br><br>
+"So. Want to see the catalogue?"
+<br><br>
+<<pillicon "xchangeGray">><<link [[See what Landry has|Pub Landry Gray Shop]]>><</link>>
+<br>
+<<getouticon>><<link [[Leave|Pub]]>><<endevent>><</link>>
+
+:: Pub Landry Gray Shop
+<<endevent>>
+<<effects>><<npc Landry>><<person1>>
+<<if $daily.landryGrayPill>>
+	Landry shakes <<his>> head before you finish asking.
+	<br><br>
+	"Already sold you one today. The next batch is still being made, carefully, which is the entire point. Come back tomorrow."
+	<br><br>
+	<<getouticon>><<link [[Leave|Pub]]>><<endevent>><</link>>
+<<elseif $money lt 600000>>
+	Landry gives you an apologetic look as you count what you have.
+	<br><br>
+	"Six thousand, flat. I can't do credit on these; every pill is paid for before it's made. Come back when you're holding."
+	<br><br>
+	<<getouticon>><<link [[Leave|Pub]]>><<endevent>><</link>>
+<<else>>
+	Landry glances around the pub once, then produces a slim, hand-written list and slides it across the table. No labels, just names.
+	"One per day. <span class="gold">£6,000.</span> Pick."
+	<br><br>
+	<<pillicon "xchangeGray">><<link [[X-Change Breeder|Pub Landry Gray Bought]]>><<set $xchange.grayPills.lastBought to "X-Change Breeder">>
+		<<money -600000 "pharmacyXChange">><<set $sexStats.pills.pills["X-Change Breeder"].owned++>><<set $daily.landryGrayPill to true>><</link>>
+	<br>
+	<<pillicon "xchangeGray">><<link [[X-Change Bull|Pub Landry Gray Bought]]>><<set $xchange.grayPills.lastBought to "X-Change Bull">>
+		<<money -600000 "pharmacyXChange">><<set $sexStats.pills.pills["X-Change Bull"].owned++>><<set $daily.landryGrayPill to true>><</link>>
+	<br>
+	<<pillicon "xchangeGray">><<link [[X-Change Hyper Fertility|Pub Landry Gray Bought]]>><<set $xchange.grayPills.lastBought to "X-Change Hyper Fertility">>
+		<<money -600000 "pharmacyXChange">><<set $sexStats.pills.pills["X-Change Hyper Fertility"].owned++>><<set $daily.landryGrayPill to true>><</link>>
+	<br>
+	<<pillicon "xchangeGray">><<link [[X-Change Fertility|Pub Landry Gray Bought]]>><<set $xchange.grayPills.lastBought to "X-Change Fertility">>
+		<<money -600000 "pharmacyXChange">><<set $sexStats.pills.pills["X-Change Fertility"].owned++>><<set $daily.landryGrayPill to true>><</link>>
+	<br>
+	<<pillicon "xchangeGray">><<link [[X-Change Swell|Pub Landry Gray Bought]]>><<set $xchange.grayPills.lastBought to "X-Change Swell">>
+		<<money -600000 "pharmacyXChange">><<set $sexStats.pills.pills["X-Change Swell"].owned++>><<set $daily.landryGrayPill to true>><</link>>
+	<br>
+	<<pillicon "xchangeGray">><<link [[X-Change Innocence|Pub Landry Gray Bought]]>><<set $xchange.grayPills.lastBought to "X-Change Innocence">>
+		<<money -600000 "pharmacyXChange">><<set $sexStats.pills.pills["X-Change Innocence"].owned++>><<set $daily.landryGrayPill to true>><</link>>
+	<br>
+	<<pillicon "xchangeGray">><<link [[X-Change Bimbo|Pub Landry Gray Bought]]>><<set $xchange.grayPills.lastBought to "X-Change Bimbo">>
+		<<money -600000 "pharmacyXChange">><<set $sexStats.pills.pills["X-Change Bimbo"].owned++>><<set $daily.landryGrayPill to true>><</link>>
+	<br>
+	<<pillicon "xchangeGray">><<link [[X-Change CumCure|Pub Landry Gray Bought]]>><<set $xchange.grayPills.lastBought to "X-Change CumCure">>
+		<<money -600000 "pharmacyXChange">><<set $sexStats.pills.pills["X-Change CumCure"].owned++>><<set $daily.landryGrayPill to true>><</link>>
+	<br>
+	<<pillicon "xchangeGray">><<link [[X-Change Passion|Pub Landry Gray Bought]]>><<set $xchange.grayPills.lastBought to "X-Change Passion">>
+		<<money -600000 "pharmacyXChange">><<set $sexStats.pills.pills["X-Change Passion"].owned++>><<set $daily.landryGrayPill to true>><</link>>
+	<br>
+	<<pillicon "xchangeGray">><<link [[X-Change Dumb-Bitch|Pub Landry Gray Bought]]>><<set $xchange.grayPills.lastBought to "X-Change Dumb-Bitch">>
+		<<money -600000 "pharmacyXChange">><<set $sexStats.pills.pills["X-Change Dumb-Bitch"].owned++>><<set $daily.landryGrayPill to true>><</link>>
+	<br>
+	<<pillicon "xchangeGray">><<link [[X-Change X-Tend|Pub Landry Gray Bought]]>><<set $xchange.grayPills.lastBought to "X-Change X-Tend (Gray)">>
+		<<money -600000 "pharmacyXChange">><<set $sexStats.pills.pills["X-Change X-Tend (Gray)"].owned++>><<set $daily.landryGrayPill to true>><</link>>
+	<br>
+	<<pillicon "xchangeGray">><<link [[X-Change Resistance|Pub Landry Gray Bought]]>><<set $xchange.grayPills.lastBought to "X-Change Resistance">>
+		<<money -600000 "pharmacyXChange">><<set $sexStats.pills.pills["X-Change Resistance"].owned++>><<set $daily.landryGrayPill to true>><</link>>
+	<br>
+	<<pillicon "xchangeGray">><<link [[X-Change Continue|Pub Landry Gray Bought]]>><<set $xchange.grayPills.lastBought to "X-Change Continue">>
+		<<money -600000 "pharmacyXChange">><<set $sexStats.pills.pills["X-Change Continue"].owned++>><<set $daily.landryGrayPill to true>><</link>>
+	<br>
+	<<pillicon "xchangeGray">><<link [[X-Change Weekly Extension|Pub Landry Gray Bought]]>><<set $xchange.grayPills.lastBought to "X-Change Weekly Extension">>
+		<<money -600000 "pharmacyXChange">><<set $sexStats.pills.pills["X-Change Weekly Extension"].owned++>><<set $daily.landryGrayPill to true>><</link>>
+	<br>
+	<<if $portalPantiesEnabled>>
+		<<pillicon "xchangeGray">><<link [[X-Change Portal|Pub Landry Gray Bought]]>><<set $xchange.grayPills.lastBought to "X-Change Portal">>
+			<<money -600000 "pharmacyXChange">><<set $sexStats.pills.pills["X-Change Portal"].owned++>><<set $daily.landryGrayPill to true>><</link>>
+		<br>
+	<</if>>
+	<br>
+	<<getouticon>><<link [[Not today|Pub]]>><<endevent>><</link>>
+<</if>>
+
+:: Pub Landry Gray Bought
+<<effects>>
+You slide the money across the table. 
+Landry makes it disappear without seeming to move, then presses a single colourless capsule into your palm,
+wrapped in a twist of paper.
+<br><br>
+"<span class="teal"><<print $xchange.grayPills.lastBought>></span>.
+Made fresh, handled clean." <<He>> taps the side of <<his>> nose. "Same time tomorrow if you want another.
+And if anyone asks where you got it... say you didn't know."
+<br><br>
+<<getouticon>><<link [[Leave|Pub]]>><<endevent>><</link>>

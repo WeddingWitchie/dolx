@@ -752,6 +752,8 @@
 						<br>
 						<<link "Take Hermifying pill">><<take-xchange 3 "herm">><<updatesidebarimg>><<replace "#cheat-xchange-pills">><<cheatXchange>><</replace>><</link>>
 						<br>
+						<<link "Take Gray pill (effect-only)">><<set _grayNoEffects to []>><<save-body>><<xchange-effects 3 _grayNoEffects>><<updatesidebarimg>><<replace "#cheat-xchange-pills">><<cheatXchange>><</replace>><</link>>
+						<br>
 					<</if>>
 				<<else>>
 					You cannot apply X-Change pills while stats are frozen, or going through a sidestory.
@@ -1091,6 +1093,121 @@
 			<<link "Clear Crime events">><<crimeClearEvent "all">><<replace #statscrimeevents>><<listCrimeCheats>><</replace>><</link>>
 		</div>
 	</div>
+<</widget>>
+
+<<widget "cheat-set-pill-duration">>
+	/* args[0]: duration in hours (number), or the string "permanent" */
+	<<if _args[0] is "permanent">>
+		/* Force the permanence setting on, otherwise xchange.js force-reverts permanent pills on the next tick */
+		<<set $xchange.pillPermanence to 1>>
+		<<xchange-setpermanent>>
+	<<else>>
+		<<set $xchange.pill.duration to _args[0]>>
+		<<set $xchange.pill.countdown to 0>>
+		<<unset $xchange.pill.shouldHaveEnded>>
+		<<unset $xchange.pill.resistanceFakeout>>
+	<</if>>
+<</widget>>
+
+<<widget "cheatXchange">>
+	<<linkreplace "Force pill to end">>Forced pill to end<<xchange-restore>><<updatesidebarimg>><</linkreplace>>
+	<br><br>
+	Pill duration: <<if pillIsPermanent()>><span class="green">Permanent</span><<else>><span class="teal"><<print-pillduration>></span><</if>>
+	<br>
+	Set duration:
+	<<link "1 day">><<cheat-set-pill-duration 24>><<updatesidebarimg>><<replace "#cheat-xchange-pills">><<cheatXchange>><</replace>><</link>> |
+	<<link "3 days">><<cheat-set-pill-duration 72>><<updatesidebarimg>><<replace "#cheat-xchange-pills">><<cheatXchange>><</replace>><</link>> |
+	<<link "1 week">><<cheat-set-pill-duration 168>><<updatesidebarimg>><<replace "#cheat-xchange-pills">><<cheatXchange>><</replace>><</link>> |
+	<<link "1 month">><<cheat-set-pill-duration 720>><<updatesidebarimg>><<replace "#cheat-xchange-pills">><<cheatXchange>><</replace>><</link>> |
+	<<link "Permanent">><<cheat-set-pill-duration "permanent">><<updatesidebarimg>><<replace "#cheat-xchange-pills">><<cheatXchange>><</replace>><</link>>
+	<br><br>
+	Sissy/Butch: <span id="xchange-crossdress"><<= $xchange.pill.genderificationEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchange.pill.genderificationEffect to $xchange.pill.genderificationEffect? false : true>><<replace "#xchange-crossdress">><<= $xchange.pill.genderificationEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
+	<br>
+	Resistance: <span id="xchange-resistance"><<= $xchange.pill.resistanceEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchange.pill.resistanceEffect to $xchange.pill.resistanceEffect? false : true>><<set $xchange.pill.resistanceChance to 100>><<replace "#xchange-resistance">><<= $xchange.pill.resistanceEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
+	<br>
+	Continue: <span id="xchange-continue"><<= $xchange.pill.continueEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchange.pill.continueEffect to $xchange.pill.continueEffect? false : true>><<replace "#xchange-continue">><<= $xchange.pill.continueEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
+	<br>
+	<<if $player.sex isnot "m" or (playerIsXChanged() and $xchange.pill.hermEffect)>>
+		Breeder:
+		<span id="xchange-breeder"><<= $xchange.pill.breederEffect ? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> |
+		<<link "Change">><<if $xchange.pill.breederEffect>><<xchange-removeeffect "breeder">><<else>><<xchange-addeffect "breeder">><</if>><<replace "#xchange-breeder">><<= $xchange.pill.breederEffect ? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
+		<br>
+		Fertile:
+		<span id="xchange-fertile"><<= $xchange.pill.fertile ? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> |
+		<<link "Change">><<if $xchange.pill.fertile>><<xchange-removeeffect "fertile">>	<<else>><<xchange-addeffect "fertile">>	<</if>>
+		<<replace "#xchange-fertile">><<= $xchange.pill.fertile ? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
+		<br>
+	<</if>>
+	<<if $player.sex isnot "f" or (playerIsXChanged() and $xchange.pill.hermEffect)>>
+		Bull: <span id="xchange-bull"><<= $xchange.pill.bullEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchange.pill.bullEffect to $xchange.pill.bullEffect? false : true>><<replace "#xchange-bull">><<= $xchange.pill.bullEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
+		<br>
+	<</if>>
+	Passion: <span id="xchange-passion"><<= $xchange.pill.passionEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchange.pill.passionEffect to $xchange.pill.passionEffect? false : true>><<replace "#xchange-passion">><<= $xchange.pill.passionEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
+	<br>
+	Dumb Bitch: <span id="xchange-bitch"><<= $xchange.pill.dumbBitchEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchange.pill.dumbBitchEffect to $xchange.pill.dumbBitchEffect? false : true>><<replace "#xchange-bitch">><<= $xchange.pill.dumbBitchEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
+	<br>
+	<<if $portalPantiesEnabled>>
+		Portal: <span id="xchange-portal"><<= $xchange.pill.portalEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchange.pill.portalEffect to $xchange.pill.portalEffect? false : true>><<set $xchange.pill.portalEffectTimer to $xchange.pill.duration>><<replace "#xchange-portal">><<= $xchange.pill.portalEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
+		<br>
+	<</if>>
+
+	/* New effects */
+	Innocence:
+	<span id="xchange-innocence"><<= $innocencestate is 1 ? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> |
+	<<link "Change">>
+		<<if $innocencestate is 1>>
+			<<xchange-removeeffect "innocence">>
+		<<else>>
+			<<xchange-addeffect "innocence">>
+		<</if>>
+		<<replace "#xchange-innocence">><<= $innocencestate is 1 ? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>>
+	<</link>>
+	<br>
+	Swell: <span id="xchange-swell"><<= $xchange.pill.swellEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> |
+	<<link "Change">>
+		<<if $xchange.pill.swellEffect>>
+			<<xchange-removeeffect "swell">>
+		<<else>>
+			<<xchange-addeffect "swell">>
+		<</if>>
+		<<replace "#xchange-swell">><<= $xchange.pill.swellEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>>
+	<</link>>
+	<br>
+	Bimbo: <span id="xchange-bimbo"><<= $xchange.pill.bimboEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> |
+	<<link "Change">>
+		<<if $xchange.pill.bimboEffect>>
+			<<xchange-removeeffect "bimbo">>
+		<<else>>
+			<<xchange-addeffect "bimbo">>
+		<</if>>
+		<<replace "#xchange-bimbo">><<= $xchange.pill.bimboEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>>
+	<</link>>
+	<br>
+	Cumcure: <span id="xchange-cumcure"><<= $xchange.pill.cumcureEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> |
+	<<link "Change">>
+		<<if $xchange.pill.cumcureEffect>>
+			<<xchange-removeeffect "cumcure">>
+		<<else>>
+			<<xchange-addeffect "cumcure">>
+		<</if>>
+		<<replace "#xchange-cumcure">><<= $xchange.pill.cumcureEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>>
+	<</link>>
+	<br>
+	Hyper Fertility: <span id="xchange-hyperfertility"><<= $xchange.pill.hyperFertilityEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> |
+	<<link "Change">>
+		<<if $xchange.pill.hyperFertilityEffect>>
+			<<xchange-removeeffect "fertility">>
+		<<else>>
+			<<xchange-addeffect "fertility">>
+		<</if>>
+		<<replace "#xchange-hyperfertility">><<= $xchange.pill.hyperFertilityEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>>
+	<</link>>
+	<br>
+	X-Tend: <span id="xchange-xtend"><<= $xchange.pill.xtendEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchange.pill.xtendEffect to $xchange.pill.xtendEffect? false : true>><<set $xchange.pill.xtendTracker to {orgasmed: 0, penisSizeGains: 0}>><<replace "#xchange-xtend">><<= $xchange.pill.xtendEffect? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
+	<br><br>
+
+	Effects Known: <span id="xchange-spike"><<= $xchange.pill.effectsKnown? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">></span> | <<link "Change">><<set $xchange.pill.effectsKnown to $xchange.pill.effectsKnown? false : true>><<replace "#xchange-spike">><<= $xchange.pill.effectsKnown? "<span class=\"green\">On</span>" : "<span class=\"red\">Off</span>">><</replace>><</link>>
+	<br><br>
 <</widget>>
 
 <<widget "cheats-fluids">>
