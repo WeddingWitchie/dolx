@@ -622,7 +622,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-breast.png",
+		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
 		},
@@ -659,7 +659,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-breast.png",
+		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
 		},
@@ -700,7 +700,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-breast.png",
+		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
 		},
@@ -741,7 +741,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-breast.png",
+		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
 		},
@@ -782,7 +782,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-breast.png",
+		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
 		},
@@ -823,7 +823,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-breast.png",
+		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
 		},
@@ -864,7 +864,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-breast.png",
+		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
 		},
@@ -946,7 +946,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-breast.png",
+		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
 		},
@@ -987,7 +987,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-breast.png",
+		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
 		},
@@ -1028,7 +1028,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-breast.png",
+		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
 		},
@@ -1069,7 +1069,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-breast.png",
+		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
 		},
@@ -1110,7 +1110,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-breast.png",
+		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
 		},
@@ -1151,7 +1151,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-breast.png",
+		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
 		},
@@ -1192,7 +1192,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-breast.png",
+		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
 		},
@@ -1233,7 +1233,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-breast.png",
+		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
 		},
@@ -1275,7 +1275,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-penis.png",
+		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "f" && V.xchange.pill.choiceEffect 
 				? 1 
@@ -1314,7 +1314,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-breast.png",
+		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
 		},
@@ -1358,7 +1358,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-bottom.png",
+		icon: "img/misc/icon/xchange-purple.png",
 		display_condition() {
 			return this.owned() > 0 ? 1 : 0;
 		},
@@ -1402,7 +1402,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-penis.png",
+		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
 		},
@@ -1439,7 +1439,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-penis.png",
+		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
 		},
@@ -1480,7 +1480,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-penis.png",
+		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
 		},
@@ -1521,7 +1521,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-penis.png",
+		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
 		},
@@ -1562,7 +1562,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-penis.png",
+		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
 		},
@@ -1603,7 +1603,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-penis.png",
+		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
 		},
@@ -1644,7 +1644,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-penis.png",
+		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
 		},
@@ -1685,7 +1685,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-penis.png",
+		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
 		},
@@ -1726,7 +1726,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-penis.png",
+		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
 		},
@@ -1767,7 +1767,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-penis.png",
+		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
 		},
@@ -1808,7 +1808,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-penis.png",
+		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
 		},
@@ -1849,7 +1849,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-penis.png",
+		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
 		},
@@ -1890,7 +1890,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-penis.png",
+		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
 		},
@@ -1931,7 +1931,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-penis.png",
+		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
 		},
@@ -1973,7 +1973,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-breast.png",
+		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "m" && V.xchange.pill.choiceEffect 
 				? 1 
@@ -2012,7 +2012,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-bottom.png",
+		icon: "img/misc/icon/xchange-purple.png",
 		display_condition() {
 			return this.owned() > 0 ? 1 : 0;
 		},
@@ -2053,7 +2053,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-bottom.png",
+		icon: "img/misc/icon/xchange-purple.png",
 		display_condition() {
 			return this.owned() > 0 ? 1 : 0;
 		},
@@ -2094,7 +2094,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-bottom.png",
+		icon: "img/misc/icon/xchange-purple.png",
 		display_condition() {
 			return this.owned() > 0 ? 1 : 0;
 		},
@@ -2135,7 +2135,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-bottom.png",
+		icon: "img/misc/icon/xchange-purple.png",
 		display_condition() {
 			return this.owned() > 0 ? 1 : 0;
 		},
@@ -2176,7 +2176,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-bottom.png",
+		icon: "img/misc/icon/xchange-purple.png",
 		display_condition() {
 			return this.owned() > 0 ? 1 : 0;
 		},
@@ -2217,7 +2217,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-bottom.png",
+		icon: "img/misc/icon/xchange-purple.png",
 		display_condition() {
 			return this.owned() > 0 ? 1 : 0;
 		},
@@ -2258,7 +2258,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-bottom.png",
+		icon: "img/misc/icon/xchange-purple.png",
 		display_condition() {
 			return this.owned() > 0 ? 1 : 0;
 		},
@@ -2299,7 +2299,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-bottom.png",
+		icon: "img/misc/icon/xchange-purple.png",
 		display_condition() {
 			return this.owned() > 0 ? 1 : 0;
 		},
@@ -2340,7 +2340,7 @@ setup.pills = [
 		overdose() {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
-		icon: "img/misc/icon/pill-penis.png",
+		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
 			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
 		},
