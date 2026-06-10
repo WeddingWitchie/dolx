@@ -2315,6 +2315,43 @@ setup.pills = [
 		npcEffects: [`<<npc-take-xchange 7 "herm" "bull">>`],
 	},
 	{
+		name: "X-Change Purple Hyper Fertility",
+		description:
+			"Temporary genderswap pill that grants the body of a hermaphrodite alongside extreme fertility and accelerated reproductive potency. While active, both your womb and your sperm become far more potent: a single unprotected encounter is almost certain to cause pregnancy, gestation runs much faster, and successful conception is far more likely to result in twins, triplets, or quadruplets.",
+		onTakeMessage:
+			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of both a man's and a woman's body.<br><br>A deep warmth settles through you as the fertility formula takes hold.",
+		warning_label:
+			"Warning: Pregnancy will result in transformation becoming permanent. The fertility formula greatly increases reproductive potency. Certain parasitic infections might also result in permanence, in particular those affecting the genitalia.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "purple hyper fertility",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/xchange-purple.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
+				? 1
+				: 0;
+		},
+		effects: [`<<take-xchange 7 "herm" "fertile" "fertility">>`],
+	},
+	{
 		name: "Suspicious Blue Pill",
 		description:
 			"An unlabelled blue pill of unknown origin and manufacture. Unpredictable effects.",
@@ -3414,6 +3451,7 @@ function backCompPillsInventory() {
 		"Anti-Parasite Cream": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0 },
 		"X-Change Pink Hyper Fertility": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Blue Hyper Fertility": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+		"X-Change Purple Hyper Fertility": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"SWP Anti-fertility Pill": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Pink Basic": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
 		"X-Change Pink Weekly": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
