@@ -598,7 +598,7 @@ class NpcCombatMapper {
 		if (!npc || typeof npc !== "object") return {};
 
 		// Get any special colours, strapon, etc.
-		if (npc.strapon) {
+		if (npc?.strapon) {
 			// Figure out a filter for each strapon colour:
 			switch (npc.strapon.color) {
 				case "fleshy":

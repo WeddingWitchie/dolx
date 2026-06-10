@@ -184,6 +184,7 @@ const Time = (() => {
 					}
 					if (prevDate.weekDay === 7 && currentDate.weekDay === 1) weekPassed();
 					dayPassed(1);
+					if (prevDate.month === currentDate.month - 1) monthPassed();
 					if (prevDate.yearDay < Time.startDate.yearDay && currentDate.yearDay >= Time.startDate.yearDay) yearPassed();
 				}
 				// pass the remaining hours
@@ -504,6 +505,10 @@ function monthPassed() {
 	if (setup.hbsc?.processSavingsMonth) {
 		setup.hbsc.processSavingsMonth();
 	}
+
+	V.volunteer = "none";
+	V.soupKitchen = "none";
+	V.foodDropoff = "none";
 
 	if (V.monthly !== undefined) V.monthly.clearProperties();
 }

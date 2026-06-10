@@ -272,7 +272,7 @@ class CloseCombatMapper {
 				/* filters for npc targeting vagina/anus */
 				if (!["horse", "beast-oral", "machine"].includes(options[slot].npc)) {
 					options.filters[`${slot}Npc`] = NpcCombatMapper.getNpcPenetratorFilter(targetNpc);
-					options.filters[`${slot}Condom`] = CombatRenderer.getCondomOptions(targetNpc.condom).colour;
+					options.filters[`${slot}Condom`] = CombatRenderer.getCondomOptions(targetNpc?.condom).colour;
 				}
 			}
 			// Ensure filters object exists before writing into it

@@ -12,7 +12,7 @@ const StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.5.10.8 DoLP v0.745 DoLX 0.20.1",
+	version: "0.5.10.10 DoLP v0.745 DoLX 0.20.1",
 	versionName: `"Lofts of Clothes" edition`,
 	sneaky: false,
 	socialMediaEnabled: true,
