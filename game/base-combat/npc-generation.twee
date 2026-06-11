@@ -1028,7 +1028,7 @@
 	/* Sets up generic NPC multiple orgasms. Do not store custom orgasm counters on $NPCList.
 	   $NPCList is schema-validated, and .orgasms/.maxOrgasms trigger corruption warnings. */
 	<<set _npcMaxOrgasms to 1>>
-	<<if $multiOrgasmToggle is 1 and $NPCList[_n].traits and $NPCList[_n].traits.includes("multi-orgasmic")>>
+	<<if $multiOrgasmToggle is 1 and (!$multiOrgasmGender or $multiOrgasmGender is "all" or $NPCList[_n].gender is $multiOrgasmGender) and $NPCList[_n].traits and $NPCList[_n].traits.includes("multi-orgasmic")>>
 		<<set _npcMaxOrgasms to 1 + Math.floor(_i / 5) + [0,0,0,0,0,0,1,1,1,2].random()>>
 		<<if $NPCList[_n].gender is "m">>
 			<<set _npcMaxOrgasms to Math.floor(_npcMaxOrgasms / 2)>>
@@ -1334,7 +1334,8 @@
 	<</if>>
 
 	<<rng 1 10>>
-	<<if $rng is 10 or ($NPCList[_n].pronoun is "f" and $rng gte 8)>>
+	<<set _moGenderAllowed to (!$multiOrgasmGender or $multiOrgasmGender is "all" or $NPCList[_n].gender is $multiOrgasmGender)>>
+	<<if _moGenderAllowed and ($rng is 10 or ($NPCList[_n].pronoun is "f" and $rng gte 8))>>
 		<<set $NPCList[_n].traits.push("multi-orgasmic")>>
 	<</if>>
 
