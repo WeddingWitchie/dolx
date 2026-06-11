@@ -164,6 +164,8 @@
 		<<bgm "stop">>
 		<<bgs "stop">>
 		<<bgv "stop">>
+		/* Failsafe: kill any orphaned loops (e.g. playlists started before a save load) */
+		<<masteraudio stop>>
 	<</if>>
 
 <</widget>>
@@ -193,9 +195,11 @@
 	<<if setup.bgsCurrentPlaylist isnot "none" and setup.bgsCurrentPlaylist isnot undefined>>
 		<<playlist setup.bgsCurrentPlaylist volume `$options.bgs_volume ?? 1`>>
 	<</if>>
-	<<if setup.bgvCurrentPlaylist isnot "none" and setup.bgvCurrentPlaylist isnot undefined and setup.playlists and setup.playlists[setup.bgvCurrentPlaylist]>>
+	<<if setup.bgvCurrentPlaylist isnot "none" and setup.bgvCurrentPlaylist isnot undefined>>
 		<<init-playlist setup.bgvCurrentPlaylist>>
-		<<playlist setup.bgvCurrentPlaylist volume `$options.voice_volume ?? 1`>>
+		<<if SimpleAudio.lists.has(setup.bgvCurrentPlaylist)>>
+			<<playlist setup.bgvCurrentPlaylist volume `$options.voice_volume ?? 1`>>
+		<</if>>
 	<</if>>
 <</widget>>
 
@@ -274,6 +278,16 @@
 	<</if>>	
 <</widget>>
 
+<<widget "bgv-halt-current">>
+	<<if setup.bgvCurrentPlaylist isnot undefined and setup.bgvCurrentPlaylist isnot "none">>
+		<<init-playlist setup.bgvCurrentPlaylist>>
+		<<if SimpleAudio.lists.has(setup.bgvCurrentPlaylist)>>
+			<<playlist setup.bgvCurrentPlaylist stop>>
+		<</if>>
+	<</if>>
+	<<set setup.bgvCurrentPlaylist to "none">>
+<</widget>>
+
 <<widget "bgv">>
 	<<if setup.bgvCurrentPlaylist is undefined>>
 		<<set setup.bgvCurrentPlaylist to "none">>
@@ -285,21 +299,10 @@
 	<<set _voicePostureIsFemale to $player.gender_posture is "f" or ($player.sex is "f" and $player.gender_posture is "n")>>
 	<<set _voicePostureIsMale to $player.gender_posture is "m" or ($player.sex is "m" and $player.gender_posture is "n")>>
 
-	<<if _args[0] is "stop" and setup.bgvCurrentPlaylist isnot "none">>
-		/* Stop the current BGV playlist */
-		<<if setup.bgvCurrentPlaylist isnot undefined and setup.playlists and setup.playlists[setup.bgvCurrentPlaylist]>>
-			<<init-playlist setup.bgvCurrentPlaylist>>
-			<<playlist setup.bgvCurrentPlaylist stop>>
-		<</if>>
-		<<set setup.bgvCurrentPlaylist to "none">>
-
-	<<elseif _args[0] isnot "stop" and _args[0] isnot setup.bgvCurrentPlaylist and ($voiceoverActive is "f" or _args[1] is "override")>>
-		/* Stop the previous BGV playlist */
-		<<if setup.bgvCurrentPlaylist isnot "none" and setup.bgvCurrentPlaylist isnot undefined and setup.playlists and setup.playlists[setup.bgvCurrentPlaylist]>>
-			<<init-playlist setup.bgvCurrentPlaylist>>
-			<<playlist setup.bgvCurrentPlaylist stop>>
-		<</if>>
-
+	/* Build the full (prefixed) playlist name up front so the change-detection below compares like with like.
+	The old code compared the unprefixed _args[0] (e.g. "moan") against the prefixed tracker (e.g. "v1_moan"), which never matched, so the BGV restarted on every passage. */
+	<<set _bgvTarget to "stop">>
+	<<if _args[0] isnot "stop">>
 		<<set _prefix to "">>
 		<<if ($options.postureAffectsVoice and _voicePostureIsFemale) or (!$options.postureAffectsVoice and $player.sex is "f")>>
 			<<set _prefix += $options.f_voice + "_">>
@@ -311,9 +314,18 @@
 				<</if>>
 			<</if>>
 		<</if>>
+		<<set _bgvTarget to _prefix + _args[0]>>
+	<</if>>
+
+	<<if _args[0] is "stop" and setup.bgvCurrentPlaylist isnot "none">>
+		/* Stop the current BGV playlist */
+		<<bgv-halt-current>>
+	<<elseif _args[0] isnot "stop" and _bgvTarget isnot setup.bgvCurrentPlaylist and ($voiceoverActive is "f" or _args[1] is "override")>>
+		/* Stop the previous BGV playlist */
+		<<bgv-halt-current>>
 
 		/* Start playing the current BGV playlist */
-		<<set setup.bgvCurrentPlaylist to _prefix + _args[0]>>
+		<<set setup.bgvCurrentPlaylist to _bgvTarget>>
 		<<init-playlist setup.bgvCurrentPlaylist>>
 		<<playlist setup.bgvCurrentPlaylist volume 0>>
 		<<playlist setup.bgvCurrentPlaylist fadeoverto 2 $options.voice_volume loop shuffle>>
@@ -324,9 +336,9 @@
 <<widget "voiceover">>
 	<<if ($options.audio is 1 and $options.voiceoverAudio is 1) and _args[1] is undefined>>
 		/* Fade out the BGV */
-		<<if setup.bgvCurrentPlaylist isnot "none">>
-			<<if setup.bgvCurrentPlaylist isnot undefined and setup.playlists and setup.playlists[setup.bgvCurrentPlaylist]>>
-				<<init-playlist setup.bgvCurrentPlaylist>>
+		<<if setup.bgvCurrentPlaylist isnot "none" and setup.bgvCurrentPlaylist isnot undefined>>
+			<<init-playlist setup.bgvCurrentPlaylist>>
+			<<if SimpleAudio.lists.has(setup.bgvCurrentPlaylist)>>
 				<<playlist setup.bgvCurrentPlaylist volume 1>>
 				<<playlist setup.bgvCurrentPlaylist fadeout>>
 			<</if>>
