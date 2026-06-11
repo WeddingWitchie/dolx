@@ -66,6 +66,9 @@
 	<</if>>
 	<<set _eventValidationFailed to (EventSystem.any() and !EventSystem.validate())>>
 	<<unset _eventreason>>
+	<!-- Count live NPCs with the SAME predicate as isLiveNPC() in event-debug.js: truthy non-"undefined" type AND a real, non-placeholder fullDescription.
+	     baseNPC padding clones have type "human" but no fullDescription, so a type-only check produces false positives on every cleanly-ended encounter. -->
+	<<set _liveNpcCount to (Array.isArray($NPCList) ? $NPCList.filter(npc => npc && typeof npc === "object" && npc.type && npc.type !== "undefined" && typeof npc.fullDescription === "string" && npc.fullDescription.trim() && npc.fullDescription.trim() !== "undefined" && npc.fullDescription.trim() !== "undefined undefined").length : 0)>>
 
 	<h3>Area information</h3>
 
@@ -112,10 +115,15 @@
 			<</if>>
 		<<else>>
 			<span class="yellow">You are not in an event.</span>
+			<br>
 		<</if>>
 	<</if>>
 	<<if !_eventreason>>
-		<span class="yellow">NPCs were generated at some point and may not be cleared. They could still be in use. If you feel like they shouldn't be active, please report this. If you're unsure whether or not to report this, go to a major area (i.e a street/alleyway/outside) and check this again.</span>
+		<<if _liveNpcCount is 0>>
+			<span class="green">No live NPCs are present. Remaining NPC list slots are empty padding from the last cleanup. Nothing needs clearing.</span>
+		<<else>>
+			<span class="yellow">NPCs were generated at some point and may not be cleared. They could still be in use. If you feel like they shouldn't be active, please report this. If you're unsure whether or not to report this, go to a major area (i.e a street/alleyway/outside) and check this again.</span>
+		<</if>>
 	<</if>>
 	<br><br>
 	<h3>NPC information</h3>
@@ -126,6 +134,15 @@
 	<<for $_i to 0; $_i lt $NPCList.length; $_i++>>
 		<<set $_npc to $NPCList[$_i]>>
 		<<unset $_eventNPC>>
+		<!-- Same liveness predicate as isLiveNPC() in event-debug.js.
+		A baseNPC padding clone has type "human" but no fullDescription; treating it as live here produced "Live NPC exists, but no valid event buffer entry" false positives on every cleanly-ended encounter. -->
+		<<set $_npcIsLive to false>>
+		<<if $_npc and $_npc.type and $_npc.type isnot "undefined" and typeof $_npc.fullDescription is "string">>
+			<<set $_fdTrim to $_npc.fullDescription.trim()>>
+			<<if $_fdTrim isnot "" and $_fdTrim isnot "undefined" and $_fdTrim isnot "undefined undefined">>
+				<<set $_npcIsLive to true>>
+			<</if>>
+		<</if>>
 		<<if $event isnot undefined and $event.buffer isnot undefined>>
 			<<for $_slotSearch = 0; $_slotSearch lt $event.buffer.length; $_slotSearch++>>
 				<<if $event.buffer[$_slotSearch] and $event.buffer[$_slotSearch].slot is $_i>>
@@ -134,7 +151,7 @@
 				<</if>>
 			<</for>>
 		<</if>>
-		<<if $_npc and $_npc.type isnot undefined and $_eventNPC isnot undefined and $_eventNPC.area and $_eventNPC.area[0] isnot undefined and $_eventNPC.time isnot undefined>>
+		<<if $_npcIsLive and $_eventNPC isnot undefined and $_eventNPC.area and $_eventNPC.area[0] isnot undefined and $_eventNPC.time isnot undefined>>
 			<<set $_time to new DateTime($_eventNPC.time + V.startDate)>>
 			<div class="debug-event-item debug-event-success">
 				ID: $_i | $_npc.fullDescription<br>
@@ -142,7 +159,7 @@
 				Description: $_npc.description<<if $_npc.role>> | Role: $_npc.role<</if>><br>
 				Source: <<print $_eventNPC.area[0]>>, at: <<ampm $_time.getHours() $_time.getMinutes()>>.<br>
 			</div>
-		<<elseif $_npc and $_npc.type isnot undefined>>
+		<<elseif $_npcIsLive>>
 			<div class="debug-event-item debug-event-empty">
 				ID: $_i | $_npc.fullDescription<br>
 				<span class="yellow">Live NPC exists, but no valid event buffer entry is linked to this slot.</span>
