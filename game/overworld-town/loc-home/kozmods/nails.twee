@@ -103,6 +103,14 @@
 			<<set _bodyMult to 0.5>>
 		<</if>>
 		<<set _scratchFlat to Math.max(1, Math.round(_scratchBaseFlat * _bodyMult))>>
+
+		/* Brawling boost: a trained fighter scratches harder, but ONLY for tiny & small bodies in non-consensual fights */
+		<<if $bodysize lt 2>>
+			<<set _brawlingMax to (1000 * (($AMCTraits && Number.isFinite(Number($AMCTraits.brawling))) ? Number($AMCTraits.brawling) : 1))>>
+			<<set _brawlingNow to Math.clamp((($combatExtended && Number.isFinite(Number($combatExtended.brawling))) ? Number($combatExtended.brawling) : 0), 0, _brawlingMax)>>
+			<<set _brawlingBonus to (_brawlingMax > 0 ? (1 + (_brawlingNow / _brawlingMax) * 0.75) : 1)>> /* adjust the 0.75 here for dmg multiplier */
+			<<set _scratchFlat to Math.max(1, Math.round(_scratchFlat * _brawlingBonus))>>
+		<</if>>
 	<</if>>
 <</silently>><</widget>>
 
