@@ -69,236 +69,236 @@ window.wornSetupClothes = wornSetupClothes;
   let cheatOverlaySeen = false;
 
   function passageName() {
-    try { return String(State.passage || ""); } catch (e) { return ""; }
+	try { return String(State.passage || ""); } catch (e) { return ""; }
   }
   function tagsLower() {
-    try {
-      const story = window.Story?.get ? Story.get(passageName()) : null;
-      const tags = Array.isArray(story?.tags) ? story.tags : [];
-      return tags.map(t => String(t).toLowerCase());
-    } catch (e) { return []; }
+	try {
+	  const story = window.Story?.get ? Story.get(passageName()) : null;
+	  const tags = Array.isArray(story?.tags) ? story.tags : [];
+	  return tags.map(t => String(t).toLowerCase());
+	} catch (e) { return []; }
   }
   function inContext(reWordBoundary) {
-    const p = passageName().toLowerCase();
-    const t = tagsLower().join(" ");
-    return reWordBoundary.test(p) || reWordBoundary.test(t);
+	const p = passageName().toLowerCase();
+	const t = tagsLower().join(" ");
+	return reWordBoundary.test(p) || reWordBoundary.test(t);
   }
 
   function excludedForRecoveryOrConsequences() {
-    if (inContext(/\bcheats?\b/i) || inContext(/\bdebug\b/i)) return true;
-    return (
-      inContext(/\bpassout\b/i) || inContext(/\bsleep\b/i)  ||
-      inContext(/\bnap\b/i)     || inContext(/\brest\b/i)   ||
-      inContext(/\bbed\b/i)     || inContext(/\bwake\b/i)   ||
-      inContext(/\bdream\b/i)   || inContext(/\basylum\b/i) ||
-      inContext(/\bhospital\b/i)|| inContext(/\bclinic\b/i) ||
-      inContext(/\btherapy\b/i) ||
-      inContext(/\bpainting-snake\b/i)   || inContext(/\bhopelesscycle\b/i) ||
-      inContext(/\bhopeless[_-]?cycle\b/i)|| inContext(/\bhopeless\s*cycle\b/i) ||
-      inContext(/\bfayne\b/i)   || inContext(/\bgaoler\b/i)
-    );
+	if (inContext(/\bcheats?\b/i) || inContext(/\bdebug\b/i)) return true;
+	return (
+	  inContext(/\bpassout\b/i) || inContext(/\bsleep\b/i)  ||
+	  inContext(/\bnap\b/i)     || inContext(/\brest\b/i)   ||
+	  inContext(/\bbed\b/i)     || inContext(/\bwake\b/i)   ||
+	  inContext(/\bdream\b/i)   || inContext(/\basylum\b/i) ||
+	  inContext(/\bhospital\b/i)|| inContext(/\bclinic\b/i) ||
+	  inContext(/\btherapy\b/i) ||
+	  inContext(/\bpainting-snake\b/i)   || inContext(/\bhopelesscycle\b/i) ||
+	  inContext(/\bhopeless[_-]?cycle\b/i)|| inContext(/\bhopeless\s*cycle\b/i) ||
+	  inContext(/\bfayne\b/i)   || inContext(/\bgaoler\b/i)
+	);
   }
 
   function numberOrNull(x) {
-    const n = Number(x);
-    return Number.isFinite(n) ? n : null;
+	const n = Number(x);
+	return Number.isFinite(n) ? n : null;
   }
   function getFatigueMax() {
-    const m = window.C?.tiredness?.max;
-    return (typeof m === "number" && Number.isFinite(m)) ? m : null;
+	const m = window.C?.tiredness?.max;
+	return (typeof m === "number" && Number.isFinite(m)) ? m : null;
   }
   function getStressMax() {
-    const v = numberOrNull(State.variables.stressmax);
-    if (v !== null) return v;
-    const c = window.C?.stress?.max;
-    if (typeof c === "number" && Number.isFinite(c)) return c;
-    return null;
+	const v = numberOrNull(State.variables.stressmax);
+	if (v !== null) return v;
+	const c = window.C?.stress?.max;
+	if (typeof c === "number" && Number.isFinite(c)) return c;
+	return null;
   }
   function getInGameTimestamp() {
-    try {
-      const T = window.Time;
-      if (!T) return null;
-      if (T.date && typeof T.date.timeStamp === "number" && Number.isFinite(T.date.timeStamp)) {
-        return T.date.timeStamp;
-      }
-      if (T.date && typeof window.DateTime === "function") {
-        const dt = new window.DateTime(T.date);
-        if (typeof dt.timeStamp === "number" && Number.isFinite(dt.timeStamp)) return dt.timeStamp;
-      }
-      const d = numberOrNull(T.days)   ?? numberOrNull(T.day)    ?? 0;
-      const h = numberOrNull(T.hour)   ?? 0;
-      const m = numberOrNull(T.minute) ?? 0;
-      return d * 86400 + h * 3600 + m * 60;
-    } catch (e) { return null; }
+	try {
+	  const T = window.Time;
+	  if (!T) return null;
+	  if (T.date && typeof T.date.timeStamp === "number" && Number.isFinite(T.date.timeStamp)) {
+		return T.date.timeStamp;
+	  }
+	  if (T.date && typeof window.DateTime === "function") {
+		const dt = new window.DateTime(T.date);
+		if (typeof dt.timeStamp === "number" && Number.isFinite(dt.timeStamp)) return dt.timeStamp;
+	  }
+	  const d = numberOrNull(T.days)   ?? numberOrNull(T.day)    ?? 0;
+	  const h = numberOrNull(T.hour)   ?? 0;
+	  const m = numberOrNull(T.minute) ?? 0;
+	  return d * 86400 + h * 3600 + m * 60;
+	} catch (e) { return null; }
   }
 
   function syncTrackers(why) {
-    const V = State.variables;
-    const t = numberOrNull(V.tiredness);
-    if (t !== null) V.__fix_prev_tiredness = t;
-    V.__fix_prevMax_tiredness = getFatigueMax() ?? V.__fix_prevMax_tiredness;
-    const s = numberOrNull(V.stress);
-    if (s !== null) V.__fix_prev_stress = s;
-    V.__fix_prevMax_stress = getStressMax() ?? V.__fix_prevMax_stress;
-    const ts = getInGameTimestamp();
-    if (ts !== null) V.__fix_prev_timestamp = ts;
-    log(`sync (${why}): tiredness=${V.tiredness}, stress=${V.stress}, ts=${ts}`);
+	const V = State.variables;
+	const t = numberOrNull(V.tiredness);
+	if (t !== null) V.__fix_prev_tiredness = t;
+	V.__fix_prevMax_tiredness = getFatigueMax() ?? V.__fix_prevMax_tiredness;
+	const s = numberOrNull(V.stress);
+	if (s !== null) V.__fix_prev_stress = s;
+	V.__fix_prevMax_stress = getStressMax() ?? V.__fix_prevMax_stress;
+	const ts = getInGameTimestamp();
+	if (ts !== null) V.__fix_prev_timestamp = ts;
+	log(`sync (${why}): tiredness=${V.tiredness}, stress=${V.stress}, ts=${ts}`);
   }
 
   // Core decision: should we revert this drop, and if so, to what value?
   // Returns { revert: bool, target: number, reason: string }
   function evaluateDrop(prev, prevMax, cur, statName) {
-    if (prev === null || prevMax === null || cur === null) {
-      return { revert: false, reason: "missing-data" };
-    }
+	if (prev === null || prevMax === null || cur === null) {
+	  return { revert: false, reason: "missing-data" };
+	}
 
-    // Over-max state: buffs have pushed the stat above the cap.
-    // Any drop is a recompute/clamp fluctuation we want to suppress so the
-    // displayed value stays stable.
-    if (prev > prevMax + EPS_MAX) {
-      if (cur < prev - EPS_MAX) {
-        return { revert: true, target: prev, reason: `over-max-fluctuation (prev=${prev} > cap=${prevMax}, cur=${cur})` };
-      }
-      return { revert: false, reason: "over-max-no-drop" };
-    }
+	// Over-max state: buffs have pushed the stat above the cap.
+	// Any drop is a recompute/clamp fluctuation we want to suppress so the
+	// displayed value stays stable.
+	if (prev > prevMax + EPS_MAX) {
+	  if (cur < prev - EPS_MAX) {
+		return { revert: true, target: prev, reason: `over-max-fluctuation (prev=${prev} > cap=${prevMax}, cur=${cur})` };
+	  }
+	  return { revert: false, reason: "over-max-no-drop" };
+	}
 
-    // At-max state: classic cheat/exploit detection.
-    // A large drop (>=10% of cap) from exactly the cap is the console-edit
-    // cheat signature.
-    const prevWasAtMax = prev >= (prevMax - EPS_MAX);
-    if (prevWasAtMax) {
-      const largeDrop = cur <= (prevMax * 0.9);
-      if (largeDrop) {
-        return { revert: true, target: prevMax, reason: `at-max large-drop (prev=${prev}≈cap=${prevMax}, cur=${cur})` };
-      }
-    }
+	// At-max state: classic cheat/exploit detection.
+	// A large drop (>=10% of cap) from exactly the cap is the console-edit
+	// cheat signature.
+	const prevWasAtMax = prev >= (prevMax - EPS_MAX);
+	if (prevWasAtMax) {
+	  const largeDrop = cur <= (prevMax * 0.9);
+	  if (largeDrop) {
+		return { revert: true, target: prevMax, reason: `at-max large-drop (prev=${prev}≈cap=${prevMax}, cur=${cur})` };
+	  }
+	}
 
-    return { revert: false, reason: "no-trigger" };
+	return { revert: false, reason: "no-trigger" };
   }
 
   $(document).one(":storyready", () => {
-    log("statExploitFixes loaded — DEBUG=" + window.STAT_EXPLOIT_DEBUG + ", DISABLE=" + window.STAT_EXPLOIT_DISABLE);
+	log("statExploitFixes loaded — DEBUG=" + window.STAT_EXPLOIT_DEBUG + ", DISABLE=" + window.STAT_EXPLOIT_DISABLE);
 
-    try {
-      const containsCheatsShown = (node) => {
-        if (!node || node.nodeType !== 1) return false;
-        if (node.id === "cheatsShown") return true;
-        return !!(node.querySelector && node.querySelector("#cheatsShown"));
-      };
-      const observer = new MutationObserver((mutations) => {
-        for (const m of mutations) {
-          if (m.type !== "childList") continue;
-          for (const node of m.addedNodes) {
-            if (containsCheatsShown(node)) {
-              cheatOverlaySeen = true;
-              log("MutationObserver: #cheatsShown was inserted");
-              return;
-            }
-          }
-        }
-      });
-      observer.observe(document.body, { childList: true, subtree: true });
-    } catch (e) { warn("MutationObserver failed:", e); }
+	try {
+	  const containsCheatsShown = (node) => {
+		if (!node || node.nodeType !== 1) return false;
+		if (node.id === "cheatsShown") return true;
+		return !!(node.querySelector && node.querySelector("#cheatsShown"));
+	  };
+	  const observer = new MutationObserver((mutations) => {
+		for (const m of mutations) {
+		  if (m.type !== "childList") continue;
+		  for (const node of m.addedNodes) {
+			if (containsCheatsShown(node)) {
+			  cheatOverlaySeen = true;
+			  log("MutationObserver: #cheatsShown was inserted");
+			  return;
+			}
+		  }
+		}
+	  });
+	  observer.observe(document.body, { childList: true, subtree: true });
+	} catch (e) { warn("MutationObserver failed:", e); }
 
-    $(document).on(":passagedisplay", () => {
-      const V = State.variables;
-      const passage = passageName();
-      const curTime = getInGameTimestamp();
-      const prevTime = numberOrNull(V.__fix_prev_timestamp);
+	$(document).on(":passagedisplay", () => {
+	  const V = State.variables;
+	  const passage = passageName();
+	  const curTime = getInGameTimestamp();
+	  const prevTime = numberOrNull(V.__fix_prev_timestamp);
 
-      log(`--- :passagedisplay [${passage}] tiredness=${V.tiredness}/${getFatigueMax()} stress=${V.stress}/${getStressMax()} time=${curTime} prevTime=${prevTime}`);
+	  log(`--- :passagedisplay [${passage}] tiredness=${V.tiredness}/${getFatigueMax()} stress=${V.stress}/${getStressMax()} time=${curTime} prevTime=${prevTime}`);
 
-      // Read & consume cheat signals (one-shot semantics).
-      const cheatJustHappened = (V.cheatReload === true) || cheatOverlaySeen;
-      cheatOverlaySeen = false;
-      if (V.cheatReload === true) V.cheatReload = false;
+	  // Read & consume cheat signals (one-shot semantics).
+	  const cheatJustHappened = (V.cheatReload === true) || cheatOverlaySeen;
+	  cheatOverlaySeen = false;
+	  if (V.cheatReload === true) V.cheatReload = false;
 
-      if (cheatJustHappened) {
-        log("path=CHEAT (cheatReload or overlay seen) → sync & exit");
-        syncTrackers("cheat");
-        return;
-      }
+	  if (cheatJustHappened) {
+		log("path=CHEAT (cheatReload or overlay seen) → sync & exit");
+		syncTrackers("cheat");
+		return;
+	  }
 
-      if (excludedForRecoveryOrConsequences()) {
-        log(`path=EXCLUDED (passage="${passage}") → sync & exit`);
-        syncTrackers("excluded");
-        return;
-      }
+	  if (excludedForRecoveryOrConsequences()) {
+		log(`path=EXCLUDED (passage="${passage}") → sync & exit`);
+		syncTrackers("excluded");
+		return;
+	  }
 
-      if (curTime !== null && prevTime !== null) {
-        const delta = curTime - prevTime;
-        if (delta >= SIGNIFICANT_TIME_GAP_SECONDS) {
-          log(`path=TIME-GAP (delta=${delta}s ≥ ${SIGNIFICANT_TIME_GAP_SECONDS}s) → sync & exit`);
-          syncTrackers("time-gap");
-          return;
-        }
-        log(`time-gap delta=${delta}s (under threshold)`);
-      }
+	  if (curTime !== null && prevTime !== null) {
+		const delta = curTime - prevTime;
+		if (delta >= SIGNIFICANT_TIME_GAP_SECONDS) {
+		  log(`path=TIME-GAP (delta=${delta}s ≥ ${SIGNIFICANT_TIME_GAP_SECONDS}s) → sync & exit`);
+		  syncTrackers("time-gap");
+		  return;
+		}
+		log(`time-gap delta=${delta}s (under threshold)`);
+	  }
 
-      log("path=NORMAL — running checks");
+	  log("path=NORMAL — running checks");
 
-      // ---- FATIGUE ----
-      {
-        const cur = numberOrNull(V.tiredness);
-        const curMax = getFatigueMax();
-        const prev = numberOrNull(V.__fix_prev_tiredness);
-        const prevMax = numberOrNull(V.__fix_prevMax_tiredness);
-        log(`  fatigue: cur=${cur}, prev=${prev}, prevMax=${prevMax}, curMax=${curMax}`);
+	  // ---- FATIGUE ----
+	  {
+		const cur = numberOrNull(V.tiredness);
+		const curMax = getFatigueMax();
+		const prev = numberOrNull(V.__fix_prev_tiredness);
+		const prevMax = numberOrNull(V.__fix_prevMax_tiredness);
+		log(`  fatigue: cur=${cur}, prev=${prev}, prevMax=${prevMax}, curMax=${curMax}`);
 
-        if (cur !== null) {
-          const decision = evaluateDrop(prev, prevMax, cur, "fatigue");
-          log(`  fatigue decision: ${decision.reason}${decision.revert ? ` → revert to ${decision.target}` : ""}`);
+		if (cur !== null) {
+		  const decision = evaluateDrop(prev, prevMax, cur, "fatigue");
+		  log(`  fatigue decision: ${decision.reason}${decision.revert ? ` → revert to ${decision.target}` : ""}`);
 
-          if (decision.revert) {
-            if (window.STAT_EXPLOIT_DISABLE) {
-              warn(`WOULD HAVE reverted FATIGUE: ${decision.reason} → ${decision.target} (DISABLE=true, doing nothing). passage=${passage}`);
-              V.__fix_prev_tiredness = cur;
-              if (curMax !== null) V.__fix_prevMax_tiredness = curMax;
-            } else {
-              warn(`reverted FATIGUE: ${decision.reason} → ${decision.target}. passage=${passage}`);
-              V.tiredness = decision.target;
-              V.__fix_prev_tiredness = decision.target;
-              if (curMax !== null) V.__fix_prevMax_tiredness = Math.max(curMax, V.__fix_prevMax_tiredness ?? 0);
-            }
-          } else {
-            V.__fix_prev_tiredness = cur;
-            if (curMax !== null) V.__fix_prevMax_tiredness = curMax;
-          }
-        }
-      }
+		  if (decision.revert) {
+			if (window.STAT_EXPLOIT_DISABLE) {
+			  warn(`WOULD HAVE reverted FATIGUE: ${decision.reason} → ${decision.target} (DISABLE=true, doing nothing). passage=${passage}`);
+			  V.__fix_prev_tiredness = cur;
+			  if (curMax !== null) V.__fix_prevMax_tiredness = curMax;
+			} else {
+			  warn(`reverted FATIGUE: ${decision.reason} → ${decision.target}. passage=${passage}`);
+			  V.tiredness = decision.target;
+			  V.__fix_prev_tiredness = decision.target;
+			  if (curMax !== null) V.__fix_prevMax_tiredness = Math.max(curMax, V.__fix_prevMax_tiredness ?? 0);
+			}
+		  } else {
+			V.__fix_prev_tiredness = cur;
+			if (curMax !== null) V.__fix_prevMax_tiredness = curMax;
+		  }
+		}
+	  }
 
-      // ---- STRESS ----
-      {
-        const cur = numberOrNull(V.stress);
-        const curMax = getStressMax();
-        const prev = numberOrNull(V.__fix_prev_stress);
-        const prevMax = numberOrNull(V.__fix_prevMax_stress);
-        log(`  stress: cur=${cur}, prev=${prev}, prevMax=${prevMax}, curMax=${curMax}`);
+	  // ---- STRESS ----
+	  {
+		const cur = numberOrNull(V.stress);
+		const curMax = getStressMax();
+		const prev = numberOrNull(V.__fix_prev_stress);
+		const prevMax = numberOrNull(V.__fix_prevMax_stress);
+		log(`  stress: cur=${cur}, prev=${prev}, prevMax=${prevMax}, curMax=${curMax}`);
 
-        if (cur !== null) {
-          const decision = evaluateDrop(prev, prevMax, cur, "stress");
-          log(`  stress decision: ${decision.reason}${decision.revert ? ` → revert to ${decision.target}` : ""}`);
+		if (cur !== null) {
+		  const decision = evaluateDrop(prev, prevMax, cur, "stress");
+		  log(`  stress decision: ${decision.reason}${decision.revert ? ` → revert to ${decision.target}` : ""}`);
 
-          if (decision.revert) {
-            if (window.STAT_EXPLOIT_DISABLE) {
-              warn(`WOULD HAVE reverted STRESS: ${decision.reason} → ${decision.target} (DISABLE=true, doing nothing). passage=${passage}`);
-              V.__fix_prev_stress = cur;
-              if (curMax !== null) V.__fix_prevMax_stress = curMax;
-            } else {
-              warn(`reverted STRESS: ${decision.reason} → ${decision.target}. passage=${passage}`);
-              V.stress = decision.target;
-              V.__fix_prev_stress = decision.target;
-              if (curMax !== null) V.__fix_prevMax_stress = Math.max(curMax, V.__fix_prevMax_stress ?? 0);
-            }
-          } else {
-            V.__fix_prev_stress = cur;
-            if (curMax !== null) V.__fix_prevMax_stress = curMax;
-          }
-        }
-      }
+		  if (decision.revert) {
+			if (window.STAT_EXPLOIT_DISABLE) {
+			  warn(`WOULD HAVE reverted STRESS: ${decision.reason} → ${decision.target} (DISABLE=true, doing nothing). passage=${passage}`);
+			  V.__fix_prev_stress = cur;
+			  if (curMax !== null) V.__fix_prevMax_stress = curMax;
+			} else {
+			  warn(`reverted STRESS: ${decision.reason} → ${decision.target}. passage=${passage}`);
+			  V.stress = decision.target;
+			  V.__fix_prev_stress = decision.target;
+			  if (curMax !== null) V.__fix_prevMax_stress = Math.max(curMax, V.__fix_prevMax_stress ?? 0);
+			}
+		  } else {
+			V.__fix_prev_stress = cur;
+			if (curMax !== null) V.__fix_prevMax_stress = curMax;
+		  }
+		}
+	  }
 
-      if (curTime !== null) V.__fix_prev_timestamp = curTime;
-    });
+	  if (curTime !== null) V.__fix_prev_timestamp = curTime;
+	});
   });
 })();
 
@@ -534,13 +534,13 @@ function pruneNPCName() {
 
   const allowed = new Set(setup.NPCNameList);
   for (let i = V.NPCName.length - 1; i >= 0; i--) {
-    const nam = V.NPCName[i]?.nam;
-    if (typeof nam !== "string" || !allowed.has(nam)) V.NPCName.splice(i, 1);
+	const nam = V.NPCName[i]?.nam;
+	if (typeof nam !== "string" || !allowed.has(nam)) V.NPCName.splice(i, 1);
   }
 
   const have = new Set(V.NPCName.map(n => n?.nam).filter(n => typeof n === "string"));
   for (let i = V.NPCNameList.length - 1; i >= 0; i--) {
-    if (!have.has(V.NPCNameList[i])) V.NPCNameList.splice(i, 1);
+	if (!have.has(V.NPCNameList[i])) V.NPCNameList.splice(i, 1);
   }
 }
 window.pruneNPCName = pruneNPCName;
@@ -679,8 +679,12 @@ if (!V.npcOrgasmState || typeof V.npcOrgasmState !== "object" || Array.isArray(V
 			pain += sizePain(maxPenetratorSize("mouth")) * 0.5;
 		}
 
+		// Global rebalance: penetration pain accumulates at half rate.
+		// (Applies only to this function's per-turn penetration pain; other pain sources unaffected.)
+		const PENETRATION_PAIN_MULT = 0.5;
+
 		const modifier = BODY_SIZE_PAIN_MODIFIER.get(V.bodysize) ?? 0;
-		statChange.pain(pain * modifier);
+		statChange.pain(pain * modifier * PENETRATION_PAIN_MULT);
 
 		// --- Consensual vs non-consensual aftermath -------------------------------
 		// V.consensual:  1 = consensual encounter, 0 = assault.
@@ -697,11 +701,11 @@ if (!V.npcOrgasmState || typeof V.npcOrgasmState !== "object" || Array.isArray(V
 				statChange.pain(-adapt, 1); // modifier 1 => removes exactly `adapt` pain
 			}
 		} else {
-			// NON-CONSENSUAL: once pain is maxed it can't climb further, so it slowly converts to
-			// trauma — 1 pain -> 1 trauma per turn (straighttrauma = raw 1:1, no control multiplier).
+			// NON-CONSENSUAL: severe pain slowly converts to trauma so 1 pain -> 1 trauma per turn
+			// (straighttrauma = raw 1:1, no control multiplier) once pain crosses the threshold.
 			const TRAUMA_CONVERT_RATE = 1;
-			const PAIN_MAX = 200;
-			if (V.pain >= PAIN_MAX) {
+			const TRAUMA_CONVERT_THRESHOLD = 100; // pain level at which conversion begins
+			if (V.pain >= TRAUMA_CONVERT_THRESHOLD) {
 				statChange.pain(-TRAUMA_CONVERT_RATE, 1);
 				statChange.straighttrauma(TRAUMA_CONVERT_RATE);
 			}
