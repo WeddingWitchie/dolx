@@ -3594,8 +3594,22 @@ function insecurityExists(type) {
 }
 window.insecurityExists = insecurityExists;
 
-function isBeastSceneAllowed() {
-	return V.settings.bestialityEnabled || ((!V.settings.monsterHallucinationsOnly || V.hallucinations > 0) && V.settings.monsterChance >= random(1, 100));
+function isDragonEyesActive() {
+	const dragonEyes = V.transformationParts?.traits?.dragonEyes;
+	return !!dragonEyes && !["disabled", "hidden"].includes(dragonEyes);
+}
+window.isDragonEyesActive = isDragonEyesActive;
+
+function isMonsterHallucinationAllowed(rng = random(1, 100)) {
+	// Dragon Eyes forces permanent hallucinations; on its own it shouldn't unlock monster people while bestiality is off.
+	if (!V.settings.bestialityEnabled && isDragonEyesActive()) return false;
+
+	return (!V.settings.monsterHallucinationsOnly || V.hallucinations > 0) && V.settings.monsterChance >= rng;
+}
+window.isMonsterHallucinationAllowed = isMonsterHallucinationAllowed;
+
+function isBeastSceneAllowed(rng = random(1, 100)) {
+	return V.settings.bestialityEnabled || isMonsterHallucinationAllowed(rng);
 }
 window.isBeastSceneAllowed = isBeastSceneAllowed;
 
