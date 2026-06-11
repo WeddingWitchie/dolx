@@ -2639,7 +2639,10 @@
 	<<set _cat to $transformationParts.cat>>
 	<<set _cow to $transformationParts.cow>>
 	<<set _bear to $transformationParts.bear>>
-	<<set _waterdragon to $transformationParts.waterdragon || {horns:"disabled", ears:"disabled", tail:"disabled"}>>
+	<<set _waterdragon to $transformationParts.waterdragon>>
+	<<if _waterdragon is undefined>>
+		<<set _waterdragon to {}>><<set _waterdragon.horns to "disabled">><<set _waterdragon.ears to "disabled">><<set _waterdragon.tail to "disabled">>
+	<</if>>
 	<<set _wolf to $transformationParts.wolf>>
 	<<set _bird to $transformationParts.bird>>
 	<<set _fox to $transformationParts.fox>>
@@ -3062,7 +3065,7 @@
 			<<set _earsChoice to _options["Cow Classic Spotted Black"]>>
 		<<elseif _cow.ears is "classic-spotted-brown">>
 			<<set _earsChoice to _options["Cow Classic Spotted Brown"]>>
-		<<else>>
+		<<elseif _cow.ears isnot "disabled" and _cow.ears isnot "hidden">>
 			<<run console.warn("[DoLX] Unknown cow ears value:", _cow.ears)>>
 			<<set _earsChoice to _options["Cow"]>>
 		<</if>>
@@ -3500,104 +3503,7 @@
 	<</if>>
 
 	/* Chimera */
-	
-	<span id="tf-chimera">
-		<<set _chimeraOptions to {
-			"demoncat_tail" : !["disabled", "hidden"].includesAny(_demon.tail, _cat.tail),
-			"demoncow_tail" : !["disabled", "hidden"].includesAny(_demon.tail, _cow.tail),
-			"demonwolf_tail" : !["disabled", "hidden"].includesAny(_demon.tail, _wolf.tail),
-			"demonfox_tail" : !["disabled", "hidden"].includesAny(_demon.tail, _fox.tail),
-			"demonfox_ears" : !["disabled", "hidden"].includesAny(_fox.ears) && V.demontf == 1,
-			"demonharpy_wings" : !["disabled", "hidden"].includesAny(_demon.wings, _bird.wings),
-			"angelharpy_wings" : !["disabled", "hidden"].includesAny(_angel.wings, _bird.wings),
-			"fallenharpy_wings" : !["disabled", "hidden"].includesAny(_fallen.wings, _bird.wings),
-		}>>
-		<<set _chimeraEnabled to Object.values(_chimeraOptions).some(o => o) ? "" : " hide">>
-		<div class="chimera<<=_chimeraEnabled>>">
-			<<if _divine>><<tficon _divine>><</if>>
-			<span class="gold bold">Chimera</span><br>
-			<<if _chimeraOptions.demoncat_tail>>
-				/* Using demon cat chimera tail. */
-				<label>Demon cat tail:
-					<<listbox "$chimera.demoncat.tail" autoselect>>
-						<<option "Show" true>>
-						<<option "Hide" false>>
-					<</listbox>>
-				</label>
-				<br>
-			<</if>>
-			<<if _chimeraOptions.demoncow_tail>>
-				/* Using demon cow chimera tail. */
-				<label>Demon cow tail:
-					<<listbox "$chimera.demoncow.tail" autoselect>>
-						<<option "Show" true>>
-						<<option "Hide" false>>
-					<</listbox>>
-				</label>
-				<br>
-			<</if>>
-			<<if _chimeraOptions.demonwolf_tail>>
-				/* Using demon wolf chimera tail. */
-				<label>Demon wolf tail:
-					<<listbox "$chimera.demonwolf.tail" autoselect>>
-						<<option "Show" true>>
-						<<option "Hide" false>>
-					<</listbox>>
-				</label>
-				<br>
-			<</if>>
-			<<if _chimeraOptions.demonfox_tail>>
-				/* Using demon fox chimera tail. */
-				<label>Demon fox tail:
-					<<listbox "$chimera.demonfox.tail" autoselect>>
-						<<option "Show" true>>
-						<<option "Hide" false>>
-					<</listbox>>
-				</label>
-				<br>
-			<</if>>
-			<<if _chimeraOptions.demonfox_ears>>
-				/* Using demon fox chimera ears. */
-				<label>Demon fox ears:
-					<<listbox "$chimera.demonfox.ears" autoselect>>
-						<<option "Show" true>>
-						<<option "Hide" false>>
-					<</listbox>>
-				</label>
-				<br>
-			<</if>>
-			<<if _chimeraOptions.demonharpy_wings>>
-				/* Using demon harpy chimera wings. */
-				<label>Demon harpy wings:
-					<<listbox "$chimera.demonharpy.wings" autoselect>>
-						<<option "Show" true>>
-						<<option "Hide" false>>
-					<</listbox>>
-				</label>
-				<br>
-			<</if>>
-			<<if _chimeraOptions.angelharpy_wings>>
-				/* Using angel harpy chimera wings. */
-				<label>Angel harpy wings:
-					<<listbox "$chimera.angelharpy.wings" autoselect>>
-						<<option "Show" true>>
-						<<option "Hide" false>>
-					<</listbox>>
-				</label>
-				<br>
-			<</if>>
-			<<if _chimeraOptions.fallenharpy_wings>>
-				/* Using fallen angel harpy chimera wings. */
-				<label>Fallen harpy wings:
-					<<listbox "$chimera.fallenharpy.wings" autoselect>>
-						<<option "Show" true>>
-						<<option "Hide" false>>
-					<</listbox>>
-				</label>
-				<br>
-			<</if>>
-		</div>
-	</span>
+	<span id="tf-chimera"><<renderTfChimera>></span>
 
 	<<if ($traumatized isnot undefined)>>
 		__Trauma__<br>
@@ -3760,105 +3666,7 @@
 			};
 			Wikifier.wikifyEval('<<updatesidebarimg true>>');
 			if (V.mirrorMenu == "transformation") {
-				Wikifier.wikifyEval('
-					<<replace #tf-chimera>>
-						<<set _chimeraOptions to {
-							"demoncat_tail" : !["disabled", "hidden"].includesAny(_demon.tail, _cat.tail),
-							"demoncow_tail" : !["disabled", "hidden"].includesAny(_demon.tail, _cow.tail),
-							"demonwolf_tail" : !["disabled", "hidden"].includesAny(_demon.tail, _wolf.tail),
-							"demonfox_tail" : !["disabled", "hidden"].includesAny(_demon.tail, _fox.tail),
-							"demonfox_ears" : !["disabled", "hidden"].includesAny(_fox.ears) && V.demontf == 1,
-							"demonharpy_wings" : !["disabled", "hidden"].includesAny(_demon.wings, _bird.wings),
-							"angelharpy_wings" : !["disabled", "hidden"].includesAny(_angel.wings, _bird.wings),
-							"fallenharpy_wings" : !["disabled", "hidden"].includesAny(_fallen.wings, _bird.wings),
-						}>>
-						<<set _chimeraEnabled to Object.values(_chimeraOptions).some(o => o) ? "" : " hide">>
-						<div class="chimera<<=_chimeraEnabled>>">
-							<<if _divine>><<tficon _divine>><</if>>
-							<span class="gold bold">Chimera</span><br>
-							<<if _chimeraOptions.demoncat_tail>>
-								/* Using demon cat chimera tail. */
-								<label>Demon cat tail:
-									<<listbox "$chimera.demoncat.tail" autoselect>>
-										<<option "Show" true>>
-										<<option "Hide" false>>
-									<</listbox>>
-								</label>
-								<br>
-							<</if>>
-							<<if _chimeraOptions.demoncow_tail>>
-								/* Using demon cow chimera tail. */
-								<label>Demon cow tail:
-									<<listbox "$chimera.demoncow.tail" autoselect>>
-										<<option "Show" true>>
-										<<option "Hide" false>>
-									<</listbox>>
-								</label>
-								<br>
-							<</if>>
-							<<if _chimeraOptions.demonwolf_tail>>
-								/* Using demon wolf chimera tail. */
-								<label>Demon wolf tail:
-									<<listbox "$chimera.demonwolf.tail" autoselect>>
-										<<option "Show" true>>
-										<<option "Hide" false>>
-									<</listbox>>
-								</label>
-								<br>
-							<</if>>
-							<<if _chimeraOptions.demonfox_tail>>
-								/* Using demon fox chimera tail. */
-								<label>Demon fox tail:
-									<<listbox "$chimera.demonfox.tail" autoselect>>
-										<<option "Show" true>>
-										<<option "Hide" false>>
-									<</listbox>>
-								</label>
-								<br>
-							<</if>>
-							<<if _chimeraOptions.demonfox_ears>>
-								/* Using demon fox chimera ears. */
-								<label>Demon fox ears:
-									<<listbox "$chimera.demonfox.ears" autoselect>>
-										<<option "Show" true>>
-										<<option "Hide" false>>
-									<</listbox>>
-								</label>
-								<br>
-							<</if>>
-							<<if _chimeraOptions.demonharpy_wings>>
-								/* Using demon harpy chimera wings. */
-								<label>Demon harpy wings:
-									<<listbox "$chimera.demonharpy.wings" autoselect>>
-										<<option "Show" true>>
-										<<option "Hide" false>>
-									<</listbox>>
-								</label>
-								<br>
-							<</if>>
-							<<if _chimeraOptions.angelharpy_wings>>
-								/* Using angel harpy chimera wings. */
-								<label>Angel harpy wings:
-									<<listbox "$chimera.angelharpy.wings" autoselect>>
-										<<option "Show" true>>
-										<<option "Hide" false>>
-									<</listbox>>
-								</label>
-								<br>
-							<</if>>
-							<<if _chimeraOptions.fallenharpy_wings>>
-								/* Using fallen angel harpy chimera wings. */
-								<label>Fallen harpy wings:
-									<<listbox "$chimera.fallenharpy.wings" autoselect>>
-										<<option "Show" true>>
-										<<option "Hide" false>>
-									<</listbox>>
-								</label>
-								<br>
-							<</if>>
-						</div>
-					<</replace>>
-				');
+				Wikifier.wikifyEval('<<replace #tf-chimera>><<renderTfChimera>><</replace>>');
 			}
 		});
 	<</script>>
@@ -3906,11 +3714,128 @@
 	<</if>>
 <</widget>>
 
+
+<<widget "renderTfChimera">>
+	<<set _parts to $transformationParts>>
+	<<if _parts is undefined>><<set _parts to {}>><</if>>
+
+	<<set _demon to _parts.demon>><<if _demon is undefined>><<set _demon to {}>><</if>>
+	<<set _cat to _parts.cat>><<if _cat is undefined>><<set _cat to {}>><</if>>
+	<<set _cow to _parts.cow>><<if _cow is undefined>><<set _cow to {}>><</if>>
+	<<set _wolf to _parts.wolf>><<if _wolf is undefined>><<set _wolf to {}>><</if>>
+	<<set _fox to _parts.fox>><<if _fox is undefined>><<set _fox to {}>><</if>>
+	<<set _angel to _parts.angel>><<if _angel is undefined>><<set _angel to {}>><</if>>
+	<<set _fallen to _parts.fallenAngel>><<if _fallen is undefined>><<set _fallen to {}>><</if>>
+	<<set _bird to _parts.bird>><<if _bird is undefined>><<set _bird to {}>><</if>>
+
+	<<set _hiddenParts to ["disabled", "hidden"]>>
+	<<set _demoncatTail to (_demon.tail isnot undefined and _cat.tail isnot undefined and !_hiddenParts.includesAny(_demon.tail, _cat.tail))>>
+	<<set _demoncowTail to (_demon.tail isnot undefined and _cow.tail isnot undefined and !_hiddenParts.includesAny(_demon.tail, _cow.tail))>>
+	<<set _demonwolfTail to (_demon.tail isnot undefined and _wolf.tail isnot undefined and !_hiddenParts.includesAny(_demon.tail, _wolf.tail))>>
+	<<set _demonfoxTail to (_demon.tail isnot undefined and _fox.tail isnot undefined and !_hiddenParts.includesAny(_demon.tail, _fox.tail))>>
+	<<set _demonfoxEars to (_fox.ears isnot undefined and !_hiddenParts.includesAny(_fox.ears) and $demontf is 1)>>
+	<<set _demonharpyWings to (_demon.wings isnot undefined and _bird.wings isnot undefined and !_hiddenParts.includesAny(_demon.wings, _bird.wings))>>
+	<<set _angelharpyWings to (_angel.wings isnot undefined and _bird.wings isnot undefined and !_hiddenParts.includesAny(_angel.wings, _bird.wings))>>
+	<<set _fallenharpyWings to (_fallen.wings isnot undefined and _bird.wings isnot undefined and !_hiddenParts.includesAny(_fallen.wings, _bird.wings))>>
+	<<set _chimeraEnabled to " hide">>
+	<<if _demoncatTail or _demoncowTail or _demonwolfTail or _demonfoxTail or _demonfoxEars or _demonharpyWings or _angelharpyWings or _fallenharpyWings>>
+		<<set _chimeraEnabled to "">>
+	<</if>>
+
+	<div class="chimera<<=_chimeraEnabled>>">
+		<<if _divine>><<tficon _divine>><</if>>
+		<span class="gold bold">Chimera</span><br>
+		<<if _demoncatTail>>
+			/* Using demon cat chimera tail. */
+			<label>Demon cat tail:
+				<<listbox "$chimera.demoncat.tail" autoselect>>
+					<<option "Show" true>>
+					<<option "Hide" false>>
+				<</listbox>>
+			</label>
+			<br>
+		<</if>>
+		<<if _demoncowTail>>
+			/* Using demon cow chimera tail. */
+			<label>Demon cow tail:
+				<<listbox "$chimera.demoncow.tail" autoselect>>
+					<<option "Show" true>>
+					<<option "Hide" false>>
+				<</listbox>>
+			</label>
+			<br>
+		<</if>>
+		<<if _demonwolfTail>>
+			/* Using demon wolf chimera tail. */
+			<label>Demon wolf tail:
+				<<listbox "$chimera.demonwolf.tail" autoselect>>
+					<<option "Show" true>>
+					<<option "Hide" false>>
+				<</listbox>>
+			</label>
+			<br>
+		<</if>>
+		<<if _demonfoxTail>>
+			/* Using demon fox chimera tail. */
+			<label>Demon fox tail:
+				<<listbox "$chimera.demonfox.tail" autoselect>>
+					<<option "Show" true>>
+					<<option "Hide" false>>
+				<</listbox>>
+			</label>
+			<br>
+		<</if>>
+		<<if _demonfoxEars>>
+			/* Using demon fox chimera ears. */
+			<label>Demon fox ears:
+				<<listbox "$chimera.demonfox.ears" autoselect>>
+					<<option "Show" true>>
+					<<option "Hide" false>>
+				<</listbox>>
+			</label>
+			<br>
+		<</if>>
+		<<if _demonharpyWings>>
+			/* Using demon harpy chimera wings. */
+			<label>Demon harpy wings:
+				<<listbox "$chimera.demonharpy.wings" autoselect>>
+					<<option "Show" true>>
+					<<option "Hide" false>>
+				<</listbox>>
+			</label>
+			<br>
+		<</if>>
+		<<if _angelharpyWings>>
+			/* Using angel harpy chimera wings. */
+			<label>Angel harpy wings:
+				<<listbox "$chimera.angelharpy.wings" autoselect>>
+					<<option "Show" true>>
+					<<option "Hide" false>>
+				<</listbox>>
+			</label>
+			<br>
+		<</if>>
+		<<if _fallenharpyWings>>
+			/* Using fallen angel harpy chimera wings. */
+			<label>Fallen harpy wings:
+				<<listbox "$chimera.fallenharpy.wings" autoselect>>
+					<<option "Show" true>>
+					<<option "Hide" false>>
+				<</listbox>>
+			</label>
+			<br>
+		<</if>>
+	</div>
+<</widget>>
+
 <<widget "repairBrokenVowAngelState">>
-	<<set _tempXChanged to false>>
-	<<run _tempXChanged =
-		(typeof playerIsXChanged === "function" && typeof pillIsPermanent === "function" && typeof pillTimerPaused === "function")
-			? (playerIsXChanged() && !(pillIsPermanent() || pillTimerPaused())) : false; >>
+	<<script>>
+	(function () {
+		const hasXChangeHelpers =
+			typeof window.playerIsXChanged === "function" && typeof window.pillIsPermanent === "function" && typeof window.pillTimerPaused === "function";
+		State.temporary.tempXChanged = hasXChangeHelpers && window.playerIsXChanged() && !(window.pillIsPermanent() || window.pillTimerPaused());
+	}());
+	<</script>>
 
 	/* Only count as broken vow if the player actually had temple vow history. */
 	<<set _hasTempleVowHistory to ($temple_rank isnot undefined and $temple_rank isnot "prospective")>>
@@ -3918,6 +3843,11 @@
 
 	/* Match the Virgin trait exactly */
 	<<set _hasVirginTrait to ($player.virginity.vaginal is true and $player.virginity.penile is true)>>
+
+	/* Make sure old / broken saves have the nested objects before we write to them. */
+	<<if $transformationParts is undefined>><<set $transformationParts to {}>><</if>>
+	<<if $transformationParts.angel is undefined>><<set $transformationParts.angel to {}>><</if>>
+	<<if $transformationParts.fallenAngel is undefined>><<set $transformationParts.fallenAngel to {}>><</if>>
 
 	/* Repair only known bad save state: actual broken vow or no longer qualifies for Virgin (trait) + still angelic + not temp xchanged + not already fallen */
 	<<if _brokenTempleVow and !_hasVirginTrait and !_tempXChanged and $fallenangel lt 2>>
@@ -3943,18 +3873,20 @@
 
 /* Single source of truth for the Description chooser. */
 <<widget "tfDescValidList">>
-	<<set _tfParts to $transformationParts || {}>>
-	<<set _angelParts to _tfParts.angel || {}>>
-	<<set _fallenParts to _tfParts.fallenAngel || {}>>
-	<<set _demonParts to _tfParts.demon || {}>>
-	<<set _wolfParts to _tfParts.wolf || {}>>
-	<<set _catParts to _tfParts.cat || {}>>
-	<<set _cowParts to _tfParts.cow || {}>>
-	<<set _birdParts to _tfParts.bird || {}>>
-	<<set _foxParts to _tfParts.fox || {}>>
-	<<set _bunnyParts to _tfParts.bunny || {}>>
-	<<set _bearParts to _tfParts.bear || {}>>
-	<<set _waterdragonParts to _tfParts.waterdragon || {}>>
+	<<set _tfParts to $transformationParts>>
+	<<if _tfParts is undefined>><<set _tfParts to {}>><</if>>
+
+	<<set _angelParts to _tfParts.angel>><<if _angelParts is undefined>><<set _angelParts to {}>><</if>>
+	<<set _fallenParts to _tfParts.fallenAngel>><<if _fallenParts is undefined>><<set _fallenParts to {}>><</if>>
+	<<set _demonParts to _tfParts.demon>><<if _demonParts is undefined>><<set _demonParts to {}>><</if>>
+	<<set _wolfParts to _tfParts.wolf>><<if _wolfParts is undefined>><<set _wolfParts to {}>><</if>>
+	<<set _catParts to _tfParts.cat>><<if _catParts is undefined>><<set _catParts to {}>><</if>>
+	<<set _cowParts to _tfParts.cow>><<if _cowParts is undefined>><<set _cowParts to {}>><</if>>
+	<<set _birdParts to _tfParts.bird>><<if _birdParts is undefined>><<set _birdParts to {}>><</if>>
+	<<set _foxParts to _tfParts.fox>><<if _foxParts is undefined>><<set _foxParts to {}>><</if>>
+	<<set _bunnyParts to _tfParts.bunny>><<if _bunnyParts is undefined>><<set _bunnyParts to {}>><</if>>
+	<<set _bearParts to _tfParts.bear>><<if _bearParts is undefined>><<set _bearParts to {}>><</if>>
+	<<set _waterdragonParts to _tfParts.waterdragon>><<if _waterdragonParts is undefined>><<set _waterdragonParts to {}>><</if>>
 
 	<<set _angelWingsActive to (_angelParts.wings isnot undefined and _angelParts.wings isnot "hidden" and _angelParts.wings isnot "disabled" and _angelParts.wings isnot "default")>>
 	<<set _fallenWingsActive to (_fallenParts.wings isnot undefined and _fallenParts.wings isnot "hidden" and _fallenParts.wings isnot "disabled" and _fallenParts.wings isnot "default")>>
@@ -3968,29 +3900,59 @@
 	<<set _bearTailActive to (_bearParts.tail isnot undefined and _bearParts.tail isnot "hidden" and _bearParts.tail isnot "disabled" and _bearParts.tail isnot "default")>>
 	<<set _waterdragonTailActive to (_waterdragonParts.tail isnot undefined and _waterdragonParts.tail isnot "hidden" and _waterdragonParts.tail isnot "disabled" and _waterdragonParts.tail isnot "default")>>
 
-	<<set _present to {
-		"demon"       : ($demon gte 6 or $demontf is 1 or _demonWingsActive),
-		"angel"       : ($angel gte 6 or $angeltf is 1 or _angelWingsActive),
-		"fallen"      : ($fallenangel gte 2 or $fallenangeltf is 1 or _fallenWingsActive),
-		"cat"         : ($cat gte 6 or $cattf is 1 or _catTailActive),
-		"cow"         : ($cow gte 6 or $cowtf is 1 or _cowTailActive),
-		"bear"        : ($bear gte 6 or $beartf is 1 or _bearTailActive),
-		"waterdragon" : ($waterdragon gte 6 or $waterdragontf is 1 or _waterdragonTailActive),
-		"wolf"        : ($wolfgirl gte 6 or $wolftf is 1 or _wolfTailActive),
-		"harpy"       : ($harpy gte 6 or $harpytf is 1 or _birdWingsActive),
-		"fox"         : ($fox gte 6 or $foxtf is 1 or _foxTailActive),
-		"bunny"       : ($bunny gte 6 or $bunnytf is 1 or _bunnyTailActive),
-	}>>
-	<<set _present.okami    to (_present.wolf and _present.angel)>>
-	<<set _present.kitsune  to (_present.fox and _present.angel)>>
+	<<set _present to {}>>
+	<<set _present.demon to ($demon gte 6 or $demontf is 1 or _demonWingsActive)>>
+	<<set _present.angel to ($angel gte 6 or $angeltf is 1 or _angelWingsActive)>>
+	<<set _present.fallen to ($fallenangel gte 2 or $fallenangeltf is 1 or _fallenWingsActive)>>
+	<<set _present.cat to ($cat gte 6 or $cattf is 1 or _catTailActive)>>
+	<<set _present.cow to ($cow gte 6 or $cowtf is 1 or _cowTailActive)>>
+	<<set _present.bear to ($bear gte 6 or $beartf is 1 or _bearTailActive)>>
+	<<set _present.waterdragon to ($waterdragon gte 6 or $waterdragontf is 1 or _waterdragonTailActive)>>
+	<<set _present.wolf to ($wolfgirl gte 6 or $wolftf is 1 or _wolfTailActive)>>
+	<<set _present.harpy to ($harpy gte 6 or $harpytf is 1 or _birdWingsActive)>>
+	<<set _present.fox to ($fox gte 6 or $foxtf is 1 or _foxTailActive)>>
+	<<set _present.bunny to ($bunny gte 6 or $bunnytf is 1 or _bunnyTailActive)>>
+	<<set _present.okami to (_present.wolf and _present.angel)>>
+	<<set _present.kitsune to (_present.fox and _present.angel)>>
 	<<set _present.seraphim to (_present.harpy and _present.angel)>>
+
 	/* Xenos = at least one animal + one non-animal, 3+ base species total. */
-	<<set _animalN to ["wolf", "cat", "cow", "harpy", "fox", "bunny", "bear", "waterdragon"].filter(s => _present[s]).length>>
-	<<set _nonAnimalN to ["angel", "fallen", "demon"].filter(s => _present[s]).length>>
+	<<set _animalN to 0>>
+	<<if _present.wolf>><<set _animalN += 1>><</if>>
+	<<if _present.cat>><<set _animalN += 1>><</if>>
+	<<if _present.cow>><<set _animalN += 1>><</if>>
+	<<if _present.harpy>><<set _animalN += 1>><</if>>
+	<<if _present.fox>><<set _animalN += 1>><</if>>
+	<<if _present.bunny>><<set _animalN += 1>><</if>>
+	<<if _present.bear>><<set _animalN += 1>><</if>>
+	<<if _present.waterdragon>><<set _animalN += 1>><</if>>
+
+	<<set _nonAnimalN to 0>>
+	<<if _present.angel>><<set _nonAnimalN += 1>><</if>>
+	<<if _present.fallen>><<set _nonAnimalN += 1>><</if>>
+	<<if _present.demon>><<set _nonAnimalN += 1>><</if>>
+
 	<<set _present.xenos to (_animalN gte 1 and _nonAnimalN gte 1 and (_animalN + _nonAnimalN) gte 3)>>
-	<<set $tfDescValid to Object.keys(_present).filter(s => _present[s])>>
+	<<set $tfDescValid to []>>
+	<<if _present.demon>><<run $tfDescValid.push("demon")>><</if>>
+	<<if _present.angel>><<run $tfDescValid.push("angel")>><</if>>
+	<<if _present.fallen>><<run $tfDescValid.push("fallen")>><</if>>
+	<<if _present.cat>><<run $tfDescValid.push("cat")>><</if>>
+	<<if _present.cow>><<run $tfDescValid.push("cow")>><</if>>
+	<<if _present.bear>><<run $tfDescValid.push("bear")>><</if>>
+	<<if _present.waterdragon>><<run $tfDescValid.push("waterdragon")>><</if>>
+	<<if _present.wolf>><<run $tfDescValid.push("wolf")>><</if>>
+	<<if _present.harpy>><<run $tfDescValid.push("harpy")>><</if>>
+	<<if _present.fox>><<run $tfDescValid.push("fox")>><</if>>
+	<<if _present.bunny>><<run $tfDescValid.push("bunny")>><</if>>
+	<<if _present.okami>><<run $tfDescValid.push("okami")>><</if>>
+	<<if _present.kitsune>><<run $tfDescValid.push("kitsune")>><</if>>
+	<<if _present.seraphim>><<run $tfDescValid.push("seraphim")>><</if>>
+	<<if _present.xenos>><<run $tfDescValid.push("xenos")>><</if>>
+
 	/* Self-heal: if the saved choice is no longer valid, revert to automatic. */
-	<<if $tfDesc is undefined>><<set $tfDesc to { primary : "default" }>><</if>>
+	<<if $tfDesc is undefined>><<set $tfDesc to {}>><</if>>
+	<<if $tfDesc.primary is undefined>><<set $tfDesc.primary to "default">><</if>>
 	<<if $tfDesc.primary isnot "default" and !$tfDescValid.includes($tfDesc.primary)>>
 		<<set $tfDesc.primary to "default">>
 	<</if>>

@@ -8,78 +8,26 @@
 	You are ████████ compared to others. You have ████████████ eyes. You have █████ skin colour. You have ███████████████. You have ████████████████████████████████. When left natural, your ██████████████████████████, and your ████████████████████.
 	<br><br>
 	████████████████████████████████████████████████████████████████████████████
+	████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████
 	<br><br>
 	You ████████████████████████████████.<br>
 	You ███████████████████████████████.<br>
 	██████████████████████████████████████████.<br>
 <<else>>
-	/* Missing/undefined parts count as inactive. Without this, a fresh save can  treat undefined tails/wings as "not hidden" and fall into xenos. */
-	<<set _tfParts to $transformationParts || {}>>
-	<<set _angelParts to _tfParts.angel || {}>>
-	<<set _fallenParts to _tfParts.fallenAngel || {}>>
-	<<set _demonParts to _tfParts.demon || {}>>
-	<<set _wolfParts to _tfParts.wolf || {}>>
-	<<set _catParts to _tfParts.cat || {}>>
-	<<set _cowParts to _tfParts.cow || {}>>
-	<<set _birdParts to _tfParts.bird || {}>>
-	<<set _foxParts to _tfParts.fox || {}>>
-	<<set _bunnyParts to _tfParts.bunny || {}>>
-	<<set _bearParts to _tfParts.bear || {}>>
-	<<set _waterdragonParts to _tfParts.waterdragon || {}>>
-	<<set _seraphimParts to _tfParts.seraphim || {}>>
-	<<set _kitsuneParts to _tfParts.kitsune || {}>>
-	<<set _okamiParts to _tfParts.okami || {}>>
-
-	<<set _angelWingsActive to (_angelParts.wings isnot undefined and _angelParts.wings isnot "hidden" and _angelParts.wings isnot "disabled" and _angelParts.wings isnot "default")>>
-	<<set _fallenWingsActive to (_fallenParts.wings isnot undefined and _fallenParts.wings isnot "hidden" and _fallenParts.wings isnot "disabled" and _fallenParts.wings isnot "default")>>
-	<<set _demonWingsActive to (_demonParts.wings isnot undefined and _demonParts.wings isnot "hidden" and _demonParts.wings isnot "disabled" and _demonParts.wings isnot "default")>>
-	<<set _wolfTailActive to (_wolfParts.tail isnot undefined and _wolfParts.tail isnot "hidden" and _wolfParts.tail isnot "disabled" and _wolfParts.tail isnot "default")>>
-	<<set _catTailActive to (_catParts.tail isnot undefined and _catParts.tail isnot "hidden" and _catParts.tail isnot "disabled" and _catParts.tail isnot "default")>>
-	<<set _cowTailActive to (_cowParts.tail isnot undefined and _cowParts.tail isnot "hidden" and _cowParts.tail isnot "disabled" and _cowParts.tail isnot "default")>>
-	<<set _birdWingsActive to (_birdParts.wings isnot undefined and _birdParts.wings isnot "hidden" and _birdParts.wings isnot "disabled" and _birdParts.wings isnot "default")>>
-	<<set _foxTailActive to (_foxParts.tail isnot undefined and _foxParts.tail isnot "hidden" and _foxParts.tail isnot "disabled" and _foxParts.tail isnot "default")>>
-	<<set _bunnyTailActive to (_bunnyParts.tail isnot undefined and _bunnyParts.tail isnot "hidden" and _bunnyParts.tail isnot "disabled" and _bunnyParts.tail isnot "default")>>
-	<<set _bearTailActive to (_bearParts.tail isnot undefined and _bearParts.tail isnot "hidden" and _bearParts.tail isnot "disabled" and _bearParts.tail isnot "default")>>
-	<<set _waterdragonTailActive to (_waterdragonParts.tail isnot undefined and _waterdragonParts.tail isnot "hidden" and _waterdragonParts.tail isnot "disabled" and _waterdragonParts.tail isnot "default")>>
-
+	/* --- TF presence detection (single source of truth: <<tfDescValidList>> in mirror.twee).
+	   It populates _present.* (per-TF presence + xenos), sets/validates $tfDesc and $tfDescValid, and treats missing/undefined parts as inactive. --- */
+	<<tfDescValidList>>
+	<<set _hasAngel to _present.angel>><<set _hasFallen to _present.fallen>><<set _hasDemon to _present.demon>>
+	<<set _hasWolf to _present.wolf>><<set _hasCat to _present.cat>><<set _hasCow to _present.cow>><<set _hasHarpy to _present.harpy>><<set _hasFox to _present.fox>>
+	<<set _hasBunny to _present.bunny>><<set _hasBear to _present.bear>><<set _hasWaterDragon to _present.waterdragon>>
+	<<set _isXenos to _present.xenos>>
+	/* Combo-part checks stay local on purpose: the automatic description requires the seraphim/kitsune/okami parts to actually be equipped, which is stricter than _present.seraphim/kitsune/okami (mere qualification for the combo). */
+	<<set _seraphimParts to _tfParts.seraphim || {}>><<set _kitsuneParts to _tfParts.kitsune || {}>><<set _okamiParts to _tfParts.okami || {}>>
 	<<set _seraphimActive to (_seraphimParts.wings isnot undefined and _seraphimParts.wings isnot "hidden" and _seraphimParts.wings isnot "disabled" and _seraphimParts.wings isnot "default")>>
 	<<set _kitsuneActive to (["ears", "tail", "cheeks"].filter(p => _kitsuneParts[p] isnot undefined and _kitsuneParts[p] isnot "hidden" and _kitsuneParts[p] isnot "disabled" and _kitsuneParts[p] isnot "default").length > 0)>>
 	<<set _okamiActive to (["ears", "tail", "misc"].filter(p => _okamiParts[p] isnot undefined and _okamiParts[p] isnot "hidden" and _okamiParts[p] isnot "disabled" and _okamiParts[p] isnot "default").length > 0)>>
-
-	/* --- Xenos detection (3+ TF types incl. animal + non-animal) --- */
-	<<set _hasAngel to ($angel gte 6 or $angeltf is 1 or _angelWingsActive)>>
-	<<set _hasFallen to ($fallenangel gte 2 or $fallenangeltf is 1 or _fallenWingsActive)>>
-	<<set _hasDemon to ($demon gte 6 or $demontf is 1 or _demonWingsActive)>>
-	<<set _hasWolf to ($wolfgirl gte 6 or $wolftf is 1 or _wolfTailActive)>>
-	<<set _hasCat  to ($cat gte 6 or $cattf is 1 or _catTailActive)>>
-	<<set _hasCow  to ($cow gte 6 or $cowtf is 1 or _cowTailActive)>>
-	<<set _hasHarpy to ($harpy gte 6 or $harpytf is 1 or _birdWingsActive)>>
-	<<set _hasFox  to ($fox gte 6 or $foxtf is 1 or _foxTailActive)>>
-	<<set _hasBunny to ($bunny gte 6 or $bunnytf is 1 or _bunnyTailActive)>>
-	<<set _hasBear to ($bear gte 6 or $beartf is 1 or _bearTailActive)>>
-	<<set _hasWaterDragon to ($waterdragon gte 6 or $waterdragontf is 1 or _waterdragonTailActive)>>
-	<<set _nonAnimalCount to 0>>
-	<<if _hasAngel>><<set _nonAnimalCount += 1>><</if>>
-	<<if _hasFallen>><<set _nonAnimalCount += 1>><</if>>
-	<<if _hasDemon>><<set _nonAnimalCount += 1>><</if>>
-	<<set _animalCount to 0>>
-	<<if _hasWolf>><<set _animalCount += 1>><</if>>
-	<<if _hasCat>><<set _animalCount += 1>><</if>>
-	<<if _hasCow>><<set _animalCount += 1>><</if>>
-	<<if _hasHarpy>><<set _animalCount += 1>><</if>>
-	<<if _hasFox>><<set _animalCount += 1>><</if>>
-	<<if _hasBunny>><<set _animalCount += 1>><</if>>
-	<<if _hasBear>><<set _animalCount += 1>><</if>>
-	<<if _hasWaterDragon>><<set _animalCount += 1>><</if>>
-	<<set _isXenos to (_animalCount gte 1 and _nonAnimalCount gte 1 and (_animalCount + _nonAnimalCount) gte 3)>>
-	/* --- End Xenos detection --- */
-
 	/* --- Manual description override (mirror > Transformation > Description) --- */
-	<<if $tfDesc is undefined>><<set $tfDesc to { primary : "default" }>><</if>>
-	<<tfDescValidList>>
-	<<if $tfDescValid is undefined>><<set $tfDescValid to []>><</if>>
 	<<set _descActive to ($tfDesc.primary isnot "default" and $tfDescValid.includes($tfDesc.primary))>>
-	/* --- End override detection --- */
 
 	<br>
 	You are 
