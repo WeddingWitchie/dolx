@@ -235,6 +235,14 @@
 				<<set $dice.event.pending to 1>>
 				<<set $dice.event.sex to 1>>
 			<</switch>>
+
+			/* If a garment was staked, queue its forfeit. 
+			The slot code is copied into the event object because $dice.altbetClothing is cleared during round cleanup. */
+			<<if $dice.altbetClothing isnot undefined>>
+				<<set $dice.event.pending to 1>>
+				<<set $dice.event.clothing to 1>>
+				<<set $dice.event.clothingSlot to $dice.altbetClothing>>
+			<</if>>
 		<</if>>
 
 	<</widget>>
@@ -295,6 +303,43 @@
 				<<link [[Refuse|Pub Dice Minigame Sex]]>><<set $molestationstart to 1>><</link>>
 				<br>
 
+			<<elseif $dice.event.clothing>>
+				Being aware of your loss, you know what you put on the line. The <<group>> grin and hold out their hands, expecting you to make good on your wager and surrender the garment you staked.
+				<br><br>
+				<<switch $dice.event.clothingSlot>>
+				<<case 0>>
+					<span class="purple">You wagered your outfit. Your $worn.upper.name must come off.</span>
+				<<case 1>>
+					<span class="purple">You wagered your top. Your $worn.upper.name must come off.</span>
+				<<case 2>>
+					<span class="purple">You wagered your bottoms. Your $worn.lower.name must come off.</span>
+				<<case 3>>
+					<span class="purple">You wagered your under outfit. Your $worn.under_upper.name must come off.</span>
+				<<case 4>>
+					<span class="purple">You wagered your under top. Your $worn.under_upper.name must come off.</span>
+				<<default>>
+					<span class="purple">You wagered your underwear. Your $worn.under_lower.name must come off.</span>
+				<</switch>>
+				<br><br>
+
+				<<link [[Hand it over|Pub Dice Minigame]]>>
+					<<switch $dice.event.clothingSlot>>
+					<<case 0>>
+						<<upperruined>><<lowerruined>>
+					<<case 1>>
+						<<upperruined>>
+					<<case 2>>
+						<<lowerruined>>
+					<<case 3>>
+						<<underupperruined>><<underlowerruined>>
+					<<case 4>>
+						<<underupperruined>>
+					<<default>>
+						<<underlowerruined>>
+					<</switch>>
+				<</link>>
+				<br>
+
 			<<elseif $dice.event.drinkEnabled>>
 				After taking tally of who lost and who won, an spectator picks what seems like a random bottle and begins serving shots. Each one from a different bottle, three shots are placed on a tray out of sight, and offered to the losers in order.
 				<br><br>
@@ -346,6 +391,8 @@
 		<<unset $dice.event.kiss>>
 		<<unset $dice.event.oral>>
 		<<unset $dice.event.sex>>
+		<<unset $dice.event.clothing>>
+		<<unset $dice.event.clothingSlot>>
 	<</widget>>
 
 	<<widget "dice-display">>
@@ -755,6 +802,7 @@
 		<<set $dice.currentBet to 0>>
 		<<set $dice.bets to [0,0,0,0]>>
 		<<set $dice.altbet to undefined>>
+		<<set $dice.altbetClothing to undefined>>
 		<<set $dice.positions to ["","","",""]>>
 		<<set $dice.values to undefined>>
 
@@ -805,6 +853,7 @@
 			currentBet: 0,
 			bets: [0,0,0,0],
 			altbet: undefined,
+			altbetClothing: undefined, /* Slot code (0-5) of a garment being wagered, mirrors $phase in Docks Sacrifice */
 			altbetcount: 0,
 			round: {
 				point: undefined,
@@ -865,6 +914,72 @@
 							<<promiscuity5>>
 						<</link>><<promiscuous5>>
 					<</if>>
+
+					/* Wager an article of clothing instead. 
+					Choosing which garment to stake reuses the same set/naked checks as the Docks false-trail "Sacrifice" menu.
+					If the round is lost, the staked garment is ruined exactly like the dock sacrifice. */
+					<<if hasSexStat("promiscuity", 1)>>
+						<<if $worn.upper.set is $worn.lower.set>>
+							<<if $worn.upper.name isnot "naked">>
+								<br>
+								<<clothingicon $worn.upper "upper">><<link [[Play round wagering your outfit|Pub Dice Minigame Wager]]>>
+									<<set $dicewagerintro to 1>>
+									<<set $dice.altbet to "your outfit">>
+									<<set $dice.altbetClothing to 0>>
+									<<set $dice.altbetcount++>>
+								<</link>>
+							<</if>>
+						<<else>>
+							<<if $worn.upper.name isnot "naked">>
+								<br>
+								<<clothingicon $worn.upper "upper">><<link [[Play round wagering your top|Pub Dice Minigame Wager]]>>
+									<<set $dicewagerintro to 1>>
+									<<set $dice.altbet to "your top">>
+									<<set $dice.altbetClothing to 1>>
+									<<set $dice.altbetcount++>>
+								<</link>>
+							<</if>>
+							<<if $worn.lower.name isnot "naked">>
+								<br>
+								<<clothingicon $worn.lower "lower">><<link [[Play round wagering your bottoms|Pub Dice Minigame Wager]]>>
+									<<set $dicewagerintro to 1>>
+									<<set $dice.altbet to "your bottoms">>
+									<<set $dice.altbetClothing to 2>>
+									<<set $dice.altbetcount++>>
+								<</link>>
+							<</if>>
+						<</if>>
+						<<if $worn.under_upper.set is $worn.under_lower.set>>
+							<<if $worn.under_upper.name isnot "naked">>
+								<br>
+								<<clothingicon $worn.under_upper "under_upper">><<link [[Play round wagering your under outfit|Pub Dice Minigame Wager]]>>
+									<<set $dicewagerintro to 1>>
+									<<set $dice.altbet to "your under outfit">>
+									<<set $dice.altbetClothing to 3>>
+									<<set $dice.altbetcount++>>
+								<</link>>
+							<</if>>
+						<<else>>
+							<<if $worn.under_upper.name isnot "naked">>
+								<br>
+								<<clothingicon $worn.under_upper "under_upper">><<link [[Play round wagering your under top|Pub Dice Minigame Wager]]>>
+									<<set $dicewagerintro to 1>>
+									<<set $dice.altbet to "your under top">>
+									<<set $dice.altbetClothing to 4>>
+									<<set $dice.altbetcount++>>
+								<</link>>
+							<</if>>
+							<<if $worn.under_lower.name isnot "naked">>
+								<br>
+								<<clothingicon $worn.under_lower "under_lower">><<link [[Play round wagering your underwear|Pub Dice Minigame Wager]]>>
+									<<set $dicewagerintro to 1>>
+									<<set $dice.altbet to "your underwear">>
+									<<set $dice.altbetClothing to 5>>
+									<<set $dice.altbetcount++>>
+								<</link>>
+							<</if>>
+						<</if>>
+					<</if>>
 				<<else>>
 					And you're also out of special favours to wager.
 				<</if>>
@@ -905,7 +1020,13 @@
 		<<set _favoursValueMap to {
 			"a kiss": 2000,
 			"an oral": 5000,
-			"your body": 20000
+			"your body": 20000,
+			"your outfit": 4000,
+			"your top": 2000,
+			"your bottoms": 2000,
+			"your under outfit": 2000,
+			"your under top": 1000,
+			"your underwear": 1000
 		}>>
 		<<for _player range $dice.queue>>
 			<<if $dice.altbet isnot undefined>>
