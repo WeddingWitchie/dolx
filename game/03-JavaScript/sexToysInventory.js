@@ -139,14 +139,27 @@ function sexToysInventoryOnCarryClick(index, category) {
 	const setupToy = setup.sextoys[toy.index];
 	const setupCategory = setupToy.category;
 	const colour = toy.colour === "lime-green" ? "lime" : toy.colour || "";
-	const handheld = setup.props.find(item => item === toy.name);
-
-	if (handheld) Wikifier.wikifyEval(`<<wearProp '${toy.name}' '${colour.replace("-", " ")}'>><<updatesidebarimg>>`);
+	// Since the prop rework, setup.props is an OBJECT keyed by snake_case (e.g. "small_dildo"), while toy names use spaces (e.g. "small dildo").
+	// The old array-style `setup.props.find(item => item === toy.name)` could therefore never match multi-word toys.
+	// Normalise the name into key form for the lookup; <<wearProp>> normalises its argument internally, so the original spaced name can still be passed to the macro.
+	const propKey = typeof window.normaliseKey === "function"
+		? window.normaliseKey(toy.name)
+		: String(toy.name).toLowerCase().trim().replace(/\s+/g, "_");
+	const handheld = Boolean(setup.props && setup.props[propKey]);
 
 	// if player has reached maximum item carried, stop the function
 	if (!toy.carried && countCarriedSextoys() >= maxCarried) return;
 	toy.carried = !toy.carried;
-	if (!toy.carried) Wikifier.wikifyEval("<<updatesidebarimg>>");
+
+	if (toy.carried && handheld) {
+		// Show the toy in hand only when actually picking it up (previously this fired before the carry-limit check and also on put-back).
+		Wikifier.wikifyEval(`<<wearProp '${toy.name}' '${colour.replace("-", " ")}'>><<updatesidebarimg>>`);
+	} else if (!toy.carried) {
+		// Putting it back: stop displaying it if it's the prop currently in hand.
+		const stripKey = s => String(s).toLowerCase().replace(/[^a-z0-9]+/g, "");
+		if (handheld && T.prop && stripKey(T.prop.name) === stripKey(propKey)) delete T.prop;
+		Wikifier.wikifyEval("<<updatesidebarimg>>");
+	}
 
 	// if player chose "Put back in the cupboard", also unwear the item
 	if (!toy.carried && toy.worn) {
