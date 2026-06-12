@@ -9,9 +9,13 @@ function masturbationActions() {
 	);
 
 	const selectedToy = location => {
-		if (V["currentToy" + location.toLocaleUpperFirst()] === "none") return 0;
-		const toy = clone(playerToys[V["currentToy" + location.toLocaleUpperFirst()]]);
-		return toy;
+		const idx = V["currentToy" + location.toLocaleUpperFirst()];
+		// Guard against unset slots AND stale indices:
+		// the slot stores an index into the carried-toys list, which shifts when toys are carried/put back/thrown away,
+		// so an old index may point past the end of the list.
+		if (idx === "none" || idx === undefined || idx === null) return 0;
+		const toy = playerToys[idx];
+		return toy ? clone(toy) : 0;
 	};
 	const toyDisplay = (toy1, toy2) => {
 		if (toy1 && toy2) return (toy1.colour ? toy1.colour + " " : "") + toy1.name + " and " + (toy2.colour ? toy2.colour + " " : "") + toy2.name;
@@ -51,7 +55,7 @@ function masturbationActions() {
 	const generateListOption = (actionVariable, options) => {
 		let result = "";
 
-		result += `<label><<listbox "$${actionVariable}" autoselect>></label>`;
+		result += `<label><<listbox "$${actionVariable}" autoselect>>`;
 
 		options.forEach(option => {
 			result += `<<option "${option.text}" ${option.action}>>`;
@@ -139,16 +143,14 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 		actionVariable: arm + "action",
 	};
 	const toyDropDown = limit => {
-		const toys = listUniqueCarriedSextoys().filter(toy => {
-			if (limit === "breastpump") return toy.type.includes("breastpump");
-			return (
-				(V.player.penisExist && !playerChastity("penis") && toy.type.includesAny("stroker")) || toy.type.includesAny("dildo", "breastpump", "vibrator")
-			);
-		});
 		let count = 0;
 
 		let result = `<label><<listbox "$selectedToy${arm.toLocaleUpperFirst()}" autoselect>>`;
-		toys.forEach((toy, index) => {
+		// Iterate the canonical playerToys list so the emitted option value is an index into the SAME list that selectedToy() reads.
+		// The old code built a separately-filtered list (e.g. breastpumps only) and emitted indices into that narrowed list,
+		// so selecting "breast pump" could resolve to a different toy (whatever sat at that index in playerToys).
+		playerToys.forEach((toy, index) => {
+			if (limit === "breastpump" && !toy.type.includes("breastpump")) return;
 			if (index !== V.currentToyLeft && index !== V.currentToyRight && index !== V.currentToyVagina && index !== V.currentToyAnus) {
 				result += `<<option "${toyDisplay(toy)}" ${index}>>`;
 				count++;
@@ -509,7 +511,7 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 			result.options.push(stop("manusstop"));
 			break;
 		case "manusentrancedildo":
-			result.text = `You tease your anus with the ${toyDisplay(selectedToy(arm))} your ${arm} hand.`;
+			result.text = `You tease your anus with the ${toyDisplay(selectedToy(arm))} in your ${arm} hand.`;
 			if (genitalsExposed() && !playerChastity("anus")) {
 				result.options.push({
 					action: "manusdildo",
@@ -541,7 +543,7 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 			result.options.push(stop("manusstopdildo"));
 			break;
 		case "mpenisentrancestroker":
-			result.text = `You tease your glans with the ${toyDisplay(selectedToy(arm))} your ${arm} hand.`;
+			result.text = `You tease your glans with the ${toyDisplay(selectedToy(arm))} in your ${arm} hand.`;
 			if (genitalsExposed()) {
 				result.options.push({
 					action: "mpenisstroker",
@@ -593,6 +595,12 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 			result.options.push(stop("mmouthstopdildo"));
 			break;
 		case "mpickupdildo":
+			if (!selectedToy(arm)) {
+				// Selected toy no longer resolvable (stale slot / toy put back or thrown away)
+				result.text = `Your ${arm} hand is free as you do not have a toy selected.`;
+				result.options.push(stop("mdildostop"));
+				break;
+			}
 			result.text = `You hold your ${toyDisplay(selectedToy(arm))} in your ${arm} hand.`;
 			if (selectedToy(arm).type.includes("stroker")) {
 				if (V.player.penisExist && (V.penisuse === 0 || V.penisuse === "stroker")) {

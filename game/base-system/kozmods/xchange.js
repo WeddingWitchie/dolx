@@ -450,50 +450,58 @@ function pleasure(amount, source) {
 			// Penis addict ("getting railed") → insertive toys (things inside the player)
 			// Hole addict ("get your cock into something") → enveloping toys (things around the penis)
 			const usingSexToy = (() => {
-				// Scene-level explicit flag
-				if (V.usingSexToy) return true;
+				// Live action states from the masturbation system (actions.js):
+				//   V.leftarm / V.rightarm  — current hand action ("mvaginadildo" = toy inside vagina, "mpenisstroker" = penis inside stroker, "mpickupdildo" = merely holding it)
+				//   V.vaginause / V.anususe — "mdildopenetrate" = riding a toy on the floor
+				//   V.penisuse              — "stroker" while the penis is inside a stroker
+				// These only hold toy values while the toy is actually IN USE, so a toy that is merely carried in the inventory can never satisfy the check.
+
+				// NOTE: deliberately NOT using V.currentToyLeft/Right/Vagina/Anus here those are indices into the carried-toys list,
+				// are set the moment a toy is picked up, and can go stale; they don't prove anything is inserted.
+				const arms = [V.leftarm, V.rightarm];
 
 				// --- Penis Addict: needs something INSIDE the player ---
 				if (V.penis_addict_trait === 1 && !penisAddictionFulfilled) {
-					// Worn butt plug (inserted)
+					// Worn (inserted) butt plug
 					try {
 						if (typeof window.playerHasButtPlug === "function" && window.playerHasButtPlug()) return true;
 						if (V.worn?.butt_plug?.name && !["none", "naked"].includes(String(V.worn.butt_plug.name).toLowerCase())) return true;
 					} catch (e) {}
 
-					// Insertive masturbation toys (vagina/anus slots) during masturbation
-					if (V.masturbating) {
-						for (const s of ["Vagina", "Anus"]) {
-							const v = V["currentToy" + s];
-							if (v !== undefined && v !== null && v !== "none") return true;
-						}
-					}
-
-					// Worn insertive genital accessories
+					// Worn insertive genital accessory (vibe/egg in the genitals slot)
 					try {
 						if (V.worn?.genitals?.name && !["none", "naked"].includes(String(V.worn.genitals.name).toLowerCase())) {
 							if (/vibe|vibrator|bullet|egg/i.test(String(V.worn.genitals.name))) return true;
 						}
 					} catch (e) {}
-				}
 
-				// --- Hole Addict: needs something AROUND the penis ---
-				if (V.hole_addict_trait === 1 && !holeAddictionFulfilled) {
-					// Enveloping masturbation toys (penis slot) during masturbation
-					if (V.masturbating && V.player?.penisExist) {
-						// Check Left/Right hand toys for stroker-type items
-						for (const s of ["Left", "Right"]) {
-							const v = V["currentToy" + s];
-							if (v !== undefined && v !== null && v !== "none") {
-								// Check if it's an enveloping toy by looking up the setup definition
-								try {
-									const toyDef = setup.sextoys?.[v];
-									if (toyDef && /stroker|sleeve|fleshlight|onahole|masturbator/i.test(String(toyDef.name || ""))) return true;
-									if (toyDef?.category === "stroker") return true;
-								} catch (e) {}
+					// Worn insertive toy from the sextoys inventory (worn = on/in the body; strap-ons are worn externally and excluded).
+					// Carried alone never counts.
+					try {
+						const inv = V.player?.inventory?.sextoys;
+						if (inv) {
+							for (const category of Object.values(inv)) {
+								if (!Array.isArray(category)) continue;
+								for (const item of category) {
+									if (!item?.worn || !Array.isArray(item.type)) continue;
+									if (item.type.includes("strap-on")) continue;
+									if (item.type.some(t => /vibrator|plug|bead|egg/i.test(String(t)))) return true;
+								}
 							}
 						}
-					}
+					} catch (e) {}
+
+					// Hand-held toy actually inserted ("entrance" tease states don't count)
+					if (arms.includes("mvaginadildo") || arms.includes("manusdildo")) return true;
+
+					// Riding a toy placed on the floor
+					if (V.vaginause === "mdildopenetrate" || V.anususe === "mdildopenetrate") return true;
+				}
+
+				// --- Hole Addict: needs the penis INSIDE something ---
+				if (V.hole_addict_trait === 1 && !holeAddictionFulfilled && V.player?.penisExist) {
+					if (V.penisuse === "stroker") return true;
+					if (arms.includes("mpenisstroker")) return true;
 				}
 
 				return false;
