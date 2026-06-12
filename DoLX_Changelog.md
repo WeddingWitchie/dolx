@@ -11,61 +11,44 @@
 
 ## Changelog
 ## Changes and Additions:
-* Updated the mod base to **vanilla version 0.5.10.10**.
-* Updated **X-Change pill icons** to use artwork by **Akoz**.
-* Added **Hyper Fertility** support to **purple pills**.
-* Added a new pill type: **Gray Pills**.
-  * Gray pills are colourless X-Change capsules that carry single effects such as **Breeder**, **Bull**, **Swell**, **Passion**, and more.
-  * Gray pills do **not** force a gender swap.
-  * They apply to the player’s current body and can stack with existing X-Change sessions.
-* Added **Landry’s gray pill shop**, unlocked after the bank heist.
-  * Unlocks through the **"Landry has news about the pill network"** pub option after completing the bank heist.
-  * Sells all **15 gray pill effects**.
-  * Each pill costs **£6,000**.
-  * Limited to **1 pill per day** for operational security.
-* Updated **hospital X-Change stock**.
-  * Always available: **Resistance**, **Continue**, and **Weekly Extension** pills for **£3,000** each.
-  * Weekly rotating stock now includes **2 random pills** from: **Breeder**, **Bull**, **Hyper Fertility**, **Fertility**, and **X-Tend**.
-* Updated the **Water Dragon** transformation.
-  * Added proper vanilla graphics by **RRds**.
-  * Expanded Water Dragon content during **island travel** and **island exploration**.
-* Added the **Event Info** tab and tidied related UI/code.
-* Added **X-Change toxin chances** to island arrow volleys.
-  * Drugged islander arrows now have a small chance to carry X-Change toxin when they hit.
-  * The chance scales with the number of arrows that land.
-  * Clean misses remain safe.
-* Added an **X-Change toxin chance** to the catacombs dart trap.
-  * The dart trap can now rarely carry X-Change toxin when it hits.
-  * The effect uses a flat chance to match the single-dart encounter.
-  * Successfully avoiding the trap remains safe.
-* Added **gender filters** for NPC multi-orgasm settings.
-  * NPC and named NPC multi-orgasm settings can now apply to **everyone**, **women only**, or **men only**.
-  * Existing saves default to the previous behaviour.
-  * The filter only applies when the matching multi-orgasm setting is enabled.
+* Updated the mod base to **vanilla version 0.5.10.11**.
+* Updated the mod base to **DoLP v0.750**.
+* Updated **Hyper Fertility** settings.
+  * Hyper Fertility now has a base spike rate point of **1**, matching other X-Change pill effects, instead of starting at **0**.
+* Expanded **DoLP speech attitude** text.
+  * Added more flavour text across **5 files** to make speech attitude reactions feel less repetitive.
+* Updated the **sea struggle event**.
+  * Being attacked by tentacle squid in the sea now requires the **tentacle setting** to be enabled.
+* Updated the **gambling ring**.
+  * Players can now bet clothes at the gambling ring, especially when they have no money left.
+* Added **temple purity-pill atonement**.
+  * High-standing monks and priests who fail the temple purity test may now be forced to take a **7-day purity pill** before punishment.
+  * The pill applies **Innocence** and **Cum Cure** effects.
+  * Players promised to **Sydney** receive special vow-related flavour text.
 
 ## Rebalancing and Fixes:
-* Fixed an audio bug where looping background voice audio could continue playing after audio was turned off.
-  * This also fixes voice loops continuing after loading another save.
-  * Stuck loops from older versions should now be cleared properly.
-* Rebalanced penetration pain.
-  * Penetration pain is now halved at the source.
-  * Trauma conversion now starts at **100 pain**.
-  * Pain above 100 converts into trauma at a **1:1** rate.
-* Buffed scratch damage based on the player’s **brawling skill**.
-  * This bonus is only available for **tiny** and **miniature** body sizes.
-* Updated **Dragon Eyes** behaviour.
-  * Dragon Eyes can still cause hallucination effects.
-  * Beast-related encounters now better respect the player’s beast content setting.
-  * When beast content is disabled, affected encounters should keep safe monster-person presentation where needed without opening blocked lewd actions.
-* Updated **feat boost** handling to better match **DoLP**.
-  * After this update, it is recommended to click **"Import all feats"** in the feat menu to refresh the data.
-* Fixed **Avery home rage** checks.
-  * Avery’s home rage scene while the player is not pilled now only happens when the player has the same sex/genital setup as Avery’s gender while not under an X-Change condition.
-  * If the player is X-Changed, they should generally be safe from this check.
-* Fixed **Whitney pub** issues.
-* Fixed **mirror transformation ears** and tidied the related code.
-* Tidied up **housekeeping class** content.
-* Fixed and tidied more **Poppy** content.
-* Restored **demon NPC descriptions**.
-  * Description pools now include both **brawny** entries from DoLX and **demon / lesser demon** entries from DoLP.
-  * Updated matching **HP**, **breast**, **penis**, **level scaling**, **randomisation**, and **demon-disable** bounds to keep the parallel arrays aligned.
+* Fixed consensual kiss virginity loss.
+  * Consensual kiss-related virginity loss should no longer be incorrectly treated as non-consensual.
+* Fixed Whitney dialogue.
+  * Corrected a Whitney sentence and cleaned up additional typos, spacing, and text formatting issues.
+* Fixed **Cock Addict** and **Hole Addict** trait checks.
+  * X-Change addiction checks now correctly detect toys that are actually worn or actively being used.
+  * Toys carried only in the inventory should no longer satisfy addiction requirements by mistake.
+  * Worn toys, such as plugs or vibrators, can still help prevent orgasm softlocks.
+* Fixed several sex toy selection edge cases that could cause stale toy slots, incorrect toy selection, or crashes after toys were moved, dropped, or removed.
+* Fixed the sidebar image display.
+  * The player should no longer not holding anything in the sidebar when in fact holding a sex toy.
+* Fixed a police collar issue.
+  * Removing Whitney’s collar during police content should no longer leave the player in an empty collar state.
+* Updated feat boost handling.
+  * Feat boost calculations now better match old DoLP behaviour, including school grades up to **A***.
+  * After updating, players are recommended to click **"Import all feats"** in the feat menu to refresh their bonuses.
+* Fixed gray pill errors.
+  * Corrected gray pill issues and tidied up related code.
+* Fixed wall sex action handling.
+  * Being stuck in a wall should no longer be incorrectly counted as combat standing.
+* Fixed **Prey** and **Predator** animal traits.
+  * These traits should no longer disappear or linger after using Genome Dump.
+  * If already affected, they should display properly again after a day passes.
+* Fixed TF description lingering.
+  * Transformation descriptions should no longer remain after using Genome Dump and should now clear more naturally.
