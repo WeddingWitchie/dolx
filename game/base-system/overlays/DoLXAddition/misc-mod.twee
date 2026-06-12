@@ -1,4 +1,49 @@
 :: Cheats Mod [widget]
+<<widget "repairBrokenVowAngelState">>
+	<<script>>
+	(function () {
+		const hasXChangeHelpers =
+			typeof window.playerIsXChanged === "function" && typeof window.pillIsPermanent === "function" && typeof window.pillTimerPaused === "function";
+		State.temporary.tempXChanged = hasXChangeHelpers && window.playerIsXChanged() && !(window.pillIsPermanent() || window.pillTimerPaused());
+	}());
+	<</script>>
+
+	/* Only count as broken vow if the player actually had temple vow history. */
+	<<set _hasTempleVowHistory to ($temple_rank isnot undefined and $temple_rank isnot "prospective")>>
+	<<set _brokenTempleVow to _hasTempleVowHistory and ($player.virginity.temple isnot true and $player.virginity.temple isnot 1)>>
+
+	/* Match the Virgin trait exactly */
+	<<set _hasVirginTrait to ($player.virginity.vaginal is true and $player.virginity.penile is true)>>
+
+	/* Make sure old / broken saves have the nested objects before we write to them. */
+	<<if $transformationParts is undefined>><<set $transformationParts to {}>><</if>>
+	<<if $transformationParts.angel is undefined>><<set $transformationParts.angel to {}>><</if>>
+	<<if $transformationParts.fallenAngel is undefined>><<set $transformationParts.fallenAngel to {}>><</if>>
+
+	/* Repair only known bad save state: actual broken vow or no longer qualifies for Virgin (trait) + still angelic + not temp xchanged + not already fallen */
+	<<if _brokenTempleVow and !_hasVirginTrait and !_tempXChanged and $fallenangel lt 2>>
+		<<if $angel gte 6>>
+			/* Full fallen angel repair */
+			<<set $trauma to $traumamax>>
+			<<set $fallenangel to 2>>
+			<<set $transformationParts.fallenAngel.halo to ($transformationParts.angel.halo is "hidden" ? "default" : $transformationParts.angel.halo)>>
+			<<set $transformationParts.fallenAngel.wings to ($transformationParts.angel.wings is "classic" ? "classic" : "default")>>
+			<<set $fallenangeltf to 1>>
+			<<set _freshFallen to true>>
+			<<earnFeat "Fallen Angel">>
+			<<angelTransform 99>>
+			<<set $specialTransform to 1>>
+			<<set $fallenMirrorRepairNotice to "fallen">>
+		<<elseif $angel gte 4>>
+			/* Halo-only angel state should still be stripped if vow is already broken */
+			<<angelTransform 99>>
+			<<set $fallenMirrorRepairNotice to "shattered">>
+		<</if>>
+	<</if>>
+<</widget>>
+
+
+
 <<widget "cheats-alex">>
 	<u>Animal Respect</u>
 	<br>

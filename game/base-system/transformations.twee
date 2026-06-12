@@ -251,23 +251,19 @@
 	<<if $transformationParts is undefined>><<set $transformationParts to {}>><</if>>
 	<<if $transformationParts.traits is undefined>><<set $transformationParts.traits to {}>><</if>>
 
-	<<set _wolfPredator to ($wolfgirl gte 6 or ($transformationParts.wolf isnot undefined and $transformationParts.wolf.tail isnot undefined and $transformationParts.wolf.tail isnot "hidden" and $transformationParts.wolf.tail isnot "disabled"))>>
-	<<set _catPredator to ($cat gte 6 or ($transformationParts.cat isnot undefined and $transformationParts.cat.tail isnot undefined and $transformationParts.cat.tail isnot "hidden" and $transformationParts.cat.tail isnot "disabled"))>>
-	<<set _foxPredator to ($fox gte 6 or ($transformationParts.fox isnot undefined and $transformationParts.fox.tail isnot undefined and $transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled"))>>
-	<<set _harpyPredator to ($harpy gte 6 or ($transformationParts.bird isnot undefined and $transformationParts.bird.wings isnot undefined and $transformationParts.bird.wings isnot "hidden" and $transformationParts.bird.wings isnot "disabled"))>>
-	<<set _bearPredator to ($bear gte 6 or ($transformationParts.bear isnot undefined and $transformationParts.bear.tail isnot undefined and $transformationParts.bear.tail isnot "hidden" and $transformationParts.bear.tail isnot "disabled"))>>
-	<<set _waterdragonPredator to ($waterdragon gte 6 or ($transformationParts.waterdragon isnot undefined and $transformationParts.waterdragon.tail isnot undefined and $transformationParts.waterdragon.tail isnot "hidden" and $transformationParts.waterdragon.tail isnot "disabled"))>>
-	<<set _cowPrey to ($cow gte 6 or ($transformationParts.cow isnot undefined and $transformationParts.cow.tail isnot undefined and $transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>>
-	<<set _bunnyPrey to ($bunny gte 6 or ($transformationParts.bunny isnot undefined and $transformationParts.bunny.tail isnot undefined and $transformationParts.bunny.tail isnot "hidden" and $transformationParts.bunny.tail isnot "disabled"))>>
+	<<set _partActive to value => value isnot undefined and value isnot "hidden" and value isnot "disabled">>
+	<<set _predatorActive to ($wolfgirl gte 6 or _partActive($transformationParts.wolf?.tail) or $cat gte 6 or _partActive($transformationParts.cat?.tail) or $fox gte 6 or _partActive($transformationParts.fox?.tail) or $harpy gte 6 or _partActive($transformationParts.bird?.wings) or $bear gte 6 or _partActive($transformationParts.bear?.tail) or $waterdragon gte 6 or _partActive($transformationParts.waterdragon?.tail))>>
+	<<set _preyActive to ($cow gte 6 or _partActive($transformationParts.cow?.tail) or $bunny gte 6 or _partActive($transformationParts.bunny?.tail))>>
 
-	<<set $transformationParts.traits.predatoryAnimal to ((_wolfPredator or _catPredator or _foxPredator or _harpyPredator or _bearPredator or _waterdragonPredator) ? "default" : "disabled")>>
-	<<set $transformationParts.traits.preyAnimal to ((_cowPrey or _bunnyPrey) ? "default" : "disabled")>>
+	<<set $transformationParts.traits.predatoryAnimal to (_predatorActive ? "default" : "disabled")>>
+	<<set $transformationParts.traits.preyAnimal to (_preyActive ? "default" : "disabled")>>
 <</widget>>
 
 <<widget "transformationStateUpdate">>
-	<<set _seraphimActive to ($transformationParts isnot undefined and $transformationParts.seraphim isnot undefined and $transformationParts.seraphim.wings isnot undefined and $transformationParts.seraphim.wings isnot "hidden" and $transformationParts.seraphim.wings isnot "disabled")>>
-	<<set _kitsuneActive to ($transformationParts isnot undefined and $transformationParts.kitsune isnot undefined and $transformationParts.kitsune.tail isnot undefined and $transformationParts.kitsune.tail isnot "hidden" and $transformationParts.kitsune.tail isnot "disabled")>>
-	<<set _okamiActive to ($transformationParts isnot undefined and $transformationParts.okami isnot undefined and $transformationParts.okami.misc isnot undefined and $transformationParts.okami.misc isnot "hidden" and $transformationParts.okami.misc isnot "disabled")>>
+	<<set _partActive to value => value isnot undefined and value isnot "hidden" and value isnot "disabled">>
+	<<set _seraphimActive to _partActive($transformationParts?.seraphim?.wings)>>
+	<<set _kitsuneActive to _partActive($transformationParts?.kitsune?.tail)>>
+	<<set _okamiActive to _partActive($transformationParts?.okami?.misc)>>
 	<<if !($worn.neck.name is "familiar collar" and $worn.neck.cursed is 1)>>
 		<<if $wolfbuild gte 1 and $worn.neck.name isnot "spiked collar" and $worn.neck.name isnot "spiked collar with leash" and playerNormalPregnancyType() isnot "wolf" and !_okamiActive>>
 			<<transform wolf -1>>

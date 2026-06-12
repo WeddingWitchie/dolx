@@ -17,17 +17,34 @@
 	/* --- TF presence detection (single source of truth: <<tfDescValidList>> in mirror.twee).
 	   It populates _present.* (per-TF presence + xenos), sets/validates $tfDesc and $tfDescValid, and treats missing/undefined parts as inactive. --- */
 	<<tfDescValidList>>
+	<<set _partActive to value => value isnot undefined and value isnot "hidden" and value isnot "disabled">>
 	<<set _hasAngel to _present.angel>><<set _hasFallen to _present.fallen>><<set _hasDemon to _present.demon>>
 	<<set _hasWolf to _present.wolf>><<set _hasCat to _present.cat>><<set _hasCow to _present.cow>><<set _hasHarpy to _present.harpy>><<set _hasFox to _present.fox>>
 	<<set _hasBunny to _present.bunny>><<set _hasBear to _present.bear>><<set _hasWaterDragon to _present.waterdragon>>
 	<<set _isXenos to _present.xenos>>
-	/* Combo-part checks stay local on purpose: the automatic description requires the seraphim/kitsune/okami parts to actually be equipped, which is stricter than _present.seraphim/kitsune/okami (mere qualification for the combo). */
-	<<set _seraphimParts to _tfParts.seraphim || {}>><<set _kitsuneParts to _tfParts.kitsune || {}>><<set _okamiParts to _tfParts.okami || {}>>
-	<<set _seraphimActive to (_seraphimParts.wings isnot undefined and _seraphimParts.wings isnot "hidden" and _seraphimParts.wings isnot "disabled")>>
-	<<set _kitsuneActive to (["ears", "tail", "cheeks"].filter(p => _kitsuneParts[p] isnot undefined and _kitsuneParts[p] isnot "hidden" and _kitsuneParts[p] isnot "disabled").length > 0)>>
-	<<set _okamiActive to (["ears", "tail", "misc"].filter(p => _okamiParts[p] isnot undefined and _okamiParts[p] isnot "hidden" and _okamiParts[p] isnot "disabled").length > 0)>>
+	/* Combo-part checks stay local on purpose: automatic combo titles require the combo limbs to actually be equipped, not just unlocked/qualified. */
+	<<set _seraphimActive to _partActive(_tfParts.seraphim?.wings)>>
+	<<set _kitsuneActive to ["ears", "tail", "cheeks"].some(p => _partActive(_tfParts.kitsune?.[p]))>>
+	<<set _okamiActive to ["ears", "tail", "misc"].some(p => _partActive(_tfParts.okami?.[p]))>>
 	/* --- Manual description override (mirror > Transformation > Description) --- */
 	<<set _descActive to ($tfDesc.primary isnot "default" and $tfDescValid.includes($tfDesc.primary))>>
+	<<set _tfDescLabel to id => ({
+		xenos: "a xenos",
+		angel: "an angel",
+		fallen: "a fallen angel",
+		demon: "a demon",
+		seraphim: "a seraphim",
+		kitsune: "a kitsune",
+		okami: "an okami",
+		wolf: "a wolf",
+		cat: "a cat",
+		cow: ($player.gender_appearance is "m" ? "a bull" : "a cow"),
+		bear: "a bear",
+		harpy: ($hallucinations gte 2 or !$settings.bestialityEnabled ? "a harpy" : "a bird"),
+		fox: "a fox",
+		bunny: "a bunny",
+		waterdragon: "a water dragon"
+	}[id] || "")>>
 
 	<br>
 	You are 
@@ -35,23 +52,7 @@
 		a spirit
 	<<elseif _descActive>>
 		/* Player manually chose how they're described. This overrides automatic prefixes too. */
-		<<switch $tfDesc.primary>>
-		<<case "xenos">>a xenos
-		<<case "angel">>an angel
-		<<case "fallen">>a fallen angel
-		<<case "demon">>a demon
-		<<case "seraphim">>a seraphim
-		<<case "kitsune">>a kitsune
-		<<case "okami">>an okami
-		<<case "wolf">>a wolf
-		<<case "cat">>a cat
-		<<case "cow">><<if $player.gender_appearance is "m">>a bull<<else>>a cow<</if>>
-		<<case "bear">>a bear
-		<<case "harpy">><<if $hallucinations gte 2 or !$settings.bestialityEnabled>>a harpy<<else>>a bird<</if>>
-		<<case "fox">>a fox
-		<<case "bunny">>a bunny
-		<<case "waterdragon">>a water dragon
-		<</switch>>
+		<<print _tfDescLabel($tfDesc.primary)>>
 	<<elseif _isXenos>>
 		a xenos
 	<<elseif _seraphimActive and $angel gte 6 and $harpy gte 6>>

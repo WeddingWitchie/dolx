@@ -3828,90 +3828,25 @@
 	</div>
 <</widget>>
 
-<<widget "repairBrokenVowAngelState">>
-	<<script>>
-	(function () {
-		const hasXChangeHelpers =
-			typeof window.playerIsXChanged === "function" && typeof window.pillIsPermanent === "function" && typeof window.pillTimerPaused === "function";
-		State.temporary.tempXChanged = hasXChangeHelpers && window.playerIsXChanged() && !(window.pillIsPermanent() || window.pillTimerPaused());
-	}());
-	<</script>>
-
-	/* Only count as broken vow if the player actually had temple vow history. */
-	<<set _hasTempleVowHistory to ($temple_rank isnot undefined and $temple_rank isnot "prospective")>>
-	<<set _brokenTempleVow to _hasTempleVowHistory and ($player.virginity.temple isnot true and $player.virginity.temple isnot 1)>>
-
-	/* Match the Virgin trait exactly */
-	<<set _hasVirginTrait to ($player.virginity.vaginal is true and $player.virginity.penile is true)>>
-
-	/* Make sure old / broken saves have the nested objects before we write to them. */
-	<<if $transformationParts is undefined>><<set $transformationParts to {}>><</if>>
-	<<if $transformationParts.angel is undefined>><<set $transformationParts.angel to {}>><</if>>
-	<<if $transformationParts.fallenAngel is undefined>><<set $transformationParts.fallenAngel to {}>><</if>>
-
-	/* Repair only known bad save state: actual broken vow or no longer qualifies for Virgin (trait) + still angelic + not temp xchanged + not already fallen */
-	<<if _brokenTempleVow and !_hasVirginTrait and !_tempXChanged and $fallenangel lt 2>>
-		<<if $angel gte 6>>
-			/* Full fallen angel repair */
-			<<set $trauma to $traumamax>>
-			<<set $fallenangel to 2>>
-			<<set $transformationParts.fallenAngel.halo to ($transformationParts.angel.halo is "hidden" ? "default" : $transformationParts.angel.halo)>>
-			<<set $transformationParts.fallenAngel.wings to ($transformationParts.angel.wings is "classic" ? "classic" : "default")>>
-			<<set $fallenangeltf to 1>>
-			<<set _freshFallen to true>>
-			<<earnFeat "Fallen Angel">>
-			<<angelTransform 99>>
-			<<set $specialTransform to 1>>
-			<<set $fallenMirrorRepairNotice to "fallen">>
-		<<elseif $angel gte 4>>
-			/* Halo-only angel state should still be stripped if vow is already broken */
-			<<angelTransform 99>>
-			<<set $fallenMirrorRepairNotice to "shattered">>
-		<</if>>
-	<</if>>
-<</widget>>
-
-/* Single source of truth for the Description chooser. */
 <<widget "tfDescValidList">>
-	<<set _tfParts to $transformationParts>>
-	<<if _tfParts is undefined>><<set _tfParts to {}>><</if>>
-
-	<<set _angelParts to _tfParts.angel>><<if _angelParts is undefined>><<set _angelParts to {}>><</if>>
-	<<set _fallenParts to _tfParts.fallenAngel>><<if _fallenParts is undefined>><<set _fallenParts to {}>><</if>>
-	<<set _demonParts to _tfParts.demon>><<if _demonParts is undefined>><<set _demonParts to {}>><</if>>
-	<<set _wolfParts to _tfParts.wolf>><<if _wolfParts is undefined>><<set _wolfParts to {}>><</if>>
-	<<set _catParts to _tfParts.cat>><<if _catParts is undefined>><<set _catParts to {}>><</if>>
-	<<set _cowParts to _tfParts.cow>><<if _cowParts is undefined>><<set _cowParts to {}>><</if>>
-	<<set _birdParts to _tfParts.bird>><<if _birdParts is undefined>><<set _birdParts to {}>><</if>>
-	<<set _foxParts to _tfParts.fox>><<if _foxParts is undefined>><<set _foxParts to {}>><</if>>
-	<<set _bunnyParts to _tfParts.bunny>><<if _bunnyParts is undefined>><<set _bunnyParts to {}>><</if>>
-	<<set _bearParts to _tfParts.bear>><<if _bearParts is undefined>><<set _bearParts to {}>><</if>>
-	<<set _waterdragonParts to _tfParts.waterdragon>><<if _waterdragonParts is undefined>><<set _waterdragonParts to {}>><</if>>
-
-	<<set _angelWingsActive to (_angelParts.wings isnot undefined and _angelParts.wings isnot "hidden" and _angelParts.wings isnot "disabled")>>
-	<<set _fallenWingsActive to (_fallenParts.wings isnot undefined and _fallenParts.wings isnot "hidden" and _fallenParts.wings isnot "disabled")>>
-	<<set _demonWingsActive to (_demonParts.wings isnot undefined and _demonParts.wings isnot "hidden" and _demonParts.wings isnot "disabled")>>
-	<<set _wolfTailActive to (_wolfParts.tail isnot undefined and _wolfParts.tail isnot "hidden" and _wolfParts.tail isnot "disabled")>>
-	<<set _catTailActive to (_catParts.tail isnot undefined and _catParts.tail isnot "hidden" and _catParts.tail isnot "disabled")>>
-	<<set _cowTailActive to (_cowParts.tail isnot undefined and _cowParts.tail isnot "hidden" and _cowParts.tail isnot "disabled")>>
-	<<set _birdWingsActive to (_birdParts.wings isnot undefined and _birdParts.wings isnot "hidden" and _birdParts.wings isnot "disabled")>>
-	<<set _foxTailActive to (_foxParts.tail isnot undefined and _foxParts.tail isnot "hidden" and _foxParts.tail isnot "disabled")>>
-	<<set _bunnyTailActive to (_bunnyParts.tail isnot undefined and _bunnyParts.tail isnot "hidden" and _bunnyParts.tail isnot "disabled")>>
-	<<set _bearTailActive to (_bearParts.tail isnot undefined and _bearParts.tail isnot "hidden" and _bearParts.tail isnot "disabled")>>
-	<<set _waterdragonTailActive to (_waterdragonParts.tail isnot undefined and _waterdragonParts.tail isnot "hidden" and _waterdragonParts.tail isnot "disabled")>>
+	/* Single source of truth for the Description chooser.
+	   _present = actual body/visible-limb state for automatic descriptions.
+	   _descOption = unlocked/allowed manual mirror choices. */
+	<<set _tfParts to $transformationParts || {}>>
+	<<set _partActive to value => value isnot undefined and value isnot "hidden" and value isnot "disabled">>
 
 	<<set _present to {}>>
-	<<set _present.demon to ($demon gte 6 or _demonWingsActive)>>
-	<<set _present.angel to ($angel gte 6 or _angelWingsActive)>>
-	<<set _present.fallen to ($fallenangel gte 2 or _fallenWingsActive)>>
-	<<set _present.cat to ($cat gte 6 or _catTailActive)>>
-	<<set _present.cow to ($cow gte 6 or _cowTailActive)>>
-	<<set _present.bear to ($bear gte 6 or _bearTailActive)>>
-	<<set _present.waterdragon to ($waterdragon gte 6 or _waterdragonTailActive)>>
-	<<set _present.wolf to ($wolfgirl gte 6 or _wolfTailActive)>>
-	<<set _present.harpy to ($harpy gte 6 or _birdWingsActive)>>
-	<<set _present.fox to ($fox gte 6 or _foxTailActive)>>
-	<<set _present.bunny to ($bunny gte 6 or _bunnyTailActive)>>
+	<<set _present.demon to ($demon gte 6 or _partActive(_tfParts.demon?.wings))>>
+	<<set _present.angel to ($angel gte 6 or _partActive(_tfParts.angel?.wings))>>
+	<<set _present.fallen to ($fallenangel gte 2 or _partActive(_tfParts.fallenAngel?.wings))>>
+	<<set _present.wolf to ($wolfgirl gte 6 or _partActive(_tfParts.wolf?.tail))>>
+	<<set _present.cat to ($cat gte 6 or _partActive(_tfParts.cat?.tail))>>
+	<<set _present.cow to ($cow gte 6 or _partActive(_tfParts.cow?.tail))>>
+	<<set _present.harpy to ($harpy gte 6 or _partActive(_tfParts.bird?.wings))>>
+	<<set _present.fox to ($fox gte 6 or _partActive(_tfParts.fox?.tail))>>
+	<<set _present.bunny to ($bunny gte 6 or _partActive(_tfParts.bunny?.tail))>>
+	<<set _present.bear to ($bear gte 6 or _partActive(_tfParts.bear?.tail))>>
+	<<set _present.waterdragon to ($waterdragon gte 6 or _partActive(_tfParts.waterdragon?.tail))>>
 	<<set _present.okami to (_present.wolf and _present.angel)>>
 	<<set _present.kitsune to (_present.fox and _present.angel)>>
 	<<set _present.seraphim to (_present.harpy and _present.angel)>>
@@ -3922,69 +3857,30 @@
 	<<set _descOption.demon to (_present.demon or $demontf is 1)>>
 	<<set _descOption.angel to (_present.angel or $angeltf is 1)>>
 	<<set _descOption.fallen to (_present.fallen or $fallenangeltf is 1 or $fallenangelplustf is 1)>>
+	<<set _descOption.wolf to (_present.wolf or $wolftf is 1)>>
 	<<set _descOption.cat to (_present.cat or $cattf is 1)>>
 	<<set _descOption.cow to (_present.cow or $cowtf is 1)>>
-	<<set _descOption.bear to (_present.bear or $beartf is 1)>>
-	<<set _descOption.waterdragon to (_present.waterdragon or $waterdragontf is 1 or $waterdragonCosmeticUnlocked is 1)>>
-	<<set _descOption.wolf to (_present.wolf or $wolftf is 1)>>
 	<<set _descOption.harpy to (_present.harpy or $harpytf is 1)>>
 	<<set _descOption.fox to (_present.fox or $foxtf is 1)>>
 	<<set _descOption.bunny to (_present.bunny or $bunnytf is 1)>>
+	<<set _descOption.bear to (_present.bear or $beartf is 1)>>
+	<<set _descOption.waterdragon to (_present.waterdragon or $waterdragontf is 1 or $waterdragonCosmeticUnlocked is 1)>>
 	<<set _descOption.okami to (_descOption.wolf and _descOption.angel)>>
 	<<set _descOption.kitsune to (_descOption.fox and _descOption.angel)>>
 	<<set _descOption.seraphim to (_descOption.harpy and _descOption.angel)>>
 
-	/* Xenos = at least one animal + one non-animal, 3+ base species total. */
-	<<set _animalN to 0>>
-	<<if _present.wolf>><<set _animalN += 1>><</if>>
-	<<if _present.cat>><<set _animalN += 1>><</if>>
-	<<if _present.cow>><<set _animalN += 1>><</if>>
-	<<if _present.harpy>><<set _animalN += 1>><</if>>
-	<<if _present.fox>><<set _animalN += 1>><</if>>
-	<<if _present.bunny>><<set _animalN += 1>><</if>>
-	<<if _present.bear>><<set _animalN += 1>><</if>>
-	<<if _present.waterdragon>><<set _animalN += 1>><</if>>
-
-	<<set _nonAnimalN to 0>>
-	<<if _present.angel>><<set _nonAnimalN += 1>><</if>>
-	<<if _present.fallen>><<set _nonAnimalN += 1>><</if>>
-	<<if _present.demon>><<set _nonAnimalN += 1>><</if>>
-
+	<<set _animalIds to ["wolf", "cat", "cow", "harpy", "fox", "bunny", "bear", "waterdragon"]>>
+	<<set _nonAnimalIds to ["angel", "fallen", "demon"]>>
+	<<set _animalN to _animalIds.filter(id => _present[id]).length>>
+	<<set _nonAnimalN to _nonAnimalIds.filter(id => _present[id]).length>>
 	<<set _present.xenos to (_animalN gte 1 and _nonAnimalN gte 1 and (_animalN + _nonAnimalN) gte 3)>>
 
 	/* Same xenos rule, but for manual options/unlocks. */
-	<<set _optionAnimalN to 0>>
-	<<if _descOption.wolf>><<set _optionAnimalN += 1>><</if>>
-	<<if _descOption.cat>><<set _optionAnimalN += 1>><</if>>
-	<<if _descOption.cow>><<set _optionAnimalN += 1>><</if>>
-	<<if _descOption.harpy>><<set _optionAnimalN += 1>><</if>>
-	<<if _descOption.fox>><<set _optionAnimalN += 1>><</if>>
-	<<if _descOption.bunny>><<set _optionAnimalN += 1>><</if>>
-	<<if _descOption.bear>><<set _optionAnimalN += 1>><</if>>
-	<<if _descOption.waterdragon>><<set _optionAnimalN += 1>><</if>>
-
-	<<set _optionNonAnimalN to 0>>
-	<<if _descOption.angel>><<set _optionNonAnimalN += 1>><</if>>
-	<<if _descOption.fallen>><<set _optionNonAnimalN += 1>><</if>>
-	<<if _descOption.demon>><<set _optionNonAnimalN += 1>><</if>>
-
+	<<set _optionAnimalN to _animalIds.filter(id => _descOption[id]).length>>
+	<<set _optionNonAnimalN to _nonAnimalIds.filter(id => _descOption[id]).length>>
 	<<set _descOption.xenos to (_optionAnimalN gte 1 and _optionNonAnimalN gte 1 and (_optionAnimalN + _optionNonAnimalN) gte 3)>>
-	<<set $tfDescValid to []>>
-	<<if _descOption.demon>><<run $tfDescValid.push("demon")>><</if>>
-	<<if _descOption.angel>><<run $tfDescValid.push("angel")>><</if>>
-	<<if _descOption.fallen>><<run $tfDescValid.push("fallen")>><</if>>
-	<<if _descOption.cat>><<run $tfDescValid.push("cat")>><</if>>
-	<<if _descOption.cow>><<run $tfDescValid.push("cow")>><</if>>
-	<<if _descOption.bear>><<run $tfDescValid.push("bear")>><</if>>
-	<<if _descOption.waterdragon>><<run $tfDescValid.push("waterdragon")>><</if>>
-	<<if _descOption.wolf>><<run $tfDescValid.push("wolf")>><</if>>
-	<<if _descOption.harpy>><<run $tfDescValid.push("harpy")>><</if>>
-	<<if _descOption.fox>><<run $tfDescValid.push("fox")>><</if>>
-	<<if _descOption.bunny>><<run $tfDescValid.push("bunny")>><</if>>
-	<<if _descOption.okami>><<run $tfDescValid.push("okami")>><</if>>
-	<<if _descOption.kitsune>><<run $tfDescValid.push("kitsune")>><</if>>
-	<<if _descOption.seraphim>><<run $tfDescValid.push("seraphim")>><</if>>
-	<<if _descOption.xenos>><<run $tfDescValid.push("xenos")>><</if>>
+
+	<<set $tfDescValid to ["demon", "angel", "fallen", "cat", "cow", "bear", "waterdragon", "wolf", "harpy", "fox", "bunny", "okami", "kitsune", "seraphim", "xenos"].filter(id => _descOption[id])>>
 
 	/* Self-heal: if the saved choice is no longer valid, revert to automatic. */
 	<<if $tfDesc is undefined>><<set $tfDesc to {}>><</if>>
