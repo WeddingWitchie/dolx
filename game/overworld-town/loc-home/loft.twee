@@ -182,6 +182,7 @@ You stand before the cosy reading nook, by a window. The shelves are filled with
 
 :: Orphanage Loft Reading Nook 2
 <<effects>>
+<<speechresolve>>
 <<set $daily.reading_nook to 1>>
 <<if $phase is "reference">>
 	<<tiredness 10>>
@@ -235,8 +236,35 @@ You stand before the cosy reading nook, by a window. The shelves are filled with
 	<br><br>
 	<<if _read_bored isnot true>>
 		The ending <<= either("is perfect.", "can't be better than this.", "is alright.", "could be better.", "leaves you with more questions than answers.", "is half-baked.", "is a letdown.")>>
+		<<if _speechAttitudeResolved is "meek">>
+			You close the book carefully, still turning the gentlest parts over in your mind.
+		<<elseif _speechAttitudeResolved is "shy">>
+			You hide a small smile behind the cover before putting the book away.
+		<<elseif _speechAttitudeResolved is "docile">>
+			You sit with the feeling it leaves behind, letting it settle without complaint.
+		<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+			You smooth the cover with appreciative care, as though thanking the story for its company.
+		<<elseif _speechAttitudeResolved is "confident">>
+			You judge the ending with a firm nod, already deciding which parts worked and which didn't.
+		<<elseif _speechAttitudeResolved is "bratty">>
+			You shut the book with a little huff, unwilling to admit how much it got to you.
+		<<elseif _speechAttitudeResolved is "cruel">>
+			You pick apart the ending in your head, saving special contempt for every weak choice.
+		<<else>>
+			You sit quietly for a moment, letting the last scene fade.
+		<</if>>
 	<<else>>
-		You don't care about the ending.
+		<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy" or _speechAttitudeResolved is "docile")>>
+			You don't care about the ending, though you still put the book back neatly.
+		<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+			You don't care about the ending, but you leave the book tidy for the next reader.
+		<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "confident")>>
+			You don't care about the ending. The book had its chance and wasted it.
+		<<elseif _speechAttitudeResolved is "cruel">>
+			You don't care about the ending. It would have needed to be much better to earn that.
+		<<else>>
+			You don't care about the ending.
+		<</if>>
 	<</if>>
 <<elseif $phase is "newspaper">>
 	<<tiredness 10>>
@@ -260,14 +288,48 @@ You stand before the cosy reading nook, by a window. The shelves are filled with
 	You study using flash cards. You feel your memorisation is getting better.<<= either(`<<gggenglish>><<englishskill 18>>`, `<<ggghistory>><<historyskill 18>>`, `<<gggmaths>><<mathsskill 18>>`, `<<gggscience>><<scienceskill 18>>`)>>
 <<elseif $phase is "nap">>
 	<<tiredness -12>>
-	You snuggle up and doze off, giving in to the sleepiness weighing on your eyes. You wake up later feeling refreshed and well-rested. <<lstress>><<stress -5>><<ltrauma>><<trauma -5>>
+	You snuggle up and doze off, giving in to the sleepiness weighing on your eyes. You wake up later feeling refreshed and well-rested.
+	<<if _speechAttitudeResolved is "meek">>
+		The quiet makes it easier to breathe.
+	<<elseif _speechAttitudeResolved is "shy">>
+		You stay curled up a little longer, reluctant to leave the cushions.
+	<<elseif _speechAttitudeResolved is "docile">>
+		For once, nobody asks anything of you. The stillness feels merciful.
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		You sit up slowly and smooth the blankets back into place.
+	<<elseif _speechAttitudeResolved is "confident">>
+		You rise with a clear head, ready to make use of the rest of the day.
+	<<elseif _speechAttitudeResolved is "bratty">>
+		You wake with a grumble, annoyed that the nap worked.
+	<<elseif _speechAttitudeResolved is "cruel">>
+		You wake sharper than before, as if sleep honed the worst edge of your mood.
+	<<else>>
+		The reading nook feels a little warmer than before.
+	<</if>>
+	<<lstress>><<stress -5>><<ltrauma>><<trauma -5>>
 	<<if $englishtrait gte 3>>
 		<<cleareventpool>>
 		<<addinlineevent "readingorphans" 1>>
 		<<generatey1>><<generatey2>>
 		<br><br>
-		You notice some orphans gather around you. One of them, a <<person1>><<person>> asks, "Good <<= (Time.hour lt 12 and Time.hour gt 5) ? `morning` : (Time.hour lte 17 and Time.hour gt 12) ? `afternoon` : `evening`>>! We were just wondering if you could read us a book?"
+		You notice some orphans gather around you. One of them, a <<person1>><<person>>, clutches a book to <<his>> chest and asks, "Good <<= (Time.hour lt 12 and Time.hour gt 5) ? `morning` : (Time.hour lte 17 and Time.hour gt 12) ? `afternoon` : `evening`>>! We were just wondering if you could read us a book?"
 		<br><br>
+		<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+			The others wait with hopeful, careful eyes, as if afraid to bother you.
+			<br><br>
+		<<elseif _speechAttitudeResolved is "docile">>
+			They form a small, expectant semicircle, trusting you'll answer kindly.
+			<br><br>
+		<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+			They present the book with great ceremony, trying their best to look patient and proper.
+			<br><br>
+		<<elseif _speechAttitudeResolved is "cruel">>
+			They hover at the edge of the nook, not quite bold enough to push or demand you.
+			<br><br>
+		<<else>>
+			They look ready for either a story or a challenge, whichever you're willing to give.
+			<br><br>
+		<</if>>
 		<<link [[Accept (0:20)|Reading Nook Orphans]]>><<pass 20>><<set $phase to 1>><</link>><<ghope>>
 		<br>
 		<<link [[Refuse|Reading Nook Orphans]]>><<set $phase to 2>><</link>>
@@ -291,7 +353,23 @@ You stand before the cosy reading nook, by a window. The shelves are filled with
 			<<wearProp "rag">>
 			embroider patterns on a piece of fabric.
 	<</switch>>
-		It's therapeutic. <<lstress>><<stress -5>><<ltrauma>><<trauma -5>>
+	It's therapeutic.
+	<<if _speechAttitudeResolved is "meek">>
+		You work slowly, taking comfort in each small motion.
+	<<elseif _speechAttitudeResolved is "shy">>
+		You keep your project close, pleased with it but not quite ready to show anyone.
+	<<elseif _speechAttitudeResolved is "docile">>
+		The repetitive work quiets you, giving your hands something harmless to obey.
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		You tidy the leftover supplies as you go, leaving the nook a little prettier than you found it.
+	<<elseif _speechAttitudeResolved is "bratty">>
+		You make it your way, ignoring every sensible rule the supplies imply.
+	<<elseif _speechAttitudeResolved is "cruel">>
+		You cut, fold, and stitch with precision, satisfied by how easily the materials yield.
+	<<else>>
+		The simple work helps clear your head.
+	<</if>>
+	<<lstress>><<stress -5>><<ltrauma>><<trauma -5>>
 <<elseif $phase is "sew">>
 	<<housekeeping 5>>
 	<<outfitChecks>>
@@ -327,6 +405,15 @@ You stand before the cosy reading nook, by a window. The shelves are filled with
 		<<else>>
 			You meticulously sew your tattered _itemListText. Now they're good as new.
 		<</if>>
+		<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+			You check the stitches twice before letting yourself relax.
+		<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+			You brush away the loose threads and admire the tidy result.
+		<<elseif _speechAttitudeResolved is "cruel">>
+			Not a thread is allowed out of place.
+		<<else>>
+			You give the repaired seams a firm tug. Perfect.
+		<</if>>
 	<<elseif $housekeeping gte 500>>
 		<<pass 30>>
 		<<for _i to 0; _i lt _equip.length; _i++>>
@@ -338,6 +425,15 @@ You stand before the cosy reading nook, by a window. The shelves are filled with
 		<<else>>
 			You sew your tattered _itemListText. It takes you some time, but now they're good as new.
 		<</if>>
+		<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy" or _speechAttitudeResolved is "docile")>>
+			You let out a quiet breath once the last knot holds.
+		<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+			You fold everything neatly once you're satisfied.
+		<<elseif _speechAttitudeResolved is "cruel">>
+			You glare at the seams until you're certain none of them dare split again.
+		<<else>>
+			Good enough to wear, and better than letting it beat you.
+		<</if>>
 	<<else>>
 		<<rng 3>>
 		<<switch $rng>>
@@ -348,6 +444,15 @@ You stand before the cosy reading nook, by a window. The shelves are filled with
 				<</for>>
 
 				You try to sew your tattered _itemListText. It takes you a lot longer than you thought.
+				<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy" or _speechAttitudeResolved is "docile")>>
+					You keep going despite the awkward knots, too invested to stop now.
+				<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+					You refuse to leave the work looking sloppy, even if it steals more time than expected.
+				<<elseif _speechAttitudeResolved is "cruel">>
+					You stab the needle through the cloth.
+				<<else>>
+					The needle fights you; you fight back harder.
+				<</if>>
 			<<case 2>>
 				<<pass 45>>
 				<<for _i to 0; _i lt _equip.length; _i++>>
@@ -362,7 +467,18 @@ You stand before the cosy reading nook, by a window. The shelves are filled with
 				<<if _equip.length is 1>>
 					Unfortunately, your attempted fix just makes <<it $_slot>> worse. Your _itemListText <<is $_slot>> even more tattered now.
 				<<else>>
-					Unfortunately, your attempted fix just make them worse. Your _itemListText are even more tattered now.
+					Unfortunately, your attempted fix just makes them worse. Your _itemListText are even more tattered now.
+				<</if>>
+				<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+					You wince at the damage and set the needle down with a guilty frown.
+				<<elseif _speechAttitudeResolved is "docile">>
+					You accept the mistake quietly, even though it stings.
+				<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+					You tidy the loose thread anyway, pretending the failure looks deliberate.
+				<<elseif _speechAttitudeResolved is "cruel">>
+					You consider blaming the needle, the thread, and possibly the entire drawer.
+				<<else>>
+					You scowl at the cloth. It clearly had no intention of cooperating.
 				<</if>>
 			<<default>>
 				<<pass 15>>
@@ -370,6 +486,15 @@ You stand before the cosy reading nook, by a window. The shelves are filled with
 					<<set $worn[_equip[_i]].integrity = $worn[_equip[_i]].integrity + clothingData(_equip[_i],$worn[_equip[_i]],'integrity_max')/10>>
 				<</for>>
 				You try to fix your _itemListText meticulously. You get a bit done.
+				<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy" or _speechAttitudeResolved is "docile")>>
+					It's not much, but progress still feels reassuring.
+				<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+					You leave the work arranged neatly for when you can return to it.
+				<<elseif _speechAttitudeResolved is "cruel">>
+					The unfinished seams offend you, but they'll survive until you have more time.
+				<<else>>
+					You'll finish it properly later. Obviously.
+				<</if>>
 		<</switch>>
 	<</if>>
 <</if>>
@@ -380,21 +505,77 @@ You stand before the cosy reading nook, by a window. The shelves are filled with
 
 :: Reading Nook Orphans
 <<effects>>
+<<speechresolve>>
 <<if $phase is 1>>
 	<<famegood 10>>
-	"Thank you!" They smile and sit down, listening to you read. <<= either("Your delivery keeps them hooked and engaged", "You act out the scenes and put on silly voices, entertaining them greatly")>>. After finishing the book, you quiz them about it, and they're happy to participate. You have a great time.<<lstress>><<stress -5>><<gtiredness>><<tiredness 10>>
+	<<if _speechAttitudeResolved is "meek">>
+		"Of course. I'll try my best," you say.
+		<br><br>
+		They smile and sit down, listening as you read in a soft voice. You pause whenever the younger ones look lost, giving them time to catch up.
+	<<elseif _speechAttitudeResolved is "shy">>
+		"I can, um... if you all really want me to," you say.
+		<br><br>
+		They nod eagerly and sit down. Your voice starts quiet, but their attention draws it out of you. Before long, they're leaning closer to hear every word.
+	<<elseif _speechAttitudeResolved is "docile">>
+		"All right. Sit where you can see the pictures," you say.
+		<br><br>
+		They settle around you with trust. You read steadily, letting the rhythm of the story carry everyone along.
+	<<elseif _speechAttitudeResolved is "polite">>
+		"I'd be happy to. Please, gather round," you say.
+		<br><br>
+		They sit in a neat cluster, pleased by the invitation. You read with patient warmth, stopping to show them the illustrations.
+	<<elseif _speechAttitudeResolved is "flamboyant">>
+		"With pleasure. Gather round, esteemed audience," you say.
+		<br><br>
+		They giggle and crowd in close. You give each character a distinct voice, turning the book into a little performance.
+	<<elseif _speechAttitudeResolved is "confident">>
+		"Sure. Pay attention, because I'm asking questions after," you say.
+		<br><br>
+		They sit up straighter, excited by the challenge. Your delivery keeps them hooked, and the quiz afterward turns noisy and competitive.
+	<<elseif _speechAttitudeResolved is "bratty">>
+		"Fine, but only because you asked so nicely," you say.
+		<br><br>
+		They laugh and sit down before you can change your mind. You act out the dramatic parts with exaggerated flair, and they eat up every second of it.
+	<<elseif _speechAttitudeResolved is "cruel">>
+		"Fine. But if anyone falls asleep, I'm skipping to the scary part," you say.
+		<br><br>
+		They gasp, delighted and alarmed in equal measure. You sharpen every tense moment, keeping them pinned in place until the final page.
+	<<else>>
+		"Sure. Come sit down," you say.
+		<br><br>
+		They smile and settle in. You read clearly, and they listen with bright, eager faces.
+	<</if>>
+	<br><br>
+	After finishing the book, you quiz them about it, and they're happy to participate. You have a great time.<<lstress>><<stress -5>><<gtiredness>><<tiredness 10>>
 <<else>>
 	You shake your head.
-	<br><br>
-	<<if $speech_attitude is "meek">>
-		"Sorry, I'm afraid not."
-	<<elseif $speech_attitude is "bratty">>
+	<<if _speechAttitudeResolved is "meek">>
+		"Sorry. I'm afraid not today."
+	<<elseif _speechAttitudeResolved is "shy">>
+		"Sorry, I... I don't think I can right now."
+	<<elseif _speechAttitudeResolved is "docile">>
+		"Sorry. Maybe another time."
+	<<elseif _speechAttitudeResolved is "polite">>
+		"My apologies. Not today, but thank you for asking."
+	<<elseif _speechAttitudeResolved is "flamboyant">>
+		"Alas, my audience must go disappointed today."
+	<<elseif _speechAttitudeResolved is "confident">>
+		"Not today. Ask me again later."
+	<<elseif _speechAttitudeResolved is "bratty">>
 		"No. Sorry not sorry."
+	<<elseif _speechAttitudeResolved is "cruel">>
+		"No. Find someone else to perform for you."
 	<<else>>
 		"Sorry, but not today."
 	<</if>>
 	<br><br>
-	The <<person2>><<person>> reassures you. "It's okay. We understand. Have a nice day!"
+	<<if _speechAttitudeResolved is "cruel">>
+		The <<person2>><<person>> flinches, but another orphan quickly reassures the group. "It's okay. We understand."
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "confident")>>
+		The <<person2>><<person>> takes the answer in stride. "It's okay. We understand. Have a nice day!"
+	<<else>>
+		The <<person2>><<person>> reassures you. "It's okay. We understand. Have a nice day!"
+	<</if>>
 	<br><br>
 	"Goodbye," the group unanimously says. They scurry away.
 <</if>>
@@ -413,7 +594,7 @@ You stand before the bay window. It rises above you. The latch on the central wi
 <<if Time.hour lte 22>>
 	<<switch random(1,4)>>
 		<<case 1>>A <<generatey1>><<person1>><<person>> watches over the garden below.
-		<<case 2>>A <<generatey1>><<person1>><<person>> chats with a <<generatey2>><<person2>><<person>> while sitting on the window board<<if $loft_gh is 3>>, hugging a pillow in <<person1>><<his>> chest<</if>>.
+		<<case 2>>A <<generatey1>><<person1>><<person>> chats with a <<generatey2>><<person2>><<person>> while sitting on the window seat<<if $loft_gh is 3>>, hugging a pillow to <<person1>><<his>> chest<</if>>.
 		<<case 3>>A <<generatey1>><<person1>><<person>> basks <<= Time.dayState is "night" ? "beneath the moonlight" : "in the sunlight">>, dozing off.
 		<<default>>Some orphans gather near the windows, peering out and pointing excitedly at something in the forest.
 	<</switch>>
@@ -431,7 +612,7 @@ You open the window and perch on the edge of the sill, dangling your feet in the
 	You try to preen your wings, but Gwylan left nothing loose. You're thoroughly plucked already.
 <<elseif $daily.birdSelfPreen is undefined>>
 	<<set $daily.birdSelfPreen to 1>>
-	You preen your wings. It's harder doing this alone.
+	You preen your wings. It's harder to do this alone.
 	<<set _selfFeatherNum to random(1,2)>>
 	<<switch _selfFeatherNum>>
 		<<case 1>>One of your loose feathers has fallen out. <span class="teal">You take it.</span>
@@ -440,7 +621,7 @@ You open the window and perch on the edge of the sill, dangling your feet in the
 	<<set $bird.materials.feathers += _selfFeatherNum>>
 	<<wearProp "pc feather" "hair">>
 <<else>>
-	You preen your wings. There's no more loose feathers to remove for now, but it makes you feel better regardless.
+	You preen your wings. There are no more loose feathers to remove for now, but it makes you feel better regardless.
 <</if>>
 <br><br>
 
@@ -448,6 +629,7 @@ You open the window and perch on the edge of the sill, dangling your feet in the
 
 :: Orphanage Loft Bay Window Sing
 <<effects>>
+<<speechresolve>>
 
 <<if $harpy gte 6>>
 	<<transform bird 1>>
@@ -466,6 +648,15 @@ You open the window and perch on the edge of the sill, dangling your feet in the
 
 	<<addinlineevent "loft_sing_birds" 1>>
 		Your melodic tune attracts <<= Time.dayState is "night" ? "an owl, and it perches beside you on the sill. Its hoot backs your song" : "a flock of songbirds. They gather around you, adding their chirping as accompaniment">>.
+		<<if (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "confident")>>
+			You lift your chin, letting them try to match your rhythm.
+		<<elseif _speechAttitudeResolved is "cruel">>
+			They follow your rhythm exactly, as if afraid to miss their cue.
+		<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+			You make room in the melody for them, turning the song into a courteous duet.
+		<<else>>
+			You soften your voice so they can join without being drowned out.
+		<</if>>
 	<</addinlineevent>>
 
 	<<if $seabird_lullaby gte 2 and !$weekly.seabird_sing>>
@@ -495,7 +686,19 @@ You open the window and perch on the edge of the sill, dangling your feet in the
 			<<generatey1>><<person1>>
 			Another orphan falls asleep nearby. You lower your voice into a soothing coo.
 			<br><br>
-			You wake <<him>> up after a moment and suggest <<he>> go to bed.
+			<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+				You wake <<him>> up after a moment. "You should go to bed," you murmur.
+			<<elseif _speechAttitudeResolved is "docile">>
+				You wake <<him>> gently and guide <<him>> towards the door without fuss.
+			<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+				You wake <<him>> with a soft smile. "Your bed awaits, sleepyhead."
+			<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "confident")>>
+				You nudge <<him>> awake. "Bed. Before you start drooling on the sill."
+			<<elseif _speechAttitudeResolved is "cruel">>
+				You wake <<him>> with a tap. "Bed, unless you want everyone to hear you snoring."
+			<<else>>
+				You wake <<him>> up after a moment and suggest <<he>> go to bed.
+			<</if>>
 		<</addinlineevent>>
 	<</if>>
 
@@ -517,7 +720,7 @@ You open the window and perch on the edge of the sill, dangling your feet in the
 			<br><br>
 			Something terrible is near.
 			<br><br>
-			It had arrived.
+			It has arrived.
 			<br><br>
 			<span class="red">First, no sound leaves your throat.
 			<br><br>
@@ -557,7 +760,18 @@ You open the window and perch on the edge of the sill, dangling your feet in the
 		<br><br>
 		<<He>> offers you a smile and wordlessly adds <<his>> music to your singing. <<He>> tries <<his>> best to keep up with you.
 		<br><br>
-		By the end, <<his>> face is flushed with excitement. <<He>> looks at you with admiration, as if you are <<his>> muse.<<stress -6>><<lstress>>
+		By the end, <<his>> face is flushed with excitement. <<He>> looks at you with admiration, as if you are <<his>> muse.
+		<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+			The attention makes you glance away, but the duet leaves a pleasant warmth behind.
+		<<elseif _speechAttitudeResolved is "docile">>
+			You let the praise pass over you quietly, keeping the last note gentle.
+		<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "confident")>>
+			You accept the look like applause well earned.
+		<<elseif _speechAttitudeResolved is "cruel">>
+			You enjoy how thoroughly <<he>> was caught by your song.
+		<<else>>
+			You give <<him>> a graceful nod, acknowledging <<his>> accompaniment.
+		<</if>><<stress -6>><<lstress>>
 	<</addinlineevent>>
 
 	<<addinlineevent "loft_sing_wolves" 1>>
@@ -587,6 +801,21 @@ You open the window and perch on the edge of the sill, dangling your feet in the
 	<<else>>
 		a gentle zephyr with the scent of crisp pines and blooming flowers.
 	<</if>>
+	<<if _speechAttitudeResolved is "meek">>
+		You keep the tune simple, letting the forest answer louder than you do.
+	<<elseif _speechAttitudeResolved is "shy">>
+		Your voice almost disappears into the leaves, but the breeze seems to find it anyway.
+	<<elseif _speechAttitudeResolved is "docile">>
+		You follow the wind's rhythm rather than forcing your own.
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		You shape each note with care, making the little song sound grander than it is.
+	<<elseif _speechAttitudeResolved is "bratty">>
+		You push the melody higher than necessary, just to see if the birds complain.
+	<<elseif _speechAttitudeResolved is "cruel">>
+		You let the tune turn sharp at the edges, daring the forest to answer back.
+	<<else>>
+		You sing clearly, comfortable with letting the whole garden hear.
+	<</if>>
 	<<stress -6>><<lstress>>
 	<br><br>
 	<<cleareventpool>>
@@ -600,7 +829,7 @@ You open the window and perch on the edge of the sill, dangling your feet in the
 	<<if $dissociation gte 1>>
 		<<addinlineevent "loft_sing_sorrow" .7>>
 			<<set $daily.no_sing to true>>
-			Your singing stops abruptly. A lump forms in your throat as the weight of everything has happened crashes down onto you. You cover your face.
+			Your singing stops abruptly. A lump forms in your throat as the weight of everything that's happened crashes down onto you. You cover your face.
 		<</addinlineevent>>
 	<</if>>
 
@@ -620,6 +849,16 @@ You open the window and perch on the edge of the sill, dangling your feet in the
 
 	<<addinlineevent "loft_sing_wave" 1>>
 		Some orphans see you from the garden and wave at you.
+		<br><br>
+		<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+			You give a small wave back.
+		<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+			You return the gesture with a little smile.
+		<<elseif _speechAttitudeResolved is "cruel">>
+			You glance down at them until they wave a less boldly.
+		<<else>>
+			You wave back like you expected an audience.
+		<</if>>
 	<</addinlineevent>>
 
 	<<runeventpool>>
@@ -696,7 +935,7 @@ You watch the forest.
 			<</if>>
 		<<case 3>>
 			<<if $loft_river is 1>>
-				The smell of soup drifting from the kitchen.
+				The smell of soup drifts from the kitchen.
 			<<else>>
 				A calm silence settles over the orphanage.
 			<</if>>
@@ -714,13 +953,13 @@ You watch the forest.
 			<</if>>
 		<<case 5>>
 			<<if Time.season is "spring">>
-				Spring flowers visible beyond the trees.
+				Spring flowers are visible beyond the trees.
 			<<elseif Time.season is "winter">>
 				Snow gathers upon the evergreen boughs.
 			<<elseif Time.season is "summer">>
-				Cicadas humming outside.
+				Cicadas hum outside.
 			<<else>>
-				Fallen leaves blowing through the open window.
+				Fallen leaves blow through the open window.
 			<</if>>
 		<<case 6>>
 			<<if $harpy gte 6 and $transformationParts.bird.wings isnot "hidden">>
@@ -736,8 +975,8 @@ You watch the forest.
 			<</if>>
 		<<default>><<print either(
 		"The wind rustles the trees.",
-		"Birds migrating overhead.",
-		"Wolves howling far away.",
+		"Birds migrate overhead.",
+		"Wolves howl far away.",
 		"The forest canopy sways gently below.",
 		"Birds flit between the tree branches.",
 		"Fallen needles blanket the forest floor beneath the evergreens.",
@@ -762,11 +1001,11 @@ You watch the forest.
 You walk over to the coffee pot. The rich aroma greets you.
 <br><br>
 <<switch random(1,6)>>
-	<<case 1>>Other orphans are standing around the machine, brewing themself a drink. 
+	<<case 1>>Other orphans stand around the machine, brewing themselves drinks. 
 	<<case 2>>A <<generatey1>><<person1>><<person>> is making coffee.
 	<<case 3>>A <<generatey1>><<person1>><<person>> is picking out what to drink.
 	<<case 4>>A <<generatey1>><<person1>><<person>> looks ready to faint, but perks right up after taking a sip of coffee.
-	<<case 5>>A <<generatey1>><<person1>><<person>> is tossing a bunch of sugar in <<his>> coffee, after having a sip, you can tell <<he>> put too much.
+	<<case 5>>A <<generatey1>><<person1>><<person>> tosses a bunch of sugar into <<his>> coffee. After one sip, you can tell <<he>> used too much.
 	<<default>>You watch a <<generatey1>><<person1>><<person>> tell off a <<generatey2>><<person2>><<person>> for drinking too much coffee.
 <</switch>>
 <br><br>
@@ -782,20 +1021,45 @@ You walk over to the coffee pot. The rich aroma greets you.
 
 :: Orphanage Loft Coffee Pot Drink
 <<effects>>
+<<speechresolve>>
 <<wearProp "coffee">>
 <<set _coffee to either("mocha", "latte", "caramel latte", "white chocolate mocha", "flat white", "caramel iced latte")>>
 You make yourself a _coffee. The scent of freshly brewed coffee fills the air.
+<<if _speechAttitudeResolved is "meek">>
+	You hold the cup carefully in both hands, grateful for the warmth.
+<<elseif _speechAttitudeResolved is "shy">>
+	You linger near the machine for a moment, hiding behind the steam.
+<<elseif _speechAttitudeResolved is "docile">>
+	You prepare it the way the instructions suggest, no more and no less.
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	You take a moment to make the drink presentable, even if you're the only one drinking it.
+<<elseif _speechAttitudeResolved is "bratty">>
+	You add what you want and ignore what a sensible recipe would suggest.
+<<elseif _speechAttitudeResolved is "cruel">>
+	You make it strong enough to bully the sleep from your bones.
+<<else>>
+	You make it exactly how you like it.
+<</if>>
 <br><br>
 <<switch random(1,6)>>
-	<<case 1>>It tastes delicious, you can tell Sam picked out some good beans for you.
+	<<case 1>>It tastes delicious. You can tell Sam picked out some good beans for you.
 	<<case 2>>It's a bit bitter, but you drink it anyway.
 	<<case 3>>You can taste all the different notes in the coffee.
-	<<case 4>>There's a slight fruity flavour to the coffee, it's tasty.
-	<<case 5>>The coffee isn't that strong this time, you wonder if you didn't put enough grounds in the machine.
+	<<case 4>>There's a slight fruity flavour to the coffee. It's tasty.
+	<<case 5>>The coffee isn't that strong this time. You wonder if you didn't put enough grounds in the machine.
 	<<default>>You feel a bit jittery. Maybe it wasn't a good idea to make yourself a coffee. At least the taste is good.
 <</switch>>
 <br><br>
-You finish the drink, and clean up after yourself. You feel refreshed after the morning coffee.
+You finish the drink and clean up after yourself.
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy" or _speechAttitudeResolved is "docile")>>
+	The small routine leaves you feeling steadier.
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	You leave the machine spotless, refreshed and a little more awake.
+<<elseif (_speechAttitudeResolved is "cruel" or _speechAttitudeResolved is "bratty")>>
+	The caffeine settles in like a sharpened thought.
+<<else>>
+	You feel refreshed after the morning coffee.
+<</if>>
 <br><br>
 
 <<link [[Next|Orphanage Loft Coffee Pot]]>><<endevent>><</link>>
