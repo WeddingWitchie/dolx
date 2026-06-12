@@ -3534,7 +3534,7 @@ function setupFeatBoosts(force) {
 			name: "School Grades",
 			required: ["Perfect Record", "Return to Monke"],
 			cost: 15,
-			max: 2,
+			maxMultiplier: 2,
 			missing: "Unlock this boost by obtaining the 'Perfect Record' feat",
 		},
 		skulduggery: {
