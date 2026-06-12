@@ -156,13 +156,12 @@
 			<<set $transformationParts.traits.sharpEyes to "default">>
 			<<set $transformationParts.traits.dragonEyes to "default">>
 		<</if>>
-		<<if $cat gte 2 or $harpy gte 2 or $fox gte 2 or $wolfgirl gte 2>>
-			<<set $transformationParts.traits.predatoryAnimal to "default">>
-		<</if>>
 	<</if>>
-	<<if $transformationParts.bunny is undefined>>
-		<<set $transformationParts.traits.bunny to {preyAnimal:"disabled", strongFeet:"disabled"}>>
+	<<if $transformationParts.traits.strongFeet is undefined>>
+		<<set $transformationParts.traits.strongFeet to ($bunny gte 2 ? "default" : "disabled")>>
 	<</if>>
+	/* Heal Prey/Predator immediately on load so old saves don't have to wait for the next daily tick. */
+	<<recomputePredatorPrey>>
 	/* Setup chimera's config */
 	<<set _defaultChimeraConfig to {
 		demoncat: {
@@ -247,6 +246,23 @@
 	<</if>>
 <</widget>>
 
+<<widget "recomputePredatorPrey">>
+	/* Safe to call from anywhere: ensure the containers exist before writing to them. */
+	<<if $transformationParts is undefined>><<set $transformationParts to {}>><</if>>
+	<<if $transformationParts.traits is undefined>><<set $transformationParts.traits to {}>><</if>>
+
+	<<set _wolfPredator to ($wolfgirl gte 6 or ($transformationParts.wolf isnot undefined and $transformationParts.wolf.tail isnot undefined and $transformationParts.wolf.tail isnot "hidden" and $transformationParts.wolf.tail isnot "disabled"))>>
+	<<set _catPredator to ($cat gte 6 or ($transformationParts.cat isnot undefined and $transformationParts.cat.tail isnot undefined and $transformationParts.cat.tail isnot "hidden" and $transformationParts.cat.tail isnot "disabled"))>>
+	<<set _foxPredator to ($fox gte 6 or ($transformationParts.fox isnot undefined and $transformationParts.fox.tail isnot undefined and $transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled"))>>
+	<<set _harpyPredator to ($harpy gte 6 or ($transformationParts.bird isnot undefined and $transformationParts.bird.wings isnot undefined and $transformationParts.bird.wings isnot "hidden" and $transformationParts.bird.wings isnot "disabled"))>>
+	<<set _bearPredator to ($bear gte 6 or ($transformationParts.bear isnot undefined and $transformationParts.bear.tail isnot undefined and $transformationParts.bear.tail isnot "hidden" and $transformationParts.bear.tail isnot "disabled"))>>
+	<<set _waterdragonPredator to ($waterdragon gte 6 or ($transformationParts.waterdragon isnot undefined and $transformationParts.waterdragon.tail isnot undefined and $transformationParts.waterdragon.tail isnot "hidden" and $transformationParts.waterdragon.tail isnot "disabled"))>>
+	<<set _cowPrey to ($cow gte 6 or ($transformationParts.cow isnot undefined and $transformationParts.cow.tail isnot undefined and $transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>>
+	<<set _bunnyPrey to ($bunny gte 6 or ($transformationParts.bunny isnot undefined and $transformationParts.bunny.tail isnot undefined and $transformationParts.bunny.tail isnot "hidden" and $transformationParts.bunny.tail isnot "disabled"))>>
+
+	<<set $transformationParts.traits.predatoryAnimal to ((_wolfPredator or _catPredator or _foxPredator or _harpyPredator or _bearPredator or _waterdragonPredator) ? "default" : "disabled")>>
+	<<set $transformationParts.traits.preyAnimal to ((_cowPrey or _bunnyPrey) ? "default" : "disabled")>>
+<</widget>>
 
 <<widget "transformationStateUpdate">>
 	<<set _seraphimActive to ($transformationParts isnot undefined and $transformationParts.seraphim isnot undefined and $transformationParts.seraphim.wings isnot undefined and $transformationParts.seraphim.wings isnot "hidden" and $transformationParts.seraphim.wings isnot "disabled")>>
@@ -285,13 +301,6 @@
 			<<transform bunny -1>>
 		<</if>>
 	<</if>>
-	
-	<<if $transformationParts.traits.predatoryAnimal isnot "disabled" and !(V.xchange.blackmail.activeQuest?.id is 10)>>
-		<<def 5>>
-	<</if>>
-	<<if $transformationParts.traits.preyAnimal isnot "disabled">>
-		<<sub 5>>
-	<</if>>
 
 	<<if _seraphimActive>>
 		<<set $harpy to Math.max($harpy, 6)>>
@@ -316,6 +325,15 @@
 	<</if>>
 
 	<<transformationAlteration>>
+
+	/* Derive Prey/Predator from whichever animals are actually present, then apply the daily buff. */
+	<<recomputePredatorPrey>>
+	<<if $transformationParts.traits.predatoryAnimal isnot "disabled" and !(V.xchange.blackmail.activeQuest?.id is 10)>>
+		<<def 5>>
+	<</if>>
+	<<if $transformationParts.traits.preyAnimal isnot "disabled">>
+		<<sub 5>>
+	<</if>>
 
 	<<if $cat gt 0 or $wolfgirl gt 0 or $cow gt 0 or $waterdragon gt 0 or $harpy gt 0 or $fox gt 0 or $bear gt 0 or $bunny gt 0>>
 		<<set $physicalTransform to 1>>
@@ -430,6 +448,7 @@
 			<</if>>
 		<</for>>
 	<</for>>
+	<<recomputePredatorPrey>>
 <</widget>>
 
 <<widget "showTransformations">>
@@ -437,6 +456,7 @@
 		<<set $transformationParts to clone($saveTransformations)>>
 		<<unset $saveTransformations>>
 	<</if>>
+	<<recomputePredatorPrey>>
 <</widget>>
 
 <<widget "fallenTransform">>
@@ -793,7 +813,6 @@
 				<<if $wolfbuild lt 30>>
 					<<set $wolfgirl to 5>>
 					<<set $TFWolfBuffs to 0>>
-					<<set $transformationParts.traits.predatoryAnimal to "disabled">>
 					<<run $timeMessages.pushUnique("wolfDown5")>>
 					<<set $transformationParts.wolf.tail to "disabled">>
 				<</if>>
@@ -805,7 +824,6 @@
 				<<set $TFWolfBuffs to 0>>
 				<<set $wolfbuild to 0>>
 				<<set $transformationParts.traits.fangs to "disabled">>
-				<<set $transformationParts.traits.predatoryAnimal to "disabled">>
 				<<set $transformationParts.wolf.cheeks to "disabled">>
 				<<set $transformationParts.wolf.ears to "disabled">>
 				<<set $transformationParts.wolf.pubes to "disabled">>
@@ -820,13 +838,14 @@
 		<<set $wolfgirl to 6>>
 		<<set $wolfbuild to 100>>
 		<<set $transformationParts.traits.fangs to "default">>
-		<<set $transformationParts.traits.predatoryAnimal to "default">>
 		<<set $transformationParts.wolf.cheeks to "feral">>
 		<<set $transformationParts.wolf.ears to "default">>
 		<<set $transformationParts.wolf.pubes to ($settings.pubicHairEnabled? "default" : "hidden")>>
 		<<set $transformationParts.wolf.pits to ($settings.pubicHairEnabled? "default" : "hidden")>>
 		<<set $transformationParts.wolf.tail to "default">>
 	<</if>>
+	/* Keep Prey/Predator traits in sync immediately, even on direct calls (genome dump, events). */
+	<<recomputePredatorPrey>>
 <</widget>>
 
 /* <<catTransform step>> If neither is provided, force full transformation */
@@ -882,7 +901,6 @@
 					<<set $cat to 6>>
 					<<run $timeMessages.pushUnique("catUp6")>>
 					<<set $transformationParts.cat.tail to "default">>
-					<<set $transformationParts.traits.predatoryAnimal to "default">>
 					<<set $cattf to 1>>
 					<<set $TFCatBuffs to 1>>
 				<<elseif $catbuild lt 45>>
@@ -902,7 +920,6 @@
 					<<set $TFCatBuffs to 0>>
 					<<run $timeMessages.pushUnique("catDown5")>>
 					<<set $transformationParts.cat.tail to "disabled">>
-					<<set $transformationParts.traits.predatoryAnimal to "disabled">>
 					<<set $transformationParts.cat.heterochromia to "disabled">>
 				<</if>>
 			<<case 7>>
@@ -951,7 +968,6 @@
 				<<set $catbuild to 0>>
 				<<set $transformationParts.traits.fangs to "disabled">>
 				<<set $transformationParts.traits.sharpEyes to "disabled">>
-				<<set $transformationParts.traits.predatoryAnimal to "disabled">>
 				<<set $transformationParts.cat.ears to "disabled">>
 				<<set $transformationParts.cat.tail to "disabled">>
 		<</switch>>
@@ -964,10 +980,11 @@
 		<<set $catbuild to 100>>
 		<<set $transformationParts.traits.fangs to "default">>
 		<<set $transformationParts.traits.sharpEyes to "default">>
-		<<set $transformationParts.traits.predatoryAnimal to "default">>
 		<<set $transformationParts.cat.ears to "default">>
 		<<set $transformationParts.cat.tail to "default">>
 	<</if>>
+	/* Keep Prey/Predator traits in sync immediately, even on direct calls (genome dump, events). */
+	<<recomputePredatorPrey>>
 <</widget>>
 
 <<widget "catHeterochromiaTF">>
@@ -1085,6 +1102,8 @@
 	<</if>>
 	<<semenvolume 0>>
 	<<milkvolume 0>>
+	/* Keep Prey/Predator traits in sync immediately, even on direct calls (genome dump, events). */
+	<<recomputePredatorPrey>>
 <</widget>>
 
 <<widget "waterdragonTransform">>
@@ -1145,6 +1164,7 @@
 					<<run $timeMessages.pushUnique("waterdragonUp6")>>
 					<<set $transformationParts.waterdragon.tail to "default">>
 					<<set $transformationParts.traits.leviathan to "default">>
+					<<set $transformationParts.traits.aquatic to "default">>
 					<<set $TFWaterDragonBuffs to 1>>
 				<<elseif $waterdragonbuild lt 25>>
 					<<set $waterdragon to 4>>
@@ -1154,9 +1174,7 @@
 				<<if $waterdragonbuild gte 50>>
 					<<set $waterdragon to 7>>
 					<<run $timeMessages.pushUnique("waterdragonUp7")>>
-					<<set $transformationParts.waterdragon.tail to "default">>
 					<<set $waterdragontf to 1>>
-					<<set $transformationParts.traits.aquatic to "default">>
 				<<elseif $waterdragonbuild lt 30>>
 					<<set $waterdragon to 5>>
 					<<set $TFWaterDragonBuffs to 0>>
@@ -1204,6 +1222,8 @@
 		<<set $transformationParts.traits.leviathan to "default">>
 	<</if>>
 	<<syncWaterDragonSkin>>
+	/* Keep Prey/Predator traits in sync immediately, even on direct calls (genome dump, events). */
+	<<recomputePredatorPrey>>
 <</widget>>
 
 <<widget "bearTransform">>
@@ -1311,6 +1331,8 @@
 		<<set $transformationParts.bear.ears to "default">>
 		<<set $transformationParts.traits.fangs to "default">>
 	<</if>>
+	/* Keep Prey/Predator traits in sync immediately, even on direct calls (genome dump, events). */
+	<<recomputePredatorPrey>>
 <</widget>>
 
 /* <<harpyTransform step>> If neither is provided, force full transformation */
@@ -1379,7 +1401,6 @@
 					<<else>>
 						<<set $transformationParts.bird.pubes to "hidden">>
 					<</if>>
-					<<set $transformationParts.traits.predatoryAnimal to "default">>
 				<<elseif $birdbuild lt 25>>
 					<<set $harpy to 4>>
 					<<run $timeMessages.pushUnique("harpyDown4")>>
@@ -1400,7 +1421,6 @@
 					<<if ($fallenangel gte 2 or ($transformationParts.fallenAngel.wings isnot "hidden" and $transformationParts.fallenAngel.wings isnot "disabled"))>>
 						<<set $transformationParts.fallenAngel.wings to "default">>
 					<</if>>
-					<<set $transformationParts.traits.predatoryAnimal to "disabled">>
 				<</if>>
 			<<case 99>>
 				<<if ($harpy gte 6 or ($transformationParts.bird.wings isnot "hidden" and $transformationParts.bird.wings isnot "disabled"))>>
@@ -1416,7 +1436,6 @@
 				<<set $transformationParts.bird.pubes to "disabled">>
 				<<set $transformationParts.traits.sharpEyes to "disabled">>
 				<<set $transformationParts.traits.mateForLife to "disabled">>
-				<<set $transformationParts.traits.predatoryAnimal to "disabled">>
 				<<set $transformationParts.bird.wings to "disabled">>
 				<<if !["hidden", "disabled"].includes($transformationParts.bird.wings)>>
 					<<if ($angel gte 6 or ($transformationParts.angel.wings isnot "hidden" and $transformationParts.angel.wings isnot "disabled"))>>
@@ -1443,13 +1462,14 @@
 		<<set $transformationParts.bird.wings to "default">>
 		<<set $transformationParts.traits.sharpEyes to "default">>
 		<<set $transformationParts.traits.mateForLife to "default">>
-		<<set $transformationParts.traits.predatoryAnimal to "default">>
 		<<if $settings.pubicHairEnabled>>
 			<<set $transformationParts.bird.pubes to "default">>
 		<<else>>
 			<<set $transformationParts.bird.pubes to "hidden">>
 		<</if>>
 	<</if>>
+	/* Keep Prey/Predator traits in sync immediately, even on direct calls (genome dump, events). */
+	<<recomputePredatorPrey>>
 <</widget>>
 
 /* <<foxTransform step>> If neither is provided, force full transformation */
@@ -1511,7 +1531,6 @@
 					<<set $fox to 6>>
 					<<run $timeMessages.pushUnique("foxUp6")>>
 					<<set $transformationParts.fox.tail to "default">>
-					<<set $transformationParts.traits.predatoryAnimal to "default">>
 					<<set $foxtf to 1>>
 					<<set $TFFoxBuffs to 1>>
 				<<elseif $foxbuild lt 25>>
@@ -1523,7 +1542,6 @@
 				<<if $foxbuild lt 30>>
 					<<set $fox to 5>>
 					<<set $TFFoxBuffs to 0>>
-					<<set $transformationParts.traits.predatoryAnimal to "disabled">>
 					<<run $timeMessages.pushUnique("foxDown5")>>
 					<<set $transformationParts.fox.tail to "disabled">>
 				<</if>>
@@ -1537,7 +1555,6 @@
 				<<set $transformationParts.traits.fangs to "disabled">>
 				<<set $transformationParts.traits.sharpEyes to "disabled">>
 				<<set $transformationParts.traits.mateForLife to "disabled">>
-				<<set $transformationParts.traits.predatoryAnimal to "disabled">>
 				<<set $transformationParts.traits.chase to "disabled">>
 				<<set $transformationParts.fox.cheeks to "disabled">>
 				<<set $transformationParts.fox.ears to "disabled">>
@@ -1553,12 +1570,13 @@
 		<<set $transformationParts.traits.fangs to "default">>
 		<<set $transformationParts.traits.sharpEyes to "default">>
 		<<set $transformationParts.traits.mateForLife to "default">>
-		<<set $transformationParts.traits.predatoryAnimal to "default">>
 		<<set $transformationParts.traits.chase to "default">>
 		<<set $transformationParts.fox.cheeks to "default">>
 		<<set $transformationParts.fox.ears to "default">>
 		<<set $transformationParts.fox.tail to "default">>
 	<</if>>
+	/* Keep Prey/Predator traits in sync immediately, even on direct calls (genome dump, events). */
+	<<recomputePredatorPrey>>
 <</widget>>
 
 /* <<bunnyTransform step>> If neither is provided, force full transformation */
@@ -1618,7 +1636,6 @@
 					<<set $bunny to 6>>
 					<<run $timeMessages.pushUnique("bunnyUp6")>>
 					<<set $transformationParts.bunny.tail to "default">>
-					<<set $transformationParts.traits.preyAnimal to "default">>
 					<<set $bunnytf to 1>>
 					<<set $TFBunnyBuffs to 1>>
 				<<elseif $bunnybuild lt 25>>
@@ -1632,7 +1649,6 @@
 					<<set $TFBunnyBuffs to 0>>
 					<<run $timeMessages.pushUnique("bunnyDown5")>>
 					<<set $transformationParts.bunny.tail to "disabled">>
-					<<set $transformationParts.traits.preyAnimal to "disabled">>
 				<</if>>
 
 			<<case 99>>
@@ -1640,7 +1656,6 @@
 				<<set $bunny to 0>>
 				<<set $TFBunnyBuffs to 0>>
 				<<set $bunnybuild to 0>>
-				<<set $transformationParts.traits.preyAnimal to "disabled">>
 				<<set $transformationParts.bunny.ears to "disabled">>
 				<<set $transformationParts.bunny.tail to "disabled">>
 				<<set $transformationParts.traits.strongFeet to "disabled">>
@@ -1650,13 +1665,14 @@
 		<<set $physicalTransform to 1>>
 		<<set $bunny to 6>>
 		<<set $bunnybuild to 100>>
-		<<set $transformationParts.traits.preyAnimal to "default">>
 		<<set $transformationParts.bunny.ears to "default">>
 		<<set $transformationParts.bunny.tail to "default">>
 		<<set $transformationParts.traits.strongFeet to "default">>
 		<<set $bunnytf to 1>>
 		<<set $TFBunnyBuffs to 1>>
 	<</if>>
+	/* Keep Prey/Predator traits in sync immediately, even on direct calls (genome dump, events). */
+	<<recomputePredatorPrey>>
 <</widget>>
 
 <<widget "clearAnimalTransformations">>
@@ -1696,6 +1712,7 @@
 			<</if>>
 		<</for>>
 	<</for>>
+	<<recomputePredatorPrey>>
 <</widget>>
 
 <<widget "rehideTransformations">>
@@ -1711,4 +1728,5 @@
 		<</for>>
 		<<unset $tfPartsHidden>>
 	<</if>>
+	<<recomputePredatorPrey>>
 <</widget>>
