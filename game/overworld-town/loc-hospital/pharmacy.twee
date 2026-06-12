@@ -148,6 +148,7 @@
 		<<pregnancytesticon>><<link [[X-Change Test|Pharmacy Sale]]>><<set $pharmacyItem to setup.pharmacyItems["xchange_test"]>><</link>>
 		<br><br>
 	<<elseif $pharmacyXChangeView is "gray">>
+		<<run setup.ensureGrayPharmacyItems()>>
 		See other variants: <<if $player.gender is "m">><<link [[Pink|Pharmacy]]>><<set $pharmacyXChangeView to "pink">><</link>><<elseif $player.gender is "f">><<link [[Blue|Pharmacy]]>><<set $pharmacyXChangeView to "blue">><</link>><</if>> | <<link [[Purple|Pharmacy]]>><<set $pharmacyXChangeView to "purple">><</link>> | <<link [[Antidotes & Tests|Pharmacy]]>><<set $pharmacyXChangeView to "support">><</link>>
 		<br>
 		<<pillicon "xchangeGray">><<link [[X-Change Resistance|Pharmacy Sale]]>><<set $phase2 to "pills">><<set $pharmacyItem to setup.pharmacyItems["xchange_gray_resistance"]>><</link>>
@@ -156,10 +157,13 @@
 		<br>
 		<<pillicon "xchangeGray">><<link [[X-Change Weekly Extension|Pharmacy Sale]]>><<set $phase2 to "pills">><<set $pharmacyItem to setup.pharmacyItems["xchange_gray_extension"]>><</link>>
 		<br><br>
-		<<if !$weekly.pharmacyGrayStock>>
-			<<set _grayPool to ["xchange_gray_breeder", "xchange_gray_bull", "xchange_gray_hyper_fertility", "xchange_gray_fertility", "xchange_gray_xtend"]>>
-			<<set $weekly.pharmacyGrayStock to _grayPool.shuffle().slice(0, 2)>>
-		<</if>>
+		/* Weekly picks built in plain JS (dense array; also self-heals a corrupt stored value such as the old sparse "[empty x 2]"). */
+		<<run (function () {
+			var w = State.variables.weekly; var cur = w.pharmacyGrayStock; var valid = Array.isArray(cur) && cur.filter(function (k) { return typeof k === "string"; }).length === 2; if (valid) { return; }
+			var pool = ["xchange_gray_breeder", "xchange_gray_bull", "xchange_gray_hyper_fertility", "xchange_gray_fertility", "xchange_gray_xtend"];
+			for (var i = pool.length - 1; i > 0; i--) {var j = Math.floor(Math.random() * (i + 1)); var t = pool[i]; pool[i] = pool[j]; pool[j] = t;}
+			w.pharmacyGrayStock = [pool[0], pool[1]];
+		})()>>
 		This week's special stock:
 		<br>
 		<<for _grayKey range $weekly.pharmacyGrayStock>>

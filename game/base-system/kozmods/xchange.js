@@ -1547,3 +1547,59 @@ function xchangeEffectsMessages() {
 	return fragment;
 }
 window.xchangeEffectsMessages = xchangeEffectsMessages;
+
+/* ============================================================
+   GRAY X-CHANGE PILLS helpers (consolidated)
+   ============================================================
+*/
+(function () {
+	"use strict";
+	if (typeof window.setup !== "object" || window.setup === null) window.setup = {};
+	/* ---------- hospital pharmacy stock ---------- */
+	/* Hospital gray price. 
+	Landry sells the full line at 6000 "twice the hospital price" so the hospital baseline is 3000 per pill. */
+	const GRAY_PRICE = 300000;
+
+	/* key -> pill name (the pill name is also the inventory `type`) */
+	const GRAY_STOCK = {
+		xchange_gray_breeder: "X-Change Breeder",
+		xchange_gray_bull: "X-Change Bull",
+		xchange_gray_swell: "X-Change Swell",
+		xchange_gray_hyper_fertility: "X-Change Hyper Fertility",
+		xchange_gray_fertility: "X-Change Fertility",
+		xchange_gray_passion: "X-Change Passion",
+		xchange_gray_innocence: "X-Change Innocence",
+		xchange_gray_bimbo: "X-Change Bimbo",
+		xchange_gray_cumcure: "X-Change CumCure",
+		xchange_gray_dumb_bitch: "X-Change Dumb-Bitch",
+		xchange_gray_xtend: "X-Change X-Tend (Gray)",
+		xchange_gray_resistance: "X-Change Resistance",
+		xchange_gray_continue: "X-Change Continue",
+		xchange_gray_extension: "X-Change Weekly Extension",
+		xchange_gray_portal: "X-Change Portal",
+	};
+
+	function ensureGrayPharmacyItems() {
+		if (typeof setup !== "object" || setup === null) return false;
+		if (typeof setup.pharmacyItems !== "object" || setup.pharmacyItems === null) {
+			setup.pharmacyItems = {};
+		}
+		for (const [key, pillName] of Object.entries(GRAY_STOCK)) {
+			if (!setup.pharmacyItems[key]) {
+				setup.pharmacyItems[key] = { name: pillName, type: pillName, price: GRAY_PRICE };
+			}
+		}
+		return true;
+	}
+	setup.ensureGrayPharmacyItems = ensureGrayPharmacyItems;
+	window.ensureGrayPharmacyItems = ensureGrayPharmacyItems;
+
+	/* Run now (synchronous — no deferral, no race)... */
+	ensureGrayPharmacyItems();
+
+	/* ...and once more after load, in case a later core file reassigns
+	   setup.pharmacyItems wholesale. Idempotent, so this is always safe. */
+	if (typeof window !== "undefined" && typeof window.$ === "function") {
+		window.$(ensureGrayPharmacyItems);
+	}
+})();
