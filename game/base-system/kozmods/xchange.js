@@ -103,6 +103,14 @@ function xChangeSanitiseBodySnapshot(body, slotLabel = "body") {
 	setNumber("penissize", xChangeFiniteNumber(player.penissize, 0));
 	setNumber("ballssize", xChangeFiniteNumber(V.ballssize, 0));
 
+	// DoL's body rework moved some floors (e.g. penissize from -2 to 0).
+	// Old cached snapshots can hold now-out-of-range values; clamp them so they read as valid and don't trip body/sprite logic. 
+	// Only negatives are touched; valid sizes pass.
+	if (body.penissize < 0) { body.penissize = 0; bad.push("penissize"); }
+	if (body.breastsize < 0) { body.breastsize = 0; bad.push("breastsize"); }
+	if (body.bottomsize < 0) { body.bottomsize = 0; bad.push("bottomsize"); }
+	if (body.ballssize < 0) { body.ballssize = 0; bad.push("ballssize"); }
+
 	const setString = (key, fallback) => {
 		if (typeof body[key] !== "string" || body[key].length === 0) {
 			body[key] = fallback;
@@ -172,36 +180,6 @@ function xChangeSanitiseBodySnapshot(body, slotLabel = "body") {
 	return true;
 }
 window.xChangeSanitiseBodySnapshot = xChangeSanitiseBodySnapshot;
-
-function xChangeCachedBodyUsable(slotName) {
-	const pill = V.xchange?.pill;
-	if (!pill) return false;
-
-	const prop = slotName === "genderswapped" ? "changedBody" : slotName === "herm" ? "hermBody" : slotName;
-	const body = pill[prop];
-	if (!body || typeof body !== "object" || Array.isArray(body) || Object.keys(body).length === 0) return false;
-
-	if (xChangeBodySnapshotUsable(body)) return true;
-
-	// Transformed-body caches are expendable.  
-	// If they are bad, regenerate them instead of loading a half-empty object over the current player body.
-	if (prop === "changedBody" || prop === "hermBody") {
-		pill[prop] = {};
-		xChangeRepairNoticeOnce(
-			`repair_xchange_discard_bad_${prop}`,
-			`<b>Save repair notice</b><br>X-Change found an invalid cached transformed body (<b>${slotName}</b>) and discarded it. A fresh transformed body will be generated instead of loading broken size/face data.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>`
-		);
-		return false;
-	}
-
-	// Original-body cache cannot simply be thrown away during restore, so repair it.
-	xChangeSanitiseBodySnapshot(body, slotName);
-	return xChangeBodySnapshotUsable(body);
-}
-window.xChangeCachedBodyUsable = xChangeCachedBodyUsable;
-setup.xChangeBodySnapshotUsable = xChangeBodySnapshotUsable;
-setup.xChangeSanitiseBodySnapshot = xChangeSanitiseBodySnapshot;
-setup.xChangeCachedBodyUsable = xChangeCachedBodyUsable;
 
 function getAntiPillSensitivityBonus(part) {
 	const anti = V.xchange?.antiPillSensitivity;
@@ -1594,7 +1572,7 @@ window.xchangeEffectsMessages = xchangeEffectsMessages;
 	setup.ensureGrayPharmacyItems = ensureGrayPharmacyItems;
 	window.ensureGrayPharmacyItems = ensureGrayPharmacyItems;
 
-	/* Run now (synchronous — no deferral, no race)... */
+	/* Run now (synchronous; no deferral, no race)... */
 	ensureGrayPharmacyItems();
 
 	/* ...and once more after load, in case a later core file reassigns

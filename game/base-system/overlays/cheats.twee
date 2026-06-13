@@ -20,18 +20,20 @@
 		<span @id="_id"><<= ($player.virginity[_type] is true ? "Present" : "Taken by " + ($player.virginity[_type] is false ? "unknown" : $player.virginity[_type]))>></span> |
 		<span @id="_id + 'link'"><<link `($player.virginity[_type] is true ? "Take" : "Restore")`>>
 			<<if $player.virginity[_type] is true>>
-				<<set $player.virginity[_type] to "unknown">>
+				<<set $player.virginity[_type] to "unknown">><<run setup.xChangeRecordActiveBodyVirginity("cheat-virginity-take")>>
 				<<if $player.virginity.temple isnot false and ["penile","vaginal"].includes(_type)>>
 					<<set $player.virginity.temple to "unknown">>
 				<</if>>
+				<<run setup.xChangeRecordActiveBodyVirginity("cheat-virginity-take-after-temple")>>
 				<<run $(`#${_id}link .link-internal`).html("Restore")>>
 				<<run $(`#${_id}`).html("Taken by unknown")>>
 			<<else>>
 				/* Restore */
-				<<set $player.virginity[_type] to true>>
+				<<set $player.virginity[_type] to true>><<run setup.xChangeRecordActiveBodyVirginity("cheat-virginity-restore", true)>>
 				<<if $player.virginity.temple isnot false and ["penile","vaginal"].includes(_type)>>
 					<<set $player.virginity.temple to true>>
 				<</if>>
+				<<run setup.xChangeRecordActiveBodyVirginity("cheat-virginity-restore-after-temple", true)>>
 				<<run $(`#${_id}link .link-internal`).html("Take")>>
 				<<run $(`#${_id}`).html("Present")>>
 			<</if>>
@@ -1116,7 +1118,7 @@
 		<span class="red"><b>Caution!</b><br></span>Using "Force pill to end" while pregnant can corrupt your pregnancy state. Consider ending the pregnancy first, or proceed at your own risk.
 		<br>
 	<</if>>
-	<<linkreplace "Force pill to end">>Forced pill to end<<xchange-restore>><<updatesidebarimg>><</linkreplace>>
+	<<linkreplace "Force pill to end">>Forced pill to end<<run setup.xChangeRecordActiveBodyVirginity("cheat-force-pill-end")>><<xchange-restore>><<updatesidebarimg>><</linkreplace>>
 	<br><br>
 	Pill duration: <<if pillIsPermanent()>><span class="green">Permanent</span><<else>><span class="teal"><<print-pillduration>></span><</if>>
 	<br>

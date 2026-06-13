@@ -163,8 +163,7 @@ window.wornSetupClothes = wornSetupClothes;
 	}
 
 	// At-max state: classic cheat/exploit detection.
-	// A large drop (>=10% of cap) from exactly the cap is the console-edit
-	// cheat signature.
+	// A large drop (>=10% of cap) from exactly the cap is the console-edit cheat signature.
 	const prevWasAtMax = prev >= (prevMax - EPS_MAX);
 	if (prevWasAtMax) {
 	  const largeDrop = cur <= (prevMax * 0.9);
@@ -439,9 +438,8 @@ window.wornSetupClothes = wornSetupClothes;
 		x.giTransformConsent = x.giTransformEnabled;
 
 		// Lock behind the same unlock the UI uses.
-		// identityCap is NOT checked here — it controls how far the meter can drift,
-		// not whether the system is enabled. The genderidentity widget already enforces
-		// the cap floor when identityCap is true.
+		// identityCap is NOT checked here; it controls how far the meter can drift, not whether the system is enabled.
+		// The genderidentity widget already enforces the cap floor when identityCap is true.
 		const unlocked = (V.attitudesControl?.unlockGender === true);
 		if (!unlocked) {
 			x.giAutoEnabled = false;
@@ -472,7 +470,7 @@ window.wornSetupClothes = wornSetupClothes;
 	}
 })();
 
-/* X-CHANGE SAVE REPAIR NOTICE */
+// ---------- X-CHANGE SAVE REPAIR NOTICE ----------
 window.xChangeQueueNotice = function (id, html) {
 	const V = (typeof State !== "undefined" && State.variables) ? State.variables : window.V;
 	if (!V) return;
@@ -527,7 +525,63 @@ window.xChangeQueueNotice = function (id, html) {
 	}
 })();
 
-// ---------- Other functional helper ----------
+function xChangeCachedBodyUsable(slotName) {
+	const pill = V.xchange?.pill;
+	if (!pill) return false;
+
+	const prop = slotName === "genderswapped" ? "changedBody" : slotName === "herm" ? "hermBody" : slotName;
+	const body = pill[prop];
+	if (!body || typeof body !== "object" || Array.isArray(body) || Object.keys(body).length === 0) return false;
+
+	if (xChangeBodySnapshotUsable(body)) return true;
+
+	// Old transformed-body caches can be missing fields that newer validators require.
+	// Repair only the affected fields in place;
+	// do not discard the whole cache unless the snapshot is truly unusable.
+	if (prop === "changedBody" || prop === "hermBody") {
+		const original = pill.originalBody && typeof pill.originalBody === "object" ? pill.originalBody : {};
+		const baseSex = ["m", "f"].includes(pill.baseSex) ? pill.baseSex
+			: (["m", "f"].includes(original.sex) ? original.sex
+			: (["m", "f"].includes(V.player?.gender) ? V.player.gender : "f"));
+		const targetSex = slotName === "herm" ? "m" : (baseSex === "m" ? "f" : "m");
+
+		if (!["m", "f"].includes(body.sex)) body.sex = targetSex;
+		if (!["m", "f", "a"].includes(body.gender_body)) body.gender_body = slotName === "herm" ? "a" : targetSex;
+		if (typeof body.bodyshape !== "string" || body.bodyshape.length === 0) {
+			body.bodyshape = body.gender_body === "f" ? "curvy" : (body.gender_body === "a" ? "slender" : "classic");
+		}
+		if (Number(body.penissize) < 0) body.penissize = 0;
+		if (Number(body.ballssize) < 0) body.ballssize = 0;
+		if (Number(body.breastsize) < 0) body.breastsize = 0;
+		if (Number(body.bottomsize) < 0) body.bottomsize = 0;
+		if (typeof body.penisExist !== "boolean") body.penisExist = body.sex === "m" || slotName === "herm" || Number(body.penissize) > 0;
+		if (typeof body.ballsExist !== "boolean") body.ballsExist = body.penisExist && Number(body.ballssize) > 0;
+		if (typeof body.vaginaExist !== "boolean") body.vaginaExist = body.sex === "f" || slotName === "herm";
+	}
+
+	xChangeSanitiseBodySnapshot(body, slotName);
+	if (xChangeBodySnapshotUsable(body)) {
+		xChangeRepairNoticeOnce(
+			`repair_xchange_repaired_${prop}`,
+			`<b>Save repair notice</b><br>X-Change repaired an incomplete cached body snapshot (<b>${slotName}</b>) instead of discarding it.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>`
+		);
+		return true;
+	}
+
+	xChangeRepairNoticeOnce(
+		`repair_xchange_unusable_${prop}`,
+		`<b>Save repair notice</b><br>X-Change found a cached body snapshot (<b>${slotName}</b>) that could not be repaired. A fresh appearance will be generated, but per-body virginity is stored separately and is not reset by this.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>`
+	);
+	return false;
+}
+window.xChangeCachedBodyUsable = xChangeCachedBodyUsable;
+setup.xChangeBodySnapshotUsable = xChangeBodySnapshotUsable;
+setup.xChangeSanitiseBodySnapshot = xChangeSanitiseBodySnapshot;
+setup.xChangeCachedBodyUsable = xChangeCachedBodyUsable;
+
+// ==================================================
+// OTHER FUNCTIONAL HELPER
+// ==================================================
 function pruneNPCName() {
   const V = State.variables;
   if (!Array.isArray(V.NPCName) || !Array.isArray(V.NPCNameList)) return;
@@ -760,6 +814,187 @@ if (!V.npcOrgasmState || typeof V.npcOrgasmState !== "object" || Array.isArray(V
 		return painModifier * tirednessModifier;
 	};
 })();
+
+/* ------------------------------------------------------------------ *
+ * X-Change per-body virginity
+ * ------------------------------------------------------------------ */
+setup.xChangeBodyVirginityKeys = ["vaginal", "penile", "anal", "oral", "handholding", "kiss"];
+setup.xChangeVirginTraitKeys = ["vaginal", "penile"];
+
+/* Canonical role for the transformed body the player is currently inhabiting,
+ * derived from its configuration (gender_body) rather than stale effect flags.
+ * herm bodies are gender_body "a"; genderflip bodies are "m"/"f".
+ * Using this one signal everywhere a save/apply decides herm-vs-xchange keeps the store and the re-entry path in agreement,
+ * so new saves never split. */
+setup.xChangeTransformedRole = function xChangeTransformedRole(genderBody) {
+	return genderBody === "a" ? "herm" : "xchange";
+};
+
+function xChangeClone(value) {
+	try {
+		if (typeof clone === "function") return clone(value);
+	} catch (e) {}
+	try {
+		return JSON.parse(JSON.stringify(value));
+	} catch (e) {
+		return value;
+	}
+}
+
+function xChangeVirginityStore() {
+	const pill = V.xchange && V.xchange.pill;
+	if (!pill) return undefined;
+	if (!pill.bodyVirginity || typeof pill.bodyVirginity !== "object" || Array.isArray(pill.bodyVirginity)) {
+		pill.bodyVirginity = {};
+	}
+	return pill.bodyVirginity;
+}
+
+function xChangeBodyProp(role) {
+	if (role === "real") return "originalBody";
+	if (role === "xchange") return "changedBody";
+	if (role === "herm") return "hermBody";
+	return "";
+}
+
+function xChangeVirginityEntryFrom(virginity, details, seen = true) {
+	const entry = { v: {}, d: {}, seen };
+	for (const key of setup.xChangeBodyVirginityKeys) {
+		entry.v[key] = virginity && virginity[key] !== undefined ? xChangeClone(virginity[key]) : true;
+		if (details && details[key] !== undefined) entry.d[key] = xChangeClone(details[key]);
+	}
+	return entry;
+}
+
+function xChangeVirginityEntryHasTaken(entry) {
+	if (!entry || typeof entry !== "object" || !entry.v) return false;
+	return setup.xChangeBodyVirginityKeys.some(key => entry.v[key] !== undefined && entry.v[key] !== true);
+}
+
+function xChangeCopyVirginityEntry(entry) {
+	return {
+		v: xChangeClone((entry && entry.v) || {}),
+		d: xChangeClone((entry && entry.d) || {}),
+		seen: true,
+	};
+}
+
+function xChangeMigrateTransformedVirginityRoles() {
+	// One-time old-save bridge. Old saves could record a transformed body's losses
+	// under one role (e.g. "herm") while the re-entry path read the other ("xchange"),
+	// because the save slot used to be chosen by stale effect flags. Reconcile that
+	// split EXACTLY ONCE: if one transformed store has taken virginity and its sibling
+	// is still the all-true seed, copy it across.
+	//   - never touches "real"
+	//   - never overwrites a transformed store that already has taken data
+	const pill = V.xchange && V.xchange.pill;
+	if (!pill || pill.bodyVirginityRoleMigrated === true) return;
+	pill.bodyVirginityRoleMigrated = true;
+
+	const store = pill.bodyVirginity;
+	if (!store || typeof store !== "object") return;
+
+	const hermTaken = xChangeVirginityEntryHasTaken(store.herm);
+	const xchangeTaken = xChangeVirginityEntryHasTaken(store.xchange);
+
+	if (hermTaken && !xchangeTaken) {
+		store.xchange = xChangeCopyVirginityEntry(store.herm);
+	} else if (xchangeTaken && !hermTaken) {
+		store.herm = xChangeCopyVirginityEntry(store.xchange);
+	}
+}
+
+function xChangeSeedBodyVirginity(role) {
+	const pill = V.xchange && V.xchange.pill;
+	const prop = xChangeBodyProp(role);
+	const snap = prop && pill ? pill[prop] : undefined;
+
+	// Prefer legacy snapshot data if a save was made while virginity still lived in the body cache.
+	if (snap && typeof snap === "object" && snap.virginity) {
+		return xChangeVirginityEntryFrom(snap.virginity, snap.virginityDetails);
+	}
+
+	// The original body should already have been recorded by save-body before transformation.
+	// If not, only seed it from the live player when we are not currently transformed.
+	const transformed = typeof playerIsXChanged === "function" && playerIsXChanged();
+	if (role === "real" && !transformed) {
+		return xChangeVirginityEntryFrom(V.player && V.player.virginity, V.player && V.player.virginityDetails);
+	}
+
+	// Brand-new X-Change/herm bodies start intact.
+	return xChangeVirginityEntryFrom({}, {});
+}
+
+setup.xChangeRecordBodyVirginity = function xChangeRecordBodyVirginity(role) {
+	const store = xChangeVirginityStore();
+	if (!store || !role || !V.player || !V.player.virginity) return false;
+	xChangeMigrateTransformedVirginityRoles();
+	store[role] = xChangeVirginityEntryFrom(V.player.virginity, V.player.virginityDetails);
+	return true;
+};
+
+setup.xChangeApplyBodyVirginity = function xChangeApplyBodyVirginity(role) {
+	const store = xChangeVirginityStore();
+	if (!store || !role || !V.player || !V.player.virginity) return false;
+	xChangeMigrateTransformedVirginityRoles();
+	if (!store[role] || store[role].seen !== true) {
+		store[role] = xChangeSeedBodyVirginity(role);
+	}
+	const entry = store[role];
+	for (const key of setup.xChangeBodyVirginityKeys) {
+		V.player.virginity[key] = entry.v && entry.v[key] !== undefined ? xChangeClone(entry.v[key]) : true;
+		if (V.player.virginityDetails) {
+			if (entry.d && entry.d[key] !== undefined) V.player.virginityDetails[key] = xChangeClone(entry.d[key]);
+			else delete V.player.virginityDetails[key];
+		}
+	}
+	return true;
+};
+
+// Role of the body the player is currently in, by configuration not flags.
+setup.xChangeActiveBodyVirginityRole = function xChangeActiveBodyVirginityRole() {
+	if (!(typeof playerIsXChanged === "function" && playerIsXChanged())) return "real";
+	return setup.xChangeTransformedRole(V.player && V.player.gender_body);
+};
+
+setup.xChangeRecordActiveBodyVirginity = function xChangeRecordActiveBodyVirginity() {
+	return setup.xChangeRecordBodyVirginity(setup.xChangeActiveBodyVirginityRole());
+};
+
+function xChangeOtherBodyVirginity() {
+	const pill = V.xchange && V.xchange.pill;
+	if (!pill) return undefined;
+	const transformed = typeof playerIsXChanged === "function" && playerIsXChanged();
+	const store = pill.bodyVirginity;
+	let role;
+	if (transformed) {
+		role = "real";
+	} else {
+		// In the real body the "other" body is the transformed one.
+		// Prefer whichever transformed store has actually been recorded; fall back to xchange.
+		if (store && store.xchange && store.xchange.seen) role = "xchange";
+		else if (store && store.herm && store.herm.seen) role = "herm";
+		else role = "xchange";
+	}
+	if (store && store[role] && store[role].seen) return store[role].v;
+	const prop = xChangeBodyProp(role);
+	const snap = prop && pill[prop];
+	return snap && snap.virginity;
+}
+window.xChangeOtherBodyVirginity = xChangeOtherBodyVirginity;
+
+function bodyIsGenitalVirgin(virginity, keys) {
+	if (!virginity) return false;
+	keys = keys || setup.xChangeVirginTraitKeys;
+	return keys.every(key => virginity[key] === true);
+}
+window.bodyIsGenitalVirgin = bodyIsGenitalVirgin;
+
+function playerCountsAsVirgin() {
+	if (bodyIsGenitalVirgin(V.player && V.player.virginity, setup.xChangeVirginTraitKeys)) return true;
+	return bodyIsGenitalVirgin(xChangeOtherBodyVirginity(), setup.xChangeVirginTraitKeys);
+}
+window.playerCountsAsVirgin = playerCountsAsVirgin;
 
 // ==================================================
 // MOVED FROM time.js to keeps vanilla time.js untouched

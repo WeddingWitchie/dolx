@@ -87,8 +87,8 @@
 					<<set $rightEyeColour to _eyeColour>>
 				<</if>>
 			<</if>>
-
 		<<else>>
+			<<xchange-apply-body-virginity "xchange">>
 			<<if !Number.isInteger($breastsizemin) or !Number.isInteger($breastsizemax) or !Number.isInteger($bottomsizemin) or !Number.isInteger($bottomsizemax) or $breastsizemax lt $breastsizemin or $bottomsizemax lt $bottomsizemin>>
 				<<run console.error("[xchange-pink/xchange restore] Invalid body size bounds", {
 					breastsizemin: V.breastsizemin,
@@ -349,8 +349,8 @@
 					<<set $rightEyeColour to _eyeColour>>
 				<</if>>
 			<</if>>
-
 		<<else>>
+			<<xchange-apply-body-virginity "xchange">>
 			<<set $player.breastsize to 0>>
 			<<set $player.bottomsize to 0>>
 			<<if !Number.isInteger($penissizemin) or !Number.isInteger($penissizemax) or $penissizemax lt $penissizemin>>
@@ -555,6 +555,9 @@
 			<</if>>
 		<</if>>
 
+		/* Fresh or cached herm body gets its own body-specific virginity. */
+		<<xchange-apply-body-virginity "herm">>
+
 		/* Physique computations */
 		<<if $xchange.sizeOverride is "default">>
 			<<set $bodysize to setup.stepBodySize($bodysize, ($player.gender is "m" ? -1 : 1))>>
@@ -588,6 +591,20 @@
 			<<set $sexStats.vagina.menstruation.running = false>>
 		<</if>>
 		<<run updatePhysique()>>
+	<</widget>>
+
+	<<widget "xchange-store-body-virginity">>
+		<<set _role to _args[0]>>
+		<<if _role isnot undefined and _role isnot "">>
+			<<run setup.xChangeRecordBodyVirginity(_role)>>
+		<</if>>
+	<</widget>>
+
+	<<widget "xchange-apply-body-virginity">>
+		<<set _role to _args[0]>>
+		<<if _role isnot undefined and _role isnot "">>
+			<<run setup.xChangeApplyBodyVirginity(_role)>>
+		<</if>>
 	<</widget>>
 
 	<<widget "save-body">>
@@ -626,20 +643,41 @@
 			<<set _sb_ball to 0>>
 		<</if>>
 
+		/* Clamp to current valid floors (DoL rework moved e.g. penissize min to 0). */
+		<<set _sb_bs to Math.max(0, _sb_bs)>>
+		<<set _sb_bot to Math.max(0, _sb_bot)>>
+		<<set _sb_ps to Math.max(0, _sb_ps)>>
+		<<set _sb_ball to Math.max(0, _sb_ball)>>
+
+		/* bodysize is a REQUIRED field for snapshot validity but was previously saved unguarded.
+		A non-finite bodysize makes the cached body fail validation and get discarded/regenerated, which is what wipes per-body state. Guard it like the rest. */
+		<<set _sb_size to Number($bodysize)>>
+		<<if isNaN(_sb_size)>>
+			<<run setup.xChangeRepairNoticeOnce(("repair_xchange_savebody_bodysize_" + (_slotLabel ? _slotLabel : "unknown")), ("<b>Save repair notice</b><br>Your save had an invalid <b>bodysize</b> while X-Change was saving a body snapshot (<b>" + _slotLabel + "</b>). X-Change stored a safe fallback value so the snapshot isn't discarded.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>"))>>
+			<<set _sb_size to 2>>
+		<</if>>
+
+		/* The remaining required fields must be valid strings/enums too, or the snapshot is judged invalid. Coerce only when actually bad; valid values pass through. */
+		<<set _sb_face to (typeof $facestyle === "string" && $facestyle.length) ? $facestyle : "default">>
+		<<set _sb_facevar to (typeof $facevariant === "string" && $facevariant.length) ? $facevariant : "default">>
+		<<set _sb_gender to ["m","f","a"].includes($player.gender_body) ? $player.gender_body : (["m","f"].includes($player.sex) ? $player.sex : "f")>>
+		<<set _sb_shape to (typeof $player.bodyshape === "string" && $player.bodyshape.length) ? $player.bodyshape : (_sb_gender === "f" ? "curvy" : "classic")>>
+		<<set _sb_sex to ["m","f"].includes($player.sex) ? $player.sex : (["m","f"].includes(_sb_gender) ? _sb_gender : "f")>>
+
 		<<set _savedbody to {
 			/* Core appearance */
-			bodysize: $bodysize,
-			facestyle: $facestyle,
-			facevariant: $facevariant,
-			gender_body: $player.gender_body,
-			bodyshape: $player.bodyshape,
+			bodysize: _sb_size,
+			facestyle: _sb_face,
+			facevariant: _sb_facevar,
+			gender_body: _sb_gender,
+			bodyshape: _sb_shape,
 			breastsize: _sb_bs,
 			bottomsize: _sb_bot,
 			penissize: _sb_ps,
 			ballssize: _sb_ball,
 
 			/* Sex / genital state (IMPORTANT for proper revert) */
-			sex: $player.sex,
+			sex: _sb_sex,
 			penisExist: $player.penisExist,
 			ballsExist: $player.ballsExist,
 			vaginaExist: $player.vaginaExist,
@@ -699,6 +737,14 @@
 				<<run _savedbody.dhmFringe = (typeof clone === "function") ? clone(V.dhmod.fringe) : JSON.parse(JSON.stringify(V.dhmod.fringe)) >>
 			<</if>>
 		<</if>>
+
+		/* Store this body's virginity outside the expendable appearance snapshot. */
+		<<set _vrole to "">>
+		<<if _slotLabel is "originalBody">><<set _vrole to "real">>
+		<<elseif _slotLabel is "genderswapped">><<set _vrole to "xchange">>
+		<<elseif _slotLabel is "herm">><<set _vrole to "herm">>
+		<</if>>
+		<<if _vrole isnot "">><<xchange-store-body-virginity _vrole>><</if>>
 
 		<<if _args[0] is undefined>>
 			<<set $xchange.pill.originalBody to _savedbody>>
@@ -851,6 +897,15 @@
 		<<if _body.penisstate isnot undefined>><<set $penisstate to _body.penisstate>><</if>>
 		<<if _body.vaginause isnot undefined>><<set $vaginause to _body.vaginause>><</if>>
 		<<if _body.vaginastate isnot undefined>><<set $vaginastate to _body.vaginastate>><</if>>
+
+		/* Apply this body's stored genital virginity from the stable store.
+		   Entering a body restores its own record; a body that has never existed before is seeded (X-Change/herm => virgin, real => keeps current). */
+		<<set _vrole to "">>
+		<<if _args[0] is undefined>><<set _vrole to "real">>
+		<<elseif _args[0] is "genderswapped">><<set _vrole to "xchange">>
+		<<elseif _args[0] is "herm">><<set _vrole to "herm">>
+		<</if>>
+		<<if _vrole isnot "">><<xchange-apply-body-virginity _vrole>><</if>>
 
 		/* Adapt chastity device to restored body */
 		<<if $worn.genitals.type.includes("chastity")>>
@@ -1154,7 +1209,6 @@
 				<<elseif playerFeelsGirllike()>>
 					<<butchify>>
 				<</if>>
-				/* ADDED */
 				<<set _xchangeNeedsRefresh to true>>
 			<</if>>
 		<</if>>
@@ -1167,7 +1221,6 @@
 			<<else>>
 				<<become-boy>>
 			<</if>>
-			/* ADDED */
 			<<set _xchangeNeedsRefresh to true>>
 		<</if>>
 		<<if !$xchange.pill.hermEffect>>
@@ -1178,7 +1231,6 @@
 				<<set $xchange.pill.fertile to true>>
 				<<set $sexStats.vagina.menstruation.running = true>>
 			<</if>>
-			/* ADDED */
 			<<set _xchangeNeedsRefresh to true>>
 		<</if>>
 
@@ -1347,6 +1399,13 @@
 	<<widget "xchange-removeeffect">>
 		<<switch _args[0]>><<wash>>
 		<<case "genderflip">>
+			<<if $xchange.pill.hermEffect or $xchange.pill.genderflipEffect>>
+				<<if setup.xChangeTransformedRole($player.gender_body) is "herm">>
+					<<save-body "herm">>
+				<<else>>
+					<<save-body "genderswapped">>
+				<</if>>
+			<</if>>
 			<<set $xchange.pill.genderflipEffect to false>>
 			<<if $player.gender is "m">>
 				<<become-boy>>
@@ -1558,10 +1617,12 @@
 
 	<<widget "xchange-restore">>
 		<<if _args[0] isnot "nosave">>
-			<<if $xchange.pill.hermEffect>>
-				<<save-body "herm">>
-			<<elseif $xchange.pill.genderflipEffect>>
-				<<save-body "genderswapped">>
+			<<if $xchange.pill.hermEffect or $xchange.pill.genderflipEffect>>
+				<<if setup.xChangeTransformedRole($player.gender_body) is "herm">>
+					<<save-body "herm">>
+				<<else>>
+					<<save-body "genderswapped">>
+				<</if>>
 			<</if>>
 
 			<<if $player.gender is "m">>
