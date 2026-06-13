@@ -1,0 +1,167 @@
+:: WLI Lake Area
+<<effects>><<lakeeffects>>
+
+You approach the spot where the presence feels strongest.<br>
+<br>
+<<if Time.dayState is "night" and !$wraithcompoundmessage and !$weekly.wliModGift>>
+	<<gifticon "love">><<link [[ Leave an offering | WLI Lake Offering List ]]>><</link>>
+<<else>>
+	The presence fades.<br>
+<</if>>
+<br>
+<<lakeicon>><<link [[ Back (0:05) | Lake Shore ]]>><<pass 5>><</link>>
+
+
+:: WLI Lake Offering List
+<<effects>><<lakeeffects>>
+
+What would you like to offer?
+<br><br>
+<<food_gift_list>>
+
+<<if _food_gift_found is true>>
+	<<skinicon "give">><<link [[ Offer (0:05) | WLI Lake Offering]]>><<pass 5>><<give_gift "Ivory Wraith">><<set $weekly.wliModGift to true>><</link>>
+<</if>>
+
+<br>
+<<refuseicon>><<link [[ Reconsider | WLI Lake Offering Reconsider ]]>><</link>>
+
+
+:: WLI Lake Offering Reconsider
+<<effects>><<lakeeffects>>
+
+Best not to indulge an eldritch horror.
+
+<br><br>
+<<lakeicon>><<link [[ Back (0:05) | Lake Shore ]]>><<pass 5>><</link>>
+
+
+:: WLI Lake Offering
+<<effects>><<lakeeffects>>
+
+<<if W.wraithIsAngry()>>
+	"I want to make things right. Please accept my apology," 
+<<else>>
+	"I've brought you something," 
+<</if>>
+<<set _gift to setup.foodstuff[$gift].name + (setup.foodstuff[$gift].food.handheld_gift ? " gift" : "")>>
+<<wearProp _gift>>
+
+you announce, setting the _gift on a nearby rock and waiting for a reaction. <br>
+
+<<if $wli.criteria and !$wli.giftevent and C.npc["Ivory Wraith"].love gte 25>>
+	<span class="teal">An idea strikes you.</span>
+	<br><br>
+	<<link [[ Offer your body as a vessel | WLI Lake Possessed ]]>><<npcincr "Ivory Wraith" love 2>><</link>><<gglove>>
+<</if>>
+
+<br>
+<<link [[ Wait (0:??) | WLI Lake Offering Accept ]]>><<set _rng to random(1, 10)>><<pass _rng>><</link>>
+
+
+:: WLI Lake Offering Accept
+<<effects>><<lakeeffects>>
+Mist erupts from the lake just as you're about to give up. It stretches, enveloping the <<recipe_name $gift>> in lazy swirls. You blink, and the <<recipe_name $gift>> is simply <span class="red">gone.</span><<gtrauma>><<trauma 6>><br><br>
+
+<<if W.wraithIsAngry()>>
+	The presence seems <span class="blue">a little calmer.</span> <<npcincr "Ivory Wraith" love 1>><<glove>><<lobsession 1>>
+<<else>>
+	The presence seems <span class="blue">pleased.</span> <<npcincr "Ivory Wraith" love 2>><<gglove>><<gobsession 1>>
+<</if>>
+
+<br><br>
+The mist dissipates, leaving a sweet scent behind.
+<br><br>
+<<lakeicon>><<link [[ Back (0:05) | Lake Shore ]]>><<endevent>><<pass 5>><</link>>
+
+
+:: WLI Lake Possessed
+<<effects>><<wraithPossess>><<set $wli.giftevent to 1>>
+
+"I'll lend you my body. So you can eat properly," you offer.
+
+<br><br>
+The mist freezes. A pale visage appears before you.<br>
+<span class="wraith">"Clever <<pcpetname "wraith">>. </span> 
+
+<<if W.wraithIsAngry()>>
+	<span class="wraith">Do you seek to repent?"</span> 
+	It inspects you from head to toe, gauging your honesty with intense <<wraithEyes>> eyes. Its gaze lulls you into a trance.
+<<else>>
+	<span class="wraith">Does your kindness truly know no bounds?"</span>
+	You shudder as its pale, cold hands cup your cheeks. It smiles at you. You can feel your heart pounding.
+<</if>>
+
+<br><br>
+It dissipates into mist, enveloping you in a hazy embrace. Sooner than you realize, your body goes numb. You can only watch as your hands clench and unclench on their own.
+
+<br><br>
+<span class="wraith"><<link [[ Next | WLI Lake Possessed Eat 2]]>><</link>></span>
+
+
+:: WLI Lake Possessed Eat 2
+<<effects>>
+You turn. It's hard to tell your thoughts apart. For a moment you just stare at the <<recipe_name $gift>>, unsure of what to do. The very thought of eating seems foreign. You must have forgotten how to, after so long. 
+<br><br>
+
+At last, you find the courage to sample it. <br>
+You close your eyes as the rich flavour fills your mouth. It brings back memories.
+
+<br><br>
+Memories that are not your own. You try to dwell on them, if only for a moment.<br>
+Faces from people you think you knew overlap until they're barely human. Familiar voices morph together and turn into a cacophony. Your sanity falters with the weight of what seems like multiple lifetimes relived at once, rather than a single one.
+
+<br><br>
+<span class="wraith"><<link [[ Focus | WLI Lake Possessed Eat 3 ]]>><</link>></span>
+
+
+:: WLI Lake Possessed Eat 3
+<<effects>>
+You focus, and the vision becomes clear again.
+
+<<if $wraithPrison and $wraithPrison.vision>>
+	You know this place. <span class="red">You have seen this before.</span>
+<</if>>
+<br><br>
+You're bound to a plinth, clutching your necklace.<br>
+Your throat feels sore, likely from screaming, but nobody comes to your aid. You struggle against your bindings as the water floods your surroundings. You close your eyes, whispering a desperate prayer that goes unanswered.
+
+<br><br>
+The water immerses you completely. It feels so cold, yet your lungs burn. <br>
+
+<<set $pain to 100>>
+<<if $wraith.state is "haunt">>
+	<<if $wraithPrison and $wraithPrison.vision>>
+		Your sins weigh you down. A profound guilt washes over you. <span class="red">No amount of gifting will lift the weight of what you've done.</span><br>
+	<<else>>
+		You feel like you did something terrible, though you cannot immediatelly grasp what.<br>
+	<</if>>
+<<elseif $wraith.state is "active">>
+	<span class="blue">At least you still have it.</span><br>
+<<else>>
+	A profound sense of loss washes over you.
+<</if>>
+
+You didn't want to remember this. Not right now. <<ggtrauma>><<trauma 18>>
+<br><br>
+<span class="wraith"><<link [[ Drown | WLI Lake Possessed Eat 4 ]]>><</link>></span>
+
+
+:: WLI Lake Possessed Eat 4
+<<effects>>
+It's too much. You pass out. <<set _rng to random(5, 30)>>
+
+<br><br>
+<<link [[ Everything fades to black... | WLI Lake Possessed Eat Finish ]]>><<set $pain to 0>><<endevent>><<pass _rng>><</link>>
+
+
+:: WLI Lake Possessed Eat Finish
+<<effects>><<wraithExorcise true true>>
+You're coughing. Something is stuck in your throat. You <span class="blue">spit a piece of <<recipe_name $gift>></span>.<br><br>
+You open your eyes, taking a deep breath. You're still at the lake.<br>
+The <<recipe_name $gift>> lies forgotten on the rock, only half-touched. The pale figure is nowhere to be seen. You don't remember when it left your body.
+
+<br><br>
+You decide not to linger.
+<br><br>
+<<lakeicon>><<link [[ Back (0:05) | Lake Shore ]]>><<pass 5>><</link>>

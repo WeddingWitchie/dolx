@@ -522,24 +522,86 @@ You turn and slap the <<person>> before <<he>> can get away, wiping the smirk of
 		body.
 	<</if>>
 	<br><br>
-
-	<<if hasSexStat("promiscuity", 2)>>
-		<<link [[Accept|Hallways Encounter Sex]]>><<set $sexstart to 1>><</link>><<promiscuous2>>
-		<br>
+	<<rngWraith>>
+	<<if _wraithEvent>>
+		<<if hasSexStat("promiscuity", 2)>>
+			<<if $wraith.seen gte 3 and $wli.criteria>>
+				<span class="red"><<He>> looks pale.</span>
+				<br><br>
+				<<link [[It's okay|WLI Hallways Baited]]>><<set $phase to 1>><</link>><<promiscuous2>>
+			<<else>>
+				<<link [[Accept|WLI Hallways Baited]]>><</link>><<promiscuous2>>
+			<</if>>
+			<br>
+		<<else>>
+			<<insufficientStat "promiscuity" "to take up such an offer">>
+			<br>
+		<</if>>
+		<<if W.wraithIsAngry()>>
+			<<link [[Refuse|WLI Hallways Bait Resist]]>><<endevent>><</link>>
+		<<else>>
+			<<link [[Refuse|Hallways]]>><<endevent>><<set $eventskip to 1>><</link>>
+		<</if>>
 	<<else>>
-		<<insufficientStat "promiscuity" "to take up such an offer">>
-		<br>
+		<<if hasSexStat("promiscuity", 2)>>
+			<<link [[Accept|Hallways Encounter Sex]]>><<set $sexstart to 1>><</link>><<promiscuous2>>
+			<br>
+		<<else>>
+			<<insufficientStat "promiscuity" "to take up such an offer">>
+			<br>
+		<</if>>
+		<<link [[Refuse|Hallways]]>><<endevent>><<set $eventskip to 1>><</link>>
 	<</if>>
-	<<link [[Refuse|Hallways]]>><<endevent>><<set $eventskip to 1>><</link>>
 	<br>
 <</addinlineevent>>
-
 <<addinlineevent "encounter_chat" 5>>
-	You make small talk. <<He>> seems nice enough.
-	<br><br>
-
-	<<link [[Next|Hallways]]>><<endevent>><<set $eventskip to 1>><</link>>
-	<br>
+	<<rngWraith 1 "noBlood">>
+	<<if _wraithEvent>>
+		You make small talk.
+		<<if $rng lte 10 or (W.wraithIsAngry() and $rng lte 20)>>
+			<<His>> face grows more and more pale by the second, until it turns
+			<<if $wraith.seen gte 3>><span class="red"> into a terrible, familiar pale.</span>
+			<<else>>stark white.<br><</if>>
+			<br><br>
+			<<if $wraith.offspring is "dead">>
+				"<span class="wraith">You let them die.</span>"
+			<<elseif $wraith.offspring is "sold">>
+				"<span class="wraith">You threw them away.</span>"
+			<<elseif $wraith.state is "haunt">>
+				"<span class="wraith">Give it back.</span>"
+			<<elseif $wraith.state is "despair">>
+				"<span class="wraith">Where is it? Have you seen it? My necklace...</span>"
+			<<else>>
+				"<span class="wraith">I can feel your heart beating. Give in.</span>"
+			<</if>>
+			<br><br>
+			Your pulse quickens. This isn't a student. <<trauma 12>><<ggtrauma>>
+			<br><br>
+			<<endevent>>
+			<<generateWraith 1 true>>
+			<<initWraith "abomination">>
+			<<startWraith>>
+			<br><br>
+			<<link [[Next|WLI Hallways Encounter]]>><<set $eventskip to 1>><</link>>
+		<<else>>
+			<<He>> looks pale. <<stress 12>><<ggstress>><br><br>
+			<<if $rng lte 30>>
+				Some students pass by, staring directly at you.<br>
+				"Who's <<pshe>> talking to?"<br>
+				"Fucking weirdo." <<status -5>><<lcool>>
+				<br><br>
+				You turn back to the <<person>>, <span class="red">but <<he>>'s not there anymore.</span> <<trauma 6>><<gtrauma>>
+				<br><br>
+			<</if>>
+			<<link [[Next|Hallways]]>><<endevent>><<set $eventskip to 1>><</link>>
+		<</if>>
+		<br>
+	<<else>>
+		You make small talk. <<He>> seems nice enough.
+		<br><br>
+		<<link [[Next|Hallways]]>><<endevent>><<set $eventskip to 1>><</link>>
+		<br>
+	<</if>>
 <</addinlineevent>>
 
 /* TODO: Rape/blackmail event (low frequency, >20%)*/

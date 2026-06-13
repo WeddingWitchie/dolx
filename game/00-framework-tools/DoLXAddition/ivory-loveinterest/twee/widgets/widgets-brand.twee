@@ -1,0 +1,80 @@
+:: WLI Widgets branding [widget]
+<<widget "wliBodyScan">>
+	<<set _bodypartPool to {}>>
+	<<set _bodypartPool.clean to []>>
+	<<set _bodypartPool.written to []>>
+	<<set _bodypartPool.tattoo to []>>
+
+	<<for _key range Object.keys($skin)>>
+		<<if $skin[_key].writing is undefined>>
+			<<set _bodypartPool.clean.push(_key)>>
+		<<elseif !["tattoo","brand","magic"].includes($skin[_key].pen)>>
+			<<set _bodypartPool.written.push(_key)>>
+		<<elseif $skin[_key].special isnot "Ivory Wraith">>
+			<<set _bodypartPool.tattoo.push(_key)>>
+		<</if>>
+	<</for>>
+<</widget>>
+
+<<widget "wliBrandSelect">>
+	<<set _wliBrandPool to []>>
+	<<if ["dead","sold"].includes($wraith.offspring)>>
+		<<set _wliBrandPool.push("oathbreaker")>>
+	<<elseif $wraith.state isnot "haunt">>
+		<<set _wliBrandPool.push("reflection", "memory", "manifestation", "pearl", "droplet", "promise")>>
+	<</if>>
+
+	<<if $wraith.state is "haunt">>
+		<<set _wliBrandPool.push("graverobber", "vulture", "forsaker")>>
+	<</if>>
+
+	<<set _wliBrand to _wliBrandPool.random()>>
+<</widget>>
+
+<<widget "wliBrandAdd">>
+	<<wliBrandSelect>>
+	<<add_bodywriting _args[0] _wliBrand _args[1]>>
+	<<bodywriting_finalisation _args[0]>>
+<</widget>>
+
+<<widget "wliBrandSelectBodypart">>
+	<<wliBodyScan>>
+
+	<<if _bodypartPool.clean.length gte 1>>
+		<<set _bodypart to _bodypartPool.clean.random()>>
+	<<elseif _bodypartPool.written.length gte 1>>
+		<<set _bodypart to _bodypartPool.written.random()>>
+	<<elseif _bodypartPool.tattoo.length gte 1 and $wli.cfg.tattoobypass>>
+		<<set _bodypart to _bodypartPool.tattoo.random()>>
+	<</if>>
+
+	<<unset _bodypartPool>>
+<</widget>>
+
+<<widget "wliBrandEvent">>
+	<<unset _bodypart>>
+	<<unset _wliBrand>>
+	<<set _wliBrandType to W.brandMethod()>>
+	<<wliBrandSelectBodypart>>
+	<<wliBrandSelect>>
+
+	<<if _bodypart isnot undefined and _wliBrand isnot undefined and _wliBrandType isnot undefined>>
+		<br>
+		Your <<bodypart _bodypart>> is coated with a strange iridescent fluid.<br>
+
+		<<if $skin[_bodypart].writing>>
+			<<if !["tattoo","brand","magic"].includes($skin[_key].pen)>><span class="lblue">The fluid erases the previous writing.</span>
+			<<else>> <span class="red">The fluid erases your <<tattoo _bodypart>>.</span> <</if>><br>
+			<<bodywriting_clear _bodypart>>
+		<</if>>
+
+		<<add_bodywriting _bodypart _wliBrand _wliBrandType>>
+		<br>
+		Your skin absorbs the fluid before you can clean it, <span class="red">leaving a new <<tattoo _bodypart>> on your <<bodypart _bodypart>>.</span>
+
+		<<if _args[0] is "dream">>
+			<br>
+			<span class="red">Maybe it wasn't a dream after all.<br></span><<ggtrauma>><<trauma 10>>
+		<</if>>
+	<</if>>
+<</widget>>

@@ -2016,7 +2016,11 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 
 <<widget "combat-pen-on-bodypart">>
 	<<set $_hand to _args[0]>><<set $_penbodypart to _args[1]>>
-	<<He>> scrawls on your <<bodypart $_penbodypart>>:
+	<<if $NPCList[0].fullDescription is "Ivory Wraith">>
+		<<His>> $_hand hand lingers on your <<bodypart $_penbodypart>>, leaving a fresh mark: 
+	<<else>>
+		<<He>> scrawls on your <<bodypart $_penbodypart>>:
+	<</if>>
 	<<bodywriting_npc $_penbodypart `$NPCList[_n][$_hand + "tool"]`>>
 	<<set $newlyWritten.pushUnique($_penbodypart)>>
 	<<combat-reset-hand $_hand>><<set $NPCList[_n][$_hand + "tool"] to 0>>
@@ -2137,7 +2141,20 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 		<<giveNPCsextoy _n $NPCList[_n].heldSexToy _args[0]>>
 		<<combat-reveal-sextoy _args[0]>>
 
-	<<elseif $rng lte 7 and ($consensual isnot 1 or ["Whitney", "Kylar", "Sydney", "Gwylan", "Poppy"].includes($npc[$npcrow.indexOf(_n)])) and $settings.bodyWritingLevel gte 2 and $enemytype isnot "beast" and !$noBodyWriting and ($combatExtended.stabilityLost is 1 or $combatExtended.standingFights is 0)>>
+	<<elseif $rng lte 5 and $NPCList[0].fullDescription is "Ivory Wraith" and $wli.cfg.bodywritinglvl gte 1 and $wraith.state>>
+		<span class="purple"><<His>> _args[0] hand glows ominously.</span>
+		<<set $tooltarget to W.brandMethod()>>
+		<<if _args[0] is "left">>
+			<<set $NPCList[_n].lefttool to $tooltarget>>
+			<<set $NPCList[_n].lefthand to "pen">>
+		<<else>>
+			<<set $NPCList[_n].righttool to $tooltarget>>
+			<<set $NPCList[_n].righthand to "pen">>
+		<</if>>
+		<<neutral 1 _n>>
+
+	<!-- future sasa, plz dont complete the statement of the below line. it will kill DoLP combat extended. thanks. -->
+	<<elseif $NPCList[0].fullDescription isnot "Ivory Wraith" and $rng lte 7 and ($consensual isnot 1 or ["Whitney", "Kylar", "Sydney", "Gwylan", "Poppy"].includes($npc[$npcrow.indexOf(_n)])) and $settings.bodyWritingLevel gte 2 and $enemytype isnot "beast" and !$noBodyWriting and ($combatExtended.stabilityLost is 1 or $combatExtended.standingFights is 0)>>
 		<<set _rng to random(1, 5)>>
 		<<if (_rng is 5 and $NPCList[_n].type isnot "plant" and $role isnot "islander") or $npc.includes("Sydney")>>
 			<span class="purple"><<He>> pulls a <span class="pink">permanent</span> marker pen from <<his>> pocket, flicking off the lid.</span>

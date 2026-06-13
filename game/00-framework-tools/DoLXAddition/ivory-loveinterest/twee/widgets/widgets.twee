@@ -1,0 +1,60 @@
+:: WLI widgets [widget]
+<<widget "wliCheckCriteria">>
+	<<if $wraith.state isnot "" and !$wli.criteria>>
+		<<if ($wraithPrison and $wraithPrison.vision) or ($wraith.offspring is "alive") or (W.countPaleBabies() gte 1)>>
+			<<set $wli.criteria to true>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "wliRngBoost">>
+	<<set _wliRngBonus to 0>>
+
+	<<if _args[0]>><<set _wliRngBonus += _args[0]>><</if>>
+
+	<<set _wliRngBonus += W.countSpecialTattoos()>>
+<</widget>>
+
+<<widget "wliSettings">>
+	<div class="solidBorderContainer settings-container">
+		<div class="settingsGrid">
+			<div class="settingsHeader">Wraith Additions</div>
+			
+			<div class="settingsToggleItem">
+				<span class="gold">Supernatural bodywriting:</span><br>
+
+				<<numberslider "$wli.cfg.bodywritinglvl" $wli.cfg.bodywritinglvl 0 2 1 {
+					value: v => {
+						switch(v) {
+							case 0:
+								return "Disabled.";
+							case 1:
+								return "The Wraith may <span class='red inline-colour'>tattoo</span> you.";
+							case 2:
+								return "The Wraith may <span class='tentacle inline-colour'>magically brand</span> you.<br><span class='red'>Note: magical brands are currently permanent</span>";
+						}
+					},
+					onInputChange: (value) => {
+						value > 0 ?
+							$("#checkbox-wlicfgtattoobypass, #checkbox-wlicfgtattoodream").prop('disabled', false)
+							: $("#checkbox-wlicfgtattoobypass, #checkbox-wlicfgtattoodream").prop('disabled', true)
+					}
+				}>>
+				<label>
+					<<checkbox "$wli.cfg.tattoodream" false true autocheck>> Even during nightmares
+				</label><mouse class="tooltip linkBlue">(?)<span>If checked, there's a chance of being tattooed by the Wraith when you dream of 'being hunted by something pale and terrible'.</span></mouse><br>
+				<label>
+					<<checkbox "$wli.cfg.tattoobypass" false true>> Can overwrite existing tattoos
+				</label><mouse class="tooltip linkBlue">(?)<span>If checked, once your body is fully tattooed, the Wraith will be able to erase one of your existing tattoos to mark you.</span></mouse><br>
+			</div>
+			
+			<div class="settingsToggleItem">
+				<span class="gold">Social Tab</span><br>
+
+				<label>
+					<<checkbox "$wli.cfg.nosocialrng" false true autocheck>> Disable social tab RNG
+				</label><mouse class="tooltip linkBlue">(?)<span>Makes the Wraith always show up on your social tab after being introduced to it.</span></mouse>
+			</div>
+		</div>
+	</div>
+<</widget>>

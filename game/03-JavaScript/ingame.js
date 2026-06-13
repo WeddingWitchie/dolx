@@ -2117,6 +2117,8 @@ function isPossibleLoveInterest(name) {
 			return V.syndromebird === 1;
 		case "Alex":
 			return V.farm_stage >= 7 && V.alex_countdown === undefined;
+		case 'Ivory Wraith':
+			return !!V.wli.criteria;
 		case "Gwylan":
 			return V.gwylanSeen?.includes("partners") || V.gwylanSeen?.includes("romance");
 		case "Poppy":
