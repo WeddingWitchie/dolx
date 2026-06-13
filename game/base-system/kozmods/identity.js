@@ -29,23 +29,6 @@ function playerBodyIsFemale() {
 }
 window.playerBodyIsFemale = playerBodyIsFemale;
 
-/* 
-	@args:
-	 - path: type string, representing the relative path to an 'img' asset.
-*/
-function getGenderedPath(path) {
-	if (typeof path === 'string' && V.options?.useAltImg === 1 && V.player?.sex === V.options?.altImgGender) {
-		path = path.substring(4);
-		if (path[0] === '/') {
-			path = path.substring(1);
-		} 
-		return 'img2/' + path;
-	}
-	else 
-		return path;
-}
-window.getGenderedPath = getGenderedPath;
-
 function hourlyClothingFemininityCheck(hours = 1) {
 	// Compute the sum of all clothing femininity
 	let currentWornFemininity = 0;

@@ -874,3 +874,25 @@ $(document).on(":passageinit", () => {
 		V.beautyBoost.nails.amount = 0; V.beautyBoost.nails.expiredNotice = true;
 	}
 });
+
+/* 
+	@args:
+	 - path: type string, representing the relative path to an 'img' asset.
+*/
+function getGenderedPath(path) {
+	if (typeof path === 'string' && V.options?.useAltImg === 1 && V.player?.sex === V.options?.altImgGender) {
+		let sub = path.substring(4);   // strip leading "img/"
+		if (sub[0] === '/') {
+			sub = sub.substring(1);
+		}
+		// Folders shared with the main 'img' set ; never redirect these to img2
+		const sharedFolders = ['decorations', 'sex', 'ui', 'misc'];
+		if (sharedFolders.includes(sub.split('/')[0])) {
+			return path;   // keep the original img/ path untouched
+		}
+		return 'img2/' + sub;
+	}
+	else
+		return path;
+}
+window.getGenderedPath = getGenderedPath;
