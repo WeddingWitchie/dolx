@@ -399,18 +399,18 @@
 <<widget "leftUndressOther">>
 	<<if $lefttarget isnot "self">>
 		<<set $_target to $NPCList[$lefttarget]>>
-		<<if $_target.penis is "clothed" or $_target.vagina is "clothed" or $_target.chest is "clothed">>
+		<<if $_target.penis is "clothed" or $_target.vagina is "clothed" or $_target.chest is "clothed" or ($_target.clothes?.lower?.name isnot undefined and $_target.clothes?.lower?.name isnot "naked") or ($_target.clothes?.upper?.name isnot undefined and $_target.clothes?.upper?.name isnot "naked")>>
 			<<if ($consensual is 1 and ($enemytype is "man" ? $promiscuity : $deviancy) lte 14 and !$promiscuityIgnore and !$xchange.pill.cumcureEffect and !$xchange.pill.breederEffect) or $punishmentposition is "gloryhole">>
 				<!-- Do Nothing -->
 			<<else>>
 				<<set _leftaction["Undress:"] to "leftUndressOther">>
 				<<set _undressLeftTargets to {"Nothing":"rest"}>>
 				<<set $_doText to ($consensual isnot 1 ? "try to " : "")>>
-				<<if $_target.penis is "clothed" or $_target.vagina is "clothed">>
+				<<if $_target.penis is "clothed" or $_target.vagina is "clothed" or ($_target.clothes?.lower?.name isnot undefined and $_target.clothes?.lower?.name isnot "naked")>>
 					<<silently>><<npcUndressText $NPCList[$lefttarget] "lower">><</silently>>
 					<<set _undressLeftTargets[($_doText + _actionText + " " + $_target.pronouns.his + " " + $_target.clothes.lower.name).toUpperFirst()] to "lower">>
 				<</if>>
-				<<if $_target.chest is "clothed">>
+				<<if $_target.chest is "clothed" or ($_target.clothes?.upper?.name isnot undefined and $_target.clothes?.upper?.name isnot "naked")>>
 					<<silently>><<npcUndressText $NPCList[$lefttarget] "upper">><</silently>>
 					<<set _undressLeftTargets[($_doText + _actionText + " " + $_target.pronouns.his + " " + $_target.clothes.upper.name).toUpperFirst()] to "upper">>
 				<</if>>
@@ -819,18 +819,18 @@
 <<widget "rightUndressOther">>
 	<<if $righttarget isnot "self">>
 		<<set $_target to $NPCList[$righttarget]>>
-		<<if $_target.penis is "clothed" or $_target.vagina is "clothed" or $_target.chest is "clothed">>
+		<<if $_target.penis is "clothed" or $_target.vagina is "clothed" or $_target.chest is "clothed" or ($_target.clothes?.lower?.name isnot undefined and $_target.clothes?.lower?.name isnot "naked") or ($_target.clothes?.upper?.name isnot undefined and $_target.clothes?.upper?.name isnot "naked")>>
 			<<if ($consensual is 1 and ($enemytype is "man" ? $promiscuity : $deviancy) lte 14 and !$promiscuityIgnore and !$xchange.pill.cumcureEffect and !$xchange.pill.breederEffect) or $punishmentposition is "gloryhole">>
 				<!-- Do Nothing -->
 			<<else>>
 				<<set _rightaction["Undress:"] to "rightUndressOther">>
 				<<set _undressRightTargets to {"Nothing":"rest"}>>
 				<<set $_doText to ($consensual isnot 1 ? "try to " : "")>>
-				<<if $_target.penis is "clothed" or $_target.vagina is "clothed">>
+				<<if $_target.penis is "clothed" or $_target.vagina is "clothed" or ($_target.clothes?.lower?.name isnot undefined and $_target.clothes?.lower?.name isnot "naked")>>
 					<<silently>><<npcUndressText $NPCList[$righttarget] "lower">><</silently>>
 					<<set _undressRightTargets[($_doText + _actionText + " " + $_target.pronouns.his + " " + $_target.clothes.lower.name).toUpperFirst()] to "lower">>
 				<</if>>
-				<<if $_target.chest is "clothed">>
+				<<if $_target.chest is "clothed" or ($_target.clothes?.upper?.name isnot undefined and $_target.clothes?.upper?.name isnot "naked")>>
 					<<silently>><<npcUndressText $NPCList[$righttarget] "upper">><</silently>>
 					<<set _undressRightTargets[($_doText + _actionText + " " + $_target.pronouns.his + " " + $_target.clothes.upper.name).toUpperFirst()] to "upper">>
 				<</if>>
@@ -871,11 +871,11 @@
 	<<set $_heldhand to _args[0]>>
 	<<if $enemytype isnot "beast" and $consensual is 1>>
 		<<if $_heldhand is "righthand" and $righttarget isnot "self">>
-			<<if $NPCList[$righttarget].lefthand is 0 or $NPCList[$righttarget].lefthand is "idle">>
+			<<if $NPCList[$righttarget].lefthand is 0 or $NPCList[$righttarget].lefthand is undefined or $NPCList[$righttarget].lefthand is null or $NPCList[$righttarget].lefthand is "idle">>
 				<<set _rightaction["Hold " + $NPCList[$righttarget].pronouns.his + " hand"] to "righthandholdnew">>
 			<</if>>
 		<<elseif $_heldhand is "lefthand" and $lefttarget isnot "self">>
-			<<if $NPCList[$lefttarget].righthand is 0 or $NPCList[$lefttarget].righthand is "idle">>
+			<<if $NPCList[$lefttarget].righthand is 0 or $NPCList[$lefttarget].righthand is undefined or $NPCList[$lefttarget].righthand is null or $NPCList[$lefttarget].righthand is "idle">>
 				<<set _leftaction["Hold " + $NPCList[$lefttarget].pronouns.his + " hand"] to "lefthandholdnew">>
 			<</if>>
 		<</if>>
@@ -2201,6 +2201,9 @@
 
 	<!-- Section for widgets that have special output when both hands are performing the same action. -->
 	<!-- These widgets should set _bothHandsUsed to true when they are done if you want them to only run once. -->
+	<!-- Reset on entry: this flag is only assigned in the hands-equal branch below, but is always read further down.
+		 Without this reset a value left over from a previous NPC (or a previous turn) would persist and wrongly skip this NPC's per-hand section, dropping a hand's action. -->
+	<<set $_bothHandsUsed to false>>
 	<<if $NPCList[_n].lefthand is $NPCList[_n].righthand>>
 		<<set $_bothHandsUsed to true>>
 		<<switch $NPCList[_n].lefthand>>
