@@ -44,7 +44,14 @@ window.blackmailQuests = blackmailQuests;
 blackmailQuests.low.push( // Generic wear no underwear
 	{
 		id: 1, // Implemented
-		prerequisites: function() { return true; },
+		prerequisites: function() {
+			/*
+				Swimsuits count as underwear for this task. 
+				On schooldays, that can make swimming lessons impossible for PCs whose exhibitionism is too low to swim naked.
+				Only offer this demand on schooldays once the PC can handle nude swimming.
+			*/
+			return !Time.schoolDay || hasSexStat("exhibitionism", 4, true);
+		},
 		reward: function() { return V.rentmoney / 3; },
 		instructions: [
 			"Wear no underwear today.", 
