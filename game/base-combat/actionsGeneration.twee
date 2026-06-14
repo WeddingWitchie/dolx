@@ -2238,6 +2238,9 @@
 <<widget "getTargetList">><<silently>>
 	<<unset _firsttarget>>
 	<<set _targetlist to {}>><<set _targetnumber to 0>>
+	/* Reset per-call flags. 
+	_wraithbreak MUST start false every time, otherwise a wraith encountered earlier this save would permanently break the loop below after the first NPC, collapsing every later multi-target encounter. */
+	<<set _wraithbreak to false>><<set _targetYourself to false>>
 	<<if $NPCList.some(x => x && x.active === "active")>>
 		<<set _repeatcontroller to []>>
 		<<for _namecontroller = 0; _namecontroller lt Math.min($enemynomax, $NPCList.length); _namecontroller++>>
@@ -2254,7 +2257,7 @@
 			<<elseif $NPCList[_namecontroller] and $NPCList[_namecontroller].active is "active" and $NPCList[_namecontroller].stance isnot "defeated">>
 				<<if $NPCList[_namecontroller].fullDescription is "Ivory Wraith">>
 					<<set _smoltext to "pale figure">>
-					<<set $_wraithbreak to true>>
+					<<set _wraithbreak to true>>
 				<<else>>
 					<<set _smoltext to $NPCList[_namecontroller].fullDescription>>
 				<</if>>
@@ -2270,7 +2273,7 @@
 				<<if $options.targetYourself is true>>
 					<<set _targetYourself to true>>
 				<</if>>
-				<<if $_wraithbreak is true>>
+				<<if _wraithbreak is true>>
 					<<break>>
 				<</if>>
 			<</if>>
@@ -2279,6 +2282,9 @@
 	<<set _targetlistall to clone(_targetlist)>>
 	<<if $tentacles.active gte 1>>
 		<<set _targetlistall[$tentacles[0].type.toUpperFirst()+"s"] to "tentacles">><<set _targetnumber += 1>>
+		<<if $options.targetYourself is true>>
+			<<set _targetYourself to true>>
+		<</if>>
 	<</if>>
 	<<if $swarm.type isnot 0>>
 		<<set _targetlistall[$swarm.type.toUpperFirst()] to "swarm">><<set _targetnumber += 1>>
@@ -2289,15 +2295,24 @@
 	<<if $struggle isnot undefined>>
 		<<if $struggle.done lt $struggle.number>>
 			<<set _targetlistall[$struggle.creature.toUpperFirst()+"s"] to "struggle">><<set _targetnumber += 1>>
+			<<if $options.targetYourself is true>>
+				<<set _targetYourself to true>>
+			<</if>>
 		<</if>>
 	<</if>>
 	<<if $machine isnot undefined>>
 		<<set _targetlistall["Machine"] to "machine">><<set _targetnumber += 1>>
+		<<if $options.targetYourself is true>>
+			<<set _targetYourself to true>>
+		<</if>>
 	<</if>>
 	<<set _targetlistarms to clone(_targetlistall)>>
 	<<if $vorecreature isnot 0>>
 		<<if $vorestage gt 0>>
 			<<set _targetlistarms["the "+ $vorecreature.toUpperFirst()] to "vore">><<set _targetnumber += 1>>
+			<<if $options.targetYourself is true>>
+				<<set _targetYourself to true>>
+			<</if>>
 		<</if>>
 	<</if>>
 <</silently>><</widget>>
