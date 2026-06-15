@@ -11,44 +11,50 @@
 
 ## Changelog
 ## Changes and Additions:
-* Updated the mod base to **vanilla version 0.5.10.11**.
-* Updated the mod base to **DoLP v0.750**.
-* Updated **Hyper Fertility** settings.
-  * Hyper Fertility now has a base spike rate point of **1**, matching other X-Change pill effects, instead of starting at **0**.
-* Expanded **DoLP speech attitude** text.
-  * Added more flavour text across **5 files** to make speech attitude reactions feel less repetitive.
-* Updated the **sea struggle event**.
-  * Being attacked by tentacle squid in the sea now requires the **tentacle setting** to be enabled.
-* Updated the **gambling ring**.
-  * Players can now bet clothes at the gambling ring, especially when they have no money left.
-* Added **temple purity-pill atonement**.
-  * High-standing monks and priests who fail the temple purity test may now be forced to take a **7-day purity pill** before punishment.
-  * The pill applies **Innocence** and **Cum Cure** effects.
-  * Players promised to **Sydney** receive special vow-related flavour text.
+* Updated the mod base to **vanilla version 0.5.10.12**.
+* Implemented the **Wraith Addition Mod**.
+  * Added **Wraith Addition Mod v1.5.4**, made by **Sasa** from the Modding server.
+  * Huge thanks to Sasa for allowing us to merge it.
+  * The mod settings can be found in **Modded Settings**, under **NPC Settings**.
+* Updated the game settings display.
+  * Game settings in all locations should now show the setting banner properly.
+* Tweaked the dual image pack path.
+  * The dual image setting **“Use alternative spriteset when gender”** now uses the `decorations`, `sex`, `ui`, and `misc` folders from `img`.
+  * This replaces the previous standalone `img2` path structure.
+  * This change should help reduce image file redundancy.
+* Updated the cheat menu and mirror settings.
+  * Added clearer warnings around cheat and mirror-related options.
+* Updated **X-Change virginity handling**.
+  * X-Change bodies now keep their own separate virginity state instead of sharing the base body’s virginity.
+  * Losing virginity while transformed will no longer automatically affect the original body, and vice versa.
+  * The **Virgin** trait now applies if either the current body or the stored alternate body still qualifies as a virgin.
+  * Added save migration support for older X-Change saves.
+  * Existing transformed body records should now be repaired and preserved instead of resetting virginity when swapping bodies.
+* Added a water dragon graphic for **Beeesss**.
+  * Graphic by **RRds**.
+* Updated the **MMA Gym Event**.
+  * There is now a chance to meet **Avery**, **Whitney**, or both of them at the same time.
+* Updated feats.
+  * Added a feat for finishing **Tenyclus** all the way to the end.
+  * Herm feats should now work properly for X-Changed herm bodies.
 
 ## Rebalancing and Fixes:
-* Fixed consensual kiss virginity loss.
-  * Consensual kiss-related virginity loss should no longer be incorrectly treated as non-consensual.
-* Fixed Whitney dialogue.
-  * Corrected a Whitney sentence and cleaned up additional typos, spacing, and text formatting issues.
-* Fixed **Cock Addict** and **Hole Addict** trait checks.
-  * X-Change addiction checks now correctly detect toys that are actually worn or actively being used.
-  * Toys carried only in the inventory should no longer satisfy addiction requirements by mistake.
-  * Worn toys, such as plugs or vibrators, can still help prevent orgasm softlocks.
-* Fixed several sex toy selection edge cases that could cause stale toy slots, incorrect toy selection, or crashes after toys were moved, dropped, or removed.
-* Fixed the sidebar image display.
-  * The player should no longer not holding anything in the sidebar when in fact holding a sex toy.
-* Fixed a police collar issue.
-  * Removing Whitney’s collar during police content should no longer leave the player in an empty collar state.
-* Updated feat boost handling.
-  * Feat boost calculations now better match old DoLP behaviour, including school grades up to **A***.
-  * After updating, players are recommended to click **"Import all feats"** in the feat menu to refresh their bonuses.
-* Fixed gray pill errors.
-  * Corrected gray pill issues and tidied up related code.
-* Fixed wall sex action handling.
-  * Being stuck in a wall should no longer be incorrectly counted as combat standing.
-* Fixed **Prey** and **Predator** animal traits.
-  * These traits should no longer disappear or linger after using Genome Dump.
-  * If already affected, they should display properly again after a day passes.
-* Fixed TF description lingering.
-  * Transformation descriptions should no longer remain after using Genome Dump and should now clear more naturally.
+* Fixed combat **“yourself”** text and a Wraith loop issue.
+* Fixed missing undress actions and handholding interactions.
+* Fixed the TF ears renderer.
+* Fixed a broken interaction in police collar removal.
+* Fixed bike repair.
+  * Bike repair should now correctly cost money.
+  * Increased the repair price to **£350**.
+* Fixed Whitney collar handling.
+  * Also tidied up neckwear indexing.
+* Fixed a typo in the cheesy pick-up line.
+  * Corrected a missing quotation mark.
+* Fixed Kylar’s nightmare scene.
+  * A dream should no longer take the player’s virginity.
+* Fixed the **Gentleman’s Club** underwear demand.
+  * The **“wear no underwear”** demand now avoids schooldays unless the player’s exhibitionism is high enough to swim naked.
+  * This prevents players from being trapped between failing the demand by wearing swimwear and being unable to join swimming class naked.
+* Fixed the pirate journey island event.
+  * Day passing should now decrease properly.
+* Fixed combat skill difficulty.
