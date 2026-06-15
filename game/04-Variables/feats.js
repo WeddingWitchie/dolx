@@ -1174,6 +1174,15 @@ setup.feats = {
 		filter: ["All", "Special"],
 		hidden: true,
 	},
+	"Battle of the Other World": {
+		title: "Battle of the Other World",
+		desc: "You played Tenyclus until the very end.",
+		difficulty: 3,
+		series: "",
+		hint: "Hint: Insert coin. Keep playing. Don't wonder where it leads.",
+		filter: ["All", "Special"],
+		hidden: true,
+	},
 	"Broodmother Host": {
 		title: "Broodmother Host",
 		desc: "Host to an endless number of little critters.",
@@ -3083,16 +3092,22 @@ function earnHourlyFeats() {
 
 	// Feats that can only be earned after 50 days
 	if (Time.days >= 50) {
-		switch (V.player.sex) {
-			case "m":
-				earnFeat("Being a Boy");
-				break;
-			case "f":
-				earnFeat("Being a Girl");
-				break;
-			case "h":
-				earnFeat("Being a Hermaphrodite");
-				break;
+		// A hermaphrodite is anyone with both a penis and a vagina. 
+		// Keying off the body rather than V.player.sex keeps this working when "h" doesn't exist as DoLX base sex
+		// (e.g. the xchange system only ever uses "m"/"f"), while still catching vanilla herms.
+		const isHerm = V.player.sex === "h" || (V.player.penisExist === true && V.player.vaginaExist === true);
+
+		if (isHerm) {
+			earnFeat("Being a Hermaphrodite");
+		} else {
+			switch (V.player.sex) {
+				case "m":
+					earnFeat("Being a Boy");
+					break;
+				case "f":
+					earnFeat("Being a Girl");
+					break;
+			}
 		}
 
 		if (Time.days >= 150) earnFeat("Being an Orphan");
