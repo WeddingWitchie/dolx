@@ -1719,10 +1719,10 @@ function effects() {
 					break;
 				case "waterdragonUp6":
 					element("span", "Your bottom feels heavier than usual. You reach behind you and feel your new scaly tail. It's strong.", "gold");
+					fragment.append(wikifier("earnFeat", "'Lost Legacy'"));
 					break;
 				case "waterdragonUp7":
 					element("span", "Your skin feels different. You look at your hands and see them take on an indigo hue. You feel the depths call.", "gold");
-					fragment.append(wikifier("earnFeat", "'Lost Legacy'"));
 					break;
 				case "waterdragonDown0":
 					element("span", "You no longer feel the need to swim.", "gold");
