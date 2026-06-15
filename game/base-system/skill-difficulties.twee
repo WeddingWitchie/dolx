@@ -386,8 +386,12 @@
 	<<set $_skill to _args[0]>>
 	<<if typeof $_skill is "number">>
 		<!-- Now we know $_skill is a valid number, we can perform our calculations safely. -->
-		<<set _skilldifficultymin to (_args[2] ?? 1)>>
-		<<set _skilldifficultymax to (_args[3] ?? 1000)>>
+		<!-- Coerce to integers: SugarCube's random() throws if given a float,
+		     and callers (e.g. combat difficulty) can pass non-integer thresholds. -->
+		<<set _skilldifficultymin to Math.round(Number(_args[2] ?? 1))>>
+		<<set _skilldifficultymax to Math.round(Number(_args[3] ?? 1000))>>
+		<<if Number.isNaN(_skilldifficultymin)>><<set _skilldifficultymin to 1>><</if>>
+		<<if Number.isNaN(_skilldifficultymax)>><<set _skilldifficultymax to 1000>><</if>>
 		<<if _skilldifficultymin gte _skilldifficultymax>>
 			<<set _skilldifficultymax to _skilldifficultymin + 1>>
 		<</if>>
