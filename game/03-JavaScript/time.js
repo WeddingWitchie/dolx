@@ -1088,11 +1088,8 @@ function dayPassed(days) {
 			}
 		}
 
-		if (V.pirate_journey > 1) {
-			V.pirate_journey--;
-		} else {
-			delete V.pirate_journey;
-		}
+		/* Pirate journey countdown is handled in the "Pirate Deck" passage, computed from Time.days since the journey started.
+		Do NOT touch V.pirate_journey here. */
 		if (V.pirate_attack) {
 			delete V.pirate_attack;
 		}
