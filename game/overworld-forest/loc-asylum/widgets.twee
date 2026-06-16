@@ -24,6 +24,18 @@
 	<</if>>
 	<<set $suspicion = Math.clamp($suspicion, 0, 100)>>
 	<<set $asylumstatus = Math.clamp($asylumstatus, 0, 100)>>
+
+	/* Passive suspicion decay: security relaxes ~1 per in-game hour while you behave */
+	<<if $suspicion gt 0>>
+		<<if ndef $asylumSuspicionHour>><<set $asylumSuspicionHour to Time.hour>><</if>>
+		<<if Time.hour isnot $asylumSuspicionHour>>
+			<<set _hoursPassed to (Time.hour - $asylumSuspicionHour + 24) % 24>>
+			<<set $suspicion = Math.clamp($suspicion - _hoursPassed, 0, 100)>>
+			<<set $asylumSuspicionHour to Time.hour>>
+		<</if>>
+	<<else>>
+		<<set $asylumSuspicionHour to Time.hour>>
+	<</if>>
 <</widget>>
 
 <<widget "asylumstats">>
