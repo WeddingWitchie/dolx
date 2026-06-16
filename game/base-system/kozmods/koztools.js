@@ -991,8 +991,17 @@ function bodyIsGenitalVirgin(virginity, keys) {
 window.bodyIsGenitalVirgin = bodyIsGenitalVirgin;
 
 function playerCountsAsVirgin() {
-	if (bodyIsGenitalVirgin(V.player && V.player.virginity, setup.xChangeVirginTraitKeys)) return true;
-	return bodyIsGenitalVirgin(xChangeOtherBodyVirginity(), setup.xChangeVirginTraitKeys);
+	const transformed = typeof playerIsXChanged === "function" && playerIsXChanged();
+	const permanent = typeof pillIsPermanent === "function" && pillIsPermanent();
+	const paused = typeof pillTimerPaused === "function" && pillTimerPaused();
+	const tempXChanged = transformed && !permanent && !paused;
+
+	let trueForm = V.player && V.player.virginity;
+	if (tempXChanged) {
+		const other = xChangeOtherBodyVirginity();
+		if (other) trueForm = other;
+	}
+	return bodyIsGenitalVirgin(trueForm, setup.xChangeVirginTraitKeys);
 }
 window.playerCountsAsVirgin = playerCountsAsVirgin;
 
