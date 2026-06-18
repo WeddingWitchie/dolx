@@ -3408,7 +3408,7 @@
 		<<poppyDismissalWatched>>
 	<<elseif $kylar_manor_secret is 2>>
 		<<monstrance_accost>>
-	<<elseif $averyseen isnot 1 and !$avery_injury and $exposed lte 0 and Time.dayState is "day" and C.npc.Avery.state isnot "dismissed" and Time.weekDay is 7 and ($scienceproject is "won" or $scienceproject is "done" or C.npc.Avery.init isnot 1) and !$averydate>>
+	<<elseif $averyseen isnot 1 and !$avery_injury and $exposed lte 0 and Time.dayState is "day" and C.npc.Avery.state isnot "dismissed" and Time.weekDay is 7 and ($scienceproject is "won" or $scienceproject is "done" or C.npc.Avery.init is 1) and !$averydate>>
 		<<set $averyseen to 1>>
 		<<streetavery>>
 	<<elseif $photo_known is undefined and $exposed lte 0 and Time.dayState is "day" and fameTotal() gte 3000>>
@@ -3462,6 +3462,28 @@
 		<<else>>
 
 			/* Events that can only happen if NOT exposed (unless they also exist above) */
+
+			/* Avery street meeting: fallback intro for saves that never met Avery via the science project */
+			<<if C.npc.Avery.init isnot 1 and Time.dayState is "day" and C.npc.Avery.state isnot "dismissed" and !$averydate>>
+				<<addinlineevent "averyMeetStreet" 3>>
+					<<npc Avery>><<initnpc Avery>><<set $averytimespilled to 0>><<set $averySeen.pushUnique("meetStreet")>><<generate2>><<generate3>>A <<person2>><<person>> blocks your path.
+					You try to walk around <<him>>, but <<he>> steps in your way. 
+					<br><br>
+					"What's a <<girl>> like you doing walking alone?" <<he>> asks. "You're gonna get hurt." <<He>> grasps your arm and tries to pull you with <<him>>, until a <<nnpc_gender "Avery">> taps <<him>> on the shoulder.
+					<br><br>
+					"Walk away," the newcomer says. "Now."
+					<br><br>
+					The <<person>> glares back for a moment, but then looks down, releases your arm, and walks away.
+					<br><br>
+					<<endevent>><<npc Avery>><<person1>>
+					The newcomer turns to you. "You okay?" <<he>> asks. "I'm Avery." <<He>> hesitates. "This is a little out of nowhere, but would you like to get a drink? I know this cute little place."
+					<br><br>
+					<<link [[Accept (0:30)|Park Lichen Accept]]>><<pass 30>><</link>>
+					<br>
+					<<link [[Refuse|Park Lichen Refuse]]>><</link>>
+					<br>
+				<</addinlineevent>>
+			<</if>>
 
 			/* These two previously existed in both eventsstreetday and eventsstreetnight, with an RNG override */
 			<<if $location is "alley" and !Time.schoolDay and $bullytimer gte $rng and C.npc.Whitney.init is 1 and !["dungeon", "pillory"].includes(C.npc.Whitney.state) and $daily.whitney.park is undefined>>
