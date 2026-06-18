@@ -172,85 +172,89 @@
 	<</if>>
 
 	<<if $studyBooks.rented is "none" or $studyBooks.rented is "science" or $studyBooks.rented is "maths" or $studyBooks.rented is "English" or $studyBooks.rented is "history" or $studyBooks.rented is "Raul and Janet" or $studyBooks.rented is "Pinch">>
+		<<set _oldRentedBook to $studyBooks.rented>>
 		<<set $studyBooks.rented to {}>>
 		<<set $studyBooks.rented.count to 0>>
-		<<if $studyBooks.rented is "science">>
+		<<if _oldRentedBook is "science">>
 			<<set $studyBooks.rented.science to 1>>
 			<<set $studyBooks.rented.count += 1>>
 		<<else>>
 			<<set $studyBooks.rented.science to 0>>
 		<</if>>
-		<<if $studyBooks.rented is "maths">>
+		<<if _oldRentedBook is "maths">>
 			<<set $studyBooks.rented.maths to 1>>
 			<<set $studyBooks.rented.count += 1>>
 		<<else>>
 			<<set $studyBooks.rented.maths to 0>>
 		<</if>>
-		<<if $studyBooks.rented is "English">>
+		<<if _oldRentedBook is "English">>
 			<<set $studyBooks.rented.english to 1>>
 			<<set $studyBooks.rented.count += 1>>
 		<<else>>
 			<<set $studyBooks.rented.english to 0>>
 		<</if>>
-		<<if $studyBooks.rented is "history">>
+		<<if _oldRentedBook is "history">>
 			<<set $studyBooks.rented.history to 1>>
 			<<set $studyBooks.rented.count += 1>>
 		<<else>>
 			<<set $studyBooks.rented.history to 0>>
 		<</if>>
-		<<if $studyBooks.rented is "Raul and Janet">>
+		<<if _oldRentedBook is "Raul and Janet">>
 			<<set $studyBooks.rented.RaulAndJanet to 1>>
 			<<set $studyBooks.rented.count += 1>>
 		<<else>>
 			<<set $studyBooks.rented.RaulAndJanet to 0>>
 		<</if>>
-		<<if $studyBooks.rented is "Pinch">>
+		<<if _oldRentedBook is "Pinch">>
 			<<set $studyBooks.rented.pinch to 1>>
 			<<set $studyBooks.rented.count += 1>>
 		<<else>>
 			<<set $studyBooks.rented.pinch to 0>>
 		<</if>>
+		<<unset _oldRentedBook>>
 	<</if>>
 
 	<<if $studyBooks.stolen is "none" or $studyBooks.stolen is "science" or $studyBooks.stolen is "maths" or $studyBooks.stolen is "English" or $studyBooks.stolen is "history" or $studyBooks.stolen is "Raul and Janet" or $studyBooks.stolen is "Pinch">>
+		<<set _oldStolenBook to $studyBooks.stolen>>
 		<<set $studyBooks.stolen to {}>>
 		<<set $studyBooks.stolen.count to 0>>
-		<<if $studyBooks.stolen is "science">>
+		<<if _oldStolenBook is "science">>
 			<<set $studyBooks.stolen.science to 1>>
 			<<set $studyBooks.stolen.count to 1>>
 		<<else>>
 			<<set $studyBooks.stolen.science to 0>>
 		<</if>>
-		<<if $studyBooks.stolen is "maths">>
+		<<if _oldStolenBook is "maths">>
 			<<set $studyBooks.stolen.maths to 1>>
 			<<set $studyBooks.stolen.count to 1>>
 		<<else>>
 			<<set $studyBooks.stolen.maths to 0>>
 		<</if>>
-		<<if $studyBooks.stolen is "English">>
+		<<if _oldStolenBook is "English">>
 			<<set $studyBooks.stolen.english to 1>>
 			<<set $studyBooks.stolen.count to 1>>
 		<<else>>
 			<<set $studyBooks.stolen.english to 0>>
 		<</if>>
-		<<if $studyBooks.stolen is "history">>
+		<<if _oldStolenBook is "history">>
 			<<set $studyBooks.stolen.history to 1>>
 			<<set $studyBooks.stolen.count to 1>>
 		<<else>>
 			<<set $studyBooks.stolen.history to 0>>
 		<</if>>
-		<<if $studyBooks.stolen is "Raul and Janet">>
+		<<if _oldStolenBook is "Raul and Janet">>
 			<<set $studyBooks.stolen.RaulAndJanet to 1>>
 			<<set $studyBooks.stolen.count to 1>>
 		<<else>>
 			<<set $studyBooks.stolen.RaulAndJanet to 0>>
 		<</if>>
-		<<if $studyBooks.stolen is "Pinch">>
+		<<if _oldStolenBook is "Pinch">>
 			<<set $studyBooks.stolen.pinch to 1>>
 			<<set $studyBooks.stolen.count to 1>>
 		<<else>>
 			<<set $studyBooks.stolen.pinch to 0>>
 		<</if>>
+		<<unset _oldStolenBook>>
 	<</if>>
 
 	<<if $book_rent_deposit is undefined>>
@@ -331,13 +335,6 @@
 	<<if $beastArousalMult is undefined>>
 		<<set $beastArousalMult to 100>>
 	<</if>>
-	<<set setup.majorAreas to [
-		"Orphanage", "Bedroom", "Barb Street", "Cliff Street", "Connudatus Street", "Danube Street", "Domus Street", "Elk Street",
-		"Harvest Street", "High Street", "Mer Street", "Nightingale Street", "Oxford Street", "Starfish Street", "Wolf Street",
-		"Residential alleyways", "Commercial alleyways", "Industrial alleyways", "Park", "Hallways", "Brothel", "Strip Club",
-		"Beach", "Ocean Breeze", "Docks Work", "Residential Drain", "Commercial Drain", "Industrial Drain", "Forest", "Farmland",
-		"Livestock Field", "Moor", "Forest Wolf Cave", "Wolf Cave", "Wolf Cave Clearing", "Asylum", "Asylum Cell", "Underground Cell", "Prison Cell", "Island", "Lake Shore", "Farmland", "Farm Work", "Meadow", "Sea", "town"
-	]>>
 	<<if $hypnosis_traits.scream is undefined or $hypnosis_traits.scream lt 0>>
 		<<set $hypnosis_traits.scream to -1>>
 	<</if>>
@@ -353,9 +350,16 @@
 	<<if $uncomfortable.sadoMaso is undefined>>
 		<<set $uncomfortable.sadoMaso to true>>
 	<</if>>
-	<<if $combatExtended is undefined>>
+	/* combatExtended: ensure shape before any subfield reads. */
+	<<if $combatExtended is undefined or $combatExtended is null or typeof $combatExtended isnot "object" or Array.isArray($combatExtended)>>
 		<<set $combatExtended to {}>>
 	<</if>>
+	<<set _combatKeys to ["brawling","footwork","striking","kicking"]>>
+	<<for _k range _combatKeys>>
+		<<if $combatExtended[_k] is undefined>>
+			<<set $combatExtended[_k] to 0>>
+		<</if>>
+	<</for>>
 	<<if $combatExtended.passiveDodging is undefined>>
 		<<set $combatExtended.passiveDodging to 0>>
 	<</if>>
@@ -842,9 +846,15 @@
 	<</if>>
 	<<if $bunnytf is 0 and $TFBunnyBuffs is 1>>
 		<<set $TFBunnyBuffs to 0>>
-	<</if>> /* can delete later */
+	<</if>>
 
-	<<if typeof $background is "string" or $background is undefined>>
+	/* DoLP/modUpdate owns old $background migration.
+	Keep this here instead of X-Change version-update so legacy string backgrounds can be converted with their matching $backgroundTraits entry. */
+	<<if $backgroundTraits is undefined or !Array.isArray($backgroundTraits)>>
+		<<set $backgroundTraits to []>>
+	<</if>>
+	<<if typeof $background is "string" or $background is undefined or $background is null or typeof $background isnot "object" or Array.isArray($background)>>
+		<<unset _tmp>>
 		<<if $background is "nerd">>
 			<<set _tmp to "nerd">>
 		<</if>>
@@ -880,7 +890,9 @@
 		<<set $background to {}>>
 		<<if _tmp isnot undefined>>
 			<<set $background[_tmp] to true>>
-			<<set $backgroundTraits.push(_tmp)>>
+			<<if !$backgroundTraits.includes(_tmp)>>
+				<<set $backgroundTraits.push(_tmp)>>
+			<</if>>
 			<<unset _tmp>>
 		<</if>>
 	<</if>>
@@ -943,10 +955,6 @@
 
 	<<if $transformationParts.bear is undefined>>
 		<<set $transformationParts.bear to {plumage:"disabled", pubes:"disabled", ears:"disabled", tail:"disabled"}>>
-	<</if>>
-
-	<<if $transformationParts.bear.ears is undefined>>
-		<<set $transformationParts.bear.ears to "disabled">>
 	<</if>>
 
 	<<if $reverseRapeOptOut is undefined>>
@@ -1160,9 +1168,6 @@
 	<</if>>
 
 	/* Backfill transformation parts for saves that already had these objects before the keys existed. */
-	<<if $transformationParts.waterdragon is undefined>>
-		<<set $transformationParts.waterdragon to {horns:"disabled", ears:"disabled", tail:"disabled"}>>
-	<</if>>
 	<<if $transformationParts.waterdragon.horns is undefined>>
 		<<if $waterdragon gte 3 or $waterdragontf is 1>>
 			<<set $transformationParts.waterdragon.horns to "default">>
@@ -1193,7 +1198,7 @@
 	<</if>>	
 	<<if $transformationParts.traits.strongFeet is undefined>>
 		<<set $transformationParts.traits.strongFeet to ($bunny gte 2 ? "default" : "disabled")>>
-	<</if>> /* can delete later */
+	<</if>>
 
 	<<if $stressBeauty is undefined>>
 		<<set $stressBeauty to 0>>
@@ -1518,8 +1523,7 @@
 	<</if>>
 
 	/* DoLP NNPC display data belongs here, not in settingsExitFunction.
-	   Build keys consistently so multi-word NNPCs use underscores, e.g.
-	   Black Wolf -> black_wolf and Night Monster -> night_monster. */
+	   Build keys consistently so multi-word NNPCs use underscores, e.g. Black Wolf -> black_wolf and Night Monster -> night_monster. */
 	<<for _name range setup.NPCNameList>>
 		<<set _nameReal to _name>>
 		<<set _nnpcKey to _name.toLowerCase().split(" ").join("_")>>
@@ -1594,56 +1598,6 @@
 		<<set $options.statNerf to 100>>
 	<</if>>
 
-	<<set setup.loveAlias to {
-		/* Named NPC */
-		"Avery": () => "Love",
-		"Bailey": () => "Respect",
-		"Briar": () => "Respect",
-		"Charlie": () => "Respect",
-		"Darryl": () => "Affection",
-		"Doren": () => "Affection",
-		"Eden": () => "Love",
-		"Gwylan": () => V.gwylanSeen?.includes("partners") ? "Love" : "Interest",
-		"Harper": () => "Interest",
-		"Jordan": () => "Respect",
-		"Kylar": () => "Love",
-		"Landry": () => "Interest",
-		"Leighton": () => "Interest",
-		"Mason": () => "Affection",
-		"Morgan": () => "Affection",
-		"River": () => "Respect",
-		"Robin": () => "Love",
-		"Sam": () => "Respect",
-		"Sirris": () => "Affection",
-		"Whitney": () => "Love",
-		"Winter": () => "Affection",
-		"Black Wolf": () => "Love",
-		"Niki": () => "Respect",
-		"Quinn": () => "Interest",
-		"Remy": () => "Interest",
-		"Alex": () => "Love",
-		"Great Hawk": () => "Love",
-		"Wren": () => "Affection",
-		"Sydney": () => "Love",
-		"Ivory Wraith": () => "Love",
-		"Zephyr": () => "Interest",
-		"Riley": () => "Respect",
-		"Night Monster": () => "Love",
-		"Poppy": () => "Love",
-
-		/* Persistent NPC */
-		"anxious_guard": () => "Respect",
-		"hacker": () => "Respect",
-		"manager": () => "Affection",
-		"methodical_guard": () => "Respect",
-		"relaxed_guard": () => "Respect",
-		"scarred_inmate": () => "Affection",
-		"tattoed_inmate": () => "Interest",
-		"veteran_guard": () => "Respect"
-	}>>
-
-	<<modLI-init>>
-
 	/* Poppy LI data migration */
 	<<if $objectVersion.poppyLIData is undefined or $objectVersion.poppyLIData lt 1>>
 		<<if $daily is undefined>><<set $daily to {}>><</if>>
@@ -1677,32 +1631,15 @@
     	<<set $godClothes to 0>>
 	<</if>>
 
-	<<if $remySeen is undefined>>
-		<<set $remySeen to []>>
-	<</if>>
-
 	<<if $whitneyFamiliarCollarKnown is undefined>>
 		<<set $whitneyFamiliarCollarKnown to 0>>
 	<</if>>
 
-	<<if $schoolLessonsMissed is undefined>>
-		<<set $schoolLessonsMissed to {
-			science: 0,
-			maths: 0,
-			housekeeping: 0,
-			english: 0,
-			history: 0,
-			swimming: 0
-		}>>
-	<</if>>
 	<<if $stat_police is undefined>>
 		<<set $stat_police to { community: 0, pillory: 0, prison: 0 }>>
 	<</if>>
 	<<if $brothelVending is undefined>>
 		<<set $brothelVending to { total: 0 }>>
-	<</if>>
-	<<if $wraith is undefined>>
-		<<set $wraith to { possessCount: 0 }>>
 	<</if>>
 	<<if $estatePersistent is undefined>>
 		<<set $estatePersistent to {
@@ -1719,12 +1656,26 @@
 		}>>
 	<</if>>
 
+	<<if $estatePersistent.totalGamesPlayed is undefined>><<set $estatePersistent.totalGamesPlayed to 0>><</if>>
+	<<if $estatePersistent.totalGamesPlayedWithBetting is undefined>><<set $estatePersistent.totalGamesPlayedWithBetting to 0>><</if>>
+	<<if $estatePersistent.totalRoundsWon is undefined>><<set $estatePersistent.totalRoundsWon to 0>><</if>>
+	<<if $estatePersistent.totalRoundsLost is undefined>><<set $estatePersistent.totalRoundsLost to 0>><</if>>
+	<<if $estatePersistent.totalRoundsTied is undefined>><<set $estatePersistent.totalRoundsTied to 0>><</if>>
+	<<if $estatePersistent.totalBetRoundsWon is undefined>><<set $estatePersistent.totalBetRoundsWon to 0>><</if>>
+	<<if $estatePersistent.totalBetRoundsLost is undefined>><<set $estatePersistent.totalBetRoundsLost to 0>><</if>>
+	<<if $estatePersistent.totalBetRoundsTied is undefined>><<set $estatePersistent.totalBetRoundsTied to 0>><</if>>
+	<<if $estatePersistent.totalBetMoneyMade is undefined>><<set $estatePersistent.totalBetMoneyMade to 0>><</if>>
+	<<if $estatePersistent.totalBetMoneyLost is undefined>><<set $estatePersistent.totalBetMoneyLost to 0>><</if>>
+	<<if $estatePersistent.totalMoneyConfiscated is undefined>><<set $estatePersistent.totalMoneyConfiscated to 0>><</if>>
+	<<if $estatePersistent.totalTipMoneyMade is undefined>><<set $estatePersistent.totalTipMoneyMade to 0>><</if>>
+	<<if $estatePersistent.totalCaughtCheating is undefined>><<set $estatePersistent.totalCaughtCheating to 0>><</if>>
+	<<if $estatePersistent.winStreakHighScore is undefined>><<set $estatePersistent.winStreakHighScore to 0>><</if>>
+
 	<<if $settings.npcColossalPenisChance is undefined>>
 		<<set $settings.npcColossalPenisChance to 0>>
 	<</if>>
 
-	<<if $fhermchance is undefined>><<set $fhermchance to 0>><</if>>
-	<<if $mhermchance is undefined>><<set $mhermchance to 0>><</if>>
+	/* DoLX doesn't have herm */
 	<<set $fhermchance to 0>>
 	<<set $mhermchance to 0>>
 
@@ -1732,20 +1683,18 @@
 	<<modParasiteCapUpdate>>
 	<<modWardrobeUpdate>>
 	<<amcTraitsUpdate>>
-	<<modRingsEarrings>>
 	<<clamp>>
 <</widget>>
 
 <<widget "amcTraitsUpdate">>
-	<<if $AMCTraits is undefined>>
+	<<if $AMCTraits is undefined or $AMCTraits is null or typeof $AMCTraits isnot "object" or Array.isArray($AMCTraits)>>
 		<<set $AMCTraits to {}>>
 	<</if>>
 	<<if $AMCTraits.halfGain is undefined>>
 		<<set $AMCTraits.halfGain to 0>>
 	<</if>>
-	<<if $AMCTraits.beauty is undefined>>
-		<<set $AMCTraits.beauty to 1>>
-	<</if>>
+	/* X-Change intentionally forces the beauty trait to 2; DoLX owns $AMCTraits.beauty.
+	   The DoLP/amcTraitsUpdate default was removed so this is the single source. */
 	<<if $AMCTraits.physique is undefined>>
 		<<set $AMCTraits.physique to 1>>
 	<</if>>
@@ -1882,42 +1831,11 @@
 		<<unset $AMCTraits.seduction>>
 	<</if>>
 
-	<<if $AMCTraits.sexFame is undefined>>
-		<<set $AMCTraits.sexFame to 1>>
-	<</if>>
-	<<if $AMCTraits.prostitutionFame is undefined>>
-		<<set $AMCTraits.prostitutionFame to 1>>
-	<</if>>
-	<<if $AMCTraits.rapeFame is undefined>>
-		<<set $AMCTraits.rapeFame to 1>>
-	<</if>>
-	<<if $AMCTraits.bestialityFame is undefined>>
-		<<set $AMCTraits.bestialityFame to 1>>
-	<</if>>
-	<<if $AMCTraits.exhibitionismFame is undefined>>
-		<<set $AMCTraits.exhibitionismFame to 1>>
-	<</if>>
-	<<if $AMCTraits.pregnancyFame is undefined>>
-		<<set $AMCTraits.pregnancyFame to 1>>
-	<</if>>
-	<<if $AMCTraits.impregFame is undefined>>
-		<<set $AMCTraits.impregFame to 1>>
-	<</if>>
-	<<if $AMCTraits.scrapFame is undefined>>
-		<<set $AMCTraits.scrapFame to 1>>
-	<</if>>
-	<<if $AMCTraits.goodFame is undefined>>
-		<<set $AMCTraits.goodFame to 1>>
-	<</if>>
-	<<if $AMCTraits.businessFame is undefined>>
-		<<set $AMCTraits.businessFame to 1>>
-	<</if>>
-	<<if $AMCTraits.socialFame is undefined>>
-		<<set $AMCTraits.socialFame to 1>>
-	<</if>>
-	<<if $AMCTraits.modelFame is undefined>>
-		<<set $AMCTraits.modelFame to 1>>
-	<</if>>
+	/* DoLX does not use AMC fame progression; keep these compatibility flags unlocked. */
+	<<set _amcFames to ["sexFame","prostitutionFame","rapeFame","bestialityFame","exhibitionismFame","pregnancyFame","impregFame","scrapFame","goodFame","businessFame","socialFame","modelFame"]>>
+	<<for _fame range _amcFames>>
+		<<if $AMCTraits[_fame] isnot 1>><<set $AMCTraits[_fame] to 1>><</if>>
+	<</for>>
 
 	<<if $AMCTraits.footwork is undefined>>
 		<<set $AMCTraits.footwork to 1>>
@@ -1933,8 +1851,12 @@
 <</widget>>
 
 <<widget "modWardrobeUpdate">>
-	<<if $wardrobeMult is undefined>><<set $wardrobeMult to 1>><</if>>
 	<<if $wardrobes is undefined>><<set $wardrobes to {}>><</if>>
+
+	<<if $dolpRingsEarringsVersion is undefined or $dolpRingsEarringsVersion lt 1>>
+		<<modRingsEarrings>>
+		<<set $dolpRingsEarringsVersion to 1>>
+	<</if>>
 
 	<<if $passage isnot "Start">>
 		<<set _furniture to Furniture.get("wardrobe", "bedroom")>>
@@ -2064,13 +1986,6 @@
 <</widget>>
 
 <<widget "modRingsEarrings">>
-	/* Fixing what I broke in the 14 version and changing to 7.5 in case of future compatibility. */
-	<<if $objectVersion.wardrobes lt 7 or $objectVersion.wardrobes is 14 or $objectVersion.wardrobes is 15 or $objectVersion.wardrobes is undefined>>
-		<<set $objectVersion.wardrobes to 7>>
-		<<wardrobesUpdate>>
-		<<set $objectVersion.wardrobes to 7.5>>
-	<</if>>
-
 	<<if $wear_earrings is undefined>>
 		<<set $worn.earrings to clone(setup.clothes.earrings[0])>>
 		<<set $carried.earrings to clone(setup.clothes.earrings[0])>>
@@ -2113,4 +2028,21 @@
 			}
 		}
 	<</script>>
+
+	/* Directly unlock antique special clothes if museum is complete */
+	<<if $museumAntiques isnot undefined and $museumAntiques.museumCount is $museumAntiques.maxCount>>
+		<<for _sc range $specialClothes>>
+			<<if (_sc.name.includes("antique") or _sc.name.includes("ancient")) and _sc.unlocked lt 3>>
+				<<set _sc.unlocked to 3>>
+			<</if>>
+		<</for>>
+	<</if>>
+
+	/* Persist unlocked sets to localStorage so feat boosters reflect them */
+	<<if $feats isnot undefined and $feats.allSaves isnot undefined>>
+		<<updateFeats>>
+	<</if>>
+
+	/* Jewellery worn-slots repair */
+	<<script>>window.dolxRepairMissingJewelleryWornSlots?.();<</script>>
 <</widget>>

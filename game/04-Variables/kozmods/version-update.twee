@@ -6,7 +6,7 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 :: Widgets X-Change Variable Updates [widget]
 <<widget "xchange-init">>
 	<<if $monthly is undefined>><<set $monthly to { }>><</if>>
-	<<if $xchange is undefined>>
+	<<if $xchange is undefined or $xchange is null or typeof $xchange isnot "object" or Array.isArray($xchange)>>
 		<<set $xchange to {
 			nonconEnabled: 1,
 			pillPermanence: 0,
@@ -56,10 +56,10 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 
 	<<if $xchange._didHermMenstruationFix is not true>>
 		<<set $xchange._didHermMenstruationFix to true>>
-		<<if $xchange.pill isnot undefined and $xchange.pill.hermEffect is true and $player isnot undefined and $player.vaginaExist is true>>
-			<<set _xcOrigHadVagina to ($xchange.pill.baseGenitals isnot undefined and $xchange.pill.baseGenitals.vagina is true)>>
+		<<if $xchange.pill isnot undefined and $xchange.pill isnot null and typeof $xchange.pill is "object" and !Array.isArray($xchange.pill) and $xchange.pill.hermEffect is true and $player isnot undefined and $player.vaginaExist is true>>
+			<<set _xcOrigHadVagina to ($xchange.pill.baseGenitals isnot undefined and $xchange.pill.baseGenitals isnot null and typeof $xchange.pill.baseGenitals is "object" and $xchange.pill.baseGenitals.vagina is true)>>
 			/* Fallback for very old saves predating baseGenitals: infer from originalBody snapshot */
-			<<if !_xcOrigHadVagina and $xchange.pill.originalBody isnot undefined>>
+			<<if !_xcOrigHadVagina and $xchange.pill.originalBody isnot undefined and $xchange.pill.originalBody isnot null and typeof $xchange.pill.originalBody is "object">>
 				<<if $xchange.pill.originalBody.vaginaExist is true or $xchange.pill.originalBody.sex is "f">>
 					<<set _xcOrigHadVagina to true>>
 				<</if>>
@@ -95,7 +95,7 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<</if>>
 	<</if>>
 
-	<<if $xchange.pill is undefined>>
+	<<if $xchange.pill is undefined or $xchange.pill is null or typeof $xchange.pill isnot "object" or Array.isArray($xchange.pill)>>
 		<<set $xchange.pill to {
 			active: false,
 			duration: 0,
@@ -154,7 +154,6 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<</if>>
 	<<if $xchange.giAutoEnabled is undefined>><<set $xchange.giAutoEnabled to false>><</if>>
 	<<if $xchange.giTransformEnabled is undefined>><<set $xchange.giTransformEnabled to false>><</if>>
-	<<if $xchange.genderIdentityEnabled is undefined>><<set $xchange.genderIdentityEnabled to true>><</if>>
 	<<if $xchange.giTransformThreshold is undefined>><<set $xchange.giTransformThreshold to 120>><</if>>
 	<<if $xchange.giStepPerDay is undefined>><<set $xchange.giStepPerDay to 30>><</if>>
 
@@ -229,7 +228,7 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<<set $xchange.supporterCode to "">>
 	<</if>>
 
-	<<if $xchange.expectedGenderBy is undefined>>
+	<<if $xchange.expectedGenderBy is undefined or $xchange.expectedGenderBy is null or typeof $xchange.expectedGenderBy isnot "object" or Array.isArray($xchange.expectedGenderBy)>>
 		<<set $xchange.expectedGenderBy to {}>>
 	<</if>>
 
@@ -402,7 +401,7 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<<set $xchange.spikepool.fertility to 0>>
 	<</if>>
 
-	<<if $xchange.backComp is undefined>>
+	<<if $xchange.backComp is undefined or $xchange.backComp is null or typeof $xchange.backComp isnot "object" or Array.isArray($xchange.backComp)>>
 		<<set $xchange.backComp to {}>>
 	<</if>>
 
@@ -423,7 +422,7 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<<set $xchange.NNPCcombatPillingEnabled to 1>>
 	<</if>>
 
-	<<if ndef $xchange.errorLog>>
+	<<if $xchange.errorLog is undefined or $xchange.errorLog is null or !Array.isArray($xchange.errorLog)>>
 		<<set $xchange.errorLog to []>>
 	<</if>>
 
@@ -431,28 +430,31 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<<set $identityCap to false>>
 	<</if>>
 
-	/* One-time capture of a trans character's birth sex.
-	Used by the character description to know transition direction
-	(born male → "trans girl"; born female → "trans boy").
-	Priority:
-		1. pill.originalBody.sex — pre-pill body, survives pill end/perma
-			(covers existing saves that have used a pill)
-		2. player.sex — current sex before any pill taken
-			(covers new characters and saves that never took a pill)
-	Once stored, this never changes, so reassignment is blocked. */
-	<<if $background.transgender and $background.transOriginalSex is undefined>>
-		<<if $xchange.pill.originalBody isnot undefined
-			and $xchange.pill.originalBody.sex isnot undefined>>
-			<<set $background.transOriginalSex to $xchange.pill.originalBody.sex>>
-		<<else>>
-			<<set $background.transOriginalSex to $player.sex>>
+	/* DoLP/modUpdate owns $background shape migration.
+	DoLX only patches X-Change background flags when $background is already a safe object. */
+	<<if $background isnot undefined and $background isnot null and typeof $background is "object" and !Array.isArray($background)>>
+		/* One-time capture of a trans character's birth sex.
+		Used by the character description to know transition direction
+		(born male → "trans girl"; born female → "trans boy").
+		Priority:
+			1. pill.originalBody.sex — pre-pill body, survives pill end/perma
+				(covers existing saves that have used a pill)
+			2. player.sex — current sex before any pill taken
+				(covers new characters and saves that never took a pill)
+		Once stored, this never changes, so reassignment is blocked. */
+		<<if $background.transgender and $background.transOriginalSex is undefined>>
+			<<if $xchange.pill.originalBody isnot undefined and $xchange.pill.originalBody.sex isnot undefined>>
+				<<set $background.transOriginalSex to $xchange.pill.originalBody.sex>>
+			<<else>>
+				<<set $background.transOriginalSex to $player.sex>>
+			<</if>>
 		<</if>>
-	<</if>>
-	<<if $background.genderAnxious is undefined>>
-		<<set $background.genderAnxious to false>>
-	<</if>>
-	<<if $background.transgender is undefined>>
-		<<set $background.transgender to false>>
+		<<if $background.genderAnxious is undefined>>
+			<<set $background.genderAnxious to false>>
+		<</if>>
+		<<if $background.transgender is undefined>>
+			<<set $background.transgender to false>>
+		<</if>>
 	<</if>>
 	<<if ndef $options.postureAffectsVoice>>
 		<<set $options.postureAffectsVoice to 0>>
@@ -460,11 +462,6 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 
 	<<if $whackRandom is undefined>>
 		<<set $whackRandom to false>>
-	<</if>>
-
-	<<if $xchange.backComp["250919"] is undefined>>
-		<<wardrobesUpdate>>
-		<<set $xchange.backComp["250919"] to true>>
 	<</if>>
 
 	<<if ndef $xchange.spikerates.swell>>
@@ -479,11 +476,6 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 
 	<<if $xchange.pill.resistanceOrgasmsStat is undefined>>
 		<<set $xchange.pill.resistanceOrgasmsStat to 0>>
-	<</if>>
-
-	<<if ndef $angryHypnotist>>
-		<<set $angryHypnotist to false>>
-		<<set $deviantHypnotist to false>>
 	<</if>>
 
 	<<if ndef $xchange.heat>>
@@ -837,10 +829,16 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 
 	/* These are standalone guards: they cover old saves where $xchange.pill exists but is missing sub-keys, 
 	so the full-object initializer above (which only fires when $xchange.pill is undefined) wouldn't repair them. */
-	<<if $xchange.pill isnot undefined>>
-		<<if $xchange.pill.originalBody is undefined>><<set $xchange.pill.originalBody to {}>><</if>>
-		<<if $xchange.pill.changedBody is undefined>><<set $xchange.pill.changedBody to {}>><</if>>
-		<<if $xchange.pill.clonedBody is undefined>><<set $xchange.pill.clonedBody to {}>><</if>>
+	<<if $xchange.pill isnot undefined and $xchange.pill isnot null and typeof $xchange.pill is "object" and !Array.isArray($xchange.pill)>>
+		<<if $xchange.pill.originalBody is undefined or $xchange.pill.originalBody is null or typeof $xchange.pill.originalBody isnot "object" or Array.isArray($xchange.pill.originalBody)>><<set $xchange.pill.originalBody to {}>><</if>>
+		<<if $xchange.pill.changedBody is undefined or $xchange.pill.changedBody is null or typeof $xchange.pill.changedBody isnot "object" or Array.isArray($xchange.pill.changedBody)>>
+			<<if $xchange.pill.active>>
+				<<run console.warn("X-Change: pill is active but changedBody is missing on load (migration/corruption).")>>
+				<<set $xchange.errorLog.push("Pill was active but changedBody was missing on load. Some effects may be inconsistent; please export/save+report if you see issues.")>>
+			<</if>>
+			<<set $xchange.pill.changedBody to {}>>
+		<</if>>
+		<<if $xchange.pill.clonedBody is undefined or $xchange.pill.clonedBody is null or typeof $xchange.pill.clonedBody isnot "object" or Array.isArray($xchange.pill.clonedBody)>><<set $xchange.pill.clonedBody to {}>><</if>>
 		/* clone is a string sentinel ("none"), not an object; explicit falsy check */
 		<<if !$xchange.pill.clone>><<set $xchange.pill.clone to "none">><</if>>
 	<</if>>
@@ -957,82 +955,18 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		if (typeof C.physique !== "object" || C.physique === null) C.physique = {};
 		if (!Number.isFinite(C.physique.max)) C.physique.max = 30000;
 	})()>>
-
-	/* Jewellery worn-slots repair */
-	<<script>>window.dolxRepairMissingJewelleryWornSlots?.();<</script>>
 <</widget>>
 
 <<widget "xchange-modupdate">>
-	<!-- Preflight for vanilla/old saves: ensure expected object shapes exist -->
-	<<if $AMCTraits is undefined or $AMCTraits is null or typeof $AMCTraits isnot "object" or Array.isArray($AMCTraits)>>
-		<<set $AMCTraits to {}>>
-		<<run console.warn("DoLX: $AMCTraits missing/invalid (likely vanilla/old save). Initialising defaults.")>>
-	<</if>>
-	<<set _amcKeys to [
-		"beauty","physique","seductionskill","oralskill","vaginalskill","analskill","handskill","feetskill","bottomskill","thighskill","chestskill","penileskill",
-		"milk","semen","willpower","english","maths","science","history","skulduggery","swimming","dancing","athletics","tending","housekeeping","brawling","footwork","striking","kicking",
-		"sexFame","prostitutionFame","rapeFame","bestialityFame","exhibitionismFame","pregnancyFame","impregFame","scrapFame","goodFame","businessFame","socialFame","modelFame"
-	]>>
-	<<for _k range _amcKeys>>
-		<<if $AMCTraits[_k] is undefined>>
-			<<set $AMCTraits[_k] to 1>>
-		<</if>>
-	<</for>>
-	<<if $background is undefined or $background is null>>
-		<<set $background to {}>>
-	<</if>>
-	<<if typeof $background is "string">>
-		<<set _bgStr to $background>>
-		<<set $background to {}>>
-		<<set $background.type to _bgStr>>
-		<<set $background.id to _bgStr>>
-		<<run console.warn(`DoLX: Migrated $background from string "${_bgStr}" to object.`)>>
-	<</if>>
-	<<if $background.genderAnxious is undefined>>
-		<<set $background.genderAnxious to false>>
-	<</if>>
-	<<if $background.transgender is undefined>>
-		<<set $background.transgender to false>>
-	<</if>>
-	/* combatExtended: clamp reads subfields */
-	<<if $combatExtended is undefined or $combatExtended is null or typeof $combatExtended isnot "object">>
-		<<set $combatExtended to {}>>
-	<</if>>
-	<<set _combatKeys to ["brawling","footwork","striking","kicking"]>>
-	<<for _k range _combatKeys>>
-		<<if $combatExtended[_k] is undefined>>
-			<<set $combatExtended[_k] to 0>>
-		<</if>>
-	<</for>>
-	<!-- end preflight -->
-
-	<<dhmInit>>
-	<<xchange-init>>
-	<<xchange-init2>>
-
-	/* Ensure antique special clothes entries exist in V.specialClothes */
-	<<specialClothesUpdate>>
-
-	/* Directly unlock antique special clothes if museum is complete */
-	<<if $museumAntiques isnot undefined and $museumAntiques.museumCount is $museumAntiques.maxCount>>
-		<<for _sc range $specialClothes>>
-			<<if (_sc.name.includes("antique") or _sc.name.includes("ancient")) and _sc.unlocked lt 3>>
-				<<set _sc.unlocked to 3>>
-			<</if>>
-		<</for>>
-	<</if>>
-
-	<<specialClothesRefresh>>
-
-	/* Persist unlocked sets to localStorage so feat boosters reflect them */
-	<<if $feats isnot undefined and $feats.allSaves isnot undefined>>
-		<<updateFeats>>
-	<</if>>
-
 	<<if $xchangePill isnot undefined>>
 		<<set $xchange.pill to $xchangePill>>
 		<<unset $xchangePill>>
 	<</if>>
+
+	<<dhmInit>>
+	<<wliInit>>
+	<<xchange-init>>
+	<<xchange-init2>>
 
 	/* Breeder edging migration. Root vars are canonical; old nested pill vars are one-time legacy input. */
 	<<if def $xchange.pill.breederEdgingCount>>
@@ -1047,80 +981,13 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<elseif ndef $xchange.breederEdgingStress>>
 		<<set $xchange.breederEdgingStress to ($xchange.pill.breederEffect ? 100 : 0)>>
 	<</if>>
+	<<if $xchange.willpowerPoints is undefined or $xchange.willpowerPoints is null or isNaN($xchange.willpowerPoints)>>
+		<<set $xchange.willpowerPoints to 0>>
+	<</if>>
 	
-	<<if $xchange.impuritySensitivityBonus is undefined>>
-		<<set $xchange.impuritySensitivityBonus to 1>>
-	<</if>>
-	<<if $xchange.pillSensitivityChange is undefined>>
-		<<set $xchange.pillSensitivityChange to 1>>
-	<</if>>
-	<<if $xchange.willpowerPoints is undefined>>
-		<<set $xchange.willpowerPoints to Math.max($willpower, 200)>>
-	<</if>>
+	<<physicalAdjustmentsInit>>
 
-	<<set _pills to [
-		"X-Change Pink Basic",
-		"X-Change Pink Xtra Strength",
-		"X-Change Blue Xtra Strength",
-		"X-Change Pink Continue",
-		"X-Change X-Tend",
-		"X-Change X-Tend Cancel",
-		"X-Change Pink Resistance",
-		"X-Change Blue Resistance",
-		"X-Change Test",
-		"X-Change Pink NOW",
-		"X-Change Clone: Whitney",
-		"X-Change Pink Weekly",
-		"X-Change Pink Breeder",
-		"X-Change Pink CumCure",
-		"X-Change Blue CumCure",
-		"X-Change Antidote",
-		"X-Change Choice (F)",
-		"X-Change Sissy",
-		"X-Change Blue Bull",
-		"X-Change Purple Basic",
-		"X-Change Purple Breeder",
-		"X-Change Pink Innocence",
-		"X-Change Blue Innocence",
-		"X-Change Pink Swell",
-		"X-Change Blue Swell",
-		"X-Change Premium",
-		"X-Change Pink Bimbo",
-		"X-Change Blue Himbo",
-		"SWP Anti-breeder Pill",
-		"SWP Anti-swell Pill",
-		"SWP Anti-innocence Pill",
-		"SWP Anti-bimbo Pill",
-		"SWP Anti-cumcure Pill",
-		"X-Change Pink Hyper Fertility",
-		"X-Change Blue Hyper Fertility",
-		"X-Change Purple Hyper Fertility",
-		"SWP Anti-fertility Pill",
-	]>>
-
-	<<for _pill range _pills>>
-		<<if $sexStats and $sexStats.pills and $sexStats.pills.pills and $sexStats.pills.pills[_pill] is undefined>>
-			<<physicalAdjustmentsInit>>
-			<<break>>
-		<</if>>
-	<</for>>
-
-	<!-- Safety guards (prevents hard-crash on migrated/partial saves) -->
-	<<if $xchange is undefined or $xchange is null>><<set $xchange to {}>><</if>>
-	<<if $xchange.errorLog is undefined or $xchange.errorLog is null>><<set $xchange.errorLog to []>><</if>>
-	<<if $xchange.pill is undefined or $xchange.pill is null>><<set $xchange.pill to {}>><</if>>
-	<<if $xchange.pill.originalBody is undefined or $xchange.pill.originalBody is null>><<set $xchange.pill.originalBody to {}>><</if>>
-	<<if $xchange.backComp is undefined or $xchange.backComp is null>><<set $xchange.backComp to {}>><</if>>
-	<<if $xchange.expectedGenderBy is undefined or $xchange.expectedGenderBy is null>><<set $xchange.expectedGenderBy to {}>><</if>>
 	<<if $genderknown is undefined or $genderknown is null>><<set $genderknown to []>><</if>>
-	<<if $xchange.pill.changedBody is undefined or $xchange.pill.changedBody is null>>
-		<<if $xchange.pill.active>>
-			<<run console.warn("X-Change: pill is active but changedBody is missing on load (migration/corruption).")>>
-			<<set $xchange.errorLog.push("Pill was active but changedBody was missing on load. Some effects may be inconsistent; please export/save+report if you see issues.")>>
-		<</if>>
-		<<set $xchange.pill.changedBody to {}>>
-	<</if>>
-	<!-- end guards -->
 
 	<<if Object.keys($xchange.pill.changedBody).length gt 0 && $xchange.pill.changedBody.fame is undefined>>
 		<<set $xchange.pill.changedBody.fame to {
@@ -1217,11 +1084,6 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<<set $xchange.expectedGenderBy[_npc] to $player.gender>>
 	<</for>>
 
-	<<if $xchange.pill.clone is undefined>>
-		<<set $xchange.pill.clone to "none">>
-		<<set $xchange.pill.clonedBody to {}>>
-	<</if>>
-
 	<<if Object.keys($xchange.pill.changedBody).length gt 0 and $xchange.pill.changedBody.haircolour is undefined>>
 		<<set $xchange.pill.changedBody.leftEyeColour = $leftEyeColour>>
 		<<set $xchange.pill.changedBody.rightEyeColour = $rightEyeColour>>
@@ -1244,14 +1106,6 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<<set $xchange.pill.originalBody.hairposition to $hairposition>>
 		<<set $xchange.pill.originalBody.earposition to $earposition>>
 		<<set $xchange.pill.originalBody.skinColor to $skinColor.natural>>
-	<</if>>
-
-	<<if $xchange.postPermanenceFertilityReset is undefined>>
-		<<set $xchange.postPermanenceFertilityReset to 1>>
-	<</if>>
-
-	<<if $xchange.disregardGender is undefined>>
-		<<set $xchange.disregardGender to 0>>
 	<</if>>
 
 	<<if $schoolevent gt 2>><<set $schoolevent to 0>><</if>>
@@ -1277,12 +1131,6 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 			<<set $xchange.pill.changedBody.facestyle to "default">>
 		<</if>>
 	<</if>>
-
-	<<set _amcFames to ["sexFame","prostitutionFame","rapeFame","bestialityFame","exhibitionismFame","pregnancyFame","impregFame","scrapFame","goodFame","businessFame","socialFame","modelFame"]>>
-
-	<<for _fame range _amcFames>>
-		<<if $AMCTraits[_fame] isnot 1>><<set $AMCTraits[_fame] to 1>><</if>>
-	<</for>>
 
 	<!-- Attempt to fix bad initialisation of these variables -->
 	<<if isNaN($beingPenetratedOrgasmStat)>>
@@ -1374,18 +1222,6 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 
 	<<if $neckTucked is undefined>><<set $neckTucked to false>><</if>>
 
-	<<if $player.gender is "m" and $xchange.femininePhysiqueChangePercent isnot undefined>>
-		<<set $xchange.physiqueChangePercent to $xchange.femininePhysiqueChangePercent>>
-		<<unset $xchange.femininePhysiqueChangePercent>>
-	<</if>>
-
-	<<if $player.gender is "f" and $xchange.masculinePhysiqueChangePercent isnot undefined>>
-		<<set $xchange.physiqueChangePercent to $xchange.masculinePhysiqueChangePercent>>
-		<<unset $xchange.masculinePhysiqueChangePercent>>
-	<</if>>
-
-	<<unset $xchange.hermPhysiqueChangePercent>>
-
 	<<if $xchange.backComp["250824"] is undefined>>
 		<<set $xchange.backComp["250824"] to true>>
 		<<if playerIsXChanged()>>
@@ -1459,288 +1295,22 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<</if>>
 	<<clamp>>
 <</widget>>
-
-<<widget "ensureStatOverlayData">>
-	/* police / misc */
-	<<if $stat_police is undefined>><<set $stat_police to { community: 0, pillory: 0, prison: 0 }>><</if>>
-	<<if $schoolLessonsMissed is undefined>><<set $schoolLessonsMissed to { science: 0, maths: 0, housekeeping: 0, english: 0, history: 0, swimming: 0 }>><</if>>
-	<<if $fertiliser is undefined>><<set $fertiliser to {current:0,used:0}>><</if>>
-	<<if $brothelVending is undefined>><<set $brothelVending to { total: 0 }>><</if>>
-	<<if $wraith is undefined>><<set $wraith to { possessCount: 0 }>><</if>>
-
-	/* gambling */
-	<<if $estatePersistent is undefined>>
-		<<set $estatePersistent to {
-			totalGamesPlayed: 0,
-			totalGamesPlayedWithBetting: 0,
-			totalRoundsWon: 0,
-			totalRoundsLost: 0,
-			totalRoundsTied: 0,
-			totalBetRoundsWon: 0,
-			totalBetRoundsLost: 0,
-			totalBetRoundsTied: 0,
-			totalCaughtCheating: 0,
-			winStreakHighScore: 0
-		}>>
-	<</if>>
-	<<if $estatePersistent.totalGamesPlayed is undefined>><<set $estatePersistent.totalGamesPlayed to 0>><</if>>
-	<<if $estatePersistent.totalGamesPlayedWithBetting is undefined>><<set $estatePersistent.totalGamesPlayedWithBetting to 0>><</if>>
-	<<if $estatePersistent.totalRoundsWon is undefined>><<set $estatePersistent.totalRoundsWon to 0>><</if>>
-	<<if $estatePersistent.totalRoundsLost is undefined>><<set $estatePersistent.totalRoundsLost to 0>><</if>>
-	<<if $estatePersistent.totalRoundsTied is undefined>><<set $estatePersistent.totalRoundsTied to 0>><</if>>
-	<<if $estatePersistent.totalBetRoundsWon is undefined>><<set $estatePersistent.totalBetRoundsWon to 0>><</if>>
-	<<if $estatePersistent.totalBetRoundsLost is undefined>><<set $estatePersistent.totalBetRoundsLost to 0>><</if>>
-	<<if $estatePersistent.totalBetRoundsTied is undefined>><<set $estatePersistent.totalBetRoundsTied to 0>><</if>>
-	<<if $estatePersistent.totalBetMoneyMade is undefined>><<set $estatePersistent.totalBetMoneyMade to 0>><</if>>
-	<<if $estatePersistent.totalBetMoneyLost is undefined>><<set $estatePersistent.totalBetMoneyLost to 0>><</if>>
-	<<if $estatePersistent.totalMoneyConfiscated is undefined>><<set $estatePersistent.totalMoneyConfiscated to 0>><</if>>
-	<<if $estatePersistent.totalTipMoneyMade is undefined>><<set $estatePersistent.totalTipMoneyMade to 0>><</if>>
-	<<if $estatePersistent.totalCaughtCheating is undefined>><<set $estatePersistent.totalCaughtCheating to 0>><</if>>
-	<<if $estatePersistent.winStreakHighScore is undefined>><<set $estatePersistent.winStreakHighScore to 0>><</if>>
-
-	/* dates */
-	<<if $dateCount is undefined>>
-		<<set $dateCount to {
-			Total: 0,
-			Robin: 0,
-			Whitney: 0,
-			Kylar: 0,
-			Eden: 0,
-			Avery: 0,
-			BlackWolfHunts: 0,
-			GreatHawkHunts: 0,
-			GreatHawkCasual: 0,
-			Alex: 0,
-			Sydney: 0,
-			Gwylan: 0,
-			GwylanBeast: 0,
-			GwylanSex: 0
-		}>>
-	<</if>>
-	<<if $dateCount.Total is undefined>><<set $dateCount.Total to 0>><</if>>
-	<<if $dateCount.Robin is undefined>><<set $dateCount.Robin to 0>><</if>>
-	<<if $dateCount.Whitney is undefined>><<set $dateCount.Whitney to 0>><</if>>
-	<<if $dateCount.Kylar is undefined>><<set $dateCount.Kylar to 0>><</if>>
-	<<if $dateCount.Eden is undefined>><<set $dateCount.Eden to 0>><</if>>
-	<<if $dateCount.Avery is undefined>><<set $dateCount.Avery to 0>><</if>>
-	<<if $dateCount.BlackWolfHunts is undefined>><<set $dateCount.BlackWolfHunts to 0>><</if>>
-	<<if $dateCount.GreatHawkHunts is undefined>><<set $dateCount.GreatHawkHunts to 0>><</if>>
-	<<if $dateCount.GreatHawkCasual is undefined>><<set $dateCount.GreatHawkCasual to 0>><</if>>
-	<<if $dateCount.Alex is undefined>><<set $dateCount.Alex to 0>><</if>>
-	<<if $dateCount.Sydney is undefined>><<set $dateCount.Sydney to 0>><</if>>
-	<<if $dateCount.Gwylan is undefined>><<set $dateCount.Gwylan to 0>><</if>>
-	<<if $dateCount.GwylanSex is undefined>><<set $dateCount.GwylanSex to 0>><</if>>
-
-	/* pregnancy */
-	<<if $pregnancyStats is undefined>>
-		<<set $pregnancyStats to {
-			playerChildren:0,
-			humanChildren:0,
-			wolfChildren:0,
-			npcChildren:0,
-			npcChildrenUnrelatedToPlayer:0,
-			npcTotalBirthEvents:0,
-			humanToysUnlocked: false,
-			wolfToysUnlocked: false,
-			hawkToysUnlocked: false,
-			mother: 0,
-			aftermorningpills: 0,
-			pregnancyTestsTaken: 0,
-			parasiteBook: 0,
-			parasiteDoctorEvents: 0,
-			awareOfBirthId: {},
-		}>>
-	<</if>>
-	<<if $pregnancyStats.awareOfBirthId is undefined>><<set $pregnancyStats.awareOfBirthId to {}>><</if>>
-	<<if $pregnancyStats.talkedAboutPregnancy is undefined>><<set $pregnancyStats.talkedAboutPregnancy to {}>><</if>>
-	<<if $pregnancyStats.morningSicknessWaking is undefined>><<set $pregnancyStats.morningSicknessWaking to 0>><</if>>
-	<<if $pregnancyStats.morningSicknessGeneral is undefined>><<set $pregnancyStats.morningSicknessGeneral to 0>><</if>>
-	<<if $pregnancyStats.heatStillEnabled is undefined>><<set $pregnancyStats.heatStillEnabled to true>><</if>>
-	<<if $pregnancyStats.playerVirginBirths is undefined>><<set $pregnancyStats.playerVirginBirths to []>><</if>>
-	<<if $pregnancyStats.playerChildren is undefined>><<set $pregnancyStats.playerChildren to 0>><</if>>
-	<<if $pregnancyStats.npcChildren is undefined>><<set $pregnancyStats.npcChildren to 0>><</if>>
-	<<if $pregnancyStats.totalDaysPregnancyKnown is undefined>><<set $pregnancyStats.totalDaysPregnancyKnown to 0>><</if>>
-	<<if $pregnancyStats.humanChildren is undefined>><<set $pregnancyStats.humanChildren to 0>><</if>>
-	<<if $pregnancyStats.wolfChildren is undefined>><<set $pregnancyStats.wolfChildren to 0>><</if>>
-	<<if $pregnancyStats.hawkChildren is undefined>><<set $pregnancyStats.hawkChildren to 0>><</if>>
-	<<if $pregnancyStats.childInteractions is undefined>><<set $pregnancyStats.childInteractions to 0>><</if>>
-	<<if $pregnancyStats.orphanageMilkBottlesTotal is undefined>><<set $pregnancyStats.orphanageMilkBottlesTotal to 0>><</if>>
-	<<if $pregnancyStats.pregnancyTestsTaken is undefined>><<set $pregnancyStats.pregnancyTestsTaken to 0>><</if>>
-	<<if $children is undefined>><<set $children to {}>><</if>>
-	<<if $babyIntros is undefined>><<set $babyIntros to {}>><</if>>
-<</widget>>
-
-	<<widget "ensureSexStatsForPhysicalAdjustments">>
-		/* Root */
-		<<if $sexStats is undefined or $sexStats is null>>
-			<<set $sexStats to {
-				"breasts": { "playedWith": 0 },
-				"creampie": { "self": { "anus":0, "mouth":0, "vagina":0 }, "npc":{ "anus":0, "mouth":0, "vagina":0 } },
-				"pills":{
-					"pills":{
-						'bottom reduction':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-						'bottom growth':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-						'bottom blocker':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-						'breast reduction':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-						'breast growth':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-						'breast blocker':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-						'penis reduction':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-						'penis growth':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-						'penis blocker':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-						'fertility booster':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-						'contraceptive':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-						'asylum\'s prescription':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-						'Dr Harper\'s prescription':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-						'Anti-Parasite Cream': { autoTake: false, doseTaken: 0, owned: 0, overdose: 0 },
-					},
-					"boughtOnce": false,
-					"lastTaken":{"bottom":'', "breast":'', "penis":'', "pregnancy":''},
-					"mostTaken":{"bottom":'', "breast":'', "penis":'', "pregnancy":''}
-				} }>>
-		<</if>>
-
-		/* Breasts */
-		<<if $sexStats.breasts is undefined or $sexStats.breasts is null>><<set $sexStats.breasts to {}>><</if>>
-		<<if $sexStats.breasts.playedWith is undefined>><<set $sexStats.breasts.playedWith to 0>><</if>>
-
-		/* Creampie buckets */
-		<<if $sexStats.creampie is undefined or $sexStats.creampie is null>><<set $sexStats.creampie to {}>><</if>>
-		<<if $sexStats.creampie.self is undefined or $sexStats.creampie.self is null>><<set $sexStats.creampie.self to {}>><</if>>
-		<<if $sexStats.creampie.npc is undefined or $sexStats.creampie.npc is null>><<set $sexStats.creampie.npc to {}>><</if>>
-		<<if $sexStats.creampie.self.anus is undefined>><<set $sexStats.creampie.self.anus to 0>><</if>>
-		<<if $sexStats.creampie.self.mouth is undefined>><<set $sexStats.creampie.self.mouth to 0>><</if>>
-		<<if $sexStats.creampie.self.vagina is undefined>><<set $sexStats.creampie.self.vagina to 0>><</if>>
-		<<if $sexStats.creampie.npc.anus is undefined>><<set $sexStats.creampie.npc.anus to 0>><</if>>
-		<<if $sexStats.creampie.npc.mouth is undefined>><<set $sexStats.creampie.npc.mouth to 0>><</if>>
-		<<if $sexStats.creampie.npc.vagina is undefined>><<set $sexStats.creampie.npc.vagina to 0>><</if>>
-
-		/* Vagina / Anus + pregnancy chain */
-		<<if $sexStats.vagina is undefined or $sexStats.vagina is null>>
-			<<set _baseDays to random(24,38)>>
-			<<if _baseDays lt 26>><<set _baseDaysRng to random(0,4)>><<elseif _baseDays gte 30>><<set _baseDaysRng to random(-4,0)>><<else>><<set _baseDaysRng to random(-2,2)>><</if>>
-			<<set _currentDaysMax to _baseDays + random(0, _baseDaysRng)>>
-			<<set $sexStats.vagina to {
-				"pregnancy": { "fetus": [], "givenBirth": 0, "parasiteBirthEvents": 0, "totalBirthEvents": 0, "motherStatus": 0, "waterBreaking": false, "type": null, "timer": null, "timerEnd": null, "awareOf": null, "potentialFathers": [], },
-				"menstruation":{ "baseDays": _baseDays, "baseDaysRng": _baseDaysRng, "currentDay": random(0, _baseDays + random(0,_baseDaysRng)), "lastDaysMax": _currentDaysMax, "currentDaysMax": _currentDaysMax, "currentState": "normal", "recoveryTime": null, "recoveryTimeStart": null, "recoveryStage": null, "periodEnabled": true, "running": false, "stages": [0, 0, 0, 0], },
-				"sperm":[]
-			}>>
-			<<set _menstruation to $sexStats.vagina.menstruation>>
-			<<set _stage2 to Math.round(_menstruation.currentDaysMax * 0.17)>>
-			<<if _stage2 gte 4>><<set _stage2-->><</if>>
-			<<set _stage3 to Math.round(_menstruation.currentDaysMax * 0.5)>>
-			<<if _stage3 lt 13>><<set _stage3++>><<elseif _stage3 gte 18>><<set _stage3-->><</if>>
-			<<set _menstruation.stages to [0, _stage2, _stage3, _stage3 + random(1,2) * 0.5]>>
-			<<if $player.vaginaExist>><<set $sexStats.vagina.menstruation.running = true>><</if>>
-		<</if>>
-		<<if $sexStats.vagina.pregnancy is undefined or $sexStats.vagina.pregnancy is null>><<set $sexStats.vagina.pregnancy to {}>><</if>>
-		<<if $sexStats.vagina.pregnancy.fetus is undefined>><<set $sexStats.vagina.pregnancy.fetus to []>><</if>>
-		<<if $sexStats.vagina.pregnancy.potentialFathers is undefined>><<set $sexStats.vagina.pregnancy.potentialFathers to []>><</if>>
-		<<if $sexStats.vagina.pregnancy.parasiteFeltMovement is undefined>><<set $sexStats.vagina.pregnancy.parasiteFeltMovement to false>><</if>>
-		<<if $sexStats.vagina.pregnancy.timeEnd is undefined>><<set $sexStats.vagina.pregnancy.timeEnd to null>><</if>>
-		<<if $sexStats.anus is undefined or $sexStats.anus is null>><<set $sexStats.anus to { "pregnancy": { fetus: [], givenBirth: 0, parasiteBirthEvents: 0, motherStatus: 0, type: null, awareOf: null, timer: null, timerEnd: null, potentialFathers: [], totalBirthEvents: 0 }, "sperm":[] }>><</if>>
-		<<if $sexStats.anus.pregnancy is undefined or $sexStats.anus.pregnancy is null>><<set $sexStats.anus.pregnancy to {}>><</if>>	
-		<<if $sexStats.vagina.pregnancy.parasiteBirthEvents is undefined>>
-			<<set $sexStats.vagina.pregnancy.parasiteBirthEvents to 0>>
-			<<set $sexStats.vagina.pregnancy.parasiteFeltMovement to false>>
-			<<set $sexStats.vagina.pregnancy.timerEnd to null>>
-			<<run delete $sexStats.vagina.pregnancy.beastMotherStatus>>
-			<<run delete $sexStats.vagina.pregnancy.ultrasoundDone>>
-			<<run delete $sexStats.vagina.pregnancy.morningSicknessWaking>>
-			<<run delete $sexStats.vagina.pregnancy.morningSicknessGeneral>>
-			<<run delete $sexStats.vagina.pregnancy.bellySize>>
-			<<run delete $sexStats.vagina.pregnancy.timerStart>>
-		<</if>>
-		<<if $sexStats.anus.pregnancy.fetus is undefined>>
-			<<set $sexStats.anus.pregnancy.fetus to []>>
-			<<for $_i to 0; $_i lt 4; $_i++>>
-				<<if $sexStats.anus.pregnancy[$_i] isnot null>>
-					<<run $sexStats.anus.pregnancy.fetus.push(clone($sexStats.anus.pregnancy[$_i]))>>
-					<<if $sexStats.anus.pregnancy.fetus.last().stats.gender is "Futa">>
-						<<set $sexStats.anus.pregnancy.fetus.last().stats.gender to "Hermaphrodite">>
-					<</if>>
-					<<set $sexStats.anus.pregnancy.type to "parasite">>
-				<</if>>
-				<<run delete $sexStats.anus.pregnancy[$_i]>>
-			<</for>>
-			<<if !$sexStats.anus.pregnancy.parasiteBirthEvents>>
-				<<set $sexStats.anus.pregnancy.parasiteBirthEvents to clone($sexStats.anus.pregnancy.givenBirth)>>
-				<<set $sexStats.anus.pregnancy.parasiteFeltMovement to clone($sexStats.anus.pregnancy.feltMovement)>>
-				<<set $sexStats.anus.pregnancy.givenBirth to 0>>
-			<</if>>
-			<<pregnancyVar>> <!--In case it's not been ran before -->
-			<<if $sexStats.anus.pregnancy.seenDoctor>><<set $pregnancyStats.parasiteDoctorEvents to clone($sexStats.anus.pregnancy.seenDoctor)>><</if>>
-			<<if $sexStats.anus.pregnancy.book>><<set $pregnancyStats.parasiteBook to clone($sexStats.anus.pregnancy.book)>><</if>>
-			<<if $sexStats.anus.pregnancy.typesSeen>><<set $pregnancyStats.parasiteTypesSeen to clone($sexStats.anus.pregnancy.typesSeen)>><</if>>
-			<<if $sexStats.anus.pregnancy.variantsSeen>><<set $pregnancyStats.parasiteVariantsSeen to clone($sexStats.anus.pregnancy.variantsSeen)>><</if>>
-
-			/*Vagina Parity Variables*/
-			<<set $sexStats.anus.pregnancy.awareOf to null>>
-			<<set $sexStats.anus.pregnancy.timer to null>>
-			<<set $sexStats.anus.pregnancy.timerEnd to null>>
-			<<set $sexStats.anus.pregnancy.timerEnd to null>>
-			<<set $sexStats.anus.pregnancy.waterBreaking to false>>
-			<<set $sexStats.anus.pregnancy.potentialFathers to []>>
-			<<set $sexStats.anus.pregnancy.totalBirthEvents to 0>>
-
-			<<set $sexStats.anus.sperm to []>>
-
-			<<run delete $sexStats.anus.pregnancy.maxCount>>
-			<<run delete $sexStats.anus.pregnancy.count>>
-			<<run delete $sexStats.anus.pregnancy.lowestDaysLeft>>
-			<<run delete $sexStats.anus.pregnancy.lowestTimeLeft>>
-			<<run delete $sexStats.anus.pregnancy.feltMovement>>
-			<<run delete $sexStats.anus.pregnancy.fertile>>
-			<<run delete $sexStats.anus.pregnancy.fertilised>>
-			<<run delete $sexStats.anus.pregnancy.namesChildren>>
-			<<run delete $sexStats.anus.pregnancy.seenDoctor>>
-			<<run delete $sexStats.anus.pregnancy.book>>
-			<<run delete $sexStats.anus.pregnancy.typesSeen>>
-			<<run delete $sexStats.anus.pregnancy.variantsSeen>>
-			<<run delete $sexStats.anus.pregnancy.autoRepairDone>>
-		<</if>>
-		<<if $sexStats.anus.pregnancy.potentialFathers is undefined>><<set $sexStats.anus.pregnancy.potentialFathers to []>><</if>>
-		<<if $sexStats.anus.pregnancy.parasiteBirthEvents is undefined>><<set $sexStats.anus.pregnancy.parasiteBirthEvents to 0>><</if>>
-		<<if $sexStats.anus.pregnancy.parasiteFeltMovement is undefined>><<set $sexStats.anus.pregnancy.parasiteFeltMovement to false>><</if>>
-		<<if $sexStats.anus.pregnancy.timeEnd is undefined>><<set $sexStats.anus.pregnancy.timeEnd to null>><</if>>
-
-		/* Pills structures used by physicalAdjustments */
-		<<if $sexStats.pills is undefined or $sexStats.pills is null>><<set $sexStats.pills to {}>><</if>>
-		<<if $sexStats.pills.mostTaken is undefined or $sexStats.pills.mostTaken is null>><<set $sexStats.pills.mostTaken to {}>><</if>>
-		<<if $sexStats.pills["pills"] is undefined or $sexStats.pills["pills"] is null>><<set $sexStats.pills["pills"] to {}>><</if>>
-
-		<<if $sexStats.pills.mostTaken["breast"] is undefined>><<set $sexStats.pills.mostTaken["breast"] to "">><</if>>
-		<<if $sexStats.pills.mostTaken["penis"] is undefined>><<set $sexStats.pills.mostTaken["penis"] to "">><</if>>
-		<<if $sexStats.pills.mostTaken["bottom"] is undefined>><<set $sexStats.pills.mostTaken["bottom"] to "">><</if>>
-
-		<<if $sexStats.pills["pills"]["breast growth"] is undefined>><<set $sexStats.pills["pills"]["breast growth"] to {doseTaken:0, overdose:0}>><</if>>
-		<<if $sexStats.pills["pills"]["breast reduction"] is undefined>><<set $sexStats.pills["pills"]["breast reduction"] to {doseTaken:0, overdose:0}>><</if>>
-		<<if $sexStats.pills["pills"]["penis growth"] is undefined>><<set $sexStats.pills["pills"]["penis growth"] to {doseTaken:0, overdose:0}>><</if>>
-		<<if $sexStats.pills["pills"]["penis reduction"] is undefined>><<set $sexStats.pills["pills"]["penis reduction"] to {doseTaken:0, overdose:0}>><</if>>
-		<<if $sexStats.pills["pills"]["bottom growth"] is undefined>><<set $sexStats.pills["pills"]["bottom growth"] to {doseTaken:0, overdose:0}>><</if>>
-		<<if $sexStats.pills["pills"]["bottom reduction"] is undefined>><<set $sexStats.pills["pills"]["bottom reduction"] to {doseTaken:0, overdose:0}>><</if>>
-	<</widget>>
 	
-	<<widget "xchangeStartMedicineCabinet">>
-		<<run (() => {
-			const V = State.variables;
-			V.sexStats ??= {};
-			V.sexStats.pills ??= {};
-			V.sexStats.pills.pills ??= {};
-			V.sexStats.pills.boughtOnce = true;
-			const antidoteItem = setup && setup.pharmacyItems ? setup.pharmacyItems["xchange_antidote"] : null;
-			if (!antidoteItem || !antidoteItem.type) {return;}
-
+<<widget "xchangeStartMedicineCabinet">>
+	<<run (() => {
+		const V = State.variables;
+		V.sexStats ??= {}; V.sexStats.pills ??= {}; V.sexStats.pills.pills ??= {}; V.sexStats.pills.boughtOnce = true;
+		const antidoteItem = setup && setup.pharmacyItems ? setup.pharmacyItems["xchange_antidote"] : null;
+		if (!antidoteItem || !antidoteItem.type) {return;}
 			const key = antidoteItem.type;
-			if (V.sexStats.pills.pills[key] == null || typeof V.sexStats.pills.pills[key] !== "object") {
-				V.sexStats.pills.pills[key] = { owned: 0 };
-			}
-
-			const slot = V.sexStats.pills.pills[key];
-			if (typeof slot.owned !== "number" || Number.isNaN(slot.owned)) {
-				const repairedOwned = Number(slot.owned);
-				slot.owned = Number.isFinite(repairedOwned) ? repairedOwned : 0;
-			}
-
-			if (slot.owned < 1) {slot.owned = 1;}
-		})()>>
-	<</widget>>
+		if (V.sexStats.pills.pills[key] == null || typeof V.sexStats.pills.pills[key] !== "object") {
+			V.sexStats.pills.pills[key] = { owned: 0 };
+		}
+		const slot = V.sexStats.pills.pills[key];
+		if (typeof slot.owned !== "number" || Number.isNaN(slot.owned)) {
+			const repairedOwned = Number(slot.owned);
+			slot.owned = Number.isFinite(repairedOwned) ? repairedOwned : 0;
+		}
+		if (slot.owned < 1) {slot.owned = 1;}
+	})()>>
+<</widget>>

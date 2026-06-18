@@ -1,45 +1,6 @@
 :: Widgets physicalAdjustmentsInit [widget]
 <<widget "physicalAdjustmentsInit">>
-	<<if $sexStats is undefined>>
-		<<set $sexStats to {
-			"breasts": {
-				"playedWith": 0
-			},
-			"creampie": {
-				"self": {
-					"anus":0,
-					"mouth":0,
-					"vagina":0
-				},
-				"npc":{
-					"anus":0,
-					"mouth":0,
-					"vagina":0 /* , "tentacle":0 */
-				}
-			},
-			"pills":{
-				"pills":{
-					'bottom reduction':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-					'bottom growth':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-					'bottom blocker':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-					'breast reduction':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-					'breast growth':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-					'breast blocker':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-					'penis reduction':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-					'penis growth':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-					'penis blocker':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-					'fertility booster':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-					'contraceptive':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-					'asylum\'s prescription':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-					'Dr Harper\'s prescription':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
-					'Anti-Parasite Cream': { autoTake: false, doseTaken: 0, owned: 0, overdose: 0 },
-				},
-				"boughtOnce": false,
-				"lastTaken":{"bottom":'', "breast":'', "penis":'', "pregnancy":''},
-				"mostTaken":{"bottom":'', "breast":'', "penis":'', "pregnancy":''}
-			}
-		}>>
-	<</if>>
+	<<ensureSexStatsForPhysicalAdjustments>>
 	<<if $sexStats.pills.pills && $sexStats.pills.pills["Anti-Parasite Cream"] is undefined>>
 		<<set $sexStats.pills.pills["Anti-Parasite Cream"] to { autoTake: false, doseTaken: 0, owned: 0, overdose: 0 }>>
 	<</if>>
@@ -78,10 +39,6 @@
 		"X-Change Purple Bull",
 		"X-Change Pink Innocence",
 		"X-Change Blue Innocence",
-		"X-Change Pink Swell",
-		"X-Change Blue Swell",
-		"X-Change Pink Bimbo",
-		"X-Change Blue Himbo",
 		"X-Change Pink Swell",
 		"X-Change Blue Swell",
 		"X-Change Pink Bimbo",
@@ -147,7 +104,6 @@
 				awareOf: null,
 				timer: null,
 				timerEnd: null,
-				type: null,
 				potentialFathers: [],
 				totalBirthEvents: 0,
 			},
@@ -188,7 +144,6 @@
 		/*Vagina Parity Variables*/
 		<<set $sexStats.anus.pregnancy.awareOf to null>>
 		<<set $sexStats.anus.pregnancy.timer to null>>
-		<<set $sexStats.anus.pregnancy.timerEnd to null>>
 		<<set $sexStats.anus.pregnancy.timerEnd to null>>
 		<<set $sexStats.anus.pregnancy.waterBreaking to false>>
 		<<set $sexStats.anus.pregnancy.potentialFathers to []>>
@@ -730,4 +685,82 @@
 	<<set $otherFilled to $otherFilled or 0>>
 	<<set $otherFilled += $semen_amount gt ($semen_volume / 24) * 18 ? 2 : 1>>
 	<<set $otherFilled to Math.clamp($otherFilled, 0, 5)>>
+<</widget>>
+
+/* X-CHANGE MOD */
+<<widget "ensureSexStatsForPhysicalAdjustments">>
+	/* Root */
+	<<if $sexStats is undefined or $sexStats is null>>
+		<<set $sexStats to {
+			"breasts": { "playedWith": 0 },
+			"creampie": { "self": { "anus":0, "mouth":0, "vagina":0 }, "npc":{ "anus":0, "mouth":0, "vagina":0 } },
+			"pills":{
+				"pills":{
+					'bottom reduction':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+					'bottom growth':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+					'bottom blocker':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+					'breast reduction':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+					'breast growth':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+					'breast blocker':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+					'penis reduction':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+					'penis growth':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+					'penis blocker':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+					'fertility booster':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+					'contraceptive':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+					'asylum\'s prescription':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+					'Dr Harper\'s prescription':{autoTake: false, doseTaken: 0, owned: 0, overdose: 0},
+					'Anti-Parasite Cream': { autoTake: false, doseTaken: 0, owned: 0, overdose: 0 },
+				},
+				"boughtOnce": false,
+				"lastTaken":{"bottom":'', "breast":'', "penis":'', "pregnancy":''},
+				"mostTaken":{"bottom":'', "breast":'', "penis":'', "pregnancy":''}
+			} }>>
+	<</if>>
+
+	/* Breasts */
+	<<if $sexStats.breasts is undefined or $sexStats.breasts is null>><<set $sexStats.breasts to {}>><</if>>
+	<<if $sexStats.breasts.playedWith is undefined>><<set $sexStats.breasts.playedWith to 0>><</if>>
+
+	/* Creampie buckets */
+	<<if $sexStats.creampie is undefined or $sexStats.creampie is null>><<set $sexStats.creampie to {}>><</if>>
+	<<if $sexStats.creampie.self is undefined or $sexStats.creampie.self is null>><<set $sexStats.creampie.self to {}>><</if>>
+	<<if $sexStats.creampie.npc is undefined or $sexStats.creampie.npc is null>><<set $sexStats.creampie.npc to {}>><</if>>
+	<<if $sexStats.creampie.self.anus is undefined>><<set $sexStats.creampie.self.anus to 0>><</if>>
+	<<if $sexStats.creampie.self.mouth is undefined>><<set $sexStats.creampie.self.mouth to 0>><</if>>
+	<<if $sexStats.creampie.self.vagina is undefined>><<set $sexStats.creampie.self.vagina to 0>><</if>>
+	<<if $sexStats.creampie.npc.anus is undefined>><<set $sexStats.creampie.npc.anus to 0>><</if>>
+	<<if $sexStats.creampie.npc.mouth is undefined>><<set $sexStats.creampie.npc.mouth to 0>><</if>>
+	<<if $sexStats.creampie.npc.vagina is undefined>><<set $sexStats.creampie.npc.vagina to 0>><</if>>
+
+	/* Vagina / Anus + pregnancy chain
+	   physicalAdjustmentsInit owns full vagina/anus creation and legacy migration.
+	   This widget only patches partial old structures when those parents already exist. */
+	<<if $sexStats.vagina isnot undefined and $sexStats.vagina isnot null>>
+		<<if $sexStats.vagina.pregnancy is undefined or $sexStats.vagina.pregnancy is null>><<set $sexStats.vagina.pregnancy to {}>><</if>>
+		<<if $sexStats.vagina.pregnancy.potentialFathers is undefined>><<set $sexStats.vagina.pregnancy.potentialFathers to []>><</if>>
+		<<if $sexStats.vagina.pregnancy.parasiteFeltMovement is undefined>><<set $sexStats.vagina.pregnancy.parasiteFeltMovement to false>><</if>>
+		<<if $sexStats.vagina.pregnancy.timerEnd is undefined>><<set $sexStats.vagina.pregnancy.timerEnd to null>><</if>>
+	<</if>>
+	<<if $sexStats.anus isnot undefined and $sexStats.anus isnot null>>
+		<<if $sexStats.anus.pregnancy is undefined or $sexStats.anus.pregnancy is null>><<set $sexStats.anus.pregnancy to {}>><</if>>
+		<<if $sexStats.anus.pregnancy.parasiteBirthEvents is undefined>><<set $sexStats.anus.pregnancy.parasiteBirthEvents to 0>><</if>>
+		<<if $sexStats.anus.pregnancy.parasiteFeltMovement is undefined>><<set $sexStats.anus.pregnancy.parasiteFeltMovement to false>><</if>>
+		<<if $sexStats.anus.pregnancy.timerEnd is undefined>><<set $sexStats.anus.pregnancy.timerEnd to null>><</if>>
+	<</if>>
+
+	/* Pills structures used by physicalAdjustments */
+	<<if $sexStats.pills is undefined or $sexStats.pills is null>><<set $sexStats.pills to {}>><</if>>
+	<<if $sexStats.pills.mostTaken is undefined or $sexStats.pills.mostTaken is null>><<set $sexStats.pills.mostTaken to {}>><</if>>
+	<<if $sexStats.pills["pills"] is undefined or $sexStats.pills["pills"] is null>><<set $sexStats.pills["pills"] to {}>><</if>>
+
+	<<if $sexStats.pills.mostTaken["breast"] is undefined>><<set $sexStats.pills.mostTaken["breast"] to "">><</if>>
+	<<if $sexStats.pills.mostTaken["penis"] is undefined>><<set $sexStats.pills.mostTaken["penis"] to "">><</if>>
+	<<if $sexStats.pills.mostTaken["bottom"] is undefined>><<set $sexStats.pills.mostTaken["bottom"] to "">><</if>>
+
+	<<if $sexStats.pills["pills"]["breast growth"] is undefined>><<set $sexStats.pills["pills"]["breast growth"] to {doseTaken:0, overdose:0}>><</if>>
+	<<if $sexStats.pills["pills"]["breast reduction"] is undefined>><<set $sexStats.pills["pills"]["breast reduction"] to {doseTaken:0, overdose:0}>><</if>>
+	<<if $sexStats.pills["pills"]["penis growth"] is undefined>><<set $sexStats.pills["pills"]["penis growth"] to {doseTaken:0, overdose:0}>><</if>>
+	<<if $sexStats.pills["pills"]["penis reduction"] is undefined>><<set $sexStats.pills["pills"]["penis reduction"] to {doseTaken:0, overdose:0}>><</if>>
+	<<if $sexStats.pills["pills"]["bottom growth"] is undefined>><<set $sexStats.pills["pills"]["bottom growth"] to {doseTaken:0, overdose:0}>><</if>>
+	<<if $sexStats.pills["pills"]["bottom reduction"] is undefined>><<set $sexStats.pills["pills"]["bottom reduction"] to {doseTaken:0, overdose:0}>><</if>>
 <</widget>>
