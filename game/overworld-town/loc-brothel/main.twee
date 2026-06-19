@@ -1422,7 +1422,7 @@ You are led down a dim corridor. You can hear music playing somewhere above. The
 <</if>>
 <<brothelshowintro>>
 
-<<if $brothelVirginityIntro is undefined and ($player.virginity.penile is true and $player.virginity.vaginal is true) and !unableTakeVirginity() and fameSum('sex', 'prostitution', 'rape') gte 100>>
+<<if $brothelVirginityIntro is undefined and !unableTakeVirginity() and fameSum('sex', 'prostitution', 'rape') gte 100 and (($player.virginity.penile is true and $player.virginity.vaginal is true) or $weekly.brothelReVirginityShow isnot 1)>>
 	"I have also heard some rumours about you. If true, I have a <span class="gold">special</span> show in mind for you."
 	<<set _askSpecial to 1>>
 <</if>>
@@ -1510,60 +1510,110 @@ I'm sure your fans will be excited."
 :: Briar's Office Virginity Show Ask
 <<set $outside to 0>><<set $location to "brothel">><<effects>>
 <<speechresolve>>
+<<set _isShowVirgin to ($player.virginity.penile is true and $player.virginity.vaginal is true)>>
 
-Briar swirls <<his>> wine, then looks up at you. "Well, now that depends on whether the rumours are true. Supposedly, you're still a virgin. I find that hard to believe."
-<br><br>
-<<if $awarelevel gte 1>>
-	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
-		You blush at once, caught between embarrassment and a nervous little smile.
-	<<elseif _speechAttitudeResolved is "docile">>
-		You lower your gaze, heat rising in your cheeks before you can hide it.
-	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
-		You manage a strained smile, but the warmth in your face gives you away.
-	<<elseif _speechAttitudeResolved is "confident">>
-		You hold Briar's gaze for a beat, but the blush still creeps up on you.
-	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
-		You smirk on instinct, but the colour in your cheeks betrays you anyway.
+<<if _isShowVirgin>>
+	Briar swirls <<his>> wine, then looks up at you. "Well, now that depends on whether the rumours are true. Supposedly, you're still a virgin. I find that hard to believe."
+	<br><br>
+	<<if $awarelevel gte 1>>
+		<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+			You blush at once, caught between embarrassment and a nervous little smile.
+		<<elseif _speechAttitudeResolved is "docile">>
+			You lower your gaze, heat rising in your cheeks before you can hide it.
+		<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+			You manage a strained smile, but the warmth in your face gives you away.
+		<<elseif _speechAttitudeResolved is "confident">>
+			You hold Briar's gaze for a beat, but the blush still creeps up on you.
+		<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+			You smirk on instinct, but the colour in your cheeks betrays you anyway.
+		<<else>>
+			You try to keep a straight face, but the blush still finds you.
+		<</if>>
+		Even you find it hard to believe, considering what you've been through.<<stress -6>><<trauma -6>><<lstress>><<ltrauma>>
 	<<else>>
-		You try to keep a straight face, but the blush still finds you.
+		You tilt your head in confusion. Why would anyone care about that?
 	<</if>>
-	Even you find it hard to believe, considering what you've been through.<<stress -6>><<trauma -6>><<lstress>><<ltrauma>>
-<<else>>
-	You tilt your head in confusion. Why would anyone care about that?
-<</if>>
-<br><br>
-Briar continues, "But, if you pass a virginity test, I am willing to pay for you to give that virginity up on stage. And I'm not the only one willing to spend money on this."
-<br><br>
-"Do you realise how many of your fans would be willing to pay for just the chance to be the one to deflower you?" <<He>> leans forward. "Who knows how much you could make. You could easily make <span class="gold">a few grand,</span> if you put on a good enough show."
-<br><br>
+	<br><br>
+	Briar continues, "But, if you pass a virginity test, I am willing to pay for you to give that virginity up on stage. And I'm not the only one willing to spend money on this."
+	<br><br>
+	"Do you realise how many of your fans would be willing to pay for just the chance to be the one to deflower you?" <<He>> leans forward. "Who knows how much you could make. You could easily make <span class="gold">a few grand,</span> if you put on a good enough show."
+	<br><br>
 
-<<if hasSexStat("promiscuity", 2, true)>>
-	<<link [[Agree to sell your virginity|Briar's Office Virginity Show]]>><<set $phase to 0>><<acceptbrothelshow "virginity">><</link>><<promiscuous2>>
+	<<if hasSexStat("promiscuity", 2, true)>>
+		<<link [[Agree to sell your virginity|Briar's Office Virginity Show]]>><<set $phase to 0>><<acceptbrothelshow "virginity">><</link>><<promiscuous2>>
+	<<else>>
+		<<insufficientStat "promiscuity" "to take up such an offer">>
+	<</if>>
+	<br>
+	<<link [[Refuse to do such a thing|Briar's Office Virginity Show]]>><<set $phase to 1>><</link>>
+	<br>
+	<<link [[Say you're not a virgin (lie)|Briar's Office Virginity Show]]>><<set $phase to 2>><</link>>
+	<br>
 <<else>>
-	<<insufficientStat "promiscuity" "to take up such an offer">>
+	Briar swirls <<his>> wine, then looks up at you. "Let's not insult each other. The rumours are filthy enough that we both know you're no virgin." <<He>> sets the glass down. "Pity. A genuine first time sells itself."
+	<br><br>
+	<<if $awarelevel gte 1>>
+		<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+			You look away, unsure whether to be ashamed or relieved that <<he>> already knows.
+		<<elseif _speechAttitudeResolved is "docile">>
+			You give a small, quiet nod, not bothering to deny it.
+		<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+			You offer a wry smile. "No sense pretending, then."
+		<<elseif _speechAttitudeResolved is "confident">>
+			You hold <<his>> gaze. "I never claimed otherwise."
+		<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+			"Glad we're past the polite part," you say with a smirk.
+		<<else>>
+			You say nothing, waiting to hear where <<he>> is going with this.
+		<</if>>
+	<<else>>
+		You tilt your head in confusion. Why would anyone care about that?
+	<</if>>
+	<br><br>
+	"But I keep a doctor on retainer who can fix that. Temporarily." <<He>> leans forward. "Harper restores the goods, you survive a little calibration in front of the crowd, and we auction off your <span class="gold">second debut</span> for more than an ordinary cherry would fetch."
+	<br><br>
+	"It won't be gentle, and Harper's fee comes out of the take. Fail his test too many times and you still owe me a show. Pass it, and you walk away with a small fortune."
+	<br><br>
+
+	<<if hasSexStat("promiscuity", 2, true)>>
+		<<link [[Agree to the restoration show|Briar's Office Virginity Show]]>><<set $phase to 0>><<set $brothelReVirginityBooked to true>><<acceptbrothelshow "virginity">><</link>><<promiscuous2>>
+	<<else>>
+		<<insufficientStat "promiscuity" "to take up such an offer">>
+	<</if>>
+	<br>
+	<<link [[Refuse to do such a thing|Briar's Office Virginity Show]]>><<set $phase to 1>><</link>>
+	<br>
 <</if>>
-<br>
-<<link [[Refuse to do such a thing|Briar's Office Virginity Show]]>><<set $phase to 1>><</link>>
-<br>
-<<link [[Say you're not a virgin (lie)|Briar's Office Virginity Show]]>><<set $phase to 2>><</link>>
-<br>
 
 :: Briar's Office Virginity Show
 <<set $outside to 0>><<set $location to "brothel">><<effects>>
 <<speechresolve>>
-<<if $phase is 0>> /* Sell your virginity */
-	You accept <<his>> offer to sell your virginity. "Excellent. You are going to make one lucky person very happy," <<he>> says as <<he>> walks around the desk. "I will be sure to have it well-publicised.
-	<<if Time.weekDay is 6>>
-		There's no time to set it up for today. <span class="gold">We'll be ready next Friday.</span>
+<<if $phase is 0>> /* Agree to the show */
+	<<if $brothelReVirginityBooked>>
+		You accept <<his>> offer. "Smart," <<he>> says, walking around the desk. "I'll have Harper prepped and the crowd primed for a second debut.
+		<<if Time.weekDay is 6>>
+			There's no time to set it up for today. <span class="gold">We'll be ready next Friday.</span>
+		<<else>>
+			We'll be ready on <span class="gold">Friday</span>.
+		<</if>>
+		Your fans love a comeback."
+		<br><br>
+		<<He>> escorts you to the top of the stairs. "Show up on time. Harper's compound waits for no one, and neither do I."
+		<br><br>
 	<<else>>
-		We'll be ready on <span class="gold">Friday</span>.
+		You accept <<his>> offer to sell your virginity. "Excellent. You are going to make one lucky person very happy," <<he>> says as <<he>> walks around the desk. "I will be sure to have it well-publicised.
+		<<if Time.weekDay is 6>>
+			There's no time to set it up for today. <span class="gold">We'll be ready next Friday.</span>
+		<<else>>
+			We'll be ready on <span class="gold">Friday</span>.
+		<</if>>
+		Your fans will want to remember this."
+		<br><br>
+		<<He>> escorts you to the top of the stairs. "Just make sure to show up. People are coming to see you specifically. I won't be able to placate them with some random whore."
+		<br><br>
+		You are about to leave when <<he>> calls back to you. "For your own sake, <span class="purple">I hope you're not lying.</span> You better still be a virgin when you show up."
+		<br><br>
 	<</if>>
-	Your fans will want to remember this."
-	<br><br>
-	<<He>> escorts you to the top of the stairs. "Just make sure to show up. People are coming to see you specifically. I won't be able to placate them with some random whore."
-	<br><br>
-	You are about to leave when <<he>> calls back to you. "For your own sake, <span class="purple">I hope you're not lying.</span> You better still be a virgin when you show up."
-	<br><br>
 
 	<<getouticon>><<link [[Leave|Brothel]]>><<endevent>><</link>>
 	<br>

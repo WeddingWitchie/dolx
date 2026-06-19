@@ -55,7 +55,8 @@
 <</widget>>
 
 <<widget "brothelshowoptions">>
-	<<if $brothelVirginityIntro is true and $brothelVirginityState isnot "lie" and ($player.virginity.penile is true and $player.virginity.vaginal is true) and !unableTakeVirginity()>>
+	<<set _isShowVirgin to ($player.virginity.penile is true and $player.virginity.vaginal is true)>>
+	<<if $brothelVirginityIntro is true and $brothelVirginityState isnot "lie" and !unableTakeVirginity() and (_isShowVirgin or $weekly.brothelReVirginityShow isnot 1)>>
 		<<if $brothelVirginityState is "refuse">>
 			"Assuming you haven't lost your virginity, that special offer is still on the table." <<He>> glances over at you. "Of course, you'll have to pass a virginity test first. Specifics would depend on how much people are willing to pay, but you'll certainly get a lot."
 			<br><br>
@@ -65,12 +66,19 @@
 		<<elseif $brothelVirginityState is "chastity">>
 			"People weren't happy with you last time, nor was I," <<he>> says, glancing over at you. "However, since you're still a virgin, people would still be willing to take your cherry. You'll still get plenty, assuming you don't do something stupid, like show up in another of those damn contraptions."
 			<br><br>
+		<<elseif !_isShowVirgin>>
+			"Word is you're not as untouched as the posters claim," <<he>> says, swirling <<his>> wine. "Doesn't matter to me. If the test catches you out, Harper can restore the goods long enough for a show. Pass <<his>> calibration and the crowd pays a premium for a second debut. Fail it, and you still owe me a show either way."
+			<br><br>
 		<</if>>
 		<<unset $brothelVirginityState>>
 		Special show:
 		<br>
 		<<if hasSexStat("promiscuity", 2, true)>>
-			<<templeicon "virginity">><<link [[Sell your virginity|Briar's Office Virginity Show]]>><<acceptbrothelshow "virginity">><<set $phase to 0>><</link>><<promiscuous2>>
+			<<if _isShowVirgin>>
+				<<templeicon "virginity">><<link [[Sell your virginity|Briar's Office Virginity Show]]>><<acceptbrothelshow "virginity">><<set $phase to 0>><</link>><<promiscuous2>>
+			<<else>>
+				<<templeicon "virginity">><<link [[Attempt a restored-virginity show|Briar's Office Virginity Show]]>><<acceptbrothelshow "virginity">><<set $phase to 0>><<set $brothelReVirginityBooked to true>><</link>><<promiscuous2>>
+			<</if>>
 			<br>
 		<<else>>
 			<<insufficientStat "promiscuity" "to sell your virginity">>
