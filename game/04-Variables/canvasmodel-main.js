@@ -105,7 +105,7 @@ replace (?<!["'\w])_(?=\w) with T.
  * "angel_wing_right": "idle"|"cover"
  * "angel_wing_left": "idle"|"cover"
  * "angel_wings_layer": "front"|"back",
- * "angel_halo_type": "disabled"|"hidden"|"default"
+ * "angel_halo_type": "disabled"|"hidden"|"default"|"wdDefault"|"wdPurple"
  * "fallen_wings_type": "disabled"|"hidden"|"default"
  * "fallen_wing_right": "idle"|"cover"
  * "fallen_wing_left": "idle"|"cover"
@@ -114,7 +114,7 @@ replace (?<!["'\w])_(?=\w) with T.
  * "demon_wings_type": "disabled"|"hidden"|"default"
  * "demon_wings_state": "idle"|"cover"|"flaunt"
  * "demon_wings_layer": "front"|"back",
- * "demon_tail_type": "disabled"|"hidden"|"default"|"classic"
+ * "demon_tail_type": "disabled"|"hidden"|"default"|"classic"|"default-wd"
  * "demon_tail_state": "idle"|"cover"|"flaunt"
  * "demon_tail_layer": "front"|"back"
  * "demon_horns_type": "disabled"|"hidden"|"default"|"classic" | "antler"
@@ -980,7 +980,7 @@ Renderer.CanvasModels.main = {
 
 		if (options.worn.handheld.setup.zIndex === "over_head" ) {
 			options.handheld_overhead = true;
-			const lowerHaloEnabled = (options.angel_halo_type === "default" || options.fallen_halo_type === "default") && V.options.lowerHalo == true;
+			const lowerHaloEnabled = (["default", "wdDefault", "wdPurple"].includes(options.angel_halo_type) || options.fallen_halo_type === "default") && V.options.lowerHalo == true;
 			options.angel_halo_lower = lowerHaloEnabled && options.arm_right !== "cover";
 		} else if (["right_cover", "over_head"].includes(options.worn.handheld.setup.holdPosition)) {
 			options.handheld_overhead = true;
@@ -6163,8 +6163,11 @@ function genlayer_halo(side, tf, overrideOptions) {
 			return `img/transformations/${tf}/halo/${options[`${tf}_halo_type`]}-${side}.png`;
 		},
 		showfn(options) {
+			const haloType = options[`${tf}_halo_type`];
+			const frontOnlyHalo = tf === "angel" && ["wdDefault", "wdPurple"].includes(haloType);
 			return options.show_tf
-				&& isPartEnabled(options[`${tf}_halo_type`])
+				&& isPartEnabled(haloType)
+				&& !(side === "back" && frontOnlyHalo)
 				&& !options.hide_all;
 		},
 		dyfn(options) {

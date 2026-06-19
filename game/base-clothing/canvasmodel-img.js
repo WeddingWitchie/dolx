@@ -2,75 +2,6 @@
 /* eslint-disable eqeqeq */
 DefineMacro("modelprepare-player-body", function () {
 	T.disabled = ["disabled", "hidden"];
-	// --- TF parts schema guard (prevents '... in undefined' / '.horns' crashes) ---
-	if (V.transformationParts == null || typeof V.transformationParts !== "object" || Array.isArray(V.transformationParts)) {
-		V.transformationParts = {};
-	}
-	const _tfp = V.transformationParts;
-	function _ensureObj(key) {
-		if (_tfp[key] == null || typeof _tfp[key] !== "object" || Array.isArray(_tfp[key])) {
-			_tfp[key] = {};
-		}
-	}
-	[
-		"traits",
-		"demon","angel","fallenAngel",
-		"wolf","cat","cow","waterdragon","bird","fox","bunny","bear",
-		"okami","seraphim","kitsune"
-	].forEach(_ensureObj);
-	function _ensureStr(group, part, defVal) {
-		const obj = _tfp[group];
-		if (typeof obj[part] !== "string") obj[part] = defVal;
-	}
-	// Traits used by renderer logic
-	_ensureStr("traits", "flaunting", "disabled");
-	// Parts used by renderer modeloptions (default to disabled if missing)
-	_ensureStr("demon", "wings", "disabled");
-	_ensureStr("demon", "tail", "disabled");
-	_ensureStr("demon", "horns", "disabled");
-	_ensureStr("angel", "wings", "disabled");
-	_ensureStr("angel", "halo", "disabled");
-	_ensureStr("fallenAngel", "wings", "disabled");
-	_ensureStr("fallenAngel", "halo", "disabled");
-	_ensureStr("wolf", "tail", "disabled");
-	_ensureStr("wolf", "ears", "disabled");
-	_ensureStr("wolf", "pits", "disabled");
-	_ensureStr("wolf", "pubes", "disabled");
-	_ensureStr("wolf", "cheeks", "disabled");
-	_ensureStr("cat", "tail", "disabled");
-	_ensureStr("cat", "ears", "disabled");
-	_ensureStr("cow", "horns", "disabled");
-	_ensureStr("cow", "tail", "disabled");
-	_ensureStr("cow", "ears", "disabled");
-	_ensureStr("waterdragon", "horns", "disabled");
-	_ensureStr("waterdragon", "tail", "disabled");
-	_ensureStr("waterdragon", "ears", "disabled");
-	_ensureStr("bird", "wings", "disabled");
-	_ensureStr("bird", "tail", "disabled");
-	_ensureStr("bird", "eyes", "disabled");
-	_ensureStr("bird", "malar", "disabled");
-	_ensureStr("bird", "plumage", "disabled");
-	_ensureStr("bird", "pubes", "disabled");
-	_ensureStr("fox", "tail", "disabled");
-	_ensureStr("fox", "ears", "disabled");
-	_ensureStr("fox", "cheeks", "disabled");
-	_ensureStr("bunny", "tail", "disabled");
-	_ensureStr("bunny", "ears", "disabled");
-	_ensureStr("bear", "plumage", "disabled");
-	_ensureStr("bear", "pubes", "disabled");
-	_ensureStr("bear", "tail", "disabled");
-	_ensureStr("bear", "ears", "disabled");
-	_ensureStr("okami", "tail", "disabled");
-	_ensureStr("okami", "ears", "disabled");
-	_ensureStr("okami", "wings", "disabled");
-	_ensureStr("okami", "misc", "disabled");
-	_ensureStr("seraphim", "wings", "disabled");
-	_ensureStr("seraphim", "plumage", "disabled");
-	_ensureStr("seraphim", "eyes", "disabled");
-	_ensureStr("kitsune", "tail", "disabled");
-	_ensureStr("kitsune", "ears", "disabled");
-	_ensureStr("kitsune", "cheeks", "disabled");
-	_ensureStr("kitsune", "misc", "disabled");
 	T.modeloptions.skin_type = Skin.color.natural;
 	T.modeloptions.skin_tone = Skin.color.tan;
 
@@ -618,6 +549,40 @@ DefineMacro("modelprepare-player-body", function () {
 	// Demon-fox ears
 	if (isPartEnabled(T.modeloptions.fox_ears_type) && V.demon >= 6 && isChimeraEnabled("demonfox", "ears")) {
 		T.modeloptions.fox_ears_type = "default-demon";
+	}
+
+	const demonPresent = [T.modeloptions.demon_horns_type, T.modeloptions.demon_tail_type, T.modeloptions.demon_wings_type].some(isPartEnabled);
+	const angelPresent = [T.modeloptions.angel_halo_type, T.modeloptions.angel_wings_type].some(isPartEnabled);
+	const waterDragonPresent = [T.modeloptions.waterdragon_horns_type, T.modeloptions.waterdragon_ears_type, T.modeloptions.waterdragon_tail_type].some(isPartEnabled);
+	const purpleWaterDragon = T.modeloptions.waterdragon_tail_type === "purple";
+
+	// Bakunawa tail
+	if (isPartEnabled(T.modeloptions.waterdragon_tail_type) && isPartEnabled(T.modeloptions.demon_tail_type) && isChimeraEnabled("bakunawa", "tail")) {
+		T.modeloptions.demon_tail_type = "default-wd";
+		T.modeloptions.demon_tail_layer = "cover";
+		T.modeloptions.waterdragon_tail_type = "hidden";
+	}
+	// Bakunawa horns
+	if (isPartEnabled(T.modeloptions.waterdragon_horns_type) && isPartEnabled(T.modeloptions.demon_horns_type) && isChimeraEnabled("bakunawa", "horns")) {
+		T.modeloptions.waterdragon_horns_type = "default-demon";
+		T.modeloptions.demon_horns_type = "hidden";
+	}
+	// Bakunawa ears
+	if (isPartEnabled(T.modeloptions.waterdragon_ears_type) && demonPresent && isChimeraEnabled("bakunawa", "ears")) {
+		T.modeloptions.waterdragon_ears_type = "default-demon";
+	}
+
+	// Ryuujin tail
+	if (isPartEnabled(T.modeloptions.waterdragon_tail_type) && angelPresent && isChimeraEnabled("ryuujin", "tail")) {
+		T.modeloptions.waterdragon_tail_type = purpleWaterDragon ? "purple-angel" : "default-angel";
+	}
+	// Ryuujin horns
+	if (isPartEnabled(T.modeloptions.waterdragon_horns_type) && angelPresent && isChimeraEnabled("ryuujin", "horns")) {
+		T.modeloptions.waterdragon_horns_type = "default-angel";
+	}
+	// Ryuujin halo
+	if (isPartEnabled(T.modeloptions.angel_halo_type) && waterDragonPresent && isChimeraEnabled("ryuujin", "halo")) {
+		T.modeloptions.angel_halo_type = purpleWaterDragon ? "wdPurple" : "wdDefault";
 	}
 
 	/*

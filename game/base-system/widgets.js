@@ -648,6 +648,22 @@ function calculateallure() {
 	if (partsDisabled("okami", ["ears", "tail", "wings"]) < 3) attractiveness += 1000 - 225 * partsDisabled("okami", ["ears", "tail", "wings"]);
 	if (partsDisabled("seraphim", ["wings", "plumage"]) < 2) attractiveness += 1000 - 400 * partsDisabled("seraphim", ["wings", "plumage"]);
 	if (partsDisabled("kitsune", ["ears", "tail", "cheeks"]) < 3) attractiveness += 1000 - 225 * partsDisabled("kitsune", ["ears", "tail", "cheeks"]);
+	const partEnabled = (tf, part) => V.transformationParts[tf][part] !== "disabled";
+	const demonPresent = ["horns", "tail", "wings"].some(part => partEnabled("demon", part));
+	const angelPresent = ["halo", "wings"].some(part => partEnabled("angel", part));
+	const waterDragonPresent = ["horns", "ears", "tail"].some(part => partEnabled("waterdragon", part));
+	const bakunawaParts = [
+		V.chimera?.bakunawa?.tail && partEnabled("waterdragon", "tail") && partEnabled("demon", "tail"),
+		V.chimera?.bakunawa?.horns && partEnabled("waterdragon", "horns") && partEnabled("demon", "horns"),
+		V.chimera?.bakunawa?.ears && partEnabled("waterdragon", "ears") && demonPresent,
+	].filter(Boolean).length;
+	const ryuujinParts = [
+		V.chimera?.ryuujin?.tail && partEnabled("waterdragon", "tail") && angelPresent,
+		V.chimera?.ryuujin?.horns && partEnabled("waterdragon", "horns") && angelPresent,
+		V.chimera?.ryuujin?.halo && partEnabled("angel", "halo") && waterDragonPresent,
+	].filter(Boolean).length;
+	if (bakunawaParts) attractiveness += 325 + 225 * bakunawaParts;
+	if (ryuujinParts) attractiveness += 325 + 225 * ryuujinParts;
 	/* makeup */
 	for (const makeup of ["lipstick", "mascara", "eyeshadow", "blusher"]) {
 		if (V.makeup[makeup]) attractiveness += 100;
