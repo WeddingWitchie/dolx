@@ -2195,7 +2195,7 @@ function dailyTransformationEffects() {
 		else wikifier("transform", "fallen", -1);
 	}
 
-	if (V.purity >= 1 && (V.demon >= 6 || (V.demon >= 1 && V.demonFeat))) {
+	if (V.purity >= 1 && (effectiveTransformationLevel("demon") >= 6 || (V.demon >= 1 && V.demonFeat))) {
 		V.demonmessage = 1;
 		V.effectsmessage = 1;
 	}
@@ -2209,8 +2209,8 @@ function dailyTransformationEffects() {
 	if (V.purity >= 1000) wikifier("transform", "angel", 1);
 	else wikifier("transform", "angel", -1);
 
-	if (V.angel >= 4) {
-		V.angelBanishMax = Math.floor(V.angelbuild / 10);
+	if (effectiveTransformationLevel("angel") >= 4) {
+		V.angelBanishMax = Math.floor(effectiveTransformationBuild("angel") / 10);
 		V.angelBanish = V.angelBanishMax;
 	} else {
 		V.angelBanish = 0;

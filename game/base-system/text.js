@@ -103,12 +103,12 @@ statDisplay.create("gpain", () => statDisplay.statChange("Pain", 1, "red"));
 statDisplay.create("ggpain", () => statDisplay.statChange("Pain", 2, "red"));
 statDisplay.create("gggpain", () => statDisplay.statChange("Pain", 3, "red"));
 
-statDisplay.create("lpurity", () => statDisplay.statChange("Purity", -1, V.demon >= 6 ? "green demon-tf-purity" : "red"));
-statDisplay.create("llpurity", () => statDisplay.statChange("Purity", -2, V.demon >= 6 ? "green demon-tf-purity" : "red"));
-statDisplay.create("lllpurity", () => statDisplay.statChange("Purity", -3, V.demon >= 6 ? "green demon-tf-purity" : "red"));
-statDisplay.create("gpurity", () => statDisplay.statChange("Purity", 1, V.demon >= 6 ? "red demon-tf-purity" : "green"));
-statDisplay.create("ggpurity", () => statDisplay.statChange("Purity", 2, V.demon >= 6 ? "red demon-tf-purity" : "green"));
-statDisplay.create("gggpurity", () => statDisplay.statChange("Purity", 3, V.demon >= 6 ? "red demon-tf-purity" : "green"));
+statDisplay.create("lpurity", () => statDisplay.statChange("Purity", -1, Transformations.effectiveLevel("demon") >= 6 ? "green demon-tf-purity" : "red"));
+statDisplay.create("llpurity", () => statDisplay.statChange("Purity", -2, Transformations.effectiveLevel("demon") >= 6 ? "green demon-tf-purity" : "red"));
+statDisplay.create("lllpurity", () => statDisplay.statChange("Purity", -3, Transformations.effectiveLevel("demon") >= 6 ? "green demon-tf-purity" : "red"));
+statDisplay.create("gpurity", () => statDisplay.statChange("Purity", 1, Transformations.effectiveLevel("demon") >= 6 ? "red demon-tf-purity" : "green"));
+statDisplay.create("ggpurity", () => statDisplay.statChange("Purity", 2, Transformations.effectiveLevel("demon") >= 6 ? "red demon-tf-purity" : "green"));
+statDisplay.create("gggpurity", () => statDisplay.statChange("Purity", 3, Transformations.effectiveLevel("demon") >= 6 ? "red demon-tf-purity" : "green"));
 
 statDisplay.create("ldelinquency", () => statDisplay.statChange("Delinquency", -1, "green"));
 statDisplay.create("lldelinquency", () => statDisplay.statChange("Delinquency", -2, "green"));

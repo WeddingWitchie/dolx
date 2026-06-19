@@ -262,7 +262,7 @@
 	<<if $transformationParts.traits is undefined>><<set $transformationParts.traits to {}>><</if>>
 
 	<<set _partActive to value => value isnot undefined and value isnot "hidden" and value isnot "disabled">>
-	<<set _predatorActive to ($wolfgirl gte 6 or _partActive($transformationParts.wolf?.tail) or $cat gte 6 or _partActive($transformationParts.cat?.tail) or $fox gte 6 or _partActive($transformationParts.fox?.tail) or $harpy gte 6 or _partActive($transformationParts.bird?.wings) or $bear gte 6 or _partActive($transformationParts.bear?.tail) or $waterdragon gte 7 or _partActive($transformationParts.waterdragon?.tail))>>
+	<<set _predatorActive to (effectiveTransformationLevel("wolf") gte 6 or $cat gte 6 or _partActive($transformationParts.cat?.tail) or effectiveTransformationLevel("fox") gte 6 or effectiveTransformationLevel("bird") gte 6 or $bear gte 6 or _partActive($transformationParts.bear?.tail) or effectiveTransformationLevel("waterdragon") gte 7)>>
 	<<set _preyActive to ($cow gte 6 or _partActive($transformationParts.cow?.tail) or $bunny gte 6 or _partActive($transformationParts.bunny?.tail))>>
 
 	<<set $transformationParts.traits.predatoryAnimal to (_predatorActive ? "default" : "disabled")>>
@@ -270,12 +270,8 @@
 <</widget>>
 
 <<widget "transformationStateUpdate">>
-	<<set _partActive to value => value isnot undefined and value isnot "hidden" and value isnot "disabled">>
-	<<set _seraphimActive to _partActive($transformationParts?.seraphim?.wings)>>
-	<<set _kitsuneActive to _partActive($transformationParts?.kitsune?.tail)>>
-	<<set _okamiActive to _partActive($transformationParts?.okami?.misc)>>
 	<<if !($worn.neck.name is "familiar collar" and $worn.neck.cursed is 1)>>
-		<<if $wolfbuild gte 1 and $worn.neck.name isnot "spiked collar" and $worn.neck.name isnot "spiked collar with leash" and playerNormalPregnancyType() isnot "wolf" and !_okamiActive>>
+		<<if $wolfbuild gte 1 and $worn.neck.name isnot "spiked collar" and $worn.neck.name isnot "spiked collar with leash" and playerNormalPregnancyType() isnot "wolf">>
 			<<transform wolf -1>>
 		<</if>>
 
@@ -295,39 +291,17 @@
 			<<transform bear -1>>
 		<</if>>
 
-		<<if $birdbuild gte 1 and $worn.head.name isnot "feathered hair clip" and $worn.neck.name isnot "feather necklace" and playerNormalPregnancyType() isnot "hawk" and !_seraphimActive>>
+		<<if $birdbuild gte 1 and $worn.head.name isnot "feathered hair clip" and $worn.neck.name isnot "feather necklace" and playerNormalPregnancyType() isnot "hawk">>
 			<<transform bird -1>>
 		<</if>>
 
-		<<if $foxbuild gte 1 and $worn.head.name isnot "spirit mask" and $worn.neck.name isnot "jasper pendant" and playerNormalPregnancyType() isnot "fox" and !_kitsuneActive>>
+		<<if $foxbuild gte 1 and $worn.head.name isnot "spirit mask" and $worn.neck.name isnot "jasper pendant" and playerNormalPregnancyType() isnot "fox">>
 			<<transform fox -1>>
 		<</if>>
 
 		<<if $bunnybuild gte 1 and $worn.head.name isnot "carrot pin" and playerNormalPregnancyType() isnot "bunny">>
 			<<transform bunny -1>>
 		<</if>>
-	<</if>>
-
-	<<if _seraphimActive>>
-		<<set $harpy to Math.max($harpy, 6)>>
-		<<set $birdbuild to Math.max($birdbuild, 100)>>
-		<<set $angel to Math.max($angel, 6)>>
-		<<set $angelbuild to Math.max($angelbuild, 50)>>
-		<<set $specialTransform to 1>>
-	<</if>>
-	<<if _kitsuneActive>>
-		<<set $fox to Math.max($fox, 6)>>
-		<<set $foxbuild to Math.max($foxbuild, 100)>>
-		<<set $angel to Math.max($angel, 6)>>
-		<<set $angelbuild to Math.max($angelbuild, 50)>>
-		<<set $specialTransform to 1>>
-	<</if>>
-	<<if _okamiActive>>
-		<<set $wolfgirl to Math.max($wolfgirl, 6)>>
-		<<set $wolfbuild to Math.max($wolfbuild, 100)>>
-		<<set $angel to Math.max($angel, 6)>>
-		<<set $angelbuild to Math.max($angelbuild, 50)>>
-		<<set $specialTransform to 1>>
 	<</if>>
 
 	<<transformationAlteration>>

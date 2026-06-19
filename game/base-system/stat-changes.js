@@ -363,7 +363,7 @@ const statChange = (() => {
 		if (isNaN(amount)) paramError("wolfDefiant", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 		if (amount) {
-			if (V.wolfgirl >= 6) {
+			if (Transformations.effectiveLevel("wolf") >= 6) {
 				stress(-6);
 				if (V.submissive > amount) {
 					trauma(30);

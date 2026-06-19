@@ -1430,7 +1430,7 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 		case "skulduggery":
 			if (V.worn.hands.type.includes("sticky_fingers")) result = Math.floor(result * 1.05);
 			if (V.transformationParts.traits.sharpEyes !== "disabled") result = Math.floor(result * 1.05);
-			if (V.fox >= 6) result = Math.floor(result * 1.1);
+			if (Transformations.effectiveLevel("fox") >= 6) result = Math.floor(result * 1.1);
 			if (V.hallucinogen >= 1 && V.substanceRebalance === 1) {
 				result = Math.round(result * Math.max(1 - 0.1 * Math.round(V.hallucinogen / 250), 0.6));
 			}
@@ -3647,9 +3647,9 @@ function hasSharpSenses(sense = "any") {
 		if (currentSkillValue("skulduggery") >= 600) return "experienced ears";
 	}
 	if (["instincts"].includes(sense)) {
-		if (V.wolfgirl >= 6 || (V.transformationParts.wolf.tail !== "disabled" && V.transformationParts.wolf.tail !== "hidden")) return "wolf instincts";
+		if (Transformations.effectiveLevel("wolf") >= 6) return "wolf instincts";
 		if (V.cat >= 6 || (V.transformationParts.cat.tail !== "disabled" && V.transformationParts.cat.tail !== "hidden")) return "cat instincts";
-		if (V.fox >= 6 || (V.transformationParts.fox.tail !== "disabled" && V.transformationParts.fox.tail !== "hidden")) return "fox instincts";
+		if (Transformations.effectiveLevel("fox") >= 6) return "fox instincts";
 		if (V.dryad >= 6 || currentSkillValue("tending") >= 900) return "nature-trained instincts";
 	}
 	return false;
@@ -3660,7 +3660,7 @@ function displayDefiantOption(amount) {
 	if (isNaN(amount)) paramError("displayDefiantOption", "amount", amount, "Expected a number.");
 	amount = Number(amount);
 	if (amount) {
-		if (V.submissive <= amount || V.wolfgirl >= 6) {
+		if (V.submissive <= amount || Transformations.effectiveLevel("wolf") >= 6) {
 			return true;
 		}
 		return false;
