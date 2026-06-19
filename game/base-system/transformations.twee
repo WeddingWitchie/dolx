@@ -79,7 +79,7 @@
 			<<if $waterdragon gte 4>>
 				<<set $transformationParts.waterdragon.ears to "default">>
 			<</if>>
-			<<if ($waterdragon gte 6 or ($transformationParts.waterdragon.tail isnot "hidden" and $transformationParts.waterdragon.tail isnot "disabled"))>>
+			<<if ($waterdragon gte 7 or ($transformationParts.waterdragon.tail isnot "hidden" and $transformationParts.waterdragon.tail isnot "disabled"))>>
 				<<set $transformationParts.waterdragon.tail to "default">>
 			<</if>>
 			<<if $bunny gte 4>>
@@ -252,7 +252,7 @@
 	<<if $transformationParts.traits is undefined>><<set $transformationParts.traits to {}>><</if>>
 
 	<<set _partActive to value => value isnot undefined and value isnot "hidden" and value isnot "disabled">>
-	<<set _predatorActive to ($wolfgirl gte 6 or _partActive($transformationParts.wolf?.tail) or $cat gte 6 or _partActive($transformationParts.cat?.tail) or $fox gte 6 or _partActive($transformationParts.fox?.tail) or $harpy gte 6 or _partActive($transformationParts.bird?.wings) or $bear gte 6 or _partActive($transformationParts.bear?.tail) or $waterdragon gte 6 or _partActive($transformationParts.waterdragon?.tail))>>
+	<<set _predatorActive to ($wolfgirl gte 6 or _partActive($transformationParts.wolf?.tail) or $cat gte 6 or _partActive($transformationParts.cat?.tail) or $fox gte 6 or _partActive($transformationParts.fox?.tail) or $harpy gte 6 or _partActive($transformationParts.bird?.wings) or $bear gte 6 or _partActive($transformationParts.bear?.tail) or $waterdragon gte 7 or _partActive($transformationParts.waterdragon?.tail))>>
 	<<set _preyActive to ($cow gte 6 or _partActive($transformationParts.cow?.tail) or $bunny gte 6 or _partActive($transformationParts.bunny?.tail))>>
 
 	<<set $transformationParts.traits.predatoryAnimal to (_predatorActive ? "default" : "disabled")>>
@@ -1160,9 +1160,6 @@
 					<<run $timeMessages.pushUnique("waterdragonUp6")>>
 					<<set $transformationParts.waterdragon.tail to "default">>
 					<<set $transformationParts.traits.leviathan to "default">>
-					<<set $transformationParts.traits.aquatic to "default">>
-					<<set $TFWaterDragonBuffs to 1>>
-					<<set $waterdragontf to 1>>
 				<<elseif $waterdragonbuild lt 25>>
 					<<set $waterdragon to 4>>
 					<<run $timeMessages.pushUnique("waterdragonDown4")>>
@@ -1171,6 +1168,9 @@
 				<<if $waterdragonbuild gte 50>>
 					<<set $waterdragon to 7>>
 					<<run $timeMessages.pushUnique("waterdragonUp7")>>
+					<<set $transformationParts.traits.aquatic to "default">>
+					<<set $TFWaterDragonBuffs to 1>>
+					<<set $waterdragontf to 1>>
 				<<elseif $waterdragonbuild lt 30>>
 					<<set $waterdragon to 5>>
 					<<set $TFWaterDragonBuffs to 0>>
@@ -1183,10 +1183,11 @@
 					<<set $waterdragon to 6>>
 					<<run $timeMessages.pushUnique("waterdragonDown6")>>
 					<<set $transformationParts.traits.aquatic to "disabled">>
+					<<set $TFWaterDragonBuffs to 0>>
 					<<set $waterdragontf to 0>>
 				<</if>>
 			<<case 99>>
-				<<if ($waterdragon gte 6 or ($transformationParts.waterdragon.tail isnot "hidden" and $transformationParts.waterdragon.tail isnot "disabled"))>>
+				<<if ($waterdragon gte 7 or ($transformationParts.waterdragon.tail isnot "hidden" and $transformationParts.waterdragon.tail isnot "disabled"))>>
 					<<set $physicalTransform to 0>>
 				<</if>>
 				<<set $waterdragon to 0>>
@@ -1207,11 +1208,12 @@
 		<<set $physicalTransform to 1>>
 		<<set $waterdragontf to 1>>
 		<<set $TFWaterDragonBuffs to 1>>
-		<<set $waterdragon to 6>>
+		<<set $waterdragon to 7>>
 		<<set $waterdragonbuild to 100>>
 		<<set $transformationParts.waterdragon.horns to "default">>
 		<<set $transformationParts.waterdragon.ears to "default">>
 		<<set $transformationParts.waterdragon.tail to "default">>
+		<<set $transformationParts.traits.fangs to "default">>
 		<<set $transformationParts.traits.sharpEyes to "default">>
 		<<set $transformationParts.traits.dragonEyes to "default">>
 		<<set $transformationParts.traits.aquatic to "default">>
@@ -1725,4 +1727,30 @@
 		<<unset $tfPartsHidden>>
 	<</if>>
 	<<recomputePredatorPrey>>
+<</widget>>
+
+<<widget "syncWaterDragonSkin">>
+	<<set _waterDragonSkinActive to ($waterdragon gte 7 or $waterdragontf is 1)>>
+
+	<<if $waterdragonSkinLock is 1>>
+		<<if $player.skin.color isnot "waterdragon">>
+			<<set $player.skin_temp.color to $player.skin.color>>
+			<<set $player.skin.color to "waterdragon">>
+		<</if>>
+	<<elseif $waterdragonSkinLock is -1>>
+		<<if $player.skin.color is "waterdragon">>
+			<<set $player.skin.color to $player.skin_temp.color>>
+		<</if>>
+	<<else>>
+		<<if _waterDragonSkinActive>>
+			<<if $player.skin.color isnot "waterdragon">>
+				<<set $player.skin_temp.color to $player.skin.color>>
+				<<set $player.skin.color to "waterdragon">>
+			<</if>>
+		<<else>>
+			<<if $player.skin.color is "waterdragon">>
+				<<set $player.skin.color to $player.skin_temp.color>>
+			<</if>>
+		<</if>>
+	<</if>>
 <</widget>>
